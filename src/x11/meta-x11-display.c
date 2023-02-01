@@ -1338,6 +1338,13 @@ meta_x11_display_new (MetaDisplay  *display,
   x11_display->server_focus_window = None;
   x11_display->server_focus_serial = 0;
 
+  i = 0;
+  while (i < N_IGNORED_CROSSING_SERIALS)
+    {
+      x11_display->ignored_crossing_serials[i] = 0;
+      ++i;
+    }
+
   x11_display->prop_hooks = NULL;
   meta_x11_display_init_window_prop_hooks (x11_display);
   x11_display->group_prop_hooks = NULL;
@@ -2386,24 +2393,23 @@ static void
 meta_x11_display_add_ignored_crossing_serial (MetaX11Display *x11_display,
                                               unsigned long   serial)
 {
-  MetaDisplay *display = x11_display->display;
   int i;
 
   /* don't add the same serial more than once */
   if (serial ==
-      display->ignored_crossing_serials[N_IGNORED_CROSSING_SERIALS - 1])
+      x11_display->ignored_crossing_serials[N_IGNORED_CROSSING_SERIALS - 1])
     return;
 
   /* shift serials to the left */
   i = 0;
   while (i < (N_IGNORED_CROSSING_SERIALS - 1))
     {
-      display->ignored_crossing_serials[i] =
-        display->ignored_crossing_serials[i + 1];
+      x11_display->ignored_crossing_serials[i] =
+        x11_display->ignored_crossing_serials[i + 1];
       ++i;
     }
   /* put new one on the end */
-  display->ignored_crossing_serials[i] = serial;
+  x11_display->ignored_crossing_serials[i] = serial;
 }
 
 void

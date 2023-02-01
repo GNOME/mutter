@@ -857,7 +857,6 @@ meta_display_new (MetaContext  *context,
   MetaBackend *backend = meta_context_get_backend (context);
   MetaDisplay *display;
   MetaDisplayPrivate *priv;
-  int i;
   guint32 timestamp;
   Window old_active_xwindow = None;
   MetaMonitorManager *monitor_manager;
@@ -885,13 +884,6 @@ meta_display_new (MetaContext  *context,
   display->mouse_mode = TRUE; /* Only relevant for mouse or sloppy focus */
   display->allow_terminal_deactivation = TRUE; /* Only relevant for when a
                                                   terminal has the focus */
-
-  i = 0;
-  while (i < N_IGNORED_CROSSING_SERIALS)
-    {
-      display->ignored_crossing_serials[i] = 0;
-      ++i;
-    }
 
   display->current_time = META_CURRENT_TIME;
 

@@ -927,7 +927,7 @@ crossing_serial_is_ignored (MetaX11Display *x11_display,
   i = 0;
   while (i < N_IGNORED_CROSSING_SERIALS)
     {
-      if (x11_display->display->ignored_crossing_serials[i] == serial)
+      if (x11_display->ignored_crossing_serials[i] == serial)
         return TRUE;
       ++i;
     }
@@ -942,7 +942,7 @@ reset_ignored_crossing_serials (MetaX11Display *x11_display)
   i = 0;
   while (i < N_IGNORED_CROSSING_SERIALS)
     {
-      x11_display->display->ignored_crossing_serials[i] = 0;
+      x11_display->ignored_crossing_serials[i] = 0;
       ++i;
     }
 }

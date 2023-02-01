@@ -39,6 +39,15 @@
 #include "meta-x11-stack-private.h"
 #include "x11/meta-sync-counter.h"
 
+/* This is basically a bogus number, just has to be large enough
+ * to handle the expected case of the alt+tab operation, where
+ * we want to ignore serials from UnmapNotify on the tab popup,
+ * and the LeaveNotify/EnterNotify from the pointer ungrab. It
+ * also has to be big enough to hold ignored serials from the point
+ * where we reshape the stage to the point where we get events back.
+ */
+#define N_IGNORED_CROSSING_SERIALS  10
+
 typedef struct _MetaGroupPropHooks  MetaGroupPropHooks;
 typedef struct _MetaWindowPropHooks MetaWindowPropHooks;
 
@@ -154,6 +163,12 @@ struct _MetaX11Display
   guint keys_grabbed : 1;
 
   guint closing : 1;
+
+  /* serials of leave/unmap events that may
+   * correspond to an enter event we should
+   * ignore
+   */
+  unsigned long ignored_crossing_serials[N_IGNORED_CROSSING_SERIALS];
 
   /* we use property updates as sentinels for certain window focus events
    * to avoid some race conditions on EnterNotify events
