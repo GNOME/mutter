@@ -244,13 +244,63 @@ test_client_line_read (GObject      *source,
   g_main_loop_quit (client->loop);
 }
 
+static gboolean
+meta_test_client_do_line (MetaTestClient  *client,
+                          const char      *line_out,
+                          GError         **error)
+{
+  g_autoptr (GError) local_error = NULL;
+  g_autofree char *line = NULL;
+
+  if (!g_data_output_stream_put_string (client->in, line_out,
+                                        client->cancellable, error))
+    return FALSE;
+
+  g_data_input_stream_read_line_async (client->out,
+                                       G_PRIORITY_DEFAULT,
+                                       client->cancellable,
+                                       test_client_line_read,
+                                       client);
+
+  client->error = &local_error;
+  g_main_loop_run (client->loop);
+  line = client->line;
+  client->line = NULL;
+  client->error = NULL;
+
+  if (local_error)
+    {
+      g_propagate_error (error, g_steal_pointer (&local_error));
+      return FALSE;
+    }
+
+  if (!line)
+    {
+      g_set_error (error,
+                   META_TEST_CLIENT_ERROR,
+                   META_TEST_CLIENT_ERROR_RUNTIME_ERROR,
+                   "test client exited");
+      return FALSE;
+    }
+
+  if (strcmp (line, "OK") != 0)
+    {
+      g_set_error (error,
+                   META_TEST_CLIENT_ERROR,
+                   META_TEST_CLIENT_ERROR_RUNTIME_ERROR,
+                   "%s", line);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
 gboolean
 meta_test_client_dov (MetaTestClient  *client,
                       GError         **error,
                       va_list          vap)
 {
   GString *command = g_string_new (NULL);
-  char *line = NULL;
   GError *local_error = NULL;
 
   while (TRUE)
@@ -271,46 +321,11 @@ meta_test_client_dov (MetaTestClient  *client,
 
   g_string_append_c (command, '\n');
 
-  if (!g_data_output_stream_put_string (client->in, command->str,
-                                        client->cancellable, &local_error))
+  if (!meta_test_client_do_line (client, command->str, &local_error))
     goto out;
-
-  g_data_input_stream_read_line_async (client->out,
-                                       G_PRIORITY_DEFAULT,
-                                       client->cancellable,
-                                       test_client_line_read,
-                                       client);
-
-  client->error = &local_error;
-  g_main_loop_run (client->loop);
-  line = client->line;
-  client->line = NULL;
-  client->error = NULL;
-
-  if (!line)
-    {
-      if (!local_error)
-        {
-          g_set_error (&local_error,
-                       META_TEST_CLIENT_ERROR,
-                       META_TEST_CLIENT_ERROR_RUNTIME_ERROR,
-                       "test client exited");
-        }
-      goto out;
-    }
-
-  if (strcmp (line, "OK") != 0)
-    {
-      g_set_error (&local_error,
-                   META_TEST_CLIENT_ERROR,
-                   META_TEST_CLIENT_ERROR_RUNTIME_ERROR,
-                   "%s", line);
-      goto out;
-    }
 
  out:
   g_string_free (command, TRUE);
-  g_free (line);
 
   if (local_error)
     {
