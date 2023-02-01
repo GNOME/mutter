@@ -934,6 +934,19 @@ crossing_serial_is_ignored (MetaX11Display *x11_display,
   return FALSE;
 }
 
+static void
+reset_ignored_crossing_serials (MetaX11Display *x11_display)
+{
+  int i;
+
+  i = 0;
+  while (i < N_IGNORED_CROSSING_SERIALS)
+    {
+      x11_display->display->ignored_crossing_serials[i] = 0;
+      ++i;
+    }
+}
+
 static gboolean
 handle_input_xevent (MetaX11Display *x11_display,
                      XIEvent        *input_event,
@@ -986,6 +999,12 @@ handle_input_xevent (MetaX11Display *x11_display,
                                     enter_event->time,
                                     enter_event->root_x,
                                     enter_event->root_y);
+
+          if (window->type != META_WINDOW_DOCK)
+            {
+              /* stop ignoring stuff */
+              reset_ignored_crossing_serials (x11_display);
+            }
         }
       break;
     case XI_Leave:

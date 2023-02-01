@@ -7395,19 +7395,6 @@ meta_window_set_opacity (MetaWindow *window,
   meta_compositor_window_opacity_changed (window->display->compositor, window);
 }
 
-static void
-reset_ignored_crossing_serials (MetaDisplay *display)
-{
-  int i;
-
-  i = 0;
-  while (i < N_IGNORED_CROSSING_SERIALS)
-    {
-      display->ignored_crossing_serials[i] = 0;
-      ++i;
-    }
-}
-
 typedef struct
 {
   MetaWindow *window;
@@ -7593,9 +7580,6 @@ meta_window_handle_enter (MetaWindow  *window,
             queue_focus_callback (display, window, root_x, root_y);
           else
             mouse_mode_focus (window, timestamp);
-
-          /* stop ignoring stuff */
-          reset_ignored_crossing_serials (display);
         }
       break;
     case G_DESKTOP_FOCUS_MODE_CLICK:
