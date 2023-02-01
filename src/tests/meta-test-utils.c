@@ -353,6 +353,29 @@ meta_test_client_do (MetaTestClient  *client,
   return retval;
 }
 
+void
+meta_test_client_run (MetaTestClient *client,
+                      const char     *script)
+{
+  g_auto (GStrv) lines = NULL;
+  int i;
+
+  lines = g_strsplit (script, "\n", -1);
+  for (i = 0; lines[i]; i++)
+    {
+      g_autoptr (GError) error = NULL;
+
+      if (strlen (lines[i]) > 1)
+        {
+          g_autofree char *line = NULL;
+
+          line = g_strdup_printf ("%s\n", lines[i]);
+          if (!meta_test_client_do_line (client, line, &error))
+            g_error ("Failed to do line '%s': %s", lines[i], error->message);
+        }
+    }
+}
+
 gboolean
 meta_test_client_wait (MetaTestClient  *client,
                        GError         **error)
