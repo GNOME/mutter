@@ -573,6 +573,8 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
     next_presentation_time_us += refresh_interval_us;
 
   next_update_time_us = next_presentation_time_us - max_render_time_allowed_us;
+  if (next_update_time_us < now_us)
+    next_update_time_us = now_us;
 
   *out_next_update_time_us = next_update_time_us;
   *out_next_presentation_time_us = next_presentation_time_us;
