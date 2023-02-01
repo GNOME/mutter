@@ -2329,3 +2329,9 @@ meta_wayland_surface_get_resource (MetaWaylandSurface *surface)
 {
   return surface->resource;
 }
+
+MetaWaylandCompositor *
+meta_wayland_surface_get_compositor (MetaWaylandSurface *surface)
+{
+  return surface->compositor;
+}

@@ -396,6 +396,8 @@ int meta_wayland_surface_get_geometry_scale (MetaWaylandSurface *surface);
 META_EXPORT_TEST
 struct wl_resource * meta_wayland_surface_get_resource (MetaWaylandSurface *surface);
 
+MetaWaylandCompositor * meta_wayland_surface_get_compositor (MetaWaylandSurface *surface);
+
 static inline MetaWaylandSurfaceState *
 meta_wayland_surface_state_new (void)
 {
