@@ -364,18 +364,7 @@ meta_gpu_kms_read_current (MetaGpu  *gpu,
 gboolean
 meta_gpu_kms_can_have_outputs (MetaGpuKms *gpu_kms)
 {
-  GList *l;
-  int n_connected_connectors = 0;
-
-  for (l = meta_kms_device_get_connectors (gpu_kms->kms_device); l; l = l->next)
-    {
-      MetaKmsConnector *kms_connector = l->data;
-
-      if (meta_kms_connector_get_current_state (kms_connector))
-        n_connected_connectors++;
-    }
-
-  return n_connected_connectors > 0;
+  return !!meta_kms_device_get_connectors (gpu_kms->kms_device);
 }
 
 MetaGpuKms *
