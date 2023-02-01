@@ -24,6 +24,7 @@
 #include <gudev/gudev.h>
 
 #include "backends/native/meta-backend-native-types.h"
+#include "core/util-private.h"
 
 #define META_TYPE_UDEV (meta_udev_get_type ())
 G_DECLARE_FINAL_TYPE (MetaUdev, meta_udev, META, UDEV, GObject)
@@ -45,6 +46,7 @@ gboolean meta_is_udev_device_preferred_primary (GUdevDevice *device);
 gboolean meta_udev_is_drm_device (MetaUdev    *udev,
                                   GUdevDevice *device);
 
+META_EXPORT_TEST
 GList * meta_udev_list_drm_devices (MetaUdev  *udev,
                                     GError   **error);
 

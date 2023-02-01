@@ -19,11 +19,13 @@
 
 #include "config.h"
 
+#include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor-manager-private.h"
-#include "backends/meta-crtc.h"
-#include "backends/meta-output.h"
+#include "backends/native/meta-backend-native.h"
+#include "backends/native/meta-udev.h"
 #include "core/display-private.h"
 #include "meta-test/meta-context-test.h"
+#include "tests/drm-mock/drm-mock.h"
 #include "tests/meta-monitor-manager-test.h"
 
 static MetaContext *test_context;
@@ -41,9 +43,7 @@ meta_test_headless_start (void)
   g_assert_cmpint ((int) g_list_length (gpus), ==, 1);
 
   gpu = gpus->data;
-  g_assert_null (meta_gpu_get_modes (gpu));
   g_assert_null (meta_gpu_get_outputs (gpu));
-  g_assert_null (meta_gpu_get_crtcs (gpu));
   g_assert_null (monitor_manager->monitors);
   g_assert_null (monitor_manager->logical_monitors);
 
@@ -72,82 +72,34 @@ static void
 meta_test_headless_monitor_connect (void)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaUdev *udev = meta_backend_native_get_udev (META_BACKEND_NATIVE (backend));
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
-  MetaMonitorManagerTest *monitor_manager_test =
-    META_MONITOR_MANAGER_TEST (monitor_manager);
-  MetaMonitorTestSetup *test_setup;
-  MetaCrtcMode **modes;
-  g_autoptr (MetaCrtcModeInfo) crtc_mode_info = NULL;
-  MetaCrtcMode *crtc_mode;
-  MetaGpu *gpu;
-  MetaCrtc *crtc;
-  MetaCrtc **possible_crtcs;
-  g_autoptr (MetaOutputInfo) output_info = NULL;
-  MetaOutput *output;
+  g_autolist (GObject) udev_devices = NULL;
   GList *logical_monitors;
+  MetaLogicalMonitor *logical_monitor;
+  MetaRectangle monitor_layout;
   ClutterActor *stage;
+  g_autoptr (GError) error = NULL;
 
-  test_setup = g_new0 (MetaMonitorTestSetup, 1);
+  drm_mock_unset_resource_filter (DRM_MOCK_CALL_FILTER_GET_CONNECTOR);
 
-  crtc_mode_info = meta_crtc_mode_info_new ();
-  crtc_mode_info->width = 1024;
-  crtc_mode_info->height = 768;
-  crtc_mode_info->refresh_rate = 60.0;
-
-  crtc_mode = g_object_new (META_TYPE_CRTC_MODE,
-                            "id", (uint64_t) 1,
-                            "info", crtc_mode_info,
-                            NULL);
-  test_setup->modes = g_list_append (NULL, crtc_mode);
-
-  gpu = META_GPU (meta_backend_get_gpus (backend)->data);
-  crtc = g_object_new (META_TYPE_CRTC_TEST,
-                       "id", (uint64_t) 1,
-                       "backend", backend,
-                       "gpu", gpu,
-                       NULL);
-  test_setup->crtcs = g_list_append (NULL, crtc);
-
-  modes = g_new0 (MetaCrtcMode *, 1);
-  modes[0] = crtc_mode;
-
-  possible_crtcs = g_new0 (MetaCrtc *, 1);
-  possible_crtcs[0] = g_list_first (test_setup->crtcs)->data;
-
-  output_info = meta_output_info_new ();
-
-  output_info->name = g_strdup ("DP-1");
-  output_info->vendor = g_strdup ("MetaProduct's Inc.");
-  output_info->product = g_strdup ("MetaMonitor");
-  output_info->serial = g_strdup ("0x987654");
-  output_info->preferred_mode = modes[0];
-  output_info->n_modes = 1;
-  output_info->modes = modes;
-  output_info->n_possible_crtcs = 1;
-  output_info->possible_crtcs = possible_crtcs;
-  output_info->connector_type = META_CONNECTOR_TYPE_DisplayPort;
-
-  output = g_object_new (META_TYPE_OUTPUT_TEST,
-                         "id", (uint64_t) 1,
-                         "gpu", gpu,
-                         "info", output_info,
-                         NULL);
-
-  test_setup->outputs = g_list_append (NULL, output);
-
-  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+  udev_devices = meta_udev_list_drm_devices (udev, &error);
+  g_assert_cmpuint (g_list_length (udev_devices), ==, 1);
+  g_signal_emit_by_name (udev, "hotplug", g_list_first (udev_devices)->data);
 
   logical_monitors =
     meta_monitor_manager_get_logical_monitors (monitor_manager);
   g_assert_cmpint (g_list_length (logical_monitors), ==, 1);
+  logical_monitor = g_list_first (logical_monitors)->data;
+  monitor_layout = meta_logical_monitor_get_layout (logical_monitor);
 
-  g_assert_cmpint (monitor_manager->screen_width, ==, 1024);
-  g_assert_cmpint (monitor_manager->screen_height, ==, 768);
+  g_assert_cmpint (monitor_manager->screen_width, ==, monitor_layout.width);
+  g_assert_cmpint (monitor_manager->screen_height, ==, monitor_layout.height);
 
   stage = meta_backend_get_stage (backend);
-  g_assert_cmpint (clutter_actor_get_width (stage), ==, 1024);
-  g_assert_cmpint (clutter_actor_get_height (stage), ==, 768);
+  g_assert_cmpint (clutter_actor_get_width (stage), ==, monitor_layout.width);
+  g_assert_cmpint (clutter_actor_get_height (stage), ==, monitor_layout.height);
 }
 
 static MetaMonitorTestSetup *
@@ -168,18 +120,30 @@ init_tests (void)
                    meta_test_headless_monitor_connect);
 }
 
+static void
+disconnect_connector_filter (gpointer resource,
+                             gpointer user_data)
+{
+  drmModeConnector *drm_connector = resource;
+
+  drm_connector->connection = DRM_MODE_DISCONNECTED;
+}
+
 int
 main (int argc, char *argv[])
 {
   g_autoptr (MetaContext) context = NULL;
 
-  context = meta_create_test_context (META_CONTEXT_TEST_TYPE_NESTED,
+  context = meta_create_test_context (META_CONTEXT_TEST_TYPE_VKMS,
                                       META_CONTEXT_TEST_FLAG_NO_X11);
   g_assert (meta_context_configure (context, &argc, &argv, NULL));
 
   init_tests ();
 
   test_context = context;
+
+  drm_mock_set_resource_filter (DRM_MOCK_CALL_FILTER_GET_CONNECTOR,
+                                disconnect_connector_filter, NULL);
 
   return meta_context_test_run_tests (META_CONTEXT_TEST (context),
                                       META_TEST_RUN_FLAG_NONE);

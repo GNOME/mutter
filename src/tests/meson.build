@@ -248,11 +248,6 @@ test_cases += [
     'sources': [ 'monitor-util-tests.c', ],
   },
   {
-    'name': 'headless-start',
-    'suite': 'backend',
-    'sources': [ 'headless-start-test.c', ],
-  },
-  {
     'name': 'stage-views',
     'suite': 'compositor',
     'sources': [ 'stage-view-tests.c', ],
@@ -397,6 +392,11 @@ if have_native_tests
         'native-kms-updates.c',
       ],
       'variants': kms_test_variants,
+    },
+    {
+      'name': 'kms-headless-start',
+      'suite': 'backend/native/kms',
+      'sources': [ 'native-kms-headless-start.c', ],
     },
   ]
 

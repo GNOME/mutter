@@ -48,6 +48,7 @@ void meta_backend_native_resume (MetaBackendNative *backend_native);
 
 MetaLauncher * meta_backend_native_get_launcher (MetaBackendNative *native);
 
+META_EXPORT_TEST
 MetaUdev * meta_backend_native_get_udev (MetaBackendNative *native);
 
 META_EXPORT_TEST
