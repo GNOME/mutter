@@ -2381,6 +2381,31 @@ meta_x11_display_focus_sentinel_clear (MetaX11Display *x11_display)
   return (x11_display->sentinel_counter == 0);
 }
 
+
+static void
+meta_x11_display_add_ignored_crossing_serial (MetaX11Display *x11_display,
+                                              unsigned long   serial)
+{
+  MetaDisplay *display = x11_display->display;
+  int i;
+
+  /* don't add the same serial more than once */
+  if (serial ==
+      display->ignored_crossing_serials[N_IGNORED_CROSSING_SERIALS - 1])
+    return;
+
+  /* shift serials to the left */
+  i = 0;
+  while (i < (N_IGNORED_CROSSING_SERIALS - 1))
+    {
+      display->ignored_crossing_serials[i] =
+        display->ignored_crossing_serials[i + 1];
+      ++i;
+    }
+  /* put new one on the end */
+  display->ignored_crossing_serials[i] = serial;
+}
+
 void
 meta_x11_display_set_stage_input_region (MetaX11Display *x11_display,
                                          XserverRegion   region)
@@ -2402,8 +2427,8 @@ meta_x11_display_set_stage_input_region (MetaX11Display *x11_display,
    * focus-follows-mouse focus - it's not the user doing something, it's the
    * environment changing under the user.
    */
-  meta_display_add_ignored_crossing_serial (x11_display->display,
-                                            XNextRequest (xdisplay));
+  meta_x11_display_add_ignored_crossing_serial (x11_display,
+                                                XNextRequest (xdisplay));
   XFixesSetWindowShapeRegion (xdisplay,
                               x11_display->composite_overlay_window,
                               ShapeInput, 0, 0, region);

@@ -169,10 +169,6 @@ GSList *meta_display_sort_windows_by_stacking (MetaDisplay *display,
                                                GSList      *windows);
 
 META_EXPORT
-void meta_display_add_ignored_crossing_serial (MetaDisplay  *display,
-                                               unsigned long serial);
-
-META_EXPORT
 void meta_display_clear_mouse_mode (MetaDisplay *display);
 
 META_EXPORT

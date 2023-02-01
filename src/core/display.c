@@ -1287,38 +1287,6 @@ meta_display_get_current_time_roundtrip (MetaDisplay *display)
     return meta_x11_display_get_current_time_roundtrip (display->x11_display);
 }
 
-/**
- * meta_display_add_ignored_crossing_serial:
- * @display: a #MetaDisplay
- * @serial: the serial to ignore
- *
- * Save the specified serial and ignore crossing events with that
- * serial for the purpose of focus-follows-mouse. This can be used
- * for certain changes to the window hierarchy that we don't want
- * to change the focus window, even if they cause the pointer to
- * end up in a new window.
- */
-void
-meta_display_add_ignored_crossing_serial (MetaDisplay  *display,
-                                          unsigned long serial)
-{
-  int i;
-
-  /* don't add the same serial more than once */
-  if (display->ignored_crossing_serials[N_IGNORED_CROSSING_SERIALS-1] == serial)
-    return;
-
-  /* shift serials to the left */
-  i = 0;
-  while (i < (N_IGNORED_CROSSING_SERIALS - 1))
-    {
-      display->ignored_crossing_serials[i] = display->ignored_crossing_serials[i+1];
-      ++i;
-    }
-  /* put new one on the end */
-  display->ignored_crossing_serials[i] = serial;
-}
-
 static gboolean
 window_raise_with_delay_callback (void *data)
 {
