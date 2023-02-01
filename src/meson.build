@@ -992,6 +992,8 @@ wayland_protocol_server_headers = []
 wayland_protocol_client_headers = []
 wayland_protocol_sources = []
 
+wayland_protocol_files = {}
+
 if have_wayland
   # Format:
   #  - protocol name
@@ -1063,7 +1065,7 @@ if have_wayland
                                                   output_base))
     endif
 
-    wayland_protocol_server_headers += custom_target('@0@ server header'.format(output_base),
+    server_header = custom_target('@0@ server header'.format(output_base),
       input: input,
       output: '@0@-server-protocol.h'.format(output_base),
       command: [
@@ -1072,9 +1074,7 @@ if have_wayland
         '@INPUT@', '@OUTPUT@',
       ]
     )
-
-    # used by tests
-    wayland_protocol_client_headers += custom_target('@0@ client header'.format(output_base),
+    client_header = custom_target('@0@ client header'.format(output_base),
       input: input,
       output: '@0@-client-protocol.h'.format(output_base),
       command: [
@@ -1083,8 +1083,7 @@ if have_wayland
         '@INPUT@', '@OUTPUT@',
       ]
     )
-
-    wayland_protocol_sources += custom_target('@0@ source'.format(output_base),
+    protocol_code = custom_target('@0@ source'.format(output_base),
       input: input,
       output: '@0@-protocol.c'.format(output_base),
       command: [
@@ -1093,6 +1092,18 @@ if have_wayland
         '@INPUT@', '@OUTPUT@',
       ]
     )
+
+    wayland_protocol_files += {
+      protocol_name: {
+        'server-header': server_header,
+        'client-header': client_header,
+        'protocol-code': protocol_code,
+      },
+    }
+
+    wayland_protocol_server_headers += server_header
+    wayland_protocol_client_headers += client_header
+    wayland_protocol_sources += protocol_code
   endforeach
 endif
 
