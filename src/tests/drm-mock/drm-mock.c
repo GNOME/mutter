@@ -26,12 +26,17 @@
 #include "drm-mock.h"
 
 #include <dlfcn.h>
-#include <glib.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <xf86drmMode.h>
+
+typedef struct _DrmMockResourceFilter
+{
+  DrmMockResourceFilterFunc filter_func;
+  gpointer user_data;
+} DrmMockResourceFilter;
 
 static GList *queued_errors[DRM_MOCK_N_CALLS];
+static DrmMockResourceFilter *resource_filters[DRM_MOCK_N_CALL_FILTERS];
 
 static int
 maybe_mock_error (DrmMockCall call)
@@ -69,6 +74,27 @@ FunctionName args_type \
   return real_function args; \
 }
 
+#define MOCK_FILTER_FUNCTION(FunctionName, CALL_FILTER_TYPE, return_type, args_type, args) \
+\
+DRM_MOCK_EXPORT return_type \
+FunctionName args_type \
+{ \
+  static return_type (* real_function) args_type; \
+  return_type ret; \
+  DrmMockResourceFilter *filter; \
+\
+  if (G_UNLIKELY (!real_function)) \
+    real_function = dlsym (RTLD_NEXT, #FunctionName); \
+\
+  ret = real_function args; \
+\
+  filter = resource_filters[CALL_FILTER_TYPE]; \
+  if (filter) \
+    filter->filter_func (ret, filter->user_data); \
+\
+  return ret; \
+}
+
 MOCK_FUNCTION (drmModeAtomicCommit,
                DRM_MOCK_CALL_ATOMIC_COMMIT,
                (int                  fd,
@@ -98,6 +124,13 @@ MOCK_FUNCTION (drmModeSetCrtc,
                 drmModeModeInfoPtr  mode),
                (fd, crtc_id, fb_id, x, y, connectors, count, mode))
 
+MOCK_FILTER_FUNCTION (drmModeGetConnector,
+                      DRM_MOCK_CALL_FILTER_GET_CONNECTOR,
+                      drmModeConnectorPtr,
+                      (int      fd,
+                       uint32_t connector_id),
+                      (fd, connector_id))
+
 void
 drm_mock_queue_error (DrmMockCall call,
                       int         error_number)
@@ -106,4 +139,29 @@ drm_mock_queue_error (DrmMockCall call,
 
   queued_errors[call] = g_list_append (queued_errors[call],
                                        GINT_TO_POINTER (error_number));
+}
+
+void
+drm_mock_set_resource_filter (DrmMockCallFilter         call_filter,
+                              DrmMockResourceFilterFunc filter_func,
+                              gpointer                  user_data)
+{
+  DrmMockResourceFilter *new_filter;
+  g_autofree DrmMockResourceFilter *old_filter = NULL;
+
+  new_filter = g_new0 (DrmMockResourceFilter, 1);
+  new_filter->filter_func = filter_func;
+  new_filter->user_data = user_data;
+
+  old_filter = resource_filters[call_filter];
+  g_atomic_pointer_set (&resource_filters[call_filter], new_filter);
+}
+
+void
+drm_mock_unset_resource_filter (DrmMockCallFilter call_filter)
+{
+  g_autofree DrmMockResourceFilter *old_filter = NULL;
+
+  old_filter = resource_filters[call_filter];
+  g_atomic_pointer_set (&resource_filters[call_filter], NULL);
 }

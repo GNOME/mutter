@@ -26,6 +26,9 @@
 #ifndef DRM_MOCK_H
 #define DRM_MOCK_H
 
+#include <glib.h>
+#include <xf86drmMode.h>
+
 #define DRM_MOCK_EXPORT __attribute__((visibility("default"))) extern
 
 typedef enum _DrmMockCall
@@ -37,8 +40,26 @@ typedef enum _DrmMockCall
   DRM_MOCK_N_CALLS
 } DrmMockCall;
 
+typedef enum _DrmMockCallFilter
+{
+  DRM_MOCK_CALL_FILTER_GET_CONNECTOR,
+
+  DRM_MOCK_N_CALL_FILTERS
+} DrmMockCallFilter;
+
+typedef void (* DrmMockResourceFilterFunc) (gpointer resource,
+                                            gpointer user_data);
+
 DRM_MOCK_EXPORT
 void drm_mock_queue_error (DrmMockCall call,
                            int         error_number);
+
+DRM_MOCK_EXPORT
+void drm_mock_set_resource_filter (DrmMockCallFilter         call_filter,
+                                   DrmMockResourceFilterFunc filter_func,
+                                   gpointer                  user_data);
+
+DRM_MOCK_EXPORT
+void drm_mock_unset_resource_filter (DrmMockCallFilter call_filter);
 
 #endif /* DRM_MOCK_H */
