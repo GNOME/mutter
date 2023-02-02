@@ -32,6 +32,8 @@ tests_includepath = include_directories('.')
 tests_includes = mutter_includes
 tests_c_args = mutter_c_args
 
+subdir('meta-test')
+
 tests_deps = [
   mutter_deps,
   libmutter_dep,
@@ -59,6 +61,45 @@ libmutter_test_dep = declare_dependency(
   dependencies: tests_deps,
 )
 
+if have_introspection
+  mutter_test_introspected_sources = []
+  foreach source: mutter_test_sources
+    if source.endswith('.c')
+      mutter_test_introspected_sources += source
+    endif
+  endforeach
+
+  libmutter_test_gir =  gnome.generate_gir(libmutter_test,
+    sources: [
+      mutter_test_introspected_sources,
+      mutter_test_public_headers,
+    ],
+    nsversion: libmutter_api_version,
+    namespace: 'MetaTest',
+    symbol_prefix: 'meta',
+    identifier_prefix: 'Meta',
+    includes: [
+      'GObject-2.0',
+      'GDesktopEnums-3.0',
+      'xlib-2.0',
+      'xfixes-4.0',
+      libmutter_cogl_gir[0],
+      libmutter_cogl_pango_gir[0],
+      libmutter_clutter_gir[0],
+      libmutter_gir[0],
+    ],
+    dependencies: [
+      mutter_deps,
+      libmutter_dep,
+      libmutter_test_dep,
+    ],
+    extra_args: mutter_c_args + introspection_args,
+    install_dir_gir: pkglibdir,
+    install_dir_typelib: pkglibdir,
+    install: true
+  )
+endif
+
 pkg.generate(libmutter_test,
   name: 'Meta (test framework)',
   filebase: 'libmutter-test-' + libmutter_api_version,
@@ -81,7 +122,6 @@ if have_clutter_tests
   subdir('clutter')
 endif
 
-subdir('meta-test')
 subdir('wayland-test-clients')
 
 if have_installed_tests
