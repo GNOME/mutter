@@ -165,7 +165,8 @@ hide_tile_preview (MetaWindowDrag *window_drag)
 
   window_drag->preview_tile_mode = META_TILE_NONE;
   window = meta_window_drag_get_window (window_drag);
-  meta_compositor_hide_tile_preview (window->display->compositor);
+  if (window)
+    meta_compositor_hide_tile_preview (window->display->compositor);
 }
 
 static void
