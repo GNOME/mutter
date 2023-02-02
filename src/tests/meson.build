@@ -12,6 +12,7 @@ mutter_test_sources = [
   'meta-ref-test.h',
   'meta-sensors-proxy-mock.c',
   'meta-sensors-proxy-mock.h',
+  'meta-test-monitor.c',
   'meta-test-utils.c',
   'meta-test-utils.h',
 ]
