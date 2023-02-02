@@ -369,7 +369,7 @@ ensure_expected_format (cairo_surface_t **ref_image)
   *ref_image = target;
 }
 
-/**
+/*
  * Tint a color:
  * @src Source pixel as x8r8g8b8.
  * @add The tint as x8r8g8b8, x8 must be zero; r8, g8 and b8 must be
