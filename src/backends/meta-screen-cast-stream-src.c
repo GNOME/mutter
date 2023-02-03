@@ -837,6 +837,7 @@ on_stream_param_changed (void                 *data,
   int32_t width, height, stride, size;
   struct spa_pod_builder pod_builder;
   const struct spa_pod *params[4];
+  int n_params = 0;
   const int bpp = 4;
   int buffer_types;
 
@@ -859,7 +860,7 @@ on_stream_param_changed (void                 *data,
   if (spa_pod_find_prop (format, NULL, SPA_FORMAT_VIDEO_modifier))
     buffer_types |= 1 << SPA_DATA_DmaBuf;
 
-  params[0] = spa_pod_builder_add_object (
+  params[n_params++] = spa_pod_builder_add_object (
     &pod_builder,
     SPA_TYPE_OBJECT_ParamBuffers, SPA_PARAM_Buffers,
     SPA_PARAM_BUFFERS_buffers, SPA_POD_CHOICE_RANGE_Int (16, 2, 16),
@@ -869,19 +870,19 @@ on_stream_param_changed (void                 *data,
     SPA_PARAM_BUFFERS_align, SPA_POD_Int (16),
     SPA_PARAM_BUFFERS_dataType, SPA_POD_CHOICE_FLAGS_Int (buffer_types));
 
-  params[1] = spa_pod_builder_add_object (
+  params[n_params++] = spa_pod_builder_add_object (
     &pod_builder,
     SPA_TYPE_OBJECT_ParamMeta, SPA_PARAM_Meta,
     SPA_PARAM_META_type, SPA_POD_Id (SPA_META_VideoCrop),
     SPA_PARAM_META_size, SPA_POD_Int (sizeof (struct spa_meta_region)));
 
-  params[2] = spa_pod_builder_add_object (
+  params[n_params++] = spa_pod_builder_add_object (
     &pod_builder,
     SPA_TYPE_OBJECT_ParamMeta, SPA_PARAM_Meta,
     SPA_PARAM_META_type, SPA_POD_Id (SPA_META_Cursor),
     SPA_PARAM_META_size, SPA_POD_Int (CURSOR_META_SIZE (384, 384)));
 
-  params[3] = spa_pod_builder_add_object (
+  params[n_params++] = spa_pod_builder_add_object (
     &pod_builder,
     SPA_TYPE_OBJECT_ParamMeta, SPA_PARAM_Meta,
     SPA_PARAM_META_type, SPA_POD_Id (SPA_META_Header),
