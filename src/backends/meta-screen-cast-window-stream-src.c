@@ -373,7 +373,7 @@ screen_cast_window_damaged (MetaWindowActor               *actor,
   MetaScreenCastRecordFlag flags;
 
   flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
-  meta_screen_cast_stream_src_maybe_record_frame (src, flags);
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags, NULL);
 }
 
 static void
@@ -394,7 +394,7 @@ sync_cursor_state (MetaScreenCastWindowStreamSrc *window_src)
     return;
 
   flags = META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY;
-  meta_screen_cast_stream_src_maybe_record_frame (src, flags);
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags, NULL);
 }
 
 static void
@@ -477,7 +477,7 @@ meta_screen_cast_window_stream_src_enable (MetaScreenCastStreamSrc *src)
     }
 
   flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
-  meta_screen_cast_stream_src_maybe_record_frame (src, flags);
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags, NULL);
 }
 
 static void
@@ -551,7 +551,7 @@ meta_screen_cast_window_stream_record_follow_up (MetaScreenCastStreamSrc *src)
   MetaScreenCastRecordFlag flags;
 
   flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
-  meta_screen_cast_stream_src_maybe_record_frame (src, flags);
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags, NULL);
 }
 
 static void

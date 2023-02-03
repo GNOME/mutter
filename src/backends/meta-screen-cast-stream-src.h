@@ -85,7 +85,8 @@ void meta_screen_cast_stream_src_close (MetaScreenCastStreamSrc *src);
 gboolean meta_screen_cast_stream_src_is_enabled (MetaScreenCastStreamSrc *src);
 
 void meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
-                                                     MetaScreenCastRecordFlag  flags);
+                                                     MetaScreenCastRecordFlag  flags,
+                                                     const cairo_region_t     *redraw_clip);
 
 gboolean meta_screen_cast_stream_src_pending_follow_up_frame (MetaScreenCastStreamSrc *src);
 

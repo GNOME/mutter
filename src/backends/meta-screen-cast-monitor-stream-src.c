@@ -143,7 +143,7 @@ maybe_record_frame_on_idle (gpointer user_data)
   monitor_src->maybe_record_idle_id = 0;
 
   flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
-  meta_screen_cast_stream_src_maybe_record_frame (src, flags);
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags, NULL);
 
   return G_SOURCE_REMOVE;
 }
@@ -185,7 +185,7 @@ before_stage_painted (MetaStage           *stage,
     return;
 
   flags = META_SCREEN_CAST_RECORD_FLAG_DMABUF_ONLY;
-  meta_screen_cast_stream_src_maybe_record_frame (src, flags);
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags, NULL);
 }
 
 static gboolean
@@ -264,7 +264,7 @@ sync_cursor_state (MetaScreenCastMonitorStreamSrc *monitor_src)
     return;
 
   flags = META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY;
-  meta_screen_cast_stream_src_maybe_record_frame (src, flags);
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags, NULL);
 }
 
 static void

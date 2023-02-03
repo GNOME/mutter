@@ -51,6 +51,7 @@
   (sizeof (struct spa_meta_cursor) + \
    sizeof (struct spa_meta_bitmap) + width * height * 4)
 
+#define NUM_DAMAGED_RECTS 32
 #define DEFAULT_SIZE SPA_RECTANGLE (1280, 720)
 #define MIN_SIZE SPA_RECTANGLE (1, 1)
 #define MAX_SIZE SPA_RECTANGLE (16384, 16386)
@@ -107,6 +108,8 @@ typedef struct _MetaScreenCastStreamSrcPrivate
   guint follow_up_frame_source_id;
 
   GHashTable *dmabuf_handles;
+
+  cairo_region_t *redraw_clip;
 } MetaScreenCastStreamSrcPrivate;
 
 static struct spa_pod *
@@ -602,9 +605,81 @@ meta_screen_cast_stream_src_calculate_stride (MetaScreenCastStreamSrc *src,
     return priv->video_stride;
 }
 
+static void
+maybe_add_damaged_regions_metadata (MetaScreenCastStreamSrc *src,
+                                    struct spa_buffer       *spa_buffer)
+{
+  MetaScreenCastStreamSrcPrivate *priv;
+  struct spa_meta *spa_meta_video_damage;
+  struct spa_meta_region *meta_region;
+
+  spa_meta_video_damage =
+    spa_buffer_find_meta (spa_buffer, SPA_META_VideoDamage);
+  if (!spa_meta_video_damage)
+    return;
+
+  priv = meta_screen_cast_stream_src_get_instance_private (src);
+  if (!priv->redraw_clip)
+    {
+      spa_meta_for_each (meta_region, spa_meta_video_damage)
+      {
+        meta_region->region = SPA_REGION (0, 0, priv->video_format.size.width,
+                                          priv->video_format.size.height);
+        break;
+      }
+    }
+  else
+    {
+      int i;
+      int n_rectangles;
+      int num_buffers_available;
+
+      i = 0;
+      n_rectangles = cairo_region_num_rectangles (priv->redraw_clip);
+      num_buffers_available = 0;
+
+      spa_meta_for_each (meta_region, spa_meta_video_damage)
+      {
+        ++num_buffers_available;
+      }
+
+      if (num_buffers_available < n_rectangles)
+        {
+          spa_meta_for_each (meta_region, spa_meta_video_damage)
+          {
+            g_warning ("Not enough buffers (%d) to accomodate damaged "
+                       "regions (%d)", num_buffers_available, n_rectangles);
+            meta_region->region = SPA_REGION (0, 0,
+                                              priv->video_format.size.width,
+                                              priv->video_format.size.height);
+
+            break;
+          }
+        }
+      else
+        {
+          spa_meta_for_each (meta_region, spa_meta_video_damage)
+          {
+            cairo_rectangle_int_t rect;
+
+            cairo_region_get_rectangle (priv->redraw_clip, i, &rect);
+            meta_region->region = SPA_REGION (rect.x, rect.y,
+                                              rect.width, rect.height);
+
+            if (++i == n_rectangles)
+              break;
+          }
+        }
+    }
+
+  g_clear_pointer (&priv->redraw_clip, cairo_region_destroy);
+}
+
+
 void
 meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
-                                                MetaScreenCastRecordFlag  flags)
+                                                MetaScreenCastRecordFlag  flags,
+                                                const cairo_region_t     *redraw_clip)
 {
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
@@ -615,6 +690,17 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
   uint8_t *data = NULL;
   uint64_t now_us;
   g_autoptr (GError) error = NULL;
+
+  /* Accumulate the damaged region since we might not schedule a frame capture
+   * eventually but once we do, we should report all the previous damaged areas.
+   */
+  if (redraw_clip)
+    {
+      if (priv->redraw_clip)
+        cairo_region_union (priv->redraw_clip, redraw_clip);
+      else
+        priv->redraw_clip = cairo_region_copy (redraw_clip);
+    }
 
   now_us = g_get_monotonic_time ();
   if (priv->video_format.max_framerate.num > 0 &&
@@ -646,7 +732,7 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
 
   meta_topic (META_DEBUG_SCREEN_CAST, "Recording %s frame on stream %u",
               flags & META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY ?
-                "cursor" : "full",
+              "cursor" : "full",
               priv->node_id);
 
   buffer = pw_stream_dequeue_buffer (priv->pipewire_stream);
@@ -681,6 +767,7 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
       g_clear_handle_id (&priv->follow_up_frame_source_id, g_source_remove);
       if (do_record_frame (src, flags, spa_buffer, data, &error))
         {
+          maybe_add_damaged_regions_metadata (src, spa_buffer);
           struct spa_data *spa_data = &spa_buffer->datas[0];
           struct spa_meta_region *spa_meta_video_crop;
 
@@ -824,6 +911,23 @@ on_stream_state_changed (void                 *data,
 }
 
 static void
+add_video_damage_meta_param (struct spa_pod_builder *pod_builder,
+                             const struct spa_pod  **params,
+                             int                     idx)
+{
+  const size_t meta_region_size = sizeof (struct spa_meta_region);
+
+  params[idx] = spa_pod_builder_add_object (
+    pod_builder,
+    SPA_TYPE_OBJECT_ParamMeta, SPA_PARAM_Meta,
+    SPA_PARAM_META_type, SPA_POD_Id (SPA_META_VideoDamage),
+    SPA_PARAM_META_size,
+    SPA_POD_CHOICE_RANGE_Int (meta_region_size * NUM_DAMAGED_RECTS,
+                              meta_region_size * 1,
+                              meta_region_size * NUM_DAMAGED_RECTS));
+}
+
+static void
 on_stream_param_changed (void                 *data,
                          uint32_t              id,
                          const struct spa_pod *format)
@@ -836,7 +940,7 @@ on_stream_param_changed (void                 *data,
   uint8_t params_buffer[1024];
   int32_t width, height, stride, size;
   struct spa_pod_builder pod_builder;
-  const struct spa_pod *params[4];
+  const struct spa_pod *params[5];
   int n_params = 0;
   const int bpp = 4;
   int buffer_types;
@@ -888,7 +992,9 @@ on_stream_param_changed (void                 *data,
     SPA_PARAM_META_type, SPA_POD_Id (SPA_META_Header),
     SPA_PARAM_META_size, SPA_POD_Int (sizeof (struct spa_meta_header)));
 
-  pw_stream_update_params (priv->pipewire_stream, params, G_N_ELEMENTS (params));
+  add_video_damage_meta_param (&pod_builder, params, n_params++);
+
+  pw_stream_update_params (priv->pipewire_stream, params, n_params);
 
   if (klass->notify_params_updated)
     klass->notify_params_updated (src, &priv->video_format);
