@@ -1185,8 +1185,8 @@ if have_introspection
       libmutter_clutter_gir[0],
     ],
     dependencies: [
-      mutter_deps,
       libmutter_dep,
+      mutter_deps,
     ],
     extra_args: mutter_c_args + introspection_args,
     install_dir_gir: pkglibdir,

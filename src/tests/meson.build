@@ -36,10 +36,10 @@ tests_c_args = mutter_c_args
 subdir('meta-test')
 
 tests_deps = [
-  mutter_deps,
-  libmutter_dep,
   libmutter_cogl_dep,
   libmutter_clutter_dep,
+  libmutter_dep,
+  mutter_deps,
 ]
 
 libmutter_test = shared_library(libmutter_test_name,
