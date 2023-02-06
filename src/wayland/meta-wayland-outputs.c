@@ -299,7 +299,12 @@ bind_output (struct wl_client *client,
 
   monitor = wayland_output->monitor;
   if (!monitor)
-    return;
+    {
+      wl_resource_set_implementation (resource,
+                                      &meta_wl_output_interface,
+                                      NULL, NULL);
+      return;
+    }
 
   wayland_output->resources = g_list_prepend (wayland_output->resources,
                                               resource);
