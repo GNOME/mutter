@@ -993,6 +993,7 @@ handle_input_xevent (MetaX11Display *x11_display,
           enter_event->mode != XINotifyGrab &&
           enter_event->mode != XINotifyUngrab &&
           enter_event->detail != XINotifyInferior &&
+          !meta_is_wayland_compositor () &&
           meta_x11_display_focus_sentinel_clear (x11_display))
         {
           meta_window_handle_enter (window,
