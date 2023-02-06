@@ -45,6 +45,10 @@ gboolean clutter_frame_get_target_presentation_time (ClutterFrame *frame,
                                                      int64_t      *target_presentation_time_us);
 
 CLUTTER_EXPORT
+gboolean clutter_frame_get_min_render_time_allowed (ClutterFrame *frame,
+                                                    int64_t      *min_render_time_allowed_us);
+
+CLUTTER_EXPORT
 void clutter_frame_set_result (ClutterFrame       *frame,
                                ClutterFrameResult  result);
 

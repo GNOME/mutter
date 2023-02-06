@@ -31,6 +31,7 @@ struct _ClutterFrame
 
   gboolean has_target_presentation_time;
   int64_t target_presentation_time_us;
+  int64_t min_render_time_allowed_us;
 
   gboolean has_result;
   ClutterFrameResult result;

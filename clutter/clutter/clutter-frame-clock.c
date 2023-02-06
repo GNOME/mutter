@@ -79,6 +79,7 @@ struct _ClutterFrameClock
 
   gboolean is_next_presentation_time_valid;
   int64_t next_presentation_time_us;
+  int64_t min_render_time_allowed_us;
 
   /* Buffer must be submitted to KMS and GPU rendering must be finished
    * this amount of time before the next presentation time.
@@ -466,7 +467,8 @@ clutter_frame_clock_compute_max_render_time_us (ClutterFrameClock *frame_clock)
 static void
 calculate_next_update_time_us (ClutterFrameClock *frame_clock,
                                int64_t           *out_next_update_time_us,
-                               int64_t           *out_next_presentation_time_us)
+                               int64_t           *out_next_presentation_time_us,
+                               int64_t           *out_min_render_time_allowed_us)
 {
   int64_t last_presentation_time_us;
   int64_t now_us;
@@ -489,6 +491,7 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
         now_us;
 
       *out_next_presentation_time_us = 0;
+      *out_min_render_time_allowed_us = 0;
       return;
     }
 
@@ -613,6 +616,7 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
 
   *out_next_update_time_us = next_update_time_us;
   *out_next_presentation_time_us = next_presentation_time_us;
+  *out_min_render_time_allowed_us = min_render_time_allowed_us;
 }
 
 void
@@ -704,7 +708,8 @@ clutter_frame_clock_schedule_update (ClutterFrameClock *frame_clock)
     case CLUTTER_FRAME_CLOCK_STATE_IDLE:
       calculate_next_update_time_us (frame_clock,
                                      &next_update_time_us,
-                                     &frame_clock->next_presentation_time_us);
+                                     &frame_clock->next_presentation_time_us,
+                                     &frame_clock->min_render_time_allowed_us);
       frame_clock->is_next_presentation_time_valid =
         (frame_clock->next_presentation_time_us != 0);
       break;
@@ -775,6 +780,7 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
   frame->frame_count = frame_count;
   frame->has_target_presentation_time = frame_clock->is_next_presentation_time_valid;
   frame->target_presentation_time_us = frame_clock->next_presentation_time_us;
+  frame->min_render_time_allowed_us = frame_clock->min_render_time_allowed_us;
 
   COGL_TRACE_BEGIN (ClutterFrameClockEvents, "Frame Clock (before frame)");
   if (iface->before_frame)

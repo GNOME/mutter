@@ -75,6 +75,21 @@ clutter_frame_get_target_presentation_time (ClutterFrame *frame,
     }
 }
 
+gboolean
+clutter_frame_get_min_render_time_allowed (ClutterFrame *frame,
+                                           int64_t      *min_render_time_allowed_us)
+{
+  if (frame->has_target_presentation_time)
+    {
+      *min_render_time_allowed_us = frame->min_render_time_allowed_us;
+      return TRUE;
+    }
+  else
+    {
+      return FALSE;
+    }
+}
+
 ClutterFrameResult
 clutter_frame_get_result (ClutterFrame *frame)
 {
