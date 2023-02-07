@@ -7,7 +7,7 @@ freeze w/1
 resize w/1 100 200
 show w/1 async
 
-resize_monitor primary 1024 768
+resize_monitor default 1024 768
 
 wait
 

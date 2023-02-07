@@ -112,6 +112,7 @@ gboolean meta_monitor_is_active (MetaMonitor *monitor);
 META_EXPORT_TEST
 MetaOutput * meta_monitor_get_main_output (MetaMonitor *monitor);
 
+META_EXPORT_TEST
 gboolean meta_monitor_is_primary (MetaMonitor *monitor);
 
 gboolean meta_monitor_supports_underscanning (MetaMonitor *monitor);

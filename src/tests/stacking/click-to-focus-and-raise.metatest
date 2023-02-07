@@ -1,4 +1,4 @@
-resize_monitor primary 800 600
+resize_monitor default 800 600
 
 num_workspaces 2
 

@@ -104,7 +104,7 @@ test_case_new (MetaContext *context)
                                                   g_free,
                                                   g_object_unref);
   monitor = meta_create_test_monitor (context, 800, 600, 60.0);
-  g_hash_table_insert (test->virtual_monitors, g_strdup ("primary"), monitor);
+  g_hash_table_insert (test->virtual_monitors, g_strdup ("default"), monitor);
 
   return test;
 }
@@ -1068,6 +1068,31 @@ test_case_do (TestCase *test,
       meta_monitor_manager_reload (monitor_manager);
 
       g_hash_table_insert (test->virtual_monitors, g_strdup (argv[1]), monitor);
+    }
+  else if (strcmp (argv[0], "assert_primary_monitor") == 0)
+    {
+      MetaVirtualMonitor *virtual_monitor;
+      MetaOutput *output;
+      MetaMonitor *monitor;
+
+      if (argc != 2)
+        BAD_COMMAND ("usage: %s <monitor-id>", argv[0]);
+
+      virtual_monitor = g_hash_table_lookup (test->virtual_monitors, argv[1]);
+      if (!virtual_monitor)
+        BAD_COMMAND ("Unknown monitor %s", argv[1]);
+
+      output = meta_virtual_monitor_get_output (virtual_monitor);
+      monitor = meta_output_get_monitor (output);
+
+      if (!meta_monitor_is_primary (monitor))
+        {
+          g_set_error (error,
+                       META_TEST_CLIENT_ERROR,
+                       META_TEST_CLIENT_ERROR_ASSERTION_FAILED,
+                       "Monitor %s is not the primary monitor", argv[1]);
+          return FALSE;
+        }
     }
   else if (strcmp (argv[0], "num_workspaces") == 0)
     {

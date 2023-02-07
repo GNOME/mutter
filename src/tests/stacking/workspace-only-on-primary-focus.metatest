@@ -1,5 +1,6 @@
-resize_monitor primary 800 600
+resize_monitor default 800 600
 add_monitor secondary 800 600
+assert_primary_monitor default
 
 num_workspaces 2
 
