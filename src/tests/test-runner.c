@@ -475,6 +475,25 @@ parse_window_size (MetaWindow *window,
 }
 
 static gboolean
+str_to_bool (const char *str,
+             gboolean   *val)
+{
+  if (g_ascii_strcasecmp (str, "true") == 0) {
+    if (val != NULL)
+      *val = true;
+    return TRUE;
+  }
+
+  if (g_ascii_strcasecmp (str, "false") == 0) {
+    if (val != NULL)
+      *val = false;
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+static gboolean
 test_case_do (TestCase *test,
               int       argc,
               char    **argv,
@@ -560,9 +579,7 @@ test_case_do (TestCase *test,
     }
   else if (strcmp (argv[0], "accept_focus") == 0)
     {
-      if (argc != 3 ||
-          (g_ascii_strcasecmp (argv[2], "true") != 0 &&
-           g_ascii_strcasecmp (argv[2], "false") != 0))
+      if (argc != 3 || !str_to_bool (argv[2], NULL))
         BAD_COMMAND("usage: %s <client-id>/<window-id> [true|false]",
                     argv[0]);
 
@@ -579,9 +596,7 @@ test_case_do (TestCase *test,
     }
   else if (strcmp (argv[0], "can_take_focus") == 0)
     {
-      if (argc != 3 ||
-          (g_ascii_strcasecmp (argv[2], "true") != 0 &&
-           g_ascii_strcasecmp (argv[2], "false") != 0))
+      if (argc != 3 || !str_to_bool (argv[2], NULL))
         BAD_COMMAND("usage: %s <client-id>/<window-id> [true|false]",
                     argv[0]);
 
@@ -598,9 +613,7 @@ test_case_do (TestCase *test,
     }
   else if (strcmp (argv[0], "accept_take_focus") == 0)
     {
-      if (argc != 3 ||
-          (g_ascii_strcasecmp (argv[2], "true") != 0 &&
-           g_ascii_strcasecmp (argv[2], "false") != 0))
+      if (argc != 3 || !str_to_bool (argv[2], NULL))
         BAD_COMMAND("usage: %s <client-id>/<window-id> [true|false]",
                     argv[0]);
 
@@ -1171,23 +1184,23 @@ test_case_do (TestCase *test,
     }
   else if (strcmp (argv[0], "make_above") == 0)
     {
-      if (argc != 3 ||
-          (g_ascii_strcasecmp (argv[2], "true") != 0 &&
-           g_ascii_strcasecmp (argv[2], "false") != 0))
+      MetaTestClient *client;
+      const char *window_id;
+      MetaWindow *window;
+      gboolean make_above;
+
+      if (argc != 3 || !str_to_bool (argv[2], &make_above))
         BAD_COMMAND("usage: %s <client-id>/<window-id> [true|false]",
                     argv[0]);
 
-      MetaTestClient *client;
-      const char *window_id;
       if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
         return FALSE;
 
-      MetaWindow *window;
       window = meta_test_client_find_window (client, window_id, error);
       if (!window)
         return FALSE;
 
-      if (g_ascii_strcasecmp (argv[2], "true") == 0)
+      if (make_above)
         meta_window_make_above (window);
       else
         meta_window_unmake_above (window);
@@ -1246,11 +1259,7 @@ test_case_do (TestCase *test,
       if (strcmp (argv[1], "raise-on-click") == 0)
         {
           gboolean value;
-          if (g_ascii_strcasecmp (argv[2], "true") == 0)
-            value = TRUE;
-          else if (g_ascii_strcasecmp (argv[2], "false") == 0)
-            value = FALSE;
-          else
+          if (!str_to_bool (argv[2], &value))
             BAD_COMMAND("usage: %s %s [true|false]", argv[0], argv[1]);
 
           g_assert_true (g_settings_set_boolean (wm, "raise-on-click", value));
@@ -1258,11 +1267,7 @@ test_case_do (TestCase *test,
       else if (strcmp (argv[1], "workspaces-only-on-primary") == 0)
         {
           gboolean value;
-          if (g_ascii_strcasecmp (argv[2], "true") == 0)
-            value = TRUE;
-          else if (g_ascii_strcasecmp (argv[2], "false") == 0)
-            value = FALSE;
-          else
+          if (!str_to_bool (argv[2], &value))
             BAD_COMMAND("usage: %s %s [true|false]", argv[0], argv[1]);
 
           g_assert_true (g_settings_set_boolean (mutter, "workspaces-only-on-primary", value));
