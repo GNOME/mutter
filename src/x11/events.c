@@ -1815,6 +1815,11 @@ handle_other_xevent (MetaX11Display *x11_display,
               break;
             }
         }
+      else if (event->type == (x11_display->xfixes_event_base + XFixesSelectionNotify))
+        {
+          bypass_gtk = TRUE; /* GTK doesn't want to see this really */
+        }
+
       break;
     }
 
