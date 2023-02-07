@@ -1301,6 +1301,21 @@ test_case_do (TestCase    *test,
 
           g_assert_true (g_settings_set_boolean (wm, "raise-on-click", value));
         }
+      else if (strcmp (argv[1], "focus-mode") == 0)
+        {
+          GDesktopFocusMode mode;
+
+          if (g_ascii_strcasecmp (argv[2], "click") == 0)
+            mode = G_DESKTOP_FOCUS_MODE_CLICK;
+          else if (g_ascii_strcasecmp (argv[2], "sloppy") == 0)
+            mode = G_DESKTOP_FOCUS_MODE_SLOPPY;
+          else if (g_ascii_strcasecmp (argv[2], "mouse") == 0)
+            mode = G_DESKTOP_FOCUS_MODE_MOUSE;
+          else
+            BAD_COMMAND("usage: %s %s [click|sloppy|mouse]", argv[0], argv[1]);
+
+          g_assert_true (g_settings_set_enum (wm, "focus-mode", mode));
+        }
       else if (strcmp (argv[1], "workspaces-only-on-primary") == 0)
         {
           gboolean value;
@@ -1308,6 +1323,14 @@ test_case_do (TestCase    *test,
             BAD_COMMAND("usage: %s %s [true|false]", argv[0], argv[1]);
 
           g_assert_true (g_settings_set_boolean (mutter, "workspaces-only-on-primary", value));
+        }
+      else if (strcmp (argv[1], "focus-change-on-pointer-rest") == 0)
+        {
+          gboolean value;
+          if (!str_to_bool (argv[2], &value))
+            BAD_COMMAND("usage: %s %s [true|false]", argv[0], argv[1]);
+
+          g_assert_true (g_settings_set_boolean (mutter, "focus-change-on-pointer-rest", value));
         }
       else {
         BAD_COMMAND("Unknown preference %s", argv[1]);

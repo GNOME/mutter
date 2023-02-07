@@ -708,6 +708,7 @@ stacking_tests = [
   'overview-focus',
   'suspend-state-timeout',
   'cloned-windows',
+  'sloppy-focus',
 ]
 
 foreach stacking_test: stacking_tests
