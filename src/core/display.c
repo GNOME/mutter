@@ -1469,9 +1469,7 @@ meta_display_set_input_focus (MetaDisplay *display,
   if (meta_display_timestamp_too_old (display, &timestamp))
     return;
 
-
-  if (display->x11_display &&
-      meta_display_windows_are_interactable (display))
+  if (display->x11_display)
     {
       meta_x11_display_set_input_focus (display->x11_display, window,
                                         focus_frame, timestamp);
