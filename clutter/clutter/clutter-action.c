@@ -99,7 +99,13 @@ gboolean
 clutter_action_handle_event (ClutterAction      *action,
                              const ClutterEvent *event)
 {
-  return CLUTTER_ACTION_GET_CLASS (action)->handle_event (action, event);
+  gboolean retval;
+
+  g_object_ref (action);
+  retval = CLUTTER_ACTION_GET_CLASS (action)->handle_event (action, event);
+  g_object_unref (action);
+
+  return retval;
 }
 
 void
