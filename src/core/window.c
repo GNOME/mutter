@@ -7364,6 +7364,13 @@ meta_window_set_transient_for (MetaWindow *window,
 
   g_set_object (&window->transient_for, parent);
 
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND &&
+      window->attached != meta_window_should_attach_to_parent (window))
+    {
+      window->attached = meta_window_should_attach_to_parent (window);
+      meta_window_recalc_features (window);
+    }
+
   /* update stacking constraints */
   if (!window->override_redirect)
     meta_stack_update_transient (window->display->stack, window);
