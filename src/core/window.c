@@ -7362,9 +7362,7 @@ meta_window_set_transient_for (MetaWindow *window,
       return;
     }
 
-  /* We know this won't create a reference cycle because we check for loops */
-  g_clear_object (&window->transient_for);
-  window->transient_for = parent ? g_object_ref (parent) : NULL;
+  g_set_object (&window->transient_for, parent);
 
   /* update stacking constraints */
   if (!window->override_redirect)
