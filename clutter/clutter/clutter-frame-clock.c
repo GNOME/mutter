@@ -530,8 +530,7 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
       last_next_presentation_time_us = frame_clock->next_presentation_time_us;
       time_since_last_next_presentation_time_us =
         next_presentation_time_us - last_next_presentation_time_us;
-      if (time_since_last_next_presentation_time_us > 0 &&
-          time_since_last_next_presentation_time_us < (refresh_interval_us / 2))
+      if (time_since_last_next_presentation_time_us < (refresh_interval_us / 2))
         {
           next_presentation_time_us =
             frame_clock->next_presentation_time_us + refresh_interval_us;
