@@ -524,12 +524,6 @@ meta_wayland_override_display_name (const char *display_name)
   _display_name_override = g_strdup (display_name);
 }
 
-static const char *
-meta_wayland_get_xwayland_auth_file (MetaWaylandCompositor *compositor)
-{
-  return compositor->xwayland_manager.auth_file;
-}
-
 static void
 meta_wayland_init_egl (MetaWaylandCompositor *compositor)
 {
@@ -595,7 +589,9 @@ meta_wayland_compositor_new (MetaContext *context)
   ClutterActor *stage = meta_backend_get_stage (backend);
   MetaWaylandCompositor *compositor;
   GSource *wayland_event_source;
+#ifdef HAVE_XWAYLAND
   MetaX11DisplayPolicy x11_display_policy;
+#endif
 
   compositor = g_object_new (META_TYPE_WAYLAND_COMPOSITOR, NULL);
   compositor->context = context;
@@ -669,9 +665,9 @@ meta_wayland_compositor_new (MetaContext *context)
   }
 #endif /* HAVE_WAYLAND_EGLSTREAM */
 
+#ifdef HAVE_XWAYLAND
   x11_display_policy =
     meta_context_get_x11_display_policy (compositor->context);
-#ifdef HAVE_XWAYLAND
   if (x11_display_policy != META_X11_DISPLAY_POLICY_DISABLED)
     {
       g_autoptr (GError) error = NULL;
@@ -705,12 +701,14 @@ meta_wayland_compositor_new (MetaContext *context)
 
   g_message ("Using Wayland display name '%s'", compositor->display_name);
 
+#ifdef HAVE_XWAYLAND
   if (x11_display_policy != META_X11_DISPLAY_POLICY_DISABLED)
     {
       set_gnome_env ("GNOME_SETUP_DISPLAY", compositor->xwayland_manager.private_connection.name);
       set_gnome_env ("DISPLAY", compositor->xwayland_manager.public_connection.name);
-      set_gnome_env ("XAUTHORITY", meta_wayland_get_xwayland_auth_file (compositor));
+      set_gnome_env ("XAUTHORITY", compositor->xwayland_manager.auth_file);
     }
+#endif
 
   set_gnome_env ("WAYLAND_DISPLAY", meta_wayland_get_wayland_display_name (compositor));
 
