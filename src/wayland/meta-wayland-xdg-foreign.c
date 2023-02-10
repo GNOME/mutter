@@ -302,9 +302,6 @@ meta_wayland_xdg_imported_set_parent_of (MetaWaylandXdgImported *imported,
 {
   MetaWaylandSurface *surface;
 
-  if (!imported)
-    return;
-
   if (surface_resource)
     surface = wl_resource_get_user_data (surface_resource);
   else
@@ -347,6 +344,9 @@ xdg_imported_set_parent_of (struct wl_client   *client,
                             struct wl_resource *surface_resource)
 {
   MetaWaylandXdgImported *imported = wl_resource_get_user_data (resource);
+
+  if (!imported)
+    return;
 
   meta_wayland_xdg_imported_set_parent_of (imported, surface_resource);
 }
@@ -448,16 +448,17 @@ xdg_importer_import (struct wl_client   *client,
   imported = meta_wayland_xdg_foreign_import (foreign, xdg_imported_resource,
                                               handle,
                                               zxdg_imported_v2_send_destroyed);
-  if (!imported)
-    {
-      zxdg_imported_v2_send_destroyed (xdg_imported_resource);
-      return;
-    }
 
   wl_resource_set_implementation (xdg_imported_resource,
                                   &meta_xdg_imported_interface,
                                   imported,
                                   xdg_imported_destructor);
+
+  if (!imported)
+    {
+      zxdg_imported_v2_send_destroyed (xdg_imported_resource);
+      return;
+    }
 }
 
 static const struct zxdg_importer_v2_interface meta_xdg_importer_interface = {
