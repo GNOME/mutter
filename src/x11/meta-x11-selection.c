@@ -21,8 +21,6 @@
 
 #include "config.h"
 
-#include <gdk/gdkx.h>
-
 #include "core/meta-selection-private.h"
 #include "meta/meta-selection-source-memory.h"
 #include "x11/meta-selection-source-x11-private.h"
@@ -125,10 +123,11 @@ mimetypes_to_bytes (GList   *mimetypes,
 }
 
 static void
-send_selection_notify (XSelectionRequestEvent *request_event,
+send_selection_notify (MetaX11Display         *x11_display,
+                       XSelectionRequestEvent *request_event,
                        gboolean                accepted)
 {
-  Display *xdisplay = GDK_DISPLAY_XDISPLAY (gdk_display_get_default ());
+  Display *xdisplay = meta_x11_display_get_xdisplay (x11_display);
   XSelectionEvent event;
 
   memset(&event, 0, sizeof (XSelectionEvent));
@@ -184,12 +183,13 @@ meta_x11_selection_find_target (MetaX11Display     *x11_display,
                                 MetaSelectionType   selection_type,
                                 Atom                selection_atom)
 {
+  Display *xdisplay = meta_x11_display_get_xdisplay (x11_display);
   GList* mimetypes = NULL;
   const gchar *atom_name;
   char *retval;
 
   mimetypes = meta_selection_get_mimetypes (selection, selection_type);
-  atom_name = gdk_x11_get_xatom_name (selection_atom);
+  atom_name = XGetAtomName (xdisplay, selection_atom);
 
   if (g_list_find_custom (mimetypes, atom_name, (GCompareFunc) g_strcmp0))
     {
@@ -222,6 +222,7 @@ meta_x11_selection_handle_selection_request (MetaX11Display *x11_display,
                                              XEvent         *xevent)
 {
   MetaDisplay *display = meta_x11_display_get_display (x11_display);
+  Display *xdisplay = meta_x11_display_get_xdisplay (x11_display);
   XSelectionRequestEvent *event = (XSelectionRequestEvent *) xevent;
   MetaSelectionType selection_type;
   MetaSelection *selection;
@@ -235,7 +236,7 @@ meta_x11_selection_handle_selection_request (MetaX11Display *x11_display,
 
   selection = meta_display_get_selection (display);
 
-  if (event->target == gdk_x11_get_xatom_by_name ("TARGETS"))
+  if (event->target == XInternAtom (xdisplay, "TARGETS", False))
     {
       GBytes *bytes;
 
@@ -243,14 +244,14 @@ meta_x11_selection_handle_selection_request (MetaX11Display *x11_display,
 
       if (!mimetypes)
         {
-          send_selection_notify (event, FALSE);
+          send_selection_notify (x11_display, event, FALSE);
           return FALSE;
         }
 
       output = meta_x11_selection_output_stream_new (x11_display, event->requestor,
-                                                     gdk_x11_get_xatom_name (event->selection),
-                                                     gdk_x11_get_xatom_name (event->target),
-                                                     gdk_x11_get_xatom_name (event->property),
+                                                     XGetAtomName (xdisplay, event->selection),
+                                                     XGetAtomName (xdisplay, event->target),
+                                                     XGetAtomName (xdisplay, event->property),
                                                      "ATOM", 32, event->time);
 
       bytes = mimetypes_to_bytes (mimetypes, x11_display->xdisplay);
@@ -265,12 +266,12 @@ meta_x11_selection_handle_selection_request (MetaX11Display *x11_display,
       g_bytes_unref (bytes);
       return TRUE;
     }
-  else if (event->target == gdk_x11_get_xatom_by_name ("DELETE"))
+  else if (event->target == XInternAtom (xdisplay, "DELETE", False))
     {
       /* DnD only, this is just handled through other means on our non-x11
        * sources, so just go with it.
        */
-      send_selection_notify (event, TRUE);
+      send_selection_notify (x11_display, event, TRUE);
     }
   else
     {
@@ -283,10 +284,10 @@ meta_x11_selection_handle_selection_request (MetaX11Display *x11_display,
         {
           output = meta_x11_selection_output_stream_new (x11_display,
                                                          event->requestor,
-                                                         gdk_x11_get_xatom_name (event->selection),
-                                                         gdk_x11_get_xatom_name (event->target),
-                                                         gdk_x11_get_xatom_name (event->property),
-                                                         gdk_x11_get_xatom_name (event->target),
+                                                         XGetAtomName (xdisplay, event->selection),
+                                                         XGetAtomName (xdisplay, event->target),
+                                                         XGetAtomName (xdisplay, event->property),
+                                                         XGetAtomName (xdisplay, event->target),
                                                          8, event->time);
 
           meta_selection_transfer_async (selection,
@@ -301,7 +302,7 @@ meta_x11_selection_handle_selection_request (MetaX11Display *x11_display,
         }
       else
         {
-          send_selection_notify (event, FALSE);
+          send_selection_notify (x11_display, event, FALSE);
         }
     }
 

@@ -23,8 +23,6 @@
 
 #include "meta-x11-selection-input-stream-private.h"
 
-#include <gdk/gdkx.h>
-
 #include "meta/meta-x11-errors.h"
 #include "x11/meta-x11-display-private.h"
 
@@ -489,7 +487,7 @@ meta_x11_selection_input_stream_xevent (MetaX11SelectionInputStream *stream,
             bytes = get_selection_property (priv->x11_display, xwindow,
                                             xevent->xselection.property,
                                             &priv->xtype, &priv->format);
-            priv->type = gdk_x11_get_xatom_name (priv->xtype);
+            priv->type = XGetAtomName (xdisplay, priv->xtype);
 
             g_task_return_pointer (task, g_object_ref (stream), g_object_unref);
 
