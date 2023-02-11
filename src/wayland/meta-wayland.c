@@ -60,6 +60,7 @@
 #endif
 
 #ifdef HAVE_NATIVE_BACKEND
+#include "backends/native/meta-frame-native.h"
 #include "backends/native/meta-renderer-native.h"
 #endif
 
@@ -79,6 +80,7 @@ typedef struct _MetaWaylandCompositorPrivate
   gboolean is_wayland_egl_display_bound;
 
   MetaWaylandFilterManager *filter_manager;
+  GHashTable *frame_callback_sources;
 } MetaWaylandCompositorPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaWaylandCompositor, meta_wayland_compositor,
@@ -89,6 +91,15 @@ typedef struct
   GSource source;
   struct wl_display *display;
 } WaylandEventSource;
+
+typedef struct
+{
+  GSource source;
+
+  MetaWaylandCompositor *compositor;
+  ClutterStageView *stage_view;
+  int64_t target_presentation_time_us;
+} FrameCallbackSource;
 
 static gboolean
 wayland_event_source_prepare (GSource *base,
@@ -141,6 +152,199 @@ wayland_event_source_new (struct wl_display *display)
                         G_IO_IN | G_IO_ERR);
 
   return &wayland_source->source;
+}
+
+static void
+emit_frame_callbacks_for_stage_view (MetaWaylandCompositor *compositor,
+                                     ClutterStageView      *stage_view)
+{
+  GList *l;
+  int64_t now_us;
+
+  now_us = g_get_monotonic_time ();
+
+  l = compositor->frame_callback_surfaces;
+  while (l)
+    {
+      GList *l_cur = l;
+      MetaWaylandSurface *surface = l->data;
+      MetaSurfaceActor *actor;
+      MetaWaylandActorSurface *actor_surface;
+
+      l = l->next;
+
+      actor = meta_wayland_surface_get_actor (surface);
+      if (!actor)
+        continue;
+
+      if (!meta_surface_actor_wayland_is_view_primary (actor,
+                                                       stage_view))
+        continue;
+
+      actor_surface = META_WAYLAND_ACTOR_SURFACE (surface->role);
+      meta_wayland_actor_surface_emit_frame_callbacks (actor_surface,
+                                                       now_us / 1000);
+
+      compositor->frame_callback_surfaces =
+        g_list_delete_link (compositor->frame_callback_surfaces, l_cur);
+    }
+}
+
+static gboolean
+frame_callback_source_dispatch (GSource     *source,
+                                GSourceFunc  callback,
+                                gpointer     user_data)
+{
+  FrameCallbackSource *frame_callback_source = (FrameCallbackSource *) source;
+  MetaWaylandCompositor *compositor = frame_callback_source->compositor;
+  ClutterStageView *stage_view = frame_callback_source->stage_view;
+
+  emit_frame_callbacks_for_stage_view (compositor, stage_view);
+  g_source_set_ready_time (source, -1);
+
+  return G_SOURCE_CONTINUE;
+}
+
+static void
+frame_callback_source_finalize (GSource *source)
+{
+  FrameCallbackSource *frame_callback_source = (FrameCallbackSource *) source;
+
+  g_signal_handlers_disconnect_by_data (frame_callback_source->stage_view,
+                                        source);
+}
+
+static GSourceFuncs frame_callback_source_funcs = {
+  .dispatch = frame_callback_source_dispatch,
+  .finalize = frame_callback_source_finalize,
+};
+
+static void
+on_stage_view_destroy (ClutterStageView *stage_view,
+                       GSource          *source)
+{
+  FrameCallbackSource *frame_callback_source = (FrameCallbackSource *) source;
+  MetaWaylandCompositor *compositor = frame_callback_source->compositor;
+  MetaWaylandCompositorPrivate *priv =
+    meta_wayland_compositor_get_instance_private (compositor);
+
+  g_hash_table_remove (priv->frame_callback_sources, stage_view);
+}
+
+static GSource*
+frame_callback_source_new (MetaWaylandCompositor *compositor,
+                           ClutterStageView      *stage_view)
+{
+  FrameCallbackSource *frame_callback_source;
+  g_autofree char *name = NULL;
+  GSource *source;
+
+  source = g_source_new (&frame_callback_source_funcs,
+                         sizeof (FrameCallbackSource));
+  frame_callback_source = (FrameCallbackSource *) source;
+
+  name =
+    g_strdup_printf ("[mutter] Wayland frame callbacks for stage view (%p)",
+                     stage_view);
+  g_source_set_name (source, name);
+  g_source_set_priority (source, CLUTTER_PRIORITY_REDRAW);
+  g_source_set_can_recurse (source, FALSE);
+
+  frame_callback_source->compositor = compositor;
+  frame_callback_source->stage_view = stage_view;
+
+  g_signal_connect (stage_view,
+                    "destroy",
+                    G_CALLBACK (on_stage_view_destroy),
+                    source);
+
+  return &frame_callback_source->source;
+}
+
+static GSource*
+ensure_source_for_stage_view (MetaWaylandCompositor *compositor,
+                           ClutterStageView      *stage_view)
+{
+  MetaWaylandCompositorPrivate *priv =
+    meta_wayland_compositor_get_instance_private (compositor);
+  GSource *source;
+
+  source = g_hash_table_lookup (priv->frame_callback_sources, stage_view);
+  if (!source)
+    {
+      source = frame_callback_source_new (compositor, stage_view);
+      g_hash_table_insert (priv->frame_callback_sources, stage_view, source);
+      g_source_attach (source, NULL);
+      g_source_unref (source);
+    }
+
+  return source;
+}
+
+static void
+on_after_update (ClutterStage          *stage,
+                 ClutterStageView      *stage_view,
+                 ClutterFrame          *frame,
+                 MetaWaylandCompositor *compositor)
+{
+#if defined(HAVE_NATIVE_BACKEND)
+  MetaContext *context = meta_wayland_compositor_get_context (compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
+  MetaFrameNative *frame_native;
+  FrameCallbackSource *frame_callback_source;
+  GSource *source;
+  int64_t min_render_time_allowed_us;
+
+  if (!META_IS_BACKEND_NATIVE (backend))
+    {
+      emit_frame_callbacks_for_stage_view (compositor, stage_view);
+      return;
+    }
+
+  frame_native = meta_frame_native_from_frame (frame);
+
+  source = ensure_source_for_stage_view (compositor, stage_view);
+  frame_callback_source = (FrameCallbackSource *) source;
+
+  if (meta_frame_native_had_kms_update (frame_native) ||
+      !clutter_frame_get_min_render_time_allowed (frame,
+                                                  &min_render_time_allowed_us))
+    {
+      g_source_set_ready_time (source, -1);
+      emit_frame_callbacks_for_stage_view (compositor, stage_view);
+    }
+  else
+    {
+      int64_t target_presentation_time_us;
+      int64_t source_ready_time_us;
+
+      if (!clutter_frame_get_target_presentation_time (frame,
+                                                       &target_presentation_time_us))
+        target_presentation_time_us = 0;
+
+      if (g_source_get_ready_time (source) != -1 &&
+          frame_callback_source->target_presentation_time_us <
+          target_presentation_time_us)
+        emit_frame_callbacks_for_stage_view (compositor, stage_view);
+
+      source_ready_time_us = target_presentation_time_us -
+                             min_render_time_allowed_us;
+
+      if (source_ready_time_us <= g_get_monotonic_time ())
+        {
+          g_source_set_ready_time (source, -1);
+          emit_frame_callbacks_for_stage_view (compositor, stage_view);
+        }
+      else
+        {
+          frame_callback_source->target_presentation_time_us =
+            target_presentation_time_us;
+          g_source_set_ready_time (source, source_ready_time_us);
+        }
+    }
+#else
+  emit_frame_callbacks_for_stage_view (compositor, stage_view);
+#endif
 }
 
 void
@@ -213,44 +417,6 @@ meta_wayland_compositor_update (MetaWaylandCompositor *compositor,
     meta_wayland_tablet_manager_update (compositor->tablet_manager, event);
   else
     meta_wayland_seat_update (compositor->seat, event);
-}
-
-static void
-on_after_update (ClutterStage          *stage,
-                 ClutterStageView      *stage_view,
-                 ClutterFrame          *frame,
-                 MetaWaylandCompositor *compositor)
-{
-  GList *l;
-  int64_t now_us;
-
-  now_us = g_get_monotonic_time ();
-
-  l = compositor->frame_callback_surfaces;
-  while (l)
-    {
-      GList *l_cur = l;
-      MetaWaylandSurface *surface = l->data;
-      MetaSurfaceActor *actor;
-      MetaWaylandActorSurface *actor_surface;
-
-      l = l->next;
-
-      actor = meta_wayland_surface_get_actor (surface);
-      if (!actor)
-        continue;
-
-      if (!meta_surface_actor_wayland_is_view_primary (actor,
-                                                       stage_view))
-        continue;
-
-      actor_surface = META_WAYLAND_ACTOR_SURFACE (surface->role);
-      meta_wayland_actor_surface_emit_frame_callbacks (actor_surface,
-                                                       now_us / 1000);
-
-      compositor->frame_callback_surfaces =
-        g_list_delete_link (compositor->frame_callback_surfaces, l_cur);
-    }
 }
 
 static MetaWaylandOutput *
@@ -477,6 +643,7 @@ meta_wayland_compositor_finalize (GObject *object)
   g_clear_pointer (&compositor->seat, meta_wayland_seat_free);
 
   g_clear_pointer (&priv->filter_manager, meta_wayland_filter_manager_free);
+  g_clear_pointer (&priv->frame_callback_sources, g_hash_table_destroy);
 
   g_clear_pointer (&compositor->display_name, g_free);
   g_clear_pointer (&compositor->wayland_display, wl_display_destroy);
@@ -500,6 +667,9 @@ meta_wayland_compositor_init (MetaWaylandCompositor *compositor)
     g_error ("Failed to create the global wl_display");
 
   priv->filter_manager = meta_wayland_filter_manager_new (compositor);
+  priv->frame_callback_sources =
+    g_hash_table_new_full (NULL, NULL, NULL,
+                           (GDestroyNotify) g_source_destroy);
 }
 
 static void
