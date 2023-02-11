@@ -1,3 +1,77 @@
+44.beta
+=======
+* Don't disable KMS modifiers on newer i915 systems [Sameer; !2641]
+* Set LOD bias for sharper mipmaps  [Daniel; !2644]
+* Fix edge resistance and window snapping regression [John; !2687]
+* Avoid high-level udev queries for input caps and properties [Carlos; !2617]
+* Implement wl_output v3 and v4 [Robert; !2692]
+* Fix recalculating viewport after window resize [Sebastian Kr.; !2689]
+* Fix opaque cursors and LoDPI cursor on HiDPI screens [Jonas Å.; !2698]
+* Process device removing events immediately [Jonas D.; !2696]
+* Handle stage view updates without allocation more gracefully [Jonas D.; !2694]
+* Fix window screenshots being cut off at the bottom right [Sebastian K.; !2720]
+* wayland/subsurface: Avoid using buffers with unfinished client work
+  [Michel; !1880]
+* Move X11 window decorations to a separate client
+  [Carlos; !2175, !2735, !2756, !2791, !2796, !2758]
+* Fix cursor position in window screencasts [Georges; !2737]
+* Skip resize effects for tiled windows during user grabs [Michael; !2579]
+* Fix pointer constrains with subsurfaces [Robert; !2717]
+* Disable direct scanout during drag-n-drop operations [Robert; !2677]
+* Ignore unmapped subsurfaces in direct scanout check [Robert; !2755]
+* Fix cursor disappearing over windows during grabs [Carlos; !2754]
+* Make wl_output mode independent of the orientation [Sebastian W.; !2723]
+* Improve focus handling on workspace switches [Sebastian W.; !2747]
+* Fix initialization of keyboard accessibility [Carlos; !2750, !2778]
+* Refactor API to use well-defined ownership instead of singletons
+  [Jonas Å.; !2718]
+* Add support for xdg-foreign-v2 [Jason, Jonas Å.; !2770]
+* Add higher bit depth offscreen framebuffers support [Jonas Å., Naveen; !2461]
+* Overhaul dynamic max render time calculation [Michel; !2500]
+* Do not require a physical device to update pointer visibility [Carlos; !2766]
+* Allow building without xwayland support [Bilal; !2407, !2399]
+* Add Xwayland byte-swapped clients support [Olivier; !2785]
+* Fix freeze when crossing monitors under some conditions [Carlos; !2803]
+* Don't allow window activation to break global grabs
+  [Florian, Carlos; !2776, !2832]
+* Integrate window grab operations with new ClutterGrab API [Carlos; !2683]
+* Support selecting an acceleration profile for touchpad devices [Evan; !2426]
+* Enforce compliant surface buffer sizes [Robert; !2815]
+* Keep proportional position when moving window between rects [Sebastian; !2591]
+* Introduce implicit grabbing in Clutter [Jonas D.; !2342]
+* Fix unexpected window focus changes after global grabs [Sebastian W.; !2742]
+* Fix sloppy/mouse focus mode on wayland [Carlos; !2828]
+* Add service channel Wayland clients [Jonas Å.; !2810]
+* Fixed crashes [Sebastian W., Jonas Å., Bilal, Jonas D., msizanoen1, Georges,
+  Carlos, Daniel, Keyu; !2695, !2704, !2706, !2711, !2691, !2709, !2690, !2736,
+  !2745, !2674, !2793, !2794, !2827, !2831, !2834]
+* Plugged leaks [Niels; !2799, !2817]
+* Misc. bug fixes and cleanups [Jonas D., Jonas Å., Bilal, Florian, Corentin,
+  Bram, Georges, Hunor, Carlos, Robert, Michel, Christian, Olivier, Daniel,
+  Corey, Sebastian K., Jan, Anders, Simon, Sebastian W., Jake, Erico; !1492,
+  !2508, !2645, !2699, !2418, !2701, !2702, !2703, !2708, !2697, !2710, !2714,
+  !2715, !2716, !2719, 2724, 2739, 2740, 2733, 2753, 2741, !2680, !2727, !2757,
+  !2762, !2671, !2765, !2767, !2707, !2768, !2428, !2467, !2772, !2769, !2781,
+  !2784, !2786, !2780, !2788, !2792, !2783, !2798, !2795, !2800, !2805, !2790,
+  !2809, !2572, !2811, !2812, !2813, !2807, !2773, !2806, !2816, !2818, !2814,
+  !2819, !2782, !2822, !2087, !2824, !2826, !2621, !2748, !2091, !2833, !2808,
+  !2836]
+
+Contributors:
+  Corey Berla, Hunor Csomortáni, Jake Dane, Jonas Dreßler, Michel Dänzer,
+  Bilal Elmoussaoui, Olivier Fourdan, Jason Francis, Carlos Garnacho,
+  Evan Goode, Niels De Graef, Christian Hergert, Peter Hutterer, Anders Jonsson,
+  Sebastian Keller, Sebastian Krzyszkowiak, Naveen Kumar, Sameer Lattannavar,
+  Robert Mader, Simon McVittie, Florian Müllner, Georges Basile Stavracas Neto,
+  Corentin Noël, Erico Nunes, Bram Stolk, Keyu Tao, Jan Tojnar, Daniel van Vugt,
+  Michael Webster, Sebastian Wick, John Wudrick, msizanoen1, Jonas Ådahl
+
+Translators:
+  Dušan Kazik [sk], Aleksandr Melman [ru], Yuri Chornoivan [uk],
+  Hugo Carvalho [pt], Emin Tufan Çetin [tr], Kukuh Syafaat [id],
+  Fran Dieguez [gl], Yosef Or Boczko [he], Asier Sarasua Garmendia [eu],
+  Quentin PAGÈS [oc], Aurimas Černius [lt]
+
 43.1
 ====
 * Add quirk to work around issue with Mali GPUs [Daniel; !2614]
