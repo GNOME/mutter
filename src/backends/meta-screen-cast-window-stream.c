@@ -197,6 +197,16 @@ meta_screen_cast_window_stream_finalize (GObject *object)
 {
   MetaScreenCastWindowStream *window_stream =
     META_SCREEN_CAST_WINDOW_STREAM (object);
+  MetaWindowActor *window_actor;
+
+  window_actor = meta_window_actor_from_window (window_stream->window);
+  if (window_actor)
+    {
+      MetaScreenCastWindow *screen_cast_window;
+
+      screen_cast_window = META_SCREEN_CAST_WINDOW (window_actor);
+      meta_screen_cast_window_dec_usage (screen_cast_window);
+    }
 
   g_clear_signal_handler (&window_stream->window_unmanaged_handler_id,
                           window_stream->window);
@@ -212,6 +222,8 @@ meta_screen_cast_window_stream_initable_init (GInitable     *initable,
   MetaScreenCastWindowStream *window_stream =
     META_SCREEN_CAST_WINDOW_STREAM (initable);
   MetaWindow *window = window_stream->window;
+  MetaScreenCastWindow *screen_cast_window =
+    META_SCREEN_CAST_WINDOW (meta_window_actor_from_window (window));
   MetaLogicalMonitor *logical_monitor;
   int scale;
 
@@ -241,6 +253,8 @@ meta_screen_cast_window_stream_initable_init (GInitable     *initable,
   window_stream->logical_height = logical_monitor->rect.height;
   window_stream->stream_width = logical_monitor->rect.width * scale;
   window_stream->stream_height = logical_monitor->rect.height * scale;
+
+  meta_screen_cast_window_inc_usage (screen_cast_window);
 
   return initable_parent_iface->init (initable, cancellable, error);
 }
