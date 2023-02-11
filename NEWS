@@ -1,3 +1,31 @@
+43.3
+====
+* Skip resize effects for tiled windows during user grabs [Michael; !2579]
+* Disable direct scanout during drag-n-drop operations [Robert; !2677]
+* Ignore unmapped subsurfaces in direct scanout check [Robert; !2755]
+* Fix cursor disappearing over windows during grabs [Carlos; !2754]
+* Fix pointer constrains with subsurfaces [Robert; !2717]
+* Make wl_output mode independent of the orientation [Sebastian; !2723]
+* Improve focus handling on workspace switches [Sebastian; !2747]
+* Fix cursor position in window screencasts [Georges; !2737]
+* Do not require a physical device to update pointer visibility [Carlos; !2766]
+* Fix initialization of keyboard accessibility [Carlos; !2750, !2778]
+* Fix freeze when crossing monitors under some conditions [Carlos; !2803]
+* Don't allow window activation to break global grabs
+  [Florian, Carlos; !2776, !2832]
+* Fixed crashes [Georges, Daniel, Jonas; !2736, !2674, !2794]
+* Plugged leak [Niels; !2799]
+* Misc. bug fixes and cleanups [Robert, Jonas, Georges, Carlos; !2671, !2707,
+  !2762, !2767, !2811, gnome-shell#6137]
+
+Contributors:
+  Carlos Garnacho, Niels De Graef, Robert Mader, Florian Müllner,
+  Georges Basile Stavracas Neto, Daniel van Vugt, Michael Webster,
+  Sebastian Wick, Jonas Ådahl
+
+Translators:
+  Aleksandr Melman [ru]
+
 43.2
 ====
 * Fix edge resistance and window snapping regression [John; !2687]
