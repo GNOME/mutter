@@ -101,6 +101,8 @@ void meta_window_actor_set_geometry_scale (MetaWindowActor *window_actor,
 
 int meta_window_actor_get_geometry_scale (MetaWindowActor *window_actor);
 
+gboolean meta_window_actor_is_streaming (MetaWindowActor *window_actor);
+
 void meta_window_actor_notify_damaged (MetaWindowActor *window_actor);
 
 gboolean meta_window_actor_is_frozen (MetaWindowActor *self);

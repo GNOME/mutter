@@ -69,6 +69,7 @@ typedef struct _MetaWindowActorPrivate
   gint              destroy_in_progress;
 
   guint             freeze_count;
+  guint             screen_cast_usage_count;
 
   guint		    visible                : 1;
   guint		    disposed               : 1;
@@ -1358,6 +1359,26 @@ meta_window_actor_has_damage (MetaScreenCastWindow *screen_cast_window)
 }
 
 static void
+meta_window_actor_inc_screen_cast_usage (MetaScreenCastWindow *screen_cast_window)
+{
+  MetaWindowActor *window_actor = META_WINDOW_ACTOR (screen_cast_window);
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (window_actor);
+
+  priv->screen_cast_usage_count++;
+}
+
+static void
+meta_window_actor_dec_screen_cast_usage (MetaScreenCastWindow *screen_cast_window)
+{
+  MetaWindowActor *window_actor = META_WINDOW_ACTOR (screen_cast_window);
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (window_actor);
+
+  priv->screen_cast_usage_count--;
+}
+
+static void
 screen_cast_window_iface_init (MetaScreenCastWindowInterface *iface)
 {
   iface->get_buffer_bounds = meta_window_actor_get_buffer_bounds;
@@ -1366,6 +1387,17 @@ screen_cast_window_iface_init (MetaScreenCastWindowInterface *iface)
   iface->capture_into = meta_window_actor_capture_into;
   iface->blit_to_framebuffer = meta_window_actor_blit_to_framebuffer;
   iface->has_damage = meta_window_actor_has_damage;
+  iface->inc_usage = meta_window_actor_inc_screen_cast_usage;
+  iface->dec_usage = meta_window_actor_dec_screen_cast_usage;
+}
+
+gboolean
+meta_window_actor_is_streaming (MetaWindowActor *window_actor)
+{
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (window_actor);
+
+  return priv->screen_cast_usage_count > 0;
 }
 
 MetaWindowActor *

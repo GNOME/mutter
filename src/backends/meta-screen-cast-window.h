@@ -62,6 +62,9 @@ struct _MetaScreenCastWindowInterface
                                    CoglFramebuffer      *framebuffer);
 
   gboolean (*has_damage) (MetaScreenCastWindow *screen_cast_window);
+
+  void (*inc_usage) (MetaScreenCastWindow *screen_cast_window);
+  void (*dec_usage) (MetaScreenCastWindow *screen_cast_window);
 };
 
 void meta_screen_cast_window_get_buffer_bounds (MetaScreenCastWindow *screen_cast_window,
@@ -89,6 +92,9 @@ gboolean meta_screen_cast_window_blit_to_framebuffer (MetaScreenCastWindow *scre
                                                       CoglFramebuffer      *framebuffer);
 
 gboolean meta_screen_cast_window_has_damage (MetaScreenCastWindow *screen_cast_window);
+
+void meta_screen_cast_window_inc_usage (MetaScreenCastWindow *screen_cast_window);
+void meta_screen_cast_window_dec_usage (MetaScreenCastWindow *screen_cast_window);
 
 G_END_DECLS
 

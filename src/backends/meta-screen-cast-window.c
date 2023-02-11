@@ -99,3 +99,15 @@ meta_screen_cast_window_has_damage (MetaScreenCastWindow *screen_cast_window)
 
   return iface->has_damage (screen_cast_window);
 }
+
+void
+meta_screen_cast_window_inc_usage (MetaScreenCastWindow *screen_cast_window)
+{
+  META_SCREEN_CAST_WINDOW_GET_IFACE (screen_cast_window)->inc_usage (screen_cast_window);
+}
+
+void
+meta_screen_cast_window_dec_usage (MetaScreenCastWindow *screen_cast_window)
+{
+  META_SCREEN_CAST_WINDOW_GET_IFACE (screen_cast_window)->dec_usage (screen_cast_window);
+}
