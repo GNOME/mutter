@@ -1,3 +1,24 @@
+42.8
+====
+* Skip resize effects for tiled windows during user grabs [Michael; !2579]
+* Disable direct scanout during drag-n-drop operations [Robert; !2677]
+* Ignore unmapped subsurfaces in direct scanout check [Robert; !2671]
+* Fix cursor disappearing over windows during grabs [Carlos; !2754]
+* Fix cursor position in window screencasts [Georges; !2737]
+* Fix initialization of keyboard accessibility [Carlos; !2750, !2778]
+* Don't allow window activation to break global grabs
+  [Florian, Carlos; !2776, !2832]
+* Fixed crashes [Georges, Jonas; !2736, !2609]
+* Plugged leak [Niels; !2799]
+* Misc. bug fixes and cleanups [Jonas, Georges, Carlos; !2707, !2762, !2767]
+
+Contributors:
+  Carlos Garnacho, Niels De Graef, Robert Mader, Florian Müllner,
+  Georges Basile Stavracas Neto, Nart Tlisha, Michael Webster, Jonas Ådahl
+
+Translators:
+  Nart Tlisha [ab]
+
 42.7
 ====
 * Always send modifiers to clients if supported [Jonas Å.; !2546]
