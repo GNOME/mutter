@@ -30,7 +30,9 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"
+#include "backends/meta-screen-cast-window.h"
 #include "compositor/meta-shaped-texture-private.h"
+#include "compositor/meta-window-actor-private.h"
 #include "compositor/region-utils.h"
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-private.h"
@@ -74,15 +76,19 @@ meta_surface_actor_wayland_is_view_primary (MetaSurfaceActor *actor,
   ClutterStageView *current_primary_view = NULL;
   float highest_refresh_rate = 0.f;
   float biggest_unobscurred_fraction = 0.f;
+  MetaWindowActor *window_actor;
+  gboolean is_streaming = FALSE;
   GList *l;
 
-  if (!clutter_actor_is_effectively_on_stage_view (CLUTTER_ACTOR (actor),
-                                                   stage_view))
-    return FALSE;
+  window_actor = meta_window_actor_from_actor (CLUTTER_ACTOR (actor));
+  if (window_actor)
+    is_streaming = meta_window_actor_is_streaming (window_actor);
 
-  if (clutter_actor_has_mapped_clones (CLUTTER_ACTOR (actor)))
+  if (clutter_actor_has_mapped_clones (CLUTTER_ACTOR (actor)) || is_streaming)
     {
       ClutterStage *stage;
+      ClutterStageView *fallback_view = NULL;
+      float fallback_refresh_rate = 0.0;
 
       stage = CLUTTER_STAGE (clutter_actor_get_stage (CLUTTER_ACTOR (actor)));
       for (l = clutter_stage_peek_stage_views (stage); l; l = l->next)
@@ -90,28 +96,42 @@ meta_surface_actor_wayland_is_view_primary (MetaSurfaceActor *actor,
           ClutterStageView *view = l->data;
           float refresh_rate;
 
-          if (!clutter_actor_is_effectively_on_stage_view (CLUTTER_ACTOR (actor),
-                                                           view))
-            continue;
-
           refresh_rate = clutter_stage_view_get_refresh_rate (view);
-          if (refresh_rate > highest_refresh_rate)
+
+          if (clutter_actor_is_effectively_on_stage_view (CLUTTER_ACTOR (actor),
+                                                          view))
             {
-              current_primary_view = view;
-              highest_refresh_rate = refresh_rate;
+              if (refresh_rate > highest_refresh_rate)
+                {
+                  current_primary_view = view;
+                  highest_refresh_rate = refresh_rate;
+                }
+            }
+          else
+            {
+              if (refresh_rate > fallback_refresh_rate)
+                {
+                  fallback_view = view;
+                  fallback_refresh_rate = refresh_rate;
+                }
             }
         }
 
-      return current_primary_view == stage_view;
+      if (current_primary_view)
+        return current_primary_view == stage_view;
+      else if (is_streaming)
+        return fallback_view == stage_view;
     }
 
   l = clutter_actor_peek_stage_views (CLUTTER_ACTOR (actor));
-  g_return_val_if_fail (l, FALSE);
+  if (!l)
+    return FALSE;
 
   if (!l->next)
     {
-      g_return_val_if_fail (l->data == stage_view, FALSE);
-      return !meta_surface_actor_is_obscured (actor);
+      return !meta_surface_actor_is_obscured_on_stage_view (actor,
+                                                            stage_view,
+                                                            NULL);
     }
 
   for (; l; l = l->next)
