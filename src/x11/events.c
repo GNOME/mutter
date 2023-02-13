@@ -1932,6 +1932,7 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
   if (x11_display->focused_by_us &&
       event->xany.serial > x11_display->focus_serial &&
       display->focus_window &&
+      display->focus_window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
       !window_has_xwindow (display->focus_window, x11_display->server_focus_window) &&
       meta_display_windows_are_interactable (display))
     {
