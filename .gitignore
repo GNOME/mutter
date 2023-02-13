@@ -3,3 +3,4 @@
 **/tags.*
 subprojects/sysprof/
 __pycache__/
+.buildconfig
