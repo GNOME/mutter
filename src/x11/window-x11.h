@@ -44,6 +44,8 @@ struct _MetaWindowX11Class
   void (*freeze_commits) (MetaWindow *window);
   void (*thaw_commits)   (MetaWindow *window);
   gboolean (*always_update_shape) (MetaWindow *window);
+  void (*process_property_notify) (MetaWindow     *window,
+                                   XPropertyEvent *event);
 };
 
 MetaWindow * meta_window_x11_new           (MetaDisplay        *display,
@@ -71,8 +73,8 @@ void meta_window_x11_recalc_window_type          (MetaWindow *window);
 
 gboolean meta_window_x11_configure_request       (MetaWindow *window,
                                                   XEvent     *event);
-gboolean meta_window_x11_property_notify         (MetaWindow *window,
-                                                  XEvent     *event);
+void meta_window_x11_property_notify         (MetaWindow *window,
+                                              XEvent     *event);
 gboolean meta_window_x11_client_message          (MetaWindow *window,
                                                   XEvent     *event);
 

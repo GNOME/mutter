@@ -91,6 +91,10 @@ meta_window_x11_maybe_focus_delayed (MetaWindow *window,
                                      guint32     timestamp);
 
 static void
+meta_window_x11_impl_process_property_notify (MetaWindow     *window,
+                                              XPropertyEvent *event);
+
+static void
 meta_window_x11_init (MetaWindowX11 *window_x11)
 {
 }
@@ -2229,6 +2233,7 @@ meta_window_x11_class_init (MetaWindowX11Class *klass)
   klass->freeze_commits = meta_window_x11_impl_freeze_commits;
   klass->thaw_commits = meta_window_x11_impl_thaw_commits;
   klass->always_update_shape = meta_window_x11_impl_always_update_shape;
+  klass->process_property_notify = meta_window_x11_impl_process_property_notify;
 
   obj_props[PROP_ATTRIBUTES] =
     g_param_spec_pointer ("attributes",
@@ -2933,9 +2938,9 @@ meta_window_x11_configure_request (MetaWindow *window,
   return TRUE;
 }
 
-static gboolean
-process_property_notify (MetaWindow     *window,
-                         XPropertyEvent *event)
+static void
+meta_window_x11_impl_process_property_notify (MetaWindow     *window,
+                                              XPropertyEvent *event)
 {
   Window xid = window->xwindow;
 
@@ -2952,19 +2957,19 @@ process_property_notify (MetaWindow     *window,
   if (event->atom == window->display->x11_display->atom__NET_WM_USER_TIME &&
       window->user_time_window)
     {
-        xid = window->user_time_window;
+      xid = window->user_time_window;
     }
 
   meta_window_reload_property_from_xwindow (window, xid, event->atom, FALSE);
-
-  return TRUE;
 }
 
-gboolean
+void
 meta_window_x11_property_notify (MetaWindow *window,
                                  XEvent     *event)
 {
-  return process_property_notify (window, &event->xproperty);
+  MetaWindowX11Class *klass = META_WINDOW_X11_GET_CLASS (window);
+
+  klass->process_property_notify (window, &event->xproperty);
 }
 
 #define _NET_WM_MOVERESIZE_SIZE_TOPLEFT      0
