@@ -1171,6 +1171,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
       kms_update = meta_frame_native_ensure_kms_update (frame_native,
                                                         kms_device);
       meta_kms_update_add_result_listener (kms_update,
+                                           NULL,
                                            on_swap_buffer_update_result,
                                            onscreen_native);
 
@@ -1389,6 +1390,7 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
   kms_update = meta_frame_native_ensure_kms_update (frame_native, kms_device);
 
   meta_kms_update_add_result_listener (kms_update,
+                                       NULL,
                                        on_scanout_update_result,
                                        onscreen_native);
 
@@ -1542,6 +1544,7 @@ meta_onscreen_native_finish_frame (CoglOnscreen *onscreen,
     }
 
   meta_kms_update_add_result_listener (kms_update,
+                                       NULL,
                                        on_finish_frame_update_result,
                                        onscreen_native);
 

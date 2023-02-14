@@ -607,6 +607,7 @@ meta_kms_plane_assignment_set_cursor_hotspot (MetaKmsPlaneAssignment *plane_assi
 
 void
 meta_kms_update_add_result_listener (MetaKmsUpdate             *update,
+                                     GMainContext              *main_context,
                                      MetaKmsResultListenerFunc  func,
                                      gpointer                   user_data)
 {
@@ -614,6 +615,7 @@ meta_kms_update_add_result_listener (MetaKmsUpdate             *update,
 
   listener = g_new0 (MetaKmsResultListener, 1);
   *listener = (MetaKmsResultListener) {
+    .main_context = main_context,
     .func = func,
     .user_data = user_data,
   };
@@ -626,6 +628,12 @@ GList *
 meta_kms_update_take_result_listeners (MetaKmsUpdate *update)
 {
   return g_steal_pointer (&update->result_listeners);
+}
+
+GMainContext *
+meta_kms_result_listener_get_main_context (MetaKmsResultListener *listener)
+{
+  return listener->main_context;
 }
 
 void

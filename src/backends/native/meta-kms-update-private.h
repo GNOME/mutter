@@ -128,6 +128,7 @@ typedef struct _MetaKmsPageFlipListener
 
 struct _MetaKmsResultListener
 {
+  GMainContext *main_context;
   MetaKmsResultListenerFunc func;
   gpointer user_data;
 
@@ -191,7 +192,10 @@ MetaKmsCustomPageFlip * meta_kms_update_take_custom_page_flip_func (MetaKmsUpdat
 void meta_kms_update_drop_plane_assignment (MetaKmsUpdate *update,
                                             MetaKmsPlane  *plane);
 
+META_EXPORT_TEST
 GList * meta_kms_update_take_result_listeners (MetaKmsUpdate *update);
+
+GMainContext * meta_kms_result_listener_get_main_context (MetaKmsResultListener *listener);
 
 void meta_kms_result_listener_set_feedback (MetaKmsResultListener *listener,
                                             MetaKmsFeedback       *feedback);

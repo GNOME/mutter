@@ -865,6 +865,7 @@ post_mode_set_updates (MetaRendererNative *renderer_native)
       g_hash_table_iter_steal (&iter);
 
       meta_kms_update_add_result_listener (kms_update,
+                                           NULL,
                                            on_mode_sets_update_result,
                                            NULL);
 

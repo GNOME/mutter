@@ -92,6 +92,7 @@ GList * meta_kms_feedback_get_failed_planes (const MetaKmsFeedback *feedback);
 
 const GError * meta_kms_feedback_get_error (const MetaKmsFeedback *feedback);
 
+META_EXPORT_TEST
 void meta_kms_feedback_dispatch_result (MetaKmsFeedback *feedback,
                                         MetaKms         *kms,
                                         GList           *result_listeners);
@@ -183,6 +184,7 @@ void meta_kms_plane_assignment_set_cursor_hotspot (MetaKmsPlaneAssignment *plane
 
 META_EXPORT_TEST
 void meta_kms_update_add_result_listener (MetaKmsUpdate             *update,
+                                          GMainContext              *main_context,
                                           MetaKmsResultListenerFunc  func,
                                           gpointer                   user_data);
 

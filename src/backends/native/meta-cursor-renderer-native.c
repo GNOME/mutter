@@ -361,6 +361,7 @@ assign_cursor_plane (MetaCursorRendererNative *native,
                                                 cursor_hotspot_y);
 
   meta_kms_update_add_result_listener (kms_update,
+                                       NULL,
                                        on_kms_update_result,
                                        native);
 

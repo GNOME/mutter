@@ -376,6 +376,7 @@ on_scanout_fallback_before_paint (ClutterStage     *stage,
 
   kms_update = meta_frame_native_ensure_kms_update (frame_native, kms_device);
   meta_kms_update_add_result_listener (kms_update,
+                                       NULL,
                                        on_scanout_fallback_result, test);
 
   test->scanout_fallback.scanout_failed_view = stage_view;

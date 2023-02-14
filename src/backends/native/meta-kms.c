@@ -169,8 +169,11 @@ void
 meta_kms_queue_result_callback (MetaKms               *kms,
                                 MetaKmsResultListener *listener)
 {
+  GMainContext *main_context =
+    meta_kms_result_listener_get_main_context (listener);
+
   meta_kms_queue_callback  (kms,
-                            NULL,
+                            main_context,
                             invoke_result_listener,
                             listener,
                             (GDestroyNotify) meta_kms_result_listener_free);
