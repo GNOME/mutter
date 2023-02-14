@@ -27,6 +27,7 @@
 #include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-mode-private.h"
 #include "backends/native/meta-kms-plane.h"
+#include "backends/native/meta-kms-private.h"
 
 struct _MetaKmsUpdate
 {
@@ -147,6 +148,23 @@ const GError *
 meta_kms_feedback_get_error (const MetaKmsFeedback *feedback)
 {
   return feedback->error;
+}
+
+void
+meta_kms_feedback_dispatch_result (MetaKmsFeedback *feedback,
+                                   MetaKms         *kms,
+                                   GList           *result_listeners)
+{
+  GList *l;
+
+  for (l = result_listeners; l; l = l->next)
+    {
+      MetaKmsResultListener *listener = l->data;
+
+      meta_kms_result_listener_set_feedback (listener, feedback);
+      meta_kms_queue_result_callback (kms, listener);
+    }
+  g_list_free (result_listeners);
 }
 
 static void
@@ -549,15 +567,26 @@ meta_kms_update_take_result_listeners (MetaKmsUpdate *update)
 }
 
 void
-meta_kms_result_listener_notify (MetaKmsResultListener *listener,
-                                 const MetaKmsFeedback *feedback)
+meta_kms_result_listener_set_feedback (MetaKmsResultListener *listener,
+                                       MetaKmsFeedback       *feedback)
 {
-  listener->func (feedback, listener->user_data);
+  g_return_if_fail (!listener->feedback);
+
+  listener->feedback = meta_kms_feedback_ref (feedback);
+}
+
+void
+meta_kms_result_listener_notify (MetaKmsResultListener *listener)
+{
+  g_return_if_fail (listener->feedback);
+
+  listener->func (listener->feedback, listener->user_data);
 }
 
 void
 meta_kms_result_listener_free (MetaKmsResultListener *listener)
 {
+  g_clear_pointer (&listener->feedback, meta_kms_feedback_unref);
   g_free (listener);
 }
 

@@ -26,6 +26,7 @@
 #include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-plane-private.h"
 #include "backends/native/meta-kms-types.h"
+#include "backends/native/meta-kms-types-private.h"
 #include "backends/native/meta-kms-update.h"
 
 typedef struct _MetaKmsCrtcColorUpdate
@@ -113,11 +114,13 @@ typedef struct _MetaKmsPageFlipListener
   GDestroyNotify destroy_notify;
 } MetaKmsPageFlipListener;
 
-typedef struct _MetaKmsResultListener
+struct _MetaKmsResultListener
 {
   MetaKmsResultListenerFunc func;
   gpointer user_data;
-} MetaKmsResultListener;
+
+  MetaKmsFeedback *feedback;
+};
 
 typedef struct _MetaKmsCustomPageFlip
 {
@@ -185,8 +188,10 @@ META_EXPORT_TEST
 void meta_kms_update_merge_from (MetaKmsUpdate *update,
                                  MetaKmsUpdate *other_update);
 
-void meta_kms_result_listener_notify (MetaKmsResultListener *listener,
-                                      const MetaKmsFeedback *feedback);
+void meta_kms_result_listener_set_feedback (MetaKmsResultListener *listener,
+                                            MetaKmsFeedback       *feedback);
+
+void meta_kms_result_listener_notify (MetaKmsResultListener *listener);
 
 void meta_kms_result_listener_free (MetaKmsResultListener *listener);
 

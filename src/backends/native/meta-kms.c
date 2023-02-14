@@ -247,6 +247,25 @@ meta_kms_take_pending_update (MetaKms       *kms,
   return NULL;
 }
 
+static void
+invoke_result_listener (MetaKms  *kms,
+                        gpointer  user_data)
+{
+  MetaKmsResultListener *listener = user_data;
+
+  meta_kms_result_listener_notify (listener);
+}
+
+void
+meta_kms_queue_result_callback (MetaKms               *kms,
+                                MetaKmsResultListener *listener)
+{
+  meta_kms_queue_callback  (kms,
+                            invoke_result_listener,
+                            listener,
+                            (GDestroyNotify) meta_kms_result_listener_free);
+}
+
 MetaKmsFeedback *
 meta_kms_post_pending_update_sync (MetaKms           *kms,
                                    MetaKmsDevice     *device,
@@ -255,7 +274,6 @@ meta_kms_post_pending_update_sync (MetaKms           *kms,
   MetaKmsUpdate *update;
   MetaKmsFeedback *feedback;
   GList *result_listeners;
-  GList *l;
 
   COGL_TRACE_BEGIN_SCOPED (MetaKmsPostUpdateSync,
                            "KMS (post update)");
@@ -270,14 +288,7 @@ meta_kms_post_pending_update_sync (MetaKms           *kms,
 
   meta_kms_update_free (update);
 
-  for (l = result_listeners; l; l = l->next)
-    {
-      MetaKmsResultListener *listener = l->data;
-
-      meta_kms_result_listener_notify (listener, feedback);
-      meta_kms_result_listener_free (listener);
-    }
-  g_list_free (result_listeners);
+  meta_kms_feedback_dispatch_result (feedback, kms, result_listeners);
 
   return feedback;
 }
