@@ -90,12 +90,6 @@ if have_introspection
   ]
 endif
 
-if have_x11_client
-  mutter_pkg_deps += [
-    gtk3_dep,
-  ]
-endif
-
 if have_x11
   mutter_pkg_deps += [
     xfixes_dep,
