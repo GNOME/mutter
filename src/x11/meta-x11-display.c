@@ -103,6 +103,8 @@ static void prefs_changed_callback (MetaPreference pref,
 
 static void meta_x11_display_init_frames_client (MetaX11Display *x11_display);
 
+static void meta_x11_display_remove_cursor_later (MetaX11Display *x11_display);
+
 static MetaBackend *
 backend_from_x11_display (MetaX11Display *x11_display)
 {
@@ -273,6 +275,8 @@ meta_x11_display_dispose (GObject *object)
     }
 
   g_clear_handle_id (&x11_display->display_close_idle, g_source_remove);
+
+  meta_x11_display_remove_cursor_later (x11_display);
 
   g_free (x11_display->name);
   x11_display->name = NULL;
@@ -1602,12 +1606,52 @@ set_cursor_theme (Display     *xdisplay,
 }
 
 static void
+meta_x11_display_remove_cursor_later (MetaX11Display *x11_display)
+{
+  if (x11_display->reload_x11_cursor_later)
+    {
+      MetaDisplay *display = x11_display->display;
+      MetaLaters *laters = meta_compositor_get_laters (display->compositor);
+
+      meta_laters_remove (laters, x11_display->reload_x11_cursor_later);
+      x11_display->reload_x11_cursor_later = 0;
+    }
+}
+
+static gboolean
+reload_x11_cursor_later (gpointer user_data)
+{
+  MetaX11Display *x11_display = user_data;
+
+  x11_display->reload_x11_cursor_later = 0;
+  meta_x11_display_reload_cursor (x11_display);
+
+  return G_SOURCE_REMOVE;
+}
+
+static void
+schedule_reload_x11_cursor (MetaX11Display *x11_display)
+{
+  MetaDisplay *display = x11_display->display;
+  MetaLaters *laters = meta_compositor_get_laters (display->compositor);
+
+  if (x11_display->reload_x11_cursor_later)
+    return;
+
+  x11_display->reload_x11_cursor_later =
+    meta_laters_add (laters, META_LATER_BEFORE_REDRAW,
+                     reload_x11_cursor_later,
+                     x11_display,
+                     NULL);
+}
+
+static void
 update_cursor_theme (MetaX11Display *x11_display)
 {
   MetaBackend *backend = backend_from_x11_display (x11_display);
 
   set_cursor_theme (x11_display->xdisplay, backend);
-  meta_x11_display_reload_cursor (x11_display);
+  schedule_reload_x11_cursor (x11_display);
 
   if (META_IS_BACKEND_X11 (backend))
     {

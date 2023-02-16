@@ -206,6 +206,8 @@ struct _MetaX11Display
   MetaX11Stack *x11_stack;
 
   XserverRegion empty_region;
+
+  unsigned int reload_x11_cursor_later;
 };
 
 MetaX11Display *meta_x11_display_new (MetaDisplay *display, GError **error);
