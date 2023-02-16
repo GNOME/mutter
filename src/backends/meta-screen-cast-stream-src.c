@@ -801,8 +801,8 @@ on_stream_state_changed (void                 *data,
   switch (state)
     {
     case PW_STREAM_STATE_ERROR:
-      g_warning ("pipewire stream error: %s", error_message);
-      meta_screen_cast_stream_src_close (src);
+      if (meta_screen_cast_stream_src_is_enabled (src))
+        meta_screen_cast_stream_src_disable (src);
       break;
     case PW_STREAM_STATE_PAUSED:
       if (priv->node_id == SPA_ID_INVALID && priv->pipewire_stream)
