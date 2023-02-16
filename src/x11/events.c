@@ -44,6 +44,7 @@
 #include "meta/meta-x11-errors.h"
 #include "x11/meta-startup-notification-x11.h"
 #include "x11/meta-x11-display-private.h"
+#include "x11/meta-x11-event-source.h"
 #include "x11/meta-x11-selection-private.h"
 #include "x11/meta-x11-selection-input-stream-private.h"
 #include "x11/meta-x11-selection-output-stream-private.h"
@@ -1266,7 +1267,7 @@ process_selection_clear (MetaX11Display *x11_display,
   meta_verbose ("Got selection clear for on display %s",
                 x11_display->name);
 
-  /* We can't close a GdkDisplay in an even handler. */
+  /* We can't close a Display in an event handler. */
   if (!x11_display->display_close_idle)
     {
       x11_display->xselectionclear_timestamp = event->xselectionclear.time;
@@ -1919,6 +1920,9 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
   COGL_TRACE_BEGIN (MetaX11DisplayHandleXevent,
                     "X11Display (handle X11 event)");
 
+  if (event->type == GenericEvent)
+    XGetEventData (x11_display->xdisplay, &event->xcookie);
+
 #if 0
   meta_spew_event_print (x11_display, event);
 #endif
@@ -2030,6 +2034,9 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
 
   display->current_time = META_CURRENT_TIME;
 
+  if (event->type == GenericEvent)
+    XFreeEventData (x11_display->xdisplay, &event->xcookie);
+
   COGL_TRACE_DESCRIBE (MetaX11DisplayHandleXevent,
                        get_event_name (x11_display, event));
   COGL_TRACE_END (MetaX11DisplayHandleXevent);
@@ -2038,27 +2045,30 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
 }
 
 
-static GdkFilterReturn
-xevent_filter (GdkXEvent *xevent,
-               GdkEvent  *event,
-               gpointer   data)
+static gboolean
+xevent_func (XEvent   *xevent,
+             gpointer  data)
 {
   MetaX11Display *x11_display = data;
 
-  if (meta_x11_display_handle_xevent (x11_display, xevent))
-    return GDK_FILTER_REMOVE;
-  else
-    return GDK_FILTER_CONTINUE;
+  meta_x11_display_handle_xevent (x11_display, xevent);
+
+  return G_SOURCE_CONTINUE;
 }
 
 void
 meta_x11_display_init_events (MetaX11Display *x11_display)
 {
-  gdk_window_add_filter (NULL, xevent_filter, x11_display);
+  x11_display->event_source = meta_x11_event_source_new (x11_display->xdisplay);
+  g_source_set_callback (x11_display->event_source,
+                         (GSourceFunc) xevent_func,
+                         x11_display, NULL);
+  g_source_attach (x11_display->event_source, NULL);
 }
 
 void
 meta_x11_display_free_events (MetaX11Display *x11_display)
 {
-  gdk_window_remove_filter (NULL, xevent_filter, x11_display);
+  g_source_destroy (x11_display->event_source);
+  g_clear_pointer (&x11_display->event_source, g_source_unref);
 }

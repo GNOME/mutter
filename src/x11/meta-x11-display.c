@@ -33,9 +33,6 @@
 #include "core/display-private.h"
 #include "x11/meta-x11-display-private.h"
 
-#include <gdk/gdk.h>
-#include <gtk/gtk.h>
-#include <gdk/gdkx.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -271,13 +268,8 @@ meta_x11_display_dispose (GObject *object)
     {
       meta_x11_display_free_events (x11_display);
 
+      XCloseDisplay (x11_display->xdisplay);
       x11_display->xdisplay = NULL;
-    }
-
-  if (x11_display->gdk_display)
-    {
-      gdk_display_close (x11_display->gdk_display);
-      x11_display->gdk_display = NULL;
     }
 
   g_clear_handle_id (&x11_display->display_close_idle, g_source_remove);
@@ -764,11 +756,6 @@ init_leader_window (MetaX11Display *x11_display,
   gulong data[1];
   XEvent event;
 
-  /* We only care about the PropertyChangeMask in the next 30 or so lines of
-   * code.  Note that gdk will at some point unset the PropertyChangeMask for
-   * this window, so we can't rely on it still being set later.  See bug
-   * 354213 for details.
-   */
   x11_display->leader_window =
     meta_x11_display_create_offscreen_window (x11_display,
                                               x11_display->xroot,
@@ -1047,15 +1034,11 @@ get_display_name (MetaDisplay *display)
     return g_getenv ("DISPLAY");
 }
 
-static GdkDisplay *
-open_gdk_display (MetaDisplay  *display,
-                  GError      **error)
+static Display *
+open_x_display (MetaDisplay  *display,
+                GError      **error)
 {
   const char *xdisplay_name;
-  GdkDisplay *gdk_display;
-  const char *gdk_backend_env = NULL;
-  const char *gdk_gl_env = NULL;
-  const char *old_no_at_bridge;
   Display *xdisplay;
 
   xdisplay_name = get_display_name (display);
@@ -1066,72 +1049,22 @@ open_gdk_display (MetaDisplay  *display,
       return NULL;
     }
 
-  gdk_set_allowed_backends ("x11");
+  meta_verbose ("Opening display '%s'", xdisplay_name);
 
-  gdk_backend_env = g_getenv ("GDK_BACKEND");
-  /* GDK would fail to initialize with e.g. GDK_BACKEND=wayland */
-  g_unsetenv ("GDK_BACKEND");
-
-  gdk_gl_env = g_getenv ("GDK_GL");
-  g_setenv ("GDK_GL", "disable", TRUE);
-
-  gdk_parse_args (NULL, NULL);
-  if (!gtk_parse_args (NULL, NULL))
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "Failed to initialize gtk");
-      return NULL;
-    }
-
-  old_no_at_bridge = g_getenv ("NO_AT_BRIDGE");
-  g_setenv ("NO_AT_BRIDGE", "1", TRUE);
-  gdk_display = gdk_display_open (xdisplay_name);
-
-  if (old_no_at_bridge)
-    g_setenv ("NO_AT_BRIDGE", old_no_at_bridge, TRUE);
-  else
-    g_unsetenv ("NO_AT_BRIDGE");
-
-  if (!gdk_display)
-    {
-      meta_warning (_("Failed to initialize GDK"));
-
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "Failed to initialize GDK");
-      return NULL;
-    }
-
-  if (gdk_backend_env)
-    g_setenv("GDK_BACKEND", gdk_backend_env, TRUE);
-
-  if (gdk_gl_env)
-    g_setenv("GDK_GL", gdk_gl_env, TRUE);
-  else
-    unsetenv("GDK_GL");
-
-  /* We need to be able to fully trust that the window and monitor sizes
-     that Gdk reports corresponds to the X ones, so we disable the automatic
-     scale handling */
-  gdk_x11_display_set_window_scale (gdk_display, 1);
-
-  meta_verbose ("Opening display '%s'", XDisplayName (NULL));
-
-  xdisplay = GDK_DISPLAY_XDISPLAY (gdk_display);
+  xdisplay = XOpenDisplay (xdisplay_name);
 
   if (xdisplay == NULL)
     {
       meta_warning (_("Failed to open X Window System display “%s”"),
-                    XDisplayName (NULL));
+                    xdisplay_name);
 
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "Failed to open X11 display");
 
-      gdk_display_close (gdk_display);
-
       return NULL;
     }
 
-  return gdk_display;
+  return xdisplay;
 }
 
 static void
@@ -1230,7 +1163,6 @@ meta_x11_display_new (MetaDisplay  *display,
   Atom atom_restart_helper;
   Window restart_helper_window = None;
   gboolean is_restart = FALSE;
-  GdkDisplay *gdk_display;
 
   /* A list of all atom names, so that we can intern them in one go. */
   const char *atom_names[] = {
@@ -1240,11 +1172,9 @@ meta_x11_display_new (MetaDisplay  *display,
   };
   Atom atoms[G_N_ELEMENTS(atom_names)];
 
-  gdk_display = open_gdk_display (display, error);
-  if (!gdk_display)
+  xdisplay = open_x_display (display, error);
+  if (!xdisplay)
     return NULL;
-
-  xdisplay = GDK_DISPLAY_XDISPLAY (gdk_display);
 
   XSynchronize (xdisplay, meta_context_is_x11_sync (context));
 
@@ -1261,9 +1191,6 @@ meta_x11_display_new (MetaDisplay  *display,
   replace_current_wm =
     meta_context_is_replacing (meta_backend_get_context (backend));
 
-  /* According to _gdk_x11_display_open (), this will be returned
-   * by gdk_display_get_default_screen ()
-   */
   number = DefaultScreen (xdisplay);
 
   xroot = RootWindow (xdisplay, number);
@@ -1282,8 +1209,6 @@ meta_x11_display_new (MetaDisplay  *display,
       XFlush (xdisplay);
       XCloseDisplay (xdisplay);
 
-      gdk_display_close (gdk_display);
-
       return NULL;
     }
 
@@ -1298,7 +1223,6 @@ meta_x11_display_new (MetaDisplay  *display,
     }
 
   x11_display = g_object_new (META_TYPE_X11_DISPLAY, NULL);
-  x11_display->gdk_display = gdk_display;
   x11_display->display = display;
 
   /* here we use XDisplayName which is what the user

@@ -476,6 +476,7 @@ if have_x11_client
     'x11/meta-x11-display.c',
     'x11/meta-x11-display-private.h',
     'x11/meta-x11-errors.c',
+    'x11/meta-x11-event-source.c',
     'x11/meta-x11-selection.c',
     'x11/meta-x11-selection-private.h',
     'x11/meta-x11-selection-input-stream.c',

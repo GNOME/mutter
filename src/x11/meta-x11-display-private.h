@@ -26,7 +26,6 @@
 #define META_X11_DISPLAY_PRIVATE_H
 
 #include <glib.h>
-#include <gdk/gdk.h>
 #include <X11/Xlib.h>
 
 #include "backends/meta-monitor-manager-private.h"
@@ -66,7 +65,6 @@ struct _MetaX11Display
   GObject parent;
 
   MetaDisplay *display;
-  GdkDisplay *gdk_display;
 
   char *name;
   char *screen_name;
@@ -145,6 +143,7 @@ struct _MetaX11Display
   GCancellable *frames_client_cancellable;
 
   GList *error_traps;
+  GSource *event_source;
 
   struct {
     Window xwindow;
