@@ -172,7 +172,7 @@ endif
 
 have_gnome_desktop = get_option('libgnome_desktop')
 if have_gnome_desktop
-  gnome_desktop_dep = dependency('gnome-desktop-3.0')
+  gnome_desktop_dep = dependency('gnome-desktop-4')
 endif
 
 have_sound_player = get_option('sound_player')
