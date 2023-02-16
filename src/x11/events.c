@@ -1303,7 +1303,7 @@ notify_bell (MetaX11Display *x11_display,
     }
 }
 
-static gboolean
+static void
 handle_other_xevent (MetaX11Display *x11_display,
                      XEvent         *event)
 {
@@ -1313,7 +1313,6 @@ handle_other_xevent (MetaX11Display *x11_display,
   MetaWindow *window;
   MetaWindow *property_for_window;
   gboolean frame_was_receiver;
-  gboolean bypass_gtk = FALSE;
 
   modified = event_get_modified_window (x11_display, event);
   window = modified != None ? meta_x11_display_lookup_x_window (x11_display, modified) : NULL;
@@ -1344,7 +1343,6 @@ handle_other_xevent (MetaX11Display *x11_display,
           gint64 new_counter_value;
           new_counter_value = XSyncValueLow32 (value) + ((gint64)XSyncValueHigh32 (value) << 32);
           meta_sync_counter_update (sync_counter, new_counter_value);
-          bypass_gtk = TRUE; /* GTK doesn't want to see this really */
         }
       else if (x11_display->alarm_filters)
         {
@@ -1358,21 +1356,16 @@ handle_other_xevent (MetaX11Display *x11_display,
               if (alarm_filter->filter (x11_display,
                                         (XSyncAlarmNotifyEvent *) event,
                                         alarm_filter->user_data))
-                {
-                  bypass_gtk = TRUE;
-                  break;
-                }
+                break;
             }
         }
 
-      goto out;
+      return;
     }
 
   if (META_X11_DISPLAY_HAS_SHAPE (x11_display) &&
       event->type == (x11_display->shape_event_base + ShapeNotify))
     {
-      bypass_gtk = TRUE; /* GTK doesn't want to see this really */
-
       if (window)
         {
           XShapeEvent *sev = (XShapeEvent*) event;
@@ -1389,7 +1382,7 @@ handle_other_xevent (MetaX11Display *x11_display,
                       modified);
         }
 
-      goto out;
+      return;
     }
 
   switch (event->type)
@@ -1771,12 +1764,6 @@ handle_other_xevent (MetaX11Display *x11_display,
                       guint32 timestamp = event->xclient.data.l[1];
 
                       meta_display_pong_for_serial (display, timestamp);
-
-                      /* We don't want ping reply events going into
-                       * the GTK+ event loop because gtk+ will treat
-                       * them as ping requests and send more replies.
-                       */
-                      bypass_gtk = TRUE;
                     }
                 }
             }
@@ -1836,16 +1823,9 @@ handle_other_xevent (MetaX11Display *x11_display,
               break;
             }
         }
-      else if (event->type == (x11_display->xfixes_event_base + XFixesSelectionNotify))
-        {
-          bypass_gtk = TRUE; /* GTK doesn't want to see this really */
-        }
 
       break;
     }
-
- out:
-  return bypass_gtk;
 }
 
 static gboolean
@@ -1902,7 +1882,7 @@ process_selection_event (MetaX11Display *x11_display,
  * busy around here. Most of this function is a ginormous switch statement
  * dealing with all the kinds of events that might turn up.
  */
-static gboolean
+static void
 meta_x11_display_handle_xevent (MetaX11Display *x11_display,
                                 XEvent         *event)
 {
@@ -1910,7 +1890,7 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
   MetaContext *context = meta_display_get_context (display);
   MetaBackend *backend = meta_context_get_backend (context);
   Window modified;
-  gboolean bypass_compositor = FALSE, bypass_gtk = FALSE;
+  gboolean bypass_compositor = FALSE;
   XIEvent *input_event;
   MetaCursorTracker *cursor_tracker;
 #ifdef HAVE_XWAYLAND
@@ -1931,7 +1911,7 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
 
   if (meta_x11_startup_notification_handle_xevent (x11_display, event))
     {
-      bypass_gtk = bypass_compositor = TRUE;
+      bypass_compositor = TRUE;
       goto out;
     }
 
@@ -1942,14 +1922,14 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
       meta_xwayland_manager_handle_xevent (&wayland_compositor->xwayland_manager,
                                            event))
     {
-      bypass_gtk = bypass_compositor = TRUE;
+      bypass_compositor = TRUE;
       goto out;
     }
 #endif
 
   if (process_selection_event (x11_display, event))
     {
-      bypass_gtk = bypass_compositor = TRUE;
+      bypass_compositor = TRUE;
       goto out;
     }
 
@@ -1986,7 +1966,7 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
 
           if (meta_cursor_tracker_x11_handle_xevent (cursor_tracker_x11, event))
             {
-              bypass_gtk = bypass_compositor = TRUE;
+              bypass_compositor = TRUE;
               goto out;
             }
         }
@@ -1998,23 +1978,16 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
 
   if (handle_input_xevent (x11_display, input_event, event->xany.serial))
     {
-      bypass_gtk = bypass_compositor = TRUE;
+      bypass_compositor = TRUE;
       goto out;
     }
 
-  if (handle_other_xevent (x11_display, event))
-    {
-      bypass_gtk = TRUE;
-      goto out;
-    }
+  handle_other_xevent (x11_display, event);
 
   if (event->type == SelectionClear)
     {
       if (process_selection_clear (x11_display, event))
-        {
-          bypass_gtk = TRUE;
-          goto out;
-        }
+        goto out;
     }
 
  out:
@@ -2040,8 +2013,6 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
   COGL_TRACE_DESCRIBE (MetaX11DisplayHandleXevent,
                        get_event_name (x11_display, event));
   COGL_TRACE_END (MetaX11DisplayHandleXevent);
-
-  return bypass_gtk;
 }
 
 
