@@ -144,6 +144,8 @@ struct _MetaX11Display
   GSubprocess *frames_client;
   GCancellable *frames_client_cancellable;
 
+  GList *error_traps;
+
   struct {
     Window xwindow;
     guint timeout_id;
@@ -297,5 +299,7 @@ gboolean meta_x11_display_xwindow_is_a_no_focus_window (MetaX11Display *x11_disp
                                                         Window xwindow);
 
 void meta_x11_display_clear_stage_input_region (MetaX11Display *x11_display);
+
+void meta_x11_display_init_error_traps (MetaX11Display *x11_display);
 
 #endif /* META_X11_DISPLAY_PRIVATE_H */

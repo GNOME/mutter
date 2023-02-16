@@ -288,6 +288,8 @@ meta_x11_display_dispose (GObject *object)
   g_free (x11_display->screen_name);
   x11_display->screen_name = NULL;
 
+  g_clear_list (&x11_display->error_traps, g_free);
+
   G_OBJECT_CLASS (meta_x11_display_parent_class)->dispose (object);
 }
 
@@ -1319,6 +1321,8 @@ meta_x11_display_new (MetaDisplay  *display,
 #define item(x) x11_display->atom_##x = atoms[i++];
 #include "x11/atomnames.h"
 #undef item
+
+  meta_x11_display_init_error_traps (x11_display);
 
   query_xsync_extension (x11_display);
   query_xshape_extension (x11_display);
