@@ -116,4 +116,7 @@ cairo_region_t * meta_region_crop_and_scale (cairo_region_t  *region,
                                              int              dst_width,
                                              int              dst_height);
 
+void meta_region_to_cairo_path (cairo_region_t *region,
+                                cairo_t        *cr);
+
 #endif /* __META_REGION_UTILS_H__ */

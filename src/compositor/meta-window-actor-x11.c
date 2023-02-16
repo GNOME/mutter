@@ -812,7 +812,7 @@ build_and_scan_frame_mask (MetaWindowActorX11    *actor_x11,
                                                stride);
   cr = cairo_create (image);
 
-  gdk_cairo_region (cr, shape_region);
+  meta_region_to_cairo_path (shape_region, cr);
   cairo_fill (cr);
 
   if (window->frame)
@@ -843,7 +843,7 @@ build_and_scan_frame_mask (MetaWindowActorX11    *actor_x11,
       frame_paint_region = cairo_region_create_rectangle (&rect);
       cairo_region_subtract_rectangle (frame_paint_region, &client_area);
 
-      gdk_cairo_region (cr, frame_paint_region);
+      meta_region_to_cairo_path (frame_paint_region, cr);
       cairo_clip (cr);
 
       meta_frame_get_mask (window->frame, &frame_rect, cr);

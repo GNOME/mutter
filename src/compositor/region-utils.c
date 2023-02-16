@@ -456,3 +456,19 @@ meta_region_crop_and_scale (cairo_region_t  *region,
 
   return viewport_region;
 }
+
+void
+meta_region_to_cairo_path (cairo_region_t *region,
+                           cairo_t        *cr)
+{
+  cairo_rectangle_int_t rect;
+  int n_rects, i;
+
+  n_rects = cairo_region_num_rectangles (region);
+
+  for (i = 0; i < n_rects; i++)
+    {
+      cairo_region_get_rectangle (region, i, &rect);
+      cairo_rectangle (cr, rect.x, rect.y, rect.width, rect.height);
+    }
+}
