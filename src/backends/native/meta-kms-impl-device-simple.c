@@ -503,10 +503,10 @@ process_mode_set (MetaKmsImplDevice  *impl_device,
 }
 
 static gboolean
-process_crtc_gamma (MetaKmsImplDevice  *impl_device,
-                    MetaKmsUpdate      *update,
-                    gpointer            update_entry,
-                    GError            **error)
+process_crtc_color_updates (MetaKmsImplDevice  *impl_device,
+                            MetaKmsUpdate      *update,
+                            gpointer            update_entry,
+                            GError            **error)
 {
   MetaKmsCrtcGamma *gamma = update_entry;
   MetaKmsCrtc *crtc = gamma->crtc;
@@ -1522,8 +1522,8 @@ meta_kms_impl_device_simple_process_update (MetaKmsImplDevice *impl_device,
 
   if (!process_entries (impl_device,
                         update,
-                        meta_kms_update_get_crtc_gammas (update),
-                        process_crtc_gamma,
+                        meta_kms_update_get_crtc_color_updates (update),
+                        process_crtc_color_updates,
                         &error))
     goto err;
 

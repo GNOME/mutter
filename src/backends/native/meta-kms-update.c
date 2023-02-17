@@ -38,7 +38,7 @@ struct _MetaKmsUpdate
   GList *mode_sets;
   GList *plane_assignments;
   GList *connector_updates;
-  GList *crtc_gammas;
+  GList *crtc_color_updates;
 
   MetaKmsCustomPageFlip *custom_page_flip;
 
@@ -415,7 +415,7 @@ meta_kms_update_set_crtc_gamma (MetaKmsUpdate  *update,
 
   gamma = meta_kms_crtc_gamma_new (crtc, size, red, green, blue);
 
-  update->crtc_gammas = g_list_prepend (update->crtc_gammas, gamma);
+  update->crtc_color_updates = g_list_prepend (update->crtc_color_updates, gamma);
 }
 
 void
@@ -628,9 +628,9 @@ meta_kms_update_get_connector_updates (MetaKmsUpdate *update)
 }
 
 GList *
-meta_kms_update_get_crtc_gammas (MetaKmsUpdate *update)
+meta_kms_update_get_crtc_color_updates (MetaKmsUpdate *update)
 {
-  return update->crtc_gammas;
+  return update->crtc_color_updates;
 }
 
 void
@@ -700,7 +700,7 @@ meta_kms_update_free (MetaKmsUpdate *update)
   g_list_free_full (update->page_flip_listeners,
                     (GDestroyNotify) meta_kms_page_flip_listener_free);
   g_list_free_full (update->connector_updates, g_free);
-  g_list_free_full (update->crtc_gammas, (GDestroyNotify) meta_kms_crtc_gamma_free);
+  g_list_free_full (update->crtc_color_updates, (GDestroyNotify) meta_kms_crtc_gamma_free);
   g_clear_pointer (&update->custom_page_flip, meta_kms_custom_page_flip_free);
 
   g_free (update);

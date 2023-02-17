@@ -163,7 +163,7 @@ META_EXPORT_TEST
 GList * meta_kms_update_get_connector_updates (MetaKmsUpdate *update);
 
 META_EXPORT_TEST
-GList * meta_kms_update_get_crtc_gammas (MetaKmsUpdate *update);
+GList * meta_kms_update_get_crtc_color_updates (MetaKmsUpdate *update);
 
 MetaKmsCustomPageFlip * meta_kms_update_take_custom_page_flip_func (MetaKmsUpdate *update);
 

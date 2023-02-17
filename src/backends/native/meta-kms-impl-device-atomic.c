@@ -613,13 +613,13 @@ process_plane_assignment (MetaKmsImplDevice  *impl_device,
 }
 
 static gboolean
-process_crtc_gamma (MetaKmsImplDevice  *impl_device,
-                    MetaKmsUpdate      *update,
-                    drmModeAtomicReq   *req,
-                    GArray             *blob_ids,
-                    gpointer            update_entry,
-                    gpointer            user_data,
-                    GError            **error)
+process_crtc_color_updates (MetaKmsImplDevice  *impl_device,
+                            MetaKmsUpdate      *update,
+                            drmModeAtomicReq   *req,
+                            GArray             *blob_ids,
+                            gpointer            update_entry,
+                            gpointer            user_data,
+                            GError            **error)
 {
   MetaKmsCrtcGamma *gamma = update_entry;
   MetaKmsCrtc *crtc = gamma->crtc;
@@ -995,9 +995,9 @@ meta_kms_impl_device_atomic_process_update (MetaKmsImplDevice *impl_device,
                         update,
                         req,
                         blob_ids,
-                        meta_kms_update_get_crtc_gammas (update),
+                        meta_kms_update_get_crtc_color_updates (update),
                         NULL,
-                        process_crtc_gamma,
+                        process_crtc_color_updates,
                         &error))
     goto err;
 

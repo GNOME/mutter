@@ -49,7 +49,7 @@ meta_test_kms_update_sanity (void)
   g_assert_null (meta_kms_update_get_mode_sets (update));
   g_assert_null (meta_kms_update_get_page_flip_listeners (update));
   g_assert_null (meta_kms_update_get_connector_updates (update));
-  g_assert_null (meta_kms_update_get_crtc_gammas (update));
+  g_assert_null (meta_kms_update_get_crtc_color_updates (update));
   meta_kms_update_free (update);
 }
 

@@ -276,7 +276,7 @@ meta_kms_crtc_predict_state_in_impl (MetaKmsCrtc   *crtc,
                                      MetaKmsUpdate *update)
 {
   GList *mode_sets;
-  GList *crtc_gammas;
+  GList *crtc_color_updates;
   GList *l;
 
   mode_sets = meta_kms_update_get_mode_sets (update);
@@ -313,8 +313,8 @@ meta_kms_crtc_predict_state_in_impl (MetaKmsCrtc   *crtc,
       break;
     }
 
-  crtc_gammas = meta_kms_update_get_crtc_gammas (update);
-  for (l = crtc_gammas; l; l = l->next)
+  crtc_color_updates = meta_kms_update_get_crtc_color_updates (update);
+  for (l = crtc_color_updates; l; l = l->next)
     {
       MetaKmsCrtcGamma *gamma = l->data;
 
