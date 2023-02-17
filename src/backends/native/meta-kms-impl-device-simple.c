@@ -508,30 +508,35 @@ process_crtc_color_updates (MetaKmsImplDevice  *impl_device,
                             gpointer            update_entry,
                             GError            **error)
 {
-  MetaKmsCrtcGamma *gamma = update_entry;
-  MetaKmsCrtc *crtc = gamma->crtc;
-  int fd;
-  int ret;
+  MetaKmsCrtcColorUpdate *color_update = update_entry;
+  MetaKmsCrtc *crtc = color_update->crtc;
 
-  meta_topic (META_DEBUG_KMS,
-              "[simple] Setting CRTC %u (%s) gamma, size: %d",
-              meta_kms_crtc_get_id (crtc),
-              meta_kms_impl_device_get_path (impl_device),
-              gamma->size);
-
-  fd = meta_kms_impl_device_get_fd (impl_device);
-  ret = drmModeCrtcSetGamma (fd, meta_kms_crtc_get_id (crtc),
-                             gamma->size,
-                             gamma->red,
-                             gamma->green,
-                             gamma->blue);
-  if (ret != 0)
+  if (color_update->gamma.has_update)
     {
-      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-ret),
-                   "drmModeCrtcSetGamma on CRTC %u failed: %s",
-                   meta_kms_crtc_get_id (crtc),
-                   g_strerror (-ret));
-      return FALSE;
+      MetaKmsCrtcGamma *gamma = color_update->gamma.state;
+      int fd;
+      int ret;
+
+      meta_topic (META_DEBUG_KMS,
+                  "[simple] Setting CRTC %u (%s) gamma, size: %d",
+                  meta_kms_crtc_get_id (crtc),
+                  meta_kms_impl_device_get_path (impl_device),
+                  gamma->size);
+
+      fd = meta_kms_impl_device_get_fd (impl_device);
+      ret = drmModeCrtcSetGamma (fd, meta_kms_crtc_get_id (crtc),
+                                 gamma->size,
+                                 gamma->red,
+                                 gamma->green,
+                                 gamma->blue);
+      if (ret != 0)
+        {
+          g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-ret),
+                       "drmModeCrtcSetGamma on CRTC %u failed: %s",
+                       meta_kms_crtc_get_id (crtc),
+                       g_strerror (-ret));
+          return FALSE;
+        }
     }
 
   return TRUE;

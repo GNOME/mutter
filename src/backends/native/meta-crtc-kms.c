@@ -248,8 +248,7 @@ meta_crtc_kms_set_gamma_lut (MetaCrtc           *crtc,
               "Setting CRTC (%" G_GUINT64_FORMAT ") gamma to %s",
               meta_crtc_get_id (crtc), gamma_ramp_string);
 
-  crtc_gamma = meta_kms_crtc_gamma_new (kms_crtc,
-                                        lut->size,
+  crtc_gamma = meta_kms_crtc_gamma_new (lut->size,
                                         lut->red,
                                         lut->green,
                                         lut->blue);

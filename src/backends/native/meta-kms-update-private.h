@@ -23,9 +23,20 @@
 #include <glib.h>
 #include <stdint.h>
 
+#include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-plane-private.h"
 #include "backends/native/meta-kms-types.h"
 #include "backends/native/meta-kms-update.h"
+
+typedef struct _MetaKmsCrtcColorUpdate
+{
+  MetaKmsCrtc *crtc;
+
+  struct {
+    gboolean has_update;
+    MetaKmsCrtcGamma *state;
+  } gamma;
+} MetaKmsCrtcColorUpdate;
 
 typedef struct _MetaKmsFeedback
 {

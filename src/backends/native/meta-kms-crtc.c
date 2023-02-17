@@ -316,9 +316,10 @@ meta_kms_crtc_predict_state_in_impl (MetaKmsCrtc   *crtc,
   crtc_color_updates = meta_kms_update_get_crtc_color_updates (update);
   for (l = crtc_color_updates; l; l = l->next)
     {
-      MetaKmsCrtcGamma *gamma = l->data;
+      MetaKmsCrtcColorUpdate *color_update = l->data;
+      MetaKmsCrtcGamma *gamma = color_update->gamma.state;
 
-      if (gamma->crtc != crtc)
+      if (color_update->crtc != crtc)
         continue;
 
       clear_gamma_state (&crtc->current_state);

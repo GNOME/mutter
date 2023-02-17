@@ -370,6 +370,30 @@ meta_kms_update_set_max_bpc (MetaKmsUpdate    *update,
   connector_update->max_bpc.has_update = TRUE;
 }
 
+static MetaKmsCrtcColorUpdate *
+ensure_color_update (MetaKmsUpdate *update,
+                     MetaKmsCrtc   *crtc)
+{
+  GList *l;
+  MetaKmsCrtcColorUpdate *color_update;
+
+  for (l = update->crtc_color_updates; l; l = l->next)
+    {
+      color_update = l->data;
+
+      if (color_update->crtc == crtc)
+        return color_update;
+    }
+
+  color_update = g_new0 (MetaKmsCrtcColorUpdate, 1);
+  color_update->crtc = crtc;
+
+  update->crtc_color_updates = g_list_prepend (update->crtc_color_updates,
+                                               color_update);
+
+  return color_update;
+}
+
 void
 meta_kms_crtc_gamma_free (MetaKmsCrtcGamma *gamma)
 {
@@ -380,8 +404,7 @@ meta_kms_crtc_gamma_free (MetaKmsCrtcGamma *gamma)
 }
 
 MetaKmsCrtcGamma *
-meta_kms_crtc_gamma_new (MetaKmsCrtc    *crtc,
-                         int             size,
+meta_kms_crtc_gamma_new (int             size,
                          const uint16_t *red,
                          const uint16_t *green,
                          const uint16_t *blue)
@@ -390,7 +413,6 @@ meta_kms_crtc_gamma_new (MetaKmsCrtc    *crtc,
 
   gamma = g_new0 (MetaKmsCrtcGamma, 1);
   *gamma = (MetaKmsCrtcGamma) {
-    .crtc = crtc,
     .size = size,
     .red = g_memdup2 (red, size * sizeof (*red)),
     .green = g_memdup2 (green, size * sizeof (*green)),
@@ -408,14 +430,21 @@ meta_kms_update_set_crtc_gamma (MetaKmsUpdate  *update,
                                 const uint16_t *green,
                                 const uint16_t *blue)
 {
-  MetaKmsCrtcGamma *gamma;
+  MetaKmsCrtcColorUpdate *color_update;
 
   g_assert (!meta_kms_update_is_locked (update));
   g_assert (meta_kms_crtc_get_device (crtc) == update->device);
 
-  gamma = meta_kms_crtc_gamma_new (crtc, size, red, green, blue);
+  color_update = ensure_color_update (update, crtc);
+  color_update->gamma.state = meta_kms_crtc_gamma_new (size, red, green, blue);
+  color_update->gamma.has_update = TRUE;
+}
 
-  update->crtc_color_updates = g_list_prepend (update->crtc_color_updates, gamma);
+static void
+meta_kms_crtc_color_updates_free (MetaKmsCrtcColorUpdate *color_update)
+{
+  if (color_update->gamma.has_update)
+    g_clear_pointer (&color_update->gamma.state, meta_kms_crtc_gamma_free);
 }
 
 void
@@ -700,7 +729,8 @@ meta_kms_update_free (MetaKmsUpdate *update)
   g_list_free_full (update->page_flip_listeners,
                     (GDestroyNotify) meta_kms_page_flip_listener_free);
   g_list_free_full (update->connector_updates, g_free);
-  g_list_free_full (update->crtc_color_updates, (GDestroyNotify) meta_kms_crtc_gamma_free);
+  g_list_free_full (update->crtc_color_updates,
+                    (GDestroyNotify) meta_kms_crtc_color_updates_free);
   g_clear_pointer (&update->custom_page_flip, meta_kms_custom_page_flip_free);
 
   g_free (update);
