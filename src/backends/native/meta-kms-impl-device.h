@@ -67,6 +67,9 @@ struct _MetaKmsProp
   uint64_t range_min;
   uint64_t range_max;
 
+  int64_t range_min_signed;
+  int64_t range_max_signed;
+
   uint32_t prop_id;
   uint64_t value;
 };

@@ -713,6 +713,20 @@ meta_kms_impl_device_update_prop_table (MetaKmsImplDevice *impl_device,
             }
         }
 
+      if (prop->type == DRM_MODE_PROP_SIGNED_RANGE)
+        {
+          if (drm_prop->count_values == 2)
+            {
+              prop->range_min_signed = (int64_t) drm_prop->values[0];
+              prop->range_max_signed = (int64_t) drm_prop->values[1];
+            }
+          else
+            {
+              g_warning ("DRM property '%s' is a signed range with %d values, ignoring",
+                         drm_prop->name, drm_prop->count_values);
+            }
+        }
+
       drmModeFreeProperty (drm_prop);
     }
 }
