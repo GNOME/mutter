@@ -101,13 +101,6 @@ meta_kms_crtc_is_active (MetaKmsCrtc *crtc)
   return crtc->current_state.is_active;
 }
 
-
-gboolean
-meta_kms_crtc_has_gamma (MetaKmsCrtc *crtc)
-{
-  return crtc->current_state.gamma.size > 0;
-}
-
 static void
 read_gamma_state (MetaKmsCrtc       *crtc,
                   MetaKmsCrtcState  *crtc_state,
