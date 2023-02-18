@@ -105,19 +105,19 @@ assert_crtc_state_equals (const MetaKmsCrtcState *crtc_state1,
                        crtc_state2->drm_mode.name);
     }
 
-  g_assert_cmpint (crtc_state1->gamma.size, ==, crtc_state1->gamma.size);
-  g_assert_cmpmem (crtc_state1->gamma.red,
-                   crtc_state1->gamma.size * sizeof (uint16_t),
-                   crtc_state2->gamma.red,
-                   crtc_state2->gamma.size * sizeof (uint16_t));
-  g_assert_cmpmem (crtc_state1->gamma.green,
-                   crtc_state1->gamma.size * sizeof (uint16_t),
-                   crtc_state2->gamma.green,
-                   crtc_state2->gamma.size * sizeof (uint16_t));
-  g_assert_cmpmem (crtc_state1->gamma.blue,
-                   crtc_state1->gamma.size * sizeof (uint16_t),
-                   crtc_state2->gamma.blue,
-                   crtc_state2->gamma.size * sizeof (uint16_t));
+  g_assert_cmpint (crtc_state1->gamma.value->size, ==, crtc_state1->gamma.value->size);
+  g_assert_cmpmem (crtc_state1->gamma.value->red,
+                   crtc_state1->gamma.value->size * sizeof (uint16_t),
+                   crtc_state2->gamma.value->red,
+                   crtc_state2->gamma.value->size * sizeof (uint16_t));
+  g_assert_cmpmem (crtc_state1->gamma.value->green,
+                   crtc_state1->gamma.value->size * sizeof (uint16_t),
+                   crtc_state2->gamma.value->green,
+                   crtc_state2->gamma.value->size * sizeof (uint16_t));
+  g_assert_cmpmem (crtc_state1->gamma.value->blue,
+                   crtc_state1->gamma.value->size * sizeof (uint16_t),
+                   crtc_state2->gamma.value->blue,
+                   crtc_state2->gamma.value->size * sizeof (uint16_t));
 }
 
 static int
@@ -213,12 +213,15 @@ copy_crtc_state (const MetaKmsCrtcState *crtc_state)
   g_assert_nonnull (crtc_state);
 
   new_state = *crtc_state;
-  new_state.gamma.red = g_memdup2 (new_state.gamma.red,
-                                   new_state.gamma.size * sizeof (uint16_t));
-  new_state.gamma.green = g_memdup2 (new_state.gamma.green,
-                                     new_state.gamma.size * sizeof (uint16_t));
-  new_state.gamma.blue = g_memdup2 (new_state.gamma.blue,
-                                    new_state.gamma.size * sizeof (uint16_t));
+  new_state.gamma.value->red =
+    g_memdup2 (new_state.gamma.value->red,
+               new_state.gamma.value->size * sizeof (uint16_t));
+  new_state.gamma.value->green =
+    g_memdup2 (new_state.gamma.value->green,
+               new_state.gamma.value->size * sizeof (uint16_t));
+  new_state.gamma.value->blue =
+    g_memdup2 (new_state.gamma.value->blue,
+               new_state.gamma.value->size * sizeof (uint16_t));
 
   return new_state;
 }
@@ -248,9 +251,9 @@ copy_connector_state (const MetaKmsConnectorState *connector_state)
 static void
 release_crtc_state (const MetaKmsCrtcState *crtc_state)
 {
-  g_free (crtc_state->gamma.red);
-  g_free (crtc_state->gamma.green);
-  g_free (crtc_state->gamma.blue);
+  g_free (crtc_state->gamma.value->red);
+  g_free (crtc_state->gamma.value->green);
+  g_free (crtc_state->gamma.value->blue);
 }
 
 static void

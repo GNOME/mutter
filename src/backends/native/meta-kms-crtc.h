@@ -28,6 +28,14 @@
 #include "core/util-private.h"
 #include "meta/boxes.h"
 
+typedef struct _MetaKmsCrtcGamma
+{
+  int size;
+  uint16_t *red;
+  uint16_t *green;
+  uint16_t *blue;
+} MetaKmsCrtcGamma;
+
 typedef struct _MetaKmsCrtcState
 {
   gboolean is_active;
@@ -37,21 +45,11 @@ typedef struct _MetaKmsCrtcState
   drmModeModeInfo drm_mode;
 
   struct {
-    uint16_t *red;
-    uint16_t *green;
-    uint16_t *blue;
-
+    MetaKmsCrtcGamma *value;
     int size;
+    gboolean supported;
   } gamma;
 } MetaKmsCrtcState;
-
-typedef struct _MetaKmsCrtcGamma
-{
-  int size;
-  uint16_t *red;
-  uint16_t *green;
-  uint16_t *blue;
-} MetaKmsCrtcGamma;
 
 #define META_TYPE_KMS_CRTC (meta_kms_crtc_get_type ())
 META_EXPORT_TEST
@@ -79,5 +77,8 @@ MetaKmsCrtcGamma * meta_kms_crtc_gamma_new (int             size,
                                             const uint16_t *red,
                                             const uint16_t *green,
                                             const uint16_t *blue);
+
+gboolean meta_kms_crtc_gamma_equal (MetaKmsCrtcGamma *gamma,
+                                    MetaKmsCrtcGamma *other_gamma);
 
 #endif /* META_KMS_CRTC_H */

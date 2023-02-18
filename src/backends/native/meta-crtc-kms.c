@@ -130,9 +130,16 @@ meta_crtc_kms_get_gamma_lut (MetaCrtc *crtc)
   crtc_gamma =
     meta_monitor_manager_native_get_cached_crtc_gamma (monitor_manager_native,
                                                        crtc_kms);
+  if (!crtc_gamma)
+    {
+      crtc_state = meta_kms_crtc_get_current_state (kms_crtc);
+      crtc_gamma = crtc_state->gamma.value;
+    }
+
+  lut = g_new0 (MetaGammaLut, 1);
+
   if (crtc_gamma)
     {
-      lut = g_new0 (MetaGammaLut, 1);
       lut->size = crtc_gamma->size;
       lut->red = g_memdup2 (crtc_gamma->red,
                             lut->size * sizeof (uint16_t));
@@ -140,19 +147,14 @@ meta_crtc_kms_get_gamma_lut (MetaCrtc *crtc)
                               lut->size * sizeof (uint16_t));
       lut->blue = g_memdup2 (crtc_gamma->blue,
                              lut->size * sizeof (uint16_t));
-      return lut;
     }
-
-  crtc_state = meta_kms_crtc_get_current_state (kms_crtc);
-
-  lut = g_new0 (MetaGammaLut, 1);
-  lut->size = crtc_state->gamma.size;
-  lut->red = g_memdup2 (crtc_state->gamma.red,
-                        lut->size * sizeof (uint16_t));
-  lut->green = g_memdup2 (crtc_state->gamma.green,
-                          lut->size * sizeof (uint16_t));
-  lut->blue = g_memdup2 (crtc_state->gamma.blue,
-                         lut->size * sizeof (uint16_t));
+  else
+    {
+      lut->size = 0;
+      lut->red = NULL;
+      lut->green = NULL;
+      lut->blue = NULL;
+    }
 
   return lut;
 }

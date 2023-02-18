@@ -107,21 +107,32 @@ read_gamma_state (MetaKmsCrtc       *crtc,
                   MetaKmsImplDevice *impl_device,
                   drmModeCrtc       *drm_crtc)
 {
-  g_assert (!crtc_state->gamma.red &&
-            !crtc_state->gamma.green &&
-            !crtc_state->gamma.blue);
+  g_assert (crtc_state->gamma.value == NULL);
 
   crtc_state->gamma.size = drm_crtc->gamma_size;
-  crtc_state->gamma.red = g_new0 (uint16_t, drm_crtc->gamma_size);
-  crtc_state->gamma.green = g_new0 (uint16_t, drm_crtc->gamma_size);
-  crtc_state->gamma.blue = g_new0 (uint16_t, drm_crtc->gamma_size);
+  crtc_state->gamma.supported = drm_crtc->gamma_size != 0;
+  crtc_state->gamma.value = meta_kms_crtc_gamma_new (drm_crtc->gamma_size,
+                                                     NULL, NULL, NULL);
+
+  crtc_state->gamma.value->red = g_new0 (uint16_t, drm_crtc->gamma_size);
+  crtc_state->gamma.value->green = g_new0 (uint16_t, drm_crtc->gamma_size);
+  crtc_state->gamma.value->blue = g_new0 (uint16_t, drm_crtc->gamma_size);
 
   drmModeCrtcGetGamma (meta_kms_impl_device_get_fd (impl_device),
                        crtc->id,
-                       crtc_state->gamma.size,
-                       crtc_state->gamma.red,
-                       crtc_state->gamma.green,
-                       crtc_state->gamma.blue);
+                       crtc_state->gamma.value->size,
+                       crtc_state->gamma.value->red,
+                       crtc_state->gamma.value->green,
+                       crtc_state->gamma.value->blue);
+}
+
+static gboolean
+gamma_equal (MetaKmsCrtcState *state,
+             MetaKmsCrtcState *other_state)
+{
+  return state->gamma.size == other_state->gamma.size &&
+         state->gamma.supported == other_state->gamma.supported &&
+         meta_kms_crtc_gamma_equal (state->gamma.value, other_state->gamma.value);
 }
 
 static MetaKmsResourceChanges
@@ -140,31 +151,10 @@ meta_kms_crtc_state_changes (MetaKmsCrtcState *state,
   if (!meta_drm_mode_equal (&state->drm_mode, &other_state->drm_mode))
     return META_KMS_RESOURCE_CHANGE_FULL;
 
-  if (state->gamma.size != other_state->gamma.size)
-    return META_KMS_RESOURCE_CHANGE_GAMMA;
-
-  if (memcmp (state->gamma.blue, other_state->gamma.blue,
-              state->gamma.size * sizeof (uint16_t)) != 0)
-    return META_KMS_RESOURCE_CHANGE_GAMMA;
-
-  if (memcmp (state->gamma.green, other_state->gamma.green,
-              state->gamma.size * sizeof (uint16_t)) != 0)
-    return META_KMS_RESOURCE_CHANGE_GAMMA;
-
-  if (memcmp (state->gamma.red, other_state->gamma.red,
-              state->gamma.size * sizeof (uint16_t)) != 0)
+  if (!gamma_equal (state, other_state))
     return META_KMS_RESOURCE_CHANGE_GAMMA;
 
   return META_KMS_RESOURCE_CHANGE_NONE;
-}
-
-static void
-clear_gamma_state (MetaKmsCrtcState *crtc_state)
-{
-  crtc_state->gamma.size = 0;
-  g_clear_pointer (&crtc_state->gamma.red, g_free);
-  g_clear_pointer (&crtc_state->gamma.green, g_free);
-  g_clear_pointer (&crtc_state->gamma.blue, g_free);
 }
 
 static MetaKmsResourceChanges
@@ -213,7 +203,8 @@ meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
       changes = meta_kms_crtc_state_changes (&crtc->current_state, &crtc_state);
     }
 
-  clear_gamma_state (&crtc->current_state);
+  g_clear_pointer (&crtc->current_state.gamma.value,
+                   meta_kms_crtc_gamma_free);
   crtc->current_state = crtc_state;
 
   meta_topic (META_DEBUG_KMS,
@@ -322,15 +313,11 @@ meta_kms_crtc_predict_state_in_impl (MetaKmsCrtc   *crtc,
       if (color_update->crtc != crtc)
         continue;
 
-      clear_gamma_state (&crtc->current_state);
-      crtc->current_state.gamma.size = gamma->size;
-      crtc->current_state.gamma.red =
-        g_memdup2 (gamma->red, gamma->size * sizeof (uint16_t));
-      crtc->current_state.gamma.green =
-        g_memdup2 (gamma->green, gamma->size * sizeof (uint16_t));
-      crtc->current_state.gamma.blue =
-        g_memdup2 (gamma->blue, gamma->size * sizeof (uint16_t));
-
+      g_clear_pointer (&crtc->current_state.gamma.value, meta_kms_crtc_gamma_free);
+      crtc->current_state.gamma.value = meta_kms_crtc_gamma_new (gamma->size,
+                                                                 gamma->red,
+                                                                 gamma->green,
+                                                                 gamma->blue);
       break;
     }
 }
@@ -402,7 +389,7 @@ meta_kms_crtc_finalize (GObject *object)
 {
   MetaKmsCrtc *crtc = META_KMS_CRTC (object);
 
-  clear_gamma_state (&crtc->current_state);
+  g_clear_pointer (&crtc->current_state.gamma.value, meta_kms_crtc_gamma_free);
 
   G_OBJECT_CLASS (meta_kms_crtc_parent_class)->finalize (object);
 }
@@ -411,6 +398,7 @@ static void
 meta_kms_crtc_init (MetaKmsCrtc *crtc)
 {
   crtc->current_state.gamma.size = 0;
+  crtc->current_state.gamma.value = NULL;
 }
 
 static void
