@@ -121,12 +121,9 @@ void meta_kms_update_mode_set (MetaKmsUpdate *update,
                                GList         *connectors,
                                MetaKmsMode   *mode);
 
-void meta_kms_update_set_crtc_gamma (MetaKmsUpdate  *update,
-                                     MetaKmsCrtc    *crtc,
-                                     int             size,
-                                     const uint16_t *red,
-                                     const uint16_t *green,
-                                     const uint16_t *blue);
+void meta_kms_update_set_crtc_gamma (MetaKmsUpdate      *update,
+                                     MetaKmsCrtc        *crtc,
+                                     const MetaGammaLut *gamma);
 
 void meta_kms_plane_assignment_set_fb_damage (MetaKmsPlaneAssignment *plane_assignment,
                                               const int              *rectangles,

@@ -74,7 +74,7 @@ meta_crtc_kms_supports_format (MetaCrtcKms *crtc_kms,
 
 gboolean meta_crtc_kms_is_gamma_invalid (MetaCrtcKms *crtc_kms);
 
-const MetaKmsCrtcGamma * meta_crtc_kms_peek_gamma_lut (MetaCrtcKms *crtc_kms);
+const MetaGammaLut * meta_crtc_kms_peek_gamma_lut (MetaCrtcKms *crtc_kms);
 
 MetaCrtcKms * meta_crtc_kms_from_kms_crtc (MetaKmsCrtc *kms_crtc);
 

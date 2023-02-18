@@ -105,19 +105,8 @@ assert_crtc_state_equals (const MetaKmsCrtcState *crtc_state1,
                        crtc_state2->drm_mode.name);
     }
 
-  g_assert_cmpint (crtc_state1->gamma.value->size, ==, crtc_state1->gamma.value->size);
-  g_assert_cmpmem (crtc_state1->gamma.value->red,
-                   crtc_state1->gamma.value->size * sizeof (uint16_t),
-                   crtc_state2->gamma.value->red,
-                   crtc_state2->gamma.value->size * sizeof (uint16_t));
-  g_assert_cmpmem (crtc_state1->gamma.value->green,
-                   crtc_state1->gamma.value->size * sizeof (uint16_t),
-                   crtc_state2->gamma.value->green,
-                   crtc_state2->gamma.value->size * sizeof (uint16_t));
-  g_assert_cmpmem (crtc_state1->gamma.value->blue,
-                   crtc_state1->gamma.value->size * sizeof (uint16_t),
-                   crtc_state2->gamma.value->blue,
-                   crtc_state2->gamma.value->size * sizeof (uint16_t));
+  g_assert_true (meta_gamma_lut_equal (crtc_state1->gamma.value,
+                                       crtc_state2->gamma.value));
 }
 
 static int
@@ -213,15 +202,10 @@ copy_crtc_state (const MetaKmsCrtcState *crtc_state)
   g_assert_nonnull (crtc_state);
 
   new_state = *crtc_state;
-  new_state.gamma.value->red =
-    g_memdup2 (new_state.gamma.value->red,
-               new_state.gamma.value->size * sizeof (uint16_t));
-  new_state.gamma.value->green =
-    g_memdup2 (new_state.gamma.value->green,
-               new_state.gamma.value->size * sizeof (uint16_t));
-  new_state.gamma.value->blue =
-    g_memdup2 (new_state.gamma.value->blue,
-               new_state.gamma.value->size * sizeof (uint16_t));
+  if (crtc_state->gamma.value)
+    new_state.gamma.value = meta_gamma_lut_copy (crtc_state->gamma.value);
+  else
+    new_state.gamma.value = NULL;
 
   return new_state;
 }
@@ -249,11 +233,9 @@ copy_connector_state (const MetaKmsConnectorState *connector_state)
 }
 
 static void
-release_crtc_state (const MetaKmsCrtcState *crtc_state)
+release_crtc_state (MetaKmsCrtcState *crtc_state)
 {
-  g_free (crtc_state->gamma.value->red);
-  g_free (crtc_state->gamma.value->green);
-  g_free (crtc_state->gamma.value->blue);
+  g_clear_pointer (&crtc_state->gamma.value, meta_gamma_lut_free);
 }
 
 static void

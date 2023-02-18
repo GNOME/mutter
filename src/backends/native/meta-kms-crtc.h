@@ -25,16 +25,9 @@
 #include <xf86drmMode.h>
 
 #include "backends/native/meta-kms-types.h"
+#include "backends/meta-backend-types.h"
 #include "core/util-private.h"
 #include "meta/boxes.h"
-
-typedef struct _MetaKmsCrtcGamma
-{
-  int size;
-  uint16_t *red;
-  uint16_t *green;
-  uint16_t *blue;
-} MetaKmsCrtcGamma;
 
 typedef struct _MetaKmsCrtcState
 {
@@ -45,7 +38,7 @@ typedef struct _MetaKmsCrtcState
   drmModeModeInfo drm_mode;
 
   struct {
-    MetaKmsCrtcGamma *value;
+    MetaGammaLut *value;
     int size;
     gboolean supported;
   } gamma;
@@ -70,15 +63,5 @@ int meta_kms_crtc_get_idx (MetaKmsCrtc *crtc);
 
 META_EXPORT_TEST
 gboolean meta_kms_crtc_is_active (MetaKmsCrtc *crtc);
-
-void meta_kms_crtc_gamma_free (MetaKmsCrtcGamma *gamma);
-
-MetaKmsCrtcGamma * meta_kms_crtc_gamma_new (int             size,
-                                            const uint16_t *red,
-                                            const uint16_t *green,
-                                            const uint16_t *blue);
-
-gboolean meta_kms_crtc_gamma_equal (MetaKmsCrtcGamma *gamma,
-                                    MetaKmsCrtcGamma *other_gamma);
 
 #endif /* META_KMS_CRTC_H */

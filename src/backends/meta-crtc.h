@@ -91,7 +91,20 @@ MetaGammaLut * meta_crtc_get_gamma_lut (MetaCrtc *crtc);
 void meta_crtc_set_gamma_lut (MetaCrtc           *crtc,
                               const MetaGammaLut *lut);
 
+META_EXPORT_TEST
 void meta_gamma_lut_free (MetaGammaLut *lut);
+
+MetaGammaLut * meta_gamma_lut_new (int             size,
+                                   const uint16_t *red,
+                                   const uint16_t *green,
+                                   const uint16_t *blue);
+
+META_EXPORT_TEST
+MetaGammaLut * meta_gamma_lut_copy (const MetaGammaLut *gamma);
+
+META_EXPORT_TEST
+gboolean meta_gamma_lut_equal (const MetaGammaLut *gamma,
+                               const MetaGammaLut *other_gamma);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaGammaLut, meta_gamma_lut_free)
 

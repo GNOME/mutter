@@ -1398,7 +1398,7 @@ meta_onscreen_native_prepare_frame (CoglOnscreen *onscreen,
 
   if (onscreen_native->is_gamma_lut_invalid)
     {
-      const MetaKmsCrtcGamma *gamma;
+      const MetaGammaLut *gamma;
 
       gamma = meta_crtc_kms_peek_gamma_lut (crtc_kms);
       if (gamma)
@@ -1408,10 +1408,7 @@ meta_onscreen_native_prepare_frame (CoglOnscreen *onscreen,
           kms_update = meta_kms_ensure_pending_update (kms, kms_device);
           meta_kms_update_set_crtc_gamma (kms_update,
                                           kms_crtc,
-                                          gamma->size,
-                                          gamma->red,
-                                          gamma->green,
-                                          gamma->blue);
+                                          gamma);
         }
     }
 

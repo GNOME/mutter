@@ -345,7 +345,7 @@ meta_monitor_manager_native_apply_monitors_config (MetaMonitorManager        *ma
   return TRUE;
 }
 
-MetaKmsCrtcGamma *
+MetaGammaLut *
 meta_monitor_manager_native_get_cached_crtc_gamma (MetaMonitorManagerNative *manager_native,
                                                    MetaCrtcKms              *crtc_kms)
 {
@@ -359,13 +359,13 @@ meta_monitor_manager_native_get_cached_crtc_gamma (MetaMonitorManagerNative *man
 void
 meta_monitor_manager_native_update_cached_crtc_gamma (MetaMonitorManagerNative *manager_native,
                                                       MetaCrtcKms              *crtc_kms,
-                                                      MetaKmsCrtcGamma         *crtc_gamma)
+                                                      MetaGammaLut             *gamma)
 {
   MetaCrtc *crtc = META_CRTC (crtc_kms);
 
   g_hash_table_replace (manager_native->crtc_gamma_cache,
                         GUINT_TO_POINTER (meta_crtc_get_id (crtc)),
-                        crtc_gamma);
+                        gamma);
 }
 
 static void
@@ -694,7 +694,7 @@ meta_monitor_manager_native_initable_init (GInitable    *initable,
   manager_native->crtc_gamma_cache =
     g_hash_table_new_full (NULL, NULL,
                            NULL,
-                           (GDestroyNotify) meta_kms_crtc_gamma_free);
+                           (GDestroyNotify) meta_gamma_lut_free);
 
   return TRUE;
 }

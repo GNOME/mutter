@@ -513,12 +513,12 @@ process_crtc_color_updates (MetaKmsImplDevice  *impl_device,
 
   if (color_update->gamma.has_update)
     {
-      MetaKmsCrtcGamma *gamma = color_update->gamma.state;
+      MetaGammaLut *gamma = color_update->gamma.state;
       int fd;
       int ret;
 
       meta_topic (META_DEBUG_KMS,
-                  "[simple] Setting CRTC %u (%s) gamma, size: %d",
+                  "[simple] Setting CRTC %u (%s) gamma, size: %zu",
                   meta_kms_crtc_get_id (crtc),
                   meta_kms_impl_device_get_path (impl_device),
                   gamma->size);

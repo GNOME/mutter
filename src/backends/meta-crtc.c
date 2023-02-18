@@ -175,6 +175,52 @@ meta_gamma_lut_free (MetaGammaLut *lut)
   g_free (lut);
 }
 
+MetaGammaLut *
+meta_gamma_lut_new (int             size,
+                    const uint16_t *red,
+                    const uint16_t *green,
+                    const uint16_t *blue)
+{
+  MetaGammaLut *gamma;
+
+  gamma = g_new0 (MetaGammaLut, 1);
+  *gamma = (MetaGammaLut) {
+    .size = size,
+    .red = g_memdup2 (red, size * sizeof (*red)),
+    .green = g_memdup2 (green, size * sizeof (*green)),
+    .blue = g_memdup2 (blue, size * sizeof (*blue)),
+  };
+
+  return gamma;
+}
+
+MetaGammaLut *
+meta_gamma_lut_copy (const MetaGammaLut *gamma)
+{
+  g_return_val_if_fail (gamma != NULL, NULL);
+
+  return meta_gamma_lut_new (gamma->size, gamma->red, gamma->green, gamma->blue);
+}
+
+gboolean
+meta_gamma_lut_equal (const MetaGammaLut *gamma,
+                      const MetaGammaLut *other_gamma)
+{
+  if (gamma == other_gamma)
+    return TRUE;
+
+  if (gamma == NULL || other_gamma == NULL)
+    return FALSE;
+
+  return gamma->size == other_gamma->size &&
+         memcmp (gamma->red, other_gamma->red,
+                 gamma->size * sizeof (uint16_t)) == 0 &&
+         memcmp (gamma->green, other_gamma->green,
+                 gamma->size * sizeof (uint16_t)) == 0 &&
+         memcmp (gamma->blue, other_gamma->blue,
+                 gamma->size * sizeof (uint16_t)) == 0;
+}
+
 static void
 meta_crtc_set_property (GObject      *object,
                         guint         prop_id,

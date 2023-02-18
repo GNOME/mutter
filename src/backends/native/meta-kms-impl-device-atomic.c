@@ -626,7 +626,7 @@ process_crtc_color_updates (MetaKmsImplDevice  *impl_device,
 
   if (color_update->gamma.has_update)
     {
-      MetaKmsCrtcGamma *gamma = color_update->gamma.state;
+      MetaGammaLut *gamma = color_update->gamma.state;
       struct drm_color_lut drm_color_lut[gamma->size];
       int i;
       uint32_t color_lut_blob_id;
@@ -647,7 +647,7 @@ process_crtc_color_updates (MetaKmsImplDevice  *impl_device,
         return FALSE;
 
       meta_topic (META_DEBUG_KMS,
-                  "[atomic] Setting CRTC (%u, %s) gamma, size: %d",
+                  "[atomic] Setting CRTC (%u, %s) gamma, size: %zu",
                   meta_kms_crtc_get_id (crtc),
                   meta_kms_impl_device_get_path (impl_device),
                   gamma->size);

@@ -106,7 +106,7 @@ meta_crtc_kms_get_gamma_lut_size (MetaCrtc *crtc)
   return crtc_state->gamma.size;
 }
 
-const MetaKmsCrtcGamma *
+const MetaGammaLut *
 meta_crtc_kms_peek_gamma_lut (MetaCrtcKms *crtc_kms)
 {
   MetaMonitorManagerNative *monitor_manager_native =
@@ -124,39 +124,21 @@ meta_crtc_kms_get_gamma_lut (MetaCrtc *crtc)
   MetaMonitorManagerNative *monitor_manager_native =
     monitor_manager_from_crtc (crtc);
   const MetaKmsCrtcState *crtc_state;
-  MetaKmsCrtcGamma *crtc_gamma;
-  MetaGammaLut *lut;
+  MetaGammaLut *gamma;
 
-  crtc_gamma =
+  gamma =
     meta_monitor_manager_native_get_cached_crtc_gamma (monitor_manager_native,
                                                        crtc_kms);
-  if (!crtc_gamma)
+  if (!gamma)
     {
       crtc_state = meta_kms_crtc_get_current_state (kms_crtc);
-      crtc_gamma = crtc_state->gamma.value;
+      gamma = crtc_state->gamma.value;
     }
 
-  lut = g_new0 (MetaGammaLut, 1);
+  if (!gamma)
+    return meta_gamma_lut_new (0, NULL, NULL, NULL);
 
-  if (crtc_gamma)
-    {
-      lut->size = crtc_gamma->size;
-      lut->red = g_memdup2 (crtc_gamma->red,
-                            lut->size * sizeof (uint16_t));
-      lut->green = g_memdup2 (crtc_gamma->green,
-                              lut->size * sizeof (uint16_t));
-      lut->blue = g_memdup2 (crtc_gamma->blue,
-                             lut->size * sizeof (uint16_t));
-    }
-  else
-    {
-      lut->size = 0;
-      lut->red = NULL;
-      lut->green = NULL;
-      lut->blue = NULL;
-    }
-
-  return lut;
+  return meta_gamma_lut_copy (gamma);
 }
 
 static char *
@@ -231,7 +213,7 @@ meta_crtc_kms_set_gamma_lut (MetaCrtc           *crtc,
   ClutterActor *stage = meta_backend_get_stage (backend);
   const MetaKmsCrtcState *crtc_state;
   g_autofree char *gamma_ramp_string = NULL;
-  MetaKmsCrtcGamma *crtc_gamma;
+  MetaGammaLut *new_gamma;
 
   crtc_state = meta_kms_crtc_get_current_state (kms_crtc);
 
@@ -250,13 +232,13 @@ meta_crtc_kms_set_gamma_lut (MetaCrtc           *crtc,
               "Setting CRTC (%" G_GUINT64_FORMAT ") gamma to %s",
               meta_crtc_get_id (crtc), gamma_ramp_string);
 
-  crtc_gamma = meta_kms_crtc_gamma_new (lut->size,
-                                        lut->red,
-                                        lut->green,
-                                        lut->blue);
+  new_gamma = meta_gamma_lut_copy (lut);
+  if (!new_gamma)
+    new_gamma = meta_gamma_lut_new (0, NULL, NULL, NULL);
+
   meta_monitor_manager_native_update_cached_crtc_gamma (monitor_manager_native,
                                                         crtc_kms,
-                                                        crtc_gamma);
+                                                        new_gamma);
 
   g_signal_emit (crtc_kms, signals[GAMMA_LUT_CHANGED], 0);
   clutter_stage_schedule_update (CLUTTER_STAGE (stage));

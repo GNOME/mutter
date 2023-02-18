@@ -395,63 +395,21 @@ ensure_color_update (MetaKmsUpdate *update,
 }
 
 void
-meta_kms_crtc_gamma_free (MetaKmsCrtcGamma *gamma)
-{
-  g_return_if_fail (gamma != NULL);
-
-  g_free (gamma->red);
-  g_free (gamma->green);
-  g_free (gamma->blue);
-  g_free (gamma);
-}
-
-MetaKmsCrtcGamma *
-meta_kms_crtc_gamma_new (int             size,
-                         const uint16_t *red,
-                         const uint16_t *green,
-                         const uint16_t *blue)
-{
-  MetaKmsCrtcGamma *gamma;
-
-  gamma = g_new0 (MetaKmsCrtcGamma, 1);
-  *gamma = (MetaKmsCrtcGamma) {
-    .size = size,
-    .red = g_memdup2 (red, size * sizeof (*red)),
-    .green = g_memdup2 (green, size * sizeof (*green)),
-    .blue = g_memdup2 (blue, size * sizeof (*blue)),
-  };
-
-  return gamma;
-}
-
-gboolean
-meta_kms_crtc_gamma_equal (MetaKmsCrtcGamma *gamma,
-                           MetaKmsCrtcGamma *other_gamma)
-{
-  return gamma->size == other_gamma->size &&
-         memcmp (gamma->red, other_gamma->red,
-                 gamma->size * sizeof (uint16_t)) == 0 &&
-         memcmp (gamma->green, other_gamma->green,
-                 gamma->size * sizeof (uint16_t)) == 0 &&
-         memcmp (gamma->blue, other_gamma->blue,
-                 gamma->size * sizeof (uint16_t)) == 0;
-}
-
-void
-meta_kms_update_set_crtc_gamma (MetaKmsUpdate  *update,
-                                MetaKmsCrtc    *crtc,
-                                int             size,
-                                const uint16_t *red,
-                                const uint16_t *green,
-                                const uint16_t *blue)
+meta_kms_update_set_crtc_gamma (MetaKmsUpdate      *update,
+                                MetaKmsCrtc        *crtc,
+                                const MetaGammaLut *gamma)
 {
   MetaKmsCrtcColorUpdate *color_update;
+  MetaGammaLut *gamma_update = NULL;
 
   g_assert (!meta_kms_update_is_locked (update));
   g_assert (meta_kms_crtc_get_device (crtc) == update->device);
 
+  if (gamma)
+    gamma_update = meta_gamma_lut_copy (gamma);
+
   color_update = ensure_color_update (update, crtc);
-  color_update->gamma.state = meta_kms_crtc_gamma_new (size, red, green, blue);
+  color_update->gamma.state = gamma_update;
   color_update->gamma.has_update = TRUE;
 }
 
@@ -459,7 +417,7 @@ static void
 meta_kms_crtc_color_updates_free (MetaKmsCrtcColorUpdate *color_update)
 {
   if (color_update->gamma.has_update)
-    g_clear_pointer (&color_update->gamma.state, meta_kms_crtc_gamma_free);
+    g_clear_pointer (&color_update->gamma.state, meta_gamma_lut_free);
 }
 
 void
