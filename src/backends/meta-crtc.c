@@ -218,6 +218,64 @@ meta_gamma_lut_copy (const MetaGammaLut *gamma)
   return meta_gamma_lut_new (gamma->size, gamma->red, gamma->green, gamma->blue);
 }
 
+MetaGammaLut *
+meta_gamma_lut_copy_to_size (const MetaGammaLut *gamma,
+                             int                 target_size)
+{
+  MetaGammaLut *out;
+
+  g_return_val_if_fail (gamma != NULL, NULL);
+
+  if (gamma->size == target_size)
+    return meta_gamma_lut_copy (gamma);
+
+  out = meta_gamma_lut_new (target_size, NULL, NULL, NULL);
+
+  out->red = g_new0 (uint16_t, target_size);
+  out->green = g_new0 (uint16_t, target_size);
+  out->blue = g_new0 (uint16_t, target_size);
+
+  if (target_size >= gamma->size)
+    {
+      int i, j;
+      int slots;
+
+      slots = target_size / gamma->size;
+      for (i = 0; i < gamma->size; i++)
+        {
+          for (j = 0; j < slots; j++)
+            {
+              out->red[i * slots + j] = gamma->red[i];
+              out->green[i * slots + j] = gamma->green[i];
+              out->blue[i * slots + j] = gamma->blue[i];
+            }
+        }
+
+      for (j = i * slots; j < target_size; j++)
+        {
+          out->red[j] = gamma->red[i - 1];
+          out->green[j] = gamma->green[i - 1];
+          out->blue[j] = gamma->blue[i - 1];
+        }
+    }
+  else
+    {
+      int i;
+      int idx;
+
+      for (i = 0; i < target_size; i++)
+        {
+          idx = i * (gamma->size - 1) / (target_size - 1);
+
+          out->red[i] = gamma->red[idx];
+          out->green[i] = gamma->green[idx];
+          out->blue[i] = gamma->blue[idx];
+        }
+    }
+
+  return out;
+}
+
 gboolean
 meta_gamma_lut_equal (const MetaGammaLut *gamma,
                       const MetaGammaLut *other_gamma)

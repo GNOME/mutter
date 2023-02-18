@@ -206,26 +206,12 @@ meta_crtc_kms_set_gamma_lut (MetaCrtc           *crtc,
                              const MetaGammaLut *lut)
 {
   MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
-  MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
   MetaBackend *backend = meta_gpu_get_backend (meta_crtc_get_gpu (crtc));
   MetaMonitorManagerNative *monitor_manager_native =
     monitor_manager_from_crtc (crtc);
   ClutterActor *stage = meta_backend_get_stage (backend);
-  const MetaKmsCrtcState *crtc_state;
   g_autofree char *gamma_ramp_string = NULL;
   MetaGammaLut *new_gamma;
-
-  crtc_state = meta_kms_crtc_get_current_state (kms_crtc);
-
-  if (lut->size != crtc_state->gamma.size)
-    {
-      MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);
-
-      g_warning ("Tried to set a different gamma LUT size on %u (%s)",
-                 meta_kms_crtc_get_id (kms_crtc),
-                 meta_kms_device_get_path (kms_device));
-      return;
-    }
 
   gamma_ramp_string = generate_gamma_ramp_string (lut);
   meta_topic (META_DEBUG_COLOR,

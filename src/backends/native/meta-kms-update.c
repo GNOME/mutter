@@ -401,12 +401,13 @@ meta_kms_update_set_crtc_gamma (MetaKmsUpdate      *update,
 {
   MetaKmsCrtcColorUpdate *color_update;
   MetaGammaLut *gamma_update = NULL;
+  const MetaKmsCrtcState *crtc_state = meta_kms_crtc_get_current_state (crtc);
 
   g_assert (!meta_kms_update_is_locked (update));
   g_assert (meta_kms_crtc_get_device (crtc) == update->device);
 
   if (gamma)
-    gamma_update = meta_gamma_lut_copy (gamma);
+    gamma_update = meta_gamma_lut_copy_to_size (gamma, crtc_state->gamma.size);
 
   color_update = ensure_color_update (update, crtc);
   color_update->gamma.state = gamma_update;

@@ -104,6 +104,9 @@ MetaGammaLut * meta_gamma_lut_new_sized (int size);
 META_EXPORT_TEST
 MetaGammaLut * meta_gamma_lut_copy (const MetaGammaLut *gamma);
 
+MetaGammaLut * meta_gamma_lut_copy_to_size (const MetaGammaLut *gamma,
+                                            int                 target_size);
+
 META_EXPORT_TEST
 gboolean meta_gamma_lut_equal (const MetaGammaLut *gamma,
                                const MetaGammaLut *other_gamma);
