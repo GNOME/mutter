@@ -350,7 +350,17 @@ static void
 on_stream_closed (MetaScreenCastStream  *stream,
                   MetaScreenCastSession *session)
 {
-  meta_dbus_session_close (META_DBUS_SESSION (session));
+  session->streams = g_list_remove (session->streams, stream);
+  g_object_unref (stream);
+
+  switch (session->session_type)
+    {
+    case META_SCREEN_CAST_SESSION_TYPE_NORMAL:
+      meta_dbus_session_close (META_DBUS_SESSION (session));
+      break;
+    case META_SCREEN_CAST_SESSION_TYPE_REMOTE_DESKTOP:
+      break;
+    }
 }
 
 static gboolean
