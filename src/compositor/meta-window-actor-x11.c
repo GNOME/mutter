@@ -723,7 +723,7 @@ scan_visible_region (guchar         *mask_data,
           for (x = rect.x; x < (rect.x + rect.width); x++)
             {
               int x2 = x;
-              while (mask_data[y * stride + x2] == 255 && x2 < (rect.x + rect.width))
+              while (x2 < (rect.x + rect.width) && mask_data[y * stride + x2] == 255)
                 x2++;
 
               if (x2 > x)
