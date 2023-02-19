@@ -991,10 +991,6 @@ meta_seat_impl_notify_touch_event_in_impl (MetaSeatImpl       *seat_impl,
   event->touch.time = us2ms (time_us);
   event->touch.x = x;
   event->touch.y = y;
-  meta_input_device_native_translate_coordinates_in_impl (input_device,
-                                                          seat_impl->viewports,
-                                                          &event->touch.x,
-                                                          &event->touch.y);
 
   /* "NULL" sequences are special cased in clutter */
   event->touch.sequence = GINT_TO_POINTER (MAX (1, slot + 1));
@@ -2282,6 +2278,10 @@ process_device_event (MetaSeatImpl          *seat_impl,
         touch_state = meta_seat_impl_acquire_touch_state_in_impl (seat_impl, seat_slot);
         touch_state->coords.x = x;
         touch_state->coords.y = y;
+        meta_input_device_native_translate_coordinates_in_impl (device,
+                                                                seat_impl->viewports,
+                                                                &touch_state->coords.x,
+                                                                &touch_state->coords.y);
 
         g_rw_lock_writer_unlock (&seat_impl->state_lock);
 
@@ -2352,6 +2352,10 @@ process_device_event (MetaSeatImpl          *seat_impl,
           {
             touch_state->coords.x = x;
             touch_state->coords.y = y;
+            meta_input_device_native_translate_coordinates_in_impl (device,
+                                                                    seat_impl->viewports,
+                                                                    &touch_state->coords.x,
+                                                                    &touch_state->coords.y);
           }
         g_rw_lock_writer_unlock (&seat_impl->state_lock);
 
