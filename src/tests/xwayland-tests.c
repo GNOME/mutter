@@ -215,12 +215,47 @@ meta_test_xwayland_crash_only_x11 (void)
 }
 
 static void
+meta_test_hammer_activate (void)
+{
+  MetaTestClient *x11_client;
+  MetaTestClient *wayland_client;
+  g_autoptr (GError) error = NULL;
+  int i;
+
+  x11_client = meta_test_client_new (test_context, "x11-client",
+                                     META_WINDOW_CLIENT_TYPE_X11,
+                                     &error);
+  g_assert_nonnull (x11_client);
+  wayland_client = meta_test_client_new (test_context, "wayland-client",
+                                         META_WINDOW_CLIENT_TYPE_WAYLAND,
+                                         &error);
+  g_assert_nonnull (wayland_client);
+
+  meta_test_client_run (x11_client,
+                        "create 1\n"
+                        "show 1\n");
+
+  meta_test_client_run (wayland_client,
+                        "create 2\n"
+                        "show 2\n");
+
+  meta_test_client_run (x11_client, "activate 1");
+  for (i = 0; i < 10000; i++)
+    meta_test_client_run (wayland_client, "activate 2");
+
+  meta_test_client_destroy (x11_client);
+  meta_test_client_destroy (wayland_client);
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/backends/xwayland/restart/selection",
                    meta_test_xwayland_restart_selection);
   g_test_add_func ("/backends/xwayland/crash/only-x11",
                    meta_test_xwayland_crash_only_x11);
+  g_test_add_func ("/backends/xwayland/crash/hammer-activate",
+                   meta_test_hammer_activate);
 }
 
 int
