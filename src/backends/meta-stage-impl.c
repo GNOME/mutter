@@ -214,6 +214,8 @@ queue_damage_region (ClutterStageWindow *stage_window,
   g_autofree int *freeme = NULL;
   CoglFramebuffer *framebuffer;
   CoglOnscreen *onscreen;
+  int fb_width;
+  int fb_height;
 
   if (cairo_region_is_empty (damage_region))
     return;
@@ -223,6 +225,8 @@ queue_damage_region (ClutterStageWindow *stage_window,
     return;
 
   onscreen = COGL_ONSCREEN (framebuffer);
+  fb_width = cogl_framebuffer_get_width (framebuffer);
+  fb_height = cogl_framebuffer_get_height (framebuffer);
 
   n_rects = cairo_region_num_rectangles (damage_region);
 
@@ -234,12 +238,18 @@ queue_damage_region (ClutterStageWindow *stage_window,
   for (i = 0; i < n_rects; i++)
     {
       cairo_rectangle_int_t rect;
-      int height = cogl_framebuffer_get_height (framebuffer);
 
       cairo_region_get_rectangle (damage_region, i, &rect);
+
+      clutter_stage_view_transform_rect_to_onscreen (stage_view,
+                                                     &rect,
+                                                     fb_width,
+                                                     fb_height,
+                                                     &rect);
+
       damage[i * 4] = rect.x;
       /* y coordinate needs to be flipped for OpenGL */
-      damage[i * 4 + 1] = height - rect.y - rect.height;
+      damage[i * 4 + 1] = fb_height - rect.y - rect.height;
       damage[i * 4 + 2] = rect.width;
       damage[i * 4 + 3] = rect.height;
     }
