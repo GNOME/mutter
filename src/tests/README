@@ -57,8 +57,7 @@ hide <client-id>/<window-id>
  Ask the client to show (map) or hide (unmap) the given window
 
 activate <client-id>/<window-id>
- Ask the client to raise and focus the given window. This is currently a no-op
- for Wayland, where this capability is not supported in the protocol.
+ Ask the client to raise and focus the given window.
 
 local_activate <client-id>-<window-id>
   The same as 'activate', but the operation is done directly inside Mutter
