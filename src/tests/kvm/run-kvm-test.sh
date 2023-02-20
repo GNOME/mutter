@@ -17,6 +17,7 @@ mkdir -p -m 700 $XDG_RUNTIME_DIR
 
 glib-compile-schemas $GSETTINGS_SCHEMA_DIR
 
-"$WRAPPER" $WRAPPER_ARGS "${@:4}"
+status=0
+"$WRAPPER" $WRAPPER_ARGS "${@:4}" || status=$?
 
-echo $? > $TEST_RESULT
+echo $status > $TEST_RESULT
