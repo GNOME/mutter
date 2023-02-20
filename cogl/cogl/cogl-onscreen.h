@@ -242,6 +242,9 @@ cogl_onscreen_get_buffer_age (CoglOnscreen *onscreen);
  * This immediately queues state to OpenGL that will be used for the
  * next swap.
  * This needs to be called every frame.
+ *
+ * The expected values are independent of any viewport transforms applied to
+ * the framebuffer.
  */
 COGL_EXPORT void
 cogl_onscreen_queue_damage_region (CoglOnscreen *onscreen,
