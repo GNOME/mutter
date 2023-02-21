@@ -7,16 +7,15 @@
 # Pablo Gonzalo del Campo <pablodc@bigfoot.com>,2002,2003.
 # Francisco Javier F. Serrador <serrador@cvs.gnome.org>, 2004, 2005, 2006.
 # Jorge González <jorgegonz@svn.gnome.org>, 2007, 2008, 2009, 2010, 2011.
-# Daniel Mustieles <daniel.mustieles@gmail.com>, 2011-2022.
-# Daniel Mustieles García <daniel.mustieles@gmail.com>, 2022.
+# Daniel Mustieles <daniel.mustieles@gmail.com>, 2022-2023.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter.master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2022-09-02 08:42+0000\n"
-"PO-Revision-Date: 2022-09-02 11:51+0200\n"
-"Last-Translator: Daniel Mustieles García <daniel.mustieles@gmail.com>\n"
+"POT-Creation-Date: 2023-02-14 16:37+0000\n"
+"PO-Revision-Date: 2023-02-21 11:30+0100\n"
+"Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: Spanish - Spain <gnome-es-list@gnome.org>\n"
 "Language: es_ES\n"
 "MIME-Version: 1.0\n"
@@ -253,17 +252,13 @@ msgstr "Maximizar la ventana verticalmente"
 msgid "Maximize window horizontally"
 msgstr "Maximizar la ventana horizontalmente"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:173
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:164
 msgid "View split on left"
 msgstr "Ver división a la izquierda"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:178
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:169
 msgid "View split on right"
 msgstr "Ver división a la derecha"
-
-#: data/mutter.desktop.in:4
-msgid "Mutter"
-msgstr "Mutter"
 
 #: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
@@ -341,22 +336,10 @@ msgstr ""
 "ventanas en todos los monitores o sólo para ventanas en el monitor primario."
 
 #: data/org.gnome.mutter.gschema.xml.in:67
-msgid "No tab popup"
-msgstr "No hay pestaña emergente"
-
-#: data/org.gnome.mutter.gschema.xml.in:68
-msgid ""
-"Determines whether the use of popup and highlight frame should be disabled "
-"for window cycling."
-msgstr ""
-"Determina si el uso de ventanas emergentes y marcos resaltados se debe "
-"desactivar al cambiar entre ventanas."
-
-#: data/org.gnome.mutter.gschema.xml.in:76
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "Retrasar el cambio de foco hasta detener el puntero"
 
-#: data/org.gnome.mutter.gschema.xml.in:77
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -366,11 +349,11 @@ msgstr ""
 "entonces el foco no se cambiará inmediatamente al entrar en una ventana, "
 "pero sí después de dejar quieto el puntero."
 
-#: data/org.gnome.mutter.gschema.xml.in:87
+#: data/org.gnome.mutter.gschema.xml.in:78
 msgid "Draggable border width"
 msgstr "Anchura arrastrable del borde"
 
-#: data/org.gnome.mutter.gschema.xml.in:88
+#: data/org.gnome.mutter.gschema.xml.in:79
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -379,13 +362,13 @@ msgstr ""
 "del tema no son suficientes, se añadirán bordes invisibles para satisfacer "
 "este valor."
 
-#: data/org.gnome.mutter.gschema.xml.in:97
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid "Auto maximize nearly monitor sized windows"
 msgstr ""
 "Maximizar automáticamente las ventanas que casi tengan el tamaño de la "
 "pantalla"
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
@@ -393,11 +376,11 @@ msgstr ""
 "Si está activada, las ventanas nuevas que inicialmente tienen el tamaño de "
 "la pantalla, se maximizan."
 
-#: data/org.gnome.mutter.gschema.xml.in:106
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
 msgstr "Colocar las ventanas nuevas en el centro"
 
-#: data/org.gnome.mutter.gschema.xml.in:107
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
@@ -405,11 +388,11 @@ msgstr ""
 "Cuando es cierto, las ventanas nuevas se colocarán siempre en el centro de "
 "la pantalla activa del monitor."
 
-#: data/org.gnome.mutter.gschema.xml.in:116
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "Enable experimental features"
 msgstr "Activar las características experimentales"
 
-#: data/org.gnome.mutter.gschema.xml.in:117
+#: data/org.gnome.mutter.gschema.xml.in:108
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -444,19 +427,19 @@ msgstr ""
 "xwayland” — termina Xwayland automáticamente si todos los clientes X11 "
 "relevantes ya no están. Requiere reiniciar."
 
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:141
 msgid "Modifier to use to locate the pointer"
 msgstr "Modificador que usar para encontrar el puntero"
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:142
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Esta tecla iniciará la acción de encontrar el puntero."
 
-#: data/org.gnome.mutter.gschema.xml.in:158
+#: data/org.gnome.mutter.gschema.xml.in:149
 msgid "Timeout for check-alive ping"
 msgstr "Tiempo de espera para la comprobación de ping"
 
-#: data/org.gnome.mutter.gschema.xml.in:159
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -464,19 +447,11 @@ msgstr ""
 "Número de milisegundos que tiene un cliente para responder a ping y que no "
 "se le detecte como caído. Usar 0 desactivará esta comprobación."
 
-#: data/org.gnome.mutter.gschema.xml.in:183
-msgid "Select window from tab popup"
-msgstr "Seleccionar ventana de la pestaña emergente"
-
-#: data/org.gnome.mutter.gschema.xml.in:188
-msgid "Cancel tab popup"
-msgstr "Cancelar pestaña emergente"
-
-#: data/org.gnome.mutter.gschema.xml.in:193
+#: data/org.gnome.mutter.gschema.xml.in:174
 msgid "Switch monitor configurations"
 msgstr "Cambiar la configuración del monitor"
 
-#: data/org.gnome.mutter.gschema.xml.in:198
+#: data/org.gnome.mutter.gschema.xml.in:179
 msgid "Rotates the built-in monitor configuration"
 msgstr "Rota la configuración del monitor empotrado"
 
@@ -603,6 +578,33 @@ msgstr ""
 "tiene efecto si XWayland ha construido sin soporte para esas extensiones. "
 "XWayland necesita reiniciarse para que este cambio surta efecto."
 
+#: data/org.gnome.mutter.wayland.gschema.xml.in:130
+msgid "Allow X11 clients with a different endianness to connect to Xwayland"
+msgstr "Permitir que clientes X11 endianidad diferente se conecten a Xwayland"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:131
+msgid ""
+"Allow connections from clients with an endianness different to that of "
+"Xwayland. The X server byte-swapping code is a huge attack surface, much of "
+"that code in Xwayland is prone to security issues. The use-case of byte-"
+"swapped clients is very niche, and disabled by default in Xwayland. Enable "
+"this option to instruct Xwayland to accept connections from X11 clients with "
+"a different endianness. This option has no effect if Xwayland does not "
+"support the command line option +byteswappedclients/-byteswappedclients to "
+"control that setting. Xwayland needs to be restarted for this setting to "
+"take effect."
+msgstr ""
+"Permitir conexiones de clientes con una endianidad diferente a la de "
+"Xwayland. El código de intercambio de bytes del servidor X es muy "
+"vulnerable, gran parte de ese código en Xwayland es susceptible de problemas "
+"de seguridad. El caso de uso de clientes con bytes intercambiados es un "
+"nicho y está desactivado de manera predeterminada en Xwayland. Activar esta "
+"opción para permitir que Xwayland acepte conexiones de clientes X11 con una "
+"endianidad diferente. Esta opción no tiene efecto si Xwayland no soporta la "
+"opción de línea de comandos +byteswappedclients/-byteswappedclients para "
+"controlar esta opción. Debe reiniciar Xwayland para que este cambio surta "
+"efecto."
+
 #: src/backends/meta-monitor.c:253
 msgid "Built-in display"
 msgstr "Pantalla integrada"
@@ -630,14 +632,9 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#. Translators: this string will appear in Sysprof
-#: src/backends/meta-profiler.c:79
-msgid "Compositor"
-msgstr "Compositor"
-
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:400
+#: src/compositor/compositor.c:416
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -649,74 +646,74 @@ msgstr ""
 msgid "Bell event"
 msgstr "Evento de campana"
 
-#: src/core/display.c:693
+#: src/core/display.c:703
 msgid "Privacy Screen Enabled"
 msgstr "Privacidad de pantalla activada"
 
-#: src/core/display.c:694
+#: src/core/display.c:704
 msgid "Privacy Screen Disabled"
 msgstr "Privacidad de pantalla desactivada"
 
-#: src/core/meta-context-main.c:567
+#: src/core/meta-context-main.c:568
 msgid "Replace the running window manager"
 msgstr "Reemplazar el gestor de ventanas en ejecución"
 
-#: src/core/meta-context-main.c:573
+#: src/core/meta-context-main.c:574
 msgid "X Display to use"
 msgstr "Pantalla X que usar"
 
-#: src/core/meta-context-main.c:579
+#: src/core/meta-context-main.c:580
 msgid "Disable connection to session manager"
 msgstr "Desactivar conexión al gestor de sesión"
 
-#: src/core/meta-context-main.c:585
+#: src/core/meta-context-main.c:586
 msgid "Specify session management ID"
 msgstr "Especificar el ID se gestión de sesión"
 
-#: src/core/meta-context-main.c:591
+#: src/core/meta-context-main.c:592
 msgid "Initialize session from savefile"
 msgstr "Inicializar sesión desde el archivo de salvaguarda"
 
-#: src/core/meta-context-main.c:597
+#: src/core/meta-context-main.c:598
 msgid "Make X calls synchronous"
 msgstr "Hacer que las llamadas a las X sean síncronas"
 
-#: src/core/meta-context-main.c:605
+#: src/core/meta-context-main.c:606
 msgid "Run as a wayland compositor"
 msgstr "Ejecutar como compositor Wayland"
 
-#: src/core/meta-context-main.c:611
+#: src/core/meta-context-main.c:612
 msgid "Run as a nested compositor"
 msgstr "Ejecutar como compositor anidado"
 
-#: src/core/meta-context-main.c:617
+#: src/core/meta-context-main.c:618
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Ejecutar el compositor wayland sin iniciar Xwayland"
 
-#: src/core/meta-context-main.c:623
+#: src/core/meta-context-main.c:624
 msgid "Specify Wayland display name to use"
 msgstr "Especifique el nombre de pantalla Wayland que usar"
 
-#: src/core/meta-context-main.c:631
+#: src/core/meta-context-main.c:632
 msgid "Run as a full display server, rather than nested"
 msgstr "Ejecutar como servidor completo, en lugar de anidado"
 
-#: src/core/meta-context-main.c:636
+#: src/core/meta-context-main.c:637
 msgid "Run as a headless display server"
 msgstr "Ejecutar como servidor sin periféricos"
 
-#: src/core/meta-context-main.c:641
+#: src/core/meta-context-main.c:642
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Añadir monitor virtual persistente WxH o WxH@R)"
 
-#: src/core/meta-context-main.c:653
+#: src/core/meta-context-main.c:654
 msgid "Run with X11 backend"
 msgstr "Ejecutar con «backend» de X11"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:848
+#: src/core/meta-pad-action-mapper.c:861
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Cambiar modo (grupo %d)"
@@ -724,13 +721,18 @@ msgstr "Cambiar modo (grupo %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:871
+#: src/core/meta-pad-action-mapper.c:884
 msgid "Switch monitor"
 msgstr "Cambiar monitor"
 
-#: src/core/meta-pad-action-mapper.c:873
+#: src/core/meta-pad-action-mapper.c:886
 msgid "Show on-screen help"
 msgstr "Mostrar la ayuda en pantalla"
+
+#. Translators: this string will appear in Sysprof
+#: src/core/meta-profiler.c:80 src/core/meta-profiler.c:217
+msgid "Compositor"
+msgstr "Compositor"
 
 #: src/core/mutter.c:74
 msgid "Print version"
@@ -745,20 +747,20 @@ msgstr "Complemento de mutter que usar"
 msgid "Workspace %d"
 msgstr "Área de trabajo %d"
 
-#: src/core/util.c:143
+#: src/core/util.c:142
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter se compiló sin soporte para modo detallado"
 
-#: src/core/workspace.c:533
+#: src/core/workspace.c:541
 msgid "Workspace switched"
 msgstr "Área de trabajo cambiada"
 
-#: src/wayland/meta-wayland-tablet-pad.c:520
+#: src/wayland/meta-wayland-tablet-pad.c:530
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Cambiar modo: modo %d"
 
-#: src/x11/meta-x11-display.c:659
+#: src/x11/meta-x11-display.c:682
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -767,29 +769,48 @@ msgstr ""
 "La pantalla «%s» ya tiene un gestor de ventanas; pruebe a usar la opción «--"
 "replace» para reemplazar el gestor de ventanas activo."
 
-#: src/x11/meta-x11-display.c:1053
+#: src/x11/meta-x11-display.c:1074
 msgid "Failed to initialize GDK"
 msgstr "Falló al inicializar GDK"
 
-#: src/x11/meta-x11-display.c:1080
+#: src/x11/meta-x11-display.c:1100
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Falló al abrir la pantalla del sistema X-Window «%s»"
 
-#: src/x11/meta-x11-display.c:1188
+#: src/x11/meta-x11-display.c:1253
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "La ventana %d en la pantalla «%s» no es válida"
 
-#: src/x11/meta-x11-selection-input-stream.c:474
+#: src/x11/meta-x11-selection-input-stream.c:481
 #, c-format
 msgid "Format %s not supported"
 msgstr "Formato %s no soportado"
 
-#: src/x11/window-props.c:548
+#: src/x11/window-props.c:549
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (on %s)"
+
+#~ msgid "Mutter"
+#~ msgstr "Mutter"
+
+#~ msgid "No tab popup"
+#~ msgstr "No hay pestaña emergente"
+
+#~ msgid ""
+#~ "Determines whether the use of popup and highlight frame should be "
+#~ "disabled for window cycling."
+#~ msgstr ""
+#~ "Determina si el uso de ventanas emergentes y marcos resaltados se debe "
+#~ "desactivar al cambiar entre ventanas."
+
+#~ msgid "Select window from tab popup"
+#~ msgstr "Seleccionar ventana de la pestaña emergente"
+
+#~ msgid "Cancel tab popup"
+#~ msgstr "Cancelar pestaña emergente"
 
 #, c-format
 #~ msgid "“%s” is not responding."
@@ -1168,8 +1189,8 @@ msgstr "%s (on %s)"
 #~ msgstr "El elemento <%s> no está permitido debajo de <%s>"
 
 #~ msgid ""
-#~ "Cannot specify both \"button_width\"/\"button_height\" and \"aspect_ratio"
-#~ "\" for buttons"
+#~ "Cannot specify both \"button_width\"/\"button_height\" and "
+#~ "\"aspect_ratio\" for buttons"
 #~ msgstr ""
 #~ "No se puede especificar ambos «button_width»/«button_height» y «aspect "
 #~ "ratio» para los botones"
@@ -2303,8 +2324,9 @@ msgstr "%s (on %s)"
 
 #~ msgid ""
 #~ "Set this to true to resize with the right button and show a menu with the "
-#~ "middle button while holding down the key given in \"mouse_button_modifier"
-#~ "\"; set it to false to make it work the opposite way around."
+#~ "middle button while holding down the key given in "
+#~ "\"mouse_button_modifier\"; set it to false to make it work the opposite "
+#~ "way around."
 #~ msgstr ""
 #~ "Establezca esto a «verdadero» para redimensionar con el botón derecho y "
 #~ "mostrar un menú con el botón del medio mientras se mantiene pulsada la "
@@ -3209,8 +3231,8 @@ msgstr "%s (on %s)"
 
 #~ msgid ""
 #~ "The keybinding used to move focus backwards between panels and the "
-#~ "desktop, without a popup window. The format looks like \"&lt;Control&gt;a"
-#~ "\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and "
+#~ "desktop, without a popup window. The format looks like \"&lt;Control&gt;"
+#~ "a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and "
 #~ "allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;"
 #~ "\" and \"&lt;Ctrl&gt;\". If you set the option to the special string "
 #~ "\"disabled\", then there will be no keybinding for this action."
@@ -3269,8 +3291,8 @@ msgstr "%s (on %s)"
 #~ "direction go forward again. The format looks like \"&lt;Control&gt;a\" or "
 #~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
 #~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
-#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "La combinación de teclas usada para mover el foco entre ventanas sin una "
 #~ "ventana emergente. Manteniendo pulsada la tecla «Mayús.» junto con esta "
@@ -3287,8 +3309,8 @@ msgstr "%s (on %s)"
 #~ "direction go forward again. The format looks like \"&lt;Control&gt;a\" or "
 #~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
 #~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
-#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "La combinación de teclas usada para mover el foco entre ventanas, usando "
 #~ "una ventana emergente. Manteniendo pulsada la tecla «Mayús.» junto con "
@@ -3533,8 +3555,8 @@ msgstr "%s (on %s)"
 #~ "screenshot of a window. The format looks like \"&lt;Control&gt;a\" or "
 #~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
 #~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
-#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "La combinación de teclas que invoca la utilidad del panel de captura de "
 #~ "pantalla para obtener una captura de pantalla de una ventana. El formato "
