@@ -46,11 +46,6 @@ void meta_window_wayland_finish_move_resize (MetaWindow              *window,
 
 int meta_window_wayland_get_geometry_scale (MetaWindow *window);
 
-void meta_window_wayland_place_relative_to (MetaWindow *window,
-                                            MetaWindow *other,
-                                            int         x,
-                                            int         y);
-
 void meta_window_place_with_placement_rule (MetaWindow        *window,
                                             MetaPlacementRule *placement_rule);
 

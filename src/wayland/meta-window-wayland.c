@@ -1243,25 +1243,6 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
 }
 
 void
-meta_window_wayland_place_relative_to (MetaWindow *window,
-                                       MetaWindow *other,
-                                       int         x,
-                                       int         y)
-{
-  int geometry_scale;
-
-  /* If there is no monitor, we can't position the window reliably. */
-  if (!other->monitor)
-    return;
-
-  geometry_scale = meta_window_wayland_get_geometry_scale (other);
-  meta_window_move_frame (window, FALSE,
-                          other->buffer_rect.x + (x * geometry_scale),
-                          other->buffer_rect.y + (y * geometry_scale));
-  window->placed = TRUE;
-}
-
-void
 meta_window_place_with_placement_rule (MetaWindow        *window,
                                        MetaPlacementRule *placement_rule)
 {
