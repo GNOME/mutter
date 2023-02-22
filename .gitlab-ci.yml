@@ -342,6 +342,7 @@ build-wayland-only@x86_64:
     G_SLICE: "always-malloc"
     MALLOC_CHECK_: "3"
     NO_AT_BRIDGE: "1"
+    GTK_A11Y: "none"
   before_script:
     # Disable e.g. audio support to not dead lock screen cast tests
     - mkdir -m 700 $XDG_RUNTIME_DIR

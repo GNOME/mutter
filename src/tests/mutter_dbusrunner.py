@@ -181,6 +181,7 @@ ret = (unix_fd, False)
         env = {}
         env.update(os.environ)
         env['NO_AT_BRIDGE'] = '1'
+        env['GTK_A11Y'] = 'none'
         env['GSETTINGS_BACKEND'] = 'memory'
 
         wrapper = env.get('META_DBUS_RUNNER_WRAPPER')
