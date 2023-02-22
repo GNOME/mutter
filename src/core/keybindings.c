@@ -34,6 +34,7 @@
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/x11/meta-backend-x11.h"
+#include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-input-device-x11.h"
 #include "compositor/compositor-private.h"
 #include "core/frame.h"
@@ -1197,6 +1198,8 @@ meta_change_button_grab (MetaKeyBindingManager *keys,
 
   mods = calc_grab_modifiers (keys, modmask);
 
+  meta_clutter_x11_trap_x_errors ();
+
   /* GrabModeSync means freeze until XAllowEvents */
   if (grab)
     XIGrabButton (xdisplay,
@@ -1209,6 +1212,8 @@ meta_change_button_grab (MetaKeyBindingManager *keys,
     XIUngrabButton (xdisplay,
                     META_VIRTUAL_CORE_POINTER_ID,
                     button, xwindow, mods->len, (XIGrabModifiers *)mods->data);
+
+  meta_clutter_x11_untrap_x_errors ();
 
   g_array_free (mods, TRUE);
 }
@@ -1430,6 +1435,8 @@ meta_change_keygrab (MetaKeyBindingManager *keys,
 
   mods = calc_grab_modifiers (keys, resolved_combo->mask);
 
+  meta_clutter_x11_trap_x_errors ();
+
   for (i = 0; i < resolved_combo->len; i++)
     {
       xkb_keycode_t keycode = resolved_combo->keycodes[i];
@@ -1451,6 +1458,8 @@ meta_change_keygrab (MetaKeyBindingManager *keys,
                          keycode, xwindow,
                          mods->len, (XIGrabModifiers *)mods->data);
     }
+
+  meta_clutter_x11_untrap_x_errors ();
 
   g_array_free (mods, TRUE);
 }
