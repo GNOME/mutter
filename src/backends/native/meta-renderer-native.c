@@ -1280,7 +1280,7 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
   if (META_IS_CRTC_KMS (crtc))
     {
       MetaGpuKms *gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
-      MetaOnscreenNative *onscreen_native;
+      g_autoptr (MetaOnscreenNative) onscreen_native = NULL;
 
       if (!meta_renderer_native_ensure_gpu_data (renderer_native,
                                                  gpu_kms,
@@ -1322,7 +1322,8 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
             {
               use_shadowfb = should_force_shadow_fb (renderer_native,
                                                      primary_gpu_kms);
-              framebuffer = COGL_FRAMEBUFFER (onscreen_native);
+              framebuffer =
+                COGL_FRAMEBUFFER (g_steal_pointer (&onscreen_native));
             }
         }
     }
