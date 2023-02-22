@@ -94,7 +94,7 @@ struct _MetaRendererNative
   GList *pending_mode_set_views;
   gboolean pending_mode_set;
 
-  GList *kept_alive_onscreens;
+  GList *detached_onscreens;
   GList *lingering_onscreens;
   guint release_unused_gpus_idle_id;
 
@@ -793,11 +793,11 @@ old_onscreen_freed (gpointer  user_data,
 }
 
 static void
-clear_kept_alive_onscreens (MetaRendererNative *renderer_native)
+clear_detached_onscreens (MetaRendererNative *renderer_native)
 {
   GList *l;
 
-  for (l = renderer_native->kept_alive_onscreens; l; l = l->next)
+  for (l = renderer_native->detached_onscreens; l; l = l->next)
     {
       CoglOnscreen *onscreen;
 
@@ -812,7 +812,7 @@ clear_kept_alive_onscreens (MetaRendererNative *renderer_native)
         g_list_prepend (renderer_native->lingering_onscreens, onscreen);
     }
 
-  g_clear_list (&renderer_native->kept_alive_onscreens,
+  g_clear_list (&renderer_native->detached_onscreens,
                 g_object_unref);
 }
 
@@ -855,7 +855,7 @@ meta_renderer_native_post_mode_set_updates (MetaRendererNative *renderer_native)
         }
     }
 
-  clear_kept_alive_onscreens (renderer_native);
+  clear_detached_onscreens (renderer_native);
 
   meta_kms_notify_modes_set (kms);
 
@@ -1416,7 +1416,7 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
 }
 
 static void
-keep_current_onscreens_alive (MetaRenderer *renderer)
+detach_onscreens (MetaRenderer *renderer)
 {
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
   GList *views;
@@ -1428,8 +1428,11 @@ keep_current_onscreens_alive (MetaRenderer *renderer)
       ClutterStageView *stage_view = l->data;
       CoglFramebuffer *onscreen = clutter_stage_view_get_onscreen (stage_view);
 
-      renderer_native->kept_alive_onscreens =
-        g_list_prepend (renderer_native->kept_alive_onscreens,
+      if (META_IS_ONSCREEN_NATIVE (onscreen))
+        meta_onscreen_native_detach (META_ONSCREEN_NATIVE (onscreen));
+
+      renderer_native->detached_onscreens =
+        g_list_prepend (renderer_native->detached_onscreens,
                         g_object_ref (onscreen));
     }
 }
@@ -1446,7 +1449,7 @@ meta_renderer_native_rebuild_views (MetaRenderer *renderer)
   meta_kms_discard_pending_page_flips (kms);
   meta_kms_discard_pending_updates (kms);
 
-  keep_current_onscreens_alive (renderer);
+  detach_onscreens (renderer);
 
   parent_renderer_class->rebuild_views (renderer);
 
@@ -2141,7 +2144,7 @@ meta_renderer_native_finalize (GObject *object)
 
   g_clear_handle_id (&renderer_native->release_unused_gpus_idle_id,
                      g_source_remove);
-  clear_kept_alive_onscreens (renderer_native);
+  clear_detached_onscreens (renderer_native);
 
   g_hash_table_destroy (renderer_native->gpu_datas);
   g_clear_object (&renderer_native->gles3);

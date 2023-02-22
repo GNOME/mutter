@@ -108,6 +108,9 @@ struct _MetaOnscreenNative
 
   gboolean is_gamma_lut_invalid;
   gboolean is_privacy_screen_invalid;
+
+  gulong gamma_lut_changed_handler_id;
+  gulong privacy_screen_changed_handler_id;
 };
 
 G_DEFINE_TYPE (MetaOnscreenNative, meta_onscreen_native,
@@ -2207,20 +2210,31 @@ meta_onscreen_native_new (MetaRendererNative *renderer_native,
   if (meta_crtc_get_gamma_lut_size (crtc) > 0)
     {
       onscreen_native->is_gamma_lut_invalid = TRUE;
-      g_signal_connect_object (crtc, "gamma-lut-changed",
-                               G_CALLBACK (on_gamma_lut_changed),
-                               onscreen_native, G_CONNECT_DEFAULT);
+      onscreen_native->gamma_lut_changed_handler_id =
+        g_signal_connect (crtc, "gamma-lut-changed",
+                          G_CALLBACK (on_gamma_lut_changed),
+                          onscreen_native);
     }
 
   if (meta_output_is_privacy_screen_supported (output))
     {
       onscreen_native->is_privacy_screen_invalid = TRUE;
-      g_signal_connect_object (output, "notify::is-privacy-screen-enabled",
-                               G_CALLBACK (on_privacy_screen_enabled_changed),
-                               onscreen_native, G_CONNECT_DEFAULT);
+      onscreen_native->privacy_screen_changed_handler_id =
+        g_signal_connect (output, "notify::is-privacy-screen-enabled",
+                          G_CALLBACK (on_privacy_screen_enabled_changed),
+                          onscreen_native);
     }
 
   return onscreen_native;
+}
+
+static void
+clear_invalidation_handlers (MetaOnscreenNative *onscreen_native)
+{
+  g_clear_signal_handler (&onscreen_native->gamma_lut_changed_handler_id,
+                          onscreen_native->crtc);
+  g_clear_signal_handler (&onscreen_native->privacy_screen_changed_handler_id,
+                          onscreen_native->output);
 }
 
 static void
@@ -2231,6 +2245,8 @@ meta_onscreen_native_dispose (GObject *object)
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   MetaRendererNativeGpuData *renderer_gpu_data;
+
+  clear_invalidation_handlers (onscreen_native);
 
   renderer_gpu_data =
     meta_renderer_native_get_gpu_data (renderer_native,
@@ -2299,4 +2315,10 @@ MetaCrtc *
 meta_onscreen_native_get_crtc (MetaOnscreenNative *onscreen_native)
 {
   return onscreen_native->crtc;
+}
+
+void
+meta_onscreen_native_detach (MetaOnscreenNative *onscreen_native)
+{
+  clear_invalidation_handlers (onscreen_native);
 }
