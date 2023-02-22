@@ -18,7 +18,7 @@ variables:
 .mutter.fedora@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 37
-    BASE_TAG: '2022-12-22.0'
+    BASE_TAG: '2023-02-22.0'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
       clang
@@ -36,7 +36,9 @@ variables:
       python3-pip
       pkgconfig(libgcrypt)
       pkgconfig(colord)
+      pkgconfig(gnome-desktop-4)
       pkgconfig(lcms2)
+      pkgconfig(libnma-gtk4)
 
     FDO_DISTRIBUTION_EXEC: |
       dnf install -y 'dnf-command(builddep)' &&
