@@ -46,16 +46,7 @@ META_EXPORT
 Window   meta_x11_display_get_xroot         (MetaX11Display *x11_display);
 
 META_EXPORT
-int      meta_x11_display_get_xinput_opcode     (MetaX11Display *x11_display);
-
-META_EXPORT
 int      meta_x11_display_get_damage_event_base (MetaX11Display *x11_display);
-
-META_EXPORT
-int      meta_x11_display_get_shape_event_base  (MetaX11Display *x11_display);
-
-META_EXPORT
-gboolean meta_x11_display_has_shape             (MetaX11Display *x11_display);
 
 META_EXPORT
 void meta_x11_display_set_cm_selection (MetaX11Display *x11_display);

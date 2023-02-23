@@ -1576,33 +1576,10 @@ meta_x11_display_get_xroot (MetaX11Display *x11_display)
   return x11_display->xroot;
 }
 
-/**
- * meta_x11_display_get_xinput_opcode: (skip)
- * @x11_display: a #MetaX11Display
- *
- */
-int
-meta_x11_display_get_xinput_opcode (MetaX11Display *x11_display)
-{
-  return x11_display->xinput_opcode;
-}
-
 int
 meta_x11_display_get_damage_event_base (MetaX11Display *x11_display)
 {
   return x11_display->damage_event_base;
-}
-
-int
-meta_x11_display_get_shape_event_base (MetaX11Display *x11_display)
-{
-  return x11_display->shape_event_base;
-}
-
-gboolean
-meta_x11_display_has_shape (MetaX11Display *x11_display)
-{
-  return META_X11_DISPLAY_HAS_SHAPE (x11_display);
 }
 
 Window
