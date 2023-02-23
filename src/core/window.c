@@ -4572,7 +4572,8 @@ meta_window_transient_can_focus (MetaWindow *window)
 }
 
 static void
-meta_window_make_most_recent (MetaWindow *window) {
+meta_window_make_most_recent (MetaWindow *window)
+{
   MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
   GList *l;
 
