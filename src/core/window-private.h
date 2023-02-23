@@ -639,7 +639,7 @@ void        meta_window_unmanage           (MetaWindow  *window,
                                             guint32      timestamp);
 void        meta_window_unmanage_on_idle   (MetaWindow *window);
 void        meta_window_queue              (MetaWindow  *window,
-                                            guint queuebits);
+                                            MetaQueueType queue_types);
 META_EXPORT_TEST
 void        meta_window_untile             (MetaWindow        *window);
 
