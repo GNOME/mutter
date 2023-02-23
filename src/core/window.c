@@ -4571,6 +4571,25 @@ meta_window_transient_can_focus (MetaWindow *window)
   return TRUE;
 }
 
+static void
+meta_window_make_most_recent (MetaWindow *window) {
+  MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
+  GList *l;
+
+  for (l = workspace_manager->workspaces; l != NULL; l = l->next)
+    {
+      MetaWorkspace *workspace = l->data;
+      GList *link;
+
+      link = g_list_find (workspace->mru_list, window);
+      if (!link)
+        continue;
+
+      workspace->mru_list = g_list_delete_link (workspace->mru_list, link);
+      workspace->mru_list = g_list_prepend (workspace->mru_list, window);
+    }
+}
+
 /* XXX META_EFFECT_FOCUS */
 void
 meta_window_focus (MetaWindow  *window,
@@ -4651,22 +4670,7 @@ meta_window_focus (MetaWindow  *window,
   if (workspace_manager->active_workspace &&
       meta_window_located_on_workspace (window,
                                         workspace_manager->active_workspace))
-    {
-      GList *l;
-
-      for (l = workspace_manager->workspaces; l != NULL; l = l->next)
-        {
-          MetaWorkspace *workspace = l->data;
-          GList *link;
-
-          link = g_list_find (workspace->mru_list, window);
-          if (!link)
-            continue;
-
-          workspace->mru_list = g_list_delete_link (workspace->mru_list, link);
-          workspace->mru_list = g_list_prepend (workspace->mru_list, window);
-        }
-    }
+    meta_window_make_most_recent (window);
 
   backend = backend_from_window (window);
   stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
@@ -5011,6 +5015,15 @@ meta_window_raise (MetaWindow  *window)
     meta_stack_raise (window->display->stack, window);
 
   g_signal_emit (window, window_signals[RAISED], 0);
+}
+
+void
+meta_window_raise_and_make_recent (MetaWindow *window)
+{
+  g_return_if_fail (META_IS_WINDOW (window));
+
+  meta_window_raise (window);
+  meta_window_make_most_recent (window);
 }
 
 void
