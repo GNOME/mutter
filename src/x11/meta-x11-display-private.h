@@ -287,4 +287,15 @@ MetaDisplay * meta_x11_display_get_display (MetaX11Display *x11_display);
 void meta_x11_display_run_event_funcs (MetaX11Display *x11_display,
                                        XEvent         *xevent);
 
+int meta_x11_display_get_screen_number (MetaX11Display *x11_display);
+
+int meta_x11_display_get_damage_event_base (MetaX11Display *x11_display);
+
+void meta_x11_display_set_cm_selection (MetaX11Display *x11_display);
+
+gboolean meta_x11_display_xwindow_is_a_no_focus_window (MetaX11Display *x11_display,
+                                                        Window xwindow);
+
+void meta_x11_display_clear_stage_input_region (MetaX11Display *x11_display);
+
 #endif /* META_X11_DISPLAY_PRIVATE_H */
