@@ -30,6 +30,7 @@ struct _MetaFrameNative
   ClutterFrame base;
 
   MetaKmsUpdate *kms_update;
+  gboolean had_kms_update;
 };
 
 static void
@@ -59,6 +60,7 @@ meta_frame_native_set_kms_update (MetaFrameNative *frame_native,
   g_return_if_fail (!frame_native->kms_update);
 
   frame_native->kms_update = kms_update;
+  frame_native->had_kms_update = TRUE;
 }
 
 MetaKmsUpdate *
@@ -73,6 +75,7 @@ meta_frame_native_ensure_kms_update (MetaFrameNative *frame_native,
     }
 
   frame_native->kms_update = meta_kms_update_new (kms_device);
+  frame_native->had_kms_update = TRUE;
   return frame_native->kms_update;
 }
 
@@ -86,4 +89,10 @@ gboolean
 meta_frame_native_has_kms_update (MetaFrameNative *frame_native)
 {
   return !!frame_native->kms_update;
+}
+
+gboolean
+meta_frame_native_had_kms_update (MetaFrameNative *frame_native)
+{
+  return frame_native->had_kms_update;
 }
