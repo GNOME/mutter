@@ -54,14 +54,8 @@ enum
 {
   PROP_0,
 
-  PROP_SESSION_MANAGER,
-  PROP_PEER_NAME,
-  PROP_ID,
-
   N_PROPS
 };
-
-static GParamSpec *obj_props[N_PROPS];
 
 typedef enum _MetaRemoteDesktopNotifyAxisFlags
 {
@@ -263,14 +257,6 @@ meta_remote_desktop_session_close (MetaDbusSession *dbus_session)
     }
 
   g_object_unref (session);
-}
-
-static const char *
-meta_remote_desktop_session_get_id (MetaDbusSession *dbus_session)
-{
-  MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (dbus_session);
-
-  return session->session_id;
 }
 
 char *
@@ -1706,7 +1692,6 @@ static void
 meta_dbus_session_init_iface (MetaDbusSessionInterface *iface)
 {
   iface->close = meta_remote_desktop_session_close;
-  iface->get_id = meta_remote_desktop_session_get_id;
 }
 
 static void
@@ -1741,13 +1726,13 @@ meta_remote_desktop_session_set_property (GObject      *object,
 
   switch (prop_id)
     {
-    case PROP_SESSION_MANAGER:
+    case N_PROPS + META_DBUS_SESSION_PROP_SESSION_MANAGER:
       session->session_manager = g_value_get_object (value);
       break;
-    case PROP_PEER_NAME:
+    case N_PROPS + META_DBUS_SESSION_PROP_PEER_NAME:
       session->peer_name = g_value_dup_string (value);
       break;
-    case PROP_ID:
+    case N_PROPS + META_DBUS_SESSION_PROP_ID:
       session->session_id = g_value_dup_string (value);
       break;
     default:
@@ -1766,13 +1751,13 @@ meta_remote_desktop_session_get_property (GObject    *object,
 
   switch (prop_id)
     {
-    case PROP_SESSION_MANAGER:
+    case N_PROPS + META_DBUS_SESSION_PROP_SESSION_MANAGER:
       g_value_set_object (value, session->session_manager);
       break;
-    case PROP_PEER_NAME:
+    case N_PROPS + META_DBUS_SESSION_PROP_PEER_NAME:
       g_value_set_string (value, session->peer_name);
       break;
-    case PROP_ID:
+    case N_PROPS + META_DBUS_SESSION_PROP_ID:
       g_value_set_string (value, session->session_id);
       break;
     default:
@@ -1803,31 +1788,7 @@ meta_remote_desktop_session_class_init (MetaRemoteDesktopSessionClass *klass)
   object_class->set_property = meta_remote_desktop_session_set_property;
   object_class->get_property = meta_remote_desktop_session_get_property;
 
-  obj_props[PROP_SESSION_MANAGER] =
-    g_param_spec_object ("session-manager",
-                         "session manager",
-                         "D-Bus session manager",
-                         META_TYPE_DBUS_SESSION_MANAGER,
-                         G_PARAM_READWRITE |
-                         G_PARAM_CONSTRUCT_ONLY |
-                         G_PARAM_STATIC_STRINGS);
-  obj_props[PROP_PEER_NAME] =
-    g_param_spec_string ("peer-name",
-                         "peer name",
-                         "D-Bus peer name",
-                         NULL,
-                         G_PARAM_READWRITE |
-                         G_PARAM_CONSTRUCT_ONLY |
-                         G_PARAM_STATIC_STRINGS);
-  obj_props[PROP_ID] =
-    g_param_spec_string ("id",
-                         "session id",
-                         "Unique ID of the session",
-                         NULL,
-                         G_PARAM_READWRITE |
-                         G_PARAM_CONSTRUCT_ONLY |
-                         G_PARAM_STATIC_STRINGS);
-  g_object_class_install_properties (object_class, N_PROPS, obj_props);
+  meta_dbus_session_install_properties (object_class, N_PROPS);
 }
 
 static MetaRemoteDesktopSessionHandle *

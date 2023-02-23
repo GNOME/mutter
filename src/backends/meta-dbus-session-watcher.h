@@ -25,6 +25,15 @@
 
 #include <glib-object.h>
 
+#include "backends/meta-backend-types.h"
+
+enum
+{
+  META_DBUS_SESSION_PROP_SESSION_MANAGER,
+  META_DBUS_SESSION_PROP_PEER_NAME,
+  META_DBUS_SESSION_PROP_ID,
+};
+
 #define META_TYPE_DBUS_SESSION (meta_dbus_session_get_type ())
 G_DECLARE_INTERFACE (MetaDbusSession, meta_dbus_session,
                      META, DBUS_SESSION,
@@ -35,7 +44,6 @@ struct _MetaDbusSessionInterface
   GTypeInterface parent_iface;
 
   void (* close) (MetaDbusSession *session);
-  const char * (* get_id) (MetaDbusSession *session);
 };
 
 #define META_TYPE_DBUS_SESSION_WATCHER (meta_dbus_session_watcher_get_type ())
@@ -48,10 +56,17 @@ void meta_dbus_session_watcher_watch_session (MetaDbusSessionWatcher *session_wa
                                               const char             *client_dbus_name,
                                               MetaDbusSession        *session);
 
+void meta_dbus_session_install_properties (GObjectClass *object_class,
+                                           unsigned int  first_prop);
+
 void meta_dbus_session_notify_closed (MetaDbusSession *session);
 
 void meta_dbus_session_close (MetaDbusSession *session);
 
-const char * meta_dbus_session_get_id (MetaDbusSession *session);
+MetaDbusSessionManager * meta_dbus_session_manager (MetaDbusSessionManager *session);
+
+char * meta_dbus_session_get_peer_name (MetaDbusSession *session);
+
+char * meta_dbus_session_get_id (MetaDbusSession *session);
 
 #endif /* META_DBUS_SESSION_WATCHER_H */

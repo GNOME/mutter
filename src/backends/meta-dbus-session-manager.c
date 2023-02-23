@@ -288,7 +288,7 @@ on_session_closed (MetaDbusSession        *session,
 {
   MetaDbusSessionManagerPrivate *priv =
     meta_dbus_session_manager_get_instance_private (session_manager);
-  const char *session_id;
+  g_autofree char *session_id = NULL;
 
   session_id = meta_dbus_session_get_id (session);
   g_hash_table_remove (priv->sessions, session_id);
