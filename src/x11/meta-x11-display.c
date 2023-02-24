@@ -2523,11 +2523,14 @@ meta_x11_display_run_event_funcs (MetaX11Display *x11_display,
                                   XEvent         *xevent)
 {
   MetaX11EventFilter *filter;
-  GList *l;
+  GList *next, *l = x11_display->event_funcs;
 
-  for (l = x11_display->event_funcs; l; l = l->next)
+  while (l)
     {
       filter = l->data;
+      next = l->next;
+
       filter->func (x11_display, xevent, filter->user_data);
+      l = next;
     }
 }
