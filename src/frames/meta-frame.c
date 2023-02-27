@@ -37,6 +37,7 @@ struct _MetaFrame
 
   char *net_wm_visible_name;
   char *net_wm_name;
+  char *wm_name;
 };
 
 typedef struct
@@ -83,6 +84,7 @@ meta_frame_finalize (GObject *object)
 
   g_free (frame->net_wm_visible_name);
   g_free (frame->net_wm_name);
+  g_free (frame->wm_name);
 
   G_OBJECT_CLASS (meta_frame_parent_class)->finalize (object);
 }
@@ -291,6 +293,8 @@ update_frame_title (MetaFrame *frame)
     title = frame->net_wm_visible_name;
   else if (frame->net_wm_name)
     title = frame->net_wm_visible_name;
+  else if (frame->wm_name)
+    title = frame->wm_name;
   else
     title = "";
 
@@ -319,6 +323,63 @@ frame_sync_net_wm_name (GtkWindow *window,
   frame->net_wm_name =
     get_utf8_string_prop (window, client_window, frame->atom__NET_WM_NAME);
   update_frame_title (frame);
+}
+
+static char *
+text_property_to_utf8 (GdkDisplay          *display,
+                       const XTextProperty *prop)
+{
+  Display *xdisplay;
+  char *ret = NULL;
+  char **local_list = NULL;
+  int count = 0;
+  int res;
+
+  xdisplay = gdk_x11_display_get_xdisplay (display);
+
+  res = XmbTextPropertyToTextList (xdisplay, prop,
+                                   &local_list, &count);
+  if (res == XNoMemory || res == XLocaleNotSupported || res == XConverterNotFound)
+    goto out;
+
+  if (count == 0)
+    goto out;
+
+  if (!g_utf8_validate (local_list[0], -1, NULL))
+    ret = NULL;
+  else
+    ret = g_strdup (local_list[0]);
+
+ out:
+  XFreeStringList (local_list);
+  return ret;
+}
+
+static void
+frame_sync_wm_name (GtkWindow *window,
+                    Window     client_window)
+{
+  MetaFrame *frame = META_FRAME (window);
+  GdkDisplay *display;
+  XTextProperty text_prop;
+  int retval;
+
+  display = gtk_widget_get_display (GTK_WIDGET (frame));
+
+  gdk_x11_display_error_trap_push (display);
+
+  retval = XGetWMName (gdk_x11_display_get_xdisplay (display),
+                       client_window,
+                       &text_prop);
+
+  if (gdk_x11_display_error_trap_pop (display))
+    return;
+  if (retval == 0)
+    return;
+
+  frame->wm_name = text_property_to_utf8 (display, &text_prop);
+  update_frame_title (frame);
+  XFree (text_prop.value);
 }
 
 static void
@@ -441,6 +502,7 @@ meta_frame_new (Window window)
 
   frame_sync_net_wm_visible_name (GTK_WINDOW (frame), window);
   frame_sync_net_wm_name (GTK_WINDOW (frame), window);
+  frame_sync_wm_name (GTK_WINDOW (frame), window);
   frame_sync_motif_wm_hints (GTK_WINDOW (frame), window);
   frame_sync_wm_normal_hints (GTK_WINDOW (frame), window);
 
@@ -477,6 +539,8 @@ meta_frame_handle_xevent (MetaFrame *frame,
         frame_sync_net_wm_visible_name (GTK_WINDOW (frame), xevent->xproperty.window);
       else if (xevent->xproperty.atom == frame->atom__NET_WM_NAME)
         frame_sync_net_wm_name (GTK_WINDOW (frame), xevent->xproperty.window);
+      else if (xevent->xproperty.atom == XA_WM_NAME)
+        frame_sync_wm_name (GTK_WINDOW (frame), xevent->xproperty.window);
       else if (xevent->xproperty.atom == frame->atom__MOTIF_WM_HINTS)
         frame_sync_motif_wm_hints (GTK_WINDOW (frame), xevent->xproperty.window);
       else if (xevent->xproperty.atom == XA_WM_NORMAL_HINTS)
