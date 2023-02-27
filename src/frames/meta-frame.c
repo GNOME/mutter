@@ -229,8 +229,8 @@ on_border_changed (GObject    *object,
 }
 
 static void
-frame_sync_title (GtkWindow *window,
-                  Window     client_window)
+frame_sync_net_wm_name (GtkWindow *window,
+                        Window     client_window)
 {
   MetaFrame *frame = META_FRAME (window);
   GdkDisplay *display;
@@ -382,7 +382,7 @@ meta_frame_new (Window window)
                                frame_height * scale, 0,
                              });
 
-  frame_sync_title (GTK_WINDOW (frame), window);
+  frame_sync_net_wm_name (GTK_WINDOW (frame), window);
   frame_sync_motif_wm_hints (GTK_WINDOW (frame), window);
   frame_sync_wm_normal_hints (GTK_WINDOW (frame), window);
 
@@ -416,7 +416,7 @@ meta_frame_handle_xevent (MetaFrame *frame,
   if (is_content && xevent->type == PropertyNotify)
     {
       if (xevent->xproperty.atom == frame->atom__NET_WM_NAME)
-        frame_sync_title (GTK_WINDOW (frame), xevent->xproperty.window);
+        frame_sync_net_wm_name (GTK_WINDOW (frame), xevent->xproperty.window);
       else if (xevent->xproperty.atom == frame->atom__MOTIF_WM_HINTS)
         frame_sync_motif_wm_hints (GTK_WINDOW (frame), xevent->xproperty.window);
       else if (xevent->xproperty.atom == XA_WM_NORMAL_HINTS)
