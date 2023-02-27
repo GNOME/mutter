@@ -228,13 +228,14 @@ on_border_changed (GObject    *object,
   meta_frame_update_extents (frame, border);
 }
 
-static void
-frame_sync_net_wm_name (GtkWindow *window,
-                        Window     client_window)
+static char *
+get_utf8_string_prop (GtkWindow *window,
+                      Window     client_window,
+                      Atom       prop)
 {
   MetaFrame *frame = META_FRAME (window);
   GdkDisplay *display;
-  char *title = NULL;
+  char *str = NULL;
   int format;
   Atom type;
   unsigned long nitems, bytes_after;
@@ -245,21 +246,33 @@ frame_sync_net_wm_name (GtkWindow *window,
 
   if (XGetWindowProperty (gdk_x11_display_get_xdisplay (display),
                           client_window,
-                          frame->atom__NET_WM_NAME,
+                          prop,
                           0, G_MAXLONG, False,
                           gdk_x11_get_xatom_by_name_for_display (display,
                                                                  "UTF8_STRING"),
                           &type, &format,
                           &nitems, &bytes_after,
-                          (unsigned char **) &title) != Success)
+                          (unsigned char **) &str) != Success)
     {
       gdk_x11_display_error_trap_pop_ignored (display);
-      return;
+      return NULL;
     }
 
   if (gdk_x11_display_error_trap_pop (display))
-    return;
+    return NULL;
 
+  return str;
+}
+
+static void
+frame_sync_net_wm_name (GtkWindow *window,
+                        Window     client_window)
+{
+  MetaFrame *frame = META_FRAME (window);
+  char *title;
+
+  title = get_utf8_string_prop (window, client_window,
+                                frame->atom__NET_WM_NAME);
   gtk_window_set_title (window, title ? title : "");
   g_free (title);
 }
