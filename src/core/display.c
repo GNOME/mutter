@@ -1198,7 +1198,9 @@ meta_grab_op_is_keyboard (MetaGrabOp op)
 gboolean
 meta_grab_op_is_resizing (MetaGrabOp op)
 {
-  return (op & META_GRAB_OP_WINDOW_DIR_MASK) != 0 || op == META_GRAB_OP_KEYBOARD_RESIZING_UNKNOWN;
+  return (op & META_GRAB_OP_WINDOW_DIR_MASK) != 0 ||
+    (op & META_GRAB_OP_KEYBOARD_RESIZING_UNKNOWN) ==
+    META_GRAB_OP_KEYBOARD_RESIZING_UNKNOWN;
 }
 
 gboolean

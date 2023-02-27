@@ -722,10 +722,14 @@ process_keyboard_resize_grab_op_change (MetaWindowDrag  *window_drag,
                                         MetaWindow      *window,
                                         ClutterKeyEvent *event)
 {
+  MetaGrabOp op, unconstrained;
   gboolean handled;
 
+  op = (window_drag->grab_op & ~META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED);
+  unconstrained = (window_drag->grab_op & META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED);
+
   handled = FALSE;
-  switch (window_drag->grab_op)
+  switch (op)
     {
     case META_GRAB_OP_KEYBOARD_RESIZING_UNKNOWN:
       switch (event->keyval)
@@ -827,6 +831,8 @@ process_keyboard_resize_grab_op_change (MetaWindowDrag  *window_drag,
       g_assert_not_reached ();
       break;
     }
+
+  window_drag->grab_op |= unconstrained;
 
   if (handled)
     {
@@ -1091,7 +1097,8 @@ process_key_event (MetaWindowDrag  *window_drag,
 
   if (window_drag->grab_op & META_GRAB_OP_WINDOW_FLAG_KEYBOARD)
     {
-      if (window_drag->grab_op == META_GRAB_OP_KEYBOARD_MOVING)
+      if ((window_drag->grab_op & META_GRAB_OP_KEYBOARD_MOVING) ==
+          META_GRAB_OP_KEYBOARD_MOVING)
         {
           meta_topic (META_DEBUG_KEYBINDINGS,
                       "Processing event for keyboard move");
@@ -1454,9 +1461,12 @@ update_resize (MetaWindowDrag          *window_drag,
   if (dx == 0 && dy == 0)
     return;
 
-  if (window_drag->grab_op == META_GRAB_OP_KEYBOARD_RESIZING_UNKNOWN)
+  if ((window_drag->grab_op & META_GRAB_OP_KEYBOARD_RESIZING_UNKNOWN) ==
+      META_GRAB_OP_KEYBOARD_RESIZING_UNKNOWN)
     {
-      MetaGrabOp op = META_GRAB_OP_WINDOW_BASE | META_GRAB_OP_WINDOW_FLAG_KEYBOARD;
+      MetaGrabOp op = META_GRAB_OP_WINDOW_BASE |
+        META_GRAB_OP_WINDOW_FLAG_KEYBOARD |
+        (window_drag->grab_op & META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED);
 
       if (dx > 0)
         op |= META_GRAB_OP_WINDOW_DIR_EAST;
