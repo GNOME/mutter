@@ -31,8 +31,12 @@ struct _MetaFrame
 {
   GtkWindow parent_instance;
   GtkWidget *content;
+  Atom atom__NET_WM_VISIBLE_NAME;
   Atom atom__NET_WM_NAME;
   Atom atom__MOTIF_WM_HINTS;
+
+  char *net_wm_visible_name;
+  char *net_wm_name;
 };
 
 typedef struct
@@ -62,6 +66,8 @@ meta_frame_constructed (GObject *object)
 
   display = gtk_widget_get_display (GTK_WIDGET (object));
 
+  frame->atom__NET_WM_VISIBLE_NAME =
+    gdk_x11_get_xatom_by_name_for_display (display, "_NET_WM_VISIBLE_NAME");
   frame->atom__NET_WM_NAME =
     gdk_x11_get_xatom_by_name_for_display (display, "_NET_WM_NAME");
   frame->atom__MOTIF_WM_HINTS =
@@ -71,11 +77,23 @@ meta_frame_constructed (GObject *object)
 }
 
 static void
+meta_frame_finalize (GObject *object)
+{
+  MetaFrame *frame = META_FRAME (object);
+
+  g_free (frame->net_wm_visible_name);
+  g_free (frame->net_wm_name);
+
+  G_OBJECT_CLASS (meta_frame_parent_class)->finalize (object);
+}
+
+static void
 meta_frame_class_init (MetaFrameClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->constructed = meta_frame_constructed;
+  object_class->finalize = meta_frame_finalize;
 }
 
 static gboolean
@@ -265,16 +283,42 @@ get_utf8_string_prop (GtkWindow *window,
 }
 
 static void
+update_frame_title (MetaFrame *frame)
+{
+  const char *title = NULL;
+
+  if (frame->net_wm_visible_name)
+    title = frame->net_wm_visible_name;
+  else if (frame->net_wm_name)
+    title = frame->net_wm_visible_name;
+  else
+    title = "";
+
+  gtk_window_set_title (GTK_WINDOW (frame), title);
+}
+
+static void
+frame_sync_net_wm_visible_name (GtkWindow *window,
+                                Window     client_window)
+{
+  MetaFrame *frame = META_FRAME (window);
+
+  g_clear_pointer (&frame->net_wm_visible_name, g_free);
+  frame->net_wm_visible_name =
+    get_utf8_string_prop (window, client_window, frame->atom__NET_WM_VISIBLE_NAME);
+  update_frame_title (frame);
+}
+
+static void
 frame_sync_net_wm_name (GtkWindow *window,
                         Window     client_window)
 {
   MetaFrame *frame = META_FRAME (window);
-  char *title;
 
-  title = get_utf8_string_prop (window, client_window,
-                                frame->atom__NET_WM_NAME);
-  gtk_window_set_title (window, title ? title : "");
-  g_free (title);
+  g_clear_pointer (&frame->net_wm_visible_name, g_free);
+  frame->net_wm_name =
+    get_utf8_string_prop (window, client_window, frame->atom__NET_WM_NAME);
+  update_frame_title (frame);
 }
 
 static void
@@ -395,6 +439,7 @@ meta_frame_new (Window window)
                                frame_height * scale, 0,
                              });
 
+  frame_sync_net_wm_visible_name (GTK_WINDOW (frame), window);
   frame_sync_net_wm_name (GTK_WINDOW (frame), window);
   frame_sync_motif_wm_hints (GTK_WINDOW (frame), window);
   frame_sync_wm_normal_hints (GTK_WINDOW (frame), window);
@@ -428,7 +473,9 @@ meta_frame_handle_xevent (MetaFrame *frame,
 
   if (is_content && xevent->type == PropertyNotify)
     {
-      if (xevent->xproperty.atom == frame->atom__NET_WM_NAME)
+      if (xevent->xproperty.atom == frame->atom__NET_WM_VISIBLE_NAME)
+        frame_sync_net_wm_visible_name (GTK_WINDOW (frame), xevent->xproperty.window);
+      else if (xevent->xproperty.atom == frame->atom__NET_WM_NAME)
         frame_sync_net_wm_name (GTK_WINDOW (frame), xevent->xproperty.window);
       else if (xevent->xproperty.atom == frame->atom__MOTIF_WM_HINTS)
         frame_sync_motif_wm_hints (GTK_WINDOW (frame), xevent->xproperty.window);
