@@ -31,6 +31,8 @@ struct _MetaFrame
 {
   GtkWindow parent_instance;
   GtkWidget *content;
+  Atom atom__NET_WM_NAME;
+  Atom atom__MOTIF_WM_HINTS;
 };
 
 typedef struct
@@ -53,8 +55,27 @@ typedef struct
 G_DEFINE_TYPE (MetaFrame, meta_frame, GTK_TYPE_WINDOW)
 
 static void
+meta_frame_constructed (GObject *object)
+{
+  MetaFrame *frame = META_FRAME (object);
+  GdkDisplay *display;
+
+  display = gtk_widget_get_display (GTK_WIDGET (object));
+
+  frame->atom__NET_WM_NAME =
+    gdk_x11_get_xatom_by_name_for_display (display, "_NET_WM_NAME");
+  frame->atom__MOTIF_WM_HINTS =
+    gdk_x11_get_xatom_by_name_for_display (display, "_MOTIF_WM_HINTS");
+
+  G_OBJECT_CLASS (meta_frame_parent_class)->constructed (object);
+}
+
+static void
 meta_frame_class_init (MetaFrameClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->constructed = meta_frame_constructed;
 }
 
 static gboolean
@@ -208,9 +229,10 @@ on_border_changed (GObject    *object,
 }
 
 static void
-frame_sync_title (GtkWindow *frame,
+frame_sync_title (GtkWindow *window,
                   Window     client_window)
 {
+  MetaFrame *frame = META_FRAME (window);
   GdkDisplay *display;
   char *title = NULL;
   int format;
@@ -223,8 +245,7 @@ frame_sync_title (GtkWindow *frame,
 
   if (XGetWindowProperty (gdk_x11_display_get_xdisplay (display),
                           client_window,
-                          gdk_x11_get_xatom_by_name_for_display (display,
-                                                                 "_NET_WM_NAME"),
+                          frame->atom__NET_WM_NAME,
                           0, G_MAXLONG, False,
                           gdk_x11_get_xatom_by_name_for_display (display,
                                                                  "UTF8_STRING"),
@@ -239,14 +260,15 @@ frame_sync_title (GtkWindow *frame,
   if (gdk_x11_display_error_trap_pop (display))
     return;
 
-  gtk_window_set_title (frame, title ? title : "");
+  gtk_window_set_title (window, title ? title : "");
   g_free (title);
 }
 
 static void
-frame_sync_motif_wm_hints (GtkWindow *frame,
+frame_sync_motif_wm_hints (GtkWindow *window,
                            Window     client_window)
 {
+  MetaFrame *frame = META_FRAME (window);
   GdkDisplay *display;
   MotifWmHints *mwm_hints = NULL;
   int format;
@@ -260,8 +282,7 @@ frame_sync_motif_wm_hints (GtkWindow *frame,
 
   if (XGetWindowProperty (gdk_x11_display_get_xdisplay (display),
                           client_window,
-                          gdk_x11_get_xatom_by_name_for_display (display,
-                                                                 "_MOTIF_WM_HINTS"),
+                          frame->atom__MOTIF_WM_HINTS,
                           0, sizeof (MotifWmHints) / sizeof (long),
                           False, AnyPropertyType,
                           &type, &format,
@@ -284,7 +305,7 @@ frame_sync_motif_wm_hints (GtkWindow *frame,
         deletable = (mwm_hints->functions & MWM_FUNC_CLOSE) == 0;
     }
 
-  gtk_window_set_deletable (frame, deletable);
+  gtk_window_set_deletable (window, deletable);
   g_free (mwm_hints);
 }
 
@@ -373,7 +394,6 @@ meta_frame_handle_xevent (MetaFrame *frame,
                           Window     window,
                           XEvent    *xevent)
 {
-  GdkDisplay *display;
   GtkWidget *content;
   gboolean is_frame, is_content;
   GdkSurface *surface;
@@ -393,18 +413,13 @@ meta_frame_handle_xevent (MetaFrame *frame,
   if (!is_frame && !is_content)
     return;
 
-  display = gtk_widget_get_display (GTK_WIDGET (frame));
-
   if (is_content && xevent->type == PropertyNotify)
     {
-      if (xevent->xproperty.atom ==
-          gdk_x11_get_xatom_by_name_for_display (display, "_NET_WM_NAME"))
+      if (xevent->xproperty.atom == frame->atom__NET_WM_NAME)
         frame_sync_title (GTK_WINDOW (frame), xevent->xproperty.window);
-      else if (xevent->xproperty.atom ==
-               gdk_x11_get_xatom_by_name_for_display (display, "_MOTIF_WM_HINTS"))
+      else if (xevent->xproperty.atom == frame->atom__MOTIF_WM_HINTS)
         frame_sync_motif_wm_hints (GTK_WINDOW (frame), xevent->xproperty.window);
-      else if (xevent->xproperty.atom ==
-               gdk_x11_get_xatom_by_name_for_display (display, "WM_NORMAL_HINTS"))
+      else if (xevent->xproperty.atom == XA_WM_NORMAL_HINTS)
         frame_sync_wm_normal_hints (GTK_WINDOW (frame), xevent->xproperty.window);
     }
 }
