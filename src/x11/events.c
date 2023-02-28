@@ -1009,9 +1009,6 @@ handle_input_xevent (MetaX11Display *x11_display,
       break;
     case XI_FocusIn:
     case XI_FocusOut:
-      if (clutter_stage_get_grab_actor (stage) != NULL)
-        break;
-
       if (handle_window_focus_event (x11_display, window, enter_event, serial) &&
           enter_event->event == enter_event->root)
         {
@@ -1933,8 +1930,7 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
       event->xany.serial > x11_display->focus_serial &&
       display->focus_window &&
       display->focus_window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
-      !window_has_xwindow (display->focus_window, x11_display->server_focus_window) &&
-      meta_display_windows_are_interactable (display))
+      !window_has_xwindow (display->focus_window, x11_display->server_focus_window))
     {
       meta_topic (META_DEBUG_FOCUS, "Earlier attempt to focus %s failed",
                   display->focus_window->desc);
