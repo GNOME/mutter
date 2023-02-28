@@ -56,6 +56,7 @@
 #include "backends/meta-barrier-private.h"
 #include "backends/meta-cursor-renderer.h"
 #include "backends/meta-cursor-tracker-private.h"
+#include "backends/meta-dbus-session-watcher.h"
 #include "backends/meta-idle-manager.h"
 #include "backends/meta-idle-monitor-private.h"
 #include "backends/meta-input-mapper-private.h"
@@ -76,7 +77,6 @@
 #include "meta/util.h"
 
 #ifdef HAVE_REMOTE_DESKTOP
-#include "backends/meta-dbus-session-watcher.h"
 #include "backends/meta-remote-access-controller-private.h"
 #include "backends/meta-remote-desktop.h"
 #include "backends/meta-screen-cast.h"
