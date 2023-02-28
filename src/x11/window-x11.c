@@ -3382,7 +3382,8 @@ meta_window_x11_client_message (MetaWindow *window,
                                       event->xclient.data.l[4]); /* height */
     }
   else if (event->xclient.message_type ==
-           x11_display->atom__NET_ACTIVE_WINDOW)
+           x11_display->atom__NET_ACTIVE_WINDOW &&
+           meta_display_windows_are_interactable (window->display))
     {
       MetaClientType source_indication;
       guint32        timestamp;
