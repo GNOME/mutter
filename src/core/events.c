@@ -34,7 +34,6 @@
 #include "core/display-private.h"
 #include "core/window-private.h"
 #include "meta/meta-backend.h"
-#include "x11/meta-x11-display-private.h"
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
@@ -242,9 +241,6 @@ meta_display_handle_event (MetaDisplay        *display,
           display->grabbed_in_clutter = FALSE;
           meta_compositor_grab_end (compositor);
         }
-
-      if (display->x11_display)
-        meta_x11_display_sync_input_focus (display->x11_display);
     }
 
   device = clutter_event_get_device (event);
