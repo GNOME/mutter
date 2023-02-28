@@ -292,7 +292,7 @@ update_frame_title (MetaFrame *frame)
   if (frame->net_wm_visible_name)
     title = frame->net_wm_visible_name;
   else if (frame->net_wm_name)
-    title = frame->net_wm_visible_name;
+    title = frame->net_wm_name;
   else if (frame->wm_name)
     title = frame->wm_name;
   else
