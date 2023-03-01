@@ -9323,7 +9323,6 @@ meta_test_monitor_calculate_mode_scale (void)
       .exp_nofrac = 1.0,
     },
   };
-  static const int n_cases = 1;
   /* Set a rather high scale epsilon, to have "easy" scales as the
    * expectations, while ignoring that the actual scaling factors are slightly
    * different, e.g. 1.74863386 instead of 1.75.
@@ -9336,7 +9335,7 @@ meta_test_monitor_calculate_mode_scale (void)
   manager = meta_backend_get_monitor_manager (test_backend);
   manager_test = META_MONITOR_MANAGER_TEST (manager);
 
-  for (int i = 0; i < n_cases; i++)
+  for (int i = 0; i < G_N_ELEMENTS (cases); i++)
     {
       MonitorTestCaseSetup test_case_setup = base_test_case_setup;
       MetaMonitorTestSetup *test_setup;
