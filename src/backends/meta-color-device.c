@@ -846,6 +846,14 @@ create_icc_profile_from_edid (MetaColorDevice     *color_device,
       return NULL;
     }
 
+  lcms_context = meta_color_manager_get_lcms_context (color_manager);
+  if (!lcms_context)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Internal error: no LCMS context available");
+      return NULL;
+    }
+
   cd_icc = cd_icc_new ();
 
   chroma.Red.x = edid_info->red_x;
@@ -863,7 +871,6 @@ create_icc_profile_from_edid (MetaColorDevice     *color_device,
   transfer_curve[1] = transfer_curve[0];
   transfer_curve[2] = transfer_curve[0];
 
-  lcms_context = meta_color_manager_get_lcms_context (color_manager);
   lcms_profile = cmsCreateRGBProfileTHR (lcms_context,
                                          &white_point,
                                          &chroma,
