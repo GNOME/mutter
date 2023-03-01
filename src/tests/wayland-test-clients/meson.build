@@ -21,6 +21,9 @@ wayland_test_clients = [
     'name': 'buffer-transform',
   },
   {
+    'name': 'fractional-scale',
+  },
+  {
     'name': 'single-pixel-buffer',
   },
   {

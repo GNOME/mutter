@@ -166,6 +166,12 @@ handle_registry_global (void               *user_data,
       display->shm = wl_registry_bind (registry,
                                        id, &wl_shm_interface, 1);
     }
+  else if (strcmp (interface, wp_fractional_scale_manager_v1_interface.name) == 0)
+    {
+      display->fractional_scale_mgr =
+        wl_registry_bind (registry, id,
+                          &wp_fractional_scale_manager_v1_interface, 1);
+    }
   else if (strcmp (interface, wp_single_pixel_buffer_manager_v1_interface.name) == 0)
     {
       display->single_pixel_mgr =

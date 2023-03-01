@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <wayland-client.h>
 
+#include "fractional-scale-v1-client-protocol.h"
 #include "single-pixel-buffer-v1-client-protocol.h"
 #include "test-driver-client-protocol.h"
 #include "viewporter-client-protocol.h"
@@ -28,6 +29,7 @@ typedef struct _WaylandDisplay
   struct wl_compositor *compositor;
   struct wl_subcompositor *subcompositor;
   struct wl_shm *shm;
+  struct wp_fractional_scale_manager_v1 *fractional_scale_mgr;
   struct wp_single_pixel_buffer_manager_v1 *single_pixel_mgr;
   struct wp_viewporter *viewporter;
   struct xdg_wm_base *xdg_wm_base;

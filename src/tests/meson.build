@@ -431,10 +431,11 @@ if have_native_tests
       ],
     },
     {
-      'name': 'wayland-client-tests',
+      'name': 'wayland-fractional-scale',
       'suite': 'wayland',
       'sources': [
-        'wayland-client-tests.c',
+        'wayland-fractional-scale-test.c',
+        wayland_test_utils,
       ],
     },
     {
