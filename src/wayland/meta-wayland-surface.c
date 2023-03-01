@@ -2241,24 +2241,40 @@ meta_wayland_surface_can_scanout_untransformed (MetaWaylandSurface *surface,
     {
       MetaRectangle view_layout;
       float view_scale;
+      float untransformed_layout_width;
+      float untransformed_layout_height;
 
       clutter_stage_view_get_layout (CLUTTER_STAGE_VIEW (view), &view_layout);
       view_scale = clutter_stage_view_get_scale (CLUTTER_STAGE_VIEW (view));
 
-      if (!G_APPROX_VALUE (view_layout.width, surface->viewport.dst_width,
-                           FLT_EPSILON) ||
-          !G_APPROX_VALUE (view_layout.height, surface->viewport.dst_height,
-                           FLT_EPSILON) ||
-          !G_APPROX_VALUE (view_layout.width * view_scale,
+      if (meta_monitor_transform_is_rotated (meta_renderer_view_get_transform (view)))
+        {
+          untransformed_layout_width = view_layout.height * view_scale;
+          untransformed_layout_height = view_layout.width * view_scale;
+        }
+      else
+        {
+          untransformed_layout_width = view_layout.width * view_scale;
+          untransformed_layout_height = view_layout.height * view_scale;
+        }
+
+      if (view_layout.width != surface->viewport.dst_width ||
+          view_layout.height != surface->viewport.dst_height ||
+          !G_APPROX_VALUE (untransformed_layout_width,
                            get_buffer_width (surface),
                            FLT_EPSILON) ||
-          !G_APPROX_VALUE (view_layout.height * view_scale,
+          !G_APPROX_VALUE (untransformed_layout_height,
                            get_buffer_height (surface),
                            FLT_EPSILON))
         {
           meta_topic (META_DEBUG_RENDER,
                       "Surface can not be scanned out untransformed: viewport "
-                      "destination size does not match stage-view layout");
+                      "destination or buffer size does not match stage-view "
+                      "layout. (%d != %d || %d != %d || %f != %d %f != %d)",
+                      view_layout.width, surface->viewport.dst_width,
+                      view_layout.height, surface->viewport.dst_height,
+                      untransformed_layout_width, get_buffer_width (surface),
+                      untransformed_layout_height, get_buffer_height (surface));
           return FALSE;
         }
     }
