@@ -150,34 +150,34 @@ handle_registry_global (void               *user_data,
 {
   WaylandDisplay *display = WAYLAND_DISPLAY (user_data);
 
-  if (strcmp (interface, "wl_compositor") == 0)
+  if (strcmp (interface, wl_compositor_interface.name) == 0)
     {
       display->compositor =
         wl_registry_bind (registry, id, &wl_compositor_interface,
                           MIN (version, 5));
     }
-  else if (strcmp (interface, "wl_subcompositor") == 0)
+  else if (strcmp (interface, wl_subcompositor_interface.name) == 0)
     {
       display->subcompositor =
         wl_registry_bind (registry, id, &wl_subcompositor_interface, 1);
     }
-  else if (strcmp (interface, "wl_shm") == 0)
+  else if (strcmp (interface, wl_shm_interface.name) == 0)
     {
       display->shm = wl_registry_bind (registry,
                                        id, &wl_shm_interface, 1);
     }
-  else if (strcmp (interface, "wp_single_pixel_buffer_manager_v1") == 0)
+  else if (strcmp (interface, wp_single_pixel_buffer_manager_v1_interface.name) == 0)
     {
       display->single_pixel_mgr =
         wl_registry_bind (registry, id,
                           &wp_single_pixel_buffer_manager_v1_interface, 1);
     }
-  else if (strcmp (interface, "wp_viewporter") == 0)
+  else if (strcmp (interface, wp_viewporter_interface.name) == 0)
     {
       display->viewporter = wl_registry_bind (registry, id,
                                               &wp_viewporter_interface, 1);
     }
-  else if (strcmp (interface, "xdg_wm_base") == 0)
+  else if (strcmp (interface, xdg_wm_base_interface.name) == 0)
     {
       int xdg_wm_base_version = 1;
 
