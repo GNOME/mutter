@@ -56,7 +56,7 @@ typedef enum
 
 typedef enum
 {
-  META_EDID_STATIC_METADATA_TYPE1 = 0,
+  META_EDID_STATIC_METADATA_TYPE1 = (1 << 0),
 } MetaEdidStaticMetadataType;
 
 struct _MetaEdidHdrStaticMetadata
