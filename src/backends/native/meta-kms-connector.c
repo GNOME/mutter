@@ -563,6 +563,94 @@ set_output_hdr_metadata (struct hdr_output_metadata *drm_metadata,
   return TRUE;
 }
 
+static uint16_t
+encode_u16_chromaticity (double value)
+{
+  /* CTA-861.3 HDR Static Metadata Extension, 3.2.1 Static Metadata Type 1 */
+  value = MAX (MIN (value, 1.0), 0.0);
+  return round (value / 0.00002);
+}
+
+static uint16_t
+encode_u16_max_luminance (double value)
+{
+  /* CTA-861.3 HDR Static Metadata Extension, 3.2.1 Static Metadata Type 1 */
+  return round (MAX (MIN (value, 65535.0), 0.0));
+}
+
+static uint16_t
+encode_u16_min_luminance (double value)
+{
+  /* CTA-861.3 HDR Static Metadata Extension, 3.2.1 Static Metadata Type 1 */
+  value = MAX (MIN (value, 6.5535), 0.0);
+  return round (value / 0.0001);
+}
+
+static uint16_t
+encode_u16_max_cll (double value)
+{
+  /* CTA-861.3 HDR Static Metadata Extension, 3.2.1 Static Metadata Type 1 */
+  return round (MAX (MIN (value, 65535.0), 0.0));
+}
+
+static uint16_t
+encode_u16_max_fall (double value)
+{
+  /* CTA-861.3 HDR Static Metadata Extension, 3.2.1 Static Metadata Type 1 */
+  return round (MAX (MIN (value, 65535.0), 0.0));
+}
+
+void
+meta_set_drm_hdr_metadata (MetaOutputHdrMetadata      *metadata,
+                           struct hdr_output_metadata *drm_metadata)
+{
+  struct hdr_metadata_infoframe *infoframe = &drm_metadata->hdmi_metadata_type1;
+
+  drm_metadata->metadata_type = HDR_STATIC_METADATA_TYPE_1;
+  infoframe->metadata_type = HDR_STATIC_METADATA_TYPE_1;
+
+  switch (metadata->eotf)
+    {
+    case META_OUTPUT_HDR_METADATA_EOTF_TRADITIONAL_GAMMA_SDR:
+      infoframe->eotf = HDR_METADATA_EOTF_TRADITIONAL_GAMMA_SDR;
+      break;
+    case META_OUTPUT_HDR_METADATA_EOTF_TRADITIONAL_GAMMA_HDR:
+      infoframe->eotf = HDR_METADATA_EOTF_TRADITIONAL_GAMMA_HDR;
+      break;
+    case META_OUTPUT_HDR_METADATA_EOTF_PQ:
+      infoframe->eotf = HDR_METADATA_EOTF_PERCEPTUAL_QUANTIZER;
+      break;
+    case META_OUTPUT_HDR_METADATA_EOTF_HLG:
+      infoframe->eotf = HDR_METADATA_EOTF_HYBRID_LOG_GAMMA;
+      break;
+    }
+
+  infoframe->display_primaries[0].x =
+    encode_u16_chromaticity (metadata->mastering_display_primaries[0].x);
+  infoframe->display_primaries[0].y =
+    encode_u16_chromaticity (metadata->mastering_display_primaries[0].y);
+  infoframe->display_primaries[1].x =
+    encode_u16_chromaticity (metadata->mastering_display_primaries[1].x);
+  infoframe->display_primaries[1].y =
+    encode_u16_chromaticity (metadata->mastering_display_primaries[1].y);
+  infoframe->display_primaries[2].x =
+    encode_u16_chromaticity (metadata->mastering_display_primaries[2].x);
+  infoframe->display_primaries[2].y =
+    encode_u16_chromaticity (metadata->mastering_display_primaries[2].y);
+  infoframe->white_point.x =
+    encode_u16_chromaticity (metadata->mastering_display_white_point.x);
+  infoframe->white_point.y =
+    encode_u16_chromaticity (metadata->mastering_display_white_point.y);
+
+  infoframe->max_display_mastering_luminance =
+    encode_u16_max_luminance (metadata->mastering_display_max_luminance);
+  infoframe->min_display_mastering_luminance =
+    encode_u16_min_luminance (metadata->mastering_display_min_luminance);
+
+  infoframe->max_cll = encode_u16_max_cll (metadata->max_cll);
+  infoframe->max_fall = encode_u16_max_fall (metadata->max_fall);
+}
+
 static void
 state_set_hdr_output_metadata (MetaKmsConnectorState *state,
                                MetaKmsConnector      *connector,
@@ -1054,6 +1142,7 @@ meta_kms_connector_predict_state_in_impl (MetaKmsConnector *connector,
   GList *mode_sets;
   GList *l;
   MetaKmsResourceChanges changes = META_KMS_RESOURCE_CHANGE_NONE;
+  GList *connector_updates;
 
   current_state = connector->current_state;
   if (!current_state)
@@ -1082,41 +1171,52 @@ meta_kms_connector_predict_state_in_impl (MetaKmsConnector *connector,
         }
     }
 
-  if (has_privacy_screen_software_toggle (connector))
+  connector_updates = meta_kms_update_get_connector_updates (update);
+  for (l = connector_updates; l; l = l->next)
     {
-      GList *connector_updates;
+      MetaKmsConnectorUpdate *connector_update = l->data;
 
-      connector_updates = meta_kms_update_get_connector_updates (update);
-      for (l = connector_updates; l; l = l->next)
+      if (connector_update->connector != connector)
+        continue;
+
+      if (has_privacy_screen_software_toggle (connector) &&
+          connector_update->privacy_screen.has_update &&
+          !(current_state->privacy_screen_state &
+            META_PRIVACY_SCREEN_LOCKED))
         {
-          MetaKmsConnectorUpdate *connector_update = l->data;
-
-          if (connector_update->connector != connector)
-            continue;
-
-          if (connector_update->privacy_screen.has_update &&
-              !(current_state->privacy_screen_state &
-                META_PRIVACY_SCREEN_LOCKED))
+          if (connector_update->privacy_screen.is_enabled)
             {
-              if (connector_update->privacy_screen.is_enabled)
-                {
-                  if (current_state->privacy_screen_state !=
-                      META_PRIVACY_SCREEN_ENABLED)
-                    changes |= META_KMS_RESOURCE_CHANGE_PRIVACY_SCREEN;
+              if (current_state->privacy_screen_state !=
+                  META_PRIVACY_SCREEN_ENABLED)
+                changes |= META_KMS_RESOURCE_CHANGE_PRIVACY_SCREEN;
 
-                  current_state->privacy_screen_state =
-                    META_PRIVACY_SCREEN_ENABLED;
-                }
-              else
-                {
-                  if (current_state->privacy_screen_state !=
-                      META_PRIVACY_SCREEN_DISABLED)
-                    changes |= META_KMS_RESOURCE_CHANGE_PRIVACY_SCREEN;
-
-                  current_state->privacy_screen_state =
-                    META_PRIVACY_SCREEN_DISABLED;
-                }
+              current_state->privacy_screen_state =
+                META_PRIVACY_SCREEN_ENABLED;
             }
+          else
+            {
+              if (current_state->privacy_screen_state !=
+                  META_PRIVACY_SCREEN_DISABLED)
+                changes |= META_KMS_RESOURCE_CHANGE_PRIVACY_SCREEN;
+
+              current_state->privacy_screen_state =
+                META_PRIVACY_SCREEN_DISABLED;
+            }
+        }
+
+      if (connector_update->colorspace.has_update)
+        {
+          g_warn_if_fail (meta_kms_connector_is_color_space_supported (
+                          connector,
+                          connector_update->colorspace.value));
+          current_state->colorspace.value = connector_update->colorspace.value;
+        }
+
+      if (connector_update->hdr.has_update)
+        {
+          g_warn_if_fail (meta_kms_connector_is_hdr_metadata_supported (
+                          connector));
+          current_state->hdr.value = connector_update->hdr.value;
         }
     }
 

@@ -142,4 +142,7 @@ MetaKmsConnector * meta_kms_connector_new (MetaKmsImplDevice *impl_device,
 gboolean meta_kms_connector_is_same_as (MetaKmsConnector *connector,
                                         drmModeConnector *drm_connector);
 
+void meta_set_drm_hdr_metadata (MetaOutputHdrMetadata      *metadata,
+                                struct hdr_output_metadata *drm_metadata);
+
 #endif /* META_KMS_CONNECTOR_PRIVATE_H */

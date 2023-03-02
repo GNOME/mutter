@@ -234,6 +234,55 @@ process_connector_update (MetaKmsImplDevice  *impl_device,
         return FALSE;
     }
 
+  if (connector_update->colorspace.has_update)
+    {
+      meta_topic (META_DEBUG_KMS,
+                  "[atomic] Setting colorspace to %u on connector %u (%s)",
+                  connector_update->colorspace.value,
+                  meta_kms_connector_get_id (connector),
+                  meta_kms_impl_device_get_path (impl_device));
+
+      if (!add_connector_property (impl_device,
+                                   connector, req,
+                                   META_KMS_CONNECTOR_PROP_COLORSPACE,
+                                   connector_update->colorspace.value,
+                                   error))
+        return FALSE;
+    }
+
+  if (connector_update->hdr.has_update)
+    {
+      uint32_t hdr_blob_id;
+
+      meta_topic (META_DEBUG_KMS,
+                  "[atomic] Setting HDR metadata on connector %u (%s)",
+                  meta_kms_connector_get_id (connector),
+                  meta_kms_impl_device_get_path (impl_device));
+
+      hdr_blob_id = 0;
+      if (connector_update->hdr.value.active)
+        {
+          struct hdr_output_metadata metadata;
+
+          meta_set_drm_hdr_metadata (&connector_update->hdr.value, &metadata);
+
+          hdr_blob_id = store_new_blob (impl_device,
+                                        blob_ids,
+                                        &metadata,
+                                        sizeof (metadata),
+                                        error);
+          if (!hdr_blob_id)
+            return FALSE;
+        }
+
+      if (!add_connector_property (impl_device,
+                                   connector, req,
+                                   META_KMS_CONNECTOR_PROP_HDR_OUTPUT_METADATA,
+                                   hdr_blob_id,
+                                   error))
+        return FALSE;
+    }
+
   return TRUE;
 }
 
