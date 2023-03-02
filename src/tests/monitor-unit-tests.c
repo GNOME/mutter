@@ -9324,6 +9324,11 @@ meta_test_monitor_calculate_mode_scale (void)
     },
   };
   static const int n_cases = 1;
+  /* Set a rather high scale epsilon, to have "easy" scales as the
+   * expectations, while ignoring that the actual scaling factors are slightly
+   * different, e.g. 1.74863386 instead of 1.75.
+   */
+  const float scale_epsilon = 0.2;
 
   MetaMonitorManager *manager;
   MetaMonitorManagerTest *manager_test;
@@ -9367,7 +9372,7 @@ meta_test_monitor_calculate_mode_scale (void)
       emulate_hotplug (test_setup);
       logical_monitor = manager->logical_monitors->data;
       g_assert_cmpfloat_with_epsilon (logical_monitor->scale, cases[i].exp,
-                                      FLT_EPSILON);
+                                      scale_epsilon);
     }
 }
 
