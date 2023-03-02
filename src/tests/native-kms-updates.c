@@ -413,6 +413,8 @@ meta_test_kms_update_merge (void)
   GList *crtc_color_updates;
   MetaKmsCrtcColorUpdate *crtc_color_update;
   MetaGammaLut *crtc_gamma;
+  GList *connector_updates;
+  MetaKmsConnectorUpdate *connector_update;
 
   device = meta_get_test_kms_device (test_context);
   crtc = meta_get_test_kms_crtc (device);
@@ -455,6 +457,11 @@ meta_test_kms_update_merge (void)
   meta_kms_plane_assignment_set_cursor_hotspot (cursor_plane_assignment,
                                                 10, 11);
 
+  meta_kms_update_set_underscanning (update1,
+                                     connector,
+                                     123, 456);
+  meta_kms_update_set_privacy_screen (update1, connector, TRUE);
+
   /*
    * Create an update2 with a mode set and a cursor buffer 2
    * on the cursor plane at at (32, 56), and a new CRTC gamma.
@@ -485,6 +492,9 @@ meta_test_kms_update_merge (void)
                                   META_KMS_ASSIGN_PLANE_FLAG_NONE);
   meta_kms_plane_assignment_set_cursor_hotspot (cursor_plane_assignment,
                                                 9, 7);
+
+  meta_kms_update_set_privacy_screen (update2, connector, FALSE);
+  meta_kms_update_set_max_bpc (update2, connector, 8);
 
   /*
    * Merge and check result.
@@ -564,6 +574,22 @@ meta_test_kms_update_merge (void)
   g_assert_cmpuint (crtc_gamma->blue[0], ==, 7);
   g_assert_cmpuint (crtc_gamma->blue[1], ==, 8);
   g_assert_cmpuint (crtc_gamma->blue[2], ==, 9);
+
+  connector_updates = meta_kms_update_get_connector_updates (update1);
+  g_assert_cmpuint (g_list_length (connector_updates), ==, 1);
+  connector_update = connector_updates->data;
+  g_assert_nonnull (connector_update);
+
+  g_assert_true (connector_update->underscanning.has_update);
+  g_assert_true (connector_update->underscanning.is_active);
+  g_assert_cmpuint (connector_update->underscanning.hborder, ==, 123);
+  g_assert_cmpuint (connector_update->underscanning.vborder, ==, 456);
+
+  g_assert_true (connector_update->privacy_screen.has_update);
+  g_assert_false (connector_update->privacy_screen.is_enabled);
+
+  g_assert_true (connector_update->max_bpc.has_update);
+  g_assert_cmpuint (connector_update->max_bpc.value, ==, 8);
 
   meta_kms_update_free (update1);
 }

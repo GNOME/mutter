@@ -104,6 +104,7 @@ void meta_kms_update_free (MetaKmsUpdate *update);
 META_EXPORT_TEST
 MetaKmsDevice * meta_kms_update_get_device (MetaKmsUpdate *update);
 
+META_EXPORT_TEST
 void meta_kms_update_set_underscanning (MetaKmsUpdate    *update,
                                         MetaKmsConnector *connector,
                                         uint64_t          hborder,
@@ -112,10 +113,12 @@ void meta_kms_update_set_underscanning (MetaKmsUpdate    *update,
 void meta_kms_update_unset_underscanning (MetaKmsUpdate    *update,
                                           MetaKmsConnector *connector);
 
+META_EXPORT_TEST
 void meta_kms_update_set_privacy_screen (MetaKmsUpdate    *update,
                                          MetaKmsConnector *connector,
                                          gboolean          enabled);
 
+META_EXPORT_TEST
 void meta_kms_update_set_max_bpc (MetaKmsUpdate    *update,
                                   MetaKmsConnector *connector,
                                   uint64_t          max_bpc);

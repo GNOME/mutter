@@ -844,6 +844,69 @@ merge_crtc_color_updates_from (MetaKmsUpdate *update,
     }
 }
 
+static GList *
+find_connector_update_link_for (MetaKmsUpdate    *update,
+                                MetaKmsConnector *connector)
+{
+  GList *l;
+
+  for (l = update->connector_updates; l; l = l->next)
+    {
+      MetaKmsConnectorUpdate *connector_update = l->data;
+
+      if (connector_update->connector == connector)
+        return l;
+    }
+
+  return NULL;
+}
+
+static void
+merge_connector_updates_from (MetaKmsUpdate *update,
+                              MetaKmsUpdate *other_update)
+{
+  while (other_update->connector_updates)
+    {
+      GList *l = other_update->connector_updates;
+      MetaKmsConnectorUpdate *other_connector_update = l->data;
+      MetaKmsConnector *connector = other_connector_update->connector;
+      GList *el;
+
+      other_update->connector_updates =
+        g_list_remove_link (other_update->connector_updates, l);
+      el = find_connector_update_link_for (update, connector);
+      if (el)
+        {
+          MetaKmsConnectorUpdate *connector_update = el->data;
+
+          if (other_connector_update->underscanning.has_update)
+            {
+              connector_update->underscanning =
+                other_connector_update->underscanning;
+            }
+
+          if (other_connector_update->privacy_screen.has_update)
+            {
+              connector_update->privacy_screen =
+                other_connector_update->privacy_screen;
+            }
+
+          if (other_connector_update->max_bpc.has_update)
+            {
+              connector_update->max_bpc =
+                other_connector_update->max_bpc;
+            }
+        }
+      else
+        {
+          update->connector_updates =
+            g_list_insert_before_link (update->connector_updates,
+                                       update->connector_updates,
+                                       l);
+        }
+    }
+}
+
 static void
 merge_custom_page_flip_from (MetaKmsUpdate *update,
                              MetaKmsUpdate *other_update)
@@ -880,12 +943,11 @@ meta_kms_update_merge_from (MetaKmsUpdate *update,
                             MetaKmsUpdate *other_update)
 {
   g_return_if_fail (update->device == other_update->device);
-  g_return_if_fail (!update->connector_updates &&
-                    !other_update->connector_updates);
 
   merge_mode_sets (update, other_update);
   merge_plane_assignments_from (update, other_update);
   merge_crtc_color_updates_from (update, other_update);
+  merge_connector_updates_from (update, other_update);
   merge_custom_page_flip_from (update, other_update);
   merge_page_flip_listeners_from (update, other_update);
   merge_result_listeners_from (update, other_update);
