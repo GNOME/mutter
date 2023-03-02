@@ -9284,7 +9284,7 @@ meta_test_monitor_calculate_mode_scale (void)
       .width_mm = 303, /* 3:2 @ 14.34" */
       .height_mm = 202,
       .exp = 1.5,
-      .exp_nofrac = 2.0,
+      .exp_nofrac = 1.0,
     },
     {
       .name = "Generic 23\" 1080p",
@@ -9311,7 +9311,7 @@ meta_test_monitor_calculate_mode_scale (void)
       .width_mm = 598,
       .height_mm = 336,
       .exp = 1.5,
-      .exp_nofrac = 2.0,
+      .exp_nofrac = 1.0,
     },
     {
       .name = "Generic 32\" 4K",

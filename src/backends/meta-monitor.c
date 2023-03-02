@@ -1839,6 +1839,7 @@ calculate_scale (MetaMonitor                *monitor,
   int n_scales;
   float best_scale, best_dpi;
   int target_dpi;
+  const float scale_epsilon = 0.2;
 
   /*
    * Somebody encoded the aspect ratio (16/9 or 16/10) instead of the physical
@@ -1863,7 +1864,8 @@ calculate_scale (MetaMonitor                *monitor,
 
   /* We'll only be considering the supported scale factors */
   scales = meta_monitor_calculate_supported_scales (monitor, monitor_mode,
-                                                    constraints, &n_scales);
+                                                    META_MONITOR_SCALES_CONSTRAINT_NONE,
+                                                    &n_scales);
   best_scale = scales[0];
   for (int i = 0; i < n_scales; i++)
     {
@@ -1892,6 +1894,12 @@ calculate_scale (MetaMonitor                *monitor,
           best_scale = scales[i];
           best_dpi = dpi;
         }
+    }
+
+  if (constraints & META_MONITOR_SCALES_CONSTRAINT_NO_FRAC)
+    {
+      best_scale = floorf (MIN (scales[n_scales - 1],
+                                best_scale + 0.25 + scale_epsilon));
     }
 
   return best_scale;
