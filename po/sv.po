@@ -1,9 +1,9 @@
 # Swedish messages for mutter.
-# Copyright © 2001-2022 Free Software Foundation, Inc.
+# Copyright © 2001-2023 Free Software Foundation, Inc.
 # Christian Rose <menthos@menthos.com>, 2001, 2002, 2003, 2004, 2005.
 # Daniel Nylander <po@danielnylander.se>, 2006, 2007, 2008, 2009, 2010, 2011, 2012.
 # Mattias Eriksson <snaggen@gmail.com>, 2014.
-# Anders Jonsson <anders.jonsson@norsjovallen.se>, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022.
+# Anders Jonsson <anders.jonsson@norsjovallen.se>, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023.
 # Sebastian Rasmussen <sebras@gmail.com>, 2016.
 # Luna Jernberg <droidbittin@gmail.com>, 2021, 2022.
 #
@@ -11,15 +11,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2022-09-02 08:42+0000\n"
-"PO-Revision-Date: 2022-09-02 20:43+0200\n"
+"POT-Creation-Date: 2023-02-23 17:14+0000\n"
+"PO-Revision-Date: 2023-03-02 23:11+0100\n"
 "Last-Translator: Anders Jonsson <anders.jonsson@norsjovallen.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.1.1\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -249,17 +249,13 @@ msgstr "Maximera fönster vertikalt"
 msgid "Maximize window horizontally"
 msgstr "Maximera fönster horisontellt"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:173
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:164
 msgid "View split on left"
 msgstr "Vy delad till vänster"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:178
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:169
 msgid "View split on right"
 msgstr "Vy delad till höger"
-
-#: data/mutter.desktop.in:4
-msgid "Mutter"
-msgstr "Mutter"
 
 #: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
@@ -287,9 +283,9 @@ msgid ""
 "attached to the titlebar of the parent window and are moved together with "
 "the parent window."
 msgstr ""
-"När true kommer, istället för att ha oberoende namnlister, modala "
-"dialogfönster att visas anslutna till namnlisten i föräldrafönstret och "
-"flyttas tillsammans med föräldrafönstret."
+"När satt till true (sant) kommer, i stället för att ha oberoende namnlister, "
+"modala dialogfönster att visas anslutna till namnlisten i föräldrafönstret "
+"och flyttas tillsammans med föräldrafönstret."
 
 #: data/org.gnome.mutter.gschema.xml.in:38
 msgid "Enable edge tiling when dropping windows on screen edges"
@@ -332,22 +328,10 @@ msgstr ""
 "skärmar eller endast för fönster på den primära skärmen."
 
 #: data/org.gnome.mutter.gschema.xml.in:67
-msgid "No tab popup"
-msgstr "Ingen flik-popup"
-
-#: data/org.gnome.mutter.gschema.xml.in:68
-msgid ""
-"Determines whether the use of popup and highlight frame should be disabled "
-"for window cycling."
-msgstr ""
-"Bestämmer huruvida användning av popup och framhävning av kontur ska "
-"inaktiveras vid fönsterväxling."
-
-#: data/org.gnome.mutter.gschema.xml.in:76
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "Fördröj fokusändringar till muspekaren hålls still"
 
-#: data/org.gnome.mutter.gschema.xml.in:77
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -357,11 +341,11 @@ msgstr ""
 "kommer fokus inte att ändras omedelbart när muspekaren går in över ett "
 "fönster, utan först efter att muspekaren slutar röra sig."
 
-#: data/org.gnome.mutter.gschema.xml.in:87
+#: data/org.gnome.mutter.gschema.xml.in:78
 msgid "Draggable border width"
 msgstr "Dragbar rambredd"
 
-#: data/org.gnome.mutter.gschema.xml.in:88
+#: data/org.gnome.mutter.gschema.xml.in:79
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -369,11 +353,11 @@ msgstr ""
 "Mängd av totalt dragbara ramar. Om temats synliga ramar inte är tillräckliga "
 "kommer osynliga ramar att läggas till för att möta detta värde."
 
-#: data/org.gnome.mutter.gschema.xml.in:97
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "Automatiskt maximera fönster vars storlek ligger nära skärmens storlek"
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
@@ -381,23 +365,23 @@ msgstr ""
 "Om aktiverad kommer nya fönster med nästan samma storlek som skärmen att bli "
 "automatiskt maximerade."
 
-#: data/org.gnome.mutter.gschema.xml.in:106
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
 msgstr "Placera nya fönster centrerat"
 
-#: data/org.gnome.mutter.gschema.xml.in:107
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
 msgstr ""
-"När satt till \"true\", kommer nya fönster alltid att placeras centrerat på "
-"den aktiva skärmen."
+"När satt till true (sant), kommer nya fönster alltid att placeras centrerat "
+"på den aktiva skärmen."
 
-#: data/org.gnome.mutter.gschema.xml.in:116
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "Enable experimental features"
 msgstr "Aktivera experimentella funktioner"
 
-#: data/org.gnome.mutter.gschema.xml.in:117
+#: data/org.gnome.mutter.gschema.xml.in:108
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -429,19 +413,19 @@ msgstr ""
 "xwayland” — avslutar automatiskt Xwayland om alla relevanta X11-klienter är "
 "borta. Kräver en omstart."
 
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:141
 msgid "Modifier to use to locate the pointer"
 msgstr "Modifierare att använda för att hitta muspekaren"
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:142
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Denna tangent kommer att initiera åtgärden ”hitta muspekare”."
 
-#: data/org.gnome.mutter.gschema.xml.in:158
+#: data/org.gnome.mutter.gschema.xml.in:149
 msgid "Timeout for check-alive ping"
 msgstr "Tidsgräns för åtkomlighetstest med ping"
 
-#: data/org.gnome.mutter.gschema.xml.in:159
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -450,19 +434,11 @@ msgstr ""
 "för att inte anses vara frusen. Att använda 0 kommer inaktivera kontrollen "
 "helt."
 
-#: data/org.gnome.mutter.gschema.xml.in:183
-msgid "Select window from tab popup"
-msgstr "Välj fönster från flik-popup"
-
-#: data/org.gnome.mutter.gschema.xml.in:188
-msgid "Cancel tab popup"
-msgstr "Avbryt flik-popup"
-
-#: data/org.gnome.mutter.gschema.xml.in:193
+#: data/org.gnome.mutter.gschema.xml.in:174
 msgid "Switch monitor configurations"
 msgstr "Växla skärmkonfiguration"
 
-#: data/org.gnome.mutter.gschema.xml.in:198
+#: data/org.gnome.mutter.gschema.xml.in:179
 msgid "Rotates the built-in monitor configuration"
 msgstr "Roterar den inbyggda skärmkonfigurationen"
 
@@ -589,6 +565,32 @@ msgstr ""
 "Xwayland byggdes utan stöd för de valda tilläggen. Xwayland behöver startas "
 "om för att denna inställning ska börja gälla."
 
+#: data/org.gnome.mutter.wayland.gschema.xml.in:130
+msgid "Allow X11 clients with a different endianness to connect to Xwayland"
+msgstr "Tillåt X11-klienter med en annan byteordning att ansluta till Xwayland"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:131
+msgid ""
+"Allow connections from clients with an endianness different to that of "
+"Xwayland. The X server byte-swapping code is a huge attack surface, much of "
+"that code in Xwayland is prone to security issues. The use-case of byte-"
+"swapped clients is very niche, and disabled by default in Xwayland. Enable "
+"this option to instruct Xwayland to accept connections from X11 clients with "
+"a different endianness. This option has no effect if Xwayland does not "
+"support the command line option +byteswappedclients/-byteswappedclients to "
+"control that setting. Xwayland needs to be restarted for this setting to "
+"take effect."
+msgstr ""
+"Tillåt anslutningar från klienter med en annan byteordning än Xwayland. X-"
+"serverns byteväxlingskod är en enorm attackyta, mycket av den koden i "
+"Xwayland har en tendens till säkerhetsproblem. Användningsfallet med "
+"byteväxlade klienter är väldigt specialiserat, och inaktiverat som standard "
+"i Xwayland. Aktivera detta alternativ för att instruera Xwayland att "
+"acceptera anslutningar från X11-klienter med annan byteordning. Detta "
+"alternativ har ingen effekt om Xwayland inte stöder kommandoradsflaggan "
+"+byteswappedclients/-byteswappedclients för att styra den inställningen. "
+"Xwayland behöver startas om för att denna inställning ska börja gälla."
+
 #: src/backends/meta-monitor.c:253
 msgid "Built-in display"
 msgstr "Inbyggd display"
@@ -616,14 +618,9 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#. Translators: this string will appear in Sysprof
-#: src/backends/meta-profiler.c:79
-msgid "Compositor"
-msgstr "Kompositionshanterare"
-
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:400
+#: src/compositor/compositor.c:416
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -633,74 +630,74 @@ msgstr "En annan kompositionshanterare körs redan på skärm %i på display ”
 msgid "Bell event"
 msgstr "Ljudsignalhändelse"
 
-#: src/core/display.c:693
+#: src/core/display.c:703
 msgid "Privacy Screen Enabled"
 msgstr "Sekretesskärm aktiverad"
 
-#: src/core/display.c:694
+#: src/core/display.c:704
 msgid "Privacy Screen Disabled"
 msgstr "Sekretesskärm inaktiverad"
 
-#: src/core/meta-context-main.c:567
+#: src/core/meta-context-main.c:568
 msgid "Replace the running window manager"
 msgstr "Ersätt körande fönsterhanteraren"
 
-#: src/core/meta-context-main.c:573
+#: src/core/meta-context-main.c:574
 msgid "X Display to use"
 msgstr "X-display att använda"
 
-#: src/core/meta-context-main.c:579
+#: src/core/meta-context-main.c:580
 msgid "Disable connection to session manager"
 msgstr "Inaktivera anslutning till sessionshanteraren"
 
-#: src/core/meta-context-main.c:585
+#: src/core/meta-context-main.c:586
 msgid "Specify session management ID"
 msgstr "Ange sessionshanteringsid"
 
-#: src/core/meta-context-main.c:591
+#: src/core/meta-context-main.c:592
 msgid "Initialize session from savefile"
 msgstr "Initiera session från sparandefil"
 
-#: src/core/meta-context-main.c:597
+#: src/core/meta-context-main.c:598
 msgid "Make X calls synchronous"
 msgstr "Gör X-anrop synkrona"
 
-#: src/core/meta-context-main.c:605
+#: src/core/meta-context-main.c:606
 msgid "Run as a wayland compositor"
 msgstr "Kör som en wayland-kompositionshanterare"
 
-#: src/core/meta-context-main.c:611
+#: src/core/meta-context-main.c:612
 msgid "Run as a nested compositor"
 msgstr "Kör som en nästlad kompositionshanterare"
 
-#: src/core/meta-context-main.c:617
+#: src/core/meta-context-main.c:618
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Kör wayland-kompositionshanteraren utan att starta Xwayland"
 
-#: src/core/meta-context-main.c:623
+#: src/core/meta-context-main.c:624
 msgid "Specify Wayland display name to use"
 msgstr "Ange Wayland-displaynamn att använda"
 
-#: src/core/meta-context-main.c:631
+#: src/core/meta-context-main.c:632
 msgid "Run as a full display server, rather than nested"
 msgstr "Kör som en full display-tjänst, i stället för nästlad"
 
-#: src/core/meta-context-main.c:636
+#: src/core/meta-context-main.c:637
 msgid "Run as a headless display server"
 msgstr "Kör som en huvudlös display-tjänst"
 
-#: src/core/meta-context-main.c:641
+#: src/core/meta-context-main.c:642
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Lägg till beständig virtuell skärm (BxH eller BxH@Frekvens)"
 
-#: src/core/meta-context-main.c:653
+#: src/core/meta-context-main.c:654
 msgid "Run with X11 backend"
 msgstr "Kör med X11-gränssnitt"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:848
+#: src/core/meta-pad-action-mapper.c:861
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Lägesväxel (grupp %d)"
@@ -708,13 +705,18 @@ msgstr "Lägesväxel (grupp %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:871
+#: src/core/meta-pad-action-mapper.c:884
 msgid "Switch monitor"
 msgstr "Växla skärm"
 
-#: src/core/meta-pad-action-mapper.c:873
+#: src/core/meta-pad-action-mapper.c:886
 msgid "Show on-screen help"
 msgstr "Visa hjälp på skärmen"
+
+#. Translators: this string will appear in Sysprof
+#: src/core/meta-profiler.c:80 src/core/meta-profiler.c:217
+msgid "Compositor"
+msgstr "Kompositionshanterare"
 
 #: src/core/mutter.c:74
 msgid "Print version"
@@ -729,20 +731,20 @@ msgstr "Mutter-insticksmodul att använda"
 msgid "Workspace %d"
 msgstr "Arbetsyta %d"
 
-#: src/core/util.c:143
+#: src/core/util.c:142
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter kompilerades utan stöd för utförligt läge"
 
-#: src/core/workspace.c:533
+#: src/core/workspace.c:541
 msgid "Workspace switched"
 msgstr "Växlade arbetsyta"
 
-#: src/wayland/meta-wayland-tablet-pad.c:520
+#: src/wayland/meta-wayland-tablet-pad.c:530
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Lägesväxel: Läge %d"
 
-#: src/x11/meta-x11-display.c:659
+#: src/x11/meta-x11-display.c:703
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -751,29 +753,48 @@ msgstr ""
 "Display ”%s” har redan en fönsterhanterare; försök med flaggan --replace för "
 "att ersätta den aktuella fönsterhanteraren."
 
-#: src/x11/meta-x11-display.c:1053
+#: src/x11/meta-x11-display.c:1095
 msgid "Failed to initialize GDK"
 msgstr "Misslyckades med att initiera GDK"
 
-#: src/x11/meta-x11-display.c:1080
+#: src/x11/meta-x11-display.c:1121
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Misslyckades med att öppna X Window System-displayen ”%s”"
 
-#: src/x11/meta-x11-display.c:1188
+#: src/x11/meta-x11-display.c:1274
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Skärm %d på display ”%s” är ogiltig"
 
-#: src/x11/meta-x11-selection-input-stream.c:474
+#: src/x11/meta-x11-selection-input-stream.c:481
 #, c-format
 msgid "Format %s not supported"
 msgstr "Formatet %s stöds ej"
 
-#: src/x11/window-props.c:548
+#: src/x11/window-props.c:549
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (på %s)"
+
+#~ msgid "Mutter"
+#~ msgstr "Mutter"
+
+#~ msgid "No tab popup"
+#~ msgstr "Ingen flik-popup"
+
+#~ msgid ""
+#~ "Determines whether the use of popup and highlight frame should be "
+#~ "disabled for window cycling."
+#~ msgstr ""
+#~ "Bestämmer huruvida användning av popup och framhävning av kontur ska "
+#~ "inaktiveras vid fönsterväxling."
+
+#~ msgid "Select window from tab popup"
+#~ msgstr "Välj fönster från flik-popup"
+
+#~ msgid "Cancel tab popup"
+#~ msgstr "Avbryt flik-popup"
 
 #, c-format
 #~ msgid "“%s” is not responding."
