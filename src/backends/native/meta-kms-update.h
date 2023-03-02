@@ -26,6 +26,7 @@
 #include <xf86drmMode.h>
 
 #include "backends/meta-monitor-transform.h"
+#include "backends/meta-output.h"
 #include "backends/native/meta-drm-buffer.h"
 #include "backends/native/meta-kms-types.h"
 #include "meta/boxes.h"
@@ -122,6 +123,14 @@ META_EXPORT_TEST
 void meta_kms_update_set_max_bpc (MetaKmsUpdate    *update,
                                   MetaKmsConnector *connector,
                                   uint64_t          max_bpc);
+
+void meta_kms_update_set_color_space (MetaKmsUpdate        *update,
+                                      MetaKmsConnector     *connector,
+                                      MetaOutputColorspace  color_space);
+
+void meta_kms_update_set_hdr_metadata (MetaKmsUpdate         *update,
+                                       MetaKmsConnector      *connector,
+                                       MetaOutputHdrMetadata *metadata);
 
 META_EXPORT_TEST
 void meta_kms_update_set_power_save (MetaKmsUpdate *update);

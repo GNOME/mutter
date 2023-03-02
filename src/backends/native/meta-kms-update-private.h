@@ -23,6 +23,7 @@
 #include <glib.h>
 #include <stdint.h>
 
+#include "backends/meta-output.h"
 #include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-plane-private.h"
 #include "backends/native/meta-kms-types.h"
@@ -101,6 +102,16 @@ typedef struct _MetaKmsConnectorUpdate
     gboolean has_update;
     uint64_t value;
   } max_bpc;
+
+  struct {
+    gboolean has_update;
+    MetaOutputColorspace value;
+  } colorspace;
+
+  struct {
+    gboolean has_update;
+    MetaOutputHdrMetadata value;
+  } hdr;
 } MetaKmsConnectorUpdate;
 
 typedef struct _MetaKmsPageFlipListener

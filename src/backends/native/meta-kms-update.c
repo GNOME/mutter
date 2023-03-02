@@ -407,6 +407,40 @@ meta_kms_update_set_max_bpc (MetaKmsUpdate    *update,
   connector_update->max_bpc.has_update = TRUE;
 }
 
+void
+meta_kms_update_set_color_space (MetaKmsUpdate        *update,
+                                 MetaKmsConnector     *connector,
+                                 MetaOutputColorspace  color_space)
+{
+  MetaKmsConnectorUpdate *connector_update;
+
+  g_assert (meta_kms_connector_get_device (connector) == update->device);
+  g_return_if_fail (meta_kms_connector_is_color_space_supported (connector,
+                                                                 color_space));
+
+  connector_update = ensure_connector_update (update, connector);
+  connector_update->colorspace.has_update = TRUE;
+  connector_update->colorspace.value = color_space;
+}
+
+void
+meta_kms_update_set_hdr_metadata (MetaKmsUpdate         *update,
+                                  MetaKmsConnector      *connector,
+                                  MetaOutputHdrMetadata *metadata)
+{
+  MetaKmsConnectorUpdate *connector_update;
+
+  g_assert (meta_kms_connector_get_device (connector) == update->device);
+  g_return_if_fail (meta_kms_connector_is_hdr_metadata_supported (connector));
+
+  connector_update = ensure_connector_update (update, connector);
+  connector_update->hdr.has_update = TRUE;
+  connector_update->hdr.value = *metadata;
+
+  /* Currently required on AMDGPU but should in general not require mode sets */
+  update->needs_modeset = TRUE;
+}
+
 static MetaKmsCrtcColorUpdate *
 ensure_color_update (MetaKmsUpdate *update,
                      MetaKmsCrtc   *crtc)
@@ -897,6 +931,17 @@ merge_connector_updates_from (MetaKmsUpdate *update,
             {
               connector_update->max_bpc =
                 other_connector_update->max_bpc;
+            }
+
+          if (other_connector_update->colorspace.has_update)
+            {
+              connector_update->colorspace =
+                other_connector_update->colorspace;
+            }
+
+          if (other_connector_update->hdr.has_update)
+            {
+              connector_update->hdr = other_connector_update->hdr;
             }
         }
       else
