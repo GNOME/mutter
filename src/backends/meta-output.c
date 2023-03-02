@@ -38,6 +38,16 @@ enum
 
 static GParamSpec *obj_props[N_PROPS];
 
+enum
+{
+  COLOR_SPACE_CHANGED,
+  HDR_METADATA_CHANGED,
+
+  N_SIGNALS
+};
+
+static guint signals[N_SIGNALS];
+
 typedef struct _MetaOutputPrivate
 {
   uint64_t id;
@@ -63,6 +73,9 @@ typedef struct _MetaOutputPrivate
 
   MetaPrivacyScreenState privacy_screen_state;
   gboolean is_privacy_screen_enabled;
+
+  MetaOutputHdrMetadata hdr_metadata;
+  MetaOutputColorspace color_space;
 } MetaOutputPrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaOutput, meta_output, G_TYPE_OBJECT)
@@ -515,12 +528,76 @@ meta_output_set_privacy_screen_enabled (MetaOutput  *output,
   return TRUE;
 }
 
+gboolean
+meta_output_is_color_space_supported (MetaOutput           *output,
+                                      MetaOutputColorspace  color_space)
+{
+  MetaOutputClass *output_class = META_OUTPUT_GET_CLASS (output);
+  uint64_t supported = 0;
+
+  if (output_class->get_supported_color_spaces)
+    supported = output_class->get_supported_color_spaces (output);
+
+  return supported & (1 << color_space);
+}
+
+void
+meta_output_set_color_space (MetaOutput           *output,
+                             MetaOutputColorspace  color_space)
+{
+  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
+
+  priv->color_space = color_space;
+
+  g_signal_emit (output, signals[COLOR_SPACE_CHANGED], 0);
+}
+
+MetaOutputColorspace
+meta_output_peek_color_space (MetaOutput *output)
+{
+  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
+
+  return priv->color_space;
+}
+
+gboolean
+meta_output_is_hdr_metadata_supported (MetaOutput *output)
+{
+  MetaOutputClass *output_class = META_OUTPUT_GET_CLASS (output);
+
+  if (!output_class->is_hdr_metadata_supported)
+    return FALSE;
+
+  return output_class->is_hdr_metadata_supported (output);
+}
+
+void
+meta_output_set_hdr_metadata (MetaOutput            *output,
+                              MetaOutputHdrMetadata *metadata)
+{
+  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
+
+  priv->hdr_metadata = *metadata;
+
+  g_signal_emit (output, signals[HDR_METADATA_CHANGED], 0);
+}
+
+MetaOutputHdrMetadata *
+meta_output_peek_hdr_metadata (MetaOutput *output)
+{
+  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
+
+  return &priv->hdr_metadata;
+}
+
 static void
 meta_output_init (MetaOutput *output)
 {
   MetaOutputPrivate *priv = meta_output_get_instance_private (output);
 
   priv->backlight = -1;
+  priv->color_space = META_OUTPUT_COLORSPACE_UNKNOWN;
+  priv->hdr_metadata.active = FALSE;
 }
 
 static void
@@ -565,6 +642,21 @@ meta_output_class_init (MetaOutputClass *klass)
                           G_PARAM_READWRITE |
                           G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
+
+  signals[COLOR_SPACE_CHANGED] =
+    g_signal_new ("color-space-changed",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
+  signals[HDR_METADATA_CHANGED] =
+    g_signal_new ("hdr-metadata-changed",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
 }
 
 gboolean
