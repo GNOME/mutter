@@ -2242,3 +2242,63 @@ meta_monitor_set_privacy_screen_enabled (MetaMonitor  *monitor,
 
   return meta_output_set_privacy_screen_enabled (output, enabled, error);
 }
+
+gboolean
+meta_monitor_set_color_space (MetaMonitor           *monitor,
+                              MetaOutputColorspace   color_space,
+                              GError               **error)
+{
+  MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
+  GList *l;
+
+  for (l = priv->outputs; l; l = l->next)
+    {
+      MetaOutput *output = l->data;
+
+      if (!meta_output_is_color_space_supported (output, color_space))
+        {
+          g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                               "The color space is not supported by this monitor");
+          return FALSE;
+        }
+    }
+
+  for (l = priv->outputs; l; l = l->next)
+    {
+      MetaOutput *output = l->data;
+
+      meta_output_set_color_space (output, color_space);
+    }
+
+  return TRUE;
+}
+
+gboolean
+meta_monitor_set_hdr_metadata (MetaMonitor            *monitor,
+                               MetaOutputHdrMetadata  *metadata,
+                               GError                **error)
+{
+  MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
+  GList *l;
+
+  for (l = priv->outputs; l; l = l->next)
+    {
+      MetaOutput *output = l->data;
+
+      if (!meta_output_is_hdr_metadata_supported (output))
+        {
+          g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                               "HDR metadata is not supported by this monitor");
+          return FALSE;
+        }
+    }
+
+  for (l = priv->outputs; l; l = l->next)
+    {
+      MetaOutput *output = l->data;
+
+      meta_output_set_hdr_metadata (output, metadata);
+    }
+
+  return TRUE;
+}

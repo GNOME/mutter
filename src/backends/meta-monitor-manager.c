@@ -73,6 +73,7 @@ enum
   PROP_PANEL_ORIENTATION_MANAGED,
   PROP_HAS_BUILTIN_PANEL,
   PROP_NIGHT_LIGHT_SUPPORTED,
+  PROP_EXPERIMENTAL_HDR,
 
   PROP_LAST
 };
@@ -114,6 +115,7 @@ typedef struct _MetaMonitorManagerPrivate
 
   gboolean has_builtin_panel;
   gboolean night_light_supported;
+  const char *experimental_hdr;
 } MetaMonitorManagerPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaMonitorManager, meta_monitor_manager,
@@ -475,6 +477,71 @@ prepare_shutdown (MetaBackend        *backend,
     meta_monitor_manager_get_instance_private (manager);
 
   priv->shutting_down = TRUE;
+}
+
+static void
+ensure_hdr_settings (MetaMonitorManager *manager)
+{
+  MetaMonitorManagerPrivate *priv =
+    meta_monitor_manager_get_instance_private (manager);
+  MetaOutputColorspace color_space;
+  MetaOutputHdrMetadata hdr_metadata;
+  GList *l;
+
+  if (g_strcmp0 (priv->experimental_hdr, "on") == 0)
+    {
+      color_space = META_OUTPUT_COLORSPACE_BT2020;
+      hdr_metadata = (MetaOutputHdrMetadata) {
+        .active = TRUE,
+        .eotf = META_OUTPUT_HDR_METADATA_EOTF_PQ,
+      };
+    }
+  else
+    {
+      color_space = META_OUTPUT_COLORSPACE_DEFAULT;
+      hdr_metadata = (MetaOutputHdrMetadata) {
+        .active = FALSE,
+      };
+    }
+
+  for (l = manager->monitors; l; l = l->next)
+    {
+      MetaMonitor *monitor = l->data;
+      g_autoptr (GError) error = NULL;
+
+      if (!meta_monitor_set_color_space (monitor, color_space, &error))
+        {
+          if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED))
+            continue;
+
+          g_warning ("Failed to set color space on monitor %s: %s",
+                     meta_monitor_get_display_name (monitor), error->message);
+
+          meta_monitor_set_color_space (monitor,
+                                        META_OUTPUT_COLORSPACE_UNKNOWN,
+                                        NULL);
+
+          continue;
+        }
+
+      if (!meta_monitor_set_hdr_metadata (monitor, &hdr_metadata, &error))
+        {
+          if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED))
+            continue;
+
+          g_warning ("Failed to set HDR metadata on monitor %s: %s",
+                     meta_monitor_get_display_name (monitor), error->message);
+
+          meta_monitor_set_color_space (monitor,
+                                        META_OUTPUT_COLORSPACE_UNKNOWN,
+                                        NULL);
+          meta_monitor_set_hdr_metadata (monitor, &(MetaOutputHdrMetadata) {
+                                           .active = FALSE,
+                                         }, NULL);
+
+          continue;
+        }
+    }
 }
 
 /**
@@ -1262,6 +1329,10 @@ meta_monitor_manager_constructed (GObject *object)
                     G_CALLBACK (prepare_shutdown),
                     manager);
 
+  g_signal_connect (manager, "notify::experimental-hdr",
+                    G_CALLBACK (ensure_hdr_settings),
+                    NULL);
+
   manager->current_switch_config = META_MONITOR_SWITCH_CONFIG_UNKNOWN;
 
   initialize_dbus_interface (manager);
@@ -1314,11 +1385,16 @@ meta_monitor_manager_set_property (GObject      *object,
                                    GParamSpec   *pspec)
 {
   MetaMonitorManager *manager = META_MONITOR_MANAGER (object);
+  MetaMonitorManagerPrivate *priv =
+    meta_monitor_manager_get_instance_private (manager);
 
   switch (prop_id)
     {
     case PROP_BACKEND:
       manager->backend = g_value_get_object (value);
+      break;
+    case PROP_EXPERIMENTAL_HDR:
+      priv->experimental_hdr = g_value_dup_string (value);
       break;
     case PROP_PANEL_ORIENTATION_MANAGED:
     case PROP_HAS_BUILTIN_PANEL:
@@ -1351,6 +1427,9 @@ meta_monitor_manager_get_property (GObject    *object,
       break;
     case PROP_NIGHT_LIGHT_SUPPORTED:
       g_value_set_boolean (value, priv->night_light_supported);
+      break;
+    case PROP_EXPERIMENTAL_HDR:
+      g_value_set_string (value, priv->experimental_hdr);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -1453,6 +1532,14 @@ meta_monitor_manager_class_init (MetaMonitorManagerClass *klass)
                           G_PARAM_READABLE |
                           G_PARAM_EXPLICIT_NOTIFY |
                           G_PARAM_STATIC_STRINGS);
+
+  obj_props[PROP_EXPERIMENTAL_HDR] =
+    g_param_spec_string ("experimental-hdr",
+                         "Experimental HDR",
+                         "Experimental HDR settings string",
+                         NULL,
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
 }
@@ -3596,6 +3683,8 @@ meta_monitor_manager_rebuild (MetaMonitorManager *manager,
   meta_monitor_manager_notify_monitors_changed (manager);
 
   ensure_privacy_screen_settings (manager);
+
+  ensure_hdr_settings (manager);
 
   g_list_free_full (old_logical_monitors, g_object_unref);
 }
