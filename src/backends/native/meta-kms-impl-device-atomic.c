@@ -967,7 +967,7 @@ meta_kms_impl_device_atomic_process_update (MetaKmsImplDevice *impl_device,
                         &error))
     goto err;
 
-  if (meta_kms_update_get_mode_sets (update))
+  if (meta_kms_update_get_needs_modeset (update))
     commit_flags |= DRM_MODE_ATOMIC_ALLOW_MODESET;
   else
     commit_flags |= DRM_MODE_ATOMIC_NONBLOCK;

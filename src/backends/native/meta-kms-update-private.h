@@ -193,6 +193,8 @@ void meta_kms_custom_page_flip_free (MetaKmsCustomPageFlip *custom_page_flip);
 void meta_kms_update_realize (MetaKmsUpdate     *update,
                               MetaKmsImplDevice *impl_device);
 
+gboolean meta_kms_update_get_needs_modeset (MetaKmsUpdate *update);
+
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaKmsPlaneFeedback,
                                meta_kms_plane_feedback_free)
 

@@ -46,6 +46,8 @@ struct _MetaKmsUpdate
   GList *page_flip_listeners;
   GList *result_listeners;
 
+  gboolean needs_modeset;
+
   MetaKmsImplDevice *impl_device;
 };
 
@@ -951,6 +953,12 @@ meta_kms_update_merge_from (MetaKmsUpdate *update,
   merge_custom_page_flip_from (update, other_update);
   merge_page_flip_listeners_from (update, other_update);
   merge_result_listeners_from (update, other_update);
+}
+
+gboolean
+meta_kms_update_get_needs_modeset (MetaKmsUpdate *update)
+{
+  return update->needs_modeset || update->mode_sets;
 }
 
 MetaKmsUpdate *
