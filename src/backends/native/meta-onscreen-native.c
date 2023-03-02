@@ -109,9 +109,13 @@ struct _MetaOnscreenNative
 
   gboolean is_gamma_lut_invalid;
   gboolean is_privacy_screen_invalid;
+  gboolean is_color_space_invalid;
+  gboolean is_hdr_metadata_invalid;
 
   gulong gamma_lut_changed_handler_id;
   gulong privacy_screen_changed_handler_id;
+  gulong color_space_changed_handler_id;
+  gulong hdr_metadata_changed_handler_id;
 };
 
 G_DEFINE_TYPE (MetaOnscreenNative, meta_onscreen_native,
@@ -217,6 +221,8 @@ notify_view_crtc_presented (MetaRendererView *view,
 
   onscreen_native->is_gamma_lut_invalid = FALSE;
   onscreen_native->is_privacy_screen_invalid = FALSE;
+  onscreen_native->is_color_space_invalid = FALSE;
+  onscreen_native->is_hdr_metadata_invalid = FALSE;
 
   crtc = META_CRTC (meta_crtc_kms_from_kms_crtc (kms_crtc));
   maybe_update_frame_info (crtc, frame_info, time_us, flags, sequence);
@@ -1489,6 +1495,34 @@ meta_onscreen_native_prepare_frame (CoglOnscreen *onscreen,
       enabled = meta_output_is_privacy_screen_enabled (onscreen_native->output);
       meta_kms_update_set_privacy_screen (kms_update, kms_connector, enabled);
     }
+
+  if (onscreen_native->is_color_space_invalid)
+    {
+      MetaKmsConnector *kms_connector =
+        meta_output_kms_get_kms_connector (output_kms);
+      MetaKmsUpdate *kms_update;
+      MetaOutputColorspace color_space;
+
+      kms_update = meta_frame_native_ensure_kms_update (frame_native,
+                                                        kms_device);
+
+      color_space = meta_output_peek_color_space (onscreen_native->output);
+      meta_kms_update_set_color_space (kms_update, kms_connector, color_space);
+    }
+
+  if (onscreen_native->is_hdr_metadata_invalid)
+    {
+      MetaKmsConnector *kms_connector =
+        meta_output_kms_get_kms_connector (output_kms);
+      MetaKmsUpdate *kms_update;
+      MetaOutputHdrMetadata *metadata;
+
+      kms_update = meta_frame_native_ensure_kms_update (frame_native,
+                                                        kms_device);
+
+      metadata = meta_output_peek_hdr_metadata (onscreen_native->output);
+      meta_kms_update_set_hdr_metadata (kms_update, kms_connector, metadata);
+    }
 }
 
 void
@@ -2204,6 +2238,11 @@ meta_onscreen_native_invalidate (MetaOnscreenNative *onscreen_native)
     onscreen_native->is_gamma_lut_invalid = TRUE;
   if (meta_output_is_privacy_screen_supported (onscreen_native->output))
     onscreen_native->is_privacy_screen_invalid = TRUE;
+  if (meta_output_is_color_space_supported (onscreen_native->output,
+                                            META_OUTPUT_COLORSPACE_DEFAULT))
+    onscreen_native->is_color_space_invalid = TRUE;
+  if (meta_output_is_hdr_metadata_supported (onscreen_native->output))
+    onscreen_native->is_hdr_metadata_invalid = TRUE;
 }
 
 static void
@@ -2224,6 +2263,26 @@ on_privacy_screen_enabled_changed (MetaOutput         *output,
   ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (onscreen_native->view);
 
   onscreen_native->is_privacy_screen_invalid = TRUE;
+  clutter_stage_view_schedule_update (stage_view);
+}
+
+static void
+on_color_space_changed (MetaOutput         *output,
+                        MetaOnscreenNative *onscreen_native)
+{
+  ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (onscreen_native->view);
+
+  onscreen_native->is_color_space_invalid = TRUE;
+  clutter_stage_view_schedule_update (stage_view);
+}
+
+static void
+on_hdr_metadata_changed (MetaOutput         *output,
+                         MetaOnscreenNative *onscreen_native)
+{
+  ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (onscreen_native->view);
+
+  onscreen_native->is_hdr_metadata_invalid = TRUE;
   clutter_stage_view_schedule_update (stage_view);
 }
 
@@ -2273,6 +2332,25 @@ meta_onscreen_native_new (MetaRendererNative *renderer_native,
                           onscreen_native);
     }
 
+  if (meta_output_is_color_space_supported (output,
+                                            META_OUTPUT_COLORSPACE_DEFAULT))
+    {
+      onscreen_native->is_color_space_invalid = TRUE;
+      onscreen_native->color_space_changed_handler_id =
+        g_signal_connect (output, "color-space-changed",
+                          G_CALLBACK (on_color_space_changed),
+                          onscreen_native);
+    }
+
+  if (meta_output_is_hdr_metadata_supported (output))
+    {
+      onscreen_native->is_hdr_metadata_invalid = TRUE;
+      onscreen_native->hdr_metadata_changed_handler_id =
+        g_signal_connect (output, "hdr-metadata-changed",
+                          G_CALLBACK (on_hdr_metadata_changed),
+                          onscreen_native);
+    }
+
   return onscreen_native;
 }
 
@@ -2282,6 +2360,10 @@ clear_invalidation_handlers (MetaOnscreenNative *onscreen_native)
   g_clear_signal_handler (&onscreen_native->gamma_lut_changed_handler_id,
                           onscreen_native->crtc);
   g_clear_signal_handler (&onscreen_native->privacy_screen_changed_handler_id,
+                          onscreen_native->output);
+  g_clear_signal_handler (&onscreen_native->color_space_changed_handler_id,
+                          onscreen_native->output);
+  g_clear_signal_handler (&onscreen_native->hdr_metadata_changed_handler_id,
                           onscreen_native->output);
 }
 

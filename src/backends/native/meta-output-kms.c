@@ -139,6 +139,30 @@ meta_output_kms_get_privacy_screen_state (MetaOutput *output)
   return connector_state->privacy_screen_state;
 }
 
+static uint64_t
+meta_output_kms_get_supported_color_spaces (MetaOutput *output)
+{
+  MetaOutputKms *output_kms = META_OUTPUT_KMS (output);
+  const MetaKmsConnectorState *connector_state;
+
+  connector_state =
+    meta_kms_connector_get_current_state (output_kms->kms_connector);
+
+  return connector_state->colorspace.supported;
+}
+
+static gboolean
+meta_output_kms_is_hdr_metadata_supported (MetaOutput *output)
+{
+  MetaOutputKms *output_kms = META_OUTPUT_KMS (output);
+  const MetaKmsConnectorState *connector_state;
+
+  connector_state =
+    meta_kms_connector_get_current_state (output_kms->kms_connector);
+
+  return connector_state->hdr.supported;
+}
+
 uint32_t
 meta_output_kms_get_connector_id (MetaOutputKms *output_kms)
 {
@@ -511,6 +535,10 @@ meta_output_kms_class_init (MetaOutputKmsClass *klass)
 
   output_class->get_privacy_screen_state =
     meta_output_kms_get_privacy_screen_state;
+  output_class->get_supported_color_spaces =
+    meta_output_kms_get_supported_color_spaces;
+  output_class->is_hdr_metadata_supported =
+    meta_output_kms_is_hdr_metadata_supported;
 
   output_native_class->read_edid = meta_output_kms_read_edid;
 }
