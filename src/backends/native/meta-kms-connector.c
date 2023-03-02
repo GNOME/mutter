@@ -40,6 +40,7 @@ typedef struct _MetaKmsConnectorPropTable
   MetaKmsEnum privacy_screen_hw_enum[META_KMS_CONNECTOR_PRIVACY_SCREEN_N_PROPS];
   MetaKmsEnum scaling_mode_enum[META_KMS_CONNECTOR_SCALING_MODE_N_PROPS];
   MetaKmsEnum panel_orientation_enum[META_KMS_CONNECTOR_PANEL_ORIENTATION_N_PROPS];
+  MetaKmsEnum colorspace_enum[META_KMS_CONNECTOR_COLORSPACE_N_PROPS];
 } MetaKmsConnectorPropTable;
 
 struct _MetaKmsConnector
@@ -967,6 +968,19 @@ init_properties (MetaKmsConnector  *connector,
           .name = "max bpc",
           .type = DRM_MODE_PROP_RANGE,
         },
+      [META_KMS_CONNECTOR_PROP_COLORSPACE] =
+        {
+          .name = "Colorspace",
+          .type = DRM_MODE_PROP_ENUM,
+          .enum_values = prop_table->colorspace_enum,
+          .num_enum_values = META_KMS_CONNECTOR_COLORSPACE_N_PROPS,
+          .default_value = META_KMS_CONNECTOR_COLORSPACE_UNKNOWN,
+        },
+      [META_KMS_CONNECTOR_PROP_HDR_OUTPUT_METADATA] =
+        {
+          .name = "HDR_OUTPUT_METADATA",
+          .type = DRM_MODE_PROP_BLOB,
+        },
     },
     .dpms_enum = {
       [META_KMS_CONNECTOR_DPMS_ON] =
@@ -1071,7 +1085,73 @@ init_properties (MetaKmsConnector  *connector,
         {
           .name = "Right Side Up",
         },
-    }
+    },
+    .colorspace_enum = {
+      [META_KMS_CONNECTOR_COLORSPACE_DEFAULT] =
+        {
+          .name = "Default",
+        },
+      [META_KMS_CONNECTOR_COLORSPACE_RGB_WIDE_GAMUT_FIXED_POINT] =
+        {
+          .name = "RGB_Wide_Gamut_Fixed_Point",
+        },
+      [META_KMS_CONNECTOR_COLORSPACE_RGB_WIDE_GAMUT_FLOATING_POINT] =
+        {
+          .name = "RGB_Wide_Gamut_Floating_Point",
+        },
+      [META_KMS_CONNECTOR_COLORSPACE_RGB_OPRGB] =
+        {
+          .name = "opRGB",
+        },
+      [META_KMS_CONNECTOR_COLORSPACE_RGB_DCI_P3_RGB_D65] =
+        {
+          .name = "DCI-P3_RGB_D65",
+        },
+      [META_KMS_CONNECTOR_COLORSPACE_BT2020_RGB] =
+        {
+          .name = "BT2020_RGB",
+        },
+      [META_KMS_CONNECTOR_COLORSPACE_BT601_YCC] =
+        {
+          .name = "BT601_YCC",
+        },
+      [META_KMS_CONNECTOR_COLORSPACE_BT709_YCC] =
+        {
+          .name = "BT709_YCC",
+        },
+      [META_KMS_CONNECTOR_COLORSPACE_XVYCC_601] =
+        {
+          .name = "XVYCC_601",
+        },
+      [META_KMS_CONNECTOR_COLORSPACE_XVYCC_709] =
+        {
+          .name = "XVYCC_709",
+        },
+      [META_KMS_CONNECTOR_COLORSPACE_SYCC_601] =
+        {
+          .name = "SYCC_601",
+        },
+      [META_KMS_CONNECTOR_COLORSPACE_OPYCC_601] =
+        {
+          .name = "opYCC_601",
+        },
+      [META_KMS_CONNECTOR_COLORSPACE_BT2020_CYCC] =
+        {
+          .name = "BT2020_CYCC",
+        },
+      [META_KMS_CONNECTOR_COLORSPACE_BT2020_YCC] =
+        {
+          .name = "BT2020_YCC",
+        },
+      [META_KMS_CONNECTOR_COLORSPACE_SMPTE_170M_YCC] =
+        {
+          .name = "SMPTE_170M_YCC",
+        },
+      [META_KMS_CONNECTOR_COLORSPACE_DCI_P3_RGB_THEATER] =
+        {
+          .name = "DCI-P3_RGB_Theater",
+        },
+    },
   };
 }
 
