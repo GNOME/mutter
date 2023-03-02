@@ -31,6 +31,23 @@
 #include "backends/native/meta-kms-mode-private.h"
 #include "backends/native/meta-kms-update-private.h"
 
+/* CTA-861.3 HDR Static Metadata Extension, Table 3,
+ * Electro-Optical Transfer Function */
+typedef enum
+{
+  HDR_METADATA_EOTF_TRADITIONAL_GAMMA_SDR = 0,
+  HDR_METADATA_EOTF_TRADITIONAL_GAMMA_HDR = 1,
+  HDR_METADATA_EOTF_PERCEPTUAL_QUANTIZER = 2,
+  HDR_METADATA_EOTF_HYBRID_LOG_GAMMA = 3,
+} HdrMetadataEotf;
+
+/* CTA-861.3 HDR Static Metadata Extension, Table 4,
+ * Static_Metadata_Descriptor_ID */
+typedef enum
+{
+  HDR_STATIC_METADATA_TYPE_1 = 0,
+} HdrStaticMetadataType;
+
 typedef struct _MetaKmsConnectorPropTable
 {
   MetaKmsProp props[META_KMS_CONNECTOR_N_PROPS];
@@ -225,6 +242,19 @@ sync_fd_held (MetaKmsConnector  *connector,
   connector->fd_held = should_hold_fd;
 }
 
+gboolean
+meta_kms_connector_is_color_space_supported (MetaKmsConnector     *connector,
+                                             MetaOutputColorspace  color_space)
+{
+  return !!(connector->current_state->colorspace.supported & (1 << color_space));
+}
+
+gboolean
+meta_kms_connector_is_hdr_metadata_supported (MetaKmsConnector *connector)
+{
+  return connector->current_state->hdr.supported;
+}
+
 static void
 set_panel_orientation (MetaKmsConnectorState *state,
                        MetaKmsProp           *panel_orientation)
@@ -286,6 +316,33 @@ set_privacy_screen (MetaKmsConnectorState *state,
     state->privacy_screen_state |= META_PRIVACY_SCREEN_LOCKED;
 }
 
+static MetaOutputColorspace
+drm_color_spaces_to_output_color_spaces (uint64_t drm_color_space)
+{
+  switch (drm_color_space)
+    {
+    case META_KMS_CONNECTOR_COLORSPACE_DEFAULT:
+      return META_OUTPUT_COLORSPACE_DEFAULT;
+    case META_KMS_CONNECTOR_COLORSPACE_BT2020_RGB:
+      return META_OUTPUT_COLORSPACE_BT2020;
+    default:
+      return META_OUTPUT_COLORSPACE_UNKNOWN;
+    }
+}
+
+static uint64_t
+supported_drm_color_spaces_to_output_color_spaces (uint64_t drm_support)
+{
+  uint64_t supported = 0;
+
+  if (drm_support & (1 << META_KMS_CONNECTOR_COLORSPACE_DEFAULT))
+    supported |= (1 << META_OUTPUT_COLORSPACE_DEFAULT);
+  if (drm_support & (1 << META_KMS_CONNECTOR_COLORSPACE_BT2020_RGB))
+    supported |= (1 << META_OUTPUT_COLORSPACE_BT2020);
+
+  return supported;
+}
+
 static void
 state_set_properties (MetaKmsConnectorState *state,
                       MetaKmsImplDevice     *impl_device,
@@ -329,6 +386,15 @@ state_set_properties (MetaKmsConnectorState *state,
       state->max_bpc.value = prop->value;
       state->max_bpc.min_value = prop->range_min;
       state->max_bpc.max_value = prop->range_max;
+    }
+
+  prop = &props[META_KMS_CONNECTOR_PROP_COLORSPACE];
+  if (prop->prop_id)
+    {
+      state->colorspace.value =
+        drm_color_spaces_to_output_color_spaces (prop->value);
+      state->colorspace.supported =
+        supported_drm_color_spaces_to_output_color_spaces (prop->supported_variants);
     }
 }
 
@@ -424,21 +490,146 @@ state_set_tile_info (MetaKmsConnectorState *state,
   drmModeFreePropertyBlob (tile_blob);
 }
 
+static double
+decode_u16_chromaticity (uint16_t value)
+{
+  /* CTA-861.3 HDR Static Metadata Extension, 3.2.1 Static Metadata Type 1 */
+  return MIN (value * 0.00002, 1.0);
+}
+
+static double
+decode_u16_min_luminance (uint16_t value)
+{
+  /* CTA-861.3 HDR Static Metadata Extension, 3.2.1 Static Metadata Type 1 */
+  return value * 0.0001;
+}
+
+static gboolean
+set_output_hdr_metadata (struct hdr_output_metadata *drm_metadata,
+                         MetaOutputHdrMetadata      *metadata)
+{
+  struct hdr_metadata_infoframe *infoframe;
+
+  if (drm_metadata->metadata_type != HDR_STATIC_METADATA_TYPE_1)
+    return FALSE;
+
+  infoframe = &drm_metadata->hdmi_metadata_type1;
+
+  if (infoframe->metadata_type != HDR_STATIC_METADATA_TYPE_1)
+    return FALSE;
+
+  switch (infoframe->eotf)
+    {
+    case HDR_METADATA_EOTF_TRADITIONAL_GAMMA_SDR:
+      metadata->eotf = META_OUTPUT_HDR_METADATA_EOTF_TRADITIONAL_GAMMA_SDR;
+      break;
+    case HDR_METADATA_EOTF_TRADITIONAL_GAMMA_HDR:
+      metadata->eotf = META_OUTPUT_HDR_METADATA_EOTF_TRADITIONAL_GAMMA_HDR;
+      break;
+    case HDR_METADATA_EOTF_PERCEPTUAL_QUANTIZER:
+      metadata->eotf = META_OUTPUT_HDR_METADATA_EOTF_PQ;
+      break;
+    case HDR_METADATA_EOTF_HYBRID_LOG_GAMMA:
+      metadata->eotf = META_OUTPUT_HDR_METADATA_EOTF_HLG;
+      break;
+    }
+
+  /* CTA-861.3 HDR Static Metadata Extension, 3.2.1 Static Metadata Type 1 */
+  metadata->mastering_display_primaries[0].x =
+    decode_u16_chromaticity (infoframe->display_primaries[0].x);
+  metadata->mastering_display_primaries[0].y =
+    decode_u16_chromaticity (infoframe->display_primaries[0].y);
+  metadata->mastering_display_primaries[1].x =
+    decode_u16_chromaticity (infoframe->display_primaries[1].x);
+  metadata->mastering_display_primaries[1].y =
+    decode_u16_chromaticity (infoframe->display_primaries[1].y);
+  metadata->mastering_display_primaries[2].x =
+    decode_u16_chromaticity (infoframe->display_primaries[2].x);
+  metadata->mastering_display_primaries[2].y =
+    decode_u16_chromaticity (infoframe->display_primaries[2].y);
+  metadata->mastering_display_white_point.x =
+    decode_u16_chromaticity (infoframe->white_point.x);
+  metadata->mastering_display_white_point.y =
+    decode_u16_chromaticity (infoframe->white_point.y);
+
+  metadata->mastering_display_max_luminance =
+    infoframe->max_display_mastering_luminance;
+  metadata->mastering_display_min_luminance =
+    decode_u16_min_luminance (infoframe->min_display_mastering_luminance);
+
+  metadata->max_cll = infoframe->max_cll;
+  metadata->max_fall = infoframe->max_fall;
+
+  return TRUE;
+}
+
+static void
+state_set_hdr_output_metadata (MetaKmsConnectorState *state,
+                               MetaKmsConnector      *connector,
+                               MetaKmsImplDevice     *impl_device,
+                               uint32_t               blob_id)
+{
+  int fd;
+  drmModePropertyBlobPtr hdr_blob;
+  MetaOutputHdrMetadata *metadata = &state->hdr.value;
+  struct hdr_output_metadata *drm_metadata;
+
+  state->hdr.supported = TRUE;
+  state->hdr.unknown = FALSE;
+  metadata->active = TRUE;
+
+  if (!blob_id)
+    {
+      metadata->active = FALSE;
+      return;
+    }
+
+  fd = meta_kms_impl_device_get_fd (impl_device);
+  hdr_blob = drmModeGetPropertyBlob (fd, blob_id);
+  if (!hdr_blob)
+    {
+      metadata->active = FALSE;
+      return;
+    }
+
+  if (hdr_blob->length < sizeof (*drm_metadata))
+    {
+      g_warning ("HDR_OUTPUT_METADATA smaller than expected for type 1");
+      state->hdr.unknown = TRUE;
+      goto out;
+    }
+
+  drm_metadata = hdr_blob->data;
+  if (!set_output_hdr_metadata (drm_metadata, metadata))
+    {
+      state->hdr.unknown = TRUE;
+      goto out;
+    }
+
+out:
+  drmModeFreePropertyBlob (hdr_blob);
+}
+
 static void
 state_set_blobs (MetaKmsConnectorState *state,
                  MetaKmsConnector      *connector,
                  MetaKmsImplDevice     *impl_device,
                  drmModeConnector      *drm_connector)
 {
+  MetaKmsProp *props = connector->prop_table.props;
   MetaKmsProp *prop;
 
-  prop = &connector->prop_table.props[META_KMS_CONNECTOR_PROP_EDID];
+  prop = &props[META_KMS_CONNECTOR_PROP_EDID];
   if (prop->prop_id && prop->value)
     state_set_edid (state, connector, impl_device, prop->value);
 
-  prop = &connector->prop_table.props[META_KMS_CONNECTOR_PROP_TILE];
+  prop = &props[META_KMS_CONNECTOR_PROP_TILE];
   if (prop->prop_id && prop->value)
     state_set_tile_info (state, connector, impl_device, prop->value);
+
+  prop = &props[META_KMS_CONNECTOR_PROP_HDR_OUTPUT_METADATA];
+  if (prop->prop_id)
+    state_set_hdr_output_metadata (state, connector, impl_device, prop->value);
 }
 
 static void
@@ -590,6 +781,70 @@ kms_modes_equal (GList *modes,
   return TRUE;
 }
 
+static gboolean
+hdr_primaries_equal (double x1, double x2)
+{
+  return fabs (x1 - x2) < (0.00002 - DBL_EPSILON);
+}
+
+static gboolean
+hdr_nits_equal (double x1, double x2)
+{
+  return fabs (x1 - x2) < (1.0 - DBL_EPSILON);
+}
+
+static gboolean
+hdr_min_luminance_equal (double x1, double x2)
+{
+  return fabs (x1 - x2) < (0.0001 - DBL_EPSILON);
+}
+
+static gboolean
+hdr_metadata_equal (MetaOutputHdrMetadata *metadata,
+                    MetaOutputHdrMetadata *other_metadata)
+{
+  if (!metadata->active && !other_metadata->active)
+    return TRUE;
+
+  if (metadata->active != other_metadata->active)
+    return FALSE;
+
+  if (metadata->eotf != other_metadata->eotf)
+      return FALSE;
+
+  if (!hdr_primaries_equal (metadata->mastering_display_primaries[0].x,
+                            other_metadata->mastering_display_primaries[0].x) ||
+      !hdr_primaries_equal (metadata->mastering_display_primaries[0].y,
+                            other_metadata->mastering_display_primaries[0].y) ||
+      !hdr_primaries_equal (metadata->mastering_display_primaries[1].x,
+                            other_metadata->mastering_display_primaries[1].x) ||
+      !hdr_primaries_equal (metadata->mastering_display_primaries[1].y,
+                            other_metadata->mastering_display_primaries[1].y) ||
+      !hdr_primaries_equal (metadata->mastering_display_primaries[2].x,
+                            other_metadata->mastering_display_primaries[2].x) ||
+      !hdr_primaries_equal (metadata->mastering_display_primaries[2].y,
+                            other_metadata->mastering_display_primaries[2].y) ||
+      !hdr_primaries_equal (metadata->mastering_display_white_point.x,
+                            other_metadata->mastering_display_white_point.x) ||
+      !hdr_primaries_equal (metadata->mastering_display_white_point.y,
+                            other_metadata->mastering_display_white_point.y))
+    return FALSE;
+
+  if (!hdr_nits_equal (metadata->mastering_display_max_luminance,
+                       other_metadata->mastering_display_max_luminance))
+    return FALSE;
+
+  if (!hdr_min_luminance_equal (metadata->mastering_display_min_luminance,
+                                other_metadata->mastering_display_min_luminance))
+    return FALSE;
+
+  if (!hdr_nits_equal (metadata->max_cll, other_metadata->max_cll) ||
+      !hdr_nits_equal (metadata->max_fall, other_metadata->max_fall))
+    return FALSE;
+
+  return TRUE;
+}
+
 static MetaKmsResourceChanges
 meta_kms_connector_state_changes (MetaKmsConnectorState *state,
                                   MetaKmsConnectorState *new_state)
@@ -647,6 +902,15 @@ meta_kms_connector_state_changes (MetaKmsConnectorState *state,
   if (state->max_bpc.value != new_state->max_bpc.value ||
       state->max_bpc.min_value != new_state->max_bpc.min_value ||
       state->max_bpc.max_value != new_state->max_bpc.max_value)
+    return META_KMS_RESOURCE_CHANGE_FULL;
+
+  if (state->colorspace.value != new_state->colorspace.value ||
+      state->colorspace.supported != new_state->colorspace.supported)
+    return META_KMS_RESOURCE_CHANGE_FULL;
+
+  if (state->hdr.supported != new_state->hdr.supported ||
+      state->hdr.unknown != new_state->hdr.unknown ||
+      !hdr_metadata_equal (&state->hdr.value, &new_state->hdr.value))
     return META_KMS_RESOURCE_CHANGE_FULL;
 
   if (state->privacy_screen_state != new_state->privacy_screen_state)
