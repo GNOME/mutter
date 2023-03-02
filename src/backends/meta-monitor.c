@@ -2285,7 +2285,7 @@ meta_monitor_set_hdr_metadata (MetaMonitor            *monitor,
     {
       MetaOutput *output = l->data;
 
-      if (!meta_output_is_hdr_metadata_supported (output))
+      if (!meta_output_is_hdr_metadata_supported (output, metadata->eotf))
         {
           g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
                                "HDR metadata is not supported by this monitor");

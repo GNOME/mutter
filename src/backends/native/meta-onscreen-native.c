@@ -2241,7 +2241,8 @@ meta_onscreen_native_invalidate (MetaOnscreenNative *onscreen_native)
   if (meta_output_is_color_space_supported (onscreen_native->output,
                                             META_OUTPUT_COLORSPACE_DEFAULT))
     onscreen_native->is_color_space_invalid = TRUE;
-  if (meta_output_is_hdr_metadata_supported (onscreen_native->output))
+  if (meta_output_is_hdr_metadata_supported (onscreen_native->output,
+                                             META_OUTPUT_HDR_METADATA_EOTF_TRADITIONAL_GAMMA_SDR))
     onscreen_native->is_hdr_metadata_invalid = TRUE;
 }
 
@@ -2342,7 +2343,8 @@ meta_onscreen_native_new (MetaRendererNative *renderer_native,
                           onscreen_native);
     }
 
-  if (meta_output_is_hdr_metadata_supported (output))
+  if (meta_output_is_hdr_metadata_supported (output,
+                                             META_OUTPUT_HDR_METADATA_EOTF_TRADITIONAL_GAMMA_SDR))
     {
       onscreen_native->is_hdr_metadata_invalid = TRUE;
       onscreen_native->hdr_metadata_changed_handler_id =

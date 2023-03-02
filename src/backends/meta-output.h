@@ -254,7 +254,8 @@ void meta_output_set_color_space (MetaOutput           *output,
 
 MetaOutputColorspace meta_output_peek_color_space (MetaOutput *output);
 
-gboolean meta_output_is_hdr_metadata_supported (MetaOutput *output);
+gboolean meta_output_is_hdr_metadata_supported (MetaOutput                *output,
+                                                MetaOutputHdrMetadataEOTF  eotf);
 
 void meta_output_set_hdr_metadata (MetaOutput            *output,
                                    MetaOutputHdrMetadata *metadata);

@@ -561,9 +561,39 @@ meta_output_peek_color_space (MetaOutput *output)
 }
 
 gboolean
-meta_output_is_hdr_metadata_supported (MetaOutput *output)
+meta_output_is_hdr_metadata_supported (MetaOutput *output,
+                                       MetaOutputHdrMetadataEOTF eotf)
 {
   MetaOutputClass *output_class = META_OUTPUT_GET_CLASS (output);
+  const MetaOutputInfo *output_info = meta_output_get_info (output);
+  MetaEdidTransferFunction tf = 0;
+
+  g_assert (output_info != NULL);
+  if (!output_info->edid_info)
+    return FALSE;
+
+  if ((output_info->edid_info->hdr_static_metadata.sm &
+       META_EDID_STATIC_METADATA_TYPE1) == 0)
+    return FALSE;
+
+  switch (eotf)
+    {
+    case META_OUTPUT_HDR_METADATA_EOTF_TRADITIONAL_GAMMA_SDR:
+      tf = META_EDID_TF_TRADITIONAL_GAMMA_SDR;
+      break;
+    case META_OUTPUT_HDR_METADATA_EOTF_TRADITIONAL_GAMMA_HDR:
+      tf = META_EDID_TF_TRADITIONAL_GAMMA_HDR;
+      break;
+    case META_OUTPUT_HDR_METADATA_EOTF_PQ:
+      tf = META_EDID_TF_PQ;
+      break;
+    case META_OUTPUT_HDR_METADATA_EOTF_HLG:
+      tf = META_EDID_TF_HLG;
+      break;
+    }
+
+  if ((output_info->edid_info->hdr_static_metadata.tf & tf) == 0)
+    return FALSE;
 
   if (!output_class->is_hdr_metadata_supported)
     return FALSE;
