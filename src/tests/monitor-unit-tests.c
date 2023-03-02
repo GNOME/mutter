@@ -9256,8 +9256,8 @@ meta_test_monitor_calculate_mode_scale (void)
        .height = 2280,
        .width_mm = 68, /* 19:9, 6.28" */
        .height_mm = 144,
-       .exp = 3.0,
-       .exp_nofrac = 3.0,
+       .exp = 2.5,
+       .exp_nofrac = 2.0,
     },
     {
       .name = "Google Pixel 6a",
@@ -9265,8 +9265,8 @@ meta_test_monitor_calculate_mode_scale (void)
       .height = 2400,
       .width_mm = 64, /* 20:9, 6.1" */
       .height_mm = 142,
-      .exp = 2.75,
-      .exp_nofrac = 3.0,
+      .exp = 2.5,
+      .exp_nofrac = 2.0,
     },
     {
       .name = "13\" MacBook Retina",
