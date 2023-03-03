@@ -398,6 +398,16 @@ if have_native_tests
       'suite': 'backend/native/kms',
       'sources': [ 'native-kms-headless-start.c', ],
     },
+    {
+      'name': 'kms-hotplug',
+      'suite': 'backends/native/kms',
+      'sources': [
+        'meta-kms-test-utils.c',
+        'meta-kms-test-utils.h',
+        'native-kms-hotplug.c',
+      ],
+      'variants': kms_test_variants,
+    },
   ]
 
   privileged_test_cases += kms_test_cases

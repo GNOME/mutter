@@ -2334,6 +2334,9 @@ meta_onscreen_native_dispose (GObject *object)
   g_clear_pointer (&onscreen_native->gbm.surface, gbm_surface_destroy);
   g_clear_pointer (&onscreen_native->secondary_gpu_state,
                    secondary_gpu_state_free);
+
+  g_clear_object (&onscreen_native->output);
+  g_clear_object (&onscreen_native->crtc);
 }
 
 static void
@@ -2369,6 +2372,4 @@ void
 meta_onscreen_native_detach (MetaOnscreenNative *onscreen_native)
 {
   clear_invalidation_handlers (onscreen_native);
-  g_clear_object (&onscreen_native->output);
-  g_clear_object (&onscreen_native->crtc);
 }
