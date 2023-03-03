@@ -72,7 +72,7 @@ pkg.generate(libmutter_cogl_pango,
   filebase: 'mutter-cogl-pango-' + libmutter_api_version,
   description: 'A text rendering for Cogl in mutter',
   subdirs: join_paths(pkgname, 'cogl'),
-  requires: [cogl_pkg_deps, libmutter_cogl_name],
+  requires: [cogl_pkg_deps, libmutter_cogl_name, pango_dep, pangocairo_dep],
   version: meson.project_version(),
   variables: [
     'apiversion=' + libmutter_api_version,
