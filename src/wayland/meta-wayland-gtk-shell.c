@@ -309,11 +309,8 @@ gtk_surface_titlebar_gesture (struct wl_client   *client,
       meta_window_show_menu (window, META_WINDOW_MENU_WM, x, y);
       break;
 
-    case G_DESKTOP_TITLEBAR_ACTION_TOGGLE_SHADE:
-      g_warning ("No shade! The library is closed.");
-      G_GNUC_FALLTHROUGH;
     default:
-      return;
+      break;
     }
 }
 

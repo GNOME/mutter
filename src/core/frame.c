@@ -277,8 +277,6 @@ meta_frame_get_flags (MetaFrame *frame)
       if (frame->window->has_minimize_func)
         flags |= META_FRAME_ALLOWS_MINIMIZE;
 
-      if (frame->window->has_shade_func)
-        flags |= META_FRAME_ALLOWS_SHADE;
     }
 
   if (META_WINDOW_ALLOWS_MOVE (frame->window))
@@ -292,9 +290,6 @@ meta_frame_get_flags (MetaFrame *frame)
 
   if (meta_window_appears_focused (frame->window))
     flags |= META_FRAME_HAS_FOCUS;
-
-  if (frame->window->shaded)
-    flags |= META_FRAME_SHADED;
 
   if (frame->window->on_all_workspaces_requested)
     flags |= META_FRAME_STUCK;

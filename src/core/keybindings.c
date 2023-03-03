@@ -2661,19 +2661,6 @@ handle_unmaximize         (MetaDisplay     *display,
 }
 
 static void
-handle_toggle_shaded      (MetaDisplay     *display,
-                           MetaWindow      *window,
-                           ClutterKeyEvent *event,
-                           MetaKeyBinding  *binding,
-                           gpointer         dummy)
-{
-  if (window->shaded)
-    meta_window_unshade (window, event->time);
-  else if (window->has_shade_func)
-    meta_window_shade (window, event->time);
-}
-
-static void
 handle_close              (MetaDisplay     *display,
                            MetaWindow      *window,
                            ClutterKeyEvent *event,
@@ -3483,14 +3470,6 @@ init_builtin_key_bindings (MetaDisplay *display)
                           META_KEY_BINDING_IGNORE_AUTOREPEAT,
                           META_KEYBINDING_ACTION_UNMAXIMIZE,
                           handle_unmaximize, 0);
-
-  add_builtin_keybinding (display,
-                          "toggle-shaded",
-                          common_keybindings,
-                          META_KEY_BINDING_PER_WINDOW |
-                          META_KEY_BINDING_IGNORE_AUTOREPEAT,
-                          META_KEYBINDING_ACTION_TOGGLE_SHADED,
-                          handle_toggle_shaded, 0);
 
   add_builtin_keybinding (display,
                           "minimize",

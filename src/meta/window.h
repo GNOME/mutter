@@ -116,9 +116,6 @@ META_EXPORT
 gboolean meta_window_appears_focused (MetaWindow *window);
 
 META_EXPORT
-gboolean meta_window_is_shaded (MetaWindow *window);
-
-META_EXPORT
 gboolean meta_window_is_override_redirect (MetaWindow *window);
 
 META_EXPORT
@@ -374,14 +371,6 @@ META_EXPORT
 void        meta_window_unmake_above       (MetaWindow  *window);
 
 META_EXPORT
-void        meta_window_shade              (MetaWindow  *window,
-                                            guint32      timestamp);
-
-META_EXPORT
-void        meta_window_unshade            (MetaWindow  *window,
-                                            guint32      timestamp);
-
-META_EXPORT
 void        meta_window_stick              (MetaWindow  *window);
 
 META_EXPORT
@@ -423,9 +412,6 @@ gboolean meta_window_can_maximize (MetaWindow *window);
 
 META_EXPORT
 gboolean meta_window_can_minimize (MetaWindow *window);
-
-META_EXPORT
-gboolean meta_window_can_shade (MetaWindow *window);
 
 META_EXPORT
 gboolean meta_window_can_close (MetaWindow *window);

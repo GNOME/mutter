@@ -802,7 +802,7 @@ handle_window_focus_event (MetaX11Display *x11_display,
   const char *window_type;
 
   /* Note the event can be on either the window or the frame,
-   * we focus the frame for shaded windows
+   * we focus the frame for output-only windows
    */
   if (window)
     {

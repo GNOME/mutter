@@ -783,7 +783,6 @@ reload_net_wm_state (MetaWindow    *window,
     return;
   }
 
-  window->shaded = FALSE;
   window->maximized_horizontally = FALSE;
   window->maximized_vertically = FALSE;
   window->fullscreen = FALSE;
@@ -800,9 +799,7 @@ reload_net_wm_state (MetaWindow    *window,
   i = 0;
   while (i < value->v.atom_list.n_atoms)
     {
-      if (value->v.atom_list.atoms[i] == x11_display->atom__NET_WM_STATE_SHADED)
-        window->shaded = TRUE;
-      else if (value->v.atom_list.atoms[i] == x11_display->atom__NET_WM_STATE_MAXIMIZED_HORZ)
+      if (value->v.atom_list.atoms[i] == x11_display->atom__NET_WM_STATE_MAXIMIZED_HORZ)
         window->maximize_horizontally_after_placement = TRUE;
       else if (value->v.atom_list.atoms[i] == x11_display->atom__NET_WM_STATE_MAXIMIZED_VERT)
         window->maximize_vertically_after_placement = TRUE;

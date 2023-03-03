@@ -854,7 +854,7 @@ client_window_should_be_mapped (MetaWindow *window)
       window->decorated && !window->frame)
     return FALSE;
 
-  return !window->shaded;
+  return TRUE;
 }
 
 static void
@@ -1068,7 +1068,6 @@ meta_window_constructed (GObject *object)
   window->tile_mode = META_TILE_NONE;
   window->tile_monitor_number = -1;
   window->tile_hfraction = -1.;
-  window->shaded = FALSE;
   window->initially_iconic = FALSE;
   window->minimized = FALSE;
   window->tab_unminimized = FALSE;
@@ -1109,8 +1108,6 @@ meta_window_constructed (GObject *object)
   window->has_maximize_func = TRUE;
   window->has_move_func = TRUE;
   window->has_resize_func = TRUE;
-
-  window->has_shade_func = TRUE;
 
   window->has_fullscreen_func = TRUE;
 
@@ -1174,7 +1171,6 @@ meta_window_constructed (GObject *object)
       window->decorated = FALSE;
       window->always_sticky = TRUE;
       window->has_close_func = FALSE;
-      window->has_shade_func = FALSE;
       window->has_move_func = FALSE;
       window->has_resize_func = FALSE;
     }
@@ -2153,8 +2149,8 @@ meta_window_show (MetaWindow *window)
   MetaDisplay *display = window->display;
 
   meta_topic (META_DEBUG_WINDOW_STATE,
-              "Showing window %s, shaded: %d iconic: %d placed: %d",
-              window->desc, window->shaded, window->iconic, window->placed);
+              "Showing window %s, iconic: %d placed: %d",
+              window->desc, window->iconic, window->placed);
 
   focus_window = window->display->focus_window;  /* May be NULL! */
   did_show = FALSE;
@@ -2635,16 +2631,6 @@ meta_window_maximize (MetaWindow        *window,
   if ((maximize_horizontally && !window->maximized_horizontally) ||
       (maximize_vertically   && !window->maximized_vertically))
     {
-      if (window->shaded && maximize_vertically)
-        {
-          /* Shading sucks anyway; I'm not adding a timestamp argument
-           * to this function just for this niche usage & corner case.
-           */
-          guint32 timestamp =
-            meta_display_get_current_time_roundtrip (window->display);
-          meta_window_unshade (window, timestamp);
-        }
-
       /* if the window hasn't been placed yet, we'll maximize it then
        */
       if (!window->placed)
@@ -3232,16 +3218,6 @@ meta_window_make_fullscreen_internal (MetaWindow  *window)
       meta_topic (META_DEBUG_WINDOW_OPS,
                   "Fullscreening %s", window->desc);
 
-      if (window->shaded)
-        {
-          /* Shading sucks anyway; I'm not adding a timestamp argument
-           * to this function just for this niche usage & corner case.
-           */
-          guint32 timestamp =
-            meta_display_get_current_time_roundtrip (window->display);
-          meta_window_unshade (window, timestamp);
-        }
-
       window->saved_rect_fullscreen = window->rect;
 
       window->fullscreen = TRUE;
@@ -3391,57 +3367,6 @@ meta_window_adjust_fullscreen_monitor_rect (MetaWindow    *window,
     window_class->adjust_fullscreen_monitor_rect (window, monitor_rect);
 }
 
-void
-meta_window_shade (MetaWindow  *window,
-                   guint32      timestamp)
-{
-  g_return_if_fail (!window->override_redirect);
-
-  meta_topic (META_DEBUG_WINDOW_OPS,
-              "Shading %s", window->desc);
-  if (!window->shaded)
-    {
-      window->shaded = TRUE;
-
-      meta_window_queue(window, META_QUEUE_MOVE_RESIZE | META_QUEUE_CALC_SHOWING);
-      meta_window_frame_size_changed (window);
-
-      /* After queuing the calc showing, since _focus flushes it,
-       * and we need to focus the frame
-       */
-      meta_topic (META_DEBUG_FOCUS,
-                  "Re-focusing window %s after shading it",
-                  window->desc);
-      meta_window_focus (window, timestamp);
-
-      set_net_wm_state (window);
-    }
-}
-
-void
-meta_window_unshade (MetaWindow  *window,
-                     guint32      timestamp)
-{
-  g_return_if_fail (!window->override_redirect);
-
-  meta_topic (META_DEBUG_WINDOW_OPS,
-              "Unshading %s", window->desc);
-  if (window->shaded)
-    {
-      window->shaded = FALSE;
-      meta_window_queue(window, META_QUEUE_MOVE_RESIZE | META_QUEUE_CALC_SHOWING);
-      meta_window_frame_size_changed (window);
-
-      /* focus the window */
-      meta_topic (META_DEBUG_FOCUS,
-                  "Focusing window %s after unshading it",
-                  window->desc);
-      meta_window_focus (window, timestamp);
-
-      set_net_wm_state (window);
-    }
-}
-
 static gboolean
 unminimize_func (MetaWindow *window,
                  void       *data)
@@ -3518,9 +3443,6 @@ meta_window_activate_full (MetaWindow     *window,
          the source window.  */
       meta_window_change_workspace (window, workspace);
     }
-
-  if (window->shaded)
-    meta_window_unshade (window, timestamp);
 
   unminimize_window_and_all_transient_parents (window);
 
@@ -4452,8 +4374,7 @@ meta_window_get_frame_rect (const MetaWindow *window,
  * @rect: (out): pointer to a cairo rectangle
  *
  * Gets the rectangle for the boundaries of the client area, relative
- * to the buffer rect. If the window is shaded, the height of the
- * rectangle is 0.
+ * to the buffer rect.
  */
 void
 meta_window_get_client_area_rect (const MetaWindow      *window,
@@ -4467,10 +4388,7 @@ meta_window_get_client_area_rect (const MetaWindow      *window,
   rect->y = borders.total.top;
 
   rect->width = window->buffer_rect.width - borders.total.left - borders.total.right;
-  if (window->shaded)
-    rect->height = 0;
-  else
-    rect->height = window->buffer_rect.height - borders.total.top - borders.total.bottom;
+  rect->height = window->buffer_rect.height - borders.total.top - borders.total.bottom;
 }
 
 void
@@ -4650,7 +4568,7 @@ meta_window_focus (MetaWindow  *window,
 
   meta_window_flush_calc_showing (window);
 
-  if ((!window->mapped || window->hidden) && !window->shaded)
+  if (!window->mapped || window->hidden)
     {
       meta_topic (META_DEBUG_FOCUS,
                   "Window %s is not showing, not focusing after all",
@@ -5516,7 +5434,6 @@ meta_window_recalc_features (MetaWindow *window)
   gboolean old_has_minimize_func;
   gboolean old_has_move_func;
   gboolean old_has_resize_func;
-  gboolean old_has_shade_func;
   gboolean old_always_sticky;
   gboolean old_skip_taskbar;
 
@@ -5524,7 +5441,6 @@ meta_window_recalc_features (MetaWindow *window)
   old_has_minimize_func = window->has_minimize_func;
   old_has_move_func = window->has_move_func;
   old_has_resize_func = window->has_resize_func;
-  old_has_shade_func = window->has_shade_func;
   old_always_sticky = window->always_sticky;
   old_skip_taskbar = window->skip_taskbar;
 
@@ -5563,7 +5479,6 @@ meta_window_recalc_features (MetaWindow *window)
                     window->size_hints.max_height);
     }
 
-  window->has_shade_func = TRUE;
   window->has_fullscreen_func = TRUE;
 
   window->always_sticky = FALSE;
@@ -5582,7 +5497,6 @@ meta_window_recalc_features (MetaWindow *window)
     {
       window->decorated = FALSE;
       window->has_close_func = FALSE;
-      window->has_shade_func = FALSE;
 
       /* FIXME this keeps panels and things from using
        * NET_WM_MOVERESIZE; the problem is that some
@@ -5632,7 +5546,6 @@ meta_window_recalc_features (MetaWindow *window)
    */
   if (window->fullscreen)
     {
-      window->has_shade_func = FALSE;
       window->has_move_func = FALSE;
       window->has_resize_func = FALSE;
       window->has_maximize_func = FALSE;
@@ -5660,10 +5573,6 @@ meta_window_recalc_features (MetaWindow *window)
               window->size_hints.max_width,
               window->size_hints.max_height);
 
-  /* no shading if not decorated */
-  if (!window->decorated || window->border_only)
-    window->has_shade_func = FALSE;
-
   meta_window_recalc_skip_features (window);
 
   /* To prevent users from losing windows, let's prevent users from
@@ -5672,7 +5581,7 @@ meta_window_recalc_features (MetaWindow *window)
     window->has_minimize_func = FALSE;
 
   meta_topic (META_DEBUG_WINDOW_OPS,
-              "Window %s decorated = %d border_only = %d has_close = %d has_minimize = %d has_maximize = %d has_move = %d has_shade = %d skip_taskbar = %d skip_pager = %d",
+              "Window %s decorated = %d border_only = %d has_close = %d has_minimize = %d has_maximize = %d has_move = %d skip_taskbar = %d skip_pager = %d",
               window->desc,
               window->decorated,
               window->border_only,
@@ -5680,7 +5589,6 @@ meta_window_recalc_features (MetaWindow *window)
               window->has_minimize_func,
               window->has_maximize_func,
               window->has_move_func,
-              window->has_shade_func,
               window->skip_taskbar,
               window->skip_pager);
 
@@ -5697,7 +5605,6 @@ meta_window_recalc_features (MetaWindow *window)
       old_has_minimize_func != window->has_minimize_func ||
       old_has_move_func != window->has_move_func         ||
       old_has_resize_func != window->has_resize_func     ||
-      old_has_shade_func != window->has_shade_func       ||
       old_always_sticky != window->always_sticky)
     set_allowed_actions_hint (window);
 
@@ -5705,10 +5612,6 @@ meta_window_recalc_features (MetaWindow *window)
     g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_RESIZEABLE]);
 
   meta_window_frame_size_changed (window);
-
-  /* FIXME perhaps should ensure if we don't have a shade func,
-   * we aren't shaded, etc.
-   */
 }
 
 void
@@ -6468,12 +6371,6 @@ meta_window_has_focus (MetaWindow *window)
   return window->has_focus;
 }
 
-gboolean
-meta_window_is_shaded (MetaWindow *window)
-{
-  return window->shaded;
-}
-
 /**
  * meta_window_is_override_redirect:
  * @window: A #MetaWindow
@@ -7152,7 +7049,7 @@ meta_window_find_tile_match (MetaWindow   *window,
   MetaStack *stack;
   MetaTileMode match_tile_mode = META_TILE_NONE;
 
-  if (window->shaded || window->minimized)
+  if (window->minimized)
     return NULL;
 
   if (current_mode == META_TILE_LEFT)
@@ -7168,8 +7065,7 @@ meta_window_find_tile_match (MetaWindow   *window,
        match;
        match = meta_stack_get_below (stack, match, FALSE))
     {
-      if (!match->shaded &&
-          !match->minimized &&
+      if (!match->minimized &&
           match->tile_mode == match_tile_mode &&
           match->tile_monitor_number == window->tile_monitor_number &&
           meta_window_get_workspace (match) == meta_window_get_workspace (window))
@@ -7779,12 +7675,6 @@ gboolean
 meta_window_can_minimize (MetaWindow *window)
 {
   return window->has_minimize_func;
-}
-
-gboolean
-meta_window_can_shade (MetaWindow *window)
-{
-  return window->has_shade_func;
 }
 
 gboolean
