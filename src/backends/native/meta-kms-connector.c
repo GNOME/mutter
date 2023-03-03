@@ -504,7 +504,7 @@ decode_u16_min_luminance (uint16_t value)
   return value * 0.0001;
 }
 
-static gboolean
+gboolean
 set_output_hdr_metadata (struct hdr_output_metadata *drm_metadata,
                          MetaOutputHdrMetadata      *metadata)
 {
@@ -887,7 +887,7 @@ hdr_min_luminance_equal (double x1, double x2)
   return fabs (x1 - x2) < (0.0001 - DBL_EPSILON);
 }
 
-static gboolean
+gboolean
 hdr_metadata_equal (MetaOutputHdrMetadata *metadata,
                     MetaOutputHdrMetadata *other_metadata)
 {

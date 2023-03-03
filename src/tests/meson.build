@@ -235,6 +235,7 @@ test_cases += [
       'monitor-transform-tests.c',
       'monitor-transform-tests.h',
       'orientation-manager-unit-tests.c',
+      'hdr-metadata-unit-tests.c',
     ],
   },
   {
