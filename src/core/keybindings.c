@@ -1213,6 +1213,8 @@ meta_change_button_grab (MetaKeyBindingManager *keys,
                     META_VIRTUAL_CORE_POINTER_ID,
                     button, xwindow, mods->len, (XIGrabModifiers *)mods->data);
 
+  XSync (xdisplay, False);
+
   meta_clutter_x11_untrap_x_errors ();
 
   g_array_free (mods, TRUE);
@@ -1458,6 +1460,8 @@ meta_change_keygrab (MetaKeyBindingManager *keys,
                          keycode, xwindow,
                          mods->len, (XIGrabModifiers *)mods->data);
     }
+
+  XSync (xdisplay, False);
 
   meta_clutter_x11_untrap_x_errors ();
 
