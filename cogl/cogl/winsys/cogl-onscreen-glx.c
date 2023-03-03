@@ -539,16 +539,20 @@ cogl_onscreen_glx_get_buffer_age (CoglOnscreen *onscreen)
   CoglOnscreenGlx *onscreen_glx = COGL_ONSCREEN_GLX (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
+  CoglDisplay *display = context->display;
   CoglXlibRenderer *xlib_renderer = _cogl_xlib_renderer_get_data (context->display->renderer);
   CoglGLXRenderer *glx_renderer = context->display->renderer->winsys;
+  CoglXlibTrapState old_state;
   GLXDrawable drawable;
-  unsigned int age;
+  unsigned int age = 0;
 
   if (!_cogl_winsys_has_feature (COGL_WINSYS_FEATURE_BUFFER_AGE))
     return 0;
 
   drawable = onscreen_glx->glxwin ? onscreen_glx->glxwin : onscreen_glx->xwin;
+  _cogl_xlib_renderer_trap_errors (display->renderer, &old_state);
   glx_renderer->glXQueryDrawable (xlib_renderer->xdpy, drawable, GLX_BACK_BUFFER_AGE_EXT, &age);
+  _cogl_xlib_renderer_untrap_errors (display->renderer, &old_state);
 
   return age;
 }
