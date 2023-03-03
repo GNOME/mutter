@@ -2293,7 +2293,7 @@ meta_onscreen_native_dispose (GObject *object)
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   MetaRendererNativeGpuData *renderer_gpu_data;
 
-  clear_invalidation_handlers (onscreen_native);
+  meta_onscreen_native_detach (onscreen_native);
 
   renderer_gpu_data =
     meta_renderer_native_get_gpu_data (renderer_native,
