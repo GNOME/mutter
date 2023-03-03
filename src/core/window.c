@@ -2648,15 +2648,15 @@ meta_window_maximize (MetaWindow        *window,
       /* if the window hasn't been placed yet, we'll maximize it then
        */
       if (!window->placed)
-	{
-	  window->maximize_horizontally_after_placement =
+        {
+          window->maximize_horizontally_after_placement =
             window->maximize_horizontally_after_placement ||
             maximize_horizontally;
-	  window->maximize_vertically_after_placement =
+          window->maximize_vertically_after_placement =
             window->maximize_vertically_after_placement ||
             maximize_vertically;
-	  return;
-	}
+          return;
+        }
 
       if (window->tile_mode != META_TILE_NONE)
         {
