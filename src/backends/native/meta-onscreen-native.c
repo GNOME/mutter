@@ -2251,8 +2251,9 @@ meta_onscreen_native_new (MetaRendererNative *renderer_native,
 
   onscreen_native->renderer_native = renderer_native;
   onscreen_native->render_gpu = render_gpu;
-  onscreen_native->output = output;
-  onscreen_native->crtc = crtc;
+
+  g_set_object (&onscreen_native->output, output);
+  g_set_object (&onscreen_native->crtc, crtc);
 
   if (meta_crtc_get_gamma_lut_size (crtc) > 0)
     {
@@ -2368,4 +2369,6 @@ void
 meta_onscreen_native_detach (MetaOnscreenNative *onscreen_native)
 {
   clear_invalidation_handlers (onscreen_native);
+  g_clear_object (&onscreen_native->output);
+  g_clear_object (&onscreen_native->crtc);
 }
