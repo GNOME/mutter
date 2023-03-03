@@ -146,7 +146,6 @@ if not have_wayland and not have_x11
 endif
 
 if have_x11_client
-  gtk3_dep = dependency('gtk+-3.0', version: gtk3_req)
   gtk4_dep = dependency('gtk4', version: gtk4_req)
 
   x11_dep = dependency('x11', version: x11_req)
@@ -330,6 +329,8 @@ have_tty_tests = false
 have_installed_tests = false
 
 if have_tests
+  gtk3_dep = dependency('gtk+-3.0', version: gtk3_req)
+
   have_core_tests = get_option('core_tests')
   if have_core_tests
     if not have_wayland
