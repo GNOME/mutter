@@ -261,28 +261,6 @@ meta_wayland_surface_assign_role (MetaWaylandSurface *surface,
     }
 }
 
-static int
-get_buffer_width (MetaWaylandSurface *surface)
-{
-  MetaWaylandBuffer *buffer = meta_wayland_surface_get_buffer (surface);
-
-  if (buffer)
-    return cogl_texture_get_width (surface->output_state.texture);
-  else
-    return 0;
-}
-
-static int
-get_buffer_height (MetaWaylandSurface *surface)
-{
-  MetaWaylandBuffer *buffer = meta_wayland_surface_get_buffer (surface);
-
-  if (buffer)
-    return cogl_texture_get_height (surface->output_state.texture);
-  else
-    return 0;
-}
-
 static void
 surface_process_damage (MetaWaylandSurface *surface,
                         cairo_region_t     *surface_region,
@@ -300,8 +278,8 @@ surface_process_damage (MetaWaylandSurface *surface,
     return;
 
   buffer_rect = (cairo_rectangle_int_t) {
-    .width = get_buffer_width (surface),
-    .height = get_buffer_height (surface),
+    .width = meta_wayland_surface_get_buffer_width (surface),
+    .height = meta_wayland_surface_get_buffer_height (surface),
   };
 
   if (!cairo_region_is_empty (surface_region))
@@ -338,13 +316,13 @@ surface_process_damage (MetaWaylandSurface *surface,
 
           if (meta_monitor_transform_is_rotated (surface->buffer_transform))
             {
-              width = get_buffer_height (surface);
-              height = get_buffer_width (surface);
+              width = meta_wayland_surface_get_buffer_height (surface);
+              height = meta_wayland_surface_get_buffer_width (surface);
             }
           else
             {
-              width = get_buffer_width (surface);
-              height = get_buffer_height (surface);
+              width = meta_wayland_surface_get_buffer_width (surface);
+              height = meta_wayland_surface_get_buffer_height (surface);
             }
 
           src_rect = (graphene_rect_t) {
@@ -770,16 +748,17 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
   if (state->scale > 0)
     surface->scale = state->scale;
 
-  if ((get_buffer_width (surface) % surface->scale != 0) ||
-      (get_buffer_height (surface) % surface->scale != 0))
+  if ((meta_wayland_surface_get_buffer_width (surface) % surface->scale != 0) ||
+      (meta_wayland_surface_get_buffer_height (surface) % surface->scale != 0))
     {
       if (surface->role && !META_IS_WAYLAND_CURSOR_SURFACE (surface->role))
         {
           wl_resource_post_error (surface->resource, WL_SURFACE_ERROR_INVALID_SIZE,
                                   "Buffer size (%dx%d) must be an integer multiple "
                                   "of the buffer_scale (%d).",
-                                  get_buffer_width (surface),
-                                  get_buffer_height (surface), surface->scale);
+                                  meta_wayland_surface_get_buffer_width (surface),
+                                  meta_wayland_surface_get_buffer_height (surface),
+                                  surface->scale);
         }
       else
         {
@@ -791,8 +770,10 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
 
           g_warning ("Bug in client with pid %ld: Cursor buffer size (%dx%d) is "
                      "not an integer multiple of the buffer_scale (%d).",
-                     (long) pid, get_buffer_width (surface),
-                     get_buffer_height (surface), surface->scale);
+                     (long) pid,
+                     meta_wayland_surface_get_buffer_width (surface),
+                     meta_wayland_surface_get_buffer_height (surface),
+                     surface->scale);
         }
     }
 
@@ -2171,9 +2152,9 @@ meta_wayland_surface_get_width (MetaWaylandSurface *surface)
       int width;
 
       if (meta_monitor_transform_is_rotated (surface->buffer_transform))
-        width = get_buffer_height (surface);
+        width = meta_wayland_surface_get_buffer_height (surface);
       else
-        width = get_buffer_width (surface);
+        width = meta_wayland_surface_get_buffer_width (surface);
 
       return width / surface->scale;
     }
@@ -2195,12 +2176,34 @@ meta_wayland_surface_get_height (MetaWaylandSurface *surface)
       int height;
 
       if (meta_monitor_transform_is_rotated (surface->buffer_transform))
-        height = get_buffer_width (surface);
+        height = meta_wayland_surface_get_buffer_width (surface);
       else
-        height = get_buffer_height (surface);
+        height = meta_wayland_surface_get_buffer_height (surface);
 
       return height / surface->scale;
     }
+}
+
+int
+meta_wayland_surface_get_buffer_width (MetaWaylandSurface *surface)
+{
+  MetaWaylandBuffer *buffer = meta_wayland_surface_get_buffer (surface);
+
+  if (buffer)
+    return cogl_texture_get_width (surface->output_state.texture);
+  else
+    return 0;
+}
+
+int
+meta_wayland_surface_get_buffer_height (MetaWaylandSurface *surface)
+{
+  MetaWaylandBuffer *buffer = meta_wayland_surface_get_buffer (surface);
+
+  if (buffer)
+    return cogl_texture_get_height (surface->output_state.texture);
+  else
+    return 0;
 }
 
 static void
@@ -2293,10 +2296,10 @@ meta_wayland_surface_can_scanout_untransformed (MetaWaylandSurface *surface,
       if (view_layout.width != surface->viewport.dst_width ||
           view_layout.height != surface->viewport.dst_height ||
           !G_APPROX_VALUE (untransformed_layout_width,
-                           get_buffer_width (surface),
+                           meta_wayland_surface_get_buffer_width (surface),
                            FLT_EPSILON) ||
           !G_APPROX_VALUE (untransformed_layout_height,
-                           get_buffer_height (surface),
+                           meta_wayland_surface_get_buffer_height (surface),
                            FLT_EPSILON))
         {
           meta_topic (META_DEBUG_RENDER,
@@ -2305,8 +2308,10 @@ meta_wayland_surface_can_scanout_untransformed (MetaWaylandSurface *surface,
                       "layout. (%d != %d || %d != %d || %f != %d %f != %d)",
                       view_layout.width, surface->viewport.dst_width,
                       view_layout.height, surface->viewport.dst_height,
-                      untransformed_layout_width, get_buffer_width (surface),
-                      untransformed_layout_height, get_buffer_height (surface));
+                      untransformed_layout_width,
+                      meta_wayland_surface_get_buffer_width (surface),
+                      untransformed_layout_height,
+                      meta_wayland_surface_get_buffer_height (surface));
           return FALSE;
         }
     }
@@ -2349,11 +2354,11 @@ meta_wayland_surface_can_scanout_untransformed (MetaWaylandSurface *surface,
                            FLT_EPSILON) ||
           !G_APPROX_VALUE (surface->viewport.src_rect.size.width *
                            surface->scale,
-                           get_buffer_width (surface),
+                           meta_wayland_surface_get_buffer_width (surface),
                            FLT_EPSILON) ||
           !G_APPROX_VALUE (surface->viewport.src_rect.size.height *
                            surface->scale,
-                           get_buffer_height (surface),
+                           meta_wayland_surface_get_buffer_height (surface),
                            FLT_EPSILON))
         {
           meta_topic (META_DEBUG_RENDER,

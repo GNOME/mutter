@@ -388,6 +388,12 @@ int                 meta_wayland_surface_get_width (MetaWaylandSurface *surface)
 META_EXPORT_TEST
 int                 meta_wayland_surface_get_height (MetaWaylandSurface *surface);
 
+META_EXPORT_TEST
+int                 meta_wayland_surface_get_buffer_width (MetaWaylandSurface *surface);
+
+META_EXPORT_TEST
+int                 meta_wayland_surface_get_buffer_height (MetaWaylandSurface *surface);
+
 CoglScanout *       meta_wayland_surface_try_acquire_scanout (MetaWaylandSurface *surface,
                                                               CoglOnscreen       *onscreen);
 
