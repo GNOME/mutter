@@ -416,14 +416,10 @@ if have_native_tests
   # Wayland tests
   test_cases += [
     {
-      'name': 'wayland-unit',
+      'name': 'wayland-client-tests',
       'suite': 'wayland',
       'sources': [
-        'wayland-unit-tests.c',
-        dummy_client_header,
-        dummy_server_header,
-        dummy_protocol_code,
-        wayland_test_utils,
+        'wayland-client-tests.c',
       ],
     },
     {
@@ -439,6 +435,17 @@ if have_native_tests
       'suite': 'wayland',
       'sources': [
         'wayland-client-tests.c',
+      ],
+    },
+    {
+      'name': 'wayland-unit',
+      'suite': 'wayland',
+      'sources': [
+        'wayland-unit-tests.c',
+        dummy_client_header,
+        dummy_server_header,
+        dummy_protocol_code,
+        wayland_test_utils,
       ],
     },
     {
