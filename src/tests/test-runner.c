@@ -494,11 +494,18 @@ str_to_bool (const char *str,
 }
 
 static gboolean
-test_case_do (TestCase *test,
-              int       argc,
-              char    **argv,
-              GError  **error)
+test_case_do (TestCase    *test,
+              const char  *filename,
+              int          line_no,
+              int          argc,
+              char       **argv,
+              GError     **error)
 {
+  g_autofree char *command = NULL;
+
+  command = g_strjoinv (" ", argv);
+  g_debug ("%s:%d: '%s'", filename, line_no, command);
+
   if (strcmp (argv[0], "new_client") == 0)
     {
       MetaWindowClientType type;
@@ -1365,6 +1372,7 @@ run_test (MetaContext *context,
           int          index)
 {
   TestCase *test = test_case_new (context);
+  g_autofree char *file_basename = NULL;
   GError *error = NULL;
 
   GFile *file = g_file_new_for_path (filename);
@@ -1378,6 +1386,8 @@ run_test (MetaContext *context,
 
   in = g_data_input_stream_new (G_INPUT_STREAM (in_raw));
   g_object_unref (in_raw);
+
+  file_basename = g_path_get_basename (filename);
 
   int line_no = 0;
   while (error == NULL)
@@ -1401,7 +1411,7 @@ run_test (MetaContext *context,
           goto next;
         }
 
-      test_case_do (test, argc, argv, &error);
+      test_case_do (test, file_basename, line_no, argc, argv, &error);
 
     next:
       if (error)
