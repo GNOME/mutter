@@ -1778,9 +1778,9 @@ constrain_titlebar_visible (MetaWindow         *window,
    */
   unconstrained_user_action =
     info->is_user_action &&
-    window_drag &&
-    (meta_window_drag_get_grab_op (window_drag) &
-     META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED) != 0;
+    (!window_drag ||
+     (meta_window_drag_get_grab_op (window_drag) &
+      META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED) != 0);
 
   /* Exit early if we know the constraint won't apply--note that this constraint
    * is only meant for normal windows (e.g. we don't want docks to be shoved
