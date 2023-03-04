@@ -224,8 +224,7 @@ atk_key_event_from_clutter_event_key (ClutterKeyEvent *clutter_event,
 
       new = g_string_new ("");
       new = g_string_insert_unichar (new, 0, key_unichar);
-      atk_event->string = new->str;
-      g_string_free (new, FALSE);
+      atk_event->string = g_string_free (new, FALSE);
     }
   else
     atk_event->string = NULL;
