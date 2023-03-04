@@ -1410,45 +1410,36 @@ surface_output_disconnect_signals (gpointer key,
                                         surface);
 }
 
-static void
-get_highest_output_scale (gpointer key,
-                          gpointer value,
-                          gpointer data)
-{
-  MetaWaylandOutput *wayland_output = value;
-  MetaLogicalMonitor *logical_monitor =
-    meta_wayland_output_get_logical_monitor (wayland_output);
-  double *scale = data;
-  double new_scale;
-
-  new_scale = meta_logical_monitor_get_scale (logical_monitor);
-  if (new_scale > *scale)
-    *scale = new_scale;
-}
-
 double
 meta_wayland_surface_get_highest_output_scale (MetaWaylandSurface *surface)
 {
   double scale = 0.0;
+  MetaWindow *window;
+  MetaLogicalMonitor *logical_monitor;
 
-  g_hash_table_foreach (surface->outputs, get_highest_output_scale, &scale);
+  window = meta_wayland_surface_get_window (surface);
+  if (!window)
+    goto out;
+
+  logical_monitor = meta_window_get_highest_scale_monitor (window);
+  if (!logical_monitor)
+    goto out;
+
+  scale = meta_logical_monitor_get_scale (logical_monitor);
+
+out:
   return scale;
 }
 
 void
 meta_wayland_surface_update_outputs (MetaWaylandSurface *surface)
 {
-  double scale;
-
   if (!surface->compositor)
     return;
 
   g_hash_table_foreach (surface->compositor->outputs,
                         update_surface_output_state,
                         surface);
-
-  scale = meta_wayland_surface_get_highest_output_scale (surface);
-  meta_wayland_fractional_scale_maybe_send_preferred_scale (surface, scale);
 }
 
 void
@@ -2412,6 +2403,21 @@ meta_wayland_surface_is_xwayland (MetaWaylandSurface *surface)
 }
 
 static void
+protocol_state_handle_highest_scale_monitor (MetaWaylandSurface *surface)
+{
+  MetaWaylandSurface *subsurface_surface;
+  double scale;
+
+  scale = meta_wayland_surface_get_highest_output_scale (surface);
+
+  meta_wayland_fractional_scale_maybe_send_preferred_scale (surface, scale);
+
+  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (&surface->protocol_state,
+                                           subsurface_surface)
+    protocol_state_handle_highest_scale_monitor (subsurface_surface);
+}
+
+static void
 output_state_handle_highest_scale_monitor (MetaWaylandSurface *surface)
 {
   MetaWaylandSurface *subsurface_surface;
@@ -2429,4 +2435,5 @@ void
 meta_wayland_surface_notify_highest_scale_monitor (MetaWaylandSurface *surface)
 {
   output_state_handle_highest_scale_monitor (surface);
+  protocol_state_handle_highest_scale_monitor (surface);
 }
