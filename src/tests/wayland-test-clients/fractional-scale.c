@@ -18,6 +18,7 @@
 #include "config.h"
 
 #include <glib.h>
+#include <math.h>
 #include <wayland-client.h>
 
 #include "wayland-test-client-utils.h"
