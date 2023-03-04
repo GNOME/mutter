@@ -245,7 +245,8 @@ process_connector_update (MetaKmsImplDevice  *impl_device,
       if (!add_connector_property (impl_device,
                                    connector, req,
                                    META_KMS_CONNECTOR_PROP_COLORSPACE,
-                                   connector_update->colorspace.value,
+                                   meta_output_color_space_to_drm_color_space (
+                                     connector_update->colorspace.value),
                                    error))
         return FALSE;
     }

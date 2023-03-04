@@ -142,6 +142,8 @@ MetaKmsConnector * meta_kms_connector_new (MetaKmsImplDevice *impl_device,
 gboolean meta_kms_connector_is_same_as (MetaKmsConnector *connector,
                                         drmModeConnector *drm_connector);
 
+uint64_t meta_output_color_space_to_drm_color_space (MetaOutputColorspace color_space);
+
 META_EXPORT_TEST
 void meta_set_drm_hdr_metadata (MetaOutputHdrMetadata      *metadata,
                                 struct hdr_output_metadata *drm_metadata);

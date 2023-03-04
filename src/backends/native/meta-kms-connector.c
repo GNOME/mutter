@@ -343,6 +343,20 @@ supported_drm_color_spaces_to_output_color_spaces (uint64_t drm_support)
   return supported;
 }
 
+uint64_t
+meta_output_color_space_to_drm_color_space (MetaOutputColorspace color_space)
+{
+  switch (color_space)
+    {
+    case META_OUTPUT_COLORSPACE_BT2020:
+      return META_KMS_CONNECTOR_COLORSPACE_BT2020_RGB;
+    case META_OUTPUT_COLORSPACE_UNKNOWN:
+    case META_OUTPUT_COLORSPACE_DEFAULT:
+    default:
+      return META_KMS_CONNECTOR_COLORSPACE_DEFAULT;
+    }
+}
+
 static void
 state_set_properties (MetaKmsConnectorState *state,
                       MetaKmsImplDevice     *impl_device,
