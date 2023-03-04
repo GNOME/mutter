@@ -442,14 +442,6 @@ if have_native_tests
       ],
     },
     {
-      'name': 'service-channel',
-      'suite': 'wayland',
-      'sources': [
-        'service-channel-tests.c',
-        wayland_test_utils,
-      ],
-    },
-    {
       'name': 'wayland-x11-interop',
       'suite': 'wayland',
       'sources': [
@@ -472,6 +464,18 @@ if have_native_tests
       },
     ]
   endif
+
+  # Miscellaneous tests
+  test_cases += [
+    {
+      'name': 'service-channel',
+      'suite': 'wayland',
+      'sources': [
+        'service-channel-tests.c',
+        wayland_test_utils,
+      ],
+    },
+  ]
 
   foreach test_case: test_cases
     test_executable = executable('mutter-' + test_case['name'],
