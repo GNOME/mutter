@@ -1,3 +1,44 @@
+44.rc
+=====
+* Do not overwrite previously set offsets on attach [Matthias; !2843]
+* Fix Xwayland focus regressions [Carlos; !2841, !2878]
+* Stop parsing unused EDID parameters [adarshgm; !2825]
+* Fix partial updates on offscreen rotated screens [Robert; !2860]
+* Improve Xwayland RandR emulation compatibility [msizanoen1; !2725]
+* Fix touch window dragging on rotated monitors [Jonas D.; !2859]
+* Remove legacy OpenGL driver support [Jonas Å.; !2672]
+* Improve default scale factor selection [Adrian, Jonas Å.; !2653, !2880]
+* Handle all X11 window title fallbacks [Carlos; !2872]
+* Fix handling of keyboard-driven window resize [Carlos; !2871]
+* Fix recording windows on non-active workspaces [Robert; !2789]
+* Manage KMS updates more asynchronously [Jonas Å.; !2854, !2855]
+* Fix headless startup [Jonas Å.; !2821]
+* Remove support for window shading [Robert; !2884]
+* Move away from GTK3 [Carlos; !2864]
+* Restore zero-copy fast path for Xwayland fullscreen windows [Carlos; !2797]
+* Prevent clients from locking the compositor with cursor updates
+  [Olivier; !2849]
+* Add experimental development tool for HDR modes [Sebastian; !2879]
+* Account for linear sampling when calculating actor damage [msizanoen1; !2771]
+* wayland: Implement fractional_scale protocol [Robert; !2394]
+* Fixed crashes [Jonas D., Jonas Å., Robert; !2858, !2863, !2869, !2885, !2887]
+* Memory handling fixes
+  [Jonas Å., Carlos, Simon, Michel; !2853, !2868, !2877, !2886]
+* Misc. bug fixes and cleanups [Jonas Å., Florian, Robert, Carlos, Sebastian,
+  Jonas D.; !2846, !2840, !2850, !2829, !2862, !2779, !2861, !2713, !2865,
+  !2866, !2867, !2874, !2875, !2873, !2881, !2847, !2889, !2890, !2891, !2892,
+  !2894, !2895, !2899]
+
+Contributors:
+  Dor Askayo, Matthias Clasen, Jonas Dreßler, Michel Dänzer, Olivier Fourdan,
+  Carlos Garnacho, Robert Mader, Simon McVittie, Florian Müllner, Adrian Vovk,
+  Sebastian Wick, adarshgm, msizanoen1, Jonas Ådahl
+
+Translators:
+  Марко Костић [sr], Daniel [es], Fabio Tomat [fur], Matej Urbančič [sl],
+  Jiri Grönroos [fi], Balázs Úr [hu], Anders Jonsson [sv], Marek Černocký [cs],
+  Jürgen Benvenuti [de], Alexander Shopov [bg]
+
 44.beta
 =======
 * Don't disable KMS modifiers on newer i915 systems [Sameer; !2641]
