@@ -1357,11 +1357,7 @@ meta_monitor_manager_dispose (GObject *object)
 {
   MetaMonitorManager *manager = META_MONITOR_MANAGER (object);
 
-  if (manager->dbus_name_id != 0)
-    {
-      g_bus_unown_name (manager->dbus_name_id);
-      manager->dbus_name_id = 0;
-    }
+  g_clear_handle_id (&manager->dbus_name_id, g_bus_unown_name);
 
   g_clear_object (&manager->display_config);
   g_clear_object (&manager->config_manager);
