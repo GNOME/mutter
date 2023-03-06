@@ -221,6 +221,7 @@ enum
   SIZE_CHANGED,
   POSITION_CHANGED,
   SHOWN,
+  HIGHEST_SCALE_MONITOR_CHANGED,
 
   LAST_SIGNAL
 };
@@ -755,6 +756,21 @@ meta_window_class_init (MetaWindowClass *klass)
                   0,
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
+
+  /**
+   * MetaWindow::highest-scale-monitor-changed:
+   * @window: a #MetaWindow
+   *
+   * This is emitted when the monitor with the highest scale
+   * intersecting the window changes.
+   */
+  window_signals[HIGHEST_SCALE_MONITOR_CHANGED] =
+    g_signal_new ("highest-scale-monitor-changed",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
 }
 
 static void
@@ -1007,6 +1023,19 @@ meta_window_find_monitor_from_frame_rect (MetaWindow *window)
                                                              &window_rect);
 }
 
+static MetaLogicalMonitor *
+meta_window_find_highest_scale_monitor_from_frame_rect (MetaWindow *window)
+{
+  MetaBackend *backend = backend_from_window (window);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaRectangle window_rect;
+
+  meta_window_get_frame_rect (window, &window_rect);
+  return meta_monitor_manager_get_highest_scale_monitor_from_rect (monitor_manager,
+                                                                   &window_rect);
+}
+
 static void
 meta_window_manage (MetaWindow *window)
 {
@@ -1151,6 +1180,9 @@ meta_window_constructed (GObject *object)
     window->monitor = meta_window_find_monitor_from_frame_rect (window);
   else
     window->monitor = meta_backend_get_current_logical_monitor (backend);
+
+  window->highest_scale_monitor =
+    meta_window_find_highest_scale_monitor_from_frame_rect (window);
 
   if (window->monitor)
     window->preferred_output_winsys_id = window->monitor->winsys_id;
@@ -3573,6 +3605,12 @@ meta_window_get_main_logical_monitor (MetaWindow *window)
   return window->monitor;
 }
 
+MetaLogicalMonitor *
+meta_window_get_highest_scale_monitor (MetaWindow *window)
+{
+  return window->highest_scale_monitor;
+}
+
 static MetaLogicalMonitor *
 find_monitor_by_winsys_id (MetaWindow *window,
                            uint64_t    winsys_id)
@@ -3684,7 +3722,7 @@ meta_window_update_monitor (MetaWindow                   *window,
                             MetaWindowUpdateMonitorFlags  flags)
 {
   MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
-  const MetaLogicalMonitor *old;
+  const MetaLogicalMonitor *old, *old_highest_scale;
 
   old = window->monitor;
   META_WINDOW_GET_CLASS (window)->update_main_monitor (window, flags);
@@ -3715,6 +3753,12 @@ meta_window_update_monitor (MetaWindow                   *window,
 
       meta_display_queue_check_fullscreen (window->display);
     }
+
+  old_highest_scale = window->highest_scale_monitor;
+  window->highest_scale_monitor =
+    meta_window_find_highest_scale_monitor_from_frame_rect (window);
+  if (old_highest_scale != window->highest_scale_monitor)
+    g_signal_emit (window, window_signals[HIGHEST_SCALE_MONITOR_CHANGED], 0);
 }
 
 void

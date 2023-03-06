@@ -3399,6 +3399,47 @@ meta_monitor_manager_get_logical_monitor_from_rect (MetaMonitorManager *manager,
   return best_logical_monitor;
 }
 
+/**
+ * meta_monitor_manager_get_highest_scale_from_rect:
+ * @manager: A #MetaMonitorManager object
+ * @rect: The rectangle
+ *
+ * Finds the #MetaLogicalMonitor with the highest scale intersecting @rect.
+ *
+ * Returns: (transfer none) (nullable): the #MetaLogicalMonitor with the
+ *          highest scale intersecting with @rect, or %NULL if none.
+ */
+MetaLogicalMonitor *
+meta_monitor_manager_get_highest_scale_monitor_from_rect (MetaMonitorManager *manager,
+                                                          MetaRectangle      *rect)
+{
+  MetaLogicalMonitor *best_logical_monitor = NULL;
+  GList *l;
+  float best_scale = 0.0;
+
+  for (l = manager->logical_monitors; l; l = l->next)
+    {
+      MetaLogicalMonitor *logical_monitor = l->data;
+      MetaRectangle intersection;
+      float scale;
+
+      if (!meta_rectangle_intersect (&logical_monitor->rect,
+                                     rect,
+                                     &intersection))
+        continue;
+
+      scale = meta_logical_monitor_get_scale (logical_monitor);
+
+      if (scale > best_scale)
+        {
+          best_scale = scale;
+          best_logical_monitor = logical_monitor;
+        }
+    }
+
+  return best_logical_monitor;
+}
+
 MetaLogicalMonitor *
 meta_monitor_manager_get_logical_monitor_neighbor (MetaMonitorManager  *manager,
                                                    MetaLogicalMonitor  *logical_monitor,
