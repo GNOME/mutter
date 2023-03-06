@@ -957,6 +957,8 @@ clutter_frame_clock_dispose (GObject *object)
 {
   ClutterFrameClock *frame_clock = CLUTTER_FRAME_CLOCK (object);
 
+  g_warn_if_fail (frame_clock->state != CLUTTER_FRAME_CLOCK_STATE_DISPATCHING);
+
   if (frame_clock->source)
     {
       g_signal_emit (frame_clock, signals[DESTROY], 0);
