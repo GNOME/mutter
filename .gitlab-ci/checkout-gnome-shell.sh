@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 fetch() {
   local remote=$1

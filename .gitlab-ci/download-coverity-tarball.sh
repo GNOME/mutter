@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 # We need a coverity token to fetch the tarball
 if [ -x $COVERITY_TOKEN ]
