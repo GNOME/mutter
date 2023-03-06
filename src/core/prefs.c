@@ -2186,6 +2186,22 @@ meta_prefs_get_keybinding_action (const char *name)
               : META_KEYBINDING_ACTION_NONE;
 }
 
+/**
+ * meta_prefs_get_keybinding_label:
+ * Returns: (transfer full) (nullable)
+ */
+char *
+meta_prefs_get_keybinding_label (const char *name)
+{
+  MetaKeyPref *pref = g_hash_table_lookup (key_bindings, name);
+  MetaKeyCombo *combo = NULL;
+
+  if (pref && pref->combos)
+    combo = pref->combos->data;
+
+  return combo ? meta_accelerator_name (combo->modifiers, combo->keysym) : NULL;
+}
+
 gint
 meta_prefs_get_mouse_button_resize (void)
 {

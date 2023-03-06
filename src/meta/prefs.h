@@ -469,6 +469,9 @@ META_EXPORT
 MetaKeyBindingAction meta_prefs_get_keybinding_action (const char *name);
 
 META_EXPORT
+char * meta_prefs_get_keybinding_label (const char *name);
+
+META_EXPORT
 gboolean           meta_prefs_get_visual_bell      (void);
 
 META_EXPORT
