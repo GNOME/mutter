@@ -154,6 +154,7 @@ struct _MetaMonitorManager
   MetaLogicalMonitor *primary_logical_monitor;
 
   guint dbus_name_id;
+  guint restore_config_id;
   guint persistent_timeout_id;
 
   guint panel_orientation_managed : 1;

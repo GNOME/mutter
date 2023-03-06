@@ -1363,6 +1363,7 @@ meta_monitor_manager_dispose (GObject *object)
   g_clear_object (&manager->config_manager);
 
   g_clear_handle_id (&manager->persistent_timeout_id, g_source_remove);
+  g_clear_handle_id (&manager->restore_config_id, g_source_remove);
 
   G_OBJECT_CLASS (meta_monitor_manager_parent_class)->dispose (object);
 }
@@ -1959,12 +1960,6 @@ save_config_timeout (gpointer user_data)
   manager->persistent_timeout_id = 0;
 
   return G_SOURCE_REMOVE;
-}
-
-static void
-cancel_persistent_confirmation (MetaMonitorManager *manager)
-{
-  g_clear_handle_id (&manager->persistent_timeout_id, g_source_remove);
 }
 
 static void
@@ -2822,9 +2817,11 @@ meta_monitor_manager_handle_apply_monitors_config (MetaDBusDisplayConfig *skelet
       return TRUE;
     }
 
-  if (manager->persistent_timeout_id &&
-      method != META_MONITORS_CONFIG_METHOD_VERIFY)
-    cancel_persistent_confirmation (manager);
+  if (method != META_MONITORS_CONFIG_METHOD_VERIFY)
+    {
+      g_clear_handle_id (&manager->restore_config_id, g_source_remove);
+      g_clear_handle_id (&manager->persistent_timeout_id, g_source_remove);
+    }
 
   if (!meta_monitor_manager_apply_monitors_config (manager,
                                                    config,
@@ -2852,28 +2849,25 @@ meta_monitor_manager_handle_apply_monitors_config (MetaDBusDisplayConfig *skelet
 #undef MONITOR_CONFIGS_FORMAT
 #undef LOGICAL_MONITOR_CONFIG_FORMAT
 
-static void
-confirm_configuration (MetaMonitorManager *manager,
-                       gboolean            confirmed)
-{
-  if (confirmed)
-    meta_monitor_config_manager_save_current (manager->config_manager);
-  else
-    restore_previous_config (manager);
-}
-
 void
 meta_monitor_manager_confirm_configuration (MetaMonitorManager *manager,
                                             gboolean            ok)
 {
   if (!manager->persistent_timeout_id)
-    {
-      /* too late */
-      return;
-    }
+    return;
 
-  cancel_persistent_confirmation (manager);
-  confirm_configuration (manager, ok);
+  g_clear_handle_id (&manager->restore_config_id, g_source_remove);
+  g_clear_handle_id (&manager->persistent_timeout_id, g_source_remove);
+
+  if (ok)
+    {
+      meta_monitor_config_manager_save_current (manager->config_manager);
+    }
+  else
+    {
+      manager->restore_config_id =
+        g_idle_add_once ((GSourceOnceFunc) restore_previous_config, manager);
+    }
 }
 
 static gboolean
