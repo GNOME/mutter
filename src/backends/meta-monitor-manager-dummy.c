@@ -159,12 +159,10 @@ append_monitor (MetaMonitorManager *manager,
       for (i = 0; specs[i]; ++i)
         {
           int width, height;
-          float refresh_rate = 60.0;
+          float refresh_rate;
 
-          if (sscanf (specs[i], "%dx%d@%f",
-                      &width, &height, &refresh_rate) == 3 ||
-              sscanf (specs[i], "%dx%d",
-                      &width, &height) == 2)
+          if (meta_parse_monitor_mode (specs[i], &width, &height, &refresh_rate,
+                                       60.0))
             {
               CrtcModeSpec *spec;
 

@@ -533,12 +533,9 @@ add_virtual_monitor_cb (const char  *option_name,
 {
   MetaContextMain *context_main = user_data;
   int width, height;
-  float refresh_rate = 60.0;
+  float refresh_rate;
 
-  if (sscanf (value, "%dx%d@%f",
-              &width, &height, &refresh_rate) == 3 ||
-      sscanf (value, "%dx%d",
-              &width, &height) == 2)
+  if (meta_parse_monitor_mode (value, &width, &height, &refresh_rate, 60.0))
     {
       g_autofree char *serial = NULL;
       MetaVirtualMonitorInfo *virtual_monitor;
