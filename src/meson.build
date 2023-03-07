@@ -35,6 +35,12 @@ if have_gnome_desktop
   ]
 endif
 
+if have_libdisplay_info
+  mutter_pkg_private_deps += [
+    libdisplay_info_dep,
+  ]
+endif
+
 if have_sound_player
   mutter_pkg_private_deps += [
     libcanberra_dep,

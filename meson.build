@@ -168,6 +168,10 @@ if have_x11_client
   xau_dep = dependency('xau')
 endif
 
+have_libdisplay_info = get_option('libdisplay_info')
+if have_libdisplay_info
+  libdisplay_info_dep = dependency('libdisplay-info')
+endif
 
 have_gnome_desktop = get_option('libgnome_desktop')
 if have_gnome_desktop
@@ -532,6 +536,7 @@ cdata.set('HAVE_SM', have_sm)
 cdata.set('HAVE_STARTUP_NOTIFICATION', have_startup_notification)
 cdata.set('HAVE_INTROSPECTION', have_introspection)
 cdata.set('HAVE_PROFILER', have_profiler)
+cdata.set('HAVE_LIBDISPLAY_INFO', have_libdisplay_info)
 
 if have_x11_client
   xkb_base = xkeyboard_config_dep.get_variable('xkb_base')
@@ -687,6 +692,7 @@ summary('Native Backend', have_native_backend, section: 'Options')
 summary('EGL Device', have_egl_device, section: 'Options')
 summary('Remote desktop', have_remote_desktop, section: 'Options')
 summary('libgnome-desktop', have_gnome_desktop, section: 'Options')
+summary('libdisplay-info', have_libdisplay_info, section: 'Options')
 summary('Sound player', have_sound_player, section: 'Options')
 summary('gudev', have_libgudev, section: 'Options')
 summary('Wacom', have_libwacom, section: 'Options')

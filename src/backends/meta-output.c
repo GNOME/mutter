@@ -355,17 +355,17 @@ meta_output_info_parse_edid (MetaOutputInfo *output_info,
                              GBytes         *edid)
 {
   MetaEdidInfo *edid_info;
-  size_t len;
+  size_t size;
   gconstpointer data;
 
   g_return_if_fail (!output_info->edid_info);
   g_return_if_fail (edid);
 
-  data = g_bytes_get_data (edid, &len);
-  edid_info = meta_edid_info_new_parse (data);
+  data = g_bytes_get_data (edid, &size);
+  edid_info = meta_edid_info_new_parse (data, size);
 
   output_info->edid_checksum_md5 = g_compute_checksum_for_data (G_CHECKSUM_MD5,
-                                                                data, len);
+                                                                data, size);
 
   if (edid_info)
     {

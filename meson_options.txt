@@ -224,3 +224,9 @@ option('catch',
   value: false,
   description: 'Use catch to catch backtraces'
 )
+
+option('libdisplay_info',
+  type: 'boolean',
+  value: false,
+  description: 'Build with or without libdisplay-info'
+)

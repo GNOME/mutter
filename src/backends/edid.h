@@ -96,6 +96,7 @@ struct _MetaEdidInfo
 };
 
 META_EXPORT_TEST
-MetaEdidInfo *meta_edid_info_new_parse (const uint8_t *data);
+MetaEdidInfo *meta_edid_info_new_parse (const uint8_t *edid,
+                                        size_t size);
 
 #endif

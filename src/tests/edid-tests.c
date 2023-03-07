@@ -65,15 +65,15 @@ int
 main (int    argc,
       char **argv)
 {
-  MetaEdidInfo *edid;
+  MetaEdidInfo *edid_info;
+  edid_info = meta_edid_info_new_parse (edid_blob,edid_blob_len);
 
-  edid = meta_edid_info_new_parse (edid_blob);
-  g_assert (edid != NULL);
-  g_assert (strcmp (edid->manufacturer_code, "GSM") == 0);
-  g_assert (edid->product_code == 23507);
-  g_assert (edid->hdr_static_metadata.max_luminance == 97);
-  g_assert (edid->hdr_static_metadata.tf ==
+  g_assert (edid_info != NULL);
+  g_assert (strcmp (edid_info->manufacturer_code, "GSM") == 0);
+  g_assert (edid_info->product_code == 23507);
+  g_assert (edid_info->hdr_static_metadata.max_luminance == 97);
+  g_assert (edid_info->hdr_static_metadata.tf ==
             (META_EDID_TF_TRADITIONAL_GAMMA_SDR | META_EDID_TF_PQ));
-  g_assert (edid->colorimetry ==
+  g_assert (edid_info->colorimetry ==
             (META_EDID_COLORIMETRY_BT2020YCC | META_EDID_COLORIMETRY_BT2020RGB));
 }
