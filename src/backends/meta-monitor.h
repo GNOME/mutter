@@ -318,4 +318,11 @@ gboolean meta_monitor_set_hdr_metadata (MetaMonitor            *monitor,
                                         MetaOutputHdrMetadata  *metadata,
                                         GError                **error);
 
+META_EXPORT_TEST
+gboolean meta_parse_monitor_mode (const char *string,
+                                  int        *out_width,
+                                  int        *out_height,
+                                  float      *out_refresh_rate,
+                                  float       fallback_refresh_rate);
+
 #endif /* META_MONITOR_H */

@@ -2305,3 +2305,50 @@ meta_monitor_set_hdr_metadata (MetaMonitor            *monitor,
 
   return TRUE;
 }
+
+gboolean
+meta_parse_monitor_mode (const char *string,
+                         int        *out_width,
+                         int        *out_height,
+                         float      *out_refresh_rate,
+                         float       fallback_refresh_rate)
+{
+  char *ptr = (char *) string;
+  int width, height;
+  float refresh_rate;
+
+  width = g_ascii_strtoull (ptr, &ptr, 10);
+  if (width == 0)
+    return FALSE;
+
+  if (ptr[0] != 'x')
+    return FALSE;
+  ptr++;
+
+  height = g_ascii_strtoull (ptr, &ptr, 10);
+  if (height == 0)
+    return FALSE;
+
+  if (ptr[0] == '\0')
+    {
+      refresh_rate = fallback_refresh_rate;
+      goto out;
+    }
+
+  if (ptr[0] != '@')
+    return FALSE;
+  ptr++;
+
+  refresh_rate = g_ascii_strtod (ptr, &ptr);
+  if (refresh_rate == 0.0)
+    return FALSE;
+
+  if (ptr[0] != '\0')
+    return FALSE;
+
+out:
+  *out_width = width;
+  *out_height = height;
+  *out_refresh_rate = refresh_rate;
+  return TRUE;
+}

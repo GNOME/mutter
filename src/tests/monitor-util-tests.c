@@ -130,6 +130,85 @@ meta_test_monitor_mode_spec_similar_size (void)
     }
 }
 
+static void
+meta_test_monitor_parse_mode (void)
+{
+  const float fallback_refresh_rate = 60.0;
+  struct {
+    const char *string;
+
+    gboolean expected_pass;
+    int expected_width;
+    int expected_height;
+    float expected_refresh_rate;
+  } test_cases[] = {
+    {
+      .string = "800x600",
+      .expected_pass = TRUE,
+      .expected_width = 800,
+      .expected_height = 600,
+      .expected_refresh_rate = fallback_refresh_rate,
+    },
+    {
+      .string = "1280x720@30",
+      .expected_pass = TRUE,
+      .expected_width = 1280,
+      .expected_height = 720,
+      .expected_refresh_rate = 30.0,
+    },
+    {
+      .string = "1920x1080@120.50",
+      .expected_pass = TRUE,
+      .expected_width = 1920,
+      .expected_height = 1080,
+      .expected_refresh_rate = 120.5,
+    },
+    {
+      .string = "800X600",
+      .expected_pass = FALSE,
+    },
+    {
+      .string = "800x",
+      .expected_pass = FALSE,
+    },
+    {
+      .string = "800x600@",
+      .expected_pass = FALSE,
+    },
+    {
+      .string = "800x600@notanumber",
+      .expected_pass = FALSE,
+    },
+    {
+      .string = "nonsense",
+      .expected_pass = FALSE,
+    },
+  };
+  int i;
+
+  for (i = 0; i < G_N_ELEMENTS (test_cases); i++)
+    {
+      int width, height;
+      float refresh_rate;
+
+      if (meta_parse_monitor_mode (test_cases[i].string,
+                                   &width, &height, &refresh_rate,
+                                   fallback_refresh_rate))
+        {
+          g_assert_true (test_cases[i].expected_pass);
+          g_assert_cmpint (width, ==, test_cases[i].expected_width);
+          g_assert_cmpint (height, ==, test_cases[i].expected_height);
+          g_assert_cmpfloat_with_epsilon (refresh_rate,
+                                          test_cases[i].expected_refresh_rate,
+                                          FLT_EPSILON);
+        }
+      else
+        {
+          g_assert_false (test_cases[i].expected_pass);
+        }
+    }
+}
+
 int
 main (int    argc,
       char **argv)
@@ -138,6 +217,8 @@ main (int    argc,
 
   g_test_add_func ("/backends/monitor/spec/similar-size",
                    meta_test_monitor_mode_spec_similar_size);
+  g_test_add_func ("/backends/monitor/parse-mode",
+                   meta_test_monitor_parse_mode);
 
   return g_test_run ();
 }
