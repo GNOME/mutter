@@ -1679,7 +1679,7 @@ meta_kms_impl_device_simple_finalize (GObject *object)
 
   g_clear_pointer (&impl_device_simple->mode_set_fallback_feedback_source,
                    g_source_destroy);
-  g_hash_table_destroy (impl_device_simple->cached_mode_sets);
+  g_clear_pointer (&impl_device_simple->cached_mode_sets, g_hash_table_destroy);
 
   G_OBJECT_CLASS (meta_kms_impl_device_simple_parent_class)->finalize (object);
 }
