@@ -50,6 +50,14 @@ enum
 
 static GParamSpec *obj_props[PROP_LAST];
 
+enum
+{
+  DESTROY,
+  N_SIGNALS
+};
+
+guint stage_view_signals[N_SIGNALS] = { 0 };
+
 typedef struct _ClutterStageViewPrivate
 {
   char *name;
@@ -1467,6 +1475,8 @@ clutter_stage_view_dispose (GObject *object)
     clutter_stage_view_get_instance_private (view);
   int i;
 
+  g_signal_emit (view, stage_view_signals[DESTROY], 0);
+
   g_clear_pointer (&priv->name, g_free);
 
   g_clear_object (&priv->shadow.framebuffer);
@@ -1607,6 +1617,14 @@ clutter_stage_view_class_init (ClutterStageViewClass *klass)
                         G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
+
+  stage_view_signals[DESTROY] =
+    g_signal_new ("destroy",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL,
+                  g_cclosure_marshal_VOID__VOID,
+                  G_TYPE_NONE, 0);
 }
 
 void
