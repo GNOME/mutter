@@ -86,11 +86,6 @@ struct _ClutterEffectClass
                                     ClutterEffectPaintFlags  flags);
   void     (* pick)                (ClutterEffect           *effect,
                                     ClutterPickContext      *pick_context);
-
-  /*< private >*/
-  void (* _clutter_effect4) (void);
-  void (* _clutter_effect5) (void);
-  void (* _clutter_effect6) (void);
 };
 
 CLUTTER_EXPORT

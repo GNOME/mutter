@@ -103,10 +103,6 @@ struct _CallyActorClass
   gint     (*remove_actor)   (ClutterActor *container,
                               ClutterActor *actor,
                               gpointer      data);
-
-  /*< private >*/
-  /* padding for future expansion */
-  gpointer _padding_dummy[32];
 };
 
 CLUTTER_EXPORT

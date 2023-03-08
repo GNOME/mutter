@@ -75,16 +75,6 @@ struct _ClutterTextClass
   void (* cursor_event)   (ClutterText           *self,
                            const graphene_rect_t *rect);
   void (* cursor_changed) (ClutterText           *self);
-
-  /*< private >*/
-  /* padding for future expansion */
-  void (* _clutter_reserved1) (void);
-  void (* _clutter_reserved2) (void);
-  void (* _clutter_reserved3) (void);
-  void (* _clutter_reserved4) (void);
-  void (* _clutter_reserved5) (void);
-  void (* _clutter_reserved6) (void);
-  void (* _clutter_reserved7) (void);
 };
 
 CLUTTER_EXPORT

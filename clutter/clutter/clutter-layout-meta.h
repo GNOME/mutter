@@ -70,12 +70,6 @@ struct _ClutterLayoutMetaClass
 {
   /*< private >*/
   ClutterChildMetaClass parent_class;
-
-  /* padding, for expansion */
-  void (*_clutter_padding1) (void);
-  void (*_clutter_padding2) (void);
-  void (*_clutter_padding3) (void);
-  void (*_clutter_padding4) (void);
 };
 
 CLUTTER_EXPORT

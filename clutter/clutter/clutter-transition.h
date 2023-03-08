@@ -78,9 +78,6 @@ struct _ClutterTransitionClass
                           ClutterAnimatable *animatable,
                           ClutterInterval   *interval,
                           gdouble            progress);
-
-  /*< private >*/
-  gpointer _padding[8];
 };
 
 CLUTTER_EXPORT

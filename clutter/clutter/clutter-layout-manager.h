@@ -116,17 +116,6 @@ struct _ClutterLayoutManagerClass
                                                  ClutterActor           *actor);
 
   void               (* layout_changed)         (ClutterLayoutManager   *manager);
-
-  /*< private >*/
-  /* padding for future expansion */
-  void (* _clutter_padding_1) (void);
-  void (* _clutter_padding_2) (void);
-  void (* _clutter_padding_3) (void);
-  void (* _clutter_padding_4) (void);
-  void (* _clutter_padding_5) (void);
-  void (* _clutter_padding_6) (void);
-  void (* _clutter_padding_7) (void);
-  void (* _clutter_padding_8) (void);
 };
 
 CLUTTER_EXPORT

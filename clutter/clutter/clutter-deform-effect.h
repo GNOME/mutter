@@ -71,15 +71,6 @@ struct _ClutterDeformEffectClass
                           gfloat               width,
                           gfloat               height,
                           CoglTextureVertex   *vertex);
-
-  /*< private >*/
-  void (*_clutter_deform1) (void);
-  void (*_clutter_deform2) (void);
-  void (*_clutter_deform3) (void);
-  void (*_clutter_deform4) (void);
-  void (*_clutter_deform5) (void);
-  void (*_clutter_deform6) (void);
-  void (*_clutter_deform7) (void);
 };
 
 CLUTTER_EXPORT

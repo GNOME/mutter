@@ -55,15 +55,6 @@ struct _ClutterActionClass
   void (* sequence_cancelled) (ClutterAction        *action,
                                ClutterInputDevice   *device,
                                ClutterEventSequence *sequence);
-
-  void (* _clutter_action1) (void);
-  void (* _clutter_action2) (void);
-  void (* _clutter_action3) (void);
-  void (* _clutter_action4) (void);
-  void (* _clutter_action5) (void);
-  void (* _clutter_action6) (void);
-  void (* _clutter_action7) (void);
-  void (* _clutter_action8) (void);
 };
 
 /* ClutterActor API */

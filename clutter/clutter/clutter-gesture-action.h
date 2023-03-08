@@ -70,14 +70,6 @@ struct _ClutterGestureActionClass
                                  ClutterActor          *actor);
   gboolean (* gesture_prepare)  (ClutterGestureAction  *action,
                                  ClutterActor          *actor);
-
-  /*< private >*/
-  void (* _clutter_gesture_action1) (void);
-  void (* _clutter_gesture_action2) (void);
-  void (* _clutter_gesture_action3) (void);
-  void (* _clutter_gesture_action4) (void);
-  void (* _clutter_gesture_action5) (void);
-  void (* _clutter_gesture_action6) (void);
 };
 
 CLUTTER_EXPORT

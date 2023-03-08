@@ -49,8 +49,6 @@ struct _ClutterImageClass
 {
   /*< private >*/
   GObjectClass parent_class;
-
-  gpointer _padding[16];
 };
 
 CLUTTER_EXPORT

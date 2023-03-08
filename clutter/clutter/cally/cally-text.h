@@ -59,9 +59,6 @@ struct _CallyTextClass
 {
   /*< private >*/
   CallyActorClass parent_class;
-
-  /* padding for future expansion */
-  gpointer _padding_dummy[8];
 };
 
 CLUTTER_EXPORT

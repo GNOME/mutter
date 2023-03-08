@@ -75,15 +75,6 @@ struct _ClutterConstraintClass
                                   float               for_size,
                                   float              *minimum_size,
                                   float              *natural_size);
-
-  /*< private >*/
-  void (* _clutter_constraint1) (void);
-  void (* _clutter_constraint2) (void);
-  void (* _clutter_constraint3) (void);
-  void (* _clutter_constraint4) (void);
-  void (* _clutter_constraint5) (void);
-  void (* _clutter_constraint6) (void);
-  void (* _clutter_constraint7) (void);
 };
 
 CLUTTER_EXPORT

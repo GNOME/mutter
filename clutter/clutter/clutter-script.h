@@ -116,17 +116,6 @@ struct _ClutterScriptClass
   /*< public >*/
   GType (* get_type_from_name) (ClutterScript *script,
                                 const gchar   *type_name);
-
-  /*< private >*/
-  /* padding, for future expansion */
-  void (*_clutter_reserved1) (void);
-  void (*_clutter_reserved2) (void);
-  void (*_clutter_reserved3) (void);
-  void (*_clutter_reserved4) (void);
-  void (*_clutter_reserved5) (void);
-  void (*_clutter_reserved6) (void);
-  void (*_clutter_reserved7) (void);
-  void (*_clutter_reserved8) (void);
 };
 
 CLUTTER_EXPORT

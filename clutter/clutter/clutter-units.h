@@ -56,10 +56,6 @@ struct _ClutterUnits
 
   /* the serial coming from the backend, used to evict the cache */
   gint32 serial;
-
-  /* padding for eventual expansion */
-  gint32 __padding_1;
-  gint64 __padding_2;
 };
 
 CLUTTER_EXPORT

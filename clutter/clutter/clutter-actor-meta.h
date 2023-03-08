@@ -69,14 +69,6 @@ struct _ClutterActorMetaClass
 
   void (* set_enabled) (ClutterActorMeta *meta,
                         gboolean          is_enabled);
-
-  /*< private >*/
-  void (* _clutter_meta1) (void);
-  void (* _clutter_meta2) (void);
-  void (* _clutter_meta3) (void);
-  void (* _clutter_meta4) (void);
-  void (* _clutter_meta5) (void);
-  void (* _clutter_meta6) (void);
 };
 
 CLUTTER_EXPORT

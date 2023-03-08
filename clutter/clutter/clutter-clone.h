@@ -60,12 +60,6 @@ struct _ClutterCloneClass
 {
   /*< private >*/
   ClutterActorClass parent_class;
-
-  /* padding for future expansion */
-  void (*_clutter_actor_clone1) (void);
-  void (*_clutter_actor_clone2) (void);
-  void (*_clutter_actor_clone3) (void);
-  void (*_clutter_actor_clone4) (void);
 };
 
 CLUTTER_EXPORT

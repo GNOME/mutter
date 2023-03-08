@@ -95,12 +95,6 @@ struct _ClutterTimelineClass
                           gint             msecs);
   void (*stopped)        (ClutterTimeline *timeline,
                           gboolean         is_finished);
-
-  /*< private >*/
-  void (*_clutter_timeline_1) (void);
-  void (*_clutter_timeline_2) (void);
-  void (*_clutter_timeline_3) (void);
-  void (*_clutter_timeline_4) (void);
 };
 
 CLUTTER_EXPORT

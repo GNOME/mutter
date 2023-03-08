@@ -292,10 +292,6 @@ struct _ClutterActorClass
   void     (* resource_scale_changed) (ClutterActor *self);
   float    (* calculate_resource_scale) (ClutterActor *self,
                                          int           phase);
-
-  /*< private >*/
-  /* padding for future expansion */
-  gpointer _padding_dummy[25];
 };
 
 /**

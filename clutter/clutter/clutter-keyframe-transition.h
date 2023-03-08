@@ -61,8 +61,6 @@ struct _ClutterKeyframeTransitionClass
 {
   /*< private >*/
   ClutterPropertyTransitionClass parent_class;
-
-  gpointer _padding[8];
 };
 
 CLUTTER_EXPORT

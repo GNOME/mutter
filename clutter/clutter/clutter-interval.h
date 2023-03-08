@@ -71,15 +71,6 @@ struct _ClutterIntervalClass
   gboolean (* compute_value) (ClutterInterval *interval,
                               gdouble          factor,
                               GValue          *value);
-
-  /*< private >*/
-  /* padding for future expansion */
-  void (*_clutter_reserved1) (void);
-  void (*_clutter_reserved2) (void);
-  void (*_clutter_reserved3) (void);
-  void (*_clutter_reserved4) (void);
-  void (*_clutter_reserved5) (void);
-  void (*_clutter_reserved6) (void);
 };
 
 CLUTTER_EXPORT

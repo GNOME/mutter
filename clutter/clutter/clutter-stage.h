@@ -79,10 +79,6 @@ struct _ClutterStageClass
                        ClutterStageView     *view,
                        const cairo_region_t *redraw_clip,
                        ClutterFrame         *frame);
-
-  /*< private >*/
-  /* padding for future expansion */
-  gpointer _padding_dummy[31];
 };
 
 /**

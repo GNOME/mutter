@@ -59,8 +59,6 @@ struct _ClutterScrollActorClass
 {
   /*< private >*/
   ClutterActorClass parent_instance;
-
-  gpointer _padding[8];
 };
 
 CLUTTER_EXPORT

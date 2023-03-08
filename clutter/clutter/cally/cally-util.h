@@ -59,9 +59,6 @@ struct _CallyUtilClass
 {
   /*< private >*/
   AtkUtilClass parent_class;
-
-  /* padding for future expansion */
-  gpointer _padding_dummy[8];
 };
 
 CLUTTER_EXPORT

@@ -70,14 +70,6 @@ struct _ClutterShaderEffectClass
 
   /*< public >*/
   gchar * (* get_static_shader_source) (ClutterShaderEffect *effect);
-
-  /*< private >*/
-  /* padding */
-  void (*_clutter_shader1) (void);
-  void (*_clutter_shader2) (void);
-  void (*_clutter_shader3) (void);
-  void (*_clutter_shader4) (void);
-  void (*_clutter_shader5) (void);
 };
 
 CLUTTER_EXPORT

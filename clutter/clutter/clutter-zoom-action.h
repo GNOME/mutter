@@ -65,12 +65,6 @@ struct _ClutterZoomActionClass
 {
   /*< private >*/
   ClutterGestureActionClass parent_class;
-
-  void (* _clutter_zoom_action1) (void);
-  void (* _clutter_zoom_action2) (void);
-  void (* _clutter_zoom_action3) (void);
-  void (* _clutter_zoom_action4) (void);
-  void (* _clutter_zoom_action5) (void);
 };
 
 CLUTTER_EXPORT

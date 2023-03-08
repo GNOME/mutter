@@ -65,15 +65,6 @@ struct _ClutterClickActionClass
   gboolean (* long_press) (ClutterClickAction    *action,
                            ClutterActor          *actor,
                            ClutterLongPressState  state);
-
-  /*< private >*/
-  void (* _clutter_click_action1) (void);
-  void (* _clutter_click_action2) (void);
-  void (* _clutter_click_action3) (void);
-  void (* _clutter_click_action4) (void);
-  void (* _clutter_click_action5) (void);
-  void (* _clutter_click_action6) (void);
-  void (* _clutter_click_action7) (void);
 };
 
 CLUTTER_EXPORT

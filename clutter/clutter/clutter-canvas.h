@@ -69,9 +69,6 @@ struct _ClutterCanvasClass
                      cairo_t       *cr,
                      int            width,
                      int            height);
-
-  /*< private >*/
-  gpointer _padding[16];
 };
 
 CLUTTER_EXPORT

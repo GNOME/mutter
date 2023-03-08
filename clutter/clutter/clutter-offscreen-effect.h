@@ -74,15 +74,6 @@ struct _ClutterOffscreenEffectClass
   void       (* paint_target)   (ClutterOffscreenEffect *effect,
                                  ClutterPaintNode       *node,
                                  ClutterPaintContext    *paint_context);
-
-  /*< private >*/
-  void (* _clutter_offscreen1) (void);
-  void (* _clutter_offscreen2) (void);
-  void (* _clutter_offscreen3) (void);
-  void (* _clutter_offscreen4) (void);
-  void (* _clutter_offscreen5) (void);
-  void (* _clutter_offscreen6) (void);
-  void (* _clutter_offscreen7) (void);
 };
 
 CLUTTER_EXPORT

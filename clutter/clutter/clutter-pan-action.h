@@ -76,14 +76,6 @@ struct _ClutterPanActionClass
   /*< public >*/
   void     (* pan_stopped)       (ClutterPanAction    *action,
                                   ClutterActor        *actor);
-
-  /*< private >*/
-  void (* _clutter_pan_action1) (void);
-  void (* _clutter_pan_action2) (void);
-  void (* _clutter_pan_action3) (void);
-  void (* _clutter_pan_action4) (void);
-  void (* _clutter_pan_action5) (void);
-  void (* _clutter_pan_action6) (void);
 };
 
 CLUTTER_EXPORT

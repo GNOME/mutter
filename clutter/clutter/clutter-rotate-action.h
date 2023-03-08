@@ -63,14 +63,6 @@ struct _ClutterRotateActionClass
 {
   /*< private >*/
   ClutterGestureActionClass parent_class;
-
-  void (* _clutter_rotate_action1) (void);
-  void (* _clutter_rotate_action2) (void);
-  void (* _clutter_rotate_action3) (void);
-  void (* _clutter_rotate_action4) (void);
-  void (* _clutter_rotate_action5) (void);
-  void (* _clutter_rotate_action6) (void);
-  void (* _clutter_rotate_action7) (void);
 };
 
 CLUTTER_EXPORT

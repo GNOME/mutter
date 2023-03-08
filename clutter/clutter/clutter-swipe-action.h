@@ -74,14 +74,6 @@ struct _ClutterSwipeActionClass
   void (* swept)  (ClutterSwipeAction    *action,
                    ClutterActor          *actor,
                    ClutterSwipeDirection  direction);
-
-  /*< private >*/
-  void (* _clutter_swipe_action1) (void);
-  void (* _clutter_swipe_action2) (void);
-  void (* _clutter_swipe_action3) (void);
-  void (* _clutter_swipe_action4) (void);
-  void (* _clutter_swipe_action5) (void);
-  void (* _clutter_swipe_action6) (void);
 };
 
 CLUTTER_EXPORT
