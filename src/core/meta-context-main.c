@@ -289,6 +289,17 @@ meta_context_main_configure (MetaContext   *context,
     meta_wayland_override_display_name (context_main->options.wayland_display);
 #endif
 
+  if (!context_main->options.sm.client_id)
+    {
+      const char *desktop_autostart_id;
+
+      desktop_autostart_id = g_getenv ("DESKTOP_AUTOSTART_ID");
+      if (desktop_autostart_id)
+        context_main->options.sm.client_id = g_strdup (desktop_autostart_id);
+    }
+
+  g_unsetenv ("DESKTOP_AUTOSTART_ID");
+
   return TRUE;
 }
 
