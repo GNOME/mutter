@@ -1097,8 +1097,8 @@ process_key_event (MetaWindowDrag  *window_drag,
 
   if (window_drag->grab_op & META_GRAB_OP_WINDOW_FLAG_KEYBOARD)
     {
-      if ((window_drag->grab_op & META_GRAB_OP_KEYBOARD_MOVING) ==
-          META_GRAB_OP_KEYBOARD_MOVING)
+      if ((window_drag->grab_op & (META_GRAB_OP_WINDOW_DIR_MASK |
+                                   META_GRAB_OP_WINDOW_FLAG_UNKNOWN)) == 0)
         {
           meta_topic (META_DEBUG_KEYBINDINGS,
                       "Processing event for keyboard move");
