@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2023-02-22 05:07+0000\n"
-"PO-Revision-Date: 2023-03-03 12:42+0100\n"
+"POT-Creation-Date: 2023-03-06 15:09+0000\n"
+"PO-Revision-Date: 2023-03-14 09:57+0100\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: čeština <gnome-cs-list@gnome.org>\n"
 "Language: cs\n"
@@ -585,13 +585,13 @@ msgid ""
 msgstr ""
 "Povolit připojení z klientů s jinou endianitou, než má Xwayland. X server s "
 "kódem, který prohazuje jednotlivé bajty, představuje velké pole působnosti "
-"pro útoky a velká část tohoto kódu je náchylná na bezpečnostní chyby. Případy "
-"používání klientů potřebujících prohazovaní bajtů jsou zřídkavé a ve výchozím "
-"stavu v Xwaylandu zakázané. Zapnutím této volby říkáte Xwaylandu, že má "
-"přijímat připojení z klientů X11 s jinou endianitou. Volba nebude mít žádný "
-"vliv, pokud Xwayland nepodporuje volbu příkazové řádky +byteswappedclients/"
-"-byteswappedclients, která toto nastavení řídí. Aby se nastavení projevilo, "
-"musí být Xwayland restartován."
+"pro útoky a velká část tohoto kódu je náchylná na bezpečnostní chyby. "
+"Případy používání klientů potřebujících prohazování bajtů jsou zřídkavé a ve "
+"výchozím stavu v Xwaylandu zakázané. Zapnutím této volby říkáte Xwaylandu, "
+"že má přijímat připojení z klientů X11 s jinou endianitou. Volba nebude mít "
+"žádný vliv, pokud Xwayland nepodporuje volbu příkazové řádky "
+"+byteswappedclients/-byteswappedclients, která toto nastavení řídí. Aby se "
+"nastavení projevilo, musí být Xwayland restartován."
 
 #: src/backends/meta-monitor.c:253
 msgid "Built-in display"
@@ -746,7 +746,7 @@ msgstr "Přepnuta plocha"
 msgid "Mode Switch: Mode %d"
 msgstr "Přepínač režimu: režim %d"
 
-#: src/x11/meta-x11-display.c:682
+#: src/x11/meta-x11-display.c:701
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -755,16 +755,12 @@ msgstr ""
 "Displej „%s“ již správce oken má; zkuste prosím nahradit aktuálního správce "
 "oken pomocí přepínače --replace."
 
-#: src/x11/meta-x11-display.c:1074
-msgid "Failed to initialize GDK"
-msgstr "Selhala inicializace GDK"
-
-#: src/x11/meta-x11-display.c:1100
+#: src/x11/meta-x11-display.c:1062
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Selhalo otevření systémového displeje X Window „%s“"
 
-#: src/x11/meta-x11-display.c:1253
+#: src/x11/meta-x11-display.c:1207
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Obrazovka %d na displeji „%s“ je neplatná"
