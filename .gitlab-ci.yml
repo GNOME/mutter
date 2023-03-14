@@ -17,8 +17,8 @@ variables:
 
 .mutter.fedora@common:
   variables:
-    FDO_DISTRIBUTION_VERSION: 37
-    BASE_TAG: '2023-02-22.0'
+    FDO_DISTRIBUTION_VERSION: 38
+    BASE_TAG: '2023-05-19.0'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
       clang
@@ -33,11 +33,8 @@ variables:
       qemu-system-x86-core
       busybox
       gi-docgen
-      python3-pip
+      python3-dbusmock
       pkgconfig(libgcrypt)
-      pkgconfig(colord)
-      pkgconfig(gnome-desktop-4)
-      pkgconfig(lcms2)
       pkgconfig(libnma-gtk4)
 
     FDO_DISTRIBUTION_EXEC: |
@@ -48,16 +45,16 @@ variables:
       dnf builddep -y wayland --setopt=install_weak_deps=False &&
       dnf builddep -y wayland-protocols --setopt=install_weak_deps=False &&
       dnf builddep -y kernel --setopt=install_weak_deps=False &&
+      dnf builddep -y zenity --setopt=install_weak_deps=False &&
 
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/jadahl/catch.git \
         main . 29ad36e2b1d28ac9d8b2bc44af46296cb1db5d66 &&
 
+      # Pull in fix for # https://gitlab.gnome.org/GNOME/zenity/-/issues/58
       ./.gitlab-ci/install-meson-project.sh \
-        https://gitlab.gnome.org/GNOME/glib.git \
-        2.75.1 . &&
-
-      pip install git+https://github.com/martinpitt/python-dbusmock.git@743da675c37bfc469ec385b88c3b4ad4838cfa48 &&
+        https://gitlab.gnome.org/GNOME/zenity.git \
+        master . db1ad8ee7c3db36a7cca6e998e86719293d37838 &&
 
       rpm -e --nodeps gnome-bluetooth-libs-devel \
                       mutter mutter-devel \
@@ -71,9 +68,9 @@ variables:
 
         dnf install -y python3-pyelftools &&
 
-        git clone https://github.com/jadahl/virtme.git &&
+        git clone https://github.com/arighi/virtme.git &&
         cd virtme &&
-        git checkout 87bcebe63f61e2a3ccd418b0903eab90113a47ae &&
+        git checkout aa99f43bd44c84dc95911ce99a8281cea5dfc5a1 &&
         ./setup.py install --prefix=/usr &&
         cd .. &&
         rm -rf virtme
