@@ -17,11 +17,16 @@
 
 #include "config.h"
 
+#include <linux/input-event-codes.h>
+
+#include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor-manager-private.h"
+#include "backends/meta-virtual-monitor.h"
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-udev.h"
 #include "meta-test/meta-context-test.h"
 #include "tests/drm-mock/drm-mock.h"
+#include "tests/meta-test-utils.h"
 
 typedef enum _State
 {
@@ -207,6 +212,118 @@ meta_test_disconnect_connect (void)
   g_signal_handler_disconnect (stage, presented_handler_id);
 }
 
+static gboolean
+on_key_release (ClutterActor       *actor,
+                const ClutterEvent *event,
+                MetaMonitorManager *monitor_manager)
+{
+  if (clutter_event_get_key_symbol (event) == CLUTTER_KEY_a)
+    {
+      g_debug ("Switching config");
+      meta_monitor_manager_switch_config (monitor_manager,
+                                          META_MONITOR_SWITCH_CONFIG_ALL_MIRROR);
+    }
+
+  return TRUE;
+}
+
+static void
+on_monitors_changed (MetaMonitorManager *monitor_manager,
+                     gboolean           *monitors_changed)
+{
+  *monitors_changed = TRUE;
+}
+
+static void
+meta_test_switch_config (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  ClutterActor *stage = meta_backend_get_stage (backend);
+  ClutterSeat *seat = meta_backend_get_default_seat (backend);
+  g_autoptr (ClutterVirtualInputDevice) virtual_keyboard = NULL;
+  g_autoptr (MetaVirtualMonitor) virtual_monitor = NULL;
+  GList *logical_monitors;
+  MetaRectangle logical_monitor_layout;
+  gulong after_paint_handler_id;
+  gulong presented_handler_id;
+  gboolean monitors_changed;
+  g_autoptr (GError) error = NULL;
+  ClutterActor *actor;
+  State state;
+
+  after_paint_handler_id = g_signal_connect (stage, "after-paint",
+                                             G_CALLBACK (on_after_paint),
+                                             &state);
+  presented_handler_id = g_signal_connect (stage, "presented",
+                                           G_CALLBACK (on_presented),
+                                           &state);
+  g_signal_connect (monitor_manager, "monitors-changed",
+                    G_CALLBACK (on_monitors_changed),
+                    &monitors_changed);
+
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (logical_monitors), ==, 1);
+  logical_monitor_layout =
+    meta_logical_monitor_get_layout (logical_monitors->data);
+
+  virtual_monitor = meta_create_test_monitor (test_context,
+                                              logical_monitor_layout.width,
+                                              logical_monitor_layout.height,
+                                              60.0);
+
+  actor = clutter_actor_new ();
+  g_object_add_weak_pointer (G_OBJECT (actor), (gpointer *) &actor);
+  clutter_actor_insert_child_above (stage,
+                                    actor,
+                                    clutter_actor_get_first_child (stage));
+  clutter_actor_set_size (actor,
+                          logical_monitor_layout.width,
+                          logical_monitor_layout.height);
+  clutter_actor_set_position (actor, 0, 0);
+  clutter_actor_set_reactive (actor, TRUE);
+  clutter_actor_show (actor);
+  clutter_actor_grab_key_focus (actor);
+  g_signal_connect (actor, "key-press-event",
+                    G_CALLBACK (on_key_release),
+                    monitor_manager);
+
+  monitors_changed = FALSE;
+  g_signal_connect (monitor_manager, "monitors-changed",
+                    G_CALLBACK (on_monitors_changed),
+                    &monitors_changed);
+
+  g_debug ("Sending virtual keyboard event");
+  virtual_keyboard =
+    clutter_seat_create_virtual_device (seat, CLUTTER_KEYBOARD_DEVICE);
+  clutter_virtual_input_device_notify_key (virtual_keyboard,
+                                           CLUTTER_CURRENT_TIME,
+                                           KEY_A,
+                                           CLUTTER_KEY_STATE_PRESSED);
+  clutter_virtual_input_device_notify_key (virtual_keyboard,
+                                           CLUTTER_CURRENT_TIME,
+                                           KEY_A,
+                                           CLUTTER_KEY_STATE_RELEASED);
+
+  g_debug ("Waiting for monitors changed");
+  while (!monitors_changed)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_debug ("Waiting for being repainted");
+  state = INIT;
+  clutter_actor_queue_redraw (stage);
+  while (state != PRESENTED)
+    g_main_context_iteration (NULL, TRUE);
+
+  clutter_actor_destroy (actor);
+  g_assert_null (actor);
+
+  g_signal_handler_disconnect (stage, after_paint_handler_id);
+  g_signal_handler_disconnect (stage, presented_handler_id);
+}
+
 static void
 init_tests (void)
 {
@@ -214,6 +331,8 @@ init_tests (void)
                    meta_test_reload);
   g_test_add_func ("/hotplug/disconnect-connect",
                    meta_test_disconnect_connect);
+  g_test_add_func ("/hotplug/switch-config",
+                   meta_test_switch_config);
 }
 
 int

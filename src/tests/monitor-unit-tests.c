@@ -3626,6 +3626,7 @@ meta_test_monitor_switch_external_without_external (void)
 
   meta_monitor_manager_switch_config (monitor_manager,
                                       META_MONITOR_SWITCH_CONFIG_EXTERNAL);
+  while (g_main_context_iteration (NULL, FALSE));
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
@@ -3817,6 +3818,7 @@ meta_test_monitor_switch_config_remember_scale (void)
 
   meta_monitor_manager_switch_config (monitor_manager,
                                       META_MONITOR_SWITCH_CONFIG_BUILTIN);
+  while (g_main_context_iteration (NULL, FALSE));
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
@@ -3837,6 +3839,7 @@ meta_test_monitor_switch_config_remember_scale (void)
 
   meta_monitor_manager_switch_config (monitor_manager,
                                       META_MONITOR_SWITCH_CONFIG_EXTERNAL);
+  while (g_main_context_iteration (NULL, FALSE));
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
@@ -3856,6 +3859,7 @@ meta_test_monitor_switch_config_remember_scale (void)
 
   meta_monitor_manager_switch_config (monitor_manager,
                                       META_MONITOR_SWITCH_CONFIG_ALL_LINEAR);
+  while (g_main_context_iteration (NULL, FALSE));
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
@@ -3874,6 +3878,7 @@ meta_test_monitor_switch_config_remember_scale (void)
 
   meta_monitor_manager_switch_config (monitor_manager,
                                       META_MONITOR_SWITCH_CONFIG_ALL_MIRROR);
+  while (g_main_context_iteration (NULL, FALSE));
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
