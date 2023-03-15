@@ -520,7 +520,7 @@ ensure_hdr_settings (MetaMonitorManager *manager)
                      meta_monitor_get_display_name (monitor), error->message);
 
           meta_monitor_set_color_space (monitor,
-                                        META_OUTPUT_COLORSPACE_UNKNOWN,
+                                        META_OUTPUT_COLORSPACE_DEFAULT,
                                         NULL);
 
           continue;
@@ -535,7 +535,7 @@ ensure_hdr_settings (MetaMonitorManager *manager)
                      meta_monitor_get_display_name (monitor), error->message);
 
           meta_monitor_set_color_space (monitor,
-                                        META_OUTPUT_COLORSPACE_UNKNOWN,
+                                        META_OUTPUT_COLORSPACE_DEFAULT,
                                         NULL);
           meta_monitor_set_hdr_metadata (monitor, &(MetaOutputHdrMetadata) {
                                            .active = FALSE,

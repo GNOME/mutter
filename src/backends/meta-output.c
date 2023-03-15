@@ -626,7 +626,7 @@ meta_output_init (MetaOutput *output)
   MetaOutputPrivate *priv = meta_output_get_instance_private (output);
 
   priv->backlight = -1;
-  priv->color_space = META_OUTPUT_COLORSPACE_UNKNOWN;
+  priv->color_space = META_OUTPUT_COLORSPACE_DEFAULT;
   priv->hdr_metadata.active = FALSE;
 }
 
