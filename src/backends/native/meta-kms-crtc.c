@@ -125,12 +125,15 @@ read_crtc_gamma (MetaKmsCrtc       *crtc,
   if (!prop_lut->prop_id || !prop_size->prop_id)
     return;
 
-  blob_id = prop_lut->value;
-  if (blob_id == 0)
-    return;
-
   lut_size = prop_size->value;
   if (lut_size <= 0)
+    return;
+
+  crtc_state->gamma.size = lut_size;
+  crtc_state->gamma.supported = TRUE;
+
+  blob_id = prop_lut->value;
+  if (blob_id == 0)
     return;
 
   fd = meta_kms_impl_device_get_fd (impl_device);
@@ -147,8 +150,6 @@ read_crtc_gamma (MetaKmsCrtc       *crtc,
 
   drm_lut = blob->data;
 
-  crtc_state->gamma.size = lut_size;
-  crtc_state->gamma.supported = TRUE;
   crtc_state->gamma.value = meta_gamma_lut_new_sized (drm_lut_size);
 
   for (i = 0; i < drm_lut_size; i++)
