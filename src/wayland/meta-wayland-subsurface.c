@@ -462,13 +462,15 @@ wl_subsurface_set_desync (struct wl_client   *client,
                           struct wl_resource *resource)
 {
   MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
+  MetaWaylandSurface *parent;
   gboolean is_parent_effectively_synchronized;
 
-  if (!surface->sub.synchronous)
+  parent = surface->sub.parent;
+  if (!parent || !surface->sub.synchronous)
     return;
 
   is_parent_effectively_synchronized =
-    is_surface_effectively_synchronized (surface->sub.parent);
+    is_surface_effectively_synchronized (parent);
 
   if (!is_parent_effectively_synchronized)
     meta_wayland_surface_apply_cached_state (surface);
