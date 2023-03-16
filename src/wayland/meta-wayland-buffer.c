@@ -877,10 +877,9 @@ meta_wayland_buffer_try_acquire_scanout (MetaWaylandBuffer *buffer,
       return NULL;
     }
 
-  g_return_val_if_fail (scanout, NULL);
-
-  g_signal_connect (scanout, "scanout-failed",
-                    G_CALLBACK (on_scanout_failed), buffer);
+  if (scanout)
+    g_signal_connect (scanout, "scanout-failed",
+                      G_CALLBACK (on_scanout_failed), buffer);
 
   return scanout;
 }
