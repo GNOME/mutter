@@ -7,7 +7,7 @@
 #
 # Updated in mutter:
 # Changwoo Ryu <cwryu@debian.org>, 2011-2017.
-# Gwan-gyeong Mun <elongbug@gmail.com>, 2018-2022.
+# Gwan-gyeong Mun <elongbug@gmail.com>, 2018-2023.
 #
 #
 # 주의:
@@ -18,8 +18,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2022-03-02 11:52+0000\n"
-"PO-Revision-Date: 2022-03-05 17:13+0200\n"
+"POT-Creation-Date: 2023-03-03 20:31+0000\n"
+"PO-Revision-Date: 2023-03-15 18:43+0200\n"
 "Last-Translator: Gwan-gyeong Mun <elongbug@gmail.com>\n"
 "Language-Team: GNOME Korea <gnome-kr@googlegroups.com>\n"
 "Language: ko\n"
@@ -27,7 +27,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 2.4.1\n"
+"X-Generator: Poedit 3.1\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -257,17 +257,13 @@ msgstr "창을 세로 방향으로 최대화"
 msgid "Maximize window horizontally"
 msgstr "창을 가로 방향으로 최대화"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:173
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:164
 msgid "View split on left"
 msgstr "왼쪽 나눔창 보기"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:178
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:169
 msgid "View split on right"
 msgstr "오른쪽 나눔창 보기"
-
-#: data/mutter.desktop.in:4
-msgid "Mutter"
-msgstr "머터"
 
 #: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
@@ -339,21 +335,10 @@ msgstr ""
 "결정합니다."
 
 #: data/org.gnome.mutter.gschema.xml.in:67
-msgid "No tab popup"
-msgstr "탭 팝업 없음"
-
-#: data/org.gnome.mutter.gschema.xml.in:68
-msgid ""
-"Determines whether the use of popup and highlight frame should be disabled "
-"for window cycling."
-msgstr ""
-"팝업 및 강조 프레임을 창 전환 목록에 사용하지 않게 만들지 여부를 결정합니다."
-
-#: data/org.gnome.mutter.gschema.xml.in:76
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "포인터가 움직임을 멈출 때까지 포커스 전환 미루기"
 
-#: data/org.gnome.mutter.gschema.xml.in:77
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -362,11 +347,11 @@ msgstr ""
 "참이고 포커스 모드가 “sloppy”나 “mouse”인 경우, 창 안에 포인터를 옮겼을 때 즉"
 "시 포커스를 전환하지 않고, 포인터가 움직임을 멈추었을 때 전환합니다."
 
-#: data/org.gnome.mutter.gschema.xml.in:87
+#: data/org.gnome.mutter.gschema.xml.in:78
 msgid "Draggable border width"
 msgstr "마우스로 끌 수 있는 가장자리의 너비"
 
-#: data/org.gnome.mutter.gschema.xml.in:88
+#: data/org.gnome.mutter.gschema.xml.in:79
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -374,31 +359,31 @@ msgstr ""
 "마우스로 끌 수 있는 가장자리의 너비. 테마의 가장자리가 이보다 작은 경우, 투명"
 "한 가장자리가 부족한 양만큼 추가됩니다."
 
-#: data/org.gnome.mutter.gschema.xml.in:97
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "모니터 크기와 가까운 창 자동 최대화"
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
 msgstr "참이면 처음에 크기가 모니터 크기인 새 창은 최대화됩니다."
 
-#: data/org.gnome.mutter.gschema.xml.in:106
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
 msgstr "새 창을 중앙에 놓기"
 
-#: data/org.gnome.mutter.gschema.xml.in:107
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
 msgstr "참이면, 새로운 창은 항상 사용 중인 모니터 화면의 중앙에 놓습니다."
 
-#: data/org.gnome.mutter.gschema.xml.in:116
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "Enable experimental features"
 msgstr "실험적인 기능 사용"
 
-#: data/org.gnome.mutter.gschema.xml.in:117
+#: data/org.gnome.mutter.gschema.xml.in:108
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -427,19 +412,19 @@ msgstr ""
 "X11 관련 클라이언트가 종료되면 X웨일랜드를 자동으로 종료합니다. 재시작이 필요"
 "하지 않습니다."
 
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:141
 msgid "Modifier to use to locate the pointer"
 msgstr "포인터 위치 찾기에 사용할 키"
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:142
 msgid "This key will initiate the “locate pointer” action."
 msgstr "이 키는 “포인터 위치 찾기” 동작을 합니다."
 
-#: data/org.gnome.mutter.gschema.xml.in:158
+#: data/org.gnome.mutter.gschema.xml.in:149
 msgid "Timeout for check-alive ping"
 msgstr "활성 확인 핑 시간 초과"
 
-#: data/org.gnome.mutter.gschema.xml.in:159
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -447,19 +432,11 @@ msgstr ""
 "중지된 것으로 감지되지 않도록 클라이언트가 핑 요청에 응답해야 하는 시간 (밀리"
 "초). 0을 사용하면 활성 확인이 완전히 비활성화됩니다."
 
-#: data/org.gnome.mutter.gschema.xml.in:183
-msgid "Select window from tab popup"
-msgstr "탭 팝업에서 창 선택"
-
-#: data/org.gnome.mutter.gschema.xml.in:188
-msgid "Cancel tab popup"
-msgstr "탭 팝업 취소"
-
-#: data/org.gnome.mutter.gschema.xml.in:193
+#: data/org.gnome.mutter.gschema.xml.in:174
 msgid "Switch monitor configurations"
 msgstr "모니터 설정 전환"
 
-#: data/org.gnome.mutter.gschema.xml.in:198
+#: data/org.gnome.mutter.gschema.xml.in:179
 msgid "Rotates the built-in monitor configuration"
 msgstr "내장된 모니터 설정을 돌아가면서 전환합니다"
 
@@ -581,26 +558,51 @@ msgstr ""
 "록 빌드하지 않은 경우에는 효과가 없습니다. 이 설정을 적용하려면 X웨일랜드를 "
 "다시 시작해야 합니다."
 
-#: src/backends/meta-monitor.c:246
+#: data/org.gnome.mutter.wayland.gschema.xml.in:130
+msgid "Allow X11 clients with a different endianness to connect to Xwayland"
+msgstr "엔디언이 다른 X11 클라이언트가 X웨일랜드에 연결할 수 있도록 허용"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:131
+msgid ""
+"Allow connections from clients with an endianness different to that of "
+"Xwayland. The X server byte-swapping code is a huge attack surface, much of "
+"that code in Xwayland is prone to security issues. The use-case of byte-"
+"swapped clients is very niche, and disabled by default in Xwayland. Enable "
+"this option to instruct Xwayland to accept connections from X11 clients with "
+"a different endianness. This option has no effect if Xwayland does not "
+"support the command line option +byteswappedclients/-byteswappedclients to "
+"control that setting. Xwayland needs to be restarted for this setting to "
+"take effect."
+msgstr ""
+"X웨일랜드와 다른 엔디언을 가진 클라이언트의 연결을 허용합니다. X 서버 바이트 "
+"스와핑 코드는 거대한 공격 표면이며, X웨일랜드의 해당 코드 중 상당수는 보안 문"
+"제에 취약합니다. 바이트 스왑핑되는 클라이언트의 사용 사례는 매우 특정한 경우"
+"이며, X웨일랜드에서는 기본적으로 비활성화되어 있습니다. 이 옵션을 활성화하면 "
+"X웨일랜드가 엔디언이 다른 X11 클라이언트의 연결을 허용합니다. 이 옵션은 X웨일"
+"랜드가 해당 설정을 제어하는 명령줄 옵션 +byteswappedclients/-"
+"byteswappedclients을 지원하지 않는 경우 효과가 없습니다. 이 설정을 적용하려"
+"면 X웨일랜드를 다시 시작해야 합니다."
+
+#: src/backends/meta-monitor.c:253
 msgid "Built-in display"
 msgstr "내장 디스플레이"
 
-#: src/backends/meta-monitor.c:275
+#: src/backends/meta-monitor.c:280
 msgid "Unknown"
 msgstr "알 수 없음"
 
-#: src/backends/meta-monitor.c:277
+#: src/backends/meta-monitor.c:282
 msgid "Unknown Display"
 msgstr "알 수 없는 디스플레이"
 
-#: src/backends/meta-monitor.c:285
+#: src/backends/meta-monitor.c:290
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:293
+#: src/backends/meta-monitor.c:298
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -608,14 +610,9 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#. Translators: this string will appear in Sysprof
-#: src/backends/meta-profiler.c:79
-msgid "Compositor"
-msgstr "컴포지터"
-
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:392
+#: src/compositor/compositor.c:416
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -627,98 +624,74 @@ msgstr ""
 msgid "Bell event"
 msgstr "삑소리 이벤트"
 
-#: src/core/display.c:687
+#: src/core/display.c:703
 msgid "Privacy Screen Enabled"
 msgstr "사생활 보호 화면 사용"
 
-#: src/core/display.c:688
+#: src/core/display.c:704
 msgid "Privacy Screen Disabled"
 msgstr "사생활 보호 화면 해제"
 
-#. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:151
-#, c-format
-msgid "“%s” is not responding."
-msgstr "“%s” 창이 반응하지 않습니다."
-
-#: src/core/meta-close-dialog-default.c:153
-msgid "Application is not responding."
-msgstr "프로그램이 반응하지 않습니다."
-
-#: src/core/meta-close-dialog-default.c:158
-msgid ""
-"You may choose to wait a short while for it to continue or force the "
-"application to quit entirely."
-msgstr "좀 더 기다리거나 해당 프로그램을 강제로 끝낼 수 있습니다."
-
-#: src/core/meta-close-dialog-default.c:164
-msgid "_Force Quit"
-msgstr "강제로 끝내기(_F)"
-
-#: src/core/meta-close-dialog-default.c:164
-msgid "_Wait"
-msgstr "기다리기(_W)"
-
-#: src/core/meta-context-main.c:555
+#: src/core/meta-context-main.c:568
 msgid "Replace the running window manager"
 msgstr "실행 중인 창 관리자를 바꿉니다"
 
-#: src/core/meta-context-main.c:561
+#: src/core/meta-context-main.c:574
 msgid "X Display to use"
 msgstr "사용할 X 디스플레이"
 
-#: src/core/meta-context-main.c:567
+#: src/core/meta-context-main.c:580
 msgid "Disable connection to session manager"
 msgstr "세션 관리자와 연결 하지 않습니다"
 
-#: src/core/meta-context-main.c:573
+#: src/core/meta-context-main.c:586
 msgid "Specify session management ID"
 msgstr "세션 관리 ID를 지정합니다"
 
-#: src/core/meta-context-main.c:579
+#: src/core/meta-context-main.c:592
 msgid "Initialize session from savefile"
 msgstr "저장 파일에서 세션을 초기화 합니다"
 
-#: src/core/meta-context-main.c:585
+#: src/core/meta-context-main.c:598
 msgid "Make X calls synchronous"
 msgstr "동기 X 호출을 합니다"
 
-#: src/core/meta-context-main.c:592
+#: src/core/meta-context-main.c:606
 msgid "Run as a wayland compositor"
 msgstr "웨일랜드 컴포지터로 실행합니다"
 
-#: src/core/meta-context-main.c:598
+#: src/core/meta-context-main.c:612
 msgid "Run as a nested compositor"
 msgstr "중첩 컴포지터로 실행합니다"
 
-#: src/core/meta-context-main.c:604
+#: src/core/meta-context-main.c:618
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "웨일랜드 컴포지터를 X웨일랜드 시작없이 실행합니다"
 
-#: src/core/meta-context-main.c:610
+#: src/core/meta-context-main.c:624
 msgid "Specify Wayland display name to use"
 msgstr "사용할 웨일랜드 디스플레이 이름 지정"
 
-#: src/core/meta-context-main.c:618
+#: src/core/meta-context-main.c:632
 msgid "Run as a full display server, rather than nested"
 msgstr "전체 디스플레이 서버로 실행, 중첩 컴포지터가 아님"
 
-#: src/core/meta-context-main.c:623
+#: src/core/meta-context-main.c:637
 msgid "Run as a headless display server"
 msgstr "헤드리스 디스플레이 서버로 실행"
 
-#: src/core/meta-context-main.c:628
+#: src/core/meta-context-main.c:642
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "영구적인 가상 모니터 추가 (WxH or WxH@R)"
 
-#: src/core/meta-context-main.c:639
+#: src/core/meta-context-main.c:654
 msgid "Run with X11 backend"
 msgstr "X11 백 엔드로 실행 합니다"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:840
+#: src/core/meta-pad-action-mapper.c:861
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "모드 전환 (그룹 %d)"
@@ -726,13 +699,18 @@ msgstr "모드 전환 (그룹 %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:863
+#: src/core/meta-pad-action-mapper.c:884
 msgid "Switch monitor"
 msgstr "모니터 전환"
 
-#: src/core/meta-pad-action-mapper.c:865
+#: src/core/meta-pad-action-mapper.c:886
 msgid "Show on-screen help"
 msgstr "화면 도움말 표시"
+
+#. Translators: this string will appear in Sysprof
+#: src/core/meta-profiler.c:80 src/core/meta-profiler.c:217
+msgid "Compositor"
+msgstr "컴포지터"
 
 #: src/core/mutter.c:74
 msgid "Print version"
@@ -751,12 +729,16 @@ msgstr "작업 공간 %d"
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "머터가 자세한 정보 표시 모드를 지원하지 않게 컴파일되었습니다"
 
-#: src/wayland/meta-wayland-tablet-pad.c:519
+#: src/core/workspace.c:541
+msgid "Workspace switched"
+msgstr "작업 공간 전환"
+
+#: src/wayland/meta-wayland-tablet-pad.c:530
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "모드 전환: 모드 %d"
 
-#: src/x11/meta-x11-display.c:673
+#: src/x11/meta-x11-display.c:697
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -765,38 +747,73 @@ msgstr ""
 "디스플레이  “%s”에 이미 창 관리자가 있습니다. 현재 창 관리자를 바꾸려면 --"
 "replace 옵션을 써보십시오."
 
-#: src/x11/meta-x11-display.c:1067
-msgid "Failed to initialize GDK"
-msgstr "GDK 초기화에 실패했습니다"
-
-#: src/x11/meta-x11-display.c:1091
+#: src/x11/meta-x11-display.c:1058
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "X 윈도 시스템 디스플레이 “%s”을(를) 여는데 실패하였습니다"
 
-#: src/x11/meta-x11-display.c:1200
+#: src/x11/meta-x11-display.c:1203
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "디스플레이 “%2$s”의 화면 %1$d은(는) 잘못되었습니다"
 
-#: src/x11/meta-x11-selection-input-stream.c:460
+#: src/x11/meta-x11-selection-input-stream.c:481
 #, c-format
 msgid "Format %s not supported"
 msgstr "%s 형식은 지원하지 않습니다"
 
-#: src/x11/session.c:1823
-msgid ""
-"These windows do not support “save current setup” and will have to be "
-"restarted manually next time you log in."
-msgstr ""
-"이 창은 “현재 설정 저장”을 지원하지 않기 때문에 다음 번에 로그인 할 때 수동으"
-"로 다시 시작해야 합니다."
-
 # <창제목> (on <기계>)
-#: src/x11/window-props.c:548
+#: src/x11/window-props.c:549
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s에서)"
+
+#~ msgid "Mutter"
+#~ msgstr "머터"
+
+#~ msgid "No tab popup"
+#~ msgstr "탭 팝업 없음"
+
+#~ msgid ""
+#~ "Determines whether the use of popup and highlight frame should be "
+#~ "disabled for window cycling."
+#~ msgstr ""
+#~ "팝업 및 강조 프레임을 창 전환 목록에 사용하지 않게 만들지 여부를 결정합니"
+#~ "다."
+
+#~ msgid "Select window from tab popup"
+#~ msgstr "탭 팝업에서 창 선택"
+
+#~ msgid "Cancel tab popup"
+#~ msgstr "탭 팝업 취소"
+
+#, c-format
+#~ msgid "“%s” is not responding."
+#~ msgstr "“%s” 창이 반응하지 않습니다."
+
+#~ msgid "Application is not responding."
+#~ msgstr "프로그램이 반응하지 않습니다."
+
+#~ msgid ""
+#~ "You may choose to wait a short while for it to continue or force the "
+#~ "application to quit entirely."
+#~ msgstr "좀 더 기다리거나 해당 프로그램을 강제로 끝낼 수 있습니다."
+
+#~ msgid "_Force Quit"
+#~ msgstr "강제로 끝내기(_F)"
+
+#~ msgid "_Wait"
+#~ msgstr "기다리기(_W)"
+
+#~ msgid "Failed to initialize GDK"
+#~ msgstr "GDK 초기화에 실패했습니다"
+
+#~ msgid ""
+#~ "These windows do not support “save current setup” and will have to be "
+#~ "restarted manually next time you log in."
+#~ msgstr ""
+#~ "이 창은 “현재 설정 저장”을 지원하지 않기 때문에 다음 번에 로그인 할 때 수"
+#~ "동으로 다시 시작해야 합니다."
 
 #~ msgid "X display to use"
 #~ msgstr "사용할 X 디스플레이"
