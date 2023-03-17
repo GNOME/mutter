@@ -851,7 +851,7 @@ client_window_should_be_mapped (MetaWindow *window)
 #endif
 
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
-      window->decorated && !window->fullscreen && !window->frame)
+      window->decorated && !window->frame)
     return FALSE;
 
   return TRUE;
@@ -1705,7 +1705,7 @@ meta_window_should_be_showing (MetaWindow  *window)
 #endif
 
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
-      window->decorated && !window->fullscreen && !window->frame)
+      window->decorated && !window->frame)
     return FALSE;
 
   /* Windows should be showing if they're located on the
@@ -5334,15 +5334,6 @@ meta_window_update_struts (MetaWindow *window)
 }
 
 static void
-sync_needs_frame (MetaWindow *window)
-{
-  if (window->decorated && !window->fullscreen)
-    meta_window_ensure_frame (window);
-  else
-    meta_window_destroy_frame (window);
-}
-
-static void
 meta_window_type_changed (MetaWindow *window)
 {
   gboolean old_decorated = window->decorated;
@@ -5355,7 +5346,10 @@ meta_window_type_changed (MetaWindow *window)
     set_net_wm_state (window);
 
   /* Update frame */
-  sync_needs_frame (window);
+  if (window->decorated)
+    meta_window_ensure_frame (window);
+  else
+    meta_window_destroy_frame (window);
 
   /* update stacking constraints */
   meta_window_update_layer (window);
@@ -5626,7 +5620,6 @@ meta_window_recalc_features (MetaWindow *window)
   if (window->has_resize_func != old_has_resize_func)
     g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_RESIZEABLE]);
 
-  sync_needs_frame (window);
   meta_window_frame_size_changed (window);
 }
 
