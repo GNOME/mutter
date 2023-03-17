@@ -529,16 +529,37 @@ meta_output_set_privacy_screen_enabled (MetaOutput  *output,
 }
 
 gboolean
+meta_output_info_is_color_space_supported (const MetaOutputInfo *output_info,
+                                           MetaOutputColorspace  color_space)
+{
+  MetaEdidColorimetry colorimetry;
+
+  if (!output_info->edid_info)
+    return FALSE;
+
+  colorimetry = output_info->edid_info->colorimetry;
+
+  switch (color_space)
+    {
+    case META_OUTPUT_COLORSPACE_DEFAULT:
+      return TRUE;
+    case META_OUTPUT_COLORSPACE_BT2020:
+      return !!(colorimetry & META_EDID_COLORIMETRY_BT2020RGB);
+    default:
+      return FALSE;
+    }
+}
+
+gboolean
 meta_output_is_color_space_supported (MetaOutput           *output,
                                       MetaOutputColorspace  color_space)
 {
   MetaOutputClass *output_class = META_OUTPUT_GET_CLASS (output);
-  uint64_t supported = 0;
 
-  if (output_class->get_supported_color_spaces)
-    supported = output_class->get_supported_color_spaces (output);
+  if (!output_class->is_color_space_supported)
+    return FALSE;
 
-  return supported & (1 << color_space);
+  return output_class->is_color_space_supported (output, color_space);
 }
 
 void

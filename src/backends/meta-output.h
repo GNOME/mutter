@@ -182,6 +182,9 @@ META_EXPORT_TEST
 void meta_output_info_parse_edid (MetaOutputInfo *output_info,
                                   GBytes         *edid);
 
+gboolean meta_output_info_is_color_space_supported (const MetaOutputInfo *output_info,
+                                                    MetaOutputColorspace  color_space);
+
 gboolean meta_output_is_laptop  (MetaOutput *output);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaOutputInfo, meta_output_info_unref)
@@ -198,7 +201,8 @@ struct _MetaOutputClass
   gboolean (* set_privacy_screen_enabled) (MetaOutput  *output,
                                            gboolean     enabled,
                                            GError     **error);
-  uint64_t (* get_supported_color_spaces) (MetaOutput *output);
+  gboolean (* is_color_space_supported) (MetaOutput           *output,
+                                         MetaOutputColorspace  color_space);
   gboolean (* is_hdr_metadata_supported) (MetaOutput *output);
 };
 
