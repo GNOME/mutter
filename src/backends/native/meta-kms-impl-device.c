@@ -1008,7 +1008,7 @@ queue_result_feedback (MetaKmsImplDevice *impl_device,
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
   MetaKms *kms = meta_kms_device_get_kms (priv->device);
-  GList *result_listeners;
+  g_autoptr (GList) result_listeners = NULL;
   GList *l;
 
   result_listeners = meta_kms_update_take_result_listeners (update);
