@@ -1,3 +1,16 @@
+43.4
+====
+* Do not overwrite previously set offsets on attach [Matthias; !2843]
+* Fix Xwayland focus regressions [Carlos; !2848, !2878]
+* Memory handling fixes [Simon; !2877]
+* Reduce memory bandwidth usage in some GPUs [Erico; !2091]
+* Fix partial updates on offscreen rotated screens [Robert; !2860]
+* Fix a frequent warning when running with recent glib [Sebastian; !2790]
+
+Contributors:
+  Matthias Clasen, Carlos Garnacho, Sebastian Keller, Robert Mader,
+  Simon McVittie, Erico Nunes
+
 43.3
 ====
 * Skip resize effects for tiled windows during user grabs [Michael; !2579]
