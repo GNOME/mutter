@@ -1,3 +1,17 @@
+44.0
+====
+* Fix state confusion and delay on startup [Carlos; !2906]
+* Fix night light regression [Sebastian; !2916]
+* Fix fullscreen regression with many SDL apps [Jonas; !2921]
+* Fixed crashes [Jonas; !2901, !2912]
+
+Contributors:
+  Jonas Ådahl, Carlos Garnacho, Sebastian Wick
+
+Translators:
+  Ask Hjorth Larsen [da], Piotr Drąg [pl], Marek Černocký [cs],
+  Gwan-gyeong Mun [ko]
+
 44.rc
 =====
 * Do not overwrite previously set offsets on attach [Matthias; !2843]
