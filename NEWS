@@ -1,3 +1,17 @@
+42.9
+====
+* Do not overwrite previously set offsets on attach [Matthias; !2843]
+* Don't disable KMS modifiers on newer i915 systems [Sameer; !2641]
+* Reduce memory bandwidth usage in some GPUs [Erico; !2091]
+* Fix pointer constrains with subsurfaces [Robert; !2717]
+* Fix partial updates on offscreen rotated screens [Robert; !2860]
+* Do not require a physical device to update pointer visibility [Carlos; !2766]
+* Fix Xwayland focus regressions [Carlos; !2878]
+
+Contributors:
+  Matthias Clasen, Carlos Garnacho, Sameer Lattannavar, Robert Mader,
+  Erico Nunes
+
 42.8
 ====
 * Skip resize effects for tiled windows during user grabs [Michael; !2579]
