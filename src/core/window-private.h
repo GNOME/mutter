@@ -850,8 +850,6 @@ void meta_window_show_close_dialog (MetaWindow *window);
 void meta_window_hide_close_dialog (MetaWindow *window);
 void meta_window_ensure_close_dialog_timeout (MetaWindow *window);
 
-gboolean meta_window_has_pointer (MetaWindow *window);
-
 void meta_window_emit_size_changed (MetaWindow *window);
 
 MetaPlacementRule *meta_window_get_placement_rule (MetaWindow *window);
