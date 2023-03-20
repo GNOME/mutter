@@ -211,19 +211,26 @@ static void
 clutter_value_transform_path_string (const GValue *src,
                                      GValue       *dest)
 {
-  gchar *string = clutter_path_get_description (src->data[0].v_pointer);
+  if (src->data[0].v_pointer != NULL)
+    {
+      gchar *string = clutter_path_get_description (src->data[0].v_pointer);
 
-  g_value_take_string (dest, string);
+      g_value_take_string (dest, string);
+    }
 }
 
 static void
 clutter_value_transform_string_path (const GValue *src,
                                      GValue       *dest)
 {
-  ClutterPath *new_path;
+  const char *str;
 
-  new_path = clutter_path_new_with_description (g_value_get_string (src));
-  g_value_take_object (dest, new_path);
+  str = g_value_get_string (src);
+  if (str != NULL)
+    {
+      ClutterPath *new_path = clutter_path_new_with_description (str);
+      g_value_take_object (dest, new_path);
+    }
 }
 
 static void
