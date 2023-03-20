@@ -106,7 +106,6 @@ if get_option('debug')
   ]
 elif buildtype != 'plain'
   cogl_debug_c_args += [
-    '-DG_DISABLE_CHECKS',
     '-DG_DISABLE_CAST_CHECKS'
   ]
 endif
