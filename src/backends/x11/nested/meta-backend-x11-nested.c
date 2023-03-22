@@ -181,6 +181,13 @@ meta_backend_x11_nested_is_lid_closed (MetaBackend *backend)
   return FALSE;
 }
 
+static void
+meta_backend_x11_nested_set_pointer_constraint (MetaBackend           *backend,
+                                                MetaPointerConstraint *constraint)
+{
+  g_debug ("Ignored pointer constraint in nested backend");
+}
+
 static gboolean
 meta_backend_x11_nested_handle_host_xevent (MetaBackendX11 *x11,
                                             XEvent         *event)
@@ -320,6 +327,7 @@ meta_backend_x11_nested_class_init (MetaBackendX11NestedClass *klass)
   backend_class->lock_layout_group = meta_backend_x11_nested_lock_layout_group;
   backend_class->set_keymap = meta_backend_x11_nested_set_keymap;
   backend_class->is_lid_closed = meta_backend_x11_nested_is_lid_closed;
+  backend_class->set_pointer_constraint = meta_backend_x11_nested_set_pointer_constraint;
 
   backend_x11_class->handle_host_xevent = meta_backend_x11_nested_handle_host_xevent;
   backend_x11_class->translate_device_event = meta_backend_x11_nested_translate_device_event;
