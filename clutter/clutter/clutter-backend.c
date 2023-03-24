@@ -688,7 +688,7 @@ clutter_backend_get_input_method (ClutterBackend *backend)
 /**
  * clutter_backend_set_input_method:
  * @backend: the #ClutterBackend
- * @method: the input method
+ * @method: (nullable): the input method
  *
  * Sets the input method to be used by Clutter
  **/
@@ -696,6 +696,12 @@ void
 clutter_backend_set_input_method (ClutterBackend     *backend,
                                   ClutterInputMethod *method)
 {
+  if (backend->input_method == method)
+    return;
+
+  if (backend->input_method)
+    clutter_input_method_focus_out (backend->input_method);
+
   g_set_object (&backend->input_method, method);
 }
 
