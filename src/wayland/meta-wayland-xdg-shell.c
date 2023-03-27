@@ -642,6 +642,9 @@ xdg_popup_reposition (struct wl_client   *client,
   MetaWaylandXdgPositioner *xdg_positioner;
   MetaWaylandTransaction *transaction;
 
+  if (!meta_wayland_surface_get_window (surface))
+    return;
+
   xdg_positioner = g_memdup2 (wl_resource_get_user_data (positioner_resource),
                               sizeof (MetaWaylandXdgPositioner));
 
