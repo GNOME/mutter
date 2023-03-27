@@ -16,21 +16,22 @@
 # liushuyu <liushuyu011@gmail.com>, 2018.
 # Dingzhong Chen <wsxy162@gmail.com>, 2017-2021.
 # lumingzh <lumingzh@qq.com>, 2022.
+# Nanling <neithern@outlook.com>, 2023.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2022-09-02 08:42+0000\n"
-"PO-Revision-Date: 2022-09-03 17:29-0400\n"
-"Last-Translator: Boyuan Yang <073plan@gmail.com>\n"
+"POT-Creation-Date: 2023-03-26 12:17+0000\n"
+"PO-Revision-Date: 2023-03-27 09:29+0800\n"
+"Last-Translator: Nanling <neithern@outlook.com>\n"
 "Language-Team: Chinese - China <i18n-zh@googlegroups.com>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 3.1.1\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"X-Generator: Gtranslator 42.0\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -260,17 +261,13 @@ msgstr "垂直最大化窗口"
 msgid "Maximize window horizontally"
 msgstr "水平最大化窗口"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:173
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:164
 msgid "View split on left"
 msgstr "分屏到左侧"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:178
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:169
 msgid "View split on right"
 msgstr "分屏到右侧"
-
-#: data/mutter.desktop.in:4
-msgid "Mutter"
-msgstr "Mutter"
 
 #: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
@@ -338,20 +335,10 @@ msgid ""
 msgstr "决定工作区切换对所有显示器上的窗口还是只对主显示器上的有效。"
 
 #: data/org.gnome.mutter.gschema.xml.in:67
-msgid "No tab popup"
-msgstr "无 Tab 轮换弹窗"
-
-#: data/org.gnome.mutter.gschema.xml.in:68
-msgid ""
-"Determines whether the use of popup and highlight frame should be disabled "
-"for window cycling."
-msgstr "使用 Tab 键轮换窗口时，是否要禁用切换弹窗及其高亮边框窗口。"
-
-#: data/org.gnome.mutter.gschema.xml.in:76
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "将焦点改变推迟到光标停止移动之后"
 
-#: data/org.gnome.mutter.gschema.xml.in:77
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -360,42 +347,42 @@ msgstr ""
 "如果为 true，而聚焦模式为“sloppy”或“mouse”，那么进入某个窗口时焦点将不会立即"
 "改变，而是等到光标停止移动之后。"
 
-#: data/org.gnome.mutter.gschema.xml.in:87
+#: data/org.gnome.mutter.gschema.xml.in:78
 msgid "Draggable border width"
 msgstr "可拖拽的边界宽度"
 
-#: data/org.gnome.mutter.gschema.xml.in:88
+#: data/org.gnome.mutter.gschema.xml.in:79
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
 msgstr ""
 "可拖拽的边界总数。如果主题的可见边界不足，将添加不可见的边界来满足此值。"
 
-#: data/org.gnome.mutter.gschema.xml.in:97
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "自动最大化接近显示器大小的窗口"
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
 msgstr "如果启用，初始时为显示器大小的新窗口将自动最大化。"
 
-#: data/org.gnome.mutter.gschema.xml.in:106
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
 msgstr "将窗口置于中央"
 
-#: data/org.gnome.mutter.gschema.xml.in:107
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
 msgstr "为 true 时，新窗口将总是置于此显示器已激活屏幕的中央。"
 
-#: data/org.gnome.mutter.gschema.xml.in:116
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "Enable experimental features"
 msgstr "开启实验性功能"
 
-#: data/org.gnome.mutter.gschema.xml.in:117
+#: data/org.gnome.mutter.gschema.xml.in:108
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -421,19 +408,19 @@ msgstr ""
 "幕共享。使用 i915 驱动时默认启用，其它驱动默认禁用。需要重启。•“autoclose-"
 "xwayland”——所有关联的 X11 客户端退出时自动终止 Xwayland。需要重启。"
 
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:141
 msgid "Modifier to use to locate the pointer"
 msgstr "用来定位指针的修饰键"
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:142
 msgid "This key will initiate the “locate pointer” action."
 msgstr "此按键将启动“定位指针”操作。"
 
-#: data/org.gnome.mutter.gschema.xml.in:158
+#: data/org.gnome.mutter.gschema.xml.in:149
 msgid "Timeout for check-alive ping"
 msgstr "检测活动的 ping 超时"
 
-#: data/org.gnome.mutter.gschema.xml.in:159
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -441,19 +428,11 @@ msgstr ""
 "为了不被检测为冻结，客户端必须响应 ping 请求的毫秒数。使用 0 将完全禁用活动检"
 "测。"
 
-#: data/org.gnome.mutter.gschema.xml.in:183
-msgid "Select window from tab popup"
-msgstr "从 Tab 轮换弹出界面选择窗口"
-
-#: data/org.gnome.mutter.gschema.xml.in:188
-msgid "Cancel tab popup"
-msgstr "取消 Tab 轮换弹窗"
-
-#: data/org.gnome.mutter.gschema.xml.in:193
+#: data/org.gnome.mutter.gschema.xml.in:174
 msgid "Switch monitor configurations"
 msgstr "切换显示器配置"
 
-#: data/org.gnome.mutter.gschema.xml.in:198
+#: data/org.gnome.mutter.gschema.xml.in:179
 msgid "Rotates the built-in monitor configuration"
 msgstr "旋转内置显示器配置"
 
@@ -571,6 +550,29 @@ msgstr ""
 "扩展时才有意义。如果 Xwayland 在构建时没有启用指定的扩展，该选项不会产生效"
 "果。要使配置生效，需要重新启动 Xwayland。"
 
+#: data/org.gnome.mutter.wayland.gschema.xml.in:130
+msgid "Allow X11 clients with a different endianness to connect to Xwayland"
+msgstr "允许使用不同字节序的 X11 客户端连接到 Xwayland。"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:131
+msgid ""
+"Allow connections from clients with an endianness different to that of "
+"Xwayland. The X server byte-swapping code is a huge attack surface, much of "
+"that code in Xwayland is prone to security issues. The use-case of byte-"
+"swapped clients is very niche, and disabled by default in Xwayland. Enable "
+"this option to instruct Xwayland to accept connections from X11 clients with "
+"a different endianness. This option has no effect if Xwayland does not "
+"support the command line option +byteswappedclients/-byteswappedclients to "
+"control that setting. Xwayland needs to be restarted for this setting to "
+"take effect."
+msgstr ""
+"允许来自字节序与 Xwayland 不同的客户端的连接。X 服务器的字节交换代码是一个巨"
+"大的攻击面，Xwayland 中的许多代码很容易出现安全问题。字节交换客户端的使用情况"
+"是非常小众的，并且在 Xwayland 中默认是禁用的。启用该选项可以指示 Xwayland 接"
+"受来自 X11 客户端的不同字节序的连接。如果Xwayland 不支持命令行选项 "
+"+byteswappedclients/-bytewappedclients 来控制该设置，则该选项没有效果。"
+"Xwayland 需要重新启动以使该设置生效。"
+
 #: src/backends/meta-monitor.c:253
 msgid "Built-in display"
 msgstr "内置显示器"
@@ -598,14 +600,9 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#. Translators: this string will appear in Sysprof
-#: src/backends/meta-profiler.c:79
-msgid "Compositor"
-msgstr "合成器"
-
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:400
+#: src/compositor/compositor.c:416
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -615,74 +612,74 @@ msgstr "显示“%2$s”的屏幕 %1$i 上已有另外一个合成管理器正�
 msgid "Bell event"
 msgstr "响铃事件"
 
-#: src/core/display.c:693
+#: src/core/display.c:703
 msgid "Privacy Screen Enabled"
 msgstr "隐私屏幕已启用"
 
-#: src/core/display.c:694
+#: src/core/display.c:704
 msgid "Privacy Screen Disabled"
 msgstr "隐私屏幕已禁用"
 
-#: src/core/meta-context-main.c:567
+#: src/core/meta-context-main.c:579
 msgid "Replace the running window manager"
 msgstr "替换正在运行的窗口管理器"
 
-#: src/core/meta-context-main.c:573
+#: src/core/meta-context-main.c:585
 msgid "X Display to use"
 msgstr "要使用的 X 显示"
 
-#: src/core/meta-context-main.c:579
+#: src/core/meta-context-main.c:591
 msgid "Disable connection to session manager"
 msgstr "禁止连接到会话管理器"
 
-#: src/core/meta-context-main.c:585
+#: src/core/meta-context-main.c:597
 msgid "Specify session management ID"
 msgstr "指定会话管理 ID"
 
-#: src/core/meta-context-main.c:591
+#: src/core/meta-context-main.c:603
 msgid "Initialize session from savefile"
 msgstr "从保存文件中初始化会话"
 
-#: src/core/meta-context-main.c:597
+#: src/core/meta-context-main.c:609
 msgid "Make X calls synchronous"
 msgstr "使 X 调用同步"
 
-#: src/core/meta-context-main.c:605
+#: src/core/meta-context-main.c:617
 msgid "Run as a wayland compositor"
 msgstr "以 wayland 合成器运行"
 
-#: src/core/meta-context-main.c:611
+#: src/core/meta-context-main.c:623
 msgid "Run as a nested compositor"
 msgstr "以嵌套合成器运行"
 
-#: src/core/meta-context-main.c:617
+#: src/core/meta-context-main.c:629
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "运行 wayland 合成器但不启动 Xwayland"
 
-#: src/core/meta-context-main.c:623
+#: src/core/meta-context-main.c:635
 msgid "Specify Wayland display name to use"
 msgstr "指定要使用的 Wayland 显示的名称"
 
-#: src/core/meta-context-main.c:631
+#: src/core/meta-context-main.c:643
 msgid "Run as a full display server, rather than nested"
 msgstr "以完整显示服务器方式运行，而不是以嵌套方式"
 
-#: src/core/meta-context-main.c:636
+#: src/core/meta-context-main.c:648
 msgid "Run as a headless display server"
 msgstr "以无外设显示服务器运行"
 
-#: src/core/meta-context-main.c:641
+#: src/core/meta-context-main.c:653
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "添加持久性虚拟显示器（WxH 或 WxH@R）"
 
-#: src/core/meta-context-main.c:653
+#: src/core/meta-context-main.c:665
 msgid "Run with X11 backend"
 msgstr "以 X11 后端运行"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:848
+#: src/core/meta-pad-action-mapper.c:861
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "模式切换（组别 %d）"
@@ -690,13 +687,18 @@ msgstr "模式切换（组别 %d）"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:871
+#: src/core/meta-pad-action-mapper.c:884
 msgid "Switch monitor"
 msgstr "切换显示器"
 
-#: src/core/meta-pad-action-mapper.c:873
+#: src/core/meta-pad-action-mapper.c:886
 msgid "Show on-screen help"
 msgstr "显示在屏帮助"
+
+#. Translators: this string will appear in Sysprof
+#: src/core/meta-profiler.c:80 src/core/meta-profiler.c:217
+msgid "Compositor"
+msgstr "合成器"
 
 #: src/core/mutter.c:74
 msgid "Print version"
@@ -711,20 +713,20 @@ msgstr "要使用的 Mutter 插件"
 msgid "Workspace %d"
 msgstr "工作区 %d"
 
-#: src/core/util.c:143
+#: src/core/util.c:142
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter 编译的时候没有加入详细模式的支持"
 
-#: src/core/workspace.c:533
+#: src/core/workspace.c:541
 msgid "Workspace switched"
 msgstr "工作区已切换"
 
-#: src/wayland/meta-wayland-tablet-pad.c:520
+#: src/wayland/meta-wayland-tablet-pad.c:530
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "模式切换：%d 模式"
 
-#: src/x11/meta-x11-display.c:659
+#: src/x11/meta-x11-display.c:701
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -732,29 +734,45 @@ msgid ""
 msgstr ""
 "显示“%s”已经有一个窗口管理器；请尝试使用 --replace 选项替换当前的窗口管理器。"
 
-#: src/x11/meta-x11-display.c:1053
-msgid "Failed to initialize GDK"
-msgstr "初始化 GDK 失败"
-
-#: src/x11/meta-x11-display.c:1080
+#: src/x11/meta-x11-display.c:1062
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "无法打开 X 窗口系统显示“%s”"
 
-#: src/x11/meta-x11-display.c:1188
+#: src/x11/meta-x11-display.c:1207
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "显示“%2$s”上的屏幕 %1$d 无效"
 
-#: src/x11/meta-x11-selection-input-stream.c:474
+#: src/x11/meta-x11-selection-input-stream.c:481
 #, c-format
 msgid "Format %s not supported"
 msgstr "不支持 %s 格式"
 
-#: src/x11/window-props.c:548
+#: src/x11/window-props.c:549
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s（于 %s）"
+
+#~ msgid "Mutter"
+#~ msgstr "Mutter"
+
+#~ msgid "No tab popup"
+#~ msgstr "无 Tab 轮换弹窗"
+
+#~ msgid ""
+#~ "Determines whether the use of popup and highlight frame should be "
+#~ "disabled for window cycling."
+#~ msgstr "使用 Tab 键轮换窗口时，是否要禁用切换弹窗及其高亮边框窗口。"
+
+#~ msgid "Select window from tab popup"
+#~ msgstr "从 Tab 轮换弹出界面选择窗口"
+
+#~ msgid "Cancel tab popup"
+#~ msgstr "取消 Tab 轮换弹窗"
+
+#~ msgid "Failed to initialize GDK"
+#~ msgstr "初始化 GDK 失败"
 
 #, c-format
 #~ msgid "“%s” is not responding."
