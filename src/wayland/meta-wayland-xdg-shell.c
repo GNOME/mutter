@@ -1239,6 +1239,9 @@ meta_wayland_xdg_popup_apply_state (MetaWaylandSurfaceRole  *surface_role,
   if (xdg_popup->setup.parent_surface)
     finish_popup_setup (xdg_popup);
 
+  if (!meta_wayland_surface_get_window (surface))
+    return;
+
   if (pending->xdg_positioner)
     {
       MetaWindow *window, *parent_window;
