@@ -458,20 +458,20 @@ if have_native_tests
         wayland_test_utils,
       ],
     },
-    {
-      'name': 'wayland-x11-interop',
-      'suite': 'wayland',
-      'sources': [
-        'wayland-x11-interop-tests.c',
-        wayland_test_client_utils,
-        wayland_test_utils,
-        wayland_protocol_files['mutter-x11-interop']['protocol-code'],
-        built_dbus_sources['meta-dbus-service-channel'],
-      ],
-    },
   ]
   if have_xwayland
     test_cases += [
+      {
+        'name': 'wayland-x11-interop',
+        'suite': 'wayland',
+        'sources': [
+          'wayland-x11-interop-tests.c',
+          wayland_test_client_utils,
+          wayland_test_utils,
+          wayland_protocol_files['mutter-x11-interop']['protocol-code'],
+          built_dbus_sources['meta-dbus-service-channel'],
+        ],
+      },
       {
         'name': 'xwayland',
         'suite': 'wayland',
