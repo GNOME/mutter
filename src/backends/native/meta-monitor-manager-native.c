@@ -23,9 +23,9 @@
  */
 
 /**
- * SECTION:meta-monitor-manager-native
- * @title: MetaMonitorManagerNative
- * @short_description: A subclass of #MetaMonitorManager using Linux DRM
+ * MetaMonitorManagerNative:
+ * 
+ * A subclass of #MetaMonitorManager using Linux DRM
  *
  * #MetaMonitorManagerNative is a subclass of #MetaMonitorManager which
  * implements its functionality "natively": it uses the appropriate

@@ -23,9 +23,9 @@
  */
 
 /**
- * SECTION:meta-wayland-buffer
- * @title: MetaWaylandBuffer
- * @short_description: A wrapper for wayland buffers
+ * MetaWaylandBuffer
+ * 
+ * A wrapper for wayland buffers
  *
  * #MetaWaylandBuffer is a general wrapper around wl_buffer, the basic way of
  * passing rendered data from Wayland clients to the compositor. Note that a

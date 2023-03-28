@@ -20,10 +20,9 @@
  */
 
 /**
- * SECTION:meta-plugin
- * @title: MetaPlugin
- * @short_description: Entry point for plugins
- *
+ * MetaPlugin:
+ * 
+ * Entry point for plugins
  */
 
 #include "config.h"

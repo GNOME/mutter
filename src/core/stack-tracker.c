@@ -1,8 +1,9 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
 
 /*
- * SECTION:stack-tracker
- * @short_description: Track stacking order for compositor
+ * stack-tracker:
+ *
+ * Track stacking order for compositor
  *
  * #MetaStackTracker maintains the most accurate view we have at a
  * given point of time of the ordering of the children of the root

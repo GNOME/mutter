@@ -23,13 +23,13 @@
  */
 
 /**
- * SECTION:meta-renderer
- * @title: MetaRenderer
- * @short_description: Keeps track of the different renderer views.
+ * MetaRenderer:
+ * 
+ * Keeps track of the different renderer views.
  *
  * A MetaRenderer object has 2 functions:
  *
- * 1) Keeping a list of #MetaRendererView<!-- -->s, each responsible for
+ * 1) Keeping a list of `MetaRendererView`s, each responsible for
  * rendering a part of the stage, corresponding to each #MetaLogicalMonitor. It
  * keeps track of this list by querying the list of logical monitors in the
  * #MetaBackend's #MetaMonitorManager, and creating a renderer view for each

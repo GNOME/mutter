@@ -57,9 +57,9 @@ region_apply_transform_expand_maybe_ref (cairo_region_t    *region,
 }
 
 /**
- * SECTION:meta-cullable
- * @title: MetaCullable
- * @short_description: CPU culling operations for efficient drawing
+ * MetaCullable:
+ * 
+ * CPU culling operations for efficient drawing
  *
  * When we are painting a stack of 5-10 large actors, the standard
  * bottom-to-top method of drawing every actor results in a tremendous

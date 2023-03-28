@@ -26,9 +26,9 @@
  */
 
 /**
- * SECTION:meta-wayland-dma-buf
- * @title: MetaWaylandDmaBuf
- * @short_description: Handles passing DMA-BUFs in Wayland
+ * MetaWaylandDmaBuf
+ * 
+ * Handles passing DMA-BUFs in Wayland
  *
  * The MetaWaylandDmaBuf namespace contains several objects and functions to
  * handle DMA-BUF buffers that are passed through from clients in Wayland (e.g.

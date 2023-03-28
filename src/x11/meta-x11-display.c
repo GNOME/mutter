@@ -21,9 +21,9 @@
  */
 
 /**
- * SECTION:x11-display
- * @title: MetaX11Display
- * @short_description: Mutter X display handler
+ * MetaX11Display:
+ * 
+ * Mutter X display handler
  *
  * The X11 display is represented as a #MetaX11Display struct.
  */

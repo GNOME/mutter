@@ -21,9 +21,9 @@
  */
 
 /**
- * SECTION:prefs
- * @title: Preferences
- * @short_description: Mutter preferences
+ * Preferences:
+ * 
+ * Mutter preferences
  */
 
 #include "config.h"

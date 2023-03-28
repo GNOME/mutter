@@ -43,8 +43,7 @@ GType meta_shadow_get_type (void) G_GNUC_CONST;
  *  shape being shadowed, in pixels
  * @opacity: opacity of the shadow, from 0 to 255
  *
- * The #MetaShadowParams structure holds information about how to draw
- * a particular style of shadow.
+ * Information about how to draw a particular style of shadow.
  */
 
 typedef struct _MetaShadowParams MetaShadowParams;
@@ -69,9 +68,10 @@ G_DECLARE_FINAL_TYPE (MetaShadowFactory,
 /**
  * MetaShadowFactory:
  *
- * #MetaShadowFactory is used to create window shadows. It caches shadows internally
- * so that multiple shadows created for the same shape with the same radius will
- * share the same MetaShadow.
+ * Create window shadows. 
+ * 
+ * It caches shadows internally so that multiple shadows created for
+ * the same shape with the same radius will share the same [struct@Meta.Shadow].
  */
 META_EXPORT
 MetaShadowFactory *meta_shadow_factory_get_default (void);
@@ -90,9 +90,12 @@ void meta_shadow_factory_get_params (MetaShadowFactory *factory,
 
 /**
  * MetaShadow:
- * #MetaShadow holds a shadow texture along with information about how to
- * apply that texture to draw a window texture. (E.g., it knows how big the
- * unscaled borders are on each side of the shadow texture.)
+ * 
+ * Holds a shadow texture along with information about how to
+ * apply that texture to draw a window texture. 
+ * 
+ * E.g., it knows how big the unscaled borders are on each
+ * side of the shadow texture.
  */
 typedef struct _MetaShadow MetaShadow;
 

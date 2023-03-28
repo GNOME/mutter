@@ -24,9 +24,9 @@
  */
 
 /**
- * SECTION:barrier-x11
- * @Title: MetaBarrierImplX11
- * @Short_Description: Pointer barriers implementation for X11
+ * MetaBarrierImplX11:
+ * 
+ * Pointer barriers implementation for X11
  */
 
 #include "config.h"

@@ -1,9 +1,9 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
 
 /**
- * SECTION:compositor
- * @Title: MetaCompositor
- * @Short_Description: Compositor API
+ * MetaCompositor:
+ * 
+ * Compositor API
  *
  * At a high-level, a window is not-visible or visible. When a
  * window is added (with meta_compositor_add_window()) it is not visible.

@@ -19,9 +19,9 @@
  */
 
 /**
- * SECTION:meta-feedback-actor
- * @title: MetaFeedbackActor
- * @short_description: Actor for painting user interaction feedback
+ * MetaFeedbackActor:
+ * 
+ * Actor for painting user interaction feedback
  */
 
 #include "config.h"

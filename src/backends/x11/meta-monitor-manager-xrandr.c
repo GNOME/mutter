@@ -25,9 +25,9 @@
  */
 
 /**
- * SECTION:meta-monitor-manager-xrandr
- * @title: MetaMonitorManagerXrandr
- * @short_description: A subclass of #MetaMonitorManager using XRadR
+ * MetaMonitorManagerXrandr:
+ * 
+ * A subclass of #MetaMonitorManager using XRadR
  *
  * #MetaMonitorManagerXrandr is a subclass of #MetaMonitorManager which
  * implements its functionality using the RandR X protocol.

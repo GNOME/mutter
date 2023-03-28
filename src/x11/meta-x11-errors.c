@@ -18,9 +18,9 @@
  */
 
 /**
- * SECTION:errors
- * @title: Errors
- * @short_description: Mutter X error handling
+ * Errors:
+ * 
+ * Mutter X error handling
  */
 
 #include "config.h"

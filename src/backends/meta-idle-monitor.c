@@ -21,9 +21,9 @@
  */
 
 /**
- * SECTION:idle-monitor
- * @title: MetaIdleMonitor
- * @short_description: Mutter idle counter (similar to X's IDLETIME)
+ * MetaIdleMonitor:
+ * 
+ * Mutter idle counter (similar to X's IDLETIME)
  */
 
 #include "config.h"

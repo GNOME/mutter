@@ -16,12 +16,6 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * SECTION:meta-background-image
- * @title: MetaBackgroundImage
- * @short_description: objects holding images loaded from files, used for backgrounds
- */
-
 #include "config.h"
 
 #include "meta/meta-background-image.h"
@@ -43,9 +37,10 @@ static guint signals[LAST_SIGNAL] = { 0 };
 /**
  * MetaBackgroundImageCache:
  *
- * #MetaBackgroundImageCache caches loading of textures for backgrounds; there's actually
- * nothing background specific about it, other than it is tuned to work well for
- * large images as typically are used for backgrounds.
+ * Caches loading of textures for backgrounds.
+ * 
+ * There's actually nothing background specific about it, other than it is tuned
+ * to work well for large images as typically are used for backgrounds.
  */
 struct _MetaBackgroundImageCache
 {
@@ -57,7 +52,7 @@ struct _MetaBackgroundImageCache
 /**
  * MetaBackgroundImage:
  *
- * #MetaBackgroundImage is an object that represents a loaded or loading background image.
+ * Represents a loaded or loading background image.
  */
 struct _MetaBackgroundImage
 {
@@ -220,10 +215,11 @@ out:
  * @file: #GFile to load
  *
  * Loads an image to use as a background, or returns a reference to an
- * image that is already in the process of loading or loaded. In either
- * case, what is returned is a #MetaBackgroundImage which can be dereferenced
- * to get a #CoglTexture. If meta_background_image_is_loaded() returns %TRUE,
- * the background is loaded, otherwise the MetaBackgroundImage::loaded
+ * image that is already in the process of loading or loaded.
+ * 
+ * In either case, what is returned is a [class@Meta.BackgroundImage] which can be dereferenced
+ * to get a [iface@Cogl.Texture]. If [method@Meta.BackgroundImage.is_loaded] returns %TRUE,
+ * the background is loaded, otherwise the [signal@Meta.BackgroundImage::loaded]
  * signal will be emitted exactly once. The 'loaded' state means that the
  * loading process finished, whether it succeeded or failed.
  *

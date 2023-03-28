@@ -343,9 +343,10 @@ typedef enum
  * @META_BUTTON_FUNCTION_CLOSE: Close
  * @META_BUTTON_FUNCTION_LAST: Marks the end of the #MetaButtonFunction enumeration
  *
- * Function a window button can have.  Note, you can't add stuff here
- * without extending the theme format to draw a new function and
- * breaking all existing themes.
+ * Function a window button can have.
+ * 
+ * Note, you can't add stuff here without extending the theme format
+ * to draw a new function and breaking all existing themes.
  */
 typedef enum
 {

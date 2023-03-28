@@ -23,9 +23,9 @@
  */
 
 /**
- * SECTION:meta-backend-native
- * @title: MetaBackendNative
- * @short_description: A native (KMS/evdev) MetaBackend
+ * MetaBackendNative:
+ * 
+ * A native (KMS/evdev) MetaBackend
  *
  * MetaBackendNative is an implementation of #MetaBackend that uses "native"
  * technologies like DRM/KMS and libinput/evdev to perform the necessary

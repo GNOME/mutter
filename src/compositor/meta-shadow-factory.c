@@ -16,12 +16,6 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * SECTION:meta-shadow-factory
- * @title: MetaShadowFactory
- * @short_description: Create and cache shadow textures for arbitrary window shapes
- */
-
 #include "config.h"
 
 #include <math.h>
@@ -193,9 +187,10 @@ meta_shadow_unref (MetaShadow *shadow)
  *   drawing.
  *
  * Paints the shadow at the given position, for the specified actual
- * size of the region. (Since a #MetaShadow can be shared between
- * different sizes with the same extracted #MetaWindowShape the
- * size needs to be passed in here.)
+ * size of the region. 
+ * 
+ * Since a #MetaShadow can be shared between different sizes with 
+ * the same extracted [struct@Meta.WindowShape] the size needs to be passed in here.
  */
 void
 meta_shadow_paint (MetaShadow      *shadow,

@@ -21,9 +21,9 @@
  */
 
 /**
- * SECTION:display
- * @title: MetaDisplay
- * @short_description: Mutter display representation
+ * MetaDisplay:
+ * 
+ * Mutter display representation
  *
  * The display is represented as a #MetaDisplay struct.
  */
@@ -386,12 +386,13 @@ meta_display_class_init (MetaDisplayClass *klass)
    * @message: (allow-none): The message to display, or %NULL
    *  to clear a previous restart message.
    *
-   * The ::show-restart-message signal will be emitted to indicate
-   * that the compositor should show a message during restart. This is
-   * emitted when meta_restart() is called, either by Mutter
-   * internally or by the embedding compositor.  The message should be
+   * The signal will be emitted to indicate that the compositor 
+   * should show a message during restart.
+   * 
+   * This is emitted when [func@Meta.restart] is called, either by Mutter
+   * internally or by the embedding compositor. The message should be
    * immediately added to the Clutter stage in its final form -
-   * ::restart will be emitted to exit the application and leave the
+   * [signal@Meta.Display::restart] will be emitted to exit the application and leave the
    * stage contents frozen as soon as the the stage is painted again.
    *
    * On case of failure to restart, this signal will be emitted again
@@ -414,11 +415,13 @@ meta_display_class_init (MetaDisplayClass *klass)
    * MetaDisplay::restart:
    * @display: the #MetaDisplay instance
    *
-   * The ::restart signal is emitted to indicate that compositor
-   * should reexec the process. This is
-   * emitted when meta_restart() is called, either by Mutter
-   * internally or by the embedding compositor. See also
-   * ::show-restart-message.
+   * The signal is emitted to indicate that compositor
+   * should reexec the process.
+   * 
+   * This is emitted when [func@Meta.restart] is called,
+   * either by Mutter internally or by the embedding compositor.
+   * 
+   * See also [signal@Meta.Display::show-restart-message].
    *
    * Returns: %FALSE to indicate that the compositor could not
    *  be restarted. When the compositor is restarted, the signal

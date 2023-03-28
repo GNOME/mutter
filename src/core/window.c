@@ -21,39 +21,40 @@
  */
 
 /**
- * SECTION:meta-window
- * @title: MetaWindow
- * @short_description: A display-agnostic abstraction for a window.
+ * MetaWindow:
+ * 
+ * A display-agnostic abstraction for a window.
  *
  * #MetaWindow is the core abstraction in Mutter of a window. It has the
  * properties you'd expect, such as a title, whether it's fullscreen,
  * has decorations, etc.
  *
  * Since a lot of different kinds of windows exist, each window also a
- * #MetaWindowType which denotes which kind of window we're exactly dealing
+ * [enum@Meta.WindowType] which denotes which kind of window we're exactly dealing
  * with. For example, one expects slightly different behaviour from a dialog
  * than a "normal" window. The type of a window can be queried with
- * meta_window_get_type().
+ * [method@Meta.Window.get_window_type].
  *
  * Common API for windows include:
- * - Minimizing: meta_window_minimize() / meta_window_unminimize()
- * - Maximizing: meta_window_maximize() / meta_window_unmaximize()
- * - Fullscreen: meta_window_make_fullscreen() / meta_window_unmake_fullscreen()
- *               / meta_window_is_fullscreen()
+ * 
+ * - Minimizing: [method@Meta.Window.minimize] / [method@Meta.Window.unminimize]
+ * - Maximizing: [method@Meta.Window.maximize] / [method@Meta.Window.unmaximize]
+ * - Fullscreen: [method@Meta.Window.make_fullscreen] / [method@Meta.Window.unmake_fullscreen]
+ *               / [method@Meta.Window.is_fullscreen]
  *
- * Each #MetaWindow is part of either one or all #MetaWorkspace<!-- -->s of the
+ * Each #MetaWindow is part of either one or all [class@Meta.Workspace]s of the
  * desktop. You can activate a window on a certain workspace using
- * meta_window_activate_with_workspace(), and query on which workspace it is
- * located using meta_window_located_on_workspace(). The workspace it is part
- * of can be obtained using meta_window_get_workspace().
+ * [method@Meta.Window.activate_with_workspace], and query on which workspace it is
+ * located using [method@Meta.Window.located_on_workspace]. The workspace it is part
+ * of can be obtained using [method@Meta.Window.get_workspace].
  *
  * Each display protocol should make a subclass to be compatible with that
  * protocols' specifics, for example #MetaWindowX11 and #MetaWindowWayland.
  * This is independent of the protocol that the client uses, which is modeled
- * using the #MetaWindowClientType enum.
+ * using the [enum@Meta.WindowClientType] enum.
  *
  * To integrate within the Clutter scene graph, which deals with the actual
- * rendering, each #MetaWindow will be part of a #MetaWindowActor.
+ * rendering, each #MetaWindow will be part of a [class@Meta.WindowActor].
  */
 
 #include "config.h"
@@ -714,9 +715,11 @@ meta_window_class_init (MetaWindowClass *klass)
    * @window: a #MetaWindow
    *
    * This is emitted when the position of a window might
-   * have changed. Specifically, this is emitted when the
-   * position of the toplevel window has changed, or when
-   * the position of the client window has changed.
+   * have changed.
+   * 
+   * Specifically, this is emitted when the position of
+   * the toplevel window has changed, or when the position
+   * of the client window has changed.
    */
   window_signals[POSITION_CHANGED] =
     g_signal_new ("position-changed",
@@ -745,8 +748,10 @@ meta_window_class_init (MetaWindowClass *klass)
    * @window: a #MetaWindow
    *
    * This is emitted when the size of a window might
-   * have changed. Specifically, this is emitted when the
-   * size of the toplevel window has changed, or when the
+   * have changed.
+   * 
+   * Specifically, this is emitted when the size of
+   * the toplevel window has changed, or when the
    * size of the client window has changed.
    */
   window_signals[SIZE_CHANGED] =
@@ -3966,6 +3971,7 @@ meta_window_move_resize_internal (MetaWindow          *window,
  * Moves the window to the desired location on window's assigned
  * workspace, using the northwest edge of the frame as the reference,
  * instead of the actual window's origin, but only if a frame is present.
+ * 
  * Otherwise, acts identically to meta_window_move().
  */
 void
@@ -4418,9 +4424,10 @@ meta_window_frame_rect_to_client_rect (MetaWindow    *window,
  * @rect: (out): pointer to an allocated #MetaRectangle
  *
  * Gets the rectangle that bounds @window that is what the user thinks of
- * as the edge of the window. This doesn't include any extra reactive
- * area that we or the client adds to the window, or any area that the
- * client adds to draw a client-side shadow.
+ * as the edge of the window.
+ * 
+ * This doesn't include any extra reactive area that we or the client
+ * adds to the window, or any area that the client adds to draw a client-side shadow.
  */
 void
 meta_window_get_frame_rect (const MetaWindow *window,
@@ -5279,9 +5286,10 @@ meta_window_set_focused_internal (MetaWindow *window,
  * @window: a #MetaWindow
  * @rect: (out): rectangle into which to store the returned geometry.
  *
- * Gets the location of the icon corresponding to the window. The location
- * will be provided set by the task bar or other user interface element
- * displaying the icon, and is relative to the root window.
+ * Gets the location of the icon corresponding to the window.
+ * 
+ * The location will be provided set by the task bar or other user interface
+ * element displaying the icon, and is relative to the root window.
  *
  * Return value: %TRUE if the icon geometry was successfully retrieved.
  */
@@ -5307,8 +5315,9 @@ meta_window_get_icon_geometry (MetaWindow    *window,
  * @window: a #MetaWindow
  * @rect: (nullable): rectangle with the desired geometry or %NULL.
  *
- * Sets or unsets the location of the icon corresponding to the window. If
- * set, the location should correspond to a dock, task bar or other user
+ * Sets or unsets the location of the icon corresponding to the window.
+ * 
+ * If set, the location should correspond to a dock, task bar or other user
  * interface element displaying the icon, and is relative to the root window.
  */
 void
@@ -5950,7 +5959,8 @@ meta_window_same_application (MetaWindow *window,
  * meta_window_is_client_decorated:
  *
  * Check if if the window has decorations drawn by the client.
- * (window->decorated refers only to whether we should add decorations)
+ * 
+ * `window->decorated` refers only to whether we should add decorations.
  */
 gboolean
 meta_window_is_client_decorated (MetaWindow *window)
@@ -6235,8 +6245,9 @@ meta_window_stack_just_above (MetaWindow *window,
  * @window: a #MetaWindow
  *
  * The user time represents a timestamp for the last time the user
- * interacted with this window.  Note this property is only available
- * for non-override-redirect windows.
+ * interacted with this window.
+ * 
+ * Note this property is only available for non-override-redirect windows.
  *
  * The property is set by Mutter initially upon window creation,
  * and updated thereafter on input events (key and button presses) seen by Mutter,
@@ -6414,8 +6425,9 @@ meta_window_get_frame (MetaWindow *window)
  * meta_window_appears_focused:
  * @window: a #MetaWindow
  *
- * Determines if the window should be drawn with a focused appearance. This is
- * true for focused windows but also true for windows with a focused modal
+ * Determines if the window should be drawn with a focused appearance.
+ * 
+ * This is true for focused windows but also true for windows with a focused modal
  * dialog attached.
  *
  * Return value: %TRUE if the window should be drawn with a focused frame
@@ -6495,7 +6507,8 @@ meta_window_get_window_type (MetaWindow *window)
  * meta_window_get_workspace:
  * @window: a #MetaWindow
  *
- * Gets the #MetaWorkspace that the window is currently displayed on.
+ * Gets the [class@Meta.Workspace] that the window is currently displayed on.
+ * 
  * If the window is on all workspaces, returns the currently active
  * workspace.
  *
@@ -6537,9 +6550,9 @@ meta_window_get_description (MetaWindow *window)
  * meta_window_get_wm_class:
  * @window: a #MetaWindow
  *
- * Return the current value of the name part of WM_CLASS X property.
+ * Return the current value of the name part of `WM_CLASS` X property.
  *
- * Returns: (nullable): the current value of the name part of WM_CLASS X
+ * Returns: (nullable): the current value of the name part of `WM_CLASS` X
  * property
  */
 const char *
@@ -6555,9 +6568,9 @@ meta_window_get_wm_class (MetaWindow *window)
  * meta_window_get_wm_class_instance:
  * @window: a #MetaWindow
  *
- * Return the current value of the instance part of WM_CLASS X property.
+ * Return the current value of the instance part of `WM_CLASS` X property.
  *
- * Returns: (nullable): the current value of the instance part of WM_CLASS X
+ * Returns: (nullable): the current value of the instance part of `WM_CLASS` X
  * property.
  */
 const char *
@@ -6998,8 +7011,9 @@ meta_window_get_frame_bounds (MetaWindow *window)
  * @window: a #MetaWindow
  *
  * Tests if @window should be attached to its parent window.
- * (If the "attach_modal_dialogs" option is not enabled, this will
- * always return %FALSE.)
+ * 
+ * If the `attach_modal_dialogs` option is not enabled, this will
+ * always return %FALSE.
  *
  * Return value: whether @window should be attached to its parent
  */
@@ -7029,8 +7043,9 @@ has_attached_foreach_func (MetaWindow *window,
  * @window: a #MetaWindow
  *
  * Tests if @window has any transients attached to it.
- * (If the "attach_modal_dialogs" option is not enabled, this will
- * always return %FALSE.)
+ * 
+ * If the `attach_modal_dialogs` option is not enabled, this will
+ * always return %FALSE.
  *
  * Return value: whether @window has attached transients
  */

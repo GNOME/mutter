@@ -19,9 +19,9 @@
  */
 
 /**
- * SECTION:meta-dnd-actor
- * @title: MetaDnDActor
- * @short_description: Actor for painting the drag and drop surface
+ * MetaDnDActor:
+ * 
+ * Actor for painting the drag and drop surface
  *
  */
 

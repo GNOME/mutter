@@ -20,9 +20,9 @@
  */
 
 /**
- * SECTION:workspace
- * @title:MetaWorkspace
- * @short_description:Workspaces
+ * MetaWorkspace:
+ * 
+ * Workspaces
  *
  * A workspace is a set of windows which all live on the same
  * screen.  (You may also see the name "desktop" around the place,

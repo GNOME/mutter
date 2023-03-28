@@ -16,11 +16,6 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * SECTION:util
- * @title: Utility functions
- * @short_description: Miscellaneous utility functions
- */
 
 #define _POSIX_C_SOURCE 200112L /* for fdopen() */
 
@@ -175,10 +170,11 @@ meta_add_verbose_topic (MetaDebugTopic topic)
  * meta_remove_verbose_topic:
  * @topic: Topic for which logging will be stopped
  *
- * Stop printing log messages for the given topic @topic.  Note
- * that this method does not stack with meta_add_verbose_topic();
- * i.e. if two calls to meta_add_verbose_topic() for the same
- * topic are made, one call to meta_remove_verbose_topic() will
+ * Stop printing log messages for the given topic @topic.
+ * 
+ * Note that this method does not stack with [func@Meta.add_verbose_topic];
+ * i.e. if two calls to [func@Meta.add_verbose_topic] for the same
+ * topic are made, one call to [func@Meta.remove_verbose_topic]  will
  * remove it.
  */
 void

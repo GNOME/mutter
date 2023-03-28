@@ -1,11 +1,5 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
 
-/**
- * SECTION:boxes
- * @Title: MetaRectangle
- * @Short_Description: Simple box operations
- */
-
 /*
  * Copyright (C) 2005, 2006 Elijah Newren
  * [meta_rectangle_intersect() is copyright the GTK+ Team according to Havoc,

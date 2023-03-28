@@ -23,9 +23,9 @@
  */
 
 /**
- * SECTION:meta-pointer-confinement-wayland
- * @title: MetaPointerConfinementWayland
- * @short_description: A #MetaPointerConstraint implementing pointer confinement
+ * MetaPointerConfinementWayland:
+ *
+ * A #MetaPointerConstraint implementing pointer confinement
  *
  * A MetaPointerConfinementConstraint implements the client pointer constraint
  * "pointer confinement": the cursor should not be able to "break out" of a

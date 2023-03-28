@@ -1,8 +1,9 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
 
 /*
- * SECTION:stack
- * @short_description: Which windows cover which other windows
+ * stack:
+ *
+ * Which windows cover which other windows
  */
 
 /*

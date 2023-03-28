@@ -1,9 +1,9 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
 
 /**
- * SECTION:meta-background-group
- * @title: MetaBackgroundGroup
- * @short_description: Container for background actors
+ * MetaBackgroundGroup:
+ * 
+ * Container for background actors
  *
  * This class is a subclass of ClutterActor with special handling for
  * MetaBackgroundActor/MetaBackgroundGroup when painting children.

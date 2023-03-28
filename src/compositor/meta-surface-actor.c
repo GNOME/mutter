@@ -1,9 +1,9 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
 
 /**
- * SECTION:meta-surface-actor
- * @title: MetaSurfaceActor
- * @short_description: An actor representing a surface in the scene graph
+ * MetaSurfaceActor:
+ * 
+ * An actor representing a surface in the scene graph
  *
  * MetaSurfaceActor is an abstract class which represents a surface in the
  * Clutter scene graph. A subclass can implement the specifics of a surface

@@ -17,10 +17,10 @@
  */
 
 /**
- * SECTION:meta-color-manager
- * @title: MetaColorManager
- * @short_description: Interfaces for managing color-related properties like
- *   color look-up tables and color spaces.
+ * MetaColorManager:
+ * 
+ * Interfaces for managing color-related properties like
+ * color look-up tables and color spaces.
  *
  * Each MetaBackend has a MetaColorManager which includes interfaces for querying
  * and altering the color-related properties for displays associated with that

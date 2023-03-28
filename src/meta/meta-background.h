@@ -30,7 +30,8 @@
  * MetaBackground:
  *
  * This class handles tracking and painting the root window background.
- * By integrating with #MetaWindowGroup we can avoid painting parts of
+ * 
+ * By integrating with [class@Meta.WindowGroup] we can avoid painting parts of
  * the background that are obscured by other windows.
  */
 

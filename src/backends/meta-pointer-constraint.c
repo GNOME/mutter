@@ -23,9 +23,9 @@
  */
 
 /**
- * SECTION:meta-pointer-constraint
- * @title: MetaPointerConstraint
- * @short_description: Pointer client constraints.
+ * MetaPointerConstraint:
+ * 
+ * Pointer client constraints.
  *
  * A MetaPointerConstraint can be used to implement any kind of pointer
  * constraint as requested by a client, such as cursor lock.

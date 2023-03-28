@@ -20,9 +20,9 @@
  */
 
 /**
- * SECTION:gesture-tracker
- * @Title: MetaGestureTracker
- * @Short_Description: Manages gestures on windows/desktop
+ * MetaGestureTracker:
+ * 
+ * Manages gestures on windows/desktop
  *
  * Forwards touch events to clutter actors, and accepts/rejects touch sequences
  * based on the outcome of those.

@@ -20,9 +20,9 @@
  */
 
 /**
- * SECTION:input-settings
- * @title: MetaInputSettings
- * @short_description: Mutter input device configuration
+ * MetaInputSettings:
+ * 
+ * Mutter input device configuration
  */
 
 #include "config.h"

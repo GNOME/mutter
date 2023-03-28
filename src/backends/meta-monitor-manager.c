@@ -25,9 +25,9 @@
  */
 
 /**
- * SECTION:meta-monitor-manager
- * @title: MetaMonitorManager
- * @short_description: A manager for multiple monitors
+ * MetaMonitorManager:
+ * 
+ * A manager for multiple monitors
  *
  * #MetaMonitorManager is an abstract class which contains methods to handle
  * multiple monitors (both #MetaMonitor and #MetaLogicalMonitor) and GPU's
@@ -551,7 +551,7 @@ ensure_hdr_settings (MetaMonitorManager *manager)
  * @manager: A #MetaMonitorManager object
  *
  * Returns whether the monitor manager is headless, i.e. without
- * any #MetaLogicalMonitor<!-- -->s attached to it.
+ * any `MetaLogicalMonitor`s attached to it.
  *
  * Returns: %TRUE if no monitors are attached, %FALSE otherwise.
  */
@@ -3188,10 +3188,10 @@ initialize_dbus_interface (MetaMonitorManager *manager)
  * meta_monitor_manager_get_num_logical_monitors:
  * @manager: A #MetaMonitorManager object
  *
- * Returns the number of #MetaLogicalMonitor<!-- -->s (can be 0 in case of a
+ * Returns the number of `MetaLogicalMonitor`s (can be 0 in case of a
  * headless setup).
  *
- * Returns: the total number of #MetaLogicalMonitor<!-- -->s.
+ * Returns: the total number of `MetaLogicalMonitor`s.
  */
 int
 meta_monitor_manager_get_num_logical_monitors (MetaMonitorManager *manager)
@@ -3203,7 +3203,7 @@ meta_monitor_manager_get_num_logical_monitors (MetaMonitorManager *manager)
  * meta_monitor_manager_get_logical_monitors:
  * @manager: A #MetaMonitorManager object
  *
- * Returns the list of #MetaLogicalMonitor<!-- -->s that is handled. See also
+ * Returns the list of `MetaLogicalMonitor`s that is handled. See also
  * meta_monitor_manager_get_num_logical_monitors() if you only need the size of
  * the list.
  *
@@ -3462,11 +3462,11 @@ meta_monitor_manager_get_logical_monitor_neighbor (MetaMonitorManager  *manager,
  * meta_monitor_manager_get_monitors:
  * @manager: A #MetaMonitorManager object
  *
- * Returns the list of #MetaMonitor<!-- -->s. See also
+ * Returns the list of [class@Meta.Monitor]s. See also
  * meta_monitor_manager_get_logical_monitors() for a list of
- * #MetaLogicalMonitor<!-- -->s.
+ * `MetaLogicalMonitor`s.
  *
- * Returns: (transfer none) (nullable): the list of #MetaMonitor<!-- -->s.
+ * Returns: (transfer none) (nullable): the list of [class@Meta.Monitor]s.
  */
 GList *
 meta_monitor_manager_get_monitors (MetaMonitorManager *manager)

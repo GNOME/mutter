@@ -26,13 +26,6 @@
 #include "clutter/clutter.h"
 #include "meta/meta-background.h"
 
-/**
- * MetaBackgroundContent:
- *
- * This class handles tracking and painting the root window background.
- * By integrating with #MetaWindowGroup we can avoid painting parts of
- * the background that are obscured by other windows.
- */
 
 #define META_TYPE_BACKGROUND_CONTENT (meta_background_content_get_type ())
 

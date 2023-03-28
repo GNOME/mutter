@@ -22,9 +22,9 @@
  */
 
 /**
- * SECTION:keybindings
- * @Title: MetaKeybinding
- * @Short_Description: Key bindings
+ * MetaKeybinding:
+ * 
+ * Key bindings
  */
 
 #include "config.h"

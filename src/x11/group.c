@@ -19,10 +19,9 @@
  */
 
 /**
- * SECTION:group
- * @title: MetaGroup
- * @short_description: Mutter window groups
- *
+ * MetaGroup:(skip)
+ * 
+ * Mutter window groups
  */
 
 #include "config.h"

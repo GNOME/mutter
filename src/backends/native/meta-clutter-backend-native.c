@@ -23,9 +23,9 @@
  */
 
 /**
- * SECTION:meta-clutter-backend-native
- * @title: MetaClutterBackendNatve
- * @short_description: A native backend which renders using EGL.
+ * MetaClutterBackendNative:
+ * 
+ * A native backend which renders using EGL.
  *
  * MetaClutterBackendNative is the #ClutterBackend which is used by the native
  * (as opposed to the X) backend. It creates a stage with #MetaStageNative and

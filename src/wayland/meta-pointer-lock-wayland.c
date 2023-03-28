@@ -23,9 +23,9 @@
  */
 
 /**
- * SECTION:meta-pointer-lock-wayland
- * @title: MetaPointerLockWayland
- * @short_description: A #MetaPointerConstraint implementing pointer lock.
+ * MetaPointerLockWayland:
+ *
+ * A #MetaPointerConstraint implementing pointer lock.
  *
  * A MetaPointerLockConstraint implements the client pointer constraint "pointer
  * lock": the cursor should not make any movement.

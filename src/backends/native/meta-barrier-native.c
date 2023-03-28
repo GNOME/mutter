@@ -23,9 +23,9 @@
  */
 
 /**
- * SECTION:barrier-native
- * @Title: MetaBarrierImplNative
- * @Short_Description: Pointer barriers implementation for the native backend
+ * MetaBarrierImplNative:
+ * 
+ * Pointer barriers implementation for the native backend
  */
 
 #include "config.h"

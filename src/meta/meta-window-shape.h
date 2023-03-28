@@ -33,11 +33,12 @@ GType meta_window_shape_get_type (void) G_GNUC_CONST;
 
 /**
  * MetaWindowShape:
- * #MetaWindowShape represents a 9-sliced region with borders on all sides that
- * are unscaled, and a constant central region that is scaled. For example,
- * the regions representing two windows that are rounded rectangles,
- * with the same corner radius but different sizes, have the
- * same MetaWindowShape.
+ * 
+ * Represents a 9-sliced region with borders on all sides that
+ * are unscaled, and a constant central region that is scaled.
+ * 
+ * For example, the regions representing two windows that are rounded rectangles,
+ * with the same corner radius but different sizes, have the same MetaWindowShape.
  *
  * #MetaWindowShape is designed to be used as part of a hash table key, so has
  * efficient hash and equal functions.

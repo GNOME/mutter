@@ -22,9 +22,9 @@
  */
 
 /**
- * SECTION:meta-shaped-texture
- * @title: MetaShapedTexture
- * @short_description: A ClutterContent which draws a shaped texture
+ * MetaShapedTexture:
+ * 
+ * A ClutterContent which draws a shaped texture
  *
  * A MetaShapedTexture draws a #CoglTexture (often provided from a client
  * surface) in such a way that it matches any required transformations that

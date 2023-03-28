@@ -18,8 +18,9 @@
  */
 
 /*
- * SECTION:restart
- * @short_description: Smoothly restart the compositor
+ * restart:
+ *
+ * Smoothly restart the compositor
  *
  * There are some cases where we need to restart Mutter in order
  * to deal with changes in state - the particular case inspiring
@@ -117,13 +118,18 @@ child_setup (gpointer user_data)
  * @message: (allow-none): message to display to the user, or %NULL
  * @context: a #MetaContext
  *
- * Starts the process of restarting the compositor. Note that Mutter's
- * involvement here is to make the restart visually smooth for the
- * user - it cannot itself safely reexec a program that embeds libmuttter.
+ * Starts the process of restarting the compositor.
+ * 
+ * Note that Mutter's involvement here is to make the restart
+ * visually smooth for the user - it cannot itself safely 
+ * reexec a program that embeds libmuttter.
+ * 
  * So in order for this to work, the compositor must handle two
- * signals -  MetaDisplay::show-restart-message, to display the
- * message passed here on the Clutter stage, and ::restart to actually
- * reexec the compositor.
+ * signals 
+ * 
+ * - [signal@Meta.Display::show-restart-message], to display the
+ * message passed here on the Clutter stage
+ * - [signal@Meta.Display::restart] to actually reexec the compositor.
  */
 void
 meta_restart (const char  *message,
@@ -202,7 +208,8 @@ meta_restart (const char  *message,
  *
  * Returns %TRUE if this instance of Mutter comes from Mutter
  * restarting itself (for example to enable/disable stereo.)
- * See meta_restart(). If this is the case, any startup visuals
+ * 
+ * See [func@Meta.restart]. If this is the case, any startup visuals
  * or animations should be suppressed.
  */
 gboolean

@@ -1,10 +1,9 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
 
 /**
- * SECTION:meta-window-actor
- * @title: MetaWindowActor
- * @short_description: An actor representing a top-level window in the scene
- *   graph
+ * MetaWindowActor:
+ * 
+ * An actor representing a top-level window in the scene graph
  *
  * #MetaWindowActor is a #ClutterActor that adds a notion of a window to the
  * Clutter scene graph. It contains a #MetaWindow which provides the windowing

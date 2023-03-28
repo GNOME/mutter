@@ -20,21 +20,21 @@
  */
 
 /**
- * SECTION:meta-logical-monitor
- * @title: MetaLogicalMonitor
- * @short_description: An abstraction for a monitor(set) and its configuration.
+ * MetaLogicalMonitor:
+ * 
+ * An abstraction for a monitor(set) and its configuration.
  *
  * A logical monitor is a group of one or more physical monitors that
  * must behave and be treated as single one. This happens, for example,
  * when 2 monitors are mirrored. Each physical monitor is represented
- * by a #MetaMonitor.
+ * by a [class@Meta.Monitor].
  *
  * #MetaLogicalMonitor has a single viewport, with its owns transformations
- * (such as scaling), that are applied to all the #MetaMonitor<!-- -->s that
+ * (such as scaling), that are applied to all the [class@Meta.Monitor]s that
  * are grouped by it.
  *
  * #MetaLogicalMonitor provides an abstraction that makes it easy to handle
- * the specifics of setting up different #MetaMonitor<!-- -->s. It then can
+ * the specifics of setting up different [class@Meta.Monitor]s. It then can
  * be used more easily by #MetaRendererView.
  */
 

@@ -28,8 +28,9 @@
 G_BEGIN_DECLS
 
 /**
- * SECTION:MetaTextureMipmap
- * @short_description: mipmap handling for textures
+ * MetaTextureMipmap:
+ * 
+ * Mipmap handling for textures
  *
  * A #MetaTextureMipmap is used to get GL mipmaps for a texture
  */

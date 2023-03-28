@@ -1,8 +1,9 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
 
 /*
- * SECTION:restart-helper
- * @short_description: helper program during a restart
+ * restart-helper
+ * 
+ * Helper program during a restart
  *
  * To smoothly restart Mutter, we want to keep the composite
  * overlay window enabled during the restart. This is done by

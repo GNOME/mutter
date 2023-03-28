@@ -34,9 +34,9 @@
 #include "meta/meta-enums.h"
 
 /**
- * SECTION:common
- * @Title: Common
- * @Short_Description: Mutter common types
+ * Common:
+ * 
+ * Mutter common types
  */
 
 /* This is set in stone and also hard-coded in GDK. */

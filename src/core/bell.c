@@ -21,8 +21,9 @@
  */
 
 /*
- * SECTION:bell
- * @short_description: Ring the bell or flash the screen
+ * bell:
+ * 
+ * Ring the bell or flash the screen
  *
  * Sometimes, X programs "ring the bell", whatever that means. Mutter lets
  * the user configure the bell to be audible or visible (aka visual), and

@@ -22,8 +22,9 @@
 #define META_STACK_H
 
 /**
- * SECTION:stack
- * @short_description: Which windows cover which other windows
+ * stack:
+ * 
+ * Which windows cover which other windows
  *
  * There are two factors that determine window position.
  *

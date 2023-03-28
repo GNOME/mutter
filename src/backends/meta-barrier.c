@@ -1,9 +1,9 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; c-basic-offset: 2; -*- */
 
 /**
- * SECTION:barrier
- * @Title: MetaBarrier
- * @Short_Description: Pointer barriers
+ * MetaBarrier:
+ * 
+ * Pointer barriers
  */
 
 #include "config.h"

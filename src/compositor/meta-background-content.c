@@ -21,13 +21,13 @@
 
 
 /**
- * SECTION:meta-background-content
- * @title: MetaBackgroundContent
- * @short_description: ClutterContent for painting the root window background
+ * MetaBackgroundContent:
  *
- */
-
-/*
+ * This class handles tracking and painting the root window background.
+ * 
+ * By integrating with [class@Meta.WindowGroup] we can avoid painting parts of
+ * the background that are obscured by other windows.
+ * 
  * The overall model drawing model of this content is that we have one
  * texture, or two interpolated textures, possibly with alpha or
  * margins that let the underlying background show through, blended

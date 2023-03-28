@@ -23,9 +23,9 @@
  */
 
 /**
- * SECTION:meta-backend
- * @title: MetaBackend
- * @short_description: Handles monitor config, modesetting, cursor sprites, ...
+ * MetaBackend:
+ * 
+ * Handles monitor config, modesetting, cursor sprites, ...
  *
  * MetaBackend is the abstraction that deals with several things like:
  * - Modesetting (depending on the backend, this can be done either by X or KMS)
