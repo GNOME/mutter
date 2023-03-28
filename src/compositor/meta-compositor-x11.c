@@ -198,8 +198,6 @@ meta_compositor_x11_manage (MetaCompositor  *compositor,
 
   compositor_x11->have_x11_sync_object = meta_sync_ring_init (xdisplay);
 
-  meta_x11_display_redirect_windows (x11_display, display);
-
   return TRUE;
 }
 
