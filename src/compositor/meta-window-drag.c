@@ -57,6 +57,8 @@ struct _MetaWindowDrag {
 
   ClutterInputDevice *leading_device;
   ClutterEventSequence *leading_touch_sequence;
+  double anchor_rel_x;
+  double anchor_rel_y;
   int anchor_root_x;
   int anchor_root_y;
   MetaRectangle anchor_window_pos;
@@ -1188,7 +1190,7 @@ update_move (MetaWindowDrag          *window_drag,
   MetaWindow *window;
   int dx, dy;
   int new_x, new_y;
-  MetaRectangle old;
+  MetaRectangle old, frame_rect;
   int shake_threshold;
 
   window = window_drag->effective_grab_window;
@@ -1203,15 +1205,16 @@ update_move (MetaWindowDrag          *window_drag,
   dx = x - window_drag->anchor_root_x;
   dy = y - window_drag->anchor_root_y;
 
-  new_x = window_drag->anchor_window_pos.x + dx;
-  new_y = window_drag->anchor_window_pos.y + dy;
+  meta_window_get_frame_rect (window, &frame_rect);
+  new_x = x - (frame_rect.width * window_drag->anchor_rel_x);
+  new_y = y - (frame_rect.height * window_drag->anchor_rel_y);
 
-  meta_verbose ("x,y = %d,%d anchor ptr %d,%d anchor pos %d,%d dx,dy %d,%d",
+  meta_verbose ("x,y = %d,%d anchor ptr %d,%d rel anchor pos %f,%f dx,dy %d,%d",
                 x, y,
                 window_drag->anchor_root_x,
                 window_drag->anchor_root_y,
-                window_drag->anchor_window_pos.x,
-                window_drag->anchor_window_pos.y,
+                window_drag->anchor_rel_x,
+                window_drag->anchor_rel_y,
                 dx, dy);
 
   /* Don't bother doing anything if no move has been specified.  (This
@@ -1878,6 +1881,15 @@ meta_window_drag_begin (MetaWindowDrag       *window_drag,
   meta_window_get_frame_rect (window_drag->effective_grab_window,
                               &window_drag->initial_window_pos);
   window_drag->anchor_window_pos = window_drag->initial_window_pos;
+
+  window_drag->anchor_rel_x =
+    CLAMP ((double) (root_x - window_drag->initial_window_pos.x) /
+           window_drag->initial_window_pos.width,
+           0, 1);
+  window_drag->anchor_rel_y =
+    CLAMP ((double) (root_y - window_drag->initial_window_pos.y) /
+           window_drag->initial_window_pos.height,
+           0, 1);
 
   if (meta_is_wayland_compositor ())
     {
