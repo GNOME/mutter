@@ -61,7 +61,6 @@ struct _MetaWindowDrag {
   double anchor_rel_y;
   int anchor_root_x;
   int anchor_root_y;
-  MetaRectangle anchor_window_pos;
   MetaTileMode tile_mode;
   int tile_monitor_number;
   int latest_motion_x;
@@ -413,14 +412,6 @@ on_grab_window_unmanaging (MetaWindow     *window,
   meta_window_drag_end (window_drag);
 }
 
-static void
-on_grab_window_size_changed (MetaWindow     *window,
-                             MetaWindowDrag *window_drag)
-{
-  meta_window_get_frame_rect (window,
-                              &window_drag->anchor_window_pos);
-}
-
 static MetaWindow *
 get_first_freefloating_window (MetaWindow *window)
 {
@@ -491,8 +482,6 @@ warp_grab_pointer (MetaWindowDrag *window_drag,
   window_drag->anchor_root_y = *y;
   window_drag->latest_motion_x = *x;
   window_drag->latest_motion_y = *y;
-  meta_window_get_frame_rect (window,
-                              &window_drag->anchor_window_pos);
 
   seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
   clutter_seat_warp_pointer (seat, *x, *y);
@@ -1853,13 +1842,6 @@ meta_window_drag_begin (MetaWindowDrag       *window_drag,
     g_signal_connect (grab_window, "unmanaging",
                       G_CALLBACK (on_grab_window_unmanaging), window_drag);
 
-  if (meta_grab_op_is_moving (grab_op))
-    {
-      window_drag->size_changed_id =
-        g_signal_connect (grab_window, "size-changed",
-                          G_CALLBACK (on_grab_window_size_changed), window_drag);
-    }
-
   window_drag->leading_device = device;
   window_drag->leading_touch_sequence = sequence;
   window_drag->tile_mode = grab_window->tile_mode;
@@ -1880,7 +1862,6 @@ meta_window_drag_begin (MetaWindowDrag       *window_drag,
 
   meta_window_get_frame_rect (window_drag->effective_grab_window,
                               &window_drag->initial_window_pos);
-  window_drag->anchor_window_pos = window_drag->initial_window_pos;
 
   window_drag->anchor_rel_x =
     CLAMP ((double) (root_x - window_drag->initial_window_pos.x) /
