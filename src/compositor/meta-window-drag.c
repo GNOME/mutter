@@ -1451,8 +1451,8 @@ update_resize (MetaWindowDrag          *window_drag,
       dy *= 2;
     }
 
-  new_rect.width = window_drag->anchor_window_pos.width;
-  new_rect.height = window_drag->anchor_window_pos.height;
+  new_rect.width = window_drag->initial_window_pos.width;
+  new_rect.height = window_drag->initial_window_pos.height;
 
   /* Don't bother doing anything if no move has been specified.  (This
    * happens often, even in keyboard resizing, due to the warping of the
