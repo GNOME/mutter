@@ -229,11 +229,7 @@ meta_gamma_lut_copy_to_size (const MetaGammaLut *gamma,
   if (gamma->size == target_size)
     return meta_gamma_lut_copy (gamma);
 
-  out = meta_gamma_lut_new (target_size, NULL, NULL, NULL);
-
-  out->red = g_new0 (uint16_t, target_size);
-  out->green = g_new0 (uint16_t, target_size);
-  out->blue = g_new0 (uint16_t, target_size);
+  out = meta_gamma_lut_new_sized (target_size);
 
   if (target_size >= gamma->size)
     {

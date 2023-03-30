@@ -170,12 +170,7 @@ read_crtc_legacy_gamma (MetaKmsCrtc       *crtc,
 {
   crtc_state->gamma.size = drm_crtc->gamma_size;
   crtc_state->gamma.supported = drm_crtc->gamma_size != 0;
-  crtc_state->gamma.value = meta_gamma_lut_new (drm_crtc->gamma_size,
-                                                NULL, NULL, NULL);
-
-  crtc_state->gamma.value->red = g_new0 (uint16_t, drm_crtc->gamma_size);
-  crtc_state->gamma.value->green = g_new0 (uint16_t, drm_crtc->gamma_size);
-  crtc_state->gamma.value->blue = g_new0 (uint16_t, drm_crtc->gamma_size);
+  crtc_state->gamma.value = meta_gamma_lut_new_sized (drm_crtc->gamma_size);
 
   drmModeCrtcGetGamma (meta_kms_impl_device_get_fd (impl_device),
                        crtc->id,
