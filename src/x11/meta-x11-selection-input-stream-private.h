@@ -33,7 +33,7 @@ G_DECLARE_FINAL_TYPE (MetaX11SelectionInputStream,
                       GInputStream)
 
 void           meta_x11_selection_input_stream_new_async     (MetaX11Display             *x11_display,
-                                                              const char                 *selection,
+                                                              Atom                        xselection,
                                                               const char                 *target,
                                                               guint32                     timestamp,
                                                               int                         io_priority,

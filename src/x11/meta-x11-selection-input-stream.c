@@ -524,7 +524,7 @@ meta_x11_selection_input_stream_xevent (MetaX11SelectionInputStream *stream,
 
 void
 meta_x11_selection_input_stream_new_async (MetaX11Display      *x11_display,
-                                           const char          *selection,
+                                           Atom                 xselection,
                                            const char          *target,
                                            guint32              timestamp,
                                            int                  io_priority,
@@ -548,7 +548,7 @@ meta_x11_selection_input_stream_new_async (MetaX11Display      *x11_display,
 
   x11_display->selection.input_streams =
     g_list_prepend (x11_display->selection.input_streams, stream);
-  priv->xselection = XInternAtom (x11_display->xdisplay, selection, False);
+  priv->xselection = xselection;
   priv->xtarget = XInternAtom (x11_display->xdisplay, target, False);
   priv->xproperty = XInternAtom (x11_display->xdisplay, "META_SELECTION", False);
   priv->window = XCreateWindow (x11_display->xdisplay,
