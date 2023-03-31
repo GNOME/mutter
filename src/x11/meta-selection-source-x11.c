@@ -21,6 +21,7 @@
 
 #include "config.h"
 
+#include "meta/meta-x11-errors.h"
 #include "x11/meta-x11-selection-input-stream-private.h"
 #include "x11/meta-selection-source-x11-private.h"
 
@@ -156,7 +157,13 @@ atoms_to_mimetypes (MetaX11Display *display,
     {
       const gchar *mimetype;
 
+      meta_x11_error_trap_push (display);
       mimetype = XGetAtomName (xdisplay, atoms[i]);
+      meta_x11_error_trap_pop (display);
+
+      if (!mimetype)
+        continue;
+
       mimetypes = g_list_prepend (mimetypes, g_strdup (mimetype));
 
       utf8_text_plain_found |= strcmp (mimetype, "text/plain;charset=utf-8") == 0;
