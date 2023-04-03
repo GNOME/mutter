@@ -266,7 +266,7 @@ do_all_constraints (MetaWindow         *window,
         {
           /* Log how the constraint modified the position */
           meta_topic (META_DEBUG_GEOMETRY,
-                      "info->current is %d,%d +%d,%d after %s",
+                      "info->current is %d,%d %dx%d after %s",
                       info->current.x, info->current.y,
                       info->current.width, info->current.height,
                       constraint->name);
@@ -489,14 +489,14 @@ setup_constraint_info (MetaBackend         *backend,
   /* Log all this information for debugging */
   meta_topic (META_DEBUG_GEOMETRY,
               "Setting up constraint info:\n"
-              "  orig: %d,%d +%d,%d\n"
-              "  new : %d,%d +%d,%d\n"
+              "  orig: %d,%d %dx%d\n"
+              "  new : %d,%d %dx%d\n"
               "  action_type     : %s\n"
               "  is_user_action  : %s\n"
               "  resize_gravity  : %s\n"
               "  fixed_directions: %s\n"
-              "  work_area_monitor: %d,%d +%d,%d\n"
-              "  entire_monitor   : %d,%d +%d,%d",
+              "  work_area_monitor: %d,%d %dx%d\n"
+              "  entire_monitor   : %d,%d %dx%d",
               info->orig.x, info->orig.y, info->orig.width, info->orig.height,
               info->current.x, info->current.y,
                 info->current.width, info->current.height,
