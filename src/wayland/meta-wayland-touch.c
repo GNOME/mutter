@@ -270,6 +270,9 @@ meta_wayland_touch_update (MetaWaylandTouch   *touch,
 
       touch_info->slot_serial =
         meta_wayland_input_device_next_serial (input_device);
+
+      if (event_type == CLUTTER_TOUCH_BEGIN)
+        touch->latest_touch_down_serial = touch_info->slot_serial;
     }
 
   touch_get_relative_coordinates (touch, touch_info->touch_surface->surface,
@@ -524,6 +527,8 @@ meta_wayland_touch_enable (MetaWaylandTouch *touch)
   touch->touches = g_hash_table_new_full (NULL, NULL, NULL,
                                           (GDestroyNotify) touch_info_free);
 
+  touch->latest_touch_down_serial = 0;
+
   wl_list_init (&touch->resource_list);
 }
 
@@ -534,6 +539,8 @@ meta_wayland_touch_disable (MetaWaylandTouch *touch)
 
   g_clear_pointer (&touch->touch_surfaces, g_hash_table_unref);
   g_clear_pointer (&touch->touches, g_hash_table_unref);
+
+  touch->latest_touch_down_serial = 0;
 }
 
 void
@@ -559,8 +566,10 @@ meta_wayland_touch_can_popup (MetaWaylandTouch *touch,
   if (!touch->touches)
     return FALSE;
 
-  g_hash_table_iter_init (&iter, touch->touches);
+  if (touch->latest_touch_down_serial == serial)
+    return TRUE;
 
+  g_hash_table_iter_init (&iter, touch->touches);
   while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &touch_info))
     {
       if (touch_info->slot_serial == serial)

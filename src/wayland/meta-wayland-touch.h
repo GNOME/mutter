@@ -40,6 +40,8 @@ struct _MetaWaylandTouch
 
   struct wl_list resource_list;
 
+  uint32_t latest_touch_down_serial;
+
   guint queued_frame_id;
   GHashTable *touch_surfaces; /* HT of MetaWaylandSurface->MetaWaylandTouchSurface */
   GHashTable *touches; /* HT of sequence->MetaWaylandTouchInfo */
