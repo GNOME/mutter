@@ -529,7 +529,7 @@ output_get_backlight_xrandr (MetaOutput *output)
     return -1;
 
   value = ((int*)buffer)[0];
-  if (value > 0)
+  if (value >= 0)
     return normalize_backlight (output, value);
   else
     return -1;
