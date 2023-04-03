@@ -341,6 +341,7 @@ meta_window_tracker_constructed (GObject *object)
   XSelectInput (xdisplay, xroot,
                 KeyPressMask |
                 PropertyChangeMask |
+                StructureNotifyMask |
                 SubstructureNotifyMask);
 
   g_signal_connect (display, "xevent",
