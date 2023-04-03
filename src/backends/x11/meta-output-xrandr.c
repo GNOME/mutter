@@ -526,7 +526,7 @@ output_get_backlight_xrandr (MetaOutput *output)
                         &nitems, &bytes_after, &buffer);
 
   if (actual_type != XA_INTEGER || actual_format != 32 || nitems < 1)
-    return FALSE;
+    return -1;
 
   value = ((int*)buffer)[0];
   if (value > 0)
