@@ -137,6 +137,7 @@ test_env = environment()
 test_env_variables = {
   'G_TEST_SRCDIR': join_paths(mutter_srcdir, 'src'),
   'G_TEST_BUILDDIR': mutter_builddir,
+  'XDG_CONFIG_HOME': join_paths(mutter_builddir, '.config'),
   'MUTTER_TEST_PLUGIN_PATH': '@0@'.format(default_plugin.full_path()),
 }
 
