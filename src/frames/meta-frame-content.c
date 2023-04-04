@@ -118,12 +118,13 @@ meta_frame_content_size_allocate (GtkWidget *widget,
 {
   MetaFrameContent *content = META_FRAME_CONTENT (widget);
   GtkWindow *window = GTK_WINDOW (gtk_widget_get_root (widget));
-  double x = 0, y = 0, scale;
+  graphene_point_t point = {};
+  double scale;
 
-  gtk_widget_translate_coordinates (widget,
-                                    GTK_WIDGET (window),
-                                    x, y,
-                                    &x, &y);
+  if (!gtk_widget_compute_point (widget,
+                                 GTK_WIDGET (window),
+                                 &point, &point))
+    return;
 
   scale = gdk_surface_get_scale_factor (gtk_native_get_surface (GTK_NATIVE (window)));
 
@@ -132,8 +133,8 @@ meta_frame_content_size_allocate (GtkWidget *widget,
                                      * are ever other than 0.
                                      */
                                     (GtkBorder) {
-                                      x * scale, 0,
-                                      y * scale, 0,
+                                      point.x * scale, 0,
+                                      point.y * scale, 0,
                                     });
 }
 
