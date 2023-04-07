@@ -23,8 +23,10 @@
 
 #include "config.h"
 
+#include "clutter/clutter-mutter.h"
 #include "compositor/clutter-utils.h"
 #include "compositor/meta-cullable.h"
+#include "compositor/region-utils.h"
 
 G_DEFINE_INTERFACE (MetaCullable, meta_cullable, CLUTTER_TYPE_ACTOR);
 
@@ -42,6 +44,16 @@ has_active_effects (ClutterActor *actor)
     }
 
   return FALSE;
+}
+
+static cairo_region_t *
+region_apply_transform_expand_maybe_ref (cairo_region_t    *region,
+                                         graphene_matrix_t *transform)
+{
+  if (cairo_region_is_empty (region))
+    return cairo_region_reference (region);
+
+  return meta_region_apply_matrix_transform_expand (region, transform);
 }
 
 /**
@@ -86,7 +98,6 @@ meta_cullable_cull_out_children (MetaCullable   *cullable,
   clutter_actor_iter_init (&iter, actor);
   while (clutter_actor_iter_prev (&iter, &child))
     {
-      float x, y;
       gboolean needs_culling;
 
       if (!META_IS_CULLABLE (child))
@@ -116,21 +127,60 @@ meta_cullable_cull_out_children (MetaCullable   *cullable,
       if (needs_culling && has_active_effects (child))
         needs_culling = FALSE;
 
-      if (needs_culling && !meta_cullable_is_untransformed (META_CULLABLE (child)))
-        needs_culling = FALSE;
-
       if (needs_culling)
         {
-          clutter_actor_get_position (child, &x, &y);
+          cairo_region_t *actor_unobscured_region, *actor_clip_region;
+          cairo_region_t *reduced_unobscured_region, *reduced_clip_region;
+          graphene_matrix_t actor_transform, inverted_actor_transform;
 
-          /* Temporarily move to the coordinate system of the actor */
-          cairo_region_translate (unobscured_region, - x, - y);
-          cairo_region_translate (clip_region, - x, - y);
+          clutter_actor_get_transform (child, &actor_transform);
 
-          meta_cullable_cull_out (META_CULLABLE (child), unobscured_region, clip_region);
+          if (graphene_matrix_is_identity (&actor_transform))
+            {
+              /* No transformation needed, simply pass through to child */
+              meta_cullable_cull_out (META_CULLABLE (child),
+                                      unobscured_region,
+                                      clip_region);
+              continue;
+            }
 
-          cairo_region_translate (unobscured_region, x, y);
-          cairo_region_translate (clip_region, x, y);
+          if (!graphene_matrix_inverse (&actor_transform,
+                                        &inverted_actor_transform) ||
+              !graphene_matrix_is_2d (&actor_transform))
+            {
+              meta_cullable_cull_out (META_CULLABLE (child), NULL, NULL);
+              continue;
+            }
+
+          actor_unobscured_region =
+            region_apply_transform_expand_maybe_ref (unobscured_region,
+                                                     &inverted_actor_transform);
+          actor_clip_region =
+            region_apply_transform_expand_maybe_ref (clip_region,
+                                                     &inverted_actor_transform);
+
+          g_assert (actor_unobscured_region && actor_clip_region);
+
+          meta_cullable_cull_out (META_CULLABLE (child),
+                                  actor_unobscured_region,
+                                  actor_clip_region);
+
+          reduced_unobscured_region =
+            region_apply_transform_expand_maybe_ref (actor_unobscured_region,
+                                                     &actor_transform);
+          reduced_clip_region =
+            region_apply_transform_expand_maybe_ref (actor_clip_region,
+                                                     &actor_transform);
+
+          g_assert (reduced_unobscured_region && reduced_clip_region);
+
+          cairo_region_intersect (unobscured_region, reduced_unobscured_region);
+          cairo_region_intersect (clip_region, reduced_clip_region);
+
+          cairo_region_destroy (actor_unobscured_region);
+          cairo_region_destroy (actor_clip_region);
+          cairo_region_destroy (reduced_unobscured_region);
+          cairo_region_destroy (reduced_clip_region);
         }
       else
         {
@@ -165,23 +215,9 @@ meta_cullable_reset_culling_children (MetaCullable *cullable)
     }
 }
 
-static gboolean
-meta_cullable_default_is_untransformed (MetaCullable *cullable)
-{
-  float width, height;
-  graphene_point3d_t verts[4];
-
-  clutter_actor_get_size (CLUTTER_ACTOR (cullable), &width, &height);
-  clutter_actor_get_abs_allocation_vertices (CLUTTER_ACTOR (cullable), verts);
-
-  return meta_actor_vertices_are_untransformed (verts, width, height,
-                                                NULL);
-}
-
 static void
 meta_cullable_default_init (MetaCullableInterface *iface)
 {
-  iface->is_untransformed = meta_cullable_default_is_untransformed;
 }
 
 /**
@@ -214,19 +250,6 @@ meta_cullable_cull_out (MetaCullable   *cullable,
                         cairo_region_t *clip_region)
 {
   META_CULLABLE_GET_IFACE (cullable)->cull_out (cullable, unobscured_region, clip_region);
-}
-
-/**
- * meta_cullable_is_untransformed:
- * @cullable: The #MetaCullable
- *
- * Check if a cullable is "untransformed" - which actually means transformed by
- * at most a integer-translation.
- */
-gboolean
-meta_cullable_is_untransformed (MetaCullable *cullable)
-{
-  return META_CULLABLE_GET_IFACE (cullable)->is_untransformed (cullable);
 }
 
 /**

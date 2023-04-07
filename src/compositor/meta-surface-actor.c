@@ -77,43 +77,6 @@ effective_unobscured_region (MetaSurfaceActor *surface_actor)
   return priv->unobscured_region;
 }
 
-static cairo_region_t*
-get_scaled_region (MetaSurfaceActor     *surface_actor,
-                   cairo_region_t       *region,
-                   ScalePerspectiveType  scale_perspective)
-{
-  MetaWindowActor *window_actor;
-  cairo_region_t *scaled_region = NULL;
-  int geometry_scale;
-  float x, y;
-
-  window_actor = meta_window_actor_from_actor (CLUTTER_ACTOR (surface_actor));
-  geometry_scale = meta_window_actor_get_geometry_scale (window_actor);
-
-  clutter_actor_get_position (CLUTTER_ACTOR (surface_actor), &x, &y);
-  cairo_region_translate (region, x, y);
-
-  switch (scale_perspective)
-    {
-    case IN_STAGE_PERSPECTIVE:
-      scaled_region = meta_region_scale_double (region,
-                                                geometry_scale,
-                                                META_ROUNDING_STRATEGY_GROW);
-      break;
-    case IN_ACTOR_PERSPECTIVE:
-      scaled_region = meta_region_scale_double (region,
-                                                1.0 / geometry_scale,
-                                                META_ROUNDING_STRATEGY_GROW);
-      break;
-    }
-
-  g_assert (scaled_region != NULL);
-  cairo_region_translate (region, -x, -y);
-  cairo_region_translate (scaled_region, -x, -y);
-
-  return scaled_region;
-}
-
 static void
 set_unobscured_region (MetaSurfaceActor *surface_actor,
                        cairo_region_t   *unobscured_region)
@@ -141,9 +104,7 @@ set_unobscured_region (MetaSurfaceActor *surface_actor,
             .height = height,
           };
 
-          priv->unobscured_region = get_scaled_region (surface_actor,
-                                                       unobscured_region,
-                                                       IN_ACTOR_PERSPECTIVE);
+          priv->unobscured_region = cairo_region_copy (unobscured_region);
 
           cairo_region_intersect_rectangle (priv->unobscured_region, &bounds);
         }
@@ -160,14 +121,12 @@ set_clip_region (MetaSurfaceActor *surface_actor,
 
   if (clip_region && !cairo_region_is_empty (clip_region))
     {
-      cairo_region_t *region;
+      cairo_region_t *clip_region_copy;
 
-      region = get_scaled_region (surface_actor,
-                                  clip_region,
-                                  IN_ACTOR_PERSPECTIVE);
-      meta_shaped_texture_set_clip_region (stex, region);
+      clip_region_copy = cairo_region_copy (clip_region);
+      meta_shaped_texture_set_clip_region (stex, clip_region_copy);
 
-      cairo_region_destroy (region);
+      cairo_region_destroy (clip_region_copy);
     }
   else
     {
@@ -293,45 +252,17 @@ meta_surface_actor_cull_out (MetaCullable   *cullable,
   if (opacity == 0xff)
     {
       cairo_region_t *opaque_region;
-      cairo_region_t *scaled_opaque_region;
 
       opaque_region = meta_shaped_texture_get_opaque_region (priv->texture);
 
       if (!opaque_region)
         return;
 
-      scaled_opaque_region = get_scaled_region (surface_actor,
-                                                opaque_region,
-                                                IN_STAGE_PERSPECTIVE);
-
       if (unobscured_region)
-        cairo_region_subtract (unobscured_region, scaled_opaque_region);
+        cairo_region_subtract (unobscured_region, opaque_region);
       if (clip_region)
-        cairo_region_subtract (clip_region, scaled_opaque_region);
-
-      cairo_region_destroy (scaled_opaque_region);
+        cairo_region_subtract (clip_region, opaque_region);
     }
-}
-
-static gboolean
-meta_surface_actor_is_untransformed (MetaCullable *cullable)
-{
-  ClutterActor *actor = CLUTTER_ACTOR (cullable);
-  MetaWindowActor *window_actor;
-  float width, height;
-  graphene_point3d_t verts[4];
-  int geometry_scale;
-
-  clutter_actor_get_size (actor, &width, &height);
-  clutter_actor_get_abs_allocation_vertices (actor, verts);
-
-  window_actor = meta_window_actor_from_actor (actor);
-  geometry_scale = meta_window_actor_get_geometry_scale (window_actor);
-
-  return meta_actor_vertices_are_untransformed (verts,
-                                                width * geometry_scale,
-                                                height * geometry_scale,
-                                                NULL);
 }
 
 static void
@@ -346,7 +277,6 @@ static void
 cullable_iface_init (MetaCullableInterface *iface)
 {
   iface->cull_out = meta_surface_actor_cull_out;
-  iface->is_untransformed = meta_surface_actor_is_untransformed;
   iface->reset_culling = meta_surface_actor_reset_culling;
 }
 

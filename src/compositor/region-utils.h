@@ -119,4 +119,8 @@ cairo_region_t * meta_region_crop_and_scale (cairo_region_t  *region,
 void meta_region_to_cairo_path (cairo_region_t *region,
                                 cairo_t        *cr);
 
+cairo_region_t *
+meta_region_apply_matrix_transform_expand (const cairo_region_t *region,
+                                           graphene_matrix_t    *transform);
+
 #endif /* __META_REGION_UTILS_H__ */

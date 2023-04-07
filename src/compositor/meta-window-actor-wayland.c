@@ -87,29 +87,6 @@ surface_container_cull_out (MetaCullable   *cullable,
   meta_cullable_cull_out_children (cullable, unobscured_region, clip_region);
 }
 
-static gboolean
-surface_container_is_untransformed (MetaCullable *cullable)
-{
-  MetaSurfaceContainerActorWayland *surface_container =
-    META_SURFACE_CONTAINER_ACTOR_WAYLAND (cullable);
-  ClutterActor *actor = CLUTTER_ACTOR (cullable);
-  MetaWindowActor *window_actor;
-  float width, height;
-  graphene_point3d_t verts[4];
-  int geometry_scale;
-
-  clutter_actor_get_size (actor, &width, &height);
-  clutter_actor_get_abs_allocation_vertices (actor, verts);
-
-  window_actor = surface_container->window_actor;
-  geometry_scale = meta_window_actor_get_geometry_scale (window_actor);
-
-  return meta_actor_vertices_are_untransformed (verts,
-                                                width * geometry_scale,
-                                                height * geometry_scale,
-                                                NULL);
-}
-
 static void
 surface_container_reset_culling (MetaCullable *cullable)
 {
@@ -120,7 +97,6 @@ static void
 surface_container_cullable_iface_init (MetaCullableInterface *iface)
 {
   iface->cull_out = surface_container_cull_out;
-  iface->is_untransformed = surface_container_is_untransformed;
   iface->reset_culling = surface_container_reset_culling;
 }
 

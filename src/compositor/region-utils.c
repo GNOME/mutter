@@ -472,3 +472,36 @@ meta_region_to_cairo_path (cairo_region_t *region,
       cairo_rectangle (cr, rect.x, rect.y, rect.width, rect.height);
     }
 }
+
+cairo_region_t *
+meta_region_apply_matrix_transform_expand (const cairo_region_t *region,
+                                           graphene_matrix_t    *transform)
+{
+  int n_rects, i;
+  cairo_rectangle_int_t *rects;
+  cairo_region_t *transformed_region;
+
+  if (graphene_matrix_is_identity (transform))
+    return cairo_region_copy (region);
+
+  n_rects = cairo_region_num_rectangles (region);
+  META_REGION_CREATE_RECTANGLE_ARRAY_SCOPED (n_rects, rects);
+  for (i = 0; i < n_rects; i++)
+    {
+      graphene_rect_t transformed_rect, rect;
+      cairo_rectangle_int_t int_rect;
+
+      cairo_region_get_rectangle (region, i, &int_rect);
+      rect = meta_rectangle_to_graphene_rect (&int_rect);
+
+      graphene_matrix_transform_bounds (transform, &rect, &transformed_rect);
+
+      meta_rectangle_from_graphene_rect (&transformed_rect,
+                                         META_ROUNDING_STRATEGY_GROW,
+                                         &rects[i]);
+    }
+
+  transformed_region = cairo_region_create_rectangles (rects, n_rects);
+
+  return transformed_region;
+}

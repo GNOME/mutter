@@ -9,6 +9,7 @@
 #include "compositor/meta-cullable.h"
 #include "compositor/meta-window-actor-private.h"
 #include "compositor/meta-window-group-private.h"
+#include "compositor/region-utils.h"
 #include "core/display-private.h"
 #include "core/window-private.h"
 
@@ -62,61 +63,62 @@ meta_window_group_paint (ClutterActor        *actor,
   cairo_region_t *clip_region;
   cairo_region_t *unobscured_region;
   cairo_rectangle_int_t visible_rect;
-  int paint_x_origin, paint_y_origin;
   int screen_width, screen_height;
+  graphene_matrix_t stage_to_actor;
 
   redraw_clip = clutter_paint_context_get_redraw_clip (paint_context);
   if (!redraw_clip)
-    {
-      parent_actor_class->paint (actor, paint_context);
-      return;
-    }
+    goto fail;
 
   meta_display_get_size (window_group->display, &screen_width, &screen_height);
 
   /* Normally we expect an actor to be drawn at it's position on the screen.
    * However, if we're inside the paint of a ClutterClone, that won't be the
-   * case and we need to compensate. We look at the position of the window
-   * group under the current model-view matrix and the position of the actor.
-   * If they are both simply integer translations, then we can compensate
-   * easily, otherwise we give up.
-   *
-   * Possible cleanup: work entirely in paint space - we can compute the
-   * combination of the model-view matrix with the local matrix for each child
-   * actor and get a total transformation for that actor for how we are
-   * painting currently, and never worry about how actors are positioned
-   * on the stage.
+   * case and we need to compensate.
    */
   if (clutter_actor_is_in_clone_paint (actor))
     {
       CoglFramebuffer *fb;
       ClutterStageView *view;
-      MetaTransforms trans;
+      graphene_matrix_t eye_to_actor, actor_to_eye, stage_to_eye;
 
       fb = clutter_paint_context_get_framebuffer (paint_context);
       view = clutter_paint_context_get_stage_view (paint_context);
+
       if (!view ||
-          fb != clutter_stage_view_get_framebuffer (view) ||
-          !meta_actor_painting_untransformed (fb,
-                                              screen_width,
-                                              screen_height,
-                                              screen_width,
-                                              screen_height,
-                                              &trans) ||
-          !meta_cullable_is_untransformed (META_CULLABLE (actor)))
+          fb != clutter_stage_view_get_framebuffer (view))
         {
-          parent_actor_class->paint (actor, paint_context);
-          return;
+          goto fail;
         }
 
-      paint_x_origin = trans.x_origin;
-      paint_y_origin = trans.y_origin;
+      cogl_framebuffer_get_modelview_matrix (fb, &actor_to_eye);
+
+      /* We need to obtain the transformation matrix from eye coordinates
+       * to cloned actor coordinates to be able to deduce the transformation
+       * matrix from stage to cloned actor coordinates, which is needed to
+       * calculate the redraw clip for the current actor.
+       * If we cannot do this because the cloned actor modelview matrix is
+       * non-invertible, give up on culling.
+       */
+      if (!graphene_matrix_inverse (&actor_to_eye, &eye_to_actor))
+        goto fail;
+
+      clutter_actor_get_transform (stage, &stage_to_eye);
+      graphene_matrix_multiply (&stage_to_eye, &eye_to_actor,
+                                &stage_to_actor);
     }
   else
     {
-      paint_x_origin = 0;
-      paint_y_origin = 0;
+      graphene_matrix_t actor_to_stage;
+
+      clutter_actor_get_relative_transformation_matrix (actor, stage,
+                                                        &actor_to_stage);
+      if (!graphene_matrix_inverse (&actor_to_stage, &stage_to_actor))
+        goto fail;
     }
+
+  if (!graphene_matrix_is_2d (&stage_to_actor))
+    goto fail;
 
   visible_rect.x = visible_rect.y = 0;
   visible_rect.width = clutter_actor_get_width (CLUTTER_ACTOR (stage));
@@ -129,9 +131,8 @@ meta_window_group_paint (ClutterActor        *actor,
    * multihead setup with mismatched monitor sizes, we could intersect this
    * with an accurate union of the monitors to avoid painting shadows that are
    * visible only in the holes. */
-  clip_region = cairo_region_copy (redraw_clip);
-
-  cairo_region_translate (clip_region, -paint_x_origin, -paint_y_origin);
+  clip_region = meta_region_apply_matrix_transform_expand (redraw_clip,
+                                                           &stage_to_actor);
 
   meta_cullable_cull_out (META_CULLABLE (window_group), unobscured_region, clip_region);
 
@@ -141,6 +142,11 @@ meta_window_group_paint (ClutterActor        *actor,
   parent_actor_class->paint (actor, paint_context);
 
   meta_cullable_reset_culling (META_CULLABLE (window_group));
+
+  return;
+
+fail:
+  parent_actor_class->paint (actor, paint_context);
 }
 
 /* Adapted from clutter_actor_update_default_paint_volume() */
