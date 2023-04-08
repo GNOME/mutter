@@ -244,7 +244,7 @@ meta_surface_actor_cull_out (MetaCullable   *cullable,
   MetaSurfaceActor *surface_actor = META_SURFACE_ACTOR (cullable);
   MetaSurfaceActorPrivate *priv =
     meta_surface_actor_get_instance_private (surface_actor);
-  uint8_t opacity = clutter_actor_get_opacity (CLUTTER_ACTOR (cullable));
+  uint8_t opacity = clutter_actor_get_paint_opacity (CLUTTER_ACTOR (cullable));
 
   set_unobscured_region (surface_actor, unobscured_region);
   set_clip_region (surface_actor, clip_region);
