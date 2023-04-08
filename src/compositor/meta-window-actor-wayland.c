@@ -296,7 +296,8 @@ meta_window_actor_wayland_cull_out (MetaCullable   *cullable,
   meta_cullable_cull_out_children (META_CULLABLE (self),
                                    unobscured_region,
                                    clip_region);
-  if (self->background)
+  if (self->background &&
+      clutter_actor_get_paint_opacity (CLUTTER_ACTOR (self)) == 0xff)
     {
       cairo_region_t *background_cull_region;
 
