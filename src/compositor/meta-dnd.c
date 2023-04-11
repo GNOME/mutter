@@ -280,6 +280,8 @@ meta_dnd_wayland_end_notify (MetaDnd *dnd)
   MetaDndPrivate *priv = meta_dnd_get_instance_private (dnd);
   MetaWaylandDataDevice *data_device = data_device_from_dnd (dnd);
 
+  meta_wayland_data_device_set_dnd_source (data_device, NULL);
+  meta_wayland_data_device_unset_dnd_selection (data_device);
   meta_wayland_data_device_end_drag (data_device);
 
   priv->dnd_during_modal = FALSE;
