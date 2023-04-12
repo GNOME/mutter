@@ -155,7 +155,7 @@ atoms_to_mimetypes (MetaX11Display *display,
 
   for (i = 0; i < n_atoms; i++)
     {
-      const gchar *mimetype;
+      char *mimetype;
 
       meta_x11_error_trap_push (display);
       mimetype = XGetAtomName (xdisplay, atoms[i]);
@@ -170,6 +170,8 @@ atoms_to_mimetypes (MetaX11Display *display,
       text_plain_found |= strcmp (mimetype, "text/plain") == 0;
       utf8_string_found |= strcmp (mimetype, "UTF8_STRING") == 0;
       string_found |= strcmp (mimetype, "STRING") == 0;
+
+      XFree (mimetype);
     }
 
   /* Ensure non-x11 clients get well-known mimetypes */

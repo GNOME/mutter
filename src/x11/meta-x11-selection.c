@@ -185,7 +185,7 @@ meta_x11_selection_find_target (MetaX11Display     *x11_display,
 {
   Display *xdisplay = meta_x11_display_get_xdisplay (x11_display);
   GList* mimetypes = NULL;
-  const gchar *atom_name;
+  char *atom_name;
   char *retval;
 
   mimetypes = meta_selection_get_mimetypes (selection, selection_type);
@@ -213,6 +213,7 @@ meta_x11_selection_find_target (MetaX11Display     *x11_display,
     }
 
   g_list_free_full (mimetypes, g_free);
+  XFree (atom_name);
 
   return retval;
 }
