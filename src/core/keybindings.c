@@ -1182,15 +1182,17 @@ meta_change_button_grab (MetaKeyBindingManager *keys,
                          int                     button,
                          int                     modmask)
 {
-  if (meta_is_wayland_compositor ())
-    return;
-
-  MetaBackendX11 *backend = META_BACKEND_X11 (keys->backend);
-  Display *xdisplay = meta_backend_x11_get_xdisplay (backend);
-
+  MetaBackendX11 *backend;
+  Display *xdisplay;
   unsigned char mask_bits[XIMaskLen (XI_LASTEVENT)] = { 0 };
   XIEventMask mask = { XIAllMasterDevices, sizeof (mask_bits), mask_bits };
   GArray *mods;
+
+  if (meta_is_wayland_compositor ())
+    return;
+
+  backend = META_BACKEND_X11 (keys->backend);
+  xdisplay = meta_backend_x11_get_xdisplay (backend);
 
   XISetMask (mask.mask, XI_ButtonPress);
   XISetMask (mask.mask, XI_ButtonRelease);
