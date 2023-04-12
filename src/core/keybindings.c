@@ -1205,7 +1205,10 @@ meta_change_button_grab (MetaKeyBindingManager *keys,
 
   meta_clutter_x11_trap_x_errors ();
 
-  xwindow = window->xwindow;
+  if (window->frame)
+    xwindow = window->frame->xwindow;
+  else
+    xwindow = window->xwindow;
 
   /* GrabModeSync means freeze until XAllowEvents */
   if (grab)
