@@ -49,6 +49,17 @@ typedef struct _MetaWaylandDataSourcePrivate
   guint drop_performed : 1;
 } MetaWaylandDataSourcePrivate;
 
+enum
+{
+  PROP_0,
+
+  PROP_COMPOSITOR,
+
+  N_PROPS
+};
+
+static GParamSpec *props[N_PROPS] = { 0 };
+
 G_DEFINE_TYPE_WITH_PRIVATE (MetaWaylandDataSource, meta_wayland_data_source,
                             G_TYPE_OBJECT);
 
@@ -146,6 +157,46 @@ meta_wayland_data_source_finalize (GObject *object)
 }
 
 static void
+meta_wayland_data_source_set_property (GObject      *object,
+                                       guint         prop_id,
+                                       const GValue *value,
+                                       GParamSpec   *pspec)
+{
+  MetaWaylandDataSource *source = META_WAYLAND_DATA_SOURCE (object);
+  MetaWaylandDataSourcePrivate *priv =
+    meta_wayland_data_source_get_instance_private (source);
+
+  switch (prop_id)
+    {
+    case PROP_COMPOSITOR:
+      priv->compositor = g_value_get_object (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+    }
+}
+
+static void
+meta_wayland_data_source_get_property (GObject    *object,
+                                       guint       prop_id,
+                                       GValue     *value,
+                                       GParamSpec *pspec)
+{
+  MetaWaylandDataSource *source = META_WAYLAND_DATA_SOURCE (object);
+  MetaWaylandDataSourcePrivate *priv =
+    meta_wayland_data_source_get_instance_private (source);
+
+  switch (prop_id)
+    {
+    case PROP_COMPOSITOR:
+      g_value_set_pointer (value, priv->compositor);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+    }
+}
+
+static void
 meta_wayland_data_source_init (MetaWaylandDataSource *source)
 {
   MetaWaylandDataSourcePrivate *priv =
@@ -162,6 +213,8 @@ meta_wayland_data_source_class_init (MetaWaylandDataSourceClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->finalize = meta_wayland_data_source_finalize;
+  object_class->set_property = meta_wayland_data_source_set_property;
+  object_class->get_property = meta_wayland_data_source_get_property;
 
   klass->send = meta_wayland_data_source_real_send;
   klass->target = meta_wayland_data_source_real_target;
@@ -169,8 +222,18 @@ meta_wayland_data_source_class_init (MetaWaylandDataSourceClass *klass)
   klass->action = meta_wayland_data_source_real_action;
   klass->drop_performed = meta_wayland_data_source_real_drop_performed;
   klass->drag_finished = meta_wayland_data_source_real_drag_finished;
-}
 
+  props[PROP_COMPOSITOR] =
+    g_param_spec_object ("compositor",
+                         "compositor",
+                         "MetaWaylandCompositor",
+                         META_TYPE_WAYLAND_COMPOSITOR,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+
+  g_object_class_install_properties (object_class, N_PROPS, props);
+}
 
 static void
 data_source_offer (struct wl_client *client,
@@ -245,12 +308,14 @@ MetaWaylandDataSource *
 meta_wayland_data_source_new (MetaWaylandCompositor *compositor,
                               struct wl_resource    *resource)
 {
-  MetaWaylandDataSource *source =
-    g_object_new (META_TYPE_WAYLAND_DATA_SOURCE, NULL);
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
+  MetaWaylandDataSource *source;
+  MetaWaylandDataSourcePrivate *priv;
 
-  priv->compositor = compositor;
+  source = g_object_new (META_TYPE_WAYLAND_DATA_SOURCE,
+                         "compositor", compositor,
+                         NULL);
+  priv = meta_wayland_data_source_get_instance_private (source);
+
   meta_wayland_data_source_set_resource (source, resource);
   wl_resource_set_implementation (resource, &data_source_interface,
                                   source, destroy_data_source);

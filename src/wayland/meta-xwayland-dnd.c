@@ -595,11 +595,14 @@ meta_wayland_data_source_xwayland_class_init (MetaWaylandDataSourceXWaylandClass
 }
 
 static MetaWaylandDataSource *
-meta_wayland_data_source_xwayland_new (MetaXWaylandDnd *dnd)
+meta_wayland_data_source_xwayland_new (MetaXWaylandDnd       *dnd,
+                                       MetaWaylandCompositor *compositor)
 {
   MetaWaylandDataSourceXWayland *source_xwayland;
 
-  source_xwayland = g_object_new (META_TYPE_WAYLAND_DATA_SOURCE_XWAYLAND, NULL);
+  source_xwayland = g_object_new (META_TYPE_WAYLAND_DATA_SOURCE_XWAYLAND,
+                                  "compositor", compositor,
+                                  NULL);
   source_xwayland->dnd = dnd;
 
   return META_WAYLAND_DATA_SOURCE (source_xwayland);
@@ -1032,7 +1035,7 @@ meta_xwayland_dnd_handle_xfixes_selection_notify (MetaWaylandCompositor *composi
   if (event->owner != None && event->owner != x11_display->selection.xwindow &&
       focus && meta_xwayland_is_xwayland_surface (focus))
     {
-      dnd->source = meta_wayland_data_source_xwayland_new (dnd);
+      dnd->source = meta_wayland_data_source_xwayland_new (dnd, compositor);
       meta_wayland_data_device_set_dnd_source (&compositor->seat->data_device,
                                                dnd->source);
 
