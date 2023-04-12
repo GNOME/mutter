@@ -5194,7 +5194,7 @@ meta_window_set_focused_internal (MetaWindow *window,
           meta_display_ungrab_focus_window_button (window->display, window);
           /* Since we ungrab with XIAnyModifier above, all button
              grabs go way so we need to re-grab the window buttons. */
-          meta_display_grab_window_buttons (window->display, window->xwindow);
+          meta_display_grab_window_buttons (window->display, window);
         }
 
       g_signal_emit (window, window_signals[FOCUS], 0);

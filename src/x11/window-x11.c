@@ -706,7 +706,7 @@ meta_window_x11_unmanage (MetaWindow *window)
     XShapeSelectInput (x11_display->xdisplay, window->xwindow, NoEventMask);
 
   meta_window_ungrab_keys (window);
-  meta_display_ungrab_window_buttons (window->display, window->xwindow);
+  meta_display_ungrab_window_buttons (window->display, window);
   meta_display_ungrab_focus_window_button (window->display, window);
 
   meta_x11_error_trap_pop (x11_display);
@@ -3861,7 +3861,7 @@ meta_window_x11_new (MetaDisplay       *display,
   meta_window_grab_keys (window);
   if (window->type != META_WINDOW_DOCK && !window->override_redirect)
     {
-      meta_display_grab_window_buttons (window->display, window->xwindow);
+      meta_display_grab_window_buttons (window->display, window);
       meta_display_grab_focus_window_button (window->display, window);
     }
 

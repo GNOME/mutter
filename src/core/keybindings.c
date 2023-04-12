@@ -1176,19 +1176,22 @@ calc_grab_modifiers (MetaKeyBindingManager *keys,
 
 static void
 meta_change_button_grab (MetaKeyBindingManager *keys,
-                         Window                  xwindow,
-                         gboolean                grab,
-                         gboolean                sync,
-                         int                     button,
-                         int                     modmask)
+                         MetaWindow            *window,
+                         gboolean               grab,
+                         gboolean               sync,
+                         int                    button,
+                         int                    modmask)
 {
   MetaBackendX11 *backend;
   Display *xdisplay;
   unsigned char mask_bits[XIMaskLen (XI_LASTEVENT)] = { 0 };
   XIEventMask mask = { XIAllMasterDevices, sizeof (mask_bits), mask_bits };
+  Window xwindow;
   GArray *mods;
 
   if (meta_is_wayland_compositor ())
+    return;
+  if (window->client_type != META_WINDOW_CLIENT_TYPE_X11)
     return;
 
   backend = META_BACKEND_X11 (keys->backend);
@@ -1201,6 +1204,8 @@ meta_change_button_grab (MetaKeyBindingManager *keys,
   mods = calc_grab_modifiers (keys, modmask);
 
   meta_clutter_x11_trap_x_errors ();
+
+  xwindow = window->xwindow;
 
   /* GrabModeSync means freeze until XAllowEvents */
   if (grab)
@@ -1231,7 +1236,7 @@ meta_display_get_compositor_modifiers (MetaDisplay *display)
 
 static void
 meta_change_buttons_grab (MetaKeyBindingManager *keys,
-                          Window                 xwindow,
+                          MetaWindow            *window,
                           gboolean               grab,
                           gboolean               sync,
                           int                    modmask)
@@ -1240,12 +1245,12 @@ meta_change_buttons_grab (MetaKeyBindingManager *keys,
 
   int i;
   for (i = 1; i <= MAX_BUTTON; i++)
-    meta_change_button_grab (keys, xwindow, grab, sync, i, modmask);
+    meta_change_button_grab (keys, window, grab, sync, i, modmask);
 }
 
 void
 meta_display_grab_window_buttons (MetaDisplay *display,
-                                  Window       xwindow)
+                                  MetaWindow  *window)
 {
   MetaKeyBindingManager *keys = &display->key_binding_manager;
 
@@ -1254,7 +1259,7 @@ meta_display_grab_window_buttons (MetaDisplay *display,
    * Grab Alt + button3 for popping up window menu.
    * Grab Alt + Shift + button1 for snap-moving window.
    */
-  meta_verbose ("Grabbing window buttons for 0x%lx", xwindow);
+  meta_verbose ("Grabbing window buttons for %s", window->desc);
 
   /* FIXME If we ignored errors here instead of spewing, we could
    * put one big error trap around the loop and avoid a bunch of
@@ -1263,7 +1268,7 @@ meta_display_grab_window_buttons (MetaDisplay *display,
 
   if (keys->window_grab_modifiers != 0)
     {
-      meta_change_buttons_grab (keys, xwindow, TRUE, FALSE,
+      meta_change_buttons_grab (keys, window, TRUE, FALSE,
                                 keys->window_grab_modifiers);
 
       /* In addition to grabbing Alt+Button1 for moving the window,
@@ -1272,7 +1277,7 @@ meta_display_grab_window_buttons (MetaDisplay *display,
        * Shift+Alt+Button1 for some reason; so at least part of the
        * order still matters, which sucks (please FIXME).
        */
-      meta_change_button_grab (keys, xwindow,
+      meta_change_button_grab (keys, window,
                                TRUE,
                                FALSE,
                                1, keys->window_grab_modifiers | ShiftMask);
@@ -1281,14 +1286,14 @@ meta_display_grab_window_buttons (MetaDisplay *display,
 
 void
 meta_display_ungrab_window_buttons (MetaDisplay *display,
-                                    Window       xwindow)
+                                    MetaWindow  *window)
 {
   MetaKeyBindingManager *keys = &display->key_binding_manager;
 
   if (keys->window_grab_modifiers == 0)
     return;
 
-  meta_change_buttons_grab (keys, xwindow, FALSE, FALSE,
+  meta_change_buttons_grab (keys, window, FALSE, FALSE,
                             keys->window_grab_modifiers);
 }
 
@@ -1329,7 +1334,7 @@ meta_display_grab_focus_window_button (MetaDisplay *display,
    * XSync()
    */
 
-  meta_change_buttons_grab (keys, window->xwindow, TRUE, TRUE, XIAnyModifier);
+  meta_change_buttons_grab (keys, window, TRUE, TRUE, XIAnyModifier);
   window->have_focus_click_grab = TRUE;
 }
 
@@ -1344,7 +1349,7 @@ meta_display_ungrab_focus_window_button (MetaDisplay *display,
   if (!window->have_focus_click_grab)
     return;
 
-  meta_change_buttons_grab (keys, window->xwindow, FALSE, FALSE, XIAnyModifier);
+  meta_change_buttons_grab (keys, window, FALSE, FALSE, XIAnyModifier);
   window->have_focus_click_grab = FALSE;
 }
 
@@ -1376,7 +1381,7 @@ prefs_changed_callback (MetaPreference pref,
         for (l = windows; l; l = l->next)
           {
             MetaWindow *w = l->data;
-            meta_display_ungrab_window_buttons (display, w->xwindow);
+            meta_display_ungrab_window_buttons (display, w);
           }
 
         update_window_grab_modifiers (display);
@@ -1385,7 +1390,7 @@ prefs_changed_callback (MetaPreference pref,
           {
             MetaWindow *w = l->data;
             if (w->type != META_WINDOW_DOCK)
-              meta_display_grab_window_buttons (display, w->xwindow);
+              meta_display_grab_window_buttons (display, w);
           }
 
         g_slist_free (windows);

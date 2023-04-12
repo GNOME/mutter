@@ -237,9 +237,9 @@ GSList*     meta_display_list_windows        (MetaDisplay          *display,
 void meta_display_reload_cursor (MetaDisplay *display);
 
 void     meta_display_grab_window_buttons    (MetaDisplay *display,
-                                              Window       xwindow);
+                                              MetaWindow  *window);
 void     meta_display_ungrab_window_buttons  (MetaDisplay *display,
-                                              Window       xwindow);
+                                              MetaWindow  *window);
 
 void meta_display_grab_focus_window_button   (MetaDisplay *display,
                                               MetaWindow  *window);
