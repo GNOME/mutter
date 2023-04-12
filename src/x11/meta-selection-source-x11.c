@@ -48,7 +48,7 @@ stream_new_cb (GObject      *source,
   GInputStream *stream;
   GError *error = NULL;
 
-  stream = meta_x11_selection_input_stream_new_finish (res, NULL, NULL, &error);
+  stream = meta_x11_selection_input_stream_new_finish (res, &error);
 
   if (stream)
     g_task_return_pointer (task, stream, g_object_unref);
@@ -217,7 +217,7 @@ get_mimetypes_cb (GObject      *source,
   GInputStream *stream;
   GError *error = NULL;
 
-  stream = meta_x11_selection_input_stream_new_finish (res, NULL, NULL, &error);
+  stream = meta_x11_selection_input_stream_new_finish (res, &error);
   if (error)
     {
       g_task_return_error (task, error);

@@ -41,9 +41,7 @@ struct MetaX11SelectionInputStreamPrivate
   Atom xselection;
   Atom xtarget;
   Atom xproperty;
-  const char *type;
   Atom xtype;
-  int format;
 
   GTask *pending_task;
   uint8_t *pending_data;
@@ -342,8 +340,7 @@ static GBytes *
 get_selection_property (MetaX11Display *x11_display,
                         Window          owner,
                         Atom            property,
-                        Atom           *ret_type,
-                        gint           *ret_format)
+                        Atom           *ret_type)
 {
   gulong nitems;
   gulong nbytes;
@@ -386,7 +383,6 @@ get_selection_property (MetaX11Display *x11_display,
         }
 
       *ret_type = prop_type;
-      *ret_format = prop_format;
 
       return g_bytes_new_with_free_func (data,
                                          length,
@@ -399,7 +395,6 @@ err:
     XFree (data);
 
   *ret_type = None;
-  *ret_format = 0;
 
   return NULL;
 }
@@ -414,7 +409,6 @@ meta_x11_selection_input_stream_xevent (MetaX11SelectionInputStream *stream,
   Window xwindow;
   GBytes *bytes;
   Atom type;
-  gint format;
   char *target;
 
   xdisplay = priv->x11_display->xdisplay;
@@ -434,7 +428,7 @@ meta_x11_selection_input_stream_xevent (MetaX11SelectionInputStream *stream,
 
       bytes = get_selection_property (priv->x11_display, xwindow,
                                       xevent->xproperty.atom,
-                                      &type, &format);
+                                      &type);
 
       if (bytes == NULL)
         {
@@ -486,8 +480,7 @@ meta_x11_selection_input_stream_xevent (MetaX11SelectionInputStream *stream,
           {
             bytes = get_selection_property (priv->x11_display, xwindow,
                                             xevent->xselection.property,
-                                            &priv->xtype, &priv->format);
-            priv->type = XGetAtomName (xdisplay, priv->xtype);
+                                            &priv->xtype);
 
             g_task_return_pointer (task, g_object_ref (stream), g_object_unref);
 
@@ -575,12 +568,9 @@ meta_x11_selection_input_stream_new_async (MetaX11Display      *x11_display,
 
 GInputStream *
 meta_x11_selection_input_stream_new_finish (GAsyncResult  *result,
-                                            const char   **type,
-                                            int           *format,
                                             GError       **error)
 {
   MetaX11SelectionInputStream *stream;
-  MetaX11SelectionInputStreamPrivate *priv;
   GTask *task;
 
   g_return_val_if_fail (g_task_is_valid (result, NULL), NULL);
@@ -591,13 +581,6 @@ meta_x11_selection_input_stream_new_finish (GAsyncResult  *result,
   stream = g_task_propagate_pointer (task, error);
   if (!stream)
     return NULL;
-
-  priv = meta_x11_selection_input_stream_get_instance_private (stream);
-
-  if (type)
-    *type = priv->type;
-  if (format)
-    *format = priv->format;
 
   return G_INPUT_STREAM (stream);
 }
