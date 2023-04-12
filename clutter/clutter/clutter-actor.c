@@ -11972,19 +11972,20 @@ clutter_actor_run_actions (ClutterActor       *self,
                            ClutterEventPhase   phase)
 {
   ClutterActorPrivate *priv;
-  const GList *actions, *l;
+  const GList *l;
   gboolean retval = CLUTTER_EVENT_PROPAGATE;
 
   priv = self->priv;
   if (!priv->actions)
     return CLUTTER_EVENT_PROPAGATE;
 
-  actions = _clutter_meta_group_peek_metas (priv->actions);
-
-  for (l = actions; l; l = l->next)
+  l = _clutter_meta_group_peek_metas (priv->actions);
+  while (l)
     {
       ClutterAction *action = l->data;
       ClutterEventPhase action_phase;
+
+      l = l->next;
 
       action_phase = clutter_action_get_phase (action);
 
