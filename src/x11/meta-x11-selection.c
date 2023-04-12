@@ -248,11 +248,14 @@ meta_x11_selection_handle_selection_request (MetaX11Display *x11_display,
           return FALSE;
         }
 
-      output = meta_x11_selection_output_stream_new (x11_display, event->requestor,
-                                                     XGetAtomName (xdisplay, event->selection),
-                                                     XGetAtomName (xdisplay, event->target),
-                                                     XGetAtomName (xdisplay, event->property),
-                                                     "ATOM", 32, event->time);
+      output = meta_x11_selection_output_stream_new (x11_display,
+                                                     event->requestor,
+                                                     event->selection,
+                                                     event->target,
+                                                     event->property,
+                                                     XInternAtom (xdisplay, "ATOM", False),
+                                                     32,
+                                                     event->time);
 
       bytes = mimetypes_to_bytes (mimetypes, x11_display->xdisplay);
       g_list_free_full (mimetypes, g_free);
@@ -284,10 +287,10 @@ meta_x11_selection_handle_selection_request (MetaX11Display *x11_display,
         {
           output = meta_x11_selection_output_stream_new (x11_display,
                                                          event->requestor,
-                                                         XGetAtomName (xdisplay, event->selection),
-                                                         XGetAtomName (xdisplay, event->target),
-                                                         XGetAtomName (xdisplay, event->property),
-                                                         XGetAtomName (xdisplay, event->target),
+                                                         event->selection,
+                                                         event->target,
+                                                         event->property,
+                                                         event->target,
                                                          8, event->time);
 
           meta_selection_transfer_async (selection,

@@ -657,10 +657,10 @@ meta_x11_selection_output_stream_xevent (MetaX11SelectionOutputStream *stream,
 GOutputStream *
 meta_x11_selection_output_stream_new (MetaX11Display *x11_display,
                                       Window          requestor,
-                                      const char     *selection,
-                                      const char     *target,
-                                      const char     *property,
-                                      const char     *type,
+                                      Atom            selection,
+                                      Atom            target,
+                                      Atom            property,
+                                      Atom            type,
                                       int             format,
                                       gulong          timestamp)
 {
@@ -675,10 +675,10 @@ meta_x11_selection_output_stream_new (MetaX11Display *x11_display,
 
   priv->x11_display = x11_display;
   priv->xwindow = requestor;
-  priv->xselection = XInternAtom (x11_display->xdisplay, selection, False);
-  priv->xtarget = XInternAtom (x11_display->xdisplay, target, False);
-  priv->xproperty = XInternAtom (x11_display->xdisplay, property, False);
-  priv->xtype = XInternAtom (x11_display->xdisplay, type, False);
+  priv->xselection = selection;
+  priv->xtarget = target;
+  priv->xproperty = property;
+  priv->xtype = type;
   priv->format = format;
   priv->timestamp = timestamp;
 
