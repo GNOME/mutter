@@ -737,7 +737,7 @@ meta_xwayland_data_source_fetch_mimetype_list (MetaWaylandDataSource *source,
 
   for (i = 0; i < nitems_ret; i++)
     {
-      const gchar *mime_type;
+      char *mime_type;
 
       if (atoms[i] == utf8_string)
         {
@@ -748,6 +748,7 @@ meta_xwayland_data_source_fetch_mimetype_list (MetaWaylandDataSource *source,
 
       mime_type = XGetAtomName (xdisplay, atoms[i]);
       meta_wayland_data_source_add_mime_type (source, mime_type);
+      XFree (mime_type);
     }
 
   XFree (atoms);
@@ -933,7 +934,7 @@ meta_xwayland_dnd_handle_client_message (MetaWaylandCompositor *compositor,
           if (!(event->data.l[1] & 1))
             {
               /* Mimetypes are contained in this message */
-              const gchar *mimetype;
+              char *mimetype;
               gint i;
               struct wl_array *source_mime_types;
 
@@ -950,6 +951,7 @@ meta_xwayland_dnd_handle_client_message (MetaWaylandCompositor *compositor,
                       mimetype = XGetAtomName (xdisplay, event->data.l[i]);
                       meta_wayland_data_source_add_mime_type (dnd->source,
                                                               mimetype);
+                      XFree (mimetype);
                     }
                 }
             }
