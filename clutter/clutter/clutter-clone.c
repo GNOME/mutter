@@ -120,20 +120,6 @@ clutter_clone_get_preferred_height (ClutterActor *self,
 }
 
 static void
-clutter_clone_apply_transform (ClutterActor      *self,
-                               graphene_matrix_t *matrix)
-{
-  ClutterClonePrivate *priv =
-    clutter_clone_get_instance_private (CLUTTER_CLONE (self));
-
-  if (priv->clone_source)
-    graphene_matrix_scale (matrix, priv->x_scale, priv->y_scale, 1.f);
-
-  CLUTTER_ACTOR_CLASS (clutter_clone_parent_class)->apply_transform (self,
-                                                                     matrix);
-}
-
-static void
 clutter_clone_paint (ClutterActor        *actor,
                      ClutterPaintContext *paint_context)
 {
@@ -171,9 +157,22 @@ clutter_clone_paint (ClutterActor        *actor,
    */
   if (clutter_actor_is_realized (priv->clone_source))
     {
+      CoglFramebuffer *fb = NULL;
+
+      if (priv->x_scale != 1.0 || priv->y_scale != 1.0)
+        {
+          fb = clutter_paint_context_get_framebuffer (paint_context);
+
+          cogl_framebuffer_push_matrix (fb);
+          cogl_framebuffer_scale (fb, priv->x_scale, priv->y_scale, 1.0f);
+        }
+
       _clutter_actor_push_clone_paint ();
       clutter_actor_paint (priv->clone_source, paint_context);
       _clutter_actor_pop_clone_paint ();
+
+      if (fb != NULL)
+        cogl_framebuffer_pop_matrix (fb);
     }
 
   if (was_unmapped)
@@ -267,7 +266,7 @@ clutter_clone_allocate (ClutterActor           *self,
     {
       priv->x_scale = x_scale;
       priv->y_scale = y_scale;
-      clutter_actor_invalidate_transform (CLUTTER_ACTOR (self));
+      clutter_actor_queue_redraw (self);
     }
 
 #if 0
@@ -342,7 +341,6 @@ clutter_clone_class_init (ClutterCloneClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   ClutterActorClass *actor_class = CLUTTER_ACTOR_CLASS (klass);
 
-  actor_class->apply_transform = clutter_clone_apply_transform;
   actor_class->paint = clutter_clone_paint;
   actor_class->get_paint_volume = clutter_clone_get_paint_volume;
   actor_class->get_preferred_width = clutter_clone_get_preferred_width;
