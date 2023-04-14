@@ -34,6 +34,8 @@ struct _MetaFrame
   Atom atom__NET_WM_VISIBLE_NAME;
   Atom atom__NET_WM_NAME;
   Atom atom__MOTIF_WM_HINTS;
+  Atom atom__NET_WM_STATE;
+  Atom atom__NET_WM_STATE_FULLSCREEN;
 
   char *net_wm_visible_name;
   char *net_wm_name;
@@ -73,6 +75,10 @@ meta_frame_constructed (GObject *object)
     gdk_x11_get_xatom_by_name_for_display (display, "_NET_WM_NAME");
   frame->atom__MOTIF_WM_HINTS =
     gdk_x11_get_xatom_by_name_for_display (display, "_MOTIF_WM_HINTS");
+  frame->atom__NET_WM_STATE =
+    gdk_x11_get_xatom_by_name_for_display (display, "_NET_WM_STATE");
+  frame->atom__NET_WM_STATE_FULLSCREEN =
+    gdk_x11_get_xatom_by_name_for_display (display, "_NET_WM_STATE_FULLSCREEN");
 
   G_OBJECT_CLASS (meta_frame_parent_class)->constructed (object);
 }
@@ -463,12 +469,44 @@ frame_sync_wm_normal_hints (GtkWindow *frame,
   gtk_window_set_resizable (frame, resizable);
 }
 
+static void
+frame_sync_wm_state (MetaFrame *frame,
+                     Window     client_window)
+{
+  GdkDisplay *display = gtk_widget_get_display (GTK_WIDGET (frame));
+  Display *xdisplay = gdk_x11_display_get_xdisplay (display);
+  Atom *data = NULL, type;
+  int format;
+  unsigned long i, nitems, bytes_after;
+
+  gdk_x11_display_error_trap_push (display);
+
+  XGetWindowProperty (xdisplay,
+                      client_window,
+                      frame->atom__NET_WM_STATE,
+                      0, 32,
+                      False, XA_ATOM,
+                      &type, &format,
+                      &nitems, &bytes_after,
+                      (unsigned char **) &data);
+
+  for (i = 0; i < nitems; i++)
+    {
+      if (data[i] == frame->atom__NET_WM_STATE_FULLSCREEN)
+        gtk_window_fullscreen (GTK_WINDOW (frame));
+    }
+
+  gdk_x11_display_error_trap_pop_ignored (display);
+
+  XFree (data);
+}
+
 GtkWidget *
 meta_frame_new (Window window)
 {
   GtkWidget *frame, *header, *content;
   GdkSurface *surface;
-  int frame_height;
+  int frame_height = 0;
   double scale;
 
   frame = g_object_new (META_TYPE_FRAME, NULL);
@@ -487,10 +525,15 @@ meta_frame_new (Window window)
   surface = gtk_native_get_surface (GTK_NATIVE (frame));
   gdk_x11_surface_set_frame_sync_enabled (surface, TRUE);
 
-  gtk_widget_measure (header,
-                      GTK_ORIENTATION_VERTICAL, 1,
-                      &frame_height,
-                      NULL, NULL, NULL);
+  frame_sync_wm_state (META_FRAME (frame), window);
+
+  if (!gtk_window_is_fullscreen (GTK_WINDOW (frame)))
+    {
+      gtk_widget_measure (header,
+                          GTK_ORIENTATION_VERTICAL, 1,
+                          &frame_height,
+                          NULL, NULL, NULL);
+    }
 
   scale = gdk_surface_get_scale_factor (gtk_native_get_surface (GTK_NATIVE (frame)));
 
