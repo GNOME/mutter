@@ -170,6 +170,7 @@ change_property (MetaInputSettings  *settings,
   int device_id;
   Atom property_atom;
   guchar *data_ret;
+  int err;
 
   property_atom = XInternAtom (xdisplay, property, True);
   if (!property_atom)
@@ -181,8 +182,19 @@ change_property (MetaInputSettings  *settings,
   if (!data_ret)
     return;
 
+  meta_clutter_x11_trap_x_errors ();
   XIChangeProperty (xdisplay, device_id, property_atom, type,
                     format, XIPropModeReplace, data, nitems);
+  XSync (xdisplay, False);
+  err = meta_clutter_x11_untrap_x_errors ();
+  if (err)
+    {
+      g_warning ("XIChangeProperty failed on device %d property \"%s\" with X error %d",
+                 device_id,
+                 property,
+                 err);
+    }
+
   meta_XFree (data_ret);
 }
 
