@@ -1436,8 +1436,7 @@ is_focusable (MetaWindow    *window,
          window->unmaps_pending == 0 &&
          window->type != META_WINDOW_DOCK &&
          meta_window_is_focusable (window) &&
-         meta_window_located_on_workspace (window, workspace) &&
-         meta_window_showing_on_its_workspace (window);
+         meta_window_should_be_showing_on_workspace (window, workspace);
 }
 
 static gboolean
