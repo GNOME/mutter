@@ -157,7 +157,7 @@ on_frame_close_request (GtkWindow *window,
 {
   GdkDisplay *display = gtk_widget_get_display (GTK_WIDGET (window));
   GtkWidget *content;
-  XClientMessageEvent ev;
+  XClientMessageEvent ev = { 0 };
   Window client_xwindow;
   Atom delete_window_atom;
 

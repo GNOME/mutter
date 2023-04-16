@@ -1129,7 +1129,7 @@ static void
 process_selection_request (MetaX11Display *x11_display,
                            XEvent         *event)
 {
-  XSelectionEvent reply;
+  XSelectionEvent reply = { 0 };
 
   if (x11_display->wm_sn_selection_window != event->xselectionrequest.owner ||
       x11_display->wm_sn_atom != event->xselectionrequest.selection)

@@ -222,7 +222,7 @@ meta_sync_counter_send_request (MetaSyncCounter *sync_counter)
 {
   MetaWindow *window = sync_counter->window;
   MetaX11Display *x11_display = window->display->x11_display;
-  XClientMessageEvent ev;
+  XClientMessageEvent ev = { 0, };
   gint64 wait_serial;
 
   if (sync_counter->sync_request_counter == None ||
