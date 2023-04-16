@@ -1240,7 +1240,10 @@ meta_wayland_xdg_popup_apply_state (MetaWaylandSurfaceRole  *surface_role,
     finish_popup_setup (xdg_popup);
 
   if (!meta_wayland_surface_get_window (surface))
-    return;
+    {
+      meta_wayland_actor_surface_queue_frame_callbacks (actor_surface, pending);
+      return;
+    }
 
   if (pending->xdg_positioner)
     {
