@@ -412,10 +412,17 @@ meta_surface_actor_update_area (MetaSurfaceActor *self,
 
           if (!cairo_region_is_empty (intersection))
             {
-              cairo_rectangle_int_t damage_rect;
+              int i, n_rectangles;
 
-              cairo_region_get_extents (intersection, &damage_rect);
-              clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (self), &damage_rect);
+              n_rectangles = cairo_region_num_rectangles (intersection);
+              for (i = 0; i < n_rectangles; i++)
+                {
+                  cairo_rectangle_int_t rect;
+
+                  cairo_region_get_rectangle (intersection, i, &rect);
+                  clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (self), &rect);
+                }
+
               repaint_scheduled = TRUE;
             }
 
