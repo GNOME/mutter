@@ -77,8 +77,7 @@
 
 typedef struct _QueueRedrawEntry
 {
-  gboolean has_clip;
-  ClutterPaintVolume clip;
+  GSList *clips;
 } QueueRedrawEntry;
 
 typedef struct _PickRecord
@@ -2542,52 +2541,39 @@ clutter_stage_queue_actor_redraw (ClutterStage             *stage,
 
   entry = g_hash_table_lookup (priv->pending_queue_redraws, actor);
 
-  if (entry)
+  if (!entry)
     {
-      /* Ignore all requests to queue a redraw for an actor if a full
-       * (non-clipped) redraw of the actor has already been queued. */
-      if (!entry->has_clip)
-        {
-          CLUTTER_NOTE (CLIPPING, "Bail from stage_queue_actor_redraw (%s): "
-                        "Unclipped redraw of actor already queued",
-                        _clutter_actor_get_debug_name (actor));
-          return;
-        }
+      entry = g_new0 (QueueRedrawEntry, 1);
+      g_hash_table_insert (priv->pending_queue_redraws,
+                           g_object_ref (actor), entry);
+    }
+  else if (!entry->clips)
+    {
+      CLUTTER_NOTE (CLIPPING, "Bail from stage_queue_actor_redraw (%s): "
+                    "Unclipped redraw of actor already queued",
+                    _clutter_actor_get_debug_name (actor));
+      return;
+    }
 
-      /* If queuing a clipped redraw and a clipped redraw has
-       * previously been queued for this actor then combine the latest
-       * clip together with the existing clip */
-      if (clip)
-        clutter_paint_volume_union (&entry->clip, clip);
-      else
-        {
-          clutter_paint_volume_free (&entry->clip);
-          entry->has_clip = FALSE;
-        }
+  /* If queuing a clipped redraw then append the latest
+   * clip to the clip list */
+  if (clip)
+    {
+      ClutterPaintVolume *clip_pv = _clutter_paint_volume_new (actor);
+
+      _clutter_paint_volume_set_from_volume (clip_pv, clip);
+      entry->clips = g_slist_prepend (entry->clips, clip_pv);
     }
   else
     {
-      entry = g_new0 (QueueRedrawEntry, 1);
-
-      if (clip)
-        {
-          entry->has_clip = TRUE;
-          _clutter_paint_volume_init_static (&entry->clip, actor);
-          _clutter_paint_volume_set_from_volume (&entry->clip, clip);
-        }
-      else
-        entry->has_clip = FALSE;
-
-      g_hash_table_insert (priv->pending_queue_redraws,
-                           g_object_ref (actor), entry);
+      g_clear_slist (&entry->clips, (GDestroyNotify) clutter_paint_volume_free);
     }
 }
 
 static void
 free_queue_redraw_entry (QueueRedrawEntry *entry)
 {
-  if (entry->has_clip)
-    clutter_paint_volume_free (&entry->clip);
+  g_clear_slist (&entry->clips, (GDestroyNotify) clutter_paint_volume_free);
   g_free (entry);
 }
 
@@ -2682,9 +2668,12 @@ clutter_stage_maybe_finish_queue_redraws (ClutterStage *stage)
           _clutter_paint_volume_init_static (&old_actor_pv, NULL);
           _clutter_paint_volume_init_static (&new_actor_pv, NULL);
 
-          if (entry->has_clip)
+          if (entry->clips)
             {
-              add_to_stage_clip (stage, &entry->clip);
+              GSList *l;
+
+              for (l = entry->clips; l; l = l->next)
+                add_to_stage_clip (stage, l->data);
             }
           else if (clutter_actor_get_redraw_clip (redraw_actor,
                                                   &old_actor_pv,
