@@ -219,6 +219,10 @@ meta_wayland_cursor_surface_dispose (GObject *object)
     META_WAYLAND_CURSOR_SURFACE (object);
   MetaWaylandCursorSurfacePrivate *priv =
     meta_wayland_cursor_surface_get_instance_private (cursor_surface);
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (META_WAYLAND_SURFACE_ROLE (object));
+  MetaWaylandSeat *seat = surface->compositor->seat;
+  MetaWaylandPointer *pointer = seat->pointer;
   MetaWaylandFrameCallback *cb, *next;
 
   wl_list_for_each_safe (cb, next, &priv->frame_callbacks, link)
@@ -241,6 +245,8 @@ meta_wayland_cursor_surface_dispose (GObject *object)
       meta_wayland_buffer_dec_use_count (priv->buffer);
       g_clear_object (&priv->buffer);
     }
+
+  meta_wayland_pointer_update_cursor_surface (pointer);
 
   G_OBJECT_CLASS (meta_wayland_cursor_surface_parent_class)->dispose (object);
 }

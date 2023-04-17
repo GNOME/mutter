@@ -29,6 +29,7 @@
 
 #include "backends/meta-backend-types.h"
 #include "backends/meta-cursor.h"
+#include "core/util-private.h"
 
 #define META_TYPE_HW_CURSOR_INHIBITOR (meta_hw_cursor_inhibitor_get_type ())
 G_DECLARE_INTERFACE (MetaHwCursorInhibitor, meta_hw_cursor_inhibitor,
@@ -64,6 +65,7 @@ void meta_cursor_renderer_set_cursor (MetaCursorRenderer *renderer,
 void meta_cursor_renderer_update_position (MetaCursorRenderer *renderer);
 void meta_cursor_renderer_force_update (MetaCursorRenderer *renderer);
 
+META_EXPORT_TEST
 MetaCursorSprite * meta_cursor_renderer_get_cursor (MetaCursorRenderer *renderer);
 
 graphene_rect_t meta_cursor_renderer_calculate_rect (MetaCursorRenderer *renderer,

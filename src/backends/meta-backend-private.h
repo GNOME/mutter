@@ -135,6 +135,7 @@ META_EXPORT_TEST
 MetaCursorTracker * meta_backend_get_cursor_tracker (MetaBackend *backend);
 MetaCursorRenderer * meta_backend_get_cursor_renderer_for_device (MetaBackend        *backend,
                                                                   ClutterInputDevice *device);
+META_EXPORT_TEST
 MetaCursorRenderer * meta_backend_get_cursor_renderer (MetaBackend *backend);
 META_EXPORT_TEST
 MetaRenderer * meta_backend_get_renderer (MetaBackend *backend);
