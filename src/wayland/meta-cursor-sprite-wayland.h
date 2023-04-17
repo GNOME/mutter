@@ -25,6 +25,7 @@
 #include "wayland/meta-wayland-surface.h"
 
 #define META_TYPE_CURSOR_SPRITE_WAYLAND meta_cursor_sprite_wayland_get_type ()
+META_EXPORT_TEST
 G_DECLARE_FINAL_TYPE (MetaCursorSpriteWayland, meta_cursor_sprite_wayland,
                       META, CURSOR_SPRITE_WAYLAND, MetaCursorSprite)
 

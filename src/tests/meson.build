@@ -365,6 +365,14 @@ if have_native_tests
       ],
       'variants': kms_test_variants,
     },
+    {
+      'name': 'kms-cursor-hotplug',
+      'suite': 'backends/native',
+      'sources': [
+        'native-kms-cursor-hotplug.c',
+        wayland_test_utils,
+      ],
+    },
   ]
 
   privileged_test_cases += kms_test_cases

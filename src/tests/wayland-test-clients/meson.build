@@ -80,6 +80,12 @@ wayland_test_clients = [
     'name': 'fullscreen',
   },
   {
+    'name': 'kms-cursor-hotplug-helper',
+    'extra_deps': [
+      wayland_cursor_dep,
+    ],
+  },
+  {
     'name': 'dma-buf-scanout',
     'extra_deps': [
       libdrm_dep,
