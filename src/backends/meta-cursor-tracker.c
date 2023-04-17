@@ -263,6 +263,7 @@ meta_cursor_tracker_dispose (GObject *object)
 
   g_clear_object (&priv->effective_cursor);
   g_clear_object (&priv->displayed_cursor);
+  g_clear_object (&priv->window_cursor);
   g_clear_object (&priv->root_cursor);
 
   G_OBJECT_CLASS (meta_cursor_tracker_parent_class)->dispose (object);
