@@ -248,8 +248,67 @@ meta_test_hammer_activate (void)
 }
 
 static void
+compositor_check_proc_async (GObject      *source_object,
+                             GAsyncResult *res,
+                             gpointer      user_data)
+{
+  g_autoptr (GError) error = NULL;
+  GMainLoop *loop = user_data;
+
+  g_subprocess_wait_check_finish (G_SUBPROCESS (source_object), res, &error);
+  g_assert_no_error (error);
+  g_main_loop_quit (loop);
+}
+
+static void
+meta_test_xwayland_compositor_selection (void)
+{
+  g_autoptr (GError) error = NULL;
+  g_autoptr (GSubprocessLauncher) launcher = NULL;
+  g_autoptr (GSubprocess) subprocess = NULL;
+  g_autoptr (GMainLoop) loop = NULL;
+  MetaDisplay *display = meta_context_get_display (test_context);
+  MetaWaylandCompositor *compositor;
+  const char *x11_display_name;
+  const char *x11_compositor_checker;
+
+  g_assert_null (meta_display_get_x11_display (display));
+
+  g_assert (meta_is_wayland_compositor ());
+  compositor = meta_context_get_wayland_compositor (test_context);
+  x11_display_name = meta_wayland_get_public_xwayland_display_name (compositor);
+  g_assert_nonnull (x11_display_name);
+
+  launcher = g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_NONE);
+  g_subprocess_launcher_setenv (launcher,
+                                "DISPLAY", x11_display_name,
+                                TRUE);
+
+  x11_compositor_checker = g_test_build_filename (G_TEST_BUILT,
+                                                  "src",
+                                                  "tests",
+                                                  "x11-compositor-checker",
+                                                  NULL);
+
+  subprocess = g_subprocess_launcher_spawn (launcher,
+                                            &error,
+                                            x11_compositor_checker,
+                                            NULL);
+  g_assert_no_error (error);
+
+  loop = g_main_loop_new (NULL, FALSE);
+  g_subprocess_wait_check_async (subprocess, NULL,
+                                 compositor_check_proc_async, loop);
+  g_main_loop_run (loop);
+
+  g_assert_nonnull (meta_display_get_x11_display (display));
+}
+
+static void
 init_tests (void)
 {
+  g_test_add_func ("/backends/xwayland/compositor/selection",
+                   meta_test_xwayland_compositor_selection);
   g_test_add_func ("/backends/xwayland/restart/selection",
                    meta_test_xwayland_restart_selection);
   g_test_add_func ("/backends/xwayland/crash/only-x11",
