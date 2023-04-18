@@ -474,11 +474,28 @@ if have_native_tests
     },
   ]
   if have_xwayland
+    x11_compositor_checker = executable('x11-compositor-checker',
+      sources: ['x11-compositor-checker.c'],
+      include_directories: tests_includes,
+      c_args: [
+        tests_c_args,
+      ],
+      dependencies: [
+        x11_dep,
+      ],
+      install: have_installed_tests,
+      install_dir: mutter_installed_tests_libexecdir,
+      install_rpath: pkglibdir,
+    )
+
     test_cases += [
       {
         'name': 'xwayland',
         'suite': 'wayland',
-        'depends': [ test_client ],
+        'depends': [
+          test_client,
+          x11_compositor_checker,
+        ],
         'sources': [
           'xwayland-tests.c',
         ],
