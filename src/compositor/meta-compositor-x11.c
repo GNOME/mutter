@@ -171,7 +171,7 @@ meta_compositor_x11_manage (MetaCompositor  *compositor,
 
   determine_server_clock_source (compositor_x11);
 
-  meta_x11_display_set_cm_selection (display->x11_display);
+  meta_x11_display_set_cm_selection (display->x11_display, CurrentTime);
 
   compositor_x11->output = display->x11_display->composite_overlay_window;
 
