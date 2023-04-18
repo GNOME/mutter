@@ -243,6 +243,7 @@ test_cases += [
     'name': 'monitor-unit',
     'suite': 'backend',
     'sources': [ 'monitor-unit-tests.c', ],
+    'depends': [ test_client ],
   },
   {
     'name': 'monitor-utils',
@@ -253,6 +254,7 @@ test_cases += [
     'name': 'stage-views',
     'suite': 'compositor',
     'sources': [ 'stage-view-tests.c', ],
+    'depends': [ test_client ],
   },
   {
     'name': 'anonymous-file',
@@ -319,6 +321,7 @@ if have_native_tests
       'name': 'pointer-constraints',
       'suite': 'backends/native',
       'sources': [ 'native-pointer-constraints.c' ],
+      'depends': [ test_client ],
     },
     {
       'name': 'ref-test-sanity',
@@ -457,6 +460,7 @@ if have_native_tests
         dummy_protocol_code,
         wayland_test_utils,
       ],
+      'depends': [ test_client ],
     },
   ]
   if have_xwayland
@@ -471,10 +475,12 @@ if have_native_tests
           wayland_protocol_files['mutter-x11-interop']['protocol-code'],
           built_dbus_sources['meta-dbus-service-channel'],
         ],
+        'depends': [ test_client ],
       },
       {
         'name': 'xwayland',
         'suite': 'wayland',
+        'depends': [ test_client ],
         'sources': [
           'xwayland-tests.c',
         ],
@@ -511,6 +517,7 @@ if have_native_tests
     test(test_case['name'], test_executable,
       suite: ['core', 'mutter/' + test_case['suite']],
       env: test_env,
+      depends: test_case.get('depends', []),
       is_parallel: false,
       timeout: 60,
     )
