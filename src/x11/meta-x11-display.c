@@ -736,6 +736,10 @@ take_manager_selection (MetaX11Display *x11_display,
     {
       XEvent event;
 
+#ifdef HAVE_XWAYLAND
+      g_return_val_if_fail (!meta_is_wayland_compositor (), new_owner);
+#endif
+
       /* We sort of block infinitely here which is probably lame. */
 
       meta_verbose ("Waiting for old window manager to exit");
@@ -1430,6 +1434,22 @@ meta_x11_display_new (MetaDisplay  *display,
   x11_display->wm_sn_atom = wm_sn_atom;
   x11_display->wm_sn_timestamp = timestamp;
 
+#ifdef HAVE_XWAYLAND
+  if (meta_is_wayland_compositor ())
+    {
+      meta_x11_display_set_cm_selection (x11_display, timestamp);
+
+      if (x11_display->wm_cm_selection_window == None)
+        {
+          g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                       "Failed to acquire compositor ownership");
+
+          g_object_run_dispose (G_OBJECT (x11_display));
+          return NULL;
+        }
+    }
+#endif
+
   init_event_masks (x11_display);
 
   meta_x11_display_init_frames_client (x11_display);
@@ -1854,13 +1874,15 @@ on_monitors_changed_internal (MetaMonitorManager *monitor_manager,
 }
 
 void
-meta_x11_display_set_cm_selection (MetaX11Display *x11_display)
+meta_x11_display_set_cm_selection (MetaX11Display *x11_display,
+                                   uint32_t        timestamp)
 {
   char selection[32];
   Atom a;
-  guint32 timestamp;
 
-  timestamp = meta_x11_display_get_current_time_roundtrip (x11_display);
+  if (timestamp == CurrentTime)
+    timestamp = meta_x11_display_get_current_time_roundtrip (x11_display);
+
   g_snprintf (selection, sizeof (selection), "_NET_WM_CM_S%d",
               DefaultScreen (x11_display->xdisplay));
   a = XInternAtom (x11_display->xdisplay, selection, False);
