@@ -395,9 +395,11 @@ meta_surface_actor_is_obscured_on_stage_view (MetaSurfaceActor *self,
     {
       MetaSurfaceActorPrivate *priv =
         meta_surface_actor_get_instance_private (self);
+      ClutterActor *stage = clutter_actor_get_stage (CLUTTER_ACTOR (self));
       cairo_region_t *intersection_region;
       cairo_rectangle_int_t stage_rect;
-      float x, y;
+      graphene_matrix_t transform;
+      graphene_rect_t actor_bounds;
       float bounds_width, bounds_height;
       float bounds_size;
       int intersection_size = 0;
@@ -406,9 +408,11 @@ meta_surface_actor_is_obscured_on_stage_view (MetaSurfaceActor *self,
       if (cairo_region_is_empty (unobscured_region))
         return TRUE;
 
-      intersection_region = cairo_region_copy (unobscured_region);
-      clutter_actor_get_transformed_position (CLUTTER_ACTOR (self), &x, &y);
-      cairo_region_translate (intersection_region, x, y);
+      clutter_actor_get_relative_transformation_matrix (CLUTTER_ACTOR (self),
+                                                        stage,
+                                                        &transform);
+
+      intersection_region = meta_region_apply_matrix_transform_expand (unobscured_region, &transform);
 
       clutter_stage_view_get_layout (stage_view, &stage_rect);
       cairo_region_intersect_rectangle (intersection_region,
@@ -428,7 +432,10 @@ meta_surface_actor_is_obscured_on_stage_view (MetaSurfaceActor *self,
       clutter_content_get_preferred_size (CLUTTER_CONTENT (priv->texture),
                                           &bounds_width,
                                           &bounds_height);
-      bounds_size = bounds_width * bounds_height;
+      graphene_rect_init (&actor_bounds, 0, 0, bounds_width, bounds_height);
+      graphene_matrix_transform_bounds (&transform, &actor_bounds, &actor_bounds);
+      graphene_rect_round_extents (&actor_bounds, &actor_bounds);
+      bounds_size = graphene_rect_get_area (&actor_bounds);
 
       n_rects = cairo_region_num_rectangles (intersection_region);
       for (i = 0; i < n_rects; i++)
