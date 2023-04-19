@@ -1342,7 +1342,8 @@ meta_x11_display_new (MetaDisplay  *display,
   x11_display->no_focus_window =
     meta_x11_display_create_offscreen_window (x11_display,
                                               xroot,
-                                              FocusChangeMask|KeyPressMask|KeyReleaseMask);
+                                              FocusChangeMask |
+                                              KeyPressMask | KeyReleaseMask);
   XMapWindow (xdisplay, x11_display->no_focus_window);
   /* Done with no_focus_window stuff */
 
@@ -1376,8 +1377,12 @@ meta_x11_display_new (MetaDisplay  *display,
           g_free (list);
         }
 
-        if (num > meta_workspace_manager_get_n_workspaces (display->workspace_manager))
-          meta_workspace_manager_update_num_workspaces (display->workspace_manager, timestamp, num);
+      if (num >
+          meta_workspace_manager_get_n_workspaces (display->workspace_manager))
+        {
+          meta_workspace_manager_update_num_workspaces (
+            display->workspace_manager, timestamp, num);
+        }
     }
 
   g_signal_connect_object (display->workspace_manager, "active-workspace-changed",
