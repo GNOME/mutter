@@ -1166,6 +1166,7 @@ meta_x11_display_new (MetaDisplay  *display,
   Window new_wm_sn_owner;
   gboolean replace_current_wm;
   Atom wm_sn_atom;
+  Atom wm_cm_atom;
   char buf[128];
   guint32 timestamp;
   Atom atom_restart_helper;
@@ -1434,21 +1435,21 @@ meta_x11_display_new (MetaDisplay  *display,
   x11_display->wm_sn_atom = wm_sn_atom;
   x11_display->wm_sn_timestamp = timestamp;
 
-#ifdef HAVE_XWAYLAND
-  if (meta_is_wayland_compositor ())
+  g_snprintf (buf, sizeof (buf), "_NET_WM_CM_S%d", number);
+  wm_cm_atom = XInternAtom (x11_display->xdisplay, buf, False);
+
+  x11_display->wm_cm_selection_window =
+    take_manager_selection (x11_display, xroot, wm_cm_atom, timestamp,
+                            replace_current_wm);
+
+  if (x11_display->wm_cm_selection_window == None)
     {
-      meta_x11_display_set_cm_selection (x11_display, timestamp);
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Failed to acquire compositor ownership");
 
-      if (x11_display->wm_cm_selection_window == None)
-        {
-          g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                       "Failed to acquire compositor ownership");
-
-          g_object_run_dispose (G_OBJECT (x11_display));
-          return NULL;
-        }
+      g_object_run_dispose (G_OBJECT (x11_display));
+      return NULL;
     }
-#endif
 
   init_event_masks (x11_display);
 
@@ -1871,23 +1872,6 @@ on_monitors_changed_internal (MetaMonitorManager *monitor_manager,
     }
 
   x11_display->has_xinerama_indices = FALSE;
-}
-
-void
-meta_x11_display_set_cm_selection (MetaX11Display *x11_display,
-                                   uint32_t        timestamp)
-{
-  char selection[32];
-  Atom a;
-
-  if (timestamp == CurrentTime)
-    timestamp = meta_x11_display_get_current_time_roundtrip (x11_display);
-
-  g_snprintf (selection, sizeof (selection), "_NET_WM_CM_S%d",
-              DefaultScreen (x11_display->xdisplay));
-  a = XInternAtom (x11_display->xdisplay, selection, False);
-
-  x11_display->wm_cm_selection_window = take_manager_selection (x11_display, x11_display->xroot, a, timestamp, TRUE);
 }
 
 static Bool
