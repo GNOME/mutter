@@ -977,7 +977,8 @@ const GOptionEntry options[] = {
 };
 
 int
-main(int argc, char **argv)
+main(int    argc,
+     char **argv)
 {
   GOptionContext *context = g_option_context_new (NULL);
   GdkScreen *screen;
