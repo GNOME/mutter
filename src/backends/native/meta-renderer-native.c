@@ -1733,23 +1733,69 @@ create_secondary_egl_config (MetaEgl                    *egl,
   return FALSE;
 }
 
+static const char *
+egl_context_priority_to_string (EGLint priority)
+{
+  switch (priority)
+    {
+    case EGL_CONTEXT_PRIORITY_HIGH_IMG:
+      return "high";
+    case EGL_CONTEXT_PRIORITY_MEDIUM_IMG:
+      return "medium";
+    case EGL_CONTEXT_PRIORITY_LOW_IMG:
+      return "low";
+    default:
+      return "unknown";
+    }
+}
+
 static EGLContext
 create_secondary_egl_context (MetaEgl   *egl,
                               EGLDisplay egl_display,
                               EGLConfig  egl_config,
                               GError   **error)
 {
-  EGLint attributes[] = {
-    EGL_CONTEXT_CLIENT_VERSION, 3,
-    EGL_NONE
-  };
+  EGLint attributes[5];
+  int i = 0;
+  EGLContext egl_context;
+  gboolean supports_priority = FALSE;
 
-  return meta_egl_create_context (egl,
-                                  egl_display,
-                                  egl_config,
-                                  EGL_NO_CONTEXT,
-                                  attributes,
-                                  error);
+  attributes[i++] = EGL_CONTEXT_CLIENT_VERSION;
+  attributes[i++] = 3;
+
+  if (meta_egl_has_extensions (egl, egl_display,
+                               NULL,
+                               "EGL_IMG_context_priority", NULL))
+    {
+      attributes[i++] = EGL_CONTEXT_PRIORITY_LEVEL_IMG;
+      attributes[i++] = EGL_CONTEXT_PRIORITY_HIGH_IMG;
+
+      supports_priority = TRUE;
+    }
+
+  attributes[i++] = EGL_NONE;
+
+  egl_context = meta_egl_create_context (egl,
+                                         egl_display,
+                                         egl_config,
+                                         EGL_NO_CONTEXT,
+                                         attributes,
+                                         error);
+
+  if (supports_priority)
+    {
+      EGLint value = EGL_CONTEXT_PRIORITY_MEDIUM_IMG;
+
+      eglQueryContext (egl_display, egl_context,
+                       EGL_CONTEXT_PRIORITY_LEVEL_IMG,
+                       &value);
+
+      meta_topic (META_DEBUG_RENDER,
+                  "Created secondary EGL context with priority %s",
+                  egl_context_priority_to_string (value));
+    }
+
+  return egl_context;
 }
 
 static void
