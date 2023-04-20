@@ -830,11 +830,13 @@ meta_test_kms_update_feedback (void)
   meta_kms_update_add_result_listener (update,
                                        &main_thread_result_listener_vtable,
                                        NULL,
-                                       &data);
+                                       &data,
+                                       NULL);
   meta_kms_update_add_result_listener (update,
                                        &callback_thread_result_listener_vtable,
                                        data.thread_main_context,
-                                       &data);
+                                       &data,
+                                       NULL);
 
   meta_kms_device_post_update (device, update,
                                META_KMS_UPDATE_FLAG_NONE);

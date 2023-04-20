@@ -1170,7 +1170,8 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
       meta_kms_update_add_result_listener (kms_update,
                                            &swap_buffer_result_listener_vtable,
                                            NULL,
-                                           onscreen_native);
+                                           onscreen_native,
+                                           NULL);
 
       ensure_crtc_modes (onscreen, kms_update);
       meta_onscreen_native_flip_crtc (onscreen,
@@ -1391,7 +1392,8 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
   meta_kms_update_add_result_listener (kms_update,
                                        &scanout_result_listener_vtable,
                                        NULL,
-                                       onscreen_native);
+                                       onscreen_native,
+                                       NULL);
 
   meta_onscreen_native_flip_crtc (onscreen,
                                   onscreen_native->view,
@@ -1570,7 +1572,8 @@ meta_onscreen_native_finish_frame (CoglOnscreen *onscreen,
   meta_kms_update_add_result_listener (kms_update,
                                        &finish_frame_result_listener_vtable,
                                        NULL,
-                                       onscreen_native);
+                                       onscreen_native,
+                                       NULL);
 
   meta_kms_update_add_page_flip_listener (kms_update,
                                           kms_crtc,

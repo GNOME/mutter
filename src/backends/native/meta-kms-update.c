@@ -624,7 +624,8 @@ void
 meta_kms_update_add_result_listener (MetaKmsUpdate                     *update,
                                      const MetaKmsResultListenerVtable *vtable,
                                      GMainContext                      *main_context,
-                                     gpointer                           user_data)
+                                     gpointer                           user_data,
+                                     GDestroyNotify                     destroy_notify)
 {
   MetaKmsResultListener *listener;
 
@@ -633,6 +634,7 @@ meta_kms_update_add_result_listener (MetaKmsUpdate                     *update,
     .main_context = main_context,
     .vtable = vtable,
     .user_data = user_data,
+    .destroy_notify = destroy_notify,
   };
 
   update->result_listeners = g_list_append (update->result_listeners,
@@ -672,6 +674,8 @@ meta_kms_result_listener_notify (MetaKmsResultListener *listener)
 void
 meta_kms_result_listener_free (MetaKmsResultListener *listener)
 {
+  if (listener->destroy_notify)
+    listener->destroy_notify (listener->user_data);
   g_clear_pointer (&listener->feedback, meta_kms_feedback_unref);
   g_free (listener);
 }

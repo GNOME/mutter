@@ -197,7 +197,8 @@ META_EXPORT_TEST
 void meta_kms_update_add_result_listener (MetaKmsUpdate                     *update,
                                           const MetaKmsResultListenerVtable *vtable,
                                           GMainContext                      *main_context,
-                                          gpointer                           user_data);
+                                          gpointer                           user_data,
+                                          GDestroyNotify                     destroy_notify);
 
 META_EXPORT_TEST
 void meta_kms_update_merge_from (MetaKmsUpdate *update,

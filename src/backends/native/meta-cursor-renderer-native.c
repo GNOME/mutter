@@ -367,7 +367,8 @@ assign_cursor_plane (MetaCursorRendererNative *native,
   meta_kms_update_add_result_listener (kms_update,
                                        &kms_update_listener_vtable,
                                        NULL,
-                                       native);
+                                       native,
+                                       NULL);
 
   crtc_cursor_data->buffer = buffer;
 

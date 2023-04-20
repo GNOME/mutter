@@ -382,7 +382,8 @@ on_scanout_fallback_before_paint (ClutterStage     *stage,
   meta_kms_update_add_result_listener (kms_update,
                                        &scanout_fallback_result_listener_vtable,
                                        NULL,
-                                       test);
+                                       test,
+                                       NULL);
 
   test->scanout_fallback.scanout_failed_view = stage_view;
 }

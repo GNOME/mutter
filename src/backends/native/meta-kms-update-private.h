@@ -131,6 +131,7 @@ struct _MetaKmsResultListener
   GMainContext *main_context;
   const MetaKmsResultListenerVtable *vtable;
   gpointer user_data;
+  GDestroyNotify destroy_notify;
 
   MetaKmsFeedback *feedback;
 };
