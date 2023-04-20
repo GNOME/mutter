@@ -57,7 +57,6 @@ struct _MetaFrame
 void     meta_window_ensure_frame           (MetaWindow *window);
 void     meta_window_destroy_frame          (MetaWindow *window);
 
-MetaFrameFlags meta_frame_get_flags   (MetaFrame *frame);
 Window         meta_frame_get_xwindow (MetaFrame *frame);
 
 /* These should ONLY be called from meta_window_move_resize_internal */
