@@ -157,7 +157,20 @@ should_send_modifiers (MetaBackend *backend)
   MetaGpuKms *gpu_kms;
 
   if (!META_IS_BACKEND_NATIVE (backend))
-    return FALSE;
+    {
+      MetaEgl *egl = meta_backend_get_egl (backend);
+      ClutterBackend *clutter_backend =
+        meta_backend_get_clutter_backend (backend);
+      CoglContext *cogl_context =
+        clutter_backend_get_cogl_context (clutter_backend);
+      EGLDisplay egl_display = cogl_egl_context_get_egl_display (cogl_context);
+
+      return meta_egl_has_extensions (egl,
+                                      egl_display,
+                                      NULL,
+                                      "EGL_EXT_image_dma_buf_import_modifiers",
+                                      NULL);
+    }
 
   renderer_native = META_RENDERER_NATIVE (meta_backend_get_renderer (backend));
   gpu_kms = meta_renderer_native_get_primary_gpu (renderer_native);
