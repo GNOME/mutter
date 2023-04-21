@@ -1695,10 +1695,10 @@ meta_window_should_be_showing_on_workspace (MetaWindow    *window,
                                             MetaWorkspace *workspace)
 {
 #ifdef HAVE_WAYLAND
-  if (window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND)
+  if (meta_is_wayland_compositor ())
     {
       MetaWaylandSurface *surface = meta_window_get_wayland_surface (window);
-      if (!meta_wayland_surface_get_buffer (surface))
+      if (!surface || !meta_wayland_surface_get_buffer (surface))
         return FALSE;
     }
 #endif
