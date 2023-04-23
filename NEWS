@@ -1,3 +1,36 @@
+44.1
+====
+* Fall back to the default, not the unknown color space [Sebastian W.; !2915]
+* Fix resizing windows via keyboard [Florian; !2908]
+* Fix possible screen freeze after resume with multiple monitors [Daniel; !2933]
+* Fix anchor position when dragging window [Carlos; !2942]
+* Fix applying XSettings to decorations on X11 [Marco; !2948]
+* Allow clipped redraws for headless backend [Salman; !2775]
+* Improve screencast support [Georges; !2804]
+* Fix focus-on-click for server-side decorated windows [Carlos; !2954]
+* Fix initial fullscreen state of server-side decorated windows [Carlos; !2961]
+* Fix feedback loop triggering bursts of excessive CPU load [Robert; !2823]
+* Enable modifiers by default on non-native backend [Robert; !2972]
+* Check EDID for supported sink Colorimetry [Sebastian W.; !2919]
+* Fix artifacts in titlebars on some hardware [Carlos; !2976]
+* Fix map transitions for X11 windows on wayland [Carlos; !2975]
+* Fixed crashes [Jonas Å., Sebastian K., Carlos, Michel, Daniel, Robert;
+  !2932, !2930, !2945, !2956, !2962, !2968, !2967, !2960, !2963]
+* Plugged leaks [Sebastian K., Jonas Å.; !2922, !2926, !2957]
+* Misc. bug fixes and cleanups [Daniel, Ivan, Emmanuele, Simon, Jonas D.,
+  Jonas Å., Chris, Florian, Corentin, msizanoen1, Sebastian K.; !2918, !2904,
+  !2928, !2929, !2900, !2856, !2944, !2935, !2947, !2949, !2951, !2940, !2953,
+  !2964, !2934, !2902, !2971]
+
+Contributors:
+  Jonas Ådahl, Emmanuele Bassi, Michel Dänzer, Jonas Dreßler, Carlos Garnacho,
+  Sebastian Keller, Robert Mader, Chris Mayo, Simon McVittie, Ivan Molodetskikh,
+  msizanoen1, Florian Müllner, Georges Basile Stavracas Neto, Corentin Noël,
+  Salman, Marco Trevisan (Treviño), Daniel van Vugt, Sebastian Wick
+
+Translators:
+  Boyuan Yang [zh_CN], Ngọc Quân Trần [vi], Nathan Follens [nl]
+
 44.0
 ====
 * Fix state confusion and delay on startup [Carlos; !2906]
