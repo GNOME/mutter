@@ -1,3 +1,15 @@
+43.5
+====
+* Fix recording windows on non-active workspaces [Robert; !2789]
+* Fixed crashes [Colin, Sebastian, Jonas; !2917, !2955, !2969]
+* Misc. bug fixes and cleanups [Ivan; !2928]
+
+Contributors:
+  Jonas Ådahl, Sebastian Keller, Colin Kinloch, Robert Mader, Ivan Molodetskikh
+
+Translators:
+  Nart Tlisha [ab]
+
 43.4
 ====
 * Do not overwrite previously set offsets on attach [Matthias; !2843]
