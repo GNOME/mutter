@@ -42,6 +42,8 @@ main (int   argc,
   GMainLoop *loop;
   Display *xdisplay;
 
+  g_setenv ("GSK_RENDERER", "cairo", TRUE);
+
   /* We do know the desired GDK backend, don't let
    * anyone tell us otherwise.
    */
