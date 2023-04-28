@@ -504,6 +504,7 @@ frame_sync_wm_state (MetaFrame *frame,
 GtkWidget *
 meta_frame_new (Window window)
 {
+  GdkDisplay *display;
   GtkWidget *frame, *header, *content;
   GdkSurface *surface;
   int frame_height = 0;
@@ -548,6 +549,13 @@ meta_frame_new (Window window)
   frame_sync_wm_name (GTK_WINDOW (frame), window);
   frame_sync_motif_wm_hints (GTK_WINDOW (frame), window);
   frame_sync_wm_normal_hints (GTK_WINDOW (frame), window);
+
+  /* Disable XDND support on the frame window, because it can cause some clients
+   * to try use it instead of the client window as drop target */
+  display = gtk_widget_get_display (GTK_WIDGET (frame));
+  XDeleteProperty (gdk_x11_display_get_xdisplay (display),
+                   gdk_x11_surface_get_xid (surface),
+                   gdk_x11_get_xatom_by_name_for_display (display, "XdndAware"));
 
   return frame;
 }
