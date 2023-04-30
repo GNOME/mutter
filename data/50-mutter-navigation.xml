@@ -128,17 +128,17 @@
 	              description="Switch to last workspace" />
 
 	<KeyListEntry name="switch-to-workspace-left"
-	              description="Move to workspace on the left" />
+	              description="Switch to workspace on the left" />
 
 	<KeyListEntry name="switch-to-workspace-right"
-	              description="Move to workspace on the right" />
+	              description="Switch to workspace on the right" />
 
         <KeyListEntry name="switch-to-workspace-up"
-                      description="Move to workspace above"
+                      description="Switch to workspace above"
                       hidden="true" />
 
         <KeyListEntry name="switch-to-workspace-down"
-                      description="Move to workspace below"
+                      description="Switch to workspace below"
                       hidden="true" />
 
 </KeyListEntries>
