@@ -58,17 +58,6 @@ typedef struct {
   gboolean COGL_PRIVATE (write_enabled);
   float COGL_PRIVATE (range_near);
   float COGL_PRIVATE (range_far);
-
-  uint32_t COGL_PRIVATE (padding0);
-  uint32_t COGL_PRIVATE (padding1);
-  uint32_t COGL_PRIVATE (padding2);
-  uint32_t COGL_PRIVATE (padding3);
-  uint32_t COGL_PRIVATE (padding4);
-  uint32_t COGL_PRIVATE (padding5);
-  uint32_t COGL_PRIVATE (padding6);
-  uint32_t COGL_PRIVATE (padding7);
-  uint32_t COGL_PRIVATE (padding8);
-  uint32_t COGL_PRIVATE (padding9);
 } CoglDepthState;
 
 /**

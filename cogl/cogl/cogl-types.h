@@ -148,14 +148,8 @@ struct _CoglColor
   uint8_t COGL_PRIVATE (blue);
 
   uint8_t COGL_PRIVATE (alpha);
-
-  /* padding in case we want to change to floats at
-   * some point */
-  uint32_t COGL_PRIVATE (padding0);
-  uint32_t COGL_PRIVATE (padding1);
-  uint32_t COGL_PRIVATE (padding2);
 };
-COGL_STRUCT_SIZE_ASSERT (CoglColor, 16);
+COGL_STRUCT_SIZE_ASSERT (CoglColor, 4);
 
 /**
  * CoglTextureVertex:
@@ -176,7 +170,7 @@ struct _CoglTextureVertex
 
   CoglColor color;
 };
-COGL_STRUCT_SIZE_ASSERT (CoglTextureVertex, 36);
+COGL_STRUCT_SIZE_ASSERT (CoglTextureVertex, 24);
 
 /**
  * COGL_BLEND_STRING_ERROR:
