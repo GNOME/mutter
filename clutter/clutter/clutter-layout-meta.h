@@ -53,11 +53,6 @@ struct _ClutterLayoutMeta
 
   /*< public >*/
   ClutterLayoutManager *manager;
-
-  /*< private >*/
-  /* padding */
-  gint32 dummy0;
-  gpointer dummy1;
 };
 
 /**

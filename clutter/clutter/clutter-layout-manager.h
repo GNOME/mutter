@@ -46,8 +46,6 @@ struct _ClutterLayoutManager
 {
   /*< private >*/
   GInitiallyUnowned parent_instance;
-
-  gpointer CLUTTER_PRIVATE_FIELD (dummy);
 };
 
 /**

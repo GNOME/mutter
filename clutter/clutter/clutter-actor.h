@@ -308,9 +308,7 @@ struct _ClutterActorIter
   /*< private >*/
   gpointer CLUTTER_PRIVATE_FIELD (dummy1);
   gpointer CLUTTER_PRIVATE_FIELD (dummy2);
-  gpointer CLUTTER_PRIVATE_FIELD (dummy3);
-  gint     CLUTTER_PRIVATE_FIELD (dummy4);
-  gpointer CLUTTER_PRIVATE_FIELD (dummy5);
+  gint     CLUTTER_PRIVATE_FIELD (dummy3);
 };
 
 CLUTTER_EXPORT

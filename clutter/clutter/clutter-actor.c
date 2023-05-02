@@ -16665,9 +16665,7 @@ typedef struct _RealActorIter
 {
   ClutterActor *root;           /* dummy1 */
   ClutterActor *current;        /* dummy2 */
-  gpointer padding_1;           /* dummy3 */
-  gint age;                     /* dummy4 */
-  gpointer padding_2;           /* dummy5 */
+  gint age;                     /* dummy3 */
 } RealActorIter;
 
 /**
