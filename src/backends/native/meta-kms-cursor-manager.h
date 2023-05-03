@@ -48,6 +48,7 @@ void meta_kms_cursor_manager_set_query_func (MetaKmsCursorManager     *cursor_ma
                                              MetaKmsCursorQueryInImpl  func,
                                              gpointer                  user_data);
 
+META_EXPORT_TEST
 void meta_kms_cursor_manager_position_changed_in_input_impl (MetaKmsCursorManager   *cursor_manager,
                                                              const graphene_point_t *position);
 
@@ -56,6 +57,7 @@ void meta_kms_cursor_manager_update_sprite (MetaKmsCursorManager   *cursor_manag
                                             MetaDrmBuffer          *buffer,
                                             const graphene_point_t *hotspot);
 
+META_EXPORT_TEST
 void meta_kms_cursor_manager_update_crtc_layout (MetaKmsCursorManager *cursor_manager,
                                                  GArray               *layouts);
 

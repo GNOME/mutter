@@ -41,6 +41,7 @@ G_DECLARE_FINAL_TYPE (MetaKmsPlane, meta_kms_plane,
 META_EXPORT_TEST
 MetaKmsDevice * meta_kms_plane_get_device (MetaKmsPlane *plane);
 
+META_EXPORT_TEST
 uint32_t meta_kms_plane_get_id (MetaKmsPlane *plane);
 
 META_EXPORT_TEST

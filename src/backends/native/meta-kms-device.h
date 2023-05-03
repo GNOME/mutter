@@ -44,6 +44,7 @@ const char * meta_kms_device_get_driver_description (MetaKmsDevice *device);
 
 MetaKmsDeviceFlag meta_kms_device_get_flags (MetaKmsDevice *device);
 
+META_EXPORT_TEST
 gboolean meta_kms_device_get_cursor_size (MetaKmsDevice *device,
                                           uint64_t      *out_cursor_width,
                                           uint64_t      *out_cursor_height);
@@ -83,6 +84,7 @@ void meta_kms_device_post_update (MetaKmsDevice     *device,
                                   MetaKmsUpdate     *update,
                                   MetaKmsUpdateFlag  flags);
 
+META_EXPORT_TEST
 void meta_kms_device_await_flush (MetaKmsDevice *device,
                                   MetaKmsCrtc   *crtc);
 

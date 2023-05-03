@@ -21,15 +21,22 @@
 #include "config.h"
 
 #include "backends/native/meta-backend-native-private.h"
+#include "backends/native/meta-device-pool.h"
+#include "backends/native/meta-input-thread.h"
 #include "backends/native/meta-kms-connector.h"
 #include "backends/native/meta-kms-crtc.h"
+#include "backends/native/meta-kms-cursor-manager.h"
 #include "backends/native/meta-kms-device.h"
+#include "backends/native/meta-kms-device-private.h"
+#include "backends/native/meta-kms-impl-device-simple.h"
 #include "backends/native/meta-kms-mode-private.h"
 #include "backends/native/meta-kms-plane.h"
 #include "backends/native/meta-kms-private.h"
 #include "backends/native/meta-kms-update.h"
+#include "backends/native/meta-seat-native.h"
 #include "meta-test/meta-context-test.h"
 #include "tests/meta-kms-test-utils.h"
+#include "tests/meta-test-utils.h"
 
 static MetaContext *test_context;
 
@@ -396,6 +403,199 @@ meta_test_kms_device_power_save (void)
 }
 
 static void
+done_update_result_feedback (const MetaKmsFeedback *feedback,
+                             gpointer               user_data)
+{
+  gboolean *done = user_data;
+
+  *done = TRUE;
+}
+
+static const MetaKmsResultListenerVtable done_result_listener_vtable = {
+  .feedback = done_update_result_feedback,
+};
+
+static gboolean
+fake_position_changed_in_input_impl (GTask *task)
+{
+  MetaKmsCursorManager *cursor_manager = g_task_get_task_data (task);
+
+  meta_kms_cursor_manager_position_changed_in_input_impl (cursor_manager,
+                                                          &GRAPHENE_POINT_INIT (50, 50));
+
+  g_task_return_boolean (task, TRUE);
+  return G_SOURCE_REMOVE;
+}
+
+static void
+fake_position_changed (ClutterSeat          *seat,
+                       MetaKmsCursorManager *cursor_manager)
+{
+  MetaSeatNative *seat_native;
+  g_autoptr (GTask) task = NULL;
+
+  seat_native = META_SEAT_NATIVE (seat);
+  task = g_task_new (seat_native, NULL, NULL, NULL);
+  g_task_set_task_data (task, cursor_manager, NULL);
+
+  meta_seat_impl_run_input_task (seat_native->impl, task,
+                                 (GSourceFunc) fake_position_changed_in_input_impl);
+}
+
+static void
+meta_test_kms_device_discard_disabled (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
+  MetaKms *kms = meta_backend_native_get_kms (backend_native);
+  MetaKmsCursorManager *cursor_manager = meta_kms_get_cursor_manager (kms);
+  g_autoptr (GArray) layout_array = NULL;
+  MetaKmsCrtcLayout layout;
+  g_autoptr (GArray) empty_array = NULL;
+  ClutterSeat *seat;
+  MetaKmsDevice *device;
+  MetaDevicePool *device_pool;
+  MetaDeviceFile *device_file;
+  MetaKmsUpdate *update;
+  MetaKmsCrtc *crtc;
+  MetaKmsConnector *connector;
+  MetaKmsMode *mode;
+  MetaKmsPlane *primary_plane;
+  MetaKmsPlane *cursor_plane;
+  uint64_t cursor_width, cursor_height;
+  g_autoptr (MetaDrmBuffer) primary_buffer = NULL;
+  g_autoptr (MetaDrmBuffer) cursor_buffer = NULL;
+  MetaKmsFeedback *feedback;
+  drmModePlane *drm_plane;
+  gboolean done = FALSE;
+  GError *error = NULL;
+
+  device = meta_get_test_kms_device (test_context);
+
+  if (META_IS_KMS_IMPL_DEVICE_SIMPLE (meta_kms_device_get_impl_device (device)))
+    {
+      g_test_skip ("Legacy KMS cursor API doesn't get reflected in DRM planes");
+      return;
+    }
+
+  crtc = meta_get_test_kms_crtc (device);
+  connector = meta_get_test_kms_connector (device);
+  mode = meta_kms_connector_get_preferred_mode (connector);
+  primary_plane = meta_kms_device_get_primary_plane_for (device, crtc);
+  cursor_plane = meta_kms_device_get_cursor_plane_for (device, crtc);
+
+  device_pool = meta_backend_native_get_device_pool (backend_native);
+  device_file = meta_device_pool_open (device_pool,
+                                       meta_kms_device_get_path (device),
+                                       META_DEVICE_FILE_FLAG_TAKE_CONTROL,
+                                       &error);
+  if (!device_file)
+    g_error ("Failed to open KMS device: %s", error->message);
+
+  primary_buffer = meta_create_test_mode_dumb_buffer (device, mode);
+
+  g_assert_true (meta_kms_device_get_cursor_size (device,
+                                                  &cursor_width,
+                                                  &cursor_height));
+  cursor_buffer = meta_create_test_dumb_buffer (device,
+                                                cursor_width,
+                                                cursor_height);
+
+  /*
+   * Setup base state: cursor + primary active
+   */
+
+  layout_array = g_array_new (FALSE, TRUE, sizeof (MetaKmsCrtcLayout));
+  layout = (MetaKmsCrtcLayout) {
+    .crtc = crtc,
+    .layout = {
+      .size = {
+        .width = meta_kms_mode_get_width (mode),
+        .height = meta_kms_mode_get_height (mode),
+      },
+    },
+    .scale = 1.0,
+  };
+  g_array_append_val (layout_array, layout);
+  meta_kms_cursor_manager_update_crtc_layout (cursor_manager, layout_array);
+
+  update = meta_kms_update_new (device);
+  meta_kms_update_mode_set (update, crtc,
+                            g_list_append (NULL, connector),
+                            mode);
+  meta_kms_update_assign_plane (update,
+                                crtc,
+                                primary_plane,
+                                primary_buffer,
+                                meta_get_mode_fixed_rect_16 (mode),
+                                meta_get_mode_rect (mode),
+                                META_KMS_ASSIGN_PLANE_FLAG_NONE);
+  meta_kms_update_assign_plane (update,
+                                crtc,
+                                cursor_plane,
+                                cursor_buffer,
+                                META_FIXED_16_RECTANGLE_INIT_INT (0, 0,
+                                                                  cursor_width,
+                                                                  cursor_width),
+                                META_RECTANGLE_INIT (10, 10,
+                                                     cursor_width,
+                                                     cursor_width),
+                                META_KMS_ASSIGN_PLANE_FLAG_NONE);
+
+  feedback = meta_kms_device_process_update_sync (device, update,
+                                                  META_KMS_UPDATE_FLAG_MODE_SET);
+  meta_kms_feedback_unref (feedback);
+
+  g_assert_true (meta_kms_crtc_is_active (crtc));
+
+  drm_plane = drmModeGetPlane (meta_device_file_get_fd (device_file),
+                               meta_kms_plane_get_id (cursor_plane));
+  g_assert_nonnull (drm_plane);
+  g_assert_cmpuint (drm_plane->crtc_id, !=, 0);
+  g_assert_cmpuint (drm_plane->fb_id, !=, 0);
+  drmModeFreePlane (drm_plane);
+
+  /*
+   * Invalidate the cursor so the cursor manager will attempt to assign
+   * the cursor plane the next update.
+   */
+
+  seat = meta_backend_get_default_seat (backend);
+  meta_kms_device_await_flush (device, crtc);
+  fake_position_changed (seat, cursor_manager);
+  meta_flush_input (test_context);
+
+  /*
+   * Disable the CRTC before the cursor update is processed.
+   */
+
+  empty_array = g_array_new (FALSE, TRUE, sizeof (MetaKmsCrtcLayout));
+  meta_kms_cursor_manager_update_crtc_layout (cursor_manager, empty_array);
+  update = meta_kms_update_new (device);
+  meta_kms_update_mode_set (update, crtc, NULL, NULL);
+  meta_kms_update_add_result_listener (update,
+                                       &done_result_listener_vtable,
+                                       NULL,
+                                       &done,
+                                       NULL);
+  feedback = meta_kms_device_process_update_sync (device, update,
+                                                  META_KMS_UPDATE_FLAG_MODE_SET);
+  meta_kms_feedback_unref (feedback);
+
+  while (!done)
+    g_main_context_iteration (NULL, TRUE);
+
+  drm_plane = drmModeGetPlane (meta_device_file_get_fd (device_file),
+                               meta_kms_plane_get_id (cursor_plane));
+  g_assert_nonnull (drm_plane);
+  g_assert_cmpuint (drm_plane->crtc_id, ==, 0);
+  g_assert_cmpuint (drm_plane->fb_id, ==, 0);
+  drmModeFreePlane (drm_plane);
+
+  meta_device_file_release (device_file);
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/backends/native/kms/device/sanity",
@@ -404,6 +604,8 @@ init_tests (void)
                    meta_test_kms_device_mode_set);
   g_test_add_func ("/backends/native/kms/device/power-save",
                    meta_test_kms_device_power_save);
+  g_test_add_func ("/backends/native/kms/device/discard-disabled",
+                   meta_test_kms_device_discard_disabled);
 }
 
 int
