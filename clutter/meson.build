@@ -1,11 +1,11 @@
-clutter_includesubdir = join_paths(pkgname, 'clutter')
-clutter_includedir = join_paths(includedir, clutter_includesubdir)
+clutter_includesubdir = pkgname / 'clutter'
+clutter_includedir = includedir / clutter_includesubdir
 
 clutter_includepath = include_directories('.', 'clutter')
 clutter_includes = [clutter_includepath, cogl_includepath]
 
 clutter_c_args = [
-  '-DCLUTTER_SYSCONFDIR="@0@"'.format(join_paths(prefix, sysconfdir)),
+  '-DCLUTTER_SYSCONFDIR="@0@"'.format(prefix / sysconfdir),
   '-DCLUTTER_COMPILATION=1',
   '-DCOGL_DISABLE_DEPRECATION_WARNINGS',
   '-DCOGL_ENABLE_MUTTER_API',

@@ -128,16 +128,16 @@ subdir('drm-mock')
 subdir('wayland-test-clients')
 
 if have_installed_tests
-  stacking_files_datadir = join_paths(pkgdatadir, 'tests')
+  stacking_files_datadir = pkgdatadir / 'tests'
   install_subdir('stacking', install_dir: stacking_files_datadir)
 endif
 
 test_env = environment()
 
 test_env_variables = {
-  'G_TEST_SRCDIR': join_paths(mutter_srcdir, 'src'),
+  'G_TEST_SRCDIR': mutter_srcdir / 'src',
   'G_TEST_BUILDDIR': mutter_builddir,
-  'XDG_CONFIG_HOME': join_paths(mutter_builddir, '.config'),
+  'XDG_CONFIG_HOME': mutter_builddir / '.config',
   'MUTTER_TEST_PLUGIN_PATH': '@0@'.format(default_plugin.full_path()),
 }
 
@@ -183,7 +183,7 @@ test_runner = executable('mutter-test-runner',
 
 meta_dbus_runner = find_program('meta-dbus-runner.py')
 
-tests_datadir = join_paths(pkgdatadir, 'tests')
+tests_datadir = pkgdatadir / 'tests'
 
 install_data('mutter_dbusrunner.py',
   install_dir: tests_datadir,
@@ -560,7 +560,7 @@ foreach stacking_test: stacking_tests
     suite: ['core', 'mutter/stacking'],
     env: test_env,
     args: [
-      files(join_paths('stacking', stacking_test + '.metatest')),
+      files('stacking' / stacking_test + '.metatest'),
     ],
     is_parallel: false,
     timeout: 60,

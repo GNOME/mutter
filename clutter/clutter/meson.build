@@ -1,5 +1,5 @@
-clutter_clutter_includesubdir = join_paths(clutter_includesubdir, 'clutter')
-clutter_clutter_includedir = join_paths(clutter_includedir, 'clutter')
+clutter_clutter_includesubdir = clutter_includesubdir / 'clutter'
+clutter_clutter_includedir = clutter_includedir / 'clutter'
 
 clutter_headers = [
   'clutter.h',
@@ -338,7 +338,7 @@ libmutter_clutter_dep = declare_dependency(
 
 if have_introspection
   clutter_introspection_args = introspection_args + [
-    '-DCLUTTER_SYSCONFDIR="@0@"'.format(join_paths(prefix, sysconfdir)),
+    '-DCLUTTER_SYSCONFDIR="@0@"'.format(prefix / sysconfdir),
     '-DCLUTTER_COMPILATION=1',
     '-DCOGL_DISABLE_DEPRECATION_WARNINGS',
     '-DG_LOG_DOMAIN="Clutter"'
@@ -395,17 +395,17 @@ install_headers(clutter_headers,
   subdir: clutter_clutter_includesubdir)
 
 install_headers(cally_headers,
-  subdir: join_paths(clutter_includesubdir, 'cally'))
+  subdir: clutter_includesubdir / 'cally')
 
 install_headers(clutter_deprecated_headers,
-  subdir: join_paths(clutter_clutter_includesubdir, 'deprecated'))
+  subdir: clutter_clutter_includesubdir / 'deprecated')
 
 pkg.generate(libmutter_clutter,
   name: 'Mutters Clutter',
   filebase: libmutter_clutter_name,
   description: 'Mutters Clutter Private Library',
   libraries: [m_dep],
-  subdirs: join_paths(pkgname, 'clutter'),
+  subdirs: pkgname / 'clutter',
   requires: [clutter_pkg_deps, libmutter_cogl_name],
   version: meson.project_version(),
   variables: [

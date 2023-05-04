@@ -1,5 +1,5 @@
-mutter_includesubdir = join_paths(pkgname, 'meta')
-mutter_includedir = join_paths(includedir, mutter_includesubdir)
+mutter_includesubdir = pkgname / 'meta'
+mutter_includedir = includedir / mutter_includesubdir
 
 mutter_includes = [
   include_directories('.'),
@@ -980,7 +980,7 @@ foreach dbus_interface: dbus_interfaces
   else
     directory = dbus_interfaces_dir
   endif
-  interface_file = join_paths(directory, interface)
+  interface_file = directory / interface
 
   prefix = dbus_interface['prefix']
 
@@ -1055,33 +1055,30 @@ if have_wayland
 
     if protocol_type == 'stable'
       output_base = protocol_name
-      input = join_paths(protocols_dir,
-                         '@0@/@1@/@2@.xml'.format(protocol_type,
-                         protocol_name,
-                         output_base))
+      input = protocols_dir / '@0@/@1@/@2@.xml'.format(protocol_type,
+                                                       protocol_name,
+                                                       output_base)
     elif protocol_type == 'staging'
       protocol_version = p.get(2)
       output_base = '@0@-@1@'.format(protocol_name, protocol_version)
-      input = join_paths(protocols_dir,
-                         '@0@/@1@/@2@.xml'.format(protocol_type,
-                         protocol_name,
-                         output_base))
+      input = protocols_dir / '@0@/@1@/@2@.xml'.format(protocol_type,
+                                                       protocol_name,
+                                                       output_base)
     elif protocol_type == 'private'
       output_base = protocol_name
       input = 'wayland/protocol/@0@.xml'.format(protocol_name)
     elif protocol_type == 'third-party'
       output_base = protocol_name
       protocol_dir = p.get(2)
-      input = join_paths(protocol_dir, '@0@.xml'.format(protocol_name))
+      input = protocol_dir / '@0@.xml'.format(protocol_name)
     else
       protocol_version = p.get(2)
       output_base = '@0@-@1@-@2@'.format(protocol_name,
                                          protocol_type,
                                          protocol_version)
-      input = join_paths(protocols_dir,
-                         '@0@/@1@/@2@.xml'.format(protocol_type,
-                                                  protocol_name,
-                                                  output_base))
+      input = protocols_dir / '@0@/@1@/@2@.xml'.format(protocol_type,
+                                                       protocol_name,
+                                                       output_base)
     endif
 
     server_header = custom_target('@0@ server header'.format(output_base),

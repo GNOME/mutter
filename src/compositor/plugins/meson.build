@@ -14,6 +14,6 @@ default_plugin = shared_module('default',
     gsettings_desktop_schemas_dep,
     libmutter_clutter_dep,
   ],
-  install_dir: join_paths(pkglibdir, 'plugins'),
+  install_dir: pkglibdir / 'plugins',
   install: true,
 )

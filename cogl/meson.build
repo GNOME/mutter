@@ -1,5 +1,5 @@
-cogl_includesubdir = join_paths(pkgname, 'cogl')
-cogl_includedir = join_paths(includedir, cogl_includesubdir)
+cogl_includesubdir = pkgname / 'cogl'
+cogl_includedir = includedir / cogl_includesubdir
 cogl_srcdir = meson.current_source_dir()
 
 cogl_includepath = include_directories('.', 'cogl')

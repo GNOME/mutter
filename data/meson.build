@@ -1,7 +1,7 @@
 msgfmt = find_program('msgfmt')
 
 # Unconditionally use this dir to avoid a circular dep with gnomecc
-gnome_keybindings_keysdir = join_paths(datadir, 'gnome-control-center/keybindings')
+gnome_keybindings_keysdir = datadir / 'gnome-control-center/keybindings'
 
 keybinding_xml_files = [
   '50-mutter-navigation.xml',
@@ -26,7 +26,7 @@ gschema_config.set('GETTEXT_DOMAIN', meson.project_name())
 gschema_config.set('XWAYLAND_GRAB_DEFAULT_ACCESS_RULES',
                    xwayland_grab_default_access_rules)
 
-schemadir = join_paths(datadir, 'glib-2.0', 'schemas')
+schemadir = datadir / 'glib-2.0' / 'schemas'
 configure_file(
   input: 'org.gnome.mutter.gschema.xml.in',
   output: 'org.gnome.mutter.gschema.xml',
@@ -42,12 +42,12 @@ configure_file(
 )
 
 install_data(['mutter-schemas.convert'],
-  install_dir: join_paths(datadir, 'GConf/gsettings'),
+  install_dir: datadir / 'GConf/gsettings',
 )
 
 if have_libgudev
   install_data(['61-mutter.rules'],
-    install_dir: join_paths(udev_dir, 'rules.d'),
+    install_dir: udev_dir / 'rules.d',
   )
 endif
 

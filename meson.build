@@ -80,30 +80,28 @@ add_project_link_arguments(
 
 prefix = get_option('prefix')
 
-bindir = join_paths(prefix, get_option('bindir'))
-datadir = join_paths(prefix, get_option('datadir'))
-libdir = join_paths(prefix, get_option('libdir'))
-libexecdir = join_paths(prefix, get_option('libexecdir'))
-includedir = join_paths(prefix, get_option('includedir'))
+bindir = prefix / get_option('bindir')
+datadir = prefix / get_option('datadir')
+libdir = prefix / get_option('libdir')
+libexecdir = prefix / get_option('libexecdir')
+includedir = prefix / get_option('includedir')
 sysconfdir = get_option('sysconfdir')
 
 pkgname = '@0@-@1@'.format(meson.project_name(), libmutter_api_version)
 
-pkgdatadir = join_paths(datadir, pkgname)
-pkglibdir = join_paths(libdir, pkgname)
-pkgincludedir = join_paths(includedir, pkgname)
+pkgdatadir = datadir / pkgname
+pkglibdir = libdir / pkgname
+pkgincludedir = includedir / pkgname
 
-pcdir = join_paths(libdir, 'pkgconfig')
+pcdir = libdir / 'pkgconfig'
 
 gettext_package = meson.project_name()
-localedir = join_paths(datadir, 'locale')
+localedir = datadir / 'locale'
 
 libmutter_name = 'mutter-' + libmutter_api_version
 
-mutter_installed_tests_datadir = join_paths(
-  datadir, 'installed-tests', libmutter_name)
-mutter_installed_tests_libexecdir = join_paths(
-  libexecdir, 'installed-tests', libmutter_name)
+mutter_installed_tests_datadir = datadir / 'installed-tests' / libmutter_name
+mutter_installed_tests_libexecdir = libexecdir / 'installed-tests' / libmutter_name
 
 m_dep = cc.find_library('m', required: true)
 graphene_dep = dependency('graphene-gobject-1.0', version: graphene_req)
@@ -433,9 +431,9 @@ if have_profiler
 
   if libsysprof_capture_dep.type_name() == 'pkgconfig'
     sysprof_dep = dependency('sysprof-4')
-    sysprof_dbus_interfaces_dir = join_paths(sysprof_dep.get_variable('datadir'), 'dbus-1', 'interfaces')
+    sysprof_dbus_interfaces_dir = sysprof_dep.get_variable('datadir') / 'dbus-1' / 'interfaces'
   else
-    sysprof_dbus_interfaces_dir = join_paths(mutter_srcdir, 'subprojects', 'sysprof', 'src')
+    sysprof_dbus_interfaces_dir = mutter_srcdir / 'subprojects' / 'sysprof' / 'src'
   endif
 endif
 
@@ -642,7 +640,7 @@ xwayland_grab_default_access_rules = get_option('xwayland_grab_default_access_ru
 cdata.set_quoted('XWAYLAND_GRAB_DEFAULT_ACCESS_RULES',
                  xwayland_grab_default_access_rules)
 
-cdata.set_quoted('MUTTER_PLUGIN_DIR', join_paths(pkglibdir, 'plugins'))
+cdata.set_quoted('MUTTER_PLUGIN_DIR', pkglibdir / 'plugins')
 cdata.set_quoted('MUTTER_LOCALEDIR', localedir)
 cdata.set_quoted('MUTTER_LIBEXECDIR', libexecdir)
 cdata.set_quoted('MUTTER_PKGDATADIR', pkgdatadir)

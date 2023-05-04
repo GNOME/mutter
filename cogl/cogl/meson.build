@@ -1,5 +1,5 @@
-cogl_cogl_includesubdir = join_paths(cogl_includesubdir, 'cogl')
-cogl_cogl_includedir = join_paths(cogl_includedir, 'cogl')
+cogl_cogl_includesubdir = cogl_includesubdir / 'cogl'
+cogl_cogl_includedir = cogl_includedir / 'cogl'
 
 cdata = configuration_data()
 cdata.set('COGL_HAS_GL', have_gl)
@@ -475,17 +475,17 @@ install_headers([
 install_headers([
     cogl_deprecated_headers,
   ],
-  subdir: join_paths(cogl_cogl_includesubdir, 'deprecated'))
+  subdir: cogl_cogl_includesubdir / 'deprecated')
 
 install_headers(cogl_gl_prototype_headers,
-  subdir: join_paths(cogl_cogl_includesubdir, 'gl-prototypes'))
+  subdir: cogl_cogl_includesubdir / 'gl-prototypes')
 
 pkg.generate(libmutter_cogl,
   name: 'Cogl',
   filebase: libmutter_cogl_name,
   description: 'An object oriented GL/GLES Abstraction/Utility Layer in mutter',
   libraries: [m_dep],
-  subdirs: join_paths(pkgname, 'cogl'),
+  subdirs: pkgname / 'cogl',
   requires: [cogl_pkg_deps],
   version: meson.project_version(),
   variables: [
