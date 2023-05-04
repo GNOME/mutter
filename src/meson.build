@@ -1055,15 +1055,11 @@ if have_wayland
 
     if protocol_type == 'stable'
       output_base = protocol_name
-      input = protocols_dir / '@0@/@1@/@2@.xml'.format(protocol_type,
-                                                       protocol_name,
-                                                       output_base)
+      input = protocols_dir / protocol_type / protocol_name / '@0@.xml'.format(output_base)
     elif protocol_type == 'staging'
       protocol_version = p.get(2)
       output_base = '@0@-@1@'.format(protocol_name, protocol_version)
-      input = protocols_dir / '@0@/@1@/@2@.xml'.format(protocol_type,
-                                                       protocol_name,
-                                                       output_base)
+      input = protocols_dir / protocol_type / protocol_name / '@0@.xml'.format(output_base)
     elif protocol_type == 'private'
       output_base = protocol_name
       input = 'wayland/protocol/@0@.xml'.format(protocol_name)
@@ -1076,9 +1072,7 @@ if have_wayland
       output_base = '@0@-@1@-@2@'.format(protocol_name,
                                          protocol_type,
                                          protocol_version)
-      input = protocols_dir / '@0@/@1@/@2@.xml'.format(protocol_type,
-                                                       protocol_name,
-                                                       output_base)
+      input = protocols_dir / protocol_type / protocol_name / '@0@.xml'.format(output_base)
     endif
 
     server_header = custom_target('@0@ server header'.format(output_base),
