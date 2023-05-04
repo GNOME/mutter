@@ -1,7 +1,7 @@
 msgfmt = find_program('msgfmt')
 
 # Unconditionally use this dir to avoid a circular dep with gnomecc
-gnome_keybindings_keysdir = datadir / 'gnome-control-center/keybindings'
+gnome_keybindings_keysdir = datadir / 'gnome-control-center' / 'keybindings'
 
 keybinding_xml_files = [
   '50-mutter-navigation.xml',
