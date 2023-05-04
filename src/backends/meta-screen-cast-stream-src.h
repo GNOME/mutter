@@ -41,7 +41,6 @@ typedef enum _MetaScreenCastRecordFlag
 {
   META_SCREEN_CAST_RECORD_FLAG_NONE = 0,
   META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY = 1 << 0,
-  META_SCREEN_CAST_RECORD_FLAG_DMABUF_ONLY = 1 << 1,
 } MetaScreenCastRecordFlag;
 
 typedef enum _MetaScreenCastRecordResult
@@ -131,5 +130,7 @@ void meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStrea
                                                              int                      y,
                                                              float                    scale,
                                                              MetaMonitorTransform     transform);
+
+gboolean meta_screen_cast_stream_src_uses_dma_bufs (MetaScreenCastStreamSrc *src);
 
 #endif /* META_SCREEN_CAST_STREAM_SRC_H */

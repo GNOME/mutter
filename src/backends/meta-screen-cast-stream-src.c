@@ -107,6 +107,7 @@ typedef struct _MetaScreenCastStreamSrcPrivate
   int64_t last_frame_timestamp_us;
   guint follow_up_frame_source_id;
 
+  gboolean uses_dma_bufs;
   GHashTable *dmabuf_handles;
 
   cairo_region_t *redraw_clip;
@@ -513,15 +514,9 @@ do_record_frame (MetaScreenCastStreamSrc  *src,
 {
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
-  gboolean dmabuf_only;
 
-  dmabuf_only = flags & META_SCREEN_CAST_RECORD_FLAG_DMABUF_ONLY;
-  if (dmabuf_only && spa_buffer->datas[0].type != SPA_DATA_DmaBuf)
-    return FALSE;
-
-  if (!dmabuf_only &&
-      (spa_buffer->datas[0].data ||
-       spa_buffer->datas[0].type == SPA_DATA_MemFd))
+  if (spa_buffer->datas[0].data ||
+      spa_buffer->datas[0].type == SPA_DATA_MemFd)
     {
       int width = priv->video_format.size.width;
       int height = priv->video_format.size.height;
@@ -1057,6 +1052,8 @@ on_stream_add_buffer (void             *data,
     {
       dmabuf_handle = NULL;
     }
+
+  priv->uses_dma_bufs = !!dmabuf_handle;
 
   if (dmabuf_handle)
     {
@@ -1594,4 +1591,13 @@ meta_screen_cast_stream_src_class_init (MetaScreenCastStreamSrcClass *klass)
                                   0,
                                   NULL, NULL, NULL,
                                   G_TYPE_NONE, 0);
+}
+
+gboolean
+meta_screen_cast_stream_src_uses_dma_bufs (MetaScreenCastStreamSrc *src)
+{
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+
+  return priv->uses_dma_bufs;
 }
