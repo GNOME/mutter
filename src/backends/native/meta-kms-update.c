@@ -143,6 +143,12 @@ meta_kms_feedback_get_result (const MetaKmsFeedback *feedback)
   return feedback->result;
 }
 
+gboolean
+meta_kms_feedback_did_pass (const MetaKmsFeedback *feedback)
+{
+  return feedback->result == META_KMS_FEEDBACK_PASSED;
+}
+
 GList *
 meta_kms_feedback_get_failed_planes (const MetaKmsFeedback *feedback)
 {
