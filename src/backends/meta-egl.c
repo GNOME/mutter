@@ -609,7 +609,7 @@ meta_egl_create_dmabuf_image (MetaEgl         *egl,
                               const uint64_t  *modifiers,
                               GError         **error)
 {
-  EGLint attribs[37];
+  EGLint attribs[39];
   int atti = 0;
 
   /* This requires the Mesa commit in
@@ -626,6 +626,8 @@ meta_egl_create_dmabuf_image (MetaEgl         *egl,
   attribs[atti++] = height;
   attribs[atti++] = EGL_LINUX_DRM_FOURCC_EXT;
   attribs[atti++] = drm_format;
+  attribs[atti++] = EGL_IMAGE_PRESERVED_KHR;
+  attribs[atti++] = EGL_TRUE;
 
   if (n_planes > 0)
     {
