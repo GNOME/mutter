@@ -200,6 +200,7 @@ create_impl_source (MetaThreadImpl *thread_impl)
   g_source_set_name (source, source_name);
   impl_source = (MetaThreadImplSource *) source;
   impl_source->thread_impl = thread_impl;
+  g_source_set_priority (source, G_PRIORITY_HIGH + 2);
   g_source_attach (source, priv->thread_context);
   g_source_unref (source);
 
