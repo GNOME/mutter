@@ -246,6 +246,9 @@ meta_window_destroy_frame (MetaWindow *window)
   g_free (frame);
 
   /* Put our state back where it should be */
+  if (!window->unmanaging)
+    meta_compositor_sync_updates_frozen (window->display->compositor, window);
+
   meta_window_queue (window, META_QUEUE_CALC_SHOWING);
   meta_window_queue (window, META_QUEUE_MOVE_RESIZE);
 }
