@@ -1283,6 +1283,9 @@ handle_output_bound (MetaWaylandOutput  *wayland_output,
                      struct wl_resource *output_resource,
                      MetaWaylandSurface *surface)
 {
+  if (!surface->resource)
+    return;
+
   if (wl_resource_get_client (output_resource) ==
       wl_resource_get_client (surface->resource))
     wl_surface_send_enter (surface->resource, output_resource);
