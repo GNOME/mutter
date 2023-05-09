@@ -170,6 +170,8 @@ meta_compositor_view_finalize (GObject *object)
     meta_compositor_view_get_instance_private (compositor_view);
 
   g_clear_weak_pointer (&priv->top_window_actor);
+
+  G_OBJECT_CLASS (meta_compositor_view_parent_class)->finalize (object);
 }
 
 static void
