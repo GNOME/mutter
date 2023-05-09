@@ -75,10 +75,9 @@ device_handle_free (gpointer user_data)
   MetaDisplay *display = get_display (settings);
   MetaBackend *backend = get_backend (settings);
   Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
-  XDevice *xdev = user_data;
 
   meta_x11_error_trap_push (display->x11_display);
-  XCloseDevice (xdisplay, xdev);
+  XCloseDevice (xdisplay, handle->xdev);
   meta_x11_error_trap_pop (display->x11_display);
 
   g_free (handle);
@@ -92,11 +91,12 @@ device_ensure_xdevice (MetaInputSettings  *settings,
   MetaBackend *backend = get_backend (settings);
   Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
   int device_id = meta_input_device_x11_get_device_id (device);
-  XDevice *xdev = NULL;
+  DeviceHandle *handle;
+  XDevice *xdev;
 
-  xdev = g_object_get_data (G_OBJECT (device), "meta-input-settings-xdevice");
-  if (xdev)
-    return xdev;
+  handle = g_object_get_data (G_OBJECT (device), "meta-input-settings-xdevice");
+  if (handle)
+    return handle->xdev;
 
   meta_x11_error_trap_push (display->x11_display);
   xdev = XOpenDevice (xdisplay, device_id);
@@ -104,8 +104,6 @@ device_ensure_xdevice (MetaInputSettings  *settings,
 
   if (xdev)
     {
-      DeviceHandle *handle;
-
       handle = g_new0 (DeviceHandle, 1);
       handle->settings = settings;
       handle->xdev = xdev;
