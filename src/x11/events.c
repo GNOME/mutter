@@ -67,10 +67,9 @@ get_input_event (MetaX11Display *x11_display,
     {
       XIEvent *input_event;
 
-      /* NB: GDK event filters already have generic events
-       * allocated, so no need to do XGetEventData() on our own
-       */
       input_event = (XIEvent *) event->xcookie.data;
+      if (!input_event)
+        return NULL;
 
       switch (input_event->evtype)
         {
