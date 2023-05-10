@@ -158,6 +158,8 @@ struct _MetaKms
 
 G_DEFINE_TYPE (MetaKms, meta_kms, META_TYPE_THREAD)
 
+G_DEFINE_QUARK (-meta-kms-error-quark, meta_kms_error)
+
 static void
 invoke_result_listener (MetaThread *thread,
                         gpointer    user_data)

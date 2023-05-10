@@ -102,19 +102,9 @@ struct _MetaKmsImplDeviceClass
 
 enum
 {
-  META_KMS_ERROR_USER_INHIBITED,
-  META_KMS_ERROR_DENY_LISTED,
-  META_KMS_ERROR_NOT_SUPPORTED,
-};
-
-enum
-{
   META_KMS_DEVICE_FILE_TAG_ATOMIC = 1 << 0,
   META_KMS_DEVICE_FILE_TAG_SIMPLE = 1 << 1,
 };
-
-#define META_KMS_ERROR meta_kms_error_quark ()
-GQuark meta_kms_error_quark (void);
 
 MetaKmsImpl * meta_kms_impl_device_get_impl (MetaKmsImplDevice *impl_device);
 

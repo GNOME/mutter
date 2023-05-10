@@ -87,8 +87,6 @@ G_DEFINE_TYPE_WITH_CODE (MetaKmsImplDevice, meta_kms_impl_device,
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                 initable_iface_init))
 
-G_DEFINE_QUARK (-meta-kms-error-quark, meta_kms_error)
-
 MetaKmsImpl *
 meta_kms_impl_device_get_impl (MetaKmsImplDevice *impl_device)
 {

@@ -26,11 +26,21 @@
 #include "backends/native/meta-kms-types.h"
 #include "backends/native/meta-thread.h"
 
+enum
+{
+  META_KMS_ERROR_USER_INHIBITED,
+  META_KMS_ERROR_DENY_LISTED,
+  META_KMS_ERROR_NOT_SUPPORTED,
+};
+
 typedef enum _MetaKmsFlags
 {
   META_KMS_FLAG_NONE = 0,
   META_KMS_FLAG_NO_MODE_SETTING = 1 << 0,
 } MetaKmsFlags;
+
+#define META_KMS_ERROR meta_kms_error_quark ()
+GQuark meta_kms_error_quark (void);
 
 #define META_TYPE_KMS (meta_kms_get_type ())
 G_DECLARE_FINAL_TYPE (MetaKms, meta_kms, META, KMS, MetaThread)
