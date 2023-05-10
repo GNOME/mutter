@@ -127,14 +127,24 @@ cogl_trace_context_ref (CoglTraceContext *trace_context)
   return trace_context;
 }
 
-static void
-ensure_trace_context (int         fd,
-                      const char *filename)
+static gboolean
+setup_trace_context (int          fd,
+                     const char  *filename,
+                     GError     **error)
 {
-  g_mutex_lock (&cogl_trace_mutex);
-  if (!cogl_trace_context)
-    cogl_trace_context = cogl_trace_context_new (fd, filename);
-  g_mutex_unlock (&cogl_trace_mutex);
+  g_autoptr (GMutexLocker) locker = NULL;
+
+  locker = g_mutex_locker_new (&cogl_trace_mutex);
+  if (cogl_trace_context)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Trace context already setup");
+      return FALSE;
+    }
+
+  cogl_trace_context = cogl_trace_context_new (fd, filename);
+
+  return TRUE;
 }
 
 static CoglTraceThreadContext *
@@ -205,15 +215,35 @@ disable_tracing_idle_callback (gpointer user_data)
   return G_SOURCE_REMOVE;
 }
 
-static void
-set_tracing_enabled_on_thread (GMainContext *main_context,
-                               const char   *group,
-                               int           fd,
-                               const char   *filename)
+gboolean
+cogl_start_tracing_with_path (const char  *filename,
+                              GError     **error)
+{
+  return setup_trace_context (-1, filename, error);
+}
+
+gboolean
+cogl_start_tracing_with_fd (int      fd,
+                            GError **error)
+{
+  return setup_trace_context (fd, NULL, error);
+}
+
+void
+cogl_stop_tracing (void)
+{
+  g_mutex_lock (&cogl_trace_mutex);
+  g_clear_pointer (&cogl_trace_context, cogl_trace_context_unref);
+  g_mutex_unlock (&cogl_trace_mutex);
+}
+
+void
+cogl_set_tracing_enabled_on_thread (GMainContext *main_context,
+                                    const char   *group)
 {
   TraceData *data;
 
-  ensure_trace_context (fd, filename);
+  g_return_if_fail (cogl_trace_context);
 
   data = g_new0 (TraceData, 1);
   data->group = group ? strdup (group) : NULL;
@@ -240,28 +270,8 @@ set_tracing_enabled_on_thread (GMainContext *main_context,
 }
 
 void
-cogl_set_tracing_enabled_on_thread_with_fd (GMainContext *main_context,
-                                            const char   *group,
-                                            int           fd)
-{
-  set_tracing_enabled_on_thread (main_context, group, fd, NULL);
-}
-
-void
-cogl_set_tracing_enabled_on_thread (GMainContext *main_context,
-                                    const char   *group,
-                                    const char   *filename)
-{
-  set_tracing_enabled_on_thread (main_context, group, -1, filename);
-}
-
-void
 cogl_set_tracing_disabled_on_thread (GMainContext *main_context)
 {
-  g_mutex_lock (&cogl_trace_mutex);
-  g_clear_pointer (&cogl_trace_context, cogl_trace_context_unref);
-  g_mutex_unlock (&cogl_trace_mutex);
-
   if (g_main_context_get_thread_default () == main_context)
     {
       disable_tracing_idle_callback (NULL);
@@ -330,18 +340,33 @@ cogl_trace_describe (CoglTraceHead *head,
 #include <string.h>
 #include <stdio.h>
 
+gboolean
+cogl_start_tracing_with_path (const char  *filename,
+                              GError     **error)
+{
+  g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+               "Tracing disabled at build time");
+  return FALSE;
+}
+
+gboolean
+cogl_start_tracing_with_fd (int      fd,
+                            GError **error)
+{
+  g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+               "Tracing disabled at build time");
+  return FALSE;
+}
+
 void
-cogl_set_tracing_enabled_on_thread_with_fd (void       *data,
-                                            const char *group,
-                                            int         fd)
+cogl_stop_tracing (void)
 {
   fprintf (stderr, "Tracing not enabled");
 }
 
 void
 cogl_set_tracing_enabled_on_thread (void       *data,
-                                    const char *group,
-                                    const char *filename)
+                                    const char *group)
 {
   fprintf (stderr, "Tracing not enabled");
 }

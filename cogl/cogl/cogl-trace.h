@@ -29,6 +29,7 @@
 #define COGL_TRACE_H
 
 #include <glib.h>
+#include <gio/gio.h>
 #include <stdint.h>
 #include <errno.h>
 
@@ -53,18 +54,26 @@ CoglTraceContext *cogl_trace_context;
 COGL_EXPORT
 GMutex cogl_trace_mutex;
 
-COGL_EXPORT void
-cogl_set_tracing_enabled_on_thread_with_fd (GMainContext *main_context,
-                                            const char   *group,
-                                            int           fd);
+COGL_EXPORT
+gboolean cogl_start_tracing_with_path (const char  *filename,
+                                       GError     **error);
 
-COGL_EXPORT void
-cogl_set_tracing_enabled_on_thread (GMainContext *main_context,
-                                    const char   *group,
-                                    const char   *filename);
+COGL_EXPORT
+gboolean cogl_start_tracing_with_fd (int      fd,
+                                     GError **error);
 
-COGL_EXPORT void
-cogl_set_tracing_disabled_on_thread (GMainContext *main_context);
+COGL_EXPORT
+void cogl_stop_tracing (void);
+
+COGL_EXPORT
+gboolean cogl_is_tracing (void);
+
+COGL_EXPORT
+void cogl_set_tracing_enabled_on_thread (GMainContext *main_context,
+                                         const char   *group);
+
+COGL_EXPORT
+void cogl_set_tracing_disabled_on_thread (GMainContext *main_context);
 
 static inline void
 cogl_trace_begin (CoglTraceHead *head,
@@ -140,16 +149,25 @@ cogl_is_tracing_enabled (void)
 #define COGL_TRACE_ANCHOR(Name) (void) 0
 #define COGL_TRACE_BEGIN_ANCHORED(Name, name) (void) 0
 
-COGL_EXPORT void
-cogl_set_tracing_enabled_on_thread_with_fd (void       *data,
-                                            const char *group,
-                                            int         fd);
-COGL_EXPORT void
-cogl_set_tracing_enabled_on_thread (void       *data,
-                                    const char *group,
-                                    const char *filename);
-COGL_EXPORT void
-cogl_set_tracing_disabled_on_thread (void *data);
+COGL_EXPORT
+gboolean cogl_start_tracing_with_path (const char  *filename,
+                                       GError     **error);
+
+COGL_EXPORT
+gboolean cogl_start_tracing_with_fd (int      fd,
+                                     GError **error);
+
+COGL_EXPORT
+void cogl_stop_tracing (void);
+
+COGL_EXPORT
+gboolean cogl_is_tracing (void);
+
+COGL_EXPORT
+void cogl_set_tracing_enabled_on_thread (void       *data,
+                                         const char *group)
+COGL_EXPORT
+void cogl_set_tracing_disabled_on_thread (void *data);
 
 #endif /* COGL_HAS_TRACING */
 
