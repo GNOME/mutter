@@ -265,8 +265,6 @@ meta_profiler_class_init (MetaProfilerClass *klass)
 static void
 meta_profiler_init (MetaProfiler *self)
 {
-  const char *env_trace_file;
-
   g_mutex_init (&self->mutex);
   self->cancellable = g_cancellable_new ();
 
@@ -274,9 +272,16 @@ meta_profiler_init (MetaProfiler *self)
              self->cancellable,
              on_bus_acquired_cb,
              self);
+}
 
-  env_trace_file = g_getenv ("MUTTER_DEBUG_TRACE_FILE");
-  if (env_trace_file && env_trace_file[0])
+MetaProfiler *
+meta_profiler_new (const char *trace_file)
+{
+  MetaProfiler *profiler;
+
+  profiler = g_object_new (META_TYPE_PROFILER, NULL);
+
+  if (trace_file)
     {
       GMainContext *main_context = g_main_context_default ();
       const char *group_name;
@@ -286,15 +291,11 @@ meta_profiler_init (MetaProfiler *self)
 
       cogl_set_tracing_enabled_on_thread (main_context,
                                           group_name,
-                                          env_trace_file);
-      self->persistent = TRUE;
+                                          trace_file);
+      profiler->persistent = TRUE;
     }
-}
 
-MetaProfiler *
-meta_profiler_new (void)
-{
-  return g_object_new (META_TYPE_PROFILER, NULL);
+  return profiler;
 }
 
 void

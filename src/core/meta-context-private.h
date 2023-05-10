@@ -86,6 +86,9 @@ gboolean meta_context_is_x11_sync (MetaContext *context);
 #ifdef HAVE_PROFILER
 MetaProfiler *
 meta_context_get_profiler (MetaContext *context);
+
+void meta_context_set_trace_file (MetaContext *context,
+                                  const char  *trace_file);
 #endif
 
 #endif /* META_CONTEXT_PRIVATE_H */

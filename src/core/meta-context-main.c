@@ -73,6 +73,7 @@ typedef struct _MetaContextMainOptions
 #ifdef HAVE_NATIVE_BACKEND
   GList *virtual_monitor_infos;
 #endif
+  char *trace_file;
 } MetaContextMainOptions;
 
 struct _MetaContextMain
@@ -297,6 +298,10 @@ meta_context_main_configure (MetaContext   *context,
       if (desktop_autostart_id)
         context_main->options.sm.client_id = g_strdup (desktop_autostart_id);
     }
+
+#ifdef HAVE_PROFILER
+  meta_context_set_trace_file (context, context_main->options.trace_file);
+#endif
 
   g_unsetenv ("DESKTOP_AUTOSTART_ID");
 
@@ -662,6 +667,12 @@ meta_context_main_add_option_entries (MetaContextMain *context_main)
       N_("Run with X11 backend")
     },
 #endif
+    {
+      "profile", 0, 0, G_OPTION_ARG_FILENAME,
+      &context_main->options.trace_file,
+      N_("Profile performance using trace instrumentation"),
+      "FILE"
+    },
     { NULL }
   };
 

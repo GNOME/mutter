@@ -98,6 +98,7 @@ typedef struct _MetaContextPrivate
 #endif
 
 #ifdef HAVE_PROFILER
+  char *trace_file;
   MetaProfiler *profiler;
 #endif
 
@@ -292,6 +293,15 @@ meta_context_get_profiler (MetaContext *context)
 
   return priv->profiler;
 }
+
+void
+meta_context_set_trace_file (MetaContext *context,
+                             const char  *trace_file)
+{
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  priv->trace_file = g_strdup (trace_file);
+}
 #endif
 
 static gboolean
@@ -342,6 +352,10 @@ meta_context_configure (MetaContext   *context,
       priv->state = META_CONTEXT_STATE_TERMINATED;
       return FALSE;
     }
+
+#ifdef HAVE_PROFILER
+  priv->profiler = meta_profiler_new (priv->trace_file);
+#endif
 
   compositor_type = meta_context_get_compositor_type (context);
   switch (compositor_type)
@@ -739,6 +753,7 @@ meta_context_finalize (GObject *object)
 
 #ifdef HAVE_PROFILER
   g_clear_object (&priv->profiler);
+  g_clear_pointer (&priv->trace_file, g_free);
 #endif
 
   g_clear_pointer (&priv->gnome_wm_keybindings, g_free);
@@ -800,10 +815,6 @@ meta_context_init (MetaContext *context)
 {
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
   g_autoptr (GError) error = NULL;
-
-#ifdef HAVE_PROFILER
-  priv->profiler = meta_profiler_new ();
-#endif
 
   priv->plugin_gtype = G_TYPE_NONE;
   priv->gnome_wm_keybindings = g_strdup ("Mutter");

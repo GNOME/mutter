@@ -34,7 +34,7 @@ G_DECLARE_FINAL_TYPE (MetaProfiler,
                       PROFILER,
                       MetaDBusSysprof3ProfilerSkeleton)
 
-MetaProfiler * meta_profiler_new (void);
+MetaProfiler * meta_profiler_new (const char *trace_file);
 
 void meta_profiler_register_thread (MetaProfiler *profiler,
                                     GMainContext *main_context,
