@@ -323,6 +323,8 @@ meta_profiler_register_thread (MetaProfiler *profiler,
   g_warn_if_fail (!g_list_find (profiler->threads, main_context));
   profiler->threads = g_list_prepend (profiler->threads,
                                       thread_info_new (main_context, name));
+  if (profiler->running)
+    cogl_set_tracing_enabled_on_thread (main_context, name);
   g_mutex_unlock (&profiler->mutex);
 }
 
@@ -343,5 +345,9 @@ meta_profiler_unregister_thread (MetaProfiler *profiler,
           break;
         }
     }
+
+  if (profiler->running)
+    cogl_set_tracing_disabled_on_thread (main_context);
+
   g_mutex_unlock (&profiler->mutex);
 }
