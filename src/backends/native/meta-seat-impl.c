@@ -241,7 +241,11 @@ meta_seat_impl_clear_repeat_source (MetaSeatImpl *seat_impl)
 static void
 dispatch_libinput (MetaSeatImpl *seat_impl)
 {
+  COGL_TRACE_BEGIN (MetaSeatImplDispatchLibinput,
+                    "MetaSeatImpl (dispatch libinput)");
   libinput_dispatch (seat_impl->libinput);
+  COGL_TRACE_END (MetaSeatImplDispatchLibinput);
+
   process_events (seat_impl);
 }
 
@@ -2686,10 +2690,13 @@ process_events (MetaSeatImpl *seat_impl)
 {
   struct libinput_event *event;
 
+  COGL_TRACE_BEGIN_SCOPED (MetaSeatImplProcessEvents,
+                           "MetaSeatImpl (process events)");
+
   while ((event = libinput_get_event (seat_impl->libinput)))
     {
-      process_event(seat_impl, event);
-      libinput_event_destroy(event);
+      process_event (seat_impl, event);
+      libinput_event_destroy (event);
     }
 }
 
@@ -2844,9 +2851,20 @@ static gpointer
 input_thread (MetaSeatImpl *seat_impl)
 {
   MetaSeatImplPrivate *priv = meta_seat_impl_get_instance_private (seat_impl);
+#ifdef HAVE_PROFILER
+  MetaBackend *backend = meta_seat_native_get_backend (seat_impl->seat_native);
+  MetaContext *context = meta_backend_get_context (backend);
+  MetaProfiler *profiler = meta_context_get_profiler (context);
+#endif
   struct xkb_keymap *xkb_keymap;
 
   g_main_context_push_thread_default (seat_impl->input_context);
+
+#ifdef HAVE_PROFILER
+  meta_profiler_register_thread (profiler,
+                                 seat_impl->input_context,
+                                 "Mutter Input Thread");
+#endif
 
   priv->device_files =
     g_hash_table_new_full (NULL, NULL,
@@ -2900,6 +2918,10 @@ input_thread (MetaSeatImpl *seat_impl)
   seat_impl->input_loop = g_main_loop_new (seat_impl->input_context, FALSE);
   g_main_loop_run (seat_impl->input_loop);
   g_main_loop_unref (seat_impl->input_loop);
+
+#ifdef HAVE_PROFILER
+  meta_profiler_unregister_thread (profiler, seat_impl->input_context);
+#endif
 
   g_main_context_pop_thread_default (seat_impl->input_context);
 
