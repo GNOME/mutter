@@ -1127,6 +1127,13 @@ subdir('meta')
 
 mutter_built_sources += mutter_enum_types
 
+mutter_built_headers = []
+foreach built_source : mutter_built_sources
+  if built_source.full_path().endswith('.h')
+    built_headers += [built_source]
+  endif
+endforeach
+
 libmutter = shared_library(libmutter_name,
   mutter_sources,
   mutter_built_sources,
@@ -1151,6 +1158,7 @@ libmutter = shared_library(libmutter_name,
 libmutter_dep = declare_dependency(
   link_with: libmutter,
   include_directories: mutter_includes,
+  sources: mutter_built_headers,
   dependencies: [
     libmutter_cogl_dep,
     libmutter_clutter_dep,
