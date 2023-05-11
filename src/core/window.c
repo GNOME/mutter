@@ -1727,9 +1727,8 @@ meta_window_showing_on_its_workspace (MetaWindow *window)
   return showing;
 }
 
-gboolean
-meta_window_should_be_showing_on_workspace (MetaWindow    *window,
-                                            MetaWorkspace *workspace)
+static gboolean
+window_has_buffer (MetaWindow *window)
 {
 #ifdef HAVE_WAYLAND
   if (meta_is_wayland_compositor ())
@@ -1739,6 +1738,16 @@ meta_window_should_be_showing_on_workspace (MetaWindow    *window,
         return FALSE;
     }
 #endif
+
+  return TRUE;
+}
+
+gboolean
+meta_window_should_be_showing_on_workspace (MetaWindow    *window,
+                                            MetaWorkspace *workspace)
+{
+  if (!window_has_buffer (window))
+    return FALSE;
 
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
       window->decorated && !window->frame)
@@ -1781,7 +1790,7 @@ implement_showing (MetaWindow *window,
        * Force placing windows only when they should be already mapped,
        * see #751887
        */
-      if (!window->placed && client_window_should_be_mapped (window))
+      if (!window->placed && window_has_buffer (window))
         meta_window_force_placement (window, FALSE);
 
       meta_window_hide (window);
