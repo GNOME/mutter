@@ -1986,6 +1986,8 @@ selection_paint (ClutterText     *self,
                                        priv->cursor_rect.origin.y,
                                        priv->cursor_rect.origin.x + priv->cursor_rect.size.width,
                                        priv->cursor_rect.origin.y + priv->cursor_rect.size.height);
+
+      g_clear_pointer (&color_pipeline, cogl_object_unref);
     }
   else
     {
