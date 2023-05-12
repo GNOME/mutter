@@ -283,8 +283,6 @@ static const ClutterColor default_selection_color = {   0,   0,   0, 255 };
 static const ClutterColor default_text_color      = {   0,   0,   0, 255 };
 static const ClutterColor default_selected_text_color = {   0,   0,   0, 255 };
 
-static CoglPipeline *default_color_pipeline = NULL;
-
 static ClutterAnimatableInterface *parent_animatable_iface = NULL;
 static ClutterScriptableIface *parent_scriptable_iface = NULL;
 
@@ -1885,6 +1883,28 @@ clutter_text_foreach_selection_rectangle (ClutterText              *self,
   g_free (utf8);
 }
 
+static CoglPipeline *
+create_color_pipeline (void)
+{
+  static CoglPipelineKey color_pipeline_key = "clutter-text-color-pipeline-private";
+  CoglContext *ctx =
+    clutter_backend_get_cogl_context (clutter_get_default_backend ());
+  CoglPipeline *color_pipeline;
+
+  color_pipeline =
+    cogl_context_get_named_pipeline (ctx, &color_pipeline_key);
+
+  if (G_UNLIKELY (color_pipeline == NULL))
+    {
+      color_pipeline = cogl_pipeline_new (ctx);
+      cogl_context_set_named_pipeline (ctx,
+                                       &color_pipeline_key,
+                                       color_pipeline);
+    }
+
+  return cogl_pipeline_copy (color_pipeline);
+}
+
 static void
 clutter_text_foreach_selection_rectangle_prescaled (ClutterText              *self,
                                                     ClutterTextSelectionFunc  func,
@@ -1902,7 +1922,7 @@ paint_selection_rectangle (ClutterText           *self,
   ClutterTextPrivate *priv = self->priv;
   ClutterActor *actor = CLUTTER_ACTOR (self);
   guint8 paint_opacity = clutter_actor_get_paint_opacity (actor);
-  CoglPipeline *color_pipeline = cogl_pipeline_copy (default_color_pipeline);
+  CoglPipeline *color_pipeline = create_color_pipeline ();
   PangoLayout *layout = clutter_text_get_layout (self);
   CoglColor cogl_color = { 0, };
   const ClutterColor *color;
@@ -1962,7 +1982,7 @@ selection_paint (ClutterText     *self,
 
   if (priv->position == priv->selection_bound)
     {
-      CoglPipeline *color_pipeline = cogl_pipeline_copy (default_color_pipeline);
+      CoglPipeline *color_pipeline = create_color_pipeline ();
       CoglColor cogl_color;
 
       /* No selection, just draw the cursor */
@@ -2599,13 +2619,6 @@ clutter_text_paint (ClutterActor        *self,
   n_chars = clutter_text_buffer_get_length (get_buffer (text));
 
   clutter_actor_get_allocation_box (self, &alloc);
-
-  if (G_UNLIKELY (default_color_pipeline == NULL))
-    {
-      CoglContext *ctx =
-        clutter_backend_get_cogl_context (clutter_get_default_backend ());
-      default_color_pipeline = cogl_pipeline_new (ctx);
-    }
 
   /* don't bother painting an empty text actor, unless it's
    * editable, in which case we want to paint at least the
