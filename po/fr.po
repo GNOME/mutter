@@ -15,13 +15,14 @@
 # Jean-Baptiste Holcroft <jean-baptiste@holcroft.fr>, 2017.
 # Claude Paroz <claude@2xlibre.net>, 2008-2021.
 # Charles Monzat <charles.monzat@free.fr>, 2016-2022.
+# Simon Elst <kirmaha@duck.com>, 2022.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2022-03-02 11:52+0000\n"
-"PO-Revision-Date: 2022-03-15 16:39+0100\n"
+"POT-Creation-Date: 2023-05-08 21:13+0000\n"
+"PO-Revision-Date: 2023-05-12 15:04+0200\n"
 "Last-Translator: Charles Monzat <charles.monzat@free.fr>\n"
 "Language-Team: GNOME French Team <gnomefr@traduc.org>\n"
 "Language: fr\n"
@@ -29,7 +30,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Gtranslator 40.0\n"
+"X-Generator: Poedit 3.1.1\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -168,20 +169,20 @@ msgid "Switch to last workspace"
 msgstr "Passer au dernier espace de travail"
 
 #: data/50-mutter-navigation.xml:131
-msgid "Move to workspace on the left"
-msgstr "Déplacer vers l’espace de travail de gauche"
+msgid "Switch to workspace on the left"
+msgstr "Passer à l’espace de travail sur la gauche"
 
 #: data/50-mutter-navigation.xml:134
-msgid "Move to workspace on the right"
-msgstr "Déplacer vers l’espace de travail de droite"
+msgid "Switch to workspace on the right"
+msgstr "Passer à l’espace de travail sur la droite"
 
 #: data/50-mutter-navigation.xml:138
-msgid "Move to workspace above"
-msgstr "Déplacer vers l’espace de travail du dessus"
+msgid "Switch to workspace above"
+msgstr "Passer à l’espace de travail 1"
 
 #: data/50-mutter-navigation.xml:142
-msgid "Move to workspace below"
-msgstr "Déplacer vers l’espace de travail du dessous"
+msgid "Switch to workspace below"
+msgstr "Passer à l’espace de travail 1"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -260,17 +261,13 @@ msgstr "Maximiser la fenêtre verticalement"
 msgid "Maximize window horizontally"
 msgstr "Maximiser la fenêtre horizontalement"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:173
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:164
 msgid "View split on left"
 msgstr "Vue divisée sur la gauche"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:178
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:169
 msgid "View split on right"
 msgstr "Vue divisée sur la droite"
-
-#: data/mutter.desktop.in:4
-msgid "Mutter"
-msgstr "Mutter"
 
 #: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
@@ -345,22 +342,10 @@ msgstr ""
 "principal."
 
 #: data/org.gnome.mutter.gschema.xml.in:67
-msgid "No tab popup"
-msgstr "Aucune apparition suite à un appui sur la touche tab"
-
-#: data/org.gnome.mutter.gschema.xml.in:68
-msgid ""
-"Determines whether the use of popup and highlight frame should be disabled "
-"for window cycling."
-msgstr ""
-"Détermine si l’utilisation de fenêtres surgissantes et de mise en valeur "
-"doit être désactivée pour la consultation des fenêtres."
-
-#: data/org.gnome.mutter.gschema.xml.in:76
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "Attend l’arrêt du pointeur avant le changement de focus"
 
-#: data/org.gnome.mutter.gschema.xml.in:77
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -370,11 +355,11 @@ msgstr ""
 "alors le focus ne sera pas changé immédiatement en passant sur une fenêtre, "
 "mais seulement après que le pointeur s’arrête."
 
-#: data/org.gnome.mutter.gschema.xml.in:87
+#: data/org.gnome.mutter.gschema.xml.in:78
 msgid "Draggable border width"
 msgstr "Largeur de bordure ajustable"
 
-#: data/org.gnome.mutter.gschema.xml.in:88
+#: data/org.gnome.mutter.gschema.xml.in:79
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -383,13 +368,13 @@ msgstr ""
 "visibles du thème ne sont pas suffisantes, des bordures invisibles sont "
 "ajoutées pour arriver à cette valeur."
 
-#: data/org.gnome.mutter.gschema.xml.in:97
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid "Auto maximize nearly monitor sized windows"
 msgstr ""
 "Maximiser automatiquement les fenêtres dont la taille est proche de celle de "
 "l’écran"
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
@@ -397,11 +382,11 @@ msgstr ""
 "Si activé, les nouvelles fenêtres qui ont presque la taille de l’écran à "
 "l’ouverture seront maximisées automatiquement."
 
-#: data/org.gnome.mutter.gschema.xml.in:106
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
 msgstr "Placer les nouvelles fenêtres au centre"
 
-#: data/org.gnome.mutter.gschema.xml.in:107
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
@@ -409,27 +394,11 @@ msgstr ""
 "Si true (vrai), les nouvelles fenêtres seront toujours placées au centre de "
 "l’écran actif du moniteur."
 
-#: data/org.gnome.mutter.gschema.xml.in:116
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "Enable experimental features"
 msgstr "Activer les fonctionnalités expérimentales"
 
-#: data/org.gnome.mutter.gschema.xml.in:117
-#| msgid ""
-#| "To enable experimental features, add the feature keyword to the list. "
-#| "Whether the feature requires restarting the compositor depends on the "
-#| "given feature. Any experimental feature is not required to still be "
-#| "available, or configurable. Don’t expect adding anything in this setting "
-#| "to be future proof. Currently possible keywords: • “scale-monitor-"
-#| "framebuffer” — makes mutter default to layout logical monitors in a "
-#| "logical pixel coordinate space, while scaling monitor framebuffers "
-#| "instead of window content, to manage HiDPI monitors. Does not require a "
-#| "restart. • “rt-scheduler” — makes mutter request a low priority real-time "
-#| "scheduling. The executable or user must have CAP_SYS_NICE. Requires a "
-#| "restart. • “dma-buf-screen-sharing\" — enables DMA buffered screen "
-#| "sharing. This is already enabled by default when using the i915 driver, "
-#| "but disabled for everything else. Requires a restart. • “autoclose-"
-#| "xwayland” — automatically terminates Xwayland if all relevant X11 clients "
-#| "are gone. Does not require a restart."
+#: data/org.gnome.mutter.gschema.xml.in:108
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -462,19 +431,19 @@ msgstr ""
 "un redémarrage. • « autoclose-xwayland » — ferme automatiquement Xwayland si "
 "tous les clients X11 concernés ont disparu. Nécessite un redémarrage."
 
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:141
 msgid "Modifier to use to locate the pointer"
 msgstr "Touche à utiliser pour situer le pointeur"
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:142
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Cette clé initie l’action « situer le pointeur »."
 
-#: data/org.gnome.mutter.gschema.xml.in:158
+#: data/org.gnome.mutter.gschema.xml.in:149
 msgid "Timeout for check-alive ping"
 msgstr "Temps d’attente du ping de vérification d’activité"
 
-#: data/org.gnome.mutter.gschema.xml.in:159
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -483,21 +452,11 @@ msgstr ""
 "ping et ne pas être considéré comme figé. Utiliser 0 désactivera "
 "complètement la vérification d’activité."
 
-#: data/org.gnome.mutter.gschema.xml.in:183
-msgid "Select window from tab popup"
-msgstr ""
-"Sélectionner la fenêtre dans la vue qui apparaît suite à un appui sur la "
-"touche tab"
-
-#: data/org.gnome.mutter.gschema.xml.in:188
-msgid "Cancel tab popup"
-msgstr "Fermer la vue qui apparaît suite à un appui sur la touche tab"
-
-#: data/org.gnome.mutter.gschema.xml.in:193
+#: data/org.gnome.mutter.gschema.xml.in:174
 msgid "Switch monitor configurations"
 msgstr "Changer de configuration de moniteur"
 
-#: data/org.gnome.mutter.gschema.xml.in:198
+#: data/org.gnome.mutter.gschema.xml.in:179
 msgid "Rotates the built-in monitor configuration"
 msgstr "Passe à la prochaine configuration intégrée de moniteur"
 
@@ -628,26 +587,43 @@ msgstr ""
 "construction de Xwayland. Xwayland doit être redémarré pour que ce paramètre "
 "prenne effet."
 
-#: src/backends/meta-monitor.c:246
+#: data/org.gnome.mutter.wayland.gschema.xml.in:130
+msgid "Allow X11 clients with a different endianness to connect to Xwayland"
+msgstr ""
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:131
+msgid ""
+"Allow connections from clients with an endianness different to that of "
+"Xwayland. The X server byte-swapping code is a huge attack surface, much of "
+"that code in Xwayland is prone to security issues. The use-case of byte-"
+"swapped clients is very niche, and disabled by default in Xwayland. Enable "
+"this option to instruct Xwayland to accept connections from X11 clients with "
+"a different endianness. This option has no effect if Xwayland does not "
+"support the command line option +byteswappedclients/-byteswappedclients to "
+"control that setting. Xwayland needs to be restarted for this setting to "
+"take effect."
+msgstr ""
+
+#: src/backends/meta-monitor.c:253
 msgid "Built-in display"
 msgstr "Affichage intégré"
 
-#: src/backends/meta-monitor.c:275
+#: src/backends/meta-monitor.c:280
 msgid "Unknown"
 msgstr "Inconnu"
 
-#: src/backends/meta-monitor.c:277
+#: src/backends/meta-monitor.c:282
 msgid "Unknown Display"
 msgstr "Affichage inconnu"
 
-#: src/backends/meta-monitor.c:285
+#: src/backends/meta-monitor.c:290
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:293
+#: src/backends/meta-monitor.c:298
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -655,14 +631,9 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#. Translators: this string will appear in Sysprof
-#: src/backends/meta-profiler.c:79
-msgid "Compositor"
-msgstr "Compositeur"
-
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:392
+#: src/compositor/compositor.c:416
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -674,100 +645,74 @@ msgstr ""
 msgid "Bell event"
 msgstr "Évènement sonore"
 
-#: src/core/display.c:687
+#: src/core/display.c:703
 msgid "Privacy Screen Enabled"
 msgstr "Écran de confidentialité activé"
 
-#: src/core/display.c:688
+#: src/core/display.c:704
 msgid "Privacy Screen Disabled"
 msgstr "Écran de confidentialité désactivé"
 
-#. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:151
-#, c-format
-msgid "“%s” is not responding."
-msgstr "« %s » ne répond pas."
-
-#: src/core/meta-close-dialog-default.c:153
-msgid "Application is not responding."
-msgstr "L’application ne répond pas."
-
-#: src/core/meta-close-dialog-default.c:158
-msgid ""
-"You may choose to wait a short while for it to continue or force the "
-"application to quit entirely."
-msgstr ""
-"Vous pouvez patienter un instant pour continuer ou forcer l’application à "
-"quitter définitivement."
-
-#: src/core/meta-close-dialog-default.c:164
-msgid "_Force Quit"
-msgstr "_Forcer à quitter"
-
-#: src/core/meta-close-dialog-default.c:164
-msgid "_Wait"
-msgstr "_Attendre"
-
-#: src/core/meta-context-main.c:555
+#: src/core/meta-context-main.c:576
 msgid "Replace the running window manager"
 msgstr "Remplacer le gestionnaire de fenêtres en cours de fonctionnement"
 
-#: src/core/meta-context-main.c:561
+#: src/core/meta-context-main.c:582
 msgid "X Display to use"
 msgstr "Affichage X à utiliser"
 
-#: src/core/meta-context-main.c:567
+#: src/core/meta-context-main.c:588
 msgid "Disable connection to session manager"
 msgstr "Désactiver la connexion au gestionnaire de sessions"
 
-#: src/core/meta-context-main.c:573
+#: src/core/meta-context-main.c:594
 msgid "Specify session management ID"
 msgstr "Indiquer l’ID de gestion de sessions"
 
-#: src/core/meta-context-main.c:579
+#: src/core/meta-context-main.c:600
 msgid "Initialize session from savefile"
 msgstr "Initialiser la session depuis le fichier de sauvegarde"
 
-#: src/core/meta-context-main.c:585
+#: src/core/meta-context-main.c:606
 msgid "Make X calls synchronous"
 msgstr "Rendre synchrones les appels à X"
 
-#: src/core/meta-context-main.c:592
+#: src/core/meta-context-main.c:614
 msgid "Run as a wayland compositor"
 msgstr "Lancer comme un compositeur wayland"
 
-#: src/core/meta-context-main.c:598
+#: src/core/meta-context-main.c:620
 msgid "Run as a nested compositor"
 msgstr "Lancer comme un compositeur imbriqué"
 
-#: src/core/meta-context-main.c:604
+#: src/core/meta-context-main.c:626
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Lancer le compositeur wayland sans démarrer Xwayland"
 
-#: src/core/meta-context-main.c:610
+#: src/core/meta-context-main.c:632
 msgid "Specify Wayland display name to use"
 msgstr "Indiquer le nom d’affichage Wayland à utiliser"
 
-#: src/core/meta-context-main.c:618
+#: src/core/meta-context-main.c:640
 msgid "Run as a full display server, rather than nested"
 msgstr "Lancer comme un serveur d’affichage complet, plutôt qu’imbriqué"
 
-#: src/core/meta-context-main.c:623
+#: src/core/meta-context-main.c:645
 msgid "Run as a headless display server"
 msgstr "Lancer comme un serveur d’affichage sans interface"
 
-#: src/core/meta-context-main.c:628
+#: src/core/meta-context-main.c:650
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Ajouter un moniteur virtuel persistant (WxH ou WxH@R)"
 
-#: src/core/meta-context-main.c:639
+#: src/core/meta-context-main.c:662
 msgid "Run with X11 backend"
 msgstr "Lancer avec le moteur X11"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:840
+#: src/core/meta-pad-action-mapper.c:861
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Changement de mode (groupe %d)"
@@ -775,13 +720,18 @@ msgstr "Changement de mode (groupe %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:863
+#: src/core/meta-pad-action-mapper.c:884
 msgid "Switch monitor"
 msgstr "Changer de moniteur"
 
-#: src/core/meta-pad-action-mapper.c:865
+#: src/core/meta-pad-action-mapper.c:886
 msgid "Show on-screen help"
 msgstr "Afficher l’aide à l’écran"
+
+#. Translators: this string will appear in Sysprof
+#: src/core/meta-profiler.c:80 src/core/meta-profiler.c:217
+msgid "Compositor"
+msgstr "Compositeur"
 
 #: src/core/mutter.c:74
 msgid "Print version"
@@ -800,12 +750,16 @@ msgstr "Espace de travail %d"
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter a été compilé sans la prise en charge du mode bavard"
 
-#: src/wayland/meta-wayland-tablet-pad.c:519
+#: src/core/workspace.c:541
+msgid "Workspace switched"
+msgstr "Espace de travail changé"
+
+#: src/wayland/meta-wayland-tablet-pad.c:530
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Changement de mode : mode %d"
 
-#: src/x11/meta-x11-display.c:673
+#: src/x11/meta-x11-display.c:701
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -814,38 +768,80 @@ msgstr ""
 "L’affichage « %s » a déjà un gestionnaire de fenêtres ; essayez d’utiliser "
 "l’option --replace pour remplacer le gestionnaire de fenêtres actuel."
 
-#: src/x11/meta-x11-display.c:1067
-msgid "Failed to initialize GDK"
-msgstr "L’initialisation de GDK a échoué"
-
-#: src/x11/meta-x11-display.c:1091
+#: src/x11/meta-x11-display.c:1062
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Impossible d’ouvrir l’affichage « %s » du système X Window"
 
-#: src/x11/meta-x11-display.c:1200
+#: src/x11/meta-x11-display.c:1207
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "L’écran %d sur l’affichage « %s » n’est pas valide"
 
-#: src/x11/meta-x11-selection-input-stream.c:460
+#: src/x11/meta-x11-selection-input-stream.c:475
 #, c-format
 msgid "Format %s not supported"
 msgstr "Le format %s n’est pas pris en charge"
 
-#: src/x11/session.c:1823
-msgid ""
-"These windows do not support “save current setup” and will have to be "
-"restarted manually next time you log in."
-msgstr ""
-"Ces fenêtres ne prennent pas en charge « l’enregistrement de la "
-"configuration actuelle » et devront être redémarrées manuellement à la "
-"prochaine connexion."
-
-#: src/x11/window-props.c:548
+#: src/x11/window-props.c:549
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (sur %s)"
+
+#~ msgid "Move to workspace above"
+#~ msgstr "Passer à l’espace de travail au-dessus"
+
+#~ msgid "Move to workspace below"
+#~ msgstr "Passer à l’espace de travail au-dessous"
+
+#~ msgid "No tab popup"
+#~ msgstr "Aucune apparition suite à un appui sur la touche tab"
+
+#~ msgid ""
+#~ "Determines whether the use of popup and highlight frame should be "
+#~ "disabled for window cycling."
+#~ msgstr ""
+#~ "Détermine si l’utilisation de fenêtres surgissantes et de mise en valeur "
+#~ "doit être désactivée pour la consultation des fenêtres."
+
+#~ msgid "Select window from tab popup"
+#~ msgstr ""
+#~ "Sélectionner la fenêtre dans la vue qui apparaît suite à un appui sur la "
+#~ "touche tab"
+
+#~ msgid "Cancel tab popup"
+#~ msgstr "Fermer la vue qui apparaît suite à un appui sur la touche tab"
+
+#~ msgid "Failed to initialize GDK"
+#~ msgstr "L’initialisation de GDK a échoué"
+
+#, c-format
+#~ msgid "“%s” is not responding."
+#~ msgstr "« %s » ne répond pas."
+
+#~ msgid "Application is not responding."
+#~ msgstr "L’application ne répond pas."
+
+#~ msgid ""
+#~ "You may choose to wait a short while for it to continue or force the "
+#~ "application to quit entirely."
+#~ msgstr ""
+#~ "Vous pouvez patienter un instant pour continuer ou forcer l’application à "
+#~ "quitter définitivement."
+
+#~ msgid "_Force Quit"
+#~ msgstr "_Forcer à quitter"
+
+#~ msgid "_Wait"
+#~ msgstr "_Attendre"
+
+#~ msgid ""
+#~ "These windows do not support “save current setup” and will have to be "
+#~ "restarted manually next time you log in."
+#~ msgstr ""
+#~ "Ces fenêtres ne prennent pas en charge « l’enregistrement de la "
+#~ "configuration actuelle » et devront être redémarrées manuellement à la "
+#~ "prochaine connexion."
 
 #~ msgid "Show the activities overview"
 #~ msgstr "Afficher la vue d’ensemble des activités"
