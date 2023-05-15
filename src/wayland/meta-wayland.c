@@ -588,15 +588,6 @@ set_gnome_env (const char *name,
     }
 }
 
-void
-meta_wayland_compositor_init_display (MetaWaylandCompositor *compositor,
-                                      MetaDisplay           *display)
-{
-#ifdef HAVE_XWAYLAND
-  meta_xwayland_init_display (&compositor->xwayland_manager, display);
-#endif
-}
-
 static void meta_wayland_log_func (const char *, va_list) G_GNUC_PRINTF (1, 0);
 
 static void

@@ -937,10 +937,10 @@ meta_display_new (MetaContext  *context,
 #ifdef HAVE_XWAYLAND
       MetaWaylandCompositor *wayland_compositor =
         wayland_compositor_from_display (display);
-
-      meta_wayland_compositor_init_display (wayland_compositor, display);
-
       MetaX11DisplayPolicy x11_display_policy;
+
+      meta_xwayland_init_display (&wayland_compositor->xwayland_manager,
+                                  display);
 
       x11_display_policy = meta_context_get_x11_display_policy (context);
       if (x11_display_policy == META_X11_DISPLAY_POLICY_MANDATORY)
