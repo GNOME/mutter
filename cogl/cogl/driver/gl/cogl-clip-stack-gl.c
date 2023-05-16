@@ -536,11 +536,6 @@ _cogl_clip_stack_gl_flush (CoglClipStack *stack,
                 }
               break;
             }
-        case COGL_CLIP_STACK_WINDOW_RECT:
-          break;
-          /* We don't need to do anything for window space rectangles because
-           * their functionality is entirely implemented by the entry bounding
-           * box */
         }
     }
 }

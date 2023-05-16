@@ -52,7 +52,6 @@ typedef struct _CoglClipStackRegion CoglClipStackRegion;
 typedef enum
   {
     COGL_CLIP_STACK_RECT,
-    COGL_CLIP_STACK_WINDOW_RECT,
     COGL_CLIP_STACK_PRIMITIVE,
     COGL_CLIP_STACK_REGION,
   } CoglClipStackType;
@@ -140,14 +139,6 @@ struct _CoglClipStackRect
   gboolean can_be_scissor;
 };
 
-struct _CoglClipStackWindowRect
-{
-  CoglClipStack _parent_data;
-
-  /* The window rect clip doesn't need any specific data because it
-     just adds to the scissor clip */
-};
-
 struct _CoglClipStackPrimitive
 {
   CoglClipStack _parent_data;
@@ -169,13 +160,6 @@ struct _CoglClipStackRegion
 
   cairo_region_t *region;
 };
-
-CoglClipStack *
-_cogl_clip_stack_push_window_rectangle (CoglClipStack *stack,
-                                        int x_offset,
-                                        int y_offset,
-                                        int width,
-                                        int height);
 
 COGL_EXPORT CoglClipStack *
 _cogl_clip_stack_push_rectangle (CoglClipStack *stack,

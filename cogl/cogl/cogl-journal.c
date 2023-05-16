@@ -1733,7 +1733,6 @@ try_checking_point_hits_entry_after_clipping (CoglFramebuffer *framebuffer,
                                               float y,
                                               gboolean *hit)
 {
-  gboolean can_software_clip = TRUE;
   gboolean needs_software_clip = FALSE;
   CoglClipStack *clip_entry;
 
@@ -1754,15 +1753,7 @@ try_checking_point_hits_entry_after_clipping (CoglFramebuffer *framebuffer,
           return TRUE;
         }
 
-      if (clip_entry->type == COGL_CLIP_STACK_WINDOW_RECT)
-        {
-          /* XXX: technically we could still run the software clip in
-           * this case because for our purposes we know this clip
-           * can be ignored now, but [can_]sofware_clip_entry() doesn't
-           * know this and will bail out. */
-          can_software_clip = FALSE;
-        }
-      else if (clip_entry->type == COGL_CLIP_STACK_RECT)
+      if (clip_entry->type == COGL_CLIP_STACK_RECT)
         {
           CoglClipStackRect *rect_entry = (CoglClipStackRect *)entry;
 
@@ -1780,9 +1771,6 @@ try_checking_point_hits_entry_after_clipping (CoglFramebuffer *framebuffer,
     {
       ClipBounds clip_bounds;
       float poly[16];
-
-      if (!can_software_clip)
-        return FALSE;
 
       if (!can_software_clip_entry (entry, NULL,
                                     entry->clip_stack, &clip_bounds))

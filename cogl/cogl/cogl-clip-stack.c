@@ -128,27 +128,6 @@ _cogl_clip_stack_entry_set_bounds (CoglClipStack *entry,
 }
 
 CoglClipStack *
-_cogl_clip_stack_push_window_rectangle (CoglClipStack *stack,
-                                        int x_offset,
-                                        int y_offset,
-                                        int width,
-                                        int height)
-{
-  CoglClipStack *entry;
-
-  entry = _cogl_clip_stack_push_entry (stack,
-                                       sizeof (CoglClipStackWindowRect),
-                                       COGL_CLIP_STACK_WINDOW_RECT);
-
-  entry->bounds_x0 = x_offset;
-  entry->bounds_x1 = x_offset + width;
-  entry->bounds_y0 = y_offset;
-  entry->bounds_y1 = y_offset + height;
-
-  return entry;
-}
-
-CoglClipStack *
 _cogl_clip_stack_push_rectangle (CoglClipStack *stack,
                                  float x_1,
                                  float y_1,
@@ -344,9 +323,6 @@ _cogl_clip_stack_unref (CoglClipStack *entry)
             g_free (entry);
             break;
           }
-        case COGL_CLIP_STACK_WINDOW_RECT:
-          g_free (entry);
-          break;
         case COGL_CLIP_STACK_PRIMITIVE:
           {
             CoglClipStackPrimitive *primitive_entry =
