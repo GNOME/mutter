@@ -46,6 +46,7 @@ char * meta_pad_action_mapper_get_button_label (MetaPadActionMapper *mapper,
 char * meta_pad_action_mapper_get_feature_label (MetaPadActionMapper *mapper,
                                                  ClutterInputDevice  *pad,
                                                  MetaPadFeatureType   feature,
+                                                 MetaPadDirection     direction,
                                                  int                  number);
 
 #endif /* META_PAD_ACTION_MAPPER_H */

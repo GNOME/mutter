@@ -2778,6 +2778,7 @@ char *
 meta_display_get_pad_feature_label (MetaDisplay        *display,
                                     ClutterInputDevice *pad,
                                     MetaPadFeatureType  feature,
+                                    MetaPadDirection    direction,
                                     int                 feature_number)
 {
   char *label;
@@ -2785,6 +2786,7 @@ meta_display_get_pad_feature_label (MetaDisplay        *display,
   /* First, lookup the action, as imposed by settings */
   label = meta_pad_action_mapper_get_feature_label (display->pad_action_mapper,
                                                     pad, feature,
+                                                    direction,
                                                     feature_number);
   if (label)
     return label;

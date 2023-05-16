@@ -62,6 +62,14 @@ typedef enum
   META_PAD_FEATURE_STRIP,
 } MetaPadFeatureType;
 
+typedef enum
+{
+  META_PAD_DIRECTION_UP = 1,
+  META_PAD_DIRECTION_DOWN,
+  META_PAD_DIRECTION_CW,
+  META_PAD_DIRECTION_CCW,
+} MetaPadDirection;
+
 typedef struct _MetaDisplayClass MetaDisplayClass;
 
 #define META_TYPE_DISPLAY              (meta_display_get_type ())
@@ -200,6 +208,7 @@ META_EXPORT
 char * meta_display_get_pad_feature_label (MetaDisplay        *display,
                                            ClutterInputDevice *pad,
                                            MetaPadFeatureType  feature,
+                                           MetaPadDirection    direction,
                                            int                 feature_number);
 
 META_EXPORT

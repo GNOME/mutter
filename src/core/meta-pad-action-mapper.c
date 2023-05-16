@@ -44,14 +44,6 @@ struct _PadMappingInfo
   guint *group_modes;
 };
 
-typedef enum
-{
-  META_PAD_DIRECTION_UP = 0,
-  META_PAD_DIRECTION_DOWN,
-  META_PAD_DIRECTION_CW,
-  META_PAD_DIRECTION_CCW,
-} MetaPadDirection;
-
 struct _MetaPadActionMapper
 {
   GObject parent_class;
@@ -744,101 +736,54 @@ meta_pad_action_mapper_handle_event (MetaPadActionMapper *mapper,
     }
 }
 
-static void
-format_directional_action (GString          *str,
-                           MetaPadDirection  direction,
-                           const gchar      *action)
-{
-  switch (direction)
-    {
-    case META_PAD_DIRECTION_CW:
-      g_string_append_printf (str, "⭮ %s", action);
-      break;
-    case META_PAD_DIRECTION_CCW:
-      g_string_append_printf (str, "⭯ %s", action);
-      break;
-    case META_PAD_DIRECTION_UP:
-      g_string_append_printf (str, "↥ %s", action);
-      break;
-    case META_PAD_DIRECTION_DOWN:
-      g_string_append_printf (str, "↧ %s", action);
-      break;
-    }
-}
-
-static char *
-compose_directional_action_label (MetaPadDirection  direction1,
-                                  GSettings        *value1,
-                                  MetaPadDirection  direction2,
-                                  GSettings        *value2)
-{
-  g_autofree char *accel1 = NULL, *accel2 = NULL;
-  GString *str;
-
-  accel1 = g_settings_get_string (value1, "keybinding");
-  accel2 = g_settings_get_string (value2, "keybinding");
-
-  if ((!accel1 || !*accel1) && ((!accel2 || !*accel2)))
-    return NULL;
-
-  str = g_string_new (NULL);
-
-  if (accel1 && *accel1)
-    format_directional_action (str, direction1, accel1);
-
-  if (accel2 && *accel2)
-    {
-      if (str->len != 0)
-        g_string_append (str, " / ");
-
-      format_directional_action (str, direction2, accel2);
-    }
-
-  return g_string_free (str, FALSE);
-}
-
 static char *
 meta_pad_action_mapper_get_ring_label (MetaPadActionMapper *mapper,
                                        ClutterInputDevice  *pad,
-                                       guint                number,
-                                       guint                mode)
+                                       int                  number,
+                                       unsigned int         mode,
+                                       MetaPadDirection     direction)
 {
-  GSettings *settings1, *settings2;
-  char *label;
+  g_autoptr (GSettings) settings = NULL;
+  g_autofree char *action = NULL;
+
+  if (direction != META_PAD_DIRECTION_CW &&
+      direction != META_PAD_DIRECTION_CCW)
+    return NULL;
+
+  settings = lookup_pad_feature_settings (pad, META_PAD_FEATURE_RING,
+                                          number, direction, mode);
 
   /* We only allow keybinding actions with those */
-  settings1 = lookup_pad_feature_settings (pad, META_PAD_FEATURE_RING, number,
-                                           META_PAD_DIRECTION_CW, mode);
-  settings2 = lookup_pad_feature_settings (pad, META_PAD_FEATURE_RING, number,
-                                           META_PAD_DIRECTION_CCW, mode);
-  label = compose_directional_action_label (META_PAD_DIRECTION_CW, settings1,
-                                            META_PAD_DIRECTION_CCW, settings2);
-  g_object_unref (settings1);
-  g_object_unref (settings2);
+  action = g_settings_get_string (settings, "keybinding");
+  if (action && *action)
+    return g_steal_pointer (&action);
 
-  return label;
+  return NULL;
 }
 
 static char *
 meta_pad_action_mapper_get_strip_label (MetaPadActionMapper *mapper,
                                         ClutterInputDevice  *pad,
-                                        guint                number,
-                                        guint                mode)
+                                        int                  number,
+                                        unsigned int         mode,
+                                        MetaPadDirection     direction)
 {
-  GSettings *settings1, *settings2;
-  char *label;
+  g_autoptr (GSettings) settings = NULL;
+  g_autofree char *action = NULL;
+
+  if (direction != META_PAD_DIRECTION_UP &&
+      direction != META_PAD_DIRECTION_DOWN)
+    return NULL;
+
+  settings = lookup_pad_feature_settings (pad, META_PAD_FEATURE_STRIP,
+                                          number, direction, mode);
 
   /* We only allow keybinding actions with those */
-  settings1 = lookup_pad_feature_settings (pad, META_PAD_FEATURE_STRIP, number,
-                                           META_PAD_DIRECTION_UP, mode);
-  settings2 = lookup_pad_feature_settings (pad, META_PAD_FEATURE_STRIP, number,
-                                           META_PAD_DIRECTION_DOWN, mode);
-  label = compose_directional_action_label (META_PAD_DIRECTION_UP, settings1,
-                                            META_PAD_DIRECTION_DOWN, settings2);
-  g_object_unref (settings1);
-  g_object_unref (settings2);
+  action = g_settings_get_string (settings, "keybinding");
+  if (action && *action)
+    return g_steal_pointer (&action);
 
-  return label;
+  return NULL;
 }
 
 char *
@@ -921,6 +866,7 @@ char *
 meta_pad_action_mapper_get_feature_label (MetaPadActionMapper *mapper,
                                           ClutterInputDevice  *pad,
                                           MetaPadFeatureType   feature,
+                                          MetaPadDirection     direction,
                                           int                  number)
 {
   unsigned int mode;
@@ -929,10 +875,10 @@ meta_pad_action_mapper_get_feature_label (MetaPadActionMapper *mapper,
     {
     case META_PAD_FEATURE_RING:
       mode = get_current_pad_mode (mapper, pad, feature, number);
-      return meta_pad_action_mapper_get_ring_label (mapper, pad, number, mode);
+      return meta_pad_action_mapper_get_ring_label (mapper, pad, number, mode, direction);
     case META_PAD_FEATURE_STRIP:
       mode = get_current_pad_mode (mapper, pad, feature, number);
-      return meta_pad_action_mapper_get_strip_label (mapper, pad, number, mode);
+      return meta_pad_action_mapper_get_strip_label (mapper, pad, number, mode, direction);
     }
 
   return NULL;
