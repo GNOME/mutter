@@ -490,27 +490,20 @@ maybe_do_math (const char  *str,
 }
 
 static int
-parse_window_size (MetaWindow *window,
-                   const char *size_str)
+parse_monitor_size (MtkRectangle *logical_monitor_layout,
+                    const char   *size_str)
 {
-  MetaLogicalMonitor *logical_monitor;
-  MtkRectangle logical_monitor_layout;
   int value;
-
-  logical_monitor = meta_window_find_monitor_from_frame_rect (window);
-  g_assert_nonnull (logical_monitor);
-
-  logical_monitor_layout = meta_logical_monitor_get_layout (logical_monitor);
 
   if (strstr (size_str, "MONITOR_WIDTH") == size_str)
     {
-      value = logical_monitor_layout.width;
+      value = logical_monitor_layout->width;
       size_str += strlen ("MONITOR_WIDTH");
       value = maybe_do_math (size_str, value, &size_str);
     }
   else if (strstr (size_str, "MONITOR_HEIGHT") == size_str)
     {
-      value = logical_monitor_layout.height;
+      value = logical_monitor_layout->height;
       size_str += strlen ("MONITOR_HEIGHT");
       value = maybe_do_math (size_str, value, &size_str);
     }
@@ -520,6 +513,65 @@ parse_window_size (MetaWindow *window,
     }
 
   return value;
+}
+
+static int
+parse_window_size (MetaWindow *window,
+                   const char *size_str)
+{
+  MetaLogicalMonitor *logical_monitor;
+  MtkRectangle logical_monitor_layout;
+
+  logical_monitor = meta_window_find_monitor_from_frame_rect (window);
+  g_assert_nonnull (logical_monitor);
+
+  logical_monitor_layout = meta_logical_monitor_get_layout (logical_monitor);
+
+  return parse_monitor_size (&logical_monitor_layout, size_str);
+}
+
+static MetaLogicalMonitor *
+get_logical_monitor (TestCase    *test,
+                     const char  *monitor_id,
+                     GError     **error)
+{
+  MetaBackend *backend = meta_context_get_backend (test->context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaDisplay *display = meta_context_get_display (test->context);
+  MetaWindow *focus_window;
+  MetaLogicalMonitor *logical_monitor;
+
+  if (monitor_id)
+    {
+      MetaVirtualMonitor *virtual_monitor;
+      MetaOutput *output;
+      MetaMonitor *monitor;
+
+      virtual_monitor =
+        g_hash_table_lookup (test->virtual_monitors, monitor_id);
+
+      if (!virtual_monitor)
+        {
+          g_set_error (error, META_TEST_CLIENT_ERROR,
+                       META_TEST_CLIENT_ERROR_BAD_COMMAND,
+                       "Unknown monitor %s", monitor_id);
+          return NULL;
+        }
+
+      output = meta_virtual_monitor_get_output (virtual_monitor);
+      monitor = meta_output_get_monitor (output);
+
+      return meta_monitor_get_logical_monitor (monitor);
+    }
+
+  focus_window = meta_display_get_focus_window (display);
+  logical_monitor = meta_window_get_main_logical_monitor (focus_window);
+
+  if (logical_monitor)
+    return logical_monitor;
+
+  return meta_monitor_manager_get_primary_logical_monitor (monitor_manager);
 }
 
 static gboolean
@@ -1009,13 +1061,26 @@ test_case_do (TestCase    *test,
     }
   else if (strcmp (argv[0], "set_strut") == 0)
     {
-      if (argc != 6)
-        BAD_COMMAND("usage: %s <x> <y> <width> <height> <side>", argv[0]);
+      if (argc < 6 || argc > 7)
+        {
+          BAD_COMMAND ("usage: %s <x> <y> <width> <height> <side> [monitor-id]",
+                       argv[0]);
+        }
 
-      int x = atoi (argv[1]);
-      int y = atoi (argv[2]);
-      int width = atoi (argv[3]);
-      int height = atoi (argv[4]);
+      MetaLogicalMonitor *logical_monitor;
+      const char *monitor_id = argc > 6 ? argv[6] : NULL;
+
+      logical_monitor = get_logical_monitor (test, monitor_id, error);
+      if (!logical_monitor)
+        return FALSE;
+
+      MtkRectangle monitor_layout =
+        meta_logical_monitor_get_layout (logical_monitor);
+
+      int x = parse_monitor_size (&monitor_layout, argv[1]);
+      int y = parse_monitor_size (&monitor_layout, argv[2]);
+      int width = parse_monitor_size (&monitor_layout, argv[3]);
+      int height = parse_monitor_size (&monitor_layout, argv[4]);
 
       MetaSide side;
       if (strcmp (argv[5], "left") == 0)

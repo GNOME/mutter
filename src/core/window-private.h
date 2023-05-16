@@ -818,6 +818,7 @@ MetaLogicalMonitor * meta_window_find_monitor_from_frame_rect (MetaWindow *windo
 
 MetaLogicalMonitor * meta_window_find_monitor_from_id (MetaWindow *window);
 
+META_EXPORT_TEST
 MetaLogicalMonitor * meta_window_get_main_logical_monitor (MetaWindow *window);
 MetaLogicalMonitor * meta_window_get_highest_scale_monitor (MetaWindow *window);
 void meta_window_update_monitor (MetaWindow                   *window,
