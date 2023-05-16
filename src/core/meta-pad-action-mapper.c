@@ -46,7 +46,6 @@ struct _PadMappingInfo
 
 typedef enum
 {
-  META_PAD_DIRECTION_NONE = -1,
   META_PAD_DIRECTION_UP = 0,
   META_PAD_DIRECTION_DOWN,
   META_PAD_DIRECTION_CW,
@@ -622,8 +621,6 @@ meta_pad_action_mapper_get_action_direction (MetaPadActionMapper *mapper,
   guint number;
   double value;
 
-  *direction = META_PAD_DIRECTION_NONE;
-
   switch (event->type)
     {
     case CLUTTER_PAD_RING:
@@ -766,8 +763,6 @@ format_directional_action (GString          *str,
     case META_PAD_DIRECTION_DOWN:
       g_string_append_printf (str, "↧ %s", action);
       break;
-    case META_PAD_DIRECTION_NONE:
-      g_assert_not_reached ();
     }
 }
 
