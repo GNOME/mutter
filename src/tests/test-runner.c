@@ -51,6 +51,8 @@ typedef struct {
   GHashTable *cloned_windows;
 } TestCase;
 
+#define META_SIDE_TEST_CASE_NONE G_MAXINT32
+
 static void
 set_true_cb (gboolean *value)
 {
@@ -683,6 +685,7 @@ test_case_add_strut (TestCase    *test,
 
 static gboolean
 test_case_clear_struts (TestCase  *test,
+                        MetaSide   side,
                         GError   **error)
 {
   MetaDisplay *display = meta_context_get_display (test->context);
@@ -695,7 +698,31 @@ test_case_clear_struts (TestCase  *test,
   for (l = workspaces; l; l = l->next)
     {
       MetaWorkspace *workspace = l->data;
-      meta_workspace_set_builtin_struts (workspace, NULL);
+      g_autoslist (MetaStrut) struts = NULL;
+
+      if (side != META_SIDE_TEST_CASE_NONE)
+        {
+          GSList *sl;
+
+          struts = meta_workspace_get_builtin_struts (workspace);
+
+          for (sl = struts; sl;)
+            {
+              MetaStrut *strut = sl->data;
+              GSList *old;
+
+              old = sl;
+              sl = sl->next;
+
+              if (strut->side == side)
+                {
+                  struts = g_slist_remove_link (struts, old);
+                  g_clear_pointer (&strut, g_free);
+                }
+            }
+        }
+
+      meta_workspace_set_builtin_struts (workspace, struts);
     }
 
   return TRUE;
@@ -1185,7 +1212,7 @@ test_case_do (TestCase    *test,
 
       if (g_str_equal (argv[0], "set_strut"))
         {
-          if (!test_case_clear_struts (test, error))
+          if (!test_case_clear_struts (test, META_SIDE_TEST_CASE_NONE, error))
             return FALSE;
         }
 
@@ -1206,10 +1233,15 @@ test_case_do (TestCase    *test,
     }
   else if (strcmp (argv[0], "clear_struts") == 0)
     {
-      if (argc != 1)
-        BAD_COMMAND("usage: %s", argv[0]);
+      MetaSide side = META_SIDE_TEST_CASE_NONE;
 
-      if (!test_case_clear_struts (test, error))
+      if (argc < 1 || argc > 2)
+        BAD_COMMAND ("usage: %s [side]", argv[0]);
+
+      if (argc > 1 && !str_to_side (argv[1], &side))
+        BAD_COMMAND ("Invalid side: %s", argv[1]);
+
+      if (!test_case_clear_struts (test, side, error))
         return FALSE;
     }
   else if (strcmp (argv[0], "assert_stacking") == 0)
