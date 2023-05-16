@@ -2764,8 +2764,17 @@ meta_display_get_pad_action_label (MetaDisplay        *display,
 
       if (tablet_pad)
         {
-          label = meta_wayland_tablet_pad_get_label (tablet_pad, feature,
-                                                     action_number);
+          if (feature == META_PAD_FEATURE_BUTTON)
+            {
+              label = meta_wayland_tablet_pad_get_button_label (tablet_pad,
+                                                                action_number);
+            }
+          else
+            {
+              label = meta_wayland_tablet_pad_get_feature_label (tablet_pad,
+                                                                 feature,
+                                                                 action_number);
+            }
         }
 
       if (label)

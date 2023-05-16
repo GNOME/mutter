@@ -533,23 +533,30 @@ meta_wayland_tablet_pad_label_mode_switch_button (MetaWaylandTabletPad *pad,
   return NULL;
 }
 
-gchar *
-meta_wayland_tablet_pad_get_label (MetaWaylandTabletPad *pad,
-                                   MetaPadFeatureType    feature,
-                                   guint                 action)
+char *
+meta_wayland_tablet_pad_get_button_label (MetaWaylandTabletPad *pad,
+                                          int                   button)
 {
-  const gchar *label = NULL;
-  gchar *mode_label;
+  const char *label = NULL;
+  char *mode_label;
+
+  mode_label = meta_wayland_tablet_pad_label_mode_switch_button (pad, button);
+  if (mode_label)
+    return mode_label;
+
+  label = g_hash_table_lookup (pad->feedback, GUINT_TO_POINTER (button));
+  return g_strdup (label);
+}
+
+char *
+meta_wayland_tablet_pad_get_feature_label (MetaWaylandTabletPad *pad,
+                                           MetaPadFeatureType    feature,
+                                           int                   action)
+{
+  const char *label = NULL;
 
   switch (feature)
     {
-    case META_PAD_FEATURE_BUTTON:
-      mode_label = meta_wayland_tablet_pad_label_mode_switch_button (pad, action);
-      if (mode_label)
-        return mode_label;
-
-      label = g_hash_table_lookup (pad->feedback, GUINT_TO_POINTER (action));
-      break;
     case META_PAD_FEATURE_RING:
       {
         MetaWaylandTabletPadRing *ring;
@@ -568,6 +575,9 @@ meta_wayland_tablet_pad_get_label (MetaWaylandTabletPad *pad,
           label = strip->feedback;
         break;
       }
+    default:
+      g_assert_not_reached ();
+      break;
     }
 
   return g_strdup (label);
