@@ -1428,6 +1428,17 @@ test_case_do (TestCase    *test,
           return FALSE;
         }
     }
+  else if (strcmp (argv[0], "reload_monitors") == 0)
+    {
+      MetaBackend *backend = meta_context_get_backend (test->context);
+      MetaMonitorManager *monitor_manager =
+        meta_backend_get_monitor_manager (backend);
+
+      if (argc != 1)
+        BAD_COMMAND ("usage: %s", argv[0]);
+
+      meta_monitor_manager_reload (monitor_manager);
+    }
   else if (strcmp (argv[0], "num_workspaces") == 0)
     {
       if (argc != 2)
