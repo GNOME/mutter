@@ -2010,27 +2010,6 @@ cogl_framebuffer_set_projection_matrix (CoglFramebuffer         *framebuffer,
 }
 
 void
-cogl_framebuffer_push_scissor_clip (CoglFramebuffer *framebuffer,
-                                    int x,
-                                    int y,
-                                    int width,
-                                    int height)
-{
-  CoglFramebufferPrivate *priv =
-    cogl_framebuffer_get_instance_private (framebuffer);
-
-  priv->clip_stack =
-    _cogl_clip_stack_push_window_rectangle (priv->clip_stack,
-                                            x, y, width, height);
-
-  if (priv->context->current_draw_buffer == framebuffer)
-    {
-      priv->context->current_draw_buffer_changes |=
-        COGL_FRAMEBUFFER_STATE_CLIP;
-    }
-}
-
-void
 cogl_framebuffer_push_rectangle_clip (CoglFramebuffer *framebuffer,
                                       float x_1,
                                       float y_1,
