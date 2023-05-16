@@ -38,9 +38,14 @@ gboolean meta_pad_action_mapper_is_button_grabbed (MetaPadActionMapper *mapper,
                                                    guint                button);
 gboolean meta_pad_action_mapper_handle_event      (MetaPadActionMapper *mapper,
                                                    const ClutterEvent  *event);
-gchar *  meta_pad_action_mapper_get_action_label  (MetaPadActionMapper *mapper,
-                                                   ClutterInputDevice  *pad,
-                                                   MetaPadFeatureType   feature,
-                                                   guint                number);
+
+char * meta_pad_action_mapper_get_button_label (MetaPadActionMapper *mapper,
+                                                ClutterInputDevice  *pad,
+                                                int                  button);
+
+char * meta_pad_action_mapper_get_feature_label (MetaPadActionMapper *mapper,
+                                                 ClutterInputDevice  *pad,
+                                                 MetaPadFeatureType   feature,
+                                                 int                  number);
 
 #endif /* META_PAD_ACTION_MAPPER_H */

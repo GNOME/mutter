@@ -2739,12 +2739,21 @@ meta_display_get_pad_action_label (MetaDisplay        *display,
                                    MetaPadFeatureType  feature,
                                    guint               action_number)
 {
-  gchar *label;
+  char *label;
 
   /* First, lookup the action, as imposed by settings */
-  label = meta_pad_action_mapper_get_action_label (display->pad_action_mapper,
-                                                   pad, feature,
-                                                   action_number);
+  if (feature == META_PAD_FEATURE_BUTTON)
+    {
+      label = meta_pad_action_mapper_get_button_label (display->pad_action_mapper,
+                                                       pad, action_number);
+    }
+  else
+    {
+      label = meta_pad_action_mapper_get_feature_label (display->pad_action_mapper,
+                                                        pad, feature,
+                                                        action_number);
+    }
+
   if (label)
     return label;
 

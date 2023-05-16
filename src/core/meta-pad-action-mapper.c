@@ -838,10 +838,10 @@ meta_pad_action_mapper_get_strip_label (MetaPadActionMapper *mapper,
   return label;
 }
 
-static char *
+char *
 meta_pad_action_mapper_get_button_label (MetaPadActionMapper *mapper,
-                                         ClutterInputDevice *pad,
-                                         guint               button)
+                                         ClutterInputDevice  *pad,
+                                         int                  button)
 {
   GDesktopPadButtonAction action;
   int group;
@@ -916,23 +916,24 @@ get_current_pad_mode (MetaPadActionMapper *mapper,
 }
 
 char *
-meta_pad_action_mapper_get_action_label (MetaPadActionMapper *mapper,
-                                         ClutterInputDevice  *pad,
-                                         MetaPadFeatureType   feature,
-                                         guint                number)
+meta_pad_action_mapper_get_feature_label (MetaPadActionMapper *mapper,
+                                          ClutterInputDevice  *pad,
+                                          MetaPadFeatureType   feature,
+                                          int                  number)
 {
-  guint mode;
+  unsigned int mode;
 
   switch (feature)
     {
-    case META_PAD_FEATURE_BUTTON:
-      return meta_pad_action_mapper_get_button_label (mapper, pad, number);
     case META_PAD_FEATURE_RING:
       mode = get_current_pad_mode (mapper, pad, feature, number);
       return meta_pad_action_mapper_get_ring_label (mapper, pad, number, mode);
     case META_PAD_FEATURE_STRIP:
       mode = get_current_pad_mode (mapper, pad, feature, number);
       return meta_pad_action_mapper_get_strip_label (mapper, pad, number, mode);
+    default:
+      g_assert_not_reached ();
+      break;
     }
 
   return NULL;
