@@ -1,0 +1,123 @@
+new_client w wayland
+create w/1 csd
+
+show w/1
+wait
+
+maximize w/1
+wait_reconfigure w/1
+assert_size w/1 MONITOR_WIDTH MONITOR_HEIGHT
+
+# Left strut
+set_strut 0 0 MONITOR_WIDTH*1/4 MONITOR_HEIGHT left
+
+wait_reconfigure w/1
+assert_position w/1 MONITOR_WIDTH*1/4 0
+assert_size w/1 MONITOR_WIDTH*3/4 MONITOR_HEIGHT
+
+add_strut 0 0 MONITOR_WIDTH/2 MONITOR_HEIGHT/2 left
+
+wait_reconfigure w/1
+assert_position w/1 MONITOR_WIDTH/2 0
+assert_size w/1 MONITOR_WIDTH/2 MONITOR_HEIGHT
+
+# Top strut
+set_strut 0 0 MONITOR_WIDTH MONITOR_HEIGHT*1/4 top
+
+wait_reconfigure w/1
+assert_position w/1 0 MONITOR_HEIGHT*1/4
+assert_size w/1 MONITOR_WIDTH MONITOR_HEIGHT*3/4
+
+add_strut 0 0 MONITOR_WIDTH/2 MONITOR_HEIGHT/2 top
+
+wait_reconfigure w/1
+assert_position w/1 0 MONITOR_HEIGHT/2
+assert_size w/1 MONITOR_WIDTH MONITOR_HEIGHT/2
+
+# Right struts
+set_strut MONITOR_WIDTH*3/4 0 MONITOR_WIDTH*1/4 MONITOR_HEIGHT right
+
+wait_reconfigure w/1
+assert_position w/1 0 0
+assert_size w/1 MONITOR_WIDTH*3/4 MONITOR_HEIGHT
+
+add_strut MONITOR_WIDTH/2 0 MONITOR_WIDTH/2 MONITOR_HEIGHT right
+
+wait_reconfigure w/1
+assert_position w/1 0 0
+assert_size w/1 MONITOR_WIDTH/2 MONITOR_HEIGHT
+
+# Bottom strut
+set_strut 0 MONITOR_HEIGHT*3/4 MONITOR_WIDTH MONITOR_HEIGHT*1/4 bottom
+
+wait_reconfigure w/1
+assert_position w/1 0 0
+assert_size w/1 MONITOR_WIDTH MONITOR_HEIGHT*3/4
+
+add_strut MONITOR_WIDTH/2 MONITOR_HEIGHT/2 MONITOR_WIDTH/2 MONITOR_HEIGHT/2 bottom
+
+wait_reconfigure w/1
+assert_position w/1 0 0
+assert_size w/1 MONITOR_WIDTH MONITOR_HEIGHT/2
+
+# Left and top struts
+set_strut 0 0 MONITOR_WIDTH/2 MONITOR_HEIGHT left
+
+wait_reconfigure w/1
+assert_position w/1 MONITOR_WIDTH/2 0
+assert_size w/1 MONITOR_WIDTH/2 MONITOR_HEIGHT
+
+add_strut 0 0 MONITOR_WIDTH MONITOR_HEIGHT/2 top
+
+wait_reconfigure w/1
+assert_position w/1 MONITOR_WIDTH/2 MONITOR_HEIGHT/2
+assert_size w/1 MONITOR_WIDTH/2 MONITOR_HEIGHT/2
+
+clear_struts left
+wait_reconfigure w/1
+assert_position w/1 0 MONITOR_HEIGHT/2
+assert_size w/1 MONITOR_WIDTH MONITOR_HEIGHT/2
+
+clear_struts
+wait_reconfigure w/1
+assert_position w/1 0 0
+assert_size w/1 MONITOR_WIDTH MONITOR_HEIGHT
+
+add_strut 0 0 MONITOR_WIDTH MONITOR_HEIGHT/2 top
+add_strut 0 0 MONITOR_WIDTH/2 MONITOR_HEIGHT left
+
+wait_reconfigure w/1
+assert_position w/1 MONITOR_WIDTH/2 MONITOR_HEIGHT/2
+assert_size w/1 MONITOR_WIDTH/2 MONITOR_HEIGHT/2
+
+# All edges struts
+set_strut 0 0 MONITOR_WIDTH MONITOR_HEIGHT*1/4 top
+add_strut 0 0 MONITOR_WIDTH*1/4 MONITOR_HEIGHT left
+add_strut MONITOR_WIDTH*3/4 0 MONITOR_WIDTH*1/4 MONITOR_HEIGHT right
+add_strut 0 MONITOR_HEIGHT*3/4 MONITOR_WIDTH MONITOR_HEIGHT*1/4 bottom
+
+wait_reconfigure w/1
+assert_position w/1 MONITOR_WIDTH/4 MONITOR_HEIGHT/4
+assert_size w/1 MONITOR_WIDTH/2 MONITOR_HEIGHT/2
+
+move w/1 0 0
+wait_reconfigure w/1
+assert_position w/1 MONITOR_WIDTH/4 MONITOR_HEIGHT/4
+assert_size w/1 MONITOR_WIDTH/2 MONITOR_HEIGHT/2
+
+unmaximize w/1
+resize w/1 100 100
+move w/1 0 0
+wait_reconfigure w/1
+assert_size w/1 100 100
+
+maximize w/1
+wait_reconfigure w/1
+assert_position w/1 MONITOR_WIDTH/4 MONITOR_HEIGHT/4
+assert_size w/1 MONITOR_WIDTH/2 MONITOR_HEIGHT/2
+
+clear_struts
+wait_reconfigure w/1
+assert_position w/1 0 0
+assert_size w/1 MONITOR_WIDTH MONITOR_HEIGHT
+
