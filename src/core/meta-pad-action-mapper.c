@@ -65,7 +65,7 @@ struct _MetaPadActionMapper
   /* Pad ring/strip emission */
   struct {
     ClutterInputDevice *pad;
-    MetaPadActionType action;
+    MetaPadFeatureType feature;
     guint number;
     double value;
   } last_pad_action_info;
@@ -193,7 +193,7 @@ meta_pad_action_mapper_new (MetaMonitorManager *monitor_manager)
 
 static GSettings *
 lookup_pad_action_settings (ClutterInputDevice *device,
-                            MetaPadActionType   action,
+                            MetaPadFeatureType  feature,
                             guint               number,
                             MetaPadDirection    direction,
                             int                 mode)
@@ -208,18 +208,18 @@ lookup_pad_action_settings (ClutterInputDevice *device,
 
   action_label = 'A' + number;
 
-  switch (action)
+  switch (feature)
     {
-    case META_PAD_ACTION_BUTTON:
+    case META_PAD_FEATURE_BUTTON:
       action_type = "button";
       break;
-    case META_PAD_ACTION_RING:
+    case META_PAD_FEATURE_RING:
       g_assert (direction == META_PAD_DIRECTION_CW ||
                 direction == META_PAD_DIRECTION_CCW);
       action_type = "ring";
       detail_type = (direction == META_PAD_DIRECTION_CW) ? "cw" : "ccw";
       break;
-    case META_PAD_ACTION_STRIP:
+    case META_PAD_FEATURE_STRIP:
       g_assert (direction == META_PAD_DIRECTION_UP ||
                 direction == META_PAD_DIRECTION_DOWN);
       action_type = "strip";
@@ -261,7 +261,7 @@ meta_pad_action_mapper_get_button_action (MetaPadActionMapper *mapper,
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (pad),
                         G_DESKTOP_PAD_BUTTON_ACTION_NONE);
 
-  settings = lookup_pad_action_settings (pad, META_PAD_ACTION_BUTTON,
+  settings = lookup_pad_action_settings (pad, META_PAD_FEATURE_BUTTON,
                                          button, META_PAD_DIRECTION_NONE, -1);
   action = g_settings_get_enum (settings, "action");
   g_object_unref (settings);
@@ -589,7 +589,7 @@ meta_pad_action_mapper_handle_button (MetaPadActionMapper         *mapper,
         meta_display_request_pad_osd (display_from_mapper (mapper), pad, FALSE);
       return TRUE;
     case G_DESKTOP_PAD_BUTTON_ACTION_KEYBINDING:
-      settings = lookup_pad_action_settings (pad, META_PAD_ACTION_BUTTON,
+      settings = lookup_pad_action_settings (pad, META_PAD_FEATURE_BUTTON,
                                              button, META_PAD_DIRECTION_NONE, -1);
       accel = g_settings_get_string (settings, "keybinding");
       meta_pad_action_mapper_emulate_keybinding (mapper, accel, is_press);
@@ -608,7 +608,7 @@ meta_pad_action_mapper_get_action_direction (MetaPadActionMapper *mapper,
                                              MetaPadDirection    *direction)
 {
   ClutterInputDevice *pad = clutter_event_get_device (event);
-  MetaPadActionType pad_action;
+  MetaPadFeatureType pad_feature;
   gboolean has_direction = FALSE;
   MetaPadDirection inc_dir, dec_dir;
   guint number;
@@ -619,14 +619,14 @@ meta_pad_action_mapper_get_action_direction (MetaPadActionMapper *mapper,
   switch (event->type)
     {
     case CLUTTER_PAD_RING:
-      pad_action = META_PAD_ACTION_RING;
+      pad_feature = META_PAD_FEATURE_RING;
       number = event->pad_ring.ring_number;
       value = event->pad_ring.angle;
       inc_dir = META_PAD_DIRECTION_CW;
       dec_dir = META_PAD_DIRECTION_CCW;
       break;
     case CLUTTER_PAD_STRIP:
-      pad_action = META_PAD_ACTION_STRIP;
+      pad_feature = META_PAD_FEATURE_STRIP;
       number = event->pad_strip.strip_number;
       value = event->pad_strip.value;
       inc_dir = META_PAD_DIRECTION_DOWN;
@@ -637,7 +637,7 @@ meta_pad_action_mapper_get_action_direction (MetaPadActionMapper *mapper,
     }
 
   if (mapper->last_pad_action_info.pad == pad &&
-      mapper->last_pad_action_info.action == pad_action &&
+      mapper->last_pad_action_info.feature == pad_feature &&
       mapper->last_pad_action_info.number == number &&
       value >= 0 && mapper->last_pad_action_info.value >= 0)
     {
@@ -647,7 +647,7 @@ meta_pad_action_mapper_get_action_direction (MetaPadActionMapper *mapper,
     }
 
   mapper->last_pad_action_info.pad = pad;
-  mapper->last_pad_action_info.action = pad_action;
+  mapper->last_pad_action_info.feature = pad_feature;
   mapper->last_pad_action_info.number = number;
   mapper->last_pad_action_info.value = value;
   return has_direction;
@@ -657,7 +657,7 @@ static gboolean
 meta_pad_action_mapper_handle_action (MetaPadActionMapper *mapper,
                                       ClutterInputDevice  *pad,
                                       const ClutterEvent  *event,
-                                      MetaPadActionType    action,
+                                      MetaPadFeatureType   feature,
                                       guint                number,
                                       guint                mode)
 {
@@ -666,18 +666,18 @@ meta_pad_action_mapper_handle_action (MetaPadActionMapper *mapper,
   g_autofree char *accel1 = NULL, *accel2 = NULL;
   gboolean handled;
 
-  if (action == META_PAD_ACTION_RING)
+  if (feature == META_PAD_FEATURE_RING)
     {
-      settings1 = lookup_pad_action_settings (pad, action, number,
+      settings1 = lookup_pad_action_settings (pad, feature, number,
                                               META_PAD_DIRECTION_CW, mode);
-      settings2 = lookup_pad_action_settings (pad, action, number,
+      settings2 = lookup_pad_action_settings (pad, feature, number,
                                               META_PAD_DIRECTION_CCW, mode);
     }
-  else if (action == META_PAD_ACTION_STRIP)
+  else if (feature == META_PAD_FEATURE_STRIP)
     {
-      settings1 = lookup_pad_action_settings (pad, action, number,
+      settings1 = lookup_pad_action_settings (pad, feature, number,
                                               META_PAD_DIRECTION_UP, mode);
-      settings2 = lookup_pad_action_settings (pad, action, number,
+      settings2 = lookup_pad_action_settings (pad, feature, number,
                                               META_PAD_DIRECTION_DOWN, mode);
     }
   else
@@ -726,12 +726,12 @@ meta_pad_action_mapper_handle_event (MetaPadActionMapper *mapper,
                                                    &event->pad_button);
     case CLUTTER_PAD_RING:
       return meta_pad_action_mapper_handle_action (mapper, pad, event,
-                                                   META_PAD_ACTION_RING,
+                                                   META_PAD_FEATURE_RING,
                                                    event->pad_ring.ring_number,
                                                    event->pad_ring.mode);
     case CLUTTER_PAD_STRIP:
       return meta_pad_action_mapper_handle_action (mapper, pad, event,
-                                                   META_PAD_ACTION_STRIP,
+                                                   META_PAD_FEATURE_STRIP,
                                                    event->pad_strip.strip_number,
                                                    event->pad_strip.mode);
     default:
@@ -804,9 +804,9 @@ meta_pad_action_mapper_get_ring_label (MetaPadActionMapper *mapper,
   char *label;
 
   /* We only allow keybinding actions with those */
-  settings1 = lookup_pad_action_settings (pad, META_PAD_ACTION_RING, number,
+  settings1 = lookup_pad_action_settings (pad, META_PAD_FEATURE_RING, number,
                                           META_PAD_DIRECTION_CW, mode);
-  settings2 = lookup_pad_action_settings (pad, META_PAD_ACTION_RING, number,
+  settings2 = lookup_pad_action_settings (pad, META_PAD_FEATURE_RING, number,
                                           META_PAD_DIRECTION_CCW, mode);
   label = compose_directional_action_label (META_PAD_DIRECTION_CW, settings1,
                                             META_PAD_DIRECTION_CCW, settings2);
@@ -826,9 +826,9 @@ meta_pad_action_mapper_get_strip_label (MetaPadActionMapper *mapper,
   char *label;
 
   /* We only allow keybinding actions with those */
-  settings1 = lookup_pad_action_settings (pad, META_PAD_ACTION_STRIP, number,
+  settings1 = lookup_pad_action_settings (pad, META_PAD_FEATURE_STRIP, number,
                                           META_PAD_DIRECTION_UP, mode);
-  settings2 = lookup_pad_action_settings (pad, META_PAD_ACTION_STRIP, number,
+  settings2 = lookup_pad_action_settings (pad, META_PAD_FEATURE_STRIP, number,
                                           META_PAD_DIRECTION_DOWN, mode);
   label = compose_directional_action_label (META_PAD_DIRECTION_UP, settings1,
                                             META_PAD_DIRECTION_DOWN, settings2);
@@ -870,7 +870,7 @@ meta_pad_action_mapper_get_button_label (MetaPadActionMapper *mapper,
         GSettings *settings;
         char *accel;
 
-        settings = lookup_pad_action_settings (pad, META_PAD_ACTION_BUTTON,
+        settings = lookup_pad_action_settings (pad, META_PAD_FEATURE_BUTTON,
                                                button, META_PAD_DIRECTION_NONE, -1);
         accel = g_settings_get_string (settings, "keybinding");
         g_object_unref (settings);
@@ -893,7 +893,7 @@ meta_pad_action_mapper_get_button_label (MetaPadActionMapper *mapper,
 static guint
 get_current_pad_mode (MetaPadActionMapper *mapper,
                       ClutterInputDevice  *pad,
-                      MetaPadActionType    action_type,
+                      MetaPadFeatureType   feature,
                       guint                number)
 {
   PadMappingInfo *info;
@@ -905,8 +905,8 @@ get_current_pad_mode (MetaPadActionMapper *mapper,
   if (!info->group_modes || n_groups == 0)
     return 0;
 
-  if (action_type == META_PAD_ACTION_RING ||
-      action_type == META_PAD_ACTION_STRIP)
+  if (feature == META_PAD_FEATURE_RING ||
+      feature == META_PAD_FEATURE_STRIP)
     {
       /* Assume features are evenly distributed in groups */
       group = number % n_groups;
@@ -918,20 +918,20 @@ get_current_pad_mode (MetaPadActionMapper *mapper,
 char *
 meta_pad_action_mapper_get_action_label (MetaPadActionMapper *mapper,
                                          ClutterInputDevice  *pad,
-                                         MetaPadActionType    action_type,
+                                         MetaPadFeatureType   feature,
                                          guint                number)
 {
   guint mode;
 
-  switch (action_type)
+  switch (feature)
     {
-    case META_PAD_ACTION_BUTTON:
+    case META_PAD_FEATURE_BUTTON:
       return meta_pad_action_mapper_get_button_label (mapper, pad, number);
-    case META_PAD_ACTION_RING:
-      mode = get_current_pad_mode (mapper, pad, action_type, number);
+    case META_PAD_FEATURE_RING:
+      mode = get_current_pad_mode (mapper, pad, feature, number);
       return meta_pad_action_mapper_get_ring_label (mapper, pad, number, mode);
-    case META_PAD_ACTION_STRIP:
-      mode = get_current_pad_mode (mapper, pad, action_type, number);
+    case META_PAD_FEATURE_STRIP:
+      mode = get_current_pad_mode (mapper, pad, feature, number);
       return meta_pad_action_mapper_get_strip_label (mapper, pad, number, mode);
     }
 

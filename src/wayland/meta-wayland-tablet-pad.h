@@ -75,7 +75,7 @@ void         meta_wayland_tablet_pad_set_focus           (MetaWaylandTabletPad *
                                                           MetaWaylandSurface   *surface);
 
 gchar *      meta_wayland_tablet_pad_get_label           (MetaWaylandTabletPad *pad,
-							  MetaPadActionType     type,
-							  guint                 action);
+                                                          MetaPadFeatureType    feature,
+                                                          guint                 action);
 
 #endif /* META_WAYLAND_TABLET_PAD_H */

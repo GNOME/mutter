@@ -2736,14 +2736,14 @@ meta_display_request_pad_osd (MetaDisplay        *display,
 gchar *
 meta_display_get_pad_action_label (MetaDisplay        *display,
                                    ClutterInputDevice *pad,
-                                   MetaPadActionType   action_type,
+                                   MetaPadFeatureType  feature,
                                    guint               action_number)
 {
   gchar *label;
 
   /* First, lookup the action, as imposed by settings */
   label = meta_pad_action_mapper_get_action_label (display->pad_action_mapper,
-                                                   pad, action_type,
+                                                   pad, feature,
                                                    action_number);
   if (label)
     return label;
@@ -2764,7 +2764,7 @@ meta_display_get_pad_action_label (MetaDisplay        *display,
 
       if (tablet_pad)
         {
-          label = meta_wayland_tablet_pad_get_label (tablet_pad, action_type,
+          label = meta_wayland_tablet_pad_get_label (tablet_pad, feature,
                                                      action_number);
         }
 

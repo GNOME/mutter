@@ -40,7 +40,7 @@ gboolean meta_pad_action_mapper_handle_event      (MetaPadActionMapper *mapper,
                                                    const ClutterEvent  *event);
 gchar *  meta_pad_action_mapper_get_action_label  (MetaPadActionMapper *mapper,
                                                    ClutterInputDevice  *pad,
-                                                   MetaPadActionType    action,
+                                                   MetaPadFeatureType   feature,
                                                    guint                number);
 
 #endif /* META_PAD_ACTION_MAPPER_H */

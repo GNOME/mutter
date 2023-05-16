@@ -58,10 +58,10 @@ typedef enum
 
 typedef enum
 {
-  META_PAD_ACTION_BUTTON, /* Action is a button */
-  META_PAD_ACTION_RING,   /* Action is a ring */
-  META_PAD_ACTION_STRIP,  /* Action is a strip */
-} MetaPadActionType;
+  META_PAD_FEATURE_BUTTON,
+  META_PAD_FEATURE_RING,
+  META_PAD_FEATURE_STRIP,
+} MetaPadFeatureType;
 
 typedef struct _MetaDisplayClass MetaDisplayClass;
 
@@ -195,7 +195,7 @@ void    meta_display_request_pad_osd      (MetaDisplay        *display,
 META_EXPORT
 gchar * meta_display_get_pad_action_label (MetaDisplay        *display,
                                            ClutterInputDevice *pad,
-                                           MetaPadActionType   action_type,
+                                           MetaPadFeatureType  feature_type,
                                            guint               action_number);
 
 META_EXPORT

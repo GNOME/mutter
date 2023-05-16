@@ -535,22 +535,22 @@ meta_wayland_tablet_pad_label_mode_switch_button (MetaWaylandTabletPad *pad,
 
 gchar *
 meta_wayland_tablet_pad_get_label (MetaWaylandTabletPad *pad,
-				   MetaPadActionType     type,
-				   guint                 action)
+                                   MetaPadFeatureType    feature,
+                                   guint                 action)
 {
   const gchar *label = NULL;
   gchar *mode_label;
 
-  switch (type)
+  switch (feature)
     {
-    case META_PAD_ACTION_BUTTON:
+    case META_PAD_FEATURE_BUTTON:
       mode_label = meta_wayland_tablet_pad_label_mode_switch_button (pad, action);
       if (mode_label)
         return mode_label;
 
       label = g_hash_table_lookup (pad->feedback, GUINT_TO_POINTER (action));
       break;
-    case META_PAD_ACTION_RING:
+    case META_PAD_FEATURE_RING:
       {
         MetaWaylandTabletPadRing *ring;
 
@@ -559,7 +559,7 @@ meta_wayland_tablet_pad_get_label (MetaWaylandTabletPad *pad,
           label = ring->feedback;
         break;
       }
-    case META_PAD_ACTION_STRIP:
+    case META_PAD_FEATURE_STRIP:
       {
         MetaWaylandTabletPadStrip *strip;
 
