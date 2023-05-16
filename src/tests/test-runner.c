@@ -31,6 +31,8 @@
 #include "meta-test/meta-context-test.h"
 #include "meta/util.h"
 #include "meta/window.h"
+#include "core/meta-workspace-manager-private.h"
+#include "core/workspace-private.h"
 #include "tests/meta-test-utils.h"
 #include "wayland/meta-wayland.h"
 #include "wayland/meta-window-wayland.h"
@@ -48,6 +50,26 @@ typedef struct {
   ClutterVirtualInputDevice *pointer;
   GHashTable *cloned_windows;
 } TestCase;
+
+static void
+set_true_cb (gboolean *value)
+{
+  *value = TRUE;
+}
+
+static void
+wait_for_signal_emission (gpointer    instance,
+                          const char *signal_name)
+{
+  gulong handler_id;
+  gboolean changed = FALSE;
+
+  handler_id = g_signal_connect_swapped (instance, signal_name,
+                                         G_CALLBACK (set_true_cb), &changed);
+  while (!changed)
+    g_main_context_iteration (NULL, TRUE);
+  g_signal_handler_disconnect (instance, handler_id);
+}
 
 static gboolean
 test_case_alarm_filter (MetaX11Display        *x11_display,
@@ -594,6 +616,92 @@ str_to_bool (const char *str,
 }
 
 static gboolean
+str_to_side (const char *str,
+             MetaSide   *out_side)
+{
+  if (g_str_equal (str, "left"))
+    {
+      *out_side = META_SIDE_LEFT;
+      return TRUE;
+    }
+
+  if (g_str_equal (str, "right"))
+    {
+      *out_side = META_SIDE_RIGHT;
+      return TRUE;
+    }
+
+  if (g_str_equal (str, "top"))
+    {
+      *out_side = META_SIDE_TOP;
+      return TRUE;
+    }
+
+  if (g_str_equal (str, "bottom"))
+    {
+      *out_side = META_SIDE_BOTTOM;
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
+static gboolean
+test_case_add_strut (TestCase    *test,
+                     int          x,
+                     int          y,
+                     int          width,
+                     int          height,
+                     MetaSide     side,
+                     GError     **error)
+{
+  MetaDisplay *display = meta_context_get_display (test->context);
+  MetaWorkspaceManager *workspace_manager =
+    meta_display_get_workspace_manager (display);
+  MtkRectangle rect = { x, y, width, height };
+  MetaStrut strut = { rect, side };
+  GList *workspaces =
+    meta_workspace_manager_get_workspaces (workspace_manager);
+  GList *l;
+
+  for (l = workspaces; l; l = l->next)
+    {
+      MetaWorkspace *workspace = l->data;
+      g_autoptr (GSList) struts_list = NULL;
+      g_autoslist (MetaStrut) struts = NULL;
+
+      struts_list = meta_workspace_get_builtin_struts (workspace);
+      struts = g_slist_append (g_steal_pointer (&struts_list),
+                               g_memdup2 (&strut, sizeof (MetaStrut)));
+      meta_workspace_set_builtin_struts (workspace, struts);
+    }
+
+  wait_for_signal_emission (display, "workareas-changed");
+
+  return TRUE;
+}
+
+static gboolean
+test_case_clear_struts (TestCase  *test,
+                        GError   **error)
+{
+  MetaDisplay *display = meta_context_get_display (test->context);
+  MetaWorkspaceManager *workspace_manager =
+    meta_display_get_workspace_manager (display);
+  GList *workspaces =
+    meta_workspace_manager_get_workspaces (workspace_manager);
+  GList *l;
+
+  for (l = workspaces; l; l = l->next)
+    {
+      MetaWorkspace *workspace = l->data;
+      meta_workspace_set_builtin_struts (workspace, NULL);
+    }
+
+  return TRUE;
+}
+
+static gboolean
 test_case_do (TestCase    *test,
               const char  *filename,
               int          line_no,
@@ -1059,7 +1167,8 @@ test_case_do (TestCase    *test,
       if (!test_case_sleep (test, (uint32_t) interval_ms, error))
         return FALSE;
     }
-  else if (strcmp (argv[0], "set_strut") == 0)
+  else if (g_str_equal (argv[0], "add_strut") ||
+           g_str_equal (argv[0], "set_strut"))
     {
       if (argc < 6 || argc > 7)
         {
@@ -1074,6 +1183,12 @@ test_case_do (TestCase    *test,
       if (!logical_monitor)
         return FALSE;
 
+      if (g_str_equal (argv[0], "set_strut"))
+        {
+          if (!test_case_clear_struts (test, error))
+            return FALSE;
+        }
+
       MtkRectangle monitor_layout =
         meta_logical_monitor_get_layout (logical_monitor);
 
@@ -1083,52 +1198,19 @@ test_case_do (TestCase    *test,
       int height = parse_monitor_size (&monitor_layout, argv[4]);
 
       MetaSide side;
-      if (strcmp (argv[5], "left") == 0)
-        side = META_SIDE_LEFT;
-      else if (strcmp (argv[5], "right") == 0)
-        side = META_SIDE_RIGHT;
-      else if (strcmp (argv[5], "top") == 0)
-        side = META_SIDE_TOP;
-      else if (strcmp (argv[5], "bottom") == 0)
-        side = META_SIDE_BOTTOM;
-      else
+      if (!str_to_side (argv[5], &side))
+        BAD_COMMAND ("Invalid side: %s", argv[5]);
+
+      if (!test_case_add_strut (test, x, y, width, height, side, error))
         return FALSE;
-
-      MetaDisplay *display = meta_context_get_display (test->context);
-      MetaWorkspaceManager *workspace_manager =
-        meta_display_get_workspace_manager (display);
-      MtkRectangle rect = { x, y, width, height };
-      MetaStrut strut = { rect, side };
-      GSList *struts = g_slist_append (NULL, &strut);
-      GList *workspaces =
-        meta_workspace_manager_get_workspaces (workspace_manager);
-      GList *l;
-
-      for (l = workspaces; l; l = l->next)
-        {
-          MetaWorkspace *workspace = l->data;
-          meta_workspace_set_builtin_struts (workspace, struts);
-        }
-
-      g_slist_free (struts);
     }
   else if (strcmp (argv[0], "clear_struts") == 0)
     {
       if (argc != 1)
         BAD_COMMAND("usage: %s", argv[0]);
 
-      MetaDisplay *display = meta_context_get_display (test->context);
-      MetaWorkspaceManager *workspace_manager =
-        meta_display_get_workspace_manager (display);
-      GList *workspaces =
-        meta_workspace_manager_get_workspaces (workspace_manager);
-      GList *l;
-
-      for (l = workspaces; l; l = l->next)
-        {
-          MetaWorkspace *workspace = l->data;
-          meta_workspace_set_builtin_struts (workspace, NULL);
-        }
+      if (!test_case_clear_struts (test, error))
+        return FALSE;
     }
   else if (strcmp (argv[0], "assert_stacking") == 0)
     {
