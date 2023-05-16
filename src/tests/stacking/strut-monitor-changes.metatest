@@ -1,0 +1,33 @@
+new_client w wayland
+create w/1 csd
+
+show w/1
+wait
+
+maximize w/1
+wait_reconfigure w/1
+assert_position w/1 0 0
+assert_size w/1 MONITOR_WIDTH MONITOR_HEIGHT
+
+set_strut 0 0 MONITOR_WIDTH MONITOR_HEIGHT*0.2 top
+reload_monitors
+wait_reconfigure w/1
+assert_position w/1 0 MONITOR_HEIGHT*0.2
+assert_size w/1 MONITOR_WIDTH MONITOR_HEIGHT*0.8
+
+reload_monitors
+add_strut 0 0 MONITOR_WIDTH/2 MONITOR_HEIGHT left
+
+wait_reconfigure w/1
+assert_position w/1 MONITOR_WIDTH/2 MONITOR_HEIGHT*0.2
+assert_size w/1 MONITOR_WIDTH/2 MONITOR_HEIGHT*0.8
+
+clear_struts left
+# A Monitor reconfiguration in between strut changes is causing troubles, see:
+#  https://gitlab.gnome.org/GNOME/mutter/-/issues/1627
+reload_monitors
+add_strut 0 0 MONITOR_WIDTH/2 MONITOR_HEIGHT left
+
+wait_reconfigure w/1
+assert_position w/1 MONITOR_WIDTH/2 MONITOR_HEIGHT*0.2
+assert_size w/1 MONITOR_WIDTH/2 MONITOR_HEIGHT*0.8

@@ -731,6 +731,7 @@ stacking_tests = [
   'sloppy-focus',
   'sloppy-focus-pointer-rest',
   'sloppy-focus-auto-raise',
+  'strut-monitor-changes'
 ]
 
 foreach stacking_test: stacking_tests
@@ -742,6 +743,7 @@ foreach stacking_test: stacking_tests
     ],
     is_parallel: false,
     timeout: 60,
+    should_fail: stacking_test.startswith('fixme-'),
   )
 
   if have_installed_tests
