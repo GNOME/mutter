@@ -575,9 +575,6 @@ meta_wayland_tablet_pad_get_feature_label (MetaWaylandTabletPad *pad,
           label = strip->feedback;
         break;
       }
-    default:
-      g_assert_not_reached ();
-      break;
     }
 
   return g_strdup (label);

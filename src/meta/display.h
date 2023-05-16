@@ -58,7 +58,6 @@ typedef enum
 
 typedef enum
 {
-  META_PAD_FEATURE_BUTTON,
   META_PAD_FEATURE_RING,
   META_PAD_FEATURE_STRIP,
 } MetaPadFeatureType;

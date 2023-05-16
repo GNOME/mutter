@@ -192,60 +192,70 @@ meta_pad_action_mapper_new (MetaMonitorManager *monitor_manager)
 }
 
 static GSettings *
-lookup_pad_action_settings (ClutterInputDevice *device,
-                            MetaPadFeatureType  feature,
-                            guint               number,
-                            MetaPadDirection    direction,
-                            int                 mode)
+get_pad_feature_gsettings (ClutterInputDevice *device,
+                           const char         *feature,
+                           int                 feature_number,
+                           const char         *suffix)
 {
-  const char *vendor, *product, *action_type, *detail_type = NULL;
   GSettings *settings;
-  GString *path;
-  char action_label;
+  g_autofree char *path = NULL;
+  const gchar *vendor, *product;
+  char tag;
 
+  tag = 'A' + feature_number;
   vendor = clutter_input_device_get_vendor_id (device);
   product = clutter_input_device_get_product_id (device);
 
-  action_label = 'A' + number;
+  path = g_strdup_printf ("/org/gnome/desktop/peripherals/tablets/%s:%s/%s%c%s/",
+                          vendor, product, feature, tag,
+                          suffix ? suffix : "");
+  settings = g_settings_new_with_path ("org.gnome.desktop.peripherals.tablet.pad-button",
+                                       path);
+
+  return settings;
+}
+
+static GSettings *
+lookup_pad_button_settings (ClutterInputDevice *device,
+                            int                 button)
+{
+  return get_pad_feature_gsettings (device, "button", button, NULL);
+}
+
+static GSettings *
+lookup_pad_feature_settings (ClutterInputDevice *device,
+                             MetaPadFeatureType  feature,
+                             guint               number,
+                             MetaPadDirection    direction,
+                             int                 mode)
+{
+  g_autofree char *suffix = NULL;
+  const char *feature_type, *detail_type;
 
   switch (feature)
     {
-    case META_PAD_FEATURE_BUTTON:
-      action_type = "button";
-      break;
     case META_PAD_FEATURE_RING:
       g_assert (direction == META_PAD_DIRECTION_CW ||
                 direction == META_PAD_DIRECTION_CCW);
-      action_type = "ring";
+      feature_type = "ring";
       detail_type = (direction == META_PAD_DIRECTION_CW) ? "cw" : "ccw";
       break;
     case META_PAD_FEATURE_STRIP:
       g_assert (direction == META_PAD_DIRECTION_UP ||
                 direction == META_PAD_DIRECTION_DOWN);
-      action_type = "strip";
+      feature_type = "strip";
       detail_type = (direction == META_PAD_DIRECTION_UP) ? "up" : "down";
       break;
     default:
       return NULL;
     }
 
-  path = g_string_new (NULL);
-  g_string_append_printf (path, "/org/gnome/desktop/peripherals/tablets/%s:%s/%s%c",
-                          vendor, product, action_type, action_label);
-
-  if (detail_type)
-    g_string_append_printf (path, "-%s", detail_type);
-
   if (mode >= 0)
-    g_string_append_printf (path, "-mode-%d", mode);
+    suffix = g_strdup_printf ("-%s-mode-%d", detail_type, mode);
+  else
+    suffix = g_strdup_printf ("-%s", detail_type);
 
-  g_string_append_c (path, '/');
-
-  settings = g_settings_new_with_path ("org.gnome.desktop.peripherals.tablet.pad-button",
-                                       path->str);
-  g_string_free (path, TRUE);
-
-  return settings;
+  return get_pad_feature_gsettings (device, feature_type, number, suffix);
 }
 
 static GDesktopPadButtonAction
@@ -261,8 +271,7 @@ meta_pad_action_mapper_get_button_action (MetaPadActionMapper *mapper,
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (pad),
                         G_DESKTOP_PAD_BUTTON_ACTION_NONE);
 
-  settings = lookup_pad_action_settings (pad, META_PAD_FEATURE_BUTTON,
-                                         button, META_PAD_DIRECTION_NONE, -1);
+  settings = lookup_pad_button_settings (pad, button);
   action = g_settings_get_enum (settings, "action");
   g_object_unref (settings);
 
@@ -589,8 +598,7 @@ meta_pad_action_mapper_handle_button (MetaPadActionMapper         *mapper,
         meta_display_request_pad_osd (display_from_mapper (mapper), pad, FALSE);
       return TRUE;
     case G_DESKTOP_PAD_BUTTON_ACTION_KEYBINDING:
-      settings = lookup_pad_action_settings (pad, META_PAD_FEATURE_BUTTON,
-                                             button, META_PAD_DIRECTION_NONE, -1);
+      settings = lookup_pad_button_settings (pad, button);
       accel = g_settings_get_string (settings, "keybinding");
       meta_pad_action_mapper_emulate_keybinding (mapper, accel, is_press);
       g_object_unref (settings);
@@ -661,24 +669,24 @@ meta_pad_action_mapper_handle_action (MetaPadActionMapper *mapper,
                                       guint                number,
                                       guint                mode)
 {
-  MetaPadDirection direction = META_PAD_DIRECTION_NONE;
+  MetaPadDirection direction;
   g_autoptr (GSettings) settings1 = NULL, settings2 = NULL;
   g_autofree char *accel1 = NULL, *accel2 = NULL;
   gboolean handled;
 
   if (feature == META_PAD_FEATURE_RING)
     {
-      settings1 = lookup_pad_action_settings (pad, feature, number,
-                                              META_PAD_DIRECTION_CW, mode);
-      settings2 = lookup_pad_action_settings (pad, feature, number,
-                                              META_PAD_DIRECTION_CCW, mode);
+      settings1 = lookup_pad_feature_settings (pad, feature, number,
+                                               META_PAD_DIRECTION_CW, mode);
+      settings2 = lookup_pad_feature_settings (pad, feature, number,
+                                               META_PAD_DIRECTION_CCW, mode);
     }
   else if (feature == META_PAD_FEATURE_STRIP)
     {
-      settings1 = lookup_pad_action_settings (pad, feature, number,
-                                              META_PAD_DIRECTION_UP, mode);
-      settings2 = lookup_pad_action_settings (pad, feature, number,
-                                              META_PAD_DIRECTION_DOWN, mode);
+      settings1 = lookup_pad_feature_settings (pad, feature, number,
+                                               META_PAD_DIRECTION_UP, mode);
+      settings2 = lookup_pad_feature_settings (pad, feature, number,
+                                               META_PAD_DIRECTION_DOWN, mode);
     }
   else
     {
@@ -691,7 +699,7 @@ meta_pad_action_mapper_handle_action (MetaPadActionMapper *mapper,
 
   if (meta_pad_action_mapper_get_action_direction (mapper, event, &direction))
     {
-      const gchar *accel;
+      const gchar *accel = NULL;
 
       if (direction == META_PAD_DIRECTION_UP ||
           direction == META_PAD_DIRECTION_CW)
@@ -804,10 +812,10 @@ meta_pad_action_mapper_get_ring_label (MetaPadActionMapper *mapper,
   char *label;
 
   /* We only allow keybinding actions with those */
-  settings1 = lookup_pad_action_settings (pad, META_PAD_FEATURE_RING, number,
-                                          META_PAD_DIRECTION_CW, mode);
-  settings2 = lookup_pad_action_settings (pad, META_PAD_FEATURE_RING, number,
-                                          META_PAD_DIRECTION_CCW, mode);
+  settings1 = lookup_pad_feature_settings (pad, META_PAD_FEATURE_RING, number,
+                                           META_PAD_DIRECTION_CW, mode);
+  settings2 = lookup_pad_feature_settings (pad, META_PAD_FEATURE_RING, number,
+                                           META_PAD_DIRECTION_CCW, mode);
   label = compose_directional_action_label (META_PAD_DIRECTION_CW, settings1,
                                             META_PAD_DIRECTION_CCW, settings2);
   g_object_unref (settings1);
@@ -826,10 +834,10 @@ meta_pad_action_mapper_get_strip_label (MetaPadActionMapper *mapper,
   char *label;
 
   /* We only allow keybinding actions with those */
-  settings1 = lookup_pad_action_settings (pad, META_PAD_FEATURE_STRIP, number,
-                                          META_PAD_DIRECTION_UP, mode);
-  settings2 = lookup_pad_action_settings (pad, META_PAD_FEATURE_STRIP, number,
-                                          META_PAD_DIRECTION_DOWN, mode);
+  settings1 = lookup_pad_feature_settings (pad, META_PAD_FEATURE_STRIP, number,
+                                           META_PAD_DIRECTION_UP, mode);
+  settings2 = lookup_pad_feature_settings (pad, META_PAD_FEATURE_STRIP, number,
+                                           META_PAD_DIRECTION_DOWN, mode);
   label = compose_directional_action_label (META_PAD_DIRECTION_UP, settings1,
                                             META_PAD_DIRECTION_DOWN, settings2);
   g_object_unref (settings1);
@@ -870,8 +878,7 @@ meta_pad_action_mapper_get_button_label (MetaPadActionMapper *mapper,
         GSettings *settings;
         char *accel;
 
-        settings = lookup_pad_action_settings (pad, META_PAD_FEATURE_BUTTON,
-                                               button, META_PAD_DIRECTION_NONE, -1);
+        settings = lookup_pad_button_settings (pad, button);
         accel = g_settings_get_string (settings, "keybinding");
         g_object_unref (settings);
 
@@ -931,9 +938,6 @@ meta_pad_action_mapper_get_feature_label (MetaPadActionMapper *mapper,
     case META_PAD_FEATURE_STRIP:
       mode = get_current_pad_mode (mapper, pad, feature, number);
       return meta_pad_action_mapper_get_strip_label (mapper, pad, number, mode);
-    default:
-      g_assert_not_reached ();
-      break;
     }
 
   return NULL;
