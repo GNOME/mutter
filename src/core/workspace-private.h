@@ -103,3 +103,6 @@ MetaWindow * meta_workspace_get_default_focus_window_at_point (MetaWorkspace *wo
 GList * meta_workspace_get_default_focus_candidates (MetaWorkspace *workspace);
 
 void meta_workspace_index_changed (MetaWorkspace *workspace);
+
+META_EXPORT_TEST
+GSList * meta_workspace_get_builtin_struts (MetaWorkspace *workspace);

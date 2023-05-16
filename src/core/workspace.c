@@ -1121,6 +1121,12 @@ meta_workspace_set_builtin_struts (MetaWorkspace *workspace,
   meta_workspace_invalidate_work_area (workspace);
 }
 
+GSList *
+meta_workspace_get_builtin_struts (MetaWorkspace *workspace)
+{
+  return copy_strut_list (workspace->builtin_struts);
+}
+
 void
 meta_workspace_get_work_area_for_logical_monitor (MetaWorkspace      *workspace,
                                                   MetaLogicalMonitor *logical_monitor,
