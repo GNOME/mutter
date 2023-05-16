@@ -193,10 +193,15 @@ void    meta_display_request_pad_osd      (MetaDisplay        *display,
                                            gboolean            edition_mode);
 
 META_EXPORT
-gchar * meta_display_get_pad_action_label (MetaDisplay        *display,
+char * meta_display_get_pad_button_label (MetaDisplay        *display,
+                                          ClutterInputDevice *pad,
+                                          int                 button_number);
+
+META_EXPORT
+char * meta_display_get_pad_feature_label (MetaDisplay        *display,
                                            ClutterInputDevice *pad,
-                                           MetaPadFeatureType  feature_type,
-                                           guint               action_number);
+                                           MetaPadFeatureType  feature,
+                                           int                 feature_number);
 
 META_EXPORT
 void meta_display_get_size (MetaDisplay *display,

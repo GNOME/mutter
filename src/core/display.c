@@ -2733,27 +2733,16 @@ meta_display_request_pad_osd (MetaDisplay        *display,
     }
 }
 
-gchar *
-meta_display_get_pad_action_label (MetaDisplay        *display,
+char *
+meta_display_get_pad_button_label (MetaDisplay        *display,
                                    ClutterInputDevice *pad,
-                                   MetaPadFeatureType  feature,
-                                   guint               action_number)
+                                   int                 button)
 {
   char *label;
 
   /* First, lookup the action, as imposed by settings */
-  if (feature == META_PAD_FEATURE_BUTTON)
-    {
-      label = meta_pad_action_mapper_get_button_label (display->pad_action_mapper,
-                                                       pad, action_number);
-    }
-  else
-    {
-      label = meta_pad_action_mapper_get_feature_label (display->pad_action_mapper,
-                                                        pad, feature,
-                                                        action_number);
-    }
-
+  label = meta_pad_action_mapper_get_button_label (display->pad_action_mapper,
+                                                   pad, button);
   if (label)
     return label;
 
@@ -2773,17 +2762,52 @@ meta_display_get_pad_action_label (MetaDisplay        *display,
 
       if (tablet_pad)
         {
-          if (feature == META_PAD_FEATURE_BUTTON)
-            {
-              label = meta_wayland_tablet_pad_get_button_label (tablet_pad,
-                                                                action_number);
-            }
-          else
-            {
-              label = meta_wayland_tablet_pad_get_feature_label (tablet_pad,
-                                                                 feature,
-                                                                 action_number);
-            }
+          label = meta_wayland_tablet_pad_get_button_label (tablet_pad,
+                                                            button);
+        }
+
+      if (label)
+        return label;
+    }
+#endif
+
+  return NULL;
+}
+
+char *
+meta_display_get_pad_feature_label (MetaDisplay        *display,
+                                    ClutterInputDevice *pad,
+                                    MetaPadFeatureType  feature,
+                                    int                 feature_number)
+{
+  char *label;
+
+  /* First, lookup the action, as imposed by settings */
+  label = meta_pad_action_mapper_get_feature_label (display->pad_action_mapper,
+                                                    pad, feature,
+                                                    feature_number);
+  if (label)
+    return label;
+
+#ifdef HAVE_WAYLAND
+  /* Second, if this wayland, lookup the actions set by the clients */
+  if (meta_is_wayland_compositor ())
+    {
+      MetaWaylandCompositor *compositor;
+      MetaWaylandTabletSeat *tablet_seat;
+      MetaWaylandTabletPad *tablet_pad = NULL;
+
+      compositor = wayland_compositor_from_display (display);
+      tablet_seat = meta_wayland_tablet_manager_ensure_seat (compositor->tablet_manager,
+                                                             compositor->seat);
+      if (tablet_seat)
+        tablet_pad = meta_wayland_tablet_seat_lookup_pad (tablet_seat, pad);
+
+      if (tablet_pad)
+        {
+          label = meta_wayland_tablet_pad_get_feature_label (tablet_pad,
+                                                             feature,
+                                                             feature_number);
         }
 
       if (label)
