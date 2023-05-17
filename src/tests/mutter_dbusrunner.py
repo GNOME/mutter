@@ -270,6 +270,8 @@ def wrap_call(args, wrapper):
 
     if wrapper == 'gdb':
         args = ['gdb', '-ex', 'r', '-ex', 'bt full', '--args'] + args
+    elif wrapper == 'rr':
+        args = ['rr', 'record'] + args
     elif wrapper:
         args = wrapper.split(' ') + args
 
