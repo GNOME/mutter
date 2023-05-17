@@ -518,6 +518,7 @@ build-wayland-only@x86_64:
         ./src/tests/meta-dbus-runner.py
           --launch=pipewire
           --launch=wireplumber
+          --
           meson test
             -C build
             --setup plain
@@ -680,6 +681,7 @@ dist-mutter:
         ./src/tests/meta-dbus-runner.py
           --launch=pipewire
           --launch=wireplumber
+          --
           meson dist -C build
   artifacts:
     expire_in: 7 day

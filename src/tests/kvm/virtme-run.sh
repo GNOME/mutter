@@ -40,6 +40,10 @@ SCRIPT="\
   $(printf "\"%s\" " "${@:6}")\
 "
 
+if [ -v "$MUTTER_TEST_ROOT" ]; then
+  ISOLATE_DIRS_ARGS="--rwdir=$MUTTER_TEST_ROOT"
+fi
+
 echo Running tests in virtual machine ...
 virtme-run \
   --memory=1024M \
@@ -47,6 +51,7 @@ virtme-run \
   --pwd \
   --kimg "$IMAGE" \
   --script-sh "sh -c \"$SCRIPT\"" \
+  $ISOLATE_DIRS_ARGS \
   --qemu-opts -cpu host,pdcm=off -smp 2
 VM_RESULT=$?
 if [ $VM_RESULT != 0 ]; then

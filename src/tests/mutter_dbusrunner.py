@@ -8,6 +8,7 @@ import subprocess
 import getpass
 import argparse
 import logind_helpers
+import tempfile
 from collections import OrderedDict
 from dbusmock import DBusTestCase
 from dbus.mainloop.glib import DBusGMainLoop
@@ -286,12 +287,38 @@ def meta_run(klass):
     parser = argparse.ArgumentParser()
     parser.add_argument('--kvm', action='store_true', default=False)
     parser.add_argument('--launch', action='append', default=[])
+    parser.add_argument('--no-isolate-dirs', action='store_true', default=False)
     (args, rest) = parser.parse_known_args(sys.argv)
 
     rest.pop(0)
+    if not rest:
+        parser.error('Command or separator `--` not found')
     if rest[0] == '--':
-      rest.pop(0)
+        rest.pop(0)
+    else:
+        print('WARNING: Command or separator `--` not found', file=sys.stderr)
 
+    if args.no_isolate_dirs:
+        return meta_run_klass(klass, args, rest)
+
+    test_root = os.getenv('MUTTER_DBUS_RUNNER_TEST_ROOT')
+    if test_root:
+        print('Reusing MUTTER_DBUS_RUNNER_TEST_ROOT', test_root, file=sys.stderr)
+        return meta_run_klass(klass, args, rest)
+
+    with tempfile.TemporaryDirectory(prefix='mutter-testroot-',
+                                     ignore_cleanup_errors=True) as test_root:
+        env_dirs = ['HOME', 'TMPDIR', 'XDG_RUNTIME_DIR', 'XDG_CONFIG_DIR']
+        os.environ['MUTTER_DBUS_RUNNER_TEST_ROOT'] = test_root
+        print('Setup MUTTER_DBUS_RUNNER_TEST_ROOT as', test_root, file=sys.stderr)
+        for env_dir in env_dirs:
+            directory = os.path.join(test_root, env_dir.lower())
+            os.mkdir(directory, mode=0o700)
+            os.environ[env_dir] = directory
+            print('Setup', env_dir, 'as', directory, file=sys.stderr)
+        return meta_run_klass(klass, args, rest)
+
+def meta_run_klass(klass, args, rest):
     result = 1
 
     if os.getenv('META_DBUS_RUNNER_ACTIVE') == None:

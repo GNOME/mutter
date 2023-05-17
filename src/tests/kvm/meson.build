@@ -50,7 +50,7 @@ foreach test_case: privileged_tests
     args: [
       kernel_image_path,
       meta_dbus_runner.full_path(),
-      '--kvm',
+      '--kvm --',
       meson.current_build_dir(),
       vm_env,
       kvm_wrapper,
