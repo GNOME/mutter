@@ -53,6 +53,13 @@ typedef struct {
 
 #define META_SIDE_TEST_CASE_NONE G_MAXINT32
 
+static gboolean test_case_do (TestCase    *test,
+                              const char  *filename,
+                              int          line_no,
+                              int          argc,
+                              char       **argv,
+                              GError     **error);
+
 static void
 set_true_cb (gboolean *value)
 {
@@ -724,6 +731,113 @@ test_case_clear_struts (TestCase  *test,
 
       meta_workspace_set_builtin_struts (workspace, struts);
     }
+
+  return TRUE;
+}
+
+typedef struct
+{
+  TestCase *test_case;
+  const char *filename;
+  int line_no;
+  int argc;
+  char **argv;
+  GError **error;
+  GObject *instance;
+  gulong handler_id;
+} TestCaseArgs;
+
+static void
+test_case_signal_cb (TestCaseArgs *test_case_args)
+{
+  g_autoptr (GError) error = NULL;
+
+  g_signal_handler_disconnect (test_case_args->instance,
+                               test_case_args->handler_id);
+
+  if (!test_case_do (test_case_args->test_case,
+                     test_case_args->filename,
+                     test_case_args->line_no,
+                     test_case_args->argc,
+                     test_case_args->argv,
+                     &error))
+    g_warning ("Failed to run test command in signal handler: %s",
+               error->message);
+
+  g_strfreev (test_case_args->argv);
+  g_free (test_case_args);
+}
+
+static gboolean
+test_case_parse_signal (TestCase *test,
+                        int       argc,
+                        char    **argv,
+                        char    **out_signal_name,
+                        GObject **out_signal_instance,
+                        GError  **error)
+{
+  const char *signal_start;
+  GObject *instance_obj = NULL;
+  const char *signal_name;
+
+  *out_signal_instance = NULL;
+  *out_signal_name = NULL;
+
+  if (argc < 3 || !g_str_equal (argv[1], "=>"))
+    BAD_COMMAND ("usage: [window-id]::signal => command");
+
+  signal_start = strstr (argv[0], "::");
+  if (!signal_start)
+    BAD_COMMAND ("Invalid syntax, no signal parameter");
+
+  signal_name = signal_start + 2;
+
+  if (!strlen (signal_name))
+    BAD_COMMAND ("Invalid syntax, empty signal name");
+
+  if (signal_start != argv[0])
+    {
+      g_autofree char *instance = g_strndup (argv[0], signal_start - argv[0]);
+      MetaTestClient *client;
+      const char *window_id;
+      MetaWindow *window;
+
+      if (!test_case_parse_window_id (test, instance, &client,
+                                      &window_id, error))
+        BAD_COMMAND ("Cannot find window for instance %s", instance);
+
+      window = meta_test_client_find_window (client, window_id, error);
+      if (!window)
+        BAD_COMMAND ("Cannot find window for window id %s", window_id);
+
+      instance_obj = G_OBJECT (window);
+    }
+
+  if (!instance_obj)
+    {
+      if (g_str_equal (signal_name, "monitors-changed"))
+        {
+          MetaBackend *backend = meta_context_get_backend (test->context);
+          MetaMonitorManager *monitor_manager =
+            meta_backend_get_monitor_manager (backend);
+
+          instance_obj = G_OBJECT (monitor_manager);
+        }
+      else
+        {
+          BAD_COMMAND ("Unknown global signal name '%s'", signal_name);
+        }
+    }
+
+  if (!g_signal_lookup (signal_name, G_TYPE_FROM_INSTANCE (instance_obj)))
+    {
+      BAD_COMMAND ("No signal '%s' in object of type %s",
+                   signal_name,
+                   g_type_name_from_instance ((GTypeInstance *) instance_obj));
+    }
+
+  *out_signal_instance = g_object_ref (instance_obj);
+  *out_signal_name = g_strdup (signal_name);
 
   return TRUE;
 }
@@ -1793,6 +1907,33 @@ test_case_do (TestCase    *test,
           g_object_remove_weak_pointer (G_OBJECT (window_actor),
                                         (gpointer *) &window_actor);
         }
+    }
+  else if (argc > 2 && g_str_equal (argv[1], "=>"))
+    {
+      g_autoptr (GObject) signal_instance = NULL;
+      g_autofree char *signal_name = NULL;
+      TestCaseArgs *test_case_args;
+
+      if (!test_case_parse_signal (test, argc, argv,
+                                   &signal_name, &signal_instance, error))
+        return FALSE;
+
+      g_debug ("Connected to signal '%s' on object %p (%s)",
+               signal_name, signal_instance,
+               g_type_name_from_instance ((GTypeInstance *) signal_instance));
+
+      test_case_args = g_new0 (TestCaseArgs, 1);
+      test_case_args->test_case = test;
+      test_case_args->filename = filename;
+      test_case_args->line_no = line_no;
+      test_case_args->argc = argc - 2;
+      test_case_args->argv = g_strdupv (&argv[2]);
+      test_case_args->instance = signal_instance;
+      test_case_args->handler_id =
+        g_signal_connect_swapped (signal_instance,
+                                  signal_name,
+                                  G_CALLBACK (test_case_signal_cb),
+                                  test_case_args);
     }
   else
     {
