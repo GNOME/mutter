@@ -63,8 +63,6 @@ variables:
                       mutter mutter-devel \
                       gnome-shell &&
 
-      dnf clean all &&
-
       if [[ x"$(uname -m )" = "xx86_64" ]] ; then
         meson setup build -Dkvm_tests=true &&
         ninja -C build src/tests/kvm/bzImage &&
