@@ -66,7 +66,7 @@ variables:
       dnf clean all &&
 
       if [[ x"$(uname -m )" = "xx86_64" ]] ; then
-        meson build -Dkvm_tests=true &&
+        meson setup build -Dkvm_tests=true &&
         ninja -C build src/tests/kvm/bzImage &&
         mkdir -p /opt/mutter &&
         cp build/src/tests/kvm/bzImage /opt/mutter/bzImage &&
@@ -235,7 +235,7 @@ check-code-style:
     - .build-mutter-base
   stage: build
   script:
-    - meson . build
+    - meson setup . build
         --prefix /usr
         --werror
         --fatal-meson-warnings
@@ -277,7 +277,7 @@ build-without-opengl-and-glx@x86_64:
   needs:
     - build-fedora-container@x86_64
   script:
-    - meson . build --werror --prefix /usr
+    - meson setup . build --werror --prefix /usr
         -Dbuildtype=debugoptimized
         -Dopengl=false
         -Dglx=false
@@ -297,7 +297,7 @@ build-without-native-backend-and-wayland@x86_64:
   needs:
     - build-fedora-container@x86_64
   script:
-    - meson . build --werror --prefix /usr
+    - meson setup . build --werror --prefix /usr
         -Dbuildtype=debugoptimized
         -Dnative_backend=false
         -Dudev=false
@@ -319,7 +319,7 @@ build-wayland-only@x86_64:
   needs:
     - build-fedora-container@x86_64
   script:
-    - meson . build --werror --prefix /usr
+    - meson setup . build --werror --prefix /usr
         -Dbuildtype=debugoptimized
         -Dwayland=true
         -Dxwayland=false
@@ -463,7 +463,7 @@ can-build-gnome-shell@x86_64:
     - meson install --no-rebuild -C build
   script:
     - .gitlab-ci/checkout-gnome-shell.sh
-    - meson gnome-shell gnome-shell/build --prefix /usr -Dman=false
+    - meson setup gnome-shell gnome-shell/build --prefix /usr -Dman=false
     - meson install -C gnome-shell/build
 
 test-mutter-coverity:
@@ -481,7 +481,7 @@ test-mutter-coverity:
   allow_failure: true
   script:
     - .gitlab-ci/download-coverity-tarball.sh
-    - CC=clang meson coverity-build -Dprofiler=false
+    - CC=clang meson setup coverity-build -Dprofiler=false
     - ./coverity/cov-analysis-linux64-*/bin/cov-build --dir cov-int meson compile -C coverity-build
     - tar czf cov-int.tar.gz cov-int
     - curl https://scan.coverity.com/builds?project=mutter
@@ -503,7 +503,7 @@ dist-mutter:
   needs:
     - build-fedora-container@x86_64
   script:
-    - meson . build --werror --prefix /usr
+    - meson setup . build --werror --prefix /usr
         -Dbuildtype=debugoptimized
     - glib-compile-schemas $GSETTINGS_SCHEMA_DIR
     - xvfb-run -a -s "$XVFB_SERVER_ARGS"
@@ -534,7 +534,7 @@ reference:
     - job: build-fedora-container@x86_64
       artifacts: false
   script:
-    - meson . build --werror -Ddocs=true -Dtests=false
+    - meson setup . build --werror -Ddocs=true -Dtests=false
     - ninja -C build
     - mkdir references
     - mv build/doc/reference/{cally/cally,clutter/clutter,cogl/cogl,cogl-pango/cogl-pango,meta/meta} references/
