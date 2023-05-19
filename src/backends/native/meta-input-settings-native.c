@@ -138,20 +138,9 @@ set_matrix (GTask *task)
   float *matrix = g_task_get_task_data (task);
   cairo_matrix_t dev_matrix;
 
-  if (clutter_input_device_get_device_type (device) ==
-      CLUTTER_TOUCHSCREEN_DEVICE ||
-      meta_input_device_native_get_mapping_mode_in_impl (device) ==
-      META_INPUT_DEVICE_MAPPING_ABSOLUTE)
-    {
-      cairo_matrix_init (&dev_matrix,
-                         matrix[0], matrix[3], matrix[1],
-                         matrix[4], matrix[2], matrix[5]);
-    }
-  else
-    {
-      cairo_matrix_init_identity (&dev_matrix);
-    }
-
+  cairo_matrix_init (&dev_matrix,
+                     matrix[0], matrix[3], matrix[1],
+                     matrix[4], matrix[2], matrix[5]);
   g_object_set (device, "device-matrix", &dev_matrix, NULL);
 
   return G_SOURCE_REMOVE;
