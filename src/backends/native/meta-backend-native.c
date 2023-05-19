@@ -647,8 +647,11 @@ init_gpus (MetaBackendNative  *native,
       if (!add_drm_device (native, device, &device_error))
         {
           if (meta_backend_is_headless (backend) &&
-              g_error_matches (device_error, G_IO_ERROR,
-                               G_IO_ERROR_PERMISSION_DENIED))
+              (g_error_matches (device_error, G_IO_ERROR,
+                                G_IO_ERROR_PERMISSION_DENIED) ||
+               (g_strcmp0 (g_getenv ("RUNNING_UNDER_RR"), "1") == 0 &&
+                g_error_matches (device_error, G_IO_ERROR,
+                                 G_IO_ERROR_NOT_FOUND))))
             {
               meta_topic (META_DEBUG_BACKEND,
                           "Ignoring unavailable gpu '%s': %s'",
