@@ -1592,6 +1592,9 @@ meta_input_device_native_translate_coordinates_in_impl (ClutterInputDevice *devi
   float stage_width, stage_height;
   double x_d, y_d;
 
+  if (device_evdev->mapping_mode == META_INPUT_DEVICE_MAPPING_RELATIVE)
+    return;
+
   meta_viewport_info_get_extents (viewports, &stage_width, &stage_height);
   x_d = *x / stage_width;
   y_d = *y / stage_height;
