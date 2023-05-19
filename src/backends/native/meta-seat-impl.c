@@ -1300,15 +1300,16 @@ notify_relative_tool_motion_in_impl (ClutterInputDevice *input_device,
 
   device_native = META_INPUT_DEVICE_NATIVE (input_device);
   seat_impl = seat_impl_from_device (input_device);
-  x = device_native->pointer_x + dx;
-  y = device_native->pointer_y + dy;
 
   meta_seat_impl_filter_relative_motion (seat_impl,
                                          input_device,
-                                         seat_impl->pointer_x,
-                                         seat_impl->pointer_y,
+                                         device_native->pointer_x,
+                                         device_native->pointer_y,
                                          &dx,
                                          &dy);
+
+  x = device_native->pointer_x + dx;
+  y = device_native->pointer_y + dy;
 
   event = new_absolute_motion_event (seat_impl, input_device, time_us,
                                      x, y, axes);
