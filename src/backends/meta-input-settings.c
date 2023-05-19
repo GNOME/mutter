@@ -1026,19 +1026,6 @@ update_tablet_keep_aspect (MetaInputSettings  *input_settings,
   if (!info)
     return;
 
-#ifdef HAVE_LIBWACOM
-  {
-    WacomDevice *wacom_device;
-
-    wacom_device = meta_input_device_get_wacom_device (META_INPUT_DEVICE (device));
-
-    /* Keep aspect only makes sense in external tablets */
-    if (wacom_device &&
-        libwacom_get_integration_flags (wacom_device) != WACOM_DEVICE_INTEGRATED_NONE)
-      return;
-  }
-#endif
-
   keep_aspect = g_settings_get_boolean (settings, "keep-aspect");
 
   if (keep_aspect)
@@ -1061,19 +1048,6 @@ update_tablet_mapping (MetaInputSettings  *input_settings,
   if ((clutter_input_device_get_capabilities (device) &
        CLUTTER_INPUT_CAPABILITY_TABLET_TOOL) == 0)
     return;
-
-#ifdef HAVE_LIBWACOM
-  {
-    WacomDevice *wacom_device;
-
-    wacom_device = meta_input_device_get_wacom_device (META_INPUT_DEVICE (device));
-
-    /* Tablet mapping only makes sense on external tablets */
-    if (wacom_device &&
-        (libwacom_get_integration_flags (wacom_device) != WACOM_DEVICE_INTEGRATED_NONE))
-      return;
-  }
-#endif
 
   input_settings_class = META_INPUT_SETTINGS_GET_CLASS (input_settings);
   mapping = g_settings_get_enum (settings, "mapping");
