@@ -386,6 +386,7 @@ build-wayland-only@x86_64:
             --no-suite 'mutter/kvm'
             --no-rebuild
             --timeout-multiplier 10
+            --print-errorlogs
   artifacts:
     reports:
       junit: "build/meson-logs/testlog-plain.junit.xml"
@@ -412,6 +413,7 @@ test-mutter-kvm@x86_64:
         --timeout-multiplier 10
         --setup plain
         --suite 'mutter/kvm'
+        --print-errorlogs
   needs:
     - build-mutter@x86_64
   artifacts:
