@@ -63,3 +63,5 @@ struct _MetaEdge
   MetaSide side_type;
   MetaEdgeType  edge_type;
 };
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaStrut, g_free);

@@ -1552,7 +1552,7 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
 static gboolean
 meta_window_x11_update_struts (MetaWindow *window)
 {
-  GSList *old_struts;
+  g_autoslist (GSList) old_struts = NULL;
   GSList *new_struts;
   GSList *old_iter, *new_iter;
   uint32_t *struts = NULL;
@@ -1564,7 +1564,7 @@ meta_window_x11_update_struts (MetaWindow *window)
   meta_verbose ("Updating struts for %s", window->desc);
 
   Window xwindow = meta_window_x11_get_xwindow (window);
-  old_struts = window->struts;
+  old_struts = g_steal_pointer (&window->struts);
   new_struts = NULL;
 
   if (meta_prop_get_cardinal_list (window->display->x11_display,
@@ -1710,7 +1710,6 @@ meta_window_x11_update_struts (MetaWindow *window)
   changed = (old_iter != NULL || new_iter != NULL);
 
   /* Update appropriately */
-  g_slist_free_full (old_struts, g_free);
   window->struts = new_struts;
   return changed;
 }
