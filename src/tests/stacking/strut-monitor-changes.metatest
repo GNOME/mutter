@@ -31,3 +31,12 @@ add_strut 0 0 MONITOR_WIDTH/2 MONITOR_HEIGHT left
 wait_reconfigure w/1
 assert_position w/1 MONITOR_WIDTH/2 MONITOR_HEIGHT*0.2
 assert_size w/1 MONITOR_WIDTH/2 MONITOR_HEIGHT*0.8
+
+::monitors-changed => clear_struts left
+::monitors-changed => add_strut 0 0 MONITOR_WIDTH/2 MONITOR_HEIGHT left
+::monitors-changed => dispatch
+reload_monitors
+
+wait_reconfigure w/1
+assert_position w/1 MONITOR_WIDTH/2 MONITOR_HEIGHT*0.2
+assert_size w/1 MONITOR_WIDTH/2 MONITOR_HEIGHT*0.8
