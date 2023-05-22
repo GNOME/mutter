@@ -506,6 +506,9 @@ _clutter_actor_box_enlarge_for_effects (ClutterActorBox *box)
 {
   float width, height;
 
+  if (clutter_actor_box_get_area (box) == 0.0)
+    return;
+
   /* The aim here is that for a given rectangle defined with floating point
    * coordinates we want to determine a stable quantized size in pixels
    * that doesn't vary due to the original box's sub-pixel position.
