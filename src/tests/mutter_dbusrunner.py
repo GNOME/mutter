@@ -276,6 +276,7 @@ def wrap_call(args, wrapper):
         args = wrapper.split(' ') + args
 
     p = subprocess.Popen(args, env=env)
+    print('Process', args, 'started with pid', p.pid, file=sys.stderr)
     return p.wait()
 
 
