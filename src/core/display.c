@@ -2494,6 +2494,7 @@ meta_display_sanity_check_timestamps (MetaDisplay *display,
               meta_warning ("%s appears to be one of the offending windows "
                             "with a timestamp of %u.  Working around...",
                             window->desc, window->net_wm_user_time);
+              window->net_wm_user_time_set = FALSE;
               meta_window_set_user_time (window, timestamp);
             }
 
