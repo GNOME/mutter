@@ -262,8 +262,7 @@ workspace_free_all_struts (MetaWorkspace *workspace)
   if (workspace->all_struts == NULL)
     return;
 
-  g_slist_free_full (workspace->all_struts, g_free);
-  workspace->all_struts = NULL;
+  g_clear_slist (&workspace->all_struts, g_free);
 }
 
 /**
@@ -278,8 +277,7 @@ workspace_free_builtin_struts (MetaWorkspace *workspace)
   if (workspace->builtin_struts == NULL)
     return;
 
-  g_slist_free_full (workspace->builtin_struts, g_free);
-  workspace->builtin_struts = NULL;
+  g_clear_slist (&workspace->all_struts, g_free);
 }
 
 /* Ensure that the workspace is empty by making sure that
