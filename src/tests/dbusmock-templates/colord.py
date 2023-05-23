@@ -67,7 +67,7 @@ def CreateDevice(self, device_id, scope, props):
     username = get_username(uid)
     device_path = PATH_PREFIX + '/devices/' + \
         escape_unit_name(device_id) + \
-        '_' + username + '_' + str(uid)
+        '_' + escape_unit_name(username) + '_' + str(uid)
     self.devices[device_id] = device_path
     self.AddObject(device_path,
                    DEVICE_IFACE,
@@ -100,7 +100,7 @@ def CreateProfileWithFd(self, profile_id, scope, handle, props):
     username = get_username(uid)
     profile_path = PATH_PREFIX + '/profiles/' + \
         escape_unit_name(profile_id) + \
-        '_' + username + '_' + str(uid)
+        '_' + escape_unit_name(username) + '_' + str(uid)
 
     if profile_id in self.profiles:
         raise ColordAlreadyExistsException()
