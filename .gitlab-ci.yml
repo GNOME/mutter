@@ -1,5 +1,5 @@
 include:
-  - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/34f4ade99434043f88e164933f570301fd18b125/templates/fedora.yml'
+  - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/28b430bd847da130d7c678772b8be260abaab5b3/templates/fedora.yml'
   - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/34f4ade99434043f88e164933f570301fd18b125/templates/ci-fairy.yml'
 
 stages:
@@ -18,7 +18,8 @@ variables:
 .mutter.fedora@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 38
-    BASE_TAG: '2023-05-19.0'
+    BASE_TAG: '2023-05-24.1'
+    FDO_USER: 'meta-user'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
       clang
@@ -39,6 +40,9 @@ variables:
 
     FDO_DISTRIBUTION_EXEC: |
       set -e
+      # Enable sudo for $FDO_USER
+      echo "%$FDO_USER ALL = (ALL) NOPASSWD: ALL" > /etc/sudoers.d/99_fdo-user
+
       dnf install -y 'dnf-command(builddep)'
 
       dnf builddep -y mutter --setopt=install_weak_deps=False
@@ -60,6 +64,9 @@ variables:
       rpm -e --nodeps gnome-bluetooth-libs-devel \
                       mutter mutter-devel \
                       gnome-shell
+
+      # Replace pkexec with sudo, to make meson use it if needed
+      ln -sfv /usr/bin/sudo /usr/bin/pkexec
 
       if [[ x"$(uname -m )" = "xx86_64" ]] ; then
         meson setup build -Dkvm_tests=true
@@ -280,7 +287,7 @@ build-without-opengl-and-glx@x86_64:
         -Degl_device=true
         -Dwayland_eglstream=true
     - meson compile -C build
-    - meson install -C build
+    - sudo meson install --no-rebuild -C build
   artifacts:
     paths:
       - build/meson-logs
@@ -302,7 +309,7 @@ build-without-native-backend-and-wayland@x86_64:
         -Dcore_tests=false
         -Dnative_tests=false
     - meson compile -C build
-    - meson install -C build
+    - sudo meson install --no-rebuild -C build
   artifacts:
     paths:
       - build/meson-logs
@@ -322,7 +329,7 @@ build-wayland-only@x86_64:
         -Dcore_tests=false
         -Dnative_tests=false
     - meson compile -C build
-    - meson install -C build
+    - sudo meson install --no-rebuild -C build
   artifacts:
     paths:
       - build/meson-logs
@@ -399,7 +406,8 @@ test-mutter-kvm@x86_64:
   tags:
     - kvm
   script:
-      meson test -C build
+    - sudo chgrp $FDO_USER /dev/kvm
+    - meson test -C build
         --no-rebuild
         --timeout-multiplier 10
         --setup plain
@@ -456,11 +464,11 @@ can-build-gnome-shell@x86_64:
   needs:
     - build-mutter@x86_64
   before_script:
-    - meson install --no-rebuild -C build
+    - sudo meson install --no-rebuild -C build
   script:
     - .gitlab-ci/checkout-gnome-shell.sh
     - meson setup gnome-shell gnome-shell/build --prefix /usr -Dman=false
-    - meson install -C gnome-shell/build
+    - sudo meson install -C gnome-shell/build
 
 test-mutter-coverity:
   rules:
