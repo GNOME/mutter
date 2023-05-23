@@ -2,7 +2,7 @@
 
 /**
  * MetaSurfaceActor:
- * 
+ *
  * An actor representing a surface in the scene graph
  *
  * MetaSurfaceActor is an abstract class which represents a surface in the

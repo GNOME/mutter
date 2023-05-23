@@ -24,7 +24,7 @@
 
 /**
  * MetaBackendX11:
- * 
+ *
  * A X11 MetaBackend
  *
  * MetaBackendX11 is an implementation of #MetaBackend using X and X

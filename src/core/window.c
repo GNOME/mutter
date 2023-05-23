@@ -22,7 +22,7 @@
 
 /**
  * MetaWindow:
- * 
+ *
  * A display-agnostic abstraction for a window.
  *
  * #MetaWindow is the core abstraction in Mutter of a window. It has the
@@ -36,7 +36,7 @@
  * [method@Meta.Window.get_window_type].
  *
  * Common API for windows include:
- * 
+ *
  * - Minimizing: [method@Meta.Window.minimize] / [method@Meta.Window.unminimize]
  * - Maximizing: [method@Meta.Window.maximize] / [method@Meta.Window.unmaximize]
  * - Fullscreen: [method@Meta.Window.make_fullscreen] / [method@Meta.Window.unmake_fullscreen]
@@ -716,7 +716,7 @@ meta_window_class_init (MetaWindowClass *klass)
    *
    * This is emitted when the position of a window might
    * have changed.
-   * 
+   *
    * Specifically, this is emitted when the position of
    * the toplevel window has changed, or when the position
    * of the client window has changed.
@@ -749,7 +749,7 @@ meta_window_class_init (MetaWindowClass *klass)
    *
    * This is emitted when the size of a window might
    * have changed.
-   * 
+   *
    * Specifically, this is emitted when the size of
    * the toplevel window has changed, or when the
    * size of the client window has changed.
@@ -3980,7 +3980,7 @@ meta_window_move_resize_internal (MetaWindow          *window,
  * Moves the window to the desired location on window's assigned
  * workspace, using the northwest edge of the frame as the reference,
  * instead of the actual window's origin, but only if a frame is present.
- * 
+ *
  * Otherwise, acts identically to meta_window_move().
  */
 void
@@ -4434,7 +4434,7 @@ meta_window_frame_rect_to_client_rect (MetaWindow    *window,
  *
  * Gets the rectangle that bounds @window that is what the user thinks of
  * as the edge of the window.
- * 
+ *
  * This doesn't include any extra reactive area that we or the client
  * adds to the window, or any area that the client adds to draw a client-side shadow.
  */
@@ -5296,7 +5296,7 @@ meta_window_set_focused_internal (MetaWindow *window,
  * @rect: (out): rectangle into which to store the returned geometry.
  *
  * Gets the location of the icon corresponding to the window.
- * 
+ *
  * The location will be provided set by the task bar or other user interface
  * element displaying the icon, and is relative to the root window.
  *
@@ -5325,7 +5325,7 @@ meta_window_get_icon_geometry (MetaWindow    *window,
  * @rect: (nullable): rectangle with the desired geometry or %NULL.
  *
  * Sets or unsets the location of the icon corresponding to the window.
- * 
+ *
  * If set, the location should correspond to a dock, task bar or other user
  * interface element displaying the icon, and is relative to the root window.
  */
@@ -5968,7 +5968,7 @@ meta_window_same_application (MetaWindow *window,
  * meta_window_is_client_decorated:
  *
  * Check if if the window has decorations drawn by the client.
- * 
+ *
  * `window->decorated` refers only to whether we should add decorations.
  */
 gboolean
@@ -6255,7 +6255,7 @@ meta_window_stack_just_above (MetaWindow *window,
  *
  * The user time represents a timestamp for the last time the user
  * interacted with this window.
- * 
+ *
  * Note this property is only available for non-override-redirect windows.
  *
  * The property is set by Mutter initially upon window creation,
@@ -6435,7 +6435,7 @@ meta_window_get_frame (MetaWindow *window)
  * @window: a #MetaWindow
  *
  * Determines if the window should be drawn with a focused appearance.
- * 
+ *
  * This is true for focused windows but also true for windows with a focused modal
  * dialog attached.
  *
@@ -6517,7 +6517,7 @@ meta_window_get_window_type (MetaWindow *window)
  * @window: a #MetaWindow
  *
  * Gets the [class@Meta.Workspace] that the window is currently displayed on.
- * 
+ *
  * If the window is on all workspaces, returns the currently active
  * workspace.
  *
@@ -7020,7 +7020,7 @@ meta_window_get_frame_bounds (MetaWindow *window)
  * @window: a #MetaWindow
  *
  * Tests if @window should be attached to its parent window.
- * 
+ *
  * If the `attach_modal_dialogs` option is not enabled, this will
  * always return %FALSE.
  *
@@ -7052,7 +7052,7 @@ has_attached_foreach_func (MetaWindow *window,
  * @window: a #MetaWindow
  *
  * Tests if @window has any transients attached to it.
- * 
+ *
  * If the `attach_modal_dialogs` option is not enabled, this will
  * always return %FALSE.
  *

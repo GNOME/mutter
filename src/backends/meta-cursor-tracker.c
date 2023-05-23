@@ -21,7 +21,7 @@
 
 /**
  * MetaCursorTracker:
- * 
+ *
  * Mutter cursor tracking helper. Originally only tracking
  * the cursor image, now more of a "core pointer abstraction"
  */

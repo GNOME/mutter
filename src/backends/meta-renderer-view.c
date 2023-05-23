@@ -17,7 +17,7 @@
 
 /**
  * MetaRendererView:
- * 
+ *
  * Renders (a part of) the global stage.
  *
  * A MetaRendererView object is responsible for rendering (a part of) the

@@ -20,7 +20,7 @@
 
 /**
  * MetaDnDActor:
- * 
+ *
  * Actor for painting the drag and drop surface
  *
  */

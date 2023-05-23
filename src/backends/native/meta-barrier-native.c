@@ -24,7 +24,7 @@
 
 /**
  * MetaBarrierImplNative:
- * 
+ *
  * Pointer barriers implementation for the native backend
  */
 

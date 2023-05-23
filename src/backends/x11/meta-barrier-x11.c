@@ -25,7 +25,7 @@
 
 /**
  * MetaBarrierImplX11:
- * 
+ *
  * Pointer barriers implementation for X11
  */
 

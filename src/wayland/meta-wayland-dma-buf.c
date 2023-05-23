@@ -27,7 +27,7 @@
 
 /**
  * MetaWaylandDmaBuf
- * 
+ *
  * Handles passing DMA-BUFs in Wayland
  *
  * The MetaWaylandDmaBuf namespace contains several objects and functions to

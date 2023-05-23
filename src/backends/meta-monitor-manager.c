@@ -26,7 +26,7 @@
 
 /**
  * MetaMonitorManager:
- * 
+ *
  * A manager for multiple monitors
  *
  * #MetaMonitorManager is an abstract class which contains methods to handle

@@ -2,7 +2,7 @@
 
 /**
  * MetaBackgroundGroup:
- * 
+ *
  * Container for background actors
  *
  * This class is a subclass of ClutterActor with special handling for

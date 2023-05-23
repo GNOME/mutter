@@ -38,7 +38,7 @@ static guint signals[LAST_SIGNAL] = { 0 };
  * MetaBackgroundImageCache:
  *
  * Caches loading of textures for backgrounds.
- * 
+ *
  * There's actually nothing background specific about it, other than it is tuned
  * to work well for large images as typically are used for backgrounds.
  */
@@ -216,7 +216,7 @@ out:
  *
  * Loads an image to use as a background, or returns a reference to an
  * image that is already in the process of loading or loaded.
- * 
+ *
  * In either case, what is returned is a [class@Meta.BackgroundImage] which can be dereferenced
  * to get a [iface@Cogl.Texture]. If [method@Meta.BackgroundImage.is_loaded] returns %TRUE,
  * the background is loaded, otherwise the [signal@Meta.BackgroundImage::loaded]

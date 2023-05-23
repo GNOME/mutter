@@ -23,7 +23,7 @@
 
 /**
  * MetaShapedTexture:
- * 
+ *
  * A ClutterContent which draws a shaped texture
  *
  * A MetaShapedTexture draws a #CoglTexture (often provided from a client

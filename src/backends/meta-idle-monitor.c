@@ -22,7 +22,7 @@
 
 /**
  * MetaIdleMonitor:
- * 
+ *
  * Mutter idle counter (similar to X's IDLETIME)
  */
 

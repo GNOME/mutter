@@ -18,7 +18,7 @@
 
 /**
  * MetaColorManager:
- * 
+ *
  * Interfaces for managing color-related properties like
  * color look-up tables and color spaces.
  *

@@ -22,7 +22,7 @@
 
 /*
  * bell:
- * 
+ *
  * Ring the bell or flash the screen
  *
  * Sometimes, X programs "ring the bell", whatever that means. Mutter lets

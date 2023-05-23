@@ -26,7 +26,7 @@
 
 /**
  * MetaMonitorManagerXrandr:
- * 
+ *
  * A subclass of #MetaMonitorManager using XRadR
  *
  * #MetaMonitorManagerXrandr is a subclass of #MetaMonitorManager which

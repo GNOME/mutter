@@ -2,7 +2,7 @@
 
 /**
  * MetaCompositor:
- * 
+ *
  * Compositor API
  *
  * At a high-level, a window is not-visible or visible. When a

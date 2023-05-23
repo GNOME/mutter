@@ -20,7 +20,7 @@
 
 /**
  * MetaGroup:(skip)
- * 
+ *
  * Mutter window groups
  */
 

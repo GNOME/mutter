@@ -171,7 +171,7 @@ meta_add_verbose_topic (MetaDebugTopic topic)
  * @topic: Topic for which logging will be stopped
  *
  * Stop printing log messages for the given topic @topic.
- * 
+ *
  * Note that this method does not stack with [func@Meta.add_verbose_topic];
  * i.e. if two calls to [func@Meta.add_verbose_topic] for the same
  * topic are made, one call to [func@Meta.remove_verbose_topic]  will

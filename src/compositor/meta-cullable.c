@@ -58,7 +58,7 @@ region_apply_transform_expand_maybe_ref (cairo_region_t    *region,
 
 /**
  * MetaCullable:
- * 
+ *
  * CPU culling operations for efficient drawing
  *
  * When we are painting a stack of 5-10 large actors, the standard

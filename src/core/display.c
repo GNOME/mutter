@@ -22,7 +22,7 @@
 
 /**
  * MetaDisplay:
- * 
+ *
  * Mutter display representation
  *
  * The display is represented as a #MetaDisplay struct.
@@ -388,7 +388,7 @@ meta_display_class_init (MetaDisplayClass *klass)
    *
    * The signal will be emitted to indicate that the compositor 
    * should show a message during restart.
-   * 
+   *
    * This is emitted when [func@Meta.restart] is called, either by Mutter
    * internally or by the embedding compositor. The message should be
    * immediately added to the Clutter stage in its final form -
@@ -417,10 +417,10 @@ meta_display_class_init (MetaDisplayClass *klass)
    *
    * The signal is emitted to indicate that compositor
    * should reexec the process.
-   * 
+   *
    * This is emitted when [func@Meta.restart] is called,
    * either by Mutter internally or by the embedding compositor.
-   * 
+   *
    * See also [signal@Meta.Display::show-restart-message].
    *
    * Returns: %FALSE to indicate that the compositor could not

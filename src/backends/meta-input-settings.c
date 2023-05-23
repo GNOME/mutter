@@ -21,7 +21,7 @@
 
 /**
  * MetaInputSettings:
- * 
+ *
  * Mutter input device configuration
  */
 

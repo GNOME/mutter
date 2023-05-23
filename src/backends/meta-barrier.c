@@ -2,7 +2,7 @@
 
 /**
  * MetaBarrier:
- * 
+ *
  * Pointer barriers
  */
 

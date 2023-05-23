@@ -19,7 +19,7 @@
 
 /**
  * Errors:
- * 
+ *
  * Mutter X error handling
  */
 

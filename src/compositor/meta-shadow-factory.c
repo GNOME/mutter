@@ -188,7 +188,7 @@ meta_shadow_unref (MetaShadow *shadow)
  *
  * Paints the shadow at the given position, for the specified actual
  * size of the region. 
- * 
+ *
  * Since a #MetaShadow can be shared between different sizes with 
  * the same extracted [struct@Meta.WindowShape] the size needs to be passed in here.
  */

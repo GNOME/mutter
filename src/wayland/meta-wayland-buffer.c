@@ -24,7 +24,7 @@
 
 /**
  * MetaWaylandBuffer
- * 
+ *
  * A wrapper for wayland buffers
  *
  * #MetaWaylandBuffer is a general wrapper around wl_buffer, the basic way of

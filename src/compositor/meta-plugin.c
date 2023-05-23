@@ -21,7 +21,7 @@
 
 /**
  * MetaPlugin:
- * 
+ *
  * Entry point for plugins
  */
 

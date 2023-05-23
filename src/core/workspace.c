@@ -21,7 +21,7 @@
 
 /**
  * MetaWorkspace:
- * 
+ *
  * Workspaces
  *
  * A workspace is a set of windows which all live on the same

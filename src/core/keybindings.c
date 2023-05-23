@@ -23,7 +23,7 @@
 
 /**
  * MetaKeybinding:
- * 
+ *
  * Key bindings
  */
 

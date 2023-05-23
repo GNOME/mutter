@@ -22,7 +22,7 @@
 
 /**
  * Preferences:
- * 
+ *
  * Mutter preferences
  */
 

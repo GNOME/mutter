@@ -20,7 +20,7 @@
 
 /**
  * MetaFeedbackActor:
- * 
+ *
  * Actor for painting user interaction feedback
  */
 

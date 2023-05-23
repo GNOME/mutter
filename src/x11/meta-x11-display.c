@@ -22,7 +22,7 @@
 
 /**
  * MetaX11Display:
- * 
+ *
  * Mutter X display handler
  *
  * The X11 display is represented as a #MetaX11Display struct.

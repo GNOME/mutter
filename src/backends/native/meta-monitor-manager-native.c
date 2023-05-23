@@ -24,7 +24,7 @@
 
 /**
  * MetaMonitorManagerNative:
- * 
+ *
  * A subclass of #MetaMonitorManager using Linux DRM
  *
  * #MetaMonitorManagerNative is a subclass of #MetaMonitorManager which

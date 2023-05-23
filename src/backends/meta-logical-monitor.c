@@ -21,7 +21,7 @@
 
 /**
  * MetaLogicalMonitor:
- * 
+ *
  * An abstraction for a monitor(set) and its configuration.
  *
  * A logical monitor is a group of one or more physical monitors that

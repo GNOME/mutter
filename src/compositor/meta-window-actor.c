@@ -2,7 +2,7 @@
 
 /**
  * MetaWindowActor:
- * 
+ *
  * An actor representing a top-level window in the scene graph
  *
  * #MetaWindowActor is a #ClutterActor that adds a notion of a window to the

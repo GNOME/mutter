@@ -24,7 +24,7 @@
 
 /**
  * MetaClutterBackendNative:
- * 
+ *
  * A native backend which renders using EGL.
  *
  * MetaClutterBackendNative is the #ClutterBackend which is used by the native

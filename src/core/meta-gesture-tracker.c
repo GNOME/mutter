@@ -21,7 +21,7 @@
 
 /**
  * MetaGestureTracker:
- * 
+ *
  * Manages gestures on windows/desktop
  *
  * Forwards touch events to clutter actors, and accepts/rejects touch sequences

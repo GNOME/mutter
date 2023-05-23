@@ -24,7 +24,7 @@
 
 /**
  * MetaBackendNative:
- * 
+ *
  * A native (KMS/evdev) MetaBackend
  *
  * MetaBackendNative is an implementation of #MetaBackend that uses "native"

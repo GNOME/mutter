@@ -23,7 +23,7 @@
 
 /**
  * stack:
- * 
+ *
  * Which windows cover which other windows
  *
  * There are two factors that determine window position.

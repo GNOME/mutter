@@ -2,7 +2,7 @@
 
 /*
  * restart-helper
- * 
+ *
  * Helper program during a restart
  *
  * To smoothly restart Mutter, we want to keep the composite

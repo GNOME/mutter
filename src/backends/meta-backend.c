@@ -24,7 +24,7 @@
 
 /**
  * MetaBackend:
- * 
+ *
  * Handles monitor config, modesetting, cursor sprites, ...
  *
  * MetaBackend is the abstraction that deals with several things like:

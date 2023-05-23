@@ -24,7 +24,7 @@
 
 /**
  * MetaRenderer:
- * 
+ *
  * Keeps track of the different renderer views.
  *
  * A MetaRenderer object has 2 functions:

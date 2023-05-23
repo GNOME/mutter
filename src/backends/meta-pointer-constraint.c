@@ -24,7 +24,7 @@
 
 /**
  * MetaPointerConstraint:
- * 
+ *
  * Pointer client constraints.
  *
  * A MetaPointerConstraint can be used to implement any kind of pointer

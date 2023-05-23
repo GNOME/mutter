@@ -69,7 +69,7 @@ G_DECLARE_FINAL_TYPE (MetaShadowFactory,
  * MetaShadowFactory:
  *
  * Create window shadows. 
- * 
+ *
  * It caches shadows internally so that multiple shadows created for
  * the same shape with the same radius will share the same [struct@Meta.Shadow].
  */
@@ -90,10 +90,10 @@ void meta_shadow_factory_get_params (MetaShadowFactory *factory,
 
 /**
  * MetaShadow:
- * 
+ *
  * Holds a shadow texture along with information about how to
  * apply that texture to draw a window texture. 
- * 
+ *
  * E.g., it knows how big the unscaled borders are on each
  * side of the shadow texture.
  */
