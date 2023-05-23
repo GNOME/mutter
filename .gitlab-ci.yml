@@ -241,7 +241,7 @@ check-code-style:
         $BASE_MESON_OPTIONS
         $EXTRA_MESON_OPTIONS
     - meson compile -C build
-    - meson install -C build
+    - meson install --dry-run -C build
   artifacts:
     expire_in: 1 day
     paths:
