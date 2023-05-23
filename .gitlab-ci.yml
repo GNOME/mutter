@@ -286,6 +286,7 @@ build-without-opengl-and-glx@x86_64:
         -Dglx=false
         -Degl_device=true
         -Dwayland_eglstream=true
+        -Dintrospection=false
     - meson compile -C build
     - sudo meson install --no-rebuild -C build
   artifacts:
@@ -308,6 +309,7 @@ build-without-native-backend-and-wayland@x86_64:
         -Dxwayland=false
         -Dcore_tests=false
         -Dnative_tests=false
+        -Dintrospection=false
     - meson compile -C build
     - sudo meson install --no-rebuild -C build
   artifacts:
@@ -328,6 +330,7 @@ build-wayland-only@x86_64:
         -Dxwayland=false
         -Dcore_tests=false
         -Dnative_tests=false
+        -Dintrospection=false
     - meson compile -C build
     - sudo meson install --no-rebuild -C build
   artifacts:
