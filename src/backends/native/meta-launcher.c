@@ -372,6 +372,19 @@ meta_launcher_get_session_proxy (MetaLauncher *launcher)
   return launcher->session_proxy;
 }
 
+gboolean
+meta_launcher_register_x11_display (MetaLauncher  *self,
+                                    const char    *display_name,
+                                    GError       **error)
+{
+  g_return_val_if_fail (display_name != NULL, FALSE);
+
+  return meta_dbus_login1_session_call_set_display_sync (self->session_proxy,
+                                                         display_name,
+                                                         NULL,
+                                                         error);
+}
+
 MetaLauncher *
 meta_launcher_new (MetaBackend  *backend,
                    const char   *fallback_session_id,

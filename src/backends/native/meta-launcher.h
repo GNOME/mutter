@@ -43,5 +43,8 @@ MetaDBusLogin1Session * meta_launcher_get_session_proxy (MetaLauncher *launcher)
 
 MetaBackend * meta_launcher_get_backend (MetaLauncher *launcher);
 
+gboolean          meta_launcher_register_x11_display    (MetaLauncher  *self,
+                                                         const char    *display,
+                                                         GError       **error);
 
 #endif /* META_LAUNCHER_H */

@@ -64,6 +64,10 @@
 #include "meta/main.h"
 #include "meta-dbus-rtkit1.h"
 
+#ifdef HAVE_WAYLAND
+#include "wayland/meta-wayland.h"
+#endif
+
 #ifdef HAVE_REMOTE_DESKTOP
 #include "backends/meta-screen-cast.h"
 #endif
@@ -208,11 +212,48 @@ update_viewports (MetaBackend *backend)
   g_object_unref (viewports);
 }
 
+#ifdef HAVE_XWAYLAND
+static void
+register_x11_display (MetaBackend *backend)
+{
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
+  MetaContext *context;
+  MetaWaylandCompositor *compositor;
+  MetaX11DisplayPolicy x11_display_policy;
+  const char *display_name;
+  g_autoptr(GError) error = NULL;
+
+  /* Don't try to register display with logind if we don't have a launcher, so
+   * we aren't the session controller.
+   *
+   * This could happen, e.g., with a META_BACKEND_NATIVE_MODE_HEADLESS
+   * instance started from an ssh session or with a META_BACKEND_NATIVE_MODE_TEST
+   * instance.
+   */
+  if (backend_native->launcher == NULL)
+    return;
+
+  context = meta_backend_get_context (backend);
+  compositor = meta_context_get_wayland_compositor (context);
+
+  x11_display_policy = meta_context_get_x11_display_policy (context);
+
+  if (x11_display_policy == META_X11_DISPLAY_POLICY_DISABLED)
+    return;
+
+  display_name = meta_wayland_get_public_xwayland_display_name (compositor);
+
+  if (!meta_launcher_register_x11_display (backend_native->launcher, display_name, &error))
+    g_warning ("Failed to register X11 display with logind: %s", error->message);
+}
+#endif
+
 static void
 meta_backend_native_post_init (MetaBackend *backend)
 {
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaSettings *settings = meta_backend_get_settings (backend);
+  g_autoptr(GError) error = NULL;
 
   META_BACKEND_CLASS (meta_backend_native_parent_class)->post_init (backend);
 
@@ -259,6 +300,10 @@ meta_backend_native_post_init (MetaBackend *backend)
                    g_hash_table_unref);
 
   update_viewports (backend);
+
+#ifdef HAVE_XWAYLAND
+  register_x11_display (backend);
+#endif
 }
 
 static MetaBackendCapabilities

@@ -26,6 +26,9 @@
       <arg name="major" type="u"/>
       <arg name="minor" type="u"/>
     </method>
+    <method name="SetDisplay">
+      <arg name="display" type="s"/>
+    </method>
     <signal name="PauseDevice">
       <arg name="major" type="u"/>
       <arg name="minor" type="u"/>
