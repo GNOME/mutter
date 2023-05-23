@@ -144,8 +144,6 @@ def Reset(self):
 
 @dbus.service.method(MOCK_IFACE, in_signature='ss')
 def AddSystemProfile(self, profile_id, file_path):
-    uid = os.getuid()
-    username = get_username(uid)
     profile_path = PATH_PREFIX + '/profiles/' + \
         escape_unit_name(profile_id)
     self.profiles[profile_id] = profile_path
