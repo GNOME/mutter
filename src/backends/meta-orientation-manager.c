@@ -56,6 +56,7 @@ struct _MetaOrientationManager
   GDBusProxy *iio_proxy;
   MetaOrientation prev_orientation;
   MetaOrientation curr_orientation;
+  MetaOrientation effective_orientation;
   guint has_accel : 1;
 
   GSettings *settings;
@@ -130,6 +131,7 @@ sync_state (MetaOrientationManager *self)
     return;
 
   self->prev_orientation = self->curr_orientation;
+  self->effective_orientation = self->curr_orientation;
 
   if (self->curr_orientation == META_ORIENTATION_UNDEFINED)
     return;
@@ -293,6 +295,8 @@ meta_orientation_manager_init (MetaOrientationManager *self)
                                G_CALLBACK (orientation_lock_changed), self, 0);
       sync_state (self);
     }
+
+  self->effective_orientation = META_ORIENTATION_UNDEFINED;
 }
 
 static void
@@ -361,7 +365,7 @@ meta_orientation_manager_class_init (MetaOrientationManagerClass *klass)
 MetaOrientation
 meta_orientation_manager_get_orientation (MetaOrientationManager *self)
 {
-  return self->curr_orientation;
+  return self->effective_orientation;
 }
 
 gboolean
