@@ -93,8 +93,14 @@ static guint signals[LAST_SIGNAL] = { 0 };
 
 enum
 {
-  PROP_META_WINDOW = 1,
+  PROP_0,
+
+  PROP_META_WINDOW,
+
+  N_PROPS
 };
+
+static GParamSpec *obj_props[N_PROPS];
 
 static void meta_window_actor_dispose    (GObject *object);
 static void meta_window_actor_constructed (GObject *object);
@@ -122,7 +128,6 @@ static void
 meta_window_actor_class_init (MetaWindowActorClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
-  GParamSpec   *pspec;
 
   object_class->dispose      = meta_window_actor_dispose;
   object_class->set_property = meta_window_actor_set_property;
@@ -198,13 +203,13 @@ meta_window_actor_class_init (MetaWindowActorClass *klass)
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 
-  pspec = g_param_spec_object ("meta-window", NULL, NULL,
-                               META_TYPE_WINDOW,
-                               G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
-
-  g_object_class_install_property (object_class,
-                                   PROP_META_WINDOW,
-                                   pspec);
+  obj_props[PROP_META_WINDOW] =
+    g_param_spec_object ("meta-window",
+                         "MetaWindow",
+                         "The displayed MetaWindow",
+                         META_TYPE_WINDOW,
+                         G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+  g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }
 
 static void
