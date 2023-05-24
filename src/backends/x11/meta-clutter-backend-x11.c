@@ -153,8 +153,6 @@ meta_clutter_backend_x11_finalize (GObject *gobject)
                                           cogl_xlib_filter,
                                           clutter_backend_x11);
 
-  XCloseDisplay (clutter_backend_x11->xdisplay);
-
   G_OBJECT_CLASS (meta_clutter_backend_x11_parent_class)->finalize (gobject);
 }
 
