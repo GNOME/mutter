@@ -926,6 +926,8 @@ enum
   TRANSITION_STOPPED,
   STAGE_VIEWS_CHANGED,
   RESOURCE_SCALE_CHANGED,
+  CLONED,
+  DECLONED,
 
   LAST_SIGNAL
 };
@@ -7381,6 +7383,24 @@ clutter_actor_class_init (ClutterActorClass *klass)
                   G_STRUCT_OFFSET (ClutterActorClass, resource_scale_changed),
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
+
+  /*< private > */
+  actor_signals[CLONED] =
+    g_signal_new ("cloned",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 1,
+                  CLUTTER_TYPE_CLONE);
+
+  /*< private > */
+  actor_signals[DECLONED] =
+    g_signal_new ("decloned",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 1,
+                  CLUTTER_TYPE_CLONE);
 }
 
 static void
@@ -18517,6 +18537,8 @@ _clutter_actor_attach_clone (ClutterActor *actor,
   g_hash_table_add (priv->clones, clone);
 
   clutter_actor_push_in_cloned_branch (actor, 1);
+
+  g_signal_emit (actor, actor_signals[CLONED], 0, clone);
 }
 
 void
@@ -18540,6 +18562,8 @@ _clutter_actor_detach_clone (ClutterActor *actor,
       g_hash_table_unref (priv->clones);
       priv->clones = NULL;
     }
+
+  g_signal_emit (actor, actor_signals[DECLONED], 0, clone);
 }
 
 /**
