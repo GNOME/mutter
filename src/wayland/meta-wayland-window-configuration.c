@@ -49,6 +49,7 @@ meta_wayland_window_configuration_new (MetaWindow          *window,
     .flags = flags,
 
     .is_fullscreen = meta_window_is_fullscreen (window),
+    .is_suspended = meta_window_is_suspended (window),
   };
 
   if (flags & META_MOVE_RESIZE_MOVE_ACTION ||

@@ -77,6 +77,8 @@ struct _MetaWindowWayland
   MetaWaylandWindowConfiguration *last_acked_configuration;
 
   gboolean has_been_shown;
+
+  gboolean is_suspended;
 };
 
 struct _MetaWindowWaylandClass
@@ -693,6 +695,23 @@ appears_focused_changed (GObject    *object,
 }
 
 static void
+suspend_state_changed (GObject    *object,
+                       GParamSpec *pspec,
+                       gpointer    user_data)
+{
+  MetaWindow *window = META_WINDOW (object);
+  MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
+  gboolean is_suspended;
+
+  is_suspended = meta_window_is_suspended (window);
+  if (wl_window->is_suspended == is_suspended)
+    return;
+
+  wl_window->is_suspended = is_suspended;
+  surface_state_changed (window);
+}
+
+static void
 on_window_shown (MetaWindow *window)
 {
   MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
@@ -714,6 +733,8 @@ meta_window_wayland_init (MetaWindowWayland *wl_window)
 
   g_signal_connect (window, "notify::appears-focused",
                     G_CALLBACK (appears_focused_changed), NULL);
+  g_signal_connect (window, "notify::suspend-state",
+                    G_CALLBACK (suspend_state_changed), NULL);
   g_signal_connect (window, "shown",
                     G_CALLBACK (on_window_shown), NULL);
 }

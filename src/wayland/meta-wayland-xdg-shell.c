@@ -695,8 +695,9 @@ add_state_value (struct wl_array         *states,
 }
 
 static void
-fill_states (MetaWaylandXdgToplevel *xdg_toplevel,
-             struct wl_array        *states)
+fill_states (MetaWaylandXdgToplevel         *xdg_toplevel,
+             MetaWaylandWindowConfiguration *configuration,
+             struct wl_array                *states)
 {
   MetaWaylandSurfaceRole *surface_role =
     META_WAYLAND_SURFACE_ROLE (xdg_toplevel);
@@ -717,6 +718,10 @@ fill_states (MetaWaylandXdgToplevel *xdg_toplevel,
     add_state_value (states, XDG_TOPLEVEL_STATE_RESIZING);
   if (meta_window_appears_focused (window))
     add_state_value (states, XDG_TOPLEVEL_STATE_ACTIVATED);
+  if (configuration->is_suspended &&
+      wl_resource_get_version (xdg_toplevel->resource) >=
+      XDG_TOPLEVEL_STATE_SUSPENDED_SINCE_VERSION)
+    add_state_value (states, XDG_TOPLEVEL_STATE_SUSPENDED);
 
   if (wl_resource_get_version (xdg_toplevel->resource) >=
       XDG_TOPLEVEL_STATE_TILED_LEFT_SINCE_VERSION)
@@ -749,7 +754,7 @@ meta_wayland_xdg_toplevel_send_configure (MetaWaylandXdgToplevel         *xdg_to
   struct wl_array states;
 
   wl_array_init (&states);
-  fill_states (xdg_toplevel, &states);
+  fill_states (xdg_toplevel, configuration, &states);
 
   if (wl_resource_get_version (xdg_toplevel->resource) >=
       XDG_TOPLEVEL_CONFIGURE_BOUNDS_SINCE_VERSION &&
