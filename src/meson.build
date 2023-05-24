@@ -881,7 +881,9 @@ if have_wayland_eglstream
   ]
 endif
 
-mutter_private_enum_sources = []
+mutter_private_enum_sources = [
+  'core/window-private.h',
+]
 
 if have_remote_desktop
   mutter_private_enum_sources += [

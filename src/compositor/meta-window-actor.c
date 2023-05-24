@@ -54,6 +54,8 @@ typedef struct _MetaWindowActorPrivate
 
   MetaSurfaceActor *surface;
 
+  GPtrArray *surface_actors;
+
   int geometry_scale;
 
   /*
@@ -117,6 +119,11 @@ static MetaSurfaceActor * meta_window_actor_real_get_scanout_candidate (MetaWind
 
 static void meta_window_actor_real_assign_surface_actor (MetaWindowActor  *self,
                                                          MetaSurfaceActor *surface_actor);
+
+static void on_cloned (ClutterActor *actor,
+                       ClutterClone *clone);
+static void on_decloned (ClutterActor *actor,
+                         ClutterClone *clone);
 
 static void screen_cast_window_iface_init (MetaScreenCastWindowInterface *iface);
 
@@ -218,7 +225,13 @@ meta_window_actor_init (MetaWindowActor *self)
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (self);
 
+  priv->surface_actors = g_ptr_array_new ();
   priv->geometry_scale = 1;
+
+  g_signal_connect (self, "cloned",
+                    G_CALLBACK (on_cloned), NULL);
+  g_signal_connect (self, "decloned",
+                    G_CALLBACK (on_decloned), NULL);
 }
 
 static void
@@ -357,6 +370,8 @@ meta_window_actor_real_assign_surface_actor (MetaWindowActor  *self,
   g_clear_object (&priv->surface);
   priv->surface = g_object_ref_sink (surface_actor);
 
+  meta_window_actor_add_surface_actor (self, surface_actor);
+
   if (meta_window_actor_is_frozen (self))
     meta_window_actor_set_frozen (self, TRUE);
   else
@@ -369,6 +384,102 @@ meta_window_actor_assign_surface_actor (MetaWindowActor  *self,
 {
   META_WINDOW_ACTOR_GET_CLASS (self)->assign_surface_actor (self,
                                                             surface_actor);
+}
+
+static void
+is_surface_actor_obscured_changed (MetaSurfaceActor *surface_actor,
+                                   GParamSpec       *pspec,
+                                   MetaWindowActor  *window_actor)
+{
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (window_actor);
+
+  if (meta_surface_actor_is_obscured (surface_actor))
+    meta_window_uninhibit_suspend_state (priv->window);
+  else
+    meta_window_inhibit_suspend_state (priv->window);
+}
+
+static void
+disconnect_surface_actor_from (MetaSurfaceActor *surface_actor,
+                               MetaWindowActor  *window_actor)
+{
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (window_actor);
+
+  g_signal_handlers_disconnect_by_func (surface_actor,
+                                        is_surface_actor_obscured_changed,
+                                        window_actor);
+  if (!meta_surface_actor_is_obscured (surface_actor))
+    meta_window_uninhibit_suspend_state (priv->window);
+}
+
+void
+meta_window_actor_add_surface_actor (MetaWindowActor  *window_actor,
+                                     MetaSurfaceActor *surface_actor)
+{
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (window_actor);
+
+  g_signal_connect (surface_actor,
+                    "notify::is-obscured",
+                    G_CALLBACK (is_surface_actor_obscured_changed),
+                    window_actor);
+  if (!meta_surface_actor_is_obscured (surface_actor))
+    meta_window_inhibit_suspend_state (priv->window);
+  g_ptr_array_add (priv->surface_actors, surface_actor);
+}
+
+void
+meta_window_actor_remove_surface_actor (MetaWindowActor  *window_actor,
+                                        MetaSurfaceActor *surface_actor)
+{
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (window_actor);
+
+  disconnect_surface_actor_from (surface_actor, window_actor);
+  g_ptr_array_remove (priv->surface_actors, surface_actor);
+}
+
+static void
+on_clone_notify_mapped (ClutterClone    *clone,
+                        GParamSpec      *pspec,
+                        MetaWindowActor *window_actor)
+{
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (window_actor);
+
+  if (clutter_actor_is_mapped (CLUTTER_ACTOR (clone)))
+    meta_window_inhibit_suspend_state (priv->window);
+  else
+    meta_window_uninhibit_suspend_state (priv->window);
+}
+
+static void
+on_cloned (ClutterActor *actor,
+           ClutterClone *clone)
+{
+  MetaWindowActor *window_actor = META_WINDOW_ACTOR (actor);
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (window_actor);
+
+  g_signal_connect (clone, "notify::mapped",
+                    G_CALLBACK (on_clone_notify_mapped), actor);
+  if (clutter_actor_is_mapped (CLUTTER_ACTOR (clone)))
+    meta_window_inhibit_suspend_state (priv->window);
+}
+
+static void
+on_decloned (ClutterActor *actor,
+             ClutterClone *clone)
+{
+  MetaWindowActor *window_actor = META_WINDOW_ACTOR (actor);
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (window_actor);
+
+  g_signal_handlers_disconnect_by_func (clone, on_clone_notify_mapped, actor);
+  if (clutter_actor_is_mapped (CLUTTER_ACTOR (clone)))
+    meta_window_uninhibit_suspend_state (priv->window);
 }
 
 static void
@@ -453,6 +564,10 @@ meta_window_actor_dispose (GObject *object)
 
   priv->disposed = TRUE;
 
+  g_ptr_array_foreach (priv->surface_actors,
+                       (GFunc) disconnect_surface_actor_from,
+                       self);
+  g_clear_pointer (&priv->surface_actors, g_ptr_array_unref);
   g_clear_signal_handler (&priv->stage_views_changed_id, self);
 
   meta_compositor_remove_window_actor (compositor, self);

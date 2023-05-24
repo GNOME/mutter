@@ -27,6 +27,17 @@
 #include "compositor/region-utils.h"
 #include "meta/meta-shaped-texture.h"
 
+enum
+{
+  PROP_0,
+
+  PROP_IS_OBSCURED,
+
+  N_PROPS
+};
+
+static GParamSpec *obj_props[N_PROPS];
+
 typedef struct _MetaSurfaceActorPrivate
 {
   MetaShapedTexture *texture;
@@ -35,6 +46,7 @@ typedef struct _MetaSurfaceActorPrivate
 
   /* MetaCullable regions, see that documentation for more details */
   cairo_region_t *unobscured_region;
+  gboolean is_obscured;
 
   /* Freeze/thaw accounting */
   cairo_region_t *pending_damage;
@@ -78,6 +90,29 @@ effective_unobscured_region (MetaSurfaceActor *surface_actor)
 }
 
 static void
+update_is_obscured (MetaSurfaceActor *surface_actor)
+{
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (surface_actor);
+  cairo_region_t *unobscured_region;
+  gboolean is_obscured;
+
+  unobscured_region = priv->unobscured_region;
+
+  if (unobscured_region)
+    is_obscured = cairo_region_is_empty (unobscured_region);
+  else
+    is_obscured = FALSE;
+
+  if (priv->is_obscured == is_obscured)
+    return;
+
+  priv->is_obscured = is_obscured;
+  g_object_notify_by_pspec (G_OBJECT (surface_actor),
+                            obj_props[PROP_IS_OBSCURED]);
+}
+
+static void
 set_unobscured_region (MetaSurfaceActor *surface_actor,
                        cairo_region_t   *unobscured_region)
 {
@@ -109,6 +144,8 @@ set_unobscured_region (MetaSurfaceActor *surface_actor,
           cairo_region_intersect_rectangle (priv->unobscured_region, &bounds);
         }
     }
+
+  update_is_obscured (surface_actor);
 }
 
 static void
@@ -191,6 +228,27 @@ meta_surface_actor_get_paint_volume (ClutterActor       *actor,
 }
 
 static void
+meta_surface_actor_get_property (GObject      *object,
+                                 guint         prop_id,
+                                 GValue       *value,
+                                 GParamSpec   *pspec)
+{
+  MetaSurfaceActor *surface_actor = META_SURFACE_ACTOR (object);
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (surface_actor);
+
+  switch (prop_id)
+    {
+    case PROP_IS_OBSCURED:
+      g_value_set_boolean (value, priv->is_obscured);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
 meta_surface_actor_dispose (GObject *object)
 {
   MetaSurfaceActor *self = META_SURFACE_ACTOR (object);
@@ -212,8 +270,18 @@ meta_surface_actor_class_init (MetaSurfaceActorClass *klass)
   ClutterActorClass *actor_class = CLUTTER_ACTOR_CLASS (klass);
 
   object_class->dispose = meta_surface_actor_dispose;
+  object_class->get_property = meta_surface_actor_get_property;
+
   actor_class->pick = meta_surface_actor_pick;
   actor_class->get_paint_volume = meta_surface_actor_get_paint_volume;
+
+  obj_props[PROP_IS_OBSCURED] =
+    g_param_spec_boolean ("is-obscured",
+                          "is obscured",
+                          "If the surface actor is fully obscured",
+                          TRUE,
+                          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+  g_object_class_install_properties (object_class, N_PROPS, obj_props);
 
   signals[REPAINT_SCHEDULED] = g_signal_new ("repaint-scheduled",
                                              G_TYPE_FROM_CLASS (object_class),
@@ -303,6 +371,7 @@ meta_surface_actor_init (MetaSurfaceActor *self)
   MetaSurfaceActorPrivate *priv =
     meta_surface_actor_get_instance_private (self);
 
+  priv->is_obscured = TRUE;
   priv->texture = meta_shaped_texture_new ();
   g_signal_connect_object (priv->texture, "size-changed",
                            G_CALLBACK (texture_size_changed), self, 0);
@@ -381,14 +450,22 @@ meta_surface_actor_update_area (MetaSurfaceActor *self,
 gboolean
 meta_surface_actor_is_obscured (MetaSurfaceActor *self)
 {
-  cairo_region_t *unobscured_region;
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (self);
 
-  unobscured_region = effective_unobscured_region (self);
+  return priv->is_obscured;
+}
 
-  if (unobscured_region)
-    return cairo_region_is_empty (unobscured_region);
-  else
+gboolean
+meta_surface_actor_is_effectively_obscured (MetaSurfaceActor *surface_actor)
+{
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (surface_actor);
+
+  if (clutter_actor_has_mapped_clones (CLUTTER_ACTOR (surface_actor)))
     return FALSE;
+  else
+    return priv->is_obscured;
 }
 
 gboolean

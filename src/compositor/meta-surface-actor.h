@@ -35,6 +35,9 @@ void meta_surface_actor_update_area (MetaSurfaceActor *self,
                                      int               height);
 
 gboolean meta_surface_actor_is_obscured (MetaSurfaceActor *self);
+
+gboolean meta_surface_actor_is_effectively_obscured (MetaSurfaceActor *self);
+
 gboolean meta_surface_actor_is_obscured_on_stage_view (MetaSurfaceActor *self,
                                                        ClutterStageView *stage_view,
                                                        float            *unobscurred_fraction);

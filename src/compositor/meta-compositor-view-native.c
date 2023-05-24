@@ -161,7 +161,7 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
       return FALSE;
     }
 
-  if (meta_surface_actor_is_obscured (surface_actor))
+  if (meta_surface_actor_is_effectively_obscured (surface_actor))
     {
       meta_topic (META_DEBUG_RENDER,
                   "No direct scanout candidate: surface-actor is obscured");

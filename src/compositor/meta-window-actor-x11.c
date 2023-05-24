@@ -355,7 +355,7 @@ meta_window_actor_x11_queue_frame_drawn (MetaWindowActor *actor,
       surface = meta_window_actor_get_surface (META_WINDOW_ACTOR (actor_x11));
 
       if (surface)
-        is_obscured = meta_surface_actor_is_obscured (surface);
+        is_obscured = meta_surface_actor_is_effectively_obscured (surface);
       else
         is_obscured = FALSE;
 

@@ -119,6 +119,13 @@ typedef enum _MetaWindowUpdateMonitorFlags
   META_WINDOW_UPDATE_MONITOR_FLAGS_FORCE = 1 << 1,
 } MetaWindowUpdateMonitorFlags;
 
+typedef enum _MetaWindowSuspendState
+{
+  META_WINDOW_SUSPEND_STATE_ACTIVE = 1,
+  META_WINDOW_SUSPEND_STATE_HIDDEN,
+  META_WINDOW_SUSPEND_STATE_SUSPENDED,
+} MetaWindowSuspendState;
+
 typedef struct _MetaPlacementRule
 {
   MetaRectangle anchor_rect;
@@ -887,3 +894,9 @@ void meta_window_set_frame_xwindow (MetaWindow *window,
 
 void meta_window_maybe_apply_size_hints (MetaWindow    *window,
                                          MetaRectangle *target_rect);
+
+void meta_window_inhibit_suspend_state (MetaWindow *window);
+
+void meta_window_uninhibit_suspend_state (MetaWindow *window);
+
+gboolean meta_window_is_suspended (MetaWindow *window);

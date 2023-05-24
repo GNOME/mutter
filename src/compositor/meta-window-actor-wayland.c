@@ -199,6 +199,9 @@ set_surface_actor_index (GNode    *node,
   ClutterActor *container = traverse_data->surface_container;
   ClutterActor *surface_actor =
     CLUTTER_ACTOR (meta_wayland_surface_get_actor (surface));
+  MetaSurfaceContainerActorWayland *surface_container =
+    META_SURFACE_CONTAINER_ACTOR_WAYLAND (container);
+  MetaWindowActor *window_actor = surface_container->window_actor;
 
   if (clutter_actor_contains (container, surface_actor))
     {
@@ -212,6 +215,8 @@ set_surface_actor_index (GNode    *node,
     }
   else
     {
+      meta_window_actor_add_surface_actor (window_actor,
+                                           META_SURFACE_ACTOR (surface_actor));
       clutter_actor_insert_child_at_index (container,
                                            surface_actor,
                                            traverse_data->index);
@@ -250,6 +255,9 @@ meta_window_actor_wayland_rebuild_surface_tree (MetaWindowActor *actor)
 
       if (!g_list_find (surface_actors, child_actor))
         {
+          MetaSurfaceActor *surface_actor = META_SURFACE_ACTOR (child_actor);
+
+          meta_window_actor_remove_surface_actor (actor, surface_actor);
           clutter_actor_remove_child (CLUTTER_ACTOR (self->surface_container),
                                       child_actor);
         }

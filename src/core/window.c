@@ -104,6 +104,8 @@
 #include <systemd/sd-login.h>
 #endif
 
+#include "meta-private-enum-types.h"
+
 /* Windows that unmaximize to a size bigger than that fraction of the workarea
  * will be scaled down to that size (while maintaining aspect ratio).
  * Windows that cover an area greater then this size are automaximized on map.
@@ -111,6 +113,8 @@
 #define MAX_UNMAXIMIZED_WINDOW_AREA .8
 
 #define SNAP_SECURITY_LABEL_PREFIX "snap."
+
+#define SUSPEND_HIDDEN_TIMEOUT_S 3
 
 /* Each window has a "stamp" which is a non-recycled 64-bit ID. They
  * start after the end of the XID space so that, for stacking
@@ -166,6 +170,10 @@ static void initable_iface_init (GInitableIface *initable_iface);
 typedef struct _MetaWindowPrivate
 {
   MetaQueueType queued_types;
+
+  MetaWindowSuspendState suspend_state;
+  int suspend_state_inhibitors;
+  guint suspend_timoeut_id;
 } MetaWindowPrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaWindow, meta_window, G_TYPE_OBJECT, 
@@ -206,6 +214,7 @@ enum
   PROP_DISPLAY,
   PROP_EFFECT,
   PROP_XWINDOW,
+  PROP_SUSPEND_STATE,
 
   PROP_LAST,
 };
@@ -350,6 +359,7 @@ meta_window_get_property(GObject         *object,
                          GParamSpec      *pspec)
 {
   MetaWindow *win = META_WINDOW (object);
+  MetaWindowPrivate *priv = meta_window_get_instance_private (win);
 
   switch (prop_id)
     {
@@ -436,6 +446,9 @@ meta_window_get_property(GObject         *object,
       break;
     case PROP_XWINDOW:
       g_value_set_ulong (value, win->xwindow);
+      break;
+    case PROP_SUSPEND_STATE:
+      g_value_set_enum (value, priv->suspend_state);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -610,6 +623,14 @@ meta_window_class_init (MetaWindowClass *klass)
                         0, G_MAXULONG, 0,
                         G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
 
+  obj_props[PROP_SUSPEND_STATE] =
+    g_param_spec_enum ("suspend-state",
+                       "Suspend state",
+                       "The suspend state of the window",
+                       META_TYPE_WINDOW_SUSPEND_STATE,
+                       META_WINDOW_SUSPEND_STATE_SUSPENDED,
+                       G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
 
   window_signals[WORKSPACE_CHANGED] =
@@ -721,11 +742,14 @@ meta_window_class_init (MetaWindowClass *klass)
 }
 
 static void
-meta_window_init (MetaWindow *self)
+meta_window_init (MetaWindow *window)
 {
-  self->stamp = next_window_stamp++;
-  meta_prefs_add_listener (prefs_changed_callback, self);
-  self->is_alive = TRUE;
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
+
+  priv->suspend_state = META_WINDOW_SUSPEND_STATE_SUSPENDED;
+  window->stamp = next_window_stamp++;
+  meta_prefs_add_listener (prefs_changed_callback, window);
+  window->is_alive = TRUE;
 }
 
 static gboolean
@@ -1398,12 +1422,14 @@ void
 meta_window_unmanage (MetaWindow  *window,
                       guint32      timestamp)
 {
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
   MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
   GList *tmp;
 
   meta_verbose ("Unmanaging %s", window->desc);
   window->unmanaging = TRUE;
 
+  g_clear_handle_id (&priv->suspend_timoeut_id, g_source_remove);
   g_clear_handle_id (&window->unmanage_idle_id, g_source_remove);
   g_clear_handle_id (&window->close_dialog_timeout_id, g_source_remove);
 
@@ -2082,6 +2108,86 @@ meta_window_force_placement (MetaWindow *window,
   window->denied_focus_and_not_transient = FALSE;
 }
 
+static gboolean
+enter_suspend_state_cb (gpointer user_data)
+{
+  MetaWindow *window = META_WINDOW (user_data);
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
+
+  priv->suspend_timoeut_id = 0;
+
+  g_return_val_if_fail (priv->suspend_state == META_WINDOW_SUSPEND_STATE_HIDDEN,
+                        G_SOURCE_REMOVE);
+
+  priv->suspend_state = META_WINDOW_SUSPEND_STATE_SUSPENDED;
+  g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_SUSPEND_STATE]);
+
+  return G_SOURCE_REMOVE;
+}
+
+static void
+update_suspend_state (MetaWindow *window)
+{
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
+
+  if (!window->hidden &&
+      priv->suspend_state_inhibitors > 0)
+    {
+      priv->suspend_state = META_WINDOW_SUSPEND_STATE_ACTIVE;
+      g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_SUSPEND_STATE]);
+      g_clear_handle_id (&priv->suspend_timoeut_id, g_source_remove);
+    }
+  else if (priv->suspend_state == META_WINDOW_SUSPEND_STATE_ACTIVE)
+    {
+      priv->suspend_state = META_WINDOW_SUSPEND_STATE_HIDDEN;
+      g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_SUSPEND_STATE]);
+      g_return_if_fail (!priv->suspend_timoeut_id);
+      priv->suspend_timoeut_id =
+        g_timeout_add_seconds (SUSPEND_HIDDEN_TIMEOUT_S,
+                               enter_suspend_state_cb,
+                               window);
+    }
+}
+
+void
+meta_window_inhibit_suspend_state (MetaWindow *window)
+{
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
+
+  priv->suspend_state_inhibitors++;
+  if (priv->suspend_state_inhibitors == 1)
+    update_suspend_state (window);
+}
+
+void
+meta_window_uninhibit_suspend_state (MetaWindow *window)
+{
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
+
+  g_return_if_fail (priv->suspend_state_inhibitors > 0);
+
+  priv->suspend_state_inhibitors--;
+  if (priv->suspend_state_inhibitors == 0)
+    update_suspend_state (window);
+}
+
+gboolean
+meta_window_is_suspended (MetaWindow *window)
+{
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
+
+  switch (priv->suspend_state)
+    {
+    case META_WINDOW_SUSPEND_STATE_ACTIVE:
+    case META_WINDOW_SUSPEND_STATE_HIDDEN:
+      return FALSE;
+    case META_WINDOW_SUSPEND_STATE_SUSPENDED:
+      return TRUE;
+    }
+
+  g_assert_not_reached ();
+}
+
 static void
 meta_window_show (MetaWindow *window)
 {
@@ -2302,6 +2408,8 @@ meta_window_show (MetaWindow *window)
                              window);
     }
 
+  update_suspend_state (window);
+
   if (did_show)
     g_signal_emit (window, window_signals[SHOWN], 0);
 }
@@ -2391,6 +2499,8 @@ meta_window_hide (MetaWindow *window)
 
   if (did_hide)
     meta_display_queue_check_fullscreen (window->display);
+
+  update_suspend_state (window);
 }
 
 static gboolean
