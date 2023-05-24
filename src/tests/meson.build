@@ -666,18 +666,29 @@ if have_kvm_tests or have_tty_tests
 endif
 
 if have_x11
-  test('x11', xvfb,
-    args: [
-      xvfb_args,
-      find_program('x11-test.sh').full_path(),
-      mutter.full_path(),
-    ],
-    depends: [mutter],
-    suite: ['core', 'mutter/x11'],
-    env: test_env,
-    is_parallel: false,
-    timeout: 60,
-  )
+  foreach mode: ['', 'sync']
+    x11_env = test_env
+    if mode == 'sync'
+      x11_env.set('MUTTER_SYNC', '1')
+    endif
+    test('x11' + (mode != '' ? '-' + mode : ''), xvfb,
+      args: [
+        xvfb_args,
+        find_program('x11-test.sh').full_path(),
+        mutter.full_path(),
+      ],
+      depends: [
+        mutter,
+        default_plugin,
+        x11_frames,
+      ],
+      env: x11_env,
+      suite: ['core', 'mutter/x11'],
+      should_fail: mode == 'sync',
+      is_parallel: false,
+      timeout: 60,
+    )
+  endforeach
 endif
 
 tools_test_env = test_env
