@@ -38,41 +38,42 @@ variables:
       pkgconfig(libnma-gtk4)
 
     FDO_DISTRIBUTION_EXEC: |
-      dnf install -y 'dnf-command(builddep)' &&
+      set -e
+      dnf install -y 'dnf-command(builddep)'
 
-      dnf builddep -y mutter --setopt=install_weak_deps=False &&
-      dnf builddep -y gnome-shell --setopt=install_weak_deps=False &&
-      dnf builddep -y wayland --setopt=install_weak_deps=False &&
-      dnf builddep -y wayland-protocols --setopt=install_weak_deps=False &&
-      dnf builddep -y kernel --setopt=install_weak_deps=False &&
-      dnf builddep -y zenity --setopt=install_weak_deps=False &&
+      dnf builddep -y mutter --setopt=install_weak_deps=False
+      dnf builddep -y gnome-shell --setopt=install_weak_deps=False
+      dnf builddep -y wayland --setopt=install_weak_deps=False
+      dnf builddep -y wayland-protocols --setopt=install_weak_deps=False
+      dnf builddep -y kernel --setopt=install_weak_deps=False
+      dnf builddep -y zenity --setopt=install_weak_deps=False
 
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/jadahl/catch.git \
-        main . 29ad36e2b1d28ac9d8b2bc44af46296cb1db5d66 &&
+        main . 29ad36e2b1d28ac9d8b2bc44af46296cb1db5d66
 
       # Pull in fix for # https://gitlab.gnome.org/GNOME/zenity/-/issues/58
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/GNOME/zenity.git \
-        master . db1ad8ee7c3db36a7cca6e998e86719293d37838 &&
+        master . db1ad8ee7c3db36a7cca6e998e86719293d37838
 
       rpm -e --nodeps gnome-bluetooth-libs-devel \
                       mutter mutter-devel \
-                      gnome-shell &&
+                      gnome-shell
 
       if [[ x"$(uname -m )" = "xx86_64" ]] ; then
-        meson setup build -Dkvm_tests=true &&
-        ninja -C build src/tests/kvm/bzImage &&
-        mkdir -p /opt/mutter &&
-        cp build/src/tests/kvm/bzImage /opt/mutter/bzImage &&
+        meson setup build -Dkvm_tests=true
+        ninja -C build src/tests/kvm/bzImage
+        mkdir -p /opt/mutter
+        cp build/src/tests/kvm/bzImage /opt/mutter/bzImage
 
-        dnf install -y python3-pyelftools &&
+        dnf install -y python3-pyelftools
 
-        git clone https://github.com/arighi/virtme.git &&
-        cd virtme &&
-        git checkout aa99f43bd44c84dc95911ce99a8281cea5dfc5a1 &&
-        ./setup.py install --prefix=/usr &&
-        cd .. &&
+        git clone https://github.com/arighi/virtme.git
+        cd virtme
+        git checkout aa99f43bd44c84dc95911ce99a8281cea5dfc5a1
+        ./setup.py install --prefix=/usr
+        cd ..
         rm -rf virtme
       fi
   retry:
