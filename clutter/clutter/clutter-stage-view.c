@@ -1280,7 +1280,7 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
   priv->needs_update_devices = FALSE;
 
   _clutter_run_repaint_functions (CLUTTER_REPAINT_FLAGS_POST_PAINT);
-  clutter_stage_emit_after_update (stage, view, frame);
+  clutter_stage_after_update (stage, view, frame);
 
   return clutter_frame_get_result (frame);
 }

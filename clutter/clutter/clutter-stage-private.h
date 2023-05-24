@@ -60,7 +60,7 @@ void                clutter_stage_emit_before_paint      (ClutterStage          
 void                clutter_stage_emit_after_paint       (ClutterStage          *stage,
                                                           ClutterStageView      *view,
                                                           ClutterFrame          *frame);
-void                clutter_stage_emit_after_update      (ClutterStage          *stage,
+void                clutter_stage_after_update           (ClutterStage          *stage,
                                                           ClutterStageView      *view,
                                                           ClutterFrame          *frame);
 

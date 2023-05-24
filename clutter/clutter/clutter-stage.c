@@ -137,6 +137,8 @@ struct _ClutterStagePrivate
 
   int update_freeze_count;
 
+  gboolean update_scheduled;
+
   GHashTable *pointer_devices;
   GHashTable *touch_sequences;
 
@@ -518,11 +520,15 @@ clutter_stage_emit_after_paint (ClutterStage     *stage,
 }
 
 void
-clutter_stage_emit_after_update (ClutterStage     *stage,
-                                 ClutterStageView *view,
-                                 ClutterFrame     *frame)
+clutter_stage_after_update (ClutterStage     *stage,
+                            ClutterStageView *view,
+                            ClutterFrame     *frame)
 {
+  ClutterStagePrivate *priv = stage->priv;
+
   g_signal_emit (stage, stage_signals[AFTER_UPDATE], 0, view, frame);
+
+  priv->update_scheduled = FALSE;
 }
 
 static gboolean
@@ -633,19 +639,15 @@ _clutter_stage_queue_event (ClutterStage *stage,
                             gboolean      copy_event)
 {
   ClutterStagePrivate *priv;
-  gboolean first_event;
 
   g_return_if_fail (CLUTTER_IS_STAGE (stage));
 
   priv = stage->priv;
 
-  first_event = priv->event_queue->length == 0;
-
   g_queue_push_tail (priv->event_queue,
                      copy_event ? clutter_event_copy (event) : event);
 
-  if (first_event)
-    clutter_stage_schedule_update (stage);
+  clutter_stage_schedule_update (stage);
 }
 
 gboolean
@@ -778,8 +780,7 @@ clutter_stage_queue_actor_relayout (ClutterStage *stage,
 {
   ClutterStagePrivate *priv = stage->priv;
 
-  if (priv->pending_relayouts == NULL)
-    clutter_stage_schedule_update (stage);
+  clutter_stage_schedule_update (stage);
 
   priv->pending_relayouts = g_slist_prepend (priv->pending_relayouts,
                                              g_object_ref (actor));
@@ -2452,10 +2453,17 @@ _clutter_stage_get_default_window (void)
 void
 clutter_stage_schedule_update (ClutterStage *stage)
 {
+  ClutterStagePrivate *priv = stage->priv;
   ClutterStageWindow *stage_window;
+  gboolean first_event;
   GList *l;
 
   if (CLUTTER_ACTOR_IN_DESTRUCTION (stage))
+    return;
+
+  first_event = priv->event_queue->length == 0;
+
+  if (priv->update_scheduled && !first_event)
     return;
 
   stage_window = _clutter_stage_get_window (stage);
@@ -2468,6 +2476,8 @@ clutter_stage_schedule_update (ClutterStage *stage)
 
       clutter_stage_view_schedule_update (view);
     }
+
+  priv->update_scheduled = TRUE;
 }
 
 ClutterPaintVolume *
