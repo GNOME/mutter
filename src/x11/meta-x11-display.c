@@ -265,6 +265,7 @@ meta_x11_display_dispose (GObject *object)
       x11_display->xroot = None;
     }
 
+  meta_x11_display_destroy_error_traps (x11_display);
 
   if (x11_display->xdisplay)
     {
@@ -283,8 +284,6 @@ meta_x11_display_dispose (GObject *object)
 
   g_free (x11_display->screen_name);
   x11_display->screen_name = NULL;
-
-  g_clear_list (&x11_display->error_traps, g_free);
 
   G_OBJECT_CLASS (meta_x11_display_parent_class)->dispose (object);
 }

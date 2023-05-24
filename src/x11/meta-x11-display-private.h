@@ -299,4 +299,6 @@ void meta_x11_display_clear_stage_input_region (MetaX11Display *x11_display);
 
 void meta_x11_display_init_error_traps (MetaX11Display *x11_display);
 
+void meta_x11_display_destroy_error_traps (MetaX11Display *x11_display);
+
 #endif /* META_X11_DISPLAY_PRIVATE_H */

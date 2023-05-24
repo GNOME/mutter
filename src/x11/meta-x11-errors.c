@@ -205,8 +205,21 @@ delete_outdated_error_traps (MetaX11Display *x11_display)
 void
 meta_x11_display_init_error_traps (MetaX11Display *x11_display)
 {
+  g_assert (error_x11_display == NULL);
   error_x11_display = x11_display;
   XSetErrorHandler (meta_x_error);
+}
+
+void
+meta_x11_display_destroy_error_traps (MetaX11Display *x11_display)
+{
+  if (error_x11_display == NULL)
+    return;
+
+  g_assert (error_x11_display == x11_display);
+  g_clear_list (&x11_display->error_traps, g_free);
+  error_x11_display = NULL;
+  XSetErrorHandler (NULL);
 }
 
 void
