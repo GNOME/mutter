@@ -5715,11 +5715,10 @@ static float
 clutter_actor_real_calculate_resource_scale (ClutterActor *self,
                                              int           phase)
 {
-  ClutterActorPrivate *priv = self->priv;
   GList *l;
   float new_resource_scale = -1.f;
 
-  for (l = priv->stage_views; l; l = l->next)
+  for (l = clutter_actor_peek_stage_views (self); l; l = l->next)
     {
       ClutterStageView *view = l->data;
 
@@ -15290,7 +15289,7 @@ clear_stage_views_cb (ClutterActor *actor,
 
   old_stage_views = g_steal_pointer (&actor->priv->stage_views);
 
-  if (old_stage_views)
+  if (old_stage_views || CLUTTER_ACTOR_IS_TOPLEVEL (actor))
     actor->priv->clear_stage_views_needs_stage_views_changed = TRUE;
 
   return CLUTTER_ACTOR_TRAVERSE_VISIT_CONTINUE;
@@ -15495,6 +15494,9 @@ update_stage_views (ClutterActor *self)
   ClutterStage *stage;
   graphene_rect_t bounding_rect;
 
+  if (CLUTTER_ACTOR_IS_TOPLEVEL (self))
+    return;
+
   stage = CLUTTER_STAGE (_clutter_actor_get_stage_internal (self));
   g_return_if_fail (stage);
 
@@ -15642,7 +15644,9 @@ clutter_actor_peek_stage_views (ClutterActor *self)
 {
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
 
-  return self->priv->stage_views;
+  return CLUTTER_ACTOR_IS_TOPLEVEL (self)
+    ? clutter_stage_peek_stage_views (CLUTTER_STAGE (self))
+    : self->priv->stage_views;
 }
 
 gboolean
@@ -15657,7 +15661,7 @@ clutter_actor_is_effectively_on_stage_view (ClutterActor     *self,
       !clutter_actor_has_mapped_clones (self))
     return FALSE;
 
-  if (g_list_find (self->priv->stage_views, view))
+  if (g_list_find (clutter_actor_peek_stage_views (self), view))
     return TRUE;
 
   for (actor = self; actor; actor = actor->priv->parent)
@@ -15714,9 +15718,7 @@ clutter_actor_pick_frame_clock (ClutterActor  *self,
   ClutterStageView *best_view = NULL;
   GList *l;
 
-  stage_views_list = CLUTTER_IS_STAGE (self)
-    ? clutter_stage_peek_stage_views (CLUTTER_STAGE (self))
-    : priv->stage_views;
+  stage_views_list = clutter_actor_peek_stage_views (self);
 
   if (!stage_views_list)
     {
