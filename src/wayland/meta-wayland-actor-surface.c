@@ -214,24 +214,24 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
     .height = meta_wayland_surface_get_height (surface),
   };
 
-  if (surface->input_region)
-    {
-      cairo_region_t *input_region;
-
-      input_region = cairo_region_copy (surface->input_region);
-      cairo_region_intersect_rectangle (input_region, &surface_rect);
-      meta_surface_actor_set_input_region (surface_actor, input_region);
-      cairo_region_destroy (input_region);
-    }
-  else
-    {
-      meta_surface_actor_set_input_region (surface_actor, NULL);
-    }
-
 #ifdef HAVE_XWAYLAND
   if (!META_IS_XWAYLAND_SURFACE (surface_role))
 #endif
     {
+      if (surface->input_region)
+        {
+          cairo_region_t *input_region;
+
+          input_region = cairo_region_copy (surface->input_region);
+          cairo_region_intersect_rectangle (input_region, &surface_rect);
+          meta_surface_actor_set_input_region (surface_actor, input_region);
+          cairo_region_destroy (input_region);
+        }
+      else
+        {
+          meta_surface_actor_set_input_region (surface_actor, NULL);
+        }
+
       if (!meta_shaped_texture_has_alpha (stex))
         {
           cairo_region_t *opaque_region;
