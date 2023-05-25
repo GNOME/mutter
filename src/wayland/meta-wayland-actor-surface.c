@@ -230,6 +230,7 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
 
 #ifdef HAVE_XWAYLAND
   if (!META_IS_XWAYLAND_SURFACE (surface_role))
+#endif
     {
       if (!meta_shaped_texture_has_alpha (stex))
         {
@@ -253,7 +254,6 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
           meta_surface_actor_set_opaque_region (surface_actor, NULL);
         }
     }
-#endif
 
   meta_shaped_texture_set_transform (stex, surface->buffer_transform);
 
