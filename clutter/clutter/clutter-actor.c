@@ -15642,7 +15642,7 @@ clutter_actor_finish_layout (ClutterActor *self,
 GList *
 clutter_actor_peek_stage_views (ClutterActor *self)
 {
-  g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (self), NULL);
 
   return CLUTTER_ACTOR_IS_TOPLEVEL (self)
     ? clutter_stage_peek_stage_views (CLUTTER_STAGE (self))
