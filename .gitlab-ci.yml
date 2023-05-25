@@ -288,7 +288,7 @@ build-without-opengl-and-glx@x86_64:
         -Dwayland_eglstream=true
         -Dintrospection=false
     - meson compile -C build
-    - sudo meson install --no-rebuild -C build
+    - meson install --no-rebuild -C build
   artifacts:
     paths:
       - build/meson-logs
@@ -311,7 +311,7 @@ build-without-native-backend-and-wayland@x86_64:
         -Dnative_tests=false
         -Dintrospection=false
     - meson compile -C build
-    - sudo meson install --no-rebuild -C build
+    - meson install --no-rebuild -C build
   artifacts:
     paths:
       - build/meson-logs
@@ -332,7 +332,7 @@ build-wayland-only@x86_64:
         -Dnative_tests=false
         -Dintrospection=false
     - meson compile -C build
-    - sudo meson install --no-rebuild -C build
+    - meson install --no-rebuild -C build
   artifacts:
     paths:
       - build/meson-logs
@@ -469,11 +469,11 @@ can-build-gnome-shell@x86_64:
   needs:
     - build-mutter@x86_64
   before_script:
-    - sudo meson install --no-rebuild -C build
+    - meson install --no-rebuild -C build
   script:
     - .gitlab-ci/checkout-gnome-shell.sh
     - meson setup gnome-shell gnome-shell/build --prefix /usr -Dman=false
-    - sudo meson install -C gnome-shell/build
+    - meson install -C gnome-shell/build
 
 test-mutter-coverity:
   rules:
