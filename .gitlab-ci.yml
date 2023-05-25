@@ -520,10 +520,13 @@ dist-mutter:
           --launch=wireplumber
           meson dist -C build
   rules:
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+      when: manual
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       changes:
         - "**/meson.build"
         - meson/*
+      when: always
 
 dist-mutter-tarball:
   extends: dist-mutter
