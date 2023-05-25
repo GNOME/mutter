@@ -805,7 +805,7 @@ struct _ClutterActorPrivate
   unsigned int n_pointers;
   unsigned int implicitly_grabbed_count;
 
-  GSList *next_redraw_clips;
+  GArray *next_redraw_clips;
 
   /* bitfields: KEEP AT THE END */
 
@@ -5505,7 +5505,7 @@ clutter_actor_dispose (GObject *object)
     }
 
   g_clear_pointer (&priv->stage_views, g_list_free);
-  g_clear_slist (&priv->next_redraw_clips, (GDestroyNotify) clutter_paint_volume_free);
+  g_clear_pointer (&priv->next_redraw_clips, g_array_unref);
 
   G_OBJECT_CLASS (clutter_actor_parent_class)->dispose (object);
 }
@@ -7592,6 +7592,9 @@ clutter_actor_init (ClutterActor *self)
    */
   priv->needs_compute_expand = FALSE;
 
+  priv->next_redraw_clips =
+    g_array_sized_new (FALSE, TRUE, sizeof (ClutterPaintVolume), 3);
+
   /* we start with an easing state with duration forcibly set
    * to 0, for backward compatibility.
    */
@@ -7687,9 +7690,9 @@ _clutter_actor_queue_redraw_full (ClutterActor             *self,
   if (CLUTTER_ACTOR_IN_DESTRUCTION (stage))
     return;
 
-  if (priv->needs_redraw && !priv->next_redraw_clips)
+  if (priv->needs_redraw && priv->next_redraw_clips->len == 0)
     {
-      /* priv->needs_redraw is TRUE while priv->next_redraw_clips is NULL, this
+      /* priv->needs_redraw is TRUE while priv->next_redraw_clips->len is 0, this
        * means an unclipped redraw is already queued, no need to do anything.
        */
     }
@@ -7703,16 +7706,9 @@ _clutter_actor_queue_redraw_full (ClutterActor             *self,
         }
 
       if (volume)
-        {
-          ClutterPaintVolume *clip_pv = _clutter_paint_volume_new (self);
-
-          _clutter_paint_volume_set_from_volume (clip_pv, volume);
-          priv->next_redraw_clips = g_slist_prepend (priv->next_redraw_clips, clip_pv);
-        }
+        g_array_append_val (priv->next_redraw_clips, *volume);
       else
-        {
-          g_clear_slist (&priv->next_redraw_clips, (GDestroyNotify) clutter_paint_volume_free);
-        }
+        priv->next_redraw_clips->len = 0;
     }
 
   /* If this is the first redraw queued then we can directly use the
@@ -15377,14 +15373,14 @@ add_actor_to_redraw_clip (ClutterActor       *self,
   ClutterActorPrivate *priv = self->priv;
   ClutterStage *stage = CLUTTER_STAGE (_clutter_actor_get_stage_internal (self));
 
-  if (priv->next_redraw_clips)
+  if (priv->next_redraw_clips->len != 0)
     {
-      GSList *l;
+      unsigned int i;
 
-      for (l = priv->next_redraw_clips; l; l = l->next)
-        clutter_stage_add_to_redraw_clip (stage, l->data);
+      for (i = 0; i < priv->next_redraw_clips->len; i++)
+        clutter_stage_add_to_redraw_clip (stage, &g_array_index (priv->next_redraw_clips, ClutterPaintVolume, i));
 
-      g_clear_slist (&priv->next_redraw_clips, (GDestroyNotify) clutter_paint_volume_free);
+      priv->next_redraw_clips->len = 0;
     }
   else if (actor_moved)
     {
