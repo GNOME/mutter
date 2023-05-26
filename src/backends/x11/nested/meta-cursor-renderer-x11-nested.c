@@ -84,6 +84,8 @@ meta_cursor_renderer_x11_nested_constructed (GObject *object)
   Cursor empty_xcursor = create_empty_cursor (xdisplay);
   XDefineCursor (xdisplay, xwindow, empty_xcursor);
   XFreeCursor (xdisplay, empty_xcursor);
+
+  G_OBJECT_CLASS (meta_cursor_renderer_x11_nested_parent_class)->constructed (object);
 }
 
 static void
