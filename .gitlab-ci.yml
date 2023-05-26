@@ -633,6 +633,8 @@ reference:
 pages:
   stage: deploy
   needs: ['reference']
+  extends:
+    - .skip-git-clone
   script:
     - mv references public/
   artifacts:
