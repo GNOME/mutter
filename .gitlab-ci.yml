@@ -337,7 +337,7 @@ build-wayland-only@x86_64:
     paths:
       - build/meson-logs
 
-.test-setup: &test-setup
+.test-setup:
   variables:
     XDG_RUNTIME_DIR: "$CI_PROJECT_DIR/runtime-dir"
     GSETTINGS_SCHEMA_DIR: "$CI_PROJECT_DIR/build/data"
@@ -357,7 +357,7 @@ build-wayland-only@x86_64:
 .test-mutter-base:
   extends:
     - .fdo.distribution-image@fedora
-  <<: *test-setup
+    - .test-setup
   stage: test
   after_script:
     - pushd build
@@ -507,7 +507,7 @@ dist-mutter:
     - .fdo.distribution-image@fedora
     - .mutter.fedora@x86_64
     - .build-mutter-base
-  <<: *test-setup
+    - .test-setup
   stage: deploy
   needs:
     - build-fedora-container@x86_64
