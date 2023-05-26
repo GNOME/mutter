@@ -15,6 +15,10 @@ stages:
 variables:
   FDO_UPSTREAM_REPO: GNOME/mutter
 
+.skip-git-clone:
+  variables:
+    GIT_STRATEGY: none
+
 .mutter.fedora@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 38
@@ -165,9 +169,8 @@ check-commit-log:
 check-merge-request:
   extends:
     - .fdo.ci-fairy
+    - .skip-git-clone
   stage: review
-  variables:
-    GIT_STRATEGY: none
   script:
     - if [[ x"$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" != "x" ]] ;
       then
@@ -188,12 +191,11 @@ build-fedora-container@x86_64:
   extends:
     - .fdo.container-build@fedora@x86_64
     - .mutter.fedora@x86_64
+    - .skip-git-clone
   stage: prepare
   needs:
     - check-commit-log
     - check-merge-request
-  variables:
-    GIT_STRATEGY: none
 
 build-fedora-container@aarch64:
   extends:
@@ -203,8 +205,7 @@ build-fedora-container@aarch64:
   needs:
     - check-commit-log
     - check-merge-request
-  variables:
-    GIT_STRATEGY: none
+    - .skip-git-clone
 
 check-code-style:
   extends:
