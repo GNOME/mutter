@@ -19,10 +19,57 @@ variables:
   variables:
     GIT_STRATEGY: none
 
+.mutter.git-clone:
+  extends:
+    - .skip-git-clone
+  variables:
+    MUTTER_CLONE_PATH: $CI_BUILDS_DIR/$CI_PROJECT_PATH
+    MUTTER_CLONE_DEPTH: 1
+  before_script: |
+    if [ -n "$MUTTER_CLONE_PATH" ]; then
+      set -x
+      uri="$CI_REPOSITORY_URL"
+      if [ -n "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME" ]; then
+        uri="$CI_MERGE_REQUEST_SOURCE_PROJECT_URL.git"
+        branch="$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
+      elif [ -n "$CI_COMMIT_BRANCH" ]; then
+        branch="$CI_COMMIT_BRANCH"
+      else
+        branch="$CI_DEFAULT_BRANCH"
+      fi
+      if [ ! -d "$MUTTER_CLONE_PATH" ] || [ -z "$(ls -A "$MUTTER_CLONE_PATH")" ]; then
+        git clone --depth $MUTTER_CLONE_DEPTH "$uri" "$MUTTER_CLONE_PATH" -b "$branch"
+      elif [ ! -d "$MUTTER_CLONE_PATH/.git" ]; then
+        git clone --bare --depth $MUTTER_CLONE_DEPTH "$uri" "$MUTTER_CLONE_PATH/.git" -b "$branch"
+        if git -C "$MUTTER_CLONE_PATH" config --unset core.bare; then
+          git -C "$MUTTER_CLONE_PATH" checkout
+        else
+          # For some weird reasons sometimes the fast-path could fail with
+          # "fatal: not in a git directory" error, so handle it manually
+          tmpdir=$(mktemp --directory --tmpdir mutter-XXXXXX)
+          mkdir "$tmpdir/repo"
+          mv "$MUTTER_CLONE_PATH/.git" "$tmpdir/repo/"
+          git clone "$tmpdir/repo" "$tmpdir/src"
+          mv "$tmpdir"/src/* "$tmpdir"/src/.* "$MUTTER_CLONE_PATH"
+          rm -r "$tmpdir/repo"
+          rm -rv "$tmpdir"
+        fi
+      fi
+      set +x
+    fi
+
+.mutter.skip-git-clone:
+  extends:
+    - .skip-git-clone
+  variables:
+    MUTTER_CLONE_PATH: ''
+
 .mutter.fedora@common:
+  extends:
+    - .skip-git-clone
   variables:
     FDO_DISTRIBUTION_VERSION: 38
-    BASE_TAG: '2023-05-24.1'
+    BASE_TAG: '2023-05-29.0'
     FDO_USER: 'meta-user'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
@@ -72,8 +119,21 @@ variables:
       # Replace pkexec with sudo, to make meson use it if needed
       ln -sfv /usr/bin/sudo /usr/bin/pkexec
 
+      # Ensure that we mark the project clone dir as safe directory
+      git config --system --add safe.directory "$CI_PROJECT_DIR"
+
       if [[ x"$(uname -m )" = "xx86_64" ]] ; then
-        meson setup build -Dkvm_tests=true
+        if [ -n "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME" ]; then
+          git clone --depth $MUTTER_CLONE_DEPTH \
+            $CI_MERGE_REQUEST_SOURCE_PROJECT_URL.git mutter-src \
+            -b "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
+        elif [ -n "$CI_COMMIT_BRANCH" ]; then
+          git clone --depth $MUTTER_CLONE_DEPTH \
+            $CI_REPOSITORY_URL mutter-src -b "$CI_COMMIT_BRANCH"
+        else
+          git clone --depth $MUTTER_CLONE_DEPTH $CI_REPOSITORY_URL mutter-src
+        fi
+        meson setup build mutter-src -Dkvm_tests=true
         ninja -C build src/tests/kvm/bzImage
         mkdir -p /opt/mutter
         cp build/src/tests/kvm/bzImage /opt/mutter/bzImage
@@ -86,6 +146,7 @@ variables:
         ./setup.py install --prefix=/usr
         cd ..
         rm -rf virtme
+        rm -rf build mutter-src
       fi
   retry:
     max: 2
@@ -105,12 +166,16 @@ default:
       - 'api_failure'
 
 .mutter.fedora@x86_64:
-  extends: .mutter.fedora@common
+  extends:
+    - .mutter.fedora@common
+    - .mutter.git-clone
   variables:
     FDO_DISTRIBUTION_TAG: "x86_64-${BASE_TAG}"
 
 .mutter.fedora@aarch64:
-  extends: .mutter.fedora@common
+  extends:
+    - .mutter.fedora@common
+    - .mutter.git-clone
   variables:
     FDO_DISTRIBUTION_TAG: "aarch64-${BASE_TAG}"
   tags:
@@ -191,7 +256,7 @@ build-fedora-container@x86_64:
   extends:
     - .fdo.container-build@fedora@x86_64
     - .mutter.fedora@x86_64
-    - .skip-git-clone
+    - .mutter.skip-git-clone
   stage: prepare
   needs:
     - check-commit-log
@@ -201,16 +266,18 @@ build-fedora-container@aarch64:
   extends:
     - .fdo.container-build@fedora@aarch64
     - .mutter.fedora@aarch64
+    - .mutter.skip-git-clone
   stage: prepare
   needs:
     - check-commit-log
     - check-merge-request
-    - .skip-git-clone
 
 check-code-style:
   extends:
     - .fdo.distribution-image@fedora
     - .mutter.fedora@x86_64
+  variables:
+    MUTTER_CLONE_DEPTH: 200
   stage: code-review
   needs:
     - build-fedora-container@x86_64
@@ -351,6 +418,7 @@ build-wayland-only@x86_64:
     NO_AT_BRIDGE: "1"
     GTK_A11Y: "none"
   before_script:
+    - !reference [.mutter.git-clone, before_script]
     # Disable e.g. audio support to not dead lock screen cast tests
     - mkdir -m 700 $XDG_RUNTIME_DIR
     - pipewire & sleep 2
@@ -397,8 +465,8 @@ build-wayland-only@x86_64:
 
 test-mutter@x86_64:
   extends:
-    - .test-mutter
     - .mutter.fedora@x86_64
+    - .test-mutter
   tags:
     - asan
   needs:
@@ -406,8 +474,8 @@ test-mutter@x86_64:
 
 test-mutter-kvm@x86_64:
   extends:
-    - .test-mutter-base
     - .mutter.fedora@x86_64
+    - .test-mutter-base
   tags:
     - kvm
   script:
@@ -426,8 +494,8 @@ test-mutter-kvm@x86_64:
 
 test-mutter@aarch64:
   extends:
-    - .test-mutter
     - .mutter.fedora@aarch64
+    - .test-mutter
   tags:
     - asan-aarch64
   needs:
@@ -470,6 +538,7 @@ can-build-gnome-shell@x86_64:
   needs:
     - build-mutter@x86_64
   before_script:
+    - !reference [.mutter.fedora@x86_64, before_script]
     - meson install --no-rebuild -C build
   script:
     - .gitlab-ci/checkout-gnome-shell.sh
