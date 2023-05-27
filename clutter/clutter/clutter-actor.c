@@ -2150,8 +2150,8 @@ unrealize_actor_before_children_cb (ClutterActor *self,
 
 static ClutterActorTraverseVisitFlags
 unrealize_actor_after_children_cb (ClutterActor *self,
-                                   int depth,
-                                   void *user_data)
+                                   int           depth,
+                                   void         *user_data)
 {
   ClutterActorPrivate *priv = self->priv;
   ClutterActor *stage = user_data;
@@ -5481,9 +5481,9 @@ clutter_actor_dispose (GObject *object)
   ClutterBackend *backend = clutter_get_default_backend ();
 
   CLUTTER_NOTE (MISC, "Dispose actor (name='%s', ref_count:%d) of type '%s'",
-		_clutter_actor_get_debug_name (self),
+                _clutter_actor_get_debug_name (self),
                 object->ref_count,
-		g_type_name (G_OBJECT_TYPE (self)));
+                g_type_name (G_OBJECT_TYPE (self)));
 
   maybe_unset_key_focus (self);
 
@@ -15722,10 +15722,10 @@ clutter_actor_pick_frame_clock (ClutterActor  *self,
 
   if (!stage_views_list)
     {
-     if (priv->parent)
-       return clutter_actor_pick_frame_clock (priv->parent, out_actor);
-     else
-       return NULL;
+      if (priv->parent)
+        return clutter_actor_pick_frame_clock (priv->parent, out_actor);
+      else
+        return NULL;
     }
 
   for (l = stage_views_list; l; l = l->next)
