@@ -108,7 +108,7 @@ single_pixel_buffer_manager_bind (struct wl_client *client,
 
 gboolean
 meta_wayland_single_pixel_buffer_attach (MetaWaylandBuffer  *buffer,
-                                         CoglTexture       **texture,
+                                         MetaMultiTexture  **texture,
                                          GError            **error)
 {
   MetaContext *context =
@@ -144,10 +144,11 @@ meta_wayland_single_pixel_buffer_attach (MetaWaylandBuffer  *buffer,
   if (!tex_2d)
     return FALSE;
 
-  buffer->single_pixel.texture = COGL_TEXTURE (tex_2d);
+  buffer->single_pixel.texture =
+    meta_multi_texture_new_simple (COGL_TEXTURE (tex_2d));
 
-  cogl_clear_object (texture);
-  *texture = cogl_object_ref (buffer->single_pixel.texture);
+  g_clear_object (texture);
+  *texture = g_object_ref (buffer->single_pixel.texture);
   return TRUE;
 }
 

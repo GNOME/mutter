@@ -25,14 +25,15 @@
 #include "config.h"
 
 #include "compositor/meta-texture-mipmap.h"
+#include "compositor/meta-multi-texture-format-private.h"
 
 #include <math.h>
 #include <string.h>
 
 struct _MetaTextureMipmap
 {
-  CoglTexture *base_texture;
-  CoglTexture *mipmap_texture;
+  MetaMultiTexture *base_texture;
+  MetaMultiTexture *mipmap_texture;
   CoglPipeline *pipeline;
   CoglFramebuffer *fb;
   gboolean invalid;
@@ -68,8 +69,8 @@ meta_texture_mipmap_free (MetaTextureMipmap *mipmap)
   g_return_if_fail (mipmap != NULL);
 
   cogl_clear_object (&mipmap->pipeline);
-  cogl_clear_object (&mipmap->base_texture);
-  cogl_clear_object (&mipmap->mipmap_texture);
+  g_clear_object (&mipmap->base_texture);
+  g_clear_object (&mipmap->mipmap_texture);
   g_clear_object (&mipmap->fb);
 
   g_free (mipmap);
@@ -87,20 +88,20 @@ meta_texture_mipmap_free (MetaTextureMipmap *mipmap)
  */
 void
 meta_texture_mipmap_set_base_texture (MetaTextureMipmap *mipmap,
-                                      CoglTexture       *texture)
+                                      MetaMultiTexture  *texture)
 {
   g_return_if_fail (mipmap != NULL);
 
   if (texture == mipmap->base_texture)
     return;
 
-  cogl_clear_object (&mipmap->base_texture);
+  g_clear_object (&mipmap->base_texture);
 
   mipmap->base_texture = texture;
 
   if (mipmap->base_texture != NULL)
     {
-      cogl_object_ref (mipmap->base_texture);
+      g_object_ref (mipmap->base_texture);
       mipmap->invalid = TRUE;
     }
 }
@@ -117,7 +118,7 @@ static void
 free_mipmaps (MetaTextureMipmap *mipmap)
 {
   g_clear_object (&mipmap->fb);
-  cogl_clear_object (&mipmap->mipmap_texture);
+  g_clear_object (&mipmap->mipmap_texture);
 }
 
 void
@@ -150,8 +151,8 @@ ensure_mipmap_texture (MetaTextureMipmap *mipmap)
    * then just use the original texture instead of mipmap texture, which is
    * faster anyway.
    */
-  width = cogl_texture_get_width (mipmap->base_texture) / 2;
-  height = cogl_texture_get_height (mipmap->base_texture) / 2;
+  width = meta_multi_texture_get_width (mipmap->base_texture) / 2;
+  height = meta_multi_texture_get_height (mipmap->base_texture) / 2;
 
   if (!width || !height)
     {
@@ -160,11 +161,12 @@ ensure_mipmap_texture (MetaTextureMipmap *mipmap)
     }
 
   if (!mipmap->mipmap_texture ||
-      cogl_texture_get_width (mipmap->mipmap_texture) != width ||
-      cogl_texture_get_height (mipmap->mipmap_texture) != height)
+      meta_multi_texture_get_width (mipmap->mipmap_texture) != width ||
+      meta_multi_texture_get_height (mipmap->mipmap_texture) != height)
     {
       CoglOffscreen *offscreen;
       CoglTexture2D *tex2d;
+      CoglTexture *tex;
 
       free_mipmaps (mipmap);
 
@@ -172,9 +174,10 @@ ensure_mipmap_texture (MetaTextureMipmap *mipmap)
       if (!tex2d)
         return;
 
-      mipmap->mipmap_texture = COGL_TEXTURE (tex2d);
+      tex = COGL_TEXTURE (tex2d);
+      mipmap->mipmap_texture = meta_multi_texture_new_simple (tex);
 
-      offscreen = cogl_offscreen_new_with_texture (mipmap->mipmap_texture);
+      offscreen = cogl_offscreen_new_with_texture (tex);
       if (!offscreen)
         {
           free_mipmaps (mipmap);
@@ -197,16 +200,49 @@ ensure_mipmap_texture (MetaTextureMipmap *mipmap)
 
   if (mipmap->invalid)
     {
+      int n_planes, i;
+
+      n_planes = meta_multi_texture_get_n_planes (mipmap->base_texture);
+
       if (!mipmap->pipeline)
         {
+          MetaMultiTextureFormat format =
+            meta_multi_texture_get_format (mipmap->base_texture);
+          CoglSnippet *fragment_globals_snippet;
+          CoglSnippet *fragment_snippet;
+
           mipmap->pipeline = cogl_pipeline_new (ctx);
-          cogl_pipeline_set_blend (mipmap->pipeline, "RGBA = ADD (SRC_COLOR, 0)", NULL);
-          cogl_pipeline_set_layer_filters (mipmap->pipeline, 0,
-                                           COGL_PIPELINE_FILTER_LINEAR,
-                                           COGL_PIPELINE_FILTER_LINEAR);
+          cogl_pipeline_set_blend (mipmap->pipeline,
+                                   "RGBA = ADD (SRC_COLOR, 0)",
+                                   NULL);
+
+          for (i = 0; i < n_planes; i++)
+            {
+              cogl_pipeline_set_layer_filters (mipmap->pipeline, i,
+                                               COGL_PIPELINE_FILTER_LINEAR,
+                                               COGL_PIPELINE_FILTER_LINEAR);
+              cogl_pipeline_set_layer_combine (mipmap->pipeline, i,
+                                               "RGBA = REPLACE(TEXTURE)",
+                                               NULL);
+            }
+
+          meta_multi_texture_format_get_snippets (format,
+                                                  &fragment_globals_snippet,
+                                                  &fragment_snippet);
+          cogl_pipeline_add_snippet (mipmap->pipeline, fragment_globals_snippet);
+          cogl_pipeline_add_snippet (mipmap->pipeline, fragment_snippet);
+
+          cogl_clear_object (&fragment_globals_snippet);
+          cogl_clear_object (&fragment_snippet);
         }
 
-      cogl_pipeline_set_layer_texture (mipmap->pipeline, 0, mipmap->base_texture);
+      for (i = 0; i < n_planes; i++)
+        {
+          CoglTexture *plane = meta_multi_texture_get_plane (mipmap->base_texture, i);
+
+          cogl_pipeline_set_layer_texture (mipmap->pipeline, i, plane);
+        }
+
       cogl_framebuffer_draw_textured_rectangle (mipmap->fb,
                                                 mipmap->pipeline,
                                                 0, 0, width, height,
@@ -229,7 +265,7 @@ ensure_mipmap_texture (MetaTextureMipmap *mipmap)
  * Return value: the COGL texture handle to use for painting, or
  *  %NULL if no base texture has yet been set.
  */
-CoglTexture *
+MetaMultiTexture *
 meta_texture_mipmap_get_paint_texture (MetaTextureMipmap *mipmap)
 {
   g_return_val_if_fail (mipmap != NULL, NULL);

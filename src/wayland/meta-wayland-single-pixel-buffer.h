@@ -24,12 +24,13 @@
 #include <glib.h>
 
 #include "cogl/cogl.h"
+#include "meta/meta-multi-texture.h"
 #include "wayland/meta-wayland-types.h"
 
 typedef struct _MetaWaylandSinglePixelBuffer MetaWaylandSinglePixelBuffer;
 
 gboolean meta_wayland_single_pixel_buffer_attach (MetaWaylandBuffer  *buffer,
-                                                  CoglTexture       **texture,
+                                                  MetaMultiTexture  **texture,
                                                   GError            **error);
 
 MetaWaylandSinglePixelBuffer * meta_wayland_single_pixel_buffer_from_buffer (MetaWaylandBuffer *buffer);

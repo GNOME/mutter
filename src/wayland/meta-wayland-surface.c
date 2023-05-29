@@ -440,7 +440,7 @@ meta_wayland_surface_state_clear (MetaWaylandSurfaceState *state)
 {
   MetaWaylandFrameCallback *cb, *next;
 
-  cogl_clear_object (&state->texture);
+  g_clear_object (&state->texture);
 
   g_clear_pointer (&state->surface_damage, cairo_region_destroy);
   g_clear_pointer (&state->buffer_damage, cairo_region_destroy);
@@ -490,7 +490,7 @@ meta_wayland_surface_state_merge_into (MetaWaylandSurfaceState *from,
       to->newly_attached = TRUE;
       to->buffer = g_steal_pointer (&from->buffer);
 
-      cogl_clear_object (&to->texture);
+      g_clear_object (&to->texture);
       to->texture = g_steal_pointer (&from->texture);
     }
 
@@ -731,7 +731,7 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
         meta_wayland_buffer_dec_use_count (surface->buffer);
 
       g_set_object (&surface->buffer, state->buffer);
-      cogl_clear_object (&surface->output_state.texture);
+      g_clear_object (&surface->output_state.texture);
       surface->output_state.texture = g_steal_pointer (&state->texture);
 
       /* If the newly attached buffer is going to be accessed directly without
@@ -951,14 +951,14 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
           return;
         }
 
-      pending->texture = cogl_object_ref (surface->protocol_state.texture);
+      pending->texture = g_object_ref (surface->protocol_state.texture);
 
       g_object_ref (buffer);
       meta_wayland_buffer_inc_use_count (buffer);
     }
   else if (pending->newly_attached)
     {
-      cogl_clear_object (&surface->protocol_state.texture);
+      g_clear_object (&surface->protocol_state.texture);
     }
 
   if (meta_wayland_surface_is_synchronized (surface))
@@ -1466,7 +1466,7 @@ meta_wayland_surface_finalize (GObject *object)
 
   if (surface->buffer_held)
     meta_wayland_buffer_dec_use_count (surface->buffer);
-  g_clear_pointer (&surface->output_state.texture, cogl_object_unref);
+  g_clear_object (&surface->output_state.texture);
   g_clear_object (&surface->buffer);
 
   if (surface->opaque_region)
@@ -1518,7 +1518,7 @@ wl_surface_destructor (struct wl_resource *resource)
   g_clear_pointer (&surface->wl_subsurface, wl_resource_destroy);
   g_clear_pointer (&surface->protocol_state.subsurface_branch_node, g_node_destroy);
 
-  cogl_clear_object (&surface->protocol_state.texture);
+  g_clear_object (&surface->protocol_state.texture);
 
   /*
    * Any transactions referencing this surface will keep it alive until they get
@@ -2105,7 +2105,7 @@ meta_wayland_surface_is_shortcuts_inhibited (MetaWaylandSurface *surface,
   return g_hash_table_contains (surface->shortcut_inhibited_seats, seat);
 }
 
-CoglTexture *
+MetaMultiTexture *
 meta_wayland_surface_get_texture (MetaWaylandSurface *surface)
 {
   return surface->output_state.texture;
@@ -2180,7 +2180,7 @@ meta_wayland_surface_get_buffer_width (MetaWaylandSurface *surface)
   MetaWaylandBuffer *buffer = meta_wayland_surface_get_buffer (surface);
 
   if (buffer)
-    return cogl_texture_get_width (surface->output_state.texture);
+    return meta_multi_texture_get_width (surface->output_state.texture);
   else
     return 0;
 }
@@ -2191,7 +2191,7 @@ meta_wayland_surface_get_buffer_height (MetaWaylandSurface *surface)
   MetaWaylandBuffer *buffer = meta_wayland_surface_get_buffer (surface);
 
   if (buffer)
-    return cogl_texture_get_height (surface->output_state.texture);
+    return meta_multi_texture_get_height (surface->output_state.texture);
   else
     return 0;
 }

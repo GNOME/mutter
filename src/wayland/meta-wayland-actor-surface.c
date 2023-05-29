@@ -192,7 +192,7 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
     {
       CoglSnippet *snippet;
       gboolean is_y_inverted;
-      CoglTexture *texture;
+      MetaMultiTexture *texture;
 
       snippet = meta_wayland_buffer_create_snippet (buffer);
       is_y_inverted = meta_wayland_buffer_is_y_inverted (buffer);

@@ -24,6 +24,7 @@
 #define META_TEXTURE_MIPMAP_H
 
 #include "clutter/clutter.h"
+#include "meta/meta-multi-texture.h"
 
 G_BEGIN_DECLS
 
@@ -42,9 +43,9 @@ MetaTextureMipmap *meta_texture_mipmap_new (void);
 void meta_texture_mipmap_free (MetaTextureMipmap *mipmap);
 
 void meta_texture_mipmap_set_base_texture (MetaTextureMipmap *mipmap,
-                                           CoglTexture *texture);
+                                           MetaMultiTexture  *texture);
 
-CoglTexture *meta_texture_mipmap_get_paint_texture (MetaTextureMipmap *mipmap);
+MetaMultiTexture *meta_texture_mipmap_get_paint_texture (MetaTextureMipmap *mipmap);
 
 void meta_texture_mipmap_invalidate (MetaTextureMipmap *mipmap);
 

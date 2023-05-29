@@ -28,6 +28,7 @@
 
 #include "clutter/clutter.h"
 #include <meta/common.h>
+#include <meta/meta-multi-texture.h>
 
 G_BEGIN_DECLS
 
@@ -45,7 +46,7 @@ void meta_shaped_texture_set_create_mipmaps (MetaShapedTexture *stex,
 					     gboolean           create_mipmaps);
 
 META_EXPORT
-CoglTexture * meta_shaped_texture_get_texture (MetaShapedTexture *stex);
+MetaMultiTexture * meta_shaped_texture_get_texture (MetaShapedTexture *stex);
 
 META_EXPORT
 void meta_shaped_texture_set_mask_texture (MetaShapedTexture *stex,

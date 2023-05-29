@@ -83,7 +83,7 @@ struct _MetaWaylandSurfaceState
   /* wl_surface.attach */
   gboolean newly_attached;
   MetaWaylandBuffer *buffer;
-  CoglTexture *texture;
+  MetaMultiTexture *texture;
   gulong buffer_destroy_handler_id;
   int32_t dx;
   int32_t dy;
@@ -193,7 +193,7 @@ struct _MetaWaylandSurface
     MetaWaylandSurface *parent;
     GNode *subsurface_branch_node;
     GNode *subsurface_leaf_node;
-    CoglTexture *texture;
+    MetaMultiTexture *texture;
   } output_state, protocol_state;
 
   /* Extension resources. */
@@ -371,7 +371,7 @@ void                meta_wayland_surface_restore_shortcuts (MetaWaylandSurface *
 gboolean            meta_wayland_surface_is_shortcuts_inhibited (MetaWaylandSurface *surface,
                                                                  MetaWaylandSeat    *seat);
 
-CoglTexture *       meta_wayland_surface_get_texture (MetaWaylandSurface *surface);
+MetaMultiTexture *  meta_wayland_surface_get_texture (MetaWaylandSurface *surface);
 
 META_EXPORT_TEST
 MetaSurfaceActor *  meta_wayland_surface_get_actor (MetaWaylandSurface *surface);

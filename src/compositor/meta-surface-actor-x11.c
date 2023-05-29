@@ -46,7 +46,7 @@ struct _MetaSurfaceActorX11
 
   MetaDisplay *display;
 
-  CoglTexture *texture;
+  MetaMultiTexture *texture;
   Pixmap pixmap;
   Damage damage;
 
@@ -109,7 +109,7 @@ detach_pixmap (MetaSurfaceActorX11 *self)
   self->pixmap = None;
   meta_x11_error_trap_pop (display->x11_display);
 
-  g_clear_pointer (&self->texture, cogl_object_unref);
+  g_clear_object (&self->texture);
 }
 
 static void
@@ -119,23 +119,23 @@ set_pixmap (MetaSurfaceActorX11 *self,
   CoglContext *ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
   MetaShapedTexture *stex = meta_surface_actor_get_texture (META_SURFACE_ACTOR (self));
   GError *error = NULL;
-  CoglTexture *texture;
+  CoglTexture *cogl_texture;
 
   g_assert (self->pixmap == None);
   self->pixmap = pixmap;
 
-  texture = COGL_TEXTURE (cogl_texture_pixmap_x11_new (ctx, self->pixmap, FALSE, &error));
+  cogl_texture = COGL_TEXTURE (cogl_texture_pixmap_x11_new (ctx, self->pixmap, FALSE, &error));
 
   if (error != NULL)
     {
       g_warning ("Failed to allocate stex texture: %s", error->message);
       g_error_free (error);
     }
-  else if (G_UNLIKELY (!cogl_texture_pixmap_x11_is_using_tfp_extension (COGL_TEXTURE_PIXMAP_X11 (texture))))
+  else if (G_UNLIKELY (!cogl_texture_pixmap_x11_is_using_tfp_extension (COGL_TEXTURE_PIXMAP_X11 (cogl_texture))))
     g_warning ("NOTE: Not using GLX TFP!");
 
-  self->texture = texture;
-  meta_shaped_texture_set_texture (stex, texture);
+  self->texture = meta_multi_texture_new_simple (cogl_texture);
+  meta_shaped_texture_set_texture (stex, self->texture);
 }
 
 static void
@@ -195,6 +195,7 @@ meta_surface_actor_x11_process_damage (MetaSurfaceActor *actor,
                                        int               height)
 {
   MetaSurfaceActorX11 *self = META_SURFACE_ACTOR_X11 (actor);
+  CoglTexturePixmapX11 *pixmap;
 
   self->received_damage = TRUE;
 
@@ -218,8 +219,12 @@ meta_surface_actor_x11_process_damage (MetaSurfaceActor *actor,
   if (!meta_surface_actor_x11_is_visible (self))
     return;
 
-  cogl_texture_pixmap_x11_update_area (COGL_TEXTURE_PIXMAP_X11 (self->texture),
-                                       x, y, width, height);
+  /* We don't support multi-plane or YUV based formats in X */
+  if (!meta_multi_texture_is_simple (self->texture))
+    return;
+
+  pixmap = COGL_TEXTURE_PIXMAP_X11 (meta_multi_texture_get_plane (self->texture, 0));
+  cogl_texture_pixmap_x11_update_area (pixmap, x, y, width, height);
   meta_surface_actor_update_area (actor, x, y, width, height);
 }
 

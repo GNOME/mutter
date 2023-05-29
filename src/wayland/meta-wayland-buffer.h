@@ -29,6 +29,7 @@
 #include <wayland-server.h>
 
 #include "cogl/cogl.h"
+#include "meta/meta-multi-texture.h"
 #include "wayland/meta-wayland-types.h"
 #include "wayland/meta-wayland-egl-stream.h"
 #include "wayland/meta-wayland-dma-buf.h"
@@ -61,24 +62,24 @@ struct _MetaWaylandBuffer
   MetaWaylandBufferType type;
 
   struct {
-    CoglTexture *texture;
+    MetaMultiTexture *texture;
   } egl_image;
 
 #ifdef HAVE_WAYLAND_EGLSTREAM
   struct {
     MetaWaylandEglStream *stream;
-    CoglTexture *texture;
+    MetaMultiTexture *texture;
   } egl_stream;
 #endif
 
   struct {
     MetaWaylandDmaBufBuffer *dma_buf;
-    CoglTexture *texture;
+    MetaMultiTexture *texture;
   } dma_buf;
 
   struct {
     MetaWaylandSinglePixelBuffer *single_pixel_buffer;
-    CoglTexture *texture;
+    MetaMultiTexture *texture;
   } single_pixel;
 
   GHashTable *tainted_scanout_onscreens;
@@ -94,14 +95,14 @@ struct wl_resource *    meta_wayland_buffer_get_resource        (MetaWaylandBuff
 gboolean                meta_wayland_buffer_is_realized         (MetaWaylandBuffer     *buffer);
 gboolean                meta_wayland_buffer_realize             (MetaWaylandBuffer     *buffer);
 gboolean                meta_wayland_buffer_attach              (MetaWaylandBuffer     *buffer,
-                                                                 CoglTexture          **texture,
+                                                                 MetaMultiTexture     **texture,
                                                                  GError               **error);
 CoglSnippet *           meta_wayland_buffer_create_snippet      (MetaWaylandBuffer     *buffer);
 void                    meta_wayland_buffer_inc_use_count       (MetaWaylandBuffer     *buffer);
 void                    meta_wayland_buffer_dec_use_count       (MetaWaylandBuffer     *buffer);
 gboolean                meta_wayland_buffer_is_y_inverted       (MetaWaylandBuffer     *buffer);
 void                    meta_wayland_buffer_process_damage      (MetaWaylandBuffer     *buffer,
-                                                                 CoglTexture           *texture,
+                                                                 MetaMultiTexture      *texture,
                                                                  cairo_region_t        *region);
 CoglScanout *           meta_wayland_buffer_try_acquire_scanout (MetaWaylandBuffer     *buffer,
                                                                  CoglOnscreen          *onscreen);
