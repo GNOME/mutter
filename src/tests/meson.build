@@ -684,7 +684,6 @@ if have_x11
       ],
       env: x11_env,
       suite: ['core', 'mutter/x11'],
-      should_fail: mode == 'sync',
       is_parallel: false,
       timeout: 60,
     )

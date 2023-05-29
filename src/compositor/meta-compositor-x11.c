@@ -205,10 +205,16 @@ static void
 meta_compositor_x11_unmanage (MetaCompositor *compositor)
 {
   MetaDisplay *display = meta_compositor_get_display (compositor);
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaX11Display *x11_display = display->x11_display;
   Display *xdisplay = x11_display->xdisplay;
   Window xroot = x11_display->xroot;
+  Window backend_xwindow;
   MetaCompositorClass *parent_class;
+
+  backend_xwindow = meta_backend_x11_get_xwindow (META_BACKEND_X11 (backend));
+  XReparentWindow (xdisplay, backend_xwindow, xroot, 0, 0);
 
   /*
    * This is the most important part of cleanup - we have to do this before
