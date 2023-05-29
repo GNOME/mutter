@@ -69,7 +69,7 @@ variables:
     - .skip-git-clone
   variables:
     FDO_DISTRIBUTION_VERSION: 38
-    BASE_TAG: '2023-05-29.0'
+    BASE_TAG: '2023-05-29.2'
     FDO_USER: 'meta-user'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
@@ -138,14 +138,15 @@ variables:
         mkdir -p /opt/mutter
         cp build/src/tests/kvm/bzImage /opt/mutter/bzImage
 
-        dnf install -y python3-pyelftools
+        dnf install -y python3-argcomplete
 
-        git clone https://github.com/arighi/virtme.git
-        cd virtme
-        git checkout aa99f43bd44c84dc95911ce99a8281cea5dfc5a1
+        git clone https://github.com/arighi/virtme-ng.git
+        cd virtme-ng
+        git fetch --tags
+        git checkout upstream/1.8
         ./setup.py install --prefix=/usr
         cd ..
-        rm -rf virtme
+        rm -rf virtme-ng
         rm -rf build mutter-src
       fi
   retry:
