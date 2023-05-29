@@ -323,7 +323,7 @@ on_apply_limits_sync_point (MetaWaylandTestDriver *test_driver,
 
   if (sequence == 0)
     g_assert (data->state == APPLY_LIMIT_STATE_INIT);
-  else if (sequence == 0)
+  else if (sequence == 1)
     g_assert (data->state == APPLY_LIMIT_STATE_RESET);
 
   window = find_client_window ("toplevel-limits-test");
