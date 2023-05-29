@@ -275,7 +275,8 @@ check-code-style:
     MUTTER_CLONE_DEPTH: 200
   stage: code-review
   needs:
-    - build-fedora-container@x86_64
+    - job: build-fedora-container@x86_64
+      artifacts: false
   script:
       git remote add target $CI_MERGE_REQUEST_PROJECT_URL.git ;
       git fetch target $CI_MERGE_REQUEST_TARGET_BRANCH_NAME ;
@@ -323,14 +324,16 @@ build-mutter@x86_64:
     - .build-mutter
     - .mutter.fedora@x86_64
   needs:
-    - build-fedora-container@x86_64
+    - job: build-fedora-container@x86_64
+      artifacts: false
 
 build-mutter@aarch64:
   extends:
     - .build-mutter
     - .mutter.fedora@aarch64
   needs:
-    - build-fedora-container@aarch64
+    - job: build-fedora-container@aarch64
+      artifacts: false
 
 build-without-opengl-and-glx@x86_64:
   extends:
@@ -338,7 +341,8 @@ build-without-opengl-and-glx@x86_64:
     - .mutter.fedora@x86_64
   stage: build
   needs:
-    - build-fedora-container@x86_64
+    - job: build-fedora-container@x86_64
+      artifacts: false
   script:
     - meson setup . build --werror --prefix /usr
         -Dbuildtype=debugoptimized
@@ -359,7 +363,8 @@ build-without-native-backend-and-wayland@x86_64:
     - .mutter.fedora@x86_64
   stage: build
   needs:
-    - build-fedora-container@x86_64
+    - job: build-fedora-container@x86_64
+      artifacts: false
   script:
     - meson setup . build --werror --prefix /usr
         -Dbuildtype=debugoptimized
@@ -382,7 +387,8 @@ build-wayland-only@x86_64:
     - .mutter.fedora@x86_64
   stage: build
   needs:
-    - build-fedora-container@x86_64
+    - job: build-fedora-container@x86_64
+      artifacts: false
   script:
     - meson setup . build --werror --prefix /usr
         -Dbuildtype=debugoptimized
@@ -547,7 +553,8 @@ test-mutter-coverity:
     - .fdo.distribution-image@fedora
     - .mutter.fedora@x86_64
   needs:
-    - build-fedora-container@x86_64
+    - job: build-fedora-container@x86_64
+      artifacts: false
   stage: analyze
   allow_failure: true
   script:
@@ -572,7 +579,8 @@ dist-mutter:
     - .test-setup
   stage: deploy
   needs:
-    - build-fedora-container@x86_64
+    - job: build-fedora-container@x86_64
+      artifacts: false
   script:
     - meson setup . build --werror --prefix /usr
         -Dbuildtype=debugoptimized
