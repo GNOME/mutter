@@ -2118,6 +2118,10 @@ meta_window_x11_constructed (GObject *object)
   window->hidden = FALSE;
   priv->border_width = attrs.border_width;
 
+  g_signal_connect (window, "notify::decorated",
+                    G_CALLBACK (meta_window_x11_update_input_region),
+                    window);
+
   G_OBJECT_CLASS (meta_window_x11_parent_class)->constructed (object);
 }
 
@@ -2428,16 +2432,21 @@ meta_window_x11_update_input_region (MetaWindow *window)
   cairo_region_t *region = NULL;
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
+  Window xwindow;
 
-  /* Decorated windows don't have an input region, because
-     we don't shape the frame to match the client windows
-     (so the events are blocked by the frame anyway)
-  */
   if (window->decorated)
     {
-      if (window->input_region)
-        meta_window_set_input_region (window, NULL);
-      return;
+      if (!window->frame)
+        {
+          if (window->input_region)
+            meta_window_set_input_region (window, NULL);
+          return;
+        }
+      xwindow = window->frame->xwindow;
+    }
+  else
+    {
+      xwindow = window->xwindow;
     }
 
   if (META_X11_DISPLAY_HAS_SHAPE (x11_display))
@@ -2449,7 +2458,7 @@ meta_window_x11_update_input_region (MetaWindow *window)
 
       meta_x11_error_trap_push (x11_display);
       rects = XShapeGetRectangles (x11_display->xdisplay,
-                                   window->xwindow,
+                                   xwindow,
                                    ShapeInput,
                                    &n_rects,
                                    &ordering);
@@ -2503,8 +2512,8 @@ meta_window_x11_update_input_region (MetaWindow *window)
 
       client_area.x = 0;
       client_area.y = 0;
-      client_area.width = priv->client_rect.width;
-      client_area.height = priv->client_rect.height;
+      client_area.width = window->buffer_rect.width;
+      client_area.height = window->buffer_rect.height;
 
       /* The shape we get back from the client may have coordinates
        * outside of the frame. The X SHAPE Extension requires that

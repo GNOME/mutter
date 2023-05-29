@@ -34,6 +34,7 @@
 #include "x11/window-props.h"
 
 #include <X11/Xatom.h>
+#include <X11/extensions/shape.h>
 
 #define EVENT_MASK (SubstructureRedirectMask |                     \
                     StructureNotifyMask | SubstructureNotifyMask | \
@@ -106,6 +107,9 @@ meta_window_set_frame_xwindow (MetaWindow *window,
   attrs.event_mask = EVENT_MASK;
   XChangeWindowAttributes (x11_display->xdisplay,
 			   frame->xwindow, CWEventMask, &attrs);
+
+  if (META_X11_DISPLAY_HAS_SHAPE (x11_display))
+    XShapeSelectInput (x11_display->xdisplay, frame->xwindow, ShapeNotifyMask);
 
   meta_x11_display_register_x_window (x11_display, &frame->xwindow, window);
 
@@ -214,6 +218,9 @@ meta_window_destroy_frame (MetaWindow *window)
                        window->frame->rect.y + borders.invisible.top);
       window->reparents_pending += 1;
     }
+
+  if (META_X11_DISPLAY_HAS_SHAPE (x11_display))
+    XShapeSelectInput (x11_display->xdisplay, frame->xwindow, NoEventMask);
 
   XDeleteProperty (x11_display->xdisplay,
                    window->xwindow,
