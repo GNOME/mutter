@@ -470,7 +470,6 @@ build-wayland-only@x86_64:
 
 .test-setup:
   variables:
-    XDG_RUNTIME_DIR: "$CI_PROJECT_DIR/runtime-dir"
     GSETTINGS_SCHEMA_DIR: "$CI_PROJECT_DIR/build/data"
     MUTTER_DEBUG_DUMMY_MODE_SPECS: "800x600@10.0"
     PIPEWIRE_DEBUG: 2
@@ -482,8 +481,6 @@ build-wayland-only@x86_64:
     GTK_A11Y: "none"
   before_script:
     - !reference [.mutter.git-clone, before_script]
-    # Disable e.g. audio support to not dead lock screen cast tests
-    - mkdir -m 700 $XDG_RUNTIME_DIR
 
 .test-mutter-base:
   extends:
