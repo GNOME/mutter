@@ -209,6 +209,13 @@ workflow:
     - if: '$CI_COMMIT_BRANCH'
       when: 'manual'
 
+.only-merge-requests:
+  rules:
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^$/'
+      when: never
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+      when: always
+
 check-commit-log:
   extends:
     - .fdo.ci-fairy
@@ -216,12 +223,7 @@ check-commit-log:
   variables:
     GIT_DEPTH: "100"
   script:
-    - if [[ x"$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" != "x" ]] ;
-      then
-        ci-fairy check-commits --junit-xml=commit-message-junit-report.xml ;
-      else
-        echo "Not a merge request" ;
-      fi
+    ci-fairy check-commits --junit-xml=commit-message-junit-report.xml
   artifacts:
     expire_in: 1 week
     paths:
@@ -229,7 +231,7 @@ check-commit-log:
     reports:
       junit: commit-message-junit-report.xml
   rules:
-    - !reference [.pipeline-guard, rules]
+    - !reference [.only-merge-requests, rules]
 
 check-merge-request:
   extends:
@@ -237,12 +239,7 @@ check-merge-request:
     - .skip-git-clone
   stage: review
   script:
-    - if [[ x"$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" != "x" ]] ;
-      then
-        ci-fairy check-merge-request --require-allow-collaboration --junit-xml=check-merge-request-report.xml ;
-      else
-        echo "Not a merge request" ;
-      fi
+    ci-fairy check-merge-request --require-allow-collaboration --junit-xml=check-merge-request-report.xml
   artifacts:
     expire_in: 1 week
     paths:
@@ -250,7 +247,7 @@ check-merge-request:
     reports:
       junit: check-merge-request-report.xml
   rules:
-    - !reference [.pipeline-guard, rules]
+    - !reference [.only-merge-requests, rules]
 
 build-fedora-container@x86_64:
   extends:
@@ -258,9 +255,8 @@ build-fedora-container@x86_64:
     - .mutter.fedora@x86_64
     - .mutter.skip-git-clone
   stage: prepare
-  needs:
-    - check-commit-log
-    - check-merge-request
+  rules:
+    - !reference [.pipeline-guard, rules]
 
 build-fedora-container@aarch64:
   extends:
@@ -268,9 +264,8 @@ build-fedora-container@aarch64:
     - .mutter.fedora@aarch64
     - .mutter.skip-git-clone
   stage: prepare
-  needs:
-    - check-commit-log
-    - check-merge-request
+  rules:
+    - !reference [.pipeline-guard, rules]
 
 check-code-style:
   extends:
@@ -282,16 +277,13 @@ check-code-style:
   needs:
     - build-fedora-container@x86_64
   script:
-    - if [[ x"$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" != "x" ]] ;
-      then
-        git remote add target $CI_MERGE_REQUEST_PROJECT_URL.git ;
-        git fetch target $CI_MERGE_REQUEST_TARGET_BRANCH_NAME ;
-        export common_parent_sha=$(diff --old-line-format='' --new-line-format='' <(git rev-list --first-parent "target/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME") <(git rev-list --first-parent HEAD) | head -1) ;
-        python3 -u ./check-style.py --dry-run --sha $common_parent_sha ;
-      else
-        echo "Not a merge request" ;
-      fi
+      git remote add target $CI_MERGE_REQUEST_PROJECT_URL.git ;
+      git fetch target $CI_MERGE_REQUEST_TARGET_BRANCH_NAME ;
+      export common_parent_sha=$(diff --old-line-format='' --new-line-format='' <(git rev-list --first-parent "target/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME") <(git rev-list --first-parent HEAD) | head -1) ;
+      python3 -u ./check-style.py --dry-run --sha $common_parent_sha ;
   allow_failure: true
+  rules:
+    - !reference [.only-merge-requests, rules]
 
 .build-mutter-base:
   variables:
