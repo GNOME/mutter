@@ -174,7 +174,6 @@ meta_render_device_egl_stream_initable_init (GInitable     *initable,
   MetaKms *kms;
   EGLDeviceEXT egl_device;
   EGLDisplay egl_display;
-  g_autofree const char **missing_extensions = NULL;
 
   if (count_mode_setting_devices (backend) != 1)
     {
