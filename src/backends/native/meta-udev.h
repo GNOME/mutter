@@ -35,8 +35,6 @@ gboolean meta_is_udev_device_boot_vga (GUdevDevice *device);
 
 gboolean meta_is_udev_device_disable_modifiers (GUdevDevice *device);
 
-gboolean meta_is_udev_device_disable_client_modifiers (GUdevDevice *device);
-
 gboolean meta_is_udev_device_ignore (GUdevDevice *device);
 
 gboolean meta_is_udev_test_device (GUdevDevice *device);
