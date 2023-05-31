@@ -215,7 +215,7 @@ workflow:
     - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^$/'
       when: never
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
-      when: always
+      when: on_success
 
 check-commit-log:
   extends:
@@ -547,7 +547,7 @@ can-build-gnome-shell@x86_64:
 test-mutter-coverity:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $MUTTER_SCHEDULED_JOB == "coverity"'
-      when: always
+      when: on_success
     - if: '$CI_COMMIT_BRANCH'
       when: 'manual'
   extends:
@@ -597,11 +597,11 @@ dist-mutter:
       changes:
         - "**/meson.build"
         - meson/*
-      when: always
+      when: on_success
     - if: '$GITLAB_USER_LOGIN == "marge-bot"'
-      when: always
+      when: on_success
     - if: '$CI_MERGE_REQUEST_ASSIGNEES == "marge-bot"'
-      when: always
+      when: on_success
 
 dist-mutter-tarball:
   extends: dist-mutter
