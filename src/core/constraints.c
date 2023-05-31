@@ -600,7 +600,7 @@ place_window_if_needed(MetaWindow     *window,
       info->fixed_directions = FIXED_DIRECTION_NONE;
     }
 
-  if (window->placed || did_placement)
+  if (window->reparents_pending == 0 && (window->placed || did_placement))
     {
       if (window->maximize_horizontally_after_placement ||
           window->maximize_vertically_after_placement)
