@@ -428,10 +428,21 @@ try_create_context (CoglDisplay *display,
 
   attribs[i++] = EGL_NONE;
 
-  egl_display->egl_context = eglCreateContext (edpy,
-                                               config,
-                                               EGL_NO_CONTEXT,
-                                               attribs);
+  if (egl_renderer->private_features &
+      COGL_EGL_WINSYS_FEATURE_NO_CONFIG_CONTEXT)
+    {
+      egl_display->egl_context = eglCreateContext (edpy,
+                                                   EGL_NO_CONFIG_KHR,
+                                                   EGL_NO_CONTEXT,
+                                                   attribs);
+    }
+  else
+    {
+      egl_display->egl_context = eglCreateContext (edpy,
+                                                   config,
+                                                   EGL_NO_CONTEXT,
+                                                   attribs);
+    }
 
   if (egl_display->egl_context == EGL_NO_CONTEXT)
     {

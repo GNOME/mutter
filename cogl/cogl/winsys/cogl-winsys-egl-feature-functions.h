@@ -99,6 +99,12 @@ COGL_WINSYS_FEATURE_BEGIN (create_context,
                            COGL_EGL_WINSYS_FEATURE_CREATE_CONTEXT)
 COGL_WINSYS_FEATURE_END ()
 
+COGL_WINSYS_FEATURE_BEGIN (no_config_context,
+                           "KHR\0",
+                           "no_config_context\0",
+                           COGL_EGL_WINSYS_FEATURE_NO_CONFIG_CONTEXT)
+COGL_WINSYS_FEATURE_END ()
+
 COGL_WINSYS_FEATURE_BEGIN (buffer_age,
                            "EXT\0",
                            "buffer_age\0",
