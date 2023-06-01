@@ -1,3 +1,28 @@
+44.2
+====
+* Fix DND in some server-side decorated windows [Sebastian; !2978]
+* Fix redrawing regression in non-DMA remote sessions [Jonas; !2987]
+* Avoid race condition in xwayland-on-demand [Marco; !2970]
+* Do not unminimize windows with initial IconicState [Carlos; !3001]
+* Fix mispositioning of some X11 fullscreen windows [Carlos; !2996]
+* Fix legacy fullscreen windows appearing on all monitors [Carlos; !2999]
+* Improve support for display-attached tablets [Carlos; !3012]
+* Fix stuck cursor in some clients [Carlos; !3025]
+* Avoid unexpected orientation changes around suspend/resume [Carlos; !3021]
+* Fix oversized input region around Xwayland windows [Jonas; !3022]
+* Fix X11 client input region issues [Sebastian, Jonas; !3031, !3045]
+* Plugged leak [Jonas; !2991]
+* Fixed crashes [Jonas, Carlos, Robert, Barnabás; !2992, !3002, !3004,
+  !2995, !3038]
+* Misc. bug fixes and cleanups [Robert, Jonas, Dimitris; !2990, !3000, !3011]
+
+Contributors:
+  Jonas Ådahl, Carlos Garnacho, Sebastian Keller, Dmitry V. Levin, Robert Mader,
+  Barnabás Pőcze, Marco Trevisan (Treviño)
+
+Translators:
+  Alexandre Franke [fr], Rafael Fontenelle [pt_BR]
+
 44.1
 ====
 * Fall back to the default, not the unknown color space [Sebastian W.; !2915]
