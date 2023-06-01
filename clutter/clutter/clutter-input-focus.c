@@ -190,7 +190,22 @@ clutter_input_focus_filter_event (ClutterInputFocus  *focus,
     {
       return clutter_input_method_filter_key_event (priv->im, &event->key);
     }
-  else if (event->type == CLUTTER_IM_COMMIT)
+
+  return FALSE;
+}
+
+gboolean
+clutter_input_focus_process_event (ClutterInputFocus  *focus,
+                                   const ClutterEvent *event)
+{
+  ClutterInputFocusPrivate *priv;
+
+  g_return_val_if_fail (CLUTTER_IS_INPUT_FOCUS (focus), FALSE);
+  g_return_val_if_fail (clutter_input_focus_is_focused (focus), FALSE);
+
+  priv = clutter_input_focus_get_instance_private (focus);
+
+  if (event->type == CLUTTER_IM_COMMIT)
     {
       clutter_input_focus_commit (focus, event->im.text);
       return TRUE;

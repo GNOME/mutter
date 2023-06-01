@@ -801,6 +801,21 @@ meta_wayland_text_input_init (MetaWaylandCompositor *compositor)
 }
 
 gboolean
+meta_wayland_text_input_update (MetaWaylandTextInput *text_input,
+                                const ClutterEvent   *event)
+{
+  if (!text_input->surface ||
+      !clutter_input_focus_is_focused (text_input->input_focus))
+    return FALSE;
+
+  if (event->type == CLUTTER_KEY_PRESS ||
+      event->type == CLUTTER_KEY_RELEASE)
+    return clutter_input_focus_filter_event (text_input->input_focus, event);
+
+  return FALSE;
+}
+
+gboolean
 meta_wayland_text_input_handle_event (MetaWaylandTextInput *text_input,
                                       const ClutterEvent   *event)
 {
@@ -815,7 +830,7 @@ meta_wayland_text_input_handle_event (MetaWaylandTextInput *text_input,
       clutter_event_get_flags (event) & CLUTTER_EVENT_FLAG_INPUT_METHOD)
     meta_wayland_text_input_focus_flush_done (text_input->input_focus);
 
-  retval = clutter_input_focus_filter_event (text_input->input_focus, event);
+  retval = clutter_input_focus_process_event (text_input->input_focus, event);
 
   if (event->type == CLUTTER_BUTTON_PRESS ||
       event->type == CLUTTER_TOUCH_BEGIN)

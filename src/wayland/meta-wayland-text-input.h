@@ -41,6 +41,9 @@ gboolean meta_wayland_text_input_init (MetaWaylandCompositor *compositor);
 void meta_wayland_text_input_set_focus (MetaWaylandTextInput *text_input,
 					MetaWaylandSurface   *surface);
 
+gboolean meta_wayland_text_input_update (MetaWaylandTextInput *text_input,
+                                         const ClutterEvent   *event);
+
 gboolean meta_wayland_text_input_handle_event (MetaWaylandTextInput *text_input,
                                                const ClutterEvent   *event);
 

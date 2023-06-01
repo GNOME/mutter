@@ -3080,7 +3080,7 @@ clutter_text_event (ClutterActor *self,
        event->type == CLUTTER_IM_DELETE ||
        event->type == CLUTTER_IM_PREEDIT))
     {
-      return clutter_input_focus_filter_event (priv->input_focus, event);
+      return clutter_input_focus_process_event (priv->input_focus, event);
     }
 
   return CLUTTER_EVENT_PROPAGATE;

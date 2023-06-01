@@ -75,6 +75,11 @@ void clutter_input_focus_set_content_purpose (ClutterInputFocus          *focus,
 CLUTTER_EXPORT
 gboolean clutter_input_focus_filter_event (ClutterInputFocus  *focus,
                                            const ClutterEvent *event);
+
+CLUTTER_EXPORT
+gboolean clutter_input_focus_process_event (ClutterInputFocus  *focus,
+                                            const ClutterEvent *event);
+
 CLUTTER_EXPORT
 void clutter_input_focus_set_can_show_preedit (ClutterInputFocus *focus,
                                                gboolean           can_show_preedit);
