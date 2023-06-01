@@ -943,12 +943,31 @@ update_input_region (MetaWindowActorX11 *actor_x11)
 
   if (window->shape_region && window->input_region)
     {
-      region = cairo_region_copy (window->shape_region);
-      cairo_region_intersect (region, window->input_region);
+      cairo_rectangle_int_t client_area;
+      cairo_region_t *frames_input;
+      cairo_region_t *client_input;
+
+      get_client_area_rect (actor_x11, &client_area);
+
+      frames_input = cairo_region_copy (window->input_region);
+      cairo_region_subtract_rectangle (frames_input, &client_area);
+
+      client_input = cairo_region_copy (actor_x11->shape_region);
+      cairo_region_intersect (client_input, window->input_region);
+
+      cairo_region_union (frames_input, client_input);
+      cairo_region_destroy (client_input);
+
+      region = g_steal_pointer (&frames_input);
     }
   else if (window->shape_region)
     {
-      region = cairo_region_reference (window->shape_region);
+      cairo_rectangle_int_t client_area;
+
+      meta_window_get_client_area_rect (window, &client_area);
+
+      region = cairo_region_copy (window->shape_region);
+      cairo_region_translate (region, client_area.x, client_area.y);
     }
   else if (window->input_region)
     {
