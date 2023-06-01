@@ -45,6 +45,11 @@ meta_kms_impl_device_dummy_discard_pending_page_flips (MetaKmsImplDevice *impl_d
 {
 }
 
+static void
+meta_kms_impl_device_dummy_disable (MetaKmsImplDevice *impl_device)
+{
+}
+
 static MetaDeviceFile *
 meta_kms_impl_device_dummy_open_device_file (MetaKmsImplDevice  *impl_device,
                                              const char         *path,
@@ -101,4 +106,6 @@ meta_kms_impl_device_dummy_class_init (MetaKmsImplDeviceDummyClass *klass)
     meta_kms_impl_device_dummy_open_device_file;
   impl_device_class->discard_pending_page_flips =
     meta_kms_impl_device_dummy_discard_pending_page_flips;
+  impl_device_class->disable =
+    meta_kms_impl_device_dummy_disable;
 }
