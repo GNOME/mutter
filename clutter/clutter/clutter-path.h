@@ -122,9 +122,6 @@ CLUTTER_EXPORT
 void         clutter_path_add_node             (ClutterPath           *path,
                                                 const ClutterPathNode *node);
 CLUTTER_EXPORT
-void         clutter_path_add_cairo_path       (ClutterPath           *path,
-                                                const cairo_path_t    *cpath);
-CLUTTER_EXPORT
 guint        clutter_path_get_n_nodes          (ClutterPath           *path);
 CLUTTER_EXPORT
 void         clutter_path_get_node             (ClutterPath           *path,
@@ -154,9 +151,6 @@ gboolean     clutter_path_set_description      (ClutterPath           *path,
                                                 const gchar           *str);
 CLUTTER_EXPORT
 void         clutter_path_clear                (ClutterPath           *path);
-CLUTTER_EXPORT
-void         clutter_path_to_cairo_path        (ClutterPath           *path,
-                                                cairo_t               *cr);
 CLUTTER_EXPORT
 guint        clutter_path_get_position         (ClutterPath           *path,
                                                 gdouble                progress,
