@@ -82,32 +82,32 @@ ensure_bits_initialized (CoglGlFramebufferFbo *gl_framebuffer_fbo)
         GLenum attachment, pname;
         size_t offset;
       } params[] = {
-        { 
+        {
           .attachment = GL_COLOR_ATTACHMENT0,
           .pname = GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE,
           .offset = offsetof (CoglFramebufferBits, red),
         },
-        { 
+        {
           .attachment = GL_COLOR_ATTACHMENT0,
           .pname = GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE,
           .offset = offsetof (CoglFramebufferBits, green),
         },
-        { 
+        {
           .attachment = GL_COLOR_ATTACHMENT0,
           .pname = GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE,
           .offset = offsetof (CoglFramebufferBits, blue),
         },
-        { 
+        {
           .attachment = GL_COLOR_ATTACHMENT0,
           .pname = GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE,
           .offset = offsetof (CoglFramebufferBits, alpha),
         },
-        { 
+        {
           .attachment = GL_DEPTH_ATTACHMENT,
           .pname = GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE,
           .offset = offsetof (CoglFramebufferBits, depth),
         },
-        { 
+        {
           .attachment = GL_STENCIL_ATTACHMENT,
           .pname = GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE,
           .offset = offsetof (CoglFramebufferBits, stencil),
