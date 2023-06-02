@@ -119,12 +119,7 @@ ensure_bits_initialized (CoglGlFramebufferBack *gl_framebuffer_back)
   else
 #endif /* HAVE_COGL_GL */
     {
-      GE (ctx, glGetIntegerv (GL_RED_BITS, &bits->red));
-      GE (ctx, glGetIntegerv (GL_GREEN_BITS, &bits->green));
-      GE (ctx, glGetIntegerv (GL_BLUE_BITS, &bits->blue));
-      GE (ctx, glGetIntegerv (GL_ALPHA_BITS, &bits->alpha));
-      GE (ctx, glGetIntegerv (GL_DEPTH_BITS, &bits->depth));
-      GE (ctx, glGetIntegerv (GL_STENCIL_BITS, &bits->stencil));
+      return FALSE;
     }
 
   COGL_NOTE (FRAMEBUFFER,
