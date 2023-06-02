@@ -3878,7 +3878,6 @@ clutter_stage_notify_grab_on_pointer_entry (ClutterStage       *stage,
                                             ClutterActor       *grab_actor,
                                             ClutterActor       *old_grab_actor)
 {
-  ClutterStagePrivate *priv = stage->priv;
   gboolean pointer_in_grab, pointer_in_old_grab;
   gboolean implicit_grab_cancelled = FALSE;
   ClutterEventType event_type = CLUTTER_NOTHING;
@@ -3947,7 +3946,7 @@ clutter_stage_notify_grab_on_pointer_entry (ClutterStage       *stage,
           CLUTTER_NOTE (GRABS,
                         "[grab=%p device=%p sequence=%p implicit_grab_cancelled=%d] "
                         "Cancelled %u actors and actions on implicit grab due to new seat grab",
-                        priv->topmost_grab, device, sequence, implicit_grab_cancelled,
+                        stage->priv->topmost_grab, device, sequence, implicit_grab_cancelled,
                         n_removed);
         }
     }
