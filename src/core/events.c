@@ -530,7 +530,7 @@ meta_display_handle_event (MetaDisplay        *display,
 #ifdef HAVE_WAYLAND
   /* If a Wayland client has a grab, don't pass that through to Clutter */
   if (wayland_compositor && meta_wayland_compositor_is_grabbed (wayland_compositor))
-    bypass_clutter = !bypass_wayland;
+    bypass_clutter = bypass_clutter || !bypass_wayland;
 
   if (wayland_compositor && !bypass_wayland)
     {
