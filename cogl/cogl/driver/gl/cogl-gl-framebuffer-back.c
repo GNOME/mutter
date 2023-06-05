@@ -66,7 +66,7 @@ ensure_bits_initialized (CoglGlFramebufferBack *gl_framebuffer_back)
                                         COGL_FRAMEBUFFER_STATE_BIND);
 
 #ifdef HAVE_COGL_GL
-  if (ctx->driver == COGL_DRIVER_GL3)
+  if (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_QUERY_FRAMEBUFFER_BITS))
     {
       const struct {
         GLenum attachment, pname;
