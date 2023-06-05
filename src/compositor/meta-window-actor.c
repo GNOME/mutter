@@ -1118,13 +1118,11 @@ meta_window_actor_get_buffer_bounds (MetaScreenCastWindow *screen_cast_window,
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (window_actor);
   MetaShapedTexture *stex;
-  int buffer_scale;
 
   stex = meta_surface_actor_get_texture (priv->surface);
-  buffer_scale = meta_shaped_texture_get_buffer_scale (stex);
   *bounds = (MetaRectangle) {
-    .width = meta_shaped_texture_get_width (stex) * buffer_scale,
-    .height = meta_shaped_texture_get_height (stex) * buffer_scale,
+    .width = floorf (meta_shaped_texture_get_unscaled_width (stex)),
+    .height = floorf (meta_shaped_texture_get_unscaled_height (stex)),
   };
 }
 
@@ -1209,7 +1207,13 @@ meta_window_actor_transform_cursor_position (MetaScreenCastWindow *screen_cast_w
 
   if (out_relative_cursor_position)
     {
-      float resource_scale;
+      MetaShapedTexture *stex = meta_surface_actor_get_texture (priv->surface);
+
+      float unscaled_width = meta_shaped_texture_get_unscaled_width (stex);
+      float unscaled_height = meta_shaped_texture_get_unscaled_height (stex);
+
+      int width = meta_shaped_texture_get_width (stex);
+      int height = meta_shaped_texture_get_height (stex);
 
       clutter_actor_transform_stage_point (CLUTTER_ACTOR (priv->surface),
                                            cursor_position->x,
@@ -1217,10 +1221,10 @@ meta_window_actor_transform_cursor_position (MetaScreenCastWindow *screen_cast_w
                                            &out_relative_cursor_position->x,
                                            &out_relative_cursor_position->y);
 
-      resource_scale =
-        clutter_actor_get_resource_scale (CLUTTER_ACTOR (window_actor));
-      out_relative_cursor_position->x *= resource_scale;
-      out_relative_cursor_position->y *= resource_scale;
+      if (width != 0)
+        out_relative_cursor_position->x *= unscaled_width / width;
+      if (height != 0)
+        out_relative_cursor_position->y *= unscaled_height / height;
     }
 
   return TRUE;
@@ -1288,54 +1292,73 @@ meta_window_actor_blit_to_framebuffer (MetaScreenCastWindow *screen_cast_window,
                                        CoglFramebuffer      *framebuffer)
 {
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (screen_cast_window);
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (window_actor);
   ClutterActor *actor = CLUTTER_ACTOR (window_actor);
   ClutterPaintContext *paint_context;
-  MetaRectangle scaled_clip;
+  graphene_rect_t scaled_clip;
   CoglColor clear_color;
-  float resource_scale;
+  MetaShapedTexture *stex;
+  graphene_matrix_t transform, inverted_transform;
   float width, height;
-  float x, y;
+  float unscaled_width, unscaled_height;
 
   if (meta_window_actor_is_destroyed (window_actor))
     return FALSE;
 
-  clutter_actor_get_size (actor, &width, &height);
+  if (!priv->surface)
+    return FALSE;
+
+  stex = meta_surface_actor_get_texture (priv->surface);
+
+  width = meta_shaped_texture_get_width (stex);
+  height = meta_shaped_texture_get_height (stex);
 
   if (width == 0 || height == 0)
     return FALSE;
 
-  resource_scale = clutter_actor_get_resource_scale (actor);
+  clutter_actor_get_relative_transformation_matrix (CLUTTER_ACTOR (priv->surface),
+                                                    clutter_actor_get_stage (actor),
+                                                    &transform);
+
+  if (!graphene_matrix_inverse (&transform, &inverted_transform))
+    return FALSE;
+
+  unscaled_width = meta_shaped_texture_get_unscaled_width (stex);
+  unscaled_height = meta_shaped_texture_get_unscaled_height (stex);
 
   clutter_actor_inhibit_culling (actor);
 
-  width = ceilf (width * resource_scale);
-  height = ceilf (height * resource_scale);
-
-  clutter_actor_get_position (actor, &x, &y);
-
   cogl_color_init_from_4ub (&clear_color, 0, 0, 0, 0);
   cogl_framebuffer_clear (framebuffer, COGL_BUFFER_BIT_COLOR, &clear_color);
-  cogl_framebuffer_orthographic (framebuffer, 0, 0, width, height, 0, 1.0);
-  cogl_framebuffer_set_viewport (framebuffer, 0, 0, width, height);
+  cogl_framebuffer_orthographic (framebuffer,
+                                 0, 0,
+                                 unscaled_width, unscaled_height,
+                                 0, 1.0);
+  cogl_framebuffer_set_viewport (framebuffer,
+                                 0, 0,
+                                 unscaled_width, unscaled_height);
 
-  meta_rectangle_scale_double (bounds, resource_scale,
-                               META_ROUNDING_STRATEGY_GROW,
-                               &scaled_clip);
-  meta_rectangle_intersect (&scaled_clip,
-                            &(MetaRectangle) {
-                              .width = width,
-                              .height = height,
-                            },
-                            &scaled_clip);
+  scaled_clip = meta_rectangle_to_graphene_rect (bounds);
+  graphene_rect_scale (&scaled_clip,
+                       unscaled_width / width,
+                       unscaled_height / height,
+                       &scaled_clip);
+  graphene_rect_intersection (&scaled_clip,
+                              &GRAPHENE_RECT_INIT (0, 0, unscaled_width, unscaled_height),
+                              &scaled_clip);
 
   cogl_framebuffer_push_rectangle_clip (framebuffer,
-                                        scaled_clip.x, scaled_clip.y,
-                                        scaled_clip.x + scaled_clip.width,
-                                        scaled_clip.y + scaled_clip.height);
+                                        scaled_clip.origin.x, scaled_clip.origin.y,
+                                        scaled_clip.origin.x + scaled_clip.size.width,
+                                        scaled_clip.origin.y + scaled_clip.size.height);
 
   cogl_framebuffer_push_matrix (framebuffer);
-  cogl_framebuffer_scale (framebuffer, resource_scale, resource_scale, 1);
-  cogl_framebuffer_translate (framebuffer, -x, -y, 0);
+  cogl_framebuffer_scale (framebuffer,
+                          unscaled_width / width,
+                          unscaled_height / height,
+                          1);
+  cogl_framebuffer_transform (framebuffer, &inverted_transform);
 
   paint_context =
     clutter_paint_context_new_for_framebuffer (framebuffer, NULL,
