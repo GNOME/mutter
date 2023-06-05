@@ -66,6 +66,9 @@ gboolean meta_shaped_texture_update_area (MetaShapedTexture     *stex,
 int meta_shaped_texture_get_width (MetaShapedTexture *stex);
 int meta_shaped_texture_get_height (MetaShapedTexture *stex);
 
+float meta_shaped_texture_get_unscaled_width (MetaShapedTexture *stex);
+float meta_shaped_texture_get_unscaled_height (MetaShapedTexture *stex);
+
 void meta_shaped_texture_set_clip_region (MetaShapedTexture *stex,
                                           cairo_region_t    *clip_region);
 void meta_shaped_texture_set_opaque_region (MetaShapedTexture *stex,

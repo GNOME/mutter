@@ -1491,3 +1491,65 @@ meta_shaped_texture_get_height (MetaShapedTexture *stex)
 
   return stex->dst_height;
 }
+
+static graphene_size_t
+get_unscaled_size (MetaShapedTexture *stex)
+{
+  graphene_size_t buffer_size;
+
+  if (stex->has_viewport_src_rect)
+    {
+      graphene_size_scale (&stex->viewport_src_rect.size,
+                           stex->buffer_scale,
+                           &buffer_size);
+    }
+  else
+    {
+      buffer_size = (graphene_size_t) {
+        .width = stex->tex_width,
+        .height = stex->tex_height,
+      };
+    }
+
+  if (meta_monitor_transform_is_rotated (stex->transform))
+    {
+      return (graphene_size_t) {
+        .width = buffer_size.height,
+        .height = buffer_size.width,
+      };
+    }
+  else
+    {
+      return buffer_size;
+    }
+}
+
+/**
+ * meta_shaped_texture_get_unscaled_width:
+ * @stex: A #MetaShapedTexture
+ *
+ * Returns: The unscaled width of @stex after its shaping operations are applied.
+ */
+float
+meta_shaped_texture_get_unscaled_width (MetaShapedTexture *stex)
+{
+  g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), 0);
+  graphene_size_t unscaled_size = get_unscaled_size (stex);
+
+  return unscaled_size.width;
+}
+
+/**
+ * meta_shaped_texture_get_unscaled_height:
+ * @stex: A #MetaShapedTexture
+ *
+ * Returns: The unscaled height of @stex after its shaping operations are applied.
+ */
+float
+meta_shaped_texture_get_unscaled_height (MetaShapedTexture *stex)
+{
+  g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), 0);
+  graphene_size_t unscaled_size = get_unscaled_size (stex);
+
+  return unscaled_size.height;
+}
