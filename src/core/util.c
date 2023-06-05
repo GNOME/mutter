@@ -67,6 +67,7 @@ static const GDebugKey meta_debug_keys[] = {
   { "backend", META_DEBUG_BACKEND },
   { "render", META_DEBUG_RENDER },
   { "color", META_DEBUG_COLOR },
+  { "input-events", META_DEBUG_INPUT_EVENTS },
 };
 
 static gint verbose_topics = 0;
@@ -320,6 +321,8 @@ meta_topic_to_string (MetaDebugTopic topic)
       return "COLOR";
     case META_DEBUG_VERBOSE:
       return "VERBOSE";
+    case META_DEBUG_INPUT_EVENTS:
+      return "INPUT_EVENTS";
     }
 
   return "WM";

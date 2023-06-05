@@ -106,6 +106,7 @@ typedef enum
   META_DEBUG_BACKEND         = 1 << 24,
   META_DEBUG_RENDER          = 1 << 25,
   META_DEBUG_COLOR           = 1 << 26,
+  META_DEBUG_INPUT_EVENTS    = 1 << 27,
 } MetaDebugTopic;
 
 /**
