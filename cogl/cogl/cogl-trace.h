@@ -165,7 +165,8 @@ gboolean cogl_is_tracing (void);
 
 COGL_EXPORT
 void cogl_set_tracing_enabled_on_thread (void       *data,
-                                         const char *group)
+                                         const char *group);
+
 COGL_EXPORT
 void cogl_set_tracing_disabled_on_thread (void *data);
 
