@@ -361,10 +361,12 @@ init_output_modes (MetaOutputInfo    *output_info,
                    GError           **error)
 {
   const MetaKmsConnectorState *connector_state;
+  MetaKmsMode *kms_preferred_mode;
   GList *l;
   int i;
 
   connector_state = meta_kms_connector_get_current_state (kms_connector);
+  kms_preferred_mode = meta_kms_connector_get_preferred_mode (kms_connector);
 
   output_info->preferred_mode = NULL;
 
@@ -373,12 +375,11 @@ init_output_modes (MetaOutputInfo    *output_info,
   for (l = connector_state->modes, i = 0; l; l = l->next, i++)
     {
       MetaKmsMode *kms_mode = l->data;
-      const drmModeModeInfo *drm_mode = meta_kms_mode_get_drm_mode (kms_mode);
       MetaCrtcMode *crtc_mode;
 
       crtc_mode = meta_gpu_kms_get_mode_from_kms_mode (gpu_kms, kms_mode);
       output_info->modes[i] = crtc_mode;
-      if (drm_mode->type & DRM_MODE_TYPE_PREFERRED)
+      if (kms_mode == kms_preferred_mode)
         output_info->preferred_mode = output_info->modes[i];
     }
 
