@@ -100,22 +100,6 @@ gboolean _clutter_stage_has_full_redraw_queued            (ClutterStage *stage);
 ClutterPaintVolume *_clutter_stage_paint_volume_stack_allocate (ClutterStage *stage);
 void                _clutter_stage_paint_volume_stack_free_all (ClutterStage *stage);
 
-void            _clutter_stage_add_pointer_drag_actor    (ClutterStage       *stage,
-                                                          ClutterInputDevice *device,
-                                                          ClutterActor       *actor);
-ClutterActor *  _clutter_stage_get_pointer_drag_actor    (ClutterStage       *stage,
-                                                          ClutterInputDevice *device);
-void            _clutter_stage_remove_pointer_drag_actor (ClutterStage       *stage,
-                                                          ClutterInputDevice *device);
-
-void            _clutter_stage_add_touch_drag_actor    (ClutterStage         *stage,
-                                                        ClutterEventSequence *sequence,
-                                                        ClutterActor         *actor);
-ClutterActor *  _clutter_stage_get_touch_drag_actor    (ClutterStage         *stage,
-                                                        ClutterEventSequence *sequence);
-void            _clutter_stage_remove_touch_drag_actor (ClutterStage         *stage,
-                                                        ClutterEventSequence *sequence);
-
 void                    _clutter_stage_set_scale_factor (ClutterStage      *stage,
                                                          int                factor);
 
