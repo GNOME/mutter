@@ -27,6 +27,7 @@
 #include "core/meta-context-private.h"
 #include "core/util-private.h"
 #include "meta/types.h"
+#include "wayland/meta-wayland-text-input.h"
 #include "wayland/meta-wayland-types.h"
 
 META_EXPORT_TEST
@@ -87,6 +88,8 @@ void                    meta_wayland_compositor_flush_clients (MetaWaylandCompos
 void                    meta_wayland_compositor_schedule_surface_association (MetaWaylandCompositor *compositor,
                                                                               int                    id,
                                                                               MetaWindow            *window);
+
+MetaWaylandTextInput *  meta_wayland_compositor_get_text_input (MetaWaylandCompositor *compositor);
 
 #ifdef HAVE_XWAYLAND
 void                    meta_wayland_compositor_notify_surface_id (MetaWaylandCompositor *compositor,

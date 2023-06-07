@@ -1048,3 +1048,9 @@ meta_wayland_compositor_get_filter_manager (MetaWaylandCompositor *compositor)
 
   return priv->filter_manager;
 }
+
+MetaWaylandTextInput *
+meta_wayland_compositor_get_text_input (MetaWaylandCompositor *compositor)
+{
+  return compositor->seat->text_input;
+}
