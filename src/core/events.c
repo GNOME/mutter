@@ -226,10 +226,16 @@ meta_display_handle_event (MetaDisplay        *display,
   gboolean has_grab;
 #ifdef HAVE_WAYLAND
   MetaWaylandCompositor *wayland_compositor;
+  MetaWaylandTextInput *wayland_text_input = NULL;
 #endif
 
 #ifdef HAVE_WAYLAND
   wayland_compositor = meta_context_get_wayland_compositor (context);
+  if (wayland_compositor)
+    {
+      wayland_text_input =
+        meta_wayland_compositor_get_text_input (wayland_compositor);
+    }
 #endif
 
   COGL_TRACE_BEGIN_SCOPED (MetaDisplayHandleEvent,
@@ -278,6 +284,15 @@ meta_display_handle_event (MetaDisplay        *display,
     }
 
 #ifdef HAVE_WAYLAND
+  if (wayland_text_input &&
+      !has_grab &&
+      !meta_compositor_get_current_window_drag (compositor) &&
+      meta_wayland_text_input_update (wayland_text_input, event))
+    {
+      bypass_wayland = bypass_clutter = TRUE;
+      goto out;
+    }
+
   if (wayland_compositor)
     meta_wayland_compositor_update (wayland_compositor, event);
 #endif

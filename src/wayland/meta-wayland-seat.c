@@ -384,9 +384,6 @@ meta_wayland_seat_handle_event (MetaWaylandSeat *seat,
       break;
     case CLUTTER_KEY_PRESS:
     case CLUTTER_KEY_RELEASE:
-      if (meta_wayland_text_input_update (seat->text_input, event))
-        return TRUE;
-
       if (meta_wayland_seat_has_keyboard (seat))
         return meta_wayland_keyboard_handle_event (seat->keyboard,
                                                    (const ClutterKeyEvent *) event);
