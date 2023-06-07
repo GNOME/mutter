@@ -586,7 +586,7 @@ meta_wayland_keyboard_disable (MetaWaylandKeyboard *keyboard)
   g_clear_object (&keyboard->settings);
 }
 
-static void
+static gboolean
 update_pressed_keys (struct wl_array *keys,
                      uint32_t         evdev_code,
                      gboolean         is_press)
@@ -600,12 +600,13 @@ update_pressed_keys (struct wl_array *keys,
       for (k = keys->data; k < end; k++)
         {
           if (*k == evdev_code)
-            return;
+            return FALSE;
         }
 
       /* Otherwise add the key to the list of pressed keys */
       k = wl_array_add (keys, sizeof (*k));
       *k = evdev_code;
+      return TRUE;
     }
   else
     {
@@ -616,11 +617,11 @@ update_pressed_keys (struct wl_array *keys,
             {
               *k = *(end - 1);
               keys->size -= sizeof (*k);
-              return;
+              return TRUE;
             }
         }
 
-      g_warning ("unexpected key release event for key 0x%x", evdev_code);
+      return FALSE;
     }
 }
 
@@ -630,15 +631,8 @@ meta_wayland_keyboard_update (MetaWaylandKeyboard *keyboard,
 {
   gboolean is_press = event->type == CLUTTER_KEY_PRESS;
 
-  /* Only handle real, non-synthetic, events here. The IM is free to reemit
-   * key events (incl. modifiers), handling those additionally will result
-   * in doubly-pressed keys.
-   */
-  if ((event->flags &
-       (CLUTTER_EVENT_FLAG_SYNTHETIC | CLUTTER_EVENT_FLAG_INPUT_METHOD)) != 0)
+  if (!update_pressed_keys (&keyboard->pressed_keys, event->evdev_code, is_press))
     return;
-
-  update_pressed_keys (&keyboard->pressed_keys, event->evdev_code, is_press);
 
   /* If we get a key event but still have pending modifier state
    * changes from a previous event that didn't get cleared, we need to
