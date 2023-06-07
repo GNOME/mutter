@@ -93,11 +93,8 @@ void                    meta_wayland_compositor_notify_surface_id (MetaWaylandCo
                                                                    int                    id,
                                                                    MetaWaylandSurface    *surface);
 
-#ifdef HAVE_XWAYLAND
 META_EXPORT_TEST
 MetaXWaylandManager *   meta_wayland_compositor_get_xwayland_manager (MetaWaylandCompositor *compositor);
-#endif
-
 #endif
 
 META_EXPORT_TEST
