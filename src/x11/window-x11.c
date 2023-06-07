@@ -3022,6 +3022,96 @@ handle_net_restack_window (MetaDisplay *display,
     }
 }
 
+#ifdef HAVE_XWAYLAND
+typedef struct {
+  ClutterInputDevice *device;
+  ClutterEventSequence *sequence;
+  graphene_point_t device_point;
+  graphene_point_t coords;
+  int button;
+} NearestDeviceData;
+
+static gboolean
+nearest_device_func (ClutterStage         *stage,
+                     ClutterInputDevice   *device,
+                     ClutterEventSequence *sequence,
+                     gpointer              user_data)
+{
+  NearestDeviceData *data = user_data;
+  graphene_point_t point;
+  ClutterModifierType mods;
+  const int nearest_threshold = 64;
+
+  clutter_seat_query_state (clutter_input_device_get_seat (device),
+                            device,
+                            sequence,
+                            &point,
+                            &mods);
+
+  if (!sequence)
+    {
+      ClutterModifierType accepted_buttons = 0;
+      ClutterModifierType mask =
+        (CLUTTER_BUTTON1_MASK | CLUTTER_BUTTON2_MASK |
+         CLUTTER_BUTTON3_MASK | CLUTTER_BUTTON4_MASK |
+         CLUTTER_BUTTON5_MASK);
+
+      if (data->button != 0)
+        accepted_buttons = (CLUTTER_BUTTON1_MASK << (data->button - 1)) & mask;
+      else
+        accepted_buttons = mask;
+
+      /* Check that pointers have any of the relevant buttons pressed */
+      if (!(mods & accepted_buttons))
+        return TRUE;
+    }
+
+  if (ABS (point.x - data->coords.x) < nearest_threshold &&
+      ABS (point.y - data->coords.y) < nearest_threshold &&
+      (!data->device ||
+       (ABS (point.x - data->coords.x) < ABS (data->device_point.x - data->coords.x) &&
+        ABS (point.y - data->coords.y) < ABS (data->device_point.y - data->coords.y))))
+    {
+      data->device = device;
+      data->sequence = sequence;
+      data->device_point = point;
+    }
+
+  return TRUE;
+}
+
+static gboolean
+guess_nearest_device (MetaWindow            *window,
+                      int                    root_x,
+                      int                    root_y,
+                      int                    button,
+                      ClutterInputDevice   **device,
+                      ClutterEventSequence **sequence)
+{
+  MetaDisplay *display = meta_window_get_display (window);
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+  NearestDeviceData data = { 0, };
+
+  data.button = button;
+  graphene_point_init (&data.coords, root_x, root_y);
+  clutter_stage_pointing_input_foreach (stage,
+                                        nearest_device_func,
+                                        &data);
+
+  if (!data.device)
+    return FALSE;
+
+  if (device && data.device)
+    *device = data.device;
+  if (sequence && data.sequence)
+    *sequence = data.sequence;
+
+  return TRUE;
+}
+#endif /* HAVE_XWAYLAND */
+
 gboolean
 meta_window_x11_client_message (MetaWindow *window,
                                 XEvent     *event)
@@ -3325,11 +3415,10 @@ meta_window_x11_client_message (MetaWindow *window,
           break;
         }
 
-      window_drag =
-        meta_compositor_get_current_window_drag (window->display->compositor);
-
       if (action == _NET_WM_MOVERESIZE_CANCEL)
         {
+          window_drag =
+            meta_compositor_get_current_window_drag (window->display->compositor);
           if (window_drag)
             meta_window_drag_end (window_drag);
         }
@@ -3357,49 +3446,73 @@ meta_window_x11_client_message (MetaWindow *window,
           MetaBackend *backend = meta_context_get_backend (context);
           ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
           ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
+          ClutterInputDevice *device = NULL;
+          ClutterEventSequence *sequence = NULL;
           int button_mask;
+
+#ifdef HAVE_XWAYLAND
+          if (meta_is_wayland_compositor ())
+            {
+              if (!guess_nearest_device (window, x_root, y_root, button,
+                                         &device, &sequence))
+                return FALSE;
+            }
+          else
+#endif
+            {
+              device = clutter_seat_get_pointer (seat);
+              sequence = NULL;
+            }
 
           meta_topic (META_DEBUG_WINDOW_OPS,
                       "Beginning move/resize with button = %d", button);
           meta_window_begin_grab_op (window, op,
-                                     clutter_seat_get_pointer (seat),
-                                     NULL,
+                                     device,
+                                     sequence,
                                      timestamp);
 
-          button_mask = query_pressed_buttons (window);
+          window_drag =
+            meta_compositor_get_current_window_drag (window->display->compositor);
 
-          if (button == 0)
+#ifdef HAVE_XWAYLAND
+          if (!meta_is_wayland_compositor ())
+#endif
             {
-              /*
-               * the button SHOULD already be included in the message
-               */
-              if ((button_mask & (1 << 1)) != 0)
-                button = 1;
-              else if ((button_mask & (1 << 2)) != 0)
-                button = 2;
-              else if ((button_mask & (1 << 3)) != 0)
-                button = 3;
+              button_mask = query_pressed_buttons (window);
 
-              if (button == 0 && window_drag)
-                meta_window_drag_end (window_drag);
-            }
-          else
-            {
-              /* There is a potential race here. If the user presses and
-               * releases their mouse button very fast, it's possible for
-               * both the ButtonPress and ButtonRelease to be sent to the
-               * client before it can get a chance to send _NET_WM_MOVERESIZE
-               * to us. When that happens, we'll become stuck in a grab
-               * state, as we haven't received a ButtonRelease to cancel the
-               * grab.
-               *
-               * We can solve this by querying after we take the explicit
-               * pointer grab -- if the button isn't pressed, we cancel the
-               * drag immediately.
-               */
+              if (button == 0)
+                {
+                  /*
+                   * the button SHOULD already be included in the message
+                   */
+                  if ((button_mask & (1 << 1)) != 0)
+                    button = 1;
+                  else if ((button_mask & (1 << 2)) != 0)
+                    button = 2;
+                  else if ((button_mask & (1 << 3)) != 0)
+                    button = 3;
 
-              if (window_drag && (button_mask & (1 << button)) == 0)
-                meta_window_drag_end (window_drag);
+                  if (button == 0 && window_drag)
+                    meta_window_drag_end (window_drag);
+                }
+              else
+                {
+                  /* There is a potential race here. If the user presses and
+                   * releases their mouse button very fast, it's possible for
+                   * both the ButtonPress and ButtonRelease to be sent to the
+                   * client before it can get a chance to send _NET_WM_MOVERESIZE
+                   * to us. When that happens, we'll become stuck in a grab
+                   * state, as we haven't received a ButtonRelease to cancel the
+                   * grab.
+                   *
+                   * We can solve this by querying after we take the explicit
+                   * pointer grab -- if the button isn't pressed, we cancel the
+                   * drag immediately.
+                   */
+
+                  if (window_drag && (button_mask & (1 << button)) == 0)
+                    meta_window_drag_end (window_drag);
+                }
             }
         }
 
