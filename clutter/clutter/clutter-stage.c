@@ -4567,3 +4567,42 @@ clutter_stage_notify_action_implicit_grab (ClutterStage         *self,
 
   remove_all_actors_from_chain (entry);
 }
+
+/**
+ * clutter_stage_pointing_input_foreach:
+ * @self: The stage
+ * @func: (scope call): Iterator function
+ * @user_data: user data
+ *
+ * Iterates over active input.
+ *
+ * Returns: %TRUE if the foreach function did not stop.
+ **/
+gboolean
+clutter_stage_pointing_input_foreach (ClutterStage                 *self,
+                                      ClutterStageInputForeachFunc  func,
+                                      gpointer                      user_data)
+{
+  ClutterStagePrivate *priv = self->priv;
+  GHashTableIter iter;
+  PointerDeviceEntry *entry;
+
+  g_return_val_if_fail (CLUTTER_IS_STAGE (self), FALSE);
+  g_return_val_if_fail (func != NULL, FALSE);
+
+  g_hash_table_iter_init (&iter, priv->pointer_devices);
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &entry))
+    {
+      if (!func (self, entry->device, entry->sequence, user_data))
+        return FALSE;
+    }
+
+  g_hash_table_iter_init (&iter, priv->touch_sequences);
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &entry))
+    {
+      if (!func (self, entry->device, entry->sequence, user_data))
+        return FALSE;
+    }
+
+  return TRUE;
+}
