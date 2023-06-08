@@ -1169,13 +1169,12 @@ meta_display_close (MetaDisplay *display,
   /* Stop caring about events */
   meta_display_free_events (display);
 
-  meta_display_shutdown_x11 (display);
-
-  g_clear_object (&display->stack);
   g_clear_pointer (&display->stack_tracker,
                    meta_stack_tracker_free);
 
   g_clear_pointer (&display->compositor, meta_compositor_destroy);
+  meta_display_shutdown_x11 (display);
+  g_clear_object (&display->stack);
 
   /* Must be after all calls to meta_window_unmanage() since they
    * unregister windows
