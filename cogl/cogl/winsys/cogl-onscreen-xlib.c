@@ -86,6 +86,7 @@ create_xwindow (CoglOnscreenXlib  *onscreen_xlib,
                    COGL_WINSYS_ERROR_CREATE_ONSCREEN,
                    "Unable to retrieve the X11 visual of context's "
                    "fbconfig");
+      mtk_x11_error_trap_pop (xlib_renderer->xdpy);
       return None;
     }
 
