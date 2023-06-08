@@ -39,8 +39,9 @@
 #include "meta/window.h"
 
 typedef struct _MetaStackTracker MetaStackTracker;
+typedef struct _MetaStack MetaStack;
 
-MetaStackTracker *meta_stack_tracker_new  (MetaDisplay      *display);
+MetaStackTracker *meta_stack_tracker_new  (MetaStack        *stack);
 void              meta_stack_tracker_free (MetaStackTracker *tracker);
 
 /* These functions are called when we make an X call that changes the
