@@ -889,8 +889,6 @@ meta_display_new (MetaContext  *context,
   display->work_area_later = 0;
 
   display->mouse_mode = TRUE; /* Only relevant for mouse or sloppy focus */
-  display->allow_terminal_deactivation = TRUE; /* Only relevant for when a
-                                                  terminal has the focus */
 
   display->current_time = META_CURRENT_TIME;
 

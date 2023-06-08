@@ -1953,12 +1953,6 @@ process_event (MetaDisplay          *display,
               "Running handler for %s",
               binding->name);
 
-  /* Global keybindings count as a let-the-terminal-lose-focus
-   * due to new window mapping until the user starts
-   * interacting with the terminal again.
-   */
-  display->allow_terminal_deactivation = TRUE;
-
   invoke_handler (display, binding->handler, window, event, binding);
 
   return TRUE;

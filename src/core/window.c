@@ -1973,53 +1973,6 @@ intervening_user_event_occurred (MetaWindow *window)
     }
 }
 
-/* This function is an ugly hack.  It's experimental in nature and ought to be
- * replaced by a real hint from the app to the WM if we decide the experimental
- * behavior is worthwhile.  The basic idea is to get more feedback about how
- * usage scenarios of "strict" focus users and what they expect.  See #326159.
- */
-static gboolean
-window_is_terminal (MetaWindow *window)
-{
-  if (window == NULL || window->res_class == NULL)
-    return FALSE;
-
-  /*
-   * Compare res_class, which is not user-settable, and thus theoretically
-   * a more-reliable indication of term-ness.
-   */
-
-  /* gnome-terminal -- if you couldn't guess */
-  if (strcmp (window->res_class, "Gnome-terminal") == 0)
-    return TRUE;
-  /* xterm, rxvt, aterm */
-  else if (strcmp (window->res_class, "XTerm") == 0)
-    return TRUE;
-  /* konsole, KDE's terminal program */
-  else if (strcmp (window->res_class, "Konsole") == 0)
-    return TRUE;
-  /* rxvt-unicode */
-  else if (strcmp (window->res_class, "URxvt") == 0)
-    return TRUE;
-  /* eterm */
-  else if (strcmp (window->res_class, "Eterm") == 0)
-    return TRUE;
-  /* KTerm -- some terminal not KDE based; so not like Konsole */
-  else if (strcmp (window->res_class, "KTerm") == 0)
-    return TRUE;
-  /* Multi-gnome-terminal */
-  else if (strcmp (window->res_class, "Multi-gnome-terminal") == 0)
-    return TRUE;
-  /* mlterm ("multi lingual terminal emulator on X") */
-  else if (strcmp (window->res_class, "mlterm") == 0)
-    return TRUE;
-  /* Terminal -- XFCE Terminal */
-  else if (strcmp (window->res_class, "Terminal") == 0)
-    return TRUE;
-
-  return FALSE;
-}
-
 /* This function determines what state the window should have assuming that it
  * and the focus_window have no relation
  */
@@ -2051,27 +2004,6 @@ window_state_on_map (MetaWindow *window,
     {
       *takes_focus = FALSE;
       return;
-    }
-
-  /* Terminal usage may be different; some users intend to launch
-   * many apps in quick succession or to just view things in the new
-   * window while still interacting with the terminal.  In that case,
-   * apps launched from the terminal should not take focus.  This
-   * isn't quite the same as not allowing focus to transfer from
-   * terminals due to new window map, but the latter is a much easier
-   * approximation to enforce so we do that.
-   */
-  if (*takes_focus &&
-      meta_prefs_get_focus_new_windows () == G_DESKTOP_FOCUS_NEW_WINDOWS_STRICT &&
-      !window->display->allow_terminal_deactivation &&
-      window_is_terminal (window->display->focus_window) &&
-      !meta_window_is_ancestor_of_transient (window->display->focus_window,
-                                             window))
-    {
-      meta_topic (META_DEBUG_FOCUS,
-                  "focus_window is terminal; not focusing new window.");
-      *takes_focus = FALSE;
-      *places_on_top = FALSE;
     }
 
   switch (window->type)
@@ -6325,13 +6257,6 @@ meta_window_set_user_time (MetaWindow *window,
       if (XSERVER_TIME_IS_BEFORE (window->display->last_user_time, timestamp))
         window->display->last_user_time = timestamp;
 
-      /* If this is a terminal, user interaction with it means the user likely
-       * doesn't want to have focus transferred for now due to new windows.
-       */
-      if (meta_prefs_get_focus_new_windows () == G_DESKTOP_FOCUS_NEW_WINDOWS_STRICT &&
-          window_is_terminal (window))
-        window->display->allow_terminal_deactivation = FALSE;
-
       g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_USER_TIME]);
     }
 }
@@ -7671,11 +7596,6 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
       meta_window_focus (window, event->any.time);
       meta_window_check_alive (window, event->any.time);
     }
-  else
-    /* However, do allow terminals to lose focus due to new
-     * window mappings after the user clicks on a panel.
-     */
-    display->allow_terminal_deactivation = TRUE;
 
   /* We have three passive button grabs:
    * - on any button, without modifiers => focuses and maybe raises the window
