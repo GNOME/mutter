@@ -145,6 +145,7 @@ union _MetaStackOp
 struct _MetaStackTracker
 {
   MetaDisplay *display;
+  MetaStack *stack;
 
   /* This is the serial of the last request we made that was reflected
    * in xserver_stack
@@ -556,24 +557,110 @@ drop_x11_windows (MetaDisplay      *display,
     }
 }
 
+static void
+on_stack_changed (MetaStack        *stack,
+                  MetaStackTracker *tracker)
+{
+  MetaDisplay *display = tracker->display;
+  GArray *all_root_children_stacked;
+  GList *l;
+  GArray *hidden_stack_ids;
+  GList *sorted;
+
+  COGL_TRACE_BEGIN_SCOPED (StackChanged, "Stack changed");
+
+  meta_topic (META_DEBUG_STACK, "Syncing window stack to server");
+
+  all_root_children_stacked = g_array_new (FALSE, FALSE, sizeof (uint64_t));
+  hidden_stack_ids = g_array_new (FALSE, FALSE, sizeof (uint64_t));
+
+  meta_topic (META_DEBUG_STACK, "Bottom to top: ");
+
+  sorted = meta_stack_list_windows (stack, NULL);
+
+  for (l = sorted; l; l = l->next)
+    {
+      MetaWindow *w = l->data;
+      uint64_t top_level_window;
+      uint64_t stack_id;
+
+      if (w->unmanaging)
+        continue;
+
+      meta_topic (META_DEBUG_STACK, "  %u:%d - %s ",
+		  w->layer, w->stack_position, w->desc);
+
+      if (w->frame)
+	top_level_window = w->frame->xwindow;
+      else
+	top_level_window = w->xwindow;
+
+      if (w->client_type == META_WINDOW_CLIENT_TYPE_X11)
+        stack_id = top_level_window;
+      else
+        stack_id = w->stamp;
+
+      /* We don't restack hidden windows along with the rest, though they are
+       * reflected in the _NET hints. Hidden windows all get pushed below
+       * the screens fullscreen guard_window. */
+      if (w->hidden)
+	{
+          g_array_append_val (hidden_stack_ids, stack_id);
+	  continue;
+	}
+
+      g_array_append_val (all_root_children_stacked, stack_id);
+    }
+
+  if (display->x11_display)
+    {
+      uint64_t guard_window_id;
+
+      /* The screen guard window sits above all hidden windows and acts as
+       * a barrier to input reaching these windows. */
+      guard_window_id = display->x11_display->guard_window;
+      g_array_append_val (hidden_stack_ids, guard_window_id);
+    }
+
+  /* Sync to server */
+
+  meta_topic (META_DEBUG_STACK, "Restacking %u windows",
+              all_root_children_stacked->len);
+
+  meta_stack_tracker_restack_managed (tracker,
+                                      (uint64_t *)all_root_children_stacked->data,
+                                      all_root_children_stacked->len);
+  meta_stack_tracker_restack_at_bottom (tracker,
+                                        (uint64_t *)hidden_stack_ids->data,
+                                        hidden_stack_ids->len);
+
+  g_array_free (hidden_stack_ids, TRUE);
+  g_array_free (all_root_children_stacked, TRUE);
+  g_list_free (sorted);
+}
+
 MetaStackTracker *
-meta_stack_tracker_new (MetaDisplay *display)
+meta_stack_tracker_new (MetaStack *stack)
 {
   MetaStackTracker *tracker;
 
   tracker = g_new0 (MetaStackTracker, 1);
-  tracker->display = display;
+  tracker->display = stack->display;
+  tracker->stack = stack;
 
   tracker->verified_stack = g_array_new (FALSE, FALSE, sizeof (guint64));
   tracker->unverified_predictions = g_queue_new ();
 
-  g_signal_connect (display,
+  g_signal_connect (tracker->display,
                     "x11-display-setup",
                     G_CALLBACK (query_xserver_stack),
                     tracker);
-  g_signal_connect (display,
+  g_signal_connect (tracker->display,
                     "x11-display-closing",
                     G_CALLBACK (drop_x11_windows),
+                    tracker);
+  g_signal_connect (tracker->stack, "changed",
+                    G_CALLBACK (on_stack_changed),
                     tracker);
 
   meta_stack_tracker_dump (tracker);
@@ -606,6 +693,9 @@ meta_stack_tracker_free (MetaStackTracker *tracker)
                                         tracker);
   g_signal_handlers_disconnect_by_func (tracker->display,
                                         drop_x11_windows,
+                                        tracker);
+  g_signal_handlers_disconnect_by_func (tracker->stack,
+                                        on_stack_changed,
                                         tracker);
 
   g_free (tracker);
