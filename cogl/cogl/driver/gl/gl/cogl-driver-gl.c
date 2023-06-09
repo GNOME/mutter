@@ -190,10 +190,20 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       glformat = GL_BGR;
       gltype = GL_UNSIGNED_BYTE;
       break;
+    case COGL_PIXEL_FORMAT_RGBX_8888:
+      glintformat = GL_RGB;
+      glformat = GL_RGBA;
+      gltype = GL_UNSIGNED_BYTE;
+      break;
     case COGL_PIXEL_FORMAT_RGBA_8888:
     case COGL_PIXEL_FORMAT_RGBA_8888_PRE:
       glintformat = GL_RGBA;
       glformat = GL_RGBA;
+      gltype = GL_UNSIGNED_BYTE;
+      break;
+    case COGL_PIXEL_FORMAT_BGRX_8888:
+      glintformat = GL_RGB;
+      glformat = GL_BGRA;
       gltype = GL_UNSIGNED_BYTE;
       break;
     case COGL_PIXEL_FORMAT_BGRA_8888:
@@ -206,6 +216,15 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       /* The following two types of channel ordering
        * have no GL equivalent unless defined using
        * system word byte ordering */
+    case COGL_PIXEL_FORMAT_XRGB_8888:
+      glintformat = GL_RGB;
+      glformat = GL_BGRA;
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+      gltype = GL_UNSIGNED_INT_8_8_8_8;
+#else
+      gltype = GL_UNSIGNED_INT_8_8_8_8_REV;
+#endif
+      break;
     case COGL_PIXEL_FORMAT_ARGB_8888:
     case COGL_PIXEL_FORMAT_ARGB_8888_PRE:
       glintformat = GL_RGBA;
@@ -217,6 +236,15 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
 #endif
       break;
 
+    case COGL_PIXEL_FORMAT_XBGR_8888:
+      glintformat = GL_RGB;
+      glformat = GL_RGBA;
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+      gltype = GL_UNSIGNED_INT_8_8_8_8;
+#else
+      gltype = GL_UNSIGNED_INT_8_8_8_8_REV;
+#endif
+      break;
     case COGL_PIXEL_FORMAT_ABGR_8888:
     case COGL_PIXEL_FORMAT_ABGR_8888_PRE:
       glintformat = GL_RGBA;

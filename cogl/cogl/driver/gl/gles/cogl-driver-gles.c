@@ -178,6 +178,17 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
 #endif
 
       G_GNUC_FALLTHROUGH;
+
+    case COGL_PIXEL_FORMAT_BGRX_8888:
+    case COGL_PIXEL_FORMAT_RGBX_8888:
+    case COGL_PIXEL_FORMAT_XRGB_8888:
+    case COGL_PIXEL_FORMAT_XBGR_8888:
+      glintformat = GL_RGBA;
+      glformat = GL_RGBA;
+      gltype = GL_UNSIGNED_BYTE;
+      required_format = COGL_PIXEL_FORMAT_RGBA_8888_PRE;
+      break;
+
     case COGL_PIXEL_FORMAT_RGBA_8888:
     case COGL_PIXEL_FORMAT_RGBA_8888_PRE:
     case COGL_PIXEL_FORMAT_ARGB_8888:

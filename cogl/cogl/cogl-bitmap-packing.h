@@ -134,6 +134,22 @@ G_PASTE (_cogl_unpack_bgr_888_, component_size) (const uint8_t *src,
 }
 
 inline static void
+G_PASTE (_cogl_unpack_bgrx_8888_, component_size) (const uint8_t *src,
+                                                   component_type *dst,
+                                                   int width)
+{
+  while (width-- > 0)
+    {
+      dst[0] = UNPACK_BYTE (src[2]);
+      dst[1] = UNPACK_BYTE (src[1]);
+      dst[2] = UNPACK_BYTE (src[0]);
+      dst[3] = UNPACK_BYTE (255);
+      dst += 4;
+      src += 4;
+    }
+}
+
+inline static void
 G_PASTE (_cogl_unpack_bgra_8888_, component_size) (const uint8_t *src,
                                                    component_type *dst,
                                                    int width)
@@ -144,6 +160,22 @@ G_PASTE (_cogl_unpack_bgra_8888_, component_size) (const uint8_t *src,
       dst[1] = UNPACK_BYTE (src[1]);
       dst[2] = UNPACK_BYTE (src[0]);
       dst[3] = UNPACK_BYTE (src[3]);
+      dst += 4;
+      src += 4;
+    }
+}
+
+inline static void
+G_PASTE (_cogl_unpack_xrgb_8888_, component_size) (const uint8_t *src,
+                                                   component_type *dst,
+                                                   int width)
+{
+  while (width-- > 0)
+    {
+      dst[0] = UNPACK_BYTE (src[1]);
+      dst[1] = UNPACK_BYTE (src[2]);
+      dst[2] = UNPACK_BYTE (src[3]);
+      dst[3] = UNPACK_BYTE (255);
       dst += 4;
       src += 4;
     }
@@ -166,6 +198,22 @@ G_PASTE (_cogl_unpack_argb_8888_, component_size) (const uint8_t *src,
 }
 
 inline static void
+G_PASTE (_cogl_unpack_xbgr_8888_, component_size) (const uint8_t *src,
+                                                   component_type *dst,
+                                                   int width)
+{
+  while (width-- > 0)
+    {
+      dst[0] = UNPACK_BYTE (src[3]);
+      dst[1] = UNPACK_BYTE (src[2]);
+      dst[2] = UNPACK_BYTE (src[1]);
+      dst[3] = UNPACK_BYTE (255);
+      dst += 4;
+      src += 4;
+    }
+}
+
+inline static void
 G_PASTE (_cogl_unpack_abgr_8888_, component_size) (const uint8_t *src,
                                                    component_type *dst,
                                                    int width)
@@ -176,6 +224,22 @@ G_PASTE (_cogl_unpack_abgr_8888_, component_size) (const uint8_t *src,
       dst[1] = UNPACK_BYTE (src[2]);
       dst[2] = UNPACK_BYTE (src[1]);
       dst[3] = UNPACK_BYTE (src[0]);
+      dst += 4;
+      src += 4;
+    }
+}
+
+inline static void
+G_PASTE (_cogl_unpack_rgbx_8888_, component_size) (const uint8_t *src,
+                                                   component_type *dst,
+                                                   int width)
+{
+  while (width-- > 0)
+    {
+      dst[0] = UNPACK_BYTE (src[0]);
+      dst[1] = UNPACK_BYTE (src[1]);
+      dst[2] = UNPACK_BYTE (src[2]);
+      dst[3] = UNPACK_BYTE (255);
       dst += 4;
       src += 4;
     }
@@ -361,17 +425,29 @@ G_PASTE (_cogl_unpack_, component_size) (CoglPixelFormat format,
     case COGL_PIXEL_FORMAT_BGR_888:
       G_PASTE (_cogl_unpack_bgr_888_, component_size) (src, dst, width);
       break;
+    case COGL_PIXEL_FORMAT_RGBX_8888:
+      G_PASTE (_cogl_unpack_rgbx_8888_, component_size) (src, dst, width);
+      break;
     case COGL_PIXEL_FORMAT_RGBA_8888:
     case COGL_PIXEL_FORMAT_RGBA_8888_PRE:
       G_PASTE (_cogl_unpack_rgba_8888_, component_size) (src, dst, width);
+      break;
+    case COGL_PIXEL_FORMAT_BGRX_8888:
+      G_PASTE (_cogl_unpack_bgrx_8888_, component_size) (src, dst, width);
       break;
     case COGL_PIXEL_FORMAT_BGRA_8888:
     case COGL_PIXEL_FORMAT_BGRA_8888_PRE:
       G_PASTE (_cogl_unpack_bgra_8888_, component_size) (src, dst, width);
       break;
+    case COGL_PIXEL_FORMAT_XRGB_8888:
+      G_PASTE (_cogl_unpack_xrgb_8888_, component_size) (src, dst, width);
+      break;
     case COGL_PIXEL_FORMAT_ARGB_8888:
     case COGL_PIXEL_FORMAT_ARGB_8888_PRE:
       G_PASTE (_cogl_unpack_argb_8888_, component_size) (src, dst, width);
+      break;
+    case COGL_PIXEL_FORMAT_XBGR_8888:
+      G_PASTE (_cogl_unpack_xbgr_8888_, component_size) (src, dst, width);
       break;
     case COGL_PIXEL_FORMAT_ABGR_8888:
     case COGL_PIXEL_FORMAT_ABGR_8888_PRE:
@@ -517,6 +593,22 @@ G_PASTE (_cogl_pack_bgr_888_, component_size) (const component_type *src,
 }
 
 inline static void
+G_PASTE (_cogl_pack_bgrx_8888_, component_size) (const component_type *src,
+                                                 uint8_t *dst,
+                                                 int width)
+{
+  while (width-- > 0)
+    {
+      dst[2] = PACK_BYTE (src[0]);
+      dst[1] = PACK_BYTE (src[1]);
+      dst[0] = PACK_BYTE (src[2]);
+      dst[3] = PACK_BYTE (255);
+      src += 4;
+      dst += 4;
+    }
+}
+
+inline static void
 G_PASTE (_cogl_pack_bgra_8888_, component_size) (const component_type *src,
                                                  uint8_t *dst,
                                                  int width)
@@ -527,6 +619,22 @@ G_PASTE (_cogl_pack_bgra_8888_, component_size) (const component_type *src,
       dst[1] = PACK_BYTE (src[1]);
       dst[0] = PACK_BYTE (src[2]);
       dst[3] = PACK_BYTE (src[3]);
+      src += 4;
+      dst += 4;
+    }
+}
+
+inline static void
+G_PASTE (_cogl_pack_xrgb_8888_, component_size) (const component_type *src,
+                                                 uint8_t *dst,
+                                                 int width)
+{
+  while (width-- > 0)
+    {
+      dst[1] = PACK_BYTE (src[0]);
+      dst[2] = PACK_BYTE (src[1]);
+      dst[3] = PACK_BYTE (src[2]);
+      dst[0] = PACK_BYTE (255);
       src += 4;
       dst += 4;
     }
@@ -549,6 +657,22 @@ G_PASTE (_cogl_pack_argb_8888_, component_size) (const component_type *src,
 }
 
 inline static void
+G_PASTE (_cogl_pack_xbgr_8888_, component_size) (const component_type *src,
+                                                 uint8_t *dst,
+                                                 int width)
+{
+  while (width-- > 0)
+    {
+      dst[3] = PACK_BYTE (src[0]);
+      dst[2] = PACK_BYTE (src[1]);
+      dst[1] = PACK_BYTE (src[2]);
+      dst[0] = PACK_BYTE (255);
+      src += 4;
+      dst += 4;
+    }
+}
+
+inline static void
 G_PASTE (_cogl_pack_abgr_8888_, component_size) (const component_type *src,
                                                  uint8_t *dst,
                                                  int width)
@@ -559,6 +683,22 @@ G_PASTE (_cogl_pack_abgr_8888_, component_size) (const component_type *src,
       dst[2] = PACK_BYTE (src[1]);
       dst[1] = PACK_BYTE (src[2]);
       dst[0] = PACK_BYTE (src[3]);
+      src += 4;
+      dst += 4;
+    }
+}
+
+inline static void
+G_PASTE (_cogl_pack_rgbx_8888_, component_size) (const component_type *src,
+                                                 uint8_t *dst,
+                                                 int width)
+{
+  while (width-- > 0)
+    {
+      dst[0] = PACK_BYTE (src[0]);
+      dst[1] = PACK_BYTE (src[1]);
+      dst[2] = PACK_BYTE (src[2]);
+      dst[3] = PACK_BYTE (255);
       src += 4;
       dst += 4;
     }
@@ -744,17 +884,29 @@ G_PASTE (_cogl_pack_, component_size) (CoglPixelFormat format,
     case COGL_PIXEL_FORMAT_BGR_888:
       G_PASTE (_cogl_pack_bgr_888_, component_size) (src, dst, width);
       break;
+    case COGL_PIXEL_FORMAT_RGBX_8888:
+      G_PASTE (_cogl_pack_rgbx_8888_, component_size) (src, dst, width);
+      break;
     case COGL_PIXEL_FORMAT_RGBA_8888:
     case COGL_PIXEL_FORMAT_RGBA_8888_PRE:
       G_PASTE (_cogl_pack_rgba_8888_, component_size) (src, dst, width);
+      break;
+    case COGL_PIXEL_FORMAT_BGRX_8888:
+      G_PASTE (_cogl_pack_bgrx_8888_, component_size) (src, dst, width);
       break;
     case COGL_PIXEL_FORMAT_BGRA_8888:
     case COGL_PIXEL_FORMAT_BGRA_8888_PRE:
       G_PASTE (_cogl_pack_bgra_8888_, component_size) (src, dst, width);
       break;
+    case COGL_PIXEL_FORMAT_XRGB_8888:
+      G_PASTE (_cogl_pack_xrgb_8888_, component_size) (src, dst, width);
+      break;
     case COGL_PIXEL_FORMAT_ARGB_8888:
     case COGL_PIXEL_FORMAT_ARGB_8888_PRE:
       G_PASTE (_cogl_pack_argb_8888_, component_size) (src, dst, width);
+      break;
+    case COGL_PIXEL_FORMAT_XBGR_8888:
+      G_PASTE (_cogl_pack_xbgr_8888_, component_size) (src, dst, width);
       break;
     case COGL_PIXEL_FORMAT_ABGR_8888:
     case COGL_PIXEL_FORMAT_ABGR_8888_PRE:
