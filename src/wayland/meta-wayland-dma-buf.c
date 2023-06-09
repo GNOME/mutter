@@ -50,6 +50,7 @@
 #include "backends/meta-egl.h"
 #include "cogl/cogl-egl.h"
 #include "cogl/cogl.h"
+#include "common/meta-cogl-drm-formats.h"
 #include "meta/meta-backend.h"
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-private.h"
@@ -359,55 +360,9 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
   if (buffer->dma_buf.texture)
     return TRUE;
 
-  switch (dma_buf->drm_format)
+  if (!meta_cogl_pixel_format_from_drm_format (dma_buf->drm_format,
+                                               &cogl_format))
     {
-    /*
-     * NOTE: The cogl_format here is only used for texture color channel
-     * swizzling as compared to COGL_PIXEL_FORMAT_ARGB. It is *not* used
-     * for accessing the buffer memory. EGL will access the buffer
-     * memory according to the DRM fourcc code. Cogl will not mmap
-     * and access the buffer memory at all.
-     */
-    case DRM_FORMAT_XRGB8888:
-      cogl_format = COGL_PIXEL_FORMAT_RGB_888;
-      break;
-    case DRM_FORMAT_XBGR8888:
-      cogl_format = COGL_PIXEL_FORMAT_BGR_888;
-      break;
-    case DRM_FORMAT_ARGB8888:
-      cogl_format = COGL_PIXEL_FORMAT_ARGB_8888_PRE;
-      break;
-    case DRM_FORMAT_ABGR8888:
-      cogl_format = COGL_PIXEL_FORMAT_ABGR_8888_PRE;
-      break;
-    case DRM_FORMAT_XRGB2101010:
-      cogl_format = COGL_PIXEL_FORMAT_XRGB_2101010;
-      break;
-    case DRM_FORMAT_ARGB2101010:
-      cogl_format = COGL_PIXEL_FORMAT_ARGB_2101010_PRE;
-      break;
-    case DRM_FORMAT_XBGR2101010:
-      cogl_format = COGL_PIXEL_FORMAT_XBGR_2101010;
-      break;
-    case DRM_FORMAT_ABGR2101010:
-      cogl_format = COGL_PIXEL_FORMAT_ABGR_2101010_PRE;
-      break;
-    case DRM_FORMAT_RGB565:
-      cogl_format = COGL_PIXEL_FORMAT_RGB_565;
-      break;
-    case DRM_FORMAT_XBGR16161616F:
-      cogl_format = COGL_PIXEL_FORMAT_XBGR_FP_16161616;
-      break;
-    case DRM_FORMAT_ABGR16161616F:
-      cogl_format = COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE;
-      break;
-    case DRM_FORMAT_XRGB16161616F:
-      cogl_format = COGL_PIXEL_FORMAT_XRGB_FP_16161616;
-      break;
-    case DRM_FORMAT_ARGB16161616F:
-      cogl_format = COGL_PIXEL_FORMAT_ARGB_FP_16161616_PRE;
-      break;
-    default:
       g_set_error (error, G_IO_ERROR,
                    G_IO_ERROR_FAILED,
                    "Unsupported buffer format %d", dma_buf->drm_format);
@@ -1576,22 +1531,6 @@ init_format_table (MetaWaylandDmaBufManager *dma_buf_manager)
     meta_anonymous_file_new (size, (uint8_t *) format_table);
 }
 
-static EGLint supported_formats[] = {
-  DRM_FORMAT_ARGB8888,
-  DRM_FORMAT_ABGR8888,
-  DRM_FORMAT_XRGB8888,
-  DRM_FORMAT_XBGR8888,
-  DRM_FORMAT_ARGB2101010,
-  DRM_FORMAT_ABGR2101010,
-  DRM_FORMAT_XRGB2101010,
-  DRM_FORMAT_XBGR2101010,
-  DRM_FORMAT_RGB565,
-  DRM_FORMAT_ABGR16161616F,
-  DRM_FORMAT_XBGR16161616F,
-  DRM_FORMAT_XRGB16161616F,
-  DRM_FORMAT_ARGB16161616F
-};
-
 static gboolean
 init_formats (MetaWaylandDmaBufManager  *dma_buf_manager,
               EGLDisplay                 egl_display,
@@ -1623,12 +1562,12 @@ init_formats (MetaWaylandDmaBufManager  *dma_buf_manager,
                                        driver_formats, &num_formats, error))
     return FALSE;
 
-  for (i = 0; i < G_N_ELEMENTS (supported_formats); i++)
+  for (i = 0; i < G_N_ELEMENTS (meta_cogl_drm_format_map); i++)
     {
       for (j = 0; j < num_formats; j++)
         {
-          if (supported_formats[i] == driver_formats[j])
-            add_format (dma_buf_manager, egl_display, supported_formats[i]);
+          if (meta_cogl_drm_format_map[i].drm_format == driver_formats[j])
+            add_format (dma_buf_manager, egl_display, driver_formats[j]);
         }
     }
 
