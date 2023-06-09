@@ -145,13 +145,18 @@ endif
 
 if have_native_backend
   mutter_pkg_private_deps += [
-    libdrm_dep,
     libinput_dep,
     gudev_dep,
     libgbm_dep,
     logind_provider_dep,
     libudev_dep,
     xkbcommon_dep,
+  ]
+endif
+
+if have_wayland or have_native_backend
+  mutter_pkg_private_deps += [
+    libdrm_dep,
   ]
 endif
 
@@ -730,8 +735,6 @@ if have_native_backend
     'backends/native/meta-barrier-native.h',
     'backends/native/meta-clutter-backend-native.c',
     'backends/native/meta-clutter-backend-native.h',
-    'backends/native/meta-cogl-utils.c',
-    'backends/native/meta-cogl-utils.h',
     'backends/native/meta-crtc-kms.c',
     'backends/native/meta-crtc-kms.h',
     'backends/native/meta-crtc-native.c',
@@ -858,6 +861,13 @@ if have_native_backend
     'compositor/meta-compositor-native.h',
     'compositor/meta-compositor-view-native.c',
     'compositor/meta-compositor-view-native.h',
+  ]
+endif
+
+if have_wayland or have_native_backend
+  mutter_sources += [
+    'common/meta-cogl-drm-formats.c',
+    'common/meta-cogl-drm-formats.h',
   ]
 endif
 

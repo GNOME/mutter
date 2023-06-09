@@ -244,7 +244,6 @@ libsystemd_dep = dependency('libsystemd', required: have_libsystemd)
 
 have_native_backend = get_option('native_backend')
 if have_native_backend
-  libdrm_dep = dependency('libdrm')
   libgbm_dep = dependency('gbm', version: gbm_req)
   libinput_dep = dependency('libinput', version: libinput_req)
 
@@ -265,6 +264,10 @@ if have_native_backend
   if not have_libgudev
     error('The native backend requires udev to be enabled')
   endif
+endif
+
+if have_wayland or have_native_backend
+  libdrm_dep = dependency('libdrm')
 endif
 
 have_egl_device = get_option('egl_device')

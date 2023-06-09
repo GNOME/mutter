@@ -1,0 +1,79 @@
+/* meta-cogl-drm-formats.h
+ *
+ * Copyright (C) 2020 Georges Basile Stavracas Neto <georges.stavracas@gmail.com>
+ * Copyright (C) 2023 Collabora Ltd.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ *
+ */
+
+#ifndef META_COGL_DRM_FORMATS_H
+#define META_COGL_DRM_FORMATS_H
+
+#include <drm_fourcc.h>
+
+#include "cogl/cogl.h"
+
+G_BEGIN_DECLS
+
+typedef struct _CoglDrmFormatMap
+{
+  uint32_t drm_format;
+  CoglPixelFormat cogl_format;
+} CoglDrmFormatMap;
+
+static const CoglDrmFormatMap meta_cogl_drm_format_map[] = {
+/* DRM formats are defined as little-endian, not machine endian. */
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+  { DRM_FORMAT_RGB565, COGL_PIXEL_FORMAT_RGB_565 },
+  { DRM_FORMAT_RGBX8888, COGL_PIXEL_FORMAT_XBGR_8888 },
+  { DRM_FORMAT_RGBA8888, COGL_PIXEL_FORMAT_ABGR_8888_PRE },
+  { DRM_FORMAT_BGRX8888, COGL_PIXEL_FORMAT_XRGB_8888 },
+  { DRM_FORMAT_BGRA8888, COGL_PIXEL_FORMAT_ARGB_8888_PRE },
+  { DRM_FORMAT_XRGB8888, COGL_PIXEL_FORMAT_BGRX_8888 },
+  { DRM_FORMAT_ARGB8888, COGL_PIXEL_FORMAT_BGRA_8888_PRE },
+  { DRM_FORMAT_XBGR8888, COGL_PIXEL_FORMAT_RGBX_8888 },
+  { DRM_FORMAT_ABGR8888, COGL_PIXEL_FORMAT_RGBA_8888_PRE },
+  { DRM_FORMAT_XRGB2101010, COGL_PIXEL_FORMAT_XRGB_2101010 },
+  { DRM_FORMAT_ARGB2101010, COGL_PIXEL_FORMAT_ARGB_2101010_PRE },
+  { DRM_FORMAT_XBGR2101010, COGL_PIXEL_FORMAT_XBGR_2101010 },
+  { DRM_FORMAT_ABGR2101010, COGL_PIXEL_FORMAT_ABGR_2101010_PRE },
+  { DRM_FORMAT_XRGB16161616F, COGL_PIXEL_FORMAT_BGRX_FP_16161616 },
+  { DRM_FORMAT_ARGB16161616F, COGL_PIXEL_FORMAT_BGRA_FP_16161616_PRE },
+  { DRM_FORMAT_XBGR16161616F, COGL_PIXEL_FORMAT_RGBX_FP_16161616 },
+  { DRM_FORMAT_ABGR16161616F, COGL_PIXEL_FORMAT_RGBA_FP_16161616_PRE },
+#elif G_BYTE_ORDER == G_BIG_ENDIAN
+  { DRM_FORMAT_RGBX8888, COGL_PIXEL_FORMAT_RGBX_8888 },
+  { DRM_FORMAT_RGBA8888, COGL_PIXEL_FORMAT_RGBA_8888_PRE },
+  { DRM_FORMAT_BGRX8888, COGL_PIXEL_FORMAT_BGRX_8888 },
+  { DRM_FORMAT_BGRA8888, COGL_PIXEL_FORMAT_BGRA_8888_PRE },
+  { DRM_FORMAT_XRGB8888, COGL_PIXEL_FORMAT_XRGB_8888 },
+  { DRM_FORMAT_ARGB8888, COGL_PIXEL_FORMAT_ARGB_8888_PRE },
+  { DRM_FORMAT_XBGR8888, COGL_PIXEL_FORMAT_XBGR_8888 },
+  { DRM_FORMAT_ABGR8888, COGL_PIXEL_FORMAT_ABGR_8888_PRE },
+#else
+#error "unexpected G_BYTE_ORDER"
+#endif
+};
+
+gboolean meta_cogl_pixel_format_from_drm_format (uint32_t         drm_format,
+                                                 CoglPixelFormat *out_format);
+
+G_END_DECLS
+
+#endif /* META_COGL_DRM_FORMATS_H */

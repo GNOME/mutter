@@ -1,6 +1,7 @@
-/* meta-cogl-utils.h
+/* meta-cogl-drm-formats.c
  *
- * Copyright 2020 Georges Basile Stavracas Neto <georges.stavracas@gmail.com>
+ * Copyright (C) 2020 Georges Basile Stavracas Neto <georges.stavracas@gmail.com>
+ * Copyright (C) 2023 Collabora Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,18 +22,28 @@
  *
  */
 
-#ifndef META_COGL_UTILS_H
-#define META_COGL_UTILS_H
+#include "config.h"
 
-#include "cogl/cogl.h"
-
-G_BEGIN_DECLS
+#include "common/meta-cogl-drm-formats.h"
 
 gboolean
-meta_cogl_pixel_format_from_drm_format (uint32_t               drm_format,
-                                        CoglPixelFormat       *out_format,
-                                        CoglTextureComponents *out_components);
+meta_cogl_pixel_format_from_drm_format (uint32_t         drm_format,
+                                        CoglPixelFormat *out_format)
+{
+  const size_t n = G_N_ELEMENTS (meta_cogl_drm_format_map);
+  size_t i;
 
-G_END_DECLS
+  for (i = 0; i < n; i++)
+    {
+      if (meta_cogl_drm_format_map[i].drm_format == drm_format)
+        break;
+    }
 
-#endif /* META_COGL_UTILS_H */
+  if (i == n)
+    return FALSE;
+
+  if (out_format)
+    *out_format = meta_cogl_drm_format_map[i].cogl_format;
+
+  return TRUE;
+}

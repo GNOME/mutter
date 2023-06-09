@@ -51,7 +51,6 @@
 #include "backends/meta-logical-monitor.h"
 #include "backends/native/meta-backend-native-private.h"
 #include "backends/native/meta-cursor-renderer-native.h"
-#include "backends/native/meta-cogl-utils.h"
 #include "backends/native/meta-crtc-kms.h"
 #include "backends/native/meta-crtc-virtual.h"
 #include "backends/native/meta-device-pool.h"
@@ -65,6 +64,7 @@
 #include "backends/native/meta-renderer-native-private.h"
 #include "backends/native/meta-renderer-view-native.h"
 #include "cogl/cogl.h"
+#include "common/meta-cogl-drm-formats.h"
 #include "core/boxes-private.h"
 
 #ifdef HAVE_EGL_DEVICE
@@ -615,9 +615,7 @@ meta_renderer_native_create_dma_buf_framebuffer (MetaRendererNative  *renderer_n
   CoglOffscreen *cogl_fbo;
   int ret;
 
-  ret = meta_cogl_pixel_format_from_drm_format (drm_format,
-                                                &cogl_format,
-                                                NULL);
+  ret = meta_cogl_pixel_format_from_drm_format (drm_format, &cogl_format);
   g_assert (ret);
 
   strides[0] = stride;

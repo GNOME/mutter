@@ -32,9 +32,9 @@
 #include <xf86drmMode.h>
 
 #include "backends/meta-backend-private.h"
-#include "backends/native/meta-cogl-utils.h"
 #include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-drm-buffer-private.h"
+#include "common/meta-cogl-drm-formats.h"
 
 struct _MetaDrmBufferGbm
 {
@@ -279,9 +279,7 @@ meta_drm_buffer_gbm_blit_to_framebuffer (CoglScanout      *scanout,
     }
 
   drm_format = gbm_bo_get_format (buffer_gbm->bo);
-  result = meta_cogl_pixel_format_from_drm_format (drm_format,
-                                                   &cogl_format,
-                                                   NULL);
+  result = meta_cogl_pixel_format_from_drm_format (drm_format, &cogl_format);
   g_assert (result);
 
   width = gbm_bo_get_width (buffer_gbm->bo);
