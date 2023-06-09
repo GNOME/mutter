@@ -212,68 +212,62 @@ meta_wayland_buffer_realize (MetaWaylandBuffer *buffer)
 }
 
 static gboolean
-shm_format_to_cogl_pixel_format (enum wl_shm_format     shm_format,
-                                 CoglPixelFormat       *format_out,
-                                 CoglTextureComponents *components_out)
+shm_format_to_cogl_pixel_format (enum wl_shm_format  shm_format,
+                                 CoglPixelFormat    *format_out)
 {
   CoglPixelFormat format;
-  CoglTextureComponents components = COGL_TEXTURE_COMPONENTS_RGBA;
 
   switch (shm_format)
     {
 #if G_BYTE_ORDER == G_BIG_ENDIAN
+    case WL_SHM_FORMAT_XRGB8888:
+      format = COGL_PIXEL_FORMAT_XRGB_8888;
+      break;
     case WL_SHM_FORMAT_ARGB8888:
       format = COGL_PIXEL_FORMAT_ARGB_8888_PRE;
       break;
-    case WL_SHM_FORMAT_XRGB8888:
-      format = COGL_PIXEL_FORMAT_ARGB_8888;
-      components = COGL_TEXTURE_COMPONENTS_RGB;
-      break;
     case WL_SHM_FORMAT_XBGR8888:
-      components = COGL_TEXTURE_COMPONENTS_RGB;
-      G_GNUC_FALLTHROUGH;
+      format = COGL_PIXEL_FORMAT_XBGR_8888;
     case WL_SHM_FORMAT_ABGR8888:
       format = COGL_PIXEL_FORMAT_ABGR_8888_PRE;
       break;
 #elif G_BYTE_ORDER == G_LITTLE_ENDIAN
     case WL_SHM_FORMAT_RGB565:
       format = COGL_PIXEL_FORMAT_RGB_565;
-      components = COGL_TEXTURE_COMPONENTS_RGB;
+      break;
+    case WL_SHM_FORMAT_XRGB8888:
+      format = COGL_PIXEL_FORMAT_BGRX_8888;
       break;
     case WL_SHM_FORMAT_ARGB8888:
       format = COGL_PIXEL_FORMAT_BGRA_8888_PRE;
       break;
-    case WL_SHM_FORMAT_XRGB8888:
-      format = COGL_PIXEL_FORMAT_BGRA_8888;
-      components = COGL_TEXTURE_COMPONENTS_RGB;
-      break;
     case WL_SHM_FORMAT_XBGR8888:
-      components = COGL_TEXTURE_COMPONENTS_RGB;
-      G_GNUC_FALLTHROUGH;
+      format = COGL_PIXEL_FORMAT_RGBX_8888;
+      break;
     case WL_SHM_FORMAT_ABGR8888:
       format = COGL_PIXEL_FORMAT_RGBA_8888_PRE;
       break;
     case WL_SHM_FORMAT_XRGB2101010:
-      components = COGL_TEXTURE_COMPONENTS_RGB;
-      G_GNUC_FALLTHROUGH;
+      format = COGL_PIXEL_FORMAT_XRGB_2101010;
+      break;
     case WL_SHM_FORMAT_ARGB2101010:
       format = COGL_PIXEL_FORMAT_ARGB_2101010_PRE;
       break;
     case WL_SHM_FORMAT_XBGR2101010:
-      components = COGL_TEXTURE_COMPONENTS_RGB;
-      G_GNUC_FALLTHROUGH;
+      format = COGL_PIXEL_FORMAT_XBGR_2101010;
+      break;
     case WL_SHM_FORMAT_ABGR2101010:
       format = COGL_PIXEL_FORMAT_ABGR_2101010_PRE;
       break;
     case WL_SHM_FORMAT_XRGB16161616F:
-      components = COGL_TEXTURE_COMPONENTS_RGB;
-      G_GNUC_FALLTHROUGH;
+      format = COGL_PIXEL_FORMAT_BGRX_FP_16161616;
+      break;
     case WL_SHM_FORMAT_ARGB16161616F:
       format = COGL_PIXEL_FORMAT_BGRA_FP_16161616_PRE;
       break;
     case WL_SHM_FORMAT_XBGR16161616F:
-      components = COGL_TEXTURE_COMPONENTS_RGB;
-      G_GNUC_FALLTHROUGH;
+      format = COGL_PIXEL_FORMAT_RGBX_FP_16161616;
+      break;
     case WL_SHM_FORMAT_ABGR16161616F:
       format = COGL_PIXEL_FORMAT_RGBA_FP_16161616_PRE;
       break;
@@ -284,17 +278,14 @@ shm_format_to_cogl_pixel_format (enum wl_shm_format     shm_format,
 
   if (format_out)
     *format_out = format;
-  if (components_out)
-    *components_out = components;
 
   return TRUE;
 }
 
 static gboolean
-shm_buffer_get_cogl_pixel_format (MetaWaylandBuffer     *buffer,
-                                  struct wl_shm_buffer  *shm_buffer,
-                                  CoglPixelFormat       *format_out,
-                                  CoglTextureComponents *components_out)
+shm_buffer_get_cogl_pixel_format (MetaWaylandBuffer    *buffer,
+                                  struct wl_shm_buffer *shm_buffer,
+                                  CoglPixelFormat      *format_out)
 {
   MetaContext *context =
     meta_wayland_compositor_get_context (buffer->compositor);
@@ -303,11 +294,9 @@ shm_buffer_get_cogl_pixel_format (MetaWaylandBuffer     *buffer,
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
   CoglPixelFormat cogl_format;
-  CoglTextureComponents cogl_components;
 
   if (!shm_format_to_cogl_pixel_format (wl_shm_buffer_get_format (shm_buffer),
-                                        &cogl_format,
-                                        &cogl_components))
+                                        &cogl_format))
     return FALSE;
 
   if (!cogl_context_format_supports_upload (cogl_context, cogl_format))
@@ -315,8 +304,6 @@ shm_buffer_get_cogl_pixel_format (MetaWaylandBuffer     *buffer,
 
   if (format_out)
     *format_out = cogl_format;
-  if (components_out)
-    *components_out = cogl_components;
 
   return TRUE;
 }
@@ -356,7 +343,6 @@ shm_buffer_attach (MetaWaylandBuffer  *buffer,
   struct wl_shm_buffer *shm_buffer;
   int stride, width, height;
   CoglPixelFormat format;
-  CoglTextureComponents components;
   CoglBitmap *bitmap;
   CoglTexture *new_texture;
   MetaDrmFormatBuf format_buf;
@@ -365,8 +351,7 @@ shm_buffer_attach (MetaWaylandBuffer  *buffer,
   stride = wl_shm_buffer_get_stride (shm_buffer);
   width = wl_shm_buffer_get_width (shm_buffer);
   height = wl_shm_buffer_get_height (shm_buffer);
-  if (!shm_buffer_get_cogl_pixel_format (buffer, shm_buffer,
-                                         &format, &components))
+  if (!shm_buffer_get_cogl_pixel_format (buffer, shm_buffer, &format))
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "Invalid shm pixel format");
@@ -383,7 +368,6 @@ shm_buffer_attach (MetaWaylandBuffer  *buffer,
   if (*texture &&
       cogl_texture_get_width (*texture) == width &&
       cogl_texture_get_height (*texture) == height &&
-      cogl_texture_get_components (*texture) == components &&
       _cogl_texture_get_format (*texture) == format)
     {
       buffer->is_y_inverted = TRUE;
@@ -401,7 +385,6 @@ shm_buffer_attach (MetaWaylandBuffer  *buffer,
                                      wl_shm_buffer_get_data (shm_buffer));
 
   new_texture = COGL_TEXTURE (cogl_texture_2d_new_from_bitmap (bitmap));
-  cogl_texture_set_components (new_texture, components);
 
   if (!cogl_texture_allocate (new_texture, error))
     {
@@ -416,7 +399,6 @@ shm_buffer_attach (MetaWaylandBuffer  *buffer,
             cogl_texture_2d_sliced_new_from_bitmap (bitmap,
                                                     COGL_TEXTURE_MAX_WASTE);
           new_texture = COGL_TEXTURE (texture_sliced);
-          cogl_texture_set_components (new_texture, components);
 
           if (!cogl_texture_allocate (new_texture, error))
             g_clear_pointer (&new_texture, cogl_object_unref);
@@ -710,7 +692,7 @@ process_shm_buffer_damage (MetaWaylandBuffer *buffer,
 
   shm_buffer = wl_shm_buffer_get (buffer->resource);
 
-  shm_buffer_get_cogl_pixel_format (buffer, shm_buffer, &format, NULL);
+  shm_buffer_get_cogl_pixel_format (buffer, shm_buffer, &format);
   g_return_val_if_fail (cogl_pixel_format_get_n_planes (format) == 1, FALSE);
 
   wl_shm_buffer_begin_access (shm_buffer);
@@ -965,9 +947,7 @@ meta_wayland_init_shm (MetaWaylandCompositor *compositor)
     {
       CoglPixelFormat cogl_format;
 
-      if (!shm_format_to_cogl_pixel_format (shm_formats[i],
-                                            &cogl_format,
-                                            NULL))
+      if (!shm_format_to_cogl_pixel_format (shm_formats[i], &cogl_format))
         continue;
 
       if (!cogl_context_format_supports_upload (cogl_context, cogl_format))
