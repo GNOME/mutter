@@ -775,30 +775,34 @@ meta_backend_native_initable_init (GInitable     *initable,
   MetaBackendNative *native = META_BACKEND_NATIVE (initable);
   MetaBackend *backend = META_BACKEND (native);
   MetaKmsFlags kms_flags;
+  const char *session_id = NULL;
+  const char *seat_id = NULL;
 
-  if (!meta_backend_is_headless (backend))
+  switch (native->mode)
     {
-      const char *session_id = NULL;
-      const char *seat_id = NULL;
+    case META_BACKEND_NATIVE_MODE_DEFAULT:
+      break;
+    case META_BACKEND_NATIVE_MODE_HEADLESS:
+      break;
+    case META_BACKEND_NATIVE_MODE_TEST:
+      session_id = "dummy";
+      seat_id = "seat0";
+      break;
+    }
 
-      switch (native->mode)
-        {
-        case META_BACKEND_NATIVE_MODE_DEFAULT:
-          break;
-        case META_BACKEND_NATIVE_MODE_HEADLESS:
-          g_assert_not_reached ();
-          break;
-        case META_BACKEND_NATIVE_MODE_TEST:
-          session_id = "dummy";
-          seat_id = "seat0";
-          break;
-        }
-
+  if (native->mode != META_BACKEND_NATIVE_MODE_HEADLESS)
+    {
       native->launcher = meta_launcher_new (backend,
                                             session_id, seat_id,
                                             error);
       if (!native->launcher)
         return FALSE;
+
+      if (!meta_launcher_get_seat_id (native->launcher))
+        {
+          native->mode = META_BACKEND_NATIVE_MODE_HEADLESS;
+          g_message ("No seat assigned, running headlessly");
+        }
     }
 
   native->device_pool = meta_device_pool_new (native);

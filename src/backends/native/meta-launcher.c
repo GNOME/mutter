@@ -409,29 +409,30 @@ meta_launcher_new (MetaBackend  *backend,
           g_clear_error (&local_error);
           seat_id = g_strdup (fallback_seat_id);
         }
-      else
-        {
-          g_propagate_error (error, local_error);
-          goto fail;
-        }
     }
 
-  seat_proxy = get_seat_proxy (seat_id, NULL, error);
-  if (!seat_proxy)
-    goto fail;
+  if (seat_id)
+    {
+      seat_proxy = get_seat_proxy (seat_id, NULL, error);
+      if (!seat_proxy)
+        goto fail;
+    }
 
   self = g_new0 (MetaLauncher, 1);
   self->backend = backend;
   self->session_proxy = g_object_ref (session_proxy);
-  self->seat_proxy = g_object_ref (seat_proxy);
-  self->seat_id = g_steal_pointer (&seat_id);
   self->session_active = TRUE;
+  if (seat_id)
+    {
+      self->seat_proxy = g_object_ref (seat_proxy);
+      self->seat_id = g_steal_pointer (&seat_id);
+    }
 
   g_signal_connect (self->session_proxy, "notify::active", G_CALLBACK (on_active_changed), self);
 
   return self;
 
- fail:
+fail:
   if (have_control)
     {
       meta_dbus_login1_session_call_release_control_sync (session_proxy,
@@ -454,6 +455,8 @@ meta_launcher_activate_vt (MetaLauncher  *launcher,
                            signed char    vt,
                            GError       **error)
 {
+  g_assert (launcher->seat_proxy);
+
   return meta_dbus_login1_seat_call_switch_to_sync (launcher->seat_proxy, vt,
                                                     NULL, error);
 }
