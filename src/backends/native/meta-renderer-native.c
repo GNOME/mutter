@@ -615,7 +615,7 @@ meta_renderer_native_create_dma_buf_framebuffer (MetaRendererNative  *renderer_n
   CoglOffscreen *cogl_fbo;
   int ret;
 
-  ret = meta_cogl_pixel_format_from_drm_format (drm_format, &cogl_format);
+  ret = meta_cogl_pixel_format_from_drm_format (drm_format, &cogl_format, NULL);
   g_assert (ret);
 
   strides[0] = stride;

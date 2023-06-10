@@ -27,8 +27,9 @@
 #include "common/meta-cogl-drm-formats.h"
 
 gboolean
-meta_cogl_pixel_format_from_drm_format (uint32_t         drm_format,
-                                        CoglPixelFormat *out_format)
+meta_cogl_pixel_format_from_drm_format (uint32_t                drm_format,
+                                        CoglPixelFormat        *out_format,
+                                        MetaMultiTextureFormat *out_multi_texture_format)
 {
   const size_t n = G_N_ELEMENTS (meta_cogl_drm_format_map);
   size_t i;
@@ -44,6 +45,9 @@ meta_cogl_pixel_format_from_drm_format (uint32_t         drm_format,
 
   if (out_format)
     *out_format = meta_cogl_drm_format_map[i].cogl_format;
+
+  if (out_multi_texture_format)
+    *out_multi_texture_format = meta_cogl_drm_format_map[i].multi_texture_format;
 
   return TRUE;
 }

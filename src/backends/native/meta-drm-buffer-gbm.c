@@ -279,7 +279,9 @@ meta_drm_buffer_gbm_blit_to_framebuffer (CoglScanout      *scanout,
     }
 
   drm_format = gbm_bo_get_format (buffer_gbm->bo);
-  result = meta_cogl_pixel_format_from_drm_format (drm_format, &cogl_format);
+  result = meta_cogl_pixel_format_from_drm_format (drm_format,
+                                                   &cogl_format,
+                                                   NULL);
   g_assert (result);
 
   width = gbm_bo_get_width (buffer_gbm->bo);

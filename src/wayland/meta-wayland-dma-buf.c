@@ -357,7 +357,8 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
     return TRUE;
 
   if (!meta_cogl_pixel_format_from_drm_format (dma_buf->drm_format,
-                                               &cogl_format))
+                                               &cogl_format,
+                                               NULL))
     {
       g_set_error (error, G_IO_ERROR,
                    G_IO_ERROR_FAILED,
@@ -1562,7 +1563,9 @@ init_formats (MetaWaylandDmaBufManager  *dma_buf_manager,
     {
       for (j = 0; j < num_formats; j++)
         {
-          if (meta_cogl_drm_format_map[i].drm_format == driver_formats[j])
+          if ((meta_cogl_drm_format_map[i].drm_format == driver_formats[j]) &&
+              (meta_cogl_drm_format_map[i].multi_texture_format !=
+               META_MULTI_TEXTURE_FORMAT_INVALID))
             add_format (dma_buf_manager, egl_display, driver_formats[j]);
         }
     }
