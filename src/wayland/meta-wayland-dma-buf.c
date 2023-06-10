@@ -66,10 +66,6 @@
 
 #include "linux-dmabuf-unstable-v1-server-protocol.h"
 
-#ifndef DRM_FORMAT_MOD_INVALID
-#define DRM_FORMAT_MOD_INVALID ((1ULL << 56) - 1)
-#endif
-
 #define META_WAYLAND_DMA_BUF_MAX_FDS 4
 
 /* Compatible with zwp_linux_dmabuf_feedback_v1.tranche_flags */
