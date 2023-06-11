@@ -237,17 +237,15 @@ meta_surface_actor_is_opaque (MetaSurfaceActor *self)
 }
 
 static void
-meta_surface_actor_cull_out (MetaCullable   *cullable,
-                             cairo_region_t *unobscured_region,
-                             cairo_region_t *clip_region)
+subtract_opaque_region (MetaSurfaceActor *surface_actor,
+                        cairo_region_t   *region)
 {
-  MetaSurfaceActor *surface_actor = META_SURFACE_ACTOR (cullable);
   MetaSurfaceActorPrivate *priv =
     meta_surface_actor_get_instance_private (surface_actor);
-  uint8_t opacity = clutter_actor_get_paint_opacity (CLUTTER_ACTOR (cullable));
+  uint8_t opacity = clutter_actor_get_paint_opacity (CLUTTER_ACTOR (surface_actor));
 
-  set_unobscured_region (surface_actor, unobscured_region);
-  set_clip_region (surface_actor, clip_region);
+  if (!region)
+    return;
 
   if (opacity == 0xff)
     {
@@ -258,26 +256,37 @@ meta_surface_actor_cull_out (MetaCullable   *cullable,
       if (!opaque_region)
         return;
 
-      if (unobscured_region)
-        cairo_region_subtract (unobscured_region, opaque_region);
-      if (clip_region)
-        cairo_region_subtract (clip_region, opaque_region);
+      cairo_region_subtract (region, opaque_region);
     }
 }
 
 static void
-meta_surface_actor_reset_culling (MetaCullable *cullable)
+meta_surface_actor_cull_redraw_clip (MetaCullable   *cullable,
+                                     cairo_region_t *clip_region)
 {
   MetaSurfaceActor *surface_actor = META_SURFACE_ACTOR (cullable);
 
-  set_clip_region (surface_actor, NULL);
+  set_clip_region (surface_actor, clip_region);
+
+  subtract_opaque_region (surface_actor, clip_region);
+}
+
+static void
+meta_surface_actor_cull_unobscured (MetaCullable   *cullable,
+                                    cairo_region_t *unobscured_region)
+{
+  MetaSurfaceActor *surface_actor = META_SURFACE_ACTOR (cullable);
+
+  set_unobscured_region (surface_actor, unobscured_region);
+
+  subtract_opaque_region (surface_actor, unobscured_region);
 }
 
 static void
 cullable_iface_init (MetaCullableInterface *iface)
 {
-  iface->cull_out = meta_surface_actor_cull_out;
-  iface->reset_culling = meta_surface_actor_reset_culling;
+  iface->cull_redraw_clip = meta_surface_actor_cull_redraw_clip;
+  iface->cull_unobscured = meta_surface_actor_cull_unobscured;
 }
 
 static void

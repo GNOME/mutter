@@ -1504,34 +1504,28 @@ meta_window_actor_x11_constructed (GObject *object)
 }
 
 static void
-meta_window_actor_x11_cull_out (MetaCullable   *cullable,
-                                cairo_region_t *unobscured_region,
-                                cairo_region_t *clip_region)
+meta_window_actor_x11_cull_unobscured (MetaCullable   *cullable,
+                                       cairo_region_t *unobscured_region)
+{
+  meta_cullable_cull_unobscured_children (cullable, unobscured_region);
+}
+
+static void
+meta_window_actor_x11_cull_redraw_clip (MetaCullable   *cullable,
+                                        cairo_region_t *clip_region)
 {
   MetaWindowActorX11 *self = META_WINDOW_ACTOR_X11 (cullable);
 
-  meta_cullable_cull_out_children (cullable,
-                                   unobscured_region,
-                                   clip_region);
+  meta_cullable_cull_redraw_clip_children (cullable, clip_region);
 
   set_clip_region_beneath (self, clip_region);
 }
 
 static void
-meta_window_actor_x11_reset_culling (MetaCullable *cullable)
-{
-  MetaWindowActorX11 *actor_x11 = META_WINDOW_ACTOR_X11 (cullable);
-
-  g_clear_pointer (&actor_x11->shadow_clip, cairo_region_destroy);
-
-  meta_cullable_reset_culling_children (cullable);
-}
-
-static void
 cullable_iface_init (MetaCullableInterface *iface)
 {
-  iface->cull_out = meta_window_actor_x11_cull_out;
-  iface->reset_culling = meta_window_actor_x11_reset_culling;
+  iface->cull_unobscured = meta_window_actor_x11_cull_unobscured;
+  iface->cull_redraw_clip = meta_window_actor_x11_cull_redraw_clip;
 }
 
 static void

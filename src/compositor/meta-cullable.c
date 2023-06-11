@@ -75,21 +75,13 @@ region_apply_transform_expand_maybe_ref (cairo_region_t    *region,
  * so that actors underneath know not to draw there as well.
  */
 
-/**
- * meta_cullable_cull_out_children:
- * @cullable: The #MetaCullable
- * @unobscured_region: The unobscured region, as passed into cull_out()
- * @clip_region: The clip region, as passed into cull_out()
- *
- * This is a helper method for actors that want to recurse over their
- * child actors, and cull them out.
- *
- * See #MetaCullable and meta_cullable_cull_out() for more details.
- */
-void
-meta_cullable_cull_out_children (MetaCullable   *cullable,
-                                 cairo_region_t *unobscured_region,
-                                 cairo_region_t *clip_region)
+typedef void (* ChildCullMethod) (MetaCullable   *cullable,
+                                  cairo_region_t *region);
+
+static void
+cull_out_children_common (MetaCullable    *cullable,
+                          cairo_region_t  *region,
+                          ChildCullMethod  method)
 {
   ClutterActor *actor = CLUTTER_ACTOR (cullable);
   ClutterActor *child;
@@ -103,7 +95,7 @@ meta_cullable_cull_out_children (MetaCullable   *cullable,
       if (!META_IS_CULLABLE (child))
         continue;
 
-      needs_culling = (unobscured_region != NULL && clip_region != NULL);
+      needs_culling = (region != NULL);
 
       if (needs_culling && !clutter_actor_is_visible (child))
         needs_culling = FALSE;
@@ -129,8 +121,7 @@ meta_cullable_cull_out_children (MetaCullable   *cullable,
 
       if (needs_culling)
         {
-          cairo_region_t *actor_unobscured_region, *actor_clip_region;
-          cairo_region_t *reduced_unobscured_region, *reduced_clip_region;
+          cairo_region_t *actor_region, *reduced_region;
           graphene_matrix_t actor_transform, inverted_actor_transform;
 
           clutter_actor_get_transform (child, &actor_transform);
@@ -138,9 +129,7 @@ meta_cullable_cull_out_children (MetaCullable   *cullable,
           if (graphene_matrix_is_identity (&actor_transform))
             {
               /* No transformation needed, simply pass through to child */
-              meta_cullable_cull_out (META_CULLABLE (child),
-                                      unobscured_region,
-                                      clip_region);
+              method (META_CULLABLE (child), region);
               continue;
             }
 
@@ -148,71 +137,72 @@ meta_cullable_cull_out_children (MetaCullable   *cullable,
                                         &inverted_actor_transform) ||
               !graphene_matrix_is_2d (&actor_transform))
             {
-              meta_cullable_cull_out (META_CULLABLE (child), NULL, NULL);
+              method (META_CULLABLE (child), NULL);
               continue;
             }
 
-          actor_unobscured_region =
-            region_apply_transform_expand_maybe_ref (unobscured_region,
-                                                     &inverted_actor_transform);
-          actor_clip_region =
-            region_apply_transform_expand_maybe_ref (clip_region,
+          actor_region =
+            region_apply_transform_expand_maybe_ref (region,
                                                      &inverted_actor_transform);
 
-          g_assert (actor_unobscured_region && actor_clip_region);
+          g_assert (actor_region);
 
-          meta_cullable_cull_out (META_CULLABLE (child),
-                                  actor_unobscured_region,
-                                  actor_clip_region);
+          method (META_CULLABLE (child), actor_region);
 
-          reduced_unobscured_region =
-            region_apply_transform_expand_maybe_ref (actor_unobscured_region,
-                                                     &actor_transform);
-          reduced_clip_region =
-            region_apply_transform_expand_maybe_ref (actor_clip_region,
+          reduced_region =
+            region_apply_transform_expand_maybe_ref (actor_region,
                                                      &actor_transform);
 
-          g_assert (reduced_unobscured_region && reduced_clip_region);
+          g_assert (reduced_region);
 
-          cairo_region_intersect (unobscured_region, reduced_unobscured_region);
-          cairo_region_intersect (clip_region, reduced_clip_region);
+          cairo_region_intersect (region, reduced_region);
 
-          cairo_region_destroy (actor_unobscured_region);
-          cairo_region_destroy (actor_clip_region);
-          cairo_region_destroy (reduced_unobscured_region);
-          cairo_region_destroy (reduced_clip_region);
+          cairo_region_destroy (actor_region);
+          cairo_region_destroy (reduced_region);
         }
       else
         {
-          meta_cullable_cull_out (META_CULLABLE (child), NULL, NULL);
+          method (META_CULLABLE (child), NULL);
         }
     }
 }
 
 /**
- * meta_cullable_reset_culling_children:
+ * meta_cullable_cull_unobscured_children:
  * @cullable: The #MetaCullable
+ * @unobscured_region: The unobscured region, as passed into cull_unobscured()
  *
  * This is a helper method for actors that want to recurse over their
  * child actors, and cull them out.
  *
- * See #MetaCullable and meta_cullable_reset_culling() for more details.
+ * See #MetaCullable and meta_cullable_cull_unobscured() for more details.
  */
 void
-meta_cullable_reset_culling_children (MetaCullable *cullable)
+meta_cullable_cull_unobscured_children (MetaCullable   *cullable,
+                                        cairo_region_t *unobscured_region)
 {
-  ClutterActor *actor = CLUTTER_ACTOR (cullable);
-  ClutterActor *child;
-  ClutterActorIter iter;
+  cull_out_children_common (cullable,
+                            unobscured_region,
+                            meta_cullable_cull_unobscured);
+}
 
-  clutter_actor_iter_init (&iter, actor);
-  while (clutter_actor_iter_next (&iter, &child))
-    {
-      if (!META_IS_CULLABLE (child))
-        continue;
-
-      meta_cullable_reset_culling (META_CULLABLE (child));
-    }
+/**
+ * meta_cullable_cull_redraw_clip_children:
+ * @cullable: The #MetaCullable
+ * @clip_region: The clip region, as passed into cull_redraw_clip()
+ *
+ * This is a helper method for actors that want to recurse over their
+ * child actors, and cull them out.
+ *
+ * See #MetaCullable and meta_cullable_cull_redraw_clip() for more details.
+ */
+void
+meta_cullable_cull_redraw_clip_children (MetaCullable   *cullable,
+                                         cairo_region_t *clip_region)
+{
+  cull_out_children_common (cullable,
+                            clip_region,
+                            meta_cullable_cull_redraw_clip);
 }
 
 static void
@@ -221,48 +211,48 @@ meta_cullable_default_init (MetaCullableInterface *iface)
 }
 
 /**
- * meta_cullable_cull_out:
+ * meta_cullable_cull_unobscured:
  * @cullable: The #MetaCullable
  * @unobscured_region: The unobscured region, in @cullable's space.
+ *
+ * When #MetaWindowGroup is painted, we walk over its direct cullable
+ * children from top to bottom and ask themselves to "cull out". Cullables
+ * can use @unobscured_region record what parts of their window are unobscured
+ * for e.g. scheduling repaints.
+ *
+ * Actors that may have fully opaque parts should also subtract out a region
+ * that is fully opaque from @unobscured_region.
+ *
+ * Actors that have children can also use the meta_cullable_cull_unobscured_children()
+ * helper method to do a simple cull across all their children.
+ */
+void
+meta_cullable_cull_unobscured (MetaCullable   *cullable,
+                               cairo_region_t *unobscured_region)
+{
+  META_CULLABLE_GET_IFACE (cullable)->cull_unobscured (cullable, unobscured_region);
+}
+
+/**
+ * meta_cullable_cull_redraw_clip:
+ * @cullable: The #MetaCullable
  * @clip_region: The clip region, in @cullable's space.
  *
  * When #MetaWindowGroup is painted, we walk over its direct cullable
  * children from top to bottom and ask themselves to "cull out". Cullables
- * can use @unobscured_region and @clip_region to clip their drawing. Actors
- * interested in eliminating overdraw should copy the @clip_region and only
- * paint those parts, as everything else has been obscured by actors above it.
+ * can use @clip_region to clip their drawing. Actors interested in eliminating
+ * overdraw should copy the @clip_region and only paint those parts, as
+ * everything else has been obscured by actors above it.
  *
  * Actors that may have fully opaque parts should also subtract out a region
- * that is fully opaque from @unobscured_region and @clip_region.
+ * that is fully opaque from @clip_region.
  *
- * @unobscured_region and @clip_region are extremely similar. The difference
- * is that @clip_region starts off with the stage's clip, if Clutter detects
- * that we're doing a clipped redraw. @unobscured_region, however, starts off
- * with the full stage size, so actors that may want to record what parts of
- * their window are unobscured for e.g. scheduling repaints can do so.
- *
- * Actors that have children can also use the meta_cullable_cull_out_children()
+ * Actors that have children can also use the meta_cullable_cull_redraw_clip_children()
  * helper method to do a simple cull across all their children.
  */
 void
-meta_cullable_cull_out (MetaCullable   *cullable,
-                        cairo_region_t *unobscured_region,
-                        cairo_region_t *clip_region)
+meta_cullable_cull_redraw_clip (MetaCullable   *cullable,
+                                cairo_region_t *clip_region)
 {
-  META_CULLABLE_GET_IFACE (cullable)->cull_out (cullable, unobscured_region, clip_region);
-}
-
-/**
- * meta_cullable_reset_culling:
- * @cullable: The #MetaCullable
- *
- * Actors that copied data in their cull_out() implementation can now
- * reset their data, as the paint is now over. Additional paints may be
- * done by #ClutterClone or similar, and they should not be affected by
- * the culling operation.
- */
-void
-meta_cullable_reset_culling (MetaCullable *cullable)
-{
-  META_CULLABLE_GET_IFACE (cullable)->reset_culling (cullable);
+  META_CULLABLE_GET_IFACE (cullable)->cull_redraw_clip (cullable, clip_region);
 }

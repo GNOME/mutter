@@ -30,24 +30,24 @@ meta_background_group_class_init (MetaBackgroundGroupClass *klass)
 }
 
 static void
-meta_background_group_cull_out (MetaCullable   *cullable,
-                                cairo_region_t *unobscured_region,
-                                cairo_region_t *clip_region)
+meta_background_group_cull_unobscured (MetaCullable   *cullable,
+                                       cairo_region_t *unobscured_region)
 {
-  meta_cullable_cull_out_children (cullable, unobscured_region, clip_region);
+  meta_cullable_cull_unobscured_children (cullable, unobscured_region);
 }
 
 static void
-meta_background_group_reset_culling (MetaCullable *cullable)
+meta_background_group_cull_redraw_clip (MetaCullable   *cullable,
+                                        cairo_region_t *clip_region)
 {
-  meta_cullable_reset_culling_children (cullable);
+  meta_cullable_cull_redraw_clip_children (cullable, clip_region);
 }
 
 static void
 cullable_iface_init (MetaCullableInterface *iface)
 {
-  iface->cull_out = meta_background_group_cull_out;
-  iface->reset_culling = meta_background_group_reset_culling;
+  iface->cull_unobscured = meta_background_group_cull_unobscured;
+  iface->cull_redraw_clip = meta_background_group_cull_redraw_clip;
 }
 
 static void

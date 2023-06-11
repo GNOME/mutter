@@ -164,36 +164,34 @@ meta_background_actor_new (MetaDisplay *display,
 }
 
 static void
-meta_background_actor_cull_out (MetaCullable   *cullable,
-                                cairo_region_t *unobscured_region,
-                                cairo_region_t *clip_region)
+meta_background_actor_cull_unobscured (MetaCullable   *cullable,
+                                       cairo_region_t *unobscured_region)
 {
   MetaBackgroundActor *self = META_BACKGROUND_ACTOR (cullable);
 
   if (!self->content)
     return;
 
-  meta_background_content_cull_out (self->content,
-                                    unobscured_region,
-                                    clip_region);
+  meta_background_content_cull_unobscured (self->content, unobscured_region);
 }
 
 static void
-meta_background_actor_reset_culling (MetaCullable *cullable)
+meta_background_actor_cull_redraw_clip (MetaCullable   *cullable,
+                                        cairo_region_t *clip_region)
 {
   MetaBackgroundActor *self = META_BACKGROUND_ACTOR (cullable);
 
   if (!self->content)
     return;
 
-  meta_background_content_reset_culling (self->content);
+  meta_background_content_cull_redraw_clip (self->content, clip_region);
 }
 
 static void
 cullable_iface_init (MetaCullableInterface *iface)
 {
-  iface->cull_out = meta_background_actor_cull_out;
-  iface->reset_culling = meta_background_actor_reset_culling;
+  iface->cull_unobscured = meta_background_actor_cull_unobscured;
+  iface->cull_redraw_clip = meta_background_actor_cull_redraw_clip;
 }
 
 /**

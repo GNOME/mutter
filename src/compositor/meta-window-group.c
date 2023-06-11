@@ -31,24 +31,24 @@ G_DEFINE_TYPE_WITH_CODE (MetaWindowGroup, meta_window_group, CLUTTER_TYPE_ACTOR,
                          G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE, cullable_iface_init));
 
 static void
-meta_window_group_cull_out (MetaCullable   *cullable,
-                            cairo_region_t *unobscured_region,
-                            cairo_region_t *clip_region)
+meta_window_group_cull_unobscured (MetaCullable   *cullable,
+                                   cairo_region_t *unobscured_region)
 {
-  meta_cullable_cull_out_children (cullable, unobscured_region, clip_region);
+  meta_cullable_cull_unobscured_children (cullable, unobscured_region);
 }
 
 static void
-meta_window_group_reset_culling (MetaCullable *cullable)
+meta_window_group_cull_redraw_clip (MetaCullable   *cullable,
+                                    cairo_region_t *clip_region)
 {
-  meta_cullable_reset_culling_children (cullable);
+  meta_cullable_cull_redraw_clip_children (cullable, clip_region);
 }
 
 static void
 cullable_iface_init (MetaCullableInterface *iface)
 {
-  iface->cull_out = meta_window_group_cull_out;
-  iface->reset_culling = meta_window_group_reset_culling;
+  iface->cull_unobscured = meta_window_group_cull_unobscured;
+  iface->cull_redraw_clip = meta_window_group_cull_redraw_clip;
 }
 
 static void
@@ -61,16 +61,11 @@ meta_window_group_paint (ClutterActor        *actor,
   ClutterActor *stage = clutter_actor_get_stage (actor);
   const cairo_region_t *redraw_clip;
   cairo_region_t *clip_region;
-  cairo_region_t *unobscured_region;
-  cairo_rectangle_int_t visible_rect;
-  int screen_width, screen_height;
   graphene_matrix_t stage_to_actor;
 
   redraw_clip = clutter_paint_context_get_redraw_clip (paint_context);
   if (!redraw_clip)
     goto fail;
-
-  meta_display_get_size (window_group->display, &screen_width, &screen_height);
 
   /* Normally we expect an actor to be drawn at it's position on the screen.
    * However, if we're inside the paint of a ClutterClone, that won't be the
@@ -120,12 +115,6 @@ meta_window_group_paint (ClutterActor        *actor,
   if (!graphene_matrix_is_2d (&stage_to_actor))
     goto fail;
 
-  visible_rect.x = visible_rect.y = 0;
-  visible_rect.width = clutter_actor_get_width (CLUTTER_ACTOR (stage));
-  visible_rect.height = clutter_actor_get_height (CLUTTER_ACTOR (stage));
-
-  unobscured_region = cairo_region_create_rectangle (&visible_rect);
-
   /* Get the clipped redraw bounds so that we can avoid painting shadows on
    * windows that don't need to be painted in this frame. In the case of a
    * multihead setup with mismatched monitor sizes, we could intersect this
@@ -134,14 +123,13 @@ meta_window_group_paint (ClutterActor        *actor,
   clip_region = meta_region_apply_matrix_transform_expand (redraw_clip,
                                                            &stage_to_actor);
 
-  meta_cullable_cull_out (META_CULLABLE (window_group), unobscured_region, clip_region);
+  meta_cullable_cull_redraw_clip (META_CULLABLE (window_group), clip_region);
 
-  cairo_region_destroy (unobscured_region);
   cairo_region_destroy (clip_region);
 
   parent_actor_class->paint (actor, paint_context);
 
-  meta_cullable_reset_culling (META_CULLABLE (window_group));
+  meta_cullable_cull_redraw_clip (META_CULLABLE (window_group), NULL);
 
   return;
 

@@ -35,21 +35,21 @@ struct _MetaCullableInterface
 {
   GTypeInterface g_iface;
 
-  void (* cull_out) (MetaCullable   *cullable,
-                     cairo_region_t *unobscured_region,
-                     cairo_region_t *clip_region);
-  void (* reset_culling) (MetaCullable  *cullable);
+  void (* cull_unobscured) (MetaCullable   *cullable,
+                            cairo_region_t *unobscured_region);
+  void (* cull_redraw_clip) (MetaCullable   *cullable,
+                             cairo_region_t *clip_region);
 };
 
-void meta_cullable_cull_out (MetaCullable   *cullable,
-                             cairo_region_t *unobscured_region,
-                             cairo_region_t *clip_region);
-void meta_cullable_reset_culling (MetaCullable *cullable);
+void meta_cullable_cull_unobscured (MetaCullable   *cullable,
+                                    cairo_region_t *unobscured_region);
+void meta_cullable_cull_redraw_clip (MetaCullable   *cullable,
+                                     cairo_region_t *clip_region);
 
 /* Utility methods for implementations */
-void meta_cullable_cull_out_children (MetaCullable   *cullable,
-                                      cairo_region_t *unobscured_region,
-                                      cairo_region_t *clip_region);
-void meta_cullable_reset_culling_children (MetaCullable *cullable);
+void meta_cullable_cull_unobscured_children (MetaCullable   *cullable,
+                                             cairo_region_t *unobscured_region);
+void meta_cullable_cull_redraw_clip_children (MetaCullable   *cullable,
+                                              cairo_region_t *clip_region);
 
 G_END_DECLS

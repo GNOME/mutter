@@ -56,6 +56,7 @@
 
 #include "clutter/clutter-mutter.h"
 #include "cogl/cogl.h"
+#include "compositor/meta-cullable.h"
 #include "compositor/meta-later-private.h"
 #include "compositor/meta-window-actor-private.h"
 #include "compositor/meta-window-group-private.h"
@@ -1028,8 +1029,29 @@ meta_compositor_real_before_paint (MetaCompositor     *compositor,
 {
   MetaCompositorPrivate *priv =
     meta_compositor_get_instance_private (compositor);
+  ClutterActor *stage = meta_backend_get_stage (priv->backend);
   ClutterStageView *stage_view;
+  cairo_rectangle_int_t stage_rect;
+  cairo_region_t *unobscured_region;
   GList *l;
+
+  stage_rect = (cairo_rectangle_int_t) {
+    0, 0,
+    clutter_actor_get_width (stage),
+    clutter_actor_get_height (stage),
+  };
+
+  unobscured_region = cairo_region_create_rectangle (&stage_rect);
+  meta_cullable_cull_unobscured (META_CULLABLE (priv->window_group), unobscured_region);
+  cairo_region_destroy (unobscured_region);
+
+  unobscured_region = cairo_region_create_rectangle (&stage_rect);
+  meta_cullable_cull_unobscured (META_CULLABLE (priv->top_window_group), unobscured_region);
+  cairo_region_destroy (unobscured_region);
+
+  unobscured_region = cairo_region_create_rectangle (&stage_rect);
+  meta_cullable_cull_unobscured (META_CULLABLE (priv->feedback_group), unobscured_region);
+  cairo_region_destroy (unobscured_region);
 
   stage_view = meta_compositor_view_get_stage_view (compositor_view);
 
