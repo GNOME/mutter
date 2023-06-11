@@ -781,7 +781,10 @@ meta_monitor_normal_generate_modes (MetaMonitorNormal *monitor_normal)
        * otherwise take the first one in the list. This guarantees that the
        * preferred mode is always added.
        */
-      replace = crtc_mode_info->flags == preferred_mode_flags;
+      replace = (crtc_mode_info->flags == preferred_mode_flags &&
+                 (!monitor_priv->preferred_mode ||
+                  g_strcmp0 (meta_monitor_mode_get_id (monitor_priv->preferred_mode),
+                             mode->id) != 0));
 
       if (!meta_monitor_add_mode (monitor, mode, replace))
         {
