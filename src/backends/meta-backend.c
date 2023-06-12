@@ -154,6 +154,8 @@ struct _MetaBackendPrivate
   GList *gpus;
   GList *hw_cursor_inhibitors;
 
+  gboolean in_init;
+
   guint device_update_idle_id;
 
   ClutterInputDevice *current_device;
@@ -422,8 +424,9 @@ on_device_added (ClutterSeat        *seat,
 
   device_type = clutter_input_device_get_device_type (device);
 
-  if (device_type == CLUTTER_TOUCHSCREEN_DEVICE ||
-      device_type == CLUTTER_POINTER_DEVICE)
+  if (!priv->in_init &&
+      (device_type == CLUTTER_TOUCHSCREEN_DEVICE ||
+       device_type == CLUTTER_POINTER_DEVICE))
     {
       meta_cursor_tracker_set_pointer_visible (priv->cursor_tracker,
                                                determine_hotplug_pointer_visibility (seat));
@@ -445,6 +448,8 @@ on_device_removed (ClutterSeat        *seat,
 {
   MetaBackend *backend = META_BACKEND (user_data);
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  g_warn_if_fail (!priv->in_init);
 
   if (clutter_input_device_get_device_mode (device) ==
       CLUTTER_INPUT_MODE_LOGICAL)
@@ -1032,6 +1037,8 @@ update_pointer_visibility_from_event (MetaBackend  *backend,
   ClutterInputDeviceType device_type;
   uint32_t time_ms;
 
+  g_warn_if_fail (!priv->in_init);
+
   device = clutter_event_get_source_device (event);
   device_type = clutter_input_device_get_device_type (device);
   time_ms = clutter_event_get_time (event);
@@ -1061,6 +1068,28 @@ update_pointer_visibility_from_event (MetaBackend  *backend,
     default:
       break;
     }
+}
+
+static gboolean
+dispatch_clutter_event (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+  ClutterEvent *event;
+
+  event = clutter_event_get ();
+  if (event)
+    {
+      g_warn_if_fail (!priv->in_init ||
+                      event->type == CLUTTER_DEVICE_ADDED);
+
+      event->any.stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+      clutter_do_event (event);
+      meta_backend_update_from_event (backend, event);
+      clutter_event_free (event);
+      return TRUE;
+    }
+
+  return FALSE;
 }
 
 /* Mutter is responsible for pulling events off the X queue, so Clutter
@@ -1095,16 +1124,8 @@ clutter_source_dispatch (GSource     *source,
                          gpointer     user_data)
 {
   MetaBackendSource *backend_source = (MetaBackendSource *) source;
-  ClutterEvent *event = clutter_event_get ();
 
-  if (event)
-    {
-      event->any.stage =
-        CLUTTER_STAGE (meta_backend_get_stage (backend_source->backend));
-      clutter_do_event (event);
-      meta_backend_update_from_event (backend_source->backend, event);
-      clutter_event_free (event);
-    }
+  dispatch_clutter_event (backend_source->backend);
 
   return TRUE;
 }
@@ -1205,6 +1226,15 @@ meta_backend_initable_init (GInitable     *initable,
 
   meta_backend_post_init (backend);
 
+  while (TRUE)
+    {
+      if (!dispatch_clutter_event (backend))
+        break;
+    }
+  _clutter_stage_process_queued_events (CLUTTER_STAGE (priv->stage));
+
+  priv->in_init = FALSE;
+
   return TRUE;
 }
 
@@ -1217,6 +1247,9 @@ initable_iface_init (GInitableIface *initable_iface)
 static void
 meta_backend_init (MetaBackend *backend)
 {
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  priv->in_init = TRUE;
 }
 
 /**
@@ -1708,8 +1741,12 @@ void
 meta_backend_update_from_event (MetaBackend  *backend,
                                 ClutterEvent *event)
 {
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
   update_last_device_from_event (backend, event);
-  update_pointer_visibility_from_event (backend, event);
+
+  if (!priv->in_init)
+    update_pointer_visibility_from_event (backend, event);
 }
 
 /**

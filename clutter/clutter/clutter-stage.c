@@ -688,7 +688,7 @@ clutter_stage_compress_motion (ClutterStage       *stage,
   event->motion.dy_unaccel = dy_unaccel + dst_dy_unaccel;
 }
 
-void
+CLUTTER_EXPORT void
 _clutter_stage_process_queued_events (ClutterStage *stage)
 {
   ClutterStagePrivate *priv;

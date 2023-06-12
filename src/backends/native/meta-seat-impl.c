@@ -2841,6 +2841,8 @@ init_libinput (MetaSeatImpl  *seat_impl,
 
   seat_impl->libinput = libinput;
 
+  process_events (seat_impl);
+
   return TRUE;
 }
 
@@ -2877,18 +2879,6 @@ input_thread (MetaSeatImpl *seat_impl)
                            NULL,
                            (GDestroyNotify) meta_device_file_release);
 
-  if (!(seat_impl->flags & META_SEAT_NATIVE_FLAG_NO_LIBINPUT))
-    {
-      g_autoptr (GError) error = NULL;
-
-      if (!init_libinput (seat_impl, &error))
-        {
-          g_critical ("Failed to initialize seat: %s", error->message);
-          seat_impl->input_thread_initialized = TRUE;
-          return NULL;
-        }
-    }
-
   seat_impl->input_settings = meta_input_settings_native_new_in_impl (seat_impl);
   g_signal_connect_object (seat_impl->input_settings, "kbd-a11y-changed",
                            G_CALLBACK (kbd_a11y_changed_cb), seat_impl, 0);
@@ -2911,6 +2901,18 @@ input_thread (MetaSeatImpl *seat_impl)
 
   if (meta_input_settings_maybe_restore_numlock_state (seat_impl->input_settings))
     meta_seat_impl_set_keyboard_numlock_in_impl (seat_impl, TRUE);
+
+  if (!(seat_impl->flags & META_SEAT_NATIVE_FLAG_NO_LIBINPUT))
+    {
+      g_autoptr (GError) error = NULL;
+
+      if (!init_libinput (seat_impl, &error))
+        {
+          g_critical ("Failed to initialize seat: %s", error->message);
+          seat_impl->input_thread_initialized = TRUE;
+          return NULL;
+        }
+    }
 
   seat_impl->has_touchscreen = has_touchscreen (seat_impl);
   seat_impl->has_tablet_switch = has_tablet_switch (seat_impl);
