@@ -154,8 +154,6 @@ struct _MetaBackendPrivate
   GList *gpus;
   GList *hw_cursor_inhibitors;
 
-  gboolean is_pointer_position_initialized;
-
   guint device_update_idle_id;
 
   ClutterInputDevice *current_device;
@@ -267,7 +265,7 @@ meta_backend_sync_screen_size (MetaBackend *backend)
 }
 
 static void
-reset_pointer_position (MetaBackend *backend)
+init_pointer_position (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   MetaMonitorManager *monitor_manager = priv->monitor_manager;
@@ -279,9 +277,9 @@ reset_pointer_position (MetaBackend *backend)
 
   /* Move the pointer out of the way to avoid hovering over reactive
    * elements (e.g. users list at login) causing undesired behaviour. */
-  clutter_seat_warp_pointer (seat,
-                             primary->rect.x + primary->rect.width * 0.9,
-                             primary->rect.y + primary->rect.height * 0.9);
+  clutter_seat_init_pointer_position (seat,
+                                      primary->rect.x + primary->rect.width * 0.9,
+                                      primary->rect.y + primary->rect.height * 0.9);
 }
 
 static gboolean
@@ -574,10 +572,7 @@ meta_backend_real_post_init (MetaBackend *backend)
 #endif /* HAVE_REMOTE_DESKTOP */
 
   if (!meta_monitor_manager_is_headless (priv->monitor_manager))
-    {
-      reset_pointer_position (backend);
-      priv->is_pointer_position_initialized = TRUE;
-    }
+    init_pointer_position (backend);
 
   meta_monitor_manager_post_init (priv->monitor_manager);
 
