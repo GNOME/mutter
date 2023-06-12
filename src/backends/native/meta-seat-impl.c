@@ -3169,11 +3169,15 @@ static gboolean
 init_pointer_position_in_impl (GTask *task)
 {
   MetaSeatImpl *seat_impl = g_task_get_source_object (task);
+  MetaInputDeviceNative *core_pointer =
+    META_INPUT_DEVICE_NATIVE (seat_impl->core_pointer);
   graphene_point_t *point;
 
   point = g_task_get_task_data (task);
   seat_impl->pointer_x = point->x;
   seat_impl->pointer_y = point->y;
+  core_pointer->pointer_x = point->x;
+  core_pointer->pointer_y = point->y;
   g_task_return_boolean (task, TRUE);
 
   return G_SOURCE_REMOVE;
