@@ -756,6 +756,17 @@ init_gpus (MetaBackendNative  *native,
   return TRUE;
 }
 
+static void
+on_started (MetaContext *context,
+            MetaBackend *backend)
+{
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  ClutterSeat *seat;
+
+  seat = clutter_backend_get_default_seat (clutter_backend);
+  meta_seat_native_start (META_SEAT_NATIVE (seat));
+}
+
 static gboolean
 meta_backend_native_initable_init (GInitable     *initable,
                                    GCancellable  *cancellable,
@@ -803,6 +814,11 @@ meta_backend_native_initable_init (GInitable     *initable,
 
   if (!init_gpus (native, error))
     return FALSE;
+
+  g_signal_connect (meta_backend_get_context (backend),
+                    "started",
+                    G_CALLBACK (on_started),
+                    backend);
 
   return initable_parent_iface->init (initable, cancellable, error);
 }

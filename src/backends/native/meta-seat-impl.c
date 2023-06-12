@@ -2809,7 +2809,6 @@ static gboolean
 init_libinput (MetaSeatImpl  *seat_impl,
                GError       **error)
 {
-  MetaEventSource *source;
   struct udev *udev;
   struct libinput *libinput;
 
@@ -2841,10 +2840,17 @@ init_libinput (MetaSeatImpl  *seat_impl,
     }
 
   seat_impl->libinput = libinput;
-  source = meta_event_source_new (seat_impl);
-  seat_impl->event_source = source;
 
   return TRUE;
+}
+
+static void
+init_libinput_source (MetaSeatImpl *seat_impl)
+{
+  MetaEventSource *source;
+
+  source = meta_event_source_new (seat_impl);
+  seat_impl->event_source = source;
 }
 
 static gpointer
@@ -3771,6 +3777,32 @@ meta_seat_impl_new (MetaSeatNative     *seat_native,
                          "seat-id", seat_id,
                          "flags", flags,
                          NULL);
+}
+
+static gboolean
+start_in_impl (GTask *task)
+{
+  MetaSeatImpl *seat_impl = g_task_get_source_object (task);
+
+  if (seat_impl->libinput)
+    init_libinput_source (seat_impl);
+
+  g_task_return_boolean (task, TRUE);
+
+  return G_SOURCE_REMOVE;
+}
+
+void
+meta_seat_impl_start (MetaSeatImpl *seat_impl)
+{
+  GTask *task;
+
+  g_return_if_fail (META_IS_SEAT_IMPL (seat_impl));
+
+  task = g_task_new (seat_impl, NULL, NULL, NULL);
+  meta_seat_impl_run_input_task (seat_impl, task,
+                                 (GSourceFunc) start_in_impl);
+  g_object_unref (task);
 }
 
 void

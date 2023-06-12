@@ -425,6 +425,12 @@ meta_seat_native_init (MetaSeatNative *seat)
   seat->reserved_virtual_slots = g_hash_table_new (NULL, NULL);
 }
 
+void
+meta_seat_native_start (MetaSeatNative *seat_native)
+{
+  meta_seat_impl_start (seat_native->impl);
+}
+
 /**
  * meta_seat_native_release_devices:
  *

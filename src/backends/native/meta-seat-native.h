@@ -71,6 +71,8 @@ META_EXPORT_TEST
 G_DECLARE_FINAL_TYPE (MetaSeatNative, meta_seat_native,
                       META, SEAT_NATIVE, ClutterSeat)
 
+void meta_seat_native_start (MetaSeatNative *seat_native);
+
 void meta_seat_native_set_libinput_seat (MetaSeatNative       *seat,
                                          struct libinput_seat *libinput_seat);
 
