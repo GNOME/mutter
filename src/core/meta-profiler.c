@@ -196,6 +196,8 @@ handle_stop (MetaDBusSysprof3Profiler *dbus_profiler,
   g_list_free_full (profiler->threads, (GDestroyNotify) thread_info_free);
   g_mutex_unlock (&profiler->mutex);
 
+  cogl_stop_tracing ();
+
   profiler->running = FALSE;
 
   g_debug ("Stopping profiler");
