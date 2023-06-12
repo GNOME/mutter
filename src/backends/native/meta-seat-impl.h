@@ -226,6 +226,9 @@ void meta_seat_impl_set_viewports (MetaSeatImpl     *seat_impl,
 void meta_seat_impl_warp_pointer (MetaSeatImpl *seat_impl,
                                   int           x,
                                   int           y);
+void meta_seat_impl_init_pointer_position (MetaSeatImpl *seat_impl,
+                                           float         x,
+                                           float         y);
 gboolean meta_seat_impl_query_state (MetaSeatImpl         *seat_impl,
                                      ClutterInputDevice   *device,
                                      ClutterEventSequence *sequence,

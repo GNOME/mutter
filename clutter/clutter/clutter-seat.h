@@ -90,6 +90,10 @@ struct _ClutterSeatClass
                          int          x,
                          int          y);
 
+  void (* init_pointer_position) (ClutterSeat *seat,
+                                  float        x,
+                                  float        y);
+
   gboolean (* query_state) (ClutterSeat          *seat,
                             ClutterInputDevice   *device,
                             ClutterEventSequence *sequence,

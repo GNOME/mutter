@@ -1654,6 +1654,25 @@ meta_seat_x11_warp_pointer (ClutterSeat *seat,
   meta_clutter_x11_untrap_x_errors ();
 }
 
+static void
+meta_seat_x11_init_pointer_position (ClutterSeat *seat,
+                                     float        x,
+                                     float        y)
+{
+  MetaSeatX11 *seat_x11 = META_SEAT_X11 (seat);
+  Display *xdisplay = xdisplay_from_seat (seat_x11);
+  Window root_xwindow = root_xwindow_from_seat (seat_x11);
+
+  meta_clutter_x11_trap_x_errors ();
+  XIWarpPointer (xdisplay,
+                 seat_x11->pointer_id,
+                 None,
+                 root_xwindow,
+                 0, 0, 0, 0,
+                 (int) x, (int) y);
+  meta_clutter_x11_untrap_x_errors ();
+}
+
 static uint32_t
 translate_state (XIButtonState   *button_state,
                  XIModifierState *modifier_state,
@@ -1865,6 +1884,7 @@ meta_seat_x11_class_init (MetaSeatX11Class *klass)
   seat_class->create_virtual_device = meta_seat_x11_create_virtual_device;
   seat_class->get_supported_virtual_device_types = meta_seat_x11_get_supported_virtual_device_types;
   seat_class->warp_pointer = meta_seat_x11_warp_pointer;
+  seat_class->init_pointer_position = meta_seat_x11_init_pointer_position;
   seat_class->handle_event_post = meta_seat_x11_handle_event_post;
   seat_class->query_state = meta_seat_x11_query_state;
   seat_class->grab = meta_seat_x11_grab;

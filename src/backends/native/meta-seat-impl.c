@@ -3157,6 +3157,38 @@ meta_seat_impl_warp_pointer (MetaSeatImpl *seat_impl,
   g_object_unref (task);
 }
 
+static gboolean
+init_pointer_position_in_impl (GTask *task)
+{
+  MetaSeatImpl *seat_impl = g_task_get_source_object (task);
+  graphene_point_t *point;
+
+  point = g_task_get_task_data (task);
+  seat_impl->pointer_x = point->x;
+  seat_impl->pointer_y = point->y;
+  g_task_return_boolean (task, TRUE);
+
+  return G_SOURCE_REMOVE;
+}
+
+void
+meta_seat_impl_init_pointer_position (MetaSeatImpl *seat_impl,
+                                      float         x,
+                                      float         y)
+{
+  graphene_point_t *point;
+  g_autoptr (GTask) task = NULL;
+
+  point = graphene_point_alloc ();
+  point->x = x;
+  point->y = y;
+
+  task = g_task_new (seat_impl, NULL, NULL, NULL);
+  g_task_set_task_data (task, point, (GDestroyNotify) graphene_point_free);
+  meta_seat_impl_run_input_task (seat_impl, task,
+                                 (GSourceFunc) init_pointer_position_in_impl);
+}
+
 gboolean
 meta_seat_impl_query_state (MetaSeatImpl         *seat_impl,
                             ClutterInputDevice   *device,

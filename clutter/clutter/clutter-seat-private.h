@@ -33,4 +33,9 @@ ClutterGrabState clutter_seat_grab (ClutterSeat *seat,
 void clutter_seat_ungrab (ClutterSeat *seat,
                           uint32_t     time);
 
+CLUTTER_EXPORT
+void clutter_seat_init_pointer_position (ClutterSeat *seat,
+                                         float        x,
+                                         float        y);
+
 #endif /* CLUTTER_SEAT_PRIVATE_H */

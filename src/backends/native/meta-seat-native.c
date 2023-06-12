@@ -342,6 +342,16 @@ meta_seat_native_warp_pointer (ClutterSeat *seat,
   meta_seat_impl_warp_pointer (seat_native->impl, x, y);
 }
 
+static void
+meta_seat_native_init_pointer_position (ClutterSeat *seat,
+                                        float        x,
+                                        float        y)
+{
+  MetaSeatNative *seat_native = META_SEAT_NATIVE (seat);
+
+  meta_seat_impl_init_pointer_position (seat_native->impl, x, y);
+}
+
 static gboolean
 meta_seat_native_query_state (ClutterSeat          *seat,
                               ClutterInputDevice   *device,
@@ -374,6 +384,7 @@ meta_seat_native_class_init (MetaSeatNativeClass *klass)
   seat_class->create_virtual_device = meta_seat_native_create_virtual_device;
   seat_class->get_supported_virtual_device_types = meta_seat_native_get_supported_virtual_device_types;
   seat_class->warp_pointer = meta_seat_native_warp_pointer;
+  seat_class->init_pointer_position = meta_seat_native_init_pointer_position;
   seat_class->handle_event_post = meta_seat_native_handle_event_post;
   seat_class->query_state = meta_seat_native_query_state;
 

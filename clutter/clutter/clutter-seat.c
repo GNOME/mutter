@@ -626,6 +626,16 @@ clutter_seat_warp_pointer (ClutterSeat *seat,
   CLUTTER_SEAT_GET_CLASS (seat)->warp_pointer (seat, x, y);
 }
 
+void
+clutter_seat_init_pointer_position (ClutterSeat *seat,
+                                    float        x,
+                                    float        y)
+{
+  g_return_if_fail (CLUTTER_IS_SEAT (seat));
+
+  CLUTTER_SEAT_GET_CLASS (seat)->init_pointer_position (seat, x, y);
+}
+
 /**
  * clutter_seat_get_touch_mode:
  * @seat: a #ClutterSeat
