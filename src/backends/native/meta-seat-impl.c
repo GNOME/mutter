@@ -3165,20 +3165,32 @@ meta_seat_impl_warp_pointer (MetaSeatImpl *seat_impl,
   g_object_unref (task);
 }
 
+typedef struct
+{
+  graphene_point_t position;
+  gboolean done;
+  GMutex mutex;
+  GCond cond;
+} InitPointerPositionData;
+
 static gboolean
 init_pointer_position_in_impl (GTask *task)
 {
   MetaSeatImpl *seat_impl = g_task_get_source_object (task);
+  InitPointerPositionData *data = g_task_get_task_data (task);
   MetaInputDeviceNative *core_pointer =
     META_INPUT_DEVICE_NATIVE (seat_impl->core_pointer);
-  graphene_point_t *point;
 
-  point = g_task_get_task_data (task);
-  seat_impl->pointer_x = point->x;
-  seat_impl->pointer_y = point->y;
-  core_pointer->pointer_x = point->x;
-  core_pointer->pointer_y = point->y;
+  seat_impl->pointer_x = data->position.x;
+  seat_impl->pointer_y = data->position.y;
+  core_pointer->pointer_x = data->position.x;
+  core_pointer->pointer_y = data->position.y;
   g_task_return_boolean (task, TRUE);
+
+  g_mutex_lock (&data->mutex);
+  data->done = TRUE;
+  g_cond_signal (&data->cond);
+  g_mutex_unlock (&data->mutex);
 
   return G_SOURCE_REMOVE;
 }
@@ -3188,17 +3200,26 @@ meta_seat_impl_init_pointer_position (MetaSeatImpl *seat_impl,
                                       float         x,
                                       float         y)
 {
-  graphene_point_t *point;
+  InitPointerPositionData data = {};
   g_autoptr (GTask) task = NULL;
 
-  point = graphene_point_alloc ();
-  point->x = x;
-  point->y = y;
+  data.position.x = x;
+  data.position.y = y;
+  g_mutex_init (&data.mutex);
+  g_cond_init (&data.cond);
 
   task = g_task_new (seat_impl, NULL, NULL, NULL);
-  g_task_set_task_data (task, point, (GDestroyNotify) graphene_point_free);
+  g_task_set_task_data (task, &data, NULL);
   meta_seat_impl_run_input_task (seat_impl, task,
                                  (GSourceFunc) init_pointer_position_in_impl);
+
+  g_mutex_lock (&data.mutex);
+  while (!data.done)
+    g_cond_wait (&data.cond, &data.mutex);
+  g_mutex_unlock (&data.mutex);
+
+  g_mutex_clear (&data.mutex);
+  g_cond_clear (&data.cond);
 }
 
 gboolean

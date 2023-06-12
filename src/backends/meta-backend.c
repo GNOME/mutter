@@ -271,6 +271,7 @@ init_pointer_position (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   MetaMonitorManager *monitor_manager = priv->monitor_manager;
+  MetaCursorRenderer *cursor_renderer;
   ClutterSeat *seat = priv->default_seat;
   MetaLogicalMonitor *primary;
 
@@ -282,6 +283,9 @@ init_pointer_position (MetaBackend *backend)
   clutter_seat_init_pointer_position (seat,
                                       primary->rect.x + primary->rect.width * 0.9,
                                       primary->rect.y + primary->rect.height * 0.9);
+
+  cursor_renderer = meta_backend_get_cursor_renderer (backend);
+  meta_cursor_renderer_update_position (cursor_renderer);
 }
 
 static gboolean
