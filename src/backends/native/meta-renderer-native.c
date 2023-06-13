@@ -287,6 +287,8 @@ ensure_mode_set_update (MetaRendererNative *renderer_native,
     return kms_update;
 
   kms_update = meta_kms_update_new (kms_device);
+  g_hash_table_insert (renderer_native->mode_set_updates,
+                       kms_device, kms_update);
 
   return kms_update;
 }
