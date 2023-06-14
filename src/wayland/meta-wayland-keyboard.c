@@ -231,13 +231,8 @@ keyboard_handle_focus_surface_destroy (struct wl_listener *listener, void *data)
 {
   MetaWaylandKeyboard *keyboard =
     wl_container_of (listener, keyboard, focus_surface_listener);
-  MetaWaylandInputDevice *input_device = META_WAYLAND_INPUT_DEVICE (keyboard);
-  MetaWaylandSeat *seat = meta_wayland_input_device_get_seat (input_device);
-  MetaWaylandCompositor *compositor = meta_wayland_seat_get_compositor (seat);
-  MetaContext *context = meta_wayland_compositor_get_context (compositor);
-  MetaDisplay *display = meta_context_get_display (context);
 
-  meta_display_sync_wayland_input_focus (display);
+  meta_wayland_keyboard_set_focus (keyboard, NULL);
 }
 
 static gboolean

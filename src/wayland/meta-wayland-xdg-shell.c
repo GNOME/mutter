@@ -590,10 +590,15 @@ xdg_popup_destructor (struct wl_resource *resource)
 {
   MetaWaylandXdgPopup *xdg_popup =
     META_WAYLAND_XDG_POPUP (wl_resource_get_user_data (resource));
+  MetaWaylandSurfaceRole *surface_role =
+    META_WAYLAND_SURFACE_ROLE (xdg_popup);
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
 
   dismiss_popup (xdg_popup);
-
   xdg_popup->resource = NULL;
+
+  meta_display_sync_wayland_input_focus (display_from_surface (surface));
 }
 
 static void
