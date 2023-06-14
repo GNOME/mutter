@@ -343,7 +343,7 @@ meta_profiler_unregister_thread (MetaProfiler *profiler,
 
       if (thread_info->main_context == main_context)
         {
-          profiler->threads = g_list_remove_link (profiler->threads, l);
+          profiler->threads = g_list_delete_link (profiler->threads, l);
           break;
         }
     }
