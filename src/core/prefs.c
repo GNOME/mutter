@@ -48,7 +48,6 @@
  * not given a name here, because the purpose of the unified handlers
  * is that keys should be referred to exactly once.
  */
-#define KEY_TITLEBAR_FONT "titlebar-font"
 #define KEY_NUM_WORKSPACES "num-workspaces"
 #define KEY_WORKSPACE_NAMES "workspace-names"
 
@@ -78,8 +77,6 @@ static guint changed_idle;
 static GList *listeners = NULL;
 static GHashTable *settings_schemas;
 
-static gboolean use_system_font = FALSE;
-static PangoFontDescription *titlebar_font = NULL;
 static ClutterModifierType mouse_button_mods = CLUTTER_MOD1_MASK;
 static MetaKeyCombo overlay_key_combo = { 0, 0, 0 };
 static MetaKeyCombo locate_pointer_key_combo = { 0, 0, 0 };
@@ -145,7 +142,6 @@ static void queue_changed (MetaPreference  pref);
 
 static void maybe_give_disable_workarounds_warning (void);
 
-static gboolean titlebar_handler (GVariant*, gpointer*, gpointer);
 static gboolean mouse_button_mods_handler (GVariant*, gpointer*, gpointer);
 static gboolean button_layout_handler (GVariant*, gpointer*, gpointer);
 static gboolean overlay_key_handler (GVariant*, gpointer*, gpointer);
@@ -304,13 +300,6 @@ static MetaBoolPreference preferences_bool[] =
       &raise_on_click,
     },
     {
-      { "titlebar-uses-system-font",
-        SCHEMA_GENERAL,
-        META_PREF_TITLEBAR_FONT, /* note! shares a pref */
-      },
-      &use_system_font,
-    },
-    {
       { "dynamic-workspaces",
         SCHEMA_MUTTER,
         META_PREF_DYNAMIC_WORKSPACES,
@@ -412,14 +401,6 @@ static MetaStringPreference preferences_string[] =
         META_PREF_MOUSE_BUTTON_MODS,
       },
       mouse_button_mods_handler,
-      NULL,
-    },
-    {
-      { KEY_TITLEBAR_FONT,
-        SCHEMA_GENERAL,
-        META_PREF_TITLEBAR_FONT,
-      },
-      titlebar_handler,
       NULL,
     },
     {
@@ -1235,45 +1216,6 @@ meta_prefs_get_cursor_size (void)
 /****************************************************************************/
 
 static gboolean
-titlebar_handler (GVariant *value,
-                  gpointer *result,
-                  gpointer data)
-{
-  PangoFontDescription *desc;
-  const gchar *string_value;
-
-  *result = NULL; /* ignored */
-  string_value = g_variant_get_string (value, NULL);
-  desc = pango_font_description_from_string (string_value);
-
-  if (desc == NULL)
-    {
-      meta_warning ("Could not parse font description "
-                    "\"%s\" from GSettings key %s",
-                    string_value ? string_value : "(null)",
-                    KEY_TITLEBAR_FONT);
-      return FALSE;
-    }
-
-  /* Is the new description the same as the old? */
-  if (titlebar_font &&
-      pango_font_description_equal (desc, titlebar_font))
-    {
-      pango_font_description_free (desc);
-    }
-  else
-    {
-      if (titlebar_font)
-        pango_font_description_free (titlebar_font);
-
-      titlebar_font = desc;
-      queue_changed (META_PREF_TITLEBAR_FONT);
-    }
-
-  return TRUE;
-}
-
-static gboolean
 mouse_button_mods_handler (GVariant *value,
                            gpointer *result,
                            gpointer  data)
@@ -1621,15 +1563,6 @@ iso_next_group_handler (GVariant *value,
   return TRUE;
 }
 
-const PangoFontDescription*
-meta_prefs_get_titlebar_font (void)
-{
-  if (use_system_font)
-    return NULL;
-  else
-    return titlebar_font;
-}
-
 int
 meta_prefs_get_num_workspaces (void)
 {
@@ -1672,9 +1605,6 @@ meta_preference_to_string (MetaPreference pref)
 
     case META_PREF_RAISE_ON_CLICK:
       return "RAISE_ON_CLICK";
-
-    case META_PREF_TITLEBAR_FONT:
-      return "TITLEBAR_FONT";
 
     case META_PREF_NUM_WORKSPACES:
       return "NUM_WORKSPACES";

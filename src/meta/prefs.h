@@ -43,7 +43,6 @@
  * @META_PREF_AUTO_RAISE: auto-raise
  * @META_PREF_AUTO_RAISE_DELAY: auto-raise delay
  * @META_PREF_FOCUS_CHANGE_ON_POINTER_REST: focus change on pointer rest
- * @META_PREF_TITLEBAR_FONT: title-bar font
  * @META_PREF_NUM_WORKSPACES: number of workspaces
  * @META_PREF_DYNAMIC_WORKSPACES: dynamic workspaces
  * @META_PREF_KEYBINDINGS: keybindings
@@ -82,7 +81,6 @@ typedef enum
   META_PREF_AUTO_RAISE,
   META_PREF_AUTO_RAISE_DELAY,
   META_PREF_FOCUS_CHANGE_ON_POINTER_REST,
-  META_PREF_TITLEBAR_FONT,
   META_PREF_NUM_WORKSPACES,
   META_PREF_DYNAMIC_WORKSPACES,
   META_PREF_KEYBINDINGS,
@@ -142,10 +140,6 @@ gboolean                    meta_prefs_get_attach_modal_dialogs (void);
 
 META_EXPORT
 gboolean                    meta_prefs_get_raise_on_click     (void);
-
-/* returns NULL if GTK default should be used */
-META_EXPORT
-const PangoFontDescription* meta_prefs_get_titlebar_font      (void);
 
 META_EXPORT
 int                         meta_prefs_get_num_workspaces     (void);
