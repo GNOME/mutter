@@ -105,6 +105,7 @@ struct _ClutterFrameClock
 
   /* If we got new measurements last frame. */
   gboolean got_measurements_last_frame;
+  gboolean ever_got_measurements;
 
   gboolean pending_reschedule;
   gboolean pending_reschedule_now;
@@ -349,6 +350,7 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
         MAX (frame_clock->shortterm.max_swap_to_flip_us, swap_to_flip_us);
 
       frame_clock->got_measurements_last_frame = TRUE;
+      frame_clock->ever_got_measurements = TRUE;
     }
   else
     {
@@ -423,7 +425,7 @@ clutter_frame_clock_compute_max_render_time_us (ClutterFrameClock *frame_clock)
 
   refresh_interval_us = frame_clock->refresh_interval_us;
 
-  if (!frame_clock->got_measurements_last_frame ||
+  if (!frame_clock->ever_got_measurements ||
       G_UNLIKELY (clutter_paint_debug_flags &
                   CLUTTER_DEBUG_DISABLE_DYNAMIC_MAX_RENDER_TIME))
     return refresh_interval_us * SYNC_DELAY_FALLBACK_FRACTION;
