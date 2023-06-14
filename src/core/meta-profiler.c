@@ -193,7 +193,6 @@ handle_stop (MetaDBusSysprof3Profiler *dbus_profiler,
 
       cogl_set_tracing_disabled_on_thread (thread_info->main_context);
     }
-  g_list_free_full (profiler->threads, (GDestroyNotify) thread_info_free);
   g_mutex_unlock (&profiler->mutex);
 
   cogl_stop_tracing ();
@@ -260,6 +259,7 @@ meta_profiler_finalize (GObject *object)
   g_clear_object (&self->cancellable);
   g_clear_object (&self->connection);
   g_mutex_clear (&self->mutex);
+  g_list_free_full (self->threads, (GDestroyNotify) thread_info_free);
 
   G_OBJECT_CLASS (meta_profiler_parent_class)->finalize (object);
 }
