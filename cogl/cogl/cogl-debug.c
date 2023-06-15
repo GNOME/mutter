@@ -74,7 +74,6 @@ static const GDebugKey cogl_behavioural_debug_keys[] = {
   { "disable-batching", COGL_DEBUG_DISABLE_BATCHING },
   { "disable-pbos", COGL_DEBUG_DISABLE_PBOS },
   { "disable-software-transform", COGL_DEBUG_DISABLE_SOFTWARE_TRANSFORM },
-  { "dump-atlas-image", COGL_DEBUG_DUMP_ATLAS_IMAGE },
   { "disable-atlas", COGL_DEBUG_DISABLE_ATLAS },
   { "disable-shared-atlas", COGL_DEBUG_DISABLE_SHARED_ATLAS },
   { "disable-texturing", COGL_DEBUG_DISABLE_TEXTURING},

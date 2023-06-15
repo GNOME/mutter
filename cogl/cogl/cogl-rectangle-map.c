@@ -46,16 +46,6 @@
    http://www.blackpawn.com/texts/lightmaps/default.html
 */
 
-#ifdef COGL_ENABLE_DEBUG
-
-/* The cairo header is only used for debugging to generate an image of
-   the atlas */
-#include <cairo.h>
-
-static void _cogl_rectangle_map_dump_image (CoglRectangleMap *map);
-
-#endif /* COGL_ENABLE_DEBUG */
-
 typedef struct _CoglRectangleMapNode       CoglRectangleMapNode;
 typedef struct _CoglRectangleMapStackEntry CoglRectangleMapStackEntry;
 
@@ -269,83 +259,6 @@ _cogl_rectangle_map_node_split_vertically (CoglRectangleMapNode *node,
   return top_node;
 }
 
-#ifdef COGL_ENABLE_DEBUG
-
-static unsigned int
-_cogl_rectangle_map_verify_recursive (CoglRectangleMapNode *node)
-{
-  /* This is just used for debugging the data structure. It
-     recursively walks the tree to verify that the largest gap values
-     all add up */
-
-  switch (node->type)
-    {
-    case COGL_RECTANGLE_MAP_BRANCH:
-      {
-        int sum =
-          _cogl_rectangle_map_verify_recursive (node->d.branch.left) +
-          _cogl_rectangle_map_verify_recursive (node->d.branch.right);
-        g_assert (node->largest_gap ==
-                  MAX (node->d.branch.left->largest_gap,
-                       node->d.branch.right->largest_gap));
-        return sum;
-      }
-
-    case COGL_RECTANGLE_MAP_EMPTY_LEAF:
-      g_assert (node->largest_gap ==
-                node->rectangle.width * node->rectangle.height);
-      return 0;
-
-    case COGL_RECTANGLE_MAP_FILLED_LEAF:
-      g_assert (node->largest_gap == 0);
-      return 1;
-    }
-
-  return 0;
-}
-
-static unsigned int
-_cogl_rectangle_map_get_space_remaining_recursive (CoglRectangleMapNode *node)
-{
-  /* This is just used for debugging the data structure. It
-     recursively walks the tree to verify that the remaining space
-     value adds up */
-
-  switch (node->type)
-    {
-    case COGL_RECTANGLE_MAP_BRANCH:
-      {
-        CoglRectangleMapNode *l = node->d.branch.left;
-        CoglRectangleMapNode *r = node->d.branch.right;
-
-        return (_cogl_rectangle_map_get_space_remaining_recursive (l) +
-                _cogl_rectangle_map_get_space_remaining_recursive (r));
-      }
-
-    case COGL_RECTANGLE_MAP_EMPTY_LEAF:
-      return node->rectangle.width * node->rectangle.height;
-
-    case COGL_RECTANGLE_MAP_FILLED_LEAF:
-      return 0;
-    }
-
-  return 0;
-}
-
-static void
-_cogl_rectangle_map_verify (CoglRectangleMap *map)
-{
-  unsigned int actual_n_rectangles =
-    _cogl_rectangle_map_verify_recursive (map->root);
-  unsigned int actual_space_remaining =
-    _cogl_rectangle_map_get_space_remaining_recursive (map->root);
-
-  g_assert_cmpuint (actual_n_rectangles, ==, map->n_rectangles);
-  g_assert_cmpuint (actual_space_remaining, ==, map->space_remaining);
-}
-
-#endif /* COGL_ENABLE_DEBUG */
-
 gboolean
 _cogl_rectangle_map_add (CoglRectangleMap *map,
                          unsigned int width,
@@ -459,16 +372,6 @@ _cogl_rectangle_map_add (CoglRectangleMap *map,
       /* and less space */
       map->space_remaining -= rectangle_size;
 
-#ifdef COGL_ENABLE_DEBUG
-      if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_DUMP_ATLAS_IMAGE)))
-        {
-          _cogl_rectangle_map_dump_image (map);
-          /* Dumping the rectangle map is really slow so we might as well
-             verify the space remaining here as it is also quite slow */
-          _cogl_rectangle_map_verify (map);
-        }
-#endif
-
       return TRUE;
     }
   else
@@ -549,16 +452,6 @@ _cogl_rectangle_map_remove (CoglRectangleMap *map,
       /* and more space */
       map->space_remaining += rectangle_size;
     }
-
-#ifdef COGL_ENABLE_DEBUG
-  if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_DUMP_ATLAS_IMAGE)))
-    {
-      _cogl_rectangle_map_dump_image (map);
-      /* Dumping the rectangle map is really slow so we might as well
-         verify the space remaining here as it is also quite slow */
-      _cogl_rectangle_map_verify (map);
-    }
-#endif
 }
 
 unsigned int
@@ -699,60 +592,3 @@ _cogl_rectangle_map_free (CoglRectangleMap *map)
 
   g_free (map);
 }
-
-#ifdef COGL_ENABLE_DEBUG
-
-static void
-_cogl_rectangle_map_dump_image_cb (CoglRectangleMapNode *node, void *data)
-{
-  cairo_t *cr = data;
-
-  if (node->type == COGL_RECTANGLE_MAP_FILLED_LEAF ||
-      node->type == COGL_RECTANGLE_MAP_EMPTY_LEAF)
-    {
-      /* Fill the rectangle using a different colour depending on
-         whether the rectangle is used */
-      if (node->type == COGL_RECTANGLE_MAP_FILLED_LEAF)
-        cairo_set_source_rgb (cr, 0.0, 0.0, 1.0);
-      else
-        cairo_set_source_rgb (cr, 0.0, 0.0, 0.0);
-
-      cairo_rectangle (cr,
-                       node->rectangle.x,
-                       node->rectangle.y,
-                       node->rectangle.width,
-                       node->rectangle.height);
-
-      cairo_fill_preserve (cr);
-
-      /* Draw a white outline around the rectangle */
-      cairo_set_source_rgb (cr, 1.0, 1.0, 1.0);
-      cairo_stroke (cr);
-    }
-}
-
-static void
-_cogl_rectangle_map_dump_image (CoglRectangleMap *map)
-{
-  /* This dumps a png to help visualize the map. Each leaf rectangle
-     is drawn with a white outline. Unused leaves are filled in black
-     and used leaves are blue */
-
-  cairo_surface_t *surface =
-    cairo_image_surface_create (CAIRO_FORMAT_RGB24,
-                                _cogl_rectangle_map_get_width (map),
-                                _cogl_rectangle_map_get_height (map));
-  cairo_t *cr = cairo_create (surface);
-
-  _cogl_rectangle_map_internal_foreach (map,
-                                        _cogl_rectangle_map_dump_image_cb,
-                                        cr);
-
-  cairo_destroy (cr);
-
-  cairo_surface_write_to_png (surface, "cogl-rectangle-map-dump.png");
-
-  cairo_surface_destroy (surface);
-}
-
-#endif /* COGL_ENABLE_DEBUG */
