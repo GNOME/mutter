@@ -2006,6 +2006,20 @@ window_state_on_map (MetaWindow *window,
       return;
     }
 
+  /* When strict focus mode is enabled, prevent new windows from taking
+   * focus unless they are ancestors to the transient.
+   */
+  if (*takes_focus &&
+      meta_prefs_get_focus_new_windows () == G_DESKTOP_FOCUS_NEW_WINDOWS_STRICT &&
+      !meta_window_is_ancestor_of_transient (window->display->focus_window,
+                                             window))
+    {
+      meta_topic (META_DEBUG_FOCUS,
+                  "new window is not an ancestor to transient; not taking focus.");
+      *takes_focus = FALSE;
+      *places_on_top = FALSE;
+    }
+
   switch (window->type)
     {
     case META_WINDOW_UTILITY:
