@@ -1349,8 +1349,6 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
   MetaPowerSave power_save_mode;
   ClutterFrame *frame = user_data;
   MetaFrameNative *frame_native = meta_frame_native_from_frame (frame);
-  MetaDrmBuffer *scanout_buffer;
-  GError *fill_timings_error = NULL;
   MetaKmsCrtc *kms_crtc;
   MetaKmsDevice *kms_device;
   MetaKmsUpdate *kms_update;
@@ -1383,32 +1381,7 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
 
   g_set_object (&onscreen_native->gbm.next_fb, META_DRM_BUFFER (scanout));
 
-  /* Try to get a measurement of GPU rendering time on the scanout buffer.
-   *
-   * The successful operation here adds ~0.4 ms to a ~0.1 ms total frame clock
-   * dispatch duration when displaying an unredirected client, thus
-   * unfortunately bringing it more in line with duration of the regular
-   * non-unredirected frame clock dispatch. However, measuring GPU rendering
-   * time is important for computing accurate max render time without
-   * underestimating. Also this operation should be optimizable by caching
-   * EGLImage for each buffer instead of re-creating it every time it's needed.
-   * This should also help all other cases which convert the buffer to a
-   * EGLImage.
-   */
-  if (META_IS_DRM_BUFFER (scanout))
-    {
-      scanout_buffer = META_DRM_BUFFER (scanout);
-      if (meta_drm_buffer_supports_fill_timings (scanout_buffer))
-        {
-          if (!meta_drm_buffer_fill_timings (scanout_buffer, frame_info,
-                                             &fill_timings_error))
-            {
-              g_warning ("Failed to fill timings for a scanout buffer: %s",
-                         fill_timings_error->message);
-              g_error_free (fill_timings_error);
-            }
-        }
-    }
+  frame_info->cpu_time_before_buffer_swap_us = g_get_monotonic_time ();
 
   kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (onscreen_native->crtc));
   kms_device = meta_kms_crtc_get_device (kms_crtc);
