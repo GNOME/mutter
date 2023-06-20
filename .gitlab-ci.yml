@@ -64,13 +64,27 @@ variables:
   variables:
     MUTTER_CLONE_PATH: ''
 
+.mutter.run-as-user:
+  image:
+    name: ${FDO_DISTRIBUTION_IMAGE}
+    entrypoint:
+      - 'runuser'
+      - '-u'
+      - !reference [.mutter.fedora@common, variables, MUTTER_USER]
+      - '--'
+
+.mutter.distribution-image:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .mutter.run-as-user
+
 .mutter.fedora@common:
   extends:
     - .skip-git-clone
   variables:
     FDO_DISTRIBUTION_VERSION: 38
-    BASE_TAG: '2023-06-19.1'
-    FDO_USER: 'meta-user'
+    BASE_TAG: '2023-06-20.2'
+    MUTTER_USER: 'meta-user'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
       clang
@@ -92,8 +106,12 @@ variables:
 
     FDO_DISTRIBUTION_EXEC: |
       set -e
-      # Enable sudo for $FDO_USER
-      echo "%$FDO_USER ALL = (ALL) NOPASSWD: ALL" > /etc/sudoers.d/99_fdo-user
+
+      # Create $MUTTER_USER
+      useradd -ms /bin/bash $MUTTER_USER
+
+      # Enable sudo for $MUTTER_USER
+      echo "%$MUTTER_USER ALL = (ALL) NOPASSWD: ALL" > /etc/sudoers.d/99_mutter-user
 
       dnf install -y 'dnf-command(builddep)'
 
@@ -280,7 +298,7 @@ build-fedora-container@aarch64:
 
 check-code-style:
   extends:
-    - .fdo.distribution-image@fedora
+    - .mutter.distribution-image
     - .mutter.fedora@x86_64
   variables:
     MUTTER_CLONE_DEPTH: 200
@@ -306,7 +324,7 @@ check-code-style:
 
 .build-mutter:
   extends:
-    - .fdo.distribution-image@fedora
+    - .mutter.distribution-image
     - .build-mutter-base
   stage: build
   script:
@@ -348,7 +366,7 @@ build-mutter@aarch64:
 
 build-without-opengl-and-glx@x86_64:
   extends:
-    - .fdo.distribution-image@fedora
+    - .mutter.distribution-image
     - .mutter.fedora@x86_64
   stage: build
   needs:
@@ -370,7 +388,7 @@ build-without-opengl-and-glx@x86_64:
 
 build-without-native-backend-and-wayland@x86_64:
   extends:
-    - .fdo.distribution-image@fedora
+    - .mutter.distribution-image
     - .mutter.fedora@x86_64
   stage: build
   needs:
@@ -394,7 +412,7 @@ build-without-native-backend-and-wayland@x86_64:
 
 build-wayland-only@x86_64:
   extends:
-    - .fdo.distribution-image@fedora
+    - .mutter.distribution-image
     - .mutter.fedora@x86_64
   stage: build
   needs:
@@ -434,7 +452,7 @@ build-wayland-only@x86_64:
 
 .test-mutter-base:
   extends:
-    - .fdo.distribution-image@fedora
+    - .mutter.distribution-image
     - .test-setup
   stage: test
   after_script:
@@ -454,7 +472,7 @@ build-wayland-only@x86_64:
 
 .test-mutter:
   extends:
-    - .fdo.distribution-image@fedora
+    - .mutter.distribution-image
     - .test-mutter-base
   script:
     - glib-compile-schemas $GSETTINGS_SCHEMA_DIR
@@ -488,7 +506,7 @@ test-mutter-kvm@x86_64:
   tags:
     - kvm
   script:
-    - sudo chgrp $FDO_USER /dev/kvm
+    - sudo chgrp $MUTTER_USER /dev/kvm
     - meson test -C build
         --no-rebuild
         --timeout-multiplier 10
@@ -512,7 +530,7 @@ test-mutter@aarch64:
 
 coverage:
   extends:
-    - .fdo.distribution-image@fedora
+    - .mutter.distribution-image
     - .mutter.fedora@x86_64
   stage: analyze
   script:
@@ -541,7 +559,7 @@ coverage:
 
 can-build-gnome-shell@x86_64:
   extends:
-    - .fdo.distribution-image@fedora
+    - .mutter.distribution-image
     - .mutter.fedora@x86_64
   stage: test
   needs:
@@ -561,7 +579,7 @@ test-mutter-coverity:
     - if: '$CI_COMMIT_BRANCH'
       when: 'manual'
   extends:
-    - .fdo.distribution-image@fedora
+    - .mutter.distribution-image
     - .mutter.fedora@x86_64
   needs:
     - job: build-fedora-container@x86_64
@@ -584,7 +602,7 @@ test-mutter-coverity:
 
 dist-mutter:
   extends:
-    - .fdo.distribution-image@fedora
+    - .mutter.distribution-image
     - .mutter.fedora@x86_64
     - .build-mutter-base
     - .test-setup
@@ -624,7 +642,7 @@ dist-mutter-tarball:
 
 reference:
   extends:
-    - .fdo.distribution-image@fedora
+    - .mutter.distribution-image
     - .mutter.fedora@x86_64
   stage: docs
   needs:
