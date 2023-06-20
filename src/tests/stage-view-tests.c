@@ -969,6 +969,7 @@ meta_test_actor_stage_views_parent_views_changed (void)
   g_assert_nonnull (timeline_frame_clock);
   g_assert (timeline_frame_clock == second_view_frame_clock);
 
+  g_object_unref (timeline);
   clutter_actor_destroy (test_actor);
   clutter_actor_destroy (container);
 }
@@ -1068,6 +1069,7 @@ meta_test_actor_stage_views_and_frame_clocks_freed (void)
 
   timeline_frame_clock = clutter_timeline_get_frame_clock (timeline);
 
+  g_object_unref (timeline);
   g_assert_null (timeline_frame_clock);
   g_assert_null (first_view);
   g_assert_null (first_view_frame_clock);
