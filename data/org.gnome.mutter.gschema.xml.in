@@ -4,6 +4,7 @@
     <value nick="scale-monitor-framebuffer" value="1"/>
     <value nick="kms-modifiers" value="2"/>
     <value nick="autoclose-xwayland" value="4"/>
+    <value nick="variable-refresh-rate" value="8"/>
   </flags>
 
   <schema id="org.gnome.mutter" path="/org/gnome/mutter/"
@@ -128,6 +129,12 @@
         • “autoclose-xwayland”        — automatically terminates Xwayland if all
                                         relevant X11 clients are gone.
                                         Requires a restart.
+
+        • “variable-refresh-rate”     — makes mutter dynamically adjust the
+                                        refresh rate of the monitor when
+                                        applicable if supported by the monitor,
+                                        GPU and DRM driver. Configurable in
+                                        Settings. Requires a restart.
 
       </description>
     </key>
