@@ -116,6 +116,8 @@ struct _ClutterFrameClock
 
   int n_missed_frames;
   int64_t missed_frame_report_time_us;
+
+  int64_t last_dispatch_interval_us;
 };
 
 G_DEFINE_TYPE (ClutterFrameClock, clutter_frame_clock,
@@ -766,6 +768,19 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
   frame_clock->shortterm.max_dispatch_lateness_us =
     MAX (frame_clock->shortterm.max_dispatch_lateness_us,
          frame_clock->last_dispatch_lateness_us);
+
+  if (G_UNLIKELY (CLUTTER_HAS_DEBUG (FRAME_TIMINGS)))
+    {
+      int64_t dispatch_interval_us, jitter_us;
+
+      dispatch_interval_us = time_us - frame_clock->last_dispatch_time_us;
+      jitter_us = llabs (dispatch_interval_us -
+                         frame_clock->last_dispatch_interval_us);
+      frame_clock->last_dispatch_interval_us = dispatch_interval_us;
+      CLUTTER_NOTE (FRAME_TIMINGS, "dispatch jitter %5ldµs (%3ld%%)",
+                    jitter_us,
+                    jitter_us * 100 / frame_clock->refresh_interval_us);
+    }
 
   frame_clock->last_dispatch_time_us = time_us;
   g_source_set_ready_time (frame_clock->source, -1);
