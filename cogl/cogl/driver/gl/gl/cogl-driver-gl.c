@@ -271,6 +271,10 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       break;
 
     case COGL_PIXEL_FORMAT_XBGR_2101010:
+      glintformat = GL_RGB;
+      glformat = GL_RGBA;
+      gltype = GL_UNSIGNED_INT_2_10_10_10_REV;
+      break;
     case COGL_PIXEL_FORMAT_ABGR_2101010:
     case COGL_PIXEL_FORMAT_ABGR_2101010_PRE:
       glintformat = GL_RGBA;
@@ -279,6 +283,10 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       break;
 
     case COGL_PIXEL_FORMAT_XRGB_2101010:
+      glintformat = GL_RGB;
+      glformat = GL_BGRA;
+      gltype = GL_UNSIGNED_INT_2_10_10_10_REV;
+      break;
     case COGL_PIXEL_FORMAT_ARGB_2101010:
     case COGL_PIXEL_FORMAT_ARGB_2101010_PRE:
       glintformat = GL_RGBA;

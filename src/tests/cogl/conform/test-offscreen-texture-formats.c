@@ -55,17 +55,19 @@ test_offscreen_texture_formats_store_rgb10 (void)
   const int rgb10_red = 514;
   const int rgb10_green = 258;
   const int rgb10_blue = 18;
+  const int rgb10_alpha = 2;
   float red;
   float green;
   float blue;
+  float alpha;
   GError *error = NULL;
   CoglPixelFormat formats[] = {
-    COGL_PIXEL_FORMAT_ABGR_2101010,
-    COGL_PIXEL_FORMAT_ARGB_2101010,
     COGL_PIXEL_FORMAT_XRGB_2101010,
-    COGL_PIXEL_FORMAT_RGBA_1010102,
-    COGL_PIXEL_FORMAT_BGRA_1010102,
+    COGL_PIXEL_FORMAT_ARGB_2101010_PRE,
     COGL_PIXEL_FORMAT_XBGR_2101010,
+    COGL_PIXEL_FORMAT_ABGR_2101010_PRE,
+    COGL_PIXEL_FORMAT_RGBA_1010102_PRE,
+    COGL_PIXEL_FORMAT_BGRA_1010102_PRE,
   };
   int i;
 
@@ -74,6 +76,7 @@ test_offscreen_texture_formats_store_rgb10 (void)
   red = (rgb10_red / (float) (1 << 10)) + 0.00001;
   green = (rgb10_green / (float) (1 << 10)) + 0.00001;
   blue = (rgb10_blue / (float) (1 << 10)) + 0.00001;
+  alpha = (rgb10_alpha / (float) (1 << 2)) + 0.00001;
 
   /* Make sure that that the color value can't be represented using rgb8. */
   g_assert_cmpint (rgb8_to_rgb10 (rgb10_to_rgb8 (rgb10_red)), !=, rgb10_red);
@@ -85,8 +88,7 @@ test_offscreen_texture_formats_store_rgb10 (void)
       CoglTexture2D *tex;
       CoglOffscreen *offscreen;
       uint32_t rgb8_readback[4];
-      uint8_t *rgb8_buf;
-      int j;
+      int j, k;
 
       /* Allocate 2x2 to ensure we avoid any fast paths. */
       tex = cogl_texture_2d_new_with_format (test_ctx, 2, 2, formats[i]);
@@ -97,72 +99,84 @@ test_offscreen_texture_formats_store_rgb10 (void)
 
       cogl_framebuffer_clear4f (COGL_FRAMEBUFFER (offscreen),
                                 COGL_BUFFER_BIT_COLOR,
-                                red, green, blue, 1.0);
+                                red, green, blue, alpha);
 
       for (j = 0; j < G_N_ELEMENTS (formats); j++)
         {
           uint32_t rgb10_readback[4];
-          int channels[3];
-          int alpha;
+          int alpha_out;
 
           cogl_framebuffer_read_pixels (COGL_FRAMEBUFFER (offscreen), 0, 0, 2, 2,
                                         formats[j],
                                         (uint8_t *) &rgb10_readback);
 
-          switch (formats[j])
+          for (k = 0; k < 4; k++)
             {
-            case COGL_PIXEL_FORMAT_RGBA_1010102:
-            case COGL_PIXEL_FORMAT_BGRA_1010102:
-              channels[0] = get_bits (rgb10_readback[0], 31, 22);
-              channels[1] = get_bits (rgb10_readback[0], 21, 12);
-              channels[2] = get_bits (rgb10_readback[0], 11, 2);
-              alpha = get_bits (rgb10_readback[0], 1, 0);
-              break;
-            case COGL_PIXEL_FORMAT_XRGB_2101010:
-            case COGL_PIXEL_FORMAT_ARGB_2101010:
-            case COGL_PIXEL_FORMAT_XBGR_2101010:
-            case COGL_PIXEL_FORMAT_ABGR_2101010:
-              alpha = get_bits (rgb10_readback[0], 31, 30);
-              channels[0] = get_bits (rgb10_readback[0], 29, 20);
-              channels[1] = get_bits (rgb10_readback[0], 19, 10);
-              channels[2] = get_bits (rgb10_readback[0], 9, 0);
-              break;
-            default:
-              g_assert_not_reached ();
-            }
+              int channels[3];
 
-          g_assert_cmpint (alpha, ==, 0x3);
+              switch (formats[j])
+                {
+                case COGL_PIXEL_FORMAT_RGBA_1010102_PRE:
+                case COGL_PIXEL_FORMAT_BGRA_1010102_PRE:
+                  channels[0] = get_bits (rgb10_readback[k], 31, 22);
+                  channels[1] = get_bits (rgb10_readback[k], 21, 12);
+                  channels[2] = get_bits (rgb10_readback[k], 11, 2);
+                  alpha_out = get_bits (rgb10_readback[k], 1, 0);
+                  break;
+                case COGL_PIXEL_FORMAT_XRGB_2101010:
+                case COGL_PIXEL_FORMAT_ARGB_2101010_PRE:
+                case COGL_PIXEL_FORMAT_XBGR_2101010:
+                case COGL_PIXEL_FORMAT_ABGR_2101010_PRE:
+                  alpha_out = get_bits (rgb10_readback[k], 31, 30);
+                  channels[0] = get_bits (rgb10_readback[k], 29, 20);
+                  channels[1] = get_bits (rgb10_readback[k], 19, 10);
+                  channels[2] = get_bits (rgb10_readback[k], 9, 0);
+                  break;
+                default:
+                  g_assert_not_reached ();
+                }
 
-          switch (formats[j])
-            {
-            case COGL_PIXEL_FORMAT_RGBA_1010102:
-            case COGL_PIXEL_FORMAT_XRGB_2101010:
-            case COGL_PIXEL_FORMAT_ARGB_2101010:
-              g_assert_cmpint (channels[0], ==, rgb10_red);
-              g_assert_cmpint (channels[1], ==, rgb10_green);
-              g_assert_cmpint (channels[2], ==, rgb10_blue);
-              break;
-            case COGL_PIXEL_FORMAT_BGRA_1010102:
-            case COGL_PIXEL_FORMAT_XBGR_2101010:
-            case COGL_PIXEL_FORMAT_ABGR_2101010:
-              g_assert_cmpint (channels[0], ==, rgb10_blue);
-              g_assert_cmpint (channels[1], ==, rgb10_green);
-              g_assert_cmpint (channels[2], ==, rgb10_red);
-              break;
-            default:
-              g_assert_not_reached ();
+              if ((formats[i] & COGL_A_BIT) && (formats[j] & COGL_A_BIT))
+                g_assert_cmpint (alpha_out, ==, rgb10_alpha);
+              else if (!(formats[i] & COGL_A_BIT) && !(formats[j] & COGL_A_BIT))
+                g_assert_cmpint (alpha_out, ==, 0x3);
+
+              switch (formats[j])
+                {
+                case COGL_PIXEL_FORMAT_RGBA_1010102_PRE:
+                case COGL_PIXEL_FORMAT_XRGB_2101010:
+                case COGL_PIXEL_FORMAT_ARGB_2101010_PRE:
+                  g_assert_cmpint (channels[0], ==, rgb10_red);
+                  g_assert_cmpint (channels[1], ==, rgb10_green);
+                  g_assert_cmpint (channels[2], ==, rgb10_blue);
+                  break;
+                case COGL_PIXEL_FORMAT_BGRA_1010102_PRE:
+                case COGL_PIXEL_FORMAT_XBGR_2101010:
+                case COGL_PIXEL_FORMAT_ABGR_2101010_PRE:
+                  g_assert_cmpint (channels[0], ==, rgb10_blue);
+                  g_assert_cmpint (channels[1], ==, rgb10_green);
+                  g_assert_cmpint (channels[2], ==, rgb10_red);
+                  break;
+                default:
+                  g_assert_not_reached ();
+                }
             }
         }
 
       cogl_framebuffer_read_pixels (COGL_FRAMEBUFFER (offscreen), 0, 0, 2, 2,
-                                    COGL_PIXEL_FORMAT_RGBA_8888,
+                                    COGL_PIXEL_FORMAT_RGBX_8888,
                                     (uint8_t *) &rgb8_readback);
-      rgb8_buf = (uint8_t *) &rgb8_readback[0];
+      for (k = 0; k < 4; k++)
+        {
+          uint8_t *rgb8_buf = (uint8_t *) &rgb8_readback[k];
 
-      g_assert_cmpint (rgb8_buf[0], ==, rgb10_to_rgb8 (rgb10_red));
-      g_assert_cmpint (rgb8_buf[1], ==, rgb10_to_rgb8 (rgb10_green));
-      g_assert_cmpint (rgb8_buf[2], ==, rgb10_to_rgb8 (rgb10_blue));
-      g_assert_cmpint (rgb8_buf[3], ==, 0xff);
+          g_assert_cmpint (rgb8_buf[0], ==, rgb10_to_rgb8 (rgb10_red));
+          g_assert_cmpint (rgb8_buf[1], ==, rgb10_to_rgb8 (rgb10_green));
+          g_assert_cmpint (rgb8_buf[2], ==, rgb10_to_rgb8 (rgb10_blue));
+
+          if (!(formats[i] & COGL_A_BIT))
+            g_assert_cmpint (rgb8_buf[3], ==, 0xff);
+        }
 
       g_object_unref (offscreen);
       cogl_object_unref (tex);
@@ -273,58 +287,133 @@ test_offscreen_texture_formats_paint_rgb10 (void)
   const int rgb10_red = 514;
   const int rgb10_green = 258;
   const int rgb10_blue = 18;
+  const int rgb10_alpha = 2;
   float red;
   float green;
   float blue;
-  CoglTexture2D *tex_src;
-  CoglOffscreen *offscreen_src;
-  CoglTexture2D *tex_dst;
-  CoglOffscreen *offscreen_dst;
-  CoglPipeline *pipeline;
-  uint32_t rgb10_readback[4];
-  GError *error = NULL;
+  float alpha;
+  CoglPixelFormat formats[] = {
+    COGL_PIXEL_FORMAT_XRGB_2101010,
+    COGL_PIXEL_FORMAT_ARGB_2101010_PRE,
+    COGL_PIXEL_FORMAT_XBGR_2101010,
+    COGL_PIXEL_FORMAT_ABGR_2101010_PRE,
+    COGL_PIXEL_FORMAT_RGBA_1010102_PRE,
+    COGL_PIXEL_FORMAT_BGRA_1010102_PRE,
+  };
+  int i;
 
   /* The extra fraction is there to avoid rounding inconsistencies in OpenGL
    * implementations. */
   red = (rgb10_red / (float) (1 << 10)) + 0.00001;
   green = (rgb10_green / (float) (1 << 10)) + 0.00001;
   blue = (rgb10_blue / (float) (1 << 10)) + 0.00001;
+  alpha = (rgb10_alpha / (float) (1 << 2)) + 0.00001;
 
   /* Make sure that that the color value can't be represented using rgb8. */
   g_assert_cmpint (rgb8_to_rgb10 (rgb10_to_rgb8 (rgb10_red)), !=, rgb10_red);
   g_assert_cmpint (rgb8_to_rgb10 (rgb10_to_rgb8 (rgb10_green)), !=, rgb10_green);
   g_assert_cmpint (rgb8_to_rgb10 (rgb10_to_rgb8 (rgb10_blue)), !=, rgb10_blue);
 
-  tex_src = cogl_texture_2d_new_with_format (test_ctx, 2, 2,
-                                             COGL_PIXEL_FORMAT_RGBA_1010102);
-  offscreen_src = cogl_offscreen_new_with_texture (COGL_TEXTURE (tex_src));
-  cogl_framebuffer_allocate (COGL_FRAMEBUFFER (offscreen_src), &error);
-  g_assert_no_error (error);
+  for (i = 0; i < G_N_ELEMENTS (formats); i++)
+    {
+      CoglTexture2D *tex_src;
+      CoglOffscreen *offscreen_src;
+      GError *error = NULL;
+      int j;
 
-  tex_dst = cogl_texture_2d_new_with_format (test_ctx, 2, 2,
-                                             COGL_PIXEL_FORMAT_ABGR_2101010);
-  offscreen_dst = cogl_offscreen_new_with_texture (COGL_TEXTURE (tex_dst));
-  cogl_framebuffer_allocate (COGL_FRAMEBUFFER (offscreen_dst), &error);
-  g_assert_no_error (error);
+      tex_src = cogl_texture_2d_new_with_format (test_ctx, 2, 2, formats[i]);
+      offscreen_src = cogl_offscreen_new_with_texture (COGL_TEXTURE (tex_src));
+      cogl_framebuffer_allocate (COGL_FRAMEBUFFER (offscreen_src), &error);
+      g_assert_no_error (error);
 
-  cogl_framebuffer_clear4f (COGL_FRAMEBUFFER (offscreen_src),
-                            COGL_BUFFER_BIT_COLOR,
-                            red, green, blue, 1.0);
+      for (j = 0; j < G_N_ELEMENTS (formats); j++)
+        {
+          CoglTexture2D *tex_dst;
+          CoglOffscreen *offscreen_dst;
+          CoglPipeline *pipeline;
+          uint32_t rgb10_readback[4];
+          int k;
 
-  pipeline = cogl_pipeline_new (test_ctx);
-  cogl_pipeline_set_layer_texture (pipeline, 0, tex_src);
-  cogl_framebuffer_draw_rectangle (COGL_FRAMEBUFFER (offscreen_dst),
-                                   pipeline,
-                                   -1.0, -1.0, 1.0, 1.0);
-  cogl_object_unref (pipeline);
+          tex_dst = cogl_texture_2d_new_with_format (test_ctx, 2, 2, formats[j]);
+          offscreen_dst = cogl_offscreen_new_with_texture (COGL_TEXTURE (tex_dst));
+          cogl_framebuffer_allocate (COGL_FRAMEBUFFER (offscreen_dst), &error);
+          g_assert_no_error (error);
 
-  cogl_framebuffer_read_pixels (COGL_FRAMEBUFFER (offscreen_dst), 0, 0, 2, 2,
-                                COGL_PIXEL_FORMAT_ABGR_2101010,
-                                (uint8_t *) &rgb10_readback);
-  g_assert_cmpint (get_bits (rgb10_readback[0], 31, 30), ==, 0x3);
-  g_assert_cmpint (get_bits (rgb10_readback[0], 29, 20), ==, rgb10_blue);
-  g_assert_cmpint (get_bits (rgb10_readback[0], 19, 10), ==, rgb10_green);
-  g_assert_cmpint (get_bits (rgb10_readback[0], 9, 0), ==, rgb10_red);
+          cogl_framebuffer_clear4f (COGL_FRAMEBUFFER (offscreen_src),
+                                    COGL_BUFFER_BIT_COLOR,
+                                    red, green, blue, alpha);
+
+          pipeline = cogl_pipeline_new (test_ctx);
+          cogl_pipeline_set_layer_texture (pipeline, 0, tex_src);
+          cogl_framebuffer_draw_rectangle (COGL_FRAMEBUFFER (offscreen_dst),
+                                           pipeline,
+                                           -1.0, -1.0, 1.0, 1.0);
+          cogl_object_unref (pipeline);
+
+          cogl_framebuffer_read_pixels (COGL_FRAMEBUFFER (offscreen_dst),
+                                        0, 0, 2, 2, formats[j],
+                                        (uint8_t *) &rgb10_readback);
+
+          for (k = 0; k < 4; k++)
+            {
+              int channels[3];
+              int alpha_out;
+
+              switch (formats[j])
+                {
+                case COGL_PIXEL_FORMAT_RGBA_1010102_PRE:
+                case COGL_PIXEL_FORMAT_BGRA_1010102_PRE:
+                  channels[0] = get_bits (rgb10_readback[k], 31, 22);
+                  channels[1] = get_bits (rgb10_readback[k], 21, 12);
+                  channels[2] = get_bits (rgb10_readback[k], 11, 2);
+                  alpha_out = get_bits (rgb10_readback[k], 1, 0);
+                  break;
+                case COGL_PIXEL_FORMAT_XRGB_2101010:
+                case COGL_PIXEL_FORMAT_ARGB_2101010_PRE:
+                case COGL_PIXEL_FORMAT_XBGR_2101010:
+                case COGL_PIXEL_FORMAT_ABGR_2101010_PRE:
+                  alpha_out = get_bits (rgb10_readback[k], 31, 30);
+                  channels[0] = get_bits (rgb10_readback[k], 29, 20);
+                  channels[1] = get_bits (rgb10_readback[k], 19, 10);
+                  channels[2] = get_bits (rgb10_readback[k], 9, 0);
+                  break;
+                default:
+                  g_assert_not_reached ();
+                }
+
+              if ((formats[i] & COGL_A_BIT) && (formats[j] & COGL_A_BIT))
+                g_assert_cmpint (alpha_out, ==, rgb10_alpha);
+              else if (!(formats[i] & COGL_A_BIT) && !(formats[j] & COGL_A_BIT))
+                g_assert_cmpint (alpha_out, ==, 0x3);
+
+              switch (formats[j])
+                {
+                case COGL_PIXEL_FORMAT_RGBA_1010102_PRE:
+                case COGL_PIXEL_FORMAT_XRGB_2101010:
+                case COGL_PIXEL_FORMAT_ARGB_2101010_PRE:
+                  g_assert_cmpint (channels[0], ==, rgb10_red);
+                  g_assert_cmpint (channels[1], ==, rgb10_green);
+                  g_assert_cmpint (channels[2], ==, rgb10_blue);
+                  break;
+                case COGL_PIXEL_FORMAT_BGRA_1010102_PRE:
+                case COGL_PIXEL_FORMAT_XBGR_2101010:
+                case COGL_PIXEL_FORMAT_ABGR_2101010_PRE:
+                  g_assert_cmpint (channels[0], ==, rgb10_blue);
+                  g_assert_cmpint (channels[1], ==, rgb10_green);
+                  g_assert_cmpint (channels[2], ==, rgb10_red);
+                  break;
+                default:
+                  g_assert_not_reached ();
+                }
+            }
+
+          g_object_unref (offscreen_dst);
+          cogl_object_unref (tex_dst);
+        }
+
+      g_object_unref (offscreen_src);
+      cogl_object_unref (tex_src);
+    }
 }
 
 static void
