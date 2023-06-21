@@ -522,7 +522,9 @@ G_PASTE (_cogl_unpack_, component_size) (CoglPixelFormat format,
     case COGL_PIXEL_FORMAT_ABGR_2101010_PRE:
       G_PASTE (_cogl_unpack_abgr_2101010_, component_size) (src, dst, width);
       break;
+    case COGL_PIXEL_FORMAT_RGBX_FP_16161616:
     case COGL_PIXEL_FORMAT_RGBA_FP_16161616:
+    case COGL_PIXEL_FORMAT_BGRX_FP_16161616:
     case COGL_PIXEL_FORMAT_BGRA_FP_16161616:
     case COGL_PIXEL_FORMAT_XRGB_FP_16161616:
     case COGL_PIXEL_FORMAT_ARGB_FP_16161616:
@@ -1021,7 +1023,9 @@ G_PASTE (_cogl_pack_, component_size) (CoglPixelFormat format,
     case COGL_PIXEL_FORMAT_ABGR_2101010_PRE:
       G_PASTE (_cogl_pack_abgr_2101010_, component_size) (src, dst, width);
       break;
+    case COGL_PIXEL_FORMAT_RGBX_FP_16161616:
     case COGL_PIXEL_FORMAT_RGBA_FP_16161616:
+    case COGL_PIXEL_FORMAT_BGRX_FP_16161616:
     case COGL_PIXEL_FORMAT_BGRA_FP_16161616:
     case COGL_PIXEL_FORMAT_XRGB_FP_16161616:
     case COGL_PIXEL_FORMAT_ARGB_FP_16161616:

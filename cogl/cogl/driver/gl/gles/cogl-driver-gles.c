@@ -223,6 +223,7 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       gltype = GL_UNSIGNED_SHORT_5_5_5_1;
       break;
 
+    case COGL_PIXEL_FORMAT_BGRX_FP_16161616:
     case COGL_PIXEL_FORMAT_BGRA_FP_16161616:
     case COGL_PIXEL_FORMAT_XRGB_FP_16161616:
     case COGL_PIXEL_FORMAT_ARGB_FP_16161616:
@@ -234,6 +235,7 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       g_warning ("Unhandled 16 bpc pixel format used");
 
       G_GNUC_FALLTHROUGH;
+    case COGL_PIXEL_FORMAT_RGBX_FP_16161616:
     case COGL_PIXEL_FORMAT_RGBA_FP_16161616:
     case COGL_PIXEL_FORMAT_RGBA_FP_16161616_PRE:
       if (!_cogl_has_private_feature
