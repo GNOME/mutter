@@ -54,6 +54,7 @@ if have_introspection
       pango_dep,
       libmutter_cogl_pango_dep,
     ],
+    export_packages: 'mutter-cogl-pango-@0@'.format(libmutter_api_version),
     extra_args: introspection_args + [
       '-UCOGL_COMPILATION',
       '-DG_LOG_DOMAIN="CoglPango"',

@@ -447,6 +447,7 @@ if have_introspection
     namespace: 'Cogl',
     includes: ['cairo-1.0', 'GL-1.0', 'GObject-2.0', 'Graphene-1.0'],
     dependencies: [cogl_deps],
+    export_packages: 'mutter-cogl-@0@'.format(libmutter_api_version),
     extra_args: introspection_args + [
       '-UCOGL_COMPILATION',
       '-D__COGL_H_INSIDE__',

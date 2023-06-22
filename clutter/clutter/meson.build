@@ -376,6 +376,7 @@ if have_introspection
       cally_headers,
     ],
     nsversion: libmutter_api_version,
+    header: 'cally/cally.h',
     namespace: 'Cally',
     includes: [
       libmutter_cogl_gir[0],
