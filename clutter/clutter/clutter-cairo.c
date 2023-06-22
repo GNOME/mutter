@@ -33,42 +33,6 @@
 #include "clutter/clutter-color.h"
 
 /**
- * clutter_cairo_set_source_color:
- * @cr: a Cairo context
- * @color: a #ClutterColor
- *
- * Utility function for setting the source color of @cr using
- * a #ClutterColor. This function is the equivalent of:
- *
- * ```c
- *   cairo_set_source_rgba (cr,
- *                          color->red / 255.0,
- *                          color->green / 255.0,
- *                          color->blue / 255.0,
- *                          color->alpha / 255.0);
- * ```
- */
-void
-clutter_cairo_set_source_color (cairo_t            *cr,
-                                const ClutterColor *color)
-{
-  g_return_if_fail (cr != NULL);
-  g_return_if_fail (color != NULL);
-
-  if (color->alpha == 0xff)
-    cairo_set_source_rgb (cr,
-                          color->red / 255.0,
-                          color->green / 255.0,
-                          color->blue / 255.0);
-  else
-    cairo_set_source_rgba (cr,
-                           color->red / 255.0,
-                           color->green / 255.0,
-                           color->blue / 255.0,
-                           color->alpha / 255.0);
-}
-
-/**
  * clutter_cairo_clear:
  * @cr: a Cairo context
  *

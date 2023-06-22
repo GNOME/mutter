@@ -49,8 +49,5 @@ G_BEGIN_DECLS
 
 CLUTTER_EXPORT
 void    clutter_cairo_clear             (cairo_t               *cr);
-CLUTTER_EXPORT
-void    clutter_cairo_set_source_color  (cairo_t               *cr,
-                                         const ClutterColor    *color);
 
 G_END_DECLS

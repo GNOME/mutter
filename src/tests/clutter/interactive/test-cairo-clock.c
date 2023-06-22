@@ -42,19 +42,28 @@ draw_clock (ClutterCanvas *canvas,
   cairo_set_line_width (cr, 0.1);
 
   /* the black rail that holds the seconds indicator */
-  clutter_cairo_set_source_color (cr, CLUTTER_COLOR_Black);
+  cairo_set_source_rgb (cr,
+                        CLUTTER_COLOR_Black->red / 255.0,
+                        CLUTTER_COLOR_Black->green / 255.0,
+                        CLUTTER_COLOR_Black->blue / 255.0);
   cairo_translate (cr, 0.5, 0.5);
   cairo_arc (cr, 0, 0, 0.4, 0, G_PI * 2);
   cairo_stroke (cr);
 
   /* the seconds indicator */
-  clutter_cairo_set_source_color (cr, CLUTTER_COLOR_White);
+  cairo_set_source_rgb (cr,
+                        CLUTTER_COLOR_White->red / 255.0,
+                        CLUTTER_COLOR_White->green / 255.0,
+                        CLUTTER_COLOR_White->blue / 255.0);
   cairo_move_to (cr, 0, 0);
   cairo_arc (cr, sinf (seconds) * 0.4, - cosf (seconds) * 0.4, 0.05, 0, G_PI * 2);
   cairo_fill (cr);
 
   /* the minutes hand */
-  clutter_cairo_set_source_color (cr, CLUTTER_COLOR_DarkChameleon);
+  cairo_set_source_rgb (cr,
+                        CLUTTER_COLOR_DarkChameleon->red / 255.0,
+                        CLUTTER_COLOR_DarkChameleon->green / 255.0,
+                        CLUTTER_COLOR_DarkChameleon->blue / 255.0);
   cairo_move_to (cr, 0, 0);
   cairo_line_to (cr, sinf (minutes) * 0.4, -cosf (minutes) * 0.4);
   cairo_stroke (cr);
