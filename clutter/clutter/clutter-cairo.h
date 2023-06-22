@@ -47,7 +47,4 @@ G_BEGIN_DECLS
 #define CLUTTER_CAIRO_FORMAT_ARGB32     (COGL_PIXEL_FORMAT_ARGB_8888_PRE)
 #endif
 
-CLUTTER_EXPORT
-void    clutter_cairo_clear             (cairo_t               *cr);
-
 G_END_DECLS

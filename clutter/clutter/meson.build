@@ -110,7 +110,6 @@ clutter_sources = [
   'clutter-blur-effect.c',
   'clutter-box-layout.c',
   'clutter-brightness-contrast-effect.c',
-  'clutter-cairo.c',
   'clutter-canvas.c',
   'clutter-child-meta.c',
   'clutter-click-action.c',
