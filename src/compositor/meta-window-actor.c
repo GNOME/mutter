@@ -1724,7 +1724,7 @@ meta_window_actor_get_image (MetaWindowActor *self,
                                 0, 0,
                                 framebuffer_clip.width * resource_scale,
                                 framebuffer_clip.height * resource_scale,
-                                CLUTTER_CAIRO_FORMAT_ARGB32,
+                                COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
                                 cairo_image_surface_get_data (surface));
 
   g_object_unref (framebuffer);

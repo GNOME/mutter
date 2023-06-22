@@ -177,7 +177,7 @@ meta_cursor_sprite_xfixes_initable_init (GInitable     *initable,
   texture = cogl_texture_2d_new_from_data (cogl_context,
                                           cursor_image->width,
                                           cursor_image->height,
-                                          CLUTTER_CAIRO_FORMAT_ARGB32,
+                                          COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
                                           cursor_image->width * 4, /* stride */
                                           cursor_data,
                                           error);

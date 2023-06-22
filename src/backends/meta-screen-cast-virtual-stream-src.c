@@ -401,7 +401,7 @@ meta_screen_cast_virtual_stream_src_record_to_buffer (MetaScreenCastStreamSrc  *
                                       scale,
                                       data,
                                       stride,
-                                      CLUTTER_CAIRO_FORMAT_ARGB32,
+                                      COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
                                       paint_flags,
                                       error))
     return FALSE;

@@ -273,6 +273,17 @@ typedef enum /*< prefix=COGL_PIXEL_FORMAT >*/
 } CoglPixelFormat;
 
 /**
+ * COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT:
+ * 
+ * Architecture dependant format, similar to CAIRO_ARGB32.
+*/
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+#define COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT COGL_PIXEL_FORMAT_BGRA_8888_PRE
+#else
+#define COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT COGL_PIXEL_FORMAT_ARGB_8888_PRE
+#endif
+
+/**
  * COGL_PIXEL_FORMAT_MAX_PLANES:
  *
  * The maximum number of planes of a pixel format (see also

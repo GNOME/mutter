@@ -48,7 +48,6 @@
 #include "clutter/clutter-canvas.h"
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-backend.h"
-#include "clutter/clutter-cairo.h"
 #include "clutter/clutter-color.h"
 #include "clutter/clutter-content-private.h"
 #include "clutter/clutter-debug.h"
@@ -369,7 +368,7 @@ clutter_canvas_emit_draw (ClutterCanvas *self)
       priv->buffer = cogl_bitmap_new_with_size (ctx,
                                                 real_width,
                                                 real_height,
-                                                CLUTTER_CAIRO_FORMAT_ARGB32);
+                                                COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT);
     }
 
   buffer = COGL_BUFFER (cogl_bitmap_get_buffer (priv->buffer));
