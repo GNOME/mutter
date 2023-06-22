@@ -64,12 +64,6 @@ get_egl_device_display (MetaRenderDevice  *render_device,
                                         error);
 }
 
-static int
-count_mode_setting_devices (MetaBackend *backend)
-{
-  return g_list_length (meta_backend_get_gpus (backend));
-}
-
 static const char *
 get_drm_device_file (MetaEgl     *egl,
                      EGLDeviceEXT device,
@@ -174,14 +168,6 @@ meta_render_device_egl_stream_initable_init (GInitable     *initable,
   MetaKms *kms;
   EGLDeviceEXT egl_device;
   EGLDisplay egl_display;
-
-  if (count_mode_setting_devices (backend) != 1)
-    {
-      g_set_error (error, G_IO_ERROR,
-                   G_IO_ERROR_FAILED,
-                   "EGLDevice currently only works with single GPU systems");
-      return FALSE;
-    }
 
   egl_device = find_egl_device (render_device, error);
   if (egl_device == EGL_NO_DEVICE_EXT)

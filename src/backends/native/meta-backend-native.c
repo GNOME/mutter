@@ -95,6 +95,10 @@ struct _MetaBackendNative
   GHashTable *startup_render_devices;
 
   MetaBackendNativeMode mode;
+
+#ifdef HAVE_EGL_DEVICE
+  MetaRenderDeviceEglStream *render_device_egl_stream;
+#endif
 };
 
 static GInitableIface *initable_parent_iface;
@@ -472,7 +476,6 @@ create_render_device (MetaBackendNative  *backend_native,
   g_autoptr (MetaRenderDeviceGbm) render_device_gbm = NULL;
   g_autoptr (GError) gbm_error = NULL;
 #ifdef HAVE_EGL_DEVICE
-  g_autoptr (MetaRenderDeviceEglStream) render_device_egl_stream = NULL;
   g_autoptr (GError) egl_stream_error = NULL;
 #endif
 
@@ -544,12 +547,27 @@ create_render_device (MetaBackendNative  *backend_native,
 #endif
 
 #ifdef HAVE_EGL_DEVICE
-  render_device_egl_stream =
-    meta_render_device_egl_stream_new (backend,
-                                       device_file,
-                                       &egl_stream_error);
-  if (render_device_egl_stream)
-    return META_RENDER_DEVICE (g_steal_pointer (&render_device_egl_stream));
+  if (!backend_native->render_device_egl_stream)
+    {
+      MetaRenderDeviceEglStream *device;
+
+      device = meta_render_device_egl_stream_new (backend,
+                                                  device_file,
+                                                  &egl_stream_error);
+      if (device)
+        {
+          g_object_add_weak_pointer (G_OBJECT (device),
+                                     (gpointer *) &backend_native->render_device_egl_stream);
+          return META_RENDER_DEVICE (device);
+        }
+    }
+  else if (!render_device_gbm)
+    {
+      g_set_error (&egl_stream_error,
+                   G_IO_ERROR,
+                   G_IO_ERROR_FAILED,
+                   "it's not GBM-compatible and one EGLDevice was already found");
+    }
 #endif
 
   if (render_device_gbm)
