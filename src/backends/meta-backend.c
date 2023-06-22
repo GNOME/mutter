@@ -791,6 +791,8 @@ meta_backend_constructed (GObject *object)
 
   g_assert (priv->context);
 
+  priv->settings = meta_settings_new (backend);
+
 #ifdef HAVE_LIBWACOM
   priv->wacom_db = libwacom_database_new ();
   if (!priv->wacom_db)
@@ -1201,7 +1203,6 @@ meta_backend_initable_init (GInitable     *initable,
   MetaBackend *backend = META_BACKEND (initable);
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
 
-  priv->settings = meta_settings_new (backend);
   priv->orientation_manager = g_object_new (META_TYPE_ORIENTATION_MANAGER, NULL);
 
   priv->monitor_manager = meta_backend_create_monitor_manager (backend, error);
