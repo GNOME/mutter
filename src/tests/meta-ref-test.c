@@ -245,7 +245,7 @@ capture_view_into (ClutterStageView *view,
   context = clutter_backend_get_cogl_context (backend);
   bitmap = cogl_bitmap_new_for_data (context,
                                      texture_width, texture_height,
-                                     CLUTTER_CAIRO_FORMAT_ARGB32,
+                                     COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
                                      stride,
                                      buffer);
 

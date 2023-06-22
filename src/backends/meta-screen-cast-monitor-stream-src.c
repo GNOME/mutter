@@ -570,7 +570,7 @@ meta_screen_cast_monitor_stream_src_record_to_buffer (MetaScreenCastStreamSrc  *
   if (!clutter_stage_paint_to_buffer (stage, &logical_monitor->rect, scale,
                                       data,
                                       stride,
-                                      CLUTTER_CAIRO_FORMAT_ARGB32,
+                                      COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
                                       paint_flags,
                                       error))
     return FALSE;

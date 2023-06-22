@@ -16,7 +16,6 @@ clutter_headers = [
   'clutter-blur-effect.h',
   'clutter-box-layout.h',
   'clutter-brightness-contrast-effect.h',
-  'clutter-cairo.h',
   'clutter-canvas.h',
   'clutter-child-meta.h',
   'clutter-click-action.h',

@@ -1475,7 +1475,7 @@ meta_shaped_texture_get_image (MetaShapedTexture *stex,
                                         cogl_texture_get_width (texture),
                                         cogl_texture_get_height (texture));
 
-  cogl_texture_get_data (texture, CLUTTER_CAIRO_FORMAT_ARGB32,
+  cogl_texture_get_data (texture, COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
                          cairo_image_surface_get_stride (surface),
                          cairo_image_surface_get_data (surface));
 

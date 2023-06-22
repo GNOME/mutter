@@ -48,7 +48,6 @@
 #include "clutter/clutter-action-private.h"
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-backend-private.h"
-#include "clutter/clutter-cairo.h"
 #include "clutter/clutter-container.h"
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-enum-types.h"
@@ -2932,7 +2931,7 @@ clutter_stage_capture_view_into (ClutterStage     *stage,
   context = clutter_backend_get_cogl_context (backend);
   bitmap = cogl_bitmap_new_for_data (context,
                                      texture_width, texture_height,
-                                     CLUTTER_CAIRO_FORMAT_ARGB32,
+                                     COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
                                      stride,
                                      data);
 

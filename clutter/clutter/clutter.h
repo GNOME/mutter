@@ -41,7 +41,6 @@
 #include "clutter/clutter-blur-effect.h"
 #include "clutter/clutter-box-layout.h"
 #include "clutter/clutter-brightness-contrast-effect.h"
-#include "clutter/clutter-cairo.h"
 #include "clutter/clutter-canvas.h"
 #include "clutter/clutter-child-meta.h"
 #include "clutter/clutter-click-action.h"
