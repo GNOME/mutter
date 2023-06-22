@@ -18275,13 +18275,16 @@ clutter_actor_set_x_expand (ClutterActor *self,
                             gboolean      expand)
 {
   ClutterLayoutInfo *info;
+  gboolean changed;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
   expand = !!expand;
 
   info = _clutter_actor_get_layout_info (self);
-  if (info->x_expand != expand)
+  changed = info->x_expand != expand;
+
+  if (changed || !self->priv->x_expand_set)
     {
       info->x_expand = expand;
 
@@ -18289,8 +18292,9 @@ clutter_actor_set_x_expand (ClutterActor *self,
 
       clutter_actor_queue_compute_expand (self);
 
-      g_object_notify_by_pspec (G_OBJECT (self),
-                                obj_props[PROP_X_EXPAND]);
+      if (changed)
+        g_object_notify_by_pspec (G_OBJECT (self),
+                                  obj_props[PROP_X_EXPAND]);
     }
 }
 
@@ -18330,13 +18334,16 @@ clutter_actor_set_y_expand (ClutterActor *self,
                             gboolean      expand)
 {
   ClutterLayoutInfo *info;
+  gboolean changed;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
   expand = !!expand;
 
   info = _clutter_actor_get_layout_info (self);
-  if (info->y_expand != expand)
+  changed = info->y_expand != expand;
+
+  if (changed || !self->priv->y_expand_set)
     {
       info->y_expand = expand;
 
@@ -18344,8 +18351,9 @@ clutter_actor_set_y_expand (ClutterActor *self,
 
       clutter_actor_queue_compute_expand (self);
 
-      g_object_notify_by_pspec (G_OBJECT (self),
-                                obj_props[PROP_Y_EXPAND]);
+      if (changed)
+        g_object_notify_by_pspec (G_OBJECT (self),
+                                  obj_props[PROP_Y_EXPAND]);
     }
 }
 
