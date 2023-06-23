@@ -238,12 +238,18 @@ test_cases += [
       'orientation-manager-unit-tests.c',
       'hdr-metadata-unit-tests.c',
     ],
+    'depends': [
+      test_client,
+    ],
   },
   {
     'name': 'monitor-unit',
     'suite': 'backend',
     'sources': [ 'monitor-unit-tests.c', ],
-    'depends': [ test_client ],
+    'depends': [
+      test_client,
+      x11_frames,
+    ],
   },
   {
     'name': 'monitor-utils',
@@ -254,7 +260,10 @@ test_cases += [
     'name': 'stage-views',
     'suite': 'compositor',
     'sources': [ 'stage-view-tests.c', ],
-    'depends': [ test_client ],
+    'depends': [
+      test_client,
+      x11_frames,
+    ],
   },
   {
     'name': 'anonymous-file',
@@ -315,6 +324,9 @@ if have_native_tests
         'native-screen-cast.h',
         'native-virtual-monitor.c',
         'native-virtual-monitor.h',
+      ],
+      'depends': [
+        screen_cast_client,
       ],
     },
     {
@@ -441,6 +453,9 @@ if have_native_tests
         'wayland-fullscreen-test.c',
         wayland_test_utils,
       ],
+      'depends': [
+        test_client_executables.get('fullscreen'),
+      ],
     },
     {
       'name': 'wayland-fractional-scale',
@@ -448,6 +463,9 @@ if have_native_tests
       'sources': [
         'wayland-fractional-scale-test.c',
         wayland_test_utils,
+      ],
+      'depends': [
+        test_client_executables.get('fractional-scale'),
       ],
     },
     {
@@ -460,7 +478,20 @@ if have_native_tests
         dummy_protocol_code,
         wayland_test_utils,
       ],
-      'depends': [ test_client ],
+      'depends': [
+        test_client,
+        test_client_executables.get('buffer-transform'),
+        test_client_executables.get('invalid-subsurfaces'),
+        test_client_executables.get('invalid-xdg-shell-actions'),
+        test_client_executables.get('single-pixel-buffer'),
+        test_client_executables.get('subsurface-parent-unmapped'),
+        test_client_executables.get('subsurface-remap-toplevel'),
+        test_client_executables.get('subsurface-reparenting'),
+        test_client_executables.get('xdg-activation'),
+        test_client_executables.get('xdg-apply-limits'),
+        test_client_executables.get('xdg-foreign'),
+        test_client_executables.get('xdg-toplevel-bounds'),
+      ],
     },
   ]
   if have_xwayland
@@ -489,7 +520,10 @@ if have_native_tests
           wayland_protocol_files['mutter-x11-interop']['protocol-code'],
           built_dbus_sources['meta-dbus-service-channel'],
         ],
-        'depends': [ test_client ],
+        'depends': [
+          test_client,
+          x11_frames,
+        ],
       },
       {
         'name': 'xwayland',
@@ -497,6 +531,7 @@ if have_native_tests
         'depends': [
           test_client,
           x11_compositor_checker,
+          x11_frames,
         ],
         'sources': [
           'xwayland-tests.c',
@@ -513,6 +548,9 @@ if have_native_tests
       'sources': [
         'service-channel-tests.c',
         wayland_test_utils,
+      ],
+      'depends': [
+        test_client_executables.get('service-client'),
       ],
     },
   ]
@@ -531,10 +569,12 @@ if have_native_tests
       install_rpath: pkglibdir,
     )
 
+    test_depends = [ default_plugin ] + test_case.get('depends', [])
+
     test(test_case['name'], test_executable,
       suite: ['core', 'mutter/' + test_case['suite']],
       env: test_env,
-      depends: test_case.get('depends', []),
+      depends: test_depends,
       is_parallel: false,
       timeout: 60,
     )
@@ -701,6 +741,9 @@ test('get-state-tool-gio', mutter,
     '--wayland-display', 'get-state-gio',
     get_state_tool.full_path(),
   ],
+  depends: [
+    default_plugin,
+  ],
   suite: ['tools'],
   env: tools_test_env,
   is_parallel: false,
@@ -716,6 +759,9 @@ test('get-state-tool-gdbus', mutter,
     '--',
     get_state_tool.full_path(),
     '--gdbus',
+  ],
+  depends: [
+    default_plugin,
   ],
   suite: ['tools'],
   env: tools_test_env,

@@ -78,6 +78,8 @@ wayland_test_clients = [
   },
 ]
 
+test_client_executables = {}
+
 foreach test : wayland_test_clients
   test_name = test['name']
   deps = [
@@ -98,7 +100,7 @@ foreach test : wayland_test_clients
     test_client_sources += test['extra_sources']
   endif
 
-  executable(test_name,
+  test_executable = executable(test_name,
     sources: test_client_sources,
     include_directories: tests_includes,
     c_args: tests_c_args,
@@ -106,4 +108,6 @@ foreach test : wayland_test_clients
     install: have_installed_tests,
     install_dir: wayland_test_client_installed_tests_libexecdir,
   )
+
+  test_client_executables += { test['name']: test_executable }
 endforeach
