@@ -242,6 +242,16 @@ meta_context_get_display (MetaContext *context)
 }
 
 #ifdef HAVE_WAYLAND
+/**
+ * meta_context_get_wayland_compositor:
+ * @context: The #MetaContext
+ *
+ * Get the #MetaWaylandCompositor associated with the MetaContext. The might be
+ * none currently associated if the context hasn't been started or if the
+ * requested compositor type is not %META_COMPOSITOR_TYPE_WAYLAND.
+ *
+ * Returns: (transfer none) (nullable): the #MetaWaylandCompositor
+ */
 MetaWaylandCompositor *
 meta_context_get_wayland_compositor (MetaContext *context)
 {

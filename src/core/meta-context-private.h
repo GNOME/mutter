@@ -70,9 +70,6 @@ void meta_context_set_unsafe_mode (MetaContext *context,
 
 #ifdef HAVE_WAYLAND
 META_EXPORT_TEST
-MetaWaylandCompositor * meta_context_get_wayland_compositor (MetaContext *context);
-
-META_EXPORT_TEST
 MetaServiceChannel * meta_context_get_service_channel (MetaContext *context);
 #endif
 

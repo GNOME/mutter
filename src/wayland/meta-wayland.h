@@ -27,6 +27,7 @@
 #include "core/meta-context-private.h"
 #include "core/util-private.h"
 #include "meta/types.h"
+#include "meta/meta-wayland-compositor.h"
 #include "wayland/meta-wayland-text-input.h"
 #include "wayland/meta-wayland-types.h"
 
@@ -102,9 +103,6 @@ MetaXWaylandManager *   meta_wayland_compositor_get_xwayland_manager (MetaWaylan
 
 META_EXPORT_TEST
 MetaContext * meta_wayland_compositor_get_context (MetaWaylandCompositor *compositor);
-
-META_EXPORT_TEST
-struct wl_display * meta_wayland_compositor_get_wayland_display (MetaWaylandCompositor *compositor);
 
 gboolean meta_wayland_compositor_is_grabbed (MetaWaylandCompositor *compositor);
 
