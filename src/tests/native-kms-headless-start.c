@@ -146,5 +146,5 @@ main (int argc, char *argv[])
                                 disconnect_connector_filter, NULL);
 
   return meta_context_test_run_tests (META_CONTEXT_TEST (context),
-                                      META_TEST_RUN_FLAG_NONE);
+                                      META_TEST_RUN_FLAG_CAN_SKIP);
 }

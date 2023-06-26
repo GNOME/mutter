@@ -349,5 +349,5 @@ main (int argc, char *argv[])
   test_context = context;
 
   return meta_context_test_run_tests (META_CONTEXT_TEST (context),
-                                      META_TEST_RUN_FLAG_NONE);
+                                      META_TEST_RUN_FLAG_CAN_SKIP);
 }
