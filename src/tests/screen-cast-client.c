@@ -345,6 +345,9 @@ on_stream_process (void *user_data)
   struct pw_buffer *next_buffer;
   struct pw_buffer *buffer = NULL;
 
+  if (!stream->pipewire_stream)
+    return;
+
   next_buffer = pw_stream_dequeue_buffer (stream->pipewire_stream);
   if (next_buffer)
     g_debug ("Dequeued buffer, queue previous");
