@@ -75,6 +75,7 @@ void meta_fatal      (const char *format,
  * @META_DEBUG_BACKEND: backend
  * @META_DEBUG_RENDER: native backend rendering
  * @META_DEBUG_COLOR: color management
+ * @META_DEBUG_INPUT_EVENTS: input events
  */
 typedef enum
 {
