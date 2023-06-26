@@ -107,6 +107,9 @@ typedef struct _MetaScreenCastStreamSrcPrivate
   int64_t last_frame_timestamp_us;
   guint follow_up_frame_source_id;
 
+  int buffer_count;
+  gboolean needs_follow_up_with_buffers;
+
   gboolean uses_dma_bufs;
   GHashTable *dmabuf_handles;
 
@@ -714,6 +717,17 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
         priv->redraw_clip = cairo_region_copy (redraw_clip);
     }
 
+  if (priv->buffer_count == 0)
+    {
+      meta_topic (META_DEBUG_SCREEN_CAST,
+                  "Buffers hasn't been added, "
+                  "postponing recording on stream %u",
+                  priv->node_id);
+
+      priv->needs_follow_up_with_buffers = TRUE;
+      return record_result;
+    }
+
   if (priv->video_format.max_framerate.num > 0 &&
       priv->last_frame_timestamp_us != 0)
     {
@@ -1035,6 +1049,8 @@ on_stream_add_buffer (void             *data,
   const int bpp = 4;
   int stride;
 
+  priv->buffer_count++;
+
   stride = SPA_ROUND_UP_N (priv->video_format.size.width * bpp, 4);
 
   spa_data[0].mapoffset = 0;
@@ -1123,6 +1139,12 @@ on_stream_add_buffer (void             *data,
           return;
         }
     }
+
+  if (priv->buffer_count == 1 && priv->needs_follow_up_with_buffers)
+    {
+      priv->needs_follow_up_with_buffers = FALSE;
+      meta_screen_cast_stream_src_record_follow_up (src);
+    }
 }
 
 static void
@@ -1134,6 +1156,8 @@ on_stream_remove_buffer (void             *data,
     meta_screen_cast_stream_src_get_instance_private (src);
   struct spa_buffer *spa_buffer = buffer->buffer;
   struct spa_data *spa_data = spa_buffer->datas;
+
+  priv->buffer_count--;
 
   if (spa_data[0].type == SPA_DATA_DmaBuf)
     {
