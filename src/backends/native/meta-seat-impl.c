@@ -525,6 +525,60 @@ generate_event_description (const ClutterEvent *event)
     }
 }
 
+static char *
+generate_modifiers_description (const ClutterEvent *event)
+{
+  ClutterModifierType modifiers;
+  GString *str;
+
+  modifiers = clutter_event_get_state (event);
+
+  if (modifiers == 0)
+    return g_strdup ("none");
+
+  str = g_string_new (NULL);
+
+  if (modifiers & CLUTTER_SHIFT_MASK)
+    g_string_append (str, "shift ");
+  if (modifiers & CLUTTER_LOCK_MASK)
+    g_string_append (str, "lock ");
+  if (modifiers & CLUTTER_CONTROL_MASK)
+    g_string_append (str, "control ");
+  if (modifiers & CLUTTER_MOD1_MASK)
+    g_string_append (str, "mod1 ");
+  if (modifiers & CLUTTER_MOD2_MASK)
+    g_string_append (str, "mod2 ");
+  if (modifiers & CLUTTER_MOD3_MASK)
+    g_string_append (str, "mod3 ");
+  if (modifiers & CLUTTER_MOD4_MASK)
+    g_string_append (str, "mod4 ");
+  if (modifiers & CLUTTER_MOD5_MASK)
+    g_string_append (str, "mod5 ");
+  if (modifiers & CLUTTER_BUTTON1_MASK)
+    g_string_append (str, "button1 ");
+  if (modifiers & CLUTTER_BUTTON2_MASK)
+    g_string_append (str, "button2 ");
+  if (modifiers & CLUTTER_BUTTON3_MASK)
+    g_string_append (str, "button3 ");
+  if (modifiers & CLUTTER_BUTTON4_MASK)
+    g_string_append (str, "button4 ");
+  if (modifiers & CLUTTER_BUTTON5_MASK)
+    g_string_append (str, "button5 ");
+  if (modifiers & CLUTTER_SUPER_MASK)
+    g_string_append (str, "super ");
+  if (modifiers & CLUTTER_HYPER_MASK)
+    g_string_append (str, "hyper ");
+  if (modifiers & CLUTTER_META_MASK)
+    g_string_append (str, "meta ");
+  if (modifiers & CLUTTER_RELEASE_MASK)
+    g_string_append (str, "release ");
+
+  /* Delete trailing space */
+  g_string_erase (str, str->len - 1, 1);
+
+  return g_string_free_and_steal (str);
+}
+
 static void
 queue_event (MetaSeatImpl *seat_impl,
              ClutterEvent *event)
@@ -533,18 +587,21 @@ queue_event (MetaSeatImpl *seat_impl,
   if (meta_is_topic_enabled (META_DEBUG_INPUT_EVENTS))
     {
       g_autofree char *event_description = NULL;
+      g_autofree char *modifiers_description = NULL;
       ClutterInputDevice *source_device;
 
       source_device = clutter_event_get_source_device (event);
       event_description = generate_event_description (event);
+      modifiers_description = generate_modifiers_description (event);
       meta_topic (META_DEBUG_INPUT_EVENTS,
-                  "Queuing '%s'%s%s, time=%u ms, %s",
+                  "Queuing '%s'%s%s, time=%u ms, modifiers=%s, %s",
                   event_type_to_str (event),
                   source_device ? " from " : "",
                   source_device ?
                     clutter_input_device_get_device_node (source_device) :
                     "",
                   event->any.time,
+                  modifiers_description,
                   event_description);
     }
 #endif
