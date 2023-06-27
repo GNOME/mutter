@@ -100,6 +100,41 @@ struct _ClutterGestureClass
                                     ClutterGesture *other_gesture,
                                     gboolean       *cancelled_on_recognizing,
                                     gboolean       *inhibited_until_cancelled);
+
+  /**
+   * ClutterGestureClass::should_start_while:
+   * @self: the `ClutterGesture`
+   * @recognizing_gesture: the already recognizing gesture
+   * @should_start: (inout): whether @self should start
+   *
+   * This virtual function is called to request whether @self should start
+   * while @recognizing_gesture is currently in state RECOGNIZING.
+   * Implementations can override this function to specify their
+   * relationship with any other gesture globally.
+   *
+   * By default, starting while another gesture is recognizing is disallowed.
+   */
+  void (* should_start_while) (ClutterGesture *self,
+                               ClutterGesture *recognizing_gesture,
+                               gboolean       *should_start);
+
+  /**
+   * ClutterGestureClass::other_gesture_may_start:
+   * @self: the `ClutterGesture`
+   * @other_gesture: the other gesture
+   * @should_start: (inout): whether @other_gesture may start
+   *
+   * This virtual function is called to request whether @other_gesture may
+   * start while @self is already RECOGNIZING.
+   * Implementations can override this function to specify their
+   * relationship with any other gesture globally.
+   *
+   * Overriding this virtual function takes precedence over an override of
+   * ClutterGestureClass::should_start_while() done by @other_gesture.
+   */
+  void (* other_gesture_may_start) (ClutterGesture *self,
+                                    ClutterGesture *other_gesture,
+                                    gboolean       *should_start);
 };
 
 CLUTTER_EXPORT
@@ -166,5 +201,9 @@ void clutter_gesture_require_failure_of (ClutterGesture *self,
 
 CLUTTER_EXPORT
 void clutter_gesture_relationships_changed (ClutterGesture *self);
+
+CLUTTER_EXPORT
+void clutter_gesture_recognize_independently_from (ClutterGesture *self,
+                                                   ClutterGesture *other_gesture);
 
 G_END_DECLS

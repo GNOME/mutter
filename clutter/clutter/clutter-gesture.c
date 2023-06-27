@@ -79,6 +79,16 @@
  * prohibited by using the clutter_gesture_can_not_cancel() API or by
  * implementing the should_influence() or should_be_influenced_by() vfuncs
  * in your #ClutterGesture subclass.
+ *
+ * The relationship between two gestures that are on different actors and
+ * don't conflict over any points can also be controlled. By default, globally
+ * only a single gesture is allowed to be in the RECOGNIZING state. This
+ * default is mostly to avoid UI bugs and complexity that will appear when
+ * recognizing multiple gestures at the same time. It's possible to allow
+ * starting/recognizing one gesture while another is already in state
+ * RECOGNIZING by using the clutter_gesture_recognize_independently_from() API
+ * or by implementing the should_start_while() or the other_gesture_may_start()
+ * vfuncs in the #ClutterGesture subclass.
  */
 
 #include "config.h"
@@ -138,6 +148,7 @@ struct _ClutterGesturePrivate
 
   GHashTable *can_not_cancel;
   GHashTable *require_failure_of;
+  GHashTable *recognize_independently_from;
 };
 
 enum
@@ -473,8 +484,24 @@ static gboolean
 other_gesture_allowed_to_start (ClutterGesture *self,
                                 ClutterGesture *other_gesture)
 {
-  /* Only a single gesture can be recognizing globally at a time */
-  return FALSE;
+  ClutterGesturePrivate *other_priv = clutter_gesture_get_instance_private (other_gesture);
+  ClutterGestureClass *gesture_class = CLUTTER_GESTURE_GET_CLASS (self);
+  ClutterGestureClass *other_gesture_class = CLUTTER_GESTURE_GET_CLASS (other_gesture);
+
+  if (other_priv->recognize_independently_from &&
+      g_hash_table_contains (other_priv->recognize_independently_from, self))
+    return TRUE;
+
+  /* Default: Only a single gesture can be recognizing globally at a time */
+  gboolean should_start = FALSE;
+
+  if (other_gesture_class->should_start_while)
+    other_gesture_class->should_start_while (other_gesture, self, &should_start);
+
+  if (gesture_class->other_gesture_may_start)
+    gesture_class->other_gesture_may_start (self, other_gesture, &should_start);
+
+  return should_start;
 }
 
 static gboolean
@@ -1502,6 +1529,8 @@ clutter_gesture_finalize (GObject *gobject)
     destroy_weak_ref_hashtable (priv->can_not_cancel);
   if (priv->require_failure_of)
     destroy_weak_ref_hashtable (priv->require_failure_of);
+  if (priv->recognize_independently_from)
+    destroy_weak_ref_hashtable (priv->recognize_independently_from);
 
   G_OBJECT_CLASS (clutter_gesture_parent_class)->finalize (gobject);
 }
@@ -1682,6 +1711,7 @@ clutter_gesture_init (ClutterGesture *self)
 
   priv->can_not_cancel = NULL;
   priv->require_failure_of = NULL;
+  priv->recognize_independently_from = NULL;
 }
 
 /**
@@ -2175,4 +2205,35 @@ clutter_gesture_relationships_changed (ClutterGesture *self)
           clutter_sprite_setup_sequence_actions_special (seq_data->sprite);
         }
     }
+}
+
+/**
+ * clutter_gesture_recognize_independently_from:
+ * @self: a #ClutterGesture
+ * @other_gesture: the other #ClutterGesture
+ *
+ * In case @self and @other_gesture are operating on a different set of points,
+ * calling this function will allow @self to start while @other_gesture is
+ * already in state RECOGNIZING.
+ */
+void
+clutter_gesture_recognize_independently_from (ClutterGesture *self,
+                                              ClutterGesture *other_gesture)
+{
+  ClutterGesturePrivate *priv;
+
+  g_return_if_fail (CLUTTER_IS_GESTURE (self));
+  g_return_if_fail (CLUTTER_IS_GESTURE (other_gesture));
+
+  priv = clutter_gesture_get_instance_private (self);
+
+  if (!priv->recognize_independently_from)
+    priv->recognize_independently_from = g_hash_table_new (NULL, NULL);
+
+  if (!g_hash_table_add (priv->recognize_independently_from, other_gesture))
+    return;
+
+  g_object_weak_ref (G_OBJECT (other_gesture),
+                     (GWeakNotify) other_gesture_disposed,
+                     priv->recognize_independently_from);
 }
