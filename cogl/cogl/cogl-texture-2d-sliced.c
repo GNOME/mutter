@@ -958,30 +958,6 @@ cogl_texture_2d_sliced_new_from_data (CoglContext *ctx,
   return tex_2ds;
 }
 
-CoglTexture2DSliced *
-cogl_texture_2d_sliced_new_from_file (CoglContext *ctx,
-                                      const char *filename,
-                                      int max_waste,
-                                      GError **error)
-{
-  CoglBitmap *bmp;
-  CoglTexture2DSliced *tex_2ds = NULL;
-
-  g_return_val_if_fail (error == NULL || *error == NULL, NULL);
-
-  bmp = _cogl_bitmap_from_file (ctx, filename, error);
-  if (bmp == NULL)
-    return NULL;
-
-  tex_2ds = _cogl_texture_2d_sliced_new_from_bitmap (bmp,
-                                           max_waste,
-                                           TRUE); /* can convert in-place */
-
-  cogl_object_unref (bmp);
-
-  return tex_2ds;
-}
-
 static gboolean
 allocate_with_size (CoglTexture2DSliced *tex_2ds,
                     CoglTextureLoader *loader,

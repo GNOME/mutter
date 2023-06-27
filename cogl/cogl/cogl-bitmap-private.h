@@ -113,11 +113,6 @@ _cogl_bitmap_convert_into_bitmap (CoglBitmap *src_bmp,
                                   CoglBitmap *dst_bmp,
                                   GError **error);
 
-CoglBitmap *
-_cogl_bitmap_from_file (CoglContext *ctx,
-                        const char *filename,
-                        GError **error);
-
 gboolean
 _cogl_bitmap_unpremult (CoglBitmap *dst_bmp,
                         GError **error);
@@ -146,11 +141,6 @@ _cogl_bitmap_copy_subregion (CoglBitmap *src,
 CoglBitmap *
 _cogl_bitmap_copy (CoglBitmap *src_bmp,
                    GError **error);
-
-gboolean
-_cogl_bitmap_get_size_from_file (const char *filename,
-                                 int        *width,
-                                 int        *height);
 
 void
 _cogl_bitmap_set_format (CoglBitmap *bitmap,

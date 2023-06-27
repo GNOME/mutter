@@ -956,28 +956,6 @@ cogl_atlas_texture_new_from_data (CoglContext *ctx,
   return atlas_tex;
 }
 
-CoglAtlasTexture *
-cogl_atlas_texture_new_from_file (CoglContext *ctx,
-                                  const char *filename,
-                                  GError **error)
-{
-  CoglBitmap *bmp;
-  CoglAtlasTexture *atlas_tex = NULL;
-
-  g_return_val_if_fail (error == NULL || *error == NULL, NULL);
-
-  bmp = cogl_bitmap_new_from_file (filename, error);
-  if (bmp == NULL)
-    return NULL;
-
-  atlas_tex = _cogl_atlas_texture_new_from_bitmap (bmp,
-                                                   TRUE); /* convert in-place */
-
-  cogl_object_unref (bmp);
-
-  return atlas_tex;
-}
-
 void
 _cogl_atlas_texture_add_reorganize_callback (CoglContext *ctx,
                                              GHookFunc callback,

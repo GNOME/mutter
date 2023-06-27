@@ -230,7 +230,6 @@ cogl_sources = [
   'cogl-bitmap-packing.h',
   'cogl-primitives-private.h',
   'cogl-primitives.c',
-  'cogl-bitmap-pixbuf.c',
   'cogl-clip-stack.h',
   'cogl-clip-stack.c',
   'cogl-feature-private.h',

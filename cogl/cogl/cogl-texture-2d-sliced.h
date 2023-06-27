@@ -122,52 +122,6 @@ cogl_texture_2d_sliced_new_with_size (CoglContext *ctx,
                                       int max_waste);
 
 /**
- * cogl_texture_2d_sliced_new_from_file: (skip)
- * @ctx: A #CoglContext
- * @filename: the file to load
- * @max_waste: The threshold of how wide a strip of wasted texels
- *             are allowed along the right and bottom textures before
- *             they must be sliced to reduce the amount of waste. A
- *             negative can be passed to disable slicing.
- * @error: A #GError to catch exceptional errors or %NULL
- *
- * Creates a #CoglTexture2DSliced from an image file.
- *
- * A #CoglTexture2DSliced may internally be comprised of 1 or more
- * #CoglTexture2D textures depending on GPU limitations.  For example
- * if the GPU only supports power-of-two sized textures then a sliced
- * texture will turn a non-power-of-two size into a combination of
- * smaller power-of-two sized textures. If the requested texture size
- * is larger than is supported by the hardware then the texture will
- * be sliced into smaller textures that can be accessed by the
- * hardware.
- *
- * @max_waste is used as a threshold for recursively slicing the
- * right-most or bottom-most slices into smaller sizes until the
- * wasted padding at the bottom and right of the textures is less than
- * specified. A negative @max_waste will disable slicing.
- *
- * The storage for the texture is not allocated before this function
- * returns. You can call cogl_texture_allocate() to explicitly
- * allocate the underlying storage or let Cogl automatically allocate
- * storage lazily.
- *
- * <note>It's possible for the allocation of a sliced texture to fail
- * later due to impossible slicing constraints if a negative
- * @max_waste value is given. If the given virtual texture size is
- * larger than is supported by the hardware but slicing is disabled
- * the texture size would be too large to handle.</note>
- *
- * Return value: (transfer full): A newly created #CoglTexture2DSliced
- *               or %NULL on failure and @error will be updated.
- */
-COGL_EXPORT CoglTexture2DSliced *
-cogl_texture_2d_sliced_new_from_file (CoglContext *ctx,
-                                      const char *filename,
-                                      int max_waste,
-                                      GError **error);
-
-/**
  * cogl_texture_2d_sliced_new_from_data: (skip)
  * @ctx: A #CoglContext
  * @width: width of texture in pixels

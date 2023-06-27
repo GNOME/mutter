@@ -4,6 +4,7 @@
 #include <clutter/clutter.h>
 #include <cogl/cogl.h>
 
+#include "clutter/test-utils.h"
 #include "tests/clutter-test-utils.h"
 
 /* Coglbox declaration
@@ -233,7 +234,7 @@ test_coglbox_init (TestCoglbox *self)
 
   printf ("Loading redhand.png\n");
   file = g_build_filename (TESTS_DATADIR, "redhand.png", NULL);
-  self->texhand_id = cogl_texture_2d_new_from_file (ctx, file, &error);
+  self->texhand_id = clutter_test_texture_2d_new_from_file (ctx, file, &error);
   if (error)
     g_warning ("Error loading redhand.png: %s", error->message);
   g_free (file);

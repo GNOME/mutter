@@ -9,6 +9,7 @@
 #include <clutter/clutter.h>
 #include <cogl/cogl.h>
 
+#include "clutter/test-utils.h"
 #include "tests/clutter-test-utils.h"
 
 typedef struct _TestMultiLayerPipelineState
@@ -152,19 +153,19 @@ test_cogl_multitexture_main (int argc, char *argv[])
   files[3] = NULL;
 
   ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
-  state->alpha_tex = cogl_texture_2d_new_from_file (ctx, files[0], &error);
+  state->alpha_tex = clutter_test_texture_2d_new_from_file (ctx, files[0], &error);
   if (!state->alpha_tex)
     g_critical ("Failed to load redhand_alpha.png: %s", error->message);
 
-  state->redhand_tex = cogl_texture_2d_new_from_file (ctx, files[1], &error);
+  state->redhand_tex = clutter_test_texture_2d_new_from_file (ctx, files[1], &error);
   if (!state->redhand_tex)
     g_critical ("Failed to load redhand.png: %s", error->message);
 
-  state->light_tex0 = cogl_texture_2d_new_from_file (ctx, files[2], &error);
+  state->light_tex0 = clutter_test_texture_2d_new_from_file (ctx, files[2], &error);
   if (!state->light_tex0)
     g_critical ("Failed to load light0.png: %s", error->message);
 
-  state->light_tex1 = cogl_texture_2d_new_from_file (ctx, files[2], &error);
+  state->light_tex1 = clutter_test_texture_2d_new_from_file (ctx, files[2], &error);
   if (!state->light_tex1)
     g_critical ("Failed to load light0.png: %s", error->message);
 

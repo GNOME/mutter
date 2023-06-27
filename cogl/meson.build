@@ -24,7 +24,6 @@ cogl_pkg_deps = [
 cogl_pkg_private_deps = [
   cairo_dep,
   gmodule_no_export_dep,
-  gdk_pixbuf_dep,
   libmutter_mtk_dep,
   #uprof_dep,
 ]

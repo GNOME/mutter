@@ -5,6 +5,7 @@
 #include <glib.h>
 #include <gmodule.h>
 
+#include "clutter/test-utils.h"
 #include "tests/clutter-test-utils.h"
 
 typedef struct
@@ -326,7 +327,7 @@ test_cogl_shader_glsl_main (int argc, char *argv[])
 
   file = g_build_filename (TESTS_DATADIR, "redhand.png", NULL);
   error = NULL;
-  redhand = cogl_texture_2d_new_from_file (ctx, file, &error);
+  redhand = clutter_test_texture_2d_new_from_file (ctx, file, &error);
   if (redhand == NULL)
     g_error ("image load failed: %s", error->message);
 

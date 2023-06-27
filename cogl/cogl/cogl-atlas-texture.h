@@ -112,42 +112,6 @@ cogl_atlas_texture_new_with_size (CoglContext *ctx,
                                   int height);
 
 /**
- * cogl_atlas_texture_new_from_file:
- * @ctx: A #CoglContext
- * @filename: the file to load
- * @error: A #GError to catch exceptional errors or %NULL
- *
- * Creates a #CoglAtlasTexture from an image file. A #CoglAtlasTexture
- * represents a sub-region within one of Cogl's shared texture
- * atlases.
- *
- * The storage for the texture is not allocated before this function
- * returns. You can call cogl_texture_allocate() to explicitly
- * allocate the underlying storage or let Cogl automatically allocate
- * storage lazily.
- *
- * The texture is still configurable until it has been allocated so
- * for example you can influence the internal format of the texture
- * using cogl_texture_set_components() and
- * cogl_texture_set_premultiplied().
- *
- * <note>Allocate call can fail if Cogl considers the internal
- * format to be incompatible with the format of its internal
- * atlases.</note>
- *
- * <note>The returned #CoglAtlasTexture is a high-level meta-texture
- * with some limitations. See the documentation for #CoglMetaTexture
- * for more details.</note>
- *
- * Return value: (transfer full): A new #CoglAtlasTexture object or
- *          %NULL on failure and @error will be updated.
- */
-COGL_EXPORT CoglAtlasTexture *
-cogl_atlas_texture_new_from_file (CoglContext *ctx,
-                                  const char *filename,
-                                  GError **error);
-
-/**
  * cogl_atlas_texture_new_from_data:
  * @ctx: A #CoglContext
  * @width: width of texture in pixels

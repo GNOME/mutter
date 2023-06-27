@@ -165,14 +165,6 @@ _cogl_bitmap_copy_subregion (CoglBitmap *src,
   return succeeded;
 }
 
-gboolean
-cogl_bitmap_get_size_from_file (const char *filename,
-                                int        *width,
-                                int        *height)
-{
-  return _cogl_bitmap_get_size_from_file (filename, width, height);
-}
-
 CoglBitmap *
 cogl_bitmap_new_for_data (CoglContext *context,
                           int width,
@@ -265,18 +257,6 @@ _cogl_bitmap_new_shared (CoglBitmap              *shared_bmp,
   bmp->shared_bmp = cogl_object_ref (shared_bmp);
 
   return bmp;
-}
-
-CoglBitmap *
-cogl_bitmap_new_from_file (const char *filename,
-                           GError **error)
-{
-  _COGL_GET_CONTEXT (ctx, NULL);
-
-  g_return_val_if_fail (filename != NULL, NULL);
-  g_return_val_if_fail (error == NULL || *error == NULL, NULL);
-
-  return _cogl_bitmap_from_file (ctx, filename, error);
 }
 
 CoglBitmap *
