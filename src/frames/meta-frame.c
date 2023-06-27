@@ -446,10 +446,10 @@ frame_sync_wm_normal_hints (GtkWindow *frame,
 
   gdk_x11_display_error_trap_push (display);
 
-  if (XGetWMNormalHints (gdk_x11_display_get_xdisplay (display),
-                         client_window,
-                         &size_hints,
-                         &nitems) != Success)
+  if (!XGetWMNormalHints (gdk_x11_display_get_xdisplay (display),
+                          client_window,
+                          &size_hints,
+                          &nitems))
     {
       gdk_x11_display_error_trap_pop_ignored (display);
       return;
