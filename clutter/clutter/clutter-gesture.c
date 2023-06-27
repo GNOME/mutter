@@ -121,6 +121,7 @@ typedef struct _ClutterGesturePrivate ClutterGesturePrivate;
 struct _ClutterGesturePrivate
 {
   GArray *sequences;
+  GPtrArray *stage_all_active_gestures;
 
   unsigned int latest_index;
 
@@ -390,9 +391,54 @@ out:
 }
 
 static gboolean
+other_gesture_allowed_to_start (ClutterGesture *self,
+                                ClutterGesture *other_gesture)
+{
+  /* Only a single gesture can be recognizing globally at a time */
+  return FALSE;
+}
+
+static gboolean
+new_gesture_allowed_to_start (ClutterGesture *self)
+{
+  ClutterGesturePrivate *priv = clutter_gesture_get_instance_private (self);
+  unsigned int i;
+
+  for (i = 0; i < priv->stage_all_active_gestures->len; i++)
+    {
+      ClutterGesture *existing_gesture =
+        g_ptr_array_index (priv->stage_all_active_gestures, i);
+      ClutterGesturePrivate *other_priv =
+        clutter_gesture_get_instance_private (existing_gesture);
+
+      if (existing_gesture == self)
+        continue;
+
+      /* For gestures in relationship we have different APIs */
+      if (g_hash_table_contains (other_priv->in_relationship_with, self))
+        continue;
+
+      if (other_priv->state == CLUTTER_GESTURE_STATE_RECOGNIZING)
+        {
+          if (!other_gesture_allowed_to_start (existing_gesture, self))
+            return FALSE;
+        }
+    }
+
+  return TRUE;
+}
+
+static gboolean
 gesture_may_start (ClutterGesture *self)
 {
   gboolean may_recognize;
+
+  if (!new_gesture_allowed_to_start (self))
+    {
+      debug_message (self,
+                    "gesture may not recognize, another gesture is already running");
+      return FALSE;
+    }
 
   g_signal_emit (self, obj_signals[MAY_RECOGNIZE], 0, &may_recognize);
   if (!may_recognize)
@@ -403,6 +449,40 @@ gesture_may_start (ClutterGesture *self)
     }
 
   return TRUE;
+}
+
+static void
+maybe_cancel_independent_gestures (ClutterGesture *self)
+{
+  ClutterGesturePrivate *priv = clutter_gesture_get_instance_private (self);
+  int i;
+
+  g_assert (priv->stage_all_active_gestures != NULL);
+
+  for (i = priv->stage_all_active_gestures->len - 1; i >= 0; i--)
+    {
+      if (i >= priv->stage_all_active_gestures->len)
+        continue;
+
+      ClutterGesture *other_gesture =
+        g_ptr_array_index (priv->stage_all_active_gestures, i);
+      ClutterGesturePrivate *other_priv =
+        clutter_gesture_get_instance_private (other_gesture);
+
+      if (other_gesture == self)
+        continue;
+
+      /* For gestures in relationship we have different APIs */
+      if (g_hash_table_contains (priv->in_relationship_with, other_gesture))
+        continue;
+
+      if (other_priv->state == CLUTTER_GESTURE_STATE_POSSIBLE &&
+          !other_gesture_allowed_to_start (self, other_gesture))
+        {
+          debug_message (self, "Cancelling independent gesture in POSSIBLE on recognize");
+          set_state_authoritative (other_gesture, CLUTTER_GESTURE_STATE_CANCELLED);
+        }
+    }
 }
 
 static void
@@ -445,6 +525,29 @@ set_state (ClutterGesture      *self,
       break;
     }
 
+  if (priv->state == CLUTTER_GESTURE_STATE_WAITING)
+    {
+      if (new_state == CLUTTER_GESTURE_STATE_POSSIBLE)
+        {
+          if (!priv->stage_all_active_gestures)
+            {
+              ClutterActor *actor;
+              ClutterStage *stage;
+
+              actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (self));
+              g_assert (actor);
+
+              stage = CLUTTER_STAGE (clutter_actor_get_stage (actor));
+              g_assert (stage);
+
+              priv->stage_all_active_gestures =
+                clutter_stage_get_active_gestures_array (stage);
+            }
+
+          g_ptr_array_add (priv->stage_all_active_gestures, self);
+        }
+    }
+
   if (priv->state == CLUTTER_GESTURE_STATE_POSSIBLE)
     {
       if (new_state == CLUTTER_GESTURE_STATE_RECOGNIZING ||
@@ -465,36 +568,44 @@ set_state (ClutterGesture      *self,
        new_state == CLUTTER_GESTURE_STATE_COMPLETED))
     {
       ClutterActor *actor;
+      ClutterStage *stage;
+      unsigned int i;
 
       actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (self));
-      if (actor)
+      g_assert (actor);
+
+      stage = CLUTTER_STAGE (clutter_actor_get_stage (actor));
+      g_assert (stage);
+
+      for (i = 0; i < priv->sequences->len; i++)
         {
-          ClutterStage *stage = CLUTTER_STAGE (clutter_actor_get_stage (actor));
+          GestureSequenceData *seq_data =
+            &g_array_index (priv->sequences, GestureSequenceData, i);
 
-          if (stage)
-            {
-              unsigned int i;
+          if (seq_data->ended)
+            continue;
 
-              for (i = 0; i < priv->sequences->len; i++)
-                {
-                  GestureSequenceData *seq_data =
-                    &g_array_index (priv->sequences, GestureSequenceData, i);
-
-                  if (seq_data->ended)
-                    continue;
-
-                  clutter_stage_notify_action_implicit_grab (stage,
-                                                             seq_data->device,
-                                                             seq_data->sequence);
-                }
-            }
+          clutter_stage_notify_action_implicit_grab (stage,
+                                                     seq_data->device,
+                                                     seq_data->sequence);
         }
+
+      /* Cancel gestures that are independent of ours and still in POSSIBLE:
+       * That's to prevent subtle UI bugs like a click gesture preemptively
+       * applying "pressed" style to a widget even though it most likely won't
+       * recognize anyway.
+       */
+      maybe_cancel_independent_gestures (self);
     }
 
   if (new_state == CLUTTER_GESTURE_STATE_WAITING)
     {
+      gboolean removed;
       GHashTableIter iter;
       ClutterGesture *other_gesture;
+
+      removed = g_ptr_array_remove (priv->stage_all_active_gestures, self);
+      g_assert (removed);
 
       g_array_set_size (priv->sequences, 0);
 
@@ -503,7 +614,6 @@ set_state (ClutterGesture      *self,
         {
           ClutterGesturePrivate *other_priv =
             clutter_gesture_get_instance_private (other_gesture);
-          gboolean removed;
 
           removed = g_hash_table_remove (other_priv->in_relationship_with, self);
           g_assert (removed);
@@ -643,8 +753,7 @@ clutter_gesture_real_sequences_cancelled (ClutterGesture *self,
                                           unsigned int   *sequences,
                                           unsigned int    n_sequences)
 {
-  if (clutter_gesture_get_n_points (self) == n_sequences)
-    set_state_authoritative (self, CLUTTER_GESTURE_STATE_CANCELLED);
+  set_state_authoritative (self, CLUTTER_GESTURE_STATE_CANCELLED);
 }
 
 static void
@@ -752,6 +861,7 @@ clutter_gesture_handle_event (ClutterAction      *action,
   g_assert (priv->state != CLUTTER_GESTURE_STATE_WAITING);
 
   is_first_event = !seq_data->seen;
+
   should_emit =
     priv->state == CLUTTER_GESTURE_STATE_POSSIBLE ||
     priv->state == CLUTTER_GESTURE_STATE_RECOGNIZING;
@@ -767,6 +877,34 @@ clutter_gesture_handle_event (ClutterAction      *action,
       seq_data->n_buttons_pressed--;
       if (seq_data->n_buttons_pressed >= 1)
         may_remove_point = should_emit = FALSE;
+    }
+
+  if (priv->state == CLUTTER_GESTURE_STATE_POSSIBLE &&
+      priv->sequences->len == 1 && is_first_event)
+    {
+      /* We cancel independent gestures that are in POSSIBLE when a gesture is
+       * moving to RECOGNIZING, see maybe_cancel_independent_gestures().
+       *
+       * The other half of this behavior is implemented here: Bailing out
+       * on the first event and moving to CANCELLED when an independent one
+       * is already RECOGNIZING.
+       *
+       * Note that we could also return FALSE in register_sequence(), but this
+       * would mean we could't track the sequence and remain in CANCELLED until
+       * the sequence ends. We could also move to CANCELLED in register_sequence()
+       * while still returning TRUE, but then we'd be moving to CANCELLED before
+       * the influencing is fully set-up. So we do in the handle_event() stage
+       * instead.
+       */
+      if (!new_gesture_allowed_to_start (self))
+        {
+          debug_message (self,
+                         "Cancelling gesture on first event, another gesture is "
+                         "already running");
+
+          set_state_authoritative (self, CLUTTER_GESTURE_STATE_CANCELLED);
+          return CLUTTER_EVENT_PROPAGATE;
+        }
     }
 
   if (should_emit)
@@ -1011,6 +1149,9 @@ clutter_gesture_set_actor (ClutterActorMeta *meta,
       cancel_all_points (self);
     }
 
+  if (!actor)
+    priv->stage_all_active_gestures = NULL;
+
   CLUTTER_ACTOR_META_CLASS (clutter_gesture_parent_class)->set_actor (meta, actor);
 }
 
@@ -1085,11 +1226,16 @@ clutter_gesture_finalize (GObject *gobject)
 
   if (priv->state != CLUTTER_GESTURE_STATE_WAITING)
     {
+      gboolean removed;
+
       g_warning ("gesture <%s> [<%s>:%p]: Finalizing while in active state (%s), "
                  "implementation didn't move the gesture to an end state.",
                  clutter_actor_meta_get_name (CLUTTER_ACTOR_META (self)),
                  G_OBJECT_TYPE_NAME (self), self,
                  state_to_string[priv->state]);
+
+      removed = g_ptr_array_remove (priv->stage_all_active_gestures, self);
+      g_assert (removed);
     }
 
   g_array_unref (priv->sequences);
