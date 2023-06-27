@@ -40,7 +40,6 @@ clutter_pkg_deps = [
 
 clutter_pkg_private_deps = [
   fribidi_dep,
-  gdk_pixbuf_dep,
   gthread_dep,
   gmodule_no_export_dep,
   pangocairo_dep,
