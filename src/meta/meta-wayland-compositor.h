@@ -22,7 +22,6 @@
 
 #include <glib-object.h>
 #include <gio/gio.h>
-#include <wayland-server.h>
 
 #include "meta/meta-context.h"
 
