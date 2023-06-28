@@ -170,7 +170,6 @@ typedef struct _CoglTextureLoader
       CoglBitmap *bitmap;
       int height; /* for 3d textures */
       int depth; /* for 3d textures */
-      gboolean can_convert_in_place;
     } bitmap;
 #if defined (COGL_HAS_EGL_SUPPORT) && defined (EGL_KHR_image_base)
     struct {

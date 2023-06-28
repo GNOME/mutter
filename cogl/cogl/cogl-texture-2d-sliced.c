@@ -896,7 +896,6 @@ cogl_texture_2d_sliced_new_from_bitmap (CoglBitmap *bmp,
   loader = _cogl_texture_create_loader ();
   loader->src_type = COGL_TEXTURE_SOURCE_TYPE_BITMAP;
   loader->src.bitmap.bitmap = cogl_object_ref (bmp);
-  loader->src.bitmap.can_convert_in_place = FALSE;
 
   return _cogl_texture_2d_sliced_create_base (_cogl_bitmap_get_context (bmp),
                                               cogl_bitmap_get_width (bmp),
@@ -987,7 +986,6 @@ allocate_from_bitmap (CoglTexture2DSliced *tex_2ds,
   CoglBitmap *bmp = loader->src.bitmap.bitmap;
   int width = cogl_bitmap_get_width (bmp);
   int height = cogl_bitmap_get_height (bmp);
-  gboolean can_convert_in_place = loader->src.bitmap.can_convert_in_place;
   CoglPixelFormat internal_format;
   CoglBitmap *upload_bmp;
 
@@ -999,7 +997,6 @@ allocate_from_bitmap (CoglTexture2DSliced *tex_2ds,
 
   upload_bmp = _cogl_bitmap_convert_for_upload (bmp,
                                                 internal_format,
-                                                can_convert_in_place,
                                                 error);
   if (upload_bmp == NULL)
     return FALSE;
@@ -1249,8 +1246,6 @@ _cogl_texture_2d_sliced_set_region (CoglTexture *tex,
 
   upload_bmp = _cogl_bitmap_convert_for_upload (bmp,
                                                 _cogl_texture_get_format (tex),
-                                                FALSE, /* can't convert in
-                                                          place */
                                                 error);
   if (!upload_bmp)
     return FALSE;

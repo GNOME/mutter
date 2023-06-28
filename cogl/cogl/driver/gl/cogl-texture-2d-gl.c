@@ -197,7 +197,6 @@ allocate_from_bitmap (CoglTexture2D *tex_2d,
   CoglPixelFormat internal_format;
   int width = cogl_bitmap_get_width (bmp);
   int height = cogl_bitmap_get_height (bmp);
-  gboolean can_convert_in_place = loader->src.bitmap.can_convert_in_place;
   CoglBitmap *upload_bmp;
   GLenum gl_intformat;
   GLenum gl_format;
@@ -220,7 +219,6 @@ allocate_from_bitmap (CoglTexture2D *tex_2d,
 
   upload_bmp = _cogl_bitmap_convert_for_upload (bmp,
                                                 internal_format,
-                                                can_convert_in_place,
                                                 error);
   if (upload_bmp == NULL)
     return FALSE;
@@ -577,7 +575,6 @@ _cogl_texture_2d_gl_copy_from_bitmap (CoglTexture2D *tex_2d,
   upload_bmp =
     _cogl_bitmap_convert_for_upload (bmp,
                                      _cogl_texture_get_format (tex),
-                                     FALSE, /* can't convert in place */
                                      error);
   if (upload_bmp == NULL)
     return FALSE;

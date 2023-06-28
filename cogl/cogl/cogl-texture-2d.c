@@ -169,7 +169,6 @@ cogl_texture_2d_new_from_bitmap (CoglBitmap *bmp)
   loader = _cogl_texture_create_loader ();
   loader->src_type = COGL_TEXTURE_SOURCE_TYPE_BITMAP;
   loader->src.bitmap.bitmap = cogl_object_ref (bmp);
-  loader->src.bitmap.can_convert_in_place = FALSE;
 
   return  _cogl_texture_2d_create_base (_cogl_bitmap_get_context (bmp),
                                         cogl_bitmap_get_width (bmp),
