@@ -182,9 +182,7 @@ clutter_colorize_effect_class_init (ClutterColorizeEffectClass *klass)
    * The tint to apply to the actor
    */
   obj_props[PROP_TINT] =
-    clutter_param_spec_color ("tint",
-                              P_("Tint"),
-                              P_("The tint to apply"),
+    clutter_param_spec_color ("tint", NULL, NULL,
                               &default_tint,
                               CLUTTER_PARAM_READWRITE);
 

@@ -1790,9 +1790,7 @@ meta_wayland_surface_class_init (MetaWaylandSurfaceClass *klass)
   object_class->get_property = meta_wayland_surface_get_property;
 
   obj_props[PROP_SCANOUT_CANDIDATE] =
-    g_param_spec_object ("scanout-candidate",
-                         "scanout-candidate",
-                         "Scanout candidate for given CRTC",
+    g_param_spec_object ("scanout-candidate", NULL, NULL,
                          META_TYPE_CRTC,
                          G_PARAM_READABLE |
                          G_PARAM_STATIC_STRINGS);
@@ -1910,9 +1908,7 @@ meta_wayland_surface_role_class_init (MetaWaylandSurfaceRoleClass *klass)
 
   g_object_class_install_property (object_class,
                                    SURFACE_ROLE_PROP_SURFACE,
-                                   g_param_spec_object ("surface",
-                                                        "MetaWaylandSurface",
-                                                        "The MetaWaylandSurface instance",
+                                   g_param_spec_object ("surface", NULL, NULL,
                                                         META_TYPE_WAYLAND_SURFACE,
                                                         G_PARAM_READWRITE |
                                                         G_PARAM_CONSTRUCT_ONLY |

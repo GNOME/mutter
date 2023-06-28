@@ -791,9 +791,7 @@ clutter_timeline_class_init (ClutterTimelineClass *klass)
    * clock will drive it.
    */
   obj_props[PROP_ACTOR] =
-    g_param_spec_object ("actor",
-                         P_("Actor"),
-                         P_("Associated ClutterActor"),
+    g_param_spec_object ("actor", NULL, NULL,
                          CLUTTER_TYPE_ACTOR,
                          G_PARAM_CONSTRUCT | CLUTTER_PARAM_READWRITE);
   /**
@@ -803,9 +801,7 @@ clutter_timeline_class_init (ClutterTimelineClass *klass)
    * timeline before actually starting.
    */
   obj_props[PROP_DELAY] =
-    g_param_spec_uint ("delay",
-                       P_("Delay"),
-                       P_("Delay before start"),
+    g_param_spec_uint ("delay", NULL, NULL,
                        0, G_MAXUINT,
                        0,
                        CLUTTER_PARAM_READWRITE);
@@ -817,9 +813,7 @@ clutter_timeline_class_init (ClutterTimelineClass *klass)
    * [property@Timeline:frame-clock] value.
    */
   obj_props[PROP_DURATION] =
-    g_param_spec_uint ("duration",
-                       P_("Duration"),
-                       P_("Duration of the timeline in milliseconds"),
+    g_param_spec_uint ("duration", NULL, NULL,
                        0, G_MAXUINT,
                        1000,
                        CLUTTER_PARAM_READWRITE);
@@ -831,9 +825,7 @@ clutter_timeline_class_init (ClutterTimelineClass *klass)
    * %CLUTTER_TIMELINE_BACKWARD.
    */
   obj_props[PROP_DIRECTION] =
-    g_param_spec_enum ("direction",
-                       P_("Direction"),
-                       P_("Direction of the timeline"),
+    g_param_spec_enum ("direction", NULL, NULL,
                        CLUTTER_TYPE_TIMELINE_DIRECTION,
                        CLUTTER_TIMELINE_FORWARD,
                        CLUTTER_PARAM_READWRITE);
@@ -845,9 +837,7 @@ clutter_timeline_class_init (ClutterTimelineClass *klass)
    * when reaching the end.
    */
   obj_props[PROP_AUTO_REVERSE] =
-    g_param_spec_boolean ("auto-reverse",
-                          P_("Auto Reverse"),
-                          P_("Whether the direction should be reversed when reaching the end"),
+    g_param_spec_boolean ("auto-reverse", NULL, NULL,
                           FALSE,
                           CLUTTER_PARAM_READWRITE);
 
@@ -862,9 +852,7 @@ clutter_timeline_class_init (ClutterTimelineClass *klass)
    * stopped.
    */
   obj_props[PROP_REPEAT_COUNT] =
-    g_param_spec_int ("repeat-count",
-                      P_("Repeat Count"),
-                      P_("How many times the timeline should repeat"),
+    g_param_spec_int ("repeat-count", NULL, NULL,
                       -1, G_MAXINT,
                       0,
                       CLUTTER_PARAM_READWRITE);
@@ -875,9 +863,7 @@ clutter_timeline_class_init (ClutterTimelineClass *klass)
    * Controls the way a #ClutterTimeline computes the normalized progress.
    */
   obj_props[PROP_PROGRESS_MODE] =
-    g_param_spec_enum ("progress-mode",
-                       P_("Progress Mode"),
-                       P_("How the timeline should compute the progress"),
+    g_param_spec_enum ("progress-mode", NULL, NULL,
                        CLUTTER_TYPE_ANIMATION_MODE,
                        CLUTTER_LINEAR,
                        CLUTTER_PARAM_READWRITE);
@@ -888,9 +874,7 @@ clutter_timeline_class_init (ClutterTimelineClass *klass)
    * The frame clock driving the timeline.
    */
   obj_props[PROP_FRAME_CLOCK] =
-    g_param_spec_object ("frame-clock",
-                         "Frame clock",
-                         "Frame clock driving the timeline",
+    g_param_spec_object ("frame-clock", NULL, NULL,
                          CLUTTER_TYPE_FRAME_CLOCK,
                          G_PARAM_CONSTRUCT | CLUTTER_PARAM_READWRITE);
 

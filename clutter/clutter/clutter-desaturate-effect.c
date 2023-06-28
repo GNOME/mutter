@@ -199,9 +199,7 @@ clutter_desaturate_effect_class_init (ClutterDesaturateEffectClass *klass)
    * desaturation).
    */
   obj_props[PROP_FACTOR] =
-    g_param_spec_double ("factor",
-                         P_("Factor"),
-                         P_("The desaturation factor"),
+    g_param_spec_double ("factor", NULL, NULL,
                          0.0, 1.0,
                          1.0,
                          CLUTTER_PARAM_READWRITE);

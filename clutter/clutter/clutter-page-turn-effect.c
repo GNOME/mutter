@@ -215,9 +215,7 @@ clutter_page_turn_effect_class_init (ClutterPageTurnEffectClass *klass)
    * The period of the page turn, between 0.0 (no curling) and
    * 1.0 (fully curled)
    */
-  pspec = g_param_spec_double ("period",
-                               "Period",
-                               "The period of the page turn",
+  pspec = g_param_spec_double ("period", NULL, NULL,
                                0.0, 1.0,
                                0.0,
                                CLUTTER_PARAM_READWRITE);
@@ -229,9 +227,7 @@ clutter_page_turn_effect_class_init (ClutterPageTurnEffectClass *klass)
    *
    * The angle of the page rotation, in degrees, between 0.0 and 360.0
    */
-  pspec = g_param_spec_double ("angle",
-                               "Angle",
-                               "The angle of the page rotation, in degrees",
+  pspec = g_param_spec_double ("angle", NULL, NULL,
                                0.0, 360.0,
                                0.0,
                                CLUTTER_PARAM_READWRITE);
@@ -243,9 +239,7 @@ clutter_page_turn_effect_class_init (ClutterPageTurnEffectClass *klass)
    *
    * The radius of the page curl, in pixels
    */
-  pspec = g_param_spec_float ("radius",
-                              "Radius",
-                              "The radius of the page curl",
+  pspec = g_param_spec_float ("radius", NULL, NULL,
                               -G_MAXFLOAT, G_MAXFLOAT,
                               24.0,
                               CLUTTER_PARAM_READWRITE);

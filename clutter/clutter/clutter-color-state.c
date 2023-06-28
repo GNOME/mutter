@@ -150,9 +150,7 @@ clutter_color_state_class_init (ClutterColorStateClass *klass)
    * defaults to sRGB colorspace
    */
   obj_props[PROP_COLORSPACE] =
-    g_param_spec_enum ("colorspace",
-                       P_("Colorspace"),
-                       P_("Colorspace information of the color state"),
+    g_param_spec_enum ("colorspace", NULL, NULL,
                        CLUTTER_TYPE_COLORSPACE,
                        CLUTTER_COLORSPACE_SRGB,
                        CLUTTER_PARAM_READWRITE |

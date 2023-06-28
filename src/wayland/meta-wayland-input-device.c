@@ -119,9 +119,7 @@ meta_wayland_input_device_class_init (MetaWaylandInputDeviceClass *klass)
   object_class->set_property = meta_wayland_input_device_set_property;
   object_class->get_property = meta_wayland_input_device_get_property;
 
-  pspec = g_param_spec_pointer ("seat",
-                                "MetaWaylandSeat",
-                                "The seat",
+  pspec = g_param_spec_pointer ("seat", NULL, NULL,
                                 G_PARAM_READWRITE |
                                 G_PARAM_STATIC_STRINGS |
                                 G_PARAM_CONSTRUCT_ONLY);

@@ -289,9 +289,7 @@ clutter_align_constraint_class_init (ClutterAlignConstraintClass *klass)
    * using the constraint.
    */
   obj_props[PROP_SOURCE] =
-    g_param_spec_object ("source",
-                           P_("Source"),
-                           P_("The source of the alignment"),
+    g_param_spec_object ("source", NULL, NULL,
                            CLUTTER_TYPE_ACTOR,
                            CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT);
 
@@ -301,9 +299,7 @@ clutter_align_constraint_class_init (ClutterAlignConstraintClass *klass)
    * The axis to be used to compute the alignment
    */
   obj_props[PROP_ALIGN_AXIS] =
-    g_param_spec_enum ("align-axis",
-                       P_("Align Axis"),
-                       P_("The axis to align the position to"),
+    g_param_spec_enum ("align-axis", NULL, NULL,
                        CLUTTER_TYPE_ALIGN_AXIS,
                        CLUTTER_ALIGN_X_AXIS,
                        CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT);
@@ -325,9 +321,7 @@ clutter_align_constraint_class_init (ClutterAlignConstraintClass *klass)
    * the source actor.
    */
   obj_props[PROP_PIVOT_POINT] =
-    g_param_spec_boxed ("pivot-point",
-                       P_("Pivot point"),
-                       P_("The pivot point"),
+    g_param_spec_boxed ("pivot-point", NULL, NULL,
                        GRAPHENE_TYPE_POINT,
                        G_PARAM_READWRITE |
                        G_PARAM_STATIC_STRINGS);
@@ -343,9 +337,7 @@ clutter_align_constraint_class_init (ClutterAlignConstraintClass *klass)
    * and 1.0 means bottom.
    */
   obj_props[PROP_FACTOR] =
-    g_param_spec_float ("factor",
-                        P_("Factor"),
-                        P_("The alignment factor, between 0.0 and 1.0"),
+    g_param_spec_float ("factor", NULL, NULL,
                         0.0, 1.0,
                         0.0,
                         CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT);

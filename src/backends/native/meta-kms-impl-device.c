@@ -1935,33 +1935,25 @@ meta_kms_impl_device_class_init (MetaKmsImplDeviceClass *klass)
   object_class->finalize = meta_kms_impl_device_finalize;
 
   obj_props[PROP_DEVICE] =
-    g_param_spec_object ("device",
-                         "device",
-                         "MetaKmsDevice",
+    g_param_spec_object ("device", NULL, NULL,
                          META_TYPE_KMS_DEVICE,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
   obj_props[PROP_IMPL] =
-    g_param_spec_object ("impl",
-                         "impl",
-                         "MetaKmsImpl",
+    g_param_spec_object ("impl", NULL, NULL,
                          META_TYPE_KMS_IMPL,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
   obj_props[PROP_PATH] =
-    g_param_spec_string ("path",
-                         "path",
-                         "Device path",
+    g_param_spec_string ("path", NULL, NULL,
                          NULL,
                          G_PARAM_WRITABLE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
   obj_props[PROP_FLAGS] =
-    g_param_spec_flags ("flags",
-                        "flags",
-                        "KMS impl device flags",
+    g_param_spec_flags ("flags", NULL, NULL,
                         META_TYPE_KMS_DEVICE_FLAG,
                         META_KMS_DEVICE_FLAG_NONE,
                         G_PARAM_READWRITE |

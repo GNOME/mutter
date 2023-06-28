@@ -208,27 +208,21 @@ meta_dbus_session_default_init (MetaDbusSessionInterface *iface)
 {
   g_object_interface_install_property (
     iface,
-    g_param_spec_object ("session-manager",
-                         "session manager",
-                         "D-Bus session manager",
+    g_param_spec_object ("session-manager", NULL, NULL,
                          META_TYPE_DBUS_SESSION_MANAGER,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS));
   g_object_interface_install_property (
     iface,
-    g_param_spec_string ("peer-name",
-                         "peer name",
-                         "D-Bus peer name",
+    g_param_spec_string ("peer-name", NULL, NULL,
                          NULL,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS));
   g_object_interface_install_property (
     iface,
-    g_param_spec_string ("id",
-                         "session id",
-                         "Unique ID of the session",
+    g_param_spec_string ("id", NULL, NULL,
                          NULL,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |

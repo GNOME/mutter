@@ -206,9 +206,7 @@ clutter_actor_meta_class_init (ClutterActorMetaClass *klass)
    * The #ClutterActor attached to the #ClutterActorMeta instance
    */
   obj_props[PROP_ACTOR] =
-    g_param_spec_object ("actor",
-                         P_("Actor"),
-                         P_("The actor attached to the meta"),
+    g_param_spec_object ("actor", NULL, NULL,
                          CLUTTER_TYPE_ACTOR,
                          CLUTTER_PARAM_READABLE |
                          G_PARAM_EXPLICIT_NOTIFY);
@@ -219,9 +217,7 @@ clutter_actor_meta_class_init (ClutterActorMetaClass *klass)
    * The unique name to access the #ClutterActorMeta
    */
   obj_props[PROP_NAME] =
-    g_param_spec_string ("name",
-                         P_("Name"),
-                         P_("The name of the meta"),
+    g_param_spec_string ("name", NULL, NULL,
                          NULL,
                          CLUTTER_PARAM_READWRITE);
 
@@ -231,9 +227,7 @@ clutter_actor_meta_class_init (ClutterActorMetaClass *klass)
    * Whether or not the #ClutterActorMeta is enabled
    */
   obj_props[PROP_ENABLED] =
-    g_param_spec_boolean ("enabled",
-                          P_("Enabled"),
-                          P_("Whether the meta is enabled"),
+    g_param_spec_boolean ("enabled", NULL, NULL,
                           TRUE,
                           CLUTTER_PARAM_READWRITE);
 

@@ -404,9 +404,7 @@ meta_screen_cast_stream_class_init (MetaScreenCastStreamClass *klass)
 
   g_object_class_install_property (object_class,
                                    PROP_SESSION,
-                                   g_param_spec_object ("session",
-                                                        "session",
-                                                        "MetaScreenSession",
+                                   g_param_spec_object ("session", NULL, NULL,
                                                         META_TYPE_SCREEN_CAST_SESSION,
                                                         G_PARAM_READWRITE |
                                                         G_PARAM_CONSTRUCT_ONLY |
@@ -414,9 +412,7 @@ meta_screen_cast_stream_class_init (MetaScreenCastStreamClass *klass)
 
   g_object_class_install_property (object_class,
                                    PROP_CONNECTION,
-                                   g_param_spec_object ("connection",
-                                                        "connection",
-                                                        "GDBus connection",
+                                   g_param_spec_object ("connection", NULL, NULL,
                                                         G_TYPE_DBUS_CONNECTION,
                                                         G_PARAM_READWRITE |
                                                         G_PARAM_CONSTRUCT_ONLY |
@@ -424,9 +420,7 @@ meta_screen_cast_stream_class_init (MetaScreenCastStreamClass *klass)
 
   g_object_class_install_property (object_class,
                                    PROP_CURSOR_MODE,
-                                   g_param_spec_uint ("cursor-mode",
-                                                      "cursor-mode",
-                                                      "Cursor mode",
+                                   g_param_spec_uint ("cursor-mode", NULL, NULL,
                                                       META_SCREEN_CAST_CURSOR_MODE_HIDDEN,
                                                       META_SCREEN_CAST_CURSOR_MODE_METADATA,
                                                       META_SCREEN_CAST_CURSOR_MODE_HIDDEN,
@@ -436,9 +430,7 @@ meta_screen_cast_stream_class_init (MetaScreenCastStreamClass *klass)
 
   g_object_class_install_property (object_class,
                                    PROP_FLAGS,
-                                   g_param_spec_flags ("flags",
-                                                       "flags",
-                                                       "Screen cast flags",
+                                   g_param_spec_flags ("flags", NULL, NULL,
                                                        META_TYPE_SCREEN_CAST_FLAG,
                                                        META_SCREEN_CAST_FLAG_NONE,
                                                        G_PARAM_READWRITE |

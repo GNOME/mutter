@@ -335,16 +335,12 @@ meta_window_xwayland_class_init (MetaWindowXwaylandClass *klass)
   gobject_class->set_property = meta_window_xwayland_set_property;
 
   obj_props[PROP_XWAYLAND_MAY_GRAB_KEYBOARD] =
-    g_param_spec_boolean ("xwayland-may-grab-keyboard",
-                          "Xwayland may use keyboard grabs",
-                          "Whether the client may use Xwayland keyboard grabs on this window",
+    g_param_spec_boolean ("xwayland-may-grab-keyboard", NULL, NULL,
                           FALSE,
                           G_PARAM_READWRITE);
 
   obj_props[PROP_SURFACE] =
-    g_param_spec_object ("surface",
-                         "Surface",
-                         "The corresponding Wayland surface",
+    g_param_spec_object ("surface", NULL, NULL,
                          META_TYPE_WAYLAND_SURFACE,
                          G_PARAM_CONSTRUCT |
                          G_PARAM_READWRITE |

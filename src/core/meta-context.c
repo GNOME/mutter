@@ -787,17 +787,13 @@ meta_context_class_init (MetaContextClass *klass)
   klass->setup = meta_context_real_setup;
 
   obj_props[PROP_NAME] =
-    g_param_spec_string ("name",
-                         "name",
-                         "Human readable name",
+    g_param_spec_string ("name", NULL, NULL,
                          NULL,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
   obj_props[PROP_UNSAFE_MODE] =
-    g_param_spec_boolean ("unsafe-mode",
-                          "unsafe mode",
-                          "Unsafe mode",
+    g_param_spec_boolean ("unsafe-mode", NULL, NULL,
                           FALSE,
                           G_PARAM_READWRITE |
                           G_PARAM_EXPLICIT_NOTIFY |

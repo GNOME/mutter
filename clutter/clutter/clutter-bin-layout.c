@@ -213,19 +213,13 @@ clutter_bin_layer_class_init (ClutterBinLayerClass *klass)
   gobject_class->get_property = clutter_bin_layer_get_property;
 
   layer_props[PROP_LAYER_X_ALIGN] =
-    g_param_spec_enum ("x-align",
-                       P_("Horizontal Alignment"),
-                       P_("Horizontal alignment for the actor "
-                          "inside the layout manager"),
+    g_param_spec_enum ("x-align", NULL, NULL,
                        CLUTTER_TYPE_BIN_ALIGNMENT,
                        CLUTTER_BIN_ALIGNMENT_CENTER,
                        CLUTTER_PARAM_READWRITE);
 
   layer_props[PROP_LAYER_Y_ALIGN] =
-    g_param_spec_enum ("y-align",
-                       P_("Vertical Alignment"),
-                       P_("Vertical alignment for the actor "
-                          "inside the layout manager"),
+    g_param_spec_enum ("y-align", NULL, NULL,
                        CLUTTER_TYPE_BIN_ALIGNMENT,
                        CLUTTER_BIN_ALIGNMENT_CENTER,
                        CLUTTER_PARAM_READWRITE);
@@ -622,10 +616,7 @@ clutter_bin_layout_class_init (ClutterBinLayoutClass *klass)
    *   #ClutterActor:x-align properties on #ClutterActor instead.
    */
   bin_props[PROP_X_ALIGN] =
-    g_param_spec_enum ("x-align",
-                       P_("Horizontal Alignment"),
-                       P_("Default horizontal alignment for the actors "
-                          "inside the layout manager"),
+    g_param_spec_enum ("x-align", NULL, NULL,
                        CLUTTER_TYPE_BIN_ALIGNMENT,
                        CLUTTER_BIN_ALIGNMENT_CENTER,
                        CLUTTER_PARAM_READWRITE);
@@ -640,10 +631,7 @@ clutter_bin_layout_class_init (ClutterBinLayoutClass *klass)
    *   #ClutterActor:y-align properties on #ClutterActor instead.
    */
   bin_props[PROP_Y_ALIGN] =
-    g_param_spec_enum ("y-align",
-                       P_("Vertical Alignment"),
-                       P_("Default vertical alignment for the actors "
-                          "inside the layout manager"),
+    g_param_spec_enum ("y-align", NULL, NULL,
                        CLUTTER_TYPE_BIN_ALIGNMENT,
                        CLUTTER_BIN_ALIGNMENT_CENTER,
                        CLUTTER_PARAM_READWRITE);

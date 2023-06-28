@@ -352,9 +352,7 @@ meta_background_class_init (MetaBackgroundClass *klass)
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 
-  param_spec = g_param_spec_object ("meta-display",
-                                    "MetaDisplay",
-                                    "MetaDisplay",
+  param_spec = g_param_spec_object ("meta-display", NULL, NULL,
                                     META_TYPE_DISPLAY,
                                     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
 

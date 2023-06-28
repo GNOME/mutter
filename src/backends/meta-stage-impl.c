@@ -851,17 +851,13 @@ meta_stage_impl_class_init (MetaStageImplClass *klass)
   gobject_class->set_property = meta_stage_impl_set_property;
 
   obj_props[PROP_WRAPPER] =
-    g_param_spec_object ("wrapper",
-                         "Wrapper",
-                         "Back pointer to the Stage actor",
+    g_param_spec_object ("wrapper", NULL, NULL,
                          CLUTTER_TYPE_STAGE,
                          G_PARAM_WRITABLE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
   obj_props[PROP_BACKEND] =
-    g_param_spec_object ("backend",
-                         "MetaBackend",
-                         "MetaBackend",
+    g_param_spec_object ("backend", NULL, NULL,
                          META_TYPE_BACKEND,
                          G_PARAM_WRITABLE |
                          G_PARAM_CONSTRUCT_ONLY |

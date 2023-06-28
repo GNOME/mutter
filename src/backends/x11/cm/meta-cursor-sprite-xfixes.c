@@ -223,9 +223,7 @@ meta_cursor_sprite_xfixes_class_init (MetaCursorSpriteXfixesClass *klass)
   cursor_sprite_class->is_animated = meta_cursor_sprite_xfixes_is_animated;
 
   obj_props[PROP_DISPLAY] =
-    g_param_spec_object ("display",
-                         "display",
-                         "MetaDisplay",
+    g_param_spec_object ("display", NULL, NULL,
                          META_TYPE_DISPLAY,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |

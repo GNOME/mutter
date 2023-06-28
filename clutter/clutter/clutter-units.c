@@ -44,9 +44,7 @@
  * ```c
  *   GParamSpec *pspec;
  *
- *   pspec = clutter_param_spec_units ("active-width",
- *                                     "Width",
- *                                     "Width of the active area, in millimeters",
+ *   pspec = clutter_param_spec_units ("active-width", NULL, NULL,
  *                                     CLUTTER_UNIT_MM,
  *                                     0.0, 12.0,
  *                                     12.0,

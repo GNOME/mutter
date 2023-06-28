@@ -297,9 +297,7 @@ clutter_seat_class_init (ClutterSeatClass *klass)
    * requirements documented in [method@Seat.get_touch_mode] are fulfilled.
    **/
   props[PROP_TOUCH_MODE] =
-    g_param_spec_boolean ("touch-mode",
-                          P_("Touch mode"),
-                          P_("Touch mode"),
+    g_param_spec_boolean ("touch-mode", NULL, NULL,
                           FALSE,
                           CLUTTER_PARAM_READABLE);
 

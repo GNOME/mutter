@@ -311,9 +311,7 @@ clutter_snap_constraint_class_init (ClutterSnapConstraintClass *klass)
    * The [class@Actor] used as the source for the constraint
    */
   obj_props[PROP_SOURCE] =
-    g_param_spec_object ("source",
-                         P_("Source"),
-                         P_("The source of the constraint"),
+    g_param_spec_object ("source", NULL, NULL,
                          CLUTTER_TYPE_ACTOR,
                          CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT);
 
@@ -323,9 +321,7 @@ clutter_snap_constraint_class_init (ClutterSnapConstraintClass *klass)
    * The edge of the [class@Actor] that should be snapped
    */
   obj_props[PROP_FROM_EDGE] =
-    g_param_spec_enum ("from-edge",
-                       P_("From Edge"),
-                       P_("The edge of the actor that should be snapped"),
+    g_param_spec_enum ("from-edge", NULL, NULL,
                        CLUTTER_TYPE_SNAP_EDGE,
                        CLUTTER_SNAP_EDGE_RIGHT,
                        CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT);
@@ -336,9 +332,7 @@ clutter_snap_constraint_class_init (ClutterSnapConstraintClass *klass)
    * The edge of the [property@SnapConstraint:source] that should be snapped
    */
   obj_props[PROP_TO_EDGE] =
-    g_param_spec_enum ("to-edge",
-                       P_("To Edge"),
-                       P_("The edge of the source that should be snapped"),
+    g_param_spec_enum ("to-edge", NULL, NULL,
                        CLUTTER_TYPE_SNAP_EDGE,
                        CLUTTER_SNAP_EDGE_RIGHT,
                        CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT);
@@ -350,9 +344,7 @@ clutter_snap_constraint_class_init (ClutterSnapConstraintClass *klass)
    * and [property@SnapConstraint:to-edge]
    */
   obj_props[PROP_OFFSET] =
-    g_param_spec_float ("offset",
-                        P_("Offset"),
-                        P_("The offset in pixels to apply to the constraint"),
+    g_param_spec_float ("offset", NULL, NULL,
                         -G_MAXFLOAT, G_MAXFLOAT,
                         0.0f,
                         CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT);

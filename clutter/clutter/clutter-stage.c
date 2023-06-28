@@ -1352,9 +1352,7 @@ clutter_stage_class_init (ClutterStageClass *klass)
    * coordinates to 2D
    */
   obj_props[PROP_PERSPECTIVE] =
-      g_param_spec_boxed ("perspective",
-                          P_("Perspective"),
-                          P_("Perspective projection parameters"),
+      g_param_spec_boxed ("perspective", NULL, NULL,
                           CLUTTER_TYPE_PERSPECTIVE,
                           CLUTTER_PARAM_READABLE |
                           G_PARAM_EXPLICIT_NOTIFY);
@@ -1365,9 +1363,7 @@ clutter_stage_class_init (ClutterStageClass *klass)
    * The stage's title - usually displayed in stage windows title decorations.
    */
   obj_props[PROP_TITLE] =
-      g_param_spec_string ("title",
-                           P_("Title"),
-                           P_("Stage Title"),
+      g_param_spec_string ("title", NULL, NULL,
                            NULL,
                            CLUTTER_PARAM_READWRITE |
                            G_PARAM_EXPLICIT_NOTIFY);
@@ -1381,9 +1377,7 @@ clutter_stage_class_init (ClutterStageClass *klass)
    * If %NULL, the #ClutterStage will receive the events.
    */
   obj_props[PROP_KEY_FOCUS] =
-      g_param_spec_object ("key-focus",
-                           P_("Key Focus"),
-                           P_("The currently key focused actor"),
+      g_param_spec_object ("key-focus", NULL, NULL,
                            CLUTTER_TYPE_ACTOR,
                            CLUTTER_PARAM_READWRITE |
                            G_PARAM_EXPLICIT_NOTIFY);

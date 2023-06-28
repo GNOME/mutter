@@ -235,9 +235,7 @@ clutter_transition_class_init (ClutterTransitionClass *klass)
    * of the transition.
    */
   obj_props[PROP_INTERVAL] =
-    g_param_spec_object ("interval",
-                         P_("Interval"),
-                         P_("The interval of values to transition"),
+    g_param_spec_object ("interval", NULL, NULL,
                          CLUTTER_TYPE_INTERVAL,
                          G_PARAM_READWRITE |
                          G_PARAM_STATIC_STRINGS);
@@ -248,9 +246,7 @@ clutter_transition_class_init (ClutterTransitionClass *klass)
    * The [iface@Animatable] instance currently being animated.
    */
   obj_props[PROP_ANIMATABLE] =
-    g_param_spec_object ("animatable",
-                         P_("Animatable"),
-                         P_("The animatable object"),
+    g_param_spec_object ("animatable", NULL, NULL,
                          CLUTTER_TYPE_ANIMATABLE,
                          G_PARAM_READWRITE |
                          G_PARAM_STATIC_STRINGS);
@@ -268,9 +264,7 @@ clutter_transition_class_init (ClutterTransitionClass *klass)
    * repeating.
    */
   obj_props[PROP_REMOVE_ON_COMPLETE] =
-    g_param_spec_boolean ("remove-on-complete",
-                          P_("Remove on Complete"),
-                          P_("Detach the transition when completed"),
+    g_param_spec_boolean ("remove-on-complete", NULL, NULL,
                           FALSE,
                           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 

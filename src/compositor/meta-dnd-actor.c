@@ -111,9 +111,7 @@ meta_dnd_actor_class_init (MetaDnDActorClass *klass)
   object_class->set_property = meta_dnd_actor_set_property;
   object_class->get_property = meta_dnd_actor_get_property;
 
-  pspec = g_param_spec_object ("drag-origin",
-                               "Drag origin",
-                               "The origin of the DnD operation",
+  pspec = g_param_spec_object ("drag-origin", NULL, NULL,
                                CLUTTER_TYPE_ACTOR,
                                G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
 
@@ -121,9 +119,7 @@ meta_dnd_actor_class_init (MetaDnDActorClass *klass)
                                    PROP_DRAG_ORIGIN,
                                    pspec);
 
-  pspec = g_param_spec_int ("drag-start-x",
-                            "Drag start X",
-                            "The X axis of the drag start point",
+  pspec = g_param_spec_int ("drag-start-x", NULL, NULL,
                             0, G_MAXINT, 0,
                             G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
 
@@ -131,9 +127,7 @@ meta_dnd_actor_class_init (MetaDnDActorClass *klass)
                                    PROP_DRAG_START_X,
                                    pspec);
 
-  pspec = g_param_spec_int ("drag-start-y",
-                            "Drag start Y",
-                            "The Y axis of the drag start point",
+  pspec = g_param_spec_int ("drag-start-y", NULL, NULL,
                             0, G_MAXINT, 0,
                             G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
 

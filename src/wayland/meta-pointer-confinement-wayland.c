@@ -269,9 +269,7 @@ meta_pointer_confinement_wayland_class_init (MetaPointerConfinementWaylandClass 
   klass->create_constraint = meta_pointer_confinement_wayland_create_constraint;
 
   props[PROP_WAYLAND_POINTER_CONSTRAINT] =
-    g_param_spec_object ("wayland-pointer-constraint",
-                         "Wayland pointer constraint",
-                         "Wayland pointer constraint",
+    g_param_spec_object ("wayland-pointer-constraint", NULL, NULL,
                          META_TYPE_WAYLAND_POINTER_CONSTRAINT,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |

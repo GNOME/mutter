@@ -507,9 +507,7 @@ meta_color_manager_class_init (MetaColorManagerClass *klass)
   object_class->get_property = meta_color_manager_get_property;
 
   obj_props[PROP_BACKEND] =
-    g_param_spec_object ("backend",
-                         "backend",
-                         "MetaBackend",
+    g_param_spec_object ("backend", NULL, NULL,
                          META_TYPE_BACKEND,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |

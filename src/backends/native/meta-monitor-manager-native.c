@@ -746,9 +746,7 @@ meta_monitor_manager_native_class_init (MetaMonitorManagerNativeClass *klass)
     meta_monitor_manager_native_create_virtual_monitor;
 
   obj_props[PROP_NEED_OUTPUTS] =
-    g_param_spec_boolean ("needs-outputs",
-                          "needs-outputs",
-                          "Whether any outputs are needed for operation",
+    g_param_spec_boolean ("needs-outputs", NULL, NULL,
                           TRUE,
                           G_PARAM_WRITABLE |
                           G_PARAM_CONSTRUCT_ONLY |

@@ -1216,32 +1216,22 @@ clutter_grid_child_class_init (ClutterGridChildClass *klass)
   gobject_class->get_property = clutter_grid_child_get_property;
 
   child_props[PROP_CHILD_LEFT_ATTACH] =
-    g_param_spec_int ("left-attach",
-                      P_("Left attachment"),
-                      P_("The column number to attach the left side of the "
-                         "child to"),
+    g_param_spec_int ("left-attach", NULL, NULL,
                       -G_MAXINT, G_MAXINT, 0,
                       G_PARAM_STATIC_STRINGS | G_PARAM_READWRITE);
 
   child_props[PROP_CHILD_TOP_ATTACH] =
-    g_param_spec_int ("top-attach",
-                      P_("Top attachment"),
-                      P_("The row number to attach the top side of a child "
-                         "widget to"),
+    g_param_spec_int ("top-attach", NULL, NULL,
                       -G_MAXINT, G_MAXINT, 0,
                       G_PARAM_STATIC_STRINGS | G_PARAM_READWRITE);
 
   child_props[PROP_CHILD_WIDTH] =
-    g_param_spec_int ("width",
-                      P_("Width"),
-                      P_("The number of columns that a child spans"),
+    g_param_spec_int ("width", NULL, NULL,
                       -G_MAXINT, G_MAXINT, 1,
                       G_PARAM_STATIC_STRINGS | G_PARAM_READWRITE);
 
   child_props[PROP_CHILD_HEIGHT] =
-    g_param_spec_int ("height",
-                      P_("Height"),
-                      P_("The number of rows that a child spans"),
+    g_param_spec_int ("height", NULL, NULL,
                       -G_MAXINT, G_MAXINT, 1,
                       G_PARAM_STATIC_STRINGS | G_PARAM_READWRITE);
 
@@ -1558,9 +1548,7 @@ clutter_grid_layout_class_init (ClutterGridLayoutClass *klass)
    * The orientation of the layout, either horizontal or vertical
    */
   obj_props[PROP_ORIENTATION] =
-    g_param_spec_enum ("orientation",
-                       P_("Orientation"),
-                       P_("The orientation of the layout"),
+    g_param_spec_enum ("orientation", NULL, NULL,
                        CLUTTER_TYPE_ORIENTATION,
                        CLUTTER_ORIENTATION_HORIZONTAL,
                        G_PARAM_STATIC_STRINGS | G_PARAM_READWRITE);
@@ -1571,9 +1559,7 @@ clutter_grid_layout_class_init (ClutterGridLayoutClass *klass)
    * The amount of space in pixels between two consecutive rows
    */
   obj_props[PROP_ROW_SPACING] =
-    g_param_spec_uint ("row-spacing",
-                       P_("Row spacing"),
-                       P_("The amount of space between two consecutive rows"),
+    g_param_spec_uint ("row-spacing", NULL, NULL,
                        0, G_MAXUINT, 0,
                        G_PARAM_STATIC_STRINGS | G_PARAM_READWRITE);
 
@@ -1583,10 +1569,7 @@ clutter_grid_layout_class_init (ClutterGridLayoutClass *klass)
    * The amount of space in pixels between two consecutive columns
    */
   obj_props[PROP_COLUMN_SPACING] =
-    g_param_spec_uint ("column-spacing",
-                       P_("Column spacing"),
-                       P_("The amount of space between two consecutive "
-                          "columns"),
+    g_param_spec_uint ("column-spacing", NULL, NULL,
                        0, G_MAXUINT, 0,
                        G_PARAM_STATIC_STRINGS | G_PARAM_READWRITE);
 
@@ -1596,9 +1579,7 @@ clutter_grid_layout_class_init (ClutterGridLayoutClass *klass)
    * Whether all rows of the layout should have the same height
    */
   obj_props[PROP_ROW_HOMOGENEOUS] =
-    g_param_spec_boolean ("row-homogeneous",
-                          P_("Row Homogeneous"),
-                          P_("If TRUE, the rows are all the same height"),
+    g_param_spec_boolean ("row-homogeneous", NULL, NULL,
                           FALSE,
                           G_PARAM_STATIC_STRINGS | G_PARAM_READWRITE);
 
@@ -1608,9 +1589,7 @@ clutter_grid_layout_class_init (ClutterGridLayoutClass *klass)
    * Whether all columns of the layout should have the same width
    */
   obj_props[PROP_COLUMN_HOMOGENEOUS] =
-    g_param_spec_boolean ("column-homogeneous",
-                          P_("Column Homogeneous"),
-                          P_("If TRUE, the columns are all the same width"),
+    g_param_spec_boolean ("column-homogeneous", NULL, NULL,
                           FALSE,
                           G_PARAM_STATIC_STRINGS | G_PARAM_READWRITE);
 

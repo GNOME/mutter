@@ -169,9 +169,7 @@ meta_module_class_init (MetaModuleClass *klass)
 
   g_object_class_install_property (gobject_class,
 				   PROP_PATH,
-				   g_param_spec_string ("path",
-							"Path",
-							"Load path",
+				   g_param_spec_string ("path", NULL, NULL,
 							NULL,
 							G_PARAM_READWRITE |
 						      G_PARAM_CONSTRUCT_ONLY));

@@ -676,9 +676,7 @@ clutter_gesture_action_class_init (ClutterGestureActionClass *klass)
    * Number of touch points to trigger a gesture action.
    */
   gesture_props[PROP_N_TOUCH_POINTS] =
-    g_param_spec_int ("n-touch-points",
-                      P_("Number touch points"),
-                      P_("Number of touch points"),
+    g_param_spec_int ("n-touch-points", NULL, NULL,
                       1, G_MAXINT, 1,
                       CLUTTER_PARAM_READWRITE);
 
@@ -690,9 +688,7 @@ clutter_gesture_action_class_init (ClutterGestureActionClass *klass)
    * [signal@GestureAction::gesture-cancel] signal.
    */
   gesture_props[PROP_THRESHOLD_TRIGGER_EDGE] =
-    g_param_spec_enum ("threshold-trigger-edge",
-                       P_("Threshold Trigger Edge"),
-                       P_("The trigger edge used by the action"),
+    g_param_spec_enum ("threshold-trigger-edge", NULL, NULL,
                        CLUTTER_TYPE_GESTURE_TRIGGER_EDGE,
                        CLUTTER_GESTURE_TRIGGER_EDGE_NONE,
                        CLUTTER_PARAM_READWRITE |
@@ -708,9 +704,7 @@ clutter_gesture_action_class_init (ClutterGestureActionClass *klass)
    * A negative value will be interpreted as the default drag threshold.
    */
   gesture_props[PROP_THRESHOLD_TRIGGER_DISTANCE_X] =
-    g_param_spec_float ("threshold-trigger-distance-x",
-                        P_("Threshold Trigger Horizontal Distance"),
-                        P_("The horizontal trigger distance used by the action"),
+    g_param_spec_float ("threshold-trigger-distance-x", NULL, NULL,
                         -1.0, G_MAXFLOAT, -1.0,
                         CLUTTER_PARAM_READWRITE |
                         G_PARAM_CONSTRUCT_ONLY);
@@ -725,9 +719,7 @@ clutter_gesture_action_class_init (ClutterGestureActionClass *klass)
    * A negative value will be interpreted as the default drag threshold.
    */
   gesture_props[PROP_THRESHOLD_TRIGGER_DISTANCE_Y] =
-    g_param_spec_float ("threshold-trigger-distance-y",
-                        P_("Threshold Trigger Vertical Distance"),
-                        P_("The vertical trigger distance used by the action"),
+    g_param_spec_float ("threshold-trigger-distance-y", NULL, NULL,
                         -1.0, G_MAXFLOAT, -1.0,
                         CLUTTER_PARAM_READWRITE |
                         G_PARAM_CONSTRUCT_ONLY);

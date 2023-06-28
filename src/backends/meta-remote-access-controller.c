@@ -263,9 +263,7 @@ meta_remote_access_handle_class_init (MetaRemoteAccessHandleClass *klass)
                   G_TYPE_NONE, 0);
 
   obj_props[PROP_IS_RECORDING] =
-    g_param_spec_boolean ("is-recording",
-                          "is-recording",
-                          "Is a screen recording",
+    g_param_spec_boolean ("is-recording", NULL, NULL,
                           FALSE,
                           G_PARAM_READWRITE |
                           G_PARAM_CONSTRUCT_ONLY |

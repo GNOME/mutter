@@ -327,16 +327,12 @@ meta_drm_buffer_class_init (MetaDrmBufferClass *klass)
   object_class->finalize = meta_drm_buffer_finalize;
 
   obj_props[PROP_DEVICE_FILE] =
-    g_param_spec_pointer ("device-file",
-                          "device file",
-                          "MetaDeviceFile",
+    g_param_spec_pointer ("device-file", NULL, NULL,
                           G_PARAM_READWRITE |
                           G_PARAM_CONSTRUCT_ONLY |
                           G_PARAM_STATIC_STRINGS);
   obj_props[PROP_FLAGS] =
-    g_param_spec_flags ("flags",
-                        "flags",
-                        "MetaDrmBufferFlags",
+    g_param_spec_flags ("flags", NULL, NULL,
                         META_TYPE_DRM_BUFFER_FLAGS,
                         META_DRM_BUFFER_FLAG_NONE,
                         G_PARAM_READWRITE |

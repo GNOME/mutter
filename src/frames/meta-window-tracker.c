@@ -406,9 +406,7 @@ meta_window_tracker_class_init (MetaWindowTrackerClass *klass)
   object_class->constructed = meta_window_tracker_constructed;
   object_class->finalize = meta_window_tracker_finalize;
 
-  props[PROP_DISPLAY] = g_param_spec_object ("display",
-                                             "Display",
-                                             "Display",
+  props[PROP_DISPLAY] = g_param_spec_object ("display", NULL, NULL,
                                              GDK_TYPE_DISPLAY,
                                              G_PARAM_READWRITE |
                                              G_PARAM_CONSTRUCT_ONLY |

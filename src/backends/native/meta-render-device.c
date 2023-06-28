@@ -271,17 +271,13 @@ meta_render_device_class_init (MetaRenderDeviceClass *klass)
   object_class->finalize = meta_render_device_finalize;
 
   obj_props[PROP_BACKEND] =
-    g_param_spec_object ("backend",
-                         "backend",
-                         "MetaBackend",
+    g_param_spec_object ("backend", NULL, NULL,
                          META_TYPE_BACKEND,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
   obj_props[PROP_DEVICE_FILE] =
-    g_param_spec_pointer ("device-file",
-                          "device file",
-                          "MetaDeviceFile",
+    g_param_spec_pointer ("device-file", NULL, NULL,
                           G_PARAM_READWRITE |
                           G_PARAM_CONSTRUCT_ONLY |
                           G_PARAM_STATIC_STRINGS);

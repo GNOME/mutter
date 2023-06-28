@@ -662,33 +662,25 @@ meta_output_class_init (MetaOutputClass *klass)
   object_class->finalize = meta_output_finalize;
 
   obj_props[PROP_ID] =
-    g_param_spec_uint64 ("id",
-                         "id",
-                         "CRTC id",
+    g_param_spec_uint64 ("id", NULL, NULL,
                          0, UINT64_MAX, 0,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
   obj_props[PROP_GPU] =
-    g_param_spec_object ("gpu",
-                         "gpu",
-                         "MetaGpu",
+    g_param_spec_object ("gpu", NULL, NULL,
                          META_TYPE_GPU,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
   obj_props[PROP_INFO] =
-    g_param_spec_boxed ("info",
-                        "info",
-                        "MetaOutputInfo",
+    g_param_spec_boxed ("info", NULL, NULL,
                         META_TYPE_OUTPUT_INFO,
                         G_PARAM_READWRITE |
                         G_PARAM_CONSTRUCT_ONLY |
                         G_PARAM_STATIC_STRINGS);
   obj_props[PROP_IS_PRIVACY_SCREEN_ENABLED] =
-    g_param_spec_boolean ("is-privacy-screen-enabled",
-                          "is-privacy-screen-enabled",
-                          "Is privacy screen enabled",
+    g_param_spec_boolean ("is-privacy-screen-enabled", NULL, NULL,
                           FALSE,
                           G_PARAM_READWRITE |
                           G_PARAM_STATIC_STRINGS);

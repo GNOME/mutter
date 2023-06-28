@@ -1919,17 +1919,13 @@ meta_wayland_xdg_surface_class_init (MetaWaylandXdgSurfaceClass *klass)
     meta_wayland_xdg_surface_real_shell_client_destroyed;
   klass->reset = meta_wayland_xdg_surface_real_reset;
 
-  pspec = g_param_spec_pointer ("shell-client",
-                                "MetaWaylandXdgShellClient",
-                                "The shell client instance",
+  pspec = g_param_spec_pointer ("shell-client", NULL, NULL,
                                 G_PARAM_READWRITE |
                                 G_PARAM_STATIC_STRINGS);
   g_object_class_install_property (object_class,
                                    XDG_SURFACE_PROP_SHELL_CLIENT,
                                    pspec);
-  pspec = g_param_spec_pointer ("xdg-surface-resource",
-                                "xdg_surface wl_resource",
-                                "The xdg_surface wl_resource instance",
+  pspec = g_param_spec_pointer ("xdg-surface-resource", NULL, NULL,
                                 G_PARAM_READWRITE |
                                 G_PARAM_STATIC_STRINGS);
   g_object_class_install_property (object_class,

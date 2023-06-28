@@ -816,9 +816,7 @@ meta_input_settings_native_class_init (MetaInputSettingsNativeClass *klass)
   input_settings_class->has_two_finger_scroll = meta_input_settings_native_has_two_finger_scroll;
 
   props[PROP_SEAT_IMPL] =
-    g_param_spec_object ("seat-impl",
-                         "Seat Impl",
-                         "Seat Impl",
+    g_param_spec_object ("seat-impl", NULL, NULL,
                          META_TYPE_SEAT_IMPL,
                          CLUTTER_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY);

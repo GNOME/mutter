@@ -231,41 +231,31 @@ meta_dbus_session_manager_class_init (MetaDbusSessionManagerClass *klass)
   object_class->get_property = meta_dbus_session_manager_get_property;
 
   obj_props[PROP_BACKEND] =
-    g_param_spec_object ("backend",
-                         "backend",
-                         "MetaBackend",
+    g_param_spec_object ("backend", NULL, NULL,
                          META_TYPE_BACKEND,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
   obj_props[PROP_SERVICE_NAME] =
-    g_param_spec_string ("service-name",
-                         "service name",
-                         "Service name",
+    g_param_spec_string ("service-name", NULL, NULL,
                          NULL,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
   obj_props[PROP_SERVICE_PATH] =
-    g_param_spec_string ("service-path",
-                         "service path",
-                         "Service path",
+    g_param_spec_string ("service-path", NULL, NULL,
                          NULL,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
   obj_props[PROP_SESSION_GTYPE] =
-    g_param_spec_gtype ("session-gtype",
-                        "session gtype",
-                        "GType to construct for a session",
+    g_param_spec_gtype ("session-gtype", NULL, NULL,
                         G_TYPE_NONE,
                         G_PARAM_READWRITE |
                         G_PARAM_CONSTRUCT_ONLY |
                         G_PARAM_STATIC_STRINGS);
   obj_props[PROP_INTERFACE_SKELETON] =
-    g_param_spec_object ("interface-skeleton",
-                         "interface skeleton",
-                         "GDBusInterfaceSkeleton",
+    g_param_spec_object ("interface-skeleton", NULL, NULL,
                          G_TYPE_DBUS_INTERFACE_SKELETON,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |

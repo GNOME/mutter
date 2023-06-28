@@ -214,19 +214,13 @@ meta_workspace_class_init (MetaWorkspaceClass *klass)
                                           G_TYPE_NONE, 1,
                                           META_TYPE_WINDOW);
 
-  obj_props[PROP_N_WINDOWS] = g_param_spec_uint ("n-windows",
-                                                 "N Windows",
-                                                 "Number of windows",
+  obj_props[PROP_N_WINDOWS] = g_param_spec_uint ("n-windows", NULL, NULL,
                                                  0, G_MAXUINT, 0,
                                                  G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
-  obj_props[PROP_WORKSPACE_INDEX] = g_param_spec_uint ("workspace-index",
-                                                       "Workspace index",
-                                                       "The workspace's index",
+  obj_props[PROP_WORKSPACE_INDEX] = g_param_spec_uint ("workspace-index", NULL, NULL,
                                                        0, G_MAXUINT, 0,
                                                        G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
-  obj_props[PROP_ACTIVE] = g_param_spec_boolean ("active",
-                                                 "Active",
-                                                 "Whether the workspace is currently active",
+  obj_props[PROP_ACTIVE] = g_param_spec_boolean ("active", NULL, NULL,
                                                  FALSE,
                                                  G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 

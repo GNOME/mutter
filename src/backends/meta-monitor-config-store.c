@@ -1966,9 +1966,7 @@ meta_monitor_config_store_class_init (MetaMonitorConfigStoreClass *klass)
   object_class->set_property = meta_monitor_config_store_set_property;
 
   obj_props[PROP_MONITOR_MANAGER] =
-    g_param_spec_object ("monitor-manager",
-                         "MetaMonitorManager",
-                         "MetaMonitorManager",
+    g_param_spec_object ("monitor-manager", NULL, NULL,
                          META_TYPE_MONITOR_MANAGER,
                          G_PARAM_READWRITE |
                          G_PARAM_STATIC_STRINGS |

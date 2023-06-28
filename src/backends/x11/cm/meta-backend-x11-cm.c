@@ -555,9 +555,7 @@ meta_backend_x11_cm_class_init (MetaBackendX11CmClass *klass)
   backend_x11_class->translate_crossing_event = meta_backend_x11_cm_translate_crossing_event;
 
   obj_props[PROP_DISPLAY_NAME] =
-    g_param_spec_string ("display-name",
-                         "display name",
-                         "X11 display name",
+    g_param_spec_string ("display-name", NULL, NULL,
                          NULL,
                          G_PARAM_WRITABLE |
                          G_PARAM_CONSTRUCT_ONLY |

@@ -398,9 +398,7 @@ meta_renderer_class_init (MetaRendererClass *klass)
   klass->get_views_for_monitor = meta_renderer_real_get_views_for_monitor;
 
   obj_props[PROP_BACKEND] =
-    g_param_spec_object ("backend",
-                         "backend",
-                         "MetaBackend",
+    g_param_spec_object ("backend", NULL, NULL,
                          META_TYPE_BACKEND,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |

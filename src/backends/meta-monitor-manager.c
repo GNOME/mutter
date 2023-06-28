@@ -1500,45 +1500,35 @@ meta_monitor_manager_class_init (MetaMonitorManagerClass *klass)
                   G_TYPE_NONE, 2, META_TYPE_LOGICAL_MONITOR, G_TYPE_BOOLEAN);
 
   obj_props[PROP_BACKEND] =
-    g_param_spec_object ("backend",
-                         "backend",
-                         "MetaBackend",
+    g_param_spec_object ("backend", NULL, NULL,
                          META_TYPE_BACKEND,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_PANEL_ORIENTATION_MANAGED] =
-    g_param_spec_boolean ("panel-orientation-managed",
-                          "Panel orientation managed",
-                          "Panel orientation is managed",
+    g_param_spec_boolean ("panel-orientation-managed", NULL, NULL,
                           FALSE,
                           G_PARAM_READABLE |
                           G_PARAM_EXPLICIT_NOTIFY |
                           G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_HAS_BUILTIN_PANEL] =
-    g_param_spec_boolean ("has-builtin-panel",
-                          "Has builtin panel",
-                          "The system has a built in panel",
+    g_param_spec_boolean ("has-builtin-panel", NULL, NULL,
                           FALSE,
                           G_PARAM_READABLE |
                           G_PARAM_EXPLICIT_NOTIFY |
                           G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_NIGHT_LIGHT_SUPPORTED] =
-    g_param_spec_boolean ("night-light-supported",
-                          "Night light supported",
-                          "Night light is supported",
+    g_param_spec_boolean ("night-light-supported", NULL, NULL,
                           FALSE,
                           G_PARAM_READABLE |
                           G_PARAM_EXPLICIT_NOTIFY |
                           G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_EXPERIMENTAL_HDR] =
-    g_param_spec_string ("experimental-hdr",
-                         "Experimental HDR",
-                         "Experimental HDR settings string",
+    g_param_spec_string ("experimental-hdr", NULL, NULL,
                          NULL,
                          G_PARAM_READWRITE |
                          G_PARAM_STATIC_STRINGS);

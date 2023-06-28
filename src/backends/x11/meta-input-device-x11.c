@@ -365,9 +365,7 @@ meta_input_device_x11_class_init (MetaInputDeviceX11Class *klass)
   device_class->get_dimensions = meta_input_device_x11_get_dimensions;
 
   props[PROP_ID] =
-    g_param_spec_int ("id",
-                      "Id",
-                      "Unique identifier of the device",
+    g_param_spec_int ("id", NULL, NULL,
                       -1, G_MAXINT,
                       0,
                       CLUTTER_PARAM_READWRITE |

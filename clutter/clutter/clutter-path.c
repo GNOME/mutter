@@ -183,18 +183,13 @@ clutter_path_class_init (ClutterPathClass *klass)
   gobject_class->set_property = clutter_path_set_property;
   gobject_class->finalize = clutter_path_finalize;
 
-  pspec = g_param_spec_string ("description",
-                               "Description",
-                               "SVG-style description of the path",
+  pspec = g_param_spec_string ("description", NULL, NULL,
                                "",
                                CLUTTER_PARAM_READWRITE);
   obj_props[PROP_DESCRIPTION] = pspec;
   g_object_class_install_property (gobject_class, PROP_DESCRIPTION, pspec);
 
-  pspec = g_param_spec_uint ("length",
-                             "Length",
-                             "An approximation of the total length "
-                             "of the path.",
+  pspec = g_param_spec_uint ("length", NULL, NULL,
                              0, G_MAXUINT, 0,
                              CLUTTER_PARAM_READABLE);
   obj_props[PROP_LENGTH] = pspec;

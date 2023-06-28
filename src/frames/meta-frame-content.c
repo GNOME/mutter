@@ -150,18 +150,14 @@ meta_frame_content_class_init (MetaFrameContentClass *klass)
   widget_class->measure = meta_frame_content_measure;
   widget_class->size_allocate = meta_frame_content_size_allocate;
 
-  props[PROP_XWINDOW] = g_param_spec_ulong ("xwindow",
-                                            "X window",
-                                            "X window",
+  props[PROP_XWINDOW] = g_param_spec_ulong ("xwindow", NULL, NULL,
                                             0, G_MAXULONG, 0,
                                             G_PARAM_READWRITE |
                                             G_PARAM_CONSTRUCT_ONLY |
                                             G_PARAM_STATIC_NAME |
                                             G_PARAM_STATIC_NICK |
                                             G_PARAM_STATIC_BLURB);
-  props[PROP_BORDER] = g_param_spec_boxed ("border",
-                                           "Border",
-                                           "Border",
+  props[PROP_BORDER] = g_param_spec_boxed ("border", NULL, NULL,
                                            GTK_TYPE_BORDER,
                                            G_PARAM_READABLE |
                                            G_PARAM_EXPLICIT_NOTIFY |

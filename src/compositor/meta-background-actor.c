@@ -115,9 +115,7 @@ meta_background_actor_class_init (MetaBackgroundActorClass *klass)
   object_class->set_property = meta_background_actor_set_property;
   object_class->get_property = meta_background_actor_get_property;
 
-  param_spec = g_param_spec_object ("meta-display",
-                                    "MetaDisplay",
-                                    "MetaDisplay",
+  param_spec = g_param_spec_object ("meta-display", NULL, NULL,
                                     META_TYPE_DISPLAY,
                                     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
 
@@ -125,9 +123,7 @@ meta_background_actor_class_init (MetaBackgroundActorClass *klass)
                                    PROP_META_DISPLAY,
                                    param_spec);
 
-  param_spec = g_param_spec_int ("monitor",
-                                 "monitor",
-                                 "monitor",
+  param_spec = g_param_spec_int ("monitor", NULL, NULL,
                                  0, G_MAXINT, 0,
                                  G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
 

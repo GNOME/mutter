@@ -386,27 +386,21 @@ my_thing_class_init (MyThingClass *klass)
 
   g_object_class_install_property (gobject_class,
                                    PROP_SPACING,
-                                   g_param_spec_float ("spacing",
-                                                       "Spacing",
-                                                       "Spacing of the thing",
+                                   g_param_spec_float ("spacing", NULL, NULL,
                                                        0, G_MAXFLOAT,
                                                        0,
                                                        G_PARAM_READWRITE));
 
   g_object_class_install_property (gobject_class,
                                    PROP_PADDING,
-                                   g_param_spec_float ("padding",
-                                                       "Padding",
-                                                       "Padding around the thing",
+                                   g_param_spec_float ("padding", NULL, NULL,
                                                        0, G_MAXFLOAT,
                                                        0,
                                                        G_PARAM_READWRITE));
 
   g_object_class_install_property (gobject_class,
                                    PROP_USE_TRANSFORMED_BOX,
-                                   g_param_spec_boolean ("use-transformed-box",
-                                                         "Use Transformed Box",
-                                                         "Use transformed box when allocating",
+                                   g_param_spec_boolean ("use-transformed-box", NULL, NULL,
                                                          FALSE,
                                                          G_PARAM_READWRITE));
 }

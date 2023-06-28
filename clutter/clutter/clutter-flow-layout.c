@@ -917,9 +917,7 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
    * This property also controls the overflowing directions
    */
   flow_properties[PROP_ORIENTATION] =
-    g_param_spec_enum ("orientation",
-                       P_("Orientation"),
-                       P_("The orientation of the layout"),
+    g_param_spec_enum ("orientation", NULL, NULL,
                        CLUTTER_TYPE_FLOW_ORIENTATION,
                        CLUTTER_FLOW_HORIZONTAL,
                        CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT);
@@ -931,9 +929,7 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
    * the same allocation
    */
   flow_properties[PROP_HOMOGENEOUS] =
-    g_param_spec_boolean ("homogeneous",
-                          P_("Homogeneous"),
-                          P_("Whether each item should receive the same allocation"),
+    g_param_spec_boolean ("homogeneous", NULL, NULL,
                           FALSE,
                           CLUTTER_PARAM_READWRITE);
 
@@ -945,9 +941,7 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
    * and by vertical overflowing layouts
    */
   flow_properties[PROP_COLUMN_SPACING] =
-    g_param_spec_float ("column-spacing",
-                        P_("Column Spacing"),
-                        P_("The spacing between columns"),
+    g_param_spec_float ("column-spacing", NULL, NULL,
                         0.0, G_MAXFLOAT,
                         0.0,
                         CLUTTER_PARAM_READWRITE);
@@ -960,9 +954,7 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
    * by horizontal overflowing layouts
    */
   flow_properties[PROP_ROW_SPACING] =
-    g_param_spec_float ("row-spacing",
-                        P_("Row Spacing"),
-                        P_("The spacing between rows"),
+    g_param_spec_float ("row-spacing", NULL, NULL,
                         0.0, G_MAXFLOAT,
                         0.0,
                         CLUTTER_PARAM_READWRITE);
@@ -973,9 +965,7 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
    * Minimum width for each column in the layout, in pixels
    */
   flow_properties[PROP_MIN_COLUMN_WIDTH] =
-    g_param_spec_float ("min-column-width",
-                        P_("Minimum Column Width"),
-                        P_("Minimum width for each column"),
+    g_param_spec_float ("min-column-width", NULL, NULL,
                         0.0, G_MAXFLOAT,
                         0.0,
                         CLUTTER_PARAM_READWRITE);
@@ -987,9 +977,7 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
    * set to -1 the width will be the maximum child width
    */
   flow_properties[PROP_MAX_COLUMN_WIDTH] =
-    g_param_spec_float ("max-column-width",
-                        P_("Maximum Column Width"),
-                        P_("Maximum width for each column"),
+    g_param_spec_float ("max-column-width", NULL, NULL,
                         -1.0, G_MAXFLOAT,
                         -1.0,
                         CLUTTER_PARAM_READWRITE);
@@ -1000,9 +988,7 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
    * Minimum height for each row in the layout, in pixels
    */
   flow_properties[PROP_MIN_ROW_HEGHT] =
-    g_param_spec_float ("min-row-height",
-                        P_("Minimum Row Height"),
-                        P_("Minimum height for each row"),
+    g_param_spec_float ("min-row-height", NULL, NULL,
                         0.0, G_MAXFLOAT,
                         0.0,
                         CLUTTER_PARAM_READWRITE);
@@ -1014,9 +1000,7 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
    * set to -1 the width will be the maximum child height
    */
   flow_properties[PROP_MAX_ROW_HEIGHT] =
-    g_param_spec_float ("max-row-height",
-                        P_("Maximum Row Height"),
-                        P_("Maximum height for each row"),
+    g_param_spec_float ("max-row-height", NULL, NULL,
                         -1.0, G_MAXFLOAT,
                         -1.0,
                         CLUTTER_PARAM_READWRITE);
@@ -1028,9 +1012,7 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
    * on a grid
    */
   flow_properties[PROP_SNAP_TO_GRID] =
-    g_param_spec_boolean ("snap-to-grid",
-                          P_("Snap to grid"),
-                          P_("Snap to grid"),
+    g_param_spec_boolean ("snap-to-grid", NULL, NULL,
                           TRUE,
                           CLUTTER_PARAM_READWRITE);
 

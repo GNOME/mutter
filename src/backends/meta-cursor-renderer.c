@@ -295,17 +295,13 @@ meta_cursor_renderer_class_init (MetaCursorRendererClass *klass)
   klass->update_cursor = meta_cursor_renderer_real_update_cursor;
 
   obj_props[PROP_BACKEND] =
-    g_param_spec_object ("backend",
-                         "backend",
-                         "MetaBackend",
+    g_param_spec_object ("backend", NULL, NULL,
                          META_TYPE_BACKEND,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
   obj_props[PROP_DEVICE] =
-    g_param_spec_object ("device",
-                         "device",
-                         "Input device",
+    g_param_spec_object ("device", NULL, NULL,
                          CLUTTER_TYPE_INPUT_DEVICE,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |

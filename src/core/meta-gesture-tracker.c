@@ -157,9 +157,7 @@ meta_gesture_tracker_class_init (MetaGestureTrackerClass *klass)
   object_class->set_property = meta_gesture_tracker_set_property;
   object_class->get_property = meta_gesture_tracker_get_property;
 
-  obj_props[PROP_AUTODENY_TIMEOUT] = g_param_spec_uint ("autodeny-timeout",
-                                                        "Auto-deny timeout",
-                                                        "Auto-deny timeout",
+  obj_props[PROP_AUTODENY_TIMEOUT] = g_param_spec_uint ("autodeny-timeout", NULL, NULL,
                                                         0, G_MAXUINT, DEFAULT_AUTODENY_TIMEOUT,
                                                         G_PARAM_STATIC_STRINGS |
                                                         G_PARAM_READWRITE |

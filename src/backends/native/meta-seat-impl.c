@@ -3592,26 +3592,20 @@ meta_seat_impl_class_init (MetaSeatImplClass *klass)
   object_class->finalize = meta_seat_impl_finalize;
 
   props[PROP_SEAT] =
-    g_param_spec_object ("seat",
-                         "Seat",
-                         "Seat",
+    g_param_spec_object ("seat", NULL, NULL,
                          META_TYPE_SEAT_NATIVE,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
 
   props[PROP_SEAT_ID] =
-    g_param_spec_string ("seat-id",
-                         "Seat ID",
-                         "Seat ID",
+    g_param_spec_string ("seat-id", NULL, NULL,
                          NULL,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY);
 
   props[PROP_FLAGS] =
-    g_param_spec_flags ("flags",
-                        "Flags",
-                        "Flags",
+    g_param_spec_flags ("flags", NULL, NULL,
                         META_TYPE_SEAT_NATIVE_FLAG,
                         META_SEAT_NATIVE_FLAG_NONE,
                         G_PARAM_READWRITE |

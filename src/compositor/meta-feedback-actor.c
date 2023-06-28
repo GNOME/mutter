@@ -161,9 +161,7 @@ meta_feedback_actor_class_init (MetaFeedbackActorClass *klass)
   object_class->set_property = meta_feedback_actor_set_property;
   object_class->get_property = meta_feedback_actor_get_property;
 
-  pspec = g_param_spec_object ("compositor",
-                               "compositor",
-                               "The compositor instance",
+  pspec = g_param_spec_object ("compositor", NULL, NULL,
                                META_TYPE_COMPOSITOR,
                                G_PARAM_READWRITE |
                                G_PARAM_STATIC_STRINGS |
@@ -173,9 +171,7 @@ meta_feedback_actor_class_init (MetaFeedbackActorClass *klass)
                                    PROP_COMPOSITOR,
                                    pspec);
 
-  pspec = g_param_spec_float ("anchor-x",
-                              "Anchor X",
-                              "The X axis of the anchor point",
+  pspec = g_param_spec_float ("anchor-x", NULL, NULL,
                               0, G_MAXFLOAT, 0,
                               G_PARAM_READWRITE |
                               G_PARAM_STATIC_STRINGS);
@@ -184,9 +180,7 @@ meta_feedback_actor_class_init (MetaFeedbackActorClass *klass)
                                    PROP_ANCHOR_X,
                                    pspec);
 
-  pspec = g_param_spec_float ("anchor-y",
-                              "Anchor Y",
-                              "The Y axis of the anchor point",
+  pspec = g_param_spec_float ("anchor-y", NULL, NULL,
                               0, G_MAXFLOAT, 0,
                               G_PARAM_READWRITE |
                               G_PARAM_STATIC_STRINGS);

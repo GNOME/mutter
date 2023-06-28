@@ -308,9 +308,7 @@ clutter_binding_pool_class_init (ClutterBindingPoolClass *klass)
    * The unique name of the #ClutterBindingPool.
    */
   obj_props[PROP_NAME] =
-    g_param_spec_string ("name",
-                         P_("Name"),
-                         P_("The unique name of the binding pool"),
+    g_param_spec_string ("name", NULL, NULL,
                          NULL,
                          CLUTTER_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY);

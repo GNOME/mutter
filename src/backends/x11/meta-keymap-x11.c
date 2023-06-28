@@ -549,9 +549,7 @@ meta_keymap_x11_class_init (MetaKeymapX11Class *klass)
   ClutterKeymapClass *keymap_class = CLUTTER_KEYMAP_CLASS (klass);
 
   obj_props[PROP_BACKEND] =
-    g_param_spec_object ("backend",
-                         "Backend",
-                         "The backend",
+    g_param_spec_object ("backend", NULL, NULL,
                          META_TYPE_BACKEND,
                          G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY);
 

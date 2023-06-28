@@ -190,23 +190,17 @@ clutter_input_method_class_init (ClutterInputMethodClass *klass)
                   G_TYPE_NONE, 1, GRAPHENE_TYPE_RECT);
 
   pspecs[PROP_CONTENT_HINTS] =
-    g_param_spec_flags ("content-hints",
-                        P_("Content hints"),
-                        P_("Content hints"),
+    g_param_spec_flags ("content-hints", NULL, NULL,
                         CLUTTER_TYPE_INPUT_CONTENT_HINT_FLAGS, 0,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS);
   pspecs[PROP_CONTENT_PURPOSE] =
-    g_param_spec_enum ("content-purpose",
-                       P_("Content purpose"),
-                       P_("Content purpose"),
+    g_param_spec_enum ("content-purpose", NULL, NULL,
                        CLUTTER_TYPE_INPUT_CONTENT_PURPOSE, 0,
                        G_PARAM_READWRITE |
                        G_PARAM_STATIC_STRINGS);
   pspecs[PROP_CAN_SHOW_PREEDIT] =
-    g_param_spec_boolean ("can-show-preedit",
-                          P_("Can show preedit"),
-                          P_("Can show preedit"),
+    g_param_spec_boolean ("can-show-preedit", NULL, NULL,
                           FALSE,
                           G_PARAM_READWRITE |
                           G_PARAM_STATIC_STRINGS);

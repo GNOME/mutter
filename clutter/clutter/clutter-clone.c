@@ -355,9 +355,7 @@ clutter_clone_class_init (ClutterCloneClass *klass)
    * This property specifies the source actor being cloned.
    */
   obj_props[PROP_SOURCE] =
-    g_param_spec_object ("source",
-                         P_("Source"),
-                         P_("Specifies the actor to be cloned"),
+    g_param_spec_object ("source", NULL, NULL,
                          CLUTTER_TYPE_ACTOR,
                          G_PARAM_CONSTRUCT |
                          CLUTTER_PARAM_READWRITE);

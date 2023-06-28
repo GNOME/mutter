@@ -352,9 +352,7 @@ meta_orientation_manager_class_init (MetaOrientationManagerClass *klass)
                   G_TYPE_NONE, 0);
 
   props[PROP_HAS_ACCELEROMETER] =
-    g_param_spec_boolean ("has-accelerometer",
-                          "Has accelerometer",
-                          "Has accelerometer",
+    g_param_spec_boolean ("has-accelerometer", NULL, NULL,
                           FALSE,
                           G_PARAM_READABLE |
                           G_PARAM_EXPLICIT_NOTIFY |

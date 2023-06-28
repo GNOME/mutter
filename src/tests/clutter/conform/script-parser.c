@@ -86,7 +86,7 @@ test_group_meta_class_init (TestGroupMetaClass *klass)
   gobject_class->set_property = test_group_meta_set_property;
   gobject_class->get_property = test_group_meta_get_property;
 
-  pspec = g_param_spec_boolean ("focus", "Focus", "Focus",
+  pspec = g_param_spec_boolean ("focus", NULL, NULL,
                                 FALSE,
                                 G_PARAM_READWRITE);
   g_object_class_install_property (gobject_class, PROP_META_FOCUS, pspec);

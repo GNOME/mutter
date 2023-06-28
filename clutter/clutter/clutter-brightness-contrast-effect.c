@@ -268,9 +268,7 @@ clutter_brightness_contrast_effect_class_init (ClutterBrightnessContrastEffectCl
    * brightness.
    */
   obj_props[PROP_BRIGHTNESS] =
-    clutter_param_spec_color ("brightness",
-                              P_("Brightness"),
-                              P_("The brightness change to apply"),
+    clutter_param_spec_color ("brightness", NULL, NULL,
                               &no_brightness_change,
                               CLUTTER_PARAM_READWRITE);
 
@@ -286,9 +284,7 @@ clutter_brightness_contrast_effect_class_init (ClutterBrightnessContrastEffectCl
    * contrast.
    */
   obj_props[PROP_CONTRAST] =
-    clutter_param_spec_color ("contrast",
-                              P_("Contrast"),
-                              P_("The contrast change to apply"),
+    clutter_param_spec_color ("contrast", NULL, NULL,
                               &no_contrast_change,
                               CLUTTER_PARAM_READWRITE);
 

@@ -234,9 +234,7 @@ clutter_canvas_class_init (ClutterCanvasClass *klass)
    * The width of the canvas.
    */
   obj_props[PROP_WIDTH] =
-    g_param_spec_int ("width",
-                      P_("Width"),
-                      P_("The width of the canvas"),
+    g_param_spec_int ("width", NULL, NULL,
                       -1, G_MAXINT,
                       -1,
                       G_PARAM_READWRITE |
@@ -248,9 +246,7 @@ clutter_canvas_class_init (ClutterCanvasClass *klass)
    * The height of the canvas.
    */
   obj_props[PROP_HEIGHT] =
-    g_param_spec_int ("height",
-                      P_("Height"),
-                      P_("The height of the canvas"),
+    g_param_spec_int ("height", NULL, NULL,
                       -1, G_MAXINT,
                       -1,
                       G_PARAM_READWRITE |
@@ -262,9 +258,7 @@ clutter_canvas_class_init (ClutterCanvasClass *klass)
    * The height of the canvas.
    */
   obj_props[PROP_SCALE_FACTOR] =
-    g_param_spec_float ("scale-factor",
-                        P_("Scale Factor"),
-                        P_("The Scale factor of the canvas"),
+    g_param_spec_float ("scale-factor", NULL, NULL,
                         0.01f, G_MAXFLOAT,
                         1.0f,
                         G_PARAM_READWRITE |

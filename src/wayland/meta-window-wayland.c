@@ -915,9 +915,7 @@ meta_window_wayland_class_init (MetaWindowWaylandClass *klass)
   window_class->get_wayland_surface = meta_window_wayland_get_wayland_surface;
 
   obj_props[PROP_SURFACE] =
-    g_param_spec_object ("surface",
-                         "Surface",
-                         "The corresponding Wayland surface",
+    g_param_spec_object ("surface", NULL, NULL,
                          META_TYPE_WAYLAND_SURFACE,
                          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
 

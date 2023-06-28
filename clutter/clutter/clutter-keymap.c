@@ -108,16 +108,12 @@ clutter_keymap_class_init (ClutterKeymapClass *klass)
   object_class->set_property = clutter_keymap_set_property;
 
   obj_props[PROP_CAPS_LOCK_STATE] =
-    g_param_spec_boolean ("caps-lock-state",
-                          "Caps lock state",
-                          "Caps lock state",
+    g_param_spec_boolean ("caps-lock-state", NULL, NULL,
                           FALSE,
                           G_PARAM_READABLE |
                           G_PARAM_STATIC_STRINGS);
   obj_props[PROP_NUM_LOCK_STATE] =
-    g_param_spec_boolean ("num-lock-state",
-                          "Num lock state",
-                          "Num lock state",
+    g_param_spec_boolean ("num-lock-state", NULL, NULL,
                           FALSE,
                           G_PARAM_READABLE |
                           G_PARAM_STATIC_STRINGS);

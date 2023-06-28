@@ -224,21 +224,15 @@ meta_launch_context_class_init (MetaLaunchContextClass *klass)
   ctx_class->launch_failed = meta_launch_context_launch_failed;
 
   props[PROP_DISPLAY] =
-    g_param_spec_object ("display",
-                         "display",
-                         "Display",
+    g_param_spec_object ("display", NULL, NULL,
                          META_TYPE_DISPLAY,
                          G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
   props[PROP_WORKSPACE] =
-    g_param_spec_object ("workspace",
-                         "workspace",
-                         "Workspace",
+    g_param_spec_object ("workspace", NULL, NULL,
                          META_TYPE_WORKSPACE,
                          G_PARAM_READWRITE);
   props[PROP_TIMESTAMP] =
-    g_param_spec_uint ("timestamp",
-                       "timestamp",
-                       "Timestamp",
+    g_param_spec_uint ("timestamp", NULL, NULL,
                        0, G_MAXUINT32, 0,
                        G_PARAM_READWRITE);
 

@@ -864,9 +864,7 @@ meta_screen_cast_session_class_init (MetaScreenCastSessionClass *klass)
   object_class->get_property = meta_screen_cast_session_get_property;
 
   obj_props[PROP_SESSION_TYPE] =
-    g_param_spec_enum ("session-type",
-                       "session type",
-                       "The type of screen cast session",
+    g_param_spec_enum ("session-type", NULL, NULL,
                        META_TYPE_SCREEN_CAST_SESSION_TYPE,
                        META_SCREEN_CAST_SESSION_TYPE_NORMAL,
                        G_PARAM_READWRITE |

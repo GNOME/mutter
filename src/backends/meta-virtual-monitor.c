@@ -207,24 +207,18 @@ meta_virtual_monitor_class_init (MetaVirtualMonitorClass *klass)
   object_class->dispose = meta_virtual_monitor_dispose;
 
   obj_props[PROP_CRTC] =
-    g_param_spec_object ("crtc",
-                         "crtc",
-                         "The virtual CRTC",
+    g_param_spec_object ("crtc", NULL, NULL,
                          META_TYPE_CRTC,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
   obj_props[PROP_CRTC_MODE] =
-    g_param_spec_object ("crtc-mode",
-                         "crtc-mode",
-                         "The virtual CRTC mode",
+    g_param_spec_object ("crtc-mode", NULL, NULL,
                          META_TYPE_CRTC_MODE,
                          G_PARAM_READWRITE |
                          G_PARAM_STATIC_STRINGS);
   obj_props[PROP_OUTPUT] =
-    g_param_spec_object ("output",
-                         "output",
-                         "The virtual output",
+    g_param_spec_object ("output", NULL, NULL,
                          META_TYPE_OUTPUT,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |

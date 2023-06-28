@@ -184,9 +184,7 @@ meta_compositor_view_class_init (MetaCompositorViewClass *klass)
   object_class->finalize = meta_compositor_view_finalize;
 
   obj_props[PROP_STAGE_VIEW] =
-    g_param_spec_object ("stage-view",
-                         "stage-view",
-                         "ClutterStageView",
+    g_param_spec_object ("stage-view", NULL, NULL,
                          CLUTTER_TYPE_STAGE_VIEW,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |

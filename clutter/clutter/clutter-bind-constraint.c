@@ -392,9 +392,7 @@ clutter_bind_constraint_class_init (ClutterBindConstraintClass *klass)
    * to the constraint.
    */
   obj_props[PROP_SOURCE] =
-    g_param_spec_object ("source",
-                         P_("Source"),
-                         P_("The source of the binding"),
+    g_param_spec_object ("source", NULL, NULL,
                          CLUTTER_TYPE_ACTOR,
                          CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT);
 
@@ -404,9 +402,7 @@ clutter_bind_constraint_class_init (ClutterBindConstraintClass *klass)
    * The coordinate to be bound
    */
   obj_props[PROP_COORDINATE] =
-    g_param_spec_enum ("coordinate",
-                       P_("Coordinate"),
-                       P_("The coordinate to bind"),
+    g_param_spec_enum ("coordinate", NULL, NULL,
                        CLUTTER_TYPE_BIND_COORDINATE,
                        CLUTTER_BIND_X,
                        CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT);
@@ -417,9 +413,7 @@ clutter_bind_constraint_class_init (ClutterBindConstraintClass *klass)
    * The offset, in pixels, to be applied to the binding
    */
   obj_props[PROP_OFFSET] =
-    g_param_spec_float ("offset",
-                        P_("Offset"),
-                        P_("The offset in pixels to apply to the binding"),
+    g_param_spec_float ("offset", NULL, NULL,
                         -G_MAXFLOAT, G_MAXFLOAT,
                         0.0f,
                         CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT);

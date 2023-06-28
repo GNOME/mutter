@@ -144,17 +144,13 @@ meta_input_device_class_init (MetaInputDeviceClass *klass)
   object_class->get_property = meta_input_device_get_property;
 
   props[PROP_BACKEND] =
-    g_param_spec_object ("backend",
-                         "backend",
-                         "MetaBackend",
+    g_param_spec_object ("backend", NULL, NULL,
                          META_TYPE_BACKEND,
                          G_PARAM_WRITABLE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
   props[PROP_WACOM_DEVICE] =
-    g_param_spec_pointer ("wacom-device",
-                          "Wacom device",
-                          "Wacom device",
+    g_param_spec_pointer ("wacom-device", NULL, NULL,
                           G_PARAM_READABLE |
                           G_PARAM_STATIC_STRINGS);
 

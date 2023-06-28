@@ -377,33 +377,25 @@ meta_crtc_class_init (MetaCrtcClass *klass)
   object_class->finalize = meta_crtc_finalize;
 
   obj_props[PROP_ID] =
-    g_param_spec_uint64 ("id",
-                         "id",
-                         "CRTC id",
+    g_param_spec_uint64 ("id", NULL, NULL,
                          0, UINT64_MAX, 0,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
   obj_props[PROP_BACKEND] =
-    g_param_spec_object ("backend",
-                         "backend",
-                         "MetaBackend",
+    g_param_spec_object ("backend", NULL, NULL,
                          META_TYPE_BACKEND,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
   obj_props[PROP_GPU] =
-    g_param_spec_object ("gpu",
-                         "gpu",
-                         "MetaGpu",
+    g_param_spec_object ("gpu", NULL, NULL,
                          META_TYPE_GPU,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
   obj_props[PROP_ALL_TRANSFORMS] =
-    g_param_spec_uint ("all-transforms",
-                       "all-transforms",
-                       "All transforms",
+    g_param_spec_uint ("all-transforms", NULL, NULL,
                        0,
                        META_MONITOR_ALL_TRANSFORMS,
                        META_MONITOR_ALL_TRANSFORMS,

@@ -198,9 +198,7 @@ meta_window_actor_class_init (MetaWindowActorClass *klass)
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 
-  pspec = g_param_spec_object ("meta-window",
-                               "MetaWindow",
-                               "The displayed MetaWindow",
+  pspec = g_param_spec_object ("meta-window", NULL, NULL,
                                META_TYPE_WINDOW,
                                G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
 

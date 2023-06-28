@@ -1109,14 +1109,10 @@ meta_virtual_input_device_native_class_init (MetaVirtualInputDeviceNativeClass *
   virtual_input_device_class->notify_touch_motion = meta_virtual_input_device_native_notify_touch_motion;
   virtual_input_device_class->notify_touch_up = meta_virtual_input_device_native_notify_touch_up;
 
-  obj_props[PROP_SEAT] = g_param_spec_pointer ("seat",
-                                               "Seat",
-                                               "Seat",
+  obj_props[PROP_SEAT] = g_param_spec_pointer ("seat", NULL, NULL,
                                                CLUTTER_PARAM_READWRITE |
                                                G_PARAM_CONSTRUCT_ONLY);
-  obj_props[PROP_SLOT_BASE] = g_param_spec_uint ("slot-base",
-                                                 "Slot base",
-                                                 "Base for touch slots",
+  obj_props[PROP_SLOT_BASE] = g_param_spec_uint ("slot-base", NULL, NULL,
                                                  0, G_MAXUINT, 0,
                                                  CLUTTER_PARAM_READWRITE |
                                                  G_PARAM_CONSTRUCT_ONLY);

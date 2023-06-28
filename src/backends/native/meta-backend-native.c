@@ -885,9 +885,7 @@ meta_backend_native_class_init (MetaBackendNativeClass *klass)
   backend_class->is_headless = meta_backend_native_is_headless;
 
   obj_props[PROP_MODE] =
-    g_param_spec_enum ("mode",
-                       "mode",
-                       "mode",
+    g_param_spec_enum ("mode", NULL, NULL,
                        META_TYPE_BACKEND_NATIVE_MODE,
                        META_BACKEND_NATIVE_MODE_DEFAULT,
                        G_PARAM_WRITABLE |

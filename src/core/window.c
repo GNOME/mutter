@@ -487,184 +487,126 @@ meta_window_class_init (MetaWindowClass *klass)
   klass->get_client_pid = meta_window_real_get_client_pid;
 
   obj_props[PROP_TITLE] =
-    g_param_spec_string ("title",
-                         "Title",
-                         "The title of the window",
+    g_param_spec_string ("title", NULL, NULL,
                          NULL,
                          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
   obj_props[PROP_ICON] =
-    g_param_spec_pointer ("icon",
-                          "Icon",
-                          "Normal icon, usually 96x96 pixels",
+    g_param_spec_pointer ("icon", NULL, NULL,
                           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
   obj_props[PROP_MINI_ICON] =
-    g_param_spec_pointer ("mini-icon",
-                          "Mini Icon",
-                          "Mini icon, usually 16x16 pixels",
+    g_param_spec_pointer ("mini-icon", NULL, NULL,
                           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
   obj_props[PROP_DECORATED] =
-    g_param_spec_boolean ("decorated",
-                          "Decorated",
-                          "Whether window is decorated",
+    g_param_spec_boolean ("decorated", NULL, NULL,
                           TRUE,
                           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
   obj_props[PROP_FULLSCREEN] =
-    g_param_spec_boolean ("fullscreen",
-                          "Fullscreen",
-                          "Whether window is fullscreened",
+    g_param_spec_boolean ("fullscreen", NULL, NULL,
                           FALSE,
                           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
   obj_props[PROP_MAXIMIZED_HORIZONTALLY] =
-    g_param_spec_boolean ("maximized-horizontally",
-                          "Maximized horizontally",
-                          "Whether window is maximized horizontally",
+    g_param_spec_boolean ("maximized-horizontally", NULL, NULL,
                           FALSE,
                           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
   obj_props[PROP_MAXIMIZED_VERTICALLY] =
-    g_param_spec_boolean ("maximized-vertically",
-                          "Maximizing vertically",
-                          "Whether window is maximized vertically",
+    g_param_spec_boolean ("maximized-vertically", NULL, NULL,
                           FALSE,
                           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
   obj_props[PROP_MINIMIZED] =
-    g_param_spec_boolean ("minimized",
-                          "Minimizing",
-                          "Whether window is minimized",
+    g_param_spec_boolean ("minimized", NULL, NULL,
                           FALSE,
                           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
   obj_props[PROP_WINDOW_TYPE] =
-    g_param_spec_enum ("window-type",
-                       "Window Type",
-                       "The type of the window",
+    g_param_spec_enum ("window-type", NULL, NULL,
                        META_TYPE_WINDOW_TYPE,
                        META_WINDOW_NORMAL,
                        G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
   obj_props[PROP_USER_TIME] =
-    g_param_spec_uint ("user-time",
-                       "User time",
-                       "Timestamp of last user interaction",
+    g_param_spec_uint ("user-time", NULL, NULL,
                        0,
                        G_MAXUINT,
                        0,
                        G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
   obj_props[PROP_DEMANDS_ATTENTION] =
-    g_param_spec_boolean ("demands-attention",
-                          "Demands Attention",
-                          "Whether the window has _NET_WM_STATE_DEMANDS_ATTENTION set",
+    g_param_spec_boolean ("demands-attention", NULL, NULL,
                           FALSE,
                           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
   obj_props[PROP_URGENT] =
-    g_param_spec_boolean ("urgent",
-                          "Urgent",
-                          "Whether the urgent flag of WM_HINTS is set",
+    g_param_spec_boolean ("urgent", NULL, NULL,
                           FALSE,
                           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
   obj_props[PROP_SKIP_TASKBAR] =
-    g_param_spec_boolean ("skip-taskbar",
-                          "Skip taskbar",
-                          "Whether the skip-taskbar flag of WM_HINTS is set",
+    g_param_spec_boolean ("skip-taskbar", NULL, NULL,
                           FALSE,
                           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
   obj_props[PROP_MUTTER_HINTS] =
-    g_param_spec_string ("mutter-hints",
-                         "_MUTTER_HINTS",
-                         "Contents of the _MUTTER_HINTS property of this window",
+    g_param_spec_string ("mutter-hints", NULL, NULL,
                          NULL,
                          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
   obj_props[PROP_APPEARS_FOCUSED] =
-    g_param_spec_boolean ("appears-focused",
-                          "Appears focused",
-                          "Whether the window is drawn as being focused",
+    g_param_spec_boolean ("appears-focused", NULL, NULL,
                           FALSE,
                           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
   obj_props[PROP_RESIZEABLE] =
-    g_param_spec_boolean ("resizeable",
-                          "Resizeable",
-                          "Whether the window can be resized",
+    g_param_spec_boolean ("resizeable", NULL, NULL,
                           FALSE,
                           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
   obj_props[PROP_ABOVE] =
-    g_param_spec_boolean ("above",
-                          "Above",
-                          "Whether the window is shown as always-on-top",
+    g_param_spec_boolean ("above", NULL, NULL,
                           FALSE,
                           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
   obj_props[PROP_WM_CLASS] =
-    g_param_spec_string ("wm-class",
-                         "WM_CLASS",
-                         "Contents of the WM_CLASS property of this window",
+    g_param_spec_string ("wm-class", NULL, NULL,
                          NULL,
                          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
   obj_props[PROP_GTK_APPLICATION_ID] =
-    g_param_spec_string ("gtk-application-id",
-                         "_GTK_APPLICATION_ID",
-                         "Contents of the _GTK_APPLICATION_ID property of this window",
+    g_param_spec_string ("gtk-application-id", NULL, NULL,
                          NULL,
                          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
   obj_props[PROP_GTK_UNIQUE_BUS_NAME] =
-    g_param_spec_string ("gtk-unique-bus-name",
-                         "_GTK_UNIQUE_BUS_NAME",
-                         "Contents of the _GTK_UNIQUE_BUS_NAME property of this window",
+    g_param_spec_string ("gtk-unique-bus-name", NULL, NULL,
                          NULL,
                          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
   obj_props[PROP_GTK_APPLICATION_OBJECT_PATH] =
-    g_param_spec_string ("gtk-application-object-path",
-                         "_GTK_APPLICATION_OBJECT_PATH",
-                         "Contents of the _GTK_APPLICATION_OBJECT_PATH property of this window",
+    g_param_spec_string ("gtk-application-object-path", NULL, NULL,
                          NULL,
                          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
   obj_props[PROP_GTK_WINDOW_OBJECT_PATH] =
-    g_param_spec_string ("gtk-window-object-path",
-                         "_GTK_WINDOW_OBJECT_PATH",
-                         "Contents of the _GTK_WINDOW_OBJECT_PATH property of this window",
+    g_param_spec_string ("gtk-window-object-path", NULL, NULL,
                          NULL,
                          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
   obj_props[PROP_GTK_APP_MENU_OBJECT_PATH] =
-    g_param_spec_string ("gtk-app-menu-object-path",
-                         "_GTK_APP_MENU_OBJECT_PATH",
-                         "Contents of the _GTK_APP_MENU_OBJECT_PATH property of this window",
+    g_param_spec_string ("gtk-app-menu-object-path", NULL, NULL,
                          NULL,
                          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
   obj_props[PROP_GTK_MENUBAR_OBJECT_PATH] =
-    g_param_spec_string ("gtk-menubar-object-path",
-                         "_GTK_MENUBAR_OBJECT_PATH",
-                         "Contents of the _GTK_MENUBAR_OBJECT_PATH property of this window",
+    g_param_spec_string ("gtk-menubar-object-path", NULL, NULL,
                          NULL,
                          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
   obj_props[PROP_ON_ALL_WORKSPACES] =
-    g_param_spec_boolean ("on-all-workspaces",
-                          "On all workspaces",
-                          "Whether the window is set to appear on all workspaces",
+    g_param_spec_boolean ("on-all-workspaces", NULL, NULL,
                           FALSE,
                           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_IS_ALIVE] =
-    g_param_spec_boolean ("is-alive",
-                          "Is alive",
-                          "Whether the window responds to pings",
+    g_param_spec_boolean ("is-alive", NULL, NULL,
                           TRUE,
                           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_DISPLAY] =
-    g_param_spec_object ("display",
-                         "Display",
-                         "The display the window is attached to",
+    g_param_spec_object ("display", NULL, NULL,
                          META_TYPE_DISPLAY,
                          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
 
   obj_props[PROP_EFFECT] =
-    g_param_spec_int ("effect",
-                      "Compositor effect",
-                      "The compositor effect",
+    g_param_spec_int ("effect", NULL, NULL,
                       META_COMP_EFFECT_CREATE,
                       META_COMP_EFFECT_NONE,
                       META_COMP_EFFECT_NONE,
                       G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
 
   obj_props[PROP_XWINDOW] =
-    g_param_spec_ulong ("xwindow",
-                        "X Window",
-                        "The corresponding X Window",
+    g_param_spec_ulong ("xwindow", NULL, NULL,
                         0, G_MAXULONG, 0,
                         G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
 

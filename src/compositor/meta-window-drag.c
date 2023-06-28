@@ -236,16 +236,12 @@ meta_window_drag_class_init (MetaWindowDragClass *klass)
   object_class->set_property = meta_window_drag_set_property;
   object_class->get_property = meta_window_drag_get_property;
 
-  props[PROP_WINDOW] = g_param_spec_object ("window",
-                                            "Window",
-                                            "Window",
+  props[PROP_WINDOW] = g_param_spec_object ("window", NULL, NULL,
                                             META_TYPE_WINDOW,
                                             G_PARAM_READWRITE |
                                             G_PARAM_CONSTRUCT_ONLY |
                                             G_PARAM_STATIC_STRINGS);
-  props[PROP_GRAB_OP] = g_param_spec_uint ("grab-op",
-                                           "Grab op",
-                                           "Grab op",
+  props[PROP_GRAB_OP] = g_param_spec_uint ("grab-op", NULL, NULL,
                                            0, G_MAXUINT,
                                            META_GRAB_OP_NONE,
                                            G_PARAM_READWRITE |

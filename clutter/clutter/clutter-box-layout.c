@@ -940,9 +940,7 @@ clutter_box_layout_class_init (ClutterBoxLayoutClass *klass)
    * or vertical
    */
   obj_props[PROP_ORIENTATION] =
-    g_param_spec_enum ("orientation",
-                       P_("Orientation"),
-                       P_("The orientation of the layout"),
+    g_param_spec_enum ("orientation", NULL, NULL,
                        CLUTTER_TYPE_ORIENTATION,
                        CLUTTER_ORIENTATION_HORIZONTAL,
                        G_PARAM_READWRITE |
@@ -955,10 +953,7 @@ clutter_box_layout_class_init (ClutterBoxLayoutClass *klass)
    * homogeneously, i.e. all children get the same size
    */
   obj_props[PROP_HOMOGENEOUS] =
-    g_param_spec_boolean ("homogeneous",
-                          P_("Homogeneous"),
-                          P_("Whether the layout should be homogeneous, "
-                             "i.e. all children get the same size"),
+    g_param_spec_boolean ("homogeneous", NULL, NULL,
                           FALSE,
                           CLUTTER_PARAM_READWRITE);
 
@@ -968,9 +963,7 @@ clutter_box_layout_class_init (ClutterBoxLayoutClass *klass)
    * Deprecated: No longer has any effect
    */
   obj_props[PROP_PACK_START] =
-    g_param_spec_boolean ("pack-start",
-                          P_("Pack Start"),
-                          P_("Whether to pack items at the start of the box"),
+    g_param_spec_boolean ("pack-start", NULL, NULL,
                           FALSE,
                           CLUTTER_PARAM_READWRITE | G_PARAM_DEPRECATED);
 
@@ -980,9 +973,7 @@ clutter_box_layout_class_init (ClutterBoxLayoutClass *klass)
    * The spacing between children of the #ClutterBoxLayout, in pixels
    */
   obj_props[PROP_SPACING] =
-    g_param_spec_uint ("spacing",
-                       P_("Spacing"),
-                       P_("Spacing between children"),
+    g_param_spec_uint ("spacing", NULL, NULL,
                        0, G_MAXUINT, 0,
                        CLUTTER_PARAM_READWRITE);
 

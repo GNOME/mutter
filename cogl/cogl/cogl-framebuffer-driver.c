@@ -213,9 +213,7 @@ cogl_framebuffer_driver_class_init (CoglFramebufferDriverClass *klass)
   object_class->set_property = cogl_framebuffer_driver_set_property;
 
   obj_props[PROP_FRAMEBUFFER] =
-    g_param_spec_object ("framebuffer",
-                         "framebuffer",
-                         "CoglFramebuffer",
+    g_param_spec_object ("framebuffer", NULL, NULL,
                          COGL_TYPE_FRAMEBUFFER,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |

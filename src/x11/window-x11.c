@@ -2232,9 +2232,7 @@ meta_window_x11_class_init (MetaWindowX11Class *klass)
   klass->process_property_notify = meta_window_x11_impl_process_property_notify;
 
   obj_props[PROP_ATTRIBUTES] =
-    g_param_spec_pointer ("attributes",
-                          "Attributes",
-                          "The corresponding attributes",
+    g_param_spec_pointer ("attributes", NULL, NULL,
                           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
 
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);

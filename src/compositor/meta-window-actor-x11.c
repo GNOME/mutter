@@ -1604,9 +1604,7 @@ meta_window_actor_x11_class_init (MetaWindowActorX11Class *klass)
   object_class->dispose = meta_window_actor_x11_dispose;
   object_class->finalize = meta_window_actor_x11_finalize;
 
-  pspec = g_param_spec_enum ("shadow-mode",
-                             "Shadow mode",
-                             "Decides when to paint shadows",
+  pspec = g_param_spec_enum ("shadow-mode", NULL, NULL,
                              META_TYPE_SHADOW_MODE,
                              META_SHADOW_MODE_AUTO,
                              G_PARAM_READWRITE);
@@ -1615,9 +1613,7 @@ meta_window_actor_x11_class_init (MetaWindowActorX11Class *klass)
                                    PROP_SHADOW_MODE,
                                    pspec);
 
-  pspec = g_param_spec_string ("shadow-class",
-                               "Name of the shadow class for this window.",
-                               "NULL means to use the default shadow class for this window type",
+  pspec = g_param_spec_string ("shadow-class", NULL, NULL,
                                NULL,
                                G_PARAM_READWRITE);
 

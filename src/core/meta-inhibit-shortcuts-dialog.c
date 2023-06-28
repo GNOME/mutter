@@ -36,9 +36,7 @@ static void
 meta_inhibit_shortcuts_dialog_default_init (MetaInhibitShortcutsDialogInterface *iface)
 {
   g_object_interface_install_property (iface,
-                                       g_param_spec_object ("window",
-                                                            "Window",
-                                                            "Window",
+                                       g_param_spec_object ("window", NULL, NULL,
                                                             META_TYPE_WINDOW,
                                                             G_PARAM_READWRITE |
                                                             G_PARAM_CONSTRUCT_ONLY |

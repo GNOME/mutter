@@ -180,25 +180,19 @@ meta_workspace_manager_class_init (MetaWorkspaceManagerClass *klass)
 
   g_object_class_install_property (object_class,
                                    PROP_LAYOUT_COLUMNS,
-                                   g_param_spec_int ("layout-columns",
-                                                     "Layout columns",
-                                                     "Number of columns in layout",
+                                   g_param_spec_int ("layout-columns", NULL, NULL,
                                                      -1, G_MAXINT, 1,
                                                      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (object_class,
                                    PROP_LAYOUT_ROWS,
-                                   g_param_spec_int ("layout-rows",
-                                                     "Layout rows",
-                                                     "Number of rows in layout",
+                                   g_param_spec_int ("layout-rows", NULL, NULL,
                                                      -1, G_MAXINT, -1,
                                                      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (object_class,
                                    PROP_N_WORKSPACES,
-                                   g_param_spec_int ("n-workspaces",
-                                                     "N Workspaces",
-                                                     "Number of workspaces",
+                                   g_param_spec_int ("n-workspaces", NULL, NULL,
                                                      1, G_MAXINT, 1,
                                                      G_PARAM_READABLE));
 }

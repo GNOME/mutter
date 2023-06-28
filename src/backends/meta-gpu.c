@@ -215,9 +215,7 @@ meta_gpu_class_init (MetaGpuClass *klass)
   object_class->finalize = meta_gpu_finalize;
 
   obj_props[PROP_BACKEND] =
-    g_param_spec_object ("backend",
-                         "backend",
-                         "MetaBackend",
+    g_param_spec_object ("backend", NULL, NULL,
                          META_TYPE_BACKEND,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |

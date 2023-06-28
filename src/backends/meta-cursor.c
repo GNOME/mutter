@@ -315,9 +315,7 @@ meta_cursor_sprite_class_init (MetaCursorSpriteClass *klass)
   object_class->set_property = meta_cursor_tracker_set_property;
 
   obj_props[PROP_CURSOR_TRACKER] =
-    g_param_spec_object ("cursor-tracker",
-                         "cursor tracker",
-                         "MetaCursorTracker",
+    g_param_spec_object ("cursor-tracker", NULL, NULL,
                          META_TYPE_CURSOR_TRACKER,
                          G_PARAM_WRITABLE |
                          G_PARAM_CONSTRUCT_ONLY |

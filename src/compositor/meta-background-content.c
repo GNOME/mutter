@@ -956,72 +956,52 @@ meta_background_content_class_init (MetaBackgroundContentClass *klass)
   object_class->get_property = meta_background_content_get_property;
 
   properties[PROP_META_DISPLAY] =
-    g_param_spec_object ("meta-display",
-                         "MetaDisplay",
-                         "MetaDisplay",
+    g_param_spec_object ("meta-display", NULL, NULL,
                          META_TYPE_DISPLAY,
                          G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
 
   properties[PROP_MONITOR] =
-    g_param_spec_int ("monitor",
-                      "monitor",
-                      "monitor",
+    g_param_spec_int ("monitor", NULL, NULL,
                       0, G_MAXINT, 0,
                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
 
   properties[PROP_BACKGROUND] =
-    g_param_spec_object ("background",
-                         "Background",
-                         "MetaBackground object holding background parameters",
+    g_param_spec_object ("background", NULL, NULL,
                          META_TYPE_BACKGROUND,
                          G_PARAM_READWRITE);
 
   properties[PROP_GRADIENT] =
-    g_param_spec_boolean ("gradient",
-                          "Gradient",
-                          "Whether gradient effect is enabled",
+    g_param_spec_boolean ("gradient", NULL, NULL,
                           FALSE,
                           G_PARAM_READWRITE);
 
   properties[PROP_GRADIENT_HEIGHT] =
-    g_param_spec_int ("gradient-height",
-                      "Gradient Height",
-                      "Height of gradient effect",
+    g_param_spec_int ("gradient-height", NULL, NULL,
                       0, G_MAXINT, 0,
                       G_PARAM_READWRITE);
 
   properties[PROP_GRADIENT_MAX_DARKNESS] =
-    g_param_spec_double ("gradient-max-darkness",
-                         "Gradient Max Darkness",
-                         "How dark is the gradient initially",
+    g_param_spec_double ("gradient-max-darkness", NULL, NULL,
                          0.0, 1.0, 0.0,
                          G_PARAM_READWRITE);
 
   properties[PROP_VIGNETTE] =
-    g_param_spec_boolean ("vignette",
-                          "Vignette",
-                          "Whether vignette effect is enabled",
+    g_param_spec_boolean ("vignette", NULL, NULL,
                           FALSE,
                           G_PARAM_READWRITE);
 
   properties[PROP_VIGNETTE_BRIGHTNESS] =
-    g_param_spec_double ("brightness",
-                         "Vignette Brightness",
-                         "Brightness of vignette effect",
+    g_param_spec_double ("brightness", NULL, NULL,
                          0.0, 1.0, 1.0,
                          G_PARAM_READWRITE);
 
   properties[PROP_VIGNETTE_SHARPNESS] =
-    g_param_spec_double ("vignette-sharpness",
-                         "Vignette Sharpness",
-                         "Sharpness of vignette effect",
+    g_param_spec_double ("vignette-sharpness", NULL, NULL,
                          0.0, G_MAXDOUBLE, 0.0,
                          G_PARAM_READWRITE);
 
   properties[PROP_ROUNDED_CLIP_RADIUS] =
-    g_param_spec_float ("rounded-clip-radius",
-                        "Rounded clip radius",
-                        "Rounded clip radius",
+    g_param_spec_float ("rounded-clip-radius", NULL, NULL,
                         0.0, G_MAXFLOAT, 0.0,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |

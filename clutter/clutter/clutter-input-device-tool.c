@@ -119,28 +119,20 @@ clutter_input_device_tool_class_init (ClutterInputDeviceToolClass *klass)
   gobject_class->get_property = clutter_input_device_tool_get_property;
 
   props[PROP_TYPE] =
-    g_param_spec_enum ("type",
-                       P_("Tool type"),
-                       P_("Tool type"),
+    g_param_spec_enum ("type", NULL, NULL,
                        CLUTTER_TYPE_INPUT_DEVICE_TOOL_TYPE,
                        CLUTTER_INPUT_DEVICE_TOOL_NONE,
                        CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
   props[PROP_SERIAL] =
-    g_param_spec_uint64 ("serial",
-                         P_("Tool serial"),
-                         P_("Tool serial"),
+    g_param_spec_uint64 ("serial", NULL, NULL,
                          0, G_MAXUINT64, 0,
                          CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
   props[PROP_ID] =
-    g_param_spec_uint64 ("id",
-                         P_("Tool ID"),
-                         P_("Tool ID"),
+    g_param_spec_uint64 ("id", NULL, NULL,
                          0, G_MAXUINT64, 0,
                          CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
   props[PROP_AXES] =
-    g_param_spec_flags ("axes",
-                        P_("Axes"),
-                        P_("Axes"),
+    g_param_spec_flags ("axes", NULL, NULL,
                         CLUTTER_TYPE_INPUT_AXIS_FLAGS,
                         CLUTTER_INPUT_AXIS_FLAG_NONE,
                         CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);

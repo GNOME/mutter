@@ -1594,9 +1594,7 @@ meta_screen_cast_stream_src_class_init (MetaScreenCastStreamSrcClass *klass)
 
   g_object_class_install_property (object_class,
                                    PROP_STREAM,
-                                   g_param_spec_object ("stream",
-                                                        "stream",
-                                                        "MetaScreenCastStream",
+                                   g_param_spec_object ("stream", NULL, NULL,
                                                         META_TYPE_SCREEN_CAST_STREAM,
                                                         G_PARAM_READWRITE |
                                                         G_PARAM_CONSTRUCT_ONLY |

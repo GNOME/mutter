@@ -295,9 +295,7 @@ meta_screen_cast_window_stream_class_init (MetaScreenCastWindowStreamClass *klas
 
   g_object_class_install_property (object_class,
                                    PROP_WINDOW,
-                                   g_param_spec_object ("window",
-                                                        "window",
-                                                        "MetaWindow",
+                                   g_param_spec_object ("window", NULL, NULL,
                                                         META_TYPE_WINDOW,
                                                         G_PARAM_READWRITE |
                                                         G_PARAM_CONSTRUCT_ONLY |

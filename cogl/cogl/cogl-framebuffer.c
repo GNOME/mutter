@@ -379,32 +379,24 @@ cogl_framebuffer_class_init (CoglFramebufferClass *klass)
   object_class->set_property = cogl_framebuffer_set_property;
 
   obj_props[PROP_CONTEXT] =
-    g_param_spec_boxed ("context",
-                        "context",
-                        "CoglContext",
+    g_param_spec_boxed ("context", NULL, NULL,
                         COGL_TYPE_HANDLE,
                         G_PARAM_READWRITE |
                         G_PARAM_CONSTRUCT_ONLY |
                         G_PARAM_STATIC_STRINGS);
   obj_props[PROP_DRIVER_CONFIG] =
-    g_param_spec_pointer ("driver-config",
-                          "driver-config",
-                          "CoglFramebufferDriverConfig",
+    g_param_spec_pointer ("driver-config", NULL, NULL,
                           G_PARAM_READWRITE |
                           G_PARAM_CONSTRUCT_ONLY |
                           G_PARAM_STATIC_STRINGS);
   obj_props[PROP_WIDTH] =
-    g_param_spec_int ("width",
-                      "width",
-                      "framebuffer width",
+    g_param_spec_int ("width", NULL, NULL,
                       -1, INT_MAX, -1,
                       G_PARAM_READWRITE |
                       G_PARAM_CONSTRUCT |
                       G_PARAM_STATIC_STRINGS);
   obj_props[PROP_HEIGHT] =
-    g_param_spec_int ("height",
-                      "height",
-                      "framebuffer height",
+    g_param_spec_int ("height", NULL, NULL,
                       -1, INT_MAX, -1,
                       G_PARAM_READWRITE |
                       G_PARAM_CONSTRUCT |

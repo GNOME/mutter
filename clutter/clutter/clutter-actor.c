@@ -5817,9 +5817,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The #ClutterActor:x property is animatable.
    */
   obj_props[PROP_X] =
-    g_param_spec_float ("x",
-                        P_("X coordinate"),
-                        P_("X coordinate of the actor"),
+    g_param_spec_float ("x", NULL, NULL,
                         -G_MAXFLOAT, G_MAXFLOAT,
                         0.0,
                         G_PARAM_READWRITE |
@@ -5837,9 +5835,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The #ClutterActor:y property is animatable.
    */
   obj_props[PROP_Y] =
-    g_param_spec_float ("y",
-                        P_("Y coordinate"),
-                        P_("Y coordinate of the actor"),
+    g_param_spec_float ("y", NULL, NULL,
                         -G_MAXFLOAT, G_MAXFLOAT,
                         0.0,
                         G_PARAM_READWRITE |
@@ -5859,9 +5855,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The #ClutterActor:position property is animatable.
    */
   obj_props[PROP_POSITION] =
-    g_param_spec_boxed ("position",
-                        P_("Position"),
-                        P_("The position of the origin of the actor"),
+    g_param_spec_boxed ("position", NULL, NULL,
                         GRAPHENE_TYPE_POINT,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
@@ -5878,9 +5872,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The #ClutterActor:width property is animatable.
    */
   obj_props[PROP_WIDTH] =
-    g_param_spec_float ("width",
-                        P_("Width"),
-                        P_("Width of the actor"),
+    g_param_spec_float ("width", NULL, NULL,
                         -1.0f, G_MAXFLOAT,
                         0.0,
                         G_PARAM_READWRITE |
@@ -5898,9 +5890,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The #ClutterActor:height property is animatable.
    */
   obj_props[PROP_HEIGHT] =
-    g_param_spec_float ("height",
-                        P_("Height"),
-                        P_("Height of the actor"),
+    g_param_spec_float ("height", NULL, NULL,
                         -1.0f, G_MAXFLOAT,
                         0.0,
                         G_PARAM_READWRITE |
@@ -5919,9 +5909,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The #ClutterActor:size property is animatable.
    */
   obj_props[PROP_SIZE] =
-    g_param_spec_boxed ("size",
-                        P_("Size"),
-                        P_("The size of the actor"),
+    g_param_spec_boxed ("size", NULL, NULL,
                         GRAPHENE_TYPE_SIZE,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
@@ -5937,9 +5925,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * property as well, as a side effect
    */
   obj_props[PROP_FIXED_X] =
-    g_param_spec_float ("fixed-x",
-                        P_("Fixed X"),
-                        P_("Forced X position of the actor"),
+    g_param_spec_float ("fixed-x", NULL, NULL,
                         -G_MAXFLOAT, G_MAXFLOAT,
                         0.0,
                         CLUTTER_PARAM_READWRITE |
@@ -5954,9 +5940,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * property as well, as a side effect
    */
   obj_props[PROP_FIXED_Y] =
-    g_param_spec_float ("fixed-y",
-                        P_("Fixed Y"),
-                        P_("Forced Y position of the actor"),
+    g_param_spec_float ("fixed-y", NULL, NULL,
                         -G_MAXFLOAT, G_MAXFLOAT,
                         0,
                         CLUTTER_PARAM_READWRITE |
@@ -5969,9 +5953,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * #ClutterActor:fixed-y properties are used
    */
   obj_props[PROP_FIXED_POSITION_SET] =
-    g_param_spec_boolean ("fixed-position-set",
-                          P_("Fixed position set"),
-                          P_("Whether to use fixed positioning for the actor"),
+    g_param_spec_boolean ("fixed-position-set", NULL, NULL,
                           FALSE,
                           CLUTTER_PARAM_READWRITE |
                           G_PARAM_EXPLICIT_NOTIFY);
@@ -5987,9 +5969,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    *This property overrides the usual width request of the actor.
    */
   obj_props[PROP_MIN_WIDTH] =
-    g_param_spec_float ("min-width",
-                        P_("Min Width"),
-                        P_("Forced minimum width request for the actor"),
+    g_param_spec_float ("min-width", NULL, NULL,
                         0.0, G_MAXFLOAT,
                         0.0,
                         CLUTTER_PARAM_READWRITE |
@@ -6005,9 +5985,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * request of the actor.
    */
   obj_props[PROP_MIN_HEIGHT] =
-    g_param_spec_float ("min-height",
-                        P_("Min Height"),
-                        P_("Forced minimum height request for the actor"),
+    g_param_spec_float ("min-height", NULL, NULL,
                         0.0, G_MAXFLOAT,
                         0.0,
                         CLUTTER_PARAM_READWRITE |
@@ -6023,9 +6001,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * usual width request of the actor
    */
   obj_props[PROP_NATURAL_WIDTH] =
-    g_param_spec_float ("natural-width",
-                        P_("Natural Width"),
-                        P_("Forced natural width request for the actor"),
+    g_param_spec_float ("natural-width", NULL, NULL,
                         0.0, G_MAXFLOAT,
                         0.0,
                         CLUTTER_PARAM_READWRITE |
@@ -6041,9 +6017,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * usual height request of the actor
    */
   obj_props[PROP_NATURAL_HEIGHT] =
-    g_param_spec_float ("natural-height",
-                        P_("Natural Height"),
-                        P_("Forced natural height request for the actor"),
+    g_param_spec_float ("natural-height", NULL, NULL,
                         0.0, G_MAXFLOAT,
                         0.0,
                         CLUTTER_PARAM_READWRITE |
@@ -6056,9 +6030,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * is used
    */
   obj_props[PROP_MIN_WIDTH_SET] =
-    g_param_spec_boolean ("min-width-set",
-                          P_("Minimum width set"),
-                          P_("Whether to use the min-width property"),
+    g_param_spec_boolean ("min-width-set", NULL, NULL,
                           FALSE,
                           CLUTTER_PARAM_READWRITE |
                           G_PARAM_EXPLICIT_NOTIFY);
@@ -6070,9 +6042,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * is used
    */
   obj_props[PROP_MIN_HEIGHT_SET] =
-    g_param_spec_boolean ("min-height-set",
-                          P_("Minimum height set"),
-                          P_("Whether to use the min-height property"),
+    g_param_spec_boolean ("min-height-set", NULL, NULL,
                           FALSE,
                           CLUTTER_PARAM_READWRITE |
                           G_PARAM_EXPLICIT_NOTIFY);
@@ -6084,9 +6054,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * is used
    */
   obj_props[PROP_NATURAL_WIDTH_SET] =
-    g_param_spec_boolean ("natural-width-set",
-                          P_("Natural width set"),
-                          P_("Whether to use the natural-width property"),
+    g_param_spec_boolean ("natural-width-set", NULL, NULL,
                           FALSE,
                           CLUTTER_PARAM_READWRITE |
                           G_PARAM_EXPLICIT_NOTIFY);
@@ -6098,9 +6066,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * is used
    */
   obj_props[PROP_NATURAL_HEIGHT_SET] =
-    g_param_spec_boolean ("natural-height-set",
-                          P_("Natural height set"),
-                          P_("Whether to use the natural-height property"),
+    g_param_spec_boolean ("natural-height-set", NULL, NULL,
                           FALSE,
                           CLUTTER_PARAM_READWRITE |
                           G_PARAM_EXPLICIT_NOTIFY);
@@ -6114,9 +6080,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * actor moves or resizes
    */
   obj_props[PROP_ALLOCATION] =
-    g_param_spec_boxed ("allocation",
-                        P_("Allocation"),
-                        P_("The actor's allocation"),
+    g_param_spec_boxed ("allocation", NULL, NULL,
                         CLUTTER_TYPE_ACTOR_BOX,
                         G_PARAM_READABLE |
                         G_PARAM_STATIC_STRINGS |
@@ -6181,9 +6145,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * check for you.
    */
   obj_props[PROP_REQUEST_MODE] =
-    g_param_spec_enum ("request-mode",
-                       P_("Request Mode"),
-                       P_("The actor's request mode"),
+    g_param_spec_enum ("request-mode", NULL, NULL,
                        CLUTTER_TYPE_REQUEST_MODE,
                        CLUTTER_REQUEST_HEIGHT_FOR_WIDTH,
                        CLUTTER_PARAM_READWRITE |
@@ -6205,9 +6167,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The #ClutterActor:z-position property is animatable.
    */
   obj_props[PROP_Z_POSITION] =
-    g_param_spec_float ("z-position",
-                        P_("Z Position"),
-                        P_("The actor's position on the Z axis"),
+    g_param_spec_float ("z-position", NULL, NULL,
                         -G_MAXFLOAT, G_MAXFLOAT,
                         0.0f,
                         G_PARAM_READWRITE |
@@ -6224,9 +6184,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The #ClutterActor:opacity property is animatable.
    */
   obj_props[PROP_OPACITY] =
-    g_param_spec_uint ("opacity",
-                       P_("Opacity"),
-                       P_("Opacity of an actor"),
+    g_param_spec_uint ("opacity", NULL, NULL,
                        0, 255,
                        255,
                        G_PARAM_READWRITE |
@@ -6244,9 +6202,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * clutter_actor_set_offscreen_redirect() for details.
    */
   obj_props[PROP_OFFSCREEN_REDIRECT] =
-    g_param_spec_flags ("offscreen-redirect",
-                        P_("Offscreen redirect"),
-                        P_("Flags controlling when to flatten the actor into a single image"),
+    g_param_spec_flags ("offscreen-redirect", NULL, NULL,
                         CLUTTER_TYPE_OFFSCREEN_REDIRECT,
                         0,
                         CLUTTER_PARAM_READWRITE);
@@ -6259,9 +6215,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * See also #ClutterActor:mapped
    */
   obj_props[PROP_VISIBLE] =
-    g_param_spec_boolean ("visible",
-                          P_("Visible"),
-                          P_("Whether the actor is visible or not"),
+    g_param_spec_boolean ("visible", NULL, NULL,
                           FALSE,
                           CLUTTER_PARAM_READWRITE |
                           G_PARAM_EXPLICIT_NOTIFY);
@@ -6273,9 +6227,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * to which it belongs is mapped)
    */
   obj_props[PROP_MAPPED] =
-    g_param_spec_boolean ("mapped",
-                          P_("Mapped"),
-                          P_("Whether the actor will be painted"),
+    g_param_spec_boolean ("mapped", NULL, NULL,
                           FALSE,
                           CLUTTER_PARAM_READABLE |
                           G_PARAM_EXPLICIT_NOTIFY);
@@ -6286,9 +6238,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * Whether the actor has been realized
    */
   obj_props[PROP_REALIZED] =
-    g_param_spec_boolean ("realized",
-                          P_("Realized"),
-                          P_("Whether the actor has been realized"),
+    g_param_spec_boolean ("realized", NULL, NULL,
                           FALSE,
                           CLUTTER_PARAM_READABLE |
                           G_PARAM_EXPLICIT_NOTIFY);
@@ -6301,9 +6251,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * Only reactive actors will emit event-related signals
    */
   obj_props[PROP_REACTIVE] =
-    g_param_spec_boolean ("reactive",
-                          P_("Reactive"),
-                          P_("Whether the actor is reactive to events"),
+    g_param_spec_boolean ("reactive", NULL, NULL,
                           FALSE,
                           CLUTTER_PARAM_READWRITE |
                           G_PARAM_EXPLICIT_NOTIFY);
@@ -6314,9 +6262,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * Whether the actor has the #ClutterActor:clip property set or not
    */
   obj_props[PROP_HAS_CLIP] =
-    g_param_spec_boolean ("has-clip",
-                          P_("Has Clip"),
-                          P_("Whether the actor has a clip set"),
+    g_param_spec_boolean ("has-clip", NULL, NULL,
                           FALSE,
                           CLUTTER_PARAM_READABLE |
                           G_PARAM_EXPLICIT_NOTIFY);
@@ -6333,9 +6279,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * property as a side effect.
    */
   obj_props[PROP_CLIP_RECT] =
-    g_param_spec_boxed ("clip-rect",
-                        P_("Clip Rectangle"),
-                        P_("The visible region of the actor"),
+    g_param_spec_boxed ("clip-rect", NULL, NULL,
                         GRAPHENE_TYPE_RECT,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
@@ -6347,9 +6291,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The name of the actor
    */
   obj_props[PROP_NAME] =
-    g_param_spec_string ("name",
-                         P_("Name"),
-                         P_("Name of the actor"),
+    g_param_spec_string ("name", NULL, NULL,
                          NULL,
                          CLUTTER_PARAM_READWRITE |
                          G_PARAM_EXPLICIT_NOTIFY);
@@ -6368,9 +6310,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The #ClutterActor:pivot-point property is animatable.
    */
   obj_props[PROP_PIVOT_POINT] =
-    g_param_spec_boxed ("pivot-point",
-                        P_("Pivot Point"),
-                        P_("The point around which the scaling and rotation occur"),
+    g_param_spec_boxed ("pivot-point", NULL, NULL,
                         GRAPHENE_TYPE_POINT,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
@@ -6386,9 +6326,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The #ClutterActor:pivot-point-z property is animatable.
    */
   obj_props[PROP_PIVOT_POINT_Z] =
-    g_param_spec_float ("pivot-point-z",
-                        P_("Pivot Point Z"),
-                        P_("Z component of the pivot point"),
+    g_param_spec_float ("pivot-point-z", NULL, NULL,
                         -G_MAXFLOAT, G_MAXFLOAT,
                         0.f,
                         G_PARAM_READWRITE |
@@ -6404,9 +6342,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The #ClutterActor:scale-x property is animatable.
    */
   obj_props[PROP_SCALE_X] =
-    g_param_spec_double ("scale-x",
-                         P_("Scale X"),
-                         P_("Scale factor on the X axis"),
+    g_param_spec_double ("scale-x", NULL, NULL,
                          -G_MAXDOUBLE, G_MAXDOUBLE,
                          1.0,
                          G_PARAM_READWRITE |
@@ -6422,9 +6358,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The #ClutterActor:scale-y property is animatable.
    */
   obj_props[PROP_SCALE_Y] =
-    g_param_spec_double ("scale-y",
-                         P_("Scale Y"),
-                         P_("Scale factor on the Y axis"),
+    g_param_spec_double ("scale-y", NULL, NULL,
                          -G_MAXDOUBLE, G_MAXDOUBLE,
                          1.0,
                          G_PARAM_READWRITE |
@@ -6440,9 +6374,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The #ClutterActor:scale-y property is animatable.
    */
   obj_props[PROP_SCALE_Z] =
-    g_param_spec_double ("scale-z",
-                         P_("Scale Z"),
-                         P_("Scale factor on the Z axis"),
+    g_param_spec_double ("scale-z", NULL, NULL,
                          -G_MAXDOUBLE, G_MAXDOUBLE,
                          1.0,
                          G_PARAM_READWRITE |
@@ -6458,9 +6390,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The #ClutterActor:rotation-angle-x property is animatable.
    */
   obj_props[PROP_ROTATION_ANGLE_X] =
-    g_param_spec_double ("rotation-angle-x",
-                         P_("Rotation Angle X"),
-                         P_("The rotation angle on the X axis"),
+    g_param_spec_double ("rotation-angle-x", NULL, NULL,
                          -G_MAXDOUBLE, G_MAXDOUBLE,
                          0.0,
                          G_PARAM_READWRITE |
@@ -6476,9 +6406,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The #ClutterActor:rotation-angle-y property is animatable.
    */
   obj_props[PROP_ROTATION_ANGLE_Y] =
-    g_param_spec_double ("rotation-angle-y",
-                         P_("Rotation Angle Y"),
-                         P_("The rotation angle on the Y axis"),
+    g_param_spec_double ("rotation-angle-y", NULL, NULL,
                          -G_MAXDOUBLE, G_MAXDOUBLE,
                          0.0,
                          G_PARAM_READWRITE |
@@ -6494,9 +6422,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The #ClutterActor:rotation-angle-z property is animatable.
    */
   obj_props[PROP_ROTATION_ANGLE_Z] =
-    g_param_spec_double ("rotation-angle-z",
-                         P_("Rotation Angle Z"),
-                         P_("The rotation angle on the Z axis"),
+    g_param_spec_double ("rotation-angle-z", NULL, NULL,
                          -G_MAXDOUBLE, G_MAXDOUBLE,
                          0.0,
                          G_PARAM_READWRITE |
@@ -6512,9 +6438,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The #ClutterActor:translation-x property is animatable.
    */
   obj_props[PROP_TRANSLATION_X] =
-    g_param_spec_float ("translation-x",
-                        P_("Translation X"),
-                        P_("Translation along the X axis"),
+    g_param_spec_float ("translation-x", NULL, NULL,
                         -G_MAXFLOAT, G_MAXFLOAT,
                         0.f,
                         G_PARAM_READWRITE |
@@ -6531,9 +6455,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The #ClutterActor:translation-y property is animatable.
    */
   obj_props[PROP_TRANSLATION_Y] =
-    g_param_spec_float ("translation-y",
-                        P_("Translation Y"),
-                        P_("Translation along the Y axis"),
+    g_param_spec_float ("translation-y", NULL, NULL,
                         -G_MAXFLOAT, G_MAXFLOAT,
                         0.f,
                         G_PARAM_READWRITE |
@@ -6550,9 +6472,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The #ClutterActor:translation-z property is animatable.
    */
   obj_props[PROP_TRANSLATION_Z] =
-    g_param_spec_float ("translation-z",
-                        P_("Translation Z"),
-                        P_("Translation along the Z axis"),
+    g_param_spec_float ("translation-z", NULL, NULL,
                         -G_MAXFLOAT, G_MAXFLOAT,
                         0.f,
                         G_PARAM_READWRITE |
@@ -6580,9 +6500,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The #ClutterActor:transform property is animatable.
    */
   obj_props[PROP_TRANSFORM] =
-    g_param_spec_boxed ("transform",
-                        P_("Transform"),
-                        P_("Transformation matrix"),
+    g_param_spec_boxed ("transform", NULL, NULL,
                         GRAPHENE_TYPE_MATRIX,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
@@ -6595,9 +6513,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * Whether the #ClutterActor:transform property is set.
    */
   obj_props[PROP_TRANSFORM_SET] =
-    g_param_spec_boolean ("transform-set",
-                          P_("Transform Set"),
-                          P_("Whether the transform property is set"),
+    g_param_spec_boolean ("transform-set", NULL, NULL,
                           FALSE,
                           G_PARAM_READABLE |
                           G_PARAM_STATIC_STRINGS |
@@ -6616,9 +6532,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The #ClutterActor:child-transform property is animatable.
    */
   obj_props[PROP_CHILD_TRANSFORM] =
-    g_param_spec_boxed ("child-transform",
-                        P_("Child Transform"),
-                        P_("Children transformation matrix"),
+    g_param_spec_boxed ("child-transform", NULL, NULL,
                         GRAPHENE_TYPE_MATRIX,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
@@ -6631,9 +6545,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * Whether the #ClutterActor:child-transform property is set.
    */
   obj_props[PROP_CHILD_TRANSFORM_SET] =
-    g_param_spec_boolean ("child-transform-set",
-                          P_("Child Transform Set"),
-                          P_("Whether the child-transform property is set"),
+    g_param_spec_boolean ("child-transform-set", NULL, NULL,
                           FALSE,
                           G_PARAM_READABLE |
                           G_PARAM_STATIC_STRINGS |
@@ -6648,9 +6560,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * parented will set this property to %FALSE as a side effect.
    */
   obj_props[PROP_SHOW_ON_SET_PARENT] = /* XXX:2.0 - remove */
-    g_param_spec_boolean ("show-on-set-parent",
-                          P_("Show on set parent"),
-                          P_("Whether the actor is shown when parented"),
+    g_param_spec_boolean ("show-on-set-parent", NULL, NULL,
                           TRUE,
                           CLUTTER_PARAM_READWRITE);
 
@@ -6664,9 +6574,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * set using clutter_actor_set_clip().
    */
   obj_props[PROP_CLIP_TO_ALLOCATION] =
-    g_param_spec_boolean ("clip-to-allocation",
-                          P_("Clip to Allocation"),
-                          P_("Sets the clip region to track the actor's allocation"),
+    g_param_spec_boolean ("clip-to-allocation", NULL, NULL,
                           FALSE,
                           CLUTTER_PARAM_READWRITE |
                           G_PARAM_EXPLICIT_NOTIFY);
@@ -6677,9 +6585,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The direction of the text inside a #ClutterActor.
    */
   obj_props[PROP_TEXT_DIRECTION] =
-    g_param_spec_enum ("text-direction",
-                       P_("Text Direction"),
-                       P_("Direction of the text"),
+    g_param_spec_enum ("text-direction", NULL, NULL,
                        CLUTTER_TYPE_TEXT_DIRECTION,
                        CLUTTER_TEXT_DIRECTION_LTR,
                        CLUTTER_PARAM_READWRITE |
@@ -6692,9 +6598,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * or not.
    */
   obj_props[PROP_HAS_POINTER] =
-    g_param_spec_boolean ("has-pointer",
-                          P_("Has Pointer"),
-                          P_("Whether the actor contains the pointer of an input device"),
+    g_param_spec_boolean ("has-pointer", NULL, NULL,
                           FALSE,
                           CLUTTER_PARAM_READABLE |
                           G_PARAM_EXPLICIT_NOTIFY);
@@ -6705,9 +6609,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * Adds a #ClutterAction to the actor
    */
   obj_props[PROP_ACTIONS] =
-    g_param_spec_object ("actions",
-                         P_("Actions"),
-                         P_("Adds an action to the actor"),
+    g_param_spec_object ("actions", NULL, NULL,
                          CLUTTER_TYPE_ACTION,
                          CLUTTER_PARAM_WRITABLE |
                          G_PARAM_EXPLICIT_NOTIFY);
@@ -6718,9 +6620,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * Adds a #ClutterConstraint to the actor
    */
   obj_props[PROP_CONSTRAINTS] =
-    g_param_spec_object ("constraints",
-                         P_("Constraints"),
-                         P_("Adds a constraint to the actor"),
+    g_param_spec_object ("constraints", NULL, NULL,
                          CLUTTER_TYPE_CONSTRAINT,
                          CLUTTER_PARAM_WRITABLE |
                          G_PARAM_EXPLICIT_NOTIFY);
@@ -6731,9 +6631,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * Adds #ClutterEffect to the list of effects be applied on a #ClutterActor
    */
   obj_props[PROP_EFFECT] =
-    g_param_spec_object ("effect",
-                         P_("Effect"),
-                         P_("Add an effect to be applied on the actor"),
+    g_param_spec_object ("effect", NULL, NULL,
                          CLUTTER_TYPE_EFFECT,
                          CLUTTER_PARAM_WRITABLE |
                          G_PARAM_EXPLICIT_NOTIFY);
@@ -6745,9 +6643,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * an actor.
    */
   obj_props[PROP_LAYOUT_MANAGER] =
-    g_param_spec_object ("layout-manager",
-                         P_("Layout Manager"),
-                         P_("The object controlling the layout of an actor's children"),
+    g_param_spec_object ("layout-manager", NULL, NULL,
                          CLUTTER_TYPE_LAYOUT_MANAGER,
                          CLUTTER_PARAM_READWRITE |
                          G_PARAM_EXPLICIT_NOTIFY);
@@ -6759,9 +6655,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * the X axis.
    */
   obj_props[PROP_X_EXPAND] =
-    g_param_spec_boolean ("x-expand",
-                          P_("X Expand"),
-                          P_("Whether extra horizontal space should be assigned to the actor"),
+    g_param_spec_boolean ("x-expand", NULL, NULL,
                           FALSE,
                           G_PARAM_READWRITE |
                           G_PARAM_STATIC_STRINGS |
@@ -6774,9 +6668,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * the Y axis.
    */
   obj_props[PROP_Y_EXPAND] =
-    g_param_spec_boolean ("y-expand",
-                          P_("Y Expand"),
-                          P_("Whether extra vertical space should be assigned to the actor"),
+    g_param_spec_boolean ("y-expand", NULL, NULL,
                           FALSE,
                           G_PARAM_READWRITE |
                           G_PARAM_STATIC_STRINGS |
@@ -6790,9 +6682,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * property.
    */
   obj_props[PROP_X_ALIGN] =
-    g_param_spec_enum ("x-align",
-                       P_("X Alignment"),
-                       P_("The alignment of the actor on the X axis within its allocation"),
+    g_param_spec_enum ("x-align", NULL, NULL,
                        CLUTTER_TYPE_ACTOR_ALIGN,
                        CLUTTER_ACTOR_ALIGN_FILL,
                        CLUTTER_PARAM_READWRITE |
@@ -6805,9 +6695,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * extra space for its allocation.
    */
   obj_props[PROP_Y_ALIGN] =
-    g_param_spec_enum ("y-align",
-                       P_("Y Alignment"),
-                       P_("The alignment of the actor on the Y axis within its allocation"),
+    g_param_spec_enum ("y-align", NULL, NULL,
                        CLUTTER_TYPE_ACTOR_ALIGN,
                        CLUTTER_ACTOR_ALIGN_FILL,
                        CLUTTER_PARAM_READWRITE |
@@ -6824,9 +6712,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The #ClutterActor:margin-top property is animatable.
    */
   obj_props[PROP_MARGIN_TOP] =
-    g_param_spec_float ("margin-top",
-                        P_("Margin Top"),
-                        P_("Extra space at the top"),
+    g_param_spec_float ("margin-top", NULL, NULL,
                         0.0, G_MAXFLOAT,
                         0.0,
                         G_PARAM_READWRITE |
@@ -6845,9 +6731,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The #ClutterActor:margin-bottom property is animatable.
    */
   obj_props[PROP_MARGIN_BOTTOM] =
-    g_param_spec_float ("margin-bottom",
-                        P_("Margin Bottom"),
-                        P_("Extra space at the bottom"),
+    g_param_spec_float ("margin-bottom", NULL, NULL,
                         0.0, G_MAXFLOAT,
                         0.0,
                         G_PARAM_READWRITE |
@@ -6866,9 +6750,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The #ClutterActor:margin-left property is animatable.
    */
   obj_props[PROP_MARGIN_LEFT] =
-    g_param_spec_float ("margin-left",
-                        P_("Margin Left"),
-                        P_("Extra space at the left"),
+    g_param_spec_float ("margin-left", NULL, NULL,
                         0.0, G_MAXFLOAT,
                         0.0,
                         G_PARAM_READWRITE |
@@ -6887,9 +6769,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The #ClutterActor:margin-right property is animatable.
    */
   obj_props[PROP_MARGIN_RIGHT] =
-    g_param_spec_float ("margin-right",
-                        P_("Margin Right"),
-                        P_("Extra space at the right"),
+    g_param_spec_float ("margin-right", NULL, NULL,
                         0.0, G_MAXFLOAT,
                         0.0,
                         G_PARAM_READWRITE |
@@ -6903,9 +6783,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * Whether the #ClutterActor:background-color property has been set.
    */
   obj_props[PROP_BACKGROUND_COLOR_SET] =
-    g_param_spec_boolean ("background-color-set",
-                          P_("Background Color Set"),
-                          P_("Whether the background color is set"),
+    g_param_spec_boolean ("background-color-set", NULL, NULL,
                           FALSE,
                           CLUTTER_PARAM_READABLE |
                           G_PARAM_EXPLICIT_NOTIFY);
@@ -6919,9 +6797,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The #ClutterActor:background-color property is animatable.
    */
   obj_props[PROP_BACKGROUND_COLOR] =
-    clutter_param_spec_color ("background-color",
-                              P_("Background color"),
-                              P_("The actor's background color"),
+    clutter_param_spec_color ("background-color", NULL, NULL,
                               CLUTTER_COLOR_Transparent,
                               G_PARAM_READWRITE |
                               G_PARAM_STATIC_STRINGS |
@@ -6934,9 +6810,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The actor's first child.
    */
   obj_props[PROP_FIRST_CHILD] =
-    g_param_spec_object ("first-child",
-                         P_("First Child"),
-                         P_("The actor's first child"),
+    g_param_spec_object ("first-child", NULL, NULL,
                          CLUTTER_TYPE_ACTOR,
                          CLUTTER_PARAM_READABLE |
                          G_PARAM_EXPLICIT_NOTIFY);
@@ -6947,9 +6821,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The actor's last child.
    */
   obj_props[PROP_LAST_CHILD] =
-    g_param_spec_object ("last-child",
-                         P_("Last Child"),
-                         P_("The actor's last child"),
+    g_param_spec_object ("last-child", NULL, NULL,
                          CLUTTER_TYPE_ACTOR,
                          CLUTTER_PARAM_READABLE |
                          G_PARAM_EXPLICIT_NOTIFY);
@@ -6961,9 +6833,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * of the actor.
    */
   obj_props[PROP_CONTENT] =
-    g_param_spec_object ("content",
-                         P_("Content"),
-                         P_("Delegate object for painting the actor's content"),
+    g_param_spec_object ("content", NULL, NULL,
                          CLUTTER_TYPE_CONTENT,
                          CLUTTER_PARAM_READWRITE |
                          G_PARAM_EXPLICIT_NOTIFY);
@@ -6986,9 +6856,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The #ClutterActor:content-gravity property is animatable.
    */
   obj_props[PROP_CONTENT_GRAVITY] =
-    g_param_spec_enum ("content-gravity",
-                       P_("Content Gravity"),
-                       P_("Alignment of the actor's content"),
+    g_param_spec_enum ("content-gravity", NULL, NULL,
                        CLUTTER_TYPE_CONTENT_GRAVITY,
                        CLUTTER_CONTENT_GRAVITY_RESIZE_FILL,
                        CLUTTER_PARAM_READWRITE |
@@ -7006,9 +6874,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * allocation's of the actor.
    */
   obj_props[PROP_CONTENT_BOX] =
-    g_param_spec_boxed ("content-box",
-                        P_("Content Box"),
-                        P_("The bounding box of the actor's content"),
+    g_param_spec_boxed ("content-box", NULL, NULL,
                         CLUTTER_TYPE_ACTOR_BOX,
                         G_PARAM_READABLE |
                         G_PARAM_STATIC_STRINGS |
@@ -7016,18 +6882,14 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         CLUTTER_PARAM_ANIMATABLE);
 
   obj_props[PROP_MINIFICATION_FILTER] =
-    g_param_spec_enum ("minification-filter",
-                       P_("Minification Filter"),
-                       P_("The filter used when reducing the size of the content"),
+    g_param_spec_enum ("minification-filter", NULL, NULL,
                        CLUTTER_TYPE_SCALING_FILTER,
                        CLUTTER_SCALING_FILTER_LINEAR,
                        CLUTTER_PARAM_READWRITE |
                        G_PARAM_EXPLICIT_NOTIFY);
 
   obj_props[PROP_MAGNIFICATION_FILTER] =
-    g_param_spec_enum ("magnification-filter",
-                       P_("Magnification Filter"),
-                       P_("The filter used when increasing the size of the content"),
+    g_param_spec_enum ("magnification-filter", NULL, NULL,
                        CLUTTER_TYPE_SCALING_FILTER,
                        CLUTTER_SCALING_FILTER_LINEAR,
                        CLUTTER_PARAM_READWRITE |
@@ -7039,9 +6901,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The repeat policy for the actor's #ClutterActor:content.
    */
   obj_props[PROP_CONTENT_REPEAT] =
-    g_param_spec_flags ("content-repeat",
-                        P_("Content Repeat"),
-                        P_("The repeat policy for the actor's content"),
+    g_param_spec_flags ("content-repeat", NULL, NULL,
                         CLUTTER_TYPE_CONTENT_REPEAT,
                         CLUTTER_REPEAT_NONE,
                         G_PARAM_READWRITE |
@@ -7055,9 +6915,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * actors.
    */
   obj_props[PROP_COLOR_STATE] =
-    g_param_spec_object ("color-state",
-                         P_("ColorState"),
-                         P_("ColorState of the each actors"),
+    g_param_spec_object ("color-state", NULL, NULL,
                          CLUTTER_TYPE_COLOR_STATE,
                          CLUTTER_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT);

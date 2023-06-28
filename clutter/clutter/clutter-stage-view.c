@@ -1535,81 +1535,63 @@ clutter_stage_view_class_init (ClutterStageViewClass *klass)
   object_class->finalize = clutter_stage_view_finalize;
 
   obj_props[PROP_NAME] =
-    g_param_spec_string ("name",
-                         "Name",
-                         "Name of view",
+    g_param_spec_string ("name", NULL, NULL,
                          NULL,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_STAGE] =
-    g_param_spec_object ("stage",
-                         "The stage",
-                         "The ClutterStage",
+    g_param_spec_object ("stage", NULL, NULL,
                          CLUTTER_TYPE_STAGE,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_LAYOUT] =
-    g_param_spec_boxed ("layout",
-                        "View layout",
-                        "The view layout on the screen",
+    g_param_spec_boxed ("layout", NULL, NULL,
                         CAIRO_GOBJECT_TYPE_RECTANGLE_INT,
                         G_PARAM_READWRITE |
                         G_PARAM_CONSTRUCT |
                         G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_FRAMEBUFFER] =
-    g_param_spec_object ("framebuffer",
-                         "View framebuffer",
-                         "The front buffer of the view",
+    g_param_spec_object ("framebuffer", NULL, NULL,
                          COGL_TYPE_FRAMEBUFFER,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT |
                          G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_OFFSCREEN] =
-    g_param_spec_object ("offscreen",
-                         "Offscreen buffer",
-                         "Framebuffer used as intermediate buffer",
+    g_param_spec_object ("offscreen", NULL, NULL,
                          COGL_TYPE_OFFSCREEN,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_USE_SHADOWFB] =
-    g_param_spec_boolean ("use-shadowfb",
-                          "Use shadowfb",
-                          "Whether to use one or more shadow framebuffers",
+    g_param_spec_boolean ("use-shadowfb", NULL, NULL,
                           FALSE,
                           G_PARAM_READWRITE |
                           G_PARAM_CONSTRUCT_ONLY |
                           G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_SCALE] =
-    g_param_spec_float ("scale",
-                        "View scale",
-                        "The view scale",
+    g_param_spec_float ("scale", NULL, NULL,
                         0.5, G_MAXFLOAT, 1.0,
                         G_PARAM_READWRITE |
                         G_PARAM_CONSTRUCT |
                         G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_REFRESH_RATE] =
-    g_param_spec_float ("refresh-rate",
-                        "Refresh rate",
-                        "Update refresh rate",
+    g_param_spec_float ("refresh-rate", NULL, NULL,
                         1.0, G_MAXFLOAT, 60.0,
                         G_PARAM_READWRITE |
                         G_PARAM_CONSTRUCT |
                         G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_VBLANK_DURATION_US] =
-    g_param_spec_int64 ("vblank-duration-us",
-                        "Vblank duration (µs)",
-                        "The vblank duration",
+    g_param_spec_int64 ("vblank-duration-us", NULL, NULL,
                         0, G_MAXINT64, 0,
                         G_PARAM_READWRITE |
                         G_PARAM_CONSTRUCT_ONLY |

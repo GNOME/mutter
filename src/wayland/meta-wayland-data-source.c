@@ -224,9 +224,7 @@ meta_wayland_data_source_class_init (MetaWaylandDataSourceClass *klass)
   klass->drag_finished = meta_wayland_data_source_real_drag_finished;
 
   props[PROP_COMPOSITOR] =
-    g_param_spec_object ("compositor",
-                         "compositor",
-                         "MetaWaylandCompositor",
+    g_param_spec_object ("compositor", NULL, NULL,
                          META_TYPE_WAYLAND_COMPOSITOR,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |

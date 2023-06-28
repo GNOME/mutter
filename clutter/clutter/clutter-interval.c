@@ -525,9 +525,7 @@ clutter_interval_class_init (ClutterIntervalClass *klass)
    * The type of the values in the interval.
    */
   obj_props[PROP_VALUE_TYPE] =
-    g_param_spec_gtype ("value-type",
-                        P_("Value Type"),
-                        P_("The type of the values in the interval"),
+    g_param_spec_gtype ("value-type", NULL, NULL,
                         G_TYPE_NONE,
                         G_PARAM_READWRITE |
                         G_PARAM_CONSTRUCT_ONLY |
@@ -539,9 +537,7 @@ clutter_interval_class_init (ClutterIntervalClass *klass)
    * The initial value of the interval.
    */
   obj_props[PROP_INITIAL] =
-    g_param_spec_boxed ("initial",
-                        P_("Initial Value"),
-                        P_("Initial value of the interval"),
+    g_param_spec_boxed ("initial", NULL, NULL,
                         G_TYPE_VALUE,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS);
@@ -552,9 +548,7 @@ clutter_interval_class_init (ClutterIntervalClass *klass)
    * The final value of the interval.
    */
   obj_props[PROP_FINAL] =
-    g_param_spec_boxed ("final",
-                        P_("Final Value"),
-                        P_("Final value of the interval"),
+    g_param_spec_boxed ("final", NULL, NULL,
                         G_TYPE_VALUE,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS);

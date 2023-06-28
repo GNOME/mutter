@@ -452,9 +452,7 @@ clutter_shader_effect_class_init (ClutterShaderEffectClass *klass)
    * sub-classes.
    */
   obj_props[PROP_SHADER_TYPE] =
-    g_param_spec_enum ("shader-type",
-                       P_("Shader Type"),
-                       P_("The type of shader used"),
+    g_param_spec_enum ("shader-type", NULL, NULL,
                        CLUTTER_TYPE_SHADER_TYPE,
                        CLUTTER_FRAGMENT_SHADER,
                        CLUTTER_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY);

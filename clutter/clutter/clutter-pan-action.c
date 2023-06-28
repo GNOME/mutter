@@ -476,9 +476,7 @@ clutter_pan_action_class_init (ClutterPanActionClass *klass)
    * Constraints the panning action to the specified axis
    */
   pan_props[PROP_PAN_AXIS] =
-    g_param_spec_enum ("pan-axis",
-                       P_("Pan Axis"),
-                       P_("Constraints the panning to an axis"),
+    g_param_spec_enum ("pan-axis", NULL, NULL,
                        CLUTTER_TYPE_PAN_AXIS,
                        CLUTTER_PAN_AXIS_NONE,
                        CLUTTER_PARAM_READWRITE);
@@ -489,9 +487,7 @@ clutter_pan_action_class_init (ClutterPanActionClass *klass)
    * Whether interpolated events emission is enabled.
    */
   pan_props[PROP_INTERPOLATE] =
-    g_param_spec_boolean ("interpolate",
-                          P_("Interpolate"),
-                          P_("Whether interpolated events emission is enabled."),
+    g_param_spec_boolean ("interpolate", NULL, NULL,
                           FALSE,
                           CLUTTER_PARAM_READWRITE);
 
@@ -504,9 +500,7 @@ clutter_pan_action_class_init (ClutterPanActionClass *klass)
    * scroll deltas, using the rate specified by this property.
    */
   pan_props[PROP_DECELERATION] =
-    g_param_spec_double ("deceleration",
-                         P_("Deceleration"),
-                         P_("Rate at which the interpolated panning will decelerate in"),
+    g_param_spec_double ("deceleration", NULL, NULL,
                          FLOAT_EPSILON, 1.0, default_deceleration_rate,
                          CLUTTER_PARAM_READWRITE);
 
@@ -520,9 +514,7 @@ clutter_pan_action_class_init (ClutterPanActionClass *klass)
    * to generate interpolated ::pan events.
    */
   pan_props[PROP_ACCELERATION_FACTOR] =
-    g_param_spec_double ("acceleration-factor",
-                         P_("Initial acceleration factor"),
-                         P_("Factor applied to the momentum when starting the interpolated phase"),
+    g_param_spec_double ("acceleration-factor", NULL, NULL,
                          1.0, G_MAXDOUBLE, default_acceleration_factor,
                          CLUTTER_PARAM_READWRITE);
 

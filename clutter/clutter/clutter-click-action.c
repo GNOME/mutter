@@ -558,9 +558,7 @@ clutter_click_action_class_init (ClutterClickActionClass *klass)
    * Whether the clickable actor should be in "pressed" state
    */
   obj_props[PROP_PRESSED] =
-    g_param_spec_boolean ("pressed",
-                          P_("Pressed"),
-                          P_("Whether the clickable should be in pressed state"),
+    g_param_spec_boolean ("pressed", NULL, NULL,
                           FALSE,
                           CLUTTER_PARAM_READABLE);
 
@@ -570,9 +568,7 @@ clutter_click_action_class_init (ClutterClickActionClass *klass)
    * Whether the clickable actor has the pointer grabbed
    */
   obj_props[PROP_HELD] =
-    g_param_spec_boolean ("held",
-                          P_("Held"),
-                          P_("Whether the clickable has a grab"),
+    g_param_spec_boolean ("held", NULL, NULL,
                           FALSE,
                           CLUTTER_PARAM_READABLE);
 
@@ -586,9 +582,7 @@ clutter_click_action_class_init (ClutterClickActionClass *klass)
    * the [property@Settings:long-press-duration] property.
    */
   obj_props[PROP_LONG_PRESS_DURATION] =
-    g_param_spec_int ("long-press-duration",
-                      P_("Long Press Duration"),
-                      P_("The minimum duration of a long press to recognize the gesture"),
+    g_param_spec_int ("long-press-duration", NULL, NULL,
                       -1, G_MAXINT,
                       -1,
                       CLUTTER_PARAM_READWRITE);
@@ -603,9 +597,7 @@ clutter_click_action_class_init (ClutterClickActionClass *klass)
    * the [property@Settings:dnd-drag-threshold] property.
    */
   obj_props[PROP_LONG_PRESS_THRESHOLD] =
-    g_param_spec_int ("long-press-threshold",
-                      P_("Long Press Threshold"),
-                      P_("The maximum threshold before a long press is cancelled"),
+    g_param_spec_int ("long-press-threshold", NULL, NULL,
                       -1, G_MAXINT,
                       -1,
                       CLUTTER_PARAM_READWRITE);

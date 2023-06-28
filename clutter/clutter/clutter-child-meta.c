@@ -147,9 +147,7 @@ clutter_child_meta_class_init (ClutterChildMetaClass *klass)
    * The #ClutterContainer that created this #ClutterChildMeta.
    */
   obj_props[PROP_CONTAINER] =
-    g_param_spec_object ("container",
-                         P_("Container"),
-                         P_("The container that created this data"),
+    g_param_spec_object ("container", NULL, NULL,
                          CLUTTER_TYPE_CONTAINER,
                          G_PARAM_CONSTRUCT_ONLY |
                          CLUTTER_PARAM_READWRITE);
@@ -160,9 +158,7 @@ clutter_child_meta_class_init (ClutterChildMetaClass *klass)
    * The #ClutterActor being wrapped by this #ClutterChildMeta
    */
   obj_props[PROP_ACTOR] =
-    g_param_spec_object ("actor",
-                         P_("Actor"),
-                         P_("The actor wrapped by this data"),
+    g_param_spec_object ("actor", NULL, NULL,
                          CLUTTER_TYPE_ACTOR,
                          G_PARAM_CONSTRUCT_ONLY |
                          CLUTTER_PARAM_READWRITE);

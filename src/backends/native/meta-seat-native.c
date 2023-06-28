@@ -389,26 +389,20 @@ meta_seat_native_class_init (MetaSeatNativeClass *klass)
   seat_class->query_state = meta_seat_native_query_state;
 
   props[PROP_SEAT_ID] =
-    g_param_spec_string ("seat-id",
-                         "Seat ID",
-                         "Seat ID",
+    g_param_spec_string ("seat-id", NULL, NULL,
                          NULL,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY);
 
   props[PROP_FLAGS] =
-    g_param_spec_flags ("flags",
-                        "Flags",
-                        "Flags",
+    g_param_spec_flags ("flags", NULL, NULL,
                         META_TYPE_SEAT_NATIVE_FLAG,
                         META_SEAT_NATIVE_FLAG_NONE,
                         G_PARAM_READWRITE |
                         G_PARAM_CONSTRUCT_ONLY);
 
   props[PROP_BACKEND] =
-    g_param_spec_object ("backend",
-                         "Backend",
-                         "Backend",
+    g_param_spec_object ("backend", NULL, NULL,
                          META_TYPE_BACKEND,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY);

@@ -1298,17 +1298,13 @@ meta_compositor_class_init (MetaCompositorClass *klass)
   klass->after_paint = meta_compositor_real_after_paint;
 
   obj_props[PROP_DISPLAY] =
-    g_param_spec_object ("display",
-                         "display",
-                         "MetaDisplay",
+    g_param_spec_object ("display", NULL, NULL,
                          META_TYPE_DISPLAY,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
   obj_props[PROP_BACKEND] =
-    g_param_spec_object ("backend",
-                         "backend",
-                         "MetaBackend",
+    g_param_spec_object ("backend", NULL, NULL,
                          META_TYPE_BACKEND,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |

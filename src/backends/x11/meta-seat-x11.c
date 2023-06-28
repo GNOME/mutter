@@ -1891,30 +1891,22 @@ meta_seat_x11_class_init (MetaSeatX11Class *klass)
   seat_class->ungrab = meta_seat_x11_ungrab;
 
   props[PROP_BACKEND] =
-    g_param_spec_object ("backend",
-                         "MetaBackend",
-                         "MetaBackend",
+    g_param_spec_object ("backend", NULL, NULL,
                          META_TYPE_BACKEND,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY);
   props[PROP_OPCODE] =
-    g_param_spec_int ("opcode",
-                      "Opcode",
-                      "Opcode",
+    g_param_spec_int ("opcode", NULL, NULL,
                       0, G_MAXINT, 0,
                       G_PARAM_READWRITE |
                       G_PARAM_CONSTRUCT_ONLY);
   props[PROP_POINTER_ID] =
-    g_param_spec_int ("pointer-id",
-                      "Pointer ID",
-                      "Pointer ID",
+    g_param_spec_int ("pointer-id", NULL, NULL,
                       2, G_MAXINT, 2,
                       G_PARAM_READWRITE |
                       G_PARAM_CONSTRUCT_ONLY);
   props[PROP_KEYBOARD_ID] =
-    g_param_spec_int ("keyboard-id",
-                      "Keyboard ID",
-                      "Keyboard ID",
+    g_param_spec_int ("keyboard-id", NULL, NULL,
                       2, G_MAXINT, 2,
                       G_PARAM_READWRITE |
                       G_PARAM_CONSTRUCT_ONLY);

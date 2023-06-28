@@ -203,9 +203,7 @@ meta_renderer_view_class_init (MetaRendererViewClass *klass)
   object_class->set_property = meta_renderer_view_set_property;
 
   obj_props[PROP_TRANSFORM] =
-    g_param_spec_uint ("transform",
-                       "Transform",
-                       "Transform to apply to the view",
+    g_param_spec_uint ("transform", NULL, NULL,
                        META_MONITOR_TRANSFORM_NORMAL,
                        META_MONITOR_TRANSFORM_FLIPPED_270,
                        META_MONITOR_TRANSFORM_NORMAL,
@@ -214,9 +212,7 @@ meta_renderer_view_class_init (MetaRendererViewClass *klass)
                        G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_CRTC] =
-    g_param_spec_object ("crtc",
-                         "MetaCrtc",
-                         "MetaCrtc",
+    g_param_spec_object ("crtc", NULL, NULL,
                          META_TYPE_CRTC,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |

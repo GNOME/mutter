@@ -595,9 +595,7 @@ clutter_deform_effect_class_init (ClutterDeformEffectClass *klass)
    * smaller the tiles
    */
   obj_props[PROP_X_TILES] =
-    g_param_spec_uint ("x-tiles",
-                       P_("Horizontal Tiles"),
-                       P_("The number of horizontal tiles"),
+    g_param_spec_uint ("x-tiles", NULL, NULL,
                        1, G_MAXUINT,
                        DEFAULT_N_TILES,
                        CLUTTER_PARAM_READWRITE);
@@ -609,9 +607,7 @@ clutter_deform_effect_class_init (ClutterDeformEffectClass *klass)
    * smaller the tiles
    */
   obj_props[PROP_Y_TILES] =
-    g_param_spec_uint ("y-tiles",
-                       P_("Vertical Tiles"),
-                       P_("The number of vertical tiles"),
+    g_param_spec_uint ("y-tiles", NULL, NULL,
                        1, G_MAXUINT,
                        DEFAULT_N_TILES,
                        CLUTTER_PARAM_READWRITE);
@@ -625,9 +621,7 @@ clutter_deform_effect_class_init (ClutterDeformEffectClass *klass)
    * By default, no material will be used
    */
   obj_props[PROP_BACK_MATERIAL] =
-    g_param_spec_boxed ("back-material",
-                        P_("Back Material"),
-                        P_("The material to be used when painting the back of the actor"),
+    g_param_spec_boxed ("back-material", NULL, NULL,
                         COGL_TYPE_HANDLE,
                         CLUTTER_PARAM_READWRITE);
 

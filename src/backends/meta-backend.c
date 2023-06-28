@@ -896,17 +896,13 @@ meta_backend_class_init (MetaBackendClass *klass)
   klass->is_headless = meta_backend_real_is_headless;
 
   obj_props[PROP_CONTEXT] =
-    g_param_spec_object ("context",
-                         "context",
-                         "MetaContext",
+    g_param_spec_object ("context", NULL, NULL,
                          META_TYPE_CONTEXT,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
   obj_props[PROP_CAPABILITIES] =
-    g_param_spec_flags ("capabilities",
-                        "capabilities",
-                        "Backend capabilities",
+    g_param_spec_flags ("capabilities", NULL, NULL,
                         META_TYPE_BACKEND_CAPABILITIES,
                         META_BACKEND_CAPABILITY_NONE,
                         G_PARAM_READABLE |

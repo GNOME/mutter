@@ -337,9 +337,7 @@ meta_x11_stack_class_init (MetaX11StackClass *klass)
   object_class->finalize = meta_x11_stack_finalize;
 
   pspecs[PROP_DISPLAY] =
-    g_param_spec_object ("display",
-                         "Display",
-                         "Display",
+    g_param_spec_object ("display", NULL, NULL,
                          META_TYPE_X11_DISPLAY,
                          G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
 
