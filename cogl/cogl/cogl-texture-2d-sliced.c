@@ -886,9 +886,8 @@ cogl_texture_2d_sliced_new_with_size (CoglContext *ctx,
 }
 
 CoglTexture2DSliced *
-_cogl_texture_2d_sliced_new_from_bitmap (CoglBitmap *bmp,
-                                         int max_waste,
-                                         gboolean can_convert_in_place)
+cogl_texture_2d_sliced_new_from_bitmap (CoglBitmap *bmp,
+                                        int         max_waste)
 {
   CoglTextureLoader *loader;
 
@@ -897,7 +896,7 @@ _cogl_texture_2d_sliced_new_from_bitmap (CoglBitmap *bmp,
   loader = _cogl_texture_create_loader ();
   loader->src_type = COGL_TEXTURE_SOURCE_TYPE_BITMAP;
   loader->src.bitmap.bitmap = cogl_object_ref (bmp);
-  loader->src.bitmap.can_convert_in_place = can_convert_in_place;
+  loader->src.bitmap.can_convert_in_place = FALSE;
 
   return _cogl_texture_2d_sliced_create_base (_cogl_bitmap_get_context (bmp),
                                               cogl_bitmap_get_width (bmp),
@@ -905,15 +904,6 @@ _cogl_texture_2d_sliced_new_from_bitmap (CoglBitmap *bmp,
                                               max_waste,
                                               cogl_bitmap_get_format (bmp),
                                               loader);
-}
-
-CoglTexture2DSliced *
-cogl_texture_2d_sliced_new_from_bitmap (CoglBitmap *bmp,
-                                        int max_waste)
-{
-  return _cogl_texture_2d_sliced_new_from_bitmap (bmp,
-                                                  max_waste,
-                                                  FALSE);
 }
 
 CoglTexture2DSliced *

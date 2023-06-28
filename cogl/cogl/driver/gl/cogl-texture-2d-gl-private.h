@@ -53,12 +53,6 @@ gboolean
 _cogl_texture_2d_gl_allocate (CoglTexture *tex,
                               GError **error);
 
-CoglTexture2D *
-_cogl_texture_2d_gl_new_from_bitmap (CoglBitmap *bmp,
-                                     CoglPixelFormat internal_format,
-                                     gboolean can_convert_in_place,
-                                     GError **error);
-
 #if defined (COGL_HAS_EGL_SUPPORT)
 gboolean
 cogl_texture_2d_gl_bind_egl_image (CoglTexture2D *tex_2d,

@@ -68,10 +68,6 @@ struct _CoglTexture2D
 };
 
 CoglTexture2D *
-_cogl_texture_2d_new_from_bitmap (CoglBitmap *bmp,
-                                  gboolean can_convert_in_place);
-
-CoglTexture2D *
 _cogl_texture_2d_create_base (CoglContext *ctx,
                               int width,
                               int height,

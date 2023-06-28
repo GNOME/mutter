@@ -160,8 +160,7 @@ _cogl_texture_2d_allocate (CoglTexture *tex,
 }
 
 CoglTexture2D *
-_cogl_texture_2d_new_from_bitmap (CoglBitmap *bmp,
-                                  gboolean can_convert_in_place)
+cogl_texture_2d_new_from_bitmap (CoglBitmap *bmp)
 {
   CoglTextureLoader *loader;
 
@@ -170,20 +169,13 @@ _cogl_texture_2d_new_from_bitmap (CoglBitmap *bmp,
   loader = _cogl_texture_create_loader ();
   loader->src_type = COGL_TEXTURE_SOURCE_TYPE_BITMAP;
   loader->src.bitmap.bitmap = cogl_object_ref (bmp);
-  loader->src.bitmap.can_convert_in_place = can_convert_in_place;
+  loader->src.bitmap.can_convert_in_place = FALSE;
 
   return  _cogl_texture_2d_create_base (_cogl_bitmap_get_context (bmp),
                                         cogl_bitmap_get_width (bmp),
                                         cogl_bitmap_get_height (bmp),
                                         cogl_bitmap_get_format (bmp),
                                         loader);
-}
-
-CoglTexture2D *
-cogl_texture_2d_new_from_bitmap (CoglBitmap *bmp)
-{
-  return _cogl_texture_2d_new_from_bitmap (bmp,
-                                           FALSE); /* can't convert in place */
 }
 
 CoglTexture2D *
