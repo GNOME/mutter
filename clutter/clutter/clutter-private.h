@@ -34,7 +34,6 @@
 #include "clutter-backend.h"
 #include "clutter-effect.h"
 #include "clutter-event.h"
-#include "clutter-id-pool.h"
 #include "clutter-layout-manager.h"
 #include "clutter-settings.h"
 #include "clutter-stage-manager.h"

@@ -56,7 +56,6 @@
 #include "clutter-frame-clock.h"
 #include "clutter-frame.h"
 #include "clutter-grab.h"
-#include "clutter-id-pool.h"
 #include "clutter-input-device-private.h"
 #include "clutter-main.h"
 #include "clutter-marshal.h"

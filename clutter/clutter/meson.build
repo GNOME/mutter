@@ -204,7 +204,6 @@ clutter_private_headers = [
   'clutter-frame-private.h',
   'clutter-graphene.h',
   'clutter-gesture-action-private.h',
-  'clutter-id-pool.h',
   'clutter-input-device-private.h',
   'clutter-input-focus-private.h',
   'clutter-input-method-private.h',
@@ -226,7 +225,6 @@ clutter_private_headers = [
 
 clutter_nonintrospected_sources = [
   'clutter-easing.c',
-  'clutter-id-pool.c',
 ]
 
 clutter_deprecated_headers = [
