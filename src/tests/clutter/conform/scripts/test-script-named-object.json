@@ -3,8 +3,7 @@
     "id" : "layout",
     "type" : "ClutterBoxLayout",
     "orientation" : "vertical",
-    "spacing" : 12,
-    "pack-start" : false
+    "spacing" : 12
   },
   {
     "type" : "ClutterStage",

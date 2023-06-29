@@ -51,7 +51,6 @@
 #include <math.h>
 
 #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
-#include "deprecated/clutter-box-layout.h"
 #include "deprecated/clutter-container.h"
 
 #include "clutter-box-layout.h"
@@ -83,7 +82,6 @@ enum
 
   PROP_SPACING,
   PROP_HOMOGENEOUS,
-  PROP_PACK_START,
   PROP_ORIENTATION,
 
   PROP_LAST
@@ -878,10 +876,6 @@ clutter_box_layout_set_property (GObject      *gobject,
       clutter_box_layout_set_spacing (self, g_value_get_uint (value));
       break;
 
-    case PROP_PACK_START:
-      clutter_box_layout_set_pack_start (self, g_value_get_boolean (value));
-      break;
-
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
       break;
@@ -908,10 +902,6 @@ clutter_box_layout_get_property (GObject    *gobject,
 
     case PROP_SPACING:
       g_value_set_uint (value, priv->spacing);
-      break;
-
-    case PROP_PACK_START:
-      g_value_set_boolean (value, FALSE);
       break;
 
     default:
@@ -956,16 +946,6 @@ clutter_box_layout_class_init (ClutterBoxLayoutClass *klass)
     g_param_spec_boolean ("homogeneous", NULL, NULL,
                           FALSE,
                           CLUTTER_PARAM_READWRITE);
-
-  /**
-   * ClutterBoxLayout:pack-start:
-   *
-   * Deprecated: No longer has any effect
-   */
-  obj_props[PROP_PACK_START] =
-    g_param_spec_boolean ("pack-start", NULL, NULL,
-                          FALSE,
-                          CLUTTER_PARAM_READWRITE | G_PARAM_DEPRECATED);
 
   /**
    * ClutterBoxLayout:spacing:
@@ -1151,31 +1131,3 @@ clutter_box_layout_get_homogeneous (ClutterBoxLayout *layout)
   return layout->priv->is_homogeneous;
 }
 
-/**
- * clutter_box_layout_set_pack_start:
- * @layout: a #ClutterBoxLayout
- * @pack_start: %TRUE if the @layout should pack children at the
- *   beginning of the layout
- *
- * Deprecated: No longer has any effect
- */
-void
-clutter_box_layout_set_pack_start (ClutterBoxLayout *layout,
-                                   gboolean          pack_start)
-{
-}
-
-/**
- * clutter_box_layout_get_pack_start:
- * @layout: a #ClutterBoxLayout
- *
- * Return value: The value of the :pack-start property,
- *   always %FALSE
- *
- * Deprecated: No longer has any effect
- */
-gboolean
-clutter_box_layout_get_pack_start (ClutterBoxLayout *layout)
-{
-  return FALSE;
-}
