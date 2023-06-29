@@ -478,7 +478,6 @@ create_item (void)
                                        main_timeline,
                                        "scale-x", 2.0,
                                        "scale-y", 2.0,
-                                       "fixed::scale-gravity", CLUTTER_GRAVITY_CENTER,
                                        NULL);
 
   return clone;
@@ -628,7 +627,6 @@ test_layout_main (int argc, char *argv[])
                                        main_timeline,
                                        "scale-x", 2.0,
                                        "scale-y", 2.0,
-                                       "fixed::scale-gravity", CLUTTER_GRAVITY_CENTER,
                                        NULL);
 
   for (i = 1; i < 33; i++)
