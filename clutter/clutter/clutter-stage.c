@@ -1217,7 +1217,7 @@ clutter_stage_dispose (GObject *object)
     {
       CLUTTER_NOTE (BACKEND, "Disposing of the stage implementation");
 
-      if (CLUTTER_ACTOR_IS_REALIZED (object))
+      if (clutter_actor_is_realized (CLUTTER_ACTOR (object)))
         _clutter_stage_window_unrealize (priv->impl);
 
       g_object_unref (priv->impl);
@@ -4449,7 +4449,7 @@ cancel_implicit_grab_on_actor (PointerDeviceEntry *entry,
 
   if (parent)
     {
-      g_assert (CLUTTER_ACTOR_IS_MAPPED (parent));
+      g_assert (clutter_actor_is_mapped (parent));
 
       entry->implicit_grab_actor = parent;
       clutter_actor_set_implicitly_grabbed (entry->implicit_grab_actor, TRUE);

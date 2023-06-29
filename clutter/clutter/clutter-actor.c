@@ -517,83 +517,6 @@
  * ```
  */
 
-/**
- * CLUTTER_ACTOR_IS_MAPPED:
- * @a: a #ClutterActor
- *
- * Evaluates to %TRUE if the %CLUTTER_ACTOR_MAPPED flag is set.
- *
- * The mapped state is set when the actor is visible and all its parents up
- * to a top-level (e.g. a #ClutterStage) are visible, realized, and mapped.
- *
- * This check can be used to see if an actor is going to be painted, as only
- * actors with the %CLUTTER_ACTOR_MAPPED flag set are going to be painted.
- *
- * The %CLUTTER_ACTOR_MAPPED flag is managed by Clutter itself, and it should
- * not be checked directly; instead, the recommended usage is to connect a
- * handler on the #GObject::notify signal for the #ClutterActor:mapped
- * property of #ClutterActor, and check the presence of
- * the %CLUTTER_ACTOR_MAPPED flag on state changes.
- *
- * It is also important to note that Clutter may delay the changes of
- * the %CLUTTER_ACTOR_MAPPED flag on top-levels due to backend-specific
- * limitations, or during the reparenting of an actor, to optimize
- * unnecessary (and potentially expensive) state changes.
- *
- * Deprecated: 1.24: Use clutter_actor_is_mapped() or the #ClutterActor:mapped
- *   property instead of this macro.
- */
-
-/**
- * CLUTTER_ACTOR_IS_REALIZED:
- * @a: a #ClutterActor
- *
- * Evaluates to %TRUE if the %CLUTTER_ACTOR_REALIZED flag is set.
- *
- * The realized state has an actor-dependant interpretation. If an
- * actor wants to delay allocating resources until it is attached to a
- * stage, it may use the realize state to do so. However it is
- * perfectly acceptable for an actor to allocate Cogl resources before
- * being realized because there is only one drawing context used by Clutter
- * so any resources will work on any stage.  If an actor is mapped it
- * must also be realized, but an actor can be realized and unmapped
- * (this is so hiding an actor temporarily doesn't do an expensive
- * unrealize/realize).
- *
- * To be realized an actor must be inside a stage, and all its parents
- * must be realized.
- *
- * Deprecated: 1.24: Use clutter_actor_is_realized() or the #ClutterActor:realized
- *   property instead of this macro.
- */
-
-/**
- * CLUTTER_ACTOR_IS_VISIBLE:
- * @a: a #ClutterActor
- *
- * Evaluates to %TRUE if the actor has been shown, %FALSE if it's hidden.
- * Equivalent to the ClutterActor::visible object property.
- *
- * Note that an actor is only painted onscreen if it's mapped, which
- * means it's visible, and all its parents are visible, and one of the
- * parents is a toplevel stage; see also %CLUTTER_ACTOR_IS_MAPPED.
- *
- * Deprecated: 1.24: Use clutter_actor_is_visible() or the #ClutterActor:visible
- *   property instead of this macro.
- */
-
-/**
- * CLUTTER_ACTOR_IS_REACTIVE:
- * @a: a #ClutterActor
- *
- * Evaluates to %TRUE if the %CLUTTER_ACTOR_REACTIVE flag is set.
- *
- * Only reactive actors will receive event-related signals.
- *
- * Deprecated: 1.24: Use clutter_actor_get_reactive() or the
- *   #ClutterActor:reactive property instead of this macro.
- */
-
 #include "clutter-build-config.h"
 
 #include <math.h>
@@ -1148,7 +1071,7 @@ clutter_actor_verify_map_state (ClutterActor *self)
 {
   ClutterActorPrivate *priv = self->priv;
 
-  if (CLUTTER_ACTOR_IS_REALIZED (self))
+  if (clutter_actor_is_realized (self))
     {
       if (priv->parent == NULL)
         {
@@ -1159,7 +1082,7 @@ clutter_actor_verify_map_state (ClutterActor *self)
                          _clutter_actor_get_debug_name (self));
             }
         }
-      else if (!CLUTTER_ACTOR_IS_REALIZED (priv->parent))
+      else if (!clutter_actor_is_realized (priv->parent))
         {
           g_warning ("Realized actor %s has an unrealized parent %s",
                      _clutter_actor_get_debug_name (self),
@@ -1167,9 +1090,9 @@ clutter_actor_verify_map_state (ClutterActor *self)
         }
     }
 
-  if (CLUTTER_ACTOR_IS_MAPPED (self))
+  if (clutter_actor_is_mapped (self))
     {
-      if (!CLUTTER_ACTOR_IS_REALIZED (self))
+      if (!clutter_actor_is_realized (self))
         g_warning ("Actor '%s' is mapped but not realized",
                    _clutter_actor_get_debug_name (self));
 
@@ -1177,7 +1100,7 @@ clutter_actor_verify_map_state (ClutterActor *self)
         {
           if (CLUTTER_ACTOR_IS_TOPLEVEL (self))
             {
-              if (!CLUTTER_ACTOR_IS_VISIBLE (self) &&
+              if (!clutter_actor_is_visible (self) &&
                   !CLUTTER_ACTOR_IN_DESTRUCTION (self))
                 {
                   g_warning ("Toplevel actor '%s' is mapped "
@@ -1208,7 +1131,7 @@ clutter_actor_verify_map_state (ClutterActor *self)
               iter = iter->priv->parent;
             }
 
-          if (!CLUTTER_ACTOR_IS_VISIBLE (priv->parent))
+          if (!clutter_actor_is_visible (priv->parent))
             {
               g_warning ("Actor '%s' should not be mapped if parent '%s'"
                          "is not visible",
@@ -1216,7 +1139,7 @@ clutter_actor_verify_map_state (ClutterActor *self)
                          _clutter_actor_get_debug_name (priv->parent));
             }
 
-          if (!CLUTTER_ACTOR_IS_REALIZED (priv->parent))
+          if (!clutter_actor_is_realized (priv->parent))
             {
               g_warning ("Actor '%s' should not be mapped if parent '%s'"
                          "is not realized",
@@ -1226,7 +1149,7 @@ clutter_actor_verify_map_state (ClutterActor *self)
 
           if (!CLUTTER_ACTOR_IS_TOPLEVEL (priv->parent))
             {
-              if (!CLUTTER_ACTOR_IS_MAPPED (priv->parent))
+              if (!clutter_actor_is_mapped (priv->parent))
                 g_warning ("Actor '%s' is mapped but its non-toplevel "
                            "parent '%s' is not mapped",
                            _clutter_actor_get_debug_name (self),
@@ -1268,7 +1191,7 @@ static void
 clutter_actor_set_mapped (ClutterActor *self,
                           gboolean      mapped)
 {
-  if (CLUTTER_ACTOR_IS_MAPPED (self) == mapped)
+  if (clutter_actor_is_mapped (self) == mapped)
     return;
 
   g_return_if_fail (!CLUTTER_ACTOR_IN_MAP_UNMAP (self));
@@ -1278,12 +1201,12 @@ clutter_actor_set_mapped (ClutterActor *self,
   if (mapped)
     {
       CLUTTER_ACTOR_GET_CLASS (self)->map (self);
-      g_assert (CLUTTER_ACTOR_IS_MAPPED (self));
+      g_assert (clutter_actor_is_mapped (self));
     }
   else
     {
       CLUTTER_ACTOR_GET_CLASS (self)->unmap (self);
-      g_assert (!CLUTTER_ACTOR_IS_MAPPED (self));
+      g_assert (!clutter_actor_is_mapped (self));
     }
 
   CLUTTER_UNSET_PRIVATE_FLAGS (self, CLUTTER_IN_MAP_UNMAP);
@@ -1298,7 +1221,7 @@ clutter_actor_update_map_state (ClutterActor  *self,
 {
   gboolean was_mapped;
 
-  was_mapped = CLUTTER_ACTOR_IS_MAPPED (self);
+  was_mapped = clutter_actor_is_mapped (self);
 
   if (CLUTTER_ACTOR_IS_TOPLEVEL (self))
     {
@@ -1319,7 +1242,7 @@ clutter_actor_update_map_state (ClutterActor  *self,
        * should be realized, and that it has to be visible to be
        * mapped.
        */
-      if (CLUTTER_ACTOR_IS_VISIBLE (self))
+      if (clutter_actor_is_visible (self))
         clutter_actor_realize (self);
 
       switch (change)
@@ -1348,8 +1271,8 @@ clutter_actor_update_map_state (ClutterActor  *self,
           break;
         }
 
-      if (CLUTTER_ACTOR_IS_MAPPED (self) &&
-          !CLUTTER_ACTOR_IS_VISIBLE (self) &&
+      if (clutter_actor_is_mapped (self) &&
+          !clutter_actor_is_visible (self) &&
           !CLUTTER_ACTOR_IN_DESTRUCTION (self))
         {
           g_warning ("Clutter toplevel of type '%s' is not visible, but "
@@ -1403,17 +1326,17 @@ clutter_actor_update_map_state (ClutterActor  *self,
            * mapped. This is because we're unmapping from leaf nodes
            * up to root nodes.
            */
-          if (CLUTTER_ACTOR_IS_VISIBLE (self) &&
+          if (clutter_actor_is_visible (self) &&
               change != MAP_STATE_MAKE_UNMAPPED)
             {
               gboolean parent_is_visible_realized_toplevel;
 
               parent_is_visible_realized_toplevel =
                 (CLUTTER_ACTOR_IS_TOPLEVEL (parent) &&
-                 CLUTTER_ACTOR_IS_VISIBLE (parent) &&
-                 CLUTTER_ACTOR_IS_REALIZED (parent));
+                 clutter_actor_is_visible (parent) &&
+                 clutter_actor_is_realized (parent));
 
-              if (CLUTTER_ACTOR_IS_MAPPED (parent) ||
+              if (clutter_actor_is_mapped (parent) ||
                   parent_is_visible_realized_toplevel)
                 {
                   must_be_realized = TRUE;
@@ -1432,7 +1355,7 @@ clutter_actor_update_map_state (ClutterActor  *self,
               must_be_realized = TRUE;
             }
 
-          if (!CLUTTER_ACTOR_IS_REALIZED (parent))
+          if (!clutter_actor_is_realized (parent))
             may_be_realized = FALSE;
         }
 
@@ -1478,7 +1401,7 @@ clutter_actor_update_map_state (ClutterActor  *self,
            * be a g_error? anyway, we have to avoid mapping if this
            * happens)
            */
-          if (CLUTTER_ACTOR_IS_REALIZED (self))
+          if (clutter_actor_is_realized (self))
             clutter_actor_set_mapped (self, TRUE);
         }
     }
@@ -1526,7 +1449,7 @@ clutter_actor_real_map (ClutterActor *self)
   ClutterActorPrivate *priv = self->priv;
   ClutterActor *iter;
 
-  g_assert (!CLUTTER_ACTOR_IS_MAPPED (self));
+  g_assert (!clutter_actor_is_mapped (self));
 
   CLUTTER_NOTE (ACTOR, "Mapping actor '%s'",
                 _clutter_actor_get_debug_name (self));
@@ -1589,10 +1512,10 @@ clutter_actor_map (ClutterActor *self)
 {
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
-  if (CLUTTER_ACTOR_IS_MAPPED (self))
+  if (clutter_actor_is_mapped (self))
     return;
 
-  if (!CLUTTER_ACTOR_IS_VISIBLE (self))
+  if (!clutter_actor_is_visible (self))
     return;
 
   clutter_actor_update_map_state (self, MAP_STATE_MAKE_MAPPED);
@@ -1604,7 +1527,7 @@ clutter_actor_map (ClutterActor *self)
  *
  * Checks whether a #ClutterActor has been set as mapped.
  *
- * See also %CLUTTER_ACTOR_IS_MAPPED and #ClutterActor:mapped
+ * See also #ClutterActor:mapped
  *
  * Returns: %TRUE if the actor is mapped4
  */
@@ -1613,7 +1536,7 @@ clutter_actor_is_mapped (ClutterActor *self)
 {
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
 
-  return CLUTTER_ACTOR_IS_MAPPED (self);
+  return (self->flags & CLUTTER_ACTOR_MAPPED) != FALSE;
 }
 
 static void
@@ -1660,7 +1583,7 @@ clutter_actor_real_unmap (ClutterActor *self)
   ClutterActorPrivate *priv = self->priv;
   ClutterActor *iter;
 
-  g_assert (CLUTTER_ACTOR_IS_MAPPED (self));
+  g_assert (clutter_actor_is_mapped (self));
 
   CLUTTER_NOTE (ACTOR, "Unmapping actor '%s'",
                 _clutter_actor_get_debug_name (self));
@@ -1729,7 +1652,7 @@ clutter_actor_unmap (ClutterActor *self)
 {
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
-  if (!CLUTTER_ACTOR_IS_MAPPED (self))
+  if (!clutter_actor_is_mapped (self))
     return;
 
   clutter_actor_update_map_state (self, MAP_STATE_MAKE_UNMAPPED);
@@ -1747,7 +1670,7 @@ clutter_actor_queue_shallow_relayout (ClutterActor *self)
 static void
 clutter_actor_real_show (ClutterActor *self)
 {
-  if (CLUTTER_ACTOR_IS_VISIBLE (self))
+  if (clutter_actor_is_visible (self))
     return;
 
   CLUTTER_ACTOR_SET_FLAGS (self, CLUTTER_ACTOR_VISIBLE);
@@ -1827,7 +1750,7 @@ clutter_actor_show (ClutterActor *self)
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
   /* simple optimization */
-  if (CLUTTER_ACTOR_IS_VISIBLE (self))
+  if (clutter_actor_is_visible (self))
     {
       /* we still need to set the :show-on-set-parent property, in
        * case show() is called on an unparented actor
@@ -1872,8 +1795,6 @@ clutter_actor_show (ClutterActor *self)
  *
  * Checks whether an actor is marked as visible.
  *
- * See also %CLUTTER_ACTOR_IS_VISIBLE and #ClutterActor:visible.
- *
  * Returns: %TRUE if the actor visible4
  */
 gboolean
@@ -1881,13 +1802,13 @@ clutter_actor_is_visible (ClutterActor *self)
 {
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
 
-  return CLUTTER_ACTOR_IS_VISIBLE (self);
+  return (self->flags & CLUTTER_ACTOR_VISIBLE) != FALSE;
 }
 
 static void
 clutter_actor_real_hide (ClutterActor *self)
 {
-  if (!CLUTTER_ACTOR_IS_VISIBLE (self))
+  if (!clutter_actor_is_visible (self))
     return;
 
   CLUTTER_ACTOR_UNSET_FLAGS (self, CLUTTER_ACTOR_VISIBLE);
@@ -1920,7 +1841,7 @@ clutter_actor_hide (ClutterActor *self)
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
   /* simple optimization */
-  if (!CLUTTER_ACTOR_IS_VISIBLE (self))
+  if (!clutter_actor_is_visible (self))
     {
       /* we still need to set the :show-on-set-parent property, in
        * case hide() is called on an unparented actor
@@ -1998,8 +1919,6 @@ clutter_actor_realize (ClutterActor *self)
  *
  * Checks whether a #ClutterActor is realized.
  *
- * See also %CLUTTER_ACTOR_IS_REALIZED and #ClutterActor:realized.
- *
  * Returns: %TRUE if the actor is realized4
  */
 gboolean
@@ -2007,7 +1926,7 @@ clutter_actor_is_realized (ClutterActor *self)
 {
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
 
-  return CLUTTER_ACTOR_IS_REALIZED (self);
+  return (self->flags & CLUTTER_ACTOR_REALIZED) != FALSE;
 }
 
 static void
@@ -2019,7 +1938,7 @@ clutter_actor_realize_internal (ClutterActor *self)
   clutter_actor_verify_map_state (self);
 #endif
 
-  if (CLUTTER_ACTOR_IS_REALIZED (self))
+  if (clutter_actor_is_realized (self))
     return;
 
   /* To be realized, our parent actors must be realized first.
@@ -2042,7 +1961,7 @@ clutter_actor_realize_internal (ClutterActor *self)
        * because e.g. ClutterTexture needs reworking.
        */
       if (priv->parent == NULL ||
-          !CLUTTER_ACTOR_IS_REALIZED (priv->parent))
+          !clutter_actor_is_realized (priv->parent))
         return;
     }
 
@@ -2065,7 +1984,7 @@ static void
 clutter_actor_real_unrealize (ClutterActor *self)
 {
   /* we must be unmapped (implying our children are also unmapped) */
-  g_assert (!CLUTTER_ACTOR_IS_MAPPED (self));
+  g_assert (!clutter_actor_is_mapped (self));
 }
 
 /**
@@ -2105,7 +2024,7 @@ void
 clutter_actor_unrealize (ClutterActor *self)
 {
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
-  g_return_if_fail (!CLUTTER_ACTOR_IS_MAPPED (self));
+  g_return_if_fail (!clutter_actor_is_mapped (self));
 
   clutter_actor_unrealize_internal (self);
 }
@@ -2136,7 +2055,7 @@ unrealize_actor_before_children_cb (ClutterActor *self,
 
   /* If an actor is already unrealized we know its children have also
    * already been unrealized... */
-  if (!CLUTTER_ACTOR_IS_REALIZED (self))
+  if (!clutter_actor_is_realized (self))
     return CLUTTER_ACTOR_TRAVERSE_VISIT_SKIP_CHILDREN;
 
   stage = _clutter_actor_get_stage_internal (self);
@@ -2243,9 +2162,9 @@ _clutter_actor_rerealize (ClutterActor    *self,
   clutter_actor_verify_map_state (self);
 #endif
 
-  was_realized = CLUTTER_ACTOR_IS_REALIZED (self);
-  was_mapped = CLUTTER_ACTOR_IS_MAPPED (self);
-  was_showing = CLUTTER_ACTOR_IS_VISIBLE (self);
+  was_realized = clutter_actor_is_realized (self);
+  was_mapped = clutter_actor_is_mapped (self);
+  was_showing = clutter_actor_is_visible (self);
 
   /* Must be unmapped to unrealize. Note we only have to hide this
    * actor if it was mapped (if all parents were showing).  If actor
@@ -2255,7 +2174,7 @@ _clutter_actor_rerealize (ClutterActor    *self,
   if (was_mapped)
     clutter_actor_hide (self);
 
-  g_assert (!CLUTTER_ACTOR_IS_MAPPED (self));
+  g_assert (!clutter_actor_is_mapped (self));
 
   /* unrealize self and all children */
   clutter_actor_unrealize_not_hiding (self);
@@ -2326,10 +2245,10 @@ clutter_actor_should_pick (ClutterActor       *self,
 {
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
 
-  if (CLUTTER_ACTOR_IS_MAPPED (self) &&
+  if (clutter_actor_is_mapped (self) &&
       clutter_actor_box_is_initialized (&self->priv->allocation) &&
       (clutter_pick_context_get_mode (pick_context) == CLUTTER_PICK_ALL ||
-       CLUTTER_ACTOR_IS_REACTIVE (self)))
+       clutter_actor_get_reactive (self)))
     return TRUE;
 
   return FALSE;
@@ -2687,7 +2606,7 @@ _clutter_actor_propagate_queue_redraw (ClutterActor *self)
        * to allow for a ClutterClone, but the appearance of the parent
        * won't change so we don't have to propagate up the hierarchy.
        */
-      if (!CLUTTER_ACTOR_IS_VISIBLE (self))
+      if (!clutter_actor_is_visible (self))
         break;
 
       /* We guarantee that we will propagate a queue-redraw up the tree
@@ -3651,7 +3570,7 @@ clutter_actor_paint (ClutterActor        *self,
   /* if we aren't paintable (not in a toplevel with all
    * parents paintable) then do nothing.
    */
-  if (!CLUTTER_ACTOR_IS_MAPPED (self))
+  if (!clutter_actor_is_mapped (self))
     return;
 
 #ifdef COGL_HAS_TRACING
@@ -3925,7 +3844,7 @@ clutter_actor_pick (ClutterActor       *actor,
   /* if we aren't paintable (not in a toplevel with all
    * parents paintable) then do nothing.
    */
-  if (!CLUTTER_ACTOR_IS_MAPPED (actor))
+  if (!clutter_actor_is_mapped (actor))
     return;
 
   /* mark that we are in the paint process */
@@ -4209,7 +4128,7 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
    * case the child was the only thing that was making it
    * expand.
    */
-  if (CLUTTER_ACTOR_IS_VISIBLE (child) &&
+  if (clutter_actor_is_visible (child) &&
       (child->priv->needs_compute_expand ||
        child->priv->needs_x_expand ||
        child->priv->needs_y_expand))
@@ -5168,15 +5087,15 @@ clutter_actor_get_property (GObject    *object,
       break;
 
     case PROP_VISIBLE:
-      g_value_set_boolean (value, CLUTTER_ACTOR_IS_VISIBLE (actor));
+      g_value_set_boolean (value, clutter_actor_is_visible (actor));
       break;
 
     case PROP_MAPPED:
-      g_value_set_boolean (value, CLUTTER_ACTOR_IS_MAPPED (actor));
+      g_value_set_boolean (value, clutter_actor_is_mapped (actor));
       break;
 
     case PROP_REALIZED:
-      g_value_set_boolean (value, CLUTTER_ACTOR_IS_REALIZED (actor));
+      g_value_set_boolean (value, clutter_actor_is_realized (actor));
       break;
 
     case PROP_HAS_CLIP:
@@ -5505,8 +5424,8 @@ clutter_actor_dispose (GObject *object)
   if (!CLUTTER_ACTOR_IS_TOPLEVEL (self))
     {
       /* can't be mapped or realized with no parent */
-      g_assert (!CLUTTER_ACTOR_IS_MAPPED (self));
-      g_assert (!CLUTTER_ACTOR_IS_REALIZED (self));
+      g_assert (!clutter_actor_is_mapped (self));
+      g_assert (!clutter_actor_is_realized (self));
     }
 
   g_clear_signal_handler (&priv->resolution_changed_id, backend);
@@ -5687,7 +5606,7 @@ clutter_actor_real_get_paint_volume (ClutterActor       *self,
        * allocation, because apparently some code above Clutter allows
        * them.
        */
-      if ((!CLUTTER_ACTOR_IS_MAPPED (child) &&
+      if ((!clutter_actor_is_mapped (child) &&
            !clutter_actor_has_mapped_clones (child)) ||
           !clutter_actor_has_allocation (child))
         continue;
@@ -7571,14 +7490,14 @@ _clutter_actor_queue_redraw_full (ClutterActor             *self,
    * this allows us to ignore redraws queued on leaf nodes when one
    * of their parents has been hidden
    */
-  if (!CLUTTER_ACTOR_IS_MAPPED (self) &&
+  if (!clutter_actor_is_mapped (self) &&
       !clutter_actor_has_mapped_clones (self))
     {
       CLUTTER_NOTE (PAINT,
                     "Skipping queue_redraw('%s'): mapped=%s, "
                     "has_mapped_clones=%s",
                     _clutter_actor_get_debug_name (self),
-                    CLUTTER_ACTOR_IS_MAPPED (self) ? "yes" : "no",
+                    clutter_actor_is_mapped (self) ? "yes" : "no",
                     clutter_actor_has_mapped_clones (self) ? "yes" : "no");
       return;
     }
@@ -8768,7 +8687,7 @@ clutter_actor_allocate (ClutterActor          *self,
   priv = self->priv;
 
   if (!CLUTTER_ACTOR_IS_TOPLEVEL (self) &&
-      !CLUTTER_ACTOR_IS_MAPPED (self) &&
+      !clutter_actor_is_mapped (self) &&
       !clutter_actor_has_mapped_clones (self))
     return;
 
@@ -11131,7 +11050,7 @@ clutter_actor_add_child_internal (ClutterActor              *self,
    * flag set to FALSE, should avoid recomputing the expand flags
    * state while building the actor tree.
    */
-  if (CLUTTER_ACTOR_IS_VISIBLE (child) &&
+  if (clutter_actor_is_visible (child) &&
       (child->priv->needs_compute_expand ||
        child->priv->needs_x_expand ||
        child->priv->needs_y_expand))
@@ -11167,7 +11086,7 @@ clutter_actor_add_child_internal (ClutterActor              *self,
   /* on the other hand, this will catch any other case where
    * the actor is supposed to be visible when it's added
    */
-  if (CLUTTER_ACTOR_IS_MAPPED (child))
+  if (clutter_actor_is_mapped (child))
     clutter_actor_queue_redraw (child);
 
   if (clutter_actor_has_mapped_clones (self))
@@ -11365,7 +11284,7 @@ clutter_actor_get_parent (ClutterActor *self)
  * Retrieves the 'paint' visibility of an actor recursively checking for non
  * visible parents.
  *
- * This is by definition the same as %CLUTTER_ACTOR_IS_MAPPED.
+ * This is by definition the same as clutter_actor_is_mapped.
  *
  * Return Value: %TRUE if the actor is visible and will be painted.
  */
@@ -11374,7 +11293,7 @@ clutter_actor_get_paint_visibility (ClutterActor *actor)
 {
   g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), FALSE);
 
-  return CLUTTER_ACTOR_IS_MAPPED (actor);
+  return clutter_actor_is_mapped (actor);
 }
 
 /**
@@ -11865,7 +11784,7 @@ clutter_actor_set_reactive (ClutterActor *actor,
 
   priv = actor->priv;
 
-  if (reactive == CLUTTER_ACTOR_IS_REACTIVE (actor))
+  if (reactive == clutter_actor_get_reactive (actor))
     return;
 
   if (reactive)
@@ -11875,13 +11794,13 @@ clutter_actor_set_reactive (ClutterActor *actor,
 
   g_object_notify_by_pspec (G_OBJECT (actor), obj_props[PROP_REACTIVE]);
 
-  if (!CLUTTER_ACTOR_IS_REACTIVE (actor) && priv->n_pointers > 0)
+  if (!clutter_actor_get_reactive (actor) && priv->n_pointers > 0)
     {
       ClutterActor *stage = _clutter_actor_get_stage_internal (actor);
 
       clutter_stage_invalidate_focus (CLUTTER_STAGE (stage), actor);
     }
-  else if (CLUTTER_ACTOR_IS_REACTIVE (actor))
+  else if (clutter_actor_get_reactive (actor))
     {
       ClutterActor *parent;
 
@@ -11892,7 +11811,7 @@ clutter_actor_set_reactive (ClutterActor *actor,
 
       while (parent)
         {
-          if (CLUTTER_ACTOR_IS_REACTIVE (parent))
+          if (clutter_actor_get_reactive (parent))
             break;
 
           parent = parent->priv->parent;
@@ -11920,7 +11839,7 @@ clutter_actor_get_reactive (ClutterActor *actor)
 {
   g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), FALSE);
 
-  return CLUTTER_ACTOR_IS_REACTIVE (actor) ? TRUE : FALSE;
+  return (actor->flags & CLUTTER_ACTOR_REACTIVE) != FALSE;
 }
 
 static void
@@ -13716,7 +13635,7 @@ _clutter_actor_set_enable_paint_unmapped (ClutterActor *self,
       /* If the actor isn't ultimately connected to a toplevel, it can't be
        * realized or painted.
        */
-      if (CLUTTER_ACTOR_IS_REALIZED (self))
+      if (clutter_actor_is_realized (self))
           clutter_actor_update_map_state (self, MAP_STATE_MAKE_MAPPED);
     }
   else
@@ -14064,7 +13983,7 @@ _clutter_actor_set_has_pointer (ClutterActor *self,
 
   if (has_pointer)
     {
-      g_assert (CLUTTER_IS_STAGE (self) || CLUTTER_ACTOR_IS_MAPPED (self));
+      g_assert (CLUTTER_IS_STAGE (self) || clutter_actor_is_mapped (self));
 
       priv->n_pointers++;
     }
@@ -14173,7 +14092,7 @@ clutter_actor_has_allocation (ClutterActor *self)
   priv = self->priv;
 
   return priv->parent != NULL &&
-         CLUTTER_ACTOR_IS_VISIBLE (self) &&
+         clutter_actor_is_visible (self) &&
          !priv->needs_allocation;
 }
 
@@ -15426,7 +15345,7 @@ clutter_actor_finish_layout (ClutterActor *self,
   if (!priv->needs_finish_layout)
     return;
 
-  if ((!CLUTTER_ACTOR_IS_MAPPED (self) &&
+  if ((!clutter_actor_is_mapped (self) &&
        !clutter_actor_has_mapped_clones (self)) ||
       CLUTTER_ACTOR_IN_DESTRUCTION (self))
     return;
@@ -15515,7 +15434,7 @@ clutter_actor_is_effectively_on_stage_view (ClutterActor     *self,
 
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
 
-  if (!CLUTTER_ACTOR_IS_MAPPED (self) &&
+  if (!clutter_actor_is_mapped (self) &&
       !clutter_actor_has_mapped_clones (self))
     return FALSE;
 
@@ -15535,7 +15454,7 @@ clutter_actor_is_effectively_on_stage_view (ClutterActor     *self,
               ClutterActor *clone = key;
               GList *clone_views;
 
-              if (!CLUTTER_ACTOR_IS_MAPPED (clone))
+              if (!clutter_actor_is_mapped (clone))
                 continue;
 
               clone_views = clutter_actor_peek_stage_views (clone);
@@ -15548,7 +15467,7 @@ clutter_actor_is_effectively_on_stage_view (ClutterActor     *self,
        * it, so if we're hidden and an actor up the hierarchy has a clone,
        * we won't be visible.
        */
-      if (!CLUTTER_ACTOR_IS_VISIBLE (actor))
+      if (!clutter_actor_is_visible (actor))
         return FALSE;
     }
 
@@ -17059,7 +16978,7 @@ should_skip_implicit_transition (ClutterActor *self,
    * on the account of the fact that the actor is not going to be visible
    * when those transitions happen
    */
-  if (!CLUTTER_ACTOR_IS_MAPPED (self) &&
+  if (!clutter_actor_is_mapped (self) &&
       !clutter_actor_has_mapped_clones (self))
     return TRUE;
 
@@ -18329,7 +18248,7 @@ clutter_actor_needs_expand (ClutterActor       *self,
 {
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
 
-  if (!CLUTTER_ACTOR_IS_VISIBLE (self))
+  if (!clutter_actor_is_visible (self))
     return FALSE;
 
   if (CLUTTER_ACTOR_IN_DESTRUCTION (self))
@@ -18632,7 +18551,7 @@ clutter_actor_has_mapped_clones (ClutterActor *self)
           g_hash_table_iter_init (&iter, actor->priv->clones);
           while (g_hash_table_iter_next (&iter, &key, NULL))
             {
-              if (CLUTTER_ACTOR_IS_MAPPED (key))
+              if (clutter_actor_is_mapped (key))
                 return TRUE;
             }
         }
@@ -18641,7 +18560,7 @@ clutter_actor_has_mapped_clones (ClutterActor *self)
        * it, so if we're hidden and an actor up the hierarchy has a clone,
        * we won't be visible.
        */
-      if (!CLUTTER_ACTOR_IS_VISIBLE (actor))
+      if (!clutter_actor_is_visible (actor))
         return FALSE;
     }
 
@@ -19072,7 +18991,7 @@ clutter_actor_collect_event_actors (ClutterActor *self,
     {
       ClutterActor *parent = iter->priv->parent;
 
-      if (CLUTTER_ACTOR_IS_REACTIVE (iter) || /* an actor must be reactive */
+      if (clutter_actor_get_reactive (iter) || /* an actor must be reactive */
           parent == NULL)                     /* unless it's the stage */
         g_ptr_array_add (actors, iter);
 

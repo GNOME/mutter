@@ -162,7 +162,7 @@ meta_window_group_get_paint_volume (ClutterActor       *self,
     {
       const ClutterPaintVolume *child_volume;
 
-      if (!CLUTTER_ACTOR_IS_MAPPED (child))
+      if (!clutter_actor_is_mapped (child))
         continue;
 
       child_volume = clutter_actor_get_transformed_paint_volume (child, self);

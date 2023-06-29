@@ -201,7 +201,7 @@ meta_dnd_actor_drag_finish (MetaDnDActor *self,
       clutter_actor_set_easing_duration (actor, DRAG_FAILED_DURATION);
       clutter_actor_set_opacity (actor, 0);
 
-      if (CLUTTER_ACTOR_IS_VISIBLE (self->drag_origin))
+      if (clutter_actor_is_visible (self->drag_origin))
         {
           MetaWindowActor *origin_actor;
           float anchor_x, anchor_y;

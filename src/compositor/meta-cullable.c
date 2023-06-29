@@ -105,7 +105,7 @@ meta_cullable_cull_out_children (MetaCullable   *cullable,
 
       needs_culling = (unobscured_region != NULL && clip_region != NULL);
 
-      if (needs_culling && !CLUTTER_ACTOR_IS_VISIBLE (child))
+      if (needs_culling && !clutter_actor_is_visible (child))
         needs_culling = FALSE;
 
       /* If an actor has effects applied, then that can change the area

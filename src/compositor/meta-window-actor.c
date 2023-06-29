@@ -977,7 +977,7 @@ meta_window_actor_sync_visibility (MetaWindowActor *self)
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (self);
 
-  if (CLUTTER_ACTOR_IS_VISIBLE (self) != priv->visible)
+  if (clutter_actor_is_visible (CLUTTER_ACTOR (self)) != priv->visible)
     {
       if (priv->visible)
         clutter_actor_show (CLUTTER_ACTOR (self));
