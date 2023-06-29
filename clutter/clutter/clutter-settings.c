@@ -93,8 +93,6 @@ enum
 {
   PROP_0,
 
-  PROP_BACKEND,
-
   PROP_DOUBLE_CLICK_TIME,
   PROP_DOUBLE_CLICK_DISTANCE,
 
@@ -609,10 +607,6 @@ clutter_settings_set_property (GObject      *gobject,
 
   switch (prop_id)
     {
-    case PROP_BACKEND:
-      self->backend = g_value_get_object (value);
-      break;
-
     case PROP_DOUBLE_CLICK_TIME:
       self->double_click_time = g_value_get_int (value);
       break;
@@ -773,20 +767,6 @@ static void
 clutter_settings_class_init (ClutterSettingsClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  /**
-   * ClutterSettings:backend:
-   *
-   * A back pointer to the [class@Backend]
-   *
-   * Deprecated: 1.10
-   */
-  obj_props[PROP_BACKEND] =
-    g_param_spec_object ("backend", NULL, NULL,
-                         CLUTTER_TYPE_BACKEND,
-                         CLUTTER_PARAM_WRITABLE |
-                         G_PARAM_DEPRECATED |
-                         G_PARAM_CONSTRUCT_ONLY);
 
   /**
    * ClutterSettings:double-click-time:
