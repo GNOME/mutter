@@ -689,8 +689,6 @@ struct _ClutterActorPrivate
   /* the cached transformation matrix; see apply_transform() */
   graphene_matrix_t transform;
 
-  graphene_matrix_t absolute_modelview;
-
   float resource_scale;
 
   guint8 opacity;
@@ -853,7 +851,6 @@ struct _ClutterActorPrivate
   guint clear_stage_views_needs_stage_views_changed : 1;
   guint needs_redraw : 1;
   guint needs_finish_layout : 1;
-  guint absolute_modelview_valid : 1;
 };
 
 enum
@@ -2497,7 +2494,6 @@ absolute_geometry_changed (ClutterActor *actor)
 {
   actor->priv->needs_update_stage_views = TRUE;
   actor->priv->needs_visible_paint_volume_update = TRUE;
-  actor->priv->absolute_modelview_valid = FALSE;
 
   actor->priv->needs_finish_layout = TRUE;
   /* needs_finish_layout is already TRUE on the whole parent tree thanks
@@ -2882,6 +2878,8 @@ clutter_actor_apply_transform_to_point (ClutterActor             *self,
  * instead.
  *
  */
+/* XXX: We should consider caching the stage relative modelview along with
+ * the actor itself */
 void
 clutter_actor_get_relative_transformation_matrix (ClutterActor      *self,
                                                   ClutterActor      *ancestor,
@@ -3120,30 +3118,6 @@ _clutter_actor_apply_relative_transformation_matrix (ClutterActor      *self,
    * value to represent the fake parent of the stage. */
   if (self == ancestor)
     return;
-
-  if (ancestor == NULL)
-    {
-      ClutterActorPrivate *priv = self->priv;
-
-      if (!priv->absolute_modelview_valid)
-        {
-          graphene_matrix_init_identity (&priv->absolute_modelview);
-
-          if (priv->parent != NULL)
-            {
-              _clutter_actor_apply_relative_transformation_matrix (priv->parent,
-                                                                   NULL,
-                                                                   &priv->absolute_modelview);
-            }
-
-          _clutter_actor_apply_modelview_transform (self, &priv->absolute_modelview);
-
-          priv->absolute_modelview_valid = TRUE;
-        }
-
-      graphene_matrix_multiply (&priv->absolute_modelview, matrix, matrix);
-      return;
-    }
 
   if (self->priv->parent != NULL)
     _clutter_actor_apply_relative_transformation_matrix (self->priv->parent,
@@ -7620,7 +7594,6 @@ clutter_actor_init (ClutterActor *self)
   priv->enable_model_view_transform = TRUE;
 
   priv->transform_valid = FALSE;
-  priv->absolute_modelview_valid = FALSE;
 
   /* the default is to stretch the content, to match the
    * current behaviour of basically all actors. also, it's
