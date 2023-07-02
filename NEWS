@@ -1,3 +1,56 @@
+45.alpha
+========
+* Fix DND in some server-side decorated windows [Sebastian; !2978]
+* Optionally use libdisplay-info for EDID parsing [adarshgm; !2642]
+* Optimize partial surface updates [msizanoen1; !2965]
+* Fix redrawing regression in non-DMA remote sessions [Jonas Å.; !2987]
+* Avoid race condition in xwayland-on-demand [Marco; !2970]
+* Do not unminimize windows with initial IconicState [Carlos; !3001]
+* Implement physical pixel rounding of wayland surfaces [msizanoen1; !2726]
+* Fix mispositioning of some X11 fullscreen windows [Carlos; !2996]
+* Fix legacy fullscreen windows appearing on all monitors [Carlos; !2999]
+* Improve support for display-attached tablets [Carlos; !3012]
+* Fix stuck cursor in some clients [Carlos; !3025]
+* Avoid unexpected orientation changes around suspend/resume [Carlos; !3021]
+* Fix oversized input region around Xwayland windows [Jonas Å.; !3022]
+* Re-enable client modifiers with amdgpu driver [Robert; !3030]
+* Fix sysprof tracing in non-main threads [Jonas Å.; !2998]
+* Fix X11 client input region issues [Sebastian, Jonas Å.; !3031, !3045]
+* Optimize finish-layout step during stage updating [Robert, Jonas D.; !2679]
+* Fix profiling repeatedly [Jonas Å.; !3068]
+* Ensure preferred monitor mode is always included [Timotej; !3061]
+* Fully initialize input device state during init [Jonas Å.; !3070, !3071]
+* Forward modifiers to IM alongside regular key events [Carlos; !3044]
+* Fix window focus unexpectedly moving to secondary monitor when changing
+  workspaces [Sebastian W.; !2909]
+* Avoid rapidly toggling dynamic max render time [Daniel; !3074]
+* Fix dynamic max render time blocking with direct scanout [Dor; !3080]
+* Mirror window placement in RTL locales [Shmuel; !3009]
+* Fix screencast with fractionally scaled surfaces [msizanoen; !3053]
+* Reipmlement strict focus mode policy [Brendan; !3063]
+* Fixed crashes [Jonas Å., Barnabás, Carlos, Robert, Dor; !2992, !2995,
+  !3002, !3004, !3037, !3076, !3077, !3095, !3104]
+* Plugged leaks [Jonas Å., Dor; !2991, !3078]
+* Misc. bug fixes and cleanups [Marco, Andy, Sebastian K., Jonas Å., Robert,
+  Alexandre, Bilal, Georges, Florian, Dmitry, Michel, Pascal, Olivier, Carlos,
+  Daniel, Sebastian W., Corentin, Barnabás, Dor; !2903, !2983, !2986, !2985,
+  !2990, !2982, !3000, !2938, !2445, !3006, !3010, !2913, !2893, !2939, !3011,
+  !3007, !3018, !3016, !3024, !3020, !3029, !3034, !3036, !3040, !3046, !3051,
+  !3047, !3055, !3058, !3075, !3081] !3082, !3079, !2911, !3084, !3088, !3085,
+  !3052, !3094, !3083, !3092, !3008, !3098, !3091, !3062, !3108]
+
+Contributors:
+  Jonas Ådahl, adarshgm, Dor Askayo, Michel Dänzer, Jonas Dreßler,
+  Bilal Elmoussaoui, Olivier Fourdan, Alexandre Franke, Carlos Garnacho,
+  Andy Holmes, Sebastian Keller, Dmitry V. Levin, Robert Mader, Shmuel Melamud,
+  msizanoen, msizanoen1, Florian Müllner, Georges Basile Stavracas Neto,
+  Corentin Noël, Pascal Nowack, Barnabás Pőcze, Timotej Šulík,
+  Marco Trevisan (Treviño), Daniel van Vugt, Sebastian Wick, Brendan William
+
+Translators:
+  Danial Behzadi [fa], Simon Elst [fr], Rafael Fontenelle [pt_BR],
+  Sergej A [ru], Bruce Cowan [en_GB], Alexandre Franke [fr]
+
 44.1
 ====
 * Fall back to the default, not the unknown color space [Sebastian W.; !2915]
