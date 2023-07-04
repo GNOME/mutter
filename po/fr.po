@@ -21,8 +21,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2023-05-08 21:13+0000\n"
-"PO-Revision-Date: 2023-05-12 15:04+0200\n"
+"POT-Creation-Date: 2023-06-30 18:22+0000\n"
+"PO-Revision-Date: 2023-07-04 11:30+0200\n"
 "Last-Translator: Charles Monzat <charles.monzat@free.fr>\n"
 "Language-Team: GNOME French Team <gnomefr@traduc.org>\n"
 "Language: fr\n"
@@ -590,6 +590,8 @@ msgstr ""
 #: data/org.gnome.mutter.wayland.gschema.xml.in:130
 msgid "Allow X11 clients with a different endianness to connect to Xwayland"
 msgstr ""
+"Autoriser les clients X11 avec un boutisme différent à se connecter à "
+"Xwayland"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:131
 msgid ""
@@ -603,6 +605,16 @@ msgid ""
 "control that setting. Xwayland needs to be restarted for this setting to "
 "take effect."
 msgstr ""
+"Autoriser les connexions de clients dont la valeur de boutisme est "
+"différente de celle de Xwayland. Le code d'échange d’octets du serveur X est "
+"une énorme surface d'attaque, et une grande partie de ce code dans Xwayland "
+"est sujette à des problèmes de sécurité. Le cas d’utilisation des clients "
+"avec échange d’octets est très limité et désactivé par défaut dans Xwayland. "
+"Activez cette option pour demander à Xwayland d’accepter les connexions de "
+"clients X11 avec un boutisme différent. Cette option n’a aucun effet si "
+"Xwayland ne prend pas en charge l’option de ligne de commande "
+"+byteswappedclients ou -byteswappedclients pour contrôler ce paramètre. "
+"Xwayland doit être redémarré pour que ce paramètre prenne effet."
 
 #: src/backends/meta-monitor.c:253
 msgid "Built-in display"
@@ -631,83 +643,77 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#. This probably means that a non-WM compositor like xcompmgr is running;
-#. * we have no way to get it to exit
-#: src/compositor/compositor.c:416
-#, c-format
-msgid ""
-"Another compositing manager is already running on screen %i on display “%s”."
-msgstr ""
-"Un autre gestionnaire de composition est déjà lancé sur l’écran %i de "
-"l’affichage « %s »."
-
-#: src/core/bell.c:192
+#: src/core/bell.c:193
 msgid "Bell event"
 msgstr "Évènement sonore"
 
-#: src/core/display.c:703
+#: src/core/display.c:715
 msgid "Privacy Screen Enabled"
 msgstr "Écran de confidentialité activé"
 
-#: src/core/display.c:704
+#: src/core/display.c:716
 msgid "Privacy Screen Disabled"
 msgstr "Écran de confidentialité désactivé"
 
-#: src/core/meta-context-main.c:576
+#: src/core/meta-context-main.c:581
 msgid "Replace the running window manager"
 msgstr "Remplacer le gestionnaire de fenêtres en cours de fonctionnement"
 
-#: src/core/meta-context-main.c:582
+#: src/core/meta-context-main.c:587
 msgid "X Display to use"
 msgstr "Affichage X à utiliser"
 
-#: src/core/meta-context-main.c:588
+#: src/core/meta-context-main.c:593
 msgid "Disable connection to session manager"
 msgstr "Désactiver la connexion au gestionnaire de sessions"
 
-#: src/core/meta-context-main.c:594
+#: src/core/meta-context-main.c:599
 msgid "Specify session management ID"
 msgstr "Indiquer l’ID de gestion de sessions"
 
-#: src/core/meta-context-main.c:600
+#: src/core/meta-context-main.c:605
 msgid "Initialize session from savefile"
 msgstr "Initialiser la session depuis le fichier de sauvegarde"
 
-#: src/core/meta-context-main.c:606
+#: src/core/meta-context-main.c:611
 msgid "Make X calls synchronous"
 msgstr "Rendre synchrones les appels à X"
 
-#: src/core/meta-context-main.c:614
+#: src/core/meta-context-main.c:619
 msgid "Run as a wayland compositor"
 msgstr "Lancer comme un compositeur wayland"
 
-#: src/core/meta-context-main.c:620
+#: src/core/meta-context-main.c:625
 msgid "Run as a nested compositor"
 msgstr "Lancer comme un compositeur imbriqué"
 
-#: src/core/meta-context-main.c:626
+#: src/core/meta-context-main.c:631
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Lancer le compositeur wayland sans démarrer Xwayland"
 
-#: src/core/meta-context-main.c:632
+#: src/core/meta-context-main.c:637
 msgid "Specify Wayland display name to use"
 msgstr "Indiquer le nom d’affichage Wayland à utiliser"
 
-#: src/core/meta-context-main.c:640
+#: src/core/meta-context-main.c:645
 msgid "Run as a full display server, rather than nested"
 msgstr "Lancer comme un serveur d’affichage complet, plutôt qu’imbriqué"
 
-#: src/core/meta-context-main.c:645
+#: src/core/meta-context-main.c:650
 msgid "Run as a headless display server"
 msgstr "Lancer comme un serveur d’affichage sans interface"
 
-#: src/core/meta-context-main.c:650
+#: src/core/meta-context-main.c:655
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Ajouter un moniteur virtuel persistant (WxH ou WxH@R)"
 
-#: src/core/meta-context-main.c:662
+#: src/core/meta-context-main.c:667
 msgid "Run with X11 backend"
 msgstr "Lancer avec le moteur X11"
+
+#: src/core/meta-context-main.c:673
+msgid "Profile performance using trace instrumentation"
+msgstr ""
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
@@ -729,7 +735,7 @@ msgid "Show on-screen help"
 msgstr "Afficher l’aide à l’écran"
 
 #. Translators: this string will appear in Sysprof
-#: src/core/meta-profiler.c:80 src/core/meta-profiler.c:217
+#: src/core/meta-profiler.c:111 src/core/meta-profiler.c:301
 msgid "Compositor"
 msgstr "Compositeur"
 
@@ -741,12 +747,12 @@ msgstr "Afficher la version"
 msgid "Mutter plugin to use"
 msgstr "Greffon de Mutter à utiliser"
 
-#: src/core/prefs.c:1913
+#: src/core/prefs.c:1843
 #, c-format
 msgid "Workspace %d"
 msgstr "Espace de travail %d"
 
-#: src/core/util.c:142
+#: src/core/util.c:138
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter a été compilé sans la prise en charge du mode bavard"
 
@@ -759,7 +765,7 @@ msgstr "Espace de travail changé"
 msgid "Mode Switch: Mode %d"
 msgstr "Changement de mode : mode %d"
 
-#: src/x11/meta-x11-display.c:701
+#: src/x11/meta-x11-display.c:708
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -768,22 +774,32 @@ msgstr ""
 "L’affichage « %s » a déjà un gestionnaire de fenêtres ; essayez d’utiliser "
 "l’option --replace pour remplacer le gestionnaire de fenêtres actuel."
 
-#: src/x11/meta-x11-display.c:1062
+#: src/x11/meta-x11-display.c:1073
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Impossible d’ouvrir l’affichage « %s » du système X Window"
 
-#: src/x11/meta-x11-display.c:1207
+#: src/x11/meta-x11-display.c:1219
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "L’écran %d sur l’affichage « %s » n’est pas valide"
+
+#. This probably means that a non-WM compositor like xcompmgr is running;
+#. * we have no way to get it to exit
+#: src/x11/meta-x11-display.c:2550
+#, c-format
+msgid ""
+"Another compositing manager is already running on screen %i on display “%s”."
+msgstr ""
+"Un autre gestionnaire de composition est déjà lancé sur l’écran %i de "
+"l’affichage « %s »."
 
 #: src/x11/meta-x11-selection-input-stream.c:475
 #, c-format
 msgid "Format %s not supported"
 msgstr "Le format %s n’est pas pris en charge"
 
-#: src/x11/window-props.c:549
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (sur %s)"
