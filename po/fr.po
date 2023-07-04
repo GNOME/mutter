@@ -15,21 +15,22 @@
 # Jean-Baptiste Holcroft <jean-baptiste@holcroft.fr>, 2017.
 # Claude Paroz <claude@2xlibre.net>, 2008-2021.
 # Charles Monzat <charles.monzat@free.fr>, 2016-2022.
+# Guillaume Bernard <associations@guillaume-bernard.fr>, 2023
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2023-05-04 12:21+0000\n"
-"PO-Revision-Date: 2023-05-12 15:08+0200\n"
-"Last-Translator: Charles Monzat <charles.monzat@free.fr>\n"
+"POT-Creation-Date: 2023-05-12 13:08+0000\n"
+"PO-Revision-Date: 2023-05-15 11:22+0200\n"
+"Last-Translator: Guillaume Bernard <associations@guillaume-bernard.fr>\n"
 "Language-Team: GNOME French Team <gnomefr@traduc.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Gtranslator 40.0\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -589,6 +590,8 @@ msgstr ""
 #: data/org.gnome.mutter.wayland.gschema.xml.in:130
 msgid "Allow X11 clients with a different endianness to connect to Xwayland"
 msgstr ""
+"Autoriser les clients X11 avec un boutisme différent à se "
+"connecter à Xwayland"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:131
 msgid ""
@@ -602,6 +605,16 @@ msgid ""
 "control that setting. Xwayland needs to be restarted for this setting to "
 "take effect."
 msgstr ""
+"Autoriser les connexions de clients dont la valeur de boutisme est "
+"différente de celle de Xwayland. Le code d'échange d’octets du serveur X est "
+"une énorme surface d'attaque, et une grande partie de ce code dans Xwayland "
+"est sujette à des problèmes de sécurité. Le cas d’utilisation des clients "
+"avec échange d’octets est très limité et désactivé par défaut dans Xwayland. "
+"Activez cette option pour demander à Xwayland d’accepter les connexions de "
+"clients X11 avec un boutisme différent. Cette option n’a aucun effet si "
+"Xwayland ne prend pas en charge l’option de ligne de commande "
+"+byteswappedclients ou -byteswappedclients pour contrôler ce paramètre. "
+"Xwayland doit être redémarré pour que ce paramètre prenne effet."
 
 #: src/backends/meta-monitor.c:253
 msgid "Built-in display"
