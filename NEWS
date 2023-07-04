@@ -1,3 +1,16 @@
+44.3
+====
+* Ensure preferred monitor mode is always included [Timotej; !3061]
+* Avoid rapidly toggling dynamic max render time [Daniel; !3074]
+* Fix dynamic max render time blocking with direct scanout [Dor; !3080]
+* Misc. bug fixes [Barnabás; !3008]
+
+Contributors:
+  Dor Askayo, Barnabás Pőcze, Timotej Šulík, Daniel van Vugt
+
+Translators:
+  Bruce Cowan [en_GB], Guillaume Bernard [fr]
+
 44.2
 ====
 * Fix DND in some server-side decorated windows [Sebastian; !2978]
