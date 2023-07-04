@@ -1,3 +1,11 @@
+43.7
+====
+* Fixed crash [Keyu; !2827]
+
+Contributors:
+  Keyu Tao
+
+
 43.6
 ====
 * Fix popup issues [Jonas; !2940]
