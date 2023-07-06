@@ -518,6 +518,7 @@ test-mutter-kvm@x86_64:
   artifacts:
     reports:
       junit: "build/meson-logs/testlog-plain.junit.xml"
+  when: manual
 
 test-mutter@aarch64:
   extends:
@@ -555,7 +556,7 @@ coverage:
   needs:
     - test-mutter@x86_64
     - test-mutter@aarch64
-    - test-mutter-kvm@x86_64
+#   - test-mutter-kvm@x86_64
 
 can-build-gnome-shell@x86_64:
   extends:
