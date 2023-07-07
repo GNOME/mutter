@@ -506,7 +506,6 @@ test-mutter-kvm@x86_64:
   tags:
     - kvm
   script:
-    - sudo chgrp $MUTTER_USER /dev/kvm
     - meson test -C build
         --no-rebuild
         --timeout-multiplier 10
