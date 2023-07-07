@@ -1061,8 +1061,8 @@ _clutter_paint_volume_get_stage_paint_box (const ClutterPaintVolume *pv,
 
   _clutter_paint_volume_get_bounding_box (&projected_pv, box);
 
-  if (pv->is_2d && pv->actor &&
-      clutter_actor_get_z_position (pv->actor) == 0)
+  if (pv->is_2d &&
+      (!pv->actor || clutter_actor_get_z_position (pv->actor) == 0))
     {
       /* If the volume/actor are perfectly 2D, take the bounding box as
        * good. We won't need to add any extra room for sub-pixel positioning
