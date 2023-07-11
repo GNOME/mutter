@@ -1319,32 +1319,12 @@ should_force_shadow_fb (MetaRendererNative *renderer_native,
   return meta_kms_device_prefers_shadow_buffer (kms_device);
 }
 
-static CoglFramebuffer *
-create_fallback_offscreen (MetaRendererNative *renderer_native,
-                           int                 width,
-                           int                 height)
-{
-  CoglOffscreen *fallback_offscreen;
-  GError *error = NULL;
-
-  fallback_offscreen = meta_renderer_native_create_offscreen (renderer_native,
-                                                              width,
-                                                              height,
-                                                              &error);
-  if (!fallback_offscreen)
-    {
-      g_error ("Failed to create fallback offscreen framebuffer: %s",
-               error->message);
-    }
-
-  return COGL_FRAMEBUFFER (fallback_offscreen);
-}
-
 static MetaRendererView *
-meta_renderer_native_create_view (MetaRenderer       *renderer,
-                                  MetaLogicalMonitor *logical_monitor,
-                                  MetaOutput         *output,
-                                  MetaCrtc           *crtc)
+meta_renderer_native_create_view (MetaRenderer        *renderer,
+                                  MetaLogicalMonitor  *logical_monitor,
+                                  MetaOutput          *output,
+                                  MetaCrtc            *crtc,
+                                  GError             **error)
 {
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
   MetaBackend *backend = meta_renderer_get_backend (renderer);
@@ -1365,7 +1345,7 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
   MtkRectangle view_layout;
   MetaRendererViewNative *view_native;
   EGLSurface egl_surface;
-  GError *error = NULL;
+  GError *local_error = NULL;
 
   crtc_config = meta_crtc_get_config (crtc);
   crtc_mode_info = meta_crtc_mode_get_info (crtc_config->mode);
@@ -1379,15 +1359,13 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
 
       if (!meta_renderer_native_ensure_gpu_data (renderer_native,
                                                  gpu_kms,
-                                                 &error))
+                                                 &local_error))
         {
-          g_warning ("Failed to create secondary GPU data for %s: %s",
-                      meta_gpu_kms_get_file_path (gpu_kms),
-                      error->message);
-          use_shadowfb = FALSE;
-          framebuffer = create_fallback_offscreen (renderer_native,
-                                                   onscreen_width,
-                                                   onscreen_height);
+          g_propagate_prefixed_error (error, local_error,
+                                      "Failed to create secondary GPU data for %s: ",
+                                      meta_gpu_kms_get_file_path (gpu_kms));
+
+          return NULL;
         }
       else
         {
@@ -1401,15 +1379,12 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
                                                       onscreen_width,
                                                       onscreen_height);
 
-          if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (onscreen_native), &error))
+          if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (onscreen_native), &local_error))
             {
-              g_warning ("Failed to allocate onscreen framebuffer for %s: %s",
-                         meta_gpu_kms_get_file_path (gpu_kms),
-                         error->message);
-              use_shadowfb = FALSE;
-              framebuffer = create_fallback_offscreen (renderer_native,
-                                                       onscreen_width,
-                                                       onscreen_height);
+              g_propagate_prefixed_error (error, local_error,
+                                          "Failed to allocate onscreen framebuffer for %s: ",
+                                          meta_gpu_kms_get_file_path (gpu_kms));
+              return NULL;
             }
           else
             {
@@ -1429,9 +1404,9 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
       virtual_onscreen = meta_renderer_native_create_offscreen (renderer_native,
                                                                 onscreen_width,
                                                                 onscreen_height,
-                                                                &error);
+                                                                &local_error);
       if (!virtual_onscreen)
-        g_error ("Failed to allocate back buffer texture: %s", error->message);
+        g_error ("Failed to allocate back buffer texture: %s", local_error->message);
       use_shadowfb = FALSE;
       framebuffer = COGL_FRAMEBUFFER (virtual_onscreen);
     }
@@ -1459,9 +1434,9 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
       offscreen = meta_renderer_native_create_offscreen (renderer_native,
                                                          offscreen_width,
                                                          offscreen_height,
-                                                         &error);
+                                                         &local_error);
       if (!offscreen)
-        g_error ("Failed to allocate back buffer texture: %s", error->message);
+        g_error ("Failed to allocate back buffer texture: %s", local_error->message);
     }
 
   if (meta_backend_is_stage_views_scaled (backend))

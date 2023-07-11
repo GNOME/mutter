@@ -61,10 +61,11 @@ create_offscreen (CoglContext *cogl_context,
 }
 
 static MetaRendererView *
-meta_renderer_x11_nested_create_view (MetaRenderer       *renderer,
-                                      MetaLogicalMonitor *logical_monitor,
-                                      MetaOutput         *output,
-                                      MetaCrtc           *crtc)
+meta_renderer_x11_nested_create_view (MetaRenderer        *renderer,
+                                      MetaLogicalMonitor  *logical_monitor,
+                                      MetaOutput          *output,
+                                      MetaCrtc            *crtc,
+                                      GError             **error)
 {
   MetaBackend *backend = meta_renderer_get_backend (renderer);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);

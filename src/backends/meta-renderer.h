@@ -38,10 +38,11 @@ struct _MetaRendererClass
   GObjectClass parent_class;
 
   CoglRenderer * (* create_cogl_renderer) (MetaRenderer *renderer);
-  MetaRendererView * (* create_view) (MetaRenderer       *renderer,
-                                      MetaLogicalMonitor *logical_monitor,
-                                      MetaOutput         *output,
-                                      MetaCrtc           *crtc);
+  MetaRendererView * (* create_view) (MetaRenderer        *renderer,
+                                      MetaLogicalMonitor  *logical_monitor,
+                                      MetaOutput          *output,
+                                      MetaCrtc            *crtc,
+                                      GError             **error);
   void (* rebuild_views) (MetaRenderer *renderer);
   void (* resume) (MetaRenderer *renderer);
   GList * (* get_views_for_monitor) (MetaRenderer *renderer,
