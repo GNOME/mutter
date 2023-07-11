@@ -30,6 +30,7 @@
 #include <glib.h>
 
 #ifdef HAVE_LIBDISPLAY_INFO
+#include <libdisplay-info/cta.h>
 #include <libdisplay-info/edid.h>
 #include <libdisplay-info/info.h>
 #endif
@@ -78,16 +79,20 @@ static gboolean
 decode_vendor_and_product_identification (const uint8_t *edid,
                                           MetaEdidInfo  *info)
 {
-  /* Manufacturer Code */
-  info->manufacturer_code[0] = get_bits (edid[0x08], 2, 6);
-  info->manufacturer_code[1] = get_bits (edid[0x08], 0, 1) << 3;
-  info->manufacturer_code[1] |= get_bits (edid[0x09], 5, 7);
-  info->manufacturer_code[2] = get_bits (edid[0x09], 0, 4);
-  info->manufacturer_code[3] = '\0';
+  char manufacturer_code[4];
 
-  info->manufacturer_code[0] += 'A' - 1;
-  info->manufacturer_code[1] += 'A' - 1;
-  info->manufacturer_code[2] += 'A' - 1;
+  /* Manufacturer Code */
+  manufacturer_code[0] = get_bits (edid[0x08], 2, 6);
+  manufacturer_code[1] = get_bits (edid[0x08], 0, 1) << 3;
+  manufacturer_code[1] |= get_bits (edid[0x09], 5, 7);
+  manufacturer_code[2] = get_bits (edid[0x09], 0, 4);
+  manufacturer_code[3] = '\0';
+
+  manufacturer_code[0] += 'A' - 1;
+  manufacturer_code[1] += 'A' - 1;
+  manufacturer_code[2] += 'A' - 1;
+
+  info->manufacturer_code = g_strdup (manufacturer_code);
 
   /* Product Code */
   info->product_code = edid[0x0b] << 8 | edid[0x0a];
@@ -143,27 +148,30 @@ decode_color_characteristics (const uint8_t *edid,
 
 static void
 decode_lf_string (const uint8_t *s,
-                  int            n_chars,
-                  char          *result)
+                  char          **result)
 {
   int i;
-  for (i = 0; i < n_chars; ++i)
+  char decoded[14] = { 0 };
+
+  for (i = 0; i < 13; ++i)
     {
       if (s[i] == 0x0a)
-	{
-          *result++ = '\0';
+        {
+          decoded[i] = '\0';
           break;
-	}
+        }
       else if (s[i] == 0x00)
-	{
+        {
           /* Convert embedded 0's to spaces */
-          *result++ = ' ';
-	}
+          decoded[i] = ' ';
+        }
       else
-	{
-          *result++ = s[i];
-	}
+        {
+          decoded[i] = s[i];
+        }
     }
+
+  *result = g_strdup (decoded);
 }
 
 static void
@@ -173,10 +181,10 @@ decode_display_descriptor (const uint8_t *desc,
   switch (desc[0x03])
     {
     case 0xFC:
-      decode_lf_string (desc + 5, 13, info->dsc_product_name);
+      decode_lf_string (desc + 5, &info->dsc_product_name);
       break;
     case 0xFF:
-      decode_lf_string (desc + 5, 13, info->dsc_serial_number);
+      decode_lf_string (desc + 5, &info->dsc_serial_number);
       break;
     }
 }
@@ -210,6 +218,25 @@ decode_ext_cta_colorimetry (const uint8_t *data_block,
   return TRUE;
 }
 
+static float
+decode_max_luminance (uint8_t raw)
+{
+  if (raw == 0)
+    return 0;
+
+  return 50 * powf (2, (float) raw / 32);
+}
+
+static float
+decode_min_luminance (uint8_t raw,
+                      float   max)
+{
+  if (raw == 0)
+    return 0;
+
+  return max * powf ((float) raw / 255, 2) / 100;
+}
+
 static gboolean
 decode_ext_cta_hdr_static_metadata (const uint8_t *data_block,
                                     MetaEdidInfo  *info)
@@ -223,11 +250,20 @@ decode_ext_cta_hdr_static_metadata (const uint8_t *data_block,
 
   size = get_bits (data_block[0], 0, 5);
   if (size > 3)
-    info->hdr_static_metadata.max_luminance = data_block[4];
+    {
+      info->hdr_static_metadata.max_luminance =
+        decode_max_luminance (data_block[4]);
+    }
   if (size > 4)
-    info->hdr_static_metadata.max_fal = data_block[5];
+    {
+      info->hdr_static_metadata.max_fal = decode_max_luminance (data_block[5]);
+    }
   if (size > 5)
-    info->hdr_static_metadata.min_luminance = data_block[6];
+    {
+      info->hdr_static_metadata.min_luminance =
+        decode_min_luminance (data_block[6],
+                              info->hdr_static_metadata.max_luminance);
+    }
 
   return TRUE;
 }
@@ -331,11 +367,15 @@ decode_edid_descriptors (const struct di_edid                    *di_edid,
   switch (desc_tag)
     {
     case DI_EDID_DISPLAY_DESCRIPTOR_PRODUCT_SERIAL:
-      info->dsc_serial_number = di_edid_display_descriptor_get_string (desc);
+      info->dsc_serial_number =
+        g_strdup (di_edid_display_descriptor_get_string (desc));
       break;
     case DI_EDID_DISPLAY_DESCRIPTOR_PRODUCT_NAME:
-      info->dsc_product_name = di_edid_display_descriptor_get_string (desc);
+      info->dsc_product_name =
+        g_strdup (di_edid_display_descriptor_get_string (desc));
       break;
+    default:
+        break;
     }
 }
 
@@ -384,12 +424,22 @@ decode_edid_hdr_static_metadata (const struct di_cta_hdr_static_metadata_block *
     info->hdr_static_metadata.sm |= META_EDID_STATIC_METADATA_TYPE1;
 
   if (hdr->desired_content_max_luminance != 0)
-    info->hdr_static_metadata.max_luminance = round (hdr->desired_content_max_luminance);
+    {
+      info->hdr_static_metadata.max_luminance =
+        hdr->desired_content_max_luminance;
+    }
   if (hdr->desired_content_max_frame_avg_luminance != 0)
-    info->hdr_static_metadata.max_fal = hdr->desired_content_max_frame_avg_luminance;
+    {
+      info->hdr_static_metadata.max_fal =
+        hdr->desired_content_max_frame_avg_luminance;
+    }
   if (hdr->desired_content_min_luminance != 0)
-    info->hdr_static_metadata.min_luminance = round (hdr->desired_content_min_luminance);
+    {
+      info->hdr_static_metadata.min_luminance =
+        hdr->desired_content_min_luminance;
+    }
 }
+
 static void
 decode_edid_cta_ext (const struct di_edid_cta *cta,
                      MetaEdidInfo             *info)
@@ -399,9 +449,10 @@ decode_edid_cta_ext (const struct di_edid_cta *cta,
   enum di_cta_data_block_tag data_blk_tag;
   const struct di_cta_colorimetry_block *colorimetry;
   const struct di_cta_hdr_static_metadata_block *hdr_static_metadata;
+  size_t data_index;
 
   data_blks = di_edid_cta_get_data_blocks (cta);
-  for (data_index = 0; data_blks[data_index]!=NULL; data_index++)
+  for (data_index = 0; data_blks[data_index] != NULL; data_index++)
     {
       data_blk = data_blks[data_index];
       data_blk_tag = di_cta_data_block_get_tag (data_blk);
@@ -411,12 +462,15 @@ decode_edid_cta_ext (const struct di_edid_cta *cta,
         case DI_CTA_DATA_BLOCK_COLORIMETRY:
           colorimetry = di_cta_data_block_get_colorimetry (data_blk);
           g_assert (colorimetry);
-          decode_edid_colorimetry (colorimetry, info)
+          decode_edid_colorimetry (colorimetry, info);
           break;
         case DI_CTA_DATA_BLOCK_HDR_STATIC_METADATA:
-          hdr_static_metadata = di_cta_data_block_get_hdr_static_metadata (data_blk);
+          hdr_static_metadata =
+            di_cta_data_block_get_hdr_static_metadata (data_blk);
           g_assert (hdr_static_metadata);
           decode_edid_hdr_static_metadata (hdr_static_metadata, info);
+          break;
+        default:
           break;
         }
     }
@@ -436,6 +490,8 @@ decode_edid_extensions (const struct di_edid_ext *ext,
       cta = di_edid_ext_get_cta (ext);
       decode_edid_cta_ext (cta, info);
       break;
+    default:
+      break;
     }
 }
 #endif
@@ -453,6 +509,8 @@ decode_edid_info (const uint8_t *edid,
   float gamma;
   const struct di_edid_display_descriptor *const *edid_descriptors;
   const struct di_edid_ext *const *extensions;
+  size_t desc_index;
+  size_t ext_index;
 
   edid_info = di_info_parse_edid (edid, size);
 
@@ -467,8 +525,7 @@ decode_edid_info (const uint8_t *edid,
   vendor_product = di_edid_get_vendor_product (di_edid);
 
   /* Manufacturer Code */
-  strncpy (info->manufacturer_code, vendor_product->manufacturer,
-           sizeof(info->manufacturer_code));
+  info->manufacturer_code = g_strdup (vendor_product->manufacturer);
 
   /* Product Code */
   info->product_code = vendor_product->product;
@@ -496,7 +553,7 @@ decode_edid_info (const uint8_t *edid,
 
   /* Descriptors */
   edid_descriptors = di_edid_get_display_descriptors (di_edid);
-  for (desc_index = 0; edid_descriptors[desc_index] != NULL; i++)
+  for (desc_index = 0; edid_descriptors[desc_index] != NULL; desc_index++)
     {
       decode_edid_descriptors (di_edid, edid_descriptors[desc_index], info);
     }
@@ -504,7 +561,7 @@ decode_edid_info (const uint8_t *edid,
   /* Extension Blocks */
   extensions = di_edid_get_extensions (di_edid);
 
-  for (ext_index = 0; extensions[ext_index] != NULL; i++)
+  for (ext_index = 0; extensions[ext_index] != NULL; ext_index++)
     {
       decode_edid_extensions (extensions[ext_index], info);
     }

@@ -69,7 +69,7 @@ struct _MetaEdidHdrStaticMetadata
 
 struct _MetaEdidInfo
 {
-  char manufacturer_code[4];
+  char *manufacturer_code;
   int product_code;
   unsigned int serial_number;
 
@@ -85,9 +85,8 @@ struct _MetaEdidInfo
   double white_y;
 
   /* Optional product description */
-  char dsc_serial_number[14];
-  char dsc_product_name[14];
-  char dsc_string[14];                  /* Unspecified ASCII data */
+  char *dsc_serial_number;
+  char *dsc_product_name;
 
   MetaEdidColorimetry colorimetry;
   MetaEdidHdrStaticMetadata hdr_static_metadata;

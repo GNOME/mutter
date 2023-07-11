@@ -325,11 +325,11 @@ static void
 set_output_details_from_edid (MetaOutputInfo *output_info,
                               MetaEdidInfo   *edid_info)
 {
-  output_info->vendor = g_strndup (edid_info->manufacturer_code, 4);
+  output_info->vendor = g_strdup (edid_info->manufacturer_code);
   if (!g_utf8_validate (output_info->vendor, -1, NULL))
     g_clear_pointer (&output_info->vendor, g_free);
 
-  output_info->product = g_strndup (edid_info->dsc_product_name, 14);
+  output_info->product = g_strdup (edid_info->dsc_product_name);
   if (!g_utf8_validate (output_info->product, -1, NULL) ||
       output_info->product[0] == '\0')
     {
@@ -338,7 +338,7 @@ set_output_details_from_edid (MetaOutputInfo *output_info,
         g_strdup_printf ("0x%04x", (unsigned) edid_info->product_code);
     }
 
-  output_info->serial = g_strndup (edid_info->dsc_serial_number, 14);
+  output_info->serial = g_strdup (edid_info->dsc_serial_number);
   if (!g_utf8_validate (output_info->serial, -1, NULL) ||
       output_info->serial[0] == '\0')
     {

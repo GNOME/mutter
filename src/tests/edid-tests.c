@@ -71,7 +71,7 @@ main (int    argc,
   g_assert (edid_info != NULL);
   g_assert (strcmp (edid_info->manufacturer_code, "GSM") == 0);
   g_assert (edid_info->product_code == 23507);
-  g_assert (edid_info->hdr_static_metadata.max_luminance == 97);
+  g_assert (edid_info->hdr_static_metadata.max_luminance == 408);
   g_assert (edid_info->hdr_static_metadata.tf ==
             (META_EDID_TF_TRADITIONAL_GAMMA_SDR | META_EDID_TF_PQ));
   g_assert (edid_info->colorimetry ==
