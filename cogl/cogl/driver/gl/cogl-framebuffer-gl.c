@@ -537,7 +537,15 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
 
       _cogl_bitmap_gl_unbind (tmp_bmp);
 
+      if (!(internal_format & COGL_A_BIT))
+        {
+          _cogl_bitmap_set_format (tmp_bmp, read_format & ~COGL_PREMULT_BIT);
+          _cogl_bitmap_set_format (bitmap, format & ~COGL_PREMULT_BIT);
+        }
+
       succeeded = _cogl_bitmap_convert_into_bitmap (tmp_bmp, bitmap, error);
+
+      _cogl_bitmap_set_format (bitmap, format);
 
       cogl_object_unref (tmp_bmp);
 
@@ -603,7 +611,8 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
       /* Convert to the premult format specified by the caller
          in-place. This will do nothing if the premult status is already
          correct. */
-      if (_cogl_bitmap_convert_premult_status (shared_bmp, format, error))
+      if (!(internal_format & COGL_A_BIT) ||
+          _cogl_bitmap_convert_premult_status (shared_bmp, format, error))
         succeeded = TRUE;
 
       cogl_object_unref (shared_bmp);
