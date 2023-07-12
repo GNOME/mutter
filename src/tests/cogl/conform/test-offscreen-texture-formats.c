@@ -344,6 +344,8 @@ test_offscreen_texture_formats_paint_rgb10 (void)
                                     red, green, blue, alpha);
 
           pipeline = cogl_pipeline_new (test_ctx);
+          cogl_pipeline_set_blend (pipeline,
+                                   "RGBA = ADD (SRC_COLOR, 0)", NULL);
           cogl_pipeline_set_layer_texture (pipeline, 0, tex_src);
           cogl_framebuffer_draw_rectangle (COGL_FRAMEBUFFER (offscreen_dst),
                                            pipeline,
@@ -468,6 +470,8 @@ test_offscreen_texture_formats_paint_rgb8 (void)
                                   &color);
 
           pipeline = cogl_pipeline_new (test_ctx);
+          cogl_pipeline_set_blend (pipeline,
+                                   "RGBA = ADD (SRC_COLOR, 0)", NULL);
           cogl_pipeline_set_layer_texture (pipeline, 0, tex_src);
           cogl_framebuffer_draw_rectangle (COGL_FRAMEBUFFER (offscreen_dst),
                                            pipeline,
