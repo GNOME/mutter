@@ -561,10 +561,12 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
    * artefacts.
    */
   /* swap_region does not need damage history, set it up before that */
-  if (use_clipped_redraw)
-    swap_region = cairo_region_copy (fb_clip_region);
-  else
+  if (!use_clipped_redraw)
     swap_region = cairo_region_create ();
+  else if (clutter_stage_view_has_shadowfb (stage_view))
+    swap_region = cairo_region_reference (fb_clip_region);
+  else
+    swap_region = cairo_region_copy (fb_clip_region);
 
   swap_with_damage = FALSE;
   if (has_buffer_age)
