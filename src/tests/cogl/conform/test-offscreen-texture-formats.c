@@ -36,8 +36,8 @@ rgb10_to_rgb8 (int rgb10)
 {
   float r;
 
-  r = rgb10 / (float) (1 << 10);
-  return (int) (r * (float) (1 << 8));
+  r = rgb10 / (float) ((1 << 10) - 1);
+  return (int) (r * (float) ((1 << 8) - 1));
 }
 
 static int
@@ -45,8 +45,8 @@ rgb8_to_rgb10 (int rgb8)
 {
   float r;
 
-  r = rgb8 / (float) (1 << 8);
-  return (int) (r * (float) (1 << 10));
+  r = rgb8 / (float) ((1 << 8) - 1);
+  return (int) (r * (float) ((1 << 10) - 1));
 }
 
 static void
@@ -73,10 +73,10 @@ test_offscreen_texture_formats_store_rgb10 (void)
 
   /* The extra fraction is there to avoid rounding inconsistencies in OpenGL
    * implementations. */
-  red = (rgb10_red / (float) (1 << 10)) + 0.00001;
-  green = (rgb10_green / (float) (1 << 10)) + 0.00001;
-  blue = (rgb10_blue / (float) (1 << 10)) + 0.00001;
-  alpha = (rgb10_alpha / (float) (1 << 2)) + 0.00001;
+  red = (rgb10_red / (float) ((1 << 10) - 1)) + 0.00001;
+  green = (rgb10_green / (float) ((1 << 10) - 1)) + 0.00001;
+  blue = (rgb10_blue / (float) ((1 << 10) - 1)) + 0.00001;
+  alpha = (rgb10_alpha / (float) ((1 << 2) - 1)) + 0.00001;
 
   /* Make sure that that the color value can't be represented using rgb8. */
   g_assert_cmpint (rgb8_to_rgb10 (rgb10_to_rgb8 (rgb10_red)), !=, rgb10_red);
@@ -304,10 +304,10 @@ test_offscreen_texture_formats_paint_rgb10 (void)
 
   /* The extra fraction is there to avoid rounding inconsistencies in OpenGL
    * implementations. */
-  red = (rgb10_red / (float) (1 << 10)) + 0.00001;
-  green = (rgb10_green / (float) (1 << 10)) + 0.00001;
-  blue = (rgb10_blue / (float) (1 << 10)) + 0.00001;
-  alpha = (rgb10_alpha / (float) (1 << 2)) + 0.00001;
+  red = (rgb10_red / (float) ((1 << 10 ) - 1)) + 0.00001;
+  green = (rgb10_green / (float) ((1 << 10) - 1)) + 0.00001;
+  blue = (rgb10_blue / (float) ((1 << 10) - 1)) + 0.00001;
+  alpha = (rgb10_alpha / (float) ((1 << 2) - 1)) + 0.00001;
 
   /* Make sure that that the color value can't be represented using rgb8. */
   g_assert_cmpint (rgb8_to_rgb10 (rgb10_to_rgb8 (rgb10_red)), !=, rgb10_red);
