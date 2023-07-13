@@ -34,6 +34,7 @@
 #include "backends/native/meta-kms-private.h"
 #include "backends/native/meta-kms-update.h"
 #include "backends/native/meta-seat-native.h"
+#include "backends/native/meta-thread-impl.h"
 #include "meta-test/meta-context-test.h"
 #include "tests/meta-kms-test-utils.h"
 #include "tests/meta-test-utils.h"
@@ -595,6 +596,122 @@ meta_test_kms_device_discard_disabled (void)
   meta_device_file_release (device_file);
 }
 
+static gpointer
+schedule_process_in_impl (MetaThreadImpl  *thread_impl,
+                          gpointer         user_data,
+                          GError         **error)
+{
+  MetaKmsCrtc *crtc = META_KMS_CRTC (user_data);
+  MetaKmsDevice *device = meta_kms_crtc_get_device (crtc);
+  MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
+
+  meta_kms_impl_device_schedule_process (impl_device, crtc);
+
+  return NULL;
+}
+
+static gboolean
+quit_loop (gpointer user_data)
+{
+  GMainLoop *loop = user_data;
+
+  g_main_loop_quit (loop);
+
+  return G_SOURCE_REMOVE;
+}
+
+static gpointer
+quit_loop_timeout_in_impl (MetaThreadImpl  *thread_impl,
+                           gpointer         user_data,
+                           GError         **error)
+{
+  GMainLoop *loop = user_data;
+  g_autoptr (GSource) timeout_source = NULL;
+
+  timeout_source = meta_thread_impl_add_source (thread_impl,
+                                                quit_loop,
+                                                loop,
+                                                NULL);
+  g_source_set_ready_time (timeout_source,
+                           g_get_monotonic_time () + s2us (2));
+
+  return NULL;
+}
+
+static void
+meta_test_kms_device_empty_update (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
+  MetaKms *kms = meta_backend_native_get_kms (backend_native);
+  MetaKmsCursorManager *cursor_manager = meta_kms_get_cursor_manager (kms);
+  g_autoptr (GArray) layout_array = NULL;
+  MetaKmsCrtcLayout layout;
+  MetaKmsDevice *device;
+  MetaKmsUpdate *update;
+  MetaKmsCrtc *crtc;
+  MetaKmsConnector *connector;
+  MetaKmsMode *mode;
+  MetaKmsPlane *primary_plane;
+  g_autoptr (MetaDrmBuffer) primary_buffer = NULL;
+  g_autoptr (MetaDrmBuffer) cursor_buffer = NULL;
+  MetaKmsFeedback *feedback;
+
+  device = meta_get_test_kms_device (test_context);
+  crtc = meta_get_test_kms_crtc (device);
+  connector = meta_get_test_kms_connector (device);
+  mode = meta_kms_connector_get_preferred_mode (connector);
+  primary_plane = meta_kms_device_get_primary_plane_for (device, crtc);
+  primary_buffer = meta_create_test_mode_dumb_buffer (device, mode);
+
+  /*
+   * Setup base state, mode + primary plane.
+   */
+
+  layout_array = g_array_new (FALSE, TRUE, sizeof (MetaKmsCrtcLayout));
+  layout = (MetaKmsCrtcLayout) {
+    .crtc = crtc,
+    .layout = {
+      .size = {
+        .width = meta_kms_mode_get_width (mode),
+        .height = meta_kms_mode_get_height (mode),
+      },
+    },
+    .scale = 1.0,
+  };
+  g_array_append_val (layout_array, layout);
+  meta_kms_cursor_manager_update_crtc_layout (cursor_manager, layout_array);
+
+  update = meta_kms_update_new (device);
+  meta_kms_update_mode_set (update, crtc,
+                            g_list_append (NULL, connector),
+                            mode);
+  meta_kms_update_assign_plane (update,
+                                crtc,
+                                primary_plane,
+                                primary_buffer,
+                                meta_get_mode_fixed_rect_16 (mode),
+                                meta_get_mode_rect (mode),
+                                META_KMS_ASSIGN_PLANE_FLAG_NONE);
+
+  feedback = meta_kms_device_process_update_sync (device, update,
+                                                  META_KMS_UPDATE_FLAG_MODE_SET);
+  meta_kms_feedback_unref (feedback);
+
+  meta_thread_post_impl_task (META_THREAD (kms),
+                              schedule_process_in_impl,
+                              crtc, NULL,
+                              NULL, NULL);
+  g_autoptr (GMainLoop) loop = NULL;
+  loop = g_main_loop_new (NULL, FALSE);
+  meta_thread_post_impl_task (META_THREAD (kms),
+                              quit_loop_timeout_in_impl,
+                              loop, NULL,
+                              NULL, NULL);
+
+  g_main_loop_run (loop);
+}
+
 static void
 init_tests (void)
 {
@@ -606,6 +723,8 @@ init_tests (void)
                    meta_test_kms_device_power_save);
   g_test_add_func ("/backends/native/kms/device/discard-disabled",
                    meta_test_kms_device_discard_disabled);
+  g_test_add_func ("/backends/native/kms/device/empty-update",
+                   meta_test_kms_device_empty_update);
 }
 
 int
