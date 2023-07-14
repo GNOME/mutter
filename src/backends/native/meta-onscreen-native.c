@@ -2483,4 +2483,5 @@ void
 meta_onscreen_native_detach (MetaOnscreenNative *onscreen_native)
 {
   clear_invalidation_handlers (onscreen_native);
+  onscreen_native->view = NULL;
 }
