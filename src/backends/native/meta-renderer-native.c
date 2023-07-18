@@ -56,6 +56,7 @@
 #include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-kms-cursor-manager.h"
 #include "backends/native/meta-kms-device.h"
+#include "backends/native/meta-kms-utils.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-onscreen-native.h"
 #include "backends/native/meta-output-kms.h"
@@ -410,6 +411,43 @@ choose_egl_config_from_gbm_format (MetaEgl       *egl,
   return FALSE;
 }
 
+gboolean
+meta_renderer_native_choose_gbm_format (MetaEgl         *egl,
+                                        EGLDisplay       egl_display,
+                                        EGLint          *attributes,
+                                        const uint32_t  *formats,
+                                        size_t           num_formats,
+                                        const char      *purpose,
+                                        EGLConfig       *out_config,
+                                        GError         **error)
+{
+  int i;
+
+  for (i = 0; i < num_formats; i++)
+    {
+      g_clear_error (error);
+
+      if (choose_egl_config_from_gbm_format (egl,
+                                             egl_display,
+                                             attributes,
+                                             formats[i],
+                                             out_config,
+                                             error))
+        {
+          MetaDrmFormatBuf format_string;
+
+          meta_drm_format_to_string (&format_string, formats[i]);
+          meta_topic (META_DEBUG_KMS,
+                      "Using GBM format %s for primary GPU EGL %s",
+                      format_string.s, purpose);
+
+          return TRUE;
+        }
+    }
+
+  return FALSE;
+}
+
 static gboolean
 meta_renderer_native_choose_egl_config (CoglDisplay  *cogl_display,
                                         EGLint       *attributes,
@@ -432,22 +470,15 @@ meta_renderer_native_choose_egl_config (CoglDisplay  *cogl_display,
           GBM_FORMAT_XRGB8888,
           GBM_FORMAT_ARGB8888,
         };
-        int i;
 
-        for (i = 0; i < G_N_ELEMENTS (formats); i++)
-          {
-            g_clear_error (error);
-
-            if (choose_egl_config_from_gbm_format (egl,
-                                                   egl_display,
-                                                   attributes,
-                                                   formats[i],
-                                                   out_config,
-                                                   error))
-              return TRUE;
-          }
-
-        return FALSE;
+        return meta_renderer_native_choose_gbm_format (egl,
+                                                       egl_display,
+                                                       attributes,
+                                                       formats,
+                                                       G_N_ELEMENTS (formats),
+                                                       "fallback",
+                                                       out_config,
+                                                       error);
       }
     case META_RENDERER_NATIVE_MODE_SURFACELESS:
       *out_config = EGL_NO_CONFIG_KHR;
