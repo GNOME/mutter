@@ -659,6 +659,7 @@ config_h = configure_file(
 
 top_includepath = include_directories('.')
 
+subdir('mtk')
 subdir('cogl')
 subdir('clutter')
 subdir('data')

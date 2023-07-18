@@ -637,7 +637,7 @@ reference:
     - meson setup . build --werror -Ddocs=true -Dtests=false
     - ninja -C build
     - mkdir references
-    - mv build/doc/reference/{cally/cally,clutter/clutter,cogl/cogl,cogl-pango/cogl-pango,meta/meta} references/
+    - mv build/doc/reference/{cally/cally,clutter/clutter,cogl/cogl,cogl-pango/cogl-pango,meta/meta,mtk/mtk} references/
   artifacts:
     expire_in: 1 week
     expose_as: 'Documentation'
