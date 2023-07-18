@@ -745,7 +745,8 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
 
       dispatch_interval_us = time_us - frame_clock->last_dispatch_time_us;
       jitter_us = llabs (dispatch_interval_us -
-                         frame_clock->last_dispatch_interval_us);
+                         frame_clock->last_dispatch_interval_us) %
+                  frame_clock->refresh_interval_us;
       frame_clock->last_dispatch_interval_us = dispatch_interval_us;
       CLUTTER_NOTE (FRAME_TIMINGS, "dispatch jitter %5ldµs (%3ld%%)",
                     jitter_us,
