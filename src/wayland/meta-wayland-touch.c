@@ -553,6 +553,24 @@ meta_wayland_touch_can_popup (MetaWaylandTouch *touch,
   return FALSE;
 }
 
+static gboolean
+touch_can_grab_surface (MetaWaylandTouchInfo *touch_info,
+                        MetaWaylandSurface   *surface)
+{
+  MetaWaylandSurface *subsurface;
+
+  if (touch_info->touch_surface->surface == surface)
+    return TRUE;
+
+  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (surface, subsurface)
+    {
+      if (touch_can_grab_surface (touch_info, subsurface))
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
 ClutterEventSequence *
 meta_wayland_touch_find_grab_sequence (MetaWaylandTouch   *touch,
                                        MetaWaylandSurface *surface,
@@ -571,7 +589,7 @@ meta_wayland_touch_find_grab_sequence (MetaWaylandTouch   *touch,
                                  (gpointer*) &touch_info))
     {
       if (touch_info->slot_serial == serial &&
-	  touch_info->touch_surface->surface == surface)
+          touch_can_grab_surface (touch_info, surface))
         return sequence;
     }
 
