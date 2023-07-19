@@ -76,14 +76,13 @@ variables:
 .mutter.distribution-image:
   extends:
     - .fdo.distribution-image@fedora
-    - .mutter.run-as-user
 
 .mutter.fedora@common:
   extends:
     - .skip-git-clone
   variables:
     FDO_DISTRIBUTION_VERSION: 38
-    BASE_TAG: '2023-06-27.0-libei'
+    BASE_TAG: '2023-07-19.0'
     MUTTER_USER: 'meta-user'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
@@ -109,10 +108,10 @@ variables:
       set -e
 
       # Create $MUTTER_USER
-      useradd -ms /bin/bash $MUTTER_USER
+      #useradd -ms /bin/bash $MUTTER_USER
 
       # Enable sudo for $MUTTER_USER
-      echo "%$MUTTER_USER ALL = (ALL) NOPASSWD: ALL" > /etc/sudoers.d/99_mutter-user
+      #echo "%$MUTTER_USER ALL = (ALL) NOPASSWD: ALL" > /etc/sudoers.d/99_mutter-user
 
       dnf install -y 'dnf-command(builddep)'
 
@@ -151,7 +150,7 @@ variables:
                       gnome-shell
 
       # Replace pkexec with sudo, to make meson use it if needed
-      ln -sfv /usr/bin/sudo /usr/bin/pkexec
+      #ln -sfv /usr/bin/sudo /usr/bin/pkexec
 
       # Ensure that we mark the project clone dir as safe directory
       git config --system --add safe.directory "$CI_PROJECT_DIR"
