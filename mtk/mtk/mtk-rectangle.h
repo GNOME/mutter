@@ -98,3 +98,15 @@ gboolean mtk_rectangle_intersect (const MtkRectangle *src1,
                                   const MtkRectangle *src2,
                                   MtkRectangle       *dest);
 
+MTK_EXPORT
+gboolean mtk_rectangle_overlap (const MtkRectangle *rect1,
+                                const MtkRectangle *rect2);
+
+MTK_EXPORT
+gboolean mtk_rectangle_vert_overlap (const MtkRectangle *rect1,
+                                     const MtkRectangle *rect2);
+
+MTK_EXPORT
+gboolean mtk_rectangle_horiz_overlap (const MtkRectangle *rect1,
+                                      const MtkRectangle *rect2);
+

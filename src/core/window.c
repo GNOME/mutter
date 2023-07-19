@@ -2021,7 +2021,7 @@ windows_overlap (const MetaWindow *w1, const MetaWindow *w2)
   MetaRectangle w1rect, w2rect;
   meta_window_get_frame_rect (w1, &w1rect);
   meta_window_get_frame_rect (w2, &w2rect);
-  return meta_rectangle_overlap (&w1rect, &w2rect);
+  return mtk_rectangle_overlap (&w1rect, &w2rect);
 }
 
 /* Returns whether a new window would be covered by any
@@ -4118,7 +4118,7 @@ meta_window_move_to_monitor (MetaWindow  *window,
 
   if (window->unconstrained_rect.width == 0 ||
       window->unconstrained_rect.height == 0 ||
-      !meta_rectangle_overlap (&window->unconstrained_rect, &old_area))
+      !mtk_rectangle_overlap (&window->unconstrained_rect, &old_area))
     {
       meta_window_move_between_rects (window, 0, NULL, &new_area);
     }
@@ -6379,7 +6379,7 @@ meta_window_set_demands_attention (MetaWindow *window)
             {
               meta_window_get_frame_rect (other_window, &other_rect);
 
-              if (meta_rectangle_overlap (&candidate_rect, &other_rect))
+              if (mtk_rectangle_overlap (&candidate_rect, &other_rect))
                 {
                   obscured = TRUE;
                   break;
@@ -7218,8 +7218,8 @@ meta_window_find_tile_match (MetaWindow   *window,
 
           meta_window_get_frame_rect (above, &above_rect);
 
-          if (meta_rectangle_overlap (&above_rect, &bottommost_rect) &&
-              meta_rectangle_overlap (&above_rect, &topmost_rect))
+          if (mtk_rectangle_overlap (&above_rect, &bottommost_rect) &&
+              mtk_rectangle_overlap (&above_rect, &topmost_rect))
             return NULL;
         }
     }

@@ -779,7 +779,7 @@ update_top_window_actor (MetaCompositor *compositor)
       meta_display_get_size (priv->display,
                              &display_rect.width, &display_rect.height);
 
-      if (meta_rectangle_overlap (&display_rect, &buffer_rect))
+      if (mtk_rectangle_overlap (&display_rect, &buffer_rect))
         {
           top_window_actor = window_actor;
           break;

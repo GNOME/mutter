@@ -321,7 +321,7 @@ add_view_painted_watches (MetaScreenCastAreaStreamSrc *area_src)
       MetaRectangle view_layout;
 
       clutter_stage_view_get_layout (CLUTTER_STAGE_VIEW (view), &view_layout);
-      if (meta_rectangle_overlap (area, &view_layout))
+      if (mtk_rectangle_overlap (area, &view_layout))
         {
           MetaStageWatch *watch;
 

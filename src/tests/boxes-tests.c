@@ -169,16 +169,16 @@ test_overlap_funcs (void)
     {
       get_random_rect (&temp1);
       get_random_rect (&temp2);
-      g_assert (meta_rectangle_overlap (&temp1, &temp2) ==
-                (meta_rectangle_horiz_overlap (&temp1, &temp2) &&
-                 meta_rectangle_vert_overlap (&temp1, &temp2)));
+      g_assert (mtk_rectangle_overlap (&temp1, &temp2) ==
+                (mtk_rectangle_horiz_overlap (&temp1, &temp2) &&
+                 mtk_rectangle_vert_overlap (&temp1, &temp2)));
     }
 
   temp1 = MTK_RECTANGLE_INIT ( 0, 0, 10, 10);
   temp2 = MTK_RECTANGLE_INIT (20, 0, 10,  5);
-  g_assert (!meta_rectangle_overlap (&temp1, &temp2));
-  g_assert (!meta_rectangle_horiz_overlap (&temp1, &temp2));
-  g_assert ( meta_rectangle_vert_overlap (&temp1, &temp2));
+  g_assert (!mtk_rectangle_overlap (&temp1, &temp2));
+  g_assert (!mtk_rectangle_horiz_overlap (&temp1, &temp2));
+  g_assert (mtk_rectangle_vert_overlap (&temp1, &temp2));
 }
 
 static void
@@ -418,7 +418,7 @@ test_merge_regions (void)
           else if (a->y == b->y && a->height == b->height)
             {
               /* If a and b overlap */
-              if (meta_rectangle_overlap (a, b))
+              if (mtk_rectangle_overlap (a, b))
                 {
                   int new_x = MIN (a->x, b->x);
                   a->width = MAX (a->x + a->width, b->x + b->width) - new_x;
@@ -442,7 +442,7 @@ test_merge_regions (void)
           else if (a->x == b->x && a->width == b->width)
             {
               /* If a and b overlap */
-              if (meta_rectangle_overlap (a, b))
+              if (mtk_rectangle_overlap (a, b))
                 {
                   int new_y = MIN (a->y, b->y);
                   a->height = MAX (a->y + a->height, b->y + b->height) - new_y;
@@ -806,7 +806,7 @@ rect_overlaps_region (const GList         *spanning_rects,
   overlaps = FALSE;
   while (!overlaps && temp != NULL)
     {
-      overlaps = overlaps || meta_rectangle_overlap (temp->data, rect);
+      overlaps = overlaps || mtk_rectangle_overlap (temp->data, rect);
       temp = temp->next;
     }
 

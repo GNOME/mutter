@@ -68,7 +68,7 @@ calculate_scale (ClutterStage  *stage,
       MetaRectangle view_layout;
 
       clutter_stage_view_get_layout (stage_view, &view_layout);
-      if (meta_rectangle_overlap (area, &view_layout))
+      if (mtk_rectangle_overlap (area, &view_layout))
         scale = MAX (clutter_stage_view_get_scale (stage_view), scale);
     }
 

@@ -80,7 +80,7 @@ find_top_window_actor_on_view (ClutterStageView *stage_view,
       clutter_stage_view_get_layout (stage_view,
                                      &view_layout);
 
-      if (meta_rectangle_overlap (&view_layout, &buffer_rect))
+      if (mtk_rectangle_overlap (&view_layout, &buffer_rect))
         return window_actor;
     }
 

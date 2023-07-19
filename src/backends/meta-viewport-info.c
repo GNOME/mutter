@@ -136,22 +136,22 @@ view_has_neighbor (MtkRectangle          *view,
     {
     case META_DISPLAY_RIGHT:
       if (neighbor->x == (view->x + view->width) &&
-          meta_rectangle_vert_overlap (neighbor, view))
+          mtk_rectangle_vert_overlap (neighbor, view))
         return TRUE;
       break;
     case META_DISPLAY_LEFT:
       if (view->x == (neighbor->x + neighbor->width) &&
-          meta_rectangle_vert_overlap (neighbor, view))
+          mtk_rectangle_vert_overlap (neighbor, view))
         return TRUE;
       break;
     case META_DISPLAY_UP:
       if (view->y == (neighbor->y + neighbor->height) &&
-          meta_rectangle_horiz_overlap (neighbor, view))
+          mtk_rectangle_horiz_overlap (neighbor, view))
         return TRUE;
       break;
     case META_DISPLAY_DOWN:
       if (neighbor->y == (view->y + view->height) &&
-          meta_rectangle_horiz_overlap (neighbor, view))
+          mtk_rectangle_horiz_overlap (neighbor, view))
         return TRUE;
       break;
     }

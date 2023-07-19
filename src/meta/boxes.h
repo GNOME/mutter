@@ -101,26 +101,6 @@ MetaRectangle *meta_rectangle_copy (const MetaRectangle *rect);
 META_EXPORT
 void           meta_rectangle_free (MetaRectangle       *rect);
 
-/* overlap is similar to intersect but doesn't provide location of
- * intersection information.
- */
-META_EXPORT
-gboolean meta_rectangle_overlap         (const MetaRectangle *rect1,
-                                         const MetaRectangle *rect2);
-
-/* vert_overlap means ignore the horizontal location and ask if the
- * vertical parts overlap.  An alternate way to think of it is "Does there
- * exist a way to shift either rect horizontally so that the two rects
- * overlap?"  horiz_overlap is similar.
- */
-META_EXPORT
-gboolean meta_rectangle_vert_overlap    (const MetaRectangle *rect1,
-                                         const MetaRectangle *rect2);
-
-META_EXPORT
-gboolean meta_rectangle_horiz_overlap   (const MetaRectangle *rect1,
-                                         const MetaRectangle *rect2);
-
 /* could_fit_rect determines whether "outer_rect" is big enough to contain
  * inner_rect.  contains_rect checks whether it actually contains it.
  */

@@ -237,8 +237,8 @@ find_nearest_position (const GArray        *edges,
       compare = horizontal ? edge->rect.x : edge->rect.y;
 
       edges_align = horizontal ?
-        meta_rectangle_vert_overlap (&edge->rect, new_rect) :
-        meta_rectangle_horiz_overlap (&edge->rect, new_rect);
+                    mtk_rectangle_vert_overlap (&edge->rect, new_rect) :
+                    mtk_rectangle_horiz_overlap (&edge->rect, new_rect);
 
       if (edges_align &&
           (!only_forward ||
@@ -261,8 +261,8 @@ find_nearest_position (const GArray        *edges,
       compare = horizontal ? edge->rect.x : edge->rect.y;
 
       edges_align = horizontal ?
-        meta_rectangle_vert_overlap (&edge->rect, new_rect) :
-        meta_rectangle_horiz_overlap (&edge->rect, new_rect);
+                    mtk_rectangle_vert_overlap (&edge->rect, new_rect) :
+                    mtk_rectangle_horiz_overlap (&edge->rect, new_rect);
 
       if (edges_align &&
           (!only_forward ||

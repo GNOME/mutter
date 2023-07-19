@@ -379,7 +379,7 @@ add_view_watches (MetaScreenCastMonitorStreamSrc *monitor_src,
       MetaRectangle view_layout;
 
       clutter_stage_view_get_layout (CLUTTER_STAGE_VIEW (view), &view_layout);
-      if (meta_rectangle_overlap (&logical_monitor_layout, &view_layout))
+      if (mtk_rectangle_overlap (&logical_monitor_layout, &view_layout))
         {
           MetaStageWatch *watch;
 
@@ -652,7 +652,7 @@ meta_screen_cast_monitor_stream_record_follow_up (MetaScreenCastStreamSrc *src)
 
       clutter_stage_view_get_layout (CLUTTER_STAGE_VIEW (view), &view_layout);
 
-      if (!meta_rectangle_overlap (&logical_monitor_layout, &view_layout))
+      if (!mtk_rectangle_overlap (&logical_monitor_layout, &view_layout))
         continue;
 
       damage = (MtkRectangle) {

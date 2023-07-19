@@ -346,8 +346,8 @@ meta_wayland_actor_surface_is_on_logical_monitor (MetaWaylandSurfaceRole *surfac
 
       clutter_stage_view_get_layout (stage_view, &view_layout);
 
-      if (meta_rectangle_overlap (&logical_monitor_layout,
-                                  &view_layout) &&
+      if (mtk_rectangle_overlap (&logical_monitor_layout,
+                                 &view_layout) &&
           clutter_actor_is_effectively_on_stage_view (CLUTTER_ACTOR (actor),
                                                       stage_view))
         return TRUE;

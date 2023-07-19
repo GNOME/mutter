@@ -3242,8 +3242,8 @@ check_fullscreen_func (gpointer data)
             {
               MetaLogicalMonitor *logical_monitor = l->data;
 
-              if (meta_rectangle_overlap (&window_rect,
-                                          &logical_monitor->rect) &&
+              if (mtk_rectangle_overlap (&window_rect,
+                                         &logical_monitor->rect) &&
                   !g_slist_find (fullscreen_monitors, logical_monitor) &&
                   !g_slist_find (obscured_monitors, logical_monitor))
                 fullscreen_monitors = g_slist_prepend (fullscreen_monitors,

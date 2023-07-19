@@ -186,3 +186,60 @@ mtk_rectangle_intersect (const MtkRectangle *src1,
 
   return return_val;
 }
+
+/**
+ * mtk_rectangle_overlap:
+ * @rect1: The first rectangle
+ * @rect2: The second rectangle
+ *
+ * Similar to [method@Rectangle.intersect] but doesn't provide
+ * the location of the intersection.
+ *
+ * Returns: Whether the two rectangles overlap
+ */
+gboolean
+mtk_rectangle_overlap (const MtkRectangle *rect1,
+                       const MtkRectangle *rect2)
+{
+  g_return_val_if_fail (rect1 != NULL, FALSE);
+  g_return_val_if_fail (rect2 != NULL, FALSE);
+
+  return !((rect1->x + rect1->width  <= rect2->x) ||
+           (rect2->x + rect2->width  <= rect1->x) ||
+           (rect1->y + rect1->height <= rect2->y) ||
+           (rect2->y + rect2->height <= rect1->y));
+}
+
+/**
+ * mtk_rectangle_vert_overlap:
+ * @rect1: The first rectangle
+ * @rect2: The second rectangle
+ *
+ * Similar to [method@Rectangle.overlap] but ignores the horizontal location.
+ *
+ * Returns: Whether the two rectangles overlap vertically
+ */
+gboolean
+mtk_rectangle_vert_overlap (const MtkRectangle *rect1,
+                            const MtkRectangle *rect2)
+{
+  return (rect1->y < rect2->y + rect2->height &&
+          rect2->y < rect1->y + rect1->height);
+}
+
+/**
+ * mtk_rectangle_horiz_overlap:
+ * @rect1: The first rectangle
+ * @rect2: The second rectangle
+ *
+ * Similar to [method@Rectangle.overlap] but ignores the vertical location.
+ *
+ * Returns: Whether the two rectangles overlap horizontally
+ */
+gboolean
+mtk_rectangle_horiz_overlap (const MtkRectangle *rect1,
+                             const MtkRectangle *rect2)
+{
+  return (rect1->x < rect2->x + rect2->width &&
+          rect2->x < rect1->x + rect1->width);
+}
