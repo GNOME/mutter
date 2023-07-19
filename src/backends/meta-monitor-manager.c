@@ -3374,7 +3374,7 @@ meta_monitor_manager_get_logical_monitor_from_rect (MetaMonitorManager *manager,
                                     &intersection))
         continue;
 
-      intersection_area = meta_rectangle_area (&intersection);
+      intersection_area = mtk_rectangle_area (&intersection);
 
       if (intersection_area > best_logical_monitor_area)
         {

@@ -110,11 +110,11 @@ test_area (void)
   for (i = 0; i < NUM_RANDOM_RUNS; i++)
     {
       get_random_rect (&temp);
-      g_assert (meta_rectangle_area (&temp) == temp.width * temp.height);
+      g_assert (mtk_rectangle_area (&temp) == temp.width * temp.height);
     }
 
   temp = MTK_RECTANGLE_INIT (0, 0, 5, 7);
-  g_assert (meta_rectangle_area (&temp) == 35);
+  g_assert (mtk_rectangle_area (&temp) == 35);
 }
 
 static void
@@ -131,13 +131,13 @@ test_intersect (void)
   mtk_rectangle_intersect (&a, &b, &temp);
   temp2 = MTK_RECTANGLE_INIT (100, 200, 10, 2);
   g_assert (mtk_rectangle_equal (&temp, &temp2));
-  g_assert (meta_rectangle_area (&temp) == 20);
+  g_assert (mtk_rectangle_area (&temp) == 20);
 
   mtk_rectangle_intersect (&a, &c, &temp);
-  g_assert (meta_rectangle_area (&temp) == 0);
+  g_assert (mtk_rectangle_area (&temp) == 0);
 
   mtk_rectangle_intersect (&a, &d, &temp);
-  g_assert (meta_rectangle_area (&temp) == 0);
+  g_assert (mtk_rectangle_area (&temp) == 0);
 
   mtk_rectangle_intersect (&b, &d, &b);
   g_assert (mtk_rectangle_equal (&b, &b_intersect_d));

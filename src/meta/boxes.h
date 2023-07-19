@@ -101,10 +101,6 @@ MetaRectangle *meta_rectangle_copy (const MetaRectangle *rect);
 META_EXPORT
 void           meta_rectangle_free (MetaRectangle       *rect);
 
-/* Basic comparison functions */
-META_EXPORT
-int      meta_rectangle_area            (const MetaRectangle *rect);
-
 /* overlap is similar to intersect but doesn't provide location of
  * intersection information.
  */

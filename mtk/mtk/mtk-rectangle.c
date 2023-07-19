@@ -64,6 +64,19 @@ mtk_rectangle_new (int x,
 }
 
 /**
+ * mtk_rectangle_area:
+ * @rect: A rectangle
+ *
+ * Returns: The area of the rectangle
+ */
+int
+mtk_rectangle_area (const MtkRectangle *rect)
+{
+  g_return_val_if_fail (rect != NULL, 0);
+  return rect->width * rect->height;
+}
+
+/**
  * mtk_rectangle_equal:
  * @src1: The first rectangle
  * @src2: The second rectangle

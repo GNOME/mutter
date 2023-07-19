@@ -133,14 +133,6 @@ meta_rectangle_edge_list_to_string (GList      *edge_list,
 
   return output;
 }
-
-int
-meta_rectangle_area (const MetaRectangle *rect)
-{
-  g_return_val_if_fail (rect != NULL, 0);
-  return rect->width * rect->height;
-}
-
 gboolean
 meta_rectangle_overlap (const MetaRectangle *rect1,
                         const MetaRectangle *rect2)
@@ -402,8 +394,8 @@ compare_rect_areas (gconstpointer a, gconstpointer b)
   const MetaRectangle *a_rect = (gconstpointer) a;
   const MetaRectangle *b_rect = (gconstpointer) b;
 
-  int a_area = meta_rectangle_area (a_rect);
-  int b_area = meta_rectangle_area (b_rect);
+  int a_area = mtk_rectangle_area (a_rect);
+  int b_area = mtk_rectangle_area (b_rect);
 
   return b_area - a_area; /* positive ret value denotes b > a, ... */
 }
@@ -890,7 +882,7 @@ meta_rectangle_clip_to_region (const GList         *spanning_rects,
 
       /* Determine maximal overlap amount */
       mtk_rectangle_intersect (rect, compare_rect, &overlap);
-      maximal_overlap_amount_for_compare = meta_rectangle_area (&overlap);
+      maximal_overlap_amount_for_compare = mtk_rectangle_area (&overlap);
 
       /* See if this is the best rect so far */
       if (maximal_overlap_amount_for_compare > best_overlap)

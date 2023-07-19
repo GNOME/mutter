@@ -79,6 +79,10 @@ MtkRectangle * mtk_rectangle_new (int x,
                                   int width,
                                   int height);
 
+/* Basic comparison functions */
+MTK_EXPORT
+int mtk_rectangle_area (const MtkRectangle *rect);
+
 MTK_EXPORT
 gboolean mtk_rectangle_equal (const MtkRectangle *src1,
                               const MtkRectangle *src2);
