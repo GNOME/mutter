@@ -47,6 +47,7 @@
 #include "cogl/cogl1-context.h"
 #include "cogl/cogl-offscreen.h"
 #include "cogl/cogl-matrix-stack.h"
+#include "mtk/mtk.h"
 
 static void *
 _cogl_clip_stack_push_entry (CoglClipStack *clip_stack,
@@ -276,7 +277,7 @@ cogl_clip_stack_push_region (CoglClipStack   *stack,
 {
   CoglClipStack *entry;
   CoglClipStackRegion *entry_region;
-  cairo_rectangle_int_t bounds;
+  MtkRectangle bounds;
 
   entry_region = _cogl_clip_stack_push_entry (stack,
                                               sizeof (CoglClipStackRegion),

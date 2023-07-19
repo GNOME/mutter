@@ -32,6 +32,7 @@
  *  Robert Bragg   <robert@linux.intel.com>
  */
 
+
 #include "cogl-config.h"
 
 #include "cogl/cogl-context-private.h"
@@ -41,6 +42,7 @@
 #include "cogl/driver/gl/cogl-util-gl-private.h"
 #include "cogl/driver/gl/cogl-pipeline-opengl-private.h"
 #include "cogl/driver/gl/cogl-clip-stack-gl-private.h"
+#include "mtk/mtk.h"
 
 static void
 add_stencil_clip_rectangle (CoglFramebuffer *framebuffer,
@@ -182,7 +184,7 @@ add_stencil_clip_region (CoglFramebuffer *framebuffer,
 
   for (i = 0; i < num_rectangles; i++)
     {
-      cairo_rectangle_int_t rect;
+      MtkRectangle rect;
       float x1, y1, z1, w1;
       float x2, y2, z2, w2;
       CoglVertexP2 *v = vertices + i * 6;
