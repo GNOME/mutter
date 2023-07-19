@@ -36,3 +36,22 @@ mtk_rectangle_free (MtkRectangle *rect)
 
 G_DEFINE_BOXED_TYPE (MtkRectangle, mtk_rectangle,
                      mtk_rectangle_copy, mtk_rectangle_free);
+
+/**
+ * mtk_rectangle_equal:
+ * @src1: The first rectangle
+ * @src2: The second rectangle
+ *
+ * Compares the two rectangles
+ *
+ * Returns: Whether the two rectangles are equal
+ */
+gboolean
+mtk_rectangle_equal (const MtkRectangle *src1,
+                     const MtkRectangle *src2)
+{
+  return ((src1->x == src2->x) &&
+          (src1->y == src2->y) &&
+          (src1->width == src2->width) &&
+          (src1->height == src2->height));
+}

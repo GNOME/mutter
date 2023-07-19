@@ -1694,7 +1694,7 @@ meta_window_x11_update_struts (MetaWindow *window)
       MetaStrut *new_strut = (MetaStrut*) new_iter->data;
 
       if (old_strut->side != new_strut->side ||
-          !meta_rectangle_equal (&old_strut->rect, &new_strut->rect))
+          !mtk_rectangle_equal (&old_strut->rect, &new_strut->rect))
         break;
 
       old_iter = old_iter->next;
@@ -2797,7 +2797,7 @@ meta_window_move_resize_request (MetaWindow  *window,
            */
           if (meta_prefs_get_force_fullscreen() &&
               (window->decorated || !meta_window_is_client_decorated (window)) &&
-              meta_rectangle_equal (&rect, &monitor_rect) &&
+              mtk_rectangle_equal (&rect, &monitor_rect) &&
               window->has_fullscreen_func &&
               !window->fullscreen)
             {
@@ -4266,7 +4266,7 @@ meta_window_x11_can_unredirect (MetaWindowX11 *window_x11)
       logical_monitor_layout =
         meta_logical_monitor_get_layout (logical_monitor);
 
-      if (meta_rectangle_equal (&window_rect, &logical_monitor_layout))
+      if (mtk_rectangle_equal (&window_rect, &logical_monitor_layout))
         return TRUE;
     }
 

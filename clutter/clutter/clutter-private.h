@@ -222,9 +222,6 @@ gboolean _clutter_util_rectangle_intersection (const MtkRectangle *src1,
                                                const MtkRectangle *src2,
                                                MtkRectangle       *dest);
 
-gboolean clutter_util_rectangle_equal (const MtkRectangle *src1,
-                                       const MtkRectangle *src2);
-
 CLUTTER_EXPORT
 PangoDirection _clutter_pango_unichar_direction (gunichar ch);
 

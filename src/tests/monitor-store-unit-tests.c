@@ -142,8 +142,8 @@ check_monitor_store_configuration (MetaMonitorConfigStore        *config_store,
       GList *k;
       int j;
 
-      g_assert (meta_rectangle_equal (&logical_monitor_config->layout,
-                                      &config_expect->logical_monitors[i].layout));
+      g_assert (mtk_rectangle_equal (&logical_monitor_config->layout,
+                                     &config_expect->logical_monitors[i].layout));
       g_assert_cmpfloat (logical_monitor_config->scale,
                          ==,
                          config_expect->logical_monitors[i].scale);

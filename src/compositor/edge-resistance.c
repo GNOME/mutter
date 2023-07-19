@@ -465,8 +465,8 @@ apply_edge_resistance_to_each_side (MetaEdgeResistanceData  *edge_data,
                                     MetaEdgeResistanceFlags  flags,
                                     gboolean                 is_resize)
 {
-  MetaRectangle           modified_rect;
-  gboolean                modified;
+  MetaRectangle modified_rect;
+  gboolean modified;
   int new_left, new_right, new_top, new_bottom;
   gboolean auto_snap, keyboard_op;
 
@@ -621,7 +621,7 @@ apply_edge_resistance_to_each_side (MetaEdgeResistanceData  *edge_data,
                              new_top,
                              new_right - new_left,
                              new_bottom - new_top);
-  modified = !meta_rectangle_equal (new_outer, &modified_rect);
+  modified = !mtk_rectangle_equal (new_outer, &modified_rect);
   *new_outer = modified_rect;
   return modified;
 }

@@ -969,8 +969,8 @@ constrain_custom_rule (MetaWindow         *window,
   meta_rectangle_intersect (&adjusted_unconstrained, &info->work_area_monitor,
                             &intersection);
 
-  constraint_satisfied = (meta_rectangle_equal (&info->current,
-                                                &adjusted_unconstrained) &&
+  constraint_satisfied = (mtk_rectangle_equal (&info->current,
+                                               &adjusted_unconstrained) &&
                           is_custom_rule_satisfied (&adjusted_unconstrained,
                                                     placement_rule,
                                                     &intersection));
@@ -1352,7 +1352,7 @@ constrain_fullscreen (MetaWindow         *window,
 
   /* Determine whether constraint is already satisfied; exit if it is */
   constraint_already_satisfied =
-    meta_rectangle_equal (&info->current, &monitor);
+    mtk_rectangle_equal (&info->current, &monitor);
   if (check_only || constraint_already_satisfied)
     return constraint_already_satisfied;
 

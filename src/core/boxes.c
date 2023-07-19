@@ -4,7 +4,7 @@
  * Copyright (C) 2005, 2006 Elijah Newren
  * [meta_rectangle_intersect() is copyright the GTK+ Team according to Havoc,
  * see gdkrectangle.c.  As far as Havoc knows, he probably wrote
- * meta_rectangle_equal(), and I'm guessing it's (C) Red Hat.  So...]
+ * mtk_rectangle_equal(), and I'm guessing it's (C) Red Hat.  So...]
  * Copyright (C) 1995-2000  GTK+ Team
  * Copyright (C) 2002 Red Hat, Inc.
  *
@@ -198,16 +198,6 @@ meta_rectangle_intersect (const MetaRectangle *src1,
     }
 
   return return_val;
-}
-
-gboolean
-meta_rectangle_equal (const MetaRectangle *src1,
-                      const MetaRectangle *src2)
-{
-  return ((src1->x == src2->x) &&
-          (src1->y == src2->y) &&
-          (src1->width == src2->width) &&
-          (src1->height == src2->height));
 }
 
 /**
@@ -884,7 +874,7 @@ meta_rectangle_is_adjacent_to_any_in_region (const GList   *spanning_rects,
     {
       MetaRectangle *other = (MetaRectangle *) l->data;
 
-      if (rect == other || meta_rectangle_equal (rect, other))
+      if (rect == other || mtk_rectangle_equal (rect, other))
         continue;
 
       if (meta_rectangle_is_adjacent_to (rect, other))

@@ -143,7 +143,7 @@ test_intersect (void)
 
   meta_rectangle_intersect (&a, &b, &temp);
   temp2 = meta_rect (100, 200, 10, 2);
-  g_assert (meta_rectangle_equal (&temp, &temp2));
+  g_assert (mtk_rectangle_equal (&temp, &temp2));
   g_assert (meta_rectangle_area (&temp) == 20);
 
   meta_rectangle_intersect (&a, &c, &temp);
@@ -153,7 +153,7 @@ test_intersect (void)
   g_assert (meta_rectangle_area (&temp) == 0);
 
   meta_rectangle_intersect (&b, &d, &b);
-  g_assert (meta_rectangle_equal (&b, &b_intersect_d));
+  g_assert (mtk_rectangle_equal (&b, &b_intersect_d));
 }
 
 static void
@@ -166,11 +166,11 @@ test_equal (void)
   MetaRectangle e = {10, 62, 4, 18};
   MetaRectangle f = {27, 12, 4, 18};
 
-  g_assert ( meta_rectangle_equal (&a, &b));
-  g_assert (!meta_rectangle_equal (&a, &c));
-  g_assert (!meta_rectangle_equal (&a, &d));
-  g_assert (!meta_rectangle_equal (&a, &e));
-  g_assert (!meta_rectangle_equal (&a, &f));
+  g_assert ( mtk_rectangle_equal (&a, &b));
+  g_assert (!mtk_rectangle_equal (&a, &c));
+  g_assert (!mtk_rectangle_equal (&a, &d));
+  g_assert (!mtk_rectangle_equal (&a, &e));
+  g_assert (!mtk_rectangle_equal (&a, &f));
 }
 
 static void
@@ -855,35 +855,35 @@ test_clipping_to_region (void)
   meta_rectangle_clip_to_region (region,
                                  fixed_directions,
                                  &rect);
-  g_assert (meta_rectangle_equal (region->data, &rect));
+  g_assert (mtk_rectangle_equal (region->data, &rect));
 
   rect = meta_rect (300, 1000, 400, 200);
   temp = meta_rect (300, 1000, 400, 150);
   meta_rectangle_clip_to_region (region,
                                  fixed_directions,
                                  &rect);
-  g_assert (meta_rectangle_equal (&rect, &temp));
+  g_assert (mtk_rectangle_equal (&rect, &temp));
 
   rect = meta_rect (400, 1000, 300, 200);
   temp = meta_rect (450, 1000, 250, 200);
   meta_rectangle_clip_to_region (region,
                                  fixed_directions,
                                  &rect);
-  g_assert (meta_rectangle_equal (&rect, &temp));
+  g_assert (mtk_rectangle_equal (&rect, &temp));
 
   rect = meta_rect (400, 1000, 300, 200);
   temp = meta_rect (400, 1000, 300, 150);
   meta_rectangle_clip_to_region (region,
                                  FIXED_DIRECTION_X,
                                  &rect);
-  g_assert (meta_rectangle_equal (&rect, &temp));
+  g_assert (mtk_rectangle_equal (&rect, &temp));
 
   rect = meta_rect (400, 1000, 300, 200);
   temp = meta_rect (400, 1000, 300, 150);
   meta_rectangle_clip_to_region (region,
                                  FIXED_DIRECTION_X,
                                  &rect);
-  g_assert (meta_rectangle_equal (&rect, &temp));
+  g_assert (mtk_rectangle_equal (&rect, &temp));
 
   meta_rectangle_free_list_and_elements (region);
 }
@@ -916,42 +916,42 @@ test_shoving_into_region (void)
   meta_rectangle_shove_into_region (region,
                                     fixed_directions,
                                     &rect);
-  g_assert (meta_rectangle_equal (&rect, &temp));
+  g_assert (mtk_rectangle_equal (&rect, &temp));
 
   rect = meta_rect (425, 1000, 300, 200);
   temp = meta_rect (450, 1000, 300, 200);
   meta_rectangle_shove_into_region (region,
                                     fixed_directions,
                                     &rect);
-  g_assert (meta_rectangle_equal (&rect, &temp));
+  g_assert (mtk_rectangle_equal (&rect, &temp));
 
   rect = meta_rect (425, 1000, 300, 200);
   temp = meta_rect (425,  950, 300, 200);
   meta_rectangle_shove_into_region (region,
                                     FIXED_DIRECTION_X,
                                     &rect);
-  g_assert (meta_rectangle_equal (&rect, &temp));
+  g_assert (mtk_rectangle_equal (&rect, &temp));
 
   rect = meta_rect ( 300, 1000, 400, 200);
   temp = meta_rect (1200, 1000, 400, 200);
   meta_rectangle_shove_into_region (region,
                                     FIXED_DIRECTION_Y,
                                     &rect);
-  g_assert (meta_rectangle_equal (&rect, &temp));
+  g_assert (mtk_rectangle_equal (&rect, &temp));
 
   rect = meta_rect ( 800, 1150, 400,  50);  /* Completely "offscreen" :) */
   temp = meta_rect ( 800, 1050, 400,  50);
   meta_rectangle_shove_into_region (region,
                                     0,
                                     &rect);
-  g_assert (meta_rectangle_equal (&rect, &temp));
+  g_assert (mtk_rectangle_equal (&rect, &temp));
 
   rect = meta_rect (-1000,  0, 400, 150);  /* Offscreen in 2 directions */
   temp = meta_rect (    0, 20, 400, 150);
   meta_rectangle_shove_into_region (region,
                                     0,
                                     &rect);
-  g_assert (meta_rectangle_equal (&rect, &temp));
+  g_assert (mtk_rectangle_equal (&rect, &temp));
 
   meta_rectangle_free_list_and_elements (region);
 }
@@ -966,7 +966,7 @@ verify_edge_lists_are_equal (GList *code, GList *answer)
       MetaEdge *a = code->data;
       MetaEdge *b = answer->data;
 
-      if (!meta_rectangle_equal (&a->rect, &b->rect) ||
+      if (!mtk_rectangle_equal (&a->rect, &b->rect) ||
           a->side_type != b->side_type ||
           a->edge_type != b->edge_type)
         {
@@ -1236,7 +1236,7 @@ test_gravity_resize (void)
                                       META_GRAVITY_NORTH_WEST,
                                       20,
                                       5);
-  g_assert (meta_rectangle_equal (&rect, &temp));
+  g_assert (mtk_rectangle_equal (&rect, &temp));
 
   rect = meta_rect ( 50,  300, 250, 400);
   temp = meta_rect (165,  300,  20,   5);
@@ -1245,7 +1245,7 @@ test_gravity_resize (void)
                                       META_GRAVITY_NORTH,
                                       20,
                                       5);
-  g_assert (meta_rectangle_equal (&rect, &temp));
+  g_assert (mtk_rectangle_equal (&rect, &temp));
 
   rect = meta_rect ( 50,  300, 250, 400);
   temp = meta_rect (280,  300,  20,   5);
@@ -1254,7 +1254,7 @@ test_gravity_resize (void)
                                       META_GRAVITY_NORTH_EAST,
                                       20,
                                       5);
-  g_assert (meta_rectangle_equal (&rect, &temp));
+  g_assert (mtk_rectangle_equal (&rect, &temp));
 
   rect = meta_rect ( 50,  300, 250, 400);
   temp = meta_rect ( 50,  695,  50,   5);
@@ -1263,7 +1263,7 @@ test_gravity_resize (void)
                                       META_GRAVITY_SOUTH_WEST,
                                       50,
                                       5);
-  g_assert (meta_rectangle_equal (&rect, &temp));
+  g_assert (mtk_rectangle_equal (&rect, &temp));
 
   rect = meta_rect ( 50,  300, 250, 400);
   temp = meta_rect (150,  695,  50,   5);
@@ -1272,7 +1272,7 @@ test_gravity_resize (void)
                                       META_GRAVITY_SOUTH,
                                       50,
                                       5);
-  g_assert (meta_rectangle_equal (&rect, &temp));
+  g_assert (mtk_rectangle_equal (&rect, &temp));
 
   rect = meta_rect ( 50,  300, 250, 400);
   temp = meta_rect (250,  695,  50,   5);
@@ -1281,7 +1281,7 @@ test_gravity_resize (void)
                                       META_GRAVITY_SOUTH_EAST,
                                       50,
                                       5);
-  g_assert (meta_rectangle_equal (&rect, &temp));
+  g_assert (mtk_rectangle_equal (&rect, &temp));
 
   rect = meta_rect (167,  738, 237, 843);
   temp = meta_rect (167, 1113, 832,  93);
@@ -1290,7 +1290,7 @@ test_gravity_resize (void)
                                       META_GRAVITY_WEST,
                                       832,
                                       93);
-  g_assert (meta_rectangle_equal (&rect, &temp));
+  g_assert (mtk_rectangle_equal (&rect, &temp));
 
   rect = meta_rect ( 167,  738, 237, 843);
   temp = meta_rect (-131, 1113, 833,  93);
@@ -1299,7 +1299,7 @@ test_gravity_resize (void)
                                       META_GRAVITY_CENTER,
                                       832,
                                       93);
-  g_assert (meta_rectangle_equal (&rect, &temp));
+  g_assert (mtk_rectangle_equal (&rect, &temp));
 
   rect = meta_rect (300, 1000, 400, 200);
   temp = meta_rect (270,  994, 430, 212);
@@ -1308,7 +1308,7 @@ test_gravity_resize (void)
                                       META_GRAVITY_EAST,
                                       430,
                                       211);
-  g_assert (meta_rectangle_equal (&rect, &temp));
+  g_assert (mtk_rectangle_equal (&rect, &temp));
 
   rect = meta_rect (300, 1000, 400, 200);
   temp = meta_rect (300, 1000, 430, 211);
@@ -1317,7 +1317,7 @@ test_gravity_resize (void)
                                       META_GRAVITY_STATIC,
                                       430,
                                       211);
-  g_assert (meta_rectangle_equal (&rect, &temp));
+  g_assert (mtk_rectangle_equal (&rect, &temp));
 }
 
 #define EPSILON 0.000000001

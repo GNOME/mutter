@@ -1032,7 +1032,7 @@ strut_lists_equal (GSList *l,
       MetaStrut *b = m->data;
 
       if (a->side != b->side ||
-          !meta_rectangle_equal (&a->rect, &b->rect))
+          !mtk_rectangle_equal (&a->rect, &b->rect))
         return FALSE;
     }
 

@@ -64,3 +64,7 @@ MtkRectangle * mtk_rectangle_copy (const MtkRectangle *rect);
 MTK_EXPORT
 void mtk_rectangle_free (MtkRectangle *rect);
 
+MTK_EXPORT
+gboolean mtk_rectangle_equal (const MtkRectangle *src1,
+                              const MtkRectangle *src2);
+

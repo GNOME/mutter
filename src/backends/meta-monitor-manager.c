@@ -177,7 +177,7 @@ logical_monitor_from_layout (MetaMonitorManager *manager,
     {
       MetaLogicalMonitor *logical_monitor = l->data;
 
-      if (meta_rectangle_equal (layout, &logical_monitor->rect))
+      if (mtk_rectangle_equal (layout, &logical_monitor->rect))
         return logical_monitor;
     }
 
@@ -326,7 +326,7 @@ derive_scale_from_config (MetaMonitorManager *manager,
     {
       MetaLogicalMonitorConfig *logical_monitor_config = l->data;
 
-      if (meta_rectangle_equal (layout, &logical_monitor_config->layout))
+      if (mtk_rectangle_equal (layout, &logical_monitor_config->layout))
         return logical_monitor_config->scale;
     }
 

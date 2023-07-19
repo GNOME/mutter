@@ -216,7 +216,7 @@ logical_monitor_from_layout (MetaMonitorManager *monitor_manager,
     {
       MetaLogicalMonitor *logical_monitor = l->data;
 
-      if (meta_rectangle_equal (layout, &logical_monitor->rect))
+      if (mtk_rectangle_equal (layout, &logical_monitor->rect))
         return logical_monitor;
     }
 

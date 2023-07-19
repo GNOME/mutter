@@ -907,7 +907,7 @@ meta_wayland_xdg_toplevel_post_apply_state (MetaWaylandSurfaceRole  *surface_rol
   surface_role_class->post_apply_state (surface_role, pending);
 
   window_geometry = meta_wayland_xdg_surface_get_window_geometry (xdg_surface);
-  geometry_changed = !meta_rectangle_equal (&old_geometry, &window_geometry);
+  geometry_changed = !mtk_rectangle_equal (&old_geometry, &window_geometry);
 
   if (geometry_changed ||
       pending->derived.surface_size_changed ||
@@ -1350,7 +1350,7 @@ meta_wayland_xdg_popup_post_apply_state (MetaWaylandSurfaceRole  *surface_role,
 
   window_geometry = meta_wayland_xdg_surface_get_window_geometry (xdg_surface);
   old_geometry = xdg_surface_priv->geometry;
-  if (!meta_rectangle_equal (&old_geometry, &window_geometry) ||
+  if (!mtk_rectangle_equal (&old_geometry, &window_geometry) ||
       pending->derived.surface_size_changed ||
       pending->has_acked_configure_serial)
     meta_window_wayland_finish_move_resize (window, window_geometry, pending);
@@ -1805,7 +1805,7 @@ meta_wayland_xdg_surface_post_apply_state (MetaWaylandSurfaceRole  *surface_role
 
       meta_wayland_shell_surface_calculate_geometry (shell_surface,
                                                      &new_geometry);
-      if (!meta_rectangle_equal (&new_geometry, &priv->geometry))
+      if (!mtk_rectangle_equal (&new_geometry, &priv->geometry))
         {
           pending->has_new_geometry = TRUE;
           priv->geometry = new_geometry;

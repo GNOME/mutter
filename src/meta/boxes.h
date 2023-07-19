@@ -122,10 +122,6 @@ gboolean meta_rectangle_intersect       (const MetaRectangle *src1,
                                          const MetaRectangle *src2,
                                          MetaRectangle       *dest);
 
-META_EXPORT
-gboolean meta_rectangle_equal           (const MetaRectangle *src1,
-                                         const MetaRectangle *src2);
-
 /* Find the bounding box of the union of two rectangles */
 META_EXPORT
 void     meta_rectangle_union           (const MetaRectangle *rect1,

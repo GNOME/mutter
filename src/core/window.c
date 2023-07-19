@@ -2813,7 +2813,7 @@ meta_window_is_monitor_sized (MetaWindow *window)
       meta_window_get_frame_rect (window, &window_rect);
       meta_display_get_monitor_geometry (window->display, window->monitor->number, &monitor_rect);
 
-      if (meta_rectangle_equal (&window_rect, &monitor_rect))
+      if (mtk_rectangle_equal (&window_rect, &monitor_rect))
         return TRUE;
     }
 

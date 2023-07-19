@@ -56,8 +56,8 @@ update_monitor (MetaScreenCastMonitorStream *monitor_stream,
   if (!new_logical_monitor)
     return FALSE;
 
-  if (!meta_rectangle_equal (&new_logical_monitor->rect,
-                             &monitor_stream->logical_monitor->rect))
+  if (!mtk_rectangle_equal (&new_logical_monitor->rect,
+                            &monitor_stream->logical_monitor->rect))
     return FALSE;
 
   g_set_object (&monitor_stream->monitor, new_monitor);

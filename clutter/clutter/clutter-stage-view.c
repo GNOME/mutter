@@ -943,7 +943,7 @@ maybe_mark_full_redraw (ClutterStageView  *view,
       MtkRectangle region_extents;
 
       cairo_region_get_extents (*region, &region_extents);
-      if (clutter_util_rectangle_equal (&priv->layout, &region_extents))
+      if (mtk_rectangle_equal (&priv->layout, &region_extents))
         g_clear_pointer (region, cairo_region_destroy);
     }
 }
@@ -970,7 +970,7 @@ clutter_stage_view_add_redraw_clip (ClutterStageView   *view,
 
   if (!priv->redraw_clip)
     {
-      if (!clutter_util_rectangle_equal (&priv->layout, clip))
+      if (!mtk_rectangle_equal (&priv->layout, clip))
         priv->redraw_clip = cairo_region_create_rectangle (clip);
     }
   else

@@ -925,7 +925,7 @@ ensure_logical_monitor (GList           **logical_monitor_configs,
     {
       MetaLogicalMonitorConfig *logical_monitor_config = l->data;
 
-      if (meta_rectangle_equal (&logical_monitor_config->layout, layout))
+      if (mtk_rectangle_equal (&logical_monitor_config->layout, layout))
         return logical_monitor_config;
     }
 

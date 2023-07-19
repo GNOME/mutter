@@ -1255,11 +1255,11 @@ meta_shaped_texture_is_opaque (MetaShapedTexture *stex)
 
   meta_shaped_texture_ensure_size_valid (stex);
 
-  return meta_rectangle_equal (&opaque_rect,
-                               &(MetaRectangle) {
-                                .width = stex->dst_width,
-                                .height = stex->dst_height
-                               });
+  return mtk_rectangle_equal (&opaque_rect,
+                              &(MetaRectangle) {
+                               .width = stex->dst_width,
+                               .height = stex->dst_height
+                              });
 }
 
 void

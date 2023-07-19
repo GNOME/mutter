@@ -100,7 +100,7 @@ assert_crtc_state_equals (const MetaKmsCrtcState *crtc_state1,
                           const MetaKmsCrtcState *crtc_state2)
 {
   g_assert_cmpint (crtc_state1->is_active, ==, crtc_state2->is_active);
-  g_assert (meta_rectangle_equal (&crtc_state1->rect, &crtc_state2->rect));
+  g_assert (mtk_rectangle_equal (&crtc_state1->rect, &crtc_state2->rect));
   g_assert_cmpint (crtc_state1->is_drm_mode_valid,
                    ==,
                    crtc_state2->is_drm_mode_valid);
@@ -297,7 +297,7 @@ meta_test_kms_device_mode_set (void)
   g_assert_true (crtc_state.is_active);
   g_assert_true (crtc_state.is_drm_mode_valid);
   mode_rect = meta_get_mode_rect (mode);
-  g_assert (meta_rectangle_equal (&crtc_state.rect, &mode_rect));
+  g_assert (mtk_rectangle_equal (&crtc_state.rect, &mode_rect));
 
   g_assert_nonnull (meta_kms_connector_get_current_state (connector));
   connector_state =

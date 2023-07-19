@@ -215,7 +215,7 @@ meta_kms_crtc_state_changes (MetaKmsCrtcState *state,
   if (state->is_active != other_state->is_active)
     return META_KMS_RESOURCE_CHANGE_FULL;
 
-  if (!meta_rectangle_equal (&state->rect, &other_state->rect))
+  if (!mtk_rectangle_equal (&state->rect, &other_state->rect))
     return META_KMS_RESOURCE_CHANGE_FULL;
 
   if (state->is_drm_mode_valid != other_state->is_drm_mode_valid)

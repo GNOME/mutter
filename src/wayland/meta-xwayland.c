@@ -1247,7 +1247,7 @@ meta_xwayland_set_primary_output (MetaX11Display *x11_display)
 
       XRRFreeCrtcInfo (crtc_info);
 
-      if (meta_rectangle_equal (&crtc_geometry, &primary_monitor->rect))
+      if (mtk_rectangle_equal (&crtc_geometry, &primary_monitor->rect))
         {
           XRRSetOutputPrimary (xdisplay, DefaultRootWindow (xdisplay),
                                output_id);

@@ -227,16 +227,6 @@ _clutter_util_rectangle_intersection (const MtkRectangle *src1,
     }
 }
 
-gboolean
-clutter_util_rectangle_equal (const MtkRectangle *src1,
-                              const MtkRectangle *src2)
-{
-  return ((src1->x == src2->x) &&
-          (src1->y == src2->y) &&
-          (src1->width == src2->width) &&
-          (src1->height == src2->height));
-}
-
 typedef struct
 {
   GType value_type;
