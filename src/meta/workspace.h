@@ -47,11 +47,11 @@ GList* meta_workspace_list_windows (MetaWorkspace *workspace);
 META_EXPORT
 void meta_workspace_get_work_area_for_monitor (MetaWorkspace *workspace,
                                                int            which_monitor,
-                                               MetaRectangle *area);
+                                               MtkRectangle  *area);
 
 META_EXPORT
 void meta_workspace_get_work_area_all_monitors (MetaWorkspace *workspace,
-                                                MetaRectangle *area);
+                                                MtkRectangle  *area);
 
 META_EXPORT
 void meta_workspace_activate (MetaWorkspace *workspace, guint32 timestamp);

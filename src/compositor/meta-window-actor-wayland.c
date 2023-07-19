@@ -107,7 +107,7 @@ surface_container_apply_transform (ClutterActor      *actor,
     CLUTTER_ACTOR_CLASS (meta_surface_container_actor_wayland_parent_class);
   MetaWindow *window;
   MetaLogicalMonitor *logical_monitor;
-  MetaRectangle monitor_rect;
+  MtkRectangle monitor_rect;
   float scale;
   float rel_x, rel_y;
   float abs_x, abs_y;
@@ -478,7 +478,7 @@ maybe_configure_black_background (MetaWindowActorWayland *self,
   MetaWindow *window = meta_window_actor_get_meta_window (window_actor);
   MetaLogicalMonitor *logical_monitor;
   int geometry_scale;
-  MetaRectangle fullscreen_layout;
+  MtkRectangle fullscreen_layout;
   ClutterActor *child;
   ClutterActorIter iter;
   float max_width = 0;
@@ -526,8 +526,8 @@ maybe_configure_black_background (MetaWindowActorWayland *self,
 }
 
 static void
-meta_window_actor_wayland_sync_geometry (MetaWindowActor     *actor,
-                                         const MetaRectangle *actor_rect)
+meta_window_actor_wayland_sync_geometry (MetaWindowActor    *actor,
+                                         const MtkRectangle *actor_rect)
 {
   MetaWindowActorWayland *self = META_WINDOW_ACTOR_WAYLAND (actor);
   ClutterActor *surface_container = CLUTTER_ACTOR (self->surface_container);

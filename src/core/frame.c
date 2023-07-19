@@ -418,9 +418,9 @@ meta_frame_get_frame_bounds (MetaFrame *frame)
 }
 
 void
-meta_frame_get_mask (MetaFrame             *frame,
-                     MtkRectangle          *frame_rect,
-                     cairo_t               *cr)
+meta_frame_get_mask (MetaFrame    *frame,
+                     MtkRectangle *frame_rect,
+                     cairo_t      *cr)
 {
   MetaFrameBorders borders;
 

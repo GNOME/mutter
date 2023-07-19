@@ -59,7 +59,7 @@ typedef struct _MetaWaylandXdgShellClient
 
 struct _MetaWaylandXdgPositioner
 {
-  MetaRectangle anchor_rect;
+  MtkRectangle anchor_rect;
   int32_t width;
   int32_t height;
   uint32_t gravity;
@@ -89,7 +89,7 @@ typedef struct _MetaWaylandXdgSurfacePrivate
 {
   struct wl_resource *resource;
   MetaWaylandXdgShellClient *shell_client;
-  MetaRectangle geometry;
+  MtkRectangle geometry;
 
   guint configure_sent : 1;
   guint first_buffer_attached : 1;
@@ -153,7 +153,7 @@ meta_wayland_xdg_positioner_to_placement (MetaWaylandXdgPositioner *xdg_position
 static struct wl_resource *
 meta_wayland_xdg_surface_get_wm_base_resource (MetaWaylandXdgSurface *xdg_surface);
 
-static MetaRectangle
+static MtkRectangle
 meta_wayland_xdg_surface_get_window_geometry (MetaWaylandXdgSurface *xdg_surface);
 
 static void
@@ -891,8 +891,8 @@ meta_wayland_xdg_toplevel_post_apply_state (MetaWaylandSurfaceRole  *surface_rol
     meta_wayland_surface_role_get_surface (surface_role);
   MetaWaylandSurfaceRoleClass *surface_role_class;
   MetaWindow *window;
-  MetaRectangle old_geometry;
-  MetaRectangle window_geometry;
+  MtkRectangle old_geometry;
+  MtkRectangle window_geometry;
 
   gboolean geometry_changed;
 
@@ -1334,10 +1334,10 @@ meta_wayland_xdg_popup_post_apply_state (MetaWaylandSurfaceRole  *surface_role,
     META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_xdg_popup_parent_class);
   MetaWindow *window;
   MetaWindow *parent_window;
-  MetaRectangle old_geometry;
-  MetaRectangle window_geometry;
-  MetaRectangle buffer_rect;
-  MetaRectangle parent_buffer_rect;
+  MtkRectangle old_geometry;
+  MtkRectangle window_geometry;
+  MtkRectangle buffer_rect;
+  MtkRectangle parent_buffer_rect;
 
   window = meta_wayland_surface_get_window (surface);
   if (!window)
@@ -1570,7 +1570,7 @@ meta_wayland_xdg_surface_get_wm_base_resource (MetaWaylandXdgSurface *xdg_surfac
   return priv->shell_client->resource;
 }
 
-static MetaRectangle
+static MtkRectangle
 meta_wayland_xdg_surface_get_window_geometry (MetaWaylandXdgSurface *xdg_surface)
 {
   MetaWaylandXdgSurfacePrivate *priv =
@@ -1739,7 +1739,7 @@ meta_wayland_xdg_surface_real_reset (MetaWaylandXdgSurface *xdg_surface)
 
   priv->first_buffer_attached = FALSE;
   priv->configure_sent = FALSE;
-  priv->geometry = (MetaRectangle) { 0 };
+  priv->geometry = (MtkRectangle) { 0 };
   priv->has_set_geometry = FALSE;
 }
 
@@ -1798,7 +1798,7 @@ meta_wayland_xdg_surface_post_apply_state (MetaWaylandSurfaceRole  *surface_role
     }
   else if (!priv->has_set_geometry)
     {
-      MetaRectangle new_geometry = { 0 };
+      MtkRectangle new_geometry = { 0 };
 
       /* If the surface has never set any geometry, calculate
        * a default one unioning the surface and all subsurfaces together. */
@@ -2230,7 +2230,7 @@ static MetaPlacementRule
 meta_wayland_xdg_positioner_to_placement (MetaWaylandXdgPositioner *xdg_positioner,
                                           MetaWindow               *parent_window)
 {
-  MetaRectangle parent_rect;
+  MtkRectangle parent_rect;
 
   meta_window_get_frame_rect (parent_window, &parent_rect);
 
@@ -2339,7 +2339,7 @@ xdg_positioner_set_anchor_rect (struct wl_client   *client,
       return;
     }
 
-  positioner->anchor_rect = (MetaRectangle) {
+  positioner->anchor_rect = (MtkRectangle) {
     .x = x,
     .y = y,
     .width = width,

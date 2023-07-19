@@ -939,7 +939,7 @@ meta_window_actor_sync_actor_geometry (MetaWindowActor *self,
 {
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (self);
-  MetaRectangle actor_rect;
+  MtkRectangle actor_rect;
   ClutterActor *actor = CLUTTER_ACTOR (self);
   MetaWindowActorChanges changes = 0;
 
@@ -1074,10 +1074,10 @@ meta_window_actor_hide (MetaWindowActor *self,
 }
 
 void
-meta_window_actor_size_change (MetaWindowActor    *self,
-                               MetaSizeChange      which_change,
-                               MetaRectangle      *old_frame_rect,
-                               MetaRectangle      *old_buffer_rect)
+meta_window_actor_size_change (MetaWindowActor *self,
+                               MetaSizeChange   which_change,
+                               MtkRectangle    *old_frame_rect,
+                               MtkRectangle    *old_buffer_rect)
 {
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (self);
@@ -1224,7 +1224,7 @@ meta_window_actor_get_geometry_scale (MetaWindowActor *window_actor)
 
 static void
 meta_window_actor_get_buffer_bounds (MetaScreenCastWindow *screen_cast_window,
-                                     MetaRectangle        *bounds)
+                                     MtkRectangle         *bounds)
 {
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (screen_cast_window);
   MetaWindowActorPrivate *priv =
@@ -1232,7 +1232,7 @@ meta_window_actor_get_buffer_bounds (MetaScreenCastWindow *screen_cast_window,
   MetaShapedTexture *stex;
 
   stex = meta_surface_actor_get_texture (priv->surface);
-  *bounds = (MetaRectangle) {
+  *bounds = (MtkRectangle) {
     .width = floorf (meta_shaped_texture_get_unscaled_width (stex)),
     .height = floorf (meta_shaped_texture_get_unscaled_height (stex)),
   };
@@ -1249,7 +1249,7 @@ meta_window_actor_transform_relative_position (MetaScreenCastWindow *screen_cast
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (screen_cast_window);
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (window_actor);
-  MetaRectangle bounds;
+  MtkRectangle bounds;
   graphene_point3d_t v1 = { 0.f, }, v2 = { 0.f, };
 
   meta_window_actor_get_buffer_bounds (screen_cast_window, &bounds);
@@ -1344,7 +1344,7 @@ meta_window_actor_transform_cursor_position (MetaScreenCastWindow *screen_cast_w
 
 static void
 meta_window_actor_capture_into (MetaScreenCastWindow *screen_cast_window,
-                                MetaRectangle        *bounds,
+                                MtkRectangle         *bounds,
                                 uint8_t              *data)
 {
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (screen_cast_window);
@@ -1400,7 +1400,7 @@ meta_window_actor_capture_into (MetaScreenCastWindow *screen_cast_window,
 
 static gboolean
 meta_window_actor_blit_to_framebuffer (MetaScreenCastWindow *screen_cast_window,
-                                       MetaRectangle        *bounds,
+                                       MtkRectangle         *bounds,
                                        CoglFramebuffer      *framebuffer)
 {
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (screen_cast_window);
@@ -1560,7 +1560,7 @@ meta_window_actor_notify_damaged (MetaWindowActor *window_actor)
 
 static CoglFramebuffer *
 create_framebuffer_from_window_actor (MetaWindowActor  *self,
-                                      MetaRectangle    *clip,
+                                      MtkRectangle     *clip,
                                       GError          **error)
 {
   MetaWindowActorPrivate *priv = meta_window_actor_get_instance_private (self);
@@ -1636,14 +1636,14 @@ meta_window_actor_is_single_surface_actor (MetaWindowActor *self)
  */
 cairo_surface_t *
 meta_window_actor_get_image (MetaWindowActor *self,
-                             MetaRectangle   *clip)
+                             MtkRectangle    *clip)
 {
   MetaWindowActorPrivate *priv = meta_window_actor_get_instance_private (self);
   ClutterActor *actor = CLUTTER_ACTOR (self);
   MetaShapedTexture *stex;
   cairo_surface_t *surface = NULL;
   CoglFramebuffer *framebuffer;
-  MetaRectangle framebuffer_clip;
+  MtkRectangle framebuffer_clip;
   float resource_scale;
   float x, y, width, height;
 
@@ -1656,7 +1656,7 @@ meta_window_actor_get_image (MetaWindowActor *self,
   if (!meta_shaped_texture_should_get_via_offscreen (stex) &&
       meta_window_actor_is_single_surface_actor (self))
     {
-      MetaRectangle *surface_clip = NULL;
+      MtkRectangle *surface_clip = NULL;
 
       if (clip)
         {
@@ -1665,7 +1665,7 @@ meta_window_actor_get_image (MetaWindowActor *self,
           geometry_scale =
             meta_window_actor_get_geometry_scale (self);
 
-          surface_clip = g_alloca (sizeof (MetaRectangle));
+          surface_clip = g_alloca (sizeof (MtkRectangle));
           surface_clip->x = clip->x / geometry_scale,
           surface_clip->y = clip->y / geometry_scale;
           surface_clip->width = clip->width / geometry_scale;
@@ -1682,7 +1682,7 @@ meta_window_actor_get_image (MetaWindowActor *self,
   if (width == 0 || height == 0)
     goto out;
 
-  framebuffer_clip = (MetaRectangle) {
+  framebuffer_clip = (MtkRectangle) {
     .x = floorf (x),
     .y = floorf (y),
     .width = ceilf (width),
@@ -1691,8 +1691,8 @@ meta_window_actor_get_image (MetaWindowActor *self,
 
   if (clip)
     {
-      MetaRectangle tmp_clip;
-      MetaRectangle intersected_clip;
+      MtkRectangle tmp_clip;
+      MtkRectangle intersected_clip;
 
       tmp_clip = *clip;
       tmp_clip.x += floorf (x);
@@ -1746,7 +1746,7 @@ out:
  */
 ClutterContent *
 meta_window_actor_paint_to_content (MetaWindowActor  *self,
-                                    MetaRectangle    *clip,
+                                    MtkRectangle     *clip,
                                     GError          **error)
 {
   MetaWindowActorPrivate *priv = meta_window_actor_get_instance_private (self);
@@ -1754,7 +1754,7 @@ meta_window_actor_paint_to_content (MetaWindowActor  *self,
   ClutterContent *content = NULL;
   CoglFramebuffer *framebuffer;
   CoglTexture *texture;
-  MetaRectangle framebuffer_clip;
+  MtkRectangle framebuffer_clip;
   float x, y, width, height;
 
   if (!priv->surface)
@@ -1768,7 +1768,7 @@ meta_window_actor_paint_to_content (MetaWindowActor  *self,
   if (width == 0 || height == 0)
     goto out;
 
-  framebuffer_clip = (MetaRectangle) {
+  framebuffer_clip = (MtkRectangle) {
     .x = floorf (x),
     .y = floorf (y),
     .width = ceilf (width),
@@ -1777,7 +1777,7 @@ meta_window_actor_paint_to_content (MetaWindowActor  *self,
 
   if (clip)
     {
-      MetaRectangle tmp_clip;
+      MtkRectangle tmp_clip;
 
       if (!mtk_rectangle_intersect (&framebuffer_clip, clip, &tmp_clip))
         goto out;

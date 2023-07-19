@@ -773,7 +773,7 @@ create_preferred_logical_monitor_config (MetaMonitorManager          *monitor_ma
 
   logical_monitor_config = g_new0 (MetaLogicalMonitorConfig, 1);
   *logical_monitor_config = (MetaLogicalMonitorConfig) {
-    .layout = (MetaRectangle) {
+    .layout = (MtkRectangle) {
       .x = x,
       .y = y,
       .width = width,
@@ -898,7 +898,7 @@ verify_suggested_monitors_config (GList *logical_monitor_configs)
   for (l = logical_monitor_configs; l; l = l->next)
     {
       MetaLogicalMonitorConfig *logical_monitor_config = l->data;
-      MetaRectangle *rect = &logical_monitor_config->layout;
+      MtkRectangle *rect = &logical_monitor_config->layout;
 
       if (meta_rectangle_overlaps_with_region (region, rect))
         {
@@ -912,7 +912,7 @@ verify_suggested_monitors_config (GList *logical_monitor_configs)
 
   for (l = region; region->next && l; l = l->next)
     {
-      MetaRectangle *rect = l->data;
+      MtkRectangle *rect = l->data;
 
       if (!meta_rectangle_is_adjacent_to_any_in_region (region, rect))
         {
@@ -1351,12 +1351,7 @@ create_for_switch_config_all_mirror (MetaMonitorConfigManager *config_manager)
 
   logical_monitor_config = g_new0 (MetaLogicalMonitorConfig, 1);
   *logical_monitor_config = (MetaLogicalMonitorConfig) {
-    .layout = (MetaRectangle) {
-      .x = 0,
-      .y = 0,
-      .width = width,
-      .height = height
-    },
+    .layout = MTK_RECTANGLE_INIT (0, 0, width, height),
     .scale = best_scale,
     .monitor_configs = monitor_configs,
     .is_primary = TRUE,

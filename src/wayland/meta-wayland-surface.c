@@ -2272,7 +2272,7 @@ meta_wayland_surface_can_scanout_untransformed (MetaWaylandSurface *surface,
 
   if (surface->viewport.has_dst_size)
     {
-      MetaRectangle view_layout;
+      MtkRectangle view_layout;
       float view_scale;
       float untransformed_layout_width;
       float untransformed_layout_height;

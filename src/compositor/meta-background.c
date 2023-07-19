@@ -379,11 +379,11 @@ set_texture_area_from_monitor_area (MtkRectangle *monitor_area,
 }
 
 static void
-get_texture_area (MetaBackground          *self,
-                  MtkRectangle            *monitor_rect,
-                  float                    monitor_scale,
-                  CoglTexture             *texture,
-                  MtkRectangle            *texture_area)
+get_texture_area (MetaBackground *self,
+                  MtkRectangle   *monitor_rect,
+                  float           monitor_scale,
+                  CoglTexture    *texture,
+                  MtkRectangle   *texture_area)
 {
   MtkRectangle image_area;
   int screen_width, screen_height;
@@ -489,12 +489,12 @@ get_texture_area (MetaBackground          *self,
 }
 
 static gboolean
-draw_texture (MetaBackground        *self,
-              CoglFramebuffer       *framebuffer,
-              CoglPipeline          *pipeline,
-              CoglTexture           *texture,
-              MtkRectangle          *monitor_area,
-              float                  monitor_scale)
+draw_texture (MetaBackground  *self,
+              CoglFramebuffer *framebuffer,
+              CoglPipeline    *pipeline,
+              CoglTexture     *texture,
+              MtkRectangle    *monitor_area,
+              float            monitor_scale)
 {
   MtkRectangle texture_area;
   gboolean bare_region_visible;
@@ -750,13 +750,13 @@ get_best_mipmap_level (CoglTexture *texture,
 }
 
 CoglTexture *
-meta_background_get_texture (MetaBackground         *self,
-                             int                     monitor_index,
-                             MtkRectangle           *texture_area,
-                             CoglPipelineWrapMode   *wrap_mode)
+meta_background_get_texture (MetaBackground       *self,
+                             int                   monitor_index,
+                             MtkRectangle         *texture_area,
+                             CoglPipelineWrapMode *wrap_mode)
 {
   MetaBackgroundMonitor *monitor;
-  MetaRectangle geometry;
+  MtkRectangle geometry;
   MtkRectangle monitor_area;
   CoglTexture *texture1, *texture2;
   float monitor_scale;

@@ -365,12 +365,12 @@ meta_shadow_paint (MetaShadow      *shadow,
  * meta_shadow_paint()
  */
 void
-meta_shadow_get_bounds  (MetaShadow            *shadow,
-                         int                    window_x,
-                         int                    window_y,
-                         int                    window_width,
-                         int                    window_height,
-                         MtkRectangle          *bounds)
+meta_shadow_get_bounds  (MetaShadow   *shadow,
+                         int           window_x,
+                         int           window_y,
+                         int           window_width,
+                         int           window_height,
+                         MtkRectangle *bounds)
 {
   bounds->x = window_x - shadow->outer_border_left;
   bounds->y = window_y - shadow->outer_border_top;

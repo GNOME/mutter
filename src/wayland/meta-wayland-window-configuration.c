@@ -25,7 +25,7 @@ static uint32_t global_serial_counter = 0;
 
 MetaWaylandWindowConfiguration *
 meta_wayland_window_configuration_new (MetaWindow          *window,
-                                       MetaRectangle        rect,
+                                       MtkRectangle         rect,
                                        int                  bounds_width,
                                        int                  bounds_height,
                                        int                  scale,

@@ -329,7 +329,7 @@ reload_icon_geometry (MetaWindow    *window,
         }
       else
         {
-          MetaRectangle geometry;
+          MtkRectangle geometry;
 
           geometry.x = (int)value->v.cardinal_list.cardinals[0];
           geometry.y = (int)value->v.cardinal_list.cardinals[1];

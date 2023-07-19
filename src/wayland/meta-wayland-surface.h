@@ -100,7 +100,7 @@ struct _MetaWaylandSurfaceState
   /* wl_surface.frame */
   struct wl_list frame_callback_list;
 
-  MetaRectangle new_geometry;
+  MtkRectangle new_geometry;
   gboolean has_new_geometry;
 
   gboolean has_acked_configure_serial;

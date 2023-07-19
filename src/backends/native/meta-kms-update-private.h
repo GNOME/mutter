@@ -60,7 +60,7 @@ typedef struct _MetaKmsPlaneAssignment
   MetaKmsPlane *plane;
   MetaDrmBuffer *buffer;
   MetaFixed16Rectangle src_rect;
-  MetaRectangle dst_rect;
+  MtkRectangle dst_rect;
   MetaKmsAssignPlaneFlag flags;
   MetaKmsFbDamage *fb_damage;
   MetaKmsPlaneRotation rotation;

@@ -67,7 +67,7 @@ typedef struct
 typedef struct
 {
   gboolean enabled;
-  MetaRectangle rect;
+  MtkRectangle rect;
   float refresh_rate;
   MetaMonitorTransform transform;
 
@@ -720,7 +720,7 @@ try_derive_tiled_monitor_config (MetaLegacyMonitorsConfig *config,
                                  MetaOutputKey            *output_key,
                                  MetaOutputConfig         *output_config,
                                  MetaMonitorConfigStore   *config_store,
-                                 MetaRectangle            *out_layout,
+                                 MtkRectangle             *out_layout,
                                  GError                  **error)
 {
   MonitorTile top_left_tile = { 0 };
@@ -752,7 +752,7 @@ try_derive_tiled_monitor_config (MetaLegacyMonitorsConfig *config,
     {
       MetaOutputKey *other_output_key = &config->keys[i];
       MetaOutputConfig *other_output_config = &config->outputs[i];
-      MetaRectangle *rect;
+      MtkRectangle *rect;
 
       if (strcmp (output_key->vendor, other_output_key->vendor) != 0 ||
           strcmp (output_key->product, other_output_key->product) != 0 ||
@@ -871,7 +871,7 @@ try_derive_tiled_monitor_config (MetaLegacyMonitorsConfig *config,
   if (!monitor_config)
     return NULL;
 
-  *out_layout = (MetaRectangle) {
+  *out_layout = (MtkRectangle) {
     .x = min_x,
     .y = min_y,
     .width = max_x - min_x,
@@ -884,7 +884,7 @@ try_derive_tiled_monitor_config (MetaLegacyMonitorsConfig *config,
 static MetaMonitorConfig *
 derive_monitor_config (MetaOutputKey    *output_key,
                        MetaOutputConfig *output_config,
-                       MetaRectangle    *out_layout,
+                       MtkRectangle     *out_layout,
                        GError          **error)
 {
   int mode_width;
@@ -916,7 +916,7 @@ derive_monitor_config (MetaOutputKey    *output_key,
 static MetaLogicalMonitorConfig *
 ensure_logical_monitor (GList           **logical_monitor_configs,
                         MetaOutputConfig *output_config,
-                        MetaRectangle    *layout)
+                        MtkRectangle     *layout)
 {
   MetaLogicalMonitorConfig *new_logical_monitor_config;
   GList *l;
@@ -957,7 +957,7 @@ derive_logical_monitor_configs (MetaLegacyMonitorsConfig *config,
       MetaOutputKey *output_key = &config->keys[i];
       MetaOutputConfig *output_config = &config->outputs[i];
       MetaMonitorConfig *monitor_config = NULL;
-      MetaRectangle layout;
+      MtkRectangle layout;
       MetaLogicalMonitorConfig *logical_monitor_config;
 
       if (!output_config->enabled)

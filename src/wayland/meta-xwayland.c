@@ -1226,7 +1226,7 @@ meta_xwayland_set_primary_output (MetaX11Display *x11_display)
       RROutput output_id = resources->outputs[i];
       XRROutputInfo *xrandr_output;
       XRRCrtcInfo *crtc_info = NULL;
-      MetaRectangle crtc_geometry;
+      MtkRectangle crtc_geometry;
 
       xrandr_output = XRRGetOutputInfo (xdisplay, resources, output_id);
       if (!xrandr_output)

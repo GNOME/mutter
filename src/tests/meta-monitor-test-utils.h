@@ -165,7 +165,7 @@ typedef struct _MonitorTestCaseMonitor
 
 typedef struct _MonitorTestCaseLogicalMonitor
 {
-  MetaRectangle layout;
+  MtkRectangle layout;
   float scale;
   int monitors[MAX_N_MONITORS];
   int n_monitors;

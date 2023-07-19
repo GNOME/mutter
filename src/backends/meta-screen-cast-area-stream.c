@@ -28,7 +28,7 @@ struct _MetaScreenCastAreaStream
 
   ClutterStage *stage;
 
-  MetaRectangle area;
+  MtkRectangle area;
   float scale;
 };
 
@@ -42,7 +42,7 @@ meta_screen_cast_area_stream_get_stage (MetaScreenCastAreaStream *area_stream)
   return area_stream->stage;
 }
 
-MetaRectangle *
+MtkRectangle *
 meta_screen_cast_area_stream_get_area (MetaScreenCastAreaStream *area_stream)
 {
   return &area_stream->area;
@@ -55,9 +55,9 @@ meta_screen_cast_area_stream_get_scale (MetaScreenCastAreaStream *area_stream)
 }
 
 static gboolean
-calculate_scale (ClutterStage  *stage,
-                 MetaRectangle *area,
-                 float         *out_scale)
+calculate_scale (ClutterStage *stage,
+                 MtkRectangle *area,
+                 float        *out_scale)
 {
   GList *l;
   float scale = 0.0;
@@ -65,7 +65,7 @@ calculate_scale (ClutterStage  *stage,
   for (l = clutter_stage_peek_stage_views (stage); l; l = l->next)
     {
       ClutterStageView *stage_view = l->data;
-      MetaRectangle view_layout;
+      MtkRectangle view_layout;
 
       clutter_stage_view_get_layout (stage_view, &view_layout);
       if (mtk_rectangle_overlap (area, &view_layout))
@@ -82,7 +82,7 @@ calculate_scale (ClutterStage  *stage,
 MetaScreenCastAreaStream *
 meta_screen_cast_area_stream_new (MetaScreenCastSession     *session,
                                   GDBusConnection           *connection,
-                                  MetaRectangle             *area,
+                                  MtkRectangle              *area,
                                   ClutterStage              *stage,
                                   MetaScreenCastCursorMode   cursor_mode,
                                   MetaScreenCastFlag         flags,

@@ -912,7 +912,7 @@ handle_get_device_mapping (MetaDBusInputMapping  *skeleton,
 
   if (logical_monitor)
     {
-      MetaRectangle rect;
+      MtkRectangle rect;
 
       rect = meta_logical_monitor_get_layout (logical_monitor);
       g_dbus_method_invocation_return_value (invocation,

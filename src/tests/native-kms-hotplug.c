@@ -245,7 +245,7 @@ meta_test_switch_config (void)
   g_autoptr (ClutterVirtualInputDevice) virtual_keyboard = NULL;
   g_autoptr (MetaVirtualMonitor) virtual_monitor = NULL;
   GList *logical_monitors;
-  MetaRectangle logical_monitor_layout;
+  MtkRectangle logical_monitor_layout;
   gulong after_paint_handler_id;
   gulong presented_handler_id;
   gboolean monitors_changed;

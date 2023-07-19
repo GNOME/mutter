@@ -111,15 +111,15 @@ void
 meta_wayland_subsurface_union_geometry (MetaWaylandSubsurface *subsurface,
                                         int                    parent_x,
                                         int                    parent_y,
-                                        MetaRectangle         *out_geometry)
+                                        MtkRectangle          *out_geometry)
 {
   MetaWaylandSurfaceRole *surface_role = META_WAYLAND_SURFACE_ROLE (subsurface);
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
-  MetaRectangle geometry;
+  MtkRectangle geometry;
   MetaWaylandSurface *subsurface_surface;
 
-  geometry = (MetaRectangle) {
+  geometry = (MtkRectangle) {
     .x = surface->offset_x + surface->sub.x,
     .y = surface->offset_y + surface->sub.y,
     .width = meta_wayland_surface_get_width (surface),

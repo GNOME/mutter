@@ -29,19 +29,19 @@
 G_DECLARE_FINAL_TYPE (MetaViewportInfo, meta_viewport_info,
                       META, VIEWPORT_INFO, GObject)
 
-MetaViewportInfo * meta_viewport_info_new (MtkRectangle          *views,
-                                           float                 *scales,
-                                           int                    n_views,
-                                           gboolean               is_views_scaled);
+MetaViewportInfo * meta_viewport_info_new (MtkRectangle *views,
+                                           float        *scales,
+                                           int           n_views,
+                                           gboolean      is_views_scaled);
 
 int meta_viewport_info_get_view_at (MetaViewportInfo *info,
                                     float             x,
                                     float             y);
 
-gboolean meta_viewport_info_get_view_info (MetaViewportInfo      *viewport_info,
-                                           int                    idx,
-                                           MtkRectangle          *rect,
-                                           float                 *scale);
+gboolean meta_viewport_info_get_view_info (MetaViewportInfo *viewport_info,
+                                           int               idx,
+                                           MtkRectangle     *rect,
+                                           float            *scale);
 
 int meta_viewport_info_get_neighbor (MetaViewportInfo     *info,
                                      int                   idx,

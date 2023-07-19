@@ -284,11 +284,11 @@ gboolean meta_display_show_restart_message (MetaDisplay *display,
                                             const char  *message);
 gboolean meta_display_request_restart      (MetaDisplay *display);
 
-gboolean meta_display_show_resize_popup (MetaDisplay *display,
-                                         gboolean show,
-                                         MetaRectangle *rect,
-                                         int display_w,
-                                         int display_h);
+gboolean meta_display_show_resize_popup (MetaDisplay  *display,
+                                         gboolean      show,
+                                         MtkRectangle *rect,
+                                         int           display_w,
+                                         int           display_h);
 
 void meta_set_is_restart (gboolean whether);
 

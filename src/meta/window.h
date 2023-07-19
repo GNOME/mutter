@@ -121,20 +121,22 @@ META_EXPORT
 gboolean meta_window_is_skip_taskbar (MetaWindow *window);
 
 META_EXPORT
-void meta_window_get_buffer_rect (const MetaWindow *window, MetaRectangle *rect);
+void meta_window_get_buffer_rect (const MetaWindow *window,
+                                  MtkRectangle     *rect);
 
 META_EXPORT
-void meta_window_get_frame_rect (const MetaWindow *window, MetaRectangle *rect);
+void meta_window_get_frame_rect (const MetaWindow *window,
+                                MtkRectangle      *rect);
 
 META_EXPORT
-void meta_window_client_rect_to_frame_rect (MetaWindow    *window,
-                                            MetaRectangle *client_rect,
-                                            MetaRectangle *frame_rect);
+void meta_window_client_rect_to_frame_rect (MetaWindow   *window,
+                                            MtkRectangle *client_rect,
+                                            MtkRectangle *frame_rect);
 
 META_EXPORT
-void meta_window_frame_rect_to_client_rect (MetaWindow    *window,
-                                            MetaRectangle *frame_rect,
-                                            MetaRectangle *client_rect);
+void meta_window_frame_rect_to_client_rect (MetaWindow   *window,
+                                            MtkRectangle *frame_rect,
+                                            MtkRectangle *client_rect);
 
 META_EXPORT
 MetaDisplay *meta_window_get_display (MetaWindow *window);
@@ -280,12 +282,12 @@ META_EXPORT
 gboolean          meta_window_is_on_primary_monitor (MetaWindow *window);
 
 META_EXPORT
-gboolean meta_window_get_icon_geometry (MetaWindow    *window,
-                                        MetaRectangle *rect);
+gboolean meta_window_get_icon_geometry (MetaWindow   *window,
+                                        MtkRectangle *rect);
 
 META_EXPORT
-void meta_window_set_icon_geometry (MetaWindow    *window,
-                                    MetaRectangle *rect);
+void meta_window_set_icon_geometry (MetaWindow   *window,
+                                    MtkRectangle *rect);
 
 META_EXPORT
 void meta_window_maximize   (MetaWindow        *window,
@@ -387,17 +389,17 @@ void        meta_window_check_alive        (MetaWindow  *window,
                                             guint32      timestamp);
 
 META_EXPORT
-void meta_window_get_work_area_current_monitor (MetaWindow    *window,
-                                                MetaRectangle *area);
+void meta_window_get_work_area_current_monitor (MetaWindow   *window,
+                                                MtkRectangle *area);
 
 META_EXPORT
-void meta_window_get_work_area_for_monitor     (MetaWindow    *window,
-                                                int            which_monitor,
-                                                MetaRectangle *area);
+void meta_window_get_work_area_for_monitor     (MetaWindow   *window,
+                                                int           which_monitor,
+                                                MtkRectangle *area);
 
 META_EXPORT
-void meta_window_get_work_area_all_monitors    (MetaWindow    *window,
-                                                MetaRectangle *area);
+void meta_window_get_work_area_all_monitors    (MetaWindow   *window,
+                                                MtkRectangle *area);
 
 META_EXPORT
 gboolean meta_window_begin_grab_op (MetaWindow           *window,

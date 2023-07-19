@@ -244,9 +244,9 @@ META_EXPORT
 int  meta_display_get_current_monitor  (MetaDisplay   *display);
 
 META_EXPORT
-void meta_display_get_monitor_geometry (MetaDisplay   *display,
-                                        int            monitor,
-                                        MetaRectangle *geometry);
+void meta_display_get_monitor_geometry (MetaDisplay  *display,
+                                        int           monitor,
+                                        MtkRectangle *geometry);
 
 META_EXPORT
 float meta_display_get_monitor_scale (MetaDisplay *display,
@@ -257,8 +257,8 @@ gboolean meta_display_get_monitor_in_fullscreen (MetaDisplay *display,
                                                  int          monitor);
 
 META_EXPORT
-int meta_display_get_monitor_index_for_rect (MetaDisplay   *display,
-                                             MetaRectangle *rect);
+int meta_display_get_monitor_index_for_rect (MetaDisplay  *display,
+                                             MtkRectangle *rect);
 
 META_EXPORT
 int meta_display_get_monitor_neighbor_index (MetaDisplay         *display,

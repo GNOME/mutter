@@ -360,7 +360,7 @@ meta_screen_cast_virtual_stream_src_record_to_buffer (MetaScreenCastStreamSrc  *
   MetaScreenCastStream *stream;
   ClutterPaintFlag paint_flags;
   ClutterStageView *view;
-  MetaRectangle view_rect;
+  MtkRectangle view_rect;
   float scale;
 
   stream = meta_screen_cast_stream_src_get_stream (src);
@@ -419,7 +419,7 @@ meta_screen_cast_virtual_stream_src_record_to_framebuffer (MetaScreenCastStreamS
 static void
 meta_screen_cast_virtual_stream_record_follow_up (MetaScreenCastStreamSrc *src)
 {
-  MetaRectangle damage;
+  MtkRectangle damage;
 
   clutter_stage_view_get_layout (view_from_src (src), &damage);
   damage.width = 1;
@@ -437,7 +437,7 @@ is_cursor_in_stream (MetaScreenCastVirtualStreamSrc *virtual_src)
   MetaCursorRenderer *cursor_renderer =
     meta_backend_get_cursor_renderer (backend);
   ClutterStageView *stage_view = view_from_src (src);
-  MetaRectangle view_layout;
+  MtkRectangle view_layout;
   graphene_rect_t view_rect;
   MetaCursorSprite *cursor_sprite;
 
@@ -478,7 +478,7 @@ meta_screen_cast_virtual_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc
     meta_backend_get_cursor_tracker (backend);
   MetaCursorSprite *cursor_sprite;
   ClutterStageView *stage_view;
-  MetaRectangle view_layout;
+  MtkRectangle view_layout;
   float view_scale;
   graphene_rect_t view_rect;
   graphene_point_t cursor_position;

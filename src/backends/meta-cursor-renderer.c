@@ -173,7 +173,7 @@ meta_cursor_renderer_after_paint (ClutterStage       *stage,
   if (priv->displayed_cursor && priv->needs_overlay)
     {
       graphene_rect_t rect;
-      MetaRectangle view_layout;
+      MtkRectangle view_layout;
       graphene_rect_t view_rect;
 
       rect = meta_cursor_renderer_calculate_rect (renderer,

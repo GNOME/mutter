@@ -38,7 +38,7 @@ MetaWindow * meta_window_wayland_new       (MetaDisplay        *display,
                                             MetaWaylandSurface *surface);
 
 void meta_window_wayland_finish_move_resize (MetaWindow              *window,
-                                             MetaRectangle            new_geom,
+                                             MtkRectangle             new_geom,
                                              MetaWaylandSurfaceState *pending);
 
 int meta_window_wayland_get_geometry_scale (MetaWindow *window);

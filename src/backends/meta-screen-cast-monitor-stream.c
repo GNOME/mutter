@@ -165,7 +165,7 @@ meta_screen_cast_monitor_stream_set_parameters (MetaScreenCastStream *stream,
 {
   MetaScreenCastMonitorStream *monitor_stream =
     META_SCREEN_CAST_MONITOR_STREAM (stream);
-  MetaRectangle logical_monitor_layout;
+  MtkRectangle logical_monitor_layout;
   const char *output_name;
 
   logical_monitor_layout =
@@ -197,7 +197,7 @@ meta_screen_cast_monitor_stream_transform_position (MetaScreenCastStream *stream
   MetaScreenCastMonitorStream *monitor_stream =
     META_SCREEN_CAST_MONITOR_STREAM (stream);
   MetaBackend *backend = meta_monitor_get_backend (monitor_stream->monitor);
-  MetaRectangle logical_monitor_layout;
+  MtkRectangle logical_monitor_layout;
   double scale;
 
   logical_monitor_layout =

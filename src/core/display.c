@@ -456,7 +456,7 @@ meta_display_class_init (MetaDisplayClass *klass)
                   g_signal_accumulator_true_handled,
                   NULL, NULL,
                   G_TYPE_BOOLEAN, 4,
-                  G_TYPE_BOOLEAN, META_TYPE_RECTANGLE, G_TYPE_INT, G_TYPE_INT);
+                  G_TYPE_BOOLEAN, MTK_TYPE_RECTANGLE, G_TYPE_INT, G_TYPE_INT);
 
   display_signals[GL_VIDEO_MEMORY_PURGED] =
     g_signal_new ("gl-video-memory-purged",
@@ -2703,11 +2703,11 @@ meta_display_request_restart (MetaDisplay *display)
 }
 
 gboolean
-meta_display_show_resize_popup (MetaDisplay *display,
-                                gboolean show,
-                                MetaRectangle *rect,
-                                int display_w,
-                                int display_h)
+meta_display_show_resize_popup (MetaDisplay  *display,
+                                gboolean      show,
+                                MtkRectangle *rect,
+                                int           display_w,
+                                int           display_h)
 {
   gboolean result = FALSE;
 
@@ -3234,7 +3234,7 @@ check_fullscreen_func (gpointer data)
 
       if (covers_monitors)
         {
-          MetaRectangle window_rect;
+          MtkRectangle window_rect;
 
           meta_window_get_frame_rect (window, &window_rect);
 
@@ -3300,8 +3300,8 @@ meta_display_queue_check_fullscreen (MetaDisplay *display)
 }
 
 int
-meta_display_get_monitor_index_for_rect (MetaDisplay   *display,
-                                         MetaRectangle *rect)
+meta_display_get_monitor_index_for_rect (MetaDisplay  *display,
+                                         MtkRectangle *rect)
 {
   MetaBackend *backend = backend_from_display (display);
   MetaMonitorManager *monitor_manager =
@@ -3414,9 +3414,9 @@ meta_display_get_primary_monitor (MetaDisplay *display)
  * Stores the location and size of the indicated @monitor in @geometry.
  */
 void
-meta_display_get_monitor_geometry (MetaDisplay   *display,
-                                   int            monitor,
-                                   MetaRectangle *geometry)
+meta_display_get_monitor_geometry (MetaDisplay  *display,
+                                   int           monitor,
+                                   MtkRectangle *geometry)
 {
   MetaBackend *backend = backend_from_display (display);
   MetaMonitorManager *monitor_manager =

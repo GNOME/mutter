@@ -290,10 +290,10 @@ MetaLogicalMonitor *meta_monitor_manager_get_logical_monitor_at (MetaMonitorMana
                                                                  float               y);
 
 MetaLogicalMonitor *meta_monitor_manager_get_logical_monitor_from_rect (MetaMonitorManager *manager,
-                                                                        MetaRectangle      *rect);
+                                                                        MtkRectangle       *rect);
 
 MetaLogicalMonitor *meta_monitor_manager_get_highest_scale_monitor_from_rect (MetaMonitorManager *manager,
-                                                                              MetaRectangle      *rect);
+                                                                              MtkRectangle       *rect);
 
 MetaLogicalMonitor *meta_monitor_manager_get_logical_monitor_neighbor (MetaMonitorManager  *manager,
                                                                        MetaLogicalMonitor  *logical_monitor,

@@ -104,11 +104,11 @@ meta_window_xwayland_init (MetaWindowXwayland *window_xwayland)
  *    resolution sized window cover the full actual monitor resolution.
  */
 static void
-meta_window_xwayland_adjust_fullscreen_monitor_rect (MetaWindow    *window,
-                                                     MetaRectangle *fs_monitor_rect)
+meta_window_xwayland_adjust_fullscreen_monitor_rect (MetaWindow   *window,
+                                                     MtkRectangle *fs_monitor_rect)
 {
   MetaX11Display *x11_display = window->display->x11_display;
-  MetaRectangle win_monitor_rect;
+  MtkRectangle win_monitor_rect;
   MtkRectangle *rects;
   uint32_t *list = NULL;
   int i, n_items = 0;

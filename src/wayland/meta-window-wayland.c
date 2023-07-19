@@ -66,7 +66,7 @@ struct _MetaWindowWayland
   gboolean has_pending_state_change;
 
   gboolean has_last_sent_configuration;
-  MetaRectangle last_sent_rect;
+  MtkRectangle last_sent_rect;
   int last_sent_rel_x;
   int last_sent_rel_y;
   int last_sent_geometry_scale;
@@ -254,9 +254,9 @@ meta_window_wayland_grab_op_ended (MetaWindow *window,
 static void
 meta_window_wayland_move_resize_internal (MetaWindow                *window,
                                           MetaGravity                gravity,
-                                          MetaRectangle              unconstrained_rect,
-                                          MetaRectangle              constrained_rect,
-                                          MetaRectangle              temporary_rect,
+                                          MtkRectangle               unconstrained_rect,
+                                          MtkRectangle               constrained_rect,
+                                          MtkRectangle               temporary_rect,
                                           int                        rel_x,
                                           int                        rel_y,
                                           MetaMoveResizeFlags        flags,
@@ -264,7 +264,7 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
 {
   MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
   gboolean can_move_now = FALSE;
-  MetaRectangle configured_rect;
+  MtkRectangle configured_rect;
   int geometry_scale;
   int new_x;
   int new_y;
@@ -498,7 +498,7 @@ scale_size (int  *width,
 }
 
 static void
-scale_rect_size (MetaRectangle *rect,
+scale_rect_size (MtkRectangle  *rect,
                  float          scale)
 {
   scale_size (&rect->width, &rect->height, scale);
@@ -520,7 +520,7 @@ meta_window_wayland_update_main_monitor (MetaWindow                   *window,
   MetaLogicalMonitor *scaled_new;
   float from_scale, to_scale;
   float scale;
-  MetaRectangle rect;
+  MtkRectangle rect;
 
   from = window->monitor;
 
@@ -1091,8 +1091,8 @@ meta_window_wayland_get_geometry_scale (MetaWindow *window)
 
 static void
 calculate_position (MetaWaylandWindowConfiguration *configuration,
-                    MetaRectangle                  *geometry,
-                    MetaRectangle                  *rect)
+                    MtkRectangle                   *geometry,
+                    MtkRectangle                   *rect)
 {
   int offset_x;
   int offset_y;
@@ -1128,7 +1128,7 @@ calculate_position (MetaWaylandWindowConfiguration *configuration,
  */
 void
 meta_window_wayland_finish_move_resize (MetaWindow              *window,
-                                        MetaRectangle            new_geom,
+                                        MtkRectangle             new_geom,
                                         MetaWaylandSurfaceState *pending)
 {
   MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
@@ -1137,7 +1137,7 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
   int dx, dy;
   int geometry_scale;
   MetaGravity gravity;
-  MetaRectangle rect;
+  MtkRectangle rect;
   MetaMoveResizeFlags flags;
   MetaWaylandWindowConfiguration *acked_configuration;
   gboolean is_window_being_resized;
@@ -1194,7 +1194,7 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
      meta_grab_op_is_resizing (meta_window_drag_get_grab_op (window_drag)) &&
      meta_window_drag_get_window (window_drag) == window);
 
-  rect = (MetaRectangle) {
+  rect = (MtkRectangle) {
     .x = window->rect.x,
     .y = window->rect.y,
     .width = new_geom.width,

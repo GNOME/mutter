@@ -966,7 +966,7 @@ set_workspace_work_area_hint (MetaWorkspace  *workspace,
 
   for (l = logical_monitors; l; l = l->next)
     {
-      MetaRectangle area;
+      MtkRectangle area;
 
       meta_workspace_get_work_area_for_logical_monitor (workspace, l->data, &area);
 
@@ -1002,7 +1002,7 @@ set_work_area_hint (MetaDisplay    *display,
   int num_workspaces;
   GList *l;
   unsigned long *data, *tmp;
-  MetaRectangle area;
+  MtkRectangle area;
 
   num_workspaces = meta_workspace_manager_get_n_workspaces (workspace_manager);
   data = g_new (unsigned long, num_workspaces * 4);

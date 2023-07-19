@@ -165,12 +165,12 @@ points_on_same_side (int ref, int pt1, int pt2)
 }
 
 static int
-find_nearest_position (const GArray        *edges,
-                       int                  position,
-                       int                  old_position,
-                       const MetaRectangle *new_rect,
-                       gboolean             horizontal,
-                       gboolean             only_forward)
+find_nearest_position (const GArray       *edges,
+                       int                 position,
+                       int                 old_position,
+                       const MtkRectangle *new_rect,
+                       gboolean            horizontal,
+                       gboolean            only_forward)
 {
   /* This is basically just a binary search except that we're looking
    * for the value closest to position, rather than finding that
@@ -300,15 +300,15 @@ movement_towards_edge (MetaSide side, int increment)
 }
 
 static int
-apply_edge_resistance (MetaWindow                *window,
-                       int                        old_pos,
-                       int                        new_pos,
-                       const MetaRectangle       *old_rect,
-                       const MetaRectangle       *new_rect,
-                       GArray                    *edges,
-                       gboolean                   xdir,
-                       gboolean                   include_windows,
-                       gboolean                   keyboard_op)
+apply_edge_resistance (MetaWindow         *window,
+                       int                 old_pos,
+                       int                 new_pos,
+                       const MtkRectangle *old_rect,
+                       const MtkRectangle *new_rect,
+                       GArray             *edges,
+                       gboolean            xdir,
+                       gboolean            include_windows,
+                       gboolean            keyboard_op)
 {
   int i, begin, end;
   int last_edge;
@@ -418,7 +418,7 @@ apply_edge_resistance (MetaWindow                *window,
 static int
 apply_edge_snapping (int                  old_pos,
                      int                  new_pos,
-                     const MetaRectangle *new_rect,
+                     const MtkRectangle *new_rect,
                      GArray              *edges,
                      gboolean             xdir,
                      gboolean             keyboard_op)
@@ -460,12 +460,12 @@ apply_edge_snapping (int                  old_pos,
 static gboolean
 apply_edge_resistance_to_each_side (MetaEdgeResistanceData  *edge_data,
                                     MetaWindow              *window,
-                                    const MetaRectangle     *old_outer,
-                                    MetaRectangle           *new_outer,
+                                    const MtkRectangle      *old_outer,
+                                    MtkRectangle            *new_outer,
                                     MetaEdgeResistanceFlags  flags,
                                     gboolean                 is_resize)
 {
-  MetaRectangle modified_rect;
+  MtkRectangle modified_rect;
   gboolean modified;
   int new_left, new_right, new_top, new_bottom;
   gboolean auto_snap, keyboard_op;
@@ -510,7 +510,7 @@ apply_edge_resistance_to_each_side (MetaEdgeResistanceData  *edge_data,
     }
   else if (auto_snap && META_WINDOW_TILED_SIDE_BY_SIDE (window))
     {
-      MetaRectangle workarea;
+      MtkRectangle workarea;
       guint i;
 
       const gfloat tile_edges[] =
@@ -918,8 +918,8 @@ compute_resistance_and_snapping_edges (MetaWindowDrag *window_drag)
       MetaWindow *cur_window = cur_window_iter->data;
       if (WINDOW_EDGES_RELEVANT (cur_window, display))
         {
-          MetaRectangle *new_rect;
-          new_rect = g_new (MetaRectangle, 1);
+          MtkRectangle *new_rect;
+          new_rect = g_new (MtkRectangle, 1);
           meta_window_get_frame_rect (cur_window, new_rect);
           obscuring_windows = g_slist_prepend (obscuring_windows, new_rect);
           window_stacking =
@@ -943,7 +943,7 @@ compute_resistance_and_snapping_edges (MetaWindowDrag *window_drag)
   cur_window_iter = stacked_windows;
   while (cur_window_iter != NULL)
     {
-      MetaRectangle  cur_rect;
+      MtkRectangle  cur_rect;
       MetaWindow    *cur_window = cur_window_iter->data;
       meta_window_get_frame_rect (cur_window, &cur_rect);
 
@@ -956,8 +956,8 @@ compute_resistance_and_snapping_edges (MetaWindowDrag *window_drag)
         {
           GList *new_edges;
           MetaEdge *new_edge;
-          MetaRectangle display_rect = { 0 };
-          MetaRectangle reduced;
+          MtkRectangle display_rect = { 0 };
+          MtkRectangle reduced;
 
           meta_display_get_size (display,
                                  &display_rect.width, &display_rect.height);
@@ -1098,7 +1098,7 @@ meta_window_drag_edge_resistance_for_move (MetaWindowDrag          *window_drag,
                                            MetaEdgeResistanceFlags  flags)
 {
   MetaEdgeResistanceData *edge_data;
-  MetaRectangle old_outer, proposed_outer, new_outer;
+  MtkRectangle old_outer, proposed_outer, new_outer;
   gboolean is_resize, is_keyboard_op, snap;
   MetaWindow *window;
 
@@ -1130,7 +1130,7 @@ meta_window_drag_edge_resistance_for_move (MetaWindowDrag          *window_drag,
        * just have both edges move according to the stricter of the
        * resistances.  Same thing goes for top & bottom edges.
        */
-      MetaRectangle *reference;
+      MtkRectangle *reference;
       int left_change, right_change, smaller_x_change;
       int top_change, bottom_change, smaller_y_change;
 
@@ -1181,7 +1181,7 @@ meta_window_drag_edge_resistance_for_resize (MetaWindowDrag          *window_dra
                                              MetaEdgeResistanceFlags  flags)
 {
   MetaEdgeResistanceData *edge_data;
-  MetaRectangle old_outer, new_outer;
+  MtkRectangle old_outer, new_outer;
   int proposed_outer_width, proposed_outer_height;
   MetaWindow *window;
 

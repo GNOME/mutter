@@ -241,7 +241,7 @@ meta_screen_cast_stream_src_get_specs (MetaScreenCastStreamSrc *src,
 
 static gboolean
 meta_screen_cast_stream_src_get_videocrop (MetaScreenCastStreamSrc *src,
-                                           MetaRectangle           *crop_rect)
+                                           MtkRectangle            *crop_rect)
 {
   MetaScreenCastStreamSrcClass *klass =
     META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
@@ -746,7 +746,7 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
     meta_screen_cast_stream_src_get_instance_private (src);
   MetaScreenCastRecordResult record_result =
      META_SCREEN_CAST_RECORD_RESULT_RECORDED_NOTHING;
-  MetaRectangle crop_rect;
+  MtkRectangle crop_rect;
   struct pw_buffer *buffer;
   struct spa_buffer *spa_buffer;
   struct spa_meta_header *header;

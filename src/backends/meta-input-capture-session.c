@@ -617,7 +617,7 @@ typedef enum
 } LineAdjacency;
 
 static LineAdjacency
-get_barrier_adjacency (MetaRectangle  *rect,
+get_barrier_adjacency (MtkRectangle   *rect,
                        int             x1,
                        int             y1,
                        int             x2,
@@ -719,7 +719,7 @@ check_barrier (MetaInputCaptureSession  *session,
   for (l = logical_monitors; l; l = l->next)
     {
       MetaLogicalMonitor *logical_monitor = l->data;
-      MetaRectangle layout;
+      MtkRectangle layout;
 
       layout = meta_logical_monitor_get_layout (logical_monitor);
       switch (get_barrier_adjacency (&layout, x1, y1, x2, y2, error))
@@ -877,7 +877,7 @@ handle_get_zones (MetaDBusInputCaptureSession *object,
   for (l = logical_monitors; l; l = l->next)
     {
       MetaLogicalMonitor *logical_monitor = l->data;
-      MetaRectangle layout;
+      MtkRectangle layout;
 
       layout = meta_logical_monitor_get_layout (logical_monitor);
       g_variant_builder_add (&zones_builder, "(uuii)",

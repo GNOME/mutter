@@ -620,11 +620,11 @@ meta_compositor_hide_window (MetaCompositor *compositor,
 }
 
 void
-meta_compositor_size_change_window (MetaCompositor    *compositor,
-                                    MetaWindow        *window,
-                                    MetaSizeChange     which_change,
-                                    MetaRectangle     *old_frame_rect,
-                                    MetaRectangle     *old_buffer_rect)
+meta_compositor_size_change_window (MetaCompositor *compositor,
+                                    MetaWindow     *window,
+                                    MetaSizeChange  which_change,
+                                    MtkRectangle   *old_frame_rect,
+                                    MtkRectangle   *old_buffer_rect)
 {
   MetaWindowActor *window_actor = meta_window_actor_from_window (window);
 
@@ -769,8 +769,8 @@ update_top_window_actor (MetaCompositor *compositor)
     {
       MetaWindowActor *window_actor = l->data;
       MetaWindow *window = meta_window_actor_get_meta_window (window_actor);
-      MetaRectangle buffer_rect;
-      MetaRectangle display_rect = { 0 };
+      MtkRectangle buffer_rect;
+      MtkRectangle display_rect = { 0 };
 
       if (!window->visible_to_compositor)
         continue;
@@ -1515,7 +1515,7 @@ meta_compositor_monotonic_to_high_res_xserver_time (MetaCompositor *compositor,
 void
 meta_compositor_show_tile_preview (MetaCompositor *compositor,
                                    MetaWindow     *window,
-                                   MetaRectangle  *tile_rect,
+                                   MtkRectangle   *tile_rect,
                                    int             tile_monitor_number)
 {
   MetaCompositorPrivate *priv =

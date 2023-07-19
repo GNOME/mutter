@@ -81,7 +81,7 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
   CoglFramebuffer *framebuffer;
   MetaWindowActor *window_actor;
   MetaWindow *window;
-  MetaRectangle view_rect;
+  MtkRectangle view_rect;
   ClutterActorBox actor_box;
   MetaSurfaceActor *surface_actor;
   MetaSurfaceActorWayland *surface_actor_wayland;

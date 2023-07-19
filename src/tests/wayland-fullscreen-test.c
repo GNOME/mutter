@@ -105,7 +105,7 @@ wait_for_window_added (MetaWindow *window)
 static void
 toplevel_fullscreen (void)
 {
-  MetaRectangle rect;
+  MtkRectangle rect;
 
   wait_for_first_frame (test_window);
 
@@ -121,7 +121,7 @@ static void
 toplevel_fullscreen_ref_test (void)
 {
   MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (test_window);
-  MetaRectangle rect;
+  MtkRectangle rect;
 
   wait_for_window_added (test_window);
   assert_wayland_surface_size (test_window, 10, 10);

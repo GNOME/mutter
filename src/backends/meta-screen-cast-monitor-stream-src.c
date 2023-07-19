@@ -226,7 +226,7 @@ is_cursor_in_stream (MetaScreenCastMonitorStreamSrc *monitor_src)
     meta_backend_get_cursor_renderer (backend);
   MetaMonitor *monitor;
   MetaLogicalMonitor *logical_monitor;
-  MetaRectangle logical_monitor_layout;
+  MtkRectangle logical_monitor_layout;
   graphene_rect_t logical_monitor_rect;
   MetaCursorSprite *cursor_sprite;
 
@@ -364,7 +364,7 @@ add_view_watches (MetaScreenCastMonitorStreamSrc *monitor_src,
   MetaStage *meta_stage;
   MetaMonitor *monitor;
   MetaLogicalMonitor *logical_monitor;
-  MetaRectangle logical_monitor_layout;
+  MtkRectangle logical_monitor_layout;
   GList *l;
 
   stage = get_stage (monitor_src);
@@ -376,7 +376,7 @@ add_view_watches (MetaScreenCastMonitorStreamSrc *monitor_src,
   for (l = meta_renderer_get_views (renderer); l; l = l->next)
     {
       MetaRendererView *view = l->data;
-      MetaRectangle view_layout;
+      MtkRectangle view_layout;
 
       clutter_stage_view_get_layout (CLUTTER_STAGE_VIEW (view), &view_layout);
       if (mtk_rectangle_overlap (&logical_monitor_layout, &view_layout))
@@ -590,7 +590,7 @@ meta_screen_cast_monitor_stream_src_record_to_framebuffer (MetaScreenCastStreamS
   ClutterStage *stage = get_stage (monitor_src);
   MetaMonitor *monitor;
   MetaLogicalMonitor *logical_monitor;
-  MetaRectangle logical_monitor_layout;
+  MtkRectangle logical_monitor_layout;
   float view_scale;
   ClutterPaintFlag paint_flags = CLUTTER_PAINT_FLAG_CLEAR;
 
@@ -635,7 +635,7 @@ meta_screen_cast_monitor_stream_record_follow_up (MetaScreenCastStreamSrc *src)
   ClutterStage *stage = get_stage (monitor_src);
   MetaMonitor *monitor;
   MetaLogicalMonitor *logical_monitor;
-  MetaRectangle logical_monitor_layout;
+  MtkRectangle logical_monitor_layout;
   GList *l;
 
   g_clear_handle_id (&monitor_src->maybe_record_idle_id, g_source_remove);
@@ -647,8 +647,8 @@ meta_screen_cast_monitor_stream_record_follow_up (MetaScreenCastStreamSrc *src)
   for (l = meta_renderer_get_views (renderer); l; l = l->next)
     {
       MetaRendererView *view = l->data;
-      MetaRectangle view_layout;
-      MetaRectangle damage;
+      MtkRectangle view_layout;
+      MtkRectangle damage;
 
       clutter_stage_view_get_layout (CLUTTER_STAGE_VIEW (view), &view_layout);
 
@@ -679,7 +679,7 @@ meta_screen_cast_monitor_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc
   MetaCursorSprite *cursor_sprite;
   MetaMonitor *monitor;
   MetaLogicalMonitor *logical_monitor;
-  MetaRectangle logical_monitor_layout;
+  MtkRectangle logical_monitor_layout;
   graphene_rect_t logical_monitor_rect;
   float view_scale;
   graphene_point_t cursor_position;

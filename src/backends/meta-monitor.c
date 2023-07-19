@@ -452,8 +452,8 @@ meta_monitor_get_current_resolution (MetaMonitor *monitor,
 }
 
 void
-meta_monitor_derive_layout (MetaMonitor   *monitor,
-                            MetaRectangle *layout)
+meta_monitor_derive_layout (MetaMonitor  *monitor,
+                            MtkRectangle *layout)
 {
   META_MONITOR_GET_CLASS (monitor)->derive_layout (monitor, layout);
 }
@@ -843,8 +843,8 @@ meta_monitor_normal_get_main_output (MetaMonitor *monitor)
 }
 
 static void
-meta_monitor_normal_derive_layout (MetaMonitor   *monitor,
-                                   MetaRectangle *layout)
+meta_monitor_normal_derive_layout (MetaMonitor  *monitor,
+                                   MtkRectangle *layout)
 {
   MetaOutput *output;
   MetaCrtc *crtc;
@@ -1540,8 +1540,8 @@ meta_monitor_tiled_get_main_output (MetaMonitor *monitor)
 }
 
 static void
-meta_monitor_tiled_derive_layout (MetaMonitor   *monitor,
-                                  MetaRectangle *layout)
+meta_monitor_tiled_derive_layout (MetaMonitor  *monitor,
+                                  MtkRectangle *layout)
 {
   MetaMonitorPrivate *monitor_priv =
     meta_monitor_get_instance_private (monitor);
@@ -1574,7 +1574,7 @@ meta_monitor_tiled_derive_layout (MetaMonitor   *monitor,
       max_y = MAX (crtc_layout->origin.y + crtc_layout->size.height, max_y);
     }
 
-  *layout = (MetaRectangle) {
+  *layout = (MtkRectangle) {
     .x = roundf (min_x),
     .y = roundf (min_y),
     .width = roundf (max_x - min_x),

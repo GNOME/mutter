@@ -73,8 +73,8 @@ meta_stage_native_can_clip_redraws (ClutterStageWindow *stage_window)
 }
 
 static void
-meta_stage_native_get_geometry (ClutterStageWindow    *stage_window,
-                                MtkRectangle          *geometry)
+meta_stage_native_get_geometry (ClutterStageWindow *stage_window,
+                                MtkRectangle       *geometry)
 {
   MetaStageImpl *stage_impl = META_STAGE_IMPL (stage_window);
   MetaBackend *backend = meta_stage_impl_get_backend (stage_impl);

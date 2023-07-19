@@ -31,7 +31,7 @@ G_DECLARE_FINAL_TYPE (MetaScreenCastAreaStream,
 
 MetaScreenCastAreaStream * meta_screen_cast_area_stream_new (MetaScreenCastSession     *session,
                                                              GDBusConnection           *connection,
-                                                             MetaRectangle             *area,
+                                                             MtkRectangle              *area,
                                                              ClutterStage              *stage,
                                                              MetaScreenCastCursorMode   cursor_mode,
                                                              MetaScreenCastFlag         flags,
@@ -39,6 +39,6 @@ MetaScreenCastAreaStream * meta_screen_cast_area_stream_new (MetaScreenCastSessi
 
 ClutterStage * meta_screen_cast_area_stream_get_stage (MetaScreenCastAreaStream *area_stream);
 
-MetaRectangle * meta_screen_cast_area_stream_get_area (MetaScreenCastAreaStream *area_stream);
+MtkRectangle * meta_screen_cast_area_stream_get_area (MetaScreenCastAreaStream *area_stream);
 
 float meta_screen_cast_area_stream_get_scale (MetaScreenCastAreaStream *area_stream);

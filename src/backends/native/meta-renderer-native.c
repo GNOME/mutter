@@ -1103,7 +1103,7 @@ meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native)
             META_ONSCREEN_NATIVE (framebuffer);
           MetaCrtc *crtc;
           MetaKmsCrtc *kms_crtc;
-          MetaRectangle view_layout;
+          MtkRectangle view_layout;
           float view_scale;
           MetaKmsCrtcLayout crtc_layout;
 
@@ -1320,7 +1320,7 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
   float scale;
   int onscreen_width;
   int onscreen_height;
-  MetaRectangle view_layout;
+  MtkRectangle view_layout;
   MetaRendererViewNative *view_native;
   EGLSurface egl_surface;
   GError *error = NULL;

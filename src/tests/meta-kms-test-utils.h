@@ -38,4 +38,4 @@ MetaDrmBuffer * meta_create_test_mode_dumb_buffer (MetaKmsDevice *device,
 
 MetaFixed16Rectangle meta_get_mode_fixed_rect_16 (MetaKmsMode *mode);
 
-MetaRectangle meta_get_mode_rect (MetaKmsMode *mode);
+MtkRectangle meta_get_mode_rect (MetaKmsMode *mode);

@@ -132,7 +132,7 @@ derive_monitor_transform (MetaMonitor *monitor)
 MetaLogicalMonitor *
 meta_logical_monitor_new_derived (MetaMonitorManager *monitor_manager,
                                   MetaMonitor        *monitor,
-                                  MetaRectangle      *layout,
+                                  MtkRectangle       *layout,
                                   float               scale,
                                   int                 monitor_number)
 {
@@ -214,7 +214,7 @@ meta_logical_monitor_get_transform (MetaLogicalMonitor *logical_monitor)
   return logical_monitor->transform;
 }
 
-MetaRectangle
+MtkRectangle
 meta_logical_monitor_get_layout (MetaLogicalMonitor *logical_monitor)
 {
   return logical_monitor->rect;

@@ -350,7 +350,7 @@ test_case_assert_size (TestCase    *test,
                        int          expected_height,
                        GError     **error)
 {
-  MetaRectangle frame_rect;
+  MtkRectangle frame_rect;
 
   meta_window_get_frame_rect (window, &frame_rect);
 
@@ -449,7 +449,7 @@ parse_window_size (MetaWindow *window,
                    const char *size_str)
 {
   MetaLogicalMonitor *logical_monitor;
-  MetaRectangle logical_monitor_layout;
+  MtkRectangle logical_monitor_layout;
   int value;
 
   logical_monitor = meta_window_find_monitor_from_frame_rect (window);
@@ -889,7 +889,7 @@ test_case_do (TestCase    *test,
       MetaDisplay *display = meta_context_get_display (test->context);
       MetaWorkspaceManager *workspace_manager =
         meta_display_get_workspace_manager (display);
-      MetaRectangle rect = { x, y, width, height };
+      MtkRectangle rect = { x, y, width, height };
       MetaStrut strut = { rect, side };
       GSList *struts = g_slist_append (NULL, &strut);
       GList *workspaces =
@@ -999,7 +999,7 @@ test_case_do (TestCase    *test,
       if (!window)
         return FALSE;
 
-      MetaRectangle frame_rect;
+      MtkRectangle frame_rect;
       meta_window_get_frame_rect (window, &frame_rect);
       int x = atoi (argv[2]);
       int y = atoi (argv[3]);

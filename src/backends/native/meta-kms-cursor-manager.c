@@ -371,7 +371,7 @@ maybe_update_cursor_plane (MetaKmsCursorManagerImpl  *cursor_manager_impl,
     {
       int width, height;
       MetaFixed16Rectangle src_rect;
-      MetaRectangle dst_rect;
+      MtkRectangle dst_rect;
       MetaKmsAssignPlaneFlag assign_plane_flags =
         META_KMS_ASSIGN_PLANE_FLAG_NONE;
       MetaKmsPlaneAssignment *plane_assignment;
@@ -395,7 +395,7 @@ maybe_update_cursor_plane (MetaKmsCursorManagerImpl  *cursor_manager_impl,
         .width = meta_fixed_16_from_int (width),
         .height = meta_fixed_16_from_int (height),
       };
-      dst_rect = (MetaRectangle) {
+      dst_rect = (MtkRectangle) {
         .x = round (cursor_rect.origin.x),
         .y = round (cursor_rect.origin.y),
         .width = round (cursor_rect.size.width),

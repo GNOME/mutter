@@ -68,7 +68,7 @@ struct _MetaWindowX11Private
 
   /* These are in server coordinates. If we have a frame, it's
    * relative to the frame. */
-  MetaRectangle client_rect;
+  MtkRectangle client_rect;
 
   MetaIconCache icon_cache;
   Pixmap wm_hints_pixmap;

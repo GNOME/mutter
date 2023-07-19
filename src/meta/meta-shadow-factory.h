@@ -116,12 +116,12 @@ void        meta_shadow_paint       (MetaShadow            *shadow,
                                      gboolean               clip_strictly);
 
 META_EXPORT
-void        meta_shadow_get_bounds  (MetaShadow            *shadow,
-                                     int                    window_x,
-                                     int                    window_y,
-                                     int                    window_width,
-                                     int                    window_height,
-                                     MtkRectangle          *bounds);
+void        meta_shadow_get_bounds  (MetaShadow   *shadow,
+                                     int           window_x,
+                                     int           window_y,
+                                     int           window_width,
+                                     int           window_height,
+                                     MtkRectangle *bounds);
 
 META_EXPORT
 MetaShadowFactory *meta_shadow_factory_new (void);

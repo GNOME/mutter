@@ -269,7 +269,7 @@ meta_kms_update_assign_plane (MetaKmsUpdate          *update,
                               MetaKmsPlane           *plane,
                               MetaDrmBuffer          *buffer,
                               MetaFixed16Rectangle    src_rect,
-                              MetaRectangle           dst_rect,
+                              MtkRectangle            dst_rect,
                               MetaKmsAssignPlaneFlag  flags)
 {
   MetaKmsPlaneAssignment *plane_assignment;

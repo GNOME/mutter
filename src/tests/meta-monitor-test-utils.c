@@ -208,7 +208,7 @@ check_current_monitor_mode (MetaMonitor         *monitor,
 
 static MetaLogicalMonitor *
 logical_monitor_from_layout (MetaMonitorManager *monitor_manager,
-                             MetaRectangle      *layout)
+                             MtkRectangle       *layout)
 {
   GList *l;
 

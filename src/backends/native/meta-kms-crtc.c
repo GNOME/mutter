@@ -247,7 +247,7 @@ meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
                                           crtc->prop_table.props,
                                           META_KMS_CRTC_N_PROPS);
 
-  crtc_state.rect = (MetaRectangle) {
+  crtc_state.rect = (MtkRectangle) {
     .x = drm_crtc->x,
     .y = drm_crtc->y,
     .width = drm_crtc->width,
@@ -311,7 +311,7 @@ meta_kms_crtc_update_state_in_impl (MetaKmsCrtc *crtc)
   if (!drm_crtc || !drm_props)
     {
       crtc->current_state.is_active = FALSE;
-      crtc->current_state.rect = (MetaRectangle) { };
+      crtc->current_state.rect = (MtkRectangle) { };
       crtc->current_state.is_drm_mode_valid = FALSE;
       changes = META_KMS_RESOURCE_CHANGE_FULL;
       goto out;
@@ -330,7 +330,7 @@ void
 meta_kms_crtc_disable_in_impl (MetaKmsCrtc *crtc)
 {
   crtc->current_state.is_active = FALSE;
-  crtc->current_state.rect = (MetaRectangle) { 0 };
+  crtc->current_state.rect = (MtkRectangle) { 0 };
   crtc->current_state.is_drm_mode_valid = FALSE;
   crtc->current_state.drm_mode = (drmModeModeInfo) { 0 };
 }
@@ -369,7 +369,7 @@ meta_kms_crtc_predict_state_in_impl (MetaKmsCrtc   *crtc,
       else
         {
           crtc->current_state.is_active = FALSE;
-          crtc->current_state.rect = (MetaRectangle) { 0 };
+          crtc->current_state.rect = (MtkRectangle) { 0 };
           crtc->current_state.is_drm_mode_valid = FALSE;
           crtc->current_state.drm_mode = (drmModeModeInfo) { 0 };
         }

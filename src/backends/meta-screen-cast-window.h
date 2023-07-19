@@ -35,7 +35,7 @@ struct _MetaScreenCastWindowInterface
   GTypeInterface parent_iface;
 
   void (*get_buffer_bounds) (MetaScreenCastWindow *screen_cast_window,
-                             MetaRectangle        *bounds);
+                             MtkRectangle         *bounds);
 
   void (*transform_relative_position) (MetaScreenCastWindow *screen_cast_window,
                                        double                x,
@@ -51,11 +51,11 @@ struct _MetaScreenCastWindowInterface
                                          graphene_point_t     *out_relative_cursor_position);
 
   void (*capture_into) (MetaScreenCastWindow *screen_cast_window,
-                        MetaRectangle        *bounds,
+                        MtkRectangle         *bounds,
                         uint8_t              *data);
 
   gboolean (*blit_to_framebuffer) (MetaScreenCastWindow *screen_cast_window,
-                                   MetaRectangle        *bounds,
+                                   MtkRectangle         *bounds,
                                    CoglFramebuffer      *framebuffer);
 
   gboolean (*has_damage) (MetaScreenCastWindow *screen_cast_window);
@@ -65,7 +65,7 @@ struct _MetaScreenCastWindowInterface
 };
 
 void meta_screen_cast_window_get_buffer_bounds (MetaScreenCastWindow *screen_cast_window,
-                                                MetaRectangle        *bounds);
+                                                MtkRectangle         *bounds);
 
 void meta_screen_cast_window_transform_relative_position (MetaScreenCastWindow *screen_cast_window,
                                                           double                x,
@@ -81,11 +81,11 @@ gboolean meta_screen_cast_window_transform_cursor_position (MetaScreenCastWindow
                                                             graphene_point_t     *out_relative_cursor_position);
 
 void meta_screen_cast_window_capture_into (MetaScreenCastWindow *screen_cast_window,
-                                           MetaRectangle        *bounds,
+                                           MtkRectangle         *bounds,
                                            uint8_t              *data);
 
 gboolean meta_screen_cast_window_blit_to_framebuffer (MetaScreenCastWindow *screen_cast_window,
-                                                      MetaRectangle        *bounds,
+                                                      MtkRectangle         *bounds,
                                                       CoglFramebuffer      *framebuffer);
 
 gboolean meta_screen_cast_window_has_damage (MetaScreenCastWindow *screen_cast_window);

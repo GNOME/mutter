@@ -221,7 +221,7 @@ assert_software_rendered (ClutterStageView *stage_view)
 
 static void
 capture_view_into (ClutterStageView *view,
-                   MetaRectangle    *rect,
+                   MtkRectangle     *rect,
                    uint8_t          *buffer,
                    int               stride)
 {
@@ -277,7 +277,7 @@ on_after_paint (MetaStage           *stage,
                 gpointer             user_data)
 {
   CaptureViewData *data = user_data;
-  MetaRectangle rect;
+  MtkRectangle rect;
   float view_scale;
   int texture_width, texture_height;
   cairo_surface_t *image;

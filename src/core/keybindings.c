@@ -2376,8 +2376,8 @@ handle_move_to_corner_backend (MetaDisplay           *display,
                                MetaWindow            *window,
                                MetaGravity            gravity)
 {
-  MetaRectangle work_area;
-  MetaRectangle frame_rect;
+  MtkRectangle work_area;
+  MtkRectangle frame_rect;
   int new_x, new_y;
 
   if (!window->monitor)
@@ -2519,8 +2519,8 @@ handle_move_to_center (MetaDisplay           *display,
                        MetaKeyBinding        *binding,
                        gpointer               user_data)
 {
-  MetaRectangle work_area;
-  MetaRectangle frame_rect;
+  MtkRectangle work_area;
+  MtkRectangle frame_rect;
 
   meta_window_get_work_area_current_monitor (window, &work_area);
   meta_window_get_frame_rect (window, &frame_rect);
@@ -2564,7 +2564,7 @@ handle_activate_window_menu (MetaDisplay           *display,
   if (display->focus_window)
     {
       int x, y;
-      MetaRectangle frame_rect;
+      MtkRectangle frame_rect;
       MtkRectangle child_rect;
 
       meta_window_get_frame_rect (display->focus_window, &frame_rect);
@@ -2926,7 +2926,7 @@ handle_raise_or_lower (MetaDisplay           *display,
 
   while (above)
     {
-      MetaRectangle tmp, win_rect, above_rect;
+      MtkRectangle tmp, win_rect, above_rect;
 
       if (above->mapped && meta_window_should_be_showing (above))
         {

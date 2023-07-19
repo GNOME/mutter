@@ -65,7 +65,7 @@ fractional_scale (void)
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaLogicalMonitor *logical_monitor;
-  MetaRectangle layout;
+  MtkRectangle layout;
 
   wait_for_sync_point (0);
   assert_wayland_surface_size (test_window, 1920, 1080);

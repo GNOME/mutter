@@ -50,8 +50,8 @@ northwest_cmp (gconstpointer a,
 {
   MetaWindow *aw = (gpointer) a;
   MetaWindow *bw = (gpointer) b;
-  MetaRectangle a_frame;
-  MetaRectangle b_frame;
+  MtkRectangle a_frame;
+  MtkRectangle b_frame;
   int from_origin_a;
   int from_origin_b;
   int ax, ay, bx, by;
@@ -82,9 +82,9 @@ northeast_cmp (gconstpointer a,
 {
   MetaWindow *aw = (gpointer) a;
   MetaWindow *bw = (gpointer) b;
-  MetaRectangle *area = user_data;
-  MetaRectangle a_frame;
-  MetaRectangle b_frame;
+  MtkRectangle *area = user_data;
+  MtkRectangle a_frame;
+  MtkRectangle b_frame;
   int from_origin_a;
   int from_origin_b;
   int ax, ay, bx, by;
@@ -123,12 +123,12 @@ find_next_cascade (MetaWindow *window,
   GList *tmp;
   GList *sorted;
   int cascade_origin_x, cascade_x, cascade_y;
-  MetaRectangle titlebar_rect;
+  MtkRectangle titlebar_rect;
   int x_threshold, y_threshold;
-  MetaRectangle frame_rect;
+  MtkRectangle frame_rect;
   int window_width, window_height;
   int cascade_stage;
-  MetaRectangle work_area;
+  MtkRectangle work_area;
   MetaLogicalMonitor *current;
   gboolean ltr = meta_get_locale_direction () == META_LOCALE_DIRECTION_LTR;
 
@@ -177,7 +177,7 @@ find_next_cascade (MetaWindow *window,
   while (tmp != NULL)
     {
       MetaWindow *w;
-      MetaRectangle w_frame_rect;
+      MtkRectangle w_frame_rect;
       int wx, ww, wy;
       gboolean nearby;
 
@@ -272,9 +272,9 @@ find_most_freespace (MetaWindow *window,
   int max_area;
   int max_width, max_height, left, right, top, bottom;
   int left_space, right_space, top_space, bottom_space;
-  MetaRectangle work_area;
-  MetaRectangle avoid;
-  MetaRectangle frame_rect;
+  MtkRectangle work_area;
+  MtkRectangle avoid;
+  MtkRectangle frame_rect;
 
   meta_window_get_work_area_current_monitor (focus_window, &work_area);
   meta_window_get_frame_rect (focus_window, &avoid);
@@ -356,7 +356,7 @@ static gboolean
 window_overlaps_focus_window (MetaWindow *window)
 {
   MetaWindow *focus_window;
-  MetaRectangle window_frame, focus_frame, overlap;
+  MtkRectangle window_frame, focus_frame, overlap;
 
   focus_window = window->display->focus_window;
   if (focus_window == NULL)
@@ -423,17 +423,17 @@ avoid_being_obscured_as_second_modal_dialog (MetaWindow *window,
 }
 
 static gboolean
-rectangle_overlaps_some_window (MetaRectangle *rect,
-                                GList         *windows)
+rectangle_overlaps_some_window (MtkRectangle *rect,
+                                GList        *windows)
 {
   GList *tmp;
-  MetaRectangle dest;
+  MtkRectangle dest;
 
   tmp = windows;
   while (tmp != NULL)
     {
       MetaWindow *other = tmp->data;
-      MetaRectangle other_rect;
+      MtkRectangle other_rect;
 
       switch (other->type)
         {
@@ -474,8 +474,8 @@ leftmost_cmp (gconstpointer a, gconstpointer b)
 {
   MetaWindow *aw = (gpointer) a;
   MetaWindow *bw = (gpointer) b;
-  MetaRectangle a_frame;
-  MetaRectangle b_frame;
+  MtkRectangle a_frame;
+  MtkRectangle b_frame;
   int ax, bx;
 
   meta_window_get_frame_rect (aw, &a_frame);
@@ -503,8 +503,8 @@ topmost_cmp (gconstpointer a, gconstpointer b)
 {
   MetaWindow *aw = (gpointer) a;
   MetaWindow *bw = (gpointer) b;
-  MetaRectangle a_frame;
-  MetaRectangle b_frame;
+  MtkRectangle a_frame;
+  MtkRectangle b_frame;
   int ay, by;
 
   meta_window_get_frame_rect (aw, &a_frame);
@@ -521,8 +521,8 @@ topmost_cmp (gconstpointer a, gconstpointer b)
 }
 
 static void
-center_tile_rect_in_area (MetaRectangle *rect,
-                          MetaRectangle *work_area)
+center_tile_rect_in_area (MtkRectangle *rect,
+                          MtkRectangle *work_area)
 {
   int fluff;
 
@@ -570,8 +570,8 @@ find_first_fit (MetaWindow         *window,
   GList *below_sorted;
   GList *end_sorted;
   GList *tmp;
-  MetaRectangle rect;
-  MetaRectangle work_area;
+  MtkRectangle rect;
+  MtkRectangle work_area;
   gboolean ltr = meta_get_locale_direction () == META_LOCALE_DIRECTION_LTR;
 
   retval = FALSE;
@@ -622,7 +622,7 @@ find_first_fit (MetaWindow         *window,
   while (tmp != NULL)
     {
       MetaWindow *w = tmp->data;
-      MetaRectangle frame_rect;
+      MtkRectangle frame_rect;
 
       meta_window_get_frame_rect (w, &frame_rect);
 
@@ -648,7 +648,7 @@ find_first_fit (MetaWindow         *window,
   while (tmp != NULL)
     {
       MetaWindow *w = tmp->data;
-      MetaRectangle frame_rect;
+      MtkRectangle frame_rect;
 
       meta_window_get_frame_rect (w, &frame_rect);
 
@@ -684,7 +684,7 @@ meta_window_process_placement (MetaWindow        *window,
                                int               *rel_x,
                                int               *rel_y)
 {
-  MetaRectangle anchor_rect;
+  MtkRectangle anchor_rect;
   int window_width, window_height;
   int x, y;
 
@@ -843,7 +843,7 @@ meta_window_place (MetaWindow        *window,
 
       if (parent)
         {
-          MetaRectangle frame_rect, parent_frame_rect;
+          MtkRectangle frame_rect, parent_frame_rect;
 
           meta_window_get_frame_rect (window, &frame_rect);
           meta_window_get_frame_rect (parent, &parent_frame_rect);
@@ -877,8 +877,8 @@ meta_window_place (MetaWindow        *window,
   if (window_place_centered (window))
     {
       /* Center on current monitor */
-      MetaRectangle work_area;
-      MetaRectangle frame_rect;
+      MtkRectangle work_area;
+      MtkRectangle frame_rect;
 
       /* Warning, this function is a round trip! */
       logical_monitor = meta_backend_get_current_logical_monitor (backend);
@@ -933,8 +933,8 @@ meta_window_place (MetaWindow        *window,
   if (window->has_maximize_func && window->decorated &&
       !window->fullscreen)
     {
-      MetaRectangle workarea;
-      MetaRectangle frame_rect;
+      MtkRectangle workarea;
+      MtkRectangle frame_rect;
 
       meta_window_get_work_area_for_logical_monitor (window,
                                                      logical_monitor,

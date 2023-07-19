@@ -520,16 +520,16 @@ get_shadow_params (MetaWindowActorX11 *actor_x11,
 }
 
 static void
-get_shape_bounds (MetaWindowActorX11    *actor_x11,
-                  MtkRectangle          *bounds)
+get_shape_bounds (MetaWindowActorX11 *actor_x11,
+                  MtkRectangle       *bounds)
 {
   cairo_region_get_extents (actor_x11->shape_region, bounds);
 }
 
 static void
-get_shadow_bounds (MetaWindowActorX11    *actor_x11,
-                   gboolean               appears_focused,
-                   MtkRectangle          *bounds)
+get_shadow_bounds (MetaWindowActorX11 *actor_x11,
+                   gboolean            appears_focused,
+                   MtkRectangle       *bounds)
 {
   MetaShadow *shadow;
   MtkRectangle shape_bounds;
@@ -737,9 +737,9 @@ scan_visible_region (guchar         *mask_data,
 }
 
 static void
-get_client_area_rect_from_texture (MetaWindowActorX11    *actor_x11,
-                                   MetaShapedTexture     *shaped_texture,
-                                   MtkRectangle          *client_area)
+get_client_area_rect_from_texture (MetaWindowActorX11 *actor_x11,
+                                   MetaShapedTexture  *shaped_texture,
+                                   MtkRectangle       *client_area)
 {
   MetaWindow *window =
     meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
@@ -753,8 +753,8 @@ get_client_area_rect_from_texture (MetaWindowActorX11    *actor_x11,
 }
 
 static void
-get_client_area_rect (MetaWindowActorX11    *actor_x11,
-                      MtkRectangle          *client_area)
+get_client_area_rect (MetaWindowActorX11 *actor_x11,
+                      MtkRectangle       *client_area)
 {
   MetaSurfaceActor *surface =
     meta_window_actor_get_surface (META_WINDOW_ACTOR (actor_x11));
@@ -1406,8 +1406,8 @@ meta_window_actor_x11_is_single_surface_actor (MetaWindowActor *actor)
 }
 
 static void
-meta_window_actor_x11_sync_geometry (MetaWindowActor     *actor,
-                                     const MetaRectangle *actor_rect)
+meta_window_actor_x11_sync_geometry (MetaWindowActor    *actor,
+                                     const MtkRectangle *actor_rect)
 {
 }
 

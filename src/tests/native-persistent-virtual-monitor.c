@@ -39,7 +39,7 @@ wait_for_paint (gpointer user_data)
   GList *monitors;
   GList *logical_monitors;
   MetaLogicalMonitor *logical_monitor;
-  MetaRectangle layout;
+  MtkRectangle layout;
 
   loop = g_main_loop_new (NULL, FALSE);
   g_signal_connect_swapped (stage, "presented",

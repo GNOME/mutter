@@ -128,7 +128,7 @@ typedef enum _MetaWindowSuspendState
 
 typedef struct _MetaPlacementRule
 {
-  MetaRectangle anchor_rect;
+  MtkRectangle anchor_rect;
   MetaPlacementGravity gravity;
   MetaPlacementAnchor anchor;
   MetaPlacementConstraintAdjustment constraint_adjustment;
@@ -139,7 +139,7 @@ typedef struct _MetaPlacementRule
 
   gboolean is_reactive;
 
-  MetaRectangle parent_rect;
+  MtkRectangle parent_rect;
 } MetaPlacementRule;
 
 typedef enum _MetaPlacementState
@@ -292,20 +292,20 @@ struct _MetaWindow
    * information. */
 
   /* The current window geometry of the window. */
-  MetaRectangle rect;
+  MtkRectangle rect;
 
   /* The geometry to restore when we unmaximize. */
-  MetaRectangle saved_rect;
+  MtkRectangle saved_rect;
 
   /* The geometry to restore when we unfullscreen. */
-  MetaRectangle saved_rect_fullscreen;
+  MtkRectangle saved_rect_fullscreen;
 
   /* This is the geometry the window will have if no constraints have
    * applied. We use this whenever we are moving implicitly (for example,
    * if we move to avoid a panel, we can snap back to this position if
    * the panel moves again).
    */
-  MetaRectangle unconstrained_rect;
+  MtkRectangle unconstrained_rect;
 
   /* The rectangle of the "server-side" geometry of the buffer,
    * in root coordinates.
@@ -316,10 +316,10 @@ struct _MetaWindow
    * surface associated with shell surface (xdg_surface, etc.)
    * The size matches the size surface size as displayed in the stage.
    */
-  MetaRectangle buffer_rect;
+  MtkRectangle buffer_rect;
 
   /* Cached net_wm_icon_geometry */
-  MetaRectangle icon_geometry;
+  MtkRectangle icon_geometry;
 
   /* x/y/w/h here get filled with ConfigureRequest values */
   XSizeHints size_hints;
@@ -571,9 +571,9 @@ struct _MetaWindowClass
   void (*current_workspace_changed) (MetaWindow *window);
   void (*move_resize_internal)   (MetaWindow                *window,
                                   MetaGravity                gravity,
-                                  MetaRectangle              unconstrained_rect,
-                                  MetaRectangle              constrained_rect,
-                                  MetaRectangle              temporary_rect,
+                                  MtkRectangle               unconstrained_rect,
+                                  MtkRectangle               constrained_rect,
+                                  MtkRectangle               temporary_rect,
                                   int                        rel_x,
                                   int                        rel_y,
                                   MetaMoveResizeFlags        flags,
@@ -592,7 +592,7 @@ struct _MetaWindowClass
   void (*main_monitor_changed)   (MetaWindow *window,
                                   const MetaLogicalMonitor *old);
   void (*adjust_fullscreen_monitor_rect) (MetaWindow    *window,
-                                          MetaRectangle *monitor_rect);
+                                          MtkRectangle  *monitor_rect);
   void (*force_restore_shortcuts) (MetaWindow         *window,
                                    ClutterInputDevice *source);
   gboolean (*shortcuts_inhibited) (MetaWindow         *window,
@@ -656,7 +656,7 @@ void        meta_window_restore_tile       (MetaWindow        *window,
                                             int                height);
 void        meta_window_maximize_internal  (MetaWindow        *window,
                                             MetaMaximizeFlags  directions,
-                                            MetaRectangle     *saved_rect);
+                                            MtkRectangle      *saved_rect);
 
 void        meta_window_make_fullscreen_internal (MetaWindow    *window);
 void        meta_window_update_fullscreen_monitors (MetaWindow         *window,
@@ -668,7 +668,7 @@ void        meta_window_update_fullscreen_monitors (MetaWindow         *window,
 gboolean    meta_window_has_fullscreen_monitors (MetaWindow *window);
 
 void        meta_window_adjust_fullscreen_monitor_rect (MetaWindow    *window,
-                                                        MetaRectangle *monitor_rect);
+                                                        MtkRectangle  *monitor_rect);
 
 void        meta_window_resize_frame_with_gravity (MetaWindow  *window,
                                                    gboolean     user_op,
@@ -731,12 +731,12 @@ GList* meta_window_get_workspaces (MetaWindow *window);
 
 void meta_window_get_work_area_for_logical_monitor (MetaWindow         *window,
                                                     MetaLogicalMonitor *logical_monitor,
-                                                    MetaRectangle      *area);
+                                                    MtkRectangle       *area);
 
 int meta_window_get_current_tile_monitor_number (MetaWindow *window);
 void meta_window_get_tile_area                  (MetaWindow    *window,
                                                  MetaTileMode   mode,
-                                                 MetaRectangle *tile_area);
+                                                 MtkRectangle  *tile_area);
 
 
 gboolean meta_window_same_application (MetaWindow *window,
@@ -815,10 +815,10 @@ void meta_window_handle_leave (MetaWindow  *window);
 void meta_window_handle_ungrabbed_event (MetaWindow         *window,
                                          const ClutterEvent *event);
 
-void meta_window_get_client_area_rect (const MetaWindow      *window,
-                                       MtkRectangle          *rect);
-void meta_window_get_titlebar_rect (MetaWindow    *window,
-                                    MetaRectangle *titlebar_rect);
+void meta_window_get_client_area_rect (const MetaWindow *window,
+                                       MtkRectangle     *rect);
+void meta_window_get_titlebar_rect (MetaWindow   *window,
+                                    MtkRectangle *titlebar_rect);
 
 void meta_window_activate_full (MetaWindow     *window,
                                 guint32         timestamp,
@@ -845,7 +845,7 @@ void meta_window_set_urgent (MetaWindow *window,
 void meta_window_move_resize_internal (MetaWindow          *window,
                                        MetaMoveResizeFlags  flags,
                                        MetaGravity          gravity,
-                                       MetaRectangle        frame_rect);
+                                       MtkRectangle         frame_rect);
 
 void meta_window_grab_op_began (MetaWindow *window, MetaGrabOp op);
 void meta_window_grab_op_ended (MetaWindow *window, MetaGrabOp op);
@@ -892,8 +892,8 @@ gboolean meta_window_calculate_bounds (MetaWindow *window,
 void meta_window_set_frame_xwindow (MetaWindow *window,
                                     Window      xframe);
 
-void meta_window_maybe_apply_size_hints (MetaWindow    *window,
-                                         MetaRectangle *target_rect);
+void meta_window_maybe_apply_size_hints (MetaWindow   *window,
+                                         MtkRectangle *target_rect);
 
 void meta_window_inhibit_suspend_state (MetaWindow *window);
 

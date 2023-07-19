@@ -55,8 +55,8 @@ struct _MetaWindowSessionInfo
    * window size/pos, even if fonts/themes change, etc.
    */
   MetaGravity gravity;
-  MetaRectangle rect;
-  MetaRectangle saved_rect;
+  MtkRectangle rect;
+  MtkRectangle saved_rect;
   guint on_all_workspaces : 1;
   guint minimized : 1;
   guint maximized : 1;

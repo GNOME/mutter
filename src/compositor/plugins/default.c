@@ -99,10 +99,10 @@ static void kill_window_effects   (MetaPlugin      *plugin,
                                    MetaWindowActor *actor);
 static void kill_switch_workspace (MetaPlugin      *plugin);
 
-static void show_tile_preview (MetaPlugin      *plugin,
-                               MetaWindow      *window,
-                               MetaRectangle   *tile_rect,
-                               int              tile_monitor_number);
+static void show_tile_preview (MetaPlugin   *plugin,
+                               MetaWindow   *window,
+                               MtkRectangle *tile_rect,
+                               int           tile_monitor_number);
 static void hide_tile_preview (MetaPlugin      *plugin);
 
 static const MetaPluginInfo * plugin_info (MetaPlugin *plugin);
@@ -150,7 +150,7 @@ typedef struct _DisplayTilePreview
 {
   ClutterActor   *actor;
 
-  MetaRectangle   tile_rect;
+  MtkRectangle   tile_rect;
 } DisplayTilePreview;
 
 static void
@@ -323,7 +323,7 @@ on_monitors_changed (MetaMonitorManager *monitor_manager,
     {
       MetaBackgroundContent *background_content;
       ClutterContent *content;
-      MetaRectangle rect;
+      MtkRectangle rect;
       ClutterActor *background_actor;
       MetaBackground *background;
       uint8_t red;
@@ -611,7 +611,7 @@ static void
 minimize (MetaPlugin *plugin, MetaWindowActor *window_actor)
 {
   MetaWindowType type;
-  MetaRectangle icon_geometry;
+  MtkRectangle icon_geometry;
   MetaWindow *meta_window = meta_window_actor_get_meta_window (window_actor);
   ClutterTimeline *timeline = NULL;
   ClutterActor *actor  = CLUTTER_ACTOR (window_actor);
@@ -834,10 +834,10 @@ get_display_tile_preview (MetaDisplay *display)
 }
 
 static void
-show_tile_preview (MetaPlugin    *plugin,
-                   MetaWindow    *window,
-                   MetaRectangle *tile_rect,
-                   int            tile_monitor_number)
+show_tile_preview (MetaPlugin   *plugin,
+                   MetaWindow   *window,
+                   MtkRectangle *tile_rect,
+                   int           tile_monitor_number)
 {
   MetaDisplay *display = meta_plugin_get_display (plugin);
   DisplayTilePreview *preview = get_display_tile_preview (display);

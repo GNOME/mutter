@@ -56,7 +56,7 @@ struct _MetaWorkspace
 
   GHashTable *logical_monitor_data;
 
-  MetaRectangle work_area_screen;
+  MtkRectangle work_area_screen;
   GList  *screen_region;
   GList  *screen_edges;
   GList  *monitor_edges;
@@ -83,7 +83,7 @@ void           meta_workspace_relocate_windows (MetaWorkspace *workspace,
 
 void meta_workspace_get_work_area_for_logical_monitor (MetaWorkspace      *workspace,
                                                        MetaLogicalMonitor *logical_monitor,
-                                                       MetaRectangle      *area);
+                                                       MtkRectangle       *area);
 
 void meta_workspace_invalidate_work_area (MetaWorkspace *workspace);
 

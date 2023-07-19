@@ -272,8 +272,8 @@ gboolean
 meta_plugin_manager_event_size_change (MetaPluginManager *plugin_mgr,
                                        MetaWindowActor   *actor,
                                        MetaSizeChange     which_change,
-                                       MetaRectangle     *old_frame_rect,
-                                       MetaRectangle     *old_buffer_rect)
+                                       MtkRectangle      *old_frame_rect,
+                                       MtkRectangle      *old_buffer_rect)
 {
   MetaPlugin *plugin = plugin_mgr->plugin;
   MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);
@@ -357,7 +357,7 @@ meta_plugin_manager_confirm_display_change (MetaPluginManager *plugin_mgr)
 gboolean
 meta_plugin_manager_show_tile_preview (MetaPluginManager *plugin_mgr,
                                        MetaWindow        *window,
-                                       MetaRectangle     *tile_rect,
+                                       MtkRectangle      *tile_rect,
                                        int                tile_monitor_number)
 {
   MetaPlugin *plugin = plugin_mgr->plugin;

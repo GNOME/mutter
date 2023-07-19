@@ -525,11 +525,11 @@ get_blended_overlay_pipeline (CoglContext *ctx)
 }
 
 static void
-paint_clipped_rectangle_node (MetaShapedTexture     *stex,
-                              ClutterPaintNode      *root_node,
-                              CoglPipeline          *pipeline,
-                              MtkRectangle          *rect,
-                              ClutterActorBox       *alloc)
+paint_clipped_rectangle_node (MetaShapedTexture *stex,
+                              ClutterPaintNode  *root_node,
+                              CoglPipeline      *pipeline,
+                              MtkRectangle      *rect,
+                              ClutterActorBox   *alloc)
 {
   g_autoptr (ClutterPaintNode) node = NULL;
   float ratio_h, ratio_v;
@@ -1006,12 +1006,12 @@ meta_shaped_texture_set_mask_texture (MetaShapedTexture *stex,
  * Return value: Whether a redraw have been queued or not
  */
 gboolean
-meta_shaped_texture_update_area (MetaShapedTexture     *stex,
-                                 int                    x,
-                                 int                    y,
-                                 int                    width,
-                                 int                    height,
-                                 MtkRectangle          *clip)
+meta_shaped_texture_update_area (MetaShapedTexture *stex,
+                                 int                x,
+                                 int                y,
+                                 int                width,
+                                 int                height,
+                                 MtkRectangle      *clip)
 {
   MetaMonitorTransform inverted_transform;
   MtkRectangle buffer_rect;
@@ -1256,7 +1256,7 @@ meta_shaped_texture_is_opaque (MetaShapedTexture *stex)
   meta_shaped_texture_ensure_size_valid (stex);
 
   return mtk_rectangle_equal (&opaque_rect,
-                              &(MetaRectangle) {
+                              &(MtkRectangle) {
                                .width = stex->dst_width,
                                .height = stex->dst_height
                               });
@@ -1416,8 +1416,8 @@ meta_shaped_texture_should_get_via_offscreen (MetaShapedTexture *stex)
  * cairo_surface_destroy().
  */
 cairo_surface_t *
-meta_shaped_texture_get_image (MetaShapedTexture     *stex,
-                               MtkRectangle          *clip)
+meta_shaped_texture_get_image (MetaShapedTexture *stex,
+                               MtkRectangle      *clip)
 {
   MtkRectangle *image_clip = NULL;
   CoglTexture *texture;
@@ -1452,7 +1452,7 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
                                     image_clip))
         return NULL;
 
-      *image_clip = (MetaRectangle) {
+      *image_clip = (MtkRectangle) {
         .x = image_clip->x * stex->buffer_scale,
         .y = image_clip->y * stex->buffer_scale,
         .width = image_clip->width * stex->buffer_scale,

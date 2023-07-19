@@ -64,7 +64,7 @@ meta_test_headless_monitor_getters (void)
   display = meta_context_get_display (test_context);
 
   index = meta_display_get_monitor_index_for_rect (display,
-                                                   &(MetaRectangle) { 0 });
+                                                   &(MtkRectangle) { 0 });
   g_assert_cmpint (index, ==, -1);
 }
 
@@ -78,7 +78,7 @@ meta_test_headless_monitor_connect (void)
   g_autolist (GObject) udev_devices = NULL;
   GList *logical_monitors;
   MetaLogicalMonitor *logical_monitor;
-  MetaRectangle monitor_layout;
+  MtkRectangle monitor_layout;
   ClutterActor *stage;
   g_autoptr (GError) error = NULL;
 

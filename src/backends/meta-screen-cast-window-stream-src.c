@@ -109,7 +109,7 @@ get_stream_height (MetaScreenCastWindowStreamSrc *window_src)
 static void
 maybe_draw_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
                           uint8_t                       *data,
-                          MetaRectangle                 *stream_rect)
+                          MtkRectangle                  *stream_rect)
 {
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (window_src);
   MetaBackend *backend = get_backend (window_src);
@@ -192,7 +192,7 @@ maybe_draw_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
 static void
 maybe_blit_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
                           CoglFramebuffer               *framebuffer,
-                          MetaRectangle                 *stream_rect)
+                          MtkRectangle                  *stream_rect)
 {
   MetaBackend *backend = get_backend (window_src);
   CoglContext *cogl_context =
@@ -266,10 +266,10 @@ capture_into (MetaScreenCastWindowStreamSrc *window_src,
               uint8_t                       *data)
 {
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (window_src);
-  MetaRectangle stream_rect;
+  MtkRectangle stream_rect;
   MetaScreenCastStream *stream;
 
-  stream_rect = (MetaRectangle) {
+  stream_rect = (MtkRectangle) {
     .width = width,
     .height = height,
   };
@@ -309,11 +309,11 @@ meta_screen_cast_window_stream_src_get_specs (MetaScreenCastStreamSrc *src,
 
 static gboolean
 meta_screen_cast_window_stream_src_get_videocrop (MetaScreenCastStreamSrc *src,
-                                                  MetaRectangle           *crop_rect)
+                                                  MtkRectangle            *crop_rect)
 {
   MetaScreenCastWindowStreamSrc *window_src =
     META_SCREEN_CAST_WINDOW_STREAM_SRC (src);
-  MetaRectangle stream_rect;
+  MtkRectangle stream_rect;
 
   meta_screen_cast_window_get_buffer_bounds (window_src->screen_cast_window,
                                              crop_rect);
@@ -511,7 +511,7 @@ meta_screen_cast_window_stream_src_record_to_framebuffer (MetaScreenCastStreamSr
   MetaScreenCastWindowStreamSrc *window_src =
     META_SCREEN_CAST_WINDOW_STREAM_SRC (src);
   MetaScreenCastStream *stream;
-  MetaRectangle stream_rect;
+  MtkRectangle stream_rect;
 
   stream_rect.x = 0;
   stream_rect.y = 0;

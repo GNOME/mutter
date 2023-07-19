@@ -36,7 +36,7 @@ struct _MetaFrame
   /* This rect is trusted info from where we put the
    * frame, not the result of ConfigureNotify
    */
-  MetaRectangle rect;
+  MtkRectangle rect;
 
   MetaFrameBorders cached_borders; /* valid if borders_cached is set */
 
@@ -69,9 +69,9 @@ void meta_frame_clear_cached_borders (MetaFrame *frame);
 
 cairo_region_t *meta_frame_get_frame_bounds (MetaFrame *frame);
 
-void meta_frame_get_mask (MetaFrame             *frame,
-                          MtkRectangle          *frame_rect,
-                          cairo_t               *cr);
+void meta_frame_get_mask (MetaFrame    *frame,
+                          MtkRectangle *frame_rect,
+                          cairo_t      *cr);
 
 gboolean meta_frame_handle_xevent (MetaFrame *frame,
                                    XEvent    *event);

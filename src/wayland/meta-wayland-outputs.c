@@ -608,7 +608,7 @@ send_xdg_output_events (struct wl_resource *resource,
                         gboolean            need_all_events,
                         gboolean           *pending_done_event)
 {
-  MetaRectangle layout;
+  MtkRectangle layout;
   MetaLogicalMonitor *logical_monitor;
   int version;
 

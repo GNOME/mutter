@@ -242,7 +242,7 @@ shape_cow_for_window (MetaCompositorX11 *compositor_x11,
       XserverRegion output_region;
       XRectangle screen_rect, window_bounds;
       int width, height;
-      MetaRectangle rect;
+      MtkRectangle rect;
 
       meta_window_get_frame_rect (window, &rect);
 

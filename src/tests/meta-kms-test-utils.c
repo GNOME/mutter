@@ -121,7 +121,7 @@ meta_get_mode_fixed_rect_16 (MetaKmsMode *mode)
                                            meta_kms_mode_get_height (mode));
 }
 
-MetaRectangle
+MtkRectangle
 meta_get_mode_rect (MetaKmsMode *mode)
 {
   return MTK_RECTANGLE_INIT (0, 0,

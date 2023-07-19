@@ -606,7 +606,7 @@ handle_record_area (MetaDBusScreenCastSession *skeleton,
   gboolean is_recording;
   MetaScreenCastFlag flags;
   g_autoptr (GError) error = NULL;
-  MetaRectangle rect;
+  MtkRectangle rect;
   MetaScreenCastAreaStream *area_stream;
   MetaScreenCastStream *stream;
   char *stream_path;
@@ -646,7 +646,7 @@ handle_record_area (MetaDBusScreenCastSession *skeleton,
   if (is_recording)
     flags |= META_SCREEN_CAST_FLAG_IS_RECORDING;
 
-  rect = (MetaRectangle) {
+  rect = (MtkRectangle) {
     .x = x,
     .y = y,
     .width = width,

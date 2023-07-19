@@ -162,7 +162,7 @@ MetaKmsPlaneAssignment * meta_kms_update_assign_plane (MetaKmsUpdate          *u
                                                        MetaKmsPlane           *plane,
                                                        MetaDrmBuffer          *buffer,
                                                        MetaFixed16Rectangle    src_rect,
-                                                       MetaRectangle           dst_rect,
+                                                       MtkRectangle            dst_rect,
                                                        MetaKmsAssignPlaneFlag  flags);
 
 MetaKmsPlaneAssignment * meta_kms_update_unassign_plane (MetaKmsUpdate *update,
@@ -216,10 +216,10 @@ meta_fixed_16_to_double (MetaFixed16 fixed)
   return fixed / 65536.0;
 }
 
-static inline MetaRectangle
+static inline MtkRectangle
 meta_fixed_16_rectangle_to_rectangle (MetaFixed16Rectangle fixed_rect)
 {
-  return (MetaRectangle) {
+  return (MtkRectangle) {
     .x = meta_fixed_16_to_int (fixed_rect.x),
     .y = meta_fixed_16_to_int (fixed_rect.y),
     .width = meta_fixed_16_to_int (fixed_rect.width),

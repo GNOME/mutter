@@ -42,7 +42,7 @@ typedef struct
 void meta_wayland_subsurface_union_geometry (MetaWaylandSubsurface *subsurface,
                                              int                    parent_x,
                                              int                    parent_y,
-                                             MetaRectangle         *out_geometry);
+                                             MtkRectangle          *out_geometry);
 
 void meta_wayland_subsurface_parent_destroyed (MetaWaylandSurface *surface);
 

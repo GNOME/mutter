@@ -27,7 +27,7 @@ typedef struct _ViewInfo ViewInfo;
 
 struct _ViewInfo
 {
-  MetaRectangle rect;
+  MtkRectangle rect;
   float scale;
 };
 
@@ -65,10 +65,10 @@ meta_viewport_info_init (MetaViewportInfo *info)
 }
 
 MetaViewportInfo *
-meta_viewport_info_new (MtkRectangle          *views,
-                        float                 *scales,
-                        int                    n_views,
-                        gboolean               is_views_scaled)
+meta_viewport_info_new (MtkRectangle *views,
+                        float        *scales,
+                        int           n_views,
+                        gboolean      is_views_scaled)
 {
   MetaViewportInfo *viewport_info;
   int i;
@@ -108,10 +108,10 @@ meta_viewport_info_get_view_at (MetaViewportInfo *viewport_info,
 }
 
 gboolean
-meta_viewport_info_get_view_info (MetaViewportInfo      *viewport_info,
-                                  int                    idx,
-                                  MtkRectangle          *rect,
-                                  float                 *scale)
+meta_viewport_info_get_view_info (MetaViewportInfo *viewport_info,
+                                  int               idx,
+                                  MtkRectangle     *rect,
+                                  float            *scale)
 {
   ViewInfo *info;
 
@@ -128,9 +128,9 @@ meta_viewport_info_get_view_info (MetaViewportInfo      *viewport_info,
 }
 
 static gboolean
-view_has_neighbor (MtkRectangle          *view,
-                   MtkRectangle          *neighbor,
-                   MetaDisplayDirection   neighbor_direction)
+view_has_neighbor (MtkRectangle         *view,
+                   MtkRectangle         *neighbor,
+                   MetaDisplayDirection  neighbor_direction)
 {
   switch (neighbor_direction)
     {

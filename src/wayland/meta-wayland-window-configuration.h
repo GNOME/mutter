@@ -53,7 +53,7 @@ struct _MetaWaylandWindowConfiguration
 };
 
 MetaWaylandWindowConfiguration * meta_wayland_window_configuration_new (MetaWindow          *window,
-                                                                        MetaRectangle        rect,
+                                                                        MtkRectangle         rect,
                                                                         int                  max_width,
                                                                         int                  max_height,
                                                                         int                  scale,

@@ -169,7 +169,7 @@ is_main_tiled_monitor_output (MetaOutput *output)
 static MetaLogicalMonitor *
 logical_monitor_from_layout (MetaMonitorManager *manager,
                              GList              *logical_monitors,
-                             MetaRectangle      *layout)
+                             MtkRectangle       *layout)
 {
   GList *l;
 
@@ -318,7 +318,7 @@ derive_calculated_global_scale (MetaMonitorManager *manager)
 static float
 derive_scale_from_config (MetaMonitorManager *manager,
                           MetaMonitorsConfig *config,
-                          MetaRectangle      *layout)
+                          MtkRectangle       *layout)
 {
   GList *l;
 
@@ -364,7 +364,7 @@ meta_monitor_manager_rebuild_logical_monitors_derived (MetaMonitorManager *manag
     {
       MetaMonitor *monitor = l->data;
       MetaLogicalMonitor *logical_monitor;
-      MetaRectangle layout;
+      MtkRectangle layout;
 
       if (!meta_monitor_is_active (monitor))
         continue;
@@ -3349,7 +3349,7 @@ meta_monitor_manager_get_logical_monitor_at (MetaMonitorManager *manager,
  */
 MetaLogicalMonitor *
 meta_monitor_manager_get_logical_monitor_from_rect (MetaMonitorManager *manager,
-                                                    MetaRectangle      *rect)
+                                                    MtkRectangle       *rect)
 {
   MetaLogicalMonitor *best_logical_monitor;
   int best_logical_monitor_area;
@@ -3363,7 +3363,7 @@ meta_monitor_manager_get_logical_monitor_from_rect (MetaMonitorManager *manager,
   for (l = manager->logical_monitors; l; l = l->next)
     {
       MetaLogicalMonitor *logical_monitor = l->data;
-      MetaRectangle intersection;
+      MtkRectangle intersection;
       int intersection_area;
 
       if (META_POINT_IN_RECT (center_x, center_y, logical_monitor->rect))
@@ -3401,7 +3401,7 @@ meta_monitor_manager_get_logical_monitor_from_rect (MetaMonitorManager *manager,
  */
 MetaLogicalMonitor *
 meta_monitor_manager_get_highest_scale_monitor_from_rect (MetaMonitorManager *manager,
-                                                          MetaRectangle      *rect)
+                                                          MtkRectangle       *rect)
 {
   MetaLogicalMonitor *best_logical_monitor = NULL;
   GList *l;
@@ -3410,7 +3410,7 @@ meta_monitor_manager_get_highest_scale_monitor_from_rect (MetaMonitorManager *ma
   for (l = manager->logical_monitors; l; l = l->next)
     {
       MetaLogicalMonitor *logical_monitor = l->data;
-      MetaRectangle intersection;
+      MtkRectangle intersection;
       float scale;
 
       if (!mtk_rectangle_intersect (&logical_monitor->rect,

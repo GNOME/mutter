@@ -41,7 +41,7 @@ init_random_ness (void)
 }
 
 static void
-get_random_rect (MetaRectangle *rect)
+get_random_rect (MtkRectangle *rect)
 {
   rect->x = rand () % 1600;
   rect->y = rand () % 1200;
@@ -93,7 +93,7 @@ new_monitor_edge (int x, int y, int width, int height, int side_type)
 static void
 test_init_rect (void)
 {
-  MetaRectangle rect;
+  MtkRectangle rect;
 
   rect = MTK_RECTANGLE_INIT (1, 2, 3, 4);
   g_assert_cmpint (rect.x, ==, 1);
@@ -105,7 +105,7 @@ test_init_rect (void)
 static void
 test_area (void)
 {
-  MetaRectangle temp;
+  MtkRectangle temp;
   int i;
   for (i = 0; i < NUM_RANDOM_RUNS; i++)
     {
@@ -120,13 +120,13 @@ test_area (void)
 static void
 test_intersect (void)
 {
-  MetaRectangle a = {100, 200,  50,  40};
-  MetaRectangle b = {  0,  50, 110, 152};
-  MetaRectangle c = {  0,   0,  10,  10};
-  MetaRectangle d = {100, 100,  50,  50};
-  MetaRectangle b_intersect_d = {100, 100, 10, 50};
-  MetaRectangle temp;
-  MetaRectangle temp2;
+  MtkRectangle a = {100, 200,  50,  40};
+  MtkRectangle b = {  0,  50, 110, 152};
+  MtkRectangle c = {  0,   0,  10,  10};
+  MtkRectangle d = {100, 100,  50,  50};
+  MtkRectangle b_intersect_d = {100, 100, 10, 50};
+  MtkRectangle temp;
+  MtkRectangle temp2;
 
   mtk_rectangle_intersect (&a, &b, &temp);
   temp2 = MTK_RECTANGLE_INIT (100, 200, 10, 2);
@@ -146,12 +146,12 @@ test_intersect (void)
 static void
 test_equal (void)
 {
-  MetaRectangle a = {10, 12, 4, 18};
-  MetaRectangle b = a;
-  MetaRectangle c = {10, 12, 4, 19};
-  MetaRectangle d = {10, 12, 7, 18};
-  MetaRectangle e = {10, 62, 4, 18};
-  MetaRectangle f = {27, 12, 4, 18};
+  MtkRectangle a = {10, 12, 4, 18};
+  MtkRectangle b = a;
+  MtkRectangle c = {10, 12, 4, 19};
+  MtkRectangle d = {10, 12, 7, 18};
+  MtkRectangle e = {10, 62, 4, 18};
+  MtkRectangle f = {27, 12, 4, 18};
 
   g_assert ( mtk_rectangle_equal (&a, &b));
   g_assert (!mtk_rectangle_equal (&a, &c));
@@ -163,7 +163,7 @@ test_equal (void)
 static void
 test_overlap_funcs (void)
 {
-  MetaRectangle temp1, temp2;
+  MtkRectangle temp1, temp2;
   int i;
   for (i = 0; i < NUM_RANDOM_RUNS; i++)
     {
@@ -184,7 +184,7 @@ test_overlap_funcs (void)
 static void
 test_basic_fitting (void)
 {
-  MetaRectangle temp1, temp2, temp3;
+  MtkRectangle temp1, temp2, temp3;
   int i;
   /* Four cases:
    *   case   temp1 fits temp2    temp1 could fit temp2
@@ -274,7 +274,7 @@ get_screen_region (int which)
 {
   GList *ret;
   GSList *struts;
-  MetaRectangle basic_rect;
+  MtkRectangle basic_rect;
 
   basic_rect = MTK_RECTANGLE_INIT (0, 0, 1600, 1200);
   ret = NULL;
@@ -291,7 +291,7 @@ get_screen_edges (int which)
 {
   GList *ret;
   GSList *struts;
-  MetaRectangle basic_rect;
+  MtkRectangle basic_rect;
 
   basic_rect = MTK_RECTANGLE_INIT (0, 0, 1600, 1200);
   ret = NULL;
@@ -382,14 +382,14 @@ test_merge_regions (void)
 
   while (compare && compare->next)
     {
-      MetaRectangle *a = compare->data;
+      MtkRectangle *a = compare->data;
       GList *other = compare->next;
 
       g_assert (a->width > 0 && a->height > 0);
 
       while (other)
         {
-          MetaRectangle *b = other->data;
+          MtkRectangle *b = other->data;
           GList *delete_me = NULL;
 
           g_assert (b->width > 0 && b->height > 0);
@@ -469,7 +469,7 @@ test_merge_regions (void)
           if (delete_me != NULL)
             {
 #ifdef PRINT_DEBUG
-              MetaRectangle *bla = delete_me->data;
+              MtkRectangle *bla = delete_me->data;
               printf ("    Deleting rect %s\n",
                       meta_rectangle_to_string (bla, rect1));
 #endif
@@ -525,8 +525,8 @@ verify_lists_are_equal (GList *code, GList *answer)
 
   while (code && answer)
     {
-      MetaRectangle *a = code->data;
-      MetaRectangle *b = answer->data;
+      MtkRectangle *a = code->data;
+      MtkRectangle *b = answer->data;
 
       if (a->x      != b->x     ||
           a->y      != b->y     ||
@@ -549,7 +549,7 @@ verify_lists_are_equal (GList *code, GList *answer)
   /* Ought to be at the end of both lists; check if we aren't */
   if (code)
     {
-      MetaRectangle *tmp = code->data;
+      MtkRectangle *tmp = code->data;
       g_error ("code list longer than answer list by %d items; "
                "first extra item: %d,%d +%d,%d\n",
                g_list_length (code),
@@ -558,7 +558,7 @@ verify_lists_are_equal (GList *code, GList *answer)
 
   if (answer)
     {
-      MetaRectangle *tmp = answer->data;
+      MtkRectangle *tmp = answer->data;
       g_error ("answer list longer than code list by %d items; "
                "first extra item: %d,%d +%d,%d\n",
                g_list_length (answer),
@@ -656,7 +656,7 @@ static void
 test_region_fitting (void)
 {
   GList *region;
-  MetaRectangle rect;
+  MtkRectangle rect;
 
   /* See test_basic_fitting() for how/why these automated random tests work */
   int i;
@@ -698,8 +698,8 @@ static void
 test_clamping_to_region (void)
 {
   GList *region;
-  MetaRectangle rect;
-  MetaRectangle min_size;
+  MtkRectangle rect;
+  MtkRectangle min_size;
   FixedDirections fixed_directions;
   int i;
 
@@ -709,7 +709,7 @@ test_clamping_to_region (void)
   region = get_screen_region (3);
   for (i = 0; i < NUM_RANDOM_RUNS; i++)
     {
-      MetaRectangle temp;
+      MtkRectangle temp;
       get_random_rect (&rect);
       temp = rect;
       meta_rectangle_clamp_to_fit_into_region (region,
@@ -796,7 +796,7 @@ test_clamping_to_region (void)
 
 static gboolean
 rect_overlaps_region (const GList         *spanning_rects,
-                      const MetaRectangle *rect)
+                      const MtkRectangle  *rect)
 {
   /* FIXME: Should I move this to boxes.[ch]? */
   const GList *temp;
@@ -819,7 +819,7 @@ static void
 test_clipping_to_region (void)
 {
   GList *region;
-  MetaRectangle rect, temp;
+  MtkRectangle rect, temp;
   FixedDirections fixed_directions = 0;
   int i;
 
@@ -879,7 +879,7 @@ static void
 test_shoving_into_region (void)
 {
   GList *region;
-  MetaRectangle rect, temp;
+  MtkRectangle rect, temp;
   FixedDirections fixed_directions = 0;
   int i;
 
@@ -1211,7 +1211,7 @@ test_find_nonintersected_monitor_edges (void)
 static void
 test_gravity_resize (void)
 {
-  MetaRectangle oldrect, rect, temp;
+  MtkRectangle oldrect, rect, temp;
 
   rect.x = -500;  /* Some random amount not equal to oldrect.x to ensure that
                    * the resize is done with respect to oldrect instead of rect

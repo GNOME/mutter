@@ -229,8 +229,8 @@ meta_test_kms_render_client_scanout (void)
   gulong paint_view_handler_id;
   gulong presented_handler_id;
   MetaWindow *window;
-  MetaRectangle view_rect;
-  MetaRectangle buffer_rect;
+  MtkRectangle view_rect;
+  MtkRectangle buffer_rect;
 
   test_driver = meta_wayland_test_driver_new (wayland_compositor);
   meta_wayland_test_driver_set_property (test_driver,

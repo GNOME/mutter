@@ -70,8 +70,8 @@ find_top_window_actor_on_view (ClutterStageView *stage_view,
       MetaWindowActor *window_actor = l->data;
       MetaWindow *window =
         meta_window_actor_get_meta_window (window_actor);
-      MetaRectangle buffer_rect;
-      MetaRectangle view_layout;
+      MtkRectangle buffer_rect;
+      MtkRectangle view_layout;
 
       if (!window->visible_to_compositor)
         continue;

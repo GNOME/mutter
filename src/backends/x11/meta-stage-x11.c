@@ -136,8 +136,8 @@ meta_stage_x11_set_wm_protocols (MetaStageX11 *stage_x11)
 }
 
 static void
-meta_stage_x11_get_geometry (ClutterStageWindow    *stage_window,
-                             MtkRectangle          *geometry)
+meta_stage_x11_get_geometry (ClutterStageWindow *stage_window,
+                             MtkRectangle       *geometry)
 {
   MetaStageX11 *stage_x11 = META_STAGE_X11 (stage_window);
 

@@ -91,7 +91,7 @@ meta_screen_cast_area_stream_src_get_specs (MetaScreenCastStreamSrc *src,
 {
   MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
   MetaScreenCastAreaStream *area_stream = META_SCREEN_CAST_AREA_STREAM (stream);
-  MetaRectangle *area;
+  MtkRectangle *area;
   float scale;
 
   area = meta_screen_cast_area_stream_get_area (area_stream);
@@ -113,7 +113,7 @@ is_cursor_in_stream (MetaScreenCastAreaStreamSrc *area_src)
   MetaBackend *backend = get_backend (area_src);
   MetaCursorRenderer *cursor_renderer =
     meta_backend_get_cursor_renderer (backend);
-  MetaRectangle *area;
+  MtkRectangle *area;
   graphene_rect_t area_rect;
   MetaCursorSprite *cursor_sprite;
 
@@ -275,7 +275,7 @@ stage_painted (MetaStage           *stage,
   MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
   MetaScreenCastAreaStream *area_stream = META_SCREEN_CAST_AREA_STREAM (stream);
   const cairo_region_t *redraw_clip;
-  MetaRectangle *area;
+  MtkRectangle *area;
 
   if (area_src->maybe_record_idle_id)
     return;
@@ -308,7 +308,7 @@ add_view_painted_watches (MetaScreenCastAreaStreamSrc *area_src)
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   ClutterStage *stage;
   MetaStage *meta_stage;
-  MetaRectangle *area;
+  MtkRectangle *area;
   GList *l;
 
   stage = get_stage (area_src);
@@ -318,7 +318,7 @@ add_view_painted_watches (MetaScreenCastAreaStreamSrc *area_src)
   for (l = meta_renderer_get_views (renderer); l; l = l->next)
     {
       MetaRendererView *view = l->data;
-      MetaRectangle view_layout;
+      MtkRectangle view_layout;
 
       clutter_stage_view_get_layout (CLUTTER_STAGE_VIEW (view), &view_layout);
       if (mtk_rectangle_overlap (area, &view_layout))
@@ -466,7 +466,7 @@ meta_screen_cast_area_stream_src_record_to_buffer (MetaScreenCastStreamSrc  *src
   MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
   MetaScreenCastAreaStream *area_stream = META_SCREEN_CAST_AREA_STREAM (stream);
   ClutterStage *stage;
-  MetaRectangle *area;
+  MtkRectangle *area;
   float scale;
   ClutterPaintFlag paint_flags = CLUTTER_PAINT_FLAG_CLEAR;
 
@@ -507,7 +507,7 @@ meta_screen_cast_area_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc 
   MetaScreenCastAreaStream *area_stream = META_SCREEN_CAST_AREA_STREAM (stream);
   MetaBackend *backend = get_backend (area_src);
   ClutterStage *stage;
-  MetaRectangle *area;
+  MtkRectangle *area;
   float scale;
   ClutterPaintFlag paint_flags = CLUTTER_PAINT_FLAG_CLEAR;
 
@@ -561,7 +561,7 @@ meta_screen_cast_area_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc *s
   MetaCursorTracker *cursor_tracker =
     meta_backend_get_cursor_tracker (backend);
   MetaCursorSprite *cursor_sprite;
-  MetaRectangle *area;
+  MtkRectangle *area;
   float scale;
   graphene_point_t cursor_position;
   int x, y;

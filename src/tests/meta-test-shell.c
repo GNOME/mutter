@@ -92,7 +92,7 @@ typedef struct _DisplayTilePreview
 {
   ClutterActor *actor;
 
-  MetaRectangle tile_rect;
+  MtkRectangle tile_rect;
 } DisplayTilePreview;
 
 G_DEFINE_TYPE (MetaTestShell, meta_test_shell, META_TYPE_PLUGIN)
@@ -262,7 +262,7 @@ on_monitors_changed (MetaMonitorManager *monitor_manager,
     {
       MetaBackgroundContent *background_content;
       ClutterContent *content;
-      MetaRectangle rect;
+      MtkRectangle rect;
       ClutterActor *background_actor;
       MetaBackground *background;
       uint8_t red;
@@ -720,7 +720,7 @@ get_display_tile_preview (MetaDisplay *display)
 static void
 meta_test_shell_show_tile_preview (MetaPlugin    *plugin,
                                    MetaWindow    *window,
-                                   MetaRectangle *tile_rect,
+                                   MtkRectangle  *tile_rect,
                                    int            tile_monitor_number)
 {
   MetaDisplay *display = meta_plugin_get_display (plugin);

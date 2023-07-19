@@ -84,7 +84,7 @@ static guint signals[LAST_SIGNAL] = { 0 };
 typedef struct _MetaWorkspaceLogicalMonitorData
 {
   GList *logical_monitor_region;
-  MetaRectangle logical_monitor_work_area;
+  MtkRectangle logical_monitor_work_area;
 } MetaWorkspaceLogicalMonitorData;
 
 typedef struct _MetaWorkspaceFocusableAncestorData
@@ -838,8 +838,8 @@ ensure_work_areas_validated (MetaWorkspace *workspace)
   GList *windows;
   GList *tmp;
   GList *logical_monitors, *l;
-  MetaRectangle display_rect = { 0 };
-  MetaRectangle work_area;
+  MtkRectangle display_rect = { 0 };
+  MtkRectangle work_area;
 
   if (!workspace->work_areas_invalid)
     return;
@@ -994,8 +994,8 @@ ensure_work_areas_validated (MetaWorkspace *workspace)
    */
   if (workspace->screen_region == NULL)
     {
-      MetaRectangle *nonempty_region;
-      nonempty_region = g_new (MetaRectangle, 1);
+      MtkRectangle *nonempty_region;
+      nonempty_region = g_new (MtkRectangle, 1);
       *nonempty_region = workspace->work_area_screen;
       workspace->screen_region = g_list_prepend (NULL, nonempty_region);
     }
@@ -1057,7 +1057,7 @@ meta_workspace_set_builtin_struts (MetaWorkspace *workspace,
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaDisplay *display = workspace->display;
-  MetaRectangle display_rect = { 0 };
+  MtkRectangle display_rect = { 0 };
   GSList *l;
 
   meta_display_get_size (display, &display_rect.width, &display_rect.height);
@@ -1125,7 +1125,7 @@ meta_workspace_set_builtin_struts (MetaWorkspace *workspace,
 void
 meta_workspace_get_work_area_for_logical_monitor (MetaWorkspace      *workspace,
                                                   MetaLogicalMonitor *logical_monitor,
-                                                  MetaRectangle      *area)
+                                                  MtkRectangle       *area)
 {
   meta_workspace_get_work_area_for_monitor (workspace,
                                             logical_monitor->number,
@@ -1144,7 +1144,7 @@ meta_workspace_get_work_area_for_logical_monitor (MetaWorkspace      *workspace,
 void
 meta_workspace_get_work_area_for_monitor (MetaWorkspace *workspace,
                                           int            which_monitor,
-                                          MetaRectangle *area)
+                                          MtkRectangle  *area)
 {
   MetaContext *context = meta_display_get_context (workspace->display);
   MetaBackend *backend = meta_context_get_backend (context);
@@ -1175,7 +1175,7 @@ meta_workspace_get_work_area_for_monitor (MetaWorkspace *workspace,
  */
 void
 meta_workspace_get_work_area_all_monitors (MetaWorkspace *workspace,
-                                           MetaRectangle *area)
+                                           MtkRectangle  *area)
 {
   ensure_work_areas_validated (workspace);
 
@@ -1426,7 +1426,7 @@ window_contains_point (MetaWindow *window,
                        int         root_x,
                        int         root_y)
 {
-  MetaRectangle rect;
+  MtkRectangle rect;
 
   meta_window_get_frame_rect (window, &rect);
 

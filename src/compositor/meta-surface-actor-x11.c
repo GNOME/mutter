@@ -199,7 +199,7 @@ meta_surface_actor_x11_process_damage (MetaSurfaceActor *actor,
 
   if (meta_window_is_fullscreen (self->window) && !self->unredirected && !self->does_full_damage)
     {
-      MetaRectangle window_rect;
+      MtkRectangle window_rect;
       meta_window_get_frame_rect (self->window, &window_rect);
 
       if (x == 0 &&

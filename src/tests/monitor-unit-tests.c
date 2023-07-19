@@ -7968,7 +7968,7 @@ meta_test_monitor_custom_lid_switch_config (void)
   test_case.expect.crtcs[1].x = 1024;
   test_case.expect.crtcs[1].transform = META_MONITOR_TRANSFORM_270;
   test_case.expect.logical_monitors[0].layout =
-    (MetaRectangle) { .width = 1024, .height = 768 };
+    (MtkRectangle) { .width = 1024, .height = 768 };
   test_case.expect.logical_monitors[0].transform = META_MONITOR_TRANSFORM_NORMAL;
   test_case.expect.logical_monitors[1].transform = META_MONITOR_TRANSFORM_270;
   test_case.expect.n_logical_monitors = 2;
@@ -7990,7 +7990,7 @@ meta_test_monitor_custom_lid_switch_config (void)
   test_case.expect.crtcs[1].x = 0;
   test_case.expect.monitors[0].current_mode = -1;
   test_case.expect.logical_monitors[0].layout =
-    (MetaRectangle) { .width = 768, .height = 1024 };
+    (MtkRectangle) { .width = 768, .height = 1024 };
   test_case.expect.logical_monitors[0].monitors[0] = 1;
   test_case.expect.logical_monitors[0].transform = META_MONITOR_TRANSFORM_90;
   test_case.expect.n_logical_monitors = 1;
@@ -8015,7 +8015,7 @@ meta_test_monitor_custom_lid_switch_config (void)
   test_case.expect.crtcs[1].x = 1024;
   test_case.expect.monitors[0].current_mode = 0;
   test_case.expect.logical_monitors[0].layout =
-    (MetaRectangle) { .width = 1024, .height = 768 };
+    (MtkRectangle) { .width = 1024, .height = 768 };
   test_case.expect.logical_monitors[0].monitors[0] = 0;
   test_case.expect.logical_monitors[0].transform = META_MONITOR_TRANSFORM_NORMAL;
   test_case.expect.logical_monitors[1].transform = META_MONITOR_TRANSFORM_270;

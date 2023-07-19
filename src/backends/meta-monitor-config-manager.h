@@ -37,7 +37,7 @@ typedef struct _MetaMonitorConfig
 
 typedef struct _MetaLogicalMonitorConfig
 {
-  MetaRectangle layout;
+  MtkRectangle layout;
   GList *monitor_configs;
   MetaMonitorTransform transform;
   float scale;

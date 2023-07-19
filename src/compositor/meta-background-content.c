@@ -456,7 +456,7 @@ setup_pipeline (MetaBackgroundContent *self,
 
   if (self->changed & CHANGED_GRADIENT_PARAMETERS)
     {
-      MetaRectangle monitor_geometry;
+      MtkRectangle monitor_geometry;
       float gradient_height_perc;
 
       meta_display_get_monitor_geometry (self->display,
@@ -780,7 +780,7 @@ meta_background_content_get_preferred_size (ClutterContent *content,
 
 {
   MetaBackgroundContent *background_content = META_BACKGROUND_CONTENT (content);
-  MetaRectangle monitor_geometry;
+  MtkRectangle monitor_geometry;
 
   meta_display_get_monitor_geometry (background_content->display,
                                      background_content->monitor,
@@ -806,8 +806,8 @@ static void
 set_monitor (MetaBackgroundContent *self,
              int                    monitor)
 {
-  MetaRectangle old_monitor_geometry;
-  MetaRectangle new_monitor_geometry;
+  MtkRectangle old_monitor_geometry;
+  MtkRectangle new_monitor_geometry;
   MetaDisplay *display = self->display;
 
   if(self->monitor == monitor)

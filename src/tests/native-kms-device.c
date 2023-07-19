@@ -264,7 +264,7 @@ meta_test_kms_device_mode_set (void)
   g_autoptr (MetaDrmBuffer) primary_buffer = NULL;
   MetaKmsCrtcState crtc_state;
   MetaKmsConnectorState connector_state;
-  MetaRectangle mode_rect;
+  MtkRectangle mode_rect;
   MetaKmsFeedback *feedback;
 
   device = meta_get_test_kms_device (test_context);

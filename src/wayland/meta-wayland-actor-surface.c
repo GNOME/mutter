@@ -334,7 +334,7 @@ meta_wayland_actor_surface_is_on_logical_monitor (MetaWaylandSurfaceRole *surfac
   MetaBackend *backend = meta_context_get_backend (context);
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   ClutterActor *actor = CLUTTER_ACTOR (priv->actor);
-  MetaRectangle logical_monitor_layout;
+  MtkRectangle logical_monitor_layout;
   GList *l;
 
   logical_monitor_layout = meta_logical_monitor_get_layout (logical_monitor);
@@ -342,7 +342,7 @@ meta_wayland_actor_surface_is_on_logical_monitor (MetaWaylandSurfaceRole *surfac
   for (l = meta_renderer_get_views (renderer); l; l = l->next)
     {
       ClutterStageView *stage_view = l->data;
-      MetaRectangle view_layout;
+      MtkRectangle view_layout;
 
       clutter_stage_view_get_layout (stage_view, &view_layout);
 

@@ -105,7 +105,7 @@ meta_renderer_x11_nested_create_view (MetaRenderer       *renderer,
   int width, height;
   CoglOffscreen *fake_onscreen;
   CoglOffscreen *offscreen;
-  MetaRectangle view_layout;
+  MtkRectangle view_layout;
   const MetaCrtcModeInfo *mode_info;
   MetaRendererView *view;
 

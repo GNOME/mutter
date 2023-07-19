@@ -30,7 +30,7 @@ typedef struct _MetaKmsCrtcState
 {
   gboolean is_active;
 
-  MetaRectangle rect;
+  MtkRectangle rect;
   gboolean is_drm_mode_valid;
   drmModeModeInfo drm_mode;
 
