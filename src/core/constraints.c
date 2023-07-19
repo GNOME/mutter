@@ -1345,8 +1345,8 @@ constrain_fullscreen (MetaWindow         *window,
   monitor = info->entire_monitor;
 
   get_size_limits (window, &min_size, &max_size);
-  too_big =   !meta_rectangle_could_fit_rect (&monitor, &min_size);
-  too_small = !meta_rectangle_could_fit_rect (&max_size, &monitor);
+  too_big = !mtk_rectangle_could_fit_rect (&monitor, &min_size);
+  too_small = !mtk_rectangle_could_fit_rect (&max_size, &monitor);
   if (too_big || too_small)
     return TRUE;
 
@@ -1464,14 +1464,14 @@ constrain_size_limits (MetaWindow         *window,
     max_size.width = MAX (max_size.width, info->current.width);
   if (window->maximized_vertically)
     max_size.height = MAX (max_size.height, info->current.height);
-  too_small = !meta_rectangle_could_fit_rect (&info->current, &min_size);
-  too_big   = !meta_rectangle_could_fit_rect (&max_size, &info->current);
+  too_small = !mtk_rectangle_could_fit_rect (&info->current, &min_size);
+  too_big = !mtk_rectangle_could_fit_rect (&max_size, &info->current);
   constraint_already_satisfied = !too_big && !too_small;
   if (check_only || constraint_already_satisfied)
     return constraint_already_satisfied;
 
   /*** Enforce constraint ***/
-  new_width  = CLAMP (info->current.width,  min_size.width,  max_size.width);
+  new_width = CLAMP (info->current.width,  min_size.width,  max_size.width);
   new_height = CLAMP (info->current.height, min_size.height, max_size.height);
 
   start_rect = get_start_rect_for_resize (window, info);

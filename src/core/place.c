@@ -606,7 +606,7 @@ find_first_fit (MetaWindow         *window,
 
   center_tile_rect_in_area (&rect, &work_area);
 
-  if (meta_rectangle_contains_rect (&work_area, &rect) &&
+  if (mtk_rectangle_contains_rect (&work_area, &rect) &&
       !rectangle_overlaps_some_window (&rect, windows))
     {
       *new_x = rect.x;
@@ -629,7 +629,7 @@ find_first_fit (MetaWindow         *window,
       rect.x = frame_rect.x;
       rect.y = frame_rect.y + frame_rect.height;
 
-      if (meta_rectangle_contains_rect (&work_area, &rect) &&
+      if (mtk_rectangle_contains_rect (&work_area, &rect) &&
           !rectangle_overlaps_some_window (&rect, below_sorted))
         {
           *new_x = rect.x;
@@ -658,7 +658,7 @@ find_first_fit (MetaWindow         *window,
         rect.x = frame_rect.x - rect.width;
       rect.y = frame_rect.y;
 
-      if (meta_rectangle_contains_rect (&work_area, &rect) &&
+      if (mtk_rectangle_contains_rect (&work_area, &rect) &&
           !rectangle_overlaps_some_window (&rect, end_sorted))
         {
           *new_x = rect.x;

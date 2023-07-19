@@ -134,25 +134,6 @@ meta_rectangle_edge_list_to_string (GList      *edge_list,
 return output;
 }
 
-gboolean
-meta_rectangle_could_fit_rect (const MetaRectangle *outer_rect,
-                               const MetaRectangle *inner_rect)
-{
-  return (outer_rect->width  >= inner_rect->width &&
-          outer_rect->height >= inner_rect->height);
-}
-
-gboolean
-meta_rectangle_contains_rect  (const MetaRectangle *outer_rect,
-                               const MetaRectangle *inner_rect)
-{
-  return
-    inner_rect->x                      >= outer_rect->x &&
-    inner_rect->y                      >= outer_rect->y &&
-    inner_rect->x + inner_rect->width  <= outer_rect->x + outer_rect->width &&
-    inner_rect->y + inner_rect->height <= outer_rect->y + outer_rect->height;
-}
-
 void
 meta_rectangle_resize_with_gravity (const MetaRectangle *old_rect,
                                     MetaRectangle       *rect,
@@ -283,12 +264,12 @@ merge_spanning_rects_in_region (GList *region)
           g_assert (b->width > 0 && b->height > 0);
 
           /* If a contains b, just remove b */
-          if (meta_rectangle_contains_rect (a, b))
+          if (mtk_rectangle_contains_rect (a, b))
             {
               delete_me = other;
             }
           /* If b contains a, just remove a */
-          else if (meta_rectangle_contains_rect (b, a))
+          else if (mtk_rectangle_contains_rect (b, a))
             {
               delete_me = compare;
             }
@@ -685,7 +666,7 @@ meta_rectangle_could_fit_in_region (const GList         *spanning_rects,
   could_fit = FALSE;
   while (!could_fit && temp != NULL)
     {
-      could_fit = could_fit || meta_rectangle_could_fit_rect (temp->data, rect);
+      could_fit = could_fit || mtk_rectangle_could_fit_rect (temp->data, rect);
       temp = temp->next;
     }
 
@@ -703,7 +684,7 @@ meta_rectangle_contained_in_region (const GList         *spanning_rects,
   contained = FALSE;
   while (!contained && temp != NULL)
     {
-      contained = contained || meta_rectangle_contains_rect (temp->data, rect);
+      contained = contained || mtk_rectangle_contains_rect (temp->data, rect);
       temp = temp->next;
     }
 

@@ -100,14 +100,3 @@ MetaRectangle *meta_rectangle_copy (const MetaRectangle *rect);
 
 META_EXPORT
 void           meta_rectangle_free (MetaRectangle       *rect);
-
-/* could_fit_rect determines whether "outer_rect" is big enough to contain
- * inner_rect.  contains_rect checks whether it actually contains it.
- */
-META_EXPORT
-gboolean meta_rectangle_could_fit_rect  (const MetaRectangle *outer_rect,
-                                         const MetaRectangle *inner_rect);
-
-META_EXPORT
-gboolean meta_rectangle_contains_rect   (const MetaRectangle *outer_rect,
-                                         const MetaRectangle *inner_rect);

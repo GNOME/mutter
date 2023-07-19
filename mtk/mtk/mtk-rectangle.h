@@ -110,3 +110,11 @@ MTK_EXPORT
 gboolean mtk_rectangle_horiz_overlap (const MtkRectangle *rect1,
                                       const MtkRectangle *rect2);
 
+MTK_EXPORT
+gboolean mtk_rectangle_could_fit_rect (const MtkRectangle *outer_rect,
+                                       const MtkRectangle *inner_rect);
+
+MTK_EXPORT
+gboolean mtk_rectangle_contains_rect (const MtkRectangle *outer_rect,
+                                      const MtkRectangle *inner_rect);
+

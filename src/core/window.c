@@ -4012,7 +4012,7 @@ meta_window_move_between_rects (MetaWindow          *window,
       new_x = new_area->x;
       new_y = new_area->y;
     }
-  else if (meta_rectangle_contains_rect (old_area, &window->unconstrained_rect) &&
+  else if (mtk_rectangle_contains_rect (old_area, &window->unconstrained_rect) &&
            old_area->width > window->unconstrained_rect.width &&
            old_area->height > window->unconstrained_rect.height &&
            new_area->width >= window->unconstrained_rect.width &&

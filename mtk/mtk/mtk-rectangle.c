@@ -243,3 +243,36 @@ mtk_rectangle_horiz_overlap (const MtkRectangle *rect1,
   return (rect1->x < rect2->x + rect2->width &&
           rect2->x < rect1->x + rect1->width);
 }
+
+/**
+ * mtk_rectangle_could_fit_rect:
+ * @outer_rect: The outer rectangle
+ * @inner_rect: The inner rectangle
+ *
+ * Returns: Whether the inner rectangle could fit inside the outer one
+ */
+gboolean
+mtk_rectangle_could_fit_rect (const MtkRectangle *outer_rect,
+                              const MtkRectangle *inner_rect)
+{
+  return (outer_rect->width  >= inner_rect->width &&
+          outer_rect->height >= inner_rect->height);
+}
+
+/**
+ * mtk_rectangle_contains_rect:
+ * @outer_rect: The outer rectangle
+ * @inner_rect: The inner rectangle
+ *
+ * Returns: Whether the outer rectangle contains the inner one
+ */
+gboolean
+mtk_rectangle_contains_rect (const MtkRectangle *outer_rect,
+                             const MtkRectangle *inner_rect)
+{
+  return
+    inner_rect->x                      >= outer_rect->x &&
+    inner_rect->y                      >= outer_rect->y &&
+    inner_rect->x + inner_rect->width  <= outer_rect->x + outer_rect->width &&
+    inner_rect->y + inner_rect->height <= outer_rect->y + outer_rect->height;
+}

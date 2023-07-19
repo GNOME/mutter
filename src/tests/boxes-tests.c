@@ -201,20 +201,20 @@ test_basic_fitting (void)
     {
       get_random_rect (&temp1);
       get_random_rect (&temp2);
-      g_assert (meta_rectangle_contains_rect (&temp1, &temp2) == FALSE ||
-                meta_rectangle_could_fit_rect (&temp1, &temp2) == TRUE);
-      g_assert (meta_rectangle_contains_rect (&temp2, &temp1) == FALSE ||
-                meta_rectangle_could_fit_rect (&temp2, &temp1) == TRUE);
+      g_assert (mtk_rectangle_contains_rect (&temp1, &temp2) == FALSE ||
+                mtk_rectangle_could_fit_rect (&temp1, &temp2) == TRUE);
+      g_assert (mtk_rectangle_contains_rect (&temp2, &temp1) == FALSE ||
+                mtk_rectangle_could_fit_rect (&temp2, &temp1) == TRUE);
     }
 
   temp1 = MTK_RECTANGLE_INIT ( 0, 0, 10, 10);
   temp2 = MTK_RECTANGLE_INIT ( 5, 5,  5,  5);
   temp3 = MTK_RECTANGLE_INIT ( 8, 2,  3,  7);
-  g_assert ( meta_rectangle_contains_rect (&temp1, &temp2));
-  g_assert (!meta_rectangle_contains_rect (&temp2, &temp1));
-  g_assert (!meta_rectangle_contains_rect (&temp1, &temp3));
-  g_assert ( meta_rectangle_could_fit_rect (&temp1, &temp3));
-  g_assert (!meta_rectangle_could_fit_rect (&temp3, &temp2));
+  g_assert ( mtk_rectangle_contains_rect (&temp1, &temp2));
+  g_assert (!mtk_rectangle_contains_rect (&temp2, &temp1));
+  g_assert (!mtk_rectangle_contains_rect (&temp1, &temp3));
+  g_assert ( mtk_rectangle_could_fit_rect (&temp1, &temp3));
+  g_assert (!mtk_rectangle_could_fit_rect (&temp3, &temp2));
 }
 
 static void
@@ -401,14 +401,14 @@ test_merge_regions (void)
 #endif
 
           /* If a contains b, just remove b */
-          if (meta_rectangle_contains_rect (a, b))
+          if (mtk_rectangle_contains_rect (a, b))
             {
               delete_me = other;
               num_contains++;
               num_merged++;
             }
           /* If b contains a, just remove a */
-          else if (meta_rectangle_contains_rect (a, b))
+          else if (mtk_rectangle_contains_rect (a, b))
             {
               delete_me = compare;
               num_contains++;
