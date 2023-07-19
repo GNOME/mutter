@@ -708,7 +708,7 @@ maybe_add_damaged_regions_metadata (MetaScreenCastStreamSrc *src,
         {
           spa_meta_for_each (meta_region, spa_meta_video_damage)
           {
-            cairo_rectangle_int_t rect;
+            MtkRectangle rect;
 
             cairo_region_get_rectangle (priv->redraw_clip, i, &rect);
             meta_region->region = SPA_REGION (rect.x, rect.y,

@@ -221,7 +221,7 @@ configure_abs (MetaEisClient     *meta_eis_client,
                struct eis_device *eis_device)
 {
   int idx = 0;
-  cairo_rectangle_int_t rect;
+  MtkRectangle rect;
   float scale;
 
   if (!meta_eis_client->viewports)

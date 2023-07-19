@@ -407,7 +407,7 @@ meta_frame_get_frame_bounds (MetaFrame *frame)
   /* FIXME: currently just the client area, should shape closer to
    * frame border, incl. rounded corners.
    */
-  bounds = cairo_region_create_rectangle (&(cairo_rectangle_int_t) {
+  bounds = cairo_region_create_rectangle (&(MtkRectangle) {
     borders.total.left,
     borders.total.top,
     frame->rect.width - borders.total.left - borders.total.right,
@@ -419,7 +419,7 @@ meta_frame_get_frame_bounds (MetaFrame *frame)
 
 void
 meta_frame_get_mask (MetaFrame             *frame,
-                     cairo_rectangle_int_t *frame_rect,
+                     MtkRectangle          *frame_rect,
                      cairo_t               *cr)
 {
   MetaFrameBorders borders;

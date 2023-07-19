@@ -137,7 +137,7 @@ meta_stage_x11_set_wm_protocols (MetaStageX11 *stage_x11)
 
 static void
 meta_stage_x11_get_geometry (ClutterStageWindow    *stage_window,
-                             cairo_rectangle_int_t *geometry)
+                             MtkRectangle          *geometry)
 {
   MetaStageX11 *stage_x11 = META_STAGE_X11 (stage_window);
 
@@ -765,7 +765,7 @@ meta_stage_x11_handle_event (MetaStageX11 *stage_x11,
     case Expose:
       {
         XExposeEvent *expose = (XExposeEvent *) xevent;
-        cairo_rectangle_int_t clip;
+        MtkRectangle clip;
 
         g_debug ("expose for stage: win:0x%x - "
                  "redrawing area (x: %d, y: %d, width: %d, height: %d)",

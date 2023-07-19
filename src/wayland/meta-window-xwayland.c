@@ -109,7 +109,7 @@ meta_window_xwayland_adjust_fullscreen_monitor_rect (MetaWindow    *window,
 {
   MetaX11Display *x11_display = window->display->x11_display;
   MetaRectangle win_monitor_rect;
-  cairo_rectangle_int_t *rects;
+  MtkRectangle *rects;
   uint32_t *list = NULL;
   int i, n_items = 0;
 
@@ -135,7 +135,7 @@ meta_window_xwayland_adjust_fullscreen_monitor_rect (MetaWindow    *window,
       return;
     }
 
-  rects = (cairo_rectangle_int_t *) list;
+  rects = (MtkRectangle *) list;
   n_items = n_items / 4;
   for (i = 0; i < n_items; i++)
     {

@@ -270,7 +270,7 @@ meta_shadow_paint (MetaShadow      *shadow,
 
   for (j = 0; j < n_y; j++)
     {
-      cairo_rectangle_int_t dest_rect;
+      MtkRectangle dest_rect;
       dest_rect.y = dest_y[j];
       dest_rect.height = dest_y[j + 1] - dest_y[j];
 
@@ -322,7 +322,7 @@ meta_shadow_paint (MetaShadow      *shadow,
               n_rectangles = cairo_region_num_rectangles (intersection);
               for (k = 0; k < n_rectangles; k++)
                 {
-                  cairo_rectangle_int_t rect;
+                  MtkRectangle rect;
                   float src_x1, src_x2, src_y1, src_y2;
 
                   cairo_region_get_rectangle (intersection, k, &rect);
@@ -370,7 +370,7 @@ meta_shadow_get_bounds  (MetaShadow            *shadow,
                          int                    window_y,
                          int                    window_width,
                          int                    window_height,
-                         cairo_rectangle_int_t *bounds)
+                         MtkRectangle          *bounds)
 {
   bounds->x = window_x - shadow->outer_border_left;
   bounds->y = window_y - shadow->outer_border_top;
@@ -582,7 +582,7 @@ blur_rows (cairo_region_t   *convolve_region,
   n_rectangles = cairo_region_num_rectangles (convolve_region);
   for (i = 0; i < n_rectangles; i++)
     {
-      cairo_rectangle_int_t rect;
+      MtkRectangle rect;
 
       cairo_region_get_rectangle (convolve_region, i, &rect);
 
@@ -710,7 +710,7 @@ make_shadow (MetaShadow     *shadow,
   GError *error = NULL;
   int d = get_box_filter_size (shadow->key.radius);
   int spread = get_shadow_spread (shadow->key.radius);
-  cairo_rectangle_int_t extents;
+  MtkRectangle extents;
   cairo_region_t *row_convolve_region;
   cairo_region_t *column_convolve_region;
   guchar *buffer;
@@ -763,7 +763,7 @@ make_shadow (MetaShadow     *shadow,
   n_rectangles = cairo_region_num_rectangles (region);
   for (k = 0; k < n_rectangles; k++)
     {
-      cairo_rectangle_int_t rect;
+      MtkRectangle rect;
 
       cairo_region_get_rectangle (region, k, &rect);
       for (j = y_offset + rect.y; j < y_offset + rect.y + rect.height; j++)

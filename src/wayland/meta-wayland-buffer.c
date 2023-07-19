@@ -701,7 +701,7 @@ process_shm_buffer_damage (MetaWaylandBuffer *buffer,
     {
       const uint8_t *data = wl_shm_buffer_get_data (shm_buffer);
       int32_t stride = wl_shm_buffer_get_stride (shm_buffer);
-      cairo_rectangle_int_t rect;
+      MtkRectangle rect;
       int bpp;
 
       bpp = cogl_pixel_format_get_bytes_per_pixel (format, 0);

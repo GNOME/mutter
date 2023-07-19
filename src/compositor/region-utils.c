@@ -29,11 +29,11 @@
 #define META_REGION_MAX_STACK_RECTS 256
 
 #define META_REGION_CREATE_RECTANGLE_ARRAY_SCOPED(n_rects, rects) \
-  g_autofree cairo_rectangle_int_t *G_PASTE(__n, __LINE__) = NULL; \
+  g_autofree MtkRectangle *G_PASTE(__n, __LINE__) = NULL; \
   if (n_rects < META_REGION_MAX_STACK_RECTS) \
-    rects = g_newa (cairo_rectangle_int_t, n_rects); \
+    rects = g_newa (MtkRectangle, n_rects); \
   else \
-    rects = G_PASTE(__n, __LINE__) = g_new (cairo_rectangle_int_t, n_rects);
+    rects = G_PASTE(__n, __LINE__) = g_new (MtkRectangle, n_rects);
 
 /* MetaRegionBuilder */
 
@@ -71,7 +71,7 @@ meta_region_builder_add_rectangle (MetaRegionBuilder *builder,
                                    int                width,
                                    int                height)
 {
-  cairo_rectangle_int_t rect;
+  MtkRectangle rect;
   int i;
 
   if (builder->levels[0] == NULL)
@@ -189,7 +189,7 @@ cairo_region_t *
 meta_region_scale (cairo_region_t *region, int scale)
 {
   int n_rects, i;
-  cairo_rectangle_int_t *rects;
+  MtkRectangle *rects;
   cairo_region_t *scaled_region;
 
   if (scale == 1)
@@ -246,7 +246,7 @@ expand_region (cairo_region_t *region,
   n = cairo_region_num_rectangles (region);
   for (i = 0; i < n; i++)
     {
-      cairo_rectangle_int_t rect;
+      MtkRectangle rect;
 
       cairo_region_get_rectangle (region, i, &rect);
       add_expanded_rect (&builder,
@@ -267,7 +267,7 @@ expand_region_inverse (cairo_region_t *region,
 {
   MetaRegionBuilder builder;
   MetaRegionIterator iter;
-  cairo_rectangle_int_t extents;
+  MtkRectangle extents;
 
   int last_x;
 
@@ -356,7 +356,7 @@ meta_region_transform (const cairo_region_t *region,
                        int                   height)
 {
   int n_rects, i;
-  cairo_rectangle_int_t *rects;
+  MtkRectangle *rects;
   cairo_region_t *transformed_region;
 
   if (transform == META_MONITOR_TRANSFORM_NORMAL)
@@ -387,7 +387,7 @@ meta_region_crop_and_scale (cairo_region_t  *region,
                             int              dst_height)
 {
   int n_rects, i;
-  cairo_rectangle_int_t *rects;
+  MtkRectangle *rects;
   cairo_region_t *viewport_region;
 
   if (G_APPROX_VALUE (src_rect->size.width, dst_width, FLT_EPSILON) &&
@@ -432,7 +432,7 @@ void
 meta_region_to_cairo_path (cairo_region_t *region,
                            cairo_t        *cr)
 {
-  cairo_rectangle_int_t rect;
+  MtkRectangle rect;
   int n_rects, i;
 
   n_rects = cairo_region_num_rectangles (region);
@@ -449,7 +449,7 @@ meta_region_apply_matrix_transform_expand (const cairo_region_t *region,
                                            graphene_matrix_t    *transform)
 {
   int n_rects, i;
-  cairo_rectangle_int_t *rects;
+  MtkRectangle *rects;
   cairo_region_t *transformed_region;
 
   if (graphene_matrix_is_identity (transform))
@@ -460,7 +460,7 @@ meta_region_apply_matrix_transform_expand (const cairo_region_t *region,
   for (i = 0; i < n_rects; i++)
     {
       graphene_rect_t transformed_rect, rect;
-      cairo_rectangle_int_t int_rect;
+      MtkRectangle int_rect;
 
       cairo_region_get_rectangle (region, i, &int_rect);
       rect = meta_rectangle_to_graphene_rect (&int_rect);

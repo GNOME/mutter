@@ -369,8 +369,8 @@ meta_background_init (MetaBackground *self)
 }
 
 static void
-set_texture_area_from_monitor_area (cairo_rectangle_int_t *monitor_area,
-                                    cairo_rectangle_int_t *texture_area)
+set_texture_area_from_monitor_area (MtkRectangle *monitor_area,
+                                    MtkRectangle *texture_area)
 {
   texture_area->x = 0;
   texture_area->y = 0;
@@ -380,12 +380,12 @@ set_texture_area_from_monitor_area (cairo_rectangle_int_t *monitor_area,
 
 static void
 get_texture_area (MetaBackground          *self,
-                  cairo_rectangle_int_t   *monitor_rect,
+                  MtkRectangle            *monitor_rect,
                   float                    monitor_scale,
                   CoglTexture             *texture,
-                  cairo_rectangle_int_t   *texture_area)
+                  MtkRectangle            *texture_area)
 {
-  cairo_rectangle_int_t image_area;
+  MtkRectangle image_area;
   int screen_width, screen_height;
   float texture_width, texture_height;
   float monitor_x_scale, monitor_y_scale;
@@ -493,10 +493,10 @@ draw_texture (MetaBackground        *self,
               CoglFramebuffer       *framebuffer,
               CoglPipeline          *pipeline,
               CoglTexture           *texture,
-              cairo_rectangle_int_t *monitor_area,
+              MtkRectangle          *monitor_area,
               float                  monitor_scale)
 {
-  cairo_rectangle_int_t texture_area;
+  MtkRectangle texture_area;
   gboolean bare_region_visible;
 
   get_texture_area (self, monitor_area, monitor_scale, texture, &texture_area);
@@ -531,7 +531,7 @@ draw_texture (MetaBackground        *self,
                                                 texture_area.x + texture_area.width,
                                                 texture_area.y + texture_area.height,
                                                 0, 0, 1.0, 1.0);
-      bare_region_visible = texture_has_alpha (texture) || memcmp (&texture_area, monitor_area, sizeof (cairo_rectangle_int_t)) != 0;
+      bare_region_visible = texture_has_alpha (texture) || memcmp (&texture_area, monitor_area, sizeof (MtkRectangle)) != 0;
       break;
     case G_DESKTOP_BACKGROUND_STYLE_NONE:
       bare_region_visible = TRUE;
@@ -752,12 +752,12 @@ get_best_mipmap_level (CoglTexture *texture,
 CoglTexture *
 meta_background_get_texture (MetaBackground         *self,
                              int                     monitor_index,
-                             cairo_rectangle_int_t  *texture_area,
+                             MtkRectangle           *texture_area,
                              CoglPipelineWrapMode   *wrap_mode)
 {
   MetaBackgroundMonitor *monitor;
   MetaRectangle geometry;
-  cairo_rectangle_int_t monitor_area;
+  MtkRectangle monitor_area;
   CoglTexture *texture1, *texture2;
   float monitor_scale;
 

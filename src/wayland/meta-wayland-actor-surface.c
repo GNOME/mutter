@@ -179,7 +179,7 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
   MetaSurfaceActor *surface_actor;
   MetaShapedTexture *stex;
   MetaWaylandBuffer *buffer;
-  cairo_rectangle_int_t surface_rect;
+  MtkRectangle surface_rect;
   MetaWaylandSurface *subsurface_surface;
 
   surface_actor = priv->actor;
@@ -207,7 +207,7 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
       meta_shaped_texture_set_texture (stex, NULL);
     }
 
-  surface_rect = (cairo_rectangle_int_t) {
+  surface_rect = (MtkRectangle) {
     .width = meta_wayland_surface_get_width (surface),
     .height = meta_wayland_surface_get_height (surface),
   };

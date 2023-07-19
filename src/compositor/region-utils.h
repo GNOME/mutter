@@ -52,14 +52,14 @@ typedef struct _MetaRegionIterator MetaRegionIterator;
 
 struct _MetaRegionIterator {
   cairo_region_t *region;
-  cairo_rectangle_int_t rectangle;
+  MtkRectangle rectangle;
   gboolean line_start;
   gboolean line_end;
   int i;
 
   /*< private >*/
   int n_rectangles;
-  cairo_rectangle_int_t next_rectangle;
+  MtkRectangle next_rectangle;
 };
 
 typedef struct _MetaRegionBuilder MetaRegionBuilder;

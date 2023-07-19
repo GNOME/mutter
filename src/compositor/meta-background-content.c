@@ -229,7 +229,7 @@ struct _MetaBackgroundContent
   ChangedFlags changed;
   CoglPipeline *pipeline;
   PipelineFlags pipeline_flags;
-  cairo_rectangle_int_t texture_area;
+  MtkRectangle texture_area;
   int texture_width, texture_height;
 
   cairo_region_t *clip_region;
@@ -389,7 +389,7 @@ static void
 setup_pipeline (MetaBackgroundContent *self,
                 ClutterActor          *actor,
                 ClutterPaintContext   *paint_context,
-                cairo_rectangle_int_t *actor_pixel_rect)
+                MtkRectangle          *actor_pixel_rect)
 {
   MetaContext *context = meta_display_get_context (self->display);
   MetaBackend *backend = meta_context_get_backend (context);
@@ -566,7 +566,7 @@ setup_pipeline (MetaBackgroundContent *self,
 
 static void
 set_glsl_parameters (MetaBackgroundContent *self,
-                     cairo_rectangle_int_t *actor_pixel_rect)
+                     MtkRectangle          *actor_pixel_rect)
 {
   MetaContext *context = meta_display_get_context (self->display);
   MetaBackend *backend = meta_context_get_backend (context);
@@ -616,7 +616,7 @@ static void
 paint_clipped_rectangle (MetaBackgroundContent *self,
                          ClutterPaintNode      *node,
                          ClutterActorBox       *actor_box,
-                         cairo_rectangle_int_t *rect)
+                         MtkRectangle          *rect)
 {
   g_autoptr (ClutterPaintNode) pipeline_node = NULL;
   float h_scale, v_scale;
@@ -659,8 +659,8 @@ meta_background_content_paint_content (ClutterContent      *content,
 {
   MetaBackgroundContent *self = META_BACKGROUND_CONTENT (content);
   ClutterActorBox actor_box;
-  cairo_rectangle_int_t rect_within_actor;
-  cairo_rectangle_int_t rect_within_stage;
+  MtkRectangle rect_within_actor;
+  MtkRectangle rect_within_stage;
   cairo_region_t *region;
   int i, n_rects;
   float transformed_x, transformed_y, transformed_width, transformed_height;
@@ -758,14 +758,14 @@ meta_background_content_paint_content (ClutterContent      *content,
     {
       for (i = 0; i < n_rects; i++)
         {
-          cairo_rectangle_int_t rect;
+          MtkRectangle rect;
           cairo_region_get_rectangle (region, i, &rect);
           paint_clipped_rectangle (self, node, &actor_box, &rect);
         }
     }
   else
     {
-      cairo_rectangle_int_t rect;
+      MtkRectangle rect;
       cairo_region_get_extents (region, &rect);
       paint_clipped_rectangle (self, node, &actor_box, &rect);
     }

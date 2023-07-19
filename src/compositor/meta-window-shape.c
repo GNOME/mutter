@@ -35,7 +35,7 @@ struct _MetaWindowShape
 
   int top, right, bottom, left;
   int n_rectangles;
-  cairo_rectangle_int_t *rectangles;
+  MtkRectangle *rectangles;
   guint hash;
 };
 
@@ -44,7 +44,7 @@ meta_window_shape_new (cairo_region_t *region)
 {
   MetaWindowShape *shape;
   MetaRegionIterator iter;
-  cairo_rectangle_int_t extents;
+  MtkRectangle extents;
   int max_yspan_y1 = 0;
   int max_yspan_y2 = 0;
   int max_xspan_x1 = -1;
@@ -114,7 +114,7 @@ meta_window_shape_new (cairo_region_t *region)
   shape->bottom = extents.y + extents.height - max_yspan_y2;
   shape->left = max_xspan_x1 - extents.x;
 
-  shape->rectangles = g_new (cairo_rectangle_int_t, shape->n_rectangles);
+  shape->rectangles = g_new (MtkRectangle, shape->n_rectangles);
 
   hash = 0;
   for (meta_region_iterator_init (&iter, region);
@@ -194,7 +194,7 @@ meta_window_shape_equal (MetaWindowShape *shape_a,
     return FALSE;
 
   return memcmp (shape_a->rectangles, shape_b->rectangles,
-                 sizeof (cairo_rectangle_int_t) * shape_a->n_rectangles) == 0;
+                 sizeof (MtkRectangle) * shape_a->n_rectangles) == 0;
 }
 
 void
@@ -237,7 +237,7 @@ meta_window_shape_to_region (MetaWindowShape *shape,
 
   for (i = 0; i < shape->n_rectangles; i++)
     {
-      cairo_rectangle_int_t rect = shape->rectangles[i];
+      MtkRectangle rect = shape->rectangles[i];
 
       if (rect.x <= shape->left && rect.x + rect.width >= shape->left + 1)
         rect.width += center_width;

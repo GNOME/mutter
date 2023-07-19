@@ -630,7 +630,7 @@ meta_wayland_pointer_constraint_calculate_effective_region (MetaWaylandPointerCo
                                                     frame->bottom_height);
       if (actual_width > 0 && actual_height > 0)
         {
-          cairo_region_intersect_rectangle (region, &(cairo_rectangle_int_t) {
+          cairo_region_intersect_rectangle (region, &(MtkRectangle) {
                                               .x = frame->child_x,
                                               .y = frame->child_y,
                                               .width = actual_width,

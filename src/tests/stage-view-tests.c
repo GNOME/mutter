@@ -505,7 +505,7 @@ assert_is_stage_view (ClutterStageView *stage_view,
                       int               width,
                       int               height)
 {
-  cairo_rectangle_int_t layout;
+  MtkRectangle layout;
 
   g_assert_nonnull (stage_view);
   g_assert_true (CLUTTER_IS_STAGE_VIEW (stage_view));

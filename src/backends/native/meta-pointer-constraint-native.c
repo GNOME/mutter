@@ -253,7 +253,7 @@ region_to_outline (cairo_region_t *region,
   boxes = g_new (MetaBox, num_boxes);
   for (i = 0; i < num_boxes; i++)
     {
-      cairo_rectangle_int_t rect;
+      MtkRectangle rect;
       cairo_region_get_rectangle (region, i, &rect);
       boxes[i] = (MetaBox) {
         .x1 = rect.x,

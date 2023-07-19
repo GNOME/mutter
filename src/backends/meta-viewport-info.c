@@ -65,7 +65,7 @@ meta_viewport_info_init (MetaViewportInfo *info)
 }
 
 MetaViewportInfo *
-meta_viewport_info_new (cairo_rectangle_int_t *views,
+meta_viewport_info_new (MtkRectangle          *views,
                         float                 *scales,
                         int                    n_views,
                         gboolean               is_views_scaled)
@@ -110,7 +110,7 @@ meta_viewport_info_get_view_at (MetaViewportInfo *viewport_info,
 gboolean
 meta_viewport_info_get_view_info (MetaViewportInfo      *viewport_info,
                                   int                    idx,
-                                  cairo_rectangle_int_t *rect,
+                                  MtkRectangle          *rect,
                                   float                 *scale)
 {
   ViewInfo *info;
@@ -128,8 +128,8 @@ meta_viewport_info_get_view_info (MetaViewportInfo      *viewport_info,
 }
 
 static gboolean
-view_has_neighbor (cairo_rectangle_int_t *view,
-                   cairo_rectangle_int_t *neighbor,
+view_has_neighbor (MtkRectangle          *view,
+                   MtkRectangle          *neighbor,
                    MetaDisplayDirection   neighbor_direction)
 {
   switch (neighbor_direction)
@@ -164,7 +164,7 @@ meta_viewport_info_get_neighbor (MetaViewportInfo     *viewport_info,
                                  int                   idx,
                                  MetaDisplayDirection  direction)
 {
-  cairo_rectangle_int_t rect;
+  MtkRectangle rect;
   int i;
 
   if (!meta_viewport_info_get_view_info (viewport_info, idx, &rect, NULL))

@@ -278,10 +278,10 @@ calculate_background_cull_region (MetaWindowActorWayland *self)
 {
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (self);
   int geometry_scale;
-  cairo_rectangle_int_t rect;
+  MtkRectangle rect;
 
   geometry_scale = meta_window_actor_get_geometry_scale (window_actor);
-  rect = (cairo_rectangle_int_t) {
+  rect = (MtkRectangle) {
     .x = 0,
     .y = 0,
     .width = clutter_actor_get_width (self->background) * geometry_scale,

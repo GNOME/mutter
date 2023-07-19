@@ -1023,11 +1023,11 @@ meta_compositor_real_before_paint (MetaCompositor     *compositor,
     meta_compositor_get_instance_private (compositor);
   ClutterActor *stage = meta_backend_get_stage (priv->backend);
   ClutterStageView *stage_view;
-  cairo_rectangle_int_t stage_rect;
+  MtkRectangle stage_rect;
   cairo_region_t *unobscured_region;
   GList *l;
 
-  stage_rect = (cairo_rectangle_int_t) {
+  stage_rect = (MtkRectangle) {
     0, 0,
     clutter_actor_get_width (stage),
     clutter_actor_get_height (stage),

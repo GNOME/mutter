@@ -655,7 +655,7 @@ meta_screen_cast_monitor_stream_record_follow_up (MetaScreenCastStreamSrc *src)
       if (!meta_rectangle_overlap (&logical_monitor_layout, &view_layout))
         continue;
 
-      damage = (cairo_rectangle_int_t) {
+      damage = (MtkRectangle) {
         .x = view_layout.x,
         .y = view_layout.y,
         .width = 1,

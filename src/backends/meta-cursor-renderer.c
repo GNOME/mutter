@@ -35,6 +35,7 @@
 #include "core/boxes-private.h"
 #include "meta/meta-backend.h"
 #include "meta/util.h"
+#include "mtk/mtk.h"
 
 G_DEFINE_INTERFACE (MetaHwCursorInhibitor, meta_hw_cursor_inhibitor,
                     G_TYPE_OBJECT)
@@ -109,7 +110,7 @@ align_cursor_position (MetaCursorRenderer *renderer,
     meta_cursor_renderer_get_instance_private (renderer);
   ClutterActor *stage = meta_backend_get_stage (priv->backend);
   ClutterStageView *view;
-  cairo_rectangle_int_t view_layout;
+  MtkRectangle view_layout;
   float view_scale;
 
   view = clutter_stage_get_view_at (CLUTTER_STAGE (stage),

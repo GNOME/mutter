@@ -2565,7 +2565,7 @@ handle_activate_window_menu (MetaDisplay           *display,
     {
       int x, y;
       MetaRectangle frame_rect;
-      cairo_rectangle_int_t child_rect;
+      MtkRectangle child_rect;
 
       meta_window_get_frame_rect (display->focus_window, &frame_rect);
       meta_window_get_client_area_rect (display->focus_window, &child_rect);

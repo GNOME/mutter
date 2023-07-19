@@ -103,10 +103,10 @@ meta_renderer_view_setup_offscreen_blit_pipeline (ClutterStageView *view,
 
 static void
 meta_renderer_view_transform_rect_to_onscreen (ClutterStageView            *view,
-                                               const cairo_rectangle_int_t *src_rect,
+                                               const MtkRectangle          *src_rect,
                                                int                          dst_width,
                                                int                          dst_height,
-                                               cairo_rectangle_int_t       *dst_rect)
+                                               MtkRectangle                *dst_rect)
 {
   MetaRendererView *renderer_view = META_RENDERER_VIEW (view);
   MetaRendererViewPrivate *priv =

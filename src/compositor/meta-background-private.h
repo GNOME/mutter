@@ -5,7 +5,7 @@
 #include "cogl/cogl.h"
 #include "meta/meta-background.h"
 
-CoglTexture *meta_background_get_texture (MetaBackground         *self,
-                                          int                     monitor_index,
-                                          cairo_rectangle_int_t  *texture_area,
-                                          CoglPipelineWrapMode   *wrap_mode);
+CoglTexture * meta_background_get_texture (MetaBackground         *self,
+                                           int                     monitor_index,
+                                           MtkRectangle           *texture_area,
+                                           CoglPipelineWrapMode   *wrap_mode);

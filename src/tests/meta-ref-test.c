@@ -229,7 +229,7 @@ capture_view_into (ClutterStageView *view,
   ClutterBackend *backend;
   CoglContext *context;
   CoglBitmap *bitmap;
-  cairo_rectangle_int_t view_layout;
+  MtkRectangle view_layout;
   float view_scale;
   float texture_width;
   float texture_height;

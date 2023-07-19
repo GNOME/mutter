@@ -74,7 +74,7 @@ meta_stage_native_can_clip_redraws (ClutterStageWindow *stage_window)
 
 static void
 meta_stage_native_get_geometry (ClutterStageWindow    *stage_window,
-                                cairo_rectangle_int_t *geometry)
+                                MtkRectangle          *geometry)
 {
   MetaStageImpl *stage_impl = META_STAGE_IMPL (stage_window);
   MetaBackend *backend = meta_stage_impl_get_backend (stage_impl);
@@ -86,14 +86,14 @@ meta_stage_native_get_geometry (ClutterStageWindow    *stage_window,
       int width, height;
 
       meta_monitor_manager_get_screen_size (monitor_manager, &width, &height);
-      *geometry = (cairo_rectangle_int_t) {
+      *geometry = (MtkRectangle) {
         .width = width,
         .height = height,
       };
     }
   else
     {
-      *geometry = (cairo_rectangle_int_t) {
+      *geometry = (MtkRectangle) {
         .width = 1,
         .height = 1,
       };

@@ -121,7 +121,7 @@ void        meta_shadow_get_bounds  (MetaShadow            *shadow,
                                      int                    window_y,
                                      int                    window_width,
                                      int                    window_height,
-                                     cairo_rectangle_int_t *bounds);
+                                     MtkRectangle          *bounds);
 
 META_EXPORT
 MetaShadowFactory *meta_shadow_factory_new (void);

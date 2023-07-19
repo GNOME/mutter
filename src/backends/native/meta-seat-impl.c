@@ -1124,7 +1124,7 @@ constrain_all_screen_monitors (ClutterInputDevice *device,
   for (i = 0; i < n_views; i++)
     {
       int left, right, top, bottom;
-      cairo_rectangle_int_t rect;
+      MtkRectangle rect;
 
       meta_viewport_info_get_view_info (viewports, i, &rect, NULL);
 
@@ -1214,7 +1214,7 @@ relative_motion_across_outputs (MetaViewportInfo   *viewports,
       MetaLine2 left, right, top, bottom, motion;
       MetaVector2 intersection;
       MetaDisplayDirection direction;
-      cairo_rectangle_int_t rect;
+      MtkRectangle rect;
       float scale;
 
       meta_viewport_info_get_view_info (viewports, cur_view, &rect, &scale);
@@ -3664,7 +3664,7 @@ ensure_pointer_onscreen (MetaSeatImpl *seat_impl)
 {
   int i, candidate = -1;
   int nearest_monitor_x, nearest_monitor_y, min_distance = G_MAXINT;
-  cairo_rectangle_int_t monitor_rect;
+  MtkRectangle monitor_rect;
   graphene_point_t coords;
 
   if (!meta_seat_impl_query_state (seat_impl,

@@ -2374,7 +2374,7 @@ region_create_from_x_rectangles (const XRectangle *rects,
                                  int n_rects)
 {
   int i;
-  cairo_rectangle_int_t *cairo_rects = g_newa (cairo_rectangle_int_t, n_rects);
+  MtkRectangle *cairo_rects = g_newa (MtkRectangle, n_rects);
 
   for (i = 0; i < n_rects; i ++)
     {
@@ -2414,7 +2414,7 @@ print_region (cairo_region_t *region)
   g_print ("[");
   for (i = 0; i < n_rects; i++)
     {
-      cairo_rectangle_int_t rect;
+      MtkRectangle rect;
       cairo_region_get_rectangle (region, i, &rect);
       g_print ("+%d+%dx%dx%d ",
                rect.x, rect.y, rect.width, rect.height);
@@ -2506,7 +2506,7 @@ meta_window_x11_update_input_region (MetaWindow *window)
 
   if (region != NULL)
     {
-      cairo_rectangle_int_t client_area;
+      MtkRectangle client_area;
 
       client_area.x = 0;
       client_area.y = 0;
@@ -2587,7 +2587,7 @@ meta_window_x11_update_shape_region (MetaWindow *window)
 
   if (region != NULL)
     {
-      cairo_rectangle_int_t client_area;
+      MtkRectangle client_area;
 
       client_area.x = 0;
       client_area.y = 0;

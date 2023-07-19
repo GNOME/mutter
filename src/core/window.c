@@ -4453,7 +4453,7 @@ meta_window_get_frame_rect (const MetaWindow *window,
  */
 void
 meta_window_get_client_area_rect (const MetaWindow      *window,
-                                  cairo_rectangle_int_t *rect)
+                                  MtkRectangle          *rect)
 {
   MetaFrameBorders borders;
 

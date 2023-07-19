@@ -816,7 +816,7 @@ void meta_window_handle_ungrabbed_event (MetaWindow         *window,
                                          const ClutterEvent *event);
 
 void meta_window_get_client_area_rect (const MetaWindow      *window,
-                                       cairo_rectangle_int_t *rect);
+                                       MtkRectangle          *rect);
 void meta_window_get_titlebar_rect (MetaWindow    *window,
                                     MetaRectangle *titlebar_rect);
 

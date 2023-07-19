@@ -4019,7 +4019,7 @@ meta_monitor_manager_get_viewports (MetaMonitorManager *manager)
   GArray *views, *scales;
   GList *logical_monitors, *l;
 
-  views = g_array_new (FALSE, FALSE, sizeof (cairo_rectangle_int_t));
+  views = g_array_new (FALSE, FALSE, sizeof (MtkRectangle));
   scales = g_array_new (FALSE, FALSE, sizeof (float));
 
   logical_monitors = meta_monitor_manager_get_logical_monitors (manager);
@@ -4027,7 +4027,7 @@ meta_monitor_manager_get_viewports (MetaMonitorManager *manager)
   for (l = logical_monitors; l; l = l->next)
     {
       MetaLogicalMonitor *logical_monitor = l->data;
-      cairo_rectangle_int_t rect;
+      MtkRectangle rect;
       float scale;
 
       rect = logical_monitor->rect;
@@ -4037,7 +4037,7 @@ meta_monitor_manager_get_viewports (MetaMonitorManager *manager)
       g_array_append_val (scales, scale);
     }
 
-  info = meta_viewport_info_new ((cairo_rectangle_int_t *) views->data,
+  info = meta_viewport_info_new ((MtkRectangle *) views->data,
                                  (float *) scales->data,
                                  views->len,
                                  meta_backend_is_stage_views_scaled (backend));

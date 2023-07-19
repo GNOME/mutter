@@ -187,7 +187,7 @@ ensure_eis_pointer_regions (MetaInputCaptureSession *session,
                             struct eis_device       *eis_pointer)
 {
   int idx = 0;
-  cairo_rectangle_int_t rect;
+  MtkRectangle rect;
   float scale;
 
   if (!session->viewports)

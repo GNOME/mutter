@@ -521,7 +521,7 @@ get_shadow_params (MetaWindowActorX11 *actor_x11,
 
 static void
 get_shape_bounds (MetaWindowActorX11    *actor_x11,
-                  cairo_rectangle_int_t *bounds)
+                  MtkRectangle          *bounds)
 {
   cairo_region_get_extents (actor_x11->shape_region, bounds);
 }
@@ -529,10 +529,10 @@ get_shape_bounds (MetaWindowActorX11    *actor_x11,
 static void
 get_shadow_bounds (MetaWindowActorX11    *actor_x11,
                    gboolean               appears_focused,
-                   cairo_rectangle_int_t *bounds)
+                   MtkRectangle          *bounds)
 {
   MetaShadow *shadow;
-  cairo_rectangle_int_t shape_bounds;
+  MtkRectangle shape_bounds;
   MetaShadowParams params;
 
   shadow = appears_focused ? actor_x11->focused_shadow
@@ -662,7 +662,7 @@ check_needs_shadow (MetaWindowActorX11 *actor_x11)
     {
       MetaShadowFactory *factory = actor_x11->shadow_factory;
       const char *shadow_class = get_shadow_class (actor_x11);
-      cairo_rectangle_int_t shape_bounds;
+      MtkRectangle shape_bounds;
 
       if (!actor_x11->shadow_shape)
         {
@@ -712,7 +712,7 @@ scan_visible_region (guchar         *mask_data,
   for (i = 0; i < n_rects; i++)
     {
       int x, y;
-      cairo_rectangle_int_t rect;
+      MtkRectangle rect;
 
       cairo_region_get_rectangle (scan_area, i, &rect);
 
@@ -739,11 +739,11 @@ scan_visible_region (guchar         *mask_data,
 static void
 get_client_area_rect_from_texture (MetaWindowActorX11    *actor_x11,
                                    MetaShapedTexture     *shaped_texture,
-                                   cairo_rectangle_int_t *client_area)
+                                   MtkRectangle          *client_area)
 {
   MetaWindow *window =
     meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
-  cairo_rectangle_int_t surface_rect = { 0 };
+  MtkRectangle surface_rect = { 0 };
 
   surface_rect.width = meta_shaped_texture_get_width (shaped_texture);
   surface_rect.height = meta_shaped_texture_get_height (shaped_texture);
@@ -754,7 +754,7 @@ get_client_area_rect_from_texture (MetaWindowActorX11    *actor_x11,
 
 static void
 get_client_area_rect (MetaWindowActorX11    *actor_x11,
-                      cairo_rectangle_int_t *client_area)
+                      MtkRectangle          *client_area)
 {
   MetaSurfaceActor *surface =
     meta_window_actor_get_surface (META_WINDOW_ACTOR (actor_x11));
@@ -816,9 +816,9 @@ build_and_scan_frame_mask (MetaWindowActorX11    *actor_x11,
   if (window->frame)
     {
       cairo_region_t *frame_paint_region, *scanned_region;
-      cairo_rectangle_int_t rect = { 0, 0, tex_width, tex_height };
-      cairo_rectangle_int_t client_area;
-      cairo_rectangle_int_t frame_rect;
+      MtkRectangle rect = { 0, 0, tex_width, tex_height };
+      MtkRectangle client_area;
+      MtkRectangle frame_rect;
 
       /* If we update the shape regardless of the frozen state of the actor,
        * as with Xwayland to avoid the black shadow effect, we ought to base
@@ -898,7 +898,7 @@ update_shape_region (MetaWindowActorX11 *actor_x11)
   MetaWindow *window =
     meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
   cairo_region_t *region = NULL;
-  cairo_rectangle_int_t client_area;
+  MtkRectangle client_area;
 
   get_client_area_rect (actor_x11, &client_area);
 
@@ -941,7 +941,7 @@ update_input_region (MetaWindowActorX11 *actor_x11)
 
   if (window->shape_region && window->input_region)
     {
-      cairo_rectangle_int_t client_area;
+      MtkRectangle client_area;
       cairo_region_t *frames_input;
       cairo_region_t *client_input;
 
@@ -960,7 +960,7 @@ update_input_region (MetaWindowActorX11 *actor_x11)
     }
   else if (window->shape_region)
     {
-      cairo_rectangle_int_t client_area;
+      MtkRectangle client_area;
 
       meta_window_get_client_area_rect (window, &client_area);
 
@@ -1015,7 +1015,7 @@ update_opaque_region (MetaWindowActorX11 *actor_x11)
       (window->opaque_region ||
        (window->frame && window->frame->opaque_region)))
     {
-      cairo_rectangle_int_t client_area;
+      MtkRectangle client_area;
 
       if (window->frame && window->frame->opaque_region)
         opaque_region = cairo_region_copy (window->frame->opaque_region);
@@ -1212,7 +1212,7 @@ meta_window_actor_x11_paint (ClutterActor        *actor,
   if (shadow)
     {
       MetaShadowParams params;
-      cairo_rectangle_int_t shape_bounds;
+      MtkRectangle shape_bounds;
       cairo_region_t *clip = actor_x11->shadow_clip;
       CoglFramebuffer *framebuffer;
 
@@ -1224,7 +1224,7 @@ meta_window_actor_x11_paint (ClutterActor        *actor,
        */
       if (!clip && clip_shadow_under_window (actor_x11))
         {
-          cairo_rectangle_int_t bounds;
+          MtkRectangle bounds;
 
           get_shadow_bounds (actor_x11, appears_focused, &bounds);
           clip = cairo_region_create_rectangle (&bounds);
@@ -1321,7 +1321,7 @@ meta_window_actor_x11_get_paint_volume (ClutterActor       *actor,
   appears_focused = meta_window_appears_focused (window);
   if (appears_focused ? actor_x11->focused_shadow : actor_x11->unfocused_shadow)
     {
-      cairo_rectangle_int_t shadow_bounds;
+      MtkRectangle shadow_bounds;
       ClutterActorBox shadow_box;
 
       /* We could compute an full clip region as we do for the window

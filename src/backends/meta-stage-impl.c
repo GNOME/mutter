@@ -163,7 +163,7 @@ paint_damage_region (ClutterStageWindow *stage_window,
   n_rects = cairo_region_num_rectangles (swap_region);
   for (i = 0; i < n_rects; i++)
     {
-      cairo_rectangle_int_t rect;
+      MtkRectangle rect;
       float x_1, x_2, y_1, y_2;
 
       cairo_region_get_rectangle (swap_region, i, &rect);
@@ -189,7 +189,7 @@ paint_damage_region (ClutterStageWindow *stage_window,
       n_rects = cairo_region_num_rectangles (queued_redraw_clip);
       for (i = 0; i < n_rects; i++)
         {
-          cairo_rectangle_int_t rect;
+          MtkRectangle rect;
           float x_1, x_2, y_1, y_2;
 
           cairo_region_get_rectangle (queued_redraw_clip, i, &rect);
@@ -237,7 +237,7 @@ queue_damage_region (ClutterStageWindow *stage_window,
 
   for (i = 0; i < n_rects; i++)
     {
-      cairo_rectangle_int_t rect;
+      MtkRectangle rect;
 
       cairo_region_get_rectangle (damage_region, i, &rect);
 
@@ -283,7 +283,7 @@ swap_framebuffer (ClutterStageWindow *stage_window,
       damage = g_newa (int, n_rects * 4);
       for (i = 0; i < n_rects; i++)
         {
-          cairo_rectangle_int_t rect;
+          MtkRectangle rect;
 
           cairo_region_get_rectangle (swap_region, i, &rect);
           damage[i * 4] = rect.x;
@@ -346,8 +346,8 @@ offset_scale_and_clamp_region (const cairo_region_t *region,
                                float                 scale)
 {
   int n_rects, i;
-  cairo_rectangle_int_t *rects;
-  g_autofree cairo_rectangle_int_t *freeme = NULL;
+  MtkRectangle *rects;
+  g_autofree MtkRectangle *freeme = NULL;
 
   n_rects = cairo_region_num_rectangles (region);
 
@@ -355,13 +355,13 @@ offset_scale_and_clamp_region (const cairo_region_t *region,
     return cairo_region_create ();
 
   if (n_rects < MAX_STACK_RECTS)
-    rects = g_newa (cairo_rectangle_int_t, n_rects);
+    rects = g_newa (MtkRectangle, n_rects);
   else
-    rects = freeme = g_new (cairo_rectangle_int_t, n_rects);
+    rects = freeme = g_new (MtkRectangle, n_rects);
 
   for (i = 0; i < n_rects; i++)
     {
-      cairo_rectangle_int_t *rect = &rects[i];
+      MtkRectangle *rect = &rects[i];
       graphene_rect_t tmp;
 
       cairo_region_get_rectangle (region, i, rect);
@@ -382,8 +382,8 @@ scale_offset_and_clamp_region (const cairo_region_t *region,
                                int                   offset_y)
 {
   int n_rects, i;
-  cairo_rectangle_int_t *rects;
-  g_autofree cairo_rectangle_int_t *freeme = NULL;
+  MtkRectangle *rects;
+  g_autofree MtkRectangle *freeme = NULL;
 
   n_rects = cairo_region_num_rectangles (region);
 
@@ -391,13 +391,13 @@ scale_offset_and_clamp_region (const cairo_region_t *region,
     return cairo_region_create ();
 
   if (n_rects < MAX_STACK_RECTS)
-    rects = g_newa (cairo_rectangle_int_t, n_rects);
+    rects = g_newa (MtkRectangle, n_rects);
   else
-    rects = freeme = g_new (cairo_rectangle_int_t, n_rects);
+    rects = freeme = g_new (MtkRectangle, n_rects);
 
   for (i = 0; i < n_rects; i++)
     {
-      cairo_rectangle_int_t *rect = &rects[i];
+      MtkRectangle *rect = &rects[i];
       graphene_rect_t tmp;
 
       cairo_region_get_rectangle (region, i, rect);
@@ -431,7 +431,7 @@ transform_swap_region_to_onscreen (ClutterStageView *stage_view,
 {
   CoglFramebuffer *onscreen = clutter_stage_view_get_onscreen (stage_view);
   int n_rects, i;
-  cairo_rectangle_int_t *rects;
+  MtkRectangle *rects;
   cairo_region_t *transformed_region;
   int width, height;
 
@@ -439,7 +439,7 @@ transform_swap_region_to_onscreen (ClutterStageView *stage_view,
   height = cogl_framebuffer_get_height (onscreen);
 
   n_rects = cairo_region_num_rectangles (swap_region);
-  rects = g_newa (cairo_rectangle_int_t, n_rects);
+  rects = g_newa (MtkRectangle, n_rects);
   for (i = 0; i < n_rects; i++)
     {
       cairo_region_get_rectangle (swap_region, i, &rects[i]);
@@ -503,7 +503,7 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
   MetaStageView *view = META_STAGE_VIEW (stage_view);
   CoglFramebuffer *fb = clutter_stage_view_get_framebuffer (stage_view);
   CoglFramebuffer *onscreen = clutter_stage_view_get_onscreen (stage_view);
-  cairo_rectangle_int_t view_rect;
+  MtkRectangle view_rect;
   gboolean is_full_redraw;
   gboolean use_clipped_redraw;
   gboolean buffer_has_valid_damage_history = FALSE;
@@ -574,9 +574,9 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
     }
   else
     {
-      cairo_rectangle_int_t fb_rect;
+      MtkRectangle fb_rect;
 
-      fb_rect = (cairo_rectangle_int_t) {
+      fb_rect = (MtkRectangle) {
         .width = fb_width,
         .height = fb_height,
       };

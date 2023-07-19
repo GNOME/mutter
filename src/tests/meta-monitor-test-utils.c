@@ -572,7 +572,7 @@ meta_check_monitor_configuration (MetaContext           *context,
           const GList *outputs = meta_crtc_get_outputs (crtc);
           const GList *l_output;
           MetaRendererView *view;
-          cairo_rectangle_int_t view_layout;
+          MtkRectangle view_layout;
 
           for (l_output = outputs;
                l_output;

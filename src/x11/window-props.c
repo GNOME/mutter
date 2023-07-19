@@ -672,7 +672,7 @@ reload_opaque_region (MetaWindow    *window,
       uint32_t *region = value->v.cardinal_list.cardinals;
       int nitems = value->v.cardinal_list.n_cardinals;
 
-      cairo_rectangle_int_t *rects;
+      MtkRectangle *rects;
       int i, rect_index, nrects;
 
       if (nitems % 4 != 0)
@@ -687,13 +687,13 @@ reload_opaque_region (MetaWindow    *window,
 
       nrects = nitems / 4;
 
-      rects = g_new (cairo_rectangle_int_t, nrects);
+      rects = g_new (MtkRectangle, nrects);
 
       rect_index = 0;
       i = 0;
       while (i < nitems)
         {
-          cairo_rectangle_int_t *rect = &rects[rect_index];
+          MtkRectangle *rect = &rects[rect_index];
 
           rect->x = region[i++];
           rect->y = region[i++];

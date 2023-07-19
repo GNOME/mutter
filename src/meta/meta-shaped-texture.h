@@ -53,6 +53,6 @@ void meta_shaped_texture_set_mask_texture (MetaShapedTexture *stex,
 
 META_EXPORT
 cairo_surface_t * meta_shaped_texture_get_image (MetaShapedTexture     *stex,
-                                                 cairo_rectangle_int_t *clip);
+                                                 MtkRectangle          *clip);
 
 G_END_DECLS

@@ -128,13 +128,13 @@ set_unobscured_region (MetaSurfaceActor *surface_actor,
         }
       else
         {
-          cairo_rectangle_int_t bounds = { 0, };
+          MtkRectangle bounds = { 0, };
           float width, height;
 
           clutter_content_get_preferred_size (CLUTTER_CONTENT (priv->texture),
                                               &width,
                                               &height);
-          bounds = (cairo_rectangle_int_t) {
+          bounds = (MtkRectangle) {
             .width = width,
             .height = height,
           };
@@ -201,7 +201,7 @@ meta_surface_actor_pick (ClutterActor       *actor,
 
       for (i = 0; i < n_rects; i++)
         {
-          cairo_rectangle_int_t rect;
+          MtkRectangle rect;
           ClutterActorBox box;
 
           cairo_region_get_rectangle (priv->input_region, i, &rect);
@@ -400,7 +400,7 @@ meta_surface_actor_update_area (MetaSurfaceActor *self,
   MetaSurfaceActorPrivate *priv =
     meta_surface_actor_get_instance_private (self);
   gboolean repaint_scheduled = FALSE;
-  cairo_rectangle_int_t clip;
+  MtkRectangle clip;
 
   if (meta_shaped_texture_update_area (priv->texture, x, y, width, height, &clip))
     {
@@ -425,7 +425,7 @@ meta_surface_actor_update_area (MetaSurfaceActor *self,
               n_rectangles = cairo_region_num_rectangles (intersection);
               for (i = 0; i < n_rectangles; i++)
                 {
-                  cairo_rectangle_int_t rect;
+                  MtkRectangle rect;
 
                   cairo_region_get_rectangle (intersection, i, &rect);
                   clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (self), &rect);
@@ -483,7 +483,7 @@ meta_surface_actor_is_obscured_on_stage_view (MetaSurfaceActor *self,
         meta_surface_actor_get_instance_private (self);
       ClutterActor *stage = clutter_actor_get_stage (CLUTTER_ACTOR (self));
       cairo_region_t *intersection_region;
-      cairo_rectangle_int_t stage_rect;
+      MtkRectangle stage_rect;
       graphene_matrix_t transform;
       graphene_rect_t actor_bounds;
       float bounds_width, bounds_height;
@@ -526,7 +526,7 @@ meta_surface_actor_is_obscured_on_stage_view (MetaSurfaceActor *self,
       n_rects = cairo_region_num_rectangles (intersection_region);
       for (i = 0; i < n_rects; i++)
         {
-          cairo_rectangle_int_t rect;
+          MtkRectangle rect;
 
           cairo_region_get_rectangle (intersection_region, i, &rect);
           intersection_size += rect.width * rect.height;
@@ -600,7 +600,7 @@ meta_surface_actor_process_damage (MetaSurfaceActor *self,
        * any drawing done to the window is always immediately reflected in the
        * texture regardless of damage event handling.
        */
-      cairo_rectangle_int_t rect = { .x = x, .y = y, .width = width, .height = height };
+      MtkRectangle rect = { .x = x, .y = y, .width = width, .height = height };
 
       if (!priv->pending_damage)
         priv->pending_damage = cairo_region_create_rectangle (&rect);
@@ -627,7 +627,7 @@ meta_surface_actor_set_frozen (MetaSurfaceActor *self,
   if (!frozen && priv->pending_damage)
     {
       int i, n_rects = cairo_region_num_rectangles (priv->pending_damage);
-      cairo_rectangle_int_t rect;
+      MtkRectangle rect;
 
       /* Since we ignore damage events while a window is frozen for certain effects
        * we need to apply the tracked damage now. */

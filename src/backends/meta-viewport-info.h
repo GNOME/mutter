@@ -20,16 +20,16 @@
 
 #pragma once
 
-#include <cairo.h>
 #include <glib-object.h>
 
 #include "meta/display.h"
+#include "mtk/mtk.h"
 
 #define META_TYPE_VIEWPORT_INFO (meta_viewport_info_get_type ())
 G_DECLARE_FINAL_TYPE (MetaViewportInfo, meta_viewport_info,
                       META, VIEWPORT_INFO, GObject)
 
-MetaViewportInfo * meta_viewport_info_new (cairo_rectangle_int_t *views,
+MetaViewportInfo * meta_viewport_info_new (MtkRectangle          *views,
                                            float                 *scales,
                                            int                    n_views,
                                            gboolean               is_views_scaled);
@@ -40,7 +40,7 @@ int meta_viewport_info_get_view_at (MetaViewportInfo *info,
 
 gboolean meta_viewport_info_get_view_info (MetaViewportInfo      *viewport_info,
                                            int                    idx,
-                                           cairo_rectangle_int_t *rect,
+                                           MtkRectangle          *rect,
                                            float                 *scale);
 
 int meta_viewport_info_get_neighbor (MetaViewportInfo     *info,

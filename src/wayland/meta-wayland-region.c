@@ -22,6 +22,7 @@
 
 #include "config.h"
 
+#include "mtk/mtk.h"
 #include "wayland/meta-wayland-region.h"
 
 struct _MetaWaylandRegion
@@ -46,7 +47,7 @@ wl_region_add (struct wl_client *client,
                gint32 height)
 {
   MetaWaylandRegion *region = wl_resource_get_user_data (resource);
-  cairo_rectangle_int_t rectangle = { x, y, width, height };
+  MtkRectangle rectangle = { x, y, width, height };
 
   cairo_region_union_rectangle (region->region, &rectangle);
 }
@@ -60,7 +61,7 @@ wl_region_subtract (struct wl_client *client,
                     gint32 height)
 {
   MetaWaylandRegion *region = wl_resource_get_user_data (resource);
-  cairo_rectangle_int_t rectangle = { x, y, width, height };
+  MtkRectangle rectangle = { x, y, width, height };
 
   cairo_region_subtract_rectangle (region->region, &rectangle);
 }

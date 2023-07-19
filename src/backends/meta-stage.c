@@ -371,7 +371,7 @@ queue_redraw_clutter_rect (MetaStage       *stage,
                            MetaOverlay     *overlay,
                            graphene_rect_t *rect)
 {
-  cairo_rectangle_int_t clip = {
+  MtkRectangle clip = {
     .x = floorf (rect->origin.x),
     .y = floorf (rect->origin.y),
     .width = ceilf (rect->size.width),
@@ -389,8 +389,8 @@ queue_redraw_clutter_rect (MetaStage       *stage,
        l = l->next)
     {
       ClutterStageView *view = l->data;
-      cairo_rectangle_int_t view_layout;
-      cairo_rectangle_int_t view_clip;
+      MtkRectangle view_layout;
+      MtkRectangle view_clip;
 
       if (clutter_stage_view_get_default_paint_flags (view) &
           CLUTTER_PAINT_FLAG_NO_CURSORS)
