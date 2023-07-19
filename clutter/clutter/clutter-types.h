@@ -27,13 +27,11 @@
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
 
-#include <cairo.h>
+#include <graphene-gobject.h>
 
 #include "cogl/cogl.h"
 #include "clutter/clutter-macros.h"
 #include "clutter/clutter-enums.h"
-
-#include <graphene-gobject.h>
 
 G_BEGIN_DECLS
 

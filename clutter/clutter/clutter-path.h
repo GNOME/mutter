@@ -27,8 +27,6 @@
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
 
-#include <cairo.h>
-
 #include "clutter/clutter-types.h"
 
 G_BEGIN_DECLS
