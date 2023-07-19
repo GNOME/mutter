@@ -32,6 +32,7 @@
 
 #include "cogl/cogl.h"
 #include "clutter/clutter-types.h"
+#include "mtk/mtk.h"
 
 G_BEGIN_DECLS
 
@@ -41,8 +42,8 @@ G_DECLARE_FINAL_TYPE (ClutterTextureContent, clutter_texture_content,
                       CLUTTER, TEXTURE_CONTENT, GObject)
 
 CLUTTER_EXPORT
-ClutterContent * clutter_texture_content_new_from_texture (CoglTexture           *texture,
-                                                           cairo_rectangle_int_t *clip);
+ClutterContent * clutter_texture_content_new_from_texture (CoglTexture  *texture,
+                                                           MtkRectangle *clip);
 
 CLUTTER_EXPORT
 CoglTexture * clutter_texture_content_get_texture (ClutterTextureContent *texture_content);

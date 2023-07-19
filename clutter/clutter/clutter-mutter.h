@@ -37,6 +37,7 @@
 #include "clutter/clutter-stage-view.h"
 #include "clutter/clutter-stage-view-private.h"
 #include "clutter/clutter.h"
+#include "mtk/mtk.h"
 
 /* An epsilon larger than FLT_EPSILON that is useful when comparing coordinates
  * while ignoring floating point precision loss that might happen during
@@ -80,11 +81,11 @@ CLUTTER_EXPORT
 int64_t clutter_stage_get_frame_counter (ClutterStage *stage);
 
 CLUTTER_EXPORT
-void clutter_stage_capture_view_into (ClutterStage          *stage,
-                                      ClutterStageView      *view,
-                                      cairo_rectangle_int_t *rect,
-                                      uint8_t               *data,
-                                      int                    stride);
+void clutter_stage_capture_view_into (ClutterStage     *stage,
+                                      ClutterStageView *view,
+                                      MtkRectangle     *rect,
+                                      uint8_t          *data,
+                                      int               stride);
 
 CLUTTER_EXPORT
 void clutter_stage_clear_stage_views (ClutterStage *stage);

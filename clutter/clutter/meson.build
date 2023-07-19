@@ -355,6 +355,7 @@ if have_introspection
     namespace: 'Clutter',
     export_packages: [libmutter_clutter_name],
     includes: [
+      libmutter_mtk_gir[0],
       libmutter_cogl_gir[0],
       libmutter_cogl_pango_gir[0],
       'GL-1.0',
@@ -379,6 +380,7 @@ if have_introspection
     header: 'cally/cally.h',
     namespace: 'Cally',
     includes: [
+      libmutter_mtk_gir[0],
       libmutter_cogl_gir[0],
       libmutter_cogl_pango_gir[0],
       libmutter_clutter_gir[0],

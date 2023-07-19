@@ -356,12 +356,12 @@ clutter_image_set_bytes (ClutterImage     *image,
  *   and %FALSE otherwise.
  */
 gboolean
-clutter_image_set_area (ClutterImage                 *image,
-                        const guint8                 *data,
-                        CoglPixelFormat               pixel_format,
-                        const cairo_rectangle_int_t  *area,
-                        guint                         row_stride,
-                        GError                      **error)
+clutter_image_set_area (ClutterImage        *image,
+                        const guint8        *data,
+                        CoglPixelFormat      pixel_format,
+                        const MtkRectangle  *area,
+                        guint                row_stride,
+                        GError             **error)
 {
   ClutterImagePrivate *priv;
 

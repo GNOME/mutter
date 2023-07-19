@@ -7706,8 +7706,8 @@ _clutter_actor_queue_only_relayout (ClutterActor *self)
  * clutter_actor_queue_redraw().
  */
 void
-clutter_actor_queue_redraw_with_clip (ClutterActor                *self,
-                                      const cairo_rectangle_int_t *clip)
+clutter_actor_queue_redraw_with_clip (ClutterActor       *self,
+                                      const MtkRectangle *clip)
 {
   ClutterPaintVolume volume;
   graphene_point3d_t origin;

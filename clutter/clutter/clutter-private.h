@@ -37,6 +37,7 @@
 #include "clutter/clutter-settings.h"
 #include "clutter/clutter-stage-manager.h"
 #include "clutter/clutter-stage.h"
+#include "mtk/mtk.h"
 
 G_BEGIN_DECLS
 
@@ -201,28 +202,28 @@ void  _clutter_util_fully_transform_vertices (const graphene_matrix_t  *modelvie
                                               int                       n_vertices);
 
 CLUTTER_EXPORT
-void _clutter_util_rect_from_rectangle (const cairo_rectangle_int_t *src,
+void _clutter_util_rect_from_rectangle (const MtkRectangle          *src,
                                         graphene_rect_t             *dest);
 
 CLUTTER_EXPORT
 void _clutter_util_rectangle_int_extents (const graphene_rect_t *src,
-                                          cairo_rectangle_int_t *dest);
+                                          MtkRectangle          *dest);
 
-void _clutter_util_rectangle_offset (const cairo_rectangle_int_t *src,
+void _clutter_util_rectangle_offset (const MtkRectangle          *src,
                                      int                          x,
                                      int                          y,
-                                     cairo_rectangle_int_t       *dest);
+                                     MtkRectangle                *dest);
 
-void _clutter_util_rectangle_union (const cairo_rectangle_int_t *src1,
-                                    const cairo_rectangle_int_t *src2,
-                                    cairo_rectangle_int_t       *dest);
+void _clutter_util_rectangle_union (const MtkRectangle          *src1,
+                                    const MtkRectangle          *src2,
+                                    MtkRectangle                *dest);
 
-gboolean _clutter_util_rectangle_intersection (const cairo_rectangle_int_t *src1,
-                                               const cairo_rectangle_int_t *src2,
-                                               cairo_rectangle_int_t       *dest);
+gboolean _clutter_util_rectangle_intersection (const MtkRectangle *src1,
+                                               const MtkRectangle *src2,
+                                               MtkRectangle       *dest);
 
-gboolean clutter_util_rectangle_equal (const cairo_rectangle_int_t *src1,
-                                       const cairo_rectangle_int_t *src2);
+gboolean clutter_util_rectangle_equal (const MtkRectangle *src1,
+                                       const MtkRectangle *src2);
 
 CLUTTER_EXPORT
 PangoDirection _clutter_pango_unichar_direction (gunichar ch);

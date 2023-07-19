@@ -120,8 +120,8 @@ _clutter_util_fully_transform_vertices (const graphene_matrix_t  *modelview,
 }
 
 void
-_clutter_util_rect_from_rectangle (const cairo_rectangle_int_t *src,
-                                   graphene_rect_t             *dest)
+_clutter_util_rect_from_rectangle (const MtkRectangle *src,
+                                   graphene_rect_t    *dest)
 {
   *dest = (graphene_rect_t) {
     .origin = {
@@ -137,13 +137,13 @@ _clutter_util_rect_from_rectangle (const cairo_rectangle_int_t *src,
 
 void
 _clutter_util_rectangle_int_extents (const graphene_rect_t *src,
-                                     cairo_rectangle_int_t *dest)
+                                     MtkRectangle          *dest)
 {
   graphene_rect_t tmp = *src;
 
   graphene_rect_round_extents (&tmp, &tmp);
 
-  *dest = (cairo_rectangle_int_t) {
+  *dest = (MtkRectangle) {
     .x = tmp.origin.x,
     .y = tmp.origin.y,
     .width = tmp.size.width,
@@ -152,10 +152,10 @@ _clutter_util_rectangle_int_extents (const graphene_rect_t *src,
 }
 
 void
-_clutter_util_rectangle_offset (const cairo_rectangle_int_t *src,
-                                int                          x,
-                                int                          y,
-                                cairo_rectangle_int_t       *dest)
+_clutter_util_rectangle_offset (const MtkRectangle *src,
+                                int                 x,
+                                int                 y,
+                                MtkRectangle       *dest)
 {
   *dest = *src;
 
@@ -179,9 +179,9 @@ _clutter_util_rectangle_offset (const cairo_rectangle_int_t *src,
  * This function should really be in Cairo.
  */
 void
-_clutter_util_rectangle_union (const cairo_rectangle_int_t *src1,
-                               const cairo_rectangle_int_t *src2,
-                               cairo_rectangle_int_t       *dest)
+_clutter_util_rectangle_union (const MtkRectangle *src1,
+                               const MtkRectangle *src2,
+                               MtkRectangle       *dest)
 {
   int dest_x, dest_y;
 
@@ -195,9 +195,9 @@ _clutter_util_rectangle_union (const cairo_rectangle_int_t *src1,
 }
 
 gboolean
-_clutter_util_rectangle_intersection (const cairo_rectangle_int_t *src1,
-                                      const cairo_rectangle_int_t *src2,
-                                      cairo_rectangle_int_t       *dest)
+_clutter_util_rectangle_intersection (const MtkRectangle *src1,
+                                      const MtkRectangle *src2,
+                                      MtkRectangle       *dest)
 {
   int x1, y1, x2, y2;
 
@@ -228,8 +228,8 @@ _clutter_util_rectangle_intersection (const cairo_rectangle_int_t *src1,
 }
 
 gboolean
-clutter_util_rectangle_equal (const cairo_rectangle_int_t *src1,
-                              const cairo_rectangle_int_t *src2)
+clutter_util_rectangle_equal (const MtkRectangle *src1,
+                              const MtkRectangle *src2)
 {
   return ((src1->x == src2->x) &&
           (src1->y == src2->y) &&

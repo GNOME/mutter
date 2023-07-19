@@ -208,7 +208,7 @@ clutter_stage_get_preferred_width (ClutterActor *self,
                                    gfloat       *natural_width_p)
 {
   ClutterStagePrivate *priv = CLUTTER_STAGE (self)->priv;
-  cairo_rectangle_int_t geom;
+  MtkRectangle geom;
 
   if (priv->impl == NULL)
     return;
@@ -229,7 +229,7 @@ clutter_stage_get_preferred_height (ClutterActor *self,
                                     gfloat       *natural_height_p)
 {
   ClutterStagePrivate *priv = CLUTTER_STAGE (self)->priv;
-  cairo_rectangle_int_t geom;
+  MtkRectangle geom;
 
   if (priv->impl == NULL)
     return;
@@ -244,8 +244,8 @@ clutter_stage_get_preferred_height (ClutterActor *self,
 }
 
 static void
-clutter_stage_add_redraw_clip (ClutterStage          *stage,
-                               cairo_rectangle_int_t *clip)
+clutter_stage_add_redraw_clip (ClutterStage *stage,
+                               MtkRectangle *clip)
 {
   GList *l;
 
@@ -259,8 +259,8 @@ clutter_stage_add_redraw_clip (ClutterStage          *stage,
         }
       else
         {
-          cairo_rectangle_int_t view_layout;
-          cairo_rectangle_int_t intersection;
+          MtkRectangle view_layout;
+          MtkRectangle intersection;
 
           clutter_stage_view_get_layout (view, &view_layout);
           if (_clutter_util_rectangle_intersection (&view_layout, clip,
@@ -299,7 +299,7 @@ clutter_stage_allocate (ClutterActor           *self,
   ClutterActorBox alloc = CLUTTER_ACTOR_BOX_INIT_ZERO;
   float new_width, new_height;
   float width, height;
-  cairo_rectangle_int_t window_size;
+  MtkRectangle window_size;
   ClutterActorBox children_box;
   ClutterLayoutManager *layout_manager = clutter_actor_get_layout_manager (self);
 
@@ -342,12 +342,12 @@ clutter_stage_allocate (ClutterActor           *self,
 }
 
 static void
-setup_clip_frustum (ClutterStage                *stage,
-                    const cairo_rectangle_int_t *clip,
-                    graphene_frustum_t          *frustum)
+setup_clip_frustum (ClutterStage       *stage,
+                    const MtkRectangle *clip,
+                    graphene_frustum_t *frustum)
 {
   ClutterStagePrivate *priv = stage->priv;
-  cairo_rectangle_int_t geom;
+  MtkRectangle geom;
   graphene_point3d_t camera_position;
   graphene_point3d_t p[4];
   graphene_plane_t planes[6];
@@ -407,7 +407,7 @@ clutter_stage_do_paint_view (ClutterStage         *stage,
                              const cairo_region_t *redraw_clip)
 {
   ClutterPaintContext *paint_context;
-  cairo_rectangle_int_t clip_rect;
+  MtkRectangle clip_rect;
   g_autoptr (GArray) clip_frusta = NULL;
   graphene_frustum_t clip_frustum;
   ClutterPaintNode *root_node;
@@ -1110,7 +1110,7 @@ clutter_stage_get_view_at (ClutterStage *stage,
   for (l = _clutter_stage_window_get_views (priv->impl); l; l = l->next)
     {
       ClutterStageView *view = l->data;
-      cairo_rectangle_int_t view_layout;
+      MtkRectangle view_layout;
 
       clutter_stage_view_get_layout (view, &view_layout);
       if (x >= view_layout.x &&
@@ -1321,7 +1321,7 @@ clutter_stage_paint (ClutterActor        *actor,
   if (view &&
       G_UNLIKELY (clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_MAX_RENDER_TIME))
     {
-      cairo_rectangle_int_t view_layout;
+      MtkRectangle view_layout;
       ClutterFrameClock *frame_clock;
       g_autoptr (GString) string = NULL;
       PangoLayout *layout;
@@ -1642,7 +1642,7 @@ clutter_stage_class_init (ClutterStageClass *klass)
 static void
 clutter_stage_init (ClutterStage *self)
 {
-  cairo_rectangle_int_t geom = { 0, };
+  MtkRectangle geom = { 0, };
   ClutterStagePrivate *priv;
   ClutterStageWindow *impl;
   ClutterBackend *backend;
@@ -1947,7 +1947,7 @@ clutter_stage_read_pixels (ClutterStage *stage,
   GList *l;
   ClutterStageView *view;
   cairo_region_t *clip;
-  cairo_rectangle_int_t clip_rect;
+  MtkRectangle clip_rect;
   CoglFramebuffer *framebuffer;
   float view_scale;
   float pixel_width;
@@ -1980,7 +1980,7 @@ clutter_stage_read_pixels (ClutterStage *stage,
   clutter_stage_view_get_layout (view, &clip_rect);
   clip = cairo_region_create_rectangle (&clip_rect);
   cairo_region_intersect_rectangle (clip,
-                                    &(cairo_rectangle_int_t) {
+                                    &(MtkRectangle) {
                                       .x = x,
                                       .y = y,
                                       .width = width,
@@ -2440,7 +2440,7 @@ _clutter_stage_maybe_setup_viewport (ClutterStage     *stage,
 
   if (clutter_stage_view_is_dirty_viewport (view))
     {
-      cairo_rectangle_int_t view_layout;
+      MtkRectangle view_layout;
       float fb_scale;
       float viewport_offset_x;
       float viewport_offset_y;
@@ -2593,7 +2593,7 @@ clutter_stage_add_to_redraw_clip (ClutterStage       *stage,
   ClutterStageWindow *stage_window;
   ClutterActorBox bounding_box;
   ClutterActorBox intersection_box;
-  cairo_rectangle_int_t geom, stage_clip;
+  MtkRectangle geom, stage_clip;
 
   if (CLUTTER_ACTOR_IN_DESTRUCTION (CLUTTER_ACTOR (stage)))
     return;
@@ -2661,7 +2661,7 @@ clutter_stage_presented (ClutterStage     *stage,
 /**
  * clutter_stage_get_capture_final_size:
  * @stage: a #ClutterStage actor
- * @rect: a #cairo_rectangle_int_t
+ * @rect: a rectangle
  * @out_width: (out) (optional): the final width
  * @out_height: (out) (optional): the final height
  * @out_scale: (out) (optional): the final scale factor
@@ -2673,11 +2673,11 @@ clutter_stage_presented (ClutterStage     *stage,
  * Returns: %TRUE if the size has been retrieved, %FALSE otherwise.
  */
 gboolean
-clutter_stage_get_capture_final_size (ClutterStage          *stage,
-                                      cairo_rectangle_int_t *rect,
-                                      int                   *out_width,
-                                      int                   *out_height,
-                                      float                 *out_scale)
+clutter_stage_get_capture_final_size (ClutterStage *stage,
+                                      MtkRectangle *rect,
+                                      int          *out_width,
+                                      int          *out_height,
+                                      float        *out_scale)
 {
   float max_scale = 1.0;
 
@@ -2733,7 +2733,7 @@ clutter_stage_get_capture_final_size (ClutterStage          *stage,
 void
 clutter_stage_paint_to_framebuffer (ClutterStage                *stage,
                                     CoglFramebuffer             *framebuffer,
-                                    const cairo_rectangle_int_t *rect,
+                                    const MtkRectangle          *rect,
                                     float                        scale,
                                     ClutterPaintFlag             paint_flags)
 {
@@ -2772,7 +2772,7 @@ clutter_stage_paint_to_framebuffer (ClutterStage                *stage,
 /**
  * clutter_stage_paint_to_buffer:
  * @stage: a #ClutterStage actor
- * @rect: a #cairo_rectangle_int_t
+ * @rect: a rectangle
  * @scale: the scale
  * @data: (array) (element-type guint8): a pointer to the data
  * @stride: stride of the image surface
@@ -2785,14 +2785,14 @@ clutter_stage_paint_to_framebuffer (ClutterStage                *stage,
  * Returns: %TRUE is the buffer has been paint successfully, %FALSE otherwise.
  */
 gboolean
-clutter_stage_paint_to_buffer (ClutterStage                 *stage,
-                               const cairo_rectangle_int_t  *rect,
-                               float                         scale,
-                               uint8_t                      *data,
-                               int                           stride,
-                               CoglPixelFormat               format,
-                               ClutterPaintFlag              paint_flags,
-                               GError                      **error)
+clutter_stage_paint_to_buffer (ClutterStage        *stage,
+                               const MtkRectangle  *rect,
+                               float                scale,
+                               uint8_t             *data,
+                               int                  stride,
+                               CoglPixelFormat      format,
+                               ClutterPaintFlag     paint_flags,
+                               GError             **error)
 {
   ClutterBackend *clutter_backend = clutter_get_default_backend ();
   CoglContext *cogl_context =
@@ -2847,7 +2847,7 @@ clutter_stage_paint_to_buffer (ClutterStage                 *stage,
 /**
  * clutter_stage_paint_to_content:
  * @stage: a #ClutterStage actor
- * @rect: a #cairo_rectangle_int_t
+ * @rect: a rectangle
  * @scale: the scale
  * @paint_flags: the #ClutterPaintFlag
  * @error: the error
@@ -2857,11 +2857,11 @@ clutter_stage_paint_to_buffer (ClutterStage                 *stage,
  * Returns: (transfer full): the #ClutterContent or %NULL on error.
  */
 ClutterContent *
-clutter_stage_paint_to_content (ClutterStage                 *stage,
-                                const cairo_rectangle_int_t  *rect,
-                                float                         scale,
-                                ClutterPaintFlag              paint_flags,
-                                GError                      **error)
+clutter_stage_paint_to_content (ClutterStage        *stage,
+                                const MtkRectangle  *rect,
+                                float                scale,
+                                ClutterPaintFlag     paint_flags,
+                                GError             **error)
 {
   ClutterBackend *clutter_backend = clutter_get_default_backend ();
   CoglContext *cogl_context =
@@ -2900,17 +2900,17 @@ clutter_stage_paint_to_content (ClutterStage                 *stage,
 }
 
 void
-clutter_stage_capture_view_into (ClutterStage          *stage,
-                                 ClutterStageView      *view,
-                                 cairo_rectangle_int_t *rect,
-                                 uint8_t               *data,
-                                 int                    stride)
+clutter_stage_capture_view_into (ClutterStage     *stage,
+                                 ClutterStageView *view,
+                                 MtkRectangle     *rect,
+                                 uint8_t          *data,
+                                 int               stride)
 {
   CoglFramebuffer *framebuffer;
   ClutterBackend *backend;
   CoglContext *context;
   CoglBitmap *bitmap;
-  cairo_rectangle_int_t view_layout;
+  MtkRectangle view_layout;
   float view_scale;
   float texture_width;
   float texture_height;
@@ -2973,7 +2973,7 @@ clutter_stage_get_views_for_rect (ClutterStage          *stage,
   for (l = _clutter_stage_window_get_views (priv->impl); l; l = l->next)
     {
       ClutterStageView *view = l->data;
-      cairo_rectangle_int_t view_layout;
+      MtkRectangle view_layout;
       graphene_rect_t view_rect;
 
       clutter_stage_view_get_layout (view, &view_layout);

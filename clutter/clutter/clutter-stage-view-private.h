@@ -19,6 +19,7 @@
 
 #include "clutter/clutter-stage-view.h"
 #include "clutter/clutter-types.h"
+#include "mtk/mtk.h"
 
 CLUTTER_EXPORT
 void clutter_stage_view_after_paint (ClutterStageView *view,
@@ -46,8 +47,8 @@ void clutter_stage_view_set_projection (ClutterStageView        *view,
                                         const graphene_matrix_t *matrix);
 
 CLUTTER_EXPORT
-void clutter_stage_view_add_redraw_clip (ClutterStageView            *view,
-                                         const cairo_rectangle_int_t *clip);
+void clutter_stage_view_add_redraw_clip (ClutterStageView   *view,
+                                         const MtkRectangle *clip);
 
 gboolean clutter_stage_view_has_full_redraw_clip (ClutterStageView *view);
 
@@ -68,11 +69,11 @@ CLUTTER_EXPORT
 CoglScanout * clutter_stage_view_take_scanout (ClutterStageView *view);
 
 CLUTTER_EXPORT
-void clutter_stage_view_transform_rect_to_onscreen (ClutterStageView            *view,
-                                                    const cairo_rectangle_int_t *src_rect,
-                                                    int                          dst_width,
-                                                    int                          dst_height,
-                                                    cairo_rectangle_int_t       *dst_rect);
+void clutter_stage_view_transform_rect_to_onscreen (ClutterStageView   *view,
+                                                    const MtkRectangle *src_rect,
+                                                    int                 dst_width,
+                                                    int                 dst_height,
+                                                    MtkRectangle       *dst_rect);
 
 CLUTTER_EXPORT
 void clutter_stage_view_schedule_update (ClutterStageView *view);

@@ -21,13 +21,13 @@
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
 
-#include <cairo.h>
 #include <glib-object.h>
 
 #include "cogl/cogl.h"
 #include "clutter/clutter-macros.h"
 #include "clutter/clutter-frame-clock.h"
 #include "clutter/clutter-types.h"
+#include "mtk/mtk.h"
 
 #define CLUTTER_TYPE_STAGE_VIEW (clutter_stage_view_get_type ())
 CLUTTER_EXPORT
@@ -45,11 +45,11 @@ struct _ClutterStageViewClass
   void (* get_offscreen_transformation_matrix) (ClutterStageView  *view,
                                                 graphene_matrix_t *matrix);
 
-  void (* transform_rect_to_onscreen) (ClutterStageView            *view,
-                                       const cairo_rectangle_int_t *src_rect,
-                                       int                          dst_width,
-                                       int                          dst_height,
-                                       cairo_rectangle_int_t       *dst_rect);
+  void (* transform_rect_to_onscreen) (ClutterStageView   *view,
+                                       const MtkRectangle *src_rect,
+                                       int                 dst_width,
+                                       int                 dst_height,
+                                       MtkRectangle       *dst_rect);
 
   ClutterFrame * (* new_frame) (ClutterStageView *view);
 
@@ -60,8 +60,8 @@ CLUTTER_EXPORT
 void clutter_stage_view_destroy (ClutterStageView *view);
 
 CLUTTER_EXPORT
-void clutter_stage_view_get_layout (ClutterStageView      *view,
-                                    cairo_rectangle_int_t *rect);
+void clutter_stage_view_get_layout (ClutterStageView *view,
+                                    MtkRectangle     *rect);
 
 CLUTTER_EXPORT
 CoglFramebuffer *clutter_stage_view_get_framebuffer (ClutterStageView *view);

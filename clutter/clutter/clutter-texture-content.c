@@ -122,8 +122,8 @@ clutter_content_iface_init (ClutterContentInterface *iface)
  *   Use [method@GObject.Object.unref] when done.
  */
 ClutterContent *
-clutter_texture_content_new_from_texture (CoglTexture           *texture,
-                                          cairo_rectangle_int_t *clip)
+clutter_texture_content_new_from_texture (CoglTexture  *texture,
+                                          MtkRectangle *clip)
 {
   ClutterTextureContent *texture_content;
   CoglContext *cogl_context =

@@ -79,8 +79,8 @@ _clutter_stage_window_resize (ClutterStageWindow *window,
 }
 
 void
-_clutter_stage_window_get_geometry (ClutterStageWindow    *window,
-                                    cairo_rectangle_int_t *geometry)
+_clutter_stage_window_get_geometry (ClutterStageWindow *window,
+                                    MtkRectangle       *geometry)
 {
   CLUTTER_STAGE_WINDOW_GET_IFACE (window)->get_geometry (window, geometry);
 }

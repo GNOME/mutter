@@ -39,7 +39,7 @@ struct _ClutterStageWindowInterface
                                                  gint                width,
                                                  gint                height);
   void              (* get_geometry)            (ClutterStageWindow *stage_window,
-                                                 cairo_rectangle_int_t *geometry);
+                                                 MtkRectangle       *geometry);
 
   void              (* redraw_view)             (ClutterStageWindow *stage_window,
                                                  ClutterStageView   *view,
@@ -76,7 +76,7 @@ void              _clutter_stage_window_resize                  (ClutterStageWin
                                                                  gint                height);
 CLUTTER_EXPORT
 void              _clutter_stage_window_get_geometry            (ClutterStageWindow *window,
-                                                                 cairo_rectangle_int_t *geometry);
+                                                                 MtkRectangle       *geometry);
 
 void              _clutter_stage_window_set_accept_focus        (ClutterStageWindow *window,
                                                                  gboolean            accept_focus);

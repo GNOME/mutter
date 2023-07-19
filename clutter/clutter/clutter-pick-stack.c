@@ -430,8 +430,8 @@ clutter_pick_stack_pop_transform (ClutterPickStack *pick_stack)
 }
 
 static gboolean
-get_verts_rectangle (graphene_point3d_t     verts[4],
-                     cairo_rectangle_int_t *rect)
+get_verts_rectangle (graphene_point3d_t  verts[4],
+                     MtkRectangle       *rect)
 {
   if (verts[0].x != verts[2].x ||
       verts[0].y != verts[1].y ||
@@ -441,7 +441,7 @@ get_verts_rectangle (graphene_point3d_t     verts[4],
       verts[0].y > verts[3].y)
     return FALSE;
 
-  *rect = (cairo_rectangle_int_t) {
+  *rect = (MtkRectangle) {
     .x = ceilf (verts[0].x),
     .y = ceilf (verts[0].y),
     .width = floor (verts[1].x - ceilf (verts[0].x)),
@@ -459,7 +459,7 @@ calculate_clear_area (ClutterPickStack  *pick_stack,
 {
   cairo_region_t *area = NULL;
   graphene_point3d_t verts[4];
-  cairo_rectangle_int_t rect;
+  MtkRectangle rect;
   int i;
 
   clutter_actor_get_abs_allocation_vertices (pick_rec->actor,
@@ -495,7 +495,7 @@ calculate_clear_area (ClutterPickStack  *pick_stack,
         continue;
 
       cairo_region_subtract_rectangle (area,
-                                       &(cairo_rectangle_int_t) {
+                                       &(MtkRectangle) {
                                          .x = paint_box.x1,
                                          .y = paint_box.y1,
                                          .width = paint_box.x2 - paint_box.x1,

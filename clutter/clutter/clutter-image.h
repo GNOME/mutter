@@ -30,6 +30,7 @@
 
 #include "cogl/cogl.h"
 #include "clutter/clutter-types.h"
+#include "mtk/mtk.h"
 
 G_BEGIN_DECLS
 
@@ -61,12 +62,12 @@ gboolean                clutter_image_set_data          (ClutterImage           
                                                          guint                         row_stride,
                                                          GError                      **error);
 CLUTTER_EXPORT
-gboolean                clutter_image_set_area          (ClutterImage                 *image,
-                                                         const guint8                 *data,
-                                                         CoglPixelFormat               pixel_format,
-                                                         const cairo_rectangle_int_t  *rect,
-                                                         guint                         row_stride,
-                                                         GError                      **error);
+gboolean                clutter_image_set_area          (ClutterImage        *image,
+                                                         const guint8        *data,
+                                                         CoglPixelFormat      pixel_format,
+                                                         const MtkRectangle  *rect,
+                                                         guint                row_stride,
+                                                         GError             **error);
 CLUTTER_EXPORT
 gboolean                clutter_image_set_bytes         (ClutterImage                 *image,
                                                          GBytes                       *data,

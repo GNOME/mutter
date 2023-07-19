@@ -31,6 +31,7 @@
 #include "clutter/clutter-grab.h"
 #include "clutter/clutter-types.h"
 #include "clutter/clutter-stage-view.h"
+#include "mtk/mtk.h"
 
 G_BEGIN_DECLS
 
@@ -143,7 +144,7 @@ struct _ClutterFrameInfo
 typedef struct _ClutterCapture
 {
   cairo_surface_t *image;
-  cairo_rectangle_int_t rect;
+  MtkRectangle rect;
 } ClutterCapture;
 
 CLUTTER_EXPORT
@@ -192,35 +193,35 @@ CLUTTER_EXPORT
 void clutter_stage_schedule_update (ClutterStage *stage);
 
 CLUTTER_EXPORT
-gboolean clutter_stage_get_capture_final_size (ClutterStage          *stage,
-                                               cairo_rectangle_int_t *rect,
-                                               int                   *out_width,
-                                               int                   *out_height,
-                                               float                 *out_scale);
+gboolean clutter_stage_get_capture_final_size (ClutterStage *stage,
+                                               MtkRectangle *rect,
+                                               int          *out_width,
+                                               int          *out_height,
+                                               float        *out_scale);
 
 CLUTTER_EXPORT
-void clutter_stage_paint_to_framebuffer (ClutterStage                *stage,
-                                         CoglFramebuffer             *framebuffer,
-                                         const cairo_rectangle_int_t *rect,
-                                         float                        scale,
-                                         ClutterPaintFlag             paint_flags);
+void clutter_stage_paint_to_framebuffer (ClutterStage       *stage,
+                                         CoglFramebuffer    *framebuffer,
+                                         const MtkRectangle *rect,
+                                         float               scale,
+                                         ClutterPaintFlag    paint_flags);
 
 CLUTTER_EXPORT
-gboolean clutter_stage_paint_to_buffer (ClutterStage                 *stage,
-                                        const cairo_rectangle_int_t  *rect,
-                                        float                         scale,
-                                        uint8_t                      *data,
-                                        int                           stride,
-                                        CoglPixelFormat               format,
-                                        ClutterPaintFlag              paint_flags,
-                                        GError                      **error);
+gboolean clutter_stage_paint_to_buffer (ClutterStage        *stage,
+                                        const MtkRectangle  *rect,
+                                        float                scale,
+                                        uint8_t             *data,
+                                        int                  stride,
+                                        CoglPixelFormat      format,
+                                        ClutterPaintFlag     paint_flags,
+                                        GError             **error);
 
 CLUTTER_EXPORT
-ClutterContent * clutter_stage_paint_to_content (ClutterStage                 *stage,
-                                                 const cairo_rectangle_int_t  *rect,
-                                                 float                         scale,
-                                                 ClutterPaintFlag              paint_flags,
-                                                 GError                      **error);
+ClutterContent * clutter_stage_paint_to_content (ClutterStage        *stage,
+                                                 const MtkRectangle  *rect,
+                                                 float                scale,
+                                                 ClutterPaintFlag     paint_flags,
+                                                 GError             **error);
 
 CLUTTER_EXPORT
 ClutterStageView * clutter_stage_get_view_at (ClutterStage *stage,

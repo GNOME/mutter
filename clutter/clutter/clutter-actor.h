@@ -40,6 +40,7 @@
 #include "clutter/clutter-event.h"
 #include "clutter/clutter-paint-context.h"
 #include "clutter/clutter-pick-context.h"
+#include "mtk/mtk.h"
 
 G_BEGIN_DECLS
 
@@ -335,8 +336,8 @@ void                            clutter_actor_continue_pick                     
 CLUTTER_EXPORT
 void                            clutter_actor_queue_redraw                      (ClutterActor                *self);
 CLUTTER_EXPORT
-void                            clutter_actor_queue_redraw_with_clip            (ClutterActor                *self,
-                                                                                 const cairo_rectangle_int_t *clip);
+void                            clutter_actor_queue_redraw_with_clip            (ClutterActor       *self,
+                                                                                 const MtkRectangle *clip);
 CLUTTER_EXPORT
 void                            clutter_actor_queue_relayout                    (ClutterActor                *self);
 CLUTTER_EXPORT
