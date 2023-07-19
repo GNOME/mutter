@@ -124,7 +124,7 @@ meta_get_mode_fixed_rect_16 (MetaKmsMode *mode)
 MetaRectangle
 meta_get_mode_rect (MetaKmsMode *mode)
 {
-  return META_RECTANGLE_INIT (0, 0,
-                              meta_kms_mode_get_width (mode),
-                              meta_kms_mode_get_height (mode));
+  return MTK_RECTANGLE_INIT (0, 0,
+                             meta_kms_mode_get_width (mode),
+                             meta_kms_mode_get_height (mode));
 }

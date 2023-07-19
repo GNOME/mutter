@@ -536,9 +536,9 @@ meta_test_kms_device_discard_disabled (void)
                                 META_FIXED_16_RECTANGLE_INIT_INT (0, 0,
                                                                   cursor_width,
                                                                   cursor_width),
-                                META_RECTANGLE_INIT (10, 10,
-                                                     cursor_width,
-                                                     cursor_width),
+                                MTK_RECTANGLE_INIT (10, 10,
+                                                    cursor_width,
+                                                    cursor_width),
                                 META_KMS_ASSIGN_PLANE_FLAG_NONE);
 
   feedback = meta_kms_device_process_update_sync (device, update,

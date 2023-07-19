@@ -134,18 +134,6 @@ meta_rectangle_edge_list_to_string (GList      *edge_list,
   return output;
 }
 
-MetaRectangle
-meta_rect (int x, int y, int width, int height)
-{
-  MetaRectangle temporary;
-  temporary.x = x;
-  temporary.y = y;
-  temporary.width  = width;
-  temporary.height = height;
-
-  return temporary;
-}
-
 int
 meta_rectangle_area (const MetaRectangle *rect)
 {
@@ -1839,7 +1827,7 @@ meta_rectangle_find_nonintersected_monitor_edges (
                    */
                   MetaEdge *new_edge  = g_new (MetaEdge, 1);
 
-                  new_edge->rect = meta_rect (x, y, width, height);
+                  new_edge->rect = MTK_RECTANGLE_INIT (x, y, width, height);
                   new_edge->side_type = side_type;
                   new_edge->edge_type = META_EDGE_MONITOR;
 
@@ -1882,7 +1870,7 @@ meta_rectangle_find_nonintersected_monitor_edges (
                    */
                   MetaEdge *new_edge = g_new (MetaEdge, 1);
 
-                  new_edge->rect = meta_rect (x, y, width, height);
+                  new_edge->rect = MTK_RECTANGLE_INIT (x, y, width, height);
                   new_edge->side_type = side_type;
                   new_edge->edge_type = META_EDGE_MONITOR;
 

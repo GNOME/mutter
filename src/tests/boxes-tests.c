@@ -49,25 +49,12 @@ get_random_rect (MetaRectangle *rect)
   rect->height = rand () % 1200 + 1;
 }
 
-static MetaRectangle*
-new_meta_rect (int x, int y, int width, int height)
-{
-  MetaRectangle *temporary;
-  temporary = g_new (MetaRectangle, 1);
-  temporary->x = x;
-  temporary->y = y;
-  temporary->width  = width;
-  temporary->height = height;
-
-  return temporary;
-}
-
 static MetaStrut*
 new_meta_strut (int x, int y, int width, int height, int side)
 {
   MetaStrut *temporary;
   temporary = g_new (MetaStrut, 1);
-  temporary->rect = meta_rect(x, y, width, height);
+  temporary->rect = MTK_RECTANGLE_INIT (x, y, width, height);
   temporary->side = side;
 
   return temporary;
@@ -108,7 +95,7 @@ test_init_rect (void)
 {
   MetaRectangle rect;
 
-  rect = META_RECTANGLE_INIT (1, 2, 3, 4);
+  rect = MTK_RECTANGLE_INIT (1, 2, 3, 4);
   g_assert_cmpint (rect.x, ==, 1);
   g_assert_cmpint (rect.y, ==, 2);
   g_assert_cmpint (rect.width, ==, 3);
@@ -126,7 +113,7 @@ test_area (void)
       g_assert (meta_rectangle_area (&temp) == temp.width * temp.height);
     }
 
-  temp = meta_rect (0, 0, 5, 7);
+  temp = MTK_RECTANGLE_INIT (0, 0, 5, 7);
   g_assert (meta_rectangle_area (&temp) == 35);
 }
 
@@ -142,7 +129,7 @@ test_intersect (void)
   MetaRectangle temp2;
 
   mtk_rectangle_intersect (&a, &b, &temp);
-  temp2 = meta_rect (100, 200, 10, 2);
+  temp2 = MTK_RECTANGLE_INIT (100, 200, 10, 2);
   g_assert (mtk_rectangle_equal (&temp, &temp2));
   g_assert (meta_rectangle_area (&temp) == 20);
 
@@ -187,8 +174,8 @@ test_overlap_funcs (void)
                  meta_rectangle_vert_overlap (&temp1, &temp2)));
     }
 
-  temp1 = meta_rect ( 0, 0, 10, 10);
-  temp2 = meta_rect (20, 0, 10,  5);
+  temp1 = MTK_RECTANGLE_INIT ( 0, 0, 10, 10);
+  temp2 = MTK_RECTANGLE_INIT (20, 0, 10,  5);
   g_assert (!meta_rectangle_overlap (&temp1, &temp2));
   g_assert (!meta_rectangle_horiz_overlap (&temp1, &temp2));
   g_assert ( meta_rectangle_vert_overlap (&temp1, &temp2));
@@ -220,9 +207,9 @@ test_basic_fitting (void)
                 meta_rectangle_could_fit_rect (&temp2, &temp1) == TRUE);
     }
 
-  temp1 = meta_rect ( 0, 0, 10, 10);
-  temp2 = meta_rect ( 5, 5,  5,  5);
-  temp3 = meta_rect ( 8, 2,  3,  7);
+  temp1 = MTK_RECTANGLE_INIT ( 0, 0, 10, 10);
+  temp2 = MTK_RECTANGLE_INIT ( 5, 5,  5,  5);
+  temp3 = MTK_RECTANGLE_INIT ( 8, 2,  3,  7);
   g_assert ( meta_rectangle_contains_rect (&temp1, &temp2));
   g_assert (!meta_rectangle_contains_rect (&temp2, &temp1));
   g_assert (!meta_rectangle_contains_rect (&temp1, &temp3));
@@ -289,7 +276,7 @@ get_screen_region (int which)
   GSList *struts;
   MetaRectangle basic_rect;
 
-  basic_rect = meta_rect (0, 0, 1600, 1200);
+  basic_rect = MTK_RECTANGLE_INIT (0, 0, 1600, 1200);
   ret = NULL;
 
   struts = get_strut_list (which);
@@ -306,7 +293,7 @@ get_screen_edges (int which)
   GSList *struts;
   MetaRectangle basic_rect;
 
-  basic_rect = meta_rect (0, 0, 1600, 1200);
+  basic_rect = MTK_RECTANGLE_INIT (0, 0, 1600, 1200);
   ret = NULL;
 
   struts = get_strut_list (which);
@@ -328,20 +315,20 @@ get_monitor_edges (int which_monitor_set, int which_strut_set)
   switch (which_monitor_set)
     {
     case 0:
-      xins = g_list_prepend (xins, new_meta_rect (  0,   0, 1600, 1200));
+      xins = g_list_prepend (xins, mtk_rectangle_new (  0,   0, 1600, 1200));
       break;
     case 1:
-      xins = g_list_prepend (xins, new_meta_rect (  0,   0,  800, 1200));
-      xins = g_list_prepend (xins, new_meta_rect (800,   0,  800, 1200));
+      xins = g_list_prepend (xins, mtk_rectangle_new (  0,   0,  800, 1200));
+      xins = g_list_prepend (xins, mtk_rectangle_new (800,   0,  800, 1200));
       break;
     case 2:
-      xins = g_list_prepend (xins, new_meta_rect (  0,   0, 1600,  600));
-      xins = g_list_prepend (xins, new_meta_rect (  0, 600, 1600,  600));
+      xins = g_list_prepend (xins, mtk_rectangle_new (  0,   0, 1600,  600));
+      xins = g_list_prepend (xins, mtk_rectangle_new (  0, 600, 1600,  600));
       break;
     case 3:
-      xins = g_list_prepend (xins, new_meta_rect (  0,   0, 1600,  600));
-      xins = g_list_prepend (xins, new_meta_rect (  0, 600,  800,  600));
-      xins = g_list_prepend (xins, new_meta_rect (800, 600,  800,  600));
+      xins = g_list_prepend (xins, mtk_rectangle_new (  0,   0, 1600,  600));
+      xins = g_list_prepend (xins, mtk_rectangle_new (  0, 600,  800,  600));
+      xins = g_list_prepend (xins, mtk_rectangle_new (800, 600,  800,  600));
       break;
     }
 
@@ -590,7 +577,7 @@ test_regions_okay (void)
   /*************************************************************/
   region = get_screen_region (0);
   tmp = NULL;
-  tmp = g_list_prepend (tmp, new_meta_rect (0, 0, 1600, 1200));
+  tmp = g_list_prepend (tmp, mtk_rectangle_new (0, 0, 1600, 1200));
   verify_lists_are_equal (region, tmp);
   meta_rectangle_free_list_and_elements (tmp);
   meta_rectangle_free_list_and_elements (region);
@@ -600,8 +587,8 @@ test_regions_okay (void)
   /*************************************************************/
   region = get_screen_region (1);
   tmp = NULL;
-  tmp = g_list_prepend (tmp, new_meta_rect (0, 20,  400, 1180));
-  tmp = g_list_prepend (tmp, new_meta_rect (0, 20, 1600, 1140));
+  tmp = g_list_prepend (tmp, mtk_rectangle_new (0, 20,  400, 1180));
+  tmp = g_list_prepend (tmp, mtk_rectangle_new (0, 20, 1600, 1140));
   verify_lists_are_equal (region, tmp);
   meta_rectangle_free_list_and_elements (tmp);
   meta_rectangle_free_list_and_elements (region);
@@ -611,11 +598,11 @@ test_regions_okay (void)
   /*************************************************************/
   region = get_screen_region (2);
   tmp = NULL;
-  tmp = g_list_prepend (tmp, new_meta_rect (   0,   20,  300, 1180));
-  tmp = g_list_prepend (tmp, new_meta_rect ( 450,   20,  350, 1180));
-  tmp = g_list_prepend (tmp, new_meta_rect (1200,   20,  400, 1180));
-  tmp = g_list_prepend (tmp, new_meta_rect (   0,   20,  800, 1130));
-  tmp = g_list_prepend (tmp, new_meta_rect (   0,   20, 1600, 1080));
+  tmp = g_list_prepend (tmp, mtk_rectangle_new (   0,   20,  300, 1180));
+  tmp = g_list_prepend (tmp, mtk_rectangle_new ( 450,   20,  350, 1180));
+  tmp = g_list_prepend (tmp, mtk_rectangle_new (1200,   20,  400, 1180));
+  tmp = g_list_prepend (tmp, mtk_rectangle_new (   0,   20,  800, 1130));
+  tmp = g_list_prepend (tmp, mtk_rectangle_new (   0,   20, 1600, 1080));
   verify_lists_are_equal (region, tmp);
   meta_rectangle_free_list_and_elements (tmp);
   meta_rectangle_free_list_and_elements (region);
@@ -625,9 +612,9 @@ test_regions_okay (void)
   /*************************************************************/
   region = get_screen_region (3);
   tmp = NULL;
-  tmp = g_list_prepend (tmp, new_meta_rect (   0,   20,  300, 1180)); /* 354000 */
-  tmp = g_list_prepend (tmp, new_meta_rect ( 380,   20,  1220, 1180)); /* 377600 */
-  tmp = g_list_prepend (tmp, new_meta_rect (   0,   20,  1600, 1130)); /* 791000 */
+  tmp = g_list_prepend (tmp, mtk_rectangle_new (   0,   20,  300, 1180)); /* 354000 */
+  tmp = g_list_prepend (tmp, mtk_rectangle_new ( 380,   20,  1220, 1180)); /* 377600 */
+  tmp = g_list_prepend (tmp, mtk_rectangle_new (   0,   20,  1600, 1130)); /* 791000 */
 #if 0
   printf ("Got to here...\n");
   char region_list[(RECT_LENGTH+2) * g_list_length (region)];
@@ -645,7 +632,7 @@ test_regions_okay (void)
   /*************************************************************/
   region = get_screen_region (4);
   tmp = NULL;
-  tmp = g_list_prepend (tmp, new_meta_rect ( 800,   20,  800, 1180));
+  tmp = g_list_prepend (tmp, mtk_rectangle_new ( 800,   20,  800, 1180));
   verify_lists_are_equal (region, tmp);
   meta_rectangle_free_list_and_elements (tmp);
   meta_rectangle_free_list_and_elements (region);
@@ -685,22 +672,22 @@ test_region_fitting (void)
   /* Do some manual tests too */
   region = get_screen_region (1);
 
-  rect = meta_rect (50, 50, 400, 400);
+  rect = MTK_RECTANGLE_INIT (50, 50, 400, 400);
   g_assert (meta_rectangle_could_fit_in_region (region, &rect));
   g_assert (meta_rectangle_contained_in_region (region, &rect));
 
-  rect = meta_rect (250, 0, 500, 1150);
+  rect = MTK_RECTANGLE_INIT (250, 0, 500, 1150);
   g_assert (!meta_rectangle_could_fit_in_region (region, &rect));
   g_assert (!meta_rectangle_contained_in_region (region, &rect));
 
-  rect = meta_rect (250, 0, 400, 400);
+  rect = MTK_RECTANGLE_INIT (250, 0, 400, 400);
   g_assert (meta_rectangle_could_fit_in_region (region, &rect));
   g_assert (!meta_rectangle_contained_in_region (region, &rect));
 
   meta_rectangle_free_list_and_elements (region);
 
   region = get_screen_region (2);
-  rect = meta_rect (1000, 50, 600, 1100);
+  rect = MTK_RECTANGLE_INIT (1000, 50, 600, 1100);
   g_assert (meta_rectangle_could_fit_in_region (region, &rect));
   g_assert (!meta_rectangle_contained_in_region (region, &rect));
 
@@ -737,21 +724,21 @@ test_clamping_to_region (void)
   /* Do some manual tests too */
   region = get_screen_region (1);
 
-  rect = meta_rect (50, 50, 10000, 10000);
+  rect = MTK_RECTANGLE_INIT (50, 50, 10000, 10000);
   meta_rectangle_clamp_to_fit_into_region (region,
                                            fixed_directions,
                                            &rect,
                                            &min_size);
   g_assert (rect.width == 1600 && rect.height == 1140);
 
-  rect = meta_rect (275, -50, 410, 10000);
+  rect = MTK_RECTANGLE_INIT (275, -50, 410, 10000);
   meta_rectangle_clamp_to_fit_into_region (region,
                                            fixed_directions,
                                            &rect,
                                            &min_size);
   g_assert (rect.width == 400 && rect.height == 1180);
 
-  rect = meta_rect (50, 50, 10000, 10000);
+  rect = MTK_RECTANGLE_INIT (50, 50, 10000, 10000);
   min_size.height = 1170;
   meta_rectangle_clamp_to_fit_into_region (region,
                                            fixed_directions,
@@ -759,7 +746,7 @@ test_clamping_to_region (void)
                                            &min_size);
   g_assert (rect.width == 400 && rect.height == 1180);
 
-  rect = meta_rect (50, 50, 10000, 10000);
+  rect = MTK_RECTANGLE_INIT (50, 50, 10000, 10000);
   min_size.width = 600;  min_size.height = 1170;
 
   g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
@@ -772,7 +759,7 @@ test_clamping_to_region (void)
 
   g_assert (rect.width == 600 && rect.height == 1170);
 
-  rect = meta_rect (350, 50, 100, 1100);
+  rect = MTK_RECTANGLE_INIT (350, 50, 100, 1100);
   min_size.width = 1;  min_size.height = 1;
   fixed_directions = FIXED_DIRECTION_X;
   meta_rectangle_clamp_to_fit_into_region (region,
@@ -781,7 +768,7 @@ test_clamping_to_region (void)
                                            &min_size);
   g_assert (rect.width == 100 && rect.height == 1100);
 
-  rect = meta_rect (300, 70, 500, 1100);
+  rect = MTK_RECTANGLE_INIT (300, 70, 500, 1100);
   min_size.width = 1;  min_size.height = 1;
   fixed_directions = FIXED_DIRECTION_Y;
   meta_rectangle_clamp_to_fit_into_region (region,
@@ -790,7 +777,7 @@ test_clamping_to_region (void)
                                            &min_size);
   g_assert (rect.width == 400 && rect.height == 1100);
 
-  rect = meta_rect (300, 70, 999999, 999999);
+  rect = MTK_RECTANGLE_INIT (300, 70, 999999, 999999);
   min_size.width = 100;  min_size.height = 200;
   fixed_directions = FIXED_DIRECTION_Y;
 
@@ -851,35 +838,35 @@ test_clipping_to_region (void)
   /* Do some manual tests too */
   region = get_screen_region (2);
 
-  rect = meta_rect (-50, -10, 10000, 10000);
+  rect = MTK_RECTANGLE_INIT (-50, -10, 10000, 10000);
   meta_rectangle_clip_to_region (region,
                                  fixed_directions,
                                  &rect);
   g_assert (mtk_rectangle_equal (region->data, &rect));
 
-  rect = meta_rect (300, 1000, 400, 200);
-  temp = meta_rect (300, 1000, 400, 150);
+  rect = MTK_RECTANGLE_INIT (300, 1000, 400, 200);
+  temp = MTK_RECTANGLE_INIT (300, 1000, 400, 150);
   meta_rectangle_clip_to_region (region,
                                  fixed_directions,
                                  &rect);
   g_assert (mtk_rectangle_equal (&rect, &temp));
 
-  rect = meta_rect (400, 1000, 300, 200);
-  temp = meta_rect (450, 1000, 250, 200);
+  rect = MTK_RECTANGLE_INIT (400, 1000, 300, 200);
+  temp = MTK_RECTANGLE_INIT (450, 1000, 250, 200);
   meta_rectangle_clip_to_region (region,
                                  fixed_directions,
                                  &rect);
   g_assert (mtk_rectangle_equal (&rect, &temp));
 
-  rect = meta_rect (400, 1000, 300, 200);
-  temp = meta_rect (400, 1000, 300, 150);
+  rect = MTK_RECTANGLE_INIT (400, 1000, 300, 200);
+  temp = MTK_RECTANGLE_INIT (400, 1000, 300, 150);
   meta_rectangle_clip_to_region (region,
                                  FIXED_DIRECTION_X,
                                  &rect);
   g_assert (mtk_rectangle_equal (&rect, &temp));
 
-  rect = meta_rect (400, 1000, 300, 200);
-  temp = meta_rect (400, 1000, 300, 150);
+  rect = MTK_RECTANGLE_INIT (400, 1000, 300, 200);
+  temp = MTK_RECTANGLE_INIT (400, 1000, 300, 150);
   meta_rectangle_clip_to_region (region,
                                  FIXED_DIRECTION_X,
                                  &rect);
@@ -911,43 +898,43 @@ test_shoving_into_region (void)
   /* Do some manual tests too */
   region = get_screen_region (2);
 
-  rect = meta_rect (300, 1000, 400, 200);
-  temp = meta_rect (300,  950, 400, 200);
+  rect = MTK_RECTANGLE_INIT (300, 1000, 400, 200);
+  temp = MTK_RECTANGLE_INIT (300,  950, 400, 200);
   meta_rectangle_shove_into_region (region,
                                     fixed_directions,
                                     &rect);
   g_assert (mtk_rectangle_equal (&rect, &temp));
 
-  rect = meta_rect (425, 1000, 300, 200);
-  temp = meta_rect (450, 1000, 300, 200);
+  rect = MTK_RECTANGLE_INIT (425, 1000, 300, 200);
+  temp = MTK_RECTANGLE_INIT (450, 1000, 300, 200);
   meta_rectangle_shove_into_region (region,
                                     fixed_directions,
                                     &rect);
   g_assert (mtk_rectangle_equal (&rect, &temp));
 
-  rect = meta_rect (425, 1000, 300, 200);
-  temp = meta_rect (425,  950, 300, 200);
+  rect = MTK_RECTANGLE_INIT (425, 1000, 300, 200);
+  temp = MTK_RECTANGLE_INIT (425,  950, 300, 200);
   meta_rectangle_shove_into_region (region,
                                     FIXED_DIRECTION_X,
                                     &rect);
   g_assert (mtk_rectangle_equal (&rect, &temp));
 
-  rect = meta_rect ( 300, 1000, 400, 200);
-  temp = meta_rect (1200, 1000, 400, 200);
+  rect = MTK_RECTANGLE_INIT ( 300, 1000, 400, 200);
+  temp = MTK_RECTANGLE_INIT (1200, 1000, 400, 200);
   meta_rectangle_shove_into_region (region,
                                     FIXED_DIRECTION_Y,
                                     &rect);
   g_assert (mtk_rectangle_equal (&rect, &temp));
 
-  rect = meta_rect ( 800, 1150, 400,  50);  /* Completely "offscreen" :) */
-  temp = meta_rect ( 800, 1050, 400,  50);
+  rect = MTK_RECTANGLE_INIT ( 800, 1150, 400,  50);  /* Completely "offscreen" :) */
+  temp = MTK_RECTANGLE_INIT ( 800, 1050, 400,  50);
   meta_rectangle_shove_into_region (region,
                                     0,
                                     &rect);
   g_assert (mtk_rectangle_equal (&rect, &temp));
 
-  rect = meta_rect (-1000,  0, 400, 150);  /* Offscreen in 2 directions */
-  temp = meta_rect (    0, 20, 400, 150);
+  rect = MTK_RECTANGLE_INIT (-1000,  0, 400, 150);  /* Offscreen in 2 directions */
+  temp = MTK_RECTANGLE_INIT (    0, 20, 400, 150);
   meta_rectangle_shove_into_region (region,
                                     0,
                                     &rect);
@@ -1229,8 +1216,8 @@ test_gravity_resize (void)
   rect.x = -500;  /* Some random amount not equal to oldrect.x to ensure that
                    * the resize is done with respect to oldrect instead of rect
                    */
-  oldrect = meta_rect ( 50,  300, 250, 400);
-  temp    = meta_rect ( 50,  300,  20,   5);
+  oldrect = MTK_RECTANGLE_INIT ( 50,  300, 250, 400);
+  temp    = MTK_RECTANGLE_INIT ( 50,  300,  20,   5);
   meta_rectangle_resize_with_gravity (&oldrect,
                                       &rect,
                                       META_GRAVITY_NORTH_WEST,
@@ -1238,8 +1225,8 @@ test_gravity_resize (void)
                                       5);
   g_assert (mtk_rectangle_equal (&rect, &temp));
 
-  rect = meta_rect ( 50,  300, 250, 400);
-  temp = meta_rect (165,  300,  20,   5);
+  rect = MTK_RECTANGLE_INIT ( 50,  300, 250, 400);
+  temp = MTK_RECTANGLE_INIT (165,  300,  20,   5);
   meta_rectangle_resize_with_gravity (&rect,
                                       &rect,
                                       META_GRAVITY_NORTH,
@@ -1247,8 +1234,8 @@ test_gravity_resize (void)
                                       5);
   g_assert (mtk_rectangle_equal (&rect, &temp));
 
-  rect = meta_rect ( 50,  300, 250, 400);
-  temp = meta_rect (280,  300,  20,   5);
+  rect = MTK_RECTANGLE_INIT ( 50,  300, 250, 400);
+  temp = MTK_RECTANGLE_INIT (280,  300,  20,   5);
   meta_rectangle_resize_with_gravity (&rect,
                                       &rect,
                                       META_GRAVITY_NORTH_EAST,
@@ -1256,8 +1243,8 @@ test_gravity_resize (void)
                                       5);
   g_assert (mtk_rectangle_equal (&rect, &temp));
 
-  rect = meta_rect ( 50,  300, 250, 400);
-  temp = meta_rect ( 50,  695,  50,   5);
+  rect = MTK_RECTANGLE_INIT ( 50,  300, 250, 400);
+  temp = MTK_RECTANGLE_INIT ( 50,  695,  50,   5);
   meta_rectangle_resize_with_gravity (&rect,
                                       &rect,
                                       META_GRAVITY_SOUTH_WEST,
@@ -1265,8 +1252,8 @@ test_gravity_resize (void)
                                       5);
   g_assert (mtk_rectangle_equal (&rect, &temp));
 
-  rect = meta_rect ( 50,  300, 250, 400);
-  temp = meta_rect (150,  695,  50,   5);
+  rect = MTK_RECTANGLE_INIT ( 50,  300, 250, 400);
+  temp = MTK_RECTANGLE_INIT (150,  695,  50,   5);
   meta_rectangle_resize_with_gravity (&rect,
                                       &rect,
                                       META_GRAVITY_SOUTH,
@@ -1274,8 +1261,8 @@ test_gravity_resize (void)
                                       5);
   g_assert (mtk_rectangle_equal (&rect, &temp));
 
-  rect = meta_rect ( 50,  300, 250, 400);
-  temp = meta_rect (250,  695,  50,   5);
+  rect = MTK_RECTANGLE_INIT ( 50,  300, 250, 400);
+  temp = MTK_RECTANGLE_INIT (250,  695,  50,   5);
   meta_rectangle_resize_with_gravity (&rect,
                                       &rect,
                                       META_GRAVITY_SOUTH_EAST,
@@ -1283,8 +1270,8 @@ test_gravity_resize (void)
                                       5);
   g_assert (mtk_rectangle_equal (&rect, &temp));
 
-  rect = meta_rect (167,  738, 237, 843);
-  temp = meta_rect (167, 1113, 832,  93);
+  rect = MTK_RECTANGLE_INIT (167,  738, 237, 843);
+  temp = MTK_RECTANGLE_INIT (167, 1113, 832,  93);
   meta_rectangle_resize_with_gravity (&rect,
                                       &rect,
                                       META_GRAVITY_WEST,
@@ -1292,8 +1279,8 @@ test_gravity_resize (void)
                                       93);
   g_assert (mtk_rectangle_equal (&rect, &temp));
 
-  rect = meta_rect ( 167,  738, 237, 843);
-  temp = meta_rect (-131, 1113, 833,  93);
+  rect = MTK_RECTANGLE_INIT ( 167,  738, 237, 843);
+  temp = MTK_RECTANGLE_INIT (-131, 1113, 833,  93);
   meta_rectangle_resize_with_gravity (&rect,
                                       &rect,
                                       META_GRAVITY_CENTER,
@@ -1301,8 +1288,8 @@ test_gravity_resize (void)
                                       93);
   g_assert (mtk_rectangle_equal (&rect, &temp));
 
-  rect = meta_rect (300, 1000, 400, 200);
-  temp = meta_rect (270,  994, 430, 212);
+  rect = MTK_RECTANGLE_INIT (300, 1000, 400, 200);
+  temp = MTK_RECTANGLE_INIT (270,  994, 430, 212);
   meta_rectangle_resize_with_gravity (&rect,
                                       &rect,
                                       META_GRAVITY_EAST,
@@ -1310,8 +1297,8 @@ test_gravity_resize (void)
                                       211);
   g_assert (mtk_rectangle_equal (&rect, &temp));
 
-  rect = meta_rect (300, 1000, 400, 200);
-  temp = meta_rect (300, 1000, 430, 211);
+  rect = MTK_RECTANGLE_INIT (300, 1000, 400, 200);
+  temp = MTK_RECTANGLE_INIT (300, 1000, 430, 211);
   meta_rectangle_resize_with_gravity (&rect,
                                       &rect,
                                       META_GRAVITY_STATIC,

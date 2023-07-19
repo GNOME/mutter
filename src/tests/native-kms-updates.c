@@ -184,7 +184,7 @@ meta_test_kms_update_plane_assignments (void)
                                   cursor_plane,
                                   cursor_buffer,
                                   META_FIXED_16_RECTANGLE_INIT_INT (0, 0, 64, 64),
-                                  META_RECTANGLE_INIT (24, 48, 64, 64),
+                                  MTK_RECTANGLE_INIT (24, 48, 64, 64),
                                   META_KMS_ASSIGN_PLANE_FLAG_NONE);
   g_assert_nonnull (cursor_plane_assignment);
   g_assert_cmpint (cursor_plane_assignment->src_rect.x, ==, 0);
@@ -493,7 +493,7 @@ meta_test_kms_update_merge (void)
                                   cursor_buffer1,
                                   META_FIXED_16_RECTANGLE_INIT_INT (0, 0,
                                                                     64, 64),
-                                  META_RECTANGLE_INIT (24, 48, 64, 64),
+                                  MTK_RECTANGLE_INIT (24, 48, 64, 64),
                                   META_KMS_ASSIGN_PLANE_FLAG_NONE);
   meta_kms_plane_assignment_set_cursor_hotspot (cursor_plane_assignment,
                                                 10, 11);
@@ -529,7 +529,7 @@ meta_test_kms_update_merge (void)
                                   cursor_buffer2,
                                   META_FIXED_16_RECTANGLE_INIT_INT (0, 0,
                                                                     64, 64),
-                                  META_RECTANGLE_INIT (32, 56, 64, 64),
+                                  MTK_RECTANGLE_INIT (32, 56, 64, 64),
                                   META_KMS_ASSIGN_PLANE_FLAG_NONE);
   meta_kms_plane_assignment_set_cursor_hotspot (cursor_plane_assignment,
                                                 9, 7);

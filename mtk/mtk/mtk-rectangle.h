@@ -55,6 +55,14 @@ typedef struct _MtkRectangle MtkRectangle;
 typedef cairo_rectangle_int_t MtkRectangle;
 #endif
 
+#define MTK_RECTANGLE_INIT(_x, _y, _width, _height) \
+        (MtkRectangle) { \
+          .x = (_x), \
+          .y = (_y), \
+          .width = (_width), \
+          .height = (_height) \
+        }
+
 MTK_EXPORT
 GType mtk_rectangle_get_type (void);
 
@@ -63,6 +71,13 @@ MtkRectangle * mtk_rectangle_copy (const MtkRectangle *rect);
 
 MTK_EXPORT
 void mtk_rectangle_free (MtkRectangle *rect);
+
+/* Function to make initializing a rect with a single line of code easy */
+MTK_EXPORT
+MtkRectangle * mtk_rectangle_new (int x,
+                                  int y,
+                                  int width,
+                                  int height);
 
 MTK_EXPORT
 gboolean mtk_rectangle_equal (const MtkRectangle *src1,

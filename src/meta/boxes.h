@@ -53,14 +53,6 @@ typedef struct _MetaRectangle MetaRectangle;
 typedef cairo_rectangle_int_t MetaRectangle;
 #endif
 
-#define META_RECTANGLE_INIT(_x, _y, _width, _height) \
-  (MetaRectangle) { \
-    .x = (_x), \
-    .y = (_y), \
-    .width = (_width), \
-    .height = (_height) \
-  }
-
 /**
  * MetaStrut:
  * @rect: #MetaRectangle the #MetaStrut is on
@@ -108,10 +100,6 @@ MetaRectangle *meta_rectangle_copy (const MetaRectangle *rect);
 
 META_EXPORT
 void           meta_rectangle_free (MetaRectangle       *rect);
-
-/* Function to make initializing a rect with a single line of code easy */
-META_EXPORT
-MetaRectangle                 meta_rect (int x, int y, int width, int height);
 
 /* Basic comparison functions */
 META_EXPORT

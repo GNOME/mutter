@@ -903,7 +903,7 @@ ensure_work_areas_validated (MetaWorkspace *workspace)
    */
   work_area = display_rect;  /* start with the screen */
   if (workspace->screen_region == NULL)
-    work_area = meta_rect (0, 0, -1, -1);
+    work_area = MTK_RECTANGLE_INIT (0, 0, -1, -1);
   else
     meta_rectangle_clip_to_region (workspace->screen_region,
                                    FIXED_DIRECTION_NONE,
@@ -970,7 +970,7 @@ ensure_work_areas_validated (MetaWorkspace *workspace)
         /* FIXME: constraints.c untested with this, but it might be nice for
          * a screen reader or magnifier.
          */
-        work_area = meta_rect (work_area.x, work_area.y, -1, -1);
+        work_area = MTK_RECTANGLE_INIT (work_area.x, work_area.y, -1, -1);
       else
         meta_rectangle_clip_to_region (data->logical_monitor_region,
                                        FIXED_DIRECTION_NONE,

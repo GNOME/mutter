@@ -617,10 +617,10 @@ apply_edge_resistance_to_each_side (MetaEdgeResistanceData  *edge_data,
     }
 
   /* Determine whether anything changed, and save the changes */
-  modified_rect = meta_rect (new_left,
-                             new_top,
-                             new_right - new_left,
-                             new_bottom - new_top);
+  modified_rect = MTK_RECTANGLE_INIT (new_left,
+                                      new_top,
+                                      new_right - new_left,
+                                      new_bottom - new_top);
   modified = !mtk_rectangle_equal (new_outer, &modified_rect);
   *new_outer = modified_rect;
   return modified;

@@ -38,6 +38,32 @@ G_DEFINE_BOXED_TYPE (MtkRectangle, mtk_rectangle,
                      mtk_rectangle_copy, mtk_rectangle_free);
 
 /**
+ * mtk_rectangle_new:
+ * @x: X coordinate of the top left corner
+ * @y: Y coordinate of the top left corner
+ * @width: Width of the rectangle
+ * @height: Height of the rectangle
+ *
+ * Creates a new rectangle
+ */
+MtkRectangle *
+mtk_rectangle_new (int x,
+                   int y,
+                   int width,
+                   int height)
+{
+  MtkRectangle *rect;
+
+  rect = g_new0 (MtkRectangle, 1);
+  rect->x = x;
+  rect->y = y;
+  rect->width = width;
+  rect->height = height;
+
+  return rect;
+}
+
+/**
  * mtk_rectangle_equal:
  * @src1: The first rectangle
  * @src2: The second rectangle
