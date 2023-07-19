@@ -3,9 +3,11 @@ mtk_mtk_includesubdir = mtk_includesubdir / 'mtk'
 mtk_headers = [
   'mtk.h',
   'mtk-macros.h',
+  'mtk-rectangle.h',
 ]
 
 mtk_sources = [
+  'mtk-rectangle.c',
 ]
 
 mtk_private_headers = [

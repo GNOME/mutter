@@ -19,11 +19,20 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
-
-#define __MTK_H_INSIDE__
-
 #include "mtk/mtk-rectangle.h"
-#include "mtk/mtk-macros.h"
 
-#undef __MTK_H_INSIDE__
+
+MtkRectangle *
+mtk_rectangle_copy (const MtkRectangle *rect)
+{
+  return g_memdup2 (rect, sizeof (MtkRectangle));
+}
+
+void
+mtk_rectangle_free (MtkRectangle *rect)
+{
+  g_free (rect);
+}
+
+G_DEFINE_BOXED_TYPE (MtkRectangle, mtk_rectangle,
+                     mtk_rectangle_copy, mtk_rectangle_free);
