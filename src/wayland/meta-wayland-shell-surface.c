@@ -83,8 +83,8 @@ meta_wayland_shell_surface_determine_geometry (MetaWaylandShellSurface *shell_su
   meta_wayland_shell_surface_calculate_geometry (shell_surface,
                                                  &bounding_geometry);
 
-  meta_rectangle_intersect (set_geometry, &bounding_geometry,
-                            &intersected_geometry);
+  mtk_rectangle_intersect (set_geometry, &bounding_geometry,
+                           &intersected_geometry);
 
   *out_geometry = intersected_geometry;
 }

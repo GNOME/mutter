@@ -117,11 +117,6 @@ MetaRectangle                 meta_rect (int x, int y, int width, int height);
 META_EXPORT
 int      meta_rectangle_area            (const MetaRectangle *rect);
 
-META_EXPORT
-gboolean meta_rectangle_intersect       (const MetaRectangle *src1,
-                                         const MetaRectangle *src2,
-                                         MetaRectangle       *dest);
-
 /* overlap is similar to intersect but doesn't provide location of
  * intersection information.
  */

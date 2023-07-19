@@ -323,7 +323,7 @@ meta_screen_cast_window_stream_src_get_videocrop (MetaScreenCastStreamSrc *src,
   stream_rect.width = get_stream_width (window_src);
   stream_rect.height = get_stream_height (window_src);
 
-  meta_rectangle_intersect (crop_rect, &stream_rect, crop_rect);
+  mtk_rectangle_intersect (crop_rect, &stream_rect, crop_rect);
 
   return TRUE;
 }

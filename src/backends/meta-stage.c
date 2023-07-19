@@ -398,7 +398,7 @@ queue_redraw_clutter_rect (MetaStage       *stage,
 
       clutter_stage_view_get_layout (view, &view_layout);
 
-      if (meta_rectangle_intersect (&clip, &view_layout, &view_clip))
+      if (mtk_rectangle_intersect (&clip, &view_layout, &view_clip))
         {
           clutter_stage_view_add_redraw_clip (view, &view_clip);
           clutter_stage_view_schedule_update (view);

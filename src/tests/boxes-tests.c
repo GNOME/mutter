@@ -141,18 +141,18 @@ test_intersect (void)
   MetaRectangle temp;
   MetaRectangle temp2;
 
-  meta_rectangle_intersect (&a, &b, &temp);
+  mtk_rectangle_intersect (&a, &b, &temp);
   temp2 = meta_rect (100, 200, 10, 2);
   g_assert (mtk_rectangle_equal (&temp, &temp2));
   g_assert (meta_rectangle_area (&temp) == 20);
 
-  meta_rectangle_intersect (&a, &c, &temp);
+  mtk_rectangle_intersect (&a, &c, &temp);
   g_assert (meta_rectangle_area (&temp) == 0);
 
-  meta_rectangle_intersect (&a, &d, &temp);
+  mtk_rectangle_intersect (&a, &d, &temp);
   g_assert (meta_rectangle_area (&temp) == 0);
 
-  meta_rectangle_intersect (&b, &d, &b);
+  mtk_rectangle_intersect (&b, &d, &b);
   g_assert (mtk_rectangle_equal (&b, &b_intersect_d));
 }
 

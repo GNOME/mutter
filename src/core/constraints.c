@@ -838,8 +838,8 @@ try_flip_window_position (MetaWindow                       *window,
                                  &flipped_rel_x, &flipped_rel_y);
   flipped_rect.x = parent_x + flipped_rel_x;
   flipped_rect.y = parent_y + flipped_rel_y;
-  meta_rectangle_intersect (&flipped_rect, &info->work_area_monitor,
-                            &flipped_intersection);
+  mtk_rectangle_intersect (&flipped_rect, &info->work_area_monitor,
+                           &flipped_intersection);
 
   if ((constraint_adjustment == META_PLACEMENT_CONSTRAINT_ADJUSTMENT_FLIP_X &&
        flipped_intersection.width == flipped_rect.width) ||
@@ -966,8 +966,8 @@ constrain_custom_rule (MetaWindow         *window,
       adjusted_rel_y = window->placement.current.rel_y;
     }
 
-  meta_rectangle_intersect (&adjusted_unconstrained, &info->work_area_monitor,
-                            &intersection);
+  mtk_rectangle_intersect (&adjusted_unconstrained, &info->work_area_monitor,
+                           &intersection);
 
   constraint_satisfied = (mtk_rectangle_equal (&info->current,
                                                &adjusted_unconstrained) &&
@@ -1034,8 +1034,8 @@ constrain_custom_rule (MetaWindow         *window,
                                 &intersection);
     }
 
-  meta_rectangle_intersect (&info->current, &info->work_area_monitor,
-                            &intersection);
+  mtk_rectangle_intersect (&info->current, &info->work_area_monitor,
+                           &intersection);
   constraint_satisfied = is_custom_rule_satisfied (&info->current,
                                                    placement_rule,
                                                    &intersection);
@@ -1100,8 +1100,8 @@ constrain_custom_rule (MetaWindow         *window,
       info->current.y = new_y;
     }
 
-  meta_rectangle_intersect (&info->current, &info->work_area_monitor,
-                            &intersection);
+  mtk_rectangle_intersect (&info->current, &info->work_area_monitor,
+                           &intersection);
   constraint_satisfied = is_custom_rule_satisfied (&info->current,
                                                    placement_rule,
                                                    &intersection);

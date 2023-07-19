@@ -214,10 +214,6 @@ void _clutter_util_rectangle_offset (const MtkRectangle          *src,
                                      int                          y,
                                      MtkRectangle                *dest);
 
-gboolean _clutter_util_rectangle_intersection (const MtkRectangle *src1,
-                                               const MtkRectangle *src2,
-                                               MtkRectangle       *dest);
-
 CLUTTER_EXPORT
 PangoDirection _clutter_pango_unichar_direction (gunichar ch);
 

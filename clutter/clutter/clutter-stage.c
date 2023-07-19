@@ -263,8 +263,8 @@ clutter_stage_add_redraw_clip (ClutterStage *stage,
           MtkRectangle intersection;
 
           clutter_stage_view_get_layout (view, &view_layout);
-          if (_clutter_util_rectangle_intersection (&view_layout, clip,
-                                                    &intersection))
+          if (mtk_rectangle_intersect (&view_layout, clip,
+                                       &intersection))
             clutter_stage_view_add_redraw_clip (view, &intersection);
         }
     }

@@ -847,7 +847,7 @@ do_paint_content (MetaShapedTexture   *stex,
               MtkRectangle rect;
               cairo_region_get_rectangle (blended_tex_region, i, &rect);
 
-              if (!meta_rectangle_intersect (&content_rect, &rect, &rect))
+              if (!mtk_rectangle_intersect (&content_rect, &rect, &rect))
                 continue;
 
               paint_clipped_rectangle_node (stex, root_node,
@@ -1036,7 +1036,7 @@ meta_shaped_texture_update_area (MetaShapedTexture     *stex,
     .height = stex->tex_height,
   };
 
-  meta_rectangle_intersect (&buffer_rect, clip, clip);
+  mtk_rectangle_intersect (&buffer_rect, clip, clip);
 
   meta_rectangle_scale_double (clip,
                                1.0 / stex->buffer_scale,
@@ -1448,8 +1448,8 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
         .height = stex->dst_height,
       };
 
-      if (!meta_rectangle_intersect (&dst_rect, clip,
-                                     image_clip))
+      if (!mtk_rectangle_intersect (&dst_rect, clip,
+                                    image_clip))
         return NULL;
 
       *image_clip = (MetaRectangle) {

@@ -5800,7 +5800,7 @@ meta_window_titlebar_is_onscreen (MetaWindow *window)
       MetaRectangle *spanning_rect = onscreen_region->data;
       MetaRectangle overlap;
 
-      meta_rectangle_intersect (&titlebar_rect, spanning_rect, &overlap);
+      mtk_rectangle_intersect (&titlebar_rect, spanning_rect, &overlap);
       if (overlap.height > MIN (titlebar_rect.height, min_height_needed) &&
           overlap.width  > MIN (titlebar_rect.width * min_width_percent,
                                 min_width_absolute))
@@ -5834,9 +5834,9 @@ meta_window_get_work_area_for_logical_monitor (MetaWindow         *window,
       meta_workspace_get_work_area_for_logical_monitor (tmp->data,
                                                         logical_monitor,
                                                         &workspace_work_area);
-      meta_rectangle_intersect (area,
-                                &workspace_work_area,
-                                area);
+      mtk_rectangle_intersect (area,
+                               &workspace_work_area,
+                               area);
       tmp = tmp->next;
     }
 
@@ -5916,9 +5916,9 @@ meta_window_get_work_area_all_monitors (MetaWindow    *window,
       MetaRectangle workspace_work_area;
       meta_workspace_get_work_area_all_monitors (tmp->data,
                                                  &workspace_work_area);
-      meta_rectangle_intersect (area,
-                                &workspace_work_area,
-                                area);
+      mtk_rectangle_intersect (area,
+                               &workspace_work_area,
+                               area);
       tmp = tmp->next;
     }
 

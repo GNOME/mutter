@@ -3369,9 +3369,9 @@ meta_monitor_manager_get_logical_monitor_from_rect (MetaMonitorManager *manager,
       if (META_POINT_IN_RECT (center_x, center_y, logical_monitor->rect))
         return logical_monitor;
 
-      if (!meta_rectangle_intersect (&logical_monitor->rect,
-                                     rect,
-                                     &intersection))
+      if (!mtk_rectangle_intersect (&logical_monitor->rect,
+                                    rect,
+                                    &intersection))
         continue;
 
       intersection_area = meta_rectangle_area (&intersection);
@@ -3413,9 +3413,9 @@ meta_monitor_manager_get_highest_scale_monitor_from_rect (MetaMonitorManager *ma
       MetaRectangle intersection;
       float scale;
 
-      if (!meta_rectangle_intersect (&logical_monitor->rect,
-                                     rect,
-                                     &intersection))
+      if (!mtk_rectangle_intersect (&logical_monitor->rect,
+                                    rect,
+                                    &intersection))
         continue;
 
       scale = meta_logical_monitor_get_scale (logical_monitor);

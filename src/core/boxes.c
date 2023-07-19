@@ -2,7 +2,7 @@
 
 /*
  * Copyright (C) 2005, 2006 Elijah Newren
- * [meta_rectangle_intersect() is copyright the GTK+ Team according to Havoc,
+ * [mtk_rectangle_intersect() is copyright the GTK+ Team according to Havoc,
  * see gdkrectangle.c.  As far as Havoc knows, he probably wrote
  * mtk_rectangle_equal(), and I'm guessing it's (C) Red Hat.  So...]
  * Copyright (C) 1995-2000  GTK+ Team
@@ -151,53 +151,6 @@ meta_rectangle_area (const MetaRectangle *rect)
 {
   g_return_val_if_fail (rect != NULL, 0);
   return rect->width * rect->height;
-}
-
-/**
- * meta_rectangle_intersect:
- * @src1: a #MetaRectangle
- * @src2: another #MetaRectangle
- * @dest: (out caller-allocates): an empty #MetaRectangle, to be filled
- *   with the coordinates of the intersection.
- *
- * Returns: TRUE is some intersection exists and is not degenerate, FALSE
- *   otherwise.
- */
-gboolean
-meta_rectangle_intersect (const MetaRectangle *src1,
-			  const MetaRectangle *src2,
-			  MetaRectangle *dest)
-{
-  int dest_x, dest_y;
-  int dest_w, dest_h;
-  int return_val;
-
-  g_return_val_if_fail (src1 != NULL, FALSE);
-  g_return_val_if_fail (src2 != NULL, FALSE);
-  g_return_val_if_fail (dest != NULL, FALSE);
-
-  return_val = FALSE;
-
-  dest_x = MAX (src1->x, src2->x);
-  dest_y = MAX (src1->y, src2->y);
-  dest_w = MIN (src1->x + src1->width, src2->x + src2->width) - dest_x;
-  dest_h = MIN (src1->y + src1->height, src2->y + src2->height) - dest_y;
-
-  if (dest_w > 0 && dest_h > 0)
-    {
-      dest->x = dest_x;
-      dest->y = dest_y;
-      dest->width = dest_w;
-      dest->height = dest_h;
-      return_val = TRUE;
-    }
-  else
-    {
-      dest->width = 0;
-      dest->height = 0;
-    }
-
-  return return_val;
 }
 
 gboolean
@@ -948,7 +901,7 @@ meta_rectangle_clip_to_region (const GList         *spanning_rects,
         continue;
 
       /* Determine maximal overlap amount */
-      meta_rectangle_intersect (rect, compare_rect, &overlap);
+      mtk_rectangle_intersect (rect, compare_rect, &overlap);
       maximal_overlap_amount_for_compare = meta_rectangle_area (&overlap);
 
       /* See if this is the best rect so far */
@@ -1282,7 +1235,7 @@ get_disjoint_strut_rect_list_in_region (const GSList        *old_struts,
       MetaRectangle *cur = &((MetaStrut*)old_struts->data)->rect;
       MetaRectangle *copy = g_new (MetaRectangle, 1);
       *copy = *cur;
-      if (meta_rectangle_intersect (copy, region, copy))
+      if (mtk_rectangle_intersect (copy, region, copy))
         strut_rects = g_list_prepend (strut_rects, copy);
       else
         g_free (copy);
@@ -1306,7 +1259,7 @@ get_disjoint_strut_rect_list_in_region (const GSList        *old_struts,
           MetaRectangle *comp = compare->data;
           MetaRectangle overlap;
 
-          if (meta_rectangle_intersect (cur, comp, &overlap))
+          if (mtk_rectangle_intersect (cur, comp, &overlap))
             {
               /* Get a list of rectangles for each strut that don't overlap
                * the intersection region.

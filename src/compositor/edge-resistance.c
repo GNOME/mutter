@@ -966,9 +966,9 @@ compute_resistance_and_snapping_edges (MetaWindowDrag *window_drag)
            * is offscreen (we also don't care about parts of edges covered
            * by other windows or DOCKS, but that's handled below).
            */
-          meta_rectangle_intersect (&cur_rect,
-                                    &display_rect,
-                                    &reduced);
+          mtk_rectangle_intersect (&cur_rect,
+                                   &display_rect,
+                                   &reduced);
 
           new_edges = NULL;
 

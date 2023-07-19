@@ -1697,9 +1697,9 @@ meta_window_actor_get_image (MetaWindowActor *self,
       tmp_clip = *clip;
       tmp_clip.x += floorf (x);
       tmp_clip.y += floorf (y);
-      if (!meta_rectangle_intersect (&framebuffer_clip,
-                                     &tmp_clip,
-                                     &intersected_clip))
+      if (!mtk_rectangle_intersect (&framebuffer_clip,
+                                    &tmp_clip,
+                                    &intersected_clip))
         goto out;
 
       framebuffer_clip = intersected_clip;
@@ -1779,7 +1779,7 @@ meta_window_actor_paint_to_content (MetaWindowActor  *self,
     {
       MetaRectangle tmp_clip;
 
-      if (!meta_rectangle_intersect (&framebuffer_clip, clip, &tmp_clip))
+      if (!mtk_rectangle_intersect (&framebuffer_clip, clip, &tmp_clip))
         goto out;
 
       framebuffer_clip = tmp_clip;

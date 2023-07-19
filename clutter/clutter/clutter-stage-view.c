@@ -602,7 +602,7 @@ find_damaged_tiles (ClutterStageView      *view,
               CAIRO_REGION_OVERLAP_OUT)
             continue;
 
-          _clutter_util_rectangle_intersection (&tile, &fb_rect, &tile);
+          mtk_rectangle_intersect (&tile, &fb_rect, &tile);
 
           if (is_tile_dirty (&tile, current_data, prev_data, bpp, stride))
             cairo_region_union_rectangle (tile_damage_region, &tile);

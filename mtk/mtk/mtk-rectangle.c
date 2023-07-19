@@ -62,7 +62,7 @@ mtk_rectangle_equal (const MtkRectangle *src1,
  * @rect2: another #MtkRectangle
  * @dest: (out caller-allocates): an empty #MtkRectangle, to be filled
  *   with the coordinates of the bounding box.
- * 
+ *
  * Computes the union of the two rectangles
  */
 void
@@ -97,4 +97,53 @@ mtk_rectangle_union (const MtkRectangle *rect1,
   dest->y = dest_y;
   dest->width = dest_w;
   dest->height = dest_h;
+}
+
+/**
+ * mtk_rectangle_intersect:
+ * @src1: a #MtkRectangle
+ * @src2: another #MtkRectangle
+ * @dest: (out caller-allocates): an empty #MtkRectangle, to be filled
+ *   with the coordinates of the intersection.
+ * 
+ * Find the intersection between the two rectangles
+ *
+ * Returns: TRUE is some intersection exists and is not degenerate, FALSE
+ *   otherwise.
+ */
+gboolean
+mtk_rectangle_intersect (const MtkRectangle *src1,
+                         const MtkRectangle *src2,
+                         MtkRectangle       *dest)
+{
+  int dest_x, dest_y;
+  int dest_w, dest_h;
+  int return_val;
+
+  g_return_val_if_fail (src1 != NULL, FALSE);
+  g_return_val_if_fail (src2 != NULL, FALSE);
+  g_return_val_if_fail (dest != NULL, FALSE);
+
+  return_val = FALSE;
+
+  dest_x = MAX (src1->x, src2->x);
+  dest_y = MAX (src1->y, src2->y);
+  dest_w = MIN (src1->x + src1->width, src2->x + src2->width) - dest_x;
+  dest_h = MIN (src1->y + src1->height, src2->y + src2->height) - dest_y;
+
+  if (dest_w > 0 && dest_h > 0)
+    {
+      dest->x = dest_x;
+      dest->y = dest_y;
+      dest->width = dest_w;
+      dest->height = dest_h;
+      return_val = TRUE;
+    }
+  else
+    {
+      dest->width = 0;
+      dest->height = 0;
+    }
+
+  return return_val;
 }

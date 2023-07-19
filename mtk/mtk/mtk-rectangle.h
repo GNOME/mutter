@@ -74,3 +74,8 @@ void mtk_rectangle_union (const MtkRectangle *rect1,
                           const MtkRectangle *rect2,
                           MtkRectangle       *dest);
 
+MTK_EXPORT
+gboolean mtk_rectangle_intersect (const MtkRectangle *src1,
+                                  const MtkRectangle *src2,
+                                  MtkRectangle       *dest);
+

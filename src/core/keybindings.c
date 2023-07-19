@@ -2934,7 +2934,7 @@ handle_raise_or_lower (MetaDisplay           *display,
           meta_window_get_frame_rect (above, &above_rect);
 
           /* Check if obscured */
-          if (meta_rectangle_intersect (&win_rect, &above_rect, &tmp))
+          if (mtk_rectangle_intersect (&win_rect, &above_rect, &tmp))
             {
               meta_window_raise (window);
               return;

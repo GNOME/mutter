@@ -163,39 +163,6 @@ _clutter_util_rectangle_offset (const MtkRectangle *src,
   dest->y += y;
 }
 
-gboolean
-_clutter_util_rectangle_intersection (const MtkRectangle *src1,
-                                      const MtkRectangle *src2,
-                                      MtkRectangle       *dest)
-{
-  int x1, y1, x2, y2;
-
-  x1 = MAX (src1->x, src2->x);
-  y1 = MAX (src1->y, src2->y);
-
-  x2 = MIN (src1->x + (int) src1->width,  src2->x + (int) src2->width);
-  y2 = MIN (src1->y + (int) src1->height, src2->y + (int) src2->height);
-
-  if (x1 >= x2 || y1 >= y2)
-    {
-      dest->x = 0;
-      dest->y = 0;
-      dest->width  = 0;
-      dest->height = 0;
-
-      return FALSE;
-    }
-  else
-    {
-      dest->x = x1;
-      dest->y = y1;
-      dest->width  = x2 - x1;
-      dest->height = y2 - y1;
-
-      return TRUE;
-    }
-}
-
 typedef struct
 {
   GType value_type;

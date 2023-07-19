@@ -365,9 +365,9 @@ window_overlaps_focus_window (MetaWindow *window)
   meta_window_get_frame_rect (window, &window_frame);
   meta_window_get_frame_rect (focus_window, &focus_frame);
 
-  return meta_rectangle_intersect (&window_frame,
-                                   &focus_frame,
-                                   &overlap);
+  return mtk_rectangle_intersect (&window_frame,
+                                  &focus_frame,
+                                  &overlap);
 }
 
 static gboolean
@@ -458,7 +458,7 @@ rectangle_overlaps_some_window (MetaRectangle *rect,
         case META_WINDOW_MENU:
           meta_window_get_frame_rect (other, &other_rect);
 
-          if (meta_rectangle_intersect (rect, &other_rect, &dest))
+          if (mtk_rectangle_intersect (rect, &other_rect, &dest))
             return TRUE;
           break;
         }
