@@ -68,3 +68,9 @@ MTK_EXPORT
 gboolean mtk_rectangle_equal (const MtkRectangle *src1,
                               const MtkRectangle *src2);
 
+/* Find the bounding box of the union of two rectangles */
+MTK_EXPORT
+void mtk_rectangle_union (const MtkRectangle *rect1,
+                          const MtkRectangle *rect2,
+                          MtkRectangle       *dest);
+

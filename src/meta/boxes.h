@@ -122,12 +122,6 @@ gboolean meta_rectangle_intersect       (const MetaRectangle *src1,
                                          const MetaRectangle *src2,
                                          MetaRectangle       *dest);
 
-/* Find the bounding box of the union of two rectangles */
-META_EXPORT
-void     meta_rectangle_union           (const MetaRectangle *rect1,
-                                         const MetaRectangle *rect2,
-                                         MetaRectangle       *dest);
-
 /* overlap is similar to intersect but doesn't provide location of
  * intersection information.
  */

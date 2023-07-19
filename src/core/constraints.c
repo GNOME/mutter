@@ -458,15 +458,15 @@ setup_constraint_info (MetaBackend         *backend,
   if (window->fullscreen && meta_window_has_fullscreen_monitors (window))
     {
       info->entire_monitor = window->fullscreen_monitors.top->rect;
-      meta_rectangle_union (&info->entire_monitor,
-                            &window->fullscreen_monitors.bottom->rect,
-                            &info->entire_monitor);
-      meta_rectangle_union (&info->entire_monitor,
-                            &window->fullscreen_monitors.left->rect,
-                            &info->entire_monitor);
-      meta_rectangle_union (&info->entire_monitor,
-                            &window->fullscreen_monitors.right->rect,
-                            &info->entire_monitor);
+      mtk_rectangle_union (&info->entire_monitor,
+                           &window->fullscreen_monitors.bottom->rect,
+                           &info->entire_monitor);
+      mtk_rectangle_union (&info->entire_monitor,
+                           &window->fullscreen_monitors.left->rect,
+                           &info->entire_monitor);
+      mtk_rectangle_union (&info->entire_monitor,
+                           &window->fullscreen_monitors.right->rect,
+                           &info->entire_monitor);
       if (window->fullscreen_monitors.top == logical_monitor &&
           window->fullscreen_monitors.bottom == logical_monitor &&
           window->fullscreen_monitors.left == logical_monitor &&

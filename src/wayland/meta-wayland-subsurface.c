@@ -127,7 +127,7 @@ meta_wayland_subsurface_union_geometry (MetaWaylandSubsurface *subsurface,
   };
 
   if (surface->buffer)
-    meta_rectangle_union (out_geometry, &geometry, out_geometry);
+    mtk_rectangle_union (out_geometry, &geometry, out_geometry);
 
   META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (&surface->output_state,
                                            subsurface_surface)

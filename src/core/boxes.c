@@ -200,47 +200,6 @@ meta_rectangle_intersect (const MetaRectangle *src1,
   return return_val;
 }
 
-/**
- * meta_rectangle_union:
- * @rect1: a #MetaRectangle
- * @rect2: another #MetaRectangle
- * @dest: (out caller-allocates): an empty #MetaRectangle, to be filled
- *   with the coordinates of the bounding box.
- */
-void
-meta_rectangle_union (const MetaRectangle *rect1,
-                      const MetaRectangle *rect2,
-                      MetaRectangle       *dest)
-{
-  int dest_x, dest_y;
-  int dest_w, dest_h;
-
-  dest_x = rect1->x;
-  dest_y = rect1->y;
-  dest_w = rect1->width;
-  dest_h = rect1->height;
-
-  if (rect2->x < dest_x)
-    {
-      dest_w += dest_x - rect2->x;
-      dest_x = rect2->x;
-    }
-  if (rect2->y < dest_y)
-    {
-      dest_h += dest_y - rect2->y;
-      dest_y = rect2->y;
-    }
-  if (rect2->x + rect2->width > dest_x + dest_w)
-    dest_w = rect2->x + rect2->width - dest_x;
-  if (rect2->y + rect2->height > dest_y + dest_h)
-    dest_h = rect2->y + rect2->height - dest_y;
-
-  dest->x = dest_x;
-  dest->y = dest_y;
-  dest->width = dest_w;
-  dest->height = dest_h;
-}
-
 gboolean
 meta_rectangle_overlap (const MetaRectangle *rect1,
                         const MetaRectangle *rect2)
