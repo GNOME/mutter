@@ -82,7 +82,7 @@ variables:
     - .skip-git-clone
   variables:
     FDO_DISTRIBUTION_VERSION: 38
-    BASE_TAG: '2023-07-19.1'
+    BASE_TAG: '2023-07-19.2'
     MUTTER_USER: 'meta-user'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
@@ -150,7 +150,7 @@ variables:
                       gnome-shell
 
       # Replace pkexec with sudo, to make meson use it if needed
-      ln -sfv /usr/bin/sudo /usr/bin/pkexec
+      #ln -sfv /usr/bin/sudo /usr/bin/pkexec
 
       # Ensure that we mark the project clone dir as safe directory
       git config --system --add safe.directory "$CI_PROJECT_DIR"
