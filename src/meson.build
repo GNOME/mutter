@@ -1165,7 +1165,7 @@ mutter_built_sources += mutter_enum_types
 mutter_built_headers = []
 foreach built_source : mutter_built_sources
   if built_source.full_path().endswith('.h')
-    built_headers += [built_source]
+    mutter_built_headers += [built_source]
   endif
 endforeach
 
