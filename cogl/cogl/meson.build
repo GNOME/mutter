@@ -32,8 +32,6 @@ foreach gl_header : cogl_gl_header_includes
  cogl_gl_header_includes_string += '#include <@0@>\n'.format(gl_header)
 endforeach
 
-built_headers = []
-
 cdata = configuration_data()
 cdata.set('COGL_GL_HEADER_INCLUDES', cogl_gl_header_includes_string)
 
@@ -43,7 +41,6 @@ cogl_gl_header_h = configure_file(
   configuration: cdata,
   install: false,
 )
-built_headers += [cogl_gl_header_h]
 
 if have_egl
   cogl_egl_includes_string = '#include <EGL/egl.h>\n#include <EGL/eglext.h>\n#include <EGL/eglmesaext.h>'
@@ -59,7 +56,6 @@ cogl_egl_defines_h = configure_file(
   configuration: cdata,
   install: false,
 )
-built_headers += [cogl_gl_header_h]
 
 cogl_deprecated_headers = [
   'deprecated/cogl-shader.h',
