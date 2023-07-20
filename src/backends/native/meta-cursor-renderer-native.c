@@ -62,19 +62,6 @@
 #include "wayland/meta-wayland-buffer.h"
 #endif
 
-/* When animating a cursor, we usually call drmModeSetCursor2 once per frame.
- * Though, testing shows that we need to triple buffer the cursor buffer in
- * order to avoid glitches when animating the cursor, at least when running on
- * Intel. The reason for this might be (but is not confirmed to be) due to
- * the user space gbm_bo cache, making us reuse and overwrite the kernel side
- * buffer content before it was scanned out. To avoid this, we keep a user space
- * reference to each buffer we set until at least one frame after it was drawn.
- * In effect, this means we three active cursor gbm_bo's: one that that just has
- * been set, one that was previously set and may or may not have been scanned
- * out, and one pending that will be replaced if the cursor sprite changes.
- */
-#define HW_CURSOR_BUFFER_COUNT 3
-
 static GQuark quark_cursor_sprite = 0;
 
 typedef struct _CursorStageView
