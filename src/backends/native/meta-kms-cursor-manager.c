@@ -458,6 +458,10 @@ update_filter_cb (MetaKmsImpl       *impl,
           MetaKmsCrtc *crtc = crtc_state_impl->crtc;
           MetaDrmBuffer *old_buffer = NULL;
 
+          if (meta_kms_crtc_get_device (crtc) !=
+              meta_kms_update_get_device (update))
+            continue;
+
           update = maybe_update_cursor_plane (cursor_manager_impl,
                                               crtc, update, &old_buffer);
           if (old_buffer)
