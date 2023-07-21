@@ -3162,35 +3162,6 @@ find_common_root_actor (ClutterStage *stage,
   return CLUTTER_ACTOR (stage);
 }
 
-static ClutterEvent *
-create_crossing_event (ClutterStage         *stage,
-                       ClutterInputDevice   *device,
-                       ClutterEventSequence *sequence,
-                       ClutterInputDevice   *source_device,
-                       ClutterEventType      event_type,
-                       ClutterEventFlags     flags,
-                       ClutterActor         *source,
-                       ClutterActor         *related,
-                       graphene_point_t      coords,
-                       uint32_t              time_ms)
-{
-  ClutterEvent *event;
-
-  event = clutter_event_new (event_type);
-  event->crossing.time = time_ms;
-  event->crossing.flags = flags;
-  event->crossing.stage = stage;
-  event->crossing.x = coords.x;
-  event->crossing.y = coords.y;
-  event->crossing.source = source;
-  event->crossing.related = related;
-  event->crossing.sequence = sequence;
-  clutter_event_set_device (event, device);
-  clutter_event_set_source_device (event, source_device);
-
-  return event;
-}
-
 static inline void
 add_actor_to_event_emission_chain (GArray            *chain,
                                    ClutterActor      *actor,
@@ -3379,16 +3350,14 @@ sync_crossings_on_implicit_grab_end (ClutterStage       *self,
       topmost = parent;
     }
 
-  crossing = create_crossing_event (self,
-                                    entry->device,
-                                    entry->sequence,
-                                    NULL,
-                                    CLUTTER_ENTER,
-                                    CLUTTER_EVENT_FLAG_GRAB_NOTIFY,
-                                    entry->current_actor,
-                                    NULL,
-                                    entry->coords,
-                                    CLUTTER_CURRENT_TIME);
+  crossing = clutter_event_crossing_new (CLUTTER_ENTER,
+                                         CLUTTER_EVENT_FLAG_GRAB_NOTIFY,
+                                         CLUTTER_CURRENT_TIME,
+                                         entry->device,
+                                         entry->sequence,
+                                         entry->coords,
+                                         entry->current_actor,
+                                         NULL);
 
   if (!_clutter_event_process_filters (crossing, deepmost))
     {
@@ -3465,13 +3434,14 @@ clutter_stage_update_device (ClutterStage         *stage,
        */
       if (old_actor && emit_crossing)
         {
-          event = create_crossing_event (stage,
-                                         device, sequence,
-                                         source_device,
-                                         CLUTTER_LEAVE,
-                                         CLUTTER_EVENT_NONE,
-                                         old_actor, new_actor,
-                                         point, time_ms);
+          event = clutter_event_crossing_new (CLUTTER_LEAVE,
+                                              CLUTTER_EVENT_NONE,
+                                              ms2us (time_ms),
+                                              device,
+                                              sequence,
+                                              point,
+                                              old_actor,
+                                              new_actor);
           if (!_clutter_event_process_filters (event, old_actor))
             {
               clutter_stage_emit_crossing_event (stage,
@@ -3485,13 +3455,14 @@ clutter_stage_update_device (ClutterStage         *stage,
 
       if (new_actor && emit_crossing)
         {
-          event = create_crossing_event (stage,
-                                         device, sequence,
-                                         source_device,
-                                         CLUTTER_ENTER,
-                                         CLUTTER_EVENT_NONE,
-                                         new_actor, old_actor,
-                                         point, time_ms);
+          event = clutter_event_crossing_new (CLUTTER_ENTER,
+                                              CLUTTER_EVENT_NONE,
+                                              ms2us (time_ms),
+                                              device,
+                                              sequence,
+                                              point,
+                                              new_actor,
+                                              old_actor);
           if (!_clutter_event_process_filters (event, new_actor))
             {
               clutter_stage_emit_crossing_event (stage,
@@ -3751,17 +3722,15 @@ clutter_stage_notify_grab_on_pointer_entry (ClutterStage       *stage,
       if (entry->implicit_grab_actor)
         deepmost = find_common_root_actor (stage, entry->implicit_grab_actor, deepmost);
 
-      event = create_crossing_event (stage,
-                                     entry->device,
-                                     entry->sequence,
-                                     NULL,
-                                     event_type,
-                                     CLUTTER_EVENT_FLAG_GRAB_NOTIFY,
-                                     entry->current_actor,
-                                     event_type == CLUTTER_LEAVE ?
-                                     grab_actor : old_grab_actor,
-                                     entry->coords,
-                                     CLUTTER_CURRENT_TIME);
+      event = clutter_event_crossing_new (event_type,
+                                          CLUTTER_EVENT_FLAG_GRAB_NOTIFY,
+                                          CLUTTER_CURRENT_TIME,
+                                          entry->device,
+                                          entry->sequence,
+                                          entry->coords,
+                                          entry->current_actor,
+                                          event_type == CLUTTER_LEAVE ?
+                                          grab_actor : old_grab_actor);
       if (!_clutter_event_process_filters (event, entry->current_actor))
         {
           clutter_stage_emit_crossing_event (stage,
