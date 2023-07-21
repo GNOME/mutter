@@ -21,6 +21,7 @@
 
 #include "clutter/clutter-build-config.h"
 
+#include "clutter/clutter-event-private.h"
 #include "clutter/clutter-private.h"
 #include "clutter/clutter-input-device-private.h"
 #include "clutter/clutter-input-method.h"
@@ -280,28 +281,16 @@ clutter_input_method_put_im_event (ClutterInputMethod      *im,
                                    uint32_t                 len,
                                    ClutterPreeditResetMode  mode)
 {
-  ClutterInputDevice *keyboard;
-  ClutterSeat *seat;
-  ClutterStageManager *stage_manager;
-  ClutterStage *stage;
   ClutterEvent *event;
 
-  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
-  keyboard = clutter_seat_get_keyboard (seat);
-  stage_manager = clutter_stage_manager_get_default ();
-  stage = clutter_stage_manager_get_default_stage (stage_manager);
-
-  event = clutter_event_new (event_type);
-  event->im.text = g_strdup (text);
-  event->im.offset = offset;
-  event->im.anchor = anchor;
-  event->im.len = len;
-  event->im.mode = mode;
-  clutter_event_set_device (event, keyboard);
-  clutter_event_set_source_device (event, keyboard);
-  clutter_event_set_flags (event, CLUTTER_EVENT_FLAG_INPUT_METHOD);
-
-  clutter_event_set_stage (event, stage);
+  event = clutter_event_im_new (event_type,
+                                CLUTTER_EVENT_FLAG_INPUT_METHOD,
+                                CLUTTER_CURRENT_TIME,
+                                text,
+                                offset,
+                                anchor,
+                                len,
+                                mode);
 
   clutter_event_put (event);
   clutter_event_free (event);
@@ -478,8 +467,6 @@ clutter_input_method_forward_key (ClutterInputMethod *im,
   ClutterInputMethodPrivate *priv;
   ClutterInputDevice *keyboard;
   ClutterSeat *seat;
-  ClutterStageManager *stage_manager;
-  ClutterStage *stage;
   ClutterEvent *event;
 
   g_return_if_fail (CLUTTER_IS_INPUT_METHOD (im));
@@ -489,22 +476,17 @@ clutter_input_method_forward_key (ClutterInputMethod *im,
     return;
 
   seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
-  stage_manager = clutter_stage_manager_get_default ();
-  stage = clutter_stage_manager_get_default_stage (stage_manager);
   keyboard = clutter_seat_get_keyboard (seat);
 
-  event = clutter_event_new (press ? CLUTTER_KEY_PRESS : CLUTTER_KEY_RELEASE);
-  event->key.time = time_;
-  event->key.flags = CLUTTER_EVENT_FLAG_INPUT_METHOD;
-  event->key.modifier_state = state;
-  event->key.keyval = keyval;
-  event->key.hardware_keycode = keycode;
-  event->key.evdev_code = keycode - 8;
-  event->key.unicode_value = clutter_keysym_to_unicode (keyval);
-
-  clutter_event_set_device (event, keyboard);
-  clutter_event_set_source_device (event, keyboard);
-  clutter_event_set_stage (event, stage);
+  event = clutter_event_key_new (press ? CLUTTER_KEY_PRESS : CLUTTER_KEY_RELEASE,
+                                 CLUTTER_EVENT_FLAG_INPUT_METHOD,
+                                 time_,
+                                 keyboard,
+                                 state,
+                                 keyval,
+                                 keycode - 8,
+                                 keycode,
+                                 clutter_keysym_to_unicode (keyval));
 
   clutter_event_put (event);
   clutter_event_free (event);
