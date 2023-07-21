@@ -83,10 +83,10 @@
 
 #include "clutter-build-config.h"
 
-#include "clutter-gesture-action-private.h"
 
 #include "clutter-debug.h"
 #include "clutter-enum-types.h"
+#include "clutter-gesture-action.h"
 #include "clutter-marshal.h"
 #include "clutter-private.h"
 

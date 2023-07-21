@@ -57,7 +57,6 @@
 #include "clutter-color.h"
 #include "clutter-debug.h"
 #include "clutter-enum-types.h"
-#include "clutter-offscreen-effect-private.h"
 #include "clutter-paint-node.h"
 #include "clutter-paint-nodes.h"
 #include "clutter-private.h"
