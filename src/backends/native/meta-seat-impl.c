@@ -1130,7 +1130,8 @@ notify_scroll (ClutterInputDevice       *input_device,
   event->scroll.scroll_source = scroll_source;
   event->scroll.finish_flags = flags;
 
-  _clutter_event_set_pointer_emulated (event, emulated);
+  if (emulated)
+    event->any.flags |= CLUTTER_EVENT_FLAG_POINTER_EMULATED;
 
   queue_event (seat_impl, event);
 }
@@ -1163,7 +1164,8 @@ notify_discrete_scroll (ClutterInputDevice     *input_device,
   clutter_event_set_source_device (event, input_device);
   event->scroll.scroll_source = scroll_source;
 
-  _clutter_event_set_pointer_emulated (event, emulated);
+  if (emulated)
+    event->any.flags |= CLUTTER_EVENT_FLAG_POINTER_EMULATED;
 
   queue_event (seat_impl, event);
 }

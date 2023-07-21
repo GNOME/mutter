@@ -2320,7 +2320,7 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
           }
 
         if (xev->flags & XIPointerEmulated)
-          _clutter_event_set_pointer_emulated (event, TRUE);
+          event->any.flags |= CLUTTER_EVENT_FLAG_POINTER_EMULATED;
 
         if (xi_event->evtype == XI_ButtonPress)
           meta_stage_x11_set_user_time (stage_x11, event->button.time);
@@ -2403,7 +2403,7 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
                                              &xev->valuators);
 
         if (xev->flags & XIPointerEmulated)
-          _clutter_event_set_pointer_emulated (event, TRUE);
+          event->any.flags |= CLUTTER_EVENT_FLAG_POINTER_EMULATED;
 
         g_debug ("motion: win:0x%x device:%d '%s' (x:%.2f, y:%.2f, axes:%s)",
                  (unsigned int) stage_x11->xwin,
@@ -2475,7 +2475,7 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
         event->touch.sequence = GINT_TO_POINTER (MAX (1, xev->detail + 1));
 
         if (xev->flags & XITouchEmulatingPointer)
-          _clutter_event_set_pointer_emulated (event, TRUE);
+          event->any.flags |= CLUTTER_EVENT_FLAG_POINTER_EMULATED;
 
         g_debug ("touch %s: win:0x%x device:%d '%s' (seq:%d, x:%.2f, y:%.2f, axes:%s)",
                  event->type == CLUTTER_TOUCH_BEGIN ? "begin" : "end",
@@ -2523,7 +2523,7 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
         event->touch.modifier_state |= CLUTTER_BUTTON1_MASK;
 
         if (xev->flags & XITouchEmulatingPointer)
-          _clutter_event_set_pointer_emulated (event, TRUE);
+          event->any.flags |= CLUTTER_EVENT_FLAG_POINTER_EMULATED;
 
         meta_seat_x11_update_touchpoint (seat,
                                          event->touch.sequence,

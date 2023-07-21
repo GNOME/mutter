@@ -138,7 +138,7 @@ sequence_is_pointer_emulated (MetaDisplay        *display,
   if (!sequence)
     return FALSE;
 
-  if (clutter_event_is_pointer_emulated (event))
+  if (clutter_event_get_flags (event) & CLUTTER_EVENT_FLAG_POINTER_EMULATED)
     return TRUE;
 
 #ifdef HAVE_NATIVE_BACKEND

@@ -767,7 +767,7 @@ handle_scroll_event (MetaWaylandPointer *pointer,
   MetaWaylandPointerClient *client;
   gboolean is_discrete_event = FALSE, is_value120_event = FALSE;
 
-  if (clutter_event_is_pointer_emulated (event))
+  if (clutter_event_get_flags (event) & CLUTTER_EVENT_FLAG_POINTER_EMULATED)
     return;
 
   client = pointer->focus_client;

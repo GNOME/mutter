@@ -706,6 +706,7 @@ typedef enum /*< flags prefix=CLUTTER_EVENT >*/
   CLUTTER_EVENT_FLAG_REPEATED     = 1 << 2,
   CLUTTER_EVENT_FLAG_RELATIVE_MOTION = 1 << 3,
   CLUTTER_EVENT_FLAG_GRAB_NOTIFY  = 1 << 4,
+  CLUTTER_EVENT_FLAG_POINTER_EMULATED = 1 << 5,
 } ClutterEventFlags;
 
 /**
