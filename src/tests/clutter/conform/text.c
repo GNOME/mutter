@@ -327,25 +327,19 @@ text_password_char (void)
   clutter_actor_destroy (CLUTTER_ACTOR (text));
 }
 
-static ClutterEvent *
-init_event (void)
-{
-  ClutterEvent *retval = clutter_event_new (CLUTTER_KEY_PRESS);
-
-  clutter_event_set_time (retval, CLUTTER_CURRENT_TIME);
-  clutter_event_set_flags (retval, CLUTTER_EVENT_FLAG_SYNTHETIC);
-
-  return retval;
-}
-
 static void
 send_keyval (ClutterText *text, int keyval)
 {
-  ClutterEvent *event = init_event ();
+  ClutterEvent *event;
+  ClutterSeat *seat;
 
   /* Unicode should be ignored for cursor keys etc. */
-  clutter_event_set_key_unicode (event, 0);
-  clutter_event_set_key_symbol (event, keyval);
+  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  event = clutter_event_key_new (CLUTTER_KEY_PRESS,
+                                 CLUTTER_EVENT_FLAG_SYNTHETIC,
+                                 CLUTTER_CURRENT_TIME,
+                                 clutter_seat_get_keyboard (seat),
+                                 0, keyval, 0, 0, 0);
 
   clutter_actor_event (CLUTTER_ACTOR (text), event, FALSE);
 
@@ -355,11 +349,16 @@ send_keyval (ClutterText *text, int keyval)
 static void
 send_unichar (ClutterText *text, gunichar unichar)
 {
-  ClutterEvent *event = init_event ();
+  ClutterEvent *event;
+  ClutterSeat *seat;
 
   /* Key symbol should be ignored for printable characters */
-  clutter_event_set_key_symbol (event, 0);
-  clutter_event_set_key_unicode (event, unichar);
+  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  event = clutter_event_key_new (CLUTTER_KEY_PRESS,
+                                 CLUTTER_EVENT_FLAG_SYNTHETIC,
+                                 CLUTTER_CURRENT_TIME,
+                                 clutter_seat_get_keyboard (seat),
+                                 0, 0, 0, 0, unichar);
 
   clutter_actor_event (CLUTTER_ACTOR (text), event, FALSE);
 

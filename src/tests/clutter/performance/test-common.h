@@ -78,7 +78,6 @@ static void wrap (gfloat *value, gfloat min, gfloat max)
 
 static gboolean perf_fake_mouse_cb (gpointer stage)
 {
-  ClutterEvent *event = clutter_event_new (CLUTTER_MOTION);
   static ClutterInputDevice *device = NULL;
   int i;
   static float x = 0.0;
@@ -99,35 +98,41 @@ static gboolean perf_fake_mouse_cb (gpointer stage)
                   hack is deprecated
                 */
     {
-      ClutterEvent *event2 = clutter_event_new (CLUTTER_ENTER);
+      ClutterEvent *event;
       ClutterBackend *backend = clutter_get_default_backend ();
       ClutterSeat *seat = clutter_backend_get_default_seat (backend);
 
       device = clutter_seat_get_pointer (seat);
 
-      event2->crossing.stage = stage;
-      event2->crossing.x = 10;
-      event2->crossing.y = 10;
-      event2->crossing.related = NULL;
-
-      clutter_event_set_device (event2, device);
-
-      clutter_event_put (event2);
-      clutter_event_free (event2);
+      event = clutter_event_crossing_new (CLUTTER_ENTER,
+                                          CLUTTER_EVENT_NONE,
+                                          CLUTTER_CURRENT_TIME,
+                                          device, NULL,
+                                          GRAPHENE_POINT_INIT (10, 10),
+                                          stage,
+                                          NULL);
+      clutter_event_put (event);
+      clutter_event_free (event);
       inited = TRUE;
     }
 
   clutter_actor_get_size (stage, &w, &h);
-  event->motion.stage = stage;
-  clutter_event_set_device (event, device);
 
   /* called about every 60fps, and do 10 picks per stage */
   for (i = 0; i < 10; i++)
     {
-      event->motion.x = x;
-      event->motion.y = y;
+      ClutterEvent *event;
 
+      event = clutter_event_motion_new (CLUTTER_EVENT_NONE,
+                                        CLUTTER_CURRENT_TIME,
+                                        device, NULL, 0,
+                                        GRAPHENE_POINT_INIT (x, y),
+                                        GRAPHENE_POINT_INIT (0, 0),
+                                        GRAPHENE_POINT_INIT (0, 0),
+                                        GRAPHENE_POINT_INIT (0, 0),
+                                        NULL);
       clutter_event_put (event);
+      clutter_event_free (event);
 
       x += xd;
       y += yd;
@@ -140,6 +145,5 @@ static gboolean perf_fake_mouse_cb (gpointer stage)
       xd = CLAMP(xd, -1.3, 1.3);
       yd = CLAMP(yd, -1.3, 1.3);
     }
-  clutter_event_free (event);
   return G_SOURCE_CONTINUE;
 }

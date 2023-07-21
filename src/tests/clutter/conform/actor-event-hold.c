@@ -106,14 +106,13 @@ actor_event_hold (void)
       const HoldTestCase *test_case = test_cases + n_test_case;
 
       /* Create a synthetic hold event */
-      event = clutter_event_new (CLUTTER_TOUCHPAD_HOLD);
-      event->touchpad_hold.phase = test_case->phase;
-      event->touchpad_hold.time = EVENT_TIME;
-      event->touchpad_hold.n_fingers = test_case->n_fingers;
-      event->touchpad_hold.stage = (ClutterStage *) stage;
-      clutter_event_set_coords (event, test_case->x, test_case->y);
-      clutter_event_set_device (event, device);
-
+      event = clutter_event_touchpad_hold_new (CLUTTER_EVENT_NONE,
+                                               EVENT_TIME,
+                                               device,
+                                               test_case->phase,
+                                               test_case->n_fingers,
+                                               GRAPHENE_POINT_INIT (test_case->x,
+                                                                    test_case->y));
       clutter_event_put (event);
       clutter_event_free (event);
 

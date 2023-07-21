@@ -28,6 +28,7 @@
 #include "clutter/clutter-types.h"
 #include "clutter/clutter-actor.h"
 #include "clutter/clutter-color.h"
+#include "clutter/clutter-event-private.h"
 #include "clutter/clutter-private.h"
 #include "meta/common.h"
 #include "meta-test/meta-context-test.h"

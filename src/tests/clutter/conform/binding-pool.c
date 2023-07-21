@@ -225,26 +225,22 @@ key_group_init (KeyGroup *self)
 }
 
 static void
-init_event (ClutterKeyEvent *event)
-{
-  event->type = CLUTTER_KEY_PRESS;
-  event->time = 0;      /* not needed */
-  event->flags = CLUTTER_EVENT_FLAG_SYNTHETIC;
-  event->stage = NULL;  /* not needed */
-  event->modifier_state = 0;
-  event->hardware_keycode = 0; /* not needed */
-}
-
-static void
 send_keyval (KeyGroup *group, int keyval)
 {
-  ClutterKeyEvent event;
+  ClutterSeat *seat;
+  ClutterEvent *event;
 
-  init_event (&event);
-  event.keyval = keyval;
-  event.unicode_value = 0; /* should be ignored for cursor keys etc. */
+  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  event = clutter_event_key_new (CLUTTER_KEY_PRESS,
+                                 CLUTTER_EVENT_FLAG_SYNTHETIC,
+                                 CLUTTER_CURRENT_TIME,
+                                 clutter_seat_get_keyboard (seat),
+                                 0,
+                                 keyval,
+                                 0, 0, 0);
 
-  clutter_actor_event (CLUTTER_ACTOR (group), (ClutterEvent *) &event, FALSE);
+  clutter_actor_event (CLUTTER_ACTOR (group), event, FALSE);
+  clutter_event_free (event);
 }
 
 static void

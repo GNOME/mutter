@@ -167,9 +167,10 @@ meta_backend_test_add_test_device (MetaBackendTest        *backend_test,
                          "n-buttons", n_buttons,
                          NULL);
 
-  event = clutter_event_new (CLUTTER_DEVICE_ADDED);
-  clutter_event_set_device (event, device);
-  clutter_event_set_stage (event, stage);
+  event = clutter_event_device_notify_new (CLUTTER_DEVICE_ADDED,
+                                           CLUTTER_EVENT_NONE,
+                                           CLUTTER_CURRENT_TIME,
+                                           device);
   clutter_event_put (event);
   clutter_event_free (event);
 
@@ -193,9 +194,10 @@ meta_backend_test_remove_device (MetaBackendTest    *backend_test,
   g_signal_connect (stage, "after-update", G_CALLBACK (on_after_update),
                     &was_updated);
 
-  event = clutter_event_new (CLUTTER_DEVICE_REMOVED);
-  clutter_event_set_device (event, device);
-  clutter_event_set_stage (event, stage);
+  event = clutter_event_device_notify_new (CLUTTER_DEVICE_REMOVED,
+                                           CLUTTER_EVENT_NONE,
+                                           CLUTTER_CURRENT_TIME,
+                                           device);
   clutter_event_put (event);
   clutter_event_free (event);
 
