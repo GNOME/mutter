@@ -83,7 +83,7 @@ variables:
     - .skip-git-clone
   variables:
     FDO_DISTRIBUTION_VERSION: 38
-    BASE_TAG: '2023-07-19.4'
+    BASE_TAG: '2023-07-19.5'
     MUTTER_USER: 'meta-user'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
@@ -109,7 +109,7 @@ variables:
       set -e
 
       # Create $MUTTER_USER
-      useradd -b /opt/mutter -ms /bin/bash $MUTTER_USER
+      useradd -u 9999 -ms /bin/bash $MUTTER_USER
 
       # Enable sudo for $MUTTER_USER
       echo "%$MUTTER_USER ALL = (ALL) NOPASSWD: ALL" > /etc/sudoers.d/99_mutter-user
