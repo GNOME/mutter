@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_SELECTION_SOURCE_REMOTE_H
-#define META_SELECTION_SOURCE_REMOTE_H
+#pragma once
 
 #include "backends/meta-remote-desktop.h"
 #include "meta/meta-selection-source.h"
@@ -39,5 +38,3 @@ void meta_selection_source_remote_cancel_transfer (MetaSelectionSourceRemote *so
 
 MetaSelectionSourceRemote * meta_selection_source_remote_new (MetaRemoteDesktopSession *session,
                                                               GList                    *mime_types);
-
-#endif /* META_SELECTION_SOURCE_REMOTE_H */

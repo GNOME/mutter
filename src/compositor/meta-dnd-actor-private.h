@@ -20,8 +20,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_DND_ACTOR_PRIVATE_H
-#define META_DND_ACTOR_PRIVATE_H
+#pragma once
 
 #include "compositor/meta-feedback-actor-private.h"
 
@@ -45,5 +44,3 @@ ClutterActor *meta_dnd_actor_new (MetaCompositor *compositor,
 
 void          meta_dnd_actor_drag_finish (MetaDnDActor *self,
                                           gboolean      success);
-
-#endif /* META_DND_ACTOR_PRIVATE_H */

@@ -19,8 +19,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_EDGE_RESISTANCE_H
-#define META_EDGE_RESISTANCE_H
+#pragma once
 
 #include "core/window-private.h"
 
@@ -38,6 +37,3 @@ void meta_window_drag_edge_resistance_for_resize (MetaWindowDrag          *windo
                                                   int                     *new_height,
                                                   MetaGravity              gravity,
                                                   MetaEdgeResistanceFlags  flags);
-
-#endif /* META_EDGE_RESISTANCE_H */
-

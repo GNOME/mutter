@@ -28,12 +28,11 @@
  *
  */
 
+#pragma once
+
 #if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
-
-#ifndef __COGL_META_TEXTURE_H__
-#define __COGL_META_TEXTURE_H__
 
 #include <cogl/cogl-pipeline-layer-state.h>
 
@@ -183,5 +182,3 @@ cogl_meta_texture_foreach_in_region (CoglMetaTexture *meta_texture,
                                      void *user_data);
 
 G_END_DECLS
-
-#endif /* __COGL_META_TEXTURE_H__ */

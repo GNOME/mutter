@@ -26,12 +26,11 @@
  * SOFTWARE.
  */
 
+#pragma once
+
 #if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
-
-#ifndef __COGL_MACROS_H__
-#define __COGL_MACROS_H__
 
 /* These macros are used to mark deprecated functions, and thus have
  * to be exposed in a public header.
@@ -75,5 +74,3 @@
 
 #define COGL_EXPORT __attribute__((visibility("default"))) extern
 #define COGL_EXPORT_TEST __attribute__((visibility("default"))) extern
-
-#endif /* __COGL_MACROS_H__ */

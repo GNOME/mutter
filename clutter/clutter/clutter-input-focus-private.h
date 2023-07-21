@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef __CLUTTER_INPUT_FOCUS_PRIVATE_H__
-#define __CLUTTER_INPUT_FOCUS_PRIVATE_H__
+#pragma once
 
 void clutter_input_focus_focus_in  (ClutterInputFocus  *focus,
                                     ClutterInputMethod *method);
@@ -37,5 +36,3 @@ void clutter_input_focus_set_preedit_text (ClutterInputFocus *focus,
                                            const gchar       *preedit,
                                            unsigned int       cursor,
                                            unsigned int       anchor);
-
-#endif /* __CLUTTER_INPUT_FOCUS_PRIVATE_H__ */

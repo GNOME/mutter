@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_SCREEN_CAST_WINDOW_STREAM_H
-#define META_SCREEN_CAST_WINDOW_STREAM_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -42,5 +41,3 @@ MetaScreenCastWindowStream * meta_screen_cast_window_stream_new (MetaScreenCastS
 MetaWindow  * meta_screen_cast_window_stream_get_window (MetaScreenCastWindowStream *window_stream);
 int           meta_screen_cast_window_stream_get_width  (MetaScreenCastWindowStream *window_stream);
 int           meta_screen_cast_window_stream_get_height (MetaScreenCastWindowStream *window_stream);
-
-#endif /* META_SCREEN_CAST_WINDOW_STREAM_H */

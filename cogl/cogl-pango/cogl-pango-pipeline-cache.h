@@ -31,8 +31,7 @@
  *   Neil Roberts <neil@linux.intel.com>
  */
 
-#ifndef __COGL_PANGO_PIPELINE_CACHE_H__
-#define __COGL_PANGO_PIPELINE_CACHE_H__
+#pragma once
 
 #include <glib.h>
 
@@ -68,5 +67,3 @@ void
 _cogl_pango_pipeline_cache_free (CoglPangoPipelineCache *cache);
 
 G_END_DECLS
-
-#endif /* __COGL_PANGO_PIPELINE_CACHE_H__ */

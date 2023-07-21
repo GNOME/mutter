@@ -25,8 +25,7 @@
  *
  */
 
-#ifndef COGL_FRAMEBUFFER_DRIVER_H
-#define COGL_FRAMEBUFFER_DRIVER_H
+#pragma once
 
 #include "cogl-attribute-private.h"
 #include "cogl-framebuffer.h"
@@ -140,5 +139,3 @@ cogl_framebuffer_driver_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
                                                  CoglReadPixelsFlags     source,
                                                  CoglBitmap             *bitmap,
                                                  GError                **error);
-
-#endif /* COGL_FRAMEBUFFER_DRIVER_H */

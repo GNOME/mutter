@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef META_WAYLAND_PRESENTATION_TIME_PRIVATE_H
-#define META_WAYLAND_PRESENTATION_TIME_PRIVATE_H
+#pragma once
 
 #include <wayland-server.h>
 
@@ -65,5 +64,3 @@ struct wl_list * meta_wayland_presentation_time_ensure_feedbacks (MetaWaylandPre
 void meta_wayland_presentation_time_cursor_painted (MetaWaylandPresentationTime *presentation_time,
                                                     ClutterStageView            *stage_view,
                                                     MetaWaylandCursorSurface    *cursor_surface);
-
-#endif /* META_WAYLAND_PRESENTATION_TIME_PRIVATE_H */

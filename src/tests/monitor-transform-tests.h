@@ -15,9 +15,6 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MONITOR_TRANSFORM_UNIT_TESTS_H
-#define MONITOR_TRANSFORM_UNIT_TESTS_H
+#pragma once
 
 void init_monitor_transform_tests (void);
-
-#endif /* MONITOR_TRANSFORM_TESTS_H */

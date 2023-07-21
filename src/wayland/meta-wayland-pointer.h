@@ -17,8 +17,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_WAYLAND_POINTER_H
-#define META_WAYLAND_POINTER_H
+#pragma once
 
 #include <glib.h>
 #include <wayland-server.h>
@@ -160,5 +159,3 @@ void meta_wayland_surface_cursor_update (MetaWaylandSurface *cursor_surface);
 void meta_wayland_pointer_update_cursor_surface (MetaWaylandPointer *pointer);
 
 gboolean meta_wayland_pointer_is_grabbed (MetaWaylandPointer *pointer);
-
-#endif /* META_WAYLAND_POINTER_H */

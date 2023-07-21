@@ -17,8 +17,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_DND_PRIVATE__H
-#define META_DND_PRIVATE__H
+#pragma once
 
 #include <glib.h>
 
@@ -45,5 +44,3 @@ void meta_dnd_wayland_handle_end_modal   (MetaCompositor *compositor);
 void meta_dnd_wayland_maybe_handle_event (MetaDnd            *dnd,
                                           const ClutterEvent *event);
 #endif
-
-#endif /* META_DND_PRIVATE_H */

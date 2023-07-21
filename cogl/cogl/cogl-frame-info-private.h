@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_FRAME_INFO_PRIVATE_H
-#define __COGL_FRAME_INFO_PRIVATE_H
+#pragma once
 
 #include "cogl-frame-info.h"
 #include "cogl-object-private.h"
@@ -90,5 +89,3 @@ CoglFrameInfo *cogl_frame_info_new (CoglContext *context,
 COGL_EXPORT
 void cogl_frame_info_set_target_presentation_time (CoglFrameInfo *info,
                                                    int64_t        presentation_time_us);
-
-#endif /* __COGL_FRAME_INFO_PRIVATE_H */

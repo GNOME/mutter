@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_BITMAP_H
-#define __COGL_BITMAP_H
+#pragma once
 
 #include <glib.h>
 
@@ -176,5 +175,3 @@ _cogl_bitmap_unmap (CoglBitmap *bitmap);
 
 CoglContext *
 _cogl_bitmap_get_context (CoglBitmap *bitmap);
-
-#endif /* __COGL_BITMAP_H */

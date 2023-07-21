@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_STAGE_PRIVATE_H
-#define META_STAGE_PRIVATE_H
+#pragma once
 
 #include "backends/meta-cursor.h"
 #include "core/util-private.h"
@@ -77,5 +76,3 @@ void meta_stage_remove_watch (MetaStage      *stage,
                               MetaStageWatch *watch);
 
 G_END_DECLS
-
-#endif /* META_STAGE_PRIVATE_H */

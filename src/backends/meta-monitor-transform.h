@@ -16,8 +16,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_MONITOR_TRANSFORM_H
-#define META_MONITOR_TRANSFORM_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -74,5 +73,3 @@ void meta_monitor_transform_transform_point (MetaMonitorTransform  transform,
 
 void meta_monitor_transform_transform_matrix (MetaMonitorTransform  transform,
                                               graphene_matrix_t    *matrix);
-
-#endif /* META_MONITOR_TRANSFORM_H */

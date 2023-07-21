@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_WAYLAND_FILTER_MANAGER_H
-#define META_WAYLAND_FILTER_MANAGER_H
+#pragma once
 
 #include <glib.h>
 #include <wayland-server-core.h>
@@ -52,5 +51,3 @@ void meta_wayland_filter_manager_add_global (MetaWaylandFilterManager *filter_ma
 META_EXPORT_TEST
 void meta_wayland_filter_manager_remove_global (MetaWaylandFilterManager *filter_manager,
                                                 struct wl_global         *global);
-
-#endif /* META_WAYLAND_FILTER_MANAGER_H */

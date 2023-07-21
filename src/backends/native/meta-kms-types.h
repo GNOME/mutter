@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_KMS_IMPL_TYPES_H
-#define META_KMS_IMPL_TYPES_H
+#pragma once
 
 #include <stdint.h>
 
@@ -99,5 +98,3 @@ typedef struct _MetaKmsRange
   uint64_t min_value;
   uint64_t max_value;
 } MetaKmsRange;
-
-#endif /* META_KMS_IMPL_TYPES_H */

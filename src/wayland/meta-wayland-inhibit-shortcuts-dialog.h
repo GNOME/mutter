@@ -16,8 +16,7 @@
  *
  */
 
-#ifndef META_WAYLAND_INHIBIT_SHORTCUTS_DIALOG_H
-#define META_WAYLAND_INHIBIT_SHORTCUTS_DIALOG_H
+#pragma once
 
 #include "wayland/meta-wayland-private.h"
 
@@ -27,5 +26,3 @@ void     meta_wayland_surface_show_inhibit_shortcuts_dialog (MetaWaylandSurface 
 void     meta_wayland_surface_cancel_inhibit_shortcuts_dialog (MetaWaylandSurface *surface);
 
 void     meta_wayland_surface_inhibit_shortcuts_dialog_init (void);
-
-#endif /* META_WAYLAND_INHIBIT_SHORTCUTS_DIALOG_H */

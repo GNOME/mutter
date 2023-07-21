@@ -22,8 +22,7 @@
  *     Jasper St. Pierre <jstpierre@mecheye.net>
  */
 
-#ifndef META_XWAYLAND_H
-#define META_XWAYLAND_H
+#pragma once
 
 #include <glib.h>
 
@@ -51,5 +50,3 @@ META_EXPORT_TEST
 gboolean meta_xwayland_signal (MetaXWaylandManager  *manager,
                                int                   signum,
                                GError              **error);
-
-#endif /* META_XWAYLAND_H */

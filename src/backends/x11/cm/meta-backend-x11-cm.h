@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_BACKEND_X11_CM_H
-#define META_BACKEND_X11_CM_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -27,5 +26,3 @@
 #define META_TYPE_BACKEND_X11_CM (meta_backend_x11_cm_get_type ())
 G_DECLARE_FINAL_TYPE (MetaBackendX11Cm, meta_backend_x11_cm,
                       META, BACKEND_X11_CM, MetaBackendX11)
-
-#endif /* META_BACKEND_X11_CM_H */

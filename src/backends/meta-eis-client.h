@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef META_EIS_CLIENT_H
-#define META_EIS_CLIENT_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -39,5 +38,3 @@ MetaEisClient *meta_eis_client_new (MetaEis           *meta_eis,
 
 gboolean meta_eis_client_process_event (MetaEisClient    *meta_eis_client,
                                         struct eis_event *eis_event);
-
-#endif /* META_EIS_H */

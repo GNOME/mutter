@@ -20,8 +20,7 @@
  *     Olivier Fourdan <ofourdan@redhat.com>
  */
 
-#ifndef META_WAYLAND_INHIBIT_SHORTCUTS_H
-#define META_WAYLAND_INHIBIT_SHORTCUTS_H
+#pragma once
 
 #include <wayland-server.h>
 
@@ -35,5 +34,3 @@ G_DECLARE_FINAL_TYPE (MetaWaylandKeyboardShotscutsInhibit,
                       GObject);
 
 gboolean meta_wayland_keyboard_shortcuts_inhibit_init (MetaWaylandCompositor *compositor);
-
-#endif /* META_WAYLAND_INHIBIT_SHORTCUTS_H */

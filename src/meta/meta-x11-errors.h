@@ -19,8 +19,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_ERRORS_H
-#define META_ERRORS_H
+#pragma once
 
 #include <X11/Xlib.h>
 
@@ -36,6 +35,3 @@ void      meta_x11_error_trap_pop  (MetaX11Display *x11_display);
 /* returns X error code, or 0 for no error */
 META_EXPORT
 int       meta_x11_error_trap_pop_with_return  (MetaX11Display *x11_display);
-
-
-#endif

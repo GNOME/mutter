@@ -23,8 +23,7 @@
  *   Tomeu Vizoso <tomeu.vizoso@collabora.co.uk>
  */
 
-#ifndef __CLUTTER_GESTURE_ACTION_H__
-#define __CLUTTER_GESTURE_ACTION_H__
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -143,5 +142,3 @@ void                            clutter_gesture_action_get_threshold_trigger_dis
                                                                                          float                *y);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_GESTURE_ACTION_H__ */

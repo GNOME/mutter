@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_KMS_TEST_UTILS_H
-#define META_KMS_TEST_UTILS_H
+#pragma once
 
 #include "backends/native/meta-drm-buffer.h"
 #include "backends/native/meta-kms-types.h"
@@ -42,5 +41,3 @@ MetaDrmBuffer * meta_create_test_mode_dumb_buffer (MetaKmsDevice *device,
 MetaFixed16Rectangle meta_get_mode_fixed_rect_16 (MetaKmsMode *mode);
 
 MetaRectangle meta_get_mode_rect (MetaKmsMode *mode);
-
-#endif /* META_KMS_TEST_UTILS_H */

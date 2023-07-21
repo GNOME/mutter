@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_KMS_H
-#define META_KMS_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -75,5 +74,3 @@ void meta_kms_uninhibit_kernel_thread (MetaKms *kms);
 
 META_EXPORT_TEST
 MetaKmsCursorManager * meta_kms_get_cursor_manager (MetaKms *kms);
-
-#endif /* META_KMS_H */

@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_CRTC_H
-#define META_CRTC_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -114,4 +113,3 @@ gboolean meta_gamma_lut_equal (const MetaGammaLut *gamma,
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaGammaLut, meta_gamma_lut_free)
 
-#endif /* META_CRTC_H */

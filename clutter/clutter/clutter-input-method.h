@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef __CLUTTER_INPUT_METHOD_H__
-#define __CLUTTER_INPUT_METHOD_H__
+#pragma once
 
 #include <clutter/clutter.h>
 
@@ -95,5 +94,3 @@ void clutter_input_method_forward_key (ClutterInputMethod *im,
                                        uint32_t            state,
                                        uint64_t            time_,
                                        gboolean            press);
-
-#endif /* __CLUTTER_INPUT_METHOD_H__ */

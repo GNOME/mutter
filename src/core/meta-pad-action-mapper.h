@@ -20,8 +20,7 @@
  *     Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_PAD_ACTION_MAPPER_H
-#define META_PAD_ACTION_MAPPER_H
+#pragma once
 
 #include "clutter/clutter.h"
 #include "meta/display.h"
@@ -48,5 +47,3 @@ char * meta_pad_action_mapper_get_feature_label (MetaPadActionMapper *mapper,
                                                  MetaPadFeatureType   feature,
                                                  MetaPadDirection     direction,
                                                  int                  number);
-
-#endif /* META_PAD_ACTION_MAPPER_H */

@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_KMS_CONNECTOR_H
-#define META_KMS_CONNECTOR_H
+#pragma once
 
 #include <glib-object.h>
 #include <stdint.h>
@@ -102,5 +101,3 @@ gboolean meta_kms_connector_is_color_space_supported (MetaKmsConnector     *conn
                                                       MetaOutputColorspace  color_space);
 
 gboolean meta_kms_connector_is_hdr_metadata_supported (MetaKmsConnector *connector);
-
-#endif /* META_KMS_CONNECTOR_H */

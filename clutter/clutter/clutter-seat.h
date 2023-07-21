@@ -20,8 +20,8 @@
  *
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
-#ifndef CLUTTER_SEAT_H
-#define CLUTTER_SEAT_H
+
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -174,5 +174,3 @@ gboolean clutter_seat_query_state (ClutterSeat          *seat,
 
 CLUTTER_EXPORT
 const char * clutter_seat_get_name (ClutterSeat *seat);
-
-#endif /* CLUTTER_SEAT_H */

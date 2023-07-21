@@ -19,8 +19,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_GROUP_H
-#define META_GROUP_H
+#pragma once
 
 #include <X11/Xlib.h>
 #include <glib.h>
@@ -61,5 +60,3 @@ int        meta_group_get_size         (MetaGroup *group);
 META_EXPORT
 gboolean meta_group_property_notify   (MetaGroup  *group,
                                        XEvent     *event);
-
-#endif

@@ -31,12 +31,11 @@
  *   Robert Bragg <robert@linux.intel.com>
  */
 
+#pragma once
+
 #if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
-
-#ifndef __COGL_INDEX_BUFFER_H__
-#define __COGL_INDEX_BUFFER_H__
 
 #include <cogl/cogl-context.h>
 
@@ -92,6 +91,3 @@ COGL_EXPORT gboolean
 cogl_is_index_buffer (void *object);
 
 G_END_DECLS
-
-#endif /* __COGL_INDEX_BUFFER_H__ */
-

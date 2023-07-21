@@ -18,8 +18,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_WAYLAND_ACTOR_SURFACE_H
-#define META_WAYLAND_ACTOR_SURFACE_H
+#pragma once
 
 #include "wayland/meta-wayland-surface.h"
 
@@ -50,5 +49,3 @@ void meta_wayland_actor_surface_queue_frame_callbacks (MetaWaylandActorSurface *
 
 void meta_wayland_actor_surface_emit_frame_callbacks (MetaWaylandActorSurface *actor_surface,
                                                       uint32_t                 timestamp_ms);
-
-#endif /* META_WAYLAND_ACTOR_SURFACE_H */

@@ -26,8 +26,7 @@
  *   Matthias Clasen
  */
 
-#ifndef __CLUTTER_GRID_LAYOUT_H__
-#define __CLUTTER_GRID_LAYOUT_H__
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -145,5 +144,3 @@ CLUTTER_EXPORT
 gboolean            clutter_grid_layout_get_row_homogeneous         (ClutterGridLayout *layout);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_GRID_LAYOUT_H__ */

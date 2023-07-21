@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_SELECTION_SOURCE_WAYLAND_H
-#define META_SELECTION_SOURCE_WAYLAND_H
+#pragma once
 
 #include <wayland-server.h>
 
@@ -36,4 +35,3 @@ G_DECLARE_FINAL_TYPE (MetaSelectionSourceWayland,
 
 MetaSelectionSource * meta_selection_source_wayland_new (MetaWaylandDataSource *source);
 
-#endif /* META_SELECTION_SOURCE_WAYLAND_H */

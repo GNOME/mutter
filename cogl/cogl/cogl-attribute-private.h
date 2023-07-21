@@ -31,8 +31,7 @@
  *   Robert Bragg <robert@linux.intel.com>
  */
 
-#ifndef __COGL_ATTRIBUTE_PRIVATE_H
-#define __COGL_ATTRIBUTE_PRIVATE_H
+#pragma once
 
 #include "cogl-object-private.h"
 #include "cogl-attribute.h"
@@ -134,6 +133,3 @@ _cogl_flush_attributes_state (CoglFramebuffer *framebuffer,
 
 int
 _cogl_attribute_get_n_components (CoglAttribute *attribute);
-
-#endif /* __COGL_ATTRIBUTE_PRIVATE_H */
-

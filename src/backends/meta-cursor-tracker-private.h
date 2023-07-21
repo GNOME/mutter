@@ -19,8 +19,7 @@
  * Author: Giovanni Campagna <gcampagn@redhat.com>
  */
 
-#ifndef META_CURSOR_TRACKER_PRIVATE_H
-#define META_CURSOR_TRACKER_PRIVATE_H
+#pragma once
 
 #include "backends/meta-cursor.h"
 #include "backends/meta-cursor-renderer.h"
@@ -60,5 +59,3 @@ void meta_cursor_tracker_unregister_cursor_sprite (MetaCursorTracker *tracker,
                                                    MetaCursorSprite  *sprite);
 
 GList * meta_cursor_tracker_peek_cursor_sprites (MetaCursorTracker *tracker);
-
-#endif

@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_LAUNCHER_H
-#define META_LAUNCHER_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -42,6 +41,3 @@ const char *      meta_launcher_get_seat_id             (MetaLauncher *launcher)
 MetaDBusLogin1Session * meta_launcher_get_session_proxy (MetaLauncher *launcher);
 
 MetaBackend * meta_launcher_get_backend (MetaLauncher *launcher);
-
-
-#endif /* META_LAUNCHER_H */

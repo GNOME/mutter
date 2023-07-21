@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_DISPLAY_PRIVATE_H
-#define __COGL_DISPLAY_PRIVATE_H
+#pragma once
 
 #include "cogl-object-private.h"
 #include "cogl-display.h"
@@ -46,5 +45,3 @@ struct _CoglDisplay
 
   void *winsys;
 };
-
-#endif /* __COGL_DISPLAY_PRIVATE_H */

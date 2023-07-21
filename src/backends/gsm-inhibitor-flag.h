@@ -16,8 +16,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __GSM_INHIBITOR_FLAG_H__
-#define __GSM_INHIBITOR_FLAG_H__
+#pragma once
 
 #include <glib-object.h>
 
@@ -32,5 +31,3 @@ typedef enum {
 } GsmInhibitorFlag;
 
 G_END_DECLS
-
-#endif /* __GSM_INHIBITOR_FLAG_H__ */

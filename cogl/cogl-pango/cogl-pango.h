@@ -32,8 +32,7 @@
  *   Matthew Allum  <mallum@openedhand.com>
  */
 
-#ifndef __COGL_PANGO_H__
-#define __COGL_PANGO_H__
+#pragma once
 
 #include <glib-object.h>
 #include <pango/pango.h>
@@ -212,5 +211,3 @@ typedef struct _CoglPangoRendererClass CoglPangoRendererClass;
 COGL_EXPORT GType cogl_pango_renderer_get_type (void) G_GNUC_CONST;
 
 G_END_DECLS
-
-#endif /* __COGL_PANGO_H__ */

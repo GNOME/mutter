@@ -1,5 +1,4 @@
-#ifndef __CLUTTER_EFFECT_PRIVATE_H__
-#define __CLUTTER_EFFECT_PRIVATE_H__
+#pragma once
 
 #include <clutter/clutter-effect.h>
 
@@ -16,5 +15,3 @@ void            _clutter_effect_pick                    (ClutterEffect          
                                                          ClutterPickContext      *pick_context);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_EFFECT_PRIVATE_H__ */

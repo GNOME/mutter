@@ -30,12 +30,11 @@
  *   Robert Bragg <robert@linux.intel.com>
  */
 
+#pragma once
+
 #if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
-
-#ifndef __COGL_TEXTURE_2D_H
-#define __COGL_TEXTURE_2D_H
 
 #include "cogl-context.h"
 #include "cogl-bitmap.h"
@@ -277,5 +276,3 @@ cogl_texture_2d_egl_image_external_alloc_finish (CoglTexture2D *tex_2d,
 #endif
 
 G_END_DECLS
-
-#endif /* __COGL_TEXTURE_2D_H */

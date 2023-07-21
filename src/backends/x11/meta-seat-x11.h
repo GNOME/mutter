@@ -16,8 +16,8 @@
  *
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
-#ifndef META_SEAT_X11_H
-#define META_SEAT_X11_H
+
+#pragma once
 
 #include "clutter/clutter.h"
 
@@ -44,5 +44,3 @@ void meta_seat_x11_notify_devices (MetaSeatX11  *seat_x11,
                                    ClutterStage *stage);
 
 G_END_DECLS
-
-#endif /* META_SEAT_X11_H */

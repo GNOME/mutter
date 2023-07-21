@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_INPUT_CAPTURE_SESSION_H
-#define META_INPUT_CAPTURE_SESSION_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -44,5 +43,3 @@ gboolean meta_input_capture_session_process_event (MetaInputCaptureSession *sess
                                                    const ClutterEvent      *event);
 
 void meta_input_capture_session_notify_cancelled (MetaInputCaptureSession *session);
-
-#endif /* META_INPUT_CAPTURE_SESSION_H */

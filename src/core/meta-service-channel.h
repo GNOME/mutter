@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_SERVICE_CHANNEL_H
-#define META_SERVICE_CHANNEL_H
+#pragma once
 
 #ifdef HAVE_WAYLAND
 
@@ -47,5 +46,3 @@ MetaWaylandClient * meta_service_channel_get_service_client (MetaServiceChannel 
                                                              MetaServiceClientType  service_client_type);
 
 #endif /* HAVE_WAYLAND */
-
-#endif /* META_SERVICE_CHANNEL_H */

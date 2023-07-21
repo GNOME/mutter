@@ -32,8 +32,7 @@
  *   Robert Bragg <robert@linux.intel.com>
  */
 
-#ifndef __COGL_BUFFER_PRIVATE_H__
-#define __COGL_BUFFER_PRIVATE_H__
+#pragma once
 
 #include <glib.h>
 
@@ -175,5 +174,3 @@ COGL_EXPORT void
 _cogl_buffer_unmap_for_fill_or_fallback (CoglBuffer *buffer);
 
 G_END_DECLS
-
-#endif /* __COGL_BUFFER_PRIVATE_H__ */

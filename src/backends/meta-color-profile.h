@@ -15,8 +15,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_COLOR_PROFILE_H
-#define META_COLOR_PROFILE_H
+#pragma once
 
 #include <colord.h>
 #include <glib-object.h>
@@ -85,5 +84,3 @@ MetaColorCalibration * meta_color_calibration_new (CdIcc          *cd_icc,
                                                    const CdMat3x3 *adaptation_matrix);
 
 void meta_color_calibration_free (MetaColorCalibration *color_calibration);
-
-#endif /* META_COLOR_PROFILE_H */

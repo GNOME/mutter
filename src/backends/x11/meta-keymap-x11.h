@@ -17,8 +17,7 @@
  * Author: Emmanuele Bassi <ebassi@linux.intel.com>
  */
 
-#ifndef META_KEYMAP_X11_H
-#define META_KEYMAP_X11_H
+#pragma once
 
 #include <glib-object.h>
 #include <pango/pango.h>
@@ -57,5 +56,3 @@ gboolean meta_keymap_x11_handle_event        (MetaKeymapX11 *keymap_x11,
                                               XEvent        *xevent);
 
 G_END_DECLS
-
-#endif /* META_KEYMAP_X11_H */

@@ -22,8 +22,7 @@
  *     Jonas Ådahl <jadahl@gmail.com>
  */
 
-#ifndef META_POINTER_LOCK_WAYLAND_H
-#define META_POINTER_LOCK_WAYLAND_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -38,5 +37,3 @@ G_DECLARE_FINAL_TYPE (MetaPointerLockWayland, meta_pointer_lock_wayland,
 MetaPointerConfinementWayland *meta_pointer_lock_wayland_new (MetaWaylandPointerConstraint *constraint);
 
 G_END_DECLS
-
-#endif /* META_LOCK_WAYLAND_H */

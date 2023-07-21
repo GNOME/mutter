@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_WAYLAND_TOUCH_H
-#define META_WAYLAND_TOUCH_H
+#pragma once
 
 #include <glib.h>
 #include <wayland-server.h>
@@ -74,5 +73,3 @@ gboolean meta_wayland_touch_get_press_coords (MetaWaylandTouch     *touch,
 
 gboolean meta_wayland_touch_can_popup        (MetaWaylandTouch *touch,
                                               uint32_t          serial);
-
-#endif /* META_WAYLAND_TOUCH_H */

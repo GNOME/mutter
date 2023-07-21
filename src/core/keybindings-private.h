@@ -24,8 +24,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_KEYBINDINGS_PRIVATE_H
-#define META_KEYBINDINGS_PRIVATE_H
+#pragma once
 
 #include <gio/gio.h>
 #include <xkbcommon/xkbcommon.h>
@@ -157,5 +156,3 @@ void meta_x11_display_ungrab_keys (MetaX11Display *x11_display);
 gboolean meta_display_process_keybinding_event (MetaDisplay        *display,
                                                 const char         *name,
                                                 const ClutterEvent *event);
-
-#endif

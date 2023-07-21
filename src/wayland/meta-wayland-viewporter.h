@@ -20,11 +20,8 @@
  *
  */
 
-#ifndef META_WAYLAND_VIEWPORTER_H
-#define META_WAYLAND_VIEWPORTER_H
+#pragma once
 
 #include "wayland/meta-wayland-types.h"
 
 void meta_wayland_init_viewporter (MetaWaylandCompositor *compositor);
-
-#endif /* META_WAYLAND_VIEWPORTER_H */

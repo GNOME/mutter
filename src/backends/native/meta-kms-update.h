@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_KMS_UPDATE_H
-#define META_KMS_UPDATE_H
+#pragma once
 
 #include <glib-object.h>
 #include <glib.h>
@@ -241,5 +240,3 @@ meta_fixed_16_rectangle_to_rectangle (MetaFixed16Rectangle fixed_rect)
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaKmsFeedback, meta_kms_feedback_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaKmsUpdate, meta_kms_update_free)
-
-#endif /* META_KMS_UPDATE_H */

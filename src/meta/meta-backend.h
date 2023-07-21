@@ -22,8 +22,7 @@
  *     Jasper St. Pierre <jstpierre@mecheye.net>
  */
 
-#ifndef META_BACKEND_H
-#define META_BACKEND_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -85,5 +84,3 @@ MetaBackendCapabilities meta_backend_get_capabilities (MetaBackend *backend);
 
 META_EXPORT
 void meta_clutter_init (void);
-
-#endif /* META_BACKEND_H */

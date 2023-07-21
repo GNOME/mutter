@@ -17,8 +17,7 @@
  * Author: Jonas Ådahl <jadahl@gmail.com>
  */
 
-#ifndef META_VIRTUAL_INPUT_DEVICE_X11_H
-#define META_VIRTUAL_INPUT_DEVICE_X11_H
+#pragma once
 
 #include "clutter/clutter.h"
 
@@ -27,5 +26,3 @@ G_DECLARE_FINAL_TYPE (MetaVirtualInputDeviceX11,
                       meta_virtual_input_device_x11,
                       META, VIRTUAL_INPUT_DEVICE_X11,
                       ClutterVirtualInputDevice)
-
-#endif /* META_VIRTUAL_INPUT_DEVICE_X11_H */

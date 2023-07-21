@@ -28,32 +28,7 @@
  *
  */
 
-#ifndef __COGL_EGL_H__
-#define __COGL_EGL_H__
-
-/* NB: this is a top-level header that can be included directly but we
- * want to be careful not to define __COGL_H_INSIDE__ when this is
- * included internally while building Cogl itself since
- * __COGL_H_INSIDE__ is used in headers to guard public vs private api
- * definitions
- */
-#ifndef COGL_COMPILATION
-
-/* Note: When building Cogl .gir we explicitly define
- * __COGL_EGL_H_INSIDE__ */
-#ifndef __COGL_EGL_H_INSIDE__
-#define __COGL_EGL_H_INSIDE__
-#endif
-
-/* Note: When building Cogl .gir we explicitly define
- * __COGL_H_INSIDE__ */
-#ifndef __COGL_H_INSIDE__
-#define __COGL_H_INSIDE__
-#define __COGL_MUST_UNDEF_COGL_H_INSIDE_COGL_EGL__
-#endif
-
-#endif /* COGL_COMPILATION */
-
+#pragma once
 
 #include <cogl/cogl-egl-defines.h>
 #include <cogl/cogl-types.h>
@@ -92,5 +67,3 @@ G_END_DECLS
 #undef __COGL_EGL_H_INSIDE__
 #undef __COGL_MUST_UNDEF_COGL_H_INSIDE_COGL_EGL__
 #endif
-
-#endif /* __COGL_EGL_H__ */

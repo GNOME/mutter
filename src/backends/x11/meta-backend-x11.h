@@ -22,8 +22,7 @@
  *     Jasper St. Pierre <jstpierre@mecheye.net>
  */
 
-#ifndef META_BACKEND_X11_H
-#define META_BACKEND_X11_H
+#pragma once
 
 #include <stdint.h>
 #include <X11/Xlib.h>
@@ -66,5 +65,3 @@ void meta_backend_x11_reload_cursor (MetaBackendX11 *x11);
 void meta_backend_x11_sync_pointer (MetaBackendX11 *backend_x11);
 
 MetaX11Barriers * meta_backend_x11_get_barriers (MetaBackendX11 *backend_x11);
-
-#endif /* META_BACKEND_X11_H */

@@ -26,8 +26,7 @@
  * SOFTWARE.
  */
 
-#ifndef __COGL_RECTANGLE_MAP_H
-#define __COGL_RECTANGLE_MAP_H
+#pragma once
 
 #include <glib.h>
 #include "cogl-types.h"
@@ -80,5 +79,3 @@ _cogl_rectangle_map_foreach (CoglRectangleMap *map,
 
 void
 _cogl_rectangle_map_free (CoglRectangleMap *map);
-
-#endif /* __COGL_RECTANGLE_MAP_H */

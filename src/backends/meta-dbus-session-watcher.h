@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef META_DBUS_SESSION_WATCHER_H
-#define META_DBUS_SESSION_WATCHER_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -68,5 +67,3 @@ MetaDbusSessionManager * meta_dbus_session_manager (MetaDbusSessionManager *sess
 char * meta_dbus_session_get_peer_name (MetaDbusSession *session);
 
 char * meta_dbus_session_get_id (MetaDbusSession *session);
-
-#endif /* META_DBUS_SESSION_WATCHER_H */

@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef __CLUTTER_MUTTER_H__
-#define __CLUTTER_MUTTER_H__
+#pragma once
 
 #define __CLUTTER_H_INSIDE__
 
@@ -141,5 +140,3 @@ void clutter_actor_get_relative_transformation_matrix (ClutterActor      *self,
                                                        graphene_matrix_t *matrix);
 
 #undef __CLUTTER_H_INSIDE__
-
-#endif /* __CLUTTER_MUTTER_H__ */

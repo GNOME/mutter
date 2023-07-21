@@ -20,8 +20,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MUTTER_H_
-#define MUTTER_H_
+#pragma once
 
 #include "clutter/clutter.h"
 #include "meta/compositor.h"
@@ -57,5 +56,3 @@ void meta_focus_stage_window       (MetaDisplay  *display,
 
 META_EXPORT
 gboolean meta_stage_is_focused     (MetaDisplay  *display);
-
-#endif

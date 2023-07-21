@@ -19,8 +19,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_BOXES_H
-#define META_BOXES_H
+#pragma once
 
 #include <glib-object.h>
 #include <meta/common.h>
@@ -163,5 +162,3 @@ gboolean meta_rectangle_could_fit_rect  (const MetaRectangle *outer_rect,
 META_EXPORT
 gboolean meta_rectangle_contains_rect   (const MetaRectangle *outer_rect,
                                          const MetaRectangle *inner_rect);
-
-#endif /* META_BOXES_H */

@@ -29,8 +29,7 @@
  *   Neil Roberts <neil@linux.intel.com>
  */
 
-#ifndef __COGL_BITMASK_H
-#define __COGL_BITMASK_H
+#pragma once
 
 #include <glib.h>
 #include "cogl-util.h"
@@ -308,5 +307,3 @@ _cogl_bitmask_popcount_upto (const CoglBitmask *bitmask,
 }
 
 G_END_DECLS
-
-#endif /* __COGL_BITMASK_H */

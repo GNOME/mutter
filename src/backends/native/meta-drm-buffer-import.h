@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef META_DRM_BUFFER_IMPORT_H
-#define META_DRM_BUFFER_IMPORT_H
+#pragma once
 
 #include <gbm.h>
 
@@ -51,5 +50,3 @@ MetaDrmBufferImport * meta_drm_buffer_import_new (MetaDeviceFile     *device_fil
                                                   struct gbm_device  *gbm_device,
                                                   MetaDrmBufferGbm   *buffer_gbm,
                                                   GError            **error);
-
-#endif /* META_DRM_BUFFER_IMPORT_H */

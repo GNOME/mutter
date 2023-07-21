@@ -30,12 +30,12 @@
  * Authors:
  *   Owen Taylor <otaylor@redhat.com>
  */
+
+#pragma once
+
 #if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
-
-#ifndef __COGL_OUTPUT_H
-#define __COGL_OUTPUT_H
 
 #include <cogl/cogl-types.h>
 
@@ -231,8 +231,3 @@ COGL_EXPORT float
 cogl_output_get_refresh_rate (CoglOutput *output);
 
 G_END_DECLS
-
-#endif /* __COGL_OUTPUT_H */
-
-
-

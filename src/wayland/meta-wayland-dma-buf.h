@@ -24,8 +24,7 @@
  *     Daniel Stone <daniels@collabora.com>
  */
 
-#ifndef META_WAYLAND_DMA_BUF_H
-#define META_WAYLAND_DMA_BUF_H
+#pragma once
 
 #include <glib.h>
 #include <glib-object.h>
@@ -69,5 +68,3 @@ meta_wayland_dma_buf_create_source (MetaWaylandBuffer               *buffer,
 CoglScanout *
 meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandDmaBufBuffer *dma_buf,
                                           CoglOnscreen            *onscreen);
-
-#endif /* META_WAYLAND_DMA_BUF_H */

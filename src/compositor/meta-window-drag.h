@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_WINDOW_DRAG_H
-#define META_WINDOW_DRAG_H
+#pragma once
 
 #include "meta/common.h"
 #include "meta/window.h"
@@ -46,5 +45,3 @@ MetaWindow * meta_window_drag_get_window (MetaWindowDrag *window_drag);
 MetaGrabOp meta_window_drag_get_grab_op (MetaWindowDrag *window_drag);
 
 void meta_window_drag_update_edges (MetaWindowDrag *window_drag);
-
-#endif /* META_WINDOW_DRAG_H */

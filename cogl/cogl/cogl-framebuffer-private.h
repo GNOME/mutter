@@ -29,8 +29,7 @@
  *
  */
 
-#ifndef __COGL_FRAMEBUFFER_PRIVATE_H
-#define __COGL_FRAMEBUFFER_PRIVATE_H
+#pragma once
 
 #include "cogl-framebuffer-driver.h"
 #include "cogl-object-private.h"
@@ -313,5 +312,3 @@ cogl_framebuffer_get_driver (CoglFramebuffer *framebuffer);
  */
 gboolean
 cogl_framebuffer_is_y_flipped (CoglFramebuffer *framebuffer);
-
-#endif /* __COGL_FRAMEBUFFER_PRIVATE_H */

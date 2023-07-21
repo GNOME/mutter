@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_WAYLAND_TABLET_SEAT_H
-#define META_WAYLAND_TABLET_SEAT_H
+#pragma once
 
 #include <glib.h>
 #include <wayland-server.h>
@@ -77,5 +76,3 @@ GList                 *meta_wayland_tablet_seat_lookup_paired_pads   (MetaWaylan
                                                                       MetaWaylandTablet     *tablet);
 gboolean               meta_wayland_tablet_seat_can_popup            (MetaWaylandTabletSeat *tablet_seat,
                                                                       uint32_t               serial);
-
-#endif /* META_WAYLAND_TABLET_SEAT_H */

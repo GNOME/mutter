@@ -22,8 +22,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_DISPLAY_PRIVATE_H
-#define META_DISPLAY_PRIVATE_H
+#pragma once
 
 #include "meta/display.h"
 
@@ -352,5 +351,3 @@ gboolean meta_display_process_captured_input (MetaDisplay        *display,
                                               const ClutterEvent *event);
 
 void meta_display_cancel_input_capture (MetaDisplay *display);
-
-#endif

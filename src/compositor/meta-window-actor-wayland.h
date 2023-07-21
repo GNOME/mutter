@@ -20,8 +20,7 @@
  *     Georges Basile Stavracas Neto <gbsneto@gnome.org>
  */
 
-#ifndef META_WINDOW_ACTOR_WAYLAND_H
-#define META_WINDOW_ACTOR_WAYLAND_H
+#pragma once
 
 #include "compositor/meta-window-actor-private.h"
 
@@ -38,5 +37,3 @@ G_DECLARE_FINAL_TYPE (MetaSurfaceContainerActorWayland,
                       ClutterActor)
 
 void meta_window_actor_wayland_rebuild_surface_tree (MetaWindowActor *actor);
-
-#endif /*META_WINDOW_ACTOR_WAYLAND_H */

@@ -22,8 +22,7 @@
  *     Jonas Ådahl <jadahl@gmail.com>
  */
 
-#ifndef META_POINTER_CONFINEMENT_WAYLAND_H
-#define META_POINTER_CONFINEMENT_WAYLAND_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -52,5 +51,3 @@ void meta_pointer_confinement_wayland_enable (MetaPointerConfinementWayland *con
 void meta_pointer_confinement_wayland_disable (MetaPointerConfinementWayland *confinement);
 
 G_END_DECLS
-
-#endif /* META_CONFINEMENT_WAYLAND_H */

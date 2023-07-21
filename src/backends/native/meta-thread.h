@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_THREAD_H
-#define META_THREAD_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -107,5 +106,3 @@ gboolean meta_thread_is_waiting_for_impl_task (MetaThread *thread);
   g_assert (!meta_thread_is_in_impl_task (thread))
 #define meta_assert_is_waiting_for_thread_impl_task(thread) \
   g_assert (meta_thread_is_waiting_for_impl_task (thread))
-
-#endif /* META_THREAD_H */

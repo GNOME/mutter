@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_WAYLAND_TABLET_TOOL_H
-#define META_WAYLAND_TABLET_TOOL_H
+#pragma once
 
 #include <glib.h>
 #include <wayland-server.h>
@@ -82,5 +81,3 @@ gboolean meta_wayland_tablet_tool_can_grab_surface (MetaWaylandTabletTool *tool,
                                                     uint32_t               serial);
 gboolean meta_wayland_tablet_tool_can_popup        (MetaWaylandTabletTool *tool,
                                                     uint32_t               serial);
-
-#endif /* META_WAYLAND_TABLET_TOOL_H */

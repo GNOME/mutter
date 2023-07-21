@@ -21,8 +21,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef __CLUTTER_INPUT_DEVICE_TOOL_H__
-#define __CLUTTER_INPUT_DEVICE_TOOL_H__
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -68,5 +67,3 @@ CLUTTER_EXPORT
 ClutterInputAxisFlags      clutter_input_device_tool_get_axes      (ClutterInputDeviceTool *tool);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_INPUT_DEVICE_TOOL_H__ */

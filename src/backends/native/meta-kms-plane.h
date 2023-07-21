@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_KMS_PLANE_H
-#define META_KMS_PLANE_H
+#pragma once
 
 #include <glib-object.h>
 #include <stdint.h>
@@ -65,5 +64,3 @@ gboolean meta_kms_plane_is_usable_with (MetaKmsPlane *plane,
 void meta_kms_plane_update_set_rotation (MetaKmsPlane           *plane,
                                          MetaKmsPlaneAssignment *plane_assignment,
                                          MetaMonitorTransform    transform);
-
-#endif /* META_KMS_PLANE_H */

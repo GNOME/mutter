@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_WAYLAND_DND_SURFACE_H
-#define META_WAYLAND_DND_SURFACE_H
+#pragma once
 
 #include "wayland/meta-wayland-actor-surface.h"
 
@@ -27,5 +26,3 @@ G_DECLARE_FINAL_TYPE (MetaWaylandSurfaceRoleDND,
                       meta_wayland_surface_role_dnd,
                       META, WAYLAND_SURFACE_ROLE_DND,
                       MetaWaylandActorSurface)
-
-#endif /* META_WAYLAND_DND_SURFACE_H */

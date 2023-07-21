@@ -19,8 +19,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CLUTTER_INPUT_ONLY_ACTION_H
-#define CLUTTER_INPUT_ONLY_ACTION_H
+#pragma once
 
 #include "clutter/clutter.h"
 
@@ -34,5 +33,3 @@ G_DECLARE_FINAL_TYPE (ClutterInputOnlyAction, clutter_input_only_action,
 ClutterInputOnlyAction * clutter_input_only_action_new (ClutterInputOnlyHandleEvent handle_event,
                                                         gpointer                    user_data,
                                                         GDestroyNotify              destroy);
-
-#endif /* CLUTTER_INPUT_ONLY_ACTION_H */

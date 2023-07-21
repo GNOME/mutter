@@ -22,8 +22,7 @@
  *     Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_POINTER_CONSTRAINT_NATIVE_H
-#define META_POINTER_CONSTRAINT_NATIVE_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -43,5 +42,3 @@ MetaPointerConstraintImpl * meta_pointer_constraint_impl_native_new (MetaPointer
                                                                      double                 min_edge_distance);
 
 G_END_DECLS
-
-#endif /* META_POINTER_CONSTRAINT_NATIVE_H */

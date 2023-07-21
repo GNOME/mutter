@@ -22,8 +22,7 @@
  *   Lionel Landwerlin <lionel.g.landwerlin@linux.intel.com>
  */
 
-#ifndef __CLUTTER_ROTATE_ACTION_H__
-#define __CLUTTER_ROTATE_ACTION_H__
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -72,5 +71,3 @@ CLUTTER_EXPORT
 ClutterAction *clutter_rotate_action_new        (void);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_ROTATE_ACTION_H__ */

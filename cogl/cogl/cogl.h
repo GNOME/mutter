@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_H__
-#define __COGL_H__
+#pragma once
 
 #ifdef COGL_COMPILATION
 #error "<cogl/cogl.h> shouldn't be included internally"
@@ -143,5 +142,3 @@
 #undef __COGL_H_INSIDE__
 #undef __COGL_MUST_UNDEF_COGL_H_INSIDE__
 #endif
-
-#endif /* __COGL_H__ */

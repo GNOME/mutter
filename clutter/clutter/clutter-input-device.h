@@ -21,8 +21,7 @@
  * Author: Emmanuele Bassi <ebassi@linux.intel.com>
  */
 
-#ifndef __CLUTTER_INPUT_DEVICE_H__
-#define __CLUTTER_INPUT_DEVICE_H__
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -127,5 +126,3 @@ gboolean clutter_input_device_get_dimensions (ClutterInputDevice *device,
                                               unsigned int       *height);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_INPUT_DEVICE_H__ */

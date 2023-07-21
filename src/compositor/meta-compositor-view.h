@@ -22,8 +22,7 @@
  *     Dor Askayo <dor.askayo@gmail.com>
  */
 
-#ifndef META_COMPOSITOR_VIEW_H
-#define META_COMPOSITOR_VIEW_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -47,5 +46,3 @@ void meta_compositor_view_update_top_window_actor (MetaCompositorView *composito
 MetaWindowActor *meta_compositor_view_get_top_window_actor (MetaCompositorView *compositor_view);
 
 ClutterStageView *meta_compositor_view_get_stage_view (MetaCompositorView *compositor_view);
-
-#endif /* META_COMPOSITOR_VIEW_H */

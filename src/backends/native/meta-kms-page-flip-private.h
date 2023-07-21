@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_KMS_PAGE_FLIP_H
-#define META_KMS_PAGE_FLIP_H
+#pragma once
 
 #include <glib.h>
 
@@ -64,5 +63,3 @@ void meta_kms_page_flip_data_take_error (MetaKmsPageFlipData *page_flip_data,
 void meta_kms_page_flip_data_make_symbolic (MetaKmsPageFlipData *page_flip_data);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaKmsPageFlipData, meta_kms_page_flip_data_unref)
-
-#endif /* META_KMS_PAGE_FLIP_H */

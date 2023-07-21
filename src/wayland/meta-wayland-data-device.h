@@ -20,8 +20,7 @@
  * OF THIS SOFTWARE.
  */
 
-#ifndef META_WAYLAND_DATA_DEVICE_H
-#define META_WAYLAND_DATA_DEVICE_H
+#pragma once
 
 #include <glib-object.h>
 #include <wayland-server.h>
@@ -92,5 +91,3 @@ MetaWaylandSurface *
          meta_wayland_drag_grab_get_focus        (MetaWaylandDragGrab             *drag_grab);
 void     meta_wayland_drag_grab_update_feedback_actor (MetaWaylandDragGrab *drag_grab,
                                                        const ClutterEvent  *event);
-
-#endif /* META_WAYLAND_DATA_DEVICE_H */

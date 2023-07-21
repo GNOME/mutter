@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_SAMPLER_CACHE_PRIVATE_H
-#define __COGL_SAMPLER_CACHE_PRIVATE_H
+#pragma once
 
 #include "cogl-context.h"
 #include "cogl-gl-header.h"
@@ -90,5 +89,3 @@ _cogl_sampler_cache_update_filters (CoglSamplerCache *cache,
 
 void
 _cogl_sampler_cache_free (CoglSamplerCache *cache);
-
-#endif /* __COGL_SAMPLER_CACHE_PRIVATE_H */

@@ -19,8 +19,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __CLUTTER_STAGE_PRIVATE_H__
-#define __CLUTTER_STAGE_PRIVATE_H__
+#pragma once
 
 #include <clutter/clutter-grab.h>
 #include <clutter/clutter-stage-window.h>
@@ -172,5 +171,3 @@ ClutterGrab * clutter_stage_grab_input_only (ClutterStage        *self,
                                              GDestroyNotify       user_data_destroy);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_STAGE_PRIVATE_H__ */

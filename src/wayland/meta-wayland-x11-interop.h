@@ -17,11 +17,8 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_WAYLAND_X11_INTEROP_H
-#define META_WAYLAND_X11_INTEROP_H
+#pragma once
 
 #include "wayland/meta-wayland-types.h"
 
 void meta_wayland_x11_interop_init (MetaWaylandCompositor *compositor);
-
-#endif /* META_WAYLAND_X11_INTEROP_H */

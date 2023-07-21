@@ -1,7 +1,6 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
 
-#ifndef META_WINDOW_GROUP_H
-#define META_WINDOW_GROUP_H
+#pragma once
 
 #include "clutter/clutter.h"
 
@@ -12,5 +11,3 @@ G_DECLARE_FINAL_TYPE (MetaWindowGroup,
                       meta_window_group,
                       META, WINDOW_GROUP,
                       ClutterActor)
-
-#endif /* META_WINDOW_GROUP_H */

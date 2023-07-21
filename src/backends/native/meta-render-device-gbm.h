@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_RENDER_DEVICE_GBM_H
-#define META_RENDER_DEVICE_GBM_H
+#pragma once
 
 #include "backends/native/meta-render-device-private.h"
 
@@ -33,5 +32,3 @@ MetaRenderDeviceGbm * meta_render_device_gbm_new (MetaBackend     *backend,
                                                   GError         **error);
 
 struct gbm_device * meta_render_device_gbm_get_gbm_device (MetaRenderDeviceGbm *render_device_gbm);
-
-#endif /* META_RENDER_DEVICE_GBM_H */

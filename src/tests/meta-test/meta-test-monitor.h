@@ -15,8 +15,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_TEST_MONITOR_H
-#define META_TEST_MONITOR_H
+#pragma once
 
 #include <glib.h>
 #include <glib-object.h>
@@ -37,5 +36,3 @@ MetaTestMonitor * meta_test_monitor_new (MetaContext  *context,
 
 META_EXPORT
 void meta_test_monitor_destroy (MetaTestMonitor *test_monitor);
-
-#endif /* META_TEST_MONITOR_H */

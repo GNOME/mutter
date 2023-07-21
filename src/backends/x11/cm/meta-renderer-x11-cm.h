@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef META_RENDERER_X11_CM_H
-#define META_RENDERER_X11_CM_H
+#pragma once
 
 #include "backends/x11/meta-renderer-x11.h"
 
@@ -38,5 +37,3 @@ void meta_renderer_x11_cm_init_screen_view (MetaRendererX11Cm *renderer_x11_cm,
 void meta_renderer_x11_cm_resize (MetaRendererX11Cm *renderer_x11_cm,
                                   int                width,
                                   int                height);
-
-#endif /* META_RENDERER_X11_CM_H */

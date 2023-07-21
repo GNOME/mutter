@@ -21,12 +21,11 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
+
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
-
-#ifndef __CLUTTER_TIMELINE_H__
-#define __CLUTTER_TIMELINE_H__
 
 #include <clutter/clutter-types.h>
 
@@ -223,5 +222,3 @@ void                            clutter_timeline_set_frame_clock                
                                                                                  ClutterFrameClock         *frame_clock);
 
 G_END_DECLS
-
-#endif /* _CLUTTER_TIMELINE_H__ */

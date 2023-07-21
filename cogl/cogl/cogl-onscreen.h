@@ -31,12 +31,11 @@
  *   Robert Bragg <robert@linux.intel.com>
  */
 
+#pragma once
+
 #if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
-
-#ifndef __COGL_ONSCREEN_H
-#define __COGL_ONSCREEN_H
 
 #include <cogl/cogl-context.h>
 #include <cogl/cogl-framebuffer.h>
@@ -583,5 +582,3 @@ COGL_EXPORT int64_t
 cogl_onscreen_get_frame_counter (CoglOnscreen *onscreen);
 
 G_END_DECLS
-
-#endif /* __COGL_ONSCREEN_H */

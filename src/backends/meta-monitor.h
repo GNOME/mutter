@@ -19,8 +19,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_MONITOR_H
-#define META_MONITOR_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -324,5 +323,3 @@ gboolean meta_parse_monitor_mode (const char *string,
                                   int        *out_height,
                                   float      *out_refresh_rate,
                                   float       fallback_refresh_rate);
-
-#endif /* META_MONITOR_H */

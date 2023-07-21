@@ -17,8 +17,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_MONITOR_MANAGER_TEST_H
-#define META_MONITOR_MANAGER_TEST_H
+#pragma once
 
 #include "backends/meta-crtc.h"
 #include "backends/meta-monitor-manager-private.h"
@@ -93,5 +92,3 @@ void meta_crtc_test_disable_gamma_lut (MetaCrtcTest *crtc_test);
 META_EXPORT
 void meta_monitor_manager_test_set_layout_mode (MetaMonitorManagerTest       *manager_test,
                                                 MetaLogicalMonitorLayoutMode  layout_mode);
-
-#endif /* META_MONITOR_MANAGER_TEST_H */

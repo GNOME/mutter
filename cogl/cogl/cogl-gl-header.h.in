@@ -28,12 +28,11 @@
  *
  */
 
+#pragma once
+
 #if !defined(COGL_COMPILATION) && !defined(COGL_ENABLE_MUTTER_API)
 #error "cogl-gl-header.h should only be included when compiling Cogl"
 #endif
-
-#ifndef __COGL_GL_HEADER_H__
-#define __COGL_GL_HEADER_H__
 
 #include "cogl-defines.h"
 
@@ -42,5 +41,3 @@
 #ifndef GL_OES_EGL_image
 #define GLeglImageOES void *
 #endif
-
-#endif /* __COGL_GL_HEADER_H__ */

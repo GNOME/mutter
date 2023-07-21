@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_VIRTUAL_MONITOR_NATIVE_H
-#define META_VIRTUAL_MONITOR_NATIVE_H
+#pragma once
 
 #include <stdint.h>
 
@@ -42,5 +41,3 @@ MetaOutput * meta_virtual_monitor_native_get_output (MetaVirtualMonitorNative *v
 MetaVirtualMonitorNative * meta_virtual_monitor_native_new (MetaBackend                  *backend,
                                                             uint64_t                      id,
                                                             const MetaVirtualMonitorInfo *info);
-
-#endif /* META_VIRTUAL_MONITOR_NATIVE_H */

@@ -18,8 +18,8 @@
  *
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
-#ifndef META_KEYMAP_NATIVE_H
-#define META_KEYMAP_NATIVE_H
+
+#pragma once
 
 #ifndef META_INPUT_THREAD_H_INSIDE
 #error "This header cannot be included directly. Use "backends/native/meta-input-thread.h""
@@ -40,4 +40,3 @@ void meta_keymap_native_update_in_impl (MetaKeymapNative *keymap,
                                         MetaSeatImpl     *seat_impl,
                                         struct xkb_state *xkb_state);
 
-#endif /* META_KEYMAP_NATIVE_H */

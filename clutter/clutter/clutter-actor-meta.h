@@ -22,8 +22,7 @@
  *   Emmanuele Bassi <ebassi@linux.intel.com>
  */
 
-#ifndef __CLUTTER_ACTOR_META_H__
-#define __CLUTTER_ACTOR_META_H__
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -86,5 +85,3 @@ CLUTTER_EXPORT
 ClutterActor *  clutter_actor_meta_get_actor    (ClutterActorMeta *meta);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_ACTOR_META_H__ */

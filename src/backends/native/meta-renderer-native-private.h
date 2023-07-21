@@ -25,8 +25,7 @@
  *
  */
 
-#ifndef META_RENDERER_NATIVE_PRIVATE_H
-#define META_RENDERER_NATIVE_PRIVATE_H
+#pragma once
 
 #include "backends/meta-gles3.h"
 #include "backends/native/meta-backend-native-types.h"
@@ -106,5 +105,3 @@ gboolean meta_renderer_native_pop_pending_mode_set (MetaRendererNative *renderer
                                                     MetaRendererView   *view);
 
 const CoglWinsysVtable * meta_get_renderer_native_parent_vtable (void);
-
-#endif /* META_RENDERER_NATIVE_PRIVATE_H */

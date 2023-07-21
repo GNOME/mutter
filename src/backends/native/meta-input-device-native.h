@@ -23,8 +23,7 @@
  * Author: Jonas Ådahl <jadahl@gmail.com>
  */
 
-#ifndef META_INPUT_DEVICE_NATIVE_H
-#define META_INPUT_DEVICE_NATIVE_H
+#pragma once
 
 #ifndef META_INPUT_THREAD_H_INSIDE
 #error "This header cannot be included directly. Use "backends/native/meta-input-thread.h""
@@ -173,5 +172,3 @@ void                     meta_input_device_native_get_coords_in_impl (MetaInputD
 gboolean                 meta_input_device_native_process_kbd_a11y_event_in_impl (ClutterInputDevice *device,
                                                                                   ClutterEvent       *event);
 void                     meta_input_device_native_detach_libinput_in_impl (MetaInputDeviceNative *device_native);
-
-#endif /* META_INPUT_DEVICE_NATIVE_H */

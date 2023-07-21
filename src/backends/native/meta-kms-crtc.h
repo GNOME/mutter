@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_KMS_CRTC_H
-#define META_KMS_CRTC_H
+#pragma once
 
 #include <glib-object.h>
 #include <stdint.h>
@@ -63,5 +62,3 @@ int meta_kms_crtc_get_idx (MetaKmsCrtc *crtc);
 
 META_EXPORT_TEST
 gboolean meta_kms_crtc_is_active (MetaKmsCrtc *crtc);
-
-#endif /* META_KMS_CRTC_H */

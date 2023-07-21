@@ -30,12 +30,11 @@
  *
  */
 
+#pragma once
+
 #if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
-
-#ifndef __COGL_CONTEXT_H__
-#define __COGL_CONTEXT_H__
 
 /* We forward declare the CoglContext type here to avoid some circular
  * dependency issues with the following headers.
@@ -370,6 +369,3 @@ COGL_EXPORT int64_t
 cogl_context_get_gpu_time_ns (CoglContext *context);
 
 G_END_DECLS
-
-#endif /* __COGL_CONTEXT_H__ */
-

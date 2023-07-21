@@ -18,9 +18,6 @@
  *
  */
 
-#ifndef PREFS_PRIVATE_H
-#define PREFS_PRIVATE_H
+#pragma once
 
 void meta_prefs_init (void);
-
-#endif /* PREFS_PRIVATE_H */

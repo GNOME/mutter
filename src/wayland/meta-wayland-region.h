@@ -22,8 +22,7 @@
  *     Jasper St. Pierre <jstpierre@mecheye.net>
  */
 
-#ifndef META_WAYLAND_REGION_H
-#define META_WAYLAND_REGION_H
+#pragma once
 
 #include <cairo.h>
 #include <glib.h>
@@ -37,5 +36,3 @@ MetaWaylandRegion * meta_wayland_region_create (MetaWaylandCompositor *composito
                                                 guint32                id);
 
 cairo_region_t * meta_wayland_region_peek_cairo_region (MetaWaylandRegion *region);
-
-#endif /* META_WAYLAND_REGION_H */

@@ -28,13 +28,10 @@
  *
  */
 
-#ifndef __COGL_EGL_DEFINES_H__
-#define __COGL_EGL_DEFINES_H__
+#pragma once
 
 #ifdef COGL_HAS_EGL_SUPPORT
 
 @COGL_EGL_INCLUDES@
 
 #endif /* COGL_HAS_EGL_SUPPORT */
-
-#endif

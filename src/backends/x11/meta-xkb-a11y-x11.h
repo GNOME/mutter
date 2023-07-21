@@ -21,8 +21,7 @@
  *
  */
 
-#ifndef META_XKB_A11Y_X11_H
-#define META_XKB_A11Y_X11_H
+#pragma once
 
 #include <X11/Xlib.h>
 
@@ -35,5 +34,3 @@ meta_seat_x11_apply_kbd_a11y_settings (ClutterSeat         *seat,
 
 gboolean
 meta_seat_x11_a11y_init               (ClutterSeat            *seat);
-
-#endif /* META_XKB_A11Y_X11_H */

@@ -16,8 +16,7 @@
  *
  */
 
-#ifndef META_INHIBIT_SHORTCUTS_DIALOG_H
-#define META_INHIBIT_SHORTCUTS_DIALOG_H
+#pragma once
 
 #include <glib-object.h>
 #include <meta/window.h>
@@ -51,5 +50,3 @@ void meta_inhibit_shortcuts_dialog_hide (MetaInhibitShortcutsDialog *dialog);
 META_EXPORT
 void meta_inhibit_shortcuts_dialog_response (MetaInhibitShortcutsDialog        *dialog,
                                              MetaInhibitShortcutsDialogResponse response);
-
-#endif /* META_INHIBIT_SHORTCUTS_DIALOG_H */

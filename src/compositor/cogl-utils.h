@@ -18,8 +18,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __META_COGL_UTILS_H__
-#define __META_COGL_UTILS_H__
+#pragma once
 
 #include "cogl/cogl.h"
 
@@ -36,4 +35,3 @@ CoglTexture *meta_create_texture (int                   width,
                                   CoglTextureComponents components,
                                   MetaTextureFlags      flags);
 
-#endif /* __META_COGL_UTILS_H__ */

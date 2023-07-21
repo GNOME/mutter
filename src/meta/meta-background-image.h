@@ -20,8 +20,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __META_BACKGROUND_IMAGE_H__
-#define __META_BACKGROUND_IMAGE_H__
+#pragma once
 
 #include <gio/gio.h>
 #include <glib-object.h>
@@ -65,5 +64,3 @@ MetaBackgroundImage *meta_background_image_cache_load  (MetaBackgroundImageCache
 META_EXPORT
 void                 meta_background_image_cache_purge (MetaBackgroundImageCache *cache,
                                                         GFile                    *file);
-
-#endif /* __META_BACKGROUND_IMAGE_H__ */

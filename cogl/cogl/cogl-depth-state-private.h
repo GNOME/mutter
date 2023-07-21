@@ -29,10 +29,6 @@
  *   Robert Bragg <robert@linux.intel.com>
  */
 
-#ifndef __COGL_DEPTH_STATE_PRIVATE_H
-#define __COGL_DEPTH_STATE_PRIVATE_H
-
+#pragma once
 
 #define COGL_DEPTH_STATE_MAGIC 0xDEADBEEF
-
-#endif /* __COGL_DEPTH_STATE_PRIVATE_H */

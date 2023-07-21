@@ -28,12 +28,9 @@
  *
  */
 
-#ifndef _COGL_I18N_PRIVATE_H_
-#define _COGL_I18N_PRIVATE_H_
+#pragma once
 
 #include <string.h>
 
 #define _(X) X
 #define N_(X) X
-
-#endif /* _COGL_I18N_PRIVATE_H_ */

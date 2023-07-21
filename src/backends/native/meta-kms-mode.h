@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_KMS_MODE_H
-#define META_KMS_MODE_H
+#pragma once
 
 #include <glib.h>
 #include <xf86drm.h>
@@ -55,5 +54,3 @@ gboolean meta_drm_mode_equal (const drmModeModeInfo *one,
                               const drmModeModeInfo *two);
 
 unsigned int meta_kms_mode_hash (MetaKmsMode *mode);
-
-#endif /* META_KMS_MODE_H */

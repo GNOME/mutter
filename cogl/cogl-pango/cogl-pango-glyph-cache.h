@@ -26,8 +26,7 @@
  * SOFTWARE.
  */
 
-#ifndef __COGL_PANGO_GLYPH_CACHE_H__
-#define __COGL_PANGO_GLYPH_CACHE_H__
+#pragma once
 
 #include <glib.h>
 #include <pango/pango-font.h>
@@ -98,5 +97,3 @@ _cogl_pango_glyph_cache_set_dirty_glyphs (CoglPangoGlyphCache *cache,
                                           CoglPangoGlyphCacheDirtyFunc func);
 
 G_END_DECLS
-
-#endif /* __COGL_PANGO_GLYPH_CACHE_H__ */

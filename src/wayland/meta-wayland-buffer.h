@@ -22,8 +22,7 @@
  *     Jasper St. Pierre <jstpierre@mecheye.net>
  */
 
-#ifndef META_WAYLAND_BUFFER_H
-#define META_WAYLAND_BUFFER_H
+#pragma once
 
 #include <cairo.h>
 #include <wayland-server.h>
@@ -108,5 +107,3 @@ CoglScanout *           meta_wayland_buffer_try_acquire_scanout (MetaWaylandBuff
                                                                  CoglOnscreen          *onscreen);
 
 void meta_wayland_init_shm (MetaWaylandCompositor *compositor);
-
-#endif /* META_WAYLAND_BUFFER_H */

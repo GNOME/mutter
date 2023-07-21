@@ -19,8 +19,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_MONITOR_CONFIG_MANAGER_H
-#define META_MONITOR_CONFIG_MANAGER_H
+#pragma once
 
 #include "backends/meta-monitor.h"
 #include "backends/meta-monitor-manager-private.h"
@@ -216,5 +215,3 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaLogicalMonitorConfig,
                                meta_logical_monitor_config_free)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaMonitorsConfigKey,
                                meta_monitors_config_key_free)
-
-#endif /* META_MONITOR_CONFIG_MANAGER_H */

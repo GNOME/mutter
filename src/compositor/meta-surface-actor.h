@@ -1,7 +1,6 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
 
-#ifndef META_SURFACE_ACTOR_PRIVATE_H
-#define META_SURFACE_ACTOR_PRIVATE_H
+#pragma once
 
 #include "config.h"
 
@@ -55,5 +54,3 @@ gboolean meta_surface_actor_is_frozen (MetaSurfaceActor *actor);
 void meta_surface_actor_set_frozen (MetaSurfaceActor *actor,
                                     gboolean          frozen);
 G_END_DECLS
-
-#endif /* META_SURFACE_ACTOR_PRIVATE_H */

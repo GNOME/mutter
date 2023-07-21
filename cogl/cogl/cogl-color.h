@@ -28,12 +28,11 @@
  *
  */
 
+#pragma once
+
 #if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
-
-#ifndef __COGL_COLOR_H__
-#define __COGL_COLOR_H__
 
 /**
  * SECTION:cogl-color
@@ -483,5 +482,3 @@ cogl_color_init_from_hsl (CoglColor *color,
                           float      luminance);
 
 G_END_DECLS
-
-#endif /* __COGL_COLOR_H__ */

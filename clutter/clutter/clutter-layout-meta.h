@@ -22,8 +22,7 @@
  *      Emmanuele Bassi <ebassi@linux.intel.com>
  */
 
-#ifndef __CLUTTER_LAYOUT_META_H__
-#define __CLUTTER_LAYOUT_META_H__
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -74,5 +73,3 @@ CLUTTER_EXPORT
 ClutterLayoutManager *clutter_layout_meta_get_manager (ClutterLayoutMeta *data);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_LAYOUT_META_H__ */

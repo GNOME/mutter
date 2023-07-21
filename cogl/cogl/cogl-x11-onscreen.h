@@ -18,12 +18,11 @@
  *
  */
 
+#pragma once
+
 #if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
-
-#ifndef COGL_X11_ONSCREEN_H
-#define COGL_X11_ONSCREEN_H
 
 #include <glib-object.h>
 #include <X11/Xlib.h>
@@ -45,5 +44,3 @@ struct _CoglX11OnscreenInterface
 
 COGL_EXPORT
 Window cogl_x11_onscreen_get_x11_window (CoglX11Onscreen *x11_onscreen);
-
-#endif /* COGL_X11_ONSCREEN_H */

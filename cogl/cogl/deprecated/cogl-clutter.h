@@ -26,12 +26,11 @@
  * SOFTWARE.
  */
 
+#pragma once
+
 #if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
-
-#ifndef __COGL_CLUTTER_H__
-#define __COGL_CLUTTER_H__
 
 G_BEGIN_DECLS
 
@@ -41,5 +40,3 @@ COGL_EXPORT gboolean
 cogl_clutter_winsys_has_feature (CoglWinsysFeature feature);
 
 G_END_DECLS
-
-#endif /* __COGL_CLUTTER_H__ */

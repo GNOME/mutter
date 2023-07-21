@@ -21,8 +21,7 @@
  * OF THIS SOFTWARE.
  */
 
-#ifndef META_WAYLAND_DATA_OFFER_H
-#define META_WAYLAND_DATA_OFFER_H
+#pragma once
 
 #include "meta/meta-selection.h"
 #include "wayland/meta-wayland-data-source.h"
@@ -50,5 +49,3 @@ void meta_wayland_data_offer_update_action (MetaWaylandDataOffer *offer);
 
 struct wl_resource *    meta_wayland_data_offer_get_resource (MetaWaylandDataOffer *offer);
 MetaWaylandDataSource * meta_wayland_data_offer_get_source   (MetaWaylandDataOffer *offer);
-
-#endif /* META_WAYLAND_DATA_OFFER_H */

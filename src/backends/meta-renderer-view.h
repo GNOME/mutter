@@ -15,8 +15,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_RENDERER_VIEW_H
-#define META_RENDERER_VIEW_H
+#pragma once
 
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-stage-impl-private.h"
@@ -37,5 +36,3 @@ MetaMonitorTransform meta_renderer_view_get_transform (MetaRendererView *view);
 
 META_EXPORT_TEST
 MetaCrtc *meta_renderer_view_get_crtc (MetaRendererView *view);
-
-#endif /* META_RENDERER_VIEW_H */

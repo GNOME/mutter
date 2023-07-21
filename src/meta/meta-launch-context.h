@@ -18,8 +18,8 @@
  *
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
-#ifndef META_LAUNCH_CONTEXT_H
-#define META_LAUNCH_CONTEXT_H
+
+#pragma once
 
 #include <meta/workspace.h>
 
@@ -35,5 +35,3 @@ void meta_launch_context_set_timestamp (MetaLaunchContext *context,
 META_EXPORT
 void meta_launch_context_set_workspace (MetaLaunchContext *context,
                                         MetaWorkspace     *workspace);
-
-#endif /* META_LAUNCH_CONTEXT_H */

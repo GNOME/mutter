@@ -20,8 +20,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_GPU_KMS_H
-#define META_GPU_KMS_H
+#pragma once
 
 #include <glib-object.h>
 #include <xf86drm.h>
@@ -66,5 +65,3 @@ MetaGpuKmsFlipClosureContainer * meta_gpu_kms_wrap_flip_closure (MetaGpuKms *gpu
                                                                  GClosure   *flip_closure);
 
 void meta_gpu_kms_flip_closure_container_free (MetaGpuKmsFlipClosureContainer *closure_container);
-
-#endif /* META_GPU_KMS_H */

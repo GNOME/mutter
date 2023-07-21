@@ -19,8 +19,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_PLACE_H
-#define META_PLACE_H
+#pragma once
 
 #include "core/frame.h"
 #include "core/window-private.h"
@@ -35,5 +34,3 @@ void meta_window_place (MetaWindow *window,
                         int         y,
                         int        *new_x,
                         int        *new_y);
-
-#endif

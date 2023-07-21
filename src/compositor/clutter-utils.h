@@ -18,8 +18,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __META_CLUTTER_UTILS_H__
-#define __META_CLUTTER_UTILS_H__
+#pragma once
 
 #include "clutter/clutter.h"
 
@@ -39,5 +38,3 @@ gboolean meta_actor_painting_untransformed (CoglFramebuffer *fb,
                                             int              sample_widthf,
                                             int              sample_heightf,
                                             MetaTransforms  *out_transforms);
-
-#endif /* __META_CLUTTER_UTILS_H__ */

@@ -19,8 +19,7 @@
  * Author: Sebastian Wick <sebastian@sebastianwick.net>
  */
 
-#ifndef META_ANONYMOUS_FILE_H
-#define META_ANONYMOUS_FILE_H
+#pragma once
 
 #include "meta/common.h"
 #include "core/util-private.h"
@@ -49,5 +48,3 @@ int meta_anonymous_file_open_fd (MetaAnonymousFile        *file,
 
 META_EXPORT_TEST
 void meta_anonymous_file_close_fd (int fd);
-
-#endif /* META_ANONYMOUS_FILE_H */

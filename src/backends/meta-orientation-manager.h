@@ -19,8 +19,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_ORIENTATION_MANAGER_H
-#define META_ORIENTATION_MANAGER_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -47,5 +46,3 @@ MetaOrientation meta_orientation_manager_get_orientation (MetaOrientationManager
 
 META_EXPORT_TEST
 gboolean meta_orientation_manager_has_accelerometer (MetaOrientationManager *self);
-
-#endif  /* META_ORIENTATION_MANAGER_H */

@@ -19,8 +19,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_MONITOR_MANAGER_H
-#define META_MONITOR_MANAGER_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -61,5 +60,3 @@ int meta_monitor_manager_get_display_configuration_timeout (MetaMonitorManager *
 
 META_EXPORT
 gboolean meta_monitor_manager_get_panel_orientation_managed (MetaMonitorManager *manager);
-
-#endif /* META_MONITOR_MANAGER_H */

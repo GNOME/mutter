@@ -18,8 +18,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_DRM_BUFFER_PRIVATE_H
-#define META_DRM_BUFFER_PRIVATE_H
+#pragma once
 
 #include "backends/native/meta-backend-native-types.h"
 #include "backends/native/meta-drm-buffer.h"
@@ -61,5 +60,3 @@ MetaDeviceFile * meta_drm_buffer_get_device_file (MetaDrmBuffer *buffer);
 gboolean meta_drm_buffer_do_ensure_fb_id (MetaDrmBuffer        *buffer,
                                           const MetaDrmFbArgs  *fb_args,
                                           GError              **error);
-
-#endif /* META_DRM_BUFFER_PRIVATE_H */

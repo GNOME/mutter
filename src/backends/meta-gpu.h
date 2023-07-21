@@ -19,8 +19,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_GPU_H
-#define META_GPU_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -68,5 +67,3 @@ void meta_gpu_take_crtcs (MetaGpu *gpu,
 META_EXPORT_TEST
 void meta_gpu_take_modes (MetaGpu *gpu,
                           GList   *modes);
-
-#endif /* META_GPU_H */

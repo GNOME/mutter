@@ -19,8 +19,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __CLUTTER_PAINT_VOLUME_PRIVATE_H__
-#define __CLUTTER_PAINT_VOLUME_PRIVATE_H__
+#pragma once
 
 #include <clutter/clutter-types.h>
 #include <clutter/clutter-private.h>
@@ -137,5 +136,3 @@ void                clutter_paint_volume_to_box                (ClutterPaintVolu
                                                                 graphene_box_t     *box);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_PAINT_VOLUME_PRIVATE_H__ */

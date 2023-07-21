@@ -22,9 +22,6 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CLUTTER_GRAPHENE_H
-#define CLUTTER_GRAPHENE_H
+#pragma once
 
 void clutter_graphene_init (void);
-
-#endif

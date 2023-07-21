@@ -20,8 +20,7 @@
  *     Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_SELECTION_PRIVATE_H
-#define META_SELECTION_PRIVATE_H
+#pragma once
 
 #include "meta/meta-selection.h"
 
@@ -30,5 +29,3 @@ MetaSelectionSource *
                                     MetaSelectionType  selection_type);
 
 MetaDisplay * meta_selection_get_display (MetaSelection *selection);
-
-#endif /* META_SELECTION_PRIVATE_H */

@@ -18,8 +18,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __CALLY_STAGE_H__
-#define __CALLY_STAGE_H__
+#pragma once
 
 #if !defined(__CALLY_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <cally/cally.h> can be included directly."
@@ -67,5 +66,3 @@ CLUTTER_EXPORT
 AtkObject *cally_stage_new      (ClutterActor *actor);
 
 G_END_DECLS
-
-#endif /* __CALLY_STAGE_H__ */

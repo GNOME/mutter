@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_THREAD_PRIVATE_H
-#define META_THREAD_PRIVATE_H
+#pragma once
 
 #include "backends/native/meta-thread.h"
 
@@ -35,5 +34,3 @@ GThread * meta_thread_get_thread (MetaThread *thread);
 
 void meta_thread_dispatch_callbacks (MetaThread   *thread,
                                      GMainContext *main_context);
-
-#endif /* META_THREAD_PRIVATE_H */

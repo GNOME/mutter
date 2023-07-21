@@ -17,8 +17,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_MULTI_TEXTURE_FORMAT_H
-#define META_MULTI_TEXTURE_FORMAT_H
+#pragma once
 
 #include <glib.h>
 
@@ -42,5 +41,3 @@ typedef enum _MetaMultiTextureFormat
 } MetaMultiTextureFormat;
 
 G_END_DECLS
-
-#endif /* META_MULTI_TEXTURE_FORMAT_H */

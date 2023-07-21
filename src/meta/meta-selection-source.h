@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_SELECTION_SOURCE_H
-#define META_SELECTION_SOURCE_H
+#pragma once
 
 #include <gio/gio.h>
 
@@ -81,5 +80,3 @@ GList *  meta_selection_source_get_mimetypes     (MetaSelectionSource  *source);
 
 META_EXPORT
 gboolean meta_selection_source_is_active         (MetaSelectionSource  *source);
-
-#endif /* META_SELECTION_SOURCE_H */

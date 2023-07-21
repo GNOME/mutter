@@ -22,8 +22,7 @@
  *     Jonas Ådahl <jadahl@gmail.com>
  */
 
-#ifndef META_RENDERER_X11_H
-#define META_RENDERER_X11_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -38,5 +37,3 @@ struct _MetaRendererX11Class
 G_DECLARE_DERIVABLE_TYPE (MetaRendererX11, meta_renderer_x11,
                           META, RENDERER_X11,
                           MetaRenderer)
-
-#endif /* META_RENDERER_X11_H */

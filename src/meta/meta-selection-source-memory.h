@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_MEMORY_SELECTION_SOURCE_H
-#define META_MEMORY_SELECTION_SOURCE_H
+#pragma once
 
 #include "meta/meta-selection-source.h"
 
@@ -35,5 +34,3 @@ G_DECLARE_FINAL_TYPE (MetaSelectionSourceMemory,
 META_EXPORT
 MetaSelectionSource * meta_selection_source_memory_new (const char *mimetype,
                                                         GBytes     *content);
-
-#endif /* META_SELECTION_SOURCE_MEMORY_H */

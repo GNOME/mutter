@@ -22,8 +22,7 @@
  *   Naveen Kumar <naveen1.kumar@intel.com>
  */
 
-#ifndef CLUTTER_COLOR_STATE_H
-#define CLUTTER_COLOR_STATE_H
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -46,5 +45,3 @@ CLUTTER_EXPORT
 ClutterColorspace clutter_color_state_get_colorspace (ClutterColorState *color_state);
 
 G_END_DECLS
-
-#endif /* CLUTTER_COLOR_STATE_H */

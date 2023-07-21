@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_COMPOSITOR_NATIVE_H
-#define META_COMPOSITOR_NATIVE_H
+#pragma once
 
 #include "compositor/meta-compositor-server.h"
 
@@ -29,5 +28,3 @@ G_DECLARE_FINAL_TYPE (MetaCompositorNative, meta_compositor_native,
 
 MetaCompositorNative * meta_compositor_native_new (MetaDisplay *display,
                                                    MetaBackend *backend);
-
-#endif /* META_COMPOSITOR_NATIVE_H */

@@ -19,8 +19,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_FRAME_PRIVATE_H
-#define META_FRAME_PRIVATE_H
+#pragma once
 
 #include "core/window-private.h"
 
@@ -84,5 +83,3 @@ MetaSyncCounter * meta_frame_get_sync_counter (MetaFrame *frame);
 
 void meta_frame_set_opaque_region (MetaFrame      *frame,
                                    cairo_region_t *region);
-
-#endif

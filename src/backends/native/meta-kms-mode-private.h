@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_KMS_MODE_PRIVATE_H
-#define META_KMS_MODE_PRIVATE_H
+#pragma once
 
 #include "backends/native/meta-kms-mode.h"
 
@@ -34,5 +33,3 @@ void meta_kms_mode_free (MetaKmsMode *mode);
 MetaKmsMode * meta_kms_mode_new (MetaKmsImplDevice     *impl_device,
                                  const drmModeModeInfo *drm_mode,
                                  MetaKmsModeFlag        flags);
-
-#endif /* META_KMS_MODE_PRIVATE_H */

@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_FRAME_NATIVE_H
-#define META_FRAME_NATIVE_H
+#pragma once
 
 #include "backends/native/meta-kms-types.h"
 #include "clutter/clutter.h"
@@ -45,5 +44,3 @@ gboolean meta_frame_native_has_kms_update (MetaFrameNative *frame_native);
 
 META_EXPORT_TEST
 gboolean meta_frame_native_had_kms_update (MetaFrameNative *frame_native);
-
-#endif /* META_FRAME_NATIVE_H */

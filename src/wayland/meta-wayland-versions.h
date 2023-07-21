@@ -20,8 +20,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_WAYLAND_VERSIONS_H
-#define META_WAYLAND_VERSIONS_H
+#pragma once
 
 /* Protocol objects, will never change version */
 /* #define META_WL_DISPLAY_VERSION  1 */
@@ -59,5 +58,3 @@
 #define META_WP_SINGLE_PIXEL_BUFFER_V1_VERSION 1
 #define META_MUTTER_X11_INTEROP_VERSION 1
 #define META_WP_FRACTIONAL_SCALE_VERSION 1
-
-#endif

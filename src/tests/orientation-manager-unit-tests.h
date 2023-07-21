@@ -18,11 +18,8 @@
  * Author: Marco Trevisan <marco.trevisan@canonical.com>
  */
 
-#ifndef ORIENTATION_MANAGER_UNIT_TESTS_H
-#define ORIENTATION_MANAGER_UNIT_TESTS_H
+#pragma once
 
 #include "backends/meta-orientation-manager.h"
 
 void init_orientation_manager_tests (void);
-
-#endif /* ORIENTATION_MANAGER_UNIT_TESTS_H */

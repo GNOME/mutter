@@ -20,8 +20,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_FEEDBACK_ACTOR_PRIVATE_H
-#define META_FEEDBACK_ACTOR_PRIVATE_H
+#pragma once
 
 #include "clutter/clutter.h"
 #include "meta/types.h"
@@ -68,5 +67,3 @@ void meta_feedback_actor_set_geometry_scale (MetaFeedbackActor *self,
                                              int                geometry_scale);
 
 int meta_feedback_actor_get_geometry_scale (MetaFeedbackActor *self);
-
-#endif /* META_FEEDBACK_ACTOR_PRIVATE_H */

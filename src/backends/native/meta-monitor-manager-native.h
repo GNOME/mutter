@@ -20,8 +20,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_MONITOR_MANAGER_NATIVE_H
-#define META_MONITOR_MANAGER_NATIVE_H
+#pragma once
 
 #include <xf86drm.h>
 #include <xf86drmMode.h>
@@ -49,5 +48,3 @@ MetaGammaLut * meta_monitor_manager_native_get_cached_crtc_gamma (MetaMonitorMan
 void meta_monitor_manager_native_update_cached_crtc_gamma (MetaMonitorManagerNative *manager_native,
                                                            MetaCrtcKms              *crtc_kms,
                                                            MetaGammaLut             *gamma);
-
-#endif /* META_MONITOR_MANAGER_NATIVE_H */

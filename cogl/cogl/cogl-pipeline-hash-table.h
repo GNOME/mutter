@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_PIPELINE_HASH_H__
-#define __COGL_PIPELINE_HASH_H__
+#pragma once
 
 #include "cogl-pipeline-cache.h"
 
@@ -77,5 +76,3 @@ _cogl_pipeline_hash_table_destroy (CoglPipelineHashTable *hash);
 CoglPipelineCacheEntry *
 _cogl_pipeline_hash_table_get (CoglPipelineHashTable *hash,
                                CoglPipeline *key_pipeline);
-
-#endif /* __COGL_PIPELINE_HASH_H__ */

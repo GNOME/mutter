@@ -1,7 +1,6 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
 
-#ifndef META_WINDOW_ACTOR_PRIVATE_H
-#define META_WINDOW_ACTOR_PRIVATE_H
+#pragma once
 
 #include "compositor/meta-plugin-manager.h"
 #include "compositor/meta-surface-actor.h"
@@ -112,5 +111,3 @@ gboolean meta_window_actor_is_opaque (MetaWindowActor *self);
 void meta_window_actor_update_regions (MetaWindowActor *self);
 
 gboolean meta_window_actor_can_freeze_commits (MetaWindowActor *self);
-
-#endif /* META_WINDOW_ACTOR_PRIVATE_H */

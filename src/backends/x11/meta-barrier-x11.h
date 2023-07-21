@@ -22,8 +22,7 @@
  *     Jonas Ådahl <jadahl@gmail.com>
  */
 
-#ifndef META_BARRIER_X11_H
-#define META_BARRIER_X11_H
+#pragma once
 
 #include "backends/meta-barrier-private.h"
 #include "backends/x11/meta-backend-x11-types.h"
@@ -46,5 +45,3 @@ gboolean meta_x11_barriers_process_xevent (MetaX11Barriers *barriers,
                                            XIEvent         *event);
 
 G_END_DECLS
-
-#endif /* META_BARRIER_X11_H1 */

@@ -28,12 +28,12 @@
  *
  */
 
+#pragma once
+
 #if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
 
-#ifndef __COGL_TYPES_H__
-#define __COGL_TYPES_H__
 
 #include <stdint.h>
 #include <stddef.h>
@@ -469,5 +469,3 @@ typedef enum
 } CoglStereoMode;
 
 G_END_DECLS
-
-#endif /* __COGL_TYPES_H__ */

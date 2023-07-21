@@ -19,8 +19,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_LOGICAL_MONITOR_H
-#define META_LOGICAL_MONITOR_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -103,5 +102,3 @@ gboolean meta_logical_monitor_has_neighbor (MetaLogicalMonitor   *logical_monito
 void meta_logical_monitor_foreach_crtc (MetaLogicalMonitor        *logical_monitor,
                                         MetaLogicalMonitorCrtcFunc func,
                                         gpointer                   user_data);
-
-#endif /* META_LOGICAL_MONITOR_H */

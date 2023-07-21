@@ -15,13 +15,10 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_LATER_PRIVATE_H
-#define META_LATER_PRIVATE_H
+#pragma once
 
 #include <meta/types.h>
 
 MetaLaters * meta_laters_new (MetaCompositor *compositor);
 
 void meta_laters_free (MetaLaters *laters);
-
-#endif /* META_LATER_PRIVATE_H */

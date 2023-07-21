@@ -26,8 +26,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_SESSION_H
-#define META_SESSION_H
+#pragma once
 
 #include "core/window-private.h"
 
@@ -82,9 +81,3 @@ void meta_session_init (MetaContext *context,
 
 
 void meta_session_shutdown (void);
-
-#endif
-
-
-
-

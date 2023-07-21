@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_DEVICE_POOL_PRIVATE_H
-#define META_DEVICE_POOL_PRIVATE_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -32,5 +31,3 @@ G_DECLARE_FINAL_TYPE (MetaDevicePool, meta_device_pool,
                       GObject)
 
 MetaDevicePool * meta_device_pool_new (MetaBackendNative *backend_native);
-
-#endif /* META_DEVICE_POOL_PRIVATE_H */

@@ -16,8 +16,7 @@
  *
  */
 
-#ifndef META_WINDOW_XWAYLAND_H
-#define META_WINDOW_XWAYLAND_H
+#pragma once
 
 #include "meta/window.h"
 #include "x11/window-x11.h"
@@ -34,5 +33,3 @@ void meta_window_xwayland_set_surface (MetaWindowXwayland *window,
                                        MetaWaylandSurface *surface);
 
 G_END_DECLS
-
-#endif

@@ -18,8 +18,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_WAYLAND_SUBSURFACE_H
-#define META_WAYLAND_SUBSURFACE_H
+#pragma once
 
 #include "wayland/meta-wayland-actor-surface.h"
 
@@ -50,5 +49,3 @@ void meta_wayland_subsurface_union_geometry (MetaWaylandSubsurface *subsurface,
 void meta_wayland_subsurface_parent_destroyed (MetaWaylandSurface *surface);
 
 void meta_wayland_subsurfaces_init (MetaWaylandCompositor *compositor);
-
-#endif /* META_WAYLAND_SUBSURFACE_H */

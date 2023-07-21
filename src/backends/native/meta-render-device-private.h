@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_RENDER_DEVICE_PRIVATE_H
-#define META_RENDER_DEVICE_PRIVATE_H
+#pragma once
 
 #include <gio/gio.h>
 #include <glib-object.h>
@@ -46,5 +45,3 @@ struct _MetaRenderDeviceClass
                                       MetaDrmBuffer     *buffer,
                                       GError           **error);
 };
-
-#endif /* META_RENDER_DEVICE_PRIVATE_H */

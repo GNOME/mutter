@@ -31,8 +31,7 @@
  *   Robert Bragg <robert@linux.intel.com>
  */
 
-#ifndef __COGL_PIPELINE_STATE_PRIVATE_H
-#define __COGL_PIPELINE_STATE_PRIVATE_H
+#pragma once
 
 CoglPipeline *
 _cogl_pipeline_get_user_program (CoglPipeline *pipeline);
@@ -168,5 +167,3 @@ void
 _cogl_pipeline_compare_uniform_differences (unsigned long *differences,
                                             CoglPipeline *pipeline0,
                                             CoglPipeline *pipeline1);
-
-#endif /* __COGL_PIPELINE_STATE_PRIVATE_H */

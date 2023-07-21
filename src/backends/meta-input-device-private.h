@@ -16,8 +16,8 @@
  *
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
-#ifndef META_INPUT_DEVICE_H
-#define META_INPUT_DEVICE_H
+
+#pragma once
 
 #include <glib-object.h>
 
@@ -47,5 +47,3 @@ WacomDevice * meta_input_device_get_wacom_device (MetaInputDevice *input_device)
 #endif
 
 MetaBackend * meta_input_device_get_backend (MetaInputDevice *input_device);
-
-#endif /* META_INPUT_DEVICE_H */

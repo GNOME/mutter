@@ -22,8 +22,7 @@
  *     Jasper St. Pierre <jstpierre@mecheye.net>
  */
 
-#ifndef __META_SURFACE_ACTOR_WAYLAND_H__
-#define __META_SURFACE_ACTOR_WAYLAND_H__
+#pragma once
 
 #include <glib-object.h>
 
@@ -48,5 +47,3 @@ gboolean meta_surface_actor_wayland_is_view_primary (MetaSurfaceActor *actor,
                                                      ClutterStageView *stage_view);
 
 G_END_DECLS
-
-#endif /* __META_SURFACE_ACTOR_WAYLAND_H__ */

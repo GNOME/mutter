@@ -28,12 +28,11 @@
  *
  */
 
+#pragma once
+
 #if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
-
-#ifndef __COGL_TYPE_CASTS_H__
-#define __COGL_TYPE_CASTS_H__
 
 /* The various interface types in Cogl used to be more strongly typed
  * which required lots type casting by developers. We provided
@@ -50,5 +49,3 @@
 #define COGL_META_TEXTURE(X) (X)
 #define COGL_PRIMITIVE_TEXTURE(X) (X)
 #endif
-
-#endif /* __COGL_TYPE_CASTS_H__ */

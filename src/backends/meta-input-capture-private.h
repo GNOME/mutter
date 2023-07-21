@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_INPUT_CAPTURE_PRIVATE_H
-#define META_INPUT_CAPTURE_PRIVATE_H
+#pragma once
 
 #include "backends/meta-input-capture.h"
 
@@ -28,5 +27,3 @@ void meta_input_capture_activate (MetaInputCapture        *input_capture,
 
 void meta_input_capture_deactivate (MetaInputCapture        *input_capture,
                                     MetaInputCaptureSession *session);
-
-#endif /* META_INPUT_CAPTURE_PRIVATE_H */

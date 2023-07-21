@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_CRTC_VIRTUAL_H
-#define META_CRTC_VIRTUAL_H
+#pragma once
 
 #include "backends/native/meta-crtc-native.h"
 
@@ -29,5 +28,3 @@ G_DECLARE_FINAL_TYPE (MetaCrtcVirtual, meta_crtc_virtual,
 
 MetaCrtcVirtual * meta_crtc_virtual_new (MetaBackend *backend,
                                          uint64_t     id);
-
-#endif /* META_CRTC_VIRTUAL_H */

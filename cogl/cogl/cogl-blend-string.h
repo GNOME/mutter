@@ -31,8 +31,7 @@
  *   Robert Bragg <robert@linux.intel.com>
  */
 
-#ifndef COGL_BLEND_STRING_H
-#define COGL_BLEND_STRING_H
+#pragma once
 
 #include <stdlib.h>
 #include <glib.h>
@@ -139,6 +138,3 @@ void
 _cogl_blend_string_split_rgba_statement (CoglBlendStringStatement *statement,
                                          CoglBlendStringStatement *rgb,
                                          CoglBlendStringStatement *a);
-
-#endif /* COGL_BLEND_STRING_H */
-

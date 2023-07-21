@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_RENDER_DEVICE_H
-#define META_RENDER_DEVICE_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -57,5 +56,3 @@ MetaDrmBuffer * meta_render_device_allocate_dumb_buf (MetaRenderDevice  *render_
                                                       int                height,
                                                       uint32_t           format,
                                                       GError           **error);
-
-#endif /* META_RENDER_DEVICE_H */

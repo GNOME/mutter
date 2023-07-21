@@ -22,8 +22,7 @@
  *     Jonas Ådahl <jadahl@gmail.com>
  */
 
-#ifndef META_POINTER_CONSTRAINT_H
-#define META_POINTER_CONSTRAINT_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -77,5 +76,3 @@ void meta_pointer_constraint_impl_ensure_constrained (MetaPointerConstraintImpl 
                                                       ClutterInputDevice        *device);
 
 G_END_DECLS
-
-#endif /* META_POINTER_CONSTRAINT_H */

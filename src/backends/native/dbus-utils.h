@@ -22,11 +22,8 @@
  *     Jasper St. Pierre <jstpierre@mecheye.net>
  */
 
-#ifndef DBUS_UTILS_H
-#define DBUS_UTILS_H
+#pragma once
 
 char *
 get_escaped_dbus_path (const char *prefix,
                        const char *component);
-
-#endif /* DBUS_UTILS_H */

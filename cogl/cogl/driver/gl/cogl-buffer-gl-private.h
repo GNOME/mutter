@@ -31,8 +31,7 @@
  *   Robert Bragg <robert@linux.intel.com>
  */
 
-#ifndef _COGL_BUFFER_GL_PRIVATE_H_
-#define _COGL_BUFFER_GL_PRIVATE_H_
+#pragma once
 
 #include "cogl-types.h"
 #include "cogl-context.h"
@@ -70,5 +69,3 @@ _cogl_buffer_gl_bind (CoglBuffer *buffer,
 
 void
 _cogl_buffer_gl_unbind (CoglBuffer *buffer);
-
-#endif /* _COGL_BUFFER_GL_PRIVATE_H_ */

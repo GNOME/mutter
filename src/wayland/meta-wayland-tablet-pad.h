@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_WAYLAND_TABLET_PAD_H
-#define META_WAYLAND_TABLET_PAD_H
+#pragma once
 
 #include <glib.h>
 #include <wayland-server.h>
@@ -80,5 +79,3 @@ char * meta_wayland_tablet_pad_get_button_label (MetaWaylandTabletPad *pad,
 char * meta_wayland_tablet_pad_get_feature_label (MetaWaylandTabletPad *pad,
                                                   MetaPadFeatureType    feature,
                                                   int                   action);
-
-#endif /* META_WAYLAND_TABLET_PAD_H */

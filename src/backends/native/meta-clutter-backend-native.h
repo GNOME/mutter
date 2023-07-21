@@ -22,8 +22,7 @@
  *     Jonas Ådahl <jadahl@gmail.com>
  */
 
-#ifndef META_CLUTTER_BACKEND_NATIVE_H
-#define META_CLUTTER_BACKEND_NATIVE_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -37,5 +36,3 @@ G_DECLARE_FINAL_TYPE (MetaClutterBackendNative, meta_clutter_backend_native,
                       ClutterBackend)
 
 MetaClutterBackendNative * meta_clutter_backend_native_new (MetaBackend *backend);
-
-#endif /* META_CLUTTER_BACKEND_NATIVE_H */

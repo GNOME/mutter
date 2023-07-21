@@ -31,8 +31,7 @@
  *   Robert Bragg <robert@linux.intel.com>
  */
 
-#ifndef __COGL_PRIMITIVE_PRIVATE_H
-#define __COGL_PRIMITIVE_PRIVATE_H
+#pragma once
 
 #include "cogl-object-private.h"
 #include "cogl-attribute-buffer-private.h"
@@ -68,6 +67,3 @@ _cogl_primitive_draw (CoglPrimitive *primitive,
                       CoglFramebuffer *framebuffer,
                       CoglPipeline *pipeline,
                       CoglDrawFlags flags);
-
-#endif /* __COGL_PRIMITIVE_PRIVATE_H */
-

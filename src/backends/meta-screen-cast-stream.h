@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef META_SCREEN_CAST_STREAM_H
-#define META_SCREEN_CAST_STREAM_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -71,4 +70,3 @@ MetaScreenCastCursorMode meta_screen_cast_stream_get_cursor_mode (MetaScreenCast
 
 MetaScreenCastFlag meta_screen_cast_stream_get_flags (MetaScreenCastStream *stream);
 
-#endif /* META_SCREEN_CAST_STREAM_H */

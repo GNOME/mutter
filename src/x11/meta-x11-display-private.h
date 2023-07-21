@@ -22,8 +22,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_X11_DISPLAY_PRIVATE_H
-#define META_X11_DISPLAY_PRIVATE_H
+#pragma once
 
 #include <glib.h>
 #include <X11/Xlib.h>
@@ -300,5 +299,3 @@ void meta_x11_display_clear_stage_input_region (MetaX11Display *x11_display);
 void meta_x11_display_init_error_traps (MetaX11Display *x11_display);
 
 void meta_x11_display_destroy_error_traps (MetaX11Display *x11_display);
-
-#endif /* META_X11_DISPLAY_PRIVATE_H */

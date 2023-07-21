@@ -26,12 +26,11 @@
  * SOFTWARE.
  */
 
+#pragma once
+
 #if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
-
-#ifndef __COGL_RENDERER_H__
-#define __COGL_RENDERER_H__
 
 #include <cogl/cogl-types.h>
 #include <cogl/cogl-onscreen-template.h>
@@ -401,6 +400,3 @@ COGL_EXPORT void
 cogl_renderer_bind_api (CoglRenderer *renderer);
 
 G_END_DECLS
-
-#endif /* __COGL_RENDERER_H__ */
-

@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_THREAD_TEST_H
-#define META_THREAD_TEST_H
+#pragma once
 
 #include "backends/native/meta-thread.h"
 
@@ -27,5 +26,3 @@
 G_DECLARE_FINAL_TYPE (MetaThreadTest, meta_thread_test,
                       META, THREAD_TEST,
                       MetaThread)
-
-#endif /* META_THREAD_TEST_H */

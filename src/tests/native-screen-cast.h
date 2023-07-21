@@ -18,9 +18,6 @@
  *
  */
 
-#ifndef NATIVE_SCREEN_CAST_H
-#define NATIVE_SCREEN_CAST_H
+#pragma once
 
 void init_screen_cast_tests (void);
-
-#endif /* NATIVE_SCREEN_CAST_H */

@@ -24,8 +24,7 @@
  *   Robert Mader <robert.mader@posteo.de>
  */
 
-#ifndef CLUTTER_TEXTURE_CONTENT_H
-#define CLUTTER_TEXTURE_CONTENT_H
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -49,5 +48,3 @@ CLUTTER_EXPORT
 CoglTexture * clutter_texture_content_get_texture (ClutterTextureContent *texture_content);
 
 G_END_DECLS
-
-#endif /* CLUTTER_TEXTURE_CONTENT_H */

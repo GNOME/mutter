@@ -31,8 +31,7 @@
  *   Robert Bragg <robert@linux.intel.com>
  */
 
-#ifndef __COGL_PIPELINE_OPENGL_PRIVATE_H
-#define __COGL_PIPELINE_OPENGL_PRIVATE_H
+#pragma once
 
 #include "cogl-pipeline-private.h"
 #include "cogl-matrix-stack.h"
@@ -167,6 +166,3 @@ void
 _cogl_gl_set_uniform (CoglContext *ctx,
                       GLint location,
                       const CoglBoxedValue *value);
-
-#endif /* __COGL_PIPELINE_OPENGL_PRIVATE_H */
-

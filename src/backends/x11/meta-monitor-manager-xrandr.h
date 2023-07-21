@@ -20,8 +20,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_MONITOR_MANAGER_XRANDR_H
-#define META_MONITOR_MANAGER_XRANDR_H
+#pragma once
 
 #include <X11/extensions/Xrandr.h>
 
@@ -37,5 +36,3 @@ gboolean meta_monitor_manager_xrandr_has_randr15 (MetaMonitorManagerXrandr *mana
 
 gboolean meta_monitor_manager_xrandr_handle_xevent (MetaMonitorManagerXrandr *manager,
                                                     XEvent                   *event);
-
-#endif /* META_MONITOR_MANAGER_XRANDR_H */

@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_KMS_PLANE_PRIVATE_H
-#define META_KMS_PLANE_PRIVATE_H
+#pragma once
 
 #include <xf86drm.h>
 #include <xf86drmMode.h>
@@ -87,5 +86,3 @@ uint64_t meta_kms_plane_get_prop_drm_value (MetaKmsPlane     *plane,
 
 MetaKmsPropType meta_kms_plane_get_prop_internal_type (MetaKmsPlane     *plane,
                                                        MetaKmsPlaneProp  prop);
-
-#endif /* META_KMS_PLANE_PRIVATE_H */

@@ -15,8 +15,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_DND_PRIVATE_H
-#define META_DND_PRIVATE_H
+#pragma once
 
 #include "backends/meta-backend-types.h"
 #include "meta/meta-dnd.h"
@@ -24,5 +23,3 @@
 MetaDnd * meta_dnd_new (MetaBackend *backend);
 
 MetaBackend * meta_dnd_get_backend (MetaDnd *dnd);
-
-#endif /* META_DND_PRIVATE_H */

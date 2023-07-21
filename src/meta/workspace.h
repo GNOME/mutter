@@ -18,8 +18,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_WORKSPACE_H
-#define META_WORKSPACE_H
+#pragma once
 
 #include <meta/types.h>
 #include <meta/boxes.h>
@@ -69,5 +68,3 @@ void meta_workspace_set_builtin_struts (MetaWorkspace *workspace,
 META_EXPORT
 MetaWorkspace* meta_workspace_get_neighbor (MetaWorkspace      *workspace,
                                             MetaMotionDirection direction);
-
-#endif

@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_DBUS_SERVICE_MANAGER_H
-#define META_DBUS_SERVICE_MANAGER_H
+#pragma once
 
 #include <gio/gio.h>
 #include <glib-object.h>
@@ -54,5 +53,3 @@ MetaBackend * meta_dbus_session_manager_get_backend (MetaDbusSessionManager *ses
 GDBusConnection * meta_dbus_session_manager_get_connection (MetaDbusSessionManager *session_manager);
 
 GDBusInterfaceSkeleton * meta_dbus_session_manager_get_interface_skeleton (MetaDbusSessionManager *session_manager);
-
-#endif /* META_DBUS_SERVICE_MANAGER_H */

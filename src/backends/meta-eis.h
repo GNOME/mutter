@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef META_EIS_H
-#define META_EIS_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -36,5 +35,3 @@ MetaEis * meta_eis_new (MetaBackend *backend);
 MetaBackend * meta_eis_get_backend (MetaEis *meta_eis);
 int meta_eis_add_client_get_fd (MetaEis *meta_eis);
 void meta_eis_remove_all_clients (MetaEis *meta_eis);
-
-#endif /* META_EIS_H */

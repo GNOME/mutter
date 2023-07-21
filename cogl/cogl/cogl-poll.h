@@ -30,12 +30,11 @@
  *  Neil Roberts <neil@linux.intel.com>
  */
 
+#pragma once
+
 #if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
-
-#ifndef __COGL_POLL_H__
-#define __COGL_POLL_H__
 
 #include <cogl/cogl-defines.h>
 #include <cogl/cogl-context.h>
@@ -179,5 +178,3 @@ cogl_poll_renderer_dispatch (CoglRenderer *renderer,
                              int n_poll_fds);
 
 G_END_DECLS
-
-#endif /* __COGL_POLL_H__ */

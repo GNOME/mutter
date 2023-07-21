@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef META_REMOTE_DESKTOP_H
-#define META_REMOTE_DESKTOP_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -39,5 +38,3 @@ G_DECLARE_FINAL_TYPE (MetaRemoteDesktop, meta_remote_desktop,
                       MetaDbusSessionManager)
 
 MetaRemoteDesktop * meta_remote_desktop_new (MetaBackend *backend);
-
-#endif /* META_REMOTE_DESKTOP_H */

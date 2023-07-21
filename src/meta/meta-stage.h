@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_STAGE_H
-#define META_STAGE_H
+#pragma once
 
 #include "clutter/clutter.h"
 
@@ -30,5 +29,3 @@ META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaStage, meta_stage, META, STAGE, ClutterStage)
 
 G_END_DECLS
-
-#endif /* META_STAGE_H */

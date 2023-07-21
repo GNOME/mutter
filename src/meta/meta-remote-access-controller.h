@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_REMOTE_ACCESS_CONTROLLER_H
-#define META_REMOTE_ACCESS_CONTROLLER_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -59,5 +58,3 @@ void meta_remote_access_controller_inhibit_remote_access (MetaRemoteAccessContro
 
 META_EXPORT
 void meta_remote_access_controller_uninhibit_remote_access (MetaRemoteAccessController *controller);
-
-#endif /* META_REMOTE_ACCESS_CONTROLLER_H */

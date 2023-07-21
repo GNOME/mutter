@@ -19,8 +19,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __CLUTTER_COLOR_STATIC_H__
-#define __CLUTTER_COLOR_STATIC_H__
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -75,5 +74,3 @@
 #define CLUTTER_COLOR_Aluminium6        (__CLUTTER_COLOR_SYM (ALUMINIUM_6))
 
 #define CLUTTER_COLOR_Transparent       (__CLUTTER_COLOR_SYM (TRANSPARENT))
-
-#endif /* __CLUTTER_COLOR_STATIC_H__ */

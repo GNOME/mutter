@@ -30,12 +30,11 @@
  *
  */
 
+#pragma once
+
 #if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
-
-#ifndef __COGL_DISPLAY_H__
-#define __COGL_DISPLAY_H__
 
 #include <cogl/cogl-renderer.h>
 #include <cogl/cogl-onscreen-template.h>
@@ -195,6 +194,3 @@ COGL_EXPORT gboolean
 cogl_is_display (void *object);
 
 G_END_DECLS
-
-#endif /* __COGL_DISPLAY_H__ */
-

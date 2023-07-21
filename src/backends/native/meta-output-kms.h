@@ -20,8 +20,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_OUTPUT_KMS_H
-#define META_OUTPUT_KMS_H
+#pragma once
 
 #include "backends/meta-output.h"
 #include "backends/native/meta-gpu-kms.h"
@@ -59,5 +58,3 @@ MetaOutputKms * meta_output_kms_new (MetaGpuKms        *gpu_kms,
                                      MetaKmsConnector  *kms_connector,
                                      MetaOutput        *old_output,
                                      GError           **error);
-
-#endif /* META_OUTPUT_KMS_H */

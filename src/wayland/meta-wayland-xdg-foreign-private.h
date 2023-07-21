@@ -22,8 +22,7 @@
  *     Jason Francis <cycl0ps@tuta.io>
  */
 
-#ifndef META_WAYLAND_FOREIGN_PRIVATE_H
-#define META_WAYLAND_FOREIGN_PRIVATE_H
+#pragma once
 
 #include <glib.h>
 
@@ -57,5 +56,3 @@ void meta_wayland_xdg_imported_set_parent_of (MetaWaylandXdgImported *imported,
                                               struct wl_resource     *surface_resource);
 
 void meta_wayland_xdg_imported_destroy (MetaWaylandXdgImported *imported);
-
-#endif /* META_WAYLAND_FOREIGN_PRIVATE_H */

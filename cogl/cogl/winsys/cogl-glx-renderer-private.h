@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_RENDERER_GLX_PRIVATE_H
-#define __COGL_RENDERER_GLX_PRIVATE_H
+#pragma once
 
 #include <gmodule.h>
 #include "cogl-object-private.h"
@@ -101,5 +100,3 @@ typedef struct _CoglGLXRenderer
 #undef COGL_WINSYS_FEATURE_FUNCTION
 #undef COGL_WINSYS_FEATURE_END
 } CoglGLXRenderer;
-
-#endif /* __COGL_RENDERER_GLX_PRIVATE_H */

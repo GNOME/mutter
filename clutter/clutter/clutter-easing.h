@@ -1,5 +1,4 @@
-#ifndef __CLUTTER_EASING_H__
-#define __CLUTTER_EASING_H__
+#pragma once
 
 #include <clutter/clutter-types.h>
 
@@ -138,5 +137,3 @@ double  clutter_ease_cubic_bezier       (double t,
                                          double y_2);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_EASING_H__ */

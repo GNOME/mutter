@@ -19,8 +19,7 @@
  *
  */
 
-#ifndef META_DRM_BUFFER_GBM_H
-#define META_DRM_BUFFER_GBM_H
+#pragma once
 
 #include <gbm.h>
 
@@ -45,5 +44,3 @@ MetaDrmBufferGbm * meta_drm_buffer_gbm_new_take (MetaDeviceFile      *device_fil
                                                  GError             **error);
 
 struct gbm_bo * meta_drm_buffer_gbm_get_bo (MetaDrmBufferGbm *buffer_gbm);
-
-#endif /* META_DRM_BUFFER_GBM_H */

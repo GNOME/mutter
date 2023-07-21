@@ -20,8 +20,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __META_WINDOW_SHAPE_H__
-#define __META_WINDOW_SHAPE_H__
+#pragma once
 
 #include <cairo.h>
 #include <glib-object.h>
@@ -72,6 +71,3 @@ META_EXPORT
 cairo_region_t    *meta_window_shape_to_region   (MetaWindowShape *shape,
                                                   int              center_width,
                                                   int              center_height);
-
-#endif /* __META_WINDOW_SHAPE_H __*/
-

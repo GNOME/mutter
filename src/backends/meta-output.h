@@ -18,8 +18,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_OUTPUT_H
-#define META_OUTPUT_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -293,5 +292,3 @@ void meta_output_update_modes (MetaOutput    *output,
                                MetaCrtcMode  *preferred_mode,
                                MetaCrtcMode **modes,
                                int            n_modes);
-
-#endif /* META_OUTPUT_H */

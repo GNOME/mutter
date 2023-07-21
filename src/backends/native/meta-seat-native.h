@@ -20,8 +20,7 @@
  * Author: Jonas Ådahl <jadahl@gmail.com>
  */
 
-#ifndef META_SEAT_NATIVE_H
-#define META_SEAT_NATIVE_H
+#pragma once
 
 #include <libinput.h>
 #include <linux/input-event-codes.h>
@@ -137,5 +136,3 @@ void meta_seat_native_run_impl_task (MetaSeatNative *seat,
                                      GSourceFunc     dispatch_func,
                                      gpointer        user_data,
                                      GDestroyNotify  destroy_notify);
-
-#endif /* META_SEAT_NATIVE_H */

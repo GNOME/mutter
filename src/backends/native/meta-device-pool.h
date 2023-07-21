@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_DEVICE_POOL_H
-#define META_DEVICE_POOL_H
+#pragma once
 
 #include <glib-object.h>
 #include <stdint.h>
@@ -71,5 +70,3 @@ MetaDeviceFile * meta_device_pool_open (MetaDevicePool       *pool,
 MetaBackend * meta_device_pool_get_backend (MetaDevicePool *pool);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaDeviceFile, meta_device_file_release)
-
-#endif /* META_DEVICE_FILE_POOL_H */

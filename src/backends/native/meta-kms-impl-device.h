@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_KMS_IMPL_DEVICE_H
-#define META_KMS_IMPL_DEVICE_H
+#pragma once
 
 #include <glib-object.h>
 #include <stdint.h>
@@ -200,5 +199,3 @@ void meta_kms_impl_device_prepare_shutdown (MetaKmsImplDevice *impl_device);
 
 uint64_t meta_kms_prop_convert_value (MetaKmsProp *prop,
                                       uint64_t     value);
-
-#endif /* META_KMS_IMPL_DEVICE_H */

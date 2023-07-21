@@ -18,8 +18,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_BACKGROUND_CONTENT_H
-#define META_BACKGROUND_CONTENT_H
+#pragma once
 
 #include <gdesktop-enums.h>
 
@@ -63,5 +62,3 @@ void meta_background_content_set_rounded_clip_radius (MetaBackgroundContent *sel
 META_EXPORT
 void meta_background_content_set_rounded_clip_bounds (MetaBackgroundContent *self,
                                                       const graphene_rect_t *bounds);
-
-#endif /* META_BACKGROUND_CONTENT_H */

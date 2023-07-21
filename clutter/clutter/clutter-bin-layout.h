@@ -22,8 +22,7 @@
  *   Emmanuele Bassi <ebassi@linux.intel.com>
  */
 
-#ifndef __CLUTTER_BIN_LAYOUT_H__
-#define __CLUTTER_BIN_LAYOUT_H__
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -72,5 +71,3 @@ ClutterLayoutManager *  clutter_bin_layout_new  (ClutterBinAlignment x_align,
                                                  ClutterBinAlignment y_align);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_BIN_LAYOUT_H__ */

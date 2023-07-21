@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_WAYLAND_TYPES_H
-#define META_WAYLAND_TYPES_H
+#pragma once
 
 typedef struct _MetaWaylandCompositor MetaWaylandCompositor;
 
@@ -76,5 +75,3 @@ typedef struct _MetaWaylandXdgForeign MetaWaylandXdgForeign;
 typedef struct _MetaWaylandFilterManager MetaWaylandFilterManager;
 
 typedef struct _MetaWaylandClient MetaWaylandClient;
-
-#endif

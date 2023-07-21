@@ -31,12 +31,11 @@
  *   Neil Roberts <neil@linux.intel.com>
  */
 
+#pragma once
+
 #if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
-
-#ifndef __COGL_SNIPPET_H__
-#define __COGL_SNIPPET_H__
 
 G_BEGIN_DECLS
 
@@ -826,5 +825,3 @@ COGL_EXPORT const char *
 cogl_snippet_get_post (CoglSnippet *snippet);
 
 G_END_DECLS
-
-#endif /* __COGL_SNIPPET_H__ */

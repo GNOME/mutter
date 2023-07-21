@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef META_GLES3_TABLE_H
-#define META_GLES3_TABLE_H
+#pragma once
 
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
@@ -32,5 +31,3 @@ typedef struct _MetaGles3Table
   void (* glEGLImageTargetTexture2DOES) (GLenum        target,
                                          GLeglImageOES image);
 } MetaGles3Table;
-
-#endif /* META_GLES3_TABLE */

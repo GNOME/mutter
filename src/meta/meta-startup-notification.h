@@ -16,8 +16,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_STARTUP_NOTIFICATION_H
-#define META_STARTUP_NOTIFICATION_H
+#pragma once
 
 #include <meta/meta-launch-context.h>
 
@@ -69,5 +68,3 @@ const char * meta_startup_sequence_get_wmclass        (MetaStartupSequence *seq)
 
 META_EXPORT
 void        meta_startup_sequence_complete           (MetaStartupSequence *seq);
-
-#endif /* META_STARTUP_NOTIFICATION_H */

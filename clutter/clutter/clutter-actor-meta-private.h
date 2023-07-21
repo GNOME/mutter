@@ -22,8 +22,7 @@
  *   Emmanuele Bassi <ebassi@linux.intel.com>
  */
 
-#ifndef __CLUTTER_ACTOR_META_PRIVATE_H__
-#define __CLUTTER_ACTOR_META_PRIVATE_H__
+#pragma once
 
 #include <clutter/clutter-actor-meta.h>
 
@@ -93,5 +92,3 @@ int                     _clutter_actor_meta_get_priority        (ClutterActorMet
 gboolean                _clutter_actor_meta_is_internal         (ClutterActorMeta *meta);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_ACTOR_META_PRIVATE_H__ */

@@ -16,8 +16,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_X11_STACK_H
-#define META_X11_STACK_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -29,5 +28,3 @@ G_DECLARE_FINAL_TYPE (MetaX11Stack, meta_x11_stack, META, X11_STACK, GObject)
 typedef struct _MetaX11Stack MetaX11Stack;
 
 MetaX11Stack * meta_x11_stack_new (MetaX11Display *x11_display);
-
-#endif /* META_X11_STACK_H */

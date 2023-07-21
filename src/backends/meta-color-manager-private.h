@@ -15,8 +15,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_COLOR_MANAGER_PRIVATE_H
-#define META_COLOR_MANAGER_PRIVATE_H
+#pragma once
 
 #include <colord.h>
 #include <lcms2.h>
@@ -41,5 +40,3 @@ META_EXPORT_TEST
 int meta_color_manager_get_num_color_devices (MetaColorManager *color_manager);
 
 cmsContext meta_color_manager_get_lcms_context (MetaColorManager *color_manager);
-
-#endif /* META_COLOR_MANAGER_PRIVATE_H */

@@ -15,8 +15,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CLUTTER_PAINT_CONTEXT_PRIVATE_H
-#define CLUTTER_PAINT_CONTEXT_PRIVATE_H
+#pragma once
 
 #include "clutter-paint-context.h"
 
@@ -35,5 +34,3 @@ clutter_paint_context_get_clip_frusta (ClutterPaintContext *paint_context);
 
 void clutter_paint_context_assign_frame (ClutterPaintContext *paint_context,
                                          ClutterFrame        *frame);
-
-#endif /* CLUTTER_PAINT_CONTEXT_PRIVATE_H */

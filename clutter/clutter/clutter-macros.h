@@ -19,8 +19,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __CLUTTER_MACROS_H__
-#define __CLUTTER_MACROS_H__
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -77,5 +76,3 @@
  * for testability purposes
  */
 #define CLUTTER_EXPORT_TEST CLUTTER_EXPORT
-
-#endif /* __CLUTTER_MACROS_H__ */

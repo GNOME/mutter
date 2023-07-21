@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef __CLUTTER_INPUT_METHOD_PRIVATE_H__
-#define __CLUTTER_INPUT_METHOD_PRIVATE_H__
+#pragma once
 
 ClutterInputFocus * clutter_input_method_get_focus (ClutterInputMethod *method);
 
@@ -42,5 +41,3 @@ gboolean clutter_input_method_filter_key_event (ClutterInputMethod    *method,
                                                 const ClutterKeyEvent *key);
 
 void clutter_input_method_toggle_input_panel (ClutterInputMethod *method);
-
-#endif /* __CLUTTER_INPUT_METHOD_PRIVATE_H__ */

@@ -21,8 +21,7 @@
  * Author: Emmanuele Bassi <ebassi@linux.intel.com>
  */
 
-#ifndef __CLUTTER_KEYFRAME_TRANSITION_H__
-#define __CLUTTER_KEYFRAME_TRANSITION_H__
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -106,5 +105,3 @@ CLUTTER_EXPORT
 void                    clutter_keyframe_transition_clear               (ClutterKeyframeTransition  *transition);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_KEYFRAME_TRANSITION_H__ */

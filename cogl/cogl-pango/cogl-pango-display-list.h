@@ -26,8 +26,7 @@
  * SOFTWARE.
  */
 
-#ifndef __COGL_PANGO_DISPLAY_LIST_H__
-#define __COGL_PANGO_DISPLAY_LIST_H__
+#pragma once
 
 #include <glib.h>
 #include "cogl-pango-pipeline-cache.h"
@@ -80,5 +79,3 @@ void
 _cogl_pango_display_list_free (CoglPangoDisplayList *dl);
 
 G_END_DECLS
-
-#endif /* __COGL_PANGO_DISPLAY_LIST_H__ */

@@ -22,8 +22,7 @@
  *   Emmanuele Bassi <ebassi@linux.intel.com>
  */
 
-#ifndef __CLUTTER_LAYOUT_MANAGER_H__
-#define __CLUTTER_LAYOUT_MANAGER_H__
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -180,5 +179,3 @@ void               clutter_layout_manager_child_get_property    (ClutterLayoutMa
                                                                  GValue                 *value);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_LAYOUT_MANAGER_H__ */

@@ -15,8 +15,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_WAYLAND_TEST_DRIVER_H
-#define META_WAYLAND_TEST_DRIVER_H
+#pragma once
 
 #include "wayland/meta-wayland.h"
 
@@ -36,5 +35,3 @@ void meta_wayland_test_driver_set_property (MetaWaylandTestDriver *test_driver,
 
 void meta_wayland_test_driver_wait_for_sync_point (MetaWaylandTestDriver *test_driver,
                                                    unsigned int           sync_point);
-
-#endif /* META_WAYLAND_TEST_DRIVER_H */

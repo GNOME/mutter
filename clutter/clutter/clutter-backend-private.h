@@ -19,8 +19,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __CLUTTER_BACKEND_PRIVATE_H__
-#define __CLUTTER_BACKEND_PRIVATE_H__
+#pragma once
 
 #include <clutter/clutter-backend.h>
 #include <clutter/clutter-seat.h>
@@ -129,5 +128,3 @@ CLUTTER_EXPORT
 void clutter_backend_destroy (ClutterBackend *backend);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_BACKEND_PRIVATE_H__ */

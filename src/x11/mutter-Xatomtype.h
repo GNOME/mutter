@@ -57,8 +57,7 @@ SOFTWARE.
 
 ******************************************************************/
 
-#ifndef _XATOMTYPE_H_
-#define _XATOMTYPE_H_
+#pragma once
 
 #define BOOL int32_t
 #define SIGNEDINT int32_t
@@ -132,5 +131,3 @@ typedef struct {
 #undef SIGNEDINT
 #undef UNSIGNEDINT
 #undef RESOURCEID
-
-#endif /* _XATOMTYPE_H_ */

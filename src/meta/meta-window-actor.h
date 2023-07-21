@@ -20,8 +20,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_WINDOW_ACTOR_H_
-#define META_WINDOW_ACTOR_H_
+#pragma once
 
 #include "clutter/clutter.h"
 #include "meta/compositor.h"
@@ -68,5 +67,3 @@ typedef enum
   META_SHADOW_MODE_FORCED_OFF,
   META_SHADOW_MODE_FORCED_ON,
 } MetaShadowMode;
-
-#endif /* META_WINDOW_ACTOR_H */

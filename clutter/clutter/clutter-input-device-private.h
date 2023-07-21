@@ -21,8 +21,7 @@
  * Author: Emmanuele Bassi <ebassi@linux.intel.com>
  */
 
-#ifndef CLUTTER_INPUT_DEVICE_PRIVATE_H
-#define CLUTTER_INPUT_DEVICE_PRIVATE_H
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -57,5 +56,3 @@ struct _ClutterInputDevice
   ClutterVirtualInputDevice *accessibility_virtual_device;
   ClutterPtrA11yData *ptr_a11y_data;
 };
-
-#endif /* CLUTTER_INPUT_DEVICE_PRIVATE_H */

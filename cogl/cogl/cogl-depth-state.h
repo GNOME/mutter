@@ -30,12 +30,11 @@
  *
  */
 
+#pragma once
+
 #if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
-
-#ifndef __COGL_DEPTH_STATE_H__
-#define __COGL_DEPTH_STATE_H__
 
 G_BEGIN_DECLS
 
@@ -223,5 +222,3 @@ cogl_depth_state_get_range (CoglDepthState *state,
                             float *far_val);
 
 G_END_DECLS
-
-#endif /* __COGL_DEPTH_STATE_H__ */

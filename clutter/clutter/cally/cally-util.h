@@ -18,8 +18,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __CALLY_UTIL_H__
-#define __CALLY_UTIL_H__
+#pragma once
 
 #if !defined(__CALLY_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <cally/cally.h> can be included directly."
@@ -69,5 +68,3 @@ void _cally_util_override_atk_util (void);
 gboolean cally_snoop_key_event (ClutterKeyEvent *key);
 
 G_END_DECLS
-
-#endif /* __CALLY_UTIL_H__ */

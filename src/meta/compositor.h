@@ -17,8 +17,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_COMPOSITOR_H
-#define META_COMPOSITOR_H
+#pragma once
 
 #include <glib.h>
 
@@ -72,5 +71,3 @@ MetaLaters * meta_compositor_get_laters (MetaCompositor *compositor);
 
 META_EXPORT
 ClutterActor * meta_compositor_get_feedback_group (MetaCompositor *compositor);
-
-#endif /* META_COMPOSITOR_H */

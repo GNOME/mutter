@@ -29,13 +29,11 @@
  *   Georges Basile Stavracas Neto <georges.stavracas@gmail.com>
  */
 
+#pragma once
 
 #if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
-
-#ifndef __COGL_DMA_BUF_HANDLE_H__
-#define __COGL_DMA_BUF_HANDLE_H__
 
 #include <cogl/cogl-types.h>
 #include <cogl/cogl-framebuffer.h>
@@ -142,5 +140,3 @@ COGL_EXPORT int
 cogl_dma_buf_handle_get_bpp (CoglDmaBufHandle *dmabuf_handle);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglDmaBufHandle, cogl_dma_buf_handle_free)
-
-#endif /* __COGL_DMA_BUF_HANDLE_H__ */

@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_WINSYS_PRIVATE_H
-#define __COGL_WINSYS_PRIVATE_H
+#pragma once
 
 #include "cogl-renderer.h"
 #include "cogl-scanout.h"
@@ -150,5 +149,3 @@ typedef const CoglWinsysVtable *(*CoglWinsysVtableGetter) (void);
 
 gboolean
 _cogl_winsys_has_feature (CoglWinsysFeature feature);
-
-#endif /* __COGL_WINSYS_PRIVATE_H */

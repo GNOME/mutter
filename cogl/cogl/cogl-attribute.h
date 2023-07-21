@@ -31,12 +31,11 @@
  *   Robert Bragg <robert@linux.intel.com>
  */
 
+#pragma once
+
 #if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
-
-#ifndef __COGL_ATTRIBUTE_H__
-#define __COGL_ATTRIBUTE_H__
 
 /* We forward declare the CoglAttribute type here to avoid some circular
  * dependency issues with the following headers.
@@ -535,6 +534,3 @@ COGL_EXPORT gboolean
 cogl_is_attribute (void *object);
 
 G_END_DECLS
-
-#endif /* __COGL_ATTRIBUTE_H__ */
-

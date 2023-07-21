@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef META_SCREEN_CAST_STREAM_SRC_H
-#define META_SCREEN_CAST_STREAM_SRC_H
+#pragma once
 
 #include <glib-object.h>
 #include <spa/param/video/format-utils.h>
@@ -133,4 +132,3 @@ void meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStrea
 
 gboolean meta_screen_cast_stream_src_uses_dma_bufs (MetaScreenCastStreamSrc *src);
 
-#endif /* META_SCREEN_CAST_STREAM_SRC_H */

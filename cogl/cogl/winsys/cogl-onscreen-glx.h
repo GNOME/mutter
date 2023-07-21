@@ -23,8 +23,7 @@
  * SOFTWARE.
  */
 
-#ifndef COGL_ONSCREEN_GLX_H
-#define COGL_ONSCREEN_GLX_H
+#pragma once
 
 #include <GL/glx.h>
 #include <X11/Xlib.h>
@@ -55,5 +54,3 @@ cogl_onscreen_glx_notify_swap_buffers (CoglOnscreen          *onscreen,
 gboolean
 cogl_onscreen_glx_is_for_window (CoglOnscreen *onscreen,
                                  Window        window);
-
-#endif /* COGL_ONSCREEN_GLX_H */

@@ -22,8 +22,7 @@
  *   Neil Roberts <neil@linux.intel.com>
  */
 
-#ifndef __CLUTTER_FLATTEN_EFFECT_H__
-#define __CLUTTER_FLATTEN_EFFECT_H__
+#pragma once
 
 #include <clutter/clutter-offscreen-effect.h>
 
@@ -69,5 +68,3 @@ GType _clutter_flatten_effect_get_type (void) G_GNUC_CONST;
 ClutterEffect *_clutter_flatten_effect_new (void);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_FLATTEN_EFFECT_H__ */

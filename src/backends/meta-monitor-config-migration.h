@@ -19,8 +19,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_MONITOR_CONFIG_MIGRATION_H
-#define META_MONITOR_CONFIG_MIGRATION_H
+#pragma once
 
 #include "backends/meta-monitor-manager-private.h"
 
@@ -37,5 +36,3 @@ META_EXPORT_TEST
 gboolean meta_finish_monitors_config_migration (MetaMonitorManager *monitor_manager,
                                                 MetaMonitorsConfig *config,
                                                 GError            **error);
-
-#endif /* META_MONITOR_CONFIG_MIGRATION_H */

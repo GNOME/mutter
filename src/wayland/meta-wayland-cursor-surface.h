@@ -19,8 +19,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_WAYLAND_CURSOR_SURFACE_H
-#define META_WAYLAND_CURSOR_SURFACE_H
+#pragma once
 
 #include "backends/meta-cursor-renderer.h"
 #include "wayland/meta-wayland-surface.h"
@@ -47,6 +46,3 @@ void                 meta_wayland_cursor_surface_get_hotspot  (MetaWaylandCursor
 void                 meta_wayland_cursor_surface_set_renderer (MetaWaylandCursorSurface *cursor_surface,
                                                                MetaCursorRenderer       *renderer);
 MetaCursorRenderer * meta_wayland_cursor_surface_get_renderer (MetaWaylandCursorSurface *cursor_surface);
-
-
-#endif /* META_WAYLAND_CURSOR_SURFACE_H */

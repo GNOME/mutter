@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_WAYLAND_TRANSACTION_H
-#define META_WAYLAND_TRANSACTION_H
+#pragma once
 
 #include "wayland/meta-wayland-types.h"
 #include "wayland/meta-wayland-subsurface.h"
@@ -55,5 +54,3 @@ void meta_wayland_transaction_free (MetaWaylandTransaction *transaction);
 void meta_wayland_transaction_finalize (MetaWaylandCompositor *compositor);
 
 void meta_wayland_transaction_init (MetaWaylandCompositor *compositor);
-
-#endif

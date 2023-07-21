@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_WAYLAND_CLIENT_PRIVATE_H
-#define META_WAYLAND_CLIENT_PRIVATE_H
+#pragma once
 
 #include <wayland-server-core.h>
 
@@ -42,5 +41,3 @@ void meta_wayland_client_assign_service_client_type (MetaWaylandClient     *clie
                                                      MetaServiceClientType  service_client_type);
 
 MetaServiceClientType  meta_wayland_client_get_service_client_type (MetaWaylandClient *client);
-
-#endif /* META_WAYLAND_CLIENT_PRIVATE_H */

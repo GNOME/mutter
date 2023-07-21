@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_KMS_CRTC_PRIVATE_H
-#define META_KMS_CRTC_PRIVATE_H
+#pragma once
 
 #include <xf86drmMode.h>
 
@@ -60,5 +59,3 @@ gboolean meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
                                            int64_t      *out_next_deadline_us,
                                            int64_t      *out_next_presentation_us,
                                            GError      **error);
-
-#endif /* META_KMS_CRTC_PRIVATE_H */

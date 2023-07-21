@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_CONTEXT_PRIVATE_H
-#define __COGL_CONTEXT_PRIVATE_H
+#pragma once
 
 #include "cogl-context.h"
 #include "cogl-flags.h"
@@ -312,5 +311,3 @@ _cogl_context_set_current_projection_entry (CoglContext *context,
 void
 _cogl_context_set_current_modelview_entry (CoglContext *context,
                                            CoglMatrixEntry *entry);
-
-#endif /* __COGL_CONTEXT_PRIVATE_H */

@@ -15,8 +15,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_COLOR_MANAGER_X11_H
-#define META_COLOR_MANAGER_X11_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -26,5 +25,3 @@
 G_DECLARE_FINAL_TYPE (MetaColorManagerX11, meta_color_manager_x11,
                       META, COLOR_MANAGER_X11,
                       MetaColorManager)
-
-#endif /* META_COLOR_MANAGER_X11_H */

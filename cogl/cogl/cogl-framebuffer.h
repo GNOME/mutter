@@ -32,9 +32,7 @@
  *   Robert Bragg <robert@linux.intel.com>
  */
 
-#ifndef __COGL_FRAMEBUFFER_H
-#define __COGL_FRAMEBUFFER_H
-
+#pragma once
 
 #include <cogl/cogl-pipeline.h>
 #include <cogl/cogl-indices.h>
@@ -1382,5 +1380,3 @@ COGL_EXPORT CoglTimestampQuery *
 cogl_framebuffer_create_timestamp_query (CoglFramebuffer *framebuffer);
 
 G_END_DECLS
-
-#endif /* __COGL_FRAMEBUFFER_H */

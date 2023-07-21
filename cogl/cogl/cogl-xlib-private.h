@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_XLIB_PRIVATE_H
-#define __COGL_XLIB_PRIVATE_H
+#pragma once
 
 #include <X11/Xlib.h>
 
@@ -44,5 +43,3 @@ struct _CoglXlibTrapState
   int trapped_error_code;
   CoglXlibTrapState *old_state;
 };
-
-#endif /* __COGL_XLIB_PRIVATE_H */

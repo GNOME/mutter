@@ -21,8 +21,7 @@
  *      Emmanuele Bassi <ebassi@linux.intel.com>
  */
 
-#ifndef META_EVENT_X11_H
-#define META_EVENT_X11_H
+#pragma once
 
 #include <X11/Xlib.h>
 
@@ -30,5 +29,3 @@
 
 MetaX11FilterReturn meta_x11_handle_event (MetaBackend *backend,
                                            XEvent      *xevent);
-
-#endif /* META_EVENT_X11_H */

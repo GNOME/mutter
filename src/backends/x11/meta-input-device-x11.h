@@ -17,8 +17,7 @@
  * Author: Emmanuele Bassi <ebassi@linux.intel.com>
  */
 
-#ifndef META_INPUT_DEVICE_X11_H
-#define META_INPUT_DEVICE_X11_H
+#pragma once
 
 #include <X11/extensions/XInput2.h>
 
@@ -98,5 +97,3 @@ gboolean meta_input_device_x11_get_scroll_delta (ClutterInputDevice     *device,
 void meta_input_device_x11_reset_scroll_info (ClutterInputDevice *device);
 
 G_END_DECLS
-
-#endif /* META_INPUT_DEVICE_X11_H */

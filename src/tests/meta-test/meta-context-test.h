@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_CONTEXT_TEST_H
-#define META_CONTEXT_TEST_H
+#pragma once
 
 #include <meta/common.h>
 #include <meta/meta-context.h>
@@ -60,5 +59,3 @@ int meta_context_test_run_tests (MetaContextTest  *context_test,
 
 META_EXPORT
 void meta_context_test_wait_for_x11_display (MetaContextTest *context_test);
-
-#endif /* META_CONTEXT_TEST_H */

@@ -29,8 +29,7 @@
  *   Robert Bragg <robert@linux.intel.com>
  */
 
-#ifndef __COGL_OBJECT_PRIVATE_H
-#define __COGL_OBJECT_PRIVATE_H
+#pragma once
 
 #include <glib.h>
 
@@ -277,6 +276,3 @@ _cogl_object_set_user_data (CoglObject *object,
 
 COGL_EXPORT void
 _cogl_object_default_unref (void *obj);
-
-#endif /* __COGL_OBJECT_PRIVATE_H */
-

@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_CONTEXT_MAIN_H
-#define META_CONTEXT_MAIN_H
+#pragma once
 
 #include "core/meta-context-private.h"
 
@@ -27,5 +26,3 @@
 G_DECLARE_FINAL_TYPE (MetaContextMain, meta_context_main,
                       META, CONTEXT_MAIN,
                       MetaContext)
-
-#endif /* META_CONTEXT_MAIN_H */

@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_KMS_IMPL_DEVICE_ATOMIC_H
-#define META_KMS_IMPL_DEVICE_ATOMIC_H
+#pragma once
 
 #include "backends/native/meta-kms-impl-device.h"
 
@@ -26,5 +25,3 @@
 META_EXPORT_TEST
 G_DECLARE_FINAL_TYPE (MetaKmsImplDeviceAtomic, meta_kms_impl_device_atomic,
                       META, KMS_IMPL_DEVICE_ATOMIC, MetaKmsImplDevice)
-
-#endif /* META_KMS_IMPL_DEVICE_ATOMIC_H */

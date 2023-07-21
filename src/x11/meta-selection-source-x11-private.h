@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_SELECTION_SOURCE_X11_H
-#define META_SELECTION_SOURCE_X11_H
+#pragma once
 
 #include "meta/meta-selection-source.h"
 #include "x11/meta-x11-display-private.h"
@@ -40,5 +39,3 @@ void                  meta_selection_source_x11_new_async  (MetaX11Display      
                                                             gpointer             user_data);
 MetaSelectionSource * meta_selection_source_x11_new_finish (GAsyncResult  *result,
                                                             GError       **error);
-
-#endif /* META_SELECTION_SOURCE_X11_H */

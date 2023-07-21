@@ -17,8 +17,7 @@
  * Author: Jonas Ådahl <jadahl@gmail.com>
  */
 
-#ifndef META_VIRTUAL_INPUT_DEVICE_NATIVE_H
-#define META_VIRTUAL_INPUT_DEVICE_NATIVE_H
+#pragma once
 
 #include "clutter/clutter-virtual-input-device.h"
 
@@ -27,5 +26,3 @@ G_DECLARE_FINAL_TYPE (MetaVirtualInputDeviceNative,
                       meta_virtual_input_device_native,
                       META, VIRTUAL_INPUT_DEVICE_NATIVE,
                       ClutterVirtualInputDevice)
-
-#endif /* META_VIRTUAL_INPUT_DEVICE_NATIVE_H */

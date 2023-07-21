@@ -17,8 +17,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MONITOR_TEST_UTILS_H
-#define MONITOR_TEST_UTILS_H
+#pragma once
 
 #include <glib.h>
 
@@ -241,5 +240,3 @@ void meta_wait_for_orientation (MetaOrientationManager *orientation_manager,
 META_EXPORT
 void meta_wait_for_possible_orientation_change (MetaOrientationManager *orientation_manager,
                                                 unsigned int           *times_signalled_out);
-
-#endif /* MONITOR_TEST_UTILS_H */

@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_BACKEND_X11_NESTED_H
-#define META_BACKEND_X11_NESTED_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -36,5 +35,3 @@ struct _MetaBackendX11NestedClass
 
   void (* init_gpus) (MetaBackendX11Nested *backend_x11_nested);
 };
-
-#endif /* META_BACKEND_X11_NESTED_H */

@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_KMS_DEVICE_PRIVATE_H
-#define META_KMS_DEVICE_PRIVATE_H
+#pragma once
 
 #include "backends/native/meta-kms-types.h"
 #include "backends/native/meta-kms-update-private.h"
@@ -42,5 +41,3 @@ MetaKmsConnector * meta_kms_device_find_connector_in_impl (MetaKmsDevice *device
 
 void meta_kms_device_set_needs_flush (MetaKmsDevice *device,
                                       MetaKmsCrtc   *crtc);
-
-#endif /* META_KMS_DEVICE_PRIVATE_H */

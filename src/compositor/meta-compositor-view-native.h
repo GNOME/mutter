@@ -22,8 +22,7 @@
  *     Dor Askayo <dor.askayo@gmail.com>
  */
 
-#ifndef META_COMPOSITOR_VIEW_NATIVE_H
-#define META_COMPOSITOR_VIEW_NATIVE_H
+#pragma once
 
 #include "clutter/clutter-mutter.h"
 #include "compositor/meta-compositor-view.h"
@@ -39,5 +38,3 @@ MetaCompositorViewNative *meta_compositor_view_native_new (ClutterStageView *sta
 void meta_compositor_view_native_maybe_assign_scanout (MetaCompositorViewNative *view_native,
                                                        MetaCompositor           *compositor);
 #endif /* HAVE_WAYLAND */
-
-#endif /* META_COMPOSITOR_VIEW_NATIVE_H */

@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_TEXTURE_PIXMAP_X11_H
-#define __COGL_TEXTURE_PIXMAP_X11_H
+#pragma once
 
 /* NB: this is a top-level header that can be included directly but we
  * want to be careful not to define __COGL_H_INSIDE__ when this is
@@ -238,5 +237,3 @@ G_END_DECLS
 #undef __COGL_H_INSIDE__
 #undef __COGL_MUST_UNDEF_COGL_H_INSIDE_COGL_TEXTURE_PIXMAP_X11_
 #endif
-
-#endif /* __COGL_TEXTURE_PIXMAP_X11_H */

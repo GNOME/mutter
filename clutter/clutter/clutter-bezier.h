@@ -21,8 +21,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __CLUTTER_BEZIER_H__
-#define __CLUTTER_BEZIER_H__
+#pragma once
 
 #include <glib.h>
 #include "clutter-types.h"
@@ -61,5 +60,3 @@ void           _clutter_bezier_adjust (ClutterBezier *b,
 guint          _clutter_bezier_get_length (const ClutterBezier *b);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_BEZIER_H__ */

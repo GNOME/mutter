@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_SWAP_CHAIN_PRIVATE_H
-#define __COGL_SWAP_CHAIN_PRIVATE_H
+#pragma once
 
 #include "cogl-object-private.h"
 
@@ -39,5 +38,3 @@ struct _CoglSwapChain
 
   int length;
 };
-
-#endif /* __COGL_SWAP_CHAIN_PRIVATE_H */

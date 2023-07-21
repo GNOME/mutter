@@ -17,9 +17,6 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MONITOR_STORE_UNIT_TESTS_H
-#define MONITOR_STORE_UNIT_TESTS_H
+#pragma once
 
 void init_monitor_store_tests (void);
-
-#endif /* MONITOR_STORE_UNIT_TESTS_H */

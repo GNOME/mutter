@@ -26,8 +26,7 @@
  * SOFTWARE.
  */
 
-#ifndef COGL_PIPELINE_CACHE_PRIVATE_H
-#define COGL_PIPELINE_CACHE_PRIVATE_H
+#pragma once
 
 #include "cogl/cogl-macros.h"
 #include "cogl/cogl-pipeline-hash-table.h"
@@ -38,5 +37,3 @@ CoglPipelineHashTable * cogl_pipeline_cache_get_fragment_hash (CoglPipelineCache
 
 COGL_EXPORT_TEST
 CoglPipelineHashTable * cogl_pipeline_cache_get_combined_hash (CoglPipelineCache *cache);
-
-#endif /* COGL_PIPELINE_CACHE_PRIVATE_H */

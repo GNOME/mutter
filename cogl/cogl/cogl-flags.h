@@ -29,8 +29,7 @@
  *   Neil Roberts <neil@linux.intel.com>
  */
 
-#ifndef __COGL_FLAGS_H
-#define __COGL_FLAGS_H
+#pragma once
 
 #include <glib.h>
 
@@ -125,6 +124,3 @@ G_BEGIN_DECLS
   } } } G_STMT_END
 
 G_END_DECLS
-
-#endif /* __COGL_FLAGS_H */
-

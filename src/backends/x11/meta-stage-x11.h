@@ -19,8 +19,7 @@
  *
  */
 
-#ifndef META_STAGE_X11_H
-#define META_STAGE_X11_H
+#pragma once
 
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
@@ -90,5 +89,3 @@ Window       meta_x11_get_stage_window  (ClutterStage *stage);
 
 
 G_END_DECLS
-
-#endif /* META_STAGE_H */

@@ -19,8 +19,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_MONITOR_CONFIG_STORE_H
-#define META_MONITOR_CONFIG_STORE_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -77,5 +76,3 @@ void meta_monitor_config_store_reset (MetaMonitorConfigStore *config_store);
 
 META_EXPORT_TEST
 const MetaMonitorConfigPolicy * meta_monitor_config_store_get_policy (MetaMonitorConfigStore *config_store);
-
-#endif /* META_MONITOR_CONFIG_STORE_H */

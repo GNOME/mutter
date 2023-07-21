@@ -19,8 +19,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __CLUTTER_TIMELINE_PRIVATE_H__
-#define __CLUTTER_TIMELINE_PRIVATE_H__
+#pragma once
 
 #include <clutter/clutter-timeline.h>
 
@@ -30,5 +29,3 @@ CLUTTER_DEPRECATED_FOR(clutter_timeline_new_for_actor)
 ClutterTimeline * clutter_timeline_new (guint duration_ms);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_TIMELINE_PRIVATE_H__ */

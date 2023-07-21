@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_PRIMITIVES_PRIVATE_H
-#define __COGL_PRIMITIVES_PRIVATE_H
+#pragma once
 
 #include <glib.h>
 
@@ -69,5 +68,3 @@ _cogl_framebuffer_draw_multitextured_rectangles (
                                         int n_rects);
 
 G_END_DECLS
-
-#endif /* __COGL_PRIMITIVES_PRIVATE_H */

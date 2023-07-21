@@ -30,8 +30,7 @@
  *   Robert Bragg <robert@linux.intel.com>
  */
 
-#ifndef __COGL_SHADER_BOILERPLATE_H
-#define __COGL_SHADER_BOILERPLATE_H
+#pragma once
 
 #define _COGL_COMMON_SHADER_BOILERPLATE \
   "#define COGL_VERSION 100\n" \
@@ -81,6 +80,3 @@
    * more appropriate for Cogl. */
   "#define coglFragCoord   gl_FragCoord\n"
 #endif
-
-#endif /* __COGL_SHADER_BOILERPLATE_H */
-

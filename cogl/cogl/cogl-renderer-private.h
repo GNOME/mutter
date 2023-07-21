@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_RENDERER_PRIVATE_H
-#define __COGL_RENDERER_PRIVATE_H
+#pragma once
 
 #include <gmodule.h>
 
@@ -100,5 +99,3 @@ void *
 _cogl_renderer_get_proc_address (CoglRenderer *renderer,
                                  const char *name,
                                  gboolean in_core);
-
-#endif /* __COGL_RENDERER_PRIVATE_H */

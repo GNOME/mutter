@@ -17,8 +17,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_FRAME_CONTENT_H
-#define META_FRAME_CONTENT_H
+#pragma once
 
 #include <gtk/gtk.h>
 
@@ -33,5 +32,3 @@ GtkWidget * meta_frame_content_new (Window window);
 Window meta_frame_content_get_window (MetaFrameContent *content);
 
 GtkBorder meta_frame_content_get_border (MetaFrameContent *content);
-
-#endif /* META_FRAME_CONTENT_H */

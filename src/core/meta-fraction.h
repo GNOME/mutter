@@ -17,8 +17,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_FRACTION_H
-#define META_FRACTION_H
+#pragma once
 
 typedef struct _MetaFraction
 {
@@ -27,5 +26,3 @@ typedef struct _MetaFraction
 } MetaFraction;
 
 MetaFraction meta_fraction_from_double (double src);
-
-#endif /* META_FRACTION_H */

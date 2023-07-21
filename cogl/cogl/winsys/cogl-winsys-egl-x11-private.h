@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_WINSYS_EGL_X11_PRIVATE_H
-#define __COGL_WINSYS_EGL_X11_PRIVATE_H
+#pragma once
 
 #include "winsys/cogl-winsys-private.h"
 
@@ -39,5 +38,3 @@ _cogl_winsys_egl_xlib_get_vtable (void);
 XVisualInfo *
 cogl_display_xlib_get_visual_info (CoglDisplay *display,
                                    EGLConfig    egl_config);
-
-#endif /* __COGL_WINSYS_EGL_X11_PRIVATE_H */

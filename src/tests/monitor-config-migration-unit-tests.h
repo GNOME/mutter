@@ -17,9 +17,6 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MONITOR_CONFIG_MIGRATION_UNIT_TESTS_H
-#define MONITOR_CONFIG_MIGRATION_UNIT_TESTS_H
+#pragma once
 
 void init_monitor_config_migration_tests (void);
-
-#endif /* MONITOR_CONFIG_MIGRATION_UNIT_TESTS_H */

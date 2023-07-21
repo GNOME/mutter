@@ -30,12 +30,11 @@
  *
  */
 
+#pragma once
+
 #if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
-
-#ifndef __COGL_1_CONTEXT_H__
-#define __COGL_1_CONTEXT_H__
 
 #include <cogl/cogl-types.h>
 #include <cogl/cogl-texture.h>
@@ -91,5 +90,3 @@ COGL_EXPORT void
 cogl_flush (void);
 
 G_END_DECLS
-
-#endif /* __COGL_1_CONTEXT_H__ */

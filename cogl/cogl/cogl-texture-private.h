@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_TEXTURE_PRIVATE_H
-#define __COGL_TEXTURE_PRIVATE_H
+#pragma once
 
 #include "cogl-bitmap-private.h"
 #include "cogl-object-private.h"
@@ -405,5 +404,3 @@ _cogl_texture_create_loader (void);
 void
 _cogl_texture_copy_internal_format (CoglTexture *src,
                                     CoglTexture *dest);
-
-#endif /* __COGL_TEXTURE_PRIVATE_H */

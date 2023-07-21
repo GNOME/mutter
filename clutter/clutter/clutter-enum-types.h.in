@@ -1,6 +1,5 @@
 /*** BEGIN file-header ***/
-#ifndef __CLUTTER_ENUM_TYPES_H__
-#define __CLUTTER_ENUM_TYPES_H__
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -25,5 +24,4 @@ CLUTTER_EXPORT GType @enum_name@_get_type (void) G_GNUC_CONST;
 /*** BEGIN file-tail ***/
 G_END_DECLS
 
-#endif /* !__CLUTTER_ENUM_TYPES_H__ */
 /*** END file-tail ***/

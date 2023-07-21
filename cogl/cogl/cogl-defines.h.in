@@ -28,13 +28,10 @@
  *
  */
 
+#pragma once
+
 #if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
 
-#ifndef __COGL_DEFINES_H__
-#define __COGL_DEFINES_H__
-
 @COGL_DEFINES@
-
-#endif

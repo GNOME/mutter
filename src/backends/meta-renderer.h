@@ -22,8 +22,7 @@
  *     Jonas Ådahl <jadahl@gmail.com>
  */
 
-#ifndef META_RENDERER_H
-#define META_RENDERER_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -75,5 +74,3 @@ gboolean meta_renderer_is_hardware_accelerated (MetaRenderer *renderer);
 void meta_renderer_pause (MetaRenderer *renderer);
 
 void meta_renderer_resume (MetaRenderer *renderer);
-
-#endif /* META_RENDERER_H */

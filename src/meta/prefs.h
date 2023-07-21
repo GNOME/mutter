@@ -20,8 +20,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_PREFS_H
-#define META_PREFS_H
+#pragma once
 
 /* This header is a "common" one between the UI and core side */
 #include <meta/common.h>
@@ -479,5 +478,3 @@ GDesktopVisualBellType meta_prefs_get_visual_bell_type (void);
 
 META_EXPORT
 unsigned int meta_prefs_get_check_alive_timeout (void);
-
-#endif

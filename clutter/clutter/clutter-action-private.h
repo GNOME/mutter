@@ -22,8 +22,7 @@
  *   Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef CLUTTER_ACTION_PRIVATE_H
-#define CLUTTER_ACTION_PRIVATE_H
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -44,5 +43,3 @@ void clutter_action_sequence_cancelled (ClutterAction        *action,
                                         ClutterEventSequence *sequence);
 
 G_END_DECLS
-
-#endif /* CLUTTER_ACTION_PRIVATE_H */

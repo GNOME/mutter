@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_RENDERER_XLIB_PRIVATE_H
-#define __COGL_RENDERER_XLIB_PRIVATE_H
+#pragma once
 
 #include <X11/Xutil.h>
 
@@ -98,5 +97,3 @@ _cogl_xlib_renderer_output_for_rectangle (CoglRenderer *renderer,
                                           int y,
                                           int width,
                                           int height);
-
-#endif /* __COGL_RENDERER_XLIB_PRIVATE_H */

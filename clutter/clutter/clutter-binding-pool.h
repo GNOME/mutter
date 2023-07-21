@@ -21,8 +21,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __CLUTTER_BINDING_POOL_H__
-#define __CLUTTER_BINDING_POOL_H__
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -121,5 +120,3 @@ void                  clutter_binding_pool_unblock_action   (ClutterBindingPool 
                                                              const gchar         *action_name);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_BINDING_POOL_H__ */

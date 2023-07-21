@@ -15,8 +15,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __CLUTTER_STAGE_VIEW_H__
-#define __CLUTTER_STAGE_VIEW_H__
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -95,5 +94,3 @@ void clutter_stage_view_schedule_update_now (ClutterStageView *view);
 
 CLUTTER_EXPORT
 ClutterPaintFlag clutter_stage_view_get_default_paint_flags (ClutterStageView *view);
-
-#endif /* __CLUTTER_STAGE_VIEW_H__ */

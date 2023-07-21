@@ -17,8 +17,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_WINDOW_H
-#define META_WINDOW_H
+#pragma once
 
 #include <glib-object.h>
 #include <cairo.h>
@@ -445,5 +444,3 @@ MetaWindowClientType meta_window_get_client_type (MetaWindow *window);
 
 META_EXPORT
 gboolean meta_window_has_pointer (MetaWindow *window);
-
-#endif

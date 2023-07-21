@@ -24,8 +24,7 @@
  *
  */
 
-#ifndef COGL_ONSCREEN_XLIB_H
-#define COGL_ONSCREEN_XLIB_H
+#pragma once
 
 #include "cogl-onscreen.h"
 #include "winsys/cogl-onscreen-egl.h"
@@ -57,5 +56,3 @@ void
 cogl_onscreen_xlib_resize (CoglOnscreen *onscreen,
                            int           width,
                            int           height);
-
-#endif /* COGL_ONSCREEN_XLIB_H */

@@ -42,8 +42,7 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef META_WAYLAND_KEYBOARD_H
-#define META_WAYLAND_KEYBOARD_H
+#pragma once
 
 #include <wayland-server.h>
 #include <xkbcommon/xkbcommon.h>
@@ -143,5 +142,3 @@ void meta_wayland_keyboard_start_grab (MetaWaylandKeyboard     *keyboard,
 void meta_wayland_keyboard_end_grab   (MetaWaylandKeyboard     *keyboard);
 
 gboolean meta_wayland_keyboard_is_grabbed (MetaWaylandKeyboard *keyboard);
-
-#endif /* META_WAYLAND_KEYBOARD_H */

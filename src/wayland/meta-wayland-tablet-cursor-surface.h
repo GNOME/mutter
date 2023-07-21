@@ -19,8 +19,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_WAYLAND_TABLET_CURSOR_SURFACE_H
-#define META_WAYLAND_TABLET_CURSOR_SURFACE_H
+#pragma once
 
 #include "wayland/meta-wayland-cursor-surface.h"
 
@@ -29,5 +28,3 @@ G_DECLARE_FINAL_TYPE (MetaWaylandTabletCursorSurface,
                       meta_wayland_tablet_cursor_surface,
                       META, WAYLAND_TABLET_CURSOR_SURFACE,
                       MetaWaylandCursorSurface)
-
-#endif /* META_WAYLAND_TABLET_CURSOR_SURFACE_H */

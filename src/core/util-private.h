@@ -22,8 +22,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_UTIL_PRIVATE_H
-#define META_UTIL_PRIVATE_H
+#pragma once
 
 #include <glib/gi18n-lib.h>
 #include <sys/time.h>
@@ -59,5 +58,3 @@ meta_timeval_to_microseconds (const struct timeval *tv)
 
 #define META_CONTAINER_OF(ptr, type, member) \
   (type *) ((uint8_t *) (ptr) - G_STRUCT_OFFSET (type, member))
-
-#endif

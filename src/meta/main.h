@@ -19,8 +19,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_MAIN_H
-#define META_MAIN_H
+#pragma once
 
 #include <glib.h>
 
@@ -48,5 +47,3 @@ typedef enum
 /* exit immediately */
 META_EXPORT
 void meta_exit (MetaExitCode code) G_GNUC_NORETURN;
-
-#endif

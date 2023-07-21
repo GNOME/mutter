@@ -22,8 +22,7 @@
  *   Emmanuele Bassi <ebassi@linux.intel.com>
  */
 
-#ifndef __CLUTTER_CONTENT_PRIVATE_H__
-#define __CLUTTER_CONTENT_PRIVATE_H__
+#pragma once
 
 #include <clutter/clutter-content.h>
 
@@ -40,5 +39,3 @@ void            _clutter_content_paint_content          (ClutterContent      *co
                                                          ClutterPaintContext *paint_context);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_CONTENT_PRIVATE_H__ */

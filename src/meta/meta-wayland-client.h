@@ -19,8 +19,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_WAYLAND_CLIENT_H
-#define META_WAYLAND_CLIENT_H
+#pragma once
 
 #include <glib-object.h>
 #include <gio/gio.h>
@@ -65,4 +64,3 @@ void meta_wayland_client_show_in_window_list (MetaWaylandClient *client,
 
 G_END_DECLS
 
-#endif /* META_WAYLAND_CLIENT_H */

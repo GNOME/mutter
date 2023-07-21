@@ -23,8 +23,7 @@
  *
  */
 
-#ifndef META_STAGE_IMPL_PRIVATE_H
-#define META_STAGE_IMPL_PRIVATE_H
+#pragma once
 
 #include <cairo.h>
 
@@ -72,5 +71,3 @@ void meta_stage_impl_add_onscreen_frame_info (MetaStageImpl    *stage_impl,
                                               ClutterStageView *view);
 
 G_END_DECLS
-
-#endif /* META_STAGE_IMPL_PRIVATE_H */

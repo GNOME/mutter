@@ -21,8 +21,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __CLUTTER_PATH_H__
-#define __CLUTTER_PATH_H__
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -159,5 +158,3 @@ CLUTTER_EXPORT
 guint        clutter_path_get_length           (ClutterPath           *path);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_PATH_H__ */

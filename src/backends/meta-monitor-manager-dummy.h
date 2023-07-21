@@ -20,8 +20,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_MONITOR_MANAGER_DUMMY_H
-#define META_MONITOR_MANAGER_DUMMY_H
+#pragma once
 
 #include "backends/meta-crtc.h"
 #include "backends/meta-gpu.h"
@@ -44,5 +43,3 @@ G_DECLARE_FINAL_TYPE (MetaMonitorManagerDummy, meta_monitor_manager_dummy,
 
 #define META_TYPE_GPU_DUMMY (meta_gpu_dummy_get_type ())
 G_DECLARE_FINAL_TYPE (MetaGpuDummy, meta_gpu_dummy, META, GPU_DUMMY, MetaGpu)
-
-#endif /* META_MONITOR_MANAGER_DUMMY_H */

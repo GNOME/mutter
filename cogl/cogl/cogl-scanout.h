@@ -25,8 +25,7 @@
  *
  */
 
-#ifndef COGL_SCANOUT_H
-#define COGL_SCANOUT_H
+#pragma once
 
 #include "cogl/cogl-types.h"
 #include "cogl/cogl-framebuffer.h"
@@ -60,5 +59,3 @@ gboolean cogl_scanout_blit_to_framebuffer (CoglScanout      *scanout,
 COGL_EXPORT
 void cogl_scanout_notify_failed (CoglScanout  *scanout,
                                  CoglOnscreen *onscreen);
-
-#endif /* COGL_SCANOUT_H */

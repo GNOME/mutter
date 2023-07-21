@@ -19,8 +19,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_ICON_CACHE_H
-#define META_ICON_CACHE_H
+#pragma once
 
 #include "x11/meta-x11-display-private.h"
 
@@ -67,9 +66,3 @@ gboolean meta_read_icons         (MetaX11Display   *x11_display,
                                   cairo_surface_t **mini_iconp,
                                   int               ideal_mini_width,
                                   int               ideal_mini_height);
-
-#endif
-
-
-
-

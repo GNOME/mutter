@@ -18,9 +18,6 @@
  * Author: Sebastian Wick <sebastian.wick@redhat.com>
  */
 
-#ifndef HDR_METADATA_UNIT_TESTS_H
-#define HDR_METADATA_UNIT_TESTS_H
+#pragma once
 
 void init_hdr_metadata_tests (void);
-
-#endif /* HDR_METADATA_UNIT_TESTS_H */

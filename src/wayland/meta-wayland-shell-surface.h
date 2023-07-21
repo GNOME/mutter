@@ -18,8 +18,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_WAYLAND_SHELL_SURFACE_H
-#define META_WAYLAND_SHELL_SURFACE_H
+#pragma once
 
 #include "wayland/meta-wayland-actor-surface.h"
 
@@ -64,5 +63,3 @@ void meta_wayland_shell_surface_set_window (MetaWaylandShellSurface *shell_surfa
                                             MetaWindow              *window);
 
 void meta_wayland_shell_surface_destroy_window (MetaWaylandShellSurface *shell_surface);
-
-#endif /* META_WAYLAND_SHELL_SURFACE_H */

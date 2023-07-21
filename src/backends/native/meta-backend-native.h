@@ -22,8 +22,7 @@
  *     Jasper St. Pierre <jstpierre@mecheye.net>
  */
 
-#ifndef META_BACKEND_NATIVE_H
-#define META_BACKEND_NATIVE_H
+#pragma once
 
 #include "backends/meta-backend-private.h"
 #include "backends/native/meta-clutter-backend-native.h"
@@ -55,5 +54,3 @@ META_EXPORT_TEST
 MetaKms * meta_backend_native_get_kms (MetaBackendNative *native);
 
 const char * meta_backend_native_get_seat_id (MetaBackendNative *backend_native);
-
-#endif /* META_BACKEND_NATIVE_H */

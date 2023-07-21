@@ -16,10 +16,12 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "meta-x11-display-private.h"
+#pragma once
 
-#ifndef META_X11_STARTUP_NOTIFICATION_H
-#define META_X11_STARTUP_NOTIFICATION_H
+#include <gio/gio.h>
+
+#include "core/startup-notification-private.h"
+#include "meta/types.h"
 
 typedef struct _MetaX11StartupNotification MetaX11StartupNotification;
 
@@ -40,5 +42,3 @@ gchar *  meta_x11_startup_notification_launch (MetaX11Display *x11_display,
                                                GAppInfo       *app_info,
                                                uint32_t        timestamp,
                                                int             workspace);
-
-#endif /* META_X11_STARTUP_NOTIFICATION_H */

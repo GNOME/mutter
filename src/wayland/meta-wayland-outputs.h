@@ -22,8 +22,7 @@
  *     Jasper St. Pierre <jstpierre@mecheye.net>
  */
 
-#ifndef META_WAYLAND_OUTPUTS_H
-#define META_WAYLAND_OUTPUTS_H
+#pragma once
 
 #include "backends/meta-monitor-manager-private.h"
 #include "wayland/meta-wayland-private.h"
@@ -39,5 +38,3 @@ MetaLogicalMonitor * meta_wayland_output_get_logical_monitor (MetaWaylandOutput 
 void meta_wayland_outputs_finalize (MetaWaylandCompositor *compositor);
 
 void meta_wayland_outputs_init (MetaWaylandCompositor *compositor);
-
-#endif /* META_WAYLAND_OUTPUTS_H */

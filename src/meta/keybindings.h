@@ -15,8 +15,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_KEYBINDINGS_H
-#define META_KEYBINDINGS_H
+#pragma once
 
 #include <meta/display.h>
 #include <meta/common.h>
@@ -43,4 +42,3 @@ gboolean meta_keybindings_set_custom_handler (const gchar        *name,
 					      MetaKeyHandlerFunc  handler,
 					      gpointer            user_data,
 					      GDestroyNotify      free_data);
-#endif

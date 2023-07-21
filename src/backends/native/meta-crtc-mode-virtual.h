@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_CRTC_MODE_VIRTUAL_H
-#define META_CRTC_MODE_VIRTUAL_H
+#pragma once
 
 #include "backends/meta-backend-types.h"
 #include "backends/meta-crtc-mode.h"
@@ -30,5 +29,3 @@ G_DECLARE_FINAL_TYPE (MetaCrtcModeVirtual, meta_crtc_mode_virtual,
 
 MetaCrtcModeVirtual * meta_crtc_mode_virtual_new (uint64_t                   id,
                                                   const MetaVirtualModeInfo *info);
-
-#endif /* META_CRTC_MODE_VIRTUAL_H */

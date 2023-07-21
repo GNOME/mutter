@@ -31,8 +31,7 @@
  *   Robert Bragg <robert@linux.intel.com>
  */
 
-#ifndef __COGL_PIPELINE_PRIVATE_H
-#define __COGL_PIPELINE_PRIVATE_H
+#pragma once
 
 #include "cogl-node-private.h"
 #include "cogl-pipeline-layer-private.h"
@@ -816,6 +815,3 @@ _cogl_pipeline_get_layer_state_for_fragment_codegen (CoglContext *context);
 
 CoglPipelineState
 _cogl_pipeline_get_state_for_fragment_codegen (CoglContext *context);
-
-#endif /* __COGL_PIPELINE_PRIVATE_H */
-

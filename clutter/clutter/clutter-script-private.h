@@ -23,8 +23,7 @@
  *
  */
 
-#ifndef __CLUTTER_SCRIPT_PRIVATE_H__
-#define __CLUTTER_SCRIPT_PRIVATE_H__
+#pragma once
 
 #include <glib-object.h>
 #include <json-glib/json-glib.h>
@@ -164,5 +163,3 @@ void _clutter_script_add_object_info (ClutterScript *script,
 const gchar *_clutter_script_get_id_from_node (JsonNode *node);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_SCRIPT_PRIVATE_H__ */

@@ -22,8 +22,7 @@
  *     Jasper St. Pierre <jstpierre@mecheye.net>
  */
 
-#ifndef META_CURSOR_RENDERER_H
-#define META_CURSOR_RENDERER_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -80,5 +79,3 @@ void meta_cursor_renderer_update_stage_overlay (MetaCursorRenderer *renderer,
                                                 MetaCursorSprite   *cursor_sprite);
 
 MetaBackend * meta_cursor_renderer_get_backend (MetaCursorRenderer *renderer);
-
-#endif /* META_CURSOR_RENDERER_H */

@@ -28,9 +28,7 @@
  *
  */
 
-#ifndef __COGL_PROFILE_H__
-#define __COGL_PROFILE_H__
-
+#pragma once
 
 #ifdef COGL_ENABLE_PROFILE
 
@@ -63,6 +61,3 @@ _cogl_profile_trace_message (const char *format, ...);
 #define _cogl_profile_trace_message g_message
 
 #endif
-
-#endif /* __COGL_PROFILE_H__ */
-

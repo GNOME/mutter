@@ -23,8 +23,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef _CALLY_FACTORY_H__
-#define _CALLY_FACTORY_H__
+#pragma once
 
 #include <glib-object.h>
 #include <atk/atkobject.h>
@@ -109,5 +108,3 @@ type_as_function ## _factory_get_type (void)					\
 	atk_registry_set_factory_type (atk_get_default_registry (),		\
 				       widget_type,				\
 				       type_as_function ## _factory_get_type ())
-
-#endif /* _CALLY_FACTORY_H__ */

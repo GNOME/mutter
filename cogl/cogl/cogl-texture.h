@@ -28,12 +28,11 @@
  *
  */
 
+#pragma once
+
 #if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
-
-#ifndef __COGL_TEXTURE_H__
-#define __COGL_TEXTURE_H__
 
 /* We forward declare the CoglTexture type here to avoid some circular
  * dependency issues with the following headers.
@@ -486,5 +485,3 @@ COGL_EXPORT gboolean
 cogl_texture_is_get_data_supported (CoglTexture *texture);
 
 G_END_DECLS
-
-#endif /* __COGL_TEXTURE_H__ */

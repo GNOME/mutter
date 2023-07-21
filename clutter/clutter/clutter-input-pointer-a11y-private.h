@@ -19,8 +19,7 @@
  * Author: Olivier Fourdan <ofourdan@redhat.com>
  */
 
-#ifndef __CLUTTER_INPUT_POINTER_A11Y_H__
-#define __CLUTTER_INPUT_POINTER_A11Y_H__
+#pragma once
 
 #include <clutter/clutter-types.h>
 #include "clutter-enum-types.h"
@@ -47,5 +46,3 @@ void clutter_input_pointer_a11y_update (ClutterInputDevice *device,
                                         const ClutterEvent *event);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_INPUT_POINTER_A11Y_H__ */

@@ -22,8 +22,7 @@
  *
  */
 
-#ifndef META_COGL_DRM_FORMATS_H
-#define META_COGL_DRM_FORMATS_H
+#pragma once
 
 #include <drm_fourcc.h>
 
@@ -83,5 +82,3 @@ gboolean meta_cogl_pixel_format_from_drm_format (uint32_t                drm_for
                                                  MetaMultiTextureFormat *out_multi_texture_format);
 
 G_END_DECLS
-
-#endif /* META_COGL_DRM_FORMATS_H */

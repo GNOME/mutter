@@ -19,12 +19,9 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_CLIPBOARD_MANAGER_H
-#define META_CLIPBOARD_MANAGER_H
+#pragma once
 
 #include "core/display-private.h"
 
 void meta_clipboard_manager_init     (MetaDisplay *display);
 void meta_clipboard_manager_shutdown (MetaDisplay *display);
-
-#endif /* META_CLIPBOARD_MANAGER_H */

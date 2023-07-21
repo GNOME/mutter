@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_COMPOSITOR_SERVER_H
-#define META_COMPOSITOR_SERVER_H
+#pragma once
 
 #include "compositor/compositor-private.h"
 
@@ -34,5 +33,3 @@ struct _MetaCompositorServerClass
 
 MetaCompositorServer * meta_compositor_server_new (MetaDisplay *display,
                                                    MetaBackend *backend);
-
-#endif /* META_COMPOSITOR_SERVER_H */

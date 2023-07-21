@@ -22,8 +22,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_COMMON_H
-#define META_COMMON_H
+#pragma once
 
 #include <X11/Xlib.h>
 #include <X11/extensions/XInput.h>
@@ -168,5 +167,3 @@ void meta_frame_borders_clear (MetaFrameBorders *self);
 #define META_PRIORITY_PREFS_NOTIFY   (G_PRIORITY_DEFAULT_IDLE + 10)
 
 /************************************************************/
-
-#endif

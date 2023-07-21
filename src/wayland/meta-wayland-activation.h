@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_WAYLAND_ACTIVATION_H
-#define META_WAYLAND_ACTIVATION_H
+#pragma once
 
 #include <glib.h>
 #include <wayland-server.h>
@@ -30,5 +29,3 @@
 void meta_wayland_activation_finalize (MetaWaylandCompositor *compositor);
 
 void meta_wayland_activation_init (MetaWaylandCompositor *compositor);
-
-#endif /* META_WAYLAND_ACTIVATION_H */

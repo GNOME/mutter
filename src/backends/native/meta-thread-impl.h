@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_THREAD_IMPL_H
-#define META_THREAD_IMPL_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -91,5 +90,3 @@ MetaThreadTask * meta_thread_task_new (MetaThreadTaskFunc          func,
                                        GMainContext               *feedback_main_context);
 
 void meta_thread_task_free (MetaThreadTask *task);
-
-#endif /* META_THREAD_IMPL_H */

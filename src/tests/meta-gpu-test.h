@@ -15,12 +15,9 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_GPU_TEST_H
-#define META_GPU_TEST_H
+#pragma once
 
 #include "backends/meta-gpu.h"
 
 #define META_TYPE_GPU_TEST (meta_gpu_test_get_type ())
 G_DECLARE_FINAL_TYPE (MetaGpuTest, meta_gpu_test, META, GPU_TEST, MetaGpu)
-
-#endif /* META_GPU_TEST_H */

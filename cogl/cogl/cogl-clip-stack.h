@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_CLIP_STACK_H
-#define __COGL_CLIP_STACK_H
+#pragma once
 
 #include "cogl-primitive.h"
 #include "cogl-framebuffer.h"
@@ -204,5 +203,3 @@ _cogl_clip_stack_ref (CoglClipStack *stack);
 
 void
 _cogl_clip_stack_unref (CoglClipStack *stack);
-
-#endif /* __COGL_CLIP_STACK_H */

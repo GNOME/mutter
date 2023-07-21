@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_FD_SOURCE_H
-#define META_FD_SOURCE_H
+#pragma once
 
 #include <glib.h>
 
@@ -29,5 +28,3 @@ GSource * meta_create_fd_source (int             fd,
                                  GSourceFunc     dispatch,
                                  gpointer        user_data,
                                  GDestroyNotify  notify);
-
-#endif /* META_FD_SOURCE_H */

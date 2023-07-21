@@ -20,8 +20,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_UTIL_H
-#define META_UTIL_H
+#pragma once
 
 #include <glib.h>
 #include <glib-object.h>
@@ -230,5 +229,3 @@ MetaDebugPaintFlag meta_get_debug_paint_flags (void);
 META_EXPORT
 char * meta_accelerator_name (ClutterModifierType accelerator_mods,
                               unsigned int        accelerator_key);
-
-#endif /* META_UTIL_H */

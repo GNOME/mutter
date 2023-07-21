@@ -22,8 +22,7 @@
  *     Jasper St. Pierre <jstpierre@mecheye.net>
  */
 
-#ifndef __META_CULLABLE_H__
-#define __META_CULLABLE_H__
+#pragma once
 
 #include "clutter/clutter.h"
 
@@ -54,6 +53,3 @@ void meta_cullable_cull_out_children (MetaCullable   *cullable,
 void meta_cullable_reset_culling_children (MetaCullable *cullable);
 
 G_END_DECLS
-
-#endif /* __META_CULLABLE_H__ */
-

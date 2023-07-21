@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_PROFILER_H
-#define META_PROFILER_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -44,5 +43,3 @@ void meta_profiler_unregister_thread (MetaProfiler *profiler,
                                       GMainContext *main_context);
 
 G_END_DECLS
-
-#endif /* META_PROFILER_H */

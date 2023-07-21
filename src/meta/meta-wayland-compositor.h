@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_WAYLAND_COMPOSITOR_H
-#define META_WAYLAND_COMPOSITOR_H
+#pragma once
 
 #include <glib-object.h>
 #include <gio/gio.h>
@@ -41,5 +40,3 @@ META_EXPORT
 struct wl_display *meta_wayland_compositor_get_wayland_display (MetaWaylandCompositor *compositor);
 
 G_END_DECLS
-
-#endif /* META_WAYLAND_COMPOSITOR_H */

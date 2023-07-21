@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_CRTC_NATIVE_H
-#define META_CRTC_NATIVE_H
+#pragma once
 
 #include "backends/meta-crtc.h"
 
@@ -40,5 +39,3 @@ gboolean meta_crtc_native_is_transform_handled (MetaCrtcNative       *crtc_nativ
                                                 MetaMonitorTransform  transform);
 
 gboolean meta_crtc_native_is_hw_cursor_supported (MetaCrtcNative *crtc_native);
-
-#endif /* META_CRTC_NATIVE_H */

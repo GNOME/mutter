@@ -21,13 +21,10 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CLUTTER_TIMELINE_PRIVATE_H
-#define CLUTTER_TIMELINE_PRIVATE_H
+#pragma once
 
 void                    _clutter_timeline_advance                       (ClutterTimeline    *timeline,
                                                                          int64_t             tick_time);
 int64_t                 _clutter_timeline_get_delta                     (ClutterTimeline    *timeline);
 void                    _clutter_timeline_do_tick                       (ClutterTimeline    *timeline,
                                                                          int64_t             tick_time);
-
-#endif /* CLUTTER_TIMELINE_PRIVATE_H */

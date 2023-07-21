@@ -15,8 +15,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_COLOR_MANAGER_H
-#define META_COLOR_MANAGER_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -38,5 +37,3 @@ MetaColorDevice * meta_color_manager_get_color_device (MetaColorManager *color_m
 
 void meta_color_manager_set_brightness (MetaColorManager *color_manager,
                                         int               brightness);
-
-#endif /* META_COLOR_MANAGER_H */

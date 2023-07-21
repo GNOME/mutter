@@ -19,8 +19,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_MULTI_TEXTURE_H
-#define META_MULTI_TEXTURE_H
+#pragma once
 
 #include <glib-object.h>
 #include <cogl/cogl.h>
@@ -69,5 +68,3 @@ META_EXPORT
 char * meta_multi_texture_to_string (MetaMultiTexture *multi_texture);
 
 G_END_DECLS
-
-#endif /* META_MULTI_TEXTURE_H */

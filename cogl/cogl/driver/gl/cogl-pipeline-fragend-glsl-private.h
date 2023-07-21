@@ -31,8 +31,7 @@
  *   Robert Bragg <robert@linux.intel.com>
  */
 
-#ifndef __COGL_PIPELINE_FRAGEND_GLSL_PRIVATE_H
-#define __COGL_PIPELINE_FRAGEND_GLSL_PRIVATE_H
+#pragma once
 
 #include "cogl-pipeline-private.h"
 
@@ -40,6 +39,3 @@ extern const CoglPipelineFragend _cogl_pipeline_glsl_fragend;
 
 GLuint
 _cogl_pipeline_fragend_glsl_get_shader (CoglPipeline *pipeline);
-
-#endif /* __COGL_PIPELINE_FRAGEND_GLSL_PRIVATE_H */
-

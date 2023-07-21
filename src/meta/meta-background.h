@@ -18,8 +18,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_BACKGROUND_H
-#define META_BACKGROUND_H
+#pragma once
 
 #include <gdesktop-enums.h>
 
@@ -71,5 +70,3 @@ void meta_background_set_blend    (MetaBackground            *self,
                                    GFile                     *file2,
                                    double                     blend_factor,
                                    GDesktopBackgroundStyle    style);
-
-#endif /* META_BACKGROUND_H */

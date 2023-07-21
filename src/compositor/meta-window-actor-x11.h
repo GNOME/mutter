@@ -20,8 +20,7 @@
  *     Georges Basile Stavracas Neto <gbsneto@gnome.org>
  */
 
-#ifndef META_WINDOW_ACTOR_X11_H
-#define META_WINDOW_ACTOR_X11_H
+#pragma once
 
 #include "compositor/meta-window-actor-private.h"
 
@@ -43,5 +42,3 @@ void meta_window_actor_x11_update_shape (MetaWindowActorX11 *actor_x11);
 
 void meta_window_actor_x11_process_damage (MetaWindowActorX11 *actor_x11,
                                            XDamageNotifyEvent *event);
-
-#endif /* META_WINDOW_ACTOR_X11_H */

@@ -22,8 +22,7 @@
  *     Jasper St. Pierre <jstpierre@mecheye.net>
  */
 
-#ifndef META_WINDOW_WAYLAND_H
-#define META_WINDOW_WAYLAND_H
+#pragma once
 
 #include "core/window-private.h"
 #include "meta/window.h"
@@ -79,5 +78,3 @@ gboolean meta_window_wayland_is_resize (MetaWindowWayland *wl_window,
 
 META_EXPORT_TEST
 gboolean meta_window_wayland_is_acked_fullscreen (MetaWindowWayland *wl_window);
-
-#endif

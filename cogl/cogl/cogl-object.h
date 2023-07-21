@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_OBJECT_H
-#define __COGL_OBJECT_H
+#pragma once
 
 #include <cogl/cogl-types.h>
 
@@ -226,6 +225,3 @@ COGL_EXPORT void
 cogl_debug_object_print_instances (void);
 
 G_END_DECLS
-
-#endif /* __COGL_OBJECT_H */
-

@@ -15,8 +15,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_REF_TEST_H
-#define META_REF_TEST_H
+#pragma once
 
 #include <glib.h>
 
@@ -37,5 +36,3 @@ void meta_ref_test_verify_view (ClutterStageView *view,
 
 META_EXPORT
 MetaReftestFlag meta_ref_test_determine_ref_test_flag (void);
-
-#endif /* META_REF_TEST_H */

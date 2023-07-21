@@ -1,7 +1,6 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
 
-#ifndef META_BACKGROUND_CONTENT_PRIVATE_H
-#define META_BACKGROUND_CONTENT_PRIVATE_H
+#pragma once
 
 #include "meta/meta-background-content.h"
 
@@ -12,5 +11,3 @@ void meta_background_content_cull_out (MetaBackgroundContent *self,
                                        cairo_region_t        *clip_region);
 
 void meta_background_content_reset_culling (MetaBackgroundContent *self);
-
-#endif /* META_BACKGROUND_CONTENT_PRIVATE_H */

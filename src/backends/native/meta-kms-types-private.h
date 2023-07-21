@@ -17,9 +17,6 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_KMS_TYPES_PRIVATE_H
-#define META_KMS_TYPES_PRIVATE_H
+#pragma once
 
 typedef struct _MetaKmsResultListener MetaKmsResultListener;
-
-#endif /* META_KMS_TYPES_PRIVATE_H */

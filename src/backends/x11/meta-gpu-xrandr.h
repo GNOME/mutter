@@ -19,8 +19,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_GPU_XRANDR_H
-#define META_GPU_XRANDR_H
+#pragma once
 
 #include <glib-object.h>
 #include <X11/extensions/Xrandr.h>
@@ -38,5 +37,3 @@ void meta_gpu_xrandr_get_max_screen_size (MetaGpuXrandr *gpu_xrandr,
                                           int           *max_height);
 
 MetaGpuXrandr * meta_gpu_xrandr_new (MetaBackendX11 *backend_x11);
-
-#endif /* META_GPU_XRANDR_H */

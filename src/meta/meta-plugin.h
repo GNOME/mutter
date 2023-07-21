@@ -19,8 +19,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_PLUGIN_H_
-#define META_PLUGIN_H_
+#pragma once
 
 #include <X11/extensions/Xfixes.h>
 #include <gmodule.h>
@@ -340,5 +339,3 @@ void _meta_plugin_set_compositor (MetaPlugin *plugin, MetaCompositor *compositor
 /* XXX: Putting this in here so it's in the public header. */
 META_EXPORT
 void     meta_plugin_manager_set_plugin_type (GType gtype);
-
-#endif /* META_PLUGIN_H_ */

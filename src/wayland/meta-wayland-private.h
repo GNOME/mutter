@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_WAYLAND_PRIVATE_H
-#define META_WAYLAND_PRIVATE_H
+#pragma once
 
 #include <glib.h>
 #include <wayland-server.h>
@@ -115,5 +114,3 @@ struct _MetaWaylandCompositor
 };
 
 gboolean meta_wayland_compositor_is_egl_display_bound (MetaWaylandCompositor *compositor);
-
-#endif /* META_WAYLAND_PRIVATE_H */

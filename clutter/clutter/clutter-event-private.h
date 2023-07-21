@@ -1,5 +1,4 @@
-#ifndef __CLUTTER_EVENT_PRIVATE_H__
-#define __CLUTTER_EVENT_PRIVATE_H__
+#pragma once
 
 #include <clutter/clutter-event.h>
 
@@ -42,5 +41,3 @@ CLUTTER_EXPORT
 const char * clutter_event_get_name (const ClutterEvent *event);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_EVENT_PRIVATE_H__ */

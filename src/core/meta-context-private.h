@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_CONTEXT_PRIVATE_H
-#define META_CONTEXT_PRIVATE_H
+#pragma once
 
 #include "core/meta-private-enums.h"
 #include "core/meta-service-channel.h"
@@ -87,5 +86,3 @@ meta_context_get_profiler (MetaContext *context);
 void meta_context_set_trace_file (MetaContext *context,
                                   const char  *trace_file);
 #endif
-
-#endif /* META_CONTEXT_PRIVATE_H */

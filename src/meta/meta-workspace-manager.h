@@ -20,8 +20,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_WORKSPACE_MANAGER_H
-#define META_WORKSPACE_MANAGER_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -75,4 +74,3 @@ void meta_workspace_manager_override_workspace_layout (MetaWorkspaceManager *wor
                                                        gboolean              vertical_layout,
                                                        int                   n_rows,
                                                        int                   n_columns);
-#endif /* META_WORKSPACE_MANAGER_H */

@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_PROGRAM_H
-#define __COGL_PROGRAM_H
+#pragma once
 
 #include "cogl-object-private.h"
 #include "cogl-shader-private.h"
@@ -81,5 +80,3 @@ _cogl_program_has_fragment_shader (CoglHandle handle);
 
 gboolean
 _cogl_program_has_vertex_shader (CoglHandle handle);
-
-#endif /* __COGL_PROGRAM_H */

@@ -17,8 +17,7 @@
  * Author: José Expósito <jose.exposito89@gmail.com>
  */
 
-#ifndef META_WAYLAND_POINTER_GESTURE_HOLD_H
-#define META_WAYLAND_POINTER_GESTURE_HOLD_H
+#pragma once
 
 #include <glib.h>
 #include <wayland-server.h>
@@ -36,5 +35,3 @@ void meta_wayland_pointer_gesture_hold_create_new_resource (MetaWaylandPointer *
 
 void meta_wayland_pointer_gesture_hold_cancel (MetaWaylandPointer *pointer,
                                                uint32_t            serial);
-
-#endif /* META_WAYLAND_POINTER_GESTURE_HOLD_H */

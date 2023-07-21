@@ -31,8 +31,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_STACK_TRACKER_H
-#define META_STACK_TRACKER_H
+#pragma once
 
 #include "core/util-private.h"
 #include "meta/display.h"
@@ -83,5 +82,3 @@ void meta_stack_tracker_get_stack  (MetaStackTracker *tracker,
 
 void meta_stack_tracker_sync_stack       (MetaStackTracker *tracker);
 void meta_stack_tracker_queue_sync_stack (MetaStackTracker *tracker);
-
-#endif /* META_STACK_TRACKER_H */

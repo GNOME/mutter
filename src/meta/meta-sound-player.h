@@ -18,8 +18,8 @@
  *
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
-#ifndef META_SOUND_PLAYER_H
-#define META_SOUND_PLAYER_H
+
+#pragma once
 
 #include <gio/gio.h>
 
@@ -42,5 +42,3 @@ void meta_sound_player_play_from_file  (MetaSoundPlayer *player,
                                         GFile           *file,
                                         const char      *description,
                                         GCancellable    *cancellable);
-
-#endif /* META_SOUND_PLAYER_H */

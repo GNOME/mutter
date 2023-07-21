@@ -28,12 +28,11 @@
  *
  */
 
+#pragma once
+
 #if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
-
-#ifndef __COGL_BITMAP_H__
-#define __COGL_BITMAP_H__
 
 /* XXX: We forward declare CoglBitmap here to allow for circular
  * dependencies between some headers */
@@ -274,5 +273,3 @@ COGL_EXPORT
 uint32_t cogl_bitmap_error_quark (void);
 
 G_END_DECLS
-
-#endif /* __COGL_BITMAP_H__ */

@@ -23,8 +23,7 @@
  *
  */
 
-#ifndef DRM_MOCK_H
-#define DRM_MOCK_H
+#pragma once
 
 #include <glib.h>
 #include <xf86drmMode.h>
@@ -61,5 +60,3 @@ void drm_mock_set_resource_filter (DrmMockCallFilter         call_filter,
 
 DRM_MOCK_EXPORT
 void drm_mock_unset_resource_filter (DrmMockCallFilter call_filter);
-
-#endif /* DRM_MOCK_H */

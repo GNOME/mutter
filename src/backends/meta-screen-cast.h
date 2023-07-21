@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef META_SCREEN_CAST_H
-#define META_SCREEN_CAST_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -59,5 +58,3 @@ CoglDmaBufHandle * meta_screen_cast_create_dma_buf_handle (MetaScreenCast *scree
                                                            int             height);
 
 MetaScreenCast * meta_screen_cast_new (MetaBackend *backend);
-
-#endif /* META_SCREEN_CAST_H */

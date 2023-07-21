@@ -23,8 +23,7 @@
  *     Jonas Ådahl <jadahl@gmail.com>
  */
 
-#ifndef META_EGL_H
-#define META_EGL_H
+#pragma once
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
@@ -274,5 +273,3 @@ gboolean meta_egl_query_display_attrib (MetaEgl     *egl,
                                         EGLint       attribute,
                                         EGLAttrib   *value,
                                         GError     **error);
-
-#endif /* META_EGL_H */

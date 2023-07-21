@@ -17,8 +17,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_IDLE_MONITOR_H
-#define META_IDLE_MONITOR_H
+#pragma once
 
 #include <glib-object.h>
 #include <meta/types.h>
@@ -52,5 +51,3 @@ void          meta_idle_monitor_remove_watch          (MetaIdleMonitor          
 
 META_EXPORT
 gint64        meta_idle_monitor_get_idletime          (MetaIdleMonitor          *monitor);
-
-#endif

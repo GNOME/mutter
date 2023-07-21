@@ -28,9 +28,6 @@
  *  http://cgit.freedesktop.org/xorg/proto/x11proto/plain/XF86keysym.h
  */
 
-#ifndef __CLUTTER_KEYSYMS_H__
-#define __CLUTTER_KEYSYMS_H__
-
 #define CLUTTER_KEY_VoidSymbol 0xffffff
 #define CLUTTER_KEY_BackSpace 0xff08
 #define CLUTTER_KEY_Tab 0xff09
@@ -2305,5 +2302,3 @@
 #define CLUTTER_KEY_Prev_VMode 0x1008fe23
 #define CLUTTER_KEY_LogWindowTree 0x1008fe24
 #define CLUTTER_KEY_LogGrabInfo 0x1008fe25
-
-#endif /* __CLUTTER_KEYSYMS_H__ */

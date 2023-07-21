@@ -21,12 +21,9 @@
  * OF THIS SOFTWARE.
  */
 
-#ifndef META_WAYLAND_DATA_OFFER_PRIMARY_H
-#define META_WAYLAND_DATA_OFFER_PRIMARY_H
+#pragma once
 
 #include "meta-wayland-data-offer.h"
 
 MetaWaylandDataOffer * meta_wayland_data_offer_primary_new (MetaWaylandCompositor *compositor,
                                                             struct wl_resource    *target);
-
-#endif /* META_WAYLAND_DATA_OFFER_PRIMARY_H */

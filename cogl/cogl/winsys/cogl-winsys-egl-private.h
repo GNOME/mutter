@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_WINSYS_EGL_PRIVATE_H
-#define __COGL_WINSYS_EGL_PRIVATE_H
+#pragma once
 
 #include "cogl-defines.h"
 #include "cogl-context.h"
@@ -198,5 +197,3 @@ void
 cogl_display_egl_determine_attributes (CoglDisplay                 *display,
                                        const CoglFramebufferConfig *config,
                                        EGLint                      *attributes);
-
-#endif /* __COGL_WINSYS_EGL_PRIVATE_H */

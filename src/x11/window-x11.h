@@ -20,8 +20,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_WINDOW_X11_H
-#define META_WINDOW_X11_H
+#pragma once
 
 #include <X11/Xlib.h>
 
@@ -112,5 +111,3 @@ gboolean meta_window_x11_is_awaiting_sync_response (MetaWindow *window);
 void meta_window_x11_check_update_resize (MetaWindow *window);
 
 gboolean meta_window_x11_has_alpha_channel (MetaWindow *window);
-
-#endif

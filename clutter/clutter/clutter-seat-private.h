@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef CLUTTER_SEAT_PRIVATE_H
-#define CLUTTER_SEAT_PRIVATE_H
+#pragma once
 
 #include "clutter/clutter-types.h"
 
@@ -37,5 +36,3 @@ CLUTTER_EXPORT
 void clutter_seat_init_pointer_position (ClutterSeat *seat,
                                          float        x,
                                          float        y);
-
-#endif /* CLUTTER_SEAT_PRIVATE_H */

@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_FENCE_PRIVATE_H__
-#define __COGL_FENCE_PRIVATE_H__
+#pragma once
 
 #include "cogl-fence.h"
 #include "cogl-list.h"
@@ -62,5 +61,3 @@ _cogl_fence_submit (CoglFenceClosure *fence);
 
 void
 _cogl_fence_cancel_fences_for_framebuffer (CoglFramebuffer *framebuffer);
-
-#endif /* __COGL_FENCE_PRIVATE_H__ */

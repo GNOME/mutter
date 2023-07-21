@@ -20,8 +20,7 @@
  * Author: Daniel van Vugt <daniel.van.vugt@canonical.com>
  */
 
-#ifndef META_DRM_BUFFER_H
-#define META_DRM_BUFFER_H
+#pragma once
 
 #include <glib-object.h>
 #include <stdint.h>
@@ -67,5 +66,3 @@ int meta_drm_buffer_get_offset (MetaDrmBuffer *buffer,
                                 int            plane);
 
 uint64_t meta_drm_buffer_get_modifier (MetaDrmBuffer *buffer);
-
-#endif /* META_DRM_BUFFER_H */

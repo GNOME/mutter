@@ -21,8 +21,7 @@
 
 #include "config.h"
 
-#ifndef __CLUTTER_TEST_UTILS_H__
-#define __CLUTTER_TEST_UTILS_H__
+#pragma once
 
 #define __CLUTTER_H_INSIDE__
 
@@ -174,5 +173,3 @@ gboolean        clutter_test_check_color_at_point       (ClutterActor           
                                                          ClutterColor           *result);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_TEST_UTILS_H__ */

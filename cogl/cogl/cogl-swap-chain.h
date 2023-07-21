@@ -26,12 +26,11 @@
  * SOFTWARE.
  */
 
+#pragma once
+
 #if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
-
-#ifndef __COGL_SWAP_CHAIN_H__
-#define __COGL_SWAP_CHAIN_H__
 
 #include <cogl/cogl-types.h>
 
@@ -64,5 +63,3 @@ COGL_EXPORT gboolean
 cogl_is_swap_chain (void *object);
 
 G_END_DECLS
-
-#endif /* __COGL_SWAP_CHAIN_H__ */

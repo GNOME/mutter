@@ -22,8 +22,7 @@
  *     Jasper St. Pierre <jstpierre@mecheye.net>
  */
 
-#ifndef META_CURSOR_RENDERER_X11_H
-#define META_CURSOR_RENDERER_X11_H
+#pragma once
 
 #include "backends/meta-cursor-renderer.h"
 
@@ -48,5 +47,3 @@ struct _MetaCursorRendererX11Class
 };
 
 GType meta_cursor_renderer_x11_get_type (void) G_GNUC_CONST;
-
-#endif /* META_CURSOR_RENDERER_X11_H */

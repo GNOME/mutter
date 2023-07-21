@@ -22,8 +22,7 @@
  *   Lionel Landwerlin <lionel.g.landwerlin@linux.intel.com>
  */
 
-#ifndef __CLUTTER_ZOOM_ACTION_H__
-#define __CLUTTER_ZOOM_ACTION_H__
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -81,5 +80,3 @@ void            clutter_zoom_action_get_transformed_focal_point (ClutterZoomActi
                                                                  graphene_point_t  *point);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_ZOOM_ACTION_H__ */

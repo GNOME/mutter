@@ -19,8 +19,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_BOXES_PRIVATE_H
-#define META_BOXES_PRIVATE_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -288,5 +287,3 @@ void meta_rectangle_crop_and_scale (const MetaRectangle *rect,
                                     int                  dst_width,
                                     int                  dst_height,
                                     MetaRectangle       *dest);
-
-#endif /* META_BOXES_PRIVATE_H */

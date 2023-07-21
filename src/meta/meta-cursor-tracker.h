@@ -19,8 +19,7 @@
  * Author: Giovanni Campagna <gcampagn@redhat.com>
  */
 
-#ifndef META_CURSOR_TRACKER_H
-#define META_CURSOR_TRACKER_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -62,5 +61,3 @@ gboolean       meta_cursor_tracker_get_pointer_visible (MetaCursorTracker *track
 META_EXPORT
 void           meta_cursor_tracker_set_pointer_visible (MetaCursorTracker *tracker,
                                                         gboolean           visible);
-
-#endif

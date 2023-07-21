@@ -18,11 +18,8 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_KEYMAP_UTILS_H
-#define META_KEYMAP_UTILS_H
+#pragma once
 
 #include <xkbcommon/xkbcommon.h>
 
 struct xkb_context * meta_create_xkb_context (void);
-
-#endif /* META_KEYMAP_UTILS_H */

@@ -20,8 +20,7 @@
  *     Olivier Fourdan <ofourdan@redhat.com>
  */
 
-#ifndef META_XWAYLAND_GRAB_KEYBOARD_H
-#define META_XWAYLAND_GRAB_KEYBOARD_H
+#pragma once
 
 #include <wayland-server.h>
 
@@ -37,5 +36,3 @@ G_DECLARE_FINAL_TYPE (MetaXwaylandKeyboardActiveGrab,
                       GObject);
 
 gboolean meta_xwayland_grab_keyboard_init (MetaWaylandCompositor *compositor);
-
-#endif /* META_XWAYLAND_GRAB_KEYBOARD_H */

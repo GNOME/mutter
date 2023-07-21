@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_OUTPUT_NATIVE_H
-#define META_OUTPUT_NATIVE_H
+#pragma once
 
 #include "backends/meta-output.h"
 
@@ -35,5 +34,3 @@ struct _MetaOutputNativeClass
 };
 
 GBytes * meta_output_native_read_edid (MetaOutputNative *output_native);
-
-#endif /* META_OUTPUT_NATIVE_H */

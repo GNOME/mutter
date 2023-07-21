@@ -1,5 +1,4 @@
-#ifndef __CLUTTER_STAGE_WINDOW_H__
-#define __CLUTTER_STAGE_WINDOW_H__
+#pragma once
 
 #include <cogl/cogl.h>
 #include <clutter/clutter-types.h>
@@ -102,5 +101,3 @@ void              _clutter_stage_window_finish_frame            (ClutterStageWin
 int64_t           _clutter_stage_window_get_frame_counter       (ClutterStageWindow *window);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_STAGE_WINDOW_H__ */

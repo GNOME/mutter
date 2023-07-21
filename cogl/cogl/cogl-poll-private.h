@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_POLL_PRIVATE_H__
-#define __COGL_POLL_PRIVATE_H__
+#pragma once
 
 #include "cogl-poll.h"
 #include "cogl-renderer.h"
@@ -73,5 +72,3 @@ _cogl_poll_renderer_add_idle (CoglRenderer *renderer,
                               CoglIdleCallback idle_cb,
                               void *user_data,
                               CoglUserDataDestroyCallback destroy_cb);
-
-#endif /* __COGL_POLL_PRIVATE_H__ */

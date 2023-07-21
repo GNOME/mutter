@@ -21,8 +21,7 @@
  *
  */
 
-#ifndef META_RENDERER_NATIVE_GLES3_H
-#define META_RENDERER_NATIVE_GLES3_H
+#pragma once
 
 #include <gbm.h>
 
@@ -36,5 +35,3 @@ gboolean meta_renderer_native_gles3_blit_shared_bo (MetaEgl       *egl,
                                                     EGLSurface     egl_surface,
                                                     struct gbm_bo *shared_bo,
                                                     GError       **error);
-
-#endif /* META_RENDERER_NATIVE_GLES3_H */

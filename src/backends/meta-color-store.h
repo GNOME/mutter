@@ -15,8 +15,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_COLOR_STORE_H
-#define META_COLOR_STORE_H
+#pragma once
 
 #include <colord.h>
 #include <gio/gio.h>
@@ -58,5 +57,3 @@ MetaColorProfile * meta_color_store_get_profile (MetaColorStore *color_store,
 
 META_EXPORT_TEST
 gboolean meta_color_store_has_pending_profiles (MetaColorStore *color_store);
-
-#endif /* META_COLOR_STORE_H */

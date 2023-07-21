@@ -31,8 +31,7 @@
  *   Robert Bragg <robert@linux.intel.com>
  */
 
-#ifndef __COGL_INDICES_PRIVATE_H
-#define __COGL_INDICES_PRIVATE_H
+#pragma once
 
 #include "cogl-object-private.h"
 #include "cogl-index-buffer-private.h"
@@ -55,6 +54,3 @@ _cogl_indices_immutable_ref (CoglIndices *indices);
 
 void
 _cogl_indices_immutable_unref (CoglIndices *indices);
-
-#endif /* __COGL_INDICES_PRIVATE_H */
-

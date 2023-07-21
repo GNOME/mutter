@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_FEATURE_PRIVATE_H
-#define __COGL_FEATURE_PRIVATE_H
+#pragma once
 
 #include <glib.h>
 
@@ -102,5 +101,3 @@ _cogl_feature_check_ext_functions (CoglContext *context,
                                    int gl_major,
                                    int gl_minor,
                                    char * const *gl_extensions);
-
-#endif /* __COGL_FEATURE_PRIVATE_H */

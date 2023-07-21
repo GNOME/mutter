@@ -28,12 +28,11 @@
  *
  */
 
+#pragma once
+
 #if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
-
-#ifndef __COGL_PIPELINE_STATE_H__
-#define __COGL_PIPELINE_STATE_H__
 
 #include <cogl/cogl-pipeline.h>
 #include <cogl/cogl-color.h>
@@ -667,5 +666,3 @@ cogl_pipeline_add_snippet (CoglPipeline *pipeline,
                            CoglSnippet *snippet);
 
 G_END_DECLS
-
-#endif /* __COGL_PIPELINE_STATE_H__ */

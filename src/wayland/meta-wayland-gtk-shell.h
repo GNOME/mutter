@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_WAYLAND_GTK_SHELL_H
-#define META_WAYLAND_GTK_SHELL_H
+#pragma once
 
 #include "wayland/meta-wayland.h"
 
@@ -27,5 +26,3 @@ G_DECLARE_FINAL_TYPE (MetaWaylandGtkShell, meta_wayland_gtk_shell,
                       META, WAYLAND_GTK_SHELL, GObject)
 
 void meta_wayland_init_gtk_shell (MetaWaylandCompositor *compositor);
-
-#endif /* META_WAYLAND_GTK_SHELL_H */

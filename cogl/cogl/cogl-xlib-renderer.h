@@ -26,12 +26,11 @@
  * SOFTWARE.
  */
 
+#pragma once
+
 #if !defined(__COGL_XLIB_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl-xlib.h> can be included directly."
 #endif
-
-#ifndef __COGL_XLIB_RENDERER_H__
-#define __COGL_XLIB_RENDERER_H__
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -206,5 +205,3 @@ G_END_DECLS
 #undef __COGL_H_INSIDE__
 #undef __COGL_XLIB_RENDERER_H_MUST_UNDEF_COGL_H_INSIDE_COGL_XLIB_RENDERER_
 #endif
-
-#endif /* __COGL_XLIB_RENDERER_H__ */

@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef META_SCREEN_CAST_MONITOR_STREAM_SRC_H
-#define META_SCREEN_CAST_MONITOR_STREAM_SRC_H
+#pragma once
 
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-screen-cast-stream-src.h"
@@ -36,5 +35,3 @@ G_DECLARE_FINAL_TYPE (MetaScreenCastMonitorStreamSrc,
 
 MetaScreenCastMonitorStreamSrc * meta_screen_cast_monitor_stream_src_new (MetaScreenCastMonitorStream *monitor_stream,
                                                                           GError                     **error);
-
-#endif /* META_SCREEN_CAST_MONITOR_STREAM_SRC_H */

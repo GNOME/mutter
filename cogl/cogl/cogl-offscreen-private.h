@@ -25,8 +25,7 @@
  *
  */
 
-#ifndef COGL_OFFSCREEN_PRIVATE_H
-#define COGL_OFFSCREEN_PRIVATE_H
+#pragma once
 
 #include "cogl-gl-header.h"
 #include "cogl-offscreen.h"
@@ -64,5 +63,3 @@ _cogl_offscreen_new_with_texture_full (CoglTexture        *texture,
 
 int
 cogl_offscreen_get_texture_level (CoglOffscreen *offscreen);
-
-#endif /* COGL_OFFSCREEN_PRIVATE_H */

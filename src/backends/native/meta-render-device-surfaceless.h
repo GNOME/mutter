@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_RENDER_DEVICE_SURFACELESS_H
-#define META_RENDER_DEVICE_SURFACELESS_H
+#pragma once
 
 #include "backends/native/meta-render-device-private.h"
 
@@ -31,4 +30,3 @@ G_DECLARE_FINAL_TYPE (MetaRenderDeviceSurfaceless, meta_render_device_surfaceles
 MetaRenderDeviceSurfaceless * meta_render_device_surfaceless_new (MetaBackend  *backend,
                                                                   GError      **error);
 
-#endif /* META_RENDER_DEVICE_SURFACELESS_H */

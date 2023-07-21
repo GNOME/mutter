@@ -31,8 +31,7 @@
  *   Robert Bragg <robert@linux.intel.com>
  */
 
-#ifndef _COGL_TEXTURE_2D_GL_PRIVATE_H_
-#define _COGL_TEXTURE_2D_GL_PRIVATE_H_
+#pragma once
 
 #include "cogl-types.h"
 #include "cogl-context-private.h"
@@ -124,5 +123,3 @@ _cogl_texture_2d_gl_get_data (CoglTexture2D *tex_2d,
                               CoglPixelFormat format,
                               int rowstride,
                               uint8_t *data);
-
-#endif /* _COGL_TEXTURE_2D_GL_PRIVATE_H_ */

@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_PRIVATE_H__
-#define __COGL_PRIVATE_H__
+#pragma once
 
 #include <cogl/cogl-pipeline.h>
 
@@ -99,5 +98,3 @@ _cogl_init (void);
   COGL_FLAGS_GET ((ctx)->private_features, (feature))
 
 G_END_DECLS
-
-#endif /* __COGL_PRIVATE_H__ */

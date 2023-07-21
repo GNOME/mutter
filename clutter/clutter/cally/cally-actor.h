@@ -22,8 +22,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __CALLY_ACTOR_H__
-#define __CALLY_ACTOR_H__
+#pragma once
 
 #if !defined(__CALLY_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <cally/cally.h> can be included directly."
@@ -135,5 +134,3 @@ gboolean   cally_actor_remove_action_by_name (CallyActor          *cally_actor,
                                               const gchar         *action_name);
 
 G_END_DECLS
-
-#endif /* __CALLY_ACTOR_H__ */

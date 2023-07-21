@@ -21,8 +21,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __META_SHAPED_TEXTURE_H__
-#define __META_SHAPED_TEXTURE_H__
+#pragma once
 
 #include <X11/Xlib.h>
 
@@ -57,5 +56,3 @@ cairo_surface_t * meta_shaped_texture_get_image (MetaShapedTexture     *stex,
                                                  cairo_rectangle_int_t *clip);
 
 G_END_DECLS
-
-#endif /* __META_SHAPED_TEXTURE_H__ */

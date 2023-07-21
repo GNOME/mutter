@@ -16,8 +16,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CLUTTER_DAMAGE_HISTORY_H
-#define CLUTTER_DAMAGE_HISTORY_H
+#pragma once
 
 #include <cairo.h>
 #include <glib.h>
@@ -46,5 +45,3 @@ void clutter_damage_history_step (ClutterDamageHistory *history);
 CLUTTER_EXPORT
 const cairo_region_t * clutter_damage_history_lookup (ClutterDamageHistory *history,
                                                       int                   age);
-
-#endif /* CLUTTER_DAMAGE_HISTORY_H */

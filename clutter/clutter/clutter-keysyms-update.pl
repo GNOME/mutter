@@ -94,8 +94,7 @@ print OUT_KEYSYMS<<EOF;
  *  $XF86keysym_url
  */
 
-#ifndef __CLUTTER_KEYSYMS_H__
-#define __CLUTTER_KEYSYMS_H__
+#pragma once
 
 EOF
 
@@ -165,12 +164,6 @@ while (<IN_XF86KEYSYM>)
 }
 
 close IN_XF86KEYSYM;
-
-
-print OUT_KEYSYMS<<EOF;
-
-#endif /* __CLUTTER_KEYSYMS_H__ */
-EOF
 
 foreach my $f (qw/ keysymdef.h XF86keysym.h /) {
     unlink $f or die "Unable to delete $f: $!";

@@ -22,8 +22,7 @@
  *     Jonas Ådahl <jadahl@gmail.com>
  */
 
-#ifndef META_STAGE_NATIVE_H
-#define META_STAGE_NATIVE_H
+#pragma once
 
 #include "backends/meta-stage-impl-private.h"
 #include "clutter/clutter-mutter.h"
@@ -33,5 +32,3 @@ G_DECLARE_FINAL_TYPE (MetaStageNative, meta_stage_native,
                       META, STAGE_NATIVE, MetaStageImpl)
 
 void meta_stage_native_rebuild_views (MetaStageNative *stage_native);
-
-#endif /* META_STAGE_NATIVE_H */

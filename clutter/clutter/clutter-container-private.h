@@ -19,8 +19,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __CLUTTER_CONTAINER_PRIVATE_H__
-#define __CLUTTER_CONTAINER_PRIVATE_H__
+#pragma once
 
 #include <clutter/clutter-container.h>
 
@@ -32,5 +31,3 @@ void _clutter_container_emit_actor_removed (ClutterContainer *container,
                                             ClutterActor     *actor);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_CONTAINER_PRIVATE_H__ */

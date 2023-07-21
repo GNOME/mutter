@@ -21,8 +21,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef CLUTTER_GRAB_H
-#define CLUTTER_GRAB_H
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -47,5 +46,3 @@ ClutterGrab * clutter_grab_ref (ClutterGrab *grab);
 
 CLUTTER_EXPORT
 void clutter_grab_unref (ClutterGrab *grab);
-
-#endif /* CLUTTER_GRAB_H */

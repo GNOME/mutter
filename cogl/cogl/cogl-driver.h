@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_DRIVER_H
-#define __COGL_DRIVER_H
+#pragma once
 
 #include "cogl-context.h"
 #include "cogl-offscreen-private.h"
@@ -266,6 +265,3 @@ typedef enum /*< prefix=COGL_DRIVER_ERROR >*/
 
 uint32_t
 _cogl_driver_error_quark (void);
-
-#endif /* __COGL_DRIVER_H */
-

@@ -20,8 +20,7 @@
  *         from gnome-desktop/libgnome-desktop/gnome-idle-monitor.c
  */
 
-#ifndef META_IDLE_MONITOR_PRIVATE_H
-#define META_IDLE_MONITOR_PRIVATE_H
+#pragma once
 
 #include "core/display-private.h"
 #include "meta/meta-idle-monitor.h"
@@ -49,5 +48,3 @@ MetaIdleManager * meta_idle_monitor_get_manager (MetaIdleMonitor *monitor);
 
 MetaIdleMonitor * meta_idle_monitor_new (MetaIdleManager    *idle_manager,
                                          ClutterInputDevice *device);
-
-#endif /* META_IDLE_MONITOR_PRIVATE_H */

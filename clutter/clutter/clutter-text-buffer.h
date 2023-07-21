@@ -19,8 +19,7 @@
  * Author: Stef Walter <stefw@collabora.co.uk>
  */
 
-#ifndef __CLUTTER_TEXT_BUFFER_H__
-#define __CLUTTER_TEXT_BUFFER_H__
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -145,5 +144,3 @@ void                clutter_text_buffer_emit_deleted_text   (ClutterTextBuffer *
                                                              guint              n_chars);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_TEXT_BUFFER_H__ */

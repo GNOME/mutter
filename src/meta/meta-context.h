@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_CONTEXT_H
-#define META_CONTEXT_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -104,5 +103,3 @@ gboolean meta_context_raise_rlimit_nofile (MetaContext  *context,
 META_EXPORT
 gboolean meta_context_restore_rlimit_nofile (MetaContext  *context,
                                              GError      **error);
-
-#endif /* META_CONTEXT_H */

@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_TEXTURE_DRIVER_H
-#define __COGL_TEXTURE_DRIVER_H
+#pragma once
 
 typedef struct _CoglTextureDriver CoglTextureDriver;
 
@@ -145,6 +144,3 @@ struct _CoglTextureDriver
                                     GLenum *closest_gl_format,
                                     GLenum *closest_gl_type);
 };
-
-#endif /* __COGL_TEXTURE_DRIVER_H */
-

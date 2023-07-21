@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_WAYLAND_POINTER_GESTURE_PINCH_H
-#define META_WAYLAND_POINTER_GESTURE_PINCH_H
+#pragma once
 
 #include <glib.h>
 #include <wayland-server.h>
@@ -38,5 +37,3 @@ void meta_wayland_pointer_gesture_pinch_create_new_resource (MetaWaylandPointer 
 
 void meta_wayland_pointer_gesture_pinch_cancel (MetaWaylandPointer *pointer,
                                                 uint32_t            serial);
-
-#endif /* META_WAYLAND_POINTER_GESTURE_PINCH_H */

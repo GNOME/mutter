@@ -30,8 +30,7 @@
  *   Robert Bragg <robert@linux.intel.com>
  */
 
-#ifndef __COGL_TEXURE_2D_SLICED_H
-#define __COGL_TEXURE_2D_SLICED_H
+#pragma once
 
 #include "cogl-context.h"
 #include "cogl-types.h"
@@ -285,5 +284,3 @@ cogl_texture_2d_sliced_new_from_bitmap (CoglBitmap *bmp,
  */
 COGL_EXPORT gboolean
 cogl_is_texture_2d_sliced (void *object);
-
-#endif /* __COGL_TEXURE_2D_SLICED_H */

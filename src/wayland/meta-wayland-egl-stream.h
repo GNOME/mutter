@@ -22,8 +22,7 @@
  *     Jonas Ådahl <jadahl@gmail.com>
  */
 
-#ifndef META_WAYLAND_EGL_STREAM_H
-#define META_WAYLAND_EGL_STREAM_H
+#pragma once
 
 #include <glib.h>
 #include <glib-object.h>
@@ -50,5 +49,3 @@ CoglTexture2D * meta_wayland_egl_stream_create_texture (MetaWaylandEglStream *st
 CoglSnippet * meta_wayland_egl_stream_create_snippet (MetaWaylandEglStream *stream);
 
 gboolean meta_wayland_egl_stream_is_y_inverted (MetaWaylandEglStream *stream);
-
-#endif /* META_WAYLAND_EGL_STREAM_H */

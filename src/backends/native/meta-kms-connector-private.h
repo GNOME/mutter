@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_KMS_CONNECTOR_PRIVATE_H
-#define META_KMS_CONNECTOR_PRIVATE_H
+#pragma once
 
 #include "backends/native/meta-kms-connector.h"
 
@@ -155,5 +154,3 @@ gboolean set_output_hdr_metadata (struct hdr_output_metadata *drm_metadata,
 META_EXPORT_TEST
 gboolean hdr_metadata_equal (MetaOutputHdrMetadata *metadata,
                              MetaOutputHdrMetadata *other_metadata);
-
-#endif /* META_KMS_CONNECTOR_PRIVATE_H */

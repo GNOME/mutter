@@ -1,7 +1,6 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
 
-#ifndef META_WINDOW_GROUP_PRIVATE_H
-#define META_WINDOW_GROUP_PRIVATE_H
+#pragma once
 
 #include "meta/display.h"
 #include "meta/meta-window-group.h"
@@ -19,5 +18,3 @@
 typedef struct _MetaWindowGroupPrivate MetaWindowGroupPrivate;
 
 ClutterActor *meta_window_group_new (MetaDisplay *display);
-
-#endif /* META_WINDOW_GROUP_PRIVATE_H */

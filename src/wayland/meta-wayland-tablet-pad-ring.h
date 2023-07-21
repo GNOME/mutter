@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_WAYLAND_TABLET_PAD_RING_H
-#define META_WAYLAND_TABLET_PAD_RING_H
+#pragma once
 
 #include <glib.h>
 #include <wayland-server.h>
@@ -54,6 +53,3 @@ gboolean     meta_wayland_tablet_pad_ring_handle_event        (MetaWaylandTablet
                                                                const ClutterEvent       *event);
 
 void         meta_wayland_tablet_pad_ring_sync_focus          (MetaWaylandTabletPadRing *ring);
-
-#endif /* META_WAYLAND_TABLET_PAD_RING_H */
-

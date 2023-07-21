@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_JOURNAL_PRIVATE_H
-#define __COGL_JOURNAL_PRIVATE_H
+#pragma once
 
 #include "cogl-texture.h"
 #include "cogl-object-private.h"
@@ -120,5 +119,3 @@ _cogl_journal_try_read_pixel (CoglJournal *journal,
 
 gboolean
 _cogl_is_journal (void *object);
-
-#endif /* __COGL_JOURNAL_PRIVATE_H */

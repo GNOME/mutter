@@ -18,11 +18,7 @@
  *
  */
 
-#ifndef META_BACKEND_X11_TYPES_H
-#define META_BACKEND_X11_TYPES_H
-
+#pragma once
 typedef struct _MetaBackendX11 MetaBackendX11;
 
 typedef struct _MetaX11Barriers MetaX11Barriers;
-
-#endif /* META_BACKEND_X11_TYPES_H */

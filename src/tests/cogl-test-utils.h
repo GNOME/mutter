@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef COGL_TEST_UTILS_H
-#define COGL_TEST_UTILS_H
+#pragma once
 
 #include "meta-test/meta-context-test.h"
 
@@ -298,5 +297,3 @@ test_utils_is_pot (unsigned int number)
   /* Make sure there is only one bit set */
   return (number & (number - 1)) == 0;
 }
-
-#endif /* COGL_TEST_UTILS_H */

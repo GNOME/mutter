@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_OUTPUT_VIRTUAL_H
-#define META_OUTPUT_VIRTUAL_H
+#pragma once
 
 #include "backends/native/meta-backend-native-types.h"
 #include "backends/native/meta-output-native.h"
@@ -32,5 +31,3 @@ MetaOutputVirtual * meta_output_virtual_new (uint64_t                      id,
                                              const MetaVirtualMonitorInfo *info,
                                              MetaCrtcVirtual              *crtc_virtual,
                                              MetaCrtcModeVirtual          *crtc_mode_virtual);
-
-#endif /* META_OUTPUT_VIRTUAL_H */

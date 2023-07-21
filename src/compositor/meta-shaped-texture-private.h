@@ -24,8 +24,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef __META_SHAPED_TEXTURE_PRIVATE_H__
-#define __META_SHAPED_TEXTURE_PRIVATE_H__
+#pragma once
 
 #include "backends/meta-monitor-manager-private.h"
 #include "meta/meta-shaped-texture.h"
@@ -77,5 +76,3 @@ void meta_shaped_texture_set_opaque_region (MetaShapedTexture *stex,
 void meta_shaped_texture_ensure_size_valid (MetaShapedTexture *stex);
 
 gboolean meta_shaped_texture_should_get_via_offscreen (MetaShapedTexture *stex);
-
-#endif

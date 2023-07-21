@@ -17,8 +17,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_DISPLAY_H
-#define META_DISPLAY_H
+#pragma once
 
 #include <glib-object.h>
 #include <X11/Xlib.h>
@@ -308,5 +307,3 @@ void meta_display_set_input_focus   (MetaDisplay *display,
 META_EXPORT
 void meta_display_unset_input_focus (MetaDisplay *display,
                                      guint32      timestamp);
-
-#endif

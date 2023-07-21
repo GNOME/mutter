@@ -15,8 +15,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CLUTTER_FRAME_PRIVATE_H
-#define CLUTTER_FRAME_PRIVATE_H
+#pragma once
 
 #include "clutter/clutter-frame.h"
 
@@ -45,5 +44,3 @@ gpointer clutter_frame_new (size_t              size,
   ((FrameType *) (clutter_frame_new (sizeof (FrameType), release)))
 
 ClutterFrameResult clutter_frame_get_result (ClutterFrame *frame);
-
-#endif /* CLUTTER_FRAME_PRIVATE_H */

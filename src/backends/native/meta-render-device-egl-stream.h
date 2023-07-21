@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_RENDER_DEVICE_EGL_STREAM_H
-#define META_RENDER_DEVICE_EGL_STREAM_H
+#pragma once
 
 #include "backends/native/meta-render-device-private.h"
 
@@ -31,5 +30,3 @@ G_DECLARE_FINAL_TYPE (MetaRenderDeviceEglStream, meta_render_device_egl_stream,
 MetaRenderDeviceEglStream * meta_render_device_egl_stream_new (MetaBackend     *backend,
                                                                MetaDeviceFile  *device_file,
                                                                GError         **error);
-
-#endif /* META_RENDER_DEVICE_EGL_STREAM_H */

@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_PIPELINE_CACHE_H__
-#define __COGL_PIPELINE_CACHE_H__
+#pragma once
 
 #include "cogl-pipeline.h"
 
@@ -89,5 +88,3 @@ _cogl_pipeline_cache_get_vertex_template (CoglPipelineCache *cache,
 CoglPipelineCacheEntry *
 _cogl_pipeline_cache_get_combined_template (CoglPipelineCache *cache,
                                             CoglPipeline *key_pipeline);
-
-#endif /* __COGL_PIPELINE_CACHE_H__ */

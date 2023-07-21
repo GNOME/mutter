@@ -28,13 +28,10 @@
  *
  */
 
-#ifndef __COGL_EGL_PRIVATE_H__
-#define __COGL_EGL_PRIVATE_H__
+#pragma once
 
 #include "cogl-egl-defines.h"
 
 #if defined(GL_OES_EGL_image) && !defined(GLeglImageOES)
 #define GLeglImageOES void *
 #endif
-
-#endif /* __COGL_EGL_PRIVATE_H__ */

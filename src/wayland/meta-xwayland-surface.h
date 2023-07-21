@@ -19,8 +19,7 @@
  *
  */
 
-#ifndef META_XWAYLAND_SURFACE_H
-#define META_XWAYLAND_SURFACE_H
+#pragma once
 
 #include "meta/types.h"
 #include "wayland/meta-wayland-actor-surface.h"
@@ -34,5 +33,3 @@ G_DECLARE_FINAL_TYPE (MetaXwaylandSurface,
 void
 meta_xwayland_surface_associate_with_window (MetaXwaylandSurface *xwayland_surface,
                                              MetaWindow          *window);
-
-#endif /* META_XWAYLAND_SURFACE_H */

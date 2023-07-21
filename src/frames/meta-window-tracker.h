@@ -17,8 +17,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_WINDOW_TRACKER_H
-#define META_WINDOW_TRACKER_H
+#pragma once
 
 #include <gtk/gtk.h>
 #include <X11/Xlib.h>
@@ -29,5 +28,3 @@ G_DECLARE_FINAL_TYPE (MetaWindowTracker, meta_window_tracker,
                       GObject)
 
 MetaWindowTracker * meta_window_tracker_new (GdkDisplay *display);
-
-#endif /* META_WINDOW_TRACKER_H */

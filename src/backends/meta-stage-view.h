@@ -15,8 +15,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_STAGE_VIEW_H
-#define META_STAGE_VIEW_H
+#pragma once
 
 #include "clutter/clutter-mutter.h"
 
@@ -29,5 +28,3 @@ G_DECLARE_DERIVABLE_TYPE (MetaStageView,
 void meta_stage_view_inhibit_cursor_overlay (MetaStageView *view);
 
 void meta_stage_view_uninhibit_cursor_overlay (MetaStageView *view);
-
-#endif /* META_STAGE_VIEW_H */

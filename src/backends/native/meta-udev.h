@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_UDEV_H
-#define META_UDEV_H
+#pragma once
 
 #include <gudev/gudev.h>
 
@@ -53,5 +52,3 @@ void meta_udev_pause (MetaUdev *udev);
 void meta_udev_resume (MetaUdev *udev);
 
 MetaUdev * meta_udev_new (MetaBackendNative *backend_native);
-
-#endif /* META_UDEV_H */

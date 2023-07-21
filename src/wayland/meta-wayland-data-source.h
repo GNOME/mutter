@@ -21,8 +21,7 @@
  * OF THIS SOFTWARE.
  */
 
-#ifndef META_WAYLAND_DATA_SOURCE_H
-#define META_WAYLAND_DATA_SOURCE_H
+#pragma once
 
 #include <glib-object.h>
 #include <wayland-server.h>
@@ -111,5 +110,3 @@ gboolean meta_wayland_data_source_get_drop_performed (MetaWaylandDataSource *sou
 
 void meta_wayland_data_source_notify_drop_performed (MetaWaylandDataSource *source);
 void meta_wayland_data_source_notify_finish (MetaWaylandDataSource *source);
-
-#endif /* META_WAYLAND_DATA_SOURCE_H */

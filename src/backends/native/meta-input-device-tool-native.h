@@ -17,8 +17,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_INPUT_DEVICE_NATIVE_TOOL_H
-#define META_INPUT_DEVICE_NATIVE_TOOL_H
+#pragma once
 
 #ifndef META_INPUT_THREAD_H_INSIDE
 #error "This header cannot be included directly. Use "backends/native/meta-input-thread.h""
@@ -86,5 +85,3 @@ void                     meta_input_device_tool_native_set_button_code_in_impl (
                                                                                 uint32_t                evcode);
 
 G_END_DECLS
-
-#endif /* META_INPUT_DEVICE_NATIVE_TOOL_H */

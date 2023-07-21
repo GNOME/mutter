@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_SCREEN_CAST_WINDOW_H
-#define META_SCREEN_CAST_WINDOW_H
+#pragma once
 
 #include <stdint.h>
 #include <glib-object.h>
@@ -97,5 +96,3 @@ void meta_screen_cast_window_inc_usage (MetaScreenCastWindow *screen_cast_window
 void meta_screen_cast_window_dec_usage (MetaScreenCastWindow *screen_cast_window);
 
 G_END_DECLS
-
-#endif /* META_SCREEN_CAST_WINDOW_H */

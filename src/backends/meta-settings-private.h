@@ -19,8 +19,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_SETTINGS_PRIVATE_H
-#define META_SETTINGS_PRIVATE_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -83,5 +82,3 @@ gboolean meta_settings_is_privacy_screen_enabled (MetaSettings *settings);
 
 void meta_settings_set_privacy_screen_enabled (MetaSettings *settings,
                                                gboolean      enabled);
-
-#endif /* META_SETTINGS_PRIVATE_H */

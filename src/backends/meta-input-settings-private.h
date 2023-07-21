@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_INPUT_SETTINGS_PRIVATE_H
-#define META_INPUT_SETTINGS_PRIVATE_H
+#pragma once
 
 #include <gdesktop-enums.h>
 
@@ -185,5 +184,3 @@ void meta_input_settings_notify_kbd_a11y_change (MetaInputSettings     *input_se
                                                  MetaKeyboardA11yFlags  what_changed);
 
 MetaBackend * meta_input_settings_get_backend (MetaInputSettings *input_settings);
-
-#endif /* META_INPUT_SETTINGS_PRIVATE_H */

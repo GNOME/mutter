@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_WAYLAND_SINGLE_PIXEL_BUFFER_H
-#define META_WAYLAND_SINGLE_PIXEL_BUFFER_H
+#pragma once
 
 #include <glib.h>
 
@@ -38,5 +37,3 @@ MetaWaylandSinglePixelBuffer * meta_wayland_single_pixel_buffer_from_buffer (Met
 void meta_wayland_init_single_pixel_buffer_manager (MetaWaylandCompositor *compositor);
 
 void meta_wayland_single_pixel_buffer_free (MetaWaylandSinglePixelBuffer *single_pixel_buffer);
-
-#endif /* META_WAYLAND_SINGLE_PIXEL_BUFFER_H */

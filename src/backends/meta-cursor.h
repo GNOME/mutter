@@ -19,8 +19,7 @@
  * Author: Giovanni Campagna <gcampagn@redhat.com>
  */
 
-#ifndef META_CURSOR_H
-#define META_CURSOR_H
+#pragma once
 
 #include "backends/meta-backend-types.h"
 #include "meta/common.h"
@@ -93,5 +92,3 @@ gboolean meta_cursor_sprite_is_animated (MetaCursorSprite *sprite);
 void meta_cursor_sprite_tick_frame (MetaCursorSprite *sprite);
 
 unsigned int meta_cursor_sprite_get_current_frame_time (MetaCursorSprite *sprite);
-
-#endif /* META_CURSOR_H */

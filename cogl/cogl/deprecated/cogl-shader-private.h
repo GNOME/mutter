@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_SHADER_H
-#define __COGL_SHADER_H
+#pragma once
 
 #include "cogl-object-private.h"
 #include "cogl-shader.h"
@@ -46,5 +45,3 @@ struct _CoglShader
   CoglShaderType type;
   char *source;
 };
-
-#endif /* __COGL_SHADER_H */

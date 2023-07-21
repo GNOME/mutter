@@ -15,8 +15,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_WAYLAND_TEST_UTILS_H
-#define META_WAYLAND_TEST_UTILS_H
+#pragma once
 
 #include "meta/meta-context.h"
 
@@ -32,5 +31,3 @@ MetaWindow * meta_find_client_window (MetaContext *context,
 
 MetaWindow * meta_wait_for_client_window (MetaContext *context,
                                           const char  *title);
-
-#endif /* META_WAYLAND_TEST_UTILS_H */

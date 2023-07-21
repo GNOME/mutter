@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_SCREEN_CAST_VIRTUAL_STREAM_H
-#define META_SCREEN_CAST_VIRTUAL_STREAM_H
+#pragma once
 
 #include "backends/meta-screen-cast-stream.h"
 
@@ -36,5 +35,3 @@ MetaScreenCastVirtualStream * meta_screen_cast_virtual_stream_new (MetaScreenCas
                                                                    GError                   **error);
 
 MetaVirtualMonitor * meta_screen_cast_virtual_stream_get_virtual_monitor (MetaScreenCastVirtualStream *virtual_stream);
-
-#endif /* META_SCREEN_CAST_VIRTUAL_STREAM_H */

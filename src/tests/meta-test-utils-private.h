@@ -15,12 +15,9 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_TEST_UTILS_PRIVATE_H
-#define META_TEST_UTILS_PRIVATE_H
+#pragma once
 
 #include "tests/meta-test-utils.h"
 
 void meta_ensure_test_client_path (int    argc,
                                    char **argv);
-
-#endif /* META_TEST_UTILS_PRIVATE_H */

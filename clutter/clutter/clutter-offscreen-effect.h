@@ -22,8 +22,7 @@
  *   Emmanuele Bassi <ebassi@linux.intel.com>
  */
 
-#ifndef __CLUTTER_OFFSCREEN_EFFECT_H__
-#define __CLUTTER_OFFSCREEN_EFFECT_H__
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -100,5 +99,3 @@ gboolean        clutter_offscreen_effect_get_target_size        (ClutterOffscree
                                                                  gfloat                 *height);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_OFFSCREEN_EFFECT_H__ */

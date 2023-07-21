@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef META_REMOTE_DESKTOP_SESSION_H
-#define META_REMOTE_DESKTOP_SESSION_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -48,5 +47,3 @@ gboolean meta_remote_desktop_session_register_screen_cast (MetaRemoteDesktopSess
 void meta_remote_desktop_session_request_transfer (MetaRemoteDesktopSession  *session,
                                                    const char                *mime_type,
                                                    GTask                     *task);
-
-#endif /* META_REMOTE_DESKTOP_SESSION_H */

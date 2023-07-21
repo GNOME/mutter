@@ -17,8 +17,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_INPUT_THREAD_H
-#define META_INPUT_THREAD_H
+#pragma once
 
 #define META_INPUT_THREAD_H_INSIDE
 
@@ -29,5 +28,3 @@
 #include "src/backends/native/meta-seat-impl.h"
 
 #undef META_INPUT_THREAD_H_INSIDE
-
-#endif /* META_INPUT_THREAD_H */

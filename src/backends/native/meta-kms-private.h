@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_KMS_PRIVATE_H
-#define META_KMS_PRIVATE_H
+#pragma once
 
 #include "backends/native/meta-kms.h"
 
@@ -61,5 +60,3 @@ void meta_kms_emit_resources_changed (MetaKms                *kms,
   g_assert (!meta_kms_in_impl_task (kms))
 #define meta_assert_is_waiting_for_kms_impl_task(kms) \
   g_assert (meta_kms_is_waiting_for_impl_task (kms))
-
-#endif /* META_KMS_PRIVATE_H */

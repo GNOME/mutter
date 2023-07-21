@@ -26,8 +26,7 @@
  * SOFTWARE.
  */
 
-#ifndef __COGL_XLIB_H__
-#define __COGL_XLIB_H__
+#pragma once
 
 #include <X11/Xlib.h>
 
@@ -71,5 +70,3 @@
 #undef __COGL_XLIB_H_INSIDE__
 #undef __COGL_XLIB_H_MUST_UNDEF_COGL_H_INSIDE__
 #endif
-
-#endif /* __COGL_XLIB_H__ */

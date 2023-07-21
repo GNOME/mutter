@@ -22,8 +22,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_STARTUP_NOTIFICATION_PRIVATE_H
-#define META_STARTUP_NOTIFICATION_PRIVATE_H
+#pragma once
 
 #include "core/display-private.h"
 #include "meta/meta-startup-notification.h"
@@ -50,5 +49,3 @@ MetaStartupSequence *
                                                     const gchar             *id);
 
 MetaDisplay * meta_startup_sequence_get_display (MetaStartupSequence *seq);
-
-#endif /* META_STARTUP_NOTIFICATION_PRIVATE_H */

@@ -16,8 +16,7 @@
  *
  */
 
-#ifndef META_CURSOR_SPRITE_XCURSOR_H
-#define META_CURSOR_SPRITE_XCURSOR_H
+#pragma once
 
 #include <glib-object.h>
 #include <X11/Xcursor/Xcursor.h>
@@ -41,5 +40,3 @@ XcursorImage * meta_cursor_sprite_xcursor_get_current_image (MetaCursorSpriteXcu
 
 Cursor meta_create_x_cursor (Display    *xdisplay,
                              MetaCursor  cursor);
-
-#endif /* META_CURSOR_SPRITE_XCURSOR_H */

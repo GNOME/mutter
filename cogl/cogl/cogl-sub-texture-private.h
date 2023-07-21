@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_SUB_TEXTURE_PRIVATE_H
-#define __COGL_SUB_TEXTURE_PRIVATE_H
+#pragma once
 
 #include "cogl-texture-private.h"
 
@@ -58,5 +57,3 @@ struct _CoglSubTexture
   int sub_x;
   int sub_y;
 };
-
-#endif /* __COGL_SUB_TEXTURE_PRIVATE_H */

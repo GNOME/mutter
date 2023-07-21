@@ -28,12 +28,11 @@
  *
  */
 
+#pragma once
+
 #if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
-
-#ifndef _COGL_ATLAS_TEXTURE_H_
-#define _COGL_ATLAS_TEXTURE_H_
 
 #include <cogl/cogl-context.h>
 
@@ -240,5 +239,3 @@ COGL_EXPORT gboolean
 cogl_is_atlas_texture (void *object);
 
 G_END_DECLS
-
-#endif /* _COGL_ATLAS_TEXTURE_H_ */

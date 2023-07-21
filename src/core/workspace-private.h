@@ -28,8 +28,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_WORKSPACE_PRIVATE_H
-#define META_WORKSPACE_PRIVATE_H
+#pragma once
 
 #include "core/window-private.h"
 #include "meta/workspace.h"
@@ -106,5 +105,3 @@ GList * meta_workspace_get_default_focus_candidates (MetaWorkspace *workspace);
 const char* meta_workspace_get_name (MetaWorkspace *workspace);
 
 void meta_workspace_index_changed (MetaWorkspace *workspace);
-
-#endif

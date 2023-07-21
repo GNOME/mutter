@@ -17,8 +17,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_INPUT_DEVICE_TOOL_X11_H
-#define META_INPUT_DEVICE_TOOL_X11_H
+#pragma once
 
 #include "clutter/clutter.h"
 
@@ -47,5 +46,3 @@ GType meta_input_device_tool_x11_get_type (void) G_GNUC_CONST;
 
 ClutterInputDeviceTool * meta_input_device_tool_x11_new (guint                        serial,
                                                          ClutterInputDeviceToolType   type);
-
-#endif /* META_INPUT_DEVICE_TOOL_X11_H */

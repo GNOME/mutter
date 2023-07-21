@@ -26,8 +26,7 @@
  *
  */
 
-#ifndef COGL_GRAPHENE_H
-#define COGL_GRAPHENE_H
+#pragma once
 
 #include <cogl/cogl-defines.h>
 #include <cogl/cogl-macros.h>
@@ -168,5 +167,3 @@ cogl_graphene_matrix_project_points (const graphene_matrix_t *matrix,
                                      int                      n_points);
 
 G_END_DECLS
-
-#endif /* COGL_GRAPHENE_H */

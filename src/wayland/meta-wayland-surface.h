@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_WAYLAND_SURFACE_H
-#define META_WAYLAND_SURFACE_H
+#pragma once
 
 #include <cairo.h>
 #include <glib.h>
@@ -460,5 +459,3 @@ meta_get_first_subsurface_node (struct MetaWaylandSurfaceSubState *sub)
        (subsurface = (G_PASTE (__n, __LINE__) ? G_PASTE (__n, __LINE__)->data : NULL)); \
        G_PASTE (__n, __LINE__) = G_PASTE (__next, __LINE__), \
        G_PASTE (__next, __LINE__) = meta_get_next_subsurface_sibling (G_PASTE (__n, __LINE__)))
-
-#endif

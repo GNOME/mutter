@@ -1,5 +1,4 @@
-#ifndef __CLUTTER_SETTINGS_H__
-#define __CLUTTER_SETTINGS_H__
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -23,5 +22,3 @@ CLUTTER_EXPORT
 ClutterSettings *clutter_settings_get_default (void);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_SETTINGS_H__ */

@@ -21,8 +21,7 @@
  *
  */
 
-#ifndef __CLUTTER_AUTO_CLEANUPS_H__
-#define __CLUTTER_AUTO_CLEANUPS_H__
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -88,5 +87,3 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterPaintVolume, clutter_paint_volume_free)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterPathNode, clutter_path_node_free)
 
 #endif /* __GI_SCANNER__ */
-
-#endif /* __CLUTTER_AUTO_CLEANUPS_H__ */

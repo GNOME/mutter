@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef META_WAYLAND_FRACTIONAL_SCALE_H
-#define META_WAYLAND_FRACTIONAL_SCALE_H
+#pragma once
 
 #include "wayland/meta-wayland-types.h"
 
@@ -29,5 +28,3 @@ void meta_wayland_init_fractional_scale (MetaWaylandCompositor *compositor);
 
 void meta_wayland_fractional_scale_maybe_send_preferred_scale (MetaWaylandSurface *surface,
                                                                double              scale);
-
-#endif /* META_WAYLAND_FRACTIONAL_SCALE_H */

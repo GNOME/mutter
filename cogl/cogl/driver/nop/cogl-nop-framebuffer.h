@@ -23,8 +23,7 @@
  *
  */
 
-#ifndef COGL_NOP_FRAMEBUFFER_H
-#define COGL_NOP_FRAMEBUFFER_H
+#pragma once
 
 #include "cogl-framebuffer-driver.h"
 
@@ -32,5 +31,3 @@
 G_DECLARE_FINAL_TYPE (CoglNopFramebuffer, cogl_nop_framebuffer,
                       COGL, NOP_FRAMEBUFFER_DRIVER,
                       CoglFramebufferDriver)
-
-#endif /* COGL_NOP_FRAMEBUFFER_H */

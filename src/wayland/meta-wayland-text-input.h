@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_WAYLAND_TEXT_INPUT_H
-#define META_WAYLAND_TEXT_INPUT_H
+#pragma once
 
 #include <wayland-server.h>
 
@@ -46,5 +45,3 @@ gboolean meta_wayland_text_input_update (MetaWaylandTextInput *text_input,
 
 gboolean meta_wayland_text_input_handle_event (MetaWaylandTextInput *text_input,
                                                const ClutterEvent   *event);
-
-#endif /* META_WAYLAND_TEXT_INPUT_H */

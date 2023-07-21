@@ -22,13 +22,10 @@
  *     Jonas Ådahl <jadahl@gmail.com>
  */
 
-#ifndef META_WAYLAND_FOREIGN_H
-#define META_WAYLAND_FOREIGN_H
+#pragma once
 
 #include <glib.h>
 
 #include "wayland/meta-wayland-types.h"
 
 gboolean meta_wayland_xdg_foreign_init (MetaWaylandCompositor *compositor);
-
-#endif /* META_WAYLAND_FOREIGN_H */

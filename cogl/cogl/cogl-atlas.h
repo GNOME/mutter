@@ -26,8 +26,7 @@
  * SOFTWARE.
  */
 
-#ifndef __COGL_ATLAS_H
-#define __COGL_ATLAS_H
+#pragma once
 
 #include "cogl-rectangle-map.h"
 #include "cogl-object-private.h"
@@ -101,5 +100,3 @@ _cogl_atlas_remove_reorganize_callback (CoglAtlas            *atlas,
 
 gboolean
 _cogl_is_atlas (void *object);
-
-#endif /* __COGL_ATLAS_H */

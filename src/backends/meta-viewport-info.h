@@ -20,8 +20,7 @@
  *     Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_VIEWPORT_INFO_H
-#define META_VIEWPORT_INFO_H
+#pragma once
 
 #include <cairo.h>
 #include <glib-object.h>
@@ -57,5 +56,3 @@ void meta_viewport_info_get_extents (MetaViewportInfo *info,
                                      float            *height);
 
 gboolean meta_viewport_info_is_views_scaled (MetaViewportInfo *info);
-
-#endif /* META_VIEWPORT_INFO_H */

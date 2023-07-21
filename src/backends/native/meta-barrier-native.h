@@ -22,8 +22,7 @@
  *     Jonas Ådahl <jadahl@gmail.com>
  */
 
-#ifndef META_BARRIER_NATIVE_H
-#define META_BARRIER_NATIVE_H
+#pragma once
 
 #include "backends/meta-barrier-private.h"
 
@@ -48,5 +47,3 @@ void meta_barrier_manager_native_process_in_impl (MetaBarrierManagerNative *mana
                                                   float                    *y);
 
 G_END_DECLS
-
-#endif /* META_BARRIER_NATIVE_H */

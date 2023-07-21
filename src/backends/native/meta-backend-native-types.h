@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_BACKEND_NATIVE_TYPES_H
-#define META_BACKEND_NATIVE_TYPES_H
+#pragma once
 
 typedef struct _MetaBackendNative MetaBackendNative;
 typedef struct _MetaSeatNative MetaSeatNative;
@@ -46,5 +45,3 @@ typedef enum _MetaBackendNativeMode
   META_BACKEND_NATIVE_MODE_HEADLESS,
   META_BACKEND_NATIVE_MODE_TEST,
 } MetaBackendNativeMode;
-
-#endif /* META_BACKEND_NATIVE_TYPES_H */

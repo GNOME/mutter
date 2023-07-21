@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_DEBUG_H__
-#define __COGL_DEBUG_H__
+#pragma once
 
 #include "cogl-profile.h"
 #include "cogl-flags.h"
@@ -120,6 +119,3 @@ _cogl_parse_debug_string (const char *value,
                           gboolean ignore_help);
 
 G_END_DECLS
-
-#endif /* __COGL_DEBUG_H__ */
-

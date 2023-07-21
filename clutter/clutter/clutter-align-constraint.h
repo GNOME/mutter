@@ -22,8 +22,7 @@
  *   Emmanuele Bassi <ebassi@linux.intel.com>
  */
 
-#ifndef __CLUTTER_ALIGN_CONSTRAINT_H__
-#define __CLUTTER_ALIGN_CONSTRAINT_H__
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -71,5 +70,3 @@ CLUTTER_EXPORT
 gfloat             clutter_align_constraint_get_factor     (ClutterAlignConstraint *align);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_ALIGN_CONSTRAINT_H__ */

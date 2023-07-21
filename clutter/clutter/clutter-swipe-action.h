@@ -26,12 +26,11 @@
  *   Emmanuele Bassi <ebassi@linux.intel.com>
  */
 
+#pragma once
+
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
-
-#ifndef __CLUTTER_SWIPE_ACTION_H__
-#define __CLUTTER_SWIPE_ACTION_H__
 
 #include <clutter/clutter-gesture-action.h>
 
@@ -83,5 +82,3 @@ CLUTTER_EXPORT
 ClutterAction * clutter_swipe_action_new        (void);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_SWIPE_ACTION_H__ */

@@ -15,9 +15,6 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef BOXES_TESTS_H
-#define BOXES_TESTS_H
+#pragma once
 
 void init_boxes_tests (void);
-
-#endif /* BOXES_TESTS_H */

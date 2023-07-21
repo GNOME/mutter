@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_WAYLAND_POINTER_GESTURE_SWIPE_H
-#define META_WAYLAND_POINTER_GESTURE_SWIPE_H
+#pragma once
 
 #include <glib.h>
 #include <wayland-server.h>
@@ -38,5 +37,3 @@ void meta_wayland_pointer_gesture_swipe_create_new_resource (MetaWaylandPointer 
 
 void meta_wayland_pointer_gesture_swipe_cancel (MetaWaylandPointer *pointer,
                                                 uint32_t            serial);
-
-#endif /* META_WAYLAND_POINTER_GESTURE_SWIPE_H */

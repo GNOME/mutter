@@ -15,8 +15,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_COLOR_DEVICE_H
-#define META_COLOR_DEVICE_H
+#pragma once
 
 #include <glib-object.h>
 #include <gio/gio.h>
@@ -67,5 +66,3 @@ void meta_color_device_update (MetaColorDevice *color_device,
 
 META_EXPORT_TEST
 void meta_set_color_efivar_test_path (const char *path);
-
-#endif /* META_COLOR_DEVICE_H */

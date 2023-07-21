@@ -21,10 +21,9 @@
  * OF THIS SOFTWARE.
  */
 
-/* This list implementation is based on the Wayland source code */
+#pragma once
 
-#ifndef COGL_LIST_H
-#define COGL_LIST_H
+/* This list implementation is based on the Wayland source code */
 
 #include <stddef.h>
 
@@ -125,5 +124,3 @@ _cogl_list_insert_list (CoglList *list,
        &pos->member != (head);                                          \
        pos = tmp,                                                       \
          _cogl_list_set_iterator (pos->member.prev, tmp, member))
-
-#endif /* COGL_LIST_H */

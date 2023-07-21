@@ -18,8 +18,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_WAYLAND_POPUP_H
-#define META_WAYLAND_POPUP_H
+#pragma once
 
 #include <glib.h>
 #include <wayland-server.h>
@@ -58,5 +57,3 @@ void meta_wayland_popup_destroy (MetaWaylandPopup *popup);
 void meta_wayland_popup_dismiss (MetaWaylandPopup *popup);
 
 MetaWaylandSurface *meta_wayland_popup_get_top_popup (MetaWaylandPopup *popup);
-
-#endif /* META_WAYLAND_POPUP_H */

@@ -20,8 +20,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __META_SHADOW_FACTORY_H__
-#define __META_SHADOW_FACTORY_H__
+#pragma once
 
 #include <cairo.h>
 
@@ -134,5 +133,3 @@ MetaShadow *meta_shadow_factory_get_shadow (MetaShadowFactory *factory,
                                             int                height,
                                             const char        *class_name,
                                             gboolean           focused);
-
-#endif /* __META_SHADOW_FACTORY_H__ */

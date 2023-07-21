@@ -18,8 +18,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __CALLY_H__
-#define __CALLY_H__
+#pragma once
 
 #define __CALLY_H_INSIDE__
 
@@ -33,5 +32,3 @@
 #include "cally-util.h"
 
 #undef __CALLY_H_INSIDE__
-
-#endif /* __CALLY_H__ */

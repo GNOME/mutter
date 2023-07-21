@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_TEXTURE_PIXMAP_X11_PRIVATE_H
-#define __COGL_TEXTURE_PIXMAP_X11_PRIVATE_H
+#pragma once
 
 #include <X11/Xlib.h>
 #include <X11/extensions/XShm.h>
@@ -98,6 +97,3 @@ struct _CoglTexturePixmapX11
      texture */
   gboolean use_winsys_texture;
 };
-
-
-#endif /* __COGL_TEXTURE_PIXMAP_X11_PRIVATE_H */

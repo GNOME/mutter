@@ -31,8 +31,7 @@
  *   Chris Lord <chris@linux.intel.com>
  */
 
-#ifndef __CLUTTER_TAP_ACTION_H__
-#define __CLUTTER_TAP_ACTION_H__
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -82,5 +81,3 @@ GType clutter_tap_action_get_type (void) G_GNUC_CONST;
 CLUTTER_EXPORT
 ClutterAction * clutter_tap_action_new   (void);
 G_END_DECLS
-
-#endif /* __CLUTTER_TAP_ACTION_H__ */

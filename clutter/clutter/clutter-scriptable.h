@@ -22,8 +22,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __CLUTTER_SCRIPTABLE_H__
-#define __CLUTTER_SCRIPTABLE_H__
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -97,5 +96,3 @@ void                  clutter_scriptable_set_custom_property (ClutterScriptable 
                                                               const GValue      *value);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_SCRIPTABLE_H__ */

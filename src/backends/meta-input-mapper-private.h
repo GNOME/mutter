@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_INPUT_MAPPER_H
-#define META_INPUT_MAPPER_H
+#pragma once
 
 #include <clutter/clutter.h>
 
@@ -51,5 +50,3 @@ meta_input_mapper_get_device_logical_monitor (MetaInputMapper *mapper,
 
 GSettings * meta_input_mapper_get_tablet_settings (MetaInputMapper    *mapper,
                                                    ClutterInputDevice *device);
-
-#endif /* META_INPUT_MAPPER_H */

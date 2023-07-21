@@ -21,8 +21,7 @@
  *     Jasper St. Pierre <jstpierre@mecheye.net>
  */
 
-#ifndef META_ACCEL_PARSE_H
-#define META_ACCEL_PARSE_H
+#pragma once
 
 #include <glib.h>
 
@@ -40,5 +39,3 @@ gboolean meta_parse_accelerator (const char   *accel,
                                  MetaKeyCombo *combo);
 gboolean meta_parse_modifier    (const char          *accel,
                                  ClutterModifierType *mask);
-
-#endif /* META_ACCEL_PARSE_H */

@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_WAYLAND_TABLET_MANAGER_H
-#define META_WAYLAND_TABLET_MANAGER_H
+#pragma once
 
 #include <glib.h>
 #include <wayland-server.h>
@@ -49,5 +48,3 @@ gboolean meta_wayland_tablet_manager_handle_event   (MetaWaylandTabletManager *m
 MetaWaylandTabletSeat *
          meta_wayland_tablet_manager_ensure_seat    (MetaWaylandTabletManager *manager,
                                                      MetaWaylandSeat          *seat);
-
-#endif /* META_WAYLAND_TABLET_MANAGER_H */

@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_XWAYLAND_PRIVATE_H
-#define META_XWAYLAND_PRIVATE_H
+#pragma once
 
 #include <glib.h>
 
@@ -60,5 +59,3 @@ gboolean meta_xwayland_start_xserver_finish (MetaXWaylandManager  *manager,
 
 gboolean meta_xwayland_manager_handle_xevent (MetaXWaylandManager *manager,
                                               XEvent              *xevent);
-
-#endif /* META_XWAYLAND_PRIVATE_H */

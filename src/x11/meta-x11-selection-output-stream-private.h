@@ -19,8 +19,7 @@
  *         Christian Kellner <gicmo@gnome.org>
  */
 
-#ifndef META_X11_SELECTION_OUTPUT_STREAM_H
-#define META_X11_SELECTION_OUTPUT_STREAM_H
+#pragma once
 
 #include <gio/gio.h>
 
@@ -43,5 +42,3 @@ GOutputStream * meta_x11_selection_output_stream_new         (MetaX11Display    
 
 gboolean        meta_x11_selection_output_stream_xevent        (MetaX11SelectionOutputStream *stream,
                                                                 const XEvent                 *xevent);
-
-#endif /* META_X11_SELECTION_OUTPUT_STREAM_H */

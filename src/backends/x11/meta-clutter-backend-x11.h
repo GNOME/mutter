@@ -22,8 +22,7 @@
  *     Jonas Ådahl <jadahl@gmail.com>
  */
 
-#ifndef META_CLUTTER_BACKEND_X11_H
-#define META_CLUTTER_BACKEND_X11_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -87,5 +86,3 @@ void meta_clutter_backend_x11_remove_filter (MetaClutterBackendX11 *clutter_back
 
 void meta_clutter_x11_set_use_stereo_stage (gboolean use_stereo);
 gboolean meta_clutter_x11_get_use_stereo_stage (void);
-
-#endif /* META_CLUTTER_BACKEND_X11_H */

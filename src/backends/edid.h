@@ -22,8 +22,7 @@
  * Author: Soren Sandmann <sandmann@redhat.com>
  */
 
-#ifndef EDID_H
-#define EDID_H
+#pragma once
 
 #include <stdint.h>
 
@@ -98,5 +97,3 @@ struct _MetaEdidInfo
 META_EXPORT_TEST
 MetaEdidInfo *meta_edid_info_new_parse (const uint8_t *edid,
                                         size_t size);
-
-#endif

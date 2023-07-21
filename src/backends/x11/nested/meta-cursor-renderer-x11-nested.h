@@ -22,8 +22,7 @@
  *     Jonas Ådahl <jadahl@gmail.com>
  */
 
-#ifndef META_CURSOR_RENDERER_X11_NESTED_NESTED_H
-#define META_CURSOR_RENDERER_X11_NESTED_NESTED_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -34,5 +33,3 @@ G_DECLARE_FINAL_TYPE (MetaCursorRendererX11Nested,
                       meta_cursor_renderer_x11_nested,
                       META, CURSOR_RENDERER_X11_NESTED,
                       MetaCursorRenderer);
-
-#endif /* META_CURSOR_RENDERER_X11_NESTED_NESTED_H */

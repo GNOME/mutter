@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef META_GLES3_H
-#define META_GLES3_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -79,5 +78,3 @@ MetaGles3 * meta_gles3_new (MetaEgl *egl);
       g_error_free (_error);                                                   \
     }                                                                          \
 }
-
-#endif /* META_GLES3_H */

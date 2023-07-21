@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef CLUTTER_KEYMAP_PRIVATE_H
-#define CLUTTER_KEYMAP_PRIVATE_H
+#pragma once
 
 #include "clutter/clutter-keymap.h"
 
@@ -27,5 +26,3 @@ CLUTTER_EXPORT
 void clutter_keymap_set_lock_modifier_state (ClutterKeymap *keymap,
                                              gboolean       caps_lock_state,
                                              gboolean       num_lock_state);
-
-#endif /* CLUTTER_KEYMAP_PRIVATE_H */

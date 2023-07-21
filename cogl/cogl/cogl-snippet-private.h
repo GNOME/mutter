@@ -31,8 +31,7 @@
  *   Neil Roberts <neil@linux.intel.com>
  */
 
-#ifndef __COGL_SNIPPET_PRIVATE_H
-#define __COGL_SNIPPET_PRIVATE_H
+#pragma once
 
 #include <glib.h>
 
@@ -72,6 +71,3 @@ struct _CoglSnippet
 
 void
 _cogl_snippet_make_immutable (CoglSnippet *snippet);
-
-#endif /* __COGL_SNIPPET_PRIVATE_H */
-

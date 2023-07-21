@@ -23,8 +23,7 @@
  *
  */
 
-#ifndef __CLUTTER_PRIVATE_H__
-#define __CLUTTER_PRIVATE_H__
+#pragma once
 
 #include <string.h>
 #include <glib.h>
@@ -320,5 +319,3 @@ s2ms (int64_t s)
 }
 
 G_END_DECLS
-
-#endif /* __CLUTTER_PRIVATE_H__ */

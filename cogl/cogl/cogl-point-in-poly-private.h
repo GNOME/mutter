@@ -26,8 +26,7 @@
  * SOFTWARE.
  */
 
-#ifndef __COGL_POINT_INT_POLYGON_PRIVATE_H
-#define __COGL_POINT_INT_POLYGON_PRIVATE_H
+#pragma once
 
 #include <glib.h>
 
@@ -41,6 +40,3 @@ _cogl_util_point_in_screen_poly (float point_x,
                                  int n_vertices);
 
 G_END_DECLS
-
-#endif /* __COGL_POINT_INT_POLYGON_PRIVATE_H */
-

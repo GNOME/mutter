@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_KMS_UPDATE_PRIVATE_H
-#define META_KMS_UPDATE_PRIVATE_H
+#pragma once
 
 #include <glib.h>
 #include <stdint.h>
@@ -218,5 +217,3 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaKmsPlaneFeedback,
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaKmsCustomPageFlip,
                                meta_kms_custom_page_flip_free)
-
-#endif /* META_KMS_UPDATE_PRIVATE_H */

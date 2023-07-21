@@ -16,8 +16,7 @@
  *
  */
 
-#ifndef META_CURSOR_SPRITE_WAYLAND_H
-#define META_CURSOR_SPRITE_WAYLAND_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -33,5 +32,3 @@ MetaCursorSpriteWayland * meta_cursor_sprite_wayland_new (MetaWaylandSurface *su
                                                           MetaCursorTracker  *cursor_tracker);
 
 MetaWaylandBuffer * meta_cursor_sprite_wayland_get_buffer (MetaCursorSpriteWayland *sprite_wayland);
-
-#endif /* META_CURSOR_SPRITE_WAYLAND_H */

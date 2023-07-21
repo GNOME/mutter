@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_COMPOSITOR_X11_H
-#define META_COMPOSITOR_X11_H
+#pragma once
 
 #include "compositor/compositor-private.h"
 
@@ -35,5 +34,3 @@ void meta_compositor_x11_process_xevent (MetaCompositorX11 *compositor_x11,
                                          MetaWindow        *window);
 
 Window meta_compositor_x11_get_output_xwindow (MetaCompositorX11 *compositor_x11);
-
-#endif /* META_COMPOSITOR_X11_H */

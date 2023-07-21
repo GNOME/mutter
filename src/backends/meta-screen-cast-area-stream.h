@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_SCREEN_CAST_AREA_STREAM_H
-#define META_SCREEN_CAST_AREA_STREAM_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -45,5 +44,3 @@ ClutterStage * meta_screen_cast_area_stream_get_stage (MetaScreenCastAreaStream 
 MetaRectangle * meta_screen_cast_area_stream_get_area (MetaScreenCastAreaStream *area_stream);
 
 float meta_screen_cast_area_stream_get_scale (MetaScreenCastAreaStream *area_stream);
-
-#endif /* META_SCREEN_CAST_AREA_STREAM_H */

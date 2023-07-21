@@ -19,8 +19,7 @@
  *
  */
 
-#ifndef META_DRM_BUFFER_DUMB_H
-#define META_DRM_BUFFER_DUMB_H
+#pragma once
 
 #include "backends/native/meta-backend-native-types.h"
 #include "backends/native/meta-drm-buffer-private.h"
@@ -42,5 +41,3 @@ int meta_drm_buffer_dumb_ensure_dmabuf_fd (MetaDrmBufferDumb  *buffer_dumb,
                                            GError            **error);
 
 void * meta_drm_buffer_dumb_get_data (MetaDrmBufferDumb *buffer_dumb);
-
-#endif /* META_DRM_BUFFER_DUMB_H */

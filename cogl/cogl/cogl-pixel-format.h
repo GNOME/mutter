@@ -28,12 +28,11 @@
  *
  */
 
+#pragma once
+
 #if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
-
-#ifndef __COGL_PIXEL_FORMAT_H__
-#define __COGL_PIXEL_FORMAT_H__
 
 #include <stdint.h>
 #include <stddef.h>
@@ -352,5 +351,3 @@ COGL_EXPORT const char *
 cogl_pixel_format_to_string (CoglPixelFormat format);
 
 G_END_DECLS
-
-#endif /* __COGL_PIXEL_FORMAT_H__ */

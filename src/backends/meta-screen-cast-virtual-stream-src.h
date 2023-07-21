@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_SCREEN_CAST_VIRTUAL_STREAM_SRC_H
-#define META_SCREEN_CAST_VIRTUAL_STREAM_SRC_H
+#pragma once
 
 #include "backends/meta-screen-cast-stream-src.h"
 #include "backends/meta-screen-cast-virtual-stream.h"
@@ -34,5 +33,3 @@ MetaScreenCastVirtualStreamSrc * meta_screen_cast_virtual_stream_src_new (MetaSc
                                                                           GError                     **error);
 
 ClutterStageView * meta_screen_cast_virtual_stream_src_get_view (MetaScreenCastVirtualStreamSrc *virtual_src);
-
-#endif /* META_SCREEN_CAST_VIRTUAL_STREAM_SRC_H */

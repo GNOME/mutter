@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_KMS_DEVICE_H
-#define META_KMS_DEVICE_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -98,5 +97,3 @@ MetaKmsDevice * meta_kms_device_new (MetaKms            *kms,
                                      const char         *path,
                                      MetaKmsDeviceFlag   flags,
                                      GError            **error);
-
-#endif /* META_KMS_DEVICE_H */

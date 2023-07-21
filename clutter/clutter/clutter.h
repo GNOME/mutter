@@ -23,8 +23,7 @@
  *
  */
 
-#ifndef __CLUTTER_H__
-#define __CLUTTER_H__
+#pragma once
 
 #define __CLUTTER_H_INSIDE__
 
@@ -116,5 +115,3 @@
 #include "clutter-autocleanups.h"
 
 #undef __CLUTTER_H_INSIDE__
-
-#endif /* __CLUTTER_H__ */

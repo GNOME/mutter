@@ -21,8 +21,7 @@
  * Author: Emmanuele Bassi <ebassi@linux.intel.com>
  */
 
-#ifndef __CLUTTER_STAGE_MANAGER_H__
-#define __CLUTTER_STAGE_MANAGER_H__
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -72,5 +71,3 @@ CLUTTER_EXPORT
 const GSList *       clutter_stage_manager_peek_stages       (ClutterStageManager *stage_manager);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_STAGE_MANAGER_H__ */

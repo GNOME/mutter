@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_BOXED_VALUE_H
-#define __COGL_BOXED_VALUE_H
+#pragma once
 
 #include <glib.h>
 
@@ -114,5 +113,3 @@ void
 _cogl_boxed_value_set_uniform (CoglContext *ctx,
                                int location,
                                const CoglBoxedValue *value);
-
-#endif /* __COGL_BOXED_VALUE_H */

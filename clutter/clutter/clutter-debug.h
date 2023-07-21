@@ -1,5 +1,4 @@
-#ifndef __CLUTTER_DEBUG_H__
-#define __CLUTTER_DEBUG_H__
+#pragma once
 
 #include <glib.h>
 #include "clutter-main.h"
@@ -49,5 +48,3 @@ void    _clutter_debug_message          (const char *format,
                                          ...) G_GNUC_PRINTF (1, 2);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_DEBUG_H__ */

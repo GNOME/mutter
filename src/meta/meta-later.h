@@ -17,8 +17,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_LATER_H
-#define META_LATER_H
+#pragma once
 
 #include <meta/types.h>
 
@@ -57,5 +56,3 @@ unsigned int meta_laters_add (MetaLaters     *laters,
 META_EXPORT
 void meta_laters_remove (MetaLaters   *laters,
                          unsigned int  later_id);
-
-#endif /* META_LATER_H */

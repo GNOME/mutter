@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef CLUTTER_KEYMAP_H
-#define CLUTTER_KEYMAP_H
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -54,5 +53,3 @@ CLUTTER_EXPORT
 gboolean clutter_keymap_get_caps_lock_state (ClutterKeymap *keymap);
 
 PangoDirection clutter_keymap_get_direction (ClutterKeymap *keymap);
-
-#endif /* CLUTTER_KEYMAP_H */

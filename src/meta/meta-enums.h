@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_ENUMS_H
-#define META_ENUMS_H
+#pragma once
 
 typedef enum _MetaCompositorType
 {
@@ -415,5 +414,3 @@ typedef enum
   META_A11Y_STICKY_KEYS_BEEP = 1 << 12,
   META_A11Y_FEATURE_STATE_CHANGE_BEEP = 1 << 13,
 } MetaKeyboardA11yFlags;
-
-#endif /* META_ENUMS_H */

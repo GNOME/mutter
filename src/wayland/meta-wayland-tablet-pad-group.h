@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_WAYLAND_TABLET_PAD_GROUP_H
-#define META_WAYLAND_TABLET_PAD_GROUP_H
+#pragma once
 
 #include <glib.h>
 #include <wayland-server.h>
@@ -69,5 +68,3 @@ gboolean     meta_wayland_tablet_pad_group_has_button            (MetaWaylandTab
                                                                   guint                      button);
 gboolean     meta_wayland_tablet_pad_group_is_mode_switch_button (MetaWaylandTabletPadGroup *group,
                                                                   guint                      button);
-
-#endif /* META_WAYLAND_TABLET_PAD_GROUP_H */

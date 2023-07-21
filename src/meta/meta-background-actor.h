@@ -18,8 +18,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_BACKGROUND_ACTOR_H
-#define META_BACKGROUND_ACTOR_H
+#pragma once
 
 #include <gdesktop-enums.h>
 
@@ -47,5 +46,3 @@ G_DECLARE_FINAL_TYPE (MetaBackgroundActor,
 META_EXPORT
 ClutterActor *meta_background_actor_new    (MetaDisplay *display,
                                             int          monitor);
-
-#endif /* META_BACKGROUND_ACTOR_H */

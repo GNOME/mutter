@@ -22,8 +22,7 @@
  *   Emmanuele Bassi <ebassi@linux.intel.com>
  */
 
-#ifndef __CLUTTER_SHADER_EFFECT_H__
-#define __CLUTTER_SHADER_EFFECT_H__
+#pragma once
 
 #if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
 #error "Only <clutter/clutter.h> can be included directly."
@@ -99,5 +98,3 @@ CLUTTER_EXPORT
 CoglHandle      clutter_shader_effect_get_program       (ClutterShaderEffect *effect);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_SHADER_EFFECT_H__ */

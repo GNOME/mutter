@@ -20,8 +20,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_WINDOW_X11_PRIVATE_H
-#define META_WINDOW_X11_PRIVATE_H
+#pragma once
 
 #include "core/window-private.h"
 #include "x11/iconcache.h"
@@ -98,5 +97,3 @@ void meta_window_x11_queue_update_icon (MetaWindowX11 *window_x11);
 void meta_window_x11_initialize_state (MetaWindow *window);
 
 G_END_DECLS
-
-#endif

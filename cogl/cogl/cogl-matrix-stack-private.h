@@ -32,8 +32,7 @@
  *   Robert Bragg <robert@linux.intel.com>
  */
 
-#ifndef _COGL_MATRIX_STACK_PRIVATE_H_
-#define _COGL_MATRIX_STACK_PRIVATE_H_
+#pragma once
 
 #include "cogl-object-private.h"
 #include "cogl-matrix-stack.h"
@@ -164,5 +163,3 @@ _cogl_matrix_entry_cache_maybe_update (CoglMatrixEntryCache *cache,
 
 void
 _cogl_matrix_entry_cache_destroy (CoglMatrixEntryCache *cache);
-
-#endif /* _COGL_MATRIX_STACK_PRIVATE_H_ */

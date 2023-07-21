@@ -22,9 +22,7 @@
  *     Jasper St. Pierre <jstpierre@mecheye.net>
  */
 
-
-#ifndef META_BACKEND_PRIVATE_H
-#define META_BACKEND_PRIVATE_H
+#pragma once
 
 #include <glib-object.h>
 #include <xkbcommon/xkbcommon.h>
@@ -215,5 +213,3 @@ void meta_backend_update_from_event (MetaBackend  *backend,
 
 char * meta_backend_get_vendor_name (MetaBackend *backend,
                                      const char  *pnp_id);
-
-#endif /* META_BACKEND_PRIVATE_H */

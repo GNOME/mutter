@@ -19,8 +19,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_MODULE_H_
-#define META_MODULE_H_
+#pragma once
 
 #include <glib-object.h>
 
@@ -51,5 +50,3 @@ struct _MetaModuleClass
 GType meta_module_get_type (void);
 
 GType meta_module_get_plugin_type (MetaModule *module);
-
-#endif

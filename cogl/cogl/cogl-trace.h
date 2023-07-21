@@ -25,8 +25,7 @@
  *
  */
 
-#ifndef COGL_TRACE_H
-#define COGL_TRACE_H
+#pragma once
 
 #include <glib.h>
 #include <gio/gio.h>
@@ -171,5 +170,3 @@ COGL_EXPORT
 void cogl_set_tracing_disabled_on_thread (void *data);
 
 #endif /* COGL_HAS_TRACING */
-
-#endif /* COGL_TRACE_H */

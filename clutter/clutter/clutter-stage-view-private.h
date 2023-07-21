@@ -15,8 +15,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __CLUTTER_STAGE_VIEW_PRIVATE_H__
-#define __CLUTTER_STAGE_VIEW_PRIVATE_H__
+#pragma once
 
 #include "clutter/clutter-stage-view.h"
 #include "clutter/clutter-types.h"
@@ -86,5 +85,3 @@ CLUTTER_EXPORT
 void clutter_stage_view_notify_ready (ClutterStageView *view);
 
 void clutter_stage_view_invalidate_input_devices (ClutterStageView *view);
-
-#endif /* __CLUTTER_STAGE_VIEW_PRIVATE_H__ */

@@ -22,8 +22,7 @@
  *     Jonas Ådahl <jadahl@gmail.com>
  */
 
-#ifndef META_WAYLAND_INPUT_DEVICE_H
-#define META_WAYLAND_INPUT_DEVICE_H
+#pragma once
 
 #include <glib-object.h>
 #include <stdint.h>
@@ -44,5 +43,3 @@ struct _MetaWaylandInputDeviceClass
 MetaWaylandSeat * meta_wayland_input_device_get_seat (MetaWaylandInputDevice *input_device);
 
 uint32_t meta_wayland_input_device_next_serial (MetaWaylandInputDevice *input_device);
-
-#endif /* META_WAYLAND_INPUT_DEVICE_H */

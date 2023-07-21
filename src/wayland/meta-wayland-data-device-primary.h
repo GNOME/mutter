@@ -21,8 +21,7 @@
  * OF THIS SOFTWARE.
  */
 
-#ifndef META_WAYLAND_DATA_DEVICE_PRIMARY_H
-#define META_WAYLAND_DATA_DEVICE_PRIMARY_H
+#pragma once
 
 #include <glib-object.h>
 #include <wayland-server.h>
@@ -54,5 +53,3 @@ void meta_wayland_data_device_primary_init (MetaWaylandDataDevicePrimary *data_d
                                             MetaWaylandSeat              *seat);
 
 void meta_wayland_data_device_primary_set_keyboard_focus (MetaWaylandDataDevicePrimary *data_device);
-
-#endif /* META_WAYLAND_DATA_DEVICE_PRIMARY_H */

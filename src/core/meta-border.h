@@ -22,8 +22,7 @@
  *     Jonas Ådahl <jadahl@gmail.com>
  */
 
-#ifndef META_BORDER_H
-#define META_BORDER_H
+#pragma once
 
 #include <glib.h>
 
@@ -80,5 +79,3 @@ meta_border_get_allows_directions (MetaBorder *border);
 
 void
 meta_border_set_allows_directions (MetaBorder *border, unsigned int directions);
-
-#endif /* META_BORDER_H */

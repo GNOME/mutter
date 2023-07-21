@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef META_SCREEN_CAST_MONITOR_STREAM_H
-#define META_SCREEN_CAST_MONITOR_STREAM_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -46,5 +45,3 @@ MetaScreenCastMonitorStream * meta_screen_cast_monitor_stream_new (MetaScreenCas
 ClutterStage * meta_screen_cast_monitor_stream_get_stage (MetaScreenCastMonitorStream *monitor_stream);
 
 MetaMonitor * meta_screen_cast_monitor_stream_get_monitor (MetaScreenCastMonitorStream *monitor_stream);
-
-#endif /* META_SCREEN_CAST_MONITOR_STREAM_H */

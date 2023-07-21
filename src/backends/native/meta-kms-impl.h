@@ -18,8 +18,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_KMS_IMPL_H
-#define META_KMS_IMPL_H
+#pragma once
 
 #include "backends/native/meta-kms-impl-device.h"
 #include "backends/native/meta-kms-page-flip-private.h"
@@ -65,5 +64,3 @@ MetaKmsUpdate * meta_kms_impl_filter_update (MetaKmsImpl       *impl,
                                              MetaKmsCrtc       *crtc,
                                              MetaKmsUpdate     *update,
                                              MetaKmsUpdateFlag  flags);
-
-#endif /* META_KMS_IMPL_H */

@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_X11_EVENT_SOURCE_H
-#define META_X11_EVENT_SOURCE_H
+#pragma once
 
 #include <glib.h>
 #include <X11/Xlib.h>
@@ -27,5 +26,3 @@ typedef gboolean (* MetaX11EventFunc) (XEvent   *xevent,
                                        gpointer  user_data);
 
 GSource * meta_x11_event_source_new (Display *xdisplay);
-
-#endif

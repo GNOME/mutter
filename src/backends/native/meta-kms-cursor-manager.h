@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_KMS_CURSOR_MANAGER_H
-#define META_KMS_CURSOR_MANAGER_H
+#pragma once
 
 #include <glib-object.h>
 #include <graphene.h>
@@ -60,5 +59,3 @@ void meta_kms_cursor_manager_update_sprite (MetaKmsCursorManager   *cursor_manag
 META_EXPORT_TEST
 void meta_kms_cursor_manager_update_crtc_layout (MetaKmsCursorManager *cursor_manager,
                                                  GArray               *layouts);
-
-#endif /* META_KMS_CURSOR_MANAGER_H */

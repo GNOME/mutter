@@ -20,8 +20,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_CRTC_KMS_H
-#define META_CRTC_KMS_H
+#pragma once
 
 #include <xf86drm.h>
 #include <xf86drmMode.h>
@@ -80,5 +79,3 @@ MetaCrtcKms * meta_crtc_kms_from_kms_crtc (MetaKmsCrtc *kms_crtc);
 
 MetaCrtcKms * meta_crtc_kms_new (MetaGpuKms  *gpu_kms,
                                  MetaKmsCrtc *kms_crtc);
-
-#endif /* META_CRTC_KMS_H */

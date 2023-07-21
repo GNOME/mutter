@@ -17,8 +17,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_MULTI_TEXTURE_FORMAT_PRIVATE_H
-#define META_MULTI_TEXTURE_FORMAT_PRIVATE_H
+#pragma once
 
 #include <cogl/cogl.h>
 
@@ -45,5 +44,3 @@ gboolean meta_multi_texture_format_get_snippets (MetaMultiTextureFormat   format
                                                  CoglSnippet            **fragment_snippet);
 
 G_END_DECLS
-
-#endif /* META_MULTI_TEXTURE_FORMAT_PRIVATE_H */

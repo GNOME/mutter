@@ -19,8 +19,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_XPROPS_H
-#define META_XPROPS_H
+#pragma once
 
 #include <X11/Xutil.h>
 #include <X11/extensions/sync.h>
@@ -185,9 +184,3 @@ void meta_prop_get_values (MetaX11Display *x11_display,
 
 void meta_prop_free_values (MetaPropValue *values,
                             int            n_values);
-
-#endif
-
-
-
-

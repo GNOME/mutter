@@ -1,7 +1,6 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; c-basic-offset: 2; -*- */
 
-#ifndef __META_BARRIER_H__
-#define __META_BARRIER_H__
+#pragma once
 
 #include <glib-object.h>
 
@@ -106,5 +105,3 @@ META_EXPORT
 GType meta_barrier_event_get_type (void) G_GNUC_CONST;
 
 G_END_DECLS
-
-#endif /* __META_BARRIER_H__ */

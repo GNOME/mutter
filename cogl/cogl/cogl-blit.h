@@ -26,8 +26,7 @@
  * SOFTWARE.
  */
 
-#ifndef __COGL_BLIT_H
-#define __COGL_BLIT_H
+#pragma once
 
 #include <glib.h>
 #include "cogl-object-private.h"
@@ -97,5 +96,3 @@ _cogl_blit (CoglBlitData *data,
 
 void
 _cogl_blit_end (CoglBlitData *data);
-
-#endif /* __COGL_BLIT_H */

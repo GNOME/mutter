@@ -16,8 +16,7 @@
  *
  */
 
-#ifndef META_IDLE_MANAGER_H
-#define META_IDLE_MANAGER_H
+#pragma once
 
 #include "backends/meta-backend-types.h"
 #include "clutter/clutter.h"
@@ -35,5 +34,3 @@ void meta_idle_manager_reset_idle_time (MetaIdleManager *idle_manager);
 MetaIdleManager * meta_idle_manager_new (MetaBackend *backend);
 
 void meta_idle_manager_free (MetaIdleManager *idle_manager);
-
-#endif /* META_IDLE_MANAGER_H */

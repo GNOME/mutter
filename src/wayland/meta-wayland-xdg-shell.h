@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_WAYLAND_XDG_SHELL_H
-#define META_WAYLAND_XDG_SHELL_H
+#pragma once
 
 #include "wayland/meta-wayland-shell-surface.h"
 
@@ -49,5 +48,3 @@ G_DECLARE_FINAL_TYPE (MetaWaylandXdgPopup,
                       MetaWaylandXdgSurface);
 
 void meta_wayland_xdg_shell_init (MetaWaylandCompositor *compositor);
-
-#endif /* META_WAYLAND_XDG_SHELL_H */

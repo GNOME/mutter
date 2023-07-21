@@ -17,8 +17,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_BACKEND_TEST_H
-#define META_BACKEND_TEST_H
+#pragma once
 
 #include "backends/x11/nested/meta-backend-x11-nested.h"
 
@@ -43,6 +42,3 @@ ClutterInputDevice * meta_backend_test_add_test_device (MetaBackendTest        *
 META_EXPORT_TEST
 void meta_backend_test_remove_device (MetaBackendTest    *backend,
                                       ClutterInputDevice *device);
-
-
-#endif /* META_BACKEND_TEST_H */

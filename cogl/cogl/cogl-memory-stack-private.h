@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_MEMORY_STACK__
-#define __COGL_MEMORY_STACK__
+#pragma once
 
 #include <glib.h>
 
@@ -46,5 +45,3 @@ _cogl_memory_stack_rewind (CoglMemoryStack *stack);
 
 void
 _cogl_memory_stack_free (CoglMemoryStack *stack);
-
-#endif /* __COGL_MEMORY_STACK__ */

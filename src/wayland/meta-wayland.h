@@ -20,8 +20,7 @@
  *     Jasper St. Pierre <jstpierre@mecheye.net>
  */
 
-#ifndef META_WAYLAND_H
-#define META_WAYLAND_H
+#pragma once
 
 #include "clutter/clutter.h"
 #include "core/meta-context-private.h"
@@ -108,5 +107,3 @@ gboolean meta_wayland_compositor_is_grabbed (MetaWaylandCompositor *compositor);
 
 META_EXPORT_TEST
 MetaWaylandFilterManager * meta_wayland_compositor_get_filter_manager (MetaWaylandCompositor *compositor);
-
-#endif

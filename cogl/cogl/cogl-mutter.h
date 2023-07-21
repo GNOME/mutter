@@ -28,8 +28,7 @@
  *
  */
 
-#ifndef __COGL_MUTTER_H___
-#define __COGL_MUTTER_H___
+#pragma once
 
 #include "cogl-config.h"
 #include "cogl-defines.h"
@@ -61,5 +60,3 @@ void cogl_renderer_set_custom_winsys (CoglRenderer                *renderer,
 COGL_EXPORT
 gboolean cogl_context_format_supports_upload (CoglContext     *ctx,
                                               CoglPixelFormat  format);
-
-#endif /* __COGL_MUTTER_H___ */

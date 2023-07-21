@@ -19,8 +19,7 @@
  *         Christian Kellner <gicmo@gnome.org>
  */
 
-#ifndef META_X11_SELECTION_INPUT_STREAM_H
-#define META_X11_SELECTION_INPUT_STREAM_H
+#pragma once
 
 #include <gio/gio.h>
 
@@ -47,5 +46,3 @@ gboolean       meta_x11_selection_input_stream_xevent        (MetaX11SelectionIn
                                                               const XEvent                *xevent);
 
 G_END_DECLS
-
-#endif /* META_X11_SELECTION_INPUT_STREAM_H */

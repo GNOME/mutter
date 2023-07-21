@@ -32,8 +32,7 @@
  *   Robert Bragg <robert@linux.intel.com>
  */
 
-#ifndef _COGL_MATRIX_STACK_H_
-#define _COGL_MATRIX_STACK_H_
+#pragma once
 
 #if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl.h> can be included directly."
@@ -627,5 +626,3 @@ cogl_matrix_entry_ref (CoglMatrixEntry *entry);
  */
 COGL_EXPORT void
 cogl_matrix_entry_unref (CoglMatrixEntry *entry);
-
-#endif /* _COGL_MATRIX_STACK_H_ */

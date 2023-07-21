@@ -20,8 +20,7 @@
  * Author: Jonas Ådahl <jadahl@gmail.com>
  */
 
-#ifndef META_SEAT_IMPL_H
-#define META_SEAT_IMPL_H
+#pragma once
 
 #ifndef META_INPUT_THREAD_H_INSIDE
 #error "This header cannot be included directly. Use "backends/native/meta-input-thread.h""
@@ -258,5 +257,3 @@ void meta_seat_impl_queue_main_thread_idle (MetaSeatImpl   *seat_impl,
                                             GDestroyNotify  destroy_notify);
 
 MetaBackend * meta_seat_impl_get_backend (MetaSeatImpl *seat_impl);
-
-#endif /* META_SEAT_IMPL_H */

@@ -17,8 +17,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_SYNC_COUNTER_H
-#define META_SYNC_COUNTER_H
+#pragma once
 
 #include "meta/window.h"
 
@@ -86,5 +85,3 @@ void meta_sync_counter_complete_frame (MetaSyncCounter  *sync_counter,
 void meta_sync_counter_finish_incomplete (MetaSyncCounter *sync_counter);
 
 void meta_sync_counter_send_frame_drawn (MetaSyncCounter *sync_counter);
-
-#endif /* META_SYNC_COUNTER_H */

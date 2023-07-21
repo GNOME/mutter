@@ -19,8 +19,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __CLUTTER_ACTOR_PRIVATE_H__
-#define __CLUTTER_ACTOR_PRIVATE_H__
+#pragma once
 
 #include <clutter/clutter-actor.h>
 #include <clutter/clutter-grab.h>
@@ -281,5 +280,3 @@ void clutter_actor_set_implicitly_grabbed (ClutterActor *actor,
                                            gboolean      is_implicitly_grabbed);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_ACTOR_PRIVATE_H__ */

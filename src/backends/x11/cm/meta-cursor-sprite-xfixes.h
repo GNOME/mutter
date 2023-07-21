@@ -16,8 +16,7 @@
  *
  */
 
-#ifndef META_CURSOR_SPRITE_XFIXES_H
-#define META_CURSOR_SPRITE_XFIXES_H
+#pragma once
 
 #include <glib-object.h>
 
@@ -33,5 +32,3 @@ G_DECLARE_FINAL_TYPE (MetaCursorSpriteXfixes,
 MetaCursorSpriteXfixes * meta_cursor_sprite_xfixes_new (MetaDisplay        *display,
                                                         MetaCursorTracker  *cursor_tracker,
                                                         GError            **error);
-
-#endif /* META_CURSOR_SPRITE_XFIXES_H */

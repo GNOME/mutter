@@ -28,12 +28,11 @@
  *
  */
 
+#pragma once
+
 #if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
-
-#ifndef __COGL_FENCE_H__
-#define __COGL_FENCE_H__
 
 #include <cogl/cogl-types.h>
 #include <cogl/cogl-framebuffer.h>
@@ -121,5 +120,3 @@ cogl_framebuffer_add_fence_callback (CoglFramebuffer *framebuffer,
 COGL_EXPORT void
 cogl_framebuffer_cancel_fence_callback (CoglFramebuffer *framebuffer,
                                         CoglFenceClosure *closure);
-
-#endif /* __COGL_FENCE_H__ */

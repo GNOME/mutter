@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_INPUT_CAPTURE_H
-#define META_INPUT_CAPTURE_H
+#pragma once
 
 #include "backends/meta-dbus-session-manager.h"
 #include "backends/meta-viewport-info.h"
@@ -48,5 +47,3 @@ void meta_input_capture_notify_cancelled (MetaInputCapture *input_capture);
 
 gboolean meta_input_capture_process_event (MetaInputCapture   *input_capture,
                                            const ClutterEvent *event);
-
-#endif /* META_INPUT_CAPTURE_H */

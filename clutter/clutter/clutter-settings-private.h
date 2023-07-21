@@ -1,5 +1,4 @@
-#ifndef __CLUTTER_SETTINGS_PRIVATE_H__
-#define __CLUTTER_SETTINGS_PRIVATE_H__
+#pragma once
 
 #include <clutter/clutter-backend-private.h>
 #include <clutter/clutter-settings.h>
@@ -17,5 +16,3 @@ void clutter_settings_ensure_pointer_a11y_settings (ClutterSettings *settings,
                                                     ClutterSeat     *seat);
 
 G_END_DECLS
-
-#endif /* __CLUTTER_SETTINGS_PRIVATE_H__ */

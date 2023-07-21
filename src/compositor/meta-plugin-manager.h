@@ -19,8 +19,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_PLUGIN_MANAGER_H_
-#define META_PLUGIN_MANAGER_H_
+#pragma once
 
 #include "core/util-private.h"
 #include "meta/meta-plugin.h"
@@ -103,5 +102,3 @@ MetaInhibitShortcutsDialog *
                                                        MetaWindow        *window);
 
 void meta_plugin_manager_locate_pointer (MetaPluginManager *mgr);
-
-#endif

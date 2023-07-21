@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef __CLUTTER_INPUT_FOCUS_H__
-#define __CLUTTER_INPUT_FOCUS_H__
+#pragma once
 
 #include <clutter/clutter.h>
 
@@ -86,5 +85,3 @@ void clutter_input_focus_set_can_show_preedit (ClutterInputFocus *focus,
 CLUTTER_EXPORT
 void clutter_input_focus_set_input_panel_state (ClutterInputFocus      *focus,
                                                 ClutterInputPanelState  state);
-
-#endif /* __CLUTTER_INPUT_FOCUS_H__ */

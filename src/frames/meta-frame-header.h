@@ -17,8 +17,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_FRAME_HEADER_H
-#define META_FRAME_HEADER_H
+#pragma once
 
 #include <gtk/gtk.h>
 
@@ -28,4 +27,3 @@ G_DECLARE_FINAL_TYPE (MetaFrameHeader, meta_frame_header,
 
 GtkWidget * meta_frame_header_new (void);
 
-#endif /* META_FRAME_HEADER_H */

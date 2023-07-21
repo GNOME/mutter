@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_SELECTION_H
-#define META_SELECTION_H
+#pragma once
 
 #include <gio/gio.h>
 
@@ -66,5 +65,3 @@ META_EXPORT
 gboolean meta_selection_transfer_finish      (MetaSelection        *selection,
                                               GAsyncResult         *result,
                                               GError              **error);
-
-#endif /* META_SELECTION_H */

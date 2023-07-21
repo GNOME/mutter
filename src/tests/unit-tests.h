@@ -15,11 +15,8 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef UNIT_TESTS_H
-#define UNIT_TESTS_H
+#pragma once
 
 #include "meta/meta-context.h"
 
 extern MetaContext *test_context;
-
-#endif /* UNIT_TESTS_H */

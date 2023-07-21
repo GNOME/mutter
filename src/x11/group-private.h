@@ -19,8 +19,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_GROUP_PRIVATE_H
-#define META_GROUP_PRIVATE_H
+#pragma once
 
 #include "meta/group.h"
 
@@ -33,9 +32,3 @@ struct _MetaGroup
   char *startup_id;
   char *wm_client_machine;
 };
-
-#endif
-
-
-
-

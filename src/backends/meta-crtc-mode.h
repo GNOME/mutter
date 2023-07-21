@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_CRTC_MODE_H
-#define META_CRTC_MODE_H
+#pragma once
 
 #include <glib-object.h>
 #include <stdint.h>
@@ -90,5 +89,3 @@ const char * meta_crtc_mode_get_name (MetaCrtcMode *crtc_mode);
 
 META_EXPORT_TEST
 const MetaCrtcModeInfo * meta_crtc_mode_get_info (MetaCrtcMode *crtc_mode);
-
-#endif /* META_CRTC_MODE_H */

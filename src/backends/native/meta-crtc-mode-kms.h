@@ -17,8 +17,7 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_CRTC_MODE_KMS_H
-#define META_CRTC_MODE_KMS_H
+#pragma once
 
 #include <xf86drm.h>
 #include <xf86drmMode.h>
@@ -35,5 +34,3 @@ MetaKmsMode * meta_crtc_mode_kms_get_kms_mode (MetaCrtcModeKms *mode_kms);
 
 MetaCrtcModeKms * meta_crtc_mode_kms_new (MetaKmsMode *kms_mode,
                                           uint64_t     id);
-
-#endif /* META_CRTC_MODE_KMS_H */

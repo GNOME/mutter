@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef META_WAYLAND_WINDOW_CONFIGURATION_H
-#define META_WAYLAND_WINDOW_CONFIGURATION_H
+#pragma once
 
 #include <glib.h>
 #include <stdint.h>
@@ -73,5 +72,3 @@ MetaWaylandWindowConfiguration * meta_wayland_window_configuration_new_empty (in
                                                                               int bounds_height);
 
 void meta_wayland_window_configuration_free (MetaWaylandWindowConfiguration *configuration);
-
-#endif /* META_WAYLAND_WINDOW_CONFIGURATION_H */

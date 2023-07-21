@@ -17,8 +17,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_FRAME_H
-#define META_FRAME_H
+#pragma once
 
 #include <gtk/gtk.h>
 #include <X11/Xlib.h>
@@ -31,5 +30,3 @@ GtkWidget * meta_frame_new (Window window);
 void meta_frame_handle_xevent (MetaFrame *frame,
                                Window     window,
                                XEvent    *xevent);
-
-#endif /* META_FRAME_CONTENT_H */

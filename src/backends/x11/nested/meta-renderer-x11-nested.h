@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef META_RENDERER_X11_NESTED_H
-#define META_RENDERER_X11_NESTED_H
+#pragma once
 
 #include "backends/x11/meta-renderer-x11.h"
 
@@ -33,5 +32,3 @@ G_DECLARE_FINAL_TYPE (MetaRendererX11Nested, meta_renderer_x11_nested,
 void meta_renderer_x11_nested_ensure_legacy_view (MetaRendererX11Nested *renderer_x11_nested,
                                                   int                    width,
                                                   int                    height);
-
-#endif /* META_RENDERER_X11_NESTED_H */
