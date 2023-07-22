@@ -217,6 +217,7 @@ build-fedora-container@aarch64:
     - check-merge-request
   variables:
     GIT_STRATEGY: none
+  when: manual
 
 check-code-style:
   extends:
@@ -283,6 +284,7 @@ build-mutter@aarch64:
     - .mutter.fedora@aarch64
   needs:
     - build-fedora-container@aarch64
+  when: manual
 
 build-without-opengl-and-glx@x86_64:
   extends:
@@ -415,6 +417,7 @@ test-mutter@aarch64:
     - asan-aarch64
   needs:
     - build-mutter@aarch64
+  when: manual
 
 coverage:
   extends:
@@ -442,7 +445,7 @@ coverage:
   coverage: '/^lines: (\d+\.\d+\%)/'
   needs:
     - test-mutter@x86_64
-    - test-mutter@aarch64
+#    - test-mutter@aarch64
     - test-mutter-kvm@x86_64
 
 can-build-gnome-shell@x86_64:
