@@ -12,16 +12,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2023-02-22 05:07+0000\n"
-"PO-Revision-Date: 2023-03-02 02:55+0100\n"
-"Last-Translator: Balázs Úr <ur.balazs at fsf dot hu>n"
-"Language-Team: Hungarian <gnome-hu-list at gnome dot org>\n"
-"Language: hu\n"
+"POT-Creation-Date: 2023-07-16 01:41+0000\n"
+"PO-Revision-Date: 2023-07-26 01:33+0200\n"
+"Last-Translator: Balázs Úr <ur.balazs at fsf dot hu>\n"
+"Language-Team: Hungarian <openscope at fsf dot hu>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Lokalize 22.08.2\n"
+"X-Generator: Lokalize 23.04.1\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language-Team: Hungarian <kde-l10n-hu@kde.org>\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -160,20 +160,24 @@ msgid "Switch to last workspace"
 msgstr "Váltás az utolsó munkaterületre"
 
 #: data/50-mutter-navigation.xml:131
-msgid "Move to workspace on the left"
-msgstr "Áthelyezés a bal oldali munkaterületre"
+#| msgid "Move to workspace on the left"
+msgid "Switch to workspace on the left"
+msgstr "Váltás a bal oldali munkaterületre"
 
 #: data/50-mutter-navigation.xml:134
-msgid "Move to workspace on the right"
-msgstr "Áthelyezés a jobb oldali munkaterületre"
+#| msgid "Move to workspace on the right"
+msgid "Switch to workspace on the right"
+msgstr "Váltás a jobb oldali munkaterületre"
 
 #: data/50-mutter-navigation.xml:138
-msgid "Move to workspace above"
-msgstr "Áthelyezés a fenti munkaterületre"
+#| msgid "Switch to workspace 1"
+msgid "Switch to workspace above"
+msgstr "Váltás a fenti munkaterületre"
 
 #: data/50-mutter-navigation.xml:142
-msgid "Move to workspace below"
-msgstr "Áthelyezés a lenti munkaterületre"
+#| msgid "Switch to workspace 1"
+msgid "Switch to workspace below"
+msgstr "Váltás a lenti munkaterületre"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -444,6 +448,10 @@ msgstr "Monitorkonfiguráció átváltása"
 msgid "Rotates the built-in monitor configuration"
 msgstr "Cserélgeti a beépített monitorkonfigurációkat"
 
+#: data/org.gnome.mutter.gschema.xml.in:184
+msgid "Cancel any active input capture session"
+msgstr "Bármely aktív bevitelrögzítő munkamenet megszakítása"
+
 #: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
 msgstr "Váltás az 1. VT-re"
@@ -575,8 +583,8 @@ msgstr ""
 #: data/org.gnome.mutter.wayland.gschema.xml.in:130
 msgid "Allow X11 clients with a different endianness to connect to Xwayland"
 msgstr ""
-"Az eltérő bájtsorrenddel rendelkező X11 ügyfelek Xwaylandhez történő"
-" kapcsolódásának lehetővé tétele"
+"Az eltérő bájtsorrenddel rendelkező X11 ügyfelek Xwaylandhez történő "
+"kapcsolódásának lehetővé tétele"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:131
 msgid ""
@@ -590,16 +598,16 @@ msgid ""
 "control that setting. Xwayland needs to be restarted for this setting to "
 "take effect."
 msgstr ""
-"Az Xwaylandtől eltérő bájtsorrenddel rendelkező ügyfelek kapcsolódásának"
-" lehetővé tétele. Az X kiszolgáló bájtcserélő kódja hatalmas támadási"
-" felület, az Xwaylandben ezen kód nagy része biztonsági problémákra hajlamos."
-" A bájtcserélt ügyfelek használati esete meglehetősen hiányos, és"
-" alapértelmezetten le van tiltva az Xwaylandben. Engedélyezze ezt a"
-" beállítást, hogy az eltérő bájtsorrenddel rendelkező X11 ügyfelektől érkező"
-" kapcsolatok elfogadására utasítsa az Xwaylandet. Ennek a beállításnak nincs"
-" hatása, ha az Xwayland nem támogatja a +byteswappedclients/-byteswappedclient"
-"s parancssori kapcsolót a beállítás vezérléséhez. Az Xwaylandet újra kell"
-" indítani ahhoz, hogy ez a beállítás érvénybe lépjen."
+"Az Xwaylandtől eltérő bájtsorrenddel rendelkező ügyfelek kapcsolódásának "
+"lehetővé tétele. Az X kiszolgáló bájtcserélő kódja hatalmas támadási "
+"felület, az Xwaylandben ezen kód nagy része biztonsági problémákra hajlamos. "
+"A bájtcserélt ügyfelek használati esete meglehetősen hiányos, és "
+"alapértelmezetten le van tiltva az Xwaylandben. Engedélyezze ezt a "
+"beállítást, hogy az eltérő bájtsorrenddel rendelkező X11 ügyfelektől érkező "
+"kapcsolatok elfogadására utasítsa az Xwaylandet. Ennek a beállításnak nincs "
+"hatása, ha az Xwayland nem támogatja a +byteswappedclients/-"
+"byteswappedclients parancssori kapcsolót a beállítás vezérléséhez. Az "
+"Xwaylandet újra kell indítani ahhoz, hogy ez a beállítás érvénybe lépjen."
 
 #: src/backends/meta-monitor.c:253
 msgid "Built-in display"
@@ -628,86 +636,80 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#. This probably means that a non-WM compositor like xcompmgr is running;
-#. * we have no way to get it to exit
-#: src/compositor/compositor.c:416
-#, c-format
-msgid ""
-"Another compositing manager is already running on screen %i on display “%s”."
-msgstr ""
-"Már fut egy másik kompozitáláskezelő a(z) %i. képernyőn a(z) „%s” "
-"megjelenítőn."
-
-#: src/core/bell.c:192
+#: src/core/bell.c:193
 msgid "Bell event"
 msgstr "Csengetés esemény"
 
-#: src/core/display.c:703
+#: src/core/display.c:718
 msgid "Privacy Screen Enabled"
 msgstr "Adatvédelem képernyő engedélyezve"
 
-#: src/core/display.c:704
+#: src/core/display.c:719
 msgid "Privacy Screen Disabled"
 msgstr "Adatvédelem képernyő letiltva"
 
-#: src/core/meta-context-main.c:568
+#: src/core/meta-context-main.c:581
 msgid "Replace the running window manager"
 msgstr "A futó ablakkezelő helyettesítése"
 
-#: src/core/meta-context-main.c:574
+#: src/core/meta-context-main.c:587
 msgid "X Display to use"
 msgstr "A használandó X megjelenítő"
 
-#: src/core/meta-context-main.c:580
+#: src/core/meta-context-main.c:593
 msgid "Disable connection to session manager"
 msgstr "A munkamenet-kezelőhöz való csatlakozás tiltása"
 
-#: src/core/meta-context-main.c:586
+#: src/core/meta-context-main.c:599
 msgid "Specify session management ID"
 msgstr "A munkamenet-kezelő azonosítójának megadása"
 
-#: src/core/meta-context-main.c:592
+#: src/core/meta-context-main.c:605
 msgid "Initialize session from savefile"
 msgstr "A munkamenet előkészítése a mentési fájlból"
 
-#: src/core/meta-context-main.c:598
+#: src/core/meta-context-main.c:611
 msgid "Make X calls synchronous"
 msgstr "Az X-hívások szinkronná tétele"
 
-#: src/core/meta-context-main.c:606
+#: src/core/meta-context-main.c:619
 msgid "Run as a wayland compositor"
 msgstr "Futtatás wayland kompozitálóként"
 
-#: src/core/meta-context-main.c:612
+#: src/core/meta-context-main.c:625
 msgid "Run as a nested compositor"
 msgstr "Futtatás beágyazott kompozitálóként"
 
-#: src/core/meta-context-main.c:618
+#: src/core/meta-context-main.c:631
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Wayland kompozitáló futtatása az Xwayland elindítása nélkül"
 
-#: src/core/meta-context-main.c:624
+#: src/core/meta-context-main.c:637
 msgid "Specify Wayland display name to use"
 msgstr "Adja meg a használandó Wayland megjelenítőnevet"
 
-#: src/core/meta-context-main.c:632
+#: src/core/meta-context-main.c:645
 msgid "Run as a full display server, rather than nested"
 msgstr ""
 "Futtatás teljes megjelenítő kiszolgálóként az egymásba ágyazott helyett"
 
-#: src/core/meta-context-main.c:637
+#: src/core/meta-context-main.c:650
 msgid "Run as a headless display server"
 msgstr "Futtatás grafikus felület nélküli megjelenítő kiszolgálóként"
 
-#: src/core/meta-context-main.c:642
+#: src/core/meta-context-main.c:655
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr ""
 "Állandó virtuális monitor hozzáadása (SZÉLESSÉGxMAGASSÁG vagy "
 "SZÉLESSÉGxMAGASSÁG@FELBONTÁS)"
 
-#: src/core/meta-context-main.c:654
+#: src/core/meta-context-main.c:667
 msgid "Run with X11 backend"
 msgstr "Futtatás X11 háttérprogrammal"
+
+#: src/core/meta-context-main.c:673
+msgid "Profile performance using trace instrumentation"
+msgstr "Nyomkövető műszereket használó profilteljesítmény"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
@@ -729,7 +731,7 @@ msgid "Show on-screen help"
 msgstr "Képernyősúgó megjelenítése"
 
 #. Translators: this string will appear in Sysprof
-#: src/core/meta-profiler.c:80 src/core/meta-profiler.c:217
+#: src/core/meta-profiler.c:111 src/core/meta-profiler.c:301
 msgid "Compositor"
 msgstr "Kompozitáló"
 
@@ -741,12 +743,12 @@ msgstr "Verzió kiírása"
 msgid "Mutter plugin to use"
 msgstr "Használandó Mutter bővítmény"
 
-#: src/core/prefs.c:1913
+#: src/core/prefs.c:1843
 #, c-format
 msgid "Workspace %d"
 msgstr "%d. munkaterület"
 
-#: src/core/util.c:142
+#: src/core/util.c:139
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "A Muttert a részletes mód támogatása nélkül fordították"
 
@@ -759,7 +761,7 @@ msgstr "Munkaterület átváltva"
 msgid "Mode Switch: Mode %d"
 msgstr "Módkapcsoló: %d. mód"
 
-#: src/x11/meta-x11-display.c:682
+#: src/x11/meta-x11-display.c:708
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -768,26 +770,32 @@ msgstr ""
 "A(z) „%s” kijelző már rendelkezik ablakkezelővel; próbálja a --replace "
 "kapcsolóval helyettesíteni a jelenlegi ablakkezelőt."
 
-#: src/x11/meta-x11-display.c:1074
-msgid "Failed to initialize GDK"
-msgstr "A GDK előkészítése sikertelen"
-
-#: src/x11/meta-x11-display.c:1100
+#: src/x11/meta-x11-display.c:1073
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Nem sikerült megnyitni a(z) „%s” X Window rendszer megjelenítőt"
 
-#: src/x11/meta-x11-display.c:1253
+#: src/x11/meta-x11-display.c:1219
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "A(z) %d. képernyő a(z) „%s” megjelenítőn érvénytelen"
 
-#: src/x11/meta-x11-selection-input-stream.c:481
+#. This probably means that a non-WM compositor like xcompmgr is running;
+#. * we have no way to get it to exit
+#: src/x11/meta-x11-display.c:2550
+#, c-format
+msgid ""
+"Another compositing manager is already running on screen %i on display “%s”."
+msgstr ""
+"Már fut egy másik kompozitáláskezelő a(z) %i. képernyőn a(z) „%s” "
+"megjelenítőn."
+
+#: src/x11/meta-x11-selection-input-stream.c:475
 #, c-format
 msgid "Format %s not supported"
 msgstr "A(z) %s formátum nem támogatott"
 
-#: src/x11/window-props.c:549
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (ezen: %s)"
