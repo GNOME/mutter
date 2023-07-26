@@ -1092,13 +1092,6 @@ meta_kms_update_set_flushing (MetaKmsUpdate *update,
   update_latch_crtc (update, crtc);
 }
 
-gboolean
-meta_kms_update_is_flushing (MetaKmsUpdate *update,
-                             MetaKmsCrtc   *crtc)
-{
-  return update->latch_crtc == crtc;
-}
-
 MetaKmsCrtc *
 meta_kms_update_get_latch_crtc (MetaKmsUpdate *update)
 {
