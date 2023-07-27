@@ -48,7 +48,7 @@ set -x
 
 if [ -d linux ]; then
   pushd linux
-  git fetch $REPO $BRANCH_OR_TAG
+  git fetch --depth=1 $REPO $BRANCH_OR_TAG
   git checkout FETCH_HEAD
 else
   git clone --depth=1 --branch=$BRANCH_OR_TAG $REPO linux
