@@ -83,7 +83,7 @@ variables:
     - .skip-git-clone
   variables:
     FDO_DISTRIBUTION_VERSION: 38
-    BASE_TAG: '2023-07-22.0'
+    BASE_TAG: '2023-08-01.0'
     MUTTER_USER: 'meta-user'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
@@ -140,6 +140,10 @@ variables:
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/GNOME/libadwaita.git \
         main . 72f512f01113a64cf332ae0f79becfc487d54b56
+
+      ./.gitlab-ci/install-meson-project.sh \
+        https://gitlab.gnome.org/GNOME/tecla.git \
+        main . 45.alpha
 
       ./.gitlab-ci/install-meson-project.sh \
         -Dtests=disabled \
