@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2023-01-29 17:47+0000\n"
-"PO-Revision-Date: 2023-01-29 19:56+0200\n"
+"POT-Creation-Date: 2023-07-16 01:41+0000\n"
+"PO-Revision-Date: 2023-07-28 20:51+0300\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
 "Language: uk\n"
@@ -157,19 +157,23 @@ msgid "Switch to last workspace"
 msgstr "Перейти до останнього робочого простору"
 
 #: data/50-mutter-navigation.xml:131
-msgid "Move to workspace on the left"
+#| msgid "Move to workspace on the left"
+msgid "Switch to workspace on the left"
 msgstr "Перейти до робочого простору ліворуч"
 
 #: data/50-mutter-navigation.xml:134
-msgid "Move to workspace on the right"
+#| msgid "Move to workspace on the right"
+msgid "Switch to workspace on the right"
 msgstr "Перейти до робочого простору праворуч"
 
 #: data/50-mutter-navigation.xml:138
-msgid "Move to workspace above"
+#| msgid "Switch to workspace 1"
+msgid "Switch to workspace above"
 msgstr "Перейти до робочого простору вище"
 
 #: data/50-mutter-navigation.xml:142
-msgid "Move to workspace below"
+#| msgid "Switch to workspace 1"
+msgid "Switch to workspace below"
 msgstr "Перейти до робочого простору нижче"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
@@ -256,10 +260,6 @@ msgstr "Перегляд розділити ліворуч"
 #: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:169
 msgid "View split on right"
 msgstr "Перегляд розділити праворуч"
-
-#: data/mutter.desktop.in:4
-msgid "Mutter"
-msgstr "Mutter"
 
 #: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
@@ -446,6 +446,10 @@ msgstr "Перемкнути налаштування монітора"
 msgid "Rotates the built-in monitor configuration"
 msgstr "Зміна конфігурації вбудованого монітора"
 
+#: data/org.gnome.mutter.gschema.xml.in:184
+msgid "Cancel any active input capture session"
+msgstr "Скасувати усі активні сеанси перехоплення введення"
+
 #: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
 msgstr "Перейти до VT 1"
@@ -575,23 +579,12 @@ msgstr ""
 "набуття змінами у цьому параметрі чинності Xwayland слід перезапустити."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:130
-#| msgid "Allow X11 clients with a different endianess to connect to Xwayland"
 msgid "Allow X11 clients with a different endianness to connect to Xwayland"
 msgstr ""
 "Дозволити клієнтам X11 з іншим порядком байтів встановлювати з'єднання з "
 "Xwayland"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:131
-#| msgid ""
-#| "Allow connections from clients with an endianess different to that of "
-#| "Xwayland. The X server byte-swapping code is a huge attack surface, much "
-#| "of that code in Xwayland is prone to security issues. The use-case of "
-#| "byte-swapped clients is very niche, and disabled by default in Xwayland. "
-#| "Enable this option to instruct Xwayland to accept connections from X11 "
-#| "clients with a different endianess. This option has no effect if Xwayland "
-#| "does not support the command line option +byteswappedclients/-"
-#| "byteswappedclients to control that setting. Xwayland needs to be "
-#| "restarted for this setting to take effect."
 msgid ""
 "Allow connections from clients with an endianness different to that of "
 "Xwayland. The X server byte-swapping code is a huge attack surface, much of "
@@ -641,82 +634,77 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#. This probably means that a non-WM compositor like xcompmgr is running;
-#. * we have no way to get it to exit
-#: src/compositor/compositor.c:414
-#, c-format
-msgid ""
-"Another compositing manager is already running on screen %i on display “%s”."
-msgstr ""
-"Уже запущено інший композитний менеджер на екрані %i через показ «%s»."
-
-#: src/core/bell.c:192
+#: src/core/bell.c:193
 msgid "Bell event"
 msgstr "Подія гудка"
 
-#: src/core/display.c:711
+#: src/core/display.c:718
 msgid "Privacy Screen Enabled"
 msgstr "Конфіденційний екран увімкнено"
 
-#: src/core/display.c:712
+#: src/core/display.c:719
 msgid "Privacy Screen Disabled"
 msgstr "Конфіденційний екран вимкнено"
 
-#: src/core/meta-context-main.c:568
+#: src/core/meta-context-main.c:581
 msgid "Replace the running window manager"
 msgstr "Замінити запущений віконний менеджер"
 
-#: src/core/meta-context-main.c:574
+#: src/core/meta-context-main.c:587
 msgid "X Display to use"
 msgstr "Дисплей X"
 
-#: src/core/meta-context-main.c:580
+#: src/core/meta-context-main.c:593
 msgid "Disable connection to session manager"
 msgstr "Вимкнути з'єднання з менеджером сеансу"
 
-#: src/core/meta-context-main.c:586
+#: src/core/meta-context-main.c:599
 msgid "Specify session management ID"
 msgstr "Вказати ідентифікатор сеансу"
 
-#: src/core/meta-context-main.c:592
+#: src/core/meta-context-main.c:605
 msgid "Initialize session from savefile"
 msgstr "Розпочати сеанс зі збереженого файла"
 
-#: src/core/meta-context-main.c:598
+#: src/core/meta-context-main.c:611
 msgid "Make X calls synchronous"
 msgstr "Зробити виклики X синхронними"
 
-#: src/core/meta-context-main.c:606
+#: src/core/meta-context-main.c:619
 msgid "Run as a wayland compositor"
 msgstr "запустити як композитор wayland"
 
-#: src/core/meta-context-main.c:612
+#: src/core/meta-context-main.c:625
 msgid "Run as a nested compositor"
 msgstr "Запустити як вкладений композитор"
 
-#: src/core/meta-context-main.c:618
+#: src/core/meta-context-main.c:631
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Запустити композитор wayland без запуску Xwayland"
 
-#: src/core/meta-context-main.c:624
+#: src/core/meta-context-main.c:637
 msgid "Specify Wayland display name to use"
 msgstr "Вказати назву дисплея Wayland, якою слід скористатися"
 
-#: src/core/meta-context-main.c:632
+#: src/core/meta-context-main.c:645
 msgid "Run as a full display server, rather than nested"
 msgstr "Запустити як повноцінний сервер, а не вкладений"
 
-#: src/core/meta-context-main.c:637
+#: src/core/meta-context-main.c:650
 msgid "Run as a headless display server"
 msgstr "Запустити у форматі сервера без дисплея"
 
-#: src/core/meta-context-main.c:642
+#: src/core/meta-context-main.c:655
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Додати сталий віртуальний монітор (ШxВ або ШxВ@Ч)"
 
-#: src/core/meta-context-main.c:654
+#: src/core/meta-context-main.c:667
 msgid "Run with X11 backend"
 msgstr "Запустити із модулем X11"
+
+#: src/core/meta-context-main.c:673
+msgid "Profile performance using trace instrumentation"
+msgstr "Профілювання швидкодії з використанням засобів трасування"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
@@ -738,7 +726,7 @@ msgid "Show on-screen help"
 msgstr "Показати довідку на екрані"
 
 #. Translators: this string will appear in Sysprof
-#: src/core/meta-profiler.c:80 src/core/meta-profiler.c:217
+#: src/core/meta-profiler.c:111 src/core/meta-profiler.c:301
 msgid "Compositor"
 msgstr "Композитор"
 
@@ -750,16 +738,16 @@ msgstr "Показати версію"
 msgid "Mutter plugin to use"
 msgstr "Додатки Clutter для використання"
 
-#: src/core/prefs.c:1913
+#: src/core/prefs.c:1843
 #, c-format
 msgid "Workspace %d"
 msgstr "Робочий простір %d"
 
-#: src/core/util.c:144
+#: src/core/util.c:139
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter зібрано без підтримки докладного режиму"
 
-#: src/core/workspace.c:542
+#: src/core/workspace.c:541
 msgid "Workspace switched"
 msgstr "Перемикання робочого простору"
 
@@ -768,7 +756,7 @@ msgstr "Перемикання робочого простору"
 msgid "Mode Switch: Mode %d"
 msgstr "Перемикання режимів: режим %d"
 
-#: src/x11/meta-x11-display.c:682
+#: src/x11/meta-x11-display.c:708
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -777,29 +765,46 @@ msgstr ""
 "Екран «%s» вже має менеджера вікон; спробуйте вказати параметр --replace, "
 "щоб замінити поточний менеджер вікон."
 
-#: src/x11/meta-x11-display.c:1074
-msgid "Failed to initialize GDK"
-msgstr "Не вдалося ініціалізувати GDK"
-
-#: src/x11/meta-x11-display.c:1100
+#: src/x11/meta-x11-display.c:1073
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Не вдалося відкрити дисплей віконної системи X «%s»"
 
-#: src/x11/meta-x11-display.c:1253
+#: src/x11/meta-x11-display.c:1219
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Екран %d на дисплеї «%s» є некоректним"
 
-#: src/x11/meta-x11-selection-input-stream.c:483
+#. This probably means that a non-WM compositor like xcompmgr is running;
+#. * we have no way to get it to exit
+#: src/x11/meta-x11-display.c:2550
+#, c-format
+msgid ""
+"Another compositing manager is already running on screen %i on display “%s”."
+msgstr ""
+"Уже запущено інший композитний менеджер на екрані %i через показ «%s»."
+
+#: src/x11/meta-x11-selection-input-stream.c:475
 #, c-format
 msgid "Format %s not supported"
 msgstr "Підтримки формату %s не передбачено"
 
-#: src/x11/window-props.c:549
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (на %s)"
+
+#~ msgid "Move to workspace above"
+#~ msgstr "Перейти до робочого простору вище"
+
+#~ msgid "Move to workspace below"
+#~ msgstr "Перейти до робочого простору нижче"
+
+#~ msgid "Mutter"
+#~ msgstr "Mutter"
+
+#~ msgid "Failed to initialize GDK"
+#~ msgstr "Не вдалося ініціалізувати GDK"
 
 #~ msgid "No tab popup"
 #~ msgstr "Без контекстних вкладок"
