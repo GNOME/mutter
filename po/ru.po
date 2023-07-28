@@ -15,8 +15,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity ru\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2023-06-19 13:46+0000\n"
-"PO-Revision-Date: 2023-06-20 00:15+1000\n"
+"POT-Creation-Date: 2023-07-16 01:41+0000\n"
+"PO-Revision-Date: 2023-07-24 12:00+0300\n"
 "Last-Translator: Ser82-png <asvmail.as@gmail.com>\n"
 "Language-Team: Русский <gnome-cyr@gnome.org>\n"
 "Language: ru\n"
@@ -450,6 +450,10 @@ msgstr "Переключить конфигурации монитора"
 msgid "Rotates the built-in monitor configuration"
 msgstr "Перебирает встроенные конфигурации монитора"
 
+#: data/org.gnome.mutter.gschema.xml.in:184
+msgid "Cancel any active input capture session"
+msgstr "Отменить любой активный сеанс захвата входного сигнала"
+
 #: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
 msgstr "Переключиться на виртуальный терминал 1"
@@ -633,11 +637,11 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Событие звонка"
 
-#: src/core/display.c:715
+#: src/core/display.c:718
 msgid "Privacy Screen Enabled"
 msgstr "Экран конфиденциальности включен"
 
-#: src/core/display.c:716
+#: src/core/display.c:719
 msgid "Privacy Screen Disabled"
 msgstr "Экран конфиденциальности отключен"
 
@@ -738,7 +742,7 @@ msgstr "Использовать модуль mutter"
 msgid "Workspace %d"
 msgstr "Рабочий стол %d"
 
-#: src/core/util.c:137
+#: src/core/util.c:139
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter был скомпилирован без поддержки режима verbose"
 
