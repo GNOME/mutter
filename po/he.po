@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity.HEAD.he\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2023-07-09 22:35+0000\n"
-"PO-Revision-Date: 2023-07-13 11:32+0300\n"
+"POT-Creation-Date: 2023-07-16 01:41+0000\n"
+"PO-Revision-Date: 2023-07-28 10:14+0300\n"
 "Last-Translator: Yosef Or Boczko <yoseforb@gmail.com>\n"
 "Language-Team: Hebrew <yoseforb@gmail.com>\n"
 "Language: he\n"
@@ -440,6 +440,10 @@ msgstr "החלפה בין תצורות צגים"
 msgid "Rotates the built-in monitor configuration"
 msgstr "Rotates the built-in monitor configuration"
 
+#: data/org.gnome.mutter.gschema.xml.in:184
+msgid "Cancel any active input capture session"
+msgstr "ביטול כל לכידת קלט פעילה"
+
 #: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
 msgstr "מעבר ל־VT ‏1"
@@ -619,11 +623,11 @@ msgstr "‏%s ‏%s"
 msgid "Bell event"
 msgstr "אירוע פעמון"
 
-#: src/core/display.c:715
+#: src/core/display.c:718
 msgid "Privacy Screen Enabled"
 msgstr "מסך פרטי מופעל"
 
-#: src/core/display.c:716
+#: src/core/display.c:719
 msgid "Privacy Screen Disabled"
 msgstr "מסך פרטי מושבת"
 
@@ -724,7 +728,7 @@ msgstr "תוסף ה־mutter לשימוש"
 msgid "Workspace %d"
 msgstr "מרחב עבודה %d"
 
-#: src/core/util.c:138
+#: src/core/util.c:139
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter was compiled without support for verbose mode"
 
