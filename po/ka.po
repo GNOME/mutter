@@ -1,27 +1,25 @@
 # translation of ka.po to Georgian
-# translation of ka.po to
-# Georgian translation for Metacity
+# Georgian translation for Mutter
 # Copyright © 2006 Canonical Ltd. and Rosetta Contributors.
-# This file is distributed under the same license as the metacity package.
-#
-#
+# This file is distributed under the same license as the mutter package.
 # Alexander Didebulidze <didebuli@in.tum.de>, 2006.
 # Vladimer Sichinava ვლადიმერ სიჭინავა <vsichi@gnome.org>, 2007.
+# Ekaterine Papava <papava.e@gtu.ge>, 2023.
+#
 msgid ""
 msgstr ""
-"Project-Id-Version: ka\n"
+"Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2022-09-06 11:35+0000\n"
-"PO-Revision-Date: 2022-09-06 18:35+0200\n"
-"Last-Translator: Temuri Doghonadze <temuri.doghonadze@gmail.com>\n"
-"Language-Team: Georgian <http://mail.gnome.org/mailman/listinfo/gnome-ge-"
-"list>\n"
+"POT-Creation-Date: 2023-07-15 01:02+0000\n"
+"PO-Revision-Date: 2023-07-28 07:19+0200\n"
+"Last-Translator: Ekaterine Papava <papava.e@gtu.ge>\n"
+"Language-Team: Georgian <(nothing)>\n"
 "Language: ka\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 3.1.1\n"
+"X-Generator: Poedit 3.3.2\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -160,20 +158,28 @@ msgid "Switch to last workspace"
 msgstr "ბოლო სამუშაო სივრცეზე გადართვა"
 
 #: data/50-mutter-navigation.xml:131
-msgid "Move to workspace on the left"
+#, fuzzy
+#| msgid "Move to workspace on the left"
+msgid "Switch to workspace on the left"
 msgstr "სამუშაო სივრცის მარცხნივ გადატანა"
 
 #: data/50-mutter-navigation.xml:134
-msgid "Move to workspace on the right"
+#, fuzzy
+#| msgid "Move to workspace on the right"
+msgid "Switch to workspace on the right"
 msgstr "სამუშაო სივრცის მარჯვნივ გადატანა"
 
 #: data/50-mutter-navigation.xml:138
-msgid "Move to workspace above"
-msgstr "ზედა სამუშაო სივრცეზე გადატანა"
+#, fuzzy
+#| msgid "Switch to workspace 1"
+msgid "Switch to workspace above"
+msgstr "სამუშაო სივრცე 1-ზე გადართვა"
 
 #: data/50-mutter-navigation.xml:142
-msgid "Move to workspace below"
-msgstr "ქვედა სამუშაო სივრცეზე გადატანა"
+#, fuzzy
+#| msgid "Switch to workspace 1"
+msgid "Switch to workspace below"
+msgstr "სამუშაო სივრცე 1-ზე გადართვა"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -251,17 +257,13 @@ msgstr "ფანჯრის ვერტიკალურად მაქს�
 msgid "Maximize window horizontally"
 msgstr "ფანჯრის ჰორიზონტალურად გაშლა"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:173
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:164
 msgid "View split on left"
 msgstr "ხედის მარცხნივ გაყოფა"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:178
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:169
 msgid "View split on right"
 msgstr "ხედის მარჯვნივ გაყოფა"
-
-#: data/mutter.desktop.in:4
-msgid "Mutter"
-msgstr "Mutter"
 
 #: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
@@ -319,61 +321,51 @@ msgid ""
 msgstr ""
 
 #: data/org.gnome.mutter.gschema.xml.in:67
-msgid "No tab popup"
-msgstr "მხტუნავი ჩანართების გარეშე"
-
-#: data/org.gnome.mutter.gschema.xml.in:68
-msgid ""
-"Determines whether the use of popup and highlight frame should be disabled "
-"for window cycling."
-msgstr ""
-
-#: data/org.gnome.mutter.gschema.xml.in:76
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "ფოკუსის შეცვლის მაჩვენებლის მოძრაობის შეწყვეტამდე დაყოვნება"
 
-#: data/org.gnome.mutter.gschema.xml.in:77
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
 "the pointer stops moving."
 msgstr ""
 
-#: data/org.gnome.mutter.gschema.xml.in:87
+#: data/org.gnome.mutter.gschema.xml.in:78
 msgid "Draggable border width"
 msgstr "გადათრევადი საზღვრის სიგანე"
 
-#: data/org.gnome.mutter.gschema.xml.in:88
+#: data/org.gnome.mutter.gschema.xml.in:79
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
 msgstr ""
 
-#: data/org.gnome.mutter.gschema.xml.in:97
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "თუ ფანჯარა თითქმის მთელ ეკრანზეა, მისი სრულ ეკრანზე გაშლა"
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
 msgstr ""
 
-#: data/org.gnome.mutter.gschema.xml.in:106
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
 msgstr "ახალი ფანჯრის ცენტრში მოთავსება"
 
-#: data/org.gnome.mutter.gschema.xml.in:107
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
 msgstr ""
 
-#: data/org.gnome.mutter.gschema.xml.in:116
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "Enable experimental features"
 msgstr "ექსპერიმენტალური თვისებების ჩართვა"
 
-#: data/org.gnome.mutter.gschema.xml.in:117
+#: data/org.gnome.mutter.gschema.xml.in:108
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -390,39 +382,35 @@ msgid ""
 "are gone. Requires a restart."
 msgstr ""
 
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:141
 msgid "Modifier to use to locate the pointer"
 msgstr "მაჩვენებლის მოსაძებნი მოდიფიკატორი"
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:142
 msgid "This key will initiate the “locate pointer” action."
 msgstr "მალსახმობი \"მაჩვენებლის მოძებნის\" ქმედებას გაუშვებს."
 
-#: data/org.gnome.mutter.gschema.xml.in:158
+#: data/org.gnome.mutter.gschema.xml.in:149
 msgid "Timeout for check-alive ping"
 msgstr "სიცოცხლის შემოწმების ვადა გავიდა"
 
-#: data/org.gnome.mutter.gschema.xml.in:159
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
 msgstr ""
 
-#: data/org.gnome.mutter.gschema.xml.in:183
-msgid "Select window from tab popup"
-msgstr "აირჩიეთ ფანჯარა მხტუნავი ჩანართიდან"
-
-#: data/org.gnome.mutter.gschema.xml.in:188
-msgid "Cancel tab popup"
-msgstr "ჩანართის მხტუნავი ფანჯრის გაუქმება"
-
-#: data/org.gnome.mutter.gschema.xml.in:193
+#: data/org.gnome.mutter.gschema.xml.in:174
 msgid "Switch monitor configurations"
 msgstr "ეკრანის კონფიგურაციის გადართვა"
 
-#: data/org.gnome.mutter.gschema.xml.in:198
+#: data/org.gnome.mutter.gschema.xml.in:179
 msgid "Rotates the built-in monitor configuration"
 msgstr "ეკრანის ჩაშენებული კონფიგურაციის შემობრუნება"
+
+#: data/org.gnome.mutter.gschema.xml.in:184
+msgid "Cancel any active input capture session"
+msgstr ""
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
@@ -523,6 +511,23 @@ msgid ""
 "needs to be restarted for this setting to take effect."
 msgstr ""
 
+#: data/org.gnome.mutter.wayland.gschema.xml.in:130
+msgid "Allow X11 clients with a different endianness to connect to Xwayland"
+msgstr ""
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:131
+msgid ""
+"Allow connections from clients with an endianness different to that of "
+"Xwayland. The X server byte-swapping code is a huge attack surface, much of "
+"that code in Xwayland is prone to security issues. The use-case of byte-"
+"swapped clients is very niche, and disabled by default in Xwayland. Enable "
+"this option to instruct Xwayland to accept connections from X11 clients with "
+"a different endianness. This option has no effect if Xwayland does not "
+"support the command line option +byteswappedclients/-byteswappedclients to "
+"control that setting. Xwayland needs to be restarted for this setting to "
+"take effect."
+msgstr ""
+
 #: src/backends/meta-monitor.c:253
 msgid "Built-in display"
 msgstr "ჩაშენებული ეკრანი"
@@ -550,91 +555,82 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#. Translators: this string will appear in Sysprof
-#: src/backends/meta-profiler.c:79
-msgid "Compositor"
-msgstr "კომპოზიტორი"
-
-#. This probably means that a non-WM compositor like xcompmgr is running;
-#. * we have no way to get it to exit
-#: src/compositor/compositor.c:400
-#, c-format
-msgid ""
-"Another compositing manager is already running on screen %i on display “%s”."
-msgstr ""
-
-#: src/core/bell.c:192
+#: src/core/bell.c:193
 msgid "Bell event"
 msgstr "მოვლენის ზარი"
 
-#: src/core/display.c:693
+#: src/core/display.c:718
 msgid "Privacy Screen Enabled"
 msgstr "კონფიდენციალური ეკრანი ჩართულია"
 
-#: src/core/display.c:694
+#: src/core/display.c:719
 msgid "Privacy Screen Disabled"
 msgstr "კონფიდენციალური ეკრანი გამორთულია"
 
-#: src/core/meta-context-main.c:567
+#: src/core/meta-context-main.c:581
 msgid "Replace the running window manager"
 msgstr "ფანჯრების გაშვებული მმართველის შეცვლა"
 
-#: src/core/meta-context-main.c:573
+#: src/core/meta-context-main.c:587
 msgid "X Display to use"
 msgstr "გამოყენებადი X"
 
-#: src/core/meta-context-main.c:579
+#: src/core/meta-context-main.c:593
 msgid "Disable connection to session manager"
 msgstr "სესიების მმართველთან კავშირის გაუქმება"
 
-#: src/core/meta-context-main.c:585
+#: src/core/meta-context-main.c:599
 msgid "Specify session management ID"
 msgstr "სესიის მართვის ID-ის მითითება"
 
-#: src/core/meta-context-main.c:591
+#: src/core/meta-context-main.c:605
 msgid "Initialize session from savefile"
 msgstr "სესიის დამახსოვრებული ფაილიდან ჩატვირთვა"
 
-#: src/core/meta-context-main.c:597
+#: src/core/meta-context-main.c:611
 msgid "Make X calls synchronous"
 msgstr "X-ის ფუნქციების სინქრონულად გამოძახება"
 
-#: src/core/meta-context-main.c:605
+#: src/core/meta-context-main.c:619
 msgid "Run as a wayland compositor"
 msgstr "Wayland-ის კომპოზიტორად გაშვება"
 
-#: src/core/meta-context-main.c:611
+#: src/core/meta-context-main.c:625
 msgid "Run as a nested compositor"
 msgstr "ჩადგმულ კომპოზიტორად გაშვება"
 
-#: src/core/meta-context-main.c:617
+#: src/core/meta-context-main.c:631
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Wayland კომპოზიტორის Xwayland-ის შესრულებს გარეშე გაშვება"
 
-#: src/core/meta-context-main.c:623
+#: src/core/meta-context-main.c:637
 msgid "Specify Wayland display name to use"
 msgstr "მიუთითეთ Wayland-ის ეკრანის სახელი"
 
-#: src/core/meta-context-main.c:631
+#: src/core/meta-context-main.c:645
 msgid "Run as a full display server, rather than nested"
 msgstr "ჩადგმულის მაგიერ ეკრანის სრულ სერვერად გაშვება"
 
-#: src/core/meta-context-main.c:636
+#: src/core/meta-context-main.c:650
 msgid "Run as a headless display server"
 msgstr "უთავო ეკრანის სერვერად გაშვება"
 
-#: src/core/meta-context-main.c:641
+#: src/core/meta-context-main.c:655
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "მუდმინი ვირტუალური ეკრანის დამატება (WxH or WxH@R)"
 
-#: src/core/meta-context-main.c:653
+#: src/core/meta-context-main.c:667
 msgid "Run with X11 backend"
 msgstr "X11 უკანაბოლოთი გაშვება"
+
+#: src/core/meta-context-main.c:673
+msgid "Profile performance using trace instrumentation"
+msgstr ""
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:848
+#: src/core/meta-pad-action-mapper.c:861
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "რეჟიმის შეცვლა (ჯგუფი %d)"
@@ -642,13 +638,18 @@ msgstr "რეჟიმის შეცვლა (ჯგუფი %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:871
+#: src/core/meta-pad-action-mapper.c:884
 msgid "Switch monitor"
 msgstr "ეკრანის შეცვლა"
 
-#: src/core/meta-pad-action-mapper.c:873
+#: src/core/meta-pad-action-mapper.c:886
 msgid "Show on-screen help"
 msgstr "ეკრანზე ნაჩვენები დახმარება"
+
+#. Translators: this string will appear in Sysprof
+#: src/core/meta-profiler.c:111 src/core/meta-profiler.c:301
+msgid "Compositor"
+msgstr "კომპოზიტორი"
 
 #: src/core/mutter.c:74
 msgid "Print version"
@@ -658,46 +659,50 @@ msgstr "მიმდინარე ვერსიის დაბეჭდვ�
 msgid "Mutter plugin to use"
 msgstr "Mutter-ის დამატება"
 
-#: src/core/prefs.c:1913
+#: src/core/prefs.c:1843
 #, c-format
 msgid "Workspace %d"
 msgstr "სამუშაო სივრცე %d"
 
-#: src/core/util.c:143
+#: src/core/util.c:139
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter დამატებითი შეტყობინების მხარდაჭერის გარეშეა აგებული"
 
-#: src/core/workspace.c:533
+#: src/core/workspace.c:541
 msgid "Workspace switched"
 msgstr "სამუშაო სივრცე გადაირთო"
 
-#: src/wayland/meta-wayland-tablet-pad.c:520
+#: src/wayland/meta-wayland-tablet-pad.c:530
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "რეჟიმის შეცვლა რეჟიმი %d"
 
-#: src/x11/meta-x11-display.c:659
+#: src/x11/meta-x11-display.c:708
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
 "replace the current window manager."
 msgstr ""
 
-#: src/x11/meta-x11-display.c:1053
-msgid "Failed to initialize GDK"
-msgstr "GDK-ის ინიციალიზაციის შეცდომა"
-
-#: src/x11/meta-x11-display.c:1080
+#: src/x11/meta-x11-display.c:1073
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "ფანჯრების X სისტემის ეკრანის (%s) გახსნის შეცდომა"
 
-#: src/x11/meta-x11-display.c:1188
+#: src/x11/meta-x11-display.c:1219
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "ასლი \"%d\" ეკრანზე \"%s\" არასწორია"
 
-#: src/x11/meta-x11-selection-input-stream.c:474
+#. This probably means that a non-WM compositor like xcompmgr is running;
+#. * we have no way to get it to exit
+#: src/x11/meta-x11-display.c:2550
+#, c-format
+msgid ""
+"Another compositing manager is already running on screen %i on display “%s”."
+msgstr ""
+
+#: src/x11/meta-x11-selection-input-stream.c:475
 #, c-format
 msgid "Format %s not supported"
 msgstr "ფორმატი მხარდაუჭერელია: %s"
@@ -706,6 +711,27 @@ msgstr "ფორმატი მხარდაუჭერელია: %s"
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s-ზე)"
+
+#~ msgid "Move to workspace above"
+#~ msgstr "ზედა სამუშაო სივრცეზე გადატანა"
+
+#~ msgid "Move to workspace below"
+#~ msgstr "ქვედა სამუშაო სივრცეზე გადატანა"
+
+#~ msgid "Mutter"
+#~ msgstr "Mutter"
+
+#~ msgid "No tab popup"
+#~ msgstr "მხტუნავი ჩანართების გარეშე"
+
+#~ msgid "Select window from tab popup"
+#~ msgstr "აირჩიეთ ფანჯარა მხტუნავი ჩანართიდან"
+
+#~ msgid "Cancel tab popup"
+#~ msgstr "ჩანართის მხტუნავი ფანჯრის გაუქმება"
+
+#~ msgid "Failed to initialize GDK"
+#~ msgstr "GDK-ის ინიციალიზაციის შეცდომა"
 
 #~ msgid "Desktop"
 #~ msgstr "სამუშაო მაგიდა"
@@ -1697,8 +1723,8 @@ msgstr "%s (%s-ზე)"
 #, fuzzy
 #~ msgid ""
 #~ "The keybinding used to move focus backwards between panels and the "
-#~ "desktop, without a popup window. The format looks like \"&lt;Control&gt;a"
-#~ "\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and "
+#~ "desktop, without a popup window. The format looks like \"&lt;Control&gt;"
+#~ "a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and "
 #~ "allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;"
 #~ "\" and \"&lt;Ctrl&gt;\". If you set the option to the special string "
 #~ "\"disabled\", then there will be no keybinding for this action."
@@ -1744,8 +1770,8 @@ msgstr "%s (%s-ზე)"
 #~ "direction go forward again. The format looks like \"&lt;Control&gt;a\" or "
 #~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
 #~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
-#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "-სკენ a ფანჯარა&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის "
 #~ "და ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
@@ -1758,8 +1784,8 @@ msgstr "%s (%s-ზე)"
 #~ "direction go forward again. The format looks like \"&lt;Control&gt;a\" or "
 #~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
 #~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
-#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "-სკენ a ფანჯარა&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის "
 #~ "და ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
@@ -1960,8 +1986,8 @@ msgstr "%s (%s-ზე)"
 #~ "screenshot of a window. The format looks like \"&lt;Control&gt;a\" or "
 #~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
 #~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
-#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "პანელი წმ ეკრანის ანაბეჭდი -სკენ a ეკრანის ანაბეჭდი ის a ფანჯარა&lt; "
 #~ "Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან და&lt;&gt; "
