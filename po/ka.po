@@ -1,7 +1,6 @@
-# translation of ka.po to Georgian
-# Georgian translation for Mutter
+# Georgian translation for mutter
 # Copyright © 2006 Canonical Ltd. and Rosetta Contributors.
-# This file is distributed under the same license as the mutter package.
+# This file is distributed under the same license as the metacity package.
 # Alexander Didebulidze <didebuli@in.tum.de>, 2006.
 # Vladimer Sichinava ვლადიმერ სიჭინავა <vsichi@gnome.org>, 2007.
 # Ekaterine Papava <papava.e@gtu.ge>, 2023.
@@ -11,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
 "POT-Creation-Date: 2023-07-15 01:02+0000\n"
-"PO-Revision-Date: 2023-07-28 07:19+0200\n"
+"PO-Revision-Date: 2023-07-28 07:23+0200\n"
 "Last-Translator: Ekaterine Papava <papava.e@gtu.ge>\n"
 "Language-Team: Georgian <(nothing)>\n"
 "Language: ka\n"
@@ -158,28 +157,20 @@ msgid "Switch to last workspace"
 msgstr "ბოლო სამუშაო სივრცეზე გადართვა"
 
 #: data/50-mutter-navigation.xml:131
-#, fuzzy
-#| msgid "Move to workspace on the left"
 msgid "Switch to workspace on the left"
-msgstr "სამუშაო სივრცის მარცხნივ გადატანა"
+msgstr "მარცხენა სამუშაო სივრცეზე გადართვა"
 
 #: data/50-mutter-navigation.xml:134
-#, fuzzy
-#| msgid "Move to workspace on the right"
 msgid "Switch to workspace on the right"
-msgstr "სამუშაო სივრცის მარჯვნივ გადატანა"
+msgstr "მარჯვენა სამუშაო სივრცეზე გადართვა"
 
 #: data/50-mutter-navigation.xml:138
-#, fuzzy
-#| msgid "Switch to workspace 1"
 msgid "Switch to workspace above"
-msgstr "სამუშაო სივრცე 1-ზე გადართვა"
+msgstr "ზედა სამუშაო სივრცეზე გადართვა"
 
 #: data/50-mutter-navigation.xml:142
-#, fuzzy
-#| msgid "Switch to workspace 1"
 msgid "Switch to workspace below"
-msgstr "სამუშაო სივრცე 1-ზე გადართვა"
+msgstr "ქვედა სამუშაო სივრცეზე გადართვა"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
