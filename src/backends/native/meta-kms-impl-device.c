@@ -99,6 +99,8 @@ typedef struct _MetaKmsImplDevicePrivate
   GList *fallback_modes;
 
   GHashTable *crtc_frames;
+
+  gboolean deadline_timer_failed;
 } MetaKmsImplDevicePrivate;
 
 static void
@@ -1331,6 +1333,25 @@ get_crtc_frame (MetaKmsImplDevice *impl_device,
   return g_hash_table_lookup (priv->crtc_frames, latch_crtc);
 }
 
+static gboolean
+is_using_deadline_timer (MetaKmsImplDevice *impl_device)
+{
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+
+  if (priv->deadline_timer_failed)
+    {
+      return FALSE;
+    }
+  else
+    {
+      MetaKmsImpl *impl = meta_kms_impl_device_get_impl (impl_device);
+      MetaThreadImpl *thread_impl = META_THREAD_IMPL (impl);
+
+      return meta_thread_impl_is_realtime (thread_impl);
+    }
+}
+
 static CrtcFrame *
 ensure_crtc_frame (MetaKmsImplDevice *impl_device,
                    MetaKmsCrtc       *latch_crtc)
@@ -1351,7 +1372,7 @@ ensure_crtc_frame (MetaKmsImplDevice *impl_device,
   crtc_frame->deadline.timer_fd = -1;
   crtc_frame->await_flush = TRUE;
 
-  if (meta_thread_impl_is_realtime (thread_impl))
+  if (is_using_deadline_timer (impl_device))
     {
       int timer_fd;
       GSource *source;
@@ -1387,15 +1408,13 @@ queue_update (MetaKmsImplDevice *impl_device,
               CrtcFrame         *crtc_frame,
               MetaKmsUpdate     *update)
 {
-  MetaKmsImpl *impl = meta_kms_impl_device_get_impl (impl_device);
-  MetaThreadImpl *thread_impl = META_THREAD_IMPL (impl);
   int64_t next_presentation_us = 0;
   int64_t next_deadline_us = 0;
   g_autoptr (GError) error = NULL;
 
   g_assert (update);
 
-  if (meta_thread_impl_is_realtime (thread_impl) &&
+  if (is_using_deadline_timer (impl_device) &&
       !crtc_frame->deadline.armed)
     {
       if (!meta_kms_crtc_determine_deadline (crtc_frame->crtc,
@@ -1403,8 +1422,13 @@ queue_update (MetaKmsImplDevice *impl_device,
                                              &next_presentation_us,
                                              &error))
         {
+          MetaKmsImplDevicePrivate *priv =
+            meta_kms_impl_device_get_instance_private (impl_device);
+
           if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND))
-            g_critical ("Failed to determine deadline: %s", error->message);
+            g_warning ("Failed to determine deadline: %s", error->message);
+
+          priv->deadline_timer_failed = TRUE;
           return FALSE;
         }
     }
@@ -1419,7 +1443,7 @@ queue_update (MetaKmsImplDevice *impl_device,
       crtc_frame->pending_update = update;
     }
 
-  if (meta_thread_impl_is_realtime (thread_impl) &&
+  if (is_using_deadline_timer (impl_device) &&
       !crtc_frame->pending_page_flip &&
       !crtc_frame->await_flush &&
       next_deadline_us)
@@ -1549,8 +1573,6 @@ void
 meta_kms_impl_device_schedule_process (MetaKmsImplDevice *impl_device,
                                        MetaKmsCrtc       *crtc)
 {
-  MetaKmsImpl *impl = meta_kms_impl_device_get_impl (impl_device);
-  MetaThreadImpl *thread_impl = META_THREAD_IMPL (impl);
   CrtcFrame *crtc_frame;
 
   crtc_frame = ensure_crtc_frame (impl_device, crtc);
@@ -1560,15 +1582,19 @@ meta_kms_impl_device_schedule_process (MetaKmsImplDevice *impl_device,
   if (crtc_frame->await_flush)
     return;
 
-  if (meta_thread_impl_is_realtime (thread_impl))
+  if (is_using_deadline_timer (impl_device))
     {
       g_autoptr (GError) error = NULL;
+      MetaKmsImplDevicePrivate *priv =
+        meta_kms_impl_device_get_instance_private (impl_device);
 
       if (ensure_deadline_timer_armed (impl_device, crtc_frame, &error))
         return;
 
       if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND))
-        g_critical ("Failed to determine deadline: %s", error->message);
+        g_warning ("Failed to determine deadline: %s", error->message);
+
+      priv->deadline_timer_failed = TRUE;
     }
 
   meta_kms_device_set_needs_flush (meta_kms_crtc_get_device (crtc), crtc);
