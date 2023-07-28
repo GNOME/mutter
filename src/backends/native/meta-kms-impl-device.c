@@ -1214,14 +1214,22 @@ do_process (MetaKmsImplDevice *impl_device,
 
   update = meta_kms_impl_filter_update (impl, latch_crtc, update, flags);
 
-  if (!update)
+  if (!update || meta_kms_update_is_empty (update))
     {
       GError *error;
 
       error = g_error_new (META_KMS_ERROR,
                            META_KMS_ERROR_EMPTY_UPDATE,
                            "Empty update");
-      return meta_kms_feedback_new_failed (NULL, error);
+      feedback = meta_kms_feedback_new_failed (NULL, error);
+
+      if (update)
+        {
+          queue_result_feedback (impl_device, update, feedback);
+          meta_kms_update_free (update);
+        }
+
+      return feedback;
     }
 
   if (!(flags & META_KMS_UPDATE_FLAG_TEST_ONLY))
