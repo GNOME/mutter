@@ -15,16 +15,16 @@
 # Mingcong Bai <jeffbai@aosc.xyz>, 2017.
 # liushuyu <liushuyu011@gmail.com>, 2018.
 # Dingzhong Chen <wsxy162@gmail.com>, 2017-2021.
-# lumingzh <lumingzh@qq.com>, 2022.
 # Nanling <neithern@outlook.com>, 2023.
+# lumingzh <lumingzh@qq.com>, 2022-2023.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2023-03-26 12:17+0000\n"
-"PO-Revision-Date: 2023-03-27 09:29+0800\n"
-"Last-Translator: Nanling <neithern@outlook.com>\n"
+"POT-Creation-Date: 2023-07-16 01:41+0000\n"
+"PO-Revision-Date: 2023-07-29 14:47+0800\n"
+"Last-Translator: lumingzh <lumingzh@qq.com>\n"
 "Language-Team: Chinese - China <i18n-zh@googlegroups.com>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
@@ -170,20 +170,20 @@ msgid "Switch to last workspace"
 msgstr "切换到最后一个工作区"
 
 #: data/50-mutter-navigation.xml:131
-msgid "Move to workspace on the left"
-msgstr "移动到左侧工作区"
+msgid "Switch to workspace on the left"
+msgstr "切换到左侧工作区"
 
 #: data/50-mutter-navigation.xml:134
-msgid "Move to workspace on the right"
-msgstr "移动到右侧工作区"
+msgid "Switch to workspace on the right"
+msgstr "切换到右侧工作区"
 
 #: data/50-mutter-navigation.xml:138
-msgid "Move to workspace above"
-msgstr "移动到上层工作区"
+msgid "Switch to workspace above"
+msgstr "切换到上侧工作区"
 
 #: data/50-mutter-navigation.xml:142
-msgid "Move to workspace below"
-msgstr "移动到下层工作区"
+msgid "Switch to workspace below"
+msgstr "切换到下侧工作区"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -436,6 +436,10 @@ msgstr "切换显示器配置"
 msgid "Rotates the built-in monitor configuration"
 msgstr "旋转内置显示器配置"
 
+#: data/org.gnome.mutter.gschema.xml.in:184
+msgid "Cancel any active input capture session"
+msgstr "取消任何活动的输入捕获会话"
+
 #: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
 msgstr "切换到 VT 1"
@@ -600,81 +604,77 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#. This probably means that a non-WM compositor like xcompmgr is running;
-#. * we have no way to get it to exit
-#: src/compositor/compositor.c:416
-#, c-format
-msgid ""
-"Another compositing manager is already running on screen %i on display “%s”."
-msgstr "显示“%2$s”的屏幕 %1$i 上已有另外一个合成管理器正在运行。"
-
-#: src/core/bell.c:192
+#: src/core/bell.c:193
 msgid "Bell event"
 msgstr "响铃事件"
 
-#: src/core/display.c:703
+#: src/core/display.c:718
 msgid "Privacy Screen Enabled"
 msgstr "隐私屏幕已启用"
 
-#: src/core/display.c:704
+#: src/core/display.c:719
 msgid "Privacy Screen Disabled"
 msgstr "隐私屏幕已禁用"
 
-#: src/core/meta-context-main.c:579
+#: src/core/meta-context-main.c:581
 msgid "Replace the running window manager"
 msgstr "替换正在运行的窗口管理器"
 
-#: src/core/meta-context-main.c:585
+#: src/core/meta-context-main.c:587
 msgid "X Display to use"
 msgstr "要使用的 X 显示"
 
-#: src/core/meta-context-main.c:591
+#: src/core/meta-context-main.c:593
 msgid "Disable connection to session manager"
 msgstr "禁止连接到会话管理器"
 
-#: src/core/meta-context-main.c:597
+#: src/core/meta-context-main.c:599
 msgid "Specify session management ID"
 msgstr "指定会话管理 ID"
 
-#: src/core/meta-context-main.c:603
+#: src/core/meta-context-main.c:605
 msgid "Initialize session from savefile"
 msgstr "从保存文件中初始化会话"
 
-#: src/core/meta-context-main.c:609
+#: src/core/meta-context-main.c:611
 msgid "Make X calls synchronous"
 msgstr "使 X 调用同步"
 
-#: src/core/meta-context-main.c:617
+#: src/core/meta-context-main.c:619
 msgid "Run as a wayland compositor"
 msgstr "以 wayland 合成器运行"
 
-#: src/core/meta-context-main.c:623
+#: src/core/meta-context-main.c:625
 msgid "Run as a nested compositor"
 msgstr "以嵌套合成器运行"
 
-#: src/core/meta-context-main.c:629
+#: src/core/meta-context-main.c:631
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "运行 wayland 合成器但不启动 Xwayland"
 
-#: src/core/meta-context-main.c:635
+#: src/core/meta-context-main.c:637
 msgid "Specify Wayland display name to use"
 msgstr "指定要使用的 Wayland 显示的名称"
 
-#: src/core/meta-context-main.c:643
+#: src/core/meta-context-main.c:645
 msgid "Run as a full display server, rather than nested"
 msgstr "以完整显示服务器方式运行，而不是以嵌套方式"
 
-#: src/core/meta-context-main.c:648
+#: src/core/meta-context-main.c:650
 msgid "Run as a headless display server"
 msgstr "以无外设显示服务器运行"
 
-#: src/core/meta-context-main.c:653
+#: src/core/meta-context-main.c:655
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "添加持久性虚拟显示器（WxH 或 WxH@R）"
 
-#: src/core/meta-context-main.c:665
+#: src/core/meta-context-main.c:667
 msgid "Run with X11 backend"
 msgstr "以 X11 后端运行"
+
+#: src/core/meta-context-main.c:673
+msgid "Profile performance using trace instrumentation"
+msgstr "使用追踪仪表剖析性能"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
@@ -696,7 +696,7 @@ msgid "Show on-screen help"
 msgstr "显示在屏帮助"
 
 #. Translators: this string will appear in Sysprof
-#: src/core/meta-profiler.c:80 src/core/meta-profiler.c:217
+#: src/core/meta-profiler.c:111 src/core/meta-profiler.c:301
 msgid "Compositor"
 msgstr "合成器"
 
@@ -708,12 +708,12 @@ msgstr "打印版本"
 msgid "Mutter plugin to use"
 msgstr "要使用的 Mutter 插件"
 
-#: src/core/prefs.c:1913
+#: src/core/prefs.c:1843
 #, c-format
 msgid "Workspace %d"
 msgstr "工作区 %d"
 
-#: src/core/util.c:142
+#: src/core/util.c:139
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter 编译的时候没有加入详细模式的支持"
 
@@ -726,7 +726,7 @@ msgstr "工作区已切换"
 msgid "Mode Switch: Mode %d"
 msgstr "模式切换：%d 模式"
 
-#: src/x11/meta-x11-display.c:701
+#: src/x11/meta-x11-display.c:708
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -734,25 +734,39 @@ msgid ""
 msgstr ""
 "显示“%s”已经有一个窗口管理器；请尝试使用 --replace 选项替换当前的窗口管理器。"
 
-#: src/x11/meta-x11-display.c:1062
+#: src/x11/meta-x11-display.c:1073
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "无法打开 X 窗口系统显示“%s”"
 
-#: src/x11/meta-x11-display.c:1207
+#: src/x11/meta-x11-display.c:1219
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "显示“%2$s”上的屏幕 %1$d 无效"
 
-#: src/x11/meta-x11-selection-input-stream.c:481
+#. This probably means that a non-WM compositor like xcompmgr is running;
+#. * we have no way to get it to exit
+#: src/x11/meta-x11-display.c:2550
+#, c-format
+msgid ""
+"Another compositing manager is already running on screen %i on display “%s”."
+msgstr "显示“%2$s”的屏幕 %1$i 上已有另外一个合成管理器正在运行。"
+
+#: src/x11/meta-x11-selection-input-stream.c:475
 #, c-format
 msgid "Format %s not supported"
 msgstr "不支持 %s 格式"
 
-#: src/x11/window-props.c:549
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s（于 %s）"
+
+#~ msgid "Move to workspace above"
+#~ msgstr "移动到上层工作区"
+
+#~ msgid "Move to workspace below"
+#~ msgstr "移动到下层工作区"
 
 #~ msgid "Mutter"
 #~ msgstr "Mutter"
@@ -994,8 +1008,8 @@ msgstr "%s（于 %s）"
 #~ "<button function=\"%s\" state=\"%s\" draw_ops=\"whatever\"/> must be "
 #~ "specified for this frame style"
 #~ msgstr ""
-#~ "必须为该框架风格指定<button function=\"%s\" state=\"%s\" "
-#~ "draw_ops=\"whatever\"/>"
+#~ "必须为该框架风格指定<button function=\"%s\" state=\"%s\" draw_ops="
+#~ "\"whatever\"/>"
 
 #~ msgid ""
 #~ "Missing <frame state=\"%s\" resize=\"%s\" focus=\"%s\" style=\"whatever\"/"
@@ -1013,8 +1027,8 @@ msgstr "%s（于 %s）"
 #~ "No frame style set for window type \"%s\" in theme \"%s\", add a <window "
 #~ "type=\"%s\" style_set=\"whatever\"/> element"
 #~ msgstr ""
-#~ "没有为窗口类型“%s”(在主题“%s”中)设置框架风格，请添加一个 <window "
-#~ "type=\"%s\" style_set=\"whatever\"/> 元素"
+#~ "没有为窗口类型“%s”(在主题“%s”中)设置框架风格，请添加一个 <window type=\"%s"
+#~ "\" style_set=\"whatever\"/> 元素"
 
 #~ msgid ""
 #~ "User-defined constants must begin with a capital letter; \"%s\" does not"
@@ -1095,8 +1109,8 @@ msgstr "%s（于 %s）"
 #~ msgstr "不允许元素 <%s> 在 <%s> 下方"
 
 #~ msgid ""
-#~ "Cannot specify both \"button_width\"/\"button_height\" and "
-#~ "\"aspect_ratio\" for buttons"
+#~ "Cannot specify both \"button_width\"/\"button_height\" and \"aspect_ratio"
+#~ "\" for buttons"
 #~ msgstr ""
 #~ "不能同时指定按钮的 \"button_width\"/\"button_height\" 和 \"aspect_ratio\""
 
@@ -2868,8 +2882,8 @@ msgstr "%s（于 %s）"
 
 #~ msgid ""
 #~ "The keybinding used to move focus backwards between panels and the "
-#~ "desktop, without a popup window. The format looks like \"&lt;Control&gt;"
-#~ "a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and "
+#~ "desktop, without a popup window. The format looks like \"&lt;Control&gt;a"
+#~ "\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and "
 #~ "allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;"
 #~ "\" and \"&lt;Ctrl&gt;\". If you set the option to the special string "
 #~ "\"disabled\", then there will be no keybinding for this action."
@@ -2917,8 +2931,8 @@ msgstr "%s（于 %s）"
 #~ "direction go forward again. The format looks like \"&lt;Control&gt;a\" or "
 #~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
 #~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
-#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
-#~ "\"disabled\", then there will be no keybinding for this action."
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
+#~ "\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "用于在窗口之间不用弹出框反向移动焦点的按键组合。使用这个组合时如果按"
 #~ "住“Shift”键会将移动顺序改回正向顺序。其格式类似于“&lt;Control&gt;a”或“&lt;"
@@ -2932,8 +2946,8 @@ msgstr "%s（于 %s）"
 #~ "direction go forward again. The format looks like \"&lt;Control&gt;a\" or "
 #~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
 #~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
-#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
-#~ "\"disabled\", then there will be no keybinding for this action."
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
+#~ "\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "用于在窗口之间用弹出框反向移动焦点的按键组合。使用这个组合时如果按"
 #~ "住“Shift”键会将移动顺序改回正向顺序。其格式类似于“&lt;Control&gt;a”或“&lt;"
@@ -3142,8 +3156,8 @@ msgstr "%s（于 %s）"
 #~ "screenshot of a window. The format looks like \"&lt;Control&gt;a\" or "
 #~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
 #~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
-#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
-#~ "\"disabled\", then there will be no keybinding for this action."
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
+#~ "\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "用于调用面板抓图工具以抓取某一窗口的按键组合。其格式类似于“&lt;Control&gt;"
 #~ "a”或“&lt;Shift&gt;&lt;Alt&gt;F1”。该解析程序的格式非常自由并允许使用大小写"
