@@ -101,7 +101,8 @@ meta_x11_handle_event (MetaBackend *backend,
   while (spin > 0 && (event = clutter_event_get ()))
     {
       /* forward the event into clutter for emission etc. */
-      clutter_do_event (event);
+      clutter_stage_handle_event (CLUTTER_STAGE (meta_backend_get_stage (backend)),
+                                  event);
       meta_backend_update_from_event (backend, event);
       clutter_event_free (event);
       --spin;

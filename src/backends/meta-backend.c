@@ -1090,6 +1090,7 @@ static gboolean
 dispatch_clutter_event (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
   ClutterEvent *event;
 
   event = clutter_event_get ();
@@ -1098,8 +1099,7 @@ dispatch_clutter_event (MetaBackend *backend)
       g_warn_if_fail (!priv->in_init ||
                       event->type == CLUTTER_DEVICE_ADDED);
 
-      event->any.stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
-      clutter_do_event (event);
+      clutter_stage_handle_event (stage, event);
       meta_backend_update_from_event (backend, event);
       clutter_event_free (event);
       return TRUE;

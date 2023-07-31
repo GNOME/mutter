@@ -757,7 +757,8 @@ maybe_remove_device_for_event (ClutterStage *stage,
 }
 
 /**
- * clutter_do_event:
+ * clutter_stage_handle_event:
+ * @stage: a #ClutterStage.
  * @event: a #ClutterEvent.
  *
  * Processes an event.
@@ -769,21 +770,20 @@ maybe_remove_device_for_event (ClutterStage *stage,
  * toolkit, and it should never be called by applications.
  */
 void
-clutter_do_event (ClutterEvent *event)
+clutter_stage_handle_event (ClutterStage *stage,
+                            ClutterEvent *event)
 {
   ClutterContext *context = _clutter_context_get_default();
   ClutterActor *event_actor = NULL;
   gboolean filtered;
 
-  /* we need the stage for the event */
-  if (event->any.stage == NULL)
-    {
-      g_warning ("%s: Event does not have a stage: discarding.", G_STRFUNC);
-      return;
-    }
+  g_return_if_fail (CLUTTER_IS_STAGE (stage));
+  g_return_if_fail (event != NULL);
+
+  clutter_event_set_stage (event, stage);
 
   /* stages in destruction do not process events */
-  if (CLUTTER_ACTOR_IN_DESTRUCTION (event->any.stage))
+  if (CLUTTER_ACTOR_IN_DESTRUCTION (stage))
     return;
 
   switch (event->any.type)
@@ -793,7 +793,7 @@ clutter_do_event (ClutterEvent *event)
     case CLUTTER_BUTTON_PRESS:
     case CLUTTER_TOUCH_BEGIN:
     case CLUTTER_TOUCH_UPDATE:
-      update_device_for_event (event->any.stage, event, TRUE);
+      update_device_for_event (stage, event, TRUE);
       break;
     default:
       break;
@@ -804,7 +804,7 @@ clutter_do_event (ClutterEvent *event)
       event->any.type != CLUTTER_NOTHING &&
       event->any.type != CLUTTER_EVENT_LAST)
     {
-      event_actor = clutter_stage_get_event_actor (event->any.stage, event);
+      event_actor = clutter_stage_get_event_actor (stage, event);
     }
 
   context->current_event = g_slist_prepend (context->current_event, event);
@@ -825,20 +825,20 @@ clutter_do_event (ClutterEvent *event)
           ClutterInputDevice *device = clutter_event_get_device (event);
           ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
 
-          clutter_stage_maybe_lost_implicit_grab (event->any.stage, device, sequence);
+          clutter_stage_maybe_lost_implicit_grab (stage, device, sequence);
         }
     }
   else
     {
-      _clutter_stage_queue_event (event->any.stage, event, TRUE);
+      _clutter_stage_queue_event (stage, event, TRUE);
     }
 
   if (event->type == CLUTTER_TOUCH_END ||
       event->type == CLUTTER_TOUCH_CANCEL ||
       event->type == CLUTTER_DEVICE_REMOVED)
     {
-      _clutter_stage_process_queued_events (event->any.stage);
-      maybe_remove_device_for_event (event->any.stage, event, TRUE);
+      _clutter_stage_process_queued_events (stage);
+      maybe_remove_device_for_event (stage, event, TRUE);
     }
 }
 
@@ -891,7 +891,7 @@ _clutter_process_event_details (ClutterActor        *stage,
  * @event: a #ClutterEvent.
  *
  * Does the actual work of processing an event that was queued earlier
- * out of clutter_do_event().
+ * out of clutter_stage_handle_event().
  */
 void
 _clutter_process_event (ClutterEvent *event)

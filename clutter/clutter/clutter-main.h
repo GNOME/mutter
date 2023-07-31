@@ -90,7 +90,8 @@ typedef enum
 #define CLUTTER_PRIORITY_REDRAW         (G_PRIORITY_HIGH_IDLE + 50)
 
 CLUTTER_EXPORT
-void                    clutter_do_event                        (ClutterEvent *event);
+void                    clutter_stage_handle_event              (ClutterStage *stage,
+                                                                 ClutterEvent *event);
 
 /* Debug utility functions */
 CLUTTER_EXPORT
