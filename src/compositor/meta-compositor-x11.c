@@ -75,7 +75,6 @@ meta_compositor_x11_process_xevent (MetaCompositorX11 *compositor_x11,
 {
   MetaCompositor *compositor = META_COMPOSITOR (compositor_x11);
   MetaDisplay *display = meta_compositor_get_display (compositor);
-  MetaBackend *backend = meta_compositor_get_backend (compositor);
   MetaX11Display *x11_display = display->x11_display;
   int damage_event_base;
 
@@ -100,13 +99,6 @@ meta_compositor_x11_process_xevent (MetaCompositorX11 *compositor_x11,
 
   if (compositor_x11->have_x11_sync_object)
     meta_sync_ring_handle_event (xevent);
-
-  /*
-   * Clutter needs to know about MapNotify events otherwise it will think the
-   * stage is invisible
-   */
-  if (xevent->type == MapNotify)
-    meta_x11_handle_event (backend, xevent);
 }
 
 static void
