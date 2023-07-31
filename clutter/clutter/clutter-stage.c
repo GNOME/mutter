@@ -769,7 +769,7 @@ _clutter_stage_process_queued_events (ClutterStage *stage)
             }
         }
 
-      _clutter_process_event (event);
+      clutter_stage_process_event (stage, event);
 
     next_event:
       clutter_event_free (event);

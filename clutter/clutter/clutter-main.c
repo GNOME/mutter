@@ -887,28 +887,21 @@ _clutter_process_event_details (ClutterActor        *stage,
 }
 
 /*
- * _clutter_process_event
+ * clutter_stage_process_event
  * @event: a #ClutterEvent.
  *
  * Does the actual work of processing an event that was queued earlier
  * out of clutter_stage_handle_event().
  */
 void
-_clutter_process_event (ClutterEvent *event)
+clutter_stage_process_event (ClutterStage *stage,
+                             ClutterEvent *event)
 {
   ClutterMainContext *context;
-  ClutterActor *stage;
   ClutterSeat *seat;
 
   context = _clutter_context_get_default ();
   seat = clutter_backend_get_default_seat (context->backend);
-
-  stage = CLUTTER_ACTOR (event->any.stage);
-  if (stage == NULL)
-    {
-      CLUTTER_NOTE (EVENT, "Discarding event without a stage set");
-      return;
-    }
 
   /* push events on a stack, so that we don't need to
    * add an event parameter to all signals that can be emitted within
@@ -917,7 +910,7 @@ _clutter_process_event (ClutterEvent *event)
   context->current_event = g_slist_prepend (context->current_event, event);
 
   clutter_seat_handle_event_post (seat, event);
-  _clutter_process_event_details (stage, context, event);
+  _clutter_process_event_details (CLUTTER_ACTOR (stage), context, event);
 
   context->current_event = g_slist_delete_link (context->current_event, context->current_event);
 }

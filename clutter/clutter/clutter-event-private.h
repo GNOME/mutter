@@ -10,7 +10,8 @@ void            _clutter_event_set_pointer_emulated     (ClutterEvent       *eve
 
 /* Reinjecting queued events for processing */
 CLUTTER_EXPORT
-void            _clutter_process_event                  (ClutterEvent       *event);
+void            clutter_stage_process_event             (ClutterStage *stage,
+                                                         ClutterEvent *event);
 
 CLUTTER_EXPORT
 gboolean        _clutter_event_process_filters          (ClutterEvent *event,
