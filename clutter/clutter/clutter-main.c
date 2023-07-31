@@ -682,13 +682,14 @@ _clutter_boolean_continue_accumulator (GSignalInvocationHint *ihint,
  */
 
 static inline void
-emit_event (ClutterEvent *event)
+emit_event (ClutterStage *stage,
+            ClutterEvent *event)
 {
   if (event->type == CLUTTER_KEY_PRESS ||
       event->type == CLUTTER_KEY_RELEASE)
     cally_snoop_key_event ((ClutterKeyEvent *) event);
 
-  clutter_stage_emit_event (event->any.stage, event);
+  clutter_stage_emit_event (stage, event);
 }
 
 static ClutterActor *
@@ -876,7 +877,7 @@ _clutter_process_event_details (ClutterActor        *stage,
       case CLUTTER_TOUCH_END:
       case CLUTTER_PROXIMITY_IN:
       case CLUTTER_PROXIMITY_OUT:
-        emit_event (event);
+        emit_event (CLUTTER_STAGE (stage), event);
         break;
 
       case CLUTTER_DEVICE_REMOVED:
