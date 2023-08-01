@@ -1515,6 +1515,8 @@ meta_kms_impl_device_handle_update (MetaKmsImplDevice *impl_device,
       disarm_crtc_frame_deadline_timer (crtc_frame);
     }
 
+  meta_kms_device_handle_flush (priv->device, latch_crtc);
+
   feedback = do_process (impl_device, latch_crtc, update, flags);
   meta_kms_feedback_unref (feedback);
   return;
