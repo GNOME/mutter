@@ -650,7 +650,10 @@ repick_for_event (MetaWaylandPointer *pointer,
     }
   else
     {
-      actor = clutter_stage_get_device_actor (clutter_event_get_stage (for_event),
+      MetaBackend *backend = backend_from_pointer (pointer);
+      ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+
+      actor = clutter_stage_get_device_actor (stage,
                                               clutter_event_get_device (for_event),
                                               clutter_event_get_event_sequence (for_event));
     }

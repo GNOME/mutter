@@ -54,6 +54,17 @@ struct _MetaWaylandTouchInfo
   guint begin_delivered : 1;
 };
 
+static MetaBackend *
+backend_from_touch (MetaWaylandTouch *touch)
+{
+  MetaWaylandInputDevice *input_device = META_WAYLAND_INPUT_DEVICE (touch);
+  MetaWaylandSeat *seat = meta_wayland_input_device_get_seat (input_device);
+  MetaWaylandCompositor *compositor = meta_wayland_seat_get_compositor (seat);
+  MetaContext *context = meta_wayland_compositor_get_context (compositor);
+
+  return meta_context_get_backend (context);
+}
+
 static void
 move_resources (struct wl_list *destination, struct wl_list *source)
 {
@@ -218,9 +229,14 @@ meta_wayland_touch_update (MetaWaylandTouch   *touch,
   if (event->type == CLUTTER_TOUCH_BEGIN)
     {
       MetaWaylandSurface *surface = NULL;
+      MetaBackend *backend;
+      ClutterStage *stage;
       ClutterActor *actor;
 
-      actor = clutter_stage_get_device_actor (clutter_event_get_stage (event),
+      backend = backend_from_touch (touch);
+      stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+
+      actor = clutter_stage_get_device_actor (stage,
                                               clutter_event_get_device (event),
                                               clutter_event_get_event_sequence (event));
 

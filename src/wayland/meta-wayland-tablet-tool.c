@@ -581,9 +581,11 @@ static void
 repick_for_event (MetaWaylandTabletTool *tool,
                   const ClutterEvent    *for_event)
 {
+  MetaBackend *backend = backend_from_tool (tool);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
   ClutterActor *actor;
 
-  actor = clutter_stage_get_device_actor (clutter_event_get_stage (for_event),
+  actor = clutter_stage_get_device_actor (stage,
                                           clutter_event_get_device (for_event),
                                           clutter_event_get_event_sequence (for_event));
 
