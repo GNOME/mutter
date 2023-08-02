@@ -28,6 +28,7 @@
 
 #include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/meta-event-x11.h"
+#include "backends/x11/meta-stage-x11.h"
 #include "clutter/clutter-mutter.h"
 #include "cogl/cogl-xlib.h"
 
@@ -55,6 +56,7 @@ meta_x11_handle_event (MetaBackend *backend,
   MetaX11FilterReturn result;
   ClutterBackend *clutter_backend;
   ClutterEvent *event;
+  MetaStageX11 *stage_x11;
   gint spin = 1;
   Display *xdisplay;
   gboolean allocated_event;
@@ -84,6 +86,10 @@ meta_x11_handle_event (MetaBackend *backend,
       clutter_event_free (event);
       goto out;
     }
+
+  stage_x11 =
+    META_STAGE_X11 (clutter_backend_get_stage_window (clutter_backend));
+  meta_stage_x11_handle_event (stage_x11, xevent);
 
   if (_clutter_backend_translate_event (clutter_backend, xevent, event))
     {

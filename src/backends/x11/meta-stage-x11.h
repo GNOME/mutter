@@ -79,9 +79,8 @@ GType meta_stage_x11_get_type (void) G_GNUC_CONST;
 void            meta_stage_x11_set_user_time                (MetaStageX11 *stage_x11,
 							     guint32       user_time);
 
-gboolean meta_stage_x11_translate_event (MetaStageX11 *stage_x11,
-					 XEvent       *xevent,
-					 ClutterEvent *event);
+void meta_stage_x11_handle_event (MetaStageX11 *stage_x11,
+                                  XEvent       *xevent);
 
 ClutterStage *meta_x11_get_stage_from_window (Window win);
 

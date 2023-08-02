@@ -628,21 +628,19 @@ clipped_redraws_cool_off_cb (void *data)
   return G_SOURCE_REMOVE;
 }
 
-gboolean
-meta_stage_x11_translate_event (MetaStageX11 *stage_x11,
-                                XEvent       *xevent,
-                                ClutterEvent *event)
+void
+meta_stage_x11_handle_event (MetaStageX11 *stage_x11,
+                             XEvent       *xevent)
 {
   MetaClutterBackendX11 *clutter_backend_x11 =
     clutter_backend_x11_from_stage (stage_x11);
   MetaBackend *backend;
   MetaStageImpl *stage_impl;
-  gboolean res = FALSE;
   ClutterStage *stage;
 
   stage_impl = meta_x11_get_stage_window_from_window (xevent->xany.window);
   if (stage_impl == NULL)
-    return FALSE;
+    return;
 
   backend = meta_stage_impl_get_backend (stage_impl);
   stage = stage_impl->wrapper;
@@ -789,10 +787,8 @@ meta_stage_x11_translate_event (MetaStageX11 *stage_x11,
       g_debug ("Destroy notification received for stage, win:0x%x",
                (unsigned int) xevent->xany.window);
 
-      g_return_val_if_fail (META_IS_STAGE_X11_NESTED (stage_x11),
-                            FALSE);
+      g_return_if_fail (META_IS_STAGE_X11_NESTED (stage_x11));
       meta_context_terminate (meta_backend_get_context (backend));
-      res = FALSE;
       break;
 
     case ClientMessage:
@@ -803,21 +799,16 @@ meta_stage_x11_translate_event (MetaStageX11 *stage_x11,
         {
           if (handle_wm_protocols_event (stage_x11, xevent))
             {
-              g_return_val_if_fail (META_IS_STAGE_X11_NESTED (stage_x11),
-                                    FALSE);
+              g_return_if_fail (META_IS_STAGE_X11_NESTED (stage_x11));
               meta_context_terminate (meta_backend_get_context (backend));
-              res = FALSE;
             }
         }
 
       break;
 
     default:
-      res = FALSE;
       break;
     }
-
-  return res;
 }
 
 Window
