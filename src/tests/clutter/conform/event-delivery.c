@@ -120,7 +120,10 @@ test_action_handle_event (ClutterAction      *action,
 
       if (action_claim_sequence)
         {
-          clutter_stage_notify_action_implicit_grab (clutter_event_get_stage (event),
+          ClutterActor *actor;
+
+          actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (action));
+          clutter_stage_notify_action_implicit_grab (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
                                                      clutter_event_get_device (event),
                                                      clutter_event_get_event_sequence (event));
         }

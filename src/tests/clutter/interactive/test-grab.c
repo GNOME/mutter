@@ -94,7 +94,7 @@ debug_event_cb (ClutterActor *actor,
       return FALSE;
     }
 
-  target = clutter_stage_get_device_actor (clutter_event_get_stage (event),
+  target = clutter_stage_get_device_actor (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
                                            clutter_event_get_device (event),
                                            clutter_event_get_event_sequence (event));
   if (target == actor)
@@ -149,7 +149,7 @@ toggle_grab_pointer_cb (ClutterActor    *actor,
   ClutterActor *target;
 
   /* we only deal with the event if the source is ourself */
-  target = clutter_stage_get_device_actor (clutter_event_get_stage (event),
+  target = clutter_stage_get_device_actor (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
                                            clutter_event_get_device (event),
                                            clutter_event_get_event_sequence (event));
 
