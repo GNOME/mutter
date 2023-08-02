@@ -105,51 +105,6 @@ meta_clutter_backend_x11_finish_init (ClutterBackend  *clutter_backend,
   return TRUE;
 }
 
-static void
-update_last_event_time (MetaClutterBackendX11 *clutter_backend_x11,
-                        XEvent                *xevent)
-{
-  Time current_time = CurrentTime;
-  Time last_time = clutter_backend_x11->last_event_time;
-
-  switch (xevent->type)
-    {
-    case KeyPress:
-    case KeyRelease:
-      current_time = xevent->xkey.time;
-      break;
-
-    case ButtonPress:
-    case ButtonRelease:
-      current_time = xevent->xbutton.time;
-      break;
-
-    case MotionNotify:
-      current_time = xevent->xmotion.time;
-      break;
-
-    case EnterNotify:
-    case LeaveNotify:
-      current_time = xevent->xcrossing.time;
-      break;
-
-    case PropertyNotify:
-      current_time = xevent->xproperty.time;
-      break;
-
-    default:
-      break;
-    }
-
-  /* only change the current event time if it's after the previous event
-   * time, or if it is at least 30 seconds earlier - in case the system
-   * clock was changed
-   */
-  if ((current_time != CurrentTime) &&
-      (current_time > last_time || (last_time - current_time > (30 * 1000))))
-    clutter_backend_x11->last_event_time = current_time;
-}
-
 static gboolean
 check_onscreen_template (CoglRenderer         *renderer,
                          CoglOnscreenTemplate *onscreen_template,
@@ -269,11 +224,6 @@ meta_clutter_backend_x11_translate_event (ClutterBackend *clutter_backend,
   MetaStageX11 *stage_x11;
   ClutterSeat *seat;
 
-  /* we update the event time only for events that can
-   * actually reach Clutter's event queue
-   */
-  update_last_event_time (clutter_backend_x11, native);
-
   stage_x11 =
     META_STAGE_X11 (clutter_backend_get_stage_window (clutter_backend));
   if (meta_stage_x11_translate_event (stage_x11, native, event))
@@ -306,7 +256,6 @@ meta_clutter_backend_x11_is_display_server (ClutterBackend *clutter_backend)
 static void
 meta_clutter_backend_x11_init (MetaClutterBackendX11 *clutter_backend_x11)
 {
-  clutter_backend_x11->last_event_time = CurrentTime;
 }
 
 static void
