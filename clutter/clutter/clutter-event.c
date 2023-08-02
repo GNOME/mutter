@@ -514,8 +514,7 @@ clutter_event_get_source (const ClutterEvent *event)
       event->type == CLUTTER_LEAVE)
     return event->crossing.source;
 
-  return clutter_stage_get_event_actor (clutter_event_get_stage (event),
-                                        event);
+  return NULL;
 }
 
 /**
