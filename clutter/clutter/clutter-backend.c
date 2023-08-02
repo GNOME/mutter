@@ -626,16 +626,6 @@ _clutter_backend_get_units_serial (ClutterBackend *backend)
   return backend->units_serial;
 }
 
-gboolean
-_clutter_backend_translate_event (ClutterBackend *backend,
-                                  gpointer        native,
-                                  ClutterEvent   *event)
-{
-  return CLUTTER_BACKEND_GET_CLASS (backend)->translate_event (backend,
-                                                               native,
-                                                               event);
-}
-
 /**
  * clutter_backend_get_cogl_context:
  * @backend: a #ClutterBackend

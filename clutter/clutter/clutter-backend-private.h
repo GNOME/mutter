@@ -79,10 +79,6 @@ struct _ClutterBackendClass
   gboolean              (* create_context)     (ClutterBackend  *backend,
                                                 GError         **error);
 
-  gboolean              (* translate_event)    (ClutterBackend     *backend,
-                                                gpointer            native,
-                                                ClutterEvent       *event);
-
   ClutterSeat *         (* get_default_seat)   (ClutterBackend *backend);
 
   gboolean              (* is_display_server)  (ClutterBackend *backend);
@@ -101,11 +97,6 @@ gboolean                _clutter_backend_create_context                 (Clutter
 
 gboolean                _clutter_backend_finish_init                    (ClutterBackend         *backend,
                                                                          GError                **error);
-
-CLUTTER_EXPORT
-gboolean                _clutter_backend_translate_event                (ClutterBackend         *backend,
-                                                                         gpointer                native,
-                                                                         ClutterEvent           *event);
 
 gfloat                  _clutter_backend_get_units_per_em               (ClutterBackend         *backend,
                                                                          PangoFontDescription   *font_desc);

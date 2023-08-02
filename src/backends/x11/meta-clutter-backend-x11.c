@@ -212,14 +212,6 @@ meta_clutter_backend_x11_create_stage (ClutterBackend  *clutter_backend,
   return stage;
 }
 
-static gboolean
-meta_clutter_backend_x11_translate_event (ClutterBackend *clutter_backend,
-                                          gpointer        native,
-                                          ClutterEvent   *event)
-{
-  return FALSE;
-}
-
 static ClutterSeat *
 meta_clutter_backend_x11_get_default_seat (ClutterBackend *clutter_backend)
 {
@@ -252,7 +244,6 @@ meta_clutter_backend_x11_class_init (MetaClutterBackendX11Class *klass)
   clutter_backend_class->get_display = meta_clutter_backend_x11_get_display;
   clutter_backend_class->get_renderer = meta_clutter_backend_x11_get_renderer;
   clutter_backend_class->create_stage = meta_clutter_backend_x11_create_stage;
-  clutter_backend_class->translate_event = meta_clutter_backend_x11_translate_event;
   clutter_backend_class->get_default_seat = meta_clutter_backend_x11_get_default_seat;
   clutter_backend_class->is_display_server = meta_clutter_backend_x11_is_display_server;
 }
