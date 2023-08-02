@@ -421,13 +421,13 @@ meta_gesture_tracker_untrack_stage (MetaGestureTracker *tracker)
 
 gboolean
 meta_gesture_tracker_handle_event (MetaGestureTracker *tracker,
+                                   ClutterStage       *stage,
 				   const ClutterEvent *event)
 {
   MetaGestureTrackerPrivate *priv;
   ClutterEventSequence *sequence;
   MetaSequenceState state;
   MetaSequenceInfo *info;
-  ClutterActor *stage;
   gfloat x, y;
 
   sequence = clutter_event_get_event_sequence (event);
@@ -436,13 +436,12 @@ meta_gesture_tracker_handle_event (MetaGestureTracker *tracker,
     return FALSE;
 
   priv = meta_gesture_tracker_get_instance_private (tracker);
-  stage = CLUTTER_ACTOR (clutter_event_get_stage (event));
 
   switch (event->type)
     {
     case CLUTTER_TOUCH_BEGIN:
       if (g_hash_table_size (priv->sequences) == 0)
-        meta_gesture_tracker_track_stage (tracker, stage);
+        meta_gesture_tracker_track_stage (tracker, CLUTTER_ACTOR (stage));
 
       info = meta_sequence_info_new (tracker, event);
       g_hash_table_insert (priv->sequences, sequence, info);

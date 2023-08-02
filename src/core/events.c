@@ -63,24 +63,29 @@ typedef enum
   EVENTS_UNFREEZE_REPLAY,
 } EventsUnfreezeMethod;
 
-static gboolean
-stage_has_key_focus (MetaDisplay *display)
+static ClutterStage *
+stage_from_display (MetaDisplay *display)
 {
   MetaContext *context = meta_display_get_context (display);
   MetaBackend *backend = meta_context_get_backend (context);
-  ClutterActor *stage = meta_backend_get_stage (backend);
 
-  return clutter_stage_get_key_focus (CLUTTER_STAGE (stage)) == stage;
+  return CLUTTER_STAGE (meta_backend_get_stage (backend));
+}
+
+static gboolean
+stage_has_key_focus (MetaDisplay *display)
+{
+  ClutterStage *stage = stage_from_display (display);
+
+  return clutter_stage_get_key_focus (stage) == CLUTTER_ACTOR (stage);
 }
 
 static gboolean
 stage_has_grab (MetaDisplay *display)
 {
-  MetaContext *context = meta_display_get_context (display);
-  MetaBackend *backend = meta_context_get_backend (context);
-  ClutterActor *stage = meta_backend_get_stage (backend);
+  ClutterStage *stage = stage_from_display (display);
 
-  return clutter_stage_get_grab_actor (CLUTTER_STAGE (stage)) != NULL;
+  return clutter_stage_get_grab_actor (stage) != NULL;
 }
 
 static MetaWindow *
@@ -393,7 +398,9 @@ meta_display_handle_event (MetaDisplay        *display,
 
   gesture_tracker = meta_display_get_gesture_tracker (display);
 
-  if (meta_gesture_tracker_handle_event (gesture_tracker, event))
+  if (meta_gesture_tracker_handle_event (gesture_tracker,
+                                         stage_from_display (display),
+                                         event))
     {
       bypass_wayland = TRUE;
       bypass_clutter = FALSE;

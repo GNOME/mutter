@@ -58,6 +58,7 @@ GType                meta_gesture_tracker_get_type           (void) G_GNUC_CONST
 MetaGestureTracker * meta_gesture_tracker_new                (void);
 
 gboolean             meta_gesture_tracker_handle_event       (MetaGestureTracker   *tracker,
+                                                              ClutterStage         *stage,
                                                               const ClutterEvent   *event);
 gboolean             meta_gesture_tracker_set_sequence_state (MetaGestureTracker   *tracker,
                                                               ClutterEventSequence *sequence,
