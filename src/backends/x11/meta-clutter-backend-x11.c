@@ -217,16 +217,6 @@ meta_clutter_backend_x11_translate_event (ClutterBackend *clutter_backend,
                                           gpointer        native,
                                           ClutterEvent   *event)
 {
-  MetaClutterBackendX11 *clutter_backend_x11 =
-    META_CLUTTER_BACKEND_X11 (clutter_backend);
-  MetaClutterBackendX11Private *priv =
-    meta_clutter_backend_x11_get_instance_private (clutter_backend_x11);
-  ClutterSeat *seat;
-
-  seat = meta_backend_get_default_seat (priv->backend);
-  if (meta_seat_x11_translate_event (META_SEAT_X11 (seat), native, event))
-    return TRUE;
-
   return FALSE;
 }
 

@@ -28,6 +28,7 @@
 
 #include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/meta-event-x11.h"
+#include "backends/x11/meta-seat-x11.h"
 #include "backends/x11/meta-stage-x11.h"
 #include "clutter/clutter-mutter.h"
 #include "cogl/cogl-xlib.h"
@@ -56,6 +57,7 @@ meta_x11_handle_event (MetaBackend *backend,
   MetaX11FilterReturn result;
   ClutterBackend *clutter_backend;
   ClutterEvent *event;
+  MetaSeatX11 *seat_x11;
   MetaStageX11 *stage_x11;
   gint spin = 1;
   Display *xdisplay;
@@ -74,24 +76,21 @@ meta_x11_handle_event (MetaBackend *backend,
 
   clutter_backend = meta_backend_get_clutter_backend (backend);
 
-  event = clutter_event_new (CLUTTER_NOTHING);
-
   xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
 
   allocated_event = XGetEventData (xdisplay, &xevent->xcookie);
 
   if (cogl_xlib_renderer_handle_event (clutter_backend->cogl_renderer,
                                        xevent) == COGL_FILTER_REMOVE)
-    {
-      clutter_event_free (event);
-      goto out;
-    }
+    goto out;
 
   stage_x11 =
     META_STAGE_X11 (clutter_backend_get_stage_window (clutter_backend));
   meta_stage_x11_handle_event (stage_x11, xevent);
 
-  if (_clutter_backend_translate_event (clutter_backend, xevent, event))
+  event = clutter_event_new (CLUTTER_NOTHING);
+  seat_x11 = META_SEAT_X11 (meta_backend_get_default_seat (backend));
+  if (meta_seat_x11_translate_event (seat_x11, xevent, event))
     {
       _clutter_event_push (event, FALSE);
 
