@@ -58,13 +58,6 @@ G_DECLARE_FINAL_TYPE (MetaClutterBackendX11, meta_clutter_backend_x11,
                       META, CLUTTER_BACKEND_X11,
                       ClutterBackend)
 
-typedef enum
-{
-  META_X11_FILTER_CONTINUE,
-  META_X11_FILTER_TRANSLATE,
-  META_X11_FILTER_REMOVE
-} MetaX11FilterReturn;
-
 MetaClutterBackendX11 * meta_clutter_backend_x11_new (MetaBackend *backend);
 
 void meta_clutter_x11_trap_x_errors (void);

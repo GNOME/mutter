@@ -25,7 +25,7 @@
 
 #include <X11/Xlib.h>
 
-#include "backends/x11/meta-clutter-backend-x11.h"
+#include "backends/x11/meta-backend-x11.h"
 
-MetaX11FilterReturn meta_x11_handle_event (MetaBackend *backend,
-                                           XEvent      *xevent);
+void meta_backend_x11_handle_event (MetaBackend *backend,
+                                    XEvent      *xevent);

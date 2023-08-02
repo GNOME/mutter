@@ -34,27 +34,17 @@
 #include "cogl/cogl-xlib.h"
 
 /**
- * meta_x11_handle_event:
+ * meta_backend_x11_handle_event:
  * @backend: backend
  * @xevent: pointer to XEvent structure
  *
  * This function processes a single X event; it can be used to hook
- * into external X11 event processing (for example, a GDK filter
- * function).
- *
- * Return value: #MetaX11FilterReturn. %META_X11_FILTER_REMOVE
- *  indicates that Clutter has internally handled the event and the
- *  caller should do no further processing. %META_X11_FILTER_CONTINUE
- *  indicates that Clutter is either not interested in the event,
- *  or has used the event to update internal state without taking
- *  any exclusive action. %META_X11_FILTER_TRANSLATE will not
- *  occur.
+ * into external X11 event processing.
  */
-MetaX11FilterReturn
-meta_x11_handle_event (MetaBackend *backend,
-                       XEvent      *xevent)
+void
+meta_backend_x11_handle_event (MetaBackend *backend,
+                               XEvent      *xevent)
 {
-  MetaX11FilterReturn result;
   ClutterBackend *clutter_backend;
   ClutterEvent *event;
   MetaSeatX11 *seat_x11;
@@ -62,17 +52,6 @@ meta_x11_handle_event (MetaBackend *backend,
   gint spin = 1;
   Display *xdisplay;
   gboolean allocated_event;
-
-  /* The return values here are someone approximate; we return
-   * META_X11_FILTER_REMOVE if a clutter event is
-   * generated for the event. This mostly, but not entirely,
-   * corresponds to whether other event processing should be
-   * excluded. As long as the stage window is not shared with another
-   * toolkit it should be safe, and never return
-   * %META_X11_FILTER_REMOVE when more processing is needed.
-   */
-
-  result = META_X11_FILTER_CONTINUE;
 
   clutter_backend = meta_backend_get_clutter_backend (backend);
 
@@ -93,8 +72,6 @@ meta_x11_handle_event (MetaBackend *backend,
   if (meta_seat_x11_translate_event (seat_x11, xevent, event))
     {
       _clutter_event_push (event, FALSE);
-
-      result = META_X11_FILTER_REMOVE;
     }
   else
     {
@@ -124,6 +101,4 @@ meta_x11_handle_event (MetaBackend *backend,
 out:
   if (allocated_event)
     XFreeEventData (xdisplay, &xevent->xcookie);
-
-  return result;
 }

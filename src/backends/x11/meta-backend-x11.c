@@ -432,7 +432,7 @@ handle_host_xevent (MetaBackend *backend,
       if (handle_input_event (x11, event))
         goto done;
 
-      meta_x11_handle_event (backend, event);
+      meta_backend_x11_handle_event (backend, event);
     }
 
 done:
