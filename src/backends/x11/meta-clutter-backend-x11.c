@@ -40,14 +40,6 @@
 #include "core/bell.h"
 #include "meta/meta-backend.h"
 
-typedef struct _MetaX11EventFilter MetaX11EventFilter;
-
-struct _MetaX11EventFilter
-{
-  MetaX11FilterFunc func;
-  gpointer data;
-};
-
 typedef struct _MetaClutterBackendX11Private
 {
   MetaBackend *backend;
@@ -266,44 +258,6 @@ meta_clutter_backend_x11_create_stage (ClutterBackend  *clutter_backend,
 }
 
 static gboolean
-meta_clutter_backend_x11_process_event_filters (MetaClutterBackendX11 *clutter_backend_x11,
-                                                gpointer               native,
-                                                ClutterEvent          *event)
-{
-  XEvent *xevent = native;
-
-  /* X11 filter functions have a higher priority */
-  if (clutter_backend_x11->event_filters != NULL)
-    {
-      GSList *node = clutter_backend_x11->event_filters;
-
-      while (node != NULL)
-        {
-          MetaX11EventFilter *filter = node->data;
-
-          switch (filter->func (xevent, event, filter->data))
-            {
-            case META_X11_FILTER_CONTINUE:
-              break;
-
-            case META_X11_FILTER_TRANSLATE:
-              return TRUE;
-
-            case META_X11_FILTER_REMOVE:
-              return FALSE;
-
-            default:
-              break;
-            }
-
-          node = node->next;
-        }
-    }
-
-  return FALSE;
-}
-
-static gboolean
 meta_clutter_backend_x11_translate_event (ClutterBackend *clutter_backend,
                                           gpointer        native,
                                           ClutterEvent   *event)
@@ -314,11 +268,6 @@ meta_clutter_backend_x11_translate_event (ClutterBackend *clutter_backend,
     meta_clutter_backend_x11_get_instance_private (clutter_backend_x11);
   MetaStageX11 *stage_x11;
   ClutterSeat *seat;
-
-  if (meta_clutter_backend_x11_process_event_filters (clutter_backend_x11,
-                                                      native,
-                                                      event))
-    return TRUE;
 
   /* we update the event time only for events that can
    * actually reach Clutter's event queue
@@ -409,56 +358,6 @@ meta_clutter_x11_untrap_x_errors (void)
   XSetErrorHandler (old_error_handler);
 
   return TrappedErrorCode;
-}
-
-void
-meta_clutter_backend_x11_add_filter (MetaClutterBackendX11 *clutter_backend_x11,
-                                     MetaX11FilterFunc      func,
-                                     gpointer               data)
-{
-  MetaX11EventFilter *filter;
-
-  g_return_if_fail (func != NULL);
-
-  filter = g_new0 (MetaX11EventFilter, 1);
-  filter->func = func;
-  filter->data = data;
-
-  clutter_backend_x11->event_filters =
-    g_slist_append (clutter_backend_x11->event_filters, filter);
-
-  return;
-}
-
-void
-meta_clutter_backend_x11_remove_filter (MetaClutterBackendX11 *clutter_backend_x11,
-                                        MetaX11FilterFunc      func,
-                                        gpointer               data)
-{
-  GSList *tmp_list, *this;
-  MetaX11EventFilter *filter;
-
-  g_return_if_fail (func != NULL);
-
-  tmp_list = clutter_backend_x11->event_filters;
-
-  while (tmp_list)
-    {
-      filter   = tmp_list->data;
-      this     =  tmp_list;
-      tmp_list = tmp_list->next;
-
-      if (filter->func == func && filter->data == data)
-        {
-          clutter_backend_x11->event_filters =
-            g_slist_remove_link (clutter_backend_x11->event_filters, this);
-
-          g_slist_free_1 (this);
-          g_free (filter);
-
-          return;
-        }
-    }
 }
 
 void
