@@ -309,7 +309,7 @@ clutter_click_action_handle_event (ClutterAction      *action,
       if (priv->is_held)
         return CLUTTER_EVENT_STOP;
 
-      target = clutter_stage_get_device_actor (clutter_event_get_stage (event),
+      target = clutter_stage_get_device_actor (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
                                                clutter_event_get_device (event),
                                                clutter_event_get_event_sequence (event));
 
@@ -372,7 +372,7 @@ clutter_click_action_handle_event (ClutterAction      *action,
 
       g_clear_handle_id (&priv->long_press_id, g_source_remove);
 
-      target = clutter_stage_get_device_actor (clutter_event_get_stage (event),
+      target = clutter_stage_get_device_actor (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
                                                clutter_event_get_device (event),
                                                clutter_event_get_event_sequence (event));
 
