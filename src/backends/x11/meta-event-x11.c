@@ -29,6 +29,7 @@
 #include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/meta-event-x11.h"
 #include "clutter/clutter-mutter.h"
+#include "cogl/cogl-xlib.h"
 
 /**
  * meta_x11_handle_event:
@@ -76,6 +77,13 @@ meta_x11_handle_event (MetaBackend *backend,
   xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
 
   allocated_event = XGetEventData (xdisplay, &xevent->xcookie);
+
+  if (cogl_xlib_renderer_handle_event (clutter_backend->cogl_renderer,
+                                       xevent) == COGL_FILTER_REMOVE)
+    {
+      clutter_event_free (event);
+      goto out;
+    }
 
   if (_clutter_backend_translate_event (clutter_backend, xevent, event))
     {
