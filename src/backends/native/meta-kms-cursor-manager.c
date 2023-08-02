@@ -372,9 +372,12 @@ maybe_update_cursor_plane (MetaKmsCursorManagerImpl  *cursor_manager_impl,
 
       if (crtc_state_impl->pending_buffer != crtc_state_impl->buffer)
         {
-          assign_plane_flags |= META_KMS_ASSIGN_PLANE_FLAG_FB_UNCHANGED;
           *old_buffer = g_steal_pointer (&crtc_state_impl->pending_buffer);
           crtc_state_impl->pending_buffer = g_object_ref (buffer);
+        }
+      else
+        {
+          assign_plane_flags |= META_KMS_ASSIGN_PLANE_FLAG_FB_UNCHANGED;
         }
 
       width = meta_drm_buffer_get_width (buffer);
