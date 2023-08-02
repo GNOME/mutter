@@ -781,8 +781,6 @@ clutter_stage_handle_event (ClutterStage *stage,
   g_return_if_fail (CLUTTER_IS_STAGE (stage));
   g_return_if_fail (event != NULL);
 
-  clutter_event_set_stage (event, stage);
-
   /* stages in destruction do not process events */
   if (CLUTTER_ACTOR_IN_DESTRUCTION (stage))
     return;

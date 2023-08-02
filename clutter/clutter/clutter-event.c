@@ -531,43 +531,6 @@ clutter_event_set_source (ClutterEvent *event,
 }
 
 /**
- * clutter_event_get_stage:
- * @event: a #ClutterEvent
- *
- * Retrieves the source #ClutterStage the event originated for, or
- * %NULL if the event has no stage.
- *
- * Return value: (transfer none): a #ClutterStage
- */
-ClutterStage *
-clutter_event_get_stage (const ClutterEvent *event)
-{
-  g_return_val_if_fail (event != NULL, NULL);
-
-  return event->any.stage;
-}
-
-/**
- * clutter_event_set_stage:
- * @event: a #ClutterEvent
- * @stage: (allow-none): a #ClutterStage, or %NULL
- *
- * Sets the source #ClutterStage of the event.
- */
-void
-clutter_event_set_stage (ClutterEvent *event,
-                         ClutterStage *stage)
-{
-  g_return_if_fail (event != NULL);
-  g_return_if_fail (stage == NULL || CLUTTER_IS_STAGE (stage));
-
-  if (event->any.stage == stage)
-    return;
-
-  event->any.stage = stage;
-}
-
-/**
  * clutter_event_get_flags:
  * @event: a #ClutterEvent
  *
@@ -1685,7 +1648,8 @@ _clutter_event_process_filters (ClutterEvent *event,
 
       next = l->next;
 
-      if (event_filter->stage && event_filter->stage != event->any.stage)
+      if (event_filter->stage &&
+          event_filter->stage != CLUTTER_STAGE (clutter_actor_get_stage (event_actor)))
         continue;
 
       if (event_filter->func (event, event_actor, event_filter->user_data) == CLUTTER_EVENT_STOP)
