@@ -67,17 +67,12 @@ meta_backend_x11_handle_event (MetaBackend *backend,
     META_STAGE_X11 (clutter_backend_get_stage_window (clutter_backend));
   meta_stage_x11_handle_event (stage_x11, xevent);
 
-  event = clutter_event_new (CLUTTER_NOTHING);
   seat_x11 = META_SEAT_X11 (meta_backend_get_default_seat (backend));
-  if (meta_seat_x11_translate_event (seat_x11, xevent, event))
-    {
-      _clutter_event_push (event, FALSE);
-    }
-  else
-    {
-      clutter_event_free (event);
-      goto out;
-    }
+  event = meta_seat_x11_translate_event (seat_x11, xevent);
+  if (!event)
+    goto out;
+
+  _clutter_event_push (event, FALSE);
 
   /*
    * Motion events can generate synthetic enter and leave events, so if we

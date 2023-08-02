@@ -33,9 +33,8 @@ MetaSeatX11 * meta_seat_x11_new (MetaBackend *backend,
 
 MetaBackend * meta_seat_x11_get_backend (MetaSeatX11 *seat_x11);
 
-gboolean meta_seat_x11_translate_event (MetaSeatX11  *seat,
-					XEvent       *xevent,
-					ClutterEvent *event);
+ClutterEvent * meta_seat_x11_translate_event (MetaSeatX11  *seat,
+                                              XEvent       *xevent);
 ClutterInputDevice * meta_seat_x11_lookup_device_id (MetaSeatX11 *seat_x11,
                                                      int          device_id);
 void meta_seat_x11_select_stage_events (MetaSeatX11  *seat,
