@@ -34,3 +34,5 @@ meta_seat_x11_apply_kbd_a11y_settings (ClutterSeat         *seat,
 
 gboolean
 meta_seat_x11_a11y_init               (ClutterSeat            *seat);
+
+void meta_seat_x11_check_xkb_a11y_settings_changed (ClutterSeat *seat);
