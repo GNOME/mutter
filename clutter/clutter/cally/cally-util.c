@@ -278,12 +278,12 @@ insert_hf (gpointer key, gpointer value, gpointer data)
  * char
  */
 static gunichar
-check_key_visibility (ClutterEvent *event)
+check_key_visibility (ClutterStage *stage)
 {
   AtkObject *accessible;
   ClutterActor *focus;
 
-  focus = clutter_stage_get_key_focus (clutter_event_get_stage (event));
+  focus = clutter_stage_get_key_focus (stage);
   accessible = clutter_actor_get_accessible (focus);
 
   g_return_val_if_fail (accessible != NULL, 0);
@@ -307,7 +307,8 @@ check_key_visibility (ClutterEvent *event)
 }
 
 gboolean
-cally_snoop_key_event (ClutterKeyEvent *key)
+cally_snoop_key_event (ClutterStage    *stage,
+                       ClutterKeyEvent *key)
 {
   ClutterEvent *event = (ClutterEvent *) key;
   AtkKeyEventStruct *key_event = NULL;
@@ -323,7 +324,7 @@ cally_snoop_key_event (ClutterKeyEvent *key)
       GHashTable *new_hash = g_hash_table_new (NULL, NULL);
 
       g_hash_table_foreach (key_listener_list, insert_hf, new_hash);
-      password_char = check_key_visibility (event);
+      password_char = check_key_visibility (stage);
       key_event = atk_key_event_from_clutter_event_key (key, password_char);
       /* func data is inside the hash table */
       consumed = g_hash_table_foreach_steal (new_hash, notify_hf, key_event) > 0;

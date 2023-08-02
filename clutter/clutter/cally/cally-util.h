@@ -65,6 +65,7 @@ GType cally_util_get_type (void) G_GNUC_CONST;
 
 void _cally_util_override_atk_util (void);
 
-gboolean cally_snoop_key_event (ClutterKeyEvent *key);
+gboolean cally_snoop_key_event (ClutterStage    *stage,
+                                ClutterKeyEvent *key);
 
 G_END_DECLS

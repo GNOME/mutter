@@ -687,7 +687,7 @@ emit_event (ClutterStage *stage,
 {
   if (event->type == CLUTTER_KEY_PRESS ||
       event->type == CLUTTER_KEY_RELEASE)
-    cally_snoop_key_event ((ClutterKeyEvent *) event);
+    cally_snoop_key_event (stage, (ClutterKeyEvent *) event);
 
   clutter_stage_emit_event (stage, event);
 }
