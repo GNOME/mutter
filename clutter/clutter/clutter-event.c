@@ -257,61 +257,6 @@ clutter_event_set_state (ClutterEvent        *event,
     }
 }
 
-void
-_clutter_event_set_state_full (ClutterEvent        *event,
-			       ClutterModifierType  button_state,
-			       ClutterModifierType  base_state,
-			       ClutterModifierType  latched_state,
-			       ClutterModifierType  locked_state,
-			       ClutterModifierType  effective_state)
-{
-  ClutterEventPrivate *private = (ClutterEventPrivate*) event;
-
-  private->button_state = button_state;
-  private->base_state = base_state;
-  private->latched_state = latched_state;
-  private->locked_state = locked_state;
-
-  clutter_event_set_state (event, effective_state);
-}
-
-/**
- * clutter_event_get_state_full:
- * @event: a #ClutterEvent
- * @button_state: (out) (allow-none): the pressed buttons as a mask
- * @base_state: (out) (allow-none): the regular pressed modifier keys
- * @latched_state: (out) (allow-none): the latched modifier keys (currently released but still valid for one key press/release)
- * @locked_state: (out) (allow-none): the locked modifier keys (valid until the lock key is pressed and released again)
- * @effective_state: (out) (allow-none): the logical OR of all the state bits above
- *
- * Retrieves the decomposition of the keyboard state into button, base,
- * latched, locked and effective. This can be used to transmit to other
- * applications, for example when implementing a wayland compositor.
- */
-void
-clutter_event_get_state_full (const ClutterEvent  *event,
-			      ClutterModifierType *button_state,
-			      ClutterModifierType *base_state,
-			      ClutterModifierType *latched_state,
-			      ClutterModifierType *locked_state,
-			      ClutterModifierType *effective_state)
-{
-  const ClutterEventPrivate *private = (const ClutterEventPrivate*) event;
-
-  g_return_if_fail (event != NULL);
-
-  if (button_state)
-    *button_state = private->button_state;
-  if (base_state)
-    *base_state = private->base_state;
-  if (latched_state)
-    *latched_state = private->latched_state;
-  if (locked_state)
-    *locked_state = private->locked_state;
-  if (effective_state)
-    *effective_state = clutter_event_get_state (event);
-}
-
 /**
  * clutter_event_get_coords:
  * @event: a #ClutterEvent

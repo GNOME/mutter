@@ -174,14 +174,6 @@ CLUTTER_EXPORT
 gpointer        _clutter_event_get_platform_data        (const ClutterEvent *event);
 
 CLUTTER_EXPORT
-void            _clutter_event_set_state_full           (ClutterEvent        *event,
-							 ClutterModifierType  button_state,
-							 ClutterModifierType  base_state,
-							 ClutterModifierType  latched_state,
-							 ClutterModifierType  locked_state,
-							 ClutterModifierType  effective_state);
-
-CLUTTER_EXPORT
 void            _clutter_event_push                     (const ClutterEvent *event,
                                                          gboolean            do_copy);
 

@@ -633,13 +633,6 @@ void                    clutter_event_set_state                 (ClutterEvent   
 CLUTTER_EXPORT
 ClutterModifierType     clutter_event_get_state                 (const ClutterEvent     *event);
 CLUTTER_EXPORT
-void                    clutter_event_get_state_full            (const ClutterEvent     *event,
-								 ClutterModifierType    *button_state,
-								 ClutterModifierType    *base_state,
-								 ClutterModifierType    *latched_state,
-								 ClutterModifierType    *locked_state,
-								 ClutterModifierType    *effective_state);
-CLUTTER_EXPORT
 void                    clutter_event_set_device                (ClutterEvent           *event,
                                                                  ClutterInputDevice     *device);
 CLUTTER_EXPORT
