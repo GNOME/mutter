@@ -151,10 +151,6 @@ ClutterEvent * clutter_event_im_new (ClutterEventType         type,
                                      uint32_t                 len,
                                      ClutterPreeditResetMode  mode);
 
-CLUTTER_EXPORT
-void            _clutter_event_set_pointer_emulated     (ClutterEvent       *event,
-                                                         gboolean            is_emulated);
-
 /* Reinjecting queued events for processing */
 CLUTTER_EXPORT
 void            clutter_stage_process_event             (ClutterStage *stage,
@@ -167,9 +163,6 @@ gboolean        _clutter_event_process_filters          (ClutterEvent *event,
 /* clears the event queue inside the main context */
 void            _clutter_clear_events_queue             (void);
 
-CLUTTER_EXPORT
-void            _clutter_event_set_platform_data        (ClutterEvent       *event,
-                                                         gpointer            data);
 CLUTTER_EXPORT
 gpointer        _clutter_event_get_platform_data        (const ClutterEvent *event);
 

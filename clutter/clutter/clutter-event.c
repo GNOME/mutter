@@ -99,27 +99,6 @@ _clutter_event_get_platform_data (const ClutterEvent *event)
   return ((ClutterEventPrivate *) event)->platform_data;
 }
 
-/*< private >
- * _clutter_event_set_platform_data:
- * @event: a #ClutterEvent
- * @data: a pointer to platform-specific data
- *
- * Sets the pointer to platform-specific data inside an event
- */
-void
-_clutter_event_set_platform_data (ClutterEvent *event,
-                                  gpointer      data)
-{
-  ((ClutterEventPrivate *) event)->platform_data = data;
-}
-
-void
-_clutter_event_set_pointer_emulated (ClutterEvent *event,
-                                     gboolean      is_emulated)
-{
-  ((ClutterEventPrivate *) event)->is_pointer_emulated = !!is_emulated;
-}
-
 /**
  * clutter_event_type:
  * @event: a #ClutterEvent
@@ -150,22 +129,6 @@ clutter_event_get_time (const ClutterEvent *event)
   g_return_val_if_fail (event != NULL, CLUTTER_CURRENT_TIME);
 
   return event->any.time;
-}
-
-/**
- * clutter_event_set_time:
- * @event: a #ClutterEvent
- * @time_: the time of the event
- *
- * Sets the time of the event.
- */
-void
-clutter_event_set_time (ClutterEvent *event,
-                        guint32       time_)
-{
-  g_return_if_fail (event != NULL);
-
-  event->any.time = time_;
 }
 
 /**
@@ -210,51 +173,6 @@ clutter_event_get_state (const ClutterEvent *event)
     }
 
   return 0;
-}
-
-/**
- * clutter_event_set_state:
- * @event: a #ClutterEvent
- * @state: the modifier state to set
- *
- * Sets the modifier state of the event.
- */
-void
-clutter_event_set_state (ClutterEvent        *event,
-                         ClutterModifierType  state)
-{
-  g_return_if_fail (event != NULL);
-
-  switch (event->type)
-    {
-    case CLUTTER_KEY_PRESS:
-    case CLUTTER_KEY_RELEASE:
-      event->key.modifier_state = state;
-      break;
-
-    case CLUTTER_BUTTON_PRESS:
-    case CLUTTER_BUTTON_RELEASE:
-      event->button.modifier_state = state;
-      break;
-
-    case CLUTTER_MOTION:
-      event->motion.modifier_state = state;
-      break;
-
-    case CLUTTER_TOUCH_BEGIN:
-    case CLUTTER_TOUCH_UPDATE:
-    case CLUTTER_TOUCH_END:
-    case CLUTTER_TOUCH_CANCEL:
-      event->touch.modifier_state = state;
-      break;
-
-    case CLUTTER_SCROLL:
-      event->scroll.modifier_state = state;
-      break;
-
-    default:
-      break;
-    }
 }
 
 /**
@@ -361,87 +279,6 @@ clutter_event_get_position (const ClutterEvent *event,
 }
 
 /**
- * clutter_event_set_coords:
- * @event: a #ClutterEvent
- * @x: the X coordinate of the event
- * @y: the Y coordinate of the event
- *
- * Sets the coordinates of the @event.
- */
-void
-clutter_event_set_coords (ClutterEvent *event,
-                          gfloat        x,
-                          gfloat        y)
-{
-  g_return_if_fail (event != NULL);
-
-  switch (event->type)
-    {
-    case CLUTTER_NOTHING:
-    case CLUTTER_KEY_PRESS:
-    case CLUTTER_KEY_RELEASE:
-    case CLUTTER_EVENT_LAST:
-    case CLUTTER_PROXIMITY_IN:
-    case CLUTTER_PROXIMITY_OUT:
-    case CLUTTER_PAD_BUTTON_PRESS:
-    case CLUTTER_PAD_BUTTON_RELEASE:
-    case CLUTTER_PAD_STRIP:
-    case CLUTTER_PAD_RING:
-    case CLUTTER_DEVICE_ADDED:
-    case CLUTTER_DEVICE_REMOVED:
-    case CLUTTER_IM_COMMIT:
-    case CLUTTER_IM_DELETE:
-    case CLUTTER_IM_PREEDIT:
-      break;
-
-    case CLUTTER_ENTER:
-    case CLUTTER_LEAVE:
-      event->crossing.x = x;
-      event->crossing.y = y;
-      break;
-
-    case CLUTTER_BUTTON_PRESS:
-    case CLUTTER_BUTTON_RELEASE:
-      event->button.x = x;
-      event->button.y = y;
-      break;
-
-    case CLUTTER_MOTION:
-      event->motion.x = x;
-      event->motion.y = y;
-      break;
-
-    case CLUTTER_TOUCH_BEGIN:
-    case CLUTTER_TOUCH_UPDATE:
-    case CLUTTER_TOUCH_END:
-    case CLUTTER_TOUCH_CANCEL:
-      event->touch.x = x;
-      event->touch.y = y;
-      break;
-
-    case CLUTTER_SCROLL:
-      event->scroll.x = x;
-      event->scroll.y = y;
-      break;
-
-    case CLUTTER_TOUCHPAD_PINCH:
-      event->touchpad_pinch.x = x;
-      event->touchpad_pinch.y = y;
-      break;
-
-    case CLUTTER_TOUCHPAD_SWIPE:
-      event->touchpad_swipe.x = x;
-      event->touchpad_swipe.y = y;
-      break;
-
-    case CLUTTER_TOUCHPAD_HOLD:
-      event->touchpad_hold.x = x;
-      event->touchpad_hold.y = y;
-      break;
-    }
-}
-
-/**
  * clutter_event_get_source:
  * @event: a #ClutterEvent
  *
@@ -463,19 +300,6 @@ clutter_event_get_source (const ClutterEvent *event)
 }
 
 /**
- * clutter_event_set_source:
- * @event: a #ClutterEvent
- * @actor: (allow-none): a #ClutterActor, or %NULL
- *
- * Sets the source #ClutterActor of @event.
- */
-void
-clutter_event_set_source (ClutterEvent *event,
-                          ClutterActor *actor)
-{
-}
-
-/**
  * clutter_event_get_flags:
  * @event: a #ClutterEvent
  *
@@ -489,26 +313,6 @@ clutter_event_get_flags (const ClutterEvent *event)
   g_return_val_if_fail (event != NULL, CLUTTER_EVENT_NONE);
 
   return event->any.flags;
-}
-
-/**
- * clutter_event_set_flags:
- * @event: a #ClutterEvent
- * @flags: a binary OR of #ClutterEventFlags values
- *
- * Sets the #ClutterEventFlags of @event
- */
-void
-clutter_event_set_flags (ClutterEvent      *event,
-                         ClutterEventFlags  flags)
-{
-  g_return_if_fail (event != NULL);
-
-  if (event->any.flags == flags)
-    return;
-
-  event->any.flags = flags;
-  event->any.flags |= CLUTTER_EVENT_FLAG_SYNTHETIC;
 }
 
 /**
@@ -528,50 +332,6 @@ clutter_event_get_related (const ClutterEvent *event)
                         event->type == CLUTTER_LEAVE, NULL);
 
   return event->crossing.related;
-}
-
-/**
- * clutter_event_set_related:
- * @event: a #ClutterEvent of type %CLUTTER_ENTER or %CLUTTER_LEAVE
- * @actor: (allow-none): a #ClutterActor or %NULL
- *
- * Sets the related actor of a crossing event
- */
-void
-clutter_event_set_related (ClutterEvent *event,
-                           ClutterActor *actor)
-{
-  g_return_if_fail (event != NULL);
-  g_return_if_fail (event->type == CLUTTER_ENTER ||
-                    event->type == CLUTTER_LEAVE);
-  g_return_if_fail (actor == NULL || CLUTTER_IS_ACTOR (actor));
-
-  if (event->crossing.related == actor)
-    return;
-
-  event->crossing.related = actor;
-}
-
-/**
- * clutter_event_set_scroll_delta:
- * @event: a #ClutterEvent of type %CLUTTER_SCROLL
- * @dx: delta on the horizontal axis
- * @dy: delta on the vertical axis
- *
- * Sets the precise scrolling information of @event.
- */
-void
-clutter_event_set_scroll_delta (ClutterEvent *event,
-                                gdouble       dx,
-                                gdouble       dy)
-{
-  g_return_if_fail (event != NULL);
-  g_return_if_fail (event->type == CLUTTER_SCROLL);
-
-  event->scroll.direction = CLUTTER_SCROLL_SMOOTH;
-
-  ((ClutterEventPrivate *) event)->delta_x = dx;
-  ((ClutterEventPrivate *) event)->delta_y = dy;
 }
 
 /**
@@ -624,23 +384,6 @@ clutter_event_get_scroll_direction (const ClutterEvent *event)
 }
 
 /**
- * clutter_event_set_scroll_direction:
- * @event: a #ClutterEvent
- * @direction: the scrolling direction
- *
- * Sets the direction of the scrolling of @event
- */
-void
-clutter_event_set_scroll_direction (ClutterEvent           *event,
-                                    ClutterScrollDirection  direction)
-{
-  g_return_if_fail (event != NULL);
-  g_return_if_fail (event->type == CLUTTER_SCROLL);
-
-  event->scroll.direction = direction;
-}
-
-/**
  * clutter_event_get_button:
  * @event: a #ClutterEvent of type %CLUTTER_BUTTON_PRESS or
  *   of type %CLUTTER_BUTTON_RELEASE
@@ -665,25 +408,6 @@ clutter_event_get_button (const ClutterEvent *event)
     return event->pad_button.button;
 }
 
-/**
- * clutter_event_set_button:
- * @event: a #ClutterEvent or type %CLUTTER_BUTTON_PRESS or
- *   of type %CLUTTER_BUTTON_RELEASE
- * @button: the button number
- *
- * Sets the button number of @event
- */
-void
-clutter_event_set_button (ClutterEvent *event,
-                          guint32       button)
-{
-  g_return_if_fail (event != NULL);
-  g_return_if_fail (event->type == CLUTTER_BUTTON_PRESS ||
-                    event->type == CLUTTER_BUTTON_RELEASE);
-
-  event->button.button = button;
-}
-
 /* keys */
 
 /**
@@ -706,25 +430,6 @@ clutter_event_get_key_symbol (const ClutterEvent *event)
 }
 
 /**
- * clutter_event_set_key_symbol:
- * @event: a #ClutterEvent of type %CLUTTER_KEY_PRESS
- *   or %CLUTTER_KEY_RELEASE
- * @key_sym: the key symbol representing the key
- *
- * Sets the key symbol of @event.
- */
-void
-clutter_event_set_key_symbol (ClutterEvent *event,
-                              guint         key_sym)
-{
-  g_return_if_fail (event != NULL);
-  g_return_if_fail (event->type == CLUTTER_KEY_PRESS ||
-                    event->type == CLUTTER_KEY_RELEASE);
-
-  event->key.keyval = key_sym;
-}
-
-/**
  * clutter_event_get_key_code:
  * @event: a #ClutterEvent of type %CLUTTER_KEY_PRESS or
  *    of type %CLUTTER_KEY_RELEASE
@@ -741,25 +446,6 @@ clutter_event_get_key_code (const ClutterEvent *event)
                         event->type == CLUTTER_KEY_RELEASE, 0);
 
   return event->key.hardware_keycode;
-}
-
-/**
- * clutter_event_set_key_code:
- * @event: a #ClutterEvent of type %CLUTTER_KEY_PRESS
- *   or %CLUTTER_KEY_RELEASE
- * @key_code: the keycode representing the key
- *
- * Sets the keycode of the @event.
- */
-void
-clutter_event_set_key_code (ClutterEvent *event,
-                            guint16       key_code)
-{
-  g_return_if_fail (event != NULL);
-  g_return_if_fail (event->type == CLUTTER_KEY_PRESS ||
-                    event->type == CLUTTER_KEY_RELEASE);
-
-  event->key.hardware_keycode = key_code;
 }
 
 /**
@@ -782,25 +468,6 @@ clutter_event_get_key_unicode (const ClutterEvent *event)
     return event->key.unicode_value;
   else
     return clutter_keysym_to_unicode (event->key.keyval);
-}
-
-/**
- * clutter_event_set_key_unicode:
- * @event: a #ClutterEvent of type %CLUTTER_KEY_PRESS
- *   or %CLUTTER_KEY_RELEASE
- * @key_unicode: the Unicode value representing the key
- *
- * Sets the Unicode value of @event.
- */
-void
-clutter_event_set_key_unicode (ClutterEvent *event,
-                               gunichar      key_unicode)
-{
-  g_return_if_fail (event != NULL);
-  g_return_if_fail (event->type == CLUTTER_KEY_PRESS ||
-                    event->type == CLUTTER_KEY_RELEASE);
-
-  event->key.unicode_value = key_unicode;
 }
 
 /**
@@ -851,94 +518,6 @@ clutter_event_get_device_type (const ClutterEvent *event)
     return clutter_input_device_get_device_type (device);
 
   return CLUTTER_POINTER_DEVICE;
-}
-
-/**
- * clutter_event_set_device:
- * @event: a #ClutterEvent
- * @device: (allow-none): a #ClutterInputDevice, or %NULL
- *
- * Sets the device for @event.
- */
-void
-clutter_event_set_device (ClutterEvent       *event,
-                          ClutterInputDevice *device)
-{
-  ClutterEventPrivate *real_event = (ClutterEventPrivate *) event;
-
-  g_return_if_fail (event != NULL);
-  g_return_if_fail (device == NULL || CLUTTER_IS_INPUT_DEVICE (device));
-
-  g_set_object (&real_event->device, device);
-
-  switch (event->type)
-    {
-    case CLUTTER_NOTHING:
-    case CLUTTER_EVENT_LAST:
-    case CLUTTER_IM_COMMIT:
-    case CLUTTER_IM_DELETE:
-    case CLUTTER_IM_PREEDIT:
-      break;
-
-    case CLUTTER_ENTER:
-    case CLUTTER_LEAVE:
-      event->crossing.device = device;
-      break;
-
-    case CLUTTER_BUTTON_PRESS:
-    case CLUTTER_BUTTON_RELEASE:
-      event->button.device = device;
-      break;
-
-    case CLUTTER_MOTION:
-      event->motion.device = device;
-      break;
-
-    case CLUTTER_SCROLL:
-      event->scroll.device = device;
-      break;
-
-    case CLUTTER_TOUCH_BEGIN:
-    case CLUTTER_TOUCH_UPDATE:
-    case CLUTTER_TOUCH_END:
-    case CLUTTER_TOUCH_CANCEL:
-      event->touch.device = device;
-      break;
-
-    case CLUTTER_KEY_PRESS:
-    case CLUTTER_KEY_RELEASE:
-      event->key.device = device;
-      break;
-
-    case CLUTTER_TOUCHPAD_PINCH:
-    case CLUTTER_TOUCHPAD_SWIPE:
-    case CLUTTER_TOUCHPAD_HOLD:
-      /* Rely on priv data for these */
-      break;
-
-    case CLUTTER_PROXIMITY_IN:
-    case CLUTTER_PROXIMITY_OUT:
-      event->proximity.device = device;
-      break;
-
-    case CLUTTER_PAD_BUTTON_PRESS:
-    case CLUTTER_PAD_BUTTON_RELEASE:
-      event->pad_button.device = device;
-      break;
-
-    case CLUTTER_PAD_STRIP:
-      event->pad_strip.device = device;
-      break;
-
-    case CLUTTER_PAD_RING:
-      event->pad_ring.device = device;
-      break;
-
-    case CLUTTER_DEVICE_ADDED:
-    case CLUTTER_DEVICE_REMOVED:
-      event->device.device = device;
-      break;
-    }
 }
 
 /**
@@ -1037,24 +616,6 @@ clutter_event_get_device (const ClutterEvent *event)
     }
 
   return device;
-}
-
-/**
- * clutter_event_set_device_tool:
- * @event: a #ClutterEvent
- * @tool: (nullable): a #ClutterInputDeviceTool
- *
- * Sets the tool in use for this event8
- **/
-void
-clutter_event_set_device_tool (ClutterEvent           *event,
-                               ClutterInputDeviceTool *tool)
-{
-  ClutterEventPrivate *real_event = (ClutterEventPrivate *) event;
-
-  g_return_if_fail (event != NULL);
-
-  real_event->tool = tool;
 }
 
 /**
@@ -1378,28 +939,6 @@ clutter_event_get_source_device (const ClutterEvent *event)
     return real_event->source_device;
 
   return clutter_event_get_device (event);
-}
-
-/**
- * clutter_event_set_source_device:
- * @event: a #ClutterEvent
- * @device: (allow-none): a #ClutterInputDevice
- *
- * Sets the source #ClutterInputDevice for @event.
- *
- * The #ClutterEvent must have been created using clutter_event_new().
- */
-void
-clutter_event_set_source_device (ClutterEvent       *event,
-                                 ClutterInputDevice *device)
-{
-  ClutterEventPrivate *real_event;
-
-  g_return_if_fail (event != NULL);
-  g_return_if_fail (device == NULL || CLUTTER_IS_INPUT_DEVICE (device));
-
-  real_event = (ClutterEventPrivate *) event;
-  g_set_object (&real_event->source_device, device);
 }
 
 /**

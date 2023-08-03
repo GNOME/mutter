@@ -618,49 +618,24 @@ void                    clutter_event_free                      (ClutterEvent   
 CLUTTER_EXPORT
 ClutterEventType        clutter_event_type                      (const ClutterEvent     *event);
 CLUTTER_EXPORT
-void                    clutter_event_set_flags                 (ClutterEvent           *event,
-                                                                 ClutterEventFlags       flags);
-CLUTTER_EXPORT
 ClutterEventFlags       clutter_event_get_flags                 (const ClutterEvent     *event);
-CLUTTER_EXPORT
-void                    clutter_event_set_time                  (ClutterEvent           *event,
-                                                                 guint32                 time_);
 CLUTTER_EXPORT
 guint32                 clutter_event_get_time                  (const ClutterEvent     *event);
 CLUTTER_EXPORT
-void                    clutter_event_set_state                 (ClutterEvent           *event,
-                                                                 ClutterModifierType     state);
-CLUTTER_EXPORT
 ClutterModifierType     clutter_event_get_state                 (const ClutterEvent     *event);
 CLUTTER_EXPORT
-void                    clutter_event_set_device                (ClutterEvent           *event,
-                                                                 ClutterInputDevice     *device);
-CLUTTER_EXPORT
 ClutterInputDevice *    clutter_event_get_device                (const ClutterEvent     *event);
-CLUTTER_EXPORT
-void                    clutter_event_set_source_device         (ClutterEvent           *event,
-                                                                 ClutterInputDevice     *device);
 
 CLUTTER_EXPORT
 ClutterInputDevice *    clutter_event_get_source_device         (const ClutterEvent     *event);
 
 CLUTTER_EXPORT
-void                    clutter_event_set_device_tool           (ClutterEvent           *event,
-                                                                 ClutterInputDeviceTool *tool);
-CLUTTER_EXPORT
 ClutterInputDeviceTool *clutter_event_get_device_tool           (const ClutterEvent     *event);
 
-CLUTTER_DEPRECATED_FOR(clutter_stage_get_event_actor)
-void                    clutter_event_set_source                (ClutterEvent           *event,
-                                                                 ClutterActor           *actor);
 CLUTTER_DEPRECATED
 ClutterActor *          clutter_event_get_source                (const ClutterEvent     *event);
 CLUTTER_EXPORT
 ClutterInputDeviceType  clutter_event_get_device_type           (const ClutterEvent     *event);
-CLUTTER_EXPORT
-void                    clutter_event_set_coords                (ClutterEvent           *event,
-                                                                 gfloat                  x,
-                                                                 gfloat                  y);
 CLUTTER_EXPORT
 void                    clutter_event_get_coords                (const ClutterEvent     *event,
                                                                  gfloat                 *x,
@@ -684,39 +659,17 @@ gboolean                clutter_event_has_control_modifier      (const ClutterEv
 CLUTTER_EXPORT
 gboolean                clutter_event_is_pointer_emulated       (const ClutterEvent     *event);
 CLUTTER_EXPORT
-void                    clutter_event_set_key_symbol            (ClutterEvent           *event,
-                                                                 guint                   key_sym);
-CLUTTER_EXPORT
 guint                   clutter_event_get_key_symbol            (const ClutterEvent     *event);
-CLUTTER_EXPORT
-void                    clutter_event_set_key_code              (ClutterEvent           *event,
-                                                                 guint16                 key_code);
 CLUTTER_EXPORT
 guint16                 clutter_event_get_key_code              (const ClutterEvent     *event);
 CLUTTER_EXPORT
-void                    clutter_event_set_key_unicode           (ClutterEvent           *event,
-                                                                 gunichar                key_unicode);
-CLUTTER_EXPORT
 gunichar                clutter_event_get_key_unicode           (const ClutterEvent     *event);
-CLUTTER_EXPORT
-void                    clutter_event_set_button                (ClutterEvent           *event,
-                                                                 guint32                 button);
 CLUTTER_EXPORT
 guint32                 clutter_event_get_button                (const ClutterEvent     *event);
 CLUTTER_EXPORT
-void                    clutter_event_set_related               (ClutterEvent           *event,
-                                                                 ClutterActor           *actor);
-CLUTTER_EXPORT
 ClutterActor *          clutter_event_get_related               (const ClutterEvent     *event);
 CLUTTER_EXPORT
-void                    clutter_event_set_scroll_direction      (ClutterEvent           *event,
-                                                                 ClutterScrollDirection  direction);
-CLUTTER_EXPORT
 ClutterScrollDirection  clutter_event_get_scroll_direction      (const ClutterEvent     *event);
-CLUTTER_EXPORT
-void                    clutter_event_set_scroll_delta          (ClutterEvent           *event,
-                                                                 gdouble                 dx,
-                                                                 gdouble                 dy);
 CLUTTER_EXPORT
 void                    clutter_event_get_scroll_delta          (const ClutterEvent     *event,
                                                                  gdouble                *dx,
