@@ -98,19 +98,6 @@ meta_key_event_new_from_evdev (ClutterInputDevice *device,
   return event;
 }
 
-void
-meta_xkb_translate_state (ClutterEvent     *event,
-                          struct xkb_state *state,
-                          uint32_t          button_state)
-{
-  _clutter_event_set_state_full (event,
-                                 button_state,
-                                 xkb_state_serialize_mods (state, XKB_STATE_MODS_DEPRESSED),
-                                 xkb_state_serialize_mods (state, XKB_STATE_MODS_LATCHED),
-                                 xkb_state_serialize_mods (state, XKB_STATE_MODS_LOCKED),
-                                 xkb_state_serialize_mods (state, XKB_STATE_MODS_EFFECTIVE) | button_state);
-}
-
 ClutterModifierType
 meta_xkb_translate_modifiers (struct xkb_state    *state,
                               ClutterModifierType  button_state)
