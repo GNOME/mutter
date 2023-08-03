@@ -42,10 +42,6 @@ typedef struct _MetaInputDeviceX11Class MetaInputDeviceX11Class;
 
 GType meta_input_device_x11_get_type (void) G_GNUC_CONST;
 
-void  meta_input_device_x11_translate_state (ClutterEvent    *event,
-                                             XIModifierState *modifiers_state,
-                                             XIButtonState   *buttons_state,
-                                             XIGroupState    *group_state);
 void  meta_input_device_x11_update_tool     (ClutterInputDevice     *device,
                                              ClutterInputDeviceTool *tool);
 ClutterInputDeviceTool * meta_input_device_x11_get_current_tool (ClutterInputDevice *device);
