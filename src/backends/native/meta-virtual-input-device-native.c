@@ -199,13 +199,14 @@ release_device_in_impl (GTask *task)
         }
     }
 
-  device_event = clutter_event_new (CLUTTER_DEVICE_REMOVED);
-  clutter_event_set_device (device_event, impl_state->device);
+  device_event = clutter_event_device_notify_new (CLUTTER_DEVICE_REMOVED,
+                                                  CLUTTER_EVENT_NONE,
+                                                  time_us,
+                                                  impl_state->device);
   _clutter_event_push (device_event, FALSE);
 
   g_clear_object (&impl_state->device);
   g_task_return_boolean (task, TRUE);
-
   return G_SOURCE_REMOVE;
 }
 
@@ -1039,8 +1040,11 @@ meta_virtual_input_device_native_constructed (GObject *object)
                                           device_type,
                                           CLUTTER_INPUT_MODE_PHYSICAL);
 
-  device_event = clutter_event_new (CLUTTER_DEVICE_ADDED);
-  clutter_event_set_device (device_event, virtual_evdev->impl_state->device);
+  device_event =
+    clutter_event_device_notify_new (CLUTTER_DEVICE_ADDED,
+                                     CLUTTER_EVENT_NONE,
+                                     CLUTTER_CURRENT_TIME,
+                                     virtual_evdev->impl_state->device);
   _clutter_event_push (device_event, FALSE);
 }
 

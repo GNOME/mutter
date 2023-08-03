@@ -26,9 +26,10 @@
 
 ClutterEvent *    meta_key_event_new_from_evdev (ClutterInputDevice *device,
                                                  ClutterInputDevice *core_keyboard,
+                                                 ClutterEventFlags   flags,
                                                  struct xkb_state   *xkb_state,
                                                  uint32_t            button_state,
-                                                 uint32_t            _time,
+                                                 uint64_t            time_us,
                                                  uint32_t            key,
                                                  uint32_t            state);
 void               meta_xkb_translate_state     (ClutterEvent       *event,

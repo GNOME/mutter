@@ -41,9 +41,10 @@
 ClutterEvent *
 meta_key_event_new_from_evdev (ClutterInputDevice *device,
                                ClutterInputDevice *core_device,
+                               ClutterEventFlags   flags,
                                struct xkb_state   *xkb_state,
                                uint32_t            button_state,
-                               uint32_t            _time,
+                               uint64_t            time_us,
                                xkb_keycode_t       key,
                                uint32_t            state)
 {
@@ -51,12 +52,9 @@ meta_key_event_new_from_evdev (ClutterInputDevice *device,
   xkb_keysym_t sym;
   const xkb_keysym_t *syms;
   char buffer[8];
+  gunichar unicode_value;
+  ClutterModifierType modifiers;
   int n;
-
-  if (state)
-    event = clutter_event_new (CLUTTER_KEY_PRESS);
-  else
-    event = clutter_event_new (CLUTTER_KEY_RELEASE);
 
   /* We use a fixed offset of 8 because evdev starts KEY_* numbering from
    * 0, whereas X11's minimum keycode, for really stupid reasons, is 8.
@@ -70,27 +68,33 @@ meta_key_event_new_from_evdev (ClutterInputDevice *device,
   else
     sym = XKB_KEY_NoSymbol;
 
-  event->key.time = _time;
-  meta_xkb_translate_state (event, xkb_state, button_state);
-  event->key.hardware_keycode = key;
-  event->key.keyval = sym;
-  clutter_event_set_device (event, core_device);
-  clutter_event_set_source_device (event, device);
+  modifiers = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_EFFECTIVE) |
+    button_state;
 
   n = xkb_keysym_to_utf8 (sym, buffer, sizeof (buffer));
 
   if (n == 0)
     {
       /* not printable */
-      event->key.unicode_value = (gunichar) '\0';
+      unicode_value = (gunichar) '\0';
     }
   else
     {
-      event->key.unicode_value = g_utf8_get_char_validated (buffer, n);
-      if (event->key.unicode_value == -1 || event->key.unicode_value == -2)
-        event->key.unicode_value = (gunichar) '\0';
+      unicode_value = g_utf8_get_char_validated (buffer, n);
+      if (unicode_value == -1 || unicode_value == -2)
+        unicode_value = (gunichar) '\0';
     }
 
+  event = clutter_event_key_new (state ?
+                                 CLUTTER_KEY_PRESS : CLUTTER_KEY_RELEASE,
+                                 flags,
+                                 time_us,
+                                 device,
+                                 modifiers,
+                                 sym,
+                                 key - 8,
+                                 key,
+                                 unicode_value);
   return event;
 }
 
