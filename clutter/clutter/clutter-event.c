@@ -34,6 +34,246 @@
 
 #include <math.h>
 
+struct _ClutterAnyEvent
+{
+  ClutterEventType type;
+  uint32_t time;
+  ClutterEventFlags flags;
+};
+
+struct _ClutterKeyEvent
+{
+  ClutterEventType type;
+  uint32_t time;
+  ClutterEventFlags flags;
+
+  ClutterModifierType modifier_state;
+  uint32_t keyval;
+  uint16_t hardware_keycode;
+  gunichar unicode_value;
+  uint32_t evdev_code;
+  ClutterInputDevice *device;
+};
+
+struct _ClutterButtonEvent
+{
+  ClutterEventType type;
+  uint32_t time;
+  ClutterEventFlags flags;
+
+  float x;
+  float y;
+  ClutterModifierType modifier_state;
+  uint32_t button;
+  double *axes; /* Future use */
+  ClutterInputDevice *device;
+  uint32_t evdev_code;
+};
+
+struct _ClutterProximityEvent
+{
+  ClutterEventType type;
+  uint32_t time;
+  ClutterEventFlags flags;
+  ClutterInputDevice *device;
+};
+
+struct _ClutterCrossingEvent
+{
+  ClutterEventType type;
+  uint32_t time;
+  ClutterEventFlags flags;
+
+  float x;
+  float y;
+  ClutterInputDevice *device;
+  ClutterEventSequence *sequence;
+  ClutterActor *source;
+  ClutterActor *related;
+};
+
+struct _ClutterMotionEvent
+{
+  ClutterEventType type;
+  uint32_t time;
+  ClutterEventFlags flags;
+
+  float x;
+  float y;
+  ClutterModifierType modifier_state;
+  double *axes; /* Future use */
+  ClutterInputDevice *device;
+
+  int64_t time_us;
+  double dx;
+  double dy;
+  double dx_unaccel;
+  double dy_unaccel;
+  double dx_constrained;
+  double dy_constrained;
+};
+
+struct _ClutterScrollEvent
+{
+  ClutterEventType type;
+  uint32_t time;
+  ClutterEventFlags flags;
+
+  float x;
+  float y;
+  ClutterScrollDirection direction;
+  ClutterModifierType modifier_state;
+  double *axes; /* future use */
+  ClutterInputDevice *device;
+  ClutterScrollSource scroll_source;
+  ClutterScrollFinishFlags finish_flags;
+};
+
+struct _ClutterTouchEvent
+{
+  ClutterEventType type;
+  uint32_t time;
+  ClutterEventFlags flags;
+
+  float x;
+  float y;
+  ClutterEventSequence *sequence;
+  ClutterModifierType modifier_state;
+  double *axes; /* reserved */
+  ClutterInputDevice *device;
+};
+
+struct _ClutterTouchpadPinchEvent
+{
+  ClutterEventType type;
+  uint32_t time;
+  ClutterEventFlags flags;
+
+  ClutterTouchpadGesturePhase phase;
+  float x;
+  float y;
+  float dx;
+  float dy;
+  float dx_unaccel;
+  float dy_unaccel;
+  float angle_delta;
+  float scale;
+  uint32_t n_fingers;
+};
+
+struct _ClutterTouchpadSwipeEvent
+{
+  ClutterEventType type;
+  uint32_t time;
+  ClutterEventFlags flags;
+
+  ClutterTouchpadGesturePhase phase;
+  uint32_t n_fingers;
+  float x;
+  float y;
+  float dx;
+  float dy;
+  float dx_unaccel;
+  float dy_unaccel;
+};
+
+struct _ClutterTouchpadHoldEvent
+{
+  ClutterEventType type;
+  uint32_t time;
+  ClutterEventFlags flags;
+
+  ClutterTouchpadGesturePhase phase;
+  uint32_t n_fingers;
+  float x;
+  float y;
+};
+
+struct _ClutterPadButtonEvent
+{
+  ClutterEventType type;
+  uint32_t time;
+  ClutterEventFlags flags;
+
+  uint32_t button;
+  uint32_t group;
+  ClutterInputDevice *device;
+  uint32_t mode;
+};
+
+struct _ClutterPadStripEvent
+{
+  ClutterEventType type;
+  uint32_t time;
+  ClutterEventFlags flags;
+
+  ClutterInputDevice *device;
+  ClutterInputDevicePadSource strip_source;
+  uint32_t strip_number;
+  uint32_t group;
+  double value;
+  uint32_t mode;
+};
+
+struct _ClutterPadRingEvent
+{
+  ClutterEventType type;
+  uint32_t time;
+  ClutterEventFlags flags;
+
+  ClutterInputDevice *device;
+  ClutterInputDevicePadSource ring_source;
+  uint32_t ring_number;
+  uint32_t group;
+  double angle;
+  uint32_t mode;
+};
+
+struct _ClutterDeviceEvent
+{
+  ClutterEventType type;
+  uint32_t time;
+  ClutterEventFlags flags;
+
+  ClutterInputDevice *device;
+};
+
+struct _ClutterIMEvent
+{
+  ClutterEventType type;
+  uint32_t time;
+  ClutterEventFlags flags;
+
+  char *text;
+  int32_t offset;
+  int32_t anchor;
+  uint32_t len;
+  ClutterPreeditResetMode mode;
+};
+
+union _ClutterEvent
+{
+  /*< private >*/
+  ClutterEventType type;
+
+  ClutterAnyEvent any;
+  ClutterButtonEvent button;
+  ClutterKeyEvent key;
+  ClutterMotionEvent motion;
+  ClutterScrollEvent scroll;
+  ClutterCrossingEvent crossing;
+  ClutterTouchEvent touch;
+  ClutterTouchpadPinchEvent touchpad_pinch;
+  ClutterTouchpadSwipeEvent touchpad_swipe;
+  ClutterTouchpadHoldEvent touchpad_hold;
+  ClutterProximityEvent proximity;
+  ClutterPadButtonEvent pad_button;
+  ClutterPadStripEvent pad_strip;
+  ClutterPadRingEvent pad_ring;
+  ClutterDeviceEvent device;
+  ClutterIMEvent im;
+};
+
 typedef struct _ClutterEventPrivate {
   ClutterEvent base;
 
