@@ -262,11 +262,20 @@ trigger_slow_keys (gpointer data)
 {
   SlowKeysEventPending *slow_keys_event = data;
   MetaInputDeviceNative *device = slow_keys_event->device;
-  ClutterKeyEvent *key_event = (ClutterKeyEvent *) slow_keys_event->event;
+  ClutterEvent *event = slow_keys_event->event;
+  ClutterEvent *copy;
 
   /* Alter timestamp and emit the event */
-  key_event->time = us2ms (g_get_monotonic_time ());
-  _clutter_event_push (slow_keys_event->event, TRUE);
+  copy = clutter_event_key_new (clutter_event_type (event),
+                                clutter_event_get_flags (event),
+                                g_get_monotonic_time (),
+                                clutter_event_get_source_device (event),
+                                clutter_event_get_state (event),
+                                clutter_event_get_key_symbol (event),
+                                clutter_event_get_event_code (event),
+                                clutter_event_get_key_code (event),
+                                clutter_event_get_key_unicode (event));
+  _clutter_event_push (copy, FALSE);
 
   /* Then remote the pending event */
   device->slow_keys_list = g_list_remove (device->slow_keys_list, slow_keys_event);
@@ -490,30 +499,34 @@ update_internal_xkb_state (MetaInputDeviceNative *device,
 }
 
 static void
-update_stickykeys_event (ClutterEvent          *event,
-                         MetaInputDeviceNative *device,
-                         xkb_mod_mask_t         new_latched_mask,
-                         xkb_mod_mask_t         new_locked_mask)
+rewrite_stickykeys_event (ClutterEvent          *event,
+                          MetaInputDeviceNative *device,
+                          xkb_mod_mask_t         new_latched_mask,
+                          xkb_mod_mask_t         new_locked_mask)
 {
   MetaSeatImpl *seat_impl = device->seat_impl;
-  xkb_mod_mask_t effective_mods;
-  xkb_mod_mask_t latched_mods;
-  xkb_mod_mask_t locked_mods;
   struct xkb_state *xkb_state;
+  ClutterEvent *rewritten_event;
+  ClutterModifierType modifiers;
 
   update_internal_xkb_state (device, new_latched_mask, new_locked_mask);
-
   xkb_state = meta_seat_impl_get_xkb_state_in_impl (seat_impl);
-  effective_mods = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_EFFECTIVE);
-  latched_mods = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_LATCHED);
-  locked_mods = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_LOCKED);
+  modifiers =
+    xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_EFFECTIVE) |
+    seat_impl->button_state;
 
-  _clutter_event_set_state_full (event,
-                                 seat_impl->button_state,
-                                 device->stickykeys_depressed_mask,
-                                 latched_mods,
-                                 locked_mods,
-                                 effective_mods | seat_impl->button_state);
+  rewritten_event =
+    clutter_event_key_new (clutter_event_type (event),
+                           clutter_event_get_flags (event),
+                           ms2us (clutter_event_get_time (event)),
+                           clutter_event_get_source_device (event),
+                           modifiers,
+                           clutter_event_get_key_symbol (event),
+                           clutter_event_get_event_code (event),
+                           clutter_event_get_key_code (event),
+                           clutter_event_get_key_unicode (event));
+
+  _clutter_event_push (rewritten_event, FALSE);
 }
 
 static void
@@ -543,14 +556,6 @@ set_stickykeys_on (MetaInputDeviceNative *device)
 }
 
 static void
-clear_stickykeys_event (ClutterEvent          *event,
-                        MetaInputDeviceNative *device)
-{
-  set_stickykeys_off (device);
-  update_stickykeys_event (event, device, 0, 0);
-}
-
-static void
 set_slowkeys_off (MetaInputDeviceNative *device)
 {
   device->a11y_flags &= ~META_A11Y_SLOW_KEYS_ENABLED;
@@ -570,7 +575,7 @@ set_slowkeys_on (MetaInputDeviceNative *device)
                                                         META_A11Y_SLOW_KEYS_ENABLED);
 }
 
-static void
+static gboolean
 handle_stickykeys_press (ClutterEvent          *event,
                          MetaInputDeviceNative *device)
 {
@@ -581,13 +586,14 @@ handle_stickykeys_press (ClutterEvent          *event,
   struct xkb_state *xkb_state;
 
   if (!key_event_is_modifier (event))
-    return;
+    return FALSE;
 
   if (device->stickykeys_depressed_mask &&
       (device->a11y_flags & META_A11Y_STICKY_KEYS_TWO_KEY_OFF))
     {
-      clear_stickykeys_event (event, device);
-      return;
+      set_stickykeys_off (device);
+      rewrite_stickykeys_event (event, device, 0, 0);
+      return TRUE;
     }
 
   xkb_state = meta_seat_impl_get_xkb_state_in_impl (seat_impl);
@@ -617,10 +623,11 @@ handle_stickykeys_press (ClutterEvent          *event,
       new_latched_mask |= depressed_mods;
     }
 
-  update_stickykeys_event (event, device, new_latched_mask, new_locked_mask);
+  rewrite_stickykeys_event (event, device, new_latched_mask, new_locked_mask);
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_stickykeys_release (ClutterEvent          *event,
                            MetaInputDeviceNative *device)
 {
@@ -636,13 +643,14 @@ handle_stickykeys_release (ClutterEvent          *event,
       if (device->a11y_flags & META_A11Y_STICKY_KEYS_BEEP)
         meta_input_device_native_bell_notify (device);
 
-      return;
+      return FALSE;
     }
 
   if (device->stickykeys_latched_mask == 0)
-    return;
+    return FALSE;
 
-  update_stickykeys_event (event, device, 0, device->stickykeys_locked_mask);
+  rewrite_stickykeys_event (event, device, 0, device->stickykeys_locked_mask);
+  return TRUE;
 }
 
 static gboolean
@@ -1199,9 +1207,9 @@ meta_input_device_native_process_kbd_a11y_event_in_impl (ClutterInputDevice *dev
   if (device_evdev->a11y_flags & META_A11Y_STICKY_KEYS_ENABLED)
     {
       if (event->type == CLUTTER_KEY_PRESS)
-        handle_stickykeys_press (event, device_evdev);
+        return handle_stickykeys_press (event, device_evdev);
       else if (event->type == CLUTTER_KEY_RELEASE)
-        handle_stickykeys_release (event, device_evdev);
+        return handle_stickykeys_release (event, device_evdev);
     }
 
   return FALSE;
