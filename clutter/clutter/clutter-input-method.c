@@ -363,10 +363,16 @@ clutter_input_method_notify_key_event (ClutterInputMethod *im,
       /* XXX: we rely on the IM implementation to notify back of
        * key events in the exact same order they were given.
        */
-      copy = clutter_event_copy (event);
-      clutter_event_set_flags (copy, clutter_event_get_flags (event) |
-                               CLUTTER_EVENT_FLAG_INPUT_METHOD);
-      clutter_event_set_source_device (copy, clutter_event_get_device (copy));
+      copy = clutter_event_key_new (clutter_event_type (event),
+                                    clutter_event_get_flags (event) |
+                                    CLUTTER_EVENT_FLAG_INPUT_METHOD,
+                                    ms2us (clutter_event_get_time (event)),
+                                    clutter_event_get_device (event),
+                                    clutter_event_get_state (event),
+                                    clutter_event_get_key_symbol (event),
+                                    clutter_event_get_event_code (event),
+                                    clutter_event_get_key_code (event),
+                                    clutter_event_get_key_unicode (event));
       clutter_event_put (copy);
       clutter_event_free (copy);
     }
