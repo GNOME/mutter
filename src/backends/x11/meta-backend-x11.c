@@ -700,6 +700,7 @@ meta_backend_x11_finish_touch_sequence (MetaBackend          *backend,
   MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
   int event_mode;
+  int err;
 
   if (state == META_SEQUENCE_ACCEPTED)
     event_mode = XIAcceptTouch;
@@ -708,10 +709,21 @@ meta_backend_x11_finish_touch_sequence (MetaBackend          *backend,
   else
     g_return_if_reached ();
 
+  meta_clutter_x11_trap_x_errors ();
   XIAllowTouchEvents (priv->xdisplay,
                       META_VIRTUAL_CORE_POINTER_ID,
                       clutter_event_sequence_get_slot (sequence),
                       DefaultRootWindow (priv->xdisplay), event_mode);
+  /* We need to XSync so meta_clutter_x11_untrap_x_errors doesn't miss errors
+   * from XIAllowTouchEvents.
+   */
+  XSync (priv->xdisplay, False);
+  err = meta_clutter_x11_untrap_x_errors ();
+  if (err)
+    {
+      g_debug ("XIAllowTouchEvents failed event_mode %d with error %d",
+               event_mode, err);
+    }
 
   if (state == META_SEQUENCE_REJECTED)
     {
