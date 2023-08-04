@@ -562,6 +562,25 @@ create_cursor_drm_buffer (MetaGpuKms      *gpu_kms,
     }
 }
 
+static void
+calculate_crtc_cursor_hotspot (MetaCursorSprite     *cursor_sprite,
+                               float                 scale,
+                               MetaMonitorTransform  transform,
+                               graphene_point_t     *hotspot)
+{
+  int hot_x, hot_y;
+  int width, height;
+
+  meta_cursor_sprite_get_hotspot (cursor_sprite, &hot_x, &hot_y);
+  width = meta_cursor_sprite_get_width (cursor_sprite);
+  height = meta_cursor_sprite_get_height (cursor_sprite);
+  meta_monitor_transform_transform_point (transform,
+                                          width, height,
+                                          hot_x, hot_y,
+                                          &hot_x, &hot_y);
+  *hotspot = GRAPHENE_POINT_INIT (hot_x * scale, hot_y * scale);
+}
+
 static gboolean
 load_cursor_sprite_gbm_buffer_for_crtc (MetaCursorRendererNative *native,
                                         MetaCrtcKms              *crtc_kms,
@@ -571,6 +590,7 @@ load_cursor_sprite_gbm_buffer_for_crtc (MetaCursorRendererNative *native,
                                         uint                      height,
                                         int                       rowstride,
                                         float                     scale,
+                                        MetaMonitorTransform      transform,
                                         uint32_t                  gbm_format)
 {
   MetaCursorRendererNativePrivate *priv =
@@ -588,7 +608,7 @@ load_cursor_sprite_gbm_buffer_for_crtc (MetaCursorRendererNative *native,
   MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data;
   g_autoptr (MetaDeviceFile) device_file = NULL;
   g_autoptr (GError) error = NULL;
-  int hot_x, hot_y;
+  graphene_point_t hotspot;
 
   cursor_renderer_gpu_data =
     meta_cursor_renderer_native_gpu_data_from_gpu (gpu_kms);
@@ -632,12 +652,13 @@ load_cursor_sprite_gbm_buffer_for_crtc (MetaCursorRendererNative *native,
       return FALSE;
     }
 
-  meta_cursor_sprite_get_hotspot (cursor_sprite, &hot_x, &hot_y);
+  calculate_crtc_cursor_hotspot (cursor_sprite, scale, transform, &hotspot);
+
   kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
   meta_kms_cursor_manager_update_sprite (kms_cursor_manager,
                                          kms_crtc,
                                          buffer,
-                                         &GRAPHENE_POINT_INIT (hot_x, hot_y));
+                                         &hotspot);
   return TRUE;
 }
 
@@ -768,6 +789,7 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
                                                 cairo_image_surface_get_width (surface),
                                                 cairo_image_surface_get_stride (surface),
                                                 relative_scale,
+                                                relative_transform,
                                                 GBM_FORMAT_ARGB8888);
 
       cairo_surface_destroy (surface);
@@ -782,6 +804,7 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
                                                        height,
                                                        rowstride,
                                                        relative_scale,
+                                                       relative_transform,
                                                        gbm_format);
     }
 
