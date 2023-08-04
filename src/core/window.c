@@ -7512,17 +7512,22 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
   gboolean is_window_button_grab_allowed;
   ClutterModifierType grab_mods, event_mods;
   ClutterInputDevice *source;
+  ClutterEventType event_type;
+  uint32_t time_ms;
   gfloat x, y;
   guint button;
 
   if (window->unmanaging)
     return;
 
-  if (event->type != CLUTTER_BUTTON_PRESS &&
-      event->type != CLUTTER_TOUCH_BEGIN)
+  event_type = clutter_event_type (event);
+  time_ms = clutter_event_get_time (event);
+
+  if (event_type != CLUTTER_BUTTON_PRESS &&
+      event_type != CLUTTER_TOUCH_BEGIN)
     return;
 
-  if (event->type == CLUTTER_TOUCH_BEGIN)
+  if (event_type == CLUTTER_TOUCH_BEGIN)
     {
       ClutterEventSequence *sequence;
 
@@ -7549,8 +7554,8 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
       meta_topic (META_DEBUG_FOCUS,
                   "Focusing %s due to button %u press (display.c)",
                   window->desc, button);
-      meta_window_focus (window, event->any.time);
-      meta_window_check_alive (window, event->any.time);
+      meta_window_focus (window, time_ms);
+      meta_window_check_alive (window, time_ms);
     }
 
   /* We have three passive button grabs:
@@ -7624,7 +7629,7 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
                                          op,
                                          clutter_event_get_device (event),
                                          clutter_event_get_event_sequence (event),
-                                         event->any.time);
+                                         time_ms);
             }
         }
     }
@@ -7645,7 +7650,7 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
                                      META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED,
                                      clutter_event_get_device (event),
                                      clutter_event_get_event_sequence (event),
-                                     event->any.time);
+                                     time_ms);
         }
     }
 }

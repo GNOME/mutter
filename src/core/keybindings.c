@@ -1902,15 +1902,18 @@ process_event (MetaDisplay          *display,
                ClutterKeyEvent      *event)
 {
   MetaKeyBindingManager *keys = &display->key_binding_manager;
-  xkb_keycode_t keycode = (xkb_keycode_t) event->hardware_keycode;
+  xkb_keycode_t keycode =
+    (xkb_keycode_t) clutter_event_get_key_code ((ClutterEvent *) event);
   MetaResolvedKeyCombo resolved_combo = { &keycode, 1 };
   MetaKeyBinding *binding;
 
   /* we used to have release-based bindings but no longer. */
-  if (event->type == CLUTTER_KEY_RELEASE)
+  if (clutter_event_type ((ClutterEvent *) event) == CLUTTER_KEY_RELEASE)
     return FALSE;
 
-  resolved_combo.mask = mask_from_event_params (keys, event->modifier_state);
+  resolved_combo.mask =
+    mask_from_event_params (keys,
+                            clutter_event_get_state ((ClutterEvent *) event));
 
   binding = get_keybinding (keys, &resolved_combo);
 
@@ -1945,7 +1948,7 @@ process_event (MetaDisplay          *display,
   if (meta_compositor_filter_keybinding (display->compositor, binding))
     goto not_found;
 
-  if (event->flags & CLUTTER_EVENT_FLAG_REPEATED &&
+  if (clutter_event_get_flags ((ClutterEvent *) event) & CLUTTER_EVENT_FLAG_REPEATED &&
       binding->flags & META_KEY_BINDING_IGNORE_AUTOREPEAT)
     {
       meta_topic (META_DEBUG_KEYBINDINGS,
@@ -1978,6 +1981,10 @@ process_special_modifier_key (MetaDisplay          *display,
 {
   MetaKeyBindingManager *keys = &display->key_binding_manager;
   MetaBackend *backend = keys->backend;
+  ClutterInputDevice *device;
+  ClutterModifierType modifiers;
+  uint32_t time_ms;
+  uint32_t hardware_keycode;
   Display *xdisplay;
 
   if (META_IS_BACKEND_X11 (backend))
@@ -1985,10 +1992,14 @@ process_special_modifier_key (MetaDisplay          *display,
   else
     xdisplay = NULL;
 
+  hardware_keycode = clutter_event_get_key_code ((ClutterEvent *) event);
+  time_ms = clutter_event_get_time ((ClutterEvent *) event);
+  device = clutter_event_get_device ((ClutterEvent *) event);
+  modifiers = clutter_event_get_state ((ClutterEvent *) event);
+
   if (*modifier_press_only)
     {
-      if (! resolved_key_combo_has_keycode (resolved_key_combo,
-                                            event->hardware_keycode))
+      if (! resolved_key_combo_has_keycode (resolved_key_combo, hardware_keycode))
         {
           *modifier_press_only = FALSE;
 
@@ -2019,21 +2030,25 @@ process_special_modifier_key (MetaDisplay          *display,
                * windows */
 
               if (xdisplay)
-                XIAllowEvents (xdisplay,
-                               meta_input_device_x11_get_device_id (event->device),
-                               XIAsyncDevice, event->time);
+                {
+                  XIAllowEvents (xdisplay,
+                                 meta_input_device_x11_get_device_id (device),
+                                 XIAsyncDevice, time_ms);
+                }
             }
           else
             {
               /* Replay the event so it gets delivered to our
                * per-window key bindings or to the application */
               if (xdisplay)
-                XIAllowEvents (xdisplay,
-                               meta_input_device_x11_get_device_id (event->device),
-                               XIReplayDevice, event->time);
+                {
+                  XIAllowEvents (xdisplay,
+                                 meta_input_device_x11_get_device_id (device),
+                                 XIReplayDevice, time_ms);
+                }
             }
         }
-      else if (event->type == CLUTTER_KEY_RELEASE)
+      else if (clutter_event_type ((ClutterEvent *) event) == CLUTTER_KEY_RELEASE)
         {
           MetaKeyBinding *binding;
 
@@ -2042,9 +2057,11 @@ process_special_modifier_key (MetaDisplay          *display,
           /* We want to unfreeze events, but keep the grab so that if the user
            * starts typing into the overlay we get all the keys */
           if (xdisplay)
-            XIAllowEvents (xdisplay,
-                           meta_input_device_x11_get_device_id (event->device),
-                           XIAsyncDevice, event->time);
+            {
+              XIAllowEvents (xdisplay,
+                             meta_input_device_x11_get_device_id (device),
+                             XIAsyncDevice, time_ms);
+            }
 
           binding = get_keybinding (keys, resolved_key_combo);
           if (binding &&
@@ -2067,25 +2084,28 @@ process_special_modifier_key (MetaDisplay          *display,
            * https://bugzilla.gnome.org/show_bug.cgi?id=666101
            */
           if (xdisplay)
-            XIAllowEvents (xdisplay,
-                           meta_input_device_x11_get_device_id (event->device),
-                           XIAsyncDevice, event->time);
+            {
+              XIAllowEvents (xdisplay,
+                             meta_input_device_x11_get_device_id (device),
+                             XIAsyncDevice, time_ms);
+            }
         }
 
       return TRUE;
     }
-  else if (event->type == CLUTTER_KEY_PRESS &&
-           ((event->modifier_state & ~(IGNORED_MODIFIERS)) & CLUTTER_MODIFIER_MASK) == 0 &&
-           resolved_key_combo_has_keycode (resolved_key_combo,
-                                           event->hardware_keycode))
+  else if (clutter_event_type ((ClutterEvent *) event) == CLUTTER_KEY_PRESS &&
+           ((modifiers & ~(IGNORED_MODIFIERS)) & CLUTTER_MODIFIER_MASK) == 0 &&
+           resolved_key_combo_has_keycode (resolved_key_combo, hardware_keycode))
     {
       *modifier_press_only = TRUE;
       /* We keep the keyboard frozen - this allows us to use ReplayKeyboard
        * on the next event if it's not the release of the modifier key */
       if (xdisplay)
-        XIAllowEvents (xdisplay,
-                       meta_input_device_x11_get_device_id (event->device),
-                       XISyncDevice, event->time);
+        {
+          XIAllowEvents (xdisplay,
+                         meta_input_device_x11_get_device_id (device),
+                         XISyncDevice, time_ms);
+        }
 
       return TRUE;
     }
@@ -2145,15 +2165,17 @@ process_iso_next_group (MetaDisplay *display,
 {
   MetaKeyBindingManager *keys = &display->key_binding_manager;
   gboolean activate;
-  xkb_keycode_t keycode = (xkb_keycode_t) event->hardware_keycode;
+  xkb_keycode_t keycode =
+    (xkb_keycode_t) clutter_event_get_key_code ((ClutterEvent *) event);
   xkb_mod_mask_t mask;
   int i, j;
 
-  if (event->type == CLUTTER_KEY_RELEASE)
+  if (clutter_event_type ((ClutterEvent *) event) == CLUTTER_KEY_RELEASE)
     return FALSE;
 
   activate = FALSE;
-  mask = mask_from_event_params (keys, event->modifier_state);
+  mask = mask_from_event_params (keys,
+                                 clutter_event_get_state ((ClutterEvent *) event));
 
   for (i = 0; i < keys->n_iso_next_group_combos; ++i)
     {
@@ -2166,7 +2188,8 @@ process_iso_next_group (MetaDisplay *display,
                  remain frozen. It's the signal handler's responsibility
                  to unfreeze it. */
               if (!meta_display_modifiers_accelerator_activate (display))
-                meta_display_unfreeze_keyboard (display, event->time);
+                meta_display_unfreeze_keyboard (display,
+                                                clutter_event_get_time ((ClutterEvent *) event));
               activate = TRUE;
               break;
             }
@@ -2193,13 +2216,16 @@ process_key_event (MetaDisplay     *display,
   {
     MetaContext *context = meta_display_get_context (display);
     MetaBackend *backend = meta_context_get_backend (context);
+    ClutterInputDevice *device;
 
     if (META_IS_BACKEND_X11 (backend))
       {
         Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+        device = clutter_event_get_device ((ClutterEvent *) event);
         XIAllowEvents (xdisplay,
-                       meta_input_device_x11_get_device_id (event->device),
-                       XIAsyncDevice, event->time);
+                       meta_input_device_x11_get_device_id (device),
+                       XIAsyncDevice,
+                       clutter_event_get_time ((ClutterEvent *) event));
       }
   }
 
@@ -2228,7 +2254,7 @@ meta_keybindings_process_event (MetaDisplay        *display,
 {
   MetaKeyBindingManager *keys = &display->key_binding_manager;
 
-  switch (event->type)
+  switch (clutter_event_type (event))
     {
     case CLUTTER_BUTTON_PRESS:
     case CLUTTER_BUTTON_RELEASE:
@@ -2258,7 +2284,9 @@ handle_switch_to_last_workspace (MetaDisplay           *display,
     MetaWorkspaceManager *workspace_manager = display->workspace_manager;
     gint target = meta_workspace_manager_get_n_workspaces (workspace_manager) - 1;
     MetaWorkspace *workspace = meta_workspace_manager_get_workspace_by_index (workspace_manager, target);
-    meta_workspace_activate (workspace, event->time);
+
+    meta_workspace_activate (workspace,
+                             clutter_event_get_time ((ClutterEvent *) event));
 }
 
 static void
@@ -2288,7 +2316,8 @@ handle_switch_to_workspace (MetaDisplay           *display,
 
   if (workspace)
     {
-      meta_workspace_activate (workspace, event->time);
+      meta_workspace_activate (workspace,
+                               clutter_event_get_time ((ClutterEvent *) event));
     }
   else
     {
@@ -2516,10 +2545,13 @@ handle_show_desktop (MetaDisplay           *display,
       meta_workspace_manager_unshow_desktop (workspace_manager);
       meta_workspace_focus_default_window (workspace_manager->active_workspace,
                                            NULL,
-                                           event->time);
+                                           clutter_event_get_time ((ClutterEvent *) event));
     }
   else
-    meta_workspace_manager_show_desktop (workspace_manager, event->time);
+    {
+      meta_workspace_manager_show_desktop (workspace_manager,
+                                           clutter_event_get_time ((ClutterEvent *) event));
+    }
 }
 
 static void
@@ -2568,7 +2600,10 @@ do_choose_window (MetaDisplay           *display,
                                       backward);
 
   if (window)
-    meta_window_activate (window, event->time);
+    {
+      meta_window_activate (window,
+                            clutter_event_get_time ((ClutterEvent *) event));
+    }
 }
 
 static void
@@ -2690,7 +2725,10 @@ handle_close (MetaDisplay           *display,
               gpointer               user_data)
 {
   if (window->has_close_func)
-    meta_window_delete (window, event->time);
+    {
+      meta_window_delete (window,
+                          clutter_event_get_time ((ClutterEvent *) event));
+    }
 }
 
 static void
@@ -2724,7 +2762,7 @@ handle_begin_move (MetaDisplay           *display,
                                  META_GRAB_OP_KEYBOARD_MOVING |
                                  META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED,
                                  device, NULL,
-                                 event->time);
+                                 clutter_event_get_time ((ClutterEvent *) event));
     }
 }
 
@@ -2748,7 +2786,7 @@ handle_begin_resize (MetaDisplay           *display,
                                  META_GRAB_OP_KEYBOARD_RESIZING_UNKNOWN |
                                  META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED,
                                  device, NULL,
-                                 event->time);
+                                 clutter_event_get_time ((ClutterEvent *) event));
     }
 }
 
@@ -2831,7 +2869,7 @@ handle_move_to_workspace (MetaDisplay           *display,
           meta_display_clear_mouse_mode (workspace->display);
           meta_workspace_activate_with_focus (workspace,
                                               window,
-                                              event->time);
+                                              clutter_event_get_time ((ClutterEvent *) event));
         }
     }
   else
@@ -3914,14 +3952,17 @@ process_keybinding_key_event (MetaDisplay           *display,
                               const ClutterKeyEvent *event)
 {
   MetaKeyBindingManager *keys = &display->key_binding_manager;
-  xkb_keycode_t keycode = (xkb_keycode_t) event->hardware_keycode;
+  xkb_keycode_t keycode =
+    (xkb_keycode_t) clutter_event_get_key_code ((ClutterEvent *) event);
   MetaResolvedKeyCombo resolved_combo = { &keycode, 1 };
   MetaKeyBinding *binding;
 
-  if (event->type == CLUTTER_KEY_RELEASE)
+  if (clutter_event_type ((ClutterEvent *) event) == CLUTTER_KEY_RELEASE)
     return FALSE;
 
-  resolved_combo.mask = mask_from_event_params (keys, event->modifier_state);
+  resolved_combo.mask =
+    mask_from_event_params (keys,
+                            clutter_event_get_state ((ClutterEvent *) event));
 
   binding = get_keybinding (keys, &resolved_combo);
   if (!binding)
@@ -3948,7 +3989,7 @@ meta_display_process_keybinding_event (MetaDisplay        *display,
   if (!handler)
     return FALSE;
 
-  switch (event->type)
+  switch (clutter_event_type (event))
     {
     case CLUTTER_KEY_PRESS:
     case CLUTTER_KEY_RELEASE:

@@ -533,24 +533,24 @@ meta_pad_action_mapper_emulate_keybinding (MetaPadActionMapper *mapper,
 }
 
 static gboolean
-meta_pad_action_mapper_handle_button (MetaPadActionMapper         *mapper,
-                                      ClutterInputDevice          *pad,
-                                      const ClutterPadButtonEvent *event)
+meta_pad_action_mapper_handle_button (MetaPadActionMapper *mapper,
+                                      ClutterInputDevice  *pad,
+                                      const ClutterEvent  *event)
 {
   GDesktopPadButtonAction action;
-  int button, group, mode, n_modes = 0;
+  int group, n_modes = 0;
   gboolean is_press;
   GSettings *settings;
   char *accel;
+  uint32_t button, mode;
 
   g_return_val_if_fail (META_IS_PAD_ACTION_MAPPER (mapper), FALSE);
-  g_return_val_if_fail (event->type == CLUTTER_PAD_BUTTON_PRESS ||
-                        event->type == CLUTTER_PAD_BUTTON_RELEASE, FALSE);
+  g_return_val_if_fail (clutter_event_type (event) == CLUTTER_PAD_BUTTON_PRESS ||
+                        clutter_event_type (event) == CLUTTER_PAD_BUTTON_RELEASE, FALSE);
 
-  button = event->button;
-  mode = event->mode;
+  clutter_event_get_pad_details (event, &button, &mode, NULL, NULL);
   group = clutter_input_device_get_mode_switch_button_group (pad, button);
-  is_press = event->type == CLUTTER_PAD_BUTTON_PRESS;
+  is_press = clutter_event_type (event) == CLUTTER_PAD_BUTTON_PRESS;
 
   if (group >= 0)
     n_modes = clutter_input_device_get_group_n_modes (pad, group);
@@ -610,22 +610,20 @@ meta_pad_action_mapper_get_action_direction (MetaPadActionMapper *mapper,
   MetaPadFeatureType pad_feature;
   gboolean has_direction = FALSE;
   MetaPadDirection inc_dir, dec_dir;
-  guint number;
+  uint32_t number;
   double value;
 
-  switch (event->type)
+  switch (clutter_event_type (event))
     {
     case CLUTTER_PAD_RING:
       pad_feature = META_PAD_FEATURE_RING;
-      number = event->pad_ring.ring_number;
-      value = event->pad_ring.angle;
+      clutter_event_get_pad_details (event, &number, NULL, NULL, &value);
       inc_dir = META_PAD_DIRECTION_CW;
       dec_dir = META_PAD_DIRECTION_CCW;
       break;
     case CLUTTER_PAD_STRIP:
       pad_feature = META_PAD_FEATURE_STRIP;
-      number = event->pad_strip.strip_number;
-      value = event->pad_strip.value;
+      clutter_event_get_pad_details (event, &number, NULL, NULL, &value);
       inc_dir = META_PAD_DIRECTION_DOWN;
       dec_dir = META_PAD_DIRECTION_UP;
       break;
@@ -712,25 +710,25 @@ meta_pad_action_mapper_handle_event (MetaPadActionMapper *mapper,
                                      const ClutterEvent  *event)
 {
   ClutterInputDevice *pad;
+  uint32_t number, mode;
 
   pad = clutter_event_get_source_device ((ClutterEvent *) event);
 
-  switch (event->type)
+  switch (clutter_event_type (event))
     {
     case CLUTTER_PAD_BUTTON_PRESS:
     case CLUTTER_PAD_BUTTON_RELEASE:
-      return meta_pad_action_mapper_handle_button (mapper, pad,
-                                                   &event->pad_button);
+      return meta_pad_action_mapper_handle_button (mapper, pad, event);
     case CLUTTER_PAD_RING:
+      clutter_event_get_pad_details (event, &number, &mode, NULL, NULL);
       return meta_pad_action_mapper_handle_action (mapper, pad, event,
                                                    META_PAD_FEATURE_RING,
-                                                   event->pad_ring.ring_number,
-                                                   event->pad_ring.mode);
+                                                   number, mode);
     case CLUTTER_PAD_STRIP:
+      clutter_event_get_pad_details (event, &number, &mode, NULL, NULL);
       return meta_pad_action_mapper_handle_action (mapper, pad, event,
                                                    META_PAD_FEATURE_STRIP,
-                                                   event->pad_strip.strip_number,
-                                                   event->pad_strip.mode);
+                                                   number, mode);
     default:
       return FALSE;
     }

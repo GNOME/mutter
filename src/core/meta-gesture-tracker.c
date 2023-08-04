@@ -201,7 +201,7 @@ meta_sequence_info_new (MetaGestureTracker *tracker,
 
   info = g_new0 (MetaSequenceInfo, 1);
   info->tracker = tracker;
-  info->sequence = event->touch.sequence;
+  info->sequence = clutter_event_get_event_sequence (event);
   info->state = META_SEQUENCE_NONE;
   info->autodeny_timeout_id = g_timeout_add (ms, autodeny_sequence, info);
 
@@ -437,7 +437,7 @@ meta_gesture_tracker_handle_event (MetaGestureTracker *tracker,
 
   priv = meta_gesture_tracker_get_instance_private (tracker);
 
-  switch (event->type)
+  switch (clutter_event_type (event))
     {
     case CLUTTER_TOUCH_BEGIN:
       if (g_hash_table_size (priv->sequences) == 0)

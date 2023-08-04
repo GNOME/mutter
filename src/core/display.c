@@ -2480,7 +2480,7 @@ meta_display_accelerator_activate (MetaDisplay           *display,
   g_signal_emit (display, display_signals[ACCELERATOR_ACTIVATED], 0,
                  action,
                  clutter_event_get_source_device ((const ClutterEvent *) event),
-                 event->time);
+                 clutter_event_get_time ((const ClutterEvent *) event));
 }
 
 gboolean
