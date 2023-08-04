@@ -1411,35 +1411,12 @@ ensure_crtc_frame (MetaKmsImplDevice *impl_device,
   return crtc_frame;
 }
 
-static gboolean
+static void
 queue_update (MetaKmsImplDevice *impl_device,
               CrtcFrame         *crtc_frame,
               MetaKmsUpdate     *update)
 {
-  int64_t next_presentation_us = 0;
-  int64_t next_deadline_us = 0;
-  g_autoptr (GError) error = NULL;
-
   g_assert (update);
-
-  if (is_using_deadline_timer (impl_device) &&
-      !crtc_frame->deadline.armed)
-    {
-      if (!meta_kms_crtc_determine_deadline (crtc_frame->crtc,
-                                             &next_deadline_us,
-                                             &next_presentation_us,
-                                             &error))
-        {
-          MetaKmsImplDevicePrivate *priv =
-            meta_kms_impl_device_get_instance_private (impl_device);
-
-          if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND))
-            g_warning ("Failed to determine deadline: %s", error->message);
-
-          priv->deadline_timer_failed = TRUE;
-          return FALSE;
-        }
-    }
 
   if (crtc_frame->pending_update)
     {
@@ -1450,18 +1427,6 @@ queue_update (MetaKmsImplDevice *impl_device,
     {
       crtc_frame->pending_update = update;
     }
-
-  if (is_using_deadline_timer (impl_device) &&
-      !crtc_frame->pending_page_flip &&
-      !crtc_frame->await_flush &&
-      next_deadline_us)
-    {
-      arm_crtc_frame_deadline_timer (crtc_frame,
-                                     next_deadline_us,
-                                     next_presentation_us);
-    }
-
-  return TRUE;
 }
 
 void
@@ -1511,8 +1476,8 @@ meta_kms_impl_device_handle_update (MetaKmsImplDevice *impl_device,
                   meta_kms_crtc_get_id (latch_crtc),
                   priv->path);
 
-      if (queue_update (impl_device, crtc_frame, update))
-        return;
+      queue_update (impl_device, crtc_frame, update);
+      return;
     }
 
   if (crtc_frame->pending_update)
