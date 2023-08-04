@@ -318,17 +318,20 @@ meta_dnd_wayland_maybe_handle_event (MetaDnd            *dnd,
 {
   MetaWaylandDataDevice *data_device = data_device_from_dnd (dnd);
   MetaDndPrivate *priv = meta_dnd_get_instance_private (dnd);
+  ClutterEventType event_type;
 
   if (!meta_wayland_data_device_get_current_grab (data_device))
     return;
 
   g_warn_if_fail (priv->dnd_during_modal);
 
-  if (event->type == CLUTTER_MOTION)
+  event_type = clutter_event_type (event);
+
+  if (event_type == CLUTTER_MOTION)
     meta_dnd_wayland_on_motion_event (dnd, event);
-  else if (event->type == CLUTTER_BUTTON_RELEASE)
+  else if (event_type == CLUTTER_BUTTON_RELEASE)
     meta_dnd_wayland_on_button_released (dnd, event);
-  else if (event->type == CLUTTER_KEY_PRESS)
+  else if (event_type == CLUTTER_KEY_PRESS)
     meta_dnd_wayland_on_key_pressed (dnd, event);
 }
 
