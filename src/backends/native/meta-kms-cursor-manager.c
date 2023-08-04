@@ -369,6 +369,7 @@ maybe_update_cursor_plane (MetaKmsCursorManagerImpl  *cursor_manager_impl,
       MetaRectangle dst_rect;
       MetaKmsAssignPlaneFlag assign_plane_flags =
         META_KMS_ASSIGN_PLANE_FLAG_NONE;
+      MetaKmsPlaneAssignment *plane_assignment;
 
       if (crtc_state_impl->pending_buffer != crtc_state_impl->buffer)
         {
@@ -396,11 +397,14 @@ maybe_update_cursor_plane (MetaKmsCursorManagerImpl  *cursor_manager_impl,
         .height = round (cursor_rect.size.height),
       };
 
-      meta_kms_update_assign_plane (update,
-                                    crtc, cursor_plane,
-                                    buffer,
-                                    src_rect, dst_rect,
-                                    assign_plane_flags);
+      plane_assignment = meta_kms_update_assign_plane (update,
+                                                       crtc, cursor_plane,
+                                                       buffer,
+                                                       src_rect, dst_rect,
+                                                       assign_plane_flags);
+      meta_kms_plane_assignment_set_cursor_hotspot (plane_assignment,
+                                                    (int) roundf (hotspot->x),
+                                                    (int) roundf (hotspot->y));
     }
   else
     {
