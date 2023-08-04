@@ -177,7 +177,7 @@ meta_wayland_tablet_manager_update (MetaWaylandTabletManager *manager,
   if (!tablet_seat)
     return;
 
-  switch (event->type)
+  switch (clutter_event_type (event))
     {
     case CLUTTER_PROXIMITY_IN:
     case CLUTTER_PROXIMITY_OUT:
@@ -207,7 +207,7 @@ meta_wayland_tablet_manager_handle_event (MetaWaylandTabletManager *manager,
   if (!tablet_seat)
     return CLUTTER_EVENT_PROPAGATE;
 
-  switch (event->type)
+  switch (clutter_event_type (event))
     {
     case CLUTTER_PROXIMITY_IN:
     case CLUTTER_PROXIMITY_OUT:

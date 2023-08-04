@@ -383,7 +383,7 @@ meta_wayland_tablet_seat_update (MetaWaylandTabletSeat *tablet_seat,
 
   device = clutter_event_get_source_device (event);
 
-  switch (event->type)
+  switch (clutter_event_type (event))
     {
     case CLUTTER_PROXIMITY_IN:
     case CLUTTER_PROXIMITY_OUT:
@@ -422,7 +422,7 @@ meta_wayland_tablet_seat_handle_event (MetaWaylandTabletSeat *tablet_seat,
   MetaWaylandTabletTool *tool = NULL;
   MetaWaylandTabletPad *pad = NULL;
 
-  switch (event->type)
+  switch (clutter_event_type (event))
     {
     case CLUTTER_PROXIMITY_IN:
     case CLUTTER_PROXIMITY_OUT:

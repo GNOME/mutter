@@ -274,8 +274,11 @@ static gboolean
 event_is_synthesized_crossing (const ClutterEvent *event)
 {
   ClutterInputDevice *device;
+  ClutterEventType event_type;
 
-  if (event->type != CLUTTER_ENTER && event->type != CLUTTER_LEAVE)
+  event_type = clutter_event_type (event);
+
+  if (event_type != CLUTTER_ENTER && event_type != CLUTTER_LEAVE)
     return FALSE;
 
   device = clutter_event_get_source_device (event);
@@ -325,7 +328,7 @@ meta_wayland_seat_update (MetaWaylandSeat    *seat,
       !event_is_synthesized_crossing (event))
     return;
 
-  switch (event->type)
+  switch (clutter_event_type (event))
     {
     case CLUTTER_MOTION:
     case CLUTTER_BUTTON_PRESS:
@@ -359,17 +362,21 @@ gboolean
 meta_wayland_seat_handle_event (MetaWaylandSeat *seat,
                                 const ClutterEvent *event)
 {
+  ClutterEventType event_type;
+
   if (!(clutter_event_get_flags (event) & CLUTTER_EVENT_FLAG_INPUT_METHOD) &&
       !event_from_supported_hardware_device (seat, event))
     return FALSE;
 
-  if (event->type == CLUTTER_BUTTON_PRESS ||
-      event->type == CLUTTER_TOUCH_BEGIN)
+  event_type = clutter_event_type (event);
+
+  if (event_type == CLUTTER_BUTTON_PRESS ||
+      event_type == CLUTTER_TOUCH_BEGIN)
     {
       meta_wayland_text_input_handle_event (seat->text_input, event);
     }
 
-  switch (event->type)
+  switch (event_type)
     {
     case CLUTTER_MOTION:
     case CLUTTER_BUTTON_PRESS:

@@ -121,13 +121,17 @@ meta_wayland_tablet_pad_ring_handle_event (MetaWaylandTabletPadRing *ring,
   enum zwp_tablet_pad_ring_v2_source source;
   gboolean source_known = FALSE;
   struct wl_resource *resource;
+  ClutterInputDevicePadSource ring_source;
+  double angle;
 
   if (wl_list_empty (focus_resources))
     return FALSE;
-  if (event->type != CLUTTER_PAD_RING)
+  if (clutter_event_type (event) != CLUTTER_PAD_RING)
     return FALSE;
 
-  if (event->pad_ring.ring_source == CLUTTER_INPUT_DEVICE_PAD_SOURCE_FINGER)
+  clutter_event_get_pad_details (event, NULL, NULL, &ring_source, &angle);
+
+  if (ring_source == CLUTTER_INPUT_DEVICE_PAD_SOURCE_FINGER)
     {
       source = ZWP_TABLET_PAD_RING_V2_SOURCE_FINGER;
       source_known = TRUE;
@@ -135,8 +139,6 @@ meta_wayland_tablet_pad_ring_handle_event (MetaWaylandTabletPadRing *ring,
 
   wl_resource_for_each (resource, focus_resources)
     {
-      gdouble angle = event->pad_ring.angle;
-
       if (source_known)
         zwp_tablet_pad_ring_v2_send_source (resource, source);
 

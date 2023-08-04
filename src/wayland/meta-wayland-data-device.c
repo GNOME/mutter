@@ -524,7 +524,7 @@ static gboolean
 keyboard_drag_grab_key (MetaWaylandKeyboardGrab *grab,
                         const ClutterEvent      *event)
 {
-  if (event->key.keyval == CLUTTER_KEY_Escape)
+  if (clutter_event_get_key_symbol (event) == CLUTTER_KEY_Escape)
     {
       MetaWaylandDragGrab *drag_grab;
 

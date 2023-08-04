@@ -47,7 +47,7 @@ handle_pinch_begin (MetaWaylandPointer *pointer,
   serial = wl_display_next_serial (seat->wl_display);
   fingers = clutter_event_get_touchpad_gesture_finger_count (event);
 
-  pointer_client->active_touchpad_gesture = event->type;
+  pointer_client->active_touchpad_gesture = clutter_event_type (event);
 
   wl_resource_for_each (resource, &pointer_client->pinch_gesture_resources)
     {
@@ -113,7 +113,8 @@ handle_pinch_end (MetaWaylandPointer *pointer,
   seat = meta_wayland_pointer_get_seat (pointer);
   serial = wl_display_next_serial (seat->wl_display);
 
-  if (event->touchpad_pinch.phase == CLUTTER_TOUCHPAD_GESTURE_PHASE_CANCEL)
+  if (clutter_event_get_gesture_phase (event) ==
+      CLUTTER_TOUCHPAD_GESTURE_PHASE_CANCEL)
     cancelled = TRUE;
 
   broadcast_end (pointer, serial,
@@ -125,13 +126,13 @@ gboolean
 meta_wayland_pointer_gesture_pinch_handle_event (MetaWaylandPointer *pointer,
                                                  const ClutterEvent *event)
 {
-  if (event->type != CLUTTER_TOUCHPAD_PINCH)
+  if (clutter_event_type (event) != CLUTTER_TOUCHPAD_PINCH)
     return FALSE;
 
   if (!pointer->focus_client)
     return FALSE;
 
-  switch (event->touchpad_pinch.phase)
+  switch (clutter_event_get_gesture_phase (event))
     {
     case CLUTTER_TOUCHPAD_GESTURE_PHASE_BEGIN:
       handle_pinch_begin (pointer, event);

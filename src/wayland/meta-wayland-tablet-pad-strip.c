@@ -121,13 +121,17 @@ meta_wayland_tablet_pad_strip_handle_event (MetaWaylandTabletPadStrip *strip,
   enum zwp_tablet_pad_strip_v2_source source;
   gboolean source_known = FALSE;
   struct wl_resource *resource;
+  ClutterInputDevicePadSource strip_source;
+  double value;
 
   if (wl_list_empty (focus_resources))
     return FALSE;
-  if (event->type != CLUTTER_PAD_STRIP)
+  if (clutter_event_type (event) != CLUTTER_PAD_STRIP)
     return FALSE;
 
-  if (event->pad_strip.strip_source == CLUTTER_INPUT_DEVICE_PAD_SOURCE_FINGER)
+  clutter_event_get_pad_details (event, NULL, NULL, &strip_source, &value);
+
+  if (strip_source == CLUTTER_INPUT_DEVICE_PAD_SOURCE_FINGER)
     {
       source = ZWP_TABLET_PAD_STRIP_V2_SOURCE_FINGER;
       source_known = TRUE;
@@ -135,8 +139,6 @@ meta_wayland_tablet_pad_strip_handle_event (MetaWaylandTabletPadStrip *strip,
 
   wl_resource_for_each (resource, focus_resources)
     {
-      gdouble value = event->pad_strip.value;
-
       if (source_known)
         zwp_tablet_pad_strip_v2_send_source (resource, source);
 

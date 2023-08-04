@@ -223,10 +223,12 @@ meta_wayland_touch_update (MetaWaylandTouch   *touch,
 {
   MetaWaylandTouchInfo *touch_info;
   ClutterEventSequence *sequence;
+  ClutterEventType event_type;
 
   sequence = clutter_event_get_event_sequence (event);
+  event_type = clutter_event_type (event);
 
-  if (event->type == CLUTTER_TOUCH_BEGIN)
+  if (event_type == CLUTTER_TOUCH_BEGIN)
     {
       MetaWaylandSurface *surface = NULL;
       MetaBackend *backend;
@@ -256,15 +258,15 @@ meta_wayland_touch_update (MetaWaylandTouch   *touch,
   if (!touch_info)
     return;
 
-  if (event->type != CLUTTER_TOUCH_BEGIN &&
+  if (event_type != CLUTTER_TOUCH_BEGIN &&
       !touch_info->begin_delivered)
     {
       g_hash_table_remove (touch->touches, sequence);
       return;
     }
 
-  if (event->type == CLUTTER_TOUCH_BEGIN ||
-      event->type == CLUTTER_TOUCH_END)
+  if (event_type == CLUTTER_TOUCH_BEGIN ||
+      event_type == CLUTTER_TOUCH_END)
     {
       MetaWaylandInputDevice *input_device = META_WAYLAND_INPUT_DEVICE (touch);
 
@@ -439,7 +441,7 @@ gboolean
 meta_wayland_touch_handle_event (MetaWaylandTouch   *touch,
                                  const ClutterEvent *event)
 {
-  switch (event->type)
+  switch (clutter_event_type (event))
     {
     case CLUTTER_TOUCH_BEGIN:
       handle_touch_begin (touch, event);

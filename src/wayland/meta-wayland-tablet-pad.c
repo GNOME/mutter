@@ -304,13 +304,16 @@ handle_pad_button_event (MetaWaylandTabletPad *pad,
   enum zwp_tablet_pad_v2_button_state button_state;
   struct wl_list *focus_resources = &pad->focus_resource_list;
   struct wl_resource *resource;
+  ClutterEventType event_type;
 
   if (wl_list_empty (focus_resources))
     return FALSE;
 
-  if (event->type == CLUTTER_PAD_BUTTON_PRESS)
+  event_type = clutter_event_type (event);
+
+  if (event_type == CLUTTER_PAD_BUTTON_PRESS)
     button_state = ZWP_TABLET_PAD_V2_BUTTON_STATE_PRESSED;
-  else if (event->type == CLUTTER_PAD_BUTTON_RELEASE)
+  else if (event_type == CLUTTER_PAD_BUTTON_RELEASE)
     button_state = ZWP_TABLET_PAD_V2_BUTTON_STATE_RELEASED;
   else
     return FALSE;
@@ -319,7 +322,8 @@ handle_pad_button_event (MetaWaylandTabletPad *pad,
     {
       zwp_tablet_pad_v2_send_button (resource,
                                      clutter_event_get_time (event),
-                                     event->pad_button.button, button_state);
+                                     clutter_event_get_button (event),
+                                     button_state);
     }
 
   return TRUE;
@@ -336,7 +340,7 @@ meta_wayland_tablet_pad_handle_event_action (MetaWaylandTabletPad *pad,
   mapper = display_from_pad (pad)->pad_action_mapper;
 
   if (meta_pad_action_mapper_is_button_grabbed (mapper, device,
-                                                event->pad_button.button))
+                                                clutter_event_get_button (event)))
     return TRUE;
 
   return FALSE;
