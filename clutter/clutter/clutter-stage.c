@@ -755,17 +755,21 @@ _clutter_stage_process_queued_events (ClutterStage *stage)
       /* Skip consecutive motion events coming from the same device. */
       if (next_event != NULL)
         {
-          if (event->type == CLUTTER_MOTION &&
-              (next_event->type == CLUTTER_MOTION ||
-               next_event->type == CLUTTER_LEAVE) &&
+          float x, y;
+
+          clutter_event_get_coords (event, &x, &y);
+
+          if (clutter_event_type (event) == CLUTTER_MOTION &&
+              (clutter_event_type (next_event) == CLUTTER_MOTION ||
+               clutter_event_type (next_event) == CLUTTER_LEAVE) &&
               (!check_device || (device == next_device)))
             {
               CLUTTER_NOTE (EVENT,
                             "Omitting motion event at %d, %d",
-                            (int) event->motion.x,
-                            (int) event->motion.y);
+                            (int) x,
+                            (int) y);
 
-              if (next_event->type == CLUTTER_MOTION)
+              if (clutter_event_type (next_event) == CLUTTER_MOTION)
                 {
                   ClutterEvent *new_event;
 
@@ -781,15 +785,16 @@ _clutter_stage_process_queued_events (ClutterStage *stage)
 
               goto next_event;
             }
-          else if (event->type == CLUTTER_TOUCH_UPDATE &&
-                   next_event->type == CLUTTER_TOUCH_UPDATE &&
-                   event->touch.sequence == next_event->touch.sequence &&
+          else if (clutter_event_type (event) == CLUTTER_TOUCH_UPDATE &&
+                   clutter_event_type (next_event) == CLUTTER_TOUCH_UPDATE &&
+                   clutter_event_get_event_sequence (event) ==
+                   clutter_event_get_event_sequence (next_event) &&
                    (!check_device || (device == next_device)))
             {
               CLUTTER_NOTE (EVENT,
                             "Omitting touch update event at %d, %d",
-                            (int) event->touch.x,
-                            (int) event->touch.y);
+                            (int) x,
+                            (int) y);
               goto next_event;
             }
         }
@@ -4113,7 +4118,7 @@ clutter_stage_get_event_actor (ClutterStage       *stage,
   g_return_val_if_fail (CLUTTER_IS_STAGE (stage), NULL);
   g_return_val_if_fail (event != NULL, NULL);
 
-  switch (event->type)
+  switch (clutter_event_type (event))
     {
     case CLUTTER_KEY_PRESS:
     case CLUTTER_KEY_RELEASE:
@@ -4290,13 +4295,16 @@ clutter_stage_emit_event (ClutterStage       *self,
   PointerDeviceEntry *entry;
   ClutterActor *target_actor = NULL, *seat_grab_actor = NULL;
   gboolean is_sequence_begin, is_sequence_end;
+  ClutterEventType event_type;
 
   if (sequence != NULL)
     entry = g_hash_table_lookup (priv->touch_sequences, sequence);
   else
     entry = g_hash_table_lookup (priv->pointer_devices, device);
 
-  switch (event->type)
+  event_type = clutter_event_type (event);
+
+  switch (event_type)
     {
       case CLUTTER_NOTHING:
       case CLUTTER_DEVICE_REMOVED:
@@ -4358,10 +4366,10 @@ clutter_stage_emit_event (ClutterStage       *self,
   seat_grab_actor = priv->topmost_grab ? priv->topmost_grab->actor : CLUTTER_ACTOR (self);
 
   is_sequence_begin =
-    event->type == CLUTTER_BUTTON_PRESS || event->type == CLUTTER_TOUCH_BEGIN;
+    event_type == CLUTTER_BUTTON_PRESS || event_type == CLUTTER_TOUCH_BEGIN;
   is_sequence_end =
-    event->type == CLUTTER_BUTTON_RELEASE || event->type == CLUTTER_TOUCH_END ||
-    event->type == CLUTTER_TOUCH_CANCEL;
+    event_type == CLUTTER_BUTTON_RELEASE || event_type == CLUTTER_TOUCH_END ||
+    event_type == CLUTTER_TOUCH_CANCEL;
 
   if (is_sequence_begin && setup_implicit_grab (entry))
     {
@@ -4393,7 +4401,7 @@ clutter_stage_emit_event (ClutterStage       *self,
   if (is_sequence_end && release_implicit_grab (entry))
     {
       /* Sync crossings after the implicit grab for mice */
-      if (event->type == CLUTTER_BUTTON_RELEASE)
+      if (event_type == CLUTTER_BUTTON_RELEASE)
         sync_crossings_on_implicit_grab_end (self, entry);
 
       cleanup_implicit_grab (entry);

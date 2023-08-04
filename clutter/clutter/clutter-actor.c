@@ -11667,13 +11667,16 @@ clutter_actor_event (ClutterActor       *actor,
   gboolean retval = FALSE;
   gint signal_num = -1;
   GQuark detail = 0;
+  ClutterEventType event_type;
 
   g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), FALSE);
   g_return_val_if_fail (event != NULL, FALSE);
 
   g_object_ref (actor);
 
-  switch (event->type)
+  event_type = clutter_event_type (event);
+
+  switch (event_type)
     {
     case CLUTTER_NOTHING:
       break;
@@ -11758,7 +11761,7 @@ clutter_actor_event (ClutterActor       *actor,
 
   g_object_unref (actor);
 
-  if (event->type == CLUTTER_ENTER || event->type == CLUTTER_LEAVE)
+  if (event_type == CLUTTER_ENTER || event_type == CLUTTER_LEAVE)
     {
       g_warn_if_fail (retval == CLUTTER_EVENT_PROPAGATE);
       return CLUTTER_EVENT_PROPAGATE;

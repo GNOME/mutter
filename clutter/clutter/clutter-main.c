@@ -685,8 +685,12 @@ static inline void
 emit_event (ClutterStage *stage,
             ClutterEvent *event)
 {
-  if (event->type == CLUTTER_KEY_PRESS ||
-      event->type == CLUTTER_KEY_RELEASE)
+  ClutterEventType event_type;
+
+  event_type = clutter_event_type (event);
+
+  if (event_type == CLUTTER_KEY_PRESS ||
+      event_type == CLUTTER_KEY_RELEASE)
     cally_snoop_key_event (stage, (ClutterKeyEvent *) event);
 
   clutter_stage_emit_event (stage, event);
@@ -729,7 +733,7 @@ maybe_remove_device_for_event (ClutterStage *stage,
   graphene_point_t point;
   uint32_t time;
 
-  if (event->type == CLUTTER_DEVICE_REMOVED)
+  if (clutter_event_type (event) == CLUTTER_DEVICE_REMOVED)
     {
       ClutterInputDeviceType device_type =
         clutter_input_device_get_device_type (device);
@@ -776,6 +780,7 @@ clutter_stage_handle_event (ClutterStage *stage,
 {
   ClutterContext *context = _clutter_context_get_default();
   ClutterActor *event_actor = NULL;
+  ClutterEventType event_type;
   gboolean filtered;
 
   g_return_if_fail (CLUTTER_IS_STAGE (stage));
@@ -785,7 +790,9 @@ clutter_stage_handle_event (ClutterStage *stage,
   if (CLUTTER_ACTOR_IN_DESTRUCTION (stage))
     return;
 
-  switch (event->any.type)
+  event_type = clutter_event_type (event);
+
+  switch (event_type)
     {
     case CLUTTER_ENTER:
     case CLUTTER_MOTION:
@@ -798,10 +805,10 @@ clutter_stage_handle_event (ClutterStage *stage,
       break;
     }
 
-  if (event->any.type != CLUTTER_DEVICE_ADDED &&
-      event->any.type != CLUTTER_DEVICE_REMOVED &&
-      event->any.type != CLUTTER_NOTHING &&
-      event->any.type != CLUTTER_EVENT_LAST)
+  if (event_type != CLUTTER_DEVICE_ADDED &&
+      event_type != CLUTTER_DEVICE_REMOVED &&
+      event_type != CLUTTER_NOTHING &&
+      event_type != CLUTTER_EVENT_LAST)
     {
       event_actor = clutter_stage_get_event_actor (stage, event);
     }
@@ -815,11 +822,11 @@ clutter_stage_handle_event (ClutterStage *stage,
 
   if (filtered)
     {
-      if (event->type == CLUTTER_MOTION ||
-          event->type == CLUTTER_BUTTON_RELEASE ||
-          event->type == CLUTTER_TOUCH_UPDATE ||
-          event->type == CLUTTER_TOUCH_END ||
-          event->type == CLUTTER_TOUCH_CANCEL)
+      if (event_type == CLUTTER_MOTION ||
+          event_type == CLUTTER_BUTTON_RELEASE ||
+          event_type == CLUTTER_TOUCH_UPDATE ||
+          event_type == CLUTTER_TOUCH_END ||
+          event_type == CLUTTER_TOUCH_CANCEL)
         {
           ClutterInputDevice *device = clutter_event_get_device (event);
           ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
@@ -832,9 +839,9 @@ clutter_stage_handle_event (ClutterStage *stage,
       _clutter_stage_queue_event (stage, event, TRUE);
     }
 
-  if (event->type == CLUTTER_TOUCH_END ||
-      event->type == CLUTTER_TOUCH_CANCEL ||
-      event->type == CLUTTER_DEVICE_REMOVED)
+  if (event_type == CLUTTER_TOUCH_END ||
+      event_type == CLUTTER_TOUCH_CANCEL ||
+      event_type == CLUTTER_DEVICE_REMOVED)
     {
       _clutter_stage_process_queued_events (stage);
       maybe_remove_device_for_event (stage, event, TRUE);
@@ -846,7 +853,7 @@ _clutter_process_event_details (ClutterActor        *stage,
                                 ClutterMainContext  *context,
                                 ClutterEvent        *event)
 {
-  switch (event->type)
+  switch (clutter_event_type (event))
     {
       case CLUTTER_NOTHING:
         break;

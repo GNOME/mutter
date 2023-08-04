@@ -2389,7 +2389,7 @@ static gboolean
 clutter_text_touch_event (ClutterActor      *actor,
                           ClutterTouchEvent *event)
 {
-  switch (event->type)
+  switch (clutter_event_type ((ClutterEvent *) event))
     {
     case CLUTTER_TOUCH_BEGIN:
       return clutter_text_press (actor, (ClutterEvent *) event);
@@ -2430,6 +2430,9 @@ clutter_text_key_press (ClutterActor    *actor,
   ClutterText *self = CLUTTER_TEXT (actor);
   ClutterTextPrivate *priv = self->priv;
   ClutterBindingPool *pool;
+  ClutterEventFlags flags;
+  ClutterModifierType modifiers;
+  uint32_t keyval;
   gboolean res;
 
   if (!priv->editable)
@@ -2442,7 +2445,11 @@ clutter_text_key_press (ClutterActor    *actor,
   pool = clutter_binding_pool_find (g_type_name (CLUTTER_TYPE_TEXT));
   g_assert (pool != NULL);
 
-  if (!(event->flags & CLUTTER_EVENT_FLAG_INPUT_METHOD) &&
+  flags = clutter_event_get_flags ((ClutterEvent *) event);
+  keyval = clutter_event_get_key_symbol ((ClutterEvent *) event);
+  modifiers = clutter_event_get_state ((ClutterEvent *) event);
+
+  if (!(flags & CLUTTER_EVENT_FLAG_INPUT_METHOD) &&
       clutter_input_focus_is_focused (priv->input_focus) &&
       clutter_input_focus_filter_event (priv->input_focus,
 					(ClutterEvent *) event))
@@ -2452,12 +2459,12 @@ clutter_text_key_press (ClutterActor    *actor,
    * the Unicode value and not the key symbol, unless they
    * contain the input method flag.
    */
-  if (event->keyval == 0 && (event->flags & CLUTTER_EVENT_FLAG_SYNTHETIC) &&
-      !(event->flags & CLUTTER_EVENT_FLAG_INPUT_METHOD))
+  if (keyval == 0 && (flags & CLUTTER_EVENT_FLAG_SYNTHETIC) &&
+      !(flags & CLUTTER_EVENT_FLAG_INPUT_METHOD))
     res = FALSE;
   else
-    res = clutter_binding_pool_activate (pool, event->keyval,
-                                         event->modifier_state,
+    res = clutter_binding_pool_activate (pool, keyval,
+                                         modifiers,
                                          G_OBJECT (actor));
 
   /* if the key binding has handled the event we bail out
@@ -2467,7 +2474,7 @@ clutter_text_key_press (ClutterActor    *actor,
    */
   if (res)
     return CLUTTER_EVENT_STOP;
-  else if ((event->modifier_state & CLUTTER_CONTROL_MASK) == 0)
+  else if ((modifiers & CLUTTER_CONTROL_MASK) == 0)
     {
       gunichar key_unichar;
 
@@ -3074,11 +3081,14 @@ clutter_text_event (ClutterActor *self,
 {
   ClutterText *text = CLUTTER_TEXT (self);
   ClutterTextPrivate *priv = text->priv;
+  ClutterEventType event_type;
+
+  event_type = clutter_event_type (event);
 
   if (clutter_input_focus_is_focused (priv->input_focus) &&
-      (event->type == CLUTTER_IM_COMMIT ||
-       event->type == CLUTTER_IM_DELETE ||
-       event->type == CLUTTER_IM_PREEDIT))
+      (event_type == CLUTTER_IM_COMMIT ||
+       event_type == CLUTTER_IM_DELETE ||
+       event_type == CLUTTER_IM_PREEDIT))
     {
       return clutter_input_focus_process_event (priv->input_focus, event);
     }

@@ -179,16 +179,19 @@ clutter_input_focus_filter_event (ClutterInputFocus  *focus,
                                   const ClutterEvent *event)
 {
   ClutterInputFocusPrivate *priv;
+  ClutterEventType event_type;
 
   g_return_val_if_fail (CLUTTER_IS_INPUT_FOCUS (focus), FALSE);
   g_return_val_if_fail (clutter_input_focus_is_focused (focus), FALSE);
 
   priv = clutter_input_focus_get_instance_private (focus);
 
-  if (event->type == CLUTTER_KEY_PRESS ||
-      event->type == CLUTTER_KEY_RELEASE)
+  event_type = clutter_event_type (event);
+
+  if (event_type == CLUTTER_KEY_PRESS ||
+      event_type == CLUTTER_KEY_RELEASE)
     {
-      return clutter_input_method_filter_key_event (priv->im, &event->key);
+      return clutter_input_method_filter_key_event (priv->im, (ClutterKeyEvent *) event);
     }
 
   return FALSE;
@@ -199,31 +202,42 @@ clutter_input_focus_process_event (ClutterInputFocus  *focus,
                                    const ClutterEvent *event)
 {
   ClutterInputFocusPrivate *priv;
+  ClutterEventType event_type;
 
   g_return_val_if_fail (CLUTTER_IS_INPUT_FOCUS (focus), FALSE);
   g_return_val_if_fail (clutter_input_focus_is_focused (focus), FALSE);
 
   priv = clutter_input_focus_get_instance_private (focus);
 
-  if (event->type == CLUTTER_IM_COMMIT)
+  event_type = clutter_event_type (event);
+
+  if (event_type == CLUTTER_IM_COMMIT)
     {
-      clutter_input_focus_commit (focus, event->im.text);
+      clutter_input_focus_commit (focus,
+                                  clutter_event_get_im_text (event));
       return TRUE;
     }
-  else if (event->type == CLUTTER_IM_DELETE)
+  else if (event_type == CLUTTER_IM_DELETE)
     {
-      clutter_input_focus_delete_surrounding (focus, event->im.offset,
-                                              event->im.len);
+      int32_t offset;
+      uint32_t len;
+
+      clutter_event_get_im_location (event, &offset, NULL);
+      len = clutter_event_get_im_delete_length (event);
+      clutter_input_focus_delete_surrounding (focus, offset, len);
       return TRUE;
     }
-  else if (event->type == CLUTTER_IM_PREEDIT)
+  else if (event_type == CLUTTER_IM_PREEDIT)
     {
+      int32_t offset, anchor;
+
       g_clear_pointer (&priv->preedit, g_free);
-      priv->preedit = g_strdup (event->im.text);
-      priv->mode = event->im.mode;
-      clutter_input_focus_set_preedit_text (focus, event->im.text,
-                                            event->im.offset,
-                                            event->im.anchor);
+      priv->preedit = g_strdup (clutter_event_get_im_text (event));
+      priv->mode = clutter_event_get_im_preedit_reset_mode (event);
+      clutter_event_get_im_location (event, &offset, &anchor);
+      clutter_input_focus_set_preedit_text (focus,
+                                            priv->preedit,
+                                            offset, anchor);
       return TRUE;
     }
 

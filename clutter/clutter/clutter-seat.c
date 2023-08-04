@@ -641,7 +641,7 @@ clutter_seat_handle_event_post (ClutterSeat        *seat,
   device = clutter_event_get_source_device (event);
   g_assert_true (CLUTTER_IS_INPUT_DEVICE (device));
 
-  switch (event->type)
+  switch (clutter_event_type (event))
     {
       case CLUTTER_DEVICE_ADDED:
         g_signal_emit (seat, signals[DEVICE_ADDED], 0, device);
