@@ -61,7 +61,7 @@ meta_seat_native_handle_event_post (ClutterSeat        *seat,
 {
   MetaSeatNative *seat_native = META_SEAT_NATIVE (seat);
   ClutterInputDevice *device = clutter_event_get_source_device (event);
-  ClutterEventType event_type = event->type;
+  ClutterEventType event_type = clutter_event_type (event);
 
   if (event_type == CLUTTER_PROXIMITY_OUT)
     {
