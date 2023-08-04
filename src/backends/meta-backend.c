@@ -1032,10 +1032,13 @@ update_last_device_from_event (MetaBackend  *backend,
                                ClutterEvent *event)
 {
   ClutterInputDevice *source;
+  ClutterEventType event_type;
+
+  event_type = clutter_event_type (event);
 
   /* Handled elsewhere */
-  if (event->type == CLUTTER_DEVICE_ADDED ||
-      event->type == CLUTTER_DEVICE_REMOVED)
+  if (event_type == CLUTTER_DEVICE_ADDED ||
+      event_type == CLUTTER_DEVICE_REMOVED)
     return;
 
   source = clutter_event_get_source_device (event);
@@ -1097,7 +1100,7 @@ dispatch_clutter_event (MetaBackend *backend)
   if (event)
     {
       g_warn_if_fail (!priv->in_init ||
-                      event->type == CLUTTER_DEVICE_ADDED);
+                      clutter_event_type (event) == CLUTTER_DEVICE_ADDED);
 
       clutter_stage_handle_event (stage, event);
       meta_backend_update_from_event (backend, event);

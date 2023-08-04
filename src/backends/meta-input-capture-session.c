@@ -1385,15 +1385,20 @@ gboolean
 meta_input_capture_session_process_event (MetaInputCaptureSession *session,
                                           const ClutterEvent      *event)
 {
-  switch (event->type)
+  double dx, dy, dx_constrained, dy_constrained;
+
+  switch (clutter_event_type (event))
     {
     case CLUTTER_MOTION:
       if (!session->eis_pointer)
         return TRUE;
 
+      clutter_event_get_relative_motion (event, &dx, &dy, NULL, NULL,
+                                         &dx_constrained, &dy_constrained);
+
       eis_device_pointer_motion (session->eis_pointer,
-                                 event->motion.dx - event->motion.dx_constrained,
-                                 event->motion.dy - event->motion.dy_constrained);
+                                 dx - dx_constrained,
+                                 dy - dy_constrained);
       eis_device_frame (session->eis_pointer, eis_now (session->eis));
       break;
     case CLUTTER_BUTTON_PRESS:
@@ -1420,6 +1425,7 @@ meta_input_capture_session_process_event (MetaInputCaptureSession *session,
       break;
     case CLUTTER_SCROLL:
       {
+        ClutterScrollFinishFlags finish_flags;
         const double factor = 10.0;
         bool stop_x = false, stop_y = false;
         double dx, dy;
@@ -1427,9 +1433,11 @@ meta_input_capture_session_process_event (MetaInputCaptureSession *session,
         if (!session->eis_pointer)
           return TRUE;
 
-        if ((event->scroll.finish_flags & CLUTTER_SCROLL_FINISHED_HORIZONTAL))
+        finish_flags = clutter_event_get_scroll_finish_flags (event);
+
+        if ((finish_flags & CLUTTER_SCROLL_FINISHED_HORIZONTAL))
           stop_x = true;
-        if ((event->scroll.finish_flags & CLUTTER_SCROLL_FINISHED_HORIZONTAL))
+        if ((finish_flags & CLUTTER_SCROLL_FINISHED_HORIZONTAL))
           stop_y = true;
 
         if (stop_x || stop_y)
