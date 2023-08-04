@@ -140,8 +140,8 @@ key_group_key_press (ClutterActor    *actor,
   g_assert (pool != NULL);
 
   res = clutter_binding_pool_activate (pool,
-                                       event->keyval,
-                                       event->modifier_state,
+                                       clutter_event_get_key_symbol ((ClutterEvent *) event),
+                                       clutter_event_get_state ((ClutterEvent *) event),
                                        G_OBJECT (actor));
 
   /* if we activate a key binding, redraw the actor */

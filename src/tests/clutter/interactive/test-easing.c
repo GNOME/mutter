@@ -89,7 +89,7 @@ on_button_press (ClutterActor       *actor,
                  ClutterButtonEvent *event,
                  ClutterActor       *rectangle)
 {
-  if (event->button == CLUTTER_BUTTON_SECONDARY)
+  if (clutter_event_get_button ((ClutterEvent *) event) == CLUTTER_BUTTON_SECONDARY)
     {
       gchar *text;
 
@@ -107,16 +107,18 @@ on_button_press (ClutterActor       *actor,
       clutter_text_set_text (CLUTTER_TEXT (easing_mode_label), text);
       g_free (text);
     }
-  else if (event->button == CLUTTER_BUTTON_PRIMARY)
+  else if (clutter_event_get_button ((ClutterEvent *) event) == CLUTTER_BUTTON_PRIMARY)
     {
       ClutterAnimationMode cur_mode;
+      float x, y;
 
       cur_mode = easing_modes[current_mode].mode;
 
       clutter_actor_save_easing_state (rectangle);
       clutter_actor_set_easing_duration (rectangle, DURATION * 1000);
       clutter_actor_set_easing_mode (rectangle, cur_mode);
-      clutter_actor_set_position (rectangle, event->x, event->y);
+      clutter_event_get_coords ((ClutterEvent *) event, &x, &y);
+      clutter_actor_set_position (rectangle, x, y);
 
       /* if we were asked to, recenter the bouncer at the end of the
        * animation. we keep track of the animation to avoid connecting

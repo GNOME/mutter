@@ -53,13 +53,16 @@ event_cb (ClutterActor *actor,
   GArray *events = user_data;
   EventLog entry;
 
-  switch (event->type)
+  switch (clutter_event_type (event))
     {
     case CLUTTER_ENTER:
     case CLUTTER_LEAVE:
-      if ((event->any.flags & CLUTTER_EVENT_FLAG_GRAB_NOTIFY) != 0)
+      if ((clutter_event_get_flags (event) & CLUTTER_EVENT_FLAG_GRAB_NOTIFY) != 0)
         {
-          entry = (EventLog) { clutter_actor_get_name (actor), event->type };
+          entry = (EventLog) {
+            clutter_actor_get_name (actor),
+            clutter_event_type (event)
+          };
 
           g_debug ("Event '%s' on actor '%s'",
                    clutter_event_get_name (event),
@@ -69,7 +72,10 @@ event_cb (ClutterActor *actor,
       break;
 
     default:
-      entry = (EventLog) { clutter_actor_get_name (actor), event->type };
+      entry = (EventLog) {
+        clutter_actor_get_name (actor),
+        clutter_event_type (event)
+      };
       g_debug ("Event '%s' on actor '%s'",
                clutter_event_get_name (event),
                entry.name);
@@ -560,7 +566,7 @@ handle_input_only_event (const ClutterEvent *event,
                          gpointer            user_data)
 {
   GArray *events = user_data;
-  EventLog entry = { "input-only grab", event->type };
+  EventLog entry = { "input-only grab", clutter_event_type (event) };
 
   g_debug ("Input only grab event '%s'", clutter_event_get_name (event));
   g_array_append_val (events, entry);

@@ -35,7 +35,7 @@ on_captured_event (ClutterText *text,
   gunichar c;
   guint keyval;
 
-  if (event->type != CLUTTER_KEY_PRESS)
+  if (clutter_event_type (event) != CLUTTER_KEY_PRESS)
     return FALSE;
 
   is_unicode_mode = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (text),

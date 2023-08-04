@@ -240,7 +240,7 @@ button_release_cb (ClutterActor *actor,
    * which shader to display */
   g_clear_handle_id (&timeout_id, g_source_remove);
 
-  if (event->button.button == 1)
+  if (clutter_event_get_button (event) == 1)
     {
       new_no = shader_no - 1;
       if (new_no < 0)

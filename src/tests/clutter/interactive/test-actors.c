@@ -75,7 +75,7 @@ input_cb (ClutterActor *stage,
 {
   SuperOH *oh = data;
 
-  if (event->type == CLUTTER_KEY_RELEASE)
+  if (clutter_event_type (event) == CLUTTER_KEY_RELEASE)
     {
       g_print ("*** key press event (key:%c) ***\n",
                clutter_event_get_key_symbol (event));
