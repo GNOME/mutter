@@ -750,7 +750,7 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
       cairo_surface_t *surface;
       cairo_format_t cairo_format;
 
-      cairo_format = gbm_format_to_cairo_format (gbm_format),
+      cairo_format = gbm_format_to_cairo_format (gbm_format);
       surface = scale_and_transform_cursor_sprite_cpu (data,
                                                        cairo_format,
                                                        width,
