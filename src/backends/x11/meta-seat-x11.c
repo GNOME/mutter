@@ -813,10 +813,13 @@ meta_seat_x11_handle_event_post (ClutterSeat        *seat,
   MetaSeatX11 *seat_x11 = META_SEAT_X11 (seat);
   ClutterInputDevice *device;
   MetaInputSettings *input_settings;
+  ClutterEventType event_type;
   gboolean is_touch;
 
-  if (event->type != CLUTTER_DEVICE_ADDED &&
-      event->type != CLUTTER_DEVICE_REMOVED)
+  event_type = clutter_event_type (event);
+
+  if (event_type != CLUTTER_DEVICE_ADDED &&
+      event_type != CLUTTER_DEVICE_REMOVED)
     return TRUE;
 
   device = clutter_event_get_device (event);
@@ -824,7 +827,7 @@ meta_seat_x11_handle_event_post (ClutterSeat        *seat,
     clutter_input_device_get_device_type (device) == CLUTTER_TOUCHSCREEN_DEVICE;
   input_settings = meta_backend_get_input_settings (seat_x11->backend);
 
-  switch (event->type)
+  switch (event_type)
     {
       case CLUTTER_DEVICE_ADDED:
         meta_input_settings_add_device (input_settings, device);
@@ -2159,7 +2162,7 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
                                        unicode_value);
 
         g_debug ("%s: win:0x%x device:%d source:%d, key: %12s (%d)",
-                 event->any.type == CLUTTER_KEY_PRESS
+                 clutter_event_type (event) == CLUTTER_KEY_PRESS
                  ? "key press  "
                  : "key release",
                  (unsigned int) stage_x11->xwin,
@@ -2284,14 +2287,13 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
                      (unsigned int) stage_x11->xwin,
                      meta_input_device_x11_get_device_id (device),
                      clutter_input_device_get_device_name (device),
-                     event->any.time,
-                     event->scroll.direction == CLUTTER_SCROLL_UP ? "up" :
-                     event->scroll.direction == CLUTTER_SCROLL_DOWN ? "down" :
-                     event->scroll.direction == CLUTTER_SCROLL_LEFT ? "left" :
-                     event->scroll.direction == CLUTTER_SCROLL_RIGHT ? "right" :
+                     clutter_event_get_time (event),
+                     scroll_direction == CLUTTER_SCROLL_UP ? "up" :
+                     scroll_direction == CLUTTER_SCROLL_DOWN ? "down" :
+                     scroll_direction == CLUTTER_SCROLL_LEFT ? "left" :
+                     scroll_direction == CLUTTER_SCROLL_RIGHT ? "right" :
                      "invalid",
-                     event->scroll.x,
-                     event->scroll.y,
+                     x, y,
                      (xev->flags & XIPointerEmulated) ? "yes" : "no");
             break;
 
@@ -2401,8 +2403,8 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
 
             g_debug ("smooth scroll: win:0x%x device:%d '%s' (x:%.2f, y:%.2f, delta:%f, %f)",
                      (unsigned int) stage_x11->xwin,
-                     meta_input_device_x11_get_device_id (event->scroll.device),
-                     clutter_input_device_get_device_name (event->scroll.device),
+                     meta_input_device_x11_get_device_id (source_device),
+                     clutter_input_device_get_device_name (source_device),
                      x, y,
                      delta_x, delta_y);
             break;
@@ -2424,8 +2426,8 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
 
         g_debug ("motion: win:0x%x device:%d '%s' (x:%.2f, y:%.2f, axes:%s)",
                  (unsigned int) stage_x11->xwin,
-                 meta_input_device_x11_get_device_id (event->motion.device),
-                 clutter_input_device_get_device_name (event->motion.device),
+                 meta_input_device_x11_get_device_id (source_device),
+                 clutter_input_device_get_device_name (source_device),
                  x, y,
                  axes != NULL ? "yes" : "no");
       }

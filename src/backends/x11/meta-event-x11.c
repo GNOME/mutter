@@ -80,7 +80,7 @@ meta_backend_x11_handle_event (MetaBackend *backend,
    * two extra times to pump the enter/leave events through (otherwise they
    * just get pushed down the queue and never processed).
    */
-  if (event->type == CLUTTER_MOTION)
+  if (clutter_event_type (event) == CLUTTER_MOTION)
     spin += 2;
 
   while (spin > 0 && (event = clutter_event_get ()))
