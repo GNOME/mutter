@@ -175,7 +175,7 @@ atk_key_event_from_clutter_event_key (ClutterKeyEvent *clutter_event,
   AtkKeyEventStruct *atk_event = g_new0 (AtkKeyEventStruct, 1);
   gunichar key_unichar;
 
-  switch (clutter_event->type)
+  switch (clutter_event_type ((ClutterEvent *) clutter_event))
     {
     case CLUTTER_KEY_PRESS:
       atk_event->type = ATK_KEY_EVENT_PRESS;
@@ -191,7 +191,7 @@ atk_key_event_from_clutter_event_key (ClutterKeyEvent *clutter_event,
   if (password_char)
     atk_event->state = 0;
   else
-    atk_event->state = clutter_event->modifier_state;
+    atk_event->state = clutter_event_get_state ((ClutterEvent *) clutter_event);
 
   /* We emit the clutter keyval. This is not exactly the one expected
      by AtkKeyEventStruct, as it expects a Gdk-like event, with the
@@ -202,7 +202,7 @@ atk_key_event_from_clutter_event_key (ClutterKeyEvent *clutter_event,
   if (password_char)
     atk_event->keyval = clutter_unicode_to_keysym (password_char);
   else
-    atk_event->keyval = clutter_event->keyval;
+    atk_event->keyval = clutter_event_get_key_symbol ((ClutterEvent *) clutter_event);
 
   /* It is expected to store a key defining string here (ie "Space" in
      case you press a space). Anyway, there are no function on clutter
@@ -238,9 +238,9 @@ atk_key_event_from_clutter_event_key (ClutterKeyEvent *clutter_event,
   if (password_char)
     atk_event->keycode = 0;
   else
-    atk_event->keycode = clutter_event->hardware_keycode;
+    atk_event->keycode = clutter_event_get_key_code ((ClutterEvent *) clutter_event);
 
-  atk_event->timestamp = clutter_event->time;
+  atk_event->timestamp = clutter_event_get_time ((ClutterEvent *) clutter_event);
 
 #ifdef CALLY_DEBUG
 
@@ -312,11 +312,14 @@ cally_snoop_key_event (ClutterStage    *stage,
 {
   ClutterEvent *event = (ClutterEvent *) key;
   AtkKeyEventStruct *key_event = NULL;
+  ClutterEventType event_type;
   gboolean consumed = FALSE;
   gunichar password_char = 0;
 
+  event_type = clutter_event_type (event);
+
   /* filter key events */
-  if ((event->type != CLUTTER_KEY_PRESS) && (event->type != CLUTTER_KEY_RELEASE))
+  if ((event_type != CLUTTER_KEY_PRESS) && (event_type != CLUTTER_KEY_RELEASE))
     return FALSE;
 
   if (key_listener_list)
