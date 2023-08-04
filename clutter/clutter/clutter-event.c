@@ -2303,3 +2303,273 @@ clutter_event_im_new (ClutterEventType         type,
 
   return event;
 }
+
+static const char *
+scroll_source_to_string (ClutterScrollSource scroll_source)
+{
+  switch (scroll_source)
+    {
+    case CLUTTER_SCROLL_SOURCE_UNKNOWN:
+      return "unknown";
+    case CLUTTER_SCROLL_SOURCE_WHEEL:
+      return "wheel";
+    case CLUTTER_SCROLL_SOURCE_FINGER:
+      return "finger";
+    case CLUTTER_SCROLL_SOURCE_CONTINUOUS:
+      return "continuous";
+    }
+  g_return_val_if_reached ("");
+}
+
+static const char *
+touchpad_gesture_phase_to_string (ClutterTouchpadGesturePhase phase)
+{
+  switch (phase)
+    {
+    case CLUTTER_TOUCHPAD_GESTURE_PHASE_BEGIN:
+      return "begin";
+    case CLUTTER_TOUCHPAD_GESTURE_PHASE_UPDATE:
+      return "update";
+    case CLUTTER_TOUCHPAD_GESTURE_PHASE_END:
+      return "end";
+    case CLUTTER_TOUCHPAD_GESTURE_PHASE_CANCEL:
+      return "cancel";
+    }
+  g_return_val_if_reached ("");
+}
+
+static const char *
+pad_source_to_string (ClutterInputDevicePadSource pad_source)
+{
+  switch (pad_source)
+    {
+    case CLUTTER_INPUT_DEVICE_PAD_SOURCE_UNKNOWN:
+      return "unknown";
+    case CLUTTER_INPUT_DEVICE_PAD_SOURCE_FINGER:
+      return "finger";
+    }
+  g_return_val_if_reached ("");
+}
+
+static const char *
+scroll_direction_to_string (ClutterScrollDirection scroll_direction)
+{
+  switch (scroll_direction)
+    {
+    case CLUTTER_SCROLL_SMOOTH:
+      g_warn_if_reached ();
+      return "";
+    case CLUTTER_SCROLL_LEFT:
+      return "left";
+    case CLUTTER_SCROLL_RIGHT:
+      return "right";
+    case CLUTTER_SCROLL_UP:
+      return "up";
+    case CLUTTER_SCROLL_DOWN:
+      return "down";
+    }
+  g_return_val_if_reached ("");
+}
+
+static char *
+generate_event_description (const ClutterEvent *event)
+{
+  switch (event->type)
+    {
+    case CLUTTER_KEY_PRESS:
+    case CLUTTER_KEY_RELEASE:
+      if (g_strcmp0 (g_getenv ("MUTTER_DEBUG_LOG_KEYCODES"), "1") == 0)
+        {
+          char unicode[7] = {};
+
+          if (event->key.unicode_value)
+            g_unichar_to_utf8 (event->key.unicode_value, unicode);
+          return g_strdup_printf ("keycode=%u, evdev=%u, "
+                                  "keysym=%u, unicode='%s'",
+                                  event->key.hardware_keycode,
+                                  event->key.evdev_code,
+                                  event->key.keyval,
+                                  event->key.unicode_value ? unicode : "N\\A");
+        }
+      else
+        {
+          return g_strdup ("(hidden)");
+        }
+    case CLUTTER_MOTION:
+      return g_strdup_printf ("abs=(%f, %f), rel=(%f, %f), unaccel-rel=(%f, %f)",
+                              event->motion.x,
+                              event->motion.y,
+                              event->motion.dx,
+                              event->motion.dy,
+                              event->motion.dx_unaccel,
+                              event->motion.dy_unaccel);
+    case CLUTTER_BUTTON_PRESS:
+    case CLUTTER_BUTTON_RELEASE:
+      return g_strdup_printf ("button=%u, evdev=%u",
+                              event->button.button,
+                              event->button.evdev_code);
+    case CLUTTER_SCROLL:
+      if (event->scroll.direction == CLUTTER_SCROLL_SMOOTH)
+        {
+          double dx, dy;
+          ClutterScrollSource scroll_source;
+
+          clutter_event_get_scroll_delta (event, &dx, &dy);
+          scroll_source = event->scroll.scroll_source;
+          return g_strdup_printf ("source=%s, rel: (%f, %f)",
+                                  scroll_source_to_string (scroll_source),
+                                  dx, dy);
+        }
+      else
+        {
+          ClutterScrollDirection direction = event->scroll.direction;
+
+          return g_strdup_printf ("direction=%s",
+                                  scroll_direction_to_string (direction));
+        }
+    case CLUTTER_TOUCH_BEGIN:
+    case CLUTTER_TOUCH_UPDATE:
+    case CLUTTER_TOUCH_END:
+    case CLUTTER_TOUCH_CANCEL:
+      return g_strdup_printf ("slot=%d, abs=(%f, %f)",
+                              GPOINTER_TO_INT (event->touch.sequence),
+                              event->touch.x,
+                              event->touch.y);
+    case CLUTTER_TOUCHPAD_PINCH:
+      return g_strdup_printf ("phase=%s, rel=(%f, %f), unaccel-rel=(%f, %f), "
+                              "angle-delta=%f, scale=%f, n-fingers=%d",
+                              touchpad_gesture_phase_to_string (event->touchpad_pinch.phase),
+                              event->touchpad_pinch.dx,
+                              event->touchpad_pinch.dy,
+                              event->touchpad_pinch.dx_unaccel,
+                              event->touchpad_pinch.dy_unaccel,
+                              event->touchpad_pinch.angle_delta,
+                              event->touchpad_pinch.scale,
+                              event->touchpad_pinch.n_fingers);
+    case CLUTTER_TOUCHPAD_SWIPE:
+      return g_strdup_printf ("phase=%s, rel=(%f, %f), unaccel-rel=(%f, %f), "
+                              "n-fingers=%d",
+                              touchpad_gesture_phase_to_string (event->touchpad_pinch.phase),
+                              event->touchpad_swipe.dx,
+                              event->touchpad_swipe.dy,
+                              event->touchpad_swipe.dx_unaccel,
+                              event->touchpad_swipe.dy_unaccel,
+                              event->touchpad_swipe.n_fingers);
+    case CLUTTER_TOUCHPAD_HOLD:
+      return g_strdup_printf ("phase=%s, n-fingers=%d",
+                              touchpad_gesture_phase_to_string (event->touchpad_pinch.phase),
+                              event->touchpad_hold.n_fingers);
+    case CLUTTER_PROXIMITY_IN:
+    case CLUTTER_PROXIMITY_OUT:
+      return g_strdup ("");
+    case CLUTTER_PAD_BUTTON_PRESS:
+    case CLUTTER_PAD_BUTTON_RELEASE:
+      return g_strdup_printf ("button=%u, group=%u, mode=%u",
+                              event->pad_button.button,
+                              event->pad_button.group,
+                              event->pad_button.mode);
+    case CLUTTER_PAD_STRIP:
+      return g_strdup_printf ("source=%s (%d), value=%f, group=%u, mode=%u",
+                              pad_source_to_string (event->pad_strip.strip_source),
+                              event->pad_strip.strip_number,
+                              event->pad_strip.value,
+                              event->pad_strip.group,
+                              event->pad_strip.mode);
+    case CLUTTER_PAD_RING:
+      return g_strdup_printf ("source=%s (%d), angle=%f, group=%u, mode=%u",
+                              pad_source_to_string (event->pad_ring.ring_source),
+                              event->pad_ring.ring_number,
+                              event->pad_ring.angle,
+                              event->pad_ring.group,
+                              event->pad_ring.mode);
+    case CLUTTER_DEVICE_ADDED:
+    case CLUTTER_DEVICE_REMOVED:
+      {
+        ClutterInputDevice *device;
+
+        device = clutter_event_get_device (event);
+        return g_strdup_printf ("%s (%s)",
+                                clutter_input_device_get_device_name (device),
+                                clutter_input_device_get_device_node (device));
+      }
+    default:
+      g_warn_if_reached ();
+      return g_strdup ("");
+    }
+}
+
+static char *
+generate_modifiers_description (const ClutterEvent *event)
+{
+  ClutterModifierType modifiers;
+  GString *str;
+
+  modifiers = clutter_event_get_state (event);
+
+  if (modifiers == 0)
+    return g_strdup ("none");
+
+  str = g_string_new (NULL);
+
+  if (modifiers & CLUTTER_SHIFT_MASK)
+    g_string_append (str, "shift ");
+  if (modifiers & CLUTTER_LOCK_MASK)
+    g_string_append (str, "lock ");
+  if (modifiers & CLUTTER_CONTROL_MASK)
+    g_string_append (str, "control ");
+  if (modifiers & CLUTTER_MOD1_MASK)
+    g_string_append (str, "mod1 ");
+  if (modifiers & CLUTTER_MOD2_MASK)
+    g_string_append (str, "mod2 ");
+  if (modifiers & CLUTTER_MOD3_MASK)
+    g_string_append (str, "mod3 ");
+  if (modifiers & CLUTTER_MOD4_MASK)
+    g_string_append (str, "mod4 ");
+  if (modifiers & CLUTTER_MOD5_MASK)
+    g_string_append (str, "mod5 ");
+  if (modifiers & CLUTTER_BUTTON1_MASK)
+    g_string_append (str, "button1 ");
+  if (modifiers & CLUTTER_BUTTON2_MASK)
+    g_string_append (str, "button2 ");
+  if (modifiers & CLUTTER_BUTTON3_MASK)
+    g_string_append (str, "button3 ");
+  if (modifiers & CLUTTER_BUTTON4_MASK)
+    g_string_append (str, "button4 ");
+  if (modifiers & CLUTTER_BUTTON5_MASK)
+    g_string_append (str, "button5 ");
+  if (modifiers & CLUTTER_SUPER_MASK)
+    g_string_append (str, "super ");
+  if (modifiers & CLUTTER_HYPER_MASK)
+    g_string_append (str, "hyper ");
+  if (modifiers & CLUTTER_META_MASK)
+    g_string_append (str, "meta ");
+  if (modifiers & CLUTTER_RELEASE_MASK)
+    g_string_append (str, "release ");
+
+  /* Delete trailing space */
+  g_string_erase (str, str->len - 1, 1);
+
+  return g_string_free_and_steal (str);
+}
+
+char *
+clutter_event_describe (const ClutterEvent *event)
+{
+  g_autofree char *event_description = NULL;
+  g_autofree char *modifiers_description = NULL;
+  ClutterInputDevice *source_device;
+
+  source_device = clutter_event_get_source_device (event);
+  event_description = generate_event_description (event);
+  modifiers_description = generate_modifiers_description (event);
+
+  return g_strdup_printf ("'%s'%s%s, time=%u ms, modifiers=%s, %s",
+                          clutter_event_get_name (event),
+                          source_device ? " from " : "",
+                          source_device ?
+                          clutter_input_device_get_device_node (source_device) :
+                          "",
+                          event->any.time,
+                          modifiers_description,
+                          event_description);
+}

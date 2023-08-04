@@ -173,4 +173,7 @@ void            _clutter_event_push                     (const ClutterEvent *eve
 CLUTTER_EXPORT
 const char * clutter_event_get_name (const ClutterEvent *event);
 
+CLUTTER_EXPORT
+char * clutter_event_describe (const ClutterEvent *event);
+
 G_END_DECLS
