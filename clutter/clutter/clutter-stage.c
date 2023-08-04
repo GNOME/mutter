@@ -668,32 +668,44 @@ _clutter_stage_has_queued_events (ClutterStage *stage)
   return priv->event_queue->length > 0;
 }
 
-static void
+static ClutterEvent *
 clutter_stage_compress_motion (ClutterStage       *stage,
                                ClutterEvent       *event,
                                const ClutterEvent *to_discard)
 {
   double dx, dy;
   double dx_unaccel, dy_unaccel;
+  double dx_constrained, dy_constrained;
   double dst_dx = 0.0, dst_dy = 0.0;
   double dst_dx_unaccel = 0.0, dst_dy_unaccel = 0.0;
+  double dst_dx_constrained = 0.0, dst_dy_constrained = 0.0;
+  graphene_point_t coords;
 
   if (!clutter_event_get_relative_motion (to_discard,
                                           &dx, &dy,
                                           &dx_unaccel, &dy_unaccel,
-                                          NULL, NULL))
-    return;
+                                          &dx_constrained, &dy_constrained))
+    return NULL;
 
   clutter_event_get_relative_motion (event,
                                      &dst_dx, &dst_dy,
                                      &dst_dx_unaccel, &dst_dy_unaccel,
-                                     NULL, NULL);
+                                     &dst_dx_constrained, &dst_dy_constrained);
 
-  event->motion.flags |= CLUTTER_EVENT_FLAG_RELATIVE_MOTION;
-  event->motion.dx = dx + dst_dx;
-  event->motion.dy = dy + dst_dy;
-  event->motion.dx_unaccel = dx_unaccel + dst_dx_unaccel;
-  event->motion.dy_unaccel = dy_unaccel + dst_dy_unaccel;
+  clutter_event_get_position (event, &coords);
+
+  return clutter_event_motion_new (CLUTTER_EVENT_FLAG_RELATIVE_MOTION,
+                                   clutter_event_get_time_us (event),
+                                   clutter_event_get_source_device (event),
+                                   clutter_event_get_device_tool (event),
+                                   clutter_event_get_state (event),
+                                   coords,
+                                   GRAPHENE_POINT_INIT (dx + dst_dx, dy + dst_dy),
+                                   GRAPHENE_POINT_INIT (dx_unaccel + dst_dx_unaccel,
+                                                        dy_unaccel + dst_dy_unaccel),
+                                   GRAPHENE_POINT_INIT (dx_constrained + dst_dx_constrained,
+                                                        dy_constrained + dst_dy_constrained),
+                                   NULL);
 }
 
 CLUTTER_EXPORT void
@@ -754,7 +766,18 @@ _clutter_stage_process_queued_events (ClutterStage *stage)
                             (int) event->motion.y);
 
               if (next_event->type == CLUTTER_MOTION)
-                clutter_stage_compress_motion (stage, next_event, event);
+                {
+                  ClutterEvent *new_event;
+
+                  new_event =
+                    clutter_stage_compress_motion (stage, next_event, event);
+                  if (new_event)
+                    {
+                      /* Replace the next event with the rewritten one */
+                      l->next->data = new_event;
+                      clutter_event_free (next_event);
+                    }
+                }
 
               goto next_event;
             }
