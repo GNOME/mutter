@@ -720,10 +720,11 @@ CLUTTER_EXPORT
 guint                    clutter_event_get_mode_group                (const ClutterEvent     *event);
 
 CLUTTER_EXPORT
-gboolean                 clutter_event_get_pad_event_details         (const ClutterEvent     *event,
-                                                                      guint                  *number,
-                                                                      guint                  *mode,
-                                                                      gdouble                *value);
+gboolean clutter_event_get_pad_details (const ClutterEvent          *event,
+                                        guint                       *number,
+                                        guint                       *mode,
+                                        ClutterInputDevicePadSource *source,
+                                        gdouble                     *value);
 CLUTTER_EXPORT
 uint32_t                 clutter_event_get_event_code                (const ClutterEvent     *event);
 
@@ -733,11 +734,23 @@ int32_t                  clutter_event_sequence_get_slot (const ClutterEventSequ
 CLUTTER_EXPORT
 int64_t                  clutter_event_get_time_us (const ClutterEvent *event);
 CLUTTER_EXPORT
-gboolean                 clutter_event_get_relative_motion (const ClutterEvent *event,
-                                                            double             *dx,
-                                                            double             *dy,
-                                                            double             *dx_unaccel,
-                                                            double             *dy_unaccel);
+gboolean clutter_event_get_relative_motion (const ClutterEvent *event,
+                                            double             *dx,
+                                            double             *dy,
+                                            double             *dx_unaccel,
+                                            double             *dy_unaccel,
+                                            double             *dx_constrained,
+                                            double             *dy_constrained);
 
+CLUTTER_EXPORT
+const char * clutter_event_get_im_text (const ClutterEvent *event);
+CLUTTER_EXPORT
+gboolean clutter_event_get_im_location (const ClutterEvent  *event,
+                                        int32_t             *offset,
+                                        int32_t             *anchor);
+CLUTTER_EXPORT
+uint32_t clutter_event_get_im_delete_length (const ClutterEvent  *event);
+CLUTTER_EXPORT
+ClutterPreeditResetMode clutter_event_get_im_preedit_reset_mode (const ClutterEvent *event);
 
 G_END_DECLS

@@ -1449,10 +1449,11 @@ clutter_event_get_mode_group (const ClutterEvent *event)
 }
 
 /**
- * clutter_event_get_pad_event_details:
+ * clutter_event_get_pad_details:
  * @event: a pad event
  * @number: (out) (optional): ring/strip/button number
  * @mode: (out) (optional): pad mode as per the event
+ * @source: (out) (optional): source of the event
  * @value: (out) (optional): event axis value
  *
  * Returns the details of a pad event.
@@ -1460,11 +1461,13 @@ clutter_event_get_mode_group (const ClutterEvent *event)
  * Returns: #TRUE if event details could be obtained
  **/
 gboolean
-clutter_event_get_pad_event_details (const ClutterEvent *event,
-                                     guint              *number,
-                                     guint              *mode,
-                                     gdouble            *value)
+clutter_event_get_pad_details (const ClutterEvent          *event,
+                               guint                       *number,
+                               guint                       *mode,
+                               ClutterInputDevicePadSource *source,
+                               gdouble                     *value)
 {
+  ClutterInputDevicePadSource s;
   guint n, m;
   gdouble v;
 
@@ -1480,16 +1483,19 @@ clutter_event_get_pad_event_details (const ClutterEvent *event,
     case CLUTTER_PAD_BUTTON_RELEASE:
       n = event->pad_button.button;
       m = event->pad_button.mode;
+      s = CLUTTER_INPUT_DEVICE_PAD_SOURCE_UNKNOWN;
       v = 0.0;
       break;
     case CLUTTER_PAD_RING:
       n = event->pad_ring.ring_number;
       m = event->pad_ring.mode;
+      s = event->pad_ring.ring_source;
       v = event->pad_ring.angle;
       break;
     case CLUTTER_PAD_STRIP:
       n = event->pad_strip.strip_number;
       m = event->pad_strip.mode;
+      s = event->pad_strip.strip_source;
       v = event->pad_strip.value;
       break;
     default:
@@ -1500,6 +1506,8 @@ clutter_event_get_pad_event_details (const ClutterEvent *event,
     *number = n;
   if (mode)
     *mode = m;
+  if (source)
+    *source = s;
   if (value)
     *value = v;
 
@@ -1541,7 +1549,9 @@ clutter_event_get_relative_motion (const ClutterEvent *event,
                                    double             *dx,
                                    double             *dy,
                                    double             *dx_unaccel,
-                                   double             *dy_unaccel)
+                                   double             *dy_unaccel,
+                                   double             *dx_constrained,
+                                   double             *dy_constrained)
 {
   if (event->type == CLUTTER_MOTION &&
       event->motion.flags & CLUTTER_EVENT_FLAG_RELATIVE_MOTION)
@@ -1554,11 +1564,62 @@ clutter_event_get_relative_motion (const ClutterEvent *event,
         *dx_unaccel = event->motion.dx_unaccel;
       if (dy_unaccel)
         *dy_unaccel = event->motion.dy_unaccel;
+      if (dx_constrained)
+        *dx_constrained = event->motion.dx_constrained;
+      if (dy_constrained)
+        *dy_constrained = event->motion.dy_constrained;
 
       return TRUE;
     }
   else
     return FALSE;
+}
+
+const char *
+clutter_event_get_im_text (const ClutterEvent *event)
+{
+  g_return_val_if_fail (event != NULL, NULL);
+  g_return_val_if_fail (event->type == CLUTTER_IM_COMMIT ||
+                        event->type == CLUTTER_IM_PREEDIT, NULL);
+
+  return event->im.text;
+}
+
+gboolean
+clutter_event_get_im_location (const ClutterEvent  *event,
+                               int32_t             *offset,
+                               int32_t             *anchor)
+{
+  g_return_val_if_fail (event != NULL, FALSE);
+  g_return_val_if_fail (event->type == CLUTTER_IM_DELETE ||
+                        event->type == CLUTTER_IM_PREEDIT, FALSE);
+
+  if (offset)
+    *offset = event->im.offset;
+  if (anchor)
+    *anchor = event->im.anchor;
+
+  return TRUE;
+}
+
+uint32_t
+clutter_event_get_im_delete_length (const ClutterEvent  *event)
+{
+  g_return_val_if_fail (event != NULL, 0);
+  g_return_val_if_fail (event->type == CLUTTER_IM_DELETE, 0);
+
+  return event->im.len;
+}
+
+ClutterPreeditResetMode
+clutter_event_get_im_preedit_reset_mode (const ClutterEvent *event)
+{
+  g_return_val_if_fail (event != NULL, CLUTTER_PREEDIT_RESET_CLEAR);
+  g_return_val_if_fail (event->type == CLUTTER_IM_COMMIT ||
+                        event->type == CLUTTER_IM_PREEDIT,
+                        CLUTTER_PREEDIT_RESET_CLEAR);
+
+  return event->im.mode;
 }
 
 const char *

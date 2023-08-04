@@ -680,12 +680,14 @@ clutter_stage_compress_motion (ClutterStage       *stage,
 
   if (!clutter_event_get_relative_motion (to_discard,
                                           &dx, &dy,
-                                          &dx_unaccel, &dy_unaccel))
+                                          &dx_unaccel, &dy_unaccel,
+                                          NULL, NULL))
     return;
 
   clutter_event_get_relative_motion (event,
                                      &dst_dx, &dst_dy,
-                                     &dst_dx_unaccel, &dst_dy_unaccel);
+                                     &dst_dx_unaccel, &dst_dy_unaccel,
+                                     NULL, NULL);
 
   event->motion.flags |= CLUTTER_EVENT_FLAG_RELATIVE_MOTION;
   event->motion.dx = dx + dst_dx;

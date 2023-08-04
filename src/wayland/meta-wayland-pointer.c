@@ -359,7 +359,8 @@ meta_wayland_pointer_send_relative_motion (MetaWaylandPointer *pointer,
 
   if (!clutter_event_get_relative_motion (event,
                                           &dx, &dy,
-                                          &dx_unaccel, &dy_unaccel))
+                                          &dx_unaccel, &dy_unaccel,
+                                          NULL, NULL))
     return;
 
   time_us = clutter_event_get_time_us (event);
