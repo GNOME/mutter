@@ -159,11 +159,6 @@ void meta_compositor_show_window_menu (MetaCompositor     *compositor,
                                        int                 x,
                                        int                 y);
 
-void meta_compositor_show_window_menu_for_rect (MetaCompositor     *compositor,
-                                                MetaWindow         *window,
-				                MetaWindowMenuType  menu,
-                                                MetaRectangle      *rect);
-
 /*
  * This function takes a 64 bit time stamp from the monotonic clock, and clamps
  * it to the scope of the X server clock, without losing the granularity.

@@ -720,10 +720,6 @@ void meta_window_show_menu (MetaWindow         *window,
                             int                 x,
                             int                 y);
 
-void meta_window_show_menu_for_rect (MetaWindow         *window,
-                                     MetaWindowMenuType  menu,
-                                     MetaRectangle      *rect);
-
 GList* meta_window_get_workspaces (MetaWindow *window);
 
 void meta_window_get_work_area_for_logical_monitor (MetaWindow         *window,

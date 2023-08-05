@@ -410,22 +410,6 @@ meta_plugin_manager_show_window_menu (MetaPluginManager  *plugin_mgr,
     klass->show_window_menu (plugin, window, menu, x, y);
 }
 
-void
-meta_plugin_manager_show_window_menu_for_rect (MetaPluginManager  *plugin_mgr,
-                                               MetaWindow         *window,
-                                               MetaWindowMenuType  menu,
-					       MetaRectangle      *rect)
-{
-  MetaPlugin *plugin = plugin_mgr->plugin;
-  MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);
-
-  if (!should_start_effect (plugin_mgr))
-    return;
-
-  if (klass->show_window_menu_for_rect)
-    klass->show_window_menu_for_rect (plugin, window, menu, rect);
-}
-
 MetaCloseDialog *
 meta_plugin_manager_create_close_dialog (MetaPluginManager *plugin_mgr,
                                          MetaWindow        *window)
