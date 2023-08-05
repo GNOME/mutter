@@ -309,31 +309,5 @@ int meta_stack_windows_cmp (MetaStack  *stack,
 void meta_window_set_stack_position (MetaWindow *window,
                                      int         position);
 
-/**
- * meta_stack_get_positions:
- * @stack: The stack to examine.
- *
- * Returns the current stack state, allowing rudimentary transactions.
- *
- * Returns: (transfer container) (element-type Meta.Window):
- *          An opaque #GList representing the current stack sort order;
- *          it is the caller's responsibility to free it.
- *          Pass this to meta_stack_set_positions() later if you want to restore
- *          the state to where it was when you called this function.
- */
-GList * meta_stack_get_positions (MetaStack *stack);
-
-/**
- * meta_stack_set_positions:
- * @stack:  The stack to roll back.
- * @windows:  The list returned from meta_stack_get_positions().
- *
- * Rolls back a transaction, given the list returned from
- * meta_stack_get_positions().
- *
- */
-void meta_stack_set_positions (MetaStack *stack,
-                               GList     *windows);
-
 void meta_stack_update_window_tile_matches (MetaStack     *stack,
                                             MetaWorkspace *workspace);
