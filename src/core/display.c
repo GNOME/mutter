@@ -1046,7 +1046,7 @@ meta_display_new (MetaContext  *context,
                           &old_active_xwindow);
 #endif
 
-  if (!meta_compositor_do_manage (display->compositor, error))
+  if (!meta_compositor_manage (display->compositor, error))
     {
       g_object_unref (display);
       return NULL;

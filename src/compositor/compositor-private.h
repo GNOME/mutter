@@ -40,9 +40,6 @@ struct _MetaCompositorClass
                                         ClutterStageView *stage_view);
 };
 
-gboolean meta_compositor_do_manage (MetaCompositor  *compositor,
-                                    GError         **error);
-
 void meta_compositor_remove_window_actor (MetaCompositor  *compositor,
                                           MetaWindowActor *window_actor);
 
@@ -93,7 +90,8 @@ void meta_compositor_grab_end (MetaCompositor *compositor);
 
 void meta_compositor_destroy (MetaCompositor *compositor);
 
-void meta_compositor_manage   (MetaCompositor *compositor);
+gboolean meta_compositor_manage (MetaCompositor  *compositor,
+                                 GError         **error);
 
 void meta_compositor_unmanage (MetaCompositor *compositor);
 

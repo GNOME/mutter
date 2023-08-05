@@ -397,8 +397,8 @@ meta_compositor_create_view (MetaCompositor   *compositor,
 }
 
 gboolean
-meta_compositor_do_manage (MetaCompositor  *compositor,
-                           GError         **error)
+meta_compositor_manage (MetaCompositor  *compositor,
+                        GError         **error)
 {
   MetaCompositorPrivate *priv =
     meta_compositor_get_instance_private (compositor);
@@ -426,15 +426,6 @@ meta_compositor_do_manage (MetaCompositor  *compositor,
   meta_plugin_manager_start (priv->plugin_mgr);
 
   return TRUE;
-}
-
-void
-meta_compositor_manage (MetaCompositor *compositor)
-{
-  GError *error = NULL;
-
-  if (!meta_compositor_do_manage (compositor, &error))
-    g_error ("Compositor failed to manage display: %s", error->message);
 }
 
 static void
