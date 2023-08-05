@@ -97,7 +97,13 @@ emit_event (const ClutterEvent *event,
 
       if (receiver->actor)
         {
-          if (clutter_actor_event (receiver->actor, event, receiver->phase == CLUTTER_PHASE_CAPTURE))
+          ClutterEventType type = clutter_event_type (event);
+          gboolean may_emit = receiver->emit_to_actor ||
+                              type == CLUTTER_ENTER ||
+                              type == CLUTTER_LEAVE;
+
+          if (may_emit &&
+              clutter_actor_event (receiver->actor, event, receiver->phase == CLUTTER_PHASE_CAPTURE))
             return EVENT_HANDLED_BY_ACTOR;
         }
       else if (receiver->action)
@@ -319,6 +325,7 @@ add_actor_to_event_emission_chain (GArray            *chain,
 
   receiver->actor = g_object_ref (actor);
   receiver->phase = phase;
+  receiver->emit_to_actor = TRUE;
 }
 
 static inline void
@@ -609,11 +616,11 @@ clutter_sprite_notify_grab (ClutterFocus *focus,
           EventReceiver *receiver =
             &g_array_index (priv->event_emission_chain, EventReceiver, i);
 
-          if (receiver->actor)
+          if (receiver->actor && receiver->emit_to_actor)
             {
               if (!clutter_actor_contains (grab_actor, receiver->actor))
                 {
-                  g_clear_object (&receiver->actor);
+                  receiver->emit_to_actor = FALSE;
                   implicit_grab_n_removed++;
                 }
               else
@@ -964,7 +971,7 @@ clutter_sprite_remove_all_actors_from_chain (ClutterSprite *sprite)
         &g_array_index (priv->event_emission_chain, EventReceiver, i);
 
       if (receiver->actor)
-        g_clear_object (&receiver->actor);
+        receiver->emit_to_actor = FALSE;
     }
 }
 
