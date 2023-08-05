@@ -618,13 +618,6 @@ meta_keymap_x11_handle_event (MetaKeymapX11 *keymap_x11,
   return retval;
 }
 
-int
-meta_keymap_x11_get_key_group (MetaKeymapX11       *keymap,
-                               ClutterModifierType  state)
-{
-  return XkbGroupForCoreState (state);
-}
-
 G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 
 /* XXX - yes, I know that XKeycodeToKeysym() has been deprecated; hopefully,

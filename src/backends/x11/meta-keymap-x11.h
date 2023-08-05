@@ -30,8 +30,6 @@ G_BEGIN_DECLS
 G_DECLARE_FINAL_TYPE (MetaKeymapX11, meta_keymap_x11,
                       META, KEYMAP_X11, ClutterKeymap)
 
-int      meta_keymap_x11_get_key_group       (MetaKeymapX11       *keymap,
-                                              ClutterModifierType  state);
 int      meta_keymap_x11_translate_key_state (MetaKeymapX11       *keymap,
                                               guint                hardware_keycode,
                                               ClutterModifierType *modifier_state_p,
