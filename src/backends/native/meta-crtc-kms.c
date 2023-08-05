@@ -54,8 +54,6 @@ struct _MetaCrtcKms
   MetaKmsCrtc *kms_crtc;
 
   MetaKmsPlane *primary_plane;
-
-  gboolean is_gamma_valid;
 };
 
 static GQuark kms_crtc_crtc_kms_quark;
@@ -335,12 +333,6 @@ generate_crtc_connector_list (MetaGpu  *gpu,
   return connectors;
 }
 
-gboolean
-meta_crtc_kms_is_gamma_invalid (MetaCrtcKms *crtc_kms)
-{
-  return !crtc_kms->is_gamma_valid;
-}
-
 void
 meta_crtc_kms_set_mode (MetaCrtcKms   *crtc_kms,
                         MetaKmsUpdate *kms_update)
@@ -461,7 +453,6 @@ meta_crtc_kms_new (MetaGpuKms  *gpu_kms,
 
   crtc_kms->kms_crtc = kms_crtc;
   crtc_kms->primary_plane = primary_plane;
-  crtc_kms->is_gamma_valid = TRUE;
 
   if (!kms_crtc_crtc_kms_quark)
     {
