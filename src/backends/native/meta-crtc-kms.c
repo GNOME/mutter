@@ -55,9 +55,6 @@ struct _MetaCrtcKms
 
   MetaKmsPlane *primary_plane;
 
-  gpointer cursor_renderer_private;
-  GDestroyNotify cursor_renderer_private_destroy_notify;
-
   gboolean is_gamma_valid;
 };
 
@@ -74,24 +71,6 @@ monitor_manager_from_crtc (MetaCrtc *crtc)
     meta_backend_get_monitor_manager (backend);
 
   return META_MONITOR_MANAGER_NATIVE (monitor_manager);
-}
-
-gpointer
-meta_crtc_kms_get_cursor_renderer_private (MetaCrtcKms *crtc_kms)
-{
-  return crtc_kms->cursor_renderer_private;
-}
-
-void
-meta_crtc_kms_set_cursor_renderer_private (MetaCrtcKms    *crtc_kms,
-                                           gpointer        cursor_renderer_private,
-                                           GDestroyNotify  destroy_notify)
-{
-  g_clear_pointer (&crtc_kms->cursor_renderer_private,
-                   crtc_kms->cursor_renderer_private_destroy_notify);
-
-  crtc_kms->cursor_renderer_private = cursor_renderer_private;
-  crtc_kms->cursor_renderer_private_destroy_notify = destroy_notify;
 }
 
 static size_t
@@ -496,17 +475,6 @@ meta_crtc_kms_new (MetaGpuKms  *gpu_kms,
 }
 
 static void
-meta_crtc_kms_dispose (GObject *object)
-{
-  MetaCrtcKms *crtc_kms = META_CRTC_KMS (object);
-
-  g_clear_pointer (&crtc_kms->cursor_renderer_private,
-                   crtc_kms->cursor_renderer_private_destroy_notify);
-
-  G_OBJECT_CLASS (meta_crtc_kms_parent_class)->dispose (object);
-}
-
-static void
 meta_crtc_kms_init (MetaCrtcKms *crtc_kms)
 {
 }
@@ -514,11 +482,8 @@ meta_crtc_kms_init (MetaCrtcKms *crtc_kms)
 static void
 meta_crtc_kms_class_init (MetaCrtcKmsClass *klass)
 {
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
   MetaCrtcClass *crtc_class = META_CRTC_CLASS (klass);
   MetaCrtcNativeClass *crtc_native_class = META_CRTC_NATIVE_CLASS (klass);
-
-  object_class->dispose = meta_crtc_kms_dispose;
 
   crtc_class->get_gamma_lut_size = meta_crtc_kms_get_gamma_lut_size;
   crtc_class->get_gamma_lut = meta_crtc_kms_get_gamma_lut;
