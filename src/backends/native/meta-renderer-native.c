@@ -116,7 +116,6 @@ G_DEFINE_TYPE_WITH_CODE (MetaRendererNative,
                                                 initable_iface_init))
 
 static const CoglWinsysEGLVtable _cogl_winsys_egl_vtable;
-static const CoglWinsysVtable *parent_vtable;
 
 static gboolean
 meta_renderer_native_ensure_gpu_data (MetaRendererNative  *renderer_native,
@@ -125,12 +124,6 @@ meta_renderer_native_ensure_gpu_data (MetaRendererNative  *renderer_native,
 
 static void
 meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native);
-
-const CoglWinsysVtable *
-meta_get_renderer_native_parent_vtable (void)
-{
-  return parent_vtable;
-}
 
 static void
 meta_renderer_native_gpu_data_free (MetaRendererNativeGpuData *renderer_gpu_data)
@@ -1208,8 +1201,7 @@ get_native_cogl_winsys_vtable (CoglRenderer *cogl_renderer)
       /* The this winsys is a subclass of the EGL winsys so we
          start by copying its vtable */
 
-      parent_vtable = _cogl_winsys_egl_get_vtable ();
-      vtable = *parent_vtable;
+      vtable = *_cogl_winsys_egl_get_vtable ();
 
       vtable.id = COGL_WINSYS_ID_CUSTOM;
       vtable.name = "EGL_KMS";

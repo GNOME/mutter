@@ -103,5 +103,3 @@ CoglFramebuffer * meta_renderer_native_create_dma_buf_framebuffer (MetaRendererN
 
 gboolean meta_renderer_native_pop_pending_mode_set (MetaRendererNative *renderer_native,
                                                     MetaRendererView   *view);
-
-const CoglWinsysVtable * meta_get_renderer_native_parent_vtable (void);
