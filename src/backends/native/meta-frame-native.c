@@ -53,16 +53,6 @@ meta_frame_native_from_frame (ClutterFrame *frame)
   return META_CONTAINER_OF (frame, MetaFrameNative, base);
 }
 
-void
-meta_frame_native_set_kms_update (MetaFrameNative *frame_native,
-                                  MetaKmsUpdate   *kms_update)
-{
-  g_return_if_fail (!frame_native->kms_update);
-
-  frame_native->kms_update = kms_update;
-  frame_native->had_kms_update = TRUE;
-}
-
 MetaKmsUpdate *
 meta_frame_native_ensure_kms_update (MetaFrameNative *frame_native,
                                      MetaKmsDevice   *kms_device)

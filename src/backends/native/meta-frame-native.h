@@ -30,9 +30,6 @@ MetaFrameNative * meta_frame_native_new (void);
 META_EXPORT_TEST
 MetaFrameNative * meta_frame_native_from_frame (ClutterFrame *frame);
 
-void meta_frame_native_set_kms_update (MetaFrameNative *frame_native,
-                                       MetaKmsUpdate   *kms_update);
-
 META_EXPORT_TEST
 MetaKmsUpdate * meta_frame_native_ensure_kms_update (MetaFrameNative *frame_native,
                                                      MetaKmsDevice   *kms_device);
