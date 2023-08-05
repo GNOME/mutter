@@ -3055,7 +3055,7 @@ destroy_in_impl (GTask *task)
 void
 meta_seat_impl_destroy (MetaSeatImpl *seat_impl)
 {
-  if (seat_impl->libinput)
+  if (seat_impl->input_thread)
     {
       GTask *task;
 
@@ -3065,6 +3065,7 @@ meta_seat_impl_destroy (MetaSeatImpl *seat_impl)
       g_object_unref (task);
 
       g_thread_join (seat_impl->input_thread);
+      seat_impl->input_thread = NULL;
       g_assert (!seat_impl->libinput);
     }
 
