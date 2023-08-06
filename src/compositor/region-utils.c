@@ -186,35 +186,6 @@ meta_region_iterator_next (MetaRegionIterator *iter)
 }
 
 cairo_region_t *
-meta_region_scale_double (cairo_region_t       *region,
-                          double                scale,
-                          MetaRoundingStrategy  rounding_strategy)
-{
-  int n_rects, i;
-  cairo_rectangle_int_t *rects;
-  cairo_region_t *scaled_region;
-
-  g_return_val_if_fail (scale > 0.0, NULL);
-
-  if (G_APPROX_VALUE (scale, 1.f, FLT_EPSILON))
-    return cairo_region_copy (region);
-
-  n_rects = cairo_region_num_rectangles (region);
-  META_REGION_CREATE_RECTANGLE_ARRAY_SCOPED (n_rects, rects);
-  for (i = 0; i < n_rects; i++)
-    {
-      cairo_region_get_rectangle (region, i, &rects[i]);
-
-      meta_rectangle_scale_double (&rects[i], scale, rounding_strategy,
-                                   &rects[i]);
-    }
-
-  scaled_region = cairo_region_create_rectangles (rects, n_rects);
-
-  return scaled_region;
-}
-
-cairo_region_t *
 meta_region_scale (cairo_region_t *region, int scale)
 {
   int n_rects, i;
