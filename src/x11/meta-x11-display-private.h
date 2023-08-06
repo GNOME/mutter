@@ -251,9 +251,6 @@ void meta_x11_display_remove_alarm_filter (MetaX11Display     *x11_display,
 
 void meta_x11_display_create_guard_window (MetaX11Display *x11_display);
 
-/* make a request to ensure the event serial has changed */
-void meta_x11_display_increment_event_serial    (MetaX11Display *x11_display);
-
 guint32 meta_x11_display_get_current_time_roundtrip (MetaX11Display *x11_display);
 
 void meta_x11_display_set_input_focus_xwindow (MetaX11Display *x11_display,

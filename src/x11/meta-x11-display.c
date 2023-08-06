@@ -1946,16 +1946,6 @@ meta_x11_display_xwindow_is_a_no_focus_window (MetaX11Display *x11_display,
   return xwindow == x11_display->no_focus_window;
 }
 
-void
-meta_x11_display_increment_event_serial (MetaX11Display *x11_display)
-
-{
-  /* We just make some random X request */
-  XDeleteProperty (x11_display->xdisplay,
-                   x11_display->leader_window,
-                   x11_display->atom__MOTIF_WM_HINTS);
-}
-
 static void
 meta_x11_display_update_active_window_hint (MetaX11Display *x11_display)
 {
