@@ -1205,14 +1205,6 @@ meta_wayland_data_device_set_keyboard_focus (MetaWaylandDataDevice *data_device)
     }
 }
 
-gboolean
-meta_wayland_data_device_is_dnd_surface (MetaWaylandDataDevice *data_device,
-                                         MetaWaylandSurface    *surface)
-{
-  return data_device->current_grab &&
-    data_device->current_grab->drag_surface == surface;
-}
-
 MetaWaylandDragGrab *
 meta_wayland_data_device_get_current_grab (MetaWaylandDataDevice *data_device)
 {

@@ -60,9 +60,6 @@ MetaWaylandSeat * meta_wayland_data_device_get_seat (MetaWaylandDataDevice *data
 
 void meta_wayland_data_device_set_keyboard_focus (MetaWaylandDataDevice *data_device);
 
-gboolean meta_wayland_data_device_is_dnd_surface (MetaWaylandDataDevice *data_device,
-                                                  MetaWaylandSurface    *surface);
-
 MetaWaylandDragGrab *
      meta_wayland_data_device_get_current_grab   (MetaWaylandDataDevice *data_device);
 
