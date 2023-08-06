@@ -28,7 +28,3 @@
 G_DECLARE_FINAL_TYPE (MetaRendererX11Nested, meta_renderer_x11_nested,
                       META, RENDERER_X11_NESTED,
                       MetaRendererX11)
-
-void meta_renderer_x11_nested_ensure_legacy_view (MetaRendererX11Nested *renderer_x11_nested,
-                                                  int                    width,
-                                                  int                    height);

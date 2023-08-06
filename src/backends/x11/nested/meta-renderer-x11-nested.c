@@ -72,18 +72,6 @@ calculate_view_transform (MetaMonitorManager *monitor_manager,
     return crtc_transform;
 }
 
-static MetaRendererView *
-get_legacy_view (MetaRenderer *renderer)
-{
-  GList *views;
-
-  views = meta_renderer_get_views (renderer);
-  if (views)
-    return META_RENDERER_VIEW (views->data);
-  else
-    return NULL;
-}
-
 static CoglOffscreen *
 create_offscreen (CoglContext *cogl_context,
                   int          width,
@@ -100,77 +88,6 @@ create_offscreen (CoglContext *cogl_context,
     meta_fatal ("Couldn't allocate framebuffer: %s", error->message);
 
   return offscreen;
-}
-
-static void
-meta_renderer_x11_nested_resize_legacy_view (MetaRendererX11Nested *renderer_x11_nested,
-                                             int                    width,
-                                             int                    height)
-{
-  MetaRenderer *renderer = META_RENDERER (renderer_x11_nested);
-  MetaBackend *backend = meta_renderer_get_backend (renderer);
-  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
-  MetaRendererView *legacy_view;
-  cairo_rectangle_int_t view_layout;
-  CoglOffscreen *fake_onscreen;
-
-  legacy_view = get_legacy_view (renderer);
-
-  clutter_stage_view_get_layout (CLUTTER_STAGE_VIEW (legacy_view),
-                                 &view_layout);
-  if (view_layout.width == width &&
-      view_layout.height == height)
-    return;
-
-  view_layout = (cairo_rectangle_int_t) {
-      .width = width,
-        .height = height
-  };
-
-  fake_onscreen = create_offscreen (cogl_context, width, height);
-
-  g_object_set (G_OBJECT (legacy_view),
-                "layout", &view_layout,
-                "framebuffer", COGL_FRAMEBUFFER (fake_onscreen),
-                NULL);
-}
-
-void
-meta_renderer_x11_nested_ensure_legacy_view (MetaRendererX11Nested *renderer_x11_nested,
-                                             int                    width,
-                                             int                    height)
-{
-  MetaRenderer *renderer = META_RENDERER (renderer_x11_nested);
-  MetaBackend *backend = meta_renderer_get_backend (renderer);
-  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
-  cairo_rectangle_int_t view_layout;
-  CoglOffscreen *fake_onscreen;
-  MetaRendererView *legacy_view;
-
-  if (get_legacy_view (renderer))
-    {
-      meta_renderer_x11_nested_resize_legacy_view (renderer_x11_nested,
-                                                   width, height);
-      return;
-    }
-
-  fake_onscreen = create_offscreen (cogl_context, width, height);
-
-  view_layout = (cairo_rectangle_int_t) {
-    .width = width,
-    .height = height
-  };
-  legacy_view = g_object_new (META_TYPE_RENDERER_VIEW,
-                              "name", "legacy nested",
-                              "stage", meta_backend_get_stage (backend),
-                              "layout", &view_layout,
-                              "framebuffer", COGL_FRAMEBUFFER (fake_onscreen),
-                              NULL);
-
-  g_assert (!meta_renderer_get_views (renderer));
-  meta_renderer_add_view (renderer, legacy_view);
 }
 
 static MetaRendererView *
