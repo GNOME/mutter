@@ -99,20 +99,6 @@ meta_wayland_tablet_pad_group_create_new_resource (MetaWaylandTabletPadGroup *gr
   return resource;
 }
 
-struct wl_resource *
-meta_wayland_tablet_pad_group_lookup_resource (MetaWaylandTabletPadGroup *group,
-                                               struct wl_client          *client)
-{
-  struct wl_resource *resource;
-
-  resource = wl_resource_find_for_client (&group->resource_list, client);
-
-  if (!resource)
-    resource = wl_resource_find_for_client (&group->focus_resource_list, client);
-
-  return resource;
-}
-
 gboolean
 meta_wayland_tablet_pad_group_has_button (MetaWaylandTabletPadGroup *group,
                                           guint                      button)

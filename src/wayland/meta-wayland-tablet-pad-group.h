@@ -50,10 +50,6 @@ struct wl_resource *
                                                                 struct wl_client          *client,
                                                                 struct wl_resource        *pad_resource,
                                                                 uint32_t                   id);
-struct wl_resource *
-             meta_wayland_tablet_pad_group_lookup_resource     (MetaWaylandTabletPadGroup *group,
-                                                                struct wl_client          *client);
-
 void         meta_wayland_tablet_pad_group_notify              (MetaWaylandTabletPadGroup *group,
                                                                 struct wl_resource        *resource);
 
