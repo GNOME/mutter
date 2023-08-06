@@ -955,6 +955,7 @@ meta_backend_x11_dispose (GObject *object)
 
   G_OBJECT_CLASS (meta_backend_x11_parent_class)->dispose (object);
 
+  g_clear_pointer (&priv->barriers, meta_x11_barriers_free);
   g_clear_pointer (&priv->xdisplay, XCloseDisplay);
 }
 
