@@ -374,22 +374,6 @@ meta_output_info_parse_edid (MetaOutputInfo *output_info,
     }
 }
 
-gboolean
-meta_output_is_laptop (MetaOutput *output)
-{
-  const MetaOutputInfo *output_info = meta_output_get_info (output);
-
-  switch (output_info->connector_type)
-    {
-    case META_CONNECTOR_TYPE_eDP:
-    case META_CONNECTOR_TYPE_LVDS:
-    case META_CONNECTOR_TYPE_DSI:
-      return TRUE;
-    default:
-      return FALSE;
-    }
-}
-
 static void
 meta_output_set_property (GObject      *object,
                           guint         prop_id,

@@ -184,8 +184,6 @@ void meta_output_info_parse_edid (MetaOutputInfo *output_info,
 gboolean meta_output_info_is_color_space_supported (const MetaOutputInfo *output_info,
                                                     MetaOutputColorspace  color_space);
 
-gboolean meta_output_is_laptop  (MetaOutput *output);
-
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaOutputInfo, meta_output_info_unref)
 
 #define META_TYPE_OUTPUT (meta_output_get_type ())
