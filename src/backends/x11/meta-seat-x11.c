@@ -2575,14 +2575,6 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
   return event;
 }
 
-ClutterInputDevice *
-meta_seat_x11_lookup_device_id (MetaSeatX11 *seat_x11,
-                                int          device_id)
-{
-  return g_hash_table_lookup (seat_x11->devices_by_id,
-                              GINT_TO_POINTER (device_id));
-}
-
 void
 meta_seat_x11_select_stage_events (MetaSeatX11  *seat,
                                    ClutterStage *stage)
