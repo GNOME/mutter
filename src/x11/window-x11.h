@@ -104,8 +104,6 @@ gboolean meta_window_x11_can_unredirect          (MetaWindowX11 *window_x11);
 
 MetaSyncCounter * meta_window_x11_get_sync_counter (MetaWindow *window);
 
-gboolean meta_window_x11_has_active_sync_alarms (MetaWindow *window);
-
 gboolean meta_window_x11_is_awaiting_sync_response (MetaWindow *window);
 
 void meta_window_x11_check_update_resize (MetaWindow *window);

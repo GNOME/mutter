@@ -4283,19 +4283,6 @@ meta_window_x11_get_sync_counter (MetaWindow *window)
 }
 
 gboolean
-meta_window_x11_has_active_sync_alarms (MetaWindow *window)
-{
-  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
-  MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
-
-  if (window->frame &&
-      meta_sync_counter_has_sync_alarm (meta_frame_get_sync_counter (window->frame)))
-    return TRUE;
-
-  return meta_sync_counter_has_sync_alarm (&priv->sync_counter);
-}
-
-gboolean
 meta_window_x11_is_awaiting_sync_response (MetaWindow *window)
 {
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
