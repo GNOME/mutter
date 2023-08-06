@@ -40,8 +40,6 @@ void meta_monitor_manager_native_pause (MetaMonitorManagerNative *manager_native
 
 void meta_monitor_manager_native_resume (MetaMonitorManagerNative *manager_native);
 
-uint64_t meta_power_save_to_dpms_state (MetaPowerSave power_save);
-
 MetaGammaLut * meta_monitor_manager_native_get_cached_crtc_gamma (MetaMonitorManagerNative *manager_native,
                                                                   MetaCrtcKms              *crtc_kms);
 

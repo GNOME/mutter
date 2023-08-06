@@ -122,27 +122,6 @@ meta_monitor_manager_native_read_current_state (MetaMonitorManager *manager)
   parent_class->read_current_state (manager);
 }
 
-uint64_t
-meta_power_save_to_dpms_state (MetaPowerSave power_save)
-{
-  switch (power_save)
-    {
-    case META_POWER_SAVE_ON:
-      return DRM_MODE_DPMS_ON;
-    case META_POWER_SAVE_STANDBY:
-      return DRM_MODE_DPMS_STANDBY;
-    case META_POWER_SAVE_SUSPEND:
-      return DRM_MODE_DPMS_SUSPEND;
-    case META_POWER_SAVE_OFF:
-      return DRM_MODE_DPMS_OFF;
-    case META_POWER_SAVE_UNSUPPORTED:
-      return DRM_MODE_DPMS_ON;
-    }
-
-  g_warn_if_reached ();
-  return DRM_MODE_DPMS_ON;
-}
-
 static void
 meta_monitor_manager_native_set_power_save_mode (MetaMonitorManager *manager,
                                                  MetaPowerSave       mode)
