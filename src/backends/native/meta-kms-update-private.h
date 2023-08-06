@@ -184,9 +184,6 @@ GList * meta_kms_update_get_crtc_color_updates (MetaKmsUpdate *update);
 
 MetaKmsCustomPageFlip * meta_kms_update_take_custom_page_flip_func (MetaKmsUpdate *update);
 
-void meta_kms_update_drop_plane_assignment (MetaKmsUpdate *update,
-                                            MetaKmsPlane  *plane);
-
 META_EXPORT_TEST
 GList * meta_kms_update_take_result_listeners (MetaKmsUpdate *update);
 

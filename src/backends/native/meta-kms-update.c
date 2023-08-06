@@ -244,13 +244,6 @@ drop_plane_assignment (MetaKmsUpdate          *update,
   return FALSE;
 }
 
-void
-meta_kms_update_drop_plane_assignment (MetaKmsUpdate *update,
-                                       MetaKmsPlane  *plane)
-{
-  drop_plane_assignment (update, plane, NULL);
-}
-
 static void
 update_latch_crtc (MetaKmsUpdate *update,
                    MetaKmsCrtc   *crtc)
