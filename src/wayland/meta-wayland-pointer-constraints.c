@@ -608,12 +608,6 @@ meta_wayland_pointer_constraint_maybe_enable_for_window (MetaWindow *window)
     }
 }
 
-MetaWaylandSeat *
-meta_wayland_pointer_constraint_get_seat (MetaWaylandPointerConstraint *constraint)
-{
-  return constraint->seat;
-}
-
 cairo_region_t *
 meta_wayland_pointer_constraint_calculate_effective_region (MetaWaylandPointerConstraint *constraint)
 {
