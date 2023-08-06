@@ -211,16 +211,6 @@ void        meta_stack_thaw (MetaStack *stack);
 MetaWindow * meta_stack_get_top (MetaStack  *stack);
 
 /**
- * meta_stack_get_bottom:
- * @stack: The stack to search
- *
- * Finds the window at the bottom of the stack.  Since that's pretty much
- * always the desktop, this isn't the most useful of functions, and nobody
- * actually calls it.  We should probably get rid of it.
- */
-MetaWindow * meta_stack_get_bottom (MetaStack  *stack);
-
-/**
  * meta_stack_get_above:
  * @stack: The stack to search.
  * @window: The window to look above.

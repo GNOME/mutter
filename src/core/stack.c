@@ -943,20 +943,6 @@ meta_stack_get_top (MetaStack *stack)
 }
 
 MetaWindow *
-meta_stack_get_bottom (MetaStack  *stack)
-{
-  GList *link;
-
-  stack_ensure_sorted (stack);
-
-  link = g_list_last (stack->sorted);
-  if (link != NULL)
-    return link->data;
-  else
-    return NULL;
-}
-
-MetaWindow *
 meta_stack_get_above (MetaStack  *stack,
                       MetaWindow *window,
                       gboolean    only_within_layer)
