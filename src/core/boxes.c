@@ -98,24 +98,6 @@ meta_rectangle_region_to_string (GList      *region,
 }
 
 char*
-meta_rectangle_edge_to_string (const MetaEdge *edge,
-                               char           *output)
-{
-  /* 25 chars: 2 commas, space, plus, trailing \0 + 5 for each digit.
-   * Should be more than enough space.  Note that of this space, the
-   * trailing \0 will be overwritten for all but the last rectangle.
-   *
-   * Plus 2 for parenthesis, 4 for 2 more numbers, 2 more commas, and
-   * 2 more spaces, for a total of 10 more.
-   */
-  g_snprintf (output, EDGE_LENGTH, "[%d,%d +%d,%d], %2d, %2d",
-              edge->rect.x, edge->rect.y, edge->rect.width, edge->rect.height,
-              edge->side_type, edge->edge_type);
-
-  return output;
-}
-
-char*
 meta_rectangle_edge_list_to_string (GList      *edge_list,
                                     const char *separator_string,
                                     char       *output)

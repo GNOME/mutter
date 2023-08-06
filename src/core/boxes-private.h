@@ -62,8 +62,6 @@ char* meta_rectangle_to_string        (const MetaRectangle *rect,
 char* meta_rectangle_region_to_string (GList               *region,
                                        const char          *separator_string,
                                        char                *output);
-char* meta_rectangle_edge_to_string   (const MetaEdge      *edge,
-                                       char                *output);
 char* meta_rectangle_edge_list_to_string (
                                        GList               *edge_list,
                                        const char          *separator_string,
