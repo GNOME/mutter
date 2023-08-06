@@ -3100,14 +3100,6 @@ meta_seat_impl_get_keyboard (MetaSeatImpl *seat_impl)
   return seat_impl->core_keyboard;
 }
 
-GSList *
-meta_seat_impl_get_devices_in_impl (MetaSeatImpl *seat_impl)
-{
-  return g_slist_copy_deep (seat_impl->devices,
-                            (GCopyFunc) g_object_ref,
-                            NULL);
-}
-
 MetaKeymapNative *
 meta_seat_impl_get_keymap (MetaSeatImpl *seat_impl)
 {

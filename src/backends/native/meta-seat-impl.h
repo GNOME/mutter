@@ -237,7 +237,6 @@ gboolean meta_seat_impl_query_state (MetaSeatImpl         *seat_impl,
                                      ClutterModifierType  *modifiers);
 ClutterInputDevice * meta_seat_impl_get_pointer (MetaSeatImpl *seat_impl);
 ClutterInputDevice * meta_seat_impl_get_keyboard (MetaSeatImpl *seat_impl);
-GSList * meta_seat_impl_get_devices_in_impl (MetaSeatImpl *seat_impl);
 
 MetaKeymapNative * meta_seat_impl_get_keymap (MetaSeatImpl *seat_impl);
 
