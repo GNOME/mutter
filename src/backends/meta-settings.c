@@ -569,6 +569,7 @@ meta_settings_init (MetaSettings *settings)
   update_xwayland_allow_grabs (settings);
   update_xwayland_disable_extensions (settings);
   update_privacy_settings (settings);
+  update_xwayland_allow_byte_swapped_clients (settings);
 }
 
 static void
