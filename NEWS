@@ -1,3 +1,32 @@
+45.beta
+=======
+* Support input capture and emulated input with libei
+  [Jonas, Peter, Olivier; !2628]
+* Add KMS thread [Jonas; !2777]
+* Fix touch move operations on subsurfaces [Gergo; !3125]
+* Fix unexpected cursor changes over non-resizable windows [Michel; !3096]
+* Improve render time estimates [Michel; !3090]
+* Fix flickering when DRI driver isn't available [Daniel; !3117]
+* Fix restoring maximized state of SSD windows [Sebastian K.; !3035]
+* Add support for YUV formats [Niels, Robert; !2191]
+* Fix xwayland-allow-byte-swapped-clients setting [Olivier; !3156]
+* Misc. bug fixes and cleanups [Jonas, Florian, Bilal, Daniel, Robert,
+  Sebastian W., Michel, Carlos; !3111, !3100, !3112, !3065, !3101, !3129,
+  !3118, !3131, !3123, !3135, !3134, !3130, !3141, !3140, !3144, !3148, !3138,
+  !3150, !3005, !3103, !3126, !3147, !3157, !3153]
+
+Contributors:
+  Jonas Ådahl, Michel Dänzer, Bilal Elmoussaoui, Olivier Fourdan,
+  Carlos Garnacho, Niels De Graef, Peter Hutterer, Sebastian Keller,
+  Gergo Koteles, Robert Mader, Florian Müllner, Daniel van Vugt, Sebastian Wick
+
+Translators:
+  Yosef Or Boczko [he], Fabio Tomat [fur], Balázs Úr [hu],
+  Ekaterine Papava [ka], Yuri Chornoivan [uk], Artur So [ru],
+  Matej Urbančič [sl], Asier Sarasua Garmendia [eu], Danial Behzadi [fa],
+  Luming Zh [zh_CN], Hugo Carvalho [pt], Daniel Rusek [cs], Fran Dieguez [gl],
+  Daniel Mustieles [es]
+
 45.alpha
 ========
 * Fix DND in some server-side decorated windows [Sebastian; !2978]
