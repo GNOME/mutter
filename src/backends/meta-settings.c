@@ -436,8 +436,8 @@ update_xwayland_allow_byte_swapped_clients (MetaSettings *settings)
 {
 
   settings->xwayland_allow_byte_swapped_clients =
-    g_settings_get_flags (settings->wayland_settings,
-                          "xwayland-allow-byte-swapped-clients");
+    g_settings_get_boolean (settings->wayland_settings,
+                            "xwayland-allow-byte-swapped-clients");
 }
 
 static void
