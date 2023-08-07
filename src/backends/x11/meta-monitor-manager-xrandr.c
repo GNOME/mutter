@@ -180,8 +180,11 @@ meta_monitor_manager_xrandr_set_power_save_mode (MetaMonitorManager *manager,
     return;
   }
 
+  meta_clutter_x11_trap_x_errors ();
   DPMSForceLevel (manager_xrandr->xdisplay, state);
   DPMSSetTimeouts (manager_xrandr->xdisplay, 0, 0, 0);
+  XSync (manager_xrandr->xdisplay, False);
+  meta_clutter_x11_untrap_x_errors ();
 }
 
 static xcb_randr_rotation_t
