@@ -488,7 +488,6 @@ meta_settings_get_xwayland_disable_extensions (MetaSettings *settings)
 gboolean
 meta_settings_are_xwayland_byte_swapped_clients_allowed (MetaSettings *settings)
 {
-
   return settings->xwayland_allow_byte_swapped_clients;
 }
 
