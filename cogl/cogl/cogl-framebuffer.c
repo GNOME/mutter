@@ -1605,8 +1605,9 @@ cogl_blit_framebuffer (CoglFramebuffer *framebuffer,
     }
 
   /* The buffers must use the same premult convention */
-  if ((priv->internal_format & COGL_PREMULT_BIT) !=
-      (dst_priv->internal_format & COGL_PREMULT_BIT))
+  if (((priv->internal_format & COGL_PREMULT_BIT) !=
+       (dst_priv->internal_format & COGL_PREMULT_BIT)) &&
+      dst_priv->internal_format & COGL_A_BIT)
     {
       g_set_error_literal (error, COGL_SYSTEM_ERROR,
                            COGL_SYSTEM_ERROR_UNSUPPORTED,
