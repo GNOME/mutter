@@ -523,9 +523,8 @@ on_monitors_changed (MetaMonitorManager *manager,
                      MetaBackend        *backend)
 {
   MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
-  MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
 
-  priv->cached_current_logical_monitor = NULL;
+  meta_backend_x11_reset_cached_logical_monitor (x11);
 }
 
 static void
@@ -801,10 +800,10 @@ meta_backend_x11_get_keymap_layout_group (MetaBackend *backend)
 }
 
 void
-meta_backend_x11_handle_event (MetaBackendX11 *x11,
-                               XEvent      *xevent)
+meta_backend_x11_reset_cached_logical_monitor (MetaBackendX11 *backend_x11)
 {
-  MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
+  MetaBackendX11Private *priv =
+    meta_backend_x11_get_instance_private (backend_x11);
 
   priv->cached_current_logical_monitor = NULL;
 }

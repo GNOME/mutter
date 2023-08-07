@@ -55,9 +55,6 @@ Window meta_backend_x11_get_root_xwindow (MetaBackendX11 *backend_x11);
 
 Window meta_backend_x11_get_xwindow (MetaBackendX11 *backend);
 
-void meta_backend_x11_handle_event (MetaBackendX11 *x11,
-                                    XEvent         *xevent);
-
 uint8_t meta_backend_x11_get_xkb_event_base (MetaBackendX11 *x11);
 
 void meta_backend_x11_reload_cursor (MetaBackendX11 *x11);
@@ -65,3 +62,5 @@ void meta_backend_x11_reload_cursor (MetaBackendX11 *x11);
 void meta_backend_x11_sync_pointer (MetaBackendX11 *backend_x11);
 
 MetaX11Barriers * meta_backend_x11_get_barriers (MetaBackendX11 *backend_x11);
+
+void meta_backend_x11_reset_cached_logical_monitor (MetaBackendX11 *backend_x11);
