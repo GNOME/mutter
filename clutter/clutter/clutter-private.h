@@ -28,15 +28,15 @@
 #include <string.h>
 #include <glib.h>
 
-#include <cogl-pango/cogl-pango.h>
+#include "cogl-pango/cogl-pango.h"
 
-#include "clutter-backend.h"
-#include "clutter-effect.h"
-#include "clutter-event.h"
-#include "clutter-layout-manager.h"
-#include "clutter-settings.h"
-#include "clutter-stage-manager.h"
-#include "clutter-stage.h"
+#include "clutter/clutter-backend.h"
+#include "clutter/clutter-effect.h"
+#include "clutter/clutter-event.h"
+#include "clutter/clutter-layout-manager.h"
+#include "clutter/clutter-settings.h"
+#include "clutter/clutter-stage-manager.h"
+#include "clutter/clutter-stage.h"
 
 G_BEGIN_DECLS
 

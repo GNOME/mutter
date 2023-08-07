@@ -33,9 +33,9 @@
 
 #pragma once
 
-#include "cogl-types.h"
-#include "cogl-context-private.h"
-#include "cogl-texture.h"
+#include "cogl/cogl-types.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-texture.h"
 
 void
 _cogl_texture_2d_gl_free (CoglTexture2D *tex_2d);

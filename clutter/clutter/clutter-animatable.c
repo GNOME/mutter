@@ -36,12 +36,12 @@
  * depending on a progress factor, expressed as a floating point value.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-animatable.h"
-#include "clutter-interval.h"
-#include "clutter-debug.h"
-#include "clutter-private.h"
+#include "clutter/clutter-animatable.h"
+#include "clutter/clutter-interval.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-private.h"
 
 G_DEFINE_INTERFACE (ClutterAnimatable, clutter_animatable, G_TYPE_OBJECT);
 

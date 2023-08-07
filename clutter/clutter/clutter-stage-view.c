@@ -15,7 +15,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include "clutter/clutter-stage-view.h"
 #include "clutter/clutter-stage-view-private.h"

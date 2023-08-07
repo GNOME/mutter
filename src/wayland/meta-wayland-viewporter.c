@@ -22,14 +22,13 @@
 
 #include "config.h"
 
-#include "meta-wayland-viewporter.h"
-
 #include <glib.h>
 
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-subsurface.h"
 #include "wayland/meta-wayland-surface.h"
 #include "wayland/meta-wayland-versions.h"
+#include "wayland/meta-wayland-viewporter.h"
 
 #include "viewporter-server-protocol.h"
 

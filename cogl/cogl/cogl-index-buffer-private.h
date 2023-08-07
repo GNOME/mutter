@@ -33,7 +33,7 @@
 
 #pragma once
 
-#include "cogl-buffer-private.h"
+#include "cogl/cogl-buffer-private.h"
 
 struct _CoglIndexBuffer
 {

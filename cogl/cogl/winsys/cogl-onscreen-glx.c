@@ -25,19 +25,19 @@
 
 #include "cogl-config.h"
 
-#include "winsys/cogl-onscreen-glx.h"
+#include "cogl/winsys/cogl-onscreen-glx.h"
 
 #include <GL/glx.h>
 #include <sys/time.h>
 
-#include "cogl-context-private.h"
-#include "cogl-frame-info-private.h"
-#include "cogl-renderer-private.h"
-#include "cogl-x11-onscreen.h"
-#include "cogl-xlib-renderer-private.h"
-#include "winsys/cogl-glx-display-private.h"
-#include "winsys/cogl-glx-renderer-private.h"
-#include "winsys/cogl-winsys-glx-private.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-frame-info-private.h"
+#include "cogl/cogl-renderer-private.h"
+#include "cogl/cogl-x11-onscreen.h"
+#include "cogl/cogl-xlib-renderer-private.h"
+#include "cogl/winsys/cogl-glx-display-private.h"
+#include "cogl/winsys/cogl-glx-renderer-private.h"
+#include "cogl/winsys/cogl-winsys-glx-private.h"
 
 struct _CoglOnscreenGlx
 {

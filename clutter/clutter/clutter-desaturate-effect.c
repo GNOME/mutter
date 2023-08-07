@@ -37,18 +37,18 @@
 #define CLUTTER_IS_DESATURATE_EFFECT_CLASS(klass)     (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_DESATURATE_EFFECT))
 #define CLUTTER_DESATURATE_EFFECT_GET_CLASS(obj)      (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_DESATURATE_EFFECT, ClutterDesaturateEffectClass))
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <math.h>
 
-#include "clutter-desaturate-effect.h"
+#include "clutter/clutter-desaturate-effect.h"
 
 #include "cogl/cogl.h"
 
-#include "clutter-debug.h"
-#include "clutter-enum-types.h"
-#include "clutter-offscreen-effect.h"
-#include "clutter-private.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-enum-types.h"
+#include "clutter/clutter-offscreen-effect.h"
+#include "clutter/clutter-private.h"
 
 struct _ClutterDesaturateEffect
 {

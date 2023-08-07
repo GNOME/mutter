@@ -33,8 +33,8 @@
 
 #pragma once
 
-#include "cogl-pipeline-layer-state.h"
-#include "cogl-pipeline-private.h"
+#include "cogl/cogl-pipeline-layer-state.h"
+#include "cogl/cogl-pipeline-private.h"
 
 CoglPipelineLayer *
 _cogl_pipeline_set_layer_unit (CoglPipeline *required_owner,

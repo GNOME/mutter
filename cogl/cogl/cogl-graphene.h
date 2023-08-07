@@ -28,9 +28,9 @@
 
 #pragma once
 
-#include <cogl/cogl-defines.h>
-#include <cogl/cogl-macros.h>
-#include <cogl/cogl-types.h>
+#include "cogl/cogl-defines.h"
+#include "cogl/cogl-macros.h"
+#include "cogl/cogl-types.h"
 
 #include <glib.h>
 

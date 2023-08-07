@@ -28,9 +28,9 @@
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
 
-#include <clutter/clutter-actor-meta.h>
-#include <clutter/clutter-paint-context.h>
-#include <clutter/clutter-pick-context.h>
+#include "clutter/clutter-actor-meta.h"
+#include "clutter/clutter-paint-context.h"
+#include "clutter/clutter-pick-context.h"
 
 G_BEGIN_DECLS
 

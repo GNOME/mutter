@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "meta-wayland-data-offer.h"
+#include "wayland/meta-wayland-data-offer.h"
 
 MetaWaylandDataOffer * meta_wayland_data_offer_primary_new (MetaWaylandCompositor *compositor,
                                                             struct wl_resource    *target);

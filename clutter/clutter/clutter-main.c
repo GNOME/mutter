@@ -47,31 +47,31 @@
  * [threads.c](https://git.gnome.org/browse/clutter/tree/examples/threads.c?h=clutter-1.18)
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <stdlib.h>
 #include <glib/gi18n-lib.h>
 #include <hb-glib.h>
 
-#include "clutter-actor-private.h"
-#include "clutter-backend-private.h"
-#include "clutter-debug.h"
-#include "clutter-event-private.h"
-#include "clutter-input-device-private.h"
-#include "clutter-input-pointer-a11y-private.h"
-#include "clutter-graphene.h"
-#include "clutter-main.h"
-#include "clutter-mutter.h"
-#include "clutter-paint-node-private.h"
-#include "clutter-private.h"
-#include "clutter-settings-private.h"
-#include "clutter-stage.h"
-#include "clutter-stage-manager.h"
-#include "clutter-stage-private.h"
-#include "clutter-backend-private.h"
+#include "clutter/clutter-actor-private.h"
+#include "clutter/clutter-backend-private.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-event-private.h"
+#include "clutter/clutter-input-device-private.h"
+#include "clutter/clutter-input-pointer-a11y-private.h"
+#include "clutter/clutter-graphene.h"
+#include "clutter/clutter-main.h"
+#include "clutter/clutter-mutter.h"
+#include "clutter/clutter-paint-node-private.h"
+#include "clutter/clutter-private.h"
+#include "clutter/clutter-settings-private.h"
+#include "clutter/clutter-stage.h"
+#include "clutter/clutter-stage-manager.h"
+#include "clutter/clutter-stage-private.h"
+#include "clutter/clutter-backend-private.h"
 
-#include <cogl/cogl.h>
-#include <cogl-pango/cogl-pango.h>
+#include "cogl/cogl.h"
+#include "cogl-pango/cogl-pango.h"
 
 #include "cally/cally.h" /* For accessibility support */
 

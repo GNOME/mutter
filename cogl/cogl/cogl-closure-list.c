@@ -31,7 +31,7 @@
 
 #include <glib.h>
 
-#include "cogl-closure-list-private.h"
+#include "cogl/cogl-closure-list-private.h"
 
 void
 _cogl_closure_disconnect (CoglClosure *closure)

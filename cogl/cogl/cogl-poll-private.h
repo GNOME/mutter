@@ -30,9 +30,9 @@
 
 #pragma once
 
-#include "cogl-poll.h"
-#include "cogl-renderer.h"
-#include "cogl-closure-list-private.h"
+#include "cogl/cogl-poll.h"
+#include "cogl/cogl-renderer.h"
+#include "cogl/cogl-closure-list-private.h"
 
 void
 _cogl_poll_renderer_remove_fd (CoglRenderer *renderer, int fd);

@@ -33,10 +33,10 @@
 
 #include "cogl-config.h"
 
-#include "cogl-context-private.h"
-#include "cogl-pipeline-private.h"
-#include "cogl-pipeline-layer-private.h"
-#include "cogl-node-private.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-pipeline-private.h"
+#include "cogl/cogl-pipeline-layer-private.h"
+#include "cogl/cogl-node-private.h"
 
 #include <glib.h>
 

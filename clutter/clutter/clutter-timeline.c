@@ -93,22 +93,22 @@
  * ```
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-timeline.h"
-#include "deprecated/clutter-timeline.h"
+#include "clutter/clutter-timeline.h"
+#include "clutter/deprecated/clutter-timeline.h"
 
-#include "clutter-actor-private.h"
-#include "clutter-debug.h"
-#include "clutter-easing.h"
-#include "clutter-enum-types.h"
-#include "clutter-frame-clock.h"
-#include "clutter-main.h"
-#include "clutter-marshal.h"
-#include "clutter-mutter.h"
-#include "clutter-private.h"
-#include "clutter-scriptable.h"
-#include "clutter-timeline-private.h"
+#include "clutter/clutter-actor-private.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-easing.h"
+#include "clutter/clutter-enum-types.h"
+#include "clutter/clutter-frame-clock.h"
+#include "clutter/clutter-main.h"
+#include "clutter/clutter-marshal.h"
+#include "clutter/clutter-mutter.h"
+#include "clutter/clutter-private.h"
+#include "clutter/clutter-scriptable.h"
+#include "clutter/clutter-timeline-private.h"
 
 struct _ClutterTimelinePrivate
 {

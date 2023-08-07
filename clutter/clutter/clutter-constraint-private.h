@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "clutter-constraint.h"
+#include "clutter/clutter-constraint.h"
 
 G_BEGIN_DECLS
 

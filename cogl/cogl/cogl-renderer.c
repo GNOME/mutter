@@ -35,28 +35,28 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "cogl-util.h"
-#include "cogl-private.h"
-#include "cogl-object.h"
-#include "cogl-context-private.h"
-#include "cogl-mutter.h"
+#include "cogl/cogl-util.h"
+#include "cogl/cogl-private.h"
+#include "cogl/cogl-object.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-mutter.h"
 
-#include "cogl-renderer.h"
-#include "cogl-renderer-private.h"
-#include "cogl-display-private.h"
-#include "cogl-gtype-private.h"
+#include "cogl/cogl-renderer.h"
+#include "cogl/cogl-renderer-private.h"
+#include "cogl/cogl-display-private.h"
+#include "cogl/cogl-gtype-private.h"
 
-#include "winsys/cogl-winsys-private.h"
+#include "cogl/winsys/cogl-winsys-private.h"
 
 #ifdef COGL_HAS_EGL_PLATFORM_XLIB_SUPPORT
-#include "winsys/cogl-winsys-egl-x11-private.h"
+#include "cogl/winsys/cogl-winsys-egl-x11-private.h"
 #endif
 #ifdef COGL_HAS_GLX_SUPPORT
-#include "winsys/cogl-winsys-glx-private.h"
+#include "cogl/winsys/cogl-winsys-glx-private.h"
 #endif
 
 #ifdef COGL_HAS_XLIB
-#include "cogl-xlib-renderer.h"
+#include "cogl/cogl-xlib-renderer.h"
 #endif
 
 #ifdef HAVE_COGL_GL

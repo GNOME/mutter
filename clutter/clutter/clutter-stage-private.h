@@ -21,13 +21,13 @@
 
 #pragma once
 
-#include <clutter/clutter-grab.h>
-#include <clutter/clutter-stage-window.h>
-#include <clutter/clutter-stage.h>
-#include <clutter/clutter-input-device.h>
-#include <clutter/clutter-private.h>
+#include "clutter/clutter-grab.h"
+#include "clutter/clutter-stage-window.h"
+#include "clutter/clutter-stage.h"
+#include "clutter/clutter-input-device.h"
+#include "clutter/clutter-private.h"
 
-#include <cogl/cogl.h>
+#include "cogl/cogl.h"
 
 G_BEGIN_DECLS
 

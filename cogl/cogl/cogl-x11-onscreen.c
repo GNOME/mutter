@@ -20,7 +20,7 @@
 
 #include "cogl-config.h"
 
-#include "cogl-x11-onscreen.h"
+#include "cogl/cogl-x11-onscreen.h"
 
 G_DEFINE_INTERFACE (CoglX11Onscreen, cogl_x11_onscreen,
                     G_TYPE_OBJECT)

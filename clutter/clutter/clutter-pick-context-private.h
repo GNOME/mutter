@@ -17,8 +17,8 @@
 
 #pragma once
 
-#include "clutter-pick-context.h"
-#include "clutter-pick-stack-private.h"
+#include "clutter/clutter-pick-context.h"
+#include "clutter/clutter-pick-stack-private.h"
 
 ClutterPickContext *
 clutter_pick_context_new_for_view (ClutterStageView         *view,

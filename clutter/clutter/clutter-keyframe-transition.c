@@ -60,15 +60,15 @@
  * interval..
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-keyframe-transition.h"
+#include "clutter/clutter-keyframe-transition.h"
 
-#include "clutter-debug.h"
-#include "clutter-easing.h"
-#include "clutter-interval.h"
-#include "clutter-private.h"
-#include "clutter-timeline.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-easing.h"
+#include "clutter/clutter-interval.h"
+#include "clutter/clutter-private.h"
+#include "clutter/clutter-timeline.h"
 
 #include <math.h>
 #include <gobject/gvaluecollector.h>

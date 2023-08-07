@@ -66,17 +66,17 @@
  *
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <glib.h>
-#include <clutter/clutter.h>
 
+#include "clutter/clutter.h"
 #include "clutter/clutter-actor-private.h"
 
 #include <math.h>
 
-#include "cally-actor.h"
-#include "cally-actor-private.h"
+#include "cally/cally-actor.h"
+#include "cally/cally-actor-private.h"
 
 typedef struct _CallyActorActionInfo CallyActorActionInfo;
 

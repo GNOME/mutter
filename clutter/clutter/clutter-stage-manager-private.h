@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include <clutter/clutter-stage-manager.h>
+#include "clutter/clutter-stage-manager.h"
 
 G_BEGIN_DECLS
 

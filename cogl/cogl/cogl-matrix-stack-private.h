@@ -34,10 +34,10 @@
 
 #pragma once
 
-#include "cogl-object-private.h"
-#include "cogl-matrix-stack.h"
-#include "cogl-context.h"
-#include "cogl-framebuffer.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-matrix-stack.h"
+#include "cogl/cogl-context.h"
+#include "cogl/cogl-framebuffer.h"
 
 typedef enum _CoglMatrixOp
 {

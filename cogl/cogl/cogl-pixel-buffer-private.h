@@ -34,8 +34,8 @@
 
 #pragma once
 
-#include "cogl-object-private.h"
-#include "cogl-buffer-private.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-buffer-private.h"
 
 #include <glib.h>
 

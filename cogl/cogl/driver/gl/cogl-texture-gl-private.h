@@ -29,7 +29,7 @@
 
 #pragma once
 
-#include "cogl-context.h"
+#include "cogl/cogl-context.h"
 
 void
 _cogl_texture_gl_prep_alignment_for_pixels_upload (CoglContext *ctx,

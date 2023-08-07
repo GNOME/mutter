@@ -32,8 +32,8 @@
 
 #pragma once
 
-#include "cogl-context.h"
-#include "cogl-types.h"
+#include "cogl/cogl-context.h"
+#include "cogl/cogl-types.h"
 
 /**
  * SECTION:cogl-texture-2d-sliced

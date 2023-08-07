@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cogl/cogl.h>
-#include <clutter/clutter-types.h>
+#include "cogl/cogl.h"
+#include "clutter/clutter-types.h"
 #include "clutter/clutter-stage-view.h"
 
 G_BEGIN_DECLS

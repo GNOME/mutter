@@ -30,7 +30,7 @@
 
 #pragma once
 
-#include "cogl-pipeline-cache.h"
+#include "cogl/cogl-pipeline-cache.h"
 
 typedef struct
 {

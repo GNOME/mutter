@@ -36,7 +36,7 @@
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
 
-#include <clutter/clutter-gesture-action.h>
+#include "clutter/clutter-gesture-action.h"
 
 G_BEGIN_DECLS
 

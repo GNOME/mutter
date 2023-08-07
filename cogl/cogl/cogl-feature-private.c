@@ -32,11 +32,11 @@
 
 #include <string.h>
 
-#include "cogl-context-private.h"
+#include "cogl/cogl-context-private.h"
 
-#include "cogl-feature-private.h"
-#include "cogl-renderer-private.h"
-#include "cogl-private.h"
+#include "cogl/cogl-feature-private.h"
+#include "cogl/cogl-renderer-private.h"
+#include "cogl/cogl-private.h"
 
 gboolean
 _cogl_feature_check (CoglRenderer *renderer,

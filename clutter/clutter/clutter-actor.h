@@ -34,12 +34,12 @@
 #include <pango/pango.h>
 #include <atk/atk.h>
 
-#include <cogl/cogl.h>
+#include "cogl/cogl.h"
 
-#include <clutter/clutter-types.h>
-#include <clutter/clutter-event.h>
-#include <clutter/clutter-paint-context.h>
-#include <clutter/clutter-pick-context.h>
+#include "clutter/clutter-types.h"
+#include "clutter/clutter-event.h"
+#include "clutter/clutter-paint-context.h"
+#include "clutter/clutter-pick-context.h"
 
 G_BEGIN_DECLS
 

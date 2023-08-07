@@ -2,7 +2,7 @@
 
 #define __CLUTTER_DEPRECATED_H_INSIDE__
 
-#include "deprecated/clutter-container.h"
+#include "clutter/deprecated/clutter-container.h"
 
 #undef __CLUTTER_DEPRECATED_H_INSIDE__
 

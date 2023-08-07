@@ -24,7 +24,8 @@
 #pragma once
 
 #include <glib.h>
-#include "clutter-types.h"
+
+#include "clutter/clutter-types.h"
 
 G_BEGIN_DECLS
 

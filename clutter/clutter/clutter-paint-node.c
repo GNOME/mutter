@@ -47,18 +47,17 @@
  * The `ClutterPaintNodeClass` structure contains only private data.
  */
 
-#include "clutter-build-config.h"
-
-#include <pango/pango.h>
-#include <cogl/cogl.h>
-#include <json-glib/json-glib.h>
-
-#include "clutter-paint-node-private.h"
-
-#include "clutter-debug.h"
-#include "clutter-private.h"
+#include "clutter/clutter-build-config.h"
 
 #include <gobject/gvaluecollector.h>
+#include <json-glib/json-glib.h>
+#include <pango/pango.h>
+
+#include "cogl/cogl.h"
+#include "clutter/clutter-paint-node-private.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-private.h"
+
 
 static inline void      clutter_paint_operation_clear   (ClutterPaintOperation *op);
 

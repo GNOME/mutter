@@ -46,21 +46,21 @@
  * #ClutterBoxLayout by using clutter_box_layout_set_spacing().
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <math.h>
 
 #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
-#include "deprecated/clutter-container.h"
+#include "clutter/deprecated/clutter-container.h"
 
-#include "clutter-box-layout.h"
+#include "clutter/clutter-box-layout.h"
 
-#include "clutter-actor-private.h"
-#include "clutter-debug.h"
-#include "clutter-enum-types.h"
-#include "clutter-layout-meta.h"
-#include "clutter-private.h"
-#include "clutter-types.h"
+#include "clutter/clutter-actor-private.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-enum-types.h"
+#include "clutter/clutter-layout-meta.h"
+#include "clutter/clutter-private.h"
+#include "clutter/clutter-types.h"
 
 struct _ClutterBoxLayoutPrivate
 {

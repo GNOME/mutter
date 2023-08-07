@@ -19,10 +19,10 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-keymap-private.h"
-#include "clutter-private.h"
+#include "clutter/clutter-keymap-private.h"
+#include "clutter/clutter-private.h"
 
 enum
 {

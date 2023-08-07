@@ -32,8 +32,8 @@
 
 #include <string.h>
 
-#include "cogl-util.h"
-#include "cogl-private.h"
+#include "cogl/cogl-util.h"
+#include "cogl/cogl-private.h"
 
 /*
  * cogl_util_next_p2:

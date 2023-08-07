@@ -27,10 +27,10 @@
  * Clutter provides some utility functions for using Cairo.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-cairo.h"
-#include "clutter-color.h"
+#include "clutter/clutter-cairo.h"
+#include "clutter/clutter-color.h"
 
 /**
  * clutter_cairo_set_source_color:

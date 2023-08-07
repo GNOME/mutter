@@ -30,9 +30,9 @@
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
 
-#include <clutter/clutter-actor.h>
-#include <clutter/clutter-child-meta.h>
-#include <clutter/clutter-types.h>
+#include "clutter/clutter-actor.h"
+#include "clutter/clutter-child-meta.h"
+#include "clutter/clutter-types.h"
 
 G_BEGIN_DECLS
 

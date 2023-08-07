@@ -40,9 +40,9 @@
 #include <GL/glx.h>
 #endif
 
-#include "cogl-object-private.h"
-#include "cogl-texture-private.h"
-#include "cogl-texture-pixmap-x11.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-texture-private.h"
+#include "cogl/winsys/cogl-texture-pixmap-x11.h"
 
 typedef struct _CoglDamageRectangle CoglDamageRectangle;
 

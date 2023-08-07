@@ -27,7 +27,7 @@
 #include <glib-object.h>
 #include <X11/Xlib.h>
 
-#include "cogl-macros.h"
+#include "cogl/cogl-macros.h"
 
 #define COGL_TYPE_X11_ONSCREEN (cogl_x11_onscreen_get_type ())
 COGL_EXPORT

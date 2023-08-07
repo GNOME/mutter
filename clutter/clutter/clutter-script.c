@@ -116,7 +116,7 @@
  * ```
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -129,18 +129,18 @@
 
 #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
 
-#include "clutter-actor.h"
-#include "clutter-stage.h"
+#include "clutter/clutter-actor.h"
+#include "clutter/clutter-stage.h"
 
-#include "clutter-script.h"
-#include "clutter-script-private.h"
-#include "clutter-scriptable.h"
+#include "clutter/clutter-script.h"
+#include "clutter/clutter-script-private.h"
+#include "clutter/clutter-scriptable.h"
 
-#include "clutter-enum-types.h"
-#include "clutter-private.h"
-#include "clutter-debug.h"
+#include "clutter/clutter-enum-types.h"
+#include "clutter/clutter-private.h"
+#include "clutter/clutter-debug.h"
 
-#include "deprecated/clutter-container.h"
+#include "clutter/deprecated/clutter-container.h"
 
 enum
 {

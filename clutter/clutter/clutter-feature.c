@@ -35,17 +35,17 @@
  * run-time.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 
-#include "clutter-backend-private.h"
-#include "clutter-feature.h"
-#include "clutter-main.h"
-#include "clutter-private.h"
-#include "clutter-debug.h"
+#include "clutter/clutter-backend-private.h"
+#include "clutter/clutter-feature.h"
+#include "clutter/clutter-main.h"
+#include "clutter/clutter-private.h"
+#include "clutter/clutter-debug.h"
 
 #include "cogl/cogl.h"
 

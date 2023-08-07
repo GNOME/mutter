@@ -1,6 +1,6 @@
 #pragma once
 
-#include <clutter/clutter-types.h>
+#include "clutter/clutter-types.h"
 
 G_BEGIN_DECLS
 

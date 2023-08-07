@@ -42,8 +42,8 @@
  * dependencies between some headers */
 typedef struct _CoglPixelBuffer CoglPixelBuffer;
 
-#include <cogl/cogl-types.h>
-#include <cogl/cogl-context.h>
+#include "cogl/cogl-types.h"
+#include "cogl/cogl-context.h"
 
 #include <glib-object.h>
 

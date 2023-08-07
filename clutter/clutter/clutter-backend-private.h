@@ -21,9 +21,9 @@
 
 #pragma once
 
-#include <clutter/clutter-backend.h>
-#include <clutter/clutter-seat.h>
-#include <clutter/clutter-stage-window.h>
+#include "clutter/clutter-backend.h"
+#include "clutter/clutter-seat.h"
+#include "clutter/clutter-stage-window.h"
 
 #define CLUTTER_BACKEND_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_BACKEND, ClutterBackendClass))
 #define CLUTTER_IS_BACKEND_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_BACKEND))

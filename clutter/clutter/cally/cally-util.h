@@ -24,7 +24,7 @@
 #error "Only <cally/cally.h> can be included directly."
 #endif
 
-#include <clutter/clutter.h>
+#include "clutter/clutter.h"
 #include <atk/atk.h>
 
 G_BEGIN_DECLS

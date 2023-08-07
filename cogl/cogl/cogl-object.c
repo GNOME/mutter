@@ -34,10 +34,10 @@
 #include <glib.h>
 #include <string.h>
 
-#include "cogl-util.h"
-#include "cogl-types.h"
-#include "cogl-object-private.h"
-#include "cogl-gtype-private.h"
+#include "cogl/cogl-util.h"
+#include "cogl/cogl-types.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-gtype-private.h"
 
 COGL_GTYPE_DEFINE_BASE_CLASS (Object, object);
 

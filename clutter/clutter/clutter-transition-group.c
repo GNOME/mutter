@@ -35,13 +35,13 @@
  * 5 seconds of the transition will be played.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-transition-group.h"
+#include "clutter/clutter-transition-group.h"
 
-#include "clutter-debug.h"
-#include "clutter-private.h"
-#include "clutter-timeline-private.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-private.h"
+#include "clutter/clutter-timeline-private.h"
 
 struct _ClutterTransitionGroupPrivate
 {

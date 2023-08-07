@@ -22,12 +22,12 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-graphene.h"
+#include "clutter/clutter-graphene.h"
 
-#include "clutter-private.h"
-#include "clutter-types.h"
+#include "clutter/clutter-private.h"
+#include "clutter/clutter-types.h"
 
 static gboolean
 graphene_matrix_progress (const GValue *a,

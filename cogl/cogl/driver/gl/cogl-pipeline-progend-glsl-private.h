@@ -33,8 +33,8 @@
 
 #pragma once
 
-#include "cogl-pipeline-private.h"
-#include "cogl-attribute-private.h"
+#include "cogl/cogl-pipeline-private.h"
+#include "cogl/cogl-attribute-private.h"
 
 extern const CoglPipelineProgend _cogl_pipeline_glsl_progend;
 

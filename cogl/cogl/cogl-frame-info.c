@@ -30,9 +30,9 @@
 
 #include "cogl-config.h"
 
-#include "cogl-frame-info-private.h"
-#include "cogl-gtype-private.h"
-#include "cogl-context-private.h"
+#include "cogl/cogl-frame-info-private.h"
+#include "cogl/cogl-gtype-private.h"
+#include "cogl/cogl-context-private.h"
 
 static void _cogl_frame_info_free (CoglFrameInfo *info);
 

@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include <cogl/cogl.h>
+#include "cogl/cogl.h"
 #include <graphene.h>
 
 #ifdef HAVE_GNOME_DESKTOP

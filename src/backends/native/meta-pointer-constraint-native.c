@@ -28,7 +28,7 @@
 #include <wayland-server.h>
 
 #include "core/meta-border.h"
-#include "meta-pointer-constraint-native.h"
+#include "backends/native/meta-pointer-constraint-native.h"
 
 struct _MetaPointerConstraintImplNative
 {

@@ -43,13 +43,13 @@
  * actor content is in pq or not, and things like that
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-color-state.h"
+#include "clutter/clutter-color-state.h"
 
-#include "clutter-debug.h"
-#include "clutter-enum-types.h"
-#include "clutter-private.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-enum-types.h"
+#include "clutter/clutter-private.h"
 
 enum
 {

@@ -32,30 +32,30 @@
 
 #include "cogl-config.h"
 
-#include "cogl-i18n-private.h"
-#include "cogl-util.h"
-#include "cogl-feature-private.h"
-#include "cogl-context-private.h"
-#include "cogl-framebuffer.h"
-#include "cogl-swap-chain-private.h"
-#include "cogl-renderer-private.h"
-#include "cogl-glx-renderer-private.h"
-#include "cogl-onscreen-template-private.h"
-#include "cogl-glx-display-private.h"
-#include "cogl-private.h"
-#include "cogl-texture-2d-private.h"
-#include "cogl-frame-info-private.h"
-#include "cogl-framebuffer-private.h"
-#include "cogl-onscreen-private.h"
-#include "cogl-swap-chain-private.h"
-#include "cogl-xlib-renderer.h"
-#include "cogl-util.h"
-#include "cogl-poll-private.h"
-#include "cogl-glx.h"
-#include "driver/gl/cogl-pipeline-opengl-private.h"
-#include "winsys/cogl-onscreen-glx.h"
-#include "winsys/cogl-winsys-private.h"
-#include "winsys/cogl-winsys-glx-private.h"
+#include "cogl/cogl-i18n-private.h"
+#include "cogl/cogl-util.h"
+#include "cogl/cogl-feature-private.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-framebuffer.h"
+#include "cogl/cogl-swap-chain-private.h"
+#include "cogl/cogl-renderer-private.h"
+#include "cogl/cogl-onscreen-template-private.h"
+#include "cogl/cogl-private.h"
+#include "cogl/cogl-texture-2d-private.h"
+#include "cogl/cogl-frame-info-private.h"
+#include "cogl/cogl-framebuffer-private.h"
+#include "cogl/cogl-onscreen-private.h"
+#include "cogl/cogl-swap-chain-private.h"
+#include "cogl/cogl-xlib-renderer.h"
+#include "cogl/cogl-util.h"
+#include "cogl/cogl-poll-private.h"
+#include "cogl/driver/gl/cogl-pipeline-opengl-private.h"
+#include "cogl/winsys/cogl-glx.h"
+#include "cogl/winsys/cogl-glx-renderer-private.h"
+#include "cogl/winsys/cogl-glx-display-private.h"
+#include "cogl/winsys/cogl-onscreen-glx.h"
+#include "cogl/winsys/cogl-winsys-private.h"
+#include "cogl/winsys/cogl-winsys-glx-private.h"
 
 #include <stdlib.h>
 #include <sys/types.h>
@@ -115,7 +115,7 @@ typedef struct _CoglTexturePixmapGLX
 #define COGL_WINSYS_FEATURE_END()               \
   { NULL, 0 },                                  \
     };
-#include "winsys/cogl-winsys-glx-feature-functions.h"
+#include "cogl/winsys/cogl-winsys-glx-feature-functions.h"
 
 /* Define an array of features */
 #undef COGL_WINSYS_FEATURE_BEGIN
@@ -135,7 +135,7 @@ typedef struct _CoglTexturePixmapGLX
 
 static const CoglFeatureData winsys_feature_data[] =
   {
-#include "winsys/cogl-winsys-glx-feature-functions.h"
+#include "cogl/winsys/cogl-winsys-glx-feature-functions.h"
   };
 
 static GCallback

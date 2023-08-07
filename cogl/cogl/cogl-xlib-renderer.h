@@ -52,7 +52,7 @@
 
 #endif /* COGL_COMPILATION */
 
-#include <cogl/cogl-renderer.h>
+#include "cogl/cogl-renderer.h"
 
 G_BEGIN_DECLS
 

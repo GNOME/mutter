@@ -21,10 +21,10 @@
 #include "config.h"
 
 #include "backends/meta-input-device-private.h"
-#include "meta-input-mapper-private.h"
-#include "meta-monitor-manager-private.h"
-#include "meta-logical-monitor.h"
-#include "meta-backend-private.h"
+#include "backends/meta-input-mapper-private.h"
+#include "backends/meta-monitor-manager-private.h"
+#include "backends/meta-logical-monitor.h"
+#include "backends/meta-backend-private.h"
 
 #include "meta-dbus-input-mapping.h"
 

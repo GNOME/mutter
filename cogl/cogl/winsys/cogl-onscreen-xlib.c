@@ -26,14 +26,14 @@
 
 #include "cogl-config.h"
 
-#include "winsys/cogl-onscreen-xlib.h"
+#include "cogl/winsys/cogl-onscreen-xlib.h"
 
-#include "cogl-context-private.h"
-#include "cogl-renderer-private.h"
-#include "cogl-x11-onscreen.h"
-#include "cogl-xlib-renderer-private.h"
-#include "winsys/cogl-onscreen-egl.h"
-#include "winsys/cogl-winsys-egl-x11-private.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-renderer-private.h"
+#include "cogl/cogl-x11-onscreen.h"
+#include "cogl/cogl-xlib-renderer-private.h"
+#include "cogl/winsys/cogl-onscreen-egl.h"
+#include "cogl/winsys/cogl-winsys-egl-x11-private.h"
 
 struct _CoglOnscreenXlib
 {

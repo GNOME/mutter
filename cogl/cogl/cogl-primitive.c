@@ -33,13 +33,13 @@
 
 #include "cogl-config.h"
 
-#include "cogl-util.h"
-#include "cogl-object-private.h"
-#include "cogl-primitive.h"
-#include "cogl-primitive-private.h"
-#include "cogl-attribute-private.h"
-#include "cogl-framebuffer-private.h"
-#include "cogl-gtype-private.h"
+#include "cogl/cogl-util.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-primitive.h"
+#include "cogl/cogl-primitive-private.h"
+#include "cogl/cogl-attribute-private.h"
+#include "cogl/cogl-framebuffer-private.h"
+#include "cogl/cogl-gtype-private.h"
 
 #include <stdarg.h>
 #include <string.h>

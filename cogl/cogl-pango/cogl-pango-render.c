@@ -55,9 +55,9 @@
 #include "cogl/cogl-debug.h"
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-texture-private.h"
-#include "cogl-pango-private.h"
-#include "cogl-pango-glyph-cache.h"
-#include "cogl-pango-display-list.h"
+#include "cogl-pango/cogl-pango-private.h"
+#include "cogl-pango/cogl-pango-glyph-cache.h"
+#include "cogl-pango/cogl-pango-display-list.h"
 
 enum
 {

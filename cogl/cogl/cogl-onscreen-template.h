@@ -36,7 +36,7 @@
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
 
-#include <cogl/cogl-swap-chain.h>
+#include "cogl/cogl-swap-chain.h"
 
 #include <glib-object.h>
 

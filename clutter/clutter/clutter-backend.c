@@ -37,19 +37,19 @@
  * and settings.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-backend-private.h"
-#include "clutter-debug.h"
-#include "clutter-event-private.h"
-#include "clutter-marshal.h"
-#include "clutter-mutter.h"
-#include "clutter-private.h"
-#include "clutter-stage-manager-private.h"
-#include "clutter-stage-private.h"
-#include "clutter-stage-window.h"
+#include "clutter/clutter-backend-private.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-event-private.h"
+#include "clutter/clutter-marshal.h"
+#include "clutter/clutter-mutter.h"
+#include "clutter/clutter-private.h"
+#include "clutter/clutter-stage-manager-private.h"
+#include "clutter/clutter-stage-private.h"
+#include "clutter/clutter-stage-window.h"
 
-#include <cogl/cogl.h>
+#include "cogl/cogl.h"
 
 #define DEFAULT_FONT_NAME       "Sans 10"
 

@@ -28,8 +28,8 @@
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
 
-#include <clutter/clutter-constraint.h>
-#include <clutter/clutter-path.h>
+#include "clutter/clutter-constraint.h"
+#include "clutter/clutter-path.h"
 
 G_BEGIN_DECLS
 

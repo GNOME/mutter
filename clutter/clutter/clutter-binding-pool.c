@@ -93,13 +93,13 @@
  * key binding handler returned %FALSE.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-binding-pool.h"
-#include "clutter-debug.h"
-#include "clutter-enum-types.h"
-#include "clutter-marshal.h"
-#include "clutter-private.h"
+#include "clutter/clutter-binding-pool.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-enum-types.h"
+#include "clutter/clutter-marshal.h"
+#include "clutter/clutter-private.h"
 
 #define CLUTTER_BINDING_POOL_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST ((k), CLUTTER_TYPE_BINDING_POOL, ClutterBindingPoolClass))
 #define CLUTTER_IS_BINDING_POOL_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), CLUTTER_TYPE_BINDING_POOL))

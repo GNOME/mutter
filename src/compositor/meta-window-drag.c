@@ -21,7 +21,7 @@
 
 #include "config.h"
 
-#include "meta-window-drag.h"
+#include "compositor/meta-window-drag.h"
 
 #include "compositor/compositor-private.h"
 #include "compositor/edge-resistance.h"

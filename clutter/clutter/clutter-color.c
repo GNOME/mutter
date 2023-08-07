@@ -21,17 +21,17 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <math.h>
 
 #include <pango/pango-attributes.h>
 
-#include "clutter-interval.h"
-#include "clutter-main.h"
-#include "clutter-color.h"
-#include "clutter-private.h"
-#include "clutter-debug.h"
+#include "clutter/clutter-interval.h"
+#include "clutter/clutter-main.h"
+#include "clutter/clutter-color.h"
+#include "clutter/clutter-private.h"
+#include "clutter/clutter-debug.h"
 
 /* XXX - keep in sync with the ClutterStaticColor enumeration order */
 static const ClutterColor static_colors[] = {

@@ -23,7 +23,7 @@
 
 #include "config.h"
 
-#include "meta-stage-view-private.h"
+#include "backends/meta-stage-view-private.h"
 
 typedef struct _MetaStageViewPrivate
 {

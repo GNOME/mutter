@@ -35,13 +35,13 @@
  * be emitted
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-stage-manager-private.h"
+#include "clutter/clutter-stage-manager-private.h"
 
-#include "clutter-marshal.h"
-#include "clutter-debug.h"
-#include "clutter-private.h"
+#include "clutter/clutter-marshal.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-private.h"
 
 enum
 {

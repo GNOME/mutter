@@ -39,9 +39,9 @@
  */
 typedef struct _CoglPipeline CoglPipeline;
 
-#include <cogl/cogl-types.h>
-#include <cogl/cogl-context.h>
-#include <cogl/cogl-snippet.h>
+#include "cogl/cogl-types.h"
+#include "cogl/cogl-context.h"
+#include "cogl/cogl-snippet.h"
 
 #include <glib-object.h>
 

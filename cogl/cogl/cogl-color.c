@@ -32,10 +32,10 @@
 
 #include <string.h>
 
-#include "cogl-util.h"
-#include "cogl-color.h"
-#include "cogl-color-private.h"
-#include "cogl-gtype-private.h"
+#include "cogl/cogl-util.h"
+#include "cogl/cogl-color.h"
+#include "cogl/cogl-color-private.h"
+#include "cogl/cogl-gtype-private.h"
 
 COGL_GTYPE_DEFINE_BOXED (Color, color, cogl_color_copy, cogl_color_free);
 

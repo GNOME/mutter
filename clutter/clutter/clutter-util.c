@@ -30,15 +30,15 @@
  * Various miscellaneous utilility functions.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <fribidi.h>
 #include <math.h>
 
-#include "clutter-debug.h"
-#include "clutter-main.h"
-#include "clutter-interval.h"
-#include "clutter-private.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-main.h"
+#include "clutter/clutter-interval.h"
+#include "clutter/clutter-private.h"
 
 /* Help macros to scale from OpenGL <-1,1> coordinates system to
  * window coordinates ranging [0,window-size]

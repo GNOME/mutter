@@ -35,8 +35,8 @@
 
 #include <glib.h>
 
-#include "cogl-snippet.h"
-#include "cogl-object-private.h"
+#include "cogl/cogl-snippet.h"
+#include "cogl/cogl-object-private.h"
 
 /* These values are also used in the enum for CoglSnippetHook. They
    are copied here because we don't really want these names to be part

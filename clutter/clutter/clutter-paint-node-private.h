@@ -26,9 +26,10 @@
 
 #include <glib-object.h>
 #include <json-glib/json-glib.h>
-#include <clutter/clutter-backend.h>
-#include <clutter/clutter-paint-context.h>
-#include <clutter/clutter-paint-node.h>
+
+#include "clutter/clutter-backend.h"
+#include "clutter/clutter-paint-context.h"
+#include "clutter/clutter-paint-node.h"
 
 G_BEGIN_DECLS
 

@@ -32,7 +32,7 @@
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
 
-#include <clutter/clutter-layout-manager.h>
+#include "clutter/clutter-layout-manager.h"
 
 G_BEGIN_DECLS
 

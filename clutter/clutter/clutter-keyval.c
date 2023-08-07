@@ -24,10 +24,10 @@
 #include <glib.h>
 #include <glib/gprintf.h>
 
-#include "clutter-keyval.h"
-#include "clutter-event.h"
-#include "clutter-keysyms.h"
-#include "clutter-keyname-table.h"
+#include "clutter/clutter-keyval.h"
+#include "clutter/clutter-event.h"
+#include "clutter/clutter-keysyms.h"
+#include "clutter/clutter-keyname-table.h"
 
 #define CLUTTER_NUM_KEYS G_N_ELEMENTS (clutter_keys_by_keyval)
 

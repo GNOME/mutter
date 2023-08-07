@@ -33,7 +33,7 @@
 
 #pragma once
 
-#include "cogl-pipeline-private.h"
+#include "cogl/cogl-pipeline-private.h"
 
 extern const CoglPipelineFragend _cogl_pipeline_glsl_fragend;
 

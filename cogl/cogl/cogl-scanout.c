@@ -27,7 +27,7 @@
 
 #include "cogl-config.h"
 
-#include "cogl-scanout.h"
+#include "cogl/cogl-scanout.h"
 
 enum
 {

@@ -30,23 +30,23 @@
 
 #pragma once
 
-#include "cogl-renderer.h"
-#include "cogl-scanout.h"
+#include "cogl/cogl-renderer.h"
+#include "cogl/cogl-scanout.h"
 
 #ifdef COGL_HAS_XLIB
-#include "cogl-texture-pixmap-x11-private.h"
+#include "cogl/winsys/cogl-texture-pixmap-x11-private.h"
 #endif
 
 #ifdef COGL_HAS_XLIB
 #include <X11/Xutil.h>
-#include "cogl-texture-pixmap-x11-private.h"
+#include "cogl/winsys/cogl-texture-pixmap-x11-private.h"
 #endif
 
 #ifdef COGL_HAS_EGL_SUPPORT
-#include "cogl-egl-private.h"
+#include "cogl/cogl-egl-private.h"
 #endif
 
-#include "cogl-poll.h"
+#include "cogl/cogl-poll.h"
 
 COGL_EXPORT uint32_t
 _cogl_winsys_error_quark (void);

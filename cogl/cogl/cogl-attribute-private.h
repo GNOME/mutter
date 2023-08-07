@@ -33,11 +33,11 @@
 
 #pragma once
 
-#include "cogl-object-private.h"
-#include "cogl-attribute.h"
-#include "cogl-framebuffer.h"
-#include "cogl-pipeline-private.h"
-#include "cogl-boxed-value.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-attribute.h"
+#include "cogl/cogl-framebuffer.h"
+#include "cogl/cogl-pipeline-private.h"
+#include "cogl/cogl-boxed-value.h"
 
 typedef enum
 {

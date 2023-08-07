@@ -29,24 +29,24 @@
  *
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
 
-#include "cally.h"
+#include "cally/cally.h"
 
-#include "cally-actor.h"
-#include "cally-stage.h"
-#include "cally-text.h"
-#include "cally-clone.h"
+#include "cally/cally-actor.h"
+#include "cally/cally-stage.h"
+#include "cally/cally-text.h"
+#include "cally/cally-clone.h"
 
-#include "cally-factory.h"
-#include "cally-util.h"
+#include "cally/cally-factory.h"
+#include "cally/cally-util.h"
 
-#include "clutter.h"
+#include "clutter/clutter.h"
 
-#include "clutter-debug.h"
-#include "clutter-private.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-private.h"
 
 /* factories initialization*/
 CALLY_ACCESSIBLE_FACTORY (CALLY_TYPE_ACTOR, cally_actor, cally_actor_new)

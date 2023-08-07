@@ -30,8 +30,8 @@
 
 #include "cogl-config.h"
 
-#include "cogl-glib-source.h"
-#include "cogl-poll.h"
+#include "cogl/cogl-glib-source.h"
+#include "cogl/cogl-poll.h"
 
 typedef struct _CoglGLibSource
 {

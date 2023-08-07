@@ -30,14 +30,14 @@
 
 #include "cogl-config.h"
 
-#include "cogl-util.h"
-#include "cogl-debug.h"
-#include "cogl-private.h"
-#include "cogl-bitmap-private.h"
-#include "cogl-buffer-private.h"
-#include "cogl-pixel-buffer.h"
-#include "cogl-context-private.h"
-#include "cogl-gtype-private.h"
+#include "cogl/cogl-util.h"
+#include "cogl/cogl-debug.h"
+#include "cogl/cogl-private.h"
+#include "cogl/cogl-bitmap-private.h"
+#include "cogl/cogl-buffer-private.h"
+#include "cogl/cogl-pixel-buffer.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-gtype-private.h"
 
 #include <string.h>
 

@@ -27,15 +27,15 @@
 
 #include "cogl-config.h"
 
-#include "driver/gl/cogl-gl-framebuffer-fbo.h"
+#include "cogl/driver/gl/cogl-gl-framebuffer-fbo.h"
 
 #include <gio/gio.h>
 
-#include "cogl-context-private.h"
-#include "cogl-framebuffer-private.h"
-#include "cogl-offscreen-private.h"
-#include "driver/gl/cogl-texture-gl-private.h"
-#include "driver/gl/cogl-util-gl-private.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-framebuffer-private.h"
+#include "cogl/cogl-offscreen-private.h"
+#include "cogl/driver/gl/cogl-texture-gl-private.h"
+#include "cogl/driver/gl/cogl-util-gl-private.h"
 
 typedef struct _CoglGlFbo
 {

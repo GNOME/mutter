@@ -31,17 +31,17 @@
 
 #include "cogl-config.h"
 
-#include "cogl-atlas.h"
-#include "cogl-rectangle-map.h"
-#include "cogl-context-private.h"
-#include "cogl-texture-private.h"
-#include "cogl-texture-2d-private.h"
-#include "cogl-texture-2d-sliced.h"
-#include "cogl-texture-driver.h"
-#include "cogl-debug.h"
-#include "cogl-framebuffer-private.h"
-#include "cogl-blit.h"
-#include "cogl-private.h"
+#include "cogl/cogl-atlas.h"
+#include "cogl/cogl-rectangle-map.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-texture-private.h"
+#include "cogl/cogl-texture-2d-private.h"
+#include "cogl/cogl-texture-2d-sliced.h"
+#include "cogl/cogl-texture-driver.h"
+#include "cogl/cogl-debug.h"
+#include "cogl/cogl-framebuffer-private.h"
+#include "cogl/cogl-blit.h"
+#include "cogl/cogl-private.h"
 
 #include <stdlib.h>
 

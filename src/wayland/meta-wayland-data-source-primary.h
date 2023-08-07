@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "meta-wayland-data-source.h"
+#include "wayland/meta-wayland-data-source.h"
 
 #define META_TYPE_WAYLAND_DATA_SOURCE_PRIMARY (meta_wayland_data_source_primary_get_type ())
 G_DECLARE_FINAL_TYPE (MetaWaylandDataSourcePrimary,

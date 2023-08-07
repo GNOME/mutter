@@ -30,8 +30,8 @@
 
 #pragma once
 
-#include "cogl-object-private.h"
-#include "cogl-shader-private.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/deprecated/cogl-shader-private.h"
 
 typedef struct _CoglProgram CoglProgram;
 

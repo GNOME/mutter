@@ -56,8 +56,8 @@
 
 #include "cogl-config.h"
 
-#include "cogl-memory-stack-private.h"
-#include "cogl-list.h"
+#include "cogl/cogl-memory-stack-private.h"
+#include "cogl/cogl-list.h"
 
 #include <stdint.h>
 

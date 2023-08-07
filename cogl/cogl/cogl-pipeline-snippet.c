@@ -35,10 +35,10 @@
 
 #include <string.h>
 
-#include "cogl-types.h"
-#include "cogl-pipeline-snippet-private.h"
-#include "cogl-snippet-private.h"
-#include "cogl-util.h"
+#include "cogl/cogl-types.h"
+#include "cogl/cogl-pipeline-snippet-private.h"
+#include "cogl/cogl-snippet-private.h"
+#include "cogl/cogl-util.h"
 
 /* Helper functions that are used by both GLSL pipeline backends */
 

@@ -1,11 +1,11 @@
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <math.h>
 
-#include "clutter-types.h"
-#include "clutter-interval.h"
-#include "clutter-private.h"
-#include "clutter-actor-box-private.h"
+#include "clutter/clutter-types.h"
+#include "clutter/clutter-interval.h"
+#include "clutter/clutter-private.h"
+#include "clutter/clutter-actor-box-private.h"
 
 /**
  * clutter_actor_box_new:

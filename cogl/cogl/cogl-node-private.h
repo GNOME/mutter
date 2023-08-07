@@ -33,8 +33,8 @@
 
 #pragma once
 
-#include "cogl-object-private.h"
-#include "cogl-list.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-list.h"
 
 typedef struct _CoglNode CoglNode;
 

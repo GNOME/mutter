@@ -1,11 +1,11 @@
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <glib-object.h>
 
-#include "clutter-actor.h"
-#include "clutter-frame.h"
-#include "clutter-stage-window.h"
-#include "clutter-private.h"
+#include "clutter/clutter-actor.h"
+#include "clutter/clutter-frame.h"
+#include "clutter/clutter-stage-window.h"
+#include "clutter/clutter-private.h"
 
 /**
  * ClutterStageWindow:

@@ -1,6 +1,6 @@
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-easing.h"
+#include "clutter/clutter-easing.h"
 
 #include <math.h>
 

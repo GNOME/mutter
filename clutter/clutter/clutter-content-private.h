@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include <clutter/clutter-content.h>
+#include "clutter/clutter-content.h"
 
 G_BEGIN_DECLS
 

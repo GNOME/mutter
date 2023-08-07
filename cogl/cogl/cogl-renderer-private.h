@@ -32,12 +32,12 @@
 
 #include <gmodule.h>
 
-#include "cogl-object-private.h"
-#include "cogl-driver.h"
-#include "cogl-texture-driver.h"
-#include "cogl-context.h"
-#include "cogl-closure-list-private.h"
-#include "winsys/cogl-winsys-private.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-driver.h"
+#include "cogl/cogl-texture-driver.h"
+#include "cogl/cogl-context.h"
+#include "cogl/cogl-closure-list-private.h"
+#include "cogl/winsys/cogl-winsys-private.h"
 
 typedef const CoglWinsysVtable *(*CoglCustomWinsysVtableGetter) (CoglRenderer *renderer);
 

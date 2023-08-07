@@ -32,10 +32,10 @@
 
 #include "cogl-config.h"
 
-#include "cogl-poll.h"
-#include "cogl-poll-private.h"
-#include "cogl-renderer-private.h"
-#include "winsys/cogl-winsys-private.h"
+#include "cogl/cogl-poll.h"
+#include "cogl/cogl-poll-private.h"
+#include "cogl/cogl-renderer-private.h"
+#include "cogl/winsys/cogl-winsys-private.h"
 
 struct _CoglPollSource
 {

@@ -30,11 +30,11 @@
 
 #include "cogl-config.h"
 
-#include "cogl-context-private.h"
-#include "cogl-object-private.h"
-#include "cogl-glsl-shader-boilerplate.h"
-#include "driver/gl/cogl-util-gl-private.h"
-#include "deprecated/cogl-shader-private.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-glsl-shader-boilerplate.h"
+#include "cogl/driver/gl/cogl-util-gl-private.h"
+#include "cogl/deprecated/cogl-shader-private.h"
 
 #include <glib.h>
 

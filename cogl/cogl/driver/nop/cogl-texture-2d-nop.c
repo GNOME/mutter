@@ -36,9 +36,9 @@
 
 #include <string.h>
 
-#include "cogl-private.h"
-#include "cogl-texture-2d-nop-private.h"
-#include "cogl-texture-2d-private.h"
+#include "cogl/cogl-private.h"
+#include "cogl/driver/nop/cogl-texture-2d-nop-private.h"
+#include "cogl/cogl-texture-2d-private.h"
 
 void
 _cogl_texture_2d_nop_free (CoglTexture2D *tex_2d)

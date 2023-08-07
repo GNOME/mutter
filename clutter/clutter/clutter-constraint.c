@@ -125,15 +125,15 @@
  * can be recovered at any point using clutter_actor_meta_get_actor().
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <string.h>
 
-#include "clutter-constraint-private.h"
+#include "clutter/clutter-constraint-private.h"
 
-#include "clutter-actor.h"
-#include "clutter-actor-meta-private.h"
-#include "clutter-private.h"
+#include "clutter/clutter-actor.h"
+#include "clutter/clutter-actor-meta-private.h"
+#include "clutter/clutter-private.h"
 
 G_DEFINE_ABSTRACT_TYPE (ClutterConstraint,
                         clutter_constraint,

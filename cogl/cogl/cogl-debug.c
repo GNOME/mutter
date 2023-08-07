@@ -32,10 +32,10 @@
 
 #include <stdlib.h>
 
-#include "cogl-i18n-private.h"
-#include "cogl-private.h"
-#include "cogl-debug.h"
-#include "cogl1-context.h"
+#include "cogl/cogl-i18n-private.h"
+#include "cogl/cogl-private.h"
+#include "cogl/cogl-debug.h"
+#include "cogl/cogl1-context.h"
 
 /* XXX: If you add a debug option, please also add an option
  * definition to cogl-debug-options.h. This will enable us - for
@@ -178,7 +178,7 @@ _cogl_parse_debug_string (const char *value,
       g_printerr ("\n\n%28s\n", _("Supported debug values:"));
 #define OPT(MASK_NAME, GROUP, NAME, NAME_FORMATTED, DESCRIPTION) \
       g_printerr ("%28s %s\n", NAME ":", DESCRIPTION);
-#include "cogl-debug-options.h"
+#include "cogl/cogl-debug-options.h"
       g_printerr ("\n%28s\n", _("Special debug values:"));
       OPT (IGNORED, "ignored", "all", "ignored", \
            N_("Enables all non-behavioural debug options"));

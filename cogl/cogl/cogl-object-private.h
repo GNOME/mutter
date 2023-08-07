@@ -33,9 +33,9 @@
 
 #include <glib.h>
 
-#include "cogl-types.h"
-#include "cogl-object.h"
-#include "cogl-debug.h"
+#include "cogl/cogl-types.h"
+#include "cogl/cogl-object.h"
+#include "cogl/cogl-debug.h"
 
 /* XXX: sadly we didn't fully consider when we copied the cairo API
  * for _set_user_data that the callback doesn't get a pointer to the

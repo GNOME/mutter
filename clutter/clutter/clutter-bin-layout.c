@@ -42,21 +42,21 @@
  * shows how to pack actors inside a #ClutterBinLayout.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <math.h>
 
 #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
-#include "deprecated/clutter-container.h"
+#include "clutter/deprecated/clutter-container.h"
 
-#include "clutter-actor-private.h"
-#include "clutter-animatable.h"
-#include "clutter-bin-layout.h"
-#include "clutter-child-meta.h"
-#include "clutter-debug.h"
-#include "clutter-enum-types.h"
-#include "clutter-layout-meta.h"
-#include "clutter-private.h"
+#include "clutter/clutter-actor-private.h"
+#include "clutter/clutter-animatable.h"
+#include "clutter/clutter-bin-layout.h"
+#include "clutter/clutter-child-meta.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-enum-types.h"
+#include "clutter/clutter-layout-meta.h"
+#include "clutter/clutter-private.h"
 
 #define CLUTTER_TYPE_BIN_LAYER          (clutter_bin_layer_get_type ())
 #define CLUTTER_BIN_LAYER(obj)          (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_BIN_LAYER, ClutterBinLayer))

@@ -33,10 +33,10 @@
 
 #pragma once
 
-#include "cogl-types.h"
-#include "cogl-context.h"
-#include "cogl-buffer.h"
-#include "cogl-buffer-private.h"
+#include "cogl/cogl-types.h"
+#include "cogl/cogl-context.h"
+#include "cogl/cogl-buffer.h"
+#include "cogl/cogl-buffer-private.h"
 
 void
 _cogl_buffer_gl_create (CoglBuffer *buffer);

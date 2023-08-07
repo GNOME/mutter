@@ -32,7 +32,7 @@
 
 #include <glib.h>
 
-#include "cogl-memory-stack-private.h"
+#include "cogl/cogl-memory-stack-private.h"
 
 typedef struct _CoglMagazineChunk CoglMagazineChunk;
 

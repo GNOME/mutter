@@ -30,12 +30,12 @@
 
 #pragma once
 
-#include "cogl-context.h"
-#include "cogl-offscreen-private.h"
-#include "cogl-framebuffer-private.h"
-#include "cogl-attribute-private.h"
-#include "cogl-sampler-cache-private.h"
-#include "cogl-texture-private.h"
+#include "cogl/cogl-context.h"
+#include "cogl/cogl-offscreen-private.h"
+#include "cogl/cogl-framebuffer-private.h"
+#include "cogl/cogl-attribute-private.h"
+#include "cogl/cogl-sampler-cache-private.h"
+#include "cogl/cogl-texture-private.h"
 
 typedef struct _CoglDriverVtable CoglDriverVtable;
 

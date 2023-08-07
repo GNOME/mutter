@@ -30,7 +30,7 @@
 
 #pragma once
 
-#include <cogl/cogl-types.h>
+#include "cogl/cogl-types.h"
 
 #include <glib-object.h>
 

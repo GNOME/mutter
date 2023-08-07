@@ -23,13 +23,13 @@
  *
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-backend-private.h"
-#include "clutter-debug.h"
-#include "clutter-event-private.h"
-#include "clutter-keysyms.h"
-#include "clutter-private.h"
+#include "clutter/clutter-backend-private.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-event-private.h"
+#include "clutter/clutter-keysyms.h"
+#include "clutter/clutter-private.h"
 
 #include <math.h>
 

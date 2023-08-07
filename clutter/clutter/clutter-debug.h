@@ -1,7 +1,8 @@
 #pragma once
 
 #include <glib.h>
-#include "clutter-main.h"
+
+#include "clutter/clutter-main.h"
 
 G_BEGIN_DECLS
 

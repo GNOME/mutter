@@ -21,15 +21,15 @@
  * Author: Jonas Ådahl <jadahl@gmail.com>
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <glib-object.h>
 
-#include "clutter-virtual-input-device.h"
+#include "clutter/clutter-virtual-input-device.h"
 
-#include "clutter-enum-types.h"
-#include "clutter-private.h"
-#include "clutter-seat.h"
+#include "clutter/clutter-enum-types.h"
+#include "clutter/clutter-private.h"
+#include "clutter/clutter-seat.h"
 
 enum
 {

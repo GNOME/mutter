@@ -38,11 +38,11 @@
  * dependencies between some headers */
 typedef struct _CoglBitmap CoglBitmap;
 
-#include <cogl/cogl-types.h>
-#include <cogl/cogl-buffer.h>
-#include <cogl/cogl-context.h>
-#include <cogl/cogl-pixel-buffer.h>
-#include <cogl/cogl-pixel-format.h>
+#include "cogl/cogl-types.h"
+#include "cogl/cogl-buffer.h"
+#include "cogl/cogl-context.h"
+#include "cogl/cogl-pixel-buffer.h"
+#include "cogl/cogl-pixel-format.h"
 
 #include <glib-object.h>
 

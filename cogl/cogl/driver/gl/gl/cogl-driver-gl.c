@@ -32,17 +32,17 @@
 
 #include <string.h>
 
-#include "cogl-private.h"
-#include "cogl-context-private.h"
-#include "cogl-feature-private.h"
-#include "cogl-renderer-private.h"
-#include "driver/gl/cogl-util-gl-private.h"
-#include "driver/gl/cogl-framebuffer-gl-private.h"
-#include "driver/gl/cogl-texture-2d-gl-private.h"
-#include "driver/gl/cogl-attribute-gl-private.h"
-#include "driver/gl/cogl-clip-stack-gl-private.h"
-#include "driver/gl/cogl-buffer-gl-private.h"
-#include "driver/gl/cogl-pipeline-opengl-private.h"
+#include "cogl/cogl-private.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-feature-private.h"
+#include "cogl/cogl-renderer-private.h"
+#include "cogl/driver/gl/cogl-util-gl-private.h"
+#include "cogl/driver/gl/cogl-framebuffer-gl-private.h"
+#include "cogl/driver/gl/cogl-texture-2d-gl-private.h"
+#include "cogl/driver/gl/cogl-attribute-gl-private.h"
+#include "cogl/driver/gl/cogl-clip-stack-gl-private.h"
+#include "cogl/driver/gl/cogl-buffer-gl-private.h"
+#include "cogl/driver/gl/cogl-pipeline-opengl-private.h"
 
 static gboolean
 _cogl_driver_gl_real_context_init (CoglContext *context)

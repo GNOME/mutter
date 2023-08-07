@@ -43,10 +43,10 @@
 #include <string.h>
 #include <glib.h>
 
-#include "cogl-util.h"
-#include "cogl-context-private.h"
-#include "cogl-object-private.h"
-#include "cogl-pixel-buffer-private.h"
+#include "cogl/cogl-util.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-pixel-buffer-private.h"
 
 /* XXX:
  * The CoglObject macros don't support any form of inheritance, so for

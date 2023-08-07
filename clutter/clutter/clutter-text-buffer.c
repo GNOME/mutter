@@ -19,11 +19,11 @@
  * Author: Stef Walter <stefw@collabora.co.uk>
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-text-buffer.h"
-#include "clutter-marshal.h"
-#include "clutter-private.h"
+#include "clutter/clutter-text-buffer.h"
+#include "clutter/clutter-marshal.h"
+#include "clutter/clutter-private.h"
 
 #include <string.h>
 

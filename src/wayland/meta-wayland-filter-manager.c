@@ -19,9 +19,8 @@
 
 #include "config.h"
 
-#include "meta-wayland-filter-manager.h"
-
-#include "meta-wayland.h"
+#include "wayland/meta-wayland-filter-manager.h"
+#include "wayland/meta-wayland.h"
 
 struct _MetaWaylandFilterManager
 {

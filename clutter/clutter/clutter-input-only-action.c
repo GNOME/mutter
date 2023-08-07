@@ -19,7 +19,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include "clutter/clutter-input-only-action.h"
 

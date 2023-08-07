@@ -37,30 +37,30 @@
  * [method@Text.set_selectable].
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <string.h>
 #include <math.h>
 
-#include "clutter-text.h"
+#include "clutter/clutter-text.h"
 
-#include "clutter-actor-private.h"
-#include "clutter-animatable.h"
-#include "clutter-backend-private.h"
-#include "clutter-binding-pool.h"
-#include "clutter-color.h"
-#include "clutter-debug.h"
-#include "clutter-enum-types.h"
-#include "clutter-keysyms.h"
-#include "clutter-main.h"
-#include "clutter-marshal.h"
-#include "clutter-private.h"    /* includes <cogl-pango/cogl-pango.h> */
-#include "clutter-property-transition.h"
-#include "clutter-text-buffer.h"
-#include "clutter-units.h"
-#include "clutter-paint-volume-private.h"
-#include "clutter-scriptable.h"
-#include "clutter-input-focus.h"
+#include "clutter/clutter-actor-private.h"
+#include "clutter/clutter-animatable.h"
+#include "clutter/clutter-backend-private.h"
+#include "clutter/clutter-binding-pool.h"
+#include "clutter/clutter-color.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-enum-types.h"
+#include "clutter/clutter-keysyms.h"
+#include "clutter/clutter-main.h"
+#include "clutter/clutter-marshal.h"
+#include "clutter/clutter-private.h"    /* includes <cogl-pango/cogl-pango.h> */
+#include "clutter/clutter-property-transition.h"
+#include "clutter/clutter-text-buffer.h"
+#include "clutter/clutter-units.h"
+#include "clutter/clutter-paint-volume-private.h"
+#include "clutter/clutter-scriptable.h"
+#include "clutter/clutter-input-focus.h"
 
 /* cursor width in pixels */
 #define DEFAULT_CURSOR_SIZE     2

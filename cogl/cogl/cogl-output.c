@@ -30,8 +30,8 @@
 
 #include "cogl-config.h"
 
-#include "cogl-output-private.h"
-#include "cogl-gtype-private.h"
+#include "cogl/cogl-output-private.h"
+#include "cogl/cogl-gtype-private.h"
 
 #include <string.h>
 

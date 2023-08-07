@@ -32,11 +32,11 @@
 
 #include <X11/Xutil.h>
 
-#include "cogl-object-private.h"
-#include "cogl-xlib-private.h"
-#include "cogl-x11-renderer-private.h"
-#include "cogl-context.h"
-#include "cogl-output.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-xlib-private.h"
+#include "cogl/cogl-x11-renderer-private.h"
+#include "cogl/cogl-context.h"
+#include "cogl/cogl-output.h"
 
 typedef struct _CoglXlibRenderer
 {

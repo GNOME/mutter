@@ -22,12 +22,11 @@
 
 #include "config.h"
 
-#include "meta-wayland-presentation-time-private.h"
-
 #include <glib.h>
 
 #include "compositor/meta-surface-actor-wayland.h"
 #include "wayland/meta-wayland-cursor-surface.h"
+#include "wayland/meta-wayland-presentation-time-private.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-surface.h"
 #include "wayland/meta-wayland-outputs.h"

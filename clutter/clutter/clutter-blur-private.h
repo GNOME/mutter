@@ -19,7 +19,7 @@
 
 #include <glib-object.h>
 
-#include <cogl/cogl.h>
+#include "cogl/cogl.h"
 
 G_BEGIN_DECLS
 

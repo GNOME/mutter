@@ -1,4 +1,4 @@
-#include "cogl-gtype-private.h"
+#include "cogl/cogl-gtype-private.h"
 
 #include <gobject/gvaluecollector.h>
 

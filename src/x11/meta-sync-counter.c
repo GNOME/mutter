@@ -19,11 +19,10 @@
 
 #include "config.h"
 
-#include "meta-sync-counter.h"
-
 #include "compositor/compositor-private.h"
 #include "core/window-private.h"
 #include "meta/meta-x11-errors.h"
+#include "x11/meta-sync-counter.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/window-x11-private.h"
 

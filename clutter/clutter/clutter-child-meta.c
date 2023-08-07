@@ -64,12 +64,12 @@
  * and #ClutterContainerIface.get_child_meta().
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-child-meta.h"
-#include "clutter-container.h"
-#include "clutter-debug.h"
-#include "clutter-private.h"
+#include "clutter/clutter-child-meta.h"
+#include "clutter/clutter-container.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-private.h"
 
 G_DEFINE_ABSTRACT_TYPE (ClutterChildMeta, clutter_child_meta, G_TYPE_OBJECT);
 

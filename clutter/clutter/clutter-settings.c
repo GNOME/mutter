@@ -15,9 +15,9 @@
  * for instance the default font name.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-settings.h"
+#include "clutter/clutter-settings.h"
 
 #ifdef HAVE_PANGO_FT2
 /* for pango_fc_font_map_cache_clear() */
@@ -25,10 +25,10 @@
 #include <pango/pangofc-fontmap.h>
 #endif /* HAVE_PANGO_FT2 */
 
-#include "clutter-debug.h"
-#include "clutter-settings-private.h"
-#include "clutter-stage-private.h"
-#include "clutter-private.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-settings-private.h"
+#include "clutter/clutter-stage-private.h"
+#include "clutter/clutter-private.h"
 
 #include <gdesktop-enums.h>
 #include <stdlib.h>

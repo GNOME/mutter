@@ -34,13 +34,13 @@
 
 #include "cogl-config.h"
 
-#include "cogl-util.h"
-#include "cogl-object-private.h"
-#include "cogl-context-private.h"
-#include "cogl-indices.h"
-#include "cogl-indices-private.h"
-#include "cogl-index-buffer.h"
-#include "cogl-gtype-private.h"
+#include "cogl/cogl-util.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-indices.h"
+#include "cogl/cogl-indices-private.h"
+#include "cogl/cogl-index-buffer.h"
+#include "cogl/cogl-gtype-private.h"
 
 #include <stdarg.h>
 

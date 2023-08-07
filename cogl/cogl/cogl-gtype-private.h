@@ -35,7 +35,7 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#include "cogl-object-private.h"
+#include "cogl/cogl-object-private.h"
 
 /* Move this to public headers? */
 typedef struct _CoglGtypeObject CoglGtypeObject;

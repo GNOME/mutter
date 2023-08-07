@@ -47,7 +47,7 @@
  * or specific internal cogl headers here...
  */
 #ifndef COGL_COMPILATION
-#include <cogl/cogl.h>
+#include "cogl/cogl.h"
 #else
 #include "cogl/cogl-context.h"
 #include "cogl/cogl-macros.h"

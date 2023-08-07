@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "cogl-framebuffer-driver.h"
+#include "cogl/cogl-framebuffer-driver.h"
 
 #define COGL_TYPE_NOP_FRAMEBUFFER (cogl_nop_framebuffer_get_type ())
 G_DECLARE_FINAL_TYPE (CoglNopFramebuffer, cogl_nop_framebuffer,

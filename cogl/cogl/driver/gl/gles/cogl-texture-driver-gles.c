@@ -35,18 +35,18 @@
 
 #include "cogl-config.h"
 
-#include "cogl-private.h"
-#include "cogl-util.h"
-#include "cogl-bitmap.h"
-#include "cogl-bitmap-private.h"
-#include "cogl-texture-private.h"
-#include "cogl-pipeline.h"
-#include "cogl-context-private.h"
-#include "cogl-object-private.h"
-#include "driver/gl/cogl-pipeline-opengl-private.h"
-#include "driver/gl/cogl-util-gl-private.h"
-#include "driver/gl/cogl-texture-gl-private.h"
-#include "driver/gl/cogl-bitmap-gl-private.h"
+#include "cogl/cogl-private.h"
+#include "cogl/cogl-util.h"
+#include "cogl/cogl-bitmap.h"
+#include "cogl/cogl-bitmap-private.h"
+#include "cogl/cogl-texture-private.h"
+#include "cogl/cogl-pipeline.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/driver/gl/cogl-pipeline-opengl-private.h"
+#include "cogl/driver/gl/cogl-util-gl-private.h"
+#include "cogl/driver/gl/cogl-texture-gl-private.h"
+#include "cogl/driver/gl/cogl-bitmap-gl-private.h"
 
 #include <string.h>
 #include <stdlib.h>

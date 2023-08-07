@@ -32,9 +32,9 @@
 
 #include <glib.h>
 
-#include "cogl-object-private.h"
-#include "cogl-buffer.h"
-#include "cogl-bitmap.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-buffer.h"
+#include "cogl/cogl-bitmap.h"
 
 struct _CoglBitmap
 {

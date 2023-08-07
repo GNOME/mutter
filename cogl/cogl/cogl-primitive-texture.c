@@ -32,8 +32,8 @@
 
 #include "cogl-config.h"
 
-#include "cogl-primitive-texture.h"
-#include "cogl-texture-private.h"
+#include "cogl/cogl-primitive-texture.h"
+#include "cogl/cogl-texture-private.h"
 
 gboolean
 cogl_is_primitive_texture (void *object)

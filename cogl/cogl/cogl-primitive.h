@@ -42,9 +42,9 @@
  */
 typedef struct _CoglPrimitive CoglPrimitive;
 
-#include <cogl/cogl-types.h> /* for CoglVerticesMode */
-#include <cogl/cogl-attribute.h>
-#include <cogl/cogl-framebuffer.h>
+#include "cogl/cogl-types.h" /* for CoglVerticesMode */
+#include "cogl/cogl-attribute.h"
+#include "cogl/cogl-framebuffer.h"
 
 #include <glib-object.h>
 

@@ -37,15 +37,15 @@
  * available any accessible object.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <stdlib.h>
 #include <string.h>
-#include <clutter/clutter.h>
 
-#include "cally-util.h"
-#include "cally-root.h"
-#include "cally-stage.h"
+#include "cally/cally-util.h"
+#include "cally/cally-root.h"
+#include "cally/cally-stage.h"
+#include "clutter/clutter.h"
 
 #define DEFAULT_PASSWORD_CHAR '*'
 

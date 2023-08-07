@@ -42,8 +42,8 @@
  */
 typedef struct _CoglAttribute CoglAttribute;
 
-#include <cogl/cogl-attribute-buffer.h>
-#include <cogl/cogl-indices.h>
+#include "cogl/cogl-attribute-buffer.h"
+#include "cogl/cogl-indices.h"
 
 #include <glib-object.h>
 

@@ -33,11 +33,11 @@
 
 #include "cogl-config.h"
 
-#include "cogl-object-private.h"
-#include "cogl-indices.h"
-#include "cogl-indices-private.h"
-#include "cogl-context-private.h"
-#include "cogl-gtype-private.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-indices.h"
+#include "cogl/cogl-indices-private.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-gtype-private.h"
 
 static void _cogl_index_buffer_free (CoglIndexBuffer *indices);
 

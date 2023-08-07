@@ -29,10 +29,10 @@
 
 #include "cogl-config.h"
 
-#include "cogl-context-private.h"
-#include "cogl-fence.h"
-#include "cogl-fence-private.h"
-#include "winsys/cogl-winsys-private.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-fence.h"
+#include "cogl/cogl-fence-private.h"
+#include "cogl/winsys/cogl-winsys-private.h"
 
 #define FENCE_CHECK_TIMEOUT 5000 /* microseconds */
 

@@ -30,10 +30,10 @@
 
 #pragma once
 
-#include "cogl-object-private.h"
-#include "cogl-pipeline-private.h"
-#include "cogl-texture-private.h"
-#include "cogl-texture-2d.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-pipeline-private.h"
+#include "cogl/cogl-texture-private.h"
+#include "cogl/cogl-texture-2d.h"
 
 struct _CoglTexture2D
 {

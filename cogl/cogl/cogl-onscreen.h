@@ -37,10 +37,10 @@
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
 
-#include <cogl/cogl-context.h>
-#include <cogl/cogl-framebuffer.h>
-#include <cogl/cogl-frame-info.h>
-#include <cogl/cogl-object.h>
+#include "cogl/cogl-context.h"
+#include "cogl/cogl-framebuffer.h"
+#include "cogl/cogl-frame-info.h"
+#include "cogl/cogl-object.h"
 
 #include <glib-object.h>
 

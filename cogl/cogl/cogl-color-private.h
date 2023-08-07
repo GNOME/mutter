@@ -33,7 +33,7 @@
 
 #pragma once
 
-#include "cogl-color.h"
+#include "cogl/cogl-color.h"
 
 #include <glib.h>
 

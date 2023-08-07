@@ -21,8 +21,8 @@
 
 #pragma once
 
-#include <clutter/clutter-actor.h>
-#include <clutter/clutter-grab.h>
+#include "clutter/clutter-actor.h"
+#include "clutter/clutter-grab.h"
 
 G_BEGIN_DECLS
 

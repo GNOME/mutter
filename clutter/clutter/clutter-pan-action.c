@@ -51,15 +51,15 @@
  * when dragging.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-pan-action.h"
+#include "clutter/clutter-pan-action.h"
 
-#include "clutter-debug.h"
-#include "clutter-enum-types.h"
-#include "clutter-marshal.h"
-#include "clutter-private.h"
-#include "clutter-timeline.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-enum-types.h"
+#include "clutter/clutter-marshal.h"
+#include "clutter/clutter-private.h"
+#include "clutter/clutter-timeline.h"
 #include <math.h>
 
 #define FLOAT_EPSILON   (1e-15)

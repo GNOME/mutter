@@ -16,9 +16,9 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-damage-history.h"
+#include "clutter/clutter-damage-history.h"
 
 #define DAMAGE_HISTORY_LENGTH 0x10
 

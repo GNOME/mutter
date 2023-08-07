@@ -33,8 +33,8 @@
 
 #include "cogl-config.h"
 
-#include "cogl-util.h"
-#include "cogl-node-private.h"
+#include "cogl/cogl-util.h"
+#include "cogl/cogl-node-private.h"
 
 void
 _cogl_pipeline_node_init (CoglNode *node)

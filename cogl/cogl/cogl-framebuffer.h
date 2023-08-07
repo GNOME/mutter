@@ -34,10 +34,11 @@
 
 #pragma once
 
-#include <cogl/cogl-pipeline.h>
-#include <cogl/cogl-indices.h>
-#include <cogl/cogl-bitmap.h>
-#include <cogl/cogl-texture.h>
+#include "cogl/cogl-pipeline.h"
+#include "cogl/cogl-indices.h"
+#include "cogl/cogl-bitmap.h"
+#include "cogl/cogl-texture.h"
+
 #include <glib-object.h>
 #include <cairo.h>
 

@@ -23,8 +23,8 @@
 
 #include <glib-object.h>
 
-#include "clutter-macros.h"
-#include "clutter-stage-view.h"
+#include "clutter/clutter-macros.h"
+#include "clutter/clutter-stage-view.h"
 
 typedef struct _ClutterPickContext ClutterPickContext;
 

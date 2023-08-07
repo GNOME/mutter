@@ -127,20 +127,20 @@
  * ```
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <glib-object.h>
 #include <gobject/gvaluecollector.h>
 
 #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
-#include "deprecated/clutter-container.h"
+#include "clutter/deprecated/clutter-container.h"
 
-#include "clutter-debug.h"
-#include "clutter-layout-manager.h"
-#include "clutter-layout-meta.h"
-#include "clutter-marshal.h"
-#include "clutter-private.h"
-#include "clutter-timeline.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-layout-manager.h"
+#include "clutter/clutter-layout-meta.h"
+#include "clutter/clutter-marshal.h"
+#include "clutter/clutter-private.h"
+#include "clutter/clutter-timeline.h"
 
 #define LAYOUT_MANAGER_WARN_NOT_IMPLEMENTED(m,method)   G_STMT_START {  \
         GObject *_obj = G_OBJECT (m);                                   \

@@ -21,17 +21,17 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-input-device-tool.h"
-#include "clutter-input-pointer-a11y-private.h"
-#include "clutter-marshal.h"
-#include "clutter-mutter.h"
-#include "clutter-private.h"
-#include "clutter-seat.h"
-#include "clutter-seat-private.h"
-#include "clutter-settings-private.h"
-#include "clutter-virtual-input-device.h"
+#include "clutter/clutter-input-device-tool.h"
+#include "clutter/clutter-input-pointer-a11y-private.h"
+#include "clutter/clutter-marshal.h"
+#include "clutter/clutter-mutter.h"
+#include "clutter/clutter-private.h"
+#include "clutter/clutter-seat.h"
+#include "clutter/clutter-seat-private.h"
+#include "clutter/clutter-settings-private.h"
+#include "clutter/clutter-virtual-input-device.h"
 
 enum
 {

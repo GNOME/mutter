@@ -28,9 +28,9 @@
 #include <glib-object.h>
 #include <json-glib/json-glib.h>
 
-#include "clutter-color.h"
-#include "clutter-types.h"
-#include "clutter-script.h"
+#include "clutter/clutter-color.h"
+#include "clutter/clutter-types.h"
+#include "clutter/clutter-script.h"
 
 G_BEGIN_DECLS
 

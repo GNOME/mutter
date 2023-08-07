@@ -42,7 +42,7 @@
  */
 typedef struct _CoglAttributeBuffer CoglAttributeBuffer;
 
-#include <cogl/cogl-context.h>
+#include "cogl/cogl-context.h"
 
 #include <glib-object.h>
 

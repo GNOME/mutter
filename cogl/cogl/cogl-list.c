@@ -28,7 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "cogl-list.h"
+#include "cogl/cogl-list.h"
 
 void
 _cogl_list_init (CoglList *list)

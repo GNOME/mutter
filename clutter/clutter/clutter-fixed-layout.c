@@ -33,11 +33,11 @@
  * layout policies as #ClutterGroup.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-debug.h"
-#include "clutter-fixed-layout.h"
-#include "clutter-private.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-fixed-layout.h"
+#include "clutter/clutter-private.h"
 
 G_DEFINE_TYPE (ClutterFixedLayout,
                clutter_fixed_layout,

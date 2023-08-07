@@ -32,16 +32,16 @@
  * [class@Actor] using an alignment factor
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-align-constraint.h"
+#include "clutter/clutter-align-constraint.h"
 
-#include "clutter-actor-meta-private.h"
-#include "clutter-actor-private.h"
-#include "clutter-constraint.h"
-#include "clutter-debug.h"
-#include "clutter-enum-types.h"
-#include "clutter-private.h"
+#include "clutter/clutter-actor-meta-private.h"
+#include "clutter/clutter-actor-private.h"
+#include "clutter/clutter-constraint.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-enum-types.h"
+#include "clutter/clutter-private.h"
 
 #include <math.h>
 

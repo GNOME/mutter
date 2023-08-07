@@ -35,21 +35,21 @@
 
 #include <X11/Xlib.h>
 
-#include "cogl-xlib-renderer-private.h"
-#include "cogl-xlib-renderer.h"
-#include "cogl-framebuffer-private.h"
-#include "cogl-onscreen-private.h"
-#include "cogl-display-private.h"
-#include "cogl-renderer-private.h"
-#include "cogl-texture-pixmap-x11-private.h"
-#include "cogl-texture-2d-private.h"
-#include "driver/gl/cogl-texture-2d-gl-private.h"
-#include "cogl-texture-2d.h"
-#include "cogl-poll-private.h"
-#include "winsys/cogl-onscreen-egl.h"
-#include "winsys/cogl-onscreen-xlib.h"
-#include "winsys/cogl-winsys-egl-x11-private.h"
-#include "winsys/cogl-winsys-egl-private.h"
+#include "cogl/cogl-xlib-renderer-private.h"
+#include "cogl/cogl-xlib-renderer.h"
+#include "cogl/cogl-framebuffer-private.h"
+#include "cogl/cogl-onscreen-private.h"
+#include "cogl/cogl-display-private.h"
+#include "cogl/cogl-renderer-private.h"
+#include "cogl/winsys/cogl-texture-pixmap-x11-private.h"
+#include "cogl/cogl-texture-2d-private.h"
+#include "cogl/driver/gl/cogl-texture-2d-gl-private.h"
+#include "cogl/cogl-texture-2d.h"
+#include "cogl/cogl-poll-private.h"
+#include "cogl/winsys/cogl-onscreen-egl.h"
+#include "cogl/winsys/cogl-onscreen-xlib.h"
+#include "cogl/winsys/cogl-winsys-egl-x11-private.h"
+#include "cogl/winsys/cogl-winsys-egl-private.h"
 
 static const CoglWinsysEGLVtable _cogl_winsys_egl_vtable;
 

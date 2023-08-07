@@ -28,15 +28,15 @@
  * can be used to tween a property of a [iface@Animatable] instance.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-property-transition.h"
+#include "clutter/clutter-property-transition.h"
 
-#include "clutter-animatable.h"
-#include "clutter-debug.h"
-#include "clutter-interval.h"
-#include "clutter-private.h"
-#include "clutter-transition.h"
+#include "clutter/clutter-animatable.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-interval.h"
+#include "clutter/clutter-private.h"
+#include "clutter/clutter-transition.h"
 
 struct _ClutterPropertyTransitionPrivate
 {

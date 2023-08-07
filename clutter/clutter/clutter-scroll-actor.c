@@ -40,17 +40,17 @@
  * for an example of how to use #ClutterScrollActor..
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-scroll-actor.h"
+#include "clutter/clutter-scroll-actor.h"
 
-#include "clutter-actor-private.h"
-#include "clutter-animatable.h"
-#include "clutter-debug.h"
-#include "clutter-enum-types.h"
-#include "clutter-private.h"
-#include "clutter-property-transition.h"
-#include "clutter-transition.h"
+#include "clutter/clutter-actor-private.h"
+#include "clutter/clutter-animatable.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-enum-types.h"
+#include "clutter/clutter-private.h"
+#include "clutter/clutter-property-transition.h"
+#include "clutter/clutter-transition.h"
 
 struct _ClutterScrollActorPrivate
 {

@@ -36,10 +36,10 @@
 
 #include <glib.h>
 
-#include "cogl-object-private.h"
-#include "cogl-buffer.h"
-#include "cogl-context.h"
-#include "cogl-gl-header.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-buffer.h"
+#include "cogl/cogl-context.h"
+#include "cogl/cogl-gl-header.h"
 
 G_BEGIN_DECLS
 

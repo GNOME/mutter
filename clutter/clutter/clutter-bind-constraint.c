@@ -81,18 +81,18 @@
  * ```
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <math.h>
 
-#include "clutter-bind-constraint.h"
+#include "clutter/clutter-bind-constraint.h"
 
-#include "clutter-actor-meta-private.h"
-#include "clutter-actor-private.h"
-#include "clutter-constraint.h"
-#include "clutter-debug.h"
-#include "clutter-enum-types.h"
-#include "clutter-private.h"
+#include "clutter/clutter-actor-meta-private.h"
+#include "clutter/clutter-actor-private.h"
+#include "clutter/clutter-constraint.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-enum-types.h"
+#include "clutter/clutter-private.h"
 
 #define CLUTTER_BIND_CONSTRAINT_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_BIND_CONSTRAINT, ClutterBindConstraintClass))
 #define CLUTTER_IS_BIND_CONSTRAINT_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_BIND_CONSTRAINT))

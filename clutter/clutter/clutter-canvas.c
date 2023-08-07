@@ -39,25 +39,24 @@
  * for an example of how to use #ClutterCanvas..
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <math.h>
-#include <cogl/cogl.h>
 #include <cairo-gobject.h>
 
-#include "clutter-canvas.h"
-
-#include "clutter-actor-private.h"
-#include "clutter-backend.h"
-#include "clutter-cairo.h"
-#include "clutter-color.h"
-#include "clutter-content-private.h"
-#include "clutter-debug.h"
-#include "clutter-marshal.h"
-#include "clutter-paint-node.h"
-#include "clutter-paint-nodes.h"
-#include "clutter-private.h"
-#include "clutter-settings.h"
+#include "cogl/cogl.h"
+#include "clutter/clutter-canvas.h"
+#include "clutter/clutter-actor-private.h"
+#include "clutter/clutter-backend.h"
+#include "clutter/clutter-cairo.h"
+#include "clutter/clutter-color.h"
+#include "clutter/clutter-content-private.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-marshal.h"
+#include "clutter/clutter-paint-node.h"
+#include "clutter/clutter-paint-nodes.h"
+#include "clutter/clutter-private.h"
+#include "clutter/clutter-settings.h"
 
 struct _ClutterCanvasPrivate
 {

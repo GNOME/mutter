@@ -31,13 +31,13 @@
 
 #pragma once
 
-#include "cogl-framebuffer-driver.h"
-#include "cogl-object-private.h"
-#include "cogl-matrix-stack-private.h"
-#include "cogl-journal-private.h"
-#include "winsys/cogl-winsys-private.h"
-#include "cogl-attribute-private.h"
-#include "cogl-clip-stack.h"
+#include "cogl/cogl-framebuffer-driver.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-matrix-stack-private.h"
+#include "cogl/cogl-journal-private.h"
+#include "cogl/winsys/cogl-winsys-private.h"
+#include "cogl/cogl-attribute-private.h"
+#include "cogl/cogl-clip-stack.h"
 
 typedef enum
 {

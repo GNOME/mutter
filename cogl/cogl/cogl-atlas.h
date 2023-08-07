@@ -28,9 +28,9 @@
 
 #pragma once
 
-#include "cogl-rectangle-map.h"
-#include "cogl-object-private.h"
-#include "cogl-texture.h"
+#include "cogl/cogl-rectangle-map.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-texture.h"
 
 typedef void
 (* CoglAtlasUpdatePositionCallback) (void *user_data,

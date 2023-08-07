@@ -33,7 +33,7 @@
 
 #include <glib.h>
 
-#include "cogl-util.h"
+#include "cogl/cogl-util.h"
 
 G_BEGIN_DECLS
 

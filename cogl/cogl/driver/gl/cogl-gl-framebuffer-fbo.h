@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "driver/gl/cogl-framebuffer-gl-private.h"
+#include "cogl/driver/gl/cogl-framebuffer-gl-private.h"
 
 #define COGL_TYPE_GL_FRAMEBUFFER_FBO (cogl_gl_framebuffer_fbo_get_type ())
 G_DECLARE_FINAL_TYPE (CoglGlFramebufferFbo, cogl_gl_framebuffer_fbo,

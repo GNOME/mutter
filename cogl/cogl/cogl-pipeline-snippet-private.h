@@ -35,7 +35,7 @@
 
 #include <glib.h>
 
-#include "cogl-snippet.h"
+#include "cogl/cogl-snippet.h"
 
 typedef struct
 {

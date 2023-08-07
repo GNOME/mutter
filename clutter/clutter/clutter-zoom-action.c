@@ -44,17 +44,17 @@
  * distance between two touch points.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <math.h>
 
-#include "clutter-zoom-action.h"
+#include "clutter/clutter-zoom-action.h"
 
-#include "clutter-debug.h"
-#include "clutter-enum-types.h"
-#include "clutter-marshal.h"
-#include "clutter-private.h"
-#include "clutter-stage-private.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-enum-types.h"
+#include "clutter/clutter-marshal.h"
+#include "clutter/clutter-private.h"
+#include "clutter/clutter-stage-private.h"
 
 typedef struct
 {

@@ -30,7 +30,7 @@
 
 #include "cogl-config.h"
 
-#include "cogl-context-private.h"
+#include "cogl/cogl-context-private.h"
 
 #include <gmodule.h>
 

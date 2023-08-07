@@ -36,11 +36,11 @@
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
 
-#include "cogl-context.h"
-#include "cogl-bitmap.h"
+#include "cogl/cogl-context.h"
+#include "cogl/cogl-bitmap.h"
 
 #ifdef COGL_HAS_EGL_SUPPORT
-#include "cogl-egl-defines.h"
+#include "cogl/cogl-egl-defines.h"
 #endif
 
 G_BEGIN_DECLS

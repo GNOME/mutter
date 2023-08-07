@@ -110,16 +110,16 @@
  * ```
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include "cogl/cogl.h"
 
-#include "clutter-shader-effect.h"
+#include "clutter/clutter-shader-effect.h"
 
-#include "clutter-debug.h"
-#include "clutter-enum-types.h"
-#include "clutter-private.h"
-#include "clutter-shader-types.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-enum-types.h"
+#include "clutter/clutter-private.h"
+#include "clutter/clutter-shader-types.h"
 
 typedef struct _ShaderUniform
 {

@@ -27,8 +27,8 @@
 
 #pragma once
 
-#include "cogl-attribute-private.h"
-#include "cogl-framebuffer.h"
+#include "cogl/cogl-attribute-private.h"
+#include "cogl/cogl-framebuffer.h"
 
 typedef struct _CoglFramebufferBits CoglFramebufferBits;
 

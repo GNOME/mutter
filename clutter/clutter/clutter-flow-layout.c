@@ -51,21 +51,21 @@
  * shows how to use the #ClutterFlowLayout.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <math.h>
 
 #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
-#include "deprecated/clutter-container.h"
+#include "clutter/deprecated/clutter-container.h"
 
-#include "clutter-actor.h"
-#include "clutter-animatable.h"
-#include "clutter-child-meta.h"
-#include "clutter-debug.h"
-#include "clutter-enum-types.h"
-#include "clutter-flow-layout.h"
-#include "clutter-layout-meta.h"
-#include "clutter-private.h"
+#include "clutter/clutter-actor.h"
+#include "clutter/clutter-animatable.h"
+#include "clutter/clutter-child-meta.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-enum-types.h"
+#include "clutter/clutter-flow-layout.h"
+#include "clutter/clutter-layout-meta.h"
+#include "clutter/clutter-private.h"
 
 struct _ClutterFlowLayoutPrivate
 {

@@ -24,18 +24,18 @@
  *      Emmanuele Bassi <ebassi@linux.intel.com>
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <string.h>
 
 #include <glib-object.h>
 #include <math.h>
 
-#include "clutter-actor-private.h"
-#include "clutter-paint-volume-private.h"
-#include "clutter-private.h"
-#include "clutter-stage-private.h"
-#include "clutter-actor-box-private.h"
+#include "clutter/clutter-actor-private.h"
+#include "clutter/clutter-paint-volume-private.h"
+#include "clutter/clutter-private.h"
+#include "clutter/clutter-stage-private.h"
+#include "clutter/clutter-actor-box-private.h"
 
 G_DEFINE_BOXED_TYPE (ClutterPaintVolume, clutter_paint_volume,
                      clutter_paint_volume_copy,

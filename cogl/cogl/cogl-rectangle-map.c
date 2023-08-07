@@ -35,9 +35,9 @@
 
 #include <glib.h>
 
-#include "cogl-util.h"
-#include "cogl-rectangle-map.h"
-#include "cogl-debug.h"
+#include "cogl/cogl-util.h"
+#include "cogl/cogl-rectangle-map.h"
+#include "cogl/cogl-debug.h"
 
 /* Implements a data structure which keeps track of unused
    sub-rectangles within a larger rectangle using a binary tree

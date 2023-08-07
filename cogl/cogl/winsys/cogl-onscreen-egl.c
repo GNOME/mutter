@@ -25,13 +25,13 @@
 
 #include "cogl-config.h"
 
-#include "winsys/cogl-onscreen-egl.h"
+#include "cogl/winsys/cogl-onscreen-egl.h"
 
-#include "cogl-context-private.h"
-#include "cogl-frame-info-private.h"
-#include "cogl-renderer-private.h"
-#include "cogl-trace.h"
-#include "winsys/cogl-winsys-egl-private.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-frame-info-private.h"
+#include "cogl/cogl-renderer-private.h"
+#include "cogl/cogl-trace.h"
+#include "cogl/winsys/cogl-winsys-egl-private.h"
 
 typedef struct _CoglOnscreenEglPrivate
 {

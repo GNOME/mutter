@@ -33,16 +33,16 @@
 
 #include "cogl-config.h"
 
-#include "cogl-util.h"
-#include "cogl-texture-private.h"
-#include "cogl-sub-texture-private.h"
-#include "cogl-sub-texture.h"
-#include "cogl-context-private.h"
-#include "cogl-object.h"
-#include "cogl-texture-driver.h"
-#include "cogl-texture-2d.h"
-#include "cogl-gtype-private.h"
-#include "driver/gl/cogl-texture-gl-private.h"
+#include "cogl/cogl-util.h"
+#include "cogl/cogl-texture-private.h"
+#include "cogl/cogl-sub-texture-private.h"
+#include "cogl/cogl-sub-texture.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-object.h"
+#include "cogl/cogl-texture-driver.h"
+#include "cogl/cogl-texture-2d.h"
+#include "cogl/cogl-gtype-private.h"
+#include "cogl/driver/gl/cogl-texture-gl-private.h"
 
 #include <string.h>
 #include <math.h>

@@ -31,11 +31,11 @@
 
 #include "cogl-config.h"
 
-#include "cogl-object.h"
+#include "cogl/cogl-object.h"
 
-#include "cogl-framebuffer-private.h"
-#include "cogl-onscreen-template-private.h"
-#include "cogl-gtype-private.h"
+#include "cogl/cogl-framebuffer-private.h"
+#include "cogl/cogl-onscreen-template-private.h"
+#include "cogl/cogl-gtype-private.h"
 
 #include <stdlib.h>
 

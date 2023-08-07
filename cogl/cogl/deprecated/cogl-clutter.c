@@ -34,17 +34,17 @@
 #include <glib.h>
 #include <string.h>
 
-#include "cogl-util.h"
-#include "cogl-types.h"
-#include "cogl-private.h"
-#include "cogl-context-private.h"
-#include "cogl-framebuffer-private.h"
-#include "cogl-onscreen-private.h"
+#include "cogl/cogl-util.h"
+#include "cogl/cogl-types.h"
+#include "cogl/cogl-private.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-framebuffer-private.h"
+#include "cogl/cogl-onscreen-private.h"
 #ifdef COGL_HAS_XLIB
-#include "cogl-xlib-renderer.h"
+#include "cogl/cogl-xlib-renderer.h"
 #endif
-#include "winsys/cogl-winsys-private.h"
-#include "deprecated/cogl-clutter.h"
+#include "cogl/winsys/cogl-winsys-private.h"
+#include "cogl/deprecated/cogl-clutter.h"
 
 gboolean
 cogl_clutter_winsys_has_feature (CoglWinsysFeature feature)

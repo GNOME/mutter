@@ -30,11 +30,11 @@
 
 #include "cogl-config.h"
 
-#include "cogl-types.h"
-#include "cogl-framebuffer.h"
-#include "cogl-attribute.h"
-#include "cogl-attribute-private.h"
-#include "cogl-attribute-nop-private.h"
+#include "cogl/cogl-types.h"
+#include "cogl/cogl-framebuffer.h"
+#include "cogl/cogl-attribute.h"
+#include "cogl/cogl-attribute-private.h"
+#include "cogl/driver/nop/cogl-attribute-nop-private.h"
 
 void
 _cogl_nop_flush_attributes_state (CoglFramebuffer *framebuffer,

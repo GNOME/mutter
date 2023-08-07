@@ -30,8 +30,8 @@
 
 #pragma once
 
-#include <cogl/cogl-egl-defines.h>
-#include <cogl/cogl-types.h>
+#include "cogl/cogl-egl-defines.h"
+#include "cogl/cogl-types.h"
 
 G_BEGIN_DECLS
 

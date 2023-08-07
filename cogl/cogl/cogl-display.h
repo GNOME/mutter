@@ -36,8 +36,8 @@
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
 
-#include <cogl/cogl-renderer.h>
-#include <cogl/cogl-onscreen-template.h>
+#include "cogl/cogl-renderer.h"
+#include "cogl/cogl-onscreen-template.h"
 
 #include <glib-object.h>
 

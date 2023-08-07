@@ -33,14 +33,14 @@
  * A simple page turning effect
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <math.h>
 
-#include "clutter-page-turn-effect.h"
+#include "clutter/clutter-page-turn-effect.h"
 
-#include "clutter-debug.h"
-#include "clutter-private.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-private.h"
 
 #define CLUTTER_PAGE_TURN_EFFECT_CLASS(k)       (G_TYPE_CHECK_CLASS_CAST ((k), CLUTTER_TYPE_PAGE_TURN_EFFECT, ClutterPageTurnEffectClass))
 #define CLUTTER_IS_PAGE_TURN_EFFECT_CLASS(k)    (G_TYPE_CHECK_CLASS_TYPE ((k), CLUTTER_TYPE_PAGE_TURN_EFFECT))

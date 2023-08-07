@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include <clutter/clutter-timeline.h>
+#include "clutter/clutter-timeline.h"
 
 G_BEGIN_DECLS
 

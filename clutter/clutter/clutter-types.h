@@ -28,9 +28,10 @@
 #endif
 
 #include <cairo.h>
-#include <cogl/cogl.h>
-#include <clutter/clutter-macros.h>
-#include <clutter/clutter-enums.h>
+
+#include "cogl/cogl.h"
+#include "clutter/clutter-macros.h"
+#include "clutter/clutter-enums.h"
 
 #include <graphene-gobject.h>
 

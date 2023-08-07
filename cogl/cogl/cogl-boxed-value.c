@@ -32,8 +32,8 @@
 
 #include <string.h>
 
-#include "cogl-boxed-value.h"
-#include "cogl-context-private.h"
+#include "cogl/cogl-boxed-value.h"
+#include "cogl/cogl-context-private.h"
 
 gboolean
 _cogl_boxed_value_equal (const CoglBoxedValue *bva,

@@ -59,17 +59,17 @@
  * and using [method@GObject.Value.transform].
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <stdlib.h>
 
 #include <glib-object.h>
 #include <gobject/gvaluecollector.h>
 
-#include "clutter-backend-private.h"
-#include "clutter-interval.h"
-#include "clutter-private.h"
-#include "clutter-units.h"
+#include "clutter/clutter-backend-private.h"
+#include "clutter/clutter-interval.h"
+#include "clutter/clutter-private.h"
+#include "clutter/clutter-units.h"
 
 #define DPI_FALLBACK    (96.0)
 

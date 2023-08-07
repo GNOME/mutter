@@ -29,15 +29,15 @@
  */
 
 /* The functions in this file are part of the core GL,GLES1 and GLES2 apis */
-#include "cogl-core-functions.h"
+#include "cogl/cogl-core-functions.h"
 
 /* The functions in this file are core to GLES1 and GLES2 but not core
  * to GL but they may be extensions available for GL */
-#include "cogl-in-gles-core-functions.h"
+#include "cogl/cogl-in-gles-core-functions.h"
 
 /* The functions in this file are core to GLES2 only but
  * may be extensions for GLES1 and GL */
-#include "cogl-in-gles2-core-functions.h"
+#include "cogl/cogl-in-gles2-core-functions.h"
 
 /* These are APIs for using GLSL used by GL and GLES2 */
-#include "cogl-glsl-functions.h"
+#include "cogl/cogl-glsl-functions.h"

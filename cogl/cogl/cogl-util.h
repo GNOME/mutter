@@ -33,9 +33,9 @@
 #include <glib.h>
 #include <math.h>
 
-#include <cogl/cogl-defines.h>
-#include <cogl/cogl-pixel-format.h>
-#include "cogl-types.h"
+#include "cogl/cogl-defines.h"
+#include "cogl/cogl-pixel-format.h"
+#include "cogl/cogl-types.h"
 
 #include <stdio.h>
 

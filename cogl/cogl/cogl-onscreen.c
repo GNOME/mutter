@@ -32,17 +32,17 @@
 
 #include <gio/gio.h>
 
-#include "cogl-util.h"
-#include "cogl-onscreen-private.h"
-#include "cogl-frame-info-private.h"
-#include "cogl-framebuffer-private.h"
-#include "cogl-onscreen-template-private.h"
-#include "cogl-context-private.h"
-#include "cogl-object-private.h"
-#include "cogl1-context.h"
-#include "cogl-closure-list-private.h"
-#include "cogl-poll-private.h"
-#include "cogl-gtype-private.h"
+#include "cogl/cogl-util.h"
+#include "cogl/cogl-onscreen-private.h"
+#include "cogl/cogl-frame-info-private.h"
+#include "cogl/cogl-framebuffer-private.h"
+#include "cogl/cogl-onscreen-template-private.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl1-context.h"
+#include "cogl/cogl-closure-list-private.h"
+#include "cogl/cogl-poll-private.h"
+#include "cogl/cogl-gtype-private.h"
 
 typedef struct _CoglOnscreenPrivate
 {

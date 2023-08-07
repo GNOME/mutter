@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include "cally-actor.h"
+#include "cally/cally-actor.h"
 
 /*
  * Auxiliary define, in order to get the clutter actor from the AtkObject using

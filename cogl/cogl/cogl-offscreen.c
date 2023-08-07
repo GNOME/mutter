@@ -27,10 +27,10 @@
 
 #include "cogl-config.h"
 
-#include "cogl-context-private.h"
-#include "cogl-framebuffer-private.h"
-#include "cogl-offscreen-private.h"
-#include "cogl-texture-private.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-framebuffer-private.h"
+#include "cogl/cogl-offscreen-private.h"
+#include "cogl/cogl-texture-private.h"
 
 struct _CoglOffscreen
 {

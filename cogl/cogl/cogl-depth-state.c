@@ -31,9 +31,9 @@
 
 #include "cogl-config.h"
 
-#include "cogl-util.h"
-#include "cogl-depth-state-private.h"
-#include "cogl-depth-state.h"
+#include "cogl/cogl-util.h"
+#include "cogl/cogl-depth-state-private.h"
+#include "cogl/cogl-depth-state.h"
 
 void
 cogl_depth_state_init (CoglDepthState *state)

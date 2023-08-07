@@ -29,7 +29,8 @@
 #endif
 
 #include <atk/atk.h>
-#include <clutter/clutter.h>
+
+#include "clutter/clutter.h"
 
 G_BEGIN_DECLS
 

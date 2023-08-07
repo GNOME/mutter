@@ -30,19 +30,19 @@
 
 #include "cogl-config.h"
 
-#include "cogl-debug.h"
-#include "cogl-context-private.h"
-#include "cogl-graphene.h"
-#include "cogl-journal-private.h"
-#include "cogl-texture-private.h"
-#include "cogl-texture-2d-private.h"
-#include "cogl-pipeline-private.h"
-#include "cogl-framebuffer-private.h"
-#include "cogl-profile.h"
-#include "cogl-attribute-private.h"
-#include "cogl-point-in-poly-private.h"
-#include "cogl-private.h"
-#include "cogl1-context.h"
+#include "cogl/cogl-debug.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-graphene.h"
+#include "cogl/cogl-journal-private.h"
+#include "cogl/cogl-texture-private.h"
+#include "cogl/cogl-texture-2d-private.h"
+#include "cogl/cogl-pipeline-private.h"
+#include "cogl/cogl-framebuffer-private.h"
+#include "cogl/cogl-profile.h"
+#include "cogl/cogl-attribute-private.h"
+#include "cogl/cogl-point-in-poly-private.h"
+#include "cogl/cogl-private.h"
+#include "cogl/cogl1-context.h"
 
 #include <string.h>
 #include <gmodule.h>

@@ -30,9 +30,9 @@
 
 #pragma once
 
-#include "cogl-frame-info.h"
-#include "cogl-object-private.h"
-#include "cogl-context.h"
+#include "cogl/cogl-frame-info.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-context.h"
 
 typedef enum _CoglFrameInfoFlag
 {

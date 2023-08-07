@@ -32,21 +32,21 @@
 
 #include "cogl-config.h"
 
-#include "cogl-i18n-private.h"
-#include "cogl-util.h"
-#include "cogl-feature-private.h"
-#include "cogl-context-private.h"
-#include "cogl-framebuffer.h"
-#include "cogl-onscreen-private.h"
-#include "cogl-swap-chain-private.h"
-#include "cogl-renderer-private.h"
-#include "cogl-onscreen-template-private.h"
-#include "cogl-egl.h"
-#include "cogl-private.h"
-#include "cogl-trace.h"
-#include "winsys/cogl-winsys-egl-private.h"
-#include "winsys/cogl-winsys-private.h"
-#include "winsys/cogl-onscreen-egl.h"
+#include "cogl/cogl-i18n-private.h"
+#include "cogl/cogl-util.h"
+#include "cogl/cogl-feature-private.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-framebuffer.h"
+#include "cogl/cogl-onscreen-private.h"
+#include "cogl/cogl-swap-chain-private.h"
+#include "cogl/cogl-renderer-private.h"
+#include "cogl/cogl-onscreen-template-private.h"
+#include "cogl/cogl-egl.h"
+#include "cogl/cogl-private.h"
+#include "cogl/cogl-trace.h"
+#include "cogl/winsys/cogl-winsys-egl-private.h"
+#include "cogl/winsys/cogl-winsys-private.h"
+#include "cogl/winsys/cogl-onscreen-egl.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -89,7 +89,7 @@
 #define COGL_WINSYS_FEATURE_END()               \
   { NULL, 0 },                                  \
     };
-#include "winsys/cogl-winsys-egl-feature-functions.h"
+#include "cogl/winsys/cogl-winsys-egl-feature-functions.h"
 
 /* Define an array of features */
 #undef COGL_WINSYS_FEATURE_BEGIN
@@ -106,7 +106,7 @@
 
 static const CoglFeatureData winsys_feature_data[] =
   {
-#include "winsys/cogl-winsys-egl-feature-functions.h"
+#include "cogl/winsys/cogl-winsys-egl-feature-functions.h"
   };
 
 static GCallback

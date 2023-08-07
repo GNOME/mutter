@@ -24,13 +24,13 @@
  *   Robert Mader <robert.mader@posteo.de>
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-texture-content.h"
+#include "clutter/clutter-texture-content.h"
 
-#include "clutter-actor-private.h"
-#include "clutter-content-private.h"
-#include "clutter-paint-node.h"
+#include "clutter/clutter-actor-private.h"
+#include "clutter/clutter-content-private.h"
+#include "clutter/clutter-paint-node.h"
 
 struct _ClutterTextureContent
 {

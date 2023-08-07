@@ -33,13 +33,13 @@
 
 #include <string.h>
 
-#include "cogl-private.h"
-#include "cogl-object.h"
+#include "cogl/cogl-private.h"
+#include "cogl/cogl-object.h"
 
-#include "cogl-display-private.h"
-#include "cogl-renderer-private.h"
-#include "cogl-gtype-private.h"
-#include "winsys/cogl-winsys-private.h"
+#include "cogl/cogl-display-private.h"
+#include "cogl/cogl-renderer-private.h"
+#include "cogl/cogl-gtype-private.h"
+#include "cogl/winsys/cogl-winsys-private.h"
 
 static void _cogl_display_free (CoglDisplay *display);
 

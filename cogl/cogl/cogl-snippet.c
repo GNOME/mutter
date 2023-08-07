@@ -33,10 +33,10 @@
 
 #include "cogl-config.h"
 
-#include "cogl-types.h"
-#include "cogl-snippet-private.h"
-#include "cogl-util.h"
-#include "cogl-gtype-private.h"
+#include "cogl/cogl-types.h"
+#include "cogl/cogl-snippet-private.h"
+#include "cogl/cogl-util.h"
+#include "cogl/cogl-gtype-private.h"
 
 static void
 _cogl_snippet_free (CoglSnippet *snippet);

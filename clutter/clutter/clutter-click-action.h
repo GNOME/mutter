@@ -31,8 +31,8 @@
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
 
-#include <clutter/clutter-action.h>
-#include <clutter/clutter-event.h>
+#include "clutter/clutter-action.h"
+#include "clutter/clutter-event.h"
 
 G_BEGIN_DECLS
 

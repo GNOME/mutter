@@ -36,8 +36,8 @@
 
 #include "cogl-config.h"
 
-#include "cogl-util.h"
-#include "cogl-point-in-poly-private.h"
+#include "cogl/cogl-util.h"
+#include "cogl/cogl-point-in-poly-private.h"
 
 #include <glib.h>
 

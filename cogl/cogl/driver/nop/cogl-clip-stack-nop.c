@@ -30,9 +30,9 @@
 
 #include "cogl-config.h"
 
-#include "cogl-clip-stack.h"
-#include "cogl-clip-stack-nop-private.h"
-#include "cogl-framebuffer-private.h"
+#include "cogl/cogl-clip-stack.h"
+#include "cogl/driver/nop/cogl-clip-stack-nop-private.h"
+#include "cogl/cogl-framebuffer-private.h"
 
 void
 _cogl_clip_stack_nop_flush (CoglClipStack *stack,

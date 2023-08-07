@@ -28,8 +28,8 @@
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
 
-#include <cogl/cogl.h>
-#include <clutter/clutter-effect.h>
+#include "cogl/cogl.h"
+#include "clutter/clutter-effect.h"
 
 G_BEGIN_DECLS
 

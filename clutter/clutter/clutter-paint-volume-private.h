@@ -21,8 +21,8 @@
 
 #pragma once
 
-#include <clutter/clutter-types.h>
-#include <clutter/clutter-private.h>
+#include "clutter/clutter-types.h"
+#include "clutter/clutter-private.h"
 
 G_BEGIN_DECLS
 

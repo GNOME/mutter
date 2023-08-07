@@ -33,9 +33,8 @@
 
 #include "meta/meta-selection.h"
 #include "wayland/meta-wayland-data-device.h"
+#include "wayland/meta-wayland-data-offer.h"
 #include "wayland/meta-wayland-private.h"
-
-#include "meta-wayland-data-offer.h"
 
 #define ALL_ACTIONS (WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY | \
                      WL_DATA_DEVICE_MANAGER_DND_ACTION_MOVE | \

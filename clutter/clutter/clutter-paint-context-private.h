@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include "clutter-paint-context.h"
+#include "clutter/clutter-paint-context.h"
 
 ClutterPaintContext *
 clutter_paint_context_new_for_view (ClutterStageView     *view,

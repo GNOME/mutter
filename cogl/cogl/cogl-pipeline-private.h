@@ -33,17 +33,17 @@
 
 #pragma once
 
-#include "cogl-node-private.h"
-#include "cogl-pipeline-layer-private.h"
-#include "cogl-pipeline.h"
-#include "cogl-object-private.h"
-#include "cogl-profile.h"
-#include "cogl-list.h"
-#include "cogl-boxed-value.h"
-#include "cogl-pipeline-snippet-private.h"
-#include "cogl-pipeline-state.h"
-#include "cogl-framebuffer.h"
-#include "cogl-bitmask.h"
+#include "cogl/cogl-node-private.h"
+#include "cogl/cogl-pipeline-layer-private.h"
+#include "cogl/cogl-pipeline.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-profile.h"
+#include "cogl/cogl-list.h"
+#include "cogl/cogl-boxed-value.h"
+#include "cogl/cogl-pipeline-snippet-private.h"
+#include "cogl/cogl-pipeline-state.h"
+#include "cogl/cogl-framebuffer.h"
+#include "cogl/cogl-bitmask.h"
 
 #include <glib.h>
 

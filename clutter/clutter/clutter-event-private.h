@@ -1,6 +1,6 @@
 #pragma once
 
-#include <clutter/clutter-event.h>
+#include "clutter/clutter-event.h"
 
 G_BEGIN_DECLS
 

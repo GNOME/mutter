@@ -31,16 +31,16 @@
 
 #include "cogl-config.h"
 
-#include "cogl-xlib-renderer.h"
-#include "cogl-util.h"
-#include "cogl-object.h"
+#include "cogl/cogl-xlib-renderer.h"
+#include "cogl/cogl-util.h"
+#include "cogl/cogl-object.h"
 
-#include "cogl-output-private.h"
-#include "cogl-renderer-private.h"
-#include "cogl-xlib-renderer-private.h"
-#include "cogl-x11-renderer-private.h"
-#include "cogl-poll-private.h"
-#include "winsys/cogl-winsys-private.h"
+#include "cogl/cogl-output-private.h"
+#include "cogl/cogl-renderer-private.h"
+#include "cogl/cogl-xlib-renderer-private.h"
+#include "cogl/cogl-x11-renderer-private.h"
+#include "cogl/cogl-poll-private.h"
+#include "cogl/winsys/cogl-winsys-private.h"
 
 #include <X11/Xlib.h>
 #include <X11/extensions/Xdamage.h>

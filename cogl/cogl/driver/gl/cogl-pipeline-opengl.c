@@ -33,17 +33,17 @@
 
 #include "cogl-config.h"
 
-#include "cogl-debug.h"
-#include "cogl-pipeline-private.h"
-#include "cogl-context-private.h"
-#include "cogl-texture-private.h"
-#include "cogl-framebuffer-private.h"
-#include "cogl-offscreen.h"
-#include "driver/gl/cogl-util-gl-private.h"
-#include "driver/gl/cogl-pipeline-opengl-private.h"
-#include "driver/gl/cogl-texture-gl-private.h"
+#include "cogl/cogl-debug.h"
+#include "cogl/cogl-pipeline-private.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-texture-private.h"
+#include "cogl/cogl-framebuffer-private.h"
+#include "cogl/cogl-offscreen.h"
+#include "cogl/driver/gl/cogl-util-gl-private.h"
+#include "cogl/driver/gl/cogl-pipeline-opengl-private.h"
+#include "cogl/driver/gl/cogl-texture-gl-private.h"
 
-#include "driver/gl/cogl-pipeline-progend-glsl-private.h"
+#include "cogl/driver/gl/cogl-pipeline-progend-glsl-private.h"
 
 #include <glib.h>
 #include <string.h>

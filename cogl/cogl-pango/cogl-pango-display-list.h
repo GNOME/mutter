@@ -29,7 +29,8 @@
 #pragma once
 
 #include <glib.h>
-#include "cogl-pango-pipeline-cache.h"
+
+#include "cogl-pango/cogl-pango-pipeline-cache.h"
 
 G_BEGIN_DECLS
 

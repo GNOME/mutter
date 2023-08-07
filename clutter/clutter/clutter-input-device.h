@@ -27,9 +27,9 @@
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
 
-#include <clutter/clutter-backend.h>
-#include <clutter/clutter-types.h>
-#include <clutter/clutter-seat.h>
+#include "clutter/clutter-backend.h"
+#include "clutter/clutter-types.h"
+#include "clutter/clutter-seat.h"
 
 G_BEGIN_DECLS
 

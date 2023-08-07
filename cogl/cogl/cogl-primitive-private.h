@@ -33,10 +33,10 @@
 
 #pragma once
 
-#include "cogl-object-private.h"
-#include "cogl-attribute-buffer-private.h"
-#include "cogl-attribute-private.h"
-#include "cogl-framebuffer.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-attribute-buffer-private.h"
+#include "cogl/cogl-attribute-private.h"
+#include "cogl/cogl-framebuffer.h"
 
 struct _CoglPrimitive
 {

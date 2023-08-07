@@ -36,14 +36,14 @@
  * implementation.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-actor-private.h"
-#include "clutter-clone.h"
-#include "clutter-debug.h"
-#include "clutter-main.h"
-#include "clutter-paint-volume-private.h"
-#include "clutter-private.h"
+#include "clutter/clutter-actor-private.h"
+#include "clutter/clutter-clone.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-main.h"
+#include "clutter/clutter-paint-volume-private.h"
+#include "clutter/clutter-private.h"
 
 #include "cogl/cogl.h"
 

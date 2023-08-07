@@ -23,11 +23,11 @@
 
 #include <cairo.h>
 #include <glib-object.h>
-#include <cogl/cogl.h>
 
-#include "clutter-macros.h"
-#include "clutter-frame-clock.h"
-#include "clutter-types.h"
+#include "cogl/cogl.h"
+#include "clutter/clutter-macros.h"
+#include "clutter/clutter-frame-clock.h"
+#include "clutter/clutter-types.h"
 
 #define CLUTTER_TYPE_STAGE_VIEW (clutter_stage_view_get_type ())
 CLUTTER_EXPORT

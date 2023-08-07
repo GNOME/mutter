@@ -38,9 +38,9 @@
 #include <pango/pangocairo.h>
 #include <pango/pango-renderer.h>
 
-#include "cogl-pango.h"
-#include "cogl-pango-private.h"
-#include "cogl-util.h"
+#include "cogl-pango/cogl-pango.h"
+#include "cogl-pango/cogl-pango-private.h"
+#include "cogl/cogl-util.h"
 #include "cogl/cogl-context-private.h"
 
 static GQuark cogl_pango_font_map_get_priv_key (void) G_GNUC_CONST;

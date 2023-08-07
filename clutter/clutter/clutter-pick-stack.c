@@ -16,8 +16,8 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "clutter-pick-stack-private.h"
-#include "clutter-private.h"
+#include "clutter/clutter-pick-stack-private.h"
+#include "clutter/clutter-private.h"
 
 typedef struct
 {

@@ -30,8 +30,8 @@
 
 #pragma once
 
-#include "cogl-context.h"
-#include "cogl-gl-header.h"
+#include "cogl/cogl-context.h"
+#include "cogl/cogl-gl-header.h"
 
 /* These aren't defined in the GLES headers */
 #ifndef GL_CLAMP_TO_BORDER

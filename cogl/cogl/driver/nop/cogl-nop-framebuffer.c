@@ -25,9 +25,9 @@
 
 #include "cogl-config.h"
 
-#include "cogl-nop-framebuffer.h"
+#include "cogl/driver/nop/cogl-nop-framebuffer.h"
 
-#include "cogl-framebuffer-private.h"
+#include "cogl/cogl-framebuffer-private.h"
 
 struct _CoglNopFramebuffer
 {

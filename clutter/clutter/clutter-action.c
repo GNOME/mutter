@@ -38,12 +38,12 @@
  * various event-related signals provided by [class@Actor] itself.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-action.h"
-#include "clutter-action-private.h"
-#include "clutter-debug.h"
-#include "clutter-private.h"
+#include "clutter/clutter-action.h"
+#include "clutter/clutter-action-private.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-private.h"
 
 typedef struct _ClutterActionPrivate ClutterActionPrivate;
 

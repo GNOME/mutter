@@ -20,7 +20,7 @@
 #include "config.h"
 
 #include "backends/meta-backend-private.h"
-#include "meta-input-device-private.h"
+#include "backends/meta-input-device-private.h"
 
 typedef struct _MetaInputDevicePrivate MetaInputDevicePrivate;
 

@@ -30,15 +30,15 @@
  * computes the interpolation between two values, stored by a [class@Interval].
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-transition.h"
+#include "clutter/clutter-transition.h"
 
-#include "clutter-animatable.h"
-#include "clutter-debug.h"
-#include "clutter-interval.h"
-#include "clutter-private.h"
-#include "clutter-timeline.h"
+#include "clutter/clutter-animatable.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-interval.h"
+#include "clutter/clutter-private.h"
+#include "clutter/clutter-timeline.h"
 
 #include <gobject/gvaluecollector.h>
 

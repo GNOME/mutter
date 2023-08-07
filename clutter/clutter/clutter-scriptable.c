@@ -35,18 +35,18 @@
  * [class@GObject.Object] properties, or allow custom properties.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <string.h>
 #include <stdlib.h>
 
 #include <glib.h>
 
-#include "clutter-scriptable.h"
-#include "clutter-script-private.h"
+#include "clutter/clutter-scriptable.h"
+#include "clutter/clutter-script-private.h"
 
-#include "clutter-private.h"
-#include "clutter-debug.h"
+#include "clutter/clutter-private.h"
+#include "clutter/clutter-debug.h"
 
 typedef ClutterScriptableIface  ClutterScriptableInterface;
 

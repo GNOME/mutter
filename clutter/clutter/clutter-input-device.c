@@ -32,19 +32,19 @@
  * its contents are usually defined by the Clutter backend in use.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-input-device.h"
+#include "clutter/clutter-input-device.h"
 
-#include "clutter-actor-private.h"
-#include "clutter-debug.h"
-#include "clutter-enum-types.h"
-#include "clutter-event-private.h"
-#include "clutter-marshal.h"
-#include "clutter-private.h"
-#include "clutter-stage-private.h"
-#include "clutter-input-device-private.h"
-#include "clutter-input-device-tool.h"
+#include "clutter/clutter-actor-private.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-enum-types.h"
+#include "clutter/clutter-event-private.h"
+#include "clutter/clutter-marshal.h"
+#include "clutter/clutter-private.h"
+#include "clutter/clutter-stage-private.h"
+#include "clutter/clutter-input-device-private.h"
+#include "clutter/clutter-input-device-tool.h"
 
 #include <math.h>
 

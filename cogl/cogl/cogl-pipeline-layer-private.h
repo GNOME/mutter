@@ -33,13 +33,13 @@
 
 #pragma once
 
-#include "cogl-private.h"
-#include "cogl-pipeline.h"
-#include "cogl-node-private.h"
-#include "cogl-texture.h"
-#include "cogl-pipeline-layer-state.h"
-#include "cogl-pipeline-snippet-private.h"
-#include "cogl-sampler-cache-private.h"
+#include "cogl/cogl-private.h"
+#include "cogl/cogl-pipeline.h"
+#include "cogl/cogl-node-private.h"
+#include "cogl/cogl-texture.h"
+#include "cogl/cogl-pipeline-layer-state.h"
+#include "cogl/cogl-pipeline-snippet-private.h"
+#include "cogl/cogl-sampler-cache-private.h"
 
 #include <glib.h>
 

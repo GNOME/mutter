@@ -25,7 +25,7 @@
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
 
-#include <clutter/clutter-macros.h>
+#include "clutter/clutter-macros.h"
 
 #include <glib-object.h>
 #include <pango/pango.h>

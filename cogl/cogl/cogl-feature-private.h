@@ -32,8 +32,8 @@
 
 #include <glib.h>
 
-#include "cogl-context.h"
-#include "cogl-renderer.h"
+#include "cogl/cogl-context.h"
+#include "cogl/cogl-renderer.h"
 
 #define COGL_CHECK_GL_VERSION(driver_major, driver_minor, \
                               target_major, target_minor) \

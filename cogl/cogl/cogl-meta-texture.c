@@ -32,10 +32,10 @@
 
 #include "cogl-config.h"
 
-#include "cogl-texture.h"
-#include "cogl-spans.h"
-#include "cogl-meta-texture.h"
-#include "cogl-texture-private.h"
+#include "cogl/cogl-texture.h"
+#include "cogl/cogl-spans.h"
+#include "cogl/cogl-meta-texture.h"
+#include "cogl/cogl-texture-private.h"
 
 #include <string.h>
 #include <math.h>

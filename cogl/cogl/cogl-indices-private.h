@@ -33,9 +33,9 @@
 
 #pragma once
 
-#include "cogl-object-private.h"
-#include "cogl-index-buffer-private.h"
-#include "cogl-types.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-index-buffer-private.h"
+#include "cogl/cogl-types.h"
 
 struct _CoglIndices
 {

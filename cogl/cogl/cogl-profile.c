@@ -2,9 +2,9 @@
 
 #ifdef COGL_ENABLE_PROFILE
 
-#include "cogl-profile.h"
-#include "cogl-debug.h"
-#include "cogl-i18n-private.h"
+#include "cogl/cogl-profile.h"
+#include "cogl/cogl-debug.h"
+#include "cogl/cogl-i18n-private.h"
 
 #include <stdlib.h>
 
@@ -100,7 +100,7 @@ _cogl_uprof_init (void)
                                       GUINT_TO_POINTER (shift)); \
   } G_STMT_END;
 
-#include "cogl-debug-options.h"
+#include "cogl/cogl-debug-options.h"
 #undef OPT
 
   atexit (print_exit_report);

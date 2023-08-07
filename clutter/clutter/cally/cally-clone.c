@@ -68,10 +68,10 @@
  * a11y POV should still be managed as a image (with the proper properties,
  * position, size, etc.).
  */
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "cally-clone.h"
-#include "cally-actor-private.h"
+#include "cally/cally-clone.h"
+#include "cally/cally-actor-private.h"
 
 /* AtkObject */
 static void                  cally_clone_real_initialize (AtkObject *obj,

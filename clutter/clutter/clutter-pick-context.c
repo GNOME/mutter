@@ -15,10 +15,10 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-backend.h"
-#include "clutter-pick-context-private.h"
+#include "clutter/clutter-backend.h"
+#include "clutter/clutter-pick-context-private.h"
 
 struct _ClutterPickContext
 {

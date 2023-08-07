@@ -33,9 +33,9 @@
 
 #pragma once
 
-#include "cogl-attribute-private.h"
-#include "cogl-framebuffer-driver.h"
-#include "cogl-gl-header.h"
+#include "cogl/cogl-attribute-private.h"
+#include "cogl/cogl-framebuffer-driver.h"
+#include "cogl/cogl-gl-header.h"
 
 #define COGL_TYPE_GL_FRAMEBUFFER (cogl_gl_framebuffer_get_type ())
 G_DECLARE_DERIVABLE_TYPE (CoglGlFramebuffer, cogl_gl_framebuffer,

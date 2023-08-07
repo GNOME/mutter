@@ -32,7 +32,7 @@
 
 #include <glib.h>
 
-#include "cogl-context.h"
+#include "cogl/cogl-context.h"
 
 typedef enum
 {

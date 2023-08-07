@@ -28,8 +28,8 @@
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
 
-#include <clutter/clutter-actor.h>
-#include <clutter/clutter-text-buffer.h>
+#include "clutter/clutter-actor.h"
+#include "clutter/clutter-text-buffer.h"
 #include <pango/pango.h>
 
 G_BEGIN_DECLS

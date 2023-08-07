@@ -30,10 +30,10 @@
 
 #pragma once
 
-#include "cogl-bitmap-private.h"
-#include "cogl-pipeline-private.h"
-#include "cogl-texture-private.h"
-#include "cogl-texture-2d-sliced.h"
+#include "cogl/cogl-bitmap-private.h"
+#include "cogl/cogl-pipeline-private.h"
+#include "cogl/cogl-texture-private.h"
+#include "cogl/cogl-texture-2d-sliced.h"
 
 #include <glib.h>
 

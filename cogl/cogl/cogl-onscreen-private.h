@@ -30,10 +30,10 @@
 
 #pragma once
 
-#include "cogl-onscreen.h"
-#include "cogl-framebuffer-private.h"
-#include "cogl-closure-list-private.h"
-#include "cogl-list.h"
+#include "cogl/cogl-onscreen.h"
+#include "cogl/cogl-framebuffer-private.h"
+#include "cogl/cogl-closure-list-private.h"
+#include "cogl/cogl-list.h"
 
 #include <glib.h>
 

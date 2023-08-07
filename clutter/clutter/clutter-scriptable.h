@@ -30,7 +30,8 @@
 
 #include <glib-object.h>
 #include <json-glib/json-glib.h>
-#include <clutter/clutter-script.h>
+
+#include "clutter/clutter-script.h"
 
 G_BEGIN_DECLS
 

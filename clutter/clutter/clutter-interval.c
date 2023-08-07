@@ -42,7 +42,7 @@
  * and value computation.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -51,12 +51,12 @@
 #include <glib-object.h>
 #include <gobject/gvaluecollector.h>
 
-#include "clutter-color.h"
-#include "clutter-interval.h"
-#include "clutter-private.h"
-#include "clutter-units.h"
-#include "clutter-scriptable.h"
-#include "clutter-script-private.h"
+#include "clutter/clutter-color.h"
+#include "clutter/clutter-interval.h"
+#include "clutter/clutter-private.h"
+#include "clutter/clutter-units.h"
+#include "clutter/clutter-scriptable.h"
+#include "clutter/clutter-script-private.h"
 
 enum
 {

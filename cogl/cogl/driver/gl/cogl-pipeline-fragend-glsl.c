@@ -36,19 +36,19 @@
 
 #include <string.h>
 
-#include "cogl-context-private.h"
-#include "cogl-pipeline-private.h"
-#include "cogl-pipeline-layer-private.h"
-#include "cogl-blend-string.h"
-#include "cogl-snippet-private.h"
-#include "cogl-list.h"
-#include "driver/gl/cogl-util-gl-private.h"
-#include "driver/gl/cogl-pipeline-opengl-private.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-pipeline-private.h"
+#include "cogl/cogl-pipeline-layer-private.h"
+#include "cogl/cogl-blend-string.h"
+#include "cogl/cogl-snippet-private.h"
+#include "cogl/cogl-list.h"
+#include "cogl/driver/gl/cogl-util-gl-private.h"
+#include "cogl/driver/gl/cogl-pipeline-opengl-private.h"
 
-#include "cogl-context-private.h"
-#include "cogl-object-private.h"
-#include "cogl-pipeline-cache.h"
-#include "driver/gl/cogl-pipeline-fragend-glsl-private.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-pipeline-cache.h"
+#include "cogl/driver/gl/cogl-pipeline-fragend-glsl-private.h"
 #include "deprecated/cogl-shader-private.h"
 #include "deprecated/cogl-program-private.h"
 

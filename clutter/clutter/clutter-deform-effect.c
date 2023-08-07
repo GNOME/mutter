@@ -48,18 +48,17 @@
  * deformation algorithm.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-deform-effect.h"
+#include "cogl/cogl.h"
 
-#include <cogl/cogl.h>
-
-#include "clutter-color.h"
-#include "clutter-debug.h"
-#include "clutter-enum-types.h"
-#include "clutter-paint-node.h"
-#include "clutter-paint-nodes.h"
-#include "clutter-private.h"
+#include "clutter/clutter-deform-effect.h"
+#include "clutter/clutter-color.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-enum-types.h"
+#include "clutter/clutter-paint-node.h"
+#include "clutter/clutter-paint-nodes.h"
+#include "clutter/clutter-private.h"
 
 #define DEFAULT_N_TILES         32
 

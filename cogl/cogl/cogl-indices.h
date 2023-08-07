@@ -42,7 +42,7 @@
  */
 typedef struct _CoglIndices CoglIndices;
 
-#include <cogl/cogl-index-buffer.h>
+#include "cogl/cogl-index-buffer.h"
 
 #include <glib-object.h>
 

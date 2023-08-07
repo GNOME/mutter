@@ -30,11 +30,11 @@
 #include <cairo.h>
 #include <pango/pango.h>
 
-#include <cogl/cogl.h>
+#include "cogl/cogl.h"
 
-#include <clutter/clutter-keymap.h>
-#include <clutter/clutter-types.h>
-#include <clutter/clutter-seat.h>
+#include "clutter/clutter-keymap.h"
+#include "clutter/clutter-types.h"
+#include "clutter/clutter-seat.h"
 
 G_BEGIN_DECLS
 

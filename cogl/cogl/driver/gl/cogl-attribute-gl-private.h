@@ -33,10 +33,10 @@
 
 #pragma once
 
-#include "cogl-types.h"
-#include "cogl-framebuffer.h"
-#include "cogl-attribute.h"
-#include "cogl-attribute-private.h"
+#include "cogl/cogl-types.h"
+#include "cogl/cogl-framebuffer.h"
+#include "cogl/cogl-attribute.h"
+#include "cogl/cogl-attribute-private.h"
 
 void
 _cogl_gl_flush_attributes_state (CoglFramebuffer *framebuffer,

@@ -34,7 +34,7 @@
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
 
-#include <cogl/cogl-context.h>
+#include "cogl/cogl-context.h"
 
 #include <glib-object.h>
 

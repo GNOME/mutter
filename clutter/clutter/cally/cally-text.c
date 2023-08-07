@@ -37,14 +37,14 @@
  * [class@Clutter.Text], #AtkText and #AtkEditableText
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "cally-text.h"
-#include "cally-actor-private.h"
+#include "cally/cally-text.h"
+#include "cally/cally-actor-private.h"
 
-#include "clutter-color.h"
-#include "clutter-main.h"
-#include "clutter-text.h"
+#include "clutter/clutter-color.h"
+#include "clutter/clutter-main.h"
+#include "clutter/clutter-text.h"
 
 static void cally_text_finalize   (GObject *obj);
 

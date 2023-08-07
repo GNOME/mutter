@@ -27,7 +27,7 @@
 
 #include "cogl-config.h"
 
-#include "cogl-framebuffer-driver.h"
+#include "cogl/cogl-framebuffer-driver.h"
 
 enum
 {

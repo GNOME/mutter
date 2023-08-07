@@ -30,12 +30,12 @@
 
 #include "cogl-config.h"
 
-#include "cogl-util.h"
-#include "cogl-context-private.h"
-#include "cogl-object-private.h"
+#include "cogl/cogl-util.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-object-private.h"
 
-#include "deprecated/cogl-shader-private.h"
-#include "deprecated/cogl-program-private.h"
+#include "cogl/deprecated/cogl-shader-private.h"
+#include "cogl/deprecated/cogl-program-private.h"
 
 #include <string.h>
 

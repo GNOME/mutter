@@ -26,23 +26,23 @@
  * Author: Emmanuele Bassi <ebassi@openedhand.com>
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <stdarg.h>
 #include <glib-object.h>
 #include <gobject/gvaluecollector.h>
 
 #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
-#include "deprecated/clutter-container.h"
+#include "clutter/deprecated/clutter-container.h"
 
-#include "clutter-actor-private.h"
-#include "clutter-child-meta.h"
-#include "clutter-container-private.h"
-#include "clutter-debug.h"
-#include "clutter-main.h"
-#include "clutter-marshal.h"
-#include "clutter-private.h"
-#include "clutter-enum-types.h"
+#include "clutter/clutter-actor-private.h"
+#include "clutter/clutter-child-meta.h"
+#include "clutter/clutter-container-private.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-main.h"
+#include "clutter/clutter-marshal.h"
+#include "clutter/clutter-private.h"
+#include "clutter/clutter-enum-types.h"
 
 #define CLUTTER_CONTAINER_WARN_NOT_IMPLEMENTED(container,vfunc) \
         G_STMT_START { \

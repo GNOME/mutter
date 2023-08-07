@@ -1,7 +1,7 @@
 #pragma once
 
-#include <clutter/clutter-backend-private.h>
-#include <clutter/clutter-settings.h>
+#include "clutter/clutter-backend-private.h"
+#include "clutter/clutter-settings.h"
 
 G_BEGIN_DECLS
 

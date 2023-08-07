@@ -31,11 +31,11 @@
 
 #include "cogl-config.h"
 
-#include "cogl-object.h"
+#include "cogl/cogl-object.h"
 
-#include "cogl-swap-chain-private.h"
-#include "cogl-swap-chain.h"
-#include "cogl-gtype-private.h"
+#include "cogl/cogl-swap-chain-private.h"
+#include "cogl/cogl-swap-chain.h"
+#include "cogl/cogl-gtype-private.h"
 
 static void _cogl_swap_chain_free (CoglSwapChain *swap_chain);
 

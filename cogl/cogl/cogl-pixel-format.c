@@ -34,7 +34,7 @@
 #include <math.h>
 #include <stdlib.h>
 
-#include "cogl-pixel-format.h"
+#include "cogl/cogl-pixel-format.h"
 
 /* An entry to map CoglPixelFormats to their respective properties */
 typedef struct _CoglPixelFormatInfo

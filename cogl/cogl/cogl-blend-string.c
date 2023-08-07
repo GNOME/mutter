@@ -38,9 +38,9 @@
 
 #include <glib.h>
 
-#include "cogl-context-private.h"
-#include "cogl-debug.h"
-#include "cogl-blend-string.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-debug.h"
+#include "cogl/cogl-blend-string.h"
 
 typedef enum _ParserState
 {

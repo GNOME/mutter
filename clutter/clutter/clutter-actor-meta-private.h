@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include <clutter/clutter-actor-meta.h>
+#include "clutter/clutter-actor-meta.h"
 
 G_BEGIN_DECLS
 

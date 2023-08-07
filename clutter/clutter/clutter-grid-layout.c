@@ -26,19 +26,19 @@
  *   Matthias Clasen
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <string.h>
 #include <math.h>
 
-#include "clutter-grid-layout.h"
+#include "clutter/clutter-grid-layout.h"
 
-#include "clutter-actor-private.h"
-#include "clutter-container.h"
-#include "clutter-debug.h"
-#include "clutter-enum-types.h"
-#include "clutter-layout-meta.h"
-#include "clutter-private.h"
+#include "clutter/clutter-actor-private.h"
+#include "clutter/clutter-container.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-enum-types.h"
+#include "clutter/clutter-layout-meta.h"
+#include "clutter/clutter-private.h"
 
 /**
  * ClutterGridLayout:

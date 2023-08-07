@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include <clutter/clutter.h>
+#include "clutter/clutter.h"
 
 #define CLUTTER_TYPE_INPUT_FOCUS (clutter_input_focus_get_type ())
 

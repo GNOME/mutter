@@ -1,6 +1,6 @@
 /*** BEGIN file-header ***/
-#include "clutter-build-config.h"
-#include "clutter-enum-types.h"
+#include "clutter/clutter-build-config.h"
+#include "clutter/clutter-enum-types.h"
 /*** END file-header ***/
 
 /*** BEGIN file-production ***/

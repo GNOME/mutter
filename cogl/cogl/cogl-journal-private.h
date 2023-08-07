@@ -30,10 +30,10 @@
 
 #pragma once
 
-#include "cogl-texture.h"
-#include "cogl-object-private.h"
-#include "cogl-clip-stack.h"
-#include "cogl-fence-private.h"
+#include "cogl/cogl-texture.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-clip-stack.h"
+#include "cogl/cogl-fence-private.h"
 
 #define COGL_JOURNAL_VBO_POOL_SIZE 8
 

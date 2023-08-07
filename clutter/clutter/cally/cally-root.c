@@ -35,13 +35,13 @@
  * [class@Clutter.StageManager]).
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "cally-root.h"
+#include "cally/cally-root.h"
 
-#include "clutter-actor.h"
-#include "clutter-stage-private.h"
-#include "clutter-stage-manager.h"
+#include "clutter/clutter-actor.h"
+#include "clutter/clutter-stage-private.h"
+#include "clutter/clutter-stage-manager.h"
 
 
 /* GObject */

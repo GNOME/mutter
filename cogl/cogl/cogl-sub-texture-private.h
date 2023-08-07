@@ -30,7 +30,7 @@
 
 #pragma once
 
-#include "cogl-texture-private.h"
+#include "cogl/cogl-texture-private.h"
 
 #include <glib.h>
 

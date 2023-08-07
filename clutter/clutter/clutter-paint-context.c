@@ -15,10 +15,10 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-paint-context-private.h"
-#include "clutter-frame.h"
+#include "clutter/clutter-paint-context-private.h"
+#include "clutter/clutter-frame.h"
 
 struct _ClutterPaintContext
 {

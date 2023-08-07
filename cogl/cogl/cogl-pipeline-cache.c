@@ -33,11 +33,11 @@
 
 #include "cogl-config.h"
 
-#include "cogl-context-private.h"
-#include "cogl-pipeline-private.h"
-#include "cogl-pipeline-cache.h"
-#include "cogl-pipeline-cache-private.h"
-#include "cogl-pipeline-hash-table.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-pipeline-private.h"
+#include "cogl/cogl-pipeline-cache.h"
+#include "cogl/cogl-pipeline-cache-private.h"
+#include "cogl/cogl-pipeline-hash-table.h"
 
 struct _CoglPipelineCache
 {

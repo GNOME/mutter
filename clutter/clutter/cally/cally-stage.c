@@ -33,10 +33,10 @@
  * being a canvas. Anyway, this is required for applications using
  * just clutter, or directly [class@Clutter.Stage]
  */
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "cally-stage.h"
-#include "cally-actor-private.h"
+#include "cally/cally-stage.h"
+#include "cally/cally-actor-private.h"
 
 /* AtkObject.h */
 static void                  cally_stage_real_initialize (AtkObject *obj,

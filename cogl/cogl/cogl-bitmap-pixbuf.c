@@ -30,10 +30,10 @@
 
 #include "cogl-config.h"
 
-#include "cogl-util.h"
-#include "cogl-bitmap-private.h"
-#include "cogl-context-private.h"
-#include "cogl-private.h"
+#include "cogl/cogl-util.h"
+#include "cogl/cogl-bitmap-private.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-private.h"
 
 #include <string.h>
 

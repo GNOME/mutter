@@ -31,11 +31,11 @@
 
 #include <strings.h>
 
-#include "cogl-context-private.h"
-#include "cogl-util.h"
-#include "driver/gl/cogl-util-gl-private.h"
-#include "driver/gl/cogl-texture-gl-private.h"
-#include "driver/gl/cogl-pipeline-opengl-private.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-util.h"
+#include "cogl/driver/gl/cogl-util-gl-private.h"
+#include "cogl/driver/gl/cogl-texture-gl-private.h"
+#include "cogl/driver/gl/cogl-pipeline-opengl-private.h"
 
 static inline int
 calculate_alignment (int rowstride)

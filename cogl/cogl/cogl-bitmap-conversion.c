@@ -30,10 +30,10 @@
 
 #include "cogl-config.h"
 
-#include "cogl-private.h"
-#include "cogl-bitmap-private.h"
-#include "cogl-context-private.h"
-#include "cogl-texture-private.h"
+#include "cogl/cogl-private.h"
+#include "cogl/cogl-bitmap-private.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-texture-private.h"
 
 #include <string.h>
 
@@ -45,7 +45,7 @@
    loop for the conversion will be really simple */
 #define UNPACK_BYTE(b) (b)
 #define PACK_BYTE(b) (b)
-#include "cogl-bitmap-packing.h"
+#include "cogl/cogl-bitmap-packing.h"
 #undef PACK_BYTE
 #undef UNPACK_BYTE
 #undef component_type
@@ -55,7 +55,7 @@
 #define component_size 16
 #define UNPACK_BYTE(b) (((b) * 65535 + 127) / 255)
 #define PACK_BYTE(b) (((b) * 255 + 32767) / 65535)
-#include "cogl-bitmap-packing.h"
+#include "cogl/cogl-bitmap-packing.h"
 #undef PACK_BYTE
 #undef UNPACK_BYTE
 #undef component_type

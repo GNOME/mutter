@@ -33,19 +33,19 @@
 
 #include "cogl-config.h"
 
-#include "cogl-util.h"
-#include "cogl-context-private.h"
-#include "cogl-object-private.h"
-#include "cogl-journal-private.h"
-#include "cogl-attribute.h"
-#include "cogl-attribute-private.h"
-#include "cogl-pipeline.h"
-#include "cogl-pipeline-private.h"
-#include "cogl-texture-private.h"
-#include "cogl-framebuffer-private.h"
-#include "cogl-indices-private.h"
-#include "cogl-private.h"
-#include "cogl-gtype-private.h"
+#include "cogl/cogl-util.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-journal-private.h"
+#include "cogl/cogl-attribute.h"
+#include "cogl/cogl-attribute-private.h"
+#include "cogl/cogl-pipeline.h"
+#include "cogl/cogl-pipeline-private.h"
+#include "cogl/cogl-texture-private.h"
+#include "cogl/cogl-framebuffer-private.h"
+#include "cogl/cogl-indices-private.h"
+#include "cogl/cogl-private.h"
+#include "cogl/cogl-gtype-private.h"
 
 #include <string.h>
 #include <stdio.h>

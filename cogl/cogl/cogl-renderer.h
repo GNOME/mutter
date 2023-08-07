@@ -32,9 +32,9 @@
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
 
-#include <cogl/cogl-types.h>
-#include <cogl/cogl-onscreen-template.h>
-#include <cogl/cogl-output.h>
+#include "cogl/cogl-types.h"
+#include "cogl/cogl-onscreen-template.h"
+#include "cogl/cogl-output.h"
 
 #include <glib-object.h>
 

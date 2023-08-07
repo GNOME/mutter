@@ -33,14 +33,14 @@
 
 #include "cogl-config.h"
 
-#include "cogl-context-private.h"
-#include "cogl-graphene.h"
-#include "cogl-matrix-stack.h"
-#include "cogl-framebuffer-private.h"
-#include "cogl-object-private.h"
-#include "cogl-offscreen.h"
-#include "cogl-magazine-private.h"
-#include "cogl-gtype-private.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-graphene.h"
+#include "cogl/cogl-matrix-stack.h"
+#include "cogl/cogl-framebuffer-private.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-offscreen.h"
+#include "cogl/cogl-magazine-private.h"
+#include "cogl/cogl-gtype-private.h"
 
 static void _cogl_matrix_stack_free (CoglMatrixStack *stack);
 

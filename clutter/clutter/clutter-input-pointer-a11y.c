@@ -23,16 +23,16 @@
  * mousetweaks Copyright (C) 2007-2010 Gerd Kohlberger <gerdko gmail com>
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-backend-private.h"
-#include "clutter-enum-types.h"
-#include "clutter-input-device.h"
-#include "clutter-input-device-private.h"
-#include "clutter-input-pointer-a11y-private.h"
-#include "clutter-main.h"
-#include "clutter-private.h"
-#include "clutter-virtual-input-device.h"
+#include "clutter/clutter-backend-private.h"
+#include "clutter/clutter-enum-types.h"
+#include "clutter/clutter-input-device.h"
+#include "clutter/clutter-input-device-private.h"
+#include "clutter/clutter-input-pointer-a11y-private.h"
+#include "clutter/clutter-main.h"
+#include "clutter/clutter-private.h"
+#include "clutter/clutter-virtual-input-device.h"
 
 static gboolean
 is_secondary_click_enabled (ClutterInputDevice *device)

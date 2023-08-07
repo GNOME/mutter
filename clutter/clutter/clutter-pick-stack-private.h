@@ -19,8 +19,8 @@
 
 #include <glib-object.h>
 
-#include "clutter-macros.h"
-#include "clutter-stage-view.h"
+#include "clutter/clutter-macros.h"
+#include "clutter/clutter-stage-view.h"
 
 G_BEGIN_DECLS
 

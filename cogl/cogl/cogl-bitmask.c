@@ -36,9 +36,9 @@
 #include <glib.h>
 #include <string.h>
 
-#include "cogl-bitmask.h"
-#include "cogl-util.h"
-#include "cogl-flags.h"
+#include "cogl/cogl-bitmask.h"
+#include "cogl/cogl-util.h"
+#include "cogl/cogl-flags.h"
 
 /* This code assumes that we can cast an unsigned long to a pointer
    and back without losing any data */

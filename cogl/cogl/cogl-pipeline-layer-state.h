@@ -34,9 +34,9 @@
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
 
-#include <cogl/cogl-pipeline.h>
-#include <cogl/cogl-color.h>
-#include <cogl/cogl-texture.h>
+#include "cogl/cogl-pipeline.h"
+#include "cogl/cogl-color.h"
+#include "cogl/cogl-texture.h"
 
 G_BEGIN_DECLS
 

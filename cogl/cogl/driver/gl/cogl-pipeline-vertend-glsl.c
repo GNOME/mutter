@@ -35,16 +35,16 @@
 
 #include <string.h>
 
-#include "cogl-context-private.h"
-#include "cogl-pipeline-private.h"
-#include "driver/gl/cogl-util-gl-private.h"
-#include "driver/gl/cogl-pipeline-opengl-private.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-pipeline-private.h"
+#include "cogl/driver/gl/cogl-util-gl-private.h"
+#include "cogl/driver/gl/cogl-pipeline-opengl-private.h"
 
-#include "cogl-context-private.h"
-#include "cogl-object-private.h"
-#include "cogl-pipeline-state-private.h"
-#include "cogl-glsl-shader-boilerplate.h"
-#include "driver/gl/cogl-pipeline-vertend-glsl-private.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-pipeline-state-private.h"
+#include "cogl/cogl-glsl-shader-boilerplate.h"
+#include "cogl/driver/gl/cogl-pipeline-vertend-glsl-private.h"
 #include "deprecated/cogl-program-private.h"
 
 const CoglPipelineVertend _cogl_pipeline_glsl_vertend;

@@ -28,7 +28,7 @@
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
 
-#include <clutter/clutter-effect.h>
+#include "clutter/clutter-effect.h"
 
 G_BEGIN_DECLS
 

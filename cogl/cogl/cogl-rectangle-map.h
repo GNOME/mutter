@@ -29,7 +29,8 @@
 #pragma once
 
 #include <glib.h>
-#include "cogl-types.h"
+
+#include "cogl/cogl-types.h"
 
 typedef struct _CoglRectangleMap      CoglRectangleMap;
 typedef struct _CoglRectangleMapEntry CoglRectangleMapEntry;

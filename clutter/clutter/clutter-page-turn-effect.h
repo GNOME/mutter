@@ -31,7 +31,7 @@
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
 
-#include <clutter/clutter-deform-effect.h>
+#include "clutter/clutter-deform-effect.h"
 
 G_BEGIN_DECLS
 

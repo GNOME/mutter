@@ -24,7 +24,7 @@
  *      Emmanuele Bassi <ebassi@linux.intel.com>
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -33,19 +33,19 @@
 #include <gmodule.h>
 
 #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
-#include "deprecated/clutter-container.h"
+#include "clutter/deprecated/clutter-container.h"
 
-#include "clutter-actor.h"
-#include "clutter-debug.h"
-#include "clutter-enum-types.h"
+#include "clutter/clutter-actor.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-enum-types.h"
 
-#include "clutter-script.h"
-#include "clutter-script-private.h"
-#include "clutter-scriptable.h"
+#include "clutter/clutter-script.h"
+#include "clutter/clutter-script-private.h"
+#include "clutter/clutter-scriptable.h"
 
-#include "clutter-stage-manager.h"
+#include "clutter/clutter-stage-manager.h"
 
-#include "clutter-private.h"
+#include "clutter/clutter-private.h"
 
 static void clutter_script_parser_object_end (JsonParser *parser,
                                               JsonObject *object);

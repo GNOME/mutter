@@ -30,16 +30,16 @@
 
 #pragma once
 
-#include "cogl-bitmap-private.h"
-#include "cogl-object-private.h"
-#include "cogl-pipeline-private.h"
-#include "cogl-spans.h"
-#include "cogl-meta-texture.h"
-#include "cogl-framebuffer.h"
-#include "cogl-texture-2d.h"
+#include "cogl/cogl-bitmap-private.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-pipeline-private.h"
+#include "cogl/cogl-spans.h"
+#include "cogl/cogl-meta-texture.h"
+#include "cogl/cogl-framebuffer.h"
+#include "cogl/cogl-texture-2d.h"
 
 #ifdef COGL_HAS_EGL_SUPPORT
-#include "cogl-egl-defines.h"
+#include "cogl/cogl-egl-defines.h"
 #endif
 
 typedef struct _CoglTextureVtable     CoglTextureVtable;

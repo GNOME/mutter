@@ -21,7 +21,7 @@
 #include <cairo.h>
 #include <glib.h>
 
-#include "clutter-macros.h"
+#include "clutter/clutter-macros.h"
 
 typedef struct _ClutterDamageHistory ClutterDamageHistory;
 

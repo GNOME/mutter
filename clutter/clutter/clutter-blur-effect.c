@@ -35,15 +35,15 @@
 #define CLUTTER_IS_BLUR_EFFECT_CLASS(klass)     (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_BLUR_EFFECT))
 #define CLUTTER_BLUR_EFFECT_GET_CLASS(obj)      (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_BLUR_EFFECT, ClutterBlurEffectClass))
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-blur-effect.h"
+#include "clutter/clutter-blur-effect.h"
 
 #include "cogl/cogl.h"
 
-#include "clutter-debug.h"
-#include "clutter-offscreen-effect.h"
-#include "clutter-private.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-offscreen-effect.h"
+#include "clutter/clutter-private.h"
 
 #define BLUR_PADDING    2
 

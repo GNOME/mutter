@@ -34,13 +34,13 @@
  * control how far along the path the [class@Actor] should be..
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-path-constraint.h"
+#include "clutter/clutter-path-constraint.h"
 
-#include "clutter-debug.h"
-#include "clutter-marshal.h"
-#include "clutter-private.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-marshal.h"
+#include "clutter/clutter-private.h"
 
 #define CLUTTER_PATH_CONSTRAINT_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_PATH_CONSTRAINT, ClutterPathConstraintClass))
 #define CLUTTER_IS_PATH_CONSTRAINT_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_PATH_CONSTRAINT))

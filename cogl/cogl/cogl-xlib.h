@@ -53,9 +53,9 @@
 
 #endif /* COGL_COMPILATION */
 
-#include <cogl/cogl-types.h>
-#include <cogl/cogl-xlib-renderer.h>
-#include <cogl/cogl-macros.h>
+#include "cogl/cogl-types.h"
+#include "cogl/cogl-xlib-renderer.h"
+#include "cogl/cogl-macros.h"
 
 /* The gobject introspection scanner seems to parse public headers in
  * isolation which means we need to be extra careful about how we

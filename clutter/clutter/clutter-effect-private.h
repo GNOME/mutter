@@ -1,6 +1,6 @@
 #pragma once
 
-#include <clutter/clutter-effect.h>
+#include "clutter/clutter-effect.h"
 
 G_BEGIN_DECLS
 

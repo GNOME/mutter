@@ -48,12 +48,12 @@ typedef struct _CoglTexture CoglTexture;
 #define COGL_TEXTURE(X) ((CoglTexture *)X)
 #endif
 
-#include <cogl/cogl-types.h>
-#include <cogl/cogl-macros.h>
-#include <cogl/cogl-defines.h>
-#include <cogl/cogl-pixel-buffer.h>
-#include <cogl/cogl-pixel-format.h>
-#include <cogl/cogl-bitmap.h>
+#include "cogl/cogl-types.h"
+#include "cogl/cogl-macros.h"
+#include "cogl/cogl-defines.h"
+#include "cogl/cogl-pixel-buffer.h"
+#include "cogl/cogl-pixel-format.h"
+#include "cogl/cogl-bitmap.h"
 
 #include <glib-object.h>
 

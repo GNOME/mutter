@@ -23,8 +23,6 @@
 
 #include "config.h"
 
-#include "meta-wayland-data-offer-primary.h"
-
 #include <gio/gunixoutputstream.h>
 #include <glib-unix.h>
 #include <glib.h>
@@ -36,6 +34,7 @@
 #include "core/display-private.h"
 #include "primary-selection-unstable-v1-server-protocol.h"
 #include "wayland/meta-wayland-data-offer.h"
+#include "wayland/meta-wayland-data-offer-primary.h"
 #include "wayland/meta-wayland-private.h"
 
 static MetaDisplay *

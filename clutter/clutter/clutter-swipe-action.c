@@ -35,14 +35,14 @@
  * the logic for recognizing swipe gestures.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-swipe-action.h"
+#include "clutter/clutter-swipe-action.h"
 
-#include "clutter-debug.h"
-#include "clutter-enum-types.h"
-#include "clutter-marshal.h"
-#include "clutter-private.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-enum-types.h"
+#include "clutter/clutter-marshal.h"
+#include "clutter/clutter-private.h"
 
 struct _ClutterSwipeActionPrivate
 {

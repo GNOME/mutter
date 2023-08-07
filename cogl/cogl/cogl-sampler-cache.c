@@ -32,8 +32,8 @@
 
 #include "cogl-config.h"
 
-#include "cogl-sampler-cache-private.h"
-#include "cogl-context-private.h"
+#include "cogl/cogl-sampler-cache-private.h"
+#include "cogl/cogl-context-private.h"
 
 struct _CoglSamplerCache
 {

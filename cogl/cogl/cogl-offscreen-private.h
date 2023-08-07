@@ -27,8 +27,8 @@
 
 #pragma once
 
-#include "cogl-gl-header.h"
-#include "cogl-offscreen.h"
+#include "cogl/cogl-gl-header.h"
+#include "cogl/cogl-offscreen.h"
 
 /* Flags to pass to _cogl_offscreen_new_with_texture_full */
 typedef enum

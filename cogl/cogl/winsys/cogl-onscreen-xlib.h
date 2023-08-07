@@ -26,9 +26,9 @@
 
 #pragma once
 
-#include "cogl-onscreen.h"
-#include "winsys/cogl-onscreen-egl.h"
-#include "winsys/cogl-winsys-egl-private.h"
+#include "cogl/cogl-onscreen.h"
+#include "cogl/winsys/cogl-onscreen-egl.h"
+#include "cogl/winsys/cogl-winsys-egl-private.h"
 
 #define COGL_TYPE_ONSCREEN_XLIB (cogl_onscreen_xlib_get_type ())
 G_DECLARE_FINAL_TYPE (CoglOnscreenXlib, cogl_onscreen_xlib,

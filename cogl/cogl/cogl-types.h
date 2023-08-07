@@ -38,8 +38,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include <cogl/cogl-defines.h>
-#include <cogl/cogl-macros.h>
+#include "cogl/cogl-defines.h"
+#include "cogl/cogl-macros.h"
 #include <graphene.h>
 
 #include <glib.h>

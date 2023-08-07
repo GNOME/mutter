@@ -30,9 +30,9 @@
 
 #pragma once
 
-#include "cogl-fence.h"
-#include "cogl-list.h"
-#include "winsys/cogl-winsys-private.h"
+#include "cogl/cogl-fence.h"
+#include "cogl/cogl-list.h"
+#include "cogl/winsys/cogl-winsys-private.h"
 
 typedef enum
 {

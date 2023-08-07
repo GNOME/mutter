@@ -28,7 +28,8 @@
 #endif
 
 #include <glib-object.h>
-#include <clutter/clutter-event.h>
+
+#include "clutter/clutter-event.h"
 
 G_BEGIN_DECLS
 

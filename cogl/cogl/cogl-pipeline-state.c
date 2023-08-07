@@ -33,13 +33,13 @@
 
 #include "cogl-config.h"
 
-#include "cogl-context-private.h"
-#include "cogl-color-private.h"
-#include "cogl-blend-string.h"
-#include "cogl-util.h"
-#include "cogl-depth-state-private.h"
-#include "cogl-pipeline-state-private.h"
-#include "cogl-snippet-private.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-color-private.h"
+#include "cogl/cogl-blend-string.h"
+#include "cogl/cogl-util.h"
+#include "cogl/cogl-depth-state-private.h"
+#include "cogl/cogl-pipeline-state-private.h"
+#include "cogl/cogl-snippet-private.h"
 
 #include "string.h"
 

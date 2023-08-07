@@ -32,13 +32,13 @@
 
 #include "cogl-config.h"
 
-#include "cogl-types.h"
-#include "cogl-context-private.h"
-#include "driver/gl/cogl-framebuffer-gl-private.h"
-#include "driver/gl/cogl-gl-framebuffer-fbo.h"
-#include "driver/gl/cogl-gl-framebuffer-back.h"
-#include "driver/gl/cogl-pipeline-opengl-private.h"
-#include "driver/gl/cogl-util-gl-private.h"
+#include "cogl/cogl-types.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/driver/gl/cogl-framebuffer-gl-private.h"
+#include "cogl/driver/gl/cogl-gl-framebuffer-fbo.h"
+#include "cogl/driver/gl/cogl-gl-framebuffer-back.h"
+#include "cogl/driver/gl/cogl-pipeline-opengl-private.h"
+#include "cogl/driver/gl/cogl-util-gl-private.h"
 
 /* This is a relatively new extension */
 #ifndef GL_PURGED_CONTEXT_RESET_NV

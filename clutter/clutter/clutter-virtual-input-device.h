@@ -26,7 +26,7 @@
 #include <glib-object.h>
 #include <stdint.h>
 
-#include "clutter-seat.h"
+#include "clutter/clutter-seat.h"
 
 #define CLUTTER_TYPE_VIRTUAL_INPUT_DEVICE (clutter_virtual_input_device_get_type ())
 

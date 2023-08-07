@@ -34,17 +34,17 @@
  * for an example of how to use #ClutterImage..
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-image.h"
+#include "clutter/clutter-image.h"
 
-#include "clutter-actor-private.h"
-#include "clutter-color.h"
-#include "clutter-content-private.h"
-#include "clutter-debug.h"
-#include "clutter-paint-node.h"
-#include "clutter-paint-nodes.h"
-#include "clutter-private.h"
+#include "clutter/clutter-actor-private.h"
+#include "clutter/clutter-color.h"
+#include "clutter/clutter-content-private.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-paint-node.h"
+#include "clutter/clutter-paint-nodes.h"
+#include "clutter/clutter-private.h"
 
 typedef struct
 {

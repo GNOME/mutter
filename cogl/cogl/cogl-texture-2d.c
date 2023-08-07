@@ -33,19 +33,19 @@
 
 #include "cogl-config.h"
 
-#include "cogl-private.h"
-#include "cogl-util.h"
-#include "cogl-texture-private.h"
-#include "cogl-texture-2d-private.h"
-#include "cogl-texture-driver.h"
-#include "cogl-context-private.h"
-#include "cogl-object-private.h"
-#include "cogl-journal-private.h"
-#include "cogl-framebuffer-private.h"
-#include "cogl-gtype-private.h"
-#include "driver/gl/cogl-texture-2d-gl-private.h"
+#include "cogl/cogl-private.h"
+#include "cogl/cogl-util.h"
+#include "cogl/cogl-texture-private.h"
+#include "cogl/cogl-texture-2d-private.h"
+#include "cogl/cogl-texture-driver.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-journal-private.h"
+#include "cogl/cogl-framebuffer-private.h"
+#include "cogl/cogl-gtype-private.h"
+#include "cogl/driver/gl/cogl-texture-2d-gl-private.h"
 #ifdef COGL_HAS_EGL_SUPPORT
-#include "winsys/cogl-winsys-egl-private.h"
+#include "cogl/winsys/cogl-winsys-egl-private.h"
 #endif
 
 #include <string.h>

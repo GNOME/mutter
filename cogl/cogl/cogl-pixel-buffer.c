@@ -43,13 +43,13 @@
 #include <string.h>
 #include <glib.h>
 
-#include "cogl-private.h"
-#include "cogl-util.h"
-#include "cogl-context-private.h"
-#include "cogl-object.h"
-#include "cogl-pixel-buffer-private.h"
-#include "cogl-pixel-buffer.h"
-#include "cogl-gtype-private.h"
+#include "cogl/cogl-private.h"
+#include "cogl/cogl-util.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-object.h"
+#include "cogl/cogl-pixel-buffer-private.h"
+#include "cogl/cogl-pixel-buffer.h"
+#include "cogl/cogl-gtype-private.h"
 
 static void
 _cogl_pixel_buffer_free (CoglPixelBuffer *buffer);

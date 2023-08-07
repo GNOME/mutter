@@ -24,8 +24,8 @@
 #error "Only <cally/cally.h> can be included directly."
 #endif
 
-#include <clutter/clutter.h>
-#include <cally/cally-actor.h>
+#include "clutter/clutter.h"
+#include "cally/cally-actor.h"
 
 G_BEGIN_DECLS
 

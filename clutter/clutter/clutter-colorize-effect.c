@@ -35,16 +35,16 @@
 #define CLUTTER_IS_COLORIZE_EFFECT_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_COLORIZE_EFFECT))
 #define CLUTTER_COLORIZE_EFFECT_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_COLORIZE_EFFECT, ClutterColorizeEffectClass))
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-colorize-effect.h"
+#include "clutter/clutter-colorize-effect.h"
 
 #include "cogl/cogl.h"
 
-#include "clutter-debug.h"
-#include "clutter-enum-types.h"
-#include "clutter-offscreen-effect.h"
-#include "clutter-private.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-enum-types.h"
+#include "clutter/clutter-offscreen-effect.h"
+#include "clutter/clutter-private.h"
 
 struct _ClutterColorizeEffect
 {

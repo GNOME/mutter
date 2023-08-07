@@ -42,8 +42,8 @@
  * that it can be efficiently used by GL
  */
 
-#include <cogl/cogl-types.h>
-#include <cogl/cogl-macros.h>
+#include "cogl/cogl-types.h"
+#include "cogl/cogl-macros.h"
 
 #include <glib-object.h>
 

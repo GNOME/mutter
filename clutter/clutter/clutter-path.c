@@ -58,17 +58,17 @@
  * [method@Path.add_string] for details.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <string.h>
 #include <stdarg.h>
 #include <math.h>
 #include <glib-object.h>
 
-#include "clutter-path.h"
-#include "clutter-types.h"
-#include "clutter-bezier.h"
-#include "clutter-private.h"
+#include "clutter/clutter-path.h"
+#include "clutter/clutter-types.h"
+#include "clutter/clutter-bezier.h"
+#include "clutter/clutter-private.h"
 
 #define CLUTTER_PATH_NODE_TYPE_IS_VALID(t) \
   ((((t) & ~CLUTTER_PATH_RELATIVE) >= CLUTTER_PATH_MOVE_TO      \

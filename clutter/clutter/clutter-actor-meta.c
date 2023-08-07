@@ -38,12 +38,12 @@
  * any kind of modification.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-actor-meta-private.h"
+#include "clutter/clutter-actor-meta-private.h"
 
-#include "clutter-debug.h"
-#include "clutter-private.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-private.h"
 
 struct _ClutterActorMetaPrivate
 {

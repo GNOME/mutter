@@ -33,8 +33,8 @@
 
 #pragma once
 
-#include "cogl-pipeline-private.h"
-#include "cogl-matrix-stack.h"
+#include "cogl/cogl-pipeline-private.h"
+#include "cogl/cogl-matrix-stack.h"
 
 /*
  * cogl-pipeline.c owns the GPU's texture unit state so we have some

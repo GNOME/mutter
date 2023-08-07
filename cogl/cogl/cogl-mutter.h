@@ -31,12 +31,12 @@
 #pragma once
 
 #include "cogl-config.h"
-#include "cogl-defines.h"
+#include "cogl/cogl-defines.h"
 
-#include <cogl/cogl-texture.h>
-#include <cogl/cogl-meta-texture.h>
-#include <cogl/cogl-frame-info-private.h>
-#include <cogl/cogl-renderer-private.h>
+#include "cogl/cogl-texture.h"
+#include "cogl/cogl-meta-texture.h"
+#include "cogl/cogl-frame-info-private.h"
+#include "cogl/cogl-renderer-private.h"
 #if defined (COGL_HAS_EGL_SUPPORT)
 #include <cogl/winsys/cogl-onscreen-egl.h>
 #include <cogl/winsys/cogl-winsys-egl-private.h>

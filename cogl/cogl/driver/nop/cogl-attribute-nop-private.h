@@ -33,8 +33,8 @@
 
 #pragma once
 
-#include "cogl-types.h"
-#include "cogl-context-private.h"
+#include "cogl/cogl-types.h"
+#include "cogl/cogl-context-private.h"
 
 void
 _cogl_nop_flush_attributes_state (CoglFramebuffer *framebuffer,

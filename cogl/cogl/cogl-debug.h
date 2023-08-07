@@ -30,9 +30,9 @@
 
 #pragma once
 
-#include "cogl-profile.h"
-#include "cogl-flags.h"
-#include "cogl-util.h"
+#include "cogl/cogl-profile.h"
+#include "cogl/cogl-flags.h"
+#include "cogl/cogl-util.h"
 
 #include <glib.h>
 

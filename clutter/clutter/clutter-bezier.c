@@ -21,12 +21,13 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <glib.h>
 #include <string.h>
-#include "clutter-bezier.h"
-#include "clutter-debug.h"
+
+#include "clutter/clutter-bezier.h"
+#include "clutter/clutter-debug.h"
 
 /*
  * We have some experimental code here to allow for constant velocity

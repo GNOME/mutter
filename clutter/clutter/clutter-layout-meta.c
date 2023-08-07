@@ -34,11 +34,11 @@
  * using a [class@LayoutManager].
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-layout-meta.h"
-#include "clutter-debug.h"
-#include "clutter-private.h"
+#include "clutter/clutter-layout-meta.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-private.h"
 
 G_DEFINE_ABSTRACT_TYPE (ClutterLayoutMeta,
                         clutter_layout_meta,

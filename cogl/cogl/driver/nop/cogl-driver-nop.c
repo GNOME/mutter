@@ -32,14 +32,14 @@
 
 #include <string.h>
 
-#include "cogl-private.h"
-#include "cogl-context-private.h"
-#include "cogl-feature-private.h"
-#include "cogl-renderer-private.h"
-#include "cogl-texture-2d-nop-private.h"
-#include "cogl-attribute-nop-private.h"
-#include "cogl-clip-stack-nop-private.h"
-#include "driver/nop/cogl-nop-framebuffer.h"
+#include "cogl/cogl-private.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-feature-private.h"
+#include "cogl/cogl-renderer-private.h"
+#include "cogl/driver/nop/cogl-texture-2d-nop-private.h"
+#include "cogl/driver/nop/cogl-attribute-nop-private.h"
+#include "cogl/driver/nop/cogl-clip-stack-nop-private.h"
+#include "cogl/driver/nop/cogl-nop-framebuffer.h"
 
 static gboolean
 _cogl_driver_update_features (CoglContext *ctx,

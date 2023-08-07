@@ -30,10 +30,9 @@
 
 #pragma once
 
-#include <cogl/cogl-pipeline.h>
-
-#include "cogl-context.h"
-#include "cogl-flags.h"
+#include "cogl/cogl-pipeline.h"
+#include "cogl/cogl-context.h"
+#include "cogl/cogl-flags.h"
 
 G_BEGIN_DECLS
 

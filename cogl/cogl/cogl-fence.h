@@ -34,8 +34,8 @@
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
 
-#include <cogl/cogl-types.h>
-#include <cogl/cogl-framebuffer.h>
+#include "cogl/cogl-types.h"
+#include "cogl/cogl-framebuffer.h"
 
 /**
  * SECTION:cogl-fence

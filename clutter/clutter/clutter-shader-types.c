@@ -24,13 +24,13 @@
  *
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 #include <glib-object.h>
 #include <gobject/gvaluecollector.h>
 
-#include "clutter-shader-types.h"
-#include "clutter-private.h"
+#include "clutter/clutter-shader-types.h"
+#include "clutter/clutter-private.h"
 
 static GTypeInfo shader_float_info = {
   0,

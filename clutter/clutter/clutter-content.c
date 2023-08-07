@@ -34,14 +34,14 @@
  * to share the resources associated with painting the same content..
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
-#include "clutter-actor-private.h"
-#include "clutter-content-private.h"
+#include "clutter/clutter-actor-private.h"
+#include "clutter/clutter-content-private.h"
 
-#include "clutter-debug.h"
-#include "clutter-marshal.h"
-#include "clutter-private.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-marshal.h"
+#include "clutter/clutter-private.h"
 
 enum
 {

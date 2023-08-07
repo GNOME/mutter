@@ -35,22 +35,22 @@
 
 #include <string.h>
 
-#include "cogl-util.h"
-#include "cogl-context-private.h"
-#include "cogl-pipeline-private.h"
-#include "cogl-offscreen.h"
-#include "driver/gl/cogl-util-gl-private.h"
-#include "driver/gl/cogl-pipeline-opengl-private.h"
+#include "cogl/cogl-util.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-pipeline-private.h"
+#include "cogl/cogl-offscreen.h"
+#include "cogl/driver/gl/cogl-util-gl-private.h"
+#include "cogl/driver/gl/cogl-pipeline-opengl-private.h"
 
-#include "cogl-context-private.h"
-#include "cogl-object-private.h"
-#include "cogl-pipeline-cache.h"
-#include "cogl-pipeline-state-private.h"
-#include "cogl-attribute-private.h"
-#include "cogl-framebuffer-private.h"
-#include "driver/gl/cogl-pipeline-fragend-glsl-private.h"
-#include "driver/gl/cogl-pipeline-vertend-glsl-private.h"
-#include "driver/gl/cogl-pipeline-progend-glsl-private.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-object-private.h"
+#include "cogl/cogl-pipeline-cache.h"
+#include "cogl/cogl-pipeline-state-private.h"
+#include "cogl/cogl-attribute-private.h"
+#include "cogl/cogl-framebuffer-private.h"
+#include "cogl/driver/gl/cogl-pipeline-fragend-glsl-private.h"
+#include "cogl/driver/gl/cogl-pipeline-vertend-glsl-private.h"
+#include "cogl/driver/gl/cogl-pipeline-progend-glsl-private.h"
 #include "deprecated/cogl-program-private.h"
 
 /* These are used to generalise updating some uniforms that are

@@ -34,7 +34,7 @@
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
 
-#include <cogl/cogl-pipeline-layer-state.h>
+#include "cogl/cogl-pipeline-layer-state.h"
 
 G_BEGIN_DECLS
 

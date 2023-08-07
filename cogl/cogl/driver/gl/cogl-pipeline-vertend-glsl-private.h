@@ -33,7 +33,7 @@
 
 #pragma once
 
-#include "cogl-pipeline-private.h"
+#include "cogl/cogl-pipeline-private.h"
 
 typedef struct _CoglPipelineVertendShaderState CoglPipelineVertendShaderState;
 

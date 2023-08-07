@@ -81,14 +81,14 @@
  * instead.
  */
 
-#include "clutter-build-config.h"
+#include "clutter/clutter-build-config.h"
 
 
-#include "clutter-debug.h"
-#include "clutter-enum-types.h"
-#include "clutter-gesture-action.h"
-#include "clutter-marshal.h"
-#include "clutter-private.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/clutter-enum-types.h"
+#include "clutter/clutter-gesture-action.h"
+#include "clutter/clutter-marshal.h"
+#include "clutter/clutter-private.h"
 
 #include <math.h>
 
