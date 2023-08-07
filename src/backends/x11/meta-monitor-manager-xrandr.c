@@ -58,7 +58,7 @@
 #include "backends/x11/meta-output-xrandr.h"
 #include "clutter/clutter.h"
 #include "meta/main.h"
-#include "meta/meta-x11-errors.h"
+#include "mtk/mtk-x11.h"
 
 /* Look for DPI_FALLBACK in:
  * http://git.gnome.org/browse/gnome-settings-daemon/tree/plugins/xsettings/gsd-xsettings-manager.c
@@ -185,8 +185,10 @@ meta_monitor_manager_xrandr_set_power_save_mode (MetaMonitorManager *manager,
     return;
   }
 
+  mtk_x11_error_trap_push (manager_xrandr->xdisplay);
   DPMSForceLevel (manager_xrandr->xdisplay, state);
   DPMSSetTimeouts (manager_xrandr->xdisplay, 0, 0, 0);
+  mtk_x11_error_trap_pop (manager_xrandr->xdisplay);
 }
 
 static xcb_randr_rotation_t
