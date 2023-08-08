@@ -1431,9 +1431,9 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
   else
     scale = 1.0;
 
-  meta_rectangle_from_graphene_rect (&crtc_config->layout,
-                                     META_ROUNDING_STRATEGY_ROUND,
-                                     &view_layout);
+  mtk_rectangle_from_graphene_rect (&crtc_config->layout,
+                                    MTK_ROUNDING_STRATEGY_ROUND,
+                                    &view_layout);
   view_native = g_object_new (META_TYPE_RENDERER_VIEW_NATIVE,
                               "name", meta_output_get_name (output),
                               "stage", meta_backend_get_stage (backend),

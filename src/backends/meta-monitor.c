@@ -856,9 +856,9 @@ meta_monitor_normal_derive_layout (MetaMonitor  *monitor,
 
   g_return_if_fail (crtc_config);
 
-  meta_rectangle_from_graphene_rect (&crtc_config->layout,
-                                     META_ROUNDING_STRATEGY_ROUND,
-                                     layout);
+  mtk_rectangle_from_graphene_rect (&crtc_config->layout,
+                                    MTK_ROUNDING_STRATEGY_ROUND,
+                                    layout);
 }
 
 static gboolean

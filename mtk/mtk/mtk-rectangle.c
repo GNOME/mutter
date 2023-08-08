@@ -297,3 +297,53 @@ mtk_rectangle_to_graphene_rect (MtkRectangle *rect)
            }
   };
 }
+
+/**
+ * mtk_rectangle_from_graphene_rect:
+ * @rect: A rectangle
+ * @rounding_strategy: The rounding strategy
+ * @dest: (out caller-allocates): an empty #MtkRectangle, to be filled
+ *   with the coordinates of `rect`.
+ */
+void
+mtk_rectangle_from_graphene_rect (const graphene_rect_t *rect,
+                                  MtkRoundingStrategy    rounding_strategy,
+                                  MtkRectangle          *dest)
+{
+  switch (rounding_strategy)
+    {
+    case MTK_ROUNDING_STRATEGY_SHRINK:
+      {
+        *dest = (MtkRectangle) {
+          .x = ceilf (rect->origin.x),
+          .y = ceilf (rect->origin.y),
+          .width = floorf (rect->size.width),
+          .height = floorf (rect->size.height),
+        };
+      }
+      break;
+    case MTK_ROUNDING_STRATEGY_GROW:
+      {
+        graphene_rect_t clamped = *rect;
+
+        graphene_rect_round_extents (&clamped, &clamped);
+
+        *dest = (MtkRectangle) {
+          .x = clamped.origin.x,
+          .y = clamped.origin.y,
+          .width = clamped.size.width,
+          .height = clamped.size.height,
+        };
+      }
+      break;
+    case MTK_ROUNDING_STRATEGY_ROUND:
+      {
+        *dest = (MtkRectangle) {
+          .x = roundf (rect->origin.x),
+          .y = roundf (rect->origin.y),
+          .width = roundf (rect->size.width),
+          .height = roundf (rect->size.height),
+        };
+      }
+    }
+}

@@ -40,13 +40,6 @@ typedef enum
   FIXED_DIRECTION_Y    = 1 << 1,
 } FixedDirections;
 
-typedef enum _MetaRoundingStrategy
-{
-  META_ROUNDING_STRATEGY_SHRINK,
-  META_ROUNDING_STRATEGY_GROW,
-  META_ROUNDING_STRATEGY_ROUND,
-} MetaRoundingStrategy;
-
 /* Output functions -- note that the output buffer had better be big enough:
  *   rect_to_string:   RECT_LENGTH
  *   region_to_string: (RECT_LENGTH+strlen(separator_string)) *
@@ -249,10 +242,10 @@ gboolean meta_rectangle_is_adjacent_to (MtkRectangle *rect,
                                         MtkRectangle *other);
 
 META_EXPORT_TEST
-void meta_rectangle_scale_double (const MtkRectangle   *rect,
-                                  double                scale,
-                                  MetaRoundingStrategy  rounding_strategy,
-                                  MtkRectangle         *dest);
+void meta_rectangle_scale_double (const MtkRectangle  *rect,
+                                  double               scale,
+                                  MtkRoundingStrategy  rounding_strategy,
+                                  MtkRectangle        *dest);
 
 META_EXPORT_TEST
 void meta_rectangle_transform (const MtkRectangle   *rect,
@@ -260,10 +253,6 @@ void meta_rectangle_transform (const MtkRectangle   *rect,
                                int                   width,
                                int                   height,
                                MtkRectangle         *dest);
-
-void meta_rectangle_from_graphene_rect (const graphene_rect_t *rect,
-                                        MetaRoundingStrategy   rounding_strategy,
-                                        MtkRectangle          *dest);
 
 void meta_rectangle_crop_and_scale (const MtkRectangle *rect,
                                     graphene_rect_t    *src_rect,

@@ -119,22 +119,6 @@ _clutter_util_fully_transform_vertices (const graphene_matrix_t  *modelview,
     }
 }
 
-void
-_clutter_util_rectangle_int_extents (const graphene_rect_t *src,
-                                     MtkRectangle          *dest)
-{
-  graphene_rect_t tmp = *src;
-
-  graphene_rect_round_extents (&tmp, &tmp);
-
-  *dest = (MtkRectangle) {
-    .x = tmp.origin.x,
-    .y = tmp.origin.y,
-    .width = tmp.size.width,
-    .height = tmp.size.height,
-  };
-}
-
 typedef struct
 {
   GType value_type;

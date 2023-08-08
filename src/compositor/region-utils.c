@@ -467,9 +467,9 @@ meta_region_apply_matrix_transform_expand (const cairo_region_t *region,
 
       graphene_matrix_transform_bounds (transform, &rect, &transformed_rect);
 
-      meta_rectangle_from_graphene_rect (&transformed_rect,
-                                         META_ROUNDING_STRATEGY_GROW,
-                                         &rects[i]);
+      mtk_rectangle_from_graphene_rect (&transformed_rect,
+                                        MTK_ROUNDING_STRATEGY_GROW,
+                                        &rects[i]);
     }
 
   transformed_region = cairo_region_create_rectangles (rects, n_rects);

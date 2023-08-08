@@ -369,7 +369,8 @@ offset_scale_and_clamp_region (const cairo_region_t *region,
       tmp = mtk_rectangle_to_graphene_rect (rect);
       graphene_rect_offset (&tmp, offset_x, offset_y);
       graphene_rect_scale (&tmp, scale, scale, &tmp);
-      _clutter_util_rectangle_int_extents (&tmp, rect);
+      mtk_rectangle_from_graphene_rect (&tmp, MTK_ROUNDING_STRATEGY_GROW,
+                                        rect);
     }
 
   return cairo_region_create_rectangles (rects, n_rects);
@@ -405,7 +406,9 @@ scale_offset_and_clamp_region (const cairo_region_t *region,
       tmp = mtk_rectangle_to_graphene_rect (rect);
       graphene_rect_scale (&tmp, scale, scale, &tmp);
       graphene_rect_offset (&tmp, offset_x, offset_y);
-      _clutter_util_rectangle_int_extents (&tmp, rect);
+      mtk_rectangle_from_graphene_rect (&tmp,
+                                        MTK_ROUNDING_STRATEGY_GROW,
+                                        rect);
     }
 
   return cairo_region_create_rectangles (rects, n_rects);

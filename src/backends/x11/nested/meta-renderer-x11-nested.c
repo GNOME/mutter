@@ -127,9 +127,9 @@ meta_renderer_x11_nested_create_view (MetaRenderer       *renderer,
   else
     offscreen = NULL;
 
-  meta_rectangle_from_graphene_rect (&crtc_config->layout,
-                                     META_ROUNDING_STRATEGY_ROUND,
-                                     &view_layout);
+  mtk_rectangle_from_graphene_rect (&crtc_config->layout,
+                                    MTK_ROUNDING_STRATEGY_ROUND,
+                                    &view_layout);
 
   mode_info = meta_crtc_mode_get_info (crtc_config->mode);
 

@@ -29,6 +29,14 @@
 
 #define MTK_TYPE_RECTANGLE            (mtk_rectangle_get_type ())
 
+typedef enum _MtkRoundingStrategy
+{
+  MTK_ROUNDING_STRATEGY_SHRINK,
+  MTK_ROUNDING_STRATEGY_GROW,
+  MTK_ROUNDING_STRATEGY_ROUND,
+} MtkRoundingStrategy;
+
+
 /**
  * MtkRectangle:
  * @x: X coordinate of the top-left corner
@@ -121,4 +129,9 @@ gboolean mtk_rectangle_contains_rect (const MtkRectangle *outer_rect,
 
 MTK_EXPORT
 graphene_rect_t mtk_rectangle_to_graphene_rect (MtkRectangle *rect);
+
+MTK_EXPORT
+void mtk_rectangle_from_graphene_rect (const graphene_rect_t *rect,
+                                       MtkRoundingStrategy    rounding_strategy,
+                                       MtkRectangle          *dest);
 

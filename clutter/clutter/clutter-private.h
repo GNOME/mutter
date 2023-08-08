@@ -37,7 +37,6 @@
 #include "clutter/clutter-settings.h"
 #include "clutter/clutter-stage-manager.h"
 #include "clutter/clutter-stage.h"
-#include "mtk/mtk.h"
 
 G_BEGIN_DECLS
 
@@ -200,11 +199,6 @@ void  _clutter_util_fully_transform_vertices (const graphene_matrix_t  *modelvie
                                               const graphene_point3d_t *vertices_in,
                                               graphene_point3d_t       *vertices_out,
                                               int                       n_vertices);
-
-
-CLUTTER_EXPORT
-void _clutter_util_rectangle_int_extents (const graphene_rect_t *src,
-                                          MtkRectangle          *dest);
 
 CLUTTER_EXPORT
 PangoDirection _clutter_pango_unichar_direction (gunichar ch);

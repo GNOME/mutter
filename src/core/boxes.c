@@ -1850,16 +1850,16 @@ meta_rectangle_is_adjacent_to (MtkRectangle *rect,
 }
 
 void
-meta_rectangle_scale_double (const MtkRectangle   *rect,
-                             double                scale,
-                             MetaRoundingStrategy  rounding_strategy,
-                             MtkRectangle         *dest)
+meta_rectangle_scale_double (const MtkRectangle  *rect,
+                             double               scale,
+                             MtkRoundingStrategy  rounding_strategy,
+                             MtkRectangle        *dest)
 {
   graphene_rect_t tmp = GRAPHENE_RECT_INIT (rect->x, rect->y,
                                             rect->width, rect->height);
 
   graphene_rect_scale (&tmp, scale, scale, &tmp);
-  meta_rectangle_from_graphene_rect (&tmp, rounding_strategy, dest);
+  mtk_rectangle_from_graphene_rect (&tmp, rounding_strategy, dest);
 }
 
 /**
@@ -1947,49 +1947,6 @@ meta_rectangle_transform (const MtkRectangle   *rect,
 }
 
 void
-meta_rectangle_from_graphene_rect (const graphene_rect_t *rect,
-                                   MetaRoundingStrategy   rounding_strategy,
-                                   MtkRectangle          *dest)
-{
-  switch (rounding_strategy)
-    {
-    case META_ROUNDING_STRATEGY_SHRINK:
-      {
-        *dest = (MtkRectangle) {
-          .x = ceilf (rect->origin.x),
-          .y = ceilf (rect->origin.y),
-          .width = floorf (rect->size.width),
-          .height = floorf (rect->size.height),
-        };
-      }
-      break;
-    case META_ROUNDING_STRATEGY_GROW:
-      {
-        graphene_rect_t clamped = *rect;
-
-        graphene_rect_round_extents (&clamped, &clamped);
-
-        *dest = (MtkRectangle) {
-          .x = clamped.origin.x,
-          .y = clamped.origin.y,
-          .width = clamped.size.width,
-          .height = clamped.size.height,
-        };
-      }
-      break;
-    case META_ROUNDING_STRATEGY_ROUND:
-      {
-        *dest = (MtkRectangle) {
-          .x = roundf (rect->origin.x),
-          .y = roundf (rect->origin.y),
-          .width = roundf (rect->size.width),
-          .height = roundf (rect->size.height),
-        };
-      }
-    }
-}
-
-void
 meta_rectangle_crop_and_scale (const MtkRectangle *rect,
                                graphene_rect_t    *src_rect,
                                int                 dst_width,
@@ -2005,5 +1962,5 @@ meta_rectangle_crop_and_scale (const MtkRectangle *rect,
                        &tmp);
   graphene_rect_offset (&tmp, src_rect->origin.x, src_rect->origin.y);
 
-  meta_rectangle_from_graphene_rect (&tmp, META_ROUNDING_STRATEGY_GROW, dest);
+  mtk_rectangle_from_graphene_rect (&tmp, MTK_ROUNDING_STRATEGY_GROW, dest);
 }

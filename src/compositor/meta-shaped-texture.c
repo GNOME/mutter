@@ -1040,7 +1040,7 @@ meta_shaped_texture_update_area (MetaShapedTexture *stex,
 
   meta_rectangle_scale_double (clip,
                                1.0 / stex->buffer_scale,
-                               META_ROUNDING_STRATEGY_GROW,
+                               MTK_ROUNDING_STRATEGY_GROW,
                                clip);
 
   if (meta_monitor_transform_is_rotated (stex->transform))
