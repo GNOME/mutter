@@ -69,8 +69,8 @@
  * ```
  *
  * The actor should then override the [signal@Actor::key-press-event] and
- * use [method@BindingPool.activate] to match a [struct@KeyEvent] structure
- * to one of the actions:
+ * use [method@BindingPool.activate] to match a [struct@Event] key event
+ * structure to one of the actions:
  *
  * ```c
  *   ClutterBindingPool *pool;

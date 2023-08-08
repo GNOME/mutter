@@ -6963,7 +6963,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
   /**
    * ClutterActor::button-press-event:
    * @actor: the actor which received the event
-   * @event: (type ClutterButtonEvent): a #ClutterButtonEvent
+   * @event: (type ClutterEvent): a button [struct@Event]
    *
    * The signal is emitted each time a mouse button
    * is pressed on @actor.
@@ -6986,7 +6986,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
   /**
    * ClutterActor::button-release-event:
    * @actor: the actor which received the event
-   * @event: (type ClutterButtonEvent): a #ClutterButtonEvent
+   * @event: (type ClutterEvent): a button [struct@Event]
    *
    * The signal is emitted each time a mouse button
    * is released on @actor.
@@ -7009,7 +7009,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
   /**
    * ClutterActor::scroll-event:
    * @actor: the actor which received the event
-   * @event: (type ClutterScrollEvent): a #ClutterScrollEvent
+   * @event: (type ClutterEvent): a scroll [struct@Event]
    *
    * The signal is emitted each time the mouse is
    * scrolled on @actor
@@ -7032,7 +7032,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
   /**
    * ClutterActor::key-press-event:
    * @actor: the actor which received the event
-   * @event: (type ClutterKeyEvent): a #ClutterKeyEvent
+   * @event: (type ClutterEvent): a key [struct@Event]
    *
    * The signal is emitted each time a keyboard button
    * is pressed while @actor has key focus (see clutter_stage_set_key_focus()).
@@ -7055,7 +7055,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
   /**
    * ClutterActor::key-release-event:
    * @actor: the actor which received the event
-   * @event: (type ClutterKeyEvent): a #ClutterKeyEvent
+   * @event: (type ClutterEvent): a key [struct@Event]
    *
    * The signal is emitted each time a keyboard button
    * is released while @actor has key focus (see
@@ -7079,7 +7079,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
   /**
    * ClutterActor::motion-event:
    * @actor: the actor which received the event
-   * @event: (type ClutterMotionEvent): a #ClutterMotionEvent
+   * @event: (type ClutterEvent): a motion [struct@Event]
    *
    * The signal is emitted each time the mouse pointer is
    * moved over @actor.
@@ -7131,7 +7131,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
   /**
    * ClutterActor::enter-event:
    * @actor: the actor which the pointer has entered.
-   * @event: (type ClutterCrossingEvent): a #ClutterCrossingEvent
+   * @event: (type ClutterEvent): a crossing [struct@Event]
    *
    * The signal is emitted when the pointer enters the @actor
    *
@@ -7154,7 +7154,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
   /**
    * ClutterActor::leave-event:
    * @actor: the actor which the pointer has left
-   * @event: (type ClutterCrossingEvent): a #ClutterCrossingEvent
+   * @event: (type ClutterEvent): a crossing [struct@Event]
    *
    * The signal is emitted when the pointer leaves the @actor.
    *

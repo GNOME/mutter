@@ -236,21 +236,21 @@ struct _ClutterActorClass
   gboolean (* event)                (ClutterActor         *actor,
                                      ClutterEvent         *event);
   gboolean (* button_press_event)   (ClutterActor         *actor,
-                                     ClutterButtonEvent   *event);
+                                     ClutterEvent         *event);
   gboolean (* button_release_event) (ClutterActor         *actor,
-                                     ClutterButtonEvent   *event);
+                                     ClutterEvent         *event);
   gboolean (* scroll_event)         (ClutterActor         *actor,
-                                     ClutterScrollEvent   *event);
+                                     ClutterEvent         *event);
   gboolean (* key_press_event)      (ClutterActor         *actor,
-                                     ClutterKeyEvent      *event);
+                                     ClutterEvent         *event);
   gboolean (* key_release_event)    (ClutterActor         *actor,
-                                     ClutterKeyEvent      *event);
+                                     ClutterEvent         *event);
   gboolean (* motion_event)         (ClutterActor         *actor,
-                                     ClutterMotionEvent   *event);
+                                     ClutterEvent         *event);
   gboolean (* enter_event)          (ClutterActor         *actor,
-                                     ClutterCrossingEvent *event);
+                                     ClutterEvent         *event);
   gboolean (* leave_event)          (ClutterActor         *actor,
-                                     ClutterCrossingEvent *event);
+                                     ClutterEvent         *event);
   gboolean (* captured_event)       (ClutterActor         *actor,
                                      ClutterEvent         *event);
   void     (* key_focus_in)         (ClutterActor         *actor);
@@ -270,7 +270,7 @@ struct _ClutterActorClass
                                      ClutterPaintNode     *root);
 
   gboolean (* touch_event)          (ClutterActor         *self,
-                                     ClutterTouchEvent    *event);
+                                     ClutterEvent         *event);
   gboolean (* has_accessible)       (ClutterActor         *self);
   void     (* resource_scale_changed) (ClutterActor *self);
   float    (* calculate_resource_scale) (ClutterActor *self,

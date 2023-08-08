@@ -110,8 +110,8 @@ key_group_action_activate (KeyGroup            *self,
 }
 
 static gboolean
-key_group_key_press (ClutterActor    *actor,
-                     ClutterKeyEvent *event)
+key_group_key_press (ClutterActor *actor,
+                     ClutterEvent *event)
 {
   ClutterBindingPool *pool;
   gboolean res;
@@ -120,8 +120,8 @@ key_group_key_press (ClutterActor    *actor,
   g_assert (pool != NULL);
 
   res = clutter_binding_pool_activate (pool,
-                                       clutter_event_get_key_symbol ((ClutterEvent *) event),
-                                       clutter_event_get_state ((ClutterEvent *) event),
+                                       clutter_event_get_key_symbol (event),
+                                       clutter_event_get_state (event),
                                        G_OBJECT (actor));
 
   /* if we activate a key binding, redraw the actor */

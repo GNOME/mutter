@@ -2365,42 +2365,42 @@ clutter_text_release (ClutterActor *actor,
 }
 
 static gboolean
-clutter_text_button_press (ClutterActor       *actor,
-                           ClutterButtonEvent *event)
+clutter_text_button_press (ClutterActor *actor,
+                           ClutterEvent *event)
 {
-  return clutter_text_press (actor, (ClutterEvent *) event);
+  return clutter_text_press (actor, event);
 }
 
 static gboolean
-clutter_text_motion (ClutterActor       *actor,
-                     ClutterMotionEvent *event)
+clutter_text_motion (ClutterActor *actor,
+                     ClutterEvent *event)
 {
-  return clutter_text_move (actor, (ClutterEvent *) event);
+  return clutter_text_move (actor, event);
 }
 
 static gboolean
-clutter_text_button_release (ClutterActor       *actor,
-                             ClutterButtonEvent *event)
+clutter_text_button_release (ClutterActor *actor,
+                             ClutterEvent *event)
 {
-  return clutter_text_release (actor, (ClutterEvent *) event);
+  return clutter_text_release (actor, event);
 }
 
 static gboolean
-clutter_text_touch_event (ClutterActor      *actor,
-                          ClutterTouchEvent *event)
+clutter_text_touch_event (ClutterActor *actor,
+                          ClutterEvent *event)
 {
-  switch (clutter_event_type ((ClutterEvent *) event))
+  switch (clutter_event_type (event))
     {
     case CLUTTER_TOUCH_BEGIN:
-      return clutter_text_press (actor, (ClutterEvent *) event);
+      return clutter_text_press (actor, event);
 
     case CLUTTER_TOUCH_END:
     case CLUTTER_TOUCH_CANCEL:
       /* TODO: the cancel case probably need a special handler */
-      return clutter_text_release (actor, (ClutterEvent *) event);
+      return clutter_text_release (actor, event);
 
     case CLUTTER_TOUCH_UPDATE:
-      return clutter_text_move (actor, (ClutterEvent *) event);
+      return clutter_text_move (actor, event);
 
     default:
       break;
@@ -2424,8 +2424,8 @@ clutter_text_remove_password_hint (gpointer data)
 }
 
 static gboolean
-clutter_text_key_press (ClutterActor    *actor,
-                        ClutterKeyEvent *event)
+clutter_text_key_press (ClutterActor *actor,
+                        ClutterEvent *event)
 {
   ClutterText *self = CLUTTER_TEXT (actor);
   ClutterTextPrivate *priv = self->priv;
@@ -2445,14 +2445,13 @@ clutter_text_key_press (ClutterActor    *actor,
   pool = clutter_binding_pool_find (g_type_name (CLUTTER_TYPE_TEXT));
   g_assert (pool != NULL);
 
-  flags = clutter_event_get_flags ((ClutterEvent *) event);
-  keyval = clutter_event_get_key_symbol ((ClutterEvent *) event);
-  modifiers = clutter_event_get_state ((ClutterEvent *) event);
+  flags = clutter_event_get_flags (event);
+  keyval = clutter_event_get_key_symbol (event);
+  modifiers = clutter_event_get_state (event);
 
   if (!(flags & CLUTTER_EVENT_FLAG_INPUT_METHOD) &&
       clutter_input_focus_is_focused (priv->input_focus) &&
-      clutter_input_focus_filter_event (priv->input_focus,
-					(ClutterEvent *) event))
+      clutter_input_focus_filter_event (priv->input_focus, event))
     return CLUTTER_EVENT_STOP;
 
   /* we allow passing synthetic events that only contain
@@ -2479,7 +2478,7 @@ clutter_text_key_press (ClutterActor    *actor,
       gunichar key_unichar;
 
       /* Skip keys when control is pressed */
-      key_unichar = clutter_event_get_key_unicode ((ClutterEvent *) event);
+      key_unichar = clutter_event_get_key_unicode (event);
 
       /* return is reported as CR, but we want LF */
       if (key_unichar == '\r')
@@ -2514,15 +2513,14 @@ clutter_text_key_press (ClutterActor    *actor,
 }
 
 static gboolean
-clutter_text_key_release (ClutterActor    *actor,
-                          ClutterKeyEvent *event)
+clutter_text_key_release (ClutterActor *actor,
+                          ClutterEvent *event)
 {
   ClutterText *self = CLUTTER_TEXT (actor);
   ClutterTextPrivate *priv = self->priv;
 
   if (clutter_input_focus_is_focused (priv->input_focus) &&
-      clutter_input_focus_filter_event (priv->input_focus,
-					(ClutterEvent *) event))
+      clutter_input_focus_filter_event (priv->input_focus, event))
     return CLUTTER_EVENT_STOP;
 
   return CLUTTER_EVENT_PROPAGATE;

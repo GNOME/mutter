@@ -30,8 +30,8 @@
  * Action for gesture gestures
  *
  * #ClutterGestureAction is a sub-class of [class@Action] that implements
- * the logic for recognizing gesture gestures. It listens for low level events
- * such as [struct@ButtonEvent] and [struct@MotionEvent] on the stage to raise
+ * the logic for recognizing gesture gestures. It listens for low level
+ * [struct@Event] events on the stage to raise
  * the [signal@GestureAction::gesture-begin], [signal@GestureAction::gesture-progress],
  * and [signal@GestureAction::gesture-end] signals.
  *
