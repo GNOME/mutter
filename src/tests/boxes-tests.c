@@ -90,132 +90,9 @@ new_monitor_edge (int x, int y, int width, int height, int side_type)
   return temporary;
 }
 
-static void
-test_init_rect (void)
-{
-  MtkRectangle rect;
 
-  rect = MTK_RECTANGLE_INIT (1, 2, 3, 4);
-  g_assert_cmpint (rect.x, ==, 1);
-  g_assert_cmpint (rect.y, ==, 2);
-  g_assert_cmpint (rect.width, ==, 3);
-  g_assert_cmpint (rect.height, ==, 4);
-}
 
-static void
-test_area (void)
-{
-  MtkRectangle temp;
-  int i;
-  for (i = 0; i < NUM_RANDOM_RUNS; i++)
-    {
-      get_random_rect (&temp);
-      g_assert (mtk_rectangle_area (&temp) == temp.width * temp.height);
-    }
 
-  temp = MTK_RECTANGLE_INIT (0, 0, 5, 7);
-  g_assert (mtk_rectangle_area (&temp) == 35);
-}
-
-static void
-test_intersect (void)
-{
-  MtkRectangle a = {100, 200,  50,  40};
-  MtkRectangle b = {  0,  50, 110, 152};
-  MtkRectangle c = {  0,   0,  10,  10};
-  MtkRectangle d = {100, 100,  50,  50};
-  MtkRectangle b_intersect_d = {100, 100, 10, 50};
-  MtkRectangle temp;
-  MtkRectangle temp2;
-
-  mtk_rectangle_intersect (&a, &b, &temp);
-  temp2 = MTK_RECTANGLE_INIT (100, 200, 10, 2);
-  g_assert (mtk_rectangle_equal (&temp, &temp2));
-  g_assert (mtk_rectangle_area (&temp) == 20);
-
-  mtk_rectangle_intersect (&a, &c, &temp);
-  g_assert (mtk_rectangle_area (&temp) == 0);
-
-  mtk_rectangle_intersect (&a, &d, &temp);
-  g_assert (mtk_rectangle_area (&temp) == 0);
-
-  mtk_rectangle_intersect (&b, &d, &b);
-  g_assert (mtk_rectangle_equal (&b, &b_intersect_d));
-}
-
-static void
-test_equal (void)
-{
-  MtkRectangle a = {10, 12, 4, 18};
-  MtkRectangle b = a;
-  MtkRectangle c = {10, 12, 4, 19};
-  MtkRectangle d = {10, 12, 7, 18};
-  MtkRectangle e = {10, 62, 4, 18};
-  MtkRectangle f = {27, 12, 4, 18};
-
-  g_assert ( mtk_rectangle_equal (&a, &b));
-  g_assert (!mtk_rectangle_equal (&a, &c));
-  g_assert (!mtk_rectangle_equal (&a, &d));
-  g_assert (!mtk_rectangle_equal (&a, &e));
-  g_assert (!mtk_rectangle_equal (&a, &f));
-}
-
-static void
-test_overlap_funcs (void)
-{
-  MtkRectangle temp1, temp2;
-  int i;
-  for (i = 0; i < NUM_RANDOM_RUNS; i++)
-    {
-      get_random_rect (&temp1);
-      get_random_rect (&temp2);
-      g_assert (mtk_rectangle_overlap (&temp1, &temp2) ==
-                (mtk_rectangle_horiz_overlap (&temp1, &temp2) &&
-                 mtk_rectangle_vert_overlap (&temp1, &temp2)));
-    }
-
-  temp1 = MTK_RECTANGLE_INIT ( 0, 0, 10, 10);
-  temp2 = MTK_RECTANGLE_INIT (20, 0, 10,  5);
-  g_assert (!mtk_rectangle_overlap (&temp1, &temp2));
-  g_assert (!mtk_rectangle_horiz_overlap (&temp1, &temp2));
-  g_assert (mtk_rectangle_vert_overlap (&temp1, &temp2));
-}
-
-static void
-test_basic_fitting (void)
-{
-  MtkRectangle temp1, temp2, temp3;
-  int i;
-  /* Four cases:
-   *   case   temp1 fits temp2    temp1 could fit temp2
-   *     1           Y                      Y
-   *     2           N                      Y
-   *     3           Y                      N
-   *     4           N                      N
-   * Of the four cases, case 3 is impossible.  An alternate way of looking
-   * at this table is that either the middle column must be no, or the last
-   * column must be yes.  So we test that.  Also, we can repeat the test
-   * reversing temp1 and temp2.
-   */
-  for (i = 0; i < NUM_RANDOM_RUNS; i++)
-    {
-      get_random_rect (&temp1);
-      get_random_rect (&temp2);
-      g_assert (mtk_rectangle_contains_rect (&temp1, &temp2) == FALSE ||
-                mtk_rectangle_could_fit_rect (&temp1, &temp2) == TRUE);
-      g_assert (mtk_rectangle_contains_rect (&temp2, &temp1) == FALSE ||
-                mtk_rectangle_could_fit_rect (&temp2, &temp1) == TRUE);
-    }
-
-  temp1 = MTK_RECTANGLE_INIT ( 0, 0, 10, 10);
-  temp2 = MTK_RECTANGLE_INIT ( 5, 5,  5,  5);
-  temp3 = MTK_RECTANGLE_INIT ( 8, 2,  3,  7);
-  g_assert ( mtk_rectangle_contains_rect (&temp1, &temp2));
-  g_assert (!mtk_rectangle_contains_rect (&temp2, &temp1));
-  g_assert (!mtk_rectangle_contains_rect (&temp1, &temp3));
-  g_assert ( mtk_rectangle_could_fit_rect (&temp1, &temp3));
-  g_assert (!mtk_rectangle_could_fit_rect (&temp3, &temp2));
-}
 
 static void
 free_strut_list (GSList *struts)
@@ -1362,13 +1239,6 @@ void
 init_boxes_tests (void)
 {
   init_random_ness ();
-
-  g_test_add_func ("/util/boxes/init", test_init_rect);
-  g_test_add_func ("/util/boxes/area", test_area);
-  g_test_add_func ("/util/boxes/intersect", test_intersect);
-  g_test_add_func ("/util/boxes/equal", test_equal);
-  g_test_add_func ("/util/boxes/overlap", test_overlap_funcs);
-  g_test_add_func ("/util/boxes/basic-fitting", test_basic_fitting);
 
   g_test_add_func ("/util/boxes/regions-ok", test_regions_okay);
   g_test_add_func ("/util/boxes/regions-fitting", test_region_fitting);

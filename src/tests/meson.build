@@ -224,6 +224,8 @@ wayland_test_utils = [
 test_cases = []
 privileged_test_cases = []
 
+subdir('mtk')
+
 test_cases += [
   {
     'name': 'unit',
