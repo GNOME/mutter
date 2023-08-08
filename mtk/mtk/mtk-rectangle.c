@@ -276,3 +276,24 @@ mtk_rectangle_contains_rect (const MtkRectangle *outer_rect,
     inner_rect->x + inner_rect->width  <= outer_rect->x + outer_rect->width &&
     inner_rect->y + inner_rect->height <= outer_rect->y + outer_rect->height;
 }
+
+/**
+ * mtk_rectangle_to_graphene_rect:
+ * @rect: A rectangle
+ *
+ * Returns: Return a graphene_rect_t created from `rect`
+ */
+graphene_rect_t
+mtk_rectangle_to_graphene_rect (MtkRectangle *rect)
+{
+  return (graphene_rect_t) {
+           .origin = {
+             .x = rect->x,
+             .y = rect->y
+           },
+           .size = {
+             .width = rect->width,
+             .height = rect->height
+           }
+  };
+}

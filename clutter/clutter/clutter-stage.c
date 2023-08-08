@@ -2689,7 +2689,7 @@ clutter_stage_get_capture_final_size (ClutterStage *stage,
       g_autoptr (GList) views = NULL;
       GList *l;
 
-      _clutter_util_rect_from_rectangle (rect, &capture_rect);
+      capture_rect = mtk_rectangle_to_graphene_rect (rect);
       views = clutter_stage_get_views_for_rect (stage, &capture_rect);
 
       if (!views)
@@ -2977,7 +2977,7 @@ clutter_stage_get_views_for_rect (ClutterStage          *stage,
       graphene_rect_t view_rect;
 
       clutter_stage_view_get_layout (view, &view_layout);
-      _clutter_util_rect_from_rectangle (&view_layout, &view_rect);
+      view_rect = mtk_rectangle_to_graphene_rect (&view_layout);
 
       if (graphene_rect_intersection (&view_rect, rect, NULL))
         views_for_rect = g_list_prepend (views_for_rect, view);

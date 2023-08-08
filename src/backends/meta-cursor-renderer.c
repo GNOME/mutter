@@ -179,7 +179,7 @@ meta_cursor_renderer_after_paint (ClutterStage       *stage,
       rect = meta_cursor_renderer_calculate_rect (renderer,
                                                   priv->displayed_cursor);
       clutter_stage_view_get_layout (stage_view, &view_layout);
-      view_rect = meta_rectangle_to_graphene_rect (&view_layout);
+      view_rect = mtk_rectangle_to_graphene_rect (&view_layout);
       if (graphene_rect_intersection (&rect, &view_rect, NULL))
         {
           meta_cursor_renderer_emit_painted (renderer,
@@ -392,7 +392,7 @@ find_highest_logical_monitor_scale (MetaBackend      *backend,
     {
       MetaLogicalMonitor *logical_monitor = l->data;
       graphene_rect_t logical_monitor_rect =
-        meta_rectangle_to_graphene_rect (&logical_monitor->rect);
+        mtk_rectangle_to_graphene_rect (&logical_monitor->rect);
 
       if (!graphene_rect_intersection (&cursor_rect,
                                        &logical_monitor_rect,

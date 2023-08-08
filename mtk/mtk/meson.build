@@ -55,6 +55,7 @@ if have_introspection
     includes: [
       'GObject-2.0',
       'cairo-1.0',
+      'Graphene-1.0',
     ],
     extra_args: mtk_introspection_args + ['--c-include=mtk/mtk.h'],
     install_dir_gir: pkglibdir,

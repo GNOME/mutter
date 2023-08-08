@@ -463,7 +463,7 @@ meta_region_apply_matrix_transform_expand (const cairo_region_t *region,
       MtkRectangle int_rect;
 
       cairo_region_get_rectangle (region, i, &int_rect);
-      rect = meta_rectangle_to_graphene_rect (&int_rect);
+      rect = mtk_rectangle_to_graphene_rect (&int_rect);
 
       graphene_matrix_transform_bounds (transform, &rect, &transformed_rect);
 

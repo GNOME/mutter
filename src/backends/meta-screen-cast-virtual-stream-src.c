@@ -442,7 +442,7 @@ is_cursor_in_stream (MetaScreenCastVirtualStreamSrc *virtual_src)
   MetaCursorSprite *cursor_sprite;
 
   clutter_stage_view_get_layout (stage_view, &view_layout);
-  view_rect = meta_rectangle_to_graphene_rect (&view_layout);
+  view_rect = mtk_rectangle_to_graphene_rect (&view_layout);
 
   cursor_sprite = meta_cursor_renderer_get_cursor (cursor_renderer);
   if (cursor_sprite)
@@ -496,7 +496,7 @@ meta_screen_cast_virtual_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc
 
   stage_view = view_from_src (src);
   clutter_stage_view_get_layout (stage_view, &view_layout);
-  view_rect = meta_rectangle_to_graphene_rect (&view_layout);
+  view_rect = mtk_rectangle_to_graphene_rect (&view_layout);
   view_scale = clutter_stage_view_get_scale (stage_view);
 
   meta_cursor_tracker_get_pointer (cursor_tracker, &cursor_position, NULL);

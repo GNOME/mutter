@@ -120,22 +120,6 @@ _clutter_util_fully_transform_vertices (const graphene_matrix_t  *modelview,
 }
 
 void
-_clutter_util_rect_from_rectangle (const MtkRectangle *src,
-                                   graphene_rect_t    *dest)
-{
-  *dest = (graphene_rect_t) {
-    .origin = {
-      .x = src->x,
-      .y = src->y
-    },
-    .size = {
-      .width = src->width,
-      .height = src->height
-    }
-  };
-}
-
-void
 _clutter_util_rectangle_int_extents (const graphene_rect_t *src,
                                      MtkRectangle          *dest)
 {

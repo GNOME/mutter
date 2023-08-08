@@ -234,7 +234,7 @@ is_cursor_in_stream (MetaScreenCastMonitorStreamSrc *monitor_src)
   logical_monitor = meta_monitor_get_logical_monitor (monitor);
   logical_monitor_layout = meta_logical_monitor_get_layout (logical_monitor);
   logical_monitor_rect =
-    meta_rectangle_to_graphene_rect (&logical_monitor_layout);
+    mtk_rectangle_to_graphene_rect (&logical_monitor_layout);
 
   cursor_sprite = meta_cursor_renderer_get_cursor (cursor_renderer);
   if (cursor_sprite)
@@ -699,7 +699,7 @@ meta_screen_cast_monitor_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc
   logical_monitor = meta_monitor_get_logical_monitor (monitor);
   logical_monitor_layout = meta_logical_monitor_get_layout (logical_monitor);
   logical_monitor_rect =
-    meta_rectangle_to_graphene_rect (&logical_monitor_layout);
+    mtk_rectangle_to_graphene_rect (&logical_monitor_layout);
 
   if (meta_backend_is_stage_views_scaled (backend))
     view_scale = meta_logical_monitor_get_scale (logical_monitor);

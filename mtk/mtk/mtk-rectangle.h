@@ -23,6 +23,7 @@
 
 #include <cairo.h>
 #include <glib-object.h>
+#include <graphene.h>
 
 #include "mtk/mtk-macros.h"
 
@@ -117,4 +118,7 @@ gboolean mtk_rectangle_could_fit_rect (const MtkRectangle *outer_rect,
 MTK_EXPORT
 gboolean mtk_rectangle_contains_rect (const MtkRectangle *outer_rect,
                                       const MtkRectangle *inner_rect);
+
+MTK_EXPORT
+graphene_rect_t mtk_rectangle_to_graphene_rect (MtkRectangle *rect);
 

@@ -200,7 +200,7 @@ meta_wayland_cursor_surface_is_on_logical_monitor (MetaWaylandSurfaceRole *role,
     return FALSE;
 
   logical_monitor_rect =
-    meta_rectangle_to_graphene_rect (&logical_monitor->rect);
+    mtk_rectangle_to_graphene_rect (&logical_monitor->rect);
 
   device = meta_cursor_renderer_get_input_device (priv->cursor_renderer);
   clutter_seat_query_state (clutter_input_device_get_seat (device),

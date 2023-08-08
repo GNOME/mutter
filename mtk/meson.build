@@ -29,6 +29,7 @@ mtk_pkg_deps = [
   glib_dep,
   gobject_dep,
   gio_dep,
+  graphene_dep,
 ]
 
 mtk_deps = [

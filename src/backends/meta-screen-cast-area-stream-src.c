@@ -118,7 +118,7 @@ is_cursor_in_stream (MetaScreenCastAreaStreamSrc *area_src)
   MetaCursorSprite *cursor_sprite;
 
   area = meta_screen_cast_area_stream_get_area (area_stream);
-  area_rect = meta_rectangle_to_graphene_rect (area);
+  area_rect = mtk_rectangle_to_graphene_rect (area);
 
   cursor_sprite = meta_cursor_renderer_get_cursor (cursor_renderer);
   if (cursor_sprite)

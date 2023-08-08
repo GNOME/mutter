@@ -1451,7 +1451,7 @@ meta_window_actor_blit_to_framebuffer (MetaScreenCastWindow *screen_cast_window,
                                  0, 0,
                                  unscaled_width, unscaled_height);
 
-  scaled_clip = meta_rectangle_to_graphene_rect (bounds);
+  scaled_clip = mtk_rectangle_to_graphene_rect (bounds);
   graphene_rect_scale (&scaled_clip,
                        unscaled_width / width,
                        unscaled_height / height,

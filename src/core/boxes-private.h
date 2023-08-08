@@ -254,21 +254,6 @@ void meta_rectangle_scale_double (const MtkRectangle   *rect,
                                   MetaRoundingStrategy  rounding_strategy,
                                   MtkRectangle         *dest);
 
-static inline graphene_rect_t
-meta_rectangle_to_graphene_rect (MtkRectangle *rect)
-{
-  return (graphene_rect_t) {
-    .origin = {
-      .x = rect->x,
-      .y = rect->y
-    },
-    .size = {
-      .width = rect->width,
-      .height = rect->height
-    }
-  };
-}
-
 META_EXPORT_TEST
 void meta_rectangle_transform (const MtkRectangle   *rect,
                                MetaMonitorTransform  transform,
