@@ -415,16 +415,6 @@ meta_seat_impl_notify_key_in_impl (MetaSeatImpl       *seat_impl,
           return;
         }
     }
-
-  keycode = meta_xkb_evdev_to_keycode (key);
-
-  /* We must be careful and not pass multiple releases to xkb, otherwise it gets
-     confused and locks the modifiers */
-  if (state != AUTOREPEAT_VALUE)
-    {
-      changed_state = xkb_state_update_key (seat_impl->xkb, keycode,
-                                            state ? XKB_KEY_DOWN : XKB_KEY_UP);
-    }
   else
     {
       changed_state = 0;
@@ -437,6 +427,16 @@ meta_seat_impl_notify_key_in_impl (MetaSeatImpl       *seat_impl,
                                          seat_impl->xkb,
                                          seat_impl->button_state,
                                          time_us, key, state);
+
+  keycode = meta_xkb_evdev_to_keycode (key);
+
+  /* We must be careful and not pass multiple releases to xkb, otherwise it gets
+     confused and locks the modifiers */
+  if (state != AUTOREPEAT_VALUE)
+    {
+      changed_state = xkb_state_update_key (seat_impl->xkb, keycode,
+                                            state ? XKB_KEY_DOWN : XKB_KEY_UP);
+    }
 
   if (!meta_input_device_native_process_kbd_a11y_event_in_impl (seat_impl->core_keyboard,
                                                                 event))
