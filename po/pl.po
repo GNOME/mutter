@@ -13,8 +13,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2023-03-03 20:31+0000\n"
-"PO-Revision-Date: 2023-03-11 18:30+0100\n"
+"POT-Creation-Date: 2023-07-16 01:41+0000\n"
+"PO-Revision-Date: 2023-08-08 19:01+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <community-poland@mozilla.org>\n"
 "Language: pl\n"
@@ -161,20 +161,20 @@ msgid "Switch to last workspace"
 msgstr "Przełączenie na ostatni obszar roboczy"
 
 #: data/50-mutter-navigation.xml:131
-msgid "Move to workspace on the left"
-msgstr "Przeniesienie na obszar roboczy po lewej"
+msgid "Switch to workspace on the left"
+msgstr "Przełączenie na obszar roboczy po lewej"
 
 #: data/50-mutter-navigation.xml:134
-msgid "Move to workspace on the right"
-msgstr "Przeniesienie na obszar roboczy po prawej"
+msgid "Switch to workspace on the right"
+msgstr "Przełączenie na obszar roboczy po prawej"
 
 #: data/50-mutter-navigation.xml:138
-msgid "Move to workspace above"
-msgstr "Przeniesienie na górny obszar roboczy"
+msgid "Switch to workspace above"
+msgstr "Przełączenie na obszar roboczy na górze"
 
 #: data/50-mutter-navigation.xml:142
-msgid "Move to workspace below"
-msgstr "Przeniesienie na dolny obszar roboczy"
+msgid "Switch to workspace below"
+msgstr "Przełączenie na obszar roboczy na dole"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -453,6 +453,10 @@ msgstr "Przełączenie konfiguracji monitorów"
 msgid "Rotates the built-in monitor configuration"
 msgstr "Obrócenie wbudowanego monitora"
 
+#: data/org.gnome.mutter.gschema.xml.in:184
+msgid "Cancel any active input capture session"
+msgstr "Anulowanie wszystkich aktywnych sesji przechwytywania wejścia"
+
 #: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
 msgstr "Przełączenie na 1. konsolę wirtualną"
@@ -635,82 +639,77 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#. This probably means that a non-WM compositor like xcompmgr is running;
-#. * we have no way to get it to exit
-#: src/compositor/compositor.c:416
-#, c-format
-msgid ""
-"Another compositing manager is already running on screen %i on display “%s”."
-msgstr ""
-"Inny menedżer składania jest już uruchomiony na podekranie %i ekranu „%s”."
-
-#: src/core/bell.c:192
+#: src/core/bell.c:193
 msgid "Bell event"
 msgstr "Zdarzenie sygnału dźwiękowego"
 
-#: src/core/display.c:703
+#: src/core/display.c:718
 msgid "Privacy Screen Enabled"
 msgstr "Włączono prywatny ekran"
 
-#: src/core/display.c:704
+#: src/core/display.c:719
 msgid "Privacy Screen Disabled"
 msgstr "Wyłączono prywatny ekran"
 
-#: src/core/meta-context-main.c:568
+#: src/core/meta-context-main.c:581
 msgid "Replace the running window manager"
 msgstr "Zastępuje uruchomionego menedżera okien"
 
-#: src/core/meta-context-main.c:574
+#: src/core/meta-context-main.c:587
 msgid "X Display to use"
 msgstr "Używany ekran X"
 
-#: src/core/meta-context-main.c:580
+#: src/core/meta-context-main.c:593
 msgid "Disable connection to session manager"
 msgstr "Rozłącza połączenie z menedżerem sesji"
 
-#: src/core/meta-context-main.c:586
+#: src/core/meta-context-main.c:599
 msgid "Specify session management ID"
 msgstr "Podaje identyfikator zarządzania sesją"
 
-#: src/core/meta-context-main.c:592
+#: src/core/meta-context-main.c:605
 msgid "Initialize session from savefile"
 msgstr "Inicjuje sesję z zapisanego pliku"
 
-#: src/core/meta-context-main.c:598
+#: src/core/meta-context-main.c:611
 msgid "Make X calls synchronous"
 msgstr "Synchroniczne wywołania X"
 
-#: src/core/meta-context-main.c:606
+#: src/core/meta-context-main.c:619
 msgid "Run as a wayland compositor"
 msgstr "Uruchamia jako menedżer składania Wayland"
 
-#: src/core/meta-context-main.c:612
+#: src/core/meta-context-main.c:625
 msgid "Run as a nested compositor"
 msgstr "Uruchamia jako osadzony menedżer składania"
 
-#: src/core/meta-context-main.c:618
+#: src/core/meta-context-main.c:631
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Uruchamia menedżer składania Wayland bez uruchamiania serwera Xwayland"
 
-#: src/core/meta-context-main.c:624
+#: src/core/meta-context-main.c:637
 msgid "Specify Wayland display name to use"
 msgstr "Podaje używaną nazwę ekranu Wayland"
 
-#: src/core/meta-context-main.c:632
+#: src/core/meta-context-main.c:645
 msgid "Run as a full display server, rather than nested"
 msgstr "Uruchamia jako pełny serwer wyświetlania zamiast osadzonego"
 
-#: src/core/meta-context-main.c:637
+#: src/core/meta-context-main.c:650
 msgid "Run as a headless display server"
 msgstr "Uruchamia jako serwer wyświetlania bez monitora"
 
-#: src/core/meta-context-main.c:642
+#: src/core/meta-context-main.c:655
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Dodaje trwały wirtualny monitor (SzxW lub SzxW@O)"
 
-#: src/core/meta-context-main.c:654
+#: src/core/meta-context-main.c:667
 msgid "Run with X11 backend"
 msgstr "Uruchamia za pomocą mechanizmu X11"
+
+#: src/core/meta-context-main.c:673
+msgid "Profile performance using trace instrumentation"
+msgstr "Profiluje wydajność za pomocą instrumentacji śledzenia"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
@@ -732,7 +731,7 @@ msgid "Show on-screen help"
 msgstr "Ekran pomocy"
 
 #. Translators: this string will appear in Sysprof
-#: src/core/meta-profiler.c:80 src/core/meta-profiler.c:217
+#: src/core/meta-profiler.c:111 src/core/meta-profiler.c:301
 msgid "Compositor"
 msgstr "Menedżer składania"
 
@@ -744,12 +743,12 @@ msgstr "Wyświetla wersję"
 msgid "Mutter plugin to use"
 msgstr "Używana wtyczka menedżera Mutter"
 
-#: src/core/prefs.c:1913
+#: src/core/prefs.c:1843
 #, c-format
 msgid "Workspace %d"
 msgstr "%d. obszar roboczy"
 
-#: src/core/util.c:142
+#: src/core/util.c:139
 msgid "Mutter was compiled without support for verbose mode"
 msgstr ""
 "Menedżer Mutter został skompilowany bez obsługi trybu z obszerną informacją"
@@ -763,7 +762,7 @@ msgstr "Przełączono obszar roboczy"
 msgid "Mode Switch: Mode %d"
 msgstr "Przełącznik trybu: %d. tryb"
 
-#: src/x11/meta-x11-display.c:697
+#: src/x11/meta-x11-display.c:708
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -772,22 +771,31 @@ msgstr ""
 "Na ekranie „%s” działa już menedżer okien. Aby zastąpić działającego "
 "menedżera okien, należy użyć opcji „--replace”."
 
-#: src/x11/meta-x11-display.c:1058
+#: src/x11/meta-x11-display.c:1073
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Otwarcie ekranu „%s” systemu X Window się nie powiodło"
 
-#: src/x11/meta-x11-display.c:1203
+#: src/x11/meta-x11-display.c:1219
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Podekran %d ekranu „%s” jest nieprawidłowy"
 
-#: src/x11/meta-x11-selection-input-stream.c:481
+#. This probably means that a non-WM compositor like xcompmgr is running;
+#. * we have no way to get it to exit
+#: src/x11/meta-x11-display.c:2550
+#, c-format
+msgid ""
+"Another compositing manager is already running on screen %i on display “%s”."
+msgstr ""
+"Inny menedżer składania jest już uruchomiony na podekranie %i ekranu „%s”."
+
+#: src/x11/meta-x11-selection-input-stream.c:475
 #, c-format
 msgid "Format %s not supported"
 msgstr "Format %s jest nieobsługiwany"
 
-#: src/x11/window-props.c:549
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (na %s)"
