@@ -135,18 +135,6 @@ _clutter_util_rectangle_int_extents (const graphene_rect_t *src,
   };
 }
 
-void
-_clutter_util_rectangle_offset (const MtkRectangle *src,
-                                int                 x,
-                                int                 y,
-                                MtkRectangle       *dest)
-{
-  *dest = *src;
-
-  dest->x += x;
-  dest->y += y;
-}
-
 typedef struct
 {
   GType value_type;

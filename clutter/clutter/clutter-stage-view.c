@@ -278,10 +278,8 @@ paint_transformed_framebuffer (ClutterStageView     *view,
       MtkRectangle dst_rect;
 
       cairo_region_get_rectangle (redraw_clip, i, &src_rect);
-      _clutter_util_rectangle_offset (&src_rect,
-                                      -view_layout.x,
-                                      -view_layout.y,
-                                      &src_rect);
+      src_rect.x -= view_layout.x;
+      src_rect.y -= view_layout.y;
 
       clutter_stage_view_transform_rect_to_onscreen (view,
                                                      &src_rect,

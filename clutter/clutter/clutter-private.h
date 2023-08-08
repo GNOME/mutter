@@ -206,11 +206,6 @@ CLUTTER_EXPORT
 void _clutter_util_rectangle_int_extents (const graphene_rect_t *src,
                                           MtkRectangle          *dest);
 
-void _clutter_util_rectangle_offset (const MtkRectangle          *src,
-                                     int                          x,
-                                     int                          y,
-                                     MtkRectangle                *dest);
-
 CLUTTER_EXPORT
 PangoDirection _clutter_pango_unichar_direction (gunichar ch);
 
