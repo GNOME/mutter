@@ -8,22 +8,21 @@
 # Francisco Javier F. Serrador <serrador@cvs.gnome.org>, 2004, 2005, 2006.
 # Jorge González <jorgegonz@svn.gnome.org>, 2007, 2008, 2009, 2010, 2011.
 # Daniel Mustieles <daniel.mustieles@gmail.com>, 2022-2023.
-# Daniel Mustieles García <daniel.mustieles@gmail.com>, 2023.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter.master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2023-07-16 01:41+0000\n"
-"PO-Revision-Date: 2023-08-08 08:40+0200\n"
-"Last-Translator: Daniel Mustieles García <daniel.mustieles@gmail.com>\n"
+"POT-Creation-Date: 2023-08-08 07:07+0000\n"
+"PO-Revision-Date: 2023-08-09 12:43+0200\n"
+"Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: Spanish - Spain <gnome-es-list@gnome.org>\n"
 "Language: es_ES\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"X-Generator: Gtranslator 42.0\n"
+"X-Generator: Gtranslator 45.alpha0\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -458,7 +457,7 @@ msgstr "Rota la configuración del monitor empotrado"
 
 #: data/org.gnome.mutter.gschema.xml.in:184
 msgid "Cancel any active input capture session"
-msgstr ""
+msgstr "Cancelar cualquier sesión de captura de entrada activa"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
@@ -641,11 +640,11 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Evento de campana"
 
-#: src/core/display.c:718
+#: src/core/display.c:714
 msgid "Privacy Screen Enabled"
 msgstr "Privacidad de pantalla activada"
 
-#: src/core/display.c:719
+#: src/core/display.c:715
 msgid "Privacy Screen Disabled"
 msgstr "Privacidad de pantalla desactivada"
 
@@ -707,12 +706,12 @@ msgstr "Ejecutar con «backend» de X11"
 
 #: src/core/meta-context-main.c:673
 msgid "Profile performance using trace instrumentation"
-msgstr ""
+msgstr "Perfilar el rendimiento usando instrumentación de trazas"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:861
+#: src/core/meta-pad-action-mapper.c:807
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Cambiar modo (grupo %d)"
@@ -720,11 +719,11 @@ msgstr "Cambiar modo (grupo %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:884
+#: src/core/meta-pad-action-mapper.c:829
 msgid "Switch monitor"
 msgstr "Cambiar monitor"
 
-#: src/core/meta-pad-action-mapper.c:886
+#: src/core/meta-pad-action-mapper.c:831
 msgid "Show on-screen help"
 msgstr "Mostrar la ayuda en pantalla"
 
@@ -750,11 +749,11 @@ msgstr "Área de trabajo %d"
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter se compiló sin soporte para modo detallado"
 
-#: src/core/workspace.c:541
+#: src/core/workspace.c:535
 msgid "Workspace switched"
 msgstr "Área de trabajo cambiada"
 
-#: src/wayland/meta-wayland-tablet-pad.c:530
+#: src/wayland/meta-wayland-tablet-pad.c:534
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Cambiar modo: modo %d"
@@ -1203,8 +1202,8 @@ msgstr "%s (on %s)"
 #~ msgstr "El elemento <%s> no está permitido debajo de <%s>"
 
 #~ msgid ""
-#~ "Cannot specify both \"button_width\"/\"button_height\" and \"aspect_ratio"
-#~ "\" for buttons"
+#~ "Cannot specify both \"button_width\"/\"button_height\" and "
+#~ "\"aspect_ratio\" for buttons"
 #~ msgstr ""
 #~ "No se puede especificar ambos «button_width»/«button_height» y «aspect "
 #~ "ratio» para los botones"
@@ -2338,8 +2337,9 @@ msgstr "%s (on %s)"
 
 #~ msgid ""
 #~ "Set this to true to resize with the right button and show a menu with the "
-#~ "middle button while holding down the key given in \"mouse_button_modifier"
-#~ "\"; set it to false to make it work the opposite way around."
+#~ "middle button while holding down the key given in "
+#~ "\"mouse_button_modifier\"; set it to false to make it work the opposite "
+#~ "way around."
 #~ msgstr ""
 #~ "Establezca esto a «verdadero» para redimensionar con el botón derecho y "
 #~ "mostrar un menú con el botón del medio mientras se mantiene pulsada la "
@@ -3244,8 +3244,8 @@ msgstr "%s (on %s)"
 
 #~ msgid ""
 #~ "The keybinding used to move focus backwards between panels and the "
-#~ "desktop, without a popup window. The format looks like \"&lt;Control&gt;a"
-#~ "\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and "
+#~ "desktop, without a popup window. The format looks like \"&lt;Control&gt;"
+#~ "a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and "
 #~ "allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;"
 #~ "\" and \"&lt;Ctrl&gt;\". If you set the option to the special string "
 #~ "\"disabled\", then there will be no keybinding for this action."
@@ -3304,8 +3304,8 @@ msgstr "%s (on %s)"
 #~ "direction go forward again. The format looks like \"&lt;Control&gt;a\" or "
 #~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
 #~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
-#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "La combinación de teclas usada para mover el foco entre ventanas sin una "
 #~ "ventana emergente. Manteniendo pulsada la tecla «Mayús.» junto con esta "
@@ -3322,8 +3322,8 @@ msgstr "%s (on %s)"
 #~ "direction go forward again. The format looks like \"&lt;Control&gt;a\" or "
 #~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
 #~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
-#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "La combinación de teclas usada para mover el foco entre ventanas, usando "
 #~ "una ventana emergente. Manteniendo pulsada la tecla «Mayús.» junto con "
@@ -3568,8 +3568,8 @@ msgstr "%s (on %s)"
 #~ "screenshot of a window. The format looks like \"&lt;Control&gt;a\" or "
 #~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
 #~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
-#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "La combinación de teclas que invoca la utilidad del panel de captura de "
 #~ "pantalla para obtener una captura de pantalla de una ventana. El formato "
