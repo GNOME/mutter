@@ -655,7 +655,7 @@ meta_compositor_switch_workspace (MetaCompositor     *compositor,
       /* We have to explicitly call this to fix up stacking order of the
        * actors; this is because the abs stacking position of actors does not
        * necessarily change during the window hiding/unhiding, only their
-       * relative position toward the destkop window.
+       * relative position toward the desktop window.
        */
       meta_finish_workspace_switch (compositor);
     }

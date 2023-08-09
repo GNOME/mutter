@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011,2013 Intel Corporation.
- * Copyrigth (C) 2020 Red Hat
+ * Copyright (C) 2020 Red Hat
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation

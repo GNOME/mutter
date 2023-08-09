@@ -659,7 +659,7 @@ Translators:
 * wayland: Make each wl_output correspond to one monitor [Jonas; !1712]
 * Expose 'inactive-since' timestamp to uresourced [Nishal; !1960]
 * Pass dirty rects to secondary GPU [Piotr; !1879]
-* Support commiting preedit string on focus loss [Carlos; !1940]
+* Support committing preedit string on focus loss [Carlos; !1940]
 * Improve auto-rotation support [Marco; !1233]
 * Add meta_window_actor_paint_to_content() [Robert; !1893]
 * Fixed crashes [Jonas, Ray, Robert; !1947, !1979, !1965, !1958]
@@ -1068,7 +1068,7 @@ Translators:
 * Optimize resource scale computation [Jonas D.; !1196, !1276, !1343]
 * Allow animating ClutterActor's content property [Georges; !1301]
 * Implement backgrounds as ClutterContent [Georges; !1302]
-* Add ClutterAlignContraint:pivot-point property [Jonas D.; !737]
+* Add ClutterAlignConstraint:pivot-point property [Jonas D.; !737]
 * Fix crash on area screenshots with fractional scaling [Sebastian; !1320]
 * Do not paint textures of fully obscured windows [Robert; !1326]
 * Use a more appropriate combine function on opaque areas [Daniel; !1331]
@@ -3603,7 +3603,7 @@ Translations:
   wasn't usable from a GNOME Shell extension, so has been changed to take
   a GSettings object rather than the name of a schema [Jasper; #673014]
 * Don't try to auto-maximize not-maximizable windows; this fixes the problem
-  with the Nautilus desktop window being mis-positioned when enabled
+  with the Nautilus desktop window being mispositioned when enabled
   [Owen; #673566]
 * Fix a crash in the default plugin (not used in GNOME) [Giovanni; #673809]
 * Make the <Super> key work when set as the mouse button modifier
@@ -3718,7 +3718,7 @@ Translations:
 * Handle changes to workspaces-only-on-primary GSetting [Florian; #664853]
 * Don't use the Clutter default stage [Jasper; #664028]
 * Fix compilation with --disable-introspection [Lionel; #661871]
-* Fix problem where stage could end up mis-sized on startup with
+* Fix problem where stage could end up missized on startup with
   multiple monitors [Lionel]
 * Misc bug fixes [Adel, Lionel, Jasper; #666015]
 
@@ -4045,7 +4045,7 @@ Translations:
     meta_window_get_monitor()
     MetaWindow::window-entered-monitor, <etaWindow::window-left-monitor
     meta_window_move_to_monitor() [Florian]
- * Behavior improvemnts for attached modal dialogs:
+ * Behavior improvements for attached modal dialogs:
    - Allow dragging dragging on the titlebar to move the  parent ["Ron"]
    - Allow resizing [Florian]
    - Constrain to be on the current monitor [Florian]
@@ -4814,7 +4814,7 @@ Translations: none
 Thanks to Thomas Thurman for improvements in this version.
 
   - Add casts to fix failure to build from source on 64bit hosts (Thomas) (#562106)
-  - Added script to produce annoucements (Thomas)
+  - Added script to produce announcements (Thomas)
 
 Translations
   Jorge González (es)

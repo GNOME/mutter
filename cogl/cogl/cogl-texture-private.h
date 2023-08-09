@@ -149,7 +149,7 @@ struct _CoglTextureVtable
                             gboolean value);
 };
 
-typedef enum _CoglTextureSoureType {
+typedef enum _CoglTextureSourceType {
   COGL_TEXTURE_SOURCE_TYPE_SIZE = 1,
   COGL_TEXTURE_SOURCE_TYPE_BITMAP,
   COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE,

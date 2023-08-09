@@ -715,7 +715,7 @@ construct_each_objects (gpointer key,
   /* we have unfinished business */
   if (oinfo->has_unresolved)
     {
-      /* this should not happen, but resilence is
+      /* this should not happen, but resilience is
        * a good thing in a parser
        */
       if (oinfo->object == NULL)

@@ -285,7 +285,7 @@ cogl_shader_source (CoglHandle  shader,
  * Retrieves the type of a shader #CoglHandle
  *
  * Return value: %COGL_SHADER_TYPE_VERTEX if the shader is a vertex processor
- *          or %COGL_SHADER_TYPE_FRAGMENT if the shader is a frament processor
+ *          or %COGL_SHADER_TYPE_FRAGMENT if the shader is a fragment processor
  * Deprecated: 1.16: Use #CoglSnippet api
  */
 COGL_DEPRECATED_FOR (cogl_snippet_)

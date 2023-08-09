@@ -513,7 +513,7 @@ _cogl_pipeline_layer_compare_differences (CoglPipelineLayer *layer0,
   /* Algorithm:
    *
    * 1) Walk the ancestors of each layer to the root node, adding a
-   *    pointer to each ancester node to two linked lists
+   *    pointer to each ancestor node to two linked lists
    *
    * 2) Compare the lists to find the nodes where they start to
    *    differ marking the common_ancestor node for each list.

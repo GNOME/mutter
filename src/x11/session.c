@@ -550,7 +550,7 @@ save_yourself_callback (SmcConn   smc_conn,
 
   /* ignore Global style saves
    *
-   * This interpretaion of the Local/Global/Both styles
+   * This interpretation of the Local/Global/Both styles
    * was discussed extensively on the xdg-list. See:
    *
    * https://listman.redhat.com/pipermail/xdg-list/2002-July/000615.html

@@ -41,7 +41,7 @@
  * has a key focus managed by the stage. Basically any actor can be focused using
  * clutter_stage_set_key_focus. So, we will use this approach: all actors are
  * focusable, and we get the currently focused using clutter_stage_get_key_focus
- * This affects focus related stateset and some atk_componenet focus methods (like
+ * This affects focus related stateset and some atk_component focus methods (like
  * grab focus).
  *
  * In the same way, we will manage the focus state change management

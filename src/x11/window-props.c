@@ -6,7 +6,7 @@
  * A system which can inspect sets of properties of given windows
  * and take appropriate action given their values.
  *
- * Note that all the meta_window_reload_propert* functions require a
+ * Note that all the meta_window_reload_property* functions require a
  * round trip to the server.
  *
  * The guts of this system are in meta_display_init_window_prop_hooks().
@@ -1894,7 +1894,7 @@ RELOAD_STRING (gtk_menubar_object_path,     "gtk-menubar-object-path")
 
 /**
  * meta_x11_display_init_window_prop_hooks:
- * @x11_display: The #MetaDX11isplay
+ * @x11_display: The #MetaX11Display
  *
  * Initialises the property hooks system.  Each row in the table named "hooks"
  * represents an action to take when a property is found on a newly-created

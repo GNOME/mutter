@@ -344,7 +344,7 @@ meta_context_real_configure (MetaContext   *context,
  * @error: a return location for errors
  *
  * Returns: %TRUE if the commandline arguments (if any) were valid and if the
- * configuration has been successfull, %FALSE otherwise
+ * configuration has been successful, %FALSE otherwise
  */
 gboolean
 meta_context_configure (MetaContext   *context,

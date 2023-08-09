@@ -1586,7 +1586,7 @@ clutter_layer_node_new (const graphene_matrix_t *projection,
  * @framebuffer. It will then use @pipeline to paint the stored
  * operations.
  *
- * When using this constructor, the caller is reponsible for setting
+ * When using this constructor, the caller is responsible for setting
  * up @framebuffer, including its modelview and projection matrices,
  * and the viewport, and the @pipeline as well.
  *

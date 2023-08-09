@@ -795,7 +795,7 @@ meta_wayland_keyboard_set_focus (MetaWaylandKeyboard *keyboard,
                                  &keyboard->resource_list,
                                  wl_resource_get_client (focus_surface_resource));
 
-      /* Make sure a11y masks are applied before braodcasting modifiers */
+      /* Make sure a11y masks are applied before broadcasting modifiers */
       kbd_a11y_apply_mask (keyboard);
 
       if (!wl_list_empty (&keyboard->focus_resource_list))

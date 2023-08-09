@@ -27,7 +27,7 @@ that on CallyRoot:
 
   * CallyUtil callbacks these signals are related to key event
     listeners (key snooper simulation). One of the main CallyUtil
-    responsabilities is managing event (connecting, emitting), so I
+    responsibilities is managing event (connecting, emitting), so I
     would prefer to not start to add/mix more functionalities here.
 
 Ideally it would be better to emit all CallyStage methods from
@@ -56,7 +56,7 @@ Adding -Wshadow option and solving warnings related
 
 2010-06-14 Alejandro Piñeiro <apinheiro@igalia.com>
 
-Added dummy padding for future vt expasion
+Added dummy padding for future vt expansion
 
 Added dummy padding on the different classes structures, to allow
 future expansion of virtual methods.
@@ -393,7 +393,7 @@ Manage properly ATK_STATE_ACTIVE on CallyStage
 
 * cally/cally-stage.c
 Added private struct
-(cally_stage_class_init),(cally_stage_init),(cally_stage_real_initalize):
+(cally_stage_class_init),(cally_stage_init),(cally_stage_real_initialize):
 Initialization stuff
 (cally_stage_activate_cb)
 (cally_stage_deactivate_cb): new ClutterStage signal callbacks, change
@@ -975,7 +975,7 @@ Missing cail-rectangle.[ch] files, according 2009-02-23 entry at Changelog
 
 2009-02-18 Alejandro Pinheiro <apinheiro@igalia.com>
 
-	* configure.ac: added aditional compile flags
+	* configure.ac: added additional compile flags
 	* cail/cail-actor.[ch]: Reimplemented support for AtkAction interface
 	* cail/cail-root.[ch]: code style review
 

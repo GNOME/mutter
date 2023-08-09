@@ -52,7 +52,7 @@ struct _ClutterInputDevice
 {
   GObject parent_instance;
 
-  /* Accessiblity */
+  /* Accessibility */
   ClutterVirtualInputDevice *accessibility_virtual_device;
   ClutterPtrA11yData *ptr_a11y_data;
 };

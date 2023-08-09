@@ -141,7 +141,7 @@ units_em_to_pixels (const gchar *font_name,
  * @units: (out caller-allocates): a #ClutterUnits
  * @mm: millimeters
  *
- * Stores a value in millimiters inside @units
+ * Stores a value in millimeters inside @units
  */
 void
 clutter_units_from_mm (ClutterUnits *units,

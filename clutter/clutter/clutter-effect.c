@@ -150,7 +150,7 @@
  *  static void
  *  my_effect_class_init (MyEffectClass *klass)
  *  {
- *    ClutterActorMetaClas *meta_class = CLUTTER_ACTOR_META_CLASS (klass);
+ *    ClutterActorMetaClass *meta_class = CLUTTER_ACTOR_META_CLASS (klass);
  *
  *    meta_class->set_actor = my_effect_set_actor;
  *

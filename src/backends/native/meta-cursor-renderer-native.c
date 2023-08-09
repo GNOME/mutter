@@ -1047,7 +1047,7 @@ realize_cursor_sprite_for_crtc (MetaCursorRenderer *renderer,
               meta_kms_crtc_get_id (kms_crtc),
               meta_kms_device_get_path (kms_device));
 
-  COGL_TRACE_BEGIN_SCOPED (CursorRendererNAtiveRealize,
+  COGL_TRACE_BEGIN_SCOPED (CursorRendererNativeRealize,
                            "Cursor Renderer Native (realize for crtc)");
   if (META_IS_CURSOR_SPRITE_XCURSOR (cursor_sprite))
     {

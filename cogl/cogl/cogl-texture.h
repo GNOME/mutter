@@ -222,7 +222,7 @@ cogl_texture_set_premultiplied (CoglTexture *texture,
  * green and blue components for the given @texture as set by
  * cogl_texture_set_premultiplied().
  *
- * By default the pre-multipled state is @TRUE.
+ * By default the pre-multiplied state is @TRUE.
  *
  * Return value: %TRUE if red, green and blue components are
  *               internally stored pre-multiplied by the alpha

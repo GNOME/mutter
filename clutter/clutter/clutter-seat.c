@@ -171,7 +171,7 @@ clutter_seat_class_init (ClutterSeatClass *klass)
    *
    * The signal is emitted each time either the
    * latched modifiers mask or locked modifiers mask are changed as the
-   * result of keyboard accessibilty's sticky keys operations.
+   * result of keyboard accessibility's sticky keys operations.
    */
   signals[KBD_A11Y_MASK_CHANGED] =
     g_signal_new (I_("kbd-a11y-mods-state-changed"),

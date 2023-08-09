@@ -35,7 +35,7 @@
  *
  * In the old times, it was just ClutterCloneTexture. So, from a a11y POV
  * CallyCloneTexture was just another image, like ClutterTexture, and if
- * it was a clone was irrevelant. So on cally-0.8, CallyCloneTexture
+ * it was a clone was irrelevant. So on cally-0.8, CallyCloneTexture
  * expose a object with role ATK_ROLE_IMAGE. But now, ClutterClone is more
  * general. You can clone any object, including groups, and made things
  * like have one text entry, and a clone with different properties in the

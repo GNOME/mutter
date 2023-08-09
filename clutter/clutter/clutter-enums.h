@@ -1246,7 +1246,7 @@ typedef enum
  * @CLUTTER_COLORSPACE_SRGB: Default sRGB colorspace
  * @CLUTTER_COLORSPACE_BT2020: BT2020 colorspace
  *
- * Colorspace informations.
+ * Colorspace information.
  */
 typedef enum
 {

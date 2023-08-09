@@ -1158,7 +1158,7 @@ meta_remote_desktop_session_cancel_transfer_requests (MetaRemoteDesktopSession *
 }
 
 static gboolean
-transfer_request_cleanup_timout (gpointer user_data)
+transfer_request_cleanup_timeout (gpointer user_data)
 {
   MetaRemoteDesktopSession *session = user_data;
 
@@ -1307,7 +1307,7 @@ reset_transfer_cleanup_timeout (MetaRemoteDesktopSession *session)
   g_clear_handle_id (&session->transfer_request_timeout_id, g_source_remove);
   session->transfer_request_timeout_id =
     g_timeout_add (TRANSFER_REQUEST_CLEANUP_TIMEOUT_MS,
-                   transfer_request_cleanup_timout,
+                   transfer_request_cleanup_timeout,
                    session);
 }
 

@@ -25,7 +25,7 @@
  * Some pixel formats that are used in the wild are a bit more complex than
  * just ARGB and all its variants. For example: a component might be put in a
  * different plane (i.e. at a different place in memory). Another example are
- * formats that use Y, U, and V components rather than RGB; if we composit them
+ * formats that use Y, U, and V components rather than RGB; if we composite them
  * onto an RGBA framebuffer, we have to make sure for example that these get
  * converted to the right color format first (using e.g. a shader).
  */

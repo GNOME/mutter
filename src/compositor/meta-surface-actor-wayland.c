@@ -68,7 +68,7 @@ meta_surface_actor_wayland_is_opaque (MetaSurfaceActor *actor)
   return meta_shaped_texture_is_opaque (stex);
 }
 
-#define UNOBSCURED_TRESHOLD 0.1
+#define UNOBSCURED_THRESHOLD 0.1
 
 gboolean
 meta_surface_actor_wayland_is_view_primary (MetaSurfaceActor *actor,
@@ -149,10 +149,10 @@ meta_surface_actor_wayland_is_view_primary (MetaSurfaceActor *actor,
       refresh_rate = clutter_stage_view_get_refresh_rate (view);
 
       if ((refresh_rate > highest_refresh_rate &&
-           (biggest_unobscurred_fraction < UNOBSCURED_TRESHOLD ||
-            unobscurred_fraction > UNOBSCURED_TRESHOLD)) ||
-          (biggest_unobscurred_fraction < UNOBSCURED_TRESHOLD &&
-           unobscurred_fraction > UNOBSCURED_TRESHOLD))
+           (biggest_unobscurred_fraction < UNOBSCURED_THRESHOLD ||
+            unobscurred_fraction > UNOBSCURED_THRESHOLD)) ||
+          (biggest_unobscurred_fraction < UNOBSCURED_THRESHOLD &&
+           unobscurred_fraction > UNOBSCURED_THRESHOLD))
         {
           current_primary_view = view;
           highest_refresh_rate = refresh_rate;

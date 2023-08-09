@@ -6,7 +6,7 @@
  * A system which can inspect sets of properties of given windows
  * and take appropriate action given their values.
  *
- * Note that all the meta_window_reload_propert* functions require a
+ * Note that all the meta_window_reload_property* functions require a
  * round trip to the server.
  */
 
@@ -61,7 +61,7 @@ void meta_window_load_initial_properties (MetaWindow *window);
  * meta_x11_display_init_window_prop_hooks:
  * @x11_display:  The X11 display.
  *
- * Initialises the hooks used for the reload_propert* functions
+ * Initialises the hooks used for the reload_property* functions
  * on a particular display, and stores a pointer to them in the
  * x11_display.
  */
@@ -70,7 +70,7 @@ void meta_x11_display_init_window_prop_hooks (MetaX11Display *x11_display);
 /**
  * meta_x11_display_free_window_prop_hooks:
  * @x11_display:  The X11 display.
- * Frees the hooks used for the reload_propert* functions
+ * Frees the hooks used for the reload_property* functions
  * for a particular display.
  */
 void meta_x11_display_free_window_prop_hooks (MetaX11Display *x11_display);

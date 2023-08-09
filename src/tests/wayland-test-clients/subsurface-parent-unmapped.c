@@ -244,7 +244,7 @@ on_sync_event (WaylandDisplay *display,
 {
   g_assert (serial == 0);
 
-  /* Sync event 0 is sent when the popup window actor is destryed;
+  /* Sync event 0 is sent when the popup window actor is destroyed;
    * prepare for opening a popup for the same wl_surface.
    */
   wl_surface_attach (popup_surface, NULL, 0, 0);

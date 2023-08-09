@@ -1649,7 +1649,7 @@ meta_preference_to_string (MetaPreference pref)
       return "VISUAL_BELL_TYPE";
 
     case META_PREF_GNOME_ACCESSIBILITY:
-      return "GNOME_ACCESSIBILTY";
+      return "GNOME_ACCESSIBILITY";
 
     case META_PREF_GNOME_ANIMATIONS:
       return "GNOME_ANIMATIONS";

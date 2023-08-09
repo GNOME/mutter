@@ -518,7 +518,7 @@ destroy_child_meta (ClutterContainer *container,
  * @container specific state for @actor.
  *
  * Return value: (transfer none): the #ClutterChildMeta for the @actor child
- *   of @container or %NULL if the specifiec actor does not exist or the
+ *   of @container or %NULL if the specific actor does not exist or the
  *   container is not configured to provide `ClutterChildMeta`s
  */
 ClutterChildMeta *

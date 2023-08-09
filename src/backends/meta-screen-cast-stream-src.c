@@ -649,7 +649,7 @@ maybe_add_damaged_regions_metadata (MetaScreenCastStreamSrc *src,
         {
           spa_meta_for_each (meta_region, spa_meta_video_damage)
           {
-            g_warning ("Not enough buffers (%d) to accomodate damaged "
+            g_warning ("Not enough buffers (%d) to accommodate damaged "
                        "regions (%d)", num_buffers_available, n_rectangles);
             meta_region->region = SPA_REGION (0, 0,
                                               priv->video_format.size.width,

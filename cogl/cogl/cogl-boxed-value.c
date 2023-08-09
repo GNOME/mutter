@@ -109,9 +109,9 @@ _cogl_boxed_value_equal (const CoglBoxedValue *bva,
 }
 
 static void
-_cogl_boxed_value_tranpose (float *dst,
-                            int size,
-                            const float *src)
+_cogl_boxed_value_transpose (float       *dst,
+                             int          size,
+                             const float *src)
 {
   int y, x;
 
@@ -141,9 +141,9 @@ _cogl_boxed_value_set_x (CoglBoxedValue *bv,
         g_free (bv->v.array);
 
       if (transpose)
-        _cogl_boxed_value_tranpose (bv->v.float_value,
-                                    size,
-                                    value);
+        _cogl_boxed_value_transpose (bv->v.float_value,
+                                     size,
+                                     value);
       else
         memcpy (bv->v.float_value, value, value_size);
     }
@@ -167,11 +167,11 @@ _cogl_boxed_value_set_x (CoglBoxedValue *bv,
           int value_num;
 
           for (value_num = 0; value_num < count; value_num++)
-            _cogl_boxed_value_tranpose (bv->v.float_array +
-                                        value_num * size * size,
-                                        size,
-                                        (const float *) value +
-                                        value_num * size * size);
+            _cogl_boxed_value_transpose (bv->v.float_array +
+                                         value_num * size * size,
+                                         size,
+                                         (const float *) value +
+                                         value_num * size * size);
         }
       else
         memcpy (bv->v.array, value, count * value_size);

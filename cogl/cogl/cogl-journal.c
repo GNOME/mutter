@@ -86,10 +86,10 @@
 #define N_POS_COMPONENTS  POS_STRIDE
 #define COLOR_STRIDE      1 /* number of 32bit words */
 #define TEX_STRIDE        2 /* number of 32bit words */
-#define MIN_LAYER_PADING  2
+#define MIN_LAYER_PADDING  2
 #define GET_JOURNAL_VB_STRIDE_FOR_N_LAYERS(N_LAYERS) \
   (POS_STRIDE + COLOR_STRIDE + \
-   TEX_STRIDE * (N_LAYERS < MIN_LAYER_PADING ? MIN_LAYER_PADING : N_LAYERS))
+   TEX_STRIDE * (N_LAYERS < MIN_LAYER_PADDING ? MIN_LAYER_PADDING : N_LAYERS))
 
 /* If a batch is longer than this threshold then we'll assume it's not
    worth doing software clipping and it's cheaper to program the GPU
@@ -664,8 +664,8 @@ compare_entry_strides (CoglJournalEntry *entry0, CoglJournalEntry *entry1)
   /* TODO: We should be padding the n_layers == 1 case as if it were
    * n_layers == 2 so we can reduce the need to split batches. */
   if (entry0->n_layers == entry1->n_layers ||
-      (entry0->n_layers <= MIN_LAYER_PADING &&
-       entry1->n_layers <= MIN_LAYER_PADING))
+      (entry0->n_layers <= MIN_LAYER_PADDING &&
+       entry1->n_layers <= MIN_LAYER_PADDING))
     return TRUE;
   else
     return FALSE;

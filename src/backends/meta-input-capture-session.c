@@ -698,7 +698,7 @@ check_barrier (MetaInputCaptureSession  *session,
     meta_dbus_session_manager_get_backend (session->session_manager);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
-  gboolean has_adjecent_monitor = FALSE;
+  gboolean has_adjacent_monitor = FALSE;
   GList *logical_monitors;
   GList *l;
 
@@ -731,13 +731,13 @@ check_barrier (MetaInputCaptureSession  *session,
         case LINE_ADJACENCY_NONE:
           break;
         case LINE_ADJACENCY_CONTAINED:
-          if (has_adjecent_monitor)
+          if (has_adjacent_monitor)
             {
               g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
-                           "Adjecent to multiple monitor edges");
+                           "Adjacent to multiple monitor edges");
               return FALSE;
             }
-          has_adjecent_monitor = TRUE;
+          has_adjacent_monitor = TRUE;
           break;
         case LINE_ADJACENCY_OVERLAP:
           g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
@@ -750,7 +750,7 @@ check_barrier (MetaInputCaptureSession  *session,
         }
     }
 
-  return has_adjecent_monitor;
+  return has_adjacent_monitor;
 }
 
 static unsigned int

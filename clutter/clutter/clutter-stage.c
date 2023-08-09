@@ -4215,7 +4215,7 @@ setup_implicit_grab (PointerDeviceEntry *entry)
     }
 
   CLUTTER_NOTE (GRABS,
-                "[device=%p sequence=%p] Aquiring implicit grab",
+                "[device=%p sequence=%p] Acquiring implicit grab",
                 entry->device, entry->sequence);
 
   g_assert (entry->press_count == 0);

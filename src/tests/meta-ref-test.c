@@ -50,7 +50,7 @@
  * To update or initialize reference images for tests, set the
  * MUTTER_REF_TEST_UPDATE environment variable.
  *
- * The MUTTER_REF_TEST_UPDATE is interpreted as a comma seperated list of
+ * The MUTTER_REF_TEST_UPDATE is interpreted as a comma separated list of
  * regular expressions. If the test path matches any of the regular
  * expressions, the test reference image will be updated, unless the
  * existing reference image is pixel identical to the newly created one.

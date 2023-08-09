@@ -289,7 +289,7 @@ _clutter_threads_dispatch_free (gpointer data)
  *    range between #G_PRIORITY_DEFAULT_IDLE and #G_PRIORITY_HIGH_IDLE
  * @func: function to call
  * @data: data to pass to the function
- * @notify: functio to call when the idle source is removed
+ * @notify: function to call when the idle source is removed
  *
  * Adds a function to be called whenever there are no higher priority
  * events pending. If the function returns %FALSE it is automatically
