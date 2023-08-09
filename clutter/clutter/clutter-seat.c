@@ -639,7 +639,6 @@ clutter_seat_handle_event_post (ClutterSeat        *seat,
     seat_class->handle_event_post (seat, event);
 
   device = clutter_event_get_source_device (event);
-  g_assert_true (CLUTTER_IS_INPUT_DEVICE (device));
 
   switch (clutter_event_type (event))
     {
