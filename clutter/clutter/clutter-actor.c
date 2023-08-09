@@ -1077,6 +1077,8 @@ static void push_in_paint_unmapped_branch (ClutterActor *self,
 static void pop_in_paint_unmapped_branch (ClutterActor *self,
                                           guint         count);
 
+static void clutter_actor_update_pointer (ClutterActor *self);
+
 static GQuark quark_actor_layout_info = 0;
 static GQuark quark_actor_transform_info = 0;
 static GQuark quark_actor_animation_info = 0;
@@ -2511,6 +2513,13 @@ transform_changed (ClutterActor *actor)
                            absolute_geometry_changed_cb,
                            NULL,
                            NULL);
+}
+
+static void
+update_pointer_if_not_animated (ClutterActor *actor)
+{
+  if (!clutter_actor_has_transitions (actor))
+    clutter_actor_update_pointer (actor);
 }
 
 /*< private >
@@ -4344,6 +4353,7 @@ clutter_actor_set_pivot_point_internal (ClutterActor           *self,
   info->pivot = *pivot;
 
   transform_changed (self);
+  update_pointer_if_not_animated (self);
 
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_PIVOT_POINT]);
 
@@ -4360,6 +4370,7 @@ clutter_actor_set_pivot_point_z_internal (ClutterActor *self,
   info->pivot_z = pivot_z;
 
   transform_changed (self);
+  update_pointer_if_not_animated (self);
 
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_PIVOT_POINT_Z]);
 
@@ -4394,6 +4405,7 @@ clutter_actor_set_translation_internal (ClutterActor *self,
     g_assert_not_reached ();
 
   transform_changed (self);
+  update_pointer_if_not_animated (self);
 
   clutter_actor_queue_redraw (self);
   g_object_notify_by_pspec (obj, pspec);
@@ -4523,6 +4535,7 @@ clutter_actor_set_rotation_angle_internal (ClutterActor *self,
     g_assert_not_reached ();
 
   transform_changed (self);
+  update_pointer_if_not_animated (self);
 
   clutter_actor_queue_redraw (self);
 
@@ -4644,6 +4657,7 @@ clutter_actor_set_scale_factor_internal (ClutterActor *self,
     g_assert_not_reached ();
 
   transform_changed (self);
+  update_pointer_if_not_animated (self);
 
   clutter_actor_queue_redraw (self);
   g_object_notify_by_pspec (obj, pspec);
@@ -10564,6 +10578,7 @@ clutter_actor_set_z_position_internal (ClutterActor *self,
       info->z_position = z_position;
 
       transform_changed (self);
+      update_pointer_if_not_animated (self);
 
       clutter_actor_queue_redraw (self);
 
@@ -13998,6 +14013,7 @@ clutter_actor_set_transform_internal (ClutterActor            *self,
   info->transform_set = !graphene_matrix_is_identity (&info->transform);
 
   transform_changed (self);
+  update_pointer_if_not_animated (self);
 
   clutter_actor_queue_redraw (self);
 
@@ -19066,6 +19082,7 @@ clutter_actor_invalidate_transform (ClutterActor *self)
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
   transform_changed (self);
+  update_pointer_if_not_animated (self);
 }
 
 /**
