@@ -29,12 +29,6 @@
 #include "clutter/clutter-bezier.h"
 #include "clutter/clutter-debug.h"
 
-/*
- * We have some experimental code here to allow for constant velocity
- * movement of actors along the bezier path, this macro enables it.
- */
-#undef CBZ_L2T_INTERPOLATION
-
 /****************************************************************************
  * ClutterBezier -- representation of a cubic bezier curve                   *
  * (private; a building block for the public bspline object)                *
@@ -87,19 +81,6 @@ struct _ClutterBezier
     
   /* length of the bezier */
   guint length;
-
-#ifdef CBZ_L2T_INTERPOLATION
-  /*
-   * coefficients for the L -> t bezier; these are calculated from fixed
-   * point input, and more specifically numbers that have been normalised
-   * to fit <0,1>, so these are also fixed point, and we can used the
-   * _FixedT type here.
-   */
-  _FixedT La;
-  _FixedT Lb;
-  _FixedT Lc;
-  /*  _FixedT Ld; == 0 */
-#endif
 };
 
 ClutterBezier *
@@ -116,26 +97,6 @@ _clutter_bezier_free (ClutterBezier * b)
       g_free (b);
     }
 }
-
-#ifdef CBZ_L2T_INTERPOLATION
-/*
- * L is relative advance along the bezier curve from interval <0,1>
- */
-static _FixedT
-_clutter_bezier_L2t (const ClutterBezier *b, _FixedT L)
-{
-  _FixedT t = CBZ_T_MUL (b->La, CBZ_T_POW3(L))
-    +  CBZ_T_MUL (b->Lb, CBZ_T_POW2(L))
-    +  CBZ_T_MUL (b->Lc, L);
-  
-  if (t > CBZ_T_ONE)
-    t = CBZ_T_ONE;
-  else if (t < 0)
-    t = 0;
-  
-  return t;
-}
-#endif
 
 static gint
 _clutter_bezier_t2x (const ClutterBezier * b, _FixedT t)
@@ -166,11 +127,7 @@ _clutter_bezier_t2y (const ClutterBezier * b, _FixedT t)
 void
 _clutter_bezier_advance (const ClutterBezier *b, gint L, ClutterKnot * knot)
 {
-#ifdef CBZ_L2T_INTERPOLATION
-  _FixedT t = clutter_bezier_L2t (b, L);
-#else
   _FixedT t = L;
-#endif
   
   knot->x = _clutter_bezier_t2x (b, t);
   knot->y = _clutter_bezier_t2y (b, t);
@@ -278,12 +235,6 @@ _clutter_bezier_init (ClutterBezier *b,
   int yp = y_0;
   _FixedT length [CBZ_T_SAMPLES + 1];
 
-#ifdef CBZ_L2T_INTERPOLATION
-  int j, k;
-  _FixedT L;
-  _FixedT t_equalized [CBZ_T_SAMPLES + 1];
-#endif
-
 #if 0
   g_debug ("Initializing bezier at {{%d,%d},{%d,%d},{%d,%d},{%d,%d}}",
            x0, y0, x1, y1, x2, y2, x3, y3);
@@ -343,128 +294,6 @@ _clutter_bezier_init (ClutterBezier *b,
 
 #if 0
   g_debug ("length %d", b->length);
-#endif
-  
-#ifdef CBZ_L2T_INTERPOLATION
-  /*
-   * Now normalize the length values, converting them into _FixedT
-   */
-  for (i = 0; i <= CBZ_T_SAMPLES; ++i)
-    {
-      length[i] = (length[i] << CBZ_T_Q) / b->length;
-    }
-
-  /*
-   * Now generate a L -> t table such that the L will equidistant
-   * over <0,1>
-   */
-  t_equalized[0] = 0;
-    
-  for (i = 1, j = 1, L = CBZ_L_STEP; i < CBZ_T_SAMPLES; ++i, L += CBZ_L_STEP)
-    {
-      _FixedT l1, l2;
-      _FixedT d1, d2, d;
-      _FixedT t1, t2;
-	
-      /* find the band for our L */
-      for (k = j; k < CBZ_T_SAMPLES; ++k)
-	{
-          if (L < length[k])
-            break;
-	}
-
-      /*
-       * Now we know that L is from (length[k-1],length[k]>
-       * We remember k-1 in order not to have to iterate over the
-       * whole length array in the next iteration of the main loop
-       */
-      j = k - 1;
-
-      /*
-       * Now interpolate equlised t as a weighted average
-       */
-      l1 = length[k-1];
-      l2 = length[k];
-      d1 = l2 - L;
-      d2 = L - l1;
-      d = l2 - l1;
-      t1 = (k - 1) * CBZ_T_STEP;
-      t2 = k * CBZ_T_STEP;
-	
-      t_equalized[i] = (t1*d1 + t2*d2)/d;
-
-      if (t_equalized[i] < t_equalized[i-1])
-        g_debug ("wrong t: L %f, l1 %f, l2 %f, t1 %f, t2 %f",
-                 (double) (L)/(double)CBZ_T_ONE,
-                 (double) (l1)/(double)CBZ_T_ONE,
-                 (double) (l2)/(double)CBZ_T_ONE,
-                 (double) (t1)/(double)CBZ_T_ONE,                 
-                 (double) (t2)/(double)CBZ_T_ONE);
-      
-    }
-
-  t_equalized[CBZ_T_SAMPLES] = CBZ_T_ONE;
-
-  /* We now fit a bezier -- at this stage, do a single fit through our values
-   * at 0, 1/3, 2/3 and 1
-   *
-   * FIXME -- do we need to  use a better fitting approach to choose the best
-   * beziere. The actual curve we acquire this way is not too bad shapwise,
-   * but (probably due to rounding errors) the resulting curve no longer
-   * satisfies the necessary condition that for L2 > L1, t2 > t1, which 
-   * causes oscilation.
-   */
-
-#if 0
-  /*
-   * These are the control points we use to calculate the curve coefficients
-   * for bezier t(L); these are not needed directly, but are implied in the
-   * calculations below.
-   *
-   * (p0 is 0,0, and p3 is 1,1)
-   */
-  p1 = (18 * t_equalized[CBZ_T_SAMPLES/3] -
-        9 * t_equalized[2*CBZ_T_SAMPLES/3] +
-        2 << CBZ_T_Q) / 6;
-
-  p2 = (18 * t_equalized[2*CBZ_T_SAMPLES/3] -
-        9 * t_equalized[CBZ_T_SAMPLES/3] -
-        (5 << CBZ_T_Q)) / 6;
-#endif
-    
-  b->Lc = (18 * t_equalized[CBZ_T_SAMPLES/3] -
-           9 * t_equalized[2*CBZ_T_SAMPLES/3] +
-           (2 << CBZ_T_Q)) >> 1;
-    
-  b->Lb = (36 * t_equalized[2*CBZ_T_SAMPLES/3] -
-           45 * t_equalized[CBZ_T_SAMPLES/3] -
-           (9 << CBZ_T_Q)) >> 1;
-
-  b->La = ((27 * (t_equalized[CBZ_T_SAMPLES/3] -
-                 t_equalized[2*CBZ_T_SAMPLES/3]) +
-            (7 << CBZ_T_Q)) >> 1) + CBZ_T_ONE;
-
-  g_debug ("t(1/3) %f, t(2/3) %f",
-           (double)t_equalized[CBZ_T_SAMPLES/3]/(double)CBZ_T_ONE,
-           (double)t_equalized[2*CBZ_T_SAMPLES/3]/(double)CBZ_T_ONE);
-
-  g_debug ("L -> t coefficients: %f, %f, %f",
-           (double)b->La/(double)CBZ_T_ONE,
-           (double)b->Lb/(double)CBZ_T_ONE,
-           (double)b->Lc/(double)CBZ_T_ONE);
-
-
-  /*
-   * For debugging, you can load these values into a spreadsheet and graph
-   * them to see how well the approximation matches the data
-   */
-  for (i = 0; i < CBZ_T_SAMPLES; ++i)
-    {
-      g_print ("%f, %f, %f\n",
-               (double)(i*CBZ_T_STEP)/(double)CBZ_T_ONE,
-               (double)(t_equalized[i])/(double)CBZ_T_ONE,
-               (double)(clutter_bezier_L2t(b,i*CBZ_T_STEP))/(double)CBZ_T_ONE);
-    }
 #endif
 }
 
