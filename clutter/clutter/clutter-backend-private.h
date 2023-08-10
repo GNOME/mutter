@@ -102,8 +102,6 @@ gfloat                  _clutter_backend_get_units_per_em               (Clutter
                                                                          PangoFontDescription   *font_desc);
 gint32                  _clutter_backend_get_units_serial               (ClutterBackend         *backend);
 
-void                    clutter_set_allowed_drivers                     (const char             *drivers);
-
 CLUTTER_EXPORT
 ClutterStageWindow *    clutter_backend_get_stage_window                (ClutterBackend         *backend);
 
