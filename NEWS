@@ -1,3 +1,17 @@
+45.beta.1
+=========
+* Fix blitting from premultiplied to opaque formats [Jonas; !3159]
+* Fix Super key not going to overview in GNOME Shell [Carlos; 3162]
+* Use ClutterEvent in ClutterActor class event vmethod signatures
+  [Carlos; 3163]
+* Misc. bug fixes and cleanups [Carlos, !3167, !3168]
+
+Contributors:
+  Jonas Ådahl, Carlos Garnacho
+
+Translators:
+  Piotr Drąg [pl], Daniel Mustieles [es]
+
 45.beta
 =======
 * Support input capture and emulated input with libei
