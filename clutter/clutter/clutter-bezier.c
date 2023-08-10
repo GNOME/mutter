@@ -480,34 +480,6 @@ _clutter_bezier_init (ClutterBezier *b,
 #endif
 }
 
-/*
- * Moves a control point at indx to location represented by knot
- */
-void
-_clutter_bezier_adjust (ClutterBezier * b, ClutterKnot * knot, guint indx)
-{
-  guint x[4], y[4];
-
-  g_assert (indx < 4);
-    
-  x[0] = b->dx;
-  y[0] = b->dy;
-
-  x[1] = b->cx / 3 + x[0];
-  y[1] = b->cy / 3 + y[0];
-
-  x[2] = b->bx / 3 + b->cx + x[1];
-  y[2] = b->by / 3 + b->cy + y[1];
-
-  x[3] = b->ax + x[0] + b->cx + b->bx;
-  y[3] = b->ay + y[0] + b->cy + b->by;
-
-  x[indx] = knot->x;
-  y[indx] = knot->y;
-
-  _clutter_bezier_init (b, x[0], y[0], x[1], y[1], x[2], y[2], x[3], y[3]);
-}
-
 guint
 _clutter_bezier_get_length (const ClutterBezier *b)
 {

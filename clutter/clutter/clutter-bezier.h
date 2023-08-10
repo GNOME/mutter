@@ -54,10 +54,6 @@ void           _clutter_bezier_init (ClutterBezier *b,
                                      gint x_2, gint y_2,
                                      gint x_3, gint y_3);
 
-void           _clutter_bezier_adjust (ClutterBezier *b,
-                                       ClutterKnot   *knot,
-                                       guint          indx);
-
 guint          _clutter_bezier_get_length (const ClutterBezier *b);
 
 G_END_DECLS
