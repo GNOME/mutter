@@ -154,9 +154,6 @@ variables:
                       mutter mutter-devel \
                       gnome-shell
 
-      # Replace pkexec with sudo, to make meson use it if needed
-      ln -sfv /usr/bin/sudo /usr/bin/pkexec
-
       # Ensure that we mark the project clone dir as safe directory
       git config --system --add safe.directory "$CI_PROJECT_DIR"
 
@@ -349,7 +346,7 @@ check-code-style:
         $BASE_MESON_OPTIONS
         $EXTRA_MESON_OPTIONS
     - meson compile -C build
-    - meson install --dry-run -C build
+    - sudo meson install --dry-run -C build
   artifacts:
     expire_in: 1 day
     paths:
@@ -393,7 +390,7 @@ build-without-opengl-and-glx@x86_64:
         -Dwayland_eglstream=true
         -Dintrospection=false
     - meson compile -C build
-    - meson install --no-rebuild -C build
+    - sudo meson install --no-rebuild -C build
   artifacts:
     paths:
       - build/meson-logs
@@ -417,7 +414,7 @@ build-without-native-backend-and-wayland@x86_64:
         -Dnative_tests=false
         -Dintrospection=false
     - meson compile -C build
-    - meson install --no-rebuild -C build
+    - sudo meson install --no-rebuild -C build
   artifacts:
     paths:
       - build/meson-logs
@@ -439,7 +436,7 @@ build-wayland-only@x86_64:
         -Dnative_tests=false
         -Dintrospection=false
     - meson compile -C build
-    - meson install --no-rebuild -C build
+    - sudo meson install --no-rebuild -C build
   artifacts:
     paths:
       - build/meson-logs
@@ -578,11 +575,11 @@ can-build-gnome-shell@x86_64:
     - build-mutter@x86_64
   before_script:
     - !reference [.mutter.fedora@x86_64, before_script]
-    - meson install --no-rebuild -C build
+    - sudo meson install --no-rebuild -C build
   script:
     - .gitlab-ci/checkout-gnome-shell.sh
     - meson setup gnome-shell gnome-shell/build --prefix /usr -Dman=false
-    - meson install -C gnome-shell/build
+    - sudo meson install -C gnome-shell/build
 
 test-mutter-coverity:
   rules:
