@@ -117,18 +117,6 @@ _clutter_bezier_free (ClutterBezier * b)
     }
 }
 
-ClutterBezier *
-_clutter_bezier_clone_and_move (const ClutterBezier *b, gint x, gint y)
-{
-  ClutterBezier * b2 = _clutter_bezier_new ();
-  memcpy (b2, b, sizeof (ClutterBezier));
-
-  b2->dx += x;
-  b2->dy += y;
-
-  return b2;
-}
-
 #ifdef CBZ_L2T_INTERPOLATION
 /*
  * L is relative advance along the bezier curve from interval <0,1>
