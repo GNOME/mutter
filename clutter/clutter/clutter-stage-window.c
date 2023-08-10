@@ -23,16 +23,6 @@ clutter_stage_window_default_init (ClutterStageWindowInterface *iface)
 {
 }
 
-void
-_clutter_stage_window_set_title (ClutterStageWindow *window,
-                                 const gchar        *title)
-{
-  ClutterStageWindowInterface *iface = CLUTTER_STAGE_WINDOW_GET_IFACE (window);
-
-  if (iface->set_title)
-    iface->set_title (window, title);
-}
-
 gboolean
 _clutter_stage_window_realize (ClutterStageWindow *window)
 {

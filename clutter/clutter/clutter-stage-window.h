@@ -55,8 +55,6 @@ struct _ClutterStageWindowInterface
                                                  ClutterFrame       *frame);
 };
 
-void              _clutter_stage_window_set_title          (ClutterStageWindow *window,
-                                                            const gchar        *title);
 void              _clutter_stage_window_set_cursor_visible (ClutterStageWindow *window,
                                                             gboolean            is_visible);
 
