@@ -1286,39 +1286,6 @@ _cogl_pipeline_has_non_layer_fragment_snippets (CoglPipeline *pipeline)
   return authority->big_state->fragment_snippets.entries != NULL;
 }
 
-static gboolean
-check_layer_has_fragment_snippet (CoglPipelineLayer *layer,
-                                  void *user_data)
-{
-  unsigned long state = COGL_PIPELINE_LAYER_STATE_FRAGMENT_SNIPPETS;
-  CoglPipelineLayer *authority =
-    _cogl_pipeline_layer_get_authority (layer, state);
-  gboolean *found_fragment_snippet = user_data;
-
-  if (authority->big_state->fragment_snippets.entries)
-    {
-      *found_fragment_snippet = TRUE;
-      return FALSE;
-    }
-
-  return TRUE;
-}
-
-gboolean
-_cogl_pipeline_has_fragment_snippets (CoglPipeline *pipeline)
-{
-  gboolean found_fragment_snippet = FALSE;
-
-  if (_cogl_pipeline_has_non_layer_fragment_snippets (pipeline))
-    return TRUE;
-
-  _cogl_pipeline_foreach_layer_internal (pipeline,
-                                         check_layer_has_fragment_snippet,
-                                         &found_fragment_snippet);
-
-  return found_fragment_snippet;
-}
-
 void
 _cogl_pipeline_hash_color_state (CoglPipeline *authority,
                                  CoglPipelineHashState *state)
