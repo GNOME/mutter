@@ -82,8 +82,8 @@ variables:
   extends:
     - .skip-git-clone
   variables:
-    FDO_DISTRIBUTION_VERSION: 38
-    BASE_TAG: '2023-08-01.0'
+    FDO_DISTRIBUTION_VERSION: 39
+    BASE_TAG: '2023-08-14.1'
     MUTTER_USER: 'meta-user'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
@@ -98,12 +98,10 @@ variables:
       xorg-x11-proto-devel
       qemu-system-x86-core
       busybox
+      zenity
       gi-docgen
-      python3-attrs
       python3-dbusmock
       pkgconfig(libgcrypt)
-      pkgconfig(libnma-gtk4)
-      pkgconfig(appstream)
 
     FDO_DISTRIBUTION_EXEC: |
       set -e
@@ -118,37 +116,15 @@ variables:
 
       dnf builddep -y mutter --setopt=install_weak_deps=False
       dnf builddep -y gnome-shell --setopt=install_weak_deps=False
-      dnf builddep -y wayland --setopt=install_weak_deps=False
-      dnf builddep -y wayland-protocols --setopt=install_weak_deps=False
       dnf builddep -y kernel --setopt=install_weak_deps=False
-      dnf builddep -y zenity --setopt=install_weak_deps=False
-      dnf builddep -y gtk4 --setopt=install_weak_deps=False
 
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/jadahl/catch.git \
         main . 29ad36e2b1d28ac9d8b2bc44af46296cb1db5d66
 
-      # Pull in fix for # https://gitlab.gnome.org/GNOME/zenity/-/issues/58
       ./.gitlab-ci/install-meson-project.sh \
-        https://gitlab.gnome.org/GNOME/zenity.git \
-        master . db1ad8ee7c3db36a7cca6e998e86719293d37838
-
-      ./.gitlab-ci/install-meson-project.sh \
-        https://gitlab.gnome.org/GNOME/gtk.git \
-        main . 55dd5f47808730ae4f1ffaa481ae37dd536b410a
-
-      ./.gitlab-ci/install-meson-project.sh \
-        https://gitlab.gnome.org/GNOME/libadwaita.git \
-        main . 72f512f01113a64cf332ae0f79becfc487d54b56
-
-      ./.gitlab-ci/install-meson-project.sh \
-        https://gitlab.gnome.org/GNOME/tecla.git \
-        main . 45.alpha
-
-      ./.gitlab-ci/install-meson-project.sh \
-        -Dtests=disabled \
-        https://gitlab.freedesktop.org/libinput/libei.git \
-        main . 1.0.0
+        https://gitlab.gnome.org/GNOME/glib.git \
+        main . a7c34b431bfaf3d56de64cb1cfea851ac11099d3
 
       rpm -e --nodeps gnome-bluetooth-libs-devel \
                       mutter mutter-devel \
