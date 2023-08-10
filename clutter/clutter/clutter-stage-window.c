@@ -23,18 +23,6 @@ clutter_stage_window_default_init (ClutterStageWindowInterface *iface)
 {
 }
 
-/**
- * _clutter_stage_window_get_wrapper:
- * @window: a #ClutterStageWindow object
- *
- * Returns the pointer to the #ClutterStage it's part of.
- */
-ClutterActor *
-_clutter_stage_window_get_wrapper (ClutterStageWindow *window)
-{
-  return CLUTTER_STAGE_WINDOW_GET_IFACE (window)->get_wrapper (window);
-}
-
 void
 _clutter_stage_window_set_title (ClutterStageWindow *window,
                                  const gchar        *title)

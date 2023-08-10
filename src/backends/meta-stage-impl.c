@@ -105,12 +105,6 @@ meta_stage_impl_get_frame_counter (ClutterStageWindow *stage_window)
   return priv->global_frame_counter;
 }
 
-static ClutterActor *
-meta_stage_impl_get_wrapper (ClutterStageWindow *stage_window)
-{
-  return CLUTTER_ACTOR (META_STAGE_IMPL (stage_window)->wrapper);
-}
-
 static void
 meta_stage_impl_show (ClutterStageWindow *stage_window,
                       gboolean            do_raise)
@@ -815,7 +809,6 @@ clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
 {
   iface->realize = meta_stage_impl_realize;
   iface->unrealize = meta_stage_impl_unrealize;
-  iface->get_wrapper = meta_stage_impl_get_wrapper;
   iface->resize = meta_stage_impl_resize;
   iface->show = meta_stage_impl_show;
   iface->hide = meta_stage_impl_hide;

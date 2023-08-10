@@ -23,8 +23,6 @@ struct _ClutterStageWindowInterface
   /*< private >*/
   GTypeInterface parent_iface;
 
-  ClutterActor     *(* get_wrapper)             (ClutterStageWindow *stage_window);
-
   void              (* set_title)               (ClutterStageWindow *stage_window,
                                                  const gchar        *title);
 
@@ -56,8 +54,6 @@ struct _ClutterStageWindowInterface
                                                  ClutterStageView   *view,
                                                  ClutterFrame       *frame);
 };
-
-ClutterActor *    _clutter_stage_window_get_wrapper        (ClutterStageWindow *window);
 
 void              _clutter_stage_window_set_title          (ClutterStageWindow *window,
                                                             const gchar        *title);
