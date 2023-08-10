@@ -566,12 +566,25 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
         }
     }
 
-  while (next_presentation_time_us < now_us + min_render_time_allowed_us)
-    next_presentation_time_us += refresh_interval_us;
+  if (next_presentation_time_us != last_presentation_time_us + refresh_interval_us)
+    {
+      /* There was an idle period since the last presentation, so there seems
+       * be no constantly updating actor. In this case it's best to start
+       * working on the next update ASAP, this results in lowest average latency
+       * for sporadic user input.
+       */
+      next_update_time_us = now_us;
+      min_render_time_allowed_us = 0;
+    }
+  else
+    {
+      while (next_presentation_time_us < now_us + min_render_time_allowed_us)
+        next_presentation_time_us += refresh_interval_us;
 
-  next_update_time_us = next_presentation_time_us - max_render_time_allowed_us;
-  if (next_update_time_us < now_us)
-    next_update_time_us = now_us;
+      next_update_time_us = next_presentation_time_us - max_render_time_allowed_us;
+      if (next_update_time_us < now_us)
+        next_update_time_us = now_us;
+    }
 
   *out_next_update_time_us = next_update_time_us;
   *out_next_presentation_time_us = next_presentation_time_us;
