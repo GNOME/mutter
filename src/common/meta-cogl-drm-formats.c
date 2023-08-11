@@ -51,3 +51,25 @@ meta_cogl_pixel_format_from_drm_format (uint32_t                drm_format,
 
   return TRUE;
 }
+
+gboolean
+meta_drm_format_from_cogl_pixel_format (CoglPixelFormat  cogl_format,
+                                        uint32_t        *out_drm_format)
+{
+  const size_t n = G_N_ELEMENTS (meta_cogl_drm_format_map);
+  size_t i;
+
+  for (i = 0; i < n; i++)
+    {
+      if (meta_cogl_drm_format_map[i].cogl_format == cogl_format)
+        break;
+    }
+
+  if (i == n)
+    return FALSE;
+
+  if (out_drm_format)
+    *out_drm_format = meta_cogl_drm_format_map[i].drm_format;
+
+  return TRUE;
+}

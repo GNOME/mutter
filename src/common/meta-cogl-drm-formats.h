@@ -81,4 +81,7 @@ gboolean meta_cogl_pixel_format_from_drm_format (uint32_t                drm_for
                                                  CoglPixelFormat        *out_format,
                                                  MetaMultiTextureFormat *out_multi_texture_format);
 
+gboolean meta_drm_format_from_cogl_pixel_format (CoglPixelFormat  cogl_format,
+                                                 uint32_t        *out_drm_format);
+
 G_END_DECLS
