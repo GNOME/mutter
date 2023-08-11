@@ -619,6 +619,12 @@ meta_screen_cast_window_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc 
     }
 }
 
+static CoglPixelFormat
+meta_screen_cast_window_stream_src_get_preferred_format (MetaScreenCastStreamSrc *src)
+{
+  return COGL_PIXEL_FORMAT_BGRA_8888_PRE;
+}
+
 MetaScreenCastWindowStreamSrc *
 meta_screen_cast_window_stream_src_new (MetaScreenCastWindowStream  *window_stream,
                                         GError                     **error)
@@ -651,4 +657,6 @@ meta_screen_cast_window_stream_src_class_init (MetaScreenCastWindowStreamSrcClas
     meta_screen_cast_window_stream_record_follow_up;
   src_class->get_videocrop = meta_screen_cast_window_stream_src_get_videocrop;
   src_class->set_cursor_metadata = meta_screen_cast_window_stream_src_set_cursor_metadata;
+  src_class->get_preferred_format =
+    meta_screen_cast_window_stream_src_get_preferred_format;
 }
