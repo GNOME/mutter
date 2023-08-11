@@ -41,7 +41,4 @@ void *
 _cogl_memory_stack_alloc (CoglMemoryStack *stack, size_t bytes);
 
 void
-_cogl_memory_stack_rewind (CoglMemoryStack *stack);
-
-void
 _cogl_memory_stack_free (CoglMemoryStack *stack);

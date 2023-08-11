@@ -162,15 +162,6 @@ _cogl_memory_stack_alloc (CoglMemoryStack *stack, size_t bytes)
   return sub_stack->data;
 }
 
-void
-_cogl_memory_stack_rewind (CoglMemoryStack *stack)
-{
-  stack->sub_stack = _cogl_container_of (stack->sub_stacks.next,
-                                         CoglMemorySubStack,
-                                         link);
-  stack->sub_stack_offset = 0;
-}
-
 static void
 _cogl_memory_sub_stack_free (CoglMemorySubStack *sub_stack)
 {
