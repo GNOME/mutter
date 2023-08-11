@@ -1061,6 +1061,7 @@ on_stream_add_buffer (void             *data,
     {
       dmabuf_handle =
         meta_screen_cast_create_dma_buf_handle (screen_cast,
+                                                COGL_PIXEL_FORMAT_BGRX_8888,
                                                 priv->video_format.size.width,
                                                 priv->video_format.size.height);
     }

@@ -59,9 +59,10 @@ meta_screen_cast_disable_dma_bufs (MetaScreenCast *screen_cast)
 }
 
 CoglDmaBufHandle *
-meta_screen_cast_create_dma_buf_handle (MetaScreenCast *screen_cast,
-                                        int             width,
-                                        int             height)
+meta_screen_cast_create_dma_buf_handle (MetaScreenCast  *screen_cast,
+                                        CoglPixelFormat  format,
+                                        int              width,
+                                        int              height)
 {
   MetaDbusSessionManager *session_manager =
     META_DBUS_SESSION_MANAGER (screen_cast);
@@ -79,7 +80,7 @@ meta_screen_cast_create_dma_buf_handle (MetaScreenCast *screen_cast,
     return NULL;
 
   dmabuf_handle = cogl_renderer_create_dma_buf (cogl_renderer,
-                                                COGL_PIXEL_FORMAT_BGRX_8888,
+                                                format,
                                                 width, height,
                                                 &error);
   if (!dmabuf_handle)
