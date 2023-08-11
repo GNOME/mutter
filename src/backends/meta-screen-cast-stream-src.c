@@ -60,6 +60,8 @@
 #define MIN_FRAME_RATE SPA_FRACTION (1, 1)
 #define MAX_FRAME_RATE SPA_FRACTION (1000, 1)
 
+#define DEFAULT_COGL_PIXEL_FORMAT COGL_PIXEL_FORMAT_BGRX_8888
+
 enum
 {
   PROP_0,
@@ -1514,6 +1516,12 @@ meta_screen_cast_stream_src_get_stream (MetaScreenCastStreamSrc *src)
   return priv->stream;
 }
 
+static CoglPixelFormat
+meta_screen_cast_stream_src_default_get_preferred_format (MetaScreenCastStreamSrc *src)
+{
+  return DEFAULT_COGL_PIXEL_FORMAT;
+}
+
 static void
 meta_screen_cast_stream_src_dispose (GObject *object)
 {
@@ -1593,6 +1601,9 @@ meta_screen_cast_stream_src_class_init (MetaScreenCastStreamSrcClass *klass)
   object_class->set_property = meta_screen_cast_stream_src_set_property;
   object_class->get_property = meta_screen_cast_stream_src_get_property;
 
+  klass->get_preferred_format =
+    meta_screen_cast_stream_src_default_get_preferred_format;
+
   g_object_class_install_property (object_class,
                                    PROP_STREAM,
                                    g_param_spec_object ("stream", NULL, NULL,
@@ -1623,4 +1634,13 @@ meta_screen_cast_stream_src_uses_dma_bufs (MetaScreenCastStreamSrc *src)
     meta_screen_cast_stream_src_get_instance_private (src);
 
   return priv->uses_dma_bufs;
+}
+
+CoglPixelFormat
+meta_screen_cast_stream_src_get_preferred_format (MetaScreenCastStreamSrc *src)
+{
+  MetaScreenCastStreamSrcClass *klass =
+    META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
+
+  return klass->get_preferred_format (src);
 }

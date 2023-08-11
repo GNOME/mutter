@@ -83,6 +83,8 @@ struct _MetaScreenCastStreamSrcClass
 
   void (* notify_params_updated) (MetaScreenCastStreamSrc   *src,
                                   struct spa_video_info_raw *video_format);
+
+  CoglPixelFormat (* get_preferred_format) (MetaScreenCastStreamSrc *src);
 };
 
 void meta_screen_cast_stream_src_close (MetaScreenCastStreamSrc *src);
@@ -132,3 +134,5 @@ void meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStrea
 
 gboolean meta_screen_cast_stream_src_uses_dma_bufs (MetaScreenCastStreamSrc *src);
 
+CoglPixelFormat
+meta_screen_cast_stream_src_get_preferred_format (MetaScreenCastStreamSrc *src);
