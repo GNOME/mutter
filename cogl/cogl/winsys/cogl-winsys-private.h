@@ -93,10 +93,11 @@ typedef struct _CoglWinsysVtable
   (*display_destroy) (CoglDisplay *display);
 
   CoglDmaBufHandle *
-  (*renderer_create_dma_buf) (CoglRenderer  *renderer,
-                              int            width,
-                              int            height,
-                              GError       **error);
+  (*renderer_create_dma_buf) (CoglRenderer     *renderer,
+                              CoglPixelFormat   format,
+                              int               width,
+                              int               height,
+                              GError          **error);
 
   gboolean
   (*renderer_is_dma_buf_supported) (CoglRenderer *renderer);

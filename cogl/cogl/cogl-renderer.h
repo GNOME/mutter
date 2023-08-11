@@ -35,6 +35,7 @@
 #include "cogl/cogl-types.h"
 #include "cogl/cogl-onscreen-template.h"
 #include "cogl/cogl-output.h"
+#include "cogl/cogl-pixel-format.h"
 
 #include <glib-object.h>
 
@@ -365,12 +366,13 @@ cogl_renderer_foreach_output (CoglRenderer *renderer,
 /**
  * cogl_renderer_create_dma_buf: (skip)
  * @renderer: A #CoglRenderer
+ * @format: A #CoglPixelFormat
  * @width: width of the new
  * @height: height of the new
  * @error: (nullable): return location for a #GError
  *
- * Creates a new #CoglFramebuffer with @width x @height, and format
- * hardcoded to XRGB, and exports the new framebuffer's DMA buffer
+ * Creates a new #CoglFramebuffer with @width x @height, with pixel
+ * format @format, and exports the new framebuffer's DMA buffer
  * handle.
  *
  * Returns: (nullable)(transfer full): a #CoglDmaBufHandle. The
@@ -378,10 +380,11 @@ cogl_renderer_foreach_output (CoglRenderer *renderer,
  * after use.
  */
 COGL_EXPORT CoglDmaBufHandle *
-cogl_renderer_create_dma_buf (CoglRenderer  *renderer,
-                              int            width,
-                              int            height,
-                              GError       **error);
+cogl_renderer_create_dma_buf (CoglRenderer     *renderer,
+                              CoglPixelFormat   format,
+                              int               width,
+                              int               height,
+                              GError          **error);
 
 
 /**

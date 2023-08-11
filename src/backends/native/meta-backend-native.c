@@ -183,6 +183,7 @@ maybe_disable_screen_cast_dma_bufs (MetaBackendNative *native)
     }
 
   dmabuf_handle = cogl_renderer_create_dma_buf (cogl_renderer,
+                                                COGL_PIXEL_FORMAT_BGRX_8888,
                                                 1, 1,
                                                 &error);
   if (!dmabuf_handle)

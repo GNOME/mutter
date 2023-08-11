@@ -746,15 +746,18 @@ cogl_renderer_foreach_output (CoglRenderer *renderer,
 }
 
 CoglDmaBufHandle *
-cogl_renderer_create_dma_buf (CoglRenderer  *renderer,
-                              int            width,
-                              int            height,
-                              GError       **error)
+cogl_renderer_create_dma_buf (CoglRenderer     *renderer,
+                              CoglPixelFormat   format,
+                              int               width,
+                              int               height,
+                              GError          **error)
 {
   const CoglWinsysVtable *winsys = _cogl_renderer_get_winsys (renderer);
 
   if (winsys->renderer_create_dma_buf)
-    return winsys->renderer_create_dma_buf (renderer, width, height, error);
+    return winsys->renderer_create_dma_buf (renderer, format,
+                                            width, height,
+                                            error);
 
   g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
                "CoglRenderer doesn't support creating DMA buffers");

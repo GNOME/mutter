@@ -351,12 +351,14 @@ init_dma_buf_shadowfbs (ClutterStageView  *view,
     }
 
   priv->shadow.dma_buf.handles[0] = cogl_renderer_create_dma_buf (cogl_renderer,
+                                                                  COGL_PIXEL_FORMAT_BGRX_8888,
                                                                   width, height,
                                                                   error);
   if (!priv->shadow.dma_buf.handles[0])
     return FALSE;
 
   priv->shadow.dma_buf.handles[1] = cogl_renderer_create_dma_buf (cogl_renderer,
+                                                                  COGL_PIXEL_FORMAT_BGRX_8888,
                                                                   width, height,
                                                                   error);
   if (!priv->shadow.dma_buf.handles[1])

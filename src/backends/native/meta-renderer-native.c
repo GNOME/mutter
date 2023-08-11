@@ -929,10 +929,11 @@ unset_disabled_crtcs (MetaRendererNative *renderer_native)
 }
 
 static CoglDmaBufHandle *
-meta_renderer_native_create_dma_buf (CoglRenderer  *cogl_renderer,
-                                     int            width,
-                                     int            height,
-                                     GError       **error)
+meta_renderer_native_create_dma_buf (CoglRenderer     *cogl_renderer,
+                                     CoglPixelFormat   format,
+                                     int               width,
+                                     int               height,
+                                     GError          **error)
 {
   CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
   MetaRendererNativeGpuData *renderer_gpu_data = cogl_renderer_egl->platform;
@@ -954,6 +955,13 @@ meta_renderer_native_create_dma_buf (CoglRenderer  *cogl_renderer,
         CoglFramebuffer *dmabuf_fb;
         CoglDmaBufHandle *dmabuf_handle;
 
+        if (format != COGL_PIXEL_FORMAT_BGRX_8888)
+          {
+            g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                         "Native renderer doesn't support creating DMA buffer with format %s",
+                         cogl_pixel_format_to_string (format));
+            return NULL;
+          }
 
         render_device = renderer_gpu_data->render_device;
         flags = META_DRM_BUFFER_FLAG_NONE;

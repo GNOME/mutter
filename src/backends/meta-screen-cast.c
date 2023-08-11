@@ -79,6 +79,7 @@ meta_screen_cast_create_dma_buf_handle (MetaScreenCast *screen_cast,
     return NULL;
 
   dmabuf_handle = cogl_renderer_create_dma_buf (cogl_renderer,
+                                                COGL_PIXEL_FORMAT_BGRX_8888,
                                                 width, height,
                                                 &error);
   if (!dmabuf_handle)
