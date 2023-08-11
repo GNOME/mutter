@@ -215,24 +215,6 @@ _cogl_poll_renderer_add_source (CoglRenderer *renderer,
   return source;
 }
 
-void
-_cogl_poll_renderer_remove_source (CoglRenderer *renderer,
-                                   CoglPollSource *source)
-{
-  GList *l;
-
-  for (l = renderer->poll_sources; l; l = l->next)
-    {
-      if (l->data == source)
-        {
-          renderer->poll_sources =
-            g_list_delete_link (renderer->poll_sources, l);
-          g_free (source);
-          break;
-        }
-    }
-}
-
 CoglClosure *
 _cogl_poll_renderer_add_idle (CoglRenderer *renderer,
                               CoglIdleCallback idle_cb,

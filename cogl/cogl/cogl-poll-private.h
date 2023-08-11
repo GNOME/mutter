@@ -56,10 +56,6 @@ _cogl_poll_renderer_add_source (CoglRenderer *renderer,
                                 CoglPollDispatchCallback dispatch,
                                 void *user_data);
 
-void
-_cogl_poll_renderer_remove_source (CoglRenderer *renderer,
-                                   CoglPollSource *source);
-
 typedef void (*CoglIdleCallback) (void *user_data);
 
 COGL_EXPORT CoglClosure *
