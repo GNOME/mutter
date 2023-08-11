@@ -950,7 +950,7 @@ meta_renderer_native_create_dma_buf (CoglRenderer  *cogl_renderer,
         uint32_t offset;
         uint32_t bpp;
         uint64_t modifier;
-        uint32_t format;
+        uint32_t drm_format;
         CoglFramebuffer *dmabuf_fb;
         CoglDmaBufHandle *dmabuf_handle;
 
@@ -973,7 +973,7 @@ meta_renderer_native_create_dma_buf (CoglRenderer  *cogl_renderer,
         offset = meta_drm_buffer_get_offset (buffer, 0);
         bpp = meta_drm_buffer_get_bpp (buffer);
         modifier = meta_drm_buffer_get_modifier (buffer);
-        format = meta_drm_buffer_get_format (buffer);
+        drm_format = meta_drm_buffer_get_format (buffer);
 
         dmabuf_fb =
           meta_renderer_native_create_dma_buf_framebuffer (renderer_native,
@@ -982,7 +982,7 @@ meta_renderer_native_create_dma_buf (CoglRenderer  *cogl_renderer,
                                                            stride,
                                                            offset,
                                                            modifier,
-                                                           format,
+                                                           drm_format,
                                                            error);
 
         if (!dmabuf_fb)
