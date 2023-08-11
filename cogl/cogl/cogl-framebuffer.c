@@ -416,15 +416,6 @@ cogl_framebuffer_class_init (CoglFramebufferClass *klass)
                   0);
 }
 
-const CoglWinsysVtable *
-_cogl_framebuffer_get_winsys (CoglFramebuffer *framebuffer)
-{
-  CoglFramebufferPrivate *priv =
-    cogl_framebuffer_get_instance_private (framebuffer);
-
-  return priv->context->display->renderer->winsys_vtable;
-}
-
 /* This version of cogl_clear can be used internally as an alternative
  * to avoid flushing the journal or the framebuffer state. This is
  * needed when doing operations that may be called while flushing

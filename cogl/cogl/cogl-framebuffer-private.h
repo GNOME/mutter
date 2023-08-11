@@ -155,9 +155,6 @@ cogl_framebuffer_get_internal_format (CoglFramebuffer *framebuffer);
 
 void _cogl_framebuffer_free (CoglFramebuffer *framebuffer);
 
-const CoglWinsysVtable *
-_cogl_framebuffer_get_winsys (CoglFramebuffer *framebuffer);
-
 void
 _cogl_framebuffer_clear_without_flush4f (CoglFramebuffer *framebuffer,
                                          unsigned long buffers,
