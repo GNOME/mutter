@@ -41,14 +41,6 @@ _cogl_pipeline_set_layer_unit (CoglPipeline *required_owner,
                                CoglPipelineLayer *layer,
                                int unit_index);
 
-CoglPipelineFilter
-_cogl_pipeline_get_layer_min_filter (CoglPipeline *pipeline,
-                                     int layer_index);
-
-CoglPipelineFilter
-_cogl_pipeline_get_layer_mag_filter (CoglPipeline *pipeline,
-                                     int layer_index);
-
 gboolean
 _cogl_pipeline_layer_texture_data_equal (CoglPipelineLayer *authority0,
                                          CoglPipelineLayer *authority1,
