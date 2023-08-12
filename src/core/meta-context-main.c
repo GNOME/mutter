@@ -322,7 +322,7 @@ meta_context_main_get_x11_display_policy (MetaContext *context)
   MetaCompositorType compositor_type;
 #ifdef HAVE_WAYLAND
   MetaContextMain *context_main = META_CONTEXT_MAIN (context);
-  char *unit;
+  g_autofree char *unit = NULL;
 #endif
 
   compositor_type = meta_context_get_compositor_type (context);
