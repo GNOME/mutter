@@ -67,20 +67,6 @@ _cogl_texture_2d_nop_allocate (CoglTexture *tex,
 }
 
 void
-_cogl_texture_2d_nop_flush_legacy_texobj_filters (CoglTexture *tex,
-                                                  GLenum min_filter,
-                                                  GLenum mag_filter)
-{
-}
-
-void
-_cogl_texture_2d_nop_flush_legacy_texobj_wrap_modes (CoglTexture *tex,
-                                                     GLenum wrap_mode_s,
-                                                     GLenum wrap_mode_t)
-{
-}
-
-void
 _cogl_texture_2d_nop_copy_from_framebuffer (CoglTexture2D *tex_2d,
                                             int src_x,
                                             int src_y,
@@ -117,12 +103,4 @@ _cogl_texture_2d_nop_copy_from_bitmap (CoglTexture2D *tex_2d,
                                        GError **error)
 {
   return TRUE;
-}
-
-void
-_cogl_texture_2d_nop_get_data (CoglTexture2D *tex_2d,
-                               CoglPixelFormat format,
-                               size_t rowstride,
-                               uint8_t *data)
-{
 }
