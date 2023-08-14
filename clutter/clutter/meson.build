@@ -229,7 +229,6 @@ clutter_nonintrospected_sources = [
 
 clutter_deprecated_headers = [
   'deprecated/clutter-container.h',
-  'deprecated/clutter-timeline.h',
 ]
 
 clutter_backend_private_headers = []

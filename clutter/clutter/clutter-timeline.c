@@ -96,7 +96,6 @@
 #include "clutter/clutter-build-config.h"
 
 #include "clutter/clutter-timeline.h"
-#include "clutter/deprecated/clutter-timeline.h"
 
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-debug.h"
@@ -1556,23 +1555,6 @@ clutter_timeline_is_playing (ClutterTimeline *timeline)
 }
 
 /**
- * clutter_timeline_new:
- * @duration_ms: Duration of the timeline in milliseconds
- *
- * Creates a new #ClutterTimeline with a duration of @duration_ms milli seconds.
- *
- * Return value: the newly created #ClutterTimeline instance. Use
- *   [method@GObject.Object.unref] when done using it
- */
-ClutterTimeline *
-clutter_timeline_new (guint duration_ms)
-{
-  return g_object_new (CLUTTER_TYPE_TIMELINE,
-                       "duration", duration_ms,
-                       NULL);
-}
-
-/**
  * clutter_timeline_new_for_actor:
  * @actor: The #ClutterActor the timeline is associated with
  * @duration_ms: Duration of the timeline in milliseconds
@@ -2195,7 +2177,7 @@ clutter_timeline_has_marker (ClutterTimeline *timeline,
  *   clutter_timeline_set_direction (timeline, dir);
  * }
  * ...
- *   timeline = clutter_timeline_new (1000);
+ *   timeline = clutter_timeline_new_for_actor (some_actor, 1000);
  *   clutter_timeline_set_repeat_count (timeline, -1);
  *   g_signal_connect (timeline, "completed",
  *                     G_CALLBACK (reverse_timeline),
@@ -2205,7 +2187,7 @@ clutter_timeline_has_marker (ClutterTimeline *timeline,
  * can be effectively replaced by:
  *
  * ```c
- *   timeline = clutter_timeline_new (1000);
+ *   timeline = clutter_timeline_new_for_actor (some_actor, 1000);
  *   clutter_timeline_set_repeat_count (timeline, -1);
  *   clutter_timeline_set_auto_reverse (timeline);
  * ```
