@@ -263,12 +263,20 @@ calculate_cursor_rect (CrtcStateImpl          *crtc_state_impl,
                        float                   y,
                        graphene_rect_t        *out_cursor_rect)
 {
-  float crtc_x, crtc_y;
+  int crtc_x, crtc_y, crtc_width, crtc_height;
   int buffer_width, buffer_height;
   graphene_rect_t cursor_rect;
 
   crtc_x = (x - crtc_state_impl->layout.origin.x) * crtc_state_impl->scale;
   crtc_y = (y - crtc_state_impl->layout.origin.y) * crtc_state_impl->scale;
+  crtc_width = roundf (crtc_state_impl->layout.size.width *
+                       crtc_state_impl->scale);
+  crtc_height = roundf (crtc_state_impl->layout.size.height *
+                        crtc_state_impl->scale);
+
+  meta_monitor_transform_transform_point (crtc_state_impl->transform,
+                                          &crtc_width, &crtc_height,
+                                          &crtc_x, &crtc_y);
 
   buffer_width = meta_drm_buffer_get_width (buffer);
   buffer_height = meta_drm_buffer_get_height (buffer);
@@ -285,10 +293,8 @@ calculate_cursor_rect (CrtcStateImpl          *crtc_state_impl,
   };
   if (cursor_rect.origin.x + cursor_rect.size.width > 0.0 &&
       cursor_rect.origin.y + cursor_rect.size.height > 0.0 &&
-      cursor_rect.origin.x < (crtc_state_impl->layout.size.width *
-                              crtc_state_impl->scale) &&
-      cursor_rect.origin.y < (crtc_state_impl->layout.size.height *
-                              crtc_state_impl->scale))
+      cursor_rect.origin.x < crtc_width &&
+      cursor_rect.origin.y < crtc_height)
     {
       if (out_cursor_rect)
         *out_cursor_rect = cursor_rect;
