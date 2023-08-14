@@ -1282,23 +1282,6 @@ clutter_gesture_action_get_threshold_trigger_edge (ClutterGestureAction *action)
 }
 
 /**
- * clutter_gesture_action_get_threshold_trigger_egde:
- * @action: a #ClutterGestureAction
- *
- * Retrieves the edge trigger of the gesture @action, as set using
- * [method@GestureAction.set_threshold_trigger_edge].
- *
- * Return value: the edge trigger
- *
- * Deprecated: 1.20: Use [method@GestureAction.get_threshold_trigger_edge] instead.
- */
-ClutterGestureTriggerEdge
-clutter_gesture_action_get_threshold_trigger_egde (ClutterGestureAction *action)
-{
-  return clutter_gesture_action_get_threshold_trigger_edge (action);
-}
-
-/**
  * clutter_gesture_action_set_threshold_trigger_distance:
  * @action: a #ClutterGestureAction
  * @x: the distance on the horizontal axis
