@@ -909,8 +909,10 @@ scanout_destroyed (gpointer  data,
 }
 
 CoglScanout *
-meta_wayland_buffer_try_acquire_scanout (MetaWaylandBuffer *buffer,
-                                         CoglOnscreen      *onscreen)
+meta_wayland_buffer_try_acquire_scanout (MetaWaylandBuffer     *buffer,
+                                         CoglOnscreen          *onscreen,
+                                         const graphene_rect_t *src_rect,
+                                         const MtkRectangle    *dst_rect)
 {
   CoglScanout *scanout = NULL;
 
@@ -935,11 +937,20 @@ meta_wayland_buffer_try_acquire_scanout (MetaWaylandBuffer *buffer,
                   "Buffer type not scanout compatible");
       return NULL;
     case META_WAYLAND_BUFFER_TYPE_EGL_IMAGE:
+      if (src_rect || dst_rect)
+        {
+          meta_topic (META_DEBUG_RENDER,
+                      "Buffer type does not support scaling operations");
+          return NULL;
+        }
       scanout = try_acquire_egl_image_scanout (buffer, onscreen);
       break;
     case META_WAYLAND_BUFFER_TYPE_DMA_BUF:
       {
-        scanout = meta_wayland_dma_buf_try_acquire_scanout (buffer, onscreen);
+        scanout = meta_wayland_dma_buf_try_acquire_scanout (buffer,
+                                                            onscreen,
+                                                            src_rect,
+                                                            dst_rect);
         break;
       }
     case META_WAYLAND_BUFFER_TYPE_UNKNOWN:

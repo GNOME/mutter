@@ -605,8 +605,10 @@ import_scanout_gbm_bo (MetaWaylandDmaBufBuffer  *dma_buf,
 #endif
 
 CoglScanout *
-meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandBuffer *buffer,
-                                          CoglOnscreen      *onscreen)
+meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandBuffer     *buffer,
+                                          CoglOnscreen          *onscreen,
+                                          const graphene_rect_t *src_rect,
+                                          const MtkRectangle    *dst_rect)
 {
 #ifdef HAVE_NATIVE_BACKEND
   MetaWaylandDmaBufBuffer *dma_buf;
@@ -664,6 +666,9 @@ meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandBuffer *buffer,
     }
 
   scanout = cogl_scanout_new (COGL_SCANOUT_BUFFER (g_steal_pointer (&fb)));
+  cogl_scanout_set_src_rect (scanout, src_rect);
+  cogl_scanout_set_dst_rect (scanout, dst_rect);
+
   if (!meta_onscreen_native_is_buffer_scanout_compatible (onscreen, scanout))
     {
       meta_topic (META_DEBUG_RENDER,

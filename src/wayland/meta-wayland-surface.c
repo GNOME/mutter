@@ -2264,7 +2264,9 @@ meta_wayland_surface_try_acquire_scanout (MetaWaylandSurface *surface,
     return NULL;
 
   return meta_wayland_buffer_try_acquire_scanout (surface->buffer,
-                                                  onscreen);
+                                                  onscreen,
+                                                  NULL,
+                                                  NULL);
 }
 
 MetaCrtc *

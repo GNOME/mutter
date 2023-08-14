@@ -445,32 +445,30 @@ static MetaKmsPlaneAssignment *
 assign_primary_plane (MetaCrtcKms            *crtc_kms,
                       MetaDrmBuffer          *buffer,
                       MetaKmsUpdate          *kms_update,
-                      MetaKmsAssignPlaneFlag  flags)
+                      MetaKmsAssignPlaneFlag  flags,
+                      const graphene_rect_t  *src_rect,
+                      const MtkRectangle     *dst_rect)
 {
   MetaCrtc *crtc = META_CRTC (crtc_kms);
-  const MetaCrtcConfig *crtc_config;
-  const MetaCrtcModeInfo *crtc_mode_info;
-  MetaFixed16Rectangle src_rect;
-  MtkRectangle dst_rect;
+  MetaFixed16Rectangle src_rect_fixed16;
   MetaKmsCrtc *kms_crtc;
   MetaKmsPlane *primary_kms_plane;
   MetaKmsPlaneAssignment *plane_assignment;
 
-  crtc_config = meta_crtc_get_config (crtc);
-  crtc_mode_info = meta_crtc_mode_get_info (crtc_config->mode);
+  src_rect_fixed16 = (MetaFixed16Rectangle) {
+    .x = meta_fixed_16_from_double (src_rect->origin.x),
+    .y = meta_fixed_16_from_double (src_rect->origin.y),
+    .width = meta_fixed_16_from_double (src_rect->size.width),
+    .height = meta_fixed_16_from_double (src_rect->size.height),
+  };
 
-  src_rect = (MetaFixed16Rectangle) {
-    .x = meta_fixed_16_from_int (0),
-    .y = meta_fixed_16_from_int (0),
-    .width = meta_fixed_16_from_int (crtc_mode_info->width),
-    .height = meta_fixed_16_from_int (crtc_mode_info->height),
-  };
-  dst_rect = (MtkRectangle) {
-    .x = 0,
-    .y = 0,
-    .width = crtc_mode_info->width,
-    .height = crtc_mode_info->height,
-  };
+  meta_topic (META_DEBUG_KMS,
+              "Assigning buffer to primary plane update on CRTC "
+              "(%" G_GUINT64_FORMAT ") with src rect %f,%f %fx%f "
+              "and dst rect %d,%d %dx%d",
+              meta_crtc_get_id (crtc), src_rect->origin.x, src_rect->origin.y,
+              src_rect->size.width, src_rect->size.height,
+              dst_rect->x, dst_rect->y, dst_rect->width, dst_rect->height);
 
   kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
   primary_kms_plane = meta_crtc_kms_get_assigned_primary_plane (crtc_kms);
@@ -478,8 +476,8 @@ assign_primary_plane (MetaCrtcKms            *crtc_kms,
                                                    kms_crtc,
                                                    primary_kms_plane,
                                                    buffer,
-                                                   src_rect,
-                                                   dst_rect,
+                                                   src_rect_fixed16,
+                                                   *dst_rect,
                                                    flags);
   apply_transform (crtc_kms, plane_assignment, primary_kms_plane);
 
@@ -517,12 +515,40 @@ meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
   switch (renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
+      graphene_rect_t src_rect;
+      MtkRectangle dst_rect;
+
       buffer = onscreen_native->gbm.next_fb;
+
+      if (onscreen_native->gbm.next_scanout)
+        {
+          cogl_scanout_get_src_rect (onscreen_native->gbm.next_scanout,
+                                     &src_rect);
+          cogl_scanout_get_dst_rect (onscreen_native->gbm.next_scanout,
+                                     &dst_rect);
+        }
+      else
+        {
+          src_rect = (graphene_rect_t) {
+            .origin.x = 0,
+            .origin.y = 0,
+            .size.width = meta_drm_buffer_get_width (buffer),
+            .size.height = meta_drm_buffer_get_height (buffer)
+          };
+          dst_rect = (MtkRectangle) {
+            .x = 0,
+            .y = 0,
+            .width = meta_drm_buffer_get_width (buffer),
+            .height = meta_drm_buffer_get_height (buffer)
+          };
+        }
 
       plane_assignment = assign_primary_plane (crtc_kms,
                                                buffer,
                                                kms_update,
-                                               flags);
+                                               flags,
+                                               &src_rect,
+                                               &dst_rect);
 
       if (rectangles != NULL && n_rectangles != 0)
         {
@@ -669,10 +695,31 @@ meta_onscreen_native_set_crtc_mode (CoglOnscreen              *onscreen,
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
       {
         MetaDrmBuffer *buffer;
+        graphene_rect_t src_rect;
+        MtkRectangle dst_rect;
 
         buffer = META_DRM_BUFFER (onscreen_native->egl.dumb_fb);
-        assign_primary_plane (crtc_kms, buffer, kms_update,
-                              META_KMS_ASSIGN_PLANE_FLAG_NONE);
+
+        src_rect = (graphene_rect_t) {
+          .origin.x = 0,
+          .origin.y = 0,
+          .size.width = meta_drm_buffer_get_width (buffer),
+          .size.height = meta_drm_buffer_get_height (buffer)
+        };
+
+        dst_rect = (MtkRectangle) {
+          .x = 0,
+          .y = 0,
+          .width = meta_drm_buffer_get_width (buffer),
+          .height = meta_drm_buffer_get_height (buffer)
+        };
+
+        assign_primary_plane (crtc_kms,
+                              buffer,
+                              kms_update,
+                              META_KMS_ASSIGN_PLANE_FLAG_NONE,
+                              &src_rect,
+                              &dst_rect);
         break;
       }
 #endif
@@ -1445,15 +1492,25 @@ meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen *onscreen,
   MetaDrmBuffer *buffer;
   g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
   MetaKmsFeedbackResult result;
+  graphene_rect_t src_rect;
+  MtkRectangle dst_rect;
 
   gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
   kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
   kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
 
   test_update = meta_kms_update_new (kms_device);
+
+  cogl_scanout_get_src_rect (scanout, &src_rect);
+  cogl_scanout_get_dst_rect (scanout, &dst_rect);
+
   buffer = META_DRM_BUFFER (cogl_scanout_get_buffer (scanout));
-  assign_primary_plane (crtc_kms, buffer, test_update,
-                        META_KMS_ASSIGN_PLANE_FLAG_DIRECT_SCANOUT);
+  assign_primary_plane (crtc_kms,
+                        buffer,
+                        test_update,
+                        META_KMS_ASSIGN_PLANE_FLAG_DIRECT_SCANOUT,
+                        &src_rect,
+                        &dst_rect);
 
   meta_topic (META_DEBUG_KMS,
               "Posting direct scanout test update for CRTC %u (%s) synchronously",

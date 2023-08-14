@@ -101,6 +101,8 @@ void                    meta_wayland_buffer_process_damage      (MetaWaylandBuff
                                                                  MetaMultiTexture      *texture,
                                                                  MtkRegion             *region);
 CoglScanout *           meta_wayland_buffer_try_acquire_scanout (MetaWaylandBuffer     *buffer,
-                                                                 CoglOnscreen          *onscreen);
+                                                                 CoglOnscreen          *onscreen,
+                                                                 const graphene_rect_t *src_rect,
+                                                                 const MtkRectangle    *dst_rect);
 
 void meta_wayland_init_shm (MetaWaylandCompositor *compositor);
