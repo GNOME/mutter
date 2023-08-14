@@ -172,8 +172,6 @@ ClutterInputDevice *    clutter_event_get_source_device         (const ClutterEv
 CLUTTER_EXPORT
 ClutterInputDeviceTool *clutter_event_get_device_tool           (const ClutterEvent     *event);
 
-CLUTTER_DEPRECATED
-ClutterActor *          clutter_event_get_source                (const ClutterEvent     *event);
 CLUTTER_EXPORT
 ClutterInputDeviceType  clutter_event_get_device_type           (const ClutterEvent     *event);
 CLUTTER_EXPORT

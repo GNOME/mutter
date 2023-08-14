@@ -510,27 +510,6 @@ clutter_event_get_position (const ClutterEvent *event,
 }
 
 /**
- * clutter_event_get_source:
- * @event: a #ClutterEvent
- *
- * Retrieves the source #ClutterActor the event originated from, or
- * NULL if the event has no source.
- *
- * Return value: (transfer none): a #ClutterActor
- */
-ClutterActor *
-clutter_event_get_source (const ClutterEvent *event)
-{
-  g_return_val_if_fail (event != NULL, NULL);
-
-  if (event->type == CLUTTER_ENTER ||
-      event->type == CLUTTER_LEAVE)
-    return event->crossing.source;
-
-  return NULL;
-}
-
-/**
  * clutter_event_get_flags:
  * @event: a #ClutterEvent
  *
