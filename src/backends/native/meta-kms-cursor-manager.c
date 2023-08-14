@@ -49,6 +49,7 @@ typedef struct _CrtcStateImpl
   MetaKmsCrtc *crtc;
   graphene_rect_t layout;
   float scale;
+  MetaMonitorTransform transform;
   MetaDrmBuffer *buffer;
   graphene_point_t hotspot;
 
@@ -719,6 +720,7 @@ typedef struct
 {
   MetaKmsCrtc *crtc;
   MetaDrmBuffer *buffer;
+  MetaMonitorTransform transform;
   graphene_point_t hotspot;
 } UpdateSpriteData;
 
@@ -742,6 +744,7 @@ update_sprite_in_impl (MetaThreadImpl  *thread_impl,
 
   old_buffer = g_steal_pointer (&crtc_state_impl->buffer);
   crtc_state_impl->buffer = g_steal_pointer (&data->buffer);
+  crtc_state_impl->transform = data->transform;
   crtc_state_impl->hotspot = data->hotspot;
   crtc_state_impl->cursor_invalidated = TRUE;
 
@@ -764,6 +767,7 @@ void
 meta_kms_cursor_manager_update_sprite (MetaKmsCursorManager   *cursor_manager,
                                        MetaKmsCrtc            *crtc,
                                        MetaDrmBuffer          *buffer,
+                                       MetaMonitorTransform    transform,
                                        const graphene_point_t *hotspot)
 {
   UpdateSpriteData *data;
@@ -771,6 +775,7 @@ meta_kms_cursor_manager_update_sprite (MetaKmsCursorManager   *cursor_manager,
   data = g_new0 (UpdateSpriteData, 1);
   data->crtc = crtc;
   data->buffer = buffer ? g_object_ref (buffer) : NULL;
+  data->transform = transform;
   if (hotspot)
     data->hotspot = *hotspot;
 

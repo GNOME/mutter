@@ -22,6 +22,7 @@
 #include <glib-object.h>
 #include <graphene.h>
 
+#include "backends/meta-monitor-transform.h"
 #include "backends/native/meta-backend-native-types.h"
 #include "backends/native/meta-kms-types.h"
 #include "core/util-private.h"
@@ -54,6 +55,7 @@ void meta_kms_cursor_manager_position_changed_in_input_impl (MetaKmsCursorManage
 void meta_kms_cursor_manager_update_sprite (MetaKmsCursorManager   *cursor_manager,
                                             MetaKmsCrtc            *crtc,
                                             MetaDrmBuffer          *buffer,
+                                            MetaMonitorTransform    transform,
                                             const graphene_point_t *hotspot);
 
 META_EXPORT_TEST

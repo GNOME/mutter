@@ -384,7 +384,9 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
 
               meta_kms_cursor_manager_update_sprite (kms_cursor_manager,
                                                      kms_crtc,
-                                                     NULL, NULL);
+                                                     NULL,
+                                                     META_MONITOR_TRANSFORM_NORMAL,
+                                                     NULL);
             }
         }
     }
@@ -657,6 +659,7 @@ load_cursor_sprite_gbm_buffer_for_crtc (MetaCursorRendererNative *native,
   meta_kms_cursor_manager_update_sprite (kms_cursor_manager,
                                          kms_crtc,
                                          buffer,
+                                         transform,
                                          &hotspot);
   return TRUE;
 }
@@ -982,6 +985,7 @@ realize_cursor_sprite_from_wl_buffer_for_crtc (MetaCursorRenderer      *renderer
       meta_kms_cursor_manager_update_sprite (kms_cursor_manager,
                                              kms_crtc,
                                              META_DRM_BUFFER (buffer_gbm),
+                                             META_MONITOR_TRANSFORM_NORMAL,
                                              &GRAPHENE_POINT_INIT (hot_x, hot_y));
 
       return TRUE;
