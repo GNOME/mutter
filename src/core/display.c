@@ -135,6 +135,11 @@ typedef struct _MetaDisplayPrivate
 
   guint queue_later_ids[META_N_QUEUE_TYPES];
   GList *queue_windows[META_N_QUEUE_TYPES];
+
+  struct {
+    MetaWindow *window;
+    gulong unmanaging_handler_id;
+  } focus_on_grab_dismissed;
 } MetaDisplayPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaDisplay, meta_display, G_TYPE_OBJECT)
@@ -202,6 +207,10 @@ meta_display_show_osd (MetaDisplay *display,
                        gint         monitor_idx,
                        const gchar *icon_name,
                        const gchar *message);
+
+static void on_is_grabbed_changed (ClutterStage *stage,
+                                   GParamSpec   *pspec,
+                                   MetaDisplay  *display);
 
 static MetaBackend *
 backend_from_display (MetaDisplay *display)
@@ -854,6 +863,7 @@ meta_display_new (MetaContext  *context,
                   GError      **error)
 {
   MetaBackend *backend = meta_context_get_backend (context);
+  ClutterActor *stage = meta_backend_get_stage (backend);
   MetaDisplay *display;
   MetaDisplayPrivate *priv;
   guint32 timestamp;
@@ -1004,6 +1014,9 @@ meta_display_new (MetaContext  *context,
     {
       meta_display_unset_input_focus (display, timestamp);
     }
+
+  g_signal_connect (stage, "notify::is-grabbed",
+                    G_CALLBACK (on_is_grabbed_changed), display);
 
   display->sound_player = g_object_new (META_TYPE_SOUND_PLAYER, NULL);
 
@@ -1224,6 +1237,52 @@ meta_display_windows_are_interactable (MetaDisplay *display)
     return FALSE;
 
   return TRUE;
+}
+
+static void
+on_is_grabbed_changed (ClutterStage *stage,
+                       GParamSpec   *pspec,
+                       MetaDisplay  *display)
+{
+  MetaDisplayPrivate *priv = meta_display_get_instance_private (display);
+
+  if (!priv->focus_on_grab_dismissed.window)
+    return;
+
+  meta_window_focus (priv->focus_on_grab_dismissed.window, META_CURRENT_TIME);
+
+  g_clear_signal_handler (&priv->focus_on_grab_dismissed.unmanaging_handler_id,
+                          priv->focus_on_grab_dismissed.window);
+  priv->focus_on_grab_dismissed.window = NULL;
+}
+
+static void
+focus_on_grab_dismissed_unmanaging_cb (MetaWindow  *window,
+                                       MetaDisplay *display)
+{
+  MetaDisplayPrivate *priv = meta_display_get_instance_private (display);
+
+  g_return_if_fail (priv->focus_on_grab_dismissed.window == window);
+
+  g_clear_signal_handler (&priv->focus_on_grab_dismissed.unmanaging_handler_id,
+                          priv->focus_on_grab_dismissed.window);
+  priv->focus_on_grab_dismissed.window = NULL;
+}
+
+void
+meta_display_queue_focus (MetaDisplay *display,
+                          MetaWindow  *window)
+{
+  MetaDisplayPrivate *priv = meta_display_get_instance_private (display);
+
+  g_clear_signal_handler (&priv->focus_on_grab_dismissed.unmanaging_handler_id,
+                          priv->focus_on_grab_dismissed.window);
+
+  priv->focus_on_grab_dismissed.window = window;
+  priv->focus_on_grab_dismissed.unmanaging_handler_id =
+    g_signal_connect (window, "unmanaging",
+                      G_CALLBACK (focus_on_grab_dismissed_unmanaging_cb),
+                      display);
 }
 
 /**
