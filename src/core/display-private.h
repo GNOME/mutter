@@ -382,6 +382,9 @@ void meta_display_cancel_touch (MetaDisplay *display);
 
 gboolean meta_display_windows_are_interactable (MetaDisplay *display);
 
+void meta_display_queue_focus (MetaDisplay *display,
+                               MetaWindow  *window);
+
 void meta_display_show_tablet_mapping_notification (MetaDisplay        *display,
                                                     ClutterInputDevice *pad,
                                                     const gchar        *pretty_name);
