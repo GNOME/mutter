@@ -24,6 +24,7 @@
 #include "backends/meta-monitor-manager-private.h"
 #include "meta/meta-context.h"
 #include "meta/meta-backend.h"
+#include "tests/meta-test-shell.h"
 #include "tests/meta-test-utils.h"
 
 static gboolean
@@ -88,7 +89,7 @@ main (int    argc,
 
   context = meta_create_context ("Persistent virtual monitor test");
   g_assert (meta_context_configure (context, &fake_argc, &fake_argv, &error));
-  meta_context_set_plugin_name (context, meta_test_get_plugin_name ());
+  meta_context_set_plugin_gtype (context, META_TYPE_TEST_SHELL);
   g_assert (meta_context_setup (context, &error));
   g_assert (meta_context_start (context, &error));
 
