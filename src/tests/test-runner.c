@@ -1175,6 +1175,15 @@ test_case_do (TestCase *test,
 
       meta_display_focus_default_window (display, timestamp);
     }
+  else if (strcmp (argv[0], "toggle_overview") == 0)
+    {
+      MetaDisplay *display = meta_context_get_display (test->context);
+
+      if (argc != 1)
+        BAD_COMMAND ("usage: %s", argv[0]);
+
+      g_signal_emit_by_name (display, "overlay-key", 0);
+    }
   else
     {
       BAD_COMMAND("Unknown command %s", argv[0]);
