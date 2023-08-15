@@ -63,6 +63,11 @@ struct _MetaTestShell
   ClutterActor *background_group;
 
   MetaPluginInfo info;
+
+  struct {
+    ClutterGrab *grab;
+    ClutterActor *prev_focus;
+  } overview;
 };
 
 typedef struct _ActorPrivate
@@ -288,6 +293,28 @@ on_monitors_changed (MetaMonitorManager *monitor_manager,
 }
 
 static void
+on_overlay_key (MetaDisplay   *display,
+                MetaTestShell *test_shell)
+{
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+
+  if (!test_shell->overview.grab)
+    {
+      test_shell->overview.grab = clutter_stage_grab (stage, CLUTTER_ACTOR (stage));
+      test_shell->overview.prev_focus = clutter_stage_get_key_focus (stage);
+      clutter_stage_set_key_focus (stage, CLUTTER_ACTOR (stage));
+    }
+  else
+    {
+      g_clear_pointer (&test_shell->overview.grab, clutter_grab_dismiss);
+      clutter_stage_set_key_focus (stage,
+                                   g_steal_pointer (&test_shell->overview.prev_focus));
+    }
+}
+
+static void
 prepare_shutdown (MetaBackend   *backend,
                   MetaTestShell *test_shell)
 {
@@ -311,6 +338,9 @@ meta_test_shell_start (MetaPlugin *plugin)
   g_signal_connect (monitor_manager, "monitors-changed",
                     G_CALLBACK (on_monitors_changed), plugin);
   on_monitors_changed (monitor_manager, plugin);
+
+  g_signal_connect (display, "overlay-key",
+                    G_CALLBACK (on_overlay_key), plugin);
 
   g_signal_connect (backend, "prepare-shutdown",
                     G_CALLBACK (prepare_shutdown),
