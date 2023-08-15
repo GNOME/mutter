@@ -1939,15 +1939,6 @@ window_state_on_map (MetaWindow *window,
       return;
     }
 
-  /* Do not focus window on map if input is already taken by the
-   * compositor.
-   */
-  if (!meta_display_windows_are_interactable (window->display))
-    {
-      *takes_focus = FALSE;
-      return;
-    }
-
   /* When strict focus mode is enabled, prevent new windows from taking
    * focus unless they are ancestors to the transient.
    */
@@ -2262,7 +2253,10 @@ meta_window_show (MetaWindow *window)
 
           timestamp = meta_display_get_current_time_roundtrip (window->display);
 
-          meta_window_focus (window, timestamp);
+          if (meta_display_windows_are_interactable (window->display))
+            meta_window_focus (window, timestamp);
+          else
+            meta_display_queue_focus (window->display, window);
         }
       else if (display->x11_display)
         {
