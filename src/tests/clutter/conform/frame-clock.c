@@ -190,6 +190,7 @@ immediate_frame_clock_frame (ClutterFrameClock *frame_clock,
                              gpointer           user_data)
 {
   GMainLoop *main_loop = user_data;
+  int64_t target_presentation_time_us;
   ClutterFrameInfo frame_info;
 
   g_assert_cmpint (clutter_frame_get_count (frame), ==, expected_frame_count);
@@ -204,7 +205,11 @@ immediate_frame_clock_frame (ClutterFrameClock *frame_clock,
 
   test_frame_count--;
 
-  init_frame_info (&frame_info, g_get_monotonic_time ());
+  if (!clutter_frame_get_target_presentation_time (frame,
+                                                   &target_presentation_time_us))
+    target_presentation_time_us = g_get_monotonic_time ();
+
+  init_frame_info (&frame_info, target_presentation_time_us);
   clutter_frame_clock_notify_presented (frame_clock, &frame_info);
   g_idle_add (schedule_update_idle, frame_clock);
 
