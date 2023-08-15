@@ -31,8 +31,8 @@
 G_DECLARE_FINAL_TYPE (MetaEisClient, meta_eis_client,
                       META, EIS_CLIENT, GObject)
 
-MetaEisClient *meta_eis_client_new (MetaEis           *meta_eis,
+MetaEisClient *meta_eis_client_new (MetaEis           *eis,
                                     struct eis_client *eis_client);
 
-gboolean meta_eis_client_process_event (MetaEisClient    *meta_eis_client,
+gboolean meta_eis_client_process_event (MetaEisClient    *client,
                                         struct eis_event *eis_event);

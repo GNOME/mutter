@@ -30,6 +30,6 @@ G_DECLARE_FINAL_TYPE (MetaEis, meta_eis,
                       META, EIS, GObject)
 
 MetaEis * meta_eis_new (MetaBackend *backend);
-MetaBackend * meta_eis_get_backend (MetaEis *meta_eis);
-int meta_eis_add_client_get_fd (MetaEis *meta_eis);
-void meta_eis_remove_all_clients (MetaEis *meta_eis);
+MetaBackend * meta_eis_get_backend (MetaEis *eis);
+int meta_eis_add_client_get_fd (MetaEis *eis);
+void meta_eis_remove_all_clients (MetaEis *eis);
