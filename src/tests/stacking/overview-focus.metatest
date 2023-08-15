@@ -1,0 +1,44 @@
+new_client w wayland
+
+create w/1
+show w/1
+wait
+assert_focused w/1
+hide w/1
+destroy w/1
+
+toggle_overview
+
+create w/1
+show w/1
+wait
+assert_focused none
+
+toggle_overview
+
+assert_focused w/1
+hide w/1
+destroy w/1
+
+
+new_client x x11
+
+create x/1
+show x/1
+wait
+assert_focused x/1
+hide x/1
+destroy x/1
+
+toggle_overview
+
+create x/1
+show x/1
+wait
+assert_focused none
+
+toggle_overview
+
+assert_focused x/1
+hide x/1
+destroy x/1
