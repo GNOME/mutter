@@ -51,11 +51,14 @@ void meta_fatal      (const char *format,
  * MetaDebugPaintFlag:
  * @META_DEBUG_PAINT_NONE: default
  * @META_DEBUG_PAINT_OPAQUE_REGION: paint opaque regions
+ * @META_DEBUG_PAINT_SYNC_CURSOR_PRIMARY: make cursor updates await compositing
+ *   frames
  */
 typedef enum
 {
   META_DEBUG_PAINT_NONE          = 0,
   META_DEBUG_PAINT_OPAQUE_REGION = 1 << 0,
+  META_DEBUG_PAINT_SYNC_CURSOR_PRIMARY = 1 << 1,
 } MetaDebugPaintFlag;
 
 META_EXPORT
