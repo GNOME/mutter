@@ -29,6 +29,7 @@
 
 #include "core/meta-context-private.h"
 #include "tests/meta-backend-test.h"
+#include "tests/meta-test-shell.h"
 #include "tests/meta-test-utils-private.h"
 #include "wayland/meta-wayland.h"
 #include "wayland/meta-xwayland.h"
@@ -84,7 +85,6 @@ meta_context_test_configure (MetaContext   *context,
     meta_context_test_get_instance_private (context_test);
   MetaContextClass *context_class =
     META_CONTEXT_CLASS (meta_context_test_parent_class);
-  const char *plugin_name;
 
   g_test_init (argc, argv, NULL);
 
@@ -101,10 +101,7 @@ meta_context_test_configure (MetaContext   *context,
   meta_xwayland_override_display_number (512);
 #endif
 
-  plugin_name = g_getenv ("MUTTER_TEST_PLUGIN_PATH");
-  if (!plugin_name)
-    plugin_name = "libdefault";
-  meta_context_set_plugin_name (context, plugin_name);
+  meta_context_set_plugin_gtype (context, META_TYPE_TEST_SHELL);
 
   ensure_gsettings_memory_backend ();
 

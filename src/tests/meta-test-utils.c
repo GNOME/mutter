@@ -751,18 +751,6 @@ meta_test_client_destroy (MetaTestClient *client)
   g_free (client);
 }
 
-const char *
-meta_test_get_plugin_name (void)
-{
-  const char *name;
-
-  name = g_getenv ("MUTTER_TEST_PLUGIN_PATH");
-  if (name)
-    return name;
-  else
-    return "libdefault";
-}
-
 void
 meta_set_custom_monitor_config_full (MetaBackend            *backend,
                                      const char             *filename,
