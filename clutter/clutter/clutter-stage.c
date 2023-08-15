@@ -3515,9 +3515,11 @@ void
 clutter_stage_repick_device (ClutterStage       *stage,
                              ClutterInputDevice *device)
 {
-  graphene_point_t point;
+  graphene_point_t point = GRAPHENE_POINT_INIT_ZERO;
 
-  clutter_stage_get_device_coords (stage, device, NULL, &point);
+  if (!clutter_stage_get_device_coords (stage, device, NULL, &point))
+    return;
+
   clutter_stage_pick_and_update_device (stage,
                                         device,
                                         NULL, NULL,
