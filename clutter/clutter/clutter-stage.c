@@ -164,6 +164,8 @@ enum
   PROP_PERSPECTIVE,
   PROP_TITLE,
   PROP_KEY_FOCUS,
+  PROP_IS_GRABBED,
+
   PROP_LAST
 };
 
@@ -1226,6 +1228,10 @@ clutter_stage_get_property (GObject    *gobject,
       g_value_set_object (value, priv->key_focused_actor);
       break;
 
+    case PROP_IS_GRABBED:
+      g_value_set_boolean (value, !!priv->topmost_grab);
+      break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
       break;
@@ -1411,6 +1417,17 @@ clutter_stage_class_init (ClutterStageClass *klass)
                            CLUTTER_TYPE_ACTOR,
                            CLUTTER_PARAM_READWRITE |
                            G_PARAM_EXPLICIT_NOTIFY);
+
+  /**
+   * ClutterStage:is-grabbed:
+   *
+   * %TRUE if there is currently an active grab on the stage.
+   */
+  obj_props[PROP_IS_GRABBED] =
+      g_param_spec_boolean ("is-grabbed", NULL, NULL,
+                            FALSE,
+                            CLUTTER_PARAM_READABLE |
+                            G_PARAM_EXPLICIT_NOTIFY);
 
   g_object_class_install_properties (gobject_class, PROP_LAST, obj_props);
 
@@ -3898,6 +3915,7 @@ clutter_stage_grab_full (ClutterStage *stage,
 {
   ClutterStagePrivate *priv;
   ClutterGrab *grab;
+  gboolean was_grabbed;
 
   g_return_val_if_fail (CLUTTER_IS_STAGE (stage), NULL);
   g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), NULL);
@@ -3924,6 +3942,8 @@ clutter_stage_grab_full (ClutterStage *stage,
   grab->prev = NULL;
   grab->next = priv->topmost_grab;
 
+  was_grabbed = !!priv->topmost_grab;
+
   if (priv->topmost_grab)
     priv->topmost_grab->prev = grab;
 
@@ -3944,6 +3964,9 @@ clutter_stage_grab_full (ClutterStage *stage,
 
   clutter_actor_attach_grab (actor, grab);
   clutter_stage_notify_grab (stage, grab, grab->next);
+
+  if (was_grabbed != !!priv->topmost_grab)
+    g_object_notify_by_pspec (G_OBJECT (stage), obj_props[PROP_IS_GRABBED]);
 
   return grab;
 }
@@ -3991,6 +4014,7 @@ clutter_stage_unlink_grab (ClutterStage *stage,
 {
   ClutterStagePrivate *priv = stage->priv;
   ClutterGrab *prev, *next;
+  gboolean was_grabbed;
 
   /* This grab is already detached */
   if (!grab->prev && !grab->next && priv->topmost_grab != grab)
@@ -4003,6 +4027,8 @@ clutter_stage_unlink_grab (ClutterStage *stage,
     prev->next = next;
   if (next)
     next->prev = prev;
+
+  was_grabbed = !!priv->topmost_grab;
 
   if (priv->topmost_grab == grab)
     {
@@ -4025,6 +4051,9 @@ clutter_stage_unlink_grab (ClutterStage *stage,
       clutter_seat_ungrab (seat, clutter_get_current_event_time ());
       priv->grab_state = CLUTTER_GRAB_STATE_NONE;
     }
+
+  if (was_grabbed != !!priv->topmost_grab)
+    g_object_notify_by_pspec (G_OBJECT (stage), obj_props[PROP_IS_GRABBED]);
 
   if (G_UNLIKELY (clutter_debug_flags & CLUTTER_DEBUG_GRABS))
     {
