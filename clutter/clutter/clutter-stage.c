@@ -3134,7 +3134,7 @@ clutter_stage_get_device_actor (ClutterStage         *stage,
 /**
  * clutter_stage_get_device_coords: (skip):
  */
-void
+gboolean
 clutter_stage_get_device_coords (ClutterStage         *stage,
                                  ClutterInputDevice   *device,
                                  ClutterEventSequence *sequence,
@@ -3143,16 +3143,21 @@ clutter_stage_get_device_coords (ClutterStage         *stage,
   ClutterStagePrivate *priv = stage->priv;
   PointerDeviceEntry *entry = NULL;
 
-  g_return_if_fail (CLUTTER_IS_STAGE (stage));
-  g_return_if_fail (device != NULL);
+  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), FALSE);
+  g_return_val_if_fail (device != NULL, FALSE);
 
   if (sequence != NULL)
     entry = g_hash_table_lookup (priv->touch_sequences, sequence);
   else
     entry = g_hash_table_lookup (priv->pointer_devices, device);
 
-  if (entry && coords)
+  if (!entry)
+    return FALSE;
+
+  if (coords)
     *coords = entry->coords;
+
+  return TRUE;
 }
 
 static void
