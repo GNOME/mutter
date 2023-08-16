@@ -229,20 +229,6 @@ meta_display_handle_event (MetaDisplay        *display,
 
   has_grab = stage_has_grab (display);
 
-  if (display->grabbed_in_clutter != has_grab)
-    {
-      if (!display->grabbed_in_clutter && has_grab)
-        {
-          display->grabbed_in_clutter = TRUE;
-          meta_compositor_grab_begin (compositor);
-        }
-      else if (display->grabbed_in_clutter && !has_grab)
-        {
-          display->grabbed_in_clutter = FALSE;
-          meta_compositor_grab_end (compositor);
-        }
-    }
-
   device = clutter_event_get_device (event);
   clutter_input_pointer_a11y_update (device, event);
 
