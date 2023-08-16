@@ -64,12 +64,10 @@ MetaMonitorTransform meta_monitor_transform_transform (MetaMonitorTransform tran
                                                        MetaMonitorTransform other);
 
 void meta_monitor_transform_transform_point (MetaMonitorTransform  transform,
-                                             int                   area_width,
-                                             int                   area_height,
-                                             int                   x,
-                                             int                   y,
-                                             int                  *out_x,
-                                             int                  *out_y);
+                                             int                  *area_width,
+                                             int                  *area_height,
+                                             int                  *point_x,
+                                             int                  *point_y);
 
 void meta_monitor_transform_transform_matrix (MetaMonitorTransform  transform,
                                               graphene_matrix_t    *matrix);

@@ -110,48 +110,76 @@ meta_monitor_transform_transform (MetaMonitorTransform transform,
 
 void
 meta_monitor_transform_transform_point (MetaMonitorTransform  transform,
-                                        int                   area_width,
-                                        int                   area_height,
-                                        int                   x,
-                                        int                   y,
-                                        int                  *out_x,
-                                        int                  *out_y)
+                                        int                  *area_width,
+                                        int                  *area_height,
+                                        int                  *point_x,
+                                        int                  *point_y)
 {
+  int old_x = *point_x;
+  int old_y = *point_y;
+  int old_width = *area_width;
+  int old_height = *area_height;
+  int new_x = 0;
+  int new_y = 0;
+  int new_width = 0;
+  int new_height = 0;
+
   switch (transform)
     {
     case META_MONITOR_TRANSFORM_NORMAL:
-      *out_x = x;
-      *out_y = y;
+      new_x = old_x;
+      new_y = old_y;
+      new_width = old_width;
+      new_height = old_height;
       break;
     case META_MONITOR_TRANSFORM_90:
-      *out_x = area_width - y;
-      *out_y = x;
+      new_x = old_y;
+      new_y = old_width - old_x;
+      new_width = old_height;
+      new_height = old_width;
       break;
     case META_MONITOR_TRANSFORM_180:
-      *out_x = area_width - x;
-      *out_y = area_height - y;
+      new_x = old_width - old_x;
+      new_y = old_height - old_y;
+      new_width = old_width;
+      new_height = old_height;
       break;
     case META_MONITOR_TRANSFORM_270:
-      *out_x = y,
-      *out_y = area_height - x;
+      new_x = old_height - old_y;
+      new_y = old_x;
+      new_width = old_height;
+      new_height = old_width;
       break;
     case META_MONITOR_TRANSFORM_FLIPPED:
-      *out_x = area_width - x;
-      *out_y = y;
+      new_x = old_width - old_x;
+      new_y = old_y;
+      new_width = old_width;
+      new_height = old_height;
       break;
     case META_MONITOR_TRANSFORM_FLIPPED_90:
-      *out_x = area_width - y;
-      *out_y = area_height - x;
+      new_x = old_y;
+      new_y = old_x;
+      new_width = old_height;
+      new_height = old_width;
       break;
     case META_MONITOR_TRANSFORM_FLIPPED_180:
-      *out_x = x;
-      *out_y = area_height - y;
+      new_x = old_x;
+      new_y = old_height - old_y;
+      new_width = old_width;
+      new_height = old_height;
       break;
     case META_MONITOR_TRANSFORM_FLIPPED_270:
-      *out_x = y;
-      *out_y = x;
+      new_x = old_height - old_y;
+      new_y = old_width - old_x;
+      new_width = old_height;
+      new_height = old_width;
       break;
     }
+
+  *point_x = new_x;
+  *point_y = new_y;
+  *area_width = new_width;
+  *area_height = new_height;
 }
 
 void

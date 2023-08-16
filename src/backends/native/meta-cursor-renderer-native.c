@@ -575,8 +575,7 @@ calculate_crtc_cursor_hotspot (MetaCursorSprite     *cursor_sprite,
   width = meta_cursor_sprite_get_width (cursor_sprite);
   height = meta_cursor_sprite_get_height (cursor_sprite);
   meta_monitor_transform_transform_point (transform,
-                                          width, height,
-                                          hot_x, hot_y,
+                                          &width, &height,
                                           &hot_x, &hot_y);
   *hotspot = GRAPHENE_POINT_INIT (hot_x * scale, hot_y * scale);
 }
