@@ -257,20 +257,6 @@ meta_display_handle_event (MetaDisplay        *display,
 
   has_grab = stage_has_grab (display);
 
-  if (display->grabbed_in_clutter != has_grab)
-    {
-      if (!display->grabbed_in_clutter && has_grab)
-        {
-          display->grabbed_in_clutter = TRUE;
-          meta_compositor_grab_begin (compositor);
-        }
-      else if (display->grabbed_in_clutter && !has_grab)
-        {
-          display->grabbed_in_clutter = FALSE;
-          meta_compositor_grab_end (compositor);
-        }
-    }
-
   sequence = clutter_event_get_event_sequence (event);
   event_type = clutter_event_type (event);
   time_ms = clutter_event_get_time (event);

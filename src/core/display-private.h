@@ -120,7 +120,6 @@ struct _MetaDisplay
 
   /* Opening the display */
   unsigned int display_opening : 1;
-  unsigned int grabbed_in_clutter : 1;
 
   /* Closing down the display */
   int closing;

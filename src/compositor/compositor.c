@@ -115,6 +115,7 @@ typedef struct _MetaCompositorPrivate
   gulong after_paint_handler_id;
   gulong window_visibility_updated_id;
   gulong monitors_changed_internal_id;
+  gulong grabbed_notify_handler_id;
 
   int64_t server_time_query_time;
   int64_t server_time_offset;
@@ -1180,6 +1181,17 @@ on_monitors_changed_internal (MetaMonitorManager *monitor_manager,
 }
 
 static void
+on_is_grabbed_changed_cb (ClutterStage   *stage,
+                          GParamSpec     *pspec,
+                          MetaCompositor *compositor)
+{
+  if (clutter_stage_get_grab_actor (stage) != NULL)
+    meta_compositor_grab_begin (compositor);
+  else
+    meta_compositor_grab_end (compositor);
+}
+
+static void
 meta_compositor_set_property (GObject      *object,
                               guint         prop_id,
                               const GValue *value,
@@ -1255,6 +1267,11 @@ meta_compositor_constructed (GObject *object)
                             "after-paint",
                             G_CALLBACK (on_after_paint),
                             compositor);
+  priv->grabbed_notify_handler_id =
+    g_signal_connect (stage,
+                      "notify::is-grabbed",
+                      G_CALLBACK (on_is_grabbed_changed_cb),
+                      compositor);
 
   priv->window_visibility_updated_id =
     g_signal_connect (priv->display,
@@ -1288,6 +1305,7 @@ meta_compositor_dispose (GObject *object)
   g_clear_signal_handler (&priv->stage_presented_id, stage);
   g_clear_signal_handler (&priv->before_paint_handler_id, stage);
   g_clear_signal_handler (&priv->after_paint_handler_id, stage);
+  g_clear_signal_handler (&priv->grabbed_notify_handler_id, stage);
   g_clear_signal_handler (&priv->window_visibility_updated_id, priv->display);
 
   g_clear_pointer (&priv->windows, g_list_free);
