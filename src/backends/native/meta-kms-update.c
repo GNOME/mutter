@@ -520,6 +520,7 @@ meta_kms_crtc_color_updates_free (MetaKmsCrtcColorUpdate *color_update)
 {
   if (color_update->gamma.has_update)
     g_clear_pointer (&color_update->gamma.state, meta_gamma_lut_free);
+  g_free (color_update);
 }
 
 void
