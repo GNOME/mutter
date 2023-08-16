@@ -243,7 +243,7 @@ meta_window_destroy_frame (MetaWindow *window)
       window->frame_bounds = NULL;
     }
 
-  g_clear_pointer (&window->opaque_region, cairo_region_destroy);
+  g_clear_pointer (&frame->opaque_region, cairo_region_destroy);
 
   /* Move keybindings to window instead of frame */
   meta_window_grab_keys (window);
