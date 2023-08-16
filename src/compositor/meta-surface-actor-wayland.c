@@ -174,7 +174,7 @@ meta_surface_actor_wayland_apply_transform (ClutterActor      *actor,
   MetaWaylandSurface *root_surface;
   MetaWindow *window;
   MetaLogicalMonitor *logical_monitor;
-  ClutterActorBox *allocation;
+  g_autoptr (ClutterActorBox) allocation = NULL;
   float scale;
   float actor_width, actor_height;
   float adj_actor_width, adj_actor_height;
