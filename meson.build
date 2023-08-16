@@ -436,7 +436,7 @@ if have_profiler
   )
 
   if libsysprof_capture_dep.type_name() == 'pkgconfig'
-    sysprof_dep = dependency('sysprof-4')
+    sysprof_dep = dependency('sysprof-6', 'sysprof-4')
     sysprof_dbus_interfaces_dir = sysprof_dep.get_variable('datadir') / 'dbus-1' / 'interfaces'
   else
     sysprof_dbus_interfaces_dir = mutter_srcdir / 'subprojects' / 'sysprof' / 'src'
