@@ -507,6 +507,8 @@ static void
 meta_kms_cursor_manager_impl_free (MetaKmsCursorManagerImpl *cursor_manager_impl)
 {
   g_warn_if_fail (!cursor_manager_impl->crtc_states);
+
+  g_free (cursor_manager_impl);
 }
 
 static MetaKmsCursorManagerImpl *
