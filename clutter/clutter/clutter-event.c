@@ -300,10 +300,6 @@ union _ClutterEvent
   ClutterIMEvent im;
 };
 
-typedef struct _ClutterEventPrivate {
-  ClutterEvent base;
-} ClutterEventPrivate;
-
 typedef struct _ClutterEventFilter {
   int id;
 
@@ -815,12 +811,9 @@ ClutterEvent *
 clutter_event_new (ClutterEventType type)
 {
   ClutterEvent *new_event;
-  ClutterEventPrivate *priv;
 
-  priv = g_new0 (ClutterEventPrivate, 1);
-
-  new_event = (ClutterEvent *) priv;
-  new_event->type = new_event->any.type = type;
+  new_event = g_new0 (ClutterEvent, 1);
+  new_event->any.type = type;
 
   return new_event;
 }
@@ -945,7 +938,7 @@ clutter_event_free (ClutterEvent *event)
           break;
         }
 
-      g_free ((ClutterEventPrivate *) event);
+      g_free (event);
     }
 }
 
