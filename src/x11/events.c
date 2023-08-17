@@ -1601,6 +1601,10 @@ handle_other_xevent (MetaX11Display *x11_display,
         {
           meta_window_x11_configure_request (window, event);
         }
+      else if (frame_was_receiver && window->frame)
+        {
+          meta_frame_handle_xevent (window->frame, event);
+        }
       break;
     case GravityNotify:
       break;

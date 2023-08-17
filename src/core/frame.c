@@ -440,6 +440,34 @@ meta_frame_get_xwindow (MetaFrame *frame)
   return frame->xwindow;
 }
 
+static void
+send_configure_notify (MetaFrame *frame)
+{
+  MetaX11Display *x11_display = frame->window->display->x11_display;
+  XEvent event = { 0 };
+
+  /* We never get told by the frames client, just reassert the
+   * current frame size.
+   */
+  event.type = ConfigureNotify;
+  event.xconfigure.display = x11_display->xdisplay;
+  event.xconfigure.event = frame->xwindow;
+  event.xconfigure.window = frame->xwindow;
+  event.xconfigure.x = frame->rect.x;
+  event.xconfigure.y = frame->rect.y;
+  event.xconfigure.width = frame->rect.width;
+  event.xconfigure.height = frame->rect.height;
+  event.xconfigure.border_width = 0;
+  event.xconfigure.above = None;
+  event.xconfigure.override_redirect = False;
+
+  meta_x11_error_trap_push (x11_display);
+  XSendEvent (x11_display->xdisplay,
+              frame->xwindow,
+              False, StructureNotifyMask, &event);
+  meta_x11_error_trap_pop (x11_display);
+}
+
 gboolean
 meta_frame_handle_xevent (MetaFrame *frame,
                           XEvent    *xevent)
@@ -463,6 +491,12 @@ meta_frame_handle_xevent (MetaFrame *frame,
     {
       meta_window_reload_property_from_xwindow (window, frame->xwindow,
                                                 xevent->xproperty.atom, FALSE);
+      return TRUE;
+    }
+  else if (xevent->xany.type == ConfigureRequest &&
+           xevent->xconfigurerequest.window == frame->xwindow)
+    {
+      send_configure_notify (frame);
       return TRUE;
     }
 
