@@ -284,15 +284,6 @@ typedef struct _ClutterEventPrivate {
   gdouble delta_y;
 
   ClutterInputDeviceTool *tool;
-
-  gpointer platform_data;
-
-  ClutterModifierType button_state;
-  ClutterModifierType base_state;
-  ClutterModifierType latched_state;
-  ClutterModifierType locked_state;
-
-  guint is_pointer_emulated : 1;
 } ClutterEventPrivate;
 
 typedef struct _ClutterEventFilter {
@@ -910,11 +901,6 @@ clutter_event_copy (const ClutterEvent *event)
   g_set_object (&new_real_event->source_device, real_event->source_device);
   new_real_event->delta_x = real_event->delta_x;
   new_real_event->delta_y = real_event->delta_y;
-  new_real_event->is_pointer_emulated = real_event->is_pointer_emulated;
-  new_real_event->base_state = real_event->base_state;
-  new_real_event->button_state = real_event->button_state;
-  new_real_event->latched_state = real_event->latched_state;
-  new_real_event->locked_state = real_event->locked_state;
   new_real_event->tool = real_event->tool;
 
   switch (event->type)
