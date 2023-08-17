@@ -51,27 +51,15 @@ G_BEGIN_DECLS
  * Frame information.
  */
 typedef struct _CoglFrameInfo CoglFrameInfo;
-#define COGL_FRAME_INFO(X) ((CoglFrameInfo *)(X))
 
-/**
- * cogl_frame_info_get_gtype:
- *
- * Returns: a #GType that can be used with the GLib type system.
- */
+#define COGL_TYPE_FRAME_INFO (cogl_frame_info_get_type ())
+
 COGL_EXPORT
-GType cogl_frame_info_get_gtype (void);
-
-/**
- * cogl_is_frame_info:
- * @object: A #CoglObject pointer
- *
- * Gets whether the given object references a #CoglFrameInfo.
- *
- * Return value: %TRUE if the object references a #CoglFrameInfo
- *   and %FALSE otherwise.
- */
-COGL_EXPORT gboolean
-cogl_is_frame_info (void *object);
+G_DECLARE_FINAL_TYPE (CoglFrameInfo,
+                      cogl_frame_info,
+                      COGL,
+                      FRAME_INFO,
+                      GObject)
 
 /**
  * cogl_frame_info_get_frame_counter:

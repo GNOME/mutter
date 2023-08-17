@@ -747,7 +747,7 @@ meta_stage_impl_scanout_view (MetaStageImpl     *stage_impl,
                                      frame,
                                      error))
     {
-      cogl_object_unref (frame_info);
+      g_object_unref (frame_info);
       return FALSE;
     }
 

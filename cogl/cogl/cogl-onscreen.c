@@ -141,7 +141,7 @@ cogl_onscreen_dispose (GObject *object)
   _cogl_closure_list_disconnect_all (&priv->dirty_closures);
 
   while ((frame_info = g_queue_pop_tail (&priv->pending_frame_infos)))
-    cogl_object_unref (frame_info);
+    g_object_unref (frame_info);
   g_queue_clear (&priv->pending_frame_infos);
 
   G_OBJECT_CLASS (cogl_onscreen_parent_class)->dispose (object);
@@ -202,7 +202,7 @@ _cogl_dispatch_onscreen_cb (CoglContext *context)
       notify_event (onscreen, event->type, info);
 
       g_object_unref (onscreen);
-      cogl_object_unref (info);
+      g_object_unref (info);
 
       g_free (event);
     }
@@ -286,7 +286,7 @@ _cogl_onscreen_queue_event (CoglOnscreen *onscreen,
   CoglOnscreenEvent *event = g_new0 (CoglOnscreenEvent, 1);
 
   event->onscreen = g_object_ref (onscreen);
-  event->info = cogl_object_ref (info);
+  event->info = g_object_ref (info);
   event->type = type;
 
   _cogl_list_insert (ctx->onscreen_events_queue.prev, &event->link);
@@ -355,7 +355,7 @@ cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
       _cogl_onscreen_queue_event (onscreen, COGL_FRAME_EVENT_SYNC, info);
       _cogl_onscreen_queue_event (onscreen, COGL_FRAME_EVENT_COMPLETE, info);
 
-      cogl_object_unref (info);
+      g_object_unref (info);
     }
 
   priv->frame_counter++;
@@ -415,7 +415,7 @@ cogl_onscreen_swap_region (CoglOnscreen *onscreen,
       _cogl_onscreen_queue_event (onscreen, COGL_FRAME_EVENT_SYNC, info);
       _cogl_onscreen_queue_event (onscreen, COGL_FRAME_EVENT_COMPLETE, info);
 
-      cogl_object_unref (info);
+      g_object_unref (info);
     }
 
   priv->frame_counter++;

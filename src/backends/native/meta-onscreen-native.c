@@ -197,7 +197,7 @@ meta_onscreen_native_notify_frame_complete (CoglOnscreen *onscreen)
 
   _cogl_onscreen_notify_frame_sync (onscreen, info);
   _cogl_onscreen_notify_complete (onscreen, info);
-  cogl_object_unref (info);
+  g_object_unref (info);
 }
 
 static void

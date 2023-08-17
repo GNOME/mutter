@@ -31,7 +31,6 @@
 #pragma once
 
 #include "cogl/cogl-frame-info.h"
-#include "cogl/cogl-object-private.h"
 #include "cogl/cogl-context.h"
 
 typedef enum _CoglFrameInfoFlag
@@ -60,7 +59,7 @@ typedef enum _CoglFrameInfoFlag
 
 struct _CoglFrameInfo
 {
-  CoglObject _parent;
+  GObject parent_instance;
 
   CoglContext *context;
 

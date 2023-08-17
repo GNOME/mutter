@@ -31,13 +31,33 @@
 #include "cogl-config.h"
 
 #include "cogl/cogl-frame-info-private.h"
-#include "cogl/cogl-gtype-private.h"
 #include "cogl/cogl-context-private.h"
 
-static void _cogl_frame_info_free (CoglFrameInfo *info);
+G_DEFINE_TYPE (CoglFrameInfo, cogl_frame_info, G_TYPE_OBJECT);
 
-COGL_OBJECT_DEFINE (FrameInfo, frame_info);
-COGL_GTYPE_DEFINE_CLASS (FrameInfo, frame_info);
+static void
+cogl_frame_info_dispose (GObject *object)
+{
+  CoglFrameInfo *info = COGL_FRAME_INFO (object);
+
+  if (info->timestamp_query)
+    cogl_context_free_timestamp_query (info->context, info->timestamp_query);
+
+  G_OBJECT_CLASS (cogl_frame_info_parent_class)->dispose (object);
+}
+
+static void
+cogl_frame_info_init (CoglFrameInfo *info)
+{
+}
+
+static void
+cogl_frame_info_class_init (CoglFrameInfoClass *class)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (class);
+
+  object_class->dispose = cogl_frame_info_dispose;
+}
 
 CoglFrameInfo *
 cogl_frame_info_new (CoglContext *context,
@@ -45,20 +65,11 @@ cogl_frame_info_new (CoglContext *context,
 {
   CoglFrameInfo *info;
 
-  info = g_new0 (CoglFrameInfo, 1);
+  info = g_object_new (COGL_TYPE_FRAME_INFO, NULL);
   info->context = context;
   info->global_frame_counter = global_frame_counter;
 
-  return _cogl_frame_info_object_new (info);
-}
-
-static void
-_cogl_frame_info_free (CoglFrameInfo *info)
-{
-  if (info->timestamp_query)
-    cogl_context_free_timestamp_query (info->context, info->timestamp_query);
-
-  g_free (info);
+  return info;
 }
 
 int64_t

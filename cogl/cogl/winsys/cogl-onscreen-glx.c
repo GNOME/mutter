@@ -591,7 +591,7 @@ cogl_onscreen_glx_flush_notification (CoglOnscreen *onscreen)
 
           info = cogl_onscreen_pop_head_frame_info (onscreen);
           _cogl_onscreen_notify_complete (onscreen, info);
-          cogl_object_unref (info);
+          g_object_unref (info);
           onscreen_glx->pending_complete_notify--;
         }
     }
