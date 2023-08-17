@@ -65,8 +65,9 @@ struct _ClutterButtonEvent
   float y;
   ClutterModifierType modifier_state;
   uint32_t button;
-  double *axes; /* Future use */
+  double *axes;
   ClutterInputDevice *device;
+  ClutterInputDeviceTool *tool;
   uint32_t evdev_code;
 };
 
@@ -76,6 +77,7 @@ struct _ClutterProximityEvent
   uint32_t time;
   ClutterEventFlags flags;
   ClutterInputDevice *device;
+  ClutterInputDeviceTool *tool;
 };
 
 struct _ClutterCrossingEvent
@@ -101,8 +103,9 @@ struct _ClutterMotionEvent
   float x;
   float y;
   ClutterModifierType modifier_state;
-  double *axes; /* Future use */
+  double *axes;
   ClutterInputDevice *device;
+  ClutterInputDeviceTool *tool;
 
   int64_t time_us;
   double dx;
@@ -125,8 +128,9 @@ struct _ClutterScrollEvent
   double delta_y;
   ClutterScrollDirection direction;
   ClutterModifierType modifier_state;
-  double *axes; /* future use */
+  double *axes;
   ClutterInputDevice *device;
+  ClutterInputDeviceTool *tool;
   ClutterScrollSource scroll_source;
   ClutterScrollFinishFlags finish_flags;
 };
@@ -281,8 +285,6 @@ typedef struct _ClutterEventPrivate {
 
   ClutterInputDevice *device;
   ClutterInputDevice *source_device;
-
-  ClutterInputDeviceTool *tool;
 } ClutterEventPrivate;
 
 typedef struct _ClutterEventFilter {
@@ -840,11 +842,23 @@ clutter_event_get_device (const ClutterEvent *event)
 ClutterInputDeviceTool *
 clutter_event_get_device_tool (const ClutterEvent *event)
 {
-  ClutterEventPrivate *real_event = (ClutterEventPrivate *) event;
-
   g_return_val_if_fail (event != NULL, NULL);
 
-  return real_event->tool;
+  switch (event->any.type)
+    {
+    case CLUTTER_BUTTON_PRESS:
+    case CLUTTER_BUTTON_RELEASE:
+      return event->button.tool;
+    case CLUTTER_MOTION:
+      return event->motion.tool;
+    case CLUTTER_SCROLL:
+      return event->scroll.tool;
+    case CLUTTER_PROXIMITY_IN:
+    case CLUTTER_PROXIMITY_OUT:
+      return event->proximity.tool;
+    default:
+      return NULL;
+    }
 }
 
 /**
@@ -893,7 +907,6 @@ clutter_event_copy (const ClutterEvent *event)
 
   g_set_object (&new_real_event->device, real_event->device);
   g_set_object (&new_real_event->source_device, real_event->source_device);
-  new_real_event->tool = real_event->tool;
 
   switch (event->type)
     {
@@ -1959,9 +1972,9 @@ clutter_event_button_new (ClutterEventType        type,
   event->button.button = button;
   event->button.axes = axes;
   event->button.evdev_code = evcode;
+  event->button.tool = tool;
 
   g_set_object (&private->source_device, source_device);
-  private->tool = tool;
 
   if (tool)
     {
@@ -2012,9 +2025,9 @@ clutter_event_motion_new (ClutterEventFlags       flags,
   event->motion.dy_unaccel = delta_unaccel.y;
   event->motion.dx_constrained = delta_constrained.x;
   event->motion.dy_constrained = delta_constrained.y;
+  event->motion.tool = tool;
 
   g_set_object (&private->source_device, source_device);
-  private->tool = tool;
 
   if (tool)
     {
@@ -2061,9 +2074,9 @@ clutter_event_scroll_smooth_new (ClutterEventFlags         flags,
   event->scroll.modifier_state = modifiers;
   event->scroll.scroll_source = scroll_source;
   event->scroll.finish_flags = finish_flags;
+  event->scroll.tool = tool;
 
   g_set_object (&private->source_device, source_device);
-  private->tool = tool;
 
   if (tool)
     {
@@ -2104,9 +2117,9 @@ clutter_event_scroll_discrete_new (ClutterEventFlags       flags,
   event->scroll.y = coords.y;
   event->scroll.direction = direction;
   event->scroll.modifier_state = modifiers;
+  event->scroll.tool = tool;
 
   g_set_object (&private->source_device, source_device);
-  private->tool = tool;
 
   if (tool)
     {
@@ -2241,9 +2254,9 @@ clutter_event_proximity_new (ClutterEventType        type,
   event->proximity.time = us2ms (timestamp_us);
   event->proximity.flags = flags;
   event->proximity.device = source_device;
+  event->proximity.tool = tool;
 
   g_set_object (&private->source_device, source_device);
-  private->tool = tool;
 
   return event;
 }
