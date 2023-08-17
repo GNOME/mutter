@@ -249,11 +249,11 @@ cogl_renderer_check_onscreen_template (CoglRenderer *renderer,
   display = cogl_display_new (renderer, onscreen_template);
   if (!cogl_display_setup (display, error))
     {
-      cogl_object_unref (display);
+      g_object_unref (display);
       return FALSE;
     }
 
-  cogl_object_unref (display);
+  g_object_unref (display);
 
   return TRUE;
 }

@@ -261,7 +261,7 @@ clutter_backend_do_real_create_context (ClutterBackend  *backend,
 error:
   if (backend->cogl_display != NULL)
     {
-      cogl_object_unref (backend->cogl_display);
+      g_object_unref (backend->cogl_display);
       backend->cogl_display = NULL;
     }
 

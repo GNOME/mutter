@@ -155,11 +155,11 @@ cogl_context_new (CoglDisplay *display,
       cogl_object_unref(renderer);
     }
   else
-    cogl_object_ref (display);
+    g_object_ref (display);
 
   if (!cogl_display_setup (display, error))
     {
-      cogl_object_unref (display);
+      g_object_unref (display);
       g_free (context);
       return NULL;
     }
@@ -182,14 +182,14 @@ cogl_context_new (CoglDisplay *display,
   winsys = _cogl_context_get_winsys (context);
   if (!winsys->context_init (context, error))
     {
-      cogl_object_unref (display);
+      g_object_unref (display);
       g_free (context);
       return NULL;
     }
 
   if (!context->driver_vtable->context_init (context))
     {
-      cogl_object_unref (display);
+      g_object_unref (display);
       g_free (context);
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "Failed to initialize context");
@@ -302,7 +302,7 @@ cogl_context_new (CoglDisplay *display,
                                    &local_error);
   if (!context->default_gl_texture_2d_tex)
     {
-      cogl_object_unref (display);
+      g_object_unref (display);
       g_free (context);
       g_propagate_prefixed_error (error, local_error,
                                   "Failed to create 1x1 fallback texture: ");
@@ -392,7 +392,7 @@ _cogl_context_free (CoglContext *context)
 
   driver->context_deinit (context);
 
-  cogl_object_unref (context->display);
+  g_object_unref (context->display);
 
   g_hash_table_remove_all (context->named_pipelines);
   g_hash_table_destroy (context->named_pipelines);

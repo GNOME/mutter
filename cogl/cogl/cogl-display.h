@@ -44,8 +44,9 @@
 G_BEGIN_DECLS
 
 /**
- * SECTION:cogl-display
- * @short_description: Common aspects of a display pipeline
+ * CoglDisplay:
+ *
+ * Common aspects of a display pipeline
  *
  * The basic intention for this object is to let the application
  * configure common display preferences before creating a context, and
@@ -65,17 +66,16 @@ G_BEGIN_DECLS
  * create a GLContext.
  */
 
-typedef struct _CoglDisplay	      CoglDisplay;
+typedef struct _CoglDisplay CoglDisplay;
 
-#define COGL_DISPLAY(OBJECT) ((CoglDisplay *)OBJECT)
+#define COGL_TYPE_DISPLAY (cogl_display_get_type ())
 
-/**
- * cogl_display_get_gtype:
- *
- * Returns: a #GType that can be used with the GLib type system.
- */
 COGL_EXPORT
-GType cogl_display_get_gtype (void);
+G_DECLARE_FINAL_TYPE (CoglDisplay,
+                      cogl_display,
+                      COGL,
+                      DISPLAY,
+                      GObject)
 
 /**
  * cogl_display_new:
@@ -179,18 +179,6 @@ cogl_display_set_onscreen_template (CoglDisplay *display,
  */
 COGL_EXPORT gboolean
 cogl_display_setup (CoglDisplay *display,
-                    GError **error);
-
-/**
- * cogl_is_display:
- * @object: A #CoglObject pointer
- *
- * Gets whether the given object references a #CoglDisplay.
- *
- * Return value: %TRUE if the object references a #CoglDisplay
- *   and %FALSE otherwise.
- */
-COGL_EXPORT gboolean
-cogl_is_display (void *object);
+                    GError     **error);
 
 G_END_DECLS
