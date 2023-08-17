@@ -37,7 +37,7 @@
 struct _ClutterAnyEvent
 {
   ClutterEventType type;
-  uint32_t time;
+  int64_t time_us;
   ClutterEventFlags flags;
   ClutterInputDevice *device;
   ClutterInputDevice *source_device;
@@ -46,7 +46,7 @@ struct _ClutterAnyEvent
 struct _ClutterKeyEvent
 {
   ClutterEventType type;
-  uint32_t time;
+  int64_t time_us;
   ClutterEventFlags flags;
   ClutterInputDevice *device;
   ClutterInputDevice *source_device;
@@ -61,7 +61,7 @@ struct _ClutterKeyEvent
 struct _ClutterButtonEvent
 {
   ClutterEventType type;
-  uint32_t time;
+  int64_t time_us;
   ClutterEventFlags flags;
   ClutterInputDevice *device;
   ClutterInputDevice *source_device;
@@ -78,7 +78,7 @@ struct _ClutterButtonEvent
 struct _ClutterProximityEvent
 {
   ClutterEventType type;
-  uint32_t time;
+  int64_t time_us;
   ClutterEventFlags flags;
   ClutterInputDevice *device;
   ClutterInputDevice *source_device;
@@ -88,7 +88,7 @@ struct _ClutterProximityEvent
 struct _ClutterCrossingEvent
 {
   ClutterEventType type;
-  uint32_t time;
+  int64_t time_us;
   ClutterEventFlags flags;
   ClutterInputDevice *device;
   ClutterInputDevice *source_device;
@@ -103,7 +103,7 @@ struct _ClutterCrossingEvent
 struct _ClutterMotionEvent
 {
   ClutterEventType type;
-  uint32_t time;
+  int64_t time_us;
   ClutterEventFlags flags;
   ClutterInputDevice *device;
   ClutterInputDevice *source_device;
@@ -114,7 +114,6 @@ struct _ClutterMotionEvent
   double *axes;
   ClutterInputDeviceTool *tool;
 
-  int64_t time_us;
   double dx;
   double dy;
   double dx_unaccel;
@@ -126,7 +125,7 @@ struct _ClutterMotionEvent
 struct _ClutterScrollEvent
 {
   ClutterEventType type;
-  uint32_t time;
+  int64_t time_us;
   ClutterEventFlags flags;
   ClutterInputDevice *device;
   ClutterInputDevice *source_device;
@@ -146,7 +145,7 @@ struct _ClutterScrollEvent
 struct _ClutterTouchEvent
 {
   ClutterEventType type;
-  uint32_t time;
+  int64_t time_us;
   ClutterEventFlags flags;
   ClutterInputDevice *device;
   ClutterInputDevice *source_device;
@@ -161,7 +160,7 @@ struct _ClutterTouchEvent
 struct _ClutterTouchpadPinchEvent
 {
   ClutterEventType type;
-  uint32_t time;
+  int64_t time_us;
   ClutterEventFlags flags;
   ClutterInputDevice *device;
   ClutterInputDevice *source_device;
@@ -181,7 +180,7 @@ struct _ClutterTouchpadPinchEvent
 struct _ClutterTouchpadSwipeEvent
 {
   ClutterEventType type;
-  uint32_t time;
+  int64_t time_us;
   ClutterEventFlags flags;
   ClutterInputDevice *device;
   ClutterInputDevice *source_device;
@@ -199,7 +198,7 @@ struct _ClutterTouchpadSwipeEvent
 struct _ClutterTouchpadHoldEvent
 {
   ClutterEventType type;
-  uint32_t time;
+  int64_t time_us;
   ClutterEventFlags flags;
   ClutterInputDevice *device;
   ClutterInputDevice *source_device;
@@ -213,7 +212,7 @@ struct _ClutterTouchpadHoldEvent
 struct _ClutterPadButtonEvent
 {
   ClutterEventType type;
-  uint32_t time;
+  int64_t time_us;
   ClutterEventFlags flags;
   ClutterInputDevice *device;
   ClutterInputDevice *source_device;
@@ -226,7 +225,7 @@ struct _ClutterPadButtonEvent
 struct _ClutterPadStripEvent
 {
   ClutterEventType type;
-  uint32_t time;
+  int64_t time_us;
   ClutterEventFlags flags;
   ClutterInputDevice *device;
   ClutterInputDevice *source_device;
@@ -241,7 +240,7 @@ struct _ClutterPadStripEvent
 struct _ClutterPadRingEvent
 {
   ClutterEventType type;
-  uint32_t time;
+  int64_t time_us;
   ClutterEventFlags flags;
   ClutterInputDevice *device;
   ClutterInputDevice *source_device;
@@ -256,7 +255,7 @@ struct _ClutterPadRingEvent
 struct _ClutterDeviceEvent
 {
   ClutterEventType type;
-  uint32_t time;
+  int64_t time_us;
   ClutterEventFlags flags;
   ClutterInputDevice *device;
   ClutterInputDevice *source_device;
@@ -265,7 +264,7 @@ struct _ClutterDeviceEvent
 struct _ClutterIMEvent
 {
   ClutterEventType type;
-  uint32_t time;
+  int64_t time_us;
   ClutterEventFlags flags;
   ClutterInputDevice *device;
   ClutterInputDevice *source_device;
@@ -359,7 +358,7 @@ clutter_event_get_time (const ClutterEvent *event)
 {
   g_return_val_if_fail (event != NULL, CLUTTER_CURRENT_TIME);
 
-  return event->any.time;
+  return us2ms (event->any.time_us);
 }
 
 /**
@@ -1678,10 +1677,7 @@ clutter_event_sequence_get_slot (const ClutterEventSequence *sequence)
 int64_t
 clutter_event_get_time_us (const ClutterEvent *event)
 {
-  if (event->type == CLUTTER_MOTION)
-    return event->motion.time_us;
-
-  return 0;
+  return event->any.time_us;
 }
 
 gboolean
@@ -1848,7 +1844,7 @@ clutter_event_key_new (ClutterEventType     type,
 
   event = clutter_event_new (type);
 
-  event->key.time = us2ms (timestamp_us);
+  event->key.time_us = timestamp_us;
   event->key.flags = flags;
   event->key.modifier_state = modifiers;
   event->key.keyval = keyval;
@@ -1882,7 +1878,7 @@ clutter_event_button_new (ClutterEventType        type,
 
   event = clutter_event_new (type);
 
-  event->button.time = us2ms (timestamp_us);
+  event->button.time_us = timestamp_us;
   event->button.flags = flags;
   event->button.x = coords.x;
   event->button.y = coords.y;
@@ -1928,13 +1924,12 @@ clutter_event_motion_new (ClutterEventFlags       flags,
 
   event = clutter_event_new (CLUTTER_MOTION);
 
-  event->motion.time = us2ms (timestamp_us);
+  event->motion.time_us = timestamp_us;
   event->motion.flags = flags;
   event->motion.x = coords.x;
   event->motion.y = coords.y;
   event->motion.modifier_state = modifiers;
   event->motion.axes = axes;
-  event->motion.time_us = timestamp_us;
   event->motion.dx = delta.x;
   event->motion.dy = delta.y;
   event->motion.dx_unaccel = delta_unaccel.x;
@@ -1978,7 +1973,7 @@ clutter_event_scroll_smooth_new (ClutterEventFlags         flags,
 
   event = clutter_event_new (CLUTTER_SCROLL);
 
-  event->scroll.time = us2ms (timestamp_us);
+  event->scroll.time_us = timestamp_us;
   event->scroll.flags = flags;
   event->scroll.x = coords.x;
   event->scroll.y = coords.y;
@@ -2023,7 +2018,7 @@ clutter_event_scroll_discrete_new (ClutterEventFlags       flags,
 
   event = clutter_event_new (CLUTTER_SCROLL);
 
-  event->scroll.time = us2ms (timestamp_us);
+  event->scroll.time_us = timestamp_us;
   event->scroll.flags = flags;
   event->scroll.x = coords.x;
   event->scroll.y = coords.y;
@@ -2066,7 +2061,7 @@ clutter_event_crossing_new (ClutterEventType      type,
 
   event = clutter_event_new (type);
 
-  event->crossing.time = us2ms (timestamp_us);
+  event->crossing.time_us = timestamp_us;
   event->crossing.flags = flags;
   event->crossing.x = coords.x;
   event->crossing.y = coords.y;
@@ -2100,7 +2095,7 @@ clutter_event_touch_new (ClutterEventType      type,
 
   event = clutter_event_new (type);
 
-  event->touch.time = us2ms (timestamp_us);
+  event->touch.time_us = timestamp_us;
   event->touch.flags = flags;
   event->touch.x = coords.x;
   event->touch.y = coords.y;
@@ -2130,7 +2125,7 @@ clutter_event_touch_cancel_new (ClutterEventFlags     flags,
 
   event = clutter_event_new (CLUTTER_TOUCH_CANCEL);
 
-  event->touch.time = us2ms (timestamp_us);
+  event->touch.time_us = timestamp_us;
   event->touch.flags = flags;
   event->touch.sequence = sequence;
 
@@ -2157,7 +2152,7 @@ clutter_event_proximity_new (ClutterEventType        type,
 
   event = clutter_event_new (type);
 
-  event->proximity.time = us2ms (timestamp_us);
+  event->proximity.time_us = timestamp_us;
   event->proximity.flags = flags;
   event->proximity.tool = tool;
 
@@ -2188,7 +2183,7 @@ clutter_event_touchpad_pinch_new (ClutterEventFlags            flags,
 
   event = clutter_event_new (CLUTTER_TOUCHPAD_PINCH);
 
-  event->touchpad_pinch.time = us2ms (timestamp_us);
+  event->touchpad_pinch.time_us = timestamp_us;
   event->touchpad_pinch.flags = flags;
   event->touchpad_pinch.phase = phase;
   event->touchpad_pinch.x = coords.x;
@@ -2226,7 +2221,7 @@ clutter_event_touchpad_swipe_new (ClutterEventFlags            flags,
 
   event = clutter_event_new (CLUTTER_TOUCHPAD_SWIPE);
 
-  event->touchpad_swipe.time = us2ms (timestamp_us);
+  event->touchpad_swipe.time_us = timestamp_us;
   event->touchpad_swipe.flags = flags;
   event->touchpad_swipe.phase = phase;
   event->touchpad_swipe.x = coords.x;
@@ -2260,7 +2255,7 @@ clutter_event_touchpad_hold_new (ClutterEventFlags            flags,
 
   event = clutter_event_new (CLUTTER_TOUCHPAD_HOLD);
 
-  event->touchpad_hold.time = us2ms (timestamp_us);
+  event->touchpad_hold.time_us = timestamp_us;
   event->touchpad_hold.flags = flags;
   event->touchpad_hold.phase = phase;
   event->touchpad_hold.x = coords.x;
@@ -2290,7 +2285,7 @@ clutter_event_pad_button_new (ClutterEventType    type,
 
   event = clutter_event_new (type);
 
-  event->pad_button.time = us2ms (timestamp_us);
+  event->pad_button.time_us = timestamp_us;
   event->pad_button.flags = flags;
   event->pad_button.button = button;
   event->pad_button.group = group;
@@ -2318,7 +2313,7 @@ clutter_event_pad_strip_new (ClutterEventFlags            flags,
 
   event = clutter_event_new (CLUTTER_PAD_STRIP);
 
-  event->pad_strip.time = us2ms (timestamp_us);
+  event->pad_strip.time_us = timestamp_us;
   event->pad_strip.flags = flags;
   event->pad_strip.strip_source = strip_source;
   event->pad_strip.strip_number = strip;
@@ -2348,7 +2343,7 @@ clutter_event_pad_ring_new (ClutterEventFlags            flags,
 
   event = clutter_event_new (CLUTTER_PAD_RING);
 
-  event->pad_ring.time = us2ms (timestamp_us);
+  event->pad_ring.time_us = timestamp_us;
   event->pad_ring.flags = flags;
   event->pad_ring.ring_source = ring_source;
   event->pad_ring.ring_number = ring;
@@ -2376,7 +2371,7 @@ clutter_event_device_notify_new (ClutterEventType    type,
 
   event = clutter_event_new (type);
 
-  event->device.time = us2ms (timestamp_us);
+  event->device.time_us = timestamp_us;
   event->device.flags = flags;
 
   g_set_object (&event->device.device, source_device);
@@ -2402,7 +2397,7 @@ clutter_event_im_new (ClutterEventType         type,
 
   event = clutter_event_new (type);
 
-  event->im.time = us2ms (timestamp_us);
+  event->im.time_us = timestamp_us;
   event->im.flags = flags;
   event->im.text = g_strdup (text);
   event->im.offset = offset;
@@ -2672,13 +2667,13 @@ clutter_event_describe (const ClutterEvent *event)
   event_description = generate_event_description (event);
   modifiers_description = generate_modifiers_description (event);
 
-  return g_strdup_printf ("'%s'%s%s, time=%u ms, modifiers=%s, %s",
+  return g_strdup_printf ("'%s'%s%s, time=%" G_GINT64_FORMAT " us, modifiers=%s, %s",
                           clutter_event_get_name (event),
                           source_device ? " from " : "",
                           source_device ?
                           clutter_input_device_get_device_node (source_device) :
                           "",
-                          event->any.time,
+                          event->any.time_us,
                           modifiers_description,
                           event_description);
 }
