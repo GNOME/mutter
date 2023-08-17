@@ -517,7 +517,7 @@ rewrite_stickykeys_event (ClutterEvent          *event,
   rewritten_event =
     clutter_event_key_new (clutter_event_type (event),
                            clutter_event_get_flags (event),
-                           ms2us (clutter_event_get_time (event)),
+                           clutter_event_get_time_us (event),
                            clutter_event_get_source_device (event),
                            modifiers,
                            clutter_event_get_key_symbol (event),
