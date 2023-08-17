@@ -121,6 +121,8 @@ struct _ClutterScrollEvent
 
   float x;
   float y;
+  double delta_x;
+  double delta_y;
   ClutterScrollDirection direction;
   ClutterModifierType modifier_state;
   double *axes; /* future use */
@@ -279,9 +281,6 @@ typedef struct _ClutterEventPrivate {
 
   ClutterInputDevice *device;
   ClutterInputDevice *source_device;
-
-  gdouble delta_x;
-  gdouble delta_y;
 
   ClutterInputDeviceTool *tool;
 } ClutterEventPrivate;
@@ -567,20 +566,15 @@ clutter_event_get_scroll_delta (const ClutterEvent *event,
                                 gdouble            *dx,
                                 gdouble            *dy)
 {
-  gdouble delta_x, delta_y;
-
   g_return_if_fail (event != NULL);
   g_return_if_fail (event->type == CLUTTER_SCROLL);
   g_return_if_fail (event->scroll.direction == CLUTTER_SCROLL_SMOOTH);
 
-  delta_x = ((ClutterEventPrivate *) event)->delta_x;
-  delta_y = ((ClutterEventPrivate *) event)->delta_y;
-
   if (dx != NULL)
-    *dx = delta_x;
+    *dx = event->scroll.delta_x;
 
   if (dy != NULL)
-    *dy = delta_y;
+    *dy = event->scroll.delta_y;
 }
 
 /**
@@ -899,8 +893,6 @@ clutter_event_copy (const ClutterEvent *event)
 
   g_set_object (&new_real_event->device, real_event->device);
   g_set_object (&new_real_event->source_device, real_event->source_device);
-  new_real_event->delta_x = real_event->delta_x;
-  new_real_event->delta_y = real_event->delta_y;
   new_real_event->tool = real_event->tool;
 
   switch (event->type)
@@ -2063,6 +2055,8 @@ clutter_event_scroll_smooth_new (ClutterEventFlags         flags,
   event->scroll.flags = flags;
   event->scroll.x = coords.x;
   event->scroll.y = coords.y;
+  event->scroll.delta_x = delta.x;
+  event->scroll.delta_y = delta.y;
   event->scroll.direction = CLUTTER_SCROLL_SMOOTH;
   event->scroll.modifier_state = modifiers;
   event->scroll.scroll_source = scroll_source;
@@ -2070,8 +2064,6 @@ clutter_event_scroll_smooth_new (ClutterEventFlags         flags,
 
   g_set_object (&private->source_device, source_device);
   private->tool = tool;
-  private->delta_x = delta.x;
-  private->delta_y = delta.y;
 
   if (tool)
     {
