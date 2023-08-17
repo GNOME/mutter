@@ -164,9 +164,6 @@ gboolean        _clutter_event_process_filters          (ClutterEvent *event,
 void            _clutter_clear_events_queue             (void);
 
 CLUTTER_EXPORT
-gpointer        _clutter_event_get_platform_data        (const ClutterEvent *event);
-
-CLUTTER_EXPORT
 void            _clutter_event_push                     (const ClutterEvent *event,
                                                          gboolean            do_copy);
 

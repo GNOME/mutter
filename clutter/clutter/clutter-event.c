@@ -325,20 +325,6 @@ G_DEFINE_BOXED_TYPE (ClutterEventSequence, clutter_event_sequence,
                      clutter_event_sequence_copy,
                      clutter_event_sequence_free);
 
-/*
- * _clutter_event_get_platform_data:
- * @event: a #ClutterEvent
- *
- * Retrieves the pointer to platform-specific data inside an event
- *
- * Return value: a pointer to platform-specific data
- */
-gpointer
-_clutter_event_get_platform_data (const ClutterEvent *event)
-{
-  return ((ClutterEventPrivate *) event)->platform_data;
-}
-
 /**
  * clutter_event_type:
  * @event: a #ClutterEvent
