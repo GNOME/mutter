@@ -56,7 +56,7 @@ free_priv (gpointer data)
 {
   CoglPangoFontMapPriv *priv = data;
 
-  cogl_object_unref (priv->ctx);
+  g_object_unref (priv->ctx);
   g_object_unref (priv->renderer);
 
   g_free (priv);
@@ -70,7 +70,7 @@ cogl_pango_font_map_new (void)
 
   _COGL_GET_CONTEXT (context, NULL);
 
-  priv->ctx = cogl_object_ref (context);
+  priv->ctx = g_object_ref (context);
 
   /* XXX: The public pango api doesn't let us sub-class
    * PangoCairoFontMap so we attach our own private data using qdata

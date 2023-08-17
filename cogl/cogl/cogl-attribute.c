@@ -259,7 +259,7 @@ _cogl_attribute_new_const (CoglContext *context,
   attribute->is_buffered = FALSE;
   attribute->normalized = FALSE;
 
-  attribute->d.constant.context = cogl_object_ref (context);
+  attribute->d.constant.context = g_object_ref (context);
 
   attribute->d.constant.boxed.v.array = NULL;
 

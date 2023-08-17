@@ -238,18 +238,17 @@ _cogl_pango_renderer_constructed (GObject *gobject)
 }
 
 static void
-cogl_pango_renderer_set_property (GObject *object,
-                                  unsigned int prop_id,
+cogl_pango_renderer_set_property (GObject      *object,
+                                  unsigned int  prop_id,
                                   const GValue *value,
-                                  GParamSpec *pspec)
+                                  GParamSpec   *pspec)
 {
   CoglPangoRenderer *renderer = COGL_PANGO_RENDERER (object);
 
   switch (prop_id)
     {
     case PROP_COGL_CONTEXT:
-      renderer->ctx = g_value_get_pointer (value);
-      cogl_object_ref (renderer->ctx);
+      renderer->ctx = g_value_get_object (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -269,10 +268,11 @@ cogl_pango_renderer_class_init (CoglPangoRendererClass *klass)
   object_class->dispose = cogl_pango_renderer_dispose;
   object_class->finalize = cogl_pango_renderer_finalize;
 
-  pspec = g_param_spec_pointer ("context", NULL, NULL,
-                                G_PARAM_WRITABLE |
-                                G_PARAM_STATIC_STRINGS |
-                                G_PARAM_CONSTRUCT_ONLY);
+  pspec = g_param_spec_object ("context", NULL, NULL,
+                               COGL_TYPE_CONTEXT,
+                               G_PARAM_WRITABLE |
+                               G_PARAM_STATIC_STRINGS |
+                               G_PARAM_CONSTRUCT_ONLY);
 
   g_object_class_install_property (object_class, PROP_COGL_CONTEXT, pspec);
 
@@ -286,7 +286,7 @@ cogl_pango_renderer_dispose (GObject *object)
 {
   CoglPangoRenderer *priv = COGL_PANGO_RENDERER (object);
 
-  cogl_clear_object (&priv->ctx);
+  g_clear_object (&priv->ctx);
 
   G_OBJECT_CLASS (cogl_pango_renderer_parent_class)->dispose (object);
 }

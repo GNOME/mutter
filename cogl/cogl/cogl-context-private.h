@@ -68,7 +68,7 @@ struct _CoglTimestampQuery
 
 struct _CoglContext
 {
-  CoglObject _parent;
+  GObject parent_instance;
 
   CoglDisplay *display;
 

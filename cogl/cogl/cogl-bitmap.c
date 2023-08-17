@@ -166,16 +166,16 @@ _cogl_bitmap_copy_subregion (CoglBitmap *src,
 }
 
 CoglBitmap *
-cogl_bitmap_new_for_data (CoglContext *context,
-                          int width,
-                          int height,
+cogl_bitmap_new_for_data (CoglContext    *context,
+                          int             width,
+                          int             height,
                           CoglPixelFormat format,
-                          int rowstride,
-                          uint8_t *data)
+                          int             rowstride,
+                          uint8_t        *data)
 {
   CoglBitmap *bmp;
 
-  g_return_val_if_fail (cogl_is_context (context), NULL);
+  g_return_val_if_fail (COGL_IS_CONTEXT (context), NULL);
   g_return_val_if_fail (cogl_pixel_format_get_n_planes (format) == 1, NULL);
 
   /* Rowstride from width if not given */

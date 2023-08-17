@@ -78,7 +78,7 @@ _cogl_pango_pipeline_cache_new (CoglContext *ctx,
 {
   CoglPangoPipelineCache *cache = g_new (CoglPangoPipelineCache, 1);
 
-  cache->ctx = cogl_object_ref (ctx);
+  cache->ctx = g_object_ref (ctx);
 
   /* The key is the pipeline pointer. A reference is taken when the
      pipeline is used as a key so we should unref it again in the
@@ -234,7 +234,7 @@ _cogl_pango_pipeline_cache_free (CoglPangoPipelineCache *cache)
 
   g_hash_table_destroy (cache->hash_table);
 
-  cogl_object_unref (cache->ctx);
+  g_object_unref (cache->ctx);
 
   g_free (cache);
 }

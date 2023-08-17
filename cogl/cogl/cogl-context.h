@@ -52,8 +52,9 @@ typedef struct _CoglTimestampQuery CoglTimestampQuery;
 G_BEGIN_DECLS
 
 /**
- * SECTION:cogl-context
- * @short_description: The top level application context.
+ * CoglContext:
+ *
+ * The top level application context.
  *
  * A #CoglContext is the top most sandbox of Cogl state for an
  * application or toolkit. Its main purpose is to act as a sandbox
@@ -93,15 +94,14 @@ G_BEGIN_DECLS
  * context.</para></note>
  */
 
-#define COGL_CONTEXT(OBJECT) ((CoglContext *)OBJECT)
+#define COGL_TYPE_CONTEXT (cogl_context_get_type ())
 
-/**
- * cogl_context_get_gtype:
- *
- * Returns: a #GType that can be used with the GLib type system.
- */
 COGL_EXPORT
-GType cogl_context_get_gtype (void);
+G_DECLARE_FINAL_TYPE (CoglContext,
+                      cogl_context,
+                      COGL,
+                      CONTEXT,
+                      GObject)
 
 /**
  * cogl_context_new: (constructor) (skip)
@@ -150,17 +150,6 @@ cogl_context_get_display (CoglContext *context);
 COGL_EXPORT CoglRenderer *
 cogl_context_get_renderer (CoglContext *context);
 
-/**
- * cogl_is_context:
- * @object: An object or %NULL
- *
- * Gets whether the given object references an existing context object.
- *
- * Return value: %TRUE if the @object references a #CoglContext,
- *   %FALSE otherwise
- */
-COGL_EXPORT gboolean
-cogl_is_context (void *object);
 
 /* XXX: not guarded by the EXPERIMENTAL_API defines to avoid
  * upsetting glib-mkenums, but this can still be considered implicitly

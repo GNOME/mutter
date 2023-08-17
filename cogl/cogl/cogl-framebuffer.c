@@ -173,7 +173,7 @@ cogl_framebuffer_get_property (GObject    *object,
   switch (prop_id)
     {
     case PROP_CONTEXT:
-      g_value_set_boxed (value, priv->context);
+      g_value_set_object (value, priv->context);
       break;
     case PROP_DRIVER_CONFIG:
       g_value_set_pointer (value, &priv->driver_config);
@@ -203,7 +203,7 @@ cogl_framebuffer_set_property (GObject      *object,
   switch (prop_id)
     {
     case PROP_CONTEXT:
-      priv->context = g_value_get_boxed (value);
+      priv->context = g_value_get_object (value);
       break;
     case PROP_DRIVER_CONFIG:
       driver_config = g_value_get_pointer (value);
@@ -381,11 +381,11 @@ cogl_framebuffer_class_init (CoglFramebufferClass *klass)
   object_class->set_property = cogl_framebuffer_set_property;
 
   obj_props[PROP_CONTEXT] =
-    g_param_spec_boxed ("context", NULL, NULL,
-                        COGL_TYPE_HANDLE,
-                        G_PARAM_READWRITE |
-                        G_PARAM_CONSTRUCT_ONLY |
-                        G_PARAM_STATIC_STRINGS);
+    g_param_spec_object ("context", NULL, NULL,
+                         COGL_TYPE_CONTEXT,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
   obj_props[PROP_DRIVER_CONFIG] =
     g_param_spec_pointer ("driver-config", NULL, NULL,
                           G_PARAM_READWRITE |
