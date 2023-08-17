@@ -366,7 +366,7 @@ clutter_input_method_notify_key_event (ClutterInputMethod *im,
       copy = clutter_event_key_new (clutter_event_type (event),
                                     clutter_event_get_flags (event) |
                                     CLUTTER_EVENT_FLAG_INPUT_METHOD,
-                                    ms2us (clutter_event_get_time (event)),
+                                    clutter_event_get_time_us (event),
                                     clutter_event_get_device (event),
                                     clutter_event_get_state (event),
                                     clutter_event_get_key_symbol (event),
