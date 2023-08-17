@@ -200,7 +200,7 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
       meta_shaped_texture_set_snippet (stex, snippet);
       meta_shaped_texture_set_is_y_inverted (stex, is_y_inverted);
       meta_shaped_texture_set_buffer_scale (stex, surface->scale);
-      cogl_clear_object (&snippet);
+      g_clear_object (&snippet);
     }
   else
     {

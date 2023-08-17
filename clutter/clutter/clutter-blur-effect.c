@@ -189,7 +189,7 @@ clutter_blur_effect_init (ClutterBlurEffect *self)
                                   NULL);
       cogl_snippet_set_replace (snippet, box_blur_glsl_shader);
       cogl_pipeline_add_layer_snippet (klass->base_pipeline, 0, snippet);
-      cogl_object_unref (snippet);
+      g_object_unref (snippet);
 
       cogl_pipeline_set_layer_null_texture (klass->base_pipeline, 0);
     }

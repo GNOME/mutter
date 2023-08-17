@@ -225,7 +225,7 @@ clutter_colorize_effect_init (ClutterColorizeEffect *self)
                                   colorize_glsl_declarations,
                                   colorize_glsl_source);
       cogl_pipeline_add_snippet (klass->base_pipeline, snippet);
-      cogl_object_unref (snippet);
+      g_object_unref (snippet);
 
       cogl_pipeline_set_layer_null_texture (klass->base_pipeline, 0);
     }

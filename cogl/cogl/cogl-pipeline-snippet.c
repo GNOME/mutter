@@ -225,7 +225,7 @@ _cogl_pipeline_snippet_list_free (CoglPipelineSnippetList *list)
     {
       tmp = l->next;
 
-      cogl_object_unref (l->data);
+      g_object_unref (l->data);
       g_list_free_1 (l);
     }
 }
@@ -234,7 +234,7 @@ void
 _cogl_pipeline_snippet_list_add (CoglPipelineSnippetList *list,
                                  CoglSnippet *snippet)
 {
-  list->entries = g_list_append (list->entries, cogl_object_ref (snippet));
+  list->entries = g_list_append (list->entries, g_object_ref (snippet));
 
   _cogl_snippet_make_immutable (snippet);
 }
@@ -247,7 +247,7 @@ _cogl_pipeline_snippet_list_copy (CoglPipelineSnippetList *dst,
   const GList *l;
 
   for (l = src->entries; l; l = l->next)
-    g_queue_push_tail (&queue, cogl_object_ref (l->data));
+    g_queue_push_tail (&queue, g_object_ref (l->data));
 
   dst->entries = queue.head;
 }

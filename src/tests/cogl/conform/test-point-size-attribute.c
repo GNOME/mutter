@@ -157,7 +157,7 @@ setup_snippet (CoglPipeline *pipeline)
                             "cogl_point_size_out = "
                             "my_super_duper_point_size_attrib;\n");
   cogl_pipeline_add_snippet (pipeline, snippet);
-  cogl_object_unref (snippet);
+  g_object_unref (snippet);
 }
 
 static void

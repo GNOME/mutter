@@ -681,7 +681,7 @@ cogl_pipeline_add_layer_snippet (CoglPipeline *pipeline,
                                  CoglSnippet *snippet)
 {
   g_return_if_fail (cogl_is_pipeline (pipeline));
-  g_return_if_fail (cogl_is_snippet (snippet));
+  g_return_if_fail (COGL_IS_SNIPPET (snippet));
   g_return_if_fail (snippet->hook >= COGL_SNIPPET_FIRST_LAYER_HOOK);
 
   if (snippet->hook < COGL_SNIPPET_FIRST_LAYER_FRAGMENT_HOOK)

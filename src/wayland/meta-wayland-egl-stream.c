@@ -316,7 +316,7 @@ meta_wayland_egl_stream_create_snippet (MetaWaylandEglStream *stream)
       stream->snippet = snippet;
     }
 
-  return cogl_object_ref (stream->snippet);
+  return g_object_ref (stream->snippet);
 }
 
 gboolean
@@ -361,7 +361,7 @@ meta_wayland_egl_stream_finalize (GObject *object)
 
   meta_egl_destroy_stream (egl, egl_display, stream->egl_stream, NULL);
 
-  cogl_clear_object (&stream->snippet);
+  g_clear_object (&stream->snippet);
 
   G_OBJECT_CLASS (meta_wayland_egl_stream_parent_class)->finalize (object);
 }

@@ -47,7 +47,7 @@ test_pipeline_shader_state (void)
                               NULL, /* declarations */
                               "cogl_color_out = vec4 (0.0, 1.0, 0.1, 1.1);");
   cogl_pipeline_add_snippet (draw_pipeline, snippet);
-  cogl_object_unref (snippet);
+  g_object_unref (snippet);
 
   cogl_framebuffer_draw_rectangle (test_fb, draw_pipeline,
                                    0, 0, width, height);
@@ -80,7 +80,7 @@ test_pipeline_shader_state (void)
                               NULL, /* declarations */
                               "cogl_color_out = vec4 (0.0, 0.0, 1.1, 1.1);");
   cogl_pipeline_add_snippet (draw_pipeline, snippet);
-  cogl_object_unref (snippet);
+  g_object_unref (snippet);
 
   cogl_framebuffer_draw_rectangle (test_fb, draw_pipeline,
                                    0, 0, width, height);

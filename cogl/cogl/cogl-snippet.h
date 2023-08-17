@@ -40,8 +40,9 @@
 G_BEGIN_DECLS
 
 /**
- * SECTION:cogl-snippet
- * @short_description: Functions for creating and manipulating shader snippets
+ * CoglSnippet:
+ *
+ * Functions for creating and manipulating shader snippets
  *
  * #CoglSnippet<!-- -->s are used to modify or replace parts of a
  * #CoglPipeline using GLSL. GLSL is a programming language supported
@@ -301,7 +302,7 @@ G_BEGIN_DECLS
  * Here is an example of using a snippet to add a desaturate effect to the
  * generated color on a pipeline.
  *
- * <programlisting>
+ * ```c
  *   CoglPipeline *pipeline = cogl_pipeline_new ();
  *
  *   /<!-- -->* Set up the pipeline here, ie by adding a texture or other
@@ -323,7 +324,7 @@ G_BEGIN_DECLS
  *   cogl_pipeline_add_snippet (pipeline, snippet);
  *   /<!-- -->* The pipeline keeps a reference to the snippet
  *      so we don't need to *<!-- -->/
- *   cogl_object_unref (snippet);
+ *   g_object_unref (snippet);
  *
  *   /<!-- -->* Update the custom uniform on the pipeline *<!-- -->/
  *   int location = cogl_pipeline_get_uniform_location (pipeline, "factor");
@@ -333,19 +334,18 @@ G_BEGIN_DECLS
  *   cogl_push_source (pipeline);
  *   cogl_rectangle (0, 0, 10, 10);
  *   cogl_pop_source ();
- * </programlisting>
+ * ```
  */
 typedef struct _CoglSnippet CoglSnippet;
 
-#define COGL_SNIPPET(OBJECT) ((CoglSnippet *)OBJECT)
+#define COGL_TYPE_SNIPPET (cogl_snippet_get_type ())
 
-/**
- * cogl_snippet_get_gtype:
- *
- * Returns: a #GType that can be used with the GLib type system.
- */
 COGL_EXPORT
-GType cogl_snippet_get_gtype (void);
+G_DECLARE_FINAL_TYPE (CoglSnippet,
+                      cogl_snippet,
+                      COGL,
+                      SNIPPET,
+                      GObject)
 
 /* Enumeration of all the hook points that a snippet can be attached
    to within a pipeline. */
@@ -698,18 +698,6 @@ cogl_snippet_new (CoglSnippetHook hook,
  */
 COGL_EXPORT CoglSnippetHook
 cogl_snippet_get_hook (CoglSnippet *snippet);
-
-/**
- * cogl_is_snippet:
- * @object: A #CoglObject pointer
- *
- * Gets whether the given @object references an existing snippet object.
- *
- * Returns: %TRUE if the @object references a #CoglSnippet,
- *   %FALSE otherwise
- */
-COGL_EXPORT gboolean
-cogl_is_snippet (void *object);
 
 /**
  * cogl_snippet_set_declarations:

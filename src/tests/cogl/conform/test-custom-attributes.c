@@ -294,7 +294,7 @@ test_custom_attributes (void)
   paint (&state);
 
   cogl_object_unref (state.pipeline);
-  cogl_object_unref (snippet);
+  g_object_unref (snippet);
 
   if (cogl_test_verbose ())
     g_print ("OK\n");

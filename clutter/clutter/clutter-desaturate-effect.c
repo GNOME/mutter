@@ -228,7 +228,7 @@ clutter_desaturate_effect_init (ClutterDesaturateEffect *self)
                                   desaturate_glsl_declarations,
                                   desaturate_glsl_source);
       cogl_pipeline_add_snippet (klass->base_pipeline, snippet);
-      cogl_object_unref (snippet);
+      g_object_unref (snippet);
 
       cogl_pipeline_set_layer_null_texture (klass->base_pipeline, 0);
     }

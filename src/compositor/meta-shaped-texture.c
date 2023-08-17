@@ -251,7 +251,7 @@ meta_shaped_texture_dispose (GObject *object)
   g_clear_pointer (&stex->opaque_region, cairo_region_destroy);
   g_clear_pointer (&stex->clip_region, cairo_region_destroy);
 
-  g_clear_pointer (&stex->snippet, cogl_object_unref);
+  g_clear_pointer (&stex->snippet, g_object_unref);
 
   G_OBJECT_CLASS (meta_shaped_texture_parent_class)->dispose (object);
 }
@@ -364,8 +364,8 @@ get_combined_pipeline (MetaShapedTexture *stex,
   cogl_pipeline_add_snippet (pipeline, fragment_globals_snippet);
   cogl_pipeline_add_snippet (pipeline, fragment_snippet);
 
-  cogl_clear_object (&fragment_globals_snippet);
-  cogl_clear_object (&fragment_snippet);
+  g_clear_object (&fragment_globals_snippet);
+  g_clear_object (&fragment_snippet);
 
   stex->combined_pipeline = pipeline;
 
@@ -1159,9 +1159,9 @@ meta_shaped_texture_set_snippet (MetaShapedTexture *stex,
 
   meta_shaped_texture_reset_pipelines (stex);
 
-  g_clear_pointer (&stex->snippet, cogl_object_unref);
+  g_clear_pointer (&stex->snippet, g_object_unref);
   if (snippet)
-    stex->snippet = cogl_object_ref (snippet);
+    stex->snippet = g_object_ref (snippet);
 }
 
 /**

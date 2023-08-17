@@ -27,7 +27,7 @@ create_pipelines (CoglPipeline **pipelines,
 
       pipelines[i] = cogl_pipeline_new (test_ctx);
       cogl_pipeline_add_snippet (pipelines[i], snippet);
-      cogl_object_unref (snippet);
+      g_object_unref (snippet);
     }
 
   /* Test that drawing with them works. This should create the entries

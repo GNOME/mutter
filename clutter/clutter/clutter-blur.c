@@ -161,7 +161,7 @@ create_blur_pipeline (void)
                                   NULL);
       cogl_snippet_set_replace (snippet, gaussian_blur_glsl);
       cogl_pipeline_add_layer_snippet (blur_pipeline, 0, snippet);
-      cogl_object_unref (snippet);
+      g_object_unref (snippet);
 
       cogl_context_set_named_pipeline (ctx, &blur_pipeline_key, blur_pipeline);
     }

@@ -381,7 +381,7 @@ clutter_brightness_contrast_effect_init (ClutterBrightnessContrastEffect *self)
                                   brightness_contrast_decls,
                                   brightness_contrast_source);
       cogl_pipeline_add_snippet (klass->base_pipeline, snippet);
-      cogl_object_unref (snippet);
+      g_object_unref (snippet);
 
       cogl_pipeline_set_layer_null_texture (klass->base_pipeline, 0);
     }

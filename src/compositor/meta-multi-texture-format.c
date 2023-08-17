@@ -249,7 +249,7 @@ meta_multi_texture_format_get_snippets (MetaMultiTextureFormat   format,
       CoglSnippet *globals_snippet;
 
       globals_snippet = g_once (&globals_once, create_globals_snippet, NULL);
-      *fragment_globals_snippet = cogl_object_ref (globals_snippet);
+      *fragment_globals_snippet = g_object_ref (globals_snippet);
     }
 
   if (fragment_snippet)
@@ -259,7 +259,7 @@ meta_multi_texture_format_get_snippets (MetaMultiTextureFormat   format,
       format_snippet = g_once (&multi_format_table[format].snippet_once,
                                create_format_snippet,
                                GINT_TO_POINTER (format));
-      *fragment_snippet = cogl_object_ref (format_snippet);
+      *fragment_snippet = g_object_ref (format_snippet);
     }
 
   return TRUE;

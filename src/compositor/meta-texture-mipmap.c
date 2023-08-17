@@ -232,8 +232,8 @@ ensure_mipmap_texture (MetaTextureMipmap *mipmap)
           cogl_pipeline_add_snippet (mipmap->pipeline, fragment_globals_snippet);
           cogl_pipeline_add_snippet (mipmap->pipeline, fragment_snippet);
 
-          cogl_clear_object (&fragment_globals_snippet);
-          cogl_clear_object (&fragment_snippet);
+          g_clear_object (&fragment_globals_snippet);
+          g_clear_object (&fragment_snippet);
         }
 
       for (i = 0; i < n_planes; i++)

@@ -87,7 +87,7 @@ do_test (gboolean check_orientation,
 
       cogl_pipeline_add_layer_snippet (pipeline, 0, snippet);
 
-      cogl_object_unref (snippet);
+      g_object_unref (snippet);
     }
   else
     {
