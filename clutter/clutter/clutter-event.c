@@ -1353,7 +1353,7 @@ clutter_event_is_pointer_emulated (const ClutterEvent *event)
 {
   g_return_val_if_fail (event != NULL, FALSE);
 
-  return ((ClutterEventPrivate *) event)->is_pointer_emulated;
+  return !!(event->any.flags & CLUTTER_EVENT_FLAG_POINTER_EMULATED);
 }
 
 gboolean
