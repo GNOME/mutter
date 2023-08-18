@@ -37,14 +37,12 @@
 #include "cogl/cogl-graphene.h"
 #include "cogl/cogl-matrix-stack.h"
 #include "cogl/cogl-framebuffer-private.h"
-#include "cogl/cogl-object-private.h"
 #include "cogl/cogl-offscreen.h"
 #include "cogl/cogl-magazine-private.h"
-#include "cogl/cogl-gtype-private.h"
 
-COGL_GTYPE_DEFINE_BOXED (MatrixEntry, matrix_entry,
-                         cogl_matrix_entry_ref,
-                         cogl_matrix_entry_unref);
+G_DEFINE_BOXED_TYPE (CoglMatrixEntry, cogl_matrix_entry,
+                     cogl_matrix_entry_ref,
+                     cogl_matrix_entry_unref);
 
 static CoglMagazine *cogl_matrix_stack_magazine;
 

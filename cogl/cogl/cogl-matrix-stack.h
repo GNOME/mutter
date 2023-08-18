@@ -179,12 +179,12 @@ G_DECLARE_FINAL_TYPE (CoglMatrixStack,
 typedef struct _CoglMatrixEntry CoglMatrixEntry;
 
 /**
- * cogl_matrix_entry_get_gtype:
+ * cogl_matrix_entry_get_type:
  *
  * Returns: a #GType that can be used with the GLib type system.
  */
 COGL_EXPORT
-GType cogl_matrix_entry_get_gtype (void);
+GType cogl_matrix_entry_get_type (void);
 
 
 /**
@@ -598,9 +598,6 @@ cogl_debug_matrix_entry_print (CoglMatrixEntry *entry);
  * Takes a reference on the given @entry to ensure the @entry stays
  * alive and remains valid. When you are finished with the @entry then
  * you should call cogl_matrix_entry_unref().
- *
- * It is an error to pass an @entry pointer to cogl_object_ref() and
- * cogl_object_unref()
  */
 COGL_EXPORT CoglMatrixEntry *
 cogl_matrix_entry_ref (CoglMatrixEntry *entry);
