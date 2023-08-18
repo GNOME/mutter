@@ -70,7 +70,7 @@ cogl_display_dispose (GObject *object)
 
   if (display->onscreen_template)
     {
-      cogl_object_unref (display->onscreen_template);
+      g_object_unref (display->onscreen_template);
       display->onscreen_template = NULL;
     }
 
@@ -128,10 +128,10 @@ cogl_display_set_onscreen_template (CoglDisplay *display,
   g_return_if_fail (display->setup == FALSE);
 
   if (onscreen_template)
-    cogl_object_ref (onscreen_template);
+    g_object_ref (onscreen_template);
 
   if (display->onscreen_template)
-    cogl_object_unref (display->onscreen_template);
+    g_object_unref (display->onscreen_template);
 
   display->onscreen_template = onscreen_template;
 

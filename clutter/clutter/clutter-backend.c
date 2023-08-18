@@ -237,7 +237,7 @@ clutter_backend_do_real_create_context (ClutterBackend  *backend,
       backend->cogl_display = cogl_display_new (backend->cogl_renderer, tmpl);
 
       /* the display owns the template */
-      cogl_object_unref (tmpl);
+      g_object_unref (tmpl);
     }
 
   if (backend->cogl_display == NULL)

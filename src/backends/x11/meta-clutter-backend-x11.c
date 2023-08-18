@@ -164,7 +164,7 @@ meta_clutter_backend_x11_get_display (ClutterBackend  *clutter_backend,
   if (res)
     display = cogl_display_new (renderer, onscreen_template);
 
-  cogl_object_unref (onscreen_template);
+  g_object_unref (onscreen_template);
 
   return display;
 }

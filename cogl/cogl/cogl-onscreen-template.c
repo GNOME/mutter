@@ -31,29 +31,27 @@
 
 #include "cogl-config.h"
 
-#include "cogl/cogl-object.h"
-
 #include "cogl/cogl-framebuffer-private.h"
 #include "cogl/cogl-onscreen-template-private.h"
-#include "cogl/cogl-gtype-private.h"
 
 #include <stdlib.h>
 
-static void _cogl_onscreen_template_free (CoglOnscreenTemplate *onscreen_template);
-
-COGL_OBJECT_DEFINE (OnscreenTemplate, onscreen_template);
-COGL_GTYPE_DEFINE_CLASS (OnscreenTemplate, onscreen_template);
+G_DEFINE_TYPE (CoglOnscreenTemplate, cogl_onscreen_template, G_TYPE_OBJECT);
 
 static void
-_cogl_onscreen_template_free (CoglOnscreenTemplate *onscreen_template)
+cogl_onscreen_template_init (CoglOnscreenTemplate *onscreen_template)
 {
-  g_free (onscreen_template);
+}
+
+static void
+cogl_onscreen_template_class_init (CoglOnscreenTemplateClass *class)
+{
 }
 
 CoglOnscreenTemplate *
 cogl_onscreen_template_new (CoglSwapChain *swap_chain)
 {
-  CoglOnscreenTemplate *onscreen_template = g_new0 (CoglOnscreenTemplate, 1);
+  CoglOnscreenTemplate *onscreen_template = g_object_new (COGL_TYPE_ONSCREEN_TEMPLATE, NULL);
   char *user_config;
 
   onscreen_template->config.swap_chain = swap_chain;
@@ -74,7 +72,7 @@ cogl_onscreen_template_new (CoglSwapChain *swap_chain)
           samples_per_pixel;
     }
 
-  return _cogl_onscreen_template_object_new (onscreen_template);
+  return onscreen_template;
 }
 
 void

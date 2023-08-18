@@ -30,13 +30,12 @@
 
 #pragma once
 
-#include "cogl/cogl-object-private.h"
 #include "cogl/cogl-swap-chain.h"
 #include "cogl/cogl-framebuffer-private.h"
 
 struct _CoglOnscreenTemplate
 {
-  CoglObject _parent;
+  GObject parent_instance;
 
   CoglFramebufferConfig config;
 };
