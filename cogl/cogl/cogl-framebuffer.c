@@ -323,7 +323,7 @@ cogl_framebuffer_init_config (CoglFramebuffer             *framebuffer,
     cogl_framebuffer_get_instance_private (framebuffer);
 
   priv->config = *config;
-  cogl_object_ref (priv->config.swap_chain);
+  g_object_ref (priv->config.swap_chain);
 }
 
 static void

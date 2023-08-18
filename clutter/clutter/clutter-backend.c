@@ -254,7 +254,7 @@ clutter_backend_do_real_create_context (ClutterBackend  *backend,
 
   /* the display owns the renderer and the swap chain */
   cogl_object_unref (backend->cogl_renderer);
-  cogl_object_unref (swap_chain);
+  g_object_unref (swap_chain);
 
   return TRUE;
 
@@ -272,7 +272,7 @@ error:
     }
 
   if (swap_chain != NULL)
-    cogl_object_unref (swap_chain);
+    g_object_unref (swap_chain);
 
   return FALSE;
 }

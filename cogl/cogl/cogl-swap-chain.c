@@ -31,32 +31,29 @@
 
 #include "cogl-config.h"
 
-#include "cogl/cogl-object.h"
-
 #include "cogl/cogl-swap-chain-private.h"
 #include "cogl/cogl-swap-chain.h"
-#include "cogl/cogl-gtype-private.h"
 
-static void _cogl_swap_chain_free (CoglSwapChain *swap_chain);
-
-COGL_OBJECT_DEFINE (SwapChain, swap_chain);
-COGL_GTYPE_DEFINE_CLASS (SwapChain, swap_chain);
-
+G_DEFINE_TYPE (CoglSwapChain, cogl_swap_chain, G_TYPE_OBJECT);
 
 static void
-_cogl_swap_chain_free (CoglSwapChain *swap_chain)
+cogl_swap_chain_init (CoglSwapChain *swap_chain)
 {
-  g_free (swap_chain);
+}
+
+static void
+cogl_swap_chain_class_init (CoglSwapChainClass *class)
+{
 }
 
 CoglSwapChain *
 cogl_swap_chain_new (void)
 {
-  CoglSwapChain *swap_chain = g_new0 (CoglSwapChain, 1);
+  CoglSwapChain *swap_chain = g_object_new (COGL_TYPE_SWAP_CHAIN, NULL);
 
   swap_chain->length = -1; /* no preference */
 
-  return _cogl_swap_chain_object_new (swap_chain);
+  return swap_chain;
 }
 
 void

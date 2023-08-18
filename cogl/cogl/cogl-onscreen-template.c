@@ -58,7 +58,7 @@ cogl_onscreen_template_new (CoglSwapChain *swap_chain)
 
   onscreen_template->config.swap_chain = swap_chain;
   if (swap_chain)
-    cogl_object_ref (swap_chain);
+    g_object_ref (swap_chain);
   else
     onscreen_template->config.swap_chain = cogl_swap_chain_new ();
 

@@ -30,11 +30,11 @@
 
 #pragma once
 
-#include "cogl/cogl-object-private.h"
+#include <glib-object.h>
 
 struct _CoglSwapChain
 {
-  CoglObject _parent;
+  GObject parent_instance;
 
   int length;
 };
