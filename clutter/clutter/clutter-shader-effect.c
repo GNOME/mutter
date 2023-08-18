@@ -135,7 +135,7 @@ struct _ClutterShaderEffectPrivate
 
   ClutterShaderType shader_type;
 
-  CoglHandle program;
+  CoglProgram *program;
   CoglShader *shader;
 
   GHashTable *uniforms;
@@ -147,7 +147,7 @@ typedef struct _ClutterShaderEffectClassPrivate
      used when the class implements get_static_shader_source without
      calling set_shader_source. They will be shared by all instances
      of this class */
-  CoglHandle program;
+  CoglProgram *program;
   CoglShader *shader;
 } ClutterShaderEffectClassPrivate;
 
@@ -184,7 +184,7 @@ clutter_shader_effect_clear (ClutterShaderEffect *self,
 
   if (priv->program != NULL)
     {
-      cogl_object_unref (priv->program);
+      g_object_unref (priv->program);
 
       priv->program = NULL;
     }
@@ -364,7 +364,7 @@ clutter_shader_effect_try_static_source (ClutterShaderEffect *self)
       priv->shader = g_object_ref (class_priv->shader);
 
       if (class_priv->program != NULL)
-        priv->program = cogl_object_ref (class_priv->program);
+        priv->program = g_object_ref (class_priv->program);
     }
 }
 
@@ -524,7 +524,7 @@ clutter_shader_effect_get_shader (ClutterShaderEffect *effect)
  * Return value: (transfer none): a pointer to the program's handle,
  *   or %NULL
  */
-CoglHandle
+CoglProgram*
 clutter_shader_effect_get_program (ClutterShaderEffect *effect)
 {
   g_return_val_if_fail (CLUTTER_IS_SHADER_EFFECT (effect),

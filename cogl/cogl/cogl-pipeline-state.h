@@ -37,6 +37,7 @@
 #include "cogl/cogl-pipeline.h"
 #include "cogl/cogl-color.h"
 #include "cogl/cogl-depth-state.h"
+#include "cogl/deprecated/cogl-program.h"
 
 G_BEGIN_DECLS
 
@@ -352,13 +353,13 @@ cogl_pipeline_get_per_vertex_point_size (CoglPipeline *pipeline);
  *
  * Return value: (transfer none): The current user program or %NULL.
  */
-COGL_EXPORT CoglHandle
+COGL_EXPORT CoglProgram*
 cogl_pipeline_get_user_program (CoglPipeline *pipeline);
 
 /**
  * cogl_pipeline_set_user_program:
  * @pipeline: a #CoglPipeline object.
- * @program: A #CoglHandle to a linked CoglProgram
+ * @program: A linked CoglProgram
  *
  * Associates a linked CoglProgram with the given pipeline so that the
  * program can take full control of vertex and/or fragment processing.
@@ -367,7 +368,7 @@ cogl_pipeline_get_user_program (CoglPipeline *pipeline);
  * program with a #CoglPipeline:
  * |[
  * CoglShader *shader;
- * CoglHandle program;
+ * CoglProgram *program;
  * CoglPipeline *pipeline;
  *
  * shader = cogl_create_shader (COGL_SHADER_TYPE_FRAGMENT);
@@ -396,7 +397,7 @@ cogl_pipeline_get_user_program (CoglPipeline *pipeline);
  */
 COGL_EXPORT void
 cogl_pipeline_set_user_program (CoglPipeline *pipeline,
-                                CoglHandle program);
+                                CoglProgram  *program);
 
 /**
  * cogl_pipeline_set_depth_state: (skip)

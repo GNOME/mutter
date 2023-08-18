@@ -95,6 +95,6 @@ void            clutter_shader_effect_set_uniform_value (ClutterShaderEffect *ef
 CLUTTER_EXPORT
 CoglShader*     clutter_shader_effect_get_shader        (ClutterShaderEffect *effect);
 CLUTTER_EXPORT
-CoglHandle      clutter_shader_effect_get_program       (ClutterShaderEffect *effect);
+CoglProgram*    clutter_shader_effect_get_program       (ClutterShaderEffect *effect);
 
 G_END_DECLS

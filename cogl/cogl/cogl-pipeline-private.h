@@ -214,7 +214,7 @@ typedef struct
 {
   CoglPipelineAlphaFuncState alpha_state;
   CoglPipelineBlendState blend_state;
-  CoglHandle user_program;
+  CoglProgram *user_program;
   CoglDepthState depth_state;
   float point_size;
   unsigned int non_zero_point_size : 1;

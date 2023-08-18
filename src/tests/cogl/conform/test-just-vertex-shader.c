@@ -32,7 +32,7 @@ paint (TestState *state)
   CoglColor color;
   GError *error = NULL;
   CoglShader *shader;
-  CoglHandle program;
+  CoglProgram *program;
 
   cogl_color_init_from_4ub (&color, 0, 0, 0, 255);
   cogl_framebuffer_clear (test_fb, COGL_BUFFER_BIT_COLOR, &color);
@@ -80,7 +80,7 @@ paint (TestState *state)
 
   /* Draw it again using the program. It should look exactly the same */
   cogl_pipeline_set_user_program (pipeline, program);
-  cogl_object_unref (program);
+  g_object_unref (program);
 
   cogl_framebuffer_draw_rectangle (test_fb, pipeline,
                                    50, 0, 100, 50);

@@ -30,14 +30,13 @@
 
 #pragma once
 
-#include "cogl/cogl-object-private.h"
-#include "cogl/deprecated/cogl-shader-private.h"
+#include "cogl/cogl-boxed-value.h"
 
 typedef struct _CoglProgram CoglProgram;
 
 struct _CoglProgram
 {
-  CoglObject _parent;
+  GObject parent_instance;
 
   GSList *attached_shaders;
 
@@ -46,6 +45,7 @@ struct _CoglProgram
   /* An age counter that changes whenever the list of shaders is modified */
   unsigned int age;
 };
+
 
 typedef struct _CoglProgramUniform CoglProgramUniform;
 
@@ -76,7 +76,7 @@ _cogl_program_flush_uniforms (CoglProgram *program,
                               gboolean gl_program_changed);
 
 gboolean
-_cogl_program_has_fragment_shader (CoglHandle handle);
+_cogl_program_has_fragment_shader (CoglProgram *self);
 
 gboolean
-_cogl_program_has_vertex_shader (CoglHandle handle);
+_cogl_program_has_vertex_shader (CoglProgram *self);

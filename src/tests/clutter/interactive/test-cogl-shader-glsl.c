@@ -188,7 +188,7 @@ static void
 set_shader_num (int new_no)
 {
   CoglShader *shader;
-  CoglHandle program;
+  CoglProgram *program;
   CoglPipeline *pipeline;
   CoglContext *ctx =
     clutter_backend_get_cogl_context (clutter_get_default_backend ());
@@ -225,7 +225,7 @@ set_shader_num (int new_no)
   cogl_program_set_uniform_1f (program, uniform_no, 1.0f / image_height);
 
   cogl_pipeline_set_user_program (pipeline, program);
-  cogl_object_unref (program);
+  g_object_unref (program);
 
   shader_no = new_no;
 }

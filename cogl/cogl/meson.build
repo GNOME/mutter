@@ -58,6 +58,7 @@ cogl_egl_defines_h = configure_file(
 )
 
 cogl_deprecated_headers = [
+  'deprecated/cogl-program.h',
   'deprecated/cogl-shader.h',
   'deprecated/cogl-clutter.h',
   'deprecated/cogl-type-casts.h',

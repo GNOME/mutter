@@ -47,19 +47,6 @@
 #define GL_FUNC_ADD 0x8006
 #endif
 
-CoglPipeline *
-_cogl_pipeline_get_user_program (CoglPipeline *pipeline)
-{
-  CoglPipeline *authority;
-
-  g_return_val_if_fail (cogl_is_pipeline (pipeline), NULL);
-
-  authority =
-    _cogl_pipeline_get_authority (pipeline, COGL_PIPELINE_STATE_USER_SHADER);
-
-  return authority->big_state->user_program;
-}
-
 gboolean
 _cogl_pipeline_color_equal (CoglPipeline *authority0,
                             CoglPipeline *authority1)
@@ -707,7 +694,7 @@ cogl_pipeline_set_blend_constant (CoglPipeline *pipeline,
   pipeline->dirty_real_blend_enable = TRUE;
 }
 
-CoglHandle
+CoglProgram*
 cogl_pipeline_get_user_program (CoglPipeline *pipeline)
 {
   CoglPipeline *authority;
@@ -728,7 +715,7 @@ cogl_pipeline_get_user_program (CoglPipeline *pipeline)
  */
 void
 cogl_pipeline_set_user_program (CoglPipeline *pipeline,
-                                CoglHandle program)
+                                CoglProgram  *program)
 {
   CoglPipelineState state = COGL_PIPELINE_STATE_USER_SHADER;
   CoglPipeline *authority;
@@ -770,10 +757,10 @@ cogl_pipeline_set_user_program (CoglPipeline *pipeline,
     }
 
   if (program != NULL)
-    cogl_object_ref (program);
+    g_object_ref (program);
   if (authority == pipeline &&
       pipeline->big_state->user_program != NULL)
-    cogl_object_unref (pipeline->big_state->user_program);
+    g_object_unref (pipeline->big_state->user_program);
   pipeline->big_state->user_program = program;
 
   pipeline->dirty_real_blend_enable = TRUE;
@@ -1359,7 +1346,7 @@ void
 _cogl_pipeline_hash_user_shader_state (CoglPipeline *authority,
                                        CoglPipelineHashState *state)
 {
-  CoglHandle user_program = authority->big_state->user_program;
+  CoglProgram *user_program = authority->big_state->user_program;
   state->hash = _cogl_util_one_at_a_time_hash (state->hash, &user_program,
                                                sizeof (user_program));
 }

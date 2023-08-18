@@ -52,6 +52,7 @@
 #include "cogl/driver/gl/cogl-pipeline-vertend-glsl-private.h"
 #include "cogl/driver/gl/cogl-pipeline-progend-glsl-private.h"
 #include "deprecated/cogl-program-private.h"
+#include "deprecated/cogl-shader-private.h"
 
 /* These are used to generalise updating some uniforms that are
    required when building for drivers missing some fixed function

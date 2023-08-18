@@ -363,7 +363,7 @@ _cogl_pipeline_free (CoglPipeline *pipeline)
 
   if (pipeline->differences & COGL_PIPELINE_STATE_USER_SHADER &&
       pipeline->big_state->user_program)
-    cogl_object_unref (pipeline->big_state->user_program);
+    g_object_unref (pipeline->big_state->user_program);
 
   if (pipeline->differences & COGL_PIPELINE_STATE_UNIFORMS)
     {
@@ -675,7 +675,7 @@ _cogl_pipeline_change_implies_transparency (CoglPipeline *pipeline,
        *
        * TODO: check that it isn't just a vertex shader!
        */
-      if (_cogl_pipeline_get_user_program (pipeline) != NULL)
+      if (cogl_pipeline_get_user_program (pipeline) != NULL)
         return TRUE;
     }
 
@@ -862,7 +862,7 @@ _cogl_pipeline_copy_differences (CoglPipeline *dest,
     {
       if (src->big_state->user_program)
         big_state->user_program =
-          cogl_object_ref (src->big_state->user_program);
+          g_object_ref (src->big_state->user_program);
       else
         big_state->user_program = NULL;
     }
