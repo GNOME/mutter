@@ -75,8 +75,8 @@ on_after_paint (ClutterActor     *actor,
   graphene_matrix_t projection;
   graphene_matrix_t modelview;
   guchar *data;
-  CoglHandle tex;
-  CoglHandle offscreen;
+  CoglTexture *tex;
+  CoglOffscreen *offscreen;
   CoglColor black;
   float x0;
   float y0;

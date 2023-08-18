@@ -15,11 +15,11 @@ typedef struct _TestState
 
 /* Creates a texture where the pixels are evenly divided between
    selecting just one of the R,G and B components */
-static CoglHandle
+static CoglTexture*
 make_texture (void)
 {
   guchar *tex_data = g_malloc (TEX_SIZE * TEX_SIZE * 3), *p = tex_data;
-  CoglHandle tex;
+  CoglTexture *tex;
   int x, y;
 
   for (y = 0; y < TEX_SIZE; y++)
@@ -49,7 +49,7 @@ on_paint (ClutterActor        *actor,
           ClutterPaintContext *paint_context,
           TestState           *state)
 {
-  CoglHandle tex;
+  CoglTexture *tex;
   CoglPipeline *pipeline;
   uint8_t pixels[8];
 

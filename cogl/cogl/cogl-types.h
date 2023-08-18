@@ -74,17 +74,6 @@ typedef struct { \
               (sizeof (TYPE) == (SIZE)) ? 1 : -1]; \
         } _ ## TYPE ## SizeCheck
 
-/**
- * CoglHandle:
- *
- * Type used for storing references to cogl objects, the CoglHandle is
- * a fully opaque type without any public data members.
- */
-typedef void * CoglHandle;
-
-#define COGL_TYPE_HANDLE        (cogl_handle_get_type ())
-COGL_EXPORT GType
-cogl_handle_get_type (void) G_GNUC_CONST;
 
 typedef struct _CoglFramebuffer CoglFramebuffer;
 

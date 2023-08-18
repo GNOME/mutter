@@ -20,7 +20,7 @@ static const ClutterColor stage_color = { 0x00, 0x00, 0x00, 0xff };
 typedef struct _TestState
 {
   ClutterActor *stage;
-  CoglHandle tfp;
+  CoglTexture *tfp;
   Pixmap pixmap;
   unsigned int frame_count;
   Display *display;

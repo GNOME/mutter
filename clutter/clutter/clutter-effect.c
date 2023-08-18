@@ -84,8 +84,8 @@
  *  typedef struct {
  *    ClutterEffect parent_instance;
  *
- *    CoglHandle rect_1;
- *    CoglHandle rect_2;
+ *    CoglPipeline *rect_1;
+ *    CoglPipeline *rect_2;
  *  } MyEffect;
  *
  *  typedef struct _ClutterEffectClass MyEffectClass;
@@ -119,12 +119,12 @@
  *      return;
  *
  *    // Create a red material
- *    self->rect_1 = cogl_material_new ();
- *    cogl_material_set_color4f (self->rect_1, 1.0, 0.0, 0.0, 1.0);
+ *    self->rect_1 = cogl_pipeline_new ();
+ *    cogl_pipeline_set_color4f (self->rect_1, 1.0, 0.0, 0.0, 1.0);
  *
  *    // Create a green material
- *    self->rect_2 = cogl_material_new ();
- *    cogl_material_set_color4f (self->rect_2, 0.0, 1.0, 0.0, 1.0);
+ *    self->rect_2 = cogl_pipeline_new ();
+ *    cogl_pipeline_set_color4f (self->rect_2, 0.0, 1.0, 0.0, 1.0);
  *  }
  *
  *  static gboolean

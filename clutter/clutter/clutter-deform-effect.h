@@ -77,9 +77,9 @@ GType clutter_deform_effect_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
 void            clutter_deform_effect_set_back_material (ClutterDeformEffect *effect,
-                                                         CoglHandle           material);
+                                                         CoglPipeline        *material);
 CLUTTER_EXPORT
-CoglHandle      clutter_deform_effect_get_back_material (ClutterDeformEffect *effect);
+CoglPipeline*   clutter_deform_effect_get_back_material (ClutterDeformEffect *effect);
 CLUTTER_EXPORT
 void            clutter_deform_effect_set_n_tiles       (ClutterDeformEffect *effect,
                                                          guint                x_tiles,

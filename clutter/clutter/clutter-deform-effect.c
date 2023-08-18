@@ -540,7 +540,7 @@ clutter_deform_effect_set_property (GObject      *gobject,
       break;
 
     case PROP_BACK_MATERIAL:
-      clutter_deform_effect_set_back_material (self, g_value_get_boxed (value));
+      clutter_deform_effect_set_back_material (self, g_value_get_pointer (value));
       break;
 
     default:
@@ -568,7 +568,7 @@ clutter_deform_effect_get_property (GObject    *gobject,
       break;
 
     case PROP_BACK_MATERIAL:
-      g_value_set_boxed (value, priv->back_pipeline);
+      g_value_set_pointer (value, priv->back_pipeline);
       break;
 
     default:
@@ -619,9 +619,8 @@ clutter_deform_effect_class_init (ClutterDeformEffectClass *klass)
    * By default, no material will be used
    */
   obj_props[PROP_BACK_MATERIAL] =
-    g_param_spec_boxed ("back-material", NULL, NULL,
-                        COGL_TYPE_HANDLE,
-                        CLUTTER_PARAM_READWRITE);
+    g_param_spec_pointer ("back-material", NULL, NULL,
+                          CLUTTER_PARAM_READWRITE);
 
   gobject_class->finalize = clutter_deform_effect_finalize;
   gobject_class->set_property = clutter_deform_effect_set_property;
@@ -658,10 +657,9 @@ clutter_deform_effect_init (ClutterDeformEffect *self)
  */
 void
 clutter_deform_effect_set_back_material (ClutterDeformEffect *effect,
-                                         CoglHandle           material)
+                                         CoglPipeline        *pipeline)
 {
   ClutterDeformEffectPrivate *priv;
-  CoglPipeline *pipeline = COGL_PIPELINE (material);
 
   g_return_if_fail (CLUTTER_IS_DEFORM_EFFECT (effect));
   g_return_if_fail (pipeline == NULL || cogl_is_pipeline (pipeline));
@@ -670,7 +668,7 @@ clutter_deform_effect_set_back_material (ClutterDeformEffect *effect,
 
   clutter_deform_effect_free_back_pipeline (effect);
 
-  priv->back_pipeline = material;
+  priv->back_pipeline = pipeline;
   if (priv->back_pipeline != NULL)
     cogl_object_ref (priv->back_pipeline);
 
@@ -687,7 +685,7 @@ clutter_deform_effect_set_back_material (ClutterDeformEffect *effect,
  *   The returned material is owned by the #ClutterDeformEffect and it
  *   should not be freed directly
  */
-CoglHandle
+CoglPipeline*
 clutter_deform_effect_get_back_material (ClutterDeformEffect *effect)
 {
   g_return_val_if_fail (CLUTTER_IS_DEFORM_EFFECT (effect), NULL);

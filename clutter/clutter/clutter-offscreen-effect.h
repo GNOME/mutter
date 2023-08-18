@@ -65,14 +65,14 @@ struct _ClutterOffscreenEffectClass
   ClutterEffectClass parent_class;
 
   /*< public >*/
-  CoglHandle (* create_texture) (ClutterOffscreenEffect *effect,
-                                 gfloat                  width,
-                                 gfloat                  height);
+  CoglTexture* (* create_texture) (ClutterOffscreenEffect *effect,
+                                   gfloat                  width,
+                                   gfloat                  height);
   CoglPipeline* (* create_pipeline) (ClutterOffscreenEffect *effect,
                                      CoglTexture            *texture);
-  void       (* paint_target)   (ClutterOffscreenEffect *effect,
-                                 ClutterPaintNode       *node,
-                                 ClutterPaintContext    *paint_context);
+  void (* paint_target) (ClutterOffscreenEffect *effect,
+                         ClutterPaintNode       *node,
+                         ClutterPaintContext    *paint_context);
 };
 
 CLUTTER_EXPORT
@@ -82,16 +82,16 @@ CLUTTER_EXPORT
 CoglPipeline *  clutter_offscreen_effect_get_pipeline           (ClutterOffscreenEffect *effect);
 
 CLUTTER_EXPORT
-CoglHandle      clutter_offscreen_effect_get_texture            (ClutterOffscreenEffect *effect);
+CoglTexture*    clutter_offscreen_effect_get_texture            (ClutterOffscreenEffect *effect);
 
 CLUTTER_EXPORT
 void            clutter_offscreen_effect_paint_target           (ClutterOffscreenEffect *effect,
                                                                  ClutterPaintNode       *node,
                                                                  ClutterPaintContext    *paint_context);
 CLUTTER_EXPORT
-CoglHandle      clutter_offscreen_effect_create_texture         (ClutterOffscreenEffect *effect,
-                                                                 gfloat                  width,
-                                                                 gfloat                  height);
+CoglTexture* clutter_offscreen_effect_create_texture         (ClutterOffscreenEffect *effect,
+                                                              gfloat                  width,
+                                                              gfloat                  height);
 
 CLUTTER_EXPORT
 gboolean        clutter_offscreen_effect_get_target_size        (ClutterOffscreenEffect *effect,

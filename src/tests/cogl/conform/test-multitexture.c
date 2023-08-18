@@ -59,13 +59,13 @@ assert_region_color (int x,
  *
  *
  */
-static CoglHandle
+static CoglTexture*
 make_texture (guchar ref)
 {
   int x;
   int y;
   guchar *tex_data, *p;
-  CoglHandle tex;
+  CoglTexture *tex;
   guchar val;
 
   tex_data = g_malloc (QUAD_WIDTH * QUAD_WIDTH * 16);
@@ -103,7 +103,7 @@ on_paint (ClutterActor        *actor,
           ClutterPaintContext *paint_context,
           TestState           *state)
 {
-  CoglHandle tex0, tex1;
+  CoglTexture *tex0, *tex1;
   CoglPipeline *pipeline;
   gboolean status;
   GError *error = NULL;

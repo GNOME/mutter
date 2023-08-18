@@ -109,21 +109,6 @@ cogl_object_unref (void *obj)
   unref_func (obj);
 }
 
-GType
-cogl_handle_get_type (void)
-{
-  static GType our_type = 0;
-
-  /* XXX: We are keeping the "CoglHandle" name for now in case it would
-   * break bindings to change to "CoglObject" */
-  if (G_UNLIKELY (our_type == 0))
-    our_type = g_boxed_type_register_static (g_intern_static_string ("CoglHandle"),
-                                             (GBoxedCopyFunc) cogl_object_ref,
-                                             (GBoxedFreeFunc) cogl_object_unref);
-
-  return our_type;
-}
-
 /* XXX: Unlike for cogl_object_get_user_data this code will return
  * an empty entry if available and no entry for the given key can be
  * found. */

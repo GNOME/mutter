@@ -161,7 +161,7 @@ static ShaderSource shaders[]=
     }
 };
 
-static CoglHandle redhand;
+static CoglTexture *redhand;
 static CoglPipeline *pipeline;
 static unsigned int timeout_id = 0;
 static int shader_no = 0;

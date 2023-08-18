@@ -107,7 +107,7 @@ struct _ClutterOffscreenEffectPrivate
 {
   CoglOffscreen *offscreen;
   CoglPipeline *pipeline;
-  CoglHandle texture;
+  CoglTexture *texture;
 
   ClutterActor *actor;
   ClutterActor *stage;
@@ -147,7 +147,7 @@ clutter_offscreen_effect_set_actor (ClutterActorMeta *meta,
   priv->actor = clutter_actor_meta_get_actor (meta);
 }
 
-static CoglHandle
+static CoglTexture*
 clutter_offscreen_effect_real_create_texture (ClutterOffscreenEffect *effect,
                                               gfloat                  width,
                                               gfloat                  height)
@@ -155,7 +155,7 @@ clutter_offscreen_effect_real_create_texture (ClutterOffscreenEffect *effect,
   CoglContext *ctx =
     clutter_backend_get_cogl_context (clutter_get_default_backend ());
 
-  return cogl_texture_2d_new_with_size (ctx, MAX (width, 1), MAX (height, 1));
+  return COGL_TEXTURE (cogl_texture_2d_new_with_size (ctx, MAX (width, 1), MAX (height, 1)));
 }
 
 static void
@@ -624,11 +624,11 @@ clutter_offscreen_effect_init (ClutterOffscreenEffect *self)
  * used instead of [method@OffscreenEffect.get_texture] when the
  * effect subclass wants to paint using its own material.
  *
- * Return value: (transfer none): a #CoglHandle or %NULL. The
+ * Return value: (transfer none): a #CoglTexture or %NULL. The
  *   returned texture is owned by Clutter and it should not be
  *   modified or freed
  */
-CoglHandle
+CoglTexture*
 clutter_offscreen_effect_get_texture (ClutterOffscreenEffect *effect)
 {
   g_return_val_if_fail (CLUTTER_IS_OFFSCREEN_EFFECT (effect),
@@ -692,7 +692,7 @@ clutter_offscreen_effect_paint_target (ClutterOffscreenEffect *effect,
  *   %NULL. The returned handle has its reference
  *   count increased.
  */
-CoglHandle
+CoglTexture*
 clutter_offscreen_effect_create_texture (ClutterOffscreenEffect *effect,
                                          gfloat                  width,
                                          gfloat                  height)
