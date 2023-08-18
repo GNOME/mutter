@@ -33,13 +33,12 @@
 
 #pragma once
 
-#include "cogl/cogl-object-private.h"
 #include "cogl/cogl-index-buffer-private.h"
 #include "cogl/cogl-types.h"
 
 struct _CoglIndices
 {
-  CoglObject _parent;
+  GObject parent_instance;
 
   CoglIndexBuffer *buffer;
   size_t offset;

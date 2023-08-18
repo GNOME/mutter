@@ -2195,7 +2195,7 @@ get_wire_line_indices (CoglContext *ctx,
       indices = _cogl_buffer_map (COGL_BUFFER (index_buffer),
                                   COGL_BUFFER_ACCESS_READ, 0,
                                   NULL);
-      indices_type = cogl_indices_get_type (user_indices);
+      indices_type = cogl_indices_get_indices_type (user_indices);
     }
   else
     {
@@ -2375,7 +2375,7 @@ draw_wireframe (CoglContext *ctx,
                                            flags);
   COGL_DEBUG_SET_FLAG (COGL_DEBUG_WIREFRAME);
 
-  cogl_object_unref (wire_indices);
+  g_object_unref (wire_indices);
 }
 #endif
 

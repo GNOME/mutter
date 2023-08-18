@@ -303,7 +303,7 @@ test_copy (TestState *state)
 
   cogl_object_unref (prim_a);
   cogl_object_unref (prim_b);
-  cogl_object_unref (indices);
+  g_object_unref (indices);
 
   for (i = 0; i < N_ATTRIBS; i++)
     g_object_unref (attributes[i]);

@@ -488,7 +488,7 @@ clutter_deform_effect_init_arrays (ClutterDeformEffect *self)
                                   n_indices);
     }
 
-  cogl_object_unref (indices);
+  g_object_unref (indices);
 
   for (i = 0; i < 3; i++)
     g_object_unref (attributes[i]);

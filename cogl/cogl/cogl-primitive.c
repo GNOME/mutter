@@ -387,7 +387,7 @@ _cogl_primitive_free (CoglPrimitive *primitive)
     g_free (primitive->attributes);
 
   if (primitive->indices)
-    cogl_object_unref (primitive->indices);
+    g_object_unref (primitive->indices);
 
   g_free (primitive);
 }
@@ -532,9 +532,9 @@ cogl_primitive_set_indices (CoglPrimitive *primitive,
     }
 
   if (indices)
-    cogl_object_ref (indices);
+    g_object_ref (indices);
   if (primitive->indices)
-    cogl_object_unref (primitive->indices);
+    g_object_unref (primitive->indices);
   primitive->indices = indices;
   primitive->n_vertices = n_indices;
 }

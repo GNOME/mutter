@@ -383,9 +383,9 @@ cogl_gl_framebuffer_draw_indexed_attributes (CoglFramebufferDriver  *driver,
   base = _cogl_buffer_gl_bind (buffer,
                                COGL_BUFFER_BIND_TARGET_INDEX_BUFFER, NULL);
   buffer_offset = cogl_indices_get_offset (indices);
-  index_size = sizeof_index_type (cogl_indices_get_type (indices));
+  index_size = sizeof_index_type (cogl_indices_get_indices_type (indices));
 
-  switch (cogl_indices_get_type (indices))
+  switch (cogl_indices_get_indices_type (indices))
     {
     case COGL_INDICES_TYPE_UNSIGNED_BYTE:
       indices_gl_type = GL_UNSIGNED_BYTE;

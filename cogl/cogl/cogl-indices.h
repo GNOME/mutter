@@ -49,8 +49,9 @@ typedef struct _CoglIndices CoglIndices;
 G_BEGIN_DECLS
 
 /**
- * SECTION:cogl-indices
- * @short_description: Describe vertex indices stored in a #CoglIndexBuffer.
+ * CoglIndices:
+ *
+ * Describe vertex indices stored in a #CoglIndexBuffer.
  *
  * Indices allow you to avoid duplicating vertices in your vertex data
  * by virtualizing your data and instead providing a sequence of index
@@ -106,13 +107,11 @@ G_BEGIN_DECLS
  * for drawing quads as above.
  */
 
-/**
- * cogl_indices_get_gtype:
- *
- * Returns: a #GType that can be used with the GLib type system.
- */
+#define COGL_TYPE_INDICES (cogl_indices_get_type ())
+
 COGL_EXPORT
-GType cogl_indices_get_gtype (void);
+G_DECLARE_FINAL_TYPE (CoglIndices, cogl_indices,
+                      COGL, INDICES, GObject)
 
 COGL_EXPORT CoglIndices *
 cogl_indices_new (CoglContext *context,
@@ -129,7 +128,7 @@ COGL_EXPORT CoglIndexBuffer *
 cogl_indices_get_buffer (CoglIndices *indices);
 
 COGL_EXPORT CoglIndicesType
-cogl_indices_get_type (CoglIndices *indices);
+cogl_indices_get_indices_type (CoglIndices *indices);
 
 COGL_EXPORT size_t
 cogl_indices_get_offset (CoglIndices *indices);
@@ -140,17 +139,5 @@ cogl_indices_set_offset (CoglIndices *indices,
 
 COGL_EXPORT CoglIndices *
 cogl_get_rectangle_indices (CoglContext *context, int n_rectangles);
-
-/**
- * cogl_is_indices:
- * @object: A #CoglObject pointer
- *
- * Gets whether the given object references a #CoglIndices.
- *
- * Return value: %TRUE if the object references a #CoglIndices
- *   and %FALSE otherwise.
- */
-COGL_EXPORT gboolean
-cogl_is_indices (void *object);
 
 G_END_DECLS

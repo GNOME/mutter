@@ -35,19 +35,37 @@
 #include "cogl-config.h"
 
 #include "cogl/cogl-util.h"
-#include "cogl/cogl-object-private.h"
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-indices.h"
 #include "cogl/cogl-indices-private.h"
 #include "cogl/cogl-index-buffer.h"
-#include "cogl/cogl-gtype-private.h"
 
 #include <stdarg.h>
 
-static void _cogl_indices_free (CoglIndices *indices);
+G_DEFINE_TYPE (CoglIndices, cogl_indices, G_TYPE_OBJECT);
 
-COGL_OBJECT_DEFINE (Indices, indices);
-COGL_GTYPE_DEFINE_CLASS (Indices, indices);
+static void
+cogl_indices_dispose (GObject *object)
+{
+  CoglIndices *indices = COGL_INDICES (object);
+
+  cogl_object_unref (indices->buffer);
+
+  G_OBJECT_CLASS (cogl_indices_parent_class)->dispose (object);
+}
+
+static void
+cogl_indices_init (CoglIndices *indices)
+{
+}
+
+static void
+cogl_indices_class_init (CoglIndicesClass *class)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (class);
+
+  object_class->dispose = cogl_indices_dispose;
+}
 
 static size_t
 sizeof_indices_type (CoglIndicesType type)
@@ -69,7 +87,7 @@ cogl_indices_new_for_buffer (CoglIndicesType type,
                              CoglIndexBuffer *buffer,
                              size_t offset)
 {
-  CoglIndices *indices = g_new0 (CoglIndices, 1);
+  CoglIndices *indices = g_object_new (COGL_TYPE_INDICES, NULL);
 
   indices->buffer = cogl_object_ref (buffer);
   indices->offset = offset;
@@ -78,7 +96,7 @@ cogl_indices_new_for_buffer (CoglIndicesType type,
 
   indices->immutable_ref = 0;
 
-  return _cogl_indices_object_new (indices);
+  return indices;
 }
 
 CoglIndices *
@@ -118,9 +136,9 @@ cogl_indices_get_buffer (CoglIndices *indices)
 }
 
 CoglIndicesType
-cogl_indices_get_type (CoglIndices *indices)
+cogl_indices_get_indices_type (CoglIndices *indices)
 {
-  g_return_val_if_fail (cogl_is_indices (indices),
+  g_return_val_if_fail (COGL_IS_INDICES (indices),
                         COGL_INDICES_TYPE_UNSIGNED_BYTE);
   return indices->type;
 }
@@ -128,7 +146,7 @@ cogl_indices_get_type (CoglIndices *indices)
 size_t
 cogl_indices_get_offset (CoglIndices *indices)
 {
-  g_return_val_if_fail (cogl_is_indices (indices), 0);
+  g_return_val_if_fail (COGL_IS_INDICES (indices), 0);
 
   return indices->offset;
 }
@@ -149,7 +167,7 @@ void
 cogl_indices_set_offset (CoglIndices *indices,
                          size_t offset)
 {
-  g_return_if_fail (cogl_is_indices (indices));
+  g_return_if_fail (COGL_IS_INDICES (indices));
 
   if (G_UNLIKELY (indices->immutable_ref))
     warn_about_midscene_changes ();
@@ -157,17 +175,10 @@ cogl_indices_set_offset (CoglIndices *indices,
   indices->offset = offset;
 }
 
-static void
-_cogl_indices_free (CoglIndices *indices)
-{
-  cogl_object_unref (indices->buffer);
-  g_free (indices);
-}
-
 CoglIndices *
 _cogl_indices_immutable_ref (CoglIndices *indices)
 {
-  g_return_val_if_fail (cogl_is_indices (indices), NULL);
+  g_return_val_if_fail (COGL_IS_INDICES (indices), NULL);
 
   indices->immutable_ref++;
   _cogl_buffer_immutable_ref (COGL_BUFFER (indices->buffer));
@@ -177,7 +188,7 @@ _cogl_indices_immutable_ref (CoglIndices *indices)
 void
 _cogl_indices_immutable_unref (CoglIndices *indices)
 {
-  g_return_if_fail (cogl_is_indices (indices));
+  g_return_if_fail (COGL_IS_INDICES (indices));
   g_return_if_fail (indices->immutable_ref > 0);
 
   indices->immutable_ref--;
@@ -230,7 +241,7 @@ cogl_get_rectangle_indices (CoglContext *ctx, int n_rectangles)
           int i, vert_num = 0;
 
           if (ctx->rectangle_short_indices != NULL)
-            cogl_object_unref (ctx->rectangle_short_indices);
+            g_object_unref (ctx->rectangle_short_indices);
           /* Pick a power of two >= MAX (512, n_indices) */
           if (ctx->rectangle_short_indices_len == 0)
             ctx->rectangle_short_indices_len = 512;

@@ -95,9 +95,9 @@ cogl_context_dispose (GObject *object)
     g_array_free (context->journal_clip_bounds, TRUE);
 
   if (context->rectangle_byte_indices)
-    cogl_object_unref (context->rectangle_byte_indices);
+    g_object_unref (context->rectangle_byte_indices);
   if (context->rectangle_short_indices)
-    cogl_object_unref (context->rectangle_short_indices);
+    g_object_unref (context->rectangle_short_indices);
 
   if (context->default_pipeline)
     cogl_object_unref (context->default_pipeline);
