@@ -85,7 +85,7 @@ texture_unit_free (CoglTextureUnit *unit)
 {
   if (unit->layer)
     cogl_object_unref (unit->layer);
-  cogl_object_unref (unit->matrix_stack);
+  g_object_unref (unit->matrix_stack);
 }
 
 CoglTextureUnit *

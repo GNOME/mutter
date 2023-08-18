@@ -34,7 +34,6 @@
 
 #pragma once
 
-#include "cogl/cogl-object-private.h"
 #include "cogl/cogl-matrix-stack.h"
 #include "cogl/cogl-context.h"
 #include "cogl/cogl-framebuffer.h"
@@ -136,7 +135,7 @@ typedef union _CoglMatrixEntryFull
 
 struct _CoglMatrixStack
 {
-  CoglObject _parent;
+  GObject parent_instance;
 
   CoglContext *context;
 

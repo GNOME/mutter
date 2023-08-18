@@ -133,13 +133,14 @@
  */
 typedef struct _CoglMatrixStack CoglMatrixStack;
 
-/**
- * cogl_matrix_stack_get_gtype:
- *
- * Returns: a #GType that can be used with the GLib type system.
- */
+#define COGL_TYPE_MATRIX_STACK (cogl_matrix_stack_get_type ())
+
 COGL_EXPORT
-GType cogl_matrix_stack_get_gtype (void);
+G_DECLARE_FINAL_TYPE (CoglMatrixStack,
+                      cogl_matrix_stack,
+                      COGL,
+                      MATRIX_STACK,
+                      GObject)
 
 /**
  * CoglMatrixEntry:
@@ -173,7 +174,7 @@ GType cogl_matrix_stack_get_gtype (void);
  *
  * <note>#CoglMatrixEntry<!-- -->s are reference counted using
  * cogl_matrix_entry_ref() and cogl_matrix_entry_unref() not with
- * cogl_object_ref() and cogl_object_unref().</note>
+ * g_object_ref() and g_object_unref().</note>
  */
 typedef struct _CoglMatrixEntry CoglMatrixEntry;
 
@@ -517,18 +518,6 @@ cogl_matrix_entry_get (CoglMatrixEntry   *entry,
 COGL_EXPORT void
 cogl_matrix_stack_set (CoglMatrixStack         *stack,
                        const graphene_matrix_t *matrix);
-
-/**
- * cogl_is_matrix_stack:
- * @object: a #CoglObject
- *
- * Determines if the given #CoglObject refers to a #CoglMatrixStack.
- *
- * Return value: %TRUE if @object is a #CoglMatrixStack, otherwise
- *               %FALSE.
- */
-COGL_EXPORT gboolean
-cogl_is_matrix_stack (void *object);
 
 /**
  * cogl_matrix_entry_calculate_translation:

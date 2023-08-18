@@ -247,7 +247,7 @@ static void
 clutter_pick_stack_dispose (ClutterPickStack *pick_stack)
 {
   remove_pick_stack_weak_refs (pick_stack);
-  g_clear_pointer (&pick_stack->matrix_stack, cogl_object_unref);
+  g_clear_object (&pick_stack->matrix_stack);
   g_clear_pointer (&pick_stack->vertices_stack, g_array_unref);
   g_clear_pointer (&pick_stack->clip_stack, g_array_unref);
 }
