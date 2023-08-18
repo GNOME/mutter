@@ -121,17 +121,6 @@ typedef enum
   COGL_OFFSCREEN_BUFFER   = (1 << 2)
 } CoglBufferTarget;
 
-/**
- * CoglColor:
- * @red: amount of red
- * @green: amount of green
- * @blue: amount of green
- * @alpha: alpha
- *
- * A structure for holding a color definition. The contents of
- * the CoglColor structure are private and should never by accessed
- * directly.
- */
 struct _CoglColor
 {
   /*< private >*/
