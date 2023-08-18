@@ -258,7 +258,7 @@ capture_view_into (ClutterStageView *view,
                                             COGL_READ_PIXELS_COLOR_BUFFER,
                                             bitmap);
 
-  cogl_object_unref (bitmap);
+  g_object_unref (bitmap);
 }
 
 typedef struct

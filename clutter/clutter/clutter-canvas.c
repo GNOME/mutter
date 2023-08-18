@@ -129,7 +129,7 @@ clutter_canvas_finalize (GObject *gobject)
 
   if (priv->buffer != NULL)
     {
-      cogl_object_unref (priv->buffer);
+      g_object_unref (priv->buffer);
       priv->buffer = NULL;
     }
 
@@ -445,7 +445,7 @@ clutter_canvas_invalidate (ClutterContent *content)
 
   if (priv->buffer != NULL)
     {
-      cogl_object_unref (priv->buffer);
+      g_object_unref (priv->buffer);
       priv->buffer = NULL;
     }
 

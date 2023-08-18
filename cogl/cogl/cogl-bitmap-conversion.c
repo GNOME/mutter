@@ -527,7 +527,7 @@ _cogl_bitmap_convert (CoglBitmap *src_bmp,
 
   if (!_cogl_bitmap_convert_into_bitmap (src_bmp, dst_bmp, error))
     {
-      cogl_object_unref (dst_bmp);
+      g_object_unref (dst_bmp);
       return NULL;
     }
 
@@ -596,7 +596,7 @@ _cogl_bitmap_convert_for_upload (CoglBitmap *src_bmp,
             return NULL;
         }
       else
-        dst_bmp = cogl_object_ref (src_bmp);
+        dst_bmp = g_object_ref (src_bmp);
     }
   else
     {
@@ -612,7 +612,7 @@ _cogl_bitmap_convert_for_upload (CoglBitmap *src_bmp,
       if (closest_format != src_format)
         dst_bmp = _cogl_bitmap_convert (src_bmp, closest_format, error);
       else
-        dst_bmp = cogl_object_ref (src_bmp);
+        dst_bmp = g_object_ref (src_bmp);
     }
 
   return dst_bmp;

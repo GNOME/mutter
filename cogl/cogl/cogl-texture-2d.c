@@ -168,7 +168,7 @@ cogl_texture_2d_new_from_bitmap (CoglBitmap *bmp)
 
   loader = _cogl_texture_create_loader ();
   loader->src_type = COGL_TEXTURE_SOURCE_TYPE_BITMAP;
-  loader->src.bitmap.bitmap = cogl_object_ref (bmp);
+  loader->src.bitmap.bitmap = g_object_ref (bmp);
 
   return  _cogl_texture_2d_create_base (_cogl_bitmap_get_context (bmp),
                                         cogl_bitmap_get_width (bmp),
@@ -206,7 +206,7 @@ cogl_texture_2d_new_from_data (CoglContext *ctx,
 
   tex_2d = cogl_texture_2d_new_from_bitmap (bmp);
 
-  cogl_object_unref (bmp);
+  g_object_unref (bmp);
 
   if (tex_2d &&
       !cogl_texture_allocate (COGL_TEXTURE (tex_2d), error))

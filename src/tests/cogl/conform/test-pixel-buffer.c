@@ -149,7 +149,7 @@ test_pixel_buffer_map (void)
                                    -1.0f, 1.0f,
                                    1.0f, -1.0f);
 
-  cogl_object_unref (bitmap);
+  g_object_unref (bitmap);
   cogl_object_unref (texture);
   cogl_object_unref (pipeline);
 
@@ -194,7 +194,7 @@ test_pixel_buffer_set_data (void)
                                    -1.0f, 1.0f,
                                    1.0f, -1.0f);
 
-  cogl_object_unref (bitmap);
+  g_object_unref (bitmap);
   cogl_object_unref (texture);
   cogl_object_unref (pipeline);
 
@@ -255,7 +255,7 @@ test_pixel_buffer_sub_region (void)
                                    -1.0f, 1.0f,
                                    1.0f, -1.0f);
 
-  cogl_object_unref (bitmap);
+  g_object_unref (bitmap);
   cogl_object_unref (texture);
   cogl_object_unref (pipeline);
 

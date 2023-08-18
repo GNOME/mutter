@@ -1559,7 +1559,7 @@ cogl_framebuffer_read_pixels (CoglFramebuffer *framebuffer,
                                                    COGL_READ_PIXELS_COLOR_BUFFER,
                                                    bitmap,
                                                    NULL);
-  cogl_object_unref (bitmap);
+  g_object_unref (bitmap);
 
   return ret;
 }

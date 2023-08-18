@@ -865,7 +865,7 @@ copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
                                                  dumb_bitmap))
     g_warning ("Failed to CPU-copy to a secondary GPU output");
 
-  cogl_object_unref (dumb_bitmap);
+  g_object_unref (dumb_bitmap);
 
   secondary_gpu_state->cpu.current_dumb_fb = buffer_dumb;
 

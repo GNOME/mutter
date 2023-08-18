@@ -342,7 +342,7 @@ test_utils_texture_new_from_data (CoglContext           *ctx,
 
   tex = test_utils_texture_new_from_bitmap (bmp, flags, TRUE);
 
-  cogl_object_unref (bmp);
+  g_object_unref (bmp);
 
   return tex;
 }

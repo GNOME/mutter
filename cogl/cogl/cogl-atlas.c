@@ -333,7 +333,7 @@ _cogl_atlas_create_texture (CoglAtlas *atlas,
           tex = NULL;
         }
 
-      cogl_object_unref (clear_bmp);
+      g_object_unref (clear_bmp);
 
       g_free (clear_data);
     }

@@ -1251,7 +1251,7 @@ cogl_framebuffer_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
  *                                           x, y,
  *                                           COGL_READ_PIXELS_COLOR_BUFFER,
  *                                           bitmap);
- * cogl_object_unref (bitmap);
+ * g_object_unref (bitmap);
  * ]|
  *
  * Return value: %TRUE if the read succeeded or %FALSE otherwise.

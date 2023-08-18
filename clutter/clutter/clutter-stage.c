@@ -2824,7 +2824,7 @@ clutter_stage_paint_to_buffer (ClutterStage        *stage,
                                             COGL_READ_PIXELS_COLOR_BUFFER,
                                             bitmap);
 
-  cogl_object_unref (bitmap);
+  g_object_unref (bitmap);
   g_object_unref (framebuffer);
 
   return TRUE;
@@ -2928,7 +2928,7 @@ clutter_stage_capture_view_into (ClutterStage     *stage,
                                             COGL_READ_PIXELS_COLOR_BUFFER,
                                             bitmap);
 
-  cogl_object_unref (bitmap);
+  g_object_unref (bitmap);
 }
 
 /**

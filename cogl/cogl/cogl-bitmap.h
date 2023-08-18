@@ -49,23 +49,22 @@ typedef struct _CoglBitmap CoglBitmap;
 G_BEGIN_DECLS
 
 /**
- * cogl_bitmap_get_gtype:
+ * CoglBitmap:
  *
- * Returns: a #GType that can be used with the GLib type system.
- */
-COGL_EXPORT
-GType cogl_bitmap_get_gtype (void);
-
-/**
- * SECTION:cogl-bitmap
- * @short_description: Functions for loading images
+ * Functions for loading images
  *
  * Cogl allows loading image data into memory as CoglBitmaps without
  * loading them immediately into GPU textures.
- *
- * #CoglBitmap is available since Cogl 1.0
  */
 
+#define COGL_TYPE_BITMAP (cogl_bitmap_get_type ())
+
+COGL_EXPORT
+G_DECLARE_FINAL_TYPE (CoglBitmap,
+                      cogl_bitmap,
+                      COGL,
+                      BITMAP,
+                      GObject)
 
 /**
  * cogl_bitmap_new_from_buffer: (skip)
@@ -196,18 +195,6 @@ cogl_bitmap_get_rowstride (CoglBitmap *bitmap);
  */
 COGL_EXPORT CoglPixelBuffer *
 cogl_bitmap_get_buffer (CoglBitmap *bitmap);
-
-/**
- * cogl_is_bitmap:
- * @object: a #CoglObject pointer
- *
- * Checks whether @object is a #CoglBitmap
- *
- * Return value: %TRUE if the passed @object represents a bitmap,
- *   and %FALSE otherwise
- */
-COGL_EXPORT gboolean
-cogl_is_bitmap (void *object);
 
 /**
  * COGL_BITMAP_ERROR:

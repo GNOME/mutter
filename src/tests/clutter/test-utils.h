@@ -1,6 +1,8 @@
 #include <clutter/clutter.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
+static GQuark pixbuf_key = 0;
+
 static inline ClutterActor *
 clutter_test_utils_create_texture_from_file (const char  *filename,
                                              GError     **error)
@@ -34,7 +36,7 @@ clutter_test_create_bitmap_from_file (CoglContext  *ctx,
                                       const char   *filename,
                                       GError      **error)
 {
-  static CoglUserDataKey pixbuf_key;
+  pixbuf_key = g_quark_from_static_string ("-cogl-bitmap-pixbuf-key");
   GdkPixbuf *pixbuf;
   gboolean has_alpha;
   GdkColorspace color_space;
@@ -101,10 +103,10 @@ clutter_test_create_bitmap_from_file (CoglContext  *ctx,
                                   rowstride,
                                   gdk_pixbuf_get_pixels (pixbuf));
 
-  cogl_object_set_user_data (COGL_OBJECT (bmp),
-                             &pixbuf_key,
-                             pixbuf,
-                             g_object_unref);
+  g_object_set_qdata_full (G_OBJECT (bmp),
+                           pixbuf_key,
+                           pixbuf,
+                           g_object_unref);
 
   return bmp;
 }
@@ -125,7 +127,7 @@ clutter_test_texture_2d_sliced_new_from_file (CoglContext  *ctx,
 
   tex_2ds = cogl_texture_2d_sliced_new_from_bitmap (bmp, COGL_TEXTURE_MAX_WASTE);
 
-  cogl_object_unref (bmp);
+  g_object_unref (bmp);
 
   return tex_2ds;
 }
@@ -146,7 +148,7 @@ clutter_test_texture_2d_new_from_file (CoglContext  *ctx,
 
   tex_2d = cogl_texture_2d_new_from_bitmap (bmp);
 
-  cogl_object_unref (bmp);
+  g_object_unref (bmp);
 
   return tex_2d;
 }

@@ -556,7 +556,7 @@ _cogl_atlas_texture_convert_bitmap_for_upload (CoglAtlasTexture *atlas_tex,
                              cogl_bitmap_get_height (upload_bmp),
                              cogl_bitmap_get_rowstride (upload_bmp));
 
-  cogl_object_unref (upload_bmp);
+  g_object_unref (upload_bmp);
 
   return override_bmp;
 }
@@ -599,7 +599,7 @@ _cogl_atlas_texture_set_region (CoglTexture *tex,
                                                         upload_bmp,
                                                         error);
 
-      cogl_object_unref (upload_bmp);
+      g_object_unref (upload_bmp);
 
       return ret;
     }
@@ -836,7 +836,7 @@ allocate_from_bitmap (CoglAtlasTexture *atlas_tex,
                        internal_format,
                        error))
     {
-      cogl_object_unref (upload_bmp);
+      g_object_unref (upload_bmp);
       return FALSE;
     }
 
@@ -853,11 +853,11 @@ allocate_from_bitmap (CoglAtlasTexture *atlas_tex,
                                                    error))
     {
       _cogl_atlas_texture_remove_from_atlas (atlas_tex);
-      cogl_object_unref (upload_bmp);
+      g_object_unref (upload_bmp);
       return FALSE;
     }
 
-  cogl_object_unref (upload_bmp);
+  g_object_unref (upload_bmp);
 
   _cogl_texture_set_allocated (tex, internal_format, width, height);
 
@@ -891,11 +891,11 @@ cogl_atlas_texture_new_from_bitmap (CoglBitmap *bmp)
 {
   CoglTextureLoader *loader;
 
-  g_return_val_if_fail (cogl_is_bitmap (bmp), NULL);
+  g_return_val_if_fail (COGL_IS_BITMAP (bmp), NULL);
 
   loader = _cogl_texture_create_loader ();
   loader->src_type = COGL_TEXTURE_SOURCE_TYPE_BITMAP;
-  loader->src.bitmap.bitmap = cogl_object_ref (bmp);
+  loader->src.bitmap.bitmap = g_object_ref (bmp);
 
   return _cogl_atlas_texture_create_base (_cogl_bitmap_get_context (bmp),
                                           cogl_bitmap_get_width (bmp),
@@ -933,7 +933,7 @@ cogl_atlas_texture_new_from_data (CoglContext *ctx,
 
   atlas_tex = cogl_atlas_texture_new_from_bitmap (bmp);
 
-  cogl_object_unref (bmp);
+  g_object_unref (bmp);
 
   if (atlas_tex &&
       !cogl_texture_allocate (COGL_TEXTURE (atlas_tex), error))

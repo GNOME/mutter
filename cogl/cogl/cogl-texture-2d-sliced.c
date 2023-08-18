@@ -270,12 +270,12 @@ _cogl_texture_2d_sliced_set_waste (CoglTexture2DSliced *tex_2ds,
                                                      0, /* level */
                                                      error))
             {
-              cogl_object_unref (waste_bmp);
+              g_object_unref (waste_bmp);
               _cogl_bitmap_unmap (source_bmp);
               return FALSE;
             }
 
-          cogl_object_unref (waste_bmp);
+          g_object_unref (waste_bmp);
         }
 
       if (need_y)
@@ -330,12 +330,12 @@ _cogl_texture_2d_sliced_set_waste (CoglTexture2DSliced *tex_2ds,
                                                      0, /* level */
                                                      error))
             {
-              cogl_object_unref (waste_bmp);
+              g_object_unref (waste_bmp);
               _cogl_bitmap_unmap (source_bmp);
               return FALSE;
             }
 
-          cogl_object_unref (waste_bmp);
+          g_object_unref (waste_bmp);
         }
 
       _cogl_bitmap_unmap (source_bmp);
@@ -891,11 +891,11 @@ cogl_texture_2d_sliced_new_from_bitmap (CoglBitmap *bmp,
 {
   CoglTextureLoader *loader;
 
-  g_return_val_if_fail (cogl_is_bitmap (bmp), NULL);
+  g_return_val_if_fail (COGL_IS_BITMAP (bmp), NULL);
 
   loader = _cogl_texture_create_loader ();
   loader->src_type = COGL_TEXTURE_SOURCE_TYPE_BITMAP;
-  loader->src.bitmap.bitmap = cogl_object_ref (bmp);
+  loader->src.bitmap.bitmap = g_object_ref (bmp);
 
   return _cogl_texture_2d_sliced_create_base (_cogl_bitmap_get_context (bmp),
                                               cogl_bitmap_get_width (bmp),
@@ -935,7 +935,7 @@ cogl_texture_2d_sliced_new_from_data (CoglContext *ctx,
 
   tex_2ds = cogl_texture_2d_sliced_new_from_bitmap (bmp, max_waste);
 
-  cogl_object_unref (bmp);
+  g_object_unref (bmp);
 
   if (tex_2ds &&
       !cogl_texture_allocate (COGL_TEXTURE (tex_2ds), error))
@@ -1008,7 +1008,7 @@ allocate_from_bitmap (CoglTexture2DSliced *tex_2ds,
                         internal_format,
                         error))
     {
-      cogl_object_unref (upload_bmp);
+      g_object_unref (upload_bmp);
       return FALSE;
     }
 
@@ -1017,11 +1017,11 @@ allocate_from_bitmap (CoglTexture2DSliced *tex_2ds,
                                               error))
     {
       free_slices (tex_2ds);
-      cogl_object_unref (upload_bmp);
+      g_object_unref (upload_bmp);
       return FALSE;
     }
 
-  cogl_object_unref (upload_bmp);
+  g_object_unref (upload_bmp);
 
   _cogl_texture_set_allocated (tex, internal_format, width, height);
 
@@ -1256,7 +1256,7 @@ _cogl_texture_2d_sliced_set_region (CoglTexture *tex,
                                                      dst_width, dst_height,
                                                      upload_bmp,
                                                      error);
-  cogl_object_unref (upload_bmp);
+  g_object_unref (upload_bmp);
 
   return status;
 }

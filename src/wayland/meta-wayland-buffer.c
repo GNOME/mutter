@@ -403,7 +403,7 @@ shm_buffer_attach (MetaWaylandBuffer  *buffer,
         }
     }
 
-  cogl_object_unref (bitmap);
+  g_object_unref (bitmap);
 
   wl_shm_buffer_end_access (shm_buffer);
 

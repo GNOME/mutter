@@ -32,13 +32,12 @@
 
 #include <glib.h>
 
-#include "cogl/cogl-object-private.h"
 #include "cogl/cogl-buffer.h"
 #include "cogl/cogl-bitmap.h"
 
 struct _CoglBitmap
 {
-  CoglObject _parent;
+  GObject parent_instance;
 
   /* Pointer back to the context that this bitmap was created with */
   CoglContext *context;

@@ -245,13 +245,13 @@ allocate_from_bitmap (CoglTexture2D *tex_2d,
                                           gl_type,
                                           error))
     {
-      cogl_object_unref (upload_bmp);
+      g_object_unref (upload_bmp);
       return FALSE;
     }
 
   tex_2d->gl_internal_format = gl_intformat;
 
-  cogl_object_unref (upload_bmp);
+  g_object_unref (upload_bmp);
 
   tex_2d->internal_format = internal_format;
 
@@ -606,7 +606,7 @@ _cogl_texture_2d_gl_copy_from_bitmap (CoglTexture2D *tex_2d,
                                                         gl_type,
                                                         error);
 
-  cogl_object_unref (upload_bmp);
+  g_object_unref (upload_bmp);
 
   return status;
 }

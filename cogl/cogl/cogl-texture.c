@@ -152,7 +152,7 @@ _cogl_texture_free_loader (CoglTexture *texture)
         case COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE_EXTERNAL:
           break;
         case COGL_TEXTURE_SOURCE_TYPE_BITMAP:
-          cogl_object_unref (loader->src.bitmap.bitmap);
+          g_object_unref (loader->src.bitmap.bitmap);
           break;
         }
       g_free (loader);
@@ -457,7 +457,7 @@ _cogl_texture_set_region (CoglTexture *texture,
                                               level,
                                               error);
 
-  cogl_object_unref (source_bmp);
+  g_object_unref (source_bmp);
 
   return ret;
 }
@@ -594,7 +594,7 @@ get_texture_bits_via_offscreen (CoglTexture *meta_texture,
 
   g_clear_error (&ignore_error);
 
-  cogl_object_unref (bitmap);
+  g_object_unref (bitmap);
 
   g_object_unref (framebuffer);
 
@@ -876,7 +876,7 @@ cogl_texture_get_data (CoglTexture *texture,
    */
   if (!tg_data.success)
     {
-      cogl_object_unref (target_bmp);
+      g_object_unref (target_bmp);
       return 0;
     }
 
@@ -902,10 +902,10 @@ cogl_texture_get_data (CoglTexture *texture,
           byte_size = 0;
         }
 
-      cogl_object_unref (new_bmp);
+      g_object_unref (new_bmp);
     }
 
-  cogl_object_unref (target_bmp);
+  g_object_unref (target_bmp);
 
   return byte_size;
 }
