@@ -44,8 +44,9 @@
 G_BEGIN_DECLS
 
 /**
- * SECTION:cogl-output
- * @short_description: information about an output device
+ * CoglOutput:
+ *
+ * Information about an output device
  *
  * The #CoglOutput object holds information about an output device
  * such as a monitor or laptop display. It can be queried to find
@@ -66,15 +67,15 @@ G_BEGIN_DECLS
  */
 
 typedef struct _CoglOutput CoglOutput;
-#define COGL_OUTPUT(X) ((CoglOutput *)(X))
 
-/**
- * cogl_output_get_gtype:
- *
- * Returns: a #GType that can be used with the GLib type system.
- */
+#define COGL_TYPE_OUTPUT (cogl_output_get_type ())
+
 COGL_EXPORT
-GType cogl_output_get_gtype (void);
+G_DECLARE_FINAL_TYPE (CoglOutput,
+                      cogl_output,
+                      COGL,
+                      OUTPUT,
+                      GObject)
 
 /**
  * CoglSubpixelOrder:
@@ -113,18 +114,6 @@ typedef enum
   COGL_SUBPIXEL_ORDER_VERTICAL_RGB,
   COGL_SUBPIXEL_ORDER_VERTICAL_BGR
 } CoglSubpixelOrder;
-
-/**
- * cogl_is_output:
- * @object: A #CoglObject pointer
- *
- * Gets whether the given object references a #CoglOutput.
- *
- * Return value: %TRUE if the object references a #CoglOutput
- *   and %FALSE otherwise.
- */
-COGL_EXPORT gboolean
-cogl_is_output (void *object);
 
 /**
  * cogl_output_get_x:

@@ -31,11 +31,10 @@
 #pragma once
 
 #include "cogl/cogl-output.h"
-#include "cogl/cogl-object-private.h"
 
 struct _CoglOutput
 {
-  CoglObject _parent;
+  GObject parent_instance;
 
   char *name;
 

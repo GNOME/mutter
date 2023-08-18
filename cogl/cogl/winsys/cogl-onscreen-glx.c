@@ -224,7 +224,7 @@ cogl_onscreen_glx_dispose (GObject *object)
 
   G_OBJECT_CLASS (cogl_onscreen_glx_parent_class)->dispose (object);
 
-  cogl_clear_object (&onscreen_glx->output);
+  g_clear_object (&onscreen_glx->output);
 
   if (onscreen_glx->glxwin != None ||
       onscreen_glx->xwin != None)
@@ -1028,12 +1028,12 @@ cogl_onscreen_glx_update_output (CoglOnscreen *onscreen)
   if (onscreen_glx->output != output)
     {
       if (onscreen_glx->output)
-        cogl_object_unref (onscreen_glx->output);
+        g_object_unref (onscreen_glx->output);
 
       onscreen_glx->output = output;
 
       if (output)
-        cogl_object_ref (onscreen_glx->output);
+        g_object_ref (onscreen_glx->output);
     }
 }
 

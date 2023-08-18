@@ -31,32 +31,43 @@
 #include "cogl-config.h"
 
 #include "cogl/cogl-output-private.h"
-#include "cogl/cogl-gtype-private.h"
 
 #include <string.h>
 
-static void _cogl_output_free (CoglOutput *output);
+G_DEFINE_TYPE (CoglOutput, cogl_output, G_TYPE_OBJECT);
 
-COGL_OBJECT_DEFINE (Output, output);
-COGL_GTYPE_DEFINE_CLASS (Output, output);
+static void
+cogl_output_dispose (GObject *object)
+{
+  CoglOutput *output = COGL_OUTPUT (object);
+
+  g_free (output->name);
+
+  G_OBJECT_CLASS (cogl_output_parent_class)->dispose (object);
+}
+
+static void
+cogl_output_init (CoglOutput *output)
+{
+}
+
+static void
+cogl_output_class_init (CoglOutputClass *class)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (class);
+
+  object_class->dispose = cogl_output_dispose;
+}
 
 CoglOutput *
 _cogl_output_new (const char *name)
 {
   CoglOutput *output;
 
-  output = g_new0 (CoglOutput, 1);
+  output = g_object_new (COGL_TYPE_OUTPUT, NULL);
   output->name = g_strdup (name);
 
-  return _cogl_output_object_new (output);
-}
-
-static void
-_cogl_output_free (CoglOutput *output)
-{
-  g_free (output->name);
-
-  g_free (output);
+  return output;
 }
 
 gboolean

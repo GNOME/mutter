@@ -293,7 +293,7 @@ update_outputs (CoglRenderer *renderer,
                   renderer->outputs = g_list_remove_link (renderer->outputs, m);
                   renderer->outputs = g_list_insert_before (renderer->outputs,
                                                             m_next, output_l);
-                  cogl_object_ref (output_l);
+                  g_object_ref (output_l);
 
                   changed = TRUE;
                 }
@@ -305,7 +305,7 @@ update_outputs (CoglRenderer *renderer,
             {
               renderer->outputs =
                 g_list_insert_before (renderer->outputs, m, output_l);
-              cogl_object_ref (output_l);
+              g_object_ref (output_l);
               changed = TRUE;
               l = l->next;
             }
@@ -319,7 +319,7 @@ update_outputs (CoglRenderer *renderer,
         }
     }
 
-  g_list_free_full (new_outputs, (GDestroyNotify)cogl_object_unref);
+  g_list_free_full (new_outputs, (GDestroyNotify)g_object_unref);
   mtk_x11_error_trap_pop (xlib_renderer->xdpy);
 
   if (changed)
@@ -481,7 +481,7 @@ _cogl_xlib_renderer_disconnect (CoglRenderer *renderer)
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (renderer);
 
-  g_list_free_full (renderer->outputs, (GDestroyNotify)cogl_object_unref);
+  g_list_free_full (renderer->outputs, (GDestroyNotify)g_object_unref);
   renderer->outputs = NULL;
 
   if (!renderer->foreign_xdpy && xlib_renderer->xdpy)
