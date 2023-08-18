@@ -70,13 +70,15 @@ cogl_dummy_free (gpointer data)
 {
 }
 
-COGL_GTYPE_DEFINE_BOXED (FrameClosure, frame_closure,
-                         cogl_dummy_copy,
-                         cogl_dummy_free);
-COGL_GTYPE_DEFINE_BOXED (OnscreenDirtyClosure,
-                         onscreen_dirty_closure,
-                         cogl_dummy_copy,
-                         cogl_dummy_free);
+G_DEFINE_BOXED_TYPE (CoglFrameClosure,
+                     cogl_frame_closure,
+                     cogl_dummy_copy,
+                     cogl_dummy_free)
+
+G_DEFINE_BOXED_TYPE (CoglOnscreenDirtyClosure,
+                     cogl_onscreen_dirty_closure,
+                     cogl_dummy_copy,
+                     cogl_dummy_free)
 
 G_DEFINE_QUARK (cogl-scanout-error-quark, cogl_scanout_error)
 
