@@ -31,7 +31,8 @@ paint (TestState *state)
   CoglTexture *tex;
   CoglColor color;
   GError *error = NULL;
-  CoglHandle shader, program;
+  CoglShader *shader;
+  CoglHandle program;
 
   cogl_color_init_from_4ub (&color, 0, 0, 0, 255);
   cogl_framebuffer_clear (test_fb, COGL_BUFFER_BIT_COLOR, &color);
@@ -71,7 +72,7 @@ paint (TestState *state)
   cogl_program_attach_shader (program, shader);
   cogl_program_link (program);
 
-  cogl_object_unref (shader);
+  g_object_unref (shader);
 
   /* Draw something without the program */
   cogl_framebuffer_draw_rectangle (test_fb, pipeline,

@@ -136,7 +136,7 @@ struct _ClutterShaderEffectPrivate
   ClutterShaderType shader_type;
 
   CoglHandle program;
-  CoglHandle shader;
+  CoglShader *shader;
 
   GHashTable *uniforms;
 };
@@ -148,7 +148,7 @@ typedef struct _ClutterShaderEffectClassPrivate
      calling set_shader_source. They will be shared by all instances
      of this class */
   CoglHandle program;
-  CoglHandle shader;
+  CoglShader *shader;
 } ClutterShaderEffectClassPrivate;
 
 enum
@@ -177,7 +177,7 @@ clutter_shader_effect_clear (ClutterShaderEffect *self,
 
   if (priv->shader != NULL)
     {
-      cogl_object_unref (priv->shader);
+      g_object_unref (priv->shader);
 
       priv->shader = NULL;
     }
@@ -302,7 +302,7 @@ clutter_shader_effect_set_actor (ClutterActorMeta *meta,
                 G_OBJECT_TYPE_NAME (meta));
 }
 
-static CoglHandle
+static CoglShader*
 clutter_shader_effect_create_shader (ClutterShaderEffect *self)
 {
   ClutterShaderEffectPrivate *priv = self->priv;
@@ -361,7 +361,7 @@ clutter_shader_effect_try_static_source (ClutterShaderEffect *self)
           cogl_program_link (class_priv->program);
         }
 
-      priv->shader = cogl_object_ref (class_priv->shader);
+      priv->shader = g_object_ref (class_priv->shader);
 
       if (class_priv->program != NULL)
         priv->program = cogl_object_ref (class_priv->program);
@@ -506,7 +506,7 @@ clutter_shader_effect_new (ClutterShaderType shader_type)
  * Return value: (transfer none): a pointer to the shader's handle,
  *   or %NULL
  */
-CoglHandle
+CoglShader*
 clutter_shader_effect_get_shader (ClutterShaderEffect *effect)
 {
   g_return_val_if_fail (CLUTTER_IS_SHADER_EFFECT (effect),

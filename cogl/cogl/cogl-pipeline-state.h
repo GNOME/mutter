@@ -366,7 +366,7 @@ cogl_pipeline_get_user_program (CoglPipeline *pipeline);
  * This is an example of how it can be used to associate an ARBfp
  * program with a #CoglPipeline:
  * |[
- * CoglHandle shader;
+ * CoglShader *shader;
  * CoglHandle program;
  * CoglPipeline *pipeline;
  *

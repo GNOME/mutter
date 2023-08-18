@@ -634,10 +634,9 @@ _cogl_pipeline_progend_glsl_start (CoglPipeline *pipeline)
 }
 
 static void
-_cogl_shader_compile_real (CoglHandle handle,
+_cogl_shader_compile_real (CoglShader   *shader,
                            CoglPipeline *pipeline)
 {
-  CoglShader *shader = handle;
   GLenum gl_type;
   GLint status;
 

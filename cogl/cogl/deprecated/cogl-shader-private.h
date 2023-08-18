@@ -30,7 +30,6 @@
 
 #pragma once
 
-#include "cogl/cogl-object-private.h"
 #include "cogl/deprecated/cogl-shader.h"
 #include "cogl/cogl-gl-header.h"
 #include "cogl/cogl-pipeline.h"
@@ -39,7 +38,8 @@ typedef struct _CoglShader CoglShader;
 
 struct _CoglShader
 {
-  CoglObject _parent;
+  GObject parent_instance;
+
   GLuint gl_handle;
   CoglPipeline *compilation_pipeline;
   CoglShaderType type;

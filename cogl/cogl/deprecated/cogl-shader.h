@@ -41,8 +41,9 @@
 G_BEGIN_DECLS
 
 /**
- * SECTION:cogl-shaders
- * @short_description: Functions for accessing the programmable GL pipeline
+ * CoglShader:
+ *
+ * Functions for accessing the programmable GL pipeline
  *
  * Cogl allows accessing the GL programmable pipeline in order to create
  * vertex and fragment shaders.
@@ -219,6 +220,15 @@ G_BEGIN_DECLS
  * experimental #CoglShader API is the proposed replacement.
  */
 
+#define COGL_TYPE_SHADER (cogl_shader_get_type ())
+
+COGL_EXPORT
+G_DECLARE_FINAL_TYPE (CoglShader,
+                      cogl_shader,
+                      COGL,
+                      SHADER,
+                      GObject)
+
 /**
  * CoglShaderType:
  * @COGL_SHADER_TYPE_VERTEX: A program for processing vertices
@@ -239,30 +249,16 @@ typedef enum
  * Create a new shader handle, use cogl_shader_source() to set the
  * source code to be used on it.
  *
- * Returns: a new shader handle.
+ * Returns: (transfer full): a new shader handle.
  * Deprecated: 1.16: Use #CoglSnippet api
  */
 COGL_DEPRECATED_FOR (cogl_snippet_)
-COGL_EXPORT CoglHandle
+COGL_EXPORT CoglShader*
 cogl_create_shader (CoglShaderType shader_type);
 
 /**
- * cogl_is_shader:
- * @handle: A CoglHandle
- *
- * Gets whether the given handle references an existing shader object.
- *
- * Returns: %TRUE if the handle references a shader,
- *   %FALSE otherwise
- * Deprecated: 1.16: Use #CoglSnippet api
- */
-COGL_DEPRECATED_FOR (cogl_snippet_)
-COGL_EXPORT gboolean
-cogl_is_shader (CoglHandle handle);
-
-/**
  * cogl_shader_source:
- * @shader: #CoglHandle for a shader.
+ * @self: A shader.
  * @source: Shader source.
  *
  * Replaces the current source associated with a shader with a new
@@ -275,14 +271,14 @@ cogl_is_shader (CoglHandle handle);
  */
 COGL_DEPRECATED_FOR (cogl_snippet_)
 COGL_EXPORT void
-cogl_shader_source (CoglHandle  shader,
+cogl_shader_source (CoglShader *self,
                     const char *source);
 
 /**
- * cogl_shader_get_type:
- * @handle: #CoglHandle for a shader.
+ * cogl_shader_get_shader_type:
+ * @self: #CoglShader for a shader.
  *
- * Retrieves the type of a shader #CoglHandle
+ * Retrieves the type of a shader
  *
  * Return value: %COGL_SHADER_TYPE_VERTEX if the shader is a vertex processor
  *          or %COGL_SHADER_TYPE_FRAGMENT if the shader is a fragment processor
@@ -290,7 +286,7 @@ cogl_shader_source (CoglHandle  shader,
  */
 COGL_DEPRECATED_FOR (cogl_snippet_)
 COGL_EXPORT CoglShaderType
-cogl_shader_get_type (CoglHandle handle);
+cogl_shader_get_shader_type (CoglShader *self);
 
 /**
  * cogl_create_program:
@@ -323,7 +319,7 @@ cogl_is_program (CoglHandle handle);
 /**
  * cogl_program_attach_shader:
  * @program_handle: a #CoglHandle for a shdaer program.
- * @shader_handle: a #CoglHandle for a vertex of fragment shader.
+ * @shader: a #CoglShader for a vertex of fragment shader.
  *
  * Attaches a shader to a program object. A program can have multiple
  * vertex or fragment shaders but only one of them may provide a
@@ -334,8 +330,8 @@ cogl_is_program (CoglHandle handle);
  */
 COGL_DEPRECATED_FOR (cogl_snippet_)
 COGL_EXPORT void
-cogl_program_attach_shader (CoglHandle program_handle,
-                            CoglHandle shader_handle);
+cogl_program_attach_shader (CoglHandle  program_handle,
+                            CoglShader *shader);
 
 /**
  * cogl_program_link:

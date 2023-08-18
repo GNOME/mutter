@@ -187,7 +187,7 @@ on_paint (ClutterActor        *actor,
 static void
 set_shader_num (int new_no)
 {
-  CoglHandle shader;
+  CoglShader *shader;
   CoglHandle program;
   CoglPipeline *pipeline;
   CoglContext *ctx =
@@ -207,7 +207,7 @@ set_shader_num (int new_no)
 
   program = cogl_create_program ();
   cogl_program_attach_shader (program, shader);
-  cogl_object_unref (shader);
+  g_object_unref (shader);
   cogl_program_link (program);
 
   uniform_no = cogl_program_get_uniform_location (program, "tex");

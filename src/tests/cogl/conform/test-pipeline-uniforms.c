@@ -87,7 +87,7 @@ static CoglPipeline *
 create_pipeline_for_shader (TestState *state, const char *shader_source)
 {
   CoglPipeline *pipeline;
-  CoglHandle shader;
+  CoglShader *shader;
   CoglHandle program;
 
   pipeline = cogl_pipeline_new (test_ctx);
@@ -100,7 +100,7 @@ create_pipeline_for_shader (TestState *state, const char *shader_source)
 
   cogl_pipeline_set_user_program (pipeline, program);
 
-  cogl_object_unref (shader);
+  g_object_unref (shader);
   cogl_object_unref (program);
 
   return pipeline;

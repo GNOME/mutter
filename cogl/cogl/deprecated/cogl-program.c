@@ -58,7 +58,7 @@ _cogl_program_free (CoglProgram *program)
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
   /* Unref all of the attached shaders and destroy the list */
-  g_slist_free_full (program->attached_shaders, cogl_object_unref);
+  g_slist_free_full (program->attached_shaders, g_object_unref);
 
   for (i = 0; i < program->custom_uniforms->len; i++)
     {
@@ -91,21 +91,21 @@ cogl_create_program (void)
 }
 
 void
-cogl_program_attach_shader (CoglHandle program_handle,
-                            CoglHandle shader_handle)
+cogl_program_attach_shader (CoglHandle  program_handle,
+                            CoglShader *shader)
 {
   CoglProgram *program;
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
-  if (!cogl_is_program (program_handle) || !cogl_is_shader (shader_handle))
+  if (!cogl_is_program (program_handle) || !COGL_IS_SHADER (shader))
     return;
 
   program = program_handle;
 
   program->attached_shaders
     = g_slist_prepend (program->attached_shaders,
-                       cogl_object_ref (shader_handle));
+                       g_object_ref (shader));
 
   program->age++;
 }
