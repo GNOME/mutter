@@ -56,9 +56,17 @@ struct _MetaKmsPlane
    */
   GHashTable *formats_modifiers;
 
+  MetaKmsPlaneCursorSizeHints size_hints;
+
   MetaKmsPlanePropTable prop_table;
 
   MetaKmsDevice *device;
+};
+
+/* Shall be removed once available on libdrm.*/
+struct drm_plane_size_hint {
+  __u16 width;
+  __u16 height;
 };
 
 G_DEFINE_TYPE (MetaKmsPlane, meta_kms_plane, G_TYPE_OBJECT)
@@ -81,6 +89,12 @@ MetaKmsPlaneType
 meta_kms_plane_get_plane_type (MetaKmsPlane *plane)
 {
   return plane->type;
+}
+
+const MetaKmsPlaneCursorSizeHints *
+meta_kms_plane_get_cursor_size_hints (MetaKmsPlane *plane)
+{
+  return &plane->size_hints;
 }
 
 uint32_t
@@ -349,6 +363,48 @@ update_formats (MetaKmsPlane      *plane,
 }
 
 static void
+update_cursor_size_hints (MetaKmsPlane      *plane,
+                          MetaKmsImplDevice *impl_device)
+
+{
+  MetaKmsProp *prop;
+  drmModePropertyBlobPtr size_hints_blob = NULL;
+  struct drm_plane_size_hint *size_hints_ptr;
+  uint32_t blob_id, i, num_of_size_hints;
+  int fd;
+  MetaKmsPlaneType type = meta_kms_plane_get_plane_type (plane);
+
+  if (type != META_KMS_PLANE_TYPE_CURSOR)
+    return;
+  prop = &plane->prop_table.props[META_KMS_PLANE_PROP_SIZE_HINTS];
+  if(!prop)
+    return;
+
+  blob_id = prop->value;
+  if (blob_id == 0)
+    return;
+
+  fd = meta_kms_impl_device_get_fd (impl_device);
+  size_hints_blob = drmModeGetPropertyBlob (fd, blob_id);
+  if (!size_hints_blob)
+    return;
+
+  plane->size_hints.has_size_hints = TRUE;
+  size_hints_ptr = size_hints_blob->data;
+
+  num_of_size_hints = size_hints_blob->length / sizeof (struct drm_plane_size_hint);
+  plane->size_hints.cursor_width = g_new0 (uint64_t, num_of_size_hints);
+  plane->size_hints.cursor_height = g_new0 (uint64_t, num_of_size_hints);
+  plane->size_hints.num_of_size_hints = num_of_size_hints;
+
+  for (i = 0; i < num_of_size_hints; i++)
+    {
+      plane->size_hints.cursor_width [i] = size_hints_ptr[i].width;
+      plane->size_hints.cursor_height [i] = size_hints_ptr[i].height;
+    }
+}
+
+static void
 set_formats_from_array (MetaKmsPlane   *plane,
                         const uint32_t *formats,
                         size_t          n_formats)
@@ -426,6 +482,7 @@ meta_kms_plane_read_state (MetaKmsPlane            *plane,
                                           META_KMS_PLANE_N_PROPS);
 
   update_formats (plane, impl_device);
+  update_cursor_size_hints (plane, impl_device);
   update_rotations (plane);
   update_legacy_formats (plane, drm_plane);
 
@@ -534,6 +591,11 @@ init_properties (MetaKmsPlane            *plane,
           .name = "HOTSPOT_Y",
           .type = DRM_MODE_PROP_SIGNED_RANGE,
         },
+      [META_KMS_PLANE_PROP_SIZE_HINTS] =
+        {
+          .name = "SIZE_HINTS",
+          .type = DRM_MODE_PROP_BLOB,
+        },
     },
     .rotation_bitmask = {
       [META_KMS_PLANE_ROTATION_BIT_ROTATE_0] =
@@ -627,6 +689,8 @@ meta_kms_plane_finalize (GObject *object)
   MetaKmsPlane *plane = META_KMS_PLANE (object);
 
   g_hash_table_destroy (plane->formats_modifiers);
+  g_clear_pointer (&plane->size_hints.cursor_width, g_free);
+  g_clear_pointer (&plane->size_hints.cursor_height, g_free);
 
   G_OBJECT_CLASS (meta_kms_plane_parent_class)->finalize (object);
 }

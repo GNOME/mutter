@@ -591,6 +591,98 @@ calculate_crtc_cursor_hotspot (MetaCursorSprite     *cursor_sprite,
 }
 
 static gboolean
+get_optimal_cursor_size (MetaCrtcKms *crtc_kms,
+                         int          required_width,
+                         int          required_height,
+                         uint64_t    *out_cursor_width,
+                         uint64_t    *out_cursor_height)
+{
+  MetaGpu *gpu = meta_crtc_get_gpu (META_CRTC (crtc_kms));
+  MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
+  MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data;
+  MetaKmsPlane *kms_plane;
+  const MetaKmsPlaneCursorSizeHints *size_hints;
+  size_t i;
+
+  cursor_renderer_gpu_data =
+    meta_cursor_renderer_native_gpu_data_from_gpu (gpu_kms);
+
+  if (!cursor_renderer_gpu_data)
+    return FALSE;
+
+  kms_plane = meta_crtc_kms_get_assigned_cursor_plane (crtc_kms);
+  if (!kms_plane)
+    return FALSE;
+
+  size_hints = meta_kms_plane_get_cursor_size_hints (kms_plane);
+
+  for (i = 0; i < size_hints->num_of_size_hints; i++)
+    {
+      if (size_hints->cursor_width[i] >= required_width &&
+          size_hints->cursor_height[i] >= required_height)
+        {
+          *out_cursor_width = size_hints->cursor_width[i];
+          *out_cursor_height = size_hints->cursor_height[i];
+          return TRUE;
+        }
+    }
+
+  if (!size_hints->has_size_hints &&
+      cursor_renderer_gpu_data->cursor_width >= required_width &&
+      cursor_renderer_gpu_data->cursor_height >= required_height)
+    {
+      *out_cursor_width = cursor_renderer_gpu_data->cursor_width;
+      *out_cursor_height = cursor_renderer_gpu_data->cursor_height;
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
+static gboolean
+supports_exact_cursor_size (MetaCrtcKms *crtc_kms,
+                            int          required_width,
+                            int          required_height)
+{
+  MetaGpu *gpu = meta_crtc_get_gpu (META_CRTC (crtc_kms));
+  MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
+  MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data;
+  MetaKmsPlane *kms_plane;
+  const MetaKmsPlaneCursorSizeHints *size_hints;
+  size_t i;
+
+  cursor_renderer_gpu_data =
+    meta_cursor_renderer_native_gpu_data_from_gpu (gpu_kms);
+
+  if (!cursor_renderer_gpu_data)
+    return FALSE;
+
+  kms_plane = meta_crtc_kms_get_assigned_cursor_plane (crtc_kms);
+  if (!kms_plane)
+    return FALSE;
+
+  size_hints = meta_kms_plane_get_cursor_size_hints (kms_plane);
+
+  for (i = 0; i < size_hints->num_of_size_hints; i++)
+    {
+      if (size_hints->cursor_width[i] == required_width &&
+          size_hints->cursor_height[i] == required_height)
+        {
+          return TRUE;
+        }
+    }
+
+  if (!size_hints->has_size_hints &&
+      cursor_renderer_gpu_data->cursor_width == required_width &&
+      cursor_renderer_gpu_data->cursor_height == required_height)
+    {
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
+static gboolean
 load_cursor_sprite_gbm_buffer_for_crtc (MetaCursorRendererNative *native,
                                         MetaCrtcKms              *crtc_kms,
                                         MetaCursorSprite         *cursor_sprite,
@@ -614,23 +706,15 @@ load_cursor_sprite_gbm_buffer_for_crtc (MetaCursorRendererNative *native,
   MetaKmsCrtc *kms_crtc;
   uint64_t cursor_width, cursor_height;
   g_autoptr (MetaDrmBuffer) buffer = NULL;
-  MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data;
   g_autoptr (MetaDeviceFile) device_file = NULL;
   g_autoptr (GError) error = NULL;
   graphene_point_t hotspot;
 
-  cursor_renderer_gpu_data =
-    meta_cursor_renderer_native_gpu_data_from_gpu (gpu_kms);
-  if (!cursor_renderer_gpu_data)
-    return FALSE;
-
-  cursor_width = (uint64_t) cursor_renderer_gpu_data->cursor_width;
-  cursor_height = (uint64_t) cursor_renderer_gpu_data->cursor_height;
-
-  if (width > cursor_width || height > cursor_height)
+  if (!get_optimal_cursor_size (crtc_kms,
+                                width, height,
+                                &cursor_width, &cursor_height))
     {
-      meta_warning ("Invalid theme cursor size (must be at most %ux%u)",
-                    (unsigned int)cursor_width, (unsigned int)cursor_height);
+      meta_warning ("Can't handle cursor size %ux%u)", width, height);
       return FALSE;
     }
 
@@ -834,7 +918,6 @@ realize_cursor_sprite_from_wl_buffer_for_crtc (MetaCursorRenderer      *renderer
   MetaGpu *gpu = meta_crtc_get_gpu (META_CRTC (crtc_kms));
   MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
   MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data;
-  uint64_t cursor_width, cursor_height;
   CoglTexture *texture;
   uint width, height;
   MetaWaylandBuffer *buffer;
@@ -950,16 +1033,13 @@ realize_cursor_sprite_from_wl_buffer_for_crtc (MetaCursorRenderer      *renderer
        * access to the data, but it's not possible if the buffer is in GPU
        * memory (and possibly tiled too), so if we don't get the right size, we
        * fallback to GL. */
-      cursor_width = (uint64_t) cursor_renderer_gpu_data->cursor_width;
-      cursor_height = (uint64_t) cursor_renderer_gpu_data->cursor_height;
-
       texture = meta_cursor_sprite_get_cogl_texture (cursor_sprite);
       width = cogl_texture_get_width (texture);
       height = cogl_texture_get_height (texture);
 
-      if (width != cursor_width || height != cursor_height)
+      if (!supports_exact_cursor_size (crtc_kms, width, height))
         {
-          meta_warning ("Invalid cursor size (must be 64x64), falling back to software (GL) cursors");
+          meta_warning ("Invalid cursor size %ux%u, falling back to SW GL cursors)", width, height);
           return FALSE;
         }
 

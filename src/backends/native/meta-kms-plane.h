@@ -31,6 +31,14 @@ enum _MetaKmsPlaneType
   META_KMS_PLANE_TYPE_OVERLAY,
 };
 
+typedef struct _MetaKmsPlaneCursorSizeHints
+{
+  gboolean has_size_hints;
+  uint64_t num_of_size_hints;
+  uint64_t *cursor_width;
+  uint64_t *cursor_height;
+} MetaKmsPlaneCursorSizeHints;
+
 #define META_TYPE_KMS_PLANE meta_kms_plane_get_type ()
 G_DECLARE_FINAL_TYPE (MetaKmsPlane, meta_kms_plane,
                       META, KMS_PLANE, GObject)
@@ -43,6 +51,9 @@ uint32_t meta_kms_plane_get_id (MetaKmsPlane *plane);
 
 META_EXPORT_TEST
 MetaKmsPlaneType meta_kms_plane_get_plane_type (MetaKmsPlane *plane);
+
+const MetaKmsPlaneCursorSizeHints *
+meta_kms_plane_get_cursor_size_hints (MetaKmsPlane *plane);
 
 gboolean meta_kms_plane_is_transform_handled (MetaKmsPlane         *plane,
                                               MetaMonitorTransform  transform);
