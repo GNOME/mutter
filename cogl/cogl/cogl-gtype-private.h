@@ -59,22 +59,6 @@ struct _CoglGtypeClass
 
 /**/
 
-#define COGL_GTYPE_DEFINE_BOXED(Name,underscore_name,copy_func,free_func) \
-GType \
-cogl_##underscore_name##_get_gtype (void) \
-{ \
-   static size_t g_type_id = 0; \
-   if (g_once_init_enter (&g_type_id)) \
-     { \
-       GType type = \
-         g_boxed_type_register_static (g_intern_static_string (I_("Cogl" # Name)), \
-                                       (GBoxedCopyFunc)copy_func, \
-                                       (GBoxedFreeFunc)free_func); \
-       g_once_init_leave (&g_type_id, type); \
-     } \
-   return g_type_id; \
-}
-
 #define COGL_GTYPE_IMPLEMENT_INTERFACE(name) {                          \
     const GInterfaceInfo g_implement_interface_info = {                 \
       (GInterfaceInitFunc) _cogl_gtype_dummy_iface_init, NULL, NULL     \
