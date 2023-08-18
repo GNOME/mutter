@@ -45,31 +45,13 @@
 
 #include <stdlib.h>
 
-static void _cogl_atlas_free (CoglAtlas *atlas);
-
-COGL_OBJECT_INTERNAL_DEFINE (Atlas, atlas);
-
-CoglAtlas *
-_cogl_atlas_new (CoglPixelFormat texture_format,
-                 CoglAtlasFlags flags,
-                 CoglAtlasUpdatePositionCallback update_position_cb)
-{
-  CoglAtlas *atlas = g_new (CoglAtlas, 1);
-
-  atlas->update_position_cb = update_position_cb;
-  atlas->map = NULL;
-  atlas->texture = NULL;
-  atlas->flags = flags;
-  atlas->texture_format = texture_format;
-  g_hook_list_init (&atlas->pre_reorganize_callbacks, sizeof (GHook));
-  g_hook_list_init (&atlas->post_reorganize_callbacks, sizeof (GHook));
-
-  return _cogl_atlas_object_new (atlas);
-}
+G_DEFINE_TYPE (CoglAtlas, cogl_atlas, G_TYPE_OBJECT);
 
 static void
-_cogl_atlas_free (CoglAtlas *atlas)
+cogl_atlas_dispose (GObject *object)
 {
+  CoglAtlas *atlas = COGL_ATLAS (object);
+
   COGL_NOTE (ATLAS, "%p: Atlas destroyed", atlas);
 
   if (atlas->texture)
@@ -80,7 +62,38 @@ _cogl_atlas_free (CoglAtlas *atlas)
   g_hook_list_clear (&atlas->pre_reorganize_callbacks);
   g_hook_list_clear (&atlas->post_reorganize_callbacks);
 
-  g_free (atlas);
+  G_OBJECT_CLASS (cogl_atlas_parent_class)->dispose (object);
+}
+
+static void
+cogl_atlas_init (CoglAtlas *atlas)
+{
+}
+
+static void
+cogl_atlas_class_init (CoglAtlasClass *class)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (class);
+
+  object_class->dispose = cogl_atlas_dispose;
+}
+
+CoglAtlas *
+_cogl_atlas_new (CoglPixelFormat                 texture_format,
+                 CoglAtlasFlags                  flags,
+                 CoglAtlasUpdatePositionCallback update_position_cb)
+{
+  CoglAtlas *atlas = g_object_new (COGL_TYPE_ATLAS, NULL);
+
+  atlas->update_position_cb = update_position_cb;
+  atlas->map = NULL;
+  atlas->texture = NULL;
+  atlas->flags = flags;
+  atlas->texture_format = texture_format;
+  g_hook_list_init (&atlas->pre_reorganize_callbacks, sizeof (GHook));
+  g_hook_list_init (&atlas->post_reorganize_callbacks, sizeof (GHook));
+
+  return atlas;
 }
 
 typedef struct _CoglAtlasRepositionData

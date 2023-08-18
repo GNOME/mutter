@@ -53,6 +53,7 @@
 #include <stdlib.h>
 
 static void _cogl_atlas_texture_free (CoglAtlasTexture *sub_tex);
+static GQuark atlas_private_key = 0;
 
 COGL_TEXTURE_DEFINE (AtlasTexture, atlas_texture);
 COGL_GTYPE_DEFINE_CLASS (AtlasTexture, atlas_texture);
@@ -199,7 +200,7 @@ _cogl_atlas_texture_atlas_destroyed_cb (void *user_data)
 static CoglAtlas *
 _cogl_atlas_texture_create_atlas (CoglContext *ctx)
 {
-  static CoglUserDataKey atlas_private_key;
+  atlas_private_key = g_quark_from_static_string ("-cogl-atlas-texture-create-key");
 
   CoglAtlas *atlas = _cogl_atlas_new (COGL_PIXEL_FORMAT_RGBA_8888,
                                       0,
@@ -217,8 +218,10 @@ _cogl_atlas_texture_create_atlas (CoglContext *ctx)
      effectively holds a weak reference. We don't need a strong
      reference because the atlas textures take a reference on the
      atlas so it will stay alive */
-  cogl_object_set_user_data (COGL_OBJECT (atlas), &atlas_private_key, atlas,
-                             _cogl_atlas_texture_atlas_destroyed_cb);
+  g_object_set_qdata_full (G_OBJECT (atlas),
+                           atlas_private_key,
+                           atlas,
+                           _cogl_atlas_texture_atlas_destroyed_cb);
 
   return atlas;
 }
@@ -269,7 +272,7 @@ _cogl_atlas_texture_remove_from_atlas (CoglAtlasTexture *atlas_tex)
       _cogl_atlas_remove (atlas_tex->atlas,
                           &atlas_tex->rectangle);
 
-      cogl_object_unref (atlas_tex->atlas);
+      g_object_unref (atlas_tex->atlas);
       atlas_tex->atlas = NULL;
     }
 }
@@ -729,7 +732,7 @@ allocate_space (CoglAtlasTexture *atlas_tex,
       /* We need to take a reference on the atlas before trying to
        * reserve space because in some circumstances atlas migration
        * can cause the atlas to be freed */
-      atlas = cogl_object_ref (l->data);
+      atlas = g_object_ref (l->data);
       /* Try to make some space in the atlas for the texture */
       if (_cogl_atlas_reserve_space (atlas,
                                      /* Add two pixels for the border */
@@ -741,7 +744,7 @@ allocate_space (CoglAtlasTexture *atlas_tex,
         }
       else
         {
-          cogl_object_unref (atlas);
+          g_object_unref (atlas);
         }
     }
 
@@ -756,7 +759,7 @@ allocate_space (CoglAtlasTexture *atlas_tex,
                                       atlas_tex))
         {
           /* Ok, this means we really can't add it to the atlas */
-          cogl_object_unref (atlas);
+          g_object_unref (atlas);
 
           g_set_error_literal (error,
                                COGL_SYSTEM_ERROR,

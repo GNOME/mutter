@@ -29,7 +29,6 @@
 #pragma once
 
 #include "cogl/cogl-rectangle-map.h"
-#include "cogl/cogl-object-private.h"
 #include "cogl/cogl-texture.h"
 
 typedef void
@@ -45,11 +44,18 @@ typedef enum
 
 typedef struct _CoglAtlas CoglAtlas;
 
-#define COGL_ATLAS(object) ((CoglAtlas *) object)
+#define COGL_TYPE_ATLAS (cogl_atlas_get_type ())
+
+COGL_EXPORT
+G_DECLARE_FINAL_TYPE (CoglAtlas,
+                      cogl_atlas,
+                      COGL,
+                      ATLAS,
+                      GObject)
 
 struct _CoglAtlas
 {
-  CoglObject _parent;
+  GObject parent_instance;
 
   CoglRectangleMap *map;
 
@@ -97,6 +103,3 @@ _cogl_atlas_remove_reorganize_callback (CoglAtlas            *atlas,
                                         GHookFunc             pre_callback,
                                         GHookFunc             post_callback,
                                         void                 *user_data);
-
-gboolean
-_cogl_is_atlas (void *object);
