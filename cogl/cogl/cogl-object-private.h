@@ -244,30 +244,6 @@ _cogl_is_##type_name (void *object)                                     \
 #define COGL_OBJECT_INTERNAL_DEFINE(TypeName, type_name)         \
   COGL_OBJECT_INTERNAL_DEFINE_WITH_CODE (TypeName, type_name, (void) 0)
 
-/* For temporary compatibility */
-#define COGL_HANDLE_INTERNAL_DEFINE_WITH_CODE(TypeName, type_name, code) \
-                                                                         \
-COGL_OBJECT_INTERNAL_DEFINE_WITH_CODE (TypeName, type_name, code)        \
-                                                                         \
-static Cogl##TypeName *                                                  \
-_cogl_##type_name##_handle_new (CoglHandle handle)                       \
-{                                                                        \
-  return _cogl_##type_name##_object_new (handle);                        \
-}
-
-#define COGL_HANDLE_DEFINE_WITH_CODE(TypeName, type_name, code)          \
-                                                                         \
-COGL_OBJECT_DEFINE_WITH_CODE (TypeName, type_name, code)                 \
-                                                                         \
-static Cogl##TypeName *                                                  \
-_cogl_##type_name##_handle_new (CoglHandle handle)                       \
-{                                                                        \
-  return _cogl_##type_name##_object_new (handle);                        \
-}
-
-#define COGL_HANDLE_DEFINE(TypeName, type_name)                 \
-  COGL_HANDLE_DEFINE_WITH_CODE (TypeName, type_name, (void) 0)
-
 void
 _cogl_object_set_user_data (CoglObject *object,
                             CoglUserDataKey *key,
