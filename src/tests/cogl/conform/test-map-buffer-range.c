@@ -118,8 +118,8 @@ test_map_buffer_range (void)
   test_utils_check_pixel (test_fb, fb_width - 2, fb_height - 2, 0xff0000ff);
 
   cogl_object_unref (buffer);
-  cogl_object_unref (pos_attribute);
-  cogl_object_unref (tex_coord_attribute);
+  g_object_unref (pos_attribute);
+  g_object_unref (tex_coord_attribute);
 
   cogl_object_unref (pipeline);
   cogl_object_unref (tex);

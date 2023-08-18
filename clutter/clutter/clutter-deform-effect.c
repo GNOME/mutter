@@ -491,7 +491,7 @@ clutter_deform_effect_init_arrays (ClutterDeformEffect *self)
   cogl_object_unref (indices);
 
   for (i = 0; i < 3; i++)
-    cogl_object_unref (attributes[i]);
+    g_object_unref (attributes[i]);
 
   priv->is_dirty = TRUE;
 }

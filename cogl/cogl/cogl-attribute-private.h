@@ -33,11 +33,9 @@
 
 #pragma once
 
-#include "cogl/cogl-object-private.h"
 #include "cogl/cogl-attribute.h"
 #include "cogl/cogl-framebuffer.h"
 #include "cogl/cogl-pipeline-private.h"
-#include "cogl/cogl-boxed-value.h"
 
 typedef enum
 {
@@ -60,7 +58,7 @@ typedef struct _CoglAttributeNameState
 
 struct _CoglAttribute
 {
-  CoglObject _parent;
+  GObject parent_instance;
 
   const CoglAttributeNameState *name_state;
   gboolean normalized;

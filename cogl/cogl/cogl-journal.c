@@ -521,7 +521,7 @@ _cogl_journal_flush_texcoord_vbo_offsets_and_entries (
   /* NB: attributes 0 and 1 are position and color */
 
   for (i = 2; i < state->attributes->len; i++)
-    cogl_object_unref (g_array_index (state->attributes, CoglAttribute *, i));
+    g_object_unref (g_array_index (state->attributes, CoglAttribute *, i));
 
   g_array_set_size (state->attributes, batch_start->n_layers + 2);
 
@@ -589,7 +589,7 @@ _cogl_journal_flush_vbo_offsets_and_entries (CoglJournalEntry *batch_start,
   state->stride = stride;
 
   for (i = 0; i < state->attributes->len; i++)
-    cogl_object_unref (g_array_index (state->attributes, CoglAttribute *, i));
+    g_object_unref (g_array_index (state->attributes, CoglAttribute *, i));
 
   g_array_set_size (state->attributes, 2);
 
@@ -1459,7 +1459,7 @@ _cogl_journal_flush (CoglJournal *journal)
                   &state);
 
   for (i = 0; i < state.attributes->len; i++)
-    cogl_object_unref (g_array_index (state.attributes, CoglAttribute *, i));
+    g_object_unref (g_array_index (state.attributes, CoglAttribute *, i));
   g_array_set_size (state.attributes, 0);
 
   cogl_object_unref (state.attribute_buffer);

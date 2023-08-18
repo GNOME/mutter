@@ -72,8 +72,8 @@ test_float_verts (TestState *state, int offset_x, int offset_y)
 
   cogl_framebuffer_pop_matrix (test_fb);
 
-  cogl_object_unref (attributes[1]);
-  cogl_object_unref (attributes[0]);
+  g_object_unref (attributes[1]);
+  g_object_unref (attributes[0]);
   cogl_object_unref (buffer);
 
   test_utils_check_pixel (test_fb, offset_x + 5, offset_y + 5, 0xff0000ff);
@@ -131,7 +131,7 @@ test_byte_verts (TestState *state, int offset_x, int offset_y)
   cogl_primitive_draw (primitive, test_fb, state->pipeline);
   cogl_object_unref (primitive);
 
-  cogl_object_unref (attributes[1]);
+  g_object_unref (attributes[1]);
 
   /* Test again with unnormalized attributes */
   unnorm_buffer = cogl_attribute_buffer_new (test_ctx,
@@ -155,8 +155,8 @@ test_byte_verts (TestState *state, int offset_x, int offset_y)
 
   cogl_framebuffer_pop_matrix (test_fb);
 
-  cogl_object_unref (attributes[0]);
-  cogl_object_unref (attributes[1]);
+  g_object_unref (attributes[0]);
+  g_object_unref (attributes[1]);
   cogl_object_unref (buffer);
   cogl_object_unref (unnorm_buffer);
 
@@ -217,7 +217,7 @@ test_short_verts (TestState *state, int offset_x, int offset_y)
 
   cogl_framebuffer_pop_matrix (test_fb);
 
-  cogl_object_unref (attributes[0]);
+  g_object_unref (attributes[0]);
 
   /* Test again treating the attribute as unsigned */
   attributes[0] = cogl_attribute_new (buffer,
@@ -252,7 +252,7 @@ test_short_verts (TestState *state, int offset_x, int offset_y)
 
   cogl_framebuffer_pop_matrix (test_fb);
 
-  cogl_object_unref (attributes[0]);
+  g_object_unref (attributes[0]);
 
   cogl_object_unref (pipeline2);
   cogl_object_unref (pipeline);

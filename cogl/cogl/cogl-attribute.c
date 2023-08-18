@@ -35,7 +35,6 @@
 
 #include "cogl/cogl-util.h"
 #include "cogl/cogl-context-private.h"
-#include "cogl/cogl-object-private.h"
 #include "cogl/cogl-journal-private.h"
 #include "cogl/cogl-attribute.h"
 #include "cogl/cogl-attribute-private.h"
@@ -45,16 +44,39 @@
 #include "cogl/cogl-framebuffer-private.h"
 #include "cogl/cogl-indices-private.h"
 #include "cogl/cogl-private.h"
-#include "cogl/cogl-gtype-private.h"
 
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-static void _cogl_attribute_free (CoglAttribute *attribute);
+G_DEFINE_TYPE (CoglAttribute, cogl_attribute, G_TYPE_OBJECT);
 
-COGL_OBJECT_DEFINE (Attribute, attribute);
-COGL_GTYPE_DEFINE_CLASS (Attribute, attribute);
+static void
+cogl_attribute_dispose (GObject *object)
+{
+  CoglAttribute *attribute = COGL_ATTRIBUTE (object);
+
+  if (attribute->is_buffered)
+    cogl_object_unref (attribute->d.buffered.attribute_buffer);
+  else
+    _cogl_boxed_value_destroy (&attribute->d.constant.boxed);
+
+
+  G_OBJECT_CLASS (cogl_attribute_parent_class)->dispose (object);
+}
+
+static void
+cogl_attribute_init (CoglAttribute *attribute)
+{
+}
+
+static void
+cogl_attribute_class_init (CoglAttributeClass *class)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (class);
+
+  object_class->dispose = cogl_attribute_dispose;
+}
 
 static gboolean
 validate_cogl_attribute_name (const char *name,
@@ -190,7 +212,7 @@ cogl_attribute_new (CoglAttributeBuffer *attribute_buffer,
                     int n_components,
                     CoglAttributeType type)
 {
-  CoglAttribute *attribute = g_new0 (CoglAttribute, 1);
+  CoglAttribute *attribute = g_object_new (COGL_TYPE_ATTRIBUTE, NULL);
   CoglBuffer *buffer = COGL_BUFFER (attribute_buffer);
   CoglContext *ctx = buffer->context;
 
@@ -225,10 +247,10 @@ cogl_attribute_new (CoglAttributeBuffer *attribute_buffer,
   else
     attribute->normalized = FALSE;
 
-  return _cogl_attribute_object_new (attribute);
+  return attribute;
 
 error:
-  _cogl_attribute_free (attribute);
+  g_object_unref (attribute);
   return NULL;
 }
 
@@ -240,7 +262,7 @@ _cogl_attribute_new_const (CoglContext *context,
                            gboolean transpose,
                            const float *value)
 {
-  CoglAttribute *attribute = g_new0 (CoglAttribute, 1);
+  CoglAttribute *attribute = g_object_new (COGL_TYPE_ATTRIBUTE, NULL);
 
   attribute->name_state =
     g_hash_table_lookup (context->attribute_name_states_hash, name);
@@ -283,10 +305,10 @@ _cogl_attribute_new_const (CoglContext *context,
                                     value);
     }
 
-  return _cogl_attribute_object_new (attribute);
+  return attribute;
 
 error:
-  _cogl_attribute_free (attribute);
+  g_object_unref (attribute);
   return NULL;
 }
 
@@ -435,7 +457,7 @@ cogl_attribute_new_const_4x4fv (CoglContext *context,
 gboolean
 cogl_attribute_get_normalized (CoglAttribute *attribute)
 {
-  g_return_val_if_fail (cogl_is_attribute (attribute), FALSE);
+  g_return_val_if_fail (COGL_IS_ATTRIBUTE (attribute), FALSE);
 
   return attribute->normalized;
 }
@@ -456,7 +478,7 @@ void
 cogl_attribute_set_normalized (CoglAttribute *attribute,
                                       gboolean normalized)
 {
-  g_return_if_fail (cogl_is_attribute (attribute));
+  g_return_if_fail (COGL_IS_ATTRIBUTE (attribute));
 
   if (G_UNLIKELY (attribute->immutable_ref))
     warn_about_midscene_changes ();
@@ -467,7 +489,7 @@ cogl_attribute_set_normalized (CoglAttribute *attribute,
 CoglAttributeBuffer *
 cogl_attribute_get_buffer (CoglAttribute *attribute)
 {
-  g_return_val_if_fail (cogl_is_attribute (attribute), NULL);
+  g_return_val_if_fail (COGL_IS_ATTRIBUTE (attribute), NULL);
   g_return_val_if_fail (attribute->is_buffered, NULL);
 
   return attribute->d.buffered.attribute_buffer;
@@ -477,7 +499,7 @@ void
 cogl_attribute_set_buffer (CoglAttribute *attribute,
                            CoglAttributeBuffer *attribute_buffer)
 {
-  g_return_if_fail (cogl_is_attribute (attribute));
+  g_return_if_fail (COGL_IS_ATTRIBUTE (attribute));
   g_return_if_fail (attribute->is_buffered);
 
   if (G_UNLIKELY (attribute->immutable_ref))
@@ -494,7 +516,7 @@ _cogl_attribute_immutable_ref (CoglAttribute *attribute)
 {
   CoglBuffer *buffer = COGL_BUFFER (attribute->d.buffered.attribute_buffer);
 
-  g_return_val_if_fail (cogl_is_attribute (attribute), NULL);
+  g_return_val_if_fail (COGL_IS_ATTRIBUTE (attribute), NULL);
 
   attribute->immutable_ref++;
   _cogl_buffer_immutable_ref (buffer);
@@ -506,22 +528,11 @@ _cogl_attribute_immutable_unref (CoglAttribute *attribute)
 {
   CoglBuffer *buffer = COGL_BUFFER (attribute->d.buffered.attribute_buffer);
 
-  g_return_if_fail (cogl_is_attribute (attribute));
+  g_return_if_fail (COGL_IS_ATTRIBUTE (attribute));
   g_return_if_fail (attribute->immutable_ref > 0);
 
   attribute->immutable_ref--;
   _cogl_buffer_immutable_unref (buffer);
-}
-
-static void
-_cogl_attribute_free (CoglAttribute *attribute)
-{
-  if (attribute->is_buffered)
-    cogl_object_unref (attribute->d.buffered.attribute_buffer);
-  else
-    _cogl_boxed_value_destroy (&attribute->d.constant.boxed);
-
-  g_free (attribute);
 }
 
 static gboolean

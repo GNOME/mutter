@@ -740,7 +740,7 @@ cogl_2d_primitives_immediate (CoglFramebuffer *framebuffer,
                                      COGL_DRAW_SKIP_FRAMEBUFFER_FLUSH);
 
 
-  cogl_object_unref (attributes[0]);
+  g_object_unref (attributes[0]);
   cogl_object_unref (attribute_buffer);
 }
 

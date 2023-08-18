@@ -72,9 +72,9 @@ cogl_primitive_new_with_attributes (CoglVerticesMode mode,
   for (i = 0; i < n_attributes; i++)
     {
       CoglAttribute *attribute = attributes[i];
-      cogl_object_ref (attribute);
+      g_object_ref (attribute);
 
-      g_return_val_if_fail (cogl_is_attribute (attribute), NULL);
+      g_return_val_if_fail (COGL_IS_ATTRIBUTE (attribute), NULL);
 
       primitive->attributes[i] = attribute;
     }
@@ -100,7 +100,7 @@ _cogl_primitive_new_with_attributes_unref (CoglVerticesMode mode,
                                                   n_attributes);
 
   for (i = 0; i < n_attributes; i++)
-    cogl_object_unref (attributes[i]);
+    g_object_unref (attributes[i]);
 
   return primitive;
 }
@@ -381,7 +381,7 @@ _cogl_primitive_free (CoglPrimitive *primitive)
   int i;
 
   for (i = 0; i < primitive->n_attributes; i++)
-    cogl_object_unref (primitive->attributes[i]);
+    g_object_unref (primitive->attributes[i]);
 
   if (primitive->attributes != &primitive->embedded_attribute)
     g_free (primitive->attributes);
@@ -424,12 +424,12 @@ cogl_primitive_set_attributes (CoglPrimitive *primitive,
    * attribute that's actually in the new list too. */
   for (i = 0; i < n_attributes; i++)
     {
-      g_return_if_fail (cogl_is_attribute (attributes[i]));
-      cogl_object_ref (attributes[i]);
+      g_return_if_fail (COGL_IS_ATTRIBUTE (attributes[i]));
+      g_object_ref (attributes[i]);
     }
 
   for (i = 0; i < primitive->n_attributes; i++)
-    cogl_object_unref (primitive->attributes[i]);
+    g_object_unref (primitive->attributes[i]);
 
   /* First try to use the embedded storage associated with the
    * primitive, else fallback to slice allocating separate storage for

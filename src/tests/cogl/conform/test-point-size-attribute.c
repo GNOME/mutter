@@ -92,7 +92,7 @@ create_primitive (const char *attribute_name)
                                              2 /* n_attributes */);
 
   for (i = 0; i < 2; i++)
-    cogl_object_unref (attributes[i]);
+    g_object_unref (attributes[i]);
 
   return prim;
 }

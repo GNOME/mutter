@@ -49,21 +49,14 @@ typedef struct _CoglAttribute CoglAttribute;
 
 G_BEGIN_DECLS
 
-/**
- * SECTION:cogl-attribute
- * @short_description: Functions for declaring and drawing vertex
- *    attributes
- *
- * FIXME
- */
+#define COGL_TYPE_ATTRIBUTE (cogl_attribute_get_type ())
 
-/**
- * cogl_attribute_get_gtype:
- *
- * Returns: a #GType that can be used with the GLib type system.
- */
 COGL_EXPORT
-GType cogl_attribute_get_gtype (void);
+G_DECLARE_FINAL_TYPE (CoglAttribute,
+                      cogl_attribute,
+                      COGL,
+                      ATTRIBUTE,
+                      GObject)
 
 /**
  * cogl_attribute_new: (constructor)
@@ -520,17 +513,5 @@ cogl_attribute_get_buffer (CoglAttribute *attribute);
 COGL_EXPORT void
 cogl_attribute_set_buffer (CoglAttribute *attribute,
                            CoglAttributeBuffer *attribute_buffer);
-
-/**
- * cogl_is_attribute:
- * @object: A #CoglObject
- *
- * Gets whether the given object references a #CoglAttribute.
- *
- * Return value: %TRUE if the @object references a #CoglAttribute,
- *   %FALSE otherwise
- */
-COGL_EXPORT gboolean
-cogl_is_attribute (void *object);
 
 G_END_DECLS
