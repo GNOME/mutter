@@ -31,7 +31,6 @@
 #pragma once
 
 #include "cogl/cogl-texture.h"
-#include "cogl/cogl-object-private.h"
 #include "cogl/cogl-clip-stack.h"
 #include "cogl/cogl-fence-private.h"
 
@@ -39,6 +38,8 @@
 
 typedef struct _CoglJournal
 {
+  GObject parent_instance;
+
   /* A pointer the framebuffer that is using this journal. This is
      only valid when the journal is not empty. It *does* take a
      reference on the framebuffer. Although this creates a circular
@@ -67,6 +68,15 @@ typedef struct _CoglJournal
 
 } CoglJournal;
 
+#define COGL_TYPE_JOURNAL (cogl_journal_get_type ())
+
+COGL_EXPORT
+G_DECLARE_FINAL_TYPE (CoglJournal,
+                      cogl_journal,
+                      COGL,
+                      JOURNAL,
+                      GObject)
+
 /* To improve batching of geometry when submitting vertices to OpenGL we
  * log the texture rectangles we want to draw to a journal, so when we
  * later flush the journal we aim to batch data, and gl draw calls. */
@@ -84,9 +94,6 @@ typedef struct _CoglJournalEntry
 
 CoglJournal *
 _cogl_journal_new (CoglFramebuffer *framebuffer);
-
-void
-_cogl_journal_free (CoglJournal *journal);
 
 void
 _cogl_journal_log_quad (CoglJournal  *journal,
@@ -116,6 +123,3 @@ _cogl_journal_try_read_pixel (CoglJournal *journal,
                               int y,
                               CoglBitmap *bitmap,
                               gboolean *found_intersection);
-
-gboolean
-_cogl_is_journal (void *object);

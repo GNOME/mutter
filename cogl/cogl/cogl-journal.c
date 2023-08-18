@@ -122,9 +122,12 @@ typedef void (*CoglJournalBatchCallback) (CoglJournalEntry *start,
 typedef gboolean (*CoglJournalBatchTest) (CoglJournalEntry *entry0,
                                           CoglJournalEntry *entry1);
 
-void
-_cogl_journal_free (CoglJournal *journal)
+G_DEFINE_TYPE (CoglJournal, cogl_journal, G_TYPE_OBJECT);
+
+static void
+cogl_journal_dispose (GObject *object)
 {
+  CoglJournal *journal = COGL_JOURNAL (object);
   int i;
 
   if (journal->entries)
@@ -136,13 +139,26 @@ _cogl_journal_free (CoglJournal *journal)
     if (journal->vbo_pool[i])
       cogl_object_unref (journal->vbo_pool[i]);
 
-  g_free (journal);
+  G_OBJECT_CLASS (cogl_journal_parent_class)->dispose (object);
+}
+
+static void
+cogl_journal_init (CoglJournal *journal)
+{
+}
+
+static void
+cogl_journal_class_init (CoglJournalClass *class)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (class);
+
+  object_class->dispose = cogl_journal_dispose;
 }
 
 CoglJournal *
 _cogl_journal_new (CoglFramebuffer *framebuffer)
 {
-  CoglJournal *journal = g_new0 (CoglJournal, 1);
+  CoglJournal *journal = g_object_new (COGL_TYPE_JOURNAL, NULL);
 
   journal->framebuffer = framebuffer;
   journal->entries = g_array_new (FALSE, FALSE, sizeof (CoglJournalEntry));
