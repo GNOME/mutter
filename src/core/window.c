@@ -1709,8 +1709,11 @@ gboolean
 meta_window_should_be_showing_on_workspace (MetaWindow    *window,
                                             MetaWorkspace *workspace)
 {
-  if (!window_has_buffer (window))
+#ifdef HAVE_WAYLAND
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND &&
+      !window_has_buffer (window))
     return FALSE;
+#endif
 
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
       window->decorated && !window->frame)
@@ -2292,7 +2295,7 @@ meta_window_show (MetaWindow *window)
       set_wm_state (window);
     }
 
-  if (!window->visible_to_compositor)
+  if (!window->visible_to_compositor && window_has_buffer (window))
     {
       MetaCompEffect effect = META_COMP_EFFECT_NONE;
 
