@@ -3007,15 +3007,15 @@ meta_window_can_tile_maximized (MetaWindow *window)
 gboolean
 meta_window_can_tile_side_by_side (MetaWindow *window)
 {
-  int monitor;
   MetaRectangle tile_area;
   MetaRectangle client_rect;
 
   if (!meta_window_can_tile_maximized (window))
     return FALSE;
 
-  monitor = meta_display_get_current_monitor (window->display);
-  meta_window_get_work_area_for_monitor (window, monitor, &tile_area);
+  meta_window_get_work_area_for_monitor (window,
+                                         window->monitor->number,
+                                         &tile_area);
 
   /* Do not allow tiling in portrait orientation */
   if (tile_area.height > tile_area.width)
