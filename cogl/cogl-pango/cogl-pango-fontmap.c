@@ -57,7 +57,7 @@ free_priv (gpointer data)
   CoglPangoFontMapPriv *priv = data;
 
   cogl_object_unref (priv->ctx);
-  cogl_object_unref (priv->renderer);
+  g_object_unref (priv->renderer);
 
   g_free (priv);
 }
