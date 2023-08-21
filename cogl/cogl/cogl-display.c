@@ -64,7 +64,7 @@ cogl_display_dispose (GObject *object)
 
   if (display->renderer)
     {
-      cogl_object_unref (display->renderer);
+      g_object_unref (display->renderer);
       display->renderer = NULL;
     }
 
@@ -101,7 +101,7 @@ cogl_display_new (CoglRenderer         *renderer,
 
   display->renderer = renderer;
   if (renderer)
-    cogl_object_ref (renderer);
+    g_object_ref (renderer);
   else
     display->renderer = cogl_renderer_new ();
 

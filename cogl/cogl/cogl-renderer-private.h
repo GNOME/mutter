@@ -32,7 +32,6 @@
 
 #include <gmodule.h>
 
-#include "cogl/cogl-object-private.h"
 #include "cogl/cogl-driver.h"
 #include "cogl/cogl-texture-driver.h"
 #include "cogl/cogl-context.h"
@@ -43,7 +42,7 @@ typedef const CoglWinsysVtable *(*CoglCustomWinsysVtableGetter) (CoglRenderer *r
 
 struct _CoglRenderer
 {
-  CoglObject _parent;
+  GObject parent_instance;
   gboolean connected;
   CoglDriver driver_override;
   const CoglDriverVtable *driver_vtable;

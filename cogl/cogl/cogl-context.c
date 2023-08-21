@@ -230,13 +230,13 @@ cogl_context_new (CoglDisplay *display,
       CoglRenderer *renderer = cogl_renderer_new ();
       if (!cogl_renderer_connect (renderer, error))
         {
-          cogl_object_unref (renderer);
+          g_object_unref (renderer);
           g_object_unref (context);
           return NULL;
         }
 
       display = cogl_display_new (renderer, NULL);
-      cogl_object_unref (renderer);
+      g_object_unref (renderer);
     }
   else
     g_object_ref (display);

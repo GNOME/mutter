@@ -42,8 +42,9 @@
 G_BEGIN_DECLS
 
 /**
- * SECTION:cogl-renderer
- * @short_description: Choosing a means to render
+ * CoglRenderer:
+ *
+ * Choosing a means to render
  *
  * A #CoglRenderer represents a means to render. It encapsulates the
  * selection of an underlying driver, such as OpenGL or OpenGL-ES and
@@ -85,24 +86,15 @@ cogl_renderer_error_quark (void);
 
 typedef struct _CoglRenderer CoglRenderer;
 
-/**
- * cogl_renderer_get_gtype:
- *
- * Returns: a #GType that can be used with the GLib type system.
- */
-COGL_EXPORT
-GType cogl_renderer_get_gtype (void);
+#define COGL_TYPE_RENDERER (cogl_renderer_get_type ())
 
-/**
- * cogl_is_renderer:
- * @object: A #CoglObject pointer
- *
- * Determines if the given @object is a #CoglRenderer
- *
- * Return value: %TRUE if @object is a #CoglRenderer, else %FALSE.
- */
-COGL_EXPORT gboolean
-cogl_is_renderer (void *object);
+COGL_EXPORT
+G_DECLARE_FINAL_TYPE (CoglRenderer,
+                      cogl_renderer,
+                      COGL,
+                      RENDERER,
+                      GObject)
+
 
 /**
  * cogl_renderer_new:

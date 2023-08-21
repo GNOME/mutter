@@ -37,14 +37,12 @@
 
 #include "cogl/cogl-util.h"
 #include "cogl/cogl-private.h"
-#include "cogl/cogl-object.h"
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-mutter.h"
 
 #include "cogl/cogl-renderer.h"
 #include "cogl/cogl-renderer-private.h"
 #include "cogl/cogl-display-private.h"
-#include "cogl/cogl-gtype-private.h"
 
 #include "cogl/winsys/cogl-winsys-private.h"
 
@@ -129,10 +127,11 @@ static CoglWinsysVtableGetter _cogl_winsys_vtable_getters[] =
 #endif
 };
 
-static void _cogl_renderer_free (CoglRenderer *renderer);
-
-COGL_OBJECT_DEFINE (Renderer, renderer);
-COGL_GTYPE_DEFINE_CLASS (Renderer, renderer);
+static const CoglWinsysVtable *
+_cogl_renderer_get_winsys (CoglRenderer *renderer)
+{
+  return renderer->winsys_vtable;
+}
 
 typedef struct _CoglNativeFilterClosure
 {
@@ -140,27 +139,19 @@ typedef struct _CoglNativeFilterClosure
   void *data;
 } CoglNativeFilterClosure;
 
-uint32_t
-cogl_renderer_error_quark (void)
-{
-  return g_quark_from_static_string ("cogl-renderer-error-quark");
-}
-
-static const CoglWinsysVtable *
-_cogl_renderer_get_winsys (CoglRenderer *renderer)
-{
-  return renderer->winsys_vtable;
-}
-
 static void
 native_filter_closure_free (CoglNativeFilterClosure *closure)
 {
   g_free (closure);
 }
 
+G_DEFINE_TYPE (CoglRenderer, cogl_renderer, G_TYPE_OBJECT);
+
 static void
-_cogl_renderer_free (CoglRenderer *renderer)
+cogl_renderer_dispose (GObject *object)
 {
+  CoglRenderer *renderer = COGL_RENDERER (object);
+
   const CoglWinsysVtable *winsys = _cogl_renderer_get_winsys (renderer);
 
   _cogl_closure_list_disconnect_all (&renderer->idle_closures);
@@ -176,13 +167,32 @@ _cogl_renderer_free (CoglRenderer *renderer)
 
   g_array_free (renderer->poll_fds, TRUE);
 
-  g_free (renderer);
+  G_OBJECT_CLASS (cogl_renderer_parent_class)->dispose (object);
+}
+
+static void
+cogl_renderer_init (CoglRenderer *renderer)
+{
+}
+
+static void
+cogl_renderer_class_init (CoglRendererClass *class)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (class);
+
+  object_class->dispose = cogl_renderer_dispose;
+}
+
+uint32_t
+cogl_renderer_error_quark (void)
+{
+  return g_quark_from_static_string ("cogl-renderer-error-quark");
 }
 
 CoglRenderer *
 cogl_renderer_new (void)
 {
-  CoglRenderer *renderer = g_new0 (CoglRenderer, 1);
+  CoglRenderer *renderer = g_object_new (COGL_TYPE_RENDERER, NULL);
 
   _cogl_init ();
 
@@ -197,7 +207,7 @@ cogl_renderer_new (void)
   renderer->xlib_enable_event_retrieval = TRUE;
 #endif
 
-  return _cogl_renderer_object_new (renderer);
+  return renderer;
 }
 
 #ifdef COGL_HAS_XLIB
@@ -205,7 +215,7 @@ void
 cogl_xlib_renderer_set_foreign_display (CoglRenderer *renderer,
                                         Display *xdisplay)
 {
-  g_return_if_fail (cogl_is_renderer (renderer));
+  g_return_if_fail (COGL_IS_RENDERER (renderer));
 
   /* NB: Renderers are considered immutable once connected */
   g_return_if_fail (!renderer->connected);
@@ -220,7 +230,7 @@ cogl_xlib_renderer_set_foreign_display (CoglRenderer *renderer,
 Display *
 cogl_xlib_renderer_get_foreign_display (CoglRenderer *renderer)
 {
-  g_return_val_if_fail (cogl_is_renderer (renderer), NULL);
+  g_return_val_if_fail (COGL_IS_RENDERER (renderer), NULL);
 
   return renderer->foreign_xdpy;
 }
@@ -229,7 +239,7 @@ void
 cogl_xlib_renderer_request_reset_on_video_memory_purge (CoglRenderer *renderer,
                                                         gboolean enable)
 {
-  g_return_if_fail (cogl_is_renderer (renderer));
+  g_return_if_fail (COGL_IS_RENDERER (renderer));
   g_return_if_fail (!renderer->connected);
 
   renderer->xlib_want_reset_on_video_memory_purge = enable;

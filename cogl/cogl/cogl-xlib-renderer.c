@@ -497,7 +497,7 @@ cogl_xlib_renderer_get_display (CoglRenderer *renderer)
 {
   CoglXlibRenderer *xlib_renderer;
 
-  g_return_val_if_fail (cogl_is_renderer (renderer), NULL);
+  g_return_val_if_fail (COGL_IS_RENDERER (renderer), NULL);
 
   xlib_renderer = _cogl_xlib_renderer_get_data (renderer);
 
