@@ -802,6 +802,7 @@ clutter_stage_handle_event (ClutterStage *stage,
     case CLUTTER_TOUCHPAD_PINCH:
     case CLUTTER_TOUCHPAD_SWIPE:
     case CLUTTER_TOUCHPAD_HOLD:
+    case CLUTTER_PROXIMITY_IN:
       update_device_for_event (stage, event, TRUE);
       break;
     default:
