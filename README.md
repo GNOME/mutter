@@ -36,6 +36,8 @@ The API documentation is available at:
 - Cogl: <https://gnome.pages.gitlab.gnome.org/mutter/cogl/>
 - CoglPango: <https://gnome.pages.gitlab.gnome.org/mutter/cogl-pango/>
 
+The API coverage is available at: <https://gnome.pages.gitlab.gnome.org/mutter/coverage/>
+
 ## Coding style and conventions
 
 See [HACKING.md](./HACKING.md).
