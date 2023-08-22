@@ -320,6 +320,8 @@ meta_eis_finalize (GObject *object)
   g_clear_pointer (&meta_eis->event_source, meta_event_source_free);
   g_clear_pointer (&meta_eis->eis, eis_unref);
   g_clear_pointer (&meta_eis->eis_clients, g_hash_table_destroy);
+
+  G_OBJECT_CLASS (meta_eis_parent_class)->finalize (object);
 }
 
 static void

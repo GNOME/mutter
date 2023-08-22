@@ -740,6 +740,8 @@ meta_eis_client_finalize (GObject *object)
                                         on_keymap_changed,
                                         meta_eis_client);
   meta_eis_client_disconnect (meta_eis_client);
+
+  G_OBJECT_CLASS (meta_eis_client_parent_class)->finalize (object);
 }
 
 static void
