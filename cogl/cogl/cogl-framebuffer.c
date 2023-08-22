@@ -356,6 +356,8 @@ cogl_framebuffer_dispose (GObject *object)
     ctx->current_read_buffer = NULL;
 
   g_clear_object (&priv->driver);
+
+  G_OBJECT_CLASS (cogl_framebuffer_parent_class)->dispose (object);
 }
 
 static void

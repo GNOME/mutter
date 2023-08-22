@@ -286,11 +286,9 @@ cogl_pango_renderer_dispose (GObject *object)
 {
   CoglPangoRenderer *priv = COGL_PANGO_RENDERER (object);
 
-  if (priv->ctx)
-    {
-      cogl_object_unref (priv->ctx);
-      priv->ctx = NULL;
-    }
+  cogl_clear_object (&priv->ctx);
+
+  G_OBJECT_CLASS (cogl_pango_renderer_parent_class)->dispose (object);
 }
 
 static void
