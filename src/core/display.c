@@ -2004,19 +2004,24 @@ meta_display_pong_for_serial (MetaDisplay    *display,
     }
 }
 
-static MetaGroup *
-get_focused_group (MetaDisplay *display)
+static gboolean
+in_tab_chain (MetaWindow  *window,
+              MetaTabList  type)
 {
-  if (display->focus_window)
-    return display->focus_window->group;
-  else
-    return NULL;
-}
+  gboolean in_normal_tab_chain_type = window->type != META_WINDOW_DOCK && window->type != META_WINDOW_DESKTOP;
+  gboolean in_normal_tab_chain = meta_window_is_focusable (window) && in_normal_tab_chain_type && !window->skip_taskbar;
+  gboolean in_dock_tab_chain = meta_window_is_focusable (window) && (!in_normal_tab_chain_type || window->skip_taskbar);
 
-#define IN_TAB_CHAIN(w,t) (((t) == META_TAB_LIST_NORMAL && META_WINDOW_IN_NORMAL_TAB_CHAIN (w)) \
-    || ((t) == META_TAB_LIST_DOCKS && META_WINDOW_IN_DOCK_TAB_CHAIN (w)) \
-    || ((t) == META_TAB_LIST_GROUP && META_WINDOW_IN_GROUP_TAB_CHAIN (w, get_focused_group (w->display))) \
-    || ((t) == META_TAB_LIST_NORMAL_ALL && META_WINDOW_IN_NORMAL_TAB_CHAIN_TYPE (w)))
+  MetaGroup *focus_group = NULL;
+  if (window->display->focus_window)
+    focus_group = window->display->focus_window->group;
+  gboolean in_group_tab_chain = meta_window_is_focusable (window) && (!focus_group || meta_window_get_group (window) == focus_group);
+
+  return (type == META_TAB_LIST_NORMAL && in_normal_tab_chain)
+         || (type == META_TAB_LIST_DOCKS && in_dock_tab_chain)
+         || (type == META_TAB_LIST_GROUP && in_group_tab_chain)
+         || (type == META_TAB_LIST_NORMAL_ALL && in_normal_tab_chain_type);
+}
 
 static MetaWindow*
 find_tab_forward (MetaDisplay   *display,
@@ -2038,7 +2043,7 @@ find_tab_forward (MetaDisplay   *display,
     {
       MetaWindow *window = tmp->data;
 
-      if (IN_TAB_CHAIN (window, type))
+      if (in_tab_chain (window, type))
         return window;
 
       tmp = tmp->next;
@@ -2049,7 +2054,7 @@ find_tab_forward (MetaDisplay   *display,
     {
       MetaWindow *window = tmp->data;
 
-      if (IN_TAB_CHAIN (window, type))
+      if (in_tab_chain (window, type))
         return window;
 
       tmp = tmp->next;
@@ -2077,7 +2082,7 @@ find_tab_backward (MetaDisplay   *display,
     {
       MetaWindow *window = tmp->data;
 
-      if (IN_TAB_CHAIN (window, type))
+      if (in_tab_chain (window, type))
         return window;
 
       tmp = tmp->prev;
@@ -2088,7 +2093,7 @@ find_tab_backward (MetaDisplay   *display,
     {
       MetaWindow *window = tmp->data;
 
-      if (IN_TAB_CHAIN (window, type))
+      if (in_tab_chain (window, type))
         return window;
 
       tmp = tmp->prev;
@@ -2181,7 +2186,7 @@ meta_display_get_tab_list (MetaDisplay   *display,
     {
       MetaWindow *window = tmp->data;
 
-      if (!window->minimized && IN_TAB_CHAIN (window, type))
+      if (!window->minimized && in_tab_chain (window, type))
         tab_list = g_list_prepend (tab_list, window);
     }
 
@@ -2189,7 +2194,7 @@ meta_display_get_tab_list (MetaDisplay   *display,
     {
       MetaWindow *window = tmp->data;
 
-      if (window->minimized && IN_TAB_CHAIN (window, type))
+      if (window->minimized && in_tab_chain (window, type))
         tab_list = g_list_prepend (tab_list, window);
     }
 
@@ -2205,7 +2210,7 @@ meta_display_get_tab_list (MetaDisplay   *display,
 
         if (l_window->wm_state_demands_attention &&
             !meta_window_located_on_workspace (l_window, workspace) &&
-            IN_TAB_CHAIN (l_window, type))
+            in_tab_chain (l_window, type))
           tab_list = g_list_prepend (tab_list, l_window);
       }
 
@@ -2288,7 +2293,7 @@ meta_display_get_tab_current (MetaDisplay   *display,
   window = display->focus_window;
 
   if (window != NULL &&
-      IN_TAB_CHAIN (window, type) &&
+      in_tab_chain (window, type) &&
       (workspace == NULL ||
        meta_window_located_on_workspace (window, workspace)))
     return window;
