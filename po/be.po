@@ -4,17 +4,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter.master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2018-07-07 09:58+0000\n"
-"PO-Revision-Date: 2018-09-06 18:47+0300\n"
+"POT-Creation-Date: 2023-08-19 20:01+0000\n"
+"PO-Revision-Date: 2023-08-22 21:14+0300\n"
 "Last-Translator: Yuras Shumovich <shumovichy@gmail.com>\n"
 "Language-Team: Belarusian <i18n-bel-gnome@googlegroups.com>\n"
 "Language: be\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
-"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Poedit 2.1.1\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Poedit 3.3.2\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -41,116 +41,132 @@ msgid "Move window to last workspace"
 msgstr "Перамясціць акно ў апошнюю прастору"
 
 #: data/50-mutter-navigation.xml:24
+msgid "Move window one workspace to the left"
+msgstr "Перамясціць акно ў прастору злева ад дзейнай"
+
+#: data/50-mutter-navigation.xml:27
+msgid "Move window one workspace to the right"
+msgstr "Перамясціць акно ў прастору справа ад дзейнай"
+
+#: data/50-mutter-navigation.xml:31
 msgid "Move window one workspace up"
 msgstr "Перамясціць акно ў прастору зверху ад дзейнай"
 
-#: data/50-mutter-navigation.xml:27
+#: data/50-mutter-navigation.xml:35
 msgid "Move window one workspace down"
 msgstr "Перамясціць акно ў прастору знізу ад дзейнай"
 
-#: data/50-mutter-navigation.xml:30
+#: data/50-mutter-navigation.xml:38
 msgid "Move window one monitor to the left"
 msgstr "Перамясціць акно на манітор злева ад дзейнага"
 
-#: data/50-mutter-navigation.xml:33
+#: data/50-mutter-navigation.xml:41
 msgid "Move window one monitor to the right"
 msgstr "Перамясціць акно на манітор справа ад дзейнага"
 
-#: data/50-mutter-navigation.xml:36
+#: data/50-mutter-navigation.xml:44
 msgid "Move window one monitor up"
 msgstr "Перамясціць акно на манітор зверху ад дзейнага"
 
-#: data/50-mutter-navigation.xml:39
+#: data/50-mutter-navigation.xml:47
 msgid "Move window one monitor down"
 msgstr "Перамясціць акно на манітор знізу ад дзейнага"
 
-#: data/50-mutter-navigation.xml:43
+#: data/50-mutter-navigation.xml:51
 msgid "Switch applications"
 msgstr "Пераключэнне праграм"
 
-#: data/50-mutter-navigation.xml:48
+#: data/50-mutter-navigation.xml:56
 msgid "Switch to previous application"
-msgstr "Пераключыць на папярэднюю праграму"
+msgstr "Пераключэнне на папярэднюю праграму"
 
-#: data/50-mutter-navigation.xml:52
+#: data/50-mutter-navigation.xml:60
 msgid "Switch windows"
 msgstr "Пераключэнне вокнаў"
 
-#: data/50-mutter-navigation.xml:57
+#: data/50-mutter-navigation.xml:65
 msgid "Switch to previous window"
-msgstr "Перайсці на папярэдняе акно"
+msgstr "Пераключэнне на папярэдняе акно"
 
-#: data/50-mutter-navigation.xml:61
+#: data/50-mutter-navigation.xml:69
 msgid "Switch windows of an application"
 msgstr "Пераключэнне вокнаў праграмы"
 
-#: data/50-mutter-navigation.xml:66
+#: data/50-mutter-navigation.xml:74
 msgid "Switch to previous window of an application"
-msgstr "Перайсці на папярэдняе акно праграмы"
+msgstr "Пераключэнне на папярэдняе акно праграмы"
 
-#: data/50-mutter-navigation.xml:70
+#: data/50-mutter-navigation.xml:78
 msgid "Switch system controls"
 msgstr "Пераключэнне паміж сістэмнымі элементамі кіравання"
 
-#: data/50-mutter-navigation.xml:75
+#: data/50-mutter-navigation.xml:83
 msgid "Switch to previous system control"
-msgstr "Пераключыць на папярэдні сістэмны элемент кіравання"
+msgstr "Пераключэнне на папярэдні сістэмны элемент кіравання"
 
-#: data/50-mutter-navigation.xml:79
+#: data/50-mutter-navigation.xml:87
 msgid "Switch windows directly"
 msgstr "Непасрэднае пераключэнне вокнаў"
 
-#: data/50-mutter-navigation.xml:84
+#: data/50-mutter-navigation.xml:92
 msgid "Switch directly to previous window"
-msgstr "Перайсці непасрэдна на папярэдняе акно"
+msgstr "Непасрэднае пераключэнне на папярэдняе акно"
 
-#: data/50-mutter-navigation.xml:88
+#: data/50-mutter-navigation.xml:96
 msgid "Switch windows of an app directly"
 msgstr "Непасрэднае пераключэнне вокнаў праграмы"
 
-#: data/50-mutter-navigation.xml:93
+#: data/50-mutter-navigation.xml:101
 msgid "Switch directly to previous window of an app"
-msgstr "Перайсці непасрэдна на папярэдняе акно праграмы"
+msgstr "Непасрэднае пераключэнне на папярэдняе акно праграмы"
 
-#: data/50-mutter-navigation.xml:97
+#: data/50-mutter-navigation.xml:105
 msgid "Switch system controls directly"
 msgstr "Непасрэднае пераключэнне паміж сістэмнымі элементамі кіравання"
 
-#: data/50-mutter-navigation.xml:102
+#: data/50-mutter-navigation.xml:110
 msgid "Switch directly to previous system control"
-msgstr "Перайсці непасрэдна на папярэдні сістэмны элемент кіравання"
+msgstr "Непасрэднае пераключэнне на папярэдні сістэмны элемент кіравання"
 
-#: data/50-mutter-navigation.xml:105
+#: data/50-mutter-navigation.xml:113
 msgid "Hide all normal windows"
 msgstr "Схаваць усе звычайныя вокны"
 
-#: data/50-mutter-navigation.xml:108
+#: data/50-mutter-navigation.xml:116
 msgid "Switch to workspace 1"
-msgstr "Перайсці ў прастору працы 1"
+msgstr "Перайсці на працоўную прастору 1"
 
-#: data/50-mutter-navigation.xml:111
+#: data/50-mutter-navigation.xml:119
 msgid "Switch to workspace 2"
-msgstr "Перайсці ў прастору працы 2"
+msgstr "Перайсці на працоўную прастору 2"
 
-#: data/50-mutter-navigation.xml:114
+#: data/50-mutter-navigation.xml:122
 msgid "Switch to workspace 3"
-msgstr "Перайсці ў прастору працы 3"
+msgstr "Перайсці на працоўную прастору 3"
 
-#: data/50-mutter-navigation.xml:117
+#: data/50-mutter-navigation.xml:125
 msgid "Switch to workspace 4"
-msgstr "Перайсці ў прастору працы 4"
+msgstr "Перайсці на працоўную прастору 4"
 
-#: data/50-mutter-navigation.xml:120
+#: data/50-mutter-navigation.xml:128
 msgid "Switch to last workspace"
-msgstr "Перайсці ў апошнюю прастору працы"
+msgstr "Перайсці на апошнюю працоўную прастору"
 
-#: data/50-mutter-navigation.xml:123
+#: data/50-mutter-navigation.xml:131
+msgid "Move to workspace on the left"
+msgstr "Перамясціць на працоўную прастору лявей"
+
+#: data/50-mutter-navigation.xml:134
+msgid "Move to workspace on the right"
+msgstr "Перамясціць на працоўную прастору правей"
+
+#: data/50-mutter-navigation.xml:138
 msgid "Move to workspace above"
-msgstr "Перамясціць на прастору працы зверху"
+msgstr "Перамясціць на працоўную прастору вышэй"
 
-#: data/50-mutter-navigation.xml:126
+#: data/50-mutter-navigation.xml:142
 msgid "Move to workspace below"
-msgstr "Перамясціць на прастору працы знізу"
+msgstr "Перамясціць на працоўную прастору ніжэй"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -158,15 +174,11 @@ msgstr "Сістэма"
 
 #: data/50-mutter-system.xml:8
 msgid "Show the run command prompt"
-msgstr "Паказаць акенца для выканання загаду"
-
-#: data/50-mutter-system.xml:10
-msgid "Show the activities overview"
-msgstr "Паказаць агляд дзейнасцяў"
+msgstr "Паказаць акно для выканання каманды"
 
 #: data/50-mutter-wayland.xml:8
 msgid "Restore the keyboard shortcuts"
-msgstr "Аднавіць клавіятурныя скароты"
+msgstr "Аднавіць спалучэнні клавіш"
 
 #: data/50-mutter-windows.xml:6
 msgid "Windows"
@@ -178,15 +190,15 @@ msgstr "Адкрыць меню акна"
 
 #: data/50-mutter-windows.xml:10
 msgid "Toggle fullscreen mode"
-msgstr "Перамяніць рэжым \"на ўвесь экран\""
+msgstr "Пераключыць поўнаэкранны рэжым"
 
 #: data/50-mutter-windows.xml:12
 msgid "Toggle maximization state"
-msgstr "Перамяніць максімалізацыю акна"
+msgstr "Пераключыць стан разгорнутасці"
 
 #: data/50-mutter-windows.xml:14
 msgid "Maximize window"
-msgstr "Максімалізаваць акно"
+msgstr "Разгарнуць акно"
 
 #: data/50-mutter-windows.xml:16
 msgid "Restore window"
@@ -210,7 +222,7 @@ msgstr "Змяніць памер акна"
 
 #: data/50-mutter-windows.xml:27
 msgid "Toggle window on all workspaces or one"
-msgstr "Перамяніць, ці бачнае акно на ўсіх прасторах працы"
+msgstr "Пераключыць бачнасць акна — на ўсіх працоўных прасторах ці на адной"
 
 #: data/50-mutter-windows.xml:29
 msgid "Raise window if covered, otherwise lower it"
@@ -226,158 +238,141 @@ msgstr "Апусціць акно пад астатнія"
 
 #: data/50-mutter-windows.xml:35
 msgid "Maximize window vertically"
-msgstr "Вертыкальна максімалізаваць акно"
+msgstr "Разгарнуць акно па вертыкалі"
 
 #: data/50-mutter-windows.xml:37
 msgid "Maximize window horizontally"
-msgstr "Гарызантальна максімалізаваць акно"
+msgstr "Разгарнуць акно па гарызанталі"
 
-#: data/50-mutter-windows.xml:41
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:164
 msgid "View split on left"
-msgstr "Падзяліць прагляд злева"
+msgstr "Дзяленне прасторы, размяшчэнне злева"
 
-#: data/50-mutter-windows.xml:45
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:169
 msgid "View split on right"
-msgstr "Падзяліць прагляд справа"
+msgstr "Дзяленне прасторы, размяшчэнне справа"
 
-#: data/mutter.desktop.in:4
-msgid "Mutter"
-msgstr "Mutter"
-
-#: data/org.gnome.mutter.gschema.xml.in:7
+#: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
 msgstr ""
 "Клавіша-мадыфікатар для доступу да пашыраных аперацый кіравання вокнамі"
 
-#: data/org.gnome.mutter.gschema.xml.in:8
+#: data/org.gnome.mutter.gschema.xml.in:16
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
 "key” on PC hardware. It’s expected that this binding either the default or "
 "set to the empty string."
 msgstr ""
-"Гэта клавіша запусціць \"перакрыццё\", якое прадстаўляе спалучэнне агляду "
-"вокнаў і сістэму запуску праграм. Прадвызначаная клавіша для гэтай аперацыі "
-"- гэта клавіша \"Windows\" на PC-камп'ютары. Чакаецца, што гэты скарот будзе "
-"або прадвызначаным значэннем, або пустым тэкставым ланцужком."
+"Гэта клавіша выклікае накладны інтэрфейс з аглядам вокнаў і сістэмай запуску "
+"праграм. Для персанальных камп'ютараў прадвызначана клавіша «Windows». "
+"Чакаецца, што для будзе ўжывацца або прадвызначанае значэнне, або пусты "
+"тэкставы радок."
 
-#: data/org.gnome.mutter.gschema.xml.in:20
+#: data/org.gnome.mutter.gschema.xml.in:28
 msgid "Attach modal dialogs"
-msgstr "Прычапляць мадальныя дыялогавыя акенцы"
+msgstr "Прычапляць мадальныя дыялогавыя вокны"
 
-#: data/org.gnome.mutter.gschema.xml.in:21
+#: data/org.gnome.mutter.gschema.xml.in:29
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
 "attached to the titlebar of the parent window and are moved together with "
 "the parent window."
 msgstr ""
-"Калі ўключана, замест незалежных загалоўных стужак мадальныя дыялогавыя "
-"акенцы будуць прычэплівацца да загалоўных стужак галоўных вокнаў і "
-"перасоўвацца разам з імі."
+"Калі значэнне «true», замест незалежных загалоўкаў акон, мадальныя "
+"дыялогавыя вокны будуць прычэплівацца да загалоўка бацькоўскага акна і "
+"перамяшчацца разам з ім."
 
-#: data/org.gnome.mutter.gschema.xml.in:30
+#: data/org.gnome.mutter.gschema.xml.in:38
 msgid "Enable edge tiling when dropping windows on screen edges"
-msgstr "Уключыць кафляванне пры перацягванні вокнаў на бераг экрана"
+msgstr "Уключыць упарадкаванне вокнаў пры перацягванні іх на краі экрана"
 
-#: data/org.gnome.mutter.gschema.xml.in:31
+#: data/org.gnome.mutter.gschema.xml.in:39
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
 "area. Dropping windows on the top screen edge maximizes them completely."
 msgstr ""
-"Калі ўключана, перацягванне вокнаў на вертыкальныя берагі экрана "
-"максімалізуе іх па вертыкалі і змяняе памер па гарызанталі, каб тыя "
-"закрывалі палову наяўнага месца. Перацягванне вокнаў на верхні бераг экрана "
-"максімалізуе іх ва ўсіх накірунках."
+"Калі значэнне «true», пры перацягванні вокнаў на вертыкальныя краі экрана, "
+"акно разгортваецца па вертыкалі, а яго памер па гарызанталі змяняецца, каб "
+"займаць палову даступнай прасторы. Пры перацягванні вокнаў на верхні край "
+"экрана, яны разгортваюцца цалкам."
 
-#: data/org.gnome.mutter.gschema.xml.in:40
+#: data/org.gnome.mutter.gschema.xml.in:48
 msgid "Workspaces are managed dynamically"
-msgstr "Дынамічнае кіраванне прасторамі працы"
+msgstr "Дынамічнае кіраванне працоўнымі прасторамі"
 
-#: data/org.gnome.mutter.gschema.xml.in:41
+#: data/org.gnome.mutter.gschema.xml.in:49
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
 "static number of workspaces (determined by the num-workspaces key in org."
 "gnome.desktop.wm.preferences)."
 msgstr ""
-"Вызначае, ці трэба дынамічна кіраваць колькасцю прастор працы, або трэба "
-"проста ўжыць іх нязменную колькасць (канкрэтнае значэнне вызначаецца ключом "
-"num-workspaces у org.gnome.desktop.wm.preferences)."
+"Вызначае, будзе выкарыстоўваецца дынамічнае кіраванне колькасцю або "
+"нязменная колькасць працоўных прастор (вызначаецца ключом num-workspaces у "
+"org.gnome.desktop.wm.preferences)."
 
-#: data/org.gnome.mutter.gschema.xml.in:50
+#: data/org.gnome.mutter.gschema.xml.in:58
 msgid "Workspaces only on primary"
-msgstr "Працоўныя прасторы толькі на галоўным экране"
+msgstr "Працоўныя прасторы толькі на асноўным маніторы"
 
-#: data/org.gnome.mutter.gschema.xml.in:51
+#: data/org.gnome.mutter.gschema.xml.in:59
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
 msgstr ""
-"Вызначае, ці трэба пераменьваць прасторы працы для вокнаў на ўсіх маніторах "
-"або толькі на першым."
+"Вызначае, пераключаць працоўныя прасторы для вокнаў на ўсіх маніторах або "
+"толькі на асноўным."
 
-#: data/org.gnome.mutter.gschema.xml.in:59
-msgid "No tab popup"
-msgstr "Няма выплыўнога акенца"
-
-#: data/org.gnome.mutter.gschema.xml.in:60
-msgid ""
-"Determines whether the use of popup and highlight frame should be disabled "
-"for window cycling."
-msgstr ""
-"Вызначае, ці трэба выключыць выплыўную рамку з падсветкай для пракручвання "
-"спіса вокнаў."
+#: data/org.gnome.mutter.gschema.xml.in:67
+msgid "Delay focus changes until the pointer stops moving"
+msgstr "Затрымліваць змяненне фокусу пакуль не спыніцца ўказальнік мышы"
 
 #: data/org.gnome.mutter.gschema.xml.in:68
-msgid "Delay focus changes until the pointer stops moving"
-msgstr "Затрымліваць змяненне фокусу да спынення паказальніка мышы"
-
-#: data/org.gnome.mutter.gschema.xml.in:69
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
 "the pointer stops moving."
 msgstr ""
-"Калі ўключана, а рэжым фокусу ці \"sloppy\", ці \"mouse\", тады фокус не "
-"будзе пераключацца паміж вокнамі імгненна, але толькі пасля спынення "
-"паказальніка мышы."
+"Калі значэнне «true», а рэжым фокусу «sloppy» або «mouse», пры траплянні "
+"ўказальніка на акно, фокус на яго будзе пераключацца не імгненна, а толькі "
+"пасля спынення ўказальніка мышы."
+
+#: data/org.gnome.mutter.gschema.xml.in:78
+msgid "Draggable border width"
+msgstr "Шырыня мяжы акна для перацягвання"
 
 #: data/org.gnome.mutter.gschema.xml.in:79
-msgid "Draggable border width"
-msgstr "Шырыня аблямоўкі для перацягвання"
-
-#: data/org.gnome.mutter.gschema.xml.in:80
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
 msgstr ""
-"Памер аблямоўкі для перацягвання. Калі бачнай аблямоўкі матыву недастаткова, "
-"будуць дададзена нябачная рамка, каб задаволіць гэту настройку."
+"Агульная велічыня мяжы для перацягвання. Калі недастаткова бачнай мяжы з "
+"тэмы, будзе дадавацца нябачная, каб шырыня адпавядала гэтаму значэнню."
+
+#: data/org.gnome.mutter.gschema.xml.in:88
+msgid "Auto maximize nearly monitor sized windows"
+msgstr "Аўтаматычна разгортваць вокны, якія расцягнуты амаль на ўвесь экран"
 
 #: data/org.gnome.mutter.gschema.xml.in:89
-msgid "Auto maximize nearly monitor sized windows"
-msgstr ""
-"Аўтаматычна максімалізаваць вокны, якія расцягнутыя амаль на ўвесь экран"
-
-#: data/org.gnome.mutter.gschema.xml.in:90
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
 msgstr ""
-"Калі ўключана, новыя вокны з памерам, блізкім да памераў манітора, будуць "
-"аўтаматычна максімалізавацца."
+"Калі ўключана, новыя вокны, чый памер блізкі да памераў манітора, будуць "
+"аўтаматычна разгортвацца."
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
 msgstr "Змяшчаць новыя вокны ў цэнтры"
 
-#: data/org.gnome.mutter.gschema.xml.in:99
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
 msgstr ""
-"Калі ўключана, новыя вокны будуць заўсёды з'яўляцца пасярэдзіне дзейнага "
-"манітора."
+"Калі значэнне «true», новыя вокны будуць заўсёды з'яўляцца пасярэдзіне "
+"дзейнага манітора."
 
 #: data/org.gnome.mutter.gschema.xml.in:107
 msgid "Enable experimental features"
@@ -392,133 +387,311 @@ msgid ""
 "proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
 "mutter default to layout logical monitors in a logical pixel coordinate "
 "space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart."
+"manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
+"mutter always allocate scanout buffers with explicit modifiers, if supported "
+"by the driver. Requires a restart. • “rt-scheduler” — makes mutter request a "
+"low priority real-time scheduling. Requires a restart. • “autoclose-"
+"xwayland” — automatically terminates Xwayland if all relevant X11 clients "
+"are gone. Requires a restart."
 msgstr ""
-"Каб уключыць эксперыментальныя функцыі, дадайце адпаведнае ключавое слова ў "
-"гэты ліст. Некаторыя функцыі могуць патрабаваць перазапуску кампазітара. "
-"Эксперыментальны функцыі могуць быць недаступныя. Не чакайце, што функцыі, "
-"дададзеныя ў гэты спіс, будуць працаваць і далей. Магчымыя ключавыя словы: • "
-"\"scale-monitor-framebuffer\" - прымушае mutter прадвызначана размяшчаць "
-"лагічныя маніторы ў лагічнай прасторы каардынат пікселаў, пры гэтым "
-"маштабаваць кадравы буфер, а не змесціва акна, для падтрымкі HiDPI "
-"манітораў. Не патрабуе перазапуску."
+"Каб уключыць эксперыментальныя функцыі, дадайце ў гэты спіс адпаведнае "
+"ключавое слова. У залежнасці ад функцыі, можа патрабавацца перазапуск "
+"кампазітара. Эксперыментальныя функцыі неабавязкова застаюцца даступнымі або "
+"прыдатнымі для наладкі. Не чакайце, што дададзеныя ў спіс функцыі будуць "
+"працаваць і далей. Магчымыя ў цяперашні час ключавыя словы: • «scale-monitor-"
+"framebuffer» — прымушае mutter прадвызначана размяшчаць лагічныя маніторы ў "
+"лагічнай прасторы каардынат пікселяў, пры гэтым маштабаваць кадравы буфер "
+"манітора, а не змесціва акна. Для кіравання маніторамі HiDPI. Не патрабуе "
+"перазапуску. • «kms-modifiers» — прымушае mutter заўсёды вылучаць буферы "
+"сканавання з відавочнымі мадыфікатарамі, калі гэта падтрымліваецца "
+"драйверам. Патрабуецца перазапуск. • «rt-scheduler» — робіць запыты mutter "
+"нізкапрыярытэтнай задачай у планаванні рэальнага часу. Патрабуецца "
+"перазапуск. • «autoclose-xwayland» — аўтаматычна завяршае працу Xwayland, "
+"калі зніклі ўсе адпаведныя кліенты X11. Патрабуецца перазапуск."
 
 #: data/org.gnome.mutter.gschema.xml.in:141
-msgid "Select window from tab popup"
-msgstr "Выбраць акно з выплыўнога акенца"
+msgid "Modifier to use to locate the pointer"
+msgstr "Клавіша-мадыфікатар для выяўлення ўказальніка мышы"
 
-#: data/org.gnome.mutter.gschema.xml.in:146
-msgid "Cancel tab popup"
-msgstr "Закрыць выплыўное акенца"
+#: data/org.gnome.mutter.gschema.xml.in:142
+msgid "This key will initiate the “locate pointer” action."
+msgstr "Гэта клавіша запускае дзеянне «выявіць указальнік мышы»."
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:149
+msgid "Timeout for check-alive ping"
+msgstr "Прамежак часу для праверкі актыўнасці (check-alive ping)"
+
+#: data/org.gnome.mutter.gschema.xml.in:150
+msgid ""
+"Number of milliseconds a client has to respond to a ping request in order to "
+"not be detected as frozen. Using 0 will disable the alive check completely."
+msgstr ""
+"Прамежак часу (мілісекунд) за які кліент павінен адказаць на запыт ping, каб "
+"не быць распазнаным як неактыўны. Выкарыстанне значэння «0» адключыць "
+"праверку актыўнасці."
+
+#: data/org.gnome.mutter.gschema.xml.in:174
 msgid "Switch monitor configurations"
-msgstr "Пераключыць канфігурацыі манітора"
+msgstr "Пераключэнне канфігурацый манітора"
 
-#: data/org.gnome.mutter.gschema.xml.in:156
+#: data/org.gnome.mutter.gschema.xml.in:179
 msgid "Rotates the built-in monitor configuration"
-msgstr "Паварочвае убудаваны манітор"
+msgstr "Па кругу змяняе ўбудаваныя канфігурацыі манітора"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:6
+#: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
 msgstr "Перайсці ў віртуальны тэрмінал 1"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:10
+#: data/org.gnome.mutter.wayland.gschema.xml.in:16
 msgid "Switch to VT 2"
 msgstr "Перайсці ў віртуальны тэрмінал 2"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:14
+#: data/org.gnome.mutter.wayland.gschema.xml.in:20
 msgid "Switch to VT 3"
 msgstr "Перайсці ў віртуальны тэрмінал 3"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:18
+#: data/org.gnome.mutter.wayland.gschema.xml.in:24
 msgid "Switch to VT 4"
 msgstr "Перайсці ў віртуальны тэрмінал 4"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:22
+#: data/org.gnome.mutter.wayland.gschema.xml.in:28
 msgid "Switch to VT 5"
 msgstr "Перайсці ў віртуальны тэрмінал 5"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:26
+#: data/org.gnome.mutter.wayland.gschema.xml.in:32
 msgid "Switch to VT 6"
 msgstr "Перайсці ў віртуальны тэрмінал 6"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:30
+#: data/org.gnome.mutter.wayland.gschema.xml.in:36
 msgid "Switch to VT 7"
 msgstr "Перайсці ў віртуальны тэрмінал 7"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:34
+#: data/org.gnome.mutter.wayland.gschema.xml.in:40
 msgid "Switch to VT 8"
 msgstr "Перайсці ў віртуальны тэрмінал 8"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:38
+#: data/org.gnome.mutter.wayland.gschema.xml.in:44
 msgid "Switch to VT 9"
 msgstr "Перайсці ў віртуальны тэрмінал 9"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:42
+#: data/org.gnome.mutter.wayland.gschema.xml.in:48
 msgid "Switch to VT 10"
 msgstr "Перайсці ў віртуальны тэрмінал 10"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:46
+#: data/org.gnome.mutter.wayland.gschema.xml.in:52
 msgid "Switch to VT 11"
 msgstr "Перайсці ў віртуальны тэрмінал 11"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:50
+#: data/org.gnome.mutter.wayland.gschema.xml.in:56
 msgid "Switch to VT 12"
 msgstr "Перайсці ў віртуальны тэрмінал 12"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:54
+#: data/org.gnome.mutter.wayland.gschema.xml.in:60
 msgid "Re-enable shortcuts"
-msgstr "Уключыць назад клавіятурныя скароты"
+msgstr "Паўторна ўключыць спалучэнні клавіш"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:64
-msgid "Allow grabs with Xwayland"
-msgstr "Дазволіць захоп клавіятуры з Xwayland"
+#: data/org.gnome.mutter.wayland.gschema.xml.in:70
+msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
+msgstr "Дазволіць X11 захоп фокуса клавіятуры праз Xwayland"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:65
+#: data/org.gnome.mutter.wayland.gschema.xml.in:71
 msgid ""
-"Allow keyboard grabs issued by X11 applications running in Xwayland to be "
-"taken into account. For a X11 grab to be taken into account under Wayland, "
-"the client must also either send a specific X11 ClientMessage to the root "
-"window or be among the applications white-listed in key “xwayland-grab-"
-"access-rules”."
+"Allow all keyboard events to be routed to X11 “override redirect” windows "
+"with a grab when running in Xwayland. This option is to support X11 clients "
+"which map an “override redirect” window (which do not receive keyboard "
+"focus) and issue a keyboard grab to force all keyboard events to that "
+"window. This option is seldom used and has no effect on regular X11 windows "
+"which can receive keyboard focus under normal circumstances. For a X11 grab "
+"to be taken into account under Wayland, the client must also either send a "
+"specific X11 ClientMessage to the root window or be among the applications "
+"allowed in key “xwayland-grab-access-rules”."
 msgstr ""
-"Дазволіць прымаць у разлік захоп клавіятуры прыстасаваннямі X11, якія "
-"працуюць у Xwayland. Каб гэта працавала, карыстальнік павінны таксама "
-"даслаць адпаведнае X11 паведамленне ClientMessage каранёваму акну, ці быць "
-"сярод дазволеных дастасаванняў у \"xwayland-grab-access-rules\"."
+"Дазволіць перанакіраванне ўсіх падзей клавіятуры на вокны «override "
+"redirect» X11 з захопам пры выкананні ў Xwayland. Гэты параметр прызначаны "
+"для падтрымкі кліентаў X11, якія адлюстроўваюць акно «override "
+"redirect» (што не атрымлівае фокус клавіятуры) і выдаюць вынікі захопу "
+"клавіятуры, каб прымусова перадаваць усе падзеі клавіятуры гэтаму акну. "
+"Параметр выкарыстоўваецца рэдка і не ўплывае на звычайныя вокны X11, якія "
+"могуць атрымліваць фокус клавіятуры ў нармальных умовах. Каб захоп X11 "
+"выконваўся ў Wayland, кліент павінен або адправіць спецыяльнае паведамленне "
+"X11 ClientMessage каранёваму акну, або быць сярод дазволеных праграм у ключы "
+"«xwayland-grab-access-rules»."
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:77
+#: data/org.gnome.mutter.wayland.gschema.xml.in:90
 msgid "Xwayland applications allowed to issue keyboard grabs"
-msgstr "Xwayland дастасаванні, якім дазволена захапляць клавіятуру"
+msgstr "Праграмы Xwayland, якім дазволена захопліваць клавіятуру"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:78
+#: data/org.gnome.mutter.wayland.gschema.xml.in:91
 msgid ""
 "List the resource names or resource class of X11 windows either allowed or "
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
 "resource class of a given X11 window can be obtained using the command "
 "“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
-"Values starting with “!” are blacklisted, which has precedence over the "
-"whitelist, to revoke applications from the default system list. The default "
-"system list includes the following applications: "
+"Values starting with “!” are denied, which has precedence over the list of "
+"values allowed, to revoke applications from the default system list. The "
+"default system list includes the following applications: "
 "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
 "using the specific keyboard shortcut defined by the keybinding key “restore-"
 "shortcuts”."
 msgstr ""
-"Спіс назваў ці класаў рэсурсаў вокнаў X11, якім дазволена ці не дазволена "
-"захопліваць клавіятуру пад Xwayland. Назву і клас рэсурса акна X11 можна "
-"атрымаць з дапамогай каманды \"xprop WM_CLASS\". Значэнні могуць змяшчаць "
-"шаблоны \"*\" і \"?\". Значэнні, якія пачынаюцца з \"!\", азначаюць "
-"забарону, што мае перавагу перад дазволам і адклікае дастасаванні з "
-"прадвызначанага сістэмнага спіса. Апошні змяшчае наступныя дастасаванні: "
-"\"@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@\". Карыстальнікі могуць спыніць "
-"дзейнічаючы захоп з дапамогай клавіятурнага скароту, азначанага ключом "
-"\"restore-shortcuts\"."
+"Спіс назваў або класаў рэсурсаў для вокнаў X11, якім дазволена ці не "
+"дазволена захопліваць клавіятуру X11 пад Xwayland. Назву або клас рэсурсу "
+"для ўказанага акна X11 можна атрымаць з дапамогай каманды «xprop WM_CLASS». "
+"Значэнні могуць змяшчаць шаблоны «*» і «?». Значэнні, якія пачынаюцца з «!», "
+"азначаюць забарону, што мае перавагу перад дазволам і адклікае праграмы з "
+"прадвызначанага сістэмнага спіса. Апошні змяшчае наступныя праграмы : "
+"«@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@». Карыстальнікі могуць перарваць "
+"дзейны захоп праз спалучэнне клавіш, вызначанае ключом «restore-shortcuts»."
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:116
+msgid "Disable selected X extensions in Xwayland"
+msgstr "Адключыць выбраныя пашырэнні X у Xwayland"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:117
+msgid ""
+"This option disables the selected X extensions in Xwayland if Xwayland was "
+"built with support for those X extensions. This option has no effect if "
+"Xwayland was built without support for the selected extensions. Xwayland "
+"needs to be restarted for this setting to take effect."
+msgstr ""
+"Гэты параметр адключае ў Xwayland выбраныя пашырэнні X, калі Xwayland быў "
+"створаны з падтрымкай гэтых пашырэнняў. Параметр не мае эфекту, калі "
+"Xwayland быў створаны без падтрымкі выбраных пашырэнняў. Каб змены налад "
+"уступілі ў сілу, трэба перазапусціць Xwayland."
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:130
+msgid "Allow X11 clients with a different endianness to connect to Xwayland"
+msgstr "Дазволіць кліентам з іншай паслядоўнасцю байт падлучацца да Xwayland"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:131
+msgid ""
+"Allow connections from clients with an endianness different to that of "
+"Xwayland. The X server byte-swapping code is a huge attack surface, much of "
+"that code in Xwayland is prone to security issues. The use-case of byte-"
+"swapped clients is very niche, and disabled by default in Xwayland. Enable "
+"this option to instruct Xwayland to accept connections from X11 clients with "
+"a different endianness. This option has no effect if Xwayland does not "
+"support the command line option +byteswappedclients/-byteswappedclients to "
+"control that setting. Xwayland needs to be restarted for this setting to "
+"take effect."
+msgstr ""
+"Дазволіць злучэнні ад кліентаў з паслядоўнасцю байт, адрознай ад "
+"выкарыстанай Xwayland. Код сервера X з заменай байтаў уяўляе сабою "
+"велізарную паверхню атакі, значная частка гэтага кода Xwayland можа мець "
+"праблемы бяспекі. Выкарыстанне кліентаў з заменай байтаў вельмі спецыфічная "
+"задача і прадвызначана адключана ў Xwayland. Уключыце гэты параметр, каб "
+"загадаць Xwayland прымаць злучэнні ад кліентаў X11 з іншай паслядоўнасцю "
+"байт. Параметр не мае эфекту, калі Xwayland не падтрымлівае параметр "
+"каманднага радка +byteswappedclients/-byteswappedclients для кіравання гэтай "
+"наладай. Каб змены налад уступілі ў сілу, трэба перазапусціць Xwayland."
+
+#: src/backends/meta-monitor.c:253
+msgid "Built-in display"
+msgstr "Убудаваны дысплэй"
+
+#: src/backends/meta-monitor.c:280
+msgid "Unknown"
+msgstr "Невядомы"
+
+#: src/backends/meta-monitor.c:282
+msgid "Unknown Display"
+msgstr "Невядомы дысплэй"
+
+#: src/backends/meta-monitor.c:290
+#, c-format
+msgctxt ""
+"This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
+msgid "%s %s"
+msgstr "%s %s"
+
+#: src/backends/meta-monitor.c:298
+#, c-format
+msgctxt ""
+"This is a monitor vendor name followed by product/model name where size in "
+"inches could not be calculated, e.g. Dell U2414H"
+msgid "%s %s"
+msgstr "%s %s"
+
+#. This probably means that a non-WM compositor like xcompmgr is running;
+#. * we have no way to get it to exit
+#: src/compositor/compositor.c:417
+#, c-format
+msgid ""
+"Another compositing manager is already running on screen %i on display “%s”."
+msgstr "На экране %i дысплэя «%s» ужо запушчаны іншы кампазітны кіраўнік акон."
+
+#: src/core/bell.c:192
+msgid "Bell event"
+msgstr "Падзея з сігналам"
+
+#: src/core/display.c:712
+msgid "Privacy Screen Enabled"
+msgstr "Прыватнасць экрана ўключана"
+
+#: src/core/display.c:713
+msgid "Privacy Screen Disabled"
+msgstr "Прыватнасць экрана адключана"
+
+#: src/core/meta-context-main.c:576
+msgid "Replace the running window manager"
+msgstr "Замяніць дзейны кіраўнік акон"
+
+#: src/core/meta-context-main.c:582
+msgid "X Display to use"
+msgstr "Патрэбны дысплэй X"
+
+#: src/core/meta-context-main.c:588
+msgid "Disable connection to session manager"
+msgstr "Адключыць злучэнне з кіраўніком сеансаў"
+
+#: src/core/meta-context-main.c:594
+msgid "Specify session management ID"
+msgstr "Вызначыць ідэнтыфікатар для кіравання сеансам"
+
+#: src/core/meta-context-main.c:600
+msgid "Initialize session from savefile"
+msgstr "Ініцыяваць сеанс з файла"
+
+#: src/core/meta-context-main.c:606
+msgid "Make X calls synchronous"
+msgstr "Сінхронна выконваць выклікі X-сістэмы"
+
+#: src/core/meta-context-main.c:614
+msgid "Run as a wayland compositor"
+msgstr "Запусціць у якасці кампазітара wayland"
+
+#: src/core/meta-context-main.c:620
+msgid "Run as a nested compositor"
+msgstr "Запусціць у якасці ўложанага кампазітара"
+
+#: src/core/meta-context-main.c:626
+msgid "Run wayland compositor without starting Xwayland"
+msgstr "Запусціць кампазітар wayland без запуску Xwayland"
+
+#: src/core/meta-context-main.c:632
+msgid "Specify Wayland display name to use"
+msgstr "Вызначыць назву патрэбнага дысплэя Wayland"
+
+#: src/core/meta-context-main.c:640
+msgid "Run as a full display server, rather than nested"
+msgstr "Запусціць у якасці паўнавартаснага сервера дысплэя, я не ўложанага"
+
+#: src/core/meta-context-main.c:645
+msgid "Run as a headless display server"
+msgstr "Запусціць у якасці сервера без дысплэя"
+
+#: src/core/meta-context-main.c:650
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr "Дадаць сталы віртуальны манітор (ШxВ або ШxВ@Ч)"
+
+#: src/core/meta-context-main.c:662
+msgid "Run with X11 backend"
+msgstr "Запусціць праз X11 backend"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2325
+#: src/core/meta-pad-action-mapper.c:861
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Пераключыць рэжым (група %d)"
@@ -526,922 +699,88 @@ msgstr "Пераключыць рэжым (група %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2348
+#: src/core/meta-pad-action-mapper.c:884
 msgid "Switch monitor"
 msgstr "Пераключыць манітор"
 
-#: src/backends/meta-input-settings.c:2350
+#: src/core/meta-pad-action-mapper.c:886
 msgid "Show on-screen help"
-msgstr "Паказаць экранную даведку"
+msgstr "Паказаць даведку на экране"
 
-#: src/backends/meta-monitor-manager.c:907
-msgid "Built-in display"
-msgstr "Убудаваны дысплей"
+#. Translators: this string will appear in Sysprof
+#: src/core/meta-profiler.c:80 src/core/meta-profiler.c:217
+msgid "Compositor"
+msgstr "Кампазітар"
 
-#: src/backends/meta-monitor-manager.c:930
-msgid "Unknown"
-msgstr "Невядомы"
-
-#: src/backends/meta-monitor-manager.c:932
-msgid "Unknown Display"
-msgstr "Невядомы дысплей"
-
-#. TRANSLATORS: this is a monitor vendor name, followed by a
-#. * size in inches, like 'Dell 15"'
-#.
-#: src/backends/meta-monitor-manager.c:940
-#, c-format
-msgid "%s %s"
-msgstr "%s %s"
-
-#. This probably means that a non-WM compositor like xcompmgr is running;
-#. * we have no way to get it to exit
-#: src/compositor/compositor.c:481
-#, c-format
-msgid ""
-"Another compositing manager is already running on screen %i on display “%s”."
-msgstr ""
-"Іншы кампазітны кіраўнік вокнаў ужо абслугоўвае экран %i дысплея \"%s\"."
-
-#: src/core/bell.c:254
-msgid "Bell event"
-msgstr "Падзея з сігналам"
-
-#: src/core/main.c:191
-msgid "Disable connection to session manager"
-msgstr "Выключыць злучэнне з кіраўніком сеансаў"
-
-#: src/core/main.c:197
-msgid "Replace the running window manager"
-msgstr "Замяніць дзейнага кіраўніка вокнаў"
-
-#: src/core/main.c:203
-msgid "Specify session management ID"
-msgstr "Вызначыць ідэнтыфікатар для кіравання сеансам"
-
-#: src/core/main.c:208
-msgid "X Display to use"
-msgstr "Патрэбны X-дысплей"
-
-#: src/core/main.c:214
-msgid "Initialize session from savefile"
-msgstr "Ініцыяваць сеанс з файла"
-
-#: src/core/main.c:220
-msgid "Make X calls synchronous"
-msgstr "Сінхронна выконваць выклікі X-сістэмы"
-
-#: src/core/main.c:227
-msgid "Run as a wayland compositor"
-msgstr "Запусціць у якасці кампазітара wayland"
-
-#: src/core/main.c:233
-msgid "Run as a nested compositor"
-msgstr "Запусціць у якасці ўложанага кампазітара"
-
-#: src/core/main.c:239
-msgid "Run wayland compositor without starting Xwayland"
-msgstr "Запусціць наборшчык wayland без Xwayland"
-
-#: src/core/main.c:247
-msgid "Run as a full display server, rather than nested"
-msgstr "Запусціць у якасці паўнавартаснага сервера дысплея, я не як уложаны "
-
-#: src/core/main.c:253
-msgid "Run with X11 backend"
-msgstr "Запусціць з драйверам X11"
-
-#. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:148
-#, c-format
-msgid "“%s” is not responding."
-msgstr "\"%s\" не адказвае на запыты."
-
-#: src/core/meta-close-dialog-default.c:150
-msgid "Application is not responding."
-msgstr "Праграма не адказвае на запыты."
-
-#: src/core/meta-close-dialog-default.c:155
-msgid ""
-"You may choose to wait a short while for it to continue or force the "
-"application to quit entirely."
-msgstr ""
-"Вы можаце альбо крыху пачакаць адказу, альбо змусіць праграму да выхаду."
-
-#: src/core/meta-close-dialog-default.c:162
-msgid "_Force Quit"
-msgstr "_Змусіць да выхаду"
-
-#: src/core/meta-close-dialog-default.c:162
-msgid "_Wait"
-msgstr "_Пачакаць"
-
-#: src/core/mutter.c:39
-#, c-format
-msgid ""
-"mutter %s\n"
-"Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
-"This is free software; see the source for copying conditions.\n"
-"There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
-"PARTICULAR PURPOSE.\n"
-msgstr ""
-"mutter %s\n"
-"Аўтарскія правы (C) 2001-%d Havoc Pennington, Red Hat, Inc. і інш.\n"
-"Гэта свабоднае апраграмаванне. Умовы яго капіравання глядзіце ў выточным "
-"кодзе праграмы.\n"
-"Аўтары не даюць ніякіх гарантый, у тым ліку камерцыйнай вартасці праграмы і "
-"наогул яе карысці.\n"
-
-#: src/core/mutter.c:53
+#: src/core/mutter.c:74
 msgid "Print version"
-msgstr "Вывесці нумар версіі праграмы"
+msgstr "Вывесці версію праграмы"
 
-#: src/core/mutter.c:59
+#: src/core/mutter.c:80
 msgid "Mutter plugin to use"
-msgstr "Патрэбны плугін Mutter"
+msgstr "Патрэбны плагін Mutter"
 
-#: src/core/prefs.c:1915
+#: src/core/prefs.c:1913
 #, c-format
 msgid "Workspace %d"
-msgstr "Прастора працы %d"
+msgstr "Працоўная прастора %d"
 
-#: src/core/util.c:120
-msgid "Mutter was compiled without support for verbose mode\n"
-msgstr ""
-"Праграма \"Mutter\" была скампіляваная без падтрымкі падрабязнага "
-"пратакаліравання\n"
+#: src/core/util.c:142
+msgid "Mutter was compiled without support for verbose mode"
+msgstr "Mutter скампілявана без падтрымкі рэжыму падрабязнага пратакаліравання"
 
-#: src/wayland/meta-wayland-tablet-pad.c:567
+#: src/core/workspace.c:541
+msgid "Workspace switched"
+msgstr "Працоўная прастора пераключана"
+
+#: src/wayland/meta-wayland-tablet-pad.c:530
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Пераключыць рэжым: %d"
 
-#: src/x11/meta-x11-display.c:666
+#: src/x11/meta-x11-display.c:701
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
 "replace the current window manager."
 msgstr ""
-"Дысплеі \"%s\" ужо мае аконнага кіраўніка. Каб замяніць яго новым, дадайце "
-"опцыю --replace."
+"Дысплэй «%s» ужо мае кіраўніка акон. Паспрабуйце выкарыстаць параметр --"
+"replace, каб замяніць бягучы кіраўнік акон."
 
-#: src/x11/meta-x11-display.c:1010
-msgid "Failed to initialize GDK\n"
-msgstr "Не ўдалося ініцыяваць GDK\n"
-
-#: src/x11/meta-x11-display.c:1034
+#: src/x11/meta-x11-display.c:1066
 #, c-format
-msgid "Failed to open X Window System display “%s”\n"
-msgstr "Не ўдалося адкрыць дысплей аконнай сістэмы X \"%s\"\n"
+msgid "Failed to open X Window System display “%s”"
+msgstr "Не ўдалося адкрыць дысплэй X Window System «%s»"
 
-#: src/x11/meta-x11-display.c:1117
+#: src/x11/meta-x11-display.c:1211
 #, c-format
-msgid "Screen %d on display “%s” is invalid\n"
-msgstr "Экран %d на дысплеі \"%s\" хібны\n"
+msgid "Screen %d on display “%s” is invalid"
+msgstr "Экран %d на дысплэі «%s» няправільны"
 
-#: src/x11/session.c:1819
-msgid ""
-"These windows do not support “save current setup” and will have to be "
-"restarted manually next time you log in."
-msgstr ""
-"Гэтыя вокны не падтрымліваюць функцыі захавання дзейнага ладу працы, і таму "
-"іх прыйдзецца запусціць уручную пасля наступнага ўваходу ў сістэму."
+#: src/x11/meta-x11-selection-input-stream.c:475
+#, c-format
+msgid "Format %s not supported"
+msgstr "Фармат %s не падтрымліваецца"
 
-#: src/x11/window-props.c:565
+#: src/x11/window-props.c:549
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (на %s)"
 
-#~ msgid "Move window one workspace to the left"
-#~ msgstr "Перамясціць акно ў прастору злева ад дзейнай"
+#~ msgid "Switch to workspace on the left"
+#~ msgstr "Перайсці на працоўную прастору лявей"
 
-#~ msgid "Move window one workspace to the right"
-#~ msgstr "Перамясціць акно ў прастору справа ад дзейнай"
+#~ msgid "Switch to workspace on the right"
+#~ msgstr "Перайсці на працоўную прастору правей"
 
-#~ msgid "Move to workspace left"
-#~ msgstr "Перамясціць на прастору працы злева"
+#~ msgid "Switch to workspace above"
+#~ msgstr "Перайсці на працоўную прастору вышэй"
 
-#~ msgid "Move to workspace right"
-#~ msgstr "Перамясціць на прастору працы справа"
+#~ msgid "Switch to workspace below"
+#~ msgstr "Перайсці на працоўную прастору ніжэй"
 
-#~ msgid "Toggle shaded state"
-#~ msgstr "Перамяніць скручанасць акна ў загаловак"
+#~ msgid "Cancel any active input capture session"
+#~ msgstr "Скасаваць любы актыўны сеанс захопу ўваходнага сігналу"
 
-#~ msgid "background texture could not be created from file"
-#~ msgstr "не ўдалося стварыць фонавую тэкстуру з файла"
-
-#~ msgid "Unknown window information request: %d"
-#~ msgstr "Невядомы запыт інфармацыі пра акно: %d"
-
-#~ msgid "Missing %s extension required for compositing"
-#~ msgstr ""
-#~ "Адсутнічае пашырэнне \"%s\", патрэбнае для ажыццяўлення кампазітнага "
-#~ "вываду"
-
-#~ msgid ""
-#~ "Some other program is already using the key %s with modifiers %x as a "
-#~ "binding\n"
-#~ msgstr ""
-#~ "Нейкая іншая праграма ўжо выкарыстоўвае як скарот клавішу %s з "
-#~ "мадыфікатарамі %x\n"
-
-#~ msgid "\"%s\" is not a valid accelerator\n"
-#~ msgstr "\"%s\" - гэта хібны клавіятурны скарот\n"
-
-#~ msgid "Failed to scan themes directory: %s\n"
-#~ msgstr "Не ўдалося праглядзець каталог з матывамі аздаблення: %s\n"
-
-#~ msgid ""
-#~ "Could not find a theme! Be sure %s exists and contains the usual themes.\n"
-#~ msgstr ""
-#~ "Не ўдалося адшукаць матыў аздаблення! Праверце, каб каталог %s існаваў і "
-#~ "змяшчаў звычайныя матывы.\n"
-
-#~ msgid ""
-#~ "Workarounds for broken applications disabled. Some applications may not "
-#~ "behave properly.\n"
-#~ msgstr ""
-#~ "Асаблівыя паводзіны для некаторых хібных праграм выключаныя. Некаторыя "
-#~ "праграмы могуць перастаць працаваць, як мае быць.\n"
-
-#~ msgid "Could not parse font description \"%s\" from GSettings key %s\n"
-#~ msgstr "Не ўдалося разабраць азначэнне шрыфту \"%s\" з GSettings-ключа %s\n"
-
-#~ msgid ""
-#~ "\"%s\" found in configuration database is not a valid value for mouse "
-#~ "button modifier\n"
-#~ msgstr ""
-#~ "Значэнне \"%s\", знойдзенае ў базе канфігурацыйных даных, не азначае "
-#~ "мадыфікатар мышынай кнопкі\n"
-
-#~ msgid ""
-#~ "\"%s\" found in configuration database is not a valid value for "
-#~ "keybinding \"%s\"\n"
-#~ msgstr ""
-#~ "Значэнне \"%s\", знойдзенае ў базе канфігурацыйных даных, не азначае "
-#~ "клавіятурны скарот \"%s\"\n"
-
-#~ msgid ""
-#~ "Could not acquire window manager selection on screen %d display \"%s\"\n"
-#~ msgstr ""
-#~ "Не ўдалося пераняць вылучэнне кіраўніка вокнаў для экрана %d дысплея \"%s"
-#~ "\"\n"
-
-#~ msgid "Screen %d on display \"%s\" already has a window manager\n"
-#~ msgstr "Экран %d на дысплеі \"%s\" ужо мае кіраўніка вокнаў\n"
-
-#~ msgid "Could not release screen %d on display \"%s\"\n"
-#~ msgstr "Не ўдалося вызваліць экран %d на дысплеі \"%s\"\n"
-
-#~ msgid "Could not create directory '%s': %s\n"
-#~ msgstr "Не ўдалося стварыць каталог \"%s\": %s\n"
-
-#~ msgid "Could not open session file '%s' for writing: %s\n"
-#~ msgstr "Не ўдалося адкрыць файл сеанса \"%s\" для запісу: %s\n"
-
-#~ msgid "Error writing session file '%s': %s\n"
-#~ msgstr "Не ўдалося запісаць файл сеанса \"%s\": %s\n"
-
-#~ msgid "Error closing session file '%s': %s\n"
-#~ msgstr "Не ўдалося закрыць файл сеанса \"%s\": %s\n"
-
-#~ msgid "Failed to parse saved session file: %s\n"
-#~ msgstr "Не ўдалося разабраць захаваны файл сеанса: %s\n"
-
-#~ msgid "<mutter_session> attribute seen but we already have the session ID"
-#~ msgstr ""
-#~ "сустрэты атрыбут <mutter_session>, але мы ўжо маем ідэнтыфікатар сеанса"
-
-#~ msgid "Unknown attribute %s on <%s> element"
-#~ msgstr "Элемент <%2$s> мае невядомы атрыбут %1$s"
-
-#~ msgid "nested <window> tag"
-#~ msgstr "укладзены тэг <window>"
-
-#~ msgid "Unknown element %s"
-#~ msgstr "Невядомы элемент %s"
-
-#~ msgid "Failed to open debug log: %s\n"
-#~ msgstr "Не ўдалося адкрыць адладачны журнал: %s\n"
-
-#~ msgid "Failed to fdopen() log file %s: %s\n"
-#~ msgstr "Не ўдалося выканаць fdopen() для журнальнага файла %s: %s\n"
-
-#~ msgid "Opened log file %s\n"
-#~ msgstr "Журнальны файл %s адкрыты\n"
-
-#~ msgid "Window manager: "
-#~ msgstr "Кіраўнік вокнаў: "
-
-#~ msgid "Bug in window manager: "
-#~ msgstr "Хіба ў кіраўніку вокнаў: "
-
-#~ msgid "Window manager warning: "
-#~ msgstr "Перасцярога ад кіраўніка вокнаў: "
-
-#~ msgid "Window manager error: "
-#~ msgstr "Памылка кіраўніка вокнаў: "
-
-#~ msgid ""
-#~ "Window %s sets SM_CLIENT_ID on itself, instead of on the WM_CLIENT_LEADER "
-#~ "window as specified in the ICCCM.\n"
-#~ msgstr ""
-#~ "Акно %s прызначыла SM_CLIENT_ID для сябе, а не для акна WM_CLIENT_LEADER, "
-#~ "як таго вымагае спецыфікацыя ICCCM.\n"
-
-#~ msgid ""
-#~ "Window %s sets an MWM hint indicating it isn't resizable, but sets min "
-#~ "size %d x %d and max size %d x %d; this doesn't make much sense.\n"
-#~ msgstr ""
-#~ "Акно %s уключыла для сябе MWM-уласцівасць, якая азначае незмяняльнасць "
-#~ "памеру, але разам з гэтым прызначыла для сябе мінімальны памер %d x %d і "
-#~ "максімальны памер %d x %d. Такія паводзіны не маюць сэнсу.\n"
-
-#~ msgid "Application set a bogus _NET_WM_PID %lu\n"
-#~ msgstr "Праграма прызначыла памылковае значэнне _NET_WM_PID %lu\n"
-
-#~ msgid "Invalid WM_TRANSIENT_FOR window 0x%lx specified for %s.\n"
-#~ msgstr "Для %2$s вызначана хібнае акно WM_TRANSIENT_FOR 0x%1$lx.\n"
-
-#~ msgid "WM_TRANSIENT_FOR window 0x%lx for %s would create loop.\n"
-#~ msgstr "WM_TRANSIENT_FOR акно 0x%lx для %s стварыла б цыкл.\n"
-
-#~ msgid ""
-#~ "Window 0x%lx has property %s\n"
-#~ "that was expected to have type %s format %d\n"
-#~ "and actually has type %s format %d n_items %d.\n"
-#~ "This is most likely an application bug, not a window manager bug.\n"
-#~ "The window has title=\"%s\" class=\"%s\" name=\"%s\"\n"
-#~ msgstr ""
-#~ "Акно 0x%lx мае ўласцівасць %s,\n"
-#~ "якая мусіла мець тып %s, фармат %d,\n"
-#~ "а ў сапраўднасці мае тып %s, фармат %d, n_items %d.\n"
-#~ "Відаць, гэта хіба самой праграмы, а не кіраўніка вокнаў.\n"
-#~ "Акно мае загаловак=\"%s\", клас=\"%s\", назву=\"%s\"\n"
-
-#~ msgid "Property %s on window 0x%lx contained invalid UTF-8\n"
-#~ msgstr "Уласцівасць %s акна 0x%lx змяшчала хібныя для UTF-8 знакі\n"
-
-#~ msgid ""
-#~ "Property %s on window 0x%lx contained invalid UTF-8 for item %d in the "
-#~ "list\n"
-#~ msgstr ""
-#~ "Уласцівасць %s акна 0x%lx змяшчала хібныя для UTF-8 знакі ў складніку %d "
-#~ "спіса\n"
-
-#~ msgid "Mi_nimize"
-#~ msgstr "_Мінімалізаваць"
-
-#~ msgid "Ma_ximize"
-#~ msgstr "Ма_ксімалізаваць"
-
-#~ msgid "Unma_ximize"
-#~ msgstr "Скасаваць ма_ксімалізацыю"
-
-#~ msgid "Roll _Up"
-#~ msgstr "_Скруціць акно ў загаловак"
-
-#~ msgid "_Unroll"
-#~ msgstr "Рас_круціць акно з загалоўка"
-
-#~ msgid "_Move"
-#~ msgstr "_Перамясціць акно"
-
-#~ msgid "_Resize"
-#~ msgstr "_Змяніць памер акна"
-
-#~ msgid "Move Titlebar On_screen"
-#~ msgstr "Перамясціць загаловак акна па _экране"
-
-#~ msgid "Always on _Top"
-#~ msgstr "Заўсёды _наверсе"
-
-#~ msgid "_Always on Visible Workspace"
-#~ msgstr "Заўсёды на _бачнай прасторы працы"
-
-#~ msgid "_Only on This Workspace"
-#~ msgstr "_Толькі на гэтай прасторы працы"
-
-#~ msgid "Move to Workspace _Left"
-#~ msgstr "Перамясціць на прастору працы з_лева"
-
-#~ msgid "Move to Workspace R_ight"
-#~ msgstr "Перамясціць на прастору працы с_права"
-
-#~ msgid "Move to Workspace _Up"
-#~ msgstr "Перамясціць на прастору працы з_верху"
-
-#~ msgid "Move to Workspace _Down"
-#~ msgstr "Перамясціць на прастору працы з_нізу"
-
-#~ msgid "_Close"
-#~ msgstr "_Закрыць акно"
-
-#~ msgid "Workspace %d%n"
-#~ msgstr "Прастора працы %d%n"
-
-#~ msgid "Workspace 1_0"
-#~ msgstr "Прастора працы 1_0"
-
-#~ msgid "Workspace %s%d"
-#~ msgstr "Прастора працы %s%d"
-
-#~ msgid "Move to Another _Workspace"
-#~ msgstr "П_ерамясціць на іншую прастору працы"
-
-#~ msgid "Shift"
-#~ msgstr "Shift"
-
-#~ msgid "Ctrl"
-#~ msgstr "Ctrl"
-
-#~ msgid "Alt"
-#~ msgstr "Alt"
-
-#~ msgid "Meta"
-#~ msgstr "Meta"
-
-#~ msgid "Super"
-#~ msgstr "Super"
-
-#~ msgid "Hyper"
-#~ msgstr "Hyper"
-
-#~ msgid "Mod2"
-#~ msgstr "Mod2"
-
-#~ msgid "Mod3"
-#~ msgstr "Mod3"
-
-#~ msgid "Mod4"
-#~ msgstr "Mod4"
-
-#~ msgid "Mod5"
-#~ msgstr "Mod5"
-
-#~ msgid "%d x %d"
-#~ msgstr "%d x %d"
-
-#~ msgid "top"
-#~ msgstr "верхнюю"
-
-#~ msgid "bottom"
-#~ msgstr "ніжнюю"
-
-#~ msgid "left"
-#~ msgstr "левую"
-
-#~ msgid "right"
-#~ msgstr "правую"
-
-#~ msgid "frame geometry does not specify \"%s\" dimension"
-#~ msgstr "апісанне геаметрыі рамкі акна не вызначае %s граніцу"
-
-#~ msgid "frame geometry does not specify dimension \"%s\" for border \"%s\""
-#~ msgstr ""
-#~ "апісанне геаметрыі рамкі акна не вызначае %s граніцу для аблямоўкі \"%s\""
-
-#~ msgid "Button aspect ratio %g is not reasonable"
-#~ msgstr "Прапорцыі кнопкі %g не маюць сэнсу"
-
-#~ msgid "Frame geometry does not specify size of buttons"
-#~ msgstr "Апісанне геаметрыі рамкі акна не вызначае памер кнопак"
-
-#~ msgid "Gradients should have at least two colors"
-#~ msgstr "Градыент мусіць мець прынамсі два колеры"
-
-#~ msgid ""
-#~ "GTK custom color specification must have color name and fallback in "
-#~ "parentheses, e.g. gtk:custom(foo,bar); could not parse \"%s\""
-#~ msgstr ""
-#~ "Уласная спецыфікацыя колеру GTK мусіць змяшчаць назвы асноўнага і "
-#~ "запаснога колераў у дужках, напрыклад, gtk:custom(foo,bar). Не ўдалося "
-#~ "разабраць \"%s\""
-
-#~ msgid ""
-#~ "Invalid character '%c' in color_name parameter of gtk:custom, only A-Za-"
-#~ "z0-9-_ are valid"
-#~ msgstr ""
-#~ "Хібны знак \"%c\" у параметры color_name спецыфікацыі gtk:custom, "
-#~ "дазволеныя толькі A-Za-z0-9-_"
-
-#~ msgid ""
-#~ "Gtk:custom format is \"gtk:custom(color_name,fallback)\", \"%s\" does not "
-#~ "fit the format"
-#~ msgstr ""
-#~ "Фармат gtk:custom: \"gtk:custom(назва_колеру,запасны_колер)\"; \"%s\" не "
-#~ "адпавядае фармату"
-
-#~ msgid ""
-#~ "GTK color specification must have the state in brackets, e.g. gtk:"
-#~ "fg[NORMAL] where NORMAL is the state; could not parse \"%s\""
-#~ msgstr ""
-#~ "Спецыфікацыя колеру GTK мусіць мець стан у квадратных дужках, напрыклад, "
-#~ "gtk:fg[NORMAL], дзе NORMAL - гэта стан. Не ўдалося разабраць \"%s\""
-
-#~ msgid ""
-#~ "GTK color specification must have a close bracket after the state, e.g. "
-#~ "gtk:fg[NORMAL] where NORMAL is the state; could not parse \"%s\""
-#~ msgstr ""
-#~ "Спецыфікацыя колеру GTK мусіць мець закрытыя квадратныя дужкі пасля "
-#~ "стану, напрыклад, gtk:fg[NORMAL], дзе NORMAL - гэта стан. Не ўдалося "
-#~ "разабраць \"%s\""
-
-#~ msgid "Did not understand state \"%s\" in color specification"
-#~ msgstr "Незразумелы стан \"%s\" у спецыфікацыі колеру"
-
-#~ msgid "Did not understand color component \"%s\" in color specification"
-#~ msgstr "Незразумелы складнік колеру \"%s\" у спецыфікацыі колеру"
-
-#~ msgid ""
-#~ "Blend format is \"blend/bg_color/fg_color/alpha\", \"%s\" does not fit "
-#~ "the format"
-#~ msgstr ""
-#~ "Фармат змяшанага колеру - \"blend/bg_color/fg_color/alpha\". \"%s\" не "
-#~ "адпавядае фармату."
-
-#~ msgid "Could not parse alpha value \"%s\" in blended color"
-#~ msgstr "Не ўдалося разабраць значэнне альфа \"%s\" ў змяшаным колеры"
-
-#~ msgid "Alpha value \"%s\" in blended color is not between 0.0 and 1.0"
-#~ msgstr ""
-#~ "Значэнне альфа \"%s\" у змяшаным колеры не ўваходзіць у дыяпазон ад 0.0 "
-#~ "да 1.0"
-
-#~ msgid ""
-#~ "Shade format is \"shade/base_color/factor\", \"%s\" does not fit the "
-#~ "format"
-#~ msgstr ""
-#~ "Фармат ценю - \"shade/base_color/factor\". \"%s\" не адпавядае фармату."
-
-#~ msgid "Could not parse shade factor \"%s\" in shaded color"
-#~ msgstr "Не ўдалося разабраць каэфіцыент ценю \"%s\" у зацененым колеры"
-
-#~ msgid "Shade factor \"%s\" in shaded color is negative"
-#~ msgstr "Каэфіцыент ценю \"%s\" у зацененым колеры адмоўны"
-
-#~ msgid "Could not parse color \"%s\""
-#~ msgstr "Не ўдалося разабраць колер \"%s\""
-
-#~ msgid "Coordinate expression contains character '%s' which is not allowed"
-#~ msgstr "Каардынатны выраз змяшчае забаронены знак \"%s\""
-
-#~ msgid ""
-#~ "Coordinate expression contains floating point number '%s' which could not "
-#~ "be parsed"
-#~ msgstr ""
-#~ "Каардынатны выраз змяшчае незразумелы лік з нефіксаванай коскай \"%s\""
-
-#~ msgid ""
-#~ "Coordinate expression contains integer '%s' which could not be parsed"
-#~ msgstr "Каардынатны выраз змяшчае незразумелы цэлы лік \"%s\""
-
-#~ msgid ""
-#~ "Coordinate expression contained unknown operator at the start of this "
-#~ "text: \"%s\""
-#~ msgstr ""
-#~ "Каардынатны выраз змяшчае невядомы аператар у пачатку гэтага тэксту: \"%s"
-#~ "\""
-
-#~ msgid "Coordinate expression was empty or not understood"
-#~ msgstr "Каардынатны выраз пусты ці незразумелы"
-
-#~ msgid "Coordinate expression results in division by zero"
-#~ msgstr "Каардынатны выраз вымагае дзялення на нуль"
-
-#~ msgid ""
-#~ "Coordinate expression tries to use mod operator on a floating-point number"
-#~ msgstr ""
-#~ "Каардынатны выраз спрабуе ўжыць аператар дзялення па модулі для ліку з "
-#~ "нефіксаванай коскай"
-
-#~ msgid ""
-#~ "Coordinate expression has an operator \"%s\" where an operand was expected"
-#~ msgstr ""
-#~ "У каардынатным выразе ўжыты аператар \"%s\" там, дзе мусіў быць аперанд"
-
-#~ msgid "Coordinate expression had an operand where an operator was expected"
-#~ msgstr "У каардынатным выразе ўжыты аперанд там, дзе мусіў быць аператар"
-
-#~ msgid "Coordinate expression ended with an operator instead of an operand"
-#~ msgstr "Каардынатны выраз заканчваецца аператарам, а не аперандам"
-
-#~ msgid ""
-#~ "Coordinate expression has operator \"%c\" following operator \"%c\" with "
-#~ "no operand in between"
-#~ msgstr ""
-#~ "У каардынатным выразе за аператарам \"%c\" ідзе аператар \"%c\", але "
-#~ "паміж імі няма аперанда"
-
-#~ msgid "Coordinate expression had unknown variable or constant \"%s\""
-#~ msgstr "У каардынатным выразе невядомая зменная альбо канстанта \"%s\""
-
-#~ msgid "Coordinate expression parser overflowed its buffer."
-#~ msgstr "Прылада для разбору каардынатных выразаў перапоўніла свой буфер."
-
-#~ msgid ""
-#~ "Coordinate expression had a close parenthesis with no open parenthesis"
-#~ msgstr ""
-#~ "У каардынатным выразе ўжытыя дужкі, якія закрываюцца, але няма тых, якія "
-#~ "б адкрываліся"
-
-#~ msgid ""
-#~ "Coordinate expression had an open parenthesis with no close parenthesis"
-#~ msgstr ""
-#~ "У каардынатным выразе ўжытыя дужкі, якія адкрываюцца, але няма тых, якія "
-#~ "б закрываліся"
-
-#~ msgid "Coordinate expression doesn't seem to have any operators or operands"
-#~ msgstr "У каардынатным выразе няма ні аператараў, ні аперандаў"
-
-#~ msgid "Theme contained an expression that resulted in an error: %s\n"
-#~ msgstr "Матыў аздаблення змяшчае выраз, які стаў прычынай памылкі: %s\n"
-
-#~ msgid ""
-#~ "<button function=\"%s\" state=\"%s\" draw_ops=\"whatever\"/> must be "
-#~ "specified for this frame style"
-#~ msgstr ""
-#~ "Для гэтага стылю рамкі трэба вызначыць <button function=\"%s\" state=\"%s"
-#~ "\" draw_ops=\"whatever\"/>"
-
-#~ msgid ""
-#~ "Missing <frame state=\"%s\" resize=\"%s\" focus=\"%s\" style=\"whatever\"/"
-#~ ">"
-#~ msgstr ""
-#~ "Няма <frame state=\"%s\" resize=\"%s\" focus=\"%s\" style=\"што-небудзь\"/"
-#~ ">"
-
-#~ msgid "Failed to load theme \"%s\": %s\n"
-#~ msgstr "Не ўдалося загрузіць матыў аздаблення \"%s\": %s\n"
-
-#~ msgid "No <%s> set for theme \"%s\""
-#~ msgstr "Для матыву аздаблення \"%2$s\" не прызначана <%1$s>"
-
-#~ msgid ""
-#~ "No frame style set for window type \"%s\" in theme \"%s\", add a <window "
-#~ "type=\"%s\" style_set=\"whatever\"/> element"
-#~ msgstr ""
-#~ "Стыль рамкі не вызначаны для вокнаў тыпу \"%s\" для матыву аздаблення \"%s"
-#~ "\". Дадайце <window type=\"%s\" style_set=\"штосьці\"/>."
-
-#~ msgid ""
-#~ "User-defined constants must begin with a capital letter; \"%s\" does not"
-#~ msgstr ""
-#~ "Назвы канстантаў, вызначаных карыстальнікам, мусяць пачынацца з вялікай "
-#~ "літары. \"%s\" не адпавядае гэтаму патрабаванню."
-
-#~ msgid "Constant \"%s\" has already been defined"
-#~ msgstr "Канстанта \"%s\" ужо азначана"
-
-#~ msgid "No \"%s\" attribute on element <%s>"
-#~ msgstr "Элемент <%2$s> не мае атрыбута \"%1$s\""
-
-#~ msgid "Line %d character %d: %s"
-#~ msgstr "Радок %d, знак %d: %s"
-
-#~ msgid "Attribute \"%s\" repeated twice on the same <%s> element"
-#~ msgstr "Атрыбут \"%s\" двойчы азначаны для элемента <%s>"
-
-#~ msgid "Attribute \"%s\" is invalid on <%s> element in this context"
-#~ msgstr "У гэтым кантэксце атрыбут \"%s\" элемента <%s> з'яўляецца хібным"
-
-#~ msgid "Could not parse \"%s\" as an integer"
-#~ msgstr "Не ўдалося інтэрпрэтаваць \"%s\" як цэлы лік"
-
-#~ msgid "Did not understand trailing characters \"%s\" in string \"%s\""
-#~ msgstr "Спатканыя незразумелыя знакі \"%s\" у канцы ланцужка \"%s\""
-
-#~ msgid "Integer %ld must be positive"
-#~ msgstr "Цэлы лік %ld мусіць быць дадатным"
-
-#~ msgid "Integer %ld is too large, current max is %d"
-#~ msgstr ""
-#~ "Цэлы лік %ld надта вялікі, максімальна дазволенае значэнне роўнае %d"
-
-#~ msgid "Could not parse \"%s\" as a floating point number"
-#~ msgstr ""
-#~ "Не ўдалося разабраць значэнне \"%s\" як дробны лік з нефіксаванай коскай"
-
-#~ msgid "Boolean values must be \"true\" or \"false\" not \"%s\""
-#~ msgstr ""
-#~ "Булева зменная можа мець значэнне \"true\" або \"false\", але не \"%s\""
-
-#~ msgid "Angle must be between 0.0 and 360.0, was %g\n"
-#~ msgstr "Вугал можа мець значэнне ад 0.0 да 360.0, а не %g\n"
-
-#~ msgid ""
-#~ "Alpha must be between 0.0 (invisible) and 1.0 (fully opaque), was %g\n"
-#~ msgstr ""
-#~ "Вартасць альфа мусіць быць ад 0.0 (нябачная) да 1.0 (поўнасцю "
-#~ "непразрыстая), а пададзена %g\n"
-
-#~ msgid ""
-#~ "Invalid title scale \"%s\" (must be one of xx-small,x-small,small,medium,"
-#~ "large,x-large,xx-large)\n"
-#~ msgstr ""
-#~ "Хібны маштаб загалоўка \"%s\" (магчымыя значэнні: xx-small, x-small, "
-#~ "small, medium, large, x-large, xx-large)\n"
-
-#~ msgid "<%s> name \"%s\" used a second time"
-#~ msgstr "Назва <%s> \"%s\" ужытая другі раз"
-
-#~ msgid "<%s> parent \"%s\" has not been defined"
-#~ msgstr "Продак <%s> \"%s\" не азначаны"
-
-#~ msgid "<%s> geometry \"%s\" has not been defined"
-#~ msgstr "Памеры віджэта <%s> \"%s\" не азначаны"
-
-#~ msgid "<%s> must specify either a geometry or a parent that has a geometry"
-#~ msgstr ""
-#~ "<%s> мусіць вызначыць або памеры віджэта, або продка, які мае памеры"
-
-#~ msgid "You must specify a background for an alpha value to be meaningful"
-#~ msgstr "Трэба вызначыць фон для значэння альфа, каб яно мела сэнс"
-
-#~ msgid "Unknown type \"%s\" on <%s> element"
-#~ msgstr "Невядомы тып \"%s\" для элемента <%s>"
-
-#~ msgid "Unknown style_set \"%s\" on <%s> element"
-#~ msgstr "Невядомае значэнне style_set \"%s\" для элемента <%s>"
-
-#~ msgid "Window type \"%s\" has already been assigned a style set"
-#~ msgstr "Тыпу акна \"%s\" ужо прызначаны збор стыляў"
-
-#~ msgid "Element <%s> is not allowed below <%s>"
-#~ msgstr "Элемент <%s> забаронены ніжэй за <%s>"
-
-#~ msgid ""
-#~ "Cannot specify both \"button_width\"/\"button_height\" and \"aspect_ratio"
-#~ "\" for buttons"
-#~ msgstr ""
-#~ "Немагчыма вызначыць для кнопак адначасова \"button_width\"/\"button_height"
-#~ "\" і \"aspect_ratio\""
-
-#~ msgid "Distance \"%s\" is unknown"
-#~ msgstr "Адлегласць \"%s\" невядомая"
-
-#~ msgid "Aspect ratio \"%s\" is unknown"
-#~ msgstr "Каэфіцыент прапарцыянальнасці \"%s\" невядомы"
-
-#~ msgid "Border \"%s\" is unknown"
-#~ msgstr "Аблямоўка \"%s\" невядомая"
-
-#~ msgid "No \"start_angle\" or \"from\" attribute on element <%s>"
-#~ msgstr "Няма атрыбутаў \"start_angle\" ці \"from\" для элемента <%s>"
-
-#~ msgid "No \"extent_angle\" or \"to\" attribute on element <%s>"
-#~ msgstr "Няма атрыбутаў \"extent_angle\" ці \"to\" для элемента <%s>"
-
-#~ msgid "Did not understand value \"%s\" for type of gradient"
-#~ msgstr "Незразумелае значэнне \"%s\" для тыпу градыента"
-
-#~ msgid "Did not understand fill type \"%s\" for <%s> element"
-#~ msgstr "Незразумелы тып запаўнення \"%s\" для элемента <%s>"
-
-#~ msgid "Did not understand state \"%s\" for <%s> element"
-#~ msgstr "Незразумелы стан \"%s\" для элемента <%s>"
-
-#~ msgid "Did not understand shadow \"%s\" for <%s> element"
-#~ msgstr "Незразумелы цень \"%s\" для элемента <%s>"
-
-#~ msgid "Did not understand arrow \"%s\" for <%s> element"
-#~ msgstr "Незразумелая стрэлка \"%s\" для элемента <%s>"
-
-#~ msgid "No <draw_ops> called \"%s\" has been defined"
-#~ msgstr "<draw_ops> з назвай \"%s\" не азначаны"
-
-#~ msgid "Including draw_ops \"%s\" here would create a circular reference"
-#~ msgstr "Уключэнне тут draw_ops \"%s\" створыць цыклічную адсылку"
-
-#~ msgid "Unknown position \"%s\" for frame piece"
-#~ msgstr "Невядомая пазіцыя \"%s\" для кавалка рамкі"
-
-#~ msgid "Frame style already has a piece at position %s"
-#~ msgstr "У стылі рамкі ўжо ёсць кавалак у пазіцыі %s"
-
-#~ msgid "No <draw_ops> with the name \"%s\" has been defined"
-#~ msgstr "<draw_ops> з назвай \"%s\" не азначаны"
-
-#~ msgid "Unknown function \"%s\" for button"
-#~ msgstr "Невядомая функцыя \"%s\" для кнопкі"
-
-#~ msgid "Button function \"%s\" does not exist in this version (%d, need %d)"
-#~ msgstr "Функцыя кнопкі \"%s\" не існуе ў гэтай версіі (%d, патрэбна %d)"
-
-#~ msgid "Unknown state \"%s\" for button"
-#~ msgstr "Невядомы стан \"%s\" для кнопкі"
-
-#~ msgid "Frame style already has a button for function %s state %s"
-#~ msgstr "У стылі рамкі ўжо ёсць кнопка для функцыі %s, стану %s"
-
-#~ msgid "\"%s\" is not a valid value for focus attribute"
-#~ msgstr "\"%s\" - няправільнае значэнне для атрыбута \"focus\""
-
-#~ msgid "\"%s\" is not a valid value for state attribute"
-#~ msgstr "\"%s\" - няправільнае значэнне для атрыбута \"state\""
-
-#~ msgid "A style called \"%s\" has not been defined"
-#~ msgstr "Стыль \"%s\" не азначаны"
-
-#~ msgid "\"%s\" is not a valid value for resize attribute"
-#~ msgstr "\"%s\" - няправільнае значэнне для атрыбута \"resize\""
-
-#~ msgid ""
-#~ "Should not have \"resize\" attribute on <%s> element for maximized/shaded "
-#~ "states"
-#~ msgstr ""
-#~ "Для максімалізаванага і зацененага стану нельга мець атрыбут \"resize\" у "
-#~ "элеменце <%s>"
-
-#~ msgid ""
-#~ "Should not have \"resize\" attribute on <%s> element for maximized states"
-#~ msgstr ""
-#~ "Для максімалізаванага стану нельга мець атрыбут \"resize\" у элеменце <%s>"
-
-#~ msgid "Style has already been specified for state %s resize %s focus %s"
-#~ msgstr "Стыль для state %s, resize %s, focus %s ужо вызначаны"
-
-#~ msgid "Style has already been specified for state %s focus %s"
-#~ msgstr "Стыль для state %s, focus %s ужо вызначаны"
-
-#~ msgid ""
-#~ "Can't have a two draw_ops for a <piece> element (theme specified a "
-#~ "draw_ops attribute and also a <draw_ops> element, or specified two "
-#~ "elements)"
-#~ msgstr ""
-#~ "Немагчыма двойчы ўжыць draw_ops для элемента <piece> (матыў аздаблення "
-#~ "вызначыў атрыбут draw_ops, а таксама элемент <draw_ops>, або вызначыў два "
-#~ "элементы)"
-
-#~ msgid ""
-#~ "Can't have a two draw_ops for a <button> element (theme specified a "
-#~ "draw_ops attribute and also a <draw_ops> element, or specified two "
-#~ "elements)"
-#~ msgstr ""
-#~ "Немагчыма двойчы ўжыць draw_ops для элемента <button> (матыў аздаблення "
-#~ "вызначыў атрыбут draw_ops, а таксама элемент <draw_ops>, або вызначыў два "
-#~ "элементы)"
-
-#~ msgid ""
-#~ "Can't have a two draw_ops for a <menu_icon> element (theme specified a "
-#~ "draw_ops attribute and also a <draw_ops> element, or specified two "
-#~ "elements)"
-#~ msgstr ""
-#~ "Немагчыма двойчы ўжыць draw_ops для элемента <menu_icon> (матыў "
-#~ "аздаблення вызначыў атрыбут draw_ops, а таксама элемент <draw_ops>, або "
-#~ "вызначыў два элементы)"
-
-#~ msgid "Bad version specification '%s'"
-#~ msgstr "Хібная спецыфікацыя версіі \"%s\""
-
-#~ msgid ""
-#~ "\"version\" attribute cannot be used in metacity-theme-1.xml or metacity-"
-#~ "theme-2.xml"
-#~ msgstr ""
-#~ "Атрыбут \"version\" не можа быць ужыты ў metacity-theme-1.xml ці metacity-"
-#~ "theme-2.xml"
-
-#~ msgid ""
-#~ "Theme requires version %s but latest supported theme version is %d.%d"
-#~ msgstr ""
-#~ "Матыў аздаблення патрабуе версію %s, але апошняя версія матываў, якая "
-#~ "падтрымліваецца, - гэта %d.%d"
-
-#~ msgid "Outermost element in theme must be <metacity_theme> not <%s>"
-#~ msgstr ""
-#~ "Самы вонкавы элемент у матыве аздаблення мусіць быць <metacity_theme>, а "
-#~ "не <%s>"
-
-#~ msgid ""
-#~ "Element <%s> is not allowed inside a name/author/date/description element"
-#~ msgstr ""
-#~ "Элемент <%s> забаронены ўнутры элементаў name/author/date/description"
-
-#~ msgid "Element <%s> is not allowed inside a <constant> element"
-#~ msgstr "Элемент <%s> забаронены ўнутры элемента <constant>"
-
-#~ msgid ""
-#~ "Element <%s> is not allowed inside a distance/border/aspect_ratio element"
-#~ msgstr ""
-#~ "Элемент <%s> забаронены ўнутры элементаў distance/border/aspect_ratio"
-
-#~ msgid "Element <%s> is not allowed inside a draw operation element"
-#~ msgstr "Элемент <%s> забаронены ўнутры элемента аперацыі малявання"
-
-#~ msgid "Element <%s> is not allowed inside a <%s> element"
-#~ msgstr "Элемент <%s> забаронены ўнутры элемента <%s>"
-
-#~ msgid "No draw_ops provided for frame piece"
-#~ msgstr "Для кавалка рамкі не вызначана элементаў draw_ops"
-
-#~ msgid "No draw_ops provided for button"
-#~ msgstr "Для кнопкі не вызначана элементаў draw_ops"
-
-#~ msgid "No text is allowed inside element <%s>"
-#~ msgstr "Выкарыстанне тэксту ўнутры элемента <%s> забаронена"
-
-#~ msgid "<%s> specified twice for this theme"
-#~ msgstr "<%s> двойчы вызначаны для гэтага матыву аздаблення"
-
-#~ msgid "Failed to find a valid file for theme %s\n"
-#~ msgstr "Памылка пошуку правільнага файла для матыву аздаблення %s\n"
+#~ msgid "Profile performance using trace instrumentation"
+#~ msgstr "Прадукцыйнасць профілю з выкарыстаннем сродкаў трасіравання"
