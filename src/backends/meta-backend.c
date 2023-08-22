@@ -65,7 +65,6 @@
 #include "backends/meta-remote-access-controller-private.h"
 #include "backends/meta-settings-private.h"
 #include "backends/meta-stage-private.h"
-#include "backends/x11/meta-backend-x11.h"
 #include "clutter/clutter-mutter.h"
 #include "clutter/clutter-seat-private.h"
 #include "compositor/meta-dnd-private.h"
@@ -75,6 +74,10 @@
 #include "meta/meta-context.h"
 #include "meta/meta-enum-types.h"
 #include "meta/util.h"
+
+#ifdef HAVE_X11
+#include "backends/x11/meta-backend-x11.h"
+#endif
 
 #ifdef HAVE_REMOTE_DESKTOP
 #include "backends/meta-dbus-session-watcher.h"

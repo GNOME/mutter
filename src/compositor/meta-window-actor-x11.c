@@ -36,7 +36,6 @@
 #include "meta/meta-enum-types.h"
 #include "meta/meta-shadow-factory.h"
 #include "meta/meta-window-actor.h"
-#include "meta/meta-x11-errors.h"
 #include "meta/window.h"
 #include "x11/window-x11.h"
 #include "x11/meta-sync-counter.h"

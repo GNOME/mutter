@@ -36,7 +36,6 @@
 #include "core/boxes-private.h"
 #include "core/stack-tracker.h"
 #include "core/window-private.h"
-#include "meta/meta-x11-errors.h"
 #include "wayland/meta-wayland-actor-surface.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-surface-private.h"

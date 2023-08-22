@@ -64,9 +64,6 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef HAVE_11_CLIENT
-#include <X11/Xatom.h>
-#endif
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"
@@ -74,7 +71,6 @@
 #include "compositor/compositor-private.h"
 #include "core/boxes-private.h"
 #include "core/constraints.h"
-#include "core/frame.h"
 #include "core/keybindings-private.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/place.h"
@@ -87,6 +83,7 @@
 #include "meta/prefs.h"
 
 #ifdef HAVE_X11_CLIENT
+#include "core/frame.h"
 #include "meta/group.h"
 #include "meta/meta-x11-errors.h"
 #include "x11/meta-x11-display-private.h"

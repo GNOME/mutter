@@ -32,7 +32,6 @@
 
 #include "backends/meta-logical-monitor.h"
 #include "cogl/cogl.h"
-#include "core/frame.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/window-private.h"
 #include "core/workspace-private.h"
@@ -40,6 +39,7 @@
 #include "meta/workspace.h"
 
 #ifdef HAVE_X11_CLIENT
+#include "core/frame.h"
 #include "meta/group.h"
 #include "x11/meta-x11-display-private.h"
 #endif

@@ -21,7 +21,9 @@
 
 #pragma once
 
+#ifdef HAVE_X11_CLIENT
 #include <X11/extensions/Xfixes.h>
+#endif
 #include <gmodule.h>
 
 #include "clutter/clutter.h"
@@ -165,6 +167,7 @@ struct _MetaPluginClass
    */
   void (*kill_switch_workspace)    (MetaPlugin     *plugin);
 
+#ifdef HAVE_X11_CLIENT
   /**
    * MetaPluginClass::xevent_filter:
    * @event: (type xlib.XEvent):
@@ -178,6 +181,7 @@ struct _MetaPluginClass
    */
   gboolean (*xevent_filter) (MetaPlugin       *plugin,
                              XEvent           *event);
+#endif
 
   /**
    * MetaPluginClass::keybinding_filter:

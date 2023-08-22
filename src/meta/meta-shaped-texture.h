@@ -23,11 +23,9 @@
 
 #pragma once
 
-#include <X11/Xlib.h>
-
 #include "clutter/clutter.h"
-#include <meta/common.h>
-#include <meta/meta-multi-texture.h>
+#include "meta/common.h"
+#include "meta/meta-multi-texture.h"
 
 G_BEGIN_DECLS
 

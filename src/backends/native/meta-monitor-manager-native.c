@@ -57,7 +57,6 @@
 #include "backends/native/meta-virtual-monitor-native.h"
 #include "clutter/clutter.h"
 #include "meta/main.h"
-#include "meta/meta-x11-errors.h"
 
 #include "meta-dbus-display-config.h"
 

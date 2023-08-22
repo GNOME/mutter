@@ -20,7 +20,6 @@
 #pragma once
 
 #include <glib-object.h>
-#include <X11/Xlib.h>
 
 #include <meta/types.h>
 #include <meta/prefs.h>

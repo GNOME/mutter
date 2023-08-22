@@ -24,6 +24,8 @@
 
 #include <stdint.h>
 #include <X11/Xlib.h>
+#include <X11/extensions/XInput.h>
+#include <X11/extensions/XInput2.h>
 
 #include "backends/meta-backend-private.h"
 #include "backends/x11/meta-backend-x11-types.h"

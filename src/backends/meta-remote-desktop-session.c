@@ -37,12 +37,14 @@
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-screen-cast-session.h"
 #include "backends/meta-remote-access-controller-private.h"
-#include "backends/x11/meta-backend-x11.h"
 #include "cogl/cogl.h"
 #include "core/display-private.h"
 #include "core/meta-selection-private.h"
 #include "core/meta-selection-source-remote.h"
 #include "meta/meta-backend.h"
+#ifdef HAVE_X11
+#include "backends/x11/meta-backend-x11.h"
+#endif
 
 #include "meta-dbus-remote-desktop.h"
 

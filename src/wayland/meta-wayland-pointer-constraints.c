@@ -28,7 +28,6 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-pointer-constraint.h"
-#include "core/frame.h"
 #include "core/window-private.h"
 #include "meta/meta-backend.h"
 #include "wayland/meta-pointer-confinement-wayland.h"
@@ -39,6 +38,10 @@
 #include "wayland/meta-wayland-seat.h"
 #include "wayland/meta-wayland-subsurface.h"
 #include "wayland/meta-wayland-surface-private.h"
+
+#ifdef HAVE_X11_CLIENT
+#include "core/frame.h"
+#endif
 
 #ifdef HAVE_XWAYLAND
 #include "wayland/meta-xwayland.h"
@@ -609,13 +612,13 @@ MtkRegion *
 meta_wayland_pointer_constraint_calculate_effective_region (MetaWaylandPointerConstraint *constraint)
 {
   MtkRegion *region;
-  MetaWindow *window;
 
   region = meta_wayland_surface_calculate_input_region (constraint->surface);
   if (constraint->region)
     mtk_region_intersect (region, constraint->region);
 
-  window = meta_wayland_surface_get_window (constraint->surface);
+#ifdef HAVE_X11_CLIENT
+  MetaWindow *window = meta_wayland_surface_get_window (constraint->surface);
   if (window && window->frame)
     {
       MetaFrame *frame = window->frame;
@@ -635,7 +638,7 @@ meta_wayland_pointer_constraint_calculate_effective_region (MetaWaylandPointerCo
                                                                        actual_height));
         }
     }
-
+#endif
   return region;
 }
 

@@ -41,11 +41,11 @@
 
 #include "compositor/compositor-private.h"
 #include "core/display-private.h"
-#include "core/frame.h"
 #include "meta/compositor.h"
 #include "meta/util.h"
 
 #ifdef HAVE_X11_CLIENT
+#include "core/frame.h"
 #include "meta/meta-x11-errors.h"
 #include "x11/meta-x11-display-private.h"
 #endif

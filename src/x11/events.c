@@ -36,6 +36,7 @@
 #include "cogl/cogl.h"
 #include "core/bell.h"
 #include "core/display-private.h"
+#include "core/frame.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/window-private.h"
 #include "core/workspace-private.h"

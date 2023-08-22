@@ -45,9 +45,10 @@
 #include "core/boxes-private.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/workspace-private.h"
-#include "meta/meta-x11-errors.h"
 #include "meta/prefs.h"
+#ifdef HAVE_X11_CLIENT
 #include "x11/meta-x11-display-private.h"
+#endif
 
 void meta_workspace_queue_calc_showing   (MetaWorkspace *workspace);
 static void focus_ancestor_or_mru_window (MetaWorkspace *workspace,

@@ -22,7 +22,6 @@
 
 #include "backends/x11/cm/meta-cursor-sprite-xfixes.h"
 #include "clutter/clutter-private.h"
-#include "meta/meta-x11-errors.h"
 #include "x11/meta-x11-display-private.h"
 
 #define UPDATE_POSITION_TIMEOUT_MS (ms (100))

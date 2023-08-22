@@ -20,7 +20,10 @@
 #pragma once
 
 #include <glib-object.h>
+#include <cairo.h>
+#ifdef HAVE_X11_CLIENT
 #include <X11/Xlib.h>
+#endif
 
 #include <meta/boxes.h>
 #include <meta/types.h>

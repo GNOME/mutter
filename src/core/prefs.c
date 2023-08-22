@@ -39,7 +39,10 @@
 #include "core/prefs-private.h"
 #include "core/util-private.h"
 #include "meta/prefs.h"
+
+#ifdef HAVE_X11_CLIENT
 #include "x11/meta-x11-display-private.h"
+#endif
 
 /* If you add a key, it needs updating in init() and in the gsettings
  * notify listener and of course in the .schemas file.

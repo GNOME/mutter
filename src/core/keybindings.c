@@ -33,20 +33,23 @@
 #include "backends/meta-keymap-utils.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor-manager-private.h"
-#include "backends/x11/meta-backend-x11.h"
-#include "backends/x11/meta-clutter-backend-x11.h"
-#include "backends/x11/meta-input-device-x11.h"
 #include "compositor/compositor-private.h"
-#include "core/frame.h"
 #include "core/keybindings-private.h"
 #include "core/meta-accel-parse.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/workspace-private.h"
 #include "meta/compositor.h"
 #include "meta/prefs.h"
-#include "mtk/mtk-x11.h"
+
+#ifdef HAVE_X11_CLIENT
+#include "backends/x11/meta-backend-x11.h"
+#include "backends/x11/meta-clutter-backend-x11.h"
+#include "backends/x11/meta-input-device-x11.h"
+#include "core/frame.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/window-x11.h"
+#include "mtk/mtk-x11.h"
+#endif
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"

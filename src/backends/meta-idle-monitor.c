@@ -29,8 +29,6 @@
 #include "config.h"
 
 #include <string.h>
-#include <X11/Xlib.h>
-#include <X11/extensions/sync.h>
 
 #include "backends/gsm-inhibitor-flag.h"
 #include "backends/meta-backend-private.h"

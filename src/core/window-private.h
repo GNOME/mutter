@@ -31,7 +31,13 @@
 
 #pragma once
 
+#ifdef HAVE_X11_CLIENT
+#include <X11/Xlib.h>
+#include <X11/extensions/XInput.h>
+#include <X11/extensions/XInput2.h>
 #include <X11/Xutil.h>
+#endif
+
 #include <cairo.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
@@ -43,7 +49,9 @@
 #include "meta/util.h"
 #include "meta/window.h"
 #include "wayland/meta-wayland-types.h"
+#ifdef HAVE_X11_CLIENT
 #include "x11/group-private.h"
+#endif
 
 typedef struct _MetaWindowQueue MetaWindowQueue;
 
