@@ -646,11 +646,12 @@ reference:
 
 pages:
   stage: deploy
-  needs: ['reference']
+  needs: ['reference', 'coverage']
   extends:
     - .skip-git-clone
   script:
     - mv references public/
+    - mv coveragereport public/coverage
   artifacts:
     paths:
       - public
