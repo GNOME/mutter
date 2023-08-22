@@ -2011,14 +2011,18 @@ in_tab_chain (MetaWindow  *window,
   gboolean in_normal_tab_chain = meta_window_is_focusable (window) && in_normal_tab_chain_type && !window->skip_taskbar;
   gboolean in_dock_tab_chain = meta_window_is_focusable (window) && (!in_normal_tab_chain_type || window->skip_taskbar);
 
+#ifdef HAVE_X11_CLIENT
   MetaGroup *focus_group = NULL;
   if (window->display->focus_window)
     focus_group = window->display->focus_window->group;
   gboolean in_group_tab_chain = meta_window_is_focusable (window) && (!focus_group || meta_window_get_group (window) == focus_group);
+#endif
 
   return (type == META_TAB_LIST_NORMAL && in_normal_tab_chain)
          || (type == META_TAB_LIST_DOCKS && in_dock_tab_chain)
+#ifdef HAVE_X11_CLIENT
          || (type == META_TAB_LIST_GROUP && in_group_tab_chain)
+#endif
          || (type == META_TAB_LIST_NORMAL_ALL && in_normal_tab_chain_type);
 }
 

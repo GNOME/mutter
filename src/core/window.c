@@ -64,7 +64,9 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef HAVE_11_CLIENT
 #include <X11/Xatom.h>
+#endif
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"
@@ -80,15 +82,18 @@
 #include "core/util-private.h"
 #include "core/workspace-private.h"
 #include "meta/compositor-mutter.h"
-#include "meta/group.h"
 #include "meta/meta-cursor-tracker.h"
 #include "meta/meta-enum-types.h"
-#include "meta/meta-x11-errors.h"
 #include "meta/prefs.h"
+
+#ifdef HAVE_X11_CLIENT
+#include "meta/group.h"
+#include "meta/meta-x11-errors.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/window-props.h"
 #include "x11/window-x11.h"
 #include "x11/xprops.h"
+#endif
 
 #ifdef HAVE_WAYLAND
 #include "wayland/meta-wayland-private.h"
@@ -1042,7 +1047,9 @@ meta_window_constructed (GObject *object)
   meta_stack_freeze (display->stack);
 
   /* initialize the remaining size_hints as if size_hints.flags were zero */
+#ifdef HAVE_X11_CLIENT
   meta_set_normal_hints (window, NULL);
+#endif
 
   /* And this is our unmaximized size */
   window->saved_rect = window->rect;
@@ -1475,16 +1482,16 @@ meta_window_unmanage (MetaWindow  *window,
 
   if (window->fullscreen)
     {
-      MetaGroup *group;
-
       /* If the window is fullscreen, it may be forcing
        * other windows in its group to a higher layer
        */
 
       meta_stack_freeze (window->display->stack);
-      group = meta_window_get_group (window);
+#ifdef HAVE_X11_CLIENT
+      MetaGroup *group = meta_window_get_group (window);
       if (group)
         meta_group_update_layers (group);
+#endif
       meta_stack_thaw (window->display->stack);
     }
 
@@ -1492,7 +1499,9 @@ meta_window_unmanage (MetaWindow  *window,
 
   /* safe to do this early as group.c won't re-add to the
    * group if window->unmanaging */
+#ifdef HAVE_X11_CLIENT
   meta_window_shutdown_group (window);
+#endif
 
   /* If we have the focus, focus some other window.
    * This is done first, so that if the unmap causes
@@ -4508,6 +4517,7 @@ meta_window_get_titlebar_rect (MetaWindow   *window,
 const char*
 meta_window_get_startup_id (MetaWindow *window)
 {
+#ifdef HAVE_X11_CLIENT
   if (window->startup_id == NULL)
     {
       MetaGroup *group;
@@ -4517,7 +4527,7 @@ meta_window_get_startup_id (MetaWindow *window)
       if (group != NULL)
         return meta_group_get_startup_id (group);
     }
-
+#endif
   return window->startup_id;
 }
 
@@ -6009,6 +6019,7 @@ gboolean
 meta_window_same_application (MetaWindow *window,
                               MetaWindow *other_window)
 {
+#ifdef HAVE_X11_CLIENT
   MetaGroup *group       = meta_window_get_group (window);
   MetaGroup *other_group = meta_window_get_group (other_window);
 
@@ -6016,6 +6027,9 @@ meta_window_same_application (MetaWindow *window,
     group!=NULL &&
     other_group!=NULL &&
     group==other_group;
+#else
+  return FALSE;
+#endif
 }
 
 /**
@@ -6196,13 +6210,18 @@ meta_window_get_default_layer (MetaWindow *window)
 void
 meta_window_update_layer (MetaWindow *window)
 {
+#ifdef HAVE_X11_CLIENT
   MetaGroup *group;
+#endif
 
   meta_stack_freeze (window->display->stack);
+
+#ifdef HAVE_X11_CLIENT
   group = meta_window_get_group (window);
   if (group)
     meta_group_update_layers (group);
   else
+#endif
     meta_stack_update_layer (window->display->stack, window);
   meta_stack_thaw (window->display->stack);
 }
@@ -7432,10 +7451,12 @@ meta_window_set_transient_for (MetaWindow *window,
    * equivalent to making it your group leader, to work around shortcomings
    * in programs such as xmms-- see #328211.
    */
+#ifdef HAVE_X11_CLIENT
   if (window->xtransient_for != None &&
       window->xgroup_leader != None &&
       window->xtransient_for != window->xgroup_leader)
     meta_window_group_leader_changed (window);
+#endif
 
   if (!window->constructing && !window->override_redirect)
     meta_window_queue (window, META_QUEUE_MOVE_RESIZE | META_QUEUE_CALC_SHOWING);
