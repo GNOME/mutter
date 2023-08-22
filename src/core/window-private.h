@@ -742,15 +742,6 @@ void meta_window_get_tile_area                  (MetaWindow    *window,
 gboolean meta_window_same_application (MetaWindow *window,
                                        MetaWindow *other_window);
 
-#define META_WINDOW_IN_NORMAL_TAB_CHAIN_TYPE(w) \
-  ((w)->type != META_WINDOW_DOCK && (w)->type != META_WINDOW_DESKTOP)
-#define META_WINDOW_IN_NORMAL_TAB_CHAIN(w) \
-  (meta_window_is_focusable (w) && META_WINDOW_IN_NORMAL_TAB_CHAIN_TYPE (w) && (!(w)->skip_taskbar))
-#define META_WINDOW_IN_DOCK_TAB_CHAIN(w) \
-  (meta_window_is_focusable (w) && (! META_WINDOW_IN_NORMAL_TAB_CHAIN_TYPE (w) || (w)->skip_taskbar))
-#define META_WINDOW_IN_GROUP_TAB_CHAIN(w, g) \
-  (meta_window_is_focusable (w) && (!g || meta_window_get_group(w)==g))
-
 void meta_window_free_delete_dialog (MetaWindow *window);
 
 MetaStackLayer meta_window_get_default_layer (MetaWindow *window);
