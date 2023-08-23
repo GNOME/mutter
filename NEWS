@@ -1,3 +1,15 @@
+43.8
+====
+* Fix restoring focus when leaving the overview [Jonas; #2690]
+* Fix touch move operations on subsurfaces [Gergo; !3125]
+* Fix flickering when DRI driver isn't available [Daniel; !3117]
+* Misc. bug fixes and cleanups [Michel, Robert, Olivier, Daniel; !3055, !3135,
+  #2848, !3112]
+
+Contributors:
+  Jonas Ådahl, Michel Dänzer, Olivier Fourdan, Gergo Koteles, Robert Mader,
+  Daniel van Vugt
+
 43.7
 ====
 * Fixed crash [Keyu; !2827]
