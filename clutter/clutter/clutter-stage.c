@@ -23,7 +23,7 @@
 
 /**
  * ClutterStage:
- * 
+ *
  * Top level visual element to which actors are placed.
  *
  * #ClutterStage is a top level 'window' on which child actors are placed
@@ -1471,10 +1471,15 @@ clutter_stage_class_init (ClutterStageClass *klass)
                   G_TYPE_FROM_CLASS (gobject_class),
                   G_SIGNAL_RUN_LAST,
                   0,
-                  NULL, NULL, NULL,
+                  NULL, NULL,
+                  _clutter_marshal_VOID__OBJECT_BOXED,
                   G_TYPE_NONE, 2,
                   CLUTTER_TYPE_STAGE_VIEW,
-                  CLUTTER_TYPE_FRAME);
+                  CLUTTER_TYPE_FRAME | G_SIGNAL_TYPE_STATIC_SCOPE);
+  g_signal_set_va_marshaller (stage_signals[BEFORE_UPDATE],
+                              G_TYPE_FROM_CLASS (gobject_class),
+                              _clutter_marshal_VOID__OBJECT_BOXEDv);
+
   /**
    * ClutterStage::prepare-frame:
    * @stage: the stage that received the event
@@ -1489,10 +1494,14 @@ clutter_stage_class_init (ClutterStageClass *klass)
                   G_TYPE_FROM_CLASS (gobject_class),
                   G_SIGNAL_RUN_LAST,
                   0,
-                  NULL, NULL, NULL,
+                  NULL, NULL,
+                  _clutter_marshal_VOID__OBJECT_BOXED,
                   G_TYPE_NONE, 2,
                   CLUTTER_TYPE_STAGE_VIEW,
-                  CLUTTER_TYPE_FRAME);
+                  CLUTTER_TYPE_FRAME | G_SIGNAL_TYPE_STATIC_SCOPE);
+  g_signal_set_va_marshaller (stage_signals[PREPARE_FRAME],
+                              G_TYPE_FROM_CLASS (gobject_class),
+                              _clutter_marshal_VOID__OBJECT_BOXEDv);
 
   /**
    * ClutterStage::before-paint:
@@ -1507,10 +1516,15 @@ clutter_stage_class_init (ClutterStageClass *klass)
                   G_TYPE_FROM_CLASS (gobject_class),
                   G_SIGNAL_RUN_LAST,
                   G_STRUCT_OFFSET (ClutterStageClass, before_paint),
-                  NULL, NULL, NULL,
+                  NULL, NULL,
+                  _clutter_marshal_VOID__OBJECT_BOXED,
                   G_TYPE_NONE, 2,
                   CLUTTER_TYPE_STAGE_VIEW,
-                  CLUTTER_TYPE_FRAME);
+                  CLUTTER_TYPE_FRAME | G_SIGNAL_TYPE_STATIC_SCOPE);
+  g_signal_set_va_marshaller (stage_signals[BEFORE_PAINT],
+                              G_TYPE_FROM_CLASS (gobject_class),
+                              _clutter_marshal_VOID__OBJECT_BOXEDv);
+
   /**
    * ClutterStage::after-paint:
    * @stage: the stage that received the event
@@ -1525,10 +1539,14 @@ clutter_stage_class_init (ClutterStageClass *klass)
                   G_TYPE_FROM_CLASS (gobject_class),
                   G_SIGNAL_RUN_LAST,
                   0, /* no corresponding vfunc */
-                  NULL, NULL, NULL,
+                  NULL, NULL,
+                  _clutter_marshal_VOID__OBJECT_BOXED,
                   G_TYPE_NONE, 2,
                   CLUTTER_TYPE_STAGE_VIEW,
-                  CLUTTER_TYPE_FRAME);
+                  CLUTTER_TYPE_FRAME | G_SIGNAL_TYPE_STATIC_SCOPE);
+  g_signal_set_va_marshaller (stage_signals[AFTER_PAINT],
+                              G_TYPE_FROM_CLASS (gobject_class),
+                              _clutter_marshal_VOID__OBJECT_BOXEDv);
 
   /**
    * ClutterStage::after-update:
@@ -1541,10 +1559,14 @@ clutter_stage_class_init (ClutterStageClass *klass)
                   G_TYPE_FROM_CLASS (gobject_class),
                   G_SIGNAL_RUN_LAST,
                   0,
-                  NULL, NULL, NULL,
+                  NULL, NULL,
+                  _clutter_marshal_VOID__OBJECT_BOXED,
                   G_TYPE_NONE, 2,
                   CLUTTER_TYPE_STAGE_VIEW,
-                  CLUTTER_TYPE_FRAME);
+                  CLUTTER_TYPE_FRAME | G_SIGNAL_TYPE_STATIC_SCOPE);
+  g_signal_set_va_marshaller (stage_signals[AFTER_UPDATE],
+                              G_TYPE_FROM_CLASS (gobject_class),
+                              _clutter_marshal_VOID__OBJECT_BOXEDv);
 
   /**
    * ClutterStage::paint-view:
@@ -1565,11 +1587,15 @@ clutter_stage_class_init (ClutterStageClass *klass)
                   G_TYPE_FROM_CLASS (gobject_class),
                   G_SIGNAL_RUN_LAST,
                   G_STRUCT_OFFSET (ClutterStageClass, paint_view),
-                  NULL, NULL, NULL,
+                  NULL, NULL,
+                  _clutter_marshal_VOID__OBJECT_BOXED_BOXED,
                   G_TYPE_NONE, 3,
                   CLUTTER_TYPE_STAGE_VIEW,
-                  CAIRO_GOBJECT_TYPE_REGION,
-                  CLUTTER_TYPE_FRAME);
+                  CAIRO_GOBJECT_TYPE_REGION | G_SIGNAL_TYPE_STATIC_SCOPE,
+                  CLUTTER_TYPE_FRAME | G_SIGNAL_TYPE_STATIC_SCOPE);
+  g_signal_set_va_marshaller (stage_signals[PAINT_VIEW],
+                              G_TYPE_FROM_CLASS (gobject_class),
+                              _clutter_marshal_VOID__OBJECT_BOXED_BOXEDv);
 
   /**
    * ClutterStage::presented: (skip)
@@ -1584,10 +1610,14 @@ clutter_stage_class_init (ClutterStageClass *klass)
                   G_TYPE_FROM_CLASS (gobject_class),
                   G_SIGNAL_RUN_LAST,
                   0,
-                  NULL, NULL, NULL,
+                  NULL, NULL,
+                  _clutter_marshal_VOID__OBJECT_POINTER,
                   G_TYPE_NONE, 2,
                   CLUTTER_TYPE_STAGE_VIEW,
                   G_TYPE_POINTER);
+  g_signal_set_va_marshaller (stage_signals[PRESENTED],
+                              G_TYPE_FROM_CLASS (gobject_class),
+                              _clutter_marshal_VOID__OBJECT_POINTERv);
 
  /**
    * ClutterStage::gl-video-memory-purged: (skip)
