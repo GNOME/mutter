@@ -1,3 +1,24 @@
+44.4
+====
+* Fix xwayland-allow-byte-swapped-clients setting [Olivier; !3156]
+* Fix restoring focus when leaving the overview [Jonas; #2690]
+* Fix touch move operations on subsurfaces [Gergo; !3125]
+* Fix flickering when DRI driver isn't available [Daniel; !3117]
+* Fix unexpected cursor changes over non-resizable windows [Michel; !3096]
+* Fix restoring maximized state of SSD windows [Sebastian K.; !3035]
+* Fix window focus unexpectedly moving to secondary monitor when changing
+  workspaces [Sebastian W.; !2909]
+* Fixed crash [Carlos; !3077]
+* Misc. bug fixes and cleanups [Michel, Robert, Olivier, Daniel; !3055, !3135,
+  #2848, !3112]
+
+Contributors:
+  Jonas Ådahl, Michel Dänzer, Olivier Fourdan, Carlos Garnacho,
+  Sebastian Keller, Gergo Koteles, Robert Mader, Daniel van Vugt, Sebastian Wick
+
+Translators:
+  Danial Behzadi [fa], Vasil Pupkin [be]
+
 44.3
 ====
 * Ensure preferred monitor mode is always included [Timotej; !3061]
