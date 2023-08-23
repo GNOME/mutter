@@ -101,12 +101,6 @@ meta_launch_context_get_property (GObject    *object,
 }
 
 static void
-meta_launch_context_finalize (GObject *object)
-{
-  G_OBJECT_CLASS (meta_launch_context_parent_class)->finalize (object);
-}
-
-static void
 meta_launch_context_constructed (GObject *object)
 {
   MetaLaunchContext *context = META_LAUNCH_CONTEXT (object);
@@ -215,7 +209,6 @@ meta_launch_context_class_init (MetaLaunchContextClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   GAppLaunchContextClass *ctx_class = G_APP_LAUNCH_CONTEXT_CLASS (klass);
 
-  object_class->finalize = meta_launch_context_finalize;
   object_class->constructed = meta_launch_context_constructed;
   object_class->set_property = meta_launch_context_set_property;
   object_class->get_property = meta_launch_context_get_property;

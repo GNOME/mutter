@@ -641,6 +641,8 @@ meta_startup_notification_lookup_sequence (MetaStartupNotification *sn,
 static void
 meta_startup_notification_init (MetaStartupNotification *sn)
 {
+  sn->startup_sequences = NULL;
+  sn->startup_sequence_timeout_id = 0;
 }
 
 static void
@@ -696,22 +698,10 @@ meta_startup_notification_get_property (GObject    *object,
 }
 
 static void
-meta_startup_notification_constructed (GObject *object)
-{
-  MetaStartupNotification *sn = META_STARTUP_NOTIFICATION (object);
-
-  g_assert (sn->display != NULL);
-
-  sn->startup_sequences = NULL;
-  sn->startup_sequence_timeout_id = 0;
-}
-
-static void
 meta_startup_notification_class_init (MetaStartupNotificationClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  object_class->constructed = meta_startup_notification_constructed;
   object_class->finalize = meta_startup_notification_finalize;
   object_class->set_property = meta_startup_notification_set_property;
   object_class->get_property = meta_startup_notification_get_property;

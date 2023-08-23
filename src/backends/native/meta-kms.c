@@ -506,11 +506,6 @@ meta_kms_finalize (GObject *object)
 }
 
 static void
-meta_kms_constructed (GObject *object)
-{
-}
-
-static void
 meta_kms_init (MetaKms *kms)
 {
   kms->cursor_manager = meta_kms_cursor_manager_new (kms);
@@ -523,7 +518,6 @@ meta_kms_class_init (MetaKmsClass *klass)
   MetaThreadClass *thread_class = META_THREAD_CLASS (klass);
 
   object_class->finalize = meta_kms_finalize;
-  object_class->constructed = meta_kms_constructed;
 
   signals[RESOURCES_CHANGED] =
     g_signal_new ("resources-changed",

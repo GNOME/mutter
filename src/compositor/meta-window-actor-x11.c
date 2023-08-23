@@ -1563,12 +1563,6 @@ meta_window_actor_x11_dispose (GObject *object)
 }
 
 static void
-meta_window_actor_x11_finalize (GObject *object)
-{
-  G_OBJECT_CLASS (meta_window_actor_x11_parent_class)->finalize (object);
-}
-
-static void
 meta_window_actor_x11_class_init (MetaWindowActorX11Class *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
@@ -1596,7 +1590,6 @@ meta_window_actor_x11_class_init (MetaWindowActorX11Class *klass)
   object_class->set_property = meta_window_actor_x11_set_property;
   object_class->get_property = meta_window_actor_x11_get_property;
   object_class->dispose = meta_window_actor_x11_dispose;
-  object_class->finalize = meta_window_actor_x11_finalize;
 
   pspec = g_param_spec_enum ("shadow-mode", NULL, NULL,
                              META_TYPE_SHADOW_MODE,

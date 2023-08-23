@@ -154,57 +154,9 @@ typedef struct _DisplayTilePreview
 } DisplayTilePreview;
 
 static void
-meta_default_plugin_dispose (GObject *object)
-{
-  /* MetaDefaultPluginPrivate *priv = META_DEFAULT_PLUGIN (object)->priv;
-  */
-  G_OBJECT_CLASS (meta_default_plugin_parent_class)->dispose (object);
-}
-
-static void
-meta_default_plugin_finalize (GObject *object)
-{
-  G_OBJECT_CLASS (meta_default_plugin_parent_class)->finalize (object);
-}
-
-static void
-meta_default_plugin_set_property (GObject      *object,
-			    guint         prop_id,
-			    const GValue *value,
-			    GParamSpec   *pspec)
-{
-  switch (prop_id)
-    {
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
-}
-
-static void
-meta_default_plugin_get_property (GObject    *object,
-			    guint       prop_id,
-			    GValue     *value,
-			    GParamSpec *pspec)
-{
-  switch (prop_id)
-    {
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
-}
-
-static void
 meta_default_plugin_class_init (MetaDefaultPluginClass *klass)
 {
-  GObjectClass      *gobject_class = G_OBJECT_CLASS (klass);
   MetaPluginClass *plugin_class  = META_PLUGIN_CLASS (klass);
-
-  gobject_class->finalize        = meta_default_plugin_finalize;
-  gobject_class->dispose         = meta_default_plugin_dispose;
-  gobject_class->set_property    = meta_default_plugin_set_property;
-  gobject_class->get_property    = meta_default_plugin_get_property;
 
   plugin_class->start            = start;
   plugin_class->map              = map;

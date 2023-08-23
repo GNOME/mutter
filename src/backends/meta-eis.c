@@ -297,19 +297,9 @@ meta_eis_new (MetaBackend *backend)
 static void
 meta_eis_init (MetaEis *meta_eis)
 {
-}
-
-static void
-meta_eis_constructed (GObject *object)
-{
-  MetaEis *meta_eis = META_EIS (object);
-
   meta_eis->eis_clients = g_hash_table_new_full (g_direct_hash, g_direct_equal,
                                                  (GDestroyNotify) eis_client_unref,
                                                  (GDestroyNotify) g_object_unref);
-
-  if (G_OBJECT_CLASS (meta_eis_parent_class)->constructed)
-    G_OBJECT_CLASS (meta_eis_parent_class)->constructed (object);
 }
 
 static void
@@ -329,6 +319,5 @@ meta_eis_class_init (MetaEisClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  object_class->constructed = meta_eis_constructed;
   object_class->finalize = meta_eis_finalize;
 }

@@ -142,27 +142,6 @@ meta_workspace_clear_logical_monitor_data (MetaWorkspace *workspace)
 }
 
 static void
-meta_workspace_finalize (GObject *object)
-{
-  /* Actual freeing done in meta_workspace_remove() for now */
-  G_OBJECT_CLASS (meta_workspace_parent_class)->finalize (object);
-}
-
-static void
-meta_workspace_set_property (GObject      *object,
-                             guint         prop_id,
-                             const GValue *value,
-                             GParamSpec   *pspec)
-{
-  switch (prop_id)
-    {
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
-}
-
-static void
 meta_workspace_get_property (GObject      *object,
                              guint         prop_id,
                              GValue       *value,
@@ -195,9 +174,7 @@ static void
 meta_workspace_class_init (MetaWorkspaceClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
-  object_class->finalize     = meta_workspace_finalize;
   object_class->get_property = meta_workspace_get_property;
-  object_class->set_property = meta_workspace_set_property;
 
   signals[WINDOW_ADDED] = g_signal_new ("window-added",
                                         G_TYPE_FROM_CLASS (klass),

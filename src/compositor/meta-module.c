@@ -98,12 +98,6 @@ meta_module_unload (GTypeModule *gmodule)
 }
 
 static void
-meta_module_dispose (GObject *object)
-{
-  G_OBJECT_CLASS (meta_module_parent_class)->dispose (object);
-}
-
-static void
 meta_module_finalize (GObject *object)
 {
   MetaModulePrivate *priv = META_MODULE (object)->priv;
@@ -160,7 +154,6 @@ meta_module_class_init (MetaModuleClass *klass)
   GTypeModuleClass *gmodule_class = G_TYPE_MODULE_CLASS (klass);
 
   gobject_class->finalize     = meta_module_finalize;
-  gobject_class->dispose      = meta_module_dispose;
   gobject_class->set_property = meta_module_set_property;
   gobject_class->get_property = meta_module_get_property;
 

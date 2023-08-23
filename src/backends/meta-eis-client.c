@@ -725,13 +725,6 @@ meta_eis_client_init (MetaEisClient *meta_eis_client)
 }
 
 static void
-meta_eis_client_constructed (GObject *object)
-{
-  if (G_OBJECT_CLASS (meta_eis_client_parent_class)->constructed)
-    G_OBJECT_CLASS (meta_eis_client_parent_class)->constructed (object);
-}
-
-static void
 meta_eis_client_finalize (GObject *object)
 {
   MetaEisClient *meta_eis_client = META_EIS_CLIENT (object);
@@ -749,6 +742,5 @@ meta_eis_client_class_init (MetaEisClientClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  object_class->constructed = meta_eis_client_constructed;
   object_class->finalize = meta_eis_client_finalize;
 }
