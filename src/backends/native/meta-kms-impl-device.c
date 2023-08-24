@@ -1547,29 +1547,30 @@ meta_kms_impl_device_schedule_process (MetaKmsImplDevice *impl_device,
                                        MetaKmsCrtc       *crtc)
 {
   CrtcFrame *crtc_frame;
+  g_autoptr (GError) error = NULL;
+  MetaKmsImplDevicePrivate *priv;
 
   crtc_frame = ensure_crtc_frame (impl_device, crtc);
-  if (crtc_frame->pending_page_flip)
-    return;
 
   if (crtc_frame->await_flush)
     return;
 
-  if (is_using_deadline_timer (impl_device))
-    {
-      g_autoptr (GError) error = NULL;
-      MetaKmsImplDevicePrivate *priv =
-        meta_kms_impl_device_get_instance_private (impl_device);
+  if (!is_using_deadline_timer (impl_device))
+    goto needs_flush;
 
-      if (ensure_deadline_timer_armed (impl_device, crtc_frame, &error))
-        return;
+  if (crtc_frame->pending_page_flip)
+    return;
 
-      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND))
-        g_warning ("Failed to determine deadline: %s", error->message);
+  if (ensure_deadline_timer_armed (impl_device, crtc_frame, &error))
+    return;
 
-      priv->deadline_timer_failed = TRUE;
-    }
+  if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND))
+    g_warning ("Failed to determine deadline: %s", error->message);
 
+  priv = meta_kms_impl_device_get_instance_private (impl_device);
+  priv->deadline_timer_failed = TRUE;
+
+needs_flush:
   meta_kms_device_set_needs_flush (meta_kms_crtc_get_device (crtc), crtc);
 }
 
