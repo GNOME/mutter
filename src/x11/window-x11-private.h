@@ -79,6 +79,7 @@ struct _MetaWindowX11Private
 
   Window xwindow;
   Window xclient_leader;
+  Window xgroup_leader;
 
   /* Bypass compositor hints */
   MetaBypassCompositorHint bypass_compositor;
@@ -89,5 +90,7 @@ struct _MetaWindowX11Private
 MetaWindowX11Private * meta_window_x11_get_private (MetaWindowX11 *window_x11);
 
 void meta_window_x11_initialize_state (MetaWindow *window);
+
+Window meta_window_x11_get_xgroup_leader (MetaWindow *window);
 
 G_END_DECLS

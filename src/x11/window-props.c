@@ -1617,12 +1617,12 @@ reload_wm_hints (MetaWindow    *window,
   Window old_group_leader;
   gboolean urgent;
 
-  old_group_leader = window->xgroup_leader;
+  old_group_leader = priv->xgroup_leader;
 
   /* Fill in defaults */
   window->input = TRUE;
   window->initially_iconic = FALSE;
-  window->xgroup_leader = None;
+  priv->xgroup_leader = None;
   priv->wm_hints_pixmap = None;
   priv->wm_hints_mask = None;
   urgent = FALSE;
@@ -1638,7 +1638,7 @@ reload_wm_hints (MetaWindow    *window,
         window->initially_iconic = (hints->initial_state == IconicState);
 
       if (hints->flags & WindowGroupHint)
-        window->xgroup_leader = hints->window_group;
+        priv->xgroup_leader = hints->window_group;
 
       if (hints->flags & IconPixmapHint)
         priv->wm_hints_pixmap = hints->icon_pixmap;
@@ -1651,15 +1651,15 @@ reload_wm_hints (MetaWindow    *window,
 
       meta_verbose ("Read WM_HINTS input: %d iconic: %d group leader: 0x%lx pixmap: 0x%lx mask: 0x%lx",
                     window->input, window->initially_iconic,
-                    window->xgroup_leader,
+                    priv->xgroup_leader,
                     priv->wm_hints_pixmap,
                     priv->wm_hints_mask);
     }
 
-  if (window->xgroup_leader != old_group_leader)
+  if (priv->xgroup_leader != old_group_leader)
     {
       meta_verbose ("Window %s changed its group leader to 0x%lx",
-                    window->desc, window->xgroup_leader);
+                    window->desc, priv->xgroup_leader);
 
       meta_window_group_leader_changed (window);
     }

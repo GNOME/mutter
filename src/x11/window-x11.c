@@ -558,7 +558,7 @@ meta_window_x11_manage (MetaWindow *window)
 
   /* assign the window to its group, or create a new group if needed */
   window->group = NULL;
-  window->xgroup_leader = None;
+  priv->xgroup_leader = None;
   meta_window_compute_group (window);
 
   meta_window_load_initial_properties (window);
@@ -2002,6 +2002,10 @@ static gboolean
 meta_window_x11_set_transient_for (MetaWindow *window,
                                    MetaWindow *parent)
 {
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
+
   meta_window_x11_recalc_window_type (window);
   if (!window->constructing)
     {
@@ -2027,8 +2031,8 @@ meta_window_x11_set_transient_for (MetaWindow *window,
    * in programs such as xmms-- see #328211.
    */
   if (window->xtransient_for != None &&
-      window->xgroup_leader != None &&
-      window->xtransient_for != window->xgroup_leader)
+      priv->xgroup_leader != None &&
+      window->xtransient_for != priv->xgroup_leader)
     meta_window_group_leader_changed (window);
 
   return TRUE;
@@ -4411,4 +4415,18 @@ meta_window_x11_get_xwindow (MetaWindow *window)
   priv = meta_window_x11_get_instance_private (window_x11);
 
   return priv->xwindow;
+}
+
+Window
+meta_window_x11_get_xgroup_leader (MetaWindow *window)
+{
+  MetaWindowX11 *window_x11;
+  MetaWindowX11Private *priv;
+
+  g_return_val_if_fail (META_IS_WINDOW (window), None);
+
+  window_x11 = META_WINDOW_X11 (window);
+  priv = meta_window_x11_get_instance_private (window_x11);
+
+  return priv->xgroup_leader;
 }

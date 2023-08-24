@@ -36,6 +36,7 @@
 #include "x11/group-props.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/window-x11.h"
+#include "x11/window-x11-private.h"
 
 static MetaGroup*
 meta_group_new (MetaX11Display *x11_display,
@@ -141,15 +142,14 @@ meta_window_get_group (MetaWindow *window)
 }
 
 void
-meta_window_compute_group (MetaWindow* window)
+meta_window_compute_group (MetaWindow *window)
 {
-  MetaGroup *group;
+  MetaGroup *group = NULL;
   MetaWindow *ancestor;
   MetaX11Display *x11_display = window->display->x11_display;
+  Window win_leader = meta_window_x11_get_xgroup_leader (window);
 
   /* use window->xwindow if no window->xgroup_leader */
-
-  group = NULL;
 
   /* Determine the ancestor of the window; its group setting will override the
    * normal grouping rules; see bug 328211.
@@ -160,9 +160,9 @@ meta_window_compute_group (MetaWindow* window)
     {
       if (ancestor != window)
         group = ancestor->group;
-      else if (window->xgroup_leader != None)
+      else if (win_leader != None)
         group = g_hash_table_lookup (x11_display->groups_by_leader,
-                                     &window->xgroup_leader);
+                                     &win_leader);
       else
         {
           Window xwindow = meta_window_x11_get_xwindow (window);
@@ -178,12 +178,14 @@ meta_window_compute_group (MetaWindow* window)
     }
   else
     {
-      if (ancestor != window && ancestor->xgroup_leader != None)
+      Window ancestor_leader = meta_window_x11_get_xgroup_leader (ancestor);
+
+      if (ancestor != window && ancestor_leader != None)
         group = meta_group_new (x11_display,
-                                ancestor->xgroup_leader);
-      else if (window->xgroup_leader != None)
+                                ancestor_leader);
+      else if (win_leader != None)
         group = meta_group_new (x11_display,
-                                window->xgroup_leader);
+                                win_leader);
       else
         group = meta_group_new (x11_display,
                                 meta_window_x11_get_xwindow (window));
