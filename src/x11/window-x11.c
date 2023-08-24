@@ -1998,6 +1998,42 @@ meta_window_x11_is_focus_async (MetaWindow *window)
   return !window->input && priv->wm_take_focus;
 }
 
+static gboolean
+meta_window_x11_set_transient_for (MetaWindow *window,
+                                   MetaWindow *parent)
+{
+  meta_window_x11_recalc_window_type (window);
+  if (!window->constructing)
+    {
+      /* If the window attaches, detaches, or changes attached
+        * parents, we need to destroy the MetaWindow and let a new one
+        * be created (which happens as a side effect of
+        * meta_window_unmanage()). The condition below is correct
+        * because we know window->transient_for has changed.
+        */
+      if (window->attached || meta_window_should_attach_to_parent (window))
+        {
+          guint32 timestamp;
+
+          timestamp =
+            meta_display_get_current_time_roundtrip (window->display);
+          meta_window_unmanage (window, timestamp);
+          return FALSE;
+        }
+    }
+
+  /* possibly change its group. We treat being a window's transient as
+   * equivalent to making it your group leader, to work around shortcomings
+   * in programs such as xmms-- see #328211.
+   */
+  if (window->xtransient_for != None &&
+      window->xgroup_leader != None &&
+      window->xtransient_for != window->xgroup_leader)
+    meta_window_group_leader_changed (window);
+
+  return TRUE;
+}
+
 static void
 meta_window_x11_constructed (GObject *object)
 {
@@ -2127,6 +2163,7 @@ meta_window_x11_class_init (MetaWindowX11Class *klass)
   window_class->map = meta_window_x11_map;
   window_class->unmap = meta_window_x11_unmap;
   window_class->is_focus_async = meta_window_x11_is_focus_async;
+  window_class->set_transient_for = meta_window_x11_set_transient_for;
 
   klass->freeze_commits = meta_window_x11_impl_freeze_commits;
   klass->thaw_commits = meta_window_x11_impl_thaw_commits;

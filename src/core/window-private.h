@@ -601,6 +601,9 @@ struct _MetaWindowClass
   MetaWaylandSurface * (*get_wayland_surface) (MetaWindow *window);
 #endif
 
+  gboolean (*set_transient_for) (MetaWindow *window,
+                                 MetaWindow *parent);
+
   void (* map)   (MetaWindow *window);
   void (* unmap) (MetaWindow *window);
 };
@@ -877,3 +880,6 @@ gboolean meta_window_is_suspended (MetaWindow *window);
 
 META_EXPORT_TEST
 int meta_get_window_suspend_timeout_s (void);
+
+gboolean
+meta_window_should_attach_to_parent (MetaWindow *window);

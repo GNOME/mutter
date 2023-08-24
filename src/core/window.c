@@ -165,8 +165,6 @@ static MetaWindow * meta_window_find_tile_match (MetaWindow   *window,
                                                  MetaTileMode  mode);
 static void update_edge_constraints (MetaWindow *window);
 
-static gboolean meta_window_should_attach_to_parent (MetaWindow *window);
-
 static void initable_iface_init (GInitableIface *initable_iface);
 
 typedef struct _MetaWindowPrivate
@@ -7240,7 +7238,7 @@ check_transient_for_loop (MetaWindow *window,
   while (parent)
     {
       if (parent == window)
-          return TRUE;
+        return TRUE;
       parent = parent->transient_for;
     }
 
@@ -7261,6 +7259,8 @@ void
 meta_window_set_transient_for (MetaWindow *window,
                                MetaWindow *parent)
 {
+  MetaWindowClass *klass = META_WINDOW_GET_CLASS (window);
+
   if (check_transient_for_loop (window, parent))
     {
       meta_warning ("Setting %s transient for %s would create a loop.",
@@ -7271,31 +7271,10 @@ meta_window_set_transient_for (MetaWindow *window,
   if (window->appears_focused && window->transient_for != NULL)
     meta_window_propagate_focus_appearance (window, FALSE);
 
-  /* may now be a dialog */
-  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
-    {
-      meta_window_x11_recalc_window_type (window);
+  if (!klass->set_transient_for (window, parent))
+    return;
 
-      if (!window->constructing)
-        {
-          /* If the window attaches, detaches, or changes attached
-           * parents, we need to destroy the MetaWindow and let a new one
-           * be created (which happens as a side effect of
-           * meta_window_unmanage()). The condition below is correct
-           * because we know window->transient_for has changed.
-           */
-          if (window->attached || meta_window_should_attach_to_parent (window))
-            {
-              guint32 timestamp;
-
-              timestamp =
-                meta_display_get_current_time_roundtrip (window->display);
-              meta_window_unmanage (window, timestamp);
-              return;
-            }
-        }
-    }
-  else if (window->attached && parent == NULL)
+  if (window->attached && parent == NULL)
     {
       guint32 timestamp;
 
@@ -7307,25 +7286,9 @@ meta_window_set_transient_for (MetaWindow *window,
 
   g_set_object (&window->transient_for, parent);
 
-  if (window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND &&
-      window->attached != meta_window_should_attach_to_parent (window))
-    {
-      window->attached = meta_window_should_attach_to_parent (window);
-      meta_window_recalc_features (window);
-    }
-
   /* update stacking constraints */
   if (!window->override_redirect)
     meta_stack_update_transient (window->display->stack, window);
-
-  /* possibly change its group. We treat being a window's transient as
-   * equivalent to making it your group leader, to work around shortcomings
-   * in programs such as xmms-- see #328211.
-   */
-  if (window->xtransient_for != None &&
-      window->xgroup_leader != None &&
-      window->xtransient_for != window->xgroup_leader)
-    meta_window_group_leader_changed (window);
 
   if (!window->constructing && !window->override_redirect)
     meta_window_queue (window, META_QUEUE_MOVE_RESIZE | META_QUEUE_CALC_SHOWING);
