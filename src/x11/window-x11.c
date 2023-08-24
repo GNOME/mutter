@@ -2020,7 +2020,7 @@ meta_window_x11_constructed (GObject *object)
   window->size_hints.height = attrs.height;
 
   window->depth = attrs.depth;
-  window->xvisual = attrs.visual;
+  priv->xvisual = attrs.visual;
   window->mapped = attrs.map_state != IsUnmapped;
 
   window->decorated = TRUE;
@@ -4307,11 +4307,13 @@ gboolean
 meta_window_x11_has_alpha_channel (MetaWindow *window)
 {
   MetaX11Display *x11_display = window->display->x11_display;
+  MetaWindowX11 *windox_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv = meta_window_x11_get_instance_private (windox_x11);
   int n_xvisuals;
   gboolean has_alpha;
   XVisualInfo *xvisual_info;
   XVisualInfo template = {
-    .visualid = XVisualIDFromVisual (window->xvisual),
+    .visualid = XVisualIDFromVisual (priv->xvisual),
   };
 
   xvisual_info = XGetVisualInfo (meta_x11_display_get_xdisplay (x11_display),

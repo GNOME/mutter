@@ -836,7 +836,6 @@ meta_window_wayland_constructed (GObject *object)
   window->size_hints.height = 0;
 
   window->depth = 24;
-  window->xvisual = NULL;
 
   window->mapped = FALSE;
 

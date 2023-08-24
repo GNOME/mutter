@@ -179,7 +179,6 @@ struct _MetaWindow
   /* may be NULL! not all windows get decorated */
   MetaFrame *frame;
   int depth;
-  Visual *xvisual;
   char *desc; /* used in debug spew */
   char *title;
 

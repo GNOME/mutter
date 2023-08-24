@@ -75,6 +75,8 @@ struct _MetaWindowX11Private
   /* Freeze/thaw on resize (for Xwayland) */
   gboolean thaw_after_paint;
 
+  Visual *xvisual;
+
   /* Bypass compositor hints */
   MetaBypassCompositorHint bypass_compositor;
 
