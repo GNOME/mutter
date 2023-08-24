@@ -90,6 +90,10 @@
 #include "x11/window-x11.h"
 #include "x11/xprops.h"
 
+#ifdef HAVE_X11_CLIENT
+#include "x11/window-x11-private.h"
+#endif
+
 #ifdef HAVE_WAYLAND
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-surface-private.h"
@@ -7314,36 +7318,17 @@ window_has_pointer_wayland (MetaWindow *window)
   return pointer_actor && clutter_actor_contains (window_actor, pointer_actor);
 }
 
-static gboolean
-window_has_pointer_x11 (MetaWindow *window)
-{
-  MetaX11Display *x11_display = window->display->x11_display;
-  Window root, child;
-  double root_x, root_y, x, y;
-  XIButtonState buttons;
-  XIModifierState mods;
-  XIGroupState group;
-
-  meta_x11_error_trap_push (x11_display);
-  XIQueryPointer (x11_display->xdisplay,
-                  META_VIRTUAL_CORE_POINTER_ID,
-                  x11_display->xroot,
-                  &root, &child,
-                  &root_x, &root_y, &x, &y,
-                  &buttons, &mods, &group);
-  meta_x11_error_trap_pop (x11_display);
-  free (buttons.mask);
-
-  return meta_x11_display_lookup_x_window (x11_display, child) == window;
-}
-
 gboolean
 meta_window_has_pointer (MetaWindow *window)
 {
   if (meta_is_wayland_compositor ())
     return window_has_pointer_wayland (window);
+#ifdef HAVE_X11_CLIENT
   else
-    return window_has_pointer_x11 (window);
+    return meta_window_x11_has_pointer (window);
+#else
+  g_assert_not_reached ();
+#endif
 }
 
 void

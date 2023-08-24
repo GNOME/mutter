@@ -4463,3 +4463,26 @@ meta_window_x11_get_xtransient_for (MetaWindow *window)
 
   return None;
 }
+
+gboolean
+meta_window_x11_has_pointer (MetaWindow *window)
+{
+  MetaX11Display *x11_display = window->display->x11_display;
+  Window root, child;
+  double root_x, root_y, x, y;
+  XIButtonState buttons;
+  XIModifierState mods;
+  XIGroupState group;
+
+  meta_x11_error_trap_push (x11_display);
+  XIQueryPointer (x11_display->xdisplay,
+                  META_VIRTUAL_CORE_POINTER_ID,
+                  x11_display->xroot,
+                  &root, &child,
+                  &root_x, &root_y, &x, &y,
+                  &buttons, &mods, &group);
+  meta_x11_error_trap_pop (x11_display);
+  free (buttons.mask);
+
+  return meta_x11_display_lookup_x_window (x11_display, child) == window;
+}

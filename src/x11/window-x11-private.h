@@ -100,4 +100,6 @@ Window meta_window_x11_get_user_time_window (MetaWindow *window);
 
 Window meta_window_x11_get_xtransient_for (MetaWindow *window);
 
+gboolean meta_window_x11_has_pointer (MetaWindow *window);
+
 G_END_DECLS
