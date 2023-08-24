@@ -203,7 +203,6 @@ struct _MetaWindow
   char *gtk_app_menu_object_path;
   char *gtk_menubar_object_path;
 
-  Window xtransient_for;
   MetaWindow *transient_for;
 
   /* Initial workspace property */

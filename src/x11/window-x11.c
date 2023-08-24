@@ -2005,6 +2005,7 @@ meta_window_x11_set_transient_for (MetaWindow *window,
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
   MetaWindowX11Private *priv =
     meta_window_x11_get_instance_private (window_x11);
+  Window xtransient_for;
 
   meta_window_x11_recalc_window_type (window);
   if (!window->constructing)
@@ -2030,9 +2031,10 @@ meta_window_x11_set_transient_for (MetaWindow *window,
    * equivalent to making it your group leader, to work around shortcomings
    * in programs such as xmms-- see #328211.
    */
-  if (window->xtransient_for != None &&
+  xtransient_for = meta_window_x11_get_xtransient_for (window);
+  if (xtransient_for != None &&
       priv->xgroup_leader != None &&
-      window->xtransient_for != priv->xgroup_leader)
+      xtransient_for != priv->xgroup_leader)
     meta_window_group_leader_changed (window);
 
   return TRUE;
@@ -4446,4 +4448,18 @@ meta_window_x11_get_user_time_window (MetaWindow *window)
   priv = meta_window_x11_get_instance_private (window_x11);
 
   return priv->user_time_window;
+}
+
+Window
+meta_window_x11_get_xtransient_for (MetaWindow *window)
+{
+  MetaWindow *transient_for;
+
+  g_return_val_if_fail (META_IS_WINDOW (window), None);
+
+  transient_for = meta_window_get_transient_for (window);
+  if (transient_for)
+    return meta_window_x11_get_xwindow (transient_for);
+
+  return None;
 }

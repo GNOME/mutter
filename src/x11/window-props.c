@@ -1683,7 +1683,7 @@ check_xtransient_for_loop (MetaWindow *window,
         return TRUE;
 
       parent = meta_x11_display_lookup_x_window (parent->display->x11_display,
-                                                 parent->xtransient_for);
+                                                 meta_window_x11_get_xtransient_for (parent));
     }
 
   return FALSE;
@@ -1695,7 +1695,7 @@ reload_transient_for (MetaWindow    *window,
                       gboolean       initial)
 {
   MetaWindow *parent = NULL;
-  Window transient_for;
+  Window transient_for, current_transient_for;
 
   if (value->type != META_PROP_VALUE_INVALID)
     {
@@ -1712,9 +1712,9 @@ reload_transient_for (MetaWindow    *window,
       else if (parent->override_redirect)
         {
           const gchar *window_kind = window->override_redirect ?
-            "override-redirect" : "top-level";
-
-          if (parent->xtransient_for != None)
+                                     "override-redirect" : "top-level";
+          Window parent_xtransient_for = meta_window_x11_get_xtransient_for (parent);
+          if (parent_xtransient_for != None)
             {
               /* We don't have to go through the parents, as per this code it is
                * not possible that a window has the WM_TRANSIENT_FOR set to an
@@ -1724,8 +1724,8 @@ reload_transient_for (MetaWindow    *window,
                             "according to the standard, so we'll fallback to "
                             "the first non-override-redirect window 0x%lx.",
                             parent->desc, window->desc, window_kind,
-                            parent->xtransient_for);
-              transient_for = parent->xtransient_for;
+                            parent_xtransient_for);
+              transient_for = parent_xtransient_for;
               parent =
                 meta_x11_display_lookup_x_window (parent->display->x11_display,
                                                   transient_for);
@@ -1753,18 +1753,19 @@ reload_transient_for (MetaWindow    *window,
   else
     transient_for = None;
 
-  if (transient_for == window->xtransient_for)
+  current_transient_for = meta_window_x11_get_xtransient_for (window);
+  if (transient_for == current_transient_for)
     return;
 
-  window->xtransient_for = transient_for;
 
-  if (window->xtransient_for != None)
-    meta_verbose ("Window %s transient for 0x%lx", window->desc, window->xtransient_for);
+  current_transient_for = transient_for;
+  if (current_transient_for != None)
+    meta_verbose ("Window %s transient for 0x%lx", window->desc, current_transient_for);
   else
     meta_verbose ("Window %s is not transient", window->desc);
 
-  if (window->xtransient_for == None ||
-      window->xtransient_for == window->display->x11_display->xroot)
+  if (current_transient_for == None ||
+      current_transient_for == window->display->x11_display->xroot)
     meta_window_set_transient_for (window, NULL);
   else
     {

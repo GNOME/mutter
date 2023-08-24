@@ -1103,8 +1103,6 @@ meta_window_constructed (GObject *object)
   window->has_valid_cgroup = TRUE;
   window->cgroup_path = NULL;
 
-  window->xtransient_for = None;
-
   window->type = META_WINDOW_NORMAL;
 
   window->struts = NULL;
@@ -6709,13 +6707,7 @@ meta_window_get_transient_for (MetaWindow *window)
 {
   g_return_val_if_fail (META_IS_WINDOW (window), NULL);
 
-  if (window->transient_for)
-    return window->transient_for;
-  else if (window->xtransient_for)
-    return meta_x11_display_lookup_x_window (window->display->x11_display,
-                                             window->xtransient_for);
-  else
-    return NULL;
+  return window->transient_for;
 }
 
 /**

@@ -98,4 +98,6 @@ Window meta_window_x11_get_xgroup_leader (MetaWindow *window);
 
 Window meta_window_x11_get_user_time_window (MetaWindow *window);
 
+Window meta_window_x11_get_xtransient_for (MetaWindow *window);
+
 G_END_DECLS
