@@ -205,7 +205,6 @@ struct _MetaWindow
 
   Window xtransient_for;
   Window xgroup_leader;
-  Window xclient_leader;
   MetaWindow *transient_for;
 
   /* Initial workspace property */

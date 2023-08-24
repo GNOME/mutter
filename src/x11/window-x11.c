@@ -179,9 +179,11 @@ find_client_leader_func (MetaWindow *ancestor,
 static void
 update_sm_hints (MetaWindow *window)
 {
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv = meta_window_x11_get_private (window_x11);
   Window leader;
 
-  window->xclient_leader = None;
+  priv->xclient_leader = None;
   window->sm_client_id = NULL;
 
   /* If not on the current window, we can get the client
@@ -189,7 +191,7 @@ update_sm_hints (MetaWindow *window)
    * leader, we read the SM_CLIENT_ID from it.
    */
   leader = read_client_leader (window->display,
-                               meta_window_x11_get_xwindow (window));
+                               priv->xwindow);
   if (leader == None)
     {
       ClientLeaderData d;
@@ -201,7 +203,7 @@ update_sm_hints (MetaWindow *window)
 
   if (leader != None)
     {
-      window->xclient_leader = leader;
+      priv->xclient_leader = leader;
 
       meta_prop_get_latin1_string (window->display->x11_display, leader,
                                    window->display->x11_display->atom_SM_CLIENT_ID,
@@ -217,7 +219,7 @@ update_sm_hints (MetaWindow *window)
            * instead of the client leader
            */
           meta_prop_get_latin1_string (window->display->x11_display,
-                                       meta_window_x11_get_xwindow (window),
+                                       priv->xwindow,
                                        window->display->x11_display->atom_SM_CLIENT_ID,
                                        &window->sm_client_id);
 
@@ -228,7 +230,7 @@ update_sm_hints (MetaWindow *window)
     }
 
   meta_verbose ("Window %s client leader: 0x%lx SM_CLIENT_ID: '%s'",
-                window->desc, window->xclient_leader,
+                window->desc, priv->xclient_leader,
                 window->sm_client_id ? window->sm_client_id : "none");
 }
 
@@ -2035,6 +2037,7 @@ meta_window_x11_constructed (GObject *object)
   window->decorated = TRUE;
   window->hidden = FALSE;
   priv->border_width = attrs.border_width;
+  priv->xclient_leader = None;
 
   g_signal_connect (window, "notify::decorated",
                     G_CALLBACK (meta_window_x11_update_input_region),

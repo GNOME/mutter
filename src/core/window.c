@@ -1107,7 +1107,6 @@ meta_window_constructed (GObject *object)
   window->cgroup_path = NULL;
 
   window->xtransient_for = None;
-  window->xclient_leader = None;
 
   window->type = META_WINDOW_NORMAL;
 
