@@ -35,3 +35,5 @@ MetaWaylandSinglePixelBuffer * meta_wayland_single_pixel_buffer_from_buffer (Met
 void meta_wayland_init_single_pixel_buffer_manager (MetaWaylandCompositor *compositor);
 
 void meta_wayland_single_pixel_buffer_free (MetaWaylandSinglePixelBuffer *single_pixel_buffer);
+
+gboolean meta_wayland_single_pixel_buffer_is_opaque_black (MetaWaylandSinglePixelBuffer *single_pixel_buffer);
