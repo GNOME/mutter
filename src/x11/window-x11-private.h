@@ -81,6 +81,9 @@ struct _MetaWindowX11Private
   Window xclient_leader;
   Window xgroup_leader;
 
+  /* window that gets updated net_wm_user_time values */
+  Window user_time_window;
+
   /* Bypass compositor hints */
   MetaBypassCompositorHint bypass_compositor;
 
@@ -92,5 +95,7 @@ MetaWindowX11Private * meta_window_x11_get_private (MetaWindowX11 *window_x11);
 void meta_window_x11_initialize_state (MetaWindow *window);
 
 Window meta_window_x11_get_xgroup_leader (MetaWindow *window);
+
+Window meta_window_x11_get_user_time_window (MetaWindow *window);
 
 G_END_DECLS

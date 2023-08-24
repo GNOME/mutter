@@ -419,17 +419,20 @@ reload_net_wm_user_time_window (MetaWindow    *window,
 {
   if (value->type != META_PROP_VALUE_INVALID)
     {
+      MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+      MetaWindowX11Private *priv = meta_window_x11_get_private (window_x11);
       MetaWindow *prev_owner;
+      MetaWindowX11Private *prev_owner_priv;
 
       /* Unregister old NET_WM_USER_TIME_WINDOW */
-      if (window->user_time_window != None)
+      if (priv->user_time_window != None)
         {
           /* See the comment to the meta_display_register_x_window call below. */
           meta_x11_display_unregister_x_window (window->display->x11_display,
-                                                window->user_time_window);
+                                                priv->user_time_window);
           /* Don't get events on not-managed windows */
           XSelectInput (window->display->x11_display->xdisplay,
-                        window->user_time_window,
+                        priv->user_time_window,
                         NoEventMask);
         }
 
@@ -438,16 +441,17 @@ reload_net_wm_user_time_window (MetaWindow    *window,
        */
       prev_owner = meta_x11_display_lookup_x_window (window->display->x11_display,
                                                      value->v.xwindow);
-      if (prev_owner && prev_owner->user_time_window == value->v.xwindow)
+      prev_owner_priv = meta_window_x11_get_private (META_WINDOW_X11 (prev_owner));
+      if (prev_owner && prev_owner_priv->user_time_window == value->v.xwindow)
         {
           meta_x11_display_unregister_x_window (window->display->x11_display,
-                                               value->v.xwindow);
-          prev_owner->user_time_window = None;
+                                                value->v.xwindow);
+          prev_owner_priv->user_time_window = None;
         }
 
       /* Obtain the new NET_WM_USER_TIME_WINDOW and register it */
-      window->user_time_window = value->v.xwindow;
-      if (window->user_time_window != None)
+      priv->user_time_window = value->v.xwindow;
+      if (priv->user_time_window != None)
         {
           /* Kind of a hack; display.c:event_callback() ignores events
            * for unknown windows.  We make window->user_time_window
@@ -462,11 +466,11 @@ reload_net_wm_user_time_window (MetaWindow    *window,
            * and it's not specified in the spec anyway.
            */
           meta_x11_display_register_x_window (window->display->x11_display,
-                                              &window->user_time_window,
+                                              &priv->user_time_window,
                                               window);
           /* Just listen for property notify events */
           XSelectInput (window->display->x11_display->xdisplay,
-                        window->user_time_window,
+                        priv->user_time_window,
                         PropertyChangeMask);
 
           /* Manually load the _NET_WM_USER_TIME field from the given window
@@ -475,7 +479,7 @@ reload_net_wm_user_time_window (MetaWindow    *window,
            */
           meta_window_reload_property_from_xwindow (
             window,
-            window->user_time_window,
+            priv->user_time_window,
             window->display->x11_display->atom__NET_WM_USER_TIME,
             initial);
         }

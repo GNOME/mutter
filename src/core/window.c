@@ -1058,7 +1058,6 @@ meta_window_constructed (GObject *object)
   window->initial_workspace_set = FALSE;
   window->initial_timestamp_set = FALSE;
   window->net_wm_user_time_set = FALSE;
-  window->user_time_window = None;
   window->input = TRUE;
   window->calc_placement = FALSE;
   window->have_focus_click_grab = FALSE;

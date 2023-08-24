@@ -275,9 +275,6 @@ struct _MetaWindow
      know about for this window */
   guint32 net_wm_user_time;
 
-  /* window that gets updated net_wm_user_time values */
-  Window user_time_window;
-
   gboolean has_custom_frame_extents;
   MetaFrameBorder custom_frame_extents;
 

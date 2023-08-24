@@ -699,11 +699,11 @@ meta_window_x11_unmanage (MetaWindow *window)
    * _NET_WM_USER_TIME_WINDOW and IPC, perhaps.
    */
 
-  if (window->user_time_window != None)
+  if (priv->user_time_window != None)
     {
       meta_x11_display_unregister_x_window (x11_display,
-                                            window->user_time_window);
-      window->user_time_window = None;
+                                            priv->user_time_window);
+      priv->user_time_window = None;
     }
 
   if (META_X11_DISPLAY_HAS_SHAPE (x11_display))
@@ -2074,6 +2074,8 @@ meta_window_x11_constructed (GObject *object)
   priv->xvisual = attrs.visual;
   window->mapped = attrs.map_state != IsUnmapped;
 
+  priv->user_time_window = None;
+
   window->decorated = TRUE;
   window->hidden = FALSE;
   priv->border_width = attrs.border_width;
@@ -2883,6 +2885,7 @@ meta_window_x11_impl_process_property_notify (MetaWindow     *window,
                                               XPropertyEvent *event)
 {
   Window xid = meta_window_x11_get_xwindow (window);
+  Window user_time_window = meta_window_x11_get_user_time_window (window);
 
   if (meta_is_verbose ()) /* avoid looking up the name if we don't have to */
     {
@@ -2895,9 +2898,9 @@ meta_window_x11_impl_process_property_notify (MetaWindow     *window,
     }
 
   if (event->atom == window->display->x11_display->atom__NET_WM_USER_TIME &&
-      window->user_time_window)
+      user_time_window)
     {
-      xid = window->user_time_window;
+      xid = user_time_window;
     }
 
   meta_window_reload_property_from_xwindow (window, xid, event->atom, FALSE);
@@ -4429,4 +4432,18 @@ meta_window_x11_get_xgroup_leader (MetaWindow *window)
   priv = meta_window_x11_get_instance_private (window_x11);
 
   return priv->xgroup_leader;
+}
+
+Window
+meta_window_x11_get_user_time_window (MetaWindow *window)
+{
+  MetaWindowX11 *window_x11;
+  MetaWindowX11Private *priv;
+
+  g_return_val_if_fail (META_IS_WINDOW (window), None);
+
+  window_x11 = META_WINDOW_X11 (window);
+  priv = meta_window_x11_get_instance_private (window_x11);
+
+  return priv->user_time_window;
 }

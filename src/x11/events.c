@@ -1287,7 +1287,7 @@ handle_other_xevent (MetaX11Display *x11_display,
    * responding to UnmapNotify events is kind of bad.
    */
   property_for_window = NULL;
-  if (window && modified == window->user_time_window)
+  if (window && modified == meta_window_x11_get_user_time_window (window))
     {
       property_for_window = window;
       window = NULL;
