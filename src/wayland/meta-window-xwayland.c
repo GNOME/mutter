@@ -123,7 +123,7 @@ meta_window_xwayland_adjust_fullscreen_monitor_rect (MetaWindow   *window,
   win_monitor_rect = meta_logical_monitor_get_layout (window->monitor);
 
   if (!meta_prop_get_cardinal_list (x11_display,
-                                    window->xwindow,
+                                    meta_window_x11_get_xwindow (window),
                                     x11_display->atom__XWAYLAND_RANDR_EMU_MONITOR_RECTS,
                                     &list, &n_items))
     return;
@@ -199,7 +199,7 @@ apply_allow_commits_x11_property (MetaWindowXwayland *xwayland_window,
 
   frame = meta_window_get_frame (window);
   if (!frame)
-    xwin = window->xwindow;
+    xwin = meta_window_x11_get_xwindow (window);
   else
     xwin = meta_frame_get_xwindow (frame);
 

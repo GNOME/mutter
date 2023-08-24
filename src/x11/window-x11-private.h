@@ -77,6 +77,8 @@ struct _MetaWindowX11Private
 
   Visual *xvisual;
 
+  Window xwindow;
+
   /* Bypass compositor hints */
   MetaBypassCompositorHint bypass_compositor;
 

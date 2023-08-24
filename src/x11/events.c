@@ -808,7 +808,7 @@ handle_window_focus_event (MetaX11Display *x11_display,
    */
   if (window)
     {
-      if (event->event == window->xwindow)
+      if (event->event == meta_window_x11_get_xwindow (window))
         window_type = "client window";
       else if (window->frame && event->event == window->frame->xwindow)
         window_type = "frame window";
@@ -908,7 +908,7 @@ handle_window_focus_event (MetaX11Display *x11_display,
     {
       meta_x11_display_update_focus_window (x11_display,
                                             focus_window ?
-                                            focus_window->xwindow : None,
+                                            meta_window_x11_get_xwindow (focus_window) : None,
                                             x11_display->server_focus_serial,
                                             FALSE);
       meta_display_update_focus_window (display, focus_window);
@@ -1780,7 +1780,7 @@ static gboolean
 window_has_xwindow (MetaWindow *window,
                     Window      xwindow)
 {
-  if (window->xwindow == xwindow)
+  if (meta_window_x11_get_xwindow (window) == xwindow)
     return TRUE;
 
   if (window->frame && window->frame->xwindow == xwindow)

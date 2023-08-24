@@ -213,7 +213,6 @@ enum
   PROP_IS_ALIVE,
   PROP_DISPLAY,
   PROP_EFFECT,
-  PROP_XWINDOW,
   PROP_SUSPEND_STATE,
 
   PROP_LAST,
@@ -434,9 +433,6 @@ meta_window_get_property(GObject         *object,
     case PROP_EFFECT:
       g_value_set_int (value, win->pending_compositor_effect);
       break;
-    case PROP_XWINDOW:
-      g_value_set_ulong (value, win->xwindow);
-      break;
     case PROP_SUSPEND_STATE:
       g_value_set_enum (value, priv->suspend_state);
       break;
@@ -461,9 +457,6 @@ meta_window_set_property(GObject         *object,
       break;
     case PROP_EFFECT:
       win->pending_compositor_effect = g_value_get_int (value);
-      break;
-    case PROP_XWINDOW:
-      win->xwindow = g_value_get_ulong (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -601,11 +594,6 @@ meta_window_class_init (MetaWindowClass *klass)
                       META_COMP_EFFECT_NONE,
                       META_COMP_EFFECT_NONE,
                       G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
-
-  obj_props[PROP_XWINDOW] =
-    g_param_spec_ulong ("xwindow", NULL, NULL,
-                        0, G_MAXULONG, 0,
-                        G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
 
   /**
    * MetaWindow::suspend-state: (skip)
@@ -943,12 +931,12 @@ meta_window_update_desc (MetaWindow *window)
   g_clear_pointer (&window->desc, g_free);
 
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
-    window->desc = g_strdup_printf ("0x%lx", window->xwindow);
+    window->desc = g_strdup_printf ("0x%lx", meta_window_x11_get_xwindow (window));
   else
     {
-      guint64 small_stamp = window->stamp - G_GUINT64_CONSTANT(0x100000000);
+      guint64 small_stamp = window->stamp - G_GUINT64_CONSTANT (0x100000000);
 
-      window->desc = g_strdup_printf ("W%" G_GUINT64_FORMAT , small_stamp);
+      window->desc = g_strdup_printf ("W%" G_GUINT64_FORMAT, small_stamp);
     }
 }
 
@@ -6465,17 +6453,6 @@ MetaDisplay *
 meta_window_get_display (MetaWindow *window)
 {
   return window->display;
-}
-
-/**
- * meta_window_get_xwindow: (skip)
- * @window: a #MetaWindow
- *
- */
-Window
-meta_window_get_xwindow (MetaWindow *window)
-{
-  return window->xwindow;
 }
 
 MetaWindowType

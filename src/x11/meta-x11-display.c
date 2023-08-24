@@ -64,6 +64,7 @@
 #include "x11/group-props.h"
 #include "x11/meta-x11-selection-private.h"
 #include "x11/window-props.h"
+#include "x11/window-x11.h"
 #include "x11/xprops.h"
 
 #ifdef HAVE_XWAYLAND
@@ -2017,7 +2018,7 @@ meta_x11_display_update_active_window_hint (MetaX11Display *x11_display)
                                                    x11_display->focus_xwindow);
 
   if (focus_window)
-    data[0] = focus_window->xwindow;
+    data[0] = meta_window_x11_get_xwindow (focus_window);
   else
     data[0] = None;
 
@@ -2101,7 +2102,7 @@ meta_x11_display_set_input_focus (MetaX11Display *x11_display,
       if (window->frame && !meta_window_is_focusable (window))
         xwindow = window->frame->xwindow;
       else
-        xwindow = window->xwindow;
+        xwindow = meta_window_x11_get_xwindow (window);
 
 #ifdef HAVE_X11
       if (!meta_is_wayland_compositor ())

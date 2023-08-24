@@ -175,7 +175,6 @@ struct _MetaWindow
   MetaLogicalMonitor *highest_scale_monitor;
   MetaWorkspace *workspace;
   MetaWindowClientType client_type;
-  Window xwindow;
   /* may be NULL! not all windows get decorated */
   MetaFrame *frame;
   int depth;

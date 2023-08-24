@@ -31,6 +31,7 @@
 #include "core/keybindings-private.h"
 #include "meta/meta-x11-errors.h"
 #include "x11/meta-x11-display-private.h"
+#include "x11/window-x11.h"
 #include "x11/window-props.h"
 
 #include <X11/Xatom.h>
@@ -49,7 +50,7 @@ meta_window_ensure_frame (MetaWindow *window)
   meta_x11_error_trap_push (x11_display);
 
   XChangeProperty (x11_display->xdisplay,
-                   window->xwindow,
+                   meta_window_x11_get_xwindow (window),
                    x11_display->atom__MUTTER_NEEDS_FRAME,
                    XA_CARDINAL,
                    32, PropModeReplace, (guchar*) data, 1);
@@ -124,10 +125,10 @@ meta_window_set_frame_xwindow (MetaWindow *window,
     }
 
   meta_stack_tracker_record_remove (window->display->stack_tracker,
-                                    window->xwindow,
+                                    meta_window_x11_get_xwindow (window),
                                     XNextRequest (x11_display->xdisplay));
   XReparentWindow (x11_display->xdisplay,
-                   window->xwindow,
+                   meta_window_x11_get_xwindow (window),
                    frame->xwindow,
                    frame->child_x,
                    frame->child_y);
@@ -203,12 +204,12 @@ meta_window_destroy_frame (MetaWindow *window)
       if (!window->unmanaging)
         {
           meta_stack_tracker_record_add (window->display->stack_tracker,
-                                         window->xwindow,
+                                         meta_window_x11_get_xwindow (window),
                                          XNextRequest (x11_display->xdisplay));
         }
 
       XReparentWindow (x11_display->xdisplay,
-                       window->xwindow,
+                       meta_window_x11_get_xwindow (window),
                        x11_display->xroot,
                        /* Using anything other than client root window coordinates
                         * coordinates here means we'll need to ensure a configure
@@ -223,7 +224,7 @@ meta_window_destroy_frame (MetaWindow *window)
     XShapeSelectInput (x11_display->xdisplay, frame->xwindow, NoEventMask);
 
   XDeleteProperty (x11_display->xdisplay,
-                   window->xwindow,
+                   meta_window_x11_get_xwindow (window),
                    x11_display->atom__MUTTER_NEEDS_FRAME);
 
   meta_x11_error_trap_pop (x11_display);

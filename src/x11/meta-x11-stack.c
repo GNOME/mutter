@@ -25,6 +25,7 @@
 #include "core/window-private.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/meta-x11-stack-private.h"
+#include "x11/window-x11.h"
 
 struct _MetaX11Stack
 {
@@ -129,7 +130,7 @@ stack_window_removed_cb (MetaStack    *stack,
   x11_stack->added = g_list_remove (x11_stack->added, window);
 
   x11_stack->removed = g_list_prepend (x11_stack->removed,
-                                   GUINT_TO_POINTER (window->xwindow));
+                                       GUINT_TO_POINTER (meta_window_x11_get_xwindow (window)));
   if (window->frame)
     {
       x11_stack->removed = g_list_prepend (x11_stack->removed,
@@ -204,10 +205,10 @@ x11_stack_do_window_additions (MetaX11Stack *x11_stack)
       tmp = x11_stack->added;
       while (tmp != NULL)
         {
-          MetaWindow *w;
+          MetaWindow *w = tmp->data;
+          Window xwindow = meta_window_x11_get_xwindow (w);
 
-          w = tmp->data;
-          g_array_append_val (x11_stack->xwindows, w->xwindow);
+          g_array_append_val (x11_stack->xwindows, xwindow);
           tmp = tmp->next;
         }
     }
@@ -250,7 +251,11 @@ x11_stack_sync_to_xserver (MetaX11Stack *x11_stack)
       MetaWindow *w = tmp->data;
 
       if (w->client_type == META_WINDOW_CLIENT_TYPE_X11)
-        g_array_append_val (x11_stacked, w->xwindow);
+        {
+          Window xwindow = meta_window_x11_get_xwindow (w);
+
+          g_array_append_val (x11_stacked, xwindow);
+        }
     }
 
   /* Sync _NET_CLIENT_LIST and _NET_CLIENT_LIST_STACKING */

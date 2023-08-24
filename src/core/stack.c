@@ -40,6 +40,7 @@
 #include "meta/prefs.h"
 #include "meta/workspace.h"
 #include "x11/meta-x11-display-private.h"
+#include "x11/window-x11.h"
 
 #define WINDOW_TRANSIENT_FOR_WHOLE_GROUP(w)        \
   (meta_window_has_transient_type (w) && w->transient_for == NULL)

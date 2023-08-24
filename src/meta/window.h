@@ -141,9 +141,6 @@ META_EXPORT
 MetaDisplay *meta_window_get_display (MetaWindow *window);
 
 META_EXPORT
-Window meta_window_get_xwindow (MetaWindow *window);
-
-META_EXPORT
 MetaWindowType meta_window_get_window_type (MetaWindow *window);
 
 META_EXPORT

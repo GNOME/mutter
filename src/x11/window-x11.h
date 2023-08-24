@@ -109,3 +109,6 @@ gboolean meta_window_x11_is_awaiting_sync_response (MetaWindow *window);
 void meta_window_x11_check_update_resize (MetaWindow *window);
 
 gboolean meta_window_x11_has_alpha_channel (MetaWindow *window);
+
+META_EXPORT
+Window meta_window_x11_get_xwindow (MetaWindow *window);

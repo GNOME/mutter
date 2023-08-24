@@ -45,6 +45,7 @@
 #include "meta/meta-x11-errors.h"
 #include "meta/util.h"
 #include "x11/meta-x11-display-private.h"
+#include "x11/window-x11.h"
 
 /* The complexity here comes from resolving two competing factors:
  *
@@ -581,7 +582,6 @@ on_stack_changed (MetaStack        *stack,
   for (l = sorted; l; l = l->next)
     {
       MetaWindow *w = l->data;
-      uint64_t top_level_window;
       uint64_t stack_id;
 
       if (w->unmanaging)
@@ -590,13 +590,13 @@ on_stack_changed (MetaStack        *stack,
       meta_topic (META_DEBUG_STACK, "  %u:%d - %s ",
 		  w->layer, w->stack_position, w->desc);
 
-      if (w->frame)
-	top_level_window = w->frame->xwindow;
-      else
-	top_level_window = w->xwindow;
-
       if (w->client_type == META_WINDOW_CLIENT_TYPE_X11)
-        stack_id = top_level_window;
+        {
+          if (w->frame)
+	          stack_id = w->frame->xwindow;
+          else
+	          stack_id = meta_window_x11_get_xwindow (w);
+        }
       else
         stack_id = w->stamp;
 
@@ -1047,7 +1047,7 @@ meta_stack_tracker_sync_stack (MetaStackTracker *tracker)
            * see window-prop.c:reload_net_wm_user_time_window() for registration.)
            */
           if (meta_window &&
-              ((Window)window == meta_window->xwindow ||
+              ((Window)window == meta_window_x11_get_xwindow (meta_window) ||
                (meta_window->frame && (Window)window == meta_window->frame->xwindow)))
             meta_windows = g_list_prepend (meta_windows, meta_window);
         }

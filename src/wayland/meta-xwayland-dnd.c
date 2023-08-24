@@ -41,6 +41,7 @@
 #include "wayland/meta-xwayland-dnd-private.h"
 #include "wayland/meta-xwayland.h"
 #include "x11/meta-x11-display-private.h"
+#include "x11/window-x11.h"
 
 #define INCR_CHUNK_SIZE (128 * 1024)
 #define XDND_VERSION 5
@@ -616,8 +617,9 @@ meta_x11_drag_dest_focus_in (MetaWaylandDataDevice *data_device,
   MetaWaylandSeat *seat = meta_wayland_data_device_get_seat (data_device);
   MetaWaylandCompositor *compositor = meta_wayland_seat_get_compositor (seat);
   MetaXWaylandDnd *dnd = compositor->xwayland_manager.dnd;
+  MetaWindow *window = meta_wayland_surface_get_window (surface);
 
-  dnd->dnd_dest = meta_wayland_surface_get_window (surface)->xwindow;
+  dnd->dnd_dest = meta_window_x11_get_xwindow (window);
   xdnd_send_enter (dnd, dnd->dnd_dest);
 }
 

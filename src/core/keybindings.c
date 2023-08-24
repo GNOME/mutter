@@ -1208,7 +1208,7 @@ meta_change_button_grab (MetaKeyBindingManager *keys,
   if (window->frame)
     xwindow = window->frame->xwindow;
   else
-    xwindow = window->xwindow;
+    xwindow = meta_window_x11_get_xwindow (window);
 
   /* GrabModeSync means freeze until XAllowEvents */
   if (grab)
@@ -1605,7 +1605,7 @@ meta_window_grab_keys (MetaWindow  *window)
       || window->override_redirect)
     {
       if (window->keys_grabbed)
-        change_window_keygrabs (keys, window->xwindow, FALSE);
+        change_window_keygrabs (keys, meta_window_x11_get_xwindow (window), FALSE);
       window->keys_grabbed = FALSE;
       return;
     }
@@ -1613,7 +1613,7 @@ meta_window_grab_keys (MetaWindow  *window)
   if (window->keys_grabbed)
     {
       if (window->frame && !window->grab_on_frame)
-        change_window_keygrabs (keys, window->xwindow, FALSE);
+        change_window_keygrabs (keys, meta_window_x11_get_xwindow (window), FALSE);
       else if (window->frame == NULL &&
                window->grab_on_frame)
         ; /* continue to regrab on client window */
@@ -1641,7 +1641,7 @@ meta_window_ungrab_keys (MetaWindow  *window)
           window->frame != NULL)
         change_window_keygrabs (keys, window->frame->xwindow, FALSE);
       else if (!window->grab_on_frame)
-        change_window_keygrabs (keys, window->xwindow, FALSE);
+        change_window_keygrabs (keys, meta_window_x11_get_xwindow (window), FALSE);
 
       window->keys_grabbed = FALSE;
     }

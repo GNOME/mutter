@@ -124,7 +124,7 @@ meta_window_reload_property (MetaWindow      *window,
                              gboolean         initial)
 {
   meta_window_reload_property_from_xwindow (window,
-                                            window->xwindow,
+                                            meta_window_x11_get_xwindow (window),
                                             property,
                                             initial);
 }
@@ -151,7 +151,8 @@ meta_window_load_initial_properties (MetaWindow *window)
     }
   n_properties = j;
 
-  meta_prop_get_values (window->display->x11_display, window->xwindow,
+  meta_prop_get_values (window->display->x11_display,
+                        meta_window_x11_get_xwindow (window),
                         values, n_properties);
 
   j = 0;
@@ -525,7 +526,7 @@ set_title_text (MetaWindow  *window,
 
   if (modified && atom != None)
     meta_prop_set_utf8_string_hint (window->display->x11_display,
-                                    window->xwindow,
+                                    meta_window_x11_get_xwindow (window),
                                     atom, *target);
 
   /* Bug 330671 -- Don't forget to clear _NET_WM_VISIBLE_(ICON_)NAME */
@@ -533,7 +534,7 @@ set_title_text (MetaWindow  *window,
     {
       meta_x11_error_trap_push (window->display->x11_display);
       XDeleteProperty (window->display->x11_display->xdisplay,
-                       window->xwindow,
+                       meta_window_x11_get_xwindow (window),
                        atom);
       meta_x11_error_trap_pop (window->display->x11_display);
     }
@@ -680,7 +681,7 @@ reload_opaque_region (MetaWindow    *window,
     }
 
  out:
-  if (value->source_xwindow == window->xwindow)
+  if (value->source_xwindow == meta_window_x11_get_xwindow (window))
     meta_window_set_opaque_region (window, opaque_region);
   else if (window->frame && value->source_xwindow == window->frame->xwindow)
     meta_frame_set_opaque_region (window->frame, opaque_region);
@@ -1026,7 +1027,7 @@ reload_update_counter (MetaWindow    *window,
     {
       MetaSyncCounter *sync_counter;
 
-      if (value->source_xwindow == window->xwindow)
+      if (value->source_xwindow == meta_window_x11_get_xwindow (window))
         sync_counter = meta_window_x11_get_sync_counter (window);
       else if (window->frame && value->source_xwindow == window->frame->xwindow)
         sync_counter = meta_frame_get_sync_counter (window->frame);

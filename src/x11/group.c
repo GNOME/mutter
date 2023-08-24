@@ -35,6 +35,7 @@
 #include "meta/window.h"
 #include "x11/group-props.h"
 #include "x11/meta-x11-display-private.h"
+#include "x11/window-x11.h"
 
 static MetaGroup*
 meta_group_new (MetaX11Display *x11_display,
@@ -163,8 +164,11 @@ meta_window_compute_group (MetaWindow* window)
         group = g_hash_table_lookup (x11_display->groups_by_leader,
                                      &window->xgroup_leader);
       else
-        group = g_hash_table_lookup (x11_display->groups_by_leader,
-                                     &window->xwindow);
+        {
+          Window xwindow = meta_window_x11_get_xwindow (window);
+          group = g_hash_table_lookup (x11_display->groups_by_leader,
+                                       &xwindow);
+        }
     }
 
   if (group != NULL)
@@ -182,7 +186,7 @@ meta_window_compute_group (MetaWindow* window)
                                 window->xgroup_leader);
       else
         group = meta_group_new (x11_display,
-                                window->xwindow);
+                                meta_window_x11_get_xwindow (window));
 
       window->group = group;
     }
