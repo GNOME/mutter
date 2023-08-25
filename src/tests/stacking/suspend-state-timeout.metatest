@@ -1,0 +1,10 @@
+new_client 1 wayland
+
+create 1/1
+show 1/1
+wait
+hide 1/1
+
+wait_for_effects 1/1
+sleep suspend_timeout
+sleep 1000

@@ -697,6 +697,8 @@ stacking_tests = [
   'click-to-focus-and-raise',
   'workspace-only-on-primary-focus',
   'overview-focus',
+  'suspend-state-timeout',
+  'cloned-windows',
 ]
 
 foreach stacking_test: stacking_tests
