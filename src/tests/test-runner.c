@@ -25,11 +25,11 @@
 #include <string.h>
 
 #include "backends/meta-virtual-monitor.h"
+#include "core/meta-workspace-manager-private.h"
 #include "core/window-private.h"
 #include "meta-test/meta-context-test.h"
 #include "meta/util.h"
 #include "meta/window.h"
-#include "core/meta-workspace-manager-private.h"
 #include "tests/meta-test-utils.h"
 #include "wayland/meta-wayland.h"
 #include "x11/meta-x11-display-private.h"
