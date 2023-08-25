@@ -77,6 +77,8 @@ typedef struct _ActorPrivate
   ClutterTimeline *minimize_timeline;
   ClutterTimeline *destroy_timeline;
   ClutterTimeline *map_timeline;
+
+  guint minimize_stopped_id;
 } ActorPrivate;
 
 typedef struct
@@ -101,6 +103,9 @@ static GQuark display_tile_preview_data_quark = 0;
 static void
 free_actor_private (gpointer data)
 {
+  ActorPrivate *actor_priv = data;
+
+  g_clear_handle_id (&actor_priv->minimize_stopped_id, g_source_remove);
   g_free (data);
 }
 
@@ -460,25 +465,38 @@ meta_test_shell_switch_workspace (MetaPlugin          *plugin,
 }
 
 static void
-on_minimize_effect_stopped (ClutterTimeline    *timeline,
-                            gboolean            is_finished,
-                            EffectCompleteData *data)
+restore_scale_idle (gpointer user_data)
 {
+  EffectCompleteData *data = user_data;
   MetaPlugin *plugin = data->plugin;
-  ActorPrivate *actor_priv;
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (data->actor);
   double original_scale = *(double *) data->effect_data;
+  ActorPrivate *actor_priv;
 
   actor_priv = get_actor_private (META_WINDOW_ACTOR (data->actor));
   actor_priv->minimize_timeline = NULL;
+  actor_priv->minimize_stopped_id = 0;
 
   clutter_actor_hide (data->actor);
+
   clutter_actor_set_scale (data->actor, original_scale, original_scale);
 
   meta_plugin_minimize_completed (plugin, window_actor);
 
   g_free (data->effect_data);
   g_free (data);
+}
+
+static void
+on_minimize_effect_stopped (ClutterTimeline    *timeline,
+                            gboolean            is_finished,
+                            EffectCompleteData *data)
+{
+  MetaWindowActor *window_actor = META_WINDOW_ACTOR (data->actor);
+  ActorPrivate *actor_priv = get_actor_private (window_actor);
+
+  actor_priv->minimize_stopped_id =
+    g_idle_add_once (restore_scale_idle, data);
 }
 
 static void
@@ -521,6 +539,7 @@ meta_test_shell_minimize (MetaPlugin      *plugin,
       g_signal_connect (actor_priv->minimize_timeline, "stopped",
                         G_CALLBACK (on_minimize_effect_stopped),
                         data);
+      g_clear_handle_id (&actor_priv->minimize_stopped_id, g_source_remove);
     }
   else
     {
