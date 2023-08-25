@@ -2130,6 +2130,9 @@ update_suspend_state (MetaWindow *window)
 {
   MetaWindowPrivate *priv = meta_window_get_instance_private (window);
 
+  if (window->unmanaging)
+    return;
+
   if (!window->hidden &&
       priv->suspend_state_inhibitors > 0)
     {
