@@ -28,7 +28,7 @@
 #include "backends/native/meta-kms-update-private.h"
 #include "backends/native/meta-kms-utils.h"
 
-#define DEADLINE_EVASION_US 500
+#define DEADLINE_EVASION_US 800
 #define DEADLINE_EVASION_WITH_KMS_TOPIC_US 1000
 
 typedef struct _MetaKmsCrtcPropTable
