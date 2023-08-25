@@ -7999,3 +7999,9 @@ meta_window_calculate_bounds (MetaWindow *window,
       return FALSE;
     }
 }
+
+int
+meta_get_window_suspend_timeout_s (void)
+{
+  return SUSPEND_HIDDEN_TIMEOUT_S;
+}

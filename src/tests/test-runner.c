@@ -175,10 +175,11 @@ test_case_wait (TestCase *test,
 
 static gboolean
 test_case_sleep (TestCase  *test,
-                 guint32    interval,
+                 uint32_t   interval_ms,
                  GError   **error)
 {
-  g_timeout_add_full (G_PRIORITY_LOW, interval, test_case_loop_quit, test, NULL);
+  g_timeout_add_full (G_PRIORITY_LOW, interval_ms,
+                      test_case_loop_quit, test, NULL);
   g_main_loop_run (test->loop);
 
   return TRUE;
@@ -847,16 +848,18 @@ test_case_do (TestCase    *test,
     }
   else if (strcmp (argv[0], "sleep") == 0)
     {
-      guint64 interval;
+      uint64_t interval_ms;
 
       if (argc != 2)
-        BAD_COMMAND("usage: %s <milliseconds>", argv[0]);
+        BAD_COMMAND("usage: %s <milliseconds>|<known-time>", argv[0]);
 
-      if (!g_ascii_string_to_unsigned (argv[1], 10, 0, G_MAXUINT32,
-                                       &interval, error))
+      if (strcmp (argv[1], "suspend_timeout") == 0)
+        interval_ms = s2ms (meta_get_window_suspend_timeout_s ());
+      else if (!g_ascii_string_to_unsigned (argv[1], 10, 0, G_MAXUINT32,
+                                            &interval_ms, error))
         return FALSE;
 
-      if (!test_case_sleep (test, (guint32) interval, error))
+      if (!test_case_sleep (test, (uint32_t) interval_ms, error))
         return FALSE;
     }
   else if (strcmp (argv[0], "set_strut") == 0)

@@ -900,3 +900,6 @@ void meta_window_inhibit_suspend_state (MetaWindow *window);
 void meta_window_uninhibit_suspend_state (MetaWindow *window);
 
 gboolean meta_window_is_suspended (MetaWindow *window);
+
+META_EXPORT_TEST
+int meta_get_window_suspend_timeout_s (void);
