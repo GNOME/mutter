@@ -62,3 +62,9 @@ struct _MetaEdge
   MetaSide side_type;
   MetaEdgeType  edge_type;
 };
+
+/*
+ * For GNOME Shell extensions compatibility purposes only.
+ * TODO: drop for GNOME 46
+ */
+typedef MtkRectangle MetaRectangle;
