@@ -478,7 +478,8 @@ on_decloned (ClutterActor *actor,
     meta_window_actor_get_instance_private (window_actor);
 
   g_signal_handlers_disconnect_by_func (clone, on_clone_notify_mapped, actor);
-  if (clutter_actor_is_mapped (CLUTTER_ACTOR (clone)))
+  if (clutter_actor_is_mapped (CLUTTER_ACTOR (clone)) &&
+      priv->window)
     meta_window_uninhibit_suspend_state (priv->window);
 }
 
