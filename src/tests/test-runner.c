@@ -25,6 +25,7 @@
 #include <string.h>
 
 #include "backends/meta-virtual-monitor.h"
+#include "compositor/meta-window-actor-private.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/window-private.h"
 #include "meta-test/meta-context-test.h"
@@ -44,6 +45,7 @@ typedef struct {
   gulong x11_display_opened_handler_id;
   GHashTable *virtual_monitors;
   ClutterVirtualInputDevice *pointer;
+  GHashTable *cloned_windows;
 } TestCase;
 
 static gboolean
@@ -1320,6 +1322,108 @@ test_case_do (TestCase    *test,
 
       g_signal_emit_by_name (display, "overlay-key", 0);
     }
+  else if (strcmp (argv[0], "clone") == 0)
+    {
+      MetaBackend *backend = meta_context_get_backend (test->context);
+      ClutterActor *stage = meta_backend_get_stage (backend);
+      MetaTestClient *client;
+      const char *window_id;
+      MetaWindow *window;
+      MetaWindowActor *window_actor;
+      ClutterActor *clone;
+
+      if (argc != 2)
+        BAD_COMMAND("usage: %s <client-id>/<window-id>", argv[0]);
+
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
+
+      window = meta_test_client_find_window (client, window_id, error);
+      if (!window)
+        return FALSE;
+
+      if (g_object_get_data (G_OBJECT (window), "test-clone"))
+        {
+          g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED, "Already cloned");
+          return FALSE;
+        }
+
+      window_actor = meta_window_actor_from_window (window);
+      clone = clutter_clone_new (CLUTTER_ACTOR (window_actor));
+      clutter_actor_show (clone);
+
+      clutter_actor_add_child (stage, clone);
+      g_object_set_data (G_OBJECT (window), "test-clone", clone);
+
+      if (!test->cloned_windows)
+        {
+          test->cloned_windows = g_hash_table_new_full (g_str_hash, g_str_equal,
+                                                        g_free, g_object_unref);
+        }
+
+      g_hash_table_insert (test->cloned_windows,
+                           g_strdup (argv[1]), g_object_ref (window));
+    }
+  else if (strcmp (argv[0], "declone") == 0)
+    {
+      MetaTestClient *client;
+      const char *window_id;
+      MetaWindow *live_window;
+      MetaWindow *window;
+      ClutterActor *clone;
+
+      if (argc != 2)
+        BAD_COMMAND("usage: %s <client-id>/<window-id>", argv[0]);
+
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
+
+      window = g_hash_table_lookup (test->cloned_windows, argv[1]);
+      g_assert_nonnull (window);
+
+      live_window = meta_test_client_find_window (client, window_id, NULL);
+      if (live_window)
+        g_assert_true (live_window == window);
+
+      if (!g_object_get_data (G_OBJECT (window), "test-clone"))
+        {
+          g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED, "Wasn't cloned");
+          return FALSE;
+        }
+
+      clone = g_object_get_data (G_OBJECT (window), "test-clone");
+      clutter_actor_destroy (clone);
+
+      g_hash_table_remove (test->cloned_windows, argv[1]);
+    }
+  else if (strcmp (argv[0], "wait_for_effects") == 0)
+    {
+      MetaTestClient *client;
+      const char *window_id;
+      MetaWindow *window;
+      MetaWindowActor *window_actor;
+
+      if (argc != 2)
+        BAD_COMMAND("usage: %s <client-id>/<window-id>", argv[0]);
+
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
+
+      window = meta_test_client_find_window (client, window_id, error);
+      if (!window)
+        return FALSE;
+
+      window_actor = meta_window_actor_from_window (window);
+      g_object_add_weak_pointer (G_OBJECT (window_actor),
+                                 (gpointer *) &window_actor);
+      while (window_actor && meta_window_actor_effect_in_progress (window_actor))
+        g_main_context_iteration (NULL, TRUE);
+      if (window_actor)
+        {
+          g_object_remove_weak_pointer (G_OBJECT (window_actor),
+                                        (gpointer *) &window_actor);
+        }
+    }
   else
     {
       BAD_COMMAND("Unknown command %s", argv[0]);
@@ -1339,6 +1443,12 @@ test_case_destroy (TestCase *test,
   GHashTableIter iter;
   gpointer key, value;
   MetaDisplay *display;
+
+  if (test->cloned_windows)
+    {
+      g_assert_cmpuint (g_hash_table_size (test->cloned_windows), ==, 0);
+      g_hash_table_unref (test->cloned_windows);
+    }
 
   g_hash_table_iter_init (&iter, test->clients);
   while (g_hash_table_iter_next (&iter, &key, &value))
