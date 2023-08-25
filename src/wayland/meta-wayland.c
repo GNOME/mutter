@@ -39,6 +39,7 @@
 #include "wayland/meta-wayland-dma-buf.h"
 #include "wayland/meta-wayland-egl-stream.h"
 #include "wayland/meta-wayland-filter-manager.h"
+#include "wayland/meta-wayland-idle-inhibit.h"
 #include "wayland/meta-wayland-inhibit-shortcuts-dialog.h"
 #include "wayland/meta-wayland-inhibit-shortcuts.h"
 #include "wayland/meta-wayland-legacy-xdg-foreign.h"
@@ -805,6 +806,7 @@ meta_wayland_compositor_new (MetaContext *context)
   meta_wayland_init_presentation_time (compositor);
   meta_wayland_activation_init (compositor);
   meta_wayland_transaction_init (compositor);
+  meta_wayland_idle_inhibit_init (compositor);
 
 #ifdef HAVE_WAYLAND_EGLSTREAM
   {
