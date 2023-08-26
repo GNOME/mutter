@@ -132,12 +132,7 @@ get_property (ClutterInputDevice *device,
   meta_clutter_x11_untrap_x_errors ();
 
   if (rc == Success && type_ret == type && format_ret == format && nitems_ret >= nitems)
-    {
-      if (nitems_ret > nitems)
-        g_warning ("Property '%s' for device '%s' returned %lu items, expected %lu",
-                   property, clutter_input_device_get_device_name (device), nitems_ret, nitems);
-      return data_ret;
-    }
+    return data_ret;
 
   meta_XFree (data_ret);
   return NULL;
