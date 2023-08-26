@@ -38,18 +38,20 @@ enum
 
 static guint signals[N_SIGNALS];
 
-G_DEFINE_INTERFACE (CoglScanout, cogl_scanout, G_TYPE_OBJECT)
+G_DEFINE_INTERFACE (CoglScanoutBuffer, cogl_scanout_buffer, G_TYPE_OBJECT)
+
+struct _CoglScanout
+{
+  GObject parent;
+
+  CoglScanoutBuffer *scanout_buffer;
+};
+
+G_DEFINE_FINAL_TYPE (CoglScanout, cogl_scanout, G_TYPE_OBJECT);
 
 static void
-cogl_scanout_default_init (CoglScanoutInterface *iface)
+cogl_scanout_buffer_default_init (CoglScanoutBufferInterface *iface)
 {
-  signals[SCANOUT_FAILED] =
-    g_signal_new ("scanout-failed",
-                  G_TYPE_FROM_INTERFACE (iface),
-                  G_SIGNAL_RUN_LAST,
-                  0, NULL, NULL, NULL,
-                  G_TYPE_NONE, 1,
-                  COGL_TYPE_ONSCREEN);
 }
 
 gboolean
@@ -59,16 +61,16 @@ cogl_scanout_blit_to_framebuffer (CoglScanout      *scanout,
                                   int               y,
                                   GError          **error)
 {
-  CoglScanoutInterface *iface;
+  CoglScanoutBufferInterface *iface =
+    COGL_SCANOUT_BUFFER_GET_IFACE (scanout->scanout_buffer);
 
-  g_return_val_if_fail (COGL_IS_SCANOUT (scanout), FALSE);
+  return iface->blit_to_framebuffer (scanout, framebuffer, x, y, error);
+}
 
-  iface = COGL_SCANOUT_GET_IFACE (scanout);
-
-  if (iface->blit_to_framebuffer)
-    return iface->blit_to_framebuffer (scanout, framebuffer, x, y, error);
-  else
-    return FALSE;
+CoglScanoutBuffer *
+cogl_scanout_get_buffer (CoglScanout *scanout)
+{
+  return scanout->scanout_buffer;
 }
 
 void
@@ -76,4 +78,45 @@ cogl_scanout_notify_failed (CoglScanout  *scanout,
                             CoglOnscreen *onscreen)
 {
   g_signal_emit (scanout, signals[SCANOUT_FAILED], 0, onscreen);
+}
+
+CoglScanout *
+cogl_scanout_new (CoglScanoutBuffer *scanout_buffer)
+{
+  CoglScanout *scanout = g_object_new (COGL_TYPE_SCANOUT, NULL);
+
+  scanout->scanout_buffer = scanout_buffer;
+
+  return scanout;
+}
+
+static void
+cogl_scanout_finalize (GObject *object)
+{
+  CoglScanout *scanout = COGL_SCANOUT (object);
+
+  g_clear_object (&scanout->scanout_buffer);
+
+  G_OBJECT_CLASS (cogl_scanout_parent_class)->finalize (object);
+}
+
+static void
+cogl_scanout_class_init (CoglScanoutClass *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->finalize = cogl_scanout_finalize;
+
+  signals[SCANOUT_FAILED] =
+    g_signal_new ("scanout-failed",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 1,
+                  COGL_TYPE_ONSCREEN);
+}
+
+static void
+cogl_scanout_init (CoglScanout *scanout)
+{
 }

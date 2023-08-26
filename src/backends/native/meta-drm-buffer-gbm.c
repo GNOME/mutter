@@ -44,11 +44,11 @@ struct _MetaDrmBufferGbm
 };
 
 static void
-cogl_scanout_iface_init (CoglScanoutInterface *iface);
+cogl_scanout_buffer_iface_init (CoglScanoutBufferInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (MetaDrmBufferGbm, meta_drm_buffer_gbm, META_TYPE_DRM_BUFFER,
-                         G_IMPLEMENT_INTERFACE (COGL_TYPE_SCANOUT,
-                                                cogl_scanout_iface_init))
+                         G_IMPLEMENT_INTERFACE (COGL_TYPE_SCANOUT_BUFFER,
+                                                cogl_scanout_buffer_iface_init))
 
 struct gbm_bo *
 meta_drm_buffer_gbm_get_bo (MetaDrmBufferGbm *buffer_gbm)
@@ -236,7 +236,8 @@ meta_drm_buffer_gbm_blit_to_framebuffer (CoglScanout      *scanout,
                                          int               y,
                                          GError          **error)
 {
-  MetaDrmBufferGbm *buffer_gbm = META_DRM_BUFFER_GBM (scanout);
+  CoglScanoutBuffer *scanout_buffer = cogl_scanout_get_buffer (scanout);
+  MetaDrmBufferGbm *buffer_gbm = META_DRM_BUFFER_GBM (scanout_buffer);
   MetaDrmBuffer *buffer = META_DRM_BUFFER (buffer_gbm);
   MetaDeviceFile *device_file = meta_drm_buffer_get_device_file (buffer);
   MetaDevicePool *device_pool = meta_device_file_get_pool (device_file);
@@ -357,7 +358,7 @@ out:
 }
 
 static void
-cogl_scanout_iface_init (CoglScanoutInterface *iface)
+cogl_scanout_buffer_iface_init (CoglScanoutBufferInterface *iface)
 {
   iface->blit_to_framebuffer = meta_drm_buffer_gbm_blit_to_framebuffer;
 }

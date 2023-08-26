@@ -426,6 +426,7 @@ typedef enum
 } CoglStereoMode;
 
 typedef struct _CoglScanout CoglScanout;
+typedef struct _CoglScanoutBuffer CoglScanoutBuffer;
 
 #define COGL_SCANOUT_ERROR (cogl_scanout_error_quark ())
 

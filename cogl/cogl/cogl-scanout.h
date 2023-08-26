@@ -35,10 +35,15 @@
 
 #define COGL_TYPE_SCANOUT (cogl_scanout_get_type ())
 COGL_EXPORT
-G_DECLARE_INTERFACE (CoglScanout, cogl_scanout,
-                     COGL, SCANOUT, GObject)
+G_DECLARE_FINAL_TYPE (CoglScanout, cogl_scanout,
+                      COGL, SCANOUT, GObject)
 
-struct _CoglScanoutInterface
+#define COGL_TYPE_SCANOUT_BUFFER (cogl_scanout_buffer_get_type ())
+COGL_EXPORT
+G_DECLARE_INTERFACE (CoglScanoutBuffer, cogl_scanout_buffer,
+                     COGL, SCANOUT_BUFFER, GObject)
+
+struct _CoglScanoutBufferInterface
 {
   GTypeInterface parent_iface;
 
@@ -57,5 +62,11 @@ gboolean cogl_scanout_blit_to_framebuffer (CoglScanout      *scanout,
                                            GError          **error);
 
 COGL_EXPORT
+CoglScanoutBuffer * cogl_scanout_get_buffer (CoglScanout *scanout);
+
+COGL_EXPORT
 void cogl_scanout_notify_failed (CoglScanout  *scanout,
                                  CoglOnscreen *onscreen);
+
+COGL_EXPORT
+CoglScanout * cogl_scanout_new (CoglScanoutBuffer *scanout_buffer);

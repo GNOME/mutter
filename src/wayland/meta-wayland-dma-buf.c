@@ -618,6 +618,7 @@ meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandBuffer *buffer,
   MetaGpuKms *gpu_kms;
   struct gbm_bo *gbm_bo;
   g_autoptr (MetaDrmBufferGbm) fb = NULL;
+  g_autoptr (CoglScanout) scanout = NULL;
   g_autoptr (GError) error = NULL;
   MetaDrmBufferFlags flags;
   gboolean use_modifier;
@@ -662,15 +663,15 @@ meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandBuffer *buffer,
       return NULL;
     }
 
-  if (!meta_onscreen_native_is_buffer_scanout_compatible (onscreen,
-                                                          META_DRM_BUFFER (fb)))
+  scanout = cogl_scanout_new (COGL_SCANOUT_BUFFER (g_steal_pointer (&fb)));
+  if (!meta_onscreen_native_is_buffer_scanout_compatible (onscreen, scanout))
     {
       meta_topic (META_DEBUG_RENDER,
                   "Buffer not scanout compatible (see also KMS debug topic)");
       return NULL;
     }
 
-  return COGL_SCANOUT (g_steal_pointer (&fb));
+  return g_steal_pointer (&scanout);
 #else
   return NULL;
 #endif

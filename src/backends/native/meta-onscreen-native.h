@@ -45,8 +45,8 @@ void meta_onscreen_native_finish_frame (CoglOnscreen *onscreen,
 
 void meta_onscreen_native_dummy_power_save_page_flip (CoglOnscreen *onscreen);
 
-gboolean meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen  *onscreen,
-                                                            MetaDrmBuffer *fb);
+gboolean meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen *onscreen,
+                                                            CoglScanout  *scanout);
 
 void meta_onscreen_native_set_view (CoglOnscreen     *onscreen,
                                     MetaRendererView *view);
