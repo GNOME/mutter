@@ -425,4 +425,20 @@ typedef enum
   COGL_STEREO_RIGHT
 } CoglStereoMode;
 
+typedef struct _CoglScanout CoglScanout;
+
+#define COGL_SCANOUT_ERROR (cogl_scanout_error_quark ())
+
+/**
+ * CoglScanoutError:
+ * @COGL_SCANOUT_ERROR_INHIBITED: Scanout inhibited
+ */
+typedef enum _CoglScanoutError
+{
+  COGL_SCANOUT_ERROR_INHIBITED,
+} CoglScanoutError;
+
+COGL_EXPORT GQuark
+cogl_scanout_error_quark (void);
+
 G_END_DECLS

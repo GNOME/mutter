@@ -45,8 +45,6 @@
 
 G_BEGIN_DECLS
 
-typedef struct _CoglScanout CoglScanout;
-
 #define COGL_TYPE_ONSCREEN (cogl_onscreen_get_type ())
 COGL_EXPORT
 G_DECLARE_DERIVABLE_TYPE (CoglOnscreen, cogl_onscreen,
@@ -84,15 +82,6 @@ struct _CoglOnscreenClass
 
   int (* get_buffer_age) (CoglOnscreen *onscreen);
 };
-
-#define COGL_SCANOUT_ERROR (cogl_scanout_error_quark ())
-COGL_EXPORT GQuark
-cogl_scanout_error_quark (void);
-
-typedef enum _CoglScanoutError
-{
-  COGL_SCANOUT_ERROR_INHIBITED,
-} CoglScanoutError;
 
 /**
  * cogl_onscreen_show:
