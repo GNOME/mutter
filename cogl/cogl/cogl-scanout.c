@@ -45,6 +45,11 @@ struct _CoglScanout
   GObject parent;
 
   CoglScanoutBuffer *scanout_buffer;
+
+  gboolean has_src_rect;
+  graphene_rect_t src_rect;
+  gboolean has_dst_rect;
+  MtkRectangle dst_rect;
 };
 
 G_DEFINE_FINAL_TYPE (CoglScanout, cogl_scanout, G_TYPE_OBJECT);
@@ -65,6 +70,24 @@ cogl_scanout_blit_to_framebuffer (CoglScanout      *scanout,
     COGL_SCANOUT_BUFFER_GET_IFACE (scanout->scanout_buffer);
 
   return iface->blit_to_framebuffer (scanout, framebuffer, x, y, error);
+}
+
+int
+cogl_scanout_buffer_get_width (CoglScanoutBuffer *scanout_buffer)
+{
+  CoglScanoutBufferInterface *iface =
+    COGL_SCANOUT_BUFFER_GET_IFACE (scanout_buffer);
+
+  return iface->get_width (scanout_buffer);
+}
+
+int
+cogl_scanout_buffer_get_height (CoglScanoutBuffer *scanout_buffer)
+{
+  CoglScanoutBufferInterface *iface =
+    COGL_SCANOUT_BUFFER_GET_IFACE (scanout_buffer);
+
+  return iface->get_height (scanout_buffer);
 }
 
 CoglScanoutBuffer *
@@ -88,6 +111,58 @@ cogl_scanout_new (CoglScanoutBuffer *scanout_buffer)
   scanout->scanout_buffer = scanout_buffer;
 
   return scanout;
+}
+
+void
+cogl_scanout_get_src_rect (CoglScanout     *scanout,
+                           graphene_rect_t *rect)
+{
+  if (scanout->has_src_rect)
+    {
+      *rect = scanout->src_rect;
+      return;
+    }
+
+  rect->origin.x = 0;
+  rect->origin.y = 0;
+  rect->size.width = cogl_scanout_buffer_get_width (scanout->scanout_buffer);
+  rect->size.height = cogl_scanout_buffer_get_height (scanout->scanout_buffer);
+}
+
+void
+cogl_scanout_set_src_rect (CoglScanout           *scanout,
+                           const graphene_rect_t *rect)
+{
+  if (rect != NULL)
+    scanout->src_rect = *rect;
+
+  scanout->has_src_rect = rect != NULL;
+}
+
+void
+cogl_scanout_get_dst_rect (CoglScanout  *scanout,
+                           MtkRectangle *rect)
+{
+  if (scanout->has_dst_rect)
+    {
+      *rect = scanout->dst_rect;
+      return;
+    }
+
+  rect->x = 0;
+  rect->y = 0;
+  rect->width = cogl_scanout_buffer_get_width (scanout->scanout_buffer);
+  rect->height = cogl_scanout_buffer_get_height (scanout->scanout_buffer);
+}
+
+void
+cogl_scanout_set_dst_rect (CoglScanout        *scanout,
+                           const MtkRectangle *rect)
+{
+  if (rect != NULL)
+    scanout->dst_rect = *rect;
+
+  scanout->has_dst_rect = rect != NULL;
 }
 
 static void

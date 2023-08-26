@@ -357,10 +357,28 @@ out:
   return result;
 }
 
+static int
+meta_drm_buffer_gbm_scanout_get_width (CoglScanoutBuffer *scanout_buffer)
+{
+  MetaDrmBuffer *buffer = META_DRM_BUFFER (scanout_buffer);
+
+  return meta_drm_buffer_get_width (buffer);
+}
+
+static int
+meta_drm_buffer_gbm_scanout_get_height (CoglScanoutBuffer *scanout_buffer)
+{
+  MetaDrmBuffer *buffer = META_DRM_BUFFER (scanout_buffer);
+
+  return meta_drm_buffer_get_height (buffer);
+}
+
 static void
 cogl_scanout_buffer_iface_init (CoglScanoutBufferInterface *iface)
 {
   iface->blit_to_framebuffer = meta_drm_buffer_gbm_blit_to_framebuffer;
+  iface->get_width = meta_drm_buffer_gbm_scanout_get_width;
+  iface->get_height = meta_drm_buffer_gbm_scanout_get_height;
 }
 
 static void

@@ -30,6 +30,7 @@
 #include "cogl/cogl-types.h"
 #include "cogl/cogl-framebuffer.h"
 #include "cogl/cogl-onscreen.h"
+#include "mtk/mtk.h"
 
 #include <glib-object.h>
 
@@ -52,6 +53,9 @@ struct _CoglScanoutBufferInterface
                                    int               x,
                                    int               y,
                                    GError          **error);
+
+  int (*get_width) (CoglScanoutBuffer *scanout_buffer);
+  int (*get_height) (CoglScanoutBuffer *scanout_buffer);
 };
 
 COGL_EXPORT
@@ -60,6 +64,9 @@ gboolean cogl_scanout_blit_to_framebuffer (CoglScanout      *scanout,
                                            int               x,
                                            int               y,
                                            GError          **error);
+
+int cogl_scanout_buffer_get_width (CoglScanoutBuffer *scanout_buffer);
+int cogl_scanout_buffer_get_height (CoglScanoutBuffer *scanout_buffer);
 
 COGL_EXPORT
 CoglScanoutBuffer * cogl_scanout_get_buffer (CoglScanout *scanout);
@@ -70,3 +77,19 @@ void cogl_scanout_notify_failed (CoglScanout  *scanout,
 
 COGL_EXPORT
 CoglScanout * cogl_scanout_new (CoglScanoutBuffer *scanout_buffer);
+
+COGL_EXPORT
+void cogl_scanout_get_src_rect (CoglScanout     *scanout,
+                                graphene_rect_t *rect);
+
+COGL_EXPORT
+void cogl_scanout_set_src_rect (CoglScanout           *scanout,
+                                const graphene_rect_t *rect);
+
+COGL_EXPORT
+void cogl_scanout_get_dst_rect (CoglScanout  *scanout,
+                                MtkRectangle *rect);
+
+COGL_EXPORT
+void cogl_scanout_set_dst_rect (CoglScanout        *scanout,
+                                const MtkRectangle *rect);
