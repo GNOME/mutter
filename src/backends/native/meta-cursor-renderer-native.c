@@ -368,7 +368,7 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
 
       if (cursor_stage_view->has_hw_cursor != has_hw_cursor)
         {
-          if (has_hw_cursor || !cursor_sprite)
+          if (has_hw_cursor)
             meta_stage_view_inhibit_cursor_overlay (view);
           else
             meta_stage_view_uninhibit_cursor_overlay (view);
