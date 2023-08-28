@@ -549,10 +549,10 @@ meta_eis_client_process_event (MetaEisClient    *client,
                       "virtual keyboard",
                       configure_keyboard);
 
-            g_signal_connect (meta_eis_get_backend (client->eis),
-                              "keymap-changed",
-                              G_CALLBACK (on_keymap_changed),
-                              client);
+          g_signal_connect (meta_eis_get_backend (client->eis),
+                            "keymap-changed",
+                            G_CALLBACK (on_keymap_changed),
+                            client);
         }
       if (eis_event_seat_has_capability (event, EIS_DEVICE_CAP_POINTER_ABSOLUTE))
           add_device (client,
