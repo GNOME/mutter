@@ -243,48 +243,19 @@ meta_eis_add_client_get_fd (MetaEis *eis)
   return eis_backend_fd_add_client (eis->eis);
 }
 
-static int
-try_and_find_free_eis_socket (MetaEis *eis)
-{
-  int rc;
-  int n;
-  char socketname[16];
-
-  for (n = 0; n < 100; n++)
-    {
-      g_snprintf (socketname, sizeof (socketname), "eis-%d", n);
-      rc = eis_setup_backend_socket (eis->eis, socketname);
-      if (rc == 0)
-        {
-          g_info ("Using EIS socket: %s", socketname);
-          return 0;
-        }
-    }
-
-  return rc;
-}
-
 MetaEis *
 meta_eis_new (MetaBackend *backend)
 {
   MetaEis *eis;
   int fd;
-  int rc;
 
   eis = g_object_new (META_TYPE_EIS, NULL);
   eis->backend = backend;
 
   eis->eis = eis_new (eis);
-  rc = try_and_find_free_eis_socket (eis);
-  if (rc != 0)
-    {
-      g_warning ("Failed to initialize the EIS socket: %s", g_strerror (-rc));
-      g_clear_pointer (&eis->eis, eis_unref);
-      return NULL;
-    }
-
   eis_log_set_handler (eis->eis, eis_logger);
   eis_log_set_priority (eis->eis, EIS_LOG_PRIORITY_DEBUG);
+  eis_setup_backend_fd (eis->eis);
 
   fd = eis_get_fd (eis->eis);
   eis->event_source = meta_event_source_new (eis, fd, &eis_event_funcs);
