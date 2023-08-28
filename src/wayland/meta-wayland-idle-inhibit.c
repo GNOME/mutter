@@ -155,9 +155,6 @@ inhibitor_proxy_completed (GObject      *source,
 
   inhibitor->session_proxy = proxy;
 
-  /* as the surface has already been created, we check its visibility state in
-   * the inhibitor initialization.
-   */
   update_inhibitation (inhibitor);
 }
 
