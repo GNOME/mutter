@@ -38,7 +38,9 @@ G_DECLARE_FINAL_TYPE (MetaEis, meta_eis,
 
 MetaEis * meta_eis_new (MetaBackend        *backend,
                         MetaEisDeviceTypes  device_types);
+
 MetaBackend * meta_eis_get_backend (MetaEis *eis);
+
 int meta_eis_add_client_get_fd (MetaEis *eis);
 
 MetaEisDeviceTypes meta_eis_get_device_types (MetaEis *eis);
