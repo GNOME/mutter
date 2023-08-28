@@ -32,9 +32,38 @@ typedef enum _MetaEisDeviceTypes
   META_EIS_DEVICE_TYPE_TOUCHSCREEN = 1 << 2,
 } MetaEisDeviceTypes;
 
+#define META_TYPE_EIS_VIEWPORT (meta_eis_viewport_get_type ())
+G_DECLARE_INTERFACE (MetaEisViewport, meta_eis_viewport,
+                     META, EIS_VIEWPORT, GObject)
+
 #define META_TYPE_EIS (meta_eis_get_type ())
 G_DECLARE_FINAL_TYPE (MetaEis, meta_eis,
                       META, EIS, GObject)
+
+struct _MetaEisViewportInterface
+{
+  GTypeInterface parent_iface;
+
+  gboolean (* is_standalone) (MetaEisViewport *viewport);
+
+  const char * (* get_mapping_id) (MetaEisViewport *viewport);
+
+  gboolean (* get_position) (MetaEisViewport *viewport,
+                             int             *out_x,
+                             int             *out_y);
+
+  void (* get_size) (MetaEisViewport *viewport,
+                     int             *out_width,
+                     int             *out_height);
+
+  double (* get_physical_scale) (MetaEisViewport *viewport);
+
+  gboolean (* transform_coordinate) (MetaEisViewport *viewport,
+                                     double           x,
+                                     double           y,
+                                     double          *out_x,
+                                     double          *out_y);
+};
 
 MetaEis * meta_eis_new (MetaBackend        *backend,
                         MetaEisDeviceTypes  device_types);
@@ -44,3 +73,23 @@ MetaBackend * meta_eis_get_backend (MetaEis *eis);
 int meta_eis_add_client_get_fd (MetaEis *eis);
 
 MetaEisDeviceTypes meta_eis_get_device_types (MetaEis *eis);
+
+gboolean meta_eis_viewport_is_standalone (MetaEisViewport *viewport);
+
+const char * meta_eis_viewport_get_mapping_id (MetaEisViewport *viewport);
+
+gboolean meta_eis_viewport_get_position (MetaEisViewport *viewport,
+                                         int             *out_x,
+                                         int             *out_y);
+
+void meta_eis_viewport_get_size (MetaEisViewport *viewport,
+                                 int             *out_width,
+                                 int             *out_height);
+
+double meta_eis_viewport_get_physical_scale (MetaEisViewport *viewport);
+
+gboolean meta_eis_viewport_transform_coordinate (MetaEisViewport *viewport,
+                                                 double           x,
+                                                 double           y,
+                                                 double          *out_x,
+                                                 double          *out_y);

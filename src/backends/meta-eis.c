@@ -52,6 +52,59 @@ struct _MetaEis
 
 G_DEFINE_TYPE (MetaEis, meta_eis, G_TYPE_OBJECT)
 
+G_DEFINE_INTERFACE (MetaEisViewport, meta_eis_viewport, G_TYPE_OBJECT)
+
+static void
+meta_eis_viewport_default_init (MetaEisViewportInterface *iface)
+{
+}
+
+gboolean
+meta_eis_viewport_is_standalone (MetaEisViewport *viewport)
+{
+  return META_EIS_VIEWPORT_GET_IFACE (viewport)->is_standalone (viewport);
+}
+
+gboolean
+meta_eis_viewport_get_position (MetaEisViewport *viewport,
+                                int             *out_x,
+                                int             *out_y)
+{
+  return META_EIS_VIEWPORT_GET_IFACE (viewport)->get_position (viewport,
+                                                               out_x,
+                                                               out_y);
+}
+
+void
+meta_eis_viewport_get_size (MetaEisViewport *viewport,
+                            int             *out_width,
+                            int             *out_height)
+{
+  META_EIS_VIEWPORT_GET_IFACE (viewport)->get_size (viewport,
+                                                    out_width,
+                                                    out_height);
+}
+
+double
+meta_eis_viewport_get_physical_scale (MetaEisViewport *viewport)
+{
+  return META_EIS_VIEWPORT_GET_IFACE (viewport)->get_physical_scale (viewport);
+}
+
+gboolean
+meta_eis_viewport_transform_coordinate (MetaEisViewport *viewport,
+                                        double           x,
+                                        double           y,
+                                        double          *out_x,
+                                        double          *out_y)
+{
+  return META_EIS_VIEWPORT_GET_IFACE (viewport)->transform_coordinate (viewport,
+                                                                       x,
+                                                                       y,
+                                                                       out_x,
+                                                                       out_y);
+}
+
 MetaBackend *
 meta_eis_get_backend (MetaEis *eis)
 {
