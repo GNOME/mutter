@@ -88,6 +88,7 @@ struct _MetaRemoteDesktopSession
   gulong screen_cast_session_closed_handler_id;
   guint started : 1;
 
+  MetaEis *eis;
   ClutterVirtualInputDevice *virtual_pointer;
   ClutterVirtualInputDevice *virtual_keyboard;
   ClutterVirtualInputDevice *virtual_touchscreen;
@@ -223,8 +224,6 @@ meta_remote_desktop_session_close (MetaDbusSession *dbus_session)
 {
   MetaRemoteDesktopSession *session =
     META_REMOTE_DESKTOP_SESSION (dbus_session);
-  MetaBackend *backend =
-    meta_dbus_session_manager_get_backend (session->session_manager);
   MetaDBusRemoteDesktopSession *skeleton =
     META_DBUS_REMOTE_DESKTOP_SESSION (session);
 
@@ -244,6 +243,7 @@ meta_remote_desktop_session_close (MetaDbusSession *dbus_session)
   g_clear_object (&session->virtual_pointer);
   g_clear_object (&session->virtual_keyboard);
   g_clear_object (&session->virtual_touchscreen);
+  g_clear_object (&session->eis);
 
   meta_dbus_session_notify_closed (META_DBUS_SESSION (session));
   meta_dbus_remote_desktop_session_emit_closed (skeleton);
@@ -256,8 +256,6 @@ meta_remote_desktop_session_close (MetaDbusSession *dbus_session)
 
       meta_remote_access_handle_notify_stopped (remote_access_handle);
     }
-
-  meta_eis_remove_all_clients (meta_backend_get_eis (backend));
 
   g_object_unref (session);
 }
@@ -1641,11 +1639,11 @@ handle_connect_to_eis (MetaDBusRemoteDesktopSession *skeleton,
   int fd_idx;
   GVariant *fd_variant;
   int fd;
-  MetaEis *meis;
 
-  meis = meta_backend_get_eis (backend);
+  if (!session->eis)
+    session->eis = meta_eis_new (backend);
 
-  fd = meta_eis_add_client_get_fd (meis);
+  fd = meta_eis_add_client_get_fd (session->eis);
   if (fd < 0)
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,

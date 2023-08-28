@@ -56,12 +56,6 @@ meta_eis_get_backend (MetaEis *eis)
   return eis->backend;
 }
 
-void
-meta_eis_remove_all_clients (MetaEis *eis)
-{
-  g_hash_table_remove_all (eis->eis_clients);
-}
-
 static void
 meta_eis_remove_client (MetaEis           *eis,
                         struct eis_client *eis_client)
