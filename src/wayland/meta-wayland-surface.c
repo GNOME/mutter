@@ -1419,6 +1419,26 @@ surface_output_disconnect_signals (gpointer key,
                                         surface);
 }
 
+static void
+get_highest_output_scale (gpointer key,
+                          gpointer value,
+                          gpointer user_data)
+{
+  MetaWaylandOutput *wayland_output = value;
+  MetaLogicalMonitor *logical_monitor;
+  double *highest_scale = user_data;
+  double scale;
+
+  logical_monitor = meta_wayland_output_get_logical_monitor (wayland_output);
+  if (!logical_monitor)
+    return;
+
+  scale = meta_logical_monitor_get_scale (logical_monitor);
+
+  if (scale > *highest_scale)
+    *highest_scale = scale;
+}
+
 double
 meta_wayland_surface_get_highest_output_scale (MetaWaylandSurface *surface)
 {
@@ -1428,15 +1448,20 @@ meta_wayland_surface_get_highest_output_scale (MetaWaylandSurface *surface)
 
   window = meta_wayland_surface_get_window (surface);
   if (!window)
-    goto out;
+    goto fallback;
 
   logical_monitor = meta_window_get_highest_scale_monitor (window);
   if (!logical_monitor)
-    goto out;
+    goto fallback;
 
   scale = meta_logical_monitor_get_scale (logical_monitor);
+  return scale;
 
-out:
+fallback:
+  g_hash_table_foreach (surface->compositor->outputs,
+                        get_highest_output_scale,
+                        &scale);
+
   return scale;
 }
 
