@@ -57,7 +57,8 @@ struct _MetaEisClient
 G_DEFINE_TYPE (MetaEisClient, meta_eis_client, G_TYPE_OBJECT)
 
 typedef void (* MetaEisDeviceConfigFunc) (MetaEisClient     *client,
-                                          struct eis_device *device);
+                                          struct eis_device *device,
+                                          gpointer           user_data);
 
 static bool
 bit_is_set (const guchar *array,
@@ -167,7 +168,8 @@ meta_eis_device_free (MetaEisDevice *device)
 
 static void
 configure_rel (MetaEisClient     *client,
-               struct eis_device *eis_device)
+               struct eis_device *eis_device,
+               gpointer           user_data)
 {
   eis_device_configure_capability (eis_device, EIS_DEVICE_CAP_POINTER);
   eis_device_configure_capability (eis_device, EIS_DEVICE_CAP_BUTTON);
@@ -176,7 +178,8 @@ configure_rel (MetaEisClient     *client,
 
 static void
 configure_keyboard (MetaEisClient     *client,
-                    struct eis_device *eis_device)
+                    struct eis_device *eis_device,
+                    gpointer           user_data)
 {
   size_t len;
   MetaAnonymousFile *f;
@@ -218,7 +221,8 @@ configure_keyboard (MetaEisClient     *client,
 
 static void
 configure_abs (MetaEisClient     *client,
-               struct eis_device *eis_device)
+               struct eis_device *eis_device,
+               gpointer           user_data)
 {
   int idx = 0;
   cairo_rectangle_int_t rect;
@@ -247,7 +251,8 @@ add_device (MetaEisClient          *client,
             struct eis_seat        *eis_seat,
             ClutterInputDeviceType  type,
             const char             *name_suffix,
-            MetaEisDeviceConfigFunc extra_config_func)
+            MetaEisDeviceConfigFunc extra_config_func,
+            gpointer                extra_config_user_data)
 {
   MetaBackend *backend = meta_eis_get_backend (client->eis);
   MetaEisDevice *device;
@@ -262,7 +267,7 @@ add_device (MetaEisClient          *client,
                           name_suffix);
   eis_device_configure_name (eis_device, name);
   if (extra_config_func)
-    extra_config_func (client, eis_device);
+    extra_config_func (client, eis_device, extra_config_user_data);
 
   device = g_new0 (MetaEisDevice, 1);
   device->eis_device = eis_device_ref (eis_device);
@@ -521,7 +526,7 @@ on_keymap_changed (MetaBackend *backend,
               client->eis_seat,
               CLUTTER_KEYBOARD_DEVICE,
               "virtual keyboard",
-              configure_keyboard);
+              configure_keyboard, NULL);
 }
 
 gboolean
@@ -541,7 +546,7 @@ meta_eis_client_process_event (MetaEisClient    *client,
                       eis_seat,
                       CLUTTER_POINTER_DEVICE,
                       "virtual pointer",
-                      configure_rel);
+                      configure_rel, NULL);
         }
       if (eis_event_seat_has_capability (event, EIS_DEVICE_CAP_KEYBOARD))
         {
@@ -549,7 +554,7 @@ meta_eis_client_process_event (MetaEisClient    *client,
                       eis_seat,
                       CLUTTER_KEYBOARD_DEVICE,
                       "virtual keyboard",
-                      configure_keyboard);
+                      configure_keyboard, NULL);
 
           g_signal_connect (meta_eis_get_backend (client->eis),
                             "keymap-changed",
@@ -562,7 +567,8 @@ meta_eis_client_process_event (MetaEisClient    *client,
                       eis_seat,
                       CLUTTER_POINTER_DEVICE,
                       "virtual absolute pointer",
-                      configure_abs);
+                      configure_abs,
+                      NULL);
         }
       break;
 
@@ -641,7 +647,8 @@ meta_eis_client_set_viewports (MetaEisClient    *client,
               client->eis_seat,
               CLUTTER_POINTER_DEVICE,
               "virtual absolute pointer",
-              configure_abs);
+              configure_abs,
+              NULL);
 }
 
 static void
