@@ -45,6 +45,8 @@ struct _MetaEis
   struct eis *eis;
   MetaEventSource *event_source;
 
+  MetaEisDeviceTypes device_types;
+
   GHashTable *eis_clients; /* eis_client => MetaEisClient */
 };
 
@@ -238,13 +240,15 @@ meta_eis_add_client_get_fd (MetaEis *eis)
 }
 
 MetaEis *
-meta_eis_new (MetaBackend *backend)
+meta_eis_new (MetaBackend        *backend,
+              MetaEisDeviceTypes  device_types)
 {
   MetaEis *eis;
   int fd;
 
   eis = g_object_new (META_TYPE_EIS, NULL);
   eis->backend = backend;
+  eis->device_types = device_types;
 
   eis->eis = eis_new (eis);
   eis_log_set_handler (eis->eis, eis_logger);
@@ -283,4 +287,10 @@ meta_eis_class_init (MetaEisClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->finalize = meta_eis_finalize;
+}
+
+MetaEisDeviceTypes
+meta_eis_get_device_types (MetaEis *eis)
+{
+  return eis->device_types;
 }

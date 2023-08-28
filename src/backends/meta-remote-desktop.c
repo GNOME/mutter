@@ -40,14 +40,6 @@
 #define META_REMOTE_DESKTOP_DBUS_PATH "/org/gnome/Mutter/RemoteDesktop"
 #define META_REMOTE_DESKTOP_API_VERSION 1
 
-typedef enum _MetaRemoteDesktopDeviceTypes
-{
-  META_REMOTE_DESKTOP_DEVICE_TYPE_NONE = 0,
-  META_REMOTE_DESKTOP_DEVICE_TYPE_KEYBOARD = 1 << 0,
-  META_REMOTE_DESKTOP_DEVICE_TYPE_POINTER = 1 << 1,
-  META_REMOTE_DESKTOP_DEVICE_TYPE_TOUCHSCREEN = 1 << 2,
-} MetaRemoteDesktopDeviceTypes;
-
 struct _MetaRemoteDesktop
 {
   MetaDbusSessionManager parent;

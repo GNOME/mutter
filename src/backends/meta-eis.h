@@ -23,12 +23,22 @@
 #include <glib-object.h>
 
 #include "backends/meta-backend-types.h"
-#include "backends/meta-viewport-info.h"
+
+typedef enum _MetaEisDeviceTypes
+{
+  META_EIS_DEVICE_TYPE_NONE = 0,
+  META_EIS_DEVICE_TYPE_KEYBOARD = 1 << 0,
+  META_EIS_DEVICE_TYPE_POINTER = 1 << 1,
+  META_EIS_DEVICE_TYPE_TOUCHSCREEN = 1 << 2,
+} MetaEisDeviceTypes;
 
 #define META_TYPE_EIS (meta_eis_get_type ())
 G_DECLARE_FINAL_TYPE (MetaEis, meta_eis,
                       META, EIS, GObject)
 
-MetaEis * meta_eis_new (MetaBackend *backend);
+MetaEis * meta_eis_new (MetaBackend        *backend,
+                        MetaEisDeviceTypes  device_types);
 MetaBackend * meta_eis_get_backend (MetaEis *eis);
 int meta_eis_add_client_get_fd (MetaEis *eis);
+
+MetaEisDeviceTypes meta_eis_get_device_types (MetaEis *eis);
