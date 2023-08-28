@@ -20,11 +20,11 @@
 
 #include "config.h"
 
-#include "backends/meta-backend-private.h"
 #include "backends/meta-eis-client.h"
+
+#include "backends/meta-backend-private.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-viewport-info.h"
-
 #include "clutter/clutter-mutter.h"
 #include "core/meta-anonymous-file.h"
 
