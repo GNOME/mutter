@@ -44,4 +44,12 @@ MetaBackend * meta_eis_get_backend (MetaEis *eis);
 
 int meta_eis_add_client_get_fd (MetaEis *eis);
 
+void meta_eis_add_viewport (MetaEis         *eis,
+                            MetaEisViewport *viewport);
+
+void meta_eis_remove_viewport (MetaEis         *eis,
+                               MetaEisViewport *viewport);
+
+GList * meta_eis_peek_viewports (MetaEis *eis);
+
 MetaEisDeviceTypes meta_eis_get_device_types (MetaEis *eis);

@@ -24,7 +24,6 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-monitor-manager-private.h"
-#include "backends/meta-viewport-info.h"
 #include "clutter/clutter-mutter.h"
 #include "core/meta-anonymous-file.h"
 
@@ -38,6 +37,8 @@ struct _MetaEisDevice
   struct eis_device *eis_device;
   ClutterVirtualInputDevice *device;
 
+  MetaEisViewport *viewport;
+
   guchar button_state[(MAX_BUTTON + 7) / 8];
   guchar key_state[(MAX_KEY + 7) / 8];
 };
@@ -47,11 +48,12 @@ struct _MetaEisClient
   GObject parent_instance;
   MetaEis *eis;
 
-  MetaViewportInfo *viewports;
   struct eis_client *eis_client;
   struct eis_seat *eis_seat;
 
   GHashTable *eis_devices; /* eis_device => MetaEisDevice*/
+
+  gulong viewports_changed_handler_id;
 };
 
 G_DEFINE_TYPE (MetaEisClient, meta_eis_client, G_TYPE_OBJECT)
@@ -219,34 +221,94 @@ configure_keyboard (MetaEisClient     *client,
     }
 }
 
-static void
-configure_abs (MetaEisClient     *client,
-               struct eis_device *eis_device,
-               gpointer           user_data)
+static gboolean
+has_region (struct eis_device *eis_device,
+            int                x,
+            int                y,
+            int                width,
+            int                height)
 {
-  int idx = 0;
-  MtkRectangle rect;
-  float scale;
+  int i = 0;
 
-  if (!client->viewports)
-    return; /* FIXME: should be an error */
+  while (TRUE)
+    {
+      struct eis_region *region;
+
+      region = eis_device_get_region (eis_device, i++);
+      if (!region)
+        return FALSE;
+
+      if (eis_region_get_x (region) == x &&
+          eis_region_get_y (region) == y &&
+          eis_region_get_width (region) == width &&
+          eis_region_get_height (region) == height)
+        return TRUE;
+    }
+}
+
+static void
+add_viewport_region (struct eis_device *eis_device,
+                     MetaEisViewport   *viewport)
+{
+  gboolean has_position;
+  int x, y;
+  int width, height;
+  double scale;
+  const char *mapping_id;
+  struct eis_region *eis_region;
+
+  if (meta_eis_viewport_get_position (viewport, &x, &y))
+    has_position = TRUE;
+  meta_eis_viewport_get_size (viewport, &width, &height);
+  scale = meta_eis_viewport_get_physical_scale (viewport);
+
+  if (has_region (eis_device, x, y, width, height))
+    return;
+
+  eis_region = eis_device_new_region (eis_device);
+  if (has_position)
+    eis_region_set_offset (eis_region, x, y);
+  eis_region_set_size (eis_region, width, height);
+  eis_region_set_physical_scale (eis_region, scale);
+
+  mapping_id = meta_eis_viewport_get_mapping_id (viewport);
+  g_warn_if_fail (mapping_id);
+  eis_region_set_mapping_id (eis_region, mapping_id);
+
+  eis_region_set_user_data (eis_region, viewport);
+  eis_region_add (eis_region);
+  eis_region_unref (eis_region);
+}
+
+static void
+configure_abs_shared (MetaEisClient     *client,
+                      struct eis_device *eis_device,
+                      gpointer           user_data)
+{
+  MetaEisViewport *viewport = META_EIS_VIEWPORT (user_data);
 
   eis_device_configure_capability (eis_device, EIS_DEVICE_CAP_POINTER_ABSOLUTE);
   eis_device_configure_capability (eis_device, EIS_DEVICE_CAP_BUTTON);
   eis_device_configure_capability (eis_device, EIS_DEVICE_CAP_SCROLL);
 
-  while (meta_viewport_info_get_view_info (client->viewports, idx++, &rect, &scale))
-    {
-      struct eis_region *r = eis_device_new_region (eis_device);
-      eis_region_set_offset (r, rect.x, rect.y);
-      eis_region_set_size (r, rect.width, rect.height);
-      eis_region_set_physical_scale (r, scale);
-      eis_region_add (r);
-      eis_region_unref (r);
-    }
+  add_viewport_region (eis_device, viewport);
 }
 
 static void
+configure_abs_standalone (MetaEisClient     *client,
+                          struct eis_device *eis_device,
+                          gpointer           user_data)
+{
+  MetaEisViewport *viewport = META_EIS_VIEWPORT (user_data);
+
+  eis_device_configure_capability (eis_device, EIS_DEVICE_CAP_POINTER_ABSOLUTE);
+  eis_device_configure_capability (eis_device, EIS_DEVICE_CAP_BUTTON);
+  eis_device_configure_capability (eis_device, EIS_DEVICE_CAP_SCROLL);
+
+  add_viewport_region (eis_device, viewport);
+}
+
+static MetaEisDevice *
 add_device (MetaEisClient          *client,
             struct eis_seat        *eis_seat,
             ClutterInputDeviceType  type,
@@ -281,6 +343,8 @@ add_device (MetaEisClient          *client,
   eis_device_add (eis_device);
   eis_device_resume (eis_device);
   g_free (name);
+
+  return device;
 }
 
 static void
@@ -299,16 +363,43 @@ handle_motion_relative (MetaEisClient	 *client,
                                                        dx, dy);
 }
 
+static MetaEisViewport *
+find_viewport (struct eis_event *event)
+{
+  struct eis_device *eis_device = eis_event_get_device (event);
+  MetaEisDevice *device = eis_device_get_user_data (eis_device);
+  double x, y;
+  struct eis_region *region;
+
+  if (device->viewport)
+    return device->viewport;
+
+  x = eis_event_pointer_get_absolute_x (event);
+  y = eis_event_pointer_get_absolute_y (event);
+  region = eis_device_get_region_at (eis_device, x, y);
+  if (!region)
+    return NULL;
+
+  return META_EIS_VIEWPORT (eis_region_get_user_data (region));
+}
+
 static void
 handle_motion_absolute (MetaEisClient    *client,
                         struct eis_event *event)
 {
   struct eis_device *eis_device = eis_event_get_device (event);
   MetaEisDevice *device = eis_device_get_user_data (eis_device);
+  MetaEisViewport *viewport;
   double x, y;
+
+  viewport = find_viewport (event);
+  if (!viewport)
+    return;
 
   x = eis_event_pointer_get_absolute_x (event);
   y = eis_event_pointer_get_absolute_y (event);
+  if (!meta_eis_viewport_transform_coordinate (viewport, x, y, &x, &y))
+    return;
 
   clutter_virtual_input_device_notify_absolute_motion (device->device,
                                                        g_get_monotonic_time (),
@@ -529,6 +620,52 @@ on_keymap_changed (MetaBackend *backend,
               configure_keyboard, NULL);
 }
 
+static void
+add_abs_pointer_devices (MetaEisClient *client)
+{
+  MetaEisDevice *shared_device = NULL;
+  GList *viewports;
+  GList *l;
+
+  viewports = meta_eis_peek_viewports (client->eis);
+  if (!viewports)
+    return; /* FIXME: should be an error */
+
+  for (l = viewports; l; l = l->next)
+    {
+      MetaEisViewport *viewport = l->data;
+
+      if (meta_eis_viewport_is_standalone (viewport))
+        {
+          MetaEisDevice *device;
+
+          device = add_device (client,
+                               client->eis_seat,
+                               CLUTTER_POINTER_DEVICE,
+                               "standalone virtual absolute pointer",
+                               configure_abs_standalone,
+                               viewport);
+          device->viewport = viewport;
+        }
+      else
+        {
+          if (!shared_device)
+            {
+              shared_device = add_device (client,
+                                          client->eis_seat,
+                                          CLUTTER_POINTER_DEVICE,
+                                          "shared virtual absolute pointer",
+                                          configure_abs_shared,
+                                          viewport);
+            }
+          else
+            {
+              add_viewport_region (shared_device->eis_device, viewport);
+            }
+        }
+    }
+}
+
 gboolean
 meta_eis_client_process_event (MetaEisClient    *client,
                                struct eis_event *event)
@@ -561,15 +698,8 @@ meta_eis_client_process_event (MetaEisClient    *client,
                             G_CALLBACK (on_keymap_changed),
                             client);
         }
-      if (eis_event_seat_has_capability (event, EIS_DEVICE_CAP_POINTER_ABSOLUTE))
-        {
-          add_device (client,
-                      eis_seat,
-                      CLUTTER_POINTER_DEVICE,
-                      "virtual absolute pointer",
-                      configure_abs,
-                      NULL);
-        }
+
+      add_abs_pointer_devices (client);
       break;
 
     /* We only have one seat, so if the client unbinds from that
@@ -630,52 +760,30 @@ drop_abs_devices (gpointer key,
 }
 
 static void
-meta_eis_client_set_viewports (MetaEisClient    *client,
-                               MetaViewportInfo *viewports)
+update_viewports (MetaEisClient *client)
 {
-  /* Updating viewports means we have to recreate our absolute pointer
-   * devices. */
-
   g_hash_table_foreach_remove (client->eis_devices,
                                drop_abs_devices,
                                client);
-
-  g_clear_object (&client->viewports);
-  client->viewports = g_object_ref (viewports);
-
-  add_device (client,
-              client->eis_seat,
-              CLUTTER_POINTER_DEVICE,
-              "virtual absolute pointer",
-              configure_abs,
-              NULL);
+  add_abs_pointer_devices (client);
 }
 
 static void
-on_monitors_changed (MetaMonitorManager *monitor_manager,
-                     MetaEisClient      *client)
+on_viewports_changed (MetaEis       *eis,
+                      MetaEisClient *client)
 {
-  MetaViewportInfo *viewports;
-
-  viewports = meta_monitor_manager_get_viewports (monitor_manager);
-  meta_eis_client_set_viewports (client, viewports);
+  update_viewports (client);
 }
 
 static void
 meta_eis_client_disconnect (MetaEisClient *client)
 {
-  MetaBackend *backend = meta_eis_get_backend (client->eis);
-  MetaMonitorManager *monitor_manager = meta_backend_get_monitor_manager (backend);
-
-  g_signal_handlers_disconnect_by_func (monitor_manager,
-                                        on_monitors_changed,
-                                        client);
+  g_clear_signal_handler (&client->viewports_changed_handler_id, client->eis);
   g_hash_table_foreach_remove (client->eis_devices, drop_device, client);
   g_clear_pointer (&client->eis_seat, eis_seat_unref);
   if (client->eis_client)
     eis_client_disconnect (client->eis_client);
   g_clear_pointer (&client->eis_client, eis_client_unref);
-  g_clear_object (&client->viewports);
 }
 
 MetaEisClient *
@@ -683,9 +791,6 @@ meta_eis_client_new (MetaEis           *eis,
                      struct eis_client *eis_client)
 {
   MetaEisClient *client;
-  MetaBackend *backend;
-  MetaMonitorManager *monitor_manager;
-  MetaViewportInfo *viewports;
   struct eis_seat *eis_seat;
 
   client = g_object_new (META_TYPE_EIS_CLIENT, NULL);
@@ -725,13 +830,11 @@ meta_eis_client_new (MetaEis           *eis,
                                                (GDestroyNotify) eis_device_unref,
                                                (GDestroyNotify) meta_eis_device_free);
 
-  backend = meta_eis_get_backend (eis);
-  monitor_manager = meta_backend_get_monitor_manager (backend);
-  viewports = meta_monitor_manager_get_viewports (monitor_manager);
-  meta_eis_client_set_viewports (client, viewports);
-  g_signal_connect (monitor_manager, "monitors-changed",
-                    G_CALLBACK (on_monitors_changed),
-                    client);
+  client->viewports_changed_handler_id =
+    g_signal_connect (eis, "viewports-changed",
+                      G_CALLBACK (on_viewports_changed),
+                      client);
+  update_viewports (client);
 
   return client;
 }
