@@ -696,11 +696,19 @@ meta_eis_client_new (MetaEis           *eis,
    * of the seat in the process.
    */
   eis_seat = eis_client_new_seat (eis_client, "mutter default seat");
-  eis_seat_configure_capability (eis_seat, EIS_DEVICE_CAP_KEYBOARD);
-  eis_seat_configure_capability (eis_seat, EIS_DEVICE_CAP_POINTER);
-  eis_seat_configure_capability (eis_seat, EIS_DEVICE_CAP_POINTER_ABSOLUTE);
-  eis_seat_configure_capability (eis_seat, EIS_DEVICE_CAP_BUTTON);
-  eis_seat_configure_capability (eis_seat, EIS_DEVICE_CAP_SCROLL);
+
+  if (meta_eis_get_device_types (eis) & META_EIS_DEVICE_TYPE_KEYBOARD)
+    {
+      eis_seat_configure_capability (eis_seat, EIS_DEVICE_CAP_KEYBOARD);
+    }
+
+  if (meta_eis_get_device_types (eis) & META_EIS_DEVICE_TYPE_POINTER)
+    {
+      eis_seat_configure_capability (eis_seat, EIS_DEVICE_CAP_POINTER);
+      eis_seat_configure_capability (eis_seat, EIS_DEVICE_CAP_POINTER_ABSOLUTE);
+      eis_seat_configure_capability (eis_seat, EIS_DEVICE_CAP_BUTTON);
+      eis_seat_configure_capability (eis_seat, EIS_DEVICE_CAP_SCROLL);
+    }
 
   eis_seat_add (eis_seat);
   eis_seat_unref (eis_seat);

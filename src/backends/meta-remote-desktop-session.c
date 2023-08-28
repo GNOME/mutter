@@ -1626,6 +1626,21 @@ handle_selection_read (MetaDBusRemoteDesktopSession *skeleton,
   return TRUE;
 }
 
+static MetaEisDeviceTypes
+device_types_to_eis_device_types (MetaRemoteDesktopDeviceTypes device_types)
+{
+  MetaEisDeviceTypes eis_device_types = META_EIS_DEVICE_TYPE_NONE;
+
+  if (device_types & META_REMOTE_DESKTOP_DEVICE_TYPE_KEYBOARD)
+    eis_device_types |= META_EIS_DEVICE_TYPE_KEYBOARD;
+  if (device_types & META_REMOTE_DESKTOP_DEVICE_TYPE_POINTER)
+    eis_device_types |= META_EIS_DEVICE_TYPE_POINTER;
+  if (device_types & META_REMOTE_DESKTOP_DEVICE_TYPE_TOUCHSCREEN)
+    eis_device_types |= META_EIS_DEVICE_TYPE_TOUCHSCREEN;
+
+  return eis_device_types;
+}
+
 static gboolean
 handle_connect_to_eis (MetaDBusRemoteDesktopSession *skeleton,
                        GDBusMethodInvocation        *invocation,
@@ -1641,7 +1656,25 @@ handle_connect_to_eis (MetaDBusRemoteDesktopSession *skeleton,
   int fd;
 
   if (!session->eis)
-    session->eis = meta_eis_new (backend);
+    {
+      uint32_t device_types_bitmask;
+      MetaRemoteDesktopDeviceTypes device_types;
+      MetaEisDeviceTypes eis_device_types;
+
+      if (!g_variant_lookup (arg_options, "device-types", "u", &device_types_bitmask))
+        {
+          device_types = (META_REMOTE_DESKTOP_DEVICE_TYPE_KEYBOARD |
+                          META_REMOTE_DESKTOP_DEVICE_TYPE_POINTER |
+                          META_REMOTE_DESKTOP_DEVICE_TYPE_TOUCHSCREEN);
+        }
+      else
+        {
+          device_types = device_types_bitmask;
+        }
+
+      eis_device_types = device_types_to_eis_device_types (device_types);
+      session->eis = meta_eis_new (backend, eis_device_types);
+    }
 
   fd = meta_eis_add_client_get_fd (session->eis);
   if (fd < 0)

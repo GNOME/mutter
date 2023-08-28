@@ -28,6 +28,14 @@
 
 #include "meta-dbus-remote-desktop.h"
 
+typedef enum _MetaRemoteDesktopDeviceTypes
+{
+  META_REMOTE_DESKTOP_DEVICE_TYPE_NONE = 0,
+  META_REMOTE_DESKTOP_DEVICE_TYPE_KEYBOARD = 1 << 0,
+  META_REMOTE_DESKTOP_DEVICE_TYPE_POINTER = 1 << 1,
+  META_REMOTE_DESKTOP_DEVICE_TYPE_TOUCHSCREEN = 1 << 2,
+} MetaRemoteDesktopDeviceTypes;
+
 typedef struct _MetaRemoteDesktopSession MetaRemoteDesktopSession;
 
 #define META_TYPE_REMOTE_DESKTOP (meta_remote_desktop_get_type ())

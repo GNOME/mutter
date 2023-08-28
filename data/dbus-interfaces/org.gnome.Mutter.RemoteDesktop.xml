@@ -352,6 +352,10 @@
         ConnectToEIS:
 
         Request a connection to an EIS implementation.
+
+        Available @options include:
+
+        * "device-types" u: Bitmask of device types to expose (see SupportedDeviceTypes)
     -->
     <method name="ConnectToEIS">
       <arg type="a{sv}" name="options" direction="in"/>
