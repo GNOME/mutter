@@ -536,11 +536,13 @@ meta_eis_client_process_event (MetaEisClient    *client,
     case EIS_EVENT_SEAT_BIND:
       eis_seat = eis_event_get_seat (event);
       if (eis_event_seat_has_capability (event, EIS_DEVICE_CAP_POINTER))
-        add_device (client,
-                    eis_seat,
-                    CLUTTER_POINTER_DEVICE,
-                    "virtual pointer",
-                    configure_rel);
+        {
+          add_device (client,
+                      eis_seat,
+                      CLUTTER_POINTER_DEVICE,
+                      "virtual pointer",
+                      configure_rel);
+        }
       if (eis_event_seat_has_capability (event, EIS_DEVICE_CAP_KEYBOARD))
         {
           add_device (client,
@@ -555,11 +557,13 @@ meta_eis_client_process_event (MetaEisClient    *client,
                             client);
         }
       if (eis_event_seat_has_capability (event, EIS_DEVICE_CAP_POINTER_ABSOLUTE))
+        {
           add_device (client,
                       eis_seat,
                       CLUTTER_POINTER_DEVICE,
                       "virtual absolute pointer",
                       configure_abs);
+        }
       break;
 
     /* We only have one seat, so if the client unbinds from that
