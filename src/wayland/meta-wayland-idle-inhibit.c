@@ -37,7 +37,7 @@ struct _MetaWaylandIdleInhibitor
   uint32_t cookie;
   gulong is_obscured_changed_handler;
   gboolean idle_inhibited;
-  struct wl_listener surface_destroy_listener;
+  gulong surface_destroy_handler_id;
   GCancellable *cancellable;
 };
 
@@ -188,18 +188,20 @@ idle_inhibitor_destructor (struct wl_resource *resource)
                          uninhibit_completed,
                          NULL);
     }
+
   if (inhibitor->surface)
-    wl_list_remove (&inhibitor->surface_destroy_listener.link);
+    {
+      g_clear_signal_handler (&inhibitor->surface_destroy_handler_id,
+                              inhibitor->surface);
+    }
+
   g_free (inhibitor);
 }
 
 static void
-inhibitor_surface_destroyed (struct wl_listener *listener,
-                             void               *data)
+on_surface_destroyed (MetaWaylandSurface       *surface,
+                      MetaWaylandIdleInhibitor *inhibitor)
 {
-  MetaWaylandIdleInhibitor *inhibitor = wl_container_of (listener,
-                                                         inhibitor,
-                                                         surface_destroy_listener);
   inhibitor->surface = NULL;
 }
 
@@ -247,9 +249,10 @@ idle_inhibit_manager_create_inhibitor (struct wl_client   *client,
                                   inhibitor,
                                   idle_inhibitor_destructor);
 
-  inhibitor->surface_destroy_listener.notify = inhibitor_surface_destroyed;
-  wl_resource_add_destroy_listener (surface->resource,
-                                    &inhibitor->surface_destroy_listener);
+  inhibitor->surface_destroy_handler_id =
+    g_signal_connect (surface, "destroy",
+                      G_CALLBACK (on_surface_destroyed),
+                      inhibitor);
 }
 
 
