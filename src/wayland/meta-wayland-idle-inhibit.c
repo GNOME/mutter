@@ -30,18 +30,49 @@
 
 #include "idle-inhibit-unstable-v1-server-protocol.h"
 
+typedef enum _IdleState
+{
+  IDLE_STATE_UNINHIBITED,
+  IDLE_STATE_INHIBITING,
+  IDLE_STATE_INHIBITED,
+  IDLE_STATE_UNINHIBITING,
+} IdleState;
+
 struct _MetaWaylandIdleInhibitor
 {
-  MetaWaylandSurface *surface;
   GDBusProxy *session_proxy;
-  uint32_t cookie;
+  struct wl_resource *resource;
+
+  MetaSurfaceActor *actor;
   gulong is_obscured_changed_handler;
-  gboolean idle_inhibited;
+  gulong actor_destroyed_handler_id;
+
+  MetaWaylandSurface *surface;
   gulong surface_destroy_handler_id;
-  GCancellable *cancellable;
+  gulong actor_changed_handler_id;
+
+  uint32_t cookie;
+  IdleState state;
 };
 
 typedef struct _MetaWaylandIdleInhibitor MetaWaylandIdleInhibitor;
+
+static void update_inhibitation (MetaWaylandIdleInhibitor *inhibitor);
+
+static void
+meta_wayland_inhibitor_free (MetaWaylandIdleInhibitor *inhibitor)
+{
+  g_clear_signal_handler (&inhibitor->is_obscured_changed_handler,
+                          inhibitor->actor);
+  g_clear_signal_handler (&inhibitor->actor_destroyed_handler_id,
+                          inhibitor->actor);
+  g_clear_signal_handler (&inhibitor->actor_changed_handler_id,
+                          inhibitor->surface);
+  g_clear_signal_handler (&inhibitor->surface_destroy_handler_id,
+                          inhibitor->surface);
+
+  g_free (inhibitor);
+}
 
 static void
 inhibit_completed (GObject      *source,
@@ -60,10 +91,13 @@ inhibit_completed (GObject      *source,
       return;
     }
 
-  g_variant_get (ret, "(u)", &inhibitor->cookie);
-  inhibitor->idle_inhibited = TRUE;
-}
+  g_warn_if_fail (inhibitor->state == IDLE_STATE_INHIBITING);
 
+  g_variant_get (ret, "(u)", &inhibitor->cookie);
+  inhibitor->state = IDLE_STATE_INHIBITED;
+
+  update_inhibitation (inhibitor);
+}
 
 static void
 uninhibit_completed (GObject      *source,
@@ -81,47 +115,86 @@ uninhibit_completed (GObject      *source,
         g_warning ("Failed to uninhibit: %s", error->message);
       return;
     }
-  if (inhibitor)
-    inhibitor->idle_inhibited = FALSE;
+
+  if (!inhibitor)
+    return;
+
+  g_warn_if_fail (inhibitor->state == IDLE_STATE_UNINHIBITING);
+  inhibitor->state = IDLE_STATE_UNINHIBITED;
+
+  update_inhibitation (inhibitor);
 }
 
 static void
 update_inhibitation (MetaWaylandIdleInhibitor *inhibitor)
 {
-  MetaSurfaceActor *actor;
+  gboolean should_inhibit;
 
   if (!inhibitor->session_proxy)
     return;
 
-  if (inhibitor->surface)
-    return;
-
-  actor = meta_wayland_surface_get_actor (inhibitor->surface);
-
-  if (!meta_surface_actor_is_effectively_obscured (actor))
+  if (!inhibitor->surface ||
+      !inhibitor->resource)
     {
-      if (!inhibitor->idle_inhibited)
-        {
-          g_dbus_proxy_call (G_DBUS_PROXY (inhibitor->session_proxy),
-                             "Inhibit",
-                             g_variant_new ("(ss)", "mutter", "idle-inhibit"),
-                             G_DBUS_CALL_FLAGS_NONE,
-                             -1,
-                             inhibitor->cancellable,
-                             inhibit_completed,
-                             inhibitor);
-        }
+      should_inhibit = FALSE;
     }
-  else if (inhibitor->idle_inhibited)
+  else
+    {
+      MetaSurfaceActor *actor;
+
+      actor = meta_wayland_surface_get_actor (inhibitor->surface);
+      if (meta_surface_actor_is_effectively_obscured (actor))
+        should_inhibit = FALSE;
+      else
+        should_inhibit = TRUE;
+    }
+
+  switch (inhibitor->state)
+    {
+    case IDLE_STATE_UNINHIBITED:
+      if (!inhibitor->resource)
+        {
+          meta_wayland_inhibitor_free (inhibitor);
+          return;
+        }
+
+      if (!should_inhibit)
+        return;
+
+      break;
+    case IDLE_STATE_INHIBITED:
+      if (should_inhibit)
+        return;
+      break;
+    case IDLE_STATE_INHIBITING:
+    case IDLE_STATE_UNINHIBITING:
+      /* Update inhibitation after current asynchronous call completes. */
+      return;
+    }
+
+  if (should_inhibit)
+    {
+      g_dbus_proxy_call (G_DBUS_PROXY (inhibitor->session_proxy),
+                         "Inhibit",
+                         g_variant_new ("(ss)", "mutter", "idle-inhibit"),
+                         G_DBUS_CALL_FLAGS_NONE,
+                         -1,
+                         NULL,
+                         inhibit_completed,
+                         inhibitor);
+      inhibitor->state = IDLE_STATE_INHIBITING;
+    }
+  else
     {
       g_dbus_proxy_call (G_DBUS_PROXY (inhibitor->session_proxy),
                          "UnInhibit",
                          g_variant_new ("(u)", inhibitor->cookie),
                          G_DBUS_CALL_FLAGS_NONE,
                          -1,
-                         inhibitor->cancellable,
+                         NULL,
                          uninhibit_completed,
                          inhibitor);
+      inhibitor->state = IDLE_STATE_UNINHIBITING;
     }
 }
 
@@ -170,39 +243,69 @@ idle_inhibitor_destructor (struct wl_resource *resource)
 {
   MetaWaylandIdleInhibitor *inhibitor = wl_resource_get_user_data (resource);
 
-  if (inhibitor->surface)
-    g_clear_signal_handler (&inhibitor->is_obscured_changed_handler,
-                            meta_wayland_surface_get_actor (inhibitor->surface));
-
-  /* Cancel any already pending calls */
-  g_cancellable_cancel (inhibitor->cancellable);
-  /* Uninhibit when the inhibitor is destroyed */
-  if (inhibitor->session_proxy && inhibitor->idle_inhibited)
+  switch (inhibitor->state)
     {
-      g_dbus_proxy_call (G_DBUS_PROXY (inhibitor->session_proxy),
-                         "UnInhibit",
-                         g_variant_new ("(u)", inhibitor->cookie),
-                         G_DBUS_CALL_FLAGS_NONE,
-                         -1,
-                         NULL,
-                         uninhibit_completed,
-                         NULL);
+    case IDLE_STATE_UNINHIBITED:
+      meta_wayland_inhibitor_free (inhibitor);
+      return;
+    case IDLE_STATE_INHIBITED:
+    case IDLE_STATE_INHIBITING:
+    case IDLE_STATE_UNINHIBITING:
+      inhibitor->resource = NULL;
+      break;
     }
 
-  if (inhibitor->surface)
-    {
-      g_clear_signal_handler (&inhibitor->surface_destroy_handler_id,
-                              inhibitor->surface);
-    }
-
-  g_free (inhibitor);
+  update_inhibitation (inhibitor);
 }
 
 static void
 on_surface_destroyed (MetaWaylandSurface       *surface,
                       MetaWaylandIdleInhibitor *inhibitor)
 {
+  g_clear_signal_handler (&inhibitor->is_obscured_changed_handler,
+                          inhibitor->actor);
+  g_clear_signal_handler (&inhibitor->actor_destroyed_handler_id,
+                          inhibitor->actor);
+  inhibitor->actor = NULL;
+  g_clear_signal_handler (&inhibitor->actor_changed_handler_id,
+                          inhibitor->surface);
+  g_clear_signal_handler (&inhibitor->surface_destroy_handler_id,
+                          inhibitor->surface);
   inhibitor->surface = NULL;
+}
+
+static void
+on_actor_destroyed (MetaSurfaceActor         *actor,
+                    MetaWaylandIdleInhibitor *inhibitor)
+{
+  g_warn_if_fail (actor == inhibitor->actor);
+
+  g_clear_signal_handler (&inhibitor->is_obscured_changed_handler, actor);
+  g_clear_signal_handler (&inhibitor->actor_destroyed_handler_id, actor);
+  inhibitor->actor = NULL;
+}
+
+static void
+attach_actor (MetaWaylandIdleInhibitor *inhibitor)
+{
+  inhibitor->actor = meta_wayland_surface_get_actor (inhibitor->surface);
+  inhibitor->is_obscured_changed_handler =
+    g_signal_connect (inhibitor->actor, "notify::is-obscured",
+                      G_CALLBACK (is_obscured_changed), inhibitor);
+  inhibitor->actor_destroyed_handler_id =
+    g_signal_connect (inhibitor->actor, "destroy",
+                      G_CALLBACK (on_actor_destroyed), inhibitor);
+}
+
+static void
+on_actor_changed (MetaWaylandSurface       *surface,
+                  MetaWaylandIdleInhibitor *inhibitor)
+{
+  g_clear_signal_handler (&inhibitor->is_obscured_changed_handler,
+                          inhibitor->surface);
+  g_clear_signal_handler (&inhibitor->actor_destroyed_handler_id,
+                          inhibitor->surface);
+  attach_actor (inhibitor);
 }
 
 static const struct zwp_idle_inhibitor_v1_interface meta_wayland_idle_inhibitor_interface =
@@ -227,12 +330,16 @@ idle_inhibit_manager_create_inhibitor (struct wl_client   *client,
 
   inhibitor = g_new0 (MetaWaylandIdleInhibitor, 1);
   inhibitor->surface = surface;
+  inhibitor->resource = inhibitor_resource;
 
-  inhibitor->is_obscured_changed_handler =
-    g_signal_connect (meta_wayland_surface_get_actor (surface),
-                      "notify::is-obscured",
-                      G_CALLBACK (is_obscured_changed),
-                      inhibitor);
+  attach_actor (inhibitor);
+
+  inhibitor->actor_changed_handler_id =
+    g_signal_connect (surface, "actor-changed",
+                      G_CALLBACK (on_actor_changed), inhibitor);
+  inhibitor->surface_destroy_handler_id =
+    g_signal_connect (surface, "destroy",
+                      G_CALLBACK (on_surface_destroyed), inhibitor);
 
   g_dbus_proxy_new_for_bus (G_BUS_TYPE_SESSION,
                             G_DBUS_PROXY_FLAGS_NONE,
@@ -240,7 +347,7 @@ idle_inhibit_manager_create_inhibitor (struct wl_client   *client,
                             "org.freedesktop.ScreenSaver",
                             "/org/freedesktop/ScreenSaver",
                             "org.freedesktop.ScreenSaver",
-                            inhibitor->cancellable,
+                            NULL,
                             inhibitor_proxy_completed,
                             inhibitor);
 
@@ -248,11 +355,6 @@ idle_inhibit_manager_create_inhibitor (struct wl_client   *client,
                                   &meta_wayland_idle_inhibitor_interface,
                                   inhibitor,
                                   idle_inhibitor_destructor);
-
-  inhibitor->surface_destroy_handler_id =
-    g_signal_connect (surface, "destroy",
-                      G_CALLBACK (on_surface_destroyed),
-                      inhibitor);
 }
 
 
