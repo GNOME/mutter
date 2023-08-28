@@ -2456,7 +2456,8 @@ transform_changed (ClutterActor *actor)
 static void
 update_pointer_if_not_animated (ClutterActor *actor)
 {
-  if (!clutter_actor_has_transitions (actor))
+  if (!clutter_actor_has_transitions (actor) &&
+      !CLUTTER_ACTOR_IN_RELAYOUT (actor))
     clutter_actor_update_pointer (actor);
 }
 
