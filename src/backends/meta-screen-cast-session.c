@@ -40,6 +40,16 @@
 
 enum
 {
+  STREAM_ADDED,
+  STREAM_REMOVED,
+
+  N_SIGNALS,
+};
+
+static int signals[N_SIGNALS];
+
+enum
+{
   PROP_0,
 
   PROP_REMOTE_DESKTOP_SESSION,
@@ -182,6 +192,12 @@ meta_screen_cast_session_close (MetaDbusSession *dbus_session)
     }
 
   g_object_unref (session);
+}
+
+GList *
+meta_screen_cast_session_peek_streams (MetaScreenCastSession *session)
+{
+  return session->streams;
 }
 
 MetaScreenCastStream *
@@ -366,6 +382,7 @@ on_stream_closed (MetaScreenCastStream  *stream,
                   MetaScreenCastSession *session)
 {
   session->streams = g_list_remove (session->streams, stream);
+  g_signal_emit (session, signals[STREAM_REMOVED], 0, stream);
   g_object_unref (stream);
 
   switch (session->session_type)
@@ -390,6 +407,16 @@ is_valid_cursor_mode (MetaScreenCastCursorMode cursor_mode)
     }
 
   return FALSE;
+}
+
+static void
+add_stream (MetaScreenCastSession *session,
+            MetaScreenCastStream  *stream)
+{
+  session->streams = g_list_append (session->streams, stream);
+  g_signal_emit (session, signals[STREAM_ADDED], 0, stream);
+
+  g_signal_connect (stream, "closed", G_CALLBACK (on_stream_closed), session);
 }
 
 static gboolean
@@ -484,9 +511,7 @@ handle_record_monitor (MetaDBusScreenCastSession *skeleton,
   stream = META_SCREEN_CAST_STREAM (monitor_stream);
   stream_path = meta_screen_cast_stream_get_object_path (stream);
 
-  session->streams = g_list_append (session->streams, stream);
-
-  g_signal_connect (stream, "closed", G_CALLBACK (on_stream_closed), session);
+  add_stream (session, stream);
 
   meta_dbus_screen_cast_session_complete_record_monitor (skeleton,
                                                          invocation,
@@ -890,6 +915,23 @@ meta_screen_cast_session_class_init (MetaScreenCastSessionClass *klass)
                          G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
   meta_dbus_session_install_properties (object_class, N_PROPS);
+
+  signals[STREAM_ADDED] =
+    g_signal_new ("stream-added",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 1,
+                  META_TYPE_SCREEN_CAST_STREAM);
+  signals[STREAM_REMOVED] =
+    g_signal_new ("stream-removed",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 1,
+                  META_TYPE_SCREEN_CAST_STREAM);
 }
 
 static gboolean

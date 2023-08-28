@@ -203,6 +203,50 @@ ensure_virtual_device (MetaRemoteDesktopSession *session,
   *virtual_device_ptr = clutter_seat_create_virtual_device (seat, device_type);
 }
 
+static void
+on_stream_added (MetaScreenCastSession    *screen_cast_session,
+                 MetaScreenCastStream     *stream,
+                 MetaRemoteDesktopSession *session)
+{
+  meta_eis_add_viewport (session->eis, META_EIS_VIEWPORT (stream));
+}
+
+static void
+on_stream_removed (MetaScreenCastSession    *screen_cast_session,
+                   MetaScreenCastStream     *stream,
+                   MetaRemoteDesktopSession *session)
+{
+  meta_eis_remove_viewport (session->eis, META_EIS_VIEWPORT (stream));
+}
+
+static void
+initialize_viewports (MetaRemoteDesktopSession *session)
+{
+  if (session->screen_cast_session)
+    {
+      GList *streams;
+      GList *l;
+
+      streams =
+        meta_screen_cast_session_peek_streams (session->screen_cast_session);
+      for (l = streams; l; l = l->next)
+        {
+          MetaScreenCastStream *stream = META_SCREEN_CAST_STREAM (l->data);
+
+          meta_eis_add_viewport (session->eis, META_EIS_VIEWPORT (stream));
+        }
+
+      g_signal_connect (session->screen_cast_session,
+                        "stream-added",
+                        G_CALLBACK (on_stream_added),
+                        session);
+      g_signal_connect (session->screen_cast_session,
+                        "stream-removed",
+                        G_CALLBACK (on_stream_removed),
+                        session);
+    }
+}
+
 static gboolean
 meta_remote_desktop_session_start (MetaRemoteDesktopSession *session,
                                    GError                  **error)
@@ -214,6 +258,9 @@ meta_remote_desktop_session_start (MetaRemoteDesktopSession *session,
       if (!meta_screen_cast_session_start (session->screen_cast_session, error))
         return FALSE;
     }
+
+  if (session->eis)
+    initialize_viewports (session);
 
   init_remote_access_handle (session);
   session->started = TRUE;
@@ -281,6 +328,13 @@ meta_remote_desktop_session_register_screen_cast (MetaRemoteDesktopSession  *ses
                                                   MetaScreenCastSession     *screen_cast_session,
                                                   GError                   **error)
 {
+  if (session->started)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Remote desktop session already started");
+      return FALSE;
+    }
+
   if (session->screen_cast_session)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
@@ -1695,6 +1749,9 @@ handle_connect_to_eis (MetaDBusRemoteDesktopSession *skeleton,
 
       eis_device_types = device_types_to_eis_device_types (device_types);
       session->eis = meta_eis_new (backend, eis_device_types);
+
+      if (session->started)
+        initialize_viewports (session);
     }
 
   fd = meta_eis_add_client_get_fd (session->eis);

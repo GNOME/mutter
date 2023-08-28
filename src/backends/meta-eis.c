@@ -27,6 +27,15 @@
 #include "clutter/clutter-mutter.h"
 #include "meta/util.h"
 
+enum
+{
+  VIEWPORTS_CHANGED,
+
+  N_SIGNALS
+};
+
+static int signals[N_SIGNALS];
+
 typedef struct _MetaEventSource MetaEventSource;
 
 struct _MetaEventSource
@@ -47,6 +56,8 @@ struct _MetaEis
 
   MetaEisDeviceTypes device_types;
 
+  GList *viewports;
+
   GHashTable *eis_clients; /* eis_client => MetaEisClient */
 };
 
@@ -63,6 +74,12 @@ gboolean
 meta_eis_viewport_is_standalone (MetaEisViewport *viewport)
 {
   return META_EIS_VIEWPORT_GET_IFACE (viewport)->is_standalone (viewport);
+}
+
+const char *
+meta_eis_viewport_get_mapping_id (MetaEisViewport *viewport)
+{
+  return META_EIS_VIEWPORT_GET_IFACE (viewport)->get_mapping_id (viewport);
 }
 
 gboolean
@@ -327,6 +344,7 @@ meta_eis_dispose (GObject *object)
 {
   MetaEis *eis = META_EIS (object);
 
+  g_clear_pointer (&eis->viewports, g_list_free);
   g_clear_pointer (&eis->event_source, meta_event_source_free);
   g_clear_pointer (&eis->eis, eis_unref);
   g_clear_pointer (&eis->eis_clients, g_hash_table_destroy);
@@ -340,10 +358,40 @@ meta_eis_class_init (MetaEisClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->dispose = meta_eis_dispose;
+
+  signals[VIEWPORTS_CHANGED] =
+    g_signal_new ("viewports-changed",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
 }
 
 MetaEisDeviceTypes
 meta_eis_get_device_types (MetaEis *eis)
 {
   return eis->device_types;
+}
+
+void
+meta_eis_add_viewport (MetaEis         *eis,
+                       MetaEisViewport *viewport)
+{
+  eis->viewports = g_list_append (eis->viewports, viewport);
+  g_signal_emit (eis, signals[VIEWPORTS_CHANGED], 0);
+}
+
+void
+meta_eis_remove_viewport (MetaEis         *eis,
+                          MetaEisViewport *viewport)
+{
+  eis->viewports = g_list_remove (eis->viewports, viewport);
+  g_signal_emit (eis, signals[VIEWPORTS_CHANGED], 0);
+}
+
+GList *
+meta_eis_peek_viewports (MetaEis *eis)
+{
+  return eis->viewports;
 }
