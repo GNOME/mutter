@@ -544,6 +544,8 @@ if have_remote_desktop
     'backends/meta-eis.h',
     'backends/meta-eis-client.c',
     'backends/meta-eis-client.h',
+    'backends/meta-eis-viewport.c',
+    'backends/meta-eis-viewport.h',
     'backends/meta-remote-desktop.c',
     'backends/meta-remote-desktop.h',
     'backends/meta-remote-desktop-session.c',

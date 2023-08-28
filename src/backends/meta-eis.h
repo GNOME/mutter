@@ -23,6 +23,7 @@
 #include <glib-object.h>
 
 #include "backends/meta-backend-types.h"
+#include "backends/meta-eis-viewport.h"
 
 typedef enum _MetaEisDeviceTypes
 {
