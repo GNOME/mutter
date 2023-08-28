@@ -1403,29 +1403,6 @@ set_surface_is_on_output (MetaWaylandSurface *surface,
 }
 
 static void
-update_surface_output_state (gpointer key, gpointer value, gpointer user_data)
-{
-  MetaWaylandOutput *wayland_output = value;
-  MetaWaylandSurface *surface = user_data;
-  MetaLogicalMonitor *logical_monitor;
-  gboolean is_on_logical_monitor;
-
-  g_assert (surface->role);
-
-  logical_monitor = meta_wayland_output_get_logical_monitor (wayland_output);
-  if (!logical_monitor)
-    {
-      set_surface_is_on_output (surface, wayland_output, FALSE);
-      return;
-    }
-
-  is_on_logical_monitor =
-    meta_wayland_surface_role_is_on_logical_monitor (surface->role,
-                                                     logical_monitor);
-  set_surface_is_on_output (surface, wayland_output, is_on_logical_monitor);
-}
-
-static void
 surface_output_disconnect_signals (gpointer key,
                                    gpointer value,
                                    gpointer user_data)
@@ -1461,6 +1438,29 @@ meta_wayland_surface_get_highest_output_scale (MetaWaylandSurface *surface)
 
 out:
   return scale;
+}
+
+static void
+update_surface_output_state (gpointer key, gpointer value, gpointer user_data)
+{
+  MetaWaylandOutput *wayland_output = value;
+  MetaWaylandSurface *surface = user_data;
+  MetaLogicalMonitor *logical_monitor;
+  gboolean is_on_logical_monitor;
+
+  g_assert (surface->role);
+
+  logical_monitor = meta_wayland_output_get_logical_monitor (wayland_output);
+  if (!logical_monitor)
+    {
+      set_surface_is_on_output (surface, wayland_output, FALSE);
+      return;
+    }
+
+  is_on_logical_monitor =
+    meta_wayland_surface_role_is_on_logical_monitor (surface->role,
+                                                     logical_monitor);
+  set_surface_is_on_output (surface, wayland_output, is_on_logical_monitor);
 }
 
 void
