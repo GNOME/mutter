@@ -68,3 +68,4 @@ MetaScreenCastCursorMode meta_screen_cast_stream_get_cursor_mode (MetaScreenCast
 
 MetaScreenCastFlag meta_screen_cast_stream_get_flags (MetaScreenCastStream *stream);
 
+const char * meta_screen_cast_stream_get_mapping_id (MetaScreenCastStream *stream);

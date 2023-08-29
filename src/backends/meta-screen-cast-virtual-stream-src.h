@@ -31,3 +31,5 @@ MetaScreenCastVirtualStreamSrc * meta_screen_cast_virtual_stream_src_new (MetaSc
                                                                           GError                     **error);
 
 ClutterStageView * meta_screen_cast_virtual_stream_src_get_view (MetaScreenCastVirtualStreamSrc *virtual_src);
+
+MetaLogicalMonitor * meta_screen_cast_virtual_stream_src_logical_monitor (MetaScreenCastVirtualStreamSrc *virtual_src);

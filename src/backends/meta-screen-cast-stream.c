@@ -22,6 +22,7 @@
 
 #include "backends/meta-screen-cast-stream.h"
 
+#include "backends/meta-remote-desktop-session.h"
 #include "backends/meta-screen-cast-session.h"
 
 #include "meta-private-enum-types.h"
@@ -59,6 +60,8 @@ typedef struct _MetaScreenCastStreamPrivate
   MetaScreenCastFlag flags;
 
   MetaScreenCastStreamSrc *src;
+
+  char *mapping_id;
 } MetaScreenCastStreamPrivate;
 
 static void
@@ -217,6 +220,15 @@ meta_screen_cast_stream_get_flags (MetaScreenCastStream *stream)
   return priv->flags;
 }
 
+const char *
+meta_screen_cast_stream_get_mapping_id (MetaScreenCastStream *stream)
+{
+  MetaScreenCastStreamPrivate *priv =
+    meta_screen_cast_stream_get_instance_private (stream);
+
+  return priv->mapping_id;
+}
+
 static void
 meta_screen_cast_stream_set_property (GObject      *object,
                                       guint         prop_id,
@@ -286,6 +298,7 @@ meta_screen_cast_stream_finalize (GObject *object)
     meta_screen_cast_stream_close (stream);
 
   g_clear_pointer (&priv->object_path, g_free);
+  g_clear_pointer (&priv->mapping_id, g_free);
 
   G_OBJECT_CLASS (meta_screen_cast_stream_parent_class)->finalize (object);
 }
@@ -358,12 +371,27 @@ meta_screen_cast_stream_initable_init (GInitable     *initable,
   MetaDBusScreenCastStream *skeleton = META_DBUS_SCREEN_CAST_STREAM (stream);
   MetaScreenCastStreamPrivate *priv =
     meta_screen_cast_stream_get_instance_private (stream);
+  MetaRemoteDesktopSession *remote_desktop_session;
   GVariantBuilder parameters_builder;
   GVariant *parameters_variant;
   static unsigned int global_stream_number = 0;
 
   g_variant_builder_init (&parameters_builder, G_VARIANT_TYPE_VARDICT);
   meta_screen_cast_stream_set_parameters (stream, &parameters_builder);
+
+  remote_desktop_session =
+    meta_screen_cast_session_get_remote_desktop_session (priv->session);
+  if (remote_desktop_session)
+    {
+      const char *mapping_id;
+
+      mapping_id =
+        meta_remote_desktop_session_acquire_mapping_id (remote_desktop_session);
+      priv->mapping_id = g_strdup (mapping_id);
+      g_variant_builder_add (&parameters_builder, "{sv}",
+                             "mapping-id",
+                             g_variant_new ("s", priv->mapping_id));
+    }
 
   parameters_variant = g_variant_builder_end (&parameters_builder);
   meta_dbus_screen_cast_stream_set_parameters (skeleton, parameters_variant);
