@@ -62,6 +62,7 @@ typedef struct _MetaRenderer MetaRenderer;
 typedef struct _MetaRendererView MetaRendererView;
 
 typedef struct _MetaRemoteDesktop MetaRemoteDesktop;
+typedef struct _MetaRemoteDesktopSession MetaRemoteDesktopSession;
 typedef struct _MetaScreenCast MetaScreenCast;
 typedef struct _MetaScreenCastSession MetaScreenCastSession;
 typedef struct _MetaScreenCastStream MetaScreenCastStream;

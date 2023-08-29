@@ -26,6 +26,7 @@
 #include "backends/meta-dbus-session-manager.h"
 #include "backends/meta-dbus-session-watcher.h"
 #include "backends/meta-remote-access-controller-private.h"
+#include "backends/meta-remote-desktop-session.h"
 #include "backends/meta-screen-cast-area-stream.h"
 #include "backends/meta-screen-cast-monitor-stream.h"
 #include "backends/meta-screen-cast-stream.h"
@@ -41,7 +42,7 @@ enum
 {
   PROP_0,
 
-  PROP_SESSION_TYPE,
+  PROP_REMOTE_DESKTOP_SESSION,
 
   N_PROPS
 };
@@ -66,6 +67,8 @@ struct _MetaScreenCastSession
 
   gboolean is_active;
   gboolean disable_animations;
+
+  MetaRemoteDesktopSession *remote_desktop_session;
 };
 
 static void initable_init_iface (GInitableIface *iface);
@@ -230,6 +233,12 @@ meta_screen_cast_session_get_session_type (MetaScreenCastSession *session)
   return session->session_type;
 }
 
+MetaRemoteDesktopSession *
+meta_screen_cast_session_get_remote_desktop_session (MetaScreenCastSession *session)
+{
+  return session->remote_desktop_session;
+}
+
 static gboolean
 check_permission (MetaScreenCastSession *session,
                   GDBusMethodInvocation *invocation)
@@ -247,6 +256,14 @@ meta_screen_cast_session_initable_init (GInitable     *initable,
   GDBusInterfaceSkeleton *interface_skeleton;
   GDBusConnection *connection;
   static unsigned int global_session_number = 0;
+
+  if (session->remote_desktop_session)
+    {
+      if (!meta_remote_desktop_session_register_screen_cast (session->remote_desktop_session,
+                                                             session,
+                                                             error))
+        return FALSE;
+    }
 
   session->object_path =
     g_strdup_printf (META_SCREEN_CAST_SESSION_DBUS_PATH "/u%u",
@@ -799,8 +816,12 @@ meta_screen_cast_session_set_property (GObject      *object,
 
   switch (prop_id)
     {
-    case PROP_SESSION_TYPE:
-      session->session_type = g_value_get_enum (value);
+    case PROP_REMOTE_DESKTOP_SESSION:
+      session->remote_desktop_session = g_value_get_object (value);
+      if (session->remote_desktop_session)
+        session->session_type = META_SCREEN_CAST_SESSION_TYPE_REMOTE_DESKTOP;
+      else
+        session->session_type = META_SCREEN_CAST_SESSION_TYPE_NORMAL;
       break;
 
     case N_PROPS + META_DBUS_SESSION_PROP_SESSION_MANAGER:
@@ -828,8 +849,8 @@ meta_screen_cast_session_get_property (GObject    *object,
 
   switch (prop_id)
     {
-    case PROP_SESSION_TYPE:
-      g_value_set_enum (value, session->session_type);
+    case PROP_REMOTE_DESKTOP_SESSION:
+      g_value_set_object (value, session->remote_desktop_session);
       break;
 
     case N_PROPS + META_DBUS_SESSION_PROP_SESSION_MANAGER:
@@ -861,13 +882,12 @@ meta_screen_cast_session_class_init (MetaScreenCastSessionClass *klass)
   object_class->set_property = meta_screen_cast_session_set_property;
   object_class->get_property = meta_screen_cast_session_get_property;
 
-  obj_props[PROP_SESSION_TYPE] =
-    g_param_spec_enum ("session-type", NULL, NULL,
-                       META_TYPE_SCREEN_CAST_SESSION_TYPE,
-                       META_SCREEN_CAST_SESSION_TYPE_NORMAL,
-                       G_PARAM_READWRITE |
-                       G_PARAM_CONSTRUCT_ONLY |
-                       G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_REMOTE_DESKTOP_SESSION] =
+    g_param_spec_object ("remote-desktop-session", NULL, NULL,
+                         META_TYPE_REMOTE_DESKTOP_SESSION,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
   meta_dbus_session_install_properties (object_class, N_PROPS);
 }
