@@ -475,7 +475,7 @@ should_use_clipped_redraw (gboolean              is_full_redraw,
   if (COGL_IS_OFFSCREEN (framebuffer))
     return TRUE;
 
-  if (!buffer_has_valid_damage_history)
+  if (has_buffer_age && !buffer_has_valid_damage_history)
     {
       meta_topic (META_DEBUG_BACKEND,
                   "Invalid back buffer age: forcing full redraw");
