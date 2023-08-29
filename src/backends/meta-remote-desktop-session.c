@@ -102,6 +102,8 @@ struct _MetaRemoteDesktopSession
   MetaSelectionSourceRemote *current_source;
   GHashTable *transfer_requests;
   guint transfer_request_timeout_id;
+
+  GHashTable *mapping_ids;
 };
 
 static void initable_init_iface (GInitableIface *iface);
@@ -294,6 +296,25 @@ meta_remote_desktop_session_register_screen_cast (MetaRemoteDesktopSession  *ses
                       session);
 
   return TRUE;
+}
+
+const char *
+meta_remote_desktop_session_acquire_mapping_id (MetaRemoteDesktopSession *session)
+{
+  while (TRUE)
+    {
+      char *mapping_id;
+
+      mapping_id = g_uuid_string_random ();
+      if (g_hash_table_contains (session->mapping_ids, mapping_id))
+        {
+          g_free (mapping_id);
+          continue;
+        }
+
+      g_hash_table_add (session->mapping_ids, mapping_id);
+      return mapping_id;
+    }
 }
 
 static gboolean
@@ -1730,6 +1751,8 @@ meta_remote_desktop_session_initable_init (GInitable     *initable,
                           session, "num-lock-state",
                           G_BINDING_DEFAULT | G_BINDING_SYNC_CREATE);
 
+  session->mapping_ids = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+
   return TRUE;
 }
 
@@ -1782,6 +1805,8 @@ meta_remote_desktop_session_finalize (GObject *object)
   reset_current_selection_source (session);
   cancel_selection_read (session);
   g_hash_table_unref (session->transfer_requests);
+
+  g_clear_pointer (&session->mapping_ids, g_hash_table_unref);
 
   g_clear_object (&session->handle);
   g_free (session->peer_name);
