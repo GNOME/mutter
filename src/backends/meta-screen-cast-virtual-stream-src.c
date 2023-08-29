@@ -22,6 +22,8 @@
 
 #include "backends/meta-crtc-mode.h"
 #include "backends/meta-cursor-tracker-private.h"
+#include "backends/meta-monitor.h"
+#include "backends/meta-output.h"
 #include "backends/meta-screen-cast-session.h"
 #include "backends/meta-stage-private.h"
 #include "backends/meta-virtual-monitor.h"
@@ -106,6 +108,16 @@ ClutterStageView *
 meta_screen_cast_virtual_stream_src_get_view (MetaScreenCastVirtualStreamSrc *virtual_src)
 {
   return view_from_src (META_SCREEN_CAST_STREAM_SRC (virtual_src));
+}
+
+MetaLogicalMonitor *
+meta_screen_cast_virtual_stream_src_logical_monitor (MetaScreenCastVirtualStreamSrc *virtual_src)
+{
+  MetaVirtualMonitor *virtual_monitor = virtual_src->virtual_monitor;
+  MetaOutput *output = meta_virtual_monitor_get_output (virtual_monitor);
+  MetaMonitor *monitor = meta_output_get_monitor (output);
+
+  return meta_monitor_get_logical_monitor (monitor);
 }
 
 static void
