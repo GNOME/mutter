@@ -270,7 +270,7 @@ meta_eis_init (MetaEis *eis)
 }
 
 static void
-meta_eis_finalize (GObject *object)
+meta_eis_dispose (GObject *object)
 {
   MetaEis *eis = META_EIS (object);
 
@@ -278,7 +278,7 @@ meta_eis_finalize (GObject *object)
   g_clear_pointer (&eis->eis, eis_unref);
   g_clear_pointer (&eis->eis_clients, g_hash_table_destroy);
 
-  G_OBJECT_CLASS (meta_eis_parent_class)->finalize (object);
+  G_OBJECT_CLASS (meta_eis_parent_class)->dispose (object);
 }
 
 static void
@@ -286,7 +286,7 @@ meta_eis_class_init (MetaEisClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  object_class->finalize = meta_eis_finalize;
+  object_class->dispose = meta_eis_dispose;
 }
 
 MetaEisDeviceTypes
