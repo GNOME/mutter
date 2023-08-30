@@ -93,6 +93,8 @@ typedef struct _MetaMultiTextureFormatInfo
 
   /* Shaders */
   const char *rgb_shader;  /* Shader to convert to RGBA (or NULL) */
+
+  GOnce snippet_once;
 } MetaMultiTextureFormatInfo;
 
 /* NOTE: The actual enum values are used as the index, so you don't need to
@@ -109,6 +111,7 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1 },
     .vsub = { 1 },
     .rgb_shader = rgba_shader,
+    .snippet_once = G_ONCE_INIT,
   },
   /* Packed YUV */
   {
@@ -119,6 +122,7 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1, 2 },
     .vsub = { 1, 1 },
     .rgb_shader = y_xuxv_shader,
+    .snippet_once = G_ONCE_INIT,
   },
   /* 2 plane YUV */
   {
@@ -129,6 +133,7 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1, 2 },
     .vsub = { 1, 2 },
     .rgb_shader = nv12_shader,
+    .snippet_once = G_ONCE_INIT,
   },
   /* 3 plane YUV */
   {
@@ -139,6 +144,7 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1, 2, 2 },
     .vsub = { 1, 2, 2 },
     .rgb_shader = yuv420_shader,
+    .snippet_once = G_ONCE_INIT,
   },
 };
 
@@ -198,6 +204,25 @@ meta_multi_texture_format_get_subsampling_factors (MetaMultiTextureFormat  forma
     }
 }
 
+static gpointer
+create_globals_snippet (gpointer data)
+{
+  return cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT_GLOBALS,
+                           shader_global_conversions,
+                           NULL);
+}
+
+static gpointer
+create_format_snippet (gpointer data)
+{
+  MetaMultiTextureFormat format =
+    (MetaMultiTextureFormat) GPOINTER_TO_INT (data);
+
+  return cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT,
+                           NULL,
+                           multi_format_table[format].rgb_shader);
+}
+
 gboolean
 meta_multi_texture_format_get_snippets (MetaMultiTextureFormat   format,
                                         CoglSnippet            **fragment_globals_snippet,
@@ -210,18 +235,21 @@ meta_multi_texture_format_get_snippets (MetaMultiTextureFormat   format,
 
   if (fragment_globals_snippet)
     {
-      *fragment_globals_snippet =
-        cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT_GLOBALS,
-                          shader_global_conversions,
-                          NULL);
+      static GOnce globals_once = G_ONCE_INIT;
+      CoglSnippet *globals_snippet;
+
+      globals_snippet = g_once (&globals_once, create_globals_snippet, NULL);
+      *fragment_globals_snippet = cogl_object_ref (globals_snippet);
     }
 
   if (fragment_snippet)
     {
-      *fragment_snippet =
-        cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT,
-                          NULL,
-                          multi_format_table[format].rgb_shader);
+      CoglSnippet *format_snippet;
+
+      format_snippet = g_once (&multi_format_table[format].snippet_once,
+                               create_format_snippet,
+                               GINT_TO_POINTER (format));
+      *fragment_snippet = cogl_object_ref (format_snippet);
     }
 
   return TRUE;
