@@ -519,6 +519,7 @@ get_extension_event_name (MetaX11Display *x11_display,
   return NULL;
 }
 
+#ifdef COGL_HAS_TRACING
 static const char *
 get_event_name (MetaX11Display *x11_display,
                 XEvent         *event)
@@ -543,6 +544,7 @@ get_event_name (MetaX11Display *x11_display,
 
   return "Unknown event";
 }
+#endif
 
 static void
 meta_spew_core_event (MetaX11Display *x11_display,
