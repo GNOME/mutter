@@ -235,7 +235,7 @@ eis_logger (struct eis             *eis,
       g_warning ("%s", message);
       break;
     case EIS_LOG_PRIORITY_ERROR:
-      g_error ("%s", message);
+      g_critical ("%s", message);
       break;
     case EIS_LOG_PRIORITY_INFO:
     default:
