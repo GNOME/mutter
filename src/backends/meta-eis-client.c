@@ -272,8 +272,8 @@ add_viewport_region (struct eis_device *eis_device,
   eis_region_set_physical_scale (eis_region, scale);
 
   mapping_id = meta_eis_viewport_get_mapping_id (viewport);
-  g_warn_if_fail (mapping_id);
-  eis_region_set_mapping_id (eis_region, mapping_id);
+  if (mapping_id)
+    eis_region_set_mapping_id (eis_region, mapping_id);
 
   eis_region_set_user_data (eis_region, viewport);
   eis_region_add (eis_region);

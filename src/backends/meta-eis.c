@@ -331,6 +331,21 @@ meta_eis_remove_viewport (MetaEis         *eis,
   g_signal_emit (eis, signals[VIEWPORTS_CHANGED], 0);
 }
 
+void
+meta_eis_take_viewports (MetaEis *eis,
+                         GList   *viewports)
+{
+  eis->viewports = g_list_concat (eis->viewports, viewports);
+  g_signal_emit (eis, signals[VIEWPORTS_CHANGED], 0);
+}
+
+void
+meta_eis_remove_all_viewports (MetaEis *eis)
+{
+  g_clear_pointer (&eis->viewports, g_list_free);
+  g_signal_emit (eis, signals[VIEWPORTS_CHANGED], 0);
+}
+
 GList *
 meta_eis_peek_viewports (MetaEis *eis)
 {

@@ -50,6 +50,11 @@ void meta_eis_add_viewport (MetaEis         *eis,
 void meta_eis_remove_viewport (MetaEis         *eis,
                                MetaEisViewport *viewport);
 
+void meta_eis_take_viewports (MetaEis *eis,
+                              GList   *viewports);
+
+void meta_eis_remove_all_viewports (MetaEis *eis);
+
 GList * meta_eis_peek_viewports (MetaEis *eis);
 
 MetaEisDeviceTypes meta_eis_get_device_types (MetaEis *eis);
