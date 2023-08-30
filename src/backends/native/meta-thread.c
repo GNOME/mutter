@@ -292,11 +292,11 @@ thread_impl_func (gpointer user_data)
 {
   MetaThread *thread = META_THREAD (user_data);
   MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
-  MetaContext *context = meta_backend_get_context (priv->backend);
   MetaThreadImpl *impl = priv->impl;
   MetaThreadImplRunFlags run_flags = META_THREAD_IMPL_RUN_FLAG_NONE;
   GMainContext *thread_context = meta_thread_impl_get_main_context (impl);
 #ifdef HAVE_PROFILER
+  MetaContext *context = meta_backend_get_context (priv->backend);
   MetaProfiler *profiler = meta_context_get_profiler (context);
 #endif
 
