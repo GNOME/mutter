@@ -1516,6 +1516,12 @@ on_finish_frame_update_result (const MetaKmsFeedback *kms_feedback,
     g_warning ("Cursor update failed: %s", error->message);
 
   frame_info = cogl_onscreen_peek_head_frame_info (onscreen);
+  if (!frame_info)
+    {
+      g_warning ("The feedback callback was called, but there was no frame info");
+      return;
+    }
+
   frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
 
   meta_onscreen_native_notify_frame_complete (onscreen);
