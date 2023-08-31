@@ -54,7 +54,8 @@ typedef int (* MtkXErrorHandler) (Display *, XErrorEvent *);
 static MtkXErrorHandler old_error_handler = NULL;
 /* number of times we've pushed the error handler */
 static int error_handler_push_count = 0;
-static GList *error_traps = NULL;
+static GHashTable *display_error_traps = NULL;
+static int init_count = 0;
 
 /* look up the extension name for a given major opcode.  grubs around in
  * xlib to do it since a) it’s already cached there b) XQueryExtension
@@ -84,6 +85,9 @@ display_error_event (Display     *xdisplay,
 {
   GList *l;
   gboolean ignore = FALSE;
+  GList *error_traps;
+
+  error_traps = g_hash_table_lookup (display_error_traps, xdisplay);
 
   for (l = error_traps; l; l = l->next)
     {
@@ -172,11 +176,12 @@ error_handler_pop (void)
 static void
 delete_outdated_error_traps (Display *xdisplay)
 {
-  GList *l;
+  GList *l, *error_traps;
   unsigned long processed_sequence;
 
   processed_sequence = XLastKnownRequestProcessed (xdisplay);
-  l = error_traps;
+  l = error_traps = g_hash_table_lookup (display_error_traps, xdisplay);
+  g_hash_table_steal (display_error_traps, xdisplay);
 
   while (l != NULL)
     {
@@ -196,6 +201,14 @@ delete_outdated_error_traps (Display *xdisplay)
           l = l->next;
         }
     }
+
+  g_hash_table_insert (display_error_traps, xdisplay, error_traps);
+}
+
+static void
+free_trap_list (gpointer data)
+{
+  g_list_free_full (data, g_free);
 }
 
 /**
@@ -204,7 +217,14 @@ delete_outdated_error_traps (Display *xdisplay)
 void
 mtk_x11_errors_init (void)
 {
-  XSetErrorHandler (mtk_x_error);
+  if (init_count == 0)
+    {
+      XSetErrorHandler (mtk_x_error);
+      display_error_traps =
+        g_hash_table_new_full (NULL, NULL, NULL, free_trap_list);
+    }
+
+  init_count++;
 }
 
 /**
@@ -213,8 +233,14 @@ mtk_x11_errors_init (void)
 void
 mtk_x11_errors_deinit (void)
 {
-  g_clear_list (&error_traps, g_free);
-  XSetErrorHandler (NULL);
+  init_count--;
+  g_assert (init_count >= 0);
+
+  if (init_count == 0)
+    {
+      g_clear_pointer (&display_error_traps, g_hash_table_unref);
+      XSetErrorHandler (NULL);
+    }
 }
 
 /**
@@ -224,6 +250,7 @@ void
 mtk_x11_error_trap_push (Display *xdisplay)
 {
   MtkErrorTrap *trap;
+  GList *error_traps;
 
   delete_outdated_error_traps (xdisplay);
 
@@ -234,7 +261,10 @@ mtk_x11_error_trap_push (Display *xdisplay)
   trap->start_sequence = XNextRequest (xdisplay);
   trap->error_code = Success;
 
+  error_traps = g_hash_table_lookup (display_error_traps, xdisplay);
+  g_hash_table_steal (display_error_traps, xdisplay);
   error_traps = g_list_prepend (error_traps, trap);
+  g_hash_table_insert (display_error_traps, xdisplay, error_traps);
 }
 
 static int
@@ -242,8 +272,10 @@ mtk_x11_error_trap_pop_internal (Display  *xdisplay,
                                  gboolean  need_code)
 {
   MtkErrorTrap *trap = NULL;
-  GList *l;
+  GList *l, *error_traps;
   int result;
+
+  error_traps = g_hash_table_lookup (display_error_traps, xdisplay);
 
   g_return_val_if_fail (error_traps != NULL, Success);
 

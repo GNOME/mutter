@@ -265,8 +265,6 @@ meta_x11_display_dispose (GObject *object)
       x11_display->xroot = None;
     }
 
-  meta_x11_display_destroy_error_traps (x11_display);
-
   if (x11_display->xdisplay)
     {
       meta_x11_display_free_events (x11_display);
@@ -289,6 +287,16 @@ meta_x11_display_dispose (GObject *object)
 }
 
 static void
+meta_x11_display_finalize (GObject *object)
+{
+  MetaX11Display *x11_display = META_X11_DISPLAY (object);
+
+  meta_x11_display_destroy_error_traps (x11_display);
+
+  G_OBJECT_CLASS (meta_x11_display_parent_class)->finalize (object);
+}
+
+static void
 on_x11_display_opened (MetaX11Display *x11_display,
                        MetaDisplay    *display)
 {
@@ -302,6 +310,7 @@ meta_x11_display_class_init (MetaX11DisplayClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->dispose = meta_x11_display_dispose;
+  object_class->finalize = meta_x11_display_finalize;
 }
 
 static void
