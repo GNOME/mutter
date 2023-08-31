@@ -57,6 +57,7 @@
 #include "core/display-private.h"
 #include "meta/meta-cursor-tracker.h"
 #include "meta/util.h"
+#include "mtk/mtk-x11-errors.h"
 
 struct _MetaBackendX11Private
 {
@@ -903,6 +904,8 @@ meta_backend_x11_initable_init (GInitable    *initable,
 
   XSynchronize (xdisplay, meta_context_is_x11_sync (context));
 
+  mtk_x11_errors_init ();
+
   priv->xdisplay = xdisplay;
   priv->xscreen = DefaultScreenOfDisplay (xdisplay);
   priv->xcb = XGetXCBConnection (priv->xdisplay);
@@ -964,6 +967,8 @@ meta_backend_x11_finalize (GObject *object)
   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
 
   g_clear_pointer (&priv->keymap, xkb_keymap_unref);
+
+  mtk_x11_errors_deinit ();
 
   G_OBJECT_CLASS (meta_backend_x11_parent_class)->finalize (object);
 }
