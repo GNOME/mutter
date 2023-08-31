@@ -10,6 +10,14 @@ mtk_sources = [
   'mtk-rectangle.c',
 ]
 
+if have_x11
+  mtk_sources += 'mtk-x11-errors.c'
+  mtk_headers += [
+    'mtk-x11-errors.h',
+    'mtk-x11.h',
+  ]
+endif
+
 mtk_private_headers = [
 ]
 

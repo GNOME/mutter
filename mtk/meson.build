@@ -32,6 +32,10 @@ mtk_pkg_deps = [
   graphene_dep,
 ]
 
+if have_x11
+  mtk_pkg_deps += x11_dep
+endif
+
 mtk_deps = [
   mtk_pkg_deps,
   m_dep
