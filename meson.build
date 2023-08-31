@@ -39,7 +39,7 @@ libcanberra_req = '>= 0.26'
 libwacom_req = '>= 0.13'
 atk_req = '>= 2.5.3'
 harfbuzz_req = '>= 2.6'
-libei_req = '>= 1.0.0'
+libei_req = '>= 1.0.901'
 
 # optional version requirements
 udev_req = '>= 228'
