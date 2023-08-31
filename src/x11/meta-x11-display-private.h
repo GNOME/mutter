@@ -141,7 +141,6 @@ struct _MetaX11Display
   GSubprocess *frames_client;
   GCancellable *frames_client_cancellable;
 
-  GList *error_traps;
   GSource *event_source;
 
   struct {
