@@ -38,6 +38,7 @@
 #include "cogl/winsys/cogl-glx-display-private.h"
 #include "cogl/winsys/cogl-glx-renderer-private.h"
 #include "cogl/winsys/cogl-winsys-glx-private.h"
+#include "mtk/mtk-x11.h"
 
 struct _CoglOnscreenGlx
 {
@@ -114,7 +115,6 @@ cogl_onscreen_glx_allocate (CoglFramebuffer  *framebuffer,
     {
       int width;
       int height;
-      CoglXlibTrapState state;
       XVisualInfo *xvisinfo;
       XSetWindowAttributes xattr;
       unsigned long mask;
@@ -123,7 +123,7 @@ cogl_onscreen_glx_allocate (CoglFramebuffer  *framebuffer,
       width = cogl_framebuffer_get_width (framebuffer);
       height = cogl_framebuffer_get_height (framebuffer);
 
-      _cogl_xlib_renderer_trap_errors (display->renderer, &state);
+      mtk_x11_error_trap_push (xlib_renderer->xdpy);
 
       xvisinfo = glx_renderer->glXGetVisualFromFBConfig (xlib_renderer->xdpy,
                                                          fbconfig);
@@ -162,7 +162,7 @@ cogl_onscreen_glx_allocate (CoglFramebuffer  *framebuffer,
       XFree (xvisinfo);
 
       XSync (xlib_renderer->xdpy, False);
-      xerror = _cogl_xlib_renderer_untrap_errors (display->renderer, &state);
+      xerror = mtk_x11_error_trap_pop_with_return (xlib_renderer->xdpy);
       if (xerror)
         {
           char message[1000];
@@ -219,7 +219,6 @@ cogl_onscreen_glx_dispose (GObject *object)
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (context->display->renderer);
   CoglGLXRenderer *glx_renderer = context->display->renderer->winsys;
-  CoglXlibTrapState old_state;
   GLXDrawable drawable;
 
   G_OBJECT_CLASS (cogl_onscreen_glx_parent_class)->dispose (object);
@@ -229,7 +228,7 @@ cogl_onscreen_glx_dispose (GObject *object)
   if (onscreen_glx->glxwin != None ||
       onscreen_glx->xwin != None)
     {
-      _cogl_xlib_renderer_trap_errors (context->display->renderer, &old_state);
+      mtk_x11_error_trap_push (xlib_renderer->xdpy);
 
       drawable =
         onscreen_glx->glxwin == None ? onscreen_glx->xwin : onscreen_glx->glxwin;
@@ -272,8 +271,7 @@ cogl_onscreen_glx_dispose (GObject *object)
 
       XSync (xlib_renderer->xdpy, False);
 
-      _cogl_xlib_renderer_untrap_errors (context->display->renderer,
-                                         &old_state);
+      mtk_x11_error_trap_pop (xlib_renderer->xdpy);
     }
 }
 
@@ -287,7 +285,6 @@ cogl_onscreen_glx_bind (CoglOnscreen *onscreen)
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (context->display->renderer);
   CoglGLXRenderer *glx_renderer = context->display->renderer->winsys;
-  CoglXlibTrapState old_state;
   GLXDrawable drawable;
 
   drawable =
@@ -296,7 +293,7 @@ cogl_onscreen_glx_bind (CoglOnscreen *onscreen)
   if (cogl_context_glx_get_current_drawable (context) == drawable)
     return;
 
-  _cogl_xlib_renderer_trap_errors (context->display->renderer, &old_state);
+  mtk_x11_error_trap_push (xlib_renderer->xdpy);
 
   COGL_NOTE (WINSYS,
              "MakeContextCurrent dpy: %p, window: 0x%x, context: %p",
@@ -335,8 +332,7 @@ cogl_onscreen_glx_bind (CoglOnscreen *onscreen)
   XSync (xlib_renderer->xdpy, False);
 
   /* FIXME: We should be reporting a GError here */
-  if (_cogl_xlib_renderer_untrap_errors (context->display->renderer,
-                                         &old_state))
+  if (mtk_x11_error_trap_pop_with_return (xlib_renderer->xdpy))
     {
       g_warning ("X Error received while making drawable 0x%08lX current",
                  drawable);
@@ -539,10 +535,8 @@ cogl_onscreen_glx_get_buffer_age (CoglOnscreen *onscreen)
   CoglOnscreenGlx *onscreen_glx = COGL_ONSCREEN_GLX (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
-  CoglDisplay *display = context->display;
   CoglXlibRenderer *xlib_renderer = _cogl_xlib_renderer_get_data (context->display->renderer);
   CoglGLXRenderer *glx_renderer = context->display->renderer->winsys;
-  CoglXlibTrapState old_state;
   GLXDrawable drawable;
   unsigned int age = 0;
 
@@ -550,9 +544,9 @@ cogl_onscreen_glx_get_buffer_age (CoglOnscreen *onscreen)
     return 0;
 
   drawable = onscreen_glx->glxwin ? onscreen_glx->glxwin : onscreen_glx->xwin;
-  _cogl_xlib_renderer_trap_errors (display->renderer, &old_state);
+  mtk_x11_error_trap_push (xlib_renderer->xdpy);
   glx_renderer->glXQueryDrawable (xlib_renderer->xdpy, drawable, GLX_BACK_BUFFER_AGE_EXT, &age);
-  _cogl_xlib_renderer_untrap_errors (display->renderer, &old_state);
+  mtk_x11_error_trap_pop (xlib_renderer->xdpy);
 
   return age;
 }

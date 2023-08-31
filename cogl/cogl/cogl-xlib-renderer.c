@@ -41,6 +41,7 @@
 #include "cogl/cogl-x11-renderer-private.h"
 #include "cogl/cogl-poll-private.h"
 #include "cogl/winsys/cogl-winsys-private.h"
+#include "mtk/mtk-x11.h"
 
 #include <X11/Xlib.h>
 #include <X11/extensions/Xdamage.h>
@@ -92,72 +93,6 @@ static void
 unregister_xlib_renderer (CoglRenderer *renderer)
 {
   _cogl_xlib_renderers = g_list_remove (_cogl_xlib_renderers, renderer);
-}
-
-static CoglRenderer *
-get_renderer_for_xdisplay (Display *xdpy)
-{
-  GList *l;
-
-  for (l = _cogl_xlib_renderers; l; l = l->next)
-    {
-      CoglRenderer *renderer = l->data;
-      CoglXlibRenderer *xlib_renderer =
-        _cogl_xlib_renderer_get_data (renderer);
-
-      if (xlib_renderer->xdpy == xdpy)
-        return renderer;
-    }
-
-  return NULL;
-}
-
-static int
-error_handler (Display *xdpy,
-               XErrorEvent *error)
-{
-  CoglRenderer *renderer;
-  CoglXlibRenderer *xlib_renderer;
-
-  renderer = get_renderer_for_xdisplay (xdpy);
-
-  xlib_renderer = _cogl_xlib_renderer_get_data (renderer);
-  g_assert (xlib_renderer->trap_state);
-
-  xlib_renderer->trap_state->trapped_error_code = error->error_code;
-
-  return 0;
-}
-
-void
-_cogl_xlib_renderer_trap_errors (CoglRenderer *renderer,
-                                 CoglXlibTrapState *state)
-{
-  CoglXlibRenderer *xlib_renderer;
-
-  xlib_renderer = _cogl_xlib_renderer_get_data (renderer);
-
-  state->trapped_error_code = 0;
-  state->old_error_handler = XSetErrorHandler (error_handler);
-
-  state->old_state = xlib_renderer->trap_state;
-  xlib_renderer->trap_state = state;
-}
-
-int
-_cogl_xlib_renderer_untrap_errors (CoglRenderer *renderer,
-                                   CoglXlibTrapState *state)
-{
-  CoglXlibRenderer *xlib_renderer;
-
-  xlib_renderer = _cogl_xlib_renderer_get_data (renderer);
-  g_assert (state == xlib_renderer->trap_state);
-
-  XSetErrorHandler (state->old_error_handler);
-
-  xlib_renderer->trap_state = state->old_state;
-
-  return state->trapped_error_code;
 }
 
 static Display *
@@ -218,7 +153,6 @@ update_outputs (CoglRenderer *renderer,
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (renderer);
   XRRScreenResources *resources;
-  CoglXlibTrapState state;
   gboolean error = FALSE;
   GList *new_outputs = NULL;
   GList *l, *m;
@@ -230,7 +164,7 @@ update_outputs (CoglRenderer *renderer,
   resources = XRRGetScreenResources (xlib_renderer->xdpy,
                                      DefaultRootWindow (xlib_renderer->xdpy));
 
-  _cogl_xlib_renderer_trap_errors (renderer, &state);
+  mtk_x11_error_trap_push (xlib_renderer->xdpy);
 
   for (i = 0; resources && i < resources->ncrtc && !error; i++)
     {
@@ -386,7 +320,7 @@ update_outputs (CoglRenderer *renderer,
     }
 
   g_list_free_full (new_outputs, (GDestroyNotify)cogl_object_unref);
-  _cogl_xlib_renderer_untrap_errors (renderer, &state);
+  mtk_x11_error_trap_pop (xlib_renderer->xdpy);
 
   if (changed)
     {
@@ -514,8 +448,6 @@ _cogl_xlib_renderer_connect (CoglRenderer *renderer, GError **error)
                           &x11_renderer->randr_base,
                           &randr_error))
     x11_renderer->randr_base = -1;
-
-  xlib_renderer->trap_state = NULL;
 
   if (renderer->xlib_enable_event_retrieval)
     {

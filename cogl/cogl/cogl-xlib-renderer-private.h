@@ -33,7 +33,6 @@
 #include <X11/Xutil.h>
 
 #include "cogl/cogl-object-private.h"
-#include "cogl/cogl-xlib-private.h"
 #include "cogl/cogl-x11-renderer-private.h"
 #include "cogl/cogl-context.h"
 #include "cogl/cogl-output.h"
@@ -43,10 +42,6 @@ typedef struct _CoglXlibRenderer
   CoglX11Renderer _parent;
 
   Display *xdpy;
-
-  /* Current top of the XError trap state stack. The actual memory for
-     these is expected to be allocated on the stack by the caller */
-  CoglXlibTrapState *trap_state;
 
   unsigned long outputs_update_serial;
 
@@ -58,35 +53,6 @@ _cogl_xlib_renderer_connect (CoglRenderer *renderer, GError **error);
 
 void
 _cogl_xlib_renderer_disconnect (CoglRenderer *renderer);
-
-/*
- * cogl_xlib_renderer_trap_errors:
- * @state: A temporary place to store data for the trap.
- *
- * Traps every X error until _cogl_xlib_renderer_untrap_errors()
- * called. You should allocate an uninitialised CoglXlibTrapState
- * struct on the stack to pass to this function. The same pointer
- * should later be passed to _cogl_xlib_renderer_untrap_errors().
- *
- * Calls to _cogl_xlib_renderer_trap_errors() can be nested as long as
- * _cogl_xlib_renderer_untrap_errors() is called with the
- * corresponding state pointers in reverse order.
- */
-void
-_cogl_xlib_renderer_trap_errors (CoglRenderer *renderer,
-                                 CoglXlibTrapState *state);
-
-/*
- * cogl_xlib_renderer_untrap_errors:
- * @state: The state that was passed to _cogl_xlib_renderer_trap_errors().
- *
- * Removes the X error trap and returns the current status.
- *
- * Return value: the trapped error code, or 0 for success
- */
-int
-_cogl_xlib_renderer_untrap_errors (CoglRenderer *renderer,
-                                   CoglXlibTrapState *state);
 
 CoglXlibRenderer *
 _cogl_xlib_renderer_get_data (CoglRenderer *renderer);
