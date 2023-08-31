@@ -408,7 +408,7 @@ pkg.generate(libmutter_clutter,
   description: 'Mutters Clutter Private Library',
   libraries: [m_dep],
   subdirs: pkgname / 'clutter',
-  requires: [clutter_pkg_deps, libmutter_cogl_name],
+  requires: [clutter_pkg_deps, libmutter_cogl_name, libmutter_mtk_name],
   version: meson.project_version(),
   variables: [
     'apiversion=' + libmutter_api_version,
