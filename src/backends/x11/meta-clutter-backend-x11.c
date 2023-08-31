@@ -68,10 +68,6 @@ static const gchar *atom_names[] = {
 /* various flags corresponding to pre init setup calls */
 static gboolean clutter_enable_stereo = FALSE;
 
-/* X error trap */
-static int TrappedErrorCode = 0;
-static int (* old_error_handler) (Display *, XErrorEvent *);
-
 static gboolean
 meta_clutter_backend_x11_finish_init (ClutterBackend  *clutter_backend,
                                       GError         **error)
@@ -257,29 +253,6 @@ meta_clutter_backend_x11_new (MetaBackend *backend)
   priv->backend = backend;
 
   return clutter_backend_x11;
-}
-
-static int
-error_handler (Display     *xdisplay,
-               XErrorEvent *error)
-{
-  TrappedErrorCode = error->error_code;
-  return 0;
-}
-
-void
-meta_clutter_x11_trap_x_errors (void)
-{
-  TrappedErrorCode  = 0;
-  old_error_handler = XSetErrorHandler (error_handler);
-}
-
-gint
-meta_clutter_x11_untrap_x_errors (void)
-{
-  XSetErrorHandler (old_error_handler);
-
-  return TrappedErrorCode;
 }
 
 void

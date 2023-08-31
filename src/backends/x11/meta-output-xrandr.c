@@ -44,6 +44,7 @@
 #include "backends/meta-crtc.h"
 #include "backends/x11/meta-monitor-manager-xrandr.h"
 #include "meta/util.h"
+#include "mtk/mtk-x11.h"
 
 struct _MetaOutputXrandr
 {
@@ -453,11 +454,11 @@ output_get_max_bpc_range_xrandr (Display      *xdisplay,
 
   atom = XInternAtom (xdisplay, "max bpc", False);
 
-  meta_clutter_x11_trap_x_errors ();
+  mtk_x11_error_trap_push (xdisplay);
   property_info = XRRQueryOutputProperty (xdisplay,
                                           (XID) output_id,
                                           atom);
-  meta_clutter_x11_untrap_x_errors ();
+  mtk_x11_error_trap_pop (xdisplay);
 
   if (!property_info)
     return FALSE;

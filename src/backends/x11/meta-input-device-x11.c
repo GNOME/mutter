@@ -26,6 +26,7 @@
 #include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-input-device-x11.h"
 #include "backends/x11/meta-seat-x11.h"
+#include "mtk/mtk-x11.h"
 
 struct _MetaInputDeviceX11
 {
@@ -291,12 +292,12 @@ meta_input_device_x11_get_dimensions (ClutterInputDevice *device,
   static gboolean atoms_initialized = FALSE;
   static Atom abs_axis_atoms[4] = { 0, };
 
-  meta_clutter_x11_trap_x_errors ();
+  mtk_x11_error_trap_push (xdisplay);
 
   info = XIQueryDevice (xdisplay, device_x11->device_id, &n_info);
   *width = *height = w = h = 0;
 
-  if (meta_clutter_x11_untrap_x_errors ())
+  if (mtk_x11_error_trap_pop_with_return (xdisplay))
     return FALSE;
 
   if (!info)
@@ -402,6 +403,7 @@ meta_input_device_x11_query_pointer_location (MetaInputDeviceX11 *device_xi2)
   MetaSeatX11 *seat_x11 = META_SEAT_X11 (seat);
   MetaBackendX11 *backend_x11 =
     META_BACKEND_X11 (meta_seat_x11_get_backend (seat_x11));
+  Display *xdisplay = meta_backend_x11_get_xdisplay (backend_x11);
   Window xroot_window, xchild_window;
   double xroot_x, xroot_y, xwin_x, xwin_y;
   XIButtonState button_state = { 0 };
@@ -409,7 +411,7 @@ meta_input_device_x11_query_pointer_location (MetaInputDeviceX11 *device_xi2)
   XIGroupState group_state;
   int result;
 
-  meta_clutter_x11_trap_x_errors ();
+  mtk_x11_error_trap_push (xdisplay);
   result = XIQueryPointer (meta_backend_x11_get_xdisplay (backend_x11),
                            device_xi2->device_id,
                            meta_backend_x11_get_root_xwindow (backend_x11),
@@ -420,7 +422,7 @@ meta_input_device_x11_query_pointer_location (MetaInputDeviceX11 *device_xi2)
                            &button_state,
                            &mod_state,
                            &group_state);
-  meta_clutter_x11_untrap_x_errors ();
+  mtk_x11_error_trap_pop (xdisplay);
 
   g_free (button_state.mask);
 

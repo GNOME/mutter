@@ -43,8 +43,8 @@
 #include "core/meta-workspace-manager-private.h"
 #include "core/workspace-private.h"
 #include "meta/compositor.h"
-#include "meta/meta-x11-errors.h"
 #include "meta/prefs.h"
+#include "mtk/mtk-x11.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/window-x11.h"
 
@@ -1203,7 +1203,7 @@ meta_change_button_grab (MetaKeyBindingManager *keys,
 
   mods = calc_grab_modifiers (keys, modmask);
 
-  meta_clutter_x11_trap_x_errors ();
+  mtk_x11_error_trap_push (xdisplay);
 
   if (window->frame)
     xwindow = window->frame->xwindow;
@@ -1225,7 +1225,7 @@ meta_change_button_grab (MetaKeyBindingManager *keys,
 
   XSync (xdisplay, False);
 
-  meta_clutter_x11_untrap_x_errors ();
+  mtk_x11_error_trap_pop (xdisplay);
 
   g_array_free (mods, TRUE);
 }
@@ -1447,7 +1447,7 @@ meta_change_keygrab (MetaKeyBindingManager *keys,
 
   mods = calc_grab_modifiers (keys, resolved_combo->mask);
 
-  meta_clutter_x11_trap_x_errors ();
+  mtk_x11_error_trap_push (xdisplay);
 
   for (i = 0; i < resolved_combo->len; i++)
     {
@@ -1473,7 +1473,7 @@ meta_change_keygrab (MetaKeyBindingManager *keys,
 
   XSync (xdisplay, False);
 
-  meta_clutter_x11_untrap_x_errors ();
+  mtk_x11_error_trap_pop (xdisplay);
 
   g_array_free (mods, TRUE);
 }

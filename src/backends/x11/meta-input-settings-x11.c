@@ -31,7 +31,7 @@
 #include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/meta-input-device-x11.h"
 #include "core/display-private.h"
-#include "meta/meta-x11-errors.h"
+#include "mtk/mtk-x11.h"
 
 typedef struct
 {
@@ -64,9 +64,9 @@ device_handle_free (gpointer user_data)
   MetaBackend *backend = get_backend (settings);
   Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
 
-  meta_clutter_x11_trap_x_errors ();
+  mtk_x11_error_trap_push (xdisplay);
   XCloseDevice (xdisplay, handle->xdev);
-  meta_clutter_x11_untrap_x_errors ();
+  mtk_x11_error_trap_pop (xdisplay);
 
   g_free (handle);
 }
@@ -85,9 +85,9 @@ device_ensure_xdevice (MetaInputSettings  *settings,
   if (handle)
     return handle->xdev;
 
-  meta_clutter_x11_trap_x_errors ();
+  mtk_x11_error_trap_push (xdisplay);
   xdev = XOpenDevice (xdisplay, device_id);
-  meta_clutter_x11_untrap_x_errors ();
+  mtk_x11_error_trap_pop (xdisplay);
 
   if (xdev)
     {
@@ -123,11 +123,11 @@ get_property (ClutterInputDevice *device,
 
   device_id = meta_input_device_x11_get_device_id (device);
 
-  meta_clutter_x11_trap_x_errors ();
+  mtk_x11_error_trap_push (xdisplay);
   rc = XIGetProperty (xdisplay, device_id, property_atom,
                       0, 10, False, type, &type_ret, &format_ret,
                       &nitems_ret, &bytes_after_ret, &data_ret);
-  meta_clutter_x11_untrap_x_errors ();
+  mtk_x11_error_trap_pop (xdisplay);
 
   if (rc == Success && type_ret == type && format_ret == format && nitems_ret >= nitems)
     return data_ret;
@@ -162,11 +162,12 @@ change_property (MetaInputSettings  *settings,
   if (!data_ret)
     return;
 
-  meta_clutter_x11_trap_x_errors ();
+  mtk_x11_error_trap_push (xdisplay);
   XIChangeProperty (xdisplay, device_id, property_atom, type,
                     format, XIPropModeReplace, data, nitems);
   XSync (xdisplay, False);
-  err = meta_clutter_x11_untrap_x_errors ();
+
+  err = mtk_x11_error_trap_pop_with_return (xdisplay);
   if (err)
     {
       g_warning ("XIChangeProperty failed on device %d property \"%s\" with X error %d",
@@ -604,7 +605,7 @@ meta_input_settings_x11_set_tablet_mapping (MetaInputSettings     *settings,
   XDevice *xdev;
 
   /* Grab the puke bucket! */
-  meta_clutter_x11_trap_x_errors ();
+  mtk_x11_error_trap_push (xdisplay);
   xdev = device_ensure_xdevice (settings, device);
   if (xdev)
     {
@@ -613,7 +614,7 @@ meta_input_settings_x11_set_tablet_mapping (MetaInputSettings     *settings,
                       Absolute : Relative);
     }
 
-  meta_clutter_x11_untrap_x_errors ();
+  mtk_x11_error_trap_pop (xdisplay);
 }
 
 static gboolean
@@ -753,7 +754,7 @@ meta_input_settings_x11_set_stylus_button_map (MetaInputSettings          *setti
   XDevice *xdev;
 
   /* Grab the puke bucket! */
-  meta_clutter_x11_trap_x_errors ();
+  mtk_x11_error_trap_push (xdisplay);
   xdev = device_ensure_xdevice (settings, device);
   if (xdev)
     {
@@ -771,7 +772,7 @@ meta_input_settings_x11_set_stylus_button_map (MetaInputSettings          *setti
       XSetDeviceButtonMapping (xdisplay, xdev, map, G_N_ELEMENTS (map));
     }
 
-  meta_clutter_x11_untrap_x_errors ();
+  mtk_x11_error_trap_pop (xdisplay);
 }
 
 static void
