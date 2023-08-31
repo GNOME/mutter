@@ -30,11 +30,13 @@ It can be useful to look at the documentation available at the
 [Wiki](https://gitlab.gnome.org/GNOME/mutter/-/wikis/home).
 
 The API documentation is available at:
+
 - Meta: <https://gnome.pages.gitlab.gnome.org/mutter/meta/>
 - Clutter: <https://gnome.pages.gitlab.gnome.org/mutter/clutter/>
 - Cally: <https://gnome.pages.gitlab.gnome.org/mutter/cally/>
 - Cogl: <https://gnome.pages.gitlab.gnome.org/mutter/cogl/>
 - CoglPango: <https://gnome.pages.gitlab.gnome.org/mutter/cogl-pango/>
+- Mtk: <https://gnome.pages.gitlab.gnome.org/mutter/mtk/>
 
 ## Coding style and conventions
 
