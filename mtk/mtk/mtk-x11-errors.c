@@ -23,6 +23,8 @@
  * Mutter X error handling
  */
 
+#include "config.h"
+
 #include "mtk/mtk-x11-errors.h"
 
 #include <errno.h>

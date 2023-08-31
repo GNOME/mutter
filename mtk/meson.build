@@ -2,7 +2,10 @@ mtk_includesubdir = pkgname / 'mtk'
 mtk_includedir = includedir / mtk_includesubdir
 
 mtk_includepath = include_directories('.', 'mtk')
-mtk_includes = [mtk_includepath]
+mtk_includes = [
+  mtk_includepath,
+  top_includepath,
+]
 
 mtk_c_args = [
   '-DMTK_SYSCONFDIR="@0@"'.format(prefix / sysconfdir),
