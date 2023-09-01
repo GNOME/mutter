@@ -141,6 +141,7 @@ meta_monitor_manager_xrandr_read_current_state (MetaMonitorManager *manager)
   BOOL dpms_capable, dpms_enabled;
   CARD16 dpms_state;
   MetaPowerSave power_save_mode;
+  MetaPowerSaveChangeReason reason;
 
   dpms_capable = DPMSCapable (xdisplay);
 
@@ -151,7 +152,11 @@ meta_monitor_manager_xrandr_read_current_state (MetaMonitorManager *manager)
   else
     power_save_mode = META_POWER_SAVE_UNSUPPORTED;
 
-  meta_monitor_manager_power_save_mode_changed (manager, power_save_mode);
+
+  reason = META_POWER_SAVE_CHANGE_REASON_HOTPLUG;
+  meta_monitor_manager_power_save_mode_changed (manager,
+                                                power_save_mode,
+                                                reason);
 
   parent_class->read_current_state (manager);
 }

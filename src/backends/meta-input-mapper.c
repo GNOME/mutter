@@ -656,8 +656,9 @@ input_mapper_monitors_changed_cb (MetaMonitorManager *monitor_manager,
 }
 
 static void
-input_mapper_power_save_mode_changed_cb (MetaMonitorManager *monitor_manager,
-                                         MetaInputMapper    *mapper)
+input_mapper_power_save_mode_changed_cb (MetaMonitorManager        *monitor_manager,
+                                         MetaPowerSaveChangeReason  reason,
+                                         MetaInputMapper           *mapper)
 {
   ClutterInputDevice *device;
   MetaLogicalMonitor *logical_monitor;

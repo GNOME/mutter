@@ -114,8 +114,14 @@ meta_monitor_manager_native_read_current_state (MetaMonitorManager *manager)
 
   power_save_mode = meta_monitor_manager_get_power_save_mode (manager);
   if (power_save_mode != META_POWER_SAVE_ON)
-    meta_monitor_manager_power_save_mode_changed (manager,
-                                                  META_POWER_SAVE_ON);
+    {
+      MetaPowerSaveChangeReason reason;
+
+      reason = META_POWER_SAVE_CHANGE_REASON_HOTPLUG;
+      meta_monitor_manager_power_save_mode_changed (manager,
+                                                    META_POWER_SAVE_ON,
+                                                    reason);
+    }
 
   parent_class->read_current_state (manager);
 }

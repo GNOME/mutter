@@ -292,8 +292,9 @@ meta_stage_deactivate (ClutterStage *actor)
 }
 
 static void
-on_power_save_changed (MetaMonitorManager *monitor_manager,
-                       MetaStage          *stage)
+on_power_save_changed (MetaMonitorManager        *monitor_manager,
+                       MetaPowerSaveChangeReason  reason,
+                       MetaStage                 *stage)
 {
   if (meta_monitor_manager_get_power_save_mode (monitor_manager) ==
       META_POWER_SAVE_ON)

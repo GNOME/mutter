@@ -2011,8 +2011,9 @@ on_gpu_added (MetaBackendNative  *backend_native,
 }
 
 static void
-on_power_save_mode_changed (MetaMonitorManager *monitor_manager,
-                            MetaRendererNative *renderer_native)
+on_power_save_mode_changed (MetaMonitorManager        *monitor_manager,
+                            MetaPowerSaveChangeReason  reason,
+                            MetaRendererNative        *renderer_native)
 {
   MetaRenderer *renderer = META_RENDERER (renderer_native);
   MetaBackend *backend = meta_renderer_get_backend (renderer);

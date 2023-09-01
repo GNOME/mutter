@@ -59,6 +59,7 @@
 #include "clutter/clutter.h"
 #include "core/util-private.h"
 #include "meta/main.h"
+#include "meta/meta-enum-types.h"
 #include "meta/meta-x11-errors.h"
 
 #include "meta-dbus-display-config.h"
@@ -416,8 +417,9 @@ meta_monitor_manager_rebuild_logical_monitors_derived (MetaMonitorManager *manag
 }
 
 void
-meta_monitor_manager_power_save_mode_changed (MetaMonitorManager *manager,
-                                              MetaPowerSave       mode)
+meta_monitor_manager_power_save_mode_changed (MetaMonitorManager        *manager,
+                                              MetaPowerSave              mode,
+                                              MetaPowerSaveChangeReason  reason)
 {
   MetaMonitorManagerPrivate *priv =
     meta_monitor_manager_get_instance_private (manager);
@@ -426,7 +428,7 @@ meta_monitor_manager_power_save_mode_changed (MetaMonitorManager *manager,
     return;
 
   priv->power_save_mode = mode;
-  g_signal_emit (manager, signals[POWER_SAVE_MODE_CHANGED], 0);
+  g_signal_emit (manager, signals[POWER_SAVE_MODE_CHANGED], 0, reason);
 }
 
 static void
@@ -438,6 +440,7 @@ power_save_mode_changed (MetaMonitorManager *manager,
     meta_monitor_manager_get_instance_private (manager);
   MetaMonitorManagerClass *klass;
   int mode = meta_dbus_display_config_get_power_save_mode (manager->display_config);
+  MetaPowerSaveChangeReason reason;
 
   if (mode == META_POWER_SAVE_UNSUPPORTED)
     return;
@@ -453,7 +456,8 @@ power_save_mode_changed (MetaMonitorManager *manager,
   if (klass->set_power_save_mode)
     klass->set_power_save_mode (manager, mode);
 
-  meta_monitor_manager_power_save_mode_changed (manager, mode);
+  reason = META_POWER_SAVE_CHANGE_REASON_MODE_CHANGE;
+  meta_monitor_manager_power_save_mode_changed (manager, mode, reason);
 }
 
 void
@@ -1474,7 +1478,8 @@ meta_monitor_manager_class_init (MetaMonitorManagerClass *klass)
                   G_SIGNAL_RUN_LAST,
                   0,
                   NULL, NULL, NULL,
-                  G_TYPE_NONE, 0);
+                  G_TYPE_NONE, 1,
+                  META_TYPE_POWER_SAVE_CHANGE_REASON);
 
   signals[CONFIRM_DISPLAY_CHANGE] =
     g_signal_new ("confirm-display-change",

@@ -30,6 +30,12 @@ typedef enum
   META_MONITOR_SWITCH_CONFIG_UNKNOWN,
 } MetaMonitorSwitchConfigType;
 
+typedef enum _MetaPowerSaveChangeReason
+{
+  META_POWER_SAVE_CHANGE_REASON_MODE_CHANGE,
+  META_POWER_SAVE_CHANGE_REASON_HOTPLUG,
+} MetaPowerSaveChangeReason;
+
 typedef struct _MetaMonitorManagerClass    MetaMonitorManagerClass;
 typedef struct _MetaMonitorManager         MetaMonitorManager;
 
