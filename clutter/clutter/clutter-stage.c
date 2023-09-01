@@ -4063,9 +4063,9 @@ clutter_stage_notify_grab_on_pointer_entry (ClutterStage       *stage,
       clutter_event_free (event);
     }
 
-    if ((event_type == CLUTTER_NOTHING || event_type == CLUTTER_LEAVE) &&
-        implicit_grab_cancelled)
-      cleanup_implicit_grab (entry);
+  if ((event_type == CLUTTER_NOTHING || event_type == CLUTTER_LEAVE) &&
+      implicit_grab_cancelled)
+    cleanup_implicit_grab (entry);
 }
 
 static void
