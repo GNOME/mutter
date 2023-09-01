@@ -839,6 +839,32 @@ wayland_registry_filter (void)
   g_assert_false (client3_saw_global);
 }
 
+static gboolean
+set_true (gpointer user_data)
+{
+  gboolean *done = user_data;
+
+  *done = TRUE;
+
+  return G_SOURCE_REMOVE;
+}
+
+static void
+wayland_idle_inhibit_instant_destroy (void)
+{
+  MetaWaylandTestClient *wayland_test_client;
+  gboolean done;
+
+  wayland_test_client =
+    meta_wayland_test_client_new (test_context, "idle-inhibit");
+  meta_wayland_test_client_finish (wayland_test_client);
+
+  done = FALSE;
+  g_timeout_add_seconds (1, set_true, &done);
+  while (!done)
+    g_main_context_iteration (NULL, TRUE);
+}
+
 static void
 on_before_tests (void)
 {
@@ -886,6 +912,8 @@ init_tests (void)
                    xdg_foreign_set_parent_of);
   g_test_add_func ("/wayland/registry/filter",
                    wayland_registry_filter);
+  g_test_add_func ("/wayland/idle-inhibit/instant-destroy",
+                   wayland_idle_inhibit_instant_destroy);
 }
 
 int

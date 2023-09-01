@@ -55,6 +55,9 @@ wayland_test_clients = [
     'name': 'fullscreen',
   },
   {
+    'name': 'idle-inhibit',
+  },
+  {
     'name': 'kms-cursor-hotplug-helper',
     'extra_deps': [
       wayland_cursor_dep,

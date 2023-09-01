@@ -32,6 +32,7 @@
 
 typedef enum _IdleState
 {
+  IDLE_STATE_INITIALIZING,
   IDLE_STATE_UNINHIBITED,
   IDLE_STATE_INHIBITING,
   IDLE_STATE_INHIBITED,
@@ -151,6 +152,7 @@ update_inhibitation (MetaWaylandIdleInhibitor *inhibitor)
 
   switch (inhibitor->state)
     {
+    case IDLE_STATE_INITIALIZING:
     case IDLE_STATE_UNINHIBITED:
       if (!inhibitor->resource)
         {
@@ -227,6 +229,7 @@ inhibitor_proxy_completed (GObject      *source,
     }
 
   inhibitor->session_proxy = proxy;
+  inhibitor->state = IDLE_STATE_UNINHIBITED;
 
   update_inhibitation (inhibitor);
 }
@@ -248,6 +251,7 @@ idle_inhibitor_destructor (struct wl_resource *resource)
     case IDLE_STATE_UNINHIBITED:
       meta_wayland_inhibitor_free (inhibitor);
       return;
+    case IDLE_STATE_INITIALIZING:
     case IDLE_STATE_INHIBITED:
     case IDLE_STATE_INHIBITING:
     case IDLE_STATE_UNINHIBITING:

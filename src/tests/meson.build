@@ -563,6 +563,7 @@ if have_native_tests
       'depends': [
         test_client,
         test_client_executables.get('buffer-transform'),
+        test_client_executables.get('idle-inhibit'),
         test_client_executables.get('invalid-subsurfaces'),
         test_client_executables.get('invalid-xdg-shell-actions'),
         test_client_executables.get('single-pixel-buffer'),
