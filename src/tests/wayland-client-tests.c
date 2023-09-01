@@ -52,7 +52,7 @@ meta_test_wayland_client_indirect_self_terminate (void)
 {
   g_autoptr (MetaWaylandClient) client = NULL;
   g_autoptr (GError) error = NULL;
-  g_autoptr (GThread) thread = NULL;
+  GThread *thread;
   int fd;
   gboolean client_destroyed = FALSE;
 
@@ -116,7 +116,7 @@ meta_test_wayland_client_indirect_destroy (void)
   DestroyTestData data;
   g_autoptr (MetaWaylandClient) client = NULL;
   g_autoptr (GError) error = NULL;
-  g_autoptr (GThread) thread = NULL;
+  GThread *thread;
   int fd;
   gboolean client_destroyed = FALSE;
 

@@ -765,9 +765,9 @@ wayland_registry_filter (void)
   g_autoptr (MetaWaylandClient) client1 = NULL;
   g_autoptr (MetaWaylandClient) client2 = NULL;
   g_autoptr (MetaWaylandClient) client3 = NULL;
-  g_autoptr (GThread) thread1 = NULL;
-  g_autoptr (GThread) thread2 = NULL;
-  g_autoptr (GThread) thread3 = NULL;
+  GThread *thread1;
+  GThread *thread2;
+  GThread *thread3;
   gboolean client1_destroyed = FALSE;
   gboolean client2_destroyed = FALSE;
   gboolean client3_destroyed = FALSE;
