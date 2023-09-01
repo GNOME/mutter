@@ -2022,7 +2022,8 @@ on_power_save_mode_changed (MetaMonitorManager        *monitor_manager,
   MetaPowerSave power_save_mode;
 
   power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
-  if (power_save_mode == META_POWER_SAVE_ON)
+  if (power_save_mode == META_POWER_SAVE_ON &&
+      reason == META_POWER_SAVE_CHANGE_REASON_MODE_CHANGE)
     meta_renderer_native_queue_modes_reset (renderer_native);
   else
     meta_kms_discard_pending_page_flips (kms);

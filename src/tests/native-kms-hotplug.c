@@ -57,6 +57,12 @@ on_presented (ClutterStage     *stage,
 }
 
 static void
+set_true_cb (gboolean *done)
+{
+  *done = TRUE;
+}
+
+static void
 meta_test_reload (void)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
@@ -325,6 +331,101 @@ meta_test_switch_config (void)
 }
 
 static void
+set_power_save_mode_via_dbus (MetaPowerSave power_save)
+{
+  g_autoptr (GDBusProxy) proxy = NULL;
+  g_autoptr (GError) error = NULL;
+  GVariant *parameters;
+
+  proxy = g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
+                                         G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
+                                         NULL,
+                                         "org.gnome.Mutter.DisplayConfig",
+                                         "/org/gnome/Mutter/DisplayConfig",
+                                         "org.freedesktop.DBus.Properties",
+                                         NULL,
+                                         &error);
+  g_assert_no_error (error);
+
+  parameters = g_variant_new ("(ssv)",
+                              "org.gnome.Mutter.DisplayConfig",
+                              "PowerSaveMode",
+                              g_variant_new_int32 (power_save));
+  g_dbus_proxy_call (proxy,
+                     "Set",
+                     parameters,
+                     G_DBUS_CALL_FLAGS_NO_AUTO_START,
+                     G_MAXINT,
+                     NULL, NULL, NULL);
+}
+static void
+emulate_hotplug (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaUdev *udev = meta_backend_native_get_udev (META_BACKEND_NATIVE (backend));
+  g_autoptr (GError) error = NULL;
+  g_autolist (GObject) udev_devices = NULL;
+  GUdevDevice *udev_device;
+
+  udev_devices = meta_udev_list_drm_devices (udev, &error);
+  g_assert_cmpuint (g_list_length (udev_devices), ==, 1);
+  udev_device = g_list_first (udev_devices)->data;
+  g_signal_emit_by_name (udev, "hotplug", udev_device);
+}
+
+static void
+meta_test_power_save_implicit_on (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  GList *logical_monitors;
+  gulong power_save_handler_id;
+  gulong monitors_changed_handler_id;
+  gboolean power_save_mode_changed;
+  gboolean monitors_changed;
+
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (logical_monitors), ==, 1);
+
+  meta_wait_for_paint (test_context);
+
+  power_save_handler_id =
+    g_signal_connect_swapped (monitor_manager, "power-save-mode-changed",
+                              G_CALLBACK (set_true_cb), &power_save_mode_changed);
+
+  set_power_save_mode_via_dbus (META_POWER_SAVE_OFF);
+
+  power_save_mode_changed = FALSE;
+  while (!power_save_mode_changed)
+    g_main_context_iteration (NULL, TRUE);
+
+  power_save_mode_changed = FALSE;
+  monitors_changed = FALSE;
+
+  monitors_changed_handler_id =
+    g_signal_connect_swapped (monitor_manager, "monitors-changed",
+                              G_CALLBACK (set_true_cb), &monitors_changed);
+
+  drm_mock_set_resource_filter (DRM_MOCK_CALL_FILTER_GET_CONNECTOR,
+                                disconnect_connector_filter, NULL);
+  emulate_hotplug ();
+
+  while (!power_save_mode_changed || !monitors_changed)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_signal_handler_disconnect (monitor_manager, power_save_handler_id);
+  g_signal_handler_disconnect (monitor_manager, monitors_changed_handler_id);
+
+  drm_mock_unset_resource_filter (DRM_MOCK_CALL_FILTER_GET_CONNECTOR);
+  emulate_hotplug ();
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (logical_monitors), ==, 1);
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/hotplug/reload",
@@ -333,6 +434,8 @@ init_tests (void)
                    meta_test_disconnect_connect);
   g_test_add_func ("/hotplug/switch-config",
                    meta_test_switch_config);
+  g_test_add_func ("/hotplug/power-save-implicit-off",
+                   meta_test_power_save_implicit_on);
 }
 
 int
