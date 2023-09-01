@@ -134,6 +134,9 @@ meta_output_kms_get_privacy_screen_state (MetaOutput *output)
   connector_state =
     meta_kms_connector_get_current_state (output_kms->kms_connector);
 
+  if (!connector_state)
+    return FALSE;
+
   return connector_state->privacy_screen_state;
 }
 
@@ -153,6 +156,9 @@ meta_output_kms_is_color_space_supported (MetaOutput           *output,
   connector_state =
     meta_kms_connector_get_current_state (output_kms->kms_connector);
 
+  if (!connector_state)
+    return FALSE;
+
   if (!(connector_state->colorspace.supported & (1 << color_space)))
     return FALSE;
 
@@ -167,6 +173,9 @@ meta_output_kms_is_hdr_metadata_supported (MetaOutput *output)
 
   connector_state =
     meta_kms_connector_get_current_state (output_kms->kms_connector);
+
+  if (!connector_state)
+    return FALSE;
 
   return connector_state->hdr.supported;
 }
