@@ -279,11 +279,15 @@ clutter_input_method_put_im_event (ClutterInputMethod      *im,
                                    uint32_t                 len,
                                    ClutterPreeditResetMode  mode)
 {
+  ClutterSeat *seat;
   ClutterEvent *event;
+
+  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
 
   event = clutter_event_im_new (event_type,
                                 CLUTTER_EVENT_FLAG_INPUT_METHOD,
                                 CLUTTER_CURRENT_TIME,
+                                seat,
                                 text,
                                 offset,
                                 anchor,

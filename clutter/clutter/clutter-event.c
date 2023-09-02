@@ -2383,6 +2383,7 @@ ClutterEvent *
 clutter_event_im_new (ClutterEventType         type,
                       ClutterEventFlags        flags,
                       int64_t                  timestamp_us,
+                      ClutterSeat             *seat,
                       const char              *text,
                       int32_t                  offset,
                       int32_t                  anchor,
@@ -2404,6 +2405,8 @@ clutter_event_im_new (ClutterEventType         type,
   event->im.anchor = anchor;
   event->im.len = len;
   event->im.mode = mode;
+
+  g_set_object (&event->im.device, clutter_seat_get_keyboard (seat));
 
   return event;
 }

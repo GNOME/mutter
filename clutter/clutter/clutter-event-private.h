@@ -145,6 +145,7 @@ CLUTTER_EXPORT
 ClutterEvent * clutter_event_im_new (ClutterEventType         type,
                                      ClutterEventFlags        flags,
                                      int64_t                  timestamp_us,
+                                     ClutterSeat             *seat,
                                      const char              *text,
                                      int32_t                  offset,
                                      int32_t                  anchor,
