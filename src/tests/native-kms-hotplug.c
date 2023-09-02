@@ -248,6 +248,7 @@ meta_test_switch_config (void)
   MtkRectangle logical_monitor_layout;
   gulong after_paint_handler_id;
   gulong presented_handler_id;
+  gulong monitors_changed_handler_id;
   gboolean monitors_changed;
   g_autoptr (GError) error = NULL;
   ClutterActor *actor;
@@ -259,9 +260,10 @@ meta_test_switch_config (void)
   presented_handler_id = g_signal_connect (stage, "presented",
                                            G_CALLBACK (on_presented),
                                            &state);
-  g_signal_connect (monitor_manager, "monitors-changed",
-                    G_CALLBACK (on_monitors_changed),
-                    &monitors_changed);
+  monitors_changed_handler_id =
+    g_signal_connect (monitor_manager, "monitors-changed",
+                      G_CALLBACK (on_monitors_changed),
+                      &monitors_changed);
 
   logical_monitors =
     meta_monitor_manager_get_logical_monitors (monitor_manager);
@@ -291,9 +293,6 @@ meta_test_switch_config (void)
                     monitor_manager);
 
   monitors_changed = FALSE;
-  g_signal_connect (monitor_manager, "monitors-changed",
-                    G_CALLBACK (on_monitors_changed),
-                    &monitors_changed);
 
   g_debug ("Sending virtual keyboard event");
   virtual_keyboard =
@@ -322,6 +321,7 @@ meta_test_switch_config (void)
 
   g_signal_handler_disconnect (stage, after_paint_handler_id);
   g_signal_handler_disconnect (stage, presented_handler_id);
+  g_signal_handler_disconnect (monitor_manager, monitors_changed_handler_id);
 }
 
 static void
