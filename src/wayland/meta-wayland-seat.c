@@ -455,13 +455,17 @@ meta_wayland_seat_get_grab_info (MetaWaylandSeat       *seat,
   if (meta_wayland_seat_has_touch (seat))
     {
       ClutterEventSequence *sequence;
+
       sequence = meta_wayland_touch_find_grab_sequence (seat->touch,
                                                         surface,
                                                         serial);
       if (sequence)
         {
+          ClutterSeat *clutter_seat =
+            clutter_backend_get_default_seat (clutter_get_default_backend ());
+
           if (device_out)
-            *device_out = seat->pointer->device;
+            *device_out = clutter_seat_get_pointer (clutter_seat);
           if (sequence_out)
             *sequence_out = sequence;
 
