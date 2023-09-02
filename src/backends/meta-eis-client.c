@@ -420,7 +420,7 @@ handle_scroll (MetaEisClient    *client,
   clutter_virtual_input_device_notify_scroll_continuous (device->device,
                                                          g_get_monotonic_time (),
                                                          dx, dy,
-                                                         CLUTTER_SCROLL_SOURCE_UNKNOWN,
+                                                         CLUTTER_SCROLL_SOURCE_WHEEL,
                                                          CLUTTER_SCROLL_FINISHED_NONE);
 }
 
@@ -441,7 +441,7 @@ handle_scroll_stop (MetaEisClient    *client,
     clutter_virtual_input_device_notify_scroll_continuous (device->device,
                                                            g_get_monotonic_time (),
                                                            0.0, 0.0,
-                                                           CLUTTER_SCROLL_SOURCE_UNKNOWN,
+                                                           CLUTTER_SCROLL_SOURCE_WHEEL,
                                                            finish_flags);
 }
 
@@ -466,7 +466,7 @@ handle_scroll_cancel (MetaEisClient    *client,
     clutter_virtual_input_device_notify_scroll_continuous (device->device,
                                                            g_get_monotonic_time (),
                                                            dx, dy,
-                                                           CLUTTER_SCROLL_SOURCE_UNKNOWN,
+                                                           CLUTTER_SCROLL_SOURCE_WHEEL,
                                                            CLUTTER_SCROLL_FINISHED_NONE);
 }
 
@@ -490,7 +490,7 @@ handle_scroll_discrete (MetaEisClient    *client,
           clutter_virtual_input_device_notify_discrete_scroll (device->device,
                                                                g_get_monotonic_time (),
                                                                CLUTTER_SCROLL_RIGHT,
-                                                               CLUTTER_SCROLL_SOURCE_UNKNOWN);
+                                                               CLUTTER_SCROLL_SOURCE_WHEEL);
           dx--;
         }
       else if (dx < 0)
@@ -498,7 +498,7 @@ handle_scroll_discrete (MetaEisClient    *client,
           clutter_virtual_input_device_notify_discrete_scroll (device->device,
                                                                g_get_monotonic_time (),
                                                                CLUTTER_SCROLL_LEFT,
-                                                               CLUTTER_SCROLL_SOURCE_UNKNOWN);
+                                                               CLUTTER_SCROLL_SOURCE_WHEEL);
           dx++;
         }
 
@@ -507,7 +507,7 @@ handle_scroll_discrete (MetaEisClient    *client,
           clutter_virtual_input_device_notify_discrete_scroll (device->device,
                                                                g_get_monotonic_time (),
                                                                CLUTTER_SCROLL_DOWN,
-                                                               CLUTTER_SCROLL_SOURCE_UNKNOWN);
+                                                               CLUTTER_SCROLL_SOURCE_WHEEL);
           dy--;
         }
       else if (dy < 0)
@@ -515,7 +515,7 @@ handle_scroll_discrete (MetaEisClient    *client,
           clutter_virtual_input_device_notify_discrete_scroll (device->device,
                                                                g_get_monotonic_time (),
                                                                CLUTTER_SCROLL_UP,
-                                                               CLUTTER_SCROLL_SOURCE_UNKNOWN);
+                                                               CLUTTER_SCROLL_SOURCE_WHEEL);
           dy++;
         }
     }
