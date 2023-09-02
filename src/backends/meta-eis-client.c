@@ -257,8 +257,7 @@ add_viewport_region (struct eis_device *eis_device,
   const char *mapping_id;
   struct eis_region *eis_region;
 
-  if (meta_eis_viewport_get_position (viewport, &x, &y))
-    has_position = TRUE;
+  has_position = meta_eis_viewport_get_position (viewport, &x, &y);
   meta_eis_viewport_get_size (viewport, &width, &height);
   scale = meta_eis_viewport_get_physical_scale (viewport);
 
