@@ -1273,8 +1273,8 @@ create_pipewire_stream (MetaScreenCastStreamSrc  *src,
   struct spa_rectangle min_size = MIN_SIZE;
   struct spa_rectangle max_size = MAX_SIZE;
   struct spa_fraction default_framerate = DEFAULT_FRAME_RATE;
-  struct spa_fraction max_framerate = MIN_FRAME_RATE;
-  struct spa_fraction min_framerate = MAX_FRAME_RATE;
+  struct spa_fraction min_framerate = MIN_FRAME_RATE;
+  struct spa_fraction max_framerate = MAX_FRAME_RATE;
   struct pw_stream *pipewire_stream;
   uint8_t buffer[1024];
   struct spa_pod_builder pod_builder =
