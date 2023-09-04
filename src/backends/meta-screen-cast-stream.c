@@ -38,7 +38,11 @@ enum
   PROP_CONNECTION,
   PROP_CURSOR_MODE,
   PROP_FLAGS,
+
+  N_PROPS
 };
+
+static GParamSpec *obj_props[N_PROPS];
 
 enum
 {
@@ -428,40 +432,34 @@ meta_screen_cast_stream_class_init (MetaScreenCastStreamClass *klass)
   object_class->set_property = meta_screen_cast_stream_set_property;
   object_class->get_property = meta_screen_cast_stream_get_property;
 
-  g_object_class_install_property (object_class,
-                                   PROP_SESSION,
-                                   g_param_spec_object ("session", NULL, NULL,
-                                                        META_TYPE_SCREEN_CAST_SESSION,
-                                                        G_PARAM_READWRITE |
-                                                        G_PARAM_CONSTRUCT_ONLY |
-                                                        G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (object_class,
-                                   PROP_CONNECTION,
-                                   g_param_spec_object ("connection", NULL, NULL,
-                                                        G_TYPE_DBUS_CONNECTION,
-                                                        G_PARAM_READWRITE |
-                                                        G_PARAM_CONSTRUCT_ONLY |
-                                                        G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (object_class,
-                                   PROP_CURSOR_MODE,
-                                   g_param_spec_uint ("cursor-mode", NULL, NULL,
-                                                      META_SCREEN_CAST_CURSOR_MODE_HIDDEN,
-                                                      META_SCREEN_CAST_CURSOR_MODE_METADATA,
-                                                      META_SCREEN_CAST_CURSOR_MODE_HIDDEN,
-                                                      G_PARAM_READWRITE |
-                                                      G_PARAM_CONSTRUCT_ONLY |
-                                                      G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (object_class,
-                                   PROP_FLAGS,
-                                   g_param_spec_flags ("flags", NULL, NULL,
-                                                       META_TYPE_SCREEN_CAST_FLAG,
-                                                       META_SCREEN_CAST_FLAG_NONE,
-                                                       G_PARAM_READWRITE |
-                                                       G_PARAM_CONSTRUCT_ONLY |
-                                                       G_PARAM_STATIC_STRINGS));
+  obj_props[PROP_SESSION] =
+    g_param_spec_object ("session", NULL, NULL,
+                         META_TYPE_SCREEN_CAST_SESSION,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_CONNECTION] =
+    g_param_spec_object ("connection", NULL, NULL,
+                         G_TYPE_DBUS_CONNECTION,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_CURSOR_MODE] =
+    g_param_spec_uint ("cursor-mode", NULL, NULL,
+                       META_SCREEN_CAST_CURSOR_MODE_HIDDEN,
+                       META_SCREEN_CAST_CURSOR_MODE_METADATA,
+                       META_SCREEN_CAST_CURSOR_MODE_HIDDEN,
+                       G_PARAM_READWRITE |
+                       G_PARAM_CONSTRUCT_ONLY |
+                       G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_FLAGS] =
+    g_param_spec_flags ("flags", NULL, NULL,
+                        META_TYPE_SCREEN_CAST_FLAG,
+                        META_SCREEN_CAST_FLAG_NONE,
+                        G_PARAM_READWRITE |
+                        G_PARAM_CONSTRUCT_ONLY |
+                        G_PARAM_STATIC_STRINGS);
+  g_object_class_install_properties (object_class, N_PROPS, obj_props);
 
   signals[CLOSED] = g_signal_new ("closed",
                                   G_TYPE_FROM_CLASS (klass),
