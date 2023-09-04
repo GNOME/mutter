@@ -1309,10 +1309,6 @@ struct _ClutterLayerNode
 {
   ClutterPaintNode parent_instance;
 
-  cairo_rectangle_t viewport;
-
-  graphene_matrix_t projection;
-
   float fbo_width;
   float fbo_height;
 
@@ -1320,8 +1316,6 @@ struct _ClutterLayerNode
   CoglFramebuffer *offscreen;
 
   guint8 opacity;
-
-  gboolean needs_fbo_setup : 1;
 };
 
 struct _ClutterLayerNodeClass
@@ -1336,33 +1330,12 @@ clutter_layer_node_pre_draw (ClutterPaintNode *node,
                              ClutterPaintContext *paint_context)
 {
   ClutterLayerNode *lnode = (ClutterLayerNode *) node;
-  CoglFramebuffer *framebuffer;
-  graphene_matrix_t matrix;
 
   /* if we were unable to create an offscreen buffer for this node, then
    * we simply ignore it
    */
   if (lnode->offscreen == NULL)
     return FALSE;
-
-  if (lnode->needs_fbo_setup)
-    {
-      /* copy the same modelview from the current framebuffer to the one we
-       * are going to use
-       */
-      framebuffer = clutter_paint_context_get_framebuffer (paint_context);
-      cogl_framebuffer_get_modelview_matrix (framebuffer, &matrix);
-      cogl_framebuffer_set_modelview_matrix (lnode->offscreen, &matrix);
-
-      cogl_framebuffer_set_viewport (lnode->offscreen,
-                                     lnode->viewport.x,
-                                     lnode->viewport.y,
-                                     lnode->viewport.width,
-                                     lnode->viewport.height);
-
-      cogl_framebuffer_set_projection_matrix (lnode->offscreen,
-                                              &lnode->projection);
-    }
 
   clutter_paint_context_push_framebuffer (paint_context, lnode->offscreen);
 
@@ -1495,87 +1468,8 @@ clutter_layer_node_class_init (ClutterLayerNodeClass *klass)
 static void
 clutter_layer_node_init (ClutterLayerNode *self)
 {
-  graphene_matrix_init_identity (&self->projection);
 }
 
-/*
- * clutter_layer_node_new:
- * @projection: the projection matrix to use to set up the layer
- * @viewport: (type cairo.Rectangle): the viewport to use to set up the layer
- * @width: the width of the layer
- * @height: the height of the layer
- * @opacity: the opacity to be used when drawing the layer
- *
- * Creates a new #ClutterLayerNode.
- *
- * All children of this node will be painted inside a separate
- * framebuffer; the framebuffer will then be painted using the
- * given @opacity.
- *
- * Return value: (transfer full): the newly created #ClutterLayerNode.
- *   Use clutter_paint_node_unref() when done.
- */
-ClutterPaintNode *
-clutter_layer_node_new (const graphene_matrix_t *projection,
-                        const cairo_rectangle_t *viewport,
-                        float                    width,
-                        float                    height,
-                        guint8                   opacity)
-{
-  ClutterLayerNode *lnode;
-  CoglContext *context;
-  CoglTexture2D *tex_2d;
-  CoglTexture *texture;
-  CoglColor color;
-  g_autoptr (CoglOffscreen) offscreen = NULL;
-  g_autoptr (GError) error = NULL;
-
-  lnode = _clutter_paint_node_create (CLUTTER_TYPE_LAYER_NODE);
-
-  lnode->needs_fbo_setup = TRUE;
-  lnode->projection = *projection;
-  lnode->viewport = *viewport;
-  lnode->fbo_width = width;
-  lnode->fbo_height = height;
-  lnode->opacity = opacity;
-
-  /* the texture backing the FBO */
-  context = clutter_backend_get_cogl_context (clutter_get_default_backend ());
-
-  tex_2d = cogl_texture_2d_new_with_size (context,
-                                          MAX (lnode->fbo_width, 1),
-                                          MAX (lnode->fbo_height, 1));
-  texture = COGL_TEXTURE (tex_2d);
-  cogl_texture_set_premultiplied (texture, TRUE);
-
-  offscreen = cogl_offscreen_new_with_texture (texture);
-  if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (offscreen), &error))
-    {
-      g_warning ("Unable to create an allocate paint node offscreen: %s",
-                 error->message);
-      cogl_object_unref (texture);
-      return NULL;
-    }
-
-  lnode->offscreen = COGL_FRAMEBUFFER (g_steal_pointer (&offscreen));
-
-  cogl_color_init_from_4ub (&color, opacity, opacity, opacity, opacity);
-
-  /* the pipeline used to paint the texture; we use nearest
-   * interpolation filters because the texture is always
-   * going to be painted at a 1:1 texel:pixel ratio
-   */
-  lnode->pipeline = cogl_pipeline_copy (default_texture_pipeline);
-  cogl_pipeline_set_layer_filters (lnode->pipeline, 0,
-                                   COGL_PIPELINE_FILTER_NEAREST,
-                                   COGL_PIPELINE_FILTER_NEAREST);
-  cogl_pipeline_set_layer_texture (lnode->pipeline, 0, texture);
-  cogl_pipeline_set_color (lnode->pipeline, &color);
-
-  cogl_object_unref (texture);
-
-  return (ClutterPaintNode *) lnode;
-}
 
 /**
  * clutter_layer_node_new_to_framebuffer:
@@ -1604,7 +1498,6 @@ clutter_layer_node_new_to_framebuffer (CoglFramebuffer *framebuffer,
 
   res = _clutter_paint_node_create (CLUTTER_TYPE_LAYER_NODE);
 
-  res->needs_fbo_setup = FALSE;
   res->fbo_width = cogl_framebuffer_get_width (framebuffer);
   res->fbo_height = cogl_framebuffer_get_height (framebuffer);
   res->offscreen = g_object_ref (framebuffer);

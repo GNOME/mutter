@@ -142,13 +142,6 @@ CLUTTER_EXPORT
 GType clutter_layer_node_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
-ClutterPaintNode *      clutter_layer_node_new          (const graphene_matrix_t *projection,
-                                                         const cairo_rectangle_t *viewport,
-                                                         float                    width,
-                                                         float                    height,
-                                                         guint8                   opacity);
-
-CLUTTER_EXPORT
 ClutterPaintNode * clutter_layer_node_new_to_framebuffer (CoglFramebuffer *framebuffer,
                                                           CoglPipeline    *pipeline);
 
