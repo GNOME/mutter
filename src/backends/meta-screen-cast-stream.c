@@ -38,6 +38,7 @@ enum
   PROP_CONNECTION,
   PROP_CURSOR_MODE,
   PROP_FLAGS,
+  PROP_IS_CONFIGURED,
 
   N_PROPS
 };
@@ -62,6 +63,7 @@ typedef struct _MetaScreenCastStreamPrivate
 
   MetaScreenCastCursorMode cursor_mode;
   MetaScreenCastFlag flags;
+  gboolean is_configured;
 
   MetaScreenCastStreamSrc *src;
 
@@ -233,6 +235,25 @@ meta_screen_cast_stream_get_mapping_id (MetaScreenCastStream *stream)
   return priv->mapping_id;
 }
 
+gboolean
+meta_screen_cast_stream_is_configured (MetaScreenCastStream *stream)
+{
+  MetaScreenCastStreamPrivate *priv =
+    meta_screen_cast_stream_get_instance_private (stream);
+
+  return priv->is_configured;
+}
+
+void
+meta_screen_cast_stream_notify_is_configured (MetaScreenCastStream *stream)
+{
+  MetaScreenCastStreamPrivate *priv =
+    meta_screen_cast_stream_get_instance_private (stream);
+
+  priv->is_configured = TRUE;
+  g_object_notify_by_pspec (G_OBJECT (stream), obj_props[PROP_IS_CONFIGURED]);
+}
+
 static void
 meta_screen_cast_stream_set_property (GObject      *object,
                                       guint         prop_id,
@@ -256,6 +277,9 @@ meta_screen_cast_stream_set_property (GObject      *object,
       break;
     case PROP_FLAGS:
       priv->flags = g_value_get_flags (value);
+      break;
+    case PROP_IS_CONFIGURED:
+      priv->is_configured = g_value_get_boolean (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -285,6 +309,9 @@ meta_screen_cast_stream_get_property (GObject    *object,
       break;
     case PROP_FLAGS:
       g_value_set_flags (value, priv->flags);
+      break;
+    case PROP_IS_CONFIGURED:
+      g_value_set_boolean (value, priv->is_configured);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -459,6 +486,12 @@ meta_screen_cast_stream_class_init (MetaScreenCastStreamClass *klass)
                         G_PARAM_READWRITE |
                         G_PARAM_CONSTRUCT_ONLY |
                         G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_IS_CONFIGURED] =
+    g_param_spec_boolean ("is-configured", NULL, NULL,
+                          FALSE,
+                          G_PARAM_READWRITE |
+                          G_PARAM_CONSTRUCT |
+                          G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
 
   signals[CLOSED] = g_signal_new ("closed",

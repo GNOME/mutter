@@ -134,6 +134,7 @@ meta_screen_cast_monitor_stream_new (MetaScreenCastSession     *session,
                                    "connection", connection,
                                    "cursor-mode", cursor_mode,
                                    "flags", flags,
+                                   "is-configured", TRUE,
                                    "monitor", monitor,
                                    NULL);
   if (!monitor_stream)

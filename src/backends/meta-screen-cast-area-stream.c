@@ -110,6 +110,7 @@ meta_screen_cast_area_stream_new (MetaScreenCastSession     *session,
                                 "connection", connection,
                                 "cursor-mode", cursor_mode,
                                 "flags", flags,
+                                "is-configured", TRUE,
                                 NULL);
   if (!area_stream)
     return NULL;

@@ -283,6 +283,8 @@ init_record_callbacks (MetaScreenCastVirtualStreamSrc *virtual_src)
       break;
     }
 
+  meta_screen_cast_stream_notify_is_configured (stream);
+
   if (meta_screen_cast_stream_get_cursor_mode (stream) ==
       META_SCREEN_CAST_CURSOR_MODE_EMBEDDED)
     inhibit_hw_cursor (virtual_src);
