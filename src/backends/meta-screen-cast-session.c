@@ -619,9 +619,7 @@ handle_record_window (MetaDBusScreenCastSession *skeleton,
   stream = META_SCREEN_CAST_STREAM (window_stream);
   stream_path = meta_screen_cast_stream_get_object_path (stream);
 
-  session->streams = g_list_append (session->streams, stream);
-
-  g_signal_connect (stream, "closed", G_CALLBACK (on_stream_closed), session);
+  add_stream (session, stream);
 
   meta_dbus_screen_cast_session_complete_record_window (skeleton,
                                                         invocation,
@@ -713,9 +711,7 @@ handle_record_area (MetaDBusScreenCastSession *skeleton,
   stream = META_SCREEN_CAST_STREAM (area_stream);
   stream_path = meta_screen_cast_stream_get_object_path (stream);
 
-  session->streams = g_list_append (session->streams, stream);
-
-  g_signal_connect (stream, "closed", G_CALLBACK (on_stream_closed), session);
+  add_stream (session, stream);
 
   meta_dbus_screen_cast_session_complete_record_area (skeleton,
                                                       invocation,
@@ -790,9 +786,7 @@ handle_record_virtual (MetaDBusScreenCastSession *skeleton,
   stream = META_SCREEN_CAST_STREAM (virtual_stream);
   stream_path = meta_screen_cast_stream_get_object_path (stream);
 
-  session->streams = g_list_append (session->streams, stream);
-
-  g_signal_connect (stream, "closed", G_CALLBACK (on_stream_closed), session);
+  add_stream (session, stream);
 
   meta_dbus_screen_cast_session_complete_record_virtual (skeleton,
                                                          invocation,
