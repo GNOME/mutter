@@ -315,18 +315,29 @@ meta_eis_get_device_types (MetaEis *eis)
   return eis->device_types;
 }
 
+static void
+on_viewport_changed (MetaEisViewport *viewport,
+                     MetaEis         *eis)
+{
+  g_signal_emit (eis, signals[VIEWPORTS_CHANGED], 0);
+}
+
 void
 meta_eis_add_viewport (MetaEis         *eis,
                        MetaEisViewport *viewport)
 {
   eis->viewports = g_list_append (eis->viewports, viewport);
   g_signal_emit (eis, signals[VIEWPORTS_CHANGED], 0);
+
+  g_signal_connect (viewport, "viewport-changed",
+                    G_CALLBACK (on_viewport_changed), eis);
 }
 
 void
 meta_eis_remove_viewport (MetaEis         *eis,
                           MetaEisViewport *viewport)
 {
+  g_signal_handlers_disconnect_by_func (viewport, on_viewport_changed, eis);
   eis->viewports = g_list_remove (eis->viewports, viewport);
   g_signal_emit (eis, signals[VIEWPORTS_CHANGED], 0);
 }
@@ -335,6 +346,16 @@ void
 meta_eis_take_viewports (MetaEis *eis,
                          GList   *viewports)
 {
+  GList *l;
+
+  for (l = viewports; l; l = l->next)
+    {
+      MetaEisViewport *viewport = l->data;
+
+      g_signal_connect (viewport, "viewport-changed",
+                        G_CALLBACK (on_viewport_changed), eis);
+    }
+
   eis->viewports = g_list_concat (eis->viewports, viewports);
   g_signal_emit (eis, signals[VIEWPORTS_CHANGED], 0);
 }
@@ -342,6 +363,15 @@ meta_eis_take_viewports (MetaEis *eis,
 void
 meta_eis_remove_all_viewports (MetaEis *eis)
 {
+  GList *l;
+
+  for (l = eis->viewports; l; l = l->next)
+    {
+      MetaEisViewport *viewport = l->data;
+
+      g_signal_handlers_disconnect_by_func (viewport, on_viewport_changed, eis);
+    }
+
   g_clear_pointer (&eis->viewports, g_list_free);
   g_signal_emit (eis, signals[VIEWPORTS_CHANGED], 0);
 }

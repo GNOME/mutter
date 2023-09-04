@@ -22,6 +22,7 @@
 
 #include "backends/meta-crtc-mode.h"
 #include "backends/meta-cursor-tracker-private.h"
+#include "backends/meta-eis-viewport.h"
 #include "backends/meta-monitor.h"
 #include "backends/meta-output.h"
 #include "backends/meta-screen-cast-session.h"
@@ -243,10 +244,13 @@ on_monitors_changed (MetaMonitorManager             *monitor_manager,
 {
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (virtual_src);
   MetaStage *stage = META_STAGE (stage_from_src (src));
+  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
 
   meta_stage_remove_watch (stage, virtual_src->watch);
   virtual_src->watch = NULL;
   add_watch (virtual_src);
+
+  meta_eis_viewport_notify_changed (META_EIS_VIEWPORT (stream));
 }
 
 static void

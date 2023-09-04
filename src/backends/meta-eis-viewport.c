@@ -20,11 +20,26 @@
 
 #include "backends/meta-eis-viewport.h"
 
+enum
+{
+  VIEWPORT_CHANGED,
+
+  N_SIGNALS
+};
+
+static guint signals[N_SIGNALS];
+
 G_DEFINE_INTERFACE (MetaEisViewport, meta_eis_viewport, G_TYPE_OBJECT)
 
 static void
 meta_eis_viewport_default_init (MetaEisViewportInterface *iface)
 {
+  signals[VIEWPORT_CHANGED] =
+    g_signal_new ("viewport-changed",
+                  G_TYPE_FROM_INTERFACE (iface),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
 }
 
 gboolean
@@ -77,4 +92,10 @@ meta_eis_viewport_transform_coordinate (MetaEisViewport *viewport,
                                                                        y,
                                                                        out_x,
                                                                        out_y);
+}
+
+void
+meta_eis_viewport_notify_changed (MetaEisViewport *viewport)
+{
+  g_signal_emit (viewport, signals[VIEWPORT_CHANGED], 0);
 }

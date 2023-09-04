@@ -68,3 +68,5 @@ gboolean meta_eis_viewport_transform_coordinate (MetaEisViewport *viewport,
                                                  double           y,
                                                  double          *out_x,
                                                  double          *out_y);
+
+void meta_eis_viewport_notify_changed (MetaEisViewport *viewport);
