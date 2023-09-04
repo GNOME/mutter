@@ -904,8 +904,6 @@ meta_backend_x11_initable_init (GInitable    *initable,
 
   XSynchronize (xdisplay, meta_context_is_x11_sync (context));
 
-  mtk_x11_errors_init ();
-
   priv->xdisplay = xdisplay;
   priv->xscreen = DefaultScreenOfDisplay (xdisplay);
   priv->xcb = XGetXCBConnection (priv->xdisplay);
@@ -997,6 +995,7 @@ static void
 meta_backend_x11_init (MetaBackendX11 *x11)
 {
   XInitThreads ();
+  mtk_x11_errors_init ();
 }
 
 Display *
