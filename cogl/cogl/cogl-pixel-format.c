@@ -99,11 +99,25 @@ static const CoglPixelFormatInfo format_info_table[] = {
     .bpp = { 1 },
   },
   {
+    .cogl_format = COGL_PIXEL_FORMAT_G_16,
+    .format_str = "G_16",
+    .n_planes = 1,
+    .aligned = 1,
+    .bpp = { 2 },
+  },
+  {
     .cogl_format = COGL_PIXEL_FORMAT_RG_88,
     .format_str = "RG_88",
     .n_planes = 1,
     .aligned = 1,
     .bpp = { 2 },
+  },
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_RG_1616,
+    .format_str = "RG_1616",
+    .n_planes = 1,
+    .aligned = 1,
+    .bpp = { 4 },
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_RGB_888,

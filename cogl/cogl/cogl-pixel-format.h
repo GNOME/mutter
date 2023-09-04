@@ -105,7 +105,8 @@ G_BEGIN_DECLS
  * 11    = 8 bpp fp16
  * 12    = 3 bpp, not aligned
  * 13    = 4 bpp, not aligned (e.g. 2101010)
- * 14-15 = undefined
+ * 14    = 2 bpp, aligned (e.g. G_16)
+ * 15    = 4 bpp, aligned (e.g. RG_1616)
  *
  * Note: the gap at 10-11 is just because we wanted to maintain that
  * all non-aligned formats have the third bit set in case that's
@@ -142,11 +143,13 @@ G_BEGIN_DECLS
  * @COGL_PIXEL_FORMAT_RG_88: RG, 16 bits. Note that red-green textures
  *   are only available if %COGL_FEATURE_ID_TEXTURE_RG is advertised.
  *   See cogl_texture_set_components() for details.
+ * @COGL_PIXEL_FORMAT_RG_1616: RG, 32 bits
  * @COGL_PIXEL_FORMAT_RGB_565: RGB, 16 bits
  * @COGL_PIXEL_FORMAT_RGBA_4444: RGBA, 16 bits
  * @COGL_PIXEL_FORMAT_RGBA_5551: RGBA, 16 bits
  * @COGL_PIXEL_FORMAT_YUV: Not currently supported
  * @COGL_PIXEL_FORMAT_G_8: Single luminance component
+ * @COGL_PIXEL_FORMAT_G_16: Single luminance component, 16 bits
  * @COGL_PIXEL_FORMAT_RGB_888: RGB, 24 bits
  * @COGL_PIXEL_FORMAT_BGR_888: BGR, 24 bits
  * @COGL_PIXEL_FORMAT_RGBX_8888: RGBX, 32 bits
@@ -213,8 +216,10 @@ typedef enum /*< prefix=COGL_PIXEL_FORMAT >*/
   COGL_PIXEL_FORMAT_RGBA_5551     = 6 | COGL_A_BIT,
   COGL_PIXEL_FORMAT_YUV           = 7,
   COGL_PIXEL_FORMAT_G_8           = 8,
+  COGL_PIXEL_FORMAT_G_16          = 14,
 
   COGL_PIXEL_FORMAT_RG_88         = 9,
+  COGL_PIXEL_FORMAT_RG_1616       = 15,
 
   COGL_PIXEL_FORMAT_RGB_888       = 2,
   COGL_PIXEL_FORMAT_BGR_888       = (2 | COGL_BGR_BIT),

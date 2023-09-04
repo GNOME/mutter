@@ -377,6 +377,8 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       gltype = GL_UNSIGNED_INT_24_8;
       break;
 
+    case COGL_PIXEL_FORMAT_G_16:
+    case COGL_PIXEL_FORMAT_RG_1616:
     case COGL_PIXEL_FORMAT_ANY:
     case COGL_PIXEL_FORMAT_YUV:
       g_assert_not_reached ();
