@@ -135,6 +135,16 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shader = y_uv_shader,
     .snippet_once = G_ONCE_INIT,
   },
+  [META_MULTI_TEXTURE_FORMAT_P010] = {
+    .name = "P010",
+    .n_planes = 2,
+    .subformats = { COGL_PIXEL_FORMAT_G_16, COGL_PIXEL_FORMAT_RG_1616 },
+    .plane_indices = { 0, 1 },
+    .hsub = { 1, 2 },
+    .vsub = { 1, 2 },
+    .rgb_shader = y_uv_shader,
+    .snippet_once = G_ONCE_INIT,
+  },
   /* 3 plane YUV */
   [META_MULTI_TEXTURE_FORMAT_YUV420] = {
     .name = "YUV420",
