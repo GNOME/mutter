@@ -21,7 +21,6 @@
 
 #pragma once
 
-#include <cairo.h>
 #include <glib-object.h>
 #include <graphene.h>
 
@@ -44,14 +43,6 @@ typedef enum _MtkRoundingStrategy
  * @width: Width of the rectangle
  * @height: Height of the rectangle
  */
-#ifdef __GI_SCANNER__
-/* The introspection scanner is currently unable to lookup how
- * cairo_rectangle_int_t is actually defined. This prevents
- * introspection data for the GdkRectangle type to include fields
- * descriptions. To workaround this issue, we define it with the same
- * content as cairo_rectangle_int_t, but only under the introspection
- * define.
- */
 struct _MtkRectangle
 {
   int x;
@@ -59,10 +50,8 @@ struct _MtkRectangle
   int width;
   int height;
 };
+
 typedef struct _MtkRectangle MtkRectangle;
-#else
-typedef cairo_rectangle_int_t MtkRectangle;
-#endif
 
 #define MTK_RECTANGLE_INIT(_x, _y, _width, _height) \
         (MtkRectangle) { \
