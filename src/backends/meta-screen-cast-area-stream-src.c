@@ -243,11 +243,11 @@ maybe_record_frame_on_idle (gpointer user_data)
 }
 
 static void
-before_stage_painted (MetaStage            *stage,
-                      ClutterStageView     *view,
-                      const cairo_region_t *redraw_clip,
-                      ClutterFrame         *frame,
-                      gpointer              user_data)
+before_stage_painted (MetaStage        *stage,
+                      ClutterStageView *view,
+                      const MtkRegion  *redraw_clip,
+                      ClutterFrame     *frame,
+                      gpointer          user_data)
 {
   MetaScreenCastAreaStreamSrc *area_src =
     META_SCREEN_CAST_AREA_STREAM_SRC (user_data);
@@ -263,11 +263,11 @@ before_stage_painted (MetaStage            *stage,
 }
 
 static void
-stage_painted (MetaStage            *stage,
-               ClutterStageView     *view,
-               const cairo_region_t *redraw_clip,
-               ClutterFrame         *frame,
-               gpointer              user_data)
+stage_painted (MetaStage        *stage,
+               ClutterStageView *view,
+               const MtkRegion  *redraw_clip,
+               ClutterFrame     *frame,
+               gpointer          user_data)
 {
   MetaScreenCastAreaStreamSrc *area_src =
     META_SCREEN_CAST_AREA_STREAM_SRC (user_data);
@@ -283,12 +283,12 @@ stage_painted (MetaStage            *stage,
 
   if (redraw_clip)
     {
-      switch (cairo_region_contains_rectangle (redraw_clip, area))
+      switch (mtk_region_contains_rectangle (redraw_clip, area))
         {
-        case CAIRO_REGION_OVERLAP_IN:
-        case CAIRO_REGION_OVERLAP_PART:
+        case MTK_REGION_OVERLAP_IN:
+        case MTK_REGION_OVERLAP_PART:
           break;
-        case CAIRO_REGION_OVERLAP_OUT:
+        case MTK_REGION_OVERLAP_OUT:
           return;
         }
     }

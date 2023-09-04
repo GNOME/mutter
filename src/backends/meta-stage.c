@@ -175,11 +175,11 @@ meta_stage_finalize (GObject *object)
 }
 
 static void
-notify_watchers_for_mode (MetaStage            *stage,
-                          ClutterStageView     *view,
-                          const cairo_region_t *redraw_clip,
-                          ClutterFrame         *frame,
-                          MetaStageWatchPhase   watch_phase)
+notify_watchers_for_mode (MetaStage           *stage,
+                          ClutterStageView    *view,
+                          const MtkRegion     *redraw_clip,
+                          ClutterFrame        *frame,
+                          MetaStageWatchPhase  watch_phase)
 {
   GPtrArray *watchers;
   int i;
@@ -215,7 +215,7 @@ meta_stage_paint (ClutterActor        *actor,
   MetaStage *stage = META_STAGE (actor);
   ClutterStageView *view;
   ClutterFrame *frame;
-  const cairo_region_t *redraw_clip;
+  const MtkRegion *redraw_clip;
 
   CLUTTER_ACTOR_CLASS (meta_stage_parent_class)->paint (actor, paint_context);
 
@@ -258,10 +258,10 @@ meta_stage_paint (ClutterActor        *actor,
 }
 
 static void
-meta_stage_paint_view (ClutterStage         *stage,
-                       ClutterStageView     *view,
-                       const cairo_region_t *redraw_clip,
-                       ClutterFrame         *frame)
+meta_stage_paint_view (ClutterStage     *stage,
+                       ClutterStageView *view,
+                       const MtkRegion  *redraw_clip,
+                       ClutterFrame     *frame)
 {
   MetaStage *meta_stage = META_STAGE (stage);
 

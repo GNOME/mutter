@@ -46,12 +46,12 @@ has_active_effects (ClutterActor *actor)
   return FALSE;
 }
 
-static cairo_region_t *
-region_apply_transform_expand_maybe_ref (cairo_region_t    *region,
+static MtkRegion *
+region_apply_transform_expand_maybe_ref (MtkRegion         *region,
                                          graphene_matrix_t *transform)
 {
-  if (cairo_region_is_empty (region))
-    return cairo_region_reference (region);
+  if (mtk_region_is_empty (region))
+    return mtk_region_ref (region);
 
   return meta_region_apply_matrix_transform_expand (region, transform);
 }
@@ -75,12 +75,12 @@ region_apply_transform_expand_maybe_ref (cairo_region_t    *region,
  * so that actors underneath know not to draw there as well.
  */
 
-typedef void (* ChildCullMethod) (MetaCullable   *cullable,
-                                  cairo_region_t *region);
+typedef void (* ChildCullMethod) (MetaCullable *cullable,
+                                  MtkRegion    *region);
 
 static void
 cull_out_children_common (MetaCullable    *cullable,
-                          cairo_region_t  *region,
+                          MtkRegion       *region,
                           ChildCullMethod  method)
 {
   ClutterActor *actor = CLUTTER_ACTOR (cullable);
@@ -121,7 +121,8 @@ cull_out_children_common (MetaCullable    *cullable,
 
       if (needs_culling)
         {
-          cairo_region_t *actor_region, *reduced_region;
+          g_autoptr (MtkRegion) actor_region = NULL;
+          g_autoptr (MtkRegion) reduced_region = NULL;
           graphene_matrix_t actor_transform, inverted_actor_transform;
 
           clutter_actor_get_transform (child, &actor_transform);
@@ -155,10 +156,7 @@ cull_out_children_common (MetaCullable    *cullable,
 
           g_assert (reduced_region);
 
-          cairo_region_intersect (region, reduced_region);
-
-          cairo_region_destroy (actor_region);
-          cairo_region_destroy (reduced_region);
+          mtk_region_intersect (region, reduced_region);
         }
       else
         {
@@ -178,8 +176,8 @@ cull_out_children_common (MetaCullable    *cullable,
  * See #MetaCullable and meta_cullable_cull_unobscured() for more details.
  */
 void
-meta_cullable_cull_unobscured_children (MetaCullable   *cullable,
-                                        cairo_region_t *unobscured_region)
+meta_cullable_cull_unobscured_children (MetaCullable *cullable,
+                                        MtkRegion    *unobscured_region)
 {
   cull_out_children_common (cullable,
                             unobscured_region,
@@ -197,8 +195,8 @@ meta_cullable_cull_unobscured_children (MetaCullable   *cullable,
  * See #MetaCullable and meta_cullable_cull_redraw_clip() for more details.
  */
 void
-meta_cullable_cull_redraw_clip_children (MetaCullable   *cullable,
-                                         cairo_region_t *clip_region)
+meta_cullable_cull_redraw_clip_children (MetaCullable *cullable,
+                                         MtkRegion    *clip_region)
 {
   cull_out_children_common (cullable,
                             clip_region,
@@ -227,8 +225,8 @@ meta_cullable_default_init (MetaCullableInterface *iface)
  * helper method to do a simple cull across all their children.
  */
 void
-meta_cullable_cull_unobscured (MetaCullable   *cullable,
-                               cairo_region_t *unobscured_region)
+meta_cullable_cull_unobscured (MetaCullable *cullable,
+                               MtkRegion    *unobscured_region)
 {
   META_CULLABLE_GET_IFACE (cullable)->cull_unobscured (cullable, unobscured_region);
 }
@@ -251,8 +249,8 @@ meta_cullable_cull_unobscured (MetaCullable   *cullable,
  * helper method to do a simple cull across all their children.
  */
 void
-meta_cullable_cull_redraw_clip (MetaCullable   *cullable,
-                                cairo_region_t *clip_region)
+meta_cullable_cull_redraw_clip (MetaCullable *cullable,
+                                MtkRegion    *clip_region)
 {
   META_CULLABLE_GET_IFACE (cullable)->cull_redraw_clip (cullable, clip_region);
 }

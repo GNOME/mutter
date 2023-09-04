@@ -22,8 +22,6 @@
 
 #pragma once
 
-#include <cairo.h>
-
 #include "clutter/clutter.h"
 #include "cogl/cogl.h"
 #include "meta/meta-window-shape.h"
@@ -105,15 +103,15 @@ META_EXPORT
 void        meta_shadow_unref       (MetaShadow            *shadow);
 
 META_EXPORT
-void        meta_shadow_paint       (MetaShadow            *shadow,
-                                     CoglFramebuffer       *framebuffer,
-                                     int                    window_x,
-                                     int                    window_y,
-                                     int                    window_width,
-                                     int                    window_height,
-                                     guint8                 opacity,
-                                     cairo_region_t        *clip,
-                                     gboolean               clip_strictly);
+void        meta_shadow_paint       (MetaShadow      *shadow,
+                                     CoglFramebuffer *framebuffer,
+                                     int              window_x,
+                                     int              window_y,
+                                     int              window_width,
+                                     int              window_height,
+                                     guint8           opacity,
+                                     MtkRegion       *clip,
+                                     gboolean         clip_strictly);
 
 META_EXPORT
 void        meta_shadow_get_bounds  (MetaShadow   *shadow,

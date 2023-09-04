@@ -455,9 +455,9 @@ static void
 calculate_clear_area (ClutterPickStack  *pick_stack,
                       PickRecord        *pick_rec,
                       int                elem,
-                      cairo_region_t   **clear_area)
+                      MtkRegion        **clear_area)
 {
-  cairo_region_t *area = NULL;
+  MtkRegion *area = NULL;
   graphene_point3d_t verts[4];
   MtkRectangle rect;
   int i;
@@ -478,7 +478,7 @@ calculate_clear_area (ClutterPickStack  *pick_stack,
   rect.height =
     MIN (rect.height, floor (pick_rec->base.rect.y2 - pick_rec->base.rect.y1));
 
-  area = cairo_region_create_rectangle (&rect);
+  area = mtk_region_create_rectangle (&rect);
 
   for (i = elem + 1; i < pick_stack->vertices_stack->len; i++)
     {
@@ -487,33 +487,31 @@ calculate_clear_area (ClutterPickStack  *pick_stack,
       ClutterActorBox paint_box;
 
       if (!rec->is_overlap &&
-	  (rec->base.rect.x1 == rec->base.rect.x2 ||
-	   rec->base.rect.y1 == rec->base.rect.y2))
+          (rec->base.rect.x1 == rec->base.rect.x2 ||
+           rec->base.rect.y1 == rec->base.rect.y2))
         continue;
 
       if (!clutter_actor_get_paint_box (rec->actor, &paint_box))
         continue;
 
-      cairo_region_subtract_rectangle (area,
-                                       &(MtkRectangle) {
-                                         .x = paint_box.x1,
-                                         .y = paint_box.y1,
-                                         .width = paint_box.x2 - paint_box.x1,
-                                         .height = paint_box.y2 - paint_box.y1,
-                                       });
+      mtk_region_subtract_rectangle (area,
+                                     &MTK_RECTANGLE_INIT (paint_box.x1, paint_box.y1,
+                                                          paint_box.x2 - paint_box.x1,
+                                                          paint_box.y2 - paint_box.y1)
+      );
     }
 
   if (clear_area)
     *clear_area = g_steal_pointer (&area);
 
-  g_clear_pointer (&area, cairo_region_destroy);
+  g_clear_pointer (&area, mtk_region_unref);
 }
 
 ClutterActor *
 clutter_pick_stack_search_actor (ClutterPickStack          *pick_stack,
                                  const graphene_point3d_t  *point,
                                  const graphene_ray_t      *ray,
-                                 cairo_region_t           **clear_area)
+                                 MtkRegion                **clear_area)
 {
   int i;
 

@@ -215,43 +215,40 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
 #ifdef HAVE_XWAYLAND
   if (!META_IS_XWAYLAND_SURFACE (surface_role))
 #endif
-    {
-      if (surface->input_region)
-        {
-          cairo_region_t *input_region;
+  {
+    if (surface->input_region)
+      {
+        g_autoptr (MtkRegion) input_region = NULL;
 
-          input_region = cairo_region_copy (surface->input_region);
-          cairo_region_intersect_rectangle (input_region, &surface_rect);
-          meta_surface_actor_set_input_region (surface_actor, input_region);
-          cairo_region_destroy (input_region);
-        }
-      else
-        {
-          meta_surface_actor_set_input_region (surface_actor, NULL);
-        }
+        input_region = mtk_region_copy (surface->input_region);
+        mtk_region_intersect_rectangle (input_region, &surface_rect);
+        meta_surface_actor_set_input_region (surface_actor, input_region);
+      }
+    else
+      {
+        meta_surface_actor_set_input_region (surface_actor, NULL);
+      }
 
-      if (!meta_shaped_texture_has_alpha (stex))
-        {
-          cairo_region_t *opaque_region;
+    if (!meta_shaped_texture_has_alpha (stex))
+      {
+        g_autoptr (MtkRegion) opaque_region = NULL;
 
-          opaque_region = cairo_region_create_rectangle (&surface_rect);
-          meta_surface_actor_set_opaque_region (surface_actor, opaque_region);
-          cairo_region_destroy (opaque_region);
-        }
-      else if (surface->opaque_region)
-        {
-          cairo_region_t *opaque_region;
+        opaque_region = mtk_region_create_rectangle (&surface_rect);
+        meta_surface_actor_set_opaque_region (surface_actor, opaque_region);
+      }
+    else if (surface->opaque_region)
+      {
+        g_autoptr (MtkRegion) opaque_region = NULL;
 
-          opaque_region = cairo_region_copy (surface->opaque_region);
-          cairo_region_intersect_rectangle (opaque_region, &surface_rect);
-          meta_surface_actor_set_opaque_region (surface_actor, opaque_region);
-          cairo_region_destroy (opaque_region);
-        }
-      else
-        {
-          meta_surface_actor_set_opaque_region (surface_actor, NULL);
-        }
-    }
+        opaque_region = mtk_region_copy (surface->opaque_region);
+        mtk_region_intersect_rectangle (opaque_region, &surface_rect);
+        meta_surface_actor_set_opaque_region (surface_actor, opaque_region);
+      }
+    else
+      {
+        meta_surface_actor_set_opaque_region (surface_actor, NULL);
+      }
+  }
 
   meta_shaped_texture_set_transform (stex, surface->buffer_transform);
 

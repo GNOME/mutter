@@ -122,13 +122,13 @@ add_stencil_clip_rectangle (CoglFramebuffer *framebuffer,
 
 static void
 add_stencil_clip_region (CoglFramebuffer *framebuffer,
-                         cairo_region_t  *region,
+                         MtkRegion       *region,
                          gboolean         merge)
 {
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   CoglMatrixEntry *old_projection_entry, *old_modelview_entry;
   graphene_matrix_t matrix;
-  int num_rectangles = cairo_region_num_rectangles (region);
+  int num_rectangles = mtk_region_num_rectangles (region);
   int i;
   CoglVertexP2 *vertices;
   graphene_point3d_t p;
@@ -189,7 +189,7 @@ add_stencil_clip_region (CoglFramebuffer *framebuffer,
       float x2, y2, z2, w2;
       CoglVertexP2 *v = vertices + i * 6;
 
-      cairo_region_get_rectangle (region, i, &rect);
+      rect = mtk_region_get_rectangle (region, i);
 
       x1 = rect.x;
       y1 = rect.y;
@@ -527,7 +527,7 @@ _cogl_clip_stack_gl_flush (CoglClipStack *stack,
               /* If nrectangles <= 1, it can be fully represented with the
                * scissor clip.
                */
-              if (cairo_region_num_rectangles (region->region) > 1 ||
+              if (mtk_region_num_rectangles (region->region) > 1 ||
                   G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_STENCILLING)))
                 {
                   COGL_NOTE (CLIPPING, "Adding stencil clip for region");

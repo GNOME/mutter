@@ -646,16 +646,16 @@ reload_wm_name (MetaWindow    *window,
 }
 
 static void
-meta_window_set_opaque_region (MetaWindow     *window,
-                               cairo_region_t *region)
+meta_window_set_opaque_region (MetaWindow *window,
+                               MtkRegion  *region)
 {
-  if (cairo_region_equal (window->opaque_region, region))
+  if (mtk_region_equal (window->opaque_region, region))
     return;
 
-  g_clear_pointer (&window->opaque_region, cairo_region_destroy);
+  g_clear_pointer (&window->opaque_region, mtk_region_unref);
 
   if (region != NULL)
-    window->opaque_region = cairo_region_reference (region);
+    window->opaque_region = mtk_region_ref (region);
 
   meta_compositor_window_shape_changed (window->display->compositor, window);
 }
@@ -665,7 +665,7 @@ reload_opaque_region (MetaWindow    *window,
                       MetaPropValue *value,
                       gboolean       initial)
 {
-  cairo_region_t *opaque_region = NULL;
+  MtkRegion *opaque_region = NULL;
 
   if (value->type != META_PROP_VALUE_INVALID)
     {
@@ -703,7 +703,7 @@ reload_opaque_region (MetaWindow    *window,
           rect_index++;
         }
 
-      opaque_region = cairo_region_create_rectangles (rects, nrects);
+      opaque_region = mtk_region_create_rectangles (rects, nrects);
 
       g_free (rects);
     }
@@ -714,7 +714,7 @@ reload_opaque_region (MetaWindow    *window,
   else if (window->frame && value->source_xwindow == window->frame->xwindow)
     meta_frame_set_opaque_region (window->frame, opaque_region);
 
-  g_clear_pointer (&opaque_region, cairo_region_destroy);
+  g_clear_pointer (&opaque_region, mtk_region_unref);
 }
 
 static void

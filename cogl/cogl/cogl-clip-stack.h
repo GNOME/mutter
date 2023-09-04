@@ -157,7 +157,7 @@ struct _CoglClipStackRegion
 {
   CoglClipStack _parent_data;
 
-  cairo_region_t *region;
+  MtkRegion *region;
 };
 
 COGL_EXPORT CoglClipStack *
@@ -181,8 +181,8 @@ _cogl_clip_stack_push_primitive (CoglClipStack *stack,
                                  CoglMatrixEntry *projection_entry,
                                  const float *viewport);
 CoglClipStack *
-cogl_clip_stack_push_region (CoglClipStack   *stack,
-                             cairo_region_t  *region);
+cogl_clip_stack_push_region (CoglClipStack *stack,
+                             MtkRegion     *region);
 
 CoglClipStack *
 _cogl_clip_stack_pop (CoglClipStack *stack);

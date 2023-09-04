@@ -62,7 +62,7 @@ meta_pointer_lock_wayland_create_constraint (MetaPointerConfinementWayland *conf
   MetaPointerConstraint *constraint;
   graphene_point_t point;
   MtkRectangle rect;
-  cairo_region_t *region;
+  g_autoptr (MtkRegion) region = NULL;
   float sx, sy, x, y;
 
   clutter_seat_query_state (seat, pointer, NULL, &point, NULL);
@@ -75,10 +75,9 @@ meta_pointer_lock_wayland_create_constraint (MetaPointerConfinementWayland *conf
 
   meta_wayland_surface_get_absolute_coordinates (surface, sx, sy, &x, &y);
   rect = (MtkRectangle) { .x = x, .y = y, .width = 1, .height = 1 };
-  region = cairo_region_create_rectangle (&rect);
+  region = mtk_region_create_rectangle (&rect);
 
-  constraint = meta_pointer_constraint_new (region, 0.0);
-  cairo_region_destroy (region);
+  constraint = meta_pointer_constraint_new (g_steal_pointer (&region), 0.0);
 
   return constraint;
 }

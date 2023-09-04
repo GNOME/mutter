@@ -24,7 +24,7 @@
 
 struct _ClutterDamageHistory
 {
-  cairo_region_t *damages[DAMAGE_HISTORY_LENGTH];
+  MtkRegion *damages[DAMAGE_HISTORY_LENGTH];
   int index;
 };
 
@@ -44,7 +44,7 @@ clutter_damage_history_free (ClutterDamageHistory *history)
   int i;
 
   for (i = 0; i < G_N_ELEMENTS (history->damages); i++)
-    g_clear_pointer (&history->damages[i], cairo_region_destroy);
+    g_clear_pointer (&history->damages[i], mtk_region_unref);
 
   g_free (history);
 }
@@ -65,10 +65,10 @@ clutter_damage_history_is_age_valid (ClutterDamageHistory *history,
 
 void
 clutter_damage_history_record (ClutterDamageHistory *history,
-                               const cairo_region_t *damage)
+                               const MtkRegion      *damage)
 {
-  g_clear_pointer (&history->damages[history->index], cairo_region_destroy);
-  history->damages[history->index] = cairo_region_copy (damage);
+  g_clear_pointer (&history->damages[history->index], mtk_region_unref);
+  history->damages[history->index] = mtk_region_copy (damage);
 }
 
 static inline int
@@ -84,7 +84,7 @@ clutter_damage_history_step (ClutterDamageHistory *history)
   history->index = step_damage_index (history->index, 1);
 }
 
-const cairo_region_t *
+const MtkRegion *
 clutter_damage_history_lookup (ClutterDamageHistory *history,
                                int                   age)
 {

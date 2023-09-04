@@ -55,7 +55,7 @@ struct _MetaWaylandPointerConstraint
 
   MetaWaylandSurface *surface;
   gboolean is_enabled;
-  cairo_region_t *region;
+  MtkRegion *region;
   struct wl_resource *resource;
   MetaWaylandPointerGrab grab;
   MetaWaylandSeat *seat;
@@ -85,7 +85,7 @@ typedef struct _MetaWaylandSurfacePointerConstraintsData
 typedef struct
 {
   MetaWaylandPointerConstraint *constraint;
-  cairo_region_t *region;
+  MtkRegion *region;
   gulong applied_handler_id;
 } MetaWaylandPendingConstraintState;
 
@@ -322,7 +322,7 @@ meta_wayland_pointer_constraint_new (MetaWaylandSurface                      *su
   if (region)
     {
       constraint->region =
-        cairo_region_copy (meta_wayland_region_peek_cairo_region (region));
+        mtk_region_copy (meta_wayland_region_peek_cairo_region (region));
     }
   else
     {
@@ -437,7 +437,7 @@ meta_wayland_pointer_constraint_destroy (MetaWaylandPointerConstraint *constrain
     meta_wayland_pointer_constraint_disable (constraint);
 
   wl_resource_set_user_data (constraint->resource, NULL);
-  g_clear_pointer (&constraint->region, cairo_region_destroy);
+  g_clear_pointer (&constraint->region, mtk_region_unref);
   g_object_unref (constraint);
 }
 
@@ -446,14 +446,13 @@ is_within_constraint_region (MetaWaylandPointerConstraint *constraint,
                              wl_fixed_t                    sx,
                              wl_fixed_t                    sy)
 {
-  cairo_region_t *region;
+  g_autoptr (MtkRegion) region = NULL;
   gboolean is_within;
 
   region = meta_wayland_pointer_constraint_calculate_effective_region (constraint);
-  is_within = cairo_region_contains_point (region,
-                                           wl_fixed_to_int (sx),
-                                           wl_fixed_to_int (sy));
-  cairo_region_destroy (region);
+  is_within = mtk_region_contains_point (region,
+                                         wl_fixed_to_int (sx),
+                                         wl_fixed_to_int (sy));
 
   return is_within;
 }
@@ -606,15 +605,15 @@ meta_wayland_pointer_constraint_maybe_enable_for_window (MetaWindow *window)
     }
 }
 
-cairo_region_t *
+MtkRegion *
 meta_wayland_pointer_constraint_calculate_effective_region (MetaWaylandPointerConstraint *constraint)
 {
-  cairo_region_t *region;
+  MtkRegion *region;
   MetaWindow *window;
 
   region = meta_wayland_surface_calculate_input_region (constraint->surface);
   if (constraint->region)
-    cairo_region_intersect (region, constraint->region);
+    mtk_region_intersect (region, constraint->region);
 
   window = meta_wayland_surface_get_window (constraint->surface);
   if (window && window->frame)
@@ -630,12 +629,10 @@ meta_wayland_pointer_constraint_calculate_effective_region (MetaWaylandPointerCo
                                                     frame->bottom_height);
       if (actual_width > 0 && actual_height > 0)
         {
-          cairo_region_intersect_rectangle (region, &(MtkRectangle) {
-                                              .x = frame->child_x,
-                                              .y = frame->child_y,
-                                              .width = actual_width,
-                                              .height = actual_height
-                                            });
+          mtk_region_intersect_rectangle (region, &MTK_RECTANGLE_INIT (frame->child_x,
+                                                                       frame->child_y,
+                                                                       actual_width,
+                                                                       actual_height));
         }
     }
 
@@ -669,7 +666,7 @@ pointer_constraint_resource_destroyed (struct wl_resource *resource)
 static void
 pending_constraint_state_free (MetaWaylandPendingConstraintState *constraint_pending)
 {
-  g_clear_pointer (&constraint_pending->region, cairo_region_destroy);
+  g_clear_pointer (&constraint_pending->region, mtk_region_unref);
   if (constraint_pending->constraint)
     g_object_remove_weak_pointer (G_OBJECT (constraint_pending->constraint),
                                   (gpointer *) &constraint_pending->constraint);
@@ -759,7 +756,7 @@ pending_constraint_state_applied (MetaWaylandSurfaceState           *pending,
   if (!constraint)
     return;
 
-  g_clear_pointer (&constraint->region, cairo_region_destroy);
+  g_clear_pointer (&constraint->region, mtk_region_unref);
   if (constraint_pending->region)
     {
       constraint->region = constraint_pending->region;
@@ -815,11 +812,11 @@ meta_wayland_pointer_constraint_set_pending_region (MetaWaylandPointerConstraint
 
   constraint_pending = ensure_pending_constraint_state (constraint);
 
-  g_clear_pointer (&constraint_pending->region, cairo_region_destroy);
+  g_clear_pointer (&constraint_pending->region, mtk_region_unref);
   if (region)
     {
       constraint_pending->region =
-        cairo_region_copy (meta_wayland_region_peek_cairo_region (region));
+        mtk_region_copy (meta_wayland_region_peek_cairo_region (region));
     }
 }
 

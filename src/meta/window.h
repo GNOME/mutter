@@ -20,7 +20,6 @@
 #pragma once
 
 #include <glib-object.h>
-#include <cairo.h>
 #include <X11/Xlib.h>
 
 #include <meta/boxes.h>
@@ -355,7 +354,7 @@ META_EXPORT
 MetaFrameType meta_window_get_frame_type (MetaWindow *window);
 
 META_EXPORT
-cairo_region_t *meta_window_get_frame_bounds (MetaWindow *window);
+MtkRegion *meta_window_get_frame_bounds (MetaWindow *window);
 
 META_EXPORT
 MetaWindow *meta_window_get_tile_match (MetaWindow *window);

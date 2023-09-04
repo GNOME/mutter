@@ -112,7 +112,7 @@ typedef struct _MetaScreenCastStreamSrcPrivate
   gboolean uses_dma_bufs;
   GHashTable *dmabuf_handles;
 
-  cairo_region_t *redraw_clip;
+  MtkRegion *redraw_clip;
 } MetaScreenCastStreamSrcPrivate;
 
 static const struct {
@@ -687,7 +687,7 @@ maybe_add_damaged_regions_metadata (MetaScreenCastStreamSrc *src,
       int num_buffers_available;
 
       i = 0;
-      n_rectangles = cairo_region_num_rectangles (priv->redraw_clip);
+      n_rectangles = mtk_region_num_rectangles (priv->redraw_clip);
       num_buffers_available = 0;
 
       spa_meta_for_each (meta_region, spa_meta_video_damage)
@@ -714,7 +714,7 @@ maybe_add_damaged_regions_metadata (MetaScreenCastStreamSrc *src,
           {
             MtkRectangle rect;
 
-            cairo_region_get_rectangle (priv->redraw_clip, i, &rect);
+            rect = mtk_region_get_rectangle (priv->redraw_clip, i);
             meta_region->region = SPA_REGION (rect.x, rect.y,
                                               rect.width, rect.height);
 
@@ -724,13 +724,13 @@ maybe_add_damaged_regions_metadata (MetaScreenCastStreamSrc *src,
         }
     }
 
-  g_clear_pointer (&priv->redraw_clip, cairo_region_destroy);
+  g_clear_pointer (&priv->redraw_clip, mtk_region_unref);
 }
 
 MetaScreenCastRecordResult
 meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
                                                 MetaScreenCastRecordFlag  flags,
-                                                const cairo_region_t     *redraw_clip)
+                                                const MtkRegion          *redraw_clip)
 {
   int64_t now_us = g_get_monotonic_time ();
 
@@ -743,7 +743,7 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
 MetaScreenCastRecordResult
 meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStreamSrc  *src,
                                                                MetaScreenCastRecordFlag  flags,
-                                                               const cairo_region_t     *redraw_clip,
+                                                               const MtkRegion          *redraw_clip,
                                                                int64_t                   frame_timestamp_us)
 {
   MetaScreenCastStreamSrcPrivate *priv =
@@ -762,9 +762,9 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
   if (redraw_clip)
     {
       if (priv->redraw_clip)
-        cairo_region_union (priv->redraw_clip, redraw_clip);
+        mtk_region_union (priv->redraw_clip, redraw_clip);
       else
-        priv->redraw_clip = cairo_region_copy (redraw_clip);
+        priv->redraw_clip = mtk_region_copy (redraw_clip);
     }
 
   if (priv->buffer_count == 0)

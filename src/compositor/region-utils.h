@@ -34,7 +34,7 @@
  * @line_start: whether the current rectangle starts a horizontal band
  * @line_end: whether the current rectangle ends a horizontal band
  *
- * cairo_region_t is a yx banded region; sometimes its useful to iterate through
+ * MtkRegion is a yx banded region; sometimes its useful to iterate through
  * such a region treating the start and end of each horizontal band in a distinct
  * fashion.
  *
@@ -51,7 +51,7 @@
 typedef struct _MetaRegionIterator MetaRegionIterator;
 
 struct _MetaRegionIterator {
-  cairo_region_t *region;
+  MtkRegion *region;
   MtkRectangle rectangle;
   gboolean line_start;
   gboolean line_end;
@@ -76,7 +76,7 @@ struct _MetaRegionBuilder {
    * |d  |c  |ab |
    * |e  |   |   |abcd|
    */
-  cairo_region_t *levels[META_REGION_BUILDER_MAX_LEVELS];
+  MtkRegion *levels[META_REGION_BUILDER_MAX_LEVELS];
   int n_levels;
 };
 
@@ -86,34 +86,34 @@ void     meta_region_builder_add_rectangle (MetaRegionBuilder *builder,
                                             int                y,
                                             int                width,
                                             int                height);
-cairo_region_t * meta_region_builder_finish (MetaRegionBuilder *builder);
+MtkRegion * meta_region_builder_finish (MetaRegionBuilder *builder);
 
 void     meta_region_iterator_init      (MetaRegionIterator *iter,
-                                         cairo_region_t     *region);
+                                         MtkRegion          *region);
 gboolean meta_region_iterator_at_end    (MetaRegionIterator *iter);
 void     meta_region_iterator_next      (MetaRegionIterator *iter);
 
-cairo_region_t * meta_region_scale (cairo_region_t *region,
-                                    int             scale);
+MtkRegion * meta_region_scale (MtkRegion *region,
+                               int        scale);
 
-cairo_region_t * meta_make_border_region (cairo_region_t *region,
-                                          int             x_amount,
-                                          int             y_amount,
-                                          gboolean        flip);
+MtkRegion * meta_make_border_region (MtkRegion *region,
+                                     int        x_amount,
+                                     int        y_amount,
+                                     gboolean   flip);
 
-cairo_region_t * meta_region_transform (const cairo_region_t *region,
-                                        MetaMonitorTransform  transform,
-                                        int                   width,
-                                        int                   height);
+MtkRegion * meta_region_transform (const MtkRegion      *region,
+                                   MetaMonitorTransform  transform,
+                                   int                   width,
+                                   int                   height);
 
-cairo_region_t * meta_region_crop_and_scale (cairo_region_t  *region,
-                                             graphene_rect_t *src_rect,
-                                             int              dst_width,
-                                             int              dst_height);
+MtkRegion * meta_region_crop_and_scale (MtkRegion       *region,
+                                        graphene_rect_t *src_rect,
+                                        int              dst_width,
+                                        int              dst_height);
 
-void meta_region_to_cairo_path (cairo_region_t *region,
-                                cairo_t        *cr);
+void meta_region_to_cairo_path (MtkRegion *region,
+                                cairo_t   *cr);
 
-cairo_region_t *
-meta_region_apply_matrix_transform_expand (const cairo_region_t *region,
-                                           graphene_matrix_t    *transform);
+MtkRegion *
+meta_region_apply_matrix_transform_expand (const MtkRegion   *region,
+                                           graphene_matrix_t *transform);

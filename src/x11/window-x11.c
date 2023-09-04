@@ -2365,14 +2365,14 @@ meta_window_x11_set_net_wm_state (MetaWindow *window)
   update_gtk_edge_constraints (window);
 }
 
-static cairo_region_t *
+static MtkRegion *
 region_create_from_x_rectangles (const XRectangle *rects,
-                                 int n_rects)
+                                 int               n_rects)
 {
   int i;
   MtkRectangle *cairo_rects = g_newa (MtkRectangle, n_rects);
 
-  for (i = 0; i < n_rects; i ++)
+  for (i = 0; i < n_rects; i++)
     {
       cairo_rects[i].x = rects[i].x;
       cairo_rects[i].y = rects[i].y;
@@ -2380,20 +2380,20 @@ region_create_from_x_rectangles (const XRectangle *rects,
       cairo_rects[i].height = rects[i].height;
     }
 
-  return cairo_region_create_rectangles (cairo_rects, n_rects);
+  return mtk_region_create_rectangles (cairo_rects, n_rects);
 }
 
 static void
-meta_window_set_input_region (MetaWindow     *window,
-                              cairo_region_t *region)
+meta_window_set_input_region (MetaWindow *window,
+                              MtkRegion  *region)
 {
-  if (cairo_region_equal (window->input_region, region))
+  if (mtk_region_equal (window->input_region, region))
     return;
 
-  g_clear_pointer (&window->input_region, cairo_region_destroy);
+  g_clear_pointer (&window->input_region, mtk_region_unref);
 
   if (region != NULL)
-    window->input_region = cairo_region_reference (region);
+    window->input_region = mtk_region_ref (region);
 
   meta_compositor_window_shape_changed (window->display->compositor, window);
 }
@@ -2401,17 +2401,17 @@ meta_window_set_input_region (MetaWindow     *window,
 #if 0
 /* Print out a region; useful for debugging */
 static void
-print_region (cairo_region_t *region)
+print_region (MtkRegion *region)
 {
   int n_rects;
   int i;
 
-  n_rects = cairo_region_num_rectangles (region);
+  n_rects = mtk_region_num_rectangles (region);
   g_print ("[");
   for (i = 0; i < n_rects; i++)
     {
       MtkRectangle rect;
-      cairo_region_get_rectangle (region, i, &rect);
+      rect = mtk_region_get_rectangle (region, i);
       g_print ("+%d+%dx%dx%d ",
                rect.x, rect.y, rect.width, rect.height);
     }
@@ -2423,7 +2423,7 @@ void
 meta_window_x11_update_input_region (MetaWindow *window)
 {
   MetaX11Display *x11_display = window->display->x11_display;
-  cairo_region_t *region = NULL;
+  g_autoptr (MtkRegion) region = NULL;
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
   Window xwindow;
@@ -2446,7 +2446,7 @@ meta_window_x11_update_input_region (MetaWindow *window)
   if (META_X11_DISPLAY_HAS_SHAPE (x11_display))
     {
       /* Translate the set of XShape rectangles that we
-       * get from the X server to a cairo_region. */
+       * get from the X server to a MtkRegion. */
       XRectangle *rects = NULL;
       int n_rects = -1, ordering;
 
@@ -2479,7 +2479,7 @@ meta_window_x11_update_input_region (MetaWindow *window)
       else if (n_rects == 0)
         {
           /* Client set an empty region. */
-          region = cairo_region_create ();
+          region = mtk_region_create ();
         }
       else if (n_rects == 1 &&
                (rects[0].x == 0 &&
@@ -2516,24 +2516,23 @@ meta_window_x11_update_input_region (MetaWindow *window)
        * window would have gotten if it was unshaped. In our case,
        * this is simply the client area.
        */
-      cairo_region_intersect_rectangle (region, &client_area);
+      mtk_region_intersect_rectangle (region, &client_area);
     }
 
   meta_window_set_input_region (window, region);
-  cairo_region_destroy (region);
 }
 
 static void
-meta_window_set_shape_region (MetaWindow     *window,
-                              cairo_region_t *region)
+meta_window_set_shape_region (MetaWindow *window,
+                              MtkRegion  *region)
 {
-  if (cairo_region_equal (window->shape_region, region))
+  if (mtk_region_equal (window->shape_region, region))
     return;
 
-  g_clear_pointer (&window->shape_region, cairo_region_destroy);
+  g_clear_pointer (&window->shape_region, mtk_region_unref);
 
   if (region != NULL)
-    window->shape_region = cairo_region_reference (region);
+    window->shape_region = mtk_region_ref (region);
 
   meta_compositor_window_shape_changed (window->display->compositor, window);
 }
@@ -2544,12 +2543,12 @@ meta_window_x11_update_shape_region (MetaWindow *window)
   MetaX11Display *x11_display = window->display->x11_display;
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
-  cairo_region_t *region = NULL;
+  g_autoptr (MtkRegion) region = NULL;
 
   if (META_X11_DISPLAY_HAS_SHAPE (x11_display))
     {
       /* Translate the set of XShape rectangles that we
-       * get from the X server to a cairo_region. */
+       * get from the X server to a MtkRegion. */
       XRectangle *rects = NULL;
       int n_rects, ordering;
 
@@ -2597,17 +2596,16 @@ meta_window_x11_update_shape_region (MetaWindow *window)
        * window would have gotten if it was unshaped. In our case,
        * this is simply the client area.
        */
-      cairo_region_intersect_rectangle (region, &client_area);
+      mtk_region_intersect_rectangle (region, &client_area);
       /* Some applications might explicitly set their bounding region
        * to the client area. Detect these cases, and throw out the
        * bounding region in this case for decorated windows. */
       if (window->decorated &&
-          cairo_region_contains_rectangle (region, &client_area) == CAIRO_REGION_OVERLAP_IN)
-        g_clear_pointer (&region, cairo_region_destroy);
+          mtk_region_contains_rectangle (region, &client_area) == MTK_REGION_OVERLAP_IN)
+        g_clear_pointer (&region, mtk_region_unref);
     }
 
   meta_window_set_shape_region (window, region);
-  cairo_region_destroy (region);
 }
 
 /* Generally meta_window_same_application() is a better idea

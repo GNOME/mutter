@@ -164,8 +164,8 @@ meta_background_actor_new (MetaDisplay *display,
 }
 
 static void
-meta_background_actor_cull_unobscured (MetaCullable   *cullable,
-                                       cairo_region_t *unobscured_region)
+meta_background_actor_cull_unobscured (MetaCullable *cullable,
+                                       MtkRegion    *unobscured_region)
 {
   MetaBackgroundActor *self = META_BACKGROUND_ACTOR (cullable);
 
@@ -176,8 +176,8 @@ meta_background_actor_cull_unobscured (MetaCullable   *cullable,
 }
 
 static void
-meta_background_actor_cull_redraw_clip (MetaCullable   *cullable,
-                                        cairo_region_t *clip_region)
+meta_background_actor_cull_redraw_clip (MetaCullable *cullable,
+                                        MtkRegion    *clip_region)
 {
   MetaBackgroundActor *self = META_BACKGROUND_ACTOR (cullable);
 
@@ -198,11 +198,11 @@ cullable_iface_init (MetaCullableInterface *iface)
  * meta_background_actor_get_clip_region:
  * @self: a #MetaBackgroundActor
  *
- * Return value (transfer none): a #cairo_region_t that represents the part of
+ * Return value (transfer none): a #MtkRegion that represents the part of
  * the background not obscured by other #MetaBackgroundActor or
  * #MetaWindowActor objects.
  */
-cairo_region_t *
+MtkRegion *
 meta_background_actor_get_clip_region (MetaBackgroundActor *self)
 {
   if (!self->content)

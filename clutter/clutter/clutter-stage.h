@@ -75,10 +75,10 @@ struct _ClutterStageClass
                          ClutterStageView *view,
                          ClutterFrame     *frame);
 
-  void (* paint_view) (ClutterStage         *stage,
-                       ClutterStageView     *view,
-                       const cairo_region_t *redraw_clip,
-                       ClutterFrame         *frame);
+  void (* paint_view) (ClutterStage     *stage,
+                       ClutterStageView *view,
+                       const MtkRegion  *redraw_clip,
+                       ClutterFrame     *frame);
 };
 
 /**

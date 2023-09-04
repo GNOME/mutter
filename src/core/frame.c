@@ -237,13 +237,8 @@ meta_window_destroy_frame (MetaWindow *window)
   meta_x11_display_unregister_x_window (x11_display, frame->xwindow);
 
   window->frame = NULL;
-  if (window->frame_bounds)
-    {
-      cairo_region_destroy (window->frame_bounds);
-      window->frame_bounds = NULL;
-    }
-
-  g_clear_pointer (&frame->opaque_region, cairo_region_destroy);
+  g_clear_pointer (&window->frame_bounds, mtk_region_unref);
+  g_clear_pointer (&frame->opaque_region, mtk_region_unref);
 
   /* Move keybindings to window instead of frame */
   meta_window_grab_keys (window);
@@ -397,17 +392,17 @@ meta_frame_sync_to_window (MetaFrame *frame,
   return need_resize;
 }
 
-cairo_region_t *
+MtkRegion *
 meta_frame_get_frame_bounds (MetaFrame *frame)
 {
   MetaFrameBorders borders;
-  cairo_region_t *bounds;
+  MtkRegion *bounds;
 
   meta_frame_calc_borders (frame, &borders);
   /* FIXME: currently just the client area, should shape closer to
    * frame border, incl. rounded corners.
    */
-  bounds = cairo_region_create_rectangle (&(MtkRectangle) {
+  bounds = mtk_region_create_rectangle (&(MtkRectangle) {
     borders.total.left,
     borders.total.top,
     frame->rect.width - borders.total.left - borders.total.right,
@@ -583,18 +578,18 @@ meta_frame_get_sync_counter (MetaFrame *frame)
 }
 
 void
-meta_frame_set_opaque_region (MetaFrame      *frame,
-                              cairo_region_t *region)
+meta_frame_set_opaque_region (MetaFrame *frame,
+                              MtkRegion *region)
 {
   MetaWindow *window = frame->window;
 
-  if (cairo_region_equal (frame->opaque_region, region))
+  if (mtk_region_equal (frame->opaque_region, region))
     return;
 
-  g_clear_pointer (&frame->opaque_region, cairo_region_destroy);
+  g_clear_pointer (&frame->opaque_region, mtk_region_unref);
 
   if (region != NULL)
-    frame->opaque_region = cairo_region_reference (region);
+    frame->opaque_region = mtk_region_ref (region);
 
   meta_compositor_window_shape_changed (window->display->compositor, window);
 }

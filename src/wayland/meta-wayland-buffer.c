@@ -675,7 +675,7 @@ meta_wayland_buffer_is_y_inverted (MetaWaylandBuffer *buffer)
 static gboolean
 process_shm_buffer_damage (MetaWaylandBuffer *buffer,
                            MetaMultiTexture  *texture,
-                           cairo_region_t    *region,
+                           MtkRegion         *region,
                            GError           **error)
 {
   struct wl_shm_buffer *shm_buffer;
@@ -684,7 +684,7 @@ process_shm_buffer_damage (MetaWaylandBuffer *buffer,
   CoglPixelFormat format;
   CoglTexture *cogl_texture;
 
-  n_rectangles = cairo_region_num_rectangles (region);
+  n_rectangles = mtk_region_num_rectangles (region);
 
   shm_buffer = wl_shm_buffer_get (buffer->resource);
 
@@ -702,7 +702,7 @@ process_shm_buffer_damage (MetaWaylandBuffer *buffer,
       int bpp;
 
       bpp = cogl_pixel_format_get_bytes_per_pixel (format, 0);
-      cairo_region_get_rectangle (region, i, &rect);
+      rect = mtk_region_get_rectangle (region, i);
 
       if (!_cogl_texture_set_region (cogl_texture,
                                      rect.width, rect.height,
@@ -726,7 +726,7 @@ process_shm_buffer_damage (MetaWaylandBuffer *buffer,
 void
 meta_wayland_buffer_process_damage (MetaWaylandBuffer *buffer,
                                     MetaMultiTexture  *texture,
-                                    cairo_region_t    *region)
+                                    MtkRegion         *region)
 {
   gboolean res = FALSE;
   GError *error = NULL;

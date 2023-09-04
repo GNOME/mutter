@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include <cairo.h>
-
 #include "backends/meta-backend-types.h"
 #include "clutter/clutter.h"
 

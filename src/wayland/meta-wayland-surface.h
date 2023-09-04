@@ -17,7 +17,6 @@
 
 #pragma once
 
-#include <cairo.h>
 #include <glib.h>
 #include <wayland-server.h>
 #include <xkbcommon/xkbcommon.h>
@@ -88,13 +87,13 @@ struct _MetaWaylandSurfaceState
   int scale;
 
   /* wl_surface.damage */
-  cairo_region_t *surface_damage;
+  MtkRegion *surface_damage;
   /* wl_surface.damage_buffer */
-  cairo_region_t *buffer_damage;
+  MtkRegion *buffer_damage;
 
-  cairo_region_t *input_region;
+  MtkRegion *input_region;
   gboolean input_region_set;
-  cairo_region_t *opaque_region;
+  MtkRegion *opaque_region;
   gboolean opaque_region_set;
 
   /* wl_surface.frame */
@@ -162,8 +161,8 @@ struct _MetaWaylandSurface
   struct wl_resource *resource;
   MetaWaylandCompositor *compositor;
   MetaWaylandSurfaceRole *role;
-  cairo_region_t *input_region;
-  cairo_region_t *opaque_region;
+  MtkRegion *input_region;
+  MtkRegion *opaque_region;
   int scale;
   int32_t offset_x, offset_y;
   GHashTable *outputs;
@@ -346,7 +345,7 @@ void                meta_wayland_surface_get_absolute_coordinates (MetaWaylandSu
 
 MetaWaylandSurface * meta_wayland_surface_role_get_surface (MetaWaylandSurfaceRole *role);
 
-cairo_region_t *    meta_wayland_surface_calculate_input_region (MetaWaylandSurface *surface);
+MtkRegion *    meta_wayland_surface_calculate_input_region (MetaWaylandSurface *surface);
 
 
 gboolean            meta_wayland_surface_begin_grab_op (MetaWaylandSurface   *surface,

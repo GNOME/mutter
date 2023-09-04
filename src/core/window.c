@@ -313,17 +313,10 @@ meta_window_finalize (GObject *object)
 {
   MetaWindow *window = META_WINDOW (object);
 
-  if (window->frame_bounds)
-    cairo_region_destroy (window->frame_bounds);
-
-  if (window->shape_region)
-    cairo_region_destroy (window->shape_region);
-
-  if (window->opaque_region)
-    cairo_region_destroy (window->opaque_region);
-
-  if (window->input_region)
-    cairo_region_destroy (window->input_region);
+  g_clear_pointer (&window->frame_bounds, mtk_region_unref);
+  g_clear_pointer (&window->shape_region, mtk_region_unref);
+  g_clear_pointer (&window->opaque_region, mtk_region_unref);
+  g_clear_pointer (&window->input_region, mtk_region_unref);
 
   if (window->transient_for)
     g_object_unref (window->transient_for);
@@ -3945,10 +3938,7 @@ meta_window_move_resize_internal (MetaWindow          *window,
     }
 
   if ((result & META_MOVE_RESIZE_RESULT_FRAME_SHAPE_CHANGED) && window->frame_bounds)
-    {
-      cairo_region_destroy (window->frame_bounds);
-      window->frame_bounds = NULL;
-    }
+    g_clear_pointer (&window->frame_bounds, mtk_region_unref);
 
   meta_window_foreach_transient (window, maybe_move_attached_window, NULL);
 
@@ -7024,11 +7014,11 @@ meta_window_get_frame_type (MetaWindow *window)
  *
  * Gets a region representing the outer bounds of the window's frame.
  *
- * Return value: (transfer none) (nullable): a #cairo_region_t
+ * Return value: (transfer none) (nullable): a #MtkRegion
  *  holding the outer bounds of the window, or %NULL if the window
  *  doesn't have a frame.
  */
-cairo_region_t *
+MtkRegion *
 meta_window_get_frame_bounds (MetaWindow *window)
 {
   if (!window->frame_bounds)

@@ -40,7 +40,7 @@ struct _MetaFrame
 
   MetaFrameBorders cached_borders; /* valid if borders_cached is set */
 
-  cairo_region_t *opaque_region;
+  MtkRegion *opaque_region;
 
   MetaSyncCounter sync_counter;
 
@@ -67,7 +67,7 @@ gboolean meta_frame_sync_to_window (MetaFrame         *frame,
 
 void meta_frame_clear_cached_borders (MetaFrame *frame);
 
-cairo_region_t *meta_frame_get_frame_bounds (MetaFrame *frame);
+MtkRegion *meta_frame_get_frame_bounds (MetaFrame *frame);
 
 void meta_frame_get_mask (MetaFrame    *frame,
                           MtkRectangle *frame_rect,
@@ -81,5 +81,5 @@ GSubprocess * meta_frame_launch_client (MetaX11Display *x11_display,
 
 MetaSyncCounter * meta_frame_get_sync_counter (MetaFrame *frame);
 
-void meta_frame_set_opaque_region (MetaFrame      *frame,
-                                   cairo_region_t *region);
+void meta_frame_set_opaque_region (MetaFrame *frame,
+                                   MtkRegion *region);

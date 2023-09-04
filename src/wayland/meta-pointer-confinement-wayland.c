@@ -35,7 +35,6 @@
 #include "wayland/meta-pointer-confinement-wayland.h"
 
 #include <glib-object.h>
-#include <cairo.h>
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-pointer-constraint.h"
@@ -225,7 +224,7 @@ meta_pointer_confinement_wayland_create_constraint (MetaPointerConfinementWaylan
   MetaPointerConfinementWaylandPrivate *priv;
   MetaPointerConstraint *constraint;
   MetaWaylandSurface *surface;
-  cairo_region_t *region;
+  g_autoptr (MtkRegion) region = NULL;
   int geometry_scale;
   float dx, dy;
   double min_edge_distance;
@@ -239,19 +238,19 @@ meta_pointer_confinement_wayland_create_constraint (MetaPointerConfinementWaylan
   geometry_scale = meta_wayland_surface_get_geometry_scale (surface);
   if (geometry_scale != 1)
     {
-      cairo_region_t *scaled_region;
+      g_autoptr (MtkRegion) scaled_region = NULL;
 
       scaled_region = meta_region_scale (region, geometry_scale);
-      cairo_region_destroy (region);
-      region = scaled_region;
+      g_clear_pointer (&region, mtk_region_unref);
+      region = g_steal_pointer (&scaled_region);
     }
 
   meta_wayland_surface_get_absolute_coordinates (surface, 0, 0, &dx, &dy);
-  cairo_region_translate (region, dx, dy);
+  mtk_region_translate (region, dx, dy);
 
   min_edge_distance = wl_fixed_to_double (1) * geometry_scale;
-  constraint = meta_pointer_constraint_new (region, min_edge_distance);
-  cairo_region_destroy (region);
+  constraint = meta_pointer_constraint_new (g_steal_pointer (&region),
+                                            min_edge_distance);
 
   return constraint;
 }

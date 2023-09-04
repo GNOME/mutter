@@ -20,10 +20,10 @@
 #include "clutter/clutter-paint-context.h"
 
 ClutterPaintContext *
-clutter_paint_context_new_for_view (ClutterStageView     *view,
-                                    const cairo_region_t *redraw_clip,
-                                    GArray               *clip_frusta,
-                                    ClutterPaintFlag      paint_flags);
+clutter_paint_context_new_for_view (ClutterStageView *view,
+                                    const MtkRegion  *redraw_clip,
+                                    GArray           *clip_frusta,
+                                    ClutterPaintFlag  paint_flags);
 
 gboolean clutter_paint_context_is_drawing_off_stage (ClutterPaintContext *paint_context);
 

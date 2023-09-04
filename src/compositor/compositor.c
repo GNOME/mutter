@@ -1024,7 +1024,7 @@ meta_compositor_real_before_paint (MetaCompositor     *compositor,
   ClutterActor *stage = meta_backend_get_stage (priv->backend);
   ClutterStageView *stage_view;
   MtkRectangle stage_rect;
-  cairo_region_t *unobscured_region;
+  MtkRegion *unobscured_region;
   GList *l;
 
   stage_rect = (MtkRectangle) {
@@ -1033,17 +1033,17 @@ meta_compositor_real_before_paint (MetaCompositor     *compositor,
     clutter_actor_get_height (stage),
   };
 
-  unobscured_region = cairo_region_create_rectangle (&stage_rect);
+  unobscured_region = mtk_region_create_rectangle (&stage_rect);
   meta_cullable_cull_unobscured (META_CULLABLE (priv->window_group), unobscured_region);
-  cairo_region_destroy (unobscured_region);
+  mtk_region_unref (unobscured_region);
 
-  unobscured_region = cairo_region_create_rectangle (&stage_rect);
+  unobscured_region = mtk_region_create_rectangle (&stage_rect);
   meta_cullable_cull_unobscured (META_CULLABLE (priv->top_window_group), unobscured_region);
-  cairo_region_destroy (unobscured_region);
+  mtk_region_unref (unobscured_region);
 
-  unobscured_region = cairo_region_create_rectangle (&stage_rect);
+  unobscured_region = mtk_region_create_rectangle (&stage_rect);
   meta_cullable_cull_unobscured (META_CULLABLE (priv->feedback_group), unobscured_region);
-  cairo_region_destroy (unobscured_region);
+  mtk_region_unref (unobscured_region);
 
   stage_view = meta_compositor_view_get_stage_view (compositor_view);
 

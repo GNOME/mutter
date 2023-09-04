@@ -42,10 +42,10 @@ typedef enum
 
 /* stage */
 CLUTTER_EXPORT
-void                clutter_stage_paint_view             (ClutterStage          *stage,
-                                                          ClutterStageView      *view,
-                                                          const cairo_region_t  *redraw_clip,
-                                                          ClutterFrame          *frame);
+void                clutter_stage_paint_view             (ClutterStage      *stage,
+                                                          ClutterStageView  *view,
+                                                          const MtkRegion   *redraw_clip,
+                                                          ClutterFrame      *frame);
 
 void                clutter_stage_emit_before_update     (ClutterStage          *stage,
                                                           ClutterStageView      *view,
@@ -122,7 +122,7 @@ void clutter_stage_update_device_entry (ClutterStage         *self,
                                         ClutterEventSequence *sequence,
                                         graphene_point_t      coords,
                                         ClutterActor         *actor,
-                                        cairo_region_t       *clear_area);
+                                        MtkRegion            *clear_area);
 
 void clutter_stage_remove_device_entry (ClutterStage         *self,
                                         ClutterInputDevice   *device,

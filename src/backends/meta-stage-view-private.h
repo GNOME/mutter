@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include <cairo.h>
-
 #include "backends/meta-stage-view.h"
 
 G_BEGIN_DECLS

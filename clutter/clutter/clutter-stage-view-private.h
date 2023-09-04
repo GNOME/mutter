@@ -23,11 +23,11 @@
 
 CLUTTER_EXPORT
 void clutter_stage_view_after_paint (ClutterStageView *view,
-                                     cairo_region_t   *redraw_clip);
+                                     MtkRegion        *redraw_clip);
 
 CLUTTER_EXPORT
-void clutter_stage_view_before_swap_buffer (ClutterStageView     *view,
-                                            const cairo_region_t *swap_region);
+void clutter_stage_view_before_swap_buffer (ClutterStageView *view,
+                                            const MtkRegion  *swap_region);
 
 gboolean clutter_stage_view_is_dirty_viewport (ClutterStageView *view);
 
@@ -54,13 +54,13 @@ gboolean clutter_stage_view_has_full_redraw_clip (ClutterStageView *view);
 
 gboolean clutter_stage_view_has_redraw_clip (ClutterStageView *view);
 
-const cairo_region_t * clutter_stage_view_peek_redraw_clip (ClutterStageView *view);
+const MtkRegion * clutter_stage_view_peek_redraw_clip (ClutterStageView *view);
 
 CLUTTER_EXPORT
-cairo_region_t * clutter_stage_view_take_redraw_clip (ClutterStageView *view);
+MtkRegion * clutter_stage_view_take_redraw_clip (ClutterStageView *view);
 
 CLUTTER_EXPORT
-cairo_region_t * clutter_stage_view_take_accumulated_redraw_clip (ClutterStageView *view);
+MtkRegion * clutter_stage_view_take_accumulated_redraw_clip (ClutterStageView *view);
 
 CLUTTER_EXPORT
 void clutter_stage_view_accumulate_redraw_clip (ClutterStageView *view);

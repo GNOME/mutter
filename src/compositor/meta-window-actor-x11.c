@@ -77,11 +77,11 @@ struct _MetaWindowActorX11
   MetaShadow *unfocused_shadow;
 
   /* A region that matches the shape of the window, including frame bounds */
-  cairo_region_t *shape_region;
+  MtkRegion *shape_region;
   /* The region we should clip to when painting the shadow */
-  cairo_region_t *shadow_clip;
+  MtkRegion *shadow_clip;
   /* The frame region */
-  cairo_region_t *frame_bounds;
+  MtkRegion *frame_bounds;
 
   /* Extracted size-invariant shape used for shadows */
   MetaWindowShape *shadow_shape;
@@ -523,7 +523,7 @@ static void
 get_shape_bounds (MetaWindowActorX11 *actor_x11,
                   MtkRectangle       *bounds)
 {
-  cairo_region_get_extents (actor_x11->shape_region, bounds);
+  *bounds = mtk_region_get_extents (actor_x11->shape_region);
 }
 
 static void
@@ -587,7 +587,7 @@ clip_shadow_under_window (MetaWindowActorX11 *actor_x11)
  */
 static void
 set_clip_region_beneath (MetaWindowActorX11 *actor_x11,
-                         cairo_region_t     *beneath_region)
+                         MtkRegion          *beneath_region)
 {
   MetaWindow *window;
   gboolean appears_focused;
@@ -596,16 +596,16 @@ set_clip_region_beneath (MetaWindowActorX11 *actor_x11,
   appears_focused = meta_window_appears_focused (window);
   if (appears_focused ? actor_x11->focused_shadow : actor_x11->unfocused_shadow)
     {
-      g_clear_pointer (&actor_x11->shadow_clip, cairo_region_destroy);
+      g_clear_pointer (&actor_x11->shadow_clip, mtk_region_unref);
 
       if (beneath_region)
         {
-          actor_x11->shadow_clip = cairo_region_copy (beneath_region);
+          actor_x11->shadow_clip = mtk_region_copy (beneath_region);
 
           if (clip_shadow_under_window (actor_x11))
             {
               if (actor_x11->frame_bounds)
-                cairo_region_subtract (actor_x11->shadow_clip, actor_x11->frame_bounds);
+                mtk_region_subtract (actor_x11->shadow_clip, actor_x11->frame_bounds);
             }
         }
       else
@@ -699,12 +699,12 @@ meta_window_actor_x11_process_damage (MetaWindowActorX11 *actor_x11,
   meta_window_actor_notify_damaged (META_WINDOW_ACTOR (actor_x11));
 }
 
-static cairo_region_t *
-scan_visible_region (guchar         *mask_data,
-                     int             stride,
-                     cairo_region_t *scan_area)
+static MtkRegion *
+scan_visible_region (guchar    *mask_data,
+                     int        stride,
+                     MtkRegion *scan_area)
 {
-  int i, n_rects = cairo_region_num_rectangles (scan_area);
+  int i, n_rects = mtk_region_num_rectangles (scan_area);
   MetaRegionBuilder builder;
 
   meta_region_builder_init (&builder);
@@ -714,7 +714,7 @@ scan_visible_region (guchar         *mask_data,
       int x, y;
       MtkRectangle rect;
 
-      cairo_region_get_rectangle (scan_area, i, &rect);
+      rect = mtk_region_get_rectangle (scan_area, i);
 
       for (y = rect.y; y < (rect.y + rect.height); y++)
         {
@@ -772,8 +772,8 @@ get_client_area_rect (MetaWindowActorX11 *actor_x11,
 }
 
 static void
-build_and_scan_frame_mask (MetaWindowActorX11    *actor_x11,
-                           cairo_region_t        *shape_region)
+build_and_scan_frame_mask (MetaWindowActorX11 *actor_x11,
+                           MtkRegion          *shape_region)
 {
   ClutterBackend *backend = clutter_get_default_backend ();
   MetaWindow *window =
@@ -815,7 +815,8 @@ build_and_scan_frame_mask (MetaWindowActorX11    *actor_x11,
 
   if (window->frame)
     {
-      cairo_region_t *frame_paint_region, *scanned_region;
+      g_autoptr (MtkRegion) frame_paint_region = NULL;
+      g_autoptr (MtkRegion) scanned_region = NULL;
       MtkRectangle rect = { 0, 0, tex_width, tex_height };
       MtkRectangle client_area;
       MtkRectangle frame_rect;
@@ -838,8 +839,8 @@ build_and_scan_frame_mask (MetaWindowActorX11    *actor_x11,
         }
 
       /* Make sure we don't paint the frame over the client window. */
-      frame_paint_region = cairo_region_create_rectangle (&rect);
-      cairo_region_subtract_rectangle (frame_paint_region, &client_area);
+      frame_paint_region = mtk_region_create_rectangle (&rect);
+      mtk_region_subtract_rectangle (frame_paint_region, &client_area);
 
       meta_region_to_cairo_path (frame_paint_region, cr);
       cairo_clip (cr);
@@ -848,9 +849,7 @@ build_and_scan_frame_mask (MetaWindowActorX11    *actor_x11,
 
       cairo_surface_flush (image);
       scanned_region = scan_visible_region (mask_data, stride, frame_paint_region);
-      cairo_region_union (shape_region, scanned_region);
-      cairo_region_destroy (scanned_region);
-      cairo_region_destroy (frame_paint_region);
+      mtk_region_union (shape_region, scanned_region);
     }
 
   cairo_destroy (cr);
@@ -897,32 +896,32 @@ update_shape_region (MetaWindowActorX11 *actor_x11)
 {
   MetaWindow *window =
     meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
-  cairo_region_t *region = NULL;
+  MtkRegion *region = NULL;
   MtkRectangle client_area;
 
   get_client_area_rect (actor_x11, &client_area);
 
   if (window->frame && window->shape_region)
     {
-      region = cairo_region_copy (window->shape_region);
-      cairo_region_translate (region, client_area.x, client_area.y);
+      region = mtk_region_copy (window->shape_region);
+      mtk_region_translate (region, client_area.x, client_area.y);
     }
   else if (window->shape_region != NULL)
     {
-      region = cairo_region_reference (window->shape_region);
+      region = mtk_region_ref (window->shape_region);
     }
   else
     {
       /* If we don't have a shape on the server, that means that
        * we have an implicit shape of one rectangle covering the
        * entire window. */
-      region = cairo_region_create_rectangle (&client_area);
+      region = mtk_region_create_rectangle (&client_area);
     }
 
   if (window->shape_region || window->frame)
     build_and_scan_frame_mask (actor_x11, region);
 
-  g_clear_pointer (&actor_x11->shape_region, cairo_region_destroy);
+  g_clear_pointer (&actor_x11->shape_region, mtk_region_unref);
   actor_x11->shape_region = region;
 
   g_clear_pointer (&actor_x11->shadow_shape, meta_window_shape_unref);
@@ -937,24 +936,23 @@ update_input_region (MetaWindowActorX11 *actor_x11)
     meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
   MetaSurfaceActor *surface =
     meta_window_actor_get_surface (META_WINDOW_ACTOR (actor_x11));
-  cairo_region_t *region;
+  g_autoptr (MtkRegion) region = NULL;
 
   if (window->shape_region && window->input_region)
     {
       MtkRectangle client_area;
-      cairo_region_t *frames_input;
-      cairo_region_t *client_input;
+      g_autoptr (MtkRegion) frames_input = NULL;
+      g_autoptr (MtkRegion) client_input = NULL;
 
       get_client_area_rect (actor_x11, &client_area);
 
-      frames_input = cairo_region_copy (window->input_region);
-      cairo_region_subtract_rectangle (frames_input, &client_area);
+      frames_input = mtk_region_copy (window->input_region);
+      mtk_region_subtract_rectangle (frames_input, &client_area);
 
-      client_input = cairo_region_copy (actor_x11->shape_region);
-      cairo_region_intersect (client_input, window->input_region);
+      client_input = mtk_region_copy (actor_x11->shape_region);
+      mtk_region_intersect (client_input, window->input_region);
 
-      cairo_region_union (frames_input, client_input);
-      cairo_region_destroy (client_input);
+      mtk_region_union (frames_input, client_input);
 
       region = g_steal_pointer (&frames_input);
     }
@@ -964,20 +962,15 @@ update_input_region (MetaWindowActorX11 *actor_x11)
 
       meta_window_get_client_area_rect (window, &client_area);
 
-      region = cairo_region_copy (window->shape_region);
-      cairo_region_translate (region, client_area.x, client_area.y);
+      region = mtk_region_copy (window->shape_region);
+      mtk_region_translate (region, client_area.x, client_area.y);
     }
   else if (window->input_region)
-    {
-      region = cairo_region_reference (window->input_region);
-    }
+    region = mtk_region_ref (window->input_region);
   else
-    {
-      region = NULL;
-    }
+    region = NULL;
 
   meta_surface_actor_set_input_region (surface, region);
-  cairo_region_destroy (region);
 }
 
 static gboolean
@@ -1007,7 +1000,7 @@ update_opaque_region (MetaWindowActorX11 *actor_x11)
   MetaWindow *window =
     meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
   gboolean is_maybe_transparent;
-  cairo_region_t *opaque_region = NULL;
+  g_autoptr (MtkRegion) opaque_region = NULL;
   MetaSurfaceActor *surface;
 
   is_maybe_transparent = is_actor_maybe_transparent (actor_x11);
@@ -1018,16 +1011,16 @@ update_opaque_region (MetaWindowActorX11 *actor_x11)
       MtkRectangle client_area;
 
       if (window->frame && window->frame->opaque_region)
-        opaque_region = cairo_region_copy (window->frame->opaque_region);
+        opaque_region = mtk_region_copy (window->frame->opaque_region);
 
       get_client_area_rect (actor_x11, &client_area);
 
       if (opaque_region && meta_window_x11_has_alpha_channel (window))
-        cairo_region_subtract_rectangle (opaque_region, &client_area);
+        mtk_region_subtract_rectangle (opaque_region, &client_area);
 
       if (window->opaque_region)
         {
-          cairo_region_t *client_opaque_region;
+          g_autoptr (MtkRegion) client_opaque_region = NULL;
 
           /* The opaque region is defined to be a part of the
            * window which ARGB32 will always paint with opaque
@@ -1039,28 +1032,25 @@ update_opaque_region (MetaWindowActorX11 *actor_x11)
            * to be undefined, and considered a client bug. In mutter's
            * case, graphical glitches will occur.
            */
-          client_opaque_region = cairo_region_copy (window->opaque_region);
-          cairo_region_translate (client_opaque_region,
-                                  client_area.x, client_area.y);
+          client_opaque_region = mtk_region_copy (window->opaque_region);
+          mtk_region_translate (client_opaque_region,
+                                client_area.x, client_area.y);
 
           if (opaque_region)
-            cairo_region_union (opaque_region, client_opaque_region);
+            mtk_region_union (opaque_region, client_opaque_region);
           else
-            opaque_region = cairo_region_reference (client_opaque_region);
-
-          cairo_region_destroy (client_opaque_region);
+            opaque_region = mtk_region_ref (client_opaque_region);
         }
 
-      cairo_region_intersect (opaque_region, actor_x11->shape_region);
+      mtk_region_intersect (opaque_region, actor_x11->shape_region);
     }
   else if (!is_maybe_transparent)
     {
-      opaque_region = cairo_region_reference (actor_x11->shape_region);
+      opaque_region = mtk_region_ref (actor_x11->shape_region);
     }
 
   surface = meta_window_actor_get_surface (META_WINDOW_ACTOR (actor_x11));
   meta_surface_actor_set_opaque_region (surface, opaque_region);
-  cairo_region_destroy (opaque_region);
 }
 
 static void
@@ -1068,11 +1058,11 @@ update_frame_bounds (MetaWindowActorX11 *actor_x11)
 {
   MetaWindow *window =
     meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
-  cairo_region_t *frame_bounds = meta_window_get_frame_bounds (window);
-  g_clear_pointer (&actor_x11->frame_bounds, cairo_region_destroy);
+  MtkRegion *frame_bounds = meta_window_get_frame_bounds (window);
+  g_clear_pointer (&actor_x11->frame_bounds, mtk_region_unref);
 
   if (frame_bounds)
-    actor_x11->frame_bounds = cairo_region_copy (frame_bounds);
+    actor_x11->frame_bounds = mtk_region_copy (frame_bounds);
 }
 
 static void
@@ -1214,7 +1204,7 @@ meta_window_actor_x11_paint (ClutterActor        *actor,
     {
       MetaShadowParams params;
       MtkRectangle shape_bounds;
-      cairo_region_t *clip = actor_x11->shadow_clip;
+      MtkRegion *clip = actor_x11->shadow_clip;
       CoglFramebuffer *framebuffer;
 
       get_shape_bounds (actor_x11, &shape_bounds);
@@ -1228,10 +1218,10 @@ meta_window_actor_x11_paint (ClutterActor        *actor,
           MtkRectangle bounds;
 
           get_shadow_bounds (actor_x11, appears_focused, &bounds);
-          clip = cairo_region_create_rectangle (&bounds);
+          clip = mtk_region_create_rectangle (&bounds);
 
           if (actor_x11->frame_bounds)
-            cairo_region_subtract (clip, actor_x11->frame_bounds);
+            mtk_region_subtract (clip, actor_x11->frame_bounds);
         }
 
       framebuffer = clutter_paint_context_get_framebuffer (paint_context);
@@ -1247,7 +1237,7 @@ meta_window_actor_x11_paint (ClutterActor        *actor,
                          clip_shadow_under_window (actor_x11));
 
       if (clip && clip != actor_x11->shadow_clip)
-        cairo_region_destroy (clip);
+        mtk_region_unref (clip);
     }
 
   CLUTTER_ACTOR_CLASS (meta_window_actor_x11_parent_class)->paint (actor,
@@ -1487,7 +1477,7 @@ meta_window_actor_x11_constructed (GObject *object)
    * Start off with an empty shape region to maintain the invariant that it's
    * always set.
    */
-  actor_x11->shape_region = cairo_region_create ();
+  actor_x11->shape_region = mtk_region_create ();
 
   G_OBJECT_CLASS (meta_window_actor_x11_parent_class)->constructed (object);
 
@@ -1503,15 +1493,15 @@ meta_window_actor_x11_constructed (GObject *object)
 }
 
 static void
-meta_window_actor_x11_cull_unobscured (MetaCullable   *cullable,
-                                       cairo_region_t *unobscured_region)
+meta_window_actor_x11_cull_unobscured (MetaCullable *cullable,
+                                       MtkRegion    *unobscured_region)
 {
   meta_cullable_cull_unobscured_children (cullable, unobscured_region);
 }
 
 static void
-meta_window_actor_x11_cull_redraw_clip (MetaCullable   *cullable,
-                                        cairo_region_t *clip_region)
+meta_window_actor_x11_cull_redraw_clip (MetaCullable *cullable,
+                                        MtkRegion    *clip_region)
 {
   MetaWindowActorX11 *self = META_WINDOW_ACTOR_X11 (cullable);
 
@@ -1549,9 +1539,9 @@ meta_window_actor_x11_dispose (GObject *object)
                                   CLUTTER_ACTOR (surface_actor));
     }
 
-  g_clear_pointer (&actor_x11->shape_region, cairo_region_destroy);
-  g_clear_pointer (&actor_x11->shadow_clip, cairo_region_destroy);
-  g_clear_pointer (&actor_x11->frame_bounds, cairo_region_destroy);
+  g_clear_pointer (&actor_x11->shape_region, mtk_region_unref);
+  g_clear_pointer (&actor_x11->shadow_clip, mtk_region_unref);
+  g_clear_pointer (&actor_x11->frame_bounds, mtk_region_unref);
 
   g_clear_pointer (&actor_x11->shadow_class, g_free);
   g_clear_pointer (&actor_x11->focused_shadow, meta_shadow_unref);

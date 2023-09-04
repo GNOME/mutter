@@ -263,8 +263,8 @@ meta_wayland_surface_assign_role (MetaWaylandSurface *surface,
 
 static void
 surface_process_damage (MetaWaylandSurface *surface,
-                        cairo_region_t     *surface_region,
-                        cairo_region_t     *buffer_region)
+                        MtkRegion          *surface_region,
+                        MtkRegion          *buffer_region)
 {
   MetaWaylandBuffer *buffer = meta_wayland_surface_get_buffer (surface);
   MtkRectangle buffer_rect;
@@ -282,12 +282,12 @@ surface_process_damage (MetaWaylandSurface *surface,
     .height = meta_wayland_surface_get_buffer_height (surface),
   };
 
-  if (!cairo_region_is_empty (surface_region))
+  if (!mtk_region_is_empty (surface_region))
     {
       MtkRectangle surface_rect;
-      cairo_region_t *scaled_region;
-      cairo_region_t *transformed_region;
-      cairo_region_t *viewport_region;
+      g_autoptr (MtkRegion) scaled_region = NULL;
+      g_autoptr (MtkRegion) transformed_region = NULL;
+      g_autoptr (MtkRegion) viewport_region = NULL;
       graphene_rect_t src_rect;
 
       /* Intersect the damage region with the surface region before scaling in
@@ -297,7 +297,7 @@ surface_process_damage (MetaWaylandSurface *surface,
         .width = meta_wayland_surface_get_width (surface),
         .height = meta_wayland_surface_get_height (surface),
       };
-      cairo_region_intersect_rectangle (surface_region, &surface_rect);
+      mtk_region_intersect_rectangle (surface_region, &surface_rect);
 
       /* The damage region must be in the same coordinate space as the buffer,
        * i.e. scaled with surface->scale. */
@@ -343,14 +343,10 @@ surface_process_damage (MetaWaylandSurface *surface,
       /* Now add the scaled, cropped and transformed damage region to the
        * buffer damage. Buffer damage is already in the correct coordinate
        * space. */
-      cairo_region_union (buffer_region, transformed_region);
-
-      cairo_region_destroy (viewport_region);
-      cairo_region_destroy (scaled_region);
-      cairo_region_destroy (transformed_region);
+      mtk_region_union (buffer_region, transformed_region);
     }
 
-  cairo_region_intersect_rectangle (buffer_region, &buffer_rect);
+  mtk_region_intersect_rectangle (buffer_region, &buffer_rect);
 
   meta_wayland_buffer_process_damage (buffer, surface->output_state.texture,
                                       buffer_region);
@@ -360,11 +356,11 @@ surface_process_damage (MetaWaylandSurface *surface,
     {
       int i, n_rectangles;
 
-      n_rectangles = cairo_region_num_rectangles (buffer_region);
+      n_rectangles = mtk_region_num_rectangles (buffer_region);
       for (i = 0; i < n_rectangles; i++)
         {
           MtkRectangle rect;
-          cairo_region_get_rectangle (buffer_region, i, &rect);
+          rect = mtk_region_get_rectangle (buffer_region, i);
 
           meta_surface_actor_process_damage (actor,
                                              rect.x, rect.y,
@@ -403,8 +399,8 @@ meta_wayland_surface_state_set_default (MetaWaylandSurfaceState *state)
   state->opaque_region = NULL;
   state->opaque_region_set = FALSE;
 
-  state->surface_damage = cairo_region_create ();
-  state->buffer_damage = cairo_region_create ();
+  state->surface_damage = mtk_region_create ();
+  state->buffer_damage = mtk_region_create ();
   wl_list_init (&state->frame_callback_list);
 
   state->has_new_geometry = FALSE;
@@ -442,10 +438,10 @@ meta_wayland_surface_state_clear (MetaWaylandSurfaceState *state)
 
   g_clear_object (&state->texture);
 
-  g_clear_pointer (&state->surface_damage, cairo_region_destroy);
-  g_clear_pointer (&state->buffer_damage, cairo_region_destroy);
-  g_clear_pointer (&state->input_region, cairo_region_destroy);
-  g_clear_pointer (&state->opaque_region, cairo_region_destroy);
+  g_clear_pointer (&state->surface_damage, mtk_region_unref);
+  g_clear_pointer (&state->buffer_damage, mtk_region_unref);
+  g_clear_pointer (&state->input_region, mtk_region_unref);
+  g_clear_pointer (&state->opaque_region, mtk_region_unref);
   g_clear_pointer (&state->xdg_positioner, g_free);
 
   if (state->buffer_destroy_handler_id)
@@ -500,15 +496,15 @@ meta_wayland_surface_state_merge_into (MetaWaylandSurfaceState *from,
   wl_list_insert_list (&to->frame_callback_list, &from->frame_callback_list);
   wl_list_init (&from->frame_callback_list);
 
-  cairo_region_union (to->surface_damage, from->surface_damage);
-  cairo_region_union (to->buffer_damage, from->buffer_damage);
+  mtk_region_union (to->surface_damage, from->surface_damage);
+  mtk_region_union (to->buffer_damage, from->buffer_damage);
 
   if (from->input_region_set)
     {
       if (to->input_region)
-        cairo_region_union (to->input_region, from->input_region);
+        mtk_region_union (to->input_region, from->input_region);
       else
-        to->input_region = cairo_region_reference (from->input_region);
+        to->input_region = mtk_region_ref (from->input_region);
 
       to->input_region_set = TRUE;
     }
@@ -516,9 +512,9 @@ meta_wayland_surface_state_merge_into (MetaWaylandSurfaceState *from,
   if (from->opaque_region_set)
     {
       if (to->opaque_region)
-        cairo_region_union (to->opaque_region, from->opaque_region);
+        mtk_region_union (to->opaque_region, from->opaque_region);
       else
-        to->opaque_region = cairo_region_reference (from->opaque_region);
+        to->opaque_region = mtk_region_ref (from->opaque_region);
 
       to->opaque_region_set = TRUE;
     }
@@ -800,8 +796,8 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
     meta_wayland_surface_get_width (surface) != old_width ||
     meta_wayland_surface_get_height (surface) != old_height;
 
-  if (!cairo_region_is_empty (state->surface_damage) ||
-      !cairo_region_is_empty (state->buffer_damage))
+  if (!mtk_region_is_empty (state->surface_damage) ||
+      !mtk_region_is_empty (state->buffer_damage))
     {
       surface_process_damage (surface,
                               state->surface_damage,
@@ -814,22 +810,16 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
 
   if (state->opaque_region_set)
     {
-      if (surface->opaque_region)
-        cairo_region_destroy (surface->opaque_region);
+      g_clear_pointer (&surface->opaque_region, mtk_region_unref); 
       if (state->opaque_region)
-        surface->opaque_region = cairo_region_reference (state->opaque_region);
-      else
-        surface->opaque_region = NULL;
+        surface->opaque_region = mtk_region_ref (state->opaque_region);
     }
 
   if (state->input_region_set)
     {
-      if (surface->input_region)
-        cairo_region_destroy (surface->input_region);
+      g_clear_pointer (&surface->input_region, mtk_region_unref); 
       if (state->input_region)
-        surface->input_region = cairo_region_reference (state->input_region);
-      else
-        surface->input_region = NULL;
+        surface->input_region = mtk_region_ref (state->input_region);
     }
 
   /*
@@ -1072,7 +1062,7 @@ wl_surface_damage (struct wl_client   *client,
     .width = width,
     .height = height
   };
-  cairo_region_union_rectangle (pending->surface_damage, &rectangle);
+  mtk_region_union_rectangle (pending->surface_damage, &rectangle);
 }
 
 static void
@@ -1114,12 +1104,12 @@ wl_surface_set_opaque_region (struct wl_client   *client,
   MetaWaylandSurface *surface = wl_resource_get_user_data (surface_resource);
   MetaWaylandSurfaceState *pending = surface->pending_state;
 
-  g_clear_pointer (&pending->opaque_region, cairo_region_destroy);
+  g_clear_pointer (&pending->opaque_region, mtk_region_unref);
   if (region_resource)
     {
       MetaWaylandRegion *region = wl_resource_get_user_data (region_resource);
-      cairo_region_t *cr_region = meta_wayland_region_peek_cairo_region (region);
-      pending->opaque_region = cairo_region_copy (cr_region);
+      MtkRegion *cr_region = meta_wayland_region_peek_cairo_region (region);
+      pending->opaque_region = mtk_region_copy (cr_region);
     }
   pending->opaque_region_set = TRUE;
 }
@@ -1132,12 +1122,12 @@ wl_surface_set_input_region (struct wl_client   *client,
   MetaWaylandSurface *surface = wl_resource_get_user_data (surface_resource);
   MetaWaylandSurfaceState *pending = surface->pending_state;
 
-  g_clear_pointer (&pending->input_region, cairo_region_destroy);
+  g_clear_pointer (&pending->input_region, mtk_region_unref);
   if (region_resource)
     {
       MetaWaylandRegion *region = wl_resource_get_user_data (region_resource);
-      cairo_region_t *cr_region = meta_wayland_region_peek_cairo_region (region);
-      pending->input_region = cairo_region_copy (cr_region);
+      MtkRegion *cr_region = meta_wayland_region_peek_cairo_region (region);
+      pending->input_region = mtk_region_copy (cr_region);
     }
   pending->input_region_set = TRUE;
 }
@@ -1241,7 +1231,7 @@ wl_surface_damage_buffer (struct wl_client   *client,
     .width = width,
     .height = height
   };
-  cairo_region_union_rectangle (pending->buffer_damage, &rectangle);
+  mtk_region_union_rectangle (pending->buffer_damage, &rectangle);
 }
 
 static void
@@ -1469,10 +1459,8 @@ meta_wayland_surface_finalize (GObject *object)
   g_clear_object (&surface->output_state.texture);
   g_clear_object (&surface->buffer);
 
-  if (surface->opaque_region)
-    cairo_region_destroy (surface->opaque_region);
-  if (surface->input_region)
-    cairo_region_destroy (surface->input_region);
+  g_clear_pointer (&surface->opaque_region, mtk_region_unref);
+  g_clear_pointer (&surface->input_region, mtk_region_unref);
 
   meta_wayland_compositor_remove_frame_callback_surface (compositor, surface);
   meta_wayland_compositor_remove_presentation_feedback_surface (compositor,
@@ -2076,10 +2064,10 @@ meta_wayland_surface_role_get_surface (MetaWaylandSurfaceRole *role)
   return priv->surface;
 }
 
-cairo_region_t *
+MtkRegion *
 meta_wayland_surface_calculate_input_region (MetaWaylandSurface *surface)
 {
-  cairo_region_t *region;
+  MtkRegion *region;
   MtkRectangle buffer_rect;
 
   if (!surface->buffer)
@@ -2089,10 +2077,10 @@ meta_wayland_surface_calculate_input_region (MetaWaylandSurface *surface)
     .width = meta_wayland_surface_get_width (surface),
     .height = meta_wayland_surface_get_height (surface),
   };
-  region = cairo_region_create_rectangle (&buffer_rect);
+  region = mtk_region_create_rectangle (&buffer_rect);
 
   if (surface->input_region)
-    cairo_region_intersect (region, surface->input_region);
+    mtk_region_intersect (region, surface->input_region);
 
   return region;
 }

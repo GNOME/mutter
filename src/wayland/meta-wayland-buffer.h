@@ -22,7 +22,6 @@
 
 #pragma once
 
-#include <cairo.h>
 #include <wayland-server.h>
 
 #include "cogl/cogl.h"
@@ -100,7 +99,7 @@ void                    meta_wayland_buffer_dec_use_count       (MetaWaylandBuff
 gboolean                meta_wayland_buffer_is_y_inverted       (MetaWaylandBuffer     *buffer);
 void                    meta_wayland_buffer_process_damage      (MetaWaylandBuffer     *buffer,
                                                                  MetaMultiTexture      *texture,
-                                                                 cairo_region_t        *region);
+                                                                 MtkRegion             *region);
 CoglScanout *           meta_wayland_buffer_try_acquire_scanout (MetaWaylandBuffer     *buffer,
                                                                  CoglOnscreen          *onscreen);
 

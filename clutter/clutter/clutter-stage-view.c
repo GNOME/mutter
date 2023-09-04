@@ -84,9 +84,9 @@ typedef struct _ClutterStageViewPrivate
   CoglScanout *next_scanout;
 
   gboolean has_redraw_clip;
-  cairo_region_t *redraw_clip;
+  MtkRegion *redraw_clip;
   gboolean has_accumulated_redraw_clip;
-  cairo_region_t *accumulated_redraw_clip;
+  MtkRegion *accumulated_redraw_clip;
 
   float refresh_rate;
   int64_t vblank_duration_us;
@@ -228,11 +228,11 @@ clutter_stage_view_transform_rect_to_onscreen (ClutterStageView   *view,
 }
 
 static void
-paint_transformed_framebuffer (ClutterStageView     *view,
-                               CoglPipeline         *pipeline,
-                               CoglOffscreen        *src_framebuffer,
-                               CoglFramebuffer      *dst_framebuffer,
-                               const cairo_region_t *redraw_clip)
+paint_transformed_framebuffer (ClutterStageView *view,
+                               CoglPipeline     *pipeline,
+                               CoglOffscreen    *src_framebuffer,
+                               CoglFramebuffer  *dst_framebuffer,
+                               const MtkRegion  *redraw_clip)
 {
   graphene_matrix_t matrix;
   unsigned int n_rectangles, i;
@@ -246,10 +246,8 @@ paint_transformed_framebuffer (ClutterStageView     *view,
   dst_height = cogl_framebuffer_get_height (dst_framebuffer);
   clutter_stage_view_get_layout (view, &view_layout);
   clutter_stage_view_transform_rect_to_onscreen (view,
-                                                 &(MtkRectangle) {
-                                                   .width = view_layout.width,
-                                                   .height = view_layout.height,
-                                                 },
+                                                 &MTK_RECTANGLE_INIT (0, 0,
+                                                                      view_layout.width, view_layout.height),
                                                  view_layout.width,
                                                  view_layout.height,
                                                  &onscreen_layout);
@@ -269,7 +267,7 @@ paint_transformed_framebuffer (ClutterStageView     *view,
   cogl_framebuffer_set_viewport (dst_framebuffer,
                                  0, 0, dst_width, dst_height);
 
-  n_rectangles = cairo_region_num_rectangles (redraw_clip);
+  n_rectangles = mtk_region_num_rectangles (redraw_clip);
   coordinates = g_newa (float, 2 * 4 * n_rectangles);
 
   for (i = 0; i < n_rectangles; i++)
@@ -277,7 +275,7 @@ paint_transformed_framebuffer (ClutterStageView     *view,
       MtkRectangle src_rect;
       MtkRectangle dst_rect;
 
-      cairo_region_get_rectangle (redraw_clip, i, &src_rect);
+      src_rect = mtk_region_get_rectangle (redraw_clip, i);
       src_rect.x -= view_layout.x;
       src_rect.y -= view_layout.y;
 
@@ -463,7 +461,7 @@ init_shadowfb (ClutterStageView *view)
 
 void
 clutter_stage_view_after_paint (ClutterStageView *view,
-                                cairo_region_t   *redraw_clip)
+                                MtkRegion        *redraw_clip)
 {
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
@@ -520,14 +518,14 @@ flip_dma_buf_idx (int idx)
   return (idx + 1) % 2;
 }
 
-static cairo_region_t *
-find_damaged_tiles (ClutterStageView      *view,
-                    const cairo_region_t  *damage_region,
-                    GError               **error)
+static MtkRegion *
+find_damaged_tiles (ClutterStageView  *view,
+                    const MtkRegion   *damage_region,
+                    GError           **error)
 {
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
-  cairo_region_t *tile_damage_region;
+  MtkRegion *tile_damage_region;
   MtkRectangle damage_extents;
   MtkRectangle fb_rect;
   int prev_dma_buf_idx;
@@ -573,7 +571,7 @@ find_damaged_tiles (ClutterStageView      *view,
     .height = height,
   };
 
-  cairo_region_get_extents (damage_region, &damage_extents);
+  damage_extents = mtk_region_get_extents (damage_region);
 
   tile_x_min = damage_extents.x / tile_size;
   tile_x_max = ((damage_extents.x + damage_extents.width + tile_size - 1) /
@@ -582,7 +580,7 @@ find_damaged_tiles (ClutterStageView      *view,
   tile_y_max = ((damage_extents.y + damage_extents.height + tile_size - 1) /
                 tile_size);
 
-  tile_damage_region = cairo_region_create ();
+  tile_damage_region = mtk_region_create ();
 
   for (tile_y = tile_y_min; tile_y <= tile_y_max; tile_y++)
     {
@@ -595,14 +593,14 @@ find_damaged_tiles (ClutterStageView      *view,
             .height = tile_size,
           };
 
-          if (cairo_region_contains_rectangle (damage_region, &tile) ==
-              CAIRO_REGION_OVERLAP_OUT)
+          if (mtk_region_contains_rectangle (damage_region, &tile) ==
+              MTK_REGION_OVERLAP_OUT)
             continue;
 
           mtk_rectangle_intersect (&tile, &fb_rect, &tile);
 
           if (is_tile_dirty (&tile, current_data, prev_data, bpp, stride))
-            cairo_region_union_rectangle (tile_damage_region, &tile);
+            mtk_region_union_rectangle (tile_damage_region, &tile);
         }
     }
 
@@ -623,7 +621,7 @@ find_damaged_tiles (ClutterStageView      *view,
   cogl_dma_buf_handle_munmap (prev_dma_buf_handle, prev_data, NULL);
   cogl_dma_buf_handle_munmap (current_dma_buf_handle, current_data, NULL);
 
-  cairo_region_intersect (tile_damage_region, damage_region);
+  mtk_region_intersect (tile_damage_region, damage_region);
 
   return tile_damage_region;
 
@@ -660,33 +658,33 @@ swap_dma_buf_framebuffer (ClutterStageView *view)
 }
 
 static void
-copy_shadowfb_to_onscreen (ClutterStageView     *view,
-                           const cairo_region_t *swap_region)
+copy_shadowfb_to_onscreen (ClutterStageView *view,
+                           const MtkRegion  *swap_region)
 {
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
   ClutterDamageHistory *damage_history = priv->shadow.dma_buf.damage_history;
-  cairo_region_t *damage_region;
+  g_autoptr (MtkRegion) damage_region = NULL;
   int age;
   int i;
 
-  if (cairo_region_is_empty (swap_region))
+  if (mtk_region_is_empty (swap_region))
     {
       MtkRectangle full_damage = {
         .width = cogl_framebuffer_get_width (priv->framebuffer),
         .height = cogl_framebuffer_get_height (priv->framebuffer),
       };
-      damage_region = cairo_region_create_rectangle (&full_damage);
+      damage_region = mtk_region_create_rectangle (&full_damage);
     }
   else
     {
-      damage_region = cairo_region_copy (swap_region);
+      damage_region = mtk_region_copy (swap_region);
     }
 
   if (is_shadowfb_double_buffered (view))
     {
       CoglOnscreen *onscreen = COGL_ONSCREEN (priv->framebuffer);
-      cairo_region_t *changed_region;
+      g_autoptr (MtkRegion) changed_region = NULL;
 
       if (cogl_onscreen_get_frame_counter (onscreen) >= 1)
         {
@@ -708,7 +706,7 @@ copy_shadowfb_to_onscreen (ClutterStageView     *view,
         }
       else
         {
-          changed_region = cairo_region_copy (damage_region);
+          changed_region = mtk_region_copy (damage_region);
         }
 
       if (changed_region)
@@ -722,31 +720,27 @@ copy_shadowfb_to_onscreen (ClutterStageView     *view,
             {
               for (age = 1; age <= buffer_age; age++)
                 {
-                  const cairo_region_t *old_damage;
+                  const MtkRegion *old_damage;
 
                   old_damage = clutter_damage_history_lookup (damage_history, age);
-                  cairo_region_union (changed_region, old_damage);
+                  mtk_region_union (changed_region, old_damage);
                 }
 
-              cairo_region_destroy (damage_region);
+              g_clear_pointer (&damage_region, mtk_region_unref);
               damage_region = g_steal_pointer (&changed_region);
-            }
-          else
-            {
-              cairo_region_destroy (changed_region);
             }
 
           clutter_damage_history_step (damage_history);
         }
     }
 
-  for (i = 0; i < cairo_region_num_rectangles (damage_region); i++)
+  for (i = 0; i < mtk_region_num_rectangles (damage_region); i++)
     {
       CoglFramebuffer *shadowfb = COGL_FRAMEBUFFER (priv->shadow.framebuffer);
       g_autoptr (GError) error = NULL;
       MtkRectangle rect;
 
-      cairo_region_get_rectangle (damage_region, i, &rect);
+      rect = mtk_region_get_rectangle (damage_region, i);
 
       if (!cogl_blit_framebuffer (shadowfb,
                                   priv->framebuffer,
@@ -756,20 +750,17 @@ copy_shadowfb_to_onscreen (ClutterStageView     *view,
                                   &error))
         {
           g_warning ("Failed to blit shadow buffer: %s", error->message);
-          cairo_region_destroy (damage_region);
           return;
         }
     }
-
-  cairo_region_destroy (damage_region);
 
   if (is_shadowfb_double_buffered (view))
     swap_dma_buf_framebuffer (view);
 }
 
 void
-clutter_stage_view_before_swap_buffer (ClutterStageView     *view,
-                                       const cairo_region_t *swap_region)
+clutter_stage_view_before_swap_buffer (ClutterStageView *view,
+                                       const MtkRegion  *swap_region)
 {
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
@@ -930,18 +921,18 @@ clutter_stage_view_get_offscreen_transformation_matrix (ClutterStageView  *view,
 
 static void
 maybe_mark_full_redraw (ClutterStageView  *view,
-                        cairo_region_t   **region)
+                        MtkRegion        **region)
 {
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
 
-  if (cairo_region_num_rectangles (*region) == 1)
+  if (mtk_region_num_rectangles (*region) == 1)
     {
       MtkRectangle region_extents;
 
-      cairo_region_get_extents (*region, &region_extents);
+      region_extents = mtk_region_get_extents (*region);
       if (mtk_rectangle_equal (&priv->layout, &region_extents))
-        g_clear_pointer (region, cairo_region_destroy);
+        g_clear_pointer (region, mtk_region_unref);
     }
 }
 
@@ -957,7 +948,7 @@ clutter_stage_view_add_redraw_clip (ClutterStageView   *view,
 
   if (!clip)
     {
-      g_clear_pointer (&priv->redraw_clip, cairo_region_destroy);
+      g_clear_pointer (&priv->redraw_clip, mtk_region_unref);
       priv->has_redraw_clip = TRUE;
       return;
     }
@@ -968,11 +959,11 @@ clutter_stage_view_add_redraw_clip (ClutterStageView   *view,
   if (!priv->redraw_clip)
     {
       if (!mtk_rectangle_equal (&priv->layout, clip))
-        priv->redraw_clip = cairo_region_create_rectangle (clip);
+        priv->redraw_clip = mtk_region_create_rectangle (clip);
     }
   else
     {
-      cairo_region_union_rectangle (priv->redraw_clip, clip);
+      mtk_region_union_rectangle (priv->redraw_clip, clip);
       maybe_mark_full_redraw (view, &priv->redraw_clip);
     }
 
@@ -997,7 +988,7 @@ clutter_stage_view_has_full_redraw_clip (ClutterStageView *view)
   return priv->has_redraw_clip && !priv->redraw_clip;
 }
 
-const cairo_region_t *
+const MtkRegion *
 clutter_stage_view_peek_redraw_clip (ClutterStageView *view)
 {
   ClutterStageViewPrivate *priv =
@@ -1006,7 +997,7 @@ clutter_stage_view_peek_redraw_clip (ClutterStageView *view)
   return priv->redraw_clip;
 }
 
-cairo_region_t *
+MtkRegion *
 clutter_stage_view_take_redraw_clip (ClutterStageView *view)
 {
   ClutterStageViewPrivate *priv =
@@ -1017,7 +1008,7 @@ clutter_stage_view_take_redraw_clip (ClutterStageView *view)
   return g_steal_pointer (&priv->redraw_clip);
 }
 
-cairo_region_t *
+MtkRegion *
 clutter_stage_view_take_accumulated_redraw_clip (ClutterStageView *view)
 {
   ClutterStageViewPrivate *priv =
@@ -1041,7 +1032,7 @@ clutter_stage_view_accumulate_redraw_clip (ClutterStageView *view)
 
   if (priv->redraw_clip && priv->accumulated_redraw_clip)
     {
-      cairo_region_union (priv->accumulated_redraw_clip, priv->redraw_clip);
+      mtk_region_union (priv->accumulated_redraw_clip, priv->redraw_clip);
       maybe_mark_full_redraw (view, &priv->accumulated_redraw_clip);
     }
   else if (priv->redraw_clip && !priv->has_accumulated_redraw_clip)
@@ -1050,10 +1041,10 @@ clutter_stage_view_accumulate_redraw_clip (ClutterStageView *view)
     }
   else
     {
-      g_clear_pointer (&priv->accumulated_redraw_clip, cairo_region_destroy);
+      g_clear_pointer (&priv->accumulated_redraw_clip, mtk_region_unref);
     }
 
-  g_clear_pointer (&priv->redraw_clip, cairo_region_destroy);
+  g_clear_pointer (&priv->redraw_clip, mtk_region_unref);
   priv->has_accumulated_redraw_clip = TRUE;
   priv->has_redraw_clip = FALSE;
 }
@@ -1486,8 +1477,8 @@ clutter_stage_view_dispose (GObject *object)
 
   g_clear_object (&priv->offscreen);
   g_clear_object (&priv->offscreen_pipeline);
-  g_clear_pointer (&priv->redraw_clip, cairo_region_destroy);
-  g_clear_pointer (&priv->accumulated_redraw_clip, cairo_region_destroy);
+  g_clear_pointer (&priv->redraw_clip, mtk_region_unref);
+  g_clear_pointer (&priv->accumulated_redraw_clip, mtk_region_unref);
   g_clear_pointer (&priv->frame_clock, clutter_frame_clock_destroy);
 
   G_OBJECT_CLASS (clutter_stage_view_parent_class)->dispose (object);

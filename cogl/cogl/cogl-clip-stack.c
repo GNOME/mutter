@@ -272,8 +272,8 @@ _cogl_clip_stack_push_primitive (CoglClipStack *stack,
 }
 
 CoglClipStack *
-cogl_clip_stack_push_region (CoglClipStack   *stack,
-                             cairo_region_t  *region)
+cogl_clip_stack_push_region (CoglClipStack *stack,
+                             MtkRegion     *region)
 {
   CoglClipStack *entry;
   CoglClipStackRegion *entry_region;
@@ -284,13 +284,13 @@ cogl_clip_stack_push_region (CoglClipStack   *stack,
                                               COGL_CLIP_STACK_REGION);
   entry = (CoglClipStack *) entry_region;
 
-  cairo_region_get_extents (region, &bounds);
+  bounds = mtk_region_get_extents (region);
   entry->bounds_x0 = bounds.x;
   entry->bounds_x1 = bounds.x + bounds.width;
   entry->bounds_y0 = bounds.y;
   entry->bounds_y1 = bounds.y + bounds.height;
 
-  entry_region->region = cairo_region_reference (region);
+  entry_region->region = mtk_region_ref (region);
 
   return entry;
 }
@@ -336,7 +336,7 @@ _cogl_clip_stack_unref (CoglClipStack *entry)
         case COGL_CLIP_STACK_REGION:
           {
             CoglClipStackRegion *region = (CoglClipStackRegion *) entry;
-            cairo_region_destroy (region->region);
+            g_clear_pointer (&region->region, mtk_region_unref);
             g_free (entry);
             break;
           }

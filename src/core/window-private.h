@@ -246,17 +246,17 @@ struct _MetaWindow
   } fullscreen_monitors;
 
   /* if non-NULL, the bounds of the window frame */
-  cairo_region_t *frame_bounds;
+  MtkRegion *frame_bounds;
 
   /* if non-NULL, the bounding shape region of the window. Relative to
    * the server-side client window. */
-  cairo_region_t *shape_region;
+  MtkRegion *shape_region;
 
   /* if non-NULL, the opaque region _NET_WM_OPAQUE_REGION */
-  cairo_region_t *opaque_region;
+  MtkRegion *opaque_region;
 
   /* the input shape region for picking */
-  cairo_region_t *input_region;
+  MtkRegion *input_region;
 
   /* _NET_WM_WINDOW_OPACITY rescaled to 0xFF */
   guint8 opacity;

@@ -427,7 +427,7 @@ meta_backend_native_set_pointer_constraint (MetaBackend           *backend,
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
   MetaPointerConstraintImpl *constraint_impl = NULL;
-  cairo_region_t *region;
+  MtkRegion *region;
 
   if (constraint)
     {

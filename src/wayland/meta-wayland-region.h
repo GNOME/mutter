@@ -22,7 +22,6 @@
 
 #pragma once
 
-#include <cairo.h>
 #include <glib.h>
 #include <wayland-server.h>
 
@@ -33,4 +32,4 @@ MetaWaylandRegion * meta_wayland_region_create (MetaWaylandCompositor *composito
                                                 struct wl_resource    *compositor_resource,
                                                 guint32                id);
 
-cairo_region_t * meta_wayland_region_peek_cairo_region (MetaWaylandRegion *region);
+MtkRegion * meta_wayland_region_peek_cairo_region (MetaWaylandRegion *region);

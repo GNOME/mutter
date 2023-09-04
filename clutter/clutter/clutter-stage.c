@@ -38,7 +38,6 @@
 #include "clutter/clutter-build-config.h"
 
 #include <math.h>
-#include <cairo-gobject.h>
 
 #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
 
@@ -102,7 +101,7 @@ typedef struct _PointerDeviceEntry
   ClutterEventSequence *sequence;
   graphene_point_t coords;
   ClutterActor *current_actor;
-  cairo_region_t *clear_area;
+  MtkRegion *clear_area;
 
   unsigned int press_count;
   ClutterActor *implicit_grab_actor;
@@ -400,10 +399,10 @@ setup_clip_frustum (ClutterStage       *stage,
 }
 
 static void
-clutter_stage_do_paint_view (ClutterStage         *stage,
-                             ClutterStageView     *view,
-                             ClutterFrame         *frame,
-                             const cairo_region_t *redraw_clip)
+clutter_stage_do_paint_view (ClutterStage     *stage,
+                             ClutterStageView *view,
+                             ClutterFrame     *frame,
+                             const MtkRegion  *redraw_clip)
 {
   ClutterPaintContext *paint_context;
   MtkRectangle clip_rect;
@@ -415,7 +414,7 @@ clutter_stage_do_paint_view (ClutterStage         *stage,
   int n_rectangles;
   ClutterPaintFlag paint_flags;
 
-  n_rectangles = redraw_clip ? cairo_region_num_rectangles (redraw_clip) : 0;
+  n_rectangles = redraw_clip ? mtk_region_num_rectangles (redraw_clip) : 0;
   if (redraw_clip && n_rectangles < MAX_FRUSTA)
     {
       int i;
@@ -426,7 +425,7 @@ clutter_stage_do_paint_view (ClutterStage         *stage,
 
       for (i = 0; i < n_rectangles; i++)
         {
-          cairo_region_get_rectangle (redraw_clip, i, &clip_rect);
+          clip_rect = mtk_region_get_rectangle (redraw_clip, i);
           setup_clip_frustum (stage, &clip_rect, &clip_frustum);
           g_array_append_val (clip_frusta, clip_frustum);
         }
@@ -437,7 +436,7 @@ clutter_stage_do_paint_view (ClutterStage         *stage,
                                        sizeof (graphene_frustum_t),
                                        1);
       if (redraw_clip)
-        cairo_region_get_extents (redraw_clip, &clip_rect);
+        clip_rect = mtk_region_get_extents (redraw_clip);
       else
         clutter_stage_view_get_layout (view, &clip_rect);
 
@@ -475,10 +474,10 @@ clutter_stage_do_paint_view (ClutterStage         *stage,
  * for picking or painting...
  */
 void
-clutter_stage_paint_view (ClutterStage         *stage,
-                          ClutterStageView     *view,
-                          const cairo_region_t *redraw_clip,
-                          ClutterFrame         *frame)
+clutter_stage_paint_view (ClutterStage     *stage,
+                          ClutterStageView *view,
+                          const MtkRegion  *redraw_clip,
+                          ClutterFrame     *frame)
 {
   ClutterStagePrivate *priv = stage->priv;
 
@@ -1073,7 +1072,7 @@ _clutter_stage_do_pick_on_view (ClutterStage      *stage,
                                 float              y,
                                 ClutterPickMode    mode,
                                 ClutterStageView  *view,
-                                cairo_region_t   **clear_area)
+                                MtkRegion        **clear_area)
 {
   g_autoptr (ClutterPickStack) pick_stack = NULL;
   ClutterPickContext *pick_context;
@@ -1127,7 +1126,7 @@ _clutter_stage_do_pick (ClutterStage     *stage,
                         float             x,
                         float             y,
                         ClutterPickMode   mode,
-                        cairo_region_t  **clear_area)
+                        MtkRegion       **clear_area)
 {
   ClutterActor *actor = CLUTTER_ACTOR (stage);
   ClutterStagePrivate *priv = stage->priv;
@@ -1300,10 +1299,10 @@ clutter_stage_finalize (GObject *object)
 }
 
 static void
-clutter_stage_real_paint_view (ClutterStage         *stage,
-                               ClutterStageView     *view,
-                               const cairo_region_t *redraw_clip,
-                               ClutterFrame         *frame)
+clutter_stage_real_paint_view (ClutterStage     *stage,
+                               ClutterStageView *view,
+                               const MtkRegion  *redraw_clip,
+                               ClutterFrame     *frame)
 {
   clutter_stage_do_paint_view (stage, view, frame, redraw_clip);
 }
@@ -1571,7 +1570,7 @@ clutter_stage_class_init (ClutterStageClass *klass)
    * ClutterStage::paint-view:
    * @stage: the stage that received the event
    * @view: a #ClutterStageView
-   * @redraw_clip: a #cairo_region_t with the redraw clip
+   * @redraw_clip: a #MtkRegion with the redraw clip
    * @frame: a #ClutterFrame
    *
    * The signal is emitted before a [class@Clutter.StageView] is being
@@ -1590,7 +1589,7 @@ clutter_stage_class_init (ClutterStageClass *klass)
                   _clutter_marshal_VOID__OBJECT_BOXED_BOXED,
                   G_TYPE_NONE, 3,
                   CLUTTER_TYPE_STAGE_VIEW,
-                  CAIRO_GOBJECT_TYPE_REGION | G_SIGNAL_TYPE_STATIC_SCOPE,
+                  MTK_TYPE_REGION | G_SIGNAL_TYPE_STATIC_SCOPE,
                   CLUTTER_TYPE_FRAME | G_SIGNAL_TYPE_STATIC_SCOPE);
   g_signal_set_va_marshaller (stage_signals[PAINT_VIEW],
                               G_TYPE_FROM_CLASS (gobject_class),
@@ -1945,7 +1944,7 @@ clutter_stage_read_pixels (ClutterStage *stage,
   ClutterActorBox box;
   GList *l;
   ClutterStageView *view;
-  cairo_region_t *clip;
+  g_autoptr (MtkRegion) clip = NULL;
   MtkRectangle clip_rect;
   CoglFramebuffer *framebuffer;
   float view_scale;
@@ -1977,26 +1976,16 @@ clutter_stage_read_pixels (ClutterStage *stage,
   view = l->data;
 
   clutter_stage_view_get_layout (view, &clip_rect);
-  clip = cairo_region_create_rectangle (&clip_rect);
-  cairo_region_intersect_rectangle (clip,
-                                    &(MtkRectangle) {
-                                      .x = x,
-                                      .y = y,
-                                      .width = width,
-                                      .height = height,
-                                    });
-  cairo_region_get_extents (clip, &clip_rect);
+  clip = mtk_region_create_rectangle (&clip_rect);
+  mtk_region_intersect_rectangle (clip,
+                                  &MTK_RECTANGLE_INIT (x, y, width, height));
+  clip_rect = mtk_region_get_extents (clip);
 
   if (clip_rect.width == 0 || clip_rect.height == 0)
-    {
-      cairo_region_destroy (clip);
-      return NULL;
-    }
+    return NULL;
 
   framebuffer = clutter_stage_view_get_framebuffer (view);
   clutter_stage_do_paint_view (stage, view, NULL, clip);
-
-  cairo_region_destroy (clip);
 
   view_scale = clutter_stage_view_get_scale (view);
   pixel_width = roundf (clip_rect.width * view_scale);
@@ -2725,7 +2714,7 @@ clutter_stage_paint_to_framebuffer (ClutterStage                *stage,
 {
   ClutterStagePrivate *priv = stage->priv;
   ClutterPaintContext *paint_context;
-  cairo_region_t *redraw_clip;
+  g_autoptr (MtkRegion) redraw_clip = NULL;
 
   if (paint_flags & CLUTTER_PAINT_FLAG_CLEAR)
     {
@@ -2735,12 +2724,11 @@ clutter_stage_paint_to_framebuffer (ClutterStage                *stage,
       cogl_framebuffer_clear (framebuffer, COGL_BUFFER_BIT_COLOR, &clear_color);
     }
 
-  redraw_clip = cairo_region_create_rectangle (rect);
+  redraw_clip = mtk_region_create_rectangle (rect);
   paint_context =
     clutter_paint_context_new_for_framebuffer (framebuffer,
                                                redraw_clip,
                                                paint_flags);
-  cairo_region_destroy (redraw_clip);
 
   cogl_framebuffer_push_matrix (framebuffer);
   cogl_framebuffer_set_projection_matrix (framebuffer, &priv->projection);
@@ -3048,7 +3036,7 @@ free_pointer_device_entry (PointerDeviceEntry *entry)
   if (entry->current_actor)
     _clutter_actor_set_has_pointer (entry->current_actor, FALSE);
 
-  g_clear_pointer (&entry->clear_area, cairo_region_destroy);
+  g_clear_pointer (&entry->clear_area, mtk_region_unref);
 
   g_assert (!entry->press_count);
   g_assert (entry->event_emission_chain->len == 0);
@@ -3063,7 +3051,7 @@ clutter_stage_update_device_entry (ClutterStage         *self,
                                    ClutterEventSequence *sequence,
                                    graphene_point_t      coords,
                                    ClutterActor         *actor,
-                                   cairo_region_t       *clear_area)
+                                   MtkRegion            *clear_area)
 {
   ClutterStagePrivate *priv = self->priv;
   PointerDeviceEntry *entry = NULL;
@@ -3108,9 +3096,9 @@ clutter_stage_update_device_entry (ClutterStage         *self,
         _clutter_actor_set_has_pointer (actor, TRUE);
     }
 
-  g_clear_pointer (&entry->clear_area, cairo_region_destroy);
+  g_clear_pointer (&entry->clear_area, mtk_region_unref);
   if (clear_area)
-    entry->clear_area = cairo_region_reference (clear_area);
+    entry->clear_area = mtk_region_ref (clear_area);
 }
 
 void
@@ -3446,7 +3434,7 @@ clutter_stage_update_device (ClutterStage         *stage,
                              graphene_point_t      point,
                              uint32_t              time_ms,
                              ClutterActor         *new_actor,
-                             cairo_region_t       *clear_area,
+                             MtkRegion            *clear_area,
                              gboolean              emit_crossing)
 {
   ClutterInputDeviceType device_type;
@@ -3587,8 +3575,8 @@ clutter_stage_check_in_clear_area (ClutterStage         *stage,
   if (!entry->clear_area)
     return FALSE;
 
-  return cairo_region_contains_point (entry->clear_area,
-                                      point.x, point.y);
+  return mtk_region_contains_point (entry->clear_area,
+                                    point.x, point.y);
 }
 
 ClutterActor *
@@ -3601,7 +3589,7 @@ clutter_stage_pick_and_update_device (ClutterStage             *stage,
                                       uint32_t                  time_ms)
 {
   ClutterActor *new_actor;
-  cairo_region_t *clear_area = NULL;
+  MtkRegion *clear_area = NULL;
 
   if ((flags & CLUTTER_DEVICE_UPDATE_IGNORE_CACHE) == 0)
     {
@@ -3632,7 +3620,7 @@ clutter_stage_pick_and_update_device (ClutterStage             *stage,
                                clear_area,
                                !!(flags & CLUTTER_DEVICE_UPDATE_EMIT_CROSSING));
 
-  g_clear_pointer (&clear_area, cairo_region_destroy);
+  g_clear_pointer (&clear_area, mtk_region_unref);
 
   return new_actor;
 }

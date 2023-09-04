@@ -42,9 +42,9 @@ CLUTTER_EXPORT
 GType clutter_paint_context_get_type (void);
 
 CLUTTER_EXPORT
-ClutterPaintContext * clutter_paint_context_new_for_framebuffer (CoglFramebuffer      *framebuffer,
-                                                                 const cairo_region_t *redraw_clip,
-                                                                 ClutterPaintFlag      paint_flags);
+ClutterPaintContext * clutter_paint_context_new_for_framebuffer (CoglFramebuffer  *framebuffer,
+                                                                 const MtkRegion  *redraw_clip,
+                                                                 ClutterPaintFlag  paint_flags);
 
 CLUTTER_EXPORT
 ClutterPaintContext * clutter_paint_context_ref (ClutterPaintContext *paint_context);
@@ -69,7 +69,7 @@ CLUTTER_EXPORT
 void clutter_paint_context_pop_framebuffer (ClutterPaintContext *paint_context);
 
 CLUTTER_EXPORT
-const cairo_region_t * clutter_paint_context_get_redraw_clip (ClutterPaintContext *paint_context);
+const MtkRegion * clutter_paint_context_get_redraw_clip (ClutterPaintContext *paint_context);
 
 CLUTTER_EXPORT
 ClutterPaintFlag clutter_paint_context_get_paint_flags (ClutterPaintContext *paint_context);

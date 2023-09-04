@@ -233,7 +233,7 @@ get_pixel (CoglFramebuffer *fb,
 static void
 view_painted_cb (ClutterStage     *stage,
                  ClutterStageView *view,
-                 cairo_region_t   *redraw_clip,
+                 MtkRegion        *redraw_clip,
                  ClutterFrame     *frame,
                  gpointer          data)
 {

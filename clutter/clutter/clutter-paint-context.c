@@ -31,7 +31,7 @@ struct _ClutterPaintContext
   ClutterStageView *view;
   ClutterFrame *frame;
 
-  cairo_region_t *redraw_clip;
+  MtkRegion *redraw_clip;
   GArray *clip_frusta;
 };
 
@@ -40,10 +40,10 @@ G_DEFINE_BOXED_TYPE (ClutterPaintContext, clutter_paint_context,
                      clutter_paint_context_unref)
 
 ClutterPaintContext *
-clutter_paint_context_new_for_view (ClutterStageView     *view,
-                                    const cairo_region_t *redraw_clip,
-                                    GArray               *clip_frusta,
-                                    ClutterPaintFlag      paint_flags)
+clutter_paint_context_new_for_view (ClutterStageView *view,
+                                    const MtkRegion  *redraw_clip,
+                                    GArray           *clip_frusta,
+                                    ClutterPaintFlag  paint_flags)
 {
   ClutterPaintContext *paint_context;
   CoglFramebuffer *framebuffer;
@@ -51,7 +51,7 @@ clutter_paint_context_new_for_view (ClutterStageView     *view,
   paint_context = g_new0 (ClutterPaintContext, 1);
   g_ref_count_init (&paint_context->ref_count);
   paint_context->view = view;
-  paint_context->redraw_clip = cairo_region_copy (redraw_clip);
+  paint_context->redraw_clip = mtk_region_copy (redraw_clip);
   paint_context->clip_frusta = g_array_ref (clip_frusta);
   paint_context->paint_flags = paint_flags;
 
@@ -65,15 +65,15 @@ clutter_paint_context_new_for_view (ClutterStageView     *view,
  * clutter_paint_context_new_for_framebuffer: (skip)
  */
 ClutterPaintContext *
-clutter_paint_context_new_for_framebuffer (CoglFramebuffer      *framebuffer,
-                                           const cairo_region_t *redraw_clip,
-                                           ClutterPaintFlag      paint_flags)
+clutter_paint_context_new_for_framebuffer (CoglFramebuffer  *framebuffer,
+                                           const MtkRegion  *redraw_clip,
+                                           ClutterPaintFlag  paint_flags)
 {
   ClutterPaintContext *paint_context;
 
   paint_context = g_new0 (ClutterPaintContext, 1);
   g_ref_count_init (&paint_context->ref_count);
-  paint_context->redraw_clip = cairo_region_copy (redraw_clip);
+  paint_context->redraw_clip = mtk_region_copy (redraw_clip);
   paint_context->paint_flags = paint_flags;
 
   clutter_paint_context_push_framebuffer (paint_context, framebuffer);
@@ -93,7 +93,7 @@ clutter_paint_context_dispose (ClutterPaintContext *paint_context)
 {
   g_list_free_full (paint_context->framebuffers, g_object_unref);
   paint_context->framebuffers = NULL;
-  g_clear_pointer (&paint_context->redraw_clip, cairo_region_destroy);
+  g_clear_pointer (&paint_context->redraw_clip, mtk_region_unref);
   g_clear_pointer (&paint_context->clip_frusta, g_array_unref);
   g_clear_pointer (&paint_context->frame, clutter_frame_unref);
 }
@@ -134,7 +134,7 @@ clutter_paint_context_pop_framebuffer (ClutterPaintContext *paint_context)
                         paint_context->framebuffers);
 }
 
-const cairo_region_t *
+const MtkRegion *
 clutter_paint_context_get_redraw_clip (ClutterPaintContext *paint_context)
 {
   return paint_context->redraw_clip;

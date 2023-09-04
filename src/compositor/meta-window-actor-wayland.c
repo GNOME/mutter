@@ -78,15 +78,15 @@ surface_container_new (MetaWindowActor *window_actor)
 }
 
 static void
-surface_container_cull_unobscured (MetaCullable   *cullable,
-                                   cairo_region_t *unobscured_region)
+surface_container_cull_unobscured (MetaCullable *cullable,
+                                   MtkRegion    *unobscured_region)
 {
   meta_cullable_cull_unobscured_children (cullable, unobscured_region);
 }
 
 static void
-surface_container_cull_redraw_clip (MetaCullable   *cullable,
-                                    cairo_region_t *clip_region)
+surface_container_cull_redraw_clip (MetaCullable *cullable,
+                                    MtkRegion    *clip_region)
 {
   meta_cullable_cull_redraw_clip_children (cullable, clip_region);
 }
@@ -273,7 +273,7 @@ meta_window_actor_wayland_rebuild_surface_tree (MetaWindowActor *actor)
                    &traverse_data);
 }
 
-static cairo_region_t *
+static MtkRegion *
 calculate_background_cull_region (MetaWindowActorWayland *self)
 {
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (self);
@@ -288,12 +288,12 @@ calculate_background_cull_region (MetaWindowActorWayland *self)
     .height = clutter_actor_get_height (self->background) * geometry_scale,
   };
 
-  return cairo_region_create_rectangle (&rect);
+  return mtk_region_create_rectangle (&rect);
 }
 
 static void
 subtract_background_opaque_region (MetaWindowActorWayland *self,
-                                   cairo_region_t         *region)
+                                   MtkRegion              *region)
 {
   if (!region)
     return;
@@ -301,19 +301,17 @@ subtract_background_opaque_region (MetaWindowActorWayland *self,
   if (self->background &&
       clutter_actor_get_paint_opacity (CLUTTER_ACTOR (self)) == 0xff)
     {
-      cairo_region_t *background_cull_region;
+      g_autoptr (MtkRegion) background_cull_region = NULL;
 
       background_cull_region = calculate_background_cull_region (self);
 
-      cairo_region_subtract (region, background_cull_region);
-
-      cairo_region_destroy (background_cull_region);
+      mtk_region_subtract (region, background_cull_region);
     }
 }
 
 static void
-meta_window_actor_wayland_cull_unobscured (MetaCullable   *cullable,
-                                           cairo_region_t *unobscured_region)
+meta_window_actor_wayland_cull_unobscured (MetaCullable *cullable,
+                                           MtkRegion    *unobscured_region)
 {
   MetaWindowActorWayland *self =
     META_WINDOW_ACTOR_WAYLAND (cullable);
@@ -324,8 +322,8 @@ meta_window_actor_wayland_cull_unobscured (MetaCullable   *cullable,
 }
 
 static void
-meta_window_actor_wayland_cull_redraw_clip (MetaCullable   *cullable,
-                                            cairo_region_t *clip_region)
+meta_window_actor_wayland_cull_redraw_clip (MetaCullable *cullable,
+                                            MtkRegion    *clip_region)
 {
   MetaWindowActorWayland *self =
     META_WINDOW_ACTOR_WAYLAND (cullable);

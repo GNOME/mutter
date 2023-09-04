@@ -39,7 +39,7 @@
 
 /* Various algorithms in this file require unioning together a set of rectangles
  * that are unsorted or overlap; unioning such a set of rectangles 1-by-1
- * using cairo_region_union_rectangle() produces O(N^2) behavior (if the union
+ * using mtk_region_union_rectangle() produces O(N^2) behavior (if the union
  * adds or removes rectangles in the middle of the region, then it has to
  * move all the rectangles after that.) To avoid this behavior, MetaRegionBuilder
  * creates regions for small groups of rectangles and merges them together in
@@ -47,7 +47,7 @@
  *
  * Possible improvement: From a glance at the code, accumulating all the rectangles
  *  into a flat array and then calling the (not usefully documented)
- *  cairo_region_create_rectangles() would have the same behavior and would be
+ *  mtk_region_create_rectangles() would have the same behavior and would be
  *  simpler and a bit more efficient.
  */
 
@@ -75,15 +75,15 @@ meta_region_builder_add_rectangle (MetaRegionBuilder *builder,
   int i;
 
   if (builder->levels[0] == NULL)
-    builder->levels[0] = cairo_region_create ();
+    builder->levels[0] = mtk_region_create ();
 
   rect.x = x;
   rect.y = y;
   rect.width = width;
   rect.height = height;
 
-  cairo_region_union_rectangle (builder->levels[0], &rect);
-  if (cairo_region_num_rectangles (builder->levels[0]) >= MAX_CHUNK_RECTANGLES)
+  mtk_region_union_rectangle (builder->levels[0], &rect);
+  if (mtk_region_num_rectangles (builder->levels[0]) >= MAX_CHUNK_RECTANGLES)
     {
       for (i = 1; i < builder->n_levels + 1; i++)
         {
@@ -101,18 +101,18 @@ meta_region_builder_add_rectangle (MetaRegionBuilder *builder,
             }
           else
             {
-              cairo_region_union (builder->levels[i], builder->levels[i - 1]);
-              cairo_region_destroy (builder->levels[i - 1]);
+              mtk_region_union (builder->levels[i], builder->levels[i - 1]);
+              mtk_region_unref (builder->levels[i - 1]);
               builder->levels[i - 1] = NULL;
             }
         }
     }
 }
 
-cairo_region_t *
+MtkRegion *
 meta_region_builder_finish (MetaRegionBuilder *builder)
 {
-  cairo_region_t *result = NULL;
+  MtkRegion *result = NULL;
   int i;
 
   for (i = 0; i < builder->n_levels; i++)
@@ -123,14 +123,14 @@ meta_region_builder_finish (MetaRegionBuilder *builder)
             result = builder->levels[i];
           else
             {
-              cairo_region_union(result, builder->levels[i]);
-              cairo_region_destroy (builder->levels[i]);
+              mtk_region_union (result, builder->levels[i]);
+              mtk_region_unref (builder->levels[i]);
             }
         }
     }
 
   if (result == NULL)
-    result = cairo_region_create ();
+    result = mtk_region_create ();
 
   return result;
 }
@@ -140,23 +140,23 @@ meta_region_builder_finish (MetaRegionBuilder *builder)
 
 void
 meta_region_iterator_init (MetaRegionIterator *iter,
-                           cairo_region_t     *region)
+                           MtkRegion          *region)
 {
   iter->region = region;
   iter->i = 0;
-  iter->n_rectangles = cairo_region_num_rectangles (region);
+  iter->n_rectangles = mtk_region_num_rectangles (region);
   iter->line_start = TRUE;
 
   if (iter->n_rectangles > 1)
     {
-      cairo_region_get_rectangle (region, 0, &iter->rectangle);
-      cairo_region_get_rectangle (region, 1, &iter->next_rectangle);
+      iter->rectangle = mtk_region_get_rectangle (region, 0);
+      iter->next_rectangle = mtk_region_get_rectangle (region, 1);
 
       iter->line_end = iter->next_rectangle.y != iter->rectangle.y;
     }
   else if (iter->n_rectangles > 0)
     {
-      cairo_region_get_rectangle (region, 0, &iter->rectangle);
+      iter->rectangle = mtk_region_get_rectangle (region, 0);
       iter->line_end = TRUE;
     }
 }
@@ -176,7 +176,7 @@ meta_region_iterator_next (MetaRegionIterator *iter)
 
   if (iter->i + 1 < iter->n_rectangles)
     {
-      cairo_region_get_rectangle (iter->region, iter->i + 1, &iter->next_rectangle);
+      iter->next_rectangle = mtk_region_get_rectangle (iter->region, iter->i + 1);
       iter->line_end = iter->next_rectangle.y != iter->rectangle.y;
     }
   else
@@ -185,28 +185,29 @@ meta_region_iterator_next (MetaRegionIterator *iter)
     }
 }
 
-cairo_region_t *
-meta_region_scale (cairo_region_t *region, int scale)
+MtkRegion *
+meta_region_scale (MtkRegion *region,
+                   int        scale)
 {
   int n_rects, i;
   MtkRectangle *rects;
-  cairo_region_t *scaled_region;
+  MtkRegion *scaled_region;
 
   if (scale == 1)
-    return cairo_region_copy (region);
+    return mtk_region_copy (region);
 
-  n_rects = cairo_region_num_rectangles (region);
+  n_rects = mtk_region_num_rectangles (region);
   META_REGION_CREATE_RECTANGLE_ARRAY_SCOPED (n_rects, rects);
   for (i = 0; i < n_rects; i++)
     {
-      cairo_region_get_rectangle (region, i, &rects[i]);
+      rects[i] = mtk_region_get_rectangle (region, i);
       rects[i].x *= scale;
       rects[i].y *= scale;
       rects[i].width *= scale;
       rects[i].height *= scale;
     }
 
-  scaled_region = cairo_region_create_rectangles (rects, n_rects);
+  scaled_region = mtk_region_create_rectangles (rects, n_rects);
 
   return scaled_region;
 }
@@ -231,11 +232,11 @@ add_expanded_rect (MetaRegionBuilder  *builder,
                                        width + 2 * x_amount, height + 2 * y_amount);
 }
 
-static cairo_region_t *
-expand_region (cairo_region_t *region,
-               int             x_amount,
-               int             y_amount,
-               gboolean        flip)
+static MtkRegion *
+expand_region (MtkRegion *region,
+               int        x_amount,
+               int        y_amount,
+               gboolean   flip)
 {
   MetaRegionBuilder builder;
   int n;
@@ -243,12 +244,12 @@ expand_region (cairo_region_t *region,
 
   meta_region_builder_init (&builder);
 
-  n = cairo_region_num_rectangles (region);
+  n = mtk_region_num_rectangles (region);
   for (i = 0; i < n; i++)
     {
       MtkRectangle rect;
 
-      cairo_region_get_rectangle (region, i, &rect);
+      rect = mtk_region_get_rectangle (region, i);
       add_expanded_rect (&builder,
                          rect.x, rect.y, rect.width, rect.height,
                          x_amount, y_amount, flip);
@@ -259,11 +260,11 @@ expand_region (cairo_region_t *region,
 
 /* This computes a (clipped version) of the inverse of the region
  * and expands it by the given amount */
-static cairo_region_t *
-expand_region_inverse (cairo_region_t *region,
-                       int             x_amount,
-                       int             y_amount,
-                       gboolean        flip)
+static MtkRegion *
+expand_region_inverse (MtkRegion *region,
+                       int        x_amount,
+                       int        y_amount,
+                       gboolean   flip)
 {
   MetaRegionBuilder builder;
   MetaRegionIterator iter;
@@ -273,7 +274,7 @@ expand_region_inverse (cairo_region_t *region,
 
   meta_region_builder_init (&builder);
 
-  cairo_region_get_extents (region, &extents);
+  extents = mtk_region_get_extents (region);
   add_expanded_rect (&builder,
                      extents.x, extents.y - 1, extents.width, 1,
                      x_amount, y_amount, flip);
@@ -316,7 +317,7 @@ expand_region_inverse (cairo_region_t *region,
 
 /**
  * meta_make_border_region:
- * @region: a #cairo_region_t
+ * @region: a #MtkRegion
  * @x_amount: distance from the border to extend horizontally
  * @y_amount: distance from the border to extend vertically
  * @flip: if true, the result is computed with x and y interchanged
@@ -332,41 +333,40 @@ expand_region_inverse (cairo_region_t *region,
  *
  * Return value: a new region which is the border of the given region
  */
-cairo_region_t *
-meta_make_border_region (cairo_region_t *region,
-                         int             x_amount,
-                         int             y_amount,
-                         gboolean        flip)
+MtkRegion *
+meta_make_border_region (MtkRegion *region,
+                         int        x_amount,
+                         int        y_amount,
+                         gboolean   flip)
 {
-  cairo_region_t *border_region;
-  cairo_region_t *inverse_region;
+  g_autoptr (MtkRegion) border_region = NULL;
+  g_autoptr (MtkRegion) inverse_region = NULL;
 
   border_region = expand_region (region, x_amount, y_amount, flip);
   inverse_region = expand_region_inverse (region, x_amount, y_amount, flip);
-  cairo_region_intersect (border_region, inverse_region);
-  cairo_region_destroy (inverse_region);
+  mtk_region_intersect (border_region, inverse_region);
 
-  return border_region;
+  return g_steal_pointer (&border_region);
 }
 
-cairo_region_t *
-meta_region_transform (const cairo_region_t *region,
+MtkRegion *
+meta_region_transform (const MtkRegion      *region,
                        MetaMonitorTransform  transform,
                        int                   width,
                        int                   height)
 {
   int n_rects, i;
   MtkRectangle *rects;
-  cairo_region_t *transformed_region;
+  MtkRegion *transformed_region;
 
   if (transform == META_MONITOR_TRANSFORM_NORMAL)
-    return cairo_region_copy (region);
+    return mtk_region_copy (region);
 
-  n_rects = cairo_region_num_rectangles (region);
+  n_rects = mtk_region_num_rectangles (region);
   META_REGION_CREATE_RECTANGLE_ARRAY_SCOPED (n_rects, rects);
   for (i = 0; i < n_rects; i++)
     {
-      cairo_region_get_rectangle (region, i, &rects[i]);
+      rects[i] = mtk_region_get_rectangle (region, i);
 
       meta_rectangle_transform (&rects[i],
                                 transform,
@@ -375,20 +375,20 @@ meta_region_transform (const cairo_region_t *region,
                                 &rects[i]);
     }
 
-  transformed_region = cairo_region_create_rectangles (rects, n_rects);
+  transformed_region = mtk_region_create_rectangles (rects, n_rects);
 
   return transformed_region;
 }
 
-cairo_region_t *
-meta_region_crop_and_scale (cairo_region_t  *region,
+MtkRegion *
+meta_region_crop_and_scale (MtkRegion       *region,
                             graphene_rect_t *src_rect,
                             int              dst_width,
                             int              dst_height)
 {
   int n_rects, i;
   MtkRectangle *rects;
-  cairo_region_t *viewport_region;
+  MtkRegion *viewport_region;
 
   if (G_APPROX_VALUE (src_rect->size.width, dst_width, FLT_EPSILON) &&
       G_APPROX_VALUE (src_rect->size.height, dst_height, FLT_EPSILON) &&
@@ -397,24 +397,24 @@ meta_region_crop_and_scale (cairo_region_t  *region,
       G_APPROX_VALUE (roundf (src_rect->origin.y),
                       src_rect->origin.y, FLT_EPSILON))
     {
-      viewport_region = cairo_region_copy (region);
+      viewport_region = mtk_region_copy (region);
 
       if (!G_APPROX_VALUE (src_rect->origin.x, 0, FLT_EPSILON) ||
           !G_APPROX_VALUE (src_rect->origin.y, 0, FLT_EPSILON))
         {
-          cairo_region_translate (viewport_region,
-                                  (int) src_rect->origin.x,
-                                  (int) src_rect->origin.y);
+          mtk_region_translate (viewport_region,
+                                (int) src_rect->origin.x,
+                                (int) src_rect->origin.y);
         }
 
       return viewport_region;
     }
 
-  n_rects = cairo_region_num_rectangles (region);
+  n_rects = mtk_region_num_rectangles (region);
   META_REGION_CREATE_RECTANGLE_ARRAY_SCOPED (n_rects, rects);
   for (i = 0; i < n_rects; i++)
     {
-      cairo_region_get_rectangle (region, i, &rects[i]);
+      rects[i] = mtk_region_get_rectangle (region, i);
 
       meta_rectangle_crop_and_scale (&rects[i],
                                      src_rect,
@@ -423,46 +423,46 @@ meta_region_crop_and_scale (cairo_region_t  *region,
                                      &rects[i]);
     }
 
-  viewport_region = cairo_region_create_rectangles (rects, n_rects);
+  viewport_region = mtk_region_create_rectangles (rects, n_rects);
 
   return viewport_region;
 }
 
 void
-meta_region_to_cairo_path (cairo_region_t *region,
-                           cairo_t        *cr)
+meta_region_to_cairo_path (MtkRegion *region,
+                           cairo_t   *cr)
 {
   MtkRectangle rect;
   int n_rects, i;
 
-  n_rects = cairo_region_num_rectangles (region);
+  n_rects = mtk_region_num_rectangles (region);
 
   for (i = 0; i < n_rects; i++)
     {
-      cairo_region_get_rectangle (region, i, &rect);
+      rect = mtk_region_get_rectangle (region, i);
       cairo_rectangle (cr, rect.x, rect.y, rect.width, rect.height);
     }
 }
 
-cairo_region_t *
-meta_region_apply_matrix_transform_expand (const cairo_region_t *region,
-                                           graphene_matrix_t    *transform)
+MtkRegion *
+meta_region_apply_matrix_transform_expand (const MtkRegion   *region,
+                                           graphene_matrix_t *transform)
 {
   int n_rects, i;
   MtkRectangle *rects;
-  cairo_region_t *transformed_region;
+  MtkRegion *transformed_region;
 
   if (graphene_matrix_is_identity (transform))
-    return cairo_region_copy (region);
+    return mtk_region_copy (region);
 
-  n_rects = cairo_region_num_rectangles (region);
+  n_rects = mtk_region_num_rectangles (region);
   META_REGION_CREATE_RECTANGLE_ARRAY_SCOPED (n_rects, rects);
   for (i = 0; i < n_rects; i++)
     {
       graphene_rect_t transformed_rect, rect;
       MtkRectangle int_rect;
 
-      cairo_region_get_rectangle (region, i, &int_rect);
+      int_rect = mtk_region_get_rectangle (region, i);
       rect = mtk_rectangle_to_graphene_rect (&int_rect);
 
       graphene_matrix_transform_bounds (transform, &rect, &transformed_rect);
@@ -472,7 +472,7 @@ meta_region_apply_matrix_transform_expand (const cairo_region_t *region,
                                         &rects[i]);
     }
 
-  transformed_region = cairo_region_create_rectangles (rects, n_rects);
+  transformed_region = mtk_region_create_rectangles (rects, n_rects);
 
   return transformed_region;
 }

@@ -61,7 +61,7 @@ ClutterActor *
 clutter_pick_stack_search_actor (ClutterPickStack          *pick_stack,
                                  const graphene_point3d_t  *point,
                                  const graphene_ray_t      *ray,
-                                 cairo_region_t           **clear_area);
+                                 MtkRegion                **clear_area);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterPickStack, clutter_pick_stack_unref)
 

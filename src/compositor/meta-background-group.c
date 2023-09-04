@@ -30,15 +30,15 @@ meta_background_group_class_init (MetaBackgroundGroupClass *klass)
 }
 
 static void
-meta_background_group_cull_unobscured (MetaCullable   *cullable,
-                                       cairo_region_t *unobscured_region)
+meta_background_group_cull_unobscured (MetaCullable *cullable,
+                                       MtkRegion    *unobscured_region)
 {
   meta_cullable_cull_unobscured_children (cullable, unobscured_region);
 }
 
 static void
-meta_background_group_cull_redraw_clip (MetaCullable   *cullable,
-                                        cairo_region_t *clip_region)
+meta_background_group_cull_redraw_clip (MetaCullable *cullable,
+                                        MtkRegion    *clip_region)
 {
   meta_cullable_cull_redraw_clip_children (cullable, clip_region);
 }

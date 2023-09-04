@@ -2070,7 +2070,7 @@ cogl_framebuffer_push_primitive_clip (CoglFramebuffer *framebuffer,
 
 void
 cogl_framebuffer_push_region_clip (CoglFramebuffer *framebuffer,
-                                   cairo_region_t  *region)
+                                   MtkRegion       *region)
 {
   CoglFramebufferPrivate *priv =
     cogl_framebuffer_get_instance_private (framebuffer);

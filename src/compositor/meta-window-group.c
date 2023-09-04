@@ -31,15 +31,15 @@ G_DEFINE_TYPE_WITH_CODE (MetaWindowGroup, meta_window_group, CLUTTER_TYPE_ACTOR,
                          G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE, cullable_iface_init));
 
 static void
-meta_window_group_cull_unobscured (MetaCullable   *cullable,
-                                   cairo_region_t *unobscured_region)
+meta_window_group_cull_unobscured (MetaCullable *cullable,
+                                   MtkRegion    *unobscured_region)
 {
   meta_cullable_cull_unobscured_children (cullable, unobscured_region);
 }
 
 static void
-meta_window_group_cull_redraw_clip (MetaCullable   *cullable,
-                                    cairo_region_t *clip_region)
+meta_window_group_cull_redraw_clip (MetaCullable *cullable,
+                                    MtkRegion    *clip_region)
 {
   meta_cullable_cull_redraw_clip_children (cullable, clip_region);
 }
@@ -59,8 +59,8 @@ meta_window_group_paint (ClutterActor        *actor,
   ClutterActorClass *parent_actor_class =
     CLUTTER_ACTOR_CLASS (meta_window_group_parent_class);
   ClutterActor *stage = clutter_actor_get_stage (actor);
-  const cairo_region_t *redraw_clip;
-  cairo_region_t *clip_region;
+  const MtkRegion *redraw_clip;
+  g_autoptr (MtkRegion) clip_region = NULL;
   graphene_matrix_t stage_to_actor;
 
   redraw_clip = clutter_paint_context_get_redraw_clip (paint_context);
@@ -124,8 +124,6 @@ meta_window_group_paint (ClutterActor        *actor,
                                                            &stage_to_actor);
 
   meta_cullable_cull_redraw_clip (META_CULLABLE (window_group), clip_region);
-
-  cairo_region_destroy (clip_region);
 
   parent_actor_class->paint (actor, paint_context);
 

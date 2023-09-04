@@ -148,7 +148,7 @@ on_scanout_before_paint (ClutterStage     *stage,
 static void
 on_scanout_paint_view (ClutterStage     *stage,
                        ClutterStageView *stage_view,
-                       cairo_region_t   *region,
+                       MtkRegion        *region,
                        ClutterFrame     *frame,
                        KmsRenderingTest *test)
 {
@@ -389,7 +389,7 @@ on_scanout_fallback_before_paint (ClutterStage     *stage,
 static void
 on_scanout_fallback_paint_view (ClutterStage     *stage,
                                 ClutterStageView *stage_view,
-                                cairo_region_t   *region,
+                                MtkRegion        *region,
                                 ClutterFrame     *frame,
                                 KmsRenderingTest *test)
 {
