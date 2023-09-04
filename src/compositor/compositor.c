@@ -331,53 +331,6 @@ meta_get_window_actors (MetaDisplay *display)
 }
 
 void
-meta_focus_stage_window (MetaDisplay *display,
-                         guint32      timestamp)
-{
-#ifdef HAVE_X11_CLIENT
-  ClutterStage *stage;
-  Window window;
-
-  stage = CLUTTER_STAGE (meta_get_stage_for_display (display));
-  if (!stage)
-    return;
-
-  window = meta_x11_get_stage_window (stage);
-
-  if (window == None)
-    return;
-
-  meta_x11_display_set_input_focus_xwindow (display->x11_display,
-                                            window,
-                                            timestamp);
-#endif
-}
-
-gboolean
-meta_stage_is_focused (MetaDisplay *display)
-{
-  if (meta_is_wayland_compositor ())
-    return TRUE;
-
-#ifdef HAVE_X11_CLIENT
-  ClutterStage *stage = CLUTTER_STAGE (meta_get_stage_for_display (display));
-  Window window;
-
-  if (!stage)
-    return FALSE;
-
-  window = meta_x11_get_stage_window (stage);
-
-  if (window == None)
-    return FALSE;
-
-  return (display->x11_display->focus_xwindow == window);
-#else
-  return FALSE;
-#endif
-}
-
-void
 meta_compositor_grab_begin (MetaCompositor *compositor)
 {
   META_COMPOSITOR_GET_CLASS (compositor)->grab_begin (compositor);

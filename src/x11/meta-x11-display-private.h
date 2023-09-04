@@ -232,10 +232,6 @@ void meta_x11_display_create_guard_window (MetaX11Display *x11_display);
 
 guint32 meta_x11_display_get_current_time_roundtrip (MetaX11Display *x11_display);
 
-void meta_x11_display_set_input_focus_xwindow (MetaX11Display *x11_display,
-                                               Window          window,
-                                               guint32         timestamp);
-
 int meta_x11_display_logical_monitor_to_xinerama_index (MetaX11Display     *x11_display,
                                                         MetaLogicalMonitor *logical_monitor);
 

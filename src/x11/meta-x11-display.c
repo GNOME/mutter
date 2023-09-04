@@ -105,6 +105,10 @@ static void meta_x11_display_init_frames_client (MetaX11Display *x11_display);
 
 static void meta_x11_display_remove_cursor_later (MetaX11Display *x11_display);
 
+static void meta_x11_display_set_input_focus_xwindow (MetaX11Display *x11_display,
+                                                      Window          window,
+                                                      guint32         timestamp);
+
 static MetaBackend *
 backend_from_x11_display (MetaX11Display *x11_display)
 {
@@ -1123,6 +1127,61 @@ on_frames_client_died (GObject      *source,
     }
 }
 
+#ifdef HAVE_X11
+static gboolean
+stage_is_focused (MetaX11Display *x11_display)
+{
+  MetaDisplay *display = x11_display->display;
+  ClutterStage *stage = CLUTTER_STAGE (meta_get_stage_for_display (display));
+  Window xwindow = meta_x11_get_stage_window (stage);
+
+  return x11_display->focus_xwindow == xwindow;
+}
+
+static void
+on_focus_window_changed (MetaX11Display *x11_display)
+{
+  MetaDisplay *display = x11_display->display;
+  ClutterStage *stage = CLUTTER_STAGE (meta_get_stage_for_display (display));
+
+  if (!stage_is_focused (x11_display))
+    clutter_stage_set_key_focus (stage, NULL);
+}
+
+static void
+on_stage_key_focus_changed (MetaX11Display *x11_display)
+{
+  MetaDisplay *display = x11_display->display;
+  ClutterStage *stage = CLUTTER_STAGE (meta_get_stage_for_display (display));
+  ClutterActor *key_focus;
+  uint32_t timestamp;
+  gboolean has_actor_focus, has_stage_focus;
+
+  key_focus = clutter_stage_get_key_focus (stage);
+
+  has_actor_focus = key_focus != CLUTTER_ACTOR (stage);
+  has_stage_focus = stage_is_focused (x11_display);
+  if (has_actor_focus == has_stage_focus)
+    return;
+
+  timestamp = meta_display_get_current_time_roundtrip (display);
+
+  if (has_actor_focus)
+    {
+      Window xwindow;
+
+      xwindow = meta_x11_get_stage_window (stage);
+      meta_x11_display_set_input_focus_xwindow (display->x11_display,
+                                                xwindow,
+                                                timestamp);
+    }
+  else
+    {
+      meta_display_focus_default_window (display, timestamp);
+    }
+}
+#endif
+
 static void
 meta_x11_display_init_frames_client (MetaX11Display *x11_display)
 {
@@ -1273,6 +1332,25 @@ meta_x11_display_new (MetaDisplay  *display,
                            x11_display,
                            G_CONNECT_SWAPPED);
   update_cursor_theme (x11_display);
+
+#ifdef HAVE_XWAYLAND
+  if (!meta_is_wayland_compositor ())
+#endif
+    {
+      ClutterStage *stage =
+        CLUTTER_STAGE (meta_get_stage_for_display (display));
+
+      g_signal_connect_object (display,
+                               "notify::focus-window",
+                               G_CALLBACK (on_focus_window_changed),
+                               x11_display,
+                               G_CONNECT_SWAPPED);
+      g_signal_connect_object (stage,
+                               "notify::key-focus",
+                               G_CALLBACK (on_stage_key_focus_changed),
+                               x11_display,
+                               G_CONNECT_SWAPPED);
+    }
 
   x11_display->xids = g_hash_table_new (meta_unsigned_long_hash,
                                         meta_unsigned_long_equal);
@@ -2032,7 +2110,7 @@ meta_x11_display_set_input_focus (MetaX11Display *x11_display,
   meta_x11_error_trap_pop (x11_display);
 }
 
-void
+static void
 meta_x11_display_set_input_focus_xwindow (MetaX11Display *x11_display,
                                           Window          window,
                                           guint32         timestamp)

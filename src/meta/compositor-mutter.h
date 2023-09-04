@@ -49,10 +49,3 @@ void meta_disable_unredirect_for_display (MetaDisplay *display);
 
 META_EXPORT
 void meta_enable_unredirect_for_display  (MetaDisplay *display);
-
-META_EXPORT
-void meta_focus_stage_window       (MetaDisplay  *display,
-                                    guint32       timestamp);
-
-META_EXPORT
-gboolean meta_stage_is_focused     (MetaDisplay  *display);
