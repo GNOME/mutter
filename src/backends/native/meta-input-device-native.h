@@ -78,7 +78,7 @@ struct _MetaInputDeviceNative
   GArray *modes;
   intptr_t group;
 
-  cairo_matrix_t device_matrix;
+  graphene_matrix_t device_matrix;
   int width;
   int height;
   double device_aspect_ratio; /* w:h */

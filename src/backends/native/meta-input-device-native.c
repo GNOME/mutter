@@ -22,7 +22,7 @@
 #include "config.h"
 
 #include <math.h>
-#include <cairo-gobject.h>
+#include <graphene-gobject.h>
 
 #include "backends/meta-backend-private.h"
 #include "backends/native/meta-input-thread.h"
@@ -94,10 +94,10 @@ meta_input_device_native_set_property (GObject      *object,
     {
     case PROP_DEVICE_MATRIX:
       {
-        const cairo_matrix_t *matrix = g_value_get_boxed (value);
-        cairo_matrix_init_identity (&device->device_matrix);
-        cairo_matrix_multiply (&device->device_matrix,
-                               &device->device_matrix, matrix);
+        const graphene_matrix_t *matrix = g_value_get_boxed (value);
+        graphene_matrix_init_identity (&device->device_matrix);
+        graphene_matrix_multiply (&device->device_matrix,
+                                  matrix, &device->device_matrix);
         break;
       }
     case PROP_OUTPUT_ASPECT_RATIO:
@@ -1293,7 +1293,7 @@ meta_input_device_native_class_init (MetaInputDeviceNativeClass *klass)
 
   obj_props[PROP_DEVICE_MATRIX] =
     g_param_spec_boxed ("device-matrix", NULL, NULL,
-                        CAIRO_GOBJECT_TYPE_MATRIX,
+                        GRAPHENE_TYPE_MATRIX,
                         CLUTTER_PARAM_READWRITE);
   obj_props[PROP_OUTPUT_ASPECT_RATIO] =
     g_param_spec_double ("output-aspect-ratio", NULL, NULL,
@@ -1306,7 +1306,7 @@ meta_input_device_native_class_init (MetaInputDeviceNativeClass *klass)
 static void
 meta_input_device_native_init (MetaInputDeviceNative *self)
 {
-  cairo_matrix_init_identity (&self->device_matrix);
+  graphene_matrix_init_identity (&self->device_matrix);
   self->device_aspect_ratio = 0;
   self->output_ratio = 0;
   self->width = -1;
@@ -1609,6 +1609,7 @@ meta_input_device_native_translate_coordinates_in_impl (ClutterInputDevice *devi
   double min_x = 0, min_y = 0, max_x = 1, max_y = 1;
   float stage_width, stage_height;
   double x_d, y_d;
+  graphene_point_t min_point, max_point, pos_point;
 
   if (device_evdev->mapping_mode == META_INPUT_DEVICE_MAPPING_RELATIVE)
     return;
@@ -1629,9 +1630,18 @@ meta_input_device_native_translate_coordinates_in_impl (ClutterInputDevice *devi
         y_d *= 1 / ratio;
     }
 
-  cairo_matrix_transform_point (&device_evdev->device_matrix, &min_x, &min_y);
-  cairo_matrix_transform_point (&device_evdev->device_matrix, &max_x, &max_y);
-  cairo_matrix_transform_point (&device_evdev->device_matrix, &x_d, &y_d);
+  graphene_matrix_transform_point (&device_evdev->device_matrix,
+                                   &GRAPHENE_POINT_INIT (min_x, min_y), &min_point);
+  min_x = min_point.x;
+  min_y = min_point.y;
+  graphene_matrix_transform_point (&device_evdev->device_matrix,
+                                   &GRAPHENE_POINT_INIT (max_x, max_y), &max_point);
+  max_x = max_point.x;
+  max_y = max_point.y;
+  graphene_matrix_transform_point (&device_evdev->device_matrix,
+                                   &GRAPHENE_POINT_INIT (x_d, y_d), &pos_point);
+  x_d = pos_point.x;
+  y_d = pos_point.y;
 
   *x = CLAMP (x_d, MIN (min_x, max_x), MAX (min_x, max_x)) * stage_width;
   *y = CLAMP (y_d, MIN (min_y, max_y), MAX (min_y, max_y)) * stage_height;

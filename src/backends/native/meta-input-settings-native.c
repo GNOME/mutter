@@ -134,11 +134,11 @@ set_matrix (GTask *task)
 {
   ClutterInputDevice *device = g_task_get_source_object (task);
   float *matrix = g_task_get_task_data (task);
-  cairo_matrix_t dev_matrix;
+  graphene_matrix_t dev_matrix;
 
-  cairo_matrix_init (&dev_matrix,
-                     matrix[0], matrix[3], matrix[1],
-                     matrix[4], matrix[2], matrix[5]);
+  graphene_matrix_init_from_2d (&dev_matrix,
+                                matrix[0], matrix[3], matrix[1],
+                                matrix[4], matrix[2], matrix[5]);
   g_object_set (device, "device-matrix", &dev_matrix, NULL);
 
   return G_SOURCE_REMOVE;
