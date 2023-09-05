@@ -37,7 +37,6 @@
 #include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-input-device-x11.h"
 #include "compositor/compositor-private.h"
-#include "core/frame.h"
 #include "core/keybindings-private.h"
 #include "core/meta-accel-parse.h"
 #include "core/meta-workspace-manager-private.h"
@@ -46,6 +45,7 @@
 #include "meta/prefs.h"
 #include "mtk/mtk-x11.h"
 #include "x11/meta-x11-display-private.h"
+#include "x11/meta-x11-frame.h"
 #include "x11/window-x11-private.h"
 
 #ifdef HAVE_NATIVE_BACKEND
