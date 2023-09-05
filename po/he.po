@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity.HEAD.he\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2023-07-16 01:41+0000\n"
-"PO-Revision-Date: 2023-07-28 10:14+0300\n"
+"POT-Creation-Date: 2023-08-23 16:49+0000\n"
+"PO-Revision-Date: 2023-09-05 16:23+0300\n"
 "Last-Translator: Yosef Or Boczko <yoseforb@gmail.com>\n"
 "Language-Team: Hebrew <yoseforb@gmail.com>\n"
 "Language: he\n"
@@ -19,8 +19,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n==1 ? 0 : n==2 ? 1 : n>10 && n%10==0 ? "
-"2 : 3)\n"
-"X-Generator: Gtranslator 42.0\n"
+"2 : 3);\n"
+"X-Generator: Poedit 3.3.2\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -623,11 +623,11 @@ msgstr "‏%s ‏%s"
 msgid "Bell event"
 msgstr "אירוע פעמון"
 
-#: src/core/display.c:718
+#: src/core/display.c:723
 msgid "Privacy Screen Enabled"
 msgstr "מסך פרטי מופעל"
 
-#: src/core/display.c:719
+#: src/core/display.c:724
 msgid "Privacy Screen Disabled"
 msgstr "מסך פרטי מושבת"
 
@@ -681,7 +681,7 @@ msgstr "Run as a headless display server"
 
 #: src/core/meta-context-main.c:655
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
-msgstr "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr "הוספת צג וירטואלי קבוע (WxH או WxH@R)"
 
 #: src/core/meta-context-main.c:667
 msgid "Run with X11 backend"
@@ -689,12 +689,12 @@ msgstr "הפעלה עם מנגנון X11"
 
 #: src/core/meta-context-main.c:673
 msgid "Profile performance using trace instrumentation"
-msgstr ""
+msgstr "ניתוח ביצועים באמצעות תזמור של דיווחי מעקב"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:861
+#: src/core/meta-pad-action-mapper.c:807
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "מצב העברה (קבוצה %d)"
@@ -702,11 +702,11 @@ msgstr "מצב העברה (קבוצה %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:884
+#: src/core/meta-pad-action-mapper.c:829
 msgid "Switch monitor"
 msgstr "החלפה בין צגים"
 
-#: src/core/meta-pad-action-mapper.c:886
+#: src/core/meta-pad-action-mapper.c:831
 msgid "Show on-screen help"
 msgstr "הצגת עזרה על המסך"
 
@@ -732,11 +732,11 @@ msgstr "מרחב עבודה %d"
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter was compiled without support for verbose mode"
 
-#: src/core/workspace.c:541
+#: src/core/workspace.c:535
 msgid "Workspace switched"
 msgstr "מרחב עבודה מתחלף"
 
-#: src/wayland/meta-wayland-tablet-pad.c:530
+#: src/wayland/meta-wayland-tablet-pad.c:534
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "מצב העברה: מצב %d"
@@ -762,7 +762,7 @@ msgstr "Screen %d on display “%s” is invalid"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2550
+#: src/x11/meta-x11-display.c:2540
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -1155,11 +1155,11 @@ msgstr "%s (מעל %s)"
 #~ msgstr "Element <%s> is not allowed below <%s>"
 
 #~ msgid ""
-#~ "Cannot specify both \"button_width\"/\"button_height\" and \"aspect_ratio"
-#~ "\" for buttons"
+#~ "Cannot specify both \"button_width\"/\"button_height\" and "
+#~ "\"aspect_ratio\" for buttons"
 #~ msgstr ""
-#~ "Cannot specify both \"button_width\"/\"button_height\" and \"aspect_ratio"
-#~ "\" for buttons"
+#~ "Cannot specify both \"button_width\"/\"button_height\" and "
+#~ "\"aspect_ratio\" for buttons"
 
 #~ msgid "Distance \"%s\" is unknown"
 #~ msgstr "Distance \"%s\" is unknown"
