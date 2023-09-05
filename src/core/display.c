@@ -347,6 +347,14 @@ meta_display_class_init (MetaDisplayClass *klass)
                   g_signal_accumulator_first_wins, NULL, NULL,
                   G_TYPE_BOOLEAN, 0);
 
+  display_signals[FOCUS_WINDOW] =
+    g_signal_new ("focus-window",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 2, META_TYPE_WINDOW, G_TYPE_INT64);
+
   display_signals[WINDOW_CREATED] =
     g_signal_new ("window-created",
                   G_TYPE_FROM_CLASS (klass),
@@ -1617,6 +1625,8 @@ meta_display_set_input_focus (MetaDisplay *display,
 {
   if (meta_display_timestamp_too_old (display, &timestamp))
     return;
+
+  g_signal_emit (display, display_signals[FOCUS_WINDOW], 0, window, ms2us (timestamp));
 
 #ifdef HAVE_X11_CLIENT
   if (display->x11_display)
