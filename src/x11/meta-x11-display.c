@@ -105,6 +105,9 @@ static void meta_x11_display_init_frames_client (MetaX11Display *x11_display);
 
 static void meta_x11_display_remove_cursor_later (MetaX11Display *x11_display);
 
+static void meta_x11_display_set_input_focus (MetaX11Display *x11_display,
+                                              MetaWindow     *window,
+                                              uint32_t        timestamp);
 
 static MetaBackend *
 backend_from_x11_display (MetaX11Display *x11_display)
@@ -1169,6 +1172,15 @@ on_stage_key_focus_changed (MetaX11Display *x11_display)
 #endif
 
 static void
+focus_window_cb (MetaX11Display *x11_display,
+                 MetaWindow     *window,
+                 int64_t         timestamp_us)
+{
+  meta_x11_display_set_input_focus (x11_display, window,
+                                    us2ms (timestamp_us));
+}
+
+static void
 meta_x11_display_init_frames_client (MetaX11Display *x11_display)
 {
   const char *display_name;
@@ -1318,6 +1330,12 @@ meta_x11_display_new (MetaDisplay  *display,
                            x11_display,
                            G_CONNECT_SWAPPED);
   update_cursor_theme (x11_display);
+
+  g_signal_connect_object (display,
+                           "focus-window",
+                           G_CALLBACK (focus_window_cb),
+                           x11_display,
+                           G_CONNECT_SWAPPED);
 
 #ifdef HAVE_XWAYLAND
   if (!meta_is_wayland_compositor ())
@@ -2067,7 +2085,7 @@ meta_x11_display_set_input_focus_internal (MetaX11Display *x11_display,
   meta_x11_error_trap_pop (x11_display);
 }
 
-void
+static void
 meta_x11_display_set_input_focus (MetaX11Display *x11_display,
                                   MetaWindow     *window,
                                   uint32_t        timestamp)

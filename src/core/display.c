@@ -1628,14 +1628,6 @@ meta_display_set_input_focus (MetaDisplay *display,
 
   g_signal_emit (display, display_signals[FOCUS_WINDOW], 0, window, ms2us (timestamp));
 
-#ifdef HAVE_X11_CLIENT
-  if (display->x11_display)
-    {
-      meta_x11_display_set_input_focus (display->x11_display, window,
-                                        timestamp);
-    }
-#endif
-
   meta_display_update_focus_window (display, window);
 
   display->last_focus_time = timestamp;
