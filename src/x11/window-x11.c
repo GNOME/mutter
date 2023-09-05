@@ -985,64 +985,59 @@ meta_window_x11_focus (MetaWindow *window,
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
   MetaWindowX11Private *priv =
     meta_window_x11_get_instance_private (window_x11);
-  /* For output-only windows, focus the frame.
-   * This seems to result in the client window getting key events
-   * though, so I don't know if it's icccm-compliant.
-   *
-   * Still, we have to do this or keynav breaks for these windows.
-   */
-  if (window->frame && !meta_window_is_focusable (window))
-    {
-      meta_topic (META_DEBUG_FOCUS,
-                  "Focusing frame of %s", window->desc);
-      meta_display_set_input_focus (window->display,
-                                    window,
-                                    TRUE,
-                                    timestamp);
-    }
-  else
+  gboolean is_output_only_with_frame;
+
+  is_output_only_with_frame =
+    window->frame && !meta_window_is_focusable (window);
+
+  if (window->input || is_output_only_with_frame)
     {
       if (window->input)
         {
           meta_topic (META_DEBUG_FOCUS,
                       "Setting input focus on %s since input = true",
                       window->desc);
-          meta_display_set_input_focus (window->display,
-                                        window,
-                                        FALSE,
-                                        timestamp);
         }
-
-      if (priv->wm_take_focus)
+      else if (is_output_only_with_frame)
         {
           meta_topic (META_DEBUG_FOCUS,
-                      "Sending WM_TAKE_FOCUS to %s since take_focus = true",
-                      window->desc);
-
-          if (!window->input)
-            {
-              /* The "Globally Active Input" window case, where the window
-               * doesn't want us to call XSetInputFocus on it, but does
-               * want us to send a WM_TAKE_FOCUS.
-               *
-               * Normally, we want to just leave the focus undisturbed until
-               * the window responds to WM_TAKE_FOCUS, but if we're unmanaging
-               * the current focus window we *need* to move the focus away, so
-               * we focus the no focus window before sending WM_TAKE_FOCUS,
-               * and eventually the default focus window excluding this one,
-               * if meanwhile we don't get any focus request.
-               */
-              if (window->display->focus_window != NULL &&
-                  window->display->focus_window->unmanaging)
-                {
-                  meta_display_unset_input_focus (window->display, timestamp);
-                  maybe_focus_default_window (window->display, window,
-                                              timestamp);
-                }
-            }
-
-          request_take_focus (window, timestamp);
+                      "Focusing frame of %s", window->desc);
         }
+
+      meta_display_set_input_focus (window->display,
+                                    window,
+                                    timestamp);
+    }
+
+  if (priv->wm_take_focus)
+    {
+      meta_topic (META_DEBUG_FOCUS,
+                  "Sending WM_TAKE_FOCUS to %s since take_focus = true",
+                  window->desc);
+
+      if (!window->input)
+        {
+          /* The "Globally Active Input" window case, where the window
+           * doesn't want us to call XSetInputFocus on it, but does
+           * want us to send a WM_TAKE_FOCUS.
+           *
+           * Normally, we want to just leave the focus undisturbed until
+           * the window responds to WM_TAKE_FOCUS, but if we're unmanaging
+           * the current focus window we *need* to move the focus away, so
+           * we focus the no focus window before sending WM_TAKE_FOCUS,
+           * and eventually the default focus window excluding this one,
+           * if meanwhile we don't get any focus request.
+           */
+          if (window->display->focus_window != NULL &&
+              window->display->focus_window->unmanaging)
+            {
+              meta_display_unset_input_focus (window->display, timestamp);
+              maybe_focus_default_window (window->display, window,
+                                          timestamp);
+            }
+        }
+
+      request_take_focus (window, timestamp);
     }
 }
 

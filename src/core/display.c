@@ -1613,7 +1613,6 @@ meta_display_timestamp_too_old (MetaDisplay *display,
 void
 meta_display_set_input_focus (MetaDisplay *display,
                               MetaWindow  *window,
-                              gboolean     focus_frame,
                               guint32      timestamp)
 {
   if (meta_display_timestamp_too_old (display, &timestamp))
@@ -1623,7 +1622,7 @@ meta_display_set_input_focus (MetaDisplay *display,
   if (display->x11_display)
     {
       meta_x11_display_set_input_focus (display->x11_display, window,
-                                        focus_frame, timestamp);
+                                        timestamp);
     }
 #endif
 
@@ -1639,7 +1638,7 @@ void
 meta_display_unset_input_focus (MetaDisplay *display,
                                 guint32      timestamp)
 {
-  meta_display_set_input_focus (display, NULL, FALSE, timestamp);
+  meta_display_set_input_focus (display, NULL, timestamp);
 }
 
 void

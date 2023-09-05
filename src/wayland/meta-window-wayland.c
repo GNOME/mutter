@@ -185,7 +185,6 @@ meta_window_wayland_focus (MetaWindow *window,
     {
       meta_display_set_input_focus (window->display,
                                     window,
-                                    FALSE,
                                     timestamp);
     }
 }

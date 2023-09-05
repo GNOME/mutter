@@ -302,7 +302,6 @@ MetaSelection * meta_display_get_selection (MetaDisplay *display);
 META_EXPORT
 void meta_display_set_input_focus   (MetaDisplay *display,
                                      MetaWindow  *window,
-                                     gboolean     focus_frame,
                                      guint32      timestamp);
 META_EXPORT
 void meta_display_unset_input_focus (MetaDisplay *display,

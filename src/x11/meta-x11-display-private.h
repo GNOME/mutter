@@ -247,7 +247,6 @@ void meta_x11_display_update_focus_window (MetaX11Display *x11_display,
                                            gboolean        focused_by_us);
 void meta_x11_display_set_input_focus (MetaX11Display *x11_display,
                                        MetaWindow     *window,
-                                       gboolean        focus_frame,
                                        uint32_t        timestamp);
 
 MetaDisplay * meta_x11_display_get_display (MetaX11Display *x11_display);
