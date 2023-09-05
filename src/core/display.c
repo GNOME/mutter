@@ -1492,17 +1492,10 @@ meta_display_sync_wayland_input_focus (MetaDisplay *display)
 #ifdef HAVE_WAYLAND
   MetaWaylandCompositor *compositor = wayland_compositor_from_display (display);
   MetaWindow *focus_window = NULL;
-  gboolean is_no_focus_xwindow = FALSE;
-
-#ifdef HAVE_X11_CLIENT
-  if (display->x11_display)
-    is_no_focus_xwindow = meta_x11_display_xwindow_is_a_no_focus_window (display->x11_display,
-                                                                         display->x11_display->focus_xwindow);
-#endif
 
   if (!meta_display_windows_are_interactable (display))
     focus_window = NULL;
-  else if (is_no_focus_xwindow)
+  else if (!display->focus_window)
     focus_window = NULL;
   else if (display->focus_window &&
            meta_window_get_wayland_surface (display->focus_window))
