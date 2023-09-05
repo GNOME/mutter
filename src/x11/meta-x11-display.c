@@ -105,9 +105,6 @@ static void meta_x11_display_init_frames_client (MetaX11Display *x11_display);
 
 static void meta_x11_display_remove_cursor_later (MetaX11Display *x11_display);
 
-static void meta_x11_display_set_input_focus_xwindow (MetaX11Display *x11_display,
-                                                      Window          window,
-                                                      guint32         timestamp);
 
 static MetaBackend *
 backend_from_x11_display (MetaX11Display *x11_display)
@@ -1138,28 +1135,26 @@ stage_is_focused (MetaX11Display *x11_display)
   return x11_display->focus_xwindow == xwindow;
 }
 
-static void
-on_focus_window_changed (MetaX11Display *x11_display)
+static gboolean
+stage_has_focus_actor (MetaX11Display *x11_display)
 {
   MetaDisplay *display = x11_display->display;
   ClutterStage *stage = CLUTTER_STAGE (meta_get_stage_for_display (display));
+  ClutterActor *key_focus;
 
-  if (!stage_is_focused (x11_display))
-    clutter_stage_set_key_focus (stage, NULL);
+  key_focus = clutter_stage_get_key_focus (stage);
+
+  return key_focus != CLUTTER_ACTOR (stage);
 }
 
 static void
 on_stage_key_focus_changed (MetaX11Display *x11_display)
 {
   MetaDisplay *display = x11_display->display;
-  ClutterStage *stage = CLUTTER_STAGE (meta_get_stage_for_display (display));
-  ClutterActor *key_focus;
   uint32_t timestamp;
   gboolean has_actor_focus, has_stage_focus;
 
-  key_focus = clutter_stage_get_key_focus (stage);
-
-  has_actor_focus = key_focus != CLUTTER_ACTOR (stage);
+  has_actor_focus = stage_has_focus_actor (x11_display);
   has_stage_focus = stage_is_focused (x11_display);
   if (has_actor_focus == has_stage_focus)
     return;
@@ -1167,18 +1162,9 @@ on_stage_key_focus_changed (MetaX11Display *x11_display)
   timestamp = meta_display_get_current_time_roundtrip (display);
 
   if (has_actor_focus)
-    {
-      Window xwindow;
-
-      xwindow = meta_x11_get_stage_window (stage);
-      meta_x11_display_set_input_focus_xwindow (display->x11_display,
-                                                xwindow,
-                                                timestamp);
-    }
+    meta_display_unset_input_focus (display, timestamp);
   else
-    {
-      meta_display_focus_default_window (display, timestamp);
-    }
+    meta_display_focus_default_window (display, timestamp);
 }
 #endif
 
@@ -1340,11 +1326,6 @@ meta_x11_display_new (MetaDisplay  *display,
       ClutterStage *stage =
         CLUTTER_STAGE (meta_get_stage_for_display (display));
 
-      g_signal_connect_object (display,
-                               "notify::focus-window",
-                               G_CALLBACK (on_focus_window_changed),
-                               x11_display,
-                               G_CONNECT_SWAPPED);
       g_signal_connect_object (stage,
                                "notify::key-focus",
                                G_CALLBACK (on_stage_key_focus_changed),
@@ -2106,10 +2087,35 @@ meta_x11_display_set_input_focus (MetaX11Display *x11_display,
         xwindow = window->frame->xwindow;
       else
         xwindow = window->xwindow;
+
+#ifdef HAVE_X11
+      if (!meta_is_wayland_compositor ())
+        {
+          MetaDisplay *display = x11_display->display;
+          ClutterStage *stage = CLUTTER_STAGE (meta_get_stage_for_display (display));
+
+          clutter_stage_set_key_focus (stage, NULL);
+        }
+#endif
     }
   else
     {
-      xwindow = x11_display->no_focus_window;
+#ifdef HAVE_X11
+      /* If we expect keyboard focus (e.g. there is a focused actor, keep
+       * focus on the stage window, otherwise focus the no focus window.
+       */
+      if (!meta_is_wayland_compositor () &&
+          stage_has_focus_actor (x11_display))
+        {
+          MetaDisplay *display = x11_display->display;
+          ClutterStage *stage = CLUTTER_STAGE (meta_get_stage_for_display (display));
+          xwindow = meta_x11_get_stage_window (stage);
+        }
+      else
+#endif
+        {
+          xwindow = x11_display->no_focus_window;
+        }
     }
 
   meta_topic (META_DEBUG_FOCUS, "Setting X11 input focus for window %s to 0x%lx",
@@ -2120,26 +2126,6 @@ meta_x11_display_set_input_focus (MetaX11Display *x11_display,
   serial = XNextRequest (x11_display->xdisplay);
   meta_x11_display_update_focus_window (x11_display, xwindow, serial, TRUE);
   meta_x11_error_trap_pop (x11_display);
-}
-
-static void
-meta_x11_display_set_input_focus_xwindow (MetaX11Display *x11_display,
-                                          Window          window,
-                                          guint32         timestamp)
-{
-  gulong serial;
-
-  if (meta_display_timestamp_too_old (x11_display->display, &timestamp))
-    return;
-
-  meta_topic (META_DEBUG_FOCUS, "Setting X11 input focus to 0x%lx", window);
-
-  meta_x11_display_set_input_focus_internal (x11_display, window, timestamp);
-  serial = XNextRequest (x11_display->xdisplay);
-  meta_x11_display_update_focus_window (x11_display, window, serial, TRUE);
-  meta_display_update_focus_window (x11_display->display, NULL);
-  meta_display_remove_autoraise_callback (x11_display->display);
-  x11_display->display->last_focus_time = timestamp;
 }
 
 static MetaX11DisplayLogicalMonitorData *
