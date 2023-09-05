@@ -1631,9 +1631,14 @@ meta_x11_display_remove_cursor_later (MetaX11Display *x11_display)
   if (x11_display->reload_x11_cursor_later)
     {
       MetaDisplay *display = x11_display->display;
-      MetaLaters *laters = meta_compositor_get_laters (display->compositor);
 
-      meta_laters_remove (laters, x11_display->reload_x11_cursor_later);
+      /* May happen during destruction */
+      if (display->compositor)
+        {
+          MetaLaters *laters = meta_compositor_get_laters (display->compositor);
+          meta_laters_remove (laters, x11_display->reload_x11_cursor_later);
+        }
+
       x11_display->reload_x11_cursor_later = 0;
     }
 }
