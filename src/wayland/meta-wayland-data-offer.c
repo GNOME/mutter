@@ -236,7 +236,6 @@ destroy_data_offer (struct wl_resource *resource)
       offer->source = NULL;
     }
 
-  meta_display_sync_wayland_input_focus (display_from_offer (offer));
   g_free (offer);
 }
 
