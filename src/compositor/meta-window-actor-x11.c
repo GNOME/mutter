@@ -29,7 +29,6 @@
 #include "compositor/meta-shaped-texture-private.h"
 #include "compositor/meta-surface-actor.h"
 #include "compositor/meta-surface-actor-x11.h"
-#include "core/frame.h"
 #include "core/window-private.h"
 #include "meta/compositor.h"
 #include "meta/meta-enum-types.h"
@@ -39,6 +38,7 @@
 #include "x11/window-x11.h"
 #include "x11/meta-sync-counter.h"
 #include "x11/meta-x11-display-private.h"
+#include "x11/meta-x11-frame.h"
 #include "x11/window-x11-private.h"
 
 enum

@@ -21,7 +21,6 @@
 
 #pragma once
 
-#include "core/frame.h"
 #include "core/window-private.h"
 
 void meta_window_process_placement (MetaWindow        *window,

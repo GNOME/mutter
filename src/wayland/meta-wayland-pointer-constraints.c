@@ -28,9 +28,9 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-pointer-constraint.h"
-#include "core/frame.h"
 #include "core/window-private.h"
 #include "meta/meta-backend.h"
+#include "x11/meta-x11-frame.h"
 #include "wayland/meta-pointer-confinement-wayland.h"
 #include "wayland/meta-pointer-lock-wayland.h"
 #include "wayland/meta-wayland-pointer.h"

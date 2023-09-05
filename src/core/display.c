@@ -47,7 +47,6 @@
 #include "core/boxes-private.h"
 #include "core/display-private.h"
 #include "core/events.h"
-#include "core/frame.h"
 #include "core/keybindings-private.h"
 #include "core/meta-clipboard-manager.h"
 #include "core/meta-workspace-manager-private.h"

@@ -60,7 +60,6 @@
 #include "compositor/meta-later-private.h"
 #include "compositor/meta-window-actor-private.h"
 #include "compositor/meta-window-group-private.h"
-#include "core/frame.h"
 #include "core/util-private.h"
 #include "core/window-private.h"
 #include "meta/compositor-mutter.h"

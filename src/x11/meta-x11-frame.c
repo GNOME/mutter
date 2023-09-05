@@ -23,16 +23,15 @@
 
 #include "config.h"
 
-#include "core/frame.h"
-
 #include "backends/x11/meta-backend-x11.h"
 #include "compositor/compositor-private.h"
 #include "core/bell.h"
 #include "core/keybindings-private.h"
 #include "mtk/mtk-x11.h"
 #include "x11/meta-x11-display-private.h"
-#include "x11/window-x11-private.h"
+#include "x11/meta-x11-frame.h"
 #include "x11/window-props.h"
+#include "x11/window-x11-private.h"
 
 #include <X11/Xatom.h>
 #include <X11/extensions/shape.h>

@@ -44,12 +44,12 @@
 #include <string.h>
 
 #include "compositor/compositor-private.h"
-#include "core/frame.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/util-private.h"
 #include "meta/group.h"
 #include "mtk/mtk-x11.h"
 #include "x11/meta-x11-display-private.h"
+#include "x11/meta-x11-frame.h"
 #include "x11/window-x11-private.h"
 #include "x11/window-x11.h"
 #include "x11/xprops.h"

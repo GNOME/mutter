@@ -23,11 +23,11 @@
 
 #include "compositor/compositor-private.h"
 #include "compositor/edge-resistance.h"
-#include "core/frame.h"
 #include "core/window-private.h"
 #include "meta/meta-enum-types.h"
 
 #ifdef HAVE_X11_CLIENT
+#include "x11/meta-x11-frame.h"
 #include "x11/window-x11.h"
 #endif
 

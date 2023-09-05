@@ -22,7 +22,6 @@
 
 #pragma once
 
-#include "core/frame.h"
 #include "core/window-private.h"
 #include "meta/util.h"
 
