@@ -1,3 +1,47 @@
+45.rc
+=====
+* Fix possible redraw freeze in fullscreen windows [msizanoen; !3127]
+* Fix restoring focus when leaving the overview  [Jonas Å., Carlos; !3185]
+* Support alpha-composited window screencasts [Georges; !3175]
+* Fix some XWayland windows not getting mapped [Sebastian; !3194]
+* Fix cursor movement on rotated screens [Daniel; !3180]
+* Avoid global lock in stage signals [Christian; !3204]
+* Implemented suspended xdg_toplevel state [Jonas Å.; !3019, !3213]
+* Support idle_inhibit protocol [Charbel; !3145]
+* Do not trigger repick during relayout [Carlos; !3220]
+* Fix redraw issue when buffer age is unavailable [Carlos; !3221]
+* Add Meta Toolkit (MTK) library [Bilal; !3128]
+* Fix possible window freeze during resize operations [Carlos; !3189]
+* Fixes to tablet cursor visibility on Wayland [Carlos; !3218]
+* Improve support for input capture and emulated input [Jonas Å.; !3228]
+* Use headless mode when seat ID is unset [Joan; !3093]
+* Fix unresponsive touchscreen after titlebar drag [Carlos; !3059]
+* Fix absolute pointer events on virtual monitor streams [Jonas Å.; !3241]
+* Fix disabling CRTCs in disable-only mode updates [Jonas Å.; !3073]
+* Cache multi-texture shader snippets [Daniel; !3224]
+* Fixed crashes [Carlos, Jonas Å., Jonas D., Barnabás, Jeremy; !3183, !3219,
+  !3234, !3216, !3202, !3229, !3246]
+* Plugged leaks [Sebastian, Niels; !3188, !3203]
+* Misc. bug fixes and cleanups [Bilal, Michel, Jonas Å., Florian, Carlos,
+  Sebastian, Sandro, Daniel, Pascal, Georges, Jonas D., Uzair; !3087, !3154,
+  !3169, !3124, !3173, !3190, !3197, !3198, !3215, !3209, !3155, !3225, !3226,
+  !3223, !3231, !3187, !3230, !3210, !3227, !3233, !3235, !3237, !3238, !3236,
+  !3239, !3243, !3199, !3247, !3242]
+
+Contributors:
+  Jonas Ådahl, Uzair Ahmad, Charbel Assaad, Sandro Bonazzola, Jeremy Cline,
+  Michel Dänzer, Jonas Dreßler, Bilal Elmoussaoui, Carlos Garnacho,
+  Niels De Graef, Christian Hergert, Sebastian Keller, msizanoen,
+  Florian Müllner, Georges Basile Stavracas Neto, Pascal Nowack, Barnabás Pőcze,
+  Joan Torres, Daniel van Vugt
+
+Translators:
+  Kukuh Syafaat [id], Sabri Ünal [tr], Jiri Grönroos [fi],
+  Baurzhan Muftakhidinov [kk], Vasil Pupkin [be], Jordi Mas [ca],
+  Aurimas Černius [lt], A S Alam [pa], Nathan Follens [nl], Philipp Kiemle [de],
+  Milo Casagrande [it], Yaron Shahrabani [he], Gwan-gyeong Mun [ko],
+  Bruce Cowan [en_GB]
+
 45.beta.1
 =========
 * Fix blitting from premultiplied to opaque formats [Jonas; !3159]
