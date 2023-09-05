@@ -46,6 +46,7 @@
 #include "x11/meta-startup-notification-x11.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/meta-x11-event-source.h"
+#include "x11/meta-x11-frame.h"
 #include "x11/meta-x11-selection-private.h"
 #include "x11/meta-x11-selection-input-stream-private.h"
 #include "x11/meta-x11-selection-output-stream-private.h"

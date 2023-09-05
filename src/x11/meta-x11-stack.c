@@ -20,10 +20,10 @@
 
 #include <X11/Xatom.h>
 
-#include "core/frame.h"
 #include "core/stack.h"
 #include "core/window-private.h"
 #include "x11/meta-x11-display-private.h"
+#include "x11/meta-x11-frame.h"
 #include "x11/meta-x11-stack-private.h"
 #include "x11/window-x11.h"
 

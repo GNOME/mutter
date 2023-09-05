@@ -71,7 +71,6 @@
 #include "compositor/compositor-private.h"
 #include "core/boxes-private.h"
 #include "core/constraints.h"
-#include "core/frame.h"
 #include "core/keybindings-private.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/place.h"
