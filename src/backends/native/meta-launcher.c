@@ -445,8 +445,8 @@ void
 meta_launcher_free (MetaLauncher *self)
 {
   g_free (self->seat_id);
-  g_object_unref (self->seat_proxy);
-  g_object_unref (self->session_proxy);
+  g_clear_object (&self->seat_proxy);
+  g_clear_object (&self->session_proxy);
   g_free (self);
 }
 
