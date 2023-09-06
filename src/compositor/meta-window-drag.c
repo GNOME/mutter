@@ -1160,10 +1160,10 @@ update_move_maybe_tile (MetaWindowDrag *window_drag,
   /* Check if the cursor is in a position which triggers tiling
    * and set tile_mode accordingly.
    */
-  if (meta_window_can_tile_side_by_side (window) &&
+  if (meta_window_can_tile_side_by_side (window, logical_monitor->number) &&
       x >= logical_monitor->rect.x && x < (work_area.x + shake_threshold))
     window_drag->preview_tile_mode = META_TILE_LEFT;
-  else if (meta_window_can_tile_side_by_side (window) &&
+  else if (meta_window_can_tile_side_by_side (window, logical_monitor->number) &&
            x >= work_area.x + work_area.width - shake_threshold &&
            x < (logical_monitor->rect.x + logical_monitor->rect.width))
     window_drag->preview_tile_mode = META_TILE_RIGHT;
