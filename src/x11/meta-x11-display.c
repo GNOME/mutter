@@ -1092,25 +1092,6 @@ open_x_display (MetaDisplay  *display,
 }
 
 static void
-on_window_visibility_updated (MetaDisplay    *display,
-                              GList          *placed_windows,
-                              GList          *shown_windows,
-                              GList          *hidden_windows,
-                              MetaX11Display *x11_display)
-{
-  GList *l;
-
-  if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK)
-    return;
-
-  if (display->mouse_mode)
-    return;
-
-  for (l = shown_windows; l; l = l->next)
-    meta_x11_display_increment_focus_sentinel (x11_display);
-}
-
-static void
 on_frames_client_died (GObject      *source,
                        GAsyncResult *result,
                        gpointer      user_data)
@@ -1285,10 +1266,6 @@ meta_x11_display_new (MetaDisplay  *display,
                            G_CALLBACK (update_cursor_theme),
                            x11_display,
                            G_CONNECT_SWAPPED);
-  g_signal_connect_object (display,
-                           "window-visibility-updated",
-                           G_CALLBACK (on_window_visibility_updated),
-                           x11_display, 0);
 
   g_signal_connect_object (display,
                            "x11-display-opened",
@@ -2355,38 +2332,6 @@ prefs_changed_callback (MetaPreference pref,
       set_workspace_names (x11_display);
     }
 }
-
-void
-meta_x11_display_increment_focus_sentinel (MetaX11Display *x11_display)
-{
-  unsigned long data[1];
-
-  data[0] = meta_display_get_current_time (x11_display->display);
-
-  XChangeProperty (x11_display->xdisplay,
-                   x11_display->xroot,
-                   x11_display->atom__MUTTER_SENTINEL,
-                   XA_CARDINAL,
-                   32, PropModeReplace, (guchar*) data, 1);
-
-  x11_display->sentinel_counter += 1;
-}
-
-void
-meta_x11_display_decrement_focus_sentinel (MetaX11Display *x11_display)
-{
-  x11_display->sentinel_counter -= 1;
-
-  if (x11_display->sentinel_counter < 0)
-    x11_display->sentinel_counter = 0;
-}
-
-gboolean
-meta_x11_display_focus_sentinel_clear (MetaX11Display *x11_display)
-{
-  return (x11_display->sentinel_counter == 0);
-}
-
 
 static void
 meta_x11_display_add_ignored_crossing_serial (MetaX11Display *x11_display,
