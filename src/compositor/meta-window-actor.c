@@ -367,6 +367,9 @@ meta_window_actor_real_assign_surface_actor (MetaWindowActor  *self,
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (self);
 
+  if (priv->surface)
+    meta_window_actor_remove_surface_actor (self, priv->surface);
+
   g_clear_object (&priv->surface);
   priv->surface = g_object_ref_sink (surface_actor);
 
