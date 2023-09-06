@@ -18,7 +18,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2023-03-03 20:31+0000\n"
+"POT-Creation-Date: 2023-08-23 16:49+0000\n"
 "PO-Revision-Date: 2023-03-15 18:43+0200\n"
 "Last-Translator: Gwan-gyeong Mun <elongbug@gmail.com>\n"
 "Language-Team: GNOME Korea <gnome-kr@googlegroups.com>\n"
@@ -166,20 +166,20 @@ msgid "Switch to last workspace"
 msgstr "최근 작업 공간으로 이동"
 
 #: data/50-mutter-navigation.xml:131
-msgid "Move to workspace on the left"
-msgstr "왼쪽 작업 공간으로 옮기기"
+msgid "Switch to workspace on the left"
+msgstr "왼쪽 작업 공간으로 이동"
 
 #: data/50-mutter-navigation.xml:134
-msgid "Move to workspace on the right"
-msgstr "오른쪽 작업 공간으로 옮기기"
+msgid "Switch to workspace on the right"
+msgstr "오른쪽 작업 공간으로 이동"
 
 #: data/50-mutter-navigation.xml:138
-msgid "Move to workspace above"
-msgstr "위 작업 공간으로 옮기기"
+msgid "Switch to workspace above"
+msgstr "위 작업 공간으로 이동"
 
 #: data/50-mutter-navigation.xml:142
-msgid "Move to workspace below"
-msgstr "아래 작업 공간으로 옮기기"
+msgid "Switch to workspace below"
+msgstr "아래 작업 공간으로 이동"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -440,6 +440,10 @@ msgstr "모니터 설정 전환"
 msgid "Rotates the built-in monitor configuration"
 msgstr "내장된 모니터 설정을 돌아가면서 전환합니다"
 
+#: data/org.gnome.mutter.gschema.xml.in:184
+msgid "Cancel any active input capture session"
+msgstr "활성화된 입력 캡처 세션 취소"
+
 #: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
 msgstr "가상 터미널 1로 이동"
@@ -610,88 +614,82 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#. This probably means that a non-WM compositor like xcompmgr is running;
-#. * we have no way to get it to exit
-#: src/compositor/compositor.c:416
-#, c-format
-msgid ""
-"Another compositing manager is already running on screen %i on display “%s”."
-msgstr ""
-"다른 창 구성 관리 프로그램이 이미 디스플레이 “%2$s” 화면 %1$i번에서 실행 중입"
-"니다."
-
-#: src/core/bell.c:192
+#: src/core/bell.c:193
 msgid "Bell event"
 msgstr "삑소리 이벤트"
 
-#: src/core/display.c:703
+#: src/core/display.c:723
 msgid "Privacy Screen Enabled"
 msgstr "사생활 보호 화면 사용"
 
-#: src/core/display.c:704
+#: src/core/display.c:724
 msgid "Privacy Screen Disabled"
 msgstr "사생활 보호 화면 해제"
 
-#: src/core/meta-context-main.c:568
+#: src/core/meta-context-main.c:581
 msgid "Replace the running window manager"
 msgstr "실행 중인 창 관리자를 바꿉니다"
 
-#: src/core/meta-context-main.c:574
+#: src/core/meta-context-main.c:587
 msgid "X Display to use"
 msgstr "사용할 X 디스플레이"
 
-#: src/core/meta-context-main.c:580
+#: src/core/meta-context-main.c:593
 msgid "Disable connection to session manager"
 msgstr "세션 관리자와 연결 하지 않습니다"
 
-#: src/core/meta-context-main.c:586
+#: src/core/meta-context-main.c:599
 msgid "Specify session management ID"
 msgstr "세션 관리 ID를 지정합니다"
 
-#: src/core/meta-context-main.c:592
+#: src/core/meta-context-main.c:605
 msgid "Initialize session from savefile"
 msgstr "저장 파일에서 세션을 초기화 합니다"
 
-#: src/core/meta-context-main.c:598
+#: src/core/meta-context-main.c:611
 msgid "Make X calls synchronous"
 msgstr "동기 X 호출을 합니다"
 
-#: src/core/meta-context-main.c:606
+#: src/core/meta-context-main.c:619
 msgid "Run as a wayland compositor"
 msgstr "웨일랜드 컴포지터로 실행합니다"
 
-#: src/core/meta-context-main.c:612
+#: src/core/meta-context-main.c:625
 msgid "Run as a nested compositor"
 msgstr "중첩 컴포지터로 실행합니다"
 
-#: src/core/meta-context-main.c:618
+#: src/core/meta-context-main.c:631
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "웨일랜드 컴포지터를 X웨일랜드 시작없이 실행합니다"
 
-#: src/core/meta-context-main.c:624
+#: src/core/meta-context-main.c:637
 msgid "Specify Wayland display name to use"
 msgstr "사용할 웨일랜드 디스플레이 이름 지정"
 
-#: src/core/meta-context-main.c:632
+#: src/core/meta-context-main.c:645
 msgid "Run as a full display server, rather than nested"
 msgstr "전체 디스플레이 서버로 실행, 중첩 컴포지터가 아님"
 
-#: src/core/meta-context-main.c:637
+#: src/core/meta-context-main.c:650
 msgid "Run as a headless display server"
 msgstr "헤드리스 디스플레이 서버로 실행"
 
-#: src/core/meta-context-main.c:642
+#: src/core/meta-context-main.c:655
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "영구적인 가상 모니터 추가 (WxH or WxH@R)"
 
-#: src/core/meta-context-main.c:654
+#: src/core/meta-context-main.c:667
 msgid "Run with X11 backend"
 msgstr "X11 백 엔드로 실행 합니다"
+
+#: src/core/meta-context-main.c:673
+msgid "Profile performance using trace instrumentation"
+msgstr "추적 계측을 사용한 성능 프로파일"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:861
+#: src/core/meta-pad-action-mapper.c:807
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "모드 전환 (그룹 %d)"
@@ -699,16 +697,16 @@ msgstr "모드 전환 (그룹 %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:884
+#: src/core/meta-pad-action-mapper.c:829
 msgid "Switch monitor"
 msgstr "모니터 전환"
 
-#: src/core/meta-pad-action-mapper.c:886
+#: src/core/meta-pad-action-mapper.c:831
 msgid "Show on-screen help"
 msgstr "화면 도움말 표시"
 
 #. Translators: this string will appear in Sysprof
-#: src/core/meta-profiler.c:80 src/core/meta-profiler.c:217
+#: src/core/meta-profiler.c:111 src/core/meta-profiler.c:301
 msgid "Compositor"
 msgstr "컴포지터"
 
@@ -720,25 +718,25 @@ msgstr "버전을 출력합니다"
 msgid "Mutter plugin to use"
 msgstr "사용할 머터 플러그인"
 
-#: src/core/prefs.c:1913
+#: src/core/prefs.c:1843
 #, c-format
 msgid "Workspace %d"
 msgstr "작업 공간 %d"
 
-#: src/core/util.c:142
+#: src/core/util.c:139
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "머터가 자세한 정보 표시 모드를 지원하지 않게 컴파일되었습니다"
 
-#: src/core/workspace.c:541
+#: src/core/workspace.c:535
 msgid "Workspace switched"
 msgstr "작업 공간 전환"
 
-#: src/wayland/meta-wayland-tablet-pad.c:530
+#: src/wayland/meta-wayland-tablet-pad.c:534
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "모드 전환: 모드 %d"
 
-#: src/x11/meta-x11-display.c:697
+#: src/x11/meta-x11-display.c:708
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -747,26 +745,42 @@ msgstr ""
 "디스플레이  “%s”에 이미 창 관리자가 있습니다. 현재 창 관리자를 바꾸려면 --"
 "replace 옵션을 써보십시오."
 
-#: src/x11/meta-x11-display.c:1058
+#: src/x11/meta-x11-display.c:1073
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "X 윈도 시스템 디스플레이 “%s”을(를) 여는데 실패하였습니다"
 
-#: src/x11/meta-x11-display.c:1203
+#: src/x11/meta-x11-display.c:1219
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "디스플레이 “%2$s”의 화면 %1$d은(는) 잘못되었습니다"
 
-#: src/x11/meta-x11-selection-input-stream.c:481
+#. This probably means that a non-WM compositor like xcompmgr is running;
+#. * we have no way to get it to exit
+#: src/x11/meta-x11-display.c:2540
+#, c-format
+msgid ""
+"Another compositing manager is already running on screen %i on display “%s”."
+msgstr ""
+"다른 창 구성 관리 프로그램이 이미 디스플레이 “%2$s” 화면 %1$i번에서 실행 중입"
+"니다."
+
+#: src/x11/meta-x11-selection-input-stream.c:475
 #, c-format
 msgid "Format %s not supported"
 msgstr "%s 형식은 지원하지 않습니다"
 
 # <창제목> (on <기계>)
-#: src/x11/window-props.c:549
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s에서)"
+
+#~ msgid "Move to workspace above"
+#~ msgstr "위 작업 공간으로 옮기기"
+
+#~ msgid "Move to workspace below"
+#~ msgstr "아래 작업 공간으로 옮기기"
 
 #~ msgid "Mutter"
 #~ msgstr "머터"
