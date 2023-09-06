@@ -65,14 +65,14 @@ static const char y_xuxv_shader[] =
   "cogl_color_out = yuv_to_rgb(yuva);                                       \n";
 
 /* Shader for 1 Y-plane and 1 UV-plane */
-static const char nv12_shader[] =
+static const char y_uv_shader[] =
   "vec4 yuva = vec4(0.0, 0.0, 0.0, cogl_color_in.a);                        \n"
   "yuva.x = texture2D(cogl_sampler0, cogl_tex_coord0_in.st).x;              \n"
   "yuva.yz = texture2D(cogl_sampler1, cogl_tex_coord1_in.st).rg;            \n"
   "cogl_color_out = yuv_to_rgb(yuva);                                       \n";
 
 /* Shader for 1 Y-plane, 1 U-plane and 1 V-plane */
-static const char yuv420_shader[] =
+static const char y_u_v_shader[] =
   "vec4 yuva = vec4(0.0, 0.0, 0.0, cogl_color_in.a);                        \n"
   "yuva.x = texture2D(cogl_sampler0, cogl_tex_coord0_in.st).x;              \n"
   "yuva.y = texture2D(cogl_sampler1, cogl_tex_coord1_in.st).x;              \n"
@@ -132,7 +132,7 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .plane_indices = { 0, 1 },
     .hsub = { 1, 2 },
     .vsub = { 1, 2 },
-    .rgb_shader = nv12_shader,
+    .rgb_shader = y_uv_shader,
     .snippet_once = G_ONCE_INIT,
   },
   /* 3 plane YUV */
@@ -143,7 +143,7 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .plane_indices = { 0, 1, 2 },
     .hsub = { 1, 2, 2 },
     .vsub = { 1, 2, 2 },
-    .rgb_shader = yuv420_shader,
+    .rgb_shader = y_u_v_shader,
     .snippet_once = G_ONCE_INIT,
   },
 };
