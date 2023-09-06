@@ -162,6 +162,8 @@ gboolean
 meta_tile_info_equal (MetaTileInfo *a,
                       MetaTileInfo *b);
 
+const char * meta_output_colorspace_get_name (MetaOutputColorspace color_space);
+
 #define META_TYPE_OUTPUT_INFO (meta_output_info_get_type ())
 META_EXPORT_TEST
 GType meta_output_info_get_type (void);

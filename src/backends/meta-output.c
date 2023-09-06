@@ -565,6 +565,21 @@ meta_output_peek_color_space (MetaOutput *output)
   return priv->color_space;
 }
 
+const char *
+meta_output_colorspace_get_name (MetaOutputColorspace color_space)
+{
+  switch (color_space)
+    {
+    case META_OUTPUT_COLORSPACE_UNKNOWN:
+      return "Unknown";
+    case META_OUTPUT_COLORSPACE_DEFAULT:
+      return "Default";
+    case META_OUTPUT_COLORSPACE_BT2020:
+      return "bt.2020";
+    }
+  g_assert_not_reached ();
+}
+
 gboolean
 meta_output_is_hdr_metadata_supported (MetaOutput *output,
                                        MetaOutputHdrMetadataEOTF eotf)

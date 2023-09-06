@@ -501,6 +501,10 @@ ensure_hdr_settings (MetaMonitorManager *manager)
         .active = TRUE,
         .eotf = META_OUTPUT_HDR_METADATA_EOTF_PQ,
       };
+
+      meta_topic (META_DEBUG_COLOR,
+                  "MonitorManager: Trying to enabling HDR mode "
+                  "(Colorimetry: bt.2020, TF: PQ, HDR Metadata: Minimal):");
     }
   else
     {
@@ -508,6 +512,10 @@ ensure_hdr_settings (MetaMonitorManager *manager)
       hdr_metadata = (MetaOutputHdrMetadata) {
         .active = FALSE,
       };
+
+      meta_topic (META_DEBUG_COLOR,
+                  "MonitorManager: Trying to enable default mode "
+                  "(Colorimetry: default, TF: default, HDR Metadata: None):");
     }
 
   for (l = manager->monitors; l; l = l->next)
@@ -517,27 +525,6 @@ ensure_hdr_settings (MetaMonitorManager *manager)
 
       if (!meta_monitor_set_color_space (monitor, color_space, &error))
         {
-          if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED))
-            continue;
-
-          g_warning ("Failed to set color space on monitor %s: %s",
-                     meta_monitor_get_display_name (monitor), error->message);
-
-          meta_monitor_set_color_space (monitor,
-                                        META_OUTPUT_COLORSPACE_DEFAULT,
-                                        NULL);
-
-          continue;
-        }
-
-      if (!meta_monitor_set_hdr_metadata (monitor, &hdr_metadata, &error))
-        {
-          if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED))
-            continue;
-
-          g_warning ("Failed to set HDR metadata on monitor %s: %s",
-                     meta_monitor_get_display_name (monitor), error->message);
-
           meta_monitor_set_color_space (monitor,
                                         META_OUTPUT_COLORSPACE_DEFAULT,
                                         NULL);
@@ -545,8 +532,51 @@ ensure_hdr_settings (MetaMonitorManager *manager)
                                            .active = FALSE,
                                          }, NULL);
 
+          if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED))
+            {
+              meta_topic (META_DEBUG_COLOR,
+                          "MonitorManager: Colorimetry not supported "
+                          "on monitor %s",
+                          meta_monitor_get_display_name (monitor));
+            }
+          else
+            {
+              g_warning ("Failed to set color space on monitor %s: %s",
+                         meta_monitor_get_display_name (monitor), error->message);
+            }
+
           continue;
         }
+
+      if (!meta_monitor_set_hdr_metadata (monitor, &hdr_metadata, &error))
+        {
+          meta_monitor_set_color_space (monitor,
+                                        META_OUTPUT_COLORSPACE_DEFAULT,
+                                        NULL);
+          meta_monitor_set_hdr_metadata (monitor, &(MetaOutputHdrMetadata) {
+                                           .active = FALSE,
+                                         }, NULL);
+
+          if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED))
+            {
+              meta_topic (META_DEBUG_COLOR,
+                          "MonitorManager: HDR Metadata not supported "
+                          "on monitor %s",
+                          meta_monitor_get_display_name (monitor));
+            }
+          else
+            {
+              g_warning ("Failed to set HDR metadata on monitor %s: %s",
+                         meta_monitor_get_display_name (monitor),
+                         error->message);
+            }
+
+          continue;
+        }
+
+        meta_topic (META_DEBUG_COLOR,
+                    "MonitorManager: successfully set on monitor %s",
+                    meta_monitor_get_display_name (monitor));
     }
 }
 

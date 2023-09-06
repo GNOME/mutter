@@ -148,13 +148,27 @@ meta_output_kms_is_color_space_supported (MetaOutput           *output,
   output_info = meta_output_get_info (output);
 
   if (!meta_output_info_is_color_space_supported (output_info, color_space))
-    return FALSE;
+    {
+      meta_topic (META_DEBUG_COLOR,
+                  "MetaOutput: Output %s signals that it doesn't support "
+                  "Colorspace %s",
+                  meta_output_get_name (output),
+                  meta_output_colorspace_get_name (color_space));
+      return FALSE;
+    }
 
   connector_state =
     meta_kms_connector_get_current_state (output_kms->kms_connector);
 
   if (!(connector_state->colorspace.supported & (1 << color_space)))
-    return FALSE;
+    {
+      meta_topic (META_DEBUG_COLOR,
+                  "MetaOutput: KMS Connector for output %s doesn't support "
+                  "Colorspace %s",
+                  meta_output_get_name (output),
+                  meta_output_colorspace_get_name (color_space));
+      return FALSE;
+    }
 
   return TRUE;
 }
