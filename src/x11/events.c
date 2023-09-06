@@ -921,35 +921,6 @@ handle_window_focus_event (MetaX11Display *x11_display,
 }
 
 static gboolean
-crossing_serial_is_ignored (MetaX11Display *x11_display,
-                            unsigned long   serial)
-{
-  int i;
-
-  i = 0;
-  while (i < N_IGNORED_CROSSING_SERIALS)
-    {
-      if (x11_display->ignored_crossing_serials[i] == serial)
-        return TRUE;
-      ++i;
-    }
-  return FALSE;
-}
-
-static void
-reset_ignored_crossing_serials (MetaX11Display *x11_display)
-{
-  int i;
-
-  i = 0;
-  while (i < N_IGNORED_CROSSING_SERIALS)
-    {
-      x11_display->ignored_crossing_serials[i] = 0;
-      ++i;
-    }
-}
-
-static gboolean
 handle_input_xevent (MetaX11Display *x11_display,
                      XIEvent        *input_event,
                      unsigned long   serial)
@@ -991,7 +962,7 @@ handle_input_xevent (MetaX11Display *x11_display,
       /* Check if we've entered a window; do this even if window->has_focus to
        * avoid races.
        */
-      if (window && !crossing_serial_is_ignored (x11_display, serial) &&
+      if (window &&
           enter_event->mode != XINotifyGrab &&
           enter_event->mode != XINotifyUngrab &&
           enter_event->detail != XINotifyInferior &&
@@ -1002,12 +973,6 @@ handle_input_xevent (MetaX11Display *x11_display,
                                     enter_event->time,
                                     enter_event->root_x,
                                     enter_event->root_y);
-
-          if (window->type != META_WINDOW_DOCK)
-            {
-              /* stop ignoring stuff */
-              reset_ignored_crossing_serials (x11_display);
-            }
         }
       break;
     case XI_Leave:

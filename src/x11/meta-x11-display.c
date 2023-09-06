@@ -1294,13 +1294,6 @@ meta_x11_display_new (MetaDisplay  *display,
   x11_display->server_focus_window = None;
   x11_display->server_focus_serial = 0;
 
-  i = 0;
-  while (i < N_IGNORED_CROSSING_SERIALS)
-    {
-      x11_display->ignored_crossing_serials[i] = 0;
-      ++i;
-    }
-
   x11_display->prop_hooks = NULL;
   meta_x11_display_init_window_prop_hooks (x11_display);
   x11_display->group_prop_hooks = NULL;
@@ -2333,29 +2326,6 @@ prefs_changed_callback (MetaPreference pref,
     }
 }
 
-static void
-meta_x11_display_add_ignored_crossing_serial (MetaX11Display *x11_display,
-                                              unsigned long   serial)
-{
-  int i;
-
-  /* don't add the same serial more than once */
-  if (serial ==
-      x11_display->ignored_crossing_serials[N_IGNORED_CROSSING_SERIALS - 1])
-    return;
-
-  /* shift serials to the left */
-  i = 0;
-  while (i < (N_IGNORED_CROSSING_SERIALS - 1))
-    {
-      x11_display->ignored_crossing_serials[i] =
-        x11_display->ignored_crossing_serials[i + 1];
-      ++i;
-    }
-  /* put new one on the end */
-  x11_display->ignored_crossing_serials[i] = serial;
-}
-
 void
 meta_x11_display_set_stage_input_region (MetaX11Display *x11_display,
                                          XserverRegion   region)
@@ -2370,15 +2340,6 @@ meta_x11_display_set_stage_input_region (MetaX11Display *x11_display,
   stage_xwindow = meta_x11_get_stage_window (stage);
   XFixesSetWindowShapeRegion (xdisplay, stage_xwindow,
                               ShapeInput, 0, 0, region);
-
-  /*
-   * It's generally a good heuristic that when a crossing event is generated
-   * because we reshape the overlay, we don't want it to affect
-   * focus-follows-mouse focus - it's not the user doing something, it's the
-   * environment changing under the user.
-   */
-  meta_x11_display_add_ignored_crossing_serial (x11_display,
-                                                XNextRequest (xdisplay));
   XFixesSetWindowShapeRegion (xdisplay,
                               x11_display->composite_overlay_window,
                               ShapeInput, 0, 0, region);
