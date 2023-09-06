@@ -541,6 +541,8 @@ endif
 
 cc.compiles('void main (void) { __builtin_ffsl (0); __builtin_popcountl (0); }')
 
+have_eventfd = cc.has_header('sys/eventfd.h')
+
 cdata = configuration_data()
 cdata.set_quoted('GETTEXT_PACKAGE', gettext_package)
 cdata.set_quoted('VERSION', meson.project_version())
@@ -573,6 +575,7 @@ cdata.set('HAVE_LIBDISPLAY_INFO', have_libdisplay_info)
 cdata.set('HAVE_PANGO_FT2', have_pango_ft2)
 cdata.set('HAVE_TIMERFD', have_timerfd)
 cdata.set('HAVE_MALLOC_TRIM', have_malloc_trim)
+cdata.set('HAVE_EVENTFD', have_eventfd)
 
 if have_x11_client
   xkb_base = xkeyboard_config_dep.get_variable('xkb_base')

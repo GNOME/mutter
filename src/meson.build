@@ -579,6 +579,8 @@ if have_wayland
     'core/meta-service-channel.h',
     'wayland/meta-cursor-sprite-wayland.c',
     'wayland/meta-cursor-sprite-wayland.h',
+    'wayland/meta-drm-timeline.c',
+    'wayland/meta-drm-timeline.h',
     'wayland/meta-pointer-confinement-wayland.c',
     'wayland/meta-pointer-confinement-wayland.h',
     'wayland/meta-pointer-lock-wayland.c',
