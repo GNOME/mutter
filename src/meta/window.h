@@ -104,9 +104,6 @@ META_EXPORT
 GType meta_window_get_type (void);
 
 META_EXPORT
-MetaFrame *meta_window_get_frame (MetaWindow *window);
-
-META_EXPORT
 gboolean meta_window_has_focus (MetaWindow *window);
 
 META_EXPORT
@@ -421,6 +418,9 @@ gboolean meta_window_allows_move (MetaWindow *window);
 
 META_EXPORT
 gboolean meta_window_allows_resize (MetaWindow *window);
+
+META_EXPORT
+gboolean meta_window_is_ssd (MetaWindow *window);
 
 META_EXPORT
 gboolean meta_window_titlebar_is_onscreen    (MetaWindow *window);

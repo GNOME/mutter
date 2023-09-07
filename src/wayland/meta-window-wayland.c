@@ -269,8 +269,6 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
   int new_buffer_x;
   int new_buffer_y;
 
-  g_assert (window->frame == NULL);
-
   /* don't do anything if we're dropping the window, see #751847 */
   if (window->unmanaging)
     return;
@@ -812,6 +810,19 @@ meta_window_wayland_set_transient_for (MetaWindow *window,
   return TRUE;
 }
 
+static gboolean
+meta_window_wayland_is_ssd (MetaWindow *window)
+{
+  return FALSE;
+}
+
+static MtkRectangle
+meta_window_wayland_get_frame_extents_for_gravity (MetaWindow *window,
+                                                   MetaGravity gravity)
+{
+  return window->rect;
+}
+
 static MetaStackLayer
 meta_window_wayland_calculate_layer (MetaWindow *window)
 {
@@ -942,6 +953,8 @@ meta_window_wayland_class_init (MetaWindowWaylandClass *klass)
   window_class->is_focus_async = meta_window_wayland_is_focus_async;
   window_class->get_wayland_surface = meta_window_wayland_get_wayland_surface;
   window_class->set_transient_for = meta_window_wayland_set_transient_for;
+  window_class->get_frame_extents_for_gravity = meta_window_wayland_get_frame_extents_for_gravity;
+  window_class->is_ssd = meta_window_wayland_is_ssd;
 
   obj_props[PROP_SURFACE] =
     g_param_spec_object ("surface", NULL, NULL,

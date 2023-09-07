@@ -806,7 +806,7 @@ client_window_should_be_mapped (MetaWindow *window)
 #endif
 
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
-      window->decorated && !window->frame)
+      window->decorated && !meta_window_is_ssd (window))
     return FALSE;
 
   return TRUE;
@@ -1022,7 +1022,6 @@ meta_window_constructed (GObject *object)
 
   window->title = NULL;
 
-  window->frame = NULL;
   window->has_focus = FALSE;
   window->attached_focus_window = NULL;
 
@@ -1700,7 +1699,7 @@ meta_window_should_be_showing_on_workspace (MetaWindow    *window,
 #endif
 
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
-      window->decorated && !window->frame)
+      window->decorated && !meta_window_is_ssd (window))
     return FALSE;
 
   /* Windows should be showing if they're located on the
@@ -4186,29 +4185,12 @@ meta_window_get_gravity_position (MetaWindow  *window,
                                   int         *root_y)
 {
   MtkRectangle frame_extents;
+  frame_extents = META_WINDOW_GET_CLASS (window)->get_frame_extents_for_gravity (window, gravity);
   int w, h;
   int x, y;
 
   w = window->rect.width;
   h = window->rect.height;
-
-  if (gravity == META_GRAVITY_STATIC)
-    {
-      frame_extents = window->rect;
-      if (window->frame)
-        {
-          frame_extents.x = window->frame->rect.x + window->frame->child_x;
-          frame_extents.y = window->frame->rect.y + window->frame->child_y;
-        }
-    }
-  else
-    {
-      if (window->frame == NULL)
-        frame_extents = window->rect;
-      else
-        frame_extents = window->frame->rect;
-    }
-
   x = frame_extents.x;
   y = frame_extents.y;
 
@@ -4323,28 +4305,29 @@ meta_window_client_rect_to_frame_rect (MetaWindow   *window,
    * constraints.c:get_size_limits() and not something that we provide
    * in other locations or document.
    */
-  if (window->frame)
+#ifdef HAVE_X11_CLIENT
+  MetaFrameBorders borders;
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
+      meta_window_x11_get_frame_borders (window, &borders))
     {
-      MetaFrameBorders borders;
-      meta_frame_calc_borders (window->frame, &borders);
-
       frame_rect->x -= borders.visible.left;
       frame_rect->y -= borders.visible.top;
       if (frame_rect->width != G_MAXINT)
         frame_rect->width += borders.visible.left + borders.visible.right;
       if (frame_rect->height != G_MAXINT)
-        frame_rect->height += borders.visible.top  + borders.visible.bottom;
+        frame_rect->height += borders.visible.top + borders.visible.bottom;
     }
   else
-    {
-      const MetaFrameBorder *extents = &window->custom_frame_extents;
-      frame_rect->x += extents->left;
-      frame_rect->y += extents->top;
-      if (frame_rect->width != G_MAXINT)
-        frame_rect->width -= extents->left + extents->right;
-      if (frame_rect->height != G_MAXINT)
-        frame_rect->height -= extents->top + extents->bottom;
-    }
+#endif
+  {
+    const MetaFrameBorder *extents = &window->custom_frame_extents;
+    frame_rect->x += extents->left;
+    frame_rect->y += extents->top;
+    if (frame_rect->width != G_MAXINT)
+      frame_rect->width -= extents->left + extents->right;
+    if (frame_rect->height != G_MAXINT)
+      frame_rect->height -= extents->top + extents->bottom;
+  }
 }
 
 /**
@@ -4366,24 +4349,25 @@ meta_window_frame_rect_to_client_rect (MetaWindow   *window,
 
   *client_rect = *frame_rect;
 
-  if (window->frame)
+#ifdef HAVE_X11_CLIENT
+  MetaFrameBorders borders;
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
+      meta_window_x11_get_frame_borders (window, &borders))
     {
-      MetaFrameBorders borders;
-      meta_frame_calc_borders (window->frame, &borders);
-
       client_rect->x += borders.visible.left;
       client_rect->y += borders.visible.top;
-      client_rect->width  -= borders.visible.left + borders.visible.right;
-      client_rect->height -= borders.visible.top  + borders.visible.bottom;
+      client_rect->width -= borders.visible.left + borders.visible.right;
+      client_rect->height -= borders.visible.top + borders.visible.bottom;
     }
   else
-    {
-      const MetaFrameBorder *extents = &window->custom_frame_extents;
-      client_rect->x -= extents->left;
-      client_rect->y -= extents->top;
-      client_rect->width += extents->left + extents->right;
-      client_rect->height += extents->top + extents->bottom;
-    }
+#endif
+  {
+    const MetaFrameBorder *extents = &window->custom_frame_extents;
+    client_rect->x -= extents->left;
+    client_rect->y -= extents->top;
+    client_rect->width += extents->left + extents->right;
+    client_rect->height += extents->top + extents->bottom;
+  }
 }
 
 /**
@@ -4413,12 +4397,14 @@ meta_window_get_frame_rect (const MetaWindow *window,
  * to the buffer rect.
  */
 void
-meta_window_get_client_area_rect (const MetaWindow *window,
-                                  MtkRectangle     *rect)
+meta_window_get_client_area_rect (MetaWindow   *window,
+                                  MtkRectangle *rect)
 {
-  MetaFrameBorders borders;
-
-  meta_frame_calc_borders (window->frame, &borders);
+  MetaFrameBorders borders = { 0, };
+#ifdef HAVE_X11_CLIENT
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
+    meta_window_x11_get_frame_borders (window, &borders);
+#endif
 
   rect->x = borders.total.left;
   rect->y = borders.total.top;
@@ -4431,22 +4417,18 @@ void
 meta_window_get_titlebar_rect (MetaWindow   *window,
                                MtkRectangle *rect)
 {
+  MetaWindowClass *klass = META_WINDOW_GET_CLASS (window);
+
   meta_window_get_frame_rect (window, rect);
 
   /* The returned rectangle is relative to the frame rect. */
   rect->x = 0;
   rect->y = 0;
 
-  if (window->frame)
-    {
-      rect->height = window->frame->child_y;
-    }
-  else
-    {
-      /* Pick an arbitrary height for a titlebar. We might want to
-       * eventually have CSD windows expose their borders to us. */
-      rect->height = 50;
-    }
+  /* Pick an arbitrary height for a titlebar. We might want to
+   * eventually have CSD windows expose their borders to us. */
+  if (!klass->get_titlebar_rect || !klass->get_titlebar_rect (window, rect))
+    rect->height = 50;
 }
 
 /**
@@ -5397,11 +5379,14 @@ meta_window_type_changed (MetaWindow *window)
   if (!window->override_redirect)
     set_net_wm_state (window);
 
-  /* Update frame */
-  if (window->decorated)
-    meta_window_ensure_frame (window);
-  else
-    meta_window_destroy_frame (window);
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
+    {
+      /* Update frame */
+      if (window->decorated)
+        meta_window_ensure_frame (window);
+      else
+        meta_window_destroy_frame (window);
+    }
 
   /* update stacking constraints */
   meta_window_update_layer (window);
@@ -5432,8 +5417,16 @@ meta_window_set_type (MetaWindow     *window,
 void
 meta_window_frame_size_changed (MetaWindow *window)
 {
-  if (window->frame)
-    meta_frame_clear_cached_borders (window->frame);
+#ifdef HAVE_X11_CLIENT
+  MetaFrame *frame;
+
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
+    {
+      frame = meta_window_x11_get_frame (window);
+      if (frame)
+        meta_frame_clear_cached_borders (frame);
+    }
+#endif
 }
 
 static void
@@ -5699,7 +5692,7 @@ meta_window_shove_titlebar_onscreen (MetaWindow *window)
   g_return_if_fail (!window->override_redirect);
 
   /* If there's no titlebar, don't bother */
-  if (!window->frame)
+  if (!meta_window_is_ssd (window))
     return;
 
   /* Get the basic info we need */
@@ -5742,7 +5735,7 @@ meta_window_titlebar_is_onscreen (MetaWindow *window)
   const int min_width_absolute = 50;
 
   /* Titlebar can't be offscreen if there is no titlebar... */
-  if (!window->frame)
+  if (!meta_window_is_ssd (window))
     return TRUE;
 
   /* Get the rectangle corresponding to the titlebar */
@@ -5925,6 +5918,17 @@ meta_window_get_tile_area (MetaWindow   *window,
 
   if (tile_mode == META_TILE_RIGHT)
     tile_area->x += work_area.width - tile_area->width;
+}
+
+/**
+ * meta_window_is_ssd:
+ *
+ * Check if if the window has decorations drawn by Mutter.
+ */
+gboolean
+meta_window_is_ssd (MetaWindow *window)
+{
+  return META_WINDOW_GET_CLASS (window)->is_ssd (window);
 }
 
 /**
@@ -6354,17 +6358,6 @@ meta_window_unset_demands_attention (MetaWindow *window)
       set_net_wm_state (window);
       g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_DEMANDS_ATTENTION]);
     }
-}
-
-/**
- * meta_window_get_frame: (skip)
- * @window: a #MetaWindow
- *
- */
-MetaFrame *
-meta_window_get_frame (MetaWindow *window)
-{
-  return window->frame;
 }
 
 /**
@@ -6909,8 +6902,14 @@ meta_window_get_frame_bounds (MetaWindow *window)
 {
   if (!window->frame_bounds)
     {
-      if (window->frame)
-        window->frame_bounds = meta_frame_get_frame_bounds (window->frame);
+#ifdef HAVE_X11_CLIENT
+      MetaFrame *frame = meta_window_x11_get_frame (window);
+#else
+      /* Only for now, as this method would be moved to a window-x11 in the upcoming commits */
+      MetaFrame *frame = NULL;
+#endif
+      if (frame)
+        window->frame_bounds = meta_frame_get_frame_bounds (frame);
     }
 
   return window->frame_bounds;

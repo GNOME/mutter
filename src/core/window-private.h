@@ -607,6 +607,11 @@ struct _MetaWindowClass
   gboolean (*can_ping)            (MetaWindow *window);
   gboolean (*are_updates_frozen)  (MetaWindow *window);
   gboolean (*is_focus_async)      (MetaWindow *window);
+  gboolean (*is_ssd) (MetaWindow *window);
+  MtkRectangle (*get_frame_extents_for_gravity) (MetaWindow *window,
+                                                 MetaGravity gravity);
+  gboolean (*get_titlebar_rect) (MetaWindow   *window,
+                                 MtkRectangle *rect);
 
   MetaStackLayer (*calculate_layer) (MetaWindow *window);
 
@@ -796,8 +801,8 @@ void meta_window_set_opacity              (MetaWindow *window,
 void meta_window_handle_ungrabbed_event (MetaWindow         *window,
                                          const ClutterEvent *event);
 
-void meta_window_get_client_area_rect (const MetaWindow *window,
-                                       MtkRectangle     *rect);
+void meta_window_get_client_area_rect (MetaWindow   *window,
+                                       MtkRectangle *rect);
 void meta_window_get_titlebar_rect (MetaWindow   *window,
                                     MtkRectangle *titlebar_rect);
 

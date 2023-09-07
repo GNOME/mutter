@@ -100,6 +100,9 @@ void meta_window_x11_surface_rect_to_client_rect (MetaWindow   *window,
 
 MtkRectangle meta_window_x11_get_client_rect    (MetaWindowX11 *window_x11);
 
+META_EXPORT_TEST
+MetaFrame * meta_window_x11_get_frame (MetaWindow *window);
+
 gboolean meta_window_x11_can_unredirect          (MetaWindowX11 *window_x11);
 
 MetaSyncCounter * meta_window_x11_get_sync_counter (MetaWindow *window);

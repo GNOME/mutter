@@ -652,6 +652,7 @@ reload_opaque_region (MetaWindow    *window,
                       gboolean       initial)
 {
   MtkRegion *opaque_region = NULL;
+  MetaFrame *frame;
 
   if (value->type != META_PROP_VALUE_INVALID)
     {
@@ -695,10 +696,11 @@ reload_opaque_region (MetaWindow    *window,
     }
 
  out:
+  frame = meta_window_x11_get_frame (window);
   if (value->source_xwindow == meta_window_x11_get_xwindow (window))
     meta_window_set_opaque_region (window, opaque_region);
-  else if (window->frame && value->source_xwindow == window->frame->xwindow)
-    meta_frame_set_opaque_region (window->frame, opaque_region);
+  else if (frame && value->source_xwindow == frame->xwindow)
+    meta_frame_set_opaque_region (frame, opaque_region);
 
   g_clear_pointer (&opaque_region, mtk_region_unref);
 }
@@ -1040,11 +1042,12 @@ reload_update_counter (MetaWindow    *window,
   if (value->type != META_PROP_VALUE_INVALID)
     {
       MetaSyncCounter *sync_counter;
+      MetaFrame *frame = meta_window_x11_get_frame (window);
 
       if (value->source_xwindow == meta_window_x11_get_xwindow (window))
         sync_counter = meta_window_x11_get_sync_counter (window);
-      else if (window->frame && value->source_xwindow == window->frame->xwindow)
-        sync_counter = meta_frame_get_sync_counter (window->frame);
+      else if (frame && value->source_xwindow == frame->xwindow)
+        sync_counter = meta_frame_get_sync_counter (frame);
       else
         g_assert_not_reached ();
 
