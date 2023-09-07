@@ -2047,17 +2047,31 @@ ClutterEvent *
 clutter_event_crossing_new (ClutterEventType      type,
                             ClutterEventFlags     flags,
                             int64_t               timestamp_us,
-                            ClutterInputDevice   *device,
+                            ClutterInputDevice   *source_device,
                             ClutterEventSequence *sequence,
                             graphene_point_t      coords,
                             ClutterActor         *source,
                             ClutterActor         *related)
 {
+  ClutterInputDevice *device;
   ClutterEvent *event;
 
   g_return_val_if_fail (type == CLUTTER_ENTER ||
                         type == CLUTTER_LEAVE, NULL);
-  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (source_device), NULL);
+
+  if (!!(clutter_input_device_get_capabilities (source_device) &
+         CLUTTER_INPUT_CAPABILITY_TABLET_TOOL))
+    {
+      device = source_device;
+    }
+  else
+    {
+      ClutterSeat *seat;
+
+      seat = clutter_input_device_get_seat (source_device);
+      device = clutter_seat_get_pointer (seat);
+    }
 
   event = clutter_event_new (type);
 
@@ -2069,6 +2083,7 @@ clutter_event_crossing_new (ClutterEventType      type,
   event->crossing.source = source;
   event->crossing.related = related;
   g_set_object (&event->crossing.device, device);
+  g_set_object (&event->crossing.source_device, source_device);
 
   return event;
 }

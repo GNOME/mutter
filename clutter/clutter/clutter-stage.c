@@ -3476,6 +3476,9 @@ clutter_stage_update_device (ClutterStage         *stage,
   old_actor = clutter_stage_get_device_actor (stage, device, sequence);
   device_actor_changed = new_actor != old_actor;
 
+  if (!source_device)
+    source_device = device;
+
   clutter_stage_update_device_entry (stage,
                                      device, sequence,
                                      point,
@@ -3519,7 +3522,7 @@ clutter_stage_update_device (ClutterStage         *stage,
           event = clutter_event_crossing_new (CLUTTER_LEAVE,
                                               CLUTTER_EVENT_NONE,
                                               ms2us (time_ms),
-                                              device,
+                                              source_device,
                                               sequence,
                                               point,
                                               old_actor,
@@ -3540,7 +3543,7 @@ clutter_stage_update_device (ClutterStage         *stage,
           event = clutter_event_crossing_new (CLUTTER_ENTER,
                                               CLUTTER_EVENT_NONE,
                                               ms2us (time_ms),
-                                              device,
+                                              source_device,
                                               sequence,
                                               point,
                                               new_actor,
