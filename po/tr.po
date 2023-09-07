@@ -16,8 +16,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2023-08-08 02:35+0000\n"
-"PO-Revision-Date: 2023-07-29 23:49+0300\n"
+"POT-Creation-Date: 2023-08-23 16:49+0000\n"
+"PO-Revision-Date: 2023-09-06 22:50+0300\n"
 "Last-Translator: Sabri Ünal <libreajans@gmail.com>\n"
 "Language-Team: Türkçe <takim@gnome.org.tr>\n"
 "Language: tr\n"
@@ -210,7 +210,7 @@ msgstr "Ekranı kaplama durumunu değiştir"
 
 #: data/50-mutter-windows.xml:14
 msgid "Maximize window"
-msgstr "Bencereyi büyült"
+msgstr "Pencereyi büyüt"
 
 #: data/50-mutter-windows.xml:16
 msgid "Restore window"
@@ -252,11 +252,11 @@ msgstr "Pencereyi diğerlerinin altına gönder"
 
 #: data/50-mutter-windows.xml:35
 msgid "Maximize window vertically"
-msgstr "Pencereyi dikey olarak büyült"
+msgstr "Pencereyi dikey olarak büyüt"
 
 #: data/50-mutter-windows.xml:37
 msgid "Maximize window horizontally"
-msgstr "Pencereyi yatay olarak büyült"
+msgstr "Pencereyi yatay olarak büyüt"
 
 #: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:164
 msgid "View split on left"
@@ -637,11 +637,11 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Etkinlik zili"
 
-#: src/core/display.c:714
+#: src/core/display.c:723
 msgid "Privacy Screen Enabled"
 msgstr "Gizlilik Ekranı Etkin"
 
-#: src/core/display.c:715
+#: src/core/display.c:724
 msgid "Privacy Screen Disabled"
 msgstr "Gizlilik Ekranı Devre Dışı"
 
@@ -777,7 +777,7 @@ msgstr "“%2$s” monitöründeki %1$d ekranı geçersiz"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2550
+#: src/x11/meta-x11-display.c:2540
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
