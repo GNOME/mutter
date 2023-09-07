@@ -433,7 +433,9 @@ invalidate_cursor_gpu_state (MetaCursorRenderer *cursor_renderer,
       CursorStageView *cursor_stage_view;
 
       cursor_stage_view = get_cursor_stage_view (view);
-      cursor_stage_view->is_hw_cursor_valid = FALSE;
+
+      if (cursor_stage_view)
+        cursor_stage_view->is_hw_cursor_valid = FALSE;
     }
 }
 
