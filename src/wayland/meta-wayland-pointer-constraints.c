@@ -30,7 +30,6 @@
 #include "backends/meta-pointer-constraint.h"
 #include "core/window-private.h"
 #include "meta/meta-backend.h"
-#include "x11/meta-x11-frame.h"
 #include "wayland/meta-pointer-confinement-wayland.h"
 #include "wayland/meta-pointer-lock-wayland.h"
 #include "wayland/meta-wayland-pointer.h"
@@ -42,6 +41,8 @@
 
 #ifdef HAVE_XWAYLAND
 #include "wayland/meta-xwayland.h"
+#include "x11/meta-x11-frame.h"
+#include "x11/window-x11.h"
 #endif
 
 #include "pointer-constraints-unstable-v1-server-protocol.h"
@@ -624,32 +625,40 @@ MtkRegion *
 meta_wayland_pointer_constraint_calculate_effective_region (MetaWaylandPointerConstraint *constraint)
 {
   MtkRegion *region;
+#ifdef HAVE_XWAYLAND
   MetaWindow *window;
+  MetaFrame *frame;
+#endif
 
   region = meta_wayland_surface_calculate_input_region (constraint->surface);
   if (constraint->region)
     mtk_region_intersect (region, constraint->region);
 
+#ifdef HAVE_XWAYLAND
   window = meta_wayland_surface_get_window (constraint->surface);
-  if (window && window->frame)
+  if (window && window->client_type == META_WINDOW_CLIENT_TYPE_X11)
     {
-      MetaFrame *frame = window->frame;
-      int actual_width, actual_height;
-
-      g_assert (meta_wayland_surface_is_xwayland (constraint->surface));
-
-      actual_width = window->buffer_rect.width - (frame->child_x +
-                                                  frame->right_width);
-      actual_height = window->buffer_rect.height - (frame->child_y +
-                                                    frame->bottom_height);
-      if (actual_width > 0 && actual_height > 0)
+      frame = meta_window_x11_get_frame (window);
+      if (frame)
         {
-          mtk_region_intersect_rectangle (region, &MTK_RECTANGLE_INIT (frame->child_x,
+          int actual_width, actual_height;
+
+          g_assert (meta_wayland_surface_is_xwayland (constraint->surface));
+
+          actual_width = window->buffer_rect.width - (frame->child_x +
+                                                      frame->right_width);
+          actual_height = window->buffer_rect.height - (frame->child_y +
+                                                        frame->bottom_height);
+          if (actual_width > 0 && actual_height > 0)
+            {
+              mtk_region_intersect_rectangle (region, &MTK_RECTANGLE_INIT (frame->child_x,
                                                                        frame->child_y,
                                                                        actual_width,
                                                                        actual_height));
+            }
         }
     }
+#endif
 
   return region;
 }

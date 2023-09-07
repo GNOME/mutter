@@ -124,17 +124,20 @@ stack_window_removed_cb (MetaStack    *stack,
                          MetaWindow   *window,
                          MetaX11Stack *x11_stack)
 {
+  MetaFrame *frame;
+
   if (window->client_type != META_WINDOW_CLIENT_TYPE_X11)
     return;
 
+  frame = meta_window_x11_get_frame (window);
   x11_stack->added = g_list_remove (x11_stack->added, window);
 
   x11_stack->removed = g_list_prepend (x11_stack->removed,
                                        GUINT_TO_POINTER (meta_window_x11_get_xwindow (window)));
-  if (window->frame)
+  if (frame)
     {
       x11_stack->removed = g_list_prepend (x11_stack->removed,
-                                           GUINT_TO_POINTER (window->frame->xwindow));
+                                           GUINT_TO_POINTER (frame->xwindow));
     }
 }
 

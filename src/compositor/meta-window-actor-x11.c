@@ -125,13 +125,14 @@ send_frame_messages_timeout (gpointer data)
   MetaWindow *window =
     meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
   MetaSyncCounter *sync_counter;
+  MetaFrame *frame = meta_window_x11_get_frame (window);
 
   sync_counter = meta_window_x11_get_sync_counter (window);
   meta_sync_counter_finish_incomplete (sync_counter);
 
-  if (window->frame)
+  if (frame)
     {
-      sync_counter = meta_frame_get_sync_counter (window->frame);
+      sync_counter = meta_frame_get_sync_counter (frame);
       meta_sync_counter_finish_incomplete (sync_counter);
     }
 
@@ -200,6 +201,7 @@ assign_frame_counter_to_frames (MetaWindowActorX11 *actor_x11)
     meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
   MetaCompositor *compositor = window->display->compositor;
   ClutterStage *stage = meta_compositor_get_stage (compositor);
+  MetaFrame *frame;
   MetaSyncCounter *sync_counter;
 
   /* If the window is obscured, then we're expecting to deal with sending
@@ -211,10 +213,10 @@ assign_frame_counter_to_frames (MetaWindowActorX11 *actor_x11)
   sync_counter = meta_window_x11_get_sync_counter (window);
   meta_sync_counter_assign_counter_to_frames (sync_counter,
                                               clutter_stage_get_frame_counter (stage));
-
-  if (window->frame)
+  frame = meta_window_x11_get_frame (window);
+  if (frame)
     {
-      sync_counter = meta_frame_get_sync_counter (window->frame);
+      sync_counter = meta_frame_get_sync_counter (frame);
       meta_sync_counter_assign_counter_to_frames (sync_counter,
                                                   clutter_stage_get_frame_counter (stage));
     }
@@ -226,6 +228,7 @@ meta_window_actor_x11_frame_complete (MetaWindowActor  *actor,
                                       int64_t           presentation_time)
 {
   MetaWindow *window = meta_window_actor_get_meta_window (actor);
+  MetaFrame *frame = meta_window_x11_get_frame (window);
   MetaSyncCounter *sync_counter;
 
   if (meta_window_actor_is_destroyed (actor))
@@ -236,9 +239,9 @@ meta_window_actor_x11_frame_complete (MetaWindowActor  *actor,
                                     frame_info,
                                     presentation_time);
 
-  if (window->frame)
+  if (frame)
     {
-      sync_counter = meta_frame_get_sync_counter (window->frame);
+      sync_counter = meta_frame_get_sync_counter (frame);
       meta_sync_counter_complete_frame (sync_counter,
                                         frame_info,
                                         presentation_time);
@@ -411,7 +414,7 @@ has_shadow (MetaWindowActorX11 *actor_x11)
    * Let the frames client put a shadow around frames - This should override
    * the restriction about not putting a shadow around ARGB windows.
    */
-  if (meta_window_get_frame (window))
+  if (meta_window_x11_get_frame (window))
     return FALSE;
 
   /*
@@ -568,7 +571,7 @@ clip_shadow_under_window (MetaWindowActorX11 *actor_x11)
   MetaWindow *window =
     meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
 
-  if (window->frame)
+  if (meta_window_x11_get_frame (window))
     return TRUE;
 
   return meta_window_actor_is_opaque (META_WINDOW_ACTOR (actor_x11));
@@ -798,6 +801,7 @@ build_and_scan_frame_mask (MetaWindowActorX11 *actor_x11,
   CoglContext *ctx = clutter_backend_get_cogl_context (backend);
   MetaSurfaceActor *surface =
     meta_window_actor_get_surface (META_WINDOW_ACTOR (actor_x11));
+  MetaFrame *frame = meta_window_x11_get_frame (window);
   uint8_t *mask_data;
   unsigned int tex_width, tex_height;
   MetaShapedTexture *stex;
@@ -830,7 +834,7 @@ build_and_scan_frame_mask (MetaWindowActorX11 *actor_x11,
   region_to_cairo_path (shape_region, cr);
   cairo_fill (cr);
 
-  if (window->frame)
+  if (frame)
     {
       g_autoptr (MtkRegion) frame_paint_region = NULL;
       g_autoptr (MtkRegion) scanned_region = NULL;
@@ -864,8 +868,8 @@ build_and_scan_frame_mask (MetaWindowActorX11 *actor_x11,
 
       cairo_rectangle (cr,
                        0, 0,
-                       window->frame->rect.width,
-                       window->frame->rect.height);
+                       frame->rect.width,
+                       frame->rect.height);
       cairo_set_source_rgb (cr, 0, 0, 0);
       cairo_fill (cr);
 
@@ -921,10 +925,11 @@ update_shape_region (MetaWindowActorX11 *actor_x11)
   MetaWindowX11Private *priv = meta_window_x11_get_private (META_WINDOW_X11 (window));
   MtkRegion *region = NULL;
   MtkRectangle client_area;
+  MetaFrame *frame = meta_window_x11_get_frame (window);
 
   get_client_area_rect (actor_x11, &client_area);
 
-  if (window->frame && priv->shape_region)
+  if (frame && priv->shape_region)
     {
       region = mtk_region_copy (priv->shape_region);
       mtk_region_translate (region, client_area.x, client_area.y);
@@ -941,7 +946,7 @@ update_shape_region (MetaWindowActorX11 *actor_x11)
       region = mtk_region_create_rectangle (&client_area);
     }
 
-  if (priv->shape_region || window->frame)
+  if (priv->shape_region || frame)
     build_and_scan_frame_mask (actor_x11, region);
 
   g_clear_pointer (&actor_x11->shape_region, mtk_region_unref);
@@ -1029,16 +1034,16 @@ update_opaque_region (MetaWindowActorX11 *actor_x11)
   gboolean is_maybe_transparent;
   g_autoptr (MtkRegion) opaque_region = NULL;
   MetaSurfaceActor *surface;
+  MetaFrame *frame = meta_window_x11_get_frame (window);
 
   is_maybe_transparent = is_actor_maybe_transparent (actor_x11);
   if (is_maybe_transparent &&
-      (priv->opaque_region ||
-       (window->frame && window->frame->opaque_region)))
+      (priv->opaque_region || (frame && frame->opaque_region)))
     {
       MtkRectangle client_area;
 
-      if (window->frame && window->frame->opaque_region)
-        opaque_region = mtk_region_copy (window->frame->opaque_region);
+      if (frame && frame->opaque_region)
+        opaque_region = mtk_region_copy (frame->opaque_region);
 
       get_client_area_rect (actor_x11, &client_area);
 
@@ -1279,6 +1284,7 @@ meta_window_actor_x11_after_paint (MetaWindowActor  *actor,
   MetaSyncCounter *sync_counter;
   MetaWindowDrag *window_drag;
   MetaWindow *window;
+  MetaFrame *frame;
 
   actor_x11->repaint_scheduled = FALSE;
 
@@ -1295,10 +1301,10 @@ meta_window_actor_x11_after_paint (MetaWindowActor  *actor,
     {
       sync_counter = meta_window_x11_get_sync_counter (window);
       meta_sync_counter_send_frame_drawn (sync_counter);
-
-      if (window->frame)
+      frame = meta_window_x11_get_frame (window);
+      if (frame)
         {
-          sync_counter = meta_frame_get_sync_counter (window->frame);
+          sync_counter = meta_frame_get_sync_counter (frame);
           meta_sync_counter_send_frame_drawn (sync_counter);
         }
     }

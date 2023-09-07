@@ -1303,6 +1303,9 @@ update_move (MetaWindowDrag          *window_drag,
       const MetaLogicalMonitor *wmonitor;
       MtkRectangle work_area;
       int monitor;
+#ifdef HAVE_X11_CLIENT
+      MetaFrame *frame;
+#endif
 
       window->tile_mode = META_TILE_NONE;
       wmonitor = window->monitor;
@@ -1327,12 +1330,14 @@ update_move (MetaWindowDrag          *window_drag,
                   window->saved_rect.x = work_area.x;
                   window->saved_rect.y = work_area.y;
 
-                  if (window->frame)
+#ifdef HAVE_X11_CLIENT
+                  frame = META_IS_WINDOW_X11 (window) ? meta_window_x11_get_frame (window) : NULL;
+                  if (frame)
                     {
-                      window->saved_rect.x += window->frame->child_x;
-                      window->saved_rect.y += window->frame->child_y;
+                      window->saved_rect.x += frame->child_x;
+                      window->saved_rect.y += frame->child_y;
                     }
-
+#endif
                   window->unconstrained_rect.x = window->saved_rect.x;
                   window->unconstrained_rect.y = window->saved_rect.y;
 

@@ -2086,6 +2086,7 @@ meta_x11_display_set_input_focus (MetaX11Display *x11_display,
 {
   Window xwindow = x11_display->no_focus_window;
   gulong serial;
+  MetaFrame *frame;
 #ifdef HAVE_X11
   MetaDisplay *display = x11_display->display;
   ClutterStage *stage = CLUTTER_STAGE (meta_get_stage_for_display (display));
@@ -2093,14 +2094,15 @@ meta_x11_display_set_input_focus (MetaX11Display *x11_display,
 
   if (window && META_IS_WINDOW_X11 (window))
     {
+      frame = meta_window_x11_get_frame (window);
       /* For output-only windows, focus the frame.
        * This seems to result in the client window getting key events
        * though, so I don't know if it's icccm-compliant.
        *
        * Still, we have to do this or keynav breaks for these windows.
        */
-      if (window->frame && !meta_window_is_focusable (window))
-        xwindow = window->frame->xwindow;
+      if (frame && !meta_window_is_focusable (window))
+        xwindow = frame->xwindow;
       else
         xwindow = meta_window_x11_get_xwindow (window);
     }

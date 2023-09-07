@@ -1192,6 +1192,7 @@ meta_change_button_grab (MetaKeyBindingManager *keys,
   XIEventMask mask = { XIAllMasterDevices, sizeof (mask_bits), mask_bits };
   Window xwindow;
   GArray *mods;
+  MetaFrame *frame;
 
   if (meta_is_wayland_compositor ())
     return;
@@ -1208,9 +1209,9 @@ meta_change_button_grab (MetaKeyBindingManager *keys,
   mods = calc_grab_modifiers (keys, modmask);
 
   mtk_x11_error_trap_push (xdisplay);
-
-  if (window->frame)
-    xwindow = window->frame->xwindow;
+  frame = meta_window_x11_get_frame (window);
+  if (frame)
+    xwindow = frame->xwindow;
   else
     xwindow = meta_window_x11_get_xwindow (window);
 
@@ -1618,9 +1619,9 @@ meta_window_grab_keys (MetaWindow  *window)
 
   if (priv->keys_grabbed)
     {
-      if (window->frame && !priv->grab_on_frame)
+      if (priv->frame && !priv->grab_on_frame)
         change_window_keygrabs (keys, meta_window_x11_get_xwindow (window), FALSE);
-      else if (window->frame == NULL &&
+      else if (priv->frame == NULL &&
                priv->grab_on_frame)
         ; /* continue to regrab on client window */
       else
@@ -1632,7 +1633,7 @@ meta_window_grab_keys (MetaWindow  *window)
                           TRUE);
 
   priv->keys_grabbed = TRUE;
-  priv->grab_on_frame = window->frame != NULL;
+  priv->grab_on_frame = priv->frame != NULL;
 }
 
 void
@@ -1649,10 +1650,10 @@ meta_window_ungrab_keys (MetaWindow  *window)
     {
       MetaDisplay *display = window->display;
       MetaKeyBindingManager *keys = &display->key_binding_manager;
+      MetaFrame *frame = meta_window_x11_get_frame (window);
 
-      if (priv->grab_on_frame &&
-          window->frame != NULL)
-        change_window_keygrabs (keys, window->frame->xwindow, FALSE);
+      if (priv->grab_on_frame && frame != NULL)
+        change_window_keygrabs (keys, frame->xwindow, FALSE);
       else if (!priv->grab_on_frame)
         change_window_keygrabs (keys, meta_window_x11_get_xwindow (window), FALSE);
 

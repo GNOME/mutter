@@ -65,8 +65,10 @@ meta_window_x11_set_frame_xwindow (MetaWindow *window,
   XSetWindowAttributes attrs;
   gulong create_serial = 0;
   MetaFrame *frame;
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv = meta_window_x11_get_private (window_x11);
 
-  if (window->frame)
+  if (priv->frame)
     return;
 
   frame = g_new0 (MetaFrame, 1);
@@ -84,7 +86,7 @@ meta_window_x11_set_frame_xwindow (MetaWindow *window,
 
   meta_sync_counter_init (&frame->sync_counter, window, frame->xwindow);
 
-  window->frame = frame;
+  priv->frame = frame;
 
   meta_verbose ("Frame geometry %d,%d  %dx%d",
                 frame->rect.x, frame->rect.y,
@@ -142,7 +144,7 @@ meta_window_x11_set_frame_xwindow (MetaWindow *window,
     window->restore_focus_on_map = TRUE;
 
   /* stick frame to the window */
-  window->frame = frame;
+  priv->frame = frame;
 
   meta_window_reload_property_from_xwindow (window, frame->xwindow,
                                             x11_display->atom__NET_WM_SYNC_REQUEST_COUNTER,
@@ -172,14 +174,17 @@ meta_window_destroy_frame (MetaWindow *window)
   MetaFrameBorders borders;
   MetaX11Display *x11_display;
 
-  if (window->frame == NULL)
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv = meta_window_x11_get_private (window_x11);
+
+  if (priv->frame == NULL)
     return;
 
   x11_display = window->display->x11_display;
 
   meta_verbose ("Unframing window %s", window->desc);
 
-  frame = window->frame;
+  frame = priv->frame;
 
   meta_frame_calc_borders (frame, &borders);
 
@@ -214,8 +219,8 @@ meta_window_destroy_frame (MetaWindow *window)
                         * coordinates here means we'll need to ensure a configure
                         * notify event is sent; see bug 399552.
                         */
-                       window->frame->rect.x + borders.invisible.left,
-                       window->frame->rect.y + borders.invisible.top);
+                       priv->frame->rect.x + borders.invisible.left,
+                       priv->frame->rect.y + borders.invisible.top);
       window->reparents_pending += 1;
     }
 
@@ -236,7 +241,7 @@ meta_window_destroy_frame (MetaWindow *window)
 
   meta_x11_display_unregister_x_window (x11_display, frame->xwindow);
 
-  window->frame = NULL;
+  priv->frame = NULL;
   g_clear_pointer (&window->frame_bounds, mtk_region_unref);
   g_clear_pointer (&frame->opaque_region, mtk_region_unref);
 

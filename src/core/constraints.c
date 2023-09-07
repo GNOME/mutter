@@ -38,6 +38,7 @@
 #include "core/workspace-private.h"
 #include "meta/prefs.h"
 #include "x11/meta-x11-frame.h"
+#include "x11/window-x11-private.h"
 
 /*
 This is the short and sweet version of how to hack on this file; see
@@ -709,7 +710,7 @@ update_onscreen_requirements (MetaWindow     *window,
   /* Update whether we want future constraint runs to require the
    * titlebar to be visible.
    */
-  if (window->frame && window->decorated)
+  if (meta_window_is_ssd (window) && window->decorated)
     {
       MtkRectangle titlebar_rect, frame_rect;
 
@@ -1715,7 +1716,7 @@ constrain_to_single_monitor (MetaWindow         *window,
       window->type == META_WINDOW_DOCK ||
       meta_monitor_manager_get_num_logical_monitors (monitor_manager) == 1 ||
       !window->require_on_single_monitor ||
-      !window->frame ||
+      !meta_window_is_ssd (window) ||
       info->is_user_action ||
       meta_window_get_placement_rule (window))
     return TRUE;
@@ -1767,6 +1768,9 @@ constrain_titlebar_visible (MetaWindow         *window,
   int horiz_amount_offscreen, vert_amount_offscreen;
   int horiz_amount_onscreen,  vert_amount_onscreen;
   MetaWindowDrag *window_drag;
+#ifdef HAVE_X11_CLIENT
+  MetaFrameBorders borders;
+#endif
 
   if (priority > PRIORITY_TITLEBAR_VISIBLE)
     return TRUE;
@@ -1809,19 +1813,18 @@ constrain_titlebar_visible (MetaWindow         *window,
   vert_amount_offscreen  = info->current.height - vert_amount_onscreen;
   horiz_amount_offscreen = MAX (horiz_amount_offscreen, 0);
   vert_amount_offscreen  = MAX (vert_amount_offscreen,  0);
+  bottom_amount = vert_amount_offscreen;
   /* Allow the titlebar to touch the bottom panel;  If there is no titlebar,
    * require vert_amount to remain on the screen.
    */
-  if (window->frame)
+#ifdef HAVE_X11_CLIENT
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
+      meta_window_x11_get_frame_borders (window, &borders))
     {
-      MetaFrameBorders borders;
-      meta_frame_calc_borders (window->frame, &borders);
-
       bottom_amount = info->current.height - borders.visible.top;
       vert_amount_onscreen = borders.visible.top;
     }
-  else
-    bottom_amount = vert_amount_offscreen;
+#endif
 
   /* Extend the region, have a helper function handle the constraint,
    * then return the region to its original size.
@@ -1859,6 +1862,9 @@ constrain_partially_onscreen (MetaWindow         *window,
   int top_amount, bottom_amount;
   int horiz_amount_offscreen, vert_amount_offscreen;
   int horiz_amount_onscreen,  vert_amount_onscreen;
+#ifdef HAVE_X11_CLIENT
+  MetaFrameBorders borders;
+#endif
 
   if (priority > PRIORITY_PARTIALLY_VISIBLE_ON_WORKAREA)
     return TRUE;
@@ -1888,19 +1894,18 @@ constrain_partially_onscreen (MetaWindow         *window,
   horiz_amount_offscreen = MAX (horiz_amount_offscreen, 0);
   vert_amount_offscreen  = MAX (vert_amount_offscreen,  0);
   top_amount = vert_amount_offscreen;
+  bottom_amount = vert_amount_offscreen;
   /* Allow the titlebar to touch the bottom panel;  If there is no titlebar,
    * require vert_amount to remain on the screen.
    */
-  if (window->frame)
+#ifdef HAVE_X11_CLIENT
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
+      meta_window_x11_get_frame_borders (window, &borders))
     {
-      MetaFrameBorders borders;
-      meta_frame_calc_borders (window->frame, &borders);
-
       bottom_amount = info->current.height - borders.visible.top;
       vert_amount_onscreen = borders.visible.top;
     }
-  else
-    bottom_amount = vert_amount_offscreen;
+#endif
 
   /* Extend the region, have a helper function handle the constraint,
    * then return the region to its original size.

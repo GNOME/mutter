@@ -571,6 +571,9 @@ on_stack_changed (MetaStack        *stack,
   GList *l;
   GArray *hidden_stack_ids;
   GList *sorted;
+#ifdef HAVE_X11_CLIENT
+  MetaFrame *frame;
+#endif
 
   COGL_TRACE_BEGIN_SCOPED (StackChanged, "Meta::StackTracker::on_stack_changed()");
 
@@ -586,34 +589,33 @@ on_stack_changed (MetaStack        *stack,
   for (l = sorted; l; l = l->next)
     {
       MetaWindow *w = l->data;
-      uint64_t stack_id;
+      uint64_t stack_id = w->stamp;
 
       if (w->unmanaging)
         continue;
 
       meta_topic (META_DEBUG_STACK, "  %u:%d - %s ",
-		  w->layer, w->stack_position, w->desc);
+                  w->layer, w->stack_position, w->desc);
 
 #ifdef HAVE_X11_CLIENT
       if (w->client_type == META_WINDOW_CLIENT_TYPE_X11)
         {
-          if (w->frame)
-	          stack_id = w->frame->xwindow;
+          frame = meta_window_x11_get_frame (w);
+          if (frame)
+            stack_id = frame->xwindow;
           else
-	          stack_id = meta_window_x11_get_xwindow (w);
+            stack_id = meta_window_x11_get_xwindow (w);
         }
-      else
 #endif
-        stack_id = w->stamp;
 
       /* We don't restack hidden windows along with the rest, though they are
        * reflected in the _NET hints. Hidden windows all get pushed below
        * the screens fullscreen guard_window. */
       if (w->hidden)
-	{
+        {
           g_array_append_val (hidden_stack_ids, stack_id);
-	  continue;
-	}
+          continue;
+        }
 
       g_array_append_val (all_root_children_stacked, stack_id);
     }
@@ -1031,6 +1033,9 @@ meta_stack_tracker_sync_stack (MetaStackTracker *tracker)
   GList *meta_windows;
   int n_windows;
   int i;
+#ifdef HAVE_X11_CLIENT
+  MetaFrame *frame;
+#endif
 
   if (tracker->sync_stack_later)
     {
@@ -1065,9 +1070,10 @@ meta_stack_tracker_sync_stack (MetaStackTracker *tracker)
            * XID => window table. (Wine uses a toplevel for _NET_WM_USER_TIME_WINDOW;
            * see window-prop.c:reload_net_wm_user_time_window() for registration.)
            */
+          frame = meta_window ? meta_window_x11_get_frame (meta_window) : NULL;
           if (meta_window &&
               ((Window)window == meta_window_x11_get_xwindow (meta_window) ||
-               (meta_window->frame && (Window)window == meta_window->frame->xwindow)))
+               (frame && (Window)window == frame->xwindow)))
             meta_windows = g_list_prepend (meta_windows, meta_window);
         }
       else

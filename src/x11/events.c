@@ -804,15 +804,18 @@ handle_window_focus_event (MetaX11Display *x11_display,
   MetaWindow *focus_window;
 #ifdef WITH_VERBOSE_MODE
   const char *window_type;
+  MetaFrame *frame;
 
   /* Note the event can be on either the window or the frame,
    * we focus the frame for output-only windows
    */
   if (window)
     {
+      frame = meta_window_x11_get_frame (window);
+
       if (event->event == meta_window_x11_get_xwindow (window))
         window_type = "client window";
-      else if (window->frame && event->event == window->frame->xwindow)
+      else if (frame && event->event == frame->xwindow)
         window_type = "frame window";
       else
         window_type = "unknown client window";
@@ -1250,12 +1253,16 @@ notify_bell (MetaX11Display *x11_display,
   MetaDisplay *display = x11_display->display;
   XkbBellNotifyEvent *xkb_bell_event = (XkbBellNotifyEvent*) xkb_ev;
   MetaWindow *window;
+  MetaFrame *frame;
 
   window = meta_x11_display_lookup_x_window (x11_display,
                                              xkb_bell_event->window);
-  if (!window && display->focus_window && display->focus_window->frame)
-    window = display->focus_window;
-
+  if (!window && display->focus_window)
+    {
+      frame = meta_window_x11_get_frame (display->focus_window);
+      if (frame)
+        window = display->focus_window;
+    }
   x11_display->last_bell_time = xkb_ev->time;
   if (!meta_bell_notify (display, window) &&
       meta_prefs_bell_is_audible ())
@@ -1279,10 +1286,13 @@ handle_other_xevent (MetaX11Display *x11_display,
   MetaWindow *window;
   MetaWindow *property_for_window;
   gboolean frame_was_receiver;
+  MetaFrame *frame = NULL;
 
   modified = event_get_modified_window (x11_display, event);
   window = modified != None ? meta_x11_display_lookup_x_window (x11_display, modified) : NULL;
-  frame_was_receiver = (window && window->frame && modified == window->frame->xwindow);
+  if (window)
+    frame = meta_window_x11_get_frame (window);
+  frame_was_receiver = frame && modified == frame->xwindow;
 
   /* We only want to respond to _NET_WM_USER_TIME property notify
    * events on _NET_WM_USER_TIME_WINDOW windows; in particular,
@@ -1389,7 +1399,7 @@ handle_other_xevent (MetaX11Display *x11_display,
           if (frame_was_receiver)
             {
               mtk_x11_error_trap_push (x11_display->xdisplay);
-              meta_window_destroy_frame (window->frame->window);
+              meta_window_destroy_frame (frame->window);
               mtk_x11_error_trap_pop (x11_display->xdisplay);
             }
           else
@@ -1484,7 +1494,7 @@ handle_other_xevent (MetaX11Display *x11_display,
               window = meta_x11_display_lookup_x_window (x11_display,
                                                          client_window);
 
-              if (window != NULL && window->decorated && !window->frame)
+              if (window != NULL && window->decorated && !frame)
                 {
                   meta_window_x11_set_frame_xwindow (window,
                                                      event->xmaprequest.window);
@@ -1571,9 +1581,9 @@ handle_other_xevent (MetaX11Display *x11_display,
         {
           meta_window_x11_configure_request (window, event);
         }
-      else if (frame_was_receiver && window->frame)
+      else if (frame_was_receiver && frame)
         {
-          meta_frame_handle_xevent (window->frame, event);
+          meta_frame_handle_xevent (frame, event);
         }
       break;
     case GravityNotify:
@@ -1593,7 +1603,7 @@ handle_other_xevent (MetaX11Display *x11_display,
         else if (property_for_window && !frame_was_receiver)
           meta_window_x11_property_notify (property_for_window, event);
         else if (frame_was_receiver)
-          meta_frame_handle_xevent (window->frame, event);
+          meta_frame_handle_xevent (frame, event);
 
         group = meta_x11_display_lookup_group (x11_display,
                                                event->xproperty.window);
@@ -1782,10 +1792,13 @@ static gboolean
 window_has_xwindow (MetaWindow *window,
                     Window      xwindow)
 {
+  MetaFrame *frame;
+
   if (meta_window_x11_get_xwindow (window) == xwindow)
     return TRUE;
 
-  if (window->frame && window->frame->xwindow == xwindow)
+  frame = meta_window_x11_get_frame (window);
+  if (frame && frame->xwindow == xwindow)
     return TRUE;
 
   return FALSE;
