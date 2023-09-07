@@ -269,8 +269,6 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
   int new_buffer_x;
   int new_buffer_y;
 
-  g_assert (window->frame == NULL);
-
   /* don't do anything if we're dropping the window, see #751847 */
   if (window->unmanaging)
     return;

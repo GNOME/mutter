@@ -37,6 +37,7 @@
 #include "wayland/meta-wayland.h"
 #include "wayland/meta-window-wayland.h"
 #include "x11/meta-x11-display-private.h"
+#include "x11/window-x11.h"
 
 typedef struct {
   MetaContext *context;
@@ -1392,7 +1393,7 @@ test_case_do (TestCase    *test,
       if (!window)
         return FALSE;
 
-      if (meta_window_get_frame (window))
+      if (META_IS_WINDOW_X11 (window) && meta_window_x11_get_frame (window))
         {
           g_set_error (error,
                        META_TEST_CLIENT_ERROR,

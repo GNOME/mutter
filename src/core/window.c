@@ -1027,7 +1027,6 @@ meta_window_constructed (GObject *object)
 
   window->title = NULL;
 
-  window->frame = NULL;
   window->has_focus = FALSE;
   window->attached_focus_window = NULL;
 
@@ -4302,6 +4301,10 @@ meta_window_client_rect_to_frame_rect (MetaWindow   *window,
                                        MtkRectangle *client_rect,
                                        MtkRectangle *frame_rect)
 {
+#ifdef HAVE_X11_CLIENT
+  MetaFrameBorders borders;
+#endif
+
   if (!frame_rect)
     return;
 
@@ -4311,28 +4314,29 @@ meta_window_client_rect_to_frame_rect (MetaWindow   *window,
    * constraints.c:get_size_limits() and not something that we provide
    * in other locations or document.
    */
-  if (window->frame)
+#ifdef HAVE_X11_CLIENT
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
+      meta_window_x11_get_frame_borders (window, &borders))
     {
-      MetaFrameBorders borders;
-      meta_frame_calc_borders (window->frame, &borders);
-
       frame_rect->x -= borders.visible.left;
       frame_rect->y -= borders.visible.top;
       if (frame_rect->width != G_MAXINT)
         frame_rect->width += borders.visible.left + borders.visible.right;
       if (frame_rect->height != G_MAXINT)
-        frame_rect->height += borders.visible.top  + borders.visible.bottom;
+        frame_rect->height += borders.visible.top + borders.visible.bottom;
     }
   else
-    {
-      const MetaFrameBorder *extents = &window->custom_frame_extents;
-      frame_rect->x += extents->left;
-      frame_rect->y += extents->top;
-      if (frame_rect->width != G_MAXINT)
-        frame_rect->width -= extents->left + extents->right;
-      if (frame_rect->height != G_MAXINT)
-        frame_rect->height -= extents->top + extents->bottom;
-    }
+#endif
+  {
+    const MetaFrameBorder *extents = &window->custom_frame_extents;
+
+    frame_rect->x += extents->left;
+    frame_rect->y += extents->top;
+    if (frame_rect->width != G_MAXINT)
+      frame_rect->width -= extents->left + extents->right;
+    if (frame_rect->height != G_MAXINT)
+      frame_rect->height -= extents->top + extents->bottom;
+  }
 }
 
 /**
@@ -4349,29 +4353,34 @@ meta_window_frame_rect_to_client_rect (MetaWindow   *window,
                                        MtkRectangle *frame_rect,
                                        MtkRectangle *client_rect)
 {
+#ifdef HAVE_X11_CLIENT
+  MetaFrameBorders borders;
+#endif
+
   if (!client_rect)
     return;
 
   *client_rect = *frame_rect;
 
-  if (window->frame)
+#ifdef HAVE_X11_CLIENT
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
+      meta_window_x11_get_frame_borders (window, &borders))
     {
-      MetaFrameBorders borders;
-      meta_frame_calc_borders (window->frame, &borders);
-
       client_rect->x += borders.visible.left;
       client_rect->y += borders.visible.top;
-      client_rect->width  -= borders.visible.left + borders.visible.right;
-      client_rect->height -= borders.visible.top  + borders.visible.bottom;
+      client_rect->width -= borders.visible.left + borders.visible.right;
+      client_rect->height -= borders.visible.top + borders.visible.bottom;
     }
   else
-    {
-      const MetaFrameBorder *extents = &window->custom_frame_extents;
-      client_rect->x -= extents->left;
-      client_rect->y -= extents->top;
-      client_rect->width += extents->left + extents->right;
-      client_rect->height += extents->top + extents->bottom;
-    }
+#endif
+  {
+    const MetaFrameBorder *extents = &window->custom_frame_extents;
+
+    client_rect->x -= extents->left;
+    client_rect->y -= extents->top;
+    client_rect->width += extents->left + extents->right;
+    client_rect->height += extents->top + extents->bottom;
+  }
 }
 
 /**
@@ -4401,12 +4410,14 @@ meta_window_get_frame_rect (const MetaWindow *window,
  * to the buffer rect.
  */
 void
-meta_window_get_client_area_rect (const MetaWindow *window,
-                                  MtkRectangle     *rect)
+meta_window_get_client_area_rect (MetaWindow   *window,
+                                  MtkRectangle *rect)
 {
-  MetaFrameBorders borders;
-
-  meta_frame_calc_borders (window->frame, &borders);
+  MetaFrameBorders borders = { 0, };
+#ifdef HAVE_X11_CLIENT
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
+    meta_window_x11_get_frame_borders (window, &borders);
+#endif
 
   rect->x = borders.total.left;
   rect->y = borders.total.top;
@@ -5363,11 +5374,16 @@ meta_window_type_changed (MetaWindow *window)
   if (!window->override_redirect)
     set_net_wm_state (window);
 
-  /* Update frame */
-  if (window->decorated)
-    meta_window_ensure_frame (window);
-  else
-    meta_window_destroy_frame (window);
+#ifdef HAVE_X11_CLIENT
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
+    {
+      /* Update frame */
+      if (window->decorated)
+        meta_window_ensure_frame (window);
+      else
+        meta_window_destroy_frame (window);
+    }
+#endif
 
   /* update stacking constraints */
   meta_window_update_layer (window);
@@ -5398,8 +5414,16 @@ meta_window_set_type (MetaWindow     *window,
 void
 meta_window_frame_size_changed (MetaWindow *window)
 {
-  if (window->frame)
-    meta_frame_clear_cached_borders (window->frame);
+#ifdef HAVE_X11_CLIENT
+  MetaFrame *frame;
+
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
+    {
+      frame = meta_window_x11_get_frame (window);
+      if (frame)
+        meta_frame_clear_cached_borders (frame);
+    }
+#endif
 }
 
 static void
@@ -6241,17 +6265,6 @@ meta_window_unset_demands_attention (MetaWindow *window)
 }
 
 /**
- * meta_window_get_frame: (skip)
- * @window: a #MetaWindow
- *
- */
-MetaFrame *
-meta_window_get_frame (MetaWindow *window)
-{
-  return window->frame;
-}
-
-/**
  * meta_window_appears_focused:
  * @window: a #MetaWindow
  *
@@ -6793,8 +6806,14 @@ meta_window_get_frame_bounds (MetaWindow *window)
 {
   if (!window->frame_bounds)
     {
-      if (window->frame)
-        window->frame_bounds = meta_frame_get_frame_bounds (window->frame);
+#ifdef HAVE_X11_CLIENT
+      MetaFrame *frame = meta_window_x11_get_frame (window);
+#else
+      /* Only for now, as this method would be moved to a window-x11 in the upcoming commits */
+      MetaFrame *frame = NULL;
+#endif
+      if (frame)
+        window->frame_bounds = meta_frame_get_frame_bounds (frame);
     }
 
   return window->frame_bounds;

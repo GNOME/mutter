@@ -256,7 +256,7 @@ send_configure_notify (MetaWindow *window)
   event.xconfigure.window = priv->xwindow;
   event.xconfigure.x = priv->client_rect.x - priv->border_width;
   event.xconfigure.y = priv->client_rect.y - priv->border_width;
-  if (window->frame)
+  if (priv->frame)
     {
       if (window->withdrawn)
         {
@@ -265,16 +265,16 @@ send_configure_notify (MetaWindow *window)
            * where the visible top-left of the frame window currently is.
            */
 
-          meta_frame_calc_borders (window->frame, &borders);
+          meta_frame_calc_borders (priv->frame, &borders);
 
-          event.xconfigure.x = window->frame->rect.x + borders.invisible.left;
-          event.xconfigure.y = window->frame->rect.y + borders.invisible.top;
+          event.xconfigure.x = priv->frame->rect.x + borders.invisible.left;
+          event.xconfigure.y = priv->frame->rect.y + borders.invisible.top;
         }
       else
         {
           /* Need to be in root window coordinates */
-          event.xconfigure.x += window->frame->rect.x;
-          event.xconfigure.y += window->frame->rect.y;
+          event.xconfigure.x += priv->frame->rect.x;
+          event.xconfigure.y += priv->frame->rect.y;
         }
     }
   event.xconfigure.width = priv->client_rect.width;
@@ -326,7 +326,7 @@ adjust_for_gravity (MetaWindow   *window,
   else
     bw = 0;
 
-  meta_frame_calc_borders (window->frame, &borders);
+  meta_frame_calc_borders (priv->frame, &borders);
 
   child_x = borders.visible.left;
   child_y = borders.visible.top;
@@ -719,7 +719,7 @@ meta_window_x11_unmanage (MetaWindow *window)
 
   mtk_x11_error_trap_pop (x11_display->xdisplay);
 
-  if (window->frame)
+  if (priv->frame)
     {
       /* The XReparentWindow call in meta_window_destroy_frame() moves the
        * window so we need to send a configure notify; see bug 399552.  (We
@@ -998,7 +998,7 @@ meta_window_x11_focus (MetaWindow *window,
   gboolean is_output_only_with_frame;
 
   is_output_only_with_frame =
-    window->frame && !meta_window_is_focusable (window);
+    priv->frame && !meta_window_is_focusable (window);
 
   if (window->input || is_output_only_with_frame)
     {
@@ -1060,10 +1060,10 @@ meta_window_get_client_root_coords (MetaWindow   *window,
 
   *rect = priv->client_rect;
 
-  if (window->frame)
+  if (priv->frame)
     {
-      rect->x += window->frame->rect.x;
-      rect->y += window->frame->rect.y;
+      rect->x += priv->frame->rect.x;
+      rect->y += priv->frame->rect.y;
     }
 }
 
@@ -1136,13 +1136,15 @@ meta_window_x11_grab_op_ended (MetaWindow *window,
 static void
 update_net_frame_extents (MetaWindow *window)
 {
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
   MetaX11Display *x11_display = window->display->x11_display;
 
   unsigned long data[4];
   MetaFrameBorders borders;
   Window xwindow = meta_window_x11_get_xwindow (window);
 
-  meta_frame_calc_borders (window->frame, &borders);
+  meta_frame_calc_borders (priv->frame, &borders);
   /* Left */
   data[0] = borders.visible.left;
   /* Right */
@@ -1228,6 +1230,8 @@ edge_constraints_to_gtk_edge_constraints (MetaWindow *window)
 static void
 update_gtk_edge_constraints (MetaWindow *window)
 {
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
   MetaX11Display *x11_display = window->display->x11_display;
   unsigned long data[1];
 
@@ -1237,7 +1241,7 @@ update_gtk_edge_constraints (MetaWindow *window)
 
   mtk_x11_error_trap_push (x11_display->xdisplay);
   XChangeProperty (x11_display->xdisplay,
-                   window->frame ? window->frame->xwindow : meta_window_x11_get_xwindow (window),
+                   priv->frame ? priv->frame->xwindow : meta_window_x11_get_xwindow (window),
                    x11_display->atom__GTK_EDGE_CONSTRAINTS,
                    XA_CARDINAL, 32, PropModeReplace,
                    (guchar*) data, 1);
@@ -1321,14 +1325,14 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
 
   is_configure_request = (flags & META_MOVE_RESIZE_CONFIGURE_REQUEST) != 0;
 
-  meta_frame_calc_borders (window->frame, &borders);
+  meta_frame_calc_borders (priv->frame, &borders);
 
   size_dx = constrained_rect.width - window->rect.width;
   size_dy = constrained_rect.height - window->rect.height;
 
   window->rect = constrained_rect;
 
-  if (window->frame)
+  if (priv->frame)
     {
       int new_w, new_h;
       int new_x, new_y;
@@ -1337,24 +1341,24 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
       new_w = window->rect.width + borders.invisible.left + borders.invisible.right;
       new_h = window->rect.height + borders.invisible.top + borders.invisible.bottom;
 
-      if (new_w != window->frame->rect.width ||
-          new_h != window->frame->rect.height)
+      if (new_w != priv->frame->rect.width ||
+          new_h != priv->frame->rect.height)
         {
           need_resize_frame = TRUE;
-          window->frame->rect.width = new_w;
-          window->frame->rect.height = new_h;
+          priv->frame->rect.width = new_w;
+          priv->frame->rect.height = new_h;
         }
 
       /* Compute new frame coords */
       new_x = window->rect.x - borders.invisible.left;
       new_y = window->rect.y - borders.invisible.top;
 
-      if (new_x != window->frame->rect.x ||
-          new_y != window->frame->rect.y)
+      if (new_x != priv->frame->rect.x ||
+          new_y != priv->frame->rect.y)
         {
           need_move_frame = TRUE;
-          window->frame->rect.x = new_x;
-          window->frame->rect.y = new_y;
+          priv->frame->rect.x = new_x;
+          priv->frame->rect.y = new_y;
         }
     }
 
@@ -1365,7 +1369,7 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
    * values we need to pass to XConfigureWindow are in parent
    * coordinates, so if the window is in a frame, we need to
    * correct the x/y positions here. */
-  if (window->frame)
+  if (priv->frame)
     {
       client_rect.x = borders.total.left;
       client_rect.y = borders.total.top;
@@ -1389,16 +1393,16 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
 
   /* If frame extents have changed, fill in other frame fields and
      change frame's extents property. */
-  if (window->frame &&
-      (window->frame->child_x != borders.total.left ||
-       window->frame->child_y != borders.total.top ||
-       window->frame->right_width != borders.total.right ||
-       window->frame->bottom_height != borders.total.bottom))
+  if (priv->frame &&
+      (priv->frame->child_x != borders.total.left ||
+       priv->frame->child_y != borders.total.top ||
+       priv->frame->right_width != borders.total.right ||
+       priv->frame->bottom_height != borders.total.bottom))
     {
-      window->frame->child_x = borders.total.left;
-      window->frame->child_y = borders.total.top;
-      window->frame->right_width = borders.total.right;
-      window->frame->bottom_height = borders.total.bottom;
+      priv->frame->child_x = borders.total.left;
+      priv->frame->child_y = borders.total.top;
+      priv->frame->right_width = borders.total.right;
+      priv->frame->bottom_height = borders.total.bottom;
 
       update_net_frame_extents (window);
     }
@@ -1430,7 +1434,7 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
    * PROGRAM_POSITION/USER_POSITION hints aren't set, mutter seems to send a
    * ConfigureNotify anyway due to the above code.)
    */
-  if (window->constructing && window->frame &&
+  if (window->constructing && priv->frame &&
       ((window->size_hints.flags & META_SIZE_HINTS_PROGRAM_POSITION) ||
        (window->size_hints.flags & META_SIZE_HINTS_USER_POSITION)))
     need_configure_notify = TRUE;
@@ -1506,12 +1510,12 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
       meta_grab_op_is_resizing (meta_window_drag_get_grab_op (window_drag)))
     {
       meta_sync_counter_send_request (&priv->sync_counter);
-      if (window->frame)
-        meta_sync_counter_send_request (meta_frame_get_sync_counter (window->frame));
+      if (priv->frame)
+        meta_sync_counter_send_request (meta_frame_get_sync_counter (priv->frame));
     }
 
-  if (configure_frame_first && window->frame)
-    frame_shape_changed = meta_frame_sync_to_window (window->frame, need_resize_frame);
+  if (configure_frame_first && priv->frame)
+    frame_shape_changed = meta_frame_sync_to_window (priv->frame, need_resize_frame);
 
   if (mask != 0)
     {
@@ -1521,13 +1525,13 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
                         &values);
     }
 
-  if (!configure_frame_first && window->frame)
-    frame_shape_changed = meta_frame_sync_to_window (window->frame, need_resize_frame);
+  if (!configure_frame_first && priv->frame)
+    frame_shape_changed = meta_frame_sync_to_window (priv->frame, need_resize_frame);
 
   mtk_x11_error_trap_pop (window->display->x11_display->xdisplay);
 
-  if (window->frame)
-    window->buffer_rect = window->frame->rect;
+  if (priv->frame)
+    window->buffer_rect = priv->frame->rect;
   else
     window->buffer_rect = client_rect;
 
@@ -1830,8 +1834,8 @@ meta_window_x11_are_updates_frozen (MetaWindow *window)
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
 
-  if (window->frame &&
-      meta_sync_counter_is_waiting (meta_frame_get_sync_counter (window->frame)))
+  if (priv->frame &&
+      meta_sync_counter_is_waiting (meta_frame_get_sync_counter (priv->frame)))
     return TRUE;
 
   return meta_sync_counter_is_waiting (&priv->sync_counter);
@@ -2038,8 +2042,11 @@ meta_window_x11_set_transient_for (MetaWindow *window,
 gboolean
 meta_window_x11_is_ssd (MetaWindow *window)
 {
-  /* Will be updated in the next commits once frame field is moved to WindowX11 */
-  return window->frame != NULL;
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
+
+  return priv->frame != NULL;
 }
 
 static void
@@ -2080,6 +2087,7 @@ meta_window_x11_constructed (GObject *object)
 
   priv->user_time_window = None;
 
+  priv->frame = NULL;
   window->decorated = TRUE;
   window->hidden = FALSE;
   priv->border_width = attrs.border_width;
@@ -2290,10 +2298,10 @@ meta_window_x11_set_net_wm_state (MetaWindow *window)
                    XA_ATOM,
                    32, PropModeReplace, (guchar*) data, i);
 
-  if (window->frame)
+  if (priv->frame)
     {
       XChangeProperty (x11_display->xdisplay,
-                       window->frame->xwindow,
+                       priv->frame->xwindow,
                        x11_display->atom__NET_WM_STATE,
                        XA_ATOM,
                        32, PropModeReplace, (guchar*) data, i);
@@ -2417,7 +2425,7 @@ meta_window_x11_update_input_region (MetaWindow *window)
             meta_window_set_input_region (window, NULL);
           return;
         }
-      xwindow = window->frame->xwindow;
+      xwindow = priv->frame->xwindow;
       bounding_rect.width = window->buffer_rect.width;
       bounding_rect.height = window->buffer_rect.height;
     }
@@ -2617,6 +2625,8 @@ meta_window_x11_get_gravity_position (MetaWindow  *window,
                                       int         *root_x,
                                       int         *root_y)
 {
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_private (META_WINDOW_X11 (window));
   MtkRectangle frame_extents;
   int w, h;
   int x, y;
@@ -2627,18 +2637,18 @@ meta_window_x11_get_gravity_position (MetaWindow  *window,
   if (gravity == META_GRAVITY_STATIC)
     {
       frame_extents = window->rect;
-      if (window->frame)
+      if (priv->frame)
         {
-          frame_extents.x = window->frame->rect.x + window->frame->child_x;
-          frame_extents.y = window->frame->rect.y + window->frame->child_y;
+          frame_extents.x = priv->frame->rect.x + priv->frame->child_x;
+          frame_extents.y = priv->frame->rect.y + priv->frame->child_y;
         }
     }
   else
     {
-      if (window->frame == NULL)
+      if (priv->frame == NULL)
         frame_extents = window->rect;
       else
-        frame_extents = window->frame->rect;
+        frame_extents = priv->frame->rect;
     }
 
   x = frame_extents.x;
@@ -4208,7 +4218,7 @@ meta_window_x11_configure_notify (MetaWindow      *window,
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
 
   g_assert (window->override_redirect);
-  g_assert (window->frame == NULL);
+  g_assert (priv->frame == NULL);
 
   window->rect.x = event->x;
   window->rect.y = event->y;
@@ -4235,6 +4245,8 @@ meta_window_x11_configure_notify (MetaWindow      *window,
 void
 meta_window_x11_set_allowed_actions_hint (MetaWindow *window)
 {
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
   MetaX11Display *x11_display = window->display->x11_display;
 #define MAX_N_ACTIONS 12
   unsigned long data[MAX_N_ACTIONS];
@@ -4297,10 +4309,10 @@ meta_window_x11_set_allowed_actions_hint (MetaWindow *window)
                    XA_ATOM,
                    32, PropModeReplace, (guchar*) data, i);
 
-  if (window->frame)
+  if (priv->frame)
     {
       XChangeProperty (x11_display->xdisplay,
-                       window->frame->xwindow,
+                       priv->frame->xwindow,
                        x11_display->atom__NET_WM_ALLOWED_ACTIONS,
                        XA_ATOM,
                        32, PropModeReplace, (guchar*) data, i);
@@ -4316,8 +4328,8 @@ meta_window_x11_create_sync_request_alarm (MetaWindow *window)
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
 
-  if (window->frame)
-    meta_sync_counter_create_sync_alarm (meta_frame_get_sync_counter (window->frame));
+  if (priv->frame)
+    meta_sync_counter_create_sync_alarm (meta_frame_get_sync_counter (priv->frame));
 
   meta_sync_counter_create_sync_alarm (&priv->sync_counter);
 }
@@ -4328,8 +4340,8 @@ meta_window_x11_destroy_sync_request_alarm (MetaWindow *window)
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
 
-  if (window->frame)
-    meta_sync_counter_destroy_sync_alarm (meta_frame_get_sync_counter (window->frame));
+  if (priv->frame)
+    meta_sync_counter_destroy_sync_alarm (meta_frame_get_sync_counter (priv->frame));
 
   meta_sync_counter_destroy_sync_alarm (&priv->sync_counter);
 }
@@ -4337,7 +4349,10 @@ meta_window_x11_destroy_sync_request_alarm (MetaWindow *window)
 Window
 meta_window_x11_get_toplevel_xwindow (MetaWindow *window)
 {
-  return window->frame ? window->frame->xwindow : meta_window_x11_get_xwindow (window);
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
+
+  return priv->frame ? priv->frame->xwindow : meta_window_x11_get_xwindow (window);
 }
 
 void
@@ -4387,11 +4402,13 @@ meta_window_x11_surface_rect_to_frame_rect (MetaWindow   *window,
                                             MtkRectangle *frame_rect)
 
 {
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
   MetaFrameBorders borders;
 
-  g_return_if_fail (window->frame);
+  g_return_if_fail (priv->frame);
 
-  meta_frame_calc_borders (window->frame, &borders);
+  meta_frame_calc_borders (priv->frame, &borders);
 
   *frame_rect = *surface_rect;
   frame_rect->x += borders.invisible.left;
@@ -4405,9 +4422,11 @@ meta_window_x11_surface_rect_to_client_rect (MetaWindow   *window,
                                              MtkRectangle *surface_rect,
                                              MtkRectangle *client_rect)
 {
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
   MetaFrameBorders borders;
 
-  meta_frame_calc_borders (window->frame, &borders);
+  meta_frame_calc_borders (priv->frame, &borders);
 
   *client_rect = *surface_rect;
   client_rect->x += borders.total.left;
@@ -4483,14 +4502,36 @@ meta_window_x11_get_sync_counter (MetaWindow *window)
   return &priv->sync_counter;
 }
 
+MetaFrame*
+meta_window_x11_get_frame (MetaWindow *window)
+{
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
+
+  return priv->frame;
+}
+
+gboolean
+meta_window_x11_get_frame_borders (MetaWindow       *window,
+                                   MetaFrameBorders *borders)
+{
+  MetaFrame *frame = meta_window_x11_get_frame (window);
+
+  if (!frame)
+    return FALSE;
+
+  meta_frame_calc_borders (frame, borders);
+  return TRUE;
+}
+
 gboolean
 meta_window_x11_is_awaiting_sync_response (MetaWindow *window)
 {
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
 
-  if (window->frame &&
-      meta_sync_counter_is_waiting_response (meta_frame_get_sync_counter (window->frame)))
+  if (priv->frame &&
+      meta_sync_counter_is_waiting_response (meta_frame_get_sync_counter (priv->frame)))
     return TRUE;
 
   return meta_sync_counter_is_waiting_response (&priv->sync_counter);
@@ -4503,8 +4544,8 @@ meta_window_x11_check_update_resize (MetaWindow *window)
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
   MetaWindowDrag *window_drag;
 
-  if (window->frame &&
-      meta_sync_counter_is_waiting (meta_frame_get_sync_counter (window->frame)))
+  if (priv->frame &&
+      meta_sync_counter_is_waiting (meta_frame_get_sync_counter (priv->frame)))
     return;
 
   if (meta_sync_counter_is_waiting (&priv->sync_counter))
