@@ -543,6 +543,8 @@ cogl_onscreen_glx_get_buffer_age (CoglOnscreen *onscreen)
   if (!_cogl_winsys_has_feature (COGL_WINSYS_FEATURE_BUFFER_AGE))
     return 0;
 
+  cogl_onscreen_bind (onscreen);
+
   drawable = onscreen_glx->glxwin ? onscreen_glx->glxwin : onscreen_glx->xwin;
   mtk_x11_error_trap_push (xlib_renderer->xdpy);
   glx_renderer->glXQueryDrawable (xlib_renderer->xdpy, drawable, GLX_BACK_BUFFER_AGE_EXT, &age);
