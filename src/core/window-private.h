@@ -278,9 +278,6 @@ struct _MetaWindow
     MetaLogicalMonitor *right;
   } fullscreen_monitors;
 
-  /* if non-NULL, the bounds of the window frame */
-  MtkRegion *frame_bounds;
-
   /* _NET_WM_WINDOW_OPACITY rescaled to 0xFF */
   guint8 opacity;
 

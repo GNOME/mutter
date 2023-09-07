@@ -99,6 +99,10 @@
 #include "wayland/meta-window-wayland.h"
 #endif
 
+#ifdef HAVE_X11_CLIENT
+#include "x11/window-x11-private.h"
+#endif
+
 #ifdef HAVE_XWAYLAND
 #include "wayland/meta-window-xwayland.h"
 #endif
@@ -314,8 +318,6 @@ static void
 meta_window_finalize (GObject *object)
 {
   MetaWindow *window = META_WINDOW (object);
-
-  g_clear_pointer (&window->frame_bounds, mtk_region_unref);
 
   if (window->transient_for)
     g_object_unref (window->transient_for);
@@ -3992,8 +3994,16 @@ meta_window_move_resize_internal (MetaWindow          *window,
       meta_window_update_monitor (window, update_monitor_flags);
     }
 
-  if ((result & META_MOVE_RESIZE_RESULT_FRAME_SHAPE_CHANGED) && window->frame_bounds)
-    g_clear_pointer (&window->frame_bounds, mtk_region_unref);
+#ifdef HAVE_X11_CLIENT
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
+    {
+      MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+      MetaWindowX11Private *priv = meta_window_x11_get_private (window_x11);
+
+      if ((result & META_MOVE_RESIZE_RESULT_FRAME_SHAPE_CHANGED) && priv->frame_bounds)
+        g_clear_pointer (&priv->frame_bounds, mtk_region_unref);
+    }
+#endif
 
   meta_window_foreach_transient (window, maybe_move_attached_window, NULL);
 
@@ -6789,34 +6799,6 @@ meta_window_get_frame_type (MetaWindow *window)
     {
       return base_type;
     }
-}
-
-/**
- * meta_window_get_frame_bounds:
- * @window: a #MetaWindow
- *
- * Gets a region representing the outer bounds of the window's frame.
- *
- * Return value: (transfer none) (nullable): a #MtkRegion
- *  holding the outer bounds of the window, or %NULL if the window
- *  doesn't have a frame.
- */
-MtkRegion *
-meta_window_get_frame_bounds (MetaWindow *window)
-{
-  if (!window->frame_bounds)
-    {
-#ifdef HAVE_X11_CLIENT
-      MetaFrame *frame = meta_window_x11_get_frame (window);
-#else
-      /* Only for now, as this method would be moved to a window-x11 in the upcoming commits */
-      MetaFrame *frame = NULL;
-#endif
-      if (frame)
-        window->frame_bounds = meta_frame_get_frame_bounds (frame);
-    }
-
-  return window->frame_bounds;
 }
 
 /**
