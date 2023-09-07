@@ -11,15 +11,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2023-02-23 17:14+0000\n"
-"PO-Revision-Date: 2023-03-02 23:11+0100\n"
+"POT-Creation-Date: 2023-09-06 09:51+0000\n"
+"PO-Revision-Date: 2023-09-07 22:10+0200\n"
 "Last-Translator: Anders Jonsson <anders.jonsson@norsjovallen.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.2.2\n"
+"X-Generator: Poedit 3.3.2\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -158,20 +158,20 @@ msgid "Switch to last workspace"
 msgstr "Växla till sista arbetsyta"
 
 #: data/50-mutter-navigation.xml:131
-msgid "Move to workspace on the left"
-msgstr "Flytta till arbetsyta till vänster"
+msgid "Switch to workspace on the left"
+msgstr "Växla till arbetsytan till vänster"
 
 #: data/50-mutter-navigation.xml:134
-msgid "Move to workspace on the right"
-msgstr "Flytta till arbetsyta till höger"
+msgid "Switch to workspace on the right"
+msgstr "Växla till arbetsytan till höger"
 
 #: data/50-mutter-navigation.xml:138
-msgid "Move to workspace above"
-msgstr "Flytta till arbetsyta ovanför"
+msgid "Switch to workspace above"
+msgstr "Växla till arbetsytan ovanför"
 
 #: data/50-mutter-navigation.xml:142
-msgid "Move to workspace below"
-msgstr "Flytta till arbetsyta nedanför"
+msgid "Switch to workspace below"
+msgstr "Växla till arbetsytan under"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -442,6 +442,10 @@ msgstr "Växla skärmkonfiguration"
 msgid "Rotates the built-in monitor configuration"
 msgstr "Roterar den inbyggda skärmkonfigurationen"
 
+#: data/org.gnome.mutter.gschema.xml.in:184
+msgid "Cancel any active input capture session"
+msgstr "Avbryt alla aktiva inmatningsfångstsessioner"
+
 #: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
 msgstr "Växla till VT 1"
@@ -591,26 +595,26 @@ msgstr ""
 "+byteswappedclients/-byteswappedclients för att styra den inställningen. "
 "Xwayland behöver startas om för att denna inställning ska börja gälla."
 
-#: src/backends/meta-monitor.c:253
+#: src/backends/meta-monitor.c:251
 msgid "Built-in display"
 msgstr "Inbyggd display"
 
-#: src/backends/meta-monitor.c:280
+#: src/backends/meta-monitor.c:278
 msgid "Unknown"
 msgstr "Okänd"
 
-#: src/backends/meta-monitor.c:282
+#: src/backends/meta-monitor.c:280
 msgid "Unknown Display"
 msgstr "Okänd display"
 
-#: src/backends/meta-monitor.c:290
+#: src/backends/meta-monitor.c:288
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:298
+#: src/backends/meta-monitor.c:296
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -618,86 +622,82 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#. This probably means that a non-WM compositor like xcompmgr is running;
-#. * we have no way to get it to exit
-#: src/compositor/compositor.c:416
-#, c-format
-msgid ""
-"Another compositing manager is already running on screen %i on display “%s”."
-msgstr "En annan kompositionshanterare körs redan på skärm %i på display ”%s”."
-
-#: src/core/bell.c:192
+#: src/core/bell.c:193
 msgid "Bell event"
 msgstr "Ljudsignalhändelse"
 
-#: src/core/display.c:703
+#: src/core/display.c:723
 msgid "Privacy Screen Enabled"
 msgstr "Sekretesskärm aktiverad"
 
-#: src/core/display.c:704
+#: src/core/display.c:724
 msgid "Privacy Screen Disabled"
 msgstr "Sekretesskärm inaktiverad"
 
-#: src/core/meta-context-main.c:568
+#: src/core/meta-context-main.c:579
 msgid "Replace the running window manager"
 msgstr "Ersätt körande fönsterhanteraren"
 
-#: src/core/meta-context-main.c:574
+#: src/core/meta-context-main.c:585
 msgid "X Display to use"
 msgstr "X-display att använda"
 
-#: src/core/meta-context-main.c:580
+#: src/core/meta-context-main.c:591
 msgid "Disable connection to session manager"
 msgstr "Inaktivera anslutning till sessionshanteraren"
 
-#: src/core/meta-context-main.c:586
+#: src/core/meta-context-main.c:597
 msgid "Specify session management ID"
 msgstr "Ange sessionshanteringsid"
 
-#: src/core/meta-context-main.c:592
+#: src/core/meta-context-main.c:603
 msgid "Initialize session from savefile"
 msgstr "Initiera session från sparandefil"
 
-#: src/core/meta-context-main.c:598
+#: src/core/meta-context-main.c:609
 msgid "Make X calls synchronous"
 msgstr "Gör X-anrop synkrona"
 
-#: src/core/meta-context-main.c:606
+#: src/core/meta-context-main.c:617
 msgid "Run as a wayland compositor"
 msgstr "Kör som en wayland-kompositionshanterare"
 
-#: src/core/meta-context-main.c:612
+#: src/core/meta-context-main.c:623
 msgid "Run as a nested compositor"
 msgstr "Kör som en nästlad kompositionshanterare"
 
-#: src/core/meta-context-main.c:618
+#: src/core/meta-context-main.c:629
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Kör wayland-kompositionshanteraren utan att starta Xwayland"
 
-#: src/core/meta-context-main.c:624
+#: src/core/meta-context-main.c:635
 msgid "Specify Wayland display name to use"
 msgstr "Ange Wayland-displaynamn att använda"
 
-#: src/core/meta-context-main.c:632
+#: src/core/meta-context-main.c:643
 msgid "Run as a full display server, rather than nested"
 msgstr "Kör som en full display-tjänst, i stället för nästlad"
 
-#: src/core/meta-context-main.c:637
+#: src/core/meta-context-main.c:648
 msgid "Run as a headless display server"
 msgstr "Kör som en huvudlös display-tjänst"
 
-#: src/core/meta-context-main.c:642
+#: src/core/meta-context-main.c:653
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Lägg till beständig virtuell skärm (BxH eller BxH@Frekvens)"
 
-#: src/core/meta-context-main.c:654
+#: src/core/meta-context-main.c:665
 msgid "Run with X11 backend"
 msgstr "Kör med X11-gränssnitt"
+
+#: src/core/meta-context-main.c:671
+msgid "Profile performance using trace instrumentation"
+msgstr "Profilera prestanda genom spårinstrument"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:861
+#: src/core/meta-pad-action-mapper.c:805
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Lägesväxel (grupp %d)"
@@ -705,16 +705,16 @@ msgstr "Lägesväxel (grupp %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:884
+#: src/core/meta-pad-action-mapper.c:827
 msgid "Switch monitor"
 msgstr "Växla skärm"
 
-#: src/core/meta-pad-action-mapper.c:886
+#: src/core/meta-pad-action-mapper.c:829
 msgid "Show on-screen help"
 msgstr "Visa hjälp på skärmen"
 
 #. Translators: this string will appear in Sysprof
-#: src/core/meta-profiler.c:80 src/core/meta-profiler.c:217
+#: src/core/meta-profiler.c:109 src/core/meta-profiler.c:299
 msgid "Compositor"
 msgstr "Kompositionshanterare"
 
@@ -726,25 +726,25 @@ msgstr "Skriv ut version"
 msgid "Mutter plugin to use"
 msgstr "Mutter-insticksmodul att använda"
 
-#: src/core/prefs.c:1913
+#: src/core/prefs.c:1843
 #, c-format
 msgid "Workspace %d"
 msgstr "Arbetsyta %d"
 
-#: src/core/util.c:142
+#: src/core/util.c:139
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter kompilerades utan stöd för utförligt läge"
 
-#: src/core/workspace.c:541
+#: src/core/workspace.c:512
 msgid "Workspace switched"
 msgstr "Växlade arbetsyta"
 
-#: src/wayland/meta-wayland-tablet-pad.c:530
+#: src/wayland/meta-wayland-tablet-pad.c:532
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Lägesväxel: Läge %d"
 
-#: src/x11/meta-x11-display.c:703
+#: src/x11/meta-x11-display.c:717
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -753,29 +753,42 @@ msgstr ""
 "Display ”%s” har redan en fönsterhanterare; försök med flaggan --replace för "
 "att ersätta den aktuella fönsterhanteraren."
 
-#: src/x11/meta-x11-display.c:1095
-msgid "Failed to initialize GDK"
-msgstr "Misslyckades med att initiera GDK"
-
-#: src/x11/meta-x11-display.c:1121
+#: src/x11/meta-x11-display.c:1082
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Misslyckades med att öppna X Window System-displayen ”%s”"
 
-#: src/x11/meta-x11-display.c:1274
+#: src/x11/meta-x11-display.c:1228
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Skärm %d på display ”%s” är ogiltig"
 
-#: src/x11/meta-x11-selection-input-stream.c:481
+#. This probably means that a non-WM compositor like xcompmgr is running;
+#. * we have no way to get it to exit
+#: src/x11/meta-x11-display.c:2554
+#, c-format
+msgid ""
+"Another compositing manager is already running on screen %i on display “%s”."
+msgstr "En annan kompositionshanterare körs redan på skärm %i på display ”%s”."
+
+#: src/x11/meta-x11-selection-input-stream.c:475
 #, c-format
 msgid "Format %s not supported"
 msgstr "Formatet %s stöds ej"
 
-#: src/x11/window-props.c:549
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (på %s)"
+
+#~ msgid "Move to workspace above"
+#~ msgstr "Flytta till arbetsyta ovanför"
+
+#~ msgid "Move to workspace below"
+#~ msgstr "Flytta till arbetsyta nedanför"
+
+#~ msgid "Failed to initialize GDK"
+#~ msgstr "Misslyckades med att initiera GDK"
 
 #~ msgid "Mutter"
 #~ msgstr "Mutter"
