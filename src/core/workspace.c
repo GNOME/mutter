@@ -1310,14 +1310,41 @@ meta_workspace_get_name (MetaWorkspace *workspace)
   return meta_prefs_get_workspace_name (meta_workspace_index (workspace));
 }
 
+static MetaWindow *
+workspace_find_focused_window (MetaWorkspace *workspace)
+{
+  GList *l;
+
+  for (l = workspace->windows; l != NULL; l = l->next)
+    {
+      MetaWindow *win = l->data;
+
+      if (meta_window_has_focus (win))
+        return win;
+    }
+
+  return NULL;
+}
+
 void
 meta_workspace_focus_default_window (MetaWorkspace *workspace,
                                      MetaWindow    *not_this_one,
                                      guint32        timestamp)
 {
+  MetaWindow *window = NULL;
+  MetaWindow *current_focus_window = NULL;
+
   if (timestamp == META_CURRENT_TIME)
     meta_warning ("META_CURRENT_TIME used to choose focus window; "
                   "focus window may not be correct.");
+
+  current_focus_window = workspace_find_focused_window (workspace);
+
+  if (current_focus_window)
+    {
+      focus_ancestor_or_mru_window (workspace, not_this_one, timestamp);
+      return;
+    }
 
   if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK ||
       !workspace->display->mouse_mode)
