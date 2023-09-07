@@ -279,6 +279,16 @@ struct _MetaWindow
   /* if non-NULL, the bounds of the window frame */
   MtkRegion *frame_bounds;
 
+  /* if non-NULL, the bounding shape region of the window. Relative to
+   * the server-side client window. */
+  MtkRegion *shape_region;
+
+  /* if non-NULL, the opaque region _NET_WM_OPAQUE_REGION */
+  MtkRegion *opaque_region;
+
+  /* the input shape region for picking */
+  MtkRegion *input_region;
+
   /* _NET_WM_WINDOW_OPACITY rescaled to 0xFF */
   guint8 opacity;
 

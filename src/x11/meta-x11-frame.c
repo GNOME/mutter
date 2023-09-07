@@ -242,7 +242,7 @@ meta_window_destroy_frame (MetaWindow *window)
   meta_x11_display_unregister_x_window (x11_display, frame->xwindow);
 
   priv->frame = NULL;
-  g_clear_pointer (&window->frame_bounds, mtk_region_unref);
+  g_clear_pointer (&priv->frame_bounds, mtk_region_unref);
   g_clear_pointer (&frame->opaque_region, mtk_region_unref);
 
   /* Move keybindings to window instead of frame */

@@ -344,9 +344,6 @@ META_EXPORT
 MetaFrameType meta_window_get_frame_type (MetaWindow *window);
 
 META_EXPORT
-MtkRegion *meta_window_get_frame_bounds (MetaWindow *window);
-
-META_EXPORT
 MetaWindow *meta_window_get_tile_match (MetaWindow *window);
 
 META_EXPORT

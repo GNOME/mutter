@@ -102,6 +102,9 @@ struct _MetaWindowX11Private
   /* may be NULL! not all windows get decorated */
   MetaFrame *frame;
 
+  /* if non-NULL, the bounds of the window frame */
+  MtkRegion *frame_bounds;
+
   gboolean has_custom_frame_extents;
   MetaSyncCounter sync_counter;
 
