@@ -685,6 +685,12 @@ void
 meta_wayland_pointer_update (MetaWaylandPointer *pointer,
                              const ClutterEvent *event)
 {
+  MetaWaylandInputDevice *input_device = META_WAYLAND_INPUT_DEVICE (pointer);
+  MetaWaylandSeat *seat = meta_wayland_input_device_get_seat (input_device);
+  MetaWaylandCompositor *compositor = meta_wayland_seat_get_compositor (seat);
+  MetaContext *context =
+    meta_wayland_compositor_get_context (compositor);
+  MetaDisplay *display = meta_context_get_display (context);
   ClutterEventType event_type;
 
   event_type = clutter_event_type (event);
@@ -696,28 +702,24 @@ meta_wayland_pointer_update (MetaWaylandPointer *pointer,
     {
       repick_for_event (pointer, event);
 
-      if (event_type == CLUTTER_ENTER)
+      if (event_type == CLUTTER_ENTER || event_type == CLUTTER_LEAVE)
         {
-          MetaWindow *focus_window = NULL;
           ClutterInputDevice *device;
+          graphene_point_t pos;
+          MetaWindow *focus_window = NULL;
 
           device = clutter_event_get_source_device (event);
+          clutter_event_get_coords (event, &pos.x, &pos.y);
 
           if (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_LOGICAL)
             {
               if (pointer->focus_surface)
                 focus_window = meta_wayland_surface_get_window (pointer->focus_surface);
 
-              if (focus_window)
-                {
-                  graphene_point_t pos;
-
-                  clutter_event_get_coords (event, &pos.x, &pos.y);
-                  meta_display_handle_window_enter (focus_window->display,
-                                                    focus_window,
-                                                    clutter_event_get_time (event),
-                                                    pos.x, pos.y);
-                }
+              meta_display_handle_window_enter (display,
+                                                focus_window,
+                                                clutter_event_get_time (event),
+                                                pos.x, pos.y);
             }
         }
     }
