@@ -1350,54 +1350,54 @@ meta_workspace_focus_default_window (MetaWorkspace *workspace,
       !workspace->display->mouse_mode)
     {
       focus_ancestor_or_mru_window (workspace, not_this_one, timestamp);
+      return;
     }
-  else
+
+  window = get_pointer_window (workspace, not_this_one);
+
+  if (!window ||
+      window->type == META_WINDOW_DOCK ||
+      window->type == META_WINDOW_DESKTOP)
     {
-      MetaWindow * window;
-
-      window = get_pointer_window (workspace, not_this_one);
-      if (window &&
-          window->type != META_WINDOW_DOCK &&
-          window->type != META_WINDOW_DESKTOP)
-        {
-          if (timestamp == META_CURRENT_TIME)
-            {
-
-              /* We would like for this to never happen.  However, if
-               * it does happen then we kludge since using META_CURRENT_TIME
-               * can mean ugly race conditions--and we can avoid these
-               * by allowing EnterNotify events (which come with
-               * timestamps) to handle focus.
-               */
-
-              meta_topic (META_DEBUG_FOCUS,
-                          "Not focusing mouse window %s because EnterNotify events should handle that",
-                          window->desc);
-            }
-          else
-            {
-              meta_topic (META_DEBUG_FOCUS,
-                          "Focusing mouse window %s", window->desc);
-              meta_window_focus (window, timestamp);
-            }
-
-          if (workspace->display->autoraise_window != window &&
-              meta_prefs_get_auto_raise ())
-            {
-              meta_display_queue_autoraise_callback (workspace->display, window);
-            }
-        }
-      else if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_SLOPPY)
-        {
-          focus_ancestor_or_mru_window (workspace, not_this_one, timestamp);
-        }
-      else if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_MOUSE)
+      if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_MOUSE)
         {
           meta_topic (META_DEBUG_FOCUS,
                       "Setting focus to no_focus_window, since no valid "
                       "window to focus found.");
           meta_display_unset_input_focus (workspace->display, timestamp);
         }
+      else /* G_DESKTOP_FOCUS_MODE_SLOPPY */
+        {
+          focus_ancestor_or_mru_window (workspace, not_this_one, timestamp);
+        }
+
+      return;
+    }
+
+  if (timestamp == META_CURRENT_TIME)
+    {
+      /* We would like for this to never happen.  However, if
+       * it does happen then we kludge since using META_CURRENT_TIME
+       * can mean ugly race conditions--and we can avoid these
+       * by allowing EnterNotify events (which come with
+       * timestamps) to handle focus.
+       */
+
+      meta_topic (META_DEBUG_FOCUS,
+                  "Not focusing mouse window %s because EnterNotify events should handle that",
+                  window->desc);
+    }
+  else
+    {
+      meta_topic (META_DEBUG_FOCUS,
+                  "Focusing mouse window %s", window->desc);
+      meta_window_focus (window, timestamp);
+    }
+
+  if (workspace->display->autoraise_window != window &&
+      meta_prefs_get_auto_raise ())
+    {
+      meta_display_queue_autoraise_callback (workspace->display, window);
     }
 }
 
