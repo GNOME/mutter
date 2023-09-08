@@ -29,6 +29,7 @@
 #include "meta/meta-wayland-surface.h"
 #include "wayland/meta-wayland-pointer-constraints.h"
 #include "wayland/meta-wayland-types.h"
+#include "wayland/meta-wayland-linux-drm-syncobj.h"
 
 #define META_TYPE_WAYLAND_SURFACE_ROLE (meta_wayland_surface_role_get_type ())
 G_DECLARE_DERIVABLE_TYPE (MetaWaylandSurfaceRole, meta_wayland_surface_role,
@@ -128,6 +129,12 @@ struct _MetaWaylandSurfaceState
   /* xdg_popup */
   MetaWaylandXdgPositioner *xdg_positioner;
   uint32_t xdg_popup_reposition_token;
+
+  /* Explicit Synchronization */
+  struct {
+    MetaWaylandSyncPoint *acquire;
+    MetaWaylandSyncPoint *release;
+  } drm_syncobj;
 };
 
 struct _MetaWaylandDragDestFuncs

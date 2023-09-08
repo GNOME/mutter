@@ -48,6 +48,7 @@
 #include "wayland/meta-wayland-viewporter.h"
 #include "wayland/meta-wayland-xdg-shell.h"
 #include "wayland/meta-window-wayland.h"
+#include "wayland/meta-wayland-linux-drm-syncobj.h"
 
 #ifdef HAVE_XWAYLAND
 #include "wayland/meta-xwayland-private.h"
@@ -446,6 +447,9 @@ meta_wayland_surface_state_set_default (MetaWaylandSurfaceState *state)
   wl_list_init (&state->presentation_feedback_list);
 
   state->xdg_popup_reposition_token = 0;
+
+  state->drm_syncobj.acquire = NULL;
+  state->drm_syncobj.release = NULL;
 }
 
 static void
@@ -466,6 +470,8 @@ meta_wayland_surface_state_clear (MetaWaylandSurfaceState *state)
   MetaWaylandFrameCallback *cb, *next;
 
   g_clear_object (&state->texture);
+  g_clear_object (&state->drm_syncobj.acquire);
+  g_clear_object (&state->drm_syncobj.release);
 
   g_clear_pointer (&state->surface_damage, mtk_region_unref);
   g_clear_pointer (&state->buffer_damage, mtk_region_unref);
@@ -630,6 +636,11 @@ meta_wayland_surface_state_merge_into (MetaWaylandSurfaceState *from,
       to->xdg_positioner = g_steal_pointer (&from->xdg_positioner);
       to->xdg_popup_reposition_token = from->xdg_popup_reposition_token;
     }
+
+  g_set_object (&to->drm_syncobj.acquire, from->drm_syncobj.acquire);
+  g_clear_object (&from->drm_syncobj.acquire);
+  g_set_object (&to->drm_syncobj.release, from->drm_syncobj.release);
+  g_clear_object (&from->drm_syncobj.release);
 }
 
 static void
@@ -914,12 +925,16 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
   MetaWaylandBuffer *buffer = pending->buffer;
   MetaWaylandTransaction *transaction;
   MetaWaylandSurface *subsurface_surface;
+  MetaWaylandSyncPoint *release_point = pending->drm_syncobj.release;
 
   COGL_TRACE_BEGIN_SCOPED (MetaWaylandSurfaceCommit,
                            "Meta::WaylandSurface::commit()");
 
   if (pending->scale > 0)
     surface->committed_state.scale = pending->scale;
+
+  if (!meta_wayland_surface_explicit_sync_validate (surface, pending))
+    return;
 
   if (buffer)
     {
@@ -945,6 +960,9 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
         }
 
       pending->texture = g_object_ref (surface->committed_state.texture);
+
+      if (release_point)
+        g_ptr_array_add (buffer->release_points, g_object_ref (release_point));
 
       g_object_ref (buffer);
       meta_wayland_buffer_inc_use_count (buffer);

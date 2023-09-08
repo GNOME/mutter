@@ -63,6 +63,13 @@ meta_wayland_dma_buf_create_source (MetaWaylandBuffer               *buffer,
                                     MetaWaylandDmaBufSourceDispatch  dispatch,
                                     gpointer                         user_data);
 
+GSource *
+meta_wayland_drm_syncobj_create_source (MetaWaylandBuffer                *buffer,
+                                        MetaWaylandSyncobjTimeline       *timeline,
+                                        uint64_t                          sync_point,
+                                        MetaWaylandDmaBufSourceDispatch   dispatch,
+                                        gpointer                          user_data);
+
 CoglScanout *
 meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandBuffer     *buffer,
                                           CoglOnscreen          *onscreen,

@@ -79,6 +79,8 @@ struct _MetaWaylandBuffer
   } single_pixel;
 
   GHashTable *tainted_scanout_onscreens;
+
+  GPtrArray *release_points;
 };
 
 #define META_TYPE_WAYLAND_BUFFER (meta_wayland_buffer_get_type ())

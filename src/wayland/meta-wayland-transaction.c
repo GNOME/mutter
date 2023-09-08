@@ -26,6 +26,7 @@
 #include "wayland/meta-wayland.h"
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-dma-buf.h"
+#include "wayland/meta-wayland-linux-drm-syncobj.h"
 
 #define META_WAYLAND_TRANSACTION_NONE ((void *)(uintptr_t) G_MAXSIZE)
 
@@ -314,6 +315,17 @@ meta_wayland_transaction_dma_buf_dispatch (MetaWaylandBuffer *buffer,
   meta_wayland_transaction_maybe_apply (transaction);
 }
 
+static void
+ensure_buf_sources (MetaWaylandTransaction *transaction)
+{
+  if (!transaction->buf_sources)
+    {
+      transaction->buf_sources =
+        g_hash_table_new_full (NULL, NULL, NULL,
+                               (GDestroyNotify) g_source_destroy);
+    }
+}
+
 static gboolean
 meta_wayland_transaction_add_dma_buf_source (MetaWaylandTransaction *transaction,
                                              MetaWaylandBuffer      *buffer)
@@ -330,12 +342,35 @@ meta_wayland_transaction_add_dma_buf_source (MetaWaylandTransaction *transaction
   if (!source)
     return FALSE;
 
-  if (!transaction->buf_sources)
-    {
-      transaction->buf_sources =
-        g_hash_table_new_full (NULL, NULL, NULL,
-                               (GDestroyNotify) g_source_destroy);
-    }
+  ensure_buf_sources (transaction);
+
+  g_hash_table_insert (transaction->buf_sources, buffer, source);
+  g_source_attach (source, NULL);
+  g_source_unref (source);
+
+  return TRUE;
+}
+
+static gboolean
+meta_wayland_transaction_add_drm_syncobj_source (MetaWaylandTransaction *transaction,
+                                                 MetaWaylandBuffer      *buffer,
+                                                 MetaWaylandSyncPoint   *acquire)
+{
+  GSource *source;
+
+  if (transaction->buf_sources &&
+      g_hash_table_contains (transaction->buf_sources, buffer))
+    return FALSE;
+
+  source = meta_wayland_drm_syncobj_create_source (buffer,
+                                                   acquire->timeline,
+                                                   acquire->sync_point,
+                                                   meta_wayland_transaction_dma_buf_dispatch,
+                                                   transaction);
+  if (!source)
+    return FALSE;
+
+  ensure_buf_sources (transaction);
 
   g_hash_table_insert (transaction->buf_sources, buffer, source);
   g_source_attach (source, NULL);
@@ -382,8 +417,11 @@ meta_wayland_transaction_commit (MetaWaylandTransaction *transaction)
         {
           MetaWaylandBuffer *buffer = entry->state->buffer;
 
-          if (buffer &&
-              meta_wayland_transaction_add_dma_buf_source (transaction, buffer))
+          if ((entry->state->drm_syncobj.acquire &&
+               meta_wayland_transaction_add_drm_syncobj_source (transaction, buffer,
+                                                                entry->state->drm_syncobj.acquire))
+              || (buffer &&
+                  meta_wayland_transaction_add_dma_buf_source (transaction, buffer)))
             maybe_apply = FALSE;
 
           if (entry->state->subsurface_placement_ops)

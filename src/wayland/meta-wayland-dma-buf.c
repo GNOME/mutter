@@ -56,6 +56,7 @@
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-versions.h"
+#include "wayland/meta-wayland-linux-drm-syncobj.h"
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-drm-buffer-gbm.h"
@@ -1041,6 +1042,39 @@ meta_wayland_dma_buf_create_source (MetaWaylandBuffer               *buffer,
 
   if (!source)
     return NULL;
+
+  return &source->base;
+}
+
+GSource *
+meta_wayland_drm_syncobj_create_source (MetaWaylandBuffer                *buffer,
+                                        MetaWaylandSyncobjTimeline       *timeline,
+                                        uint64_t                          sync_point,
+                                        MetaWaylandDmaBufSourceDispatch   dispatch,
+                                        gpointer                          user_data)
+{
+  MetaWaylandDmaBufSource *source = NULL;
+  g_autofd int sync_fd = -1;
+  g_autoptr(GError) error = NULL;
+
+  sync_fd = meta_wayland_sync_timeline_get_eventfd (timeline, sync_point, &error);
+  if (sync_fd < 0)
+    {
+      g_warning ("Failed to get sync fd: %s", error->message);
+      return NULL;
+    }
+
+  if (is_fd_readable (sync_fd))
+    {
+      return NULL;
+    }
+
+  source = create_source (buffer, dispatch, user_data);
+  if (!source)
+    return NULL;
+
+  source->fd_tags[0] = g_source_add_unix_fd (&source->base, sync_fd, G_IO_IN);
+  source->owned_sync_fd[0] = g_steal_fd (&sync_fd);
 
   return &source->base;
 }

@@ -635,6 +635,8 @@ if have_wayland
     'wayland/meta-wayland-keyboard.h',
     'wayland/meta-wayland-legacy-xdg-foreign.c',
     'wayland/meta-wayland-legacy-xdg-foreign.h',
+    'wayland/meta-wayland-linux-drm-syncobj.c',
+    'wayland/meta-wayland-linux-drm-syncobj.h',
     'wayland/meta-wayland-outputs.c',
     'wayland/meta-wayland-outputs.h',
     'wayland/meta-wayland-pointer.c',
