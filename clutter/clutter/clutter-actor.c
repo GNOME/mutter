@@ -3045,6 +3045,10 @@ _clutter_actor_apply_relative_transformation_matrix (ClutterActor      *self,
                                                      ClutterActor      *ancestor,
                                                      graphene_matrix_t *matrix)
 {
+  ClutterActorPrivate *priv = self->priv;
+  graphene_matrix_t parent_modelview;
+  graphene_matrix_t inverse_parent_modelview;
+
   /* Note we terminate before ever calling stage->apply_transform()
    * since that would conceptually be relative to the underlying
    * window OpenGL coordinates so we'd need a special @ancestor
@@ -3052,32 +3056,42 @@ _clutter_actor_apply_relative_transformation_matrix (ClutterActor      *self,
   if (self == ancestor)
     return;
 
-  if (ancestor == NULL)
+  if (!priv->absolute_modelview_valid)
     {
-      ClutterActorPrivate *priv = self->priv;
+      graphene_matrix_init_identity (&priv->absolute_modelview);
 
-      if (!priv->absolute_modelview_valid)
+      if (priv->parent != NULL)
         {
-          graphene_matrix_init_identity (&priv->absolute_modelview);
-
-          if (priv->parent != NULL)
-            {
-              _clutter_actor_apply_relative_transformation_matrix (priv->parent,
-                                                                   NULL,
-                                                                   &priv->absolute_modelview);
-            }
-
-          _clutter_actor_apply_modelview_transform (self, &priv->absolute_modelview);
-
-          priv->absolute_modelview_valid = TRUE;
+          _clutter_actor_apply_relative_transformation_matrix (priv->parent,
+                                                               NULL,
+                                                               &priv->absolute_modelview);
         }
 
+      _clutter_actor_apply_modelview_transform (self, &priv->absolute_modelview);
+
+      priv->absolute_modelview_valid = TRUE;
+    }
+
+  if (ancestor == NULL)
+    {
       graphene_matrix_multiply (&priv->absolute_modelview, matrix, matrix);
       return;
     }
 
-  if (self->priv->parent != NULL)
-    _clutter_actor_apply_relative_transformation_matrix (self->priv->parent,
+  graphene_matrix_init_identity (&parent_modelview);
+  _clutter_actor_apply_relative_transformation_matrix (ancestor,
+                                                       NULL,
+                                                       &parent_modelview);
+  if (graphene_matrix_inverse (&parent_modelview,
+                               &inverse_parent_modelview))
+    {
+      graphene_matrix_multiply (&inverse_parent_modelview, matrix, matrix);
+      graphene_matrix_multiply (&priv->absolute_modelview, matrix, matrix);
+      return;
+    }
+
+  if (priv->parent != NULL)
+    _clutter_actor_apply_relative_transformation_matrix (priv->parent,
                                                          ancestor,
                                                          matrix);
 
