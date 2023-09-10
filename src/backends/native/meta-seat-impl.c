@@ -1071,14 +1071,24 @@ meta_seat_impl_notify_touch_event_in_impl (MetaSeatImpl       *seat_impl,
       evtype == CLUTTER_TOUCH_UPDATE)
     modifiers |= CLUTTER_BUTTON1_MASK;
 
-  event =
-    clutter_event_touch_new (evtype,
-                             CLUTTER_EVENT_NONE,
-                             time_us,
-                             input_device,
-                             sequence,
-                             modifiers,
-                             GRAPHENE_POINT_INIT (x, y));
+  if (evtype == CLUTTER_TOUCH_CANCEL)
+    {
+      event = clutter_event_touch_cancel_new (CLUTTER_EVENT_NONE,
+                                              time_us,
+                                              input_device,
+                                              sequence);
+    }
+  else
+    {
+      event =
+        clutter_event_touch_new (evtype,
+                                 CLUTTER_EVENT_NONE,
+                                 time_us,
+                                 input_device,
+                                 sequence,
+                                 modifiers,
+                                 GRAPHENE_POINT_INIT (x, y));
+    }
 
   queue_event (seat_impl, event);
 }
