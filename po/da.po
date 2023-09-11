@@ -20,8 +20,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2023-02-22 05:07+0000\n"
-"PO-Revision-Date: 2023-02-27 01:05+0100\n"
+"POT-Creation-Date: 2023-08-23 16:49+0000\n"
+"PO-Revision-Date: 2023-09-09 12:31+0200\n"
 "Last-Translator: Ask Hjorth Larsen <asklarsen@gmail.com>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
 "Language: da\n"
@@ -167,20 +167,20 @@ msgid "Switch to last workspace"
 msgstr "Skift til sidste arbejdsområde"
 
 #: data/50-mutter-navigation.xml:131
-msgid "Move to workspace on the left"
-msgstr "Flyt til arbejdsområdet til venstre"
+msgid "Switch to workspace on the left"
+msgstr "Skift til arbejdsområdet til venstre"
 
 #: data/50-mutter-navigation.xml:134
-msgid "Move to workspace on the right"
-msgstr "Flyt til arbejdsområdet til højre"
+msgid "Switch to workspace on the right"
+msgstr "Skift til arbejdsområdet til højre"
 
 #: data/50-mutter-navigation.xml:138
-msgid "Move to workspace above"
-msgstr "Flyt til arbejdsområdet ovenover"
+msgid "Switch to workspace above"
+msgstr "Skift til arbejdsområdet ovenover"
 
 #: data/50-mutter-navigation.xml:142
-msgid "Move to workspace below"
-msgstr "Flyt til arbejdsområdet nedenunder"
+msgid "Switch to workspace below"
+msgstr "Skift til arbejdsområde nedenunder"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -453,6 +453,10 @@ msgstr "Skift skærmkonfiguration"
 msgid "Rotates the built-in monitor configuration"
 msgstr "Roterer den indbyggede skærmkonfiguration"
 
+#: data/org.gnome.mutter.gschema.xml.in:184
+msgid "Cancel any active input capture session"
+msgstr "Afbryd eventuel aktiv inputoptagelsessession"
+
 #: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
 msgstr "Skift til VT 1"
@@ -592,7 +596,17 @@ msgid ""
 "support the command line option +byteswappedclients/-byteswappedclients to "
 "control that setting. Xwayland needs to be restarted for this setting to "
 "take effect."
-msgstr "Tillad forbindelser fra klient med anden endianness end Xwaylands. X-serverens byteswapkode udgør en enorm angrebsoverflade — en stor del af denne kode i Xwayland er åben for sikkerhedsproblemer. Samtidig udgør byteswap i klienter en meget begrænset use case, og er som standard deaktiveret i Xwayland. Slå denne indstilling til for at få Xwayland til at acceptere forbindelser fra X11-klienter med anden endianness. Denne indstilling har ingen virkning, hvis Xwayland ikke understøtter kommandolinjetilvalget +byteswappedclients/-byteswappedclients, som styrer denne indstilling. Xwayland skal genstartes for, at denne ændring træder i kraft."
+msgstr ""
+"Tillad forbindelser fra klient med anden endianness end Xwaylands. X-"
+"serverens byteswapkode udgør en enorm angrebsoverflade — en stor del af "
+"denne kode i Xwayland er åben for sikkerhedsproblemer. Samtidig udgør "
+"byteswap i klienter en meget begrænset use case, og er som standard "
+"deaktiveret i Xwayland. Slå denne indstilling til for at få Xwayland til at "
+"acceptere forbindelser fra X11-klienter med anden endianness. Denne "
+"indstilling har ingen virkning, hvis Xwayland ikke understøtter "
+"kommandolinjetilvalget +byteswappedclients/-byteswappedclients, som styrer "
+"denne indstilling. Xwayland skal genstartes for, at denne ændring træder i "
+"kraft."
 
 #: src/backends/meta-monitor.c:253
 msgid "Built-in display"
@@ -621,86 +635,82 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#. This probably means that a non-WM compositor like xcompmgr is running;
-#. * we have no way to get it to exit
-#: src/compositor/compositor.c:416
-#, c-format
-msgid ""
-"Another compositing manager is already running on screen %i on display “%s”."
-msgstr "Der kører allerede en anden kompositor på skærm %i på terminal “%s”."
-
-#: src/core/bell.c:192
+#: src/core/bell.c:193
 msgid "Bell event"
 msgstr "Bip-hændelse"
 
-#: src/core/display.c:703
+#: src/core/display.c:723
 msgid "Privacy Screen Enabled"
 msgstr "Privatlivsskærm aktiveret"
 
-#: src/core/display.c:704
+#: src/core/display.c:724
 msgid "Privacy Screen Disabled"
 msgstr "Privatlivsskærm deaktiveret"
 
-#: src/core/meta-context-main.c:568
+#: src/core/meta-context-main.c:581
 msgid "Replace the running window manager"
 msgstr "Erstat den kørende vindueshåndtering"
 
-#: src/core/meta-context-main.c:574
+#: src/core/meta-context-main.c:587
 msgid "X Display to use"
 msgstr "X-terminal som bruges"
 
-#: src/core/meta-context-main.c:580
+#: src/core/meta-context-main.c:593
 msgid "Disable connection to session manager"
 msgstr "Deaktivér forbindelse til sessionshåndtering"
 
-#: src/core/meta-context-main.c:586
+#: src/core/meta-context-main.c:599
 msgid "Specify session management ID"
 msgstr "Angiv sessionhåndterings-id"
 
-#: src/core/meta-context-main.c:592
+#: src/core/meta-context-main.c:605
 msgid "Initialize session from savefile"
 msgstr "Initialisér session fra gemt fil"
 
-#: src/core/meta-context-main.c:598
+#: src/core/meta-context-main.c:611
 msgid "Make X calls synchronous"
 msgstr "Gør kald til X synkrone"
 
-#: src/core/meta-context-main.c:606
+#: src/core/meta-context-main.c:619
 msgid "Run as a wayland compositor"
 msgstr "Kør som en wayland-kompositor"
 
-#: src/core/meta-context-main.c:612
+#: src/core/meta-context-main.c:625
 msgid "Run as a nested compositor"
 msgstr "Kør som en indlejret kompositor"
 
-#: src/core/meta-context-main.c:618
+#: src/core/meta-context-main.c:631
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Kør wayland-kompositoren uden at starte Xwayland"
 
-#: src/core/meta-context-main.c:624
+#: src/core/meta-context-main.c:637
 msgid "Specify Wayland display name to use"
 msgstr "Angiv Wayland-visningsnavnet, der skal bruges"
 
-#: src/core/meta-context-main.c:632
+#: src/core/meta-context-main.c:645
 msgid "Run as a full display server, rather than nested"
 msgstr "Kør som fuld terminalserver, frem for indlejret"
 
-#: src/core/meta-context-main.c:637
+#: src/core/meta-context-main.c:650
 msgid "Run as a headless display server"
 msgstr "Kør som headless terminalserver"
 
-#: src/core/meta-context-main.c:642
+#: src/core/meta-context-main.c:655
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Tilføj persistent virtuel skærm (WxH eller WxH@R)"
 
-#: src/core/meta-context-main.c:654
+#: src/core/meta-context-main.c:667
 msgid "Run with X11 backend"
 msgstr "Kør med X11-motor"
+
+#: src/core/meta-context-main.c:673
+msgid "Profile performance using trace instrumentation"
+msgstr "Mål ydelse ved hjælp af funktionsstak-instrumentering (trace)"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:861
+#: src/core/meta-pad-action-mapper.c:807
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Tilstandsskift (Gruppe %d)"
@@ -708,16 +718,16 @@ msgstr "Tilstandsskift (Gruppe %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:884
+#: src/core/meta-pad-action-mapper.c:829
 msgid "Switch monitor"
 msgstr "Skift skærm"
 
-#: src/core/meta-pad-action-mapper.c:886
+#: src/core/meta-pad-action-mapper.c:831
 msgid "Show on-screen help"
 msgstr "Vis integreret hjælp"
 
 #. Translators: this string will appear in Sysprof
-#: src/core/meta-profiler.c:80 src/core/meta-profiler.c:217
+#: src/core/meta-profiler.c:111 src/core/meta-profiler.c:301
 msgid "Compositor"
 msgstr "Kompositor"
 
@@ -729,25 +739,25 @@ msgstr "Vis version"
 msgid "Mutter plugin to use"
 msgstr "Mutter-udvidelsesmodul der skal bruges"
 
-#: src/core/prefs.c:1913
+#: src/core/prefs.c:1843
 #, c-format
 msgid "Workspace %d"
 msgstr "Arbejdsområde %d"
 
-#: src/core/util.c:142
+#: src/core/util.c:139
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter blev kompileret uden understøttelse for uddybende tilstand"
 
-#: src/core/workspace.c:541
+#: src/core/workspace.c:535
 msgid "Workspace switched"
 msgstr "Skiftede arbejdsområde"
 
-#: src/wayland/meta-wayland-tablet-pad.c:530
+#: src/wayland/meta-wayland-tablet-pad.c:534
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Tilstandsskift: Tilstand %d"
 
-#: src/x11/meta-x11-display.c:682
+#: src/x11/meta-x11-display.c:708
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -756,30 +766,43 @@ msgstr ""
 "Terminalen “%s” har allerede en vindueshåndtering; prøv tilvalget --replace "
 "for at erstatte den aktuelle vindueshåndtering."
 
-#: src/x11/meta-x11-display.c:1074
-msgid "Failed to initialize GDK"
-msgstr "Kunne ikke klargøre GDK"
-
-#: src/x11/meta-x11-display.c:1100
+#: src/x11/meta-x11-display.c:1073
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Kunne ikke åbne X Window System-terminalen “%s”"
 
-#: src/x11/meta-x11-display.c:1253
+#: src/x11/meta-x11-display.c:1219
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Skærm %d på terminal “%s” er ugyldig"
 
-#: src/x11/meta-x11-selection-input-stream.c:481
+#. This probably means that a non-WM compositor like xcompmgr is running;
+#. * we have no way to get it to exit
+#: src/x11/meta-x11-display.c:2540
+#, c-format
+msgid ""
+"Another compositing manager is already running on screen %i on display “%s”."
+msgstr "Der kører allerede en anden kompositor på skærm %i på terminal “%s”."
+
+#: src/x11/meta-x11-selection-input-stream.c:475
 #, c-format
 msgid "Format %s not supported"
 msgstr "Formatet %s understøttes ikke"
 
 # Lad os håbe dette er rigtigt
-#: src/x11/window-props.c:549
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (på %s)"
+
+#~ msgid "Move to workspace above"
+#~ msgstr "Flyt til arbejdsområdet ovenover"
+
+#~ msgid "Move to workspace below"
+#~ msgstr "Flyt til arbejdsområdet nedenunder"
+
+#~ msgid "Failed to initialize GDK"
+#~ msgstr "Kunne ikke klargøre GDK"
 
 #~ msgid "Mutter"
 #~ msgstr "Mutter"
