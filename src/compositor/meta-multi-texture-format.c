@@ -101,9 +101,9 @@ typedef struct _MetaMultiTextureFormatInfo
  * loop over the table */
 static MetaMultiTextureFormatInfo multi_format_table[] = {
   /* Invalid */
-  {},
+  [META_MULTI_TEXTURE_FORMAT_INVALID] = {},
   /* Simple */
-  {
+  [META_MULTI_TEXTURE_FORMAT_SIMPLE] = {
     .name = "",
     .n_planes = 1,
     .subformats = { COGL_PIXEL_FORMAT_ANY },
@@ -114,7 +114,7 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .snippet_once = G_ONCE_INIT,
   },
   /* Packed YUV */
-  {
+  [META_MULTI_TEXTURE_FORMAT_YUYV] = {
     .name = "YUYV",
     .n_planes = 2,
     .subformats = { COGL_PIXEL_FORMAT_RG_88, COGL_PIXEL_FORMAT_BGRA_8888_PRE },
@@ -125,7 +125,7 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .snippet_once = G_ONCE_INIT,
   },
   /* 2 plane YUV */
-  {
+  [META_MULTI_TEXTURE_FORMAT_NV12] = {
     .name = "NV12",
     .n_planes = 2,
     .subformats = { COGL_PIXEL_FORMAT_G_8, COGL_PIXEL_FORMAT_RG_88 },
@@ -136,7 +136,7 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .snippet_once = G_ONCE_INIT,
   },
   /* 3 plane YUV */
-  {
+  [META_MULTI_TEXTURE_FORMAT_YUV420] = {
     .name = "YUV420",
     .n_planes = 3,
     .subformats = { COGL_PIXEL_FORMAT_G_8, COGL_PIXEL_FORMAT_G_8, COGL_PIXEL_FORMAT_G_8 },
