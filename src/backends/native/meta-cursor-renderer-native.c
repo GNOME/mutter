@@ -315,6 +315,8 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
   cursor_changed = priv->current_cursor != cursor_sprite;
 
   views = meta_renderer_get_views (renderer);
+  g_list_foreach (views, (GFunc) ensure_cursor_stage_view, NULL);
+
   for (l = views; l; l = l->next)
     {
       MetaStageView *view = l->data;
@@ -324,7 +326,8 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
       CursorStageView *cursor_stage_view = NULL;
       gboolean has_hw_cursor = FALSE;
 
-      cursor_stage_view = ensure_cursor_stage_view (view);
+      cursor_stage_view = get_cursor_stage_view (view);
+      g_assert (cursor_stage_view);
 
       if (!META_IS_CRTC_KMS (crtc) ||
           !meta_crtc_native_is_hw_cursor_supported (crtc_native))

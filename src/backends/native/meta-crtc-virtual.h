@@ -20,6 +20,7 @@
 #include "backends/native/meta-crtc-native.h"
 
 #define META_TYPE_CRTC_VIRTUAL (meta_crtc_virtual_get_type ())
+META_EXPORT_TEST
 G_DECLARE_FINAL_TYPE (MetaCrtcVirtual, meta_crtc_virtual,
                       META, CRTC_VIRTUAL,
                       MetaCrtcNative)

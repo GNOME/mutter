@@ -20,6 +20,10 @@
 
 #include "backends/meta-monitor-config-manager.h"
 #include "backends/meta-virtual-monitor.h"
+#include "backends/native/meta-backend-native.h"
+#include "backends/native/meta-crtc-kms.h"
+#include "backends/native/meta-crtc-virtual.h"
+#include "backends/native/meta-udev.h"
 #include "core/window-private.h"
 #include "meta-test/meta-context-test.h"
 #include "meta/meta-backend.h"
@@ -34,6 +38,12 @@
 #include "wayland/meta-wayland-seat.h"
 
 static MetaContext *test_context;
+
+static void
+set_true_cb (gboolean *done)
+{
+  *done = TRUE;
+}
 
 static void
 meta_test_cursor_hotplug (void)
@@ -140,10 +150,73 @@ meta_test_cursor_hotplug (void)
 }
 
 static void
+meta_test_hotplug_multi_view_invalidation (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  MetaCursorRenderer *cursor_renderer = meta_backend_get_cursor_renderer (backend);
+  ClutterSeat *seat;
+  g_autoptr (MetaVirtualMonitorInfo) monitor_info = NULL;
+  MetaVirtualMonitor *virtual_monitor;
+  g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
+  MetaCursorSprite *cursor_sprite;
+  gboolean texture_changed;
+  gulong texture_changed_handler_id;
+  g_autoptr (GError) error = NULL;
+  GList *views;
+
+  seat = meta_backend_get_default_seat (backend);
+  virtual_pointer = clutter_seat_create_virtual_device (seat,
+                                                        CLUTTER_POINTER_DEVICE);
+
+  monitor_info = meta_virtual_monitor_info_new (100, 100, 60.0,
+                                                "MetaTestVendor",
+                                                "MetaVirtualMonitor",
+                                                "0x1234");
+  virtual_monitor = meta_monitor_manager_create_virtual_monitor (monitor_manager,
+                                                                 monitor_info,
+                                                                 &error);
+  g_assert_no_error (error);
+
+  meta_monitor_manager_reload (monitor_manager);
+  views = meta_renderer_get_views (renderer);
+  g_assert_true (META_IS_CRTC_KMS (meta_renderer_view_get_crtc (views->data)));
+  g_assert_true (META_IS_CRTC_VIRTUAL (meta_renderer_view_get_crtc (views->next->data)));
+
+  meta_wait_for_paint (test_context);
+
+  cursor_sprite = meta_cursor_renderer_get_cursor (cursor_renderer);
+  g_assert_nonnull (cursor_sprite);
+  texture_changed_handler_id =
+    g_signal_connect_swapped (cursor_sprite, "texture-changed",
+                              G_CALLBACK (set_true_cb), &texture_changed);
+
+  /* Trigger a cursor scale change, that causes invalidation on a non-first
+   * KMS CRTC based cursor renderer view auxiliary object.
+   */
+  texture_changed = FALSE;
+  meta_set_custom_monitor_config_full (backend, "kms-cursor-scale.xml",
+                                       META_MONITORS_CONFIG_FLAG_NONE);
+  meta_monitor_manager_reload (monitor_manager);
+  views = meta_renderer_get_views (renderer);
+  g_assert_true (META_IS_CRTC_KMS (meta_renderer_view_get_crtc (views->data)));
+  g_assert_true (META_IS_CRTC_VIRTUAL (meta_renderer_view_get_crtc (views->next->data)));
+  g_assert_true (texture_changed);
+
+  g_signal_handler_disconnect (cursor_sprite, texture_changed_handler_id);
+  g_clear_object (&virtual_monitor);
+  meta_wait_for_paint (test_context);
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/wayland/cursor-hotplug",
                    meta_test_cursor_hotplug);
+  g_test_add_func ("/hotplug/multi-view-invalidation",
+                   meta_test_hotplug_multi_view_invalidation);
 }
 
 int
