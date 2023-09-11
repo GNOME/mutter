@@ -134,6 +134,9 @@ meta_test_cursor_hotplug (void)
 
   meta_wayland_test_driver_emit_sync_event (test_driver, 1);
   meta_wayland_test_client_finish (test_client);
+
+  g_clear_object (&virtual_monitor);
+  meta_wait_for_paint (test_context);
 }
 
 static void
