@@ -358,6 +358,7 @@ set_power_save_mode_via_dbus (MetaPowerSave power_save)
                      G_MAXINT,
                      NULL, NULL, NULL);
 }
+
 static void
 emulate_hotplug (void)
 {
