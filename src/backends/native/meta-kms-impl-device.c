@@ -71,6 +71,7 @@ typedef struct _CrtcDeadline
     GSource *source;
     gboolean armed;
     gboolean is_deadline_page_flip;
+    int64_t expected_deadline_time_us;
     int64_t expected_presentation_time_us;
     gboolean has_expected_presentation_time;
   } deadline;
@@ -1165,6 +1166,7 @@ arm_crtc_frame_deadline_timer (CrtcFrame *crtc_frame,
   timerfd_settime (crtc_frame->deadline.timer_fd,
                    TFD_TIMER_ABSTIME, &its, NULL);
 
+  crtc_frame->deadline.expected_deadline_time_us = next_deadline_us;
   crtc_frame->deadline.expected_presentation_time_us = next_presentation_us;
   crtc_frame->deadline.has_expected_presentation_time = next_presentation_us != 0;
   crtc_frame->deadline.armed = TRUE;
