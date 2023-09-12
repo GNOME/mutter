@@ -746,6 +746,19 @@ fill_states (MetaWaylandXdgToplevel         *xdg_toplevel,
       if (window->edge_constraints.left != META_EDGE_CONSTRAINT_NONE)
         add_state_value (states, XDG_TOPLEVEL_STATE_TILED_LEFT);
     }
+
+  if (wl_resource_get_version (xdg_toplevel->resource) >=
+      XDG_TOPLEVEL_STATE_CONSTRAINED_LEFT_SINCE_VERSION)
+    {
+      if (window->edge_constraints.top == META_EDGE_CONSTRAINT_MONITOR)
+        add_state_value (states, XDG_TOPLEVEL_STATE_CONSTRAINED_TOP);
+      if (window->edge_constraints.right == META_EDGE_CONSTRAINT_MONITOR)
+        add_state_value (states, XDG_TOPLEVEL_STATE_CONSTRAINED_RIGHT);
+      if (window->edge_constraints.bottom == META_EDGE_CONSTRAINT_MONITOR)
+        add_state_value (states, XDG_TOPLEVEL_STATE_CONSTRAINED_BOTTOM);
+      if (window->edge_constraints.left == META_EDGE_CONSTRAINT_MONITOR)
+        add_state_value (states, XDG_TOPLEVEL_STATE_CONSTRAINED_LEFT);
+    }
 }
 
 static void
