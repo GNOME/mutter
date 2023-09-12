@@ -1397,6 +1397,10 @@ crtc_frame_deadline_dispatch (MetaThreadImpl  *thread_impl,
   g_autoptr (MetaKmsFeedback) feedback = NULL;
   uint64_t timer_value;
   ssize_t ret;
+  int64_t dispatch_time_us = 0;
+
+  if (meta_is_topic_enabled (META_DEBUG_KMS_DEADLINE))
+    dispatch_time_us = g_get_monotonic_time ();
 
   ret = read (crtc_frame->deadline.timer_fd,
               &timer_value,
@@ -1418,6 +1422,23 @@ crtc_frame_deadline_dispatch (MetaThreadImpl  *thread_impl,
                          crtc_frame->crtc,
                          g_steal_pointer (&crtc_frame->pending_update),
                          META_KMS_UPDATE_FLAG_NONE);
+
+  if (meta_is_topic_enabled (META_DEBUG_KMS_DEADLINE))
+    {
+      int64_t lateness_us, duration_us;
+
+      lateness_us = dispatch_time_us -
+                    crtc_frame->deadline.expected_deadline_time_us;
+      duration_us = g_get_monotonic_time () - dispatch_time_us;
+
+      meta_topic (META_DEBUG_KMS_DEADLINE,
+                  "Deadline dispatch started %3"G_GINT64_FORMAT "µs %s and "
+                  "completed %3"G_GINT64_FORMAT "µs after that.",
+                  ABS (lateness_us),
+                  lateness_us >= 0 ? "late" : "early",
+                  duration_us);
+    }
+
   if (meta_kms_feedback_did_pass (feedback))
     crtc_frame->deadline.is_deadline_page_flip = TRUE;
   disarm_crtc_frame_deadline_timer (crtc_frame);
