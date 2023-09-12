@@ -206,7 +206,7 @@ decode_edid_info (const uint8_t *edid,
   vendor_product = di_edid_get_vendor_product (di_edid);
 
   /* Manufacturer Code */
-  info->manufacturer_code = g_strdup (vendor_product->manufacturer);
+  info->manufacturer_code = g_strndup (vendor_product->manufacturer, 3);
 
   /* Product Code */
   info->product_code = vendor_product->product;
