@@ -228,7 +228,7 @@ has_region (struct eis_device *eis_device,
             int                width,
             int                height)
 {
-  int i = 0;
+  size_t i = 0;
 
   while (TRUE)
     {
