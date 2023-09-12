@@ -308,12 +308,12 @@ configure_abs_standalone (MetaEisClient     *client,
 }
 
 static MetaEisDevice *
-add_device (MetaEisClient          *client,
-            struct eis_seat        *eis_seat,
-            ClutterInputDeviceType  type,
-            const char             *name_suffix,
-            MetaEisDeviceConfigFunc extra_config_func,
-            gpointer                extra_config_user_data)
+create_device (MetaEisClient           *client,
+               struct eis_seat         *eis_seat,
+               ClutterInputDeviceType   type,
+               const char              *name_suffix,
+               MetaEisDeviceConfigFunc  extra_config_func,
+               gpointer                 extra_config_user_data)
 {
   MetaBackend *backend = meta_eis_get_backend (client->eis);
   MetaEisDevice *device;
@@ -339,9 +339,34 @@ add_device (MetaEisClient          *client,
                        eis_device, /* owns the initial ref now */
                        device);
 
-  eis_device_add (eis_device);
-  eis_device_resume (eis_device);
   g_free (name);
+
+  return device;
+}
+
+static void
+propagate_device (MetaEisDevice *device)
+{
+  eis_device_add (device->eis_device);
+  eis_device_resume (device->eis_device);
+}
+
+static MetaEisDevice *
+add_device (MetaEisClient           *client,
+            struct eis_seat         *eis_seat,
+            ClutterInputDeviceType   type,
+            const char              *name_suffix,
+            MetaEisDeviceConfigFunc  extra_config_func,
+            gpointer                 extra_config_user_data)
+{
+  MetaEisDevice *device;
+
+  device = create_device (client,
+                          eis_seat,
+                          type,
+                          name_suffix,
+                          extra_config_func, extra_config_user_data);
+  propagate_device (device);
 
   return device;
 }
@@ -650,12 +675,12 @@ add_abs_pointer_devices (MetaEisClient *client)
         {
           if (!shared_device)
             {
-              shared_device = add_device (client,
-                                          client->eis_seat,
-                                          CLUTTER_POINTER_DEVICE,
-                                          "shared virtual absolute pointer",
-                                          configure_abs_shared,
-                                          viewport);
+              shared_device = create_device (client,
+                                             client->eis_seat,
+                                             CLUTTER_POINTER_DEVICE,
+                                             "shared virtual absolute pointer",
+                                             configure_abs_shared,
+                                             viewport);
             }
           else
             {
@@ -663,6 +688,9 @@ add_abs_pointer_devices (MetaEisClient *client)
             }
         }
     }
+
+  if (shared_device)
+    propagate_device (shared_device);
 }
 
 gboolean
