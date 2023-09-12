@@ -3813,6 +3813,13 @@ typedef struct
 } MetaFocusData;
 
 static void
+meta_focus_data_free (MetaFocusData *focus_data)
+{
+  g_clear_object (&focus_data->window);
+  g_free (focus_data);
+}
+
+static void
 focus_mouse_mode (MetaDisplay *display,
                   MetaWindow  *window,
                   uint32_t     timestamp_ms)
@@ -3866,6 +3873,9 @@ focus_on_pointer_rest_callback (gpointer data)
   graphene_point_t point;
   uint32_t timestamp_ms;
 
+  if (window && window->unmanaging)
+    goto out;
+
   if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK)
     goto out;
 
@@ -3906,9 +3916,12 @@ queue_pointer_rest_callback (MetaDisplay *display,
 
   focus_data = g_new (MetaFocusData, 1);
   focus_data->display = display;
-  focus_data->window = window;
+  focus_data->window = NULL;
   focus_data->pointer_x = pointer_x;
   focus_data->pointer_y = pointer_y;
+
+  if (window)
+    focus_data->window = g_object_ref (window);
 
   g_clear_handle_id (&display->focus_timeout_id, g_source_remove);
 
@@ -3917,7 +3930,7 @@ queue_pointer_rest_callback (MetaDisplay *display,
                         FOCUS_TIMEOUT_DELAY,
                         focus_on_pointer_rest_callback,
                         focus_data,
-                        g_free);
+                        (GDestroyNotify) meta_focus_data_free);
   g_source_set_name_by_id (display->focus_timeout_id,
                            "[mutter] focus_on_pointer_rest_callback");
 }
