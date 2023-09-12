@@ -567,6 +567,13 @@ meta_remote_desktop_session_acquire_mapping_id (MetaRemoteDesktopSession *sessio
     }
 }
 
+void
+meta_remote_desktop_session_release_mapping_id (MetaRemoteDesktopSession *session,
+                                                const char               *mapping_id)
+{
+  g_hash_table_remove (session->mapping_ids, mapping_id);
+}
+
 static gboolean
 check_permission (MetaRemoteDesktopSession *session,
                   GDBusMethodInvocation    *invocation)

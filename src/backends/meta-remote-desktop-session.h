@@ -44,6 +44,9 @@ gboolean meta_remote_desktop_session_register_screen_cast (MetaRemoteDesktopSess
 
 const char * meta_remote_desktop_session_acquire_mapping_id (MetaRemoteDesktopSession *session);
 
+void meta_remote_desktop_session_release_mapping_id (MetaRemoteDesktopSession *session,
+                                                     const char               *mapping_id);
+
 void meta_remote_desktop_session_request_transfer (MetaRemoteDesktopSession  *session,
                                                    const char                *mime_type,
                                                    GTask                     *task);
