@@ -324,9 +324,18 @@ meta_screen_cast_stream_finalize (GObject *object)
   MetaScreenCastStream *stream = META_SCREEN_CAST_STREAM (object);
   MetaScreenCastStreamPrivate *priv =
     meta_screen_cast_stream_get_instance_private (stream);
+  MetaRemoteDesktopSession *remote_desktop_session;
 
   if (priv->src)
     meta_screen_cast_stream_close (stream);
+
+  remote_desktop_session =
+    meta_screen_cast_session_get_remote_desktop_session (priv->session);
+  if (remote_desktop_session && priv->mapping_id)
+    {
+      meta_remote_desktop_session_release_mapping_id (remote_desktop_session,
+                                                      priv->mapping_id);
+    }
 
   g_clear_pointer (&priv->object_path, g_free);
   g_clear_pointer (&priv->mapping_id, g_free);
