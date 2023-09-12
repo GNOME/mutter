@@ -1,0 +1,59 @@
+resize_monitor default 800 600
+set_pref focus-mode sloppy
+set_pref focus-change-on-pointer-rest true
+
+move_cursor_to 150 50
+wait
+
+new_client w wayland
+
+create w/0 csd
+resize w/0 100 100
+show w/0
+
+create w/1 csd
+resize w/1 100 100
+show w/1
+
+create w/2 csd
+resize w/2 100 100
+show w/2
+
+wait_reconfigure
+
+move w/0 0 0
+move w/1 100 0
+move w/2 200 0
+
+wait_reconfigure
+
+assert_stacking w/0 w/1 w/2
+assert_focused w/2
+
+assert_position w/0 0 0
+assert_size w/0 100 100
+assert_position w/1 100 0
+assert_size w/1 100 100
+assert_position w/2 200 0
+assert_size w/2 100 100
+
+move_cursor_to 50 50
+sleep 50
+
+assert_stacking w/0 w/1 w/2
+assert_focused w/0
+
+move_cursor_to 150 50
+
+assert_stacking w/0 w/1 w/2
+assert_focused w/0
+
+move_cursor_to 250 50
+
+assert_stacking w/0 w/1 w/2
+assert_focused w/0
+
+sleep 50
+
+assert_stacking w/0 w/1 w/2
+assert_focused w/2

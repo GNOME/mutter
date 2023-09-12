@@ -1332,6 +1332,20 @@ test_case_do (TestCase    *test,
 
           g_assert_true (g_settings_set_boolean (mutter, "focus-change-on-pointer-rest", value));
         }
+      else if (strcmp (argv[1], "auto-raise") == 0)
+        {
+          gboolean value;
+          if (!str_to_bool (argv[2], &value))
+            BAD_COMMAND("usage: %s %s [true|false]", argv[0], argv[1]);
+
+          g_assert_true (g_settings_set_boolean (wm, "auto-raise", value));
+        }
+      else if (strcmp (argv[1], "auto-raise-delay") == 0)
+        {
+          int value = atoi (argv[2]);
+
+          g_assert_true (g_settings_set_int (wm, "auto-raise-delay", value));
+        }
       else {
         BAD_COMMAND("Unknown preference %s", argv[1]);
       }
