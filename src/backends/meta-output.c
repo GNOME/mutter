@@ -330,7 +330,8 @@ set_output_details_from_edid (MetaOutputInfo *output_info,
     g_clear_pointer (&output_info->vendor, g_free);
 
   output_info->product = g_strdup (edid_info->dsc_product_name);
-  if (!g_utf8_validate (output_info->product, -1, NULL) ||
+  if (!output_info->product ||
+      !g_utf8_validate (output_info->product, -1, NULL) ||
       output_info->product[0] == '\0')
     {
       g_clear_pointer (&output_info->product, g_free);
@@ -339,7 +340,8 @@ set_output_details_from_edid (MetaOutputInfo *output_info,
     }
 
   output_info->serial = g_strdup (edid_info->dsc_serial_number);
-  if (!g_utf8_validate (output_info->serial, -1, NULL) ||
+  if (!output_info->serial ||
+      !g_utf8_validate (output_info->serial, -1, NULL) ||
       output_info->serial[0] == '\0')
     {
       g_clear_pointer (&output_info->serial, g_free);
