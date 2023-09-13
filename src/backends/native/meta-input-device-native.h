@@ -139,8 +139,6 @@ ClutterInputDevice *      meta_input_device_native_new_virtual (MetaSeatImpl    
                                                                 ClutterInputDeviceType   type,
                                                                 ClutterInputMode         mode);
 
-MetaSeatImpl *            meta_input_device_native_get_seat_impl (MetaInputDeviceNative   *device);
-
 void                      meta_input_device_native_update_leds_in_impl (MetaInputDeviceNative   *device,
                                                                         enum libinput_led        leds);
 

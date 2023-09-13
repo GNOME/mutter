@@ -158,19 +158,19 @@ static gboolean
 release_device_in_impl (GTask *task)
 {
   ImplState *impl_state = g_task_get_task_data (task);
-  MetaInputDeviceNative *device_native;
+  ClutterSeat *seat;
   MetaSeatImpl *seat_impl;
   int code;
   uint64_t time_us;
   ClutterEvent *device_event;
 
-  device_native = META_INPUT_DEVICE_NATIVE (impl_state->device);
-  seat_impl = meta_input_device_native_get_seat_impl (device_native);
+  seat = clutter_input_device_get_seat (impl_state->device);
+  seat_impl = META_SEAT_NATIVE (seat)->impl;
   time_us = g_get_monotonic_time ();
 
   meta_topic (META_DEBUG_INPUT,
               "Releasing pressed buttons while destroying virtual input device "
-              "(device %p)", device_native);
+              "(device %p)", impl_state->device);
 
   for (code = 0; code < G_N_ELEMENTS (impl_state->button_count); code++)
     {

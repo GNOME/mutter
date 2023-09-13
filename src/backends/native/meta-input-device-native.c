@@ -1563,12 +1563,6 @@ meta_input_device_native_new_virtual (MetaSeatImpl           *seat_impl,
   return CLUTTER_INPUT_DEVICE (device);
 }
 
-MetaSeatImpl *
-meta_input_device_native_get_seat_impl (MetaInputDeviceNative *device)
-{
-  return device->seat_impl;
-}
-
 void
 meta_input_device_native_update_leds_in_impl (MetaInputDeviceNative *device,
                                               enum libinput_led      leds)

@@ -803,9 +803,11 @@ meta_seat_impl_notify_button_in_impl (MetaSeatImpl       *seat_impl,
 static MetaSeatImpl *
 seat_impl_from_device (ClutterInputDevice *device)
 {
-  MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (device);
+  ClutterSeat *seat;
 
-  return meta_input_device_native_get_seat_impl (device_native);
+  seat = clutter_input_device_get_seat (device);
+
+  return META_SEAT_NATIVE (seat)->impl;
 }
 
 static void
