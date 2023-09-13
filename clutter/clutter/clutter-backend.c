@@ -259,17 +259,8 @@ clutter_backend_do_real_create_context (ClutterBackend  *backend,
   return TRUE;
 
 error:
-  if (backend->cogl_display != NULL)
-    {
-      g_object_unref (backend->cogl_display);
-      backend->cogl_display = NULL;
-    }
-
-  if (backend->cogl_renderer != NULL)
-    {
-      g_object_unref (backend->cogl_renderer);
-      backend->cogl_renderer = NULL;
-    }
+  g_clear_object (&backend->cogl_display);
+  g_clear_object (&backend->cogl_renderer);
 
   if (swap_chain != NULL)
     g_object_unref (swap_chain);

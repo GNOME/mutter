@@ -111,11 +111,7 @@ clutter_image_finalize (GObject *gobject)
   ClutterImage *image = CLUTTER_IMAGE (gobject);
   ClutterImagePrivate *priv = clutter_image_get_instance_private (image);
 
-  if (priv->texture != NULL)
-    {
-      cogl_object_unref (priv->texture);
-      priv->texture = NULL;
-    }
+  cogl_clear_object (&priv->texture);
 
   G_OBJECT_CLASS (clutter_image_parent_class)->finalize (gobject);
 }
@@ -395,8 +391,7 @@ clutter_image_set_area (ClutterImage        *image,
 
       if (!res)
         {
-          cogl_object_unref (priv->texture);
-          priv->texture = NULL;
+          cogl_clear_object (&priv->texture);
         }
     }
 

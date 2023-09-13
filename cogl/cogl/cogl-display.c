@@ -62,17 +62,8 @@ cogl_display_dispose (GObject *object)
       display->setup = FALSE;
     }
 
-  if (display->renderer)
-    {
-      g_object_unref (display->renderer);
-      display->renderer = NULL;
-    }
-
-  if (display->onscreen_template)
-    {
-      g_object_unref (display->onscreen_template);
-      display->onscreen_template = NULL;
-    }
+  g_clear_object (&display->renderer);
+  g_clear_object (&display->onscreen_template);
 
   G_OBJECT_CLASS (cogl_display_parent_class)->dispose (object);
 }

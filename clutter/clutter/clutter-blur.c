@@ -230,7 +230,7 @@ create_fbo (ClutterBlur *blur,
   float height;
   float width;
 
-  g_clear_pointer (&pass->texture, cogl_object_unref);
+  cogl_clear_object (&pass->texture);
   g_clear_object (&pass->framebuffer);
 
   width = cogl_texture_get_width (blur->source_texture);
@@ -326,8 +326,8 @@ apply_blur_pass (BlurPass *pass)
 static void
 clear_blur_pass (BlurPass *pass)
 {
-  g_clear_pointer (&pass->pipeline, cogl_object_unref);
-  g_clear_pointer (&pass->texture, cogl_object_unref);
+  cogl_clear_object (&pass->pipeline);
+  cogl_clear_object (&pass->texture);
   g_clear_object (&pass->framebuffer);
 }
 

@@ -175,19 +175,8 @@ clutter_shader_effect_clear (ClutterShaderEffect *self,
 {
   ClutterShaderEffectPrivate *priv = self->priv;
 
-  if (priv->shader != NULL)
-    {
-      g_object_unref (priv->shader);
-
-      priv->shader = NULL;
-    }
-
-  if (priv->program != NULL)
-    {
-      g_object_unref (priv->program);
-
-      priv->program = NULL;
-    }
+  g_clear_object (&priv->shader);
+  g_clear_object (&priv->program);
 
   if (reset_uniforms && priv->uniforms != NULL)
     {

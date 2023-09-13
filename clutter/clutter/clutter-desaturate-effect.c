@@ -124,11 +124,7 @@ clutter_desaturate_effect_dispose (GObject *gobject)
 {
   ClutterDesaturateEffect *self = CLUTTER_DESATURATE_EFFECT (gobject);
 
-  if (self->pipeline != NULL)
-    {
-      cogl_object_unref (self->pipeline);
-      self->pipeline = NULL;
-    }
+  cogl_clear_object (&self->pipeline);
 
   G_OBJECT_CLASS (clutter_desaturate_effect_parent_class)->dispose (gobject);
 }

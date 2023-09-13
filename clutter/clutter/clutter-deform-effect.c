@@ -337,23 +337,9 @@ clutter_deform_effect_free_arrays (ClutterDeformEffect *self)
 {
   ClutterDeformEffectPrivate *priv = self->priv;
 
-  if (priv->buffer)
-    {
-      cogl_object_unref (priv->buffer);
-      priv->buffer = NULL;
-    }
-
-  if (priv->primitive)
-    {
-      cogl_object_unref (priv->primitive);
-      priv->primitive = NULL;
-    }
-
-  if (priv->lines_primitive)
-    {
-      cogl_object_unref (priv->lines_primitive);
-      priv->lines_primitive = NULL;
-    }
+  cogl_clear_object (&priv->buffer);
+  cogl_clear_object (&priv->primitive);
+  cogl_clear_object (&priv->lines_primitive);
 }
 
 static void
@@ -501,11 +487,7 @@ clutter_deform_effect_free_back_pipeline (ClutterDeformEffect *self)
 {
   ClutterDeformEffectPrivate *priv = self->priv;
 
-  if (priv->back_pipeline != NULL)
-    {
-      cogl_object_unref (priv->back_pipeline);
-      priv->back_pipeline = NULL;
-    }
+  cogl_clear_object (&priv->back_pipeline);
 }
 
 static void

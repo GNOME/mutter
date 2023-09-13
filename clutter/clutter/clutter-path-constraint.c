@@ -134,11 +134,7 @@ clutter_path_constraint_dispose (GObject *gobject)
 {
   ClutterPathConstraint *self = CLUTTER_PATH_CONSTRAINT (gobject);
 
-  if (self->path != NULL)
-    {
-      g_object_unref (self->path);
-      self->path = NULL;
-    }
+  g_clear_object (&self->path);
 
   G_OBJECT_CLASS (clutter_path_constraint_parent_class)->dispose (gobject);
 }
@@ -298,11 +294,7 @@ clutter_path_constraint_set_path (ClutterPathConstraint *constraint,
   if (constraint->path == path)
     return;
 
-  if (constraint->path != NULL)
-    {
-      g_object_unref (constraint->path);
-      constraint->path = NULL;
-    }
+  g_clear_object (&constraint->path);
 
   if (path != NULL)
     constraint->path = g_object_ref_sink (path);

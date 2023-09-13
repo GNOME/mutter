@@ -147,11 +147,7 @@ clutter_blur_effect_dispose (GObject *gobject)
 {
   ClutterBlurEffect *self = CLUTTER_BLUR_EFFECT (gobject);
 
-  if (self->pipeline != NULL)
-    {
-      cogl_object_unref (self->pipeline);
-      self->pipeline = NULL;
-    }
+  cogl_clear_object (&self->pipeline);
 
   G_OBJECT_CLASS (clutter_blur_effect_parent_class)->dispose (gobject);
 }
