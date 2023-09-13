@@ -135,16 +135,14 @@ update_inhibitation (MetaWaylandIdleInhibitor *inhibitor)
     return;
 
   if (!inhibitor->surface ||
-      !inhibitor->resource)
+      !inhibitor->resource ||
+      !inhibitor->actor)
     {
       should_inhibit = FALSE;
     }
   else
     {
-      MetaSurfaceActor *actor;
-
-      actor = meta_wayland_surface_get_actor (inhibitor->surface);
-      if (meta_surface_actor_is_effectively_obscured (actor))
+      if (meta_surface_actor_is_effectively_obscured (inhibitor->actor))
         should_inhibit = FALSE;
       else
         should_inhibit = TRUE;
