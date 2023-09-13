@@ -1036,7 +1036,7 @@ meta_virtual_input_device_native_constructed (GObject *object)
 
   virtual_evdev->impl_state = g_new0 (ImplState, 1);
   virtual_evdev->impl_state->device =
-    meta_input_device_native_new_virtual (virtual_evdev->seat->impl,
+    meta_input_device_native_new_virtual (CLUTTER_SEAT (virtual_evdev->seat),
                                           device_type,
                                           CLUTTER_INPUT_MODE_PHYSICAL);
 

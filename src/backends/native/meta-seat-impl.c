@@ -2964,8 +2964,8 @@ meta_seat_impl_constructed (GObject *object)
   ClutterInputDevice *device;
 
   device = meta_input_device_native_new_virtual (
-      seat_impl, CLUTTER_POINTER_DEVICE,
-      CLUTTER_INPUT_MODE_LOGICAL);
+    CLUTTER_SEAT (seat_impl->seat_native), CLUTTER_POINTER_DEVICE,
+    CLUTTER_INPUT_MODE_LOGICAL);
   seat_impl->pointer_x = INITIAL_POINTER_X;
   seat_impl->pointer_y = INITIAL_POINTER_Y;
   meta_input_device_native_set_coords_in_impl (META_INPUT_DEVICE_NATIVE (device),
@@ -2974,8 +2974,8 @@ meta_seat_impl_constructed (GObject *object)
   seat_impl->core_pointer = device;
 
   device = meta_input_device_native_new_virtual (
-      seat_impl, CLUTTER_KEYBOARD_DEVICE,
-      CLUTTER_INPUT_MODE_LOGICAL);
+    CLUTTER_SEAT (seat_impl->seat_native), CLUTTER_KEYBOARD_DEVICE,
+    CLUTTER_INPUT_MODE_LOGICAL);
   seat_impl->core_keyboard = device;
 
   if (G_OBJECT_CLASS (meta_seat_impl_parent_class)->constructed)
