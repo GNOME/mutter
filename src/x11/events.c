@@ -969,10 +969,11 @@ handle_input_xevent (MetaX11Display *x11_display,
           !meta_is_wayland_compositor () &&
           enter_event->sourceid != enter_event->deviceid)
         {
-          meta_window_handle_enter (window,
-                                    enter_event->time,
-                                    enter_event->root_x,
-                                    enter_event->root_y);
+          meta_display_handle_window_enter (display,
+                                            window,
+                                            enter_event->time,
+                                            enter_event->root_x,
+                                            enter_event->root_y);
         }
       break;
     case XI_Leave:
@@ -983,7 +984,7 @@ handle_input_xevent (MetaX11Display *x11_display,
           enter_event->mode != XINotifyGrab &&
           enter_event->mode != XINotifyUngrab)
         {
-          meta_window_handle_leave (window);
+          meta_display_handle_window_leave (display, window);
         }
       break;
     case XI_FocusIn:

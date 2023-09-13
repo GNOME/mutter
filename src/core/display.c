@@ -3803,3 +3803,156 @@ meta_display_flush_queued_window (MetaDisplay   *display,
       window_queue_func[queue_idx] (display, windows);
     }
 }
+
+typedef struct
+{
+  MetaWindow *window;
+  int pointer_x;
+  int pointer_y;
+} MetaFocusData;
+
+static void
+focus_mouse_mode (MetaWindow *window,
+                  uint32_t    timestamp_ms)
+{
+  MetaDisplay *display = window->display;
+
+  if (window->override_redirect)
+    return;
+
+  if (window->type != META_WINDOW_DESKTOP)
+    {
+      meta_topic (META_DEBUG_FOCUS,
+                  "Focusing %s at time %u.", window->desc, timestamp_ms);
+
+      meta_window_focus (window, timestamp_ms);
+
+      if (meta_prefs_get_auto_raise ())
+        meta_display_queue_autoraise_callback (display, window);
+      else
+        meta_topic (META_DEBUG_FOCUS, "Auto raise is disabled");
+    }
+  else
+    {
+      /* In mouse focus mode, we defocus when the mouse *enters*
+       * the DESKTOP window, instead of defocusing on LeaveNotify.
+       * This is because having the mouse enter override-redirect
+       * child windows unfortunately causes LeaveNotify events that
+       * we can't distinguish from the mouse actually leaving the
+       * toplevel window as we expect.  But, since we filter out
+       * EnterNotify events on override-redirect windows, this
+       * alternative mechanism works great.
+       */
+      if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_MOUSE &&
+          display->focus_window != NULL)
+        {
+          meta_topic (META_DEBUG_FOCUS,
+                      "Unsetting focus from %s due to mouse entering "
+                      "the DESKTOP window",
+                      display->focus_window->desc);
+          meta_display_unset_input_focus (display, timestamp_ms);
+        }
+    }
+}
+
+static gboolean
+focus_on_pointer_rest_callback (gpointer data)
+{
+  MetaFocusData *focus_data = data;
+  MetaWindow *window = focus_data->window;
+  MetaDisplay *display = window->display;
+  MetaBackend *backend = backend_from_display (display);
+  MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
+  graphene_point_t point;
+  uint32_t timestamp_ms;
+
+  if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK)
+    goto out;
+
+  meta_cursor_tracker_get_pointer (cursor_tracker, &point, NULL);
+
+  if ((int) point.x != focus_data->pointer_x ||
+      (int) point.y != focus_data->pointer_y)
+    {
+      focus_data->pointer_x = point.x;
+      focus_data->pointer_y = point.y;
+      return G_SOURCE_CONTINUE;
+    }
+
+  if (!meta_window_has_pointer (window))
+    goto out;
+
+  timestamp_ms = meta_display_get_current_time_roundtrip (display);
+  focus_mouse_mode (window, timestamp_ms);
+
+ out:
+  display->focus_timeout_id = 0;
+  return G_SOURCE_REMOVE;
+}
+
+/* The interval, in milliseconds, we use in focus-follows-mouse
+ * mode to check whether the pointer has stopped moving after a
+ * crossing event.
+ */
+#define FOCUS_TIMEOUT_DELAY 25
+
+static void
+queue_pointer_rest_callback (MetaDisplay *display,
+                             MetaWindow  *window,
+                             int          pointer_x,
+                             int          pointer_y)
+{
+  MetaFocusData *focus_data;
+
+  focus_data = g_new (MetaFocusData, 1);
+  focus_data->window = window;
+  focus_data->pointer_x = pointer_x;
+  focus_data->pointer_y = pointer_y;
+
+  g_clear_handle_id (&display->focus_timeout_id, g_source_remove);
+
+  display->focus_timeout_id =
+    g_timeout_add_full (G_PRIORITY_DEFAULT,
+                        FOCUS_TIMEOUT_DELAY,
+                        focus_on_pointer_rest_callback,
+                        focus_data,
+                        g_free);
+  g_source_set_name_by_id (display->focus_timeout_id,
+                           "[mutter] focus_on_pointer_rest_callback");
+}
+
+void
+meta_display_handle_window_enter (MetaDisplay *display,
+                                  MetaWindow  *window,
+                                  uint32_t     timestamp_ms,
+                                  int          root_x,
+                                  int          root_y)
+{
+  switch (meta_prefs_get_focus_mode ())
+    {
+    case G_DESKTOP_FOCUS_MODE_SLOPPY:
+    case G_DESKTOP_FOCUS_MODE_MOUSE:
+      display->mouse_mode = TRUE;
+      if (window->type != META_WINDOW_DOCK)
+        {
+          if (meta_prefs_get_focus_change_on_pointer_rest())
+            queue_pointer_rest_callback (display, window, root_x, root_y);
+          else
+            focus_mouse_mode (window, timestamp_ms);
+        }
+      break;
+    case G_DESKTOP_FOCUS_MODE_CLICK:
+      break;
+    }
+
+  if (window->type == META_WINDOW_DOCK)
+    meta_window_raise (window);
+}
+
+void
+meta_display_handle_window_leave (MetaDisplay *display,
+                                  MetaWindow  *window)
+{
+  if (window->type == META_WINDOW_DOCK && !window->has_focus)
+    meta_window_lower (window);
+}

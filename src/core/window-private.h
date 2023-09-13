@@ -807,12 +807,6 @@ void meta_window_set_transient_for        (MetaWindow *window,
 void meta_window_set_opacity              (MetaWindow *window,
                                            guint8      opacity);
 
-void meta_window_handle_enter (MetaWindow  *window,
-                               guint32      timestamp,
-                               guint        root_x,
-                               guint        root_y);
-void meta_window_handle_leave (MetaWindow  *window);
-
 void meta_window_handle_ungrabbed_event (MetaWindow         *window,
                                          const ClutterEvent *event);
 

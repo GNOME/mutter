@@ -713,9 +713,10 @@ meta_wayland_pointer_update (MetaWaylandPointer *pointer,
                   graphene_point_t pos;
 
                   clutter_event_get_coords (event, &pos.x, &pos.y);
-                  meta_window_handle_enter (focus_window,
-                                            clutter_event_get_time (event),
-                                            pos.x, pos.y);
+                  meta_display_handle_window_enter (focus_window->display,
+                                                    focus_window,
+                                                    clutter_event_get_time (event),
+                                                    pos.x, pos.y);
                 }
             }
         }

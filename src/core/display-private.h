@@ -353,3 +353,12 @@ gboolean meta_display_process_captured_input (MetaDisplay        *display,
                                               const ClutterEvent *event);
 
 void meta_display_cancel_input_capture (MetaDisplay *display);
+
+void meta_display_handle_window_enter (MetaDisplay *display,
+                                       MetaWindow  *window,
+                                       uint32_t     timestamp_ms,
+                                       int          root_x,
+                                       int          root_y);
+
+void meta_display_handle_window_leave (MetaDisplay *display,
+                                       MetaWindow  *window);
