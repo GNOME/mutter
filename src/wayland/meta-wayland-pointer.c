@@ -620,6 +620,9 @@ static void
 meta_wayland_pointer_set_current (MetaWaylandPointer *pointer,
                                   MetaWaylandSurface *surface)
 {
+  if (pointer->current == surface)
+    return;
+
   if (pointer->current)
     {
       g_clear_signal_handler (&pointer->current_surface_destroyed_handler_id,
@@ -635,6 +638,8 @@ meta_wayland_pointer_set_current (MetaWaylandPointer *pointer,
                           G_CALLBACK (current_surface_destroyed),
                           pointer);
     }
+
+  meta_wayland_pointer_update_cursor_surface (pointer);
 }
 
 static void
