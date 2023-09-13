@@ -221,10 +221,22 @@ meta_input_device_native_get_dimensions (ClutterInputDevice *device,
   return FALSE;
 }
 
+static MetaSeatImpl *
+seat_impl_from_device_native (MetaInputDeviceNative *device_native)
+{
+  ClutterSeat *seat;
+
+  seat = clutter_input_device_get_seat (CLUTTER_INPUT_DEVICE (device_native));
+
+  return META_SEAT_NATIVE (seat)->impl;
+}
+
 static void
 meta_input_device_native_bell_notify (MetaInputDeviceNative *device)
 {
-  meta_seat_impl_notify_bell_in_impl (device->seat_impl);
+  MetaSeatImpl *seat_impl = seat_impl_from_device_native (device);
+
+  meta_seat_impl_notify_bell_in_impl (seat_impl);
 }
 
 static void
@@ -248,10 +260,11 @@ static guint
 get_slow_keys_delay (ClutterInputDevice *device)
 {
   MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (device);
+  MetaSeatImpl *seat_impl = seat_impl_from_device_native (device_native);
   MetaKbdA11ySettings a11y_settings;
   MetaInputSettings *input_settings;
 
-  input_settings = meta_seat_impl_get_input_settings (device_native->seat_impl);
+  input_settings = meta_seat_impl_get_input_settings (seat_impl);
   meta_input_settings_get_kbd_a11y_settings (input_settings, &a11y_settings);
   /* Settings use int, we use uint, make sure we dont go negative */
   return MAX (0, a11y_settings.slowkeys_delay);
@@ -321,6 +334,7 @@ start_slow_keys (ClutterEvent          *event,
                  MetaInputDeviceNative *device)
 {
   SlowKeysEventPending *slow_keys_event;
+  MetaSeatImpl *seat_impl = seat_impl_from_device_native (device);
 
   if (clutter_event_get_flags (event) & CLUTTER_EVENT_FLAG_REPEATED)
     return TRUE;
@@ -329,7 +343,7 @@ start_slow_keys (ClutterEvent          *event,
   slow_keys_event->device = device;
   slow_keys_event->event = clutter_event_copy (event);
   slow_keys_event->timer =
-    timeout_source_new (device->seat_impl,
+    timeout_source_new (seat_impl,
                         get_slow_keys_delay (CLUTTER_INPUT_DEVICE (device)),
                         trigger_slow_keys,
                         slow_keys_event);
@@ -370,10 +384,11 @@ static guint
 get_debounce_delay (ClutterInputDevice *device)
 {
   MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (device);
+  MetaSeatImpl *seat_impl = seat_impl_from_device_native (device_native);
   MetaKbdA11ySettings a11y_settings;
   MetaInputSettings *input_settings;
 
-  input_settings = meta_seat_impl_get_input_settings (device_native->seat_impl);
+  input_settings = meta_seat_impl_get_input_settings (seat_impl);
   meta_input_settings_get_kbd_a11y_settings (input_settings, &a11y_settings);
   /* Settings use int, we use uint, make sure we dont go negative */
   return MAX (0, a11y_settings.debounce_delay);
@@ -394,11 +409,13 @@ static void
 start_bounce_keys (ClutterEvent          *event,
                    MetaInputDeviceNative *device)
 {
+  MetaSeatImpl *seat_impl = seat_impl_from_device_native (device);
+
   stop_bounce_keys (device);
 
   device->debounce_key = clutter_event_get_key_code (event);
   device->debounce_timer =
-    timeout_source_new (device->seat_impl,
+    timeout_source_new (seat_impl,
                         get_debounce_delay (CLUTTER_INPUT_DEVICE (device)),
                         clear_bounce_keys,
                         device);
@@ -452,7 +469,9 @@ key_event_is_modifier (ClutterEvent *event)
 static void
 notify_stickykeys_mask (MetaInputDeviceNative *device)
 {
-  meta_seat_impl_notify_kbd_a11y_mods_state_changed_in_impl (device->seat_impl,
+  MetaSeatImpl *seat_impl = seat_impl_from_device_native (device);
+
+  meta_seat_impl_notify_kbd_a11y_mods_state_changed_in_impl (seat_impl,
                                                              device->stickykeys_latched_mask,
                                                              device->stickykeys_locked_mask);
 }
@@ -462,7 +481,7 @@ update_internal_xkb_state (MetaInputDeviceNative *device,
                            xkb_mod_mask_t         new_latched_mask,
                            xkb_mod_mask_t         new_locked_mask)
 {
-  MetaSeatImpl *seat_impl = device->seat_impl;
+  MetaSeatImpl *seat_impl = seat_impl_from_device_native (device);
   xkb_mod_mask_t depressed_mods;
   xkb_mod_mask_t latched_mods;
   xkb_mod_mask_t locked_mods;
@@ -503,7 +522,7 @@ rewrite_stickykeys_event (ClutterEvent          *event,
                           xkb_mod_mask_t         new_latched_mask,
                           xkb_mod_mask_t         new_locked_mask)
 {
-  MetaSeatImpl *seat_impl = device->seat_impl;
+  MetaSeatImpl *seat_impl = seat_impl_from_device_native (device);
   struct xkb_state *xkb_state;
   ClutterEvent *rewritten_event;
   ClutterModifierType modifiers;
@@ -531,11 +550,13 @@ rewrite_stickykeys_event (ClutterEvent          *event,
 static void
 notify_stickykeys_change (MetaInputDeviceNative *device)
 {
+  MetaSeatImpl *seat_impl = seat_impl_from_device_native (device);
+
   /* Every time sticky keys setting is changed, clear the masks */
   device->stickykeys_depressed_mask = 0;
   update_internal_xkb_state (device, 0, 0);
 
-  meta_seat_impl_notify_kbd_a11y_flags_changed_in_impl (device->seat_impl,
+  meta_seat_impl_notify_kbd_a11y_flags_changed_in_impl (seat_impl,
                                                         device->a11y_flags,
                                                         META_A11Y_STICKY_KEYS_ENABLED);
 }
@@ -557,9 +578,11 @@ set_stickykeys_on (MetaInputDeviceNative *device)
 static void
 set_slowkeys_off (MetaInputDeviceNative *device)
 {
+  MetaSeatImpl *seat_impl = seat_impl_from_device_native (device);
+
   device->a11y_flags &= ~META_A11Y_SLOW_KEYS_ENABLED;
 
-  meta_seat_impl_notify_kbd_a11y_flags_changed_in_impl (device->seat_impl,
+  meta_seat_impl_notify_kbd_a11y_flags_changed_in_impl (seat_impl,
                                                         device->a11y_flags,
                                                         META_A11Y_SLOW_KEYS_ENABLED);
 }
@@ -567,9 +590,11 @@ set_slowkeys_off (MetaInputDeviceNative *device)
 static void
 set_slowkeys_on (MetaInputDeviceNative *device)
 {
+  MetaSeatImpl *seat_impl = seat_impl_from_device_native (device);
+
   device->a11y_flags |= META_A11Y_SLOW_KEYS_ENABLED;
 
-  meta_seat_impl_notify_kbd_a11y_flags_changed_in_impl (device->seat_impl,
+  meta_seat_impl_notify_kbd_a11y_flags_changed_in_impl (seat_impl,
                                                         device->a11y_flags,
                                                         META_A11Y_SLOW_KEYS_ENABLED);
 }
@@ -578,7 +603,7 @@ static gboolean
 handle_stickykeys_press (ClutterEvent          *event,
                          MetaInputDeviceNative *device)
 {
-  MetaSeatImpl *seat_impl = device->seat_impl;
+  MetaSeatImpl *seat_impl = seat_impl_from_device_native (device);
   xkb_mod_mask_t depressed_mods;
   xkb_mod_mask_t new_latched_mask;
   xkb_mod_mask_t new_locked_mask;
@@ -630,7 +655,7 @@ static gboolean
 handle_stickykeys_release (ClutterEvent          *event,
                            MetaInputDeviceNative *device)
 {
-  MetaSeatImpl *seat_impl = device->seat_impl;
+  MetaSeatImpl *seat_impl = seat_impl_from_device_native (device);
   struct xkb_state *xkb_state;
 
   xkb_state = meta_seat_impl_get_xkb_state_in_impl (seat_impl);
@@ -673,11 +698,13 @@ trigger_toggle_slowkeys (gpointer data)
 static void
 start_toggle_slowkeys (MetaInputDeviceNative *device)
 {
+  MetaSeatImpl *seat_impl = seat_impl_from_device_native (device);
+
   if (device->toggle_slowkeys_timer != 0)
     return;
 
   device->toggle_slowkeys_timer =
-    timeout_source_new (device->seat_impl,
+    timeout_source_new (seat_impl,
                         8 * 1000 /* 8 secs */,
                         trigger_toggle_slowkeys,
                         device);
@@ -884,7 +911,7 @@ emulate_pointer_motion (MetaInputDeviceNative *device_evdev,
 static gboolean
 is_numlock_active (MetaInputDeviceNative *device)
 {
-  MetaSeatImpl *seat_impl = device->seat_impl;
+  MetaSeatImpl *seat_impl = seat_impl_from_device_native (device);
   struct xkb_state *xkb_state;
 
   xkb_state = meta_seat_impl_get_xkb_state_in_impl (seat_impl);
@@ -947,6 +974,7 @@ static gboolean
 trigger_mousekeys_move (gpointer data)
 {
   MetaInputDeviceNative *device = data;
+  MetaSeatImpl *seat_impl = seat_impl_from_device_native (device);
   int dx = 0;
   int dy = 0;
 
@@ -954,7 +982,7 @@ trigger_mousekeys_move (gpointer data)
     {
       /* This is the first move, Secdule at mk_init_delay */
       device->move_mousekeys_timer =
-        timeout_source_new (device->seat_impl,
+        timeout_source_new (seat_impl,
                             device->mousekeys_init_delay,
                             trigger_mousekeys_move,
                             device);
@@ -964,7 +992,7 @@ trigger_mousekeys_move (gpointer data)
     {
       /* More moves, reschedule at mk_interval */
       device->move_mousekeys_timer =
-        timeout_source_new (device->seat_impl,
+        timeout_source_new (seat_impl,
                             100, /* msec between mousekey events */
                             trigger_mousekeys_move,
                             device);
@@ -1494,7 +1522,6 @@ meta_input_device_native_new_in_impl (MetaSeatImpl           *seat_impl,
                          "seat", seat_impl->seat_native,
                          NULL);
 
-  device->seat_impl = seat_impl;
   device->libinput_device = libinput_device;
 
   libinput_device_set_user_data (libinput_device, device);
@@ -1557,8 +1584,6 @@ meta_input_device_native_new_virtual (MetaSeatImpl           *seat_impl,
                          "device-mode", mode,
                          "seat", seat_impl->seat_native,
                          NULL);
-
-  device->seat_impl = seat_impl;
 
   return CLUTTER_INPUT_DEVICE (device);
 }
