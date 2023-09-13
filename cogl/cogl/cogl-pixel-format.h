@@ -95,7 +95,7 @@ G_BEGIN_DECLS
  * The mapping is the following (see discussion on bug #660188):
  *
  * 0     = undefined
- * 1, 8  = 1 bpp (e.g. A_8, G_8)
+ * 1, 8  = 1 bpp (e.g. A_8, R_8)
  * 2     = 3 bpp, aligned (e.g. 888)
  * 3     = 4 bpp, aligned (e.g. 8888)
  * 4-6   = 2 bpp, not aligned (e.g. 565, 4444, 5551)
@@ -148,7 +148,7 @@ G_BEGIN_DECLS
  * @COGL_PIXEL_FORMAT_RGBA_4444: RGBA, 16 bits
  * @COGL_PIXEL_FORMAT_RGBA_5551: RGBA, 16 bits
  * @COGL_PIXEL_FORMAT_YUV: Not currently supported
- * @COGL_PIXEL_FORMAT_G_8: Single luminance component
+ * @COGL_PIXEL_FORMAT_R_8: Single luminance component
  * @COGL_PIXEL_FORMAT_G_16: Single luminance component, 16 bits
  * @COGL_PIXEL_FORMAT_RGB_888: RGB, 24 bits
  * @COGL_PIXEL_FORMAT_BGR_888: BGR, 24 bits
@@ -215,7 +215,7 @@ typedef enum /*< prefix=COGL_PIXEL_FORMAT >*/
   COGL_PIXEL_FORMAT_RGBA_4444     = 5 | COGL_A_BIT,
   COGL_PIXEL_FORMAT_RGBA_5551     = 6 | COGL_A_BIT,
   COGL_PIXEL_FORMAT_YUV           = 7,
-  COGL_PIXEL_FORMAT_G_8           = 8,
+  COGL_PIXEL_FORMAT_R_8           = 8,
   COGL_PIXEL_FORMAT_G_16          = 14,
 
   COGL_PIXEL_FORMAT_RG_88         = 9,

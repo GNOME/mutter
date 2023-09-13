@@ -92,8 +92,8 @@ static const CoglPixelFormatInfo format_info_table[] = {
     .bpp = { 0 },
   },
   {
-    .cogl_format = COGL_PIXEL_FORMAT_G_8,
-    .format_str = "G_8",
+    .cogl_format = COGL_PIXEL_FORMAT_R_8,
+    .format_str = "R_8",
     .n_planes = 1,
     .aligned = 1,
     .bpp = { 1 },

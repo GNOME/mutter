@@ -395,7 +395,7 @@ _cogl_texture_driver_upload_supported (CoglContext *ctx,
   switch (format)
     {
     case COGL_PIXEL_FORMAT_A_8:
-    case COGL_PIXEL_FORMAT_G_8:
+    case COGL_PIXEL_FORMAT_R_8:
     case COGL_PIXEL_FORMAT_RG_88:
     case COGL_PIXEL_FORMAT_BGRX_8888:
     case COGL_PIXEL_FORMAT_BGRA_8888:

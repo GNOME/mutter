@@ -330,7 +330,7 @@ _cogl_bitmap_needs_short_temp_buffer (CoglPixelFormat format)
     case COGL_PIXEL_FORMAT_RGB_565:
     case COGL_PIXEL_FORMAT_RGBA_4444:
     case COGL_PIXEL_FORMAT_RGBA_5551:
-    case COGL_PIXEL_FORMAT_G_8:
+    case COGL_PIXEL_FORMAT_R_8:
     case COGL_PIXEL_FORMAT_RGB_888:
     case COGL_PIXEL_FORMAT_BGR_888:
     case COGL_PIXEL_FORMAT_RGBX_8888:

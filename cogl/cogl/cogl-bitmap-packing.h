@@ -65,7 +65,7 @@ G_PASTE (_cogl_unpack_a_8_, component_size) (const uint8_t *src,
 }
 
 inline static void
-G_PASTE (_cogl_unpack_g_8_, component_size) (const uint8_t *src,
+G_PASTE (_cogl_unpack_r_8_, component_size) (const uint8_t *src,
                                              component_type *dst,
                                              int width)
 {
@@ -449,8 +449,8 @@ G_PASTE (_cogl_unpack_, component_size) (CoglPixelFormat format,
     case COGL_PIXEL_FORMAT_A_8:
       G_PASTE (_cogl_unpack_a_8_, component_size) (src, dst, width);
       break;
-    case COGL_PIXEL_FORMAT_G_8:
-      G_PASTE (_cogl_unpack_g_8_, component_size) (src, dst, width);
+    case COGL_PIXEL_FORMAT_R_8:
+      G_PASTE (_cogl_unpack_r_8_, component_size) (src, dst, width);
       break;
     case COGL_PIXEL_FORMAT_RG_88:
       G_PASTE (_cogl_unpack_rg_88_, component_size) (src, dst, width);
@@ -575,7 +575,7 @@ G_PASTE (_cogl_pack_a_8_, component_size) (const component_type *src,
 }
 
 inline static void
-G_PASTE (_cogl_pack_g_8_, component_size) (const component_type *src,
+G_PASTE (_cogl_pack_r_8_, component_size) (const component_type *src,
                                            uint8_t *dst,
                                            int width)
 {
@@ -952,8 +952,8 @@ G_PASTE (_cogl_pack_, component_size) (CoglPixelFormat format,
     case COGL_PIXEL_FORMAT_A_8:
       G_PASTE (_cogl_pack_a_8_, component_size) (src, dst, width);
       break;
-    case COGL_PIXEL_FORMAT_G_8:
-      G_PASTE (_cogl_pack_g_8_, component_size) (src, dst, width);
+    case COGL_PIXEL_FORMAT_R_8:
+      G_PASTE (_cogl_pack_r_8_, component_size) (src, dst, width);
       break;
     case COGL_PIXEL_FORMAT_RG_88:
       G_PASTE (_cogl_pack_rg_88_, component_size) (src, dst, width);
