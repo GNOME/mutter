@@ -3806,21 +3806,21 @@ meta_display_flush_queued_window (MetaDisplay   *display,
 
 typedef struct
 {
+  MetaDisplay *display;
   MetaWindow *window;
   int pointer_x;
   int pointer_y;
 } MetaFocusData;
 
 static void
-focus_mouse_mode (MetaWindow *window,
-                  uint32_t    timestamp_ms)
+focus_mouse_mode (MetaDisplay *display,
+                  MetaWindow  *window,
+                  uint32_t     timestamp_ms)
 {
-  MetaDisplay *display = window->display;
-
-  if (window->override_redirect)
+  if (window && window->override_redirect)
     return;
 
-  if (window->type != META_WINDOW_DESKTOP)
+  if (window && window->type != META_WINDOW_DESKTOP)
     {
       meta_topic (META_DEBUG_FOCUS,
                   "Focusing %s at time %u.", window->desc, timestamp_ms);
@@ -3860,7 +3860,7 @@ focus_on_pointer_rest_callback (gpointer data)
 {
   MetaFocusData *focus_data = data;
   MetaWindow *window = focus_data->window;
-  MetaDisplay *display = window->display;
+  MetaDisplay *display = focus_data->display;
   MetaBackend *backend = backend_from_display (display);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
   graphene_point_t point;
@@ -3879,11 +3879,11 @@ focus_on_pointer_rest_callback (gpointer data)
       return G_SOURCE_CONTINUE;
     }
 
-  if (!meta_window_has_pointer (window))
+  if (window && !meta_window_has_pointer (window))
     goto out;
 
   timestamp_ms = meta_display_get_current_time_roundtrip (display);
-  focus_mouse_mode (window, timestamp_ms);
+  focus_mouse_mode (display, window, timestamp_ms);
 
  out:
   display->focus_timeout_id = 0;
@@ -3905,6 +3905,7 @@ queue_pointer_rest_callback (MetaDisplay *display,
   MetaFocusData *focus_data;
 
   focus_data = g_new (MetaFocusData, 1);
+  focus_data->display = display;
   focus_data->window = window;
   focus_data->pointer_x = pointer_x;
   focus_data->pointer_y = pointer_y;
@@ -3933,19 +3934,19 @@ meta_display_handle_window_enter (MetaDisplay *display,
     case G_DESKTOP_FOCUS_MODE_SLOPPY:
     case G_DESKTOP_FOCUS_MODE_MOUSE:
       display->mouse_mode = TRUE;
-      if (window->type != META_WINDOW_DOCK)
+      if (!window || window->type != META_WINDOW_DOCK)
         {
-          if (meta_prefs_get_focus_change_on_pointer_rest())
+          if (meta_prefs_get_focus_change_on_pointer_rest ())
             queue_pointer_rest_callback (display, window, root_x, root_y);
           else
-            focus_mouse_mode (window, timestamp_ms);
+            focus_mouse_mode (display, window, timestamp_ms);
         }
       break;
     case G_DESKTOP_FOCUS_MODE_CLICK:
       break;
     }
 
-  if (window->type == META_WINDOW_DOCK)
+  if (window && window->type == META_WINDOW_DOCK)
     meta_window_raise (window);
 }
 
@@ -3953,6 +3954,6 @@ void
 meta_display_handle_window_leave (MetaDisplay *display,
                                   MetaWindow  *window)
 {
-  if (window->type == META_WINDOW_DOCK && !window->has_focus)
+  if (window && window->type == META_WINDOW_DOCK && !window->has_focus)
     meta_window_lower (window);
 }
