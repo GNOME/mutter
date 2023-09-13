@@ -258,21 +258,22 @@ ret = logind_helpers.open_file_direct(major, minor)
                 return template_path
         raise FileNotFoundError(f'Couldnt find a {template_name} template')
 
-    def wrap_call(self, args):
-        env = {}
-        env.update(os.environ)
-        env['NO_AT_BRIDGE'] = '1'
-        env['GTK_A11Y'] = 'none'
-        env['GSETTINGS_BACKEND'] = 'memory'
 
-        wrapper = env.get('META_DBUS_RUNNER_WRAPPER')
-        if wrapper == 'gdb':
-            args = ['gdb', '-ex', 'r', '-ex', 'bt full', '--args'] + args
-        elif wrapper:
-            args = wrapper.split(' ') + args
+def wrap_call(args, wrapper):
+    env = {}
+    env.update(os.environ)
+    env['NO_AT_BRIDGE'] = '1'
+    env['GTK_A11Y'] = 'none'
+    env['GSETTINGS_BACKEND'] = 'memory'
+    env['META_DBUS_RUNNER_ACTIVE'] = '1'
 
-        p = subprocess.Popen(args, env=env)
-        return p.wait()
+    if wrapper == 'gdb':
+        args = ['gdb', '-ex', 'r', '-ex', 'bt full', '--args'] + args
+    elif wrapper:
+        args = wrapper.split(' ') + args
+
+    p = subprocess.Popen(args, env=env)
+    return p.wait()
 
 
 def meta_run(klass):
@@ -287,14 +288,27 @@ def meta_run(klass):
     if rest[0] == '--':
       rest.pop(0)
 
-    klass.setUpClass(args.kvm, args.launch)
-    runner = klass()
-    runner.assertGreater(len(rest), 0)
     result = 1
 
-    try:
-        print('Running test case...', file=sys.stderr)
-        result = runner.wrap_call(rest)
-    finally:
-        MutterDBusRunner.tearDownClass()
+    if os.getenv('META_DBUS_RUNNER_ACTIVE') == None:
+        klass.setUpClass(args.kvm, args.launch)
+        runner = klass()
+        runner.assertGreater(len(rest), 0)
+        wrapper = os.getenv('META_DBUS_RUNNER_WRAPPER')
+
+        try:
+            print('Running test case...', file=sys.stderr)
+            result = wrap_call(rest, wrapper)
+        finally:
+            MutterDBusRunner.tearDownClass()
+    else:
+        try:
+            print(('Inside a nested meta-dbus-runner: '
+                   'Not re-creating mocked environment.'),
+                  file=sys.stderr)
+            print('Running test case...', file=sys.stderr)
+            result = wrap_call(rest, None)
+        finally:
+            pass
+
     return result
