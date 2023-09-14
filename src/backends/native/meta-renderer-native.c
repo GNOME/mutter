@@ -615,10 +615,11 @@ meta_renderer_native_create_dma_buf_framebuffer (MetaRendererNative  *renderer_n
   CoglEglImageFlags flags;
   CoglTexture *cogl_tex;
   CoglOffscreen *cogl_fbo;
-  int ret;
+  const MetaFormatInfo *format_info;
 
-  ret = meta_cogl_pixel_format_from_drm_format (drm_format, &cogl_format, NULL);
-  g_assert (ret);
+  format_info = meta_format_info_from_drm_format (drm_format);
+  g_assert (format_info);
+  cogl_format = format_info->cogl_format;
 
   strides[0] = stride;
   offsets[0] = offset;
@@ -930,8 +931,10 @@ meta_renderer_native_create_dma_buf (CoglRenderer     *cogl_renderer,
         uint32_t drm_format;
         CoglFramebuffer *dmabuf_fb;
         CoglDmaBufHandle *dmabuf_handle;
+        const MetaFormatInfo *format_info;
 
-        if (!meta_drm_format_from_cogl_pixel_format (format, &drm_format))
+        format_info = meta_format_info_from_cogl_format (format);
+        if (!format_info)
           {
             g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
                          "Native renderer doesn't support creating DMA buffer with format %s",
@@ -939,6 +942,7 @@ meta_renderer_native_create_dma_buf (CoglRenderer     *cogl_renderer,
             return NULL;
           }
 
+        drm_format = format_info->drm_format;
         render_device = renderer_gpu_data->render_device;
         flags = META_DRM_BUFFER_FLAG_NONE;
         buffer = meta_render_device_allocate_dma_buf (render_device,

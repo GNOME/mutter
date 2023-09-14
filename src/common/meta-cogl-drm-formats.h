@@ -29,14 +29,14 @@
 
 G_BEGIN_DECLS
 
-typedef struct _CoglDrmFormatMap
+typedef struct _MetaFormatInfo
 {
   uint32_t drm_format;
   CoglPixelFormat cogl_format;
   MetaMultiTextureFormat multi_texture_format;
-} CoglDrmFormatMap;
+} MetaFormatInfo;
 
-static const CoglDrmFormatMap meta_cogl_drm_format_map[] = {
+static const MetaFormatInfo meta_format_info[] = {
 /* DRM formats are defined as little-endian, not machine endian. */
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
   { DRM_FORMAT_R8, COGL_PIXEL_FORMAT_R_8, META_MULTI_TEXTURE_FORMAT_INVALID },
@@ -78,11 +78,8 @@ static const CoglDrmFormatMap meta_cogl_drm_format_map[] = {
 #endif
 };
 
-gboolean meta_cogl_pixel_format_from_drm_format (uint32_t                drm_format,
-                                                 CoglPixelFormat        *out_format,
-                                                 MetaMultiTextureFormat *out_multi_texture_format);
+const MetaFormatInfo *meta_format_info_from_drm_format (uint32_t drm_format);
 
-gboolean meta_drm_format_from_cogl_pixel_format (CoglPixelFormat  cogl_format,
-                                                 uint32_t        *out_drm_format);
+const MetaFormatInfo *meta_format_info_from_cogl_format (CoglPixelFormat cogl_format);
 
 G_END_DECLS

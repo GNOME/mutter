@@ -356,6 +356,7 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
   MetaWaylandDmaBufBuffer *dma_buf = buffer->dma_buf.dma_buf;
   MetaMultiTextureFormat multi_format;
   CoglPixelFormat cogl_format;
+  const MetaFormatInfo *format_info;
 #ifdef HAVE_NATIVE_BACKEND
   MetaDrmFormatBuf format_buf;
 #endif
@@ -363,15 +364,17 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
   if (buffer->dma_buf.texture)
     return TRUE;
 
-  if (!meta_cogl_pixel_format_from_drm_format (dma_buf->drm_format,
-                                               &cogl_format,
-                                               &multi_format))
+  format_info = meta_format_info_from_drm_format (dma_buf->drm_format);
+  if (!format_info)
     {
       g_set_error (error, G_IO_ERROR,
                    G_IO_ERROR_FAILED,
                    "Unsupported buffer format %d", dma_buf->drm_format);
       return FALSE;
     }
+
+  cogl_format = format_info->cogl_format;
+  multi_format = format_info->multi_texture_format;
 
 #ifdef HAVE_NATIVE_BACKEND
   meta_topic (META_DEBUG_WAYLAND,
@@ -456,17 +459,12 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
           CoglEglImageFlags flags;
           CoglTexture *cogl_texture;
           uint32_t drm_format = 0;
-          int plane_index, j;
+          int plane_index;
+          const MetaFormatInfo *format_info;
 
-          for (j = 0; j < G_N_ELEMENTS (meta_cogl_drm_format_map); j++)
-            {
-              if (meta_cogl_drm_format_map[j].cogl_format == subformats[i])
-                {
-                  drm_format = meta_cogl_drm_format_map[j].drm_format;
-                  break;
-                }
-            }
-          g_return_val_if_fail (drm_format != 0, FALSE);
+          format_info = meta_format_info_from_cogl_format (subformats[i]);
+          g_return_val_if_fail (format_info != NULL, FALSE);
+          drm_format = format_info->drm_format;
 
           plane_index = plane_indices[i];
 
@@ -1638,7 +1636,8 @@ init_formats (MetaWaylandDmaBufManager  *dma_buf_manager,
   MetaEgl *egl = meta_backend_get_egl (backend);
   EGLint num_formats;
   g_autofree EGLint *driver_formats = NULL;
-  int i, j;
+  int i;
+  const MetaFormatInfo *format_info;
 
   dma_buf_manager->formats = g_array_new (FALSE, FALSE,
                                           sizeof (MetaWaylandDmaBufFormat));
@@ -1659,15 +1658,12 @@ init_formats (MetaWaylandDmaBufManager  *dma_buf_manager,
                                        driver_formats, &num_formats, error))
     return FALSE;
 
-  for (i = 0; i < G_N_ELEMENTS (meta_cogl_drm_format_map); i++)
+  for (i = 0; i < num_formats; i++)
     {
-      for (j = 0; j < num_formats; j++)
-        {
-          if ((meta_cogl_drm_format_map[i].drm_format == driver_formats[j]) &&
-              (meta_cogl_drm_format_map[i].multi_texture_format !=
-               META_MULTI_TEXTURE_FORMAT_INVALID))
-            add_format (dma_buf_manager, egl_display, driver_formats[j]);
-        }
+      format_info = meta_format_info_from_drm_format (driver_formats[i]);
+      if (format_info && format_info->multi_texture_format !=
+          META_MULTI_TEXTURE_FORMAT_INVALID)
+        add_format (dma_buf_manager, egl_display, driver_formats[i]);
     }
 
   if (dma_buf_manager->formats->len == 0)

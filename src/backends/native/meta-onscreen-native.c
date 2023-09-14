@@ -719,8 +719,7 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
   CoglFramebuffer *dmabuf_fb;
   int dmabuf_fd;
   g_autoptr (GError) error = NULL;
-  CoglPixelFormat cogl_format;
-  int ret;
+  const MetaFormatInfo *format_info;
 
   COGL_TRACE_BEGIN_SCOPED (CopySharedFramebufferPrimaryGpu,
                            "copy_shared_framebuffer_primary_gpu()");
@@ -746,8 +745,8 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
   g_assert (cogl_framebuffer_get_width (framebuffer) == width);
   g_assert (cogl_framebuffer_get_height (framebuffer) == height);
 
-  ret = meta_cogl_pixel_format_from_drm_format (drm_format, &cogl_format, NULL);
-  g_assert (ret);
+  format_info = meta_format_info_from_drm_format (drm_format);
+  g_assert (format_info);
 
   dmabuf_fd = meta_drm_buffer_dumb_ensure_dmabuf_fd (buffer_dumb, &error);
   if (!dmabuf_fd)
@@ -831,7 +830,7 @@ copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
   void *buffer_data;
   CoglBitmap *dumb_bitmap;
   CoglPixelFormat cogl_format;
-  gboolean ret;
+  const MetaFormatInfo *format_info;
 
   COGL_TRACE_BEGIN_SCOPED (CopySharedFramebufferCpu,
                            "copy_shared_framebuffer_cpu()");
@@ -848,8 +847,9 @@ copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
   g_assert (cogl_framebuffer_get_width (framebuffer) == width);
   g_assert (cogl_framebuffer_get_height (framebuffer) == height);
 
-  ret = meta_cogl_pixel_format_from_drm_format (drm_format, &cogl_format, NULL);
-  g_assert (ret);
+  format_info = meta_format_info_from_drm_format (drm_format);
+  g_assert (format_info);
+  cogl_format = format_info->cogl_format;
 
   dumb_bitmap = cogl_bitmap_new_for_data (cogl_context,
                                           width,
@@ -2116,9 +2116,7 @@ pick_secondary_gpu_framebuffer_format_for_cpu (CoglOnscreen *onscreen)
   /* Check if any of our preferred formats are supported. */
   for (k = 0; k < G_N_ELEMENTS (preferred_formats); k++)
     {
-      g_assert (meta_cogl_pixel_format_from_drm_format (preferred_formats[k],
-                                                        NULL,
-                                                        NULL));
+      g_assert (meta_format_info_from_drm_format (preferred_formats[k]));
 
       for (i = 0; i < formats->len; i++)
         {
@@ -2138,7 +2136,7 @@ pick_secondary_gpu_framebuffer_format_for_cpu (CoglOnscreen *onscreen)
     {
       drm_format = g_array_index (formats, uint32_t, i);
 
-      if (meta_cogl_pixel_format_from_drm_format (drm_format, NULL, NULL))
+      if (meta_format_info_from_drm_format (drm_format))
         return drm_format;
     }
 

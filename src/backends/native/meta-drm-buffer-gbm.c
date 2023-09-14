@@ -266,6 +266,7 @@ meta_drm_buffer_gbm_blit_to_framebuffer (CoglScanout      *scanout,
   gboolean result;
   int dmabuf_fd = -1;
   uint32_t i;
+  const MetaFormatInfo *format_info;
 
   dmabuf_fd = gbm_bo_get_fd (buffer_gbm->bo);
   if (dmabuf_fd == -1)
@@ -277,10 +278,10 @@ meta_drm_buffer_gbm_blit_to_framebuffer (CoglScanout      *scanout,
     }
 
   drm_format = gbm_bo_get_format (buffer_gbm->bo);
-  result = meta_cogl_pixel_format_from_drm_format (drm_format,
-                                                   &cogl_format,
-                                                   NULL);
-  g_assert (result);
+
+  format_info = meta_format_info_from_drm_format (drm_format);
+  g_assert (format_info);
+  cogl_format = format_info->cogl_format;
 
   width = gbm_bo_get_width (buffer_gbm->bo);
   height = gbm_bo_get_height (buffer_gbm->bo);
