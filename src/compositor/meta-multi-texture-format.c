@@ -79,82 +79,86 @@ static const char y_u_v_shader[] =
   "yuva.z = texture2D(cogl_sampler2, cogl_tex_coord2_in.st).x;              \n"
   "cogl_color_out = yuv_to_rgb(yuva);                                       \n";
 
-typedef struct _MetaMultiTextureFormatInfo
+typedef struct _MetaMultiTextureFormatFullInfo
 {
-  MetaMultiTextureFormat multi_format;
+  MetaMultiTextureFormatInfo info;
+
+  /* Name */
   const char *name;
-  uint8_t n_planes;
-
-  /* Per plane-information */
-  CoglPixelFormat subformats[COGL_PIXEL_FORMAT_MAX_PLANES]; /* influences how we deal with it on a GL level */
-  uint8_t plane_indices[COGL_PIXEL_FORMAT_MAX_PLANES]; /* source plane */
-  uint8_t hsub[COGL_PIXEL_FORMAT_MAX_PLANES]; /* horizontal subsampling */
-  uint8_t vsub[COGL_PIXEL_FORMAT_MAX_PLANES]; /* vertical subsampling */
-
-  /* Shaders */
-  const char *rgb_shader;  /* Shader to convert to RGBA (or NULL) */
-
+  /* Shader to convert to RGBA (or NULL) */
+  const char *rgb_shader;
+  /* Cached snippet */
   GOnce snippet_once;
-} MetaMultiTextureFormatInfo;
+} MetaMultiTextureFormatFullInfo;
 
 /* NOTE: The actual enum values are used as the index, so you don't need to
  * loop over the table */
-static MetaMultiTextureFormatInfo multi_format_table[] = {
+static MetaMultiTextureFormatFullInfo multi_format_table[] = {
   /* Invalid */
   [META_MULTI_TEXTURE_FORMAT_INVALID] = {},
   /* Simple */
   [META_MULTI_TEXTURE_FORMAT_SIMPLE] = {
     .name = "",
-    .n_planes = 1,
-    .subformats = { COGL_PIXEL_FORMAT_ANY },
-    .plane_indices = { 0 },
-    .hsub = { 1 },
-    .vsub = { 1 },
     .rgb_shader = rgba_shader,
     .snippet_once = G_ONCE_INIT,
+    .info = {
+      .n_planes = 1,
+      .subformats = { COGL_PIXEL_FORMAT_ANY },
+      .plane_indices = { 0 },
+      .hsub = { 1 },
+      .vsub = { 1 },
+    },
   },
   /* Packed YUV */
   [META_MULTI_TEXTURE_FORMAT_YUYV] = {
     .name = "YUYV",
-    .n_planes = 2,
-    .subformats = { COGL_PIXEL_FORMAT_RG_88, COGL_PIXEL_FORMAT_BGRA_8888_PRE },
-    .plane_indices = { 0, 0 },
-    .hsub = { 1, 2 },
-    .vsub = { 1, 1 },
     .rgb_shader = y_xuxv_shader,
     .snippet_once = G_ONCE_INIT,
+    .info = {
+      .n_planes = 2,
+      .subformats = { COGL_PIXEL_FORMAT_RG_88, COGL_PIXEL_FORMAT_BGRA_8888_PRE },
+      .plane_indices = { 0, 0 },
+      .hsub = { 1, 2 },
+      .vsub = { 1, 1 },
+    },
   },
   /* 2 plane YUV */
   [META_MULTI_TEXTURE_FORMAT_NV12] = {
     .name = "NV12",
-    .n_planes = 2,
-    .subformats = { COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_RG_88 },
-    .plane_indices = { 0, 1 },
-    .hsub = { 1, 2 },
-    .vsub = { 1, 2 },
     .rgb_shader = y_uv_shader,
     .snippet_once = G_ONCE_INIT,
+    .info = {
+      .n_planes = 2,
+      .subformats = { COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_RG_88 },
+      .plane_indices = { 0, 1 },
+      .hsub = { 1, 2 },
+      .vsub = { 1, 2 },
+    },
   },
   [META_MULTI_TEXTURE_FORMAT_P010] = {
     .name = "P010",
-    .n_planes = 2,
-    .subformats = { COGL_PIXEL_FORMAT_R_16, COGL_PIXEL_FORMAT_RG_1616 },
-    .plane_indices = { 0, 1 },
-    .hsub = { 1, 2 },
-    .vsub = { 1, 2 },
     .rgb_shader = y_uv_shader,
     .snippet_once = G_ONCE_INIT,
+    .info = {
+      .n_planes = 2,
+      .subformats = { COGL_PIXEL_FORMAT_R_16, COGL_PIXEL_FORMAT_RG_1616 },
+      .plane_indices = { 0, 1 },
+      .hsub = { 1, 2 },
+      .vsub = { 1, 2 },
+    },
   },
   /* 3 plane YUV */
   [META_MULTI_TEXTURE_FORMAT_YUV420] = {
     .name = "YUV420",
-    .n_planes = 3,
-    .subformats = { COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8 },
-    .plane_indices = { 0, 1, 2 },
-    .hsub = { 1, 2, 2 },
-    .vsub = { 1, 2, 2 },
     .rgb_shader = y_u_v_shader,
     .snippet_once = G_ONCE_INIT,
+    .info = {
+      .n_planes = 3,
+      .subformats = { COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8 },
+      .plane_indices = { 0, 1, 2 },
+      .hsub = { 1, 2, 2 },
+      .vsub = { 1, 2, 2 },
+    },
   },
 };
 
@@ -166,52 +170,12 @@ meta_multi_texture_format_to_string (MetaMultiTextureFormat format)
   return multi_format_table[format].name;
 }
 
-int
-meta_multi_texture_format_get_n_planes (MetaMultiTextureFormat format)
+const MetaMultiTextureFormatInfo *
+meta_multi_texture_format_get_info (MetaMultiTextureFormat format)
 {
-  g_return_val_if_fail (format < G_N_ELEMENTS (multi_format_table), 0);
+  g_return_val_if_fail (format < G_N_ELEMENTS (multi_format_table), NULL);
 
-  return multi_format_table[format].n_planes;
-}
-
-void
-meta_multi_texture_format_get_subformats (MetaMultiTextureFormat  format,
-                                          CoglPixelFormat        *formats_out)
-{
-  size_t i;
-
-  g_return_if_fail (format < G_N_ELEMENTS (multi_format_table));
-
-  for (i = 0; i < multi_format_table[format].n_planes; i++)
-    formats_out[i] = multi_format_table[format].subformats[i];
-}
-
-void
-meta_multi_texture_format_get_plane_indices (MetaMultiTextureFormat  format,
-                                             uint8_t                *plane_indices)
-{
-  size_t i;
-
-  g_return_if_fail (format < G_N_ELEMENTS (multi_format_table));
-
-  for (i = 0; i < multi_format_table[format].n_planes; i++)
-    plane_indices[i] = multi_format_table[format].plane_indices[i];
-}
-
-void
-meta_multi_texture_format_get_subsampling_factors (MetaMultiTextureFormat  format,
-                                                   uint8_t                *horizontal_factors,
-                                                   uint8_t                *vertical_factors)
-{
-  size_t i;
-
-  g_return_if_fail (format < G_N_ELEMENTS (multi_format_table));
-
-  for (i = 0; i < multi_format_table[format].n_planes; i++)
-    {
-      horizontal_factors[i] = multi_format_table[format].hsub[i];
-      vertical_factors[i] = multi_format_table[format].vsub[i];
-    }
+  return &multi_format_table[format].info;
 }
 
 static gpointer

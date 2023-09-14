@@ -25,19 +25,20 @@
 
 G_BEGIN_DECLS
 
+typedef struct _MetaMultiTextureFormatInfo
+{
+  uint8_t n_planes;
+
+  /* Per plane-information */
+  CoglPixelFormat subformats[COGL_PIXEL_FORMAT_MAX_PLANES]; /* influences how we deal with it on a GL level */
+  uint8_t plane_indices[COGL_PIXEL_FORMAT_MAX_PLANES]; /* source plane */
+  uint8_t hsub[COGL_PIXEL_FORMAT_MAX_PLANES]; /* horizontal subsampling */
+  uint8_t vsub[COGL_PIXEL_FORMAT_MAX_PLANES]; /* vertical subsampling */
+} MetaMultiTextureFormatInfo;
+
 const char * meta_multi_texture_format_to_string (MetaMultiTextureFormat format);
 
-int meta_multi_texture_format_get_n_planes (MetaMultiTextureFormat format);
-
-void meta_multi_texture_format_get_subformats (MetaMultiTextureFormat  format,
-                                               CoglPixelFormat        *formats_out);
-
-void meta_multi_texture_format_get_plane_indices (MetaMultiTextureFormat  format,
-                                                  uint8_t                *plane_indices);
-
-void meta_multi_texture_format_get_subsampling_factors (MetaMultiTextureFormat  format,
-                                                        uint8_t                *horizontal_factors,
-                                                        uint8_t                *vertical_factors);
+const MetaMultiTextureFormatInfo * meta_multi_texture_format_get_info (MetaMultiTextureFormat format);
 
 gboolean meta_multi_texture_format_get_snippets (MetaMultiTextureFormat   format,
                                                  CoglSnippet            **fragment_globals_snippet,

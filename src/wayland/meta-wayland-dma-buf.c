@@ -437,21 +437,14 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
     {
       CoglTexture **textures;
       g_autoptr (GPtrArray) planes = NULL;
-      CoglPixelFormat subformats[META_WAYLAND_DMA_BUF_MAX_FDS];
-      uint8_t horizontal_factors[META_WAYLAND_DMA_BUF_MAX_FDS];
-      uint8_t vertical_factors[META_WAYLAND_DMA_BUF_MAX_FDS];
-      uint8_t plane_indices[META_WAYLAND_DMA_BUF_MAX_FDS];
       int n_planes, i;
+      const MetaMultiTextureFormatInfo *mt_format_info;
 
-      n_planes = meta_multi_texture_format_get_n_planes (multi_format);
+      mt_format_info = meta_multi_texture_format_get_info (multi_format);
+      n_planes = mt_format_info->n_planes;
 
       /* Each EGLImage is a plane in the final CoglMultiPlaneTexture */
       planes = g_ptr_array_new_full (n_planes, g_object_unref);
-      meta_multi_texture_format_get_subformats (multi_format, subformats);
-      meta_multi_texture_format_get_plane_indices (multi_format, plane_indices);
-      meta_multi_texture_format_get_subsampling_factors (multi_format,
-                                                         horizontal_factors,
-                                                         vertical_factors);
 
       for (i = 0; i < n_planes; i++)
         {
@@ -459,21 +452,22 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
           CoglEglImageFlags flags;
           CoglTexture *cogl_texture;
           uint32_t drm_format = 0;
-          int plane_index;
           const MetaFormatInfo *format_info;
+          int plane_index = mt_format_info->plane_indices[i];
+          CoglPixelFormat subformat = mt_format_info->subformats[i];
+          int horizontal_factor = mt_format_info->hsub[i];
+          int vertical_factor = mt_format_info->vsub[i];
 
-          format_info = meta_format_info_from_cogl_format (subformats[i]);
+          format_info = meta_format_info_from_cogl_format (subformat);
           g_return_val_if_fail (format_info != NULL, FALSE);
           drm_format = format_info->drm_format;
-
-          plane_index = plane_indices[i];
 
           egl_image = meta_egl_create_dmabuf_image (egl,
                                                     egl_display,
                                                     dma_buf->width /
-                                                    horizontal_factors[i],
+                                                    horizontal_factor,
                                                     dma_buf->height /
-                                                    vertical_factors[i],
+                                                    vertical_factor,
                                                     drm_format,
                                                     1,
                                                     &dma_buf->fds[plane_index],
@@ -488,7 +482,7 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
           cogl_texture = cogl_egl_texture_2d_new_from_image (cogl_context,
                                                              dma_buf->width,
                                                              dma_buf->height,
-                                                             subformats[i],
+                                                             subformat,
                                                              egl_image,
                                                              flags,
                                                              error);
