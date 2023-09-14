@@ -316,7 +316,7 @@ _cogl_bitmap_needs_short_temp_buffer (CoglPixelFormat format)
      floats */
   switch (format)
     {
-    case COGL_PIXEL_FORMAT_G_16:
+    case COGL_PIXEL_FORMAT_R_16:
     case COGL_PIXEL_FORMAT_RG_1616:
     case COGL_PIXEL_FORMAT_DEPTH_16:
     case COGL_PIXEL_FORMAT_DEPTH_32:

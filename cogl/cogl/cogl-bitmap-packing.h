@@ -536,7 +536,7 @@ G_PASTE (_cogl_unpack_, component_size) (CoglPixelFormat format,
     case COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE:
       G_PASTE (_cogl_unpack_argb_fp_16161616_, component_size) (src, dst, width);
       break;
-    case COGL_PIXEL_FORMAT_G_16:
+    case COGL_PIXEL_FORMAT_R_16:
     case COGL_PIXEL_FORMAT_RG_1616:
     case COGL_PIXEL_FORMAT_DEPTH_16:
     case COGL_PIXEL_FORMAT_DEPTH_32:
@@ -1039,7 +1039,7 @@ G_PASTE (_cogl_pack_, component_size) (CoglPixelFormat format,
     case COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE:
       G_PASTE (_cogl_pack_argb_fp_16161616_, component_size) (src, dst, width);
       break;
-    case COGL_PIXEL_FORMAT_G_16:
+    case COGL_PIXEL_FORMAT_R_16:
     case COGL_PIXEL_FORMAT_RG_1616:
     case COGL_PIXEL_FORMAT_DEPTH_16:
     case COGL_PIXEL_FORMAT_DEPTH_32:

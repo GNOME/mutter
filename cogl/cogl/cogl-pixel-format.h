@@ -149,7 +149,7 @@ G_BEGIN_DECLS
  * @COGL_PIXEL_FORMAT_RGBA_5551: RGBA, 16 bits
  * @COGL_PIXEL_FORMAT_YUV: Not currently supported
  * @COGL_PIXEL_FORMAT_R_8: Single luminance component
- * @COGL_PIXEL_FORMAT_G_16: Single luminance component, 16 bits
+ * @COGL_PIXEL_FORMAT_R_16: Single luminance component, 16 bits
  * @COGL_PIXEL_FORMAT_RGB_888: RGB, 24 bits
  * @COGL_PIXEL_FORMAT_BGR_888: BGR, 24 bits
  * @COGL_PIXEL_FORMAT_RGBX_8888: RGBX, 32 bits
@@ -216,7 +216,7 @@ typedef enum /*< prefix=COGL_PIXEL_FORMAT >*/
   COGL_PIXEL_FORMAT_RGBA_5551     = 6 | COGL_A_BIT,
   COGL_PIXEL_FORMAT_YUV           = 7,
   COGL_PIXEL_FORMAT_R_8           = 8,
-  COGL_PIXEL_FORMAT_G_16          = 14,
+  COGL_PIXEL_FORMAT_R_16          = 14,
 
   COGL_PIXEL_FORMAT_RG_88         = 9,
   COGL_PIXEL_FORMAT_RG_1616       = 15,

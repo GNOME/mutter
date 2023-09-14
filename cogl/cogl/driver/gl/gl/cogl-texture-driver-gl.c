@@ -439,7 +439,7 @@ _cogl_texture_driver_upload_supported (CoglContext *ctx,
     case COGL_PIXEL_FORMAT_RGBA_FP_16161616:
     case COGL_PIXEL_FORMAT_RGBA_FP_16161616_PRE:
       return TRUE;
-    case COGL_PIXEL_FORMAT_G_16:
+    case COGL_PIXEL_FORMAT_R_16:
     case COGL_PIXEL_FORMAT_RG_1616:
     case COGL_PIXEL_FORMAT_DEPTH_16:
     case COGL_PIXEL_FORMAT_DEPTH_32:
