@@ -98,7 +98,7 @@ typedef struct _MetaKmsImplDevicePrivate
 
   GHashTable *crtc_frames;
 
-  gboolean deadline_timer_failed;
+  gboolean deadline_timer_inhibited;
 } MetaKmsImplDevicePrivate;
 
 static void
@@ -1345,7 +1345,7 @@ is_using_deadline_timer (MetaKmsImplDevice *impl_device)
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
 
-  if (priv->deadline_timer_failed)
+  if (priv->deadline_timer_inhibited)
     {
       return FALSE;
     }
@@ -1568,7 +1568,7 @@ meta_kms_impl_device_schedule_process (MetaKmsImplDevice *impl_device,
     g_warning ("Failed to determine deadline: %s", error->message);
 
   priv = meta_kms_impl_device_get_instance_private (impl_device);
-  priv->deadline_timer_failed = TRUE;
+  priv->deadline_timer_inhibited = TRUE;
 
 needs_flush:
   meta_kms_device_set_needs_flush (meta_kms_crtc_get_device (crtc), crtc);
