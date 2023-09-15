@@ -243,11 +243,11 @@ maybe_record_frame_on_idle (gpointer user_data)
 }
 
 static void
-before_stage_painted (MetaStage           *stage,
-                      ClutterStageView    *view,
-                      ClutterPaintContext *paint_context,
-                      ClutterFrame        *frame,
-                      gpointer             user_data)
+before_stage_painted (MetaStage            *stage,
+                      ClutterStageView     *view,
+                      const cairo_region_t *redraw_clip,
+                      ClutterFrame         *frame,
+                      gpointer              user_data)
 {
   MetaScreenCastAreaStreamSrc *area_src =
     META_SCREEN_CAST_AREA_STREAM_SRC (user_data);
@@ -263,25 +263,23 @@ before_stage_painted (MetaStage           *stage,
 }
 
 static void
-stage_painted (MetaStage           *stage,
-               ClutterStageView    *view,
-               ClutterPaintContext *paint_context,
-               ClutterFrame        *frame,
-               gpointer             user_data)
+stage_painted (MetaStage            *stage,
+               ClutterStageView     *view,
+               const cairo_region_t *redraw_clip,
+               ClutterFrame         *frame,
+               gpointer              user_data)
 {
   MetaScreenCastAreaStreamSrc *area_src =
     META_SCREEN_CAST_AREA_STREAM_SRC (user_data);
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (area_src);
   MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
   MetaScreenCastAreaStream *area_stream = META_SCREEN_CAST_AREA_STREAM (stream);
-  const cairo_region_t *redraw_clip;
   MtkRectangle *area;
 
   if (area_src->maybe_record_idle_id)
     return;
 
   area = meta_screen_cast_area_stream_get_area (area_stream);
-  redraw_clip = clutter_paint_context_get_redraw_clip (paint_context);
 
   if (redraw_clip)
     {

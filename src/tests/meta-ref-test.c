@@ -270,11 +270,11 @@ typedef struct
 } CaptureViewData;
 
 static void
-on_after_paint (MetaStage           *stage,
-                ClutterStageView    *view,
-                ClutterPaintContext *paint_context,
-                ClutterFrame        *frame,
-                gpointer             user_data)
+on_after_paint (MetaStage            *stage,
+                ClutterStageView     *view,
+                const cairo_region_t *redraw_clip,
+                ClutterFrame         *frame,
+                gpointer              user_data)
 {
   CaptureViewData *data = user_data;
   MtkRectangle rect;
