@@ -19,7 +19,7 @@ environment.</description>
   <!--
   <homepage rdf:resource="http://www.gnome.org/" />
   -->
-  <mailing-list rdf:resource="http://mail.gnome.org/mailman/listinfo/gnome-shell-list" />
+  <support-forum rdf:resource="https://discourse.gnome.org/" />
   <download-page rdf:resource="http://download.gnome.org/sources/mutter/" />
   <bug-database rdf:resource="https://gitlab.gnome.org/GNOME/mutter/issues/" />
 
