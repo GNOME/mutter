@@ -1,3 +1,23 @@
+45.0
+====
+* Fix focus-follows-mouse mode [Carlos; !3256]
+* Optimize applying relative transformation matrix [Robert; !3259]
+* Add support for P010 YCbCr format [Robert; !3244]
+* Fix hardware cursor stuttering on Raspberry Pi [Daniel; !3279]
+* Fix input in multi-monitor remote desktop sessions with libei [Pascal; !3273]
+* Fixed crashes [Carlos, Daniel, Sebastian W.; !3252, !3253, !3255, !3160,
+  !3268, !3262, !3277]
+* Misc. bug fixes and cleanups [Florian, Joan, Jonas, Carlos, Sebastian W.,
+  Pascal; !3248, !3249, !3263, !3261, !3116, !3251, !3032, !3275, !3278]
+
+Contributors:
+  Jonas Ådahl, Carlos Garnacho, Sebastian Keller, Andre Klapper, Robert Mader,
+  Florian Müllner, Pascal Nowack, Joan Torres, Daniel van Vugt, Sebastian Wick
+
+Translators:
+  Sabri Ünal [tr], Quentin PAGÈS [oc], Anders Jonsson [sv],
+  Christian Kirbach [de], Ask Hjorth Larsen [da]
+
 45.rc
 =====
 * Fix possible redraw freeze in fullscreen windows [msizanoen; !3127]
