@@ -1,3 +1,17 @@
+44.5
+====
+* Fix redraw issue when buffer age is unavailable [Carlos; !3221]
+* Fix unresponsive touchscreen after titlebar drag [Carlos; !3059]
+* Fix some XWayland windows not getting mapped [Sebastian; !3194]
+* Fix disabling CRTCs in disable-only mode updates [Jonas; !3073]
+* Fixed crashes [Jonas, Daniel, Barnabás; !3160, !3146, !3202]
+* Misc. bug fixes and cleanups [Carlos, Jeremy, Uzair, Florian; !3247,
+  !3229, !3199, !3248]
+
+Contributors:
+  Jonas Ådahl, Uzair Ahmad, Jeremy Cline, Carlos Garnacho, Sebastian Keller,
+  Florian Müllner, Barnabás Pőcze, Daniel van Vugt
+
 44.4
 ====
 * Fix xwayland-allow-byte-swapped-clients setting [Olivier; !3156]
