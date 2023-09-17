@@ -612,7 +612,7 @@ struct _ClutterActorPrivate
   /* the cached transformation matrix; see apply_transform() */
   graphene_matrix_t transform;
 
-  graphene_matrix_t absolute_modelview;
+  graphene_matrix_t stage_relative_modelview;
 
   float resource_scale;
 
@@ -776,7 +776,7 @@ struct _ClutterActorPrivate
   guint clear_stage_views_needs_stage_views_changed : 1;
   guint needs_redraw : 1;
   guint needs_finish_layout : 1;
-  guint absolute_modelview_valid : 1;
+  guint stage_relative_modelview_valid : 1;
 };
 
 enum
@@ -2420,7 +2420,7 @@ absolute_geometry_changed (ClutterActor *actor)
 {
   actor->priv->needs_update_stage_views = TRUE;
   actor->priv->needs_visible_paint_volume_update = TRUE;
-  actor->priv->absolute_modelview_valid = FALSE;
+  actor->priv->stage_relative_modelview_valid = FALSE;
 
   actor->priv->needs_finish_layout = TRUE;
   /* needs_finish_layout is already TRUE on the whole parent tree thanks
@@ -3046,8 +3046,9 @@ _clutter_actor_apply_relative_transformation_matrix (ClutterActor      *self,
                                                      graphene_matrix_t *matrix)
 {
   ClutterActorPrivate *priv = self->priv;
-  graphene_matrix_t parent_modelview;
-  graphene_matrix_t inverse_parent_modelview;
+  ClutterActor *stage = _clutter_actor_get_stage_internal (self);
+  graphene_matrix_t ancestor_modelview;
+  graphene_matrix_t inverse_ancestor_modelview;
 
   /* Note we terminate before ever calling stage->apply_transform()
    * since that would conceptually be relative to the underlying
@@ -3056,37 +3057,63 @@ _clutter_actor_apply_relative_transformation_matrix (ClutterActor      *self,
   if (self == ancestor)
     return;
 
-  if (!priv->absolute_modelview_valid)
+  if (!priv->stage_relative_modelview_valid)
     {
-      graphene_matrix_init_identity (&priv->absolute_modelview);
+      graphene_matrix_init_identity (&priv->stage_relative_modelview);
 
       if (priv->parent != NULL)
         {
           _clutter_actor_apply_relative_transformation_matrix (priv->parent,
-                                                               NULL,
-                                                               &priv->absolute_modelview);
+                                                               stage,
+                                                               &priv->stage_relative_modelview);
         }
 
-      _clutter_actor_apply_modelview_transform (self, &priv->absolute_modelview);
+      _clutter_actor_apply_modelview_transform (self,
+                                                &priv->stage_relative_modelview);
 
-      priv->absolute_modelview_valid = TRUE;
+      priv->stage_relative_modelview_valid = TRUE;
     }
 
   if (ancestor == NULL)
     {
-      graphene_matrix_multiply (&priv->absolute_modelview, matrix, matrix);
+      _clutter_actor_apply_modelview_transform (stage, matrix);
+      graphene_matrix_multiply (&priv->stage_relative_modelview, matrix, matrix);
       return;
     }
 
-  graphene_matrix_init_identity (&parent_modelview);
-  _clutter_actor_apply_relative_transformation_matrix (ancestor,
-                                                       NULL,
-                                                       &parent_modelview);
-  if (graphene_matrix_inverse (&parent_modelview,
-                               &inverse_parent_modelview))
+  if (ancestor == stage)
     {
-      graphene_matrix_multiply (&inverse_parent_modelview, matrix, matrix);
-      graphene_matrix_multiply (&priv->absolute_modelview, matrix, matrix);
+      graphene_matrix_multiply (&priv->stage_relative_modelview, matrix, matrix);
+      return;
+    }
+
+  if (ancestor == priv->parent)
+    {
+      _clutter_actor_apply_modelview_transform (self, matrix);
+      return;
+    }
+
+  graphene_matrix_init_identity (&ancestor_modelview);
+  _clutter_actor_apply_relative_transformation_matrix (ancestor,
+                                                       stage,
+                                                       &ancestor_modelview);
+
+  if (graphene_matrix_near (&priv->stage_relative_modelview,
+                            &ancestor_modelview,
+                            FLT_EPSILON))
+    return;
+
+  if (graphene_matrix_is_identity (&ancestor_modelview))
+    {
+      graphene_matrix_multiply (&priv->stage_relative_modelview, matrix, matrix);
+      return;
+    }
+
+  if (graphene_matrix_inverse (&ancestor_modelview,
+                               &inverse_ancestor_modelview))
+    {
+      graphene_matrix_multiply (&inverse_ancestor_modelview, matrix, matrix);
+      graphene_matrix_multiply (&priv->stage_relative_modelview, matrix, matrix);
       return;
     }
 
@@ -7446,7 +7473,7 @@ clutter_actor_init (ClutterActor *self)
   priv->enable_model_view_transform = TRUE;
 
   priv->transform_valid = FALSE;
-  priv->absolute_modelview_valid = FALSE;
+  priv->stage_relative_modelview_valid = FALSE;
 
   /* the default is to stretch the content, to match the
    * current behaviour of basically all actors. also, it's
