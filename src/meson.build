@@ -702,6 +702,8 @@ if have_wayland
     'wayland/meta-wayland-xdg-foreign-private.h',
     'wayland/meta-wayland-xdg-shell.c',
     'wayland/meta-wayland-xdg-shell.h',
+    'wayland/meta-wayland-xdg-dialog.c',
+    'wayland/meta-wayland-xdg-dialog.h',
     'wayland/meta-window-wayland.c',
     'wayland/meta-window-wayland.h',
   ]
@@ -1077,6 +1079,7 @@ if have_wayland
     ['text-input', 'unstable', 'v3', ],
     ['viewporter', 'stable', ],
     ['xdg-activation', 'staging', 'v1', ],
+    ['xdg-dialog', 'staging', 'v1', ],
     ['xdg-foreign', 'unstable', 'v1', ],
     ['xdg-foreign', 'unstable', 'v2', ],
     ['xdg-output', 'unstable', 'v1', ],

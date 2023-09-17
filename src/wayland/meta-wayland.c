@@ -56,6 +56,7 @@
 #include "wayland/meta-wayland-subsurface.h"
 #include "wayland/meta-wayland-tablet-manager.h"
 #include "wayland/meta-wayland-transaction.h"
+#include "wayland/meta-wayland-xdg-dialog.h"
 #include "wayland/meta-wayland-xdg-foreign.h"
 #include "wayland/meta-wayland-linux-drm-syncobj.h"
 
@@ -870,6 +871,7 @@ meta_wayland_compositor_new (MetaContext *context)
   meta_wayland_transaction_init (compositor);
   meta_wayland_idle_inhibit_init (compositor);
   meta_wayland_drm_syncobj_init (compositor);
+  meta_wayland_init_xdg_wm_dialog (compositor);
 
 #ifdef HAVE_WAYLAND_EGLSTREAM
   {
