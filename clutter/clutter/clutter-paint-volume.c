@@ -1069,6 +1069,10 @@ _clutter_paint_volume_get_stage_paint_box (const ClutterPaintVolume *pv,
        * in this case.
        */
       clutter_paint_volume_free (&projected_pv);
+      clutter_round_to_256ths (&box->x1);
+      clutter_round_to_256ths (&box->y1);
+      clutter_round_to_256ths (&box->x2);
+      clutter_round_to_256ths (&box->y2);
       box->x1 = floorf (box->x1);
       box->y1 = floorf (box->y1);
       box->x2 = ceilf (box->x2);
