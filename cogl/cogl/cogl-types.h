@@ -88,14 +88,6 @@ cogl_handle_get_type (void) G_GNUC_CONST;
 
 typedef struct _CoglFramebuffer CoglFramebuffer;
 
-/**
- * CoglAngle:
- *
- * Integer representation of an angle such that 1024 corresponds to
- * full circle (i.e., 2 * pi).
- */
-typedef int32_t CoglAngle;
-
 typedef struct _CoglColor               CoglColor;
 typedef struct _CoglTextureVertex       CoglTextureVertex;
 
