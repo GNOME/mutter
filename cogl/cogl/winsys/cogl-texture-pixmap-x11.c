@@ -904,20 +904,20 @@ cogl_texture_pixmap_x11_error_quark (void)
 }
 
 static CoglTexture *
-_cogl_texture_pixmap_x11_new (CoglContext *ctxt,
+_cogl_texture_pixmap_x11_new (CoglContext *ctx,
                               uint32_t pixmap,
                               gboolean automatic_updates,
                               CoglTexturePixmapStereoMode stereo_mode,
                               GError **error)
 {
-  CoglTexturePixmapX11 *tex_pixmap = g_object_new (COGL_TYPE_TEXTURE_PIXMAP_X11, NULL);
-  Display *display = cogl_xlib_renderer_get_display (ctxt->display->renderer);
+  CoglTexturePixmapX11 *tex_pixmap;
+  Display *display = cogl_xlib_renderer_get_display (ctx->display->renderer);
   Window pixmap_root_window;
   int pixmap_x, pixmap_y;
   unsigned int pixmap_width, pixmap_height;
   unsigned int pixmap_border_width;
+  unsigned int pixmap_depth;
   CoglPixelFormat internal_format;
-  CoglTexture *tex = COGL_TEXTURE (tex_pixmap);
   XWindowAttributes window_attributes;
   int damage_base;
   const CoglWinsysVtable *winsys;
@@ -925,9 +925,8 @@ _cogl_texture_pixmap_x11_new (CoglContext *ctxt,
   if (!XGetGeometry (display, pixmap, &pixmap_root_window,
                      &pixmap_x, &pixmap_y,
                      &pixmap_width, &pixmap_height,
-                     &pixmap_border_width, &tex_pixmap->depth))
+                     &pixmap_border_width, &pixmap_depth))
     {
-      g_free (tex_pixmap);
       g_set_error_literal (error,
                            COGL_TEXTURE_PIXMAP_X11_ERROR,
                            COGL_TEXTURE_PIXMAP_X11_ERROR_X11,
@@ -937,14 +936,18 @@ _cogl_texture_pixmap_x11_new (CoglContext *ctxt,
 
   /* Note: the detailed pixel layout doesn't matter here, we are just
    * interested in RGB vs RGBA... */
-  internal_format = (tex_pixmap->depth >= 32
+  internal_format = (pixmap_depth >= 32
                      ? COGL_PIXEL_FORMAT_RGBA_8888_PRE
                      : COGL_PIXEL_FORMAT_RGB_888);
 
-  _cogl_texture_init (tex, ctxt, pixmap_width, pixmap_height,
-                      internal_format,
-                      NULL);
+  tex_pixmap = g_object_new (COGL_TYPE_TEXTURE_PIXMAP_X11,
+                             "context", ctx,
+                             "width", pixmap_width,
+                             "height", pixmap_height,
+                             "format", internal_format,
+                             NULL);
 
+  tex_pixmap->depth = pixmap_depth;
   tex_pixmap->pixmap = pixmap;
   tex_pixmap->stereo_mode = stereo_mode;
   tex_pixmap->left = NULL;
@@ -977,7 +980,7 @@ _cogl_texture_pixmap_x11_new (CoglContext *ctxt,
       Damage damage = XDamageCreate (display,
                                      pixmap,
                                      XDamageReportBoundingBox);
-      set_damage_object_internal (ctxt,
+      set_damage_object_internal (ctx,
                                   tex_pixmap,
                                   damage,
                                   COGL_TEXTURE_PIXMAP_X11_DAMAGE_BOUNDING_BOX);
@@ -1002,7 +1005,7 @@ _cogl_texture_pixmap_x11_new (CoglContext *ctxt,
   if (!tex_pixmap->use_winsys_texture)
     tex_pixmap->winsys = NULL;
 
-  _cogl_texture_set_allocated (tex, internal_format,
+  _cogl_texture_set_allocated (COGL_TEXTURE (tex_pixmap), internal_format,
                                pixmap_width, pixmap_height);
 
   return COGL_TEXTURE (tex_pixmap);
@@ -1040,19 +1043,18 @@ cogl_texture_pixmap_x11_new_right (CoglTexturePixmapX11 *tfp_left)
 
   g_return_val_if_fail (tfp_left->stereo_mode == COGL_TEXTURE_PIXMAP_LEFT, NULL);
 
-  tfp_right = g_object_new (COGL_TYPE_TEXTURE_PIXMAP_X11, NULL);
-  tfp_right->stereo_mode = COGL_TEXTURE_PIXMAP_RIGHT;
-  tfp_right->left = g_object_ref (tfp_left);
-
   internal_format = (tfp_left->depth >= 32
                      ? COGL_PIXEL_FORMAT_RGBA_8888_PRE
                      : COGL_PIXEL_FORMAT_RGB_888);
-  _cogl_texture_init (COGL_TEXTURE (tfp_right),
-                      cogl_texture_get_context (texture_left),
-                      cogl_texture_get_width (texture_left),
-                      cogl_texture_get_height (texture_left),
-                      internal_format,
-                      NULL);
+
+  tfp_right = g_object_new (COGL_TYPE_TEXTURE_PIXMAP_X11,
+                            "context", cogl_texture_get_context (texture_left),
+                            "width", cogl_texture_get_width (texture_left),
+                            "height", cogl_texture_get_height (texture_left),
+                            "format", internal_format,
+                            NULL);
+  tfp_right->stereo_mode = COGL_TEXTURE_PIXMAP_RIGHT;
+  tfp_right->left = g_object_ref (tfp_left);
 
   _cogl_texture_set_allocated (COGL_TEXTURE (tfp_right), internal_format,
                                cogl_texture_get_width (texture_left),

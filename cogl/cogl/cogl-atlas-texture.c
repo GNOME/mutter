@@ -867,28 +867,25 @@ _cogl_atlas_texture_create_base (CoglContext *ctx,
                                  CoglTextureLoader *loader)
 {
   CoglAtlasTexture *atlas_tex;
-  CoglTexture *tex;
 
   COGL_NOTE (ATLAS, "Adding texture of size %ix%i", width, height);
 
   /* We need to allocate the texture now because we need the pointer
      to set as the data for the rectangle in the atlas */
-  atlas_tex = g_object_new (COGL_TYPE_ATLAS_TEXTURE, NULL);
+  atlas_tex = g_object_new (COGL_TYPE_ATLAS_TEXTURE,
+                            "context", ctx,
+                            "width", width,
+                            "height", height,
+                            "loader", loader,
+                            "format", internal_format,
+                            NULL);
   /* Mark it as having no atlas so we don't try to unref it in
      _cogl_atlas_texture_post_reorganize_cb */
   atlas_tex->atlas = NULL;
-  tex = COGL_TEXTURE (atlas_tex);
-  _cogl_texture_init (tex,
-                      ctx,
-                      width, height,
-                      internal_format,
-                      loader);
-
   atlas_tex->sub_texture = NULL;
-
   atlas_tex->atlas = NULL;
 
-  return tex;
+  return COGL_TEXTURE (atlas_tex);
 }
 
 CoglTexture *

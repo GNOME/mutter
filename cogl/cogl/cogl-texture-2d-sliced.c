@@ -1217,10 +1217,13 @@ _cogl_texture_2d_sliced_create_base (CoglContext *ctx,
                                      CoglPixelFormat internal_format,
                                      CoglTextureLoader *loader)
 {
-  CoglTexture2DSliced *tex_2ds = g_object_new (COGL_TYPE_TEXTURE_2D_SLICED, NULL);
-
-  _cogl_texture_init (COGL_TEXTURE (tex_2ds), ctx, width, height,
-                      internal_format, loader);
+  CoglTexture2DSliced *tex_2ds = g_object_new (COGL_TYPE_TEXTURE_2D_SLICED,
+                                               "context", ctx,
+                                               "width", width,
+                                               "height", height,
+                                               "loader", loader,
+                                               "format", internal_format,
+                                               NULL);
 
   tex_2ds->max_waste = max_waste;
 

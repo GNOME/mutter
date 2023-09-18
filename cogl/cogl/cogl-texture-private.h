@@ -240,15 +240,6 @@ struct _CoglTexturePixel
   uint8_t data[4];
 };
 
-void
-_cogl_texture_init (CoglTexture *texture,
-                    CoglContext *ctx,
-                    int width,
-                    int height,
-                    CoglPixelFormat src_format,
-                    CoglTextureLoader *loader);
-
-
 COGL_EXPORT gboolean
 _cogl_texture_can_hardware_repeat (CoglTexture *texture);
 

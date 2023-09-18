@@ -85,11 +85,13 @@ _cogl_texture_2d_create_base (CoglContext *ctx,
                               CoglPixelFormat internal_format,
                               CoglTextureLoader *loader)
 {
-  CoglTexture2D *tex_2d = g_object_new (COGL_TYPE_TEXTURE_2D, NULL);
-  CoglTexture *tex = COGL_TEXTURE (tex_2d);
-
-  _cogl_texture_init (tex, ctx, width, height, internal_format, loader);
-
+  CoglTexture2D *tex_2d = g_object_new (COGL_TYPE_TEXTURE_2D,
+                                        "context", ctx,
+                                        "width", width,
+                                        "height", height,
+                                        "loader", loader,
+                                        "format", internal_format,
+                                        NULL);
   tex_2d->mipmaps_dirty = TRUE;
   tex_2d->auto_mipmap = TRUE;
   tex_2d->is_get_data_supported = TRUE;
@@ -98,7 +100,7 @@ _cogl_texture_2d_create_base (CoglContext *ctx,
 
   ctx->driver_vtable->texture_2d_init (tex_2d);
 
-  return tex;
+  return COGL_TEXTURE (tex_2d);
 }
 
 static gboolean

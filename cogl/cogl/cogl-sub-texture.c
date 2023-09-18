@@ -394,7 +394,6 @@ cogl_sub_texture_new (CoglContext *ctx,
 {
   CoglTexture    *full_texture;
   CoglSubTexture *sub_tex;
-  CoglTexture    *tex;
   unsigned int    next_width, next_height;
 
   next_width = cogl_texture_get_width (next_texture);
@@ -406,13 +405,12 @@ cogl_sub_texture_new (CoglContext *ctx,
   g_return_val_if_fail (sub_x + sub_width <= next_width, NULL);
   g_return_val_if_fail (sub_y + sub_height <= next_height, NULL);
 
-  sub_tex = g_object_new (COGL_TYPE_SUB_TEXTURE, NULL);
-
-  tex = COGL_TEXTURE (sub_tex);
-
-  _cogl_texture_init (tex, ctx, sub_width, sub_height,
-                      _cogl_texture_get_format (next_texture),
-                      NULL);
+  sub_tex = g_object_new (COGL_TYPE_SUB_TEXTURE,
+                          "context", ctx,
+                          "width", sub_width,
+                          "height", sub_height,
+                          "format", _cogl_texture_get_format (next_texture),
+                          NULL);
 
   /* If the next texture is also a sub texture we can avoid one level
      of indirection by referencing the full texture of that texture
@@ -433,7 +431,7 @@ cogl_sub_texture_new (CoglContext *ctx,
   sub_tex->sub_x = sub_x;
   sub_tex->sub_y = sub_y;
 
-  return tex;
+  return COGL_TEXTURE (sub_tex);
 }
 
 CoglTexture *

@@ -62,6 +62,21 @@
 
 G_DEFINE_ABSTRACT_TYPE (CoglTexture, cogl_texture, G_TYPE_OBJECT)
 
+enum
+{
+  PROP_0,
+
+  PROP_CONTEXT,
+  PROP_WIDTH,
+  PROP_HEIGHT,
+  PROP_LOADER,
+  PROP_FORMAT,
+
+  PROP_LAST
+};
+
+static GParamSpec *obj_props[PROP_LAST];
+
 static void
 _cogl_texture_free_loader (CoglTexture *texture)
 {
@@ -94,11 +109,94 @@ cogl_texture_dispose (GObject *object)
 }
 
 static void
+cogl_texture_set_property (GObject      *gobject,
+                           guint         prop_id,
+                           const GValue *value,
+                           GParamSpec   *pspec)
+{
+  CoglTexture *texture = COGL_TEXTURE (gobject);
+
+  switch (prop_id)
+    {
+    case PROP_CONTEXT:
+      texture->context = g_value_get_object (value);
+      break;
+
+    case PROP_WIDTH:
+      texture->width = g_value_get_int (value);
+      break;
+
+    case PROP_HEIGHT:
+      texture->height = g_value_get_int (value);
+      break;
+
+    case PROP_LOADER:
+      texture->loader = g_value_get_pointer (value);
+      break;
+
+    case PROP_FORMAT:
+      _cogl_texture_set_internal_format (texture, g_value_get_uint (value));
+      /* Although we want to initialize texture::components according
+      * to the source format, we always want the internal layout to
+      * be considered premultiplied by default.
+      *
+      * NB: this ->premultiplied state is user configurable so to avoid
+      * awkward documentation, setting this to 'true' does not depend on
+      * ->components having an alpha component (we will simply ignore the
+      * premultiplied status later if there is no alpha component).
+      * This way we don't have to worry about updating the
+      * ->premultiplied state in _set_components().  Similarly we don't
+      * have to worry about updating the ->components state in
+      * _set_premultiplied().
+      */
+      texture->premultiplied = TRUE;
+      break;
+
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
+      break;
+    }
+}
+
+static void
 cogl_texture_class_init (CoglTextureClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
   gobject_class->dispose = cogl_texture_dispose;
+  gobject_class->set_property = cogl_texture_set_property;
+
+  obj_props[PROP_CONTEXT] =
+    g_param_spec_object ("context", NULL, NULL,
+                         COGL_TYPE_CONTEXT,
+                         G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_WIDTH] =
+    g_param_spec_int ("width", NULL, NULL,
+                      -1, G_MAXINT,
+                      -1,
+                      G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY |
+                      G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_HEIGHT] =
+    g_param_spec_int ("height", NULL, NULL,
+                      -1, G_MAXINT,
+                      -1,
+                      G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY |
+                      G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_LOADER] =
+    g_param_spec_pointer ("loader", NULL, NULL,
+                          G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY |
+                          G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_FORMAT] =
+    g_param_spec_uint ("format", NULL, NULL,
+                       COGL_PIXEL_FORMAT_ANY, G_MAXINT,
+                       COGL_PIXEL_FORMAT_ANY,
+                       G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY |
+                       G_PARAM_STATIC_STRINGS);
+
+  g_object_class_install_properties (gobject_class,
+                                     PROP_LAST,
+                                     obj_props);
 }
 
 static void
@@ -114,36 +212,6 @@ uint32_t
 cogl_texture_error_quark (void)
 {
   return g_quark_from_static_string ("cogl-texture-error-quark");
-}
-
-
-void
-_cogl_texture_init (CoglTexture *texture,
-                    CoglContext *context,
-                    int width,
-                    int height,
-                    CoglPixelFormat src_format,
-                    CoglTextureLoader *loader)
-{
-  texture->context = context;
-  texture->width = width;
-  texture->height = height;
-  texture->loader = loader;
-  _cogl_texture_set_internal_format (texture, src_format);
-  /* Although we want to initialize texture::components according
-   * to the source format, we always want the internal layout to
-   * be considered premultiplied by default.
-   *
-   * NB: this ->premultiplied state is user configurable so to avoid
-   * awkward documentation, setting this to 'true' does not depend on
-   * ->components having an alpha component (we will simply ignore the
-   * premultiplied status later if there is no alpha component).
-   * This way we don't have to worry about updating the
-   * ->premultiplied state in _set_components().  Similarly we don't
-   * have to worry about updating the ->components state in
-   * _set_premultiplied().
-   */
-  texture->premultiplied = TRUE;
 }
 
 CoglTextureLoader *
