@@ -85,7 +85,7 @@ test_offscreen_texture_formats_store_rgb10 (void)
 
   for (i = 0; i < G_N_ELEMENTS (formats); i++)
     {
-      CoglTexture2D *tex;
+      CoglTexture *tex;
       CoglOffscreen *offscreen;
       uint32_t rgb8_readback[4];
       int j, k;
@@ -93,7 +93,7 @@ test_offscreen_texture_formats_store_rgb10 (void)
       /* Allocate 2x2 to ensure we avoid any fast paths. */
       tex = cogl_texture_2d_new_with_format (test_ctx, 2, 2, formats[i]);
 
-      offscreen = cogl_offscreen_new_with_texture (COGL_TEXTURE (tex));
+      offscreen = cogl_offscreen_new_with_texture (tex);
       cogl_framebuffer_allocate (COGL_FRAMEBUFFER (offscreen), &error);
       g_assert_no_error (error);
 
@@ -179,7 +179,7 @@ test_offscreen_texture_formats_store_rgb10 (void)
         }
 
       g_object_unref (offscreen);
-      cogl_object_unref (tex);
+      g_object_unref (tex);
     }
 }
 
@@ -207,7 +207,7 @@ test_offscreen_texture_formats_store_rgb8 (void)
 
   for (i = 0; i < G_N_ELEMENTS (formats); i++)
     {
-      CoglTexture2D *tex;
+      CoglTexture *tex;
       CoglOffscreen *offscreen;
       GError *error = NULL;
       int j;
@@ -215,7 +215,7 @@ test_offscreen_texture_formats_store_rgb8 (void)
       /* Allocate 2x2 to ensure we avoid any fast paths. */
       tex = cogl_texture_2d_new_with_format (test_ctx, 2, 2, formats[i]);
 
-      offscreen = cogl_offscreen_new_with_texture (COGL_TEXTURE (tex));
+      offscreen = cogl_offscreen_new_with_texture (tex);
       cogl_framebuffer_allocate (COGL_FRAMEBUFFER (offscreen), &error);
       g_assert_no_error (error);
 
@@ -277,7 +277,7 @@ test_offscreen_texture_formats_store_rgb8 (void)
         }
 
       g_object_unref (offscreen);
-      cogl_object_unref (tex);
+      g_object_unref (tex);
     }
 }
 
@@ -316,26 +316,26 @@ test_offscreen_texture_formats_paint_rgb10 (void)
 
   for (i = 0; i < G_N_ELEMENTS (formats); i++)
     {
-      CoglTexture2D *tex_src;
+      CoglTexture *tex_src;
       CoglOffscreen *offscreen_src;
       GError *error = NULL;
       int j;
 
       tex_src = cogl_texture_2d_new_with_format (test_ctx, 2, 2, formats[i]);
-      offscreen_src = cogl_offscreen_new_with_texture (COGL_TEXTURE (tex_src));
+      offscreen_src = cogl_offscreen_new_with_texture (tex_src);
       cogl_framebuffer_allocate (COGL_FRAMEBUFFER (offscreen_src), &error);
       g_assert_no_error (error);
 
       for (j = 0; j < G_N_ELEMENTS (formats); j++)
         {
-          CoglTexture2D *tex_dst;
+          CoglTexture *tex_dst;
           CoglOffscreen *offscreen_dst;
           CoglPipeline *pipeline;
           uint32_t rgb10_readback[4];
           int k;
 
           tex_dst = cogl_texture_2d_new_with_format (test_ctx, 2, 2, formats[j]);
-          offscreen_dst = cogl_offscreen_new_with_texture (COGL_TEXTURE (tex_dst));
+          offscreen_dst = cogl_offscreen_new_with_texture (tex_dst);
           cogl_framebuffer_allocate (COGL_FRAMEBUFFER (offscreen_dst), &error);
           g_assert_no_error (error);
 
@@ -410,11 +410,11 @@ test_offscreen_texture_formats_paint_rgb10 (void)
             }
 
           g_object_unref (offscreen_dst);
-          cogl_object_unref (tex_dst);
+          g_object_unref (tex_dst);
         }
 
       g_object_unref (offscreen_src);
-      cogl_object_unref (tex_src);
+      g_object_unref (tex_src);
     }
 }
 
@@ -442,26 +442,26 @@ test_offscreen_texture_formats_paint_rgb8 (void)
 
   for (i = 0; i < G_N_ELEMENTS (formats); i++)
     {
-      CoglTexture2D *tex_src;
+      CoglTexture *tex_src;
       CoglOffscreen *offscreen_src;
       GError *error = NULL;
       int j;
 
       tex_src = cogl_texture_2d_new_with_format (test_ctx, 2, 2, formats[i]);
-      offscreen_src = cogl_offscreen_new_with_texture (COGL_TEXTURE (tex_src));
+      offscreen_src = cogl_offscreen_new_with_texture (tex_src);
       cogl_framebuffer_allocate (COGL_FRAMEBUFFER (offscreen_src), &error);
       g_assert_no_error (error);
 
       for (j = 0; j < G_N_ELEMENTS (formats); j++)
         {
-          CoglTexture2D *tex_dst;
+          CoglTexture *tex_dst;
           CoglOffscreen *offscreen_dst;
           CoglPipeline *pipeline;
           uint8_t rgba_readback[4 * 4] = {};
           int k;
 
           tex_dst = cogl_texture_2d_new_with_format (test_ctx, 2, 2, formats[j]);
-          offscreen_dst = cogl_offscreen_new_with_texture (COGL_TEXTURE (tex_dst));
+          offscreen_dst = cogl_offscreen_new_with_texture (tex_dst);
           cogl_framebuffer_allocate (COGL_FRAMEBUFFER (offscreen_dst), &error);
           g_assert_no_error (error);
 
@@ -527,11 +527,11 @@ test_offscreen_texture_formats_paint_rgb8 (void)
             }
 
           g_object_unref (offscreen_dst);
-          cogl_object_unref (tex_dst);
+          g_object_unref (tex_dst);
         }
 
       g_object_unref (offscreen_src);
-      cogl_object_unref (tex_src);
+      g_object_unref (tex_src);
     }
 }
 

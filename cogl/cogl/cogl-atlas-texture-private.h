@@ -30,7 +30,6 @@
 
 #pragma once
 
-#include "cogl/cogl-object-private.h"
 #include "cogl/cogl-texture-private.h"
 #include "cogl/cogl-rectangle-map.h"
 #include "cogl/cogl-atlas.h"
@@ -38,7 +37,7 @@
 
 struct _CoglAtlasTexture
 {
-  CoglTexture           _parent;
+  CoglTexture parent_instance;
 
   /* The format that the texture is in. This isn't necessarily the
      same format as the atlas texture because we can store
@@ -60,6 +59,11 @@ struct _CoglAtlasTexture
   CoglTexture          *sub_texture;
 };
 
+struct _CoglAtlasTextureClass
+{
+   CoglTextureClass parent_class;
+};
+
 COGL_EXPORT void
 _cogl_atlas_texture_add_reorganize_callback (CoglContext *ctx,
                                              GHookFunc callback,
@@ -69,6 +73,3 @@ COGL_EXPORT void
 _cogl_atlas_texture_remove_reorganize_callback (CoglContext *ctx,
                                                 GHookFunc callback,
                                                 void *user_data);
-
-gboolean
-_cogl_is_atlas_texture (void *object);

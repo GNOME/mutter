@@ -167,7 +167,7 @@ _cogl_pango_display_list_add_texture (CoglPangoDisplayList *dl,
       node->color_override = dl->color_override;
       node->color = dl->color;
       node->pipeline = NULL;
-      node->d.texture.texture = cogl_object_ref (texture);
+      node->d.texture.texture = g_object_ref (texture);
       node->d.texture.rectangles
         = g_array_new (FALSE, FALSE, sizeof (CoglPangoDisplayListRectangle));
       node->d.texture.primitive = NULL;
@@ -461,7 +461,7 @@ _cogl_pango_display_list_node_free (CoglPangoDisplayListNode *node)
     {
       g_array_free (node->d.texture.rectangles, TRUE);
       if (node->d.texture.texture != NULL)
-        cogl_object_unref (node->d.texture.texture);
+        g_object_unref (node->d.texture.texture);
       if (node->d.texture.primitive != NULL)
         cogl_object_unref (node->d.texture.primitive);
     }

@@ -15,7 +15,7 @@ test_texture_no_allocate (void)
 {
   uint8_t *tex_data;
   CoglTexture *texture;
-  CoglTexture2D *texture_2d;
+  CoglTexture *texture_2d;
   GError *error = NULL;
 
   tex_data = g_malloc (BIG_TEX_WIDTH * BIG_TEX_HEIGHT * 4);
@@ -45,7 +45,7 @@ test_texture_no_allocate (void)
   if (texture == NULL)
     g_error_free (error);
   else
-    cogl_object_unref (texture);
+    g_object_unref (texture);
 
   /* Try to create a sliced texture without allocating it */
   texture =
@@ -53,12 +53,12 @@ test_texture_no_allocate (void)
                                           BIG_TEX_WIDTH,
                                           BIG_TEX_HEIGHT,
                                           COGL_TEXTURE_MAX_WASTE);
-  cogl_object_unref (texture);
+  g_object_unref (texture);
 
   /* 2D texture */
   texture_2d = cogl_texture_2d_new_with_size (test_ctx,
                                               64, 64);
-  cogl_object_unref (texture_2d);
+  g_object_unref (texture_2d);
 }
 
 COGL_TEST_SUITE (

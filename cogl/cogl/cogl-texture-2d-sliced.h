@@ -36,10 +36,11 @@
 #include "cogl/cogl-types.h"
 
 /**
- * SECTION:cogl-texture-2d-sliced
- * @short_description: Functions for creating and manipulating 2D meta
- *                     textures that may internally be comprised of
- *                     multiple 2D textures with power-of-two sizes.
+ * CoglTexture2DSliced:
+ *
+ * Functions for creating and manipulating 2D meta textures
+ * that may internally be comprised of multiple 2D textures
+ * with power-of-two sizes.
  *
  * These functions allow high-level meta textures (See the
  * #CoglMetaTexture interface) to be allocated that may internally be
@@ -65,17 +66,21 @@
  * max-waste threshold. The same logic for slicing from left to right
  * is also applied from top to bottom.
  */
+#define COGL_TYPE_TEXTURE_2D_SLICED            (cogl_texture_2d_sliced_get_type ())
+#define COGL_TEXTURE_2D_SLICED(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_TEXTURE_2D_SLICED, CoglTexture2DSliced))
+#define COGL_TEXTURE_2D_SLICED_CONST(obj)      (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_TEXTURE_2D_SLICED, CoglTexture2DSliced const))
+#define COGL_TEXTURE_2D_SLICED_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  COGL_TYPE_TEXTURE_2D_SLICED, CoglTexture2DSlicedClass))
+#define COGL_IS_TEXTURE_2D_SLICED(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), COGL_TYPE_TEXTURE_2D_SLICED))
+#define COGL_IS_TEXTURE_2D_SLICED_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  COGL_TYPE_TEXTURE_2D_SLICED))
+#define COGL_TEXTURE_2D_SLICED_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  COGL_TYPE_TEXTURE_2D_SLICED, CoglTexture2DSlicedClass))
 
+typedef struct _CoglTexture2DSlicedClass CoglTexture2DSlicedClass;
 typedef struct _CoglTexture2DSliced CoglTexture2DSliced;
-#define COGL_TEXTURE_2D_SLICED(X) ((CoglTexture2DSliced *)X)
 
-/**
- * cogl_texture_2d_sliced_get_gtype:
- *
- * Returns: a #GType that can be used with the GLib type system.
- */
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglTexture2DSliced, g_object_unref)
+
 COGL_EXPORT
-GType cogl_texture_2d_sliced_get_gtype (void);
+GType               cogl_texture_2d_sliced_get_type       (void) G_GNUC_CONST;
 
 /**
  * cogl_texture_2d_sliced_new_with_size: (skip)
@@ -115,7 +120,7 @@ GType cogl_texture_2d_sliced_get_gtype (void);
  * Returns: (transfer full): A new #CoglTexture2DSliced object with no storage
  *          allocated yet.
  */
-COGL_EXPORT CoglTexture2DSliced *
+COGL_EXPORT CoglTexture *
 cogl_texture_2d_sliced_new_with_size (CoglContext *ctx,
                                       int width,
                                       int height,
@@ -174,7 +179,7 @@ cogl_texture_2d_sliced_new_with_size (CoglContext *ctx,
  * Return value: (transfer full): A newly created #CoglTexture2DSliced
  *               or %NULL on failure and @error will be updated.
  */
-COGL_EXPORT CoglTexture2DSliced *
+COGL_EXPORT CoglTexture *
 cogl_texture_2d_sliced_new_from_data (CoglContext *ctx,
                                       int width,
                                       int height,
@@ -223,18 +228,6 @@ cogl_texture_2d_sliced_new_from_data (CoglContext *ctx,
  * Return value: (transfer full): A newly created #CoglTexture2DSliced
  *               or %NULL on failure and @error will be updated.
  */
-COGL_EXPORT CoglTexture2DSliced *
+COGL_EXPORT CoglTexture *
 cogl_texture_2d_sliced_new_from_bitmap (CoglBitmap *bmp,
-                                        int max_waste);
-
-/**
- * cogl_is_texture_2d_sliced:
- * @object: A #CoglObject pointer
- *
- * Gets whether the given object references a #CoglTexture2DSliced.
- *
- * Return value: %TRUE if the object references a #CoglTexture2DSliced
- *   and %FALSE otherwise.
- */
-COGL_EXPORT gboolean
-cogl_is_texture_2d_sliced (void *object);
+                                        int         max_waste);

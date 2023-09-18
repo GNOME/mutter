@@ -165,16 +165,14 @@ ensure_mipmap_texture (MetaTextureMipmap *mipmap)
       meta_multi_texture_get_height (mipmap->mipmap_texture) != height)
     {
       CoglOffscreen *offscreen;
-      CoglTexture2D *tex2d;
       CoglTexture *tex;
 
       free_mipmaps (mipmap);
 
-      tex2d = cogl_texture_2d_new_with_size (ctx, width, height);
-      if (!tex2d)
+      tex = cogl_texture_2d_new_with_size (ctx, width, height);
+      if (!tex)
         return;
 
-      tex = COGL_TEXTURE (tex2d);
       mipmap->mipmap_texture = meta_multi_texture_new_simple (tex);
 
       offscreen = cogl_offscreen_new_with_texture (tex);

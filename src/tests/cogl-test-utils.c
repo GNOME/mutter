@@ -166,7 +166,7 @@ CoglTexture *
 test_utils_create_color_texture (CoglContext *context,
                                  uint32_t     color)
 {
-  CoglTexture2D *tex_2d;
+  CoglTexture *tex_2d;
 
   color = GUINT32_TO_BE (color);
 
@@ -177,7 +177,7 @@ test_utils_create_color_texture (CoglContext *context,
                                           (uint8_t *) &color,
                                           NULL);
 
-  return COGL_TEXTURE (tex_2d);
+  return tex_2d;
 }
 
 gboolean
@@ -192,8 +192,7 @@ set_auto_mipmap_cb (CoglTexture *sub_texture,
                     const float *meta_coords,
                     void        *user_data)
 {
-  cogl_primitive_texture_set_auto_mipmap (COGL_PRIMITIVE_TEXTURE (sub_texture),
-                                          FALSE);
+  cogl_primitive_texture_set_auto_mipmap (sub_texture, FALSE);
 }
 
 CoglTexture *
@@ -207,14 +206,14 @@ test_utils_texture_new_with_size (CoglContext           *ctx,
   GError *skip_error = NULL;
 
   /* First try creating a fast-path non-sliced texture */
-  tex = COGL_TEXTURE (cogl_texture_2d_new_with_size (ctx, width, height));
+  tex = cogl_texture_2d_new_with_size (ctx, width, height);
 
   cogl_texture_set_components (tex, components);
 
   if (!cogl_texture_allocate (tex, &skip_error))
     {
       g_error_free (skip_error);
-      cogl_object_unref (tex);
+      g_object_unref (tex);
       tex = NULL;
     }
 
@@ -223,13 +222,11 @@ test_utils_texture_new_with_size (CoglContext           *ctx,
       /* If it fails resort to sliced textures */
       int max_waste = flags & TEST_UTILS_TEXTURE_NO_SLICING ?
         -1 : COGL_TEXTURE_MAX_WASTE;
-      CoglTexture2DSliced *tex_2ds =
+      tex =
         cogl_texture_2d_sliced_new_with_size (ctx,
                                               width,
                                               height,
                                               max_waste);
-      tex = COGL_TEXTURE (tex_2ds);
-
       cogl_texture_set_components (tex, components);
     }
 
@@ -239,7 +236,7 @@ test_utils_texture_new_with_size (CoglContext           *ctx,
        * need to ensure the texture is allocated... */
       cogl_texture_allocate (tex, NULL); /* don't catch exceptions */
 
-      cogl_meta_texture_foreach_in_region (COGL_META_TEXTURE (tex),
+      cogl_meta_texture_foreach_in_region (tex,
                                            0, 0, 1, 1,
                                            COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE,
                                            COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE,
@@ -257,7 +254,7 @@ test_utils_texture_new_from_bitmap (CoglBitmap            *bitmap,
                                     TestUtilsTextureFlags  flags,
                                     gboolean               premultiplied)
 {
-  CoglAtlasTexture *atlas_tex;
+  CoglTexture *atlas_tex;
   CoglTexture *tex;
   GError *internal_error = NULL;
 
@@ -266,18 +263,18 @@ test_utils_texture_new_from_bitmap (CoglBitmap            *bitmap,
       /* First try putting the texture in the atlas */
       atlas_tex = cogl_atlas_texture_new_from_bitmap (bitmap);
 
-      cogl_texture_set_premultiplied (COGL_TEXTURE (atlas_tex), premultiplied);
+      cogl_texture_set_premultiplied (atlas_tex, premultiplied);
 
-      if (cogl_texture_allocate (COGL_TEXTURE (atlas_tex), &internal_error))
-        return COGL_TEXTURE (atlas_tex);
+      if (cogl_texture_allocate (atlas_tex, &internal_error))
+        return atlas_tex;
 
-      cogl_object_unref (atlas_tex);
+      g_object_unref (atlas_tex);
     }
 
   g_clear_error (&internal_error);
 
   /* If that doesn't work try a fast path 2D texture */
-  tex = COGL_TEXTURE (cogl_texture_2d_new_from_bitmap (bitmap));
+  tex = cogl_texture_2d_new_from_bitmap (bitmap);
 
   cogl_texture_set_premultiplied (tex, premultiplied);
 
@@ -296,16 +293,15 @@ test_utils_texture_new_from_bitmap (CoglBitmap            *bitmap,
       /* Otherwise create a sliced texture */
       int max_waste = flags & TEST_UTILS_TEXTURE_NO_SLICING ?
         -1 : COGL_TEXTURE_MAX_WASTE;
-      CoglTexture2DSliced *tex_2ds =
+      tex =
         cogl_texture_2d_sliced_new_from_bitmap (bitmap, max_waste);
-      tex = COGL_TEXTURE (tex_2ds);
 
       cogl_texture_set_premultiplied (tex, premultiplied);
     }
 
   if (flags & TEST_UTILS_TEXTURE_NO_AUTO_MIPMAP)
     {
-      cogl_meta_texture_foreach_in_region (COGL_META_TEXTURE (tex),
+      cogl_meta_texture_foreach_in_region (tex,
                                            0, 0, 1, 1,
                                            COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE,
                                            COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE,
@@ -353,14 +349,14 @@ on_before_tests (MetaContext *context)
   MetaBackend *backend = meta_context_get_backend (context);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglOffscreen *offscreen;
-  CoglTexture2D *tex;
+  CoglTexture *tex;
   GError *error = NULL;
 
   test_ctx = clutter_backend_get_cogl_context (clutter_backend);
 
   tex = cogl_texture_2d_new_with_size (test_ctx, FB_WIDTH, FB_HEIGHT);
   g_assert_nonnull (tex);
-  offscreen = cogl_offscreen_new_with_texture (COGL_TEXTURE (tex));
+  offscreen = cogl_offscreen_new_with_texture (tex);
   g_assert_nonnull (offscreen);
   test_fb = COGL_FRAMEBUFFER (offscreen);
 

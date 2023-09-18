@@ -152,8 +152,8 @@ on_paint (ClutterActor        *actor,
                                            tex_coords, 8);
 
   cogl_object_unref (pipeline);
-  cogl_object_unref (tex0);
-  cogl_object_unref (tex1);
+  g_object_unref (tex0);
+  g_object_unref (tex1);
 
   /* See what we got... */
 

@@ -190,7 +190,7 @@ load_from_current_xcursor_image (MetaCursorSpriteXcursor *sprite_xcursor)
   CoglPixelFormat cogl_format;
   ClutterBackend *clutter_backend;
   CoglContext *cogl_context;
-  CoglTexture2D *texture;
+  CoglTexture *texture;
   GError *error = NULL;
   int hotspot_x, hotspot_y;
 
@@ -234,10 +234,10 @@ load_from_current_xcursor_image (MetaCursorSpriteXcursor *sprite_xcursor)
       hotspot_y = xc_image->yhot;
     }
   meta_cursor_sprite_set_texture (sprite,
-                                  COGL_TEXTURE (texture),
+                                  texture,
                                   hotspot_x, hotspot_y);
 
-  g_clear_pointer (&texture, cogl_object_unref);
+  g_clear_object (&texture);
 }
 
 void

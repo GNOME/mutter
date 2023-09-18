@@ -77,7 +77,7 @@ create_and_fill_bitmap (void)
 static CoglTexture *
 create_texture_from_bitmap (CoglBitmap *bitmap)
 {
-  CoglTexture2D *texture;
+  CoglTexture *texture;
 
   texture = cogl_texture_2d_new_from_bitmap (bitmap);
 
@@ -150,7 +150,7 @@ test_pixel_buffer_map (void)
                                    1.0f, -1.0f);
 
   g_object_unref (bitmap);
-  cogl_object_unref (texture);
+  g_object_unref (texture);
   cogl_object_unref (pipeline);
 
   check_colours (0x0000ffff,
@@ -195,7 +195,7 @@ test_pixel_buffer_set_data (void)
                                    1.0f, -1.0f);
 
   g_object_unref (bitmap);
-  cogl_object_unref (texture);
+  g_object_unref (texture);
   cogl_object_unref (pipeline);
 
   check_colours (0x0000ffff,
@@ -210,7 +210,7 @@ test_pixel_buffer_set_data (void)
 static CoglTexture *
 create_white_texture (void)
 {
-  CoglTexture2D *texture;
+  CoglTexture *texture;
   uint8_t *data = g_malloc (BITMAP_SIZE * BITMAP_SIZE * 4);
 
   memset (data, 255, BITMAP_SIZE * BITMAP_SIZE * 4);
@@ -256,7 +256,7 @@ test_pixel_buffer_sub_region (void)
                                    1.0f, -1.0f);
 
   g_object_unref (bitmap);
-  cogl_object_unref (texture);
+  g_object_unref (texture);
   cogl_object_unref (pipeline);
 
   check_colours (0xffffffff,

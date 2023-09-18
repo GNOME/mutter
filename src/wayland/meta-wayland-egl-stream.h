@@ -42,8 +42,8 @@ MetaWaylandEglStream * meta_wayland_egl_stream_new (MetaWaylandBuffer *buffer,
 gboolean meta_wayland_egl_stream_attach (MetaWaylandEglStream *stream,
                                          GError              **error);
 
-CoglTexture2D * meta_wayland_egl_stream_create_texture (MetaWaylandEglStream *stream,
-                                                        GError              **error);
+CoglTexture * meta_wayland_egl_stream_create_texture (MetaWaylandEglStream *stream,
+                                                      GError              **error);
 CoglSnippet * meta_wayland_egl_stream_create_snippet (MetaWaylandEglStream *stream);
 
 gboolean meta_wayland_egl_stream_is_y_inverted (MetaWaylandEglStream *stream);

@@ -70,7 +70,7 @@ create_texture_from_data (unsigned int      width,
 {
   CoglContext *ctx =
     clutter_backend_get_cogl_context (clutter_get_default_backend ());
-  CoglTexture2D *texture_2d;
+  CoglTexture *texture_2d;
 
   texture_2d = cogl_texture_2d_new_from_data (ctx,
                                               width,
@@ -80,7 +80,7 @@ create_texture_from_data (unsigned int      width,
                                               data,
                                               error);
 
-  return texture_2d ? COGL_TEXTURE (texture_2d) : NULL;
+  return texture_2d;
 }
 
 static void
@@ -111,7 +111,7 @@ clutter_image_finalize (GObject *gobject)
   ClutterImage *image = CLUTTER_IMAGE (gobject);
   ClutterImagePrivate *priv = clutter_image_get_instance_private (image);
 
-  cogl_clear_object (&priv->texture);
+  g_clear_object (&priv->texture);
 
   G_OBJECT_CLASS (clutter_image_parent_class)->finalize (gobject);
 }
@@ -248,7 +248,7 @@ clutter_image_set_data (ClutterImage     *image,
   priv = clutter_image_get_instance_private (image);
 
   if (priv->texture != NULL)
-    cogl_object_unref (priv->texture);
+    g_object_unref (priv->texture);
 
   priv->texture = create_texture_from_data (width,
                                             height,
@@ -306,7 +306,7 @@ clutter_image_set_bytes (ClutterImage     *image,
   priv = clutter_image_get_instance_private (image);
 
   if (priv->texture != NULL)
-    cogl_object_unref (priv->texture);
+    g_object_unref (priv->texture);
 
   priv->texture = create_texture_from_data (width,
                                             height,
@@ -391,7 +391,7 @@ clutter_image_set_area (ClutterImage        *image,
 
       if (!res)
         {
-          cogl_clear_object (&priv->texture);
+          g_clear_object (&priv->texture);
         }
     }
 

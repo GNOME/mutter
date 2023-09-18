@@ -784,7 +784,7 @@ build_and_scan_frame_mask (MetaWindowActorX11    *actor_x11,
   uint8_t *mask_data;
   unsigned int tex_width, tex_height;
   MetaShapedTexture *stex;
-  CoglTexture2D *mask_texture;
+  CoglTexture *mask_texture;
   int stride;
   cairo_t *cr;
   cairo_surface_t *image;
@@ -868,8 +868,8 @@ build_and_scan_frame_mask (MetaWindowActorX11    *actor_x11,
 
   if (mask_texture)
     {
-      meta_shaped_texture_set_mask_texture (stex, COGL_TEXTURE (mask_texture));
-      cogl_object_unref (mask_texture);
+      meta_shaped_texture_set_mask_texture (stex, mask_texture);
+      g_object_unref (mask_texture);
     }
   else
     {

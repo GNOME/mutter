@@ -167,7 +167,7 @@ meta_shadow_unref (MetaShadow *shadow)
         }
 
       meta_window_shape_unref (shadow->key.shape);
-      cogl_object_unref (shadow->texture);
+      g_object_unref (shadow->texture);
       cogl_object_unref (shadow->pipeline);
 
       g_free (shadow);
@@ -797,15 +797,15 @@ make_shadow (MetaShadow     *shadow,
    * in the case of top_fade >= 0. We also account for padding at the left for symmetry
    * though that doesn't currently occur.
    */
-  shadow->texture = COGL_TEXTURE (cogl_texture_2d_new_from_data (ctx,
-                                                                 shadow->outer_border_left + extents.width + shadow->outer_border_right,
-                                                                 shadow->outer_border_top + extents.height + shadow->outer_border_bottom,
-                                                                 COGL_PIXEL_FORMAT_A_8,
-                                                                 buffer_width,
-                                                                 (buffer +
-                                                                  (y_offset - shadow->outer_border_top) * buffer_width +
-                                                                  (x_offset - shadow->outer_border_left)),
-                                                                 &error));
+  shadow->texture = cogl_texture_2d_new_from_data (ctx,
+                                                   shadow->outer_border_left + extents.width + shadow->outer_border_right,
+                                                   shadow->outer_border_top + extents.height + shadow->outer_border_bottom,
+                                                   COGL_PIXEL_FORMAT_A_8,
+                                                   buffer_width,
+                                                   (buffer +
+                                                    (y_offset - shadow->outer_border_top) * buffer_width +
+                                                    (x_offset - shadow->outer_border_left)),
+                                                   &error);
 
   if (error)
     {

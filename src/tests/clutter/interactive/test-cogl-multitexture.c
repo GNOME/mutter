@@ -224,10 +224,10 @@ test_cogl_multitexture_main (int argc, char *argv[])
 
   cogl_object_unref (state->pipeline1);
   cogl_object_unref (state->pipeline0);
-  cogl_object_unref (state->alpha_tex);
-  cogl_object_unref (state->redhand_tex);
-  cogl_object_unref (state->light_tex0);
-  cogl_object_unref (state->light_tex1);
+  g_object_unref (state->alpha_tex);
+  g_object_unref (state->redhand_tex);
+  g_object_unref (state->light_tex0);
+  g_object_unref (state->light_tex1);
   g_free (state);
 
   return 0;

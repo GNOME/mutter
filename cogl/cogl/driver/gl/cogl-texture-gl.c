@@ -83,9 +83,9 @@ _cogl_texture_gl_flush_legacy_texobj_wrap_modes (CoglTexture *texture,
                                                  unsigned int wrap_mode_s,
                                                  unsigned int wrap_mode_t)
 {
-  texture->vtable->gl_flush_legacy_texobj_wrap_modes (texture,
-                                                      wrap_mode_s,
-                                                      wrap_mode_t);
+  COGL_TEXTURE_GET_CLASS (texture)->gl_flush_legacy_texobj_wrap_modes (texture,
+                                                                       wrap_mode_s,
+                                                                       wrap_mode_t);
 }
 
 void
@@ -93,8 +93,9 @@ _cogl_texture_gl_flush_legacy_texobj_filters (CoglTexture *texture,
                                               unsigned int min_filter,
                                               unsigned int mag_filter)
 {
-  texture->vtable->gl_flush_legacy_texobj_filters (texture,
-                                                   min_filter, mag_filter);
+  COGL_TEXTURE_GET_CLASS (texture)->gl_flush_legacy_texobj_filters (texture,
+                                                                    min_filter,
+                                                                    mag_filter);
 }
 
 /* GL and GLES3 have this by default, but GLES2 does not except via extension.
@@ -110,7 +111,7 @@ void
 cogl_texture_gl_set_max_level (CoglTexture *texture,
                                int max_level)
 {
-  CoglContext *ctx = texture->context;
+  CoglContext *ctx = cogl_texture_get_context (texture);
 
   if (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_TEXTURE_MAX_LEVEL))
     {
@@ -119,25 +120,25 @@ cogl_texture_gl_set_max_level (CoglTexture *texture,
 
       cogl_texture_get_gl_texture (texture, &gl_handle, &gl_target);
 
-      texture->max_level_set = max_level;
+      cogl_texture_set_max_level_set (texture, max_level);
 
       _cogl_bind_gl_texture_transient (gl_target,
                                        gl_handle);
 
       GE( ctx, glTexParameteri (gl_target,
-                                GL_TEXTURE_MAX_LEVEL, texture->max_level_set));
+                                GL_TEXTURE_MAX_LEVEL, cogl_texture_get_max_level_set (texture)));
     }
 }
 
 void
 _cogl_texture_gl_generate_mipmaps (CoglTexture *texture)
 {
-  CoglContext *ctx = texture->context;
+  CoglContext *ctx = cogl_texture_get_context (texture);
   int n_levels = _cogl_texture_get_n_levels (texture);
   GLuint gl_handle;
   GLenum gl_target;
 
-  if (texture->max_level_set != n_levels - 1)
+  if (cogl_texture_get_max_level_set (texture) != n_levels - 1)
     cogl_texture_gl_set_max_level (texture, n_levels - 1);
 
   cogl_texture_get_gl_texture (texture, &gl_handle, &gl_target);
@@ -150,5 +151,5 @@ _cogl_texture_gl_generate_mipmaps (CoglTexture *texture)
 GLenum
 _cogl_texture_gl_get_format (CoglTexture *texture)
 {
-  return texture->vtable->get_gl_format (texture);
+  return COGL_TEXTURE_GET_CLASS (texture)->get_gl_format (texture);
 }

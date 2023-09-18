@@ -230,7 +230,7 @@ create_fbo (ClutterBlur *blur,
   float height;
   float width;
 
-  cogl_clear_object (&pass->texture);
+  g_clear_object (&pass->texture);
   g_clear_object (&pass->framebuffer);
 
   width = cogl_texture_get_width (blur->source_texture);
@@ -238,9 +238,9 @@ create_fbo (ClutterBlur *blur,
   scaled_width = floorf (width / blur->downscale_factor);
   scaled_height = floorf (height / blur->downscale_factor);
 
-  pass->texture = COGL_TEXTURE (cogl_texture_2d_new_with_size (ctx,
-                                                               scaled_width,
-                                                               scaled_height));
+  pass->texture = cogl_texture_2d_new_with_size (ctx,
+                                                 scaled_width,
+                                                 scaled_height);
   if (!pass->texture)
     return FALSE;
 
@@ -327,7 +327,7 @@ static void
 clear_blur_pass (BlurPass *pass)
 {
   cogl_clear_object (&pass->pipeline);
-  cogl_clear_object (&pass->texture);
+  g_clear_object (&pass->texture);
   g_clear_object (&pass->framebuffer);
 }
 
@@ -358,7 +358,7 @@ clutter_blur_new (CoglTexture *texture,
 
   blur = g_new0 (ClutterBlur, 1);
   blur->sigma = sigma;
-  blur->source_texture = cogl_object_ref (texture);
+  blur->source_texture = g_object_ref (texture);
   blur->downscale_factor = calculate_downscale_factor (width, height, sigma);
 
   if (G_APPROX_VALUE (sigma, 0.0, FLT_EPSILON))
@@ -426,6 +426,6 @@ clutter_blur_free (ClutterBlur *blur)
 
   clear_blur_pass (&blur->pass[VERTICAL]);
   clear_blur_pass (&blur->pass[HORIZONTAL]);
-  cogl_clear_object (&blur->source_texture);
+  g_clear_object (&blur->source_texture);
   g_free (blur);
 }

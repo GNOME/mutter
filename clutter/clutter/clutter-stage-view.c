@@ -381,20 +381,19 @@ create_offscreen_framebuffer (CoglContext  *context,
                               GError      **error)
 {
   CoglOffscreen *framebuffer;
-  CoglTexture2D *texture;
+  CoglTexture *texture;
 
   texture = cogl_texture_2d_new_with_size (context, width, height);
-  cogl_primitive_texture_set_auto_mipmap (COGL_PRIMITIVE_TEXTURE (texture),
-                                          FALSE);
+  cogl_primitive_texture_set_auto_mipmap (texture, FALSE);
 
-  if (!cogl_texture_allocate (COGL_TEXTURE (texture), error))
+  if (!cogl_texture_allocate (texture, error))
     {
-      cogl_object_unref (texture);
+      g_object_unref (texture);
       return FALSE;
     }
 
-  framebuffer = cogl_offscreen_new_with_texture (COGL_TEXTURE (texture));
-  cogl_object_unref (texture);
+  framebuffer = cogl_offscreen_new_with_texture (texture);
+  g_object_unref (texture);
   if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (framebuffer), error))
     {
       g_object_unref (framebuffer);

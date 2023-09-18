@@ -96,7 +96,7 @@ meta_cursor_sprite_clear_texture (MetaCursorSprite *sprite)
   MetaCursorSpritePrivate *priv =
     meta_cursor_sprite_get_instance_private (sprite);
 
-  g_clear_pointer (&priv->texture, cogl_object_unref);
+  g_clear_object (&priv->texture);
   meta_cursor_sprite_invalidate (sprite);
 }
 
@@ -109,9 +109,9 @@ meta_cursor_sprite_set_texture (MetaCursorSprite *sprite,
   MetaCursorSpritePrivate *priv =
     meta_cursor_sprite_get_instance_private (sprite);
 
-  g_clear_pointer (&priv->texture, cogl_object_unref);
+  g_clear_object (&priv->texture);
   if (texture)
-    priv->texture = cogl_object_ref (texture);
+    priv->texture = g_object_ref (COGL_TEXTURE_2D (texture));
   priv->hot_x = hot_x;
   priv->hot_y = hot_y;
 
@@ -264,7 +264,7 @@ meta_cursor_sprite_constructed (GObject *object)
 
   meta_cursor_tracker_register_cursor_sprite (priv->cursor_tracker, sprite);
 
-  g_clear_pointer (&priv->texture, cogl_object_unref);
+  g_clear_object (&priv->texture);
 
   G_OBJECT_CLASS (meta_cursor_sprite_parent_class)->constructed (object);
 }
@@ -276,7 +276,7 @@ meta_cursor_sprite_finalize (GObject *object)
   MetaCursorSpritePrivate *priv =
     meta_cursor_sprite_get_instance_private (sprite);
 
-  g_clear_pointer (&priv->texture, cogl_object_unref);
+  g_clear_object (&priv->texture);
 
   meta_cursor_tracker_unregister_cursor_sprite (priv->cursor_tracker, sprite);
   g_clear_object (&priv->cursor_tracker);

@@ -78,7 +78,7 @@ cogl_context_dispose (GObject *object)
   winsys->context_deinit (context);
 
   if (context->default_gl_texture_2d_tex)
-    cogl_object_unref (context->default_gl_texture_2d_tex);
+    g_object_unref (context->default_gl_texture_2d_tex);
 
   if (context->opaque_color_pipeline)
     cogl_object_unref (context->opaque_color_pipeline);

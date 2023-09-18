@@ -56,7 +56,7 @@ on_paint (ClutterActor        *actor,
   tex = make_texture ();
   pipeline = cogl_pipeline_new ();
   cogl_pipeline_set_layer (pipeline, 0, tex);
-  cogl_object_unref (tex);
+  g_object_unref (tex);
 
   /* Render a 1x1 pixel quad without mipmaps */
   cogl_set_source (pipeline);

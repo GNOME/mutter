@@ -48,7 +48,7 @@ static const CoglBlitMode *_cogl_blit_default_mode = NULL;
 static gboolean
 _cogl_blit_texture_render_begin (CoglBlitData *data)
 {
-  CoglContext *ctx = data->src_tex->context;
+  CoglContext *ctx = cogl_texture_get_context (data->src_tex);
   CoglOffscreen *offscreen;
   CoglFramebuffer *fb;
   CoglPipeline *pipeline;
@@ -129,7 +129,7 @@ _cogl_blit_texture_render_blit (CoglBlitData *data,
 static void
 _cogl_blit_texture_render_end (CoglBlitData *data)
 {
-  CoglContext *ctx = data->src_tex->context;
+  CoglContext *ctx = cogl_texture_get_context (data->src_tex);
 
   /* Attach the target texture to the texture render pipeline so that
      we don't keep a reference to the source texture forever. This is
@@ -148,7 +148,7 @@ _cogl_blit_texture_render_end (CoglBlitData *data)
 static gboolean
 _cogl_blit_framebuffer_begin (CoglBlitData *data)
 {
-  CoglContext *ctx = data->src_tex->context;
+  CoglContext *ctx = cogl_texture_get_context (data->src_tex);
   CoglOffscreen *dst_offscreen = NULL, *src_offscreen = NULL;
   CoglFramebuffer *dst_fb, *src_fb;
   GError *ignore_error = NULL;
@@ -228,7 +228,7 @@ _cogl_blit_copy_tex_sub_image_begin (CoglBlitData *data)
   GError *ignore_error = NULL;
 
   /* This will only work if the target texture is a CoglTexture2D */
-  if (!cogl_is_texture_2d (data->dst_tex))
+  if (!COGL_IS_TEXTURE_2D (data->dst_tex))
     return FALSE;
 
   offscreen = _cogl_offscreen_new_with_texture_full

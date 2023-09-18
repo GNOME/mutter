@@ -75,12 +75,12 @@ create_offscreen (CoglContext *cogl_context,
                   int          width,
                   int          height)
 {
-  CoglTexture2D *texture_2d;
+  CoglTexture *texture_2d;
   CoglOffscreen *offscreen;
   GError *error = NULL;
 
   texture_2d = cogl_texture_2d_new_with_size (cogl_context, width, height);
-  offscreen = cogl_offscreen_new_with_texture (COGL_TEXTURE (texture_2d));
+  offscreen = cogl_offscreen_new_with_texture (texture_2d);
 
   if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (offscreen), &error))
     meta_fatal ("Couldn't allocate framebuffer: %s", error->message);

@@ -40,17 +40,15 @@ check_quadrant (TestState *state,
 static void
 test_paint (TestState *state)
 {
-  CoglTexture2D *tex_2d;
   CoglTexture *tex;
   CoglOffscreen *offscreen;
   CoglFramebuffer *framebuffer;
   CoglPipeline *opaque_pipeline;
   CoglPipeline *texture_pipeline;
 
-  tex_2d = cogl_texture_2d_new_with_size (test_ctx,
-                                          state->fb_width,
-                                          state->fb_height);
-  tex = tex_2d;
+  tex = cogl_texture_2d_new_with_size (test_ctx,
+                                       state->fb_width,
+                                       state->fb_height);
 
   offscreen = cogl_offscreen_new_with_texture (tex);
   framebuffer = COGL_FRAMEBUFFER (offscreen);
@@ -102,7 +100,7 @@ test_paint (TestState *state)
 
   cogl_object_unref (opaque_pipeline);
   cogl_object_unref (texture_pipeline);
-  cogl_object_unref (tex_2d);
+  g_object_unref (tex);
 
   cogl_framebuffer_pop_matrix (test_fb);
 
@@ -123,7 +121,6 @@ static void
 test_flush (TestState *state)
 {
   CoglPipeline *pipeline;
-  CoglTexture2D *tex_2d;
   CoglTexture *tex;
   CoglOffscreen *offscreen;
   CoglFramebuffer *framebuffer;
@@ -139,9 +136,8 @@ test_flush (TestState *state)
          the contents of the texture will automatically flush the
          journal */
 
-      tex_2d = cogl_texture_2d_new_with_size (test_ctx,
-                                              16, 16); /* width/height */
-      tex = tex_2d;
+      tex = cogl_texture_2d_new_with_size (test_ctx,
+                                           16, 16); /* width/height */
 
       offscreen = cogl_offscreen_new_with_texture (tex);
       framebuffer = COGL_FRAMEBUFFER (offscreen);
@@ -184,7 +180,7 @@ test_flush (TestState *state)
                                    0xff0000ff);
         }
 
-      cogl_object_unref (tex_2d);
+      g_object_unref (tex);
       g_object_unref (offscreen);
     }
 

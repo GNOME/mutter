@@ -1574,7 +1574,7 @@ create_framebuffer_from_window_actor (MetaWindowActor  *self,
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
-  CoglTexture2D *texture;
+  CoglTexture *texture;
   CoglOffscreen *offscreen;
   CoglFramebuffer *framebuffer;
   CoglColor clear_color;
@@ -1589,13 +1589,12 @@ create_framebuffer_from_window_actor (MetaWindowActor  *self,
   if (!texture)
     return NULL;
 
-  cogl_primitive_texture_set_auto_mipmap (COGL_PRIMITIVE_TEXTURE (texture),
-                                          FALSE);
+  cogl_primitive_texture_set_auto_mipmap (texture, FALSE);
 
-  offscreen = cogl_offscreen_new_with_texture (COGL_TEXTURE (texture));
+  offscreen = cogl_offscreen_new_with_texture (texture);
   framebuffer = COGL_FRAMEBUFFER (offscreen);
 
-  cogl_object_unref (texture);
+  g_object_unref (texture);
 
   if (!cogl_framebuffer_allocate (framebuffer, error))
     {

@@ -183,7 +183,7 @@ test_paint (TestState *state)
                               (PRIM_COLOR >> 8) & 0xff,
                               (PRIM_COLOR >> 0) & 0xff);
   cogl_pipeline_set_layer_texture (pipeline, 0, tex);
-  cogl_object_unref (tex);
+  g_object_unref (tex);
 
   for (i = 0; i < G_N_ELEMENTS (test_prim_funcs); i++)
     {

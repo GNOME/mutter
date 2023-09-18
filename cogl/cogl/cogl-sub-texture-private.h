@@ -36,7 +36,7 @@
 
 struct _CoglSubTexture
 {
-  CoglTexture _parent;
+  CoglTexture parent_instance;
 
   /* This is the texture that was passed in to
      _cogl_sub_texture_new. If this is also a sub texture then we will
@@ -56,4 +56,9 @@ struct _CoglSubTexture
    * actually already a sub texture */
   int sub_x;
   int sub_y;
+};
+
+struct _CoglSubTextureClass
+{
+  CoglTextureClass parent_class;
 };

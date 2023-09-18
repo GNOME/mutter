@@ -122,8 +122,8 @@ paint (TestState *state)
                                    0, 0,
                                    state->width, state->height);
 
-  cogl_object_unref (tex1);
-  cogl_object_unref (tex0);
+  g_object_unref (tex1);
+  g_object_unref (tex0);
   cogl_object_unref (pipeline);
 }
 

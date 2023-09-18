@@ -254,7 +254,7 @@ meta_drm_buffer_gbm_blit_to_framebuffer (CoglScanout      *scanout,
   CoglPixelFormat cogl_format;
   CoglEglImageFlags flags;
   CoglOffscreen *cogl_fbo = NULL;
-  CoglTexture2D *cogl_tex;
+  CoglTexture *cogl_tex;
   uint32_t n_planes;
   uint64_t *modifiers;
   uint32_t *strides;
@@ -332,8 +332,8 @@ meta_drm_buffer_gbm_blit_to_framebuffer (CoglScanout      *scanout,
       goto out;
     }
 
-  cogl_fbo = cogl_offscreen_new_with_texture (COGL_TEXTURE (cogl_tex));
-  cogl_object_unref (cogl_tex);
+  cogl_fbo = cogl_offscreen_new_with_texture (cogl_tex);
+  g_object_unref (cogl_tex);
 
   if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (cogl_fbo), error))
     {

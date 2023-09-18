@@ -155,7 +155,7 @@ clutter_offscreen_effect_real_create_texture (ClutterOffscreenEffect *effect,
   CoglContext *ctx =
     clutter_backend_get_cogl_context (clutter_get_default_backend ());
 
-  return COGL_TEXTURE (cogl_texture_2d_new_with_size (ctx, MAX (width, 1), MAX (height, 1)));
+  return cogl_texture_2d_new_with_size (ctx, MAX (width, 1), MAX (height, 1));
 }
 
 static void
@@ -256,7 +256,7 @@ update_fbo (ClutterEffect *effect,
     return TRUE;
   }
 
-  g_clear_pointer (&priv->texture, cogl_object_unref);
+  g_clear_object (&priv->texture);
   g_clear_object (&priv->offscreen);
 
   priv->texture =
@@ -576,7 +576,7 @@ clutter_offscreen_effect_finalize (GObject *gobject)
   ClutterOffscreenEffectPrivate *priv = self->priv;
 
   g_clear_object (&priv->offscreen);
-  g_clear_pointer (&priv->texture, cogl_object_unref);
+  g_clear_object (&priv->texture);
   g_clear_pointer (&priv->pipeline, cogl_object_unref);
 
   G_OBJECT_CLASS (clutter_offscreen_effect_parent_class)->finalize (gobject);

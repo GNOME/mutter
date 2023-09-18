@@ -1129,7 +1129,7 @@ static gboolean
 _cogl_winsys_texture_pixmap_x11_create (CoglTexturePixmapX11 *tex_pixmap)
 {
   CoglTexturePixmapGLX *glx_tex_pixmap;
-  CoglContext *ctx = COGL_TEXTURE (tex_pixmap)->context;
+  CoglContext *ctx = cogl_texture_get_context (COGL_TEXTURE (tex_pixmap));
 
   if (!_cogl_winsys_has_feature (COGL_WINSYS_FEATURE_TEXTURE_FROM_PIXMAP))
     {
@@ -1221,13 +1221,14 @@ _cogl_winsys_texture_pixmap_x11_free (CoglTexturePixmapX11 *tex_pixmap)
 
   glx_tex_pixmap = tex_pixmap->winsys;
 
-  free_glx_pixmap (COGL_TEXTURE (tex_pixmap)->context, glx_tex_pixmap);
+  free_glx_pixmap (cogl_texture_get_context (COGL_TEXTURE (tex_pixmap)),
+                   glx_tex_pixmap);
 
   if (glx_tex_pixmap->left.glx_tex)
-    cogl_object_unref (glx_tex_pixmap->left.glx_tex);
+    g_object_unref (glx_tex_pixmap->left.glx_tex);
 
   if (glx_tex_pixmap->right.glx_tex)
-    cogl_object_unref (glx_tex_pixmap->right.glx_tex);
+    g_object_unref (glx_tex_pixmap->right.glx_tex);
 
   tex_pixmap->winsys = NULL;
   g_free (glx_tex_pixmap);
@@ -1239,7 +1240,7 @@ _cogl_winsys_texture_pixmap_x11_update (CoglTexturePixmapX11 *tex_pixmap,
                                         gboolean needs_mipmap)
 {
   CoglTexture *tex = COGL_TEXTURE (tex_pixmap);
-  CoglContext *ctx = COGL_TEXTURE (tex_pixmap)->context;
+  CoglContext *ctx = cogl_texture_get_context (tex);
   CoglTexturePixmapGLX *glx_tex_pixmap = tex_pixmap->winsys;
   CoglPixmapTextureEyeGLX *texture_info;
   int buffer;
@@ -1272,8 +1273,10 @@ _cogl_winsys_texture_pixmap_x11_update (CoglTexturePixmapX11 *tex_pixmap,
                         COGL_PIXEL_FORMAT_RGBA_8888_PRE :
                         COGL_PIXEL_FORMAT_RGB_888);
 
-      texture_info->glx_tex = COGL_TEXTURE (
-        cogl_texture_2d_new_with_size (ctx, tex->width, tex->height));
+      texture_info->glx_tex =
+        cogl_texture_2d_new_with_size (ctx,
+                                       cogl_texture_get_width (tex),
+                                       cogl_texture_get_height (tex));
 
       _cogl_texture_set_internal_format (tex, texture_format);
 
@@ -1314,7 +1317,7 @@ _cogl_winsys_texture_pixmap_x11_update (CoglTexturePixmapX11 *tex_pixmap,
                          "with mipmap support failed", tex_pixmap);
 
               if (texture_info->glx_tex)
-                cogl_object_unref (texture_info->glx_tex);
+                g_object_unref (texture_info->glx_tex);
               return FALSE;
             }
 

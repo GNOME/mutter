@@ -11,9 +11,9 @@
 static const uint8_t tex_data[4] = { 0x12, 0x34, 0x56, 0x78 };
 
 static void
-test_read_byte (CoglTexture2D *tex_2d,
+test_read_byte (CoglTexture    *tex_2d,
                 CoglPixelFormat format,
-                uint8_t expected_byte)
+                uint8_t         expected_byte)
 {
   uint8_t received_byte;
 
@@ -26,7 +26,7 @@ test_read_byte (CoglTexture2D *tex_2d,
 }
 
 static void
-test_read_short (CoglTexture2D *tex_2d,
+test_read_short (CoglTexture    *tex_2d,
                  CoglPixelFormat format,
                  ...)
 {
@@ -65,9 +65,9 @@ test_read_short (CoglTexture2D *tex_2d,
 }
 
 static void
-test_read_888 (CoglTexture2D *tex_2d,
+test_read_888 (CoglTexture    *tex_2d,
                CoglPixelFormat format,
-               uint32_t expected_pixel)
+               uint32_t        expected_pixel)
 {
   uint8_t pixel[4];
 
@@ -80,9 +80,9 @@ test_read_888 (CoglTexture2D *tex_2d,
 }
 
 static void
-test_read_88 (CoglTexture2D *tex_2d,
+test_read_88 (CoglTexture    *tex_2d,
               CoglPixelFormat format,
-              uint32_t expected_pixel)
+              uint32_t        expected_pixel)
 {
   uint8_t pixel[4];
 
@@ -97,9 +97,9 @@ test_read_88 (CoglTexture2D *tex_2d,
 }
 
 static void
-test_read_8888 (CoglTexture2D *tex_2d,
+test_read_8888 (CoglTexture    *tex_2d,
                 CoglPixelFormat format,
-                uint32_t expected_pixel)
+                uint32_t        expected_pixel)
 {
   uint32_t received_pixel;
   char *received_value_str;
@@ -120,7 +120,7 @@ test_read_8888 (CoglTexture2D *tex_2d,
 }
 
 static void
-test_read_int (CoglTexture2D *tex_2d,
+test_read_int (CoglTexture    *tex_2d,
                CoglPixelFormat format,
                ...)
 {
@@ -161,7 +161,7 @@ test_read_int (CoglTexture2D *tex_2d,
 static void
 test_read_texture_formats (void)
 {
-  CoglTexture2D *tex_2d;
+  CoglTexture *tex_2d;
 
   tex_2d = cogl_texture_2d_new_from_data (test_ctx,
                                           1, 1, /* width / height */
@@ -215,7 +215,7 @@ test_read_texture_formats (void)
                  2, 0x78, 10, 0x56, 10, 0x34, 10, 0x12,
                  -1);
 
-  cogl_object_unref (tex_2d);
+  g_object_unref (tex_2d);
 
   if (cogl_test_verbose ())
     g_print ("OK\n");

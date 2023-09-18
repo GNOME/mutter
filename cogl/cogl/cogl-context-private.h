@@ -134,7 +134,7 @@ struct _CoglContext
   CoglPipelineCache *pipeline_cache;
 
   /* Textures */
-  CoglTexture2D *default_gl_texture_2d_tex;
+  CoglTexture *default_gl_texture_2d_tex;
 
   /* Central list of all framebuffers so all journals can be flushed
    * at any time. */

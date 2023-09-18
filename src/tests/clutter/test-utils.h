@@ -111,13 +111,13 @@ clutter_test_create_bitmap_from_file (CoglContext  *ctx,
   return bmp;
 }
 
-static inline CoglTexture2DSliced *
+static inline CoglTexture *
 clutter_test_texture_2d_sliced_new_from_file (CoglContext  *ctx,
                                               const char   *filename,
                                               GError      **error)
 {
   CoglBitmap *bmp;
-  CoglTexture2DSliced *tex_2ds = NULL;
+  CoglTexture *tex_2ds = NULL;
 
   g_return_val_if_fail (error == NULL || *error == NULL, NULL);
 
@@ -132,13 +132,13 @@ clutter_test_texture_2d_sliced_new_from_file (CoglContext  *ctx,
   return tex_2ds;
 }
 
-static inline CoglTexture2D *
+static inline CoglTexture *
 clutter_test_texture_2d_new_from_file (CoglContext  *ctx,
                                        const char   *filename,
                                        GError      **error)
 {
   CoglBitmap *bmp;
-  CoglTexture2D *tex_2d = NULL;
+  CoglTexture *tex_2d = NULL;
 
   g_return_val_if_fail (error == NULL || *error == NULL, NULL);
 

@@ -613,7 +613,7 @@ meta_renderer_native_create_dma_buf_framebuffer (MetaRendererNative  *renderer_n
   uint64_t modifiers[1];
   CoglPixelFormat cogl_format;
   CoglEglImageFlags flags;
-  CoglTexture2D *cogl_tex;
+  CoglTexture *cogl_tex;
   CoglOffscreen *cogl_fbo;
   int ret;
 
@@ -651,8 +651,8 @@ meta_renderer_native_create_dma_buf_framebuffer (MetaRendererNative  *renderer_n
   if (!cogl_tex)
     return NULL;
 
-  cogl_fbo = cogl_offscreen_new_with_texture (COGL_TEXTURE (cogl_tex));
-  cogl_object_unref (cogl_tex);
+  cogl_fbo = cogl_offscreen_new_with_texture (cogl_tex);
+  g_object_unref (cogl_tex);
 
   if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (cogl_fbo), error))
     {
@@ -1151,19 +1151,19 @@ meta_renderer_native_create_offscreen (MetaRendererNative    *renderer,
                                        GError               **error)
 {
   CoglOffscreen *fb;
-  CoglTexture2D *tex;
+  CoglTexture *tex;
 
   tex = cogl_texture_2d_new_with_size (context, view_width, view_height);
-  cogl_primitive_texture_set_auto_mipmap (COGL_PRIMITIVE_TEXTURE (tex), FALSE);
+  cogl_primitive_texture_set_auto_mipmap (tex, FALSE);
 
-  if (!cogl_texture_allocate (COGL_TEXTURE (tex), error))
+  if (!cogl_texture_allocate (tex, error))
     {
-      cogl_object_unref (tex);
+      g_object_unref (tex);
       return FALSE;
     }
 
-  fb = cogl_offscreen_new_with_texture (COGL_TEXTURE (tex));
-  cogl_object_unref (tex);
+  fb = cogl_offscreen_new_with_texture (tex);
+  g_object_unref (tex);
   if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (fb), error))
     {
       g_object_unref (fb);

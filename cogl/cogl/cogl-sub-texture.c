@@ -38,21 +38,26 @@
 #include "cogl/cogl-sub-texture-private.h"
 #include "cogl/cogl-sub-texture.h"
 #include "cogl/cogl-context-private.h"
-#include "cogl/cogl-object.h"
 #include "cogl/cogl-texture-driver.h"
 #include "cogl/cogl-texture-2d.h"
-#include "cogl/cogl-gtype-private.h"
 #include "cogl/driver/gl/cogl-texture-gl-private.h"
 
 #include <string.h>
 #include <math.h>
 
-static void _cogl_sub_texture_free (CoglSubTexture *sub_tex);
 
-COGL_TEXTURE_DEFINE (SubTexture, sub_texture);
-COGL_GTYPE_DEFINE_CLASS (SubTexture, sub_texture);
+G_DEFINE_FINAL_TYPE (CoglSubTexture, cogl_sub_texture, COGL_TYPE_TEXTURE)
 
-static const CoglTextureVtable cogl_sub_texture_vtable;
+static void
+cogl_sub_texture_dispose (GObject *object)
+{
+  CoglSubTexture *sub_tex = COGL_SUB_TEXTURE (object);
+
+  g_object_unref (sub_tex->next_texture);
+  g_object_unref (sub_tex->full_texture);
+
+  G_OBJECT_CLASS (cogl_sub_texture_parent_class)->dispose (object);
+}
 
 static void
 _cogl_sub_texture_unmap_quad (CoglSubTexture *sub_tex,
@@ -62,10 +67,10 @@ _cogl_sub_texture_unmap_quad (CoglSubTexture *sub_tex,
   float width = cogl_texture_get_width (sub_tex->full_texture);
   float height = cogl_texture_get_height (sub_tex->full_texture);
 
-  coords[0] = (coords[0] * width - sub_tex->sub_x) / tex->width;
-  coords[1] = (coords[1] * height - sub_tex->sub_y) / tex->height;
-  coords[2] = (coords[2] * width - sub_tex->sub_x) / tex->width;
-  coords[3] = (coords[3] * height - sub_tex->sub_y) / tex->height;
+  coords[0] = (coords[0] * width - sub_tex->sub_x) / cogl_texture_get_width (tex);
+  coords[1] = (coords[1] * height - sub_tex->sub_y) / cogl_texture_get_height (tex);
+  coords[2] = (coords[2] * width - sub_tex->sub_x) / cogl_texture_get_width (tex);
+  coords[3] = (coords[3] * height - sub_tex->sub_y) / cogl_texture_get_height (tex);
 }
 
 static void
@@ -76,10 +81,10 @@ _cogl_sub_texture_map_quad (CoglSubTexture *sub_tex,
   float width = cogl_texture_get_width (sub_tex->full_texture);
   float height = cogl_texture_get_height (sub_tex->full_texture);
 
-  coords[0] = (coords[0] * tex->width + sub_tex->sub_x) / width;
-  coords[1] = (coords[1] * tex->height + sub_tex->sub_y) / height;
-  coords[2] = (coords[2] * tex->width + sub_tex->sub_x) / width;
-  coords[3] = (coords[3] * tex->height + sub_tex->sub_y) / height;
+  coords[0] = (coords[0] * cogl_texture_get_width (tex) + sub_tex->sub_x) / width;
+  coords[1] = (coords[1] * cogl_texture_get_height (tex) + sub_tex->sub_y) / height;
+  coords[2] = (coords[2] * cogl_texture_get_width (tex) + sub_tex->sub_x) / width;
+  coords[3] = (coords[3] * cogl_texture_get_height (tex) + sub_tex->sub_y) / height;
 }
 
 typedef struct _CoglSubTextureForeachData
@@ -129,7 +134,7 @@ _cogl_sub_texture_foreach_sub_texture_in_region (
   _cogl_sub_texture_map_quad (sub_tex, mapped_coords);
 
   /* TODO: Add something like cogl_is_low_level_texture() */
-  if (cogl_is_texture_2d (full_texture))
+  if (COGL_IS_TEXTURE_2D (full_texture))
     {
       callback (sub_tex->full_texture,
                 mapped_coords,
@@ -144,7 +149,7 @@ _cogl_sub_texture_foreach_sub_texture_in_region (
       data.callback = callback;
       data.user_data = user_data;
 
-      cogl_meta_texture_foreach_in_region (COGL_META_TEXTURE (full_texture),
+      cogl_meta_texture_foreach_in_region (full_texture,
                                            mapped_coords[0],
                                            mapped_coords[1],
                                            mapped_coords[2],
@@ -168,67 +173,6 @@ _cogl_sub_texture_gl_flush_legacy_texobj_wrap_modes (CoglTexture *tex,
                                                    wrap_mode_t);
 }
 
-static void
-_cogl_sub_texture_free (CoglSubTexture *sub_tex)
-{
-  cogl_object_unref (sub_tex->next_texture);
-  cogl_object_unref (sub_tex->full_texture);
-
-  /* Chain up */
-  _cogl_texture_free (COGL_TEXTURE (sub_tex));
-}
-
-CoglSubTexture *
-cogl_sub_texture_new (CoglContext *ctx,
-                      CoglTexture *next_texture,
-                      int sub_x, int sub_y,
-                      int sub_width, int sub_height)
-{
-  CoglTexture    *full_texture;
-  CoglSubTexture *sub_tex;
-  CoglTexture    *tex;
-  unsigned int    next_width, next_height;
-
-  next_width = cogl_texture_get_width (next_texture);
-  next_height = cogl_texture_get_height (next_texture);
-
-  /* The region must specify a non-zero subset of the full texture */
-  g_return_val_if_fail (sub_x >= 0 && sub_y >= 0, NULL);
-  g_return_val_if_fail (sub_width > 0 && sub_height > 0, NULL);
-  g_return_val_if_fail (sub_x + sub_width <= next_width, NULL);
-  g_return_val_if_fail (sub_y + sub_height <= next_height, NULL);
-
-  sub_tex = g_new (CoglSubTexture, 1);
-
-  tex = COGL_TEXTURE (sub_tex);
-
-  _cogl_texture_init (tex, ctx, sub_width, sub_height,
-                      _cogl_texture_get_format (next_texture),
-                      NULL, /* no loader */
-                      &cogl_sub_texture_vtable);
-
-  /* If the next texture is also a sub texture we can avoid one level
-     of indirection by referencing the full texture of that texture
-     instead. */
-  if (cogl_is_sub_texture (next_texture))
-    {
-      CoglSubTexture *other_sub_tex = COGL_SUB_TEXTURE (next_texture);
-      full_texture = other_sub_tex->full_texture;
-      sub_x += other_sub_tex->sub_x;
-      sub_y += other_sub_tex->sub_y;
-    }
-  else
-    full_texture = next_texture;
-
-  sub_tex->next_texture = cogl_object_ref (next_texture);
-  sub_tex->full_texture = cogl_object_ref (full_texture);
-
-  sub_tex->sub_x = sub_x;
-  sub_tex->sub_y = sub_y;
-
-  return _cogl_sub_texture_object_new (sub_tex);
-}
-
 static gboolean
 _cogl_sub_texture_allocate (CoglTexture *tex,
                             GError **error)
@@ -238,15 +182,10 @@ _cogl_sub_texture_allocate (CoglTexture *tex,
 
   _cogl_texture_set_allocated (tex,
                                _cogl_texture_get_format (sub_tex->full_texture),
-                               tex->width, tex->height);
+                               cogl_texture_get_width (tex),
+                               cogl_texture_get_height (tex));
 
   return status;
-}
-
-CoglTexture *
-cogl_sub_texture_get_parent (CoglSubTexture *sub_texture)
-{
-  return sub_texture->next_texture;
 }
 
 static int
@@ -272,9 +211,9 @@ _cogl_sub_texture_can_hardware_repeat (CoglTexture *tex)
 
   /* We can hardware repeat if the subtexture actually represents all of the
      of the full texture */
-  return (tex->width ==
+  return (cogl_texture_get_width (tex) ==
           cogl_texture_get_width (sub_tex->full_texture) &&
-          tex->height ==
+          cogl_texture_get_height (tex) ==
           cogl_texture_get_height (sub_tex->full_texture) &&
           _cogl_texture_can_hardware_repeat (sub_tex->full_texture));
 }
@@ -288,9 +227,9 @@ _cogl_sub_texture_transform_coords_to_gl (CoglTexture *tex,
 
   /* This won't work if the sub texture is not the size of the full
      texture and the coordinates are outside the range [0,1] */
-  *s = ((*s * tex->width + sub_tex->sub_x) /
+  *s = ((*s * cogl_texture_get_width (tex) + sub_tex->sub_x) /
         cogl_texture_get_width (sub_tex->full_texture));
-  *t = ((*t * tex->height + sub_tex->sub_y) /
+  *t = ((*t * cogl_texture_get_height (tex) + sub_tex->sub_y) /
         cogl_texture_get_height (sub_tex->full_texture));
 
   _cogl_texture_transform_coords_to_gl (sub_tex->full_texture, s, t);
@@ -413,26 +352,92 @@ _cogl_sub_texture_get_gl_format (CoglTexture *tex)
   return _cogl_texture_gl_get_format (sub_tex->full_texture);
 }
 
-static const CoglTextureVtable
-cogl_sub_texture_vtable =
-  {
-    FALSE, /* not primitive */
-    _cogl_sub_texture_allocate,
-    _cogl_sub_texture_set_region,
-    _cogl_sub_texture_is_get_data_supported,
-    NULL, /* get_data */
-    _cogl_sub_texture_foreach_sub_texture_in_region,
-    _cogl_sub_texture_get_max_waste,
-    _cogl_sub_texture_is_sliced,
-    _cogl_sub_texture_can_hardware_repeat,
-    _cogl_sub_texture_transform_coords_to_gl,
-    _cogl_sub_texture_transform_quad_coords_to_gl,
-    _cogl_sub_texture_get_gl_texture,
-    _cogl_sub_texture_gl_flush_legacy_texobj_filters,
-    _cogl_sub_texture_pre_paint,
-    _cogl_sub_texture_ensure_non_quad_rendering,
-    _cogl_sub_texture_gl_flush_legacy_texobj_wrap_modes,
-    _cogl_sub_texture_get_format,
-    _cogl_sub_texture_get_gl_format,
-    NULL /* set_auto_mipmap */
-  };
+static void
+cogl_sub_texture_class_init (CoglSubTextureClass *klass)
+{
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+  CoglTextureClass *texture_class = COGL_TEXTURE_CLASS (klass);
+
+  gobject_class->dispose = cogl_sub_texture_dispose;
+
+  texture_class->allocate = _cogl_sub_texture_allocate;
+  texture_class->set_region = _cogl_sub_texture_set_region;
+  texture_class->is_get_data_supported = _cogl_sub_texture_is_get_data_supported;
+  texture_class->foreach_sub_texture_in_region = _cogl_sub_texture_foreach_sub_texture_in_region;
+  texture_class->get_max_waste = _cogl_sub_texture_get_max_waste;
+  texture_class->is_sliced = _cogl_sub_texture_is_sliced;
+  texture_class->can_hardware_repeat = _cogl_sub_texture_can_hardware_repeat;
+  texture_class->transform_coords_to_gl = _cogl_sub_texture_transform_coords_to_gl;
+  texture_class->transform_quad_coords_to_gl = _cogl_sub_texture_transform_quad_coords_to_gl;
+  texture_class->get_gl_texture = _cogl_sub_texture_get_gl_texture;
+  texture_class->gl_flush_legacy_texobj_filters = _cogl_sub_texture_gl_flush_legacy_texobj_filters;
+  texture_class->pre_paint = _cogl_sub_texture_pre_paint;
+  texture_class->ensure_non_quad_rendering = _cogl_sub_texture_ensure_non_quad_rendering;
+  texture_class->gl_flush_legacy_texobj_wrap_modes = _cogl_sub_texture_gl_flush_legacy_texobj_wrap_modes;
+  texture_class->get_format = _cogl_sub_texture_get_format;
+  texture_class->get_gl_format = _cogl_sub_texture_get_gl_format;
+}
+
+static void
+cogl_sub_texture_init (CoglSubTexture *self)
+{
+  CoglTexture *texture = COGL_TEXTURE (self);
+
+  texture->is_primitive = FALSE;
+}
+
+CoglTexture *
+cogl_sub_texture_new (CoglContext *ctx,
+                      CoglTexture *next_texture,
+                      int sub_x, int sub_y,
+                      int sub_width, int sub_height)
+{
+  CoglTexture    *full_texture;
+  CoglSubTexture *sub_tex;
+  CoglTexture    *tex;
+  unsigned int    next_width, next_height;
+
+  next_width = cogl_texture_get_width (next_texture);
+  next_height = cogl_texture_get_height (next_texture);
+
+  /* The region must specify a non-zero subset of the full texture */
+  g_return_val_if_fail (sub_x >= 0 && sub_y >= 0, NULL);
+  g_return_val_if_fail (sub_width > 0 && sub_height > 0, NULL);
+  g_return_val_if_fail (sub_x + sub_width <= next_width, NULL);
+  g_return_val_if_fail (sub_y + sub_height <= next_height, NULL);
+
+  sub_tex = g_object_new (COGL_TYPE_SUB_TEXTURE, NULL);
+
+  tex = COGL_TEXTURE (sub_tex);
+
+  _cogl_texture_init (tex, ctx, sub_width, sub_height,
+                      _cogl_texture_get_format (next_texture),
+                      NULL);
+
+  /* If the next texture is also a sub texture we can avoid one level
+     of indirection by referencing the full texture of that texture
+     instead. */
+  if (COGL_IS_SUB_TEXTURE (next_texture))
+    {
+      CoglSubTexture *other_sub_tex = COGL_SUB_TEXTURE (next_texture);
+      full_texture = other_sub_tex->full_texture;
+      sub_x += other_sub_tex->sub_x;
+      sub_y += other_sub_tex->sub_y;
+    }
+  else
+    full_texture = next_texture;
+
+  sub_tex->next_texture = g_object_ref (next_texture);
+  sub_tex->full_texture = g_object_ref (full_texture);
+
+  sub_tex->sub_x = sub_x;
+  sub_tex->sub_y = sub_y;
+
+  return tex;
+}
+
+CoglTexture *
+cogl_sub_texture_get_parent (CoglSubTexture *sub_texture)
+{
+  return sub_texture->next_texture;
+}

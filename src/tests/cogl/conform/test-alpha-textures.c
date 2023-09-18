@@ -8,7 +8,7 @@ static void
 create_pipeline (CoglTexture **tex_out,
                  CoglPipeline **pipeline_out)
 {
-  CoglTexture2D *tex;
+  CoglTexture *tex;
   CoglPipeline *pipeline;
   static const uint8_t tex_data[] =
     { 0x00, 0x44, 0x88, 0xcc };
@@ -76,8 +76,8 @@ test_alpha_textures (void)
                                    -1.0f, 0.0f, /* x1/y1 */
                                    1.0f, -1.0f /* x2/y2 */);
 
-  cogl_object_unref (tex1);
-  cogl_object_unref (tex2);
+  g_object_unref (tex1);
+  g_object_unref (tex2);
   cogl_object_unref (pipeline1);
   cogl_object_unref (pipeline2);
 

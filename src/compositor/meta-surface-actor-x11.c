@@ -122,7 +122,7 @@ set_pixmap (MetaSurfaceActorX11 *self,
   g_assert (self->pixmap == None);
   self->pixmap = pixmap;
 
-  cogl_texture = COGL_TEXTURE (cogl_texture_pixmap_x11_new (ctx, self->pixmap, FALSE, &error));
+  cogl_texture = cogl_texture_pixmap_x11_new (ctx, self->pixmap, FALSE, &error);
 
   if (error != NULL)
     {

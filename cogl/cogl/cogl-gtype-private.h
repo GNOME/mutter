@@ -59,15 +59,6 @@ struct _CoglGtypeClass
 
 /**/
 
-#define COGL_GTYPE_IMPLEMENT_INTERFACE(name) {                          \
-    const GInterfaceInfo g_implement_interface_info = {                 \
-      (GInterfaceInitFunc) _cogl_gtype_dummy_iface_init, NULL, NULL     \
-    };                                                                  \
-    g_type_add_interface_static (fundamental_type_id,                   \
-                                 cogl_##name##_get_gtype(),         \
-                                 &g_implement_interface_info);          \
-  }
-
 #define _COGL_GTYPE_DEFINE_BASE_CLASS_BEGIN(Name,name)                  \
 GType                                                                   \
 cogl_##name##_get_gtype (void)                                      \
@@ -120,52 +111,6 @@ cogl_##name##_get_gtype (void)                                      \
   _COGL_GTYPE_DEFINE_BASE_CLASS_BEGIN(Name,name)         \
   {__VA_ARGS__;}                                         \
   _COGL_GTYPE_DEFINE_BASE_CLASS_END()
-
-#define _COGL_GTYPE_DEFINE_INTERFACE_EXTENDED_BEGIN(Name,name)          \
-                                                                        \
-  static void name##_default_init (Name##Interface *klass);             \
-  GType                                                                 \
-  name##_get_gtype (void)                                               \
-  {                                                                     \
-    static size_t g_type_id = 0;                                         \
-    if (g_once_init_enter (&g_type_id))                                 \
-      {                                                                 \
-        GType fundamental_type_id =                                     \
-          g_type_register_static_simple (G_TYPE_INTERFACE,              \
-                                         g_intern_static_string (#Name), \
-                                         sizeof (Name##Interface),    \
-                                         (GClassInitFunc)name##_default_init, \
-                                         0,                             \
-                                         (GInstanceInitFunc)NULL,       \
-                                         (GTypeFlags) 0);               \
-        g_type_interface_add_prerequisite (fundamental_type_id,         \
-                                           cogl_object_get_gtype());    \
-        { /* custom code follows */
-
-#define _COGL_GTYPE_DEFINE_INTERFACE_EXTENDED_END()                     \
-  /* following custom code */                                           \
-  }                                                                     \
-    g_once_init_leave (&g_type_id,                                      \
-                       fundamental_type_id);                            \
-    }                                                                   \
-    return g_type_id;                                                   \
-    } /* closes name##_get_type() */
-
-
-#define COGL_GTYPE_DEFINE_INTERFACE(Name,name)                          \
-  typedef struct _Cogl##Name##Iface Cogl##Name##Iface;                  \
-  typedef Cogl##Name##Iface  Cogl##Name##Interface;                     \
-  struct _Cogl##Name##Iface                                             \
-  {                                                                     \
-    /*< private >*/                                                     \
-    GTypeInterface g_iface;                                             \
-  };                                                                    \
-  _COGL_GTYPE_DEFINE_INTERFACE_EXTENDED_BEGIN (Cogl##Name, cogl_##name) \
-  _COGL_GTYPE_DEFINE_INTERFACE_EXTENDED_END ()                          \
-  static void                                                           \
-  cogl_##name##_default_init (Cogl##Name##Interface *iface)             \
-  {                                                                     \
-  }
 
 #define _COGL_GTYPE_DEFINE_TYPE_EXTENDED_BEGIN(Name,name,parent,flags)  \
                                                                         \

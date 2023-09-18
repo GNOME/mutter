@@ -130,7 +130,7 @@ allocate_with_size (CoglTexture2D *tex_2d,
   CoglPixelFormat internal_format;
   int width = loader->src.sized.width;
   int height = loader->src.sized.height;
-  CoglContext *ctx = tex->context;
+  CoglContext *ctx = cogl_texture_get_context (tex);
   GLenum gl_intformat;
   GLenum gl_format;
   GLenum gl_type;
@@ -267,7 +267,7 @@ allocate_from_egl_image (CoglTexture2D *tex_2d,
                          GError **error)
 {
   CoglTexture *tex = COGL_TEXTURE (tex_2d);
-  CoglContext *ctx = tex->context;
+  CoglContext *ctx = cogl_texture_get_context (tex);
   CoglPixelFormat internal_format = loader->src.egl_image.format;
 
   tex_2d->gl_texture =
@@ -301,7 +301,7 @@ allocate_custom_egl_image_external (CoglTexture2D *tex_2d,
                                     GError **error)
 {
   CoglTexture *tex = COGL_TEXTURE (tex_2d);
-  CoglContext *ctx = tex->context;
+  CoglContext *ctx = cogl_texture_get_context (tex);
   CoglPixelFormat external_format;
   CoglPixelFormat internal_format;
 
@@ -356,7 +356,7 @@ cogl_texture_2d_gl_bind_egl_image (CoglTexture2D *tex_2d,
                                    EGLImageKHR    image,
                                    GError       **error)
 {
-  CoglContext *ctx = COGL_TEXTURE (tex_2d)->context;
+  CoglContext *ctx = cogl_texture_get_context (COGL_TEXTURE (tex_2d));
 
   _cogl_bind_gl_texture_transient (GL_TEXTURE_2D,
                                    tex_2d->gl_texture);
@@ -376,7 +376,7 @@ cogl_texture_2d_gl_bind_egl_image (CoglTexture2D *tex_2d,
   return TRUE;
 }
 
-CoglTexture2D *
+CoglTexture *
 cogl_texture_2d_new_from_egl_image_external (CoglContext *ctx,
                                              int width,
                                              int height,
@@ -404,14 +404,14 @@ cogl_texture_2d_new_from_egl_image_external (CoglContext *ctx,
   loader->src.egl_image_external.alloc = alloc;
   loader->src.egl_image_external.format = internal_format;
 
-  tex_2d = _cogl_texture_2d_create_base (ctx, width, height,
-                                         internal_format, loader);
+  tex_2d = COGL_TEXTURE_2D (_cogl_texture_2d_create_base (ctx, width, height,
+                                                          internal_format, loader));
 
 
   tex_2d->egl_image_external.user_data = user_data;
   tex_2d->egl_image_external.destroy = destroy;
 
-  return tex_2d;
+  return COGL_TEXTURE (tex_2d);
 }
 #endif /* defined (COGL_HAS_EGL_SUPPORT) */
 
@@ -420,7 +420,7 @@ _cogl_texture_2d_gl_allocate (CoglTexture *tex,
                               GError **error)
 {
   CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);
-  CoglTextureLoader *loader = tex->loader;
+  CoglTextureLoader *loader = cogl_texture_get_loader (tex);
 
   g_return_val_if_fail (loader, FALSE);
 
@@ -453,7 +453,7 @@ _cogl_texture_2d_gl_flush_legacy_texobj_filters (CoglTexture *tex,
                                                  GLenum mag_filter)
 {
   CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);
-  CoglContext *ctx = tex->context;
+  CoglContext *ctx = cogl_texture_get_context (tex);
 
   if (min_filter == tex_2d->gl_legacy_texobj_min_filter
       && mag_filter == tex_2d->gl_legacy_texobj_mag_filter)
@@ -485,7 +485,7 @@ _cogl_texture_2d_gl_flush_legacy_texobj_wrap_modes (CoglTexture *tex,
                                                     GLenum wrap_mode_t)
 {
   CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);
-  CoglContext *ctx = tex->context;
+  CoglContext *ctx = cogl_texture_get_context (tex);
 
   /* Only set the wrap mode if it's different from the current value
      to avoid too many GL calls. Texture 2D doesn't make use of the r
@@ -519,7 +519,7 @@ _cogl_texture_2d_gl_copy_from_framebuffer (CoglTexture2D *tex_2d,
                                            int level)
 {
   CoglTexture *tex = COGL_TEXTURE (tex_2d);
-  CoglContext *ctx = tex->context;
+  CoglContext *ctx = cogl_texture_get_context (tex);
 
   /* Make sure the current framebuffers are bound, though we don't need to
    * flush the clip state here since we aren't going to draw to the
@@ -565,7 +565,7 @@ _cogl_texture_2d_gl_copy_from_bitmap (CoglTexture2D *tex_2d,
                                       GError **error)
 {
   CoglTexture *tex = COGL_TEXTURE (tex_2d);
-  CoglContext *ctx = tex->context;
+  CoglContext *ctx = cogl_texture_get_context (tex);
   CoglBitmap *upload_bmp;
   CoglPixelFormat upload_format;
   GLenum gl_format;
@@ -592,7 +592,7 @@ _cogl_texture_2d_gl_copy_from_bitmap (CoglTexture2D *tex_2d,
                                           &gl_format,
                                           &gl_type);
 
-  if (tex->max_level_set < level)
+  if (cogl_texture_get_max_level_set (tex) < level)
     cogl_texture_gl_set_max_level (tex, level);
 
   status = ctx->texture_driver->upload_subregion_to_gl (ctx,
@@ -623,9 +623,9 @@ _cogl_texture_2d_gl_get_data (CoglTexture2D *tex_2d,
                               int rowstride,
                               uint8_t *data)
 {
-  CoglContext *ctx = COGL_TEXTURE (tex_2d)->context;
+  CoglContext *ctx = cogl_texture_get_context (COGL_TEXTURE (tex_2d));
   uint8_t bpp;
-  int width = COGL_TEXTURE (tex_2d)->width;
+  int width = cogl_texture_get_width (COGL_TEXTURE (tex_2d));
   GLenum gl_format;
   GLenum gl_type;
 

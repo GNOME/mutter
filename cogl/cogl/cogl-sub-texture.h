@@ -38,26 +38,29 @@
 G_BEGIN_DECLS
 
 /**
- * SECTION:cogl-sub-texture
- * @short_description: Functions for creating and manipulating
- *                     sub-textures.
+ * CoglSubTexture:
+ *
+ * Functions for creating and manipulating sub-textures.
  *
  * These functions allow high-level textures to be created that
  * represent a sub-region of another texture. For example these
  * can be used to implement custom texture atlasing schemes.
  */
+#define COGL_TYPE_SUB_TEXTURE            (cogl_sub_texture_get_type ())
+#define COGL_SUB_TEXTURE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_SUB_TEXTURE, CoglSubTexture))
+#define COGL_SUB_TEXTURE_CONST(obj)      (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_SUB_TEXTURE, CoglSubTexture const))
+#define COGL_SUB_TEXTURE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  COGL_TYPE_SUB_TEXTURE, CoglSubTextureClass))
+#define COGL_IS_SUB_TEXTURE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), COGL_TYPE_SUB_TEXTURE))
+#define COGL_IS_SUB_TEXTURE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  COGL_TYPE_SUB_TEXTURE))
+#define COGL_SUB_TEXTURE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  COGL_TYPE_SUB_TEXTURE, CoglSubTextureClass))
 
-
-#define COGL_SUB_TEXTURE(tex) ((CoglSubTexture *) tex)
+typedef struct _CoglSubTextureClass CoglSubTextureClass;
 typedef struct _CoglSubTexture CoglSubTexture;
 
-/**
- * cogl_sub_texture_get_gtype:
- *
- * Returns: a #GType that can be used with the GLib type system.
- */
-GType cogl_sub_texture_get_gtype (void);
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglSubTexture, g_object_unref)
 
+COGL_EXPORT
+GType               cogl_sub_texture_get_type       (void) G_GNUC_CONST;
 /**
  * cogl_sub_texture_new:
  * @ctx: A #CoglContext pointer
@@ -86,7 +89,7 @@ GType cogl_sub_texture_get_gtype (void);
  * Return value: (transfer full): A newly allocated #CoglSubTexture
  *          representing a sub-region of @parent_texture.
  */
-COGL_EXPORT CoglSubTexture *
+COGL_EXPORT CoglTexture *
 cogl_sub_texture_new (CoglContext *ctx,
                       CoglTexture *parent_texture,
                       int sub_x,
@@ -107,17 +110,5 @@ cogl_sub_texture_new (CoglContext *ctx,
  */
 COGL_EXPORT CoglTexture *
 cogl_sub_texture_get_parent (CoglSubTexture *sub_texture);
-
-/**
- * cogl_is_sub_texture:
- * @object: a #CoglObject
- *
- * Checks whether @object is a #CoglSubTexture.
- *
- * Return value: %TRUE if the passed @object represents a
- *               #CoglSubTexture and %FALSE otherwise.
- */
-COGL_EXPORT gboolean
-cogl_is_sub_texture (void *object);
 
 G_END_DECLS

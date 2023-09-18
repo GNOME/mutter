@@ -125,7 +125,7 @@ meta_cursor_sprite_xfixes_initable_init (GInitable     *initable,
   MetaX11Display *x11_display;
   Display *xdisplay;
   XFixesCursorImage *cursor_image;
-  CoglTexture2D *texture;
+  CoglTexture *texture;
   uint8_t *cursor_data;
   gboolean free_cursor_data;
   ClutterBackend *clutter_backend;
@@ -175,12 +175,12 @@ meta_cursor_sprite_xfixes_initable_init (GInitable     *initable,
   clutter_backend = clutter_get_default_backend ();
   cogl_context = clutter_backend_get_cogl_context (clutter_backend);
   texture = cogl_texture_2d_new_from_data (cogl_context,
-                                          cursor_image->width,
-                                          cursor_image->height,
-                                          COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
-                                          cursor_image->width * 4, /* stride */
-                                          cursor_data,
-                                          error);
+                                           cursor_image->width,
+                                           cursor_image->height,
+                                           COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
+                                           cursor_image->width * 4, /* stride */
+                                           cursor_data,
+                                           error);
 
   if (free_cursor_data)
     g_free (cursor_data);
@@ -189,10 +189,10 @@ meta_cursor_sprite_xfixes_initable_init (GInitable     *initable,
     return FALSE;
 
   meta_cursor_sprite_set_texture (sprite,
-                                  COGL_TEXTURE (texture),
+                                  texture,
                                   cursor_image->xhot,
                                   cursor_image->yhot);
-  cogl_object_unref (texture);
+  g_object_unref (texture);
   XFree (cursor_image);
 
   return TRUE;

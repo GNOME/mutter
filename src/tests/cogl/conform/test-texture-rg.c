@@ -7,7 +7,7 @@
 #define TEX_WIDTH 8
 #define TEX_HEIGHT 8
 
-static CoglTexture2D *
+static CoglTexture *
 make_texture (void)
 {
   uint8_t tex_data[TEX_WIDTH * TEX_HEIGHT * 2], *p = tex_data;
@@ -32,7 +32,7 @@ static void
 test_texture_rg (void)
 {
   CoglPipeline *pipeline;
-  CoglTexture2D *tex;
+  CoglTexture *tex;
   int fb_width, fb_height;
   int x, y;
 
@@ -76,7 +76,7 @@ test_texture_rg (void)
       }
 
   cogl_object_unref (pipeline);
-  cogl_object_unref (tex);
+  g_object_unref (tex);
 }
 
 COGL_TEST_SUITE (

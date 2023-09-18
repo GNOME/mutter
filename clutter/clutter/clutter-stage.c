@@ -2784,7 +2784,7 @@ clutter_stage_paint_to_buffer (ClutterStage        *stage,
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
   int texture_width, texture_height;
-  CoglTexture2D *texture;
+  CoglTexture *texture;
   CoglOffscreen *offscreen;
   CoglFramebuffer *framebuffer;
   CoglBitmap *bitmap;
@@ -2802,10 +2802,10 @@ clutter_stage_paint_to_buffer (ClutterStage        *stage,
       return FALSE;
     }
 
-  offscreen = cogl_offscreen_new_with_texture (COGL_TEXTURE (texture));
+  offscreen = cogl_offscreen_new_with_texture (texture);
   framebuffer = COGL_FRAMEBUFFER (offscreen);
 
-  cogl_object_unref (texture);
+  g_object_unref (texture);
 
   if (!cogl_framebuffer_allocate (framebuffer, error))
     return FALSE;
@@ -2853,7 +2853,7 @@ clutter_stage_paint_to_content (ClutterStage        *stage,
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
   int texture_width, texture_height;
-  CoglTexture2D *texture;
+  CoglTexture *texture;
   CoglOffscreen *offscreen;
   g_autoptr (CoglFramebuffer) framebuffer = NULL;
 
@@ -2870,10 +2870,10 @@ clutter_stage_paint_to_content (ClutterStage        *stage,
       return NULL;
     }
 
-  offscreen = cogl_offscreen_new_with_texture (COGL_TEXTURE (texture));
+  offscreen = cogl_offscreen_new_with_texture (texture);
   framebuffer = COGL_FRAMEBUFFER (offscreen);
 
-  cogl_object_unref (texture);
+  g_object_unref (texture);
 
   if (!cogl_framebuffer_allocate (framebuffer, error))
     return NULL;

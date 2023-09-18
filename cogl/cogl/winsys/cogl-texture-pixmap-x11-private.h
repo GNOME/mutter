@@ -40,7 +40,6 @@
 #include <GL/glx.h>
 #endif
 
-#include "cogl/cogl-object-private.h"
 #include "cogl/cogl-texture-private.h"
 #include "cogl/winsys/cogl-texture-pixmap-x11.h"
 
@@ -70,7 +69,7 @@ typedef enum
 
 struct _CoglTexturePixmapX11
 {
-  CoglTexture _parent;
+  CoglTexture parent_instance;
 
   CoglTexturePixmapStereoMode stereo_mode;
   CoglTexturePixmapX11 *left; /* Set only if stereo_mode=RIGHT */
@@ -96,4 +95,9 @@ struct _CoglTexturePixmapX11
      should use the winsys texture, otherwise we will use the regular
      texture */
   gboolean use_winsys_texture;
+};
+
+struct _CoglTexturePixmapX11Class
+{
+  CoglTextureClass parent_class;
 };

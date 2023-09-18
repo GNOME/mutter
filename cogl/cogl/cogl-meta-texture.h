@@ -89,17 +89,6 @@ G_BEGIN_DECLS
  * meta-textures.</note>
  */
 
-#if defined(__COGL_H_INSIDE__) && !defined(COGL_ENABLE_MUTTER_API) && \
-  !defined(COGL_GIR_SCANNING)
-/* For the public C api we typedef interface types as void to avoid needing
- * lots of casting in code and instead we will rely on runtime type checking
- * for these objects. */
-typedef void CoglMetaTexture;
-#else
-typedef struct _CoglMetaTexture CoglMetaTexture;
-#define COGL_META_TEXTURE(X) ((CoglMetaTexture *)X)
-#endif
-
 /**
  * CoglMetaTextureCallback:
  * @sub_texture: A low-level #CoglTexture making up part of a
@@ -171,7 +160,7 @@ typedef void (*CoglMetaTextureCallback) (CoglTexture *sub_texture,
  * low-level texture maps to the original region.
  */
 COGL_EXPORT void
-cogl_meta_texture_foreach_in_region (CoglMetaTexture *meta_texture,
+cogl_meta_texture_foreach_in_region (CoglTexture *texture,
                                      float tx_1,
                                      float ty_1,
                                      float tx_2,

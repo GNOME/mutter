@@ -54,26 +54,30 @@
 G_BEGIN_DECLS
 
 /**
- * SECTION:cogl-texture-pixmap-x11
- * @short_description: Functions for creating and manipulating 2D meta
- *                     textures derived from X11 pixmaps.
+ * CoglTexturePixmapX11:
+ *
+ * Functions for creating and manipulating 2D meta
+ * textures derived from X11 pixmaps.
  *
  * These functions allow high-level meta textures (See the
  * #CoglMetaTexture interface) that derive their contents from an X11
  * pixmap.
  */
+#define COGL_TYPE_TEXTURE_PIXMAP_X11            (cogl_texture_pixmap_x11_get_type ())
+#define COGL_TEXTURE_PIXMAP_X11(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_TEXTURE_PIXMAP_X11, CoglTexturePixmapX11))
+#define COGL_TEXTURE_PIXMAP_X11_CONST(obj)      (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_TEXTURE_PIXMAP_X11, CoglTexturePixmapX11 const))
+#define COGL_TEXTURE_PIXMAP_X11_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  COGL_TYPE_TEXTURE_PIXMAP_X11, CoglTexturePixmapX11Class))
+#define COGL_IS_TEXTURE_PIXMAP_X11(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), COGL_TYPE_TEXTURE_PIXMAP_X11))
+#define COGL_IS_TEXTURE_PIXMAP_X11_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  COGL_TYPE_TEXTURE_PIXMAP_X11))
+#define COGL_TEXTURE_PIXMAP_X11_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  COGL_TYPE_TEXTURE_PIXMAP_X11, CoglTexturePixmapX11Class))
 
+typedef struct _CoglTexturePixmapX11Class CoglTexturePixmapX11Class;
 typedef struct _CoglTexturePixmapX11 CoglTexturePixmapX11;
 
-#define COGL_TEXTURE_PIXMAP_X11(X) ((CoglTexturePixmapX11 *)X)
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglTexturePixmapX11, g_object_unref)
 
-/**
- * cogl_texture_pixmap_x11_get_gtype:
- *
- * Returns: a #GType that can be used with the GLib type system.
- */
 COGL_EXPORT
-GType cogl_texture_pixmap_x11_get_gtype (void);
+GType               cogl_texture_pixmap_x11_get_type       (void) G_GNUC_CONST;
 
 typedef enum
 {
@@ -120,7 +124,7 @@ uint32_t cogl_texture_pixmap_x11_error_quark (void);
  *
  * Return value: a new #CoglTexturePixmapX11 instance
  */
-COGL_EXPORT CoglTexturePixmapX11 *
+COGL_EXPORT CoglTexture *
 cogl_texture_pixmap_x11_new (CoglContext *context,
                              uint32_t pixmap,
                              gboolean automatic_updates,
@@ -156,7 +160,7 @@ cogl_texture_pixmap_x11_new (CoglContext *context,
  *
  * Return value: a new #CoglTexturePixmapX11 instance
  */
-COGL_EXPORT CoglTexturePixmapX11 *
+COGL_EXPORT CoglTexture *
 cogl_texture_pixmap_x11_new_left (CoglContext *context,
                                   uint32_t pixmap,
                                   gboolean automatic_updates,
@@ -173,7 +177,7 @@ cogl_texture_pixmap_x11_new_left (CoglContext *context,
  *
  * Return value: a new #CoglTexturePixmapX11 instance
  */
-COGL_EXPORT CoglTexturePixmapX11 *
+COGL_EXPORT CoglTexture *
 cogl_texture_pixmap_x11_new_right (CoglTexturePixmapX11 *left_texture);
 
 /**
@@ -210,18 +214,6 @@ cogl_texture_pixmap_x11_update_area (CoglTexturePixmapX11 *texture,
  */
 COGL_EXPORT gboolean
 cogl_texture_pixmap_x11_is_using_tfp_extension (CoglTexturePixmapX11 *texture);
-
-/**
- * cogl_is_texture_pixmap_x11:
- * @object: A pointer to a #CoglObject
- *
- * Checks whether @object points to a #CoglTexturePixmapX11 instance.
- *
- * Return value: %TRUE if the object is a #CoglTexturePixmapX11, and
- *   %FALSE otherwise
- */
-COGL_EXPORT gboolean
-cogl_is_texture_pixmap_x11 (void *object);
 
 G_END_DECLS
 

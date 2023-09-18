@@ -180,7 +180,7 @@ _cogl_pipeline_set_layer_texture_data (CoglPipeline *pipeline,
               layer->differences &= ~change;
 
               if (layer->texture != NULL)
-                cogl_object_unref (layer->texture);
+                g_object_unref (layer->texture);
 
               g_assert (layer->owner == pipeline);
               if (layer->differences == 0)
@@ -192,10 +192,10 @@ _cogl_pipeline_set_layer_texture_data (CoglPipeline *pipeline,
     }
 
   if (texture != NULL)
-    cogl_object_ref (texture);
+    g_object_ref (texture);
   if (layer == authority &&
       layer->texture != NULL)
-    cogl_object_unref (layer->texture);
+    g_object_unref (layer->texture);
   layer->texture = texture;
 
   /* If we weren't previously the authority on this state then we need

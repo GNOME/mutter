@@ -313,7 +313,7 @@ draw_cursor_sprite_via_offscreen (MetaScreenCastStreamSrc  *src,
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
-  CoglTexture2D *bitmap_texture;
+  CoglTexture *bitmap_texture;
   CoglOffscreen *offscreen;
   CoglFramebuffer *fb;
   CoglPipeline *pipeline;
@@ -322,17 +322,16 @@ draw_cursor_sprite_via_offscreen (MetaScreenCastStreamSrc  *src,
 
   bitmap_texture = cogl_texture_2d_new_with_size (cogl_context,
                                                   bitmap_width, bitmap_height);
-  cogl_primitive_texture_set_auto_mipmap (COGL_PRIMITIVE_TEXTURE (bitmap_texture),
-                                          FALSE);
-  if (!cogl_texture_allocate (COGL_TEXTURE (bitmap_texture), error))
+  cogl_primitive_texture_set_auto_mipmap (bitmap_texture, FALSE);
+  if (!cogl_texture_allocate (bitmap_texture, error))
     {
-      cogl_object_unref (bitmap_texture);
+      g_object_unref (bitmap_texture);
       return FALSE;
     }
 
-  offscreen = cogl_offscreen_new_with_texture (COGL_TEXTURE (bitmap_texture));
+  offscreen = cogl_offscreen_new_with_texture (bitmap_texture);
   fb = COGL_FRAMEBUFFER (offscreen);
-  cogl_object_unref (bitmap_texture);
+  g_object_unref (bitmap_texture);
   if (!cogl_framebuffer_allocate (fb, error))
     {
       g_object_unref (fb);

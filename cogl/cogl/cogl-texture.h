@@ -34,21 +34,6 @@
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
 
-/* We forward declare the CoglTexture type here to avoid some circular
- * dependency issues with the following headers.
- */
-#if defined(__COGL_H_INSIDE__) && !defined(COGL_ENABLE_MUTTER_API) && \
-  !defined(COGL_GIR_SCANNING)
-/* For the public C api we typedef interface types as void to avoid needing
- * lots of casting in code and instead we will rely on runtime type checking
- * for these objects. */
-typedef void CoglTexture;
-#else
-typedef struct _CoglTexture CoglTexture;
-#define COGL_TEXTURE(X) ((CoglTexture *)X)
-#endif
-
-#include "cogl/cogl-types.h"
 #include "cogl/cogl-macros.h"
 #include "cogl/cogl-defines.h"
 #include "cogl/cogl-pixel-buffer.h"
@@ -60,23 +45,32 @@ typedef struct _CoglTexture CoglTexture;
 G_BEGIN_DECLS
 
 /**
- * SECTION:cogl-texture
- * @short_description: Functions for creating and manipulating textures
+ * CoglTexture:
+ *
+ * Functions for creating and manipulating textures
  *
  * Cogl allows creating and manipulating textures using a uniform
  * API that tries to hide all the various complexities of creating,
  * loading and manipulating textures.
  */
 
-#define COGL_TEXTURE_MAX_WASTE  127
+#define COGL_TYPE_TEXTURE            (cogl_texture_get_type ())
+#define COGL_TEXTURE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_TEXTURE, CoglTexture))
+#define COGL_TEXTURE_CONST(obj)      (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_TEXTURE, CoglTexture const))
+#define COGL_TEXTURE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  COGL_TYPE_TEXTURE, CoglTextureClass))
+#define COGL_IS_TEXTURE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), COGL_TYPE_TEXTURE))
+#define COGL_IS_TEXTURE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  COGL_TYPE_TEXTURE))
+#define COGL_TEXTURE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  COGL_TYPE_TEXTURE, CoglTextureClass))
 
-/**
- * cogl_texture_get_gtype:
- *
- * Returns: a #GType that can be used with the GLib type system.
- */
+typedef struct _CoglTextureClass CoglTextureClass;
+typedef struct _CoglTexture CoglTexture;
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglTexture, g_object_unref)
+
 COGL_EXPORT
-GType cogl_texture_get_gtype (void);
+GType       cogl_texture_get_type (void) G_GNUC_CONST;
+
+#define COGL_TEXTURE_MAX_WASTE  127
 
 /**
  * COGL_TEXTURE_ERROR:
@@ -105,17 +99,6 @@ typedef enum
 COGL_EXPORT
 uint32_t cogl_texture_error_quark (void);
 
-/**
- * cogl_is_texture:
- * @object: A #CoglObject pointer
- *
- * Gets whether the given object references a texture object.
- *
- * Return value: %TRUE if the @object references a texture, and
- *   %FALSE otherwise
- */
-COGL_EXPORT gboolean
-cogl_is_texture (void *object);
 
 /**
  * CoglTextureComponents:

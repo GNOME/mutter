@@ -387,7 +387,7 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
     {
       EGLImageKHR egl_image;
       CoglEglImageFlags flags;
-      CoglTexture2D *cogl_texture;
+      CoglTexture *cogl_texture;
       uint64_t modifiers[META_WAYLAND_DMA_BUF_MAX_FDS];
       uint32_t n_planes;
 
@@ -428,7 +428,7 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
         return FALSE;
 
       buffer->dma_buf.texture =
-        meta_multi_texture_new_simple (COGL_TEXTURE (cogl_texture));
+        meta_multi_texture_new_simple (cogl_texture);
     }
   else
     {
@@ -443,7 +443,7 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
       n_planes = meta_multi_texture_format_get_n_planes (multi_format);
 
       /* Each EGLImage is a plane in the final CoglMultiPlaneTexture */
-      planes = g_ptr_array_new_full (n_planes, cogl_object_unref);
+      planes = g_ptr_array_new_full (n_planes, g_object_unref);
       meta_multi_texture_format_get_subformats (multi_format, subformats);
       meta_multi_texture_format_get_plane_indices (multi_format, plane_indices);
       meta_multi_texture_format_get_subsampling_factors (multi_format,
@@ -454,7 +454,7 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
         {
           EGLImageKHR egl_image;
           CoglEglImageFlags flags;
-          CoglTexture2D *cogl_texture;
+          CoglTexture *cogl_texture;
           uint32_t drm_format = 0;
           int plane_index, j;
 

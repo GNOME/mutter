@@ -45,7 +45,7 @@ paint (TestState *state)
      constant green color provided by a texture */
   tex = create_dummy_texture ();
   cogl_pipeline_set_layer_texture (pipeline, 0, tex);
-  cogl_object_unref (tex);
+  g_object_unref (tex);
   if (!cogl_pipeline_set_layer_combine (pipeline, 0,
                                         "RGBA=REPLACE(TEXTURE)",
                                         &error))

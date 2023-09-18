@@ -250,7 +250,7 @@ _cogl_texture_driver_upload_subregion_to_gl (CoglContext *ctx,
        * glTexImage2D first to assert that the storage for this
        * level exists.
        */
-      if (texture->max_level_set < level)
+      if (cogl_texture_get_max_level_set (texture) < level)
         {
           ctx->glTexImage2D (gl_target,
                              level,

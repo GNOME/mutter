@@ -363,7 +363,7 @@ on_after_paint (ClutterActor     *actor,
   cogl_rectangle (-1, 1, 1, -1);
 #endif
 
-  cogl_object_unref (tex);
+  g_object_unref (tex);
 
   /* Finally restore the stage's original state... */
   cogl_pop_matrix ();

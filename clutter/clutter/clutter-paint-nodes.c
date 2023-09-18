@@ -710,7 +710,7 @@ clutter_scaling_filter_to_cogl_pipeline_filter (ClutterScalingFilter filter)
  * Creates a new #ClutterPaintNode that will paint the passed @texture.
  *
  * This function will take a reference on @texture, so it is safe to
- * call cogl_object_unref() on @texture when it returns.
+ * call g_object_unref() on @texture when it returns.
  *
  * The @color must not be pre-multiplied with its #ClutterColor.alpha
  * channel value; if @color is %NULL, a fully opaque white color will
@@ -729,7 +729,7 @@ clutter_texture_node_new (CoglTexture          *texture,
   CoglColor cogl_color;
   CoglPipelineFilter min_f, mag_f;
 
-  g_return_val_if_fail (cogl_is_texture (texture), NULL);
+  g_return_val_if_fail (COGL_IS_TEXTURE (texture), NULL);
 
   tnode = _clutter_paint_node_create (CLUTTER_TYPE_TEXTURE_NODE);
 
@@ -1782,7 +1782,6 @@ clutter_blur_node_new (unsigned int width,
   g_autoptr (GError) error = NULL;
   ClutterLayerNode *layer_node;
   ClutterBlurNode *blur_node;
-  CoglTexture2D *tex_2d;
   CoglContext *context;
   CoglTexture *texture;
   ClutterBlur *blur;
@@ -1792,13 +1791,12 @@ clutter_blur_node_new (unsigned int width,
   blur_node = _clutter_paint_node_create (CLUTTER_TYPE_BLUR_NODE);
   blur_node->sigma = sigma;
   context = clutter_backend_get_cogl_context (clutter_get_default_backend ());
-  tex_2d = cogl_texture_2d_new_with_size (context, width, height);
+  texture = cogl_texture_2d_new_with_size (context, width, height);
 
-  texture = COGL_TEXTURE (tex_2d);
   cogl_texture_set_premultiplied (texture, TRUE);
 
   offscreen = cogl_offscreen_new_with_texture (texture);
-  cogl_object_unref (tex_2d);
+  g_object_unref (texture);
   if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (offscreen), &error))
     {
       g_warning ("Unable to allocate paint node offscreen: %s",

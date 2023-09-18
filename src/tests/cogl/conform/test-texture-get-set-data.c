@@ -124,7 +124,7 @@ check_texture (int width, int height, TestUtilsTextureFlags flags)
         p += 4;
       }
 
-  cogl_object_unref (tex);
+  g_object_unref (tex);
   g_free (data);
 }
 

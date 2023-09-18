@@ -236,7 +236,7 @@ test_cogl_point_sprites_main (int argc, char *argv[])
 
   tex = generate_round_texture (ctx);
   cogl_pipeline_set_layer_texture (data.pipeline, 0, tex);
-  cogl_object_unref (tex);
+  g_object_unref (tex);
 
   if (!cogl_pipeline_set_layer_point_sprite_coords_enabled (data.pipeline,
                                                             0, TRUE,

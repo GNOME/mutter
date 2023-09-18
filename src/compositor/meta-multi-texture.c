@@ -171,7 +171,7 @@ meta_multi_texture_finalize (GObject *object)
   int i;
 
   for (i = 0; i < multi_texture->n_planes; i++)
-    cogl_clear_object (&multi_texture->planes[i]);
+    g_clear_object (&multi_texture->planes[i]);
 
   g_free (multi_texture->planes);
 

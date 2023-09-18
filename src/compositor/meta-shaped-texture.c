@@ -243,7 +243,7 @@ meta_shaped_texture_dispose (GObject *object)
 
   g_clear_pointer (&stex->texture_mipmap, meta_texture_mipmap_free);
 
-  g_clear_pointer (&stex->texture, cogl_object_unref);
+  g_clear_object (&stex->texture);
 
   meta_shaped_texture_set_mask_texture (stex, NULL);
   meta_shaped_texture_reset_pipelines (stex);
@@ -980,12 +980,12 @@ meta_shaped_texture_set_mask_texture (MetaShapedTexture *stex,
 {
   g_return_if_fail (META_IS_SHAPED_TEXTURE (stex));
 
-  g_clear_pointer (&stex->mask_texture, cogl_object_unref);
+  g_clear_object (&stex->mask_texture);
 
   if (mask_texture != NULL)
     {
       stex->mask_texture = mask_texture;
-      cogl_object_ref (stex->mask_texture);
+      g_object_ref (stex->mask_texture);
     }
 
   clutter_content_invalidate (CLUTTER_CONTENT (stex));
@@ -1464,12 +1464,12 @@ meta_shaped_texture_get_image (MetaShapedTexture *stex,
   texture = meta_multi_texture_get_plane (stex->texture, 0);
 
   if (image_clip)
-    texture = COGL_TEXTURE (cogl_sub_texture_new (cogl_context,
-                                                  texture,
-                                                  image_clip->x,
-                                                  image_clip->y,
-                                                  image_clip->width,
-                                                  image_clip->height));
+    texture = cogl_sub_texture_new (cogl_context,
+                                    texture,
+                                    image_clip->x,
+                                    image_clip->y,
+                                    image_clip->width,
+                                    image_clip->height);
 
   surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
                                         cogl_texture_get_width (texture),
@@ -1482,7 +1482,7 @@ meta_shaped_texture_get_image (MetaShapedTexture *stex,
   cairo_surface_mark_dirty (surface);
 
   if (image_clip)
-    cogl_object_unref (texture);
+    g_object_unref (texture);
 
   return surface;
 }

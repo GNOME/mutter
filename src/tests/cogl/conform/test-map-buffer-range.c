@@ -25,7 +25,7 @@ vertex_data[4] =
 static void
 test_map_buffer_range (void)
 {
-  CoglTexture2D *tex;
+  CoglTexture *tex;
   CoglPipeline *pipeline;
   int fb_width, fb_height;
   CoglAttributeBuffer *buffer;
@@ -122,7 +122,7 @@ test_map_buffer_range (void)
   g_object_unref (tex_coord_attribute);
 
   cogl_object_unref (pipeline);
-  cogl_object_unref (tex);
+  g_object_unref (tex);
 
   if (cogl_test_verbose ())
     g_print ("OK\n");

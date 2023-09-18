@@ -219,8 +219,8 @@ test_coglbox_dispose (GObject *object)
 {
   TestCoglbox *coglbox = TEST_COGLBOX (object);
 
-  cogl_object_unref (coglbox->not_sliced_tex);
-  cogl_object_unref (coglbox->sliced_tex);
+  g_object_unref (coglbox->not_sliced_tex);
+  g_object_unref (coglbox->sliced_tex);
 
   G_OBJECT_CLASS (test_coglbox_parent_class)->dispose (object);
 }

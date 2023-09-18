@@ -45,7 +45,4 @@
 
 #if !defined(COGL_ENABLE_MUTTER_API) && !defined(COGL_GIR_SCANNING)
 #define COGL_BUFFER(X) (X)
-#define COGL_TEXTURE(X) (X)
-#define COGL_META_TEXTURE(X) (X)
-#define COGL_PRIMITIVE_TEXTURE(X) (X)
 #endif

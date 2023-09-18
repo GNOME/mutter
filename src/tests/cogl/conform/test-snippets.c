@@ -37,7 +37,7 @@ create_texture_pipeline (TestState *state)
                                    COGL_PIPELINE_FILTER_NEAREST,
                                    COGL_PIPELINE_FILTER_NEAREST);
 
-  cogl_object_unref (tex);
+  g_object_unref (tex);
 
   return pipeline;
 }
@@ -707,8 +707,8 @@ test_naming_texture_units (TestState *state)
 
   cogl_object_unref (pipeline);
   g_object_unref (snippet);
-  cogl_object_unref (tex1);
-  cogl_object_unref (tex2);
+  g_object_unref (tex1);
+  g_object_unref (tex2);
 
   test_utils_check_pixel (test_fb, 5, 5, 0xffff00ff);
 }

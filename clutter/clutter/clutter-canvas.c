@@ -128,7 +128,7 @@ clutter_canvas_finalize (GObject *gobject)
   ClutterCanvasPrivate *priv = CLUTTER_CANVAS (gobject)->priv;
 
   g_clear_object (&priv->buffer);
-  cogl_clear_object (&priv->texture);
+  g_clear_object (&priv->texture);
 
   G_OBJECT_CLASS (clutter_canvas_parent_class)->finalize (gobject);
 }
@@ -317,10 +317,10 @@ clutter_canvas_paint_content (ClutterContent      *content,
     return;
 
   if (priv->dirty)
-    cogl_clear_object (&priv->texture);
+    g_clear_object (&priv->texture);
 
   if (priv->texture == NULL)
-    priv->texture = COGL_TEXTURE (cogl_texture_2d_new_from_bitmap (priv->buffer));
+    priv->texture = cogl_texture_2d_new_from_bitmap (priv->buffer);
 
   if (priv->texture == NULL)
     return;

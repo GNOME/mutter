@@ -199,7 +199,7 @@ paint (TestState *state)
   /* Draw the tests first with a non atlased texture */
   state->texture = create_texture (TEST_UTILS_TEXTURE_NO_ATLAS);
   draw_tests (state);
-  cogl_object_unref (state->texture);
+  g_object_unref (state->texture);
 
   /* Draw the tests again with a possible atlased texture. This should
      end up testing software repeats */
@@ -208,7 +208,7 @@ paint (TestState *state)
   cogl_framebuffer_translate (test_fb, 0.0f, TEX_SIZE * 2.0f, 0.0f);
   draw_tests (state);
   cogl_framebuffer_pop_matrix (test_fb);
-  cogl_object_unref (state->texture);
+  g_object_unref (state->texture);
 
   /* Draw the tests using CoglPrimitive */
   state->texture = create_texture (TEST_UTILS_TEXTURE_NO_ATLAS);
@@ -217,7 +217,7 @@ paint (TestState *state)
                               0.0f, TEX_SIZE * 4.0f, 0.0f);
   draw_tests_polygon (state);
   cogl_framebuffer_pop_matrix (test_fb);
-  cogl_object_unref (state->texture);
+  g_object_unref (state->texture);
 
   validate_result (state);
 }

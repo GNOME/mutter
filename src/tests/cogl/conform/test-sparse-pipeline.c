@@ -38,8 +38,8 @@ test_sparse_layer_combine (TestState *state)
   test_utils_check_pixel (test_fb, 2, 2, 0xffff00ff);
 
   cogl_object_unref (pipeline);
-  cogl_object_unref (tex1);
-  cogl_object_unref (tex2);
+  g_object_unref (tex1);
+  g_object_unref (tex2);
 }
 
 static void

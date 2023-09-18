@@ -11,7 +11,7 @@ test_pipeline_shader_state (void)
   CoglFramebuffer *fb;
   CoglPipeline *base_pipeline;
   CoglPipeline *draw_pipeline;
-  CoglTexture2D *tex;
+  CoglTexture *tex;
   CoglSnippet *snippet;
 
   float width = cogl_framebuffer_get_width (test_fb);

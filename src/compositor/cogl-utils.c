@@ -92,7 +92,7 @@ meta_create_texture (int                   width,
   CoglContext *ctx = clutter_backend_get_cogl_context (backend);
   CoglTexture *texture;
 
-  texture = COGL_TEXTURE (cogl_texture_2d_new_with_size (ctx, width, height));
+  texture = cogl_texture_2d_new_with_size (ctx, width, height);
   cogl_texture_set_components (texture, components);
 
   if ((flags & META_TEXTURE_ALLOW_SLICING) != 0)
@@ -104,8 +104,8 @@ meta_create_texture (int                   width,
       if (!cogl_texture_allocate (texture, &catch_error))
         {
           g_error_free (catch_error);
-          cogl_object_unref (texture);
-          texture = COGL_TEXTURE (cogl_texture_2d_sliced_new_with_size (ctx, width, height, COGL_TEXTURE_MAX_WASTE));
+          g_object_unref (texture);
+          texture = cogl_texture_2d_sliced_new_with_size (ctx, width, height, COGL_TEXTURE_MAX_WASTE);
           cogl_texture_set_components (texture, components);
         }
     }

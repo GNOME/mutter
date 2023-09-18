@@ -455,7 +455,7 @@ static gboolean
 _cogl_winsys_texture_pixmap_x11_create (CoglTexturePixmapX11 *tex_pixmap)
 {
   CoglTexture *tex = COGL_TEXTURE (tex_pixmap);
-  CoglContext *ctx = tex->context;
+  CoglContext *ctx = cogl_texture_get_context (tex);
   CoglTexturePixmapEGL *egl_tex_pixmap;
   EGLint attribs[] = {EGL_IMAGE_PRESERVED_KHR, EGL_TRUE, EGL_NONE};
   CoglPixelFormat texture_format;
@@ -489,14 +489,14 @@ _cogl_winsys_texture_pixmap_x11_create (CoglTexturePixmapX11 *tex_pixmap)
                     COGL_PIXEL_FORMAT_RGBA_8888_PRE :
                     COGL_PIXEL_FORMAT_RGB_888);
 
-  egl_tex_pixmap->texture = COGL_TEXTURE (
+  egl_tex_pixmap->texture =
     cogl_egl_texture_2d_new_from_image (ctx,
-                                        tex->width,
-                                        tex->height,
+                                        cogl_texture_get_width (tex),
+                                        cogl_texture_get_height (tex),
                                         texture_format,
                                         egl_tex_pixmap->image,
                                         COGL_EGL_IMAGE_FLAG_NONE,
-                                        NULL));
+                                        NULL);
 
   /* The image is initially bound as part of the creation */
   egl_tex_pixmap->bind_tex_image_queued = FALSE;
@@ -521,7 +521,7 @@ _cogl_winsys_texture_pixmap_x11_free (CoglTexturePixmapX11 *tex_pixmap)
   egl_tex_pixmap = tex_pixmap->winsys;
 
   if (egl_tex_pixmap->texture)
-    cogl_object_unref (egl_tex_pixmap->texture);
+    g_object_unref (egl_tex_pixmap->texture);
 
   if (egl_tex_pixmap->image != EGL_NO_IMAGE_KHR)
     _cogl_egl_destroy_image (ctx, egl_tex_pixmap->image);

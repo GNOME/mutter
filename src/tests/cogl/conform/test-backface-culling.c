@@ -306,8 +306,8 @@ test_backface_culling (void)
   paint (&state);
 
   g_object_unref (state.offscreen);
-  cogl_object_unref (state.offscreen_tex);
-  cogl_object_unref (state.texture);
+  g_object_unref (state.offscreen_tex);
+  g_object_unref (state.texture);
 
   if (cogl_test_verbose ())
     g_print ("OK\n");

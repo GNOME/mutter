@@ -125,7 +125,7 @@ test_atlas_migration (void)
       for (tex_num = 0; tex_num < N_TEXTURES; tex_num++)
         textures[tex_num] = create_texture (tex_num + 1);
       for (tex_num = 0; tex_num < N_TEXTURES; tex_num++)
-        cogl_object_unref (textures[tex_num]);
+        g_object_unref (textures[tex_num]);
     }
 
   /* Create all the textures again */
@@ -138,7 +138,7 @@ test_atlas_migration (void)
 
   /* Destroy them all */
   for (tex_num = 0; tex_num < N_TEXTURES; tex_num++)
-    cogl_object_unref (textures[tex_num]);
+    g_object_unref (textures[tex_num]);
 
   if (cogl_test_verbose ())
     g_print ("OK\n");

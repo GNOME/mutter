@@ -125,7 +125,7 @@ on_after_paint (ClutterActor        *actor,
 
   g_free (pixelsc);
 
-  cogl_object_unref (tex);
+  g_object_unref (tex);
 
   /* Restore the viewport and matrices state */
   cogl_set_viewport (saved_viewport[0],

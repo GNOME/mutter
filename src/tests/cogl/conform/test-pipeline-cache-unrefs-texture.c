@@ -5,7 +5,7 @@
 /* Keep track of the number of textures that we've created and are
  * still alive */
 static int destroyed_texture_count = 0;
-
+static GQuark texture_data_key = 0;
 #define N_TEXTURES 3
 
 static void
@@ -19,8 +19,8 @@ create_texture (void)
 {
   static const guint8 data[] =
     { 0xff, 0xff, 0xff, 0xff };
-  static CoglUserDataKey texture_data_key;
-  CoglTexture2D *tex_2d;
+  texture_data_key = g_quark_from_static_string ("-cogl-test-pipeline-cache-unrefs-texture");
+  CoglTexture *tex_2d;
 
   tex_2d = cogl_texture_2d_new_from_data (test_ctx,
                                           1, 1, /* width / height */
@@ -31,10 +31,10 @@ create_texture (void)
 
   /* Set some user data on the texture so we can track when it has
    * been destroyed */
-  cogl_object_set_user_data (COGL_OBJECT (tex_2d),
-                             &texture_data_key,
-                             GINT_TO_POINTER (1),
-                             free_texture_cb);
+  g_object_set_qdata_full (G_OBJECT (tex_2d),
+                           texture_data_key,
+                           GINT_TO_POINTER (1),
+                           free_texture_cb);
 
   return tex_2d;
 }
@@ -53,7 +53,7 @@ test_pipeline_cache_unrefs_texture (void)
     {
       CoglTexture *tex = create_texture ();
       cogl_pipeline_set_layer_texture (pipeline, i, tex);
-      cogl_object_unref (tex);
+      g_object_unref (tex);
     }
 
   /* Draw something with the pipeline to ensure it gets into the

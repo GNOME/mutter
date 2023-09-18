@@ -26,7 +26,7 @@ do_test (gboolean check_orientation,
   int fb_height = cogl_framebuffer_get_height (test_fb);
   CoglPrimitive *prim;
   GError *error = NULL;
-  CoglTexture2D *tex_2d;
+  CoglTexture *tex_2d;
   CoglPipeline *pipeline, *solid_pipeline;
   int tex_height;
 
@@ -136,7 +136,7 @@ do_test (gboolean check_orientation,
   cogl_object_unref (prim);
   cogl_object_unref (solid_pipeline);
   cogl_object_unref (pipeline);
-  cogl_object_unref (tex_2d);
+  g_object_unref (tex_2d);
 
   test_utils_check_pixel (test_fb,
                           POINT_SIZE - POINT_SIZE / 4,

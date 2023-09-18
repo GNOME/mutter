@@ -76,7 +76,7 @@ static void
 cogl_pango_glyph_cache_value_free (CoglPangoGlyphCacheValue *value)
 {
   if (value->texture)
-    cogl_object_unref (value->texture);
+    g_object_unref (value->texture);
   g_free (value);
 }
 
@@ -184,16 +184,16 @@ cogl_pango_glyph_cache_free (CoglPangoGlyphCache *cache)
 }
 
 static void
-cogl_pango_glyph_cache_update_position_cb (void *user_data,
-                                           CoglTexture *new_texture,
+cogl_pango_glyph_cache_update_position_cb (void                        *user_data,
+                                           CoglTexture                 *new_texture,
                                            const CoglRectangleMapEntry *rect)
 {
   CoglPangoGlyphCacheValue *value = user_data;
   float tex_width, tex_height;
 
   if (value->texture)
-    cogl_object_unref (value->texture);
-  value->texture = cogl_object_ref (new_texture);
+    g_object_unref (value->texture);
+  value->texture = g_object_ref (new_texture);
 
   tex_width = cogl_texture_get_width (new_texture);
   tex_height = cogl_texture_get_height (new_texture);
@@ -216,7 +216,7 @@ cogl_pango_glyph_cache_add_to_global_atlas (CoglPangoGlyphCache *cache,
                                             PangoGlyph glyph,
                                             CoglPangoGlyphCacheValue *value)
 {
-  CoglAtlasTexture *texture;
+  CoglTexture *texture;
   GError *ignore_error = NULL;
 
   if (COGL_DEBUG_ENABLED (COGL_DEBUG_DISABLE_SHARED_ATLAS))
@@ -230,13 +230,13 @@ cogl_pango_glyph_cache_add_to_global_atlas (CoglPangoGlyphCache *cache,
   texture = cogl_atlas_texture_new_with_size (cache->ctx,
                                               value->draw_width,
                                               value->draw_height);
-  if (!cogl_texture_allocate (COGL_TEXTURE (texture), &ignore_error))
+  if (!cogl_texture_allocate (texture, &ignore_error))
     {
       g_error_free (ignore_error);
       return FALSE;
     }
 
-  value->texture = COGL_TEXTURE (texture);
+  value->texture = texture;
   value->tx1 = 0;
   value->ty1 = 0;
   value->tx2 = 1;

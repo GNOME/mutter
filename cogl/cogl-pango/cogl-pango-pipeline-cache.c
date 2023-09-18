@@ -64,7 +64,7 @@ _cogl_pango_pipeline_cache_value_destroy (void *data)
   CoglPangoPipelineCacheEntry *cache_entry = data;
 
   if (cache_entry->texture)
-    cogl_object_unref (cache_entry->texture);
+    g_object_unref (cache_entry->texture);
 
   /* We don't need to unref the pipeline because it only takes a weak
      reference */
@@ -169,7 +169,7 @@ pipeline_destroy_notify_cb (void *user_data)
 
 CoglPipeline *
 _cogl_pango_pipeline_cache_get (CoglPangoPipelineCache *cache,
-                                CoglTexture *texture)
+                                CoglTexture            *texture)
 {
   CoglPangoPipelineCacheEntry *entry;
   PipelineDestroyNotifyData *destroy_data;
@@ -188,7 +188,7 @@ _cogl_pango_pipeline_cache_get (CoglPangoPipelineCache *cache,
     {
       CoglPipeline *base;
 
-      entry->texture = cogl_object_ref (texture);
+      entry->texture = g_object_ref (texture);
 
       if (_cogl_texture_get_format (entry->texture) == COGL_PIXEL_FORMAT_A_8)
         base = get_base_texture_alpha_pipeline (cache);
@@ -216,7 +216,7 @@ _cogl_pango_pipeline_cache_get (CoglPangoPipelineCache *cache,
                              pipeline_destroy_notify_cb);
 
   g_hash_table_insert (cache->hash_table,
-                       texture ? cogl_object_ref (texture) : NULL,
+                       texture ? g_object_ref (texture) : NULL,
                        entry);
 
   /* This doesn't take a reference on the pipeline so that it will use

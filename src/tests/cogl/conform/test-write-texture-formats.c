@@ -41,7 +41,7 @@ test_write_byte (CoglContext *context,
 
   test_color (texture, expected_pixel);
 
-  cogl_object_unref (texture);
+  g_object_unref (texture);
 }
 
 static void
@@ -63,7 +63,7 @@ test_write_short (CoglContext *context,
 
   test_color (texture, expected_pixel);
 
-  cogl_object_unref (texture);
+  g_object_unref (texture);
 }
 
 static void
@@ -87,7 +87,7 @@ test_write_bytes (CoglContext *context,
 
   test_color (texture, expected_pixel);
 
-  cogl_object_unref (texture);
+  g_object_unref (texture);
 }
 
 static void
@@ -127,7 +127,7 @@ test_write_int (CoglContext *context,
 
   test_color (texture, expected_pixel);
 
-  cogl_object_unref (texture);
+  g_object_unref (texture);
 }
 
 static void

@@ -92,7 +92,7 @@ test_coglbox_dispose (GObject *object)
 {
   TestCoglbox *coglbox = TEST_COGLBOX (object);
 
-  cogl_object_unref (coglbox->texture_id);
+  g_object_unref (coglbox->texture_id);
   g_object_unref (coglbox->framebuffer);
 
   G_OBJECT_CLASS (test_coglbox_parent_class)->dispose (object);

@@ -51,7 +51,7 @@ clutter_texture_content_finalize (GObject *gobject)
 {
   ClutterTextureContent *texture_content = CLUTTER_TEXTURE_CONTENT (gobject);
 
-  g_clear_pointer (&texture_content->texture, cogl_object_unref);
+  g_clear_object (&texture_content->texture);
 
   G_OBJECT_CLASS (clutter_texture_content_parent_class)->finalize (gobject);
 }
@@ -114,7 +114,7 @@ clutter_content_iface_init (ClutterContentInterface *iface)
  * Creates a new [class@TextureContent] instance for @texture, taking an
  * internal reference to @texture.
  *
- * If you change the contents of the [iface@Cogl.Texture] you will need
+ * If you change the contents of the [class@Cogl.Texture] you will need
  * to manually invalidate the @texture_content with [method@Content.invalidate]
  * in order to update the actors using @texture_content as their content.
  *
@@ -135,17 +135,16 @@ clutter_texture_content_new_from_texture (CoglTexture  *texture,
 
   if (clip)
     {
-      texture_content->texture =
-        COGL_TEXTURE (cogl_sub_texture_new (cogl_context,
-                                            texture,
-                                            clip->x,
-                                            clip->y,
-                                            clip->width,
-                                            clip->height));
+      texture_content->texture = cogl_sub_texture_new (cogl_context,
+                                                       texture,
+                                                       clip->x,
+                                                       clip->y,
+                                                       clip->width,
+                                                       clip->height);
     }
   else
     {
-      texture_content->texture = cogl_object_ref (texture);
+      texture_content->texture = g_object_ref (texture);
     }
 
   return CLUTTER_CONTENT (texture_content);
@@ -155,13 +154,13 @@ clutter_texture_content_new_from_texture (CoglTexture  *texture,
  * clutter_texture_content_get_texture:
  * @texture_content: a #ClutterTextureContent
  *
- * Retrieves a pointer to the [iface@Cogl.Texture] used by @texture_content.
+ * Retrieves a pointer to the [class@Cogl.Texture] used by @texture_content.
  *
- * If you change the contents of the returned [iface@Cogl.Texture] you will need
+ * If you change the contents of the returned [class@Cogl.Texture] you will need
  * to manually invalidate the @texture_content with [method@Content.invalidate]
  * in order to update the actors using @texture_content as their content.
  *
- * Return value: (transfer none): a pointer to the [iface@Cogl.Texture]
+ * Return value: (transfer none): a pointer to the [class@Cogl.Texture]
  */
 CoglTexture *
 clutter_texture_content_get_texture (ClutterTextureContent *texture_content)

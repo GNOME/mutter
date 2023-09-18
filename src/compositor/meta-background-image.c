@@ -196,7 +196,7 @@ file_loaded (GObject      *source_object,
     {
       g_warning ("Failed to create texture for background: %s",
                  local_error->message);
-      cogl_clear_object (&texture);
+      g_clear_object (&texture);
     }
 
   image->texture = texture;
@@ -218,7 +218,7 @@ out:
  * image that is already in the process of loading or loaded.
  *
  * In either case, what is returned is a [class@Meta.BackgroundImage] which can be dereferenced
- * to get a [iface@Cogl.Texture]. If [method@Meta.BackgroundImage.is_loaded] returns %TRUE,
+ * to get a [class@Cogl.Texture]. If [method@Meta.BackgroundImage.is_loaded] returns %TRUE,
  * the background is loaded, otherwise the [signal@Meta.BackgroundImage::loaded]
  * signal will be emitted exactly once. The 'loaded' state means that the
  * loading process finished, whether it succeeded or failed.
@@ -294,7 +294,7 @@ meta_background_image_finalize (GObject *object)
     g_hash_table_remove (image->cache->images, image->file);
 
   if (image->texture)
-    cogl_object_unref (image->texture);
+    g_object_unref (image->texture);
   if (image->file)
     g_object_unref (image->file);
 

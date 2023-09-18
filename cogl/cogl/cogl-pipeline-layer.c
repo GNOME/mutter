@@ -189,7 +189,7 @@ _cogl_pipeline_layer_copy_differences (CoglPipelineLayer *dest,
         case COGL_PIPELINE_LAYER_STATE_TEXTURE_DATA_INDEX:
           dest->texture = src->texture;
           if (dest->texture)
-            cogl_object_ref (dest->texture);
+            g_object_ref (dest->texture);
           break;
 
         case COGL_PIPELINE_LAYER_STATE_SAMPLER_INDEX:
@@ -703,7 +703,7 @@ _cogl_pipeline_layer_free (CoglPipelineLayer *layer)
 
   if (layer->differences & COGL_PIPELINE_LAYER_STATE_TEXTURE_DATA &&
       layer->texture != NULL)
-    cogl_object_unref (layer->texture);
+    g_object_unref (layer->texture);
 
   if (layer->differences & COGL_PIPELINE_LAYER_STATE_VERTEX_SNIPPETS)
     _cogl_pipeline_snippet_list_free (&layer->big_state->vertex_snippets);

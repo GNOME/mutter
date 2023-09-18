@@ -39,10 +39,8 @@
 #include "cogl/cogl-texture-2d-private.h"
 #include "cogl/cogl-texture-driver.h"
 #include "cogl/cogl-context-private.h"
-#include "cogl/cogl-object-private.h"
 #include "cogl/cogl-journal-private.h"
 #include "cogl/cogl-framebuffer-private.h"
-#include "cogl/cogl-gtype-private.h"
 #include "cogl/driver/gl/cogl-texture-2d-gl-private.h"
 #ifdef COGL_HAS_EGL_SUPPORT
 #include "cogl/winsys/cogl-winsys-egl-private.h"
@@ -51,13 +49,7 @@
 #include <string.h>
 #include <math.h>
 
-static void _cogl_texture_2d_free (CoglTexture2D *tex_2d);
-
-COGL_TEXTURE_DEFINE (Texture2D, texture_2d);
-COGL_GTYPE_DEFINE_CLASS (Texture2D, texture_2d,
-                         COGL_GTYPE_IMPLEMENT_INTERFACE (texture));
-
-static const CoglTextureVtable cogl_texture_2d_vtable;
+G_DEFINE_FINAL_TYPE (CoglTexture2D, cogl_texture_2d, COGL_TYPE_TEXTURE)
 
 typedef struct _CoglTexture2DManualRepeatData
 {
@@ -67,14 +59,14 @@ typedef struct _CoglTexture2DManualRepeatData
 } CoglTexture2DManualRepeatData;
 
 static void
-_cogl_texture_2d_free (CoglTexture2D *tex_2d)
+cogl_texture_2d_dispose (GObject *object)
 {
-  CoglContext *ctx = COGL_TEXTURE (tex_2d)->context;
+  CoglTexture2D *tex_2d = COGL_TEXTURE_2D (object);
+  CoglContext *ctx = cogl_texture_get_context (COGL_TEXTURE (tex_2d));
 
   ctx->driver_vtable->texture_2d_free (tex_2d);
 
-  /* Chain up */
-  _cogl_texture_free (COGL_TEXTURE (tex_2d));
+  G_OBJECT_CLASS (cogl_texture_2d_parent_class)->dispose (object);
 }
 
 void
@@ -86,18 +78,17 @@ _cogl_texture_2d_set_auto_mipmap (CoglTexture *tex,
   tex_2d->auto_mipmap = value;
 }
 
-CoglTexture2D *
+CoglTexture *
 _cogl_texture_2d_create_base (CoglContext *ctx,
                               int width,
                               int height,
                               CoglPixelFormat internal_format,
                               CoglTextureLoader *loader)
 {
-  CoglTexture2D *tex_2d = g_new (CoglTexture2D, 1);
+  CoglTexture2D *tex_2d = g_object_new (COGL_TYPE_TEXTURE_2D, NULL);
   CoglTexture *tex = COGL_TEXTURE (tex_2d);
 
-  _cogl_texture_init (tex, ctx, width, height, internal_format, loader,
-                      &cogl_texture_2d_vtable);
+  _cogl_texture_init (tex, ctx, width, height, internal_format, loader);
 
   tex_2d->mipmaps_dirty = TRUE;
   tex_2d->auto_mipmap = TRUE;
@@ -107,169 +98,16 @@ _cogl_texture_2d_create_base (CoglContext *ctx,
 
   ctx->driver_vtable->texture_2d_init (tex_2d);
 
-  return _cogl_texture_2d_object_new (tex_2d);
-}
-
-CoglTexture2D *
-cogl_texture_2d_new_with_format (CoglContext     *ctx,
-                                 int              width,
-                                 int              height,
-                                 CoglPixelFormat  format)
-{
-  CoglTextureLoader *loader;
-
-  g_return_val_if_fail (width >= 1, NULL);
-  g_return_val_if_fail (height >= 1, NULL);
-
-  loader = _cogl_texture_create_loader ();
-  loader->src_type = COGL_TEXTURE_SOURCE_TYPE_SIZE;
-  loader->src.sized.width = width;
-  loader->src.sized.height = height;
-  loader->src.sized.format = format;
-
-  return _cogl_texture_2d_create_base (ctx, width, height, format, loader);
-}
-
-CoglTexture2D *
-cogl_texture_2d_new_with_size (CoglContext *ctx,
-                               int width,
-                               int height)
-{
-  CoglTextureLoader *loader;
-
-  g_return_val_if_fail (width >= 1, NULL);
-  g_return_val_if_fail (height >= 1, NULL);
-
-  loader = _cogl_texture_create_loader ();
-  loader->src_type = COGL_TEXTURE_SOURCE_TYPE_SIZE;
-  loader->src.sized.width = width;
-  loader->src.sized.height = height;
-  loader->src.sized.format = COGL_PIXEL_FORMAT_ANY;
-
-  return _cogl_texture_2d_create_base (ctx, width, height,
-                                       COGL_PIXEL_FORMAT_RGBA_8888_PRE, loader);
+  return tex;
 }
 
 static gboolean
 _cogl_texture_2d_allocate (CoglTexture *tex,
                            GError **error)
 {
-  CoglContext *ctx = tex->context;
+  CoglContext *ctx = cogl_texture_get_context (tex);
 
   return ctx->driver_vtable->texture_2d_allocate (tex, error);
-}
-
-CoglTexture2D *
-cogl_texture_2d_new_from_bitmap (CoglBitmap *bmp)
-{
-  CoglTextureLoader *loader;
-
-  g_return_val_if_fail (bmp != NULL, NULL);
-
-  loader = _cogl_texture_create_loader ();
-  loader->src_type = COGL_TEXTURE_SOURCE_TYPE_BITMAP;
-  loader->src.bitmap.bitmap = g_object_ref (bmp);
-
-  return  _cogl_texture_2d_create_base (_cogl_bitmap_get_context (bmp),
-                                        cogl_bitmap_get_width (bmp),
-                                        cogl_bitmap_get_height (bmp),
-                                        cogl_bitmap_get_format (bmp),
-                                        loader);
-}
-
-CoglTexture2D *
-cogl_texture_2d_new_from_data (CoglContext *ctx,
-                               int width,
-                               int height,
-                               CoglPixelFormat format,
-                               int rowstride,
-                               const uint8_t *data,
-                               GError **error)
-{
-  CoglBitmap *bmp;
-  CoglTexture2D *tex_2d;
-
-  g_return_val_if_fail (format != COGL_PIXEL_FORMAT_ANY, NULL);
-  g_return_val_if_fail (cogl_pixel_format_get_n_planes (format) == 1, NULL);
-  g_return_val_if_fail (data != NULL, NULL);
-
-  /* Rowstride from width if not given */
-  if (rowstride == 0)
-    rowstride = width * cogl_pixel_format_get_bytes_per_pixel (format, 0);
-
-  /* Wrap the data into a bitmap */
-  bmp = cogl_bitmap_new_for_data (ctx,
-                                  width, height,
-                                  format,
-                                  rowstride,
-                                  (uint8_t *) data);
-
-  tex_2d = cogl_texture_2d_new_from_bitmap (bmp);
-
-  g_object_unref (bmp);
-
-  if (tex_2d &&
-      !cogl_texture_allocate (COGL_TEXTURE (tex_2d), error))
-    {
-      cogl_object_unref (tex_2d);
-      return NULL;
-    }
-
-  return tex_2d;
-}
-
-#if defined (COGL_HAS_EGL_SUPPORT) && defined (EGL_KHR_image_base)
-/* NB: The reason we require the width, height and format to be passed
- * even though they may seem redundant is because GLES 1/2 don't
- * provide a way to query these properties. */
-CoglTexture2D *
-cogl_egl_texture_2d_new_from_image (CoglContext *ctx,
-                                    int width,
-                                    int height,
-                                    CoglPixelFormat format,
-                                    EGLImageKHR image,
-                                    CoglEglImageFlags flags,
-                                    GError **error)
-{
-  CoglTextureLoader *loader;
-  CoglTexture2D *tex;
-
-  g_return_val_if_fail (_cogl_context_get_winsys (ctx)->constraints &
-                        COGL_RENDERER_CONSTRAINT_USES_EGL,
-                        NULL);
-
-  g_return_val_if_fail (_cogl_has_private_feature
-                        (ctx,
-                        COGL_PRIVATE_FEATURE_TEXTURE_2D_FROM_EGL_IMAGE),
-                        NULL);
-
-  loader = _cogl_texture_create_loader ();
-  loader->src_type = COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE;
-  loader->src.egl_image.image = image;
-  loader->src.egl_image.width = width;
-  loader->src.egl_image.height = height;
-  loader->src.egl_image.format = format;
-  loader->src.egl_image.flags = flags;
-
-  tex = _cogl_texture_2d_create_base (ctx, width, height, format, loader);
-
-  if (!cogl_texture_allocate (COGL_TEXTURE (tex), error))
-    {
-      cogl_object_unref (tex);
-      return NULL;
-    }
-
-  return tex;
-}
-#endif /* defined (COGL_HAS_EGL_SUPPORT) && defined (EGL_KHR_image_base) */
-
-void
-_cogl_texture_2d_externally_modified (CoglTexture *texture)
-{
-  if (!cogl_is_texture_2d (texture))
-    return;
-
-  COGL_TEXTURE_2D (texture)->mipmaps_dirty = TRUE;
 }
 
 void
@@ -284,7 +122,7 @@ _cogl_texture_2d_copy_from_framebuffer (CoglTexture2D *tex_2d,
                                         int level)
 {
   CoglTexture *tex = COGL_TEXTURE (tex_2d);
-  CoglContext *ctx = tex->context;
+  CoglContext *ctx = cogl_texture_get_context (tex);
 
   /* Assert that the storage for this texture has been allocated */
   cogl_texture_allocate (tex, NULL); /* (abort on error) */
@@ -356,7 +194,7 @@ _cogl_texture_2d_get_gl_texture (CoglTexture *tex,
                                  GLuint *out_gl_handle,
                                  GLenum *out_gl_target)
 {
-  CoglContext *ctx = tex->context;
+  CoglContext *ctx = cogl_texture_get_context (tex);
   CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);
 
   if (ctx->driver_vtable->texture_2d_get_gl_handle)
@@ -386,7 +224,7 @@ _cogl_texture_2d_pre_paint (CoglTexture *tex, CoglTexturePrePaintFlags flags)
   if ((flags & COGL_TEXTURE_NEEDS_MIPMAP) &&
       tex_2d->auto_mipmap && tex_2d->mipmaps_dirty)
     {
-      CoglContext *ctx = tex->context;
+      CoglContext *ctx = cogl_texture_get_context (tex);
 
       /* Since we are about to ask the GPU to generate mipmaps of tex, we
        * better make sure tex is up-to-date.
@@ -421,7 +259,7 @@ _cogl_texture_2d_set_region (CoglTexture *tex,
                              CoglBitmap *bmp,
                              GError **error)
 {
-  CoglContext *ctx = tex->context;
+  CoglContext *ctx = cogl_texture_get_context (tex);
   CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);
 
   if (!ctx->driver_vtable->texture_2d_copy_from_bitmap (tex_2d,
@@ -447,7 +285,7 @@ static gboolean
 _cogl_texture_2d_is_get_data_supported (CoglTexture *tex)
 {
   CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);
-  CoglContext *ctx = tex->context;
+  CoglContext *ctx = cogl_texture_get_context (tex);
 
   return ctx->driver_vtable->texture_2d_is_get_data_supported (tex_2d);
 }
@@ -458,7 +296,7 @@ _cogl_texture_2d_get_data (CoglTexture *tex,
                            int rowstride,
                            uint8_t *data)
 {
-  CoglContext *ctx = tex->context;
+  CoglContext *ctx = cogl_texture_get_context (tex);
 
   if (ctx->driver_vtable->texture_2d_get_data)
     {
@@ -482,26 +320,190 @@ _cogl_texture_2d_get_gl_format (CoglTexture *tex)
   return COGL_TEXTURE_2D (tex)->gl_internal_format;
 }
 
-static const CoglTextureVtable
-cogl_texture_2d_vtable =
-  {
-    TRUE, /* primitive */
-    _cogl_texture_2d_allocate,
-    _cogl_texture_2d_set_region,
-    _cogl_texture_2d_is_get_data_supported,
-    _cogl_texture_2d_get_data,
-    NULL, /* foreach_sub_texture_in_region */
-    _cogl_texture_2d_get_max_waste,
-    _cogl_texture_2d_is_sliced,
-    _cogl_texture_2d_can_hardware_repeat,
-    _cogl_texture_2d_transform_coords_to_gl,
-    _cogl_texture_2d_transform_quad_coords_to_gl,
-    _cogl_texture_2d_get_gl_texture,
-    _cogl_texture_2d_gl_flush_legacy_texobj_filters,
-    _cogl_texture_2d_pre_paint,
-    _cogl_texture_2d_ensure_non_quad_rendering,
-    _cogl_texture_2d_gl_flush_legacy_texobj_wrap_modes,
-    _cogl_texture_2d_get_format,
-    _cogl_texture_2d_get_gl_format,
-    _cogl_texture_2d_set_auto_mipmap
-  };
+static void
+cogl_texture_2d_class_init (CoglTexture2DClass *klass)
+{
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+  CoglTextureClass *texture_class = COGL_TEXTURE_CLASS (klass);
+
+  gobject_class->dispose = cogl_texture_2d_dispose;
+
+  texture_class->allocate = _cogl_texture_2d_allocate;
+  texture_class->set_region = _cogl_texture_2d_set_region;
+  texture_class->is_get_data_supported = _cogl_texture_2d_is_get_data_supported;
+  texture_class->get_data = _cogl_texture_2d_get_data;
+  texture_class->get_max_waste = _cogl_texture_2d_get_max_waste;
+  texture_class->is_sliced = _cogl_texture_2d_is_sliced;
+  texture_class->can_hardware_repeat = _cogl_texture_2d_can_hardware_repeat;
+  texture_class->transform_coords_to_gl = _cogl_texture_2d_transform_coords_to_gl;
+  texture_class->transform_quad_coords_to_gl = _cogl_texture_2d_transform_quad_coords_to_gl;
+  texture_class->get_gl_texture = _cogl_texture_2d_get_gl_texture;
+  texture_class->gl_flush_legacy_texobj_filters = _cogl_texture_2d_gl_flush_legacy_texobj_filters;
+  texture_class->pre_paint = _cogl_texture_2d_pre_paint;
+  texture_class->ensure_non_quad_rendering = _cogl_texture_2d_ensure_non_quad_rendering;
+  texture_class->gl_flush_legacy_texobj_wrap_modes = _cogl_texture_2d_gl_flush_legacy_texobj_wrap_modes;
+  texture_class->get_format = _cogl_texture_2d_get_format;
+  texture_class->get_gl_format = _cogl_texture_2d_get_gl_format;
+  texture_class->set_auto_mipmap = _cogl_texture_2d_set_auto_mipmap;
+}
+
+static void
+cogl_texture_2d_init (CoglTexture2D *self)
+{
+  CoglTexture *texture = COGL_TEXTURE (self);
+
+  texture->is_primitive = TRUE;
+}
+
+CoglTexture *
+cogl_texture_2d_new_with_format (CoglContext     *ctx,
+                                 int              width,
+                                 int              height,
+                                 CoglPixelFormat  format)
+{
+  CoglTextureLoader *loader;
+
+  g_return_val_if_fail (width >= 1, NULL);
+  g_return_val_if_fail (height >= 1, NULL);
+
+  loader = _cogl_texture_create_loader ();
+  loader->src_type = COGL_TEXTURE_SOURCE_TYPE_SIZE;
+  loader->src.sized.width = width;
+  loader->src.sized.height = height;
+  loader->src.sized.format = format;
+
+  return _cogl_texture_2d_create_base (ctx, width, height, format, loader);
+}
+
+CoglTexture *
+cogl_texture_2d_new_with_size (CoglContext *ctx,
+                               int width,
+                               int height)
+{
+  CoglTextureLoader *loader;
+
+  g_return_val_if_fail (width >= 1, NULL);
+  g_return_val_if_fail (height >= 1, NULL);
+
+  loader = _cogl_texture_create_loader ();
+  loader->src_type = COGL_TEXTURE_SOURCE_TYPE_SIZE;
+  loader->src.sized.width = width;
+  loader->src.sized.height = height;
+  loader->src.sized.format = COGL_PIXEL_FORMAT_ANY;
+
+  return _cogl_texture_2d_create_base (ctx, width, height,
+                                       COGL_PIXEL_FORMAT_RGBA_8888_PRE, loader);
+}
+
+CoglTexture *
+cogl_texture_2d_new_from_bitmap (CoglBitmap *bmp)
+{
+  CoglTextureLoader *loader;
+
+  g_return_val_if_fail (bmp != NULL, NULL);
+
+  loader = _cogl_texture_create_loader ();
+  loader->src_type = COGL_TEXTURE_SOURCE_TYPE_BITMAP;
+  loader->src.bitmap.bitmap = g_object_ref (bmp);
+
+  return  _cogl_texture_2d_create_base (_cogl_bitmap_get_context (bmp),
+                                        cogl_bitmap_get_width (bmp),
+                                        cogl_bitmap_get_height (bmp),
+                                        cogl_bitmap_get_format (bmp),
+                                        loader);
+}
+
+CoglTexture *
+cogl_texture_2d_new_from_data (CoglContext *ctx,
+                               int width,
+                               int height,
+                               CoglPixelFormat format,
+                               int rowstride,
+                               const uint8_t *data,
+                               GError **error)
+{
+  CoglBitmap *bmp;
+  CoglTexture *tex_2d;
+
+  g_return_val_if_fail (format != COGL_PIXEL_FORMAT_ANY, NULL);
+  g_return_val_if_fail (cogl_pixel_format_get_n_planes (format) == 1, NULL);
+  g_return_val_if_fail (data != NULL, NULL);
+
+  /* Rowstride from width if not given */
+  if (rowstride == 0)
+    rowstride = width * cogl_pixel_format_get_bytes_per_pixel (format, 0);
+
+  /* Wrap the data into a bitmap */
+  bmp = cogl_bitmap_new_for_data (ctx,
+                                  width, height,
+                                  format,
+                                  rowstride,
+                                  (uint8_t *) data);
+
+  tex_2d = cogl_texture_2d_new_from_bitmap (bmp);
+
+  g_object_unref (bmp);
+
+  if (tex_2d &&
+      !cogl_texture_allocate (COGL_TEXTURE (tex_2d), error))
+    {
+      g_object_unref (tex_2d);
+      return NULL;
+    }
+
+  return tex_2d;
+}
+
+#if defined (COGL_HAS_EGL_SUPPORT) && defined (EGL_KHR_image_base)
+/* NB: The reason we require the width, height and format to be passed
+ * even though they may seem redundant is because GLES 1/2 don't
+ * provide a way to query these properties. */
+CoglTexture *
+cogl_egl_texture_2d_new_from_image (CoglContext *ctx,
+                                    int width,
+                                    int height,
+                                    CoglPixelFormat format,
+                                    EGLImageKHR image,
+                                    CoglEglImageFlags flags,
+                                    GError **error)
+{
+  CoglTextureLoader *loader;
+  CoglTexture *tex;
+
+  g_return_val_if_fail (_cogl_context_get_winsys (ctx)->constraints &
+                        COGL_RENDERER_CONSTRAINT_USES_EGL,
+                        NULL);
+
+  g_return_val_if_fail (_cogl_has_private_feature
+                        (ctx,
+                        COGL_PRIVATE_FEATURE_TEXTURE_2D_FROM_EGL_IMAGE),
+                        NULL);
+
+  loader = _cogl_texture_create_loader ();
+  loader->src_type = COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE;
+  loader->src.egl_image.image = image;
+  loader->src.egl_image.width = width;
+  loader->src.egl_image.height = height;
+  loader->src.egl_image.format = format;
+  loader->src.egl_image.flags = flags;
+
+  tex = _cogl_texture_2d_create_base (ctx, width, height, format, loader);
+
+  if (!cogl_texture_allocate (COGL_TEXTURE (tex), error))
+    {
+      g_object_unref (tex);
+      return NULL;
+    }
+
+  return tex;
+}
+#endif /* defined (COGL_HAS_EGL_SUPPORT) && defined (EGL_KHR_image_base) */
+
+void
+_cogl_texture_2d_externally_modified (CoglTexture *texture)
+{
+  if (!COGL_IS_TEXTURE_2D (texture))
+    return;
+
+  COGL_TEXTURE_2D (texture)->mipmaps_dirty = TRUE;
+}

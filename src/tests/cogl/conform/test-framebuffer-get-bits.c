@@ -6,10 +6,10 @@ static void
 test_framebuffer_get_bits (void)
 {
   CoglRenderer *renderer;
-  CoglTexture2D *tex_a;
+  CoglTexture *tex_a;
   CoglOffscreen *offscreen_a;
   CoglFramebuffer *fb_a;
-  CoglTexture2D *tex_rgba;
+  CoglTexture *tex_rgba;
   CoglOffscreen *offscreen_rgba;
   CoglFramebuffer *fb_rgba;
 
@@ -44,9 +44,9 @@ test_framebuffer_get_bits (void)
   g_assert_cmpint (cogl_framebuffer_get_alpha_bits (fb_rgba), >=, 1);
 
   g_object_unref (fb_rgba);
-  cogl_object_unref (tex_rgba);
+  g_object_unref (tex_rgba);
   g_object_unref (fb_a);
-  cogl_object_unref (tex_a);
+  g_object_unref (tex_a);
 }
 
 COGL_TEST_SUITE (
