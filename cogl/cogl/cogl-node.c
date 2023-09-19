@@ -46,7 +46,6 @@ _cogl_pipeline_node_init (CoglNode *node)
 void
 _cogl_pipeline_node_set_parent_real (CoglNode *node,
                                      CoglNode *parent,
-                                     CoglNodeUnparentVFunc unparent,
                                      gboolean take_strong_reference)
 {
   /* NB: the old parent may indirectly be keeping the new parent alive
@@ -61,7 +60,7 @@ _cogl_pipeline_node_set_parent_real (CoglNode *node,
   cogl_object_ref (parent);
 
   if (node->parent)
-    unparent (node);
+    _cogl_pipeline_node_unparent_real (node);
 
   _cogl_list_insert (&parent->children, &node->link);
 

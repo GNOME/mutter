@@ -148,12 +148,6 @@ _cogl_pipeline_init_default_pipeline (void)
   ctx->default_pipeline = _cogl_pipeline_object_new (pipeline);
 }
 
-static void
-_cogl_pipeline_unparent (CoglNode *pipeline)
-{
-  /* Chain up */
-  _cogl_pipeline_node_unparent_real (pipeline);
-}
 
 static gboolean
 recursively_free_layer_caches_cb (CoglNode *node,
@@ -194,7 +188,6 @@ _cogl_pipeline_set_parent (CoglPipeline *pipeline,
   /* Chain up */
   _cogl_pipeline_node_set_parent_real (COGL_NODE (pipeline),
                                        COGL_NODE (parent),
-                                       _cogl_pipeline_unparent,
                                        take_strong_reference);
 
   /* Since we just changed the ancestry of the pipeline its cache of
@@ -340,7 +333,7 @@ destroy_weak_children_cb (CoglNode *node,
                                          NULL);
 
       pipeline->destroy_callback (pipeline, pipeline->destroy_data);
-      _cogl_pipeline_unparent (COGL_NODE (pipeline));
+      _cogl_pipeline_node_unparent_real (COGL_NODE (pipeline));
     }
 
   return TRUE;
@@ -359,7 +352,7 @@ _cogl_pipeline_free (CoglPipeline *pipeline)
 
   g_assert (_cogl_list_empty (&COGL_NODE (pipeline)->children));
 
-  _cogl_pipeline_unparent (COGL_NODE (pipeline));
+  _cogl_pipeline_node_unparent_real (COGL_NODE (pipeline));
 
   if (pipeline->differences & COGL_PIPELINE_STATE_USER_SHADER &&
       pipeline->big_state->user_program)

@@ -67,12 +67,9 @@ struct _CoglNode
 void
 _cogl_pipeline_node_init (CoglNode *node);
 
-typedef void (*CoglNodeUnparentVFunc) (CoglNode *node);
-
 void
 _cogl_pipeline_node_set_parent_real (CoglNode *node,
                                      CoglNode *parent,
-                                     CoglNodeUnparentVFunc unparent,
                                      gboolean take_strong_reference);
 
 void

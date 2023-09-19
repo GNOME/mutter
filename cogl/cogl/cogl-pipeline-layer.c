@@ -437,20 +437,12 @@ init_layer_state:
 }
 
 static void
-_cogl_pipeline_layer_unparent (CoglNode *layer)
-{
-  /* Chain up */
-  _cogl_pipeline_node_unparent_real (layer);
-}
-
-static void
 _cogl_pipeline_layer_set_parent (CoglPipelineLayer *layer,
                                  CoglPipelineLayer *parent)
 {
   /* Chain up */
   _cogl_pipeline_node_set_parent_real (COGL_NODE (layer),
                                        COGL_NODE (parent),
-                                       _cogl_pipeline_layer_unparent,
                                        TRUE);
 }
 
@@ -699,7 +691,7 @@ _cogl_pipeline_layer_equal (CoglPipelineLayer *layer0,
 static void
 _cogl_pipeline_layer_free (CoglPipelineLayer *layer)
 {
-  _cogl_pipeline_layer_unparent (COGL_NODE (layer));
+  _cogl_pipeline_node_unparent_real (COGL_NODE (layer));
 
   if (layer->differences & COGL_PIPELINE_LAYER_STATE_TEXTURE_DATA &&
       layer->texture != NULL)
