@@ -62,4 +62,4 @@ COGL_EXPORT CoglClosure *
 _cogl_poll_renderer_add_idle (CoglRenderer *renderer,
                               CoglIdleCallback idle_cb,
                               void *user_data,
-                              CoglUserDataDestroyCallback destroy_cb);
+                              GDestroyNotify destroy_cb);

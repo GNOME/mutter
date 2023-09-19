@@ -444,7 +444,7 @@ COGL_EXPORT CoglFrameClosure *
 cogl_onscreen_add_frame_callback (CoglOnscreen *onscreen,
                                   CoglFrameCallback callback,
                                   void *user_data,
-                                  CoglUserDataDestroyCallback destroy);
+                                  GDestroyNotify destroy);
 
 /**
  * cogl_onscreen_remove_frame_callback:
@@ -549,7 +549,7 @@ COGL_EXPORT CoglOnscreenDirtyClosure *
 cogl_onscreen_add_dirty_callback (CoglOnscreen *onscreen,
                                   CoglOnscreenDirtyCallback callback,
                                   void *user_data,
-                                  CoglUserDataDestroyCallback destroy);
+                                  GDestroyNotify destroy);
 
 /**
  * cogl_onscreen_remove_dirty_callback:

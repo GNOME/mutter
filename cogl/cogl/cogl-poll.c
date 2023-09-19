@@ -219,7 +219,7 @@ CoglClosure *
 _cogl_poll_renderer_add_idle (CoglRenderer *renderer,
                               CoglIdleCallback idle_cb,
                               void *user_data,
-                              CoglUserDataDestroyCallback destroy_cb)
+                              GDestroyNotify destroy_cb)
 {
   return _cogl_closure_list_add (&renderer->idle_closures,
                                 idle_cb,

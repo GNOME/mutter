@@ -90,18 +90,6 @@ cogl_object_unref (void *object);
 #define cogl_clear_object(object_ptr) g_clear_pointer ((object_ptr), cogl_object_unref)
 
 /**
- * CoglUserDataDestroyCallback:
- * @user_data: The data whose association with a #CoglObject has been
- *             destroyed.
- *
- * When associating private data with a #CoglObject a callback can be
- * given which will be called either if the object is destroyed or if
- * cogl_object_set_user_data() is called with NULL user_data for the
- * same key.
- */
-typedef GDestroyNotify CoglUserDataDestroyCallback;
-
-/**
  * CoglDebugObjectTypeInfo:
  * @name: A human readable name for the type.
  * @instance_count: The number of objects of this type that are

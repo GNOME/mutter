@@ -514,7 +514,7 @@ CoglFrameClosure *
 cogl_onscreen_add_frame_callback (CoglOnscreen *onscreen,
                                   CoglFrameCallback callback,
                                   void *user_data,
-                                  CoglUserDataDestroyCallback destroy)
+                                  GDestroyNotify destroy)
 {
   CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
 
@@ -564,7 +564,7 @@ CoglOnscreenDirtyClosure *
 cogl_onscreen_add_dirty_callback (CoglOnscreen *onscreen,
                                   CoglOnscreenDirtyCallback callback,
                                   void *user_data,
-                                  CoglUserDataDestroyCallback destroy)
+                                  GDestroyNotify destroy)
 {
   CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
 
