@@ -43,8 +43,9 @@
 G_BEGIN_DECLS
 
 /**
- * SECTION:cogl-buffer
- * @short_description: Common buffer functions, including data upload APIs
+ * CoglBuffer:
+ *
+ * Common buffer functions, including data upload APIs
  *
  * The CoglBuffer API provides a common interface to manipulate
  * buffers that have been allocated either via cogl_pixel_buffer_new()
@@ -62,17 +63,21 @@ G_BEGIN_DECLS
  * of loading an image file and unpacking it into the mapped buffer
  * without blocking other Cogl operations.
  */
+#define COGL_TYPE_BUFFER            (cogl_buffer_get_type ())
+#define COGL_BUFFER(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_BUFFER, CoglBuffer))
+#define COGL_BUFFER_CONST(obj)      (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_BUFFER, CoglBuffer const))
+#define COGL_BUFFER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  COGL_TYPE_BUFFER, CoglBufferClass))
+#define COGL_IS_BUFFER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), COGL_TYPE_BUFFER))
+#define COGL_IS_BUFFER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  COGL_TYPE_BUFFER))
+#define COGL_BUFFER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  COGL_TYPE_BUFFER, CoglBufferClass))
 
-#if defined(__COGL_H_INSIDE__) && !defined(COGL_ENABLE_MUTTER_API) && \
-  !defined(COGL_GIR_SCANNING)
-/* For the public C api we typedef interface types as void to avoid needing
- * lots of casting in code and instead we will rely on runtime type checking
- * for these objects. */
-typedef void CoglBuffer;
-#else
+typedef struct _CoglBufferClass CoglBufferClass;
 typedef struct _CoglBuffer CoglBuffer;
-#define COGL_BUFFER(buffer) ((CoglBuffer *)(buffer))
-#endif
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglBuffer, g_object_unref)
+
+COGL_EXPORT
+GType       cogl_buffer_get_type (void) G_GNUC_CONST;
 
 #define COGL_BUFFER_ERROR (_cogl_buffer_error_domain ())
 
@@ -91,17 +96,6 @@ typedef enum /*< prefix=COGL_BUFFER_ERROR >*/
 
 uint32_t
 _cogl_buffer_error_domain (void);
-
-/**
- * cogl_is_buffer:
- * @object: a buffer object
- *
- * Checks whether @buffer is a buffer object.
- *
- * Return value: %TRUE if the handle is a CoglBuffer, and %FALSE otherwise
- */
-COGL_EXPORT gboolean
-cogl_is_buffer (void *object);
 
 /**
  * cogl_buffer_get_size:

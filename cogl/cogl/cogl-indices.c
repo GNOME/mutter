@@ -49,7 +49,7 @@ cogl_indices_dispose (GObject *object)
 {
   CoglIndices *indices = COGL_INDICES (object);
 
-  cogl_object_unref (indices->buffer);
+  g_object_unref (indices->buffer);
 
   G_OBJECT_CLASS (cogl_indices_parent_class)->dispose (object);
 }
@@ -89,7 +89,7 @@ cogl_indices_new_for_buffer (CoglIndicesType type,
 {
   CoglIndices *indices = g_object_new (COGL_TYPE_INDICES, NULL);
 
-  indices->buffer = cogl_object_ref (buffer);
+  indices->buffer = g_object_ref (buffer);
   indices->offset = offset;
 
   indices->type = type;
@@ -119,12 +119,12 @@ cogl_indices_new (CoglContext *context,
   if (ignore_error)
     {
       g_error_free (ignore_error);
-      cogl_object_unref (index_buffer);
+      g_object_unref (index_buffer);
       return NULL;
     }
 
   indices = cogl_indices_new_for_buffer (type, index_buffer, 0);
-  cogl_object_unref (index_buffer);
+  g_object_unref (index_buffer);
 
   return indices;
 }

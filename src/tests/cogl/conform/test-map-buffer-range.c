@@ -67,7 +67,7 @@ test_map_buffer_range (void)
 
   /* Replace the texture coordinates of the third vertex with the
    * coordinates for a green texel */
-  data = cogl_buffer_map_range (buffer,
+  data = cogl_buffer_map_range (COGL_BUFFER (buffer),
                                 sizeof (vertex_data[0]) * 2,
                                 sizeof (vertex_data[0]),
                                 COGL_BUFFER_ACCESS_WRITE,
@@ -80,7 +80,7 @@ test_map_buffer_range (void)
   data->s = 1.0f;
   data->t = 0.0f;
 
-  cogl_buffer_unmap (buffer);
+  cogl_buffer_unmap (COGL_BUFFER (buffer));
 
   pos_attribute =
     cogl_attribute_new (buffer,
@@ -117,7 +117,7 @@ test_map_buffer_range (void)
   test_utils_check_pixel (test_fb, 1, fb_height - 2, 0xff0000ff);
   test_utils_check_pixel (test_fb, fb_width - 2, fb_height - 2, 0xff0000ff);
 
-  cogl_object_unref (buffer);
+  g_object_unref (buffer);
   g_object_unref (pos_attribute);
   g_object_unref (tex_coord_attribute);
 

@@ -43,7 +43,12 @@ G_BEGIN_DECLS
 
 struct _CoglPixelBuffer
 {
-  CoglBuffer            _parent;
+  CoglBuffer parent_instance;
+};
+
+struct _CoglPixelBufferClass
+{
+  CoglBufferClass parent_class;
 };
 
 G_END_DECLS

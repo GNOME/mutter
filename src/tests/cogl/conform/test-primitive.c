@@ -308,7 +308,7 @@ test_copy (TestState *state)
   for (i = 0; i < N_ATTRIBS; i++)
     g_object_unref (attributes[i]);
 
-  cogl_object_unref (buffer);
+  g_object_unref (buffer);
 }
 
 static void

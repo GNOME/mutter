@@ -740,7 +740,7 @@ cogl_2d_primitives_immediate (CoglFramebuffer *framebuffer,
 
 
   g_object_unref (attributes[0]);
-  cogl_object_unref (attribute_buffer);
+  g_object_unref (attribute_buffer);
 }
 
 void

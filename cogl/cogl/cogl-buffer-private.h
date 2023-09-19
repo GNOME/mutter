@@ -36,32 +36,11 @@
 
 #include <glib.h>
 
-#include "cogl/cogl-object-private.h"
 #include "cogl/cogl-buffer.h"
 #include "cogl/cogl-context.h"
 #include "cogl/cogl-gl-header.h"
 
 G_BEGIN_DECLS
-
-typedef struct _CoglBufferVtable CoglBufferVtable;
-
-struct _CoglBufferVtable
-{
-  void * (* map_range) (CoglBuffer *buffer,
-                        size_t offset,
-                        size_t size,
-                        CoglBufferAccess access,
-                        CoglBufferMapHint hints,
-                        GError **error);
-
-  void (* unmap) (CoglBuffer *buffer);
-
-  gboolean (* set_data) (CoglBuffer *buffer,
-                         unsigned int offset,
-                         const void *data,
-                         unsigned int size,
-                         GError **error);
-};
 
 typedef enum _CoglBufferFlags
 {
@@ -90,11 +69,9 @@ typedef enum
 
 struct _CoglBuffer
 {
-  CoglObject _parent;
+  GObject parent_instance;
 
   CoglContext *context;
-
-  CoglBufferVtable vtable;
 
   CoglBufferBindTarget last_target;
 
@@ -111,18 +88,27 @@ struct _CoglBuffer
 
   int immutable_ref;
 
-  unsigned int store_created:1;
+  unsigned int store_created : 1;
+
+  void * (* map_range) (CoglBuffer       *buffer,
+                        size_t            offset,
+                        size_t            size,
+                        CoglBufferAccess  access,
+                        CoglBufferMapHint hints,
+                        GError          **error);
+
+  void (* unmap) (CoglBuffer *buffer);
+
+  gboolean (* set_data) (CoglBuffer  *buffer,
+                         unsigned int offset,
+                         const void  *data,
+                         unsigned int size,
+                         GError     **error);
 };
-
-/* This is used to register a type to the list of handle types that
-   will be considered a texture in cogl_is_texture() */
-void
-_cogl_buffer_register_buffer_type (const CoglObjectClass *klass);
-
-#define COGL_BUFFER_DEFINE(TypeName, type_name)                         \
-  COGL_OBJECT_DEFINE_WITH_CODE                                          \
-  (TypeName, type_name,                                                 \
-   _cogl_buffer_register_buffer_type (&_cogl_##type_name##_class))
+struct _CoglBufferClass
+{
+  GObjectClass parent_class;
+};
 
 void
 _cogl_buffer_initialize (CoglBuffer *buffer,
@@ -131,9 +117,6 @@ _cogl_buffer_initialize (CoglBuffer *buffer,
                          CoglBufferBindTarget default_target,
                          CoglBufferUsageHint usage_hint,
                          CoglBufferUpdateHint update_hint);
-
-void
-_cogl_buffer_fini (CoglBuffer *buffer);
 
 CoglBufferUsageHint
 _cogl_buffer_get_usage_hint (CoglBuffer *buffer);

@@ -46,16 +46,20 @@
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-util.h"
 #include "cogl/cogl-context-private.h"
-#include "cogl/cogl-object.h"
 #include "cogl/cogl-pixel-buffer-private.h"
 #include "cogl/cogl-pixel-buffer.h"
-#include "cogl/cogl-gtype-private.h"
+
+G_DEFINE_FINAL_TYPE (CoglPixelBuffer, cogl_pixel_buffer, COGL_TYPE_BUFFER)
 
 static void
-_cogl_pixel_buffer_free (CoglPixelBuffer *buffer);
+cogl_pixel_buffer_class_init (CoglPixelBufferClass *klass)
+{
+}
 
-COGL_BUFFER_DEFINE (PixelBuffer, pixel_buffer)
-COGL_GTYPE_DEFINE_CLASS (PixelBuffer, pixel_buffer)
+static void
+cogl_pixel_buffer_init (CoglPixelBuffer *buffer)
+{
+}
 
 static CoglPixelBuffer *
 _cogl_pixel_buffer_new (CoglContext *context,
@@ -63,18 +67,16 @@ _cogl_pixel_buffer_new (CoglContext *context,
                         const void *data,
                         GError **error)
 {
-  CoglPixelBuffer *pixel_buffer = g_new0 (CoglPixelBuffer, 1);
-  CoglBuffer *buffer = COGL_BUFFER (pixel_buffer);
+  CoglPixelBuffer *pixel_buffer = g_object_new (COGL_TYPE_PIXEL_BUFFER, NULL);
 
   /* parent's constructor */
-  _cogl_buffer_initialize (buffer,
+  _cogl_buffer_initialize (COGL_BUFFER (pixel_buffer),
                            context,
                            size,
                            COGL_BUFFER_BIND_TARGET_PIXEL_UNPACK,
                            COGL_BUFFER_USAGE_HINT_TEXTURE,
                            COGL_BUFFER_UPDATE_HINT_STATIC);
 
-  _cogl_pixel_buffer_object_new (pixel_buffer);
 
   if (data)
     {
@@ -84,7 +86,7 @@ _cogl_pixel_buffer_new (CoglContext *context,
                                   size,
                                   error))
         {
-          cogl_object_unref (pixel_buffer);
+          g_object_unref (pixel_buffer);
           return NULL;
         }
     }
@@ -104,13 +106,3 @@ cogl_pixel_buffer_new (CoglContext *context,
   g_clear_error (&ignore_error);
   return buffer;
 }
-
-static void
-_cogl_pixel_buffer_free (CoglPixelBuffer *buffer)
-{
-  /* parent's destructor */
-  _cogl_buffer_fini (COGL_BUFFER (buffer));
-
-  g_free (buffer);
-}
-

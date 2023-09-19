@@ -364,7 +364,7 @@ emit_vertex_buffer_geometry (CoglFramebuffer *fb,
 
       node->d.texture.primitive = prim;
 
-      cogl_object_unref (buffer);
+      g_object_unref (buffer);
       g_object_unref (attributes[0]);
       g_object_unref (attributes[1]);
     }

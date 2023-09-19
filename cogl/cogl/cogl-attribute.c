@@ -57,7 +57,7 @@ cogl_attribute_dispose (GObject *object)
   CoglAttribute *attribute = COGL_ATTRIBUTE (object);
 
   if (attribute->is_buffered)
-    cogl_object_unref (attribute->d.buffered.attribute_buffer);
+    g_object_unref (attribute->d.buffered.attribute_buffer);
   else
     _cogl_boxed_value_destroy (&attribute->d.constant.boxed);
 
@@ -229,7 +229,7 @@ cogl_attribute_new (CoglAttributeBuffer *attribute_buffer,
       attribute->name_state = name_state;
     }
 
-  attribute->d.buffered.attribute_buffer = cogl_object_ref (attribute_buffer);
+  attribute->d.buffered.attribute_buffer = g_object_ref (attribute_buffer);
   attribute->d.buffered.stride = stride;
   attribute->d.buffered.offset = offset;
   attribute->d.buffered.n_components = n_components;
@@ -505,9 +505,9 @@ cogl_attribute_set_buffer (CoglAttribute *attribute,
   if (G_UNLIKELY (attribute->immutable_ref))
     warn_about_midscene_changes ();
 
-  cogl_object_ref (attribute_buffer);
+  g_object_ref (attribute_buffer);
 
-  cogl_object_unref (attribute->d.buffered.attribute_buffer);
+  g_object_unref (attribute->d.buffered.attribute_buffer);
   attribute->d.buffered.attribute_buffer = attribute_buffer;
 }
 

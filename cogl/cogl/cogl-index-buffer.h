@@ -44,23 +44,25 @@
 G_BEGIN_DECLS
 
 /**
- * SECTION:cogl-index-buffer
- * @short_description: Functions for creating and manipulating vertex
- * indices.
+ * CoglIndexBuffer:
  *
- * FIXME
+ *Functions for creating and manipulating vertex indices.
  */
+#define COGL_TYPE_INDEX_BUFFER            (cogl_index_buffer_get_type ())
+#define COGL_INDEX_BUFFER(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_INDEX_BUFFER, CoglIndexBuffer))
+#define COGL_INDEX_BUFFER_CONST(obj)      (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_INDEX_BUFFER, CoglIndexBuffer const))
+#define COGL_INDEX_BUFFER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  COGL_TYPE_INDEX_BUFFER, CoglIndexBufferClass))
+#define COGL_IS_INDEX_BUFFER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), COGL_TYPE_INDEX_BUFFER))
+#define COGL_IS_INDEX_BUFFER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  COGL_TYPE_INDEX_BUFFER))
+#define COGL_INDEX_BUFFER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  COGL_TYPE_INDEX_BUFFER, CoglIndexBufferClass))
 
-#define COGL_INDEX_BUFFER(buffer) ((CoglIndexBuffer*) buffer)
+typedef struct _CoglIndexBufferClass CoglIndexBufferClass;
+typedef struct _CoglIndexBuffer CoglIndexBuffer;
 
-typedef struct _CoglIndexBuffer	      CoglIndexBuffer;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglIndexBuffer, g_object_unref)
 
-/**
- * cogl_index_buffer_get_gtype:
- *
- * Returns: a #GType that can be used with the GLib type system.
- */
-COGL_EXPORT GType cogl_index_buffer_get_gtype (void);
+COGL_EXPORT
+GType               cogl_index_buffer_get_type       (void) G_GNUC_CONST;
 
 /**
  * cogl_index_buffer_new:
@@ -77,17 +79,5 @@ COGL_EXPORT GType cogl_index_buffer_get_gtype (void);
 COGL_EXPORT CoglIndexBuffer *
 cogl_index_buffer_new (CoglContext *context,
                        size_t bytes);
-
-/**
- * cogl_is_index_buffer:
- * @object: A #CoglObject
- *
- * Gets whether the given object references a #CoglIndexBuffer.
- *
- * Returns: %TRUE if the @object references a #CoglIndexBuffer,
- *   %FALSE otherwise
- */
-COGL_EXPORT gboolean
-cogl_is_index_buffer (void *object);
 
 G_END_DECLS

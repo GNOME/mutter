@@ -37,5 +37,10 @@
 
 struct _CoglIndexBuffer
 {
-  CoglBuffer _parent;
+  CoglBuffer parent_instance;
+};
+
+struct _CoglIndexBufferClass
+{
+  CoglBufferClass parent_class;
 };

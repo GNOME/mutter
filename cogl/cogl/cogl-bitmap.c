@@ -56,8 +56,7 @@ cogl_bitmap_dispose (GObject *object)
     g_object_unref (bmp->shared_bmp);
 
   if (bmp->buffer)
-    cogl_object_unref (bmp->buffer);
-
+    g_object_unref (bmp->buffer);
 
   G_OBJECT_CLASS (cogl_bitmap_parent_class)->dispose (object);
 }
@@ -283,7 +282,7 @@ cogl_bitmap_new_from_buffer (CoglBuffer *buffer,
 {
   CoglBitmap *bmp;
 
-  g_return_val_if_fail (cogl_is_buffer (buffer), NULL);
+  g_return_val_if_fail (COGL_IS_BUFFER (buffer), NULL);
 
   bmp = cogl_bitmap_new_for_data (buffer->context,
                                   width, height,
@@ -291,7 +290,7 @@ cogl_bitmap_new_from_buffer (CoglBuffer *buffer,
                                   rowstride,
                                   NULL /* data */);
 
-  bmp->buffer = cogl_object_ref (buffer);
+  bmp->buffer = g_object_ref (buffer);
   bmp->data = GINT_TO_POINTER (offset);
 
   return bmp;
@@ -328,7 +327,7 @@ cogl_bitmap_new_with_size (CoglContext *context,
                                         rowstride,
                                         0 /* offset */);
 
-  cogl_object_unref (pixel_buffer);
+  g_object_unref (pixel_buffer);
 
   return bitmap;
 }

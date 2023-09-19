@@ -49,22 +49,25 @@ typedef struct _CoglAttributeBuffer CoglAttributeBuffer;
 G_BEGIN_DECLS
 
 /**
- * SECTION:cogl-attribute-buffer
- * @short_description: Functions for creating and manipulating attribute
- *   buffers
+ * CoglAttributeBuffer:
  *
- * FIXME
+ * Functions for creating and manipulating attribute buffers
  */
+#define COGL_TYPE_ATTRIBUTE_BUFFER            (cogl_attribute_buffer_get_type ())
+#define COGL_ATTRIBUTE_BUFFER(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_ATTRIBUTE_BUFFER, CoglAttributeBuffer))
+#define COGL_ATTRIBUTE_BUFFER_CONST(obj)      (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_ATTRIBUTE_BUFFER, CoglAttributeBuffer const))
+#define COGL_ATTRIBUTE_BUFFER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  COGL_TYPE_ATTRIBUTE_BUFFER, CoglAttributeBufferClass))
+#define COGL_IS_ATTRIBUTE_BUFFER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), COGL_TYPE_ATTRIBUTE_BUFFER))
+#define COGL_IS_ATTRIBUTE_BUFFER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  COGL_TYPE_ATTRIBUTE_BUFFER))
+#define COGL_ATTRIBUTE_BUFFER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  COGL_TYPE_ATTRIBUTE_BUFFER, CoglAttributeBufferClass))
 
-#define COGL_ATTRIBUTE_BUFFER(buffer) ((CoglAttributeBuffer *)(buffer))
+typedef struct _CoglAttributeBufferClass CoglAttributeBufferClass;
+typedef struct _CoglAttributeBuffer CoglAttributeBuffer;
 
-/**
- * cogl_attribute_buffer_get_gtype:
- *
- * Returns: a #GType that can be used with the GLib type system.
- */
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglAttributeBuffer, g_object_unref)
+
 COGL_EXPORT
-GType cogl_attribute_buffer_get_gtype (void);
+GType               cogl_attribute_buffer_get_type       (void) G_GNUC_CONST;
 
 /**
  * cogl_attribute_buffer_new_with_size:
@@ -122,17 +125,4 @@ cogl_attribute_buffer_new (CoglContext *context,
                            size_t bytes,
                            const void *data);
 
-/**
- * cogl_is_attribute_buffer:
- * @object: A #CoglObject
- *
- * Gets whether the given object references a #CoglAttributeBuffer.
- *
- * Returns: %TRUE if @object references a #CoglAttributeBuffer,
- *   %FALSE otherwise
- */
-COGL_EXPORT gboolean
-cogl_is_attribute_buffer (void *object);
-
 G_END_DECLS
-

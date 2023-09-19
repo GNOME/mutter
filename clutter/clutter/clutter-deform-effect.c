@@ -337,7 +337,7 @@ clutter_deform_effect_free_arrays (ClutterDeformEffect *self)
 {
   ClutterDeformEffectPrivate *priv = self->priv;
 
-  cogl_clear_object (&priv->buffer);
+  g_clear_object (&priv->buffer);
   cogl_clear_object (&priv->primitive);
   cogl_clear_object (&priv->lines_primitive);
 }

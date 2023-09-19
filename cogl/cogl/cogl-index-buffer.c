@@ -33,16 +33,21 @@
 
 #include "cogl-config.h"
 
-#include "cogl/cogl-object-private.h"
 #include "cogl/cogl-indices.h"
 #include "cogl/cogl-indices-private.h"
 #include "cogl/cogl-context-private.h"
-#include "cogl/cogl-gtype-private.h"
 
-static void _cogl_index_buffer_free (CoglIndexBuffer *indices);
+G_DEFINE_FINAL_TYPE (CoglIndexBuffer, cogl_index_buffer, COGL_TYPE_BUFFER)
 
-COGL_BUFFER_DEFINE (IndexBuffer, index_buffer);
-COGL_GTYPE_DEFINE_CLASS (IndexBuffer, index_buffer);
+static void
+cogl_index_buffer_class_init (CoglIndexBufferClass *klass)
+{
+}
+
+static void
+cogl_index_buffer_init (CoglIndexBuffer *buffer)
+{
+}
 
 /* XXX: Unlike the wiki design this just takes a size. A single
  * indices buffer should be able to contain multiple ranges of indices
@@ -50,7 +55,7 @@ COGL_GTYPE_DEFINE_CLASS (IndexBuffer, index_buffer);
 CoglIndexBuffer *
 cogl_index_buffer_new (CoglContext *context, size_t bytes)
 {
-  CoglIndexBuffer *indices = g_new0 (CoglIndexBuffer, 1);
+  CoglIndexBuffer *indices = g_object_new (COGL_TYPE_INDEX_BUFFER, NULL);
 
   /* parent's constructor */
   _cogl_buffer_initialize (COGL_BUFFER (indices),
@@ -60,51 +65,5 @@ cogl_index_buffer_new (CoglContext *context, size_t bytes)
                            COGL_BUFFER_USAGE_HINT_INDEX_BUFFER,
                            COGL_BUFFER_UPDATE_HINT_STATIC);
 
-  return _cogl_index_buffer_object_new (indices);
+  return indices;
 }
-
-static void
-_cogl_index_buffer_free (CoglIndexBuffer *indices)
-{
-  /* parent's destructor */
-  _cogl_buffer_fini (COGL_BUFFER (indices));
-
-  g_free (indices);
-}
-
-/* XXX: do we want a convenience function like this as an alternative
- * to using cogl_buffer_set_data? The advantage of this is that we can
- * track meta data such as the indices type and max_index_value for a
- * range as part of the indices buffer. If we just leave people to use
- * cogl_buffer_set_data then we either need a way to specify the type
- * and max index value at draw time or we'll want a separate way to
- * declare the type and max value for a range after uploading the
- * data.
- *
- * XXX: I think in the end it'll be that CoglIndices are to
- * CoglIndexBuffers as CoglAttributes are to CoglAttributeBuffers. I.e
- * a CoglIndexBuffer is a lite subclass of CoglBuffer that simply
- * implies that the buffer will later be bound as indices but doesn't
- * track more detailed meta data. CoglIndices build on a
- * CoglIndexBuffer and define the type and max_index_value for some
- * sub-range of a CoglIndexBuffer.
- */
-#if 0
-void
-cogl_index_buffer_set_data (CoglIndexBuffer *indices,
-                            CoglIndicesType type,
-                            int max_index_value,
-                            size_t write_offset,
-                            void *user_indices,
-                            int n_indices)
-{
-  GList *l;
-
-  for (l = indices->ranges; l; l = l->next)
-    {
-
-    }
-  cogl_buffer_set
-}
-#endif
-

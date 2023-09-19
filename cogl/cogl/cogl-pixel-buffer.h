@@ -49,19 +49,24 @@ typedef struct _CoglPixelBuffer CoglPixelBuffer;
 
 G_BEGIN_DECLS
 
-#define COGL_PIXEL_BUFFER(buffer) ((CoglPixelBuffer *)(buffer))
-
 /**
- * CoglPixelBuffer: (skip)
+ * CoglPixelBuffer:
  */
+#define COGL_TYPE_PIXEL_BUFFER            (cogl_pixel_buffer_get_type ())
+#define COGL_PIXEL_BUFFER(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_PIXEL_BUFFER, CoglPixelBuffer))
+#define COGL_PIXEL_BUFFER_CONST(obj)      (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_PIXEL_BUFFER, CoglPixelBuffer const))
+#define COGL_PIXEL_BUFFER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  COGL_TYPE_PIXEL_BUFFER, CoglPixelBufferClass))
+#define COGL_IS_PIXEL_BUFFER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), COGL_TYPE_PIXEL_BUFFER))
+#define COGL_IS_PIXEL_BUFFER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  COGL_TYPE_PIXEL_BUFFER))
+#define COGL_PIXEL_BUFFER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  COGL_TYPE_PIXEL_BUFFER, CoglPixelBufferClass))
 
-/**
- * cogl_pixel_buffer_get_gtype:
- *
- * Returns: a #GType that can be used with the GLib type system.
- */
+typedef struct _CoglPixelBufferClass CoglPixelBufferClass;
+typedef struct _CoglPixelBuffer CoglPixelBuffer;
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglPixelBuffer, g_object_unref)
+
 COGL_EXPORT
-GType cogl_pixel_buffer_get_gtype (void);
+GType               cogl_pixel_buffer_get_type       (void) G_GNUC_CONST;
 
 /**
  * cogl_pixel_buffer_new:
@@ -83,17 +88,5 @@ COGL_EXPORT CoglPixelBuffer *
 cogl_pixel_buffer_new (CoglContext *context,
                        size_t size,
                        const void *data);
-
-/**
- * cogl_is_pixel_buffer:
- * @object: a #CoglObject to test
- *
- * Checks whether @object is a pixel buffer.
- *
- * Return value: %TRUE if the @object is a pixel buffer, and %FALSE
- *   otherwise
- */
-COGL_EXPORT gboolean
-cogl_is_pixel_buffer (void *object);
 
 G_END_DECLS

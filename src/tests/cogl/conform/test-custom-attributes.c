@@ -74,7 +74,7 @@ test_float_verts (TestState *state, int offset_x, int offset_y)
 
   g_object_unref (attributes[1]);
   g_object_unref (attributes[0]);
-  cogl_object_unref (buffer);
+  g_object_unref (buffer);
 
   test_utils_check_pixel (test_fb, offset_x + 5, offset_y + 5, 0xff0000ff);
   test_utils_check_pixel (test_fb, offset_x + 15, offset_y + 5, 0x00ff00ff);
@@ -157,8 +157,8 @@ test_byte_verts (TestState *state, int offset_x, int offset_y)
 
   g_object_unref (attributes[0]);
   g_object_unref (attributes[1]);
-  cogl_object_unref (buffer);
-  cogl_object_unref (unnorm_buffer);
+  g_object_unref (buffer);
+  g_object_unref (unnorm_buffer);
 
   test_utils_check_pixel (test_fb, offset_x + 5, offset_y + 5, 0xff0000ff);
   test_utils_check_pixel (test_fb, offset_x + 15, offset_y + 5, 0x00ff00ff);
@@ -256,7 +256,7 @@ test_short_verts (TestState *state, int offset_x, int offset_y)
 
   cogl_object_unref (pipeline2);
   cogl_object_unref (pipeline);
-  cogl_object_unref (buffer);
+  g_object_unref (buffer);
 
   test_utils_check_pixel (test_fb, offset_x + 5, offset_y + 5, 0xff0000ff);
   test_utils_check_pixel (test_fb, offset_x + 15, offset_y + 5, 0x00ff00ff);

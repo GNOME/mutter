@@ -37,5 +37,10 @@
 
 struct _CoglAttributeBuffer
 {
-  CoglBuffer _parent;
+  CoglBuffer parent_instance;
+};
+
+struct _CoglAttributeBufferClass
+{
+  CoglBufferClass parent_class;
 };

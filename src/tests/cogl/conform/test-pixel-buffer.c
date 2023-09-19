@@ -33,7 +33,7 @@ static CoglBitmap *
 create_bitmap (void)
 {
   CoglBitmap *bitmap;
-  CoglBuffer *buffer;
+  CoglPixelBuffer *buffer;
 
   bitmap = cogl_bitmap_new_with_size (test_ctx,
                                       BITMAP_SIZE,
@@ -41,11 +41,11 @@ create_bitmap (void)
                                       COGL_PIXEL_FORMAT_RGBA_8888);
   buffer = cogl_bitmap_get_buffer (bitmap);
 
-  g_assert (cogl_is_pixel_buffer (buffer));
-  g_assert (cogl_is_buffer (buffer));
+  g_assert (COGL_IS_PIXEL_BUFFER (buffer));
+  g_assert (COGL_IS_BUFFER (buffer));
 
-  cogl_buffer_set_update_hint (buffer, COGL_BUFFER_UPDATE_HINT_DYNAMIC);
-  g_assert_cmpint (cogl_buffer_get_update_hint (buffer),
+  cogl_buffer_set_update_hint (COGL_BUFFER (buffer), COGL_BUFFER_UPDATE_HINT_DYNAMIC);
+  g_assert_cmpint (cogl_buffer_get_update_hint (COGL_BUFFER (buffer)),
                    ==,
                    COGL_BUFFER_UPDATE_HINT_DYNAMIC);
 
@@ -56,20 +56,20 @@ static CoglBitmap *
 create_and_fill_bitmap (void)
 {
   CoglBitmap *bitmap = create_bitmap ();
-  CoglBuffer *buffer = cogl_bitmap_get_buffer (bitmap);
+  CoglPixelBuffer *buffer = cogl_bitmap_get_buffer (bitmap);
   uint8_t *map;
   unsigned int stride;
 
   stride = cogl_bitmap_get_rowstride (bitmap);
 
-  map = cogl_buffer_map (buffer,
+  map = cogl_buffer_map (COGL_BUFFER (buffer),
                          COGL_BUFFER_ACCESS_WRITE,
                          COGL_BUFFER_MAP_HINT_DISCARD);
   g_assert (map);
 
   generate_bitmap_data (map, stride);
 
-  cogl_buffer_unmap (buffer);
+  cogl_buffer_unmap (COGL_BUFFER (buffer));
 
   return bitmap;
 }
@@ -166,7 +166,7 @@ static void
 test_pixel_buffer_set_data (void)
 {
   CoglBitmap *bitmap = create_bitmap ();
-  CoglBuffer *buffer = cogl_bitmap_get_buffer (bitmap);
+  CoglPixelBuffer *buffer = cogl_bitmap_get_buffer (bitmap);
   CoglPipeline *pipeline;
   CoglTexture *texture;
   uint8_t *data;
@@ -178,7 +178,7 @@ test_pixel_buffer_set_data (void)
 
   generate_bitmap_data (data, stride);
 
-  cogl_buffer_set_data (buffer,
+  cogl_buffer_set_data (COGL_BUFFER (buffer),
                         0, /* offset */
                         data,
                         stride * (BITMAP_SIZE - 1) +

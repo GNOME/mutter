@@ -150,7 +150,7 @@ cogl_primitive_new_p2 (CoglContext *ctx,
                                       2,
                                       COGL_ATTRIBUTE_TYPE_FLOAT);
 
-  cogl_object_unref (attribute_buffer);
+  g_object_unref (attribute_buffer);
 
   return _cogl_primitive_new_with_attributes_unref (mode, n_vertices,
                                                     attributes,
@@ -174,7 +174,7 @@ cogl_primitive_new_p3 (CoglContext *ctx,
                                       3,
                                       COGL_ATTRIBUTE_TYPE_FLOAT);
 
-  cogl_object_unref (attribute_buffer);
+  g_object_unref (attribute_buffer);
 
   return _cogl_primitive_new_with_attributes_unref (mode, n_vertices,
                                                     attributes,
@@ -204,7 +204,7 @@ cogl_primitive_new_p2c4 (CoglContext *ctx,
                                       4,
                                       COGL_ATTRIBUTE_TYPE_UNSIGNED_BYTE);
 
-  cogl_object_unref (attribute_buffer);
+  g_object_unref (attribute_buffer);
 
   return _cogl_primitive_new_with_attributes_unref (mode, n_vertices,
                                                     attributes,
@@ -234,7 +234,7 @@ cogl_primitive_new_p3c4 (CoglContext *ctx,
                                       4,
                                       COGL_ATTRIBUTE_TYPE_UNSIGNED_BYTE);
 
-  cogl_object_unref (attribute_buffer);
+  g_object_unref (attribute_buffer);
 
   return _cogl_primitive_new_with_attributes_unref (mode, n_vertices,
                                                     attributes,
@@ -264,7 +264,7 @@ cogl_primitive_new_p2t2 (CoglContext *ctx,
                                       2,
                                       COGL_ATTRIBUTE_TYPE_FLOAT);
 
-  cogl_object_unref (attribute_buffer);
+  g_object_unref (attribute_buffer);
 
   return _cogl_primitive_new_with_attributes_unref (mode, n_vertices,
                                                     attributes,
@@ -294,7 +294,7 @@ cogl_primitive_new_p3t2 (CoglContext *ctx,
                                       2,
                                       COGL_ATTRIBUTE_TYPE_FLOAT);
 
-  cogl_object_unref (attribute_buffer);
+  g_object_unref (attribute_buffer);
 
   return _cogl_primitive_new_with_attributes_unref (mode, n_vertices,
                                                     attributes,
@@ -331,7 +331,7 @@ cogl_primitive_new_p2t2c4 (CoglContext *ctx,
                                       4,
                                       COGL_ATTRIBUTE_TYPE_UNSIGNED_BYTE);
 
-  cogl_object_unref (attribute_buffer);
+  g_object_unref (attribute_buffer);
 
   return _cogl_primitive_new_with_attributes_unref (mode, n_vertices,
                                                     attributes,
@@ -368,7 +368,7 @@ cogl_primitive_new_p3t2c4 (CoglContext *ctx,
                                       4,
                                       COGL_ATTRIBUTE_TYPE_UNSIGNED_BYTE);
 
-  cogl_object_unref (attribute_buffer);
+  g_object_unref (attribute_buffer);
 
   return _cogl_primitive_new_with_attributes_unref (mode, n_vertices,
                                                     attributes,
