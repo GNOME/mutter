@@ -3185,7 +3185,7 @@ _clutter_actor_draw_paint_volume_full (ClutterActor       *self,
                                       "ClutterActor (paint volume outline)");
   clutter_paint_node_add_primitive (pipeline_node, prim);
   clutter_paint_node_add_child (node, pipeline_node);
-  cogl_object_unref (prim);
+  g_object_unref (prim);
 
   if (label)
     {

@@ -30,7 +30,6 @@
 
 #include <glib.h>
 
-#include "cogl/cogl-object-private.h"
 #include "cogl/cogl-texture.h"
 #include "cogl/cogl-framebuffer.h"
 

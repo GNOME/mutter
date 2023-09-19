@@ -129,7 +129,7 @@ draw_tests_polygon (TestState *state)
                                            G_N_ELEMENTS (vertices),
                                            vertices);
       cogl_primitive_draw (primitive, test_fb, pipeline);
-      cogl_object_unref (primitive);
+      g_object_unref (primitive);
       g_object_unref (pipeline);
       cogl_framebuffer_pop_matrix (test_fb);
     }

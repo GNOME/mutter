@@ -338,8 +338,8 @@ clutter_deform_effect_free_arrays (ClutterDeformEffect *self)
   ClutterDeformEffectPrivate *priv = self->priv;
 
   g_clear_object (&priv->buffer);
-  cogl_clear_object (&priv->primitive);
-  cogl_clear_object (&priv->lines_primitive);
+  g_clear_object (&priv->primitive);
+  g_clear_object (&priv->lines_primitive);
 }
 
 static void

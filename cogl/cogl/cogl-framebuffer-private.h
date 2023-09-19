@@ -32,7 +32,6 @@
 #pragma once
 
 #include "cogl/cogl-framebuffer-driver.h"
-#include "cogl/cogl-object-private.h"
 #include "cogl/cogl-matrix-stack-private.h"
 #include "cogl/cogl-journal-private.h"
 #include "cogl/winsys/cogl-winsys-private.h"

@@ -131,7 +131,7 @@ paint_test_backface_culling (TestState *state,
                                            4,
                                            verts);
       cogl_primitive_draw (primitive, framebuffer, pipeline);
-      cogl_object_unref (primitive);
+      g_object_unref (primitive);
 
       x1 = x2;
       x2 = x1 + (float)(TEXTURE_RENDER_SIZE);
@@ -151,7 +151,7 @@ paint_test_backface_culling (TestState *state,
                                            4,
                                            verts);
       cogl_primitive_draw (primitive, framebuffer, pipeline);
-      cogl_object_unref (primitive);
+      g_object_unref (primitive);
 
       x1 = x2;
       x2 = x1 + (float)(TEXTURE_RENDER_SIZE);

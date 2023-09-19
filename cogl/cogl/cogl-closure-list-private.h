@@ -29,8 +29,8 @@
 
 #pragma once
 
-#include "cogl/cogl-object.h"
 #include "cogl/cogl-list.h"
+#include "cogl/cogl-macros.h"
 
 /*
  * This implements a list of callbacks that can be used a bit like

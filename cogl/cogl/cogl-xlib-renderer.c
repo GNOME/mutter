@@ -33,7 +33,6 @@
 
 #include "cogl/cogl-xlib-renderer.h"
 #include "cogl/cogl-util.h"
-#include "cogl/cogl-object.h"
 
 #include "cogl/cogl-output-private.h"
 #include "cogl/cogl-renderer-private.h"

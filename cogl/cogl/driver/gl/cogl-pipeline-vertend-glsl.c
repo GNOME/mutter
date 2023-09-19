@@ -41,7 +41,6 @@
 #include "cogl/driver/gl/cogl-pipeline-opengl-private.h"
 
 #include "cogl/cogl-context-private.h"
-#include "cogl/cogl-object-private.h"
 #include "cogl/cogl-pipeline-state-private.h"
 #include "cogl/cogl-glsl-shader-boilerplate.h"
 #include "cogl/driver/gl/cogl-pipeline-vertend-glsl-private.h"

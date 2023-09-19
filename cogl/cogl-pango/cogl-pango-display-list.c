@@ -154,7 +154,7 @@ _cogl_pango_display_list_add_texture (CoglPangoDisplayList *dl,
       /* Get rid of the vertex buffer so that it will be recreated */
       if (node->d.texture.primitive != NULL)
         {
-          cogl_object_unref (node->d.texture.primitive);
+          g_object_unref (node->d.texture.primitive);
           node->d.texture.primitive = NULL;
         }
     }
@@ -463,10 +463,10 @@ _cogl_pango_display_list_node_free (CoglPangoDisplayListNode *node)
       if (node->d.texture.texture != NULL)
         g_object_unref (node->d.texture.texture);
       if (node->d.texture.primitive != NULL)
-        cogl_object_unref (node->d.texture.primitive);
+        g_object_unref (node->d.texture.primitive);
     }
   else if (node->type == COGL_PANGO_DISPLAY_LIST_TRAPEZOID)
-    cogl_object_unref (node->d.trapezoid.primitive);
+    g_object_unref (node->d.trapezoid.primitive);
 
   if (node->pipeline)
     g_object_unref (node->pipeline);

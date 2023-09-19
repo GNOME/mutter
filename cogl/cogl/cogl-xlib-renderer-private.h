@@ -32,7 +32,6 @@
 
 #include <X11/Xutil.h>
 
-#include "cogl/cogl-object-private.h"
 #include "cogl/cogl-x11-renderer-private.h"
 #include "cogl/cogl-context.h"
 #include "cogl/cogl-output.h"

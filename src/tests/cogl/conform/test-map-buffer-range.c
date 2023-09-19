@@ -108,7 +108,7 @@ test_map_buffer_range (void)
                         tex_coord_attribute,
                         NULL);
   cogl_primitive_draw (primitive, test_fb, pipeline);
-  cogl_object_unref (primitive);
+  g_object_unref (primitive);
 
   /* Top left pixel should be the one that is replaced to be green */
   test_utils_check_pixel (test_fb, 1, 1, 0x00ff00ff);

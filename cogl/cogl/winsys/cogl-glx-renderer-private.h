@@ -32,7 +32,6 @@
 
 #include <gmodule.h>
 
-#include "cogl/cogl-object-private.h"
 #include "cogl/cogl-xlib-renderer-private.h"
 
 typedef struct _CoglGLXRenderer

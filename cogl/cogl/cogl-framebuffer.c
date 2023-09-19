@@ -37,7 +37,6 @@
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-display-private.h"
 #include "cogl/cogl-renderer-private.h"
-#include "cogl/cogl-object-private.h"
 #include "cogl/cogl-util.h"
 #include "cogl/cogl-texture-private.h"
 #include "cogl/cogl-framebuffer-private.h"
@@ -50,7 +49,6 @@
 #include "cogl/cogl1-context.h"
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-primitives-private.h"
-#include "cogl/cogl-gtype-private.h"
 #include "cogl/winsys/cogl-winsys-private.h"
 
 enum

@@ -51,27 +51,19 @@ typedef struct _CoglPrimitive CoglPrimitive;
 G_BEGIN_DECLS
 
 /**
- * SECTION:cogl-primitive
- * @short_description: Functions for creating, manipulating and drawing
- *    primitives
+ * CoglPrimitive:
  *
- * FIXME
+ *Functions for creating, manipulating and drawing primitives
  */
 
-/**
- * CoglPrimitive: (ref-func cogl_object_ref) (unref-func cogl_object_unref)
- *     (set-value-func cogl_object_value_set_object)
- *     (get-value-func cogl_object_value_get_object)
- */
+#define COGL_TYPE_PRIMITIVE (cogl_primitive_get_type ())
 
-/**
- * cogl_primitive_get_gtype:
- *
- * Returns: a #GType that can be used with the GLib type system.
- */
 COGL_EXPORT
-GType cogl_primitive_get_gtype (void);
-
+G_DECLARE_FINAL_TYPE (CoglPrimitive,
+                      cogl_primitive,
+                      COGL,
+                      PRIMITIVE,
+                      GObject)
 /**
  * CoglVertexP2:
  * @x: The x component of a position attribute
@@ -293,7 +285,7 @@ cogl_primitive_new_with_attributes (CoglVerticesMode mode,
  * </note>
  *
  * Return value: (transfer full): A newly allocated #CoglPrimitive
- * with a reference of 1. This can be freed using cogl_object_unref().
+ * with a reference of 1. This can be freed using g_object_unref().
  */
 COGL_EXPORT CoglPrimitive *
 cogl_primitive_new_p2 (CoglContext *context,
@@ -343,7 +335,7 @@ cogl_primitive_new_p2 (CoglContext *context,
  * </note>
  *
  * Return value: (transfer full): A newly allocated #CoglPrimitive
- * with a reference of 1. This can be freed using cogl_object_unref().
+ * with a reference of 1. This can be freed using g_object_unref().
  */
 COGL_EXPORT CoglPrimitive *
 cogl_primitive_new_p3 (CoglContext *context,
@@ -395,7 +387,7 @@ cogl_primitive_new_p3 (CoglContext *context,
  * </note>
  *
  * Return value: (transfer full): A newly allocated #CoglPrimitive
- * with a reference of 1. This can be freed using cogl_object_unref().
+ * with a reference of 1. This can be freed using g_object_unref().
  */
 COGL_EXPORT CoglPrimitive *
 cogl_primitive_new_p2c4 (CoglContext *context,
@@ -447,7 +439,7 @@ cogl_primitive_new_p2c4 (CoglContext *context,
  * </note>
  *
  * Return value: (transfer full): A newly allocated #CoglPrimitive
- * with a reference of 1. This can be freed using cogl_object_unref().
+ * with a reference of 1. This can be freed using g_object_unref().
  */
 COGL_EXPORT CoglPrimitive *
 cogl_primitive_new_p3c4 (CoglContext *context,
@@ -499,7 +491,7 @@ cogl_primitive_new_p3c4 (CoglContext *context,
  * </note>
  *
  * Return value: (transfer full): A newly allocated #CoglPrimitive
- * with a reference of 1. This can be freed using cogl_object_unref().
+ * with a reference of 1. This can be freed using g_object_unref().
  */
 COGL_EXPORT CoglPrimitive *
 cogl_primitive_new_p2t2 (CoglContext *context,
@@ -551,7 +543,7 @@ cogl_primitive_new_p2t2 (CoglContext *context,
  * </note>
  *
  * Return value: (transfer full): A newly allocated #CoglPrimitive
- * with a reference of 1. This can be freed using cogl_object_unref().
+ * with a reference of 1. This can be freed using g_object_unref().
  */
 COGL_EXPORT CoglPrimitive *
 cogl_primitive_new_p3t2 (CoglContext *context,
@@ -603,7 +595,7 @@ cogl_primitive_new_p3t2 (CoglContext *context,
  * </note>
  *
  * Return value: (transfer full): A newly allocated #CoglPrimitive
- * with a reference of 1. This can be freed using cogl_object_unref().
+ * with a reference of 1. This can be freed using g_object_unref().
  */
 COGL_EXPORT CoglPrimitive *
 cogl_primitive_new_p2t2c4 (CoglContext *context,
@@ -655,7 +647,7 @@ cogl_primitive_new_p2t2c4 (CoglContext *context,
  * </note>
  *
  * Return value: (transfer full): A newly allocated #CoglPrimitive
- * with a reference of 1. This can be freed using cogl_object_unref().
+ * with a reference of 1. This can be freed using g_object_unref().
  */
 COGL_EXPORT CoglPrimitive *
 cogl_primitive_new_p3t2c4 (CoglContext *context,
@@ -718,19 +710,6 @@ cogl_primitive_set_mode (CoglPrimitive *primitive,
                          CoglVerticesMode mode);
 
 /**
- * cogl_primitive_set_attributes: (skip)
- * @primitive: A #CoglPrimitive object
- * @attributes: an array of #CoglAttribute pointers
- * @n_attributes: the number of elements in @attributes
- *
- * Replaces all the attributes of the given #CoglPrimitive object.
- */
-COGL_EXPORT void
-cogl_primitive_set_attributes (CoglPrimitive *primitive,
-                               CoglAttribute **attributes,
-                               int n_attributes);
-
-/**
  * cogl_primitive_set_indices: (skip)
  * @primitive: A #CoglPrimitive
  * @indices: A #CoglIndices array
@@ -782,18 +761,6 @@ cogl_primitive_get_indices (CoglPrimitive *primitive);
  */
 COGL_EXPORT CoglPrimitive *
 cogl_primitive_copy (CoglPrimitive *primitive);
-
-/**
- * cogl_is_primitive:
- * @object: A #CoglObject
- *
- * Gets whether the given object references a #CoglPrimitive.
- *
- * Returns: %TRUE if the @object references a #CoglPrimitive,
- *   %FALSE otherwise
- */
-COGL_EXPORT gboolean
-cogl_is_primitive (void *object);
 
 /**
  * CoglPrimitiveAttributeCallback:

@@ -40,7 +40,6 @@
 #include "cogl/cogl-context.h"
 #include "cogl/cogl-framebuffer.h"
 #include "cogl/cogl-frame-info.h"
-#include "cogl/cogl-object.h"
 
 #include <glib-object.h>
 

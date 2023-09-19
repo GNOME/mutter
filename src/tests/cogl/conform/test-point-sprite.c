@@ -133,7 +133,7 @@ do_test (gboolean check_orientation,
   cogl_primitive_draw (prim, test_fb, solid_pipeline);
   cogl_framebuffer_pop_matrix (test_fb);
 
-  cogl_object_unref (prim);
+  g_object_unref (prim);
   g_object_unref (solid_pipeline);
   g_object_unref (pipeline);
   g_object_unref (tex_2d);

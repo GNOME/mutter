@@ -31,7 +31,6 @@
 #include "cogl-config.h"
 
 #include "cogl/cogl-mutter.h"
-#include "cogl/cogl-object.h"
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-profile.h"
 #include "cogl/cogl-util.h"
@@ -46,7 +45,6 @@
 #include "cogl/cogl-onscreen-private.h"
 #include "cogl/cogl-attribute-private.h"
 #include "cogl/cogl1-context.h"
-#include "cogl/cogl-gtype-private.h"
 #include "cogl/winsys/cogl-winsys-private.h"
 
 #include <gio/gio.h>

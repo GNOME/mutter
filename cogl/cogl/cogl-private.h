@@ -36,6 +36,8 @@
 
 G_BEGIN_DECLS
 
+#define I_(str)  (g_intern_static_string ((str)))
+
 typedef enum
 {
   COGL_PRIVATE_FEATURE_TEXTURE_2D_FROM_EGL_IMAGE,

@@ -30,7 +30,6 @@
 
 #pragma once
 
-#include "cogl/cogl-object-private.h"
 
 typedef struct _CoglGLXCachedConfig
 {

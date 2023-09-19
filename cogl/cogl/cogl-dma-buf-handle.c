@@ -32,7 +32,6 @@
 #include "cogl-config.h"
 
 #include "cogl/cogl-dma-buf-handle.h"
-#include "cogl/cogl-object.h"
 
 #include <errno.h>
 #include <gio/gio.h>

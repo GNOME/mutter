@@ -46,7 +46,6 @@
 #include "cogl/driver/gl/cogl-pipeline-opengl-private.h"
 
 #include "cogl/cogl-context-private.h"
-#include "cogl/cogl-object-private.h"
 #include "cogl/cogl-pipeline-cache.h"
 #include "cogl/driver/gl/cogl-pipeline-fragend-glsl-private.h"
 #include "deprecated/cogl-shader-private.h"

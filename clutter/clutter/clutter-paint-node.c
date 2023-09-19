@@ -736,7 +736,7 @@ clutter_paint_operation_clear (ClutterPaintOperation *op)
 
     case PAINT_OP_PRIMITIVE:
       if (op->op.primitive != NULL)
-        cogl_object_unref (op->op.primitive);
+        g_object_unref (op->op.primitive);
       break;
     }
 }
@@ -820,7 +820,7 @@ clutter_paint_op_init_primitive (ClutterPaintOperation *op,
   clutter_paint_operation_clear (op);
 
   op->opcode = PAINT_OP_PRIMITIVE;
-  op->op.primitive = cogl_object_ref (primitive);
+  op->op.primitive = g_object_ref (primitive);
 }
 
 static inline void
@@ -989,7 +989,7 @@ clutter_paint_node_add_texture_rectangles (ClutterPaintNode *node,
  * Adds a region described by a Cogl primitive to the @node.
  *
  * This function acquires a reference on @primitive, so it is safe
- * to call cogl_object_unref() when it returns.
+ * to call g_object_unref() when it returns.
  */
 void
 clutter_paint_node_add_primitive (ClutterPaintNode *node,
@@ -998,7 +998,7 @@ clutter_paint_node_add_primitive (ClutterPaintNode *node,
   ClutterPaintOperation operation = PAINT_OP_INIT;
 
   g_return_if_fail (CLUTTER_IS_PAINT_NODE (node));
-  g_return_if_fail (cogl_is_primitive (primitive));
+  g_return_if_fail (COGL_IS_PRIMITIVE (primitive));
 
   clutter_paint_node_maybe_init_operations (node);
 

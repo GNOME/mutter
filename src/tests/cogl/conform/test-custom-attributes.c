@@ -68,7 +68,7 @@ test_float_verts (TestState *state, int offset_x, int offset_y)
                                                   attributes,
                                                   2); /* n_attributes */
   cogl_primitive_draw (primitive, test_fb, state->pipeline);
-  cogl_object_unref (primitive);
+  g_object_unref (primitive);
 
   cogl_framebuffer_pop_matrix (test_fb);
 
@@ -129,7 +129,7 @@ test_byte_verts (TestState *state, int offset_x, int offset_y)
                                                   attributes,
                                                   2); /* n_attributes */
   cogl_primitive_draw (primitive, test_fb, state->pipeline);
-  cogl_object_unref (primitive);
+  g_object_unref (primitive);
 
   g_object_unref (attributes[1]);
 
@@ -151,7 +151,7 @@ test_byte_verts (TestState *state, int offset_x, int offset_y)
                                                   attributes,
                                                   2); /* n_attributes */
   cogl_primitive_draw (primitive, test_fb, state->pipeline);
-  cogl_object_unref (primitive);
+  g_object_unref (primitive);
 
   cogl_framebuffer_pop_matrix (test_fb);
 
@@ -213,7 +213,7 @@ test_short_verts (TestState *state, int offset_x, int offset_y)
                                                   attributes,
                                                   2); /* n_attributes */
   cogl_primitive_draw (primitive, test_fb, pipeline);
-  cogl_object_unref (primitive);
+  g_object_unref (primitive);
 
   cogl_framebuffer_pop_matrix (test_fb);
 
@@ -248,7 +248,7 @@ test_short_verts (TestState *state, int offset_x, int offset_y)
                                                   attributes,
                                                   1); /* n_attributes */
   cogl_primitive_draw (primitive, test_fb, pipeline2);
-  cogl_object_unref (primitive);
+  g_object_unref (primitive);
 
   cogl_framebuffer_pop_matrix (test_fb);
 

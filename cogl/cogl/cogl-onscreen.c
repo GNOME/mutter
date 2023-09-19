@@ -38,11 +38,9 @@
 #include "cogl/cogl-framebuffer-private.h"
 #include "cogl/cogl-onscreen-template-private.h"
 #include "cogl/cogl-context-private.h"
-#include "cogl/cogl-object-private.h"
 #include "cogl/cogl1-context.h"
 #include "cogl/cogl-closure-list-private.h"
 #include "cogl/cogl-poll-private.h"
-#include "cogl/cogl-gtype-private.h"
 
 typedef struct _CoglOnscreenPrivate
 {

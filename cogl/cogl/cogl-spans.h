@@ -30,7 +30,6 @@
 
 #pragma once
 
-#include "cogl/cogl-object-private.h"
 #include "cogl/cogl-pipeline-layer-state.h"
 
 typedef struct _CoglSpan

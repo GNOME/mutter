@@ -245,7 +245,7 @@ _cogl_clip_stack_push_primitive (CoglClipStack *stack,
                                        sizeof (CoglClipStackPrimitive),
                                        COGL_CLIP_STACK_PRIMITIVE);
 
-  entry->primitive = cogl_object_ref (primitive);
+  entry->primitive = g_object_ref (primitive);
 
   entry->matrix_entry = cogl_matrix_entry_ref (modelview_entry);
 
@@ -329,7 +329,7 @@ _cogl_clip_stack_unref (CoglClipStack *entry)
             CoglClipStackPrimitive *primitive_entry =
               (CoglClipStackPrimitive *) entry;
             cogl_matrix_entry_unref (primitive_entry->matrix_entry);
-            cogl_object_unref (primitive_entry->primitive);
+            g_object_unref (primitive_entry->primitive);
             g_free (entry);
             break;
           }

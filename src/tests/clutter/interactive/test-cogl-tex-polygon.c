@@ -101,7 +101,7 @@ test_coglbox_fade_texture (CoglFramebuffer *framebuffer,
                                4,
                                vertices);
   cogl_primitive_draw (primitive, framebuffer, pipeline);
-  cogl_object_unref (primitive);
+  g_object_unref (primitive);
 }
 
 static void
@@ -144,7 +144,7 @@ test_coglbox_triangle_texture (CoglFramebuffer *framebuffer,
                                        3,
                                        vertices);
   cogl_primitive_draw (primitive, framebuffer, pipeline);
-  cogl_object_unref (primitive);
+  g_object_unref (primitive);
 }
 
 static void

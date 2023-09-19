@@ -199,7 +199,7 @@ test_paint (TestState *state)
 
       test_utils_check_pixel (test_fb, i * 10 + 2, 2, expected_color);
 
-      cogl_object_unref (prim);
+      g_object_unref (prim);
     }
 
   g_object_unref (pipeline);
@@ -301,8 +301,8 @@ test_copy (TestState *state)
   g_assert (cogl_primitive_get_indices (prim_a) ==
             cogl_primitive_get_indices (prim_b));
 
-  cogl_object_unref (prim_a);
-  cogl_object_unref (prim_b);
+  g_object_unref (prim_a);
+  g_object_unref (prim_b);
   g_object_unref (indices);
 
   for (i = 0; i < N_ATTRIBS; i++)
