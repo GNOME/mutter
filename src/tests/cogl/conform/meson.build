@@ -45,7 +45,6 @@ cogl_tests = [
 #unported = [
 #  "test-multitexture",
 #  "test-npot-texture",
-#  "test-object",
 #  "test-readpixels",
 #  "test-texture-mipmaps",
 #  "test-texture-pixmap-x11",

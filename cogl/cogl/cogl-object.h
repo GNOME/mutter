@@ -90,41 +90,6 @@ cogl_object_unref (void *object);
 #define cogl_clear_object(object_ptr) g_clear_pointer ((object_ptr), cogl_object_unref)
 
 /**
- * CoglUserDataKey:
- * @unused: ignored.
- *
- * A #CoglUserDataKey is used to declare a key for attaching data to a
- * #CoglObject using cogl_object_set_user_data. The typedef only exists as a
- * formality to make code self documenting since only the unique address of a
- * #CoglUserDataKey is used.
- *
- * Typically you would declare a static #CoglUserDataKey and set private data
- * on an object something like this:
- *
- * |[
- * static CoglUserDataKey path_private_key;
- *
- * static void
- * destroy_path_private_cb (void *data)
- * {
- *   g_free (data);
- * }
- *
- * static void
- * my_path_set_data (CoglPipeline *pipeline, void *data)
- * {
- *   cogl_object_set_user_data (COGL_OBJECT (pipeline),
- *                              &private_key,
- *                              data,
- *                              destroy_pipeline_private_cb);
- * }
- * ]|
- */
-typedef struct {
-  int unused;
-} CoglUserDataKey;
-
-/**
  * CoglUserDataDestroyCallback:
  * @user_data: The data whose association with a #CoglObject has been
  *             destroyed.
@@ -159,45 +124,6 @@ typedef struct {
 typedef void
 (* CoglDebugObjectForeachTypeCallback) (const CoglDebugObjectTypeInfo *info,
                                         void *user_data);
-
-/**
- * cogl_object_set_user_data: (skip)
- * @object: The object to associate private data with
- * @key: The address of a #CoglUserDataKey which provides a unique value
- *   with which to index the private data.
- * @user_data: The data to associate with the given object,
- *   or %NULL to remove a previous association.
- * @destroy: A #CoglUserDataDestroyCallback to call if the object is
- *   destroyed or if the association is removed by later setting
- *   %NULL data for the same key.
- *
- * Associates some private @user_data with a given #CoglObject. To
- * later remove the association call cogl_object_set_user_data() with
- * the same @key but NULL for the @user_data.
- */
-COGL_EXPORT void
-cogl_object_set_user_data (CoglObject *object,
-                           CoglUserDataKey *key,
-                           void *user_data,
-                           CoglUserDataDestroyCallback destroy);
-
-/**
- * cogl_object_get_user_data: (skip)
- * @object: The object with associated private data to query
- * @key: The address of a #CoglUserDataKey which provides a unique value
- *       with which to index the private data.
- *
- * Finds the user data previously associated with @object using
- * the given @key. If no user data has been associated with @object
- * for the given @key this function returns NULL.
- *
- * Returns: (transfer none): The user data previously associated
- *   with @object using the given @key; or %NULL if no associated
- *   data is found.
- */
-COGL_EXPORT void *
-cogl_object_get_user_data (CoglObject *object,
-                           CoglUserDataKey *key);
 
 /**
  * cogl_debug_object_foreach_type:

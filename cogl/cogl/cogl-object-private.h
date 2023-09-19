@@ -58,14 +58,6 @@ typedef struct _CoglObjectClass
   void *virt_unref;
 } CoglObjectClass;
 
-#define COGL_OBJECT_N_PRE_ALLOCATED_USER_DATA_ENTRIES 2
-
-typedef struct
-{
-  CoglUserDataKey *key;
-  void *user_data;
-  CoglUserDataDestroyInternalCallback destroy;
-} CoglUserDataEntry;
 
 /* All Cogl objects inherit from this base object by adding a member:
  *
@@ -77,11 +69,6 @@ typedef struct
 struct _CoglObject
 {
   CoglObjectClass  *klass; /* equivalent to GTypeInstance */
-
-  CoglUserDataEntry user_data_entry[
-    COGL_OBJECT_N_PRE_ALLOCATED_USER_DATA_ENTRIES];
-  GArray           *user_data_array;
-  int               n_user_data_entries;
 
   unsigned int      ref_count;
 };
@@ -176,8 +163,6 @@ _cogl_##type_name##_object_new (Cogl##TypeName *new_obj)                \
   CoglObject *obj = (CoglObject *)&new_obj->_parent;                    \
   obj->ref_count = 0;                                                   \
   cogl_object_ref (obj);                                                \
-  obj->n_user_data_entries = 0;                                         \
-  obj->user_data_array = NULL;                                          \
                                                                         \
   obj->klass = &_cogl_##type_name##_class;                              \
   if (!obj->klass->virt_free)                                           \
@@ -243,12 +228,6 @@ _cogl_is_##type_name (void *object)                                     \
 
 #define COGL_OBJECT_INTERNAL_DEFINE(TypeName, type_name)         \
   COGL_OBJECT_INTERNAL_DEFINE_WITH_CODE (TypeName, type_name, (void) 0)
-
-void
-_cogl_object_set_user_data (CoglObject *object,
-                            CoglUserDataKey *key,
-                            void *user_data,
-                            CoglUserDataDestroyInternalCallback destroy);
 
 COGL_EXPORT void
 _cogl_object_default_unref (void *obj);
