@@ -58,7 +58,7 @@ draw_rectangle (TestState *state,
   pipeline = cogl_pipeline_new (test_ctx);
   if (!cogl_pipeline_set_depth_state (pipeline, &depth_state, NULL))
     {
-      cogl_object_unref (pipeline);
+      g_object_unref (pipeline);
       return FALSE;
     }
 
@@ -95,10 +95,10 @@ draw_rectangle (TestState *state,
                                        y * QUAD_WIDTH + QUAD_WIDTH);
       cogl_framebuffer_pop_matrix (test_fb);
 
-      cogl_object_unref (legacy_pipeline);
+      g_object_unref (legacy_pipeline);
     }
 
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   return TRUE;
 }

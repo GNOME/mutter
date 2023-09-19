@@ -151,7 +151,7 @@ test_pixel_buffer_map (void)
 
   g_object_unref (bitmap);
   g_object_unref (texture);
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   check_colours (0x0000ffff,
                  0x00ff00ff,
@@ -196,7 +196,7 @@ test_pixel_buffer_set_data (void)
 
   g_object_unref (bitmap);
   g_object_unref (texture);
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   check_colours (0x0000ffff,
                  0x00ff00ff,
@@ -257,7 +257,7 @@ test_pixel_buffer_sub_region (void)
 
   g_object_unref (bitmap);
   g_object_unref (texture);
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   check_colours (0xffffffff,
                  0xff0000ff,

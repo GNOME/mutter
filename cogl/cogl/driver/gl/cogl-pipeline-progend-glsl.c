@@ -140,12 +140,31 @@ typedef struct
   CoglPipelineCacheEntry *cache_entry;
 } CoglPipelineProgramState;
 
-static CoglUserDataKey program_state_key;
+static GQuark program_state_key = 0;
+
+typedef struct
+{
+  CoglPipelineProgramState *program_state;
+  CoglPipeline *instance;
+} CoglPipelineProgramStateCache;
+
+static GQuark
+get_cache_key (void)
+{
+  if (G_UNLIKELY (program_state_key == 0))
+    program_state_key = g_quark_from_static_string ("program-state-progend-key");
+
+  return program_state_key;
+}
 
 static CoglPipelineProgramState *
 get_program_state (CoglPipeline *pipeline)
 {
-  return cogl_object_get_user_data (COGL_OBJECT (pipeline), &program_state_key);
+  CoglPipelineProgramStateCache *cache;
+  cache = g_object_get_qdata (G_OBJECT (pipeline), get_cache_key ());
+  if (cache)
+    return cache->program_state;
+  return NULL;
 }
 
 #define UNIFORM_LOCATION_UNKNOWN -2
@@ -246,10 +265,10 @@ program_state_new (int n_layers,
 }
 
 static void
-destroy_program_state (void *user_data,
-                       void *instance)
+destroy_program_state (void *user_data)
 {
-  CoglPipelineProgramState *program_state = user_data;
+  CoglPipelineProgramStateCache *cache = user_data;
+  CoglPipelineProgramState *program_state = cache->program_state;
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
@@ -257,11 +276,11 @@ destroy_program_state (void *user_data,
      it so that if same address gets used again for a new pipeline
      then we won't think it's the same pipeline and avoid updating the
      uniforms */
-  if (program_state->last_used_for_pipeline == instance)
+  if (program_state->last_used_for_pipeline == cache->instance)
     program_state->last_used_for_pipeline = NULL;
 
   if (program_state->cache_entry &&
-      program_state->cache_entry->pipeline != instance)
+      program_state->cache_entry->pipeline != cache->instance)
     program_state->cache_entry->usage_count--;
 
   if (--program_state->ref_count == 0)
@@ -280,6 +299,7 @@ destroy_program_state (void *user_data,
         g_array_free (program_state->uniform_locations, TRUE);
 
       g_free (program_state);
+      g_free (cache);
     }
 }
 
@@ -298,19 +318,23 @@ set_program_state (CoglPipeline *pipeline,
         program_state->cache_entry->usage_count++;
     }
 
-  _cogl_object_set_user_data (COGL_OBJECT (pipeline),
-                              &program_state_key,
-                              program_state,
-                              destroy_program_state);
+  CoglPipelineProgramStateCache *cache = g_new0 (CoglPipelineProgramStateCache, 1);
+  cache->instance = pipeline;
+  cache->program_state = program_state;
+
+  g_object_set_qdata_full (G_OBJECT (pipeline),
+                           get_cache_key (),
+                           cache,
+                           destroy_program_state);
 }
 
 static void
 dirty_program_state (CoglPipeline *pipeline)
 {
-  cogl_object_set_user_data (COGL_OBJECT (pipeline),
-                             &program_state_key,
-                             NULL,
-                             NULL);
+  g_object_set_qdata_full (G_OBJECT (pipeline),
+                           get_cache_key (),
+                           NULL,
+                           NULL);
 }
 
 static void
@@ -660,7 +684,7 @@ _cogl_shader_compile_real (CoglShader   *shader,
 
       if (shader->compilation_pipeline)
         {
-          cogl_object_unref (shader->compilation_pipeline);
+          g_object_unref (shader->compilation_pipeline);
           shader->compilation_pipeline = NULL;
         }
     }
@@ -690,7 +714,7 @@ _cogl_shader_compile_real (CoglShader   *shader,
                                                  NULL);
   GE (ctx, glCompileShader (shader->gl_handle));
 
-  shader->compilation_pipeline = cogl_object_ref (pipeline);
+  shader->compilation_pipeline = g_object_ref (pipeline);
 
   GE (ctx, glGetShaderiv (shader->gl_handle, GL_COMPILE_STATUS, &status));
   if (!status)

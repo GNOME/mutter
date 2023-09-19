@@ -311,7 +311,7 @@ cogl_pipeline_set_layer_wrap_mode_s (CoglPipeline *pipeline,
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
-  g_return_if_fail (cogl_is_pipeline (pipeline));
+  g_return_if_fail (COGL_IS_PIPELINE (pipeline));
 
   /* Note: this will ensure that the layer exists, creating one if it
    * doesn't already.
@@ -351,7 +351,7 @@ cogl_pipeline_set_layer_wrap_mode_t (CoglPipeline *pipeline,
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
-  g_return_if_fail (cogl_is_pipeline (pipeline));
+  g_return_if_fail (COGL_IS_PIPELINE (pipeline));
 
   /* Note: this will ensure that the layer exists, creating one if it
    * doesn't already.
@@ -391,7 +391,7 @@ cogl_pipeline_set_layer_wrap_mode (CoglPipeline *pipeline,
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
-  g_return_if_fail (cogl_is_pipeline (pipeline));
+  g_return_if_fail (COGL_IS_PIPELINE (pipeline));
 
   /* Note: this will ensure that the layer exists, creating one if it
    * doesn't already.
@@ -424,7 +424,7 @@ _cogl_pipeline_layer_get_wrap_mode_s (CoglPipelineLayer *layer)
   CoglPipelineLayer     *authority;
   const CoglSamplerCacheEntry *sampler_state;
 
-  g_return_val_if_fail (_cogl_is_pipeline_layer (layer), FALSE);
+  g_return_val_if_fail (COGL_IS_PIPELINE_LAYER (layer), FALSE);
 
   /* Now find the ancestor of the layer that is the authority for the
    * state we want to change */
@@ -439,7 +439,7 @@ cogl_pipeline_get_layer_wrap_mode_s (CoglPipeline *pipeline, int layer_index)
 {
   CoglPipelineLayer *layer;
 
-  g_return_val_if_fail (cogl_is_pipeline (pipeline), FALSE);
+  g_return_val_if_fail (COGL_IS_PIPELINE (pipeline), FALSE);
 
   /* Note: this will ensure that the layer exists, creating one if it
    * doesn't already.
@@ -461,7 +461,7 @@ _cogl_pipeline_layer_get_wrap_mode_t (CoglPipelineLayer *layer)
   CoglPipelineLayer     *authority;
   const CoglSamplerCacheEntry *sampler_state;
 
-  g_return_val_if_fail (_cogl_is_pipeline_layer (layer), FALSE);
+  g_return_val_if_fail (COGL_IS_PIPELINE_LAYER (layer), FALSE);
 
   /* Now find the ancestor of the layer that is the authority for the
    * state we want to change */
@@ -476,7 +476,7 @@ cogl_pipeline_get_layer_wrap_mode_t (CoglPipeline *pipeline, int layer_index)
 {
   CoglPipelineLayer *layer;
 
-  g_return_val_if_fail (cogl_is_pipeline (pipeline), FALSE);
+  g_return_val_if_fail (COGL_IS_PIPELINE (pipeline), FALSE);
 
   /* Note: this will ensure that the layer exists, creating one if it
    * doesn't already.
@@ -517,7 +517,7 @@ cogl_pipeline_set_layer_point_sprite_coords_enabled (CoglPipeline *pipeline,
 
   _COGL_GET_CONTEXT (ctx, FALSE);
 
-  g_return_val_if_fail (cogl_is_pipeline (pipeline), FALSE);
+  g_return_val_if_fail (COGL_IS_PIPELINE (pipeline), FALSE);
 
   /* Note: this will ensure that the layer exists, creating one if it
    * doesn't already.
@@ -587,7 +587,7 @@ cogl_pipeline_get_layer_point_sprite_coords_enabled (CoglPipeline *pipeline,
   CoglPipelineLayer *layer;
   CoglPipelineLayer *authority;
 
-  g_return_val_if_fail (cogl_is_pipeline (pipeline), FALSE);
+  g_return_val_if_fail (COGL_IS_PIPELINE (pipeline), FALSE);
 
   /* Note: this will ensure that the layer exists, creating one if it
    * doesn't already.
@@ -680,7 +680,7 @@ cogl_pipeline_add_layer_snippet (CoglPipeline *pipeline,
                                  int layer_index,
                                  CoglSnippet *snippet)
 {
-  g_return_if_fail (cogl_is_pipeline (pipeline));
+  g_return_if_fail (COGL_IS_PIPELINE (pipeline));
   g_return_if_fail (COGL_IS_SNIPPET (snippet));
   g_return_if_fail (snippet->hook >= COGL_SNIPPET_FIRST_LAYER_HOOK);
 
@@ -921,7 +921,7 @@ cogl_pipeline_set_layer_combine (CoglPipeline *pipeline,
   CoglBlendStringStatement *a;
   int count;
 
-  g_return_val_if_fail (cogl_is_pipeline (pipeline), FALSE);
+  g_return_val_if_fail (COGL_IS_PIPELINE (pipeline), FALSE);
 
   /* Note: this will ensure that the layer exists, creating one if it
    * doesn't already.
@@ -1021,7 +1021,7 @@ cogl_pipeline_set_layer_combine_constant (CoglPipeline *pipeline,
   CoglPipelineLayer     *new;
   float                  color_as_floats[4];
 
-  g_return_if_fail (cogl_is_pipeline (pipeline));
+  g_return_if_fail (COGL_IS_PIPELINE (pipeline));
 
   /* Note: this will ensure that the layer exists, creating one if it
    * doesn't already.
@@ -1104,7 +1104,7 @@ _cogl_pipeline_get_layer_combine_constant (CoglPipeline *pipeline,
   CoglPipelineLayer *layer;
   CoglPipelineLayer *authority;
 
-  g_return_if_fail (cogl_is_pipeline (pipeline));
+  g_return_if_fail (COGL_IS_PIPELINE (pipeline));
 
   /* Note: this will ensure that the layer exists, creating one if it
    * doesn't already.
@@ -1131,7 +1131,7 @@ _cogl_pipeline_get_layer_matrix (CoglPipeline *pipeline, int layer_index)
   CoglPipelineLayer *layer;
   CoglPipelineLayer *authority;
 
-  g_return_val_if_fail (cogl_is_pipeline (pipeline), NULL);
+  g_return_val_if_fail (COGL_IS_PIPELINE (pipeline), NULL);
 
   layer = _cogl_pipeline_get_layer (pipeline, layer_index);
 
@@ -1149,7 +1149,7 @@ cogl_pipeline_set_layer_matrix (CoglPipeline *pipeline,
   CoglPipelineLayer     *authority;
   CoglPipelineLayer     *new;
 
-  g_return_if_fail (cogl_is_pipeline (pipeline));
+  g_return_if_fail (COGL_IS_PIPELINE (pipeline));
 
   /* Note: this will ensure that the layer exists, creating one if it
    * doesn't already.
@@ -1211,7 +1211,7 @@ cogl_pipeline_set_layer_matrix (CoglPipeline *pipeline,
 CoglTexture *
 _cogl_pipeline_layer_get_texture (CoglPipelineLayer *layer)
 {
-  g_return_val_if_fail (_cogl_is_pipeline_layer (layer), NULL);
+  g_return_val_if_fail (COGL_IS_PIPELINE_LAYER (layer), NULL);
 
   return _cogl_pipeline_layer_get_texture_real (layer);
 }
@@ -1254,7 +1254,7 @@ cogl_pipeline_get_layer_filters (CoglPipeline       *pipeline,
 {
   CoglPipelineLayer *layer;
 
-  g_return_if_fail (cogl_is_pipeline (pipeline));
+  g_return_if_fail (COGL_IS_PIPELINE (pipeline));
 
   layer = _cogl_pipeline_get_layer (pipeline, layer_index);
   return _cogl_pipeline_layer_get_filters (layer, min_filter, mag_filter);
@@ -1273,7 +1273,7 @@ cogl_pipeline_set_layer_filters (CoglPipeline      *pipeline,
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
-  g_return_if_fail (cogl_is_pipeline (pipeline));
+  g_return_if_fail (COGL_IS_PIPELINE (pipeline));
 
   g_return_if_fail (mag_filter == COGL_PIPELINE_FILTER_NEAREST ||
                     mag_filter == COGL_PIPELINE_FILTER_LINEAR);

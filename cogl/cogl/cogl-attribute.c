@@ -642,7 +642,7 @@ _cogl_flush_attributes_state (CoglFramebuffer *framebuffer,
                                               n_attributes);
 
   if (copy)
-    cogl_object_unref (copy);
+    g_object_unref (copy);
 }
 
 int

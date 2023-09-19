@@ -272,7 +272,7 @@ test_cogl_point_sprites_main (int argc, char *argv[])
 
   clutter_test_main ();
 
-  cogl_object_unref (data.pipeline);
+  g_object_unref (data.pipeline);
   g_timer_destroy (data.last_spark_time);
 
   for (i = 0; i < N_FIREWORKS; i++)

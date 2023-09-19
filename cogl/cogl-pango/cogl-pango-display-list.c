@@ -469,7 +469,7 @@ _cogl_pango_display_list_node_free (CoglPangoDisplayListNode *node)
     cogl_object_unref (node->d.trapezoid.primitive);
 
   if (node->pipeline)
-    cogl_object_unref (node->pipeline);
+    g_object_unref (node->pipeline);
 
   g_free (node);
 }

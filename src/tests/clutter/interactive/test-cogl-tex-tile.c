@@ -73,7 +73,7 @@ test_coglbox_paint (ClutterActor        *self,
   pipeline = cogl_pipeline_new (ctx);
   cogl_pipeline_set_color4ub (pipeline, 0x66, 0x66, 0xdd, 0xff);
   cogl_framebuffer_draw_rectangle (framebuffer, pipeline, 0, 0, 400, 400);
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   cogl_framebuffer_translate (framebuffer, 100, 100, 0);
 
@@ -83,7 +83,7 @@ test_coglbox_paint (ClutterActor        *self,
                                             0, 0, 200, 213,
                                             texcoords[0], texcoords[1],
                                             texcoords[2], texcoords[3]);
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   cogl_framebuffer_pop_matrix (framebuffer);
 }

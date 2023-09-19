@@ -1964,7 +1964,7 @@ paint_selection_rectangle (ClutterText           *self,
   cogl_pango_show_layout (fb, layout, priv->text_x, 0, &cogl_color);
 
   cogl_framebuffer_pop_clip (fb);
-  cogl_object_unref (color_pipeline);
+  g_object_unref (color_pipeline);
 }
 
 /* Draws the selected text, its background, and the cursor */
@@ -2007,7 +2007,7 @@ selection_paint (ClutterText     *self,
                                        priv->cursor_rect.origin.x + priv->cursor_rect.size.width,
                                        priv->cursor_rect.origin.y + priv->cursor_rect.size.height);
 
-      g_clear_pointer (&color_pipeline, cogl_object_unref);
+      g_clear_object (&color_pipeline);
     }
   else
     {

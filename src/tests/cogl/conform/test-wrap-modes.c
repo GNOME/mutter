@@ -95,7 +95,7 @@ draw_tests (TestState *state)
                                                 (i + 2) * TEX_SIZE,
                                                 TEX_SIZE * 2,
                                                 0, 0, 2, 2);
-      cogl_object_unref (pipeline);
+      g_object_unref (pipeline);
     }
 }
 
@@ -130,7 +130,7 @@ draw_tests_polygon (TestState *state)
                                            vertices);
       cogl_primitive_draw (primitive, test_fb, pipeline);
       cogl_object_unref (primitive);
-      cogl_object_unref (pipeline);
+      g_object_unref (pipeline);
       cogl_framebuffer_pop_matrix (test_fb);
     }
 }

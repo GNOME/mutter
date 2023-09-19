@@ -61,7 +61,7 @@ simple_fragment_snippet (TestState *state)
 
   cogl_framebuffer_draw_rectangle (test_fb, pipeline, 0, 0, 10, 10);
 
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   test_utils_check_pixel (test_fb, 5, 5, 0xffff00ff);
 }
@@ -85,7 +85,7 @@ simple_vertex_snippet (TestState *state)
 
   cogl_framebuffer_draw_rectangle (test_fb, pipeline, 10, 0, 20, 10);
 
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   test_utils_check_pixel (test_fb, 15, 5, 0xff00ffff);
 }
@@ -121,7 +121,7 @@ shared_uniform (TestState *state)
                                    pipeline,
                                    20, 0, 30, 10);
 
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   test_utils_check_pixel (test_fb, 25, 5, 0xff0080ff);
 }
@@ -165,7 +165,7 @@ lots_snippets (TestState *state)
 
   cogl_framebuffer_draw_rectangle (test_fb, pipeline, 30, 0, 40, 10);
 
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   test_utils_check_pixel (test_fb, 35, 5, 0x19334cff);
 }
@@ -191,7 +191,7 @@ shared_variable_pre_post (TestState *state)
 
   cogl_framebuffer_draw_rectangle (test_fb, pipeline, 40, 0, 50, 10);
 
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   test_utils_check_pixel (test_fb, 45, 5, 0xff0000ff);
 }
@@ -217,12 +217,12 @@ test_pipeline_caching (TestState *state)
   pipeline = cogl_pipeline_new (test_ctx);
   cogl_pipeline_add_snippet (pipeline, snippet);
   cogl_framebuffer_draw_rectangle (test_fb, pipeline, 50, 0, 60, 10);
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   pipeline = cogl_pipeline_new (test_ctx);
   cogl_pipeline_add_snippet (pipeline, snippet);
   cogl_framebuffer_draw_rectangle (test_fb, pipeline, 60, 0, 70, 10);
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   g_object_unref (snippet);
 
@@ -250,7 +250,7 @@ test_replace_string (TestState *state)
   pipeline = cogl_pipeline_new (test_ctx);
   cogl_pipeline_add_snippet (pipeline, snippet);
   cogl_framebuffer_draw_rectangle (test_fb, pipeline, 70, 0, 80, 10);
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   g_object_unref (snippet);
 
@@ -277,7 +277,7 @@ test_texture_lookup_hook (TestState *state)
                                             pipeline,
                                             80, 0, 90, 10,
                                             0, 0, 0, 0);
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   g_object_unref (snippet);
 
@@ -303,7 +303,7 @@ test_multiple_samples (TestState *state)
   pipeline = create_texture_pipeline (state);
   cogl_pipeline_add_layer_snippet (pipeline, 0, snippet);
   cogl_framebuffer_draw_rectangle (test_fb, pipeline, 0, 0, 10, 10);
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   g_object_unref (snippet);
 
@@ -326,7 +326,7 @@ test_replace_lookup_hook (TestState *state)
                                             pipeline,
                                             90, 0, 100, 10,
                                             0, 0, 0, 0);
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   g_object_unref (snippet);
 
@@ -359,7 +359,7 @@ test_replace_snippet (TestState *state)
                                             pipeline,
                                             100, 0, 110, 10,
                                             0, 0, 0, 0);
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   test_utils_check_pixel (test_fb, 105, 5, 0xff0000ff);
 }
@@ -391,7 +391,7 @@ test_replace_fragment_layer (TestState *state)
                                             pipeline,
                                             110, 0, 120, 10,
                                             0, 0, 0, 0);
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   test_utils_check_pixel (test_fb, 115, 5, 0xff00ffff);
 }
@@ -420,7 +420,7 @@ test_modify_fragment_layer (TestState *state)
                                             pipeline,
                                             120, 0, 130, 10,
                                             0, 0, 0, 0);
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   test_utils_check_pixel (test_fb, 125, 5, 0xff80ffff);
 }
@@ -449,7 +449,7 @@ test_modify_vertex_layer (TestState *state)
                                             pipeline,
                                             130, 0, 140, 10,
                                             0, 0, 0, 0);
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   test_utils_check_pixel (test_fb, 135, 5, 0xffff00ff);
 }
@@ -479,7 +479,7 @@ test_replace_vertex_layer (TestState *state)
                                             pipeline,
                                             140, 0, 150, 10,
                                             0, 0, 0, 0);
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   test_utils_check_pixel (test_fb, 145, 5, 0x00ff00ff);
 }
@@ -526,7 +526,7 @@ test_vertex_transform_hook (TestState *state)
   cogl_framebuffer_set_projection_matrix (test_fb, &identity_matrix);
 
   cogl_framebuffer_draw_rectangle (test_fb, pipeline, 150, 0, 160, 10);
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   /* Restore the projection matrix */
   cogl_framebuffer_set_projection_matrix (test_fb, &matrix);
@@ -582,7 +582,7 @@ test_global_vertex_hook (TestState *state)
                                    10.0f * 2.0f / state->fb_width - 1.0f,
                                    10.0f * 2.0f / state->fb_height - 1.0f);
 
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   test_utils_check_pixel (test_fb, 5, 5, 0xff0000ff);
 }
@@ -632,7 +632,7 @@ test_global_fragment_hook (TestState *state)
                                    pipeline,
                                    0, 0, 10, 10);
 
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   test_utils_check_pixel (test_fb, 5, 5, 0xff0000ff);
 }
@@ -670,7 +670,7 @@ test_snippet_order (TestState *state)
   g_object_unref (snippet);
 
   cogl_framebuffer_draw_rectangle (test_fb, pipeline, 160, 0, 170, 10);
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   test_utils_check_pixel (test_fb, 165, 5, 0x80ff00ff);
 }
@@ -705,7 +705,7 @@ test_naming_texture_units (TestState *state)
 
   cogl_framebuffer_draw_rectangle (test_fb, pipeline, 0, 0, 10, 10);
 
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
   g_object_unref (snippet);
   g_object_unref (tex1);
   g_object_unref (tex2);

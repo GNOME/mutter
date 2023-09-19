@@ -101,7 +101,7 @@ typedef struct
   CoglPipelineCacheEntry *cache_entry;
 } CoglPipelineFragendShaderState;
 
-static CoglUserDataKey shader_state_key;
+static GQuark shader_state_key = 0;
 
 static void
 ensure_layer_generated (CoglPipeline *pipeline,
@@ -120,23 +120,41 @@ shader_state_new (int n_layers,
 
   return shader_state;
 }
+typedef struct
+{
+  CoglPipelineFragendShaderState *shader_state;
+  CoglPipeline *instance;
+} CoglPipelineFragendShaderStateCache;
+
+static GQuark
+get_cache_key (void)
+{
+  if (G_UNLIKELY (shader_state_key == 0))
+    shader_state_key = g_quark_from_static_string ("shader-state-key");
+
+  return shader_state_key;
+}
 
 static CoglPipelineFragendShaderState *
 get_shader_state (CoglPipeline *pipeline)
 {
-  return cogl_object_get_user_data (COGL_OBJECT (pipeline), &shader_state_key);
+  CoglPipelineFragendShaderStateCache *cache;
+  cache = g_object_get_qdata (G_OBJECT (pipeline), get_cache_key ());
+  if (cache)
+    return cache->shader_state;
+  return NULL;
 }
 
 static void
-destroy_shader_state (void *user_data,
-                      void *instance)
+destroy_shader_state (void *user_data)
 {
-  CoglPipelineFragendShaderState *shader_state = user_data;
+  CoglPipelineFragendShaderStateCache *cache = user_data;
+  CoglPipelineFragendShaderState *shader_state = cache->shader_state;
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
   if (shader_state->cache_entry &&
-      shader_state->cache_entry->pipeline != instance)
+      shader_state->cache_entry->pipeline != cache->instance)
     shader_state->cache_entry->usage_count--;
 
   if (--shader_state->ref_count == 0)
@@ -147,6 +165,7 @@ destroy_shader_state (void *user_data,
       g_free (shader_state->unit_state);
 
       g_free (shader_state);
+      g_free (cache);
     }
 }
 
@@ -163,20 +182,23 @@ set_shader_state (CoglPipeline *pipeline, CoglPipelineFragendShaderState *shader
           shader_state->cache_entry->pipeline != pipeline)
         shader_state->cache_entry->usage_count++;
     }
+  CoglPipelineFragendShaderStateCache *cache = g_new0 (CoglPipelineFragendShaderStateCache, 1);
+  cache->instance = pipeline;
+  cache->shader_state = shader_state;
 
-  _cogl_object_set_user_data (COGL_OBJECT (pipeline),
-                              &shader_state_key,
-                              shader_state,
-                              destroy_shader_state);
+  g_object_set_qdata_full (G_OBJECT (pipeline),
+                           get_cache_key (),
+                           cache,
+                           destroy_shader_state);
 }
 
 static void
 dirty_shader_state (CoglPipeline *pipeline)
 {
-  cogl_object_set_user_data (COGL_OBJECT (pipeline),
-                             &shader_state_key,
-                             NULL,
-                             NULL);
+  g_object_set_qdata_full (G_OBJECT (pipeline),
+                           get_cache_key (),
+                           NULL,
+                           NULL);
 }
 
 GLuint

@@ -121,7 +121,7 @@ test_map_buffer_range (void)
   g_object_unref (pos_attribute);
   g_object_unref (tex_coord_attribute);
 
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
   g_object_unref (tex);
 
   if (cogl_test_verbose ())

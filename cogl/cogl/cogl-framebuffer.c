@@ -77,7 +77,7 @@ enum
 static guint signals[N_SIGNALS];
 
 #ifdef COGL_ENABLE_DEBUG
-static CoglUserDataKey wire_pipeline_key;
+static GQuark wire_pipeline_key = 0;
 #endif
 
 typedef struct _CoglFramebufferPrivate
@@ -869,7 +869,7 @@ _cogl_framebuffer_add_dependency (CoglFramebuffer *framebuffer,
     }
 
   /* TODO: generalize the primed-array type structure we e.g. use for
-   * cogl_object_set_user_data or for pipeline children as a way to
+   * g_object_set_qdata_full or for pipeline children as a way to
    * avoid quite a lot of mid-scene micro allocations here... */
   priv->deps =
     g_list_prepend (priv->deps, g_object_ref (dependency));
@@ -2288,7 +2288,7 @@ pipeline_destroyed_cb (CoglPipeline *weak_pipeline, void *user_data)
 
   /* XXX: I think we probably need to provide a custom unref function for
    * CoglPipeline because it's possible that we will reach this callback
-   * because original_pipeline is being freed which means cogl_object_unref
+   * because original_pipeline is being freed which means g_object_unref
    * will have already freed any associated user data.
    *
    * Setting more user data here will *probably* succeed but that may allocate
@@ -2298,10 +2298,10 @@ pipeline_destroyed_cb (CoglPipeline *weak_pipeline, void *user_data)
    * that a custom unref function could be written that can destroy weak
    * pipeline children before removing user data.
    */
-  cogl_object_set_user_data (COGL_OBJECT (original_pipeline),
-                             &wire_pipeline_key, NULL, NULL);
+  g_object_set_qdata_full (G_OBJECT (original_pipeline),
+                           wire_pipeline_key, NULL, NULL);
 
-  cogl_object_unref (weak_pipeline);
+  g_object_unref (weak_pipeline);
 }
 
 static void
@@ -2319,7 +2319,7 @@ draw_wireframe (CoglContext *ctx,
   CoglIndices *wire_indices;
   CoglPipeline *wire_pipeline;
   int n_indices;
-
+  wire_pipeline_key = g_quark_from_static_string ("framebuffer-wire-pipeline-key");
   wire_indices = get_wire_line_indices (ctx,
                                         mode,
                                         first_vertex,
@@ -2327,8 +2327,8 @@ draw_wireframe (CoglContext *ctx,
                                         indices,
                                         &n_indices);
 
-  wire_pipeline = cogl_object_get_user_data (COGL_OBJECT (pipeline),
-                                             &wire_pipeline_key);
+  wire_pipeline = g_object_get_qdata (G_OBJECT (pipeline),
+                                      wire_pipeline_key);
 
   if (!wire_pipeline)
     {
@@ -2337,9 +2337,9 @@ draw_wireframe (CoglContext *ctx,
       wire_pipeline =
         _cogl_pipeline_weak_copy (pipeline, pipeline_destroyed_cb, NULL);
 
-      cogl_object_set_user_data (COGL_OBJECT (pipeline),
-                                 &wire_pipeline_key, wire_pipeline,
-                                 NULL);
+      g_object_set_qdata_full (G_OBJECT (pipeline),
+                               wire_pipeline_key, wire_pipeline,
+                               NULL);
 
       /* If we have glsl then the pipeline may have an associated
        * vertex program and since we'd like to see the results of the

@@ -137,7 +137,7 @@ paint (void)
                                                 (x + 1) / 2.0f,
                                                 (y + 1) / 2.0f);
 
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
   g_object_unref (texture);
 }
 

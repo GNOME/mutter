@@ -158,10 +158,10 @@ paint_test_backface_culling (TestState *state,
 
       cogl_framebuffer_pop_matrix (framebuffer);
 
-      cogl_object_unref (pipeline);
+      g_object_unref (pipeline);
     }
 
-  cogl_object_unref (base_pipeline);
+  g_object_unref (base_pipeline);
 }
 
 static void
@@ -248,7 +248,7 @@ paint (TestState *state)
                                    0, TEXTURE_RENDER_SIZE * 8,
                                    state->width,
                                    state->height + TEXTURE_RENDER_SIZE * 8);
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   validate_result (test_fb, 0);
   validate_result (test_fb, 8);

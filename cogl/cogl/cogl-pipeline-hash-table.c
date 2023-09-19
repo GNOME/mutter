@@ -64,7 +64,7 @@ value_destroy_cb (void *value)
 {
   CoglPipelineHashTableEntry *entry = value;
 
-  cogl_object_unref (entry->parent.pipeline);
+  g_object_unref (entry->parent.pipeline);
 
   g_free (entry);
 }

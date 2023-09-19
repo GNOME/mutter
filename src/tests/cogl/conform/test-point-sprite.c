@@ -134,8 +134,8 @@ do_test (gboolean check_orientation,
   cogl_framebuffer_pop_matrix (test_fb);
 
   cogl_object_unref (prim);
-  cogl_object_unref (solid_pipeline);
-  cogl_object_unref (pipeline);
+  g_object_unref (solid_pipeline);
+  g_object_unref (pipeline);
   g_object_unref (tex_2d);
 
   test_utils_check_pixel (test_fb,

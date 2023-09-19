@@ -83,7 +83,7 @@ test_copy_replace_texture (void)
 
   /* Unref everything but the last pipeline */
   for (pipeline_num = 0; pipeline_num < N_PIPELINES - 1; pipeline_num++)
-    cogl_object_unref (pipelines[pipeline_num]);
+    g_object_unref (pipelines[pipeline_num]);
 
   if (alive_texture_mask && cogl_test_verbose ())
     {
@@ -110,7 +110,7 @@ test_copy_replace_texture (void)
                    LAST_PIPELINE_MASK);
 
   /* Clean up the last pipeline */
-  cogl_object_unref (pipelines[N_PIPELINES - 1]);
+  g_object_unref (pipelines[N_PIPELINES - 1]);
 
   /* That should get rid of the last of the textures */
   g_assert_cmpint (alive_texture_mask, ==, 0);

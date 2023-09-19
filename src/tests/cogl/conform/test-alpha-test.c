@@ -47,7 +47,7 @@ test_alpha_test (void)
                                    -1, -1,
                                    1, 1);
 
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
   g_object_unref (tex);
 
   /* The left side of the framebuffer should use the first pixel from

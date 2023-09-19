@@ -52,7 +52,7 @@ test_pipeline_shader_state (void)
   cogl_framebuffer_draw_rectangle (test_fb, draw_pipeline,
                                    0, 0, width, height);
 
-  cogl_object_unref (draw_pipeline);
+  g_object_unref (draw_pipeline);
 
   cogl_framebuffer_finish (test_fb);
 
@@ -85,7 +85,7 @@ test_pipeline_shader_state (void)
   cogl_framebuffer_draw_rectangle (test_fb, draw_pipeline,
                                    0, 0, width, height);
 
-  cogl_object_unref (draw_pipeline);
+  g_object_unref (draw_pipeline);
 
 
   test_utils_check_region (test_fb, 0, 0, width, height,

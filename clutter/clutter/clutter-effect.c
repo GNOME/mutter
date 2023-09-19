@@ -101,13 +101,13 @@
  *    // Clear the previous state //
  *    if (self->rect_1)
  *      {
- *        cogl_object_unref (self->rect_1);
+ *        g_object_unref (self->rect_1);
  *        self->rect_1 = NULL;
  *      }
  *
  *    if (self->rect_2)
  *      {
- *        cogl_object_unref (self->rect_2);
+ *        g_object_unref (self->rect_2);
  *        self->rect_2 = NULL;
  *      }
  *

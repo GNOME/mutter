@@ -98,8 +98,8 @@ test_paint (TestState *state)
   cogl_pipeline_set_layer_texture (texture_pipeline, 0, tex);
   cogl_framebuffer_draw_rectangle (test_fb, texture_pipeline, -1, 1, 1, -1);
 
-  cogl_object_unref (opaque_pipeline);
-  cogl_object_unref (texture_pipeline);
+  g_object_unref (opaque_pipeline);
+  g_object_unref (texture_pipeline);
   g_object_unref (tex);
 
   cogl_framebuffer_pop_matrix (test_fb);
@@ -184,7 +184,7 @@ test_flush (TestState *state)
       g_object_unref (offscreen);
     }
 
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 }
 
 static void

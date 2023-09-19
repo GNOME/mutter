@@ -27,7 +27,7 @@ test_pipeline_state_blend_constant_ancestry (void)
       cogl_color_init_from_4f (&color, i / 20.0f, 0.0f, 0.0f, 1.0f);
 
       tmp_pipeline = cogl_pipeline_copy (pipeline);
-      cogl_object_unref (pipeline);
+      g_object_unref (pipeline);
       pipeline = tmp_pipeline;
 
       cogl_pipeline_set_blend_constant (pipeline, &color);
@@ -38,7 +38,7 @@ test_pipeline_state_blend_constant_ancestry (void)
 
   g_assert_cmpint (pipeline_length, <=, 2);
 
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 }
 
 COGL_TEST_SUITE (

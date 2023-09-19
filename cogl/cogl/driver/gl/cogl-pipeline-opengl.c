@@ -84,7 +84,7 @@ static void
 texture_unit_free (CoglTextureUnit *unit)
 {
   if (unit->layer)
-    cogl_object_unref (unit->layer);
+    g_object_unref (unit->layer);
   g_object_unref (unit->matrix_stack);
 }
 
@@ -563,9 +563,9 @@ flush_layers_common_gl_state_cb (CoglPipelineLayer *layer, void *user_data)
       GE( ctx, glBindSampler (unit_index, sampler_state->sampler_object) );
     }
 
-  cogl_object_ref (layer);
+  g_object_ref (layer);
   if (unit->layer != NULL)
-    cogl_object_unref (unit->layer);
+    g_object_unref (unit->layer);
 
   unit->layer = layer;
   unit->layer_changes_since_flush = 0;
@@ -1088,9 +1088,9 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
    * XXX: The issue should largely go away when we switch to using
    * weak pipelines for overrides.
    */
-  cogl_object_ref (pipeline);
+  g_object_ref (pipeline);
   if (ctx->current_pipeline != NULL)
-    cogl_object_unref (ctx->current_pipeline);
+    g_object_unref (ctx->current_pipeline);
   ctx->current_pipeline = pipeline;
   ctx->current_pipeline_changes_since_flush = 0;
   ctx->current_pipeline_with_color_attrib = with_color_attrib;

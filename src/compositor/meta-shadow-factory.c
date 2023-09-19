@@ -168,7 +168,7 @@ meta_shadow_unref (MetaShadow *shadow)
 
       meta_window_shape_unref (shadow->key.shape);
       g_object_unref (shadow->texture);
-      cogl_object_unref (shadow->pipeline);
+      g_object_unref (shadow->pipeline);
 
       g_free (shadow);
     }

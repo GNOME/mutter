@@ -1618,7 +1618,7 @@ _cogl_journal_log_quad (CoglJournal  *journal,
   cogl_framebuffer_get_viewport4fv (framebuffer, entry->viewport);
 
   if (G_UNLIKELY (final_pipeline != pipeline))
-    cogl_object_unref (final_pipeline);
+    g_object_unref (final_pipeline);
 
   modelview_stack =
     _cogl_framebuffer_get_modelview_stack (framebuffer);

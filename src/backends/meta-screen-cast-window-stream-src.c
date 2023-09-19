@@ -255,7 +255,7 @@ maybe_blit_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
                                    x, y,
                                    x + width, y + height);
 
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 }
 
 static gboolean

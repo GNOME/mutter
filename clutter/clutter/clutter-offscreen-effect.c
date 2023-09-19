@@ -274,7 +274,7 @@ update_fbo (ClutterEffect *effect,
                  error->message);
 
       g_object_unref (offscreen);
-      cogl_clear_object (&priv->pipeline);
+      g_clear_object (&priv->pipeline);
 
       priv->target_width = 0;
       priv->target_height = 0;
@@ -284,7 +284,7 @@ update_fbo (ClutterEffect *effect,
 
   priv->offscreen = offscreen;
 
-  cogl_clear_object (&priv->pipeline);
+  g_clear_object (&priv->pipeline);
   priv->pipeline = offscreen_class->create_pipeline (self, priv->texture);
 
   return TRUE;
@@ -577,7 +577,7 @@ clutter_offscreen_effect_finalize (GObject *gobject)
 
   g_clear_object (&priv->offscreen);
   g_clear_object (&priv->texture);
-  g_clear_pointer (&priv->pipeline, cogl_object_unref);
+  g_clear_object (&priv->pipeline);
 
   G_OBJECT_CLASS (clutter_offscreen_effect_parent_class)->finalize (gobject);
 }

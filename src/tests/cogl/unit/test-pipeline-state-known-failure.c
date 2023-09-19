@@ -23,7 +23,7 @@ test_pipeline_state_uniform_ancestry (void)
       int uniform_location;
 
       tmp_pipeline = cogl_pipeline_copy (pipeline);
-      cogl_object_unref (pipeline);
+      g_object_unref (pipeline);
       pipeline = tmp_pipeline;
 
       uniform_location =
@@ -37,7 +37,7 @@ test_pipeline_state_uniform_ancestry (void)
 
   g_assert_cmpint (pipeline_length, <=, 2);
 
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 }
 
 COGL_TEST_SUITE (

@@ -75,7 +75,7 @@ test_texture_rg (void)
                                     0);
       }
 
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
   g_object_unref (tex);
 }
 

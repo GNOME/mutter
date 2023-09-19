@@ -33,9 +33,9 @@
 
 #pragma once
 
-#include "cogl/cogl-object-private.h"
 #include "cogl/cogl-list.h"
 
+typedef struct _CoglNodeClass CoglNodeClass;
 typedef struct _CoglNode CoglNode;
 
 /* Pipelines and layers represent their state in a tree structure where
@@ -44,9 +44,7 @@ typedef struct _CoglNode CoglNode;
  * type to track the tree hierarchy so we can share code... */
 struct _CoglNode
 {
-  /* the parent in terms of class hierarchy, so anything inheriting
-   * from CoglNode also inherits from CoglObject. */
-  CoglObject _parent;
+  GObject parent_instance;
 
   /* The parent pipeline/layer */
   CoglNode *parent;
@@ -62,10 +60,23 @@ struct _CoglNode
   gboolean has_parent_reference;
 };
 
-#define COGL_NODE(X) ((CoglNode *)(X))
+struct _CoglNodeClass
+{
+  GObjectClass parent_class;
+};
 
-void
-_cogl_pipeline_node_init (CoglNode *node);
+#define COGL_TYPE_NODE            (cogl_node_get_type ())
+#define COGL_NODE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_NODE, CoglNode))
+#define COGL_NODE_CONST(obj)      (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_NODE, CoglNode const))
+#define COGL_NODE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  COGL_TYPE_NODE, CoglNodeClass))
+#define COGL_IS_NODE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), COGL_TYPE_NODE))
+#define COGL_IS_NODE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  COGL_TYPE_NODE))
+#define COGL_NODE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  COGL_TYPE_NODE, CoglNodeClass))
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglNode, g_object_unref)
+
+COGL_EXPORT
+GType       cogl_node_get_type (void) G_GNUC_CONST;
 
 void
 _cogl_pipeline_node_set_parent_real (CoglNode *node,

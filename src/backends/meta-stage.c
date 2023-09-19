@@ -87,7 +87,7 @@ static void
 meta_overlay_free (MetaOverlay *overlay)
 {
   if (overlay->pipeline)
-    cogl_object_unref (overlay->pipeline);
+    g_object_unref (overlay->pipeline);
 
   g_free (overlay);
 }

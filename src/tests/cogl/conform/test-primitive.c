@@ -202,7 +202,7 @@ test_paint (TestState *state)
       cogl_object_unref (prim);
     }
 
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 }
 
 static gboolean

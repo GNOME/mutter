@@ -124,7 +124,7 @@ do_test (const char *attribute_name,
   if (pipeline_setup_func)
     pipeline_setup_func (pipeline);
   cogl_primitive_draw (primitive, test_fb, pipeline);
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
   cogl_object_unref (primitive);
 
   /* Verify all of the points where drawn at the right size */

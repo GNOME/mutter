@@ -116,7 +116,7 @@ clutter_desaturate_effect_create_pipeline (ClutterOffscreenEffect *effect,
 
   cogl_pipeline_set_layer_texture (desaturate_effect->pipeline, 0, texture);
 
-  return cogl_object_ref (desaturate_effect->pipeline);
+  return g_object_ref (desaturate_effect->pipeline);
 }
 
 static void
@@ -124,7 +124,7 @@ clutter_desaturate_effect_dispose (GObject *gobject)
 {
   ClutterDesaturateEffect *self = CLUTTER_DESATURATE_EFFECT (gobject);
 
-  cogl_clear_object (&self->pipeline);
+  g_clear_object (&self->pipeline);
 
   G_OBJECT_CLASS (clutter_desaturate_effect_parent_class)->dispose (gobject);
 }

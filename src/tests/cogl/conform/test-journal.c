@@ -30,7 +30,7 @@ test_journal_unref_flush (void)
   cogl_framebuffer_draw_rectangle (COGL_FRAMEBUFFER (offscreen),
                                    pipeline,
                                    -1, -1, 1, 1);
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   g_object_unref (offscreen);
   g_assert_null (offscreen);

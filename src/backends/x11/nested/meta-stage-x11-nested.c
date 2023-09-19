@@ -197,7 +197,7 @@ meta_stage_x11_nested_unrealize (ClutterStageWindow *stage_window)
 {
   MetaStageX11Nested *stage_nested = META_STAGE_X11_NESTED (stage_window);
 
-  g_clear_pointer (&stage_nested->pipeline, cogl_object_unref);
+  g_clear_object (&stage_nested->pipeline);
 
   clutter_stage_window_parent_iface->unrealize (stage_window);
 }

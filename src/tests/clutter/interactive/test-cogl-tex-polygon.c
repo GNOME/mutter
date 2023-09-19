@@ -211,7 +211,7 @@ test_coglbox_paint (ClutterActor        *self,
 
   cogl_framebuffer_pop_matrix (framebuffer);
 
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 }
 
 static void

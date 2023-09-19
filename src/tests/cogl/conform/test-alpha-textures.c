@@ -78,8 +78,8 @@ test_alpha_textures (void)
 
   g_object_unref (tex1);
   g_object_unref (tex2);
-  cogl_object_unref (pipeline1);
-  cogl_object_unref (pipeline2);
+  g_object_unref (pipeline1);
+  g_object_unref (pipeline2);
 
   /* Unmodified texture */
   test_utils_check_pixel (test_fb,

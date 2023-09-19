@@ -76,13 +76,13 @@ test_pipeline_cache_unrefs_texture (void)
     }
   cogl_framebuffer_draw_rectangle (test_fb, simple_pipeline, 0, 0, 10, 10);
   cogl_framebuffer_finish (test_fb);
-  cogl_object_unref (simple_pipeline);
+  g_object_unref (simple_pipeline);
 
   g_assert_cmpint (destroyed_texture_count, ==, 0);
 
   /* Destroy the pipeline. This should immediately cause the textures
    * to be freed */
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   g_assert_cmpint (destroyed_texture_count, ==, N_TEXTURES);
 

@@ -151,7 +151,7 @@ on_paint (ClutterActor        *actor,
   cogl_rectangle_with_multitexture_coords (0, 0, QUAD_WIDTH, QUAD_WIDTH,
                                            tex_coords, 8);
 
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
   g_object_unref (tex0);
   g_object_unref (tex1);
 

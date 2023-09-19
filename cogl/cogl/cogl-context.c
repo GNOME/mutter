@@ -81,10 +81,10 @@ cogl_context_dispose (GObject *object)
     g_object_unref (context->default_gl_texture_2d_tex);
 
   if (context->opaque_color_pipeline)
-    cogl_object_unref (context->opaque_color_pipeline);
+    g_object_unref (context->opaque_color_pipeline);
 
   if (context->blit_texture_pipeline)
-    cogl_object_unref (context->blit_texture_pipeline);
+    g_object_unref (context->blit_texture_pipeline);
 
   if (context->swap_callback_closures)
     g_hash_table_destroy (context->swap_callback_closures);
@@ -100,14 +100,14 @@ cogl_context_dispose (GObject *object)
     g_object_unref (context->rectangle_short_indices);
 
   if (context->default_pipeline)
-    cogl_object_unref (context->default_pipeline);
+    g_object_unref (context->default_pipeline);
 
   if (context->dummy_layer_dependant)
-    cogl_object_unref (context->dummy_layer_dependant);
+    g_object_unref (context->dummy_layer_dependant);
   if (context->default_layer_n)
-    cogl_object_unref (context->default_layer_n);
+    g_object_unref (context->default_layer_n);
   if (context->default_layer_0)
-    cogl_object_unref (context->default_layer_0);
+    g_object_unref (context->default_layer_0);
 
   if (context->current_clip_stack_valid)
     _cogl_clip_stack_unref (context->current_clip_stack);
@@ -402,7 +402,7 @@ cogl_context_new (CoglDisplay *display,
   _cogl_list_init (&context->fences);
 
   context->named_pipelines =
-    g_hash_table_new_full (NULL, NULL, NULL, cogl_object_unref);
+    g_hash_table_new_full (NULL, NULL, NULL, g_object_unref);
 
   return context;
 }

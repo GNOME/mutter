@@ -226,14 +226,14 @@ meta_shaped_texture_set_clip_region (MetaShapedTexture *stex,
 static void
 meta_shaped_texture_reset_pipelines (MetaShapedTexture *stex)
 {
-  g_clear_pointer (&stex->base_pipeline, cogl_object_unref);
-  g_clear_pointer (&stex->combined_pipeline, cogl_object_unref);
-  g_clear_pointer (&stex->unmasked_pipeline, cogl_object_unref);
-  g_clear_pointer (&stex->unmasked_tower_pipeline, cogl_object_unref);
-  g_clear_pointer (&stex->masked_pipeline, cogl_object_unref);
-  g_clear_pointer (&stex->masked_tower_pipeline, cogl_object_unref);
-  g_clear_pointer (&stex->unblended_pipeline, cogl_object_unref);
-  g_clear_pointer (&stex->unblended_tower_pipeline, cogl_object_unref);
+  g_clear_object (&stex->base_pipeline);
+  g_clear_object (&stex->combined_pipeline);
+  g_clear_object (&stex->unmasked_pipeline);
+  g_clear_object (&stex->unmasked_tower_pipeline);
+  g_clear_object (&stex->masked_pipeline);
+  g_clear_object (&stex->masked_tower_pipeline);
+  g_clear_object (&stex->unblended_pipeline);
+  g_clear_object (&stex->unblended_tower_pipeline);
 }
 
 static void

@@ -5,9 +5,9 @@
 
 #include "test-conform-common.h"
 
-CoglUserDataKey private_key0;
-CoglUserDataKey private_key1;
-CoglUserDataKey private_key2;
+static GQuark private_key0 = 0;
+static GQuark private_key1 = 0;
+static GQuark private_key2 = 0;
 
 static int user_data0;
 static int user_data1;
@@ -49,32 +49,36 @@ test_object (TestUtilsGTestFixture *fixture,
   cogl_pipeline_new ();
   pipeline = cogl_pipeline_path ();
 
-  cogl_object_set_user_data (COGL_OBJECT (pipeline),
-                             &private_key0,
-                             &user_data0,
-                             destroy0_cb);
+  private_key0 = g_quark_from_static_string ("test-object-private_key0");
+  private_key1 = g_quark_from_static_string ("test-object-private_key1");
+  private_key2 = g_quark_from_static_string ("test-object-private_key2");
 
-  cogl_object_set_user_data (COGL_OBJECT (pipeline),
-                             &private_key1,
-                             &user_data1,
-                             destroy1_cb);
+  g_object_set_qdata_full (G_OBJECT (pipeline),
+                           private_key0,
+                           &user_data0,
+                           destroy0_cb);
 
-  cogl_object_set_user_data (COGL_OBJECT (pipeline),
-                             &private_key2,
-                             &user_data2,
-                             destroy2_cb);
+  g_object_set_qdata_full (G_OBJECT (pipeline),
+                           private_key1,
+                           &user_data1,
+                           destroy1_cb);
 
-  cogl_object_set_user_data (COGL_OBJECT (pipeline),
-                             &private_key1,
-                             NULL,
-                             destroy1_cb);
+  g_object_set_qdata_full (G_OBJECT (pipeline),
+                           private_key2,
+                           &user_data2,
+                           destroy2_cb);
 
-  cogl_object_set_user_data (COGL_OBJECT (pipeline),
-                             &private_key1,
-                             &user_data1,
-                             destroy1_cb);
+  g_object_set_qdata_full (G_OBJECT (pipeline),
+                           private_key1,
+                           NULL,
+                           destroy1_cb);
 
-  cogl_object_unref (pipeline);
+  g_object_set_qdata_full (G_OBJECT (pipeline),
+                           private_key1,
+                           &user_data1,
+                           destroy1_cb);
+
+  g_object_unref (pipeline);
 
   g_assert_cmpint (destroy0_count, ==, 1);
   g_assert_cmpint (destroy1_count, ==, 2);

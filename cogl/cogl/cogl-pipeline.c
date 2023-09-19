@@ -35,8 +35,6 @@
 
 #include "cogl/cogl-debug.h"
 #include "cogl/cogl-context-private.h"
-#include "cogl/cogl-object.h"
-
 #include "cogl/cogl-pipeline-private.h"
 #include "cogl/cogl-pipeline-state-private.h"
 #include "cogl/cogl-pipeline-layer-state-private.h"
@@ -48,13 +46,11 @@
 #include "cogl/cogl-profile.h"
 #include "cogl/cogl-depth-state-private.h"
 #include "cogl/cogl1-context.h"
-#include "cogl/cogl-gtype-private.h"
 
 #include <glib.h>
 #include <glib/gprintf.h>
 #include <string.h>
 
-static void _cogl_pipeline_free (CoglPipeline *tex);
 static void recursively_free_layer_caches (CoglPipeline *pipeline);
 static gboolean _cogl_pipeline_is_weak (CoglPipeline *pipeline);
 
@@ -66,8 +62,113 @@ const CoglPipelineProgend *_cogl_pipeline_progend;
 #include "cogl/driver/gl/cogl-pipeline-vertend-glsl-private.h"
 #include "cogl/driver/gl/cogl-pipeline-progend-glsl-private.h"
 
-COGL_OBJECT_DEFINE (Pipeline, pipeline);
-COGL_GTYPE_DEFINE_CLASS (Pipeline, pipeline);
+G_DEFINE_FINAL_TYPE (CoglPipeline, cogl_pipeline, COGL_TYPE_NODE)
+
+static void
+_cogl_pipeline_revert_weak_ancestors (CoglPipeline *strong)
+{
+  CoglNode *n;
+
+  g_return_if_fail (!strong->is_weak);
+
+  /* This reverts the effect of calling
+     _cogl_pipeline_promote_weak_ancestors */
+
+  if (COGL_NODE (strong)->parent == NULL)
+    return;
+
+  for (n = COGL_NODE (strong)->parent;
+       /* We can assume that all weak pipelines have a parent */
+       COGL_PIPELINE (n)->is_weak;
+       n = n->parent)
+    /* 'n' is weak so we unref its parent */
+    g_object_unref (n->parent);
+}
+
+static gboolean
+destroy_weak_children_cb (CoglNode *node,
+                          void *user_data)
+{
+  CoglPipeline *pipeline = COGL_PIPELINE (node);
+
+  if (_cogl_pipeline_is_weak (pipeline))
+    {
+      _cogl_pipeline_node_foreach_child (COGL_NODE (pipeline),
+                                         destroy_weak_children_cb,
+                                         NULL);
+
+      pipeline->destroy_callback (pipeline, pipeline->destroy_data);
+      _cogl_pipeline_node_unparent_real (COGL_NODE (pipeline));
+    }
+
+  return TRUE;
+}
+
+static void
+cogl_pipeline_dispose (GObject *object)
+{
+  CoglPipeline *pipeline = COGL_PIPELINE (object);
+
+  if (!pipeline->is_weak)
+    _cogl_pipeline_revert_weak_ancestors (pipeline);
+
+  /* Weak pipelines don't take a reference on their parent */
+  _cogl_pipeline_node_foreach_child (COGL_NODE (pipeline),
+                                     destroy_weak_children_cb,
+                                     NULL);
+
+  g_assert (_cogl_list_empty (&COGL_NODE (pipeline)->children));
+
+  _cogl_pipeline_node_unparent_real (COGL_NODE (pipeline));
+
+  if (pipeline->differences & COGL_PIPELINE_STATE_USER_SHADER &&
+      pipeline->big_state->user_program)
+    g_object_unref (pipeline->big_state->user_program);
+
+  if (pipeline->differences & COGL_PIPELINE_STATE_UNIFORMS)
+    {
+      CoglPipelineUniformsState *uniforms_state
+        = &pipeline->big_state->uniforms_state;
+      int n_overrides = _cogl_bitmask_popcount (&uniforms_state->override_mask);
+      int i;
+
+      for (i = 0; i < n_overrides; i++)
+        _cogl_boxed_value_destroy (uniforms_state->override_values + i);
+      g_free (uniforms_state->override_values);
+
+      _cogl_bitmask_destroy (&uniforms_state->override_mask);
+      _cogl_bitmask_destroy (&uniforms_state->changed_mask);
+    }
+
+  if (pipeline->differences & COGL_PIPELINE_STATE_LAYERS)
+    g_list_free_full (pipeline->layer_differences, g_object_unref);
+
+  if (pipeline->differences & COGL_PIPELINE_STATE_VERTEX_SNIPPETS)
+    _cogl_pipeline_snippet_list_free (&pipeline->big_state->vertex_snippets);
+
+  if (pipeline->differences & COGL_PIPELINE_STATE_FRAGMENT_SNIPPETS)
+    _cogl_pipeline_snippet_list_free (&pipeline->big_state->fragment_snippets);
+
+  if (pipeline->differences & COGL_PIPELINE_STATE_NEEDS_BIG_STATE)
+    g_free (pipeline->big_state);
+
+  recursively_free_layer_caches (pipeline);
+
+  G_OBJECT_CLASS (cogl_pipeline_parent_class)->dispose (object);
+}
+
+static void
+cogl_pipeline_class_init (CoglPipelineClass *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->dispose = cogl_pipeline_dispose;
+}
+
+static void
+cogl_pipeline_init (CoglPipeline *pipeline)
+{
+}
 
 /*
  * This initializes the first pipeline owned by the Cogl context. All
@@ -80,7 +181,7 @@ void
 _cogl_pipeline_init_default_pipeline (void)
 {
   /* Create new - blank - pipeline */
-  CoglPipeline *pipeline = g_new0 (CoglPipeline, 1);
+  CoglPipeline *pipeline = g_object_new (COGL_TYPE_PIPELINE, NULL);
   /* XXX: NB: It's important that we zero this to avoid polluting
    * pipeline hash values with un-initialized data */
   CoglPipelineBigState *big_state = g_new0 (CoglPipelineBigState, 1);
@@ -96,8 +197,6 @@ _cogl_pipeline_init_default_pipeline (void)
   _cogl_pipeline_progend = &_cogl_pipeline_glsl_progend;
   _cogl_pipeline_vertend = &_cogl_pipeline_glsl_vertend;
 
-  _cogl_pipeline_node_init (COGL_NODE (pipeline));
-
   pipeline->is_weak = FALSE;
   pipeline->journal_ref_count = 0;
   pipeline->differences = COGL_PIPELINE_STATE_ALL_SPARSE;
@@ -109,9 +208,10 @@ _cogl_pipeline_init_default_pipeline (void)
 
   pipeline->big_state = big_state;
   pipeline->has_big_state = TRUE;
-
+#ifdef COGL_DEBUG_ENABLED
   pipeline->static_breadcrumb = "default pipeline";
   pipeline->has_static_breadcrumb = TRUE;
+#endif
 
   pipeline->age = 0;
 
@@ -145,7 +245,7 @@ _cogl_pipeline_init_default_pipeline (void)
   _cogl_bitmask_init (&uniforms_state->changed_mask);
   uniforms_state->override_values = NULL;
 
-  ctx->default_pipeline = _cogl_pipeline_object_new (pipeline);
+  ctx->default_pipeline = pipeline;
 }
 
 
@@ -215,28 +315,7 @@ _cogl_pipeline_promote_weak_ancestors (CoglPipeline *strong)
        COGL_PIPELINE (n)->is_weak;
        n = n->parent)
     /* 'n' is weak so we take a reference on its parent */
-    cogl_object_ref (n->parent);
-}
-
-static void
-_cogl_pipeline_revert_weak_ancestors (CoglPipeline *strong)
-{
-  CoglNode *n;
-
-  g_return_if_fail (!strong->is_weak);
-
-  /* This reverts the effect of calling
-     _cogl_pipeline_promote_weak_ancestors */
-
-  if (COGL_NODE (strong)->parent == NULL)
-    return;
-
-  for (n = COGL_NODE (strong)->parent;
-       /* We can assume that all weak pipelines have a parent */
-       COGL_PIPELINE (n)->is_weak;
-       n = n->parent)
-    /* 'n' is weak so we unref its parent */
-    cogl_object_unref (n->parent);
+    g_object_ref (n->parent);
 }
 
 /* XXX: Always have an eye out for opportunities to lower the cost of
@@ -244,9 +323,7 @@ _cogl_pipeline_revert_weak_ancestors (CoglPipeline *strong)
 static CoglPipeline *
 _cogl_pipeline_copy (CoglPipeline *src, gboolean is_weak)
 {
-  CoglPipeline *pipeline = g_new0 (CoglPipeline, 1);
-
-  _cogl_pipeline_node_init (COGL_NODE (pipeline));
+  CoglPipeline *pipeline = g_object_new (COGL_TYPE_PIPELINE, NULL);
 
   pipeline->is_weak = is_weak;
 
@@ -271,7 +348,9 @@ _cogl_pipeline_copy (CoglPipeline *src, gboolean is_weak)
 
   pipeline->layers_cache_dirty = TRUE;
 
+#ifdef COGL_DEBUG_ENABLED
   pipeline->has_static_breadcrumb = FALSE;
+#endif
 
   pipeline->age = 0;
 
@@ -283,7 +362,7 @@ _cogl_pipeline_copy (CoglPipeline *src, gboolean is_weak)
   if (!is_weak)
     _cogl_pipeline_promote_weak_ancestors (pipeline);
 
-  return _cogl_pipeline_object_new (pipeline);
+  return pipeline;
 }
 
 CoglPipeline *
@@ -320,80 +399,10 @@ cogl_pipeline_new (CoglContext *context)
   return new;
 }
 
-static gboolean
-destroy_weak_children_cb (CoglNode *node,
-                          void *user_data)
-{
-  CoglPipeline *pipeline = COGL_PIPELINE (node);
-
-  if (_cogl_pipeline_is_weak (pipeline))
-    {
-      _cogl_pipeline_node_foreach_child (COGL_NODE (pipeline),
-                                         destroy_weak_children_cb,
-                                         NULL);
-
-      pipeline->destroy_callback (pipeline, pipeline->destroy_data);
-      _cogl_pipeline_node_unparent_real (COGL_NODE (pipeline));
-    }
-
-  return TRUE;
-}
-
-static void
-_cogl_pipeline_free (CoglPipeline *pipeline)
-{
-  if (!pipeline->is_weak)
-    _cogl_pipeline_revert_weak_ancestors (pipeline);
-
-  /* Weak pipelines don't take a reference on their parent */
-  _cogl_pipeline_node_foreach_child (COGL_NODE (pipeline),
-                                     destroy_weak_children_cb,
-                                     NULL);
-
-  g_assert (_cogl_list_empty (&COGL_NODE (pipeline)->children));
-
-  _cogl_pipeline_node_unparent_real (COGL_NODE (pipeline));
-
-  if (pipeline->differences & COGL_PIPELINE_STATE_USER_SHADER &&
-      pipeline->big_state->user_program)
-    g_object_unref (pipeline->big_state->user_program);
-
-  if (pipeline->differences & COGL_PIPELINE_STATE_UNIFORMS)
-    {
-      CoglPipelineUniformsState *uniforms_state
-        = &pipeline->big_state->uniforms_state;
-      int n_overrides = _cogl_bitmask_popcount (&uniforms_state->override_mask);
-      int i;
-
-      for (i = 0; i < n_overrides; i++)
-        _cogl_boxed_value_destroy (uniforms_state->override_values + i);
-      g_free (uniforms_state->override_values);
-
-      _cogl_bitmask_destroy (&uniforms_state->override_mask);
-      _cogl_bitmask_destroy (&uniforms_state->changed_mask);
-    }
-
-  if (pipeline->differences & COGL_PIPELINE_STATE_LAYERS)
-    g_list_free_full (pipeline->layer_differences, cogl_object_unref);
-
-  if (pipeline->differences & COGL_PIPELINE_STATE_VERTEX_SNIPPETS)
-    _cogl_pipeline_snippet_list_free (&pipeline->big_state->vertex_snippets);
-
-  if (pipeline->differences & COGL_PIPELINE_STATE_FRAGMENT_SNIPPETS)
-    _cogl_pipeline_snippet_list_free (&pipeline->big_state->fragment_snippets);
-
-  if (pipeline->differences & COGL_PIPELINE_STATE_NEEDS_BIG_STATE)
-    g_free (pipeline->big_state);
-
-  recursively_free_layer_caches (pipeline);
-
-  g_free (pipeline);
-}
-
 gboolean
 _cogl_pipeline_get_real_blend_enabled (CoglPipeline *pipeline)
 {
-  g_return_val_if_fail (cogl_is_pipeline (pipeline), FALSE);
+  g_return_val_if_fail (COGL_IS_PIPELINE (pipeline), FALSE);
 
   return pipeline->real_blend_enable;
 }
@@ -805,7 +814,7 @@ _cogl_pipeline_copy_differences (CoglPipeline *dest,
 
       if (dest->differences & COGL_PIPELINE_STATE_LAYERS &&
           dest->layer_differences)
-        g_list_free_full (dest->layer_differences, cogl_object_unref);
+        g_list_free_full (dest->layer_differences, g_object_unref);
 
       for (l = src->layer_differences; l; l = l->next)
         {
@@ -815,7 +824,7 @@ _cogl_pipeline_copy_differences (CoglPipeline *dest,
            * originals instead. */
           CoglPipelineLayer *copy = _cogl_pipeline_layer_copy (l->data);
           _cogl_pipeline_add_layer_difference (dest, copy, FALSE);
-          cogl_object_unref (copy);
+          g_object_unref (copy);
         }
 
       /* Note: we initialize n_layers after adding the layer differences
@@ -1198,7 +1207,7 @@ _cogl_pipeline_pre_change_notify (CoglPipeline     *pipeline,
 
       /* The children will keep the new authority alive so drop the
        * reference we got when copying... */
-      cogl_object_unref (new_authority);
+      g_object_unref (new_authority);
     }
 
   /* At this point we know we have a pipeline with no strong
@@ -1259,7 +1268,7 @@ _cogl_pipeline_add_layer_difference (CoglPipeline *pipeline,
   g_return_if_fail (layer->owner == NULL);
 
   layer->owner = pipeline;
-  cogl_object_ref (layer);
+  g_object_ref (layer);
 
   /* - Flush journal primitives referencing the current state.
    * - Make sure the pipeline has no dependants so it may be modified.
@@ -1320,7 +1329,7 @@ _cogl_pipeline_remove_layer_difference (CoglPipeline *pipeline,
   if (layer->owner == pipeline)
     {
       layer->owner = NULL;
-      cogl_object_unref (layer);
+      g_object_unref (layer);
 
       pipeline->layer_differences =
         g_list_remove (pipeline->layer_differences, layer);
@@ -1636,7 +1645,7 @@ _cogl_pipeline_get_layer_with_flags (CoglPipeline *pipeline,
 
   _cogl_pipeline_add_layer_difference (pipeline, layer, TRUE);
 
-  cogl_object_unref (layer);
+  g_object_unref (layer);
 
   return layer;
 }
@@ -1662,10 +1671,10 @@ _cogl_pipeline_prune_empty_layer_difference (CoglPipeline *layers_authority,
   if (layer_parent->index == layer->index && layer_parent->owner == NULL &&
       _cogl_pipeline_layer_get_parent (layer_parent) != NULL)
     {
-      cogl_object_ref (layer_parent);
+      g_object_ref (layer_parent);
       layer_parent->owner = layers_authority;
       link->data = layer_parent;
-      cogl_object_unref (layer);
+      g_object_unref (layer);
       recursively_free_layer_caches (layers_authority);
       return;
     }
@@ -2224,7 +2233,7 @@ _cogl_pipeline_update_authority (CoglPipeline *pipeline,
 unsigned long
 _cogl_pipeline_get_age (CoglPipeline *pipeline)
 {
-  g_return_val_if_fail (cogl_is_pipeline (pipeline), 0);
+  g_return_val_if_fail (COGL_IS_PIPELINE (pipeline), 0);
 
   return pipeline->age;
 }
@@ -2236,7 +2245,7 @@ cogl_pipeline_remove_layer (CoglPipeline *pipeline, int layer_index)
   CoglPipelineLayerInfo layer_info;
   int                   i;
 
-  g_return_if_fail (cogl_is_pipeline (pipeline));
+  g_return_if_fail (COGL_IS_PIPELINE (pipeline));
 
   authority =
     _cogl_pipeline_get_authority (pipeline, COGL_PIPELINE_STATE_LAYERS);
@@ -2286,7 +2295,7 @@ cogl_pipeline_get_n_layers (CoglPipeline *pipeline)
 {
   CoglPipeline *authority;
 
-  g_return_val_if_fail (cogl_is_pipeline (pipeline), 0);
+  g_return_val_if_fail (COGL_IS_PIPELINE (pipeline), 0);
 
   authority =
     _cogl_pipeline_get_authority (pipeline, COGL_PIPELINE_STATE_LAYERS);
@@ -2309,14 +2318,14 @@ CoglPipeline *
 _cogl_pipeline_journal_ref (CoglPipeline *pipeline)
 {
   pipeline->journal_ref_count++;
-  return cogl_object_ref (pipeline);
+  return g_object_ref (pipeline);
 }
 
 void
 _cogl_pipeline_journal_unref (CoglPipeline *pipeline)
 {
   pipeline->journal_ref_count--;
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 }
 
 #ifdef COGL_DEBUG_ENABLED

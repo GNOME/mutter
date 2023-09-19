@@ -410,7 +410,7 @@ setup_pipeline (MetaBackgroundContent *self,
     pipeline_flags |= PIPELINE_ROUNDED_CLIP | PIPELINE_BLEND;
 
   if (pipeline_flags != self->pipeline_flags)
-    g_clear_pointer (&self->pipeline, cogl_object_unref);
+    g_clear_object (&self->pipeline);
 
   if (self->pipeline == NULL)
     {
@@ -830,7 +830,7 @@ meta_background_content_dispose (GObject *object)
   set_unobscured_region (self, NULL);
   meta_background_content_set_background (self, NULL);
 
-  g_clear_pointer (&self->pipeline, cogl_object_unref);
+  g_clear_object (&self->pipeline);
 
   G_OBJECT_CLASS (meta_background_content_parent_class)->dispose (object);
 }

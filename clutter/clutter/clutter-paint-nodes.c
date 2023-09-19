@@ -384,7 +384,7 @@ clutter_pipeline_node_finalize (ClutterPaintNode *node)
   ClutterPipelineNode *pnode = CLUTTER_PIPELINE_NODE (node);
 
   if (pnode->pipeline != NULL)
-    cogl_object_unref (pnode->pipeline);
+    g_object_unref (pnode->pipeline);
 
   CLUTTER_PAINT_NODE_CLASS (clutter_pipeline_node_parent_class)->finalize (node);
 }
@@ -554,7 +554,7 @@ clutter_pipeline_node_init (ClutterPipelineNode *self)
  * paint its contents.
  *
  * This function will acquire a reference on the passed @pipeline,
- * so it is safe to call cogl_object_unref() when it returns.
+ * so it is safe to call g_object_unref() when it returns.
  *
  * Return value: (transfer full): the newly created #ClutterPaintNode.
  *   Use clutter_paint_node_unref() when done.
@@ -564,12 +564,12 @@ clutter_pipeline_node_new (CoglPipeline *pipeline)
 {
   ClutterPipelineNode *res;
 
-  g_return_val_if_fail (pipeline == NULL || cogl_is_pipeline (pipeline), NULL);
+  g_return_val_if_fail (pipeline == NULL || COGL_IS_PIPELINE (pipeline), NULL);
 
   res = _clutter_paint_node_create (CLUTTER_TYPE_PIPELINE_NODE);
 
   if (pipeline != NULL)
-    res->pipeline = cogl_object_ref (pipeline);
+    res->pipeline = g_object_ref (pipeline);
 
   return (ClutterPaintNode *) res;
 }
@@ -1427,7 +1427,7 @@ clutter_layer_node_finalize (ClutterPaintNode *node)
   ClutterLayerNode *lnode = CLUTTER_LAYER_NODE (node);
 
   if (lnode->pipeline != NULL)
-    cogl_object_unref (lnode->pipeline);
+    g_object_unref (lnode->pipeline);
 
   g_clear_object (&lnode->offscreen);
 
@@ -1494,7 +1494,7 @@ clutter_layer_node_new_to_framebuffer (CoglFramebuffer *framebuffer,
   ClutterLayerNode *res;
 
   g_return_val_if_fail (COGL_IS_FRAMEBUFFER (framebuffer), NULL);
-  g_return_val_if_fail (cogl_is_pipeline (pipeline), NULL);
+  g_return_val_if_fail (COGL_IS_PIPELINE (pipeline), NULL);
 
   res = _clutter_paint_node_create (CLUTTER_TYPE_LAYER_NODE);
 

@@ -86,7 +86,7 @@ paint (TestState *state)
                                    50, 0, 100, 50);
   cogl_pipeline_set_user_program (pipeline, NULL);
 
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 }
 
 static void

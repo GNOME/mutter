@@ -694,7 +694,7 @@ ensure_wallpaper_texture (MetaBackground *self,
       cogl_pipeline_set_layer_texture (pipeline, 0, texture);
       cogl_framebuffer_draw_textured_rectangle (fbo, pipeline, 0, 0, width, height,
                                                 0., 0., 1., 1.);
-      cogl_object_unref (pipeline);
+      g_object_unref (pipeline);
 
       if (texture_has_alpha (texture))
         {
@@ -703,7 +703,7 @@ ensure_wallpaper_texture (MetaBackground *self,
           pipeline = create_pipeline (PIPELINE_OVER_REVERSE);
           cogl_pipeline_set_layer_texture (pipeline, 0, self->color_texture);
           cogl_framebuffer_draw_rectangle (fbo, pipeline, 0, 0, width, height);
-          cogl_object_unref (pipeline);
+          g_object_unref (pipeline);
         }
 
       g_object_unref (fbo);
@@ -873,7 +873,7 @@ meta_background_get_texture (MetaBackground       *self,
                                               texture2, &monitor_area,
                                               monitor_scale);
 
-          cogl_object_unref (pipeline);
+          g_object_unref (pipeline);
         }
       else
         {
@@ -905,7 +905,7 @@ meta_background_get_texture (MetaBackground       *self,
                                                                      texture1, &monitor_area,
                                                                      monitor_scale);
 
-          cogl_object_unref (pipeline);
+          g_object_unref (pipeline);
         }
 
       if (bare_region_visible)
@@ -918,7 +918,7 @@ meta_background_get_texture (MetaBackground       *self,
                                            pipeline,
                                            0, 0,
                                            monitor_area.width, monitor_area.height);
-          cogl_object_unref (pipeline);
+          g_object_unref (pipeline);
         }
 
       monitor->dirty = FALSE;

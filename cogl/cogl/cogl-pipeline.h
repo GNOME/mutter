@@ -48,9 +48,9 @@ typedef struct _CoglPipeline CoglPipeline;
 G_BEGIN_DECLS
 
 /**
- * SECTION:cogl-pipeline
- * @short_description: Functions for creating and manipulating the GPU
- *                     pipeline
+ * CoglPipeline:
+ *
+ * Functions for creating and manipulating the GPU pipeline
  *
  * Cogl allows creating and manipulating objects representing the full
  * configuration of the GPU pipeline. In simplified terms the GPU
@@ -60,16 +60,21 @@ G_BEGIN_DECLS
  * performs fragment processing including depth testing and texture
  * mapping. Finally it blends the result with the framebuffer.
  */
+#define COGL_TYPE_PIPELINE            (cogl_pipeline_get_type ())
+#define COGL_PIPELINE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_PIPELINE, CoglPipeline))
+#define COGL_PIPELINE_CONST(obj)      (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_PIPELINE, CoglPipeline const))
+#define COGL_PIPELINE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  COGL_TYPE_PIPELINE, CoglPipelineClass))
+#define COGL_IS_PIPELINE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), COGL_TYPE_PIPELINE))
+#define COGL_IS_PIPELINE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  COGL_TYPE_PIPELINE))
+#define COGL_PIPELINE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  COGL_TYPE_PIPELINE, CoglPipelineClass))
 
-#define COGL_PIPELINE(OBJECT) ((CoglPipeline *)OBJECT)
+typedef struct _CoglPipelineClass CoglPipelineClass;
+typedef struct _CoglPipeline CoglPipeline;
 
-/**
- * cogl_pipeline_get_gtype:
- *
- * Returns: a #GType that can be used with the GLib type system.
- */
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglPipeline, g_object_unref)
+
 COGL_EXPORT
-GType cogl_pipeline_get_gtype (void);
+GType               cogl_pipeline_get_type       (void) G_GNUC_CONST;
 
 /**
  * cogl_pipeline_new: (constructor)
@@ -100,18 +105,6 @@ cogl_pipeline_new (CoglContext *context);
  */
 COGL_EXPORT CoglPipeline *
 cogl_pipeline_copy (CoglPipeline *source);
-
-/**
- * cogl_is_pipeline:
- * @object: A #CoglObject
- *
- * Gets whether the given @object references an existing pipeline object.
- *
- * Return value: %TRUE if the @object references a #CoglPipeline,
- *   %FALSE otherwise
- */
-COGL_EXPORT gboolean
-cogl_is_pipeline (void *object);
 
 /**
  * CoglPipelineLayerCallback:

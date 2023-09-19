@@ -130,7 +130,7 @@ clutter_brightness_contrast_effect_create_pipeline (ClutterOffscreenEffect *effe
 
   cogl_pipeline_set_layer_texture (self->pipeline, 0, texture);
 
-  return cogl_object_ref (self->pipeline);
+  return g_object_ref (self->pipeline);
 }
 
 static gboolean
@@ -155,7 +155,7 @@ clutter_brightness_contrast_effect_dispose (GObject *gobject)
 {
   ClutterBrightnessContrastEffect *self = CLUTTER_BRIGHTNESS_CONTRAST_EFFECT (gobject);
 
-  cogl_clear_object (&self->pipeline);
+  g_clear_object (&self->pipeline);
 
   G_OBJECT_CLASS (clutter_brightness_contrast_effect_parent_class)->dispose (gobject);
 }

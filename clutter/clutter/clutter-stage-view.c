@@ -208,7 +208,7 @@ clutter_stage_view_invalidate_offscreen_blit_pipeline (ClutterStageView *view)
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
 
-  g_clear_pointer (&priv->offscreen_pipeline, cogl_object_unref);
+  g_clear_object (&priv->offscreen_pipeline);
 }
 
 void
@@ -1485,7 +1485,7 @@ clutter_stage_view_dispose (GObject *object)
                    clutter_damage_history_free);
 
   g_clear_object (&priv->offscreen);
-  g_clear_pointer (&priv->offscreen_pipeline, cogl_object_unref);
+  g_clear_object (&priv->offscreen_pipeline);
   g_clear_pointer (&priv->redraw_clip, cairo_region_destroy);
   g_clear_pointer (&priv->accumulated_redraw_clip, cairo_region_destroy);
   g_clear_pointer (&priv->frame_clock, clutter_frame_clock_destroy);

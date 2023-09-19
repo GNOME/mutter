@@ -149,7 +149,7 @@ paint (TestState *state)
                                    0.0f, SOURCE_SIZE * 2.0f,
                                    10.0f, SOURCE_SIZE * 2.0f + 10.0f);
 
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 }
 
 static void

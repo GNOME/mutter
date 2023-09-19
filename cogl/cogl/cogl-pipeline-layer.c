@@ -47,15 +47,43 @@
 
 #include <string.h>
 
+G_DEFINE_FINAL_TYPE (CoglPipelineLayer, cogl_pipeline_layer, COGL_TYPE_NODE)
+
 static void
-_cogl_pipeline_layer_free (CoglPipelineLayer *layer);
+cogl_pipeline_layer_dispose (GObject *object)
+{
+  CoglPipelineLayer *layer = COGL_PIPELINE_LAYER (object);
 
-/* This type was made deprecated before the cogl_is_pipeline_layer
-   function was ever exposed in the public headers so there's no need
-   to make the cogl_is_pipeline_layer function public. We use INTERNAL
-   so that the cogl_is_* function won't get defined */
-COGL_OBJECT_INTERNAL_DEFINE (PipelineLayer, pipeline_layer);
+  _cogl_pipeline_node_unparent_real (COGL_NODE (layer));
 
+  if (layer->differences & COGL_PIPELINE_LAYER_STATE_TEXTURE_DATA &&
+      layer->texture != NULL)
+    g_object_unref (layer->texture);
+
+  if (layer->differences & COGL_PIPELINE_LAYER_STATE_VERTEX_SNIPPETS)
+    _cogl_pipeline_snippet_list_free (&layer->big_state->vertex_snippets);
+
+  if (layer->differences & COGL_PIPELINE_LAYER_STATE_FRAGMENT_SNIPPETS)
+    _cogl_pipeline_snippet_list_free (&layer->big_state->fragment_snippets);
+
+  if (layer->differences & COGL_PIPELINE_LAYER_STATE_NEEDS_BIG_STATE)
+    g_free (layer->big_state);
+
+  G_OBJECT_CLASS (cogl_pipeline_layer_parent_class)->dispose (object);
+}
+
+static void
+cogl_pipeline_layer_class_init (CoglPipelineLayerClass *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->dispose = cogl_pipeline_layer_dispose;
+}
+
+static void
+cogl_pipeline_layer_init (CoglPipelineLayer *layer)
+{
+}
 
 CoglPipelineLayer *
 _cogl_pipeline_layer_get_authority (CoglPipelineLayer *layer,
@@ -372,7 +400,7 @@ _cogl_pipeline_layer_pre_change_notify (CoglPipeline *required_owner,
       if (layer->owner == required_owner)
         _cogl_pipeline_remove_layer_difference (required_owner, layer, FALSE);
       _cogl_pipeline_add_layer_difference (required_owner, new, FALSE);
-      cogl_object_unref (new);
+      g_object_unref (new);
       layer = new;
       goto init_layer_state;
     }
@@ -449,9 +477,7 @@ _cogl_pipeline_layer_set_parent (CoglPipelineLayer *layer,
 CoglPipelineLayer *
 _cogl_pipeline_layer_copy (CoglPipelineLayer *src)
 {
-  CoglPipelineLayer *layer = g_new0 (CoglPipelineLayer, 1);
-
-  _cogl_pipeline_node_init (COGL_NODE (layer));
+  CoglPipelineLayer *layer = g_object_new (COGL_TYPE_PIPELINE_LAYER, NULL);
 
   layer->owner = NULL;
   layer->index = src->index;
@@ -460,7 +486,7 @@ _cogl_pipeline_layer_copy (CoglPipelineLayer *src)
 
   _cogl_pipeline_layer_set_parent (layer, src);
 
-  return _cogl_pipeline_layer_object_new (layer);
+  return layer;
 }
 
 /* XXX: This is duplicated logic; the same as for
@@ -688,38 +714,15 @@ _cogl_pipeline_layer_equal (CoglPipelineLayer *layer0,
   return TRUE;
 }
 
-static void
-_cogl_pipeline_layer_free (CoglPipelineLayer *layer)
-{
-  _cogl_pipeline_node_unparent_real (COGL_NODE (layer));
-
-  if (layer->differences & COGL_PIPELINE_LAYER_STATE_TEXTURE_DATA &&
-      layer->texture != NULL)
-    g_object_unref (layer->texture);
-
-  if (layer->differences & COGL_PIPELINE_LAYER_STATE_VERTEX_SNIPPETS)
-    _cogl_pipeline_snippet_list_free (&layer->big_state->vertex_snippets);
-
-  if (layer->differences & COGL_PIPELINE_LAYER_STATE_FRAGMENT_SNIPPETS)
-    _cogl_pipeline_snippet_list_free (&layer->big_state->fragment_snippets);
-
-  if (layer->differences & COGL_PIPELINE_LAYER_STATE_NEEDS_BIG_STATE)
-    g_free (layer->big_state);
-
-  g_free (layer);
-}
-
 void
 _cogl_pipeline_init_default_layers (void)
 {
-  CoglPipelineLayer *layer = g_new0 (CoglPipelineLayer, 1);
+  CoglPipelineLayer *layer = g_object_new (COGL_TYPE_PIPELINE_LAYER, NULL);
   CoglPipelineLayerBigState *big_state =
     g_new0 (CoglPipelineLayerBigState, 1);
   CoglPipelineLayer *new;
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
-  _cogl_pipeline_node_init (COGL_NODE (layer));
 
   layer->index = 0;
 
@@ -762,7 +765,7 @@ _cogl_pipeline_init_default_layers (void)
 
   graphene_matrix_init_identity (&big_state->matrix);
 
-  ctx->default_layer_0 = _cogl_pipeline_layer_object_new (layer);
+  ctx->default_layer_0 = layer;
 
   /* TODO: we should make default_layer_n comprise of two
    * descendants of default_layer_0:

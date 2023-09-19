@@ -82,7 +82,7 @@ check_pipeline_pruning (void)
    * should run the garbage collector again but this time the
    * pipelines won't be in use so it should free some of them */
   for (i = 0; i < 18; i++)
-    cogl_object_unref (pipelines[i]);
+    g_object_unref (pipelines[i]);
 
   create_pipelines (pipelines, 18);
 
@@ -96,7 +96,7 @@ check_pipeline_pruning (void)
   g_assert_cmpint (combined_hash->expected_min_size, ==, 17);
 
   for (i = 0; i < 18; i++)
-    cogl_object_unref (pipelines[i]);
+    g_object_unref (pipelines[i]);
 }
 
 COGL_TEST_SUITE (

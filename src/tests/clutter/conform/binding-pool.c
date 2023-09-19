@@ -171,7 +171,7 @@ key_group_paint (ClutterActor        *actor,
       clutter_actor_paint (child, paint_context);
     }
 
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 }
 
 static void

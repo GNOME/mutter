@@ -35,7 +35,7 @@ test_pipeline_opengl_blend_enable (void)
    * then blending should be disabled */
   g_assert_cmpint (test_ctx->gl_blend_enable_cache, ==, 0);
 
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 }
 
 COGL_TEST_SUITE (

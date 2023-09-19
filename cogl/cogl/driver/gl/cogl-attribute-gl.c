@@ -231,7 +231,7 @@ _cogl_gl_flush_attributes_state (CoglFramebuffer *framebuffer,
        *         memcmp (&overrides->options, &options,
        *                 sizeof (options) != 0)
        *       {
-       *         cogl_object_unref (overrides->weak_pipeline);
+       *         g_object_unref (overrides->weak_pipeline);
        *         g_free (overrides);
        *         overrides = NULL;
        *       }
@@ -300,5 +300,5 @@ _cogl_gl_flush_attributes_state (CoglFramebuffer *framebuffer,
   apply_attribute_enable_updates (ctx, pipeline);
 
   if (copy)
-    cogl_object_unref (copy);
+    g_object_unref (copy);
 }

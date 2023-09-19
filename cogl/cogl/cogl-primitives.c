@@ -280,7 +280,7 @@ _cogl_texture_quad_multiple_primitives (CoglFramebuffer *framebuffer,
                                        &state);
 
   if (validate_first_layer_state.override_pipeline)
-    cogl_object_unref (validate_first_layer_state.override_pipeline);
+    g_object_unref (validate_first_layer_state.override_pipeline);
 }
 
 typedef struct _ValidateTexCoordsState
@@ -364,7 +364,7 @@ validate_tex_coords_cb (CoglPipeline *pipeline,
             }
 
           if (state->override_pipeline)
-            cogl_object_unref (state->override_pipeline);
+            g_object_unref (state->override_pipeline);
           state->needs_multiple_primitives = TRUE;
           return FALSE;
         }
@@ -467,7 +467,7 @@ _cogl_multitexture_quad_single_primitive (CoglFramebuffer *framebuffer,
                           n_layers * 4);
 
   if (state.override_pipeline)
-    cogl_object_unref (state.override_pipeline);
+    g_object_unref (state.override_pipeline);
 
   return TRUE;
 }
@@ -703,7 +703,7 @@ _cogl_framebuffer_draw_multitextured_rectangles (
     }
 
   if (pipeline != original_pipeline)
-    cogl_object_unref (pipeline);
+    g_object_unref (pipeline);
 }
 
 void

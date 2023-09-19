@@ -254,8 +254,8 @@ test_short_verts (TestState *state, int offset_x, int offset_y)
 
   g_object_unref (attributes[0]);
 
-  cogl_object_unref (pipeline2);
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline2);
+  g_object_unref (pipeline);
   g_object_unref (buffer);
 
   test_utils_check_pixel (test_fb, offset_x + 5, offset_y + 5, 0xff0000ff);
@@ -293,7 +293,7 @@ test_custom_attributes (void)
 
   paint (&state);
 
-  cogl_object_unref (state.pipeline);
+  g_object_unref (state.pipeline);
   g_object_unref (snippet);
 
   if (cogl_test_verbose ())

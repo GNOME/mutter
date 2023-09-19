@@ -350,7 +350,7 @@ test_offscreen_texture_formats_paint_rgb10 (void)
           cogl_framebuffer_draw_rectangle (COGL_FRAMEBUFFER (offscreen_dst),
                                            pipeline,
                                            -1.0, -1.0, 1.0, 1.0);
-          cogl_object_unref (pipeline);
+          g_object_unref (pipeline);
 
           cogl_framebuffer_read_pixels (COGL_FRAMEBUFFER (offscreen_dst),
                                         0, 0, 2, 2, formats[j],
@@ -476,7 +476,7 @@ test_offscreen_texture_formats_paint_rgb8 (void)
           cogl_framebuffer_draw_rectangle (COGL_FRAMEBUFFER (offscreen_dst),
                                            pipeline,
                                            -1.0, -1.0, 1.0, 1.0);
-          cogl_object_unref (pipeline);
+          g_object_unref (pipeline);
 
           cogl_framebuffer_read_pixels (COGL_FRAMEBUFFER (offscreen_dst),
                                         0, 0, 2, 2, formats[j],

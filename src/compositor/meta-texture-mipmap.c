@@ -68,7 +68,7 @@ meta_texture_mipmap_free (MetaTextureMipmap *mipmap)
 {
   g_return_if_fail (mipmap != NULL);
 
-  cogl_clear_object (&mipmap->pipeline);
+  g_clear_object (&mipmap->pipeline);
   g_clear_object (&mipmap->base_texture);
   g_clear_object (&mipmap->mipmap_texture);
   g_clear_object (&mipmap->fb);

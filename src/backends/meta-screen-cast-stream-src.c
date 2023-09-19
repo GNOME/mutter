@@ -353,7 +353,7 @@ draw_cursor_sprite_via_offscreen (MetaScreenCastStreamSrc  *src,
   cogl_framebuffer_clear (fb, COGL_BUFFER_BIT_COLOR, &clear_color);
   cogl_framebuffer_draw_rectangle (fb, pipeline,
                                    -1, 1, 1, -1);
-  cogl_object_unref (pipeline);
+  g_object_unref (pipeline);
 
   cogl_framebuffer_read_pixels (fb,
                                 0, 0,

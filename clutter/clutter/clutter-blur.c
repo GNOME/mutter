@@ -326,7 +326,7 @@ apply_blur_pass (BlurPass *pass)
 static void
 clear_blur_pass (BlurPass *pass)
 {
-  cogl_clear_object (&pass->pipeline);
+  g_clear_object (&pass->pipeline);
   g_clear_object (&pass->texture);
   g_clear_object (&pass->framebuffer);
 }

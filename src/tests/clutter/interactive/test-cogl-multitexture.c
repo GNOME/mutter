@@ -222,8 +222,8 @@ test_cogl_multitexture_main (int argc, char *argv[])
 
   clutter_test_main ();
 
-  cogl_object_unref (state->pipeline1);
-  cogl_object_unref (state->pipeline0);
+  g_object_unref (state->pipeline1);
+  g_object_unref (state->pipeline0);
   g_object_unref (state->alpha_tex);
   g_object_unref (state->redhand_tex);
   g_object_unref (state->light_tex0);
