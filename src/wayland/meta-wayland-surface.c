@@ -2301,8 +2301,8 @@ meta_wayland_surface_can_scanout_untransformed (MetaWaylandSurface *surface,
           untransformed_layout_height = view_layout.height * view_scale;
         }
 
-      if (view_layout.width != surface->viewport.dst_width ||
-          view_layout.height != surface->viewport.dst_height ||
+      if ((view_layout.width / geometry_scale) != surface->viewport.dst_width ||
+          (view_layout.height / geometry_scale) != surface->viewport.dst_height ||
           !G_APPROX_VALUE (untransformed_layout_width,
                            meta_wayland_surface_get_buffer_width (surface),
                            FLT_EPSILON) ||
@@ -2313,9 +2313,9 @@ meta_wayland_surface_can_scanout_untransformed (MetaWaylandSurface *surface,
           meta_topic (META_DEBUG_RENDER,
                       "Surface can not be scanned out untransformed: viewport "
                       "destination or buffer size does not match stage-view "
-                      "layout. (%d != %d || %d != %d || %f != %d %f != %d)",
-                      view_layout.width, surface->viewport.dst_width,
-                      view_layout.height, surface->viewport.dst_height,
+                      "layout. (%d/%d != %d || %d/%d != %d || %f != %d %f != %d)",
+                      view_layout.width, geometry_scale, surface->viewport.dst_width,
+                      view_layout.height, geometry_scale, surface->viewport.dst_height,
                       untransformed_layout_width,
                       meta_wayland_surface_get_buffer_width (surface),
                       untransformed_layout_height,
