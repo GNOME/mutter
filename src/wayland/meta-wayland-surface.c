@@ -1108,8 +1108,8 @@ wl_surface_set_opaque_region (struct wl_client   *client,
   if (region_resource)
     {
       MetaWaylandRegion *region = wl_resource_get_user_data (region_resource);
-      MtkRegion *cr_region = meta_wayland_region_peek_cairo_region (region);
-      pending->opaque_region = mtk_region_copy (cr_region);
+      MtkRegion *mtk_region = meta_wayland_region_peek_region (region);
+      pending->opaque_region = mtk_region_copy (mtk_region);
     }
   pending->opaque_region_set = TRUE;
 }
@@ -1126,8 +1126,8 @@ wl_surface_set_input_region (struct wl_client   *client,
   if (region_resource)
     {
       MetaWaylandRegion *region = wl_resource_get_user_data (region_resource);
-      MtkRegion *cr_region = meta_wayland_region_peek_cairo_region (region);
-      pending->input_region = mtk_region_copy (cr_region);
+      MtkRegion *mtk_region = meta_wayland_region_peek_region (region);
+      pending->input_region = mtk_region_copy (mtk_region);
     }
   pending->input_region_set = TRUE;
 }

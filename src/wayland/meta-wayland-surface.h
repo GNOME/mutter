@@ -345,7 +345,7 @@ void                meta_wayland_surface_get_absolute_coordinates (MetaWaylandSu
 
 MetaWaylandSurface * meta_wayland_surface_role_get_surface (MetaWaylandSurfaceRole *role);
 
-MtkRegion *    meta_wayland_surface_calculate_input_region (MetaWaylandSurface *surface);
+MtkRegion * meta_wayland_surface_calculate_input_region (MetaWaylandSurface *surface);
 
 
 gboolean            meta_wayland_surface_begin_grab_op (MetaWaylandSurface   *surface,

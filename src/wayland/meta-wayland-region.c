@@ -98,7 +98,7 @@ meta_wayland_region_create (MetaWaylandCompositor *compositor,
 }
 
 MtkRegion *
-meta_wayland_region_peek_cairo_region (MetaWaylandRegion *region)
+meta_wayland_region_peek_region (MetaWaylandRegion *region)
 {
   return region->region;
 }

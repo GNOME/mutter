@@ -322,7 +322,7 @@ meta_wayland_pointer_constraint_new (MetaWaylandSurface                      *su
   if (region)
     {
       constraint->region =
-        mtk_region_copy (meta_wayland_region_peek_cairo_region (region));
+        mtk_region_copy (meta_wayland_region_peek_region (region));
     }
   else
     {
@@ -816,7 +816,7 @@ meta_wayland_pointer_constraint_set_pending_region (MetaWaylandPointerConstraint
   if (region)
     {
       constraint_pending->region =
-        mtk_region_copy (meta_wayland_region_peek_cairo_region (region));
+        mtk_region_copy (meta_wayland_region_peek_region (region));
     }
 }
 

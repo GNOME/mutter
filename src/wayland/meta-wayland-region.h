@@ -32,4 +32,4 @@ MetaWaylandRegion * meta_wayland_region_create (MetaWaylandCompositor *composito
                                                 struct wl_resource    *compositor_resource,
                                                 guint32                id);
 
-MtkRegion * meta_wayland_region_peek_cairo_region (MetaWaylandRegion *region);
+MtkRegion * meta_wayland_region_peek_region (MetaWaylandRegion *region);
