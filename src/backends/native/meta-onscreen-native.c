@@ -2446,6 +2446,15 @@ init_secondary_gpu_state_gpu_copy_mode (MetaRendererNative         *renderer_nat
                                     width, height,
                                     format,
                                     GBM_BO_USE_SCANOUT | GBM_BO_USE_RENDERING);
+
+  if (!gbm_surface)
+    {
+      gbm_surface = gbm_surface_create (gbm_device,
+                                        width, height,
+                                        format,
+                                        0);
+    }
+
   if (!gbm_surface)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
