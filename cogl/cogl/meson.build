@@ -436,7 +436,13 @@ if have_introspection
     sources: cogl_introspected_headers,
     nsversion: libmutter_api_version,
     namespace: 'Cogl',
-    includes: ['cairo-1.0', 'GL-1.0', 'GObject-2.0', 'Graphene-1.0'],
+    includes: [
+      libmutter_mtk_gir[0],
+      'cairo-1.0',
+      'GL-1.0',
+      'GObject-2.0',
+      'Graphene-1.0', 
+    ],
     dependencies: [cogl_deps],
     export_packages: 'mutter-cogl-@0@'.format(libmutter_api_version),
     extra_args: introspection_args + [

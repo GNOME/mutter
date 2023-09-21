@@ -45,6 +45,7 @@ if have_introspection
     symbol_prefix: 'cogl_pango',
     header: 'cogl-pango.h',
     includes: [
+      libmutter_mtk_gir[0],
       libmutter_cogl_gir[0],
       'Pango-1.0',
       'PangoCairo-1.0'
