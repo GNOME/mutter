@@ -4,10 +4,12 @@ mtk_headers = [
   'mtk.h',
   'mtk-macros.h',
   'mtk-rectangle.h',
+  'mtk-region.h',
 ]
 
 mtk_sources = [
   'mtk-rectangle.c',
+  'mtk-region.c',
 ]
 
 if have_x11
@@ -19,6 +21,7 @@ if have_x11
 endif
 
 mtk_private_headers = [
+  'mtk-region-private.h',
 ]
 
 

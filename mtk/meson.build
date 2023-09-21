@@ -33,6 +33,7 @@ mtk_pkg_deps = [
   gobject_dep,
   gio_dep,
   graphene_dep,
+  pixman_dep,
 ]
 
 if have_x11

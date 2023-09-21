@@ -21,10 +21,11 @@
 
 #pragma once
 
-#define __MTK_H_INSIDE__
+#include <pixman.h>
 
-#include "mtk/mtk-rectangle.h"
-#include "mtk/mtk-region.h"
-#include "mtk/mtk-macros.h"
+struct _MtkRegion
+{
+  gatomicrefcount ref_count;
 
-#undef __MTK_H_INSIDE__
+  pixman_region32_t inner_region;
+};

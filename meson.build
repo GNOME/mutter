@@ -26,6 +26,7 @@ uprof_req = '>= 0.3'
 pango_req = '>= 1.46.0'
 cairo_req = '>= 1.10.0'
 pangocairo_req = '>= 1.20'
+pixman_req = '>= 0.42'
 gsettings_desktop_schemas_req = '>= 40.alpha'
 json_glib_req = '>= 0.12.0'
 x11_req = '>= 1.7.0'
@@ -111,6 +112,7 @@ pango_dep = dependency('pango', version: pango_req)
 cairo_dep = dependency('cairo', version: cairo_req)
 cairo_gobject_dep = dependency('cairo-gobject', version: cairo_req)
 pangocairo_dep = dependency('pangocairo', version: pangocairo_req)
+pixman_dep = dependency('pixman-1', version: pixman_req)
 fribidi_dep = dependency('fribidi', version: fribidi_req)
 gsettings_desktop_schemas_dep = dependency('gsettings-desktop-schemas',
                                            version: gsettings_desktop_schemas_req)

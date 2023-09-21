@@ -6,4 +6,11 @@ test_cases += [
       'mtk/rectangle-tests.c',
     ],
   },
+  {
+    'name': 'mtk-region',
+    'suite': 'unit',
+    'sources': [
+      'mtk/region-tests.c',
+    ]
+  }
 ]
