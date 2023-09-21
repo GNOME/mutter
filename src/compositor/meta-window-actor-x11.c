@@ -1068,10 +1068,11 @@ update_frame_bounds (MetaWindowActorX11 *actor_x11)
 {
   MetaWindow *window =
     meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
-
+  cairo_region_t *frame_bounds = meta_window_get_frame_bounds (window);
   g_clear_pointer (&actor_x11->frame_bounds, cairo_region_destroy);
-  actor_x11->frame_bounds =
-    cairo_region_copy (meta_window_get_frame_bounds (window));
+
+  if (frame_bounds)
+    actor_x11->frame_bounds = cairo_region_copy (frame_bounds);
 }
 
 static void
