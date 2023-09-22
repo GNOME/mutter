@@ -50,41 +50,41 @@ translate_meta_cursor (MetaCursor cursor)
   switch (cursor)
     {
     case META_CURSOR_DEFAULT:
-      return "left_ptr";
+      return "default";
     case META_CURSOR_NORTH_RESIZE:
-      return "top_side";
+      return "n-resize";
     case META_CURSOR_SOUTH_RESIZE:
-      return "bottom_side";
+      return "s-resize";
     case META_CURSOR_WEST_RESIZE:
-      return "left_side";
+      return "w-resize";
     case META_CURSOR_EAST_RESIZE:
-      return "right_side";
+      return "e-resize";
     case META_CURSOR_SE_RESIZE:
-      return "bottom_right_corner";
+      return "se-resize";
     case META_CURSOR_SW_RESIZE:
-      return "bottom_left_corner";
+      return "sw-resize";
     case META_CURSOR_NE_RESIZE:
-      return "top_right_corner";
+      return "ne-resize";
     case META_CURSOR_NW_RESIZE:
-      return "top_left_corner";
+      return "nw-resize";
     case META_CURSOR_MOVE_OR_RESIZE_WINDOW:
-      return "fleur";
+      return "move";
     case META_CURSOR_BUSY:
-      return "watch";
+      return "wait";
     case META_CURSOR_DND_IN_DRAG:
-      return "dnd-none";
+      return "no-drop";
     case META_CURSOR_DND_MOVE:
-      return "dnd-move";
+      return "grabbing";
     case META_CURSOR_DND_COPY:
-      return "dnd-copy";
+      return "copy";
     case META_CURSOR_DND_UNSUPPORTED_TARGET:
-      return "dnd-none";
+      return "no-drop";
     case META_CURSOR_POINTING_HAND:
-      return "hand2";
+      return "pointer";
     case META_CURSOR_CROSSHAIR:
       return "crosshair";
     case META_CURSOR_IBEAM:
-      return "xterm";
+      return "text";
     case META_CURSOR_BLANK:
     case META_CURSOR_NONE:
     case META_CURSOR_LAST:
