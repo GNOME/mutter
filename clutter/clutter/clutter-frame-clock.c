@@ -79,7 +79,9 @@ struct _ClutterFrameClock
 
   gboolean is_next_presentation_time_valid;
   int64_t next_presentation_time_us;
-  int64_t min_render_time_allowed_us;
+
+  gboolean has_next_frame_deadline;
+  int64_t next_frame_deadline_us;
 
   /* Buffer must be submitted to KMS and GPU rendering must be finished
    * this amount of time before the next presentation time.
@@ -451,7 +453,7 @@ static void
 calculate_next_update_time_us (ClutterFrameClock *frame_clock,
                                int64_t           *out_next_update_time_us,
                                int64_t           *out_next_presentation_time_us,
-                               int64_t           *out_min_render_time_allowed_us)
+                               int64_t           *out_next_frame_deadline_us)
 {
   int64_t last_presentation_time_us;
   int64_t now_us;
@@ -474,7 +476,7 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
         now_us;
 
       *out_next_presentation_time_us = 0;
-      *out_min_render_time_allowed_us = 0;
+      *out_next_frame_deadline_us = 0;
       return;
     }
 
@@ -583,7 +585,7 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
     }
   else
     {
-      while (next_presentation_time_us < now_us + min_render_time_allowed_us)
+      while (next_presentation_time_us - min_render_time_allowed_us < now_us)
         next_presentation_time_us += refresh_interval_us;
 
       next_update_time_us = next_presentation_time_us - max_render_time_allowed_us;
@@ -593,7 +595,7 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
 
   *out_next_update_time_us = next_update_time_us;
   *out_next_presentation_time_us = next_presentation_time_us;
-  *out_min_render_time_allowed_us = min_render_time_allowed_us;
+  *out_next_frame_deadline_us = next_presentation_time_us - min_render_time_allowed_us;
 }
 
 void
@@ -664,6 +666,7 @@ clutter_frame_clock_schedule_update_now (ClutterFrameClock *frame_clock)
   g_source_set_ready_time (frame_clock->source, next_update_time_us);
   frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_SCHEDULED;
   frame_clock->is_next_presentation_time_valid = FALSE;
+  frame_clock->has_next_frame_deadline = FALSE;
 }
 
 void
@@ -686,9 +689,11 @@ clutter_frame_clock_schedule_update (ClutterFrameClock *frame_clock)
       calculate_next_update_time_us (frame_clock,
                                      &next_update_time_us,
                                      &frame_clock->next_presentation_time_us,
-                                     &frame_clock->min_render_time_allowed_us);
+                                     &frame_clock->next_frame_deadline_us);
       frame_clock->is_next_presentation_time_valid =
         (frame_clock->next_presentation_time_us != 0);
+      frame_clock->has_next_frame_deadline =
+        (frame_clock->next_frame_deadline_us != 0);
       break;
     case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED:
       return;
@@ -770,7 +775,9 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
   frame->frame_count = frame_count;
   frame->has_target_presentation_time = frame_clock->is_next_presentation_time_valid;
   frame->target_presentation_time_us = frame_clock->next_presentation_time_us;
-  frame->min_render_time_allowed_us = frame_clock->min_render_time_allowed_us;
+
+  frame->has_frame_deadline = frame_clock->has_next_frame_deadline;
+  frame->frame_deadline_us = frame_clock->next_frame_deadline_us;
 
   COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockEvents, "Clutter::FrameListener::before_frame()");
   if (iface->before_frame)

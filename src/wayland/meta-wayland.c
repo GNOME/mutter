@@ -295,8 +295,6 @@ on_after_update (ClutterStage          *stage,
   MetaBackend *backend = meta_context_get_backend (context);
   MetaFrameNative *frame_native;
   GSource *source;
-  int64_t min_render_time_allowed_us;
-  int64_t target_presentation_time_us;
   int64_t frame_deadline_us;
 
   if (!META_IS_BACKEND_NATIVE (backend))
@@ -310,18 +308,13 @@ on_after_update (ClutterStage          *stage,
   source = ensure_source_for_stage_view (compositor, stage_view);
 
   if (meta_frame_native_had_kms_update (frame_native) ||
-      !clutter_frame_get_min_render_time_allowed (frame,
-                                                  &min_render_time_allowed_us) ||
-      !clutter_frame_get_target_presentation_time (frame,
-                                                   &target_presentation_time_us))
+      !clutter_frame_get_frame_deadline (frame,
+                                         &frame_deadline_us))
     {
       g_source_set_ready_time (source, -1);
       emit_frame_callbacks_for_stage_view (compositor, stage_view);
       return;
     }
-
-  frame_deadline_us = target_presentation_time_us -
-                      min_render_time_allowed_us;
 
   if (frame_deadline_us <= g_get_monotonic_time ())
     {
