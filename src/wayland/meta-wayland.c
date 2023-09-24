@@ -322,17 +322,17 @@ on_after_update (ClutterStage          *stage,
     }
   else
     {
-      int64_t source_ready_time_us;
+      int64_t frame_deadline_us;
 
       if (g_source_get_ready_time (source) != -1 &&
           frame_callback_source->target_presentation_time_us <
           target_presentation_time_us)
         emit_frame_callbacks_for_stage_view (compositor, stage_view);
 
-      source_ready_time_us = target_presentation_time_us -
-                             min_render_time_allowed_us;
+      frame_deadline_us = target_presentation_time_us -
+                          min_render_time_allowed_us;
 
-      if (source_ready_time_us <= g_get_monotonic_time ())
+      if (frame_deadline_us <= g_get_monotonic_time ())
         {
           g_source_set_ready_time (source, -1);
           emit_frame_callbacks_for_stage_view (compositor, stage_view);
@@ -341,7 +341,7 @@ on_after_update (ClutterStage          *stage,
         {
           frame_callback_source->target_presentation_time_us =
             target_presentation_time_us;
-          g_source_set_ready_time (source, source_ready_time_us);
+          g_source_set_ready_time (source, frame_deadline_us);
         }
     }
 #else
