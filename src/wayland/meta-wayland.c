@@ -298,6 +298,7 @@ on_after_update (ClutterStage          *stage,
   FrameCallbackSource *frame_callback_source;
   GSource *source;
   int64_t min_render_time_allowed_us;
+  int64_t target_presentation_time_us;
 
   if (!META_IS_BACKEND_NATIVE (backend))
     {
@@ -312,19 +313,16 @@ on_after_update (ClutterStage          *stage,
 
   if (meta_frame_native_had_kms_update (frame_native) ||
       !clutter_frame_get_min_render_time_allowed (frame,
-                                                  &min_render_time_allowed_us))
+                                                  &min_render_time_allowed_us) ||
+      !clutter_frame_get_target_presentation_time (frame,
+                                                   &target_presentation_time_us))
     {
       g_source_set_ready_time (source, -1);
       emit_frame_callbacks_for_stage_view (compositor, stage_view);
     }
   else
     {
-      int64_t target_presentation_time_us;
       int64_t source_ready_time_us;
-
-      if (!clutter_frame_get_target_presentation_time (frame,
-                                                       &target_presentation_time_us))
-        target_presentation_time_us = 0;
 
       if (g_source_get_ready_time (source) != -1 &&
           frame_callback_source->target_presentation_time_us <
