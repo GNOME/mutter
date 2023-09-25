@@ -25,8 +25,13 @@
 #include <glib-object.h>
 #include <glib-unix.h>
 #include <glib/gstdio.h>
+#include <linux/userfaultfd.h>
 #include <poll.h>
 #include <signal.h>
+#include <sys/ioctl.h>
+#include <sys/mman.h>
+#include <sys/syscall.h>
+#include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
@@ -128,6 +133,80 @@ close_fds (MetaThreadWatcher *watcher)
 
   g_clear_fd (&priv->fds[0], NULL);
   g_clear_fd (&priv->fds[1], NULL);
+}
+
+static void
+complete_page_fault (int fd)
+{
+  struct uffdio_copy uffdio_copy;
+  struct uffd_msg msg;
+
+  read (fd, &msg, sizeof(msg));
+
+  uffdio_copy.src = (unsigned long) "X";
+  uffdio_copy.dst = msg.arg.pagefault.address;
+  uffdio_copy.len = 1;
+  uffdio_copy.mode = 0;
+
+  ioctl (fd, UFFDIO_COPY, &uffdio_copy);
+}
+
+static gboolean
+page_fault (int fd)
+{
+  g_timeout_add_once (ms (1000), (GSourceOnceFunc) complete_page_fault, GINT_TO_POINTER (fd));
+  return G_SOURCE_CONTINUE;
+}
+
+static void
+busy_loop (void)
+{
+  struct uffdio_api uffdio_api;
+  struct uffdio_register uffdio_register;
+  int fd;
+  char *area;
+
+  g_warning ("beginning 1 second lock");
+
+  fd = syscall (__NR_userfaultfd, O_CLOEXEC | O_NONBLOCK);
+  if (fd == -1)
+   {
+      g_warning ("Could not get userfault fd: %m");
+      return;
+   }
+
+  uffdio_api.api = UFFD_API;
+  uffdio_api.features = 0;
+  if (ioctl (fd, UFFDIO_API, &uffdio_api) == -1)
+    {
+      g_warning ("Could not select API version for userfault fd: %m");
+      return;
+    }
+
+  area = mmap (NULL, 4096, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+  if (area == MAP_FAILED)
+    {
+      g_warning ("Could not map faultable memory area: %m");
+      return;
+    }
+
+  uffdio_register.range.start = (unsigned long) area;
+  uffdio_register.range.len = 4096;
+  uffdio_register.mode = UFFDIO_REGISTER_MODE_MISSING;
+  if (ioctl (fd, UFFDIO_REGISTER, &uffdio_register) == -1)
+    {
+      g_warning ("Could not register memory area for user faults: %m");
+      return;
+    }
+
+  g_unix_fd_add (fd, G_IO_IN, (GUnixFDSourceFunc) page_fault, NULL);
+
+  /* This should stall for a second
+   */
+  area[0] = 'X';
+
+  munmap (area, 4096);
+  close (fd);
 }
 
 static void
@@ -258,6 +337,10 @@ on_reset_timer (MetaThreadWatcher *watcher)
 {
   g_autoptr (GError) error = NULL;
   gboolean was_reset;
+  static int tries = 0;
+
+  if (tries++ == 1000)
+    busy_loop ();
 
   if (!meta_thread_watcher_is_started (watcher))
     return G_SOURCE_REMOVE;
