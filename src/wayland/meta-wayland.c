@@ -97,7 +97,6 @@ typedef struct
 
   MetaWaylandCompositor *compositor;
   ClutterStageView *stage_view;
-  int64_t target_presentation_time_us;
 } FrameCallbackSource;
 
 static void meta_wayland_compositor_update_focus (MetaWaylandCompositor *compositor,
@@ -295,7 +294,6 @@ on_after_update (ClutterStage          *stage,
   MetaContext *context = meta_wayland_compositor_get_context (compositor);
   MetaBackend *backend = meta_context_get_backend (context);
   MetaFrameNative *frame_native;
-  FrameCallbackSource *frame_callback_source;
   GSource *source;
   int64_t min_render_time_allowed_us;
   int64_t target_presentation_time_us;
@@ -309,7 +307,6 @@ on_after_update (ClutterStage          *stage,
   frame_native = meta_frame_native_from_frame (frame);
 
   source = ensure_source_for_stage_view (compositor, stage_view);
-  frame_callback_source = (FrameCallbackSource *) source;
 
   if (meta_frame_native_had_kms_update (frame_native) ||
       !clutter_frame_get_min_render_time_allowed (frame,
@@ -324,11 +321,6 @@ on_after_update (ClutterStage          *stage,
     {
       int64_t frame_deadline_us;
 
-      if (g_source_get_ready_time (source) != -1 &&
-          frame_callback_source->target_presentation_time_us <
-          target_presentation_time_us)
-        emit_frame_callbacks_for_stage_view (compositor, stage_view);
-
       frame_deadline_us = target_presentation_time_us -
                           min_render_time_allowed_us;
 
@@ -339,8 +331,9 @@ on_after_update (ClutterStage          *stage,
         }
       else
         {
-          frame_callback_source->target_presentation_time_us =
-            target_presentation_time_us;
+          if (g_source_get_ready_time (source) != -1)
+            return;
+
           g_source_set_ready_time (source, frame_deadline_us);
         }
     }
