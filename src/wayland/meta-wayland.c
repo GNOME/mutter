@@ -297,6 +297,7 @@ on_after_update (ClutterStage          *stage,
   GSource *source;
   int64_t min_render_time_allowed_us;
   int64_t target_presentation_time_us;
+  int64_t frame_deadline_us;
 
   if (!META_IS_BACKEND_NATIVE (backend))
     {
@@ -316,27 +317,23 @@ on_after_update (ClutterStage          *stage,
     {
       g_source_set_ready_time (source, -1);
       emit_frame_callbacks_for_stage_view (compositor, stage_view);
+      return;
     }
-  else
+
+  frame_deadline_us = target_presentation_time_us -
+                      min_render_time_allowed_us;
+
+  if (frame_deadline_us <= g_get_monotonic_time ())
     {
-      int64_t frame_deadline_us;
-
-      frame_deadline_us = target_presentation_time_us -
-                          min_render_time_allowed_us;
-
-      if (frame_deadline_us <= g_get_monotonic_time ())
-        {
-          g_source_set_ready_time (source, -1);
-          emit_frame_callbacks_for_stage_view (compositor, stage_view);
-        }
-      else
-        {
-          if (g_source_get_ready_time (source) != -1)
-            return;
-
-          g_source_set_ready_time (source, frame_deadline_us);
-        }
+      g_source_set_ready_time (source, -1);
+      emit_frame_callbacks_for_stage_view (compositor, stage_view);
+      return;
     }
+
+  if (g_source_get_ready_time (source) != -1)
+    return;
+
+  g_source_set_ready_time (source, frame_deadline_us);
 #else
   emit_frame_callbacks_for_stage_view (compositor, stage_view);
 #endif
