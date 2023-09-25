@@ -20,11 +20,15 @@
 #include "backends/native/meta-thread-private.h"
 
 #include <glib.h>
+#include <glib-unix.h>
+#include <signal.h>
 #include <sys/resource.h>
+#include <unistd.h>
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-backend-types.h"
 #include "backends/native/meta-thread-impl.h"
+#include "backends/native/meta-thread-watcher.h"
 
 #include "meta-dbus-rtkit1.h"
 #include "meta-private-enum-types.h"
@@ -84,6 +88,7 @@ typedef struct _MetaThreadPrivate
 
   struct {
     GThread *thread;
+    MetaThreadWatcher *thread_watcher;
     GMutex init_mutex;
   } kernel;
 } MetaThreadPrivate;
@@ -208,7 +213,7 @@ request_real_time_scheduling (MetaThread  *thread,
   MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
   g_autoptr (MetaDBusRealtimeKit1) rtkit_proxy = NULL;
   g_autoptr (GError) local_error = NULL;
-  int64_t rttime;
+  int64_t rttime, watch_interval;
   struct rlimit rl;
   uint32_t priority;
 
@@ -261,6 +266,12 @@ request_real_time_scheduling (MetaThread  *thread,
 
   meta_topic (META_DEBUG_BACKEND,
               "Setting soft and hard RLIMIT_RTTIME limit to %lu", rttime);
+
+  /* We set the soft-limit and hard-limit to the same value so the
+   * kernel won't send SIGXCPU to random threads. We synthesize our
+   * own SIGXCPU with a timer (See MetaThreadWatcher) that's always
+   * delivered to the approprate thread.
+   */
   rl.rlim_cur = rttime;
   rl.rlim_max = rttime;
 
@@ -270,6 +281,14 @@ request_real_time_scheduling (MetaThread  *thread,
                    "Failed to set RLIMIT_RTTIME: %s", g_strerror (errno));
       return FALSE;
     }
+
+  /* We make sure if a SIGXCPU is synthesized it gets raised before anything
+   * the kernel could throw at us. We do this by setting an interval three quarters
+   * of the soft limit.
+   */
+  watch_interval = (rl.rlim_cur * 3) / 4;
+  if (!meta_thread_watcher_start (priv->kernel.thread_watcher, watch_interval, error))
+    return FALSE;
 
   meta_topic (META_DEBUG_BACKEND, "Setting '%s' thread real time priority to %d",
               priv->name, priority);
@@ -471,9 +490,20 @@ unwrap_main_context (MetaThread   *thread,
 }
 
 static void
+on_realtime_thread_stalled (MetaThread *thread)
+{
+  MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
+
+  g_warning ("Disabling realtime scheduling");
+  priv->wants_realtime = FALSE;
+  meta_thread_reset_thread_type (thread, META_THREAD_TYPE_KERNEL);
+}
+
+static void
 start_thread (MetaThread *thread)
 {
   MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
+  g_autoptr (GError) error = NULL;
 
   switch (priv->thread_type)
     {
@@ -484,9 +514,27 @@ start_thread (MetaThread *thread)
     case META_THREAD_TYPE_KERNEL:
       g_mutex_init (&priv->kernel.init_mutex);
       g_mutex_lock (&priv->kernel.init_mutex);
+
+      if (priv->wants_realtime)
+        {
+          GMainContext *main_context;
+
+          priv->kernel.thread_watcher = meta_thread_watcher_new ();
+          main_context = meta_thread_impl_get_main_context (priv->impl);
+
+          meta_thread_watcher_attach (priv->kernel.thread_watcher, main_context);
+
+          g_signal_connect_object (priv->kernel.thread_watcher,
+                                   "thread-stalled",
+                                   G_CALLBACK (on_realtime_thread_stalled),
+                                   thread,
+                                   G_CONNECT_SWAPPED);
+        }
+
       priv->kernel.thread = g_thread_new (priv->name,
                                           thread_impl_func,
                                           thread);
+
       g_mutex_unlock (&priv->kernel.init_mutex);
       break;
     }
@@ -549,6 +597,9 @@ finalize_thread_kernel (MetaThread *thread)
   meta_thread_impl_terminate (priv->impl);
   g_thread_join (priv->kernel.thread);
   priv->kernel.thread = NULL;
+
+  g_clear_object (&priv->kernel.thread_watcher);
+
   g_mutex_clear (&priv->kernel.init_mutex);
 }
 
@@ -667,7 +718,17 @@ meta_thread_reset_thread_type (MetaThread     *thread,
   g_autoptr (GMainContext) thread_context = NULL;
 
   if (priv->thread_type == thread_type)
-    return;
+    {
+      gboolean is_realtime;
+
+      if (thread_type != META_THREAD_TYPE_KERNEL)
+        return;
+
+      is_realtime = meta_thread_impl_is_realtime (priv->impl);
+
+      if (is_realtime == priv->wants_realtime)
+        return;
+    }
 
   tear_down_thread (thread);
   g_assert (!priv->wrapper_source);
