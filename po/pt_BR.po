@@ -15,24 +15,25 @@
 # Rodrigo Padula de Oliveira <contato@rodrigopadula.com>, 2011.
 # Artur de Aquino Morais <artur.morais93@outlook.com>, 2016.
 # Enrico Nicoletto <liverig@gmail.com>, 2012-2016, 2021.
-# Rafael Fontenelle <rafaelff@gnome.org>, 2013-2021.
 # Matheus Barbosa <mdpb.matheus@gmail.com>, 2022.
 # Leônidas Araújo <leorusvellt@hotmail.com>, 2022-2023.
+# 
+# Rafael Fontenelle <rafaelff@gnome.org>, 2013-2023.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2023-05-16 13:51+0000\n"
-"PO-Revision-Date: 2023-04-10 16:40-0300\n"
-"Last-Translator: Leônidas Araújo <leorusvellt@hotmail.com>\n"
-"Language-Team: Brazilian Portuguese <gnome-pt_br-list@gnome.org>\n"
+"POT-Creation-Date: 2023-08-23 16:49+0000\n"
+"PO-Revision-Date: 2023-09-25 13:20-0300\n"
+"Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
+"Language-Team: Brazilian Portuguese <https://br.gnome.org/traducao>\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
-"X-Generator: Gtranslator 42.0\n"
+"X-Generator: Gtranslator 45.alpha0\n"
 "X-Project-Style: gnome\n"
 "X-DL-Team: pt_BR\n"
 "X-DL-Module: mutter\n"
@@ -181,20 +182,20 @@ msgid "Switch to last workspace"
 msgstr "Trocar para o último espaço de trabalho"
 
 #: data/50-mutter-navigation.xml:131
-msgid "Move to workspace on the left"
-msgstr "Move para o espaço de trabalho à esquerda"
+msgid "Switch to workspace on the left"
+msgstr "Trocar para o espaço de trabalho à esquerda"
 
 #: data/50-mutter-navigation.xml:134
-msgid "Move to workspace on the right"
-msgstr "Move para o espaço de trabalho à direita"
+msgid "Switch to workspace on the right"
+msgstr "Trocar para o espaço de trabalho à direita"
 
 #: data/50-mutter-navigation.xml:138
-msgid "Move to workspace above"
-msgstr "Mover a visualização para o espaço de trabalho acima"
+msgid "Switch to workspace above"
+msgstr "Trocar para o espaço de trabalho acima"
 
 #: data/50-mutter-navigation.xml:142
-msgid "Move to workspace below"
-msgstr "Mover a visualização para o espaço de trabalho abaixo"
+msgid "Switch to workspace below"
+msgstr "Trocar para o espaço de trabalho abaixo"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -469,6 +470,10 @@ msgstr "Trocar configurações de monitor"
 msgid "Rotates the built-in monitor configuration"
 msgstr "Gira a configuração de monitor embutido"
 
+#: data/org.gnome.mutter.gschema.xml.in:184
+msgid "Cancel any active input capture session"
+msgstr "Cancelar qualquer sessão ativa de captura de entrada"
+
 #: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
 msgstr "Trocar para o VT 1"
@@ -646,88 +651,82 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#. This probably means that a non-WM compositor like xcompmgr is running;
-#. * we have no way to get it to exit
-#: src/compositor/compositor.c:416
-#, c-format
-msgid ""
-"Another compositing manager is already running on screen %i on display “%s”."
-msgstr ""
-"Outro gerenciador de composição de janelas está em execução na tela %i na "
-"área “%s”."
-
-#: src/core/bell.c:192
+#: src/core/bell.c:193
 msgid "Bell event"
 msgstr "Evento de som"
 
-#: src/core/display.c:703
+#: src/core/display.c:723
 msgid "Privacy Screen Enabled"
 msgstr "Tela de privacidade habilitada"
 
-#: src/core/display.c:704
+#: src/core/display.c:724
 msgid "Privacy Screen Disabled"
 msgstr "Tela de privacidade desabilitada"
 
-#: src/core/meta-context-main.c:576
+#: src/core/meta-context-main.c:581
 msgid "Replace the running window manager"
 msgstr "Substitui o gerenciador de janelas em execução"
 
-#: src/core/meta-context-main.c:582
+#: src/core/meta-context-main.c:587
 msgid "X Display to use"
 msgstr "Tela X para usar"
 
-#: src/core/meta-context-main.c:588
+#: src/core/meta-context-main.c:593
 msgid "Disable connection to session manager"
 msgstr "Desabilita a conexão com o gerenciador de sessões"
 
-#: src/core/meta-context-main.c:594
+#: src/core/meta-context-main.c:599
 msgid "Specify session management ID"
 msgstr "Especifica o ID do gerenciador de sessões"
 
-#: src/core/meta-context-main.c:600
+#: src/core/meta-context-main.c:605
 msgid "Initialize session from savefile"
 msgstr "Inicializa a sessão a partir do arquivo salvo"
 
-#: src/core/meta-context-main.c:606
+#: src/core/meta-context-main.c:611
 msgid "Make X calls synchronous"
 msgstr "Faz X chamadas síncronas"
 
-#: src/core/meta-context-main.c:614
+#: src/core/meta-context-main.c:619
 msgid "Run as a wayland compositor"
 msgstr "Executa como um compositor wayland"
 
-#: src/core/meta-context-main.c:620
+#: src/core/meta-context-main.c:625
 msgid "Run as a nested compositor"
 msgstr "Executa como um compositor aninhado"
 
-#: src/core/meta-context-main.c:626
+#: src/core/meta-context-main.c:631
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Executa o compositor wayland sem iniciar o Xwayland"
 
-#: src/core/meta-context-main.c:632
+#: src/core/meta-context-main.c:637
 msgid "Specify Wayland display name to use"
 msgstr "Especifica o nome da tela Wayland para usar"
 
-#: src/core/meta-context-main.c:640
+#: src/core/meta-context-main.c:645
 msgid "Run as a full display server, rather than nested"
 msgstr "Executa como um servidor de tela cheia, ao invés de aninhado"
 
-#: src/core/meta-context-main.c:645
+#: src/core/meta-context-main.c:650
 msgid "Run as a headless display server"
 msgstr "Executa como um servidor de tela sem periféricos"
 
-#: src/core/meta-context-main.c:650
+#: src/core/meta-context-main.c:655
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Adicionar monitor virtual persistente (WxH ou WxH@R)"
 
-#: src/core/meta-context-main.c:662
+#: src/core/meta-context-main.c:667
 msgid "Run with X11 backend"
 msgstr "Executa com backend X11"
+
+#: src/core/meta-context-main.c:673
+msgid "Profile performance using trace instrumentation"
+msgstr "Perfila o desempenho usando instrumentação de rastreamento"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:861
+#: src/core/meta-pad-action-mapper.c:807
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Alternador de modo (Grupo %d)"
@@ -735,16 +734,16 @@ msgstr "Alternador de modo (Grupo %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:884
+#: src/core/meta-pad-action-mapper.c:829
 msgid "Switch monitor"
 msgstr "Trocar monitor"
 
-#: src/core/meta-pad-action-mapper.c:886
+#: src/core/meta-pad-action-mapper.c:831
 msgid "Show on-screen help"
 msgstr "Mostrar ajuda na tela"
 
 #. Translators: this string will appear in Sysprof
-#: src/core/meta-profiler.c:80 src/core/meta-profiler.c:217
+#: src/core/meta-profiler.c:111 src/core/meta-profiler.c:301
 msgid "Compositor"
 msgstr "Compositor"
 
@@ -756,25 +755,25 @@ msgstr "Versão impressa"
 msgid "Mutter plugin to use"
 msgstr "Plug-in do Mutter para usar"
 
-#: src/core/prefs.c:1913
+#: src/core/prefs.c:1843
 #, c-format
 msgid "Workspace %d"
 msgstr "Espaço de trabalho %d"
 
-#: src/core/util.c:142
+#: src/core/util.c:139
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "O Mutter foi compilado sem suporte para modo detalhado"
 
-#: src/core/workspace.c:541
+#: src/core/workspace.c:535
 msgid "Workspace switched"
 msgstr "Espaço de trabalho alterado"
 
-#: src/wayland/meta-wayland-tablet-pad.c:530
+#: src/wayland/meta-wayland-tablet-pad.c:534
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Alternador de modo: Modo %d"
 
-#: src/x11/meta-x11-display.c:701
+#: src/x11/meta-x11-display.c:708
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -783,35 +782,41 @@ msgstr ""
 "A exibição “%s” já possui um gerenciador de janelas; tente usar a opção --"
 "replace para substituir o gerenciador de janelas atual."
 
-#: src/x11/meta-x11-display.c:1066
+#: src/x11/meta-x11-display.c:1073
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Falha ao abrir a exibição “%s” do sistema de janelas X"
 
-#: src/x11/meta-x11-display.c:1211
+#: src/x11/meta-x11-display.c:1219
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "A tela %d na exibição “%s” é inválida"
+
+#. This probably means that a non-WM compositor like xcompmgr is running;
+#. * we have no way to get it to exit
+#: src/x11/meta-x11-display.c:2540
+#, c-format
+msgid ""
+"Another compositing manager is already running on screen %i on display “%s”."
+msgstr ""
+"Outro gerenciador de composição de janelas está em execução na tela %i na "
+"área “%s”."
 
 #: src/x11/meta-x11-selection-input-stream.c:475
 #, c-format
 msgid "Format %s not supported"
 msgstr "Sem suporte ao formato %s"
 
-#: src/x11/window-props.c:549
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (em %s)"
 
-#, fuzzy
-#~| msgid "Switch to workspace 1"
-#~ msgid "Switch to workspace above"
-#~ msgstr "Trocar para o espaço de trabalho 1"
+#~ msgid "Move to workspace above"
+#~ msgstr "Mover a visualização para o espaço de trabalho acima"
 
-#, fuzzy
-#~| msgid "Switch to workspace 1"
-#~ msgid "Switch to workspace below"
-#~ msgstr "Trocar para o espaço de trabalho 1"
+#~ msgid "Move to workspace below"
+#~ msgstr "Mover a visualização para o espaço de trabalho abaixo"
 
 #~ msgid "Mutter"
 #~ msgstr "Mutter"
