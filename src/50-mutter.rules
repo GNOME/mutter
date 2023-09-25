@@ -1,0 +1,9 @@
+polkit.addRule(function(action, subject) {
+    if (subject.isInGroup("wheel") &&
+        subject.active &&
+        subject.local &&
+        action.id == "org.gnome.mutter.backtrace") {
+        return polkit.Result.YES;
+    }
+});
+

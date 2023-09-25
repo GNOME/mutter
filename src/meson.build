@@ -1224,6 +1224,33 @@ mutter = executable('mutter',
   install_dir: bindir,
   install: true,
 )
+
+install_data(
+    'mutter-backtrace',
+    install_dir : libexecdir,
+    install_mode : 'rwxr-xr-x'
+)
+
+if have_polkit
+  backtrace_polkit_policy = configure_file(
+      input : 'org.gnome.mutter.backtrace.policy.in',
+      output : 'org.gnome.mutter.backtrace.policy',
+      configuration : {'LIBEXECDIR': libexecdir}
+  )
+
+  install_data(
+      backtrace_polkit_policy,
+      install_dir : polkit_policy_dir,
+      install_mode : 'rw-r--r--'
+  )
+
+  install_data(
+      '50-mutter.rules',
+      install_dir : polkit_rules_dir,
+      install_mode : 'rw-r--r--'
+  )
+endif
+
 if have_x11
   executable('mutter-restart-helper',
     sources: [

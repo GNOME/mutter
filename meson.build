@@ -297,6 +297,16 @@ if have_pango_ft2
   pangoft2_dep = dependency('pangoft2')
 endif
 
+have_polkit = get_option('polkit')
+if have_polkit
+  polkit_dep = dependency('polkit-gobject-1')
+  polkit_policy_dir = polkit_dep.get_variable('policydir')
+
+  # polkit currently has no way to get rulesdir so derive it from actiondir
+  # https://gitlab.freedesktop.org/polkit/polkit/-/merge_requests/195
+  polkit_rules_dir = join_paths(polkit_policy_dir, '..', 'rules.d')
+endif
+
 have_startup_notification = get_option('startup_notification')
 if have_startup_notification
   if have_x11_client
@@ -698,6 +708,7 @@ summary('EGL Device', have_egl_device, section: 'Options')
 summary('Remote desktop', have_remote_desktop, section: 'Options')
 summary('libgnome-desktop', have_gnome_desktop, section: 'Options')
 summary('libdisplay-info', have_libdisplay_info, section: 'Options')
+summary('Polkit enhanced backtrace support', have_polkit, section: 'Options')
 summary('Sound player', have_sound_player, section: 'Options')
 summary('gudev', have_libgudev, section: 'Options')
 summary('Wacom', have_libwacom, section: 'Options')

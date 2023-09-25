@@ -24,11 +24,13 @@
 #include "core/display-private.h"
 #include "core/util-private.h"
 
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
+#include <sys/wait.h>
 
 #ifdef HAVE_SYS_PRCTL
 #include <sys/prctl.h>
@@ -75,6 +77,7 @@ static gint verbose_topics = 0;
 static gboolean is_wayland_compositor = FALSE;
 static int debug_paint_flags = 0;
 static GLogLevelFlags mutter_log_level = G_LOG_LEVEL_MESSAGE;
+static char *backtrace_command = NULL;
 
 #ifdef WITH_VERBOSE_MODE
 static FILE* logfile = NULL;
@@ -213,6 +216,16 @@ meta_init_debug_utils (void)
 
   if (g_test_initialized ())
     mutter_log_level = G_LOG_LEVEL_DEBUG;
+
+  /* If pkexec works we'll get a kernel backtrace too,
+   * but it may not work if the user isn't in the wheel group.
+   * If it fails, we fall back to running unprivileged to at
+   * least get a backtrace of the process.
+   */
+  if (backtrace_command == NULL)
+    backtrace_command = g_strdup_printf ("pkexec %1$s %2$d || %1$s %2$d",
+                                         MUTTER_LIBEXECDIR "/mutter-backtrace",
+                                         (int) getpid ());
 }
 
 gboolean
@@ -540,6 +553,50 @@ meta_generate_random_id (GRand *rand,
   return id;
 }
 
+static gboolean
+unix_signal_safe_run_command (const char *command)
+{
+  pid_t pid;
+  int status;
+  int ret;
+
+  pid = fork ();
+  if (pid == -1)
+    return FALSE;
+
+  if (pid == 0)
+    {
+      int stdin_fd;
+
+      const char *argv[] = {
+        "/bin/sh",
+        "-c",
+        command,
+        NULL
+      };
+
+      stdin_fd = open ("/dev/null", O_RDWR);
+      dup2 (stdin_fd, STDIN_FILENO);
+
+      execve (argv[0], (char **) argv, environ);
+
+      _exit (1);
+    }
+
+  do
+    {
+      ret = waitpid (pid, &status, 0);
+    }
+  while (ret != 0 && errno == EINTR);
+
+  return WIFEXITED (status) && WEXITSTATUS (status) == 0;
+}
+
+void
+meta_print_backtrace (void)
+{
+  unix_signal_safe_run_command (backtrace_command);
+}
 
 void
 meta_add_clutter_debug_flags (ClutterDebugFlag     debug_flags,
