@@ -21,16 +21,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2023-06-30 18:22+0000\n"
-"PO-Revision-Date: 2023-07-04 11:30+0200\n"
-"Last-Translator: Charles Monzat <charles.monzat@free.fr>\n"
+"POT-Creation-Date: 2023-09-21 11:02+0000\n"
+"PO-Revision-Date: 2023-09-21 14:39+0200\n"
+"Last-Translator: Guillaume Bernard <associations@guillaume-bernard.fr>\n"
 "Language-Team: GNOME French Team <gnomefr@traduc.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 3.1.1\n"
+"X-Generator: Poedit 3.3.2\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -460,6 +460,10 @@ msgstr "Changer de configuration de moniteur"
 msgid "Rotates the built-in monitor configuration"
 msgstr "Passe à la prochaine configuration intégrée de moniteur"
 
+#: data/org.gnome.mutter.gschema.xml.in:184
+msgid "Cancel any active input capture session"
+msgstr "Annuler toutes les sessions de capture d’entrée actives"
+
 #: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
 msgstr "Passer à l’émulateur de terminal 1"
@@ -616,26 +620,26 @@ msgstr ""
 "+byteswappedclients ou -byteswappedclients pour contrôler ce paramètre. "
 "Xwayland doit être redémarré pour que ce paramètre prenne effet."
 
-#: src/backends/meta-monitor.c:253
+#: src/backends/meta-monitor.c:251
 msgid "Built-in display"
 msgstr "Affichage intégré"
 
-#: src/backends/meta-monitor.c:280
+#: src/backends/meta-monitor.c:278
 msgid "Unknown"
 msgstr "Inconnu"
 
-#: src/backends/meta-monitor.c:282
+#: src/backends/meta-monitor.c:280
 msgid "Unknown Display"
 msgstr "Affichage inconnu"
 
-#: src/backends/meta-monitor.c:290
+#: src/backends/meta-monitor.c:288
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:298
+#: src/backends/meta-monitor.c:296
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -647,78 +651,78 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Évènement sonore"
 
-#: src/core/display.c:715
+#: src/core/display.c:723
 msgid "Privacy Screen Enabled"
 msgstr "Écran de confidentialité activé"
 
-#: src/core/display.c:716
+#: src/core/display.c:724
 msgid "Privacy Screen Disabled"
 msgstr "Écran de confidentialité désactivé"
 
-#: src/core/meta-context-main.c:581
+#: src/core/meta-context-main.c:579
 msgid "Replace the running window manager"
 msgstr "Remplacer le gestionnaire de fenêtres en cours de fonctionnement"
 
-#: src/core/meta-context-main.c:587
+#: src/core/meta-context-main.c:585
 msgid "X Display to use"
 msgstr "Affichage X à utiliser"
 
-#: src/core/meta-context-main.c:593
+#: src/core/meta-context-main.c:591
 msgid "Disable connection to session manager"
 msgstr "Désactiver la connexion au gestionnaire de sessions"
 
-#: src/core/meta-context-main.c:599
+#: src/core/meta-context-main.c:597
 msgid "Specify session management ID"
 msgstr "Indiquer l’ID de gestion de sessions"
 
-#: src/core/meta-context-main.c:605
+#: src/core/meta-context-main.c:603
 msgid "Initialize session from savefile"
 msgstr "Initialiser la session depuis le fichier de sauvegarde"
 
-#: src/core/meta-context-main.c:611
+#: src/core/meta-context-main.c:609
 msgid "Make X calls synchronous"
 msgstr "Rendre synchrones les appels à X"
 
-#: src/core/meta-context-main.c:619
+#: src/core/meta-context-main.c:617
 msgid "Run as a wayland compositor"
 msgstr "Lancer comme un compositeur wayland"
 
-#: src/core/meta-context-main.c:625
+#: src/core/meta-context-main.c:623
 msgid "Run as a nested compositor"
 msgstr "Lancer comme un compositeur imbriqué"
 
-#: src/core/meta-context-main.c:631
+#: src/core/meta-context-main.c:629
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Lancer le compositeur wayland sans démarrer Xwayland"
 
-#: src/core/meta-context-main.c:637
+#: src/core/meta-context-main.c:635
 msgid "Specify Wayland display name to use"
 msgstr "Indiquer le nom d’affichage Wayland à utiliser"
 
-#: src/core/meta-context-main.c:645
+#: src/core/meta-context-main.c:643
 msgid "Run as a full display server, rather than nested"
 msgstr "Lancer comme un serveur d’affichage complet, plutôt qu’imbriqué"
 
-#: src/core/meta-context-main.c:650
+#: src/core/meta-context-main.c:648
 msgid "Run as a headless display server"
 msgstr "Lancer comme un serveur d’affichage sans interface"
 
-#: src/core/meta-context-main.c:655
+#: src/core/meta-context-main.c:653
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Ajouter un moniteur virtuel persistant (WxH ou WxH@R)"
 
-#: src/core/meta-context-main.c:667
+#: src/core/meta-context-main.c:665
 msgid "Run with X11 backend"
 msgstr "Lancer avec le moteur X11"
 
-#: src/core/meta-context-main.c:673
+#: src/core/meta-context-main.c:671
 msgid "Profile performance using trace instrumentation"
-msgstr ""
+msgstr "Réaliser un profil de performance en utilisant les outils de traçage"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:861
+#: src/core/meta-pad-action-mapper.c:805
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Changement de mode (groupe %d)"
@@ -726,16 +730,16 @@ msgstr "Changement de mode (groupe %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:884
+#: src/core/meta-pad-action-mapper.c:827
 msgid "Switch monitor"
 msgstr "Changer de moniteur"
 
-#: src/core/meta-pad-action-mapper.c:886
+#: src/core/meta-pad-action-mapper.c:829
 msgid "Show on-screen help"
 msgstr "Afficher l’aide à l’écran"
 
 #. Translators: this string will appear in Sysprof
-#: src/core/meta-profiler.c:111 src/core/meta-profiler.c:301
+#: src/core/meta-profiler.c:109 src/core/meta-profiler.c:299
 msgid "Compositor"
 msgstr "Compositeur"
 
@@ -752,20 +756,20 @@ msgstr "Greffon de Mutter à utiliser"
 msgid "Workspace %d"
 msgstr "Espace de travail %d"
 
-#: src/core/util.c:138
+#: src/core/util.c:139
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter a été compilé sans la prise en charge du mode bavard"
 
-#: src/core/workspace.c:541
+#: src/core/workspace.c:512
 msgid "Workspace switched"
 msgstr "Espace de travail changé"
 
-#: src/wayland/meta-wayland-tablet-pad.c:530
+#: src/wayland/meta-wayland-tablet-pad.c:532
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Changement de mode : mode %d"
 
-#: src/x11/meta-x11-display.c:708
+#: src/x11/meta-x11-display.c:717
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -774,19 +778,19 @@ msgstr ""
 "L’affichage « %s » a déjà un gestionnaire de fenêtres ; essayez d’utiliser "
 "l’option --replace pour remplacer le gestionnaire de fenêtres actuel."
 
-#: src/x11/meta-x11-display.c:1073
+#: src/x11/meta-x11-display.c:1082
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Impossible d’ouvrir l’affichage « %s » du système X Window"
 
-#: src/x11/meta-x11-display.c:1219
+#: src/x11/meta-x11-display.c:1228
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "L’écran %d sur l’affichage « %s » n’est pas valide"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2550
+#: src/x11/meta-x11-display.c:2554
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
