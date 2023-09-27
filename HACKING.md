@@ -52,6 +52,39 @@ style][gnome-coding-style], with some additions described below.
  * Initialize and assign floating point variables (i.e. `float` or
    `double`) using the form `floating_point = 3.14159` or `ratio = 2.0`.
 
+## Naming conventions
+
+ * For object instance pointers, use a descriptive name instead of `self`, e.g.
+
+```c
+G_DEFINE_TYPE (MetaPlaceholder, meta_placeholder, G_TYPE_OBJECT)
+
+...
+
+void
+meta_placeholder_hold_place (MetaPlaceholder *placeholder)
+{
+  ...
+}
+```
+
+ * When object instance pointers are pointers to non-generic implementations of
+   a generalized type, the convention is to suffix the variable name with the
+   sub-type name. E.g.
+
+```c
+G_DEFINE_TYPE (MetaPlaceholderWayland, meta_placeholder_wayland,
+               META_TYPE_PLACEHOLDER)
+
+...
+
+void
+meta_placeholder_wayland_get_waylandy (MetaPlaceholderWayland *placeholder_wayland)
+{
+  ...
+}
+```
+
 ## Header (.h) files
 
  * The return type and `*` are separated by a space.
