@@ -75,8 +75,14 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
                         CoglOnscreen       **onscreen_out,
                         MetaWaylandSurface **surface_out)
 {
-  ClutterStageView *stage_view;
-  MetaRendererView *renderer_view;
+  ClutterStageView *stage_view =
+    meta_compositor_view_get_stage_view (compositor_view);
+  MetaStageView *view = META_STAGE_VIEW (stage_view);
+  MetaRendererView *renderer_view = META_RENDERER_VIEW (stage_view);
+  MetaBackend *backend = meta_compositor_get_backend (compositor);
+  MetaCursorTracker *cursor_tracker =
+    meta_backend_get_cursor_tracker (backend);
+  CoglTexture *cursor_sprite;
   MetaCrtc *crtc;
   CoglFramebuffer *framebuffer;
   MetaWindowActor *window_actor;
@@ -95,8 +101,42 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
       return FALSE;
     }
 
-  stage_view = meta_compositor_view_get_stage_view (compositor_view);
-  renderer_view = META_RENDERER_VIEW (stage_view);
+  clutter_stage_view_get_layout (stage_view, &view_rect);
+
+  cursor_sprite = meta_cursor_tracker_get_sprite (cursor_tracker);
+  if (cursor_sprite &&
+      meta_cursor_tracker_get_pointer_visible (cursor_tracker) &&
+      !meta_stage_view_is_cursor_overlay_inhibited (view))
+    {
+      graphene_rect_t graphene_view_rect;
+      graphene_rect_t cursor_rect;
+      graphene_point_t position;
+      float scale;
+      int hotspot_x;
+      int hotspot_y;
+
+      meta_cursor_tracker_get_pointer (cursor_tracker, &position, NULL);
+      meta_cursor_tracker_get_hot (cursor_tracker, &hotspot_x, &hotspot_y);
+
+      scale = (clutter_stage_view_get_scale (stage_view) *
+               meta_cursor_tracker_get_scale (cursor_tracker));
+
+      graphene_rect_init (&cursor_rect,
+                          position.x - (hotspot_x * scale),
+                          position.y - (hotspot_y * scale),
+                          cogl_texture_get_width (cursor_sprite) * scale,
+                          cogl_texture_get_height (cursor_sprite) * scale);
+
+      graphene_view_rect = mtk_rectangle_to_graphene_rect (&view_rect);
+      if (graphene_rect_intersection (&graphene_view_rect,
+                                      &cursor_rect,
+                                      NULL))
+        {
+          meta_topic (META_DEBUG_RENDER,
+                      "No direct scanout candidate: using software cursor");
+          return FALSE;
+        }
+    }
 
   crtc = meta_renderer_view_get_crtc (renderer_view);
   if (!META_IS_CRTC_KMS (crtc))
@@ -174,7 +214,6 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
       return FALSE;
     }
 
-  clutter_stage_view_get_layout (stage_view, &view_rect);
   if (!G_APPROX_VALUE (actor_box.x1, view_rect.x,
                        CLUTTER_COORDINATE_EPSILON) ||
       !G_APPROX_VALUE (actor_box.y1, view_rect.y,
