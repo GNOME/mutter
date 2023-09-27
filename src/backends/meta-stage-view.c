@@ -241,3 +241,12 @@ meta_stage_view_uninhibit_cursor_overlay (MetaStageView *view)
 
   priv->inhibit_cursor_overlay_count--;
 }
+
+gboolean
+meta_stage_view_is_cursor_overlay_inhibited (MetaStageView *view)
+{
+  MetaStageViewPrivate *priv =
+    meta_stage_view_get_instance_private (view);
+
+  return priv->inhibit_cursor_overlay_count > 0;
+}

@@ -28,3 +28,5 @@ G_DECLARE_DERIVABLE_TYPE (MetaStageView,
 void meta_stage_view_inhibit_cursor_overlay (MetaStageView *view);
 
 void meta_stage_view_uninhibit_cursor_overlay (MetaStageView *view);
+
+gboolean meta_stage_view_is_cursor_overlay_inhibited (MetaStageView *view);
