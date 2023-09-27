@@ -75,17 +75,50 @@ MetaUdev * meta_udev_new (MetaBackendNative *backend_native);
 Keep functions in the following order in source files:
 
   1. GPL header
-  2. Enums
-  3. Structures
-  4. Function prototypes
-  5. `G_DEFINE_TYPE()`
-  6. Static variables
-  7. Auxiliary functions
-  8. Callbacks
-  9. Interface implementations
-  10. Parent vfunc overrides
-  11. class_init and init
-  12. Public API
+  2. Include header files
+  3. Enums
+  4. Structures
+  5. Function prototypes
+  6. `G_DEFINE_TYPE()`
+  7. Static variables
+  8. Auxiliary functions
+  9. Callbacks
+  10. Interface implementations
+  11. Parent vfunc overrides
+  12. class_init and init
+  13. Public API
+
+### Include header files
+
+Source files should use the header include order of the following example:
+
+* `meta-example.c`:
+```c
+#include "config.h"
+
+#include "meta-example-private.h"
+
+#include <glib-object.h>
+#include <stdint.h>
+
+#ifdef HAVE_WAYLAND
+#include <wayland-server-core.h>
+#endif
+
+#include "clutter/clutter.h"
+#include "backends/meta-backend-private.h"
+#include "mtk/mtk.h"
+
+#ifdef HAVE_WAYLAND
+#include "wayland/meta-wayland-surface.h"
+#endif
+
+#include "meta-dbus-file-generated-by-gdbus-codegen.h"
+```
+
+Include paths for non-system includes should be relative to the corresponding
+modules source root; i.e. `"backends/meta-backend-private.h"` for
+`src/backends/` and `"clutter/clutter.h"` for `clutter/clutter/clutter.h`.
 
 ### Structures
 
