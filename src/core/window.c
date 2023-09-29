@@ -6137,6 +6137,8 @@ meta_window_get_default_layer (MetaWindow *window)
     return META_LAYER_BOTTOM;
   else if (window->wm_state_above && !META_WINDOW_MAXIMIZED (window))
     return META_LAYER_TOP;
+  else if (window->type == META_WINDOW_DESKTOP)
+    return META_LAYER_DESKTOP;
   else
     return META_LAYER_NORMAL;
 }
