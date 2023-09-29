@@ -49,7 +49,6 @@ meta_key_event_new_from_evdev (ClutterInputDevice *device,
 {
   ClutterEvent *event;
   xkb_keysym_t sym;
-  const xkb_keysym_t *syms;
   char buffer[8];
   int n;
 
@@ -64,11 +63,7 @@ meta_key_event_new_from_evdev (ClutterInputDevice *device,
    * upwards by 8. */
   key = meta_xkb_evdev_to_keycode (key);
 
-  n = xkb_key_get_syms (xkb_state, key, &syms);
-  if (n == 1)
-    sym = syms[0];
-  else
-    sym = XKB_KEY_NoSymbol;
+  sym = xkb_state_key_get_one_sym (xkb_state, key);
 
   event->key.time = _time;
   meta_xkb_translate_state (event, xkb_state, button_state);
