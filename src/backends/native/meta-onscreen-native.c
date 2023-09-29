@@ -840,6 +840,9 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
   COGL_TRACE_BEGIN_SCOPED (CopySharedFramebufferSecondaryGpu,
                            "copy_shared_framebuffer_gpu()");
 
+  if (renderer_gpu_data->secondary.needs_explicit_sync)
+    cogl_framebuffer_finish (COGL_FRAMEBUFFER (onscreen));
+
   render_device = renderer_gpu_data->render_device;
   egl_display = meta_render_device_get_egl_display (render_device);
 
