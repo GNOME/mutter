@@ -1920,10 +1920,6 @@ get_standalone_layer (MetaWindow *window)
 
   switch (window->type)
     {
-    case META_WINDOW_DESKTOP:
-      layer = META_LAYER_DESKTOP;
-      break;
-
     case META_WINDOW_DOCK:
       if (window->wm_state_below ||
           (window->monitor && window->monitor->in_fullscreen))
