@@ -200,6 +200,14 @@
     <method name="Start"/>
 
     <!--
+        Stop:
+        @short_description: Stop the stream
+
+        Stop the started stream.
+    -->
+    <method name="Stop"/>
+
+    <!--
         PipeWireStreamAdded:
         @short_description: Pipewire stream added
 

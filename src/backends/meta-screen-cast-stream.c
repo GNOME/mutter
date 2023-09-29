@@ -396,10 +396,35 @@ handle_start (MetaDBusScreenCastStream *skeleton,
   return TRUE;
 }
 
+static gboolean
+handle_stop (MetaDBusScreenCastStream *skeleton,
+             GDBusMethodInvocation    *invocation)
+{
+  MetaScreenCastStream *stream = META_SCREEN_CAST_STREAM (skeleton);
+  MetaScreenCastStreamPrivate *priv =
+    meta_screen_cast_stream_get_instance_private (stream);
+
+  if (!check_permission (stream, invocation))
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_ACCESS_DENIED,
+                                             "Permission denied");
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+
+  if (priv->src)
+    meta_screen_cast_stream_close (stream);
+
+  meta_dbus_screen_cast_stream_complete_stop (skeleton, invocation);
+
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
+}
+
 static void
 meta_screen_cast_stream_init_iface (MetaDBusScreenCastStreamIface *iface)
 {
   iface->handle_start = handle_start;
+  iface->handle_stop = handle_stop;
 }
 
 static gboolean
