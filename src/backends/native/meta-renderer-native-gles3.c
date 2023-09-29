@@ -55,6 +55,8 @@ paint_egl_image (MetaGles3   *gles3,
 
   meta_gles3_clear_error (gles3);
 
+  GLBAS (gles3, glViewport, (0, 0, width, height));
+
   GLBAS (gles3, glGenFramebuffers, (1, &framebuffer));
   GLBAS (gles3, glBindFramebuffer, (GL_READ_FRAMEBUFFER, framebuffer));
 
