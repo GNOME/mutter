@@ -247,6 +247,12 @@ ms (int64_t ms)
 }
 
 static inline int64_t
+ms2ns (int64_t ms)
+{
+  return ns (us (ms * 1000) * 1000);
+}
+
+static inline int64_t
 ms2us (int64_t ms)
 {
   return us (ms * 1000);
