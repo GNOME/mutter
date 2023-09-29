@@ -549,7 +549,7 @@ meta_wayland_compositor_get_committed_transactions (MetaWaylandCompositor *compo
   return &compositor->committed_transactions;
 }
 
-static void
+static gboolean
 set_gnome_env (const char *name,
 	       const char *value)
 {
@@ -584,7 +584,10 @@ set_gnome_env (const char *name,
 
       g_free (remote_error);
       g_error_free (error);
+
+      return FALSE;
     }
+  return TRUE;
 }
 
 static void meta_wayland_log_func (const char *, va_list) G_GNUC_PRINTF (1, 0);
