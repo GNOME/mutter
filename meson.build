@@ -555,6 +555,7 @@ have_xwayland_initfd = false
 have_xwayland_listenfd = false
 have_xwayland_terminate_delay = false
 have_xwayland_byte_swapped_clients = false
+have_xwayland_enable_ei_portal = false
 if have_xwayland
   xwayland_dep = dependency('xwayland', required: false)
 
@@ -625,6 +626,16 @@ if have_xwayland
 
   if (have_xwayland_byte_swapped_clients)
     cdata.set('HAVE_XWAYLAND_BYTE_SWAPPED_CLIENTS', 1)
+  endif
+
+  # For Xwayland -enable-portal usage
+  if xwayland_dep.found()
+    have_xwayland_enable_ei_portal = xwayland_dep.get_variable('have_enable_ei_portal',
+                                                               default_value: 'false') == 'true'
+  endif
+
+  if (have_xwayland_enable_ei_portal)
+    cdata.set('HAVE_XWAYLAND_ENABLE_EI_PORTAL', 1)
   endif
 endif
 
@@ -710,6 +721,7 @@ summary('Xwayland initfd', have_xwayland_initfd, section: 'Options')
 summary('Xwayland listenfd', have_xwayland_listenfd, section: 'Options')
 summary('Xwayland terminate delay', have_xwayland_terminate_delay, section: 'Options')
 summary('Xwayland byte-swapped clients', have_xwayland_byte_swapped_clients, section: 'Options')
+summary('Xwayland enable EI portal', have_xwayland_enable_ei_portal, section: 'Options')
 
 summary('Enabled', have_tests, section: 'Tests')
 summary('Core tests', have_core_tests, section: 'Tests')
