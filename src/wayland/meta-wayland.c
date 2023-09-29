@@ -871,9 +871,16 @@ meta_wayland_compositor_new (MetaContext *context)
 #ifdef HAVE_XWAYLAND
   if (x11_display_policy != META_X11_DISPLAY_POLICY_DISABLED)
     {
-      set_gnome_env ("GNOME_SETUP_DISPLAY", compositor->xwayland_manager.private_connection.name);
-      set_gnome_env ("DISPLAY", compositor->xwayland_manager.public_connection.name);
-      set_gnome_env ("XAUTHORITY", compositor->xwayland_manager.auth_file);
+      gboolean status = TRUE;
+
+      status &=
+        set_gnome_env ("GNOME_SETUP_DISPLAY", compositor->xwayland_manager.private_connection.name);
+      status &=
+        set_gnome_env ("DISPLAY", compositor->xwayland_manager.public_connection.name);
+      status &=
+        set_gnome_env ("XAUTHORITY", compositor->xwayland_manager.auth_file);
+
+      meta_xwayland_set_should_enable_ei_portal (&compositor->xwayland_manager, status);
     }
 #endif
 
