@@ -1295,3 +1295,10 @@ meta_xwayland_signal (MetaXWaylandManager  *manager,
   g_subprocess_send_signal (manager->proc, signum);
   return TRUE;
 }
+
+void
+meta_xwayland_set_should_enable_ei_portal (MetaXWaylandManager  *manager,
+                                           gboolean              should_enable_ei_portal)
+{
+  manager->should_enable_ei_portal = should_enable_ei_portal;
+}

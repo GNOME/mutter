@@ -57,3 +57,6 @@ gboolean meta_xwayland_start_xserver_finish (MetaXWaylandManager  *manager,
 
 gboolean meta_xwayland_manager_handle_xevent (MetaXWaylandManager *manager,
                                               XEvent              *xevent);
+
+void meta_xwayland_set_should_enable_ei_portal (MetaXWaylandManager  *manager,
+                                                gboolean              should_enable_ei_portal);

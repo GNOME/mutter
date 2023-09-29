@@ -75,6 +75,8 @@ struct _MetaXWaylandManager
   gboolean has_xrandr;
   int rr_event_base;
   int rr_error_base;
+
+  gboolean should_enable_ei_portal;
 };
 
 struct _MetaWaylandCompositor
