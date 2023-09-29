@@ -249,7 +249,7 @@ meta_test_switch_config (void)
   ClutterActor *stage = meta_backend_get_stage (backend);
   ClutterSeat *seat = meta_backend_get_default_seat (backend);
   g_autoptr (ClutterVirtualInputDevice) virtual_keyboard = NULL;
-  g_autoptr (MetaVirtualMonitor) virtual_monitor = NULL;
+  MetaVirtualMonitor *virtual_monitor;
   GList *logical_monitors;
   MtkRectangle logical_monitor_layout;
   gulong after_paint_handler_id;
@@ -327,6 +327,12 @@ meta_test_switch_config (void)
 
   g_signal_handler_disconnect (stage, after_paint_handler_id);
   g_signal_handler_disconnect (stage, presented_handler_id);
+
+  monitors_changed = FALSE;
+  g_clear_object (&virtual_monitor);
+  while (!monitors_changed)
+    g_main_context_iteration (NULL, TRUE);
+
   g_signal_handler_disconnect (monitor_manager, monitors_changed_handler_id);
 }
 

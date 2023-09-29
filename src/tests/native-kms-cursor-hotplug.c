@@ -146,6 +146,7 @@ meta_test_cursor_hotplug (void)
   meta_wayland_test_client_finish (test_client);
 
   g_clear_object (&virtual_monitor);
+  meta_wait_for_monitors_changed (test_context);
   meta_wait_for_paint (test_context);
 }
 
@@ -207,6 +208,7 @@ meta_test_hotplug_multi_view_invalidation (void)
 
   g_signal_handler_disconnect (cursor_sprite, texture_changed_handler_id);
   g_clear_object (&virtual_monitor);
+  meta_wait_for_monitors_changed (test_context);
   meta_wait_for_paint (test_context);
 }
 

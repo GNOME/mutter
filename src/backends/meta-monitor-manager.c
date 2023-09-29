@@ -118,6 +118,7 @@ typedef struct _MetaMonitorManagerPrivate
   gboolean night_light_supported;
   const char *experimental_hdr;
 
+  guint reload_monitor_manager_id;
   guint switch_config_handle_id;
 } MetaMonitorManagerPrivate;
 
@@ -483,6 +484,8 @@ prepare_shutdown (MetaBackend        *backend,
     meta_monitor_manager_get_instance_private (manager);
 
   priv->shutting_down = TRUE;
+
+  g_clear_handle_id (&priv->reload_monitor_manager_id, g_source_remove);
 }
 
 static void
@@ -678,8 +681,12 @@ on_virtual_monitor_destroyed (MetaVirtualMonitor *virtual_monitor,
   priv->virtual_monitors = g_list_remove (priv->virtual_monitors,
                                           virtual_monitor);
 
-  if (!priv->shutting_down)
-    meta_monitor_manager_reload (manager);
+  if (!priv->shutting_down && !priv->reload_monitor_manager_id)
+    {
+      priv->reload_monitor_manager_id =
+        g_idle_add_once ((GSourceOnceFunc) meta_monitor_manager_reload,
+                         manager);
+    }
 }
 
 MetaVirtualMonitor *
@@ -1403,6 +1410,7 @@ meta_monitor_manager_dispose (GObject *object)
   g_clear_handle_id (&manager->persistent_timeout_id, g_source_remove);
   g_clear_handle_id (&manager->restore_config_id, g_source_remove);
   g_clear_handle_id (&priv->switch_config_handle_id, g_source_remove);
+  g_clear_handle_id (&priv->reload_monitor_manager_id, g_source_remove);
 
   G_OBJECT_CLASS (meta_monitor_manager_parent_class)->dispose (object);
 }
@@ -3807,6 +3815,11 @@ meta_monitor_manager_reconfigure (MetaMonitorManager *manager)
 void
 meta_monitor_manager_reload (MetaMonitorManager *manager)
 {
+  MetaMonitorManagerPrivate *priv =
+    meta_monitor_manager_get_instance_private (manager);
+
+  g_clear_handle_id (&priv->reload_monitor_manager_id, g_source_remove);
+
   meta_monitor_manager_read_current_state (manager);
   meta_monitor_manager_reconfigure (manager);
 }
