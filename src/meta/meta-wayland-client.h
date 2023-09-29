@@ -60,5 +60,9 @@ META_EXPORT
 void meta_wayland_client_show_in_window_list (MetaWaylandClient *client,
                                               MetaWindow        *window);
 
+META_EXPORT
+void meta_wayland_client_make_desktop (MetaWaylandClient *client,
+                                       MetaWindow        *window);
+
 G_END_DECLS
 
