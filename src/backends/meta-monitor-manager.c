@@ -108,7 +108,7 @@ static int signals[SIGNALS_LAST];
 typedef struct _MetaMonitorManagerPrivate
 {
   MetaPowerSave power_save_mode;
-  gboolean      initial_orient_change_done;
+  gboolean initial_orient_change_done;
 
   GList *virtual_monitors;
 
