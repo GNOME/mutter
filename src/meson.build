@@ -1232,6 +1232,12 @@ install_data(
     install_mode : 'rwxr-xr-x'
 )
 
+install_data(
+    'mutter-bump-rlimit',
+    install_dir : libexecdir,
+    install_mode : 'rwxr-xr-x'
+)
+
 if have_polkit
   backtrace_polkit_policy = configure_file(
       input : 'org.gnome.mutter.backtrace.policy.in',
@@ -1241,6 +1247,18 @@ if have_polkit
 
   install_data(
       backtrace_polkit_policy,
+      install_dir : polkit_policy_dir,
+      install_mode : 'rw-r--r--'
+  )
+
+  bump_rlimit_polkit_policy = configure_file(
+      input : 'org.gnome.mutter.bump-rlimit.policy.in',
+      output : 'org.gnome.mutter.bump-rlimit.policy',
+      configuration : {'LIBEXECDIR': libexecdir}
+  )
+
+  install_data(
+      bump_rlimit_polkit_policy,
       install_dir : polkit_policy_dir,
       install_mode : 'rw-r--r--'
   )

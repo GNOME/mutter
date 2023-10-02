@@ -1,0 +1,5 @@
+#!/bin/bash
+
+[ $# -ne 1 ] && exit 1
+
+prlimit --pid "$1" --rttime=:10000000

@@ -206,6 +206,15 @@ get_rtkit_property (MetaDBusRealtimeKit1  *rtkit_proxy,
   return g_steal_pointer (&property_variant);
 }
 
+static void
+bump_rlimit (MetaThread *thread)
+{
+  g_autofree char *command_line = NULL;
+
+  command_line = g_strdup_printf ("pkexec %s %d", MUTTER_LIBEXECDIR "/mutter-bump-rlimit", (int) getpid ());
+  system (command_line);
+}
+
 static gboolean
 request_real_time_scheduling (MetaThread  *thread,
                               GError     **error)
@@ -302,6 +311,8 @@ request_real_time_scheduling (MetaThread  *thread,
       g_propagate_error (error, g_steal_pointer (&local_error));
       return FALSE;
     }
+
+  bump_rlimit (thread);
 
   return TRUE;
 }

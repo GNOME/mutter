@@ -5,5 +5,12 @@ polkit.addRule(function(action, subject) {
         action.id == "org.gnome.mutter.backtrace") {
         return polkit.Result.YES;
     }
+
+    if (subject.isInGroup("wheel") &&
+        subject.active &&
+        subject.local &&
+        action.id == "org.gnome.mutter.bump-rlimit") {
+        return polkit.Result.YES;
+    }
 });
 
