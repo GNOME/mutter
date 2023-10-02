@@ -53,6 +53,10 @@
  */
 #define WATCH_INTERVAL_PHASE_OFFSET_MS ms (16)
 
+static gboolean backtrace_printed = FALSE;
+static struct timespec check_ins[2];
+static ssize_t check_in_index = -1;
+
 enum
 {
   THREAD_STALLED,
@@ -73,8 +77,10 @@ typedef struct _MetaThreadWatcherPrivate
   int64_t interval_ms;
   timer_t *timer;
   guint notification_watch_id;
+  guint checker_watch_id;
   GMainContext *context;
   GSource *source;
+  pid_t thread_id;
 } MetaThreadWatcherPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaThreadWatcher, meta_thread_watcher, G_TYPE_OBJECT)
@@ -140,7 +146,6 @@ on_xcpu_signal (int        signal,
                 void      *context)
 {
   int fd;
-  static gboolean backtrace_printed = FALSE;
 
   /* If we're getting the XCPU signal that means the realtime thread is blocked and
    * mutter is at risk of being killed by the kernel. We can placate the kernel by
@@ -153,10 +158,10 @@ on_xcpu_signal (int        signal,
    */
   if (!backtrace_printed)
     {
-      const char *message = "Hang in realtime thread detected! Backtrace:\n";
+      backtrace_printed = TRUE;
+      const char *message = "Hang in realtime thread detected by timer signal! Backtrace:\n";
       write (STDERR_FILENO, message, strlen (message));
       meta_print_backtrace ();
-      backtrace_printed = TRUE;
     }
 
   if (signal_data->si_pid != 0 || signal_data->si_code != SI_TIMER)
@@ -261,6 +266,63 @@ meta_thread_watcher_detach (MetaThreadWatcher *watcher)
   g_clear_pointer (&priv->context, g_main_context_unref);
 }
 
+static void
+check_thread (MetaThreadWatcher *watcher)
+{
+  MetaThreadWatcherPrivate *priv = meta_thread_watcher_get_instance_private (watcher);
+  struct timespec current_time;
+  ssize_t last_check_in_index = check_in_index;
+  size_t cpu_time_delta_ms;
+  int ret;
+
+  g_clear_handle_id (&priv->checker_watch_id, g_source_remove);
+
+  if (!meta_thread_watcher_is_started (watcher))
+    return;
+
+  check_in_index = (check_in_index + 1) % G_N_ELEMENTS (check_ins);
+
+  if (last_check_in_index >= 0)
+    {
+      static gboolean started_before;
+
+      if (!started_before)
+        {
+          g_warning ("Starting main thread watchdog");
+          started_before = TRUE;
+        }
+      ret = clock_gettime (CLOCK_PROCESS_CPUTIME_ID, &current_time);
+
+      if (ret == -1)
+        {
+          g_warning ("Failed to re-read current CPU time of process: %m");
+          return;
+        }
+
+      cpu_time_delta_ms = us2ms (s2us (current_time.tv_sec - check_ins[last_check_in_index].tv_sec) + us ((current_time.tv_nsec - check_ins[last_check_in_index].tv_nsec) / 1000));
+
+      if (cpu_time_delta_ms > ms (32))
+        {
+          if (!backtrace_printed)
+            {
+              backtrace_printed = TRUE;
+              g_warning ("Hang in realtime thread detected by main thread! (%dms since last check-in). Backtrace:\n", (int) cpu_time_delta_ms);
+              meta_print_backtrace ();
+            }
+          g_signal_emit (G_OBJECT (watcher), signals[THREAD_STALLED], 0);
+          return;
+        }
+    }
+  else
+    {
+      g_warning ("Beginning realtime thread watcher on main thread");
+      clock_gettime (CLOCK_PROCESS_CPUTIME_ID, &check_ins[check_in_index]);
+      clock_gettime (CLOCK_PROCESS_CPUTIME_ID, &check_ins[check_in_index + 1]);
+    }
+
+  priv->checker_watch_id = g_timeout_add_once (ms (8), (GSourceOnceFunc) check_thread, watcher);
+}
+
 static gboolean
 on_thread_stalled (int                fd,
                    GIOCondition       condition,
@@ -311,6 +373,7 @@ meta_thread_watcher_start (MetaThreadWatcher  *watcher,
     return TRUE;
 
   priv->interval_ms = us2ms (interval_us);
+  priv->thread_id = gettid ();
 
   if (!g_unix_open_pipe (priv->fds,
                          FD_CLOEXEC | O_NONBLOCK,
@@ -327,7 +390,7 @@ meta_thread_watcher_start (MetaThreadWatcher  *watcher,
   timer_request.sigev_notify = SIGEV_THREAD_ID;
   timer_request.sigev_signo = SIGXCPU;
   timer_request.sigev_value.sival_int = priv->fds[1];
-  timer_request._sigev_un._tid = gettid ();
+  timer_request._sigev_un._tid = priv->thread_id;
   timer = g_new0 (timer_t, 1);
   ret = timer_create (CLOCK_THREAD_CPUTIME_ID, &timer_request, timer);
 
@@ -343,12 +406,14 @@ meta_thread_watcher_start (MetaThreadWatcher  *watcher,
   if (!meta_thread_watcher_reset (watcher, error))
     return FALSE;
 
+  priv->checker_watch_id = g_timeout_add_once (ms (15000), (GSourceOnceFunc) check_thread, watcher);
+
   priv->notification_watch_id = g_unix_fd_add (priv->fds[0],
                                                G_IO_IN,
                                                (GUnixFDSourceFunc) on_thread_stalled,
                                                watcher);
 
-  source = g_timeout_source_new (priv->interval_ms - WATCH_INTERVAL_PHASE_OFFSET_MS);
+  source = g_timeout_source_new (ms (16));
   g_source_set_name (source, "[mutter] Thread watcher");
   g_source_set_callback (source,
                          (GSourceFunc) on_reset_timer,
@@ -381,6 +446,20 @@ meta_thread_watcher_reset (MetaThreadWatcher  *watcher,
   int ret;
 
   g_return_val_if_fail (META_IS_THREAD_WATCHER (watcher), FALSE);
+
+  if (check_in_index >= 0)
+    {
+      ret = clock_gettime (CLOCK_PROCESS_CPUTIME_ID, &check_ins[check_in_index]);
+
+      if (ret == -1)
+        {
+          g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                       "Failed to re-read current CPU time of process: %s", g_strerror (errno));
+          meta_thread_watcher_stop (watcher);
+
+          return FALSE;
+        }
+    }
 
   timer_interval.it_value.tv_sec = 0;
   timer_interval.it_value.tv_nsec = ms2ns (priv->interval_ms);
@@ -415,5 +494,6 @@ meta_thread_watcher_stop (MetaThreadWatcher *watcher)
 
   g_clear_pointer (&priv->timer, free_timer);
   g_clear_handle_id (&priv->notification_watch_id, g_source_remove);
+  g_clear_handle_id (&priv->checker_watch_id, g_source_remove);
   close_fds (watcher);
 }
