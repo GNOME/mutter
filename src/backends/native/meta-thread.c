@@ -272,7 +272,7 @@ request_real_time_scheduling (MetaThread  *thread,
    * own SIGXCPU with a timer (See MetaThreadWatcher) that's always
    * delivered to the approprate thread.
    */
-  rl.rlim_cur = rttime;
+  rl.rlim_cur = rttime / 2;
   rl.rlim_max = rttime;
 
   if (setrlimit (RLIMIT_RTTIME, &rl) != 0)

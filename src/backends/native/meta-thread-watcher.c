@@ -85,6 +85,29 @@ typedef struct _MetaThreadWatcherPrivate
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaThreadWatcher, meta_thread_watcher, G_TYPE_OBJECT)
 
+__attribute__ ((constructor)) void block_sigxcpu (void);
+
+__attribute__ ((constructor))
+void
+block_sigxcpu (void)
+{
+  sigset_t signal_set;
+
+  sigemptyset (&signal_set);
+  sigaddset (&signal_set, SIGXCPU);
+  sigprocmask (SIG_BLOCK, &signal_set, NULL);
+}
+
+static void
+unblock_sigxcpu (void)
+{
+  sigset_t signal_set;
+
+  sigemptyset (&signal_set);
+  sigaddset (&signal_set, SIGXCPU);
+  sigprocmask (SIG_UNBLOCK, &signal_set, NULL);
+}
+
 static void
 meta_thread_watcher_constructed (GObject *object)
 {
@@ -205,6 +228,14 @@ meta_thread_watcher_class_init (MetaThreadWatcherClass *klass)
 
   if (ret == -1)
     g_warning ("Failed to listen for SIGXCPU signal: %m");
+
+  /* Let's use a different signal than SIGXCPU to make the signal monitor script clearer
+   * (we'll keep the SIGXCPU handler for good measure though)
+   */
+  ret = sigaction (SIGRTMIN+3, &signal_request, NULL);
+  if (ret == -1)
+    g_warning ("Failed to listen for SIGRTMIN+3 signal: %m");
+
 }
 
 static void
@@ -388,7 +419,7 @@ meta_thread_watcher_start (MetaThreadWatcher  *watcher,
     }
 
   timer_request.sigev_notify = SIGEV_THREAD_ID;
-  timer_request.sigev_signo = SIGXCPU;
+  timer_request.sigev_signo = SIGRTMIN+3;
   timer_request.sigev_value.sival_int = priv->fds[1];
   timer_request._sigev_un._tid = priv->thread_id;
   timer = g_new0 (timer_t, 1);
@@ -425,6 +456,7 @@ meta_thread_watcher_start (MetaThreadWatcher  *watcher,
 
   priv->source = source;
 
+  unblock_sigxcpu ();
   return TRUE;
 }
 
