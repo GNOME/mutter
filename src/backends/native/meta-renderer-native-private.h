@@ -60,6 +60,7 @@ typedef struct _MetaRendererNativeGpuData
   struct {
     MetaSharedFramebufferCopyMode copy_mode;
     gboolean has_EGL_EXT_image_dma_buf_import_modifiers;
+    gboolean needs_explicit_sync;
 
     /* For GPU blit mode */
     EGLContext egl_context;
