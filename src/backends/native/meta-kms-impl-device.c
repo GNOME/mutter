@@ -1597,8 +1597,9 @@ process_mode_set_update (MetaKmsImplDevice *impl_device,
       if (!crtc_frame->pending_update)
         continue;
 
-      meta_kms_update_merge_from (update, crtc_frame->pending_update);
-      g_clear_pointer (&crtc_frame->pending_update, meta_kms_update_free);
+      meta_kms_update_merge_from (crtc_frame->pending_update, update);
+      meta_kms_update_free (update);
+      update = g_steal_pointer (&crtc_frame->pending_update);
     }
 
   g_hash_table_iter_init (&iter, priv->crtc_frames);
