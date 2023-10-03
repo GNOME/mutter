@@ -157,17 +157,22 @@ static XcursorImages *
 load_cursor_on_client (MetaCursor cursor, int scale)
 {
   XcursorImages *xcursor_images;
-  int fallback_size;
+  int fallback_size, i;
+  /* Set a 'default' fallback */
+  MetaCursor cursors[] = { cursor, META_CURSOR_DEFAULT };
 
   if (cursor == META_CURSOR_BLANK)
     return create_blank_cursor_images ();
 
-  xcursor_images =
-    XcursorLibraryLoadImages (translate_meta_cursor (cursor),
-                              meta_prefs_get_cursor_theme (),
-                              meta_prefs_get_cursor_size () * scale);
-  if (xcursor_images)
-    return xcursor_images;
+  for (i = 0; i < G_N_ELEMENTS (cursors); i++)
+    {
+      xcursor_images =
+        XcursorLibraryLoadImages (translate_meta_cursor (cursors[i]),
+                                  meta_prefs_get_cursor_theme (),
+                                  meta_prefs_get_cursor_size () * scale);
+      if (xcursor_images)
+        return xcursor_images;
+    }
 
   g_warning_once ("No cursor theme available, please install a cursor theme");
 
