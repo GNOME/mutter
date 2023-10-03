@@ -260,6 +260,14 @@ meta_egl_has_extensions (MetaEgl      *egl,
   return has_extensions;
 }
 
+const char *
+meta_egl_query_string (MetaEgl    *egl,
+                       EGLDisplay  display,
+                       EGLint      name)
+{
+  return eglQueryString (display, name);
+}
+
 gboolean
 meta_egl_initialize (MetaEgl   *egl,
                      EGLDisplay display,

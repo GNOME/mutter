@@ -47,6 +47,10 @@ gboolean meta_egl_has_extensions (MetaEgl      *egl,
                                   const char   *first_extension,
                                   ...);
 
+const char * meta_egl_query_string (MetaEgl    *egl,
+                                    EGLDisplay  display,
+                                    EGLint      name);
+
 gboolean meta_egl_initialize (MetaEgl   *egl,
                               EGLDisplay display,
                               GError   **error);
