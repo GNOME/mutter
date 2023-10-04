@@ -516,18 +516,33 @@ process_crtc_color_updates (MetaKmsImplDevice  *impl_device,
       int fd;
       int ret;
 
-      meta_topic (META_DEBUG_KMS,
-                  "[simple] Setting CRTC %u (%s) gamma, size: %zu",
-                  meta_kms_crtc_get_id (crtc),
-                  meta_kms_impl_device_get_path (impl_device),
-                  gamma->size);
-
       fd = meta_kms_impl_device_get_fd (impl_device);
-      ret = drmModeCrtcSetGamma (fd, meta_kms_crtc_get_id (crtc),
-                                 gamma->size,
-                                 gamma->red,
-                                 gamma->green,
-                                 gamma->blue);
+
+      if (gamma)
+        {
+          meta_topic (META_DEBUG_KMS,
+                      "[simple] Setting CRTC %u (%s) gamma, size: %zu",
+                      meta_kms_crtc_get_id (crtc),
+                      meta_kms_impl_device_get_path (impl_device),
+                      gamma->size);
+
+          ret = drmModeCrtcSetGamma (fd, meta_kms_crtc_get_id (crtc),
+                                     gamma->size,
+                                     gamma->red,
+                                     gamma->green,
+                                     gamma->blue);
+        }
+      else
+        {
+          meta_topic (META_DEBUG_KMS,
+                      "[simple] Setting CRTC (%u, %s) gamma to bypass",
+                      meta_kms_crtc_get_id (crtc),
+                      meta_kms_impl_device_get_path (impl_device));
+
+          ret = drmModeCrtcSetGamma (fd, meta_kms_crtc_get_id (crtc),
+                                     0, NULL, NULL, NULL);
+        }
+
       if (ret != 0)
         {
           g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-ret),
