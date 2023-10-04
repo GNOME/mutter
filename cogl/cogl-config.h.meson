@@ -4,9 +4,6 @@
 /* Have GLES 2.0 for rendering */
 #mesondefine HAVE_COGL_GLES2
 
-/* Building with Sysprof profiling support */
-#mesondefine HAVE_TRACING
-
 /* Enable unit tests */
 #mesondefine ENABLE_UNIT_TESTS
 
