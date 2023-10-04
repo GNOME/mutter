@@ -498,24 +498,23 @@ maybe_configure_black_background (MetaWindowActorWayland *self,
   clutter_actor_iter_init (&iter, CLUTTER_ACTOR (self->surface_container));
   while (clutter_actor_iter_next (&iter, &child))
     {
-      float child_width, child_height;
+      ClutterActorBox actor_box;
 
-      clutter_actor_get_size (child, &child_width, &child_height);
+      if (!clutter_actor_is_mapped (child))
+        continue;
 
-      if (META_IS_SURFACE_ACTOR (child) &&
-          meta_surface_actor_is_opaque (META_SURFACE_ACTOR (child)) &&
-          G_APPROX_VALUE (clutter_actor_get_x (child), 0,
+      clutter_actor_get_allocation_box (child, &actor_box);
+      if (meta_surface_actor_is_opaque (META_SURFACE_ACTOR (child)) &&
+          G_APPROX_VALUE (actor_box.x1, 0, CLUTTER_COORDINATE_EPSILON) &&
+          G_APPROX_VALUE (actor_box.y1, 0, CLUTTER_COORDINATE_EPSILON) &&
+          G_APPROX_VALUE (actor_box.x2, fullscreen_layout.width,
                           CLUTTER_COORDINATE_EPSILON) &&
-          G_APPROX_VALUE (clutter_actor_get_y (child), 0,
-                          CLUTTER_COORDINATE_EPSILON) &&
-          G_APPROX_VALUE (child_width, fullscreen_layout.width,
-                          CLUTTER_COORDINATE_EPSILON) &&
-          G_APPROX_VALUE (child_height, fullscreen_layout.height,
+          G_APPROX_VALUE (actor_box.y2, fullscreen_layout.height,
                           CLUTTER_COORDINATE_EPSILON))
         return FALSE;
 
-      max_width = MAX (max_width, child_width);
-      max_height = MAX (max_height, child_height);
+      max_width = MAX (max_width, actor_box.x2 - actor_box.x1);
+      max_height = MAX (max_height, actor_box.y2 - actor_box.y1);
     }
 
   *surfaces_width = max_width;
