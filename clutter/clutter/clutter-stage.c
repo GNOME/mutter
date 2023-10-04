@@ -979,7 +979,7 @@ clutter_stage_update_devices (ClutterStage *stage,
   ClutterStagePrivate *priv = stage->priv;
   GSList *l;
 
-  COGL_TRACE_BEGIN (ClutterStageUpdateDevices, "UpdateDevices");
+  COGL_TRACE_BEGIN_SCOPED (ClutterStageUpdateDevices, "UpdateDevices");
 
   for (l = devices; l; l = l->next)
     {
