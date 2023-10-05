@@ -102,7 +102,6 @@ typedef struct _MetaScreenCastStreamSrcPrivate
   uint32_t node_id;
 
   struct spa_video_info_raw video_format;
-  int video_stride;
 
   int64_t last_frame_timestamp_us;
   guint follow_up_frame_source_id;
@@ -554,6 +553,33 @@ maybe_record_cursor (MetaScreenCastStreamSrc *src,
   g_assert_not_reached ();
 }
 
+static int32_t
+meta_screen_cast_stream_src_calculate_stride (MetaScreenCastStreamSrc *src,
+                                              struct spa_data         *spa_data)
+{
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+  CoglPixelFormat cogl_format;
+  int bpp;
+
+  if (spa_data->type == SPA_DATA_DmaBuf)
+    {
+      CoglDmaBufHandle *dmabuf_handle = NULL;
+
+      dmabuf_handle = g_hash_table_lookup (priv->dmabuf_handles,
+                                           GINT_TO_POINTER (spa_data->fd));
+      if (dmabuf_handle)
+        return cogl_dma_buf_handle_get_stride (dmabuf_handle);
+    }
+
+  if (!cogl_pixel_format_from_spa_video_format (priv->video_format.format,
+                                                &cogl_format))
+    g_assert_not_reached ();
+
+  bpp = cogl_pixel_format_get_bytes_per_pixel (cogl_format, 0);
+  return SPA_ROUND_UP_N (priv->video_format.size.width * bpp, 4);
+}
+
 static gboolean
 do_record_frame (MetaScreenCastStreamSrc   *src,
                  MetaScreenCastRecordFlag   flags,
@@ -568,7 +594,7 @@ do_record_frame (MetaScreenCastStreamSrc   *src,
     {
       int width = priv->video_format.size.width;
       int height = priv->video_format.size.height;
-      int stride = priv->video_stride;
+      int stride = meta_screen_cast_stream_src_calculate_stride (src, spa_data);
 
       return meta_screen_cast_stream_src_record_to_buffer (src,
                                                            width,
@@ -630,26 +656,6 @@ maybe_schedule_follow_up_frame (MetaScreenCastStreamSrc *src,
   priv->follow_up_frame_source_id = g_timeout_add (us2ms (timeout_us),
                                                    follow_up_frame_cb,
                                                    src);
-}
-
-static int32_t
-meta_screen_cast_stream_src_calculate_stride (MetaScreenCastStreamSrc *src,
-                                              struct spa_data         *spa_data)
-{
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
-  CoglDmaBufHandle *dmabuf_handle = NULL;
-
-  if (spa_data->type == SPA_DATA_DmaBuf)
-    {
-      dmabuf_handle = g_hash_table_lookup (priv->dmabuf_handles,
-                                           GINT_TO_POINTER (spa_data->fd));
-    }
-
-  if (dmabuf_handle)
-    return cogl_dma_buf_handle_get_stride (dmabuf_handle);
-  else
-    return priv->video_stride;
 }
 
 static void
@@ -1014,11 +1020,9 @@ on_stream_param_changed (void                 *data,
   MetaScreenCastStreamSrcClass *klass =
     META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
   uint8_t params_buffer[1024];
-  int32_t width, height, stride, size;
   struct spa_pod_builder pod_builder;
   const struct spa_pod *params[5];
   int n_params = 0;
-  const int bpp = 4;
   int buffer_types;
 
   if (!format || id != SPA_PARAM_Format)
@@ -1026,13 +1030,6 @@ on_stream_param_changed (void                 *data,
 
   spa_format_video_raw_parse (format,
                               &priv->video_format);
-
-  width = priv->video_format.size.width;
-  height = priv->video_format.size.height;
-  stride = SPA_ROUND_UP_N (width * bpp, 4);
-  size = height * stride;
-
-  priv->video_stride = stride;
 
   pod_builder = SPA_POD_BUILDER_INIT (params_buffer, sizeof (params_buffer));
 
@@ -1045,8 +1042,6 @@ on_stream_param_changed (void                 *data,
     SPA_TYPE_OBJECT_ParamBuffers, SPA_PARAM_Buffers,
     SPA_PARAM_BUFFERS_buffers, SPA_POD_CHOICE_RANGE_Int (16, 2, 16),
     SPA_PARAM_BUFFERS_blocks, SPA_POD_Int (1),
-    SPA_PARAM_BUFFERS_size, SPA_POD_Int (size),
-    SPA_PARAM_BUFFERS_stride, SPA_POD_Int (stride),
     SPA_PARAM_BUFFERS_align, SPA_POD_Int (16),
     SPA_PARAM_BUFFERS_dataType, SPA_POD_CHOICE_FLAGS_Int (buffer_types));
 
@@ -1090,15 +1085,11 @@ on_stream_add_buffer (void             *data,
   CoglDmaBufHandle *dmabuf_handle;
   struct spa_buffer *spa_buffer = buffer->buffer;
   struct spa_data *spa_data = &spa_buffer->datas[0];
-  const int bpp = 4;
   int stride;
 
   priv->buffer_count++;
 
-  stride = SPA_ROUND_UP_N (priv->video_format.size.width * bpp, 4);
-
   spa_data->mapoffset = 0;
-  spa_data->maxsize = stride * priv->video_format.size.height;
   spa_data->data = NULL;
 
   if (spa_data->type & (1 << SPA_DATA_DmaBuf))
@@ -1143,6 +1134,9 @@ on_stream_add_buffer (void             *data,
       spa_data->flags = SPA_DATA_FLAG_READWRITE;
       spa_data->fd = cogl_dma_buf_handle_get_fd (dmabuf_handle);
 
+      stride = meta_screen_cast_stream_src_calculate_stride (src, spa_data);
+      spa_data->maxsize = stride * priv->video_format.size.height;
+
       g_hash_table_insert (priv->dmabuf_handles,
                            GINT_TO_POINTER (spa_data->fd),
                            dmabuf_handle);
@@ -1172,6 +1166,8 @@ on_stream_add_buffer (void             *data,
           g_critical ("Can't create memfd: %m");
           return;
         }
+
+      stride = meta_screen_cast_stream_src_calculate_stride (src, spa_data);
       spa_data->maxsize = stride * priv->video_format.size.height;
 
       if (ftruncate (spa_data->fd, spa_data->maxsize) < 0)
