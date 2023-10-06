@@ -314,7 +314,8 @@ void        meta_window_lower_with_transients (MetaWindow *window,
                                                uint32_t    timestamp);
 
 META_EXPORT
-void        meta_window_raise_and_make_recent (MetaWindow *window);
+void        meta_window_raise_and_make_recent_on_workspace (MetaWindow    *window,
+                                                            MetaWorkspace *workspace);
 
 META_EXPORT
 const char *meta_window_get_title (MetaWindow *window);
