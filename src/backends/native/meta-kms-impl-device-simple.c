@@ -1394,6 +1394,7 @@ page_flip_handler (int           fd,
   MetaKmsImplDevice *impl_device;
   MetaKmsImplDeviceSimple *impl_device_simple;
   MetaKmsCrtc *crtc;
+  uint32_t crtc_id;
 
   meta_kms_page_flip_data_set_timings_in_impl (page_flip_data,
                                                sequence, tv_sec, tv_usec);
@@ -1401,12 +1402,16 @@ page_flip_handler (int           fd,
   impl_device = meta_kms_page_flip_data_get_impl_device (page_flip_data);
   impl_device_simple = META_KMS_IMPL_DEVICE_SIMPLE (impl_device);
   crtc = meta_kms_page_flip_data_get_crtc (page_flip_data);
+  crtc_id = meta_kms_crtc_get_id (crtc);
+
+  COGL_TRACE_MESSAGE ("page_flip_handler()",
+                      "[simple] Page flip callback for CRTC (%u, %s)",
+                      crtc_id, meta_kms_impl_device_get_path (impl_device));
 
   meta_topic (META_DEBUG_KMS,
               "[simple] Handling page flip callback from %s, data: %p, CRTC: %u",
               meta_kms_impl_device_get_path (impl_device),
-              page_flip_data,
-              meta_kms_crtc_get_id (crtc));
+              page_flip_data, crtc_id);
 
   meta_kms_impl_device_unhold_fd (impl_device);
 

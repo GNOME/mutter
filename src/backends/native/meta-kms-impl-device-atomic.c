@@ -840,6 +840,10 @@ atomic_page_flip_handler (int           fd,
                                NULL,
                                (gpointer *) &page_flip_data);
 
+  COGL_TRACE_MESSAGE ("atomic_page_flip_handler()",
+                      "[atomic] Page flip callback for CRTC (%u, %s)",
+                      crtc_id, meta_kms_impl_device_get_path (impl_device));
+
   meta_topic (META_DEBUG_KMS,
               "[atomic] Page flip callback for CRTC (%u, %s), data: %p",
               crtc_id, meta_kms_impl_device_get_path (impl_device),
