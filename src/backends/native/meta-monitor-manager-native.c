@@ -286,6 +286,8 @@ meta_monitor_manager_native_apply_monitors_config (MetaMonitorManager        *ma
 
   if (!config)
     {
+      apply_crtc_assignments (manager, NULL, 0, NULL, 0);
+
       if (!manager->in_init)
         {
           MetaBackend *backend = meta_monitor_manager_get_backend (manager);
