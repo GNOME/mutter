@@ -328,6 +328,7 @@ void                meta_monitor_manager_confirm_configuration (MetaMonitorManag
 
 gboolean           meta_monitor_manager_has_hotplug_mode_update (MetaMonitorManager *manager);
 
+META_EXPORT_TEST
 void               meta_monitor_manager_read_current_state (MetaMonitorManager *manager);
 
 META_EXPORT_TEST
@@ -435,3 +436,9 @@ MetaViewportInfo * meta_monitor_manager_get_viewports (MetaMonitorManager *manag
 GList * meta_monitor_manager_get_virtual_monitors (MetaMonitorManager *manager);
 
 void meta_monitor_manager_maybe_emit_privacy_screen_change (MetaMonitorManager *manager);
+
+META_EXPORT_TEST
+gboolean meta_monitor_manager_apply_monitors_config (MetaMonitorManager        *manager,
+                                                     MetaMonitorsConfig        *config,
+                                                     MetaMonitorsConfigMethod   method,
+                                                     GError                   **error);

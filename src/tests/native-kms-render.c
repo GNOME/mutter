@@ -473,6 +473,34 @@ meta_test_kms_render_client_scanout_fallback (void)
 }
 
 static void
+meta_test_kms_render_empty_config (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager = meta_backend_get_monitor_manager (backend);
+  GList *logical_monitors;
+  GError *error = NULL;
+
+  logical_monitors = meta_monitor_manager_get_logical_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (logical_monitors), ==, 1);
+
+  meta_monitor_manager_read_current_state (monitor_manager);
+  meta_monitor_manager_apply_monitors_config (monitor_manager,
+                                              NULL,
+                                              META_MONITORS_CONFIG_METHOD_TEMPORARY,
+                                              &error);
+  g_assert_no_error (error);
+
+  logical_monitors = meta_monitor_manager_get_logical_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (logical_monitors), ==, 0);
+
+  meta_monitor_manager_read_current_state (monitor_manager);
+  meta_monitor_manager_ensure_configured (monitor_manager);
+
+  logical_monitors = meta_monitor_manager_get_logical_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (logical_monitors), ==, 1);
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/backends/native/kms/render/basic",
@@ -481,6 +509,8 @@ init_tests (void)
                    meta_test_kms_render_client_scanout);
   g_test_add_func ("/backends/native/kms/render/client-scanout-fallabck",
                    meta_test_kms_render_client_scanout_fallback);
+  g_test_add_func ("/backends/native/kms/render/empty-config",
+                   meta_test_kms_render_empty_config);
 }
 
 int
