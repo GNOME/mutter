@@ -701,7 +701,8 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
     }
 
   if (clutter_stage_view_get_onscreen (stage_view) !=
-      clutter_stage_view_get_framebuffer (stage_view))
+      clutter_stage_view_get_framebuffer (stage_view) &&
+      cairo_region_num_rectangles (swap_region) != 0)
     {
       cairo_region_t *transformed_swap_region;
 
