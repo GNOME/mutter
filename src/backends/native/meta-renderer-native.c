@@ -897,39 +897,6 @@ meta_renderer_native_queue_mode_set_update (MetaRendererNative *renderer_native,
   meta_kms_update_free (new_kms_update);
 }
 
-static void
-unset_disabled_crtcs (MetaRendererNative *renderer_native)
-{
-  MetaRenderer *renderer = META_RENDERER (renderer_native);
-  MetaBackend *backend = meta_renderer_get_backend (renderer);
-  GList *l;
-
-  meta_topic (META_DEBUG_KMS, "Disabling all disabled CRTCs");
-
-  for (l = meta_backend_get_gpus (backend); l; l = l->next)
-    {
-      MetaGpu *gpu = l->data;
-      MetaKmsDevice *kms_device =
-        meta_gpu_kms_get_kms_device (META_GPU_KMS (gpu));
-      GList *k;
-      g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
-      MetaKmsUpdate *kms_update = NULL;
-
-      for (k = meta_gpu_get_crtcs (gpu); k; k = k->next)
-        {
-          MetaCrtc *crtc = k->data;
-
-          if (meta_crtc_get_config (crtc))
-            continue;
-
-          kms_update = ensure_mode_set_update (renderer_native, kms_device);
-          meta_crtc_kms_set_mode (META_CRTC_KMS (crtc), kms_update);
-        }
-    }
-
-  post_mode_set_updates (renderer_native);
-}
-
 static CoglDmaBufHandle *
 meta_renderer_native_create_dma_buf (CoglRenderer     *cogl_renderer,
                                      CoglPixelFormat   format,
@@ -2032,9 +1999,35 @@ on_power_save_mode_changed (MetaMonitorManager        *monitor_manager,
 }
 
 void
-meta_renderer_native_reset_modes (MetaRendererNative *renderer_native)
+meta_renderer_native_unset_modes (MetaRendererNative *renderer_native)
 {
-  unset_disabled_crtcs (renderer_native);
+  MetaRenderer *renderer = META_RENDERER (renderer_native);
+  MetaBackend *backend = meta_renderer_get_backend (renderer);
+  GList *l;
+
+  meta_topic (META_DEBUG_KMS, "Unsetting all CRTC modes");
+
+  for (l = meta_backend_get_gpus (backend); l; l = l->next)
+    {
+      MetaGpu *gpu = l->data;
+      MetaKmsDevice *kms_device =
+        meta_gpu_kms_get_kms_device (META_GPU_KMS (gpu));
+      GList *k;
+      g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
+      MetaKmsUpdate *kms_update = NULL;
+
+      for (k = meta_gpu_get_crtcs (gpu); k; k = k->next)
+        {
+          MetaCrtc *crtc = k->data;
+
+          g_warn_if_fail (!meta_crtc_get_config (crtc));
+
+          kms_update = ensure_mode_set_update (renderer_native, kms_device);
+          meta_crtc_kms_set_mode (META_CRTC_KMS (crtc), kms_update);
+        }
+    }
+
+  post_mode_set_updates (renderer_native);
 }
 
 static MetaGpuKms *

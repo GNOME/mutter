@@ -291,7 +291,7 @@ meta_monitor_manager_native_apply_monitors_config (MetaMonitorManager        *ma
           MetaBackend *backend = meta_monitor_manager_get_backend (manager);
           MetaRenderer *renderer = meta_backend_get_renderer (backend);
 
-          meta_renderer_native_reset_modes (META_RENDERER_NATIVE (renderer));
+          meta_renderer_native_unset_modes (META_RENDERER_NATIVE (renderer));
         }
 
       manager->screen_width = META_MONITOR_MANAGER_MIN_SCREEN_WIDTH;
