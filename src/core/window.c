@@ -5687,6 +5687,9 @@ meta_window_recalc_features (MetaWindow *window)
   if (old_skip_taskbar != window->skip_taskbar)
     g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_SKIP_TASKBAR]);
 
+  if (old_always_sticky != window->always_sticky)
+    meta_window_on_all_workspaces_changed (window);
+
   /* FIXME:
    * Lame workaround for recalc_features being used overzealously.
    * The fix is to only recalc_features when something has
