@@ -1008,11 +1008,10 @@ _clutter_actor_get_debug_name (ClutterActor *actor)
 
   if (G_UNLIKELY (priv->debug_name == NULL))
     {
-      priv->debug_name = g_strdup_printf ("<%s>[<%s>:%p]",
+      priv->debug_name = g_strdup_printf ("%s [%s]",
                                           priv->name != NULL ? priv->name
                                                              : "unnamed",
-                                          G_OBJECT_TYPE_NAME (actor),
-                                          actor);
+                                          G_OBJECT_TYPE_NAME (actor));
     }
 
   retval = priv->debug_name;
