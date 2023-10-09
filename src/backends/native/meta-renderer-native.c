@@ -2007,6 +2007,8 @@ meta_renderer_native_unset_modes (MetaRendererNative *renderer_native)
 
   meta_topic (META_DEBUG_KMS, "Unsetting all CRTC modes");
 
+  g_hash_table_remove_all (renderer_native->mode_set_updates);
+
   for (l = meta_backend_get_gpus (backend); l; l = l->next)
     {
       MetaGpu *gpu = l->data;
