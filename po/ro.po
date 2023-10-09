@@ -9,18 +9,19 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity.HEAD.ro\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2022-03-02 11:52+0000\n"
-"PO-Revision-Date: 2022-03-06 12:33+0100\n"
-"Last-Translator: Daniel Șerbănescu <daniel [at] serbanescu [dot] dk>\n"
+"POT-Creation-Date: 2023-07-15 01:02+0000\n"
+"PO-Revision-Date: 2023-07-29 14:01+0300\n"
+"Last-Translator: Florentina Mușat <florentina [dot] musat [dot] 28 [at] "
+"gmail [dot] com>\n"
 "Language-Team: Gnome Romanian Translation Team <gnomero-list@lists."
 "sourceforge.net>\n"
 "Language: ro\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n==0 || (n!=1 && n%100>=1 && n"
-"%100<=19) ? 1 : 2);\n"
-"X-Generator: Poedit 3.0.1\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n==0 || (n!=1 && n%100>=1 && "
+"n%100<=19) ? 1 : 2);\n"
+"X-Generator: Poedit 3.3.2\n"
 "X-Project-Style: gnome\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
@@ -161,20 +162,20 @@ msgid "Switch to last workspace"
 msgstr "Comută la ultimul spațiu de lucru"
 
 #: data/50-mutter-navigation.xml:131
-msgid "Move to workspace on the left"
-msgstr "Mută pe spațiul de lucru din stânga"
+msgid "Switch to workspace on the left"
+msgstr "Du-te la ecranul din stânga"
 
 #: data/50-mutter-navigation.xml:134
-msgid "Move to workspace on the right"
-msgstr "Mută pe spațiul de lucru din dreapta"
+msgid "Switch to workspace on the right"
+msgstr "Du-te la ecranul din dreapta"
 
 #: data/50-mutter-navigation.xml:138
-msgid "Move to workspace above"
-msgstr "Mută pe spațiul de lucru deasupra"
+msgid "Switch to workspace above"
+msgstr "Comută la spațiul de lucru deasupra"
 
 #: data/50-mutter-navigation.xml:142
-msgid "Move to workspace below"
-msgstr "Mută pe spațiul de lucru de jos"
+msgid "Switch to workspace below"
+msgstr "Comută la spațiul de lucru dedesubt"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -252,17 +253,13 @@ msgstr "Maximizează fereastra pe verticală"
 msgid "Maximize window horizontally"
 msgstr "Maximizează fereastra pe orizontală"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:173
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:164
 msgid "View split on left"
 msgstr "Împarte în stânga"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:178
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:169
 msgid "View split on right"
 msgstr "Împarte în dreapta"
-
-#: data/mutter.desktop.in:4
-msgid "Mutter"
-msgstr "Mutter"
 
 #: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
@@ -339,23 +336,11 @@ msgstr ""
 "monitorul principal."
 
 #: data/org.gnome.mutter.gschema.xml.in:67
-msgid "No tab popup"
-msgstr "Fără popup pentru tab"
-
-#: data/org.gnome.mutter.gschema.xml.in:68
-msgid ""
-"Determines whether the use of popup and highlight frame should be disabled "
-"for window cycling."
-msgstr ""
-"Determină dacă utilizarea unui popup sau a unui cadrul evidențiat ar trebui "
-"să fie dezactivată pentru rotirea ferestrelor."
-
-#: data/org.gnome.mutter.gschema.xml.in:76
 msgid "Delay focus changes until the pointer stops moving"
 msgstr ""
 "Întârzie schimbările de focalizare până când cursorul încetează să se miște"
 
-#: data/org.gnome.mutter.gschema.xml.in:77
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -365,11 +350,11 @@ msgstr ""
 "ori „maus”, atunci focalizarea nu va fi schimbată imediat la intrarea într-o "
 "fereastră, ci doar după ce indicatorul nu se mai mișcă."
 
-#: data/org.gnome.mutter.gschema.xml.in:87
+#: data/org.gnome.mutter.gschema.xml.in:78
 msgid "Draggable border width"
 msgstr "Lățimea marginii ce poate fi plasată"
 
-#: data/org.gnome.mutter.gschema.xml.in:88
+#: data/org.gnome.mutter.gschema.xml.in:79
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -378,12 +363,12 @@ msgstr ""
 "temei nu sunt suficiente, vor fi adăugate margini invizibile pentru a "
 "respecta această valoare."
 
-#: data/org.gnome.mutter.gschema.xml.in:97
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid "Auto maximize nearly monitor sized windows"
 msgstr ""
 "Maximizează automat ferestrele de dimensiune apropiată de cea a monitorului"
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
@@ -391,11 +376,11 @@ msgstr ""
 "Dacă este activată, ferestrele noi care sunt inițial de mărimea monitorului "
 "sunt maximizate în mod automat."
 
-#: data/org.gnome.mutter.gschema.xml.in:106
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
 msgstr "Plasează ferestre noi în centru"
 
-#: data/org.gnome.mutter.gschema.xml.in:107
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
@@ -403,11 +388,11 @@ msgstr ""
 "Când este adevărat, ferestrele noi vor fi plasate în centrul ecranului activ "
 "al monitorului."
 
-#: data/org.gnome.mutter.gschema.xml.in:116
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "Enable experimental features"
 msgstr "Activează funcționalitățile experimentale"
 
-#: data/org.gnome.mutter.gschema.xml.in:117
+#: data/org.gnome.mutter.gschema.xml.in:108
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -439,19 +424,19 @@ msgstr ""
 "scăzută. Necesită o repornire. • „autoclose-xwayland” — termină automat "
 "Xwayland dacă toți clienții X11 au dispărut. Necesită o repornire."
 
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:141
 msgid "Modifier to use to locate the pointer"
 msgstr "Modificator de utilizat pentru a localiza pointerul"
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:142
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Această cheie va iniția acțiunea „localizează pointer”."
 
-#: data/org.gnome.mutter.gschema.xml.in:158
+#: data/org.gnome.mutter.gschema.xml.in:149
 msgid "Timeout for check-alive ping"
 msgstr "A expirat limita de timp pentru check-alive ping"
 
-#: data/org.gnome.mutter.gschema.xml.in:159
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -460,21 +445,17 @@ msgstr ""
 "ping pentru a nu fi detectat ca înghețat. Utilizând 0 va dezactiva check-"
 "alive complet."
 
-#: data/org.gnome.mutter.gschema.xml.in:183
-msgid "Select window from tab popup"
-msgstr "Selectează fereastra din popup-ul tabului"
-
-#: data/org.gnome.mutter.gschema.xml.in:188
-msgid "Cancel tab popup"
-msgstr "Elimină popup-ul pentru tab"
-
-#: data/org.gnome.mutter.gschema.xml.in:193
+#: data/org.gnome.mutter.gschema.xml.in:174
 msgid "Switch monitor configurations"
 msgstr "Comută configurațiile de monitor"
 
-#: data/org.gnome.mutter.gschema.xml.in:198
+#: data/org.gnome.mutter.gschema.xml.in:179
 msgid "Rotates the built-in monitor configuration"
 msgstr "Rotește configurarea de monitor integrat"
+
+#: data/org.gnome.mutter.gschema.xml.in:184
+msgid "Cancel any active input capture session"
+msgstr "Anulează orice sesiune activă de captură a intrării"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
@@ -600,26 +581,54 @@ msgstr ""
 "nu are niciun efect dacă Xwayland a fost generat fără suport pentru "
 "extensiile selectate."
 
-#: src/backends/meta-monitor.c:246
+#: data/org.gnome.mutter.wayland.gschema.xml.in:130
+msgid "Allow X11 clients with a different endianness to connect to Xwayland"
+msgstr ""
+"Permite clienților X11 cu o endiană diferită să se conecteze la Xwayland"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:131
+msgid ""
+"Allow connections from clients with an endianness different to that of "
+"Xwayland. The X server byte-swapping code is a huge attack surface, much of "
+"that code in Xwayland is prone to security issues. The use-case of byte-"
+"swapped clients is very niche, and disabled by default in Xwayland. Enable "
+"this option to instruct Xwayland to accept connections from X11 clients with "
+"a different endianness. This option has no effect if Xwayland does not "
+"support the command line option +byteswappedclients/-byteswappedclients to "
+"control that setting. Xwayland needs to be restarted for this setting to "
+"take effect."
+msgstr ""
+"Permite conexiuni de la clienți cu o endiană diferită de aceea a Xwayland. "
+"Codul de schimb de octeți al serverului X este o uriașă suprafață de atac, o "
+"mare parte din codul respectiv din Xwayland este predispus la probleme de "
+"securitate. Cazul de utilizare a clienților schimbați pe octeți este foarte "
+"de nișă, și dezactivat implicit în Xwayland. Activați această opțiune pentru "
+"a instrui Xwayland să accepte conexiuni de la clienți X11 cu o endiană "
+"diferită. Această opțiune nu are niciun efect dacă Xwayland nu suportă "
+"opțiunea în linie de comandă +byteswappedclients/-byteswappedclients pentru "
+"a controla acea configurare. Xwayland trebuie repornit pentru ca această "
+"configurare să aibă efect."
+
+#: src/backends/meta-monitor.c:253
 msgid "Built-in display"
 msgstr "Afișaj integrat"
 
-#: src/backends/meta-monitor.c:275
+#: src/backends/meta-monitor.c:280
 msgid "Unknown"
 msgstr "Necunoscut"
 
-#: src/backends/meta-monitor.c:277
+#: src/backends/meta-monitor.c:282
 msgid "Unknown Display"
 msgstr "Afișaj necunoscut"
 
-#: src/backends/meta-monitor.c:285
+#: src/backends/meta-monitor.c:290
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:293
+#: src/backends/meta-monitor.c:298
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -627,119 +636,82 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#. Translators: this string will appear in Sysprof
-#: src/backends/meta-profiler.c:79
-msgid "Compositor"
-msgstr "Compunător"
-
-#. This probably means that a non-WM compositor like xcompmgr is running;
-#. * we have no way to get it to exit
-#: src/compositor/compositor.c:392
-#, c-format
-msgid ""
-"Another compositing manager is already running on screen %i on display “%s”."
-msgstr ""
-"Un alt administrator de ferestre de compunere rulează deja pe ecranul %i pe "
-"afișajul „%s”."
-
-#: src/core/bell.c:192
+#: src/core/bell.c:193
 msgid "Bell event"
 msgstr "Eveniment sonor"
 
-#: src/core/display.c:687
+#: src/core/display.c:718
 msgid "Privacy Screen Enabled"
 msgstr "Ecran de confidențialitate activat"
 
-#: src/core/display.c:688
+#: src/core/display.c:719
 msgid "Privacy Screen Disabled"
 msgstr "Ecran de confidențialitate dezactivat"
 
-#. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:151
-#, c-format
-msgid "“%s” is not responding."
-msgstr "„%s” nu răspunde."
-
-#: src/core/meta-close-dialog-default.c:153
-msgid "Application is not responding."
-msgstr "Aplicația nu răspunde."
-
-#: src/core/meta-close-dialog-default.c:158
-msgid ""
-"You may choose to wait a short while for it to continue or force the "
-"application to quit entirely."
-msgstr ""
-"Puteți alege între a aștepta pentru câteva secunde ca aplicația să continue "
-"sau a forța terminarea aplicației."
-
-#: src/core/meta-close-dialog-default.c:164
-msgid "_Force Quit"
-msgstr "_Forțează închiderea"
-
-#: src/core/meta-close-dialog-default.c:164
-msgid "_Wait"
-msgstr "_Așteaptă"
-
-#: src/core/meta-context-main.c:555
+#: src/core/meta-context-main.c:581
 msgid "Replace the running window manager"
 msgstr "Înlocuiește administratorul de ferestre curent"
 
-#: src/core/meta-context-main.c:561
+#: src/core/meta-context-main.c:587
 msgid "X Display to use"
 msgstr "Ecranul X ce va fi folosit"
 
-#: src/core/meta-context-main.c:567
+#: src/core/meta-context-main.c:593
 msgid "Disable connection to session manager"
 msgstr "Dezactivează conexiunea la administratorul de sesiune"
 
-#: src/core/meta-context-main.c:573
+#: src/core/meta-context-main.c:599
 msgid "Specify session management ID"
 msgstr "Specifică ID-ul administrării de sesiune"
 
-#: src/core/meta-context-main.c:579
+#: src/core/meta-context-main.c:605
 msgid "Initialize session from savefile"
 msgstr "Inițializează sesiunea din fișierul salvat"
 
-#: src/core/meta-context-main.c:585
+#: src/core/meta-context-main.c:611
 msgid "Make X calls synchronous"
 msgstr "Realizează apelurile X sincron"
 
-#: src/core/meta-context-main.c:592
+#: src/core/meta-context-main.c:619
 msgid "Run as a wayland compositor"
 msgstr "Rulează ca un compunător wayland"
 
-#: src/core/meta-context-main.c:598
+#: src/core/meta-context-main.c:625
 msgid "Run as a nested compositor"
 msgstr "Rulează ca un compunător imbricat"
 
-#: src/core/meta-context-main.c:604
+#: src/core/meta-context-main.c:631
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Rulează compunătorul wayland fără a porni Xwayland"
 
-#: src/core/meta-context-main.c:610
+#: src/core/meta-context-main.c:637
 msgid "Specify Wayland display name to use"
 msgstr "Specificați numele de afișaj Wayland de utilizat"
 
-#: src/core/meta-context-main.c:618
+#: src/core/meta-context-main.c:645
 msgid "Run as a full display server, rather than nested"
 msgstr "Rulează ca server de afișare și nu ca server imbricat"
 
-#: src/core/meta-context-main.c:623
+#: src/core/meta-context-main.c:650
 msgid "Run as a headless display server"
 msgstr "Rulează ca server de afișare"
 
-#: src/core/meta-context-main.c:628
+#: src/core/meta-context-main.c:655
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Adaugă monitor virtual persistent (WxH sau WxH@R)"
 
-#: src/core/meta-context-main.c:639
+#: src/core/meta-context-main.c:667
 msgid "Run with X11 backend"
 msgstr "Rulează cu backend X11"
+
+#: src/core/meta-context-main.c:673
+msgid "Profile performance using trace instrumentation"
+msgstr "Performanță de profil utilizând instrumentarea de urmărire"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:840
+#: src/core/meta-pad-action-mapper.c:861
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Comutator de mod (grupul %d)"
@@ -747,13 +719,18 @@ msgstr "Comutator de mod (grupul %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:863
+#: src/core/meta-pad-action-mapper.c:884
 msgid "Switch monitor"
 msgstr "Comută monitorul"
 
-#: src/core/meta-pad-action-mapper.c:865
+#: src/core/meta-pad-action-mapper.c:886
 msgid "Show on-screen help"
 msgstr "Arată ajutorul virtual"
+
+#. Translators: this string will appear in Sysprof
+#: src/core/meta-profiler.c:111 src/core/meta-profiler.c:301
+msgid "Compositor"
+msgstr "Compunător"
 
 #: src/core/mutter.c:74
 msgid "Print version"
@@ -763,21 +740,25 @@ msgstr "Afișează versiunea"
 msgid "Mutter plugin to use"
 msgstr "Modul Mutter de utilizat"
 
-#: src/core/prefs.c:1913
+#: src/core/prefs.c:1843
 #, c-format
 msgid "Workspace %d"
 msgstr "Spațiu de lucru %d"
 
-#: src/core/util.c:142
+#: src/core/util.c:139
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter a fost compilat fără suport pentru modul detaliat"
 
-#: src/wayland/meta-wayland-tablet-pad.c:519
+#: src/core/workspace.c:541
+msgid "Workspace switched"
+msgstr "Spațiul de lucru comutat"
+
+#: src/wayland/meta-wayland-tablet-pad.c:530
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Comutator de mod: modul %d"
 
-#: src/x11/meta-x11-display.c:673
+#: src/x11/meta-x11-display.c:708
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -787,37 +768,96 @@ msgstr ""
 "opțiunea --replace (înlocuiește) pentru a înlocui administratorul de "
 "ferestre curent."
 
-#: src/x11/meta-x11-display.c:1067
-msgid "Failed to initialize GDK"
-msgstr "Nu s-a putut inițializa GDK"
-
-#: src/x11/meta-x11-display.c:1091
+#: src/x11/meta-x11-display.c:1073
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Nu s-a putut deschide afișajul Sistem de Ferestre X „%s”"
 
-#: src/x11/meta-x11-display.c:1200
+#: src/x11/meta-x11-display.c:1219
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Ecranul %d pe afișajul „%s” nu este valid"
 
-#: src/x11/meta-x11-selection-input-stream.c:460
+#. This probably means that a non-WM compositor like xcompmgr is running;
+#. * we have no way to get it to exit
+#: src/x11/meta-x11-display.c:2550
+#, c-format
+msgid ""
+"Another compositing manager is already running on screen %i on display “%s”."
+msgstr ""
+"Un alt administrator de ferestre de compunere rulează deja pe ecranul %i pe "
+"afișajul „%s”."
+
+#: src/x11/meta-x11-selection-input-stream.c:475
 #, c-format
 msgid "Format %s not supported"
 msgstr "Formatul %s nu este suportat"
-
-#: src/x11/session.c:1823
-msgid ""
-"These windows do not support “save current setup” and will have to be "
-"restarted manually next time you log in."
-msgstr ""
-"Aceste ferestre nu suportă „salvează configurarea curentă” și vor trebui "
-"repornite manual următoarea dată când vă veți autentifica."
 
 #: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (pe %s)"
+
+#~ msgid "Move to workspace on the left"
+#~ msgstr "Mută pe spațiul de lucru din stânga"
+
+#~ msgid "Move to workspace on the right"
+#~ msgstr "Mută pe spațiul de lucru din dreapta"
+
+#~ msgid "Move to workspace above"
+#~ msgstr "Mută pe spațiul de lucru deasupra"
+
+#~ msgid "Move to workspace below"
+#~ msgstr "Mută pe spațiul de lucru de jos"
+
+#~ msgid "Mutter"
+#~ msgstr "Mutter"
+
+#~ msgid "No tab popup"
+#~ msgstr "Fără popup pentru tab"
+
+#~ msgid ""
+#~ "Determines whether the use of popup and highlight frame should be "
+#~ "disabled for window cycling."
+#~ msgstr ""
+#~ "Determină dacă utilizarea unui popup sau a unui cadrul evidențiat ar "
+#~ "trebui să fie dezactivată pentru rotirea ferestrelor."
+
+#~ msgid "Select window from tab popup"
+#~ msgstr "Selectează fereastra din popup-ul tabului"
+
+#~ msgid "Cancel tab popup"
+#~ msgstr "Elimină popup-ul pentru tab"
+
+#, c-format
+#~ msgid "“%s” is not responding."
+#~ msgstr "„%s” nu răspunde."
+
+#~ msgid "Application is not responding."
+#~ msgstr "Aplicația nu răspunde."
+
+#~ msgid ""
+#~ "You may choose to wait a short while for it to continue or force the "
+#~ "application to quit entirely."
+#~ msgstr ""
+#~ "Puteți alege între a aștepta pentru câteva secunde ca aplicația să "
+#~ "continue sau a forța terminarea aplicației."
+
+#~ msgid "_Force Quit"
+#~ msgstr "_Forțează închiderea"
+
+#~ msgid "_Wait"
+#~ msgstr "_Așteaptă"
+
+#~ msgid "Failed to initialize GDK"
+#~ msgstr "Nu s-a putut inițializa GDK"
+
+#~ msgid ""
+#~ "These windows do not support “save current setup” and will have to be "
+#~ "restarted manually next time you log in."
+#~ msgstr ""
+#~ "Aceste ferestre nu suportă „salvează configurarea curentă” și vor trebui "
+#~ "repornite manual următoarea dată când vă veți autentifica."
 
 #~ msgid "X display to use"
 #~ msgstr "Afișajul X ce va fi folosit"
@@ -1262,9 +1302,6 @@ msgstr "%s (pe %s)"
 #~ msgid "Workspace 1_0"
 #~ msgstr "Spațiul de lucru 1_0"
 
-#~ msgid "Workspace %s%d"
-#~ msgstr "Spațiul de lucru %s%d"
-
 #~ msgid "Move to Another _Workspace"
 #~ msgstr "Mută pe un alt _spațiul de lucru"
 
@@ -1471,8 +1508,8 @@ msgstr "%s (pe %s)"
 #~ "Missing <frame state=\"%s\" resize=\"%s\" focus=\"%s\" style=\"whatever\"/"
 #~ ">"
 #~ msgstr ""
-#~ "Lipsește <frame state=\"%s\" resize=\"%s\" focus=\"%s\" style=\"whatever"
-#~ "\"/>"
+#~ "Lipsește <frame state=\"%s\" resize=\"%s\" focus=\"%s\" "
+#~ "style=\"whatever\"/>"
 
 #~ msgid "Failed to load theme \"%s\": %s\n"
 #~ msgstr "Nu s-a putut încărca tema „%s”: %s\n"
@@ -1572,8 +1609,8 @@ msgstr "%s (pe %s)"
 #~ msgstr "Elementul <%s> nu poate coborî sub <%s>"
 
 #~ msgid ""
-#~ "Cannot specify both \"button_width\"/\"button_height\" and \"aspect_ratio"
-#~ "\" for buttons"
+#~ "Cannot specify both \"button_width\"/\"button_height\" and "
+#~ "\"aspect_ratio\" for buttons"
 #~ msgstr ""
 #~ "Nu se pot specifica în același timp „button_width”/„button_height” și  "
 #~ "„aspect_ratio” pentru butoane"
@@ -2163,8 +2200,9 @@ msgstr "%s (pe %s)"
 
 #~ msgid ""
 #~ "Set this to true to resize with the right button and show a menu with the "
-#~ "middle button while holding down the key given in \"mouse_button_modifier"
-#~ "\"; set it to false to make it work the opposite way around."
+#~ "middle button while holding down the key given in "
+#~ "\"mouse_button_modifier\"; set it to false to make it work the opposite "
+#~ "way around."
 #~ msgstr ""
 #~ "Definiți ca „true” pentru a redimensiona cu butonul drept și a arăta "
 #~ "meniul cu butonul central când țineți apăsată tasta aleasă la "
@@ -2542,12 +2580,6 @@ msgstr "%s (pe %s)"
 
 #~ msgid "Switch to workspace below this one"
 #~ msgstr "Du-te la ecranul situat sub acesta"
-
-#~ msgid "Switch to workspace on the left"
-#~ msgstr "Du-te la ecranul din stânga"
-
-#~ msgid "Switch to workspace on the right"
-#~ msgstr "Du-te la ecranul din dreapta"
 
 #~ msgid ""
 #~ "The keybinding that switches to the workspace above the current "
@@ -3153,8 +3185,8 @@ msgstr "%s (pe %s)"
 
 #~ msgid ""
 #~ "The keybinding used to move focus backwards between panels and the "
-#~ "desktop, without a popup window. The format looks like \"&lt;Control&gt;a"
-#~ "\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and "
+#~ "desktop, without a popup window. The format looks like \"&lt;Control&gt;"
+#~ "a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and "
 #~ "allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;"
 #~ "\" and \"&lt;Ctrl&gt;\". If you set the option to the special string "
 #~ "\"disabled\", then there will be no keybinding for this action."
@@ -3211,8 +3243,8 @@ msgstr "%s (pe %s)"
 #~ "direction go forward again. The format looks like \"&lt;Control&gt;a\" or "
 #~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
 #~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
-#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "Combinația de taste folosită pentru a muta focalizarea înapoi între "
 #~ "ferestre fără o fereastră popup. Ținând apăsat „shift” împreună cu "
@@ -3229,8 +3261,8 @@ msgstr "%s (pe %s)"
 #~ "direction go forward again. The format looks like \"&lt;Control&gt;a\" or "
 #~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
 #~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
-#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "Combinația de taste folosită pentru a muta focalizarea înapoi între "
 #~ "ferestre folosind o fereastră popup. Ținând apăsat „shift” împreună cu "
@@ -3476,8 +3508,8 @@ msgstr "%s (pe %s)"
 #~ "screenshot of a window. The format looks like \"&lt;Control&gt;a\" or "
 #~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
 #~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
-#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "Combinația de taste folosită pentru a invoca utilitarul de captură ecran. "
 #~ "Formatul arată ca de exemplu „&lt;Control&gt;a” sau „&lt;Shift&gt;&lt;"
