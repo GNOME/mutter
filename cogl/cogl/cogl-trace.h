@@ -145,7 +145,7 @@ cogl_is_tracing_enabled (void)
 #define COGL_TRACE_END(Name) (void) 0
 #define COGL_TRACE_BEGIN_SCOPED(Name, name) (void) 0
 #define COGL_TRACE_DESCRIBE(Name, description) (void) 0
-#define COGL_TRACE_ANCHOR(Name) (void) 0
+#define COGL_TRACE_SCOPED_ANCHOR(Name) (void) 0
 #define COGL_TRACE_BEGIN_ANCHORED(Name, name) (void) 0
 
 COGL_EXPORT
