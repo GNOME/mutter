@@ -555,17 +555,16 @@ maybe_record_cursor (MetaScreenCastStreamSrc *src,
 }
 
 static gboolean
-do_record_frame (MetaScreenCastStreamSrc  *src,
-                 MetaScreenCastRecordFlag  flags,
-                 struct spa_buffer        *spa_buffer,
-                 uint8_t                  *data,
-                 GError                  **error)
+do_record_frame (MetaScreenCastStreamSrc   *src,
+                 MetaScreenCastRecordFlag   flags,
+                 struct spa_buffer         *spa_buffer,
+                 GError                   **error)
 {
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
+  struct spa_data *spa_data = &spa_buffer->datas[0];
 
-  if (spa_buffer->datas[0].data ||
-      spa_buffer->datas[0].type == SPA_DATA_MemFd)
+  if (spa_data->data || spa_data->type == SPA_DATA_MemFd)
     {
       int width = priv->video_format.size.width;
       int height = priv->video_format.size.height;
@@ -575,14 +574,14 @@ do_record_frame (MetaScreenCastStreamSrc  *src,
                                                            width,
                                                            height,
                                                            stride,
-                                                           data,
+                                                           spa_data->data,
                                                            error);
     }
-  else if (spa_buffer->datas[0].type == SPA_DATA_DmaBuf)
+  else if (spa_data->type == SPA_DATA_DmaBuf)
     {
       CoglDmaBufHandle *dmabuf_handle =
         g_hash_table_lookup (priv->dmabuf_handles,
-                             GINT_TO_POINTER (spa_buffer->datas[0].fd));
+                             GINT_TO_POINTER (spa_data->fd));
       CoglFramebuffer *dmabuf_fbo =
         cogl_dma_buf_handle_get_framebuffer (dmabuf_handle);
 
@@ -592,7 +591,7 @@ do_record_frame (MetaScreenCastStreamSrc  *src,
     }
 
   g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-               "Unknown SPA buffer type %u", spa_buffer->datas[0].type);
+               "Unknown SPA buffer type %u", spa_data->type);
   return FALSE;
 }
 
@@ -745,12 +744,12 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
   MetaScreenCastRecordResult record_result =
-     META_SCREEN_CAST_RECORD_RESULT_RECORDED_NOTHING;
+    META_SCREEN_CAST_RECORD_RESULT_RECORDED_NOTHING;
   MtkRectangle crop_rect;
   struct pw_buffer *buffer;
   struct spa_buffer *spa_buffer;
   struct spa_meta_header *header;
-  uint8_t *data = NULL;
+  struct spa_data *spa_data;
 
   /* Accumulate the damaged region since we might not schedule a frame capture
    * eventually but once we do, we should report all the previous damaged areas.
@@ -817,13 +816,13 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
     }
 
   spa_buffer = buffer->buffer;
-  data = spa_buffer->datas[0].data;
+  spa_data = &spa_buffer->datas[0];
 
   header = spa_buffer_find_meta_data (spa_buffer,
                                       SPA_META_Header,
                                       sizeof (*header));
 
-  if (spa_buffer->datas[0].type != SPA_DATA_DmaBuf && !data)
+  if (spa_data->type != SPA_DATA_DmaBuf && !spa_data->data)
     {
       g_critical ("Invalid buffer data");
       if (header)
@@ -838,10 +837,9 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
       g_autoptr (GError) error = NULL;
 
       g_clear_handle_id (&priv->follow_up_frame_source_id, g_source_remove);
-      if (do_record_frame (src, flags, spa_buffer, data, &error))
+      if (do_record_frame (src, flags, spa_buffer, &error))
         {
           maybe_add_damaged_regions_metadata (src, spa_buffer);
-          struct spa_data *spa_data = &spa_buffer->datas[0];
           struct spa_meta_region *spa_meta_video_crop;
 
           spa_data->chunk->size = spa_data->maxsize;
@@ -879,14 +877,14 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
         {
           if (error)
             g_warning ("Failed to record screen cast frame: %s", error->message);
-          spa_buffer->datas[0].chunk->size = 0;
-          spa_buffer->datas[0].chunk->flags = SPA_CHUNK_FLAG_CORRUPTED;
+          spa_data->chunk->size = 0;
+          spa_data->chunk->flags = SPA_CHUNK_FLAG_CORRUPTED;
         }
     }
   else
     {
-      spa_buffer->datas[0].chunk->size = 0;
-      spa_buffer->datas[0].chunk->flags = SPA_CHUNK_FLAG_CORRUPTED;
+      spa_data->chunk->size = 0;
+      spa_data->chunk->flags = SPA_CHUNK_FLAG_CORRUPTED;
     }
 
   record_result |= maybe_record_cursor (src, spa_buffer);
@@ -1091,7 +1089,7 @@ on_stream_add_buffer (void             *data,
     meta_screen_cast_session_get_screen_cast (session);
   CoglDmaBufHandle *dmabuf_handle;
   struct spa_buffer *spa_buffer = buffer->buffer;
-  struct spa_data *spa_data = spa_buffer->datas;
+  struct spa_data *spa_data = &spa_buffer->datas[0];
   const int bpp = 4;
   int stride;
 
@@ -1099,11 +1097,11 @@ on_stream_add_buffer (void             *data,
 
   stride = SPA_ROUND_UP_N (priv->video_format.size.width * bpp, 4);
 
-  spa_data[0].mapoffset = 0;
-  spa_data[0].maxsize = stride * priv->video_format.size.height;
-  spa_data[0].data = NULL;
+  spa_data->mapoffset = 0;
+  spa_data->maxsize = stride * priv->video_format.size.height;
+  spa_data->data = NULL;
 
-  if (spa_data[0].type & (1 << SPA_DATA_DmaBuf))
+  if (spa_data->type & (1 << SPA_DATA_DmaBuf))
     {
       CoglPixelFormat cogl_format;
 
@@ -1141,19 +1139,19 @@ on_stream_add_buffer (void             *data,
                   "Allocating DMA buffer for pw_stream %u",
                   pw_stream_get_node_id (priv->pipewire_stream));
 
-      spa_data[0].type = SPA_DATA_DmaBuf;
-      spa_data[0].flags = SPA_DATA_FLAG_READWRITE;
-      spa_data[0].fd = cogl_dma_buf_handle_get_fd (dmabuf_handle);
+      spa_data->type = SPA_DATA_DmaBuf;
+      spa_data->flags = SPA_DATA_FLAG_READWRITE;
+      spa_data->fd = cogl_dma_buf_handle_get_fd (dmabuf_handle);
 
       g_hash_table_insert (priv->dmabuf_handles,
-                           GINT_TO_POINTER (spa_data[0].fd),
+                           GINT_TO_POINTER (spa_data->fd),
                            dmabuf_handle);
     }
   else
     {
       unsigned int seals;
 
-      if (!(spa_data[0].type & (1 << SPA_DATA_MemFd)))
+      if (!(spa_data->type & (1 << SPA_DATA_MemFd)))
         {
           g_critical ("No supported PipeWire stream buffer data type could "
                       "be negotiated");
@@ -1165,40 +1163,39 @@ on_stream_add_buffer (void             *data,
                   pw_stream_get_node_id (priv->pipewire_stream));
 
       /* Fallback to a memfd buffer */
-      spa_data[0].type = SPA_DATA_MemFd;
-      spa_data[0].flags = SPA_DATA_FLAG_READWRITE;
-      spa_data[0].fd = memfd_create ("mutter-screen-cast-memfd",
-                                     MFD_CLOEXEC | MFD_ALLOW_SEALING);
-      if (spa_data[0].fd == -1)
+      spa_data->type = SPA_DATA_MemFd;
+      spa_data->flags = SPA_DATA_FLAG_READWRITE;
+      spa_data->fd = memfd_create ("mutter-screen-cast-memfd",
+                                   MFD_CLOEXEC | MFD_ALLOW_SEALING);
+      if (spa_data->fd == -1)
         {
           g_critical ("Can't create memfd: %m");
           return;
         }
-      spa_data[0].mapoffset = 0;
-      spa_data[0].maxsize = stride * priv->video_format.size.height;
+      spa_data->maxsize = stride * priv->video_format.size.height;
 
-      if (ftruncate (spa_data[0].fd, spa_data[0].maxsize) < 0)
+      if (ftruncate (spa_data->fd, spa_data->maxsize) < 0)
         {
-          close (spa_data[0].fd);
-          spa_data[0].fd = -1;
-          g_critical ("Can't truncate to %d: %m", spa_data[0].maxsize);
+          close (spa_data->fd);
+          spa_data->fd = -1;
+          g_critical ("Can't truncate to %d: %m", spa_data->maxsize);
           return;
         }
 
       seals = F_SEAL_GROW | F_SEAL_SHRINK | F_SEAL_SEAL;
-      if (fcntl (spa_data[0].fd, F_ADD_SEALS, seals) == -1)
+      if (fcntl (spa_data->fd, F_ADD_SEALS, seals) == -1)
         g_warning ("Failed to add seals: %m");
 
-      spa_data[0].data = mmap (NULL,
-                               spa_data[0].maxsize,
-                               PROT_READ | PROT_WRITE,
-                               MAP_SHARED,
-                               spa_data[0].fd,
-                               spa_data[0].mapoffset);
-      if (spa_data[0].data == MAP_FAILED)
+      spa_data->data = mmap (NULL,
+                             spa_data->maxsize,
+                             PROT_READ | PROT_WRITE,
+                             MAP_SHARED,
+                             spa_data->fd,
+                             spa_data->mapoffset);
+      if (spa_data->data == MAP_FAILED)
         {
-          close (spa_data[0].fd);
-          spa_data[0].fd = -1;
+          close (spa_data->fd);
+          spa_data->fd = -1;
           g_critical ("Failed to mmap memory: %m");
           return;
         }
@@ -1219,23 +1216,23 @@ on_stream_remove_buffer (void             *data,
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
   struct spa_buffer *spa_buffer = buffer->buffer;
-  struct spa_data *spa_data = spa_buffer->datas;
+  struct spa_data *spa_data = &spa_buffer->datas[0];
 
   priv->buffer_count--;
 
-  if (spa_data[0].type == SPA_DATA_DmaBuf)
+  if (spa_data->type == SPA_DATA_DmaBuf)
     {
-      if (!g_hash_table_remove (priv->dmabuf_handles, GINT_TO_POINTER (spa_data[0].fd)))
+      if (!g_hash_table_remove (priv->dmabuf_handles, GINT_TO_POINTER (spa_data->fd)))
         g_critical ("Failed to remove non-exported DMA buffer");
     }
-  else if (spa_data[0].type == SPA_DATA_MemFd)
+  else if (spa_data->type == SPA_DATA_MemFd)
     {
-      g_warn_if_fail (spa_data[0].fd > 0 || !spa_data[0].data);
+      g_warn_if_fail (spa_data->fd > 0 || !spa_data->data);
 
-      if (spa_data[0].fd > 0)
+      if (spa_data->fd > 0)
         {
-          munmap (spa_data[0].data, spa_data[0].maxsize);
-          close (spa_data[0].fd);
+          munmap (spa_data->data, spa_data->maxsize);
+          close (spa_data->fd);
         }
     }
 }
