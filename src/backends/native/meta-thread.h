@@ -98,6 +98,9 @@ gboolean meta_thread_is_in_impl_task (MetaThread *thread);
 
 gboolean meta_thread_is_waiting_for_impl_task (MetaThread *thread);
 
+void meta_thread_inhibit_realtime_in_impl (MetaThread *thread);
+void meta_thread_uninhibit_realtime_in_impl (MetaThread *thread);
+
 #define meta_assert_in_thread_impl(thread) \
   g_assert (meta_thread_is_in_impl_task (thread))
 #define meta_assert_not_in_thread_impl(thread) \
