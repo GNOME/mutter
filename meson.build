@@ -466,7 +466,7 @@ add_project_arguments('-D_GNU_SOURCE', language: 'c')
 
 buildtype = get_option('buildtype')
 if buildtype != 'plain'
-  all_warnings = [
+  mutter_c_args = [
     '-fno-strict-aliasing',
     '-Wpointer-arith',
     '-Wmissing-declarations',
@@ -506,17 +506,16 @@ if buildtype != 'plain'
     '-Wno-missing-field-initializers',
     '-Wno-type-limits',
   ]
-  supported_warnings = cc.get_supported_arguments(all_warnings)
-  add_project_arguments(supported_warnings, language: 'c')
-endif
 
-if get_option('debug')
-  debug_c_args = [
-    '-DG_ENABLE_DEBUG',
-    '-fno-omit-frame-pointer'
-  ]
-  supported_debug_c_args = cc.get_supported_arguments(debug_c_args)
-  add_project_arguments(supported_debug_c_args, language: 'c')
+  if get_option('debug')
+    mutter_c_args += [
+      '-DG_ENABLE_DEBUG',
+      '-fno-omit-frame-pointer',
+    ]
+  endif
+
+  supported_mutter_c_args = cc.get_supported_arguments(mutter_c_args)
+  add_project_arguments(supported_mutter_c_args, language: 'c')
 endif
 
 cc.compiles('void main (void) { __builtin_ffsl (0); __builtin_popcountl (0); }')

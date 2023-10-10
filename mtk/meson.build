@@ -14,17 +14,19 @@ mtk_c_args = [
 ]
 
 mtk_debug_c_args = []
-if get_option('debug')
-  mtk_debug_c_args += [
-    '-fno-omit-frame-pointer'
-  ]
-elif buildtype != 'plain'
-  mtk_debug_c_args += [
-    '-DG_DISABLE_ASSERT',
-    '-DG_DISABLE_CAST_CHECKS',
-  ]
+if buildtype != 'plain'
+  if get_option('debug')
+    mtk_debug_c_args += [
+      '-fno-omit-frame-pointer'
+    ]
+  else
+    mtk_debug_c_args += [
+      '-DG_DISABLE_ASSERT',
+      '-DG_DISABLE_CAST_CHECKS',
+    ]
+  endif
 endif
-supported_mtk_debug_c_args = cc.get_supported_arguments(mtk_debug_c_args)
+mtk_debug_c_args = cc.get_supported_arguments(mtk_debug_c_args)
 mtk_c_args += mtk_debug_c_args
 
 mtk_pkg_deps = [

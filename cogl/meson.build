@@ -84,20 +84,21 @@ if have_gles2
 endif
 
 cogl_debug_c_args = []
-buildtype = get_option('buildtype')
-if get_option('debug')
-  cogl_debug_c_args += [
-    '-DCOGL_GL_DEBUG',
-    '-DCOGL_OBJECT_DEBUG',
-    '-DCOGL_ENABLE_DEBUG',
-    '-fno-omit-frame-pointer'
-  ]
-elif buildtype != 'plain'
-  cogl_debug_c_args += [
-    '-DG_DISABLE_CAST_CHECKS'
-  ]
+if buildtype != 'plain'
+  if get_option('debug')
+    cogl_debug_c_args += [
+      '-DCOGL_GL_DEBUG',
+      '-DCOGL_OBJECT_DEBUG',
+      '-DCOGL_ENABLE_DEBUG',
+      '-fno-omit-frame-pointer',
+    ]
+  else
+    cogl_debug_c_args += [
+      '-DG_DISABLE_CAST_CHECKS',
+    ]
+  endif
 endif
-supported_cogl_debug_c_args = cc.get_supported_arguments(cogl_debug_c_args)
+cogl_debug_c_args = cc.get_supported_arguments(cogl_debug_c_args)
 cogl_c_args += cogl_debug_c_args
 
 subdir('cogl')
