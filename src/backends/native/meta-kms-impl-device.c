@@ -1581,6 +1581,10 @@ process_mode_set_update (MetaKmsImplDevice *impl_device,
 {
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
+  MetaKmsImpl *kms_impl = meta_kms_impl_device_get_impl (impl_device);
+  MetaThreadImpl *thread_impl = META_THREAD_IMPL (kms_impl);
+  MetaThread *thread = meta_thread_impl_get_thread (thread_impl);
+  MetaKmsFeedback *feedback;
   CrtcFrame *crtc_frame;
   GList *l;
   GHashTableIter iter;
@@ -1612,7 +1616,11 @@ process_mode_set_update (MetaKmsImplDevice *impl_device,
       disarm_crtc_frame_deadline_timer (crtc_frame);
     }
 
-  return do_process (impl_device, NULL, update, flags);
+  meta_thread_inhibit_realtime_in_impl (thread);
+  feedback = do_process (impl_device, NULL, update, flags);
+  meta_thread_uninhibit_realtime_in_impl (thread);
+
+  return feedback;
 }
 
 MetaKmsFeedback *
@@ -1656,13 +1664,18 @@ meta_kms_impl_device_disable (MetaKmsImplDevice *impl_device)
 {
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
+  MetaKmsImpl *kms_impl = meta_kms_impl_device_get_impl (impl_device);
+  MetaThreadImpl *thread_impl = META_THREAD_IMPL (kms_impl);
+  MetaThread *thread = meta_thread_impl_get_thread (thread_impl);
   MetaKmsImplDeviceClass *klass = META_KMS_IMPL_DEVICE_GET_CLASS (impl_device);
 
   if (!priv->device_file)
     return;
 
   meta_kms_impl_device_hold_fd (impl_device);
+  meta_thread_inhibit_realtime_in_impl (thread);
   klass->disable (impl_device);
+  meta_thread_uninhibit_realtime_in_impl (thread);
   g_list_foreach (priv->crtcs,
                   (GFunc) meta_kms_crtc_disable_in_impl, NULL);
   g_list_foreach (priv->connectors,
