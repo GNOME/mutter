@@ -202,8 +202,8 @@ get_rtkit_property (MetaDBusRealtimeKit1  *rtkit_proxy,
 }
 
 static gboolean
-request_real_time_scheduling (MetaThread  *thread,
-                              GError     **error)
+request_realtime_scheduling (MetaThread  *thread,
+                             GError     **error)
 {
   MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
   g_autoptr (MetaDBusRealtimeKit1) rtkit_proxy = NULL;
@@ -313,7 +313,7 @@ thread_impl_func (gpointer user_data)
     {
       g_autoptr (GError) error = NULL;
 
-      if (!request_real_time_scheduling (thread, &error))
+      if (!request_realtime_scheduling (thread, &error))
         {
           g_warning ("Failed to make thread '%s' realtime scheduled: %s",
                      priv->name, error->message);
