@@ -640,7 +640,7 @@ get_barrier_adjacency (MtkRectangle   *rect,
         return LINE_ADJACENCY_NONE;
 
       if (y_max < rect->y ||
-          y_min > rect->y + rect->height)
+          y_min >= rect->y + rect->height)
         return LINE_ADJACENCY_NONE;
 
       if (rect->x + rect->width == x || rect->x == x)
@@ -664,7 +664,7 @@ get_barrier_adjacency (MtkRectangle   *rect,
         return LINE_ADJACENCY_NONE;
 
       if (x_max < rect->x ||
-          x_min > rect->x + rect->width)
+          x_min >= rect->x + rect->width)
         return LINE_ADJACENCY_NONE;
 
       if (rect->y + rect->height == y || rect->y == y)
