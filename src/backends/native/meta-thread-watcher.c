@@ -59,8 +59,9 @@
 #define WATCH_INTERVAL_PHASE_OFFSET_MS ms (16)
 
 static gboolean backtrace_printed = FALSE;
-static struct timespec check_ins[2];
-static ssize_t check_in_index = -1;
+static struct timespec checkpoint;
+static ssize_t should_check_in = FALSE, hung = FALSE;
+G_LOCK_DEFINE_STATIC (thread_watchdog);
 
 enum
 {
@@ -82,10 +83,10 @@ typedef struct _MetaThreadWatcherPrivate
   int64_t interval_ms;
   timer_t *timer;
   guint notification_watch_id;
-  guint checker_watch_id;
   GMainContext *context;
   GSource *source;
   pid_t thread_id;
+  GThread *watchdog_thread;
 } MetaThreadWatcherPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaThreadWatcher, meta_thread_watcher, G_TYPE_OBJECT)
@@ -135,38 +136,24 @@ close_fds (MetaThreadWatcher *watcher)
   g_clear_fd (&priv->fds[1], NULL);
 }
 
+static struct uffdio_register uffdio_register;
+static int user_fault_fd;
+
 static void
-complete_page_fault (int fd)
+on_fault_timeout (int signal_number)
 {
-  struct uffdio_copy uffdio_copy;
-  struct uffd_msg msg;
-
-  read (fd, &msg, sizeof(msg));
-
-  uffdio_copy.src = (unsigned long) "X";
-  uffdio_copy.dst = msg.arg.pagefault.address;
-  uffdio_copy.len = 1;
-  uffdio_copy.mode = 0;
-
-  ioctl (fd, UFFDIO_COPY, &uffdio_copy);
-}
-
-static gboolean
-page_fault (int fd)
-{
-  g_timeout_add_once (ms (1000), (GSourceOnceFunc) complete_page_fault, GINT_TO_POINTER (fd));
-  return G_SOURCE_CONTINUE;
+  write (2, "fault\n", strlen ("fault\n"));
+  ioctl (user_fault_fd, UFFDIO_UNREGISTER, &uffdio_register.range);
+  close (user_fault_fd);
+  user_fault_fd = -1;
 }
 
 static void
 busy_loop (void)
 {
   struct uffdio_api uffdio_api;
-  struct uffdio_register uffdio_register;
-  int fd;
   char *area;
-
-  g_warning ("beginning 1 second lock");
+  int fd;
 
   fd = syscall (__NR_userfaultfd, O_CLOEXEC | O_NONBLOCK);
   if (fd == -1)
@@ -199,14 +186,16 @@ busy_loop (void)
       return;
     }
 
-  g_unix_fd_add (fd, G_IO_IN, (GUnixFDSourceFunc) page_fault, NULL);
-
-  /* This should stall for a second
-   */
+  user_fault_fd = fd;
+  signal (SIGALRM, on_fault_timeout);
+  alarm (5);
+  g_warning ("beginning 5 second lock");
   area[0] = 'X';
+  g_warning ("done with 5 second lock");
+  alarm (0);
 
   munmap (area, 4096);
-  close (fd);
+
 }
 
 static void
@@ -256,6 +245,7 @@ on_xcpu_signal (int        signal,
    */
   yield ();
 
+  return;
   /* If we're here, there's a bug somewhere, so send backtraces to the journal.
    */
   if (!backtrace_printed)
@@ -332,15 +322,20 @@ meta_thread_watcher_new (void)
   return watcher;
 }
 
+static gdouble get_timestamp (void)
+{
+  struct timespec now;
+
+  clock_gettime (CLOCK_MONOTONIC, &now);
+
+  return now.tv_sec + (now.tv_nsec / 1000000000.0);
+}
+
 static gboolean
 on_reset_timer (MetaThreadWatcher *watcher)
 {
   g_autoptr (GError) error = NULL;
   gboolean was_reset;
-  static int tries = 0;
-
-  if (tries++ == 1000)
-    busy_loop ();
 
   if (!meta_thread_watcher_is_started (watcher))
     return G_SOURCE_REMOVE;
@@ -380,61 +375,68 @@ meta_thread_watcher_detach (MetaThreadWatcher *watcher)
   g_clear_pointer (&priv->context, g_main_context_unref);
 }
 
-static void
-check_thread (MetaThreadWatcher *watcher)
+static gboolean quit_watchdog = FALSE;
+
+static gpointer
+watch_thread (pid_t thread_id)
 {
-  MetaThreadWatcherPrivate *priv = meta_thread_watcher_get_instance_private (watcher);
   struct timespec current_time;
-  ssize_t last_check_in_index = check_in_index;
   size_t cpu_time_delta_ms;
+  struct timespec last_checkpoint;
   int ret;
 
-  g_clear_handle_id (&priv->checker_watch_id, g_source_remove);
+  g_warning ("Beginning realtime thread watcher on watchdog thread");
 
-  if (!meta_thread_watcher_is_started (watcher))
-    return;
-
-  check_in_index = (check_in_index + 1) % G_N_ELEMENTS (check_ins);
-
-  if (last_check_in_index >= 0)
+  while (!quit_watchdog)
     {
-      static gboolean started_before;
+      gboolean started;
 
-      if (!started_before)
+      G_LOCK (thread_watchdog);
+      started = should_check_in;
+      G_UNLOCK (thread_watchdog);
+
+      if (started)
         {
-          g_warning ("Starting main thread watchdog");
-          started_before = TRUE;
-        }
-      ret = clock_gettime (CLOCK_PROCESS_CPUTIME_ID, &current_time);
-
-      if (ret == -1)
-        {
-          g_warning ("Failed to re-read current CPU time of process: %m");
-          return;
-        }
-
-      cpu_time_delta_ms = us2ms (s2us (current_time.tv_sec - check_ins[last_check_in_index].tv_sec) + us ((current_time.tv_nsec - check_ins[last_check_in_index].tv_nsec) / 1000));
-
-      if (cpu_time_delta_ms > ms (32))
-        {
-          if (!backtrace_printed)
+          if (!hung)
             {
-              backtrace_printed = TRUE;
-              g_warning ("Hang in realtime thread detected by main thread! (%dms since last check-in). Backtrace:\n", (int) cpu_time_delta_ms);
-              meta_print_backtrace ();
+              G_LOCK (thread_watchdog);
+              last_checkpoint = checkpoint;
+              G_UNLOCK (thread_watchdog);
             }
-          g_signal_emit (G_OBJECT (watcher), signals[THREAD_STALLED], 0);
-          return;
+
+          ret = clock_gettime (CLOCK_PROCESS_CPUTIME_ID, &current_time);
+
+          if (ret == -1)
+            {
+              g_warning ("Failed to re-read current CPU time of process: %m");
+              return NULL;
+            }
+
+          cpu_time_delta_ms = s2ms (current_time.tv_sec - last_checkpoint.tv_sec) + ms ((current_time.tv_nsec - last_checkpoint.tv_nsec) / 1000 / 1000);
+
+          if (cpu_time_delta_ms > ms (32))
+            {
+              G_LOCK (thread_watchdog);
+              hung = TRUE;
+              G_UNLOCK (thread_watchdog);
+              g_warning ("Hang in realtime thread %d detected by watchdog thread! (%dms since last checkpoint). Backtrace:\n", (int) thread_id, (int) cpu_time_delta_ms);
+              meta_print_backtrace ();
+              //g_signal_emit (G_OBJECT (watcher), signals[THREAD_STALLED], 0);
+            }
+          g_usleep (ms2us (16));
+        }
+      else
+        {
+          G_LOCK (thread_watchdog);
+	  should_check_in = TRUE;
+          G_UNLOCK (thread_watchdog);
+
+          g_usleep (s2us (15));
+
+          g_warning ("Starting main thread watchdog");
         }
     }
-  else
-    {
-      g_warning ("Beginning realtime thread watcher on main thread");
-      clock_gettime (CLOCK_PROCESS_CPUTIME_ID, &check_ins[check_in_index]);
-      clock_gettime (CLOCK_PROCESS_CPUTIME_ID, &check_ins[check_in_index + 1]);
-    }
-
-  priv->checker_watch_id = g_timeout_add_once (ms (8), (GSourceOnceFunc) check_thread, watcher);
+  return NULL;
 }
 
 static gboolean
@@ -445,8 +447,10 @@ on_thread_stalled (int                fd,
   if (condition & G_IO_IN)
     clear_notifications (watcher);
 
+#if 0
   if (meta_thread_watcher_is_started (watcher))
-    g_signal_emit (G_OBJECT (watcher), signals[THREAD_STALLED], 0);
+    //g_signal_emit (G_OBJECT (watcher), signals[THREAD_STALLED], 0);
+#endif
 
   return G_SOURCE_REMOVE;
 }
@@ -520,14 +524,14 @@ meta_thread_watcher_start (MetaThreadWatcher  *watcher,
   if (!meta_thread_watcher_reset (watcher, error))
     return FALSE;
 
-  priv->checker_watch_id = g_timeout_add_once (ms (15000), (GSourceOnceFunc) check_thread, watcher);
+  priv->watchdog_thread = g_thread_new ("KMS Watchdog Thread", (GThreadFunc) watch_thread, GINT_TO_POINTER (priv->thread_id));
 
   priv->notification_watch_id = g_unix_fd_add (priv->fds[0],
                                                G_IO_IN,
                                                (GUnixFDSourceFunc) on_thread_stalled,
                                                watcher);
 
-  source = g_timeout_source_new (ms (16));
+  source = g_timeout_source_new (ms (18));
   g_source_set_name (source, "[mutter] Thread watcher");
   g_source_set_callback (source,
                          (GSourceFunc) on_reset_timer,
@@ -559,12 +563,30 @@ meta_thread_watcher_reset (MetaThreadWatcher  *watcher,
   MetaThreadWatcherPrivate *priv = meta_thread_watcher_get_instance_private (watcher);
   struct itimerspec timer_interval;
   int ret;
+  static gboolean start = 0.0;
+  clock_t now;
 
   g_return_val_if_fail (META_IS_THREAD_WATCHER (watcher), FALSE);
 
-  if (check_in_index >= 0)
+  if (start < 0.00001)
+    start = get_timestamp ();
+
+  now = get_timestamp ();
+
+  if ((now - start) > 30)
     {
-      ret = clock_gettime (CLOCK_PROCESS_CPUTIME_ID, &check_ins[check_in_index]);
+      busy_loop ();
+      start = get_timestamp ();
+    }
+
+  G_LOCK (thread_watchdog);
+  if (should_check_in)
+    {
+      if (hung)
+        g_warning ("Unhung now");
+      hung = FALSE;
+      ret = clock_gettime (CLOCK_PROCESS_CPUTIME_ID, &checkpoint);
+      G_UNLOCK (thread_watchdog);
 
       if (ret == -1)
         {
@@ -575,6 +597,8 @@ meta_thread_watcher_reset (MetaThreadWatcher  *watcher,
           return FALSE;
         }
     }
+  else
+  G_UNLOCK (thread_watchdog);
 
   timer_interval.it_value.tv_sec = 0;
   timer_interval.it_value.tv_nsec = ms2ns (priv->interval_ms);
@@ -609,6 +633,7 @@ meta_thread_watcher_stop (MetaThreadWatcher *watcher)
 
   g_clear_pointer (&priv->timer, free_timer);
   g_clear_handle_id (&priv->notification_watch_id, g_source_remove);
-  g_clear_handle_id (&priv->checker_watch_id, g_source_remove);
+  quit_watchdog = TRUE;
+  g_clear_pointer (&priv->watchdog_thread, g_thread_unref);
   close_fds (watcher);
 }

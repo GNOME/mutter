@@ -2,17 +2,13 @@
 
 [ $# -ne 1 ] && exit 1
 
-gdb_command=(gdb -p "$1" -ex 'thread apply all bt full' -batch)
-
 if [ -n $PKEXEC_UID -a $(id -u) -eq 0 ]; then
+    exec >& /tmp/backtrace.$PKEXEC_UID.$(date +%N)
+
     cd /proc/$1/task
     for thread in *; do
         echo "Thread ${thread}:"
         cat $thread/stack
     done
-
-    pkexec --user $(id -u -n $PKEXEC_UID) "${gdb_command[@]}"
     exit 0
 fi
-
-${gdb_command[@]}
