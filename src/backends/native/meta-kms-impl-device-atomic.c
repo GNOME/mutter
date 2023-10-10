@@ -675,9 +675,11 @@ process_crtc_color_updates (MetaKmsImplDevice  *impl_device,
   if (color_update->gamma.has_update)
     {
       MetaGammaLut *gamma = color_update->gamma.state;
-      struct drm_color_lut drm_color_lut[gamma->size];
+      g_autofree struct drm_color_lut *drm_color_lut = NULL;
       int i;
       uint32_t color_lut_blob_id;
+
+      drm_color_lut = g_new (struct drm_color_lut, gamma->size);
 
       for (i = 0; i < gamma->size; i++)
         {
