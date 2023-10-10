@@ -683,7 +683,7 @@ test_barriers (void)
   InputCapture *input_capture;
   InputCaptureSession *session;
   g_autolist (Zone) zones = NULL;
-  unsigned int barrier1, barrier2;
+  unsigned int barrier1, barrier2, barrier3;
   BarriersTestData data = {};
   unsigned int prev_activated_serial;
 
@@ -693,20 +693,24 @@ test_barriers (void)
   zones = input_capture_session_get_zones (session);
 
   /*
-   * +-------------+--------------+
-   * ||            |              |
-   * ||<--B#1      |              |
-   * ||            |     B#2      |
-   * +-------------+      |       |
-   *               |      V       |
+   * +-------------+==============+
+   * ||            |        ^     |
+   * ||<--B#1      |        |     |
+   * ||            |   B#2 B#3    |
+   * +-------------+    |         |
+   *               |    V         |
    *               +==============+
    */
   barrier1 = input_capture_session_add_barrier (session, 0, 0, 0, 600);
   barrier2 = input_capture_session_add_barrier (session, 800, 768, 1824, 768);
+  barrier3 = input_capture_session_add_barrier (session, 800, 0, 1824, 0);
 
   g_assert_cmpuint (barrier1, !=, 0);
   g_assert_cmpuint (barrier2, !=, 0);
+  g_assert_cmpuint (barrier3, !=, 0);
   g_assert_cmpuint (barrier1, !=, barrier2);
+  g_assert_cmpuint (barrier1, !=, barrier3);
+  g_assert_cmpuint (barrier2, !=, barrier3);
 
   g_signal_connect (session->proxy, "activated",
                     G_CALLBACK (on_activated), &data);
