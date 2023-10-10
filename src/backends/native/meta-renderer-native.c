@@ -2202,8 +2202,7 @@ meta_renderer_native_initable_init (GInitable     *initable,
       else
         {
           renderer_native->send_modifiers =
-            !(flags & META_KMS_DEVICE_FLAG_DISABLE_CLIENT_MODIFIERS) &&
-            flags & META_KMS_DEVICE_FLAG_HAS_ADDFB2;
+            !(flags & META_KMS_DEVICE_FLAG_DISABLE_CLIENT_MODIFIERS);
         }
 
       meta_topic (META_DEBUG_KMS, "Sending KMS modifiers to clients is %s",
