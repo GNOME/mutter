@@ -450,7 +450,10 @@ build-wayland-only@x86_64:
   after_script:
     - pushd build
     - gcovr --root=..
-        --filter='\.\./src/' --filter='\.\./clutter/' --filter='\.\./cogl/'
+        --filter='\.\./src/'
+        --filter='\.\./clutter/'
+        --filter='\.\./cogl/'
+        --filter='\.\./mtk/'
         --exclude='\.\./build/.*\.[ch]$' --exclude='.*/tests/.*\.[ch]$'
         --json --output=../coverage-${CI_JOB_NAME}.json
     - popd
