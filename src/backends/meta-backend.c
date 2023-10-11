@@ -119,6 +119,12 @@ static guint signals[N_SIGNALS];
 
 #define HIDDEN_POINTER_TIMEOUT 300 /* ms */
 
+#ifndef BTN_LEFT
+#define BTN_LEFT 0x110
+#define BTN_RIGHT 0x111
+#define BTN_MIDDLE 0x112
+#endif
+
 struct _MetaBackendPrivate
 {
   MetaContext *context;
@@ -1796,4 +1802,38 @@ meta_backend_get_vendor_name (MetaBackend *backend,
 #else
   return g_strdup (pnp_id);
 #endif
+}
+
+uint32_t
+meta_clutter_button_to_evdev (uint32_t clutter_button)
+{
+  switch (clutter_button)
+    {
+    case CLUTTER_BUTTON_PRIMARY:
+      return BTN_LEFT;
+    case CLUTTER_BUTTON_SECONDARY:
+      return BTN_RIGHT;
+    case CLUTTER_BUTTON_MIDDLE:
+      return BTN_MIDDLE;
+    }
+
+  return (clutter_button + (BTN_LEFT - 1)) - 4;
+}
+
+uint32_t
+meta_evdev_button_to_clutter (uint32_t evdev_button)
+{
+  switch (evdev_button)
+    {
+    case BTN_LEFT:
+      return CLUTTER_BUTTON_PRIMARY;
+    case BTN_RIGHT:
+      return CLUTTER_BUTTON_SECONDARY;
+    case BTN_MIDDLE:
+      return CLUTTER_BUTTON_MIDDLE;
+    }
+
+  g_return_val_if_fail (evdev_button > BTN_LEFT, 0);
+
+  return (evdev_button - (BTN_LEFT - 1)) + 4;
 }

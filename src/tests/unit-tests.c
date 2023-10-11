@@ -39,6 +39,7 @@
 #include "tests/meta-test-utils.h"
 #include "tests/orientation-manager-unit-tests.h"
 #include "tests/hdr-metadata-unit-tests.h"
+#include "tests/button-transform-tests.h"
 
 MetaContext *test_context;
 
@@ -244,6 +245,7 @@ init_tests (void)
   init_monitor_transform_tests ();
   init_orientation_manager_tests ();
   init_hdr_metadata_tests ();
+  init_button_transform_tests ();
 }
 
 int

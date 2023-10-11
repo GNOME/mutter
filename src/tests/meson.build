@@ -242,6 +242,7 @@ test_cases += [
       'monitor-transform-tests.h',
       'orientation-manager-unit-tests.c',
       'hdr-metadata-unit-tests.c',
+      'button-transform-tests.c',
     ],
     'depends': [
       test_client,

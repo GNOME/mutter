@@ -209,3 +209,9 @@ void meta_backend_update_from_event (MetaBackend  *backend,
 
 char * meta_backend_get_vendor_name (MetaBackend *backend,
                                      const char  *pnp_id);
+
+META_EXPORT_TEST
+uint32_t meta_clutter_button_to_evdev (uint32_t clutter_button);
+
+META_EXPORT_TEST
+uint32_t meta_evdev_button_to_clutter (uint32_t evdev_button);
