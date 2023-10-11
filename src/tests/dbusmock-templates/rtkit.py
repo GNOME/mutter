@@ -26,6 +26,10 @@ def load(mock, parameters):
 def MakeThreadRealtime(self, thread, priority):
     self.priorities[thread] = priority
 
+@dbus.service.method(MAIN_IFACE, in_signature='tu')
+def MakeThreadHighPriority(self, thread, priority):
+    self.priorities[thread] = priority
+
 @dbus.service.method(MOCK_IFACE)
 def Reset(self):
     self.priorities = dict()
