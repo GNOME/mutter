@@ -555,22 +555,7 @@ handle_button (MetaEisClient    *client,
   gboolean is_press = eis_event_button_get_is_press (event);
 
   button = eis_event_button_get_button (event);
-  switch (button)
-    {
-    case 0x110: /* BTN_LEFT */
-      button = CLUTTER_BUTTON_PRIMARY;
-      break;
-    case 0x111: /* BTN_RIGHT */
-      button = CLUTTER_BUTTON_SECONDARY;
-      break;
-    case 0x112: /* BTN_MIDDLE */
-      button = CLUTTER_BUTTON_MIDDLE;
-      break;
-    default:
-      if (button > 0x110)
-        button -= 0x110;
-      break;
-    }
+  button = meta_evdev_button_to_clutter (button);
 
   if (button > MAX_BUTTON)
     return;

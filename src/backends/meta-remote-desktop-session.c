@@ -755,27 +755,6 @@ handle_notify_keyboard_keysym (MetaDBusRemoteDesktopSession *skeleton,
   return TRUE;
 }
 
-/* Translation taken from the clutter evdev backend. */
-static int
-translate_to_clutter_button (int button)
-{
-  switch (button)
-    {
-    case BTN_LEFT:
-      return CLUTTER_BUTTON_PRIMARY;
-    case BTN_RIGHT:
-      return CLUTTER_BUTTON_SECONDARY;
-    case BTN_MIDDLE:
-      return CLUTTER_BUTTON_MIDDLE;
-    default:
-      /*
-       * For compatibility reasons, all additional buttons go after the old
-       * 4-7 scroll ones.
-       */
-      return button - (BTN_LEFT - 1) + 4;
-    }
-}
-
 static gboolean
 handle_notify_pointer_button (MetaDBusRemoteDesktopSession *skeleton,
                               GDBusMethodInvocation        *invocation,
@@ -789,7 +768,7 @@ handle_notify_pointer_button (MetaDBusRemoteDesktopSession *skeleton,
   if (!meta_remote_desktop_session_check_can_notify (session, invocation))
     return TRUE;
 
-  button = translate_to_clutter_button (button_code);
+  button = meta_evdev_button_to_clutter (button_code);
 
   if (pressed)
     {

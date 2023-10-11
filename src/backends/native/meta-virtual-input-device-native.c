@@ -22,6 +22,7 @@
 #include <glib-object.h>
 #include <linux/input.h>
 
+#include "backends/meta-backend-private.h"
 #include "backends/native/meta-input-thread.h"
 #include "backends/native/meta-seat-native.h"
 #include "backends/native/meta-virtual-input-device-native.h"
@@ -300,26 +301,6 @@ meta_virtual_input_device_native_notify_absolute_motion (ClutterVirtualInputDevi
   g_object_unref (task);
 }
 
-static int
-translate_to_evdev_button (int clutter_button)
-{
-  switch (clutter_button)
-    {
-    case CLUTTER_BUTTON_PRIMARY:
-      return BTN_LEFT;
-    case CLUTTER_BUTTON_SECONDARY:
-      return BTN_RIGHT;
-    case CLUTTER_BUTTON_MIDDLE:
-      return BTN_MIDDLE;
-    default:
-      /*
-       * For compatibility reasons, all additional buttons go after the old
-       * 4-7 scroll ones.
-       */
-      return clutter_button + (BTN_LEFT - 1) - 4;
-    }
-}
-
 static gboolean
 notify_button_in_impl (GTask *task)
 {
@@ -333,7 +314,7 @@ notify_button_in_impl (GTask *task)
   if (event->time_us == CLUTTER_CURRENT_TIME)
     event->time_us = g_get_monotonic_time ();
 
-  evdev_button = translate_to_evdev_button (event->button);
+  evdev_button = meta_clutter_button_to_evdev (event->button);
 
   if (get_button_type (evdev_button) != EVDEV_BUTTON_TYPE_BUTTON)
     {

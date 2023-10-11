@@ -739,7 +739,7 @@ meta_seat_impl_notify_button_in_impl (MetaSeatImpl       *seat_impl,
       if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)
         button_nr = button - BTN_TOOL_PEN + 4;
       else
-        button_nr = button - (BTN_LEFT - 1) + 4;
+        button_nr = meta_evdev_button_to_clutter (button);
       break;
     }
 

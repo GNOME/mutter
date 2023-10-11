@@ -376,26 +376,7 @@ meta_input_settings_native_set_scroll_button (MetaInputSettings  *settings,
     }
   else
     {
-      switch (button)
-        {
-        case 1:
-          evcode = BTN_LEFT;
-          break;
-        case 2:
-          evcode = BTN_MIDDLE;
-          break;
-        case 3:
-          evcode = BTN_RIGHT;
-          break;
-        default:
-          /* Compensate for X11 scroll buttons */
-          if (button > 7)
-            button -= 4;
-
-          /* Button is 1-indexed */
-          evcode = (BTN_LEFT - 1) + button;
-        }
-
+      evcode = meta_clutter_button_to_evdev (button);
       method = LIBINPUT_CONFIG_SCROLL_ON_BUTTON_DOWN;
     }
 
