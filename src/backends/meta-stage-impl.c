@@ -266,6 +266,8 @@ swap_framebuffer (ClutterStageWindow *stage_window,
   CoglFramebuffer *framebuffer = clutter_stage_view_get_onscreen (stage_view);
   CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
 
+  COGL_TRACE_BEGIN_SCOPED (SwapFramebuffer, "Meta::StageImpl::swap_framebuffer()");
+
   clutter_stage_view_before_swap_buffer (stage_view, swap_region);
 
   if (COGL_IS_ONSCREEN (framebuffer))
@@ -681,9 +683,6 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
 
   g_clear_pointer (&redraw_clip, mtk_region_unref);
   g_clear_pointer (&fb_clip_region, mtk_region_unref);
-
-  COGL_TRACE_BEGIN_SCOPED (MetaStageImplRedrawViewSwapFramebuffer,
-                           "Meta::StageImpl::redraw_view_primary#swap_framebuffer()");
 
   if (queued_redraw_clip)
     {
