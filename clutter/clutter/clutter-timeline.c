@@ -986,6 +986,8 @@ emit_frame_signal (ClutterTimeline *timeline)
 {
   ClutterTimelinePrivate *priv = timeline->priv;
 
+  COGL_TRACE_BEGIN_SCOPED (Emit, "Clutter::Timeline::emit_frame_signal()");
+
   /* see bug https://bugzilla.gnome.org/show_bug.cgi?id=654066 */
   gint elapsed = (gint) priv->elapsed_time;
 
@@ -1682,6 +1684,8 @@ _clutter_timeline_do_tick (ClutterTimeline *timeline,
                            gint64           tick_time)
 {
   ClutterTimelinePrivate *priv;
+
+  COGL_TRACE_BEGIN_SCOPED (DoTick, "Clutter::Timeline::do_tick()");
 
   priv = timeline->priv;
 
