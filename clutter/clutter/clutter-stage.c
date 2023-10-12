@@ -709,6 +709,8 @@ _clutter_stage_process_queued_events (ClutterStage *stage)
 
   g_return_if_fail (CLUTTER_IS_STAGE (stage));
 
+  COGL_TRACE_BEGIN_SCOPED (ProcessQueuedEvents, "Clutter::Stage::process_queued_events()");
+
   priv = stage->priv;
 
   if (priv->event_queue->length == 0)
@@ -734,6 +736,10 @@ _clutter_stage_process_queued_events (ClutterStage *stage)
 
       event = l->data;
       next_event = l->next ? l->next->data : NULL;
+
+      COGL_TRACE_BEGIN_SCOPED (ProcessEvent,
+                               "Clutter::Stage::process_queued_events#event()");
+      COGL_TRACE_DESCRIBE (ProcessEvent, clutter_event_get_name (event));
 
       device = clutter_event_get_device (event);
 
@@ -4301,6 +4307,8 @@ clutter_stage_emit_event (ClutterStage       *self,
   ClutterActor *target_actor = NULL, *seat_grab_actor = NULL;
   gboolean is_sequence_begin, is_sequence_end;
   ClutterEventType event_type;
+
+  COGL_TRACE_BEGIN_SCOPED (EmitEvent, "Clutter::Stage::emit_event()");
 
   if (sequence != NULL)
     entry = g_hash_table_lookup (priv->touch_sequences, sequence);

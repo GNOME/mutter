@@ -11702,6 +11702,9 @@ clutter_actor_event (ClutterActor       *actor,
   g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), FALSE);
   g_return_val_if_fail (event != NULL, FALSE);
 
+  COGL_TRACE_BEGIN_SCOPED (Event, "Clutter::Actor::event()");
+  COGL_TRACE_DESCRIBE (Event, _clutter_actor_get_debug_name (actor));
+
   g_object_ref (actor);
 
   event_type = clutter_event_type (event);

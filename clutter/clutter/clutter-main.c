@@ -664,6 +664,8 @@ clutter_stage_process_event (ClutterStage *stage,
   ClutterContext *context;
   ClutterSeat *seat;
 
+  COGL_TRACE_BEGIN_SCOPED (ProcessEvent, "Clutter::Stage::process_event()");
+
   context = _clutter_context_get_default ();
   seat = clutter_backend_get_default_seat (context->backend);
 
