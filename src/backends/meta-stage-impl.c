@@ -145,6 +145,9 @@ paint_damage_region (ClutterStageWindow *stage_window,
   graphene_matrix_t transform;
   int n_rects, i;
 
+  COGL_TRACE_BEGIN_SCOPED (PaintDamageRegion,
+                           "Meta::StageImpl::paint_damage_region()");
+
   cogl_framebuffer_push_matrix (framebuffer);
   clutter_actor_get_transform (actor, &transform);
   cogl_framebuffer_transform (framebuffer, &transform);
