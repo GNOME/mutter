@@ -1142,6 +1142,8 @@ clutter_source_dispatch (GSource     *source,
 {
   MetaBackendSource *backend_source = (MetaBackendSource *) source;
 
+  COGL_TRACE_BEGIN_SCOPED (Dispatch, "Meta::BackendSource::dispatch()");
+
   dispatch_clutter_event (backend_source->backend);
 
   return TRUE;
