@@ -1016,6 +1016,23 @@ typedef enum
 } ClutterColorspace;
 
 /**
+ * ClutterTransferFunction:
+ * @CLUTTER_TRANSFER_FUNCTION_DEFAULT: Unknown transfer function
+ * @CLUTTER_TRANSFER_FUNCTION_SRGB: The sRGB gamma transfer function
+ * @CLUTTER_TRANSFER_FUNCTION_PQ: Perceptual quantizer (PQ)
+ * @CLUTTER_TRANSFER_FUNCTION_LINEAR: Linear transfer function
+ *
+ * Colorspace information.
+ */
+typedef enum
+{
+  CLUTTER_TRANSFER_FUNCTION_DEFAULT,
+  CLUTTER_TRANSFER_FUNCTION_SRGB,
+  CLUTTER_TRANSFER_FUNCTION_PQ,
+  CLUTTER_TRANSFER_FUNCTION_LINEAR,
+} ClutterTransferFunction;
+
+/**
  * ClutterStepMode:
  * @CLUTTER_STEP_MODE_START: The change in the value of a
  *   %CLUTTER_STEP progress mode should occur at the start of

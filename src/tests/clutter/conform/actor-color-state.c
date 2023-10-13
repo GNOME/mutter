@@ -49,8 +49,10 @@ actor_color_state_passed (void)
   ClutterActor *actor;
   ClutterColorState *color_state;
   ClutterColorspace colorspace;
+  ClutterTransferFunction transfer_function;
 
-  color_state = clutter_color_state_new (CLUTTER_COLORSPACE_BT2020);
+  color_state = clutter_color_state_new (CLUTTER_COLORSPACE_BT2020,
+                                         CLUTTER_TRANSFER_FUNCTION_PQ);
 
   if (!color_state)
     g_critical ("Failed to create color state with provided colorspace.");
@@ -67,8 +69,10 @@ actor_color_state_passed (void)
 
   color_state = clutter_actor_get_color_state (actor);
   colorspace = clutter_color_state_get_colorspace (color_state);
+  transfer_function = clutter_color_state_get_transfer_function (color_state);
 
   g_assert_cmpuint (colorspace, ==, CLUTTER_COLORSPACE_BT2020);
+  g_assert_cmpuint (transfer_function, ==, CLUTTER_TRANSFER_FUNCTION_PQ);
 
   clutter_actor_destroy (actor);
 }
@@ -80,10 +84,12 @@ actor_change_color_state (void)
   ClutterActor *actor;
   ClutterColorState *color_state;
   ClutterColorspace colorspace;
+  ClutterTransferFunction transfer_function;
 
   actor = clutter_actor_new ();
 
-  color_state = clutter_color_state_new (CLUTTER_COLORSPACE_BT2020);
+  color_state = clutter_color_state_new (CLUTTER_COLORSPACE_BT2020,
+                                         CLUTTER_TRANSFER_FUNCTION_PQ);
 
   if (!color_state)
     g_critical ("Failed to create color state with provided colorspace.");
@@ -92,8 +98,10 @@ actor_change_color_state (void)
 
   color_state = clutter_actor_get_color_state (actor);
   colorspace = clutter_color_state_get_colorspace (color_state);
+  transfer_function = clutter_color_state_get_transfer_function (color_state);
 
   g_assert_cmpuint (colorspace, ==, CLUTTER_COLORSPACE_BT2020);
+  g_assert_cmpuint (transfer_function, ==, CLUTTER_TRANSFER_FUNCTION_PQ);
 
   clutter_actor_destroy (actor);
 }
@@ -106,6 +114,7 @@ actor_change_color_state_to_null (void)
   ClutterActor *actor;
   ClutterColorState *color_state;
   ClutterColorspace colorspace;
+  ClutterTransferFunction transfer_function;
 
   actor = clutter_actor_new ();
 
@@ -113,8 +122,10 @@ actor_change_color_state_to_null (void)
 
   color_state = clutter_actor_get_color_state (actor);
   colorspace = clutter_color_state_get_colorspace (color_state);
+  transfer_function = clutter_color_state_get_transfer_function (color_state);
 
   g_assert_cmpuint (colorspace, ==, CLUTTER_COLORSPACE_DEFAULT);
+  g_assert_cmpuint (transfer_function, ==, CLUTTER_TRANSFER_FUNCTION_DEFAULT);
 
   clutter_actor_destroy (actor);
 }

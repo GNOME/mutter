@@ -39,9 +39,13 @@ G_DECLARE_FINAL_TYPE (ClutterColorState, clutter_color_state,
                       GObject)
 
 CLUTTER_EXPORT
-ClutterColorState * clutter_color_state_new (ClutterColorspace colorspace);
+ClutterColorState * clutter_color_state_new (ClutterColorspace       colorspace,
+                                             ClutterTransferFunction transfer_function);
 
 CLUTTER_EXPORT
 ClutterColorspace clutter_color_state_get_colorspace (ClutterColorState *color_state);
+
+CLUTTER_EXPORT
+ClutterTransferFunction clutter_color_state_get_transfer_function (ClutterColorState *color_state);
 
 G_END_DECLS
