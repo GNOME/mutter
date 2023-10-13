@@ -74,12 +74,6 @@ typedef struct _ClutterStageViewPrivate
 
   gboolean use_shadowfb;
   struct {
-    struct {
-      CoglDmaBufHandle *handles[2];
-      int current_idx;
-      ClutterDamageHistory *damage_history;
-    } dma_buf;
-
     CoglOffscreen *framebuffer;
   } shadow;
 
@@ -312,68 +306,6 @@ paint_transformed_framebuffer (ClutterStageView *view,
   cogl_framebuffer_pop_matrix (dst_framebuffer);
 }
 
-static gboolean
-is_shadowfb_double_buffered (ClutterStageView *view)
-{
-  ClutterStageViewPrivate *priv =
-    clutter_stage_view_get_instance_private (view);
-
-  return priv->shadow.dma_buf.handles[0] && priv->shadow.dma_buf.handles[1];
-}
-
-static gboolean
-init_dma_buf_shadowfbs (ClutterStageView  *view,
-                        int                width,
-                        int                height,
-                        GError           **error)
-{
-  ClutterStageViewPrivate *priv =
-    clutter_stage_view_get_instance_private (view);
-  CoglContext *cogl_context = cogl_framebuffer_get_context (priv->framebuffer);
-  CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
-  CoglFramebuffer *initial_shadowfb;
-
-  if (!cogl_clutter_winsys_has_feature (COGL_WINSYS_FEATURE_BUFFER_AGE))
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
-                   "Buffer age not supported");
-      return FALSE;
-    }
-
-  if (!COGL_IS_ONSCREEN (priv->framebuffer))
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
-                   "Tried to use shadow buffer without onscreen");
-      return FALSE;
-    }
-
-  priv->shadow.dma_buf.handles[0] = cogl_renderer_create_dma_buf (cogl_renderer,
-                                                                  COGL_PIXEL_FORMAT_BGRX_8888,
-                                                                  width, height,
-                                                                  error);
-  if (!priv->shadow.dma_buf.handles[0])
-    return FALSE;
-
-  priv->shadow.dma_buf.handles[1] = cogl_renderer_create_dma_buf (cogl_renderer,
-                                                                  COGL_PIXEL_FORMAT_BGRX_8888,
-                                                                  width, height,
-                                                                  error);
-  if (!priv->shadow.dma_buf.handles[1])
-    {
-      g_clear_pointer (&priv->shadow.dma_buf.handles[0],
-                       cogl_dma_buf_handle_free);
-      return FALSE;
-    }
-
-  priv->shadow.dma_buf.damage_history = clutter_damage_history_new ();
-
-  initial_shadowfb =
-    cogl_dma_buf_handle_get_framebuffer (priv->shadow.dma_buf.handles[0]);
-  priv->shadow.framebuffer = COGL_OFFSCREEN (g_object_ref (initial_shadowfb));
-
-  return TRUE;
-}
-
 static CoglOffscreen *
 create_offscreen_framebuffer (ClutterStageView  *view,
                               int                width,
@@ -407,24 +339,6 @@ create_offscreen_framebuffer (ClutterStageView  *view,
   return framebuffer;
 }
 
-static gboolean
-init_fallback_shadowfb (ClutterStageView  *view,
-                        int                width,
-                        int                height,
-                        GError           **error)
-{
-  ClutterStageViewPrivate *priv =
-    clutter_stage_view_get_instance_private (view);
-  CoglOffscreen *offscreen;
-
-  offscreen = create_offscreen_framebuffer (view, width, height, error);
-  if (!offscreen)
-    return FALSE;
-
-  priv->shadow.framebuffer = offscreen;
-  return TRUE;
-}
-
 static void
 init_shadowfb (ClutterStageView *view)
 {
@@ -433,33 +347,20 @@ init_shadowfb (ClutterStageView *view)
   g_autoptr (GError) error = NULL;
   int width;
   int height;
+  CoglOffscreen *offscreen;
 
   width = cogl_framebuffer_get_width (priv->framebuffer);
   height = cogl_framebuffer_get_height (priv->framebuffer);
 
-  if (g_strcmp0 (g_getenv ("MUTTER_DEBUG_ENABLE_DOUBLE_SHADOWFB"), "1") == 0)
+  offscreen = create_offscreen_framebuffer (view, width, height, &error);
+  if (!offscreen)
     {
-      if (init_dma_buf_shadowfbs (view, width, height, &error))
-        {
-          g_message ("Initialized double buffered shadow fb for %s",
-                     priv->name);
-          return;
-        }
-
-      g_warning ("Failed to initialize double buffered shadow fb for %s: %s",
-                 priv->name, error->message);
-      g_clear_error (&error);
+      g_warning ("Failed to create shadow framebuffer: %s", error->message);
+      return;
     }
 
-  if (!init_fallback_shadowfb (view,  width, height, &error))
-    {
-      g_warning ("Failed to initialize single buffered shadow fb for %s: %s",
-                 priv->name, error->message);
-    }
-  else
-    {
-      g_message ("Initialized single buffered shadow fb for %s", priv->name);
-    }
+  priv->shadow.framebuffer = offscreen;
+  return;
 }
 
 void
@@ -495,180 +396,13 @@ clutter_stage_view_after_paint (ClutterStageView *view,
     }
 }
 
-static gboolean
-is_tile_dirty (MtkRectangle *tile,
-               uint8_t      *current_data,
-               uint8_t      *prev_data,
-               int           bpp,
-               int           stride)
-{
-  int y;
-
-  for (y = tile->y; y < tile->y + tile->height; y++)
-    {
-      if (memcmp (prev_data + y * stride + tile->x * bpp,
-                  current_data + y * stride + tile->x * bpp,
-                  tile->width * bpp) != 0)
-        return TRUE;
-    }
-
-  return FALSE;
-}
-
-static int
-flip_dma_buf_idx (int idx)
-{
-  return (idx + 1) % 2;
-}
-
-static MtkRegion *
-find_damaged_tiles (ClutterStageView  *view,
-                    const MtkRegion   *damage_region,
-                    GError           **error)
-{
-  ClutterStageViewPrivate *priv =
-    clutter_stage_view_get_instance_private (view);
-  MtkRegion *tile_damage_region;
-  MtkRectangle damage_extents;
-  MtkRectangle fb_rect;
-  int prev_dma_buf_idx;
-  CoglDmaBufHandle *prev_dma_buf_handle;
-  uint8_t *prev_data;
-  int current_dma_buf_idx;
-  CoglDmaBufHandle *current_dma_buf_handle;
-  uint8_t *current_data;
-  int width, height, stride, bpp;
-  int tile_x_min, tile_x_max;
-  int tile_y_min, tile_y_max;
-  int tile_x, tile_y;
-  const int tile_size = 16;
-
-  prev_dma_buf_idx = flip_dma_buf_idx (priv->shadow.dma_buf.current_idx);
-  prev_dma_buf_handle = priv->shadow.dma_buf.handles[prev_dma_buf_idx];
-
-  current_dma_buf_idx = priv->shadow.dma_buf.current_idx;
-  current_dma_buf_handle = priv->shadow.dma_buf.handles[current_dma_buf_idx];
-
-  width = cogl_dma_buf_handle_get_width (current_dma_buf_handle);
-  height = cogl_dma_buf_handle_get_height (current_dma_buf_handle);
-  stride = cogl_dma_buf_handle_get_stride (current_dma_buf_handle);
-  bpp = cogl_dma_buf_handle_get_bpp (current_dma_buf_handle);
-
-  cogl_framebuffer_finish (COGL_FRAMEBUFFER (priv->shadow.framebuffer));
-
-  if (!cogl_dma_buf_handle_sync_read_start (prev_dma_buf_handle, error))
-    return NULL;
-
-  if (!cogl_dma_buf_handle_sync_read_start (current_dma_buf_handle, error))
-    goto err_sync_read_current;
-
-  prev_data = cogl_dma_buf_handle_mmap (prev_dma_buf_handle, error);
-  if (!prev_data)
-    goto err_mmap_prev;
-  current_data = cogl_dma_buf_handle_mmap (current_dma_buf_handle, error);
-  if (!current_data)
-    goto err_mmap_current;
-
-  fb_rect = (MtkRectangle) {
-    .width = width,
-    .height = height,
-  };
-
-  damage_extents = mtk_region_get_extents (damage_region);
-
-  tile_x_min = damage_extents.x / tile_size;
-  tile_x_max = ((damage_extents.x + damage_extents.width + tile_size - 1) /
-                tile_size);
-  tile_y_min = damage_extents.y / tile_size;
-  tile_y_max = ((damage_extents.y + damage_extents.height + tile_size - 1) /
-                tile_size);
-
-  tile_damage_region = mtk_region_create ();
-
-  for (tile_y = tile_y_min; tile_y <= tile_y_max; tile_y++)
-    {
-      for (tile_x = tile_x_min; tile_x <= tile_x_max; tile_x++)
-        {
-          MtkRectangle tile = {
-            .x = tile_x * tile_size,
-            .y = tile_y * tile_size,
-            .width = tile_size,
-            .height = tile_size,
-          };
-
-          if (mtk_region_contains_rectangle (damage_region, &tile) ==
-              MTK_REGION_OVERLAP_OUT)
-            continue;
-
-          mtk_rectangle_intersect (&tile, &fb_rect, &tile);
-
-          if (is_tile_dirty (&tile, current_data, prev_data, bpp, stride))
-            mtk_region_union_rectangle (tile_damage_region, &tile);
-        }
-    }
-
-  if (!cogl_dma_buf_handle_sync_read_end (prev_dma_buf_handle, error))
-    {
-      g_warning ("Failed to end DMA buffer read synchronization: %s",
-                 (*error)->message);
-      g_clear_error (error);
-    }
-
-  if (!cogl_dma_buf_handle_sync_read_end (current_dma_buf_handle, error))
-    {
-      g_warning ("Failed to end DMA buffer read synchronization: %s",
-                 (*error)->message);
-      g_clear_error (error);
-    }
-
-  cogl_dma_buf_handle_munmap (prev_dma_buf_handle, prev_data, NULL);
-  cogl_dma_buf_handle_munmap (current_dma_buf_handle, current_data, NULL);
-
-  mtk_region_intersect (tile_damage_region, damage_region);
-
-  return tile_damage_region;
-
-err_mmap_current:
-  cogl_dma_buf_handle_munmap (prev_dma_buf_handle, prev_data, NULL);
-
-err_mmap_prev:
-  cogl_dma_buf_handle_sync_read_end (current_dma_buf_handle, NULL);
-
-err_sync_read_current:
-  cogl_dma_buf_handle_sync_read_end (prev_dma_buf_handle, NULL);
-
-  return NULL;
-}
-
-static void
-swap_dma_buf_framebuffer (ClutterStageView *view)
-{
-  ClutterStageViewPrivate *priv =
-    clutter_stage_view_get_instance_private (view);
-  int next_idx;
-  CoglDmaBufHandle *next_dma_buf_handle;
-  CoglFramebuffer *next_framebuffer;
-
-  next_idx = ((priv->shadow.dma_buf.current_idx + 1) %
-              G_N_ELEMENTS (priv->shadow.dma_buf.handles));
-  priv->shadow.dma_buf.current_idx = next_idx;
-
-  next_dma_buf_handle = priv->shadow.dma_buf.handles[next_idx];
-  next_framebuffer =
-    cogl_dma_buf_handle_get_framebuffer (next_dma_buf_handle);
-  g_clear_object (&priv->shadow.framebuffer);
-  priv->shadow.framebuffer = COGL_OFFSCREEN (g_object_ref (next_framebuffer));
-}
-
 static void
 copy_shadowfb_to_onscreen (ClutterStageView *view,
                            const MtkRegion  *swap_region)
 {
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
-  ClutterDamageHistory *damage_history = priv->shadow.dma_buf.damage_history;
   g_autoptr (MtkRegion) damage_region = NULL;
-  int age;
   int i;
 
   if (mtk_region_is_empty (swap_region))
@@ -682,59 +416,6 @@ copy_shadowfb_to_onscreen (ClutterStageView *view,
   else
     {
       damage_region = mtk_region_copy (swap_region);
-    }
-
-  if (is_shadowfb_double_buffered (view))
-    {
-      CoglOnscreen *onscreen = COGL_ONSCREEN (priv->framebuffer);
-      g_autoptr (MtkRegion) changed_region = NULL;
-
-      if (cogl_onscreen_get_frame_counter (onscreen) >= 1)
-        {
-          g_autoptr (GError) error = NULL;
-
-          changed_region = find_damaged_tiles (view, damage_region, &error);
-          if (!changed_region)
-            {
-              int other_dma_buf_idx;
-
-              g_warning ("Disabling actual damage detection: %s",
-                         error->message);
-
-              other_dma_buf_idx =
-                flip_dma_buf_idx (priv->shadow.dma_buf.current_idx);
-              g_clear_pointer (&priv->shadow.dma_buf.handles[other_dma_buf_idx],
-                               cogl_dma_buf_handle_free);
-            }
-        }
-      else
-        {
-          changed_region = mtk_region_copy (damage_region);
-        }
-
-      if (changed_region)
-        {
-          int buffer_age;
-
-          clutter_damage_history_record (damage_history, changed_region);
-
-          buffer_age = cogl_onscreen_get_buffer_age (onscreen);
-          if (clutter_damage_history_is_age_valid (damage_history, buffer_age))
-            {
-              for (age = 1; age <= buffer_age; age++)
-                {
-                  const MtkRegion *old_damage;
-
-                  old_damage = clutter_damage_history_lookup (damage_history, age);
-                  mtk_region_union (changed_region, old_damage);
-                }
-
-              g_clear_pointer (&damage_region, mtk_region_unref);
-              damage_region = g_steal_pointer (&changed_region);
-            }
-
-          clutter_damage_history_step (damage_history);
-        }
     }
 
   for (i = 0; i < mtk_region_num_rectangles (damage_region); i++)
@@ -756,9 +437,6 @@ copy_shadowfb_to_onscreen (ClutterStageView *view,
           return;
         }
     }
-
-  if (is_shadowfb_double_buffered (view))
-    swap_dma_buf_framebuffer (view);
 }
 
 void
@@ -798,23 +476,7 @@ clutter_stage_view_foreach_front_buffer (ClutterStageView    *view,
     }
   else if (priv->shadow.framebuffer)
     {
-      if (is_shadowfb_double_buffered (view))
-        {
-          int i;
-
-          for (i = 0; i < G_N_ELEMENTS (priv->shadow.dma_buf.handles); i++)
-            {
-              CoglDmaBufHandle *handle = priv->shadow.dma_buf.handles[i];
-              CoglFramebuffer *framebuffer =
-                cogl_dma_buf_handle_get_framebuffer (handle);
-
-              callback (framebuffer, user_data);
-            }
-        }
-      else
-        {
-          callback (COGL_FRAMEBUFFER (priv->shadow.framebuffer), user_data);
-        }
+      callback (COGL_FRAMEBUFFER (priv->shadow.framebuffer), user_data);
     }
   else
     {
@@ -1463,20 +1125,12 @@ clutter_stage_view_dispose (GObject *object)
   ClutterStageView *view = CLUTTER_STAGE_VIEW (object);
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
-  int i;
 
   g_signal_emit (view, stage_view_signals[DESTROY], 0);
 
   g_clear_pointer (&priv->name, g_free);
 
   g_clear_object (&priv->shadow.framebuffer);
-  for (i = 0; i < G_N_ELEMENTS (priv->shadow.dma_buf.handles); i++)
-    {
-      g_clear_pointer (&priv->shadow.dma_buf.handles[i],
-                       cogl_dma_buf_handle_free);
-    }
-  g_clear_pointer (&priv->shadow.dma_buf.damage_history,
-                   clutter_damage_history_free);
 
   g_clear_object (&priv->offscreen);
   g_clear_object (&priv->offscreen_pipeline);
