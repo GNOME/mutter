@@ -200,8 +200,8 @@ clutter_stage_view_ensure_offscreen_blit_pipeline (ClutterStageView *view)
   priv->offscreen_pipeline =
     clutter_stage_view_create_offscreen_pipeline (priv->offscreen);
 
-  if (view_class->setup_offscreen_blit_pipeline)
-    view_class->setup_offscreen_blit_pipeline (view, priv->offscreen_pipeline);
+  if (view_class->setup_offscreen_transform)
+    view_class->setup_offscreen_transform (view, priv->offscreen_pipeline);
 }
 
 void

@@ -92,8 +92,8 @@ meta_renderer_view_get_offscreen_transformation_matrix (ClutterStageView  *view,
 }
 
 static void
-meta_renderer_view_setup_offscreen_blit_pipeline (ClutterStageView *view,
-                                                  CoglPipeline     *pipeline)
+meta_renderer_view_setup_offscreen_transform (ClutterStageView *view,
+                                              CoglPipeline     *pipeline)
 {
   graphene_matrix_t matrix;
 
@@ -192,8 +192,8 @@ meta_renderer_view_class_init (MetaRendererViewClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   ClutterStageViewClass *view_class = CLUTTER_STAGE_VIEW_CLASS (klass);
 
-  view_class->setup_offscreen_blit_pipeline =
-    meta_renderer_view_setup_offscreen_blit_pipeline;
+  view_class->setup_offscreen_transform =
+    meta_renderer_view_setup_offscreen_transform;
   view_class->get_offscreen_transformation_matrix =
     meta_renderer_view_get_offscreen_transformation_matrix;
   view_class->transform_rect_to_onscreen =

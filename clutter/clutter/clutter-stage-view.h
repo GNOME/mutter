@@ -39,8 +39,8 @@ struct _ClutterStageViewClass
 {
   GObjectClass parent_class;
 
-  void (* setup_offscreen_blit_pipeline) (ClutterStageView *view,
-                                          CoglPipeline     *pipeline);
+  void (* setup_offscreen_transform) (ClutterStageView *view,
+                                      CoglPipeline     *pipeline);
 
   void (* get_offscreen_transformation_matrix) (ClutterStageView  *view,
                                                 graphene_matrix_t *matrix);
