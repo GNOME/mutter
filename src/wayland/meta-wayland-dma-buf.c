@@ -176,6 +176,18 @@ should_send_modifiers (MetaBackend *backend)
   return meta_renderer_native_send_modifiers (renderer_native);
 }
 
+static gboolean
+should_send_modifiers_scanout_tranches (MetaBackend *backend)
+{
+  MetaRendererNative *renderer_native;
+
+  if (!META_IS_BACKEND_NATIVE (backend) || !should_send_modifiers (backend))
+    return FALSE;
+
+  renderer_native = META_RENDERER_NATIVE (meta_backend_get_renderer (backend));
+  return meta_renderer_native_has_addfb2 (renderer_native);
+}
+
 static gint
 compare_tranches (gconstpointer a,
                   gconstpointer b)
@@ -1251,7 +1263,7 @@ ensure_scanout_tranche (MetaWaylandDmaBufSurfaceFeedback *surface_feedback,
     }
 
   formats = g_array_new (FALSE, FALSE, sizeof (MetaWaylandDmaBufFormat));
-  if (should_send_modifiers (backend))
+  if (should_send_modifiers_scanout_tranches (backend))
     {
       for (i = 0; i < dma_buf_manager->formats->len; i++)
         {
