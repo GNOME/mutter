@@ -323,13 +323,13 @@ is_shadowfb_double_buffered (ClutterStageView *view)
 
 static gboolean
 init_dma_buf_shadowfbs (ClutterStageView  *view,
-                        CoglContext       *cogl_context,
                         int                width,
                         int                height,
                         GError           **error)
 {
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
+  CoglContext *cogl_context = cogl_framebuffer_get_context (priv->framebuffer);
   CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
   CoglFramebuffer *initial_shadowfb;
 
@@ -375,15 +375,19 @@ init_dma_buf_shadowfbs (ClutterStageView  *view,
 }
 
 static CoglOffscreen *
-create_offscreen_framebuffer (CoglContext  *context,
-                              int           width,
-                              int           height,
-                              GError      **error)
+create_offscreen_framebuffer (ClutterStageView  *view,
+                              int                width,
+                              int                height,
+                              GError           **error)
 {
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+  CoglContext *cogl_context;
   CoglOffscreen *framebuffer;
   CoglTexture *texture;
 
-  texture = cogl_texture_2d_new_with_size (context, width, height);
+  cogl_context = cogl_framebuffer_get_context (priv->framebuffer);
+  texture = cogl_texture_2d_new_with_size (cogl_context, width, height);
   cogl_primitive_texture_set_auto_mipmap (texture, FALSE);
 
   if (!cogl_texture_allocate (texture, error))
@@ -405,7 +409,6 @@ create_offscreen_framebuffer (CoglContext  *context,
 
 static gboolean
 init_fallback_shadowfb (ClutterStageView  *view,
-                        CoglContext       *cogl_context,
                         int                width,
                         int                height,
                         GError           **error)
@@ -414,7 +417,7 @@ init_fallback_shadowfb (ClutterStageView  *view,
     clutter_stage_view_get_instance_private (view);
   CoglOffscreen *offscreen;
 
-  offscreen = create_offscreen_framebuffer (cogl_context, width, height, error);
+  offscreen = create_offscreen_framebuffer (view, width, height, error);
   if (!offscreen)
     return FALSE;
 
@@ -430,15 +433,13 @@ init_shadowfb (ClutterStageView *view)
   g_autoptr (GError) error = NULL;
   int width;
   int height;
-  CoglContext *cogl_context;
 
   width = cogl_framebuffer_get_width (priv->framebuffer);
   height = cogl_framebuffer_get_height (priv->framebuffer);
-  cogl_context = cogl_framebuffer_get_context (priv->framebuffer);
 
   if (g_strcmp0 (g_getenv ("MUTTER_DEBUG_ENABLE_DOUBLE_SHADOWFB"), "1") == 0)
     {
-      if (init_dma_buf_shadowfbs (view, cogl_context, width, height, &error))
+      if (init_dma_buf_shadowfbs (view, width, height, &error))
         {
           g_message ("Initialized double buffered shadow fb for %s",
                      priv->name);
@@ -450,7 +451,7 @@ init_shadowfb (ClutterStageView *view)
       g_clear_error (&error);
     }
 
-  if (!init_fallback_shadowfb (view, cogl_context, width, height, &error))
+  if (!init_fallback_shadowfb (view,  width, height, &error))
     {
       g_warning ("Failed to initialize single buffered shadow fb for %s: %s",
                  priv->name, error->message);
