@@ -1134,12 +1134,12 @@ on_stream_add_buffer (void             *data,
       spa_data->flags = SPA_DATA_FLAG_READWRITE;
       spa_data->fd = cogl_dma_buf_handle_get_fd (dmabuf_handle);
 
-      stride = meta_screen_cast_stream_src_calculate_stride (src, spa_data);
-      spa_data->maxsize = stride * priv->video_format.size.height;
-
       g_hash_table_insert (priv->dmabuf_handles,
                            GINT_TO_POINTER (spa_data->fd),
                            dmabuf_handle);
+
+      stride = meta_screen_cast_stream_src_calculate_stride (src, spa_data);
+      spa_data->maxsize = stride * priv->video_format.size.height;
     }
   else
     {
