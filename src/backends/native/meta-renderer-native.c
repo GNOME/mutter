@@ -90,6 +90,7 @@ struct _MetaRendererNative
 
   gboolean use_modifiers;
   gboolean send_modifiers;
+  gboolean has_addfb2;
 
   GHashTable *gpu_datas;
 
@@ -236,6 +237,12 @@ gboolean
 meta_renderer_native_use_modifiers (MetaRendererNative *renderer_native)
 {
   return renderer_native->use_modifiers;
+}
+
+gboolean
+meta_renderer_native_has_addfb2 (MetaRendererNative *renderer_native)
+{
+  return renderer_native->has_addfb2;
 }
 
 MetaGles3 *
@@ -2168,6 +2175,7 @@ meta_renderer_native_initable_init (GInitable     *initable,
 
       kms_device = meta_gpu_kms_get_kms_device (renderer_native->primary_gpu_kms);
       flags = meta_kms_device_get_flags (kms_device);
+      renderer_native->has_addfb2 = !!(flags & META_KMS_DEVICE_FLAG_HAS_ADDFB2);
 
       kms_modifiers_debug_env = g_getenv ("MUTTER_DEBUG_USE_KMS_MODIFIERS");
       if (kms_modifiers_debug_env)
@@ -2179,7 +2187,7 @@ meta_renderer_native_initable_init (GInitable     *initable,
         {
           renderer_native->use_modifiers =
             !(flags & META_KMS_DEVICE_FLAG_DISABLE_MODIFIERS) &&
-            flags & META_KMS_DEVICE_FLAG_HAS_ADDFB2;
+            renderer_native->has_addfb2;
         }
 
       meta_topic (META_DEBUG_KMS, "Usage of KMS modifiers is %s",
