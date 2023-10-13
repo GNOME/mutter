@@ -564,12 +564,12 @@ meta_screen_cast_stream_src_calculate_stride (MetaScreenCastStreamSrc *src,
 
   if (spa_data->type == SPA_DATA_DmaBuf)
     {
-      CoglDmaBufHandle *dmabuf_handle = NULL;
+      CoglDmaBufHandle *dmabuf_handle;
 
       dmabuf_handle = g_hash_table_lookup (priv->dmabuf_handles,
                                            GINT_TO_POINTER (spa_data->fd));
-      if (dmabuf_handle)
-        return cogl_dma_buf_handle_get_stride (dmabuf_handle);
+      g_assert (dmabuf_handle != NULL);
+      return cogl_dma_buf_handle_get_stride (dmabuf_handle);
     }
 
   if (!cogl_pixel_format_from_spa_video_format (priv->video_format.format,
