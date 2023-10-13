@@ -146,9 +146,6 @@ void
 _cogl_framebuffer_set_internal_format (CoglFramebuffer *framebuffer,
                                        CoglPixelFormat internal_format);
 
-CoglPixelFormat
-cogl_framebuffer_get_internal_format (CoglFramebuffer *framebuffer);
-
 void
 _cogl_framebuffer_clear_without_flush4f (CoglFramebuffer *framebuffer,
                                          unsigned long buffers,

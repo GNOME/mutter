@@ -1123,4 +1123,13 @@ cogl_framebuffer_flush (CoglFramebuffer *framebuffer);
 COGL_EXPORT CoglTimestampQuery *
 cogl_framebuffer_create_timestamp_query (CoglFramebuffer *framebuffer);
 
+
+/**
+ * cogl_framebuffer_get_internal_format: (skip)
+ *
+ * Returns the pixel format used internally by the framebuffer.
+ */
+COGL_EXPORT CoglPixelFormat
+cogl_framebuffer_get_internal_format (CoglFramebuffer *framebuffer);
+
 G_END_DECLS

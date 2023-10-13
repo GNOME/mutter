@@ -314,12 +314,14 @@ create_offscreen_framebuffer (ClutterStageView  *view,
 {
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
+  CoglPixelFormat format;
   CoglContext *cogl_context;
   CoglOffscreen *framebuffer;
   CoglTexture *texture;
 
+  format = cogl_framebuffer_get_internal_format (priv->framebuffer);
   cogl_context = cogl_framebuffer_get_context (priv->framebuffer);
-  texture = cogl_texture_2d_new_with_size (cogl_context, width, height);
+  texture = cogl_texture_2d_new_with_format (cogl_context, width, height, format);
   cogl_primitive_texture_set_auto_mipmap (texture, FALSE);
 
   if (!cogl_texture_allocate (texture, error))
