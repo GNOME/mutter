@@ -218,8 +218,7 @@ ensure_realtime_kit_proxy (MetaThread  *thread,
 
   rtkit_proxy =
     meta_dbus_realtime_kit1_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
-                                                    G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS |
-                                                    G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
+                                                    G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS,
                                                     "org.freedesktop.RealtimeKit1",
                                                     "/org/freedesktop/RealtimeKit1",
                                                     NULL,
