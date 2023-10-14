@@ -446,6 +446,9 @@ clutter_stage_view_before_swap_buffer (ClutterStageView *view,
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
 
+  COGL_TRACE_BEGIN_SCOPED (BeforeSwap,
+                           "Clutter::StageView::before_swap_buffer()");
+
   if (priv->shadow.framebuffer)
     copy_shadowfb_to_onscreen (view, swap_region);
 }
