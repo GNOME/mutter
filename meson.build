@@ -519,6 +519,11 @@ if buildtype != 'plain'
     mutter_c_args += [
       '-DG_ENABLE_DEBUG',
     ]
+  else
+    mutter_c_args += [
+      '-DG_DISABLE_ASSERT',
+      '-DG_DISABLE_CAST_CHECKS',
+    ]
   endif
 
   supported_mutter_c_args = cc.get_supported_arguments(mutter_c_args)

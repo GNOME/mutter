@@ -17,11 +17,6 @@ if buildtype != 'plain'
     clutter_debug_c_args += [
       '-DCLUTTER_ENABLE_DEBUG',
     ]
-  else
-    clutter_debug_c_args += [
-      '-DG_DISABLE_ASSERT',
-      '-DG_DISABLE_CAST_CHECKS',
-    ]
   endif
 endif
 clutter_debug_c_args = cc.get_supported_arguments(clutter_debug_c_args)
