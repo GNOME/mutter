@@ -58,3 +58,6 @@ gboolean meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
                                            int64_t      *out_next_deadline_us,
                                            int64_t      *out_next_presentation_us,
                                            GError      **error);
+
+void meta_kms_crtc_set_is_leased (MetaKmsCrtc *crtc,
+                                  gboolean     leased);

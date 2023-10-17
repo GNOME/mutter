@@ -357,6 +357,15 @@ meta_crtc_kms_set_config (MetaCrtc             *crtc,
   crtc_kms->assigned_cursor_plane = kms_assignment->cursor_plane;
 }
 
+void
+meta_crtc_kms_assign_planes (MetaCrtcKms  *crtc_kms,
+                             MetaKmsPlane *primary_plane,
+                             MetaKmsPlane *cursor_plane)
+{
+  crtc_kms->assigned_primary_plane = primary_plane;
+  crtc_kms->assigned_cursor_plane = cursor_plane;
+}
+
 static void
 meta_crtc_kms_unset_config (MetaCrtc *crtc)
 {

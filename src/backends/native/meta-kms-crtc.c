@@ -115,6 +115,13 @@ meta_kms_crtc_is_leased (MetaKmsCrtc *crtc)
   return crtc->is_leased;
 }
 
+void
+meta_kms_crtc_set_is_leased (MetaKmsCrtc *crtc,
+                             gboolean     leased)
+{
+  crtc->is_leased = leased;
+}
+
 static void
 read_crtc_gamma (MetaKmsCrtc       *crtc,
                  MetaKmsCrtcState  *crtc_state,
