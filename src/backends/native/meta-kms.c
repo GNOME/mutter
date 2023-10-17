@@ -35,6 +35,7 @@ enum
 {
   RESOURCES_CHANGED,
   DEVICE_ADDED,
+  LEASE_CHANGED,
 
   N_SIGNALS
 };
@@ -48,6 +49,7 @@ struct _MetaKms
   MetaKmsFlags flags;
 
   gulong hotplug_handler_id;
+  gulong lease_handler_id;
   gulong removed_handler_id;
 
   MetaKmsImpl *impl;
@@ -308,6 +310,14 @@ on_udev_device_removed (MetaUdev    *udev,
   handle_hotplug_event (kms, NULL, META_KMS_RESOURCE_CHANGE_NONE);
 }
 
+static void
+on_udev_lease (MetaUdev    *udev,
+               GUdevDevice *udev_device,
+               MetaKms     *kms)
+{
+  g_signal_emit (kms, signals[LEASE_CHANGED], 0);
+}
+
 MetaBackend *
 meta_kms_get_backend (MetaKms *kms)
 {
@@ -403,6 +413,8 @@ meta_kms_new (MetaBackend   *backend,
     {
       kms->hotplug_handler_id =
         g_signal_connect (udev, "hotplug", G_CALLBACK (on_udev_hotplug), kms);
+      kms->lease_handler_id =
+        g_signal_connect (udev, "lease", G_CALLBACK (on_udev_lease), kms);
     }
 
   kms->removed_handler_id =
@@ -427,6 +439,7 @@ meta_kms_finalize (GObject *object)
   g_list_free_full (kms->devices, g_object_unref);
 
   g_clear_signal_handler (&kms->hotplug_handler_id, udev);
+  g_clear_signal_handler (&kms->lease_handler_id, udev);
   g_clear_signal_handler (&kms->removed_handler_id, udev);
 
   G_OBJECT_CLASS (meta_kms_parent_class)->finalize (object);
@@ -463,6 +476,14 @@ meta_kms_class_init (MetaKmsClass *klass)
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 1,
                   META_TYPE_KMS_DEVICE);
+
+  signals[LEASE_CHANGED] =
+    g_signal_new ("lease-changed",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
 
   meta_thread_class_register_impl_type (thread_class, META_TYPE_KMS_IMPL);
 }

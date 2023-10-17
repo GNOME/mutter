@@ -28,6 +28,7 @@
 enum
 {
   HOTPLUG,
+  LEASE,
   DEVICE_ADDED,
   DEVICE_REMOVED,
 
@@ -230,6 +231,9 @@ on_uevent (GUdevClient *client,
 
   if (g_udev_device_get_property_as_boolean (device, "HOTPLUG"))
     g_signal_emit (udev, signals[HOTPLUG], 0, device);
+
+  if (g_udev_device_get_property_as_boolean (device, "LEASE"))
+    g_signal_emit (udev, signals[LEASE], 0, device);
 }
 
 MetaUdev *
@@ -286,6 +290,13 @@ meta_udev_class_init (MetaUdevClass *klass)
 
   signals[HOTPLUG] =
     g_signal_new ("hotplug",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 1,
+                  G_UDEV_TYPE_DEVICE);
+  signals[LEASE] =
+    g_signal_new ("lease",
                   G_TYPE_FROM_CLASS (object_class),
                   G_SIGNAL_RUN_LAST,
                   0, NULL, NULL, NULL,
