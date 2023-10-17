@@ -34,6 +34,9 @@ echo \# Launched with pid $MUTTER2_PID
 MUTTER2_PID=$!
 wait $MUTTER1_PID
 
+echo \# Waiting for the second mutter to finish loading
+gdbus wait --session org.gnome.Mutter.IdleMonitor
+
 sleep 2
 
 echo \# Terminating clients > /dev/stderr
