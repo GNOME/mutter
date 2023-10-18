@@ -16,7 +16,6 @@ if buildtype != 'plain'
   if get_option('debug')
     clutter_debug_c_args += [
       '-DCLUTTER_ENABLE_DEBUG',
-      '-fno-omit-frame-pointer',
     ]
   else
     clutter_debug_c_args += [

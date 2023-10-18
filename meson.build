@@ -467,6 +467,8 @@ add_project_arguments('-D_GNU_SOURCE', language: 'c')
 buildtype = get_option('buildtype')
 if buildtype != 'plain'
   mutter_c_args = [
+    '-fno-omit-frame-pointer',
+    '-mno-omit-leaf-frame-pointer',
     '-fno-strict-aliasing',
     '-Wpointer-arith',
     '-Wmissing-declarations',
@@ -510,7 +512,6 @@ if buildtype != 'plain'
   if get_option('debug')
     mutter_c_args += [
       '-DG_ENABLE_DEBUG',
-      '-fno-omit-frame-pointer',
     ]
   endif
 

@@ -90,7 +90,6 @@ if buildtype != 'plain'
       '-DCOGL_GL_DEBUG',
       '-DCOGL_OBJECT_DEBUG',
       '-DCOGL_ENABLE_DEBUG',
-      '-fno-omit-frame-pointer',
     ]
   else
     cogl_debug_c_args += [
