@@ -292,12 +292,12 @@ experimental_features_handler (GVariant *features_variant,
         feature = META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER;
       else if (g_str_equal (feature_str, "kms-modifiers"))
         feature = META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS;
-      else if (g_str_equal (feature_str, "rt-scheduler"))
-        feature = META_EXPERIMENTAL_FEATURE_RT_SCHEDULER;
       else if (g_str_equal (feature_str, "autoclose-xwayland"))
         feature = META_EXPERIMENTAL_FEATURE_AUTOCLOSE_XWAYLAND;
 
-      if (feature)
+      if (g_str_equal (feature_str, "rt-scheduler"))
+        g_message ("Ignoring obsolete experimental feature '%s'", feature_str);
+      else if (feature)
         g_message ("Enabling experimental feature '%s'", feature_str);
       else
         g_warning ("Unknown experimental feature '%s'", feature_str);
