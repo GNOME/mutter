@@ -329,6 +329,7 @@ event_delivery_implicit_grab_cancelled (void)
   n_child_1_leave_events = n_child_2_leave_events = n_stage_leave_events = 0;
   n_action_sequences_cancelled = 0;
   clutter_actor_destroy (child_1);
+  wait_stage_updated (&was_updated);
   g_assert_cmpint (n_child_1_enter_events, ==, 0);
   g_assert_cmpint (n_child_1_leave_events, ==, 0);
   g_assert_cmpint (n_action_sequences_cancelled, ==, 1);
