@@ -3,8 +3,7 @@
   <flags id="org.gnome.mutter.MetaExperimentalFeature">
     <value nick="scale-monitor-framebuffer" value="1"/>
     <value nick="kms-modifiers" value="2"/>
-    <value nick="rt-scheduler" value="4"/>
-    <value nick="autoclose-xwayland" value="8"/>
+    <value nick="autoclose-xwayland" value="4"/>
   </flags>
 
   <schema id="org.gnome.mutter" path="/org/gnome/mutter/"
@@ -125,9 +124,6 @@
                                         buffers with explicit modifiers, if
                                         supported by the driver. Requires a
                                         restart.
-
-        • “rt-scheduler”              — makes mutter request a low priority
-                                        real-time scheduling. Requires a restart.
 
         • “autoclose-xwayland”        — automatically terminates Xwayland if all
                                         relevant X11 clients are gone.

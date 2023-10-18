@@ -216,44 +216,8 @@ static void
 meta_backend_native_post_init (MetaBackend *backend)
 {
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
-  MetaSettings *settings = meta_backend_get_settings (backend);
 
   META_BACKEND_CLASS (meta_backend_native_parent_class)->post_init (backend);
-
-  if (meta_settings_is_experimental_feature_enabled (settings,
-                                                     META_EXPERIMENTAL_FEATURE_RT_SCHEDULER))
-    {
-      g_autoptr (MetaDBusRealtimeKit1) rtkit_proxy = NULL;
-      g_autoptr (GError) error = NULL;
-
-      rtkit_proxy =
-        meta_dbus_realtime_kit1_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
-                                                        G_DBUS_PROXY_FLAGS_DO_NOT_LOAD_PROPERTIES |
-                                                        G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS |
-                                                        G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
-                                                        "org.freedesktop.RealtimeKit1",
-                                                        "/org/freedesktop/RealtimeKit1",
-                                                        NULL,
-                                                        &error);
-
-      if (rtkit_proxy)
-        {
-          uint32_t priority;
-
-          priority = sched_get_priority_min (SCHED_RR);
-          meta_dbus_realtime_kit1_call_make_thread_realtime_sync (rtkit_proxy,
-                                                                  gettid (),
-                                                                  priority,
-                                                                  NULL,
-                                                                  &error);
-        }
-
-      if (error)
-        {
-          g_dbus_error_strip_remote_error (error);
-          g_message ("Failed to set RT scheduler: %s", error->message);
-        }
-    }
 
 #ifdef HAVE_REMOTE_DESKTOP
   maybe_disable_screen_cast_dma_bufs (backend_native);
