@@ -306,7 +306,32 @@ static void
 on_x11_display_opened (MetaX11Display *x11_display,
                        MetaDisplay    *display)
 {
+  Window old_active_xwindow = None;
+
+  if (!meta_is_wayland_compositor ())
+    {
+      meta_prop_get_window (display->x11_display,
+                            display->x11_display->xroot,
+                            display->x11_display->atom__NET_ACTIVE_WINDOW,
+                            &old_active_xwindow);
+    }
+
   meta_display_manage_all_xwindows (display);
+
+  if (old_active_xwindow != None)
+    {
+      MetaWindow *old_active_window;
+
+      old_active_window = meta_x11_display_lookup_x_window (x11_display,
+                                                            old_active_xwindow);
+      if (old_active_window)
+        {
+          uint32_t timestamp;
+
+          timestamp = display->x11_display->timestamp;
+          meta_window_focus (old_active_window, timestamp);
+        }
+    }
 }
 
 static void
