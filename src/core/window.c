@@ -224,6 +224,7 @@ static GParamSpec *obj_props[PROP_LAST];
 enum
 {
   WORKSPACE_CHANGED,
+  PRE_CONFIGURED,
   FOCUS,
   RAISED,
   UNMANAGING,
@@ -708,6 +709,13 @@ meta_window_class_init (MetaWindowClass *klass)
                   0,
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
+  window_signals[PRE_CONFIGURED] = 
+    g_signal_new ("pre-configured",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
 }
 
 static void
@@ -719,6 +727,7 @@ meta_window_init (MetaWindow *window)
   window->stamp = next_window_stamp++;
   meta_prefs_add_listener (prefs_changed_callback, window);
   window->is_alive = TRUE;
+  window->has_initial_config = FALSE;
 }
 
 static gboolean
@@ -7543,6 +7552,12 @@ meta_window_emit_size_changed (MetaWindow *window)
   g_signal_emit (window, window_signals[SIZE_CHANGED], 0);
 }
 
+void
+meta_window_emit_pre_configured (MetaWindow *window)
+{
+  g_signal_emit (window, window_signals[PRE_CONFIGURED], 0);
+}
+
 MetaPlacementRule *
 meta_window_get_placement_rule (MetaWindow *window)
 {
@@ -7718,4 +7733,14 @@ int
 meta_get_window_suspend_timeout_s (void)
 {
   return SUSPEND_HIDDEN_TIMEOUT_S;
+}
+
+void
+meta_window_set_initial_configuration (MetaWindow                     *window,
+                                       MetaWindowInitialConfiguration  config)
+{
+  g_return_if_fail (META_IS_WINDOW (window));
+  window->has_initial_config = TRUE;
+  window->config = config;
+  g_warning ("initial config set y=%d", config.position.y);
 }

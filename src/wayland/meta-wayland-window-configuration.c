@@ -99,6 +99,29 @@ meta_wayland_window_configuration_new_relative (MetaWindow *window,
 }
 
 MetaWaylandWindowConfiguration *
+meta_wayland_window_configuration_new_with_box (gboolean      is_fullscreen,
+                                                MtkRectangle  box)
+{
+  MetaWaylandWindowConfiguration *configuration;
+
+  configuration = g_new0 (MetaWaylandWindowConfiguration, 1);
+  *configuration = (MetaWaylandWindowConfiguration) {
+    .serial = ++global_serial_counter,
+    .scale = 1,
+    .has_relative_position = TRUE,
+    .rel_x = box.x,
+    .rel_y = box.y,
+    .has_size = TRUE,
+    .is_resizing = FALSE,
+    .width = box.width,
+    .height = box.height,
+    .is_fullscreen = is_fullscreen,
+  };
+
+  return configuration;
+}
+
+MetaWaylandWindowConfiguration *
 meta_wayland_window_configuration_new_empty (int bounds_width,
                                              int bounds_height)
 {

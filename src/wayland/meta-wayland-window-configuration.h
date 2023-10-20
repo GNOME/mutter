@@ -66,7 +66,8 @@ MetaWaylandWindowConfiguration * meta_wayland_window_configuration_new_relative 
                                                                                  int         width,
                                                                                  int         height,
                                                                                  int         scale);
-
+MetaWaylandWindowConfiguration * meta_wayland_window_configuration_new_with_box (gboolean     is_fullscreen,
+                                                                                 MtkRectangle box);
 MetaWaylandWindowConfiguration * meta_wayland_window_configuration_new_empty (int bounds_width,
                                                                               int bounds_height);
 

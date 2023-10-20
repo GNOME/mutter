@@ -225,6 +225,8 @@ struct _MetaWindow
   char *title;
 
   MetaWindowType type;
+  guint has_initial_config: 1;
+  MetaWindowInitialConfiguration config;
 
   /* NOTE these five are not in UTF-8, we just treat them as random
    * binary data
@@ -839,6 +841,8 @@ void meta_window_hide_close_dialog (MetaWindow *window);
 void meta_window_ensure_close_dialog_timeout (MetaWindow *window);
 
 void meta_window_emit_size_changed (MetaWindow *window);
+
+void meta_window_emit_pre_configured (MetaWindow *window);
 
 MetaPlacementRule *meta_window_get_placement_rule (MetaWindow *window);
 

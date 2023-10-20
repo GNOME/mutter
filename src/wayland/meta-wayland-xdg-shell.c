@@ -866,19 +866,28 @@ meta_wayland_xdg_toplevel_apply_state (MetaWaylandSurfaceRole  *surface_role,
 
   if (!xdg_surface_priv->configure_sent)
     {
+      meta_window_emit_pre_configured (window);
       MetaWaylandWindowConfiguration *configuration;
-      int bounds_width;
-      int bounds_height;
-
-      if (!meta_window_calculate_bounds (window, &bounds_width, &bounds_height))
+      if (!window->has_initial_config)
         {
-          bounds_width = 0;
-          bounds_height = 0;
-        }
+          int bounds_width;
+          int bounds_height;
 
-      configuration =
-        meta_wayland_window_configuration_new_empty (bounds_width,
-                                                     bounds_height);
+          if (!meta_window_calculate_bounds (window, &bounds_width, &bounds_height))
+            {
+              bounds_width = 0;
+              bounds_height = 0;
+            }
+
+            configuration =
+              meta_wayland_window_configuration_new_empty (bounds_width,
+                                                          bounds_height);
+        }
+      else
+        {
+          configuration = meta_wayland_window_configuration_new_with_box(window->config.is_fullscreen,
+                                                                         window->config.position);
+        }
       meta_wayland_xdg_toplevel_send_configure (xdg_toplevel, configuration);
       meta_wayland_window_configuration_free (configuration);
       return;

@@ -25,6 +25,11 @@
 #include "meta/boxes.h"
 #include "meta/types.h"
 
+typedef struct _MetaWindowInitialConfiguration {
+  gboolean is_fullscreen;
+  MtkRectangle position;
+} MetaWindowInitialConfiguration;
+
 /**
  * MetaWindowType:
  * @META_WINDOW_NORMAL: Normal
@@ -440,3 +445,7 @@ MetaWindowClientType meta_window_get_client_type (MetaWindow *window);
 
 META_EXPORT
 gboolean meta_window_has_pointer (MetaWindow *window);
+
+META_EXPORT
+void meta_window_set_initial_configuration (MetaWindow                     *window,
+                                            MetaWindowInitialConfiguration config);
