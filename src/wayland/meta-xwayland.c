@@ -1180,6 +1180,7 @@ on_x11_display_setup (MetaDisplay         *display,
 {
   MetaX11Display *x11_display = meta_display_get_x11_display (display);
 
+  meta_x11_display_redirect_windows (x11_display, display);
   meta_xwayland_init_dnd (x11_display);
   meta_xwayland_init_xrandr (manager, x11_display);
 }

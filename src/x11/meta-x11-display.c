@@ -307,7 +307,6 @@ on_x11_display_opened (MetaX11Display *x11_display,
                        MetaDisplay    *display)
 {
   meta_display_manage_all_xwindows (display);
-  meta_x11_display_redirect_windows (x11_display, display);
 }
 
 static void
