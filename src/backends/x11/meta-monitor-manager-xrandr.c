@@ -770,9 +770,11 @@ meta_monitor_manager_xrandr_tiled_monitor_added (MetaMonitorManager *manager,
       xrandr_monitor_info->outputs[i] = meta_output_get_id (output);
     }
 
+  mtk_x11_error_trap_push (manager_xrandr->xdisplay);
   XRRSetMonitor (manager_xrandr->xdisplay,
                  DefaultRootWindow (manager_xrandr->xdisplay),
                  xrandr_monitor_info);
+  mtk_x11_error_trap_pop (manager_xrandr->xdisplay);
   XRRFreeMonitors (xrandr_monitor_info);
 }
 
