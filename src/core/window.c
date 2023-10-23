@@ -475,6 +475,9 @@ meta_window_set_property(GObject         *object,
     case PROP_XWINDOW:
       win->xwindow = g_value_get_ulong (value);
       break;
+    case PROP_WINDOW_TYPE:
+      meta_window_set_window_type (win, g_value_get_enum (value));
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -533,7 +536,8 @@ meta_window_class_init (MetaWindowClass *klass)
     g_param_spec_enum ("window-type", NULL, NULL,
                        META_TYPE_WINDOW_TYPE,
                        META_WINDOW_NORMAL,
-                       G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+                       G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS |
+                       G_PARAM_EXPLICIT_NOTIFY);
   obj_props[PROP_USER_TIME] =
     g_param_spec_uint ("user-time", NULL, NULL,
                        0,
@@ -5449,9 +5453,16 @@ meta_window_type_changed (MetaWindow *window)
   g_object_thaw_notify (object);
 }
 
+/**
+ * meta_window_set_window_type:
+ * @window: a #MetaWindow
+ * @type: the #MetaWindowType.
+ *
+ * Sets the type of the window
+ */
 void
-meta_window_set_type (MetaWindow     *window,
-                      MetaWindowType  type)
+meta_window_set_window_type (MetaWindow     *window,
+                             MetaWindowType  type)
 {
   if (window->type == type)
     return;

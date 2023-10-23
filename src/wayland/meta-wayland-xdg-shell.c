@@ -1445,7 +1445,7 @@ meta_wayland_xdg_popup_managed (MetaWaylandShellSurface *shell_surface,
 
   meta_window_set_transient_for (window,
                                  meta_wayland_surface_get_window (parent));
-  meta_window_set_type (window, META_WINDOW_DROPDOWN_MENU);
+  meta_window_set_window_type (window, META_WINDOW_DROPDOWN_MENU);
 }
 
 static void

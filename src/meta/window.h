@@ -148,6 +148,10 @@ META_EXPORT
 MetaWindowType meta_window_get_window_type (MetaWindow *window);
 
 META_EXPORT
+void meta_window_set_window_type (MetaWindow     *window,
+                                  MetaWindowType  type);
+
+META_EXPORT
 MetaWorkspace *meta_window_get_workspace (MetaWindow *window);
 
 META_EXPORT
