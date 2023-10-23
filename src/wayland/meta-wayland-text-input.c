@@ -122,12 +122,18 @@ static void
 meta_wayland_text_input_focus_request_surrounding (ClutterInputFocus *focus)
 {
   MetaWaylandTextInput *text_input;
+  long cursor, anchor;
 
+  /* Clutter uses char offsets but text-input-v3 uses byte offsets. */
   text_input = META_WAYLAND_TEXT_INPUT_FOCUS (focus)->text_input;
+  cursor = g_utf8_strlen (text_input->surrounding.text,
+                          text_input->surrounding.cursor);
+  anchor = g_utf8_strlen (text_input->surrounding.text,
+                          text_input->surrounding.anchor);
   clutter_input_focus_set_surrounding (focus,
-				       text_input->surrounding.text,
-				       text_input->surrounding.cursor,
-                                       text_input->surrounding.anchor);
+                                       text_input->surrounding.text,
+                                       cursor,
+                                       anchor);
 }
 
 static uint32_t
@@ -683,16 +689,24 @@ text_input_commit_state (struct wl_client   *client,
 
   if (text_input->pending_state & META_WAYLAND_PENDING_STATE_SURROUNDING_TEXT)
     {
+      long cursor, anchor;
+
       /* Save the surrounding text for `delete_surrounding_text`. */
       g_free (text_input->surrounding.text);
       text_input->surrounding.text = g_steal_pointer (&text_input->pending_surrounding.text);
       text_input->surrounding.cursor = text_input->pending_surrounding.cursor;
       text_input->surrounding.anchor = text_input->pending_surrounding.anchor;
+
       /* Pass the surrounding text to Clutter to handle it with input method. */
+      /* Clutter uses char offsets but text-input-v3 uses byte offsets. */
+      cursor = g_utf8_strlen (text_input->surrounding.text,
+                              text_input->surrounding.cursor);
+      anchor = g_utf8_strlen (text_input->surrounding.text,
+                              text_input->surrounding.anchor);
       clutter_input_focus_set_surrounding (text_input->input_focus,
                                            text_input->surrounding.text,
-                                           text_input->surrounding.cursor,
-                                           text_input->surrounding.anchor);
+                                           cursor,
+                                           anchor);
     }
 
   if (text_input->pending_state & META_WAYLAND_PENDING_STATE_INPUT_RECT)
