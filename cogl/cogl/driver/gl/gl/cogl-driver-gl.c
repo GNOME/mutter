@@ -71,55 +71,6 @@ _cogl_driver_gl_real_context_init (CoglContext *context)
   return TRUE;
 }
 
-static gboolean
-_cogl_driver_pixel_format_from_gl_internal (CoglContext *context,
-                                            GLenum gl_int_format,
-                                            CoglPixelFormat *out_format)
-{
-  /* It doesn't really matter we convert to exact same
-     format (some have no cogl match anyway) since format
-     is re-matched against cogl when getting or setting
-     texture image data.
-  */
-
-  switch (gl_int_format)
-    {
-    case GL_ALPHA: case GL_ALPHA4: case GL_ALPHA8:
-    case GL_ALPHA12: case GL_ALPHA16:
-      /* Cogl only supports one single-component texture so if we have
-       * ended up with a red texture then it is probably being used as
-       * a component-alpha texture */
-    case GL_RED:
-
-      *out_format = COGL_PIXEL_FORMAT_A_8;
-      return TRUE;
-
-    case GL_LUMINANCE: case GL_LUMINANCE4: case GL_LUMINANCE8:
-    case GL_LUMINANCE12: case GL_LUMINANCE16:
-
-      *out_format = COGL_PIXEL_FORMAT_G_8;
-      return TRUE;
-
-    case GL_RG:
-      *out_format = COGL_PIXEL_FORMAT_RG_88;
-      return TRUE;
-
-    case GL_RGB: case GL_RGB4: case GL_RGB5: case GL_RGB8:
-    case GL_RGB10: case GL_RGB12: case GL_RGB16: case GL_R3_G3_B2:
-
-      *out_format = COGL_PIXEL_FORMAT_RGB_888;
-      return TRUE;
-
-    case GL_RGBA: case GL_RGBA2: case GL_RGBA4: case GL_RGB5_A1:
-    case GL_RGBA8: case GL_RGB10_A2: case GL_RGBA12: case GL_RGBA16:
-
-      *out_format = COGL_PIXEL_FORMAT_RGBA_8888;
-      return TRUE;
-    }
-
-  return FALSE;
-}
-
 static CoglPixelFormat
 _cogl_driver_pixel_format_to_gl (CoglContext     *context,
                                  CoglPixelFormat  format,
@@ -626,7 +577,6 @@ _cogl_driver_gl =
     _cogl_driver_gl_context_deinit,
     _cogl_driver_gl_is_hardware_accelerated,
     _cogl_gl_get_graphics_reset_status,
-    _cogl_driver_pixel_format_from_gl_internal,
     _cogl_driver_pixel_format_to_gl,
     _cogl_driver_read_pixels_format_supported,
     _cogl_driver_update_features,

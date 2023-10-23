@@ -55,13 +55,6 @@ struct _CoglDriverVtable
 
   /* TODO: factor this out since this is OpenGL specific and
    * so can be ignored by non-OpenGL drivers. */
-  gboolean
-  (* pixel_format_from_gl_internal) (CoglContext *context,
-                                     GLenum gl_int_format,
-                                     CoglPixelFormat *out_format);
-
-  /* TODO: factor this out since this is OpenGL specific and
-   * so can be ignored by non-OpenGL drivers. */
   CoglPixelFormat
   (* pixel_format_to_gl) (CoglContext *context,
                           CoglPixelFormat format,

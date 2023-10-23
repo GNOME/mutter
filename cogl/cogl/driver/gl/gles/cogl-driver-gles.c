@@ -63,14 +63,6 @@
 #define GL_HALF_FLOAT_OES 0x8D61
 #endif
 
-static gboolean
-_cogl_driver_pixel_format_from_gl_internal (CoglContext *context,
-                                            GLenum gl_int_format,
-                                            CoglPixelFormat *out_format)
-{
-  return TRUE;
-}
-
 static CoglPixelFormat
 _cogl_driver_pixel_format_to_gl (CoglContext     *context,
                                  CoglPixelFormat  format,
@@ -509,7 +501,6 @@ _cogl_driver_gles =
     _cogl_driver_gl_context_deinit,
     _cogl_driver_gl_is_hardware_accelerated,
     _cogl_gl_get_graphics_reset_status,
-    _cogl_driver_pixel_format_from_gl_internal,
     _cogl_driver_pixel_format_to_gl,
     _cogl_driver_read_pixels_format_supported,
     _cogl_driver_update_features,
