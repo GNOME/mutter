@@ -908,9 +908,9 @@ meta_display_init_x11 (MetaDisplay         *display,
 }
 
 static void
-on_x11_initialized (MetaDisplay  *display,
-                    GAsyncResult *result,
-                    gpointer      user_data)
+on_mandatory_x11_initialized (MetaDisplay  *display,
+                              GAsyncResult *result,
+                              gpointer      user_data)
 {
   g_autoptr (GError) error = NULL;
 
@@ -1029,7 +1029,7 @@ meta_display_new (MetaContext  *context,
       if (x11_display_policy == META_X11_DISPLAY_POLICY_MANDATORY)
         {
           meta_display_init_x11 (display, NULL,
-                                 (GAsyncReadyCallback) on_x11_initialized,
+                                 (GAsyncReadyCallback) on_mandatory_x11_initialized,
                                  NULL);
         }
 #endif /* HAVE_XWAYLAND */
