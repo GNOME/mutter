@@ -26,7 +26,7 @@
 #include "compositor/meta-window-actor-wayland.h"
 #include "compositor/region-utils.h"
 #include "meta/meta-window-actor.h"
-#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-surface-private.h"
 #include "wayland/meta-window-wayland.h"
 
 struct _MetaSurfaceContainerActorWayland

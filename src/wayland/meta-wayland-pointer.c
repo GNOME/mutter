@@ -61,7 +61,7 @@
 #include "wayland/meta-wayland-popup.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-seat.h"
-#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-surface-private.h"
 
 #ifdef HAVE_XWAYLAND
 #include "wayland/meta-xwayland.h"

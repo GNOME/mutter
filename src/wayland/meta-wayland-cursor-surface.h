@@ -20,7 +20,7 @@
 #pragma once
 
 #include "backends/meta-cursor-renderer.h"
-#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-surface-private.h"
 
 struct _MetaWaylandCursorSurfaceClass
 {

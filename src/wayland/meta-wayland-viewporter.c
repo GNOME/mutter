@@ -24,7 +24,7 @@
 
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-subsurface.h"
-#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-surface-private.h"
 #include "wayland/meta-wayland-versions.h"
 #include "wayland/meta-wayland-viewporter.h"
 

@@ -32,7 +32,7 @@
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-seat.h"
 #include "wayland/meta-wayland-shell-surface.h"
-#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-surface-private.h"
 #include "wayland/meta-wayland-transaction.h"
 #include "wayland/meta-wayland-versions.h"
 #include "wayland/meta-wayland-window-configuration.h"

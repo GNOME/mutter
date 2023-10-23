@@ -143,7 +143,7 @@ Source files should use the header include order of the following example:
 #include "mtk/mtk.h"
 
 #ifdef HAVE_WAYLAND
-#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-surface-private.h"
 #endif
 
 #include "meta-dbus-file-generated-by-gdbus-codegen.h"

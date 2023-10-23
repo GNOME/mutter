@@ -31,7 +31,7 @@
 #include "tests/meta-wayland-test-utils.h"
 #include "wayland/meta-wayland-client-private.h"
 #include "wayland/meta-wayland-filter-manager.h"
-#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-surface-private.h"
 
 #include "dummy-client-protocol.h"
 #include "dummy-server-protocol.h"

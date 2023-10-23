@@ -27,7 +27,7 @@
 #include "x11/xprops.h"
 #include "wayland/meta-window-xwayland.h"
 #include "wayland/meta-wayland.h"
-#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-surface-private.h"
 
 enum
 {

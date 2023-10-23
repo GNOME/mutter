@@ -26,7 +26,7 @@
 #include "wayland/meta-wayland-cursor-surface.h"
 #include "wayland/meta-wayland-presentation-time-private.h"
 #include "wayland/meta-wayland-private.h"
-#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-surface-private.h"
 #include "wayland/meta-wayland-outputs.h"
 #include "wayland/meta-wayland-versions.h"
 

@@ -28,7 +28,7 @@
 #include "wayland/meta-wayland-pointer-gesture-pinch.h"
 #include "wayland/meta-wayland-pointer-gesture-swipe.h"
 #include "wayland/meta-wayland-seat.h"
-#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-surface-private.h"
 #include "wayland/meta-wayland-types.h"
 
 #define META_TYPE_WAYLAND_POINTER (meta_wayland_pointer_get_type ())

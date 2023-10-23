@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-surface-private.h"
 
 #define META_TYPE_WAYLAND_ACTOR_SURFACE (meta_wayland_actor_surface_get_type ())
 G_DECLARE_DERIVABLE_TYPE (MetaWaylandActorSurface,

@@ -46,7 +46,7 @@
 
 #include "wayland/meta-wayland-pointer.h"
 #include "wayland/meta-wayland-private.h"
-#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-surface-private.h"
 
 G_DEFINE_INTERFACE (MetaWaylandPopupSurface, meta_wayland_popup_surface,
                     G_TYPE_OBJECT);

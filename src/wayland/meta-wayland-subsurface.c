@@ -25,7 +25,7 @@
 #include "wayland/meta-wayland.h"
 #include "wayland/meta-wayland-actor-surface.h"
 #include "wayland/meta-wayland-buffer.h"
-#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-surface-private.h"
 #include "wayland/meta-wayland-transaction.h"
 #include "wayland/meta-window-wayland.h"
 

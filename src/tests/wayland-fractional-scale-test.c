@@ -24,7 +24,7 @@
 #include "tests/meta-test-utils.h"
 #include "tests/meta-wayland-test-driver.h"
 #include "tests/meta-wayland-test-utils.h"
-#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-surface-private.h"
 
 static MetaContext *test_context;
 static MetaVirtualMonitor *virtual_monitor;

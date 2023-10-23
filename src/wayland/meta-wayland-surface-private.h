@@ -26,14 +26,9 @@
 #include "compositor/meta-shaped-texture-private.h"
 #include "compositor/meta-surface-actor.h"
 #include "meta/meta-cursor-tracker.h"
+#include "meta/meta-wayland-surface.h"
 #include "wayland/meta-wayland-pointer-constraints.h"
 #include "wayland/meta-wayland-types.h"
-
-#define META_TYPE_WAYLAND_SURFACE (meta_wayland_surface_get_type ())
-G_DECLARE_FINAL_TYPE (MetaWaylandSurface,
-                      meta_wayland_surface,
-                      META, WAYLAND_SURFACE,
-                      GObject);
 
 #define META_TYPE_WAYLAND_SURFACE_ROLE (meta_wayland_surface_role_get_type ())
 G_DECLARE_DERIVABLE_TYPE (MetaWaylandSurfaceRole, meta_wayland_surface_role,
@@ -323,9 +318,6 @@ double              meta_wayland_surface_get_highest_output_scale (MetaWaylandSu
 void                meta_wayland_surface_update_outputs (MetaWaylandSurface *surface);
 
 MetaWaylandSurface *meta_wayland_surface_get_toplevel (MetaWaylandSurface *surface);
-
-META_EXPORT_TEST
-MetaWindow *        meta_wayland_surface_get_window (MetaWaylandSurface *surface);
 
 gboolean            meta_wayland_surface_is_synchronized (MetaWaylandSurface *surface);
 

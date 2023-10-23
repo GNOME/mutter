@@ -35,7 +35,7 @@
 
 #ifdef HAVE_WAYLAND
 #include "compositor/meta-surface-actor-wayland.h"
-#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-surface-private.h"
 #endif
 
 typedef enum

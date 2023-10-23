@@ -25,7 +25,7 @@
 #include "tests/meta-ref-test.h"
 #include "wayland/meta-wayland-actor-surface.h"
 #include "wayland/meta-wayland-private.h"
-#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-surface-private.h"
 
 #include "test-driver-server-protocol.h"
 

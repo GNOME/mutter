@@ -52,6 +52,7 @@ if have_wayland
   mutter_public_headers += [
     'meta-wayland-client.h',
     'meta-wayland-compositor.h',
+    'meta-wayland-surface.h',
   ]
 endif
 

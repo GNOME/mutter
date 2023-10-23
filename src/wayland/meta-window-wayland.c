@@ -39,7 +39,7 @@
 #include "meta/meta-x11-errors.h"
 #include "wayland/meta-wayland-actor-surface.h"
 #include "wayland/meta-wayland-private.h"
-#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-surface-private.h"
 #include "wayland/meta-wayland-window-configuration.h"
 #include "wayland/meta-wayland-xdg-shell.h"
 

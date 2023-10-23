@@ -669,7 +669,7 @@ if have_wayland
     'wayland/meta-wayland-subsurface.c',
     'wayland/meta-wayland-subsurface.h',
     'wayland/meta-wayland-surface.c',
-    'wayland/meta-wayland-surface.h',
+    'wayland/meta-wayland-surface-private.h',
     'wayland/meta-wayland-tablet.c',
     'wayland/meta-wayland-tablet-cursor-surface.c',
     'wayland/meta-wayland-tablet-cursor-surface.h',

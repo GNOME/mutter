@@ -92,7 +92,7 @@
 
 #ifdef HAVE_WAYLAND
 #include "wayland/meta-wayland-private.h"
-#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-surface-private.h"
 #include "wayland/meta-window-wayland.h"
 #endif
 

@@ -27,7 +27,7 @@
 
 #include "wayland/meta-wayland-pointer.h"
 #include "wayland/meta-wayland-seat.h"
-#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-surface-private.h"
 
 #include "pointer-gestures-unstable-v1-server-protocol.h"
 

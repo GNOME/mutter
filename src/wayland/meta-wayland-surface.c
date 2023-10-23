@@ -20,7 +20,7 @@
 
 #include "config.h"
 
-#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-surface-private.h"
 
 #include <gobject/gvaluecollector.h>
 #include <wayland-server.h>
@@ -2007,6 +2007,14 @@ meta_wayland_surface_role_get_window (MetaWaylandSurfaceRole *surface_role)
     return NULL;
 }
 
+/**
+ * meta_wayland_surface_get_window:
+ * @surface: a #MetaWaylandSurface
+ *
+ * Get the #MetaWindow associated with this wayland surface.
+ *
+ * Returns: (nullable) (transfer none): a #MetaWindow
+ */
 MetaWindow *
 meta_wayland_surface_get_window (MetaWaylandSurface *surface)
 {

@@ -23,7 +23,7 @@
 #include "core/window-private.h"
 #include "wayland/meta-wayland-client-private.h"
 #include "wayland/meta-wayland-filter-manager.h"
-#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-surface-private.h"
 #include "wayland/meta-wayland-versions.h"
 #include "wayland/meta-wayland.h"
 #include "x11/meta-x11-display-private.h"

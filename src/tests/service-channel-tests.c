@@ -26,7 +26,7 @@
 #include "tests/meta-wayland-test-utils.h"
 #include "wayland/meta-wayland.h"
 #include "wayland/meta-wayland-client-private.h"
-#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-surface-private.h"
 
 static MetaContext *test_context;
 static MetaWaylandTestDriver *test_driver;

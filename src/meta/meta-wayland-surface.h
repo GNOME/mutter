@@ -1,5 +1,5 @@
 /*
- * Copyright 2013, 2018 Red Hat, Inc.
+ * Copyright 2023 Collabora Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -13,22 +13,23 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
- *
  */
 
 #pragma once
 
 #include <glib-object.h>
+#include <gio/gio.h>
 
-#include "backends/meta-cursor.h"
-#include "wayland/meta-wayland-surface-private.h"
+G_BEGIN_DECLS
 
-#define META_TYPE_CURSOR_SPRITE_WAYLAND meta_cursor_sprite_wayland_get_type ()
-META_EXPORT_TEST
-G_DECLARE_FINAL_TYPE (MetaCursorSpriteWayland, meta_cursor_sprite_wayland,
-                      META, CURSOR_SPRITE_WAYLAND, MetaCursorSprite)
+#define META_TYPE_WAYLAND_SURFACE (meta_wayland_surface_get_type ())
+META_EXPORT
+G_DECLARE_FINAL_TYPE (MetaWaylandSurface,
+                      meta_wayland_surface,
+                      META, WAYLAND_SURFACE,
+                      GObject);
 
-MetaCursorSpriteWayland * meta_cursor_sprite_wayland_new (MetaWaylandSurface *surface,
-                                                          MetaCursorTracker  *cursor_tracker);
+META_EXPORT
+MetaWindow *meta_wayland_surface_get_window (MetaWaylandSurface *surface);
 
-MetaWaylandBuffer * meta_cursor_sprite_wayland_get_buffer (MetaCursorSpriteWayland *sprite_wayland);
+G_END_DECLS

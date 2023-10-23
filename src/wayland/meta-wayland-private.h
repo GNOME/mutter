@@ -27,7 +27,7 @@
 #include "wayland/meta-wayland-pointer-gestures.h"
 #include "wayland/meta-wayland-presentation-time-private.h"
 #include "wayland/meta-wayland-seat.h"
-#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-surface-private.h"
 #include "wayland/meta-wayland-tablet-manager.h"
 #include "wayland/meta-wayland-versions.h"
 #include "wayland/meta-wayland.h"
