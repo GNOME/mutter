@@ -47,26 +47,21 @@
 static gboolean
 _cogl_driver_gl_real_context_init (CoglContext *context)
 {
+  GLuint vertex_array;
 
   _cogl_driver_gl_context_init (context);
 
-  if ((context->driver == COGL_DRIVER_GL3))
-    {
-      GLuint vertex_array;
-
-      /* In a forward compatible context, GL 3 doesn't support rendering
-       * using the default vertex array object. Cogl doesn't use vertex
-       * array objects yet so for now we just create a dummy array
-       * object that we will use as our own default object. Eventually
-       * it could be good to attach the vertex array objects to
-       * CoglPrimitives */
-      context->glGenVertexArrays (1, &vertex_array);
-      context->glBindVertexArray (vertex_array);
-    }
+  /* In a forward compatible context, GL 3 doesn't support rendering
+   * using the default vertex array object. Cogl doesn't use vertex
+   * array objects yet so for now we just create a dummy array
+   * object that we will use as our own default object. Eventually
+   * it could be good to attach the vertex array objects to
+   * CoglPrimitives */
+  context->glGenVertexArrays (1, &vertex_array);
+  context->glBindVertexArray (vertex_array);
 
   /* There's no enable for this in GLES2, it's always on */
-  if (context->driver == COGL_DRIVER_GL3)
-    GE (context, glEnable (GL_PROGRAM_POINT_SIZE) );
+  GE (context, glEnable (GL_PROGRAM_POINT_SIZE) );
 
   return TRUE;
 }
@@ -89,20 +84,11 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
   switch (format)
     {
     case COGL_PIXEL_FORMAT_A_8:
-      /* If the driver doesn't natively support alpha textures then we
+      /* The driver doesn't natively support alpha textures so we
        * will use a red component texture with a swizzle to implement
        * the texture */
-      if (_cogl_has_private_feature
-          (context, COGL_PRIVATE_FEATURE_ALPHA_TEXTURES) == 0)
-        {
-          glintformat = GL_RED;
-          glformat = GL_RED;
-        }
-      else
-        {
-          glintformat = GL_ALPHA;
-          glformat = GL_ALPHA;
-        }
+      glintformat = GL_RED;
+      glformat = GL_RED;
       gltype = GL_UNSIGNED_BYTE;
       break;
     case COGL_PIXEL_FORMAT_G_8:
@@ -112,22 +98,8 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       break;
 
     case COGL_PIXEL_FORMAT_RG_88:
-      if (cogl_has_feature (context, COGL_FEATURE_ID_TEXTURE_RG))
-        {
-          glintformat = GL_RG;
-          glformat = GL_RG;
-        }
-      else
-        {
-          /* If red-green textures aren't supported then we'll use RGB
-           * as an internal format. Note this should only end up
-           * mattering for downloading the data because Cogl will
-           * refuse to allocate a texture with RG components if RG
-           * textures aren't supported */
-          glintformat = GL_RGB;
-          glformat = GL_RGB;
-          required_format = COGL_PIXEL_FORMAT_RGB_888;
-        }
+      glintformat = GL_RG;
+      glformat = GL_RG;
       gltype = GL_UNSIGNED_BYTE;
       break;
 
@@ -389,13 +361,12 @@ check_gl_version (CoglContext *ctx,
       return FALSE;
     }
 
-  /* We require GLSL 1.20, which is implied by OpenGL 2.1. */
-  if (!COGL_CHECK_GL_VERSION (major, minor, 2, 1))
+  if (!COGL_CHECK_GL_VERSION (major, minor, 3, 1))
     {
       g_set_error (error,
                    COGL_DRIVER_ERROR,
                    COGL_DRIVER_ERROR_INVALID_VERSION,
-                   "OpenGL 2.1 or better is required");
+                   "OpenGL 3.1 or better is required");
       return FALSE;
     }
 
@@ -475,21 +446,11 @@ _cogl_driver_update_features (CoglContext *ctx,
     COGL_FLAGS_SET (private_features,
                     COGL_PRIVATE_FEATURE_MESA_PACK_INVERT, TRUE);
 
-  if (!ctx->glGenRenderbuffers)
-    {
-      g_set_error (error,
-                   COGL_DRIVER_ERROR,
-                   COGL_DRIVER_ERROR_NO_SUITABLE_DRIVER_FOUND,
-                   "Framebuffer objects are required to use the GL driver");
-      return FALSE;
-    }
   COGL_FLAGS_SET (private_features,
                   COGL_PRIVATE_FEATURE_QUERY_FRAMEBUFFER_BITS,
                   TRUE);
 
-  if (ctx->glBlitFramebuffer)
-    COGL_FLAGS_SET (ctx->features,
-                    COGL_FEATURE_ID_BLIT_FRAMEBUFFER, TRUE);
+  COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_BLIT_FRAMEBUFFER, TRUE);
 
   COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_PBOS, TRUE);
 
@@ -500,9 +461,8 @@ _cogl_driver_update_features (CoglContext *ctx,
     COGL_FLAGS_SET (private_features,
                     COGL_PRIVATE_FEATURE_TEXTURE_2D_FROM_EGL_IMAGE, TRUE);
 
-  if (_cogl_check_extension ("GL_EXT_packed_depth_stencil", gl_extensions))
-    COGL_FLAGS_SET (private_features,
-                    COGL_PRIVATE_FEATURE_EXT_PACKED_DEPTH_STENCIL, TRUE);
+  COGL_FLAGS_SET (private_features,
+                  COGL_PRIVATE_FEATURE_EXT_PACKED_DEPTH_STENCIL, TRUE);
 
   if (ctx->glGenSamplers)
     COGL_FLAGS_SET (private_features,
@@ -524,29 +484,19 @@ _cogl_driver_update_features (CoglContext *ctx,
   COGL_FLAGS_SET (private_features,
                   COGL_PRIVATE_FEATURE_TEXTURE_MAX_LEVEL, TRUE);
 
-  if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 1) ||
-      _cogl_check_extension ("GL_EXT_texture_lod_bias", gl_extensions))
-    {
-      COGL_FLAGS_SET (private_features,
-                      COGL_PRIVATE_FEATURE_TEXTURE_LOD_BIAS, TRUE);
-    }
+  COGL_FLAGS_SET (private_features,
+                  COGL_PRIVATE_FEATURE_TEXTURE_LOD_BIAS, TRUE);
 
   if (ctx->glFenceSync)
     COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_FENCE, TRUE);
 
-  if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 0) ||
-      _cogl_check_extension ("GL_ARB_texture_rg", gl_extensions))
-    COGL_FLAGS_SET (ctx->features,
-                    COGL_FEATURE_ID_TEXTURE_RG,
-                    TRUE);
+  COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_TEXTURE_RG, TRUE);
 
   COGL_FLAGS_SET (private_features,
                   COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_RGBA1010102, TRUE);
 
-  if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 0))
-    COGL_FLAGS_SET (private_features,
-                    COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_HALF_FLOAT,
-                    TRUE);
+  COGL_FLAGS_SET (private_features,
+                  COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_HALF_FLOAT, TRUE);
 
   if (ctx->glGenQueries && ctx->glQueryCounter && ctx->glGetInteger64v)
     COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_TIMESTAMP_QUERY, TRUE);
