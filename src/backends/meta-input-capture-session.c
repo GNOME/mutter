@@ -748,6 +748,33 @@ check_barrier (MetaInputCaptureSession  *session,
         }
     }
 
+  if (has_adjacent_monitor && y1 == y2)
+    {
+      MetaLogicalMonitor *monitor;
+      MetaLogicalMonitor *next;
+      MtkRectangle layout, fake_layout;
+
+      monitor = meta_monitor_manager_get_logical_monitor_at (monitor_manager, 0, 0);
+      while ((next = meta_monitor_manager_get_logical_monitor_neighbor (monitor_manager, monitor, META_DISPLAY_RIGHT)))
+        monitor = next;
+
+      layout = meta_logical_monitor_get_layout (monitor);
+      fake_layout = (MtkRectangle) {
+        .x = layout.x + layout.width,
+        .y = layout.y,
+        .width = layout.width,
+        .height = layout.height,
+      };
+
+      LineAdjacency adjacency = get_barrier_adjacency (&fake_layout, x1, y1, x2, y2, error);
+      if (adjacency != LINE_ADJACENCY_NONE)
+        {
+          g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
+                       "Line extends into nonexisting monitor region");
+          return FALSE;
+        }
+    }
+
   return has_adjacent_monitor;
 }
 
