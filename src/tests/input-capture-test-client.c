@@ -702,8 +702,8 @@ test_barriers (void)
    *               +==============+
    */
   barrier1 = input_capture_session_add_barrier (session, 0, 0, 0, 600);
-  barrier2 = input_capture_session_add_barrier (session, 800, 768, 1824, 768);
-  barrier3 = input_capture_session_add_barrier (session, 800, 0, 1824, 0);
+  barrier2 = input_capture_session_add_barrier (session, 800, 768, 1823, 768);
+  barrier3 = input_capture_session_add_barrier (session, 800, 0, 1823, 0);
 
   g_assert_cmpuint (barrier1, !=, 0);
   g_assert_cmpuint (barrier2, !=, 0);
