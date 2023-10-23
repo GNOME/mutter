@@ -496,7 +496,7 @@ input_capture_session_add_barrier (InputCaptureSession *session,
         NULL,
         &error))
     {
-      g_warning ("Failed to add barrier: %s", error->message);
+      g_debug ("Failed to add barrier: %s", error->message);
       return 0;
     }
 
@@ -683,7 +683,8 @@ test_barriers (void)
   InputCapture *input_capture;
   InputCaptureSession *session;
   g_autolist (Zone) zones = NULL;
-  unsigned int barrier1, barrier2, barrier3;
+  unsigned int barrier1, barrier2, barrier3, barrier4, barrier5;
+  unsigned int invalid_barrier;
   BarriersTestData data = {};
   unsigned int prev_activated_serial;
 
@@ -694,23 +695,59 @@ test_barriers (void)
 
   /*
    * +-------------+==============+
-   * ||            |        ^     |
-   * ||<--B#1      |        |     |
-   * ||            |   B#2 B#3    |
-   * +-------------+    |         |
-   *               |    V         |
+   * ||            |        ^     ||
+   * ||<--B#1      |        |     ||
+   * ||            |   B#2 B#3    || <- B#5
+   * +-------------+    |         ||
+   *        B#4 -> ||   V         ||
    *               +==============+
    */
   barrier1 = input_capture_session_add_barrier (session, 0, 0, 0, 600);
   barrier2 = input_capture_session_add_barrier (session, 800, 768, 1823, 768);
   barrier3 = input_capture_session_add_barrier (session, 800, 0, 1823, 0);
+  barrier4 = input_capture_session_add_barrier (session, 800, 600, 800, 768);
+  barrier5 = input_capture_session_add_barrier (session, 1824, 0, 1824, 768);
 
   g_assert_cmpuint (barrier1, !=, 0);
   g_assert_cmpuint (barrier2, !=, 0);
   g_assert_cmpuint (barrier3, !=, 0);
+  g_assert_cmpuint (barrier4, !=, 0);
+  g_assert_cmpuint (barrier5, !=, 0);
   g_assert_cmpuint (barrier1, !=, barrier2);
   g_assert_cmpuint (barrier1, !=, barrier3);
+  g_assert_cmpuint (barrier1, !=, barrier4);
+  g_assert_cmpuint (barrier1, !=, barrier5);
   g_assert_cmpuint (barrier2, !=, barrier3);
+  g_assert_cmpuint (barrier2, !=, barrier4);
+  g_assert_cmpuint (barrier2, !=, barrier5);
+  g_assert_cmpuint (barrier3, !=, barrier4);
+  g_assert_cmpuint (barrier3, !=, barrier5);
+  g_assert_cmpuint (barrier4, !=, barrier5);
+
+  /* 1px too wide */
+  invalid_barrier = input_capture_session_add_barrier (session, 0, 0, 800, 0);
+  g_assert_cmpuint (invalid_barrier, ==, 0);
+  /* 1px too far south */
+  invalid_barrier = input_capture_session_add_barrier (session, 0, 601, 800, 601);
+  g_assert_cmpuint (invalid_barrier, ==, 0);
+  /* B#3 but 1px past right edge */
+  invalid_barrier = input_capture_session_add_barrier (session, 800, 0, 1824, 0);
+  g_assert_cmpuint (invalid_barrier, ==, 0);
+  /* 1px overlap */
+  invalid_barrier = input_capture_session_add_barrier (session, 800, 599, 800, 768);
+  g_assert_cmpuint (invalid_barrier, ==, 0);
+  /* straight through the middle */
+  invalid_barrier = input_capture_session_add_barrier (session, 800, 0, 800, 600);
+  g_assert_cmpuint (invalid_barrier, ==, 0);
+  /* straight through the middle part 2 */
+  invalid_barrier = input_capture_session_add_barrier (session, 800, 0, 800, 768);
+  g_assert_cmpuint (invalid_barrier, ==, 0);
+  /* B#1 but past the screen size  */
+  invalid_barrier = input_capture_session_add_barrier (session, 0, 0, 0, 768);
+  g_assert_cmpuint (invalid_barrier, ==, 0);
+  /* B#2 but hanging left into the left screen */
+  invalid_barrier = input_capture_session_add_barrier (session, 600, 768, 1823, 768);
+  g_assert_cmpuint (invalid_barrier, ==, 0);
 
   g_signal_connect (session->proxy, "activated",
                     G_CALLBACK (on_activated), &data);
