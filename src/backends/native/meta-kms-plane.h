@@ -47,6 +47,8 @@ MetaKmsPlaneType meta_kms_plane_get_plane_type (MetaKmsPlane *plane);
 gboolean meta_kms_plane_is_transform_handled (MetaKmsPlane         *plane,
                                               MetaMonitorTransform  transform);
 
+gboolean meta_kms_plane_supports_cursor_hotspot (MetaKmsPlane *plane);
+
 GArray * meta_kms_plane_get_modifiers_for_format (MetaKmsPlane *plane,
                                                   uint32_t      format);
 

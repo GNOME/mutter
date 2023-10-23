@@ -405,14 +405,17 @@ maybe_update_cursor_plane (MetaKmsCursorManagerImpl  *cursor_manager_impl,
         .height = round (cursor_rect.size.height),
       };
 
-      plane_assignment = meta_kms_update_assign_plane (update,
-                                                       crtc, cursor_plane,
-                                                       buffer,
-                                                       src_rect, dst_rect,
-                                                       assign_plane_flags);
-      meta_kms_plane_assignment_set_cursor_hotspot (plane_assignment,
-                                                    (int) roundf (hotspot->x),
-                                                    (int) roundf (hotspot->y));
+      if (meta_kms_plane_supports_cursor_hotspot (cursor_plane))
+        {
+          plane_assignment = meta_kms_update_assign_plane (update,
+                                                           crtc, cursor_plane,
+                                                           buffer,
+                                                           src_rect, dst_rect,
+                                                           assign_plane_flags);
+          meta_kms_plane_assignment_set_cursor_hotspot (plane_assignment,
+                                                        (int) roundf (hotspot->x),
+                                                        (int) roundf (hotspot->y));
+        }
     }
   else
     {

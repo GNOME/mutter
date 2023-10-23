@@ -26,6 +26,8 @@
 #include "backends/meta-monitor-transform.h"
 #include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-impl-device.h"
+#include "backends/native/meta-kms-impl-device-atomic.h"
+#include "backends/native/meta-kms-device-private.h"
 #include "backends/native/meta-kms-update-private.h"
 
 typedef struct _MetaKmsPlanePropTable
@@ -187,6 +189,23 @@ meta_kms_plane_is_transform_handled (MetaKmsPlane         *plane,
     }
 
   return FALSE;
+}
+
+gboolean
+meta_kms_plane_supports_cursor_hotspot (MetaKmsPlane *plane)
+{
+  MetaKmsImplDevice *impl_device =
+    meta_kms_device_get_impl_device (plane->device);
+
+  if (META_IS_KMS_IMPL_DEVICE_ATOMIC (impl_device))
+    {
+      return (meta_kms_plane_get_prop_id (plane, META_KMS_PLANE_PROP_HOTSPOT_X) &&
+              meta_kms_plane_get_prop_id (plane, META_KMS_PLANE_PROP_HOTSPOT_Y));
+    }
+  else
+    {
+      return TRUE;
+    }
 }
 
 GArray *
@@ -503,6 +522,16 @@ init_properties (MetaKmsPlane            *plane,
       [META_KMS_PLANE_PROP_IN_FENCE_FD] =
         {
           .name = "IN_FENCE_FD",
+          .type = DRM_MODE_PROP_SIGNED_RANGE,
+        },
+      [META_KMS_PLANE_PROP_HOTSPOT_X] =
+        {
+          .name = "HOTSPOT_X",
+          .type = DRM_MODE_PROP_SIGNED_RANGE,
+        },
+      [META_KMS_PLANE_PROP_HOTSPOT_Y] =
+        {
+          .name = "HOTSPOT_Y",
           .type = DRM_MODE_PROP_SIGNED_RANGE,
         },
     },
