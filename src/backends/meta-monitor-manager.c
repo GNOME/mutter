@@ -1325,6 +1325,8 @@ meta_monitor_manager_setup (MetaMonitorManager *manager)
   if (privacy_screen_needs_update (manager))
     manager->privacy_screen_change_state = META_PRIVACY_SCREEN_CHANGE_STATE_INIT;
 
+  ensure_hdr_settings (manager);
+
   manager->in_init = FALSE;
 }
 
@@ -1332,10 +1334,15 @@ static void
 meta_monitor_manager_constructed (GObject *object)
 {
   MetaMonitorManager *manager = META_MONITOR_MANAGER (object);
+  MetaMonitorManagerPrivate *priv =
+    meta_monitor_manager_get_instance_private (manager);
   MetaBackend *backend = manager->backend;
   MetaSettings *settings = meta_backend_get_settings (backend);
 
   manager->display_config = meta_dbus_display_config_skeleton_new ();
+
+  if (g_strcmp0 (getenv ("MUTTER_DEBUG_ENABLE_HDR"), "1") == 0)
+    priv->experimental_hdr = g_strdup ("on");
 
   g_signal_connect_object (settings,
                            "experimental-features-changed",
