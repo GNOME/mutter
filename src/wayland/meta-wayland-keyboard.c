@@ -742,10 +742,10 @@ static void
 broadcast_focus (MetaWaylandKeyboard *keyboard,
                  struct wl_resource  *resource)
 {
-  keyboard_send_modifiers (keyboard, resource, keyboard->focus_serial);
   wl_keyboard_send_enter (resource, keyboard->focus_serial,
                           keyboard->focus_surface->resource,
                           &keyboard->pressed_keys);
+  keyboard_send_modifiers (keyboard, resource, keyboard->focus_serial);
 }
 
 void
