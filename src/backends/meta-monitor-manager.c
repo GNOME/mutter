@@ -116,7 +116,7 @@ typedef struct _MetaMonitorManagerPrivate
 
   gboolean has_builtin_panel;
   gboolean night_light_supported;
-  const char *experimental_hdr;
+  char *experimental_hdr;
 
   guint reload_monitor_manager_id;
   guint switch_config_handle_id;
@@ -1388,6 +1388,7 @@ meta_monitor_manager_finalize (GObject *object)
   MetaMonitorManagerPrivate *priv =
     meta_monitor_manager_get_instance_private (manager);
 
+  g_clear_pointer (&priv->experimental_hdr, g_free);
   g_list_free_full (manager->logical_monitors, g_object_unref);
 
   g_warn_if_fail (!priv->virtual_monitors);
@@ -1438,6 +1439,7 @@ meta_monitor_manager_set_property (GObject      *object,
       manager->backend = g_value_get_object (value);
       break;
     case PROP_EXPERIMENTAL_HDR:
+      g_clear_pointer (&priv->experimental_hdr, g_free);
       priv->experimental_hdr = g_value_dup_string (value);
       break;
     case PROP_PANEL_ORIENTATION_MANAGED:
