@@ -547,7 +547,6 @@ arg_to_gl_blend_factor (CoglBlendStringArgument *arg)
             return GL_DST_ALPHA;
         }
     }
-#if defined(HAVE_COGL_GLES2) || defined(HAVE_COGL_GL)
   else if (arg->factor.source.info->type ==
            COGL_BLEND_STRING_COLOR_SOURCE_CONSTANT)
     {
@@ -566,7 +565,6 @@ arg_to_gl_blend_factor (CoglBlendStringArgument *arg)
             return GL_CONSTANT_ALPHA;
         }
     }
-#endif
 
   g_warning ("Unable to determine valid blend factor from blend string\n");
   return GL_ONE;
@@ -679,38 +677,34 @@ void
 cogl_pipeline_set_blend_constant (CoglPipeline *pipeline,
                                   const CoglColor *constant_color)
 {
+  CoglPipelineState state = COGL_PIPELINE_STATE_BLEND;
+  CoglPipeline *authority;
+  CoglPipelineBlendState *blend_state;
+
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
   g_return_if_fail (cogl_is_pipeline (pipeline));
 
-#if defined(HAVE_COGL_GLES2) || defined(HAVE_COGL_GL)
-  {
-    CoglPipelineState state = COGL_PIPELINE_STATE_BLEND;
-    CoglPipeline *authority;
-    CoglPipelineBlendState *blend_state;
+  authority = _cogl_pipeline_get_authority (pipeline, state);
 
-    authority = _cogl_pipeline_get_authority (pipeline, state);
+  blend_state = &authority->big_state->blend_state;
+  if (cogl_color_equal (constant_color, &blend_state->blend_constant))
+    return;
 
-    blend_state = &authority->big_state->blend_state;
-    if (cogl_color_equal (constant_color, &blend_state->blend_constant))
-      return;
+  /* - Flush journal primitives referencing the current state.
+   * - Make sure the pipeline has no dependants so it may be modified.
+   * - If the pipeline isn't currently an authority for the state being
+   *   changed, then initialize that state from the current authority.
+   */
+  _cogl_pipeline_pre_change_notify (pipeline, state, NULL, FALSE);
 
-    /* - Flush journal primitives referencing the current state.
-     * - Make sure the pipeline has no dependants so it may be modified.
-     * - If the pipeline isn't currently an authority for the state being
-     *   changed, then initialize that state from the current authority.
-     */
-    _cogl_pipeline_pre_change_notify (pipeline, state, NULL, FALSE);
+  blend_state = &pipeline->big_state->blend_state;
+  blend_state->blend_constant = *constant_color;
 
-    blend_state = &pipeline->big_state->blend_state;
-    blend_state->blend_constant = *constant_color;
+  _cogl_pipeline_update_authority (pipeline, authority, state,
+                                   _cogl_pipeline_blend_state_equal);
 
-    _cogl_pipeline_update_authority (pipeline, authority, state,
-                                     _cogl_pipeline_blend_state_equal);
-
-    pipeline->dirty_real_blend_enable = TRUE;
-  }
-#endif
+  pipeline->dirty_real_blend_enable = TRUE;
 }
 
 CoglHandle

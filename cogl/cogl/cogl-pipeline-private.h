@@ -181,13 +181,11 @@ typedef struct
 typedef struct
 {
   /* Determines how this pipeline is blended with other primitives */
-#if defined(HAVE_COGL_GLES2) || defined(HAVE_COGL_GL)
   GLenum    blend_equation_rgb;
   GLenum    blend_equation_alpha;
   GLint     blend_src_factor_alpha;
   GLint     blend_dst_factor_alpha;
   CoglColor blend_constant;
-#endif
   GLint     blend_src_factor_rgb;
   GLint     blend_dst_factor_rgb;
 } CoglPipelineBlendState;

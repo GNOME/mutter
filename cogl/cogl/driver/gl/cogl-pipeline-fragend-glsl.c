@@ -903,11 +903,6 @@ _cogl_pipeline_fragend_glsl_add_layer (CoglPipeline *pipeline,
   return TRUE;
 }
 
-/* GLES2 and GL3 don't have alpha testing so we need to implement it
-   in the shader */
-
-#if defined(HAVE_COGL_GLES2) || defined(HAVE_COGL_GL)
-
 static void
 add_alpha_test_snippet (CoglPipeline *pipeline,
                         CoglPipelineFragendShaderState *shader_state)
@@ -967,8 +962,6 @@ add_alpha_test_snippet (CoglPipeline *pipeline,
   g_string_append (shader_state->source,
                    " _cogl_alpha_test_ref)\n    discard;\n");
 }
-
-#endif /*  HAVE_COGL_GLES2 */
 
 static gboolean
 _cogl_pipeline_fragend_glsl_end (CoglPipeline *pipeline,

@@ -63,7 +63,7 @@
 extern const CoglTextureDriver _cogl_texture_driver_gl;
 extern const CoglDriverVtable _cogl_driver_gl;
 #endif
-#if defined (HAVE_COGL_GLES2)
+#ifdef HAVE_COGL_GLES2
 extern const CoglTextureDriver _cogl_texture_driver_gles;
 extern const CoglDriverVtable _cogl_driver_gles;
 #endif

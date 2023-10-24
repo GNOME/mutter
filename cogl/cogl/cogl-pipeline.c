@@ -123,14 +123,12 @@ _cogl_pipeline_init_default_pipeline (void)
   alpha_state->alpha_func_reference = 0.0;
 
   /* Not the same as the GL default, but seems saner... */
-#if defined(HAVE_COGL_GLES2) || defined(HAVE_COGL_GL)
   blend_state->blend_equation_rgb = GL_FUNC_ADD;
   blend_state->blend_equation_alpha = GL_FUNC_ADD;
   blend_state->blend_src_factor_alpha = GL_ONE;
   blend_state->blend_dst_factor_alpha = GL_ONE_MINUS_SRC_ALPHA;
   cogl_color_init_from_4ub (&blend_state->blend_constant,
                             0x00, 0x00, 0x00, 0x00);
-#endif
   blend_state->blend_src_factor_rgb = GL_ONE;
   blend_state->blend_dst_factor_rgb = GL_ONE_MINUS_SRC_ALPHA;
 
