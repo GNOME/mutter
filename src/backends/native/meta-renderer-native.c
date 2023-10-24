@@ -1188,16 +1188,17 @@ meta_renderer_native_pop_pending_mode_set (MetaRendererNative *renderer_native,
 }
 
 static CoglOffscreen *
-meta_renderer_native_create_offscreen (MetaRendererNative    *renderer,
-                                       CoglContext           *context,
+meta_renderer_native_create_offscreen (MetaRendererNative    *renderer_native,
                                        gint                   view_width,
                                        gint                   view_height,
                                        GError               **error)
 {
+  CoglContext *cogl_context =
+    cogl_context_from_renderer_native (renderer_native);
   CoglOffscreen *fb;
   CoglTexture *tex;
 
-  tex = cogl_texture_2d_new_with_size (context, view_width, view_height);
+  tex = cogl_texture_2d_new_with_size (cogl_context, view_width, view_height);
   cogl_primitive_texture_set_auto_mipmap (tex, FALSE);
 
   if (!cogl_texture_allocate (tex, error))
@@ -1297,7 +1298,6 @@ should_force_shadow_fb (MetaRendererNative *renderer_native,
 
 static CoglFramebuffer *
 create_fallback_offscreen (MetaRendererNative *renderer_native,
-                           CoglContext        *cogl_context,
                            int                 width,
                            int                 height)
 {
@@ -1305,7 +1305,6 @@ create_fallback_offscreen (MetaRendererNative *renderer_native,
   GError *error = NULL;
 
   fallback_offscreen = meta_renderer_native_create_offscreen (renderer_native,
-                                                              cogl_context,
                                                               width,
                                                               height,
                                                               &error);
@@ -1364,7 +1363,6 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
                       error->message);
           use_shadowfb = FALSE;
           framebuffer = create_fallback_offscreen (renderer_native,
-                                                   cogl_context,
                                                    onscreen_width,
                                                    onscreen_height);
         }
@@ -1387,7 +1385,6 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
                          error->message);
               use_shadowfb = FALSE;
               framebuffer = create_fallback_offscreen (renderer_native,
-                                                       cogl_context,
                                                        onscreen_width,
                                                        onscreen_height);
             }
@@ -1407,7 +1404,6 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
       g_assert (META_IS_CRTC_VIRTUAL (crtc));
 
       virtual_onscreen = meta_renderer_native_create_offscreen (renderer_native,
-                                                                cogl_context,
                                                                 onscreen_width,
                                                                 onscreen_height,
                                                                 &error);
@@ -1438,7 +1434,6 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
         }
 
       offscreen = meta_renderer_native_create_offscreen (renderer_native,
-                                                         cogl_context,
                                                          offscreen_width,
                                                          offscreen_height,
                                                          &error);
