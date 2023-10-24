@@ -322,7 +322,7 @@ if have_native_tests
       'input-capture-test-client.c',
       '../backends/meta-fd-source.c',
       '../backends/meta-fd-source.h',
-      dbus_input_capture_built_sources,
+      built_dbus_sources['meta-dbus-input-capture'],
     ],
     include_directories: tests_includes,
     c_args: [

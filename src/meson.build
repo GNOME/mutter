@@ -925,6 +925,11 @@ dbus_interfaces = [
     'object_manager': true,
   },
   {
+    'name': 'meta-dbus-input-capture',
+    'interface': 'org.gnome.Mutter.InputCapture.xml',
+    'prefix': 'org.gnome.Mutter',
+  },
+  {
     'name': 'meta-dbus-input-mapping',
     'interface': 'org.gnome.Mutter.InputMapping.xml',
     'prefix': 'org.gnome.Mutter.',
@@ -1035,13 +1040,6 @@ foreach dbus_interface: dbus_interfaces
   }
   mutter_built_sources += dbus_sources
 endforeach
-
-dbus_input_capture_built_sources = gnome.gdbus_codegen('meta-dbus-input-capture',
-    dbus_interfaces_dir / 'org.gnome.Mutter.InputCapture.xml',
-    interface_prefix: 'org.gnome.Mutter',
-    namespace: 'MetaDBus',
-)
-mutter_built_sources += dbus_input_capture_built_sources
 
 wayland_protocol_server_headers = []
 wayland_protocol_client_headers = []
