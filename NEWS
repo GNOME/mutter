@@ -1,3 +1,34 @@
+45.1
+====
+* Fix filtering keybinding events in presence of grabs [Sebastian K.; !3054]
+* Fix direct scanout support when using integer scaling [Daniel; !3290]
+* Fix capitalization of some keys when caps lock is on [Carlos; !3306]
+* Fix vsync regression [Robert; !3286]
+* Fix visibility of software cursors when using direct scanout [Robert; !3302]
+* Fix artifacts at the bottom of some surfaces [Robert; !3310]
+* Discard monitor configs with fractional scale when unusable [Jonas Å.; !3299]
+* Apply track point settings [Rohan; !3089]
+* xwayland: Enable XDG portal only when not nested [Olivier; !3303]
+* Inhibit real-time scheduling when mode setting [Ray; !3324]
+* Don't delay frame updates after idle period [Michel; !3174]
+* Fix running Xwayland in headless setup with nvidia driver [Olivier; !3320]
+* wayland: Send keyboard modifiers after the enter event  [Alexandros; !3341]
+* Fixed crashes [Carlos, Jonas D., Robert, Sebastian W., Jonas Å.; !3287, !3283,
+  !3311, !3322, !3318]
+* Misc. bug fixes and cleanups [Daniel, Corentin, Carlos, Jonas Å., Ivan,
+  Michel, Sebastian W., Robert, Barnabás, Peter; !3212, !3298, !3267, !3297,
+  !3313, !3316, !3317, !3323, !3325, !3326, !3328, !3330, !3332, !3319]
+
+Contributors:
+  Jonas Ådahl, Michel Dänzer, Jonas Dreßler, Olivier Fourdan,
+  Alexandros Frantzis, Carlos Garnacho, Peter Hutterer, Rohan Hendrik Jotz-Lean,
+  Sebastian Keller, Robert Mader, Ivan Molodetskikh, Florian Müllner,
+  Corentin Noël, Barnabás Pőcze, Ray Strode, Daniel van Vugt, Sebastian Wick
+
+Translators:
+  Kristjan SCHMIDT [eo], Rafael Fontenelle [pt_BR], Guillaume Bernard [fr],
+  Jordi Mas i Hernandez [ca], Florentina Mușat [ro]
+
 45.0
 ====
 * Fix focus-follows-mouse mode [Carlos; !3256]
