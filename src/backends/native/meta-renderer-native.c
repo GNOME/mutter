@@ -1213,6 +1213,7 @@ meta_renderer_native_pop_pending_mode_set (MetaRendererNative *renderer_native,
 
 static CoglOffscreen *
 meta_renderer_native_create_offscreen (MetaRendererNative    *renderer_native,
+                                       CoglPixelFormat        format,
                                        gint                   view_width,
                                        gint                   view_height,
                                        GError               **error)
@@ -1222,7 +1223,17 @@ meta_renderer_native_create_offscreen (MetaRendererNative    *renderer_native,
   CoglOffscreen *fb;
   CoglTexture *tex;
 
-  tex = cogl_texture_2d_new_with_size (cogl_context, view_width, view_height);
+  if (format == COGL_PIXEL_FORMAT_ANY)
+    {
+      tex = cogl_texture_2d_new_with_size (cogl_context,
+                                           view_width, view_height);
+    }
+  else
+    {
+      tex = cogl_texture_2d_new_with_format (cogl_context,
+                                             view_width, view_height,
+                                             format);
+    }
   cogl_primitive_texture_set_auto_mipmap (tex, FALSE);
 
   if (!cogl_texture_allocate (tex, error))
@@ -1400,6 +1411,7 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
       CoglOffscreen *virtual_onscreen;
 
       virtual_onscreen = meta_renderer_native_create_offscreen (renderer_native,
+                                                                COGL_PIXEL_FORMAT_ANY,
                                                                 onscreen_width,
                                                                 onscreen_height,
                                                                 &local_error);
@@ -1417,6 +1429,7 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
     {
       int offscreen_width;
       int offscreen_height;
+      CoglPixelFormat format;
 
       if (meta_monitor_transform_is_rotated (view_transform))
         {
@@ -1429,7 +1442,9 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
           offscreen_height = onscreen_height;
         }
 
+      format = cogl_framebuffer_get_internal_format (framebuffer);
       offscreen = meta_renderer_native_create_offscreen (renderer_native,
+                                                         format,
                                                          offscreen_width,
                                                          offscreen_height,
                                                          &local_error);
