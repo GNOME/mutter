@@ -298,92 +298,47 @@ subsurface_parent_unmapped (void)
   g_signal_handler_disconnect (display->stack, window_added_id);
 }
 
-typedef enum _ApplyLimitState
-{
-  APPLY_LIMIT_STATE_INIT,
-  APPLY_LIMIT_STATE_RESET,
-  APPLY_LIMIT_STATE_FINISH,
-} ApplyLimitState;
-
-typedef struct _ApplyLimitData
-{
-  GMainLoop *loop;
-  MetaWaylandTestClient *wayland_test_client;
-  ApplyLimitState state;
-} ApplyLimitData;
-
 static void
-on_apply_limits_sync_point (MetaWaylandTestDriver *test_driver,
-                            unsigned int           sequence,
-                            struct wl_resource    *surface_resource,
-                            struct wl_client      *wl_client,
-                            ApplyLimitData        *data)
+wait_for_sync_point (unsigned int sync_point)
 {
-  MetaWindow *window;
-
-  if (sequence == 0)
-    g_assert (data->state == APPLY_LIMIT_STATE_INIT);
-  else if (sequence == 1)
-    g_assert (data->state == APPLY_LIMIT_STATE_RESET);
-
-  window = find_client_window ("toplevel-limits-test");
-
-  if (sequence == 0)
-    {
-      g_assert_nonnull (window);
-      g_assert_cmpint (window->size_hints.max_width, ==, 700);
-      g_assert_cmpint (window->size_hints.max_height, ==, 500);
-      g_assert_cmpint (window->size_hints.min_width, ==, 700);
-      g_assert_cmpint (window->size_hints.min_height, ==, 500);
-
-      data->state = APPLY_LIMIT_STATE_RESET;
-    }
-  else if (sequence == 1)
-    {
-      g_assert_null (window);
-      data->state = APPLY_LIMIT_STATE_FINISH;
-      g_main_loop_quit (data->loop);
-    }
-  else
-    {
-      g_assert_not_reached ();
-    }
+  meta_wayland_test_driver_wait_for_sync_point (test_driver, sync_point);
 }
 
 static void
 toplevel_apply_limits (void)
 {
-  ApplyLimitData data = {};
-  gulong handler_id;
+  MetaWaylandTestClient *wayland_test_client;
+  MetaWindow *window;
 
-  data.loop = g_main_loop_new (NULL, FALSE);
-  data.wayland_test_client =
+  wayland_test_client =
     meta_wayland_test_client_new (test_context, "xdg-apply-limits");
-  handler_id = g_signal_connect (test_driver, "sync-point",
-                                 G_CALLBACK (on_apply_limits_sync_point),
-                                 &data);
-  g_main_loop_run (data.loop);
-  g_assert_cmpint (data.state, ==, APPLY_LIMIT_STATE_FINISH);
-  meta_wayland_test_client_finish (data.wayland_test_client);
+
+  wait_for_sync_point (0);
+
+  window = find_client_window ("toplevel-limits-test");
+  g_assert_nonnull (window);
+  g_assert_cmpint (window->size_hints.max_width, ==, 700);
+  g_assert_cmpint (window->size_hints.max_height, ==, 500);
+  g_assert_cmpint (window->size_hints.min_width, ==, 700);
+  g_assert_cmpint (window->size_hints.min_height, ==, 500);
+
+  wait_for_sync_point (1);
+
+  window = find_client_window ("toplevel-limits-test");
+  g_assert_null (window);
+
+  meta_wayland_test_client_finish (wayland_test_client);
   g_test_assert_expected_messages ();
-  g_signal_handler_disconnect (test_driver, handler_id);
 }
 
 static void
 toplevel_activation (void)
 {
-  ApplyLimitData data = {};
+  MetaWaylandTestClient *wayland_test_client;
 
-  data.loop = g_main_loop_new (NULL, FALSE);
-  data.wayland_test_client =
+  wayland_test_client =
     meta_wayland_test_client_new (test_context, "xdg-activation");
-  meta_wayland_test_client_finish (data.wayland_test_client);
-}
-
-static void
-wait_for_sync_point (unsigned int sync_point)
-{
-  meta_wayland_test_driver_wait_for_sync_point (test_driver, sync_point);
+  meta_wayland_test_client_finish (wayland_test_client);
 }
 
 static gboolean
