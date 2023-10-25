@@ -4562,8 +4562,7 @@ meta_window_make_most_recent (MetaWindow    *window,
   MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
   GList *l;
 
-  /**
-   * Marks the window as the most recently used window on a specific workspace.
+  /* Marks the window as the most recently used window on a specific workspace.
    * If the window exists on all workspaces, it will become the most recently
    * used sticky window on all other workspaces. This ensures proper tracking
    * among windows on all workspaces while not overriding MRU for other windows.
