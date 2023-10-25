@@ -28,7 +28,7 @@ struct _MetaWaylandTestClient
 {
   GSubprocess *subprocess;
   char *path;
-  GMainLoop *main_loop;
+  gboolean finished;
 };
 
 static char *
@@ -40,6 +40,27 @@ get_test_client_path (const char *test_client_name)
                                 "wayland-test-clients",
                                 test_client_name,
                                 NULL);
+}
+
+static void
+wayland_test_client_finished (GObject      *source_object,
+                              GAsyncResult *res,
+                              gpointer      user_data)
+{
+  MetaWaylandTestClient *wayland_test_client = user_data;
+  GError *error = NULL;
+
+  if (!g_subprocess_wait_finish (wayland_test_client->subprocess,
+                                 res,
+                                 &error))
+    {
+      g_error ("Failed to wait for Wayland test client '%s': %s",
+               wayland_test_client->path, error->message);
+    }
+
+  g_assert_true (g_subprocess_get_successful (wayland_test_client->subprocess));
+
+  wayland_test_client->finished = TRUE;
 }
 
 MetaWaylandTestClient *
@@ -76,44 +97,29 @@ meta_wayland_test_client_new (MetaContext *context,
   wayland_test_client = g_new0 (MetaWaylandTestClient, 1);
   wayland_test_client->subprocess = subprocess;
   wayland_test_client->path = g_strdup (test_client_name);
-  wayland_test_client->main_loop = g_main_loop_new (NULL, FALSE);
+
+  g_subprocess_wait_async (wayland_test_client->subprocess, NULL,
+                           wayland_test_client_finished,
+                           wayland_test_client);
 
   return wayland_test_client;
 }
 
 static void
-wayland_test_client_finished (GObject      *source_object,
-                              GAsyncResult *res,
-                              gpointer      user_data)
+wayland_test_client_destroy (MetaWaylandTestClient *wayland_test_client)
 {
-  MetaWaylandTestClient *wayland_test_client = user_data;
-  GError *error = NULL;
-
-  if (!g_subprocess_wait_finish (wayland_test_client->subprocess,
-                                 res,
-                                 &error))
-    {
-      g_error ("Failed to wait for Wayland test client '%s': %s",
-               wayland_test_client->path, error->message);
-    }
-
-  g_main_loop_quit (wayland_test_client->main_loop);
+  g_free (wayland_test_client->path);
+  g_object_unref (wayland_test_client->subprocess);
+  g_free (wayland_test_client);
 }
 
 void
 meta_wayland_test_client_finish (MetaWaylandTestClient *wayland_test_client)
 {
-  g_subprocess_wait_async (wayland_test_client->subprocess, NULL,
-                           wayland_test_client_finished, wayland_test_client);
+  while (!wayland_test_client->finished)
+    g_main_context_iteration (NULL, TRUE);
 
-  g_main_loop_run (wayland_test_client->main_loop);
-
-  g_assert_true (g_subprocess_get_successful (wayland_test_client->subprocess));
-
-  g_main_loop_unref (wayland_test_client->main_loop);
-  g_free (wayland_test_client->path);
-  g_object_unref (wayland_test_client->subprocess);
-  g_free (wayland_test_client);
+  wayland_test_client_destroy (wayland_test_client);
 }
 
 MetaWindow *
