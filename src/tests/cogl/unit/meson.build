@@ -28,7 +28,6 @@ foreach unit_test: cogl_unit_tests
     c_args: [
       '-D__COGL_H_INSIDE__',
       '-DCOGL_ENABLE_MUTTER_API',
-      '-DCOGL_ENABLE_EXPERIMENTAL_API',
       '-DCOGL_DISABLE_DEPRECATED',
       '-DCOGL_DISABLE_DEPRECATION_WARNINGS',
     ],

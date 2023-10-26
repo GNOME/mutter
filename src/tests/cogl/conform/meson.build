@@ -58,7 +58,6 @@ cogl_test_conformance_includes = [
 
 cogl_test_c_args = [
   cogl_debug_c_args,
-  '-DCOGL_ENABLE_EXPERIMENTAL_API',
   '-DCOGL_DISABLE_DEPRECATED',
   '-DCOGL_DISABLE_DEPRECATION_WARNINGS',
   '-DTESTS_DATADIR="@0@/tests/data"'.format(cogl_srcdir),
