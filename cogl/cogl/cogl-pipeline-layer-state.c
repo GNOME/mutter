@@ -42,11 +42,6 @@
 #include "cogl/cogl-pipeline-layer-state-private.h"
 
 #include "string.h"
-#if 0
-#include "cogl/cogl-context-private.h"
-#include "cogl/cogl-color-private.h"
-
-#endif
 
 /*
  * XXX: consider special casing layer->unit_index so it's not a sparse
