@@ -50,38 +50,20 @@
 
 G_DEFINE_ABSTRACT_TYPE (CoglBuffer, cogl_buffer, G_TYPE_OBJECT)
 
-static void
-cogl_buffer_dispose (GObject *object)
+enum
 {
-  CoglBuffer *buffer = COGL_BUFFER (object);
+  PROP_0,
 
-  g_return_if_fail (!(buffer->flags & COGL_BUFFER_FLAG_MAPPED));
-  g_return_if_fail (buffer->immutable_ref == 0);
+  PROP_CONTEXT,
+  PROP_SIZE,
+  PROP_DEFAULT_TARGET,
+  PROP_USAGE_HINT,
+  PROP_UPDATE_HINT,
 
-  if (buffer->flags & COGL_BUFFER_FLAG_BUFFER_OBJECT)
-    buffer->context->driver_vtable->buffer_destroy (buffer);
-  else
-    g_free (buffer->data);
+  PROP_LAST
+};
 
-  G_OBJECT_CLASS (cogl_buffer_parent_class)->dispose (object);
-}
-
-static void
-cogl_buffer_class_init (CoglBufferClass *klass)
-{
-  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  gobject_class->dispose = cogl_buffer_dispose;
-}
-
-static void
-cogl_buffer_init (CoglBuffer *buffer)
-{
-  buffer->flags = COGL_BUFFER_FLAG_NONE;
-  buffer->store_created = FALSE;
-  buffer->data = NULL;
-  buffer->immutable_ref = 0;
-}
+static GParamSpec *obj_props[PROP_LAST];
 
 /*
  * Fallback path, buffer->data points to a malloc'ed buffer.
@@ -116,47 +98,130 @@ malloc_set_data (CoglBuffer *buffer,
   return TRUE;
 }
 
-void
-_cogl_buffer_initialize (CoglBuffer *buffer,
-                         CoglContext *ctx,
-                         size_t size,
-                         CoglBufferBindTarget default_target,
-                         CoglBufferUsageHint usage_hint,
-                         CoglBufferUpdateHint update_hint)
+static void
+cogl_buffer_dispose (GObject *object)
 {
-  gboolean use_malloc = FALSE;
+  CoglBuffer *buffer = COGL_BUFFER (object);
 
-  buffer->context = ctx;
-  buffer->size = size;
-  buffer->last_target = default_target;
-  buffer->usage_hint = usage_hint;
-  buffer->update_hint = update_hint;
+  g_return_if_fail (!(buffer->flags & COGL_BUFFER_FLAG_MAPPED));
+  g_return_if_fail (buffer->immutable_ref == 0);
 
-  if (default_target == COGL_BUFFER_BIND_TARGET_PIXEL_PACK ||
-      default_target == COGL_BUFFER_BIND_TARGET_PIXEL_UNPACK)
-    {
-      if (!_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_PBOS))
-        use_malloc = TRUE;
-    }
-
-  if (use_malloc)
-    {
-      buffer->map_range = malloc_map_range;
-      buffer->unmap = malloc_unmap;
-      buffer->set_data = malloc_set_data;
-
-      buffer->data = g_malloc (size);
-    }
+  if (buffer->flags & COGL_BUFFER_FLAG_BUFFER_OBJECT)
+    buffer->context->driver_vtable->buffer_destroy (buffer);
   else
+    g_free (buffer->data);
+
+  G_OBJECT_CLASS (cogl_buffer_parent_class)->dispose (object);
+}
+
+static void
+cogl_buffer_set_property (GObject      *gobject,
+                          guint         prop_id,
+                          const GValue *value,
+                          GParamSpec   *pspec)
+{
+  CoglBuffer *buffer = COGL_BUFFER (gobject);
+
+  switch (prop_id)
     {
-      buffer->map_range = ctx->driver_vtable->buffer_map_range;
-      buffer->unmap = ctx->driver_vtable->buffer_unmap;
-      buffer->set_data = ctx->driver_vtable->buffer_set_data;
+    case PROP_CONTEXT:
+      buffer->context = g_value_get_object (value);
+      break;
 
-      ctx->driver_vtable->buffer_create (buffer);
+    case PROP_SIZE:
+      buffer->size = g_value_get_uint64 (value);
+      break;
 
-      buffer->flags |= COGL_BUFFER_FLAG_BUFFER_OBJECT;
+    case PROP_DEFAULT_TARGET:
+      gboolean use_malloc = FALSE;
+      buffer->last_target = g_value_get_uint (value);
+      if (buffer->last_target == COGL_BUFFER_BIND_TARGET_PIXEL_PACK ||
+          buffer->last_target == COGL_BUFFER_BIND_TARGET_PIXEL_UNPACK)
+        {
+          if (!_cogl_has_private_feature (buffer->context, COGL_PRIVATE_FEATURE_PBOS))
+            use_malloc = TRUE;
+        }
+
+      if (use_malloc)
+        {
+          buffer->map_range = malloc_map_range;
+          buffer->unmap = malloc_unmap;
+          buffer->set_data = malloc_set_data;
+
+          buffer->data = g_malloc (buffer->size);
+        }
+      else
+        {
+          buffer->map_range = buffer->context->driver_vtable->buffer_map_range;
+          buffer->unmap = buffer->context->driver_vtable->buffer_unmap;
+          buffer->set_data = buffer->context->driver_vtable->buffer_set_data;
+
+          buffer->context->driver_vtable->buffer_create (buffer);
+
+          buffer->flags |= COGL_BUFFER_FLAG_BUFFER_OBJECT;
+        }
+      break;
+
+    case PROP_USAGE_HINT:
+      buffer->usage_hint = g_value_get_uint (value);
+      break;
+
+    case PROP_UPDATE_HINT:
+      buffer->update_hint = g_value_get_uint (value);
+      break;
+
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
+      break;
     }
+}
+
+static void
+cogl_buffer_class_init (CoglBufferClass *klass)
+{
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+
+  gobject_class->dispose = cogl_buffer_dispose;
+  gobject_class->set_property = cogl_buffer_set_property;
+
+  obj_props[PROP_CONTEXT] =
+    g_param_spec_object ("context", NULL, NULL,
+                         COGL_TYPE_CONTEXT,
+                         G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_SIZE] =
+    g_param_spec_uint64 ("size", NULL, NULL,
+                         0, G_MAXINT64, 0,
+                         G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_DEFAULT_TARGET] =
+    g_param_spec_uint ("default-target", NULL, NULL,
+                       0, G_MAXINT, 0,
+                       G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY |
+                       G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_USAGE_HINT] =
+    g_param_spec_uint ("usage-hint", NULL, NULL,
+                       0, G_MAXINT, 0,
+                       G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY |
+                       G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_UPDATE_HINT] =
+    g_param_spec_uint ("update-hint", NULL, NULL,
+                       0, G_MAXINT, 0,
+                       G_PARAM_WRITABLE | G_PARAM_CONSTRUCT |
+                       G_PARAM_STATIC_STRINGS);
+
+  g_object_class_install_properties (gobject_class,
+                                     PROP_LAST,
+                                     obj_props);
+}
+
+static void
+cogl_buffer_init (CoglBuffer *buffer)
+{
+  buffer->flags = COGL_BUFFER_FLAG_NONE;
+  buffer->store_created = FALSE;
+  buffer->data = NULL;
+  buffer->immutable_ref = 0;
 }
 
 unsigned int

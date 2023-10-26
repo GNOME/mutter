@@ -53,15 +53,15 @@ CoglAttributeBuffer *
 cogl_attribute_buffer_new_with_size (CoglContext *context,
                                      size_t bytes)
 {
-  CoglAttributeBuffer *buffer = g_object_new (COGL_TYPE_ATTRIBUTE_BUFFER, NULL);
+  CoglAttributeBuffer *buffer;
 
-  /* parent's constructor */
-  _cogl_buffer_initialize (COGL_BUFFER (buffer),
-                           context,
-                           bytes,
-                           COGL_BUFFER_BIND_TARGET_ATTRIBUTE_BUFFER,
-                           COGL_BUFFER_USAGE_HINT_ATTRIBUTE_BUFFER,
-                           COGL_BUFFER_UPDATE_HINT_STATIC);
+  buffer = g_object_new (COGL_TYPE_ATTRIBUTE_BUFFER,
+                         "context", context,
+                         "size", bytes,
+                         "default-target", COGL_BUFFER_BIND_TARGET_ATTRIBUTE_BUFFER,
+                         "usage-hint", COGL_BUFFER_USAGE_HINT_ATTRIBUTE_BUFFER,
+                         "update-hint", COGL_BUFFER_UPDATE_HINT_STATIC,
+                         NULL);
 
   return buffer;
 }

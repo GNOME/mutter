@@ -110,14 +110,6 @@ struct _CoglBufferClass
   GObjectClass parent_class;
 };
 
-void
-_cogl_buffer_initialize (CoglBuffer *buffer,
-                         CoglContext *context,
-                         size_t size,
-                         CoglBufferBindTarget default_target,
-                         CoglBufferUsageHint usage_hint,
-                         CoglBufferUpdateHint update_hint);
-
 CoglBufferUsageHint
 _cogl_buffer_get_usage_hint (CoglBuffer *buffer);
 

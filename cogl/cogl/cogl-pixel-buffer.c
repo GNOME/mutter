@@ -67,16 +67,15 @@ _cogl_pixel_buffer_new (CoglContext *context,
                         const void *data,
                         GError **error)
 {
-  CoglPixelBuffer *pixel_buffer = g_object_new (COGL_TYPE_PIXEL_BUFFER, NULL);
+  CoglPixelBuffer *pixel_buffer;
 
-  /* parent's constructor */
-  _cogl_buffer_initialize (COGL_BUFFER (pixel_buffer),
-                           context,
-                           size,
-                           COGL_BUFFER_BIND_TARGET_PIXEL_UNPACK,
-                           COGL_BUFFER_USAGE_HINT_TEXTURE,
-                           COGL_BUFFER_UPDATE_HINT_STATIC);
-
+  pixel_buffer = g_object_new (COGL_TYPE_PIXEL_BUFFER,
+                               "context", context,
+                               "size", size,
+                               "default-target", COGL_BUFFER_BIND_TARGET_PIXEL_UNPACK,
+                               "usage-hint", COGL_BUFFER_USAGE_HINT_TEXTURE,
+                               "update-hint", COGL_BUFFER_UPDATE_HINT_STATIC,
+                               NULL);
 
   if (data)
     {

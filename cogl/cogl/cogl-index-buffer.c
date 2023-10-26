@@ -55,15 +55,14 @@ cogl_index_buffer_init (CoglIndexBuffer *buffer)
 CoglIndexBuffer *
 cogl_index_buffer_new (CoglContext *context, size_t bytes)
 {
-  CoglIndexBuffer *indices = g_object_new (COGL_TYPE_INDEX_BUFFER, NULL);
+  CoglIndexBuffer *indices;
 
-  /* parent's constructor */
-  _cogl_buffer_initialize (COGL_BUFFER (indices),
-                           context,
-                           bytes,
-                           COGL_BUFFER_BIND_TARGET_INDEX_BUFFER,
-                           COGL_BUFFER_USAGE_HINT_INDEX_BUFFER,
-                           COGL_BUFFER_UPDATE_HINT_STATIC);
-
+  indices = g_object_new (COGL_TYPE_INDEX_BUFFER,
+                          "context", context,
+                          "size", bytes,
+                          "default-target", COGL_BUFFER_BIND_TARGET_INDEX_BUFFER,
+                          "usage-hint", COGL_BUFFER_USAGE_HINT_INDEX_BUFFER,
+                          "update-hint", COGL_BUFFER_UPDATE_HINT_STATIC,
+                          NULL);
   return indices;
 }
