@@ -38,63 +38,62 @@
 #include "core/workspace-private.h"
 #include "meta/prefs.h"
 
-#if 0
- // This is the short and sweet version of how to hack on this file; see
- // doc/how-constraints-works.txt for the gory details.  The basics of
- // understanding this file can be shown by the steps needed to add a new
- // constraint, which are:
- //   1) Add a new entry in the ConstraintPriority enum; higher values
- //      have higher priority
- //   2) Write a new function following the format of the example below,
- //      "constrain_whatever".
- //   3) Add your function to the all_constraints and all_constraint_names
- //      arrays (the latter of which is for debugging purposes)
- //
- // An example constraint function, constrain_whatever:
- //
- // /* constrain_whatever does the following:
- //  *   Quits (returning true) if priority is higher than PRIORITY_WHATEVER
- //  *   If check_only is TRUE
- //  *     Returns whether the constraint is satisfied or not
- //  *   otherwise
- //  *     Enforces the constraint
- //  * Note that the value of PRIORITY_WHATEVER is centralized with the
- //  * priorities of other constraints in the definition of ConstrainPriority
- //  * for easier maintenance and shuffling of priorities.
- //  */
- // static gboolean
- // constrain_whatever (MetaWindow         *window,
- //                     ConstraintInfo     *info,
- //                     ConstraintPriority  priority,
- //                     gboolean            check_only)
- // {
- //   if (priority > PRIORITY_WHATEVER)
- //     return TRUE;
- //
- //   /* Determine whether constraint applies; note that if the constraint
- //    * cannot possibly be satisfied, constraint_applies should be set to
- //    * false.  If we don't do this, all constraints with a lesser priority
- //    * will be dropped along with this one, and we'd rather apply as many as
- //    * possible.
- //    */
- //   if (!constraint_applies)
- //     return TRUE;
- //
- //   /* Determine whether constraint is already satisfied; if we're only
- //    * checking the status of whether the constraint is satisfied, we end
- //    * here.
- //    */
- //   if (check_only || constraint_already_satisfied)
- //     return constraint_already_satisfied;
- //
- //   /* Enforce constraints */
- //   return TRUE;  /* Note that we exited early if check_only is FALSE; also,
- //                  * we know we can return TRUE here because we exited early
- //                  * if the constraint could not be satisfied; not that the
- //                  * return value is heeded in this case...
- //                  */
- // }
-#endif
+/*
+This is the short and sweet version of how to hack on this file; see
+doc/how-constraints-works.txt for the gory details.  The basics of
+understanding this file can be shown by the steps needed to add a new
+constraint, which are:
+  1) Add a new entry in the ConstraintPriority enum; higher values
+    have higher priority
+  2) Write a new function following the format of the example below,
+    "constrain_whatever".
+  3) Add your function to the all_constraints and all_constraint_names
+    arrays (the latter of which is for debugging purposes)
+
+An example constraint function, constrain_whatever:
+```c
+// constrain_whatever does the following:
+//   Quits (returning true) if priority is higher than PRIORITY_WHATEVER
+//   If check_only is TRUE
+//     Returns whether the constraint is satisfied or not
+//   otherwise
+//     Enforces the constraint
+// Note that the value of PRIORITY_WHATEVER is centralized with the
+// priorities of other constraints in the definition of ConstrainPriority
+// for easier maintenance and shuffling of priorities.
+static gboolean
+constrain_whatever (MetaWindow         *window,
+                    ConstraintInfo     *info,
+                    ConstraintPriority  priority,
+                    gboolean            check_only)
+{
+  if (priority > PRIORITY_WHATEVER)
+    return TRUE;
+
+  // Determine whether constraint applies; note that if the constraint
+  // cannot possibly be satisfied, constraint_applies should be set to
+  // false.  If we don't do this, all constraints with a lesser priority
+  // will be dropped along with this one, and we'd rather apply as many as
+  // possible.
+  if (!constraint_applies)
+    return TRUE;
+
+  // Determine whether constraint is already satisfied; if we're only
+  // checking the status of whether the constraint is satisfied, we end
+  // here.
+  if (check_only || constraint_already_satisfied)
+    return constraint_already_satisfied;
+
+  // Enforce constraints
+
+  // Note that we exited early if check_only is FALSE; also,
+  // we know we can return TRUE here because we exited early
+  // if the constraint could not be satisfied; not that the
+  // return value is heeded in this case...
+  return TRUE; 
+}
+```
+*/
 
 typedef enum
 {
