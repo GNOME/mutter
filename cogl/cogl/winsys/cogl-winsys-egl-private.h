@@ -101,6 +101,7 @@ typedef enum _CoglEGLWinsysFeature
   COGL_EGL_WINSYS_FEATURE_SURFACELESS_CONTEXT           = 1L << 6,
   COGL_EGL_WINSYS_FEATURE_CONTEXT_PRIORITY              = 1L << 7,
   COGL_EGL_WINSYS_FEATURE_NO_CONFIG_CONTEXT             = 1L << 8,
+  COGL_EGL_WINSYS_FEATURE_NATIVE_FENCE_SYNC             = 1L << 9,
 } CoglEGLWinsysFeature;
 
 typedef struct _CoglRendererEGL
@@ -118,6 +119,9 @@ typedef struct _CoglRendererEGL
   void *platform;
   /* vtable for platform specific parts */
   const CoglWinsysEGLVtable *platform_vtable;
+
+  /* Sync for latest submitted work */
+  EGLSyncKHR sync;
 
   /* Function pointers for EGL specific extensions */
 #define COGL_WINSYS_FEATURE_BEGIN(a, b, c, d)

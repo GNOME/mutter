@@ -463,6 +463,28 @@ _cogl_context_set_current_modelview_entry (CoglContext *context,
   context->current_modelview_entry = entry;
 }
 
+void
+_cogl_context_update_sync (CoglContext *context)
+{
+  const CoglWinsysVtable *winsys = _cogl_context_get_winsys (context);
+
+  if (!winsys->update_sync)
+    return;
+
+  winsys->update_sync (context);
+}
+
+int
+cogl_context_get_latest_sync_fd (CoglContext *context)
+{
+  const CoglWinsysVtable *winsys = _cogl_context_get_winsys (context);
+
+  if (!winsys->get_sync_fd)
+    return -1;
+
+  return winsys->get_sync_fd (context);
+}
+
 CoglGraphicsResetStatus
 cogl_get_graphics_reset_status (CoglContext *context)
 {

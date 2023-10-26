@@ -367,4 +367,18 @@ cogl_context_timestamp_query_get_time_ns (CoglContext        *context,
 COGL_EXPORT int64_t
 cogl_context_get_gpu_time_ns (CoglContext *context);
 
+/**
+ * cogl_context_get_latest_sync_fd
+ * @context: a #CoglContext pointer
+ *
+ * This function is used to get support for waiting on previous
+ * GPU work through sync fds. It will return a sync fd which will
+ * signal when the previous work has completed.
+ *
+ * Return value: sync fd for latest GPU submission if available,
+ * returns -1 if not.
+ */
+COGL_EXPORT int
+cogl_context_get_latest_sync_fd (CoglContext *context);
+
 G_END_DECLS

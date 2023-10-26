@@ -311,3 +311,6 @@ _cogl_context_set_current_projection_entry (CoglContext *context,
 void
 _cogl_context_set_current_modelview_entry (CoglContext *context,
                                            CoglMatrixEntry *entry);
+
+void
+_cogl_context_update_sync (CoglContext *context);

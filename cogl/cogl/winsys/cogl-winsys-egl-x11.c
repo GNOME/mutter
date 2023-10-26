@@ -243,6 +243,7 @@ _cogl_winsys_renderer_connect (CoglRenderer *renderer,
   xlib_renderer = _cogl_xlib_renderer_get_data (renderer);
 
   egl_renderer->platform_vtable = &_cogl_winsys_egl_vtable;
+  egl_renderer->sync = EGL_NO_SYNC_KHR;
 
   if (!_cogl_xlib_renderer_connect (renderer, error))
     goto error;
