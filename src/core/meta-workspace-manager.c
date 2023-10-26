@@ -75,10 +75,10 @@ meta_workspace_manager_get_property (GObject    *object,
   switch (prop_id)
     {
     case PROP_LAYOUT_COLUMNS:
-      g_value_set_int (value, workspace_manager->columns_of_workspaces);
+      g_value_set_int (value, meta_workspace_manager_get_layout_columns (workspace_manager));
       break;
     case PROP_LAYOUT_ROWS:
-      g_value_set_int (value, workspace_manager->rows_of_workspaces);
+      g_value_set_int (value, meta_workspace_manager_get_layout_rows (workspace_manager));
       break;
     case PROP_N_WORKSPACES:
       g_value_set_int (value, meta_workspace_manager_get_n_workspaces (workspace_manager));
@@ -1046,4 +1046,20 @@ prefs_changed_callback (MetaPreference pref,
       meta_workspace_manager_update_num_workspaces (workspace_manager,
                                                     timestamp, new_num);
     }
+}
+
+int
+meta_workspace_manager_get_layout_columns (MetaWorkspaceManager *workspace_manager)
+{
+  g_return_val_if_fail (META_IS_WORKSPACE_MANAGER (workspace_manager), -1);
+
+  return workspace_manager->columns_of_workspaces;
+}
+
+int
+meta_workspace_manager_get_layout_rows (MetaWorkspaceManager *workspace_manager)
+{
+  g_return_val_if_fail (META_IS_WORKSPACE_MANAGER (workspace_manager), -1);
+
+  return workspace_manager->rows_of_workspaces;
 }
