@@ -66,14 +66,6 @@
 #include "cogl/cogl-texture.h"
 #include "cogl/cogl-types.h"
 
-/*
- * 1.x only api...
- */
-#if 0
-#ifndef COGL_ENABLE_EXPERIMENTAL_2_0_API
-#warning
-#endif
-#endif
 
 #include <cogl/deprecated/cogl-shader.h>
 
