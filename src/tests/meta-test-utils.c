@@ -766,14 +766,14 @@ meta_set_custom_monitor_config_full (MetaBackend            *backend,
   MetaMonitorConfigManager *config_manager = monitor_manager->config_manager;
   MetaMonitorConfigStore *config_store;
   GError *error = NULL;
-  const char *path;
+  g_autofree char *path = NULL;
 
   g_assert_nonnull (config_manager);
 
   config_store = meta_monitor_config_manager_get_store (config_manager);
 
-  path = g_test_get_filename (G_TEST_DIST, "tests", "monitor-configs",
-                              filename, NULL);
+  path = g_test_build_filename (G_TEST_DIST, "tests", "monitor-configs",
+                                filename, NULL);
   if (!meta_monitor_config_store_set_custom (config_store, path, NULL,
                                              configs_flags,
                                              &error))
