@@ -774,8 +774,8 @@ toplevel_bounds_monitors (void)
 
   clutter_virtual_input_device_notify_absolute_motion (virtual_pointer,
                                                        CLUTTER_CURRENT_TIME,
-                                                       550.0, 100.0);
-  wait_for_cursor_position (550.0, 100.0);
+                                                       700.0, 100.0);
+  wait_for_cursor_position (700.0, 100.0);
 
   wayland_test_client =
     meta_wayland_test_client_new (test_context, "xdg-toplevel-bounds");
@@ -837,8 +837,9 @@ on_before_tests (void)
     meta_context_get_wayland_compositor (test_context);
 
   test_driver = meta_wayland_test_driver_new (compositor);
+
   virtual_monitor = meta_create_test_monitor (test_context,
-                                              400, 400, 60.0);
+                                              640, 480, 60.0);
 }
 
 static void

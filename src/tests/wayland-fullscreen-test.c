@@ -110,8 +110,8 @@ toplevel_fullscreen (void)
   wait_for_first_frame (test_window);
 
   meta_window_get_frame_rect (test_window, &rect);
-  g_assert_cmpint (rect.width, ==, 100);
-  g_assert_cmpint (rect.height, ==, 100);
+  g_assert_cmpint (rect.width, ==, 640);
+  g_assert_cmpint (rect.height, ==, 480);
   g_assert_cmpint (rect.x, ==, 0);
   g_assert_cmpint (rect.y, ==, 0);
   assert_wayland_surface_size (test_window, 10, 10);
@@ -154,8 +154,8 @@ toplevel_fullscreen_ref_test (void)
     g_main_context_iteration (NULL, FALSE);
 
   meta_window_get_frame_rect (test_window, &rect);
-  g_assert_cmpint (rect.width, ==, 100);
-  g_assert_cmpint (rect.height, ==, 100);
+  g_assert_cmpint (rect.width, ==, 640);
+  g_assert_cmpint (rect.height, ==, 480);
   g_assert_cmpint (rect.x, ==, 0);
   g_assert_cmpint (rect.y, ==, 0);
   assert_wayland_surface_size (test_window, 10, 10);
@@ -173,7 +173,8 @@ on_before_tests (void)
 
   test_driver = meta_wayland_test_driver_new (compositor);
 
-  virtual_monitor = meta_create_test_monitor (test_context, 100, 100, 10.0);
+  virtual_monitor = meta_create_test_monitor (test_context,
+                                              640, 480, 60.0);
 
   wayland_test_client = meta_wayland_test_client_new (test_context,
                                                       "fullscreen");
