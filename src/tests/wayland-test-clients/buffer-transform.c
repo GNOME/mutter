@@ -88,7 +88,7 @@ static const struct xdg_surface_listener xdg_surface_listener = {
 };
 
 static void
-draw_main (void)
+draw_main (gboolean rotated)
 {
   static uint32_t color0 = 0xffffffff;
   static uint32_t color1 = 0xff00ffff;
@@ -96,31 +96,36 @@ draw_main (void)
   static uint32_t color3 = 0xffffff00;
   WaylandBuffer *buffer;
   int x, y;
+  uint32_t width;
+  uint32_t height;
+
+  width = rotated ? window_height : window_width,
+  height = rotated ? window_width : window_height,
 
   buffer = wayland_buffer_create (display, NULL,
-                                  window_width, window_height,
+                                  width, height,
                                   DRM_FORMAT_XRGB8888,
                                   NULL, 0,
                                   GBM_BO_USE_LINEAR);
   if (!buffer)
     g_error ("Failed to create buffer");
 
-  for (y = 0; y < window_height; y++)
+  for (y = 0; y < height; y++)
     {
-      for (x = 0; x < window_width; x++)
+      for (x = 0; x < width; x++)
         {
           uint32_t current_color;
 
-          if (y < window_height / 2)
+          if (y < height / 2)
             {
-              if (x < window_width / 2)
+              if (x < width / 2)
                 current_color = color0;
               else
                 current_color = color1;
             }
           else
             {
-              if (x < window_width / 2)
+              if (x < width / 2)
                 current_color = color2;
               else
                 current_color = color3;
@@ -160,7 +165,7 @@ main (int    argc,
   wl_surface_commit (surface);
   wait_for_configure ();
 
-  draw_main ();
+  draw_main (FALSE);
   wl_surface_commit (surface);
   wait_for_effects_completed (display, surface);
 
@@ -168,27 +173,28 @@ main (int    argc,
   wl_surface_commit (surface);
   wait_for_view_verified (display, 0);
 
-  wl_surface_set_buffer_transform (surface, WL_OUTPUT_TRANSFORM_90);
+  wl_surface_set_buffer_transform (surface, WL_OUTPUT_TRANSFORM_180);
   wl_surface_commit (surface);
   wait_for_view_verified (display, 1);
 
-  wl_surface_set_buffer_transform (surface, WL_OUTPUT_TRANSFORM_180);
+  wl_surface_set_buffer_transform (surface, WL_OUTPUT_TRANSFORM_FLIPPED);
   wl_surface_commit (surface);
   wait_for_view_verified (display, 2);
 
-  wl_surface_set_buffer_transform (surface, WL_OUTPUT_TRANSFORM_270);
+  wl_surface_set_buffer_transform (surface, WL_OUTPUT_TRANSFORM_FLIPPED_180);
   wl_surface_commit (surface);
   wait_for_view_verified (display, 3);
 
-  wl_surface_set_buffer_transform (surface, WL_OUTPUT_TRANSFORM_FLIPPED);
+  draw_main (TRUE);
+  wl_surface_set_buffer_transform (surface, WL_OUTPUT_TRANSFORM_90);
   wl_surface_commit (surface);
   wait_for_view_verified (display, 4);
 
-  wl_surface_set_buffer_transform (surface, WL_OUTPUT_TRANSFORM_FLIPPED_90);
+  wl_surface_set_buffer_transform (surface, WL_OUTPUT_TRANSFORM_270);
   wl_surface_commit (surface);
   wait_for_view_verified (display, 5);
 
-  wl_surface_set_buffer_transform (surface, WL_OUTPUT_TRANSFORM_FLIPPED_180);
+  wl_surface_set_buffer_transform (surface, WL_OUTPUT_TRANSFORM_FLIPPED_90);
   wl_surface_commit (surface);
   wait_for_view_verified (display, 6);
 
