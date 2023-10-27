@@ -213,8 +213,7 @@ assert_software_rendered (ClutterStageView *stage_view)
 {
   MetaRendererView *view = META_RENDERER_VIEW (stage_view);
   MetaCrtc *crtc = meta_renderer_view_get_crtc (view);
-  MetaGpu *gpu = meta_crtc_get_gpu (crtc);
-  MetaBackend *backend = meta_gpu_get_backend (gpu);
+  MetaBackend *backend = meta_crtc_get_backend (crtc);
 
   g_assert_false (meta_backend_is_rendering_hardware_accelerated (backend));
 }
