@@ -428,22 +428,6 @@ meta_region_crop_and_scale (MtkRegion       *region,
   return viewport_region;
 }
 
-void
-meta_region_to_cairo_path (MtkRegion *region,
-                           cairo_t   *cr)
-{
-  MtkRectangle rect;
-  int n_rects, i;
-
-  n_rects = mtk_region_num_rectangles (region);
-
-  for (i = 0; i < n_rects; i++)
-    {
-      rect = mtk_region_get_rectangle (region, i);
-      cairo_rectangle (cr, rect.x, rect.y, rect.width, rect.height);
-    }
-}
-
 MtkRegion *
 meta_region_apply_matrix_transform_expand (const MtkRegion   *region,
                                            graphene_matrix_t *transform)

@@ -772,6 +772,22 @@ get_client_area_rect (MetaWindowActorX11 *actor_x11,
 }
 
 static void
+region_to_cairo_path (MtkRegion *region,
+                      cairo_t   *cr)
+{
+  MtkRectangle rect;
+  int n_rects, i;
+
+  n_rects = mtk_region_num_rectangles (region);
+
+  for (i = 0; i < n_rects; i++)
+    {
+      rect = mtk_region_get_rectangle (region, i);
+      cairo_rectangle (cr, rect.x, rect.y, rect.width, rect.height);
+    }
+}
+
+static void
 build_and_scan_frame_mask (MetaWindowActorX11 *actor_x11,
                            MtkRegion          *shape_region)
 {
@@ -810,7 +826,7 @@ build_and_scan_frame_mask (MetaWindowActorX11 *actor_x11,
                                                stride);
   cr = cairo_create (image);
 
-  meta_region_to_cairo_path (shape_region, cr);
+  region_to_cairo_path (shape_region, cr);
   cairo_fill (cr);
 
   if (window->frame)
@@ -842,7 +858,7 @@ build_and_scan_frame_mask (MetaWindowActorX11 *actor_x11,
       frame_paint_region = mtk_region_create_rectangle (&rect);
       mtk_region_subtract_rectangle (frame_paint_region, &client_area);
 
-      meta_region_to_cairo_path (frame_paint_region, cr);
+      region_to_cairo_path (frame_paint_region, cr);
       cairo_clip (cr);
 
       meta_frame_get_mask (window->frame, &frame_rect, cr);

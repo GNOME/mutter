@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include <cairo.h>
 #include <glib.h>
 
 #include "backends/meta-backend-types.h"
@@ -111,8 +110,6 @@ MtkRegion * meta_region_crop_and_scale (MtkRegion       *region,
                                         int              dst_width,
                                         int              dst_height);
 
-void meta_region_to_cairo_path (MtkRegion *region,
-                                cairo_t   *cr);
 
 MtkRegion *
 meta_region_apply_matrix_transform_expand (const MtkRegion   *region,
