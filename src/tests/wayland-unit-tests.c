@@ -20,6 +20,9 @@
 #include <gio/gio.h>
 
 #include "backends/meta-virtual-monitor.h"
+#include "backends/native/meta-backend-native.h"
+#include "backends/native/meta-kms.h"
+#include "backends/native/meta-kms-device.h"
 #include "compositor/meta-window-actor-private.h"
 #include "core/display-private.h"
 #include "core/window-private.h"
@@ -27,6 +30,7 @@
 #include "meta/meta-later.h"
 #include "meta/meta-workspace-manager.h"
 #include "tests/meta-test-utils.h"
+#include "tests/meta-monitor-test-utils.h"
 #include "tests/meta-wayland-test-driver.h"
 #include "tests/meta-wayland-test-utils.h"
 #include "wayland/meta-wayland-client-private.h"
@@ -835,11 +839,29 @@ on_before_tests (void)
 {
   MetaWaylandCompositor *compositor =
     meta_context_get_wayland_compositor (test_context);
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+#ifdef MUTTER_PRIVILEGED_TEST
+  MetaKms *kms = meta_backend_native_get_kms (META_BACKEND_NATIVE (backend));
+  MetaKmsDevice *kms_device = meta_kms_get_devices (kms)->data;
+#endif
 
   test_driver = meta_wayland_test_driver_new (compositor);
 
+#ifdef MUTTER_PRIVILEGED_TEST
+  meta_wayland_test_driver_set_property (test_driver,
+                                         "gpu-path",
+                                         meta_kms_device_get_path (kms_device));
+
+  meta_set_custom_monitor_config_full (backend,
+                                       "vkms-640x480.xml",
+                                       META_MONITORS_CONFIG_FLAG_NONE);
+#else
   virtual_monitor = meta_create_test_monitor (test_context,
                                               640, 480, 60.0);
+#endif
+  meta_monitor_manager_reload (monitor_manager);
 }
 
 static void
@@ -876,10 +898,15 @@ init_tests (void)
                    toplevel_apply_limits);
   g_test_add_func ("/wayland/toplevel/activation",
                    toplevel_activation);
+#ifdef MUTTER_PRIVILEGED_TEST
+  (void)(toplevel_bounds_struts);
+  (void)(toplevel_bounds_monitors);
+#else
   g_test_add_func ("/wayland/toplevel/bounds/struts",
                    toplevel_bounds_struts);
   g_test_add_func ("/wayland/toplevel/bounds/monitors",
                    toplevel_bounds_monitors);
+#endif
   g_test_add_func ("/wayland/xdg-foreign/set-parent-of",
                    xdg_foreign_set_parent_of);
 }
@@ -890,8 +917,13 @@ main (int   argc,
 {
   g_autoptr (MetaContext) context = NULL;
 
+#ifdef MUTTER_PRIVILEGED_TEST
+  context = meta_create_test_context (META_CONTEXT_TEST_TYPE_VKMS,
+                                      META_CONTEXT_TEST_FLAG_NO_X11);
+#else
   context = meta_create_test_context (META_CONTEXT_TEST_TYPE_HEADLESS,
                                       META_CONTEXT_TEST_FLAG_NO_X11);
+#endif
   g_assert (meta_context_configure (context, &argc, &argv, NULL));
 
   test_context = context;

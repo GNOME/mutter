@@ -18,6 +18,9 @@
 #include "config.h"
 
 #include "backends/meta-virtual-monitor.h"
+#include "backends/native/meta-backend-native.h"
+#include "backends/native/meta-kms.h"
+#include "backends/native/meta-kms-device.h"
 #include "compositor/meta-window-actor-private.h"
 #include "core/window-private.h"
 #include "meta-test/meta-context-test.h"
@@ -170,11 +173,29 @@ on_before_tests (void)
 {
   MetaWaylandCompositor *compositor =
     meta_context_get_wayland_compositor (test_context);
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+#ifdef MUTTER_PRIVILEGED_TEST
+  MetaKms *kms = meta_backend_native_get_kms (META_BACKEND_NATIVE (backend));
+  MetaKmsDevice *kms_device = meta_kms_get_devices (kms)->data;
+#endif
 
   test_driver = meta_wayland_test_driver_new (compositor);
 
+#ifdef MUTTER_PRIVILEGED_TEST
+  meta_wayland_test_driver_set_property (test_driver,
+                                         "gpu-path",
+                                         meta_kms_device_get_path (kms_device));
+
+  meta_set_custom_monitor_config_full (backend,
+                                       "vkms-640x480.xml",
+                                       META_MONITORS_CONFIG_FLAG_NONE);
+#else
   virtual_monitor = meta_create_test_monitor (test_context,
                                               640, 480, 60.0);
+#endif
+  meta_monitor_manager_reload (monitor_manager);
 
   wayland_test_client = meta_wayland_test_client_new (test_context,
                                                       "fullscreen");
@@ -211,8 +232,13 @@ main (int   argc,
 {
   g_autoptr (MetaContext) context = NULL;
 
+#ifdef MUTTER_PRIVILEGED_TEST
+  context = meta_create_test_context (META_CONTEXT_TEST_TYPE_VKMS,
+                                      META_CONTEXT_TEST_FLAG_NO_X11);
+#else
   context = meta_create_test_context (META_CONTEXT_TEST_TYPE_HEADLESS,
                                       META_CONTEXT_TEST_FLAG_NO_X11);
+#endif
   g_assert (meta_context_configure (context, &argc, &argv, NULL));
 
   test_context = context;

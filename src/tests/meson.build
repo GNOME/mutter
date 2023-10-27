@@ -524,7 +524,7 @@ if have_native_tests
   privileged_test_cases += kms_test_cases
 
   # Wayland tests
-  test_cases += [
+  wayland_test_cases = [
     {
       'name': 'wayland-client-tests',
       'suite': 'wayland',
@@ -587,6 +587,10 @@ if have_native_tests
       ],
     },
   ]
+
+  test_cases += wayland_test_cases
+  privileged_test_cases += wayland_test_cases
+
   if have_xwayland
     x11_compositor_checker = executable('x11-compositor-checker',
       sources: ['x11-compositor-checker.c'],
@@ -755,12 +759,13 @@ if have_kvm_tests or have_tty_tests
       variants = [['', test_env_variables, []]]
     endif
 
-    test_executable = executable('mutter-' + test_case['name'],
+    test_executable = executable('mutter-privileged-' + test_case['name'],
       sources: test_case['sources'],
       include_directories: tests_includes,
       c_args: [
         tests_c_args,
         '-DG_LOG_DOMAIN="mutter-@0@-test"'.format(test_case['name']),
+        '-DMUTTER_PRIVILEGED_TEST=1',
       ],
       dependencies: [
         libmutter_test_dep,
