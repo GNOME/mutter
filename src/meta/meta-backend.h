@@ -79,6 +79,3 @@ gboolean meta_backend_is_headless (MetaBackend *backend);
 
 META_EXPORT
 MetaBackendCapabilities meta_backend_get_capabilities (MetaBackend *backend);
-
-META_EXPORT
-void meta_clutter_init (void);
