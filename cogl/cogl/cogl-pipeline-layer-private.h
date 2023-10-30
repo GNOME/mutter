@@ -276,7 +276,7 @@ typedef gboolean
 
 
 void
-_cogl_pipeline_init_default_layers (void);
+_cogl_pipeline_init_default_layers (CoglContext *ctx);
 
 static inline CoglPipelineLayer *
 _cogl_pipeline_layer_get_parent (CoglPipelineLayer *layer)

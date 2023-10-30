@@ -510,10 +510,9 @@ static void
 _cogl_winsys_texture_pixmap_x11_free (CoglTexturePixmapX11 *tex_pixmap)
 {
   CoglTexturePixmapEGL *egl_tex_pixmap;
+  CoglContext *ctx;
 
-  /* FIXME: It should be possible to get to a CoglContext from any
-   * CoglTexture pointer. */
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
+  ctx = cogl_texture_get_context (COGL_TEXTURE (tex_pixmap));
 
   if (!tex_pixmap->winsys)
     return;

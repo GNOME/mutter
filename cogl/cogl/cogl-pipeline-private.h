@@ -439,7 +439,7 @@ extern const CoglPipelineVertend *_cogl_pipeline_vertend;
 extern const CoglPipelineProgend *_cogl_pipeline_progend;
 
 void
-_cogl_pipeline_init_default_pipeline (void);
+_cogl_pipeline_init_default_pipeline (CoglContext *ctx);
 
 static inline CoglPipeline *
 _cogl_pipeline_get_parent (CoglPipeline *pipeline)

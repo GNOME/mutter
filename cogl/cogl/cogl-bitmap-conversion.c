@@ -512,9 +512,9 @@ _cogl_bitmap_convert (CoglBitmap *src_bmp,
 {
   CoglBitmap *dst_bmp;
   int width, height;
+  CoglContext *ctx;
 
-  _COGL_GET_CONTEXT (ctx, NULL);
-
+  ctx = _cogl_bitmap_get_context (src_bmp);
   width = cogl_bitmap_get_width (src_bmp);
   height = cogl_bitmap_get_height (src_bmp);
 

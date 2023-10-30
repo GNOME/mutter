@@ -47,15 +47,13 @@ struct _CoglPipelineCache
 };
 
 CoglPipelineCache *
-_cogl_pipeline_cache_new (void)
+_cogl_pipeline_cache_new (CoglContext *ctx)
 {
   g_autofree CoglPipelineCache *cache = g_new (CoglPipelineCache, 1);
   unsigned long vertex_state;
   unsigned long layer_vertex_state;
   unsigned int fragment_state;
   unsigned int layer_fragment_state;
-
-  _COGL_GET_CONTEXT (ctx, 0);
 
   vertex_state =
     _cogl_pipeline_get_state_for_vertex_codegen (ctx);

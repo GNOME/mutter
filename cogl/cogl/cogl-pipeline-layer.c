@@ -715,14 +715,12 @@ _cogl_pipeline_layer_equal (CoglPipelineLayer *layer0,
 }
 
 void
-_cogl_pipeline_init_default_layers (void)
+_cogl_pipeline_init_default_layers (CoglContext *ctx)
 {
   CoglPipelineLayer *layer = g_object_new (COGL_TYPE_PIPELINE_LAYER, NULL);
   CoglPipelineLayerBigState *big_state =
     g_new0 (CoglPipelineLayerBigState, 1);
   CoglPipelineLayer *new;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
   layer->index = 0;
 

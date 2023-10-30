@@ -69,21 +69,19 @@ G_DEFINE_FINAL_TYPE (CoglTexturePixmapX11, cogl_texture_pixmap_x11, COGL_TYPE_TE
 static const CoglWinsysVtable *
 _cogl_texture_pixmap_x11_get_winsys (CoglTexturePixmapX11 *tex_pixmap)
 {
-  /* FIXME: A CoglContext should be reachable from a CoglTexture
-   * pointer */
-  _COGL_GET_CONTEXT (ctx, NULL);
+  CoglContext *ctx;
 
+  ctx = cogl_texture_get_context (COGL_TEXTURE (tex_pixmap));
   return ctx->display->renderer->winsys_vtable;
 }
 
 static int
-_cogl_xlib_get_damage_base (void)
+_cogl_xlib_get_damage_base (CoglContext *ctx)
 {
   CoglX11Renderer *x11_renderer;
-  _COGL_GET_CONTEXT (ctxt, -1);
 
   x11_renderer =
-    (CoglX11Renderer *) _cogl_xlib_renderer_get_data (ctxt->display->renderer);
+    (CoglX11Renderer *) _cogl_xlib_renderer_get_data (ctx->display->renderer);
   return x11_renderer->damage_base;
 }
 
@@ -135,10 +133,10 @@ process_damage_event (CoglTexturePixmapX11 *tex_pixmap,
   enum
 { DO_NOTHING, NEEDS_SUBTRACT, NEED_BOUNDING_BOX } handle_mode;
   const CoglWinsysVtable *winsys;
-
-  _COGL_GET_CONTEXT (ctxt, NO_RETVAL);
-
-  display = cogl_xlib_renderer_get_display (ctxt->display->renderer);
+  CoglContext *ctx;
+  
+  ctx = cogl_texture_get_context (COGL_TEXTURE (tex_pixmap));
+  display = cogl_xlib_renderer_get_display (ctx->display->renderer);
 
   COGL_NOTE (TEXTURE_PIXMAP, "Damage event received for %p", tex_pixmap);
 
@@ -235,10 +233,10 @@ _cogl_texture_pixmap_x11_filter (XEvent *event, void *data)
 {
   CoglTexturePixmapX11 *tex_pixmap = data;
   int damage_base;
+  CoglContext *ctx;
 
-  _COGL_GET_CONTEXT (ctxt, COGL_FILTER_CONTINUE);
-
-  damage_base = _cogl_xlib_get_damage_base ();
+  ctx = cogl_texture_get_context (COGL_TEXTURE (tex_pixmap));
+  damage_base = _cogl_xlib_get_damage_base (ctx);
   if (event->type == damage_base + XDamageNotify)
     {
       XDamageNotifyEvent *damage_event = (XDamageNotifyEvent *) event;
@@ -284,10 +282,10 @@ static void
 cogl_texture_pixmap_x11_dispose (GObject *object)
 {
   CoglTexturePixmapX11 *tex_pixmap = COGL_TEXTURE_PIXMAP_X11 (object);
-
+  CoglContext *ctx;
   Display *display;
 
-  _COGL_GET_CONTEXT (ctxt, NO_RETVAL);
+  ctx = cogl_texture_get_context (COGL_TEXTURE (tex_pixmap));
 
   if (tex_pixmap->stereo_mode == COGL_TEXTURE_PIXMAP_RIGHT)
     {
@@ -296,9 +294,9 @@ cogl_texture_pixmap_x11_dispose (GObject *object)
       return;
     }
 
-  display = cogl_xlib_renderer_get_display (ctxt->display->renderer);
+  display = cogl_xlib_renderer_get_display (ctx->display->renderer);
 
-  set_damage_object_internal (ctxt, tex_pixmap, 0, 0);
+  set_damage_object_internal (ctx, tex_pixmap, 0, 0);
 
   if (tex_pixmap->image)
     XDestroyImage (tex_pixmap->image);
@@ -384,10 +382,10 @@ try_alloc_shm (CoglTexturePixmapX11 *tex_pixmap)
 {
   CoglTexture *tex = COGL_TEXTURE (tex_pixmap);
   XImage *dummy_image;
+  CoglContext *ctx;
   Display *display;
 
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
+  ctx = cogl_texture_get_context (COGL_TEXTURE (tex_pixmap));
   display = cogl_xlib_renderer_get_display (ctx->display->renderer);
 
   if (!XShmQueryExtension (display))
@@ -456,6 +454,7 @@ _cogl_texture_pixmap_x11_update_image_texture (CoglTexturePixmapX11 *tex_pixmap)
   CoglTexture *tex = COGL_TEXTURE (tex_pixmap);
   Display *display;
   Visual *visual;
+  CoglContext *ctx;
   CoglPixelFormat image_format;
   XImage *image;
   int src_x, src_y;
@@ -464,8 +463,7 @@ _cogl_texture_pixmap_x11_update_image_texture (CoglTexturePixmapX11 *tex_pixmap)
   int offset;
   GError *ignore = NULL;
 
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
+  ctx = cogl_texture_get_context (COGL_TEXTURE (tex_pixmap));
   display = cogl_xlib_renderer_get_display (ctx->display->renderer);
   visual = tex_pixmap->visual;
 
@@ -974,7 +972,7 @@ _cogl_texture_pixmap_x11_new (CoglContext *ctx,
   /* If automatic updates are requested and the Xlib connection
      supports damage events then we'll register a damage object on the
      pixmap */
-  damage_base = _cogl_xlib_get_damage_base ();
+  damage_base = _cogl_xlib_get_damage_base (ctx);
   if (automatic_updates && damage_base >= 0)
     {
       Damage damage = XDamageCreate (display,

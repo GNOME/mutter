@@ -44,7 +44,7 @@ typedef struct
 } CoglPipelineCacheEntry;
 
 CoglPipelineCache *
-_cogl_pipeline_cache_new (void);
+_cogl_pipeline_cache_new (CoglContext *ctx);
 
 void
 _cogl_pipeline_cache_free (CoglPipelineCache *cache);

@@ -178,7 +178,7 @@ cogl_pipeline_init (CoglPipeline *pipeline)
  * The default pipeline is the topmost ancestor for all pipelines.
  */
 void
-_cogl_pipeline_init_default_pipeline (void)
+_cogl_pipeline_init_default_pipeline (CoglContext *ctx)
 {
   /* Create new - blank - pipeline */
   CoglPipeline *pipeline = g_object_new (COGL_TYPE_PIPELINE, NULL);
@@ -189,8 +189,6 @@ _cogl_pipeline_init_default_pipeline (void)
   CoglPipelineBlendState *blend_state = &big_state->blend_state;
   CoglPipelineCullFaceState *cull_face_state = &big_state->cull_face_state;
   CoglPipelineUniformsState *uniforms_state = &big_state->uniforms_state;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
   /* Take this opportunity to setup the backends... */
   _cogl_pipeline_fragend = &_cogl_pipeline_glsl_fragend;

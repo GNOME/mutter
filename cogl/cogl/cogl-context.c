@@ -298,8 +298,8 @@ cogl_context_new (CoglDisplay *display,
 
   context->sampler_cache = _cogl_sampler_cache_new (context);
 
-  _cogl_pipeline_init_default_pipeline ();
-  _cogl_pipeline_init_default_layers ();
+  _cogl_pipeline_init_default_pipeline (context);
+  _cogl_pipeline_init_default_layers (context);
   _cogl_pipeline_init_state_hash_functions ();
   _cogl_pipeline_init_layer_state_hash_functions ();
 
@@ -357,7 +357,7 @@ cogl_context_new (CoglDisplay *display,
   context->depth_range_near_cache = 0;
   context->depth_range_far_cache = 1;
 
-  context->pipeline_cache = _cogl_pipeline_cache_new ();
+  context->pipeline_cache = _cogl_pipeline_cache_new (context);
 
   for (i = 0; i < COGL_BUFFER_BIND_TARGET_COUNT; i++)
     context->current_buffer[i] = NULL;
