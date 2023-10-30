@@ -34,6 +34,8 @@ typedef struct _WaylandDisplay
   struct xdg_wm_base *xdg_wm_base;
   struct test_driver *test_driver;
 
+  uint32_t sync_event_serial_next;
+
   GHashTable *properties;
 } WaylandDisplay;
 

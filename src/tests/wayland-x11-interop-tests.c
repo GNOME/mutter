@@ -185,7 +185,7 @@ service_client_thread_func (gpointer user_data)
                                      data->xwindow);
   wl_surface_commit (surface->wl_surface);
 
-  wait_for_sync_event (display, 1);
+  wait_for_sync_event (display, 0);
 
   mutter_x11_interop_destroy (x11_interop);
   g_object_unref (display);
@@ -231,7 +231,7 @@ meta_test_wayland_client_x11_interop_x11_parent (void)
   g_assert_true (meta_window_get_transient_for (wayland_window) ==
                  x11_window);
 
-  meta_wayland_test_driver_emit_sync_event (test_driver, 1);
+  meta_wayland_test_driver_emit_sync_event (test_driver, 0);
 
   g_debug ("Waiting for client to disconnect");
   while (!g_atomic_int_get (&data.client_terminated))
