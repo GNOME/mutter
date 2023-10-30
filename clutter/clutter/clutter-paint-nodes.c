@@ -280,6 +280,7 @@ clutter_dummy_node_pre_draw (ClutterPaintNode    *node,
   return TRUE;
 }
 
+#ifdef CLUTTER_ENABLE_DEBUG
 static JsonNode *
 clutter_dummy_node_serialize (ClutterPaintNode *node)
 {
@@ -303,6 +304,7 @@ clutter_dummy_node_serialize (ClutterPaintNode *node)
 
   return res;
 }
+#endif
 
 static CoglFramebuffer *
 clutter_dummy_node_get_framebuffer (ClutterPaintNode *node)
@@ -328,7 +330,9 @@ clutter_dummy_node_class_init (ClutterDummyNodeClass *klass)
   ClutterPaintNodeClass *node_class = CLUTTER_PAINT_NODE_CLASS (klass);
 
   node_class->pre_draw = clutter_dummy_node_pre_draw;
+#ifdef CLUTTER_ENABLE_DEBUG
   node_class->serialize = clutter_dummy_node_serialize;
+#endif
   node_class->get_framebuffer = clutter_dummy_node_get_framebuffer;
   node_class->finalize = clutter_dummy_node_finalize;
 }
@@ -488,6 +492,7 @@ clutter_pipeline_node_post_draw (ClutterPaintNode    *node,
 {
 }
 
+#ifdef CLUTTER_ENABLE_DEBUG
 static JsonNode *
 clutter_pipeline_node_serialize (ClutterPaintNode *node)
 {
@@ -527,6 +532,7 @@ clutter_pipeline_node_serialize (ClutterPaintNode *node)
 
   return res;
 }
+#endif
 
 static void
 clutter_pipeline_node_class_init (ClutterPipelineNodeClass *klass)
@@ -538,7 +544,9 @@ clutter_pipeline_node_class_init (ClutterPipelineNodeClass *klass)
   node_class->draw = clutter_pipeline_node_draw;
   node_class->post_draw = clutter_pipeline_node_post_draw;
   node_class->finalize = clutter_pipeline_node_finalize;
+#ifdef CLUTTER_ENABLE_DEBUG
   node_class->serialize = clutter_pipeline_node_serialize;
+#endif
 }
 
 static void
@@ -865,6 +873,7 @@ clutter_text_node_draw (ClutterPaintNode    *node,
     }
 }
 
+#ifdef CLUTTER_ENABLE_DEBUG
 static JsonNode *
 clutter_text_node_serialize (ClutterPaintNode *node)
 {
@@ -905,6 +914,7 @@ clutter_text_node_serialize (ClutterPaintNode *node)
 
   return res;
 }
+#endif
 
 static void
 clutter_text_node_class_init (ClutterTextNodeClass *klass)
@@ -914,7 +924,9 @@ clutter_text_node_class_init (ClutterTextNodeClass *klass)
   node_class->pre_draw = clutter_text_node_pre_draw;
   node_class->draw = clutter_text_node_draw;
   node_class->finalize = clutter_text_node_finalize;
+#ifdef CLUTTER_ENABLE_DEBUG
   node_class->serialize = clutter_text_node_serialize;
+#endif
 }
 
 static void
@@ -1151,6 +1163,7 @@ clutter_actor_node_post_draw (ClutterPaintNode    *node,
     }
 }
 
+#ifdef CLUTTER_ENABLE_DEBUG
 static JsonNode *
 clutter_actor_node_serialize (ClutterPaintNode *node)
 {
@@ -1169,6 +1182,7 @@ clutter_actor_node_serialize (ClutterPaintNode *node)
 
   return json_builder_get_root (builder);
 }
+#endif
 
 static void
 clutter_actor_node_class_init (ClutterActorNodeClass *klass)
@@ -1179,7 +1193,9 @@ clutter_actor_node_class_init (ClutterActorNodeClass *klass)
   node_class->pre_draw = clutter_actor_node_pre_draw;
   node_class->draw = clutter_actor_node_draw;
   node_class->post_draw = clutter_actor_node_post_draw;
+#ifdef CLUTTER_ENABLE_DEBUG
   node_class->serialize = clutter_actor_node_serialize;
+#endif
 }
 
 static void
@@ -1235,6 +1251,7 @@ struct _ClutterEffectNodeClass
 
 G_DEFINE_TYPE (ClutterEffectNode, clutter_effect_node, CLUTTER_TYPE_PAINT_NODE)
 
+#ifdef CLUTTER_ENABLE_DEBUG
 static JsonNode *
 clutter_effect_node_serialize (ClutterPaintNode *node)
 {
@@ -1264,14 +1281,18 @@ clutter_effect_node_serialize (ClutterPaintNode *node)
 
   return json_builder_get_root (builder);
 }
+#endif
 
 static void
 clutter_effect_node_class_init (ClutterEffectNodeClass *klass)
 {
+#ifdef CLUTTER_ENABLE_DEBUG
+
   ClutterPaintNodeClass *node_class;
 
   node_class = CLUTTER_PAINT_NODE_CLASS (klass);
   node_class->serialize = clutter_effect_node_serialize;
+#endif
 }
 
 static void
@@ -1434,6 +1455,7 @@ clutter_layer_node_finalize (ClutterPaintNode *node)
   CLUTTER_PAINT_NODE_CLASS (clutter_layer_node_parent_class)->finalize (node);
 }
 
+#ifdef CLUTTER_ENABLE_DEBUG
 static JsonNode *
 clutter_layer_node_serialize (ClutterPaintNode *node)
 {
@@ -1452,6 +1474,7 @@ clutter_layer_node_serialize (ClutterPaintNode *node)
 
   return json_builder_get_root (builder);
 }
+#endif
 
 static void
 clutter_layer_node_class_init (ClutterLayerNodeClass *klass)
@@ -1462,7 +1485,9 @@ clutter_layer_node_class_init (ClutterLayerNodeClass *klass)
   node_class->pre_draw = clutter_layer_node_pre_draw;
   node_class->post_draw = clutter_layer_node_post_draw;
   node_class->finalize = clutter_layer_node_finalize;
+#ifdef CLUTTER_ENABLE_DEBUG
   node_class->serialize = clutter_layer_node_serialize;
+#endif
 }
 
 static void
@@ -1591,6 +1616,7 @@ clutter_blit_node_finalize (ClutterPaintNode *node)
   CLUTTER_PAINT_NODE_CLASS (clutter_blit_node_parent_class)->finalize (node);
 }
 
+#ifdef CLUTTER_ENABLE_DEBUG
 static JsonNode *
 clutter_blit_node_serialize (ClutterPaintNode *node)
 {
@@ -1608,6 +1634,7 @@ clutter_blit_node_serialize (ClutterPaintNode *node)
 
   return json_builder_get_root (builder);
 }
+#endif
 
 static void
 clutter_blit_node_class_init (ClutterBlitNodeClass *klass)
@@ -1618,7 +1645,9 @@ clutter_blit_node_class_init (ClutterBlitNodeClass *klass)
   node_class->pre_draw = clutter_blit_node_pre_draw;
   node_class->draw = clutter_blit_node_draw;
   node_class->finalize = clutter_blit_node_finalize;
+#ifdef CLUTTER_ENABLE_DEBUG
   node_class->serialize = clutter_blit_node_serialize;
+#endif
 }
 
 static void
@@ -1725,6 +1754,7 @@ clutter_blur_node_finalize (ClutterPaintNode *node)
   CLUTTER_PAINT_NODE_CLASS (clutter_blur_node_parent_class)->finalize (node);
 }
 
+#ifdef CLUTTER_ENABLE_DEBUG
 static JsonNode *
 clutter_blur_node_serialize (ClutterPaintNode *node)
 {
@@ -1742,6 +1772,7 @@ clutter_blur_node_serialize (ClutterPaintNode *node)
 
   return json_builder_get_root (builder);
 }
+#endif
 
 static void
 clutter_blur_node_class_init (ClutterBlurNodeClass *klass)
@@ -1751,7 +1782,9 @@ clutter_blur_node_class_init (ClutterBlurNodeClass *klass)
   node_class = CLUTTER_PAINT_NODE_CLASS (klass);
   node_class->post_draw = clutter_blur_node_post_draw;
   node_class->finalize = clutter_blur_node_finalize;
+#ifdef CLUTTER_ENABLE_DEBUG
   node_class->serialize = clutter_blur_node_serialize;
+#endif
 }
 
 static void

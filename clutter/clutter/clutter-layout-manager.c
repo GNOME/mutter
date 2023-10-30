@@ -86,47 +86,6 @@
  * Where `manager` is the  #ClutterLayoutManager, `container` is the
  * #ClutterActor using the #ClutterLayoutManager, and `actor` is
  * the #ClutterActor child of the #ClutterActor.
- *
- * ## Using ClutterLayoutManager with ClutterScript
- *
- * #ClutterLayoutManager instances can be created in the same way
- * as other objects in #ClutterScript; properties can be set using the
- * common syntax.
- *
- * Layout properties can be set on children of a container with
- * a #ClutterLayoutManager using the `layout::` modifier on the property
- * name, for instance:
- *
- * ```json
- * {
- *   "type" : "ClutterActor",
- *   "layout-manager" : { "type" : "ClutterGridLayout" },
- *   "children" : [
- *     {
- *       "type" : "ClutterText",
- *       "text" : "Some text",
- *
- *       "layout::row" : 0,
- *       "layout::column" : 0,
- *       "layout::x-align" : "left",
- *       "layout::y-align" : "center",
- *       "layout::x-expand" : true,
- *       "layout::y-expand" : true
- *     },
- *     {
- *       "type" : "ClutterText",
- *       "text" : "Some more text",
- *
- *       "layout::row" : 0,
- *       "layout::column" : 1,
- *       "layout::x-align" : "right",
- *       "layout::y-align" : "center",
- *       "layout::x-expand" : true,
- *       "layout::y-expand" : true
- *     }
- *   ]
- * }
- * ```
  */
 
 #include "clutter/clutter-build-config.h"

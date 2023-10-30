@@ -18,7 +18,6 @@ clutter_tests_interactive_link_args = [
 clutter_tests_interactive_test_sources = [
   'test-events.c',
   'test-actors.c',
-  'test-script.c',
   'test-grab.c',
   'test-cogl-shader-glsl.c',
   'test-cogl-tex-tile.c',

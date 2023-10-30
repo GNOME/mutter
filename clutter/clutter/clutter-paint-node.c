@@ -50,8 +50,11 @@
 #include "clutter/clutter-build-config.h"
 
 #include <gobject/gvaluecollector.h>
-#include <json-glib/json-glib.h>
 #include <pango/pango.h>
+
+#ifdef CLUTTER_ENABLE_DEBUG
+#include <json-glib/json-glib.h>
+#endif
 
 #include "cogl/cogl.h"
 #include "clutter/clutter-paint-node-private.h"

@@ -25,7 +25,10 @@
 #pragma once
 
 #include <glib-object.h>
+
+#ifdef CLUTTER_ENABLE_DEBUG
 #include <json-glib/json-glib.h>
+#endif
 
 #include "clutter/clutter-backend.h"
 #include "clutter/clutter-paint-context.h"
@@ -72,7 +75,9 @@ struct _ClutterPaintNodeClass
   void     (* post_draw) (ClutterPaintNode    *node,
                           ClutterPaintContext *paint_context);
 
+#ifdef CLUTTER_ENABLE_DEBUG
   JsonNode*(* serialize) (ClutterPaintNode *node);
+#endif
 
   CoglFramebuffer *(* get_framebuffer) (ClutterPaintNode *node);
 };

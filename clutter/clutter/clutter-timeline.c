@@ -72,25 +72,6 @@
  *
  * Timelines are used in the Clutter animation framework by classes like
  * [class@Transition].
- *
- * ## Defining Timelines in ClutterScript
- *
- * A #ClutterTimeline can be described in [class@Script] like any
- * other object. Additionally, it is possible to define markers directly
- * inside the JSON definition by using the `markers` JSON object member,
- * such as:
- *
- * ```json
- * {
- *   "type" : "ClutterTimeline",
- *   "duration" : 1000,
- *   "markers" : [
- *     { "name" : "quarter", "time" : 250 },
- *     { "name" : "half-time", "time" : 500 },
- *     { "name" : "three-quarters", "time" : 750 }
- *   ]
- * }
- * ```
  */
 
 #include "clutter/clutter-build-config.h"
@@ -106,7 +87,6 @@
 #include "clutter/clutter-marshal.h"
 #include "clutter/clutter-mutter.h"
 #include "clutter/clutter-private.h"
-#include "clutter/clutter-scriptable.h"
 #include "clutter/clutter-timeline-private.h"
 
 struct _ClutterTimelinePrivate
@@ -215,12 +195,9 @@ static guint timeline_signals[LAST_SIGNAL] = { 0, };
 
 static void update_frame_clock (ClutterTimeline *timeline);
 
-static void clutter_scriptable_iface_init (ClutterScriptableIface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (ClutterTimeline, clutter_timeline, G_TYPE_OBJECT,
-                         G_ADD_PRIVATE (ClutterTimeline)
-                         G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_SCRIPTABLE,
-                                                clutter_scriptable_iface_init))
+                         G_ADD_PRIVATE (ClutterTimeline))
 
 static TimelineMarker *
 timeline_marker_new_time (const gchar *name,
@@ -497,133 +474,10 @@ clutter_timeline_set_actor (ClutterTimeline *timeline,
   update_frame_clock (timeline);
 }
 
-/* Scriptable */
-typedef struct _ParseClosure {
-  ClutterTimeline *timeline;
-  ClutterScript *script;
-  GValue *value;
-  gboolean result;
-} ParseClosure;
-
-static void
-parse_timeline_markers (JsonArray *array,
-                        guint      index_,
-                        JsonNode  *element,
-                        gpointer   data)
-{
-  ParseClosure *clos = data;
-  JsonObject *object;
-  TimelineMarker *marker;
-  GList *markers;
-
-  if (JSON_NODE_TYPE (element) != JSON_NODE_OBJECT)
-    {
-      g_warning ("The 'markers' member of a ClutterTimeline description "
-                 "should be an array of objects, but the element %d of the "
-                 "array is of type '%s'. The element will be ignored.",
-                 index_,
-                 json_node_type_name (element));
-      return;
-    }
-
-  object = json_node_get_object (element);
-
-  if (!(json_object_has_member (object, "name") &&
-        (json_object_has_member (object, "time") ||
-         json_object_has_member (object, "progress"))))
-    {
-      g_warning ("The marker definition in a ClutterTimeline description "
-                 "must be an object with the 'name' and either the 'time' "
-                 "or the 'progress' members, but the element %d of the "
-                 "'markers' array does not have any of them.",
-                 index_);
-      return;
-    }
-
-  if (G_IS_VALUE (clos->value))
-    markers = g_value_get_pointer (clos->value);
-  else
-    {
-      g_value_init (clos->value, G_TYPE_POINTER);
-      markers = NULL;
-    }
-
-  if (json_object_has_member (object, "time"))
-    marker = timeline_marker_new_time (json_object_get_string_member (object, "name"),
-                                       json_object_get_int_member (object, "time"));
-  else
-    marker = timeline_marker_new_progress (json_object_get_string_member (object, "name"),
-                                           json_object_get_double_member (object, "progress"));
-
-  markers = g_list_prepend (markers, marker);
-
-  g_value_set_pointer (clos->value, markers);
-
-  clos->result = TRUE;
-}
-
-static gboolean
-clutter_timeline_parse_custom_node (ClutterScriptable *scriptable,
-                                    ClutterScript     *script,
-                                    GValue            *value,
-                                    const gchar       *name,
-                                    JsonNode          *node)
-{
-  ParseClosure clos;
-
-  if (strcmp (name, "markers") != 0)
-    return FALSE;
-
-  if (JSON_NODE_TYPE (node) != JSON_NODE_ARRAY)
-    return FALSE;
-
-  clos.timeline = CLUTTER_TIMELINE (scriptable);
-  clos.script = script;
-  clos.value = value;
-  clos.result = FALSE;
-
-  json_array_foreach_element (json_node_get_array (node),
-                              parse_timeline_markers,
-                              &clos);
-
-  return clos.result;
-}
-
-static void
-clutter_timeline_set_custom_property (ClutterScriptable *scriptable,
-                                      ClutterScript     *script,
-                                      const gchar       *name,
-                                      const GValue      *value)
-{
-  if (strcmp (name, "markers") == 0)
-    {
-      ClutterTimeline *timeline = CLUTTER_TIMELINE (scriptable);
-      GList *markers = g_value_get_pointer (value);
-      GList *m;
-
-      /* the list was created through prepend() */
-      markers = g_list_reverse (markers);
-
-      for (m = markers; m != NULL; m = m->next)
-        clutter_timeline_add_marker_internal (timeline, m->data);
-
-      g_list_free (markers);
-    }
-  else
-    g_object_set_property (G_OBJECT (scriptable), name, value);
-}
-
 void
 clutter_timeline_cancel_delay (ClutterTimeline *timeline)
 {
   g_clear_handle_id (&timeline->priv->delay_id, g_source_remove);
-}
-
-static void
-clutter_scriptable_iface_init (ClutterScriptableIface *iface)
-{
-  iface->parse_custom_node = clutter_timeline_parse_custom_node;
-  iface->set_custom_property = clutter_timeline_set_custom_property;
 }
 
 /* Object */

@@ -59,7 +59,6 @@
 #include "clutter/clutter-text-buffer.h"
 #include "clutter/clutter-units.h"
 #include "clutter/clutter-paint-volume-private.h"
-#include "clutter/clutter-scriptable.h"
 #include "clutter/clutter-input-focus.h"
 
 /* cursor width in pixels */
@@ -282,7 +281,6 @@ static const ClutterColor default_text_color      = {   0,   0,   0, 255 };
 static const ClutterColor default_selected_text_color = {   0,   0,   0, 255 };
 
 static ClutterAnimatableInterface *parent_animatable_iface = NULL;
-static ClutterScriptableIface *parent_scriptable_iface = NULL;
 
 /* ClutterTextInputFocus */
 #define CLUTTER_TYPE_TEXT_INPUT_FOCUS (clutter_text_input_focus_get_type ())
@@ -437,15 +435,12 @@ clutter_text_input_focus_new (ClutterText *text)
 }
 
 /* ClutterText */
-static void clutter_scriptable_iface_init (ClutterScriptableIface *iface);
 static void clutter_animatable_iface_init (ClutterAnimatableInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (ClutterText,
                          clutter_text,
                          CLUTTER_TYPE_ACTOR,
                          G_ADD_PRIVATE (ClutterText)
-                         G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_SCRIPTABLE,
-                                                clutter_scriptable_iface_init)
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_ANIMATABLE,
                                                 clutter_animatable_iface_init));
 
@@ -3566,27 +3561,6 @@ clutter_text_add_move_binding (ClutterBindingPool  *pool,
     }
 }
 
-static gboolean
-clutter_text_parse_custom_node (ClutterScriptable *scriptable,
-                                ClutterScript     *script,
-                                GValue            *value,
-                                const gchar       *name,
-                                JsonNode          *node)
-{
-  if (strncmp (name, "font-description", 16) == 0)
-    {
-      g_value_init (value, G_TYPE_STRING);
-      g_value_set_string (value, json_node_get_string (node));
-
-      return TRUE;
-    }
-
-  return parent_scriptable_iface->parse_custom_node (scriptable, script,
-                                                     value,
-                                                     name,
-                                                     node);
-}
-
 static void
 clutter_text_set_color_internal (ClutterText        *self,
                                  GParamSpec         *pspec,
@@ -3735,34 +3709,6 @@ clutter_text_set_color_animated (ClutterText        *self,
   /* ensure that we start from the beginning */
   clutter_timeline_rewind (CLUTTER_TIMELINE (transition));
   clutter_timeline_start (CLUTTER_TIMELINE (transition));
-}
-
-static void
-clutter_text_set_custom_property (ClutterScriptable *scriptable,
-                                  ClutterScript     *script,
-                                  const gchar       *name,
-                                  const GValue      *value)
-{
-  if (strncmp (name, "font-description", 16) == 0)
-    {
-      g_assert (G_VALUE_HOLDS (value, G_TYPE_STRING));
-      if (g_value_get_string (value) != NULL)
-        clutter_text_set_font_name (CLUTTER_TEXT (scriptable),
-                                    g_value_get_string (value));
-    }
-  else
-    parent_scriptable_iface->set_custom_property (scriptable, script,
-                                                  name,
-                                                  value);
-}
-
-static void
-clutter_scriptable_iface_init (ClutterScriptableIface *iface)
-{
-  parent_scriptable_iface = g_type_interface_peek_parent (iface);
-
-  iface->parse_custom_node = clutter_text_parse_custom_node;
-  iface->set_custom_property = clutter_text_set_custom_property;
 }
 
 static void

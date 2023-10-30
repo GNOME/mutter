@@ -25,7 +25,6 @@ mutter_pkg_private_deps = [
   lcms2_dep,
   gmodule_no_export_dep,
   gnome_settings_daemon_dep,
-  json_glib_dep,
   xkbcommon_dep,
   gdk_pixbuf_dep,
   libeis_dep,

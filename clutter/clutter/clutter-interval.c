@@ -55,8 +55,6 @@
 #include "clutter/clutter-interval.h"
 #include "clutter/clutter-private.h"
 #include "clutter/clutter-units.h"
-#include "clutter/clutter-scriptable.h"
-#include "clutter/clutter-script-private.h"
 
 enum
 {
@@ -87,14 +85,10 @@ struct _ClutterIntervalPrivate
   GValue *values;
 };
 
-static void clutter_scriptable_iface_init (ClutterScriptableIface *iface);
-
 G_DEFINE_TYPE_WITH_CODE (ClutterInterval,
                          clutter_interval,
                          G_TYPE_INITIALLY_UNOWNED,
-                         G_ADD_PRIVATE (ClutterInterval)
-                         G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_SCRIPTABLE,
-                                                clutter_scriptable_iface_init));
+                         G_ADD_PRIVATE (ClutterInterval));
 
 
 static gboolean
@@ -464,47 +458,6 @@ clutter_interval_get_property (GObject    *gobject,
       G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
       break;
     }
-}
-
-static gboolean
-clutter_interval_parse_custom_node (ClutterScriptable *scriptable,
-                                    ClutterScript     *script,
-                                    GValue            *value,
-                                    const gchar       *name,
-                                    JsonNode          *node)
-{
-  ClutterIntervalPrivate *priv = CLUTTER_INTERVAL (scriptable)->priv;
-
-  if ((strcmp (name, "initial") == 0) || (strcmp (name, "final") == 0))
-    {
-      g_value_init (value, priv->value_type);
-      return _clutter_script_parse_node (script, value, name, node, NULL);
-    }
-
-  return FALSE;
-}
-
-static void
-clutter_interval_set_custom_property (ClutterScriptable *scriptable,
-                                      ClutterScript     *script,
-                                      const gchar       *name,
-                                      const GValue      *value)
-{
-  ClutterInterval *self = CLUTTER_INTERVAL (scriptable);
-
-  if (strcmp (name, "initial") == 0)
-    clutter_interval_set_initial_value (self, value);
-  else if (strcmp (name, "final") == 0)
-    clutter_interval_set_final_value (self, value);
-  else
-    g_object_set_property (G_OBJECT (scriptable), name, value);
-}
-
-static void
-clutter_scriptable_iface_init (ClutterScriptableIface *iface)
-{
-  iface->parse_custom_node = clutter_interval_parse_custom_node;
-  iface->set_custom_property = clutter_interval_set_custom_property;
 }
 
 static void

@@ -10,7 +10,6 @@ default_plugin = shared_module('default',
   c_args: default_plugin_c_args,
   dependencies: [
     glib_dep,
-    json_glib_dep,
     gsettings_desktop_schemas_dep,
     libmutter_clutter_dep,
   ],

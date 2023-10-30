@@ -33,7 +33,6 @@ clutter_pkg_deps = [
   glib_dep,
   gobject_dep,
   gio_dep,
-  json_glib_dep,
   pango_dep,
   harfbuzz_dep,
 ]
@@ -44,6 +43,12 @@ clutter_pkg_private_deps = [
   gmodule_no_export_dep,
   pangocairo_dep,
 ]
+
+if get_option('debug')
+  clutter_pkg_private_deps += [
+    json_glib_dep,
+  ]
+endif
 
 if have_pango_ft2
   clutter_pkg_private_deps += [
