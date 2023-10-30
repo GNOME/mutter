@@ -5222,19 +5222,15 @@ meta_window_propagate_focus_appearance (MetaWindow *window,
   parent = meta_window_get_transient_for (child);
   while (parent && (!focused || should_propagate_focus_appearance (child)))
     {
-      gboolean child_focus_state_changed;
+      gboolean child_focus_state_changed = FALSE;
 
-      if (focused)
+      if (focused && parent->attached_focus_window != focus_window)
         {
-          if (parent->attached_focus_window == focus_window)
-            break;
           child_focus_state_changed = (parent->attached_focus_window == NULL);
           parent->attached_focus_window = focus_window;
         }
-      else
+      else if (parent->attached_focus_window == focus_window)
         {
-          if (parent->attached_focus_window != focus_window)
-            break;
           child_focus_state_changed = (parent->attached_focus_window != NULL);
           parent->attached_focus_window = NULL;
         }
