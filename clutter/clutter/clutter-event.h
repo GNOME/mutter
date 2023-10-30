@@ -149,8 +149,6 @@ CLUTTER_EXPORT
 void                    clutter_event_remove_filter             (guint                  id);
 
 CLUTTER_EXPORT
-ClutterEvent *          clutter_event_new                       (ClutterEventType        type);
-CLUTTER_EXPORT
 ClutterEvent *          clutter_event_copy                      (const ClutterEvent     *event);
 CLUTTER_EXPORT
 void                    clutter_event_free                      (ClutterEvent           *event);

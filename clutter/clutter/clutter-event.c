@@ -809,15 +809,7 @@ clutter_event_get_device_tool (const ClutterEvent *event)
     }
 }
 
-/**
- * clutter_event_new:
- * @type: The type of event.
- *
- * Creates a new #ClutterEvent of the specified type.
- *
- * Return value: (transfer full): A newly allocated #ClutterEvent.
- */
-ClutterEvent *
+static ClutterEvent *
 clutter_event_new (ClutterEventType type)
 {
   ClutterEvent *new_event;
