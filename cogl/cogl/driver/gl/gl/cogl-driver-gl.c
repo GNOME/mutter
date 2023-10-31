@@ -309,6 +309,23 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       gltype = GL_FLOAT;
       break;
 
+    case COGL_PIXEL_FORMAT_R_16:
+      glintformat = GL_R16;
+      glformat = GL_RED;
+      gltype = GL_UNSIGNED_SHORT;
+      break;
+    case COGL_PIXEL_FORMAT_RG_1616:
+      glintformat = GL_RG16;
+      glformat = GL_RG;
+      gltype = GL_UNSIGNED_SHORT;
+      break;
+    case COGL_PIXEL_FORMAT_RGBA_16161616:
+    case COGL_PIXEL_FORMAT_RGBA_16161616_PRE:
+      glintformat = GL_RGBA16;
+      glformat = GL_RGBA;
+      gltype = GL_UNSIGNED_SHORT;
+      break;
+
     case COGL_PIXEL_FORMAT_DEPTH_16:
       glintformat = GL_DEPTH_COMPONENT16;
       glformat = GL_DEPTH_COMPONENT;
@@ -321,8 +338,6 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       gltype = GL_UNSIGNED_INT_24_8;
       break;
 
-    case COGL_PIXEL_FORMAT_R_16:
-    case COGL_PIXEL_FORMAT_RG_1616:
     case COGL_PIXEL_FORMAT_ANY:
     case COGL_PIXEL_FORMAT_YUV:
       g_assert_not_reached ();
@@ -521,6 +536,8 @@ _cogl_driver_update_features (CoglContext *ctx,
   COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_TEXTURE_RGBA1010102, TRUE);
 
   COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_TEXTURE_HALF_FLOAT, TRUE);
+
+  COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_TEXTURE_NORM16, TRUE);
 
   if (ctx->glGenQueries && ctx->glQueryCounter && ctx->glGetInteger64v)
     COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_TIMESTAMP_QUERY, TRUE);

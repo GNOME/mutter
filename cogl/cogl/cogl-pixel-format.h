@@ -101,6 +101,7 @@ G_BEGIN_DECLS
  * 4-6   = 2 bpp, not aligned (e.g. 565, 4444, 5551)
  * 7     = YUV: undefined bpp, undefined alignment
  * 9     = 2 bpp, aligned
+ * 10    = 8 bpp, RGBA_161616
  * 11    = 8 bpp fp16
  * 12    = 16 bpp fp32
  * 13    = 4 bpp, not aligned (e.g. 2101010)
@@ -142,13 +143,11 @@ G_BEGIN_DECLS
  * @COGL_PIXEL_FORMAT_RG_88: RG, 16 bits. Note that red-green textures
  *   are only available if %COGL_FEATURE_ID_TEXTURE_RG is advertised.
  *   See cogl_texture_set_components() for details.
- * @COGL_PIXEL_FORMAT_RG_1616: RG, 32 bits
  * @COGL_PIXEL_FORMAT_RGB_565: RGB, 16 bits
  * @COGL_PIXEL_FORMAT_RGBA_4444: RGBA, 16 bits
  * @COGL_PIXEL_FORMAT_RGBA_5551: RGBA, 16 bits
  * @COGL_PIXEL_FORMAT_YUV: Not currently supported
  * @COGL_PIXEL_FORMAT_R_8: Single luminance component
- * @COGL_PIXEL_FORMAT_R_16: Single luminance component, 16 bits
  * @COGL_PIXEL_FORMAT_RGB_888: RGB, 24 bits
  * @COGL_PIXEL_FORMAT_BGR_888: BGR, 24 bits
  * @COGL_PIXEL_FORMAT_RGBX_8888: RGBX, 32 bits
@@ -187,6 +186,9 @@ G_BEGIN_DECLS
  * @COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE: Premultiplied ABGR half floating point, 64 bit
  * @COGL_PIXEL_FORMAT_RGBA_FP_32323232: RGBA floating point, 128 bit
  * @COGL_PIXEL_FORMAT_RGBA_FP_32323232_PRE: Premultiplied RGBA floating point, 128 bit
+ * @COGL_PIXEL_FORMAT_R_16: Single luminance component, 16 bits
+ * @COGL_PIXEL_FORMAT_RG_1616: RG, 32 bits
+ * @COGL_PIXEL_FORMAT_RGBA_16161616: RGBA, 64 bits, 16bpc
  *
  * Pixel formats used by Cogl. For the formats with a byte per
  * component, the order of the components specify the order in
@@ -217,10 +219,7 @@ typedef enum /*< prefix=COGL_PIXEL_FORMAT >*/
   COGL_PIXEL_FORMAT_RGBA_5551     = 6 | COGL_A_BIT,
   COGL_PIXEL_FORMAT_YUV           = 7,
   COGL_PIXEL_FORMAT_R_8           = 8,
-  COGL_PIXEL_FORMAT_R_16          = 14,
-
   COGL_PIXEL_FORMAT_RG_88         = 9,
-  COGL_PIXEL_FORMAT_RG_1616       = 15,
 
   COGL_PIXEL_FORMAT_RGB_888       = 2,
   COGL_PIXEL_FORMAT_BGR_888       = (2 | COGL_BGR_BIT),
@@ -269,6 +268,11 @@ typedef enum /*< prefix=COGL_PIXEL_FORMAT >*/
 
   COGL_PIXEL_FORMAT_RGBA_FP_32323232 = (12 | COGL_A_BIT),
   COGL_PIXEL_FORMAT_RGBA_FP_32323232_PRE = (12 | COGL_A_BIT | COGL_PREMULT_BIT),
+
+  COGL_PIXEL_FORMAT_R_16          = 14,
+  COGL_PIXEL_FORMAT_RG_1616       = 15,
+  COGL_PIXEL_FORMAT_RGBA_16161616 = (10 | COGL_A_BIT),
+  COGL_PIXEL_FORMAT_RGBA_16161616_PRE = (10 | COGL_A_BIT | COGL_PREMULT_BIT),
 
   COGL_PIXEL_FORMAT_DEPTH_16  = (9 | COGL_DEPTH_BIT),
 

@@ -120,6 +120,20 @@ static const CoglPixelFormatInfo format_info_table[] = {
     .bpp = { 4 },
   },
   {
+    .cogl_format = COGL_PIXEL_FORMAT_RGBA_16161616,
+    .format_str = "RGBA_16161616",
+    .n_planes = 1,
+    .aligned = 1,
+    .bpp = { 8 },
+  },
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_RGBA_16161616_PRE,
+    .format_str = "RGBA_16161616_PRE",
+    .n_planes = 1,
+    .aligned = 1,
+    .bpp = { 8 },
+  },
+  {
     .cogl_format = COGL_PIXEL_FORMAT_RGB_888,
     .format_str = "RGB_888",
     .n_planes = 1,
@@ -133,7 +147,7 @@ static const CoglPixelFormatInfo format_info_table[] = {
     .aligned = 1,
     .bpp = { 3 },
   },
-    {
+  {
     .cogl_format = COGL_PIXEL_FORMAT_RGBX_8888,
     .format_str = "RGBX_8888",
     .n_planes = 1,

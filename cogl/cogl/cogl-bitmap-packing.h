@@ -574,6 +574,60 @@ G_PASTE (_cogl_unpack_rgba_fp_32323232_, component_size) (const uint8_t *src,
 }
 
 inline static void
+G_PASTE (_cogl_unpack_r_16_, component_size) (const uint8_t *src,
+                                              component_type *dst,
+                                              int width)
+{
+  while (width-- > 0)
+    {
+      const uint16_t *v = (const uint16_t *) src;
+
+      dst[0] = UNPACK_16 (v[0]);
+      dst[1] = 0;
+      dst[2] = 0;
+      dst[3] = UNPACK_BYTE (255);
+      dst += 4;
+      src += 2;
+    }
+}
+
+inline static void
+G_PASTE (_cogl_unpack_rg_1616_, component_size) (const uint8_t *src,
+                                                 component_type *dst,
+                                                 int width)
+{
+  while (width-- > 0)
+    {
+      const uint16_t *v = (const uint16_t *) src;
+
+      dst[0] = UNPACK_16 (v[0]);
+      dst[1] = UNPACK_16 (v[1]);
+      dst[2] = 0;
+      dst[3] = UNPACK_BYTE (255);
+      dst += 4;
+      src += 4;
+    }
+}
+
+inline static void
+G_PASTE (_cogl_unpack_rgba_16161616_, component_size) (const uint8_t  *src,
+                                                       component_type *dst,
+                                                       int             width)
+{
+  while (width-- > 0)
+    {
+      const uint16_t *v = (const uint16_t *) src;
+
+      dst[0] = UNPACK_16 (v[0]);
+      dst[1] = UNPACK_16 (v[1]);
+      dst[2] = UNPACK_16 (v[2]);
+      dst[3] = UNPACK_16 (v[3]);
+      dst += 4;
+      src += 8;
+    }
+}
+
+inline static void
 G_PASTE (_cogl_unpack_, component_size) (CoglPixelFormat format,
                                          const uint8_t *src,
                                          component_type *dst,
@@ -690,7 +744,15 @@ G_PASTE (_cogl_unpack_, component_size) (CoglPixelFormat format,
       G_PASTE (_cogl_unpack_rgba_fp_32323232_, component_size) (src, dst, width);
       break;
     case COGL_PIXEL_FORMAT_R_16:
+      G_PASTE (_cogl_unpack_r_16_, component_size) (src, dst, width);
+      break;
     case COGL_PIXEL_FORMAT_RG_1616:
+      G_PASTE (_cogl_unpack_rg_1616_, component_size) (src, dst, width);
+      break;
+    case COGL_PIXEL_FORMAT_RGBA_16161616:
+    case COGL_PIXEL_FORMAT_RGBA_16161616_PRE:
+      G_PASTE (_cogl_unpack_rgba_16161616_, component_size) (src, dst, width);
+      break;
     case COGL_PIXEL_FORMAT_DEPTH_16:
     case COGL_PIXEL_FORMAT_DEPTH_24_STENCIL_8:
     case COGL_PIXEL_FORMAT_ANY:
@@ -1228,6 +1290,58 @@ G_PASTE (_cogl_pack_rgba_fp_32323232_, component_size) (const component_type *sr
 }
 
 inline static void
+G_PASTE (_cogl_pack_r_16_, component_size) (const component_type *src,
+                                             uint8_t *dst,
+                                             int width)
+{
+  while (width-- > 0)
+    {
+      uint16_t *v = (uint16_t *) dst;
+
+      v[0] = PACK_16 (src[0]);
+
+      src += 4;
+      dst += 2;
+    }
+}
+
+inline static void
+G_PASTE (_cogl_pack_rg_1616_, component_size) (const component_type *src,
+                                             uint8_t *dst,
+                                             int width)
+{
+  while (width-- > 0)
+    {
+      uint16_t *v = (uint16_t *) dst;
+
+      v[0] = PACK_16 (src[0]);
+      v[1] = PACK_16 (src[1]);
+
+      src += 4;
+      dst += 4;
+    }
+}
+
+inline static void
+G_PASTE (_cogl_pack_rgba_16161616_, component_size) (const component_type *src,
+                                                     uint8_t              *dst,
+                                                     int                   width)
+{
+  while (width-- > 0)
+    {
+      uint16_t *v = (uint16_t *) dst;
+
+      v[0] = PACK_16 (src[0]);
+      v[1] = PACK_16 (src[1]);
+      v[2] = PACK_16 (src[2]);
+      v[3] = PACK_16 (src[3]);
+
+      src += 4;
+      dst += 8;
+    }
+}
+
+inline static void
 G_PASTE (_cogl_pack_, component_size) (CoglPixelFormat format,
                                        const component_type *src,
                                        uint8_t *dst,
@@ -1344,7 +1458,15 @@ G_PASTE (_cogl_pack_, component_size) (CoglPixelFormat format,
       G_PASTE (_cogl_pack_rgba_fp_32323232_, component_size) (src, dst, width);
       break;
     case COGL_PIXEL_FORMAT_R_16:
+      G_PASTE (_cogl_pack_r_16_, component_size) (src, dst, width);
+      break;
     case COGL_PIXEL_FORMAT_RG_1616:
+      G_PASTE (_cogl_pack_rg_1616_, component_size) (src, dst, width);
+      break;
+    case COGL_PIXEL_FORMAT_RGBA_16161616:
+    case COGL_PIXEL_FORMAT_RGBA_16161616_PRE:
+      G_PASTE (_cogl_pack_rgba_16161616_, component_size) (src, dst, width);
+      break;
     case COGL_PIXEL_FORMAT_DEPTH_16:
     case COGL_PIXEL_FORMAT_DEPTH_24_STENCIL_8:
     case COGL_PIXEL_FORMAT_ANY:

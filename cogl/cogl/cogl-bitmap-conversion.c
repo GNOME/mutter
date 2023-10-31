@@ -70,6 +70,8 @@ unpack_flt (uint32_t b)
                       0x1f) / 0x3f)
 #define UNPACK_10(b) (((b) * ((1 << (sizeof (component_type) * 8)) - 1) + \
                        0x1ff) / 0x3ff)
+#define UNPACK_16(b) (((b) * ((1 << (sizeof (component_type) * 8)) - 1) + \
+                       0x7fff) / 0xffff)
 #define UNPACK_SHORT(b) (CLAMP_NORM (cogl_half_to_float (b)) * \
                          ((1 << (sizeof (component_type) * 8)) - 1))
 #define UNPACK_FLOAT(b) (CLAMP_NORM (unpack_flt (b)) * \
@@ -86,6 +88,7 @@ unpack_flt (uint32_t b)
 #define PACK_5(b) PACK_SIZE (b, 0x1f)
 #define PACK_6(b) PACK_SIZE (b, 0x3f)
 #define PACK_10(b) PACK_SIZE (b, 0x3ff)
+#define PACK_16(b) PACK_SIZE (b, 0xffff)
 #define PACK_SHORT(b) cogl_float_to_half ( \
                         (b) / ((1 << (sizeof (component_type) * 8)) - 1))
 #define PACK_FLOAT(b) pack_flt ((b) / ((1 << (sizeof (component_type) * 8)) - 1))
@@ -121,6 +124,7 @@ unpack_flt (uint32_t b)
 #undef UNPACK_5
 #undef UNPACK_6
 #undef UNPACK_10
+#undef UNPACK_16
 #undef UNPACK_SHORT
 #undef UNPACK_FLOAT
 #undef PACK_SIZE
@@ -130,6 +134,7 @@ unpack_flt (uint32_t b)
 #undef PACK_5
 #undef PACK_6
 #undef PACK_10
+#undef PACK_16
 #undef PACK_SHORT
 #undef PACK_FLOAT
 
@@ -140,6 +145,7 @@ unpack_flt (uint32_t b)
 #define UNPACK_6(b) ((b) / 63.0f)
 #define UNPACK_BYTE(b) ((b) / 255.0f)
 #define UNPACK_10(b) ((b) / 1023.0f)
+#define UNPACK_16(b) ((b) / 65535.0f)
 #define UNPACK_SHORT(b) cogl_half_to_float (b)
 #define UNPACK_FLOAT(b) unpack_flt (b)
 #define PACK_1(b) ((uint32_t) (b))
@@ -149,6 +155,7 @@ unpack_flt (uint32_t b)
 #define PACK_6(b) ((uint32_t) ((b) * 63.5f))
 #define PACK_BYTE(b) ((uint32_t) ((b) * 255.5f))
 #define PACK_10(b) ((uint32_t) ((b) * 1023.5f))
+#define PACK_16(b) ((uint32_t) ((b) * 65535.0f))
 #define PACK_SHORT(b) cogl_float_to_half (b)
 #define PACK_FLOAT(b) pack_flt((b) / 1.0)
 
@@ -166,6 +173,7 @@ unpack_flt (uint32_t b)
 #undef UNPACK_5
 #undef UNPACK_6
 #undef UNPACK_10
+#undef UNPACK_16
 #undef UNPACK_SHORT
 #undef UNPACK_FLOAT
 #undef PACK_1
@@ -174,6 +182,7 @@ unpack_flt (uint32_t b)
 #undef PACK_5
 #undef PACK_6
 #undef PACK_10
+#undef PACK_16
 #undef PACK_SHORT
 #undef PACK_FLOAT
 
@@ -459,8 +468,6 @@ determine_medium_size (CoglPixelFormat format)
 {
   switch (format)
     {
-    case COGL_PIXEL_FORMAT_R_16:
-    case COGL_PIXEL_FORMAT_RG_1616:
     case COGL_PIXEL_FORMAT_DEPTH_16:
     case COGL_PIXEL_FORMAT_DEPTH_24_STENCIL_8:
     case COGL_PIXEL_FORMAT_ANY:
@@ -501,6 +508,10 @@ determine_medium_size (CoglPixelFormat format)
     case COGL_PIXEL_FORMAT_BGRA_1010102_PRE:
     case COGL_PIXEL_FORMAT_ARGB_2101010_PRE:
     case COGL_PIXEL_FORMAT_ABGR_2101010_PRE:
+    case COGL_PIXEL_FORMAT_R_16:
+    case COGL_PIXEL_FORMAT_RG_1616:
+    case COGL_PIXEL_FORMAT_RGBA_16161616:
+    case COGL_PIXEL_FORMAT_RGBA_16161616_PRE:
       return MEDIUM_TYPE_16;
 
     case COGL_PIXEL_FORMAT_RGBX_FP_16161616:

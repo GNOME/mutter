@@ -447,6 +447,7 @@ _cogl_texture_driver_upload_supported (CoglContext *ctx,
     case COGL_PIXEL_FORMAT_A_8:
     case COGL_PIXEL_FORMAT_R_8:
     case COGL_PIXEL_FORMAT_RG_88:
+      return TRUE;
     case COGL_PIXEL_FORMAT_BGRX_8888:
     case COGL_PIXEL_FORMAT_BGRA_8888:
     case COGL_PIXEL_FORMAT_BGRA_8888_PRE:
@@ -507,6 +508,12 @@ _cogl_texture_driver_upload_supported (CoglContext *ctx,
         return FALSE;
     case COGL_PIXEL_FORMAT_R_16:
     case COGL_PIXEL_FORMAT_RG_1616:
+    case COGL_PIXEL_FORMAT_RGBA_16161616:
+    case COGL_PIXEL_FORMAT_RGBA_16161616_PRE:
+      if (cogl_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_NORM16))
+        return TRUE;
+      else
+        return FALSE;
     case COGL_PIXEL_FORMAT_DEPTH_16:
     case COGL_PIXEL_FORMAT_DEPTH_24_STENCIL_8:
     case COGL_PIXEL_FORMAT_ANY:

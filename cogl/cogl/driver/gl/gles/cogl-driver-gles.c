@@ -77,6 +77,18 @@
 #ifndef GL_UNSIGNED_INT_2_10_10_10_REV
 #define GL_UNSIGNED_INT_2_10_10_10_REV 0x8368
 #endif
+#ifndef GL_R16
+#define GL_R16 0x822A
+#endif
+#ifndef GL_RG16
+#define GL_RG16 0x822C
+#endif
+#ifndef GL_RED
+#define GL_RED 0x1903
+#endif
+#ifndef GL_RGBA16
+#define GL_RGBA16 0x805B
+#endif
 
 static CoglPixelFormat
 _cogl_driver_pixel_format_to_gl (CoglContext     *context,
@@ -181,6 +193,51 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
                                          &glintformat,
                                          &glformat,
                                          &gltype);
+      break;
+
+    case COGL_PIXEL_FORMAT_R_16:
+      if (cogl_has_feature (context, COGL_FEATURE_ID_TEXTURE_NORM16))
+        {
+          glintformat = GL_R16;
+          glformat = GL_RED;
+          gltype = GL_UNSIGNED_SHORT;
+          break;
+        }
+      else
+        {
+          g_assert_not_reached ();
+        }
+      break;
+
+    case COGL_PIXEL_FORMAT_RG_1616:
+      if (cogl_has_feature (context, COGL_FEATURE_ID_TEXTURE_NORM16))
+        {
+          /* NORM16 implies RG for GLES */
+          g_assert (cogl_has_feature (context, COGL_FEATURE_ID_TEXTURE_RG));
+          glintformat = GL_RG16;
+          glformat = GL_RG;
+          gltype = GL_UNSIGNED_SHORT;
+          break;
+        }
+      else
+        {
+          g_assert_not_reached ();
+        }
+      break;
+
+    case COGL_PIXEL_FORMAT_RGBA_16161616:
+    case COGL_PIXEL_FORMAT_RGBA_16161616_PRE:
+      if (cogl_has_feature (context, COGL_FEATURE_ID_TEXTURE_NORM16))
+        {
+          glintformat = GL_RGBA16;
+          glformat = GL_RGBA;
+          gltype = GL_UNSIGNED_SHORT;
+          break;
+        }
+      else
+        {
+          g_assert_not_reached ();
+        }
       break;
 
     case COGL_PIXEL_FORMAT_BGRA_8888:
@@ -351,8 +408,6 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       gltype = GL_UNSIGNED_INT_24_8;
       break;
 
-    case COGL_PIXEL_FORMAT_R_16:
-    case COGL_PIXEL_FORMAT_RG_1616:
     case COGL_PIXEL_FORMAT_ANY:
     case COGL_PIXEL_FORMAT_YUV:
       g_assert_not_reached ();
@@ -453,10 +508,18 @@ _cogl_driver_get_read_pixels_format (CoglContext     *context,
       required_format = COGL_PIXEL_FORMAT_RGBA_FP_32323232;
       break;
 
-    case COGL_PIXEL_FORMAT_DEPTH_16:
-    case COGL_PIXEL_FORMAT_DEPTH_24_STENCIL_8:
+    /* fixed point normalized 16bpc */
     case COGL_PIXEL_FORMAT_R_16:
     case COGL_PIXEL_FORMAT_RG_1616:
+    case COGL_PIXEL_FORMAT_RGBA_16161616:
+    case COGL_PIXEL_FORMAT_RGBA_16161616_PRE:
+      required_gl_format = GL_RGBA;
+      required_gl_type = GL_UNSIGNED_SHORT;
+      required_format = COGL_PIXEL_FORMAT_RGBA_16161616;
+      break;
+
+    case COGL_PIXEL_FORMAT_DEPTH_16:
+    case COGL_PIXEL_FORMAT_DEPTH_24_STENCIL_8:
     case COGL_PIXEL_FORMAT_ANY:
     case COGL_PIXEL_FORMAT_YUV:
       g_assert_not_reached ();
@@ -659,7 +722,8 @@ _cogl_driver_update_features (CoglContext *context,
     COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_FENCE, TRUE);
 #endif
 
-  if (_cogl_check_extension ("GL_EXT_texture_rg", gl_extensions))
+  if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 0) ||
+      _cogl_check_extension ("GL_EXT_texture_rg", gl_extensions))
     COGL_FLAGS_SET (context->features,
                     COGL_FEATURE_ID_TEXTURE_RG,
                     TRUE);
@@ -679,6 +743,12 @@ _cogl_driver_update_features (CoglContext *context,
                       COGL_PRIVATE_QUIRK_GENERATE_MIPMAP_NEEDS_FLUSH,
                       TRUE);
     }
+
+  if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 1) &&
+      _cogl_check_extension ("GL_EXT_texture_norm16", gl_extensions))
+    COGL_FLAGS_SET (context->features,
+                    COGL_FEATURE_ID_TEXTURE_NORM16,
+                    TRUE);
 
   /* Cache features */
   for (i = 0; i < G_N_ELEMENTS (private_features); i++)
