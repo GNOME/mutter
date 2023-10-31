@@ -1,3 +1,15 @@
+44.6
+====
+* wayland: Send keyboard modifiers after the enter event [Alexandros; !3341]
+* Fixed crashes [Jonas, Carlos; !3216, !3183]
+* Misc. bug fixes and cleanups [Carlos; !3104, !3168, !3198]
+
+Contributors:
+  Jonas Dreßler, Alexandros Frantzis, Carlos Garnacho
+
+Translators:
+  Florentina Mușat [ro]
+
 44.5
 ====
 * Fix redraw issue when buffer age is unavailable [Carlos; !3221]
