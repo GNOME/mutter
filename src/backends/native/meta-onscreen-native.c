@@ -47,6 +47,7 @@
 #include "backends/native/meta-render-device.h"
 #include "backends/native/meta-renderer-native-gles3.h"
 #include "backends/native/meta-renderer-native-private.h"
+#include "cogl/cogl.h"
 #include "common/meta-cogl-drm-formats.h"
 
 typedef enum _MetaSharedFramebufferImportStatus
@@ -1744,6 +1745,45 @@ get_supported_kms_formats (CoglOnscreen *onscreen)
 }
 
 static gboolean
+choose_onscreen_egl_config (CoglOnscreen  *onscreen,
+                            EGLConfig     *out_config,
+                            GError       **error)
+{
+  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+  CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
+  CoglDisplay *cogl_display = cogl_context->display;
+  CoglRenderer *cogl_renderer = cogl_display->renderer;
+  CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
+  EGLDisplay egl_display = cogl_renderer_egl->edpy;
+  MetaEgl *egl = meta_onscreen_native_get_egl (onscreen_native);
+  MetaCrtcKms *crtc_kms = META_CRTC_KMS (onscreen_native->crtc);
+  EGLint attrs[MAX_EGL_CONFIG_ATTRIBS];
+  g_autoptr (GError) local_error = NULL;
+  static const uint32_t formats[] = {
+    GBM_FORMAT_XRGB8888,
+    GBM_FORMAT_ARGB8888,
+  };
+
+  cogl_display_egl_determine_attributes (cogl_display,
+                                         &cogl_display->onscreen_template->config,
+                                         attrs);
+
+  if (meta_renderer_native_choose_gbm_format (crtc_kms,
+                                              egl,
+                                              egl_display,
+                                              attrs,
+                                              formats,
+                                              G_N_ELEMENTS (formats),
+                                              "surface",
+                                              out_config,
+                                              error))
+    return TRUE;
+
+  return FALSE;
+}
+
+static gboolean
 create_surfaces_gbm (CoglOnscreen        *onscreen,
                      int                  width,
                      int                  height,
@@ -1766,6 +1806,7 @@ create_surfaces_gbm (CoglOnscreen        *onscreen,
   struct gbm_surface *new_gbm_surface = NULL;
   EGLNativeWindowType egl_native_window;
   EGLSurface new_egl_surface;
+  EGLConfig egl_config;
   uint32_t format;
   GArray *modifiers;
 
@@ -1775,9 +1816,14 @@ create_surfaces_gbm (CoglOnscreen        *onscreen,
   render_device_gbm = META_RENDER_DEVICE_GBM (renderer_gpu_data->render_device);
   gbm_device = meta_render_device_gbm_get_gbm_device (render_device_gbm);
 
+  if (!(cogl_renderer_egl->private_features &
+        COGL_EGL_WINSYS_FEATURE_NO_CONFIG_CONTEXT) ||
+      !choose_onscreen_egl_config (onscreen, &egl_config, error))
+    egl_config = cogl_display_egl->egl_config;
+    
   format = get_gbm_format_from_egl (egl,
                                     cogl_renderer_egl->edpy,
-                                    cogl_display_egl->egl_config);
+                                    egl_config);
 
   if (meta_renderer_native_use_modifiers (renderer_native))
     modifiers = get_supported_modifiers (onscreen, format);
@@ -1819,7 +1865,7 @@ create_surfaces_gbm (CoglOnscreen        *onscreen,
   new_egl_surface =
     meta_egl_create_window_surface (egl,
                                     cogl_renderer_egl->edpy,
-                                    cogl_display_egl->egl_config,
+                                    egl_config,
                                     egl_native_window,
                                     NULL,
                                     error);

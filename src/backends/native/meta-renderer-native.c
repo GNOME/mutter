@@ -412,7 +412,8 @@ choose_egl_config_from_gbm_format (MetaEgl       *egl,
 }
 
 gboolean
-meta_renderer_native_choose_gbm_format (MetaEgl         *egl,
+meta_renderer_native_choose_gbm_format (MetaCrtcKms     *crtc_kms,
+                                        MetaEgl         *egl,
                                         EGLDisplay       egl_display,
                                         EGLint          *attributes,
                                         const uint32_t  *formats,
@@ -426,6 +427,13 @@ meta_renderer_native_choose_gbm_format (MetaEgl         *egl,
   for (i = 0; i < num_formats; i++)
     {
       g_clear_error (error);
+
+      if (crtc_kms && !meta_crtc_kms_supports_format (crtc_kms, formats[i]))
+        {
+          g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                       "KMS CRTC doesn't support format");
+          continue;
+        }
 
       if (choose_egl_config_from_gbm_format (egl,
                                              egl_display,
@@ -471,7 +479,8 @@ meta_renderer_native_choose_egl_config (CoglDisplay  *cogl_display,
           GBM_FORMAT_ARGB8888,
         };
 
-        return meta_renderer_native_choose_gbm_format (egl,
+        return meta_renderer_native_choose_gbm_format (NULL,
+                                                       egl,
                                                        egl_display,
                                                        attributes,
                                                        formats,

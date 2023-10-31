@@ -194,7 +194,7 @@ COGL_EXPORT gboolean
 _cogl_winsys_egl_renderer_connect_common (CoglRenderer *renderer,
                                           GError **error);
 
-void
+COGL_EXPORT void
 cogl_display_egl_determine_attributes (CoglDisplay                 *display,
                                        const CoglFramebufferConfig *config,
                                        EGLint                      *attributes);

@@ -76,7 +76,8 @@ gboolean meta_renderer_native_has_addfb2 (MetaRendererNative *renderer_native);
 
 MetaRendererNativeMode meta_renderer_native_get_mode (MetaRendererNative *renderer_native);
 
-gboolean meta_renderer_native_choose_gbm_format (MetaEgl         *egl,
+gboolean meta_renderer_native_choose_gbm_format (MetaCrtcKms     *crtc_kms,
+                                                 MetaEgl         *egl,
                                                  EGLDisplay       egl_display,
                                                  EGLint          *attributes,
                                                  const uint32_t  *formats,
