@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "core/meta-debug-control.h"
 #include "core/meta-private-enums.h"
 #include "core/meta-service-channel.h"
 #include "core/util-private.h"
@@ -84,3 +85,5 @@ meta_context_get_profiler (MetaContext *context);
 void meta_context_set_trace_file (MetaContext *context,
                                   const char  *trace_file);
 #endif
+
+MetaDebugControl * meta_context_get_debug_control (MetaContext *context);

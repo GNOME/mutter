@@ -72,6 +72,7 @@ typedef struct _MetaContextMainOptions
   GList *virtual_monitor_infos;
 #endif
   char *trace_file;
+  gboolean debug_control;
 } MetaContextMainOptions;
 
 struct _MetaContextMain
@@ -300,6 +301,13 @@ meta_context_main_configure (MetaContext   *context,
 #ifdef HAVE_PROFILER
   meta_context_set_trace_file (context, context_main->options.trace_file);
 #endif
+
+  if (context_main->options.debug_control)
+    {
+      MetaDebugControl *debug_control = meta_context_get_debug_control (context);
+
+      meta_debug_control_export (debug_control);
+    }
 
   g_unsetenv ("DESKTOP_AUTOSTART_ID");
 
@@ -670,6 +678,11 @@ meta_context_main_add_option_entries (MetaContextMain *context_main)
       &context_main->options.trace_file,
       N_("Profile performance using trace instrumentation"),
       "FILE"
+    },
+    {
+      "debug-control", 0, 0, G_OPTION_ARG_NONE,
+      &context_main->options.debug_control,
+      N_("Enable debug control D-Bus interface")
     },
     { NULL }
   };

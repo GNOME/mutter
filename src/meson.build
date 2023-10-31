@@ -365,6 +365,8 @@ mutter_sources = [
   'core/meta-context-main.h',
   'core/meta-context-private.h',
   'core/meta-context.c',
+  'core/meta-debug-control.c',
+  'core/meta-debug-control.h',
   'core/meta-fraction.c',
   'core/meta-fraction.h',
   'core/meta-gesture-tracker.c',
@@ -938,6 +940,11 @@ dbus_interfaces = [
     'name': 'meta-dbus-service-channel',
     'interface': 'org.gnome.Mutter.ServiceChannel.xml',
     'prefix': 'org.gnome.Mutter.',
+  },
+  {
+    'name': 'meta-dbus-debug-control',
+    'interface': 'org.gnome.Mutter.DebugControl.xml',
+    'prefix': 'org.gnome.Mutter',
   },
 ]
 
