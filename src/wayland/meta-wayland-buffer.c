@@ -251,6 +251,146 @@ get_supported_shm_format_info (uint32_t shm_format)
   return NULL;
 }
 
+static CoglTexture *
+texture_from_bitmap (CoglBitmap  *bitmap,
+                     GError     **error)
+{
+  g_autoptr (CoglTexture) tex = NULL;
+  g_autoptr (CoglTexture) tex_sliced = NULL;
+
+  tex = cogl_texture_2d_new_from_bitmap (bitmap);
+
+  if (cogl_texture_allocate (tex, error))
+    return g_steal_pointer (&tex);
+
+  if (!g_error_matches (*error, COGL_TEXTURE_ERROR, COGL_TEXTURE_ERROR_SIZE))
+    return NULL;
+
+  g_clear_error (error);
+  tex_sliced = cogl_texture_2d_sliced_new_from_bitmap (bitmap,
+                                                       COGL_TEXTURE_MAX_WASTE);
+
+  if (cogl_texture_allocate (tex_sliced, error))
+    return g_steal_pointer (&tex_sliced);
+
+  return NULL;
+}
+
+static size_t
+get_logical_elements (const MetaFormatInfo *format_info,
+                      size_t                stride)
+{
+  const MetaMultiTextureFormatInfo *mt_format_info =
+    meta_multi_texture_format_get_info (format_info->multi_texture_format);
+  CoglPixelFormat subformat = mt_format_info->subformats[0];
+
+  if (subformat == COGL_PIXEL_FORMAT_ANY)
+    subformat = format_info->cogl_format;
+
+  return stride / cogl_pixel_format_get_bytes_per_pixel (subformat, 0);
+}
+
+static void
+get_offset_and_stride (const MetaFormatInfo *format_info,
+                       int                   stride,
+                       int                   height,
+                       int                   shm_offset[3],
+                       int                   shm_stride[3])
+{
+  const MetaMultiTextureFormatInfo *mt_format_info =
+    meta_multi_texture_format_get_info (format_info->multi_texture_format);
+  int logical_elements;
+  size_t n_planes;
+  size_t i;
+
+  shm_offset[0] = 0;
+  shm_stride[0] = stride;
+
+  logical_elements = get_logical_elements (format_info, stride);
+  n_planes = mt_format_info->n_planes;
+
+  for (i = 1; i < n_planes; i++)
+    {
+      CoglPixelFormat subformat = mt_format_info->subformats[i];
+      int horizontal_factor = mt_format_info->hsub[i];
+      int bpp;
+
+      if (subformat == COGL_PIXEL_FORMAT_ANY)
+        subformat = format_info->cogl_format;
+
+      bpp = cogl_pixel_format_get_bytes_per_pixel (subformat, 0);
+      shm_stride[i] = logical_elements / horizontal_factor * bpp;
+    }
+
+  for (i = 1; i < n_planes; i++)
+    {
+      int vertical_factor = mt_format_info->vsub[i - 1];
+
+      shm_offset[i] = shm_offset[i - 1] +
+                      (shm_stride[i - 1] * (height / vertical_factor));
+    }
+}
+
+static MetaMultiTexture *
+multi_texture_from_shm (CoglContext           *cogl_context,
+                        const MetaFormatInfo  *format_info,
+                        int                    width,
+                        int                    height,
+                        int                    stride,
+                        uint8_t               *data,
+                        GError               **error)
+{
+  const MetaMultiTextureFormatInfo *mt_format_info;
+  MetaMultiTextureFormat multi_format;
+  g_autoptr (GPtrArray) planes = NULL;
+  CoglTexture **textures;
+  int shm_offset[3] = { 0 };
+  int shm_stride[3] = { 0 };
+  int n_planes;
+  int i;
+
+  multi_format = format_info->multi_texture_format;
+  mt_format_info = meta_multi_texture_format_get_info (multi_format);
+  n_planes = mt_format_info->n_planes;
+  planes = g_ptr_array_new_full (n_planes, g_object_unref);
+
+  get_offset_and_stride (format_info, stride, height, shm_offset, shm_stride);
+
+  for (i = 0; i < n_planes; i++)
+    {
+      CoglTexture *cogl_texture;
+      CoglBitmap *bitmap;
+      int plane_index = mt_format_info->plane_indices[i];
+      CoglPixelFormat subformat = mt_format_info->subformats[i];
+      int horizontal_factor = mt_format_info->hsub[i];
+      int vertical_factor = mt_format_info->vsub[i];
+
+      if (subformat == COGL_PIXEL_FORMAT_ANY)
+        subformat = format_info->cogl_format;
+
+      bitmap = cogl_bitmap_new_for_data (cogl_context,
+                                         width / horizontal_factor,
+                                         height / vertical_factor,
+                                         subformat,
+                                         shm_stride[plane_index],
+                                         data + shm_offset[plane_index]);
+      cogl_texture = texture_from_bitmap (bitmap, error);
+      g_clear_object (&bitmap);
+
+      if (!cogl_texture)
+        return NULL;
+
+      g_ptr_array_add (planes, cogl_texture);
+    }
+
+  textures = (CoglTexture**) g_ptr_array_free (g_steal_pointer (&planes),
+                                               FALSE);
+
+  return meta_multi_texture_new (multi_format,
+                                 textures,
+                                 n_planes);
+}
+
 static gboolean
 shm_buffer_attach (MetaWaylandBuffer  *buffer,
                    MetaMultiTexture  **texture,
@@ -263,9 +403,8 @@ shm_buffer_attach (MetaWaylandBuffer  *buffer,
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
   struct wl_shm_buffer *shm_buffer;
   int stride, width, height;
-  CoglPixelFormat format;
-  CoglBitmap *bitmap;
-  CoglTexture *new_cogl_tex;
+  MetaMultiTextureFormat multi_format;
+  CoglPixelFormat cogl_format;
   MetaDrmFormatBuf format_buf;
   uint32_t shm_format;
   const MetaFormatInfo *format_info;
@@ -284,22 +423,26 @@ shm_buffer_attach (MetaWaylandBuffer  *buffer,
       return FALSE;
     }
 
-  g_assert (format_info->multi_texture_format == META_MULTI_TEXTURE_FORMAT_SIMPLE);
-  format = format_info->cogl_format;
+  cogl_format = format_info->cogl_format;
+  multi_format = format_info->multi_texture_format;
 
   meta_topic (META_DEBUG_WAYLAND,
-              "[wl-shm] wl_buffer@%u wl_shm_format %s -> CoglPixelFormat %s",
+              "[wl-shm] wl_buffer@%u wl_shm_format %s "
+              "-> MetaMultiTextureFormat %s / CoglPixelFormat %s",
               wl_resource_get_id (meta_wayland_buffer_get_resource (buffer)),
               shm_format_to_string (&format_buf, shm_format),
-              cogl_pixel_format_to_string (format));
+              meta_multi_texture_format_to_string (multi_format),
+              cogl_pixel_format_to_string (cogl_format));
 
   if (*texture &&
       meta_multi_texture_get_width (*texture) == width &&
-      meta_multi_texture_get_height (*texture) == height)
+      meta_multi_texture_get_height (*texture) == height &&
+      meta_multi_texture_get_format (*texture) == multi_format)
     {
       CoglTexture *cogl_texture = meta_multi_texture_get_plane (*texture, 0);
 
-      if (_cogl_texture_get_format (cogl_texture) == format)
+      if (!meta_multi_texture_is_simple (*texture) ||
+          _cogl_texture_get_format (cogl_texture) == cogl_format)
         {
           buffer->is_y_inverted = TRUE;
           return TRUE;
@@ -309,41 +452,17 @@ shm_buffer_attach (MetaWaylandBuffer  *buffer,
   g_clear_object (texture);
 
   wl_shm_buffer_begin_access (shm_buffer);
-
-  bitmap = cogl_bitmap_new_for_data (cogl_context,
-                                     width, height,
-                                     format,
-                                     stride,
-                                     wl_shm_buffer_get_data (shm_buffer));
-
-  new_cogl_tex = cogl_texture_2d_new_from_bitmap (bitmap);
-
-  if (!cogl_texture_allocate (new_cogl_tex, error))
-    {
-      g_clear_object (&new_cogl_tex);
-      if (g_error_matches (*error, COGL_TEXTURE_ERROR, COGL_TEXTURE_ERROR_SIZE))
-        {
-          g_clear_error (error);
-
-          new_cogl_tex =
-            cogl_texture_2d_sliced_new_from_bitmap (bitmap,
-                                                    COGL_TEXTURE_MAX_WASTE);
-
-          if (!cogl_texture_allocate (new_cogl_tex, error))
-            g_clear_object (&new_cogl_tex);
-        }
-    }
-
-  g_object_unref (bitmap);
-
+  *texture = multi_texture_from_shm (cogl_context,
+                                     format_info,
+                                     width, height, stride,
+                                     wl_shm_buffer_get_data (shm_buffer),
+                                     error);
   wl_shm_buffer_end_access (shm_buffer);
 
-  if (!new_cogl_tex)
+  if (*texture == NULL)
     return FALSE;
 
-  *texture = meta_multi_texture_new_simple (new_cogl_tex);
   buffer->is_y_inverted = TRUE;
-
   return TRUE;
 }
 
@@ -612,57 +731,82 @@ process_shm_buffer_damage (MetaWaylandBuffer *buffer,
                            MtkRegion         *region,
                            GError           **error)
 {
-  struct wl_shm_buffer *shm_buffer;
-  int i, n_rectangles;
-  gboolean set_texture_failed = FALSE;
-  CoglPixelFormat format;
-  CoglTexture *cogl_texture;
-  uint32_t shm_format;
   const MetaFormatInfo *format_info;
+  MetaMultiTextureFormat multi_format;
+  const MetaMultiTextureFormatInfo *mt_format_info;
+  struct wl_shm_buffer *shm_buffer;
+  int shm_offset[3] = { 0 };
+  int shm_stride[3] = { 0 };
+  const uint8_t *data;
+  int stride;
+  int height;
+  uint32_t shm_format;
+  int i, n_rectangles, n_planes;
 
   n_rectangles = mtk_region_num_rectangles (region);
 
   shm_buffer = wl_shm_buffer_get (buffer->resource);
-
+  stride = wl_shm_buffer_get_stride (shm_buffer);
+  height = wl_shm_buffer_get_height (shm_buffer);
   shm_format = wl_shm_buffer_get_format (shm_buffer);
 
   format_info = get_supported_shm_format_info (shm_format);
-  g_assert (format_info != NULL);
-  g_assert (format_info->multi_texture_format == META_MULTI_TEXTURE_FORMAT_SIMPLE);
-  format = format_info->cogl_format;
+  multi_format = format_info->multi_texture_format;
+  mt_format_info = meta_multi_texture_format_get_info (multi_format);
+  n_planes = mt_format_info->n_planes;
 
-  g_return_val_if_fail (cogl_pixel_format_get_n_planes (format) == 1, FALSE);
-  cogl_texture = meta_multi_texture_get_plane (texture, 0);
+  get_offset_and_stride (format_info, stride, height, shm_offset, shm_stride);
 
   wl_shm_buffer_begin_access (shm_buffer);
+  data = wl_shm_buffer_get_data (shm_buffer);
 
-  for (i = 0; i < n_rectangles; i++)
+  for (i = 0; i < n_planes; i++)
     {
-      const uint8_t *data = wl_shm_buffer_get_data (shm_buffer);
-      int32_t stride = wl_shm_buffer_get_stride (shm_buffer);
-      MtkRectangle rect;
+      CoglTexture *cogl_texture;
+      int plane_index = mt_format_info->plane_indices[i];
+      int horizontal_factor = mt_format_info->hsub[i];
+      int vertical_factor = mt_format_info->vsub[i];
+      CoglPixelFormat subformat;
       int bpp;
+      const uint8_t *plane_data;
+      size_t plane_stride;
+      int j;
 
-      bpp = cogl_pixel_format_get_bytes_per_pixel (format, 0);
-      rect = mtk_region_get_rectangle (region, i);
+      plane_data = data + shm_offset[plane_index];
+      plane_stride = shm_stride[plane_index];
 
-      if (!_cogl_texture_set_region (cogl_texture,
-                                     rect.width, rect.height,
-                                     format,
-                                     stride,
-                                     data + rect.x * bpp + rect.y * stride,
-                                     rect.x, rect.y,
-                                     0,
-                                     error))
+      cogl_texture = meta_multi_texture_get_plane (texture, i);
+      subformat = _cogl_texture_get_format (cogl_texture);
+      bpp = cogl_pixel_format_get_bytes_per_pixel (subformat, 0);
+
+      for (j = 0; j < n_rectangles; j++)
         {
-          set_texture_failed = TRUE;
-          break;
+          MtkRectangle rect;
+          const uint8_t *rect_data;
+
+          rect = mtk_region_get_rectangle (region, j);
+          rect_data = plane_data + (rect.x * bpp / horizontal_factor) +
+                      (rect.y * plane_stride);
+
+          if (!_cogl_texture_set_region (cogl_texture,
+                                         rect.width / horizontal_factor,
+                                         rect.height / vertical_factor,
+                                         subformat,
+                                         plane_stride,
+                                         rect_data,
+                                         rect.x, rect.y,
+                                         0,
+                                         error))
+            goto fail;
         }
     }
 
   wl_shm_buffer_end_access (shm_buffer);
+  return TRUE;
 
-  return !set_texture_failed;
+fail:
+  wl_shm_buffer_end_access (shm_buffer);
+  return FALSE;
 }
 
 void
