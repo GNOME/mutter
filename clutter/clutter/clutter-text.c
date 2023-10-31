@@ -57,7 +57,6 @@
 #include "clutter/clutter-private.h"    /* includes <cogl-pango/cogl-pango.h> */
 #include "clutter/clutter-property-transition.h"
 #include "clutter/clutter-text-buffer.h"
-#include "clutter/clutter-units.h"
 #include "clutter/clutter-paint-volume-private.h"
 #include "clutter/clutter-input-focus.h"
 

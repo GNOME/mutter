@@ -82,7 +82,6 @@ clutter_headers = [
   'clutter-transition-group.h',
   'clutter-transition.h',
   'clutter-types.h',
-  'clutter-units.h',
   'clutter-virtual-input-device.h',
   'clutter-zoom-action.h',
 ]
@@ -171,7 +170,6 @@ clutter_sources = [
   'clutter-transition-group.c',
   'clutter-transition.c',
   'clutter-timeline.c',
-  'clutter-units.c',
   'clutter-util.c',
   'clutter-paint-volume.c',
   'clutter-zoom-action.c',

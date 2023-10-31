@@ -101,7 +101,6 @@
 #include "clutter/clutter-timeline.h"
 #include "clutter/clutter-transition-group.h"
 #include "clutter/clutter-transition.h"
-#include "clutter/clutter-units.h"
 #include "clutter/clutter-virtual-input-device.h"
 #include "clutter/clutter-zoom-action.h"
 

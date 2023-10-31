@@ -49,9 +49,6 @@ struct _ClutterBackend
 
   gchar *font_name;
 
-  gfloat units_per_em;
-  gint32 units_serial;
-
   float fallback_resource_scale;
 
   ClutterStageWindow *stage_window;
@@ -97,10 +94,6 @@ gboolean                _clutter_backend_create_context                 (Clutter
 
 gboolean                _clutter_backend_finish_init                    (ClutterBackend         *backend,
                                                                          GError                **error);
-
-gfloat                  _clutter_backend_get_units_per_em               (ClutterBackend         *backend,
-                                                                         PangoFontDescription   *font_desc);
-gint32                  _clutter_backend_get_units_serial               (ClutterBackend         *backend);
 
 CLUTTER_EXPORT
 ClutterStageWindow *    clutter_backend_get_stage_window                (ClutterBackend         *backend);

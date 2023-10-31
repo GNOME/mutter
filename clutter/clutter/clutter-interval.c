@@ -54,7 +54,6 @@
 #include "clutter/clutter-color.h"
 #include "clutter/clutter-interval.h"
 #include "clutter/clutter-private.h"
-#include "clutter/clutter-units.h"
 
 enum
 {

@@ -90,62 +90,6 @@ clutter_backend_dispose (GObject *gobject)
   G_OBJECT_CLASS (clutter_backend_parent_class)->dispose (gobject);
 }
 
-static gfloat
-get_units_per_em (ClutterBackend       *backend,
-                  PangoFontDescription *font_desc)
-{
-  gfloat units_per_em = -1.0;
-  gboolean free_font_desc = FALSE;
-  gdouble dpi;
-
-  dpi = clutter_backend_get_resolution (backend);
-
-  if (font_desc == NULL)
-    {
-      ClutterSettings *settings;
-      gchar *font_name = NULL;
-
-      settings = clutter_settings_get_default ();
-      g_object_get (settings, "font-name", &font_name, NULL);
-
-      if (G_LIKELY (font_name != NULL && *font_name != '\0'))
-        {
-          font_desc = pango_font_description_from_string (font_name);
-          free_font_desc = TRUE;
-
-          g_free (font_name);
-        }
-    }
-
-  if (font_desc != NULL)
-    {
-      gdouble font_size = 0;
-      gint pango_size;
-      gboolean is_absolute;
-
-      pango_size = pango_font_description_get_size (font_desc);
-      is_absolute = pango_font_description_get_size_is_absolute (font_desc);
-
-      /* "absolute" means "device units" (usually, pixels); otherwise,
-       * it means logical units (points)
-       */
-      if (is_absolute)
-        font_size = (gdouble) pango_size / PANGO_SCALE;
-      else
-        font_size = dpi * ((gdouble) pango_size / PANGO_SCALE) / 72.0f;
-
-      /* 10 points at 96 DPI is 13.3 pixels */
-      units_per_em = (1.2f * font_size) * dpi / 96.0f;
-    }
-  else
-    units_per_em = -1.0f;
-
-  if (free_font_desc)
-    pango_font_description_free (font_desc);
-
-  return units_per_em;
-}
-
 static void
 clutter_backend_real_resolution_changed (ClutterBackend *backend)
 {
@@ -165,20 +109,6 @@ clutter_backend_real_resolution_changed (ClutterBackend *backend)
   context = _clutter_context_get_default ();
   if (context->font_map != NULL)
     cogl_pango_font_map_set_resolution (context->font_map, resolution);
-
-  backend->units_per_em = get_units_per_em (backend, NULL);
-  backend->units_serial += 1;
-
-  CLUTTER_NOTE (BACKEND, "Units per em: %.2f", backend->units_per_em);
-}
-
-static void
-clutter_backend_real_font_changed (ClutterBackend *backend)
-{
-  backend->units_per_em = get_units_per_em (backend, NULL);
-  backend->units_serial += 1;
-
-  CLUTTER_NOTE (BACKEND, "Units per em: %.2f", backend->units_per_em);
 }
 
 static gboolean
@@ -395,7 +325,6 @@ clutter_backend_class_init (ClutterBackendClass *klass)
                   G_TYPE_NONE, 0);
 
   klass->resolution_changed = clutter_backend_real_resolution_changed;
-  klass->font_changed = clutter_backend_real_font_changed;
 
   klass->create_context = clutter_backend_real_create_context;
 }
@@ -403,9 +332,6 @@ clutter_backend_class_init (ClutterBackendClass *klass)
 static void
 clutter_backend_init (ClutterBackend *self)
 {
-  self->units_per_em = -1.0;
-  self->units_serial = 1;
-
   self->dummy_onscreen = NULL;
 
   self->fallback_resource_scale = 1.f;
@@ -464,20 +390,6 @@ _clutter_backend_create_context (ClutterBackend  *backend,
   klass = CLUTTER_BACKEND_GET_CLASS (backend);
 
   return klass->create_context (backend, error);
-}
-
-gfloat
-_clutter_backend_get_units_per_em (ClutterBackend       *backend,
-                                   PangoFontDescription *font_desc)
-{
-  /* recompute for the font description, but do not cache the result */
-  if (font_desc != NULL)
-    return get_units_per_em (backend, font_desc);
-
-  if (backend->units_per_em < 0)
-    backend->units_per_em = get_units_per_em (backend, NULL);
-
-  return backend->units_per_em;
 }
 
 /**
@@ -597,12 +509,6 @@ clutter_backend_get_font_options (ClutterBackend *backend)
   g_signal_emit (backend, backend_signals[FONT_CHANGED], 0);
 
   return backend->font_options;
-}
-
-gint32
-_clutter_backend_get_units_serial (ClutterBackend *backend)
-{
-  return backend->units_serial;
 }
 
 /**

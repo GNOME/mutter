@@ -521,7 +521,6 @@
 #include "clutter/clutter-stage-view-private.h"
 #include "clutter/clutter-timeline.h"
 #include "clutter/clutter-transition.h"
-#include "clutter/clutter-units.h"
 
 /* Internal enum used to control mapped state update.  This is a hint
  * which indicates when to do something other than just enforce
