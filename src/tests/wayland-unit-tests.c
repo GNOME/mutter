@@ -78,6 +78,16 @@ single_pixel_buffer (void)
 }
 
 static void
+subsurface_corner_cases (void)
+{
+  MetaWaylandTestClient *wayland_test_client;
+
+  wayland_test_client =
+    meta_wayland_test_client_new (test_context, "subsurface-corner-cases");
+  meta_wayland_test_client_finish (wayland_test_client);
+}
+
+static void
 subsurface_reparenting (void)
 {
   MetaWaylandTestClient *wayland_test_client;
@@ -853,6 +863,8 @@ init_tests (void)
                    subsurface_invalid_subsurfaces);
   g_test_add_func ("/wayland/subsurface/invalid-xdg-shell-actions",
                    subsurface_invalid_xdg_shell_actions);
+  g_test_add_func ("/wayland/subsurface/corner-cases",
+                   subsurface_corner_cases);
   g_test_add_func ("/wayland/subsurface/parent-unmapped",
                    subsurface_parent_unmapped);
   g_test_add_func ("/wayland/toplevel/apply-limits",

@@ -25,6 +25,9 @@ wayland_test_clients = [
     'name': 'single-pixel-buffer',
   },
   {
+    'name': 'subsurface-corner-cases',
+  },
+  {
     'name': 'subsurface-remap-toplevel',
   },
   {
