@@ -496,14 +496,18 @@ meta_wayland_transaction_entry_merge_into (MetaWaylandTransactionEntry *from,
       to->has_sub_pos = TRUE;
     }
 
-  if (to->state)
+  if (from->state)
     {
-      meta_wayland_surface_state_merge_into (from->state, to->state);
-      g_clear_object (&from->state);
-      return;
+      if (to->state)
+        {
+          meta_wayland_surface_state_merge_into (from->state, to->state);
+          g_clear_object (&from->state);
+        }
+      else
+        {
+          to->state = g_steal_pointer (&from->state);
+        }
     }
-
-  to->state = g_steal_pointer (&from->state);
 }
 
 void
