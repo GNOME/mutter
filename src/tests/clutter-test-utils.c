@@ -84,6 +84,24 @@ clutter_test_get_stage (void)
   return meta_backend_get_stage (backend);
 }
 
+ClutterContext *
+clutter_test_get_context (void)
+{
+  MetaContext *context = test_environ->context;
+  MetaBackend *backend = meta_context_get_backend (context);
+
+  return meta_backend_get_clutter_context (backend);
+}
+
+ClutterBackend *
+clutter_test_get_backend (void)
+{
+  MetaContext *context = test_environ->context;
+  MetaBackend *backend = meta_context_get_backend (context);
+
+  return meta_backend_get_clutter_backend (backend);
+}
+
 void
 clutter_test_flush_input (void)
 {

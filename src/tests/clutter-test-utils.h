@@ -121,6 +121,12 @@ void            clutter_test_flush_input        (void);
 CLUTTER_EXPORT
 ClutterActor *  clutter_test_get_stage          (void);
 
+CLUTTER_EXPORT
+ClutterContext * clutter_test_get_context       (void);
+
+CLUTTER_EXPORT
+ClutterBackend * clutter_test_get_backend       (void);
+
 #define clutter_test_assert_actor_at_point(stage,point,actor) \
 G_STMT_START { \
   const graphene_point_t *__p = (point); \
