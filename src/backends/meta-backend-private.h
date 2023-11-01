@@ -125,6 +125,9 @@ META_EXPORT_TEST
 ClutterBackend * meta_backend_get_clutter_backend (MetaBackend *backend);
 
 META_EXPORT_TEST
+ClutterContext * meta_backend_get_clutter_context (MetaBackend *backend);
+
+META_EXPORT_TEST
 ClutterSeat * meta_backend_get_default_seat (MetaBackend *backend);
 
 MetaIdleMonitor * meta_backend_get_idle_monitor (MetaBackend        *backend,

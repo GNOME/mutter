@@ -1650,6 +1650,14 @@ meta_backend_set_client_pointer_constraint (MetaBackend           *backend,
   g_set_object (&priv->client_pointer_constraint, constraint);
 }
 
+ClutterContext *
+meta_backend_get_clutter_context (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  return priv->clutter_context;
+}
+
 ClutterBackend *
 meta_backend_get_clutter_backend (MetaBackend *backend)
 {
