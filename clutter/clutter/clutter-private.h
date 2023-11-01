@@ -36,6 +36,7 @@
 #include "clutter/clutter-effect.h"
 #include "clutter/clutter-event.h"
 #include "clutter/clutter-layout-manager.h"
+#include "clutter/clutter-pipeline-cache.h"
 #include "clutter/clutter-settings.h"
 #include "clutter/clutter-stage-manager.h"
 #include "clutter/clutter-stage.h"

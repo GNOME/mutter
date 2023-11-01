@@ -79,6 +79,8 @@ static const GDebugKey clutter_paint_debug_keys[] = {
 typedef struct _ClutterContextPrivate
 {
   ClutterTextDirection text_direction;
+
+  ClutterPipelineCache *pipeline_cache;
 } ClutterContextPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterContext, clutter_context, G_TYPE_OBJECT)
@@ -87,7 +89,9 @@ static void
 clutter_context_dispose (GObject *object)
 {
   ClutterContext *context = CLUTTER_CONTEXT (object);
+  ClutterContextPrivate *priv = clutter_context_get_instance_private (context);
 
+  g_clear_object (&priv->pipeline_cache);
   g_clear_pointer (&context->events_queue, g_async_queue_unref);
   g_clear_pointer (&context->backend, clutter_backend_destroy);
 
@@ -252,8 +256,10 @@ clutter_context_new (ClutterContextFlags         flags,
                      GError                    **error)
 {
   ClutterContext *context;
+  ClutterContextPrivate *priv;
 
   context = g_object_new (CLUTTER_TYPE_CONTEXT, NULL);
+  priv = clutter_context_get_instance_private (context);
 
   init_clutter_debug (context);
   context->show_fps = clutter_show_fps;
@@ -267,6 +273,8 @@ clutter_context_new (ClutterContextFlags         flags,
   context->events_queue =
     g_async_queue_new_full ((GDestroyNotify) clutter_event_free);
   context->last_repaint_id = 1;
+
+  priv->pipeline_cache = g_object_new (CLUTTER_TYPE_PIPELINE_CACHE, NULL);
 
   if (!clutter_context_init_real (context, flags, error))
     return NULL;
@@ -316,4 +324,15 @@ clutter_context_get_text_direction (ClutterContext *context)
   ClutterContextPrivate *priv = clutter_context_get_instance_private (context);
 
   return priv->text_direction;
+}
+
+/**
+ * clutter_context_get_pipeline_cache: (skip)
+ */
+ClutterPipelineCache *
+clutter_context_get_pipeline_cache (ClutterContext *context)
+{
+  ClutterContextPrivate *priv = clutter_context_get_instance_private (context);
+
+  return priv->pipeline_cache;
 }
