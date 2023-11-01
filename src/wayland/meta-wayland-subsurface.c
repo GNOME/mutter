@@ -409,6 +409,7 @@ permanently_unmap_subsurface (MetaWaylandSurface *surface)
   transaction = meta_wayland_transaction_new (surface->compositor);
   meta_wayland_transaction_add_placement_op (transaction,
                                              surface->protocol_state.parent, op);
+  meta_wayland_transaction_add_subsurface_position (transaction, surface, 0, 0);
   meta_wayland_transaction_commit (transaction);
 
   surface->protocol_state.parent = NULL;
