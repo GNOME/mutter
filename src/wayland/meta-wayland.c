@@ -1072,3 +1072,37 @@ meta_wayland_compositor_get_text_input (MetaWaylandCompositor *compositor)
 {
   return compositor->seat->text_input;
 }
+
+static void
+meta_wayland_compositor_update_focus (MetaWaylandCompositor *compositor,
+                                      MetaWindow            *window)
+{
+  MetaContext *context = meta_wayland_compositor_get_context (compositor);
+  MetaDisplay *display = meta_context_get_display (context);
+  MetaWindow *focus_window = NULL;
+
+  /* Compositor not ready yet */
+  if (!compositor->seat)
+    return;
+
+  if (!display || !meta_display_windows_are_interactable (display))
+    focus_window = NULL;
+  else if (!window)
+    focus_window = NULL;
+  else if (window && meta_window_get_wayland_surface (window))
+    focus_window = window;
+  else
+    meta_topic (META_DEBUG_FOCUS, "Focus change has no effect, because there is no matching wayland surface");
+
+  meta_wayland_compositor_set_input_focus (compositor, focus_window);
+}
+
+void
+meta_wayland_compositor_sync_focus (MetaWaylandCompositor *compositor)
+{
+  MetaContext *context = meta_wayland_compositor_get_context (compositor);
+  MetaDisplay *display = meta_context_get_display (context);
+
+  meta_wayland_compositor_update_focus (compositor,
+                                        display ? display->focus_window : NULL);
+}

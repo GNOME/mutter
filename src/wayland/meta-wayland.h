@@ -105,3 +105,5 @@ gboolean meta_wayland_compositor_is_grabbed (MetaWaylandCompositor *compositor);
 
 META_EXPORT_TEST
 MetaWaylandFilterManager * meta_wayland_compositor_get_filter_manager (MetaWaylandCompositor *compositor);
+
+void meta_wayland_compositor_sync_focus (MetaWaylandCompositor *compositor);

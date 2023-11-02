@@ -1493,19 +1493,8 @@ meta_display_sync_wayland_input_focus (MetaDisplay *display)
 {
 #ifdef HAVE_WAYLAND
   MetaWaylandCompositor *compositor = wayland_compositor_from_display (display);
-  MetaWindow *focus_window = NULL;
 
-  if (!meta_display_windows_are_interactable (display))
-    focus_window = NULL;
-  else if (!display->focus_window)
-    focus_window = NULL;
-  else if (display->focus_window &&
-           meta_window_get_wayland_surface (display->focus_window))
-    focus_window = display->focus_window;
-  else
-    meta_topic (META_DEBUG_FOCUS, "Focus change has no effect, because there is no matching wayland surface");
-
-  meta_wayland_compositor_set_input_focus (compositor, focus_window);
+  meta_wayland_compositor_sync_focus (compositor);
 #endif
 }
 
