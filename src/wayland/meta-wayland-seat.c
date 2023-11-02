@@ -489,10 +489,6 @@ meta_wayland_seat_get_grab_info (MetaWaylandSeat       *seat,
                                  float                 *x,
                                  float                 *y)
 {
-  GList *tools, *l;
-
-  tools = g_hash_table_get_values (seat->tablet_seat->tools);
-
   if (meta_wayland_seat_has_touch (seat))
     {
       ClutterEventSequence *sequence;
@@ -534,25 +530,16 @@ meta_wayland_seat_get_grab_info (MetaWaylandSeat       *seat,
         }
     }
 
-  for (l = tools; l; l = l->next)
+  if (meta_wayland_tablet_seat_get_grab_info (seat->tablet_seat,
+                                              surface,
+                                              serial,
+                                              require_pressed,
+                                              device_out,
+                                              x, y))
     {
-      MetaWaylandTabletTool *tool = l->data;
-
-      if ((!require_pressed || tool->button_count > 0) &&
-          meta_wayland_tablet_tool_can_grab_surface (tool, surface, serial))
-        {
-          if (device_out)
-            *device_out = tool->device;
-          if (sequence_out)
-            *sequence_out = NULL;
-
-          if (x)
-            *x = tool->grab_x;
-          if (y)
-            *y = tool->grab_y;
-
-          return TRUE;
-        }
+      if (sequence_out)
+        *sequence_out = NULL;
+      return TRUE;
     }
 
   return FALSE;
