@@ -100,6 +100,9 @@ typedef struct
   int64_t target_presentation_time_us;
 } FrameCallbackSource;
 
+static void meta_wayland_compositor_update_focus (MetaWaylandCompositor *compositor,
+                                                  MetaWindow            *window);
+
 static gboolean
 wayland_event_source_prepare (GSource *base,
                               int     *timeout)
@@ -465,6 +468,18 @@ on_presented (ClutterStage          *stage,
     }
 }
 
+static void
+on_started (MetaContext           *context,
+            MetaWaylandCompositor *compositor)
+{
+  MetaDisplay *display = meta_context_get_display (context);
+
+  g_signal_connect_object (display, "focus-window",
+                           G_CALLBACK (meta_wayland_compositor_update_focus),
+                           compositor,
+                           G_CONNECT_SWAPPED);
+}
+
 /**
  * meta_wayland_compositor_handle_event:
  * @compositor: the #MetaWaylandCompositor instance
@@ -779,6 +794,9 @@ meta_wayland_compositor_new (MetaContext *context)
                     G_CALLBACK (on_after_update), compositor);
   g_signal_connect (stage, "presented",
                     G_CALLBACK (on_presented), compositor);
+
+  g_signal_connect (context, "started",
+                    G_CALLBACK (on_started), compositor);
 
   if (!wl_global_create (compositor->wayland_display,
                          &wl_compositor_interface,

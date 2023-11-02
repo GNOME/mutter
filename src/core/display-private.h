@@ -255,7 +255,6 @@ void meta_display_accelerator_activate (MetaDisplay           *display,
                                         const ClutterKeyEvent *event);
 gboolean meta_display_modifiers_accelerator_activate (MetaDisplay *display);
 
-void meta_display_sync_wayland_input_focus (MetaDisplay *display);
 void meta_display_update_focus_window (MetaDisplay *display,
                                        MetaWindow  *window);
 

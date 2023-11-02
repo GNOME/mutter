@@ -1488,16 +1488,6 @@ meta_display_queue_autoraise_callback (MetaDisplay *display,
   display->autoraise_window = window;
 }
 
-void
-meta_display_sync_wayland_input_focus (MetaDisplay *display)
-{
-#ifdef HAVE_WAYLAND
-  MetaWaylandCompositor *compositor = wayland_compositor_from_display (display);
-
-  meta_wayland_compositor_sync_focus (compositor);
-#endif
-}
-
 static void
 meta_window_set_inactive_since (MetaWindow  *window,
                                 int64_t      inactive_since_us)
@@ -1566,9 +1556,6 @@ meta_display_update_focus_window (MetaDisplay *display,
       if (display->focus_window)
         meta_window_set_inactive_since (display->focus_window, -1);
     }
-
-  if (meta_is_wayland_compositor ())
-    meta_display_sync_wayland_input_focus (display);
 
   g_object_notify (G_OBJECT (display), "focus-window");
 }
