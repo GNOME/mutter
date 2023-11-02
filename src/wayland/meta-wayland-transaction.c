@@ -70,13 +70,21 @@ static void
 meta_wayland_transaction_sync_child_states (MetaWaylandSurface *surface)
 {
   MetaWaylandSurface *subsurface_surface;
+  MetaWaylandSubsurface *subsurface;
+  MetaWaylandActorSurface *actor_surface;
 
   META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (&surface->output_state, subsurface_surface)
     {
-      MetaWaylandSubsurface *subsurface;
-      MetaWaylandActorSurface *actor_surface;
-
       subsurface = META_WAYLAND_SUBSURFACE (subsurface_surface->role);
+      actor_surface = META_WAYLAND_ACTOR_SURFACE (subsurface);
+      meta_wayland_actor_surface_sync_actor_state (actor_surface);
+    }
+
+  if (!surface->output_state.parent &&
+      surface->role && META_IS_WAYLAND_SUBSURFACE (surface->role))
+    {
+      /* Unmapped sub-surface */
+      subsurface = META_WAYLAND_SUBSURFACE (surface->role);
       actor_surface = META_WAYLAND_ACTOR_SURFACE (subsurface);
       meta_wayland_actor_surface_sync_actor_state (actor_surface);
     }
