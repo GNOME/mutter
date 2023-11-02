@@ -20,6 +20,9 @@
 #include "wayland/meta-wayland-types.h"
 #include "wayland/meta-wayland-subsurface.h"
 
+void meta_wayland_transaction_drop_subsurface_state (MetaWaylandTransaction *transaction,
+                                                     MetaWaylandSurface     *surface);
+
 void meta_wayland_transaction_commit (MetaWaylandTransaction *transaction);
 
 MetaWaylandTransactionEntry *meta_wayland_transaction_ensure_entry (MetaWaylandTransaction *transaction,

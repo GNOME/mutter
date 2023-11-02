@@ -397,11 +397,38 @@ wl_subsurface_place_below (struct wl_client   *client,
                     META_WAYLAND_SUBSURFACE_PLACEMENT_BELOW);
 }
 
+void
+meta_wayland_subsurface_drop_placement_ops (MetaWaylandSurfaceState *state,
+                                            MetaWaylandSurface      *surface)
+{
+  GSList **list = &state->subsurface_placement_ops;
+  GSList *link = *list;
+
+  while (link)
+    {
+      MetaWaylandSubsurfacePlacementOp *op = link->data;
+
+      if (op->surface == surface)
+        {
+          g_free (link->data);
+          *list = g_slist_delete_link (*list, link);
+        }
+      else
+        {
+          list = &link->next;
+        }
+
+      link = *list;
+    }
+}
+
 static void
 permanently_unmap_subsurface (MetaWaylandSurface *surface)
 {
   MetaWaylandSubsurfacePlacementOp *op;
   MetaWaylandTransaction *transaction;
+  MetaWaylandSurface *parent;
+  MetaWaylandSurfaceState *pending_state;
 
   op = get_subsurface_placement_op (surface, NULL,
                                     META_WAYLAND_SUBSURFACE_PLACEMENT_BELOW);
@@ -411,6 +438,24 @@ permanently_unmap_subsurface (MetaWaylandSurface *surface)
                                              surface->protocol_state.parent, op);
   meta_wayland_transaction_add_subsurface_position (transaction, surface, 0, 0);
   meta_wayland_transaction_commit (transaction);
+
+  if (surface->sub.transaction)
+    meta_wayland_transaction_drop_subsurface_state (surface->sub.transaction,
+                                                    surface);
+
+  parent = surface->protocol_state.parent;
+  pending_state = meta_wayland_surface_get_pending_state (parent);
+  if (pending_state && pending_state->subsurface_placement_ops)
+    meta_wayland_subsurface_drop_placement_ops (pending_state, surface);
+
+  while (parent)
+    {
+      if (parent->sub.transaction)
+        meta_wayland_transaction_drop_subsurface_state (parent->sub.transaction,
+                                                        surface);
+
+      parent = parent->protocol_state.parent;
+    }
 
   surface->protocol_state.parent = NULL;
 }
