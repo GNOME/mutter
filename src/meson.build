@@ -625,6 +625,8 @@ if have_wayland
     'wayland/meta-wayland-inhibit-shortcuts-dialog.c',
     'wayland/meta-wayland-inhibit-shortcuts-dialog.h',
     'wayland/meta-wayland-inhibit-shortcuts.h',
+    'wayland/meta-wayland-input.c',
+    'wayland/meta-wayland-input.h',
     'wayland/meta-wayland-input-device.c',
     'wayland/meta-wayland-input-device.h',
     'wayland/meta-wayland-keyboard.c',
