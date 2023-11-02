@@ -72,8 +72,11 @@ sync_actor_subsurface_state (MetaWaylandSurface *surface)
   int x, y;
 
   toplevel_window = meta_wayland_surface_get_toplevel_window (surface);
-  if (!toplevel_window)
-    return;
+  if (!toplevel_window || !should_show (surface))
+    {
+      clutter_actor_hide (actor);
+      return;
+    }
 
   if (toplevel_window->client_type == META_WINDOW_CLIENT_TYPE_X11)
     return;
@@ -84,10 +87,7 @@ sync_actor_subsurface_state (MetaWaylandSurface *surface)
   clutter_actor_set_position (actor, x, y);
   clutter_actor_set_reactive (actor, TRUE);
 
-  if (should_show (surface))
-    clutter_actor_show (actor);
-  else
-    clutter_actor_hide (actor);
+  clutter_actor_show (actor);
 
   clutter_actor_notify_transform_invalid (actor);
 }
