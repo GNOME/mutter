@@ -226,7 +226,8 @@ meta_wayland_seat_new (MetaWaylandCompositor *compositor,
 
   wl_global_create (display, &wl_seat_interface, META_WL_SEAT_VERSION, seat, bind_seat);
 
-  meta_wayland_tablet_manager_ensure_seat (compositor->tablet_manager, seat);
+  seat->tablet_seat =
+    meta_wayland_tablet_manager_ensure_seat (compositor->tablet_manager, seat);
 
   return seat;
 }
@@ -305,10 +306,40 @@ out:
   return hardware_device && supported_device;
 }
 
+static gboolean
+is_tablet_event (MetaWaylandSeat    *seat,
+                 const ClutterEvent *event)
+{
+  ClutterInputDevice *device;
+  ClutterInputCapabilities capabilities;
+
+  device = clutter_event_get_source_device (event);
+  capabilities = clutter_input_device_get_capabilities (device);
+
+  if (capabilities & CLUTTER_INPUT_CAPABILITY_TABLET_TOOL)
+    {
+      return meta_wayland_tablet_seat_lookup_tablet (seat->tablet_seat,
+                                                     device) != NULL;
+    }
+  if (capabilities & CLUTTER_INPUT_CAPABILITY_TABLET_PAD)
+    {
+      return meta_wayland_tablet_seat_lookup_pad (seat->tablet_seat,
+                                                  device) != NULL;
+    }
+
+  return FALSE;
+}
+
 void
 meta_wayland_seat_update (MetaWaylandSeat    *seat,
                           const ClutterEvent *event)
 {
+  if (is_tablet_event (seat, event))
+    {
+      meta_wayland_tablet_seat_update (seat->tablet_seat, event);
+      return;
+    }
+
   if (!(clutter_event_get_flags (event) & CLUTTER_EVENT_FLAG_INPUT_METHOD) &&
       !event_from_supported_hardware_device (seat, event) &&
       !event_is_synthesized_crossing (event))
@@ -349,6 +380,9 @@ meta_wayland_seat_handle_event (MetaWaylandSeat *seat,
                                 const ClutterEvent *event)
 {
   ClutterEventType event_type;
+
+  if (is_tablet_event (seat, event))
+    return meta_wayland_tablet_seat_handle_event (seat->tablet_seat, event);
 
   if (!(clutter_event_get_flags (event) & CLUTTER_EVENT_FLAG_INPUT_METHOD) &&
       !event_from_supported_hardware_device (seat, event))
@@ -413,9 +447,6 @@ void
 meta_wayland_seat_set_input_focus (MetaWaylandSeat    *seat,
                                    MetaWaylandSurface *surface)
 {
-  MetaWaylandCompositor *compositor = meta_wayland_seat_get_compositor (seat);
-  MetaWaylandTabletSeat *tablet_seat;
-
   if (seat->input_focus == surface)
     return;
 
@@ -443,8 +474,7 @@ meta_wayland_seat_set_input_focus (MetaWaylandSeat    *seat,
       meta_wayland_data_device_primary_set_keyboard_focus (&seat->primary_data_device);
     }
 
-  tablet_seat = meta_wayland_tablet_manager_ensure_seat (compositor->tablet_manager, seat);
-  meta_wayland_tablet_seat_set_pad_focus (tablet_seat, surface);
+  meta_wayland_tablet_seat_set_pad_focus (seat->tablet_seat, surface);
 
   meta_wayland_text_input_set_focus (seat->text_input, surface);
 }
@@ -459,13 +489,9 @@ meta_wayland_seat_get_grab_info (MetaWaylandSeat       *seat,
                                  float                 *x,
                                  float                 *y)
 {
-  MetaWaylandCompositor *compositor;
-  MetaWaylandTabletSeat *tablet_seat;
   GList *tools, *l;
 
-  compositor = meta_wayland_seat_get_compositor (seat);
-  tablet_seat = meta_wayland_tablet_manager_ensure_seat (compositor->tablet_manager, seat);
-  tools = g_hash_table_get_values (tablet_seat->tools);
+  tools = g_hash_table_get_values (seat->tablet_seat->tools);
 
   if (meta_wayland_seat_has_touch (seat))
     {
@@ -536,17 +562,10 @@ gboolean
 meta_wayland_seat_can_popup (MetaWaylandSeat *seat,
                              uint32_t         serial)
 {
-  MetaWaylandCompositor *compositor;
-  MetaWaylandTabletSeat *tablet_seat;
-
-  compositor = meta_wayland_seat_get_compositor (seat);
-  tablet_seat =
-    meta_wayland_tablet_manager_ensure_seat (compositor->tablet_manager, seat);
-
   return (meta_wayland_pointer_can_popup (seat->pointer, serial) ||
           meta_wayland_keyboard_can_popup (seat->keyboard, serial) ||
           meta_wayland_touch_can_popup (seat->touch, serial) ||
-          meta_wayland_tablet_seat_can_popup (tablet_seat, serial));
+          meta_wayland_tablet_seat_can_popup (seat->tablet_seat, serial));
 }
 
 gboolean

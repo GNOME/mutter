@@ -38,21 +38,6 @@ unbind_resource (struct wl_resource *resource)
   wl_list_remove (wl_resource_get_link (resource));
 }
 
-static gboolean
-is_tablet_device (ClutterInputDevice *device)
-{
-  ClutterInputCapabilities capabilities;
-
-  if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_LOGICAL)
-    return FALSE;
-
-  capabilities = clutter_input_device_get_capabilities (device);
-
-  return (capabilities &
-          (CLUTTER_INPUT_CAPABILITY_TABLET_TOOL |
-           CLUTTER_INPUT_CAPABILITY_TABLET_PAD)) != 0;
-}
-
 static void
 tablet_manager_get_tablet_seat (struct wl_client   *client,
                                 struct wl_resource *resource,
@@ -129,97 +114,6 @@ meta_wayland_tablet_manager_finalize (MetaWaylandCompositor *compositor)
 {
   g_hash_table_destroy (compositor->tablet_manager->seats);
   g_clear_pointer (&compositor->tablet_manager, g_free);
-}
-
-static MetaWaylandTabletSeat *
-meta_wayland_tablet_manager_lookup_seat (MetaWaylandTabletManager *manager,
-                                         ClutterInputDevice       *device)
-{
-  MetaWaylandTabletSeat *tablet_seat;
-  MetaWaylandSeat *seat;
-  GHashTableIter iter;
-
-  if (!device || !is_tablet_device (device))
-    return NULL;
-
-  g_hash_table_iter_init (&iter, manager->seats);
-
-  while (g_hash_table_iter_next (&iter, (gpointer*) &seat, (gpointer*) &tablet_seat))
-    {
-      if (meta_wayland_tablet_seat_lookup_tablet (tablet_seat, device) ||
-          meta_wayland_tablet_seat_lookup_pad (tablet_seat, device))
-        return tablet_seat;
-    }
-
-  return NULL;
-}
-
-gboolean
-meta_wayland_tablet_manager_consumes_event (MetaWaylandTabletManager *manager,
-                                            const ClutterEvent       *event)
-{
-  ClutterInputDevice *device = clutter_event_get_source_device (event);
-
-  return meta_wayland_tablet_manager_lookup_seat (manager, device) != NULL;
-}
-
-void
-meta_wayland_tablet_manager_update (MetaWaylandTabletManager *manager,
-                                    const ClutterEvent       *event)
-{
-  ClutterInputDevice *device = clutter_event_get_source_device (event);
-  MetaWaylandTabletSeat *tablet_seat;
-
-  tablet_seat = meta_wayland_tablet_manager_lookup_seat (manager, device);
-
-  if (!tablet_seat)
-    return;
-
-  switch (clutter_event_type (event))
-    {
-    case CLUTTER_PROXIMITY_IN:
-    case CLUTTER_PROXIMITY_OUT:
-    case CLUTTER_BUTTON_PRESS:
-    case CLUTTER_BUTTON_RELEASE:
-    case CLUTTER_MOTION:
-    case CLUTTER_PAD_BUTTON_PRESS:
-    case CLUTTER_PAD_BUTTON_RELEASE:
-    case CLUTTER_PAD_RING:
-    case CLUTTER_PAD_STRIP:
-      meta_wayland_tablet_seat_update (tablet_seat, event);
-      break;
-    default:
-      break;
-    }
-}
-
-gboolean
-meta_wayland_tablet_manager_handle_event (MetaWaylandTabletManager *manager,
-                                          const ClutterEvent       *event)
-{
-  ClutterInputDevice *device = clutter_event_get_source_device (event);
-  MetaWaylandTabletSeat *tablet_seat;
-
-  tablet_seat = meta_wayland_tablet_manager_lookup_seat (manager, device);
-
-  if (!tablet_seat)
-    return CLUTTER_EVENT_PROPAGATE;
-
-  switch (clutter_event_type (event))
-    {
-    case CLUTTER_PROXIMITY_IN:
-    case CLUTTER_PROXIMITY_OUT:
-    case CLUTTER_BUTTON_PRESS:
-    case CLUTTER_BUTTON_RELEASE:
-    case CLUTTER_MOTION:
-    case CLUTTER_PAD_BUTTON_PRESS:
-    case CLUTTER_PAD_BUTTON_RELEASE:
-    case CLUTTER_PAD_RING:
-    case CLUTTER_PAD_STRIP:
-      return meta_wayland_tablet_seat_handle_event (tablet_seat, event);
-    default:
-      return CLUTTER_EVENT_PROPAGATE;
-    }
 }
 
 MetaWaylandTabletSeat *

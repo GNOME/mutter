@@ -38,13 +38,6 @@ struct _MetaWaylandTabletManager
 void     meta_wayland_tablet_manager_init (MetaWaylandCompositor    *compositor);
 void     meta_wayland_tablet_manager_finalize (MetaWaylandCompositor *compositor);
 
-gboolean meta_wayland_tablet_manager_consumes_event (MetaWaylandTabletManager *manager,
-                                                     const ClutterEvent       *event);
-void     meta_wayland_tablet_manager_update         (MetaWaylandTabletManager *manager,
-                                                     const ClutterEvent       *event);
-gboolean meta_wayland_tablet_manager_handle_event   (MetaWaylandTabletManager *manager,
-                                                     const ClutterEvent       *event);
-
 MetaWaylandTabletSeat *
          meta_wayland_tablet_manager_ensure_seat    (MetaWaylandTabletManager *manager,
                                                      MetaWaylandSeat          *seat);

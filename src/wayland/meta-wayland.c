@@ -396,10 +396,7 @@ void
 meta_wayland_compositor_update (MetaWaylandCompositor *compositor,
                                 const ClutterEvent    *event)
 {
-  if (meta_wayland_tablet_manager_consumes_event (compositor->tablet_manager, event))
-    meta_wayland_tablet_manager_update (compositor->tablet_manager, event);
-  else
-    meta_wayland_seat_update (compositor->seat, event);
+  meta_wayland_seat_update (compositor->seat, event);
 }
 
 static MetaWaylandOutput *
@@ -472,10 +469,6 @@ gboolean
 meta_wayland_compositor_handle_event (MetaWaylandCompositor *compositor,
                                       const ClutterEvent    *event)
 {
-  if (meta_wayland_tablet_manager_handle_event (compositor->tablet_manager,
-                                                event))
-    return TRUE;
-
   return meta_wayland_seat_handle_event (compositor->seat, event);
 }
 
@@ -618,7 +611,6 @@ meta_wayland_compositor_finalize (GObject *object)
   meta_wayland_activation_finalize (compositor);
   meta_wayland_outputs_finalize (compositor);
   meta_wayland_presentation_time_finalize (compositor);
-  meta_wayland_tablet_manager_finalize (compositor);
 
   g_hash_table_destroy (compositor->scheduled_surface_associations);
 
@@ -630,6 +622,7 @@ meta_wayland_compositor_finalize (GObject *object)
   g_clear_object (&compositor->dma_buf_manager);
 
   g_clear_pointer (&compositor->seat, meta_wayland_seat_free);
+  meta_wayland_tablet_manager_finalize (compositor);
 
   g_clear_pointer (&priv->filter_manager, meta_wayland_filter_manager_free);
   g_clear_pointer (&priv->frame_callback_sources, g_hash_table_destroy);

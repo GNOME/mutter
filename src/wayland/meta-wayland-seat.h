@@ -42,6 +42,7 @@ struct _MetaWaylandSeat
   MetaWaylandPointer *pointer;
   MetaWaylandKeyboard *keyboard;
   MetaWaylandTouch *touch;
+  MetaWaylandTabletSeat *tablet_seat;
 
   MetaWaylandDataDevice data_device;
   MetaWaylandDataDevicePrimary primary_data_device;
