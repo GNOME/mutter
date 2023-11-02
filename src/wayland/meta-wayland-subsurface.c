@@ -398,25 +398,29 @@ wl_subsurface_place_below (struct wl_client   *client,
 }
 
 static void
+permanently_unmap_subsurface (MetaWaylandSurface *surface)
+{
+  MetaWaylandSubsurfacePlacementOp *op;
+  MetaWaylandTransaction *transaction;
+
+  op = get_subsurface_placement_op (surface, NULL,
+                                    META_WAYLAND_SUBSURFACE_PLACEMENT_BELOW);
+
+  transaction = meta_wayland_transaction_new (surface->compositor);
+  meta_wayland_transaction_add_placement_op (transaction,
+                                             surface->protocol_state.parent, op);
+  meta_wayland_transaction_commit (transaction);
+
+  surface->protocol_state.parent = NULL;
+}
+
+static void
 wl_subsurface_destructor (struct wl_resource *resource)
 {
   MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
-  MetaWaylandSurface *parent = surface->protocol_state.parent;
 
-  if (parent)
-    {
-      MetaWaylandSubsurfacePlacementOp *op;
-      MetaWaylandTransaction *transaction;
-
-      op = get_subsurface_placement_op (surface, NULL,
-                                        META_WAYLAND_SUBSURFACE_PLACEMENT_BELOW);
-
-      transaction = meta_wayland_transaction_new (surface->compositor);
-      meta_wayland_transaction_add_placement_op (transaction, parent, op);
-      meta_wayland_transaction_commit (transaction);
-
-      surface->protocol_state.parent = NULL;
-    }
+  if (surface->protocol_state.parent)
+    permanently_unmap_subsurface (surface);
 
   surface->wl_subsurface = NULL;
 }
@@ -480,17 +484,7 @@ wl_subcompositor_destroy (struct wl_client   *client,
 void
 meta_wayland_subsurface_parent_destroyed (MetaWaylandSurface *surface)
 {
-  MetaWaylandSurface *parent = surface->protocol_state.parent;
-  MetaWaylandTransaction *transaction;
-  MetaWaylandSubsurfacePlacementOp *op;
-
-  transaction = meta_wayland_transaction_new (surface->compositor);
-  op = get_subsurface_placement_op (surface, NULL,
-                                    META_WAYLAND_SUBSURFACE_PLACEMENT_BELOW);
-  meta_wayland_transaction_add_placement_op (transaction, parent, op);
-  meta_wayland_transaction_commit (transaction);
-
-  surface->protocol_state.parent = NULL;
+  permanently_unmap_subsurface (surface);
 }
 
 static gboolean
