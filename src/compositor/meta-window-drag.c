@@ -391,9 +391,6 @@ meta_window_drag_end (MetaWindowDrag *window_drag)
 
   clear_move_resize_later (window_drag);
 
-  if (meta_is_wayland_compositor ())
-    meta_display_sync_wayland_input_focus (display);
-
   g_signal_emit_by_name (display, "grab-op-end", grab_window, grab_op);
 
   g_signal_emit (window_drag, signals[ENDED], 0);
@@ -1881,12 +1878,6 @@ meta_window_drag_begin (MetaWindowDrag       *window_drag,
     CLAMP ((double) (root_y - window_drag->initial_window_pos.y) /
            window_drag->initial_window_pos.height,
            0, 1);
-
-  if (meta_is_wayland_compositor ())
-    {
-      meta_display_sync_wayland_input_focus (display);
-      meta_display_cancel_touch (display);
-    }
 
   g_signal_emit_by_name (display, "grab-op-begin", grab_window, grab_op);
 
