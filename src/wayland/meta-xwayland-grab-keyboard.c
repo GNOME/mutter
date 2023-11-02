@@ -88,12 +88,10 @@ meta_xwayland_keyboard_grab_end (MetaXwaylandKeyboardActiveGrab *active_grab)
     {
       MetaWaylandCompositor *compositor =
         meta_wayland_seat_get_compositor (active_grab->seat);
-      MetaContext *context = meta_wayland_compositor_get_context (compositor);
-      MetaDisplay *display = meta_context_get_display (context);
 
       meta_wayland_keyboard_end_grab (active_grab->keyboard_grab.keyboard);
       meta_wayland_keyboard_set_focus (active_grab->keyboard_grab.keyboard, NULL);
-      meta_display_sync_wayland_input_focus (display);
+      meta_wayland_compositor_sync_focus (compositor);
     }
 
   if (!active_grab->surface)

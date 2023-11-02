@@ -406,11 +406,12 @@ data_device_end_drag_grab (MetaWaylandDragGrab *drag_grab)
    */
   if (drag_grab->generic.pointer->grab == (MetaWaylandPointerGrab *) drag_grab)
     {
-      MetaDisplay *display = display_from_data_device (data_device);
+      MetaWaylandCompositor *wayland_compositor =
+        meta_wayland_seat_get_compositor (data_device->seat);
 
       meta_wayland_pointer_end_grab (drag_grab->generic.pointer);
       meta_wayland_keyboard_end_grab (drag_grab->keyboard_grab.keyboard);
-      meta_display_sync_wayland_input_focus (display);
+      meta_wayland_compositor_sync_focus (wayland_compositor);
     }
 
   g_free (drag_grab);

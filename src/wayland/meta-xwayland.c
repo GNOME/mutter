@@ -87,6 +87,9 @@ meta_xwayland_associate_window_with_surface (MetaWindow          *window,
 {
   MetaDisplay *display = window->display;
   MetaXwaylandSurface *xwayland_surface;
+  MetaContext *context = meta_display_get_context (display);
+  MetaWaylandCompositor *wayland_compositor =
+    meta_context_get_wayland_compositor (context);
 
   if (!meta_wayland_surface_assign_role (surface,
                                          META_TYPE_XWAYLAND_SURFACE,
@@ -103,7 +106,7 @@ meta_xwayland_associate_window_with_surface (MetaWindow          *window,
   meta_xwayland_surface_associate_with_window (xwayland_surface, window);
 
   /* Now that we have a surface check if it should have focus. */
-  meta_display_sync_wayland_input_focus (display);
+  meta_wayland_compositor_sync_focus (wayland_compositor);
 }
 
 static gboolean

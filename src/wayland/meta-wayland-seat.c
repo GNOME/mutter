@@ -158,15 +158,10 @@ meta_wayland_seat_set_capabilities (MetaWaylandSeat *seat,
     {
       MetaWaylandCompositor *compositor =
         meta_wayland_seat_get_compositor (seat);
-      MetaContext *context = meta_wayland_compositor_get_context (compositor);
-      MetaDisplay *display;
 
       meta_wayland_keyboard_enable (seat->keyboard);
 
-      /* Post-initialization, ensure the input focus is in sync */
-      display = meta_context_get_display (context);
-      if (display)
-        meta_display_sync_wayland_input_focus (display);
+      meta_wayland_compositor_sync_focus (compositor);
     }
   else if (CAPABILITY_DISABLED (prev_flags, flags, WL_SEAT_CAPABILITY_KEYBOARD))
     meta_wayland_keyboard_disable (seat->keyboard);
