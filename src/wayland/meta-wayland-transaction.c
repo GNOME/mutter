@@ -325,6 +325,23 @@ meta_wayland_transaction_add_dma_buf_source (MetaWaylandTransaction *transaction
   return TRUE;
 }
 
+static void
+meta_wayland_transaction_add_placement_surfaces (MetaWaylandTransaction  *transaction,
+                                                 MetaWaylandSurfaceState *state)
+{
+  GSList *l;
+
+  for (l = state->subsurface_placement_ops; l; l = l->next)
+    {
+      MetaWaylandSubsurfacePlacementOp *op = l->data;
+
+      meta_wayland_transaction_ensure_entry (transaction, op->surface);
+
+      if (op->sibling)
+        meta_wayland_transaction_ensure_entry (transaction, op->sibling);
+    }
+}
+
 void
 meta_wayland_transaction_commit (MetaWaylandTransaction *transaction)
 {
@@ -334,6 +351,9 @@ meta_wayland_transaction_commit (MetaWaylandTransaction *transaction)
   GHashTableIter iter;
   MetaWaylandSurface *surface;
   MetaWaylandTransactionEntry *entry;
+  g_autoptr (GPtrArray) placement_states = NULL;
+  unsigned int num_placement_states = 0;
+  int i;
 
   g_hash_table_iter_init (&iter, transaction->entries);
   while (g_hash_table_iter_next (&iter,
@@ -346,7 +366,25 @@ meta_wayland_transaction_commit (MetaWaylandTransaction *transaction)
           if (buffer &&
               meta_wayland_transaction_add_dma_buf_source (transaction, buffer))
             maybe_apply = FALSE;
+
+          if (entry->state->subsurface_placement_ops)
+            {
+              if (!placement_states)
+                placement_states = g_ptr_array_new ();
+
+              g_ptr_array_add (placement_states, entry->state);
+              num_placement_states++;
+            }
         }
+    }
+
+  for (i = 0; i < num_placement_states; i++)
+    {
+      MetaWaylandSurfaceState *placement_state;
+
+      placement_state = g_ptr_array_index (placement_states, i);
+      meta_wayland_transaction_add_placement_surfaces (transaction,
+                                                       placement_state);
     }
 
   transaction->committed_sequence = ++committed_sequence;
@@ -410,34 +448,6 @@ meta_wayland_transaction_entry_free (MetaWaylandTransactionEntry *entry)
   g_free (entry);
 }
 
-static void
-meta_wayland_transaction_add_placement_surfaces (MetaWaylandTransaction  *transaction,
-                                                 MetaWaylandSurfaceState *state)
-{
-  GSList *l;
-
-  for (l = state->subsurface_placement_ops; l; l = l->next)
-    {
-      MetaWaylandSubsurfacePlacementOp *op = l->data;
-
-      meta_wayland_transaction_ensure_entry (transaction, op->surface);
-
-      if (op->sibling)
-        meta_wayland_transaction_ensure_entry (transaction, op->sibling);
-    }
-}
-
-static void
-meta_wayland_transaction_add_entry (MetaWaylandTransaction      *transaction,
-                                    MetaWaylandSurface          *surface,
-                                    MetaWaylandTransactionEntry *entry)
-{
-  g_hash_table_insert (transaction->entries, g_object_ref (surface), entry);
-
-  if (entry->state)
-    meta_wayland_transaction_add_placement_surfaces (transaction, entry->state);
-}
-
 void
 meta_wayland_transaction_add_placement_op (MetaWaylandTransaction           *transaction,
                                            MetaWaylandSurface               *surface,
@@ -454,8 +464,6 @@ meta_wayland_transaction_add_placement_op (MetaWaylandTransaction           *tra
   state = entry->state;
   state->subsurface_placement_ops =
     g_slist_append (state->subsurface_placement_ops, op);
-
-  meta_wayland_transaction_add_placement_surfaces (transaction, state);
 }
 
 void
@@ -534,13 +542,9 @@ meta_wayland_transaction_merge_into (MetaWaylandTransaction *from,
       if (!to_entry)
         {
           g_hash_table_iter_steal (&iter);
-          meta_wayland_transaction_add_entry (to, surface, from_entry);
-          g_object_unref (surface);
+          g_hash_table_insert (to->entries, surface, from_entry);
           continue;
         }
-
-      if (from_entry->state)
-        meta_wayland_transaction_add_placement_surfaces (to, from_entry->state);
 
       meta_wayland_transaction_entry_merge_into (from_entry, to_entry);
       g_hash_table_iter_remove (&iter);
