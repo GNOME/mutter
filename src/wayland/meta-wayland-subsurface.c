@@ -306,23 +306,15 @@ is_valid_sibling (MetaWaylandSurface *surface,
   return FALSE;
 }
 
-static void
-queue_subsurface_placement (MetaWaylandSurface             *surface,
-                            MetaWaylandSurface             *sibling,
-                            MetaWaylandSubsurfacePlacement  placement)
+static MetaWaylandSubsurfacePlacementOp *
+get_subsurface_placement_op (MetaWaylandSurface             *surface,
+                             MetaWaylandSurface             *sibling,
+                             MetaWaylandSubsurfacePlacement  placement)
 {
   MetaWaylandSurface *parent = surface->protocol_state.parent;
-  gboolean have_synced_parent;
-  MetaWaylandTransaction *transaction;
   MetaWaylandSubsurfacePlacementOp *op =
     g_new0 (MetaWaylandSubsurfacePlacementOp, 1);
   GNode *sibling_node;
-
-  have_synced_parent = sibling && meta_wayland_surface_is_synchronized (parent);
-  if (have_synced_parent)
-    transaction = meta_wayland_surface_ensure_transaction (parent);
-  else
-    transaction = meta_wayland_transaction_new (surface->compositor);
 
   op->placement = placement;
   op->sibling = sibling;
@@ -331,7 +323,7 @@ queue_subsurface_placement (MetaWaylandSurface             *surface,
   g_node_unlink (surface->protocol_state.subsurface_branch_node);
 
   if (!sibling)
-    goto out;
+    return op;
 
   if (sibling == parent)
     sibling_node = parent->protocol_state.subsurface_leaf_node;
@@ -352,11 +344,39 @@ queue_subsurface_placement (MetaWaylandSurface             *surface,
       break;
     }
 
-out:
-  meta_wayland_transaction_add_placement_op (transaction, parent, op);
+  return op;
+}
 
-  if (!have_synced_parent)
-    meta_wayland_transaction_commit (transaction);
+static void
+subsurface_place (struct wl_client               *client,
+                  struct wl_resource             *resource,
+                  struct wl_resource             *sibling_resource,
+                  MetaWaylandSubsurfacePlacement  placement)
+{
+  MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
+  MetaWaylandSurface *sibling = wl_resource_get_user_data (sibling_resource);
+  MetaWaylandSurfaceState *pending_state;
+  MetaWaylandSubsurfacePlacementOp *op;
+
+  if (!is_valid_sibling (surface, sibling))
+    {
+      wl_resource_post_error (resource, WL_SUBSURFACE_ERROR_BAD_SURFACE,
+                              "wl_subsurface::place_%s: wl_surface@%d is "
+                              "not a valid parent or sibling",
+                              placement == META_WAYLAND_SUBSURFACE_PLACEMENT_ABOVE ?
+                              "above" : "below",
+                              wl_resource_get_id (sibling->resource));
+      return;
+    }
+
+  op = get_subsurface_placement_op (surface,
+                                    sibling,
+                                    placement);
+
+  pending_state =
+    meta_wayland_surface_get_pending_state (surface->protocol_state.parent);
+  pending_state->subsurface_placement_ops =
+    g_slist_append (pending_state->subsurface_placement_ops, op);
 }
 
 static void
@@ -364,21 +384,8 @@ wl_subsurface_place_above (struct wl_client   *client,
                            struct wl_resource *resource,
                            struct wl_resource *sibling_resource)
 {
-  MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
-  MetaWaylandSurface *sibling = wl_resource_get_user_data (sibling_resource);
-
-  if (!is_valid_sibling (surface, sibling))
-    {
-      wl_resource_post_error (resource, WL_SUBSURFACE_ERROR_BAD_SURFACE,
-                              "wl_subsurface::place_above: wl_surface@%d is "
-                              "not a valid parent or sibling",
-                              wl_resource_get_id (sibling->resource));
-      return;
-    }
-
-  queue_subsurface_placement (surface,
-                              sibling,
-                              META_WAYLAND_SUBSURFACE_PLACEMENT_ABOVE);
+  subsurface_place (client, resource, sibling_resource,
+                    META_WAYLAND_SUBSURFACE_PLACEMENT_ABOVE);
 }
 
 static void
@@ -386,32 +393,28 @@ wl_subsurface_place_below (struct wl_client   *client,
                            struct wl_resource *resource,
                            struct wl_resource *sibling_resource)
 {
-  MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
-  MetaWaylandSurface *sibling = wl_resource_get_user_data (sibling_resource);
-
-  if (!is_valid_sibling (surface, sibling))
-    {
-      wl_resource_post_error (resource, WL_SUBSURFACE_ERROR_BAD_SURFACE,
-                              "wl_subsurface::place_below: wl_surface@%d is "
-                              "not a valid parent or sibling",
-                              wl_resource_get_id (sibling->resource));
-      return;
-    }
-
-  queue_subsurface_placement (surface,
-                              sibling,
-                              META_WAYLAND_SUBSURFACE_PLACEMENT_BELOW);
+  subsurface_place (client, resource, sibling_resource,
+                    META_WAYLAND_SUBSURFACE_PLACEMENT_BELOW);
 }
 
 static void
 wl_subsurface_destructor (struct wl_resource *resource)
 {
   MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
+  MetaWaylandSurface *parent = surface->protocol_state.parent;
 
-  if (surface->protocol_state.parent)
+  if (parent)
     {
-      queue_subsurface_placement (surface, NULL,
-                                  META_WAYLAND_SUBSURFACE_PLACEMENT_BELOW);
+      MetaWaylandSubsurfacePlacementOp *op;
+      MetaWaylandTransaction *transaction;
+
+      op = get_subsurface_placement_op (surface, NULL,
+                                        META_WAYLAND_SUBSURFACE_PLACEMENT_BELOW);
+
+      transaction = meta_wayland_transaction_new (surface->compositor);
+      meta_wayland_transaction_add_placement_op (transaction, parent, op);
+      meta_wayland_transaction_commit (transaction);
+
       surface->protocol_state.parent = NULL;
     }
   else
@@ -481,8 +484,16 @@ wl_subcompositor_destroy (struct wl_client   *client,
 void
 meta_wayland_subsurface_parent_destroyed (MetaWaylandSurface *surface)
 {
-  queue_subsurface_placement (surface, NULL,
-                              META_WAYLAND_SUBSURFACE_PLACEMENT_BELOW);
+  MetaWaylandSurface *parent = surface->protocol_state.parent;
+  MetaWaylandTransaction *transaction;
+  MetaWaylandSubsurfacePlacementOp *op;
+
+  transaction = meta_wayland_transaction_new (surface->compositor);
+  op = get_subsurface_placement_op (surface, NULL,
+                                    META_WAYLAND_SUBSURFACE_PLACEMENT_BELOW);
+  meta_wayland_transaction_add_placement_op (transaction, parent, op);
+  meta_wayland_transaction_commit (transaction);
+
   surface->protocol_state.parent = NULL;
 }
 
@@ -506,6 +517,8 @@ wl_subcompositor_get_subsurface (struct wl_client   *client,
 {
   MetaWaylandSurface *surface = wl_resource_get_user_data (surface_resource);
   MetaWaylandSurface *parent = wl_resource_get_user_data (parent_resource);
+  MetaWaylandSurfaceState *pending_state;
+  MetaWaylandSubsurfacePlacementOp *op;
   MetaWaylandSurface *reference;
   MetaWindow *toplevel_window;
 
@@ -559,8 +572,12 @@ wl_subcompositor_get_subsurface (struct wl_client   *client,
 
   reference =
     g_node_last_child (parent->protocol_state.subsurface_branch_node)->data;
-  queue_subsurface_placement (surface, reference,
-                              META_WAYLAND_SUBSURFACE_PLACEMENT_ABOVE);
+  op = get_subsurface_placement_op (surface, reference,
+                                    META_WAYLAND_SUBSURFACE_PLACEMENT_ABOVE);
+
+  pending_state = meta_wayland_surface_get_pending_state (parent);
+  pending_state->subsurface_placement_ops =
+    g_slist_append (pending_state->subsurface_placement_ops, op);
 }
 
 static const struct wl_subcompositor_interface meta_wayland_subcompositor_interface = {
