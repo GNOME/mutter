@@ -564,7 +564,7 @@ can-build-gnome-shell@x86_64:
     - sudo meson install --no-rebuild -C build
   script:
     - .gitlab-ci/checkout-gnome-shell.sh
-    - meson setup gnome-shell gnome-shell/build --prefix /usr -Dman=false
+    - meson setup gnome-shell gnome-shell/build --prefix /usr -Dbuildtype=debugoptimized -Dman=false --werror --fatal-meson-warnings
     - sudo meson install -C gnome-shell/build
 
 test-mutter-coverity:
