@@ -6895,7 +6895,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_object ("color-state", NULL, NULL,
                          CLUTTER_TYPE_COLOR_STATE,
                          CLUTTER_PARAM_READWRITE |
-                         G_PARAM_CONSTRUCT);
+                         G_PARAM_CONSTRUCT |
+                         G_PARAM_EXPLICIT_NOTIFY);
 
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
 
@@ -18403,31 +18404,26 @@ create_srgb_color_state (ClutterActor *self)
 /**
  * clutter_actor_set_color_state:
  * @self: a #ClutterActor
- * @color_state: a #ClutterColorState, or defaults to sRGB if %NULL
+ * @color_state: (nullable): a #ClutterColorState
  *
- * Attaches color state properties to [class@Actor]
- * default color state representing sRGB.
+ * Set @self's color state to @color_state, or a default sRGB one if %NULL.
  */
 void
 clutter_actor_set_color_state (ClutterActor      *self,
                                ClutterColorState *color_state)
 {
   ClutterActorPrivate *priv;
+  g_autoptr (ClutterColorState) srgb = NULL;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
-  priv = self->priv;
+  priv = clutter_actor_get_instance_private (self);
 
   if (!color_state)
-    color_state = create_srgb_color_state (self);
-  else
-    g_object_ref (color_state);
+    color_state = srgb = create_srgb_color_state (self);
 
-  g_set_object (&priv->color_state, color_state);
-
-  g_object_unref (color_state);
-
-  g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_COLOR_STATE]);
+  if (g_set_object (&priv->color_state, color_state))
+    g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_COLOR_STATE]);
 }
 
 /**
@@ -18437,15 +18433,18 @@ clutter_actor_set_color_state (ClutterActor      *self,
  * Retrieves the color_state of a [class@Actor] set by
  * [method@Actor.set_color_state].
  *
- * Return value: (transfer full): a pointer to the #ClutterColorState
- * instance, or %NULL
+ * Returns: (transfer none): the #ClutterColorState
  */
 ClutterColorState *
 clutter_actor_get_color_state (ClutterActor *self)
 {
+  ClutterActorPrivate *priv;
+
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), NULL);
 
-  return self->priv->color_state;
+  priv = clutter_actor_get_instance_private (self);
+
+  return priv->color_state;
 }
 
 static void
