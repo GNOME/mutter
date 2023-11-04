@@ -21,7 +21,6 @@ if have_x11
 endif
 
 mtk_private_headers = [
-  'mtk-region-private.h',
 ]
 
 

@@ -22,8 +22,15 @@
  */
 
 #include "config.h"
+
+#include <pixman.h>
+
 #include "mtk/mtk-region.h"
-#include "mtk/mtk-region-private.h"
+
+struct _MtkRegion
+{
+  pixman_region32_t inner_region;
+};
 
 /**
  * mtk_region_ref:
@@ -38,8 +45,15 @@ mtk_region_ref (MtkRegion *region)
 {
   g_return_val_if_fail (region != NULL, NULL);
 
-  g_atomic_ref_count_inc (&region->ref_count);
-  return region;
+  return g_atomic_rc_box_acquire (region);
+}
+
+static void
+clear_region (gpointer data)
+{
+  MtkRegion *region = data;
+
+  pixman_region32_fini (&region->inner_region);
 }
 
 void
@@ -47,11 +61,7 @@ mtk_region_unref (MtkRegion *region)
 {
   g_return_if_fail (region != NULL);
 
-  if (g_atomic_ref_count_dec (&region->ref_count))
-    {
-      pixman_region32_fini (&region->inner_region);
-      g_free (region);
-    }
+  g_atomic_rc_box_release_full (region, clear_region);
 }
 
 G_DEFINE_BOXED_TYPE (MtkRegion, mtk_region,
@@ -62,9 +72,8 @@ mtk_region_create (void)
 {
   MtkRegion *region;
 
-  region = g_new0 (MtkRegion, 1);
+  region = g_atomic_rc_box_new0 (MtkRegion);
 
-  g_atomic_ref_count_init (&region->ref_count);
   pixman_region32_init (&region->inner_region);
 
   return region;
@@ -181,7 +190,7 @@ mtk_region_union_rectangle (MtkRegion          *region,
   pixman_region32_init_rect (&pixman_region,
                              rect->x, rect->y,
                              rect->width, rect->height);
-  pixman_region32_union (&region->inner_region, 
+  pixman_region32_union (&region->inner_region,
                          &region->inner_region,
                          &pixman_region);
   pixman_region32_fini (&pixman_region);
@@ -265,8 +274,8 @@ mtk_region_create_rectangle (const MtkRectangle *rect)
   MtkRegion *region;
   g_return_val_if_fail (rect != NULL, NULL);
 
-  region = g_new0 (MtkRegion, 1);
-  g_atomic_ref_count_init (&region->ref_count);
+  region = g_atomic_rc_box_new0 (MtkRegion);
+
   pixman_region32_init_rect (&region->inner_region,
                              rect->x, rect->y,
                              rect->width, rect->height);
@@ -285,8 +294,7 @@ mtk_region_create_rectangles (const MtkRectangle *rects,
   g_return_val_if_fail (rects != NULL, NULL);
   g_return_val_if_fail (n_rects != 0, NULL);
 
-  region = g_new0 (MtkRegion, 1);
-  g_atomic_ref_count_init (&region->ref_count);
+  region = g_atomic_rc_box_new0 (MtkRegion);
 
   if (n_rects == 1)
     {
