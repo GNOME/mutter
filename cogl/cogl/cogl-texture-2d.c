@@ -51,12 +51,6 @@
 
 G_DEFINE_FINAL_TYPE (CoglTexture2D, cogl_texture_2d, COGL_TYPE_TEXTURE)
 
-typedef struct _CoglTexture2DManualRepeatData
-{
-  CoglTexture2D *tex_2d;
-  CoglMetaTextureCallback callback;
-  void *user_data;
-} CoglTexture2DManualRepeatData;
 
 static void
 cogl_texture_2d_dispose (GObject *object)

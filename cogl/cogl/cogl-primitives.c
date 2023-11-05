@@ -65,14 +65,6 @@ typedef struct _TextureSlicedQuadState
   gboolean flipped_y;
 } TextureSlicedQuadState;
 
-typedef struct _TextureSlicedPolygonState
-{
-  const CoglTextureVertex *vertices;
-  int n_vertices;
-  int stride;
-  CoglAttribute **attributes;
-} TextureSlicedPolygonState;
-
 static void
 log_quad_sub_textures_cb (CoglTexture *texture,
                           const float *subtexture_coords,
