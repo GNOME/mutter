@@ -157,10 +157,16 @@ set_clip_region (MetaSurfaceActor *surface_actor,
   MetaShapedTexture *stex = priv->texture;
 
   if (clip_region && !mtk_region_is_empty (clip_region))
-    meta_shaped_texture_set_clip_region (stex,
-                                         mtk_region_copy (clip_region));
+    {
+      g_autoptr (MtkRegion) clip_region_copy = NULL;
+
+      clip_region_copy = mtk_region_copy (clip_region);
+      meta_shaped_texture_set_clip_region (stex, clip_region_copy);
+    }
   else
-    meta_shaped_texture_set_clip_region (stex, clip_region);
+    {
+      meta_shaped_texture_set_clip_region (stex, clip_region);
+    }
 }
 
 static void
