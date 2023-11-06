@@ -121,8 +121,9 @@ destroy_shader_state (void *user_data)
         GE( ctx, glDeleteShader (shader_state->gl_shader) );
 
       g_free (shader_state);
-      g_free (cache);
     }
+
+  g_free (cache);
 }
 
 static void

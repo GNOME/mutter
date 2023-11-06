@@ -298,8 +298,9 @@ destroy_program_state (void *user_data)
         g_array_free (program_state->uniform_locations, TRUE);
 
       g_free (program_state);
-      g_free (cache);
     }
+
+  g_free (cache);
 }
 
 static void

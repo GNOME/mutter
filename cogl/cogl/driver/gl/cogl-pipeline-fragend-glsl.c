@@ -164,8 +164,9 @@ destroy_shader_state (void *user_data)
       g_free (shader_state->unit_state);
 
       g_free (shader_state);
-      g_free (cache);
     }
+
+  g_free (cache);
 }
 
 static void
