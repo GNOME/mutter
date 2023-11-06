@@ -53,6 +53,7 @@ meta_key_event_new_from_evdev (ClutterInputDevice *device,
   char buffer[8];
   gunichar unicode_value;
   ClutterModifierType modifiers;
+  ClutterModifierSet raw_modifiers;
   int n;
 
   /* We use a fixed offset of 8 because evdev starts KEY_* numbering from
@@ -62,6 +63,12 @@ meta_key_event_new_from_evdev (ClutterInputDevice *device,
   key = meta_xkb_evdev_to_keycode (key);
 
   sym = xkb_state_key_get_one_sym (xkb_state, key);
+
+  raw_modifiers = (ClutterModifierSet) {
+    .pressed = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_DEPRESSED),
+    .latched = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_LATCHED),
+    .locked = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_LOCKED),
+  };
 
   modifiers = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_EFFECTIVE) |
     button_state;
@@ -85,6 +92,7 @@ meta_key_event_new_from_evdev (ClutterInputDevice *device,
                                  flags,
                                  time_us,
                                  device,
+                                 raw_modifiers,
                                  modifiers,
                                  sym,
                                  key - 8,

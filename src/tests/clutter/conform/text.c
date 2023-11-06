@@ -339,6 +339,7 @@ send_keyval (ClutterText *text, int keyval)
                                  CLUTTER_EVENT_FLAG_SYNTHETIC,
                                  CLUTTER_CURRENT_TIME,
                                  clutter_seat_get_keyboard (seat),
+                                 (ClutterModifierSet) { 0, },
                                  0, keyval, 0, 0, 0);
 
   clutter_actor_event (CLUTTER_ACTOR (text), event, FALSE);
@@ -358,6 +359,7 @@ send_unichar (ClutterText *text, gunichar unichar)
                                  CLUTTER_EVENT_FLAG_SYNTHETIC,
                                  CLUTTER_CURRENT_TIME,
                                  clutter_seat_get_keyboard (seat),
+                                 (ClutterModifierSet) { 0, },
                                  0, 0, 0, 0, unichar);
 
   clutter_actor_event (CLUTTER_ACTOR (text), event, FALSE);

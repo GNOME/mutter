@@ -2111,6 +2111,7 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
         MetaKeymapX11 *keymap_x11 = seat->keymap;
         char buffer[7] = { 0, };
         uint32_t keyval, evcode, keycode;
+        ClutterModifierSet raw_modifiers;
         ClutterModifierType state;
         int len;
         gunichar unicode_value;
@@ -2118,6 +2119,12 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
         source_device = get_source_device_checked (seat, xev);
         if (!source_device)
           return NULL;
+
+        raw_modifiers = (ClutterModifierSet) {
+          .pressed = xev->mods.base,
+          .latched = xev->mods.latched,
+          .locked = xev->mods.locked,
+        };
 
         state = translate_state (&xev->buttons, &xev->mods, &xev->group);
 
@@ -2156,6 +2163,7 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
                                        CLUTTER_EVENT_NONE,
                                        ms2us (xev->time),
                                        source_device,
+                                       raw_modifiers,
                                        state,
                                        keyval,
                                        evcode,

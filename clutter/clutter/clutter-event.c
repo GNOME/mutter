@@ -1858,6 +1858,7 @@ clutter_event_key_new (ClutterEventType     type,
                        ClutterEventFlags    flags,
                        int64_t              timestamp_us,
                        ClutterInputDevice  *source_device,
+                       ClutterModifierSet   raw_modifiers,
                        ClutterModifierType  modifiers,
                        uint32_t             keyval,
                        uint32_t             evcode,
@@ -1877,6 +1878,7 @@ clutter_event_key_new (ClutterEventType     type,
 
   event->key.time_us = timestamp_us;
   event->key.flags = flags;
+  event->key.raw_modifiers = raw_modifiers;
   event->key.modifier_state = modifiers;
   event->key.keyval = keyval;
   event->key.hardware_keycode = keycode;

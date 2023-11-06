@@ -275,14 +275,21 @@ trigger_slow_keys (gpointer data)
 {
   SlowKeysEventPending *slow_keys_event = data;
   MetaInputDeviceNative *device = slow_keys_event->device;
+  ClutterModifierSet raw_modifiers;
   ClutterEvent *event = slow_keys_event->event;
   ClutterEvent *copy;
+
+  clutter_event_get_key_state (event,
+                               &raw_modifiers.pressed,
+                               &raw_modifiers.latched,
+                               &raw_modifiers.locked);
 
   /* Alter timestamp and emit the event */
   copy = clutter_event_key_new (clutter_event_type (event),
                                 clutter_event_get_flags (event),
                                 g_get_monotonic_time (),
                                 clutter_event_get_source_device (event),
+                                raw_modifiers,
                                 clutter_event_get_state (event),
                                 clutter_event_get_key_symbol (event),
                                 clutter_event_get_event_code (event),
@@ -524,6 +531,7 @@ rewrite_stickykeys_event (ClutterEvent          *event,
 {
   MetaSeatImpl *seat_impl = seat_impl_from_device_native (device);
   struct xkb_state *xkb_state;
+  ClutterModifierSet raw_modifiers;
   ClutterEvent *rewritten_event;
   ClutterModifierType modifiers;
 
@@ -533,11 +541,18 @@ rewrite_stickykeys_event (ClutterEvent          *event,
     xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_EFFECTIVE) |
     seat_impl->button_state;
 
+  raw_modifiers = (ClutterModifierSet) {
+    .pressed = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_DEPRESSED),
+    .latched = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_LATCHED),
+    .locked = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_LOCKED),
+  };
+
   rewritten_event =
     clutter_event_key_new (clutter_event_type (event),
                            clutter_event_get_flags (event),
                            clutter_event_get_time_us (event),
                            clutter_event_get_source_device (event),
+                           raw_modifiers,
                            modifiers,
                            clutter_event_get_key_symbol (event),
                            clutter_event_get_event_code (event),
