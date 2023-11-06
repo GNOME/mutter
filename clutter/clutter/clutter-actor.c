@@ -543,6 +543,8 @@ typedef enum
 
 struct _ClutterActorPrivate
 {
+  ClutterContext *context;
+
   /* request mode */
   ClutterRequestMode request_mode;
 
@@ -735,6 +737,8 @@ struct _ClutterActorPrivate
 enum
 {
   PROP_0,
+
+  PROP_CONTEXT,
 
   PROP_NAME,
 
@@ -4515,6 +4519,10 @@ clutter_actor_set_property (GObject      *object,
 
   switch (prop_id)
     {
+    case PROP_CONTEXT:
+      priv->context = g_value_get_object (value);
+      break;
+
     case PROP_X:
       clutter_actor_set_x (actor, g_value_get_float (value));
       break;
@@ -4812,6 +4820,10 @@ clutter_actor_get_property (GObject    *object,
 
   switch (prop_id)
     {
+    case PROP_CONTEXT:
+      g_value_set_object (value, priv->context);
+      break;
+
     case PROP_X:
       g_value_set_float (value, clutter_actor_get_x (actor));
       break;
@@ -5546,6 +5558,9 @@ clutter_actor_constructor (GType gtype,
       clutter_actor_set_layout_manager (self, default_layout);
     }
 
+  if (!self->priv->context)
+    self->priv->context = _clutter_context_get_default ();
+
   return retval;
 }
 
@@ -5596,6 +5611,19 @@ clutter_actor_class_init (ClutterActorClass *klass)
   klass->destroy = clutter_actor_real_destroy;
 
   klass->layout_manager_type = G_TYPE_INVALID;
+
+  /**
+   * ClutterActor:context:
+   *
+   * The %ClutterContext of the actor
+   */
+  obj_props[PROP_CONTEXT] =
+    g_param_spec_object ("context", NULL, NULL,
+                         CLUTTER_TYPE_CONTEXT,
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:x:
@@ -12456,6 +12484,18 @@ clutter_actor_is_scaled (ClutterActor *self)
     return TRUE;
 
   return FALSE;
+}
+
+/**
+ * clutter_actor_get_context:
+ * @actor: a #ClutterActor
+ *
+ * Returns: (transfer none): the Clutter context
+ */
+ClutterContext *
+clutter_actor_get_context (ClutterActor *actor)
+{
+  return actor->priv->context;
 }
 
 ClutterActor *

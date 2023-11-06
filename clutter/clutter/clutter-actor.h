@@ -663,6 +663,10 @@ gboolean                        clutter_actor_contains                          
                                                                                  ClutterActor               *descendant);
 CLUTTER_EXPORT
 ClutterActor*                   clutter_actor_get_stage                         (ClutterActor               *actor);
+
+CLUTTER_EXPORT
+ClutterContext *                clutter_actor_get_context                       (ClutterActor *actor);
+
 CLUTTER_EXPORT
 void                            clutter_actor_set_child_below_sibling           (ClutterActor               *self,
                                                                                  ClutterActor               *child,
