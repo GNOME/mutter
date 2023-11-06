@@ -205,6 +205,11 @@ guint16                 clutter_event_get_key_code              (const ClutterEv
 CLUTTER_EXPORT
 gunichar                clutter_event_get_key_unicode           (const ClutterEvent     *event);
 CLUTTER_EXPORT
+void                    clutter_event_get_key_state             (const ClutterEvent     *event,
+                                                                 ClutterModifierType    *pressed,
+                                                                 ClutterModifierType    *latched,
+                                                                 ClutterModifierType    *locked);
+CLUTTER_EXPORT
 guint32                 clutter_event_get_button                (const ClutterEvent     *event);
 CLUTTER_EXPORT
 ClutterActor *          clutter_event_get_related               (const ClutterEvent     *event);

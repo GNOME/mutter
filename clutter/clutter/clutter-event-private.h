@@ -4,6 +4,15 @@
 
 G_BEGIN_DECLS
 
+typedef struct _ClutterModifierSet ClutterModifierSet;
+
+struct _ClutterModifierSet
+{
+  ClutterModifierType pressed;
+  ClutterModifierType latched;
+  ClutterModifierType locked;
+};
+
 CLUTTER_EXPORT
 ClutterEvent * clutter_event_key_new (ClutterEventType     type,
                                       ClutterEventFlags    flags,

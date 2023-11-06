@@ -51,6 +51,7 @@ struct _ClutterKeyEvent
   ClutterInputDevice *device;
   ClutterInputDevice *source_device;
 
+  ClutterModifierSet raw_modifiers;
   ClutterModifierType modifier_state;
   uint32_t keyval;
   uint16_t hardware_keycode;
@@ -693,6 +694,36 @@ clutter_event_get_key_unicode (const ClutterEvent *event)
     return event->key.unicode_value;
   else
     return clutter_keysym_to_unicode (event->key.keyval);
+}
+
+/**
+ * clutter_event_get_key_state:
+ * @event: a #ClutterEvent of type %CLUTTER_KEY_PRESS
+ *   or %CLUTTER_KEY_RELEASE
+ * @pressed: (out): Return location for pressed modifiers
+ * @latched: (out): Return location for latched modifiers
+ * @locked: (out): Return location for locked modifiers
+ *
+ * Returns the modifier state decomposed into independent
+ * pressed/latched/locked states. The effective state is a
+ * composition of these 3 states, see clutter_event_get_state().
+ **/
+void
+clutter_event_get_key_state (const ClutterEvent  *event,
+                             ClutterModifierType *pressed,
+                             ClutterModifierType *latched,
+                             ClutterModifierType *locked)
+{
+  g_return_if_fail (event != NULL);
+  g_return_if_fail (event->type == CLUTTER_KEY_PRESS ||
+                    event->type == CLUTTER_KEY_RELEASE);
+
+  if (pressed)
+    *pressed = event->key.raw_modifiers.pressed;
+  if (latched)
+    *latched = event->key.raw_modifiers.latched;
+  if (locked)
+    *locked = event->key.raw_modifiers.locked;
 }
 
 /**
