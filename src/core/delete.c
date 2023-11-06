@@ -96,7 +96,13 @@ void
 meta_window_check_alive_on_event (MetaWindow *window,
                                   uint32_t    timestamp)
 {
+  unsigned int check_alive_timeout;
+
   if (!meta_window_can_ping (window))
+    return;
+
+  check_alive_timeout = meta_prefs_get_check_alive_timeout ();
+  if (check_alive_timeout == 0)
     return;
 
   meta_display_ping_window (window, timestamp);
