@@ -417,10 +417,6 @@ wl_subsurface_destructor (struct wl_resource *resource)
 
       surface->protocol_state.parent = NULL;
     }
-  else
-    {
-      g_node_unlink (surface->protocol_state.subsurface_branch_node);
-    }
 
   surface->wl_subsurface = NULL;
 }
