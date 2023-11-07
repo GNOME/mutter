@@ -61,7 +61,7 @@ G_DEFINE_TYPE (ClutterBinLayout,
 
 static void
 clutter_bin_layout_get_preferred_width (ClutterLayoutManager *manager,
-                                        ClutterContainer     *container,
+                                        ClutterActor         *container,
                                         gfloat                for_height,
                                         gfloat               *min_width_p,
                                         gfloat               *nat_width_p)
@@ -98,7 +98,7 @@ clutter_bin_layout_get_preferred_width (ClutterLayoutManager *manager,
 
 static void
 clutter_bin_layout_get_preferred_height (ClutterLayoutManager *manager,
-                                         ClutterContainer     *container,
+                                         ClutterActor         *container,
                                          gfloat                for_width,
                                          gfloat               *min_height_p,
                                          gfloat               *nat_height_p)
@@ -156,7 +156,7 @@ get_actor_align_factor (ClutterActorAlign alignment)
 
 static void
 clutter_bin_layout_allocate (ClutterLayoutManager   *manager,
-                             ClutterContainer       *container,
+                             ClutterActor           *container,
                              const ClutterActorBox  *allocation)
 {
   gfloat allocation_x, allocation_y;

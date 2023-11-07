@@ -34,7 +34,6 @@
 #include "clutter/clutter-grid-layout.h"
 
 #include "clutter/clutter-actor-private.h"
-#include "clutter/clutter-container.h"
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-enum-types.h"
 #include "clutter/clutter-layout-meta.h"
@@ -42,7 +41,7 @@
 
 /**
  * ClutterGridLayout:
- * 
+ *
  * A layout manager for a grid of actors
  *
  * #ClutterGridLayout is a layout manager which arranges its child widgets in
@@ -103,7 +102,7 @@ struct _ClutterGridLineData
 
 struct _ClutterGridLayoutPrivate
 {
-  ClutterContainer *container;
+  ClutterActor *container;
   ClutterOrientation orientation;
 
   ClutterGridLineData linedata[2];
@@ -1250,7 +1249,7 @@ clutter_grid_child_init (ClutterGridChild *self)
 
 static void
 clutter_grid_layout_set_container (ClutterLayoutManager *self,
-                                   ClutterContainer     *container)
+                                   ClutterActor         *container)
 {
   ClutterGridLayoutPrivate *priv = CLUTTER_GRID_LAYOUT (self)->priv;
   ClutterLayoutManagerClass *parent_class;
@@ -1308,7 +1307,7 @@ clutter_grid_layout_get_size_for_size (ClutterGridLayout  *self,
 
 static void
 clutter_grid_layout_get_preferred_width (ClutterLayoutManager *manager,
-                                         ClutterContainer     *container,
+                                         ClutterActor         *container,
                                          gfloat                for_height,
                                          gfloat               *min_width_p,
                                          gfloat               *nat_width_p)
@@ -1327,7 +1326,7 @@ clutter_grid_layout_get_preferred_width (ClutterLayoutManager *manager,
 
 static void
 clutter_grid_layout_get_preferred_height (ClutterLayoutManager *manager,
-                                          ClutterContainer     *container,
+                                          ClutterActor         *container,
                                           gfloat                for_width,
                                           gfloat               *min_height_p,
                                           gfloat               *nat_height_p)
@@ -1379,7 +1378,7 @@ allocate_child (ClutterGridRequest *request,
 
 static void
 clutter_grid_layout_allocate (ClutterLayoutManager   *layout,
-                              ClutterContainer       *container,
+                              ClutterActor           *container,
                               const ClutterActorBox  *allocation)
 {
   ClutterGridLayout *self = CLUTTER_GRID_LAYOUT (layout);

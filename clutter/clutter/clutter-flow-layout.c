@@ -24,7 +24,7 @@
 
 /**
  * ClutterFlowLayout:
- * 
+ *
  * A reflowing layout manager
  *
  * #ClutterFlowLayout is a layout manager which implements the following
@@ -55,9 +55,6 @@
 
 #include <math.h>
 
-#define CLUTTER_DISABLE_DEPRECATION_WARNINGS
-#include "clutter/deprecated/clutter-container.h"
-
 #include "clutter/clutter-actor.h"
 #include "clutter/clutter-animatable.h"
 #include "clutter/clutter-child-meta.h"
@@ -69,7 +66,7 @@
 
 struct _ClutterFlowLayoutPrivate
 {
-  ClutterContainer *container;
+  ClutterActor *container;
 
   ClutterFlowOrientation orientation;
 
@@ -182,7 +179,7 @@ compute_lines (ClutterFlowLayout *self,
 
 static void
 clutter_flow_layout_get_preferred_width (ClutterLayoutManager *manager,
-                                         ClutterContainer     *container,
+                                         ClutterActor         *container,
                                          gfloat                for_height,
                                          gfloat               *min_width_p,
                                          gfloat               *nat_width_p)
@@ -373,7 +370,7 @@ clutter_flow_layout_get_preferred_width (ClutterLayoutManager *manager,
 
 static void
 clutter_flow_layout_get_preferred_height (ClutterLayoutManager *manager,
-                                          ClutterContainer     *container,
+                                          ClutterActor         *container,
                                           gfloat                for_width,
                                           gfloat               *min_height_p,
                                           gfloat               *nat_height_p)
@@ -564,7 +561,7 @@ clutter_flow_layout_get_preferred_height (ClutterLayoutManager *manager,
 
 static void
 clutter_flow_layout_allocate (ClutterLayoutManager   *manager,
-                              ClutterContainer       *container,
+                              ClutterActor           *container,
                               const ClutterActorBox  *allocation)
 {
   ClutterFlowLayoutPrivate *priv = CLUTTER_FLOW_LAYOUT (manager)->priv;
@@ -740,7 +737,7 @@ clutter_flow_layout_allocate (ClutterLayoutManager   *manager,
 
 static void
 clutter_flow_layout_set_container (ClutterLayoutManager *manager,
-                                   ClutterContainer     *container)
+                                   ClutterActor         *container)
 {
   ClutterFlowLayoutPrivate *priv = CLUTTER_FLOW_LAYOUT (manager)->priv;
   ClutterLayoutManagerClass *parent_class;

@@ -29,8 +29,6 @@
 #endif
 
 #include "clutter/clutter-layout-manager.h"
-#include "clutter/clutter.h"
-#include "clutter/clutter-autocleanups.h"
 
 G_BEGIN_DECLS
 

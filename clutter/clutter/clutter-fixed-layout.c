@@ -26,7 +26,7 @@
 
 /**
  * ClutterFixedLayout:
- * 
+ *
  * A fixed layout manager
  *
  * #ClutterFixedLayout is a layout manager implementing the same
@@ -45,7 +45,7 @@ G_DEFINE_TYPE (ClutterFixedLayout,
 
 static void
 clutter_fixed_layout_get_preferred_width (ClutterLayoutManager *manager,
-                                          ClutterContainer     *container,
+                                          ClutterActor         *container,
                                           gfloat                for_height,
                                           gfloat               *min_width_p,
                                           gfloat               *nat_width_p)
@@ -90,7 +90,7 @@ clutter_fixed_layout_get_preferred_width (ClutterLayoutManager *manager,
 
 static void
 clutter_fixed_layout_get_preferred_height (ClutterLayoutManager *manager,
-                                           ClutterContainer     *container,
+                                           ClutterActor         *container,
                                            gfloat                for_width,
                                            gfloat               *min_height_p,
                                            gfloat               *nat_height_p)
@@ -135,7 +135,7 @@ clutter_fixed_layout_get_preferred_height (ClutterLayoutManager *manager,
 
 static void
 clutter_fixed_layout_allocate (ClutterLayoutManager   *manager,
-                               ClutterContainer       *container,
+                               ClutterActor           *container,
                                const ClutterActorBox  *allocation)
 {
   ClutterActor *child;

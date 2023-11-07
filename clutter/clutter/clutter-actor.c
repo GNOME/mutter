@@ -2268,15 +2268,13 @@ clutter_actor_real_get_preferred_width (ClutterActor *self,
 
   if (priv->layout_manager != NULL)
     {
-      ClutterContainer *container = CLUTTER_CONTAINER (self);
-
       CLUTTER_NOTE (LAYOUT, "Querying the layout manager '%s'[%p] "
                     "for the preferred width",
                     G_OBJECT_TYPE_NAME (priv->layout_manager),
                     priv->layout_manager);
 
       clutter_layout_manager_get_preferred_width (priv->layout_manager,
-                                                  container,
+                                                  self,
                                                   for_height,
                                                   min_width_p,
                                                   natural_width_p);
@@ -2307,15 +2305,13 @@ clutter_actor_real_get_preferred_height (ClutterActor *self,
 
   if (priv->layout_manager != NULL)
     {
-      ClutterContainer *container = CLUTTER_CONTAINER (self);
-
       CLUTTER_NOTE (LAYOUT, "Querying the layout manager '%s'[%p] "
                     "for the preferred height",
                     G_OBJECT_TYPE_NAME (priv->layout_manager),
                     priv->layout_manager);
 
       clutter_layout_manager_get_preferred_height (priv->layout_manager,
-                                                   container,
+                                                   self,
                                                    for_width,
                                                    min_height_p,
                                                    natural_height_p);
@@ -2572,7 +2568,7 @@ clutter_actor_real_allocate (ClutterActor           *self,
                     G_OBJECT_TYPE_NAME (priv->layout_manager));
 
       clutter_layout_manager_allocate (priv->layout_manager,
-                                       CLUTTER_CONTAINER (self),
+                                       self,
                                        &children_box);
     }
 
@@ -15970,8 +15966,7 @@ clutter_actor_set_layout_manager (ClutterActor         *self,
   if (priv->layout_manager != NULL)
     {
       g_object_ref_sink (priv->layout_manager);
-      clutter_layout_manager_set_container (priv->layout_manager,
-                                            CLUTTER_CONTAINER (self));
+      clutter_layout_manager_set_container (priv->layout_manager, self);
       priv->layout_changed_id =
         g_signal_connect (priv->layout_manager, "layout-changed",
                           G_CALLBACK (on_layout_manager_changed),

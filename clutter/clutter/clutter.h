@@ -37,6 +37,7 @@
 #include "clutter/clutter-backend.h"
 #include "clutter/clutter-bind-constraint.h"
 #include "clutter/clutter-binding-pool.h"
+#include "clutter/clutter-bin-layout.h"
 #include "clutter/clutter-blur-effect.h"
 #include "clutter/clutter-box-layout.h"
 #include "clutter/clutter-brightness-contrast-effect.h"
@@ -107,7 +108,6 @@
 #include "clutter/clutter-units.h"
 #include "clutter/clutter-virtual-input-device.h"
 #include "clutter/clutter-zoom-action.h"
-#include "clutter/clutter-bin-layout.h"
 
 #include "clutter/clutter-deprecated.h"
 

@@ -1549,7 +1549,7 @@ clutter_script_construct_parameters (ClutterScript  *script,
 
 static void
 apply_layout_properties (ClutterScript    *script,
-                         ClutterContainer *container,
+                         ClutterActor     *container,
                          ClutterActor     *actor,
                          ObjectInfo       *oinfo)
 {
@@ -1737,7 +1737,7 @@ _clutter_script_check_unresolved (ClutterScript *script,
               if (child_info == NULL)
                 continue;
 
-              apply_layout_properties (script, CLUTTER_CONTAINER (parent),
+              apply_layout_properties (script, parent,
                                        child,
                                        child_info);
             }

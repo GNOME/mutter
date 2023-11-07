@@ -32,20 +32,14 @@
 
 G_BEGIN_DECLS
 
-#define CLUTTER_TYPE_LAYOUT_MANAGER             (clutter_layout_manager_get_type ())
-#define CLUTTER_LAYOUT_MANAGER(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_LAYOUT_MANAGER, ClutterLayoutManager))
-#define CLUTTER_IS_LAYOUT_MANAGER(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_LAYOUT_MANAGER))
-#define CLUTTER_LAYOUT_MANAGER_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_LAYOUT_MANAGER, ClutterLayoutManagerClass))
-#define CLUTTER_IS_LAYOUT_MANAGER_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_LAYOUT_MANAGER))
-#define CLUTTER_LAYOUT_MANAGER_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_LAYOUT_MANAGER, ClutterLayoutManagerClass))
+#define CLUTTER_TYPE_LAYOUT_MANAGER (clutter_layout_manager_get_type ())
 
-typedef struct _ClutterLayoutManagerClass       ClutterLayoutManagerClass;
-
-struct _ClutterLayoutManager
-{
-  /*< private >*/
-  GInitiallyUnowned parent_instance;
-};
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (ClutterLayoutManager,
+                          clutter_layout_manager,
+                          CLUTTER,
+                          LAYOUT_MANAGER,
+                          GInitiallyUnowned)
 
 /**
  * ClutterLayoutManagerClass:
@@ -59,14 +53,15 @@ struct _ClutterLayoutManager
  *   layout manager. See also the allocate() virtual function in
  *   #ClutterActor
  * @set_container: virtual function; override to set a back pointer
- *   on the #ClutterContainer using the layout manager. The implementation
+ *   on the [type@Clutter.Actor] using the layout manager. The implementation
  *   should not take a reference on the container, but just take a weak
  *   reference, to avoid potential leaks due to reference cycles
  * @get_child_meta_type: virtual function; override to return the #GType
  *   of the #ClutterLayoutMeta sub-class used by the #ClutterLayoutManager
  * @create_child_meta: virtual function; override to create a
- *   #ClutterLayoutMeta instance associated to a #ClutterContainer and a
- *   child #ClutterActor, used to maintain layout manager specific properties
+ *   [type@Clutter.LayoutMeta] instance associated to a container
+ *   [type@Clutter.Actor] and a child [type@Clutter.Actor], used to maintain
+ *   layout manager specific properties
  * @layout_changed: class handler for the #ClutterLayoutManager::layout-changed
  *   signal
  *
@@ -80,53 +75,50 @@ struct _ClutterLayoutManagerClass
 
   /*< public >*/
   void               (* get_preferred_width)    (ClutterLayoutManager   *manager,
-                                                 ClutterContainer       *container,
+                                                 ClutterActor           *container,
                                                  gfloat                  for_height,
                                                  gfloat                 *min_width_p,
                                                  gfloat                 *nat_width_p);
   void               (* get_preferred_height)   (ClutterLayoutManager   *manager,
-                                                 ClutterContainer       *container,
+                                                 ClutterActor           *container,
                                                  gfloat                  for_width,
                                                  gfloat                 *min_height_p,
                                                  gfloat                 *nat_height_p);
   void               (* allocate)               (ClutterLayoutManager   *manager,
-                                                 ClutterContainer       *container,
+                                                 ClutterActor           *container,
                                                  const ClutterActorBox  *allocation);
 
   void               (* set_container)          (ClutterLayoutManager   *manager,
-                                                 ClutterContainer       *container);
+                                                 ClutterActor           *container);
 
   GType              (* get_child_meta_type)    (ClutterLayoutManager   *manager);
   ClutterLayoutMeta *(* create_child_meta)      (ClutterLayoutManager   *manager,
-                                                 ClutterContainer       *container,
+                                                 ClutterActor           *container,
                                                  ClutterActor           *actor);
 
   void               (* layout_changed)         (ClutterLayoutManager   *manager);
 };
 
 CLUTTER_EXPORT
-GType clutter_layout_manager_get_type (void) G_GNUC_CONST;
-
-CLUTTER_EXPORT
 void               clutter_layout_manager_get_preferred_width   (ClutterLayoutManager   *manager,
-                                                                 ClutterContainer       *container,
+                                                                 ClutterActor           *container,
                                                                  gfloat                  for_height,
                                                                  gfloat                 *min_width_p,
                                                                  gfloat                 *nat_width_p);
 CLUTTER_EXPORT
 void               clutter_layout_manager_get_preferred_height  (ClutterLayoutManager   *manager,
-                                                                 ClutterContainer       *container,
+                                                                 ClutterActor           *container,
                                                                  gfloat                  for_width,
                                                                  gfloat                 *min_height_p,
                                                                  gfloat                 *nat_height_p);
 CLUTTER_EXPORT
 void               clutter_layout_manager_allocate              (ClutterLayoutManager   *manager,
-                                                                 ClutterContainer       *container,
+                                                                 ClutterActor           *container,
                                                                  const ClutterActorBox  *allocation);
 
 CLUTTER_EXPORT
 void               clutter_layout_manager_set_container         (ClutterLayoutManager   *manager,
-                                                                 ClutterContainer       *container);
+                                                                 ClutterActor           *container);
 CLUTTER_EXPORT
 void               clutter_layout_manager_layout_changed        (ClutterLayoutManager   *manager);
 
@@ -139,30 +131,30 @@ GParamSpec **      clutter_layout_manager_list_child_properties (ClutterLayoutMa
 
 CLUTTER_EXPORT
 ClutterLayoutMeta *clutter_layout_manager_get_child_meta        (ClutterLayoutManager   *manager,
-                                                                 ClutterContainer       *container,
+                                                                 ClutterActor           *container,
                                                                  ClutterActor           *actor);
 
 CLUTTER_EXPORT
 void               clutter_layout_manager_child_set             (ClutterLayoutManager   *manager,
-                                                                 ClutterContainer       *container,
+                                                                 ClutterActor           *container,
                                                                  ClutterActor           *actor,
                                                                  const gchar            *first_property,
                                                                  ...) G_GNUC_NULL_TERMINATED;
 CLUTTER_EXPORT
 void               clutter_layout_manager_child_get             (ClutterLayoutManager   *manager,
-                                                                 ClutterContainer       *container,
+                                                                 ClutterActor           *container,
                                                                  ClutterActor           *actor,
                                                                  const gchar            *first_property,
                                                                  ...) G_GNUC_NULL_TERMINATED;
 CLUTTER_EXPORT
 void               clutter_layout_manager_child_set_property    (ClutterLayoutManager   *manager,
-                                                                 ClutterContainer       *container,
+                                                                 ClutterActor           *container,
                                                                  ClutterActor           *actor,
                                                                  const gchar            *property_name,
                                                                  const GValue           *value);
 CLUTTER_EXPORT
 void               clutter_layout_manager_child_get_property    (ClutterLayoutManager   *manager,
-                                                                 ClutterContainer       *container,
+                                                                 ClutterActor           *container,
                                                                  ClutterActor           *actor,
                                                                  const gchar            *property_name,
                                                                  GValue                 *value);

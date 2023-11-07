@@ -42,12 +42,10 @@
 #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
 
 #include "clutter/clutter-stage.h"
-#include "clutter/deprecated/clutter-container.h"
 
 #include "clutter/clutter-action-private.h"
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-backend-private.h"
-#include "clutter/clutter-container.h"
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-enum-types.h"
 #include "clutter/clutter-event-private.h"
@@ -321,7 +319,7 @@ clutter_stage_allocate (ClutterActor           *self,
   clutter_actor_set_allocation (self, box);
 
   clutter_layout_manager_allocate (layout_manager,
-                                   CLUTTER_CONTAINER (self),
+                                   self,
                                    &children_box);
 
   if (window_size.width != CLUTTER_NEARBYINT (width) ||

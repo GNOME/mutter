@@ -24,7 +24,7 @@
 
 /**
  * ClutterLayoutManager:
- * 
+ *
  * Layout managers base class
  *
  * #ClutterLayoutManager is a base abstract class for layout managers. A
@@ -44,10 +44,12 @@
  * #ClutterActor, so you should read the relative documentation
  * for subclassing #ClutterActor.
  *
- * The layout manager implementation can hold a back pointer to the
- * #ClutterContainer by implementing the #ClutterLayoutManagerClass.set_container()
- * virtual function. The layout manager should not hold a real reference (i.e.
- * call g_object_ref()) on the container actor, to avoid reference cycles.
+ * The layout manager implementation can hold a back pointer to the container
+ * [type@Clutter.Actor] by implementing the
+ * [vfunc@Clutter.LayoutManager.set_container] virtual function. The layout
+ * manager should not hold a real reference (i.e. call
+ * [method@GObject.Object.ref]) on the container actor, to avoid reference
+ * cycles.
  *
  * If a layout manager has properties affecting the layout policies then it should
  * emit the #ClutterLayoutManager::layout-changed signal on itself by using the
@@ -82,8 +84,8 @@
  * ```
  *
  * Where `manager` is the  #ClutterLayoutManager, `container` is the
- * #ClutterContainer using the #ClutterLayoutManager, and `actor` is
- * the #ClutterActor child of the #ClutterContainer.
+ * #ClutterActor using the #ClutterLayoutManager, and `actor` is
+ * the #ClutterActor child of the #ClutterActor.
  *
  * ## Using ClutterLayoutManager with ClutterScript
  *
@@ -131,9 +133,6 @@
 
 #include <glib-object.h>
 #include <gobject/gvaluecollector.h>
-
-#define CLUTTER_DISABLE_DEPRECATION_WARNINGS
-#include "clutter/deprecated/clutter-container.h"
 
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-layout-manager.h"
@@ -218,7 +217,7 @@ layout_manager_thaw_layout_change (ClutterLayoutManager *manager)
 
 static void
 layout_manager_real_get_preferred_width (ClutterLayoutManager *manager,
-                                         ClutterContainer     *container,
+                                         ClutterActor         *container,
                                          gfloat                for_height,
                                          gfloat               *min_width_p,
                                          gfloat               *nat_width_p)
@@ -234,7 +233,7 @@ layout_manager_real_get_preferred_width (ClutterLayoutManager *manager,
 
 static void
 layout_manager_real_get_preferred_height (ClutterLayoutManager *manager,
-                                          ClutterContainer     *container,
+                                          ClutterActor         *container,
                                           gfloat                for_width,
                                           gfloat               *min_height_p,
                                           gfloat               *nat_height_p)
@@ -250,7 +249,7 @@ layout_manager_real_get_preferred_height (ClutterLayoutManager *manager,
 
 static void
 layout_manager_real_allocate (ClutterLayoutManager   *manager,
-                              ClutterContainer       *container,
+                              ClutterActor           *container,
                               const ClutterActorBox  *allocation)
 {
   LAYOUT_MANAGER_WARN_NOT_IMPLEMENTED (manager, "allocate");
@@ -258,7 +257,7 @@ layout_manager_real_allocate (ClutterLayoutManager   *manager,
 
 static void
 layout_manager_real_set_container (ClutterLayoutManager *manager,
-                                   ClutterContainer     *container)
+                                   ClutterActor         *container)
 {
   if (container != NULL)
     g_object_set_data (G_OBJECT (container), "clutter-layout-manager", manager);
@@ -266,7 +265,7 @@ layout_manager_real_set_container (ClutterLayoutManager *manager,
 
 static ClutterLayoutMeta *
 layout_manager_real_create_child_meta (ClutterLayoutManager *manager,
-                                       ClutterContainer     *container,
+                                       ClutterActor         *container,
                                        ClutterActor         *actor)
 {
   ClutterLayoutManagerClass *klass;
@@ -357,7 +356,7 @@ clutter_layout_manager_init (ClutterLayoutManager *manager)
 /**
  * clutter_layout_manager_get_preferred_width:
  * @manager: a #ClutterLayoutManager
- * @container: the #ClutterContainer using @manager
+ * @container: the #ClutterActor using @manager
  * @for_height: the height for which the width should be computed, or -1
  * @min_width_p: (out) (allow-none): return location for the minimum width
  *   of the layout, or %NULL
@@ -371,7 +370,7 @@ clutter_layout_manager_init (ClutterLayoutManager *manager)
  */
 void
 clutter_layout_manager_get_preferred_width (ClutterLayoutManager *manager,
-                                            ClutterContainer     *container,
+                                            ClutterActor         *container,
                                             gfloat                for_height,
                                             gfloat               *min_width_p,
                                             gfloat               *nat_width_p)
@@ -379,7 +378,7 @@ clutter_layout_manager_get_preferred_width (ClutterLayoutManager *manager,
   ClutterLayoutManagerClass *klass;
 
   g_return_if_fail (CLUTTER_IS_LAYOUT_MANAGER (manager));
-  g_return_if_fail (CLUTTER_IS_CONTAINER (container));
+  g_return_if_fail (CLUTTER_IS_ACTOR (container));
 
   klass = CLUTTER_LAYOUT_MANAGER_GET_CLASS (manager);
   klass->get_preferred_width (manager, container, for_height,
@@ -390,7 +389,7 @@ clutter_layout_manager_get_preferred_width (ClutterLayoutManager *manager,
 /**
  * clutter_layout_manager_get_preferred_height:
  * @manager: a #ClutterLayoutManager
- * @container: the #ClutterContainer using @manager
+ * @container: the #ClutterActor using @manager
  * @for_width: the width for which the height should be computed, or -1
  * @min_height_p: (out) (allow-none): return location for the minimum height
  *   of the layout, or %NULL
@@ -404,7 +403,7 @@ clutter_layout_manager_get_preferred_width (ClutterLayoutManager *manager,
  */
 void
 clutter_layout_manager_get_preferred_height (ClutterLayoutManager *manager,
-                                             ClutterContainer     *container,
+                                             ClutterActor         *container,
                                              gfloat                for_width,
                                              gfloat               *min_height_p,
                                              gfloat               *nat_height_p)
@@ -412,7 +411,7 @@ clutter_layout_manager_get_preferred_height (ClutterLayoutManager *manager,
   ClutterLayoutManagerClass *klass;
 
   g_return_if_fail (CLUTTER_IS_LAYOUT_MANAGER (manager));
-  g_return_if_fail (CLUTTER_IS_CONTAINER (container));
+  g_return_if_fail (CLUTTER_IS_ACTOR (container));
 
   klass = CLUTTER_LAYOUT_MANAGER_GET_CLASS (manager);
   klass->get_preferred_height (manager, container, for_width,
@@ -423,7 +422,7 @@ clutter_layout_manager_get_preferred_height (ClutterLayoutManager *manager,
 /**
  * clutter_layout_manager_allocate:
  * @manager: a #ClutterLayoutManager
- * @container: the #ClutterContainer using @manager
+ * @container: the #ClutterActor using @manager
  * @allocation: the #ClutterActorBox containing the allocated area
  *   of @container
  *
@@ -433,13 +432,13 @@ clutter_layout_manager_get_preferred_height (ClutterLayoutManager *manager,
  */
 void
 clutter_layout_manager_allocate (ClutterLayoutManager   *manager,
-                                 ClutterContainer       *container,
+                                 ClutterActor           *container,
                                  const ClutterActorBox  *allocation)
 {
   ClutterLayoutManagerClass *klass;
 
   g_return_if_fail (CLUTTER_IS_LAYOUT_MANAGER (manager));
-  g_return_if_fail (CLUTTER_IS_CONTAINER (container));
+  g_return_if_fail (CLUTTER_IS_ACTOR (container));
   g_return_if_fail (allocation != NULL);
 
   klass = CLUTTER_LAYOUT_MANAGER_GET_CLASS (manager);
@@ -474,7 +473,7 @@ clutter_layout_manager_layout_changed (ClutterLayoutManager *manager)
 /**
  * clutter_layout_manager_set_container:
  * @manager: a #ClutterLayoutManager
- * @container: (allow-none): a #ClutterContainer using @manager
+ * @container: (allow-none): a [type@Clutter.Actor] using @manager
  *
  * If the #ClutterLayoutManager sub-class allows it, allow
  * adding a weak reference of the @container using @manager
@@ -485,12 +484,12 @@ clutter_layout_manager_layout_changed (ClutterLayoutManager *manager)
  */
 void
 clutter_layout_manager_set_container (ClutterLayoutManager *manager,
-                                      ClutterContainer     *container)
+                                      ClutterActor         *container)
 {
   ClutterLayoutManagerClass *klass;
 
   g_return_if_fail (CLUTTER_IS_LAYOUT_MANAGER (manager));
-  g_return_if_fail (container == NULL || CLUTTER_IS_CONTAINER (container));
+  g_return_if_fail (container == NULL || CLUTTER_IS_ACTOR (container));
 
   klass = CLUTTER_LAYOUT_MANAGER_GET_CLASS (manager);
   if (klass->set_container)
@@ -505,7 +504,7 @@ _clutter_layout_manager_get_child_meta_type (ClutterLayoutManager *manager)
 
 static inline ClutterLayoutMeta *
 create_child_meta (ClutterLayoutManager *manager,
-                   ClutterContainer     *container,
+                   ClutterActor         *container,
                    ClutterActor         *actor)
 {
   ClutterLayoutManagerClass *klass;
@@ -524,7 +523,7 @@ create_child_meta (ClutterLayoutManager *manager,
 
 static inline ClutterLayoutMeta *
 get_child_meta (ClutterLayoutManager *manager,
-                ClutterContainer     *container,
+                ClutterActor         *container,
                 ClutterActor         *actor)
 {
   ClutterLayoutMeta *layout = NULL;
@@ -535,7 +534,7 @@ get_child_meta (ClutterLayoutManager *manager,
       ClutterChildMeta *child = CLUTTER_CHILD_META (layout);
 
       if (layout->manager == manager &&
-          child->container == container &&
+          CLUTTER_ACTOR (child->container) == container &&
           child->actor == actor)
         return layout;
 
@@ -561,8 +560,8 @@ get_child_meta (ClutterLayoutManager *manager,
 /**
  * clutter_layout_manager_get_child_meta:
  * @manager: a #ClutterLayoutManager
- * @container: a #ClutterContainer using @manager
- * @actor: a #ClutterActor child of @container
+ * @container: a [type@Clutter.Actor] using @manager
+ * @actor: a [type@Clutter.Actor] child of @container
  *
  * Retrieves the #ClutterLayoutMeta that the layout @manager associated
  * to the @actor child of @container, eventually by creating one if the
@@ -575,11 +574,11 @@ get_child_meta (ClutterLayoutManager *manager,
  */
 ClutterLayoutMeta *
 clutter_layout_manager_get_child_meta (ClutterLayoutManager *manager,
-                                       ClutterContainer     *container,
+                                       ClutterActor         *container,
                                        ClutterActor         *actor)
 {
   g_return_val_if_fail (CLUTTER_IS_LAYOUT_MANAGER (manager), NULL);
-  g_return_val_if_fail (CLUTTER_IS_CONTAINER (container), NULL);
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (container), NULL);
   g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), NULL);
 
   return get_child_meta (manager, container, actor);
@@ -634,8 +633,8 @@ layout_get_property_internal (ClutterLayoutManager *manager,
 /**
  * clutter_layout_manager_child_set:
  * @manager: a #ClutterLayoutManager
- * @container: a #ClutterContainer using @manager
- * @actor: a #ClutterActor child of @container
+ * @container: a [type@Clutter.Actor] using @manager
+ * @actor: a [type@Clutter.Actor] child of @container
  * @first_property: the first property name
  * @...: a list of property name and value pairs
  *
@@ -647,7 +646,7 @@ layout_get_property_internal (ClutterLayoutManager *manager,
  */
 void
 clutter_layout_manager_child_set (ClutterLayoutManager *manager,
-                                  ClutterContainer     *container,
+                                  ClutterActor         *container,
                                   ClutterActor         *actor,
                                   const gchar          *first_property,
                                   ...)
@@ -658,7 +657,7 @@ clutter_layout_manager_child_set (ClutterLayoutManager *manager,
   va_list var_args;
 
   g_return_if_fail (CLUTTER_IS_LAYOUT_MANAGER (manager));
-  g_return_if_fail (CLUTTER_IS_CONTAINER (container));
+  g_return_if_fail (CLUTTER_IS_ACTOR (container));
   g_return_if_fail (CLUTTER_IS_ACTOR (actor));
   g_return_if_fail (first_property != NULL);
 
@@ -721,8 +720,8 @@ clutter_layout_manager_child_set (ClutterLayoutManager *manager,
 /**
  * clutter_layout_manager_child_set_property:
  * @manager: a #ClutterLayoutManager
- * @container: a #ClutterContainer using @manager
- * @actor: a #ClutterActor child of @container
+ * @container: a [type@Clutter.Actor] using @manager
+ * @actor: a [type@Clutter.Actor] child of @container
  * @property_name: the name of the property to set
  * @value: a #GValue with the value of the property to set
  *
@@ -731,7 +730,7 @@ clutter_layout_manager_child_set (ClutterLayoutManager *manager,
  */
 void
 clutter_layout_manager_child_set_property (ClutterLayoutManager *manager,
-                                           ClutterContainer     *container,
+                                           ClutterActor         *container,
                                            ClutterActor         *actor,
                                            const gchar          *property_name,
                                            const GValue         *value)
@@ -741,7 +740,7 @@ clutter_layout_manager_child_set_property (ClutterLayoutManager *manager,
   GParamSpec *pspec;
 
   g_return_if_fail (CLUTTER_IS_LAYOUT_MANAGER (manager));
-  g_return_if_fail (CLUTTER_IS_CONTAINER (container));
+  g_return_if_fail (CLUTTER_IS_ACTOR (container));
   g_return_if_fail (CLUTTER_IS_ACTOR (actor));
   g_return_if_fail (property_name != NULL);
   g_return_if_fail (value != NULL);
@@ -772,8 +771,8 @@ clutter_layout_manager_child_set_property (ClutterLayoutManager *manager,
 /**
  * clutter_layout_manager_child_get:
  * @manager: a #ClutterLayoutManager
- * @container: a #ClutterContainer using @manager
- * @actor: a #ClutterActor child of @container
+ * @container: a [type@Clutter.Actor] using @manager
+ * @actor: a [type@Clutter.Actor] child of @container
  * @first_property: the name of the first property
  * @...: a list of property name and return location for the value pairs
  *
@@ -783,7 +782,7 @@ clutter_layout_manager_child_set_property (ClutterLayoutManager *manager,
  */
 void
 clutter_layout_manager_child_get (ClutterLayoutManager *manager,
-                                  ClutterContainer     *container,
+                                  ClutterActor         *container,
                                   ClutterActor         *actor,
                                   const gchar          *first_property,
                                   ...)
@@ -794,7 +793,7 @@ clutter_layout_manager_child_get (ClutterLayoutManager *manager,
   va_list var_args;
 
   g_return_if_fail (CLUTTER_IS_LAYOUT_MANAGER (manager));
-  g_return_if_fail (CLUTTER_IS_CONTAINER (container));
+  g_return_if_fail (CLUTTER_IS_ACTOR (container));
   g_return_if_fail (CLUTTER_IS_ACTOR (actor));
   g_return_if_fail (first_property != NULL);
 
@@ -859,8 +858,8 @@ clutter_layout_manager_child_get (ClutterLayoutManager *manager,
 /**
  * clutter_layout_manager_child_get_property:
  * @manager: a #ClutterLayoutManager
- * @container: a #ClutterContainer using @manager
- * @actor: a #ClutterActor child of @container
+ * @container: a [type@Clutter.Actor] using @manager
+ * @actor: a [type@Clutter.Actor] child of @container
  * @property_name: the name of the property to get
  * @value: a #GValue with the value of the property to get
  *
@@ -873,7 +872,7 @@ clutter_layout_manager_child_get (ClutterLayoutManager *manager,
  */
 void
 clutter_layout_manager_child_get_property (ClutterLayoutManager *manager,
-                                           ClutterContainer     *container,
+                                           ClutterActor         *container,
                                            ClutterActor         *actor,
                                            const gchar          *property_name,
                                            GValue               *value)
@@ -883,7 +882,7 @@ clutter_layout_manager_child_get_property (ClutterLayoutManager *manager,
   GParamSpec *pspec;
 
   g_return_if_fail (CLUTTER_IS_LAYOUT_MANAGER (manager));
-  g_return_if_fail (CLUTTER_IS_CONTAINER (container));
+  g_return_if_fail (CLUTTER_IS_ACTOR (container));
   g_return_if_fail (CLUTTER_IS_ACTOR (actor));
   g_return_if_fail (property_name != NULL);
   g_return_if_fail (value != NULL);

@@ -280,7 +280,7 @@ test_text_field_main (gint    argc,
   label = create_label (CLUTTER_COLOR_White, "<b>Input field:</b>");
   g_object_set (label, "min-width", 150.0, NULL);
   clutter_actor_add_child (box, label);
-  clutter_layout_manager_child_set (grid, CLUTTER_CONTAINER (box), label,
+  clutter_layout_manager_child_set (grid, box, label,
                                     "row", 0,
                                     "column", 0,
                                     "x-expand", FALSE,
@@ -292,7 +292,7 @@ test_text_field_main (gint    argc,
   pango_attr_list_insert (entry_attrs, pango_attr_underline_color_new (65535, 0, 0));
   entry = create_entry (CLUTTER_COLOR_Black, "somme misspeeled textt", entry_attrs, 0, 0);
   clutter_actor_add_child (box, entry);
-  clutter_layout_manager_child_set (grid, CLUTTER_CONTAINER (box), entry,
+  clutter_layout_manager_child_set (grid, box, entry,
                                     "row", 0,
                                     "column", 1,
                                     "x-expand", TRUE,
@@ -303,7 +303,7 @@ test_text_field_main (gint    argc,
 
   label = create_label (CLUTTER_COLOR_White, "<b>A very long password field:</b>");
   clutter_actor_add_child (box, label);
-  clutter_layout_manager_child_set (grid, CLUTTER_CONTAINER (box), label,
+  clutter_layout_manager_child_set (grid, box, label,
                                     "row", 1,
                                     "column", 0,
                                     "x-expand", FALSE,
@@ -312,7 +312,7 @@ test_text_field_main (gint    argc,
 
   entry = create_entry (CLUTTER_COLOR_Black, "password", NULL, '*', 8);
   clutter_actor_add_child (box, entry);
-  clutter_layout_manager_child_set (grid, CLUTTER_CONTAINER (box), entry,
+  clutter_layout_manager_child_set (grid, box, entry,
                                     "row", 1,
                                     "column", 1,
                                     "x-expand", TRUE,

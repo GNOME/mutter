@@ -27,7 +27,7 @@
 
 /**
  * ClutterBoxLayout:
- * 
+ *
  * A layout manager arranging children on a single line
  *
  * The #ClutterBoxLayout is a #ClutterLayoutManager implementing the
@@ -50,9 +50,6 @@
 
 #include <math.h>
 
-#define CLUTTER_DISABLE_DEPRECATION_WARNINGS
-#include "clutter/deprecated/clutter-container.h"
-
 #include "clutter/clutter-box-layout.h"
 
 #include "clutter/clutter-actor-private.h"
@@ -64,7 +61,7 @@
 
 struct _ClutterBoxLayoutPrivate
 {
-  ClutterContainer *container;
+  ClutterActor *container;
 
   guint spacing;
 
@@ -106,13 +103,13 @@ static float distribute_natural_allocation (float          extra_space,
                                             unsigned int   n_requested_sizes,
                                             RequestedSize *sizes);
 static void count_expand_children         (ClutterLayoutManager *layout,
-					   ClutterContainer     *container,
-					   gint                 *visible_children,
-					   gint                 *expand_children);
+                                           ClutterActor         *container,
+                                           gint                 *visible_children,
+                                           gint                 *expand_children);
 
 static void
 clutter_box_layout_set_container (ClutterLayoutManager *layout,
-                                  ClutterContainer     *container)
+                                  ClutterActor         *container)
 {
   ClutterBoxLayoutPrivate *priv = CLUTTER_BOX_LAYOUT (layout)->priv;
   ClutterLayoutManagerClass *parent_class;
@@ -272,7 +269,6 @@ get_preferred_size_for_opposite_orientation (ClutterBoxLayout   *self,
 {
   ClutterLayoutManager *layout = CLUTTER_LAYOUT_MANAGER (self);
   ClutterBoxLayoutPrivate *priv = self->priv;
-  ClutterContainer *real_container = CLUTTER_CONTAINER (container);
   ClutterActor *child;
   ClutterActorIter iter;
   gint nvis_children = 0, n_extra_widgets = 0;
@@ -286,8 +282,7 @@ get_preferred_size_for_opposite_orientation (ClutterBoxLayout   *self,
 
   minimum = natural = 0;
 
-  count_expand_children (layout, real_container,
-			 &nvis_children, &nexpand_children);
+  count_expand_children (layout, container, &nvis_children, &nexpand_children);
 
   if (nvis_children < 1)
     {
@@ -419,7 +414,7 @@ get_preferred_size_for_opposite_orientation (ClutterBoxLayout   *self,
 
 static void
 allocate_box_child (ClutterBoxLayout       *self,
-                    ClutterContainer       *container,
+                    ClutterActor           *container,
                     ClutterActor           *child,
                     ClutterActorBox        *child_box)
 {
@@ -434,7 +429,7 @@ allocate_box_child (ClutterBoxLayout       *self,
 
 static void
 clutter_box_layout_get_preferred_width (ClutterLayoutManager *layout,
-                                        ClutterContainer     *container,
+                                        ClutterActor         *container,
                                         gfloat                for_height,
                                         gfloat               *min_width_p,
                                         gfloat               *natural_width_p)
@@ -458,7 +453,7 @@ clutter_box_layout_get_preferred_width (ClutterLayoutManager *layout,
 
 static void
 clutter_box_layout_get_preferred_height (ClutterLayoutManager *layout,
-                                         ClutterContainer     *container,
+                                         ClutterActor         *container,
                                          gfloat                for_width,
                                          gfloat               *min_height_p,
                                          gfloat               *natural_height_p)
@@ -482,19 +477,17 @@ clutter_box_layout_get_preferred_height (ClutterLayoutManager *layout,
 
 static void
 count_expand_children (ClutterLayoutManager *layout,
-                       ClutterContainer     *container,
+                       ClutterActor         *container,
                        gint                 *visible_children,
                        gint                 *expand_children)
 {
   ClutterBoxLayoutPrivate *priv = CLUTTER_BOX_LAYOUT (layout)->priv;
-  ClutterActor *actor, *child;
+  ClutterActor *child;
   ClutterActorIter iter;
-
-  actor = CLUTTER_ACTOR (container);
 
   *visible_children = *expand_children = 0;
 
-  clutter_actor_iter_init (&iter, actor);
+  clutter_actor_iter_init (&iter, container);
   while (clutter_actor_iter_next (&iter, &child))
     {
       if (clutter_actor_is_visible (child))
@@ -617,7 +610,7 @@ distribute_natural_allocation (float          extra_space,
 
 static void
 clutter_box_layout_allocate (ClutterLayoutManager   *layout,
-                             ClutterContainer       *container,
+                             ClutterActor           *container,
                              const ClutterActorBox  *box)
 {
   ClutterBoxLayoutPrivate *priv = CLUTTER_BOX_LAYOUT (layout)->priv;
