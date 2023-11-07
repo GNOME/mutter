@@ -28,7 +28,7 @@
 
 #pragma once
 
-#include "cogl/cogl-defines.h"
+#include "config.h"
 #include "cogl/cogl-macros.h"
 #include "cogl/cogl-types.h"
 

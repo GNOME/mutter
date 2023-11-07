@@ -31,7 +31,7 @@
  * being a canvas. Anyway, this is required for applications using
  * just clutter, or directly [class@Clutter.Stage]
  */
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "cally/cally-stage.h"
 #include "cally/cally-actor-private.h"

@@ -47,7 +47,7 @@
  * The `ClutterPaintNodeClass` structure contains only private data.
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include <gobject/gvaluecollector.h>
 #include <pango/pango.h>

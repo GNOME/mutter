@@ -89,7 +89,7 @@ meta_later_destroy (MetaLater *later)
   meta_later_unref (later);
 }
 
-#ifdef COGL_HAS_TRACING
+#ifdef HAVE_PROFILER
 static const char *
 later_type_to_string (MetaLaterType when)
 {

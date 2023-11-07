@@ -33,7 +33,7 @@
  * [class@Clutter.StageManager]).
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "cally/cally-root.h"
 

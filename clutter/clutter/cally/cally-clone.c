@@ -66,7 +66,7 @@
  * a11y POV should still be managed as a image (with the proper properties,
  * position, size, etc.).
  */
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "cally/cally-clone.h"
 #include "cally/cally-actor-private.h"

@@ -34,7 +34,7 @@
  * http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
  */
 
-#include "cogl-config.h"
+#include "config.h"
 
 #include "cogl/cogl-util.h"
 #include "cogl/cogl-point-in-poly-private.h"

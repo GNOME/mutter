@@ -33,7 +33,7 @@
  * An offset can be applied to the constraint, to provide spacing.
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include <math.h>
 

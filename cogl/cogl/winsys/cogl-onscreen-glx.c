@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-#include "cogl-config.h"
+#include "config.h"
 
 #include "cogl/winsys/cogl-onscreen-glx.h"
 

@@ -25,7 +25,7 @@
  *
  */
 
-#include "cogl-config.h"
+#include "config.h"
 
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-framebuffer-private.h"

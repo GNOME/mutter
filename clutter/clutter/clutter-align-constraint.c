@@ -32,7 +32,7 @@
  * [class@Actor] using an alignment factor
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "clutter/clutter-align-constraint.h"
 

@@ -44,7 +44,7 @@
  * distance between two touch points.
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include <math.h>
 

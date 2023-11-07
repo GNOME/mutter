@@ -35,7 +35,7 @@
  * 5 seconds of the transition will be played.
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "clutter/clutter-transition-group.h"
 

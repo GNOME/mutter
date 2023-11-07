@@ -31,7 +31,7 @@
  *  Neil Roberts   <neil@linux.intel.com>
  */
 
-#include "cogl-config.h"
+#include "config.h"
 
 #include "cogl/cogl-util.h"
 #include "cogl/cogl-texture-private.h"

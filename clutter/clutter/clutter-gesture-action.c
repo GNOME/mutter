@@ -81,7 +81,7 @@
  * instead.
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 
 #include "clutter/clutter-debug.h"

@@ -37,7 +37,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "cogl/cogl-defines.h"
+#include "config.h"
 #include "cogl/cogl-macros.h"
 
 #include <glib.h>

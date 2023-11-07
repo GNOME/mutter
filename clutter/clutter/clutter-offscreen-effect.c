@@ -85,7 +85,7 @@
  * of [vfunc@OffscreenEffect.create_pipeline].
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "clutter/clutter-offscreen-effect.h"
 

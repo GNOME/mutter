@@ -26,7 +26,7 @@
  * SOFTWARE.
  */
 
-#include "cogl-config.h"
+#include "config.h"
 
 /* This is needed to get the Pango headers to export stuff needed to
    subclass */

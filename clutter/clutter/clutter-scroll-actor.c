@@ -40,7 +40,7 @@
  * for an example of how to use #ClutterScrollActor..
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "clutter/clutter-scroll-actor.h"
 

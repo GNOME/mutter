@@ -30,7 +30,7 @@
  * computes the interpolation between two values, stored by a [class@Interval].
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "clutter/clutter-transition.h"
 

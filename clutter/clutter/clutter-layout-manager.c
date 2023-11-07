@@ -88,7 +88,7 @@
  * the #ClutterActor child of the #ClutterActor.
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include <glib-object.h>
 #include <gobject/gvaluecollector.h>

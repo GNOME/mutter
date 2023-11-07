@@ -25,7 +25,7 @@
  *
  */
 
-#include "cogl-config.h"
+#include "config.h"
 
 #include "cogl/driver/gl/cogl-gl-framebuffer-fbo.h"
 
@@ -374,7 +374,7 @@ try_creating_fbo (CoglContext                 *ctx,
     return FALSE;
 
   if (tex_gl_target != GL_TEXTURE_2D
-#ifdef HAVE_COGL_GL
+#ifdef HAVE_GL
       && tex_gl_target != GL_TEXTURE_RECTANGLE_ARB
 #endif
       )

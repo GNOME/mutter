@@ -523,6 +523,10 @@ cdata.set_quoted('PACKAGE_NAME', meson.project_name())
 cdata.set_quoted('PACKAGE_VERSION', meson.project_version())
 
 cdata.set('HAVE_EGL', have_egl)
+cdata.set('HAVE_GLX', have_glx)
+cdata.set('HAVE_EGL_PLATFORM_XLIB', have_egl_xlib)
+cdata.set('HAVE_GL', have_gl)
+cdata.set('HAVE_GLES2', have_gles2)
 cdata.set('HAVE_WAYLAND', have_wayland)
 cdata.set('HAVE_XWAYLAND', have_xwayland)
 cdata.set('HAVE_X11', have_x11)
@@ -541,6 +545,7 @@ cdata.set('HAVE_STARTUP_NOTIFICATION', have_startup_notification)
 cdata.set('HAVE_INTROSPECTION', have_introspection)
 cdata.set('HAVE_PROFILER', have_profiler)
 cdata.set('HAVE_LIBDISPLAY_INFO', have_libdisplay_info)
+cdata.set('HAVE_PANGO_FT2', have_pango_ft2)
 
 if have_x11_client
   xkb_base = xkeyboard_config_dep.get_variable('xkb_base')

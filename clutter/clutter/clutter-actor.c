@@ -479,7 +479,7 @@
  * ```
  */
 
-#include "clutter-build-config.h"
+#include "config.h"
 
 #include <math.h>
 
@@ -3566,7 +3566,7 @@ clutter_actor_paint (ClutterActor        *self,
   if (!clutter_actor_is_mapped (self))
     return;
 
-#ifdef COGL_HAS_TRACING
+#ifdef HAVE_PROFILER
   COGL_TRACE_SCOPED_ANCHOR (ClutterActorPaint);
 
   if (G_UNLIKELY (clutter_debug_flags & CLUTTER_DEBUG_DETAILED_TRACE))
@@ -8734,7 +8734,7 @@ clutter_actor_allocate (ClutterActor          *self,
       !clutter_actor_has_mapped_clones (self))
     return;
 
-#ifdef COGL_HAS_TRACING
+#ifdef HAVE_PROFILER
   COGL_TRACE_SCOPED_ANCHOR (ClutterActorAllocate);
 
   if (G_UNLIKELY (clutter_debug_flags & CLUTTER_DEBUG_DETAILED_TRACE))

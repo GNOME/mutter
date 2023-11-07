@@ -28,7 +28,7 @@
  *
  */
 
-#include "cogl-config.h"
+#include "config.h"
 
 #include "cogl/cogl-mutter.h"
 #include "cogl/cogl-private.h"

@@ -34,7 +34,7 @@
  *  Robert Bragg   <robert@linux.intel.com>
  */
 
-#include "cogl-config.h"
+#include "config.h"
 
 #include "cogl/cogl-util.h"
 #include "cogl/cogl-bitmap.h"

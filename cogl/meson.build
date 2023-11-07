@@ -4,16 +4,6 @@ cogl_srcdir = meson.current_source_dir()
 
 cogl_includepath = [mtk_includepath, include_directories('.', 'cogl')]
 
-cdata = configuration_data()
-cdata.set('HAVE_COGL_GL', have_gl)
-cdata.set('HAVE_COGL_GLES2', have_gles2)
-cdata.set('ENABLE_UNIT_TESTS', have_cogl_tests)
-
-cogl_config_h = configure_file(
-  input: 'cogl-config.h.meson',
-  output: 'cogl-config.h',
-  configuration: cdata)
-
 cogl_pkg_deps = [
   glib_dep,
   gio_dep,

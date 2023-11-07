@@ -29,7 +29,7 @@
  *
  */
 
-#include "cogl-config.h"
+#include "config.h"
 
 #include <string.h>
 
@@ -2159,7 +2159,7 @@ get_line_count (CoglVerticesMode mode, int n_vertices)
     }
     /* In the journal we are a bit sneaky and actually use GL_QUADS
      * which isn't actually a valid CoglVerticesMode! */
-#ifdef HAVE_COGL_GL
+#ifdef HAVE_GL
   else if (mode == GL_QUADS && (n_vertices % 4) == 0)
     {
       return n_vertices;
@@ -2247,7 +2247,7 @@ get_wire_line_indices (CoglContext *ctx,
     }
     /* In the journal we are a bit sneaky and actually use GL_QUADS
      * which isn't actually a valid CoglVerticesMode! */
-#ifdef HAVE_COGL_GL
+#ifdef HAVE_GL
   else if (mode == GL_QUADS && (n_vertices_in % 4) == 0)
     {
       for (i = 0; i < n_vertices_in; i += 4)

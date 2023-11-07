@@ -28,6 +28,17 @@
 /* Defined if EGLDevice support is enabled */
 #mesondefine HAVE_EGL_DEVICE
 
+/* Have GLX for rendering */
+#mesondefine HAVE_GLX
+
+#mesondefine HAVE_EGL_PLATFORM_XLIB
+
+/* Have GL for rendering */
+#mesondefine HAVE_GL
+
+/* Have GLES 2.0 for rendering */
+#mesondefine HAVE_GLES2
+
 /* Defined if EGLStream support is enabled */
 #mesondefine HAVE_WAYLAND_EGLSTREAM
 
@@ -115,3 +126,6 @@
 
 /* Whether the Xwayland has -enable-ei-portal option */
 #mesondefine HAVE_XWAYLAND_ENABLE_EI_PORTAL
+
+/* Supports PangoFt2 */
+#mesondefine HAVE_PANGO_FT2

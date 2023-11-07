@@ -28,7 +28,7 @@
  *
  */
 
-#include "cogl-config.h"
+#include "config.h"
 
 #include "cogl/cogl-frame-info-private.h"
 #include "cogl/cogl-context-private.h"

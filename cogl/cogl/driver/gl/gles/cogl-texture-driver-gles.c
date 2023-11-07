@@ -33,7 +33,7 @@
  *  Robert Bragg   <robert@linux.intel.com>
  */
 
-#include "cogl-config.h"
+#include "config.h"
 
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-util.h"

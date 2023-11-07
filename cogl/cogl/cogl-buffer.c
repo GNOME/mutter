@@ -37,7 +37,7 @@
  * Pixel Buffers API.
  */
 
-#include "cogl-config.h"
+#include "config.h"
 
 #include <stdio.h>
 #include <string.h>

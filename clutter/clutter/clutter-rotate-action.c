@@ -31,7 +31,7 @@
  * the logic for recognizing rotate gestures using two touch points.
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include <math.h>
 

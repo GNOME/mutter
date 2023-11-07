@@ -43,7 +43,7 @@
  * actor content is in pq or not, and things like that
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "clutter/clutter-color-state.h"
 

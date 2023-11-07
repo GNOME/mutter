@@ -316,7 +316,7 @@ meta_sync_counter_update (MetaSyncCounter *sync_counter,
                                          no_delay_frame);
     }
 
-#ifdef COGL_HAS_TRACING
+#ifdef HAVE_PROFILER
   if (G_UNLIKELY (cogl_is_tracing_enabled ()))
     {
       g_autofree char *description = NULL;
@@ -384,7 +384,7 @@ do_send_frame_drawn (MetaSyncCounter *sync_counter,
   XFlush (xdisplay);
   meta_x11_error_trap_pop (display->x11_display);
 
-#ifdef COGL_HAS_TRACING
+#ifdef HAVE_PROFILER
   if (G_UNLIKELY (cogl_is_tracing_enabled ()))
     {
       g_autofree char *description = NULL;
@@ -445,7 +445,7 @@ do_send_frame_timings (MetaSyncCounter *sync_counter,
   XFlush (xdisplay);
   meta_x11_error_trap_pop (display->x11_display);
 
-#ifdef COGL_HAS_TRACING
+#ifdef HAVE_PROFILER
   if (G_UNLIKELY (cogl_is_tracing_enabled ()))
     {
       g_autofree char *description = NULL;

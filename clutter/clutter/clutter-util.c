@@ -30,7 +30,7 @@
  * Various miscellaneous utilility functions.
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include <fribidi.h>
 #include <math.h>

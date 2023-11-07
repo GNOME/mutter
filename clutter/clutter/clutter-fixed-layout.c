@@ -33,7 +33,7 @@
  * layout policies as #ClutterGroup.
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-fixed-layout.h"

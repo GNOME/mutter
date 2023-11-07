@@ -23,7 +23,7 @@
 
 /* This list implementation is based on the Wayland source code */
 
-#include "cogl-config.h"
+#include "config.h"
 
 #include <stdlib.h>
 #include <string.h>

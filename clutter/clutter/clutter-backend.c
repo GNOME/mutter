@@ -37,7 +37,7 @@
  * and settings.
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "clutter/clutter-backend-private.h"
 #include "clutter/clutter-debug.h"
@@ -222,7 +222,7 @@ clutter_backend_real_create_context (ClutterBackend  *backend,
 
   drivers_list = g_getenv ("CLUTTER_DRIVER");
   if (drivers_list == NULL)
-    drivers_list = CLUTTER_DRIVERS;
+    drivers_list = "*";
 
   known_drivers = g_strsplit (drivers_list, ",", 0);
 

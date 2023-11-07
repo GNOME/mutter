@@ -36,7 +36,7 @@
  * implementation.
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-clone.h"

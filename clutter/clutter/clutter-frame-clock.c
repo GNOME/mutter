@@ -15,7 +15,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "clutter/clutter-frame-clock.h"
 
@@ -284,7 +284,7 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
         }
     }
 
-#ifdef COGL_HAS_TRACING
+#ifdef HAVE_PROFILER
   if (G_UNLIKELY (cogl_is_tracing_enabled ()))
     {
       int64_t current_time_us;
@@ -710,7 +710,7 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
   ClutterFrameResult result;
   int64_t ideal_dispatch_time_us, lateness_us;
 
-#ifdef COGL_HAS_TRACING
+#ifdef HAVE_PROFILER
   int64_t this_dispatch_ready_time_us;
   int64_t this_dispatch_time_us;
 
@@ -804,7 +804,7 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
       break;
     }
 
-#ifdef COGL_HAS_TRACING
+#ifdef HAVE_PROFILER
   if (this_dispatch_ready_time_us != -1 &&
       G_UNLIKELY (cogl_is_tracing_enabled ()))
     {

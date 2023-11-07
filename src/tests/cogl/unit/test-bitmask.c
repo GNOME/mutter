@@ -1,4 +1,4 @@
-#include "cogl-config.h"
+#include "config.h"
 
 #include "cogl/cogl-bitmask.h"
 #include "tests/cogl-test-utils.h"

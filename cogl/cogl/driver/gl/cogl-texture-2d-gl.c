@@ -32,7 +32,7 @@
  *  Robert Bragg   <robert@linux.intel.com>
  */
 
-#include "cogl-config.h"
+#include "config.h"
 
 #include <string.h>
 
@@ -44,7 +44,7 @@
 #include "cogl/driver/gl/cogl-pipeline-opengl-private.h"
 #include "cogl/driver/gl/cogl-util-gl-private.h"
 
-#if defined (COGL_HAS_EGL_SUPPORT)
+#if defined (HAVE_EGL)
 
 /* We need this define from GLES2, but can't include the header
    as its type definitions may conflict with the GL ones
@@ -57,7 +57,7 @@
 #define GL_SAMPLER_EXTERNAL_OES           0x8D66
 #endif /* GL_OES_EGL_image_external */
 
-#endif /* defined (COGL_HAS_EGL_SUPPORT) */
+#endif /* defined (HAVE_EGL) */
 
 void
 _cogl_texture_2d_gl_free (CoglTexture2D *tex_2d)
@@ -65,7 +65,7 @@ _cogl_texture_2d_gl_free (CoglTexture2D *tex_2d)
   if (tex_2d->gl_texture)
     _cogl_delete_gl_texture (tex_2d->gl_texture);
 
-#if defined (COGL_HAS_EGL_SUPPORT)
+#if defined (HAVE_EGL)
   g_clear_pointer (&tex_2d->egl_image_external.user_data,
                    tex_2d->egl_image_external.destroy);
 #endif
@@ -260,7 +260,7 @@ allocate_from_bitmap (CoglTexture2D *tex_2d,
   return TRUE;
 }
 
-#if defined (COGL_HAS_EGL_SUPPORT) && defined (EGL_KHR_image_base)
+#if defined (HAVE_EGL) && defined (EGL_KHR_image_base)
 static gboolean
 allocate_from_egl_image (CoglTexture2D *tex_2d,
                          CoglTextureLoader *loader,
@@ -294,7 +294,7 @@ allocate_from_egl_image (CoglTexture2D *tex_2d,
 }
 #endif
 
-#if defined (COGL_HAS_EGL_SUPPORT)
+#if defined (HAVE_EGL)
 static gboolean
 allocate_custom_egl_image_external (CoglTexture2D *tex_2d,
                                     CoglTextureLoader *loader,
@@ -413,7 +413,7 @@ cogl_texture_2d_new_from_egl_image_external (CoglContext *ctx,
 
   return COGL_TEXTURE (tex_2d);
 }
-#endif /* defined (COGL_HAS_EGL_SUPPORT) */
+#endif /* defined (HAVE_EGL) */
 
 gboolean
 _cogl_texture_2d_gl_allocate (CoglTexture *tex,
@@ -431,13 +431,13 @@ _cogl_texture_2d_gl_allocate (CoglTexture *tex,
     case COGL_TEXTURE_SOURCE_TYPE_BITMAP:
       return allocate_from_bitmap (tex_2d, loader, error);
     case COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE:
-#if defined (COGL_HAS_EGL_SUPPORT) && defined (EGL_KHR_image_base)
+#if defined (HAVE_EGL) && defined (EGL_KHR_image_base)
       return allocate_from_egl_image (tex_2d, loader, error);
 #else
       g_return_val_if_reached (FALSE);
 #endif
     case COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE_EXTERNAL:
-#if defined (COGL_HAS_EGL_SUPPORT)
+#if defined (HAVE_EGL)
       return allocate_custom_egl_image_external (tex_2d, loader, error);
 #else
       g_return_val_if_reached (FALSE);

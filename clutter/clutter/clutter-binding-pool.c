@@ -93,7 +93,7 @@
  * key binding handler returned %FALSE.
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "clutter/clutter-binding-pool.h"
 #include "clutter/clutter-debug.h"

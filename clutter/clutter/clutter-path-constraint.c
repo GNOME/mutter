@@ -34,7 +34,7 @@
  * control how far along the path the [class@Actor] should be..
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "clutter/clutter-path-constraint.h"
 

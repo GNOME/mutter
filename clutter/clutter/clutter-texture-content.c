@@ -24,7 +24,7 @@
  *   Robert Mader <robert.mader@posteo.de>
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "clutter/clutter-texture-content.h"
 

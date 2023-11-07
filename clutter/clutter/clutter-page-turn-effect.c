@@ -33,7 +33,7 @@
  * A simple page turning effect
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include <math.h>
 

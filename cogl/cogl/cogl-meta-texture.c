@@ -30,7 +30,7 @@
  *  Robert Bragg   <robert@linux.intel.com>
  */
 
-#include "cogl-config.h"
+#include "config.h"
 
 #include "cogl/cogl-texture.h"
 #include "cogl/cogl-spans.h"

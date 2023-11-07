@@ -36,7 +36,7 @@
 
 #include <sys/shm.h>
 
-#ifdef COGL_HAS_GLX_SUPPORT
+#ifdef HAVE_GLX
 #include <GL/glx.h>
 #endif
 

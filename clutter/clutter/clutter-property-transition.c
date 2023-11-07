@@ -28,7 +28,7 @@
  * can be used to tween a property of a [iface@Animatable] instance.
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "clutter/clutter-property-transition.h"
 

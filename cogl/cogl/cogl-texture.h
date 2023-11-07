@@ -35,7 +35,7 @@
 #endif
 
 #include "cogl/cogl-macros.h"
-#include "cogl/cogl-defines.h"
+#include "config.h"
 #include "cogl/cogl-pixel-buffer.h"
 #include "cogl/cogl-pixel-format.h"
 #include "cogl/cogl-bitmap.h"

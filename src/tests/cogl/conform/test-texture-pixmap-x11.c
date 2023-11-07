@@ -4,7 +4,7 @@
 
 static const ClutterColor stage_color = { 0x00, 0x00, 0x00, 0xff };
 
-#ifdef COGL_HAS_XLIB
+#ifdef HAVE_X11
 
 #include <clutter/x11/clutter-x11.h>
 #include <cogl/cogl-texture-pixmap-x11.h>
@@ -198,13 +198,13 @@ queue_redraw (void *stage)
   return TRUE;
 }
 
-#endif /* COGL_HAS_XLIB */
+#endif /* HAVE_X11 */
 
 void
 test_texture_pixmap_x11 (TestUtilsGTestFixture *fixture,
                               void *data)
 {
-#ifdef COGL_HAS_XLIB
+#ifdef HAVE_X11
 
   TestState state;
   unsigned int idle_handler;
@@ -238,11 +238,11 @@ test_texture_pixmap_x11 (TestUtilsGTestFixture *fixture,
   if (cogl_test_verbose ())
     g_print ("OK\n");
 
-#else /* COGL_HAS_XLIB */
+#else /* HAVE_X11 */
 
   if (cogl_test_verbose ())
    g_print ("Skipping\n");
 
-#endif /* COGL_HAS_XLIB */
+#endif /* HAVE_X11 */
 }
 

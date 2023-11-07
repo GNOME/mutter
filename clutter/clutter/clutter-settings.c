@@ -15,7 +15,7 @@
  * for instance the default font name.
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "clutter/clutter-settings.h"
 

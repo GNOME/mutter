@@ -33,7 +33,7 @@
  *   Matthew Allum  <mallum@openedhand.com>
  */
 
-#include "cogl-config.h"
+#include "config.h"
 
 #ifndef PANGO_ENABLE_BACKEND
 #define PANGO_ENABLE_BACKEND 1

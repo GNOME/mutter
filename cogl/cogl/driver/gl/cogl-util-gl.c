@@ -30,7 +30,7 @@
  *  Robert Bragg   <robert@linux.intel.com>
  */
 
-#include "cogl-config.h"
+#include "config.h"
 
 #include "cogl/cogl-types.h"
 #include "cogl/cogl-context-private.h"
@@ -68,7 +68,7 @@ static const struct {
   { GL_INVALID_ENUM,      "Invalid enumeration value" },
   { GL_INVALID_VALUE,     "Invalid value" },
   { GL_INVALID_OPERATION, "Invalid operation" },
-#ifdef HAVE_COGL_GL
+#ifdef HAVE_GL
   { GL_STACK_OVERFLOW,    "Stack overflow" },
   { GL_STACK_UNDERFLOW,   "Stack underflow" },
 #endif
@@ -331,7 +331,7 @@ _cogl_context_get_gl_extensions (CoglContext *context)
 
   /* In GL 3, querying GL_EXTENSIONS is deprecated so we have to build
    * the array using glGetStringi instead */
-#ifdef HAVE_COGL_GL
+#ifdef HAVE_GL
   if (context->driver == COGL_DRIVER_GL3)
     {
       int num_extensions, i;

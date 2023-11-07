@@ -34,7 +34,7 @@
 #error "cogl-gl-header.h should only be included when compiling Cogl"
 #endif
 
-#include "cogl/cogl-defines.h"
+#include "config.h"
 
 @COGL_GL_HEADER_INCLUDES@
 

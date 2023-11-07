@@ -29,7 +29,7 @@
  *   Robert Bragg <robert@linux.intel.com>
  */
 
-#include "cogl-config.h"
+#include "config.h"
 
 #include <glib.h>
 #include <string.h>
@@ -40,7 +40,7 @@
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-framebuffer-private.h"
 #include "cogl/cogl-onscreen-private.h"
-#ifdef COGL_HAS_XLIB
+#ifdef HAVE_X11
 #include "cogl/cogl-xlib-renderer.h"
 #endif
 #include "cogl/winsys/cogl-winsys-private.h"

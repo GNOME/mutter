@@ -38,7 +38,7 @@
  * various event-related signals provided by [class@Actor] itself.
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "clutter/clutter-action.h"
 #include "clutter/clutter-action-private.h"

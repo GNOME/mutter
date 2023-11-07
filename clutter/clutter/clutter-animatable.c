@@ -36,7 +36,7 @@
  * depending on a progress factor, expressed as a floating point value.
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "clutter/clutter-animatable.h"
 #include "clutter/clutter-interval.h"

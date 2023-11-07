@@ -1,24 +1,6 @@
 cogl_cogl_includesubdir = cogl_includesubdir / 'cogl'
 cogl_cogl_includedir = cogl_includedir / 'cogl'
 
-cdata = configuration_data()
-cdata.set('COGL_HAS_GL', have_gl)
-cdata.set('CLUTTER_COGL_HAS_GL', have_gl)
-cdata.set('COGL_HAS_GLX_SUPPORT', have_glx)
-cdata.set('COGL_HAS_EGL_PLATFORM_XLIB_SUPPORT', have_egl_xlib)
-cdata.set('COGL_HAS_EGL_SUPPORT', have_egl)
-cdata.set('COGL_HAS_X11', have_x11)
-cdata.set('COGL_HAS_XLIB', have_x11_client)
-cdata.set('COGL_HAS_TRACING', have_profiler)
-
-cogl_defines_h = configure_file(
-  input: 'cogl-defines.h.meson',
-  output: 'cogl-defines.h',
-  configuration: cdata,
-  install_dir: cogl_cogl_includedir,
-  install: true,
-)
-
 if have_gl
   cogl_gl_header_includes = ['GL/gl.h']
 elif have_gles2
@@ -192,7 +174,6 @@ endif
 
 cogl_sources = [
   cogl_driver_sources,
-
   'winsys/cogl-winsys-private.h',
   'winsys/cogl-winsys.c',
   'cogl-private.h',
@@ -344,7 +325,7 @@ cogl_sources = [
   'cogl-graphene.c',
 ]
 
-if have_x11_client
+if have_x11
   cogl_nonintrospected_headers += [
     'winsys/cogl-texture-pixmap-x11.h',
     'cogl-xlib.h',
@@ -419,7 +400,7 @@ libmutter_cogl = shared_library(libmutter_cogl_name,
   version: '0.0.0',
   soversion: 0,
   c_args: cogl_c_args,
-  include_directories: cogl_includepath,
+  include_directories: [cogl_includepath, top_includepath],
   dependencies: cogl_deps,
   gnu_symbol_visibility: 'hidden',
   install_rpath: pkglibdir,

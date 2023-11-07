@@ -24,7 +24,7 @@
  *
  */
 
-#include "cogl-config.h"
+#include "config.h"
 
 #include "cogl/winsys/cogl-onscreen-xlib.h"
 

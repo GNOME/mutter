@@ -25,7 +25,7 @@
  *
  */
 
-#include "cogl-config.h"
+#include "config.h"
 
 #include "cogl/cogl-framebuffer-driver.h"
 

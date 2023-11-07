@@ -36,8 +36,17 @@
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
 
-#include "cogl/cogl-defines.h"
+#include "config.h"
 #include "cogl/cogl-context.h"
+
+#include <poll.h>
+
+#define COGL_SYSDEF_POLLIN POLLIN
+#define COGL_SYSDEF_POLLPRI POLLPRI
+#define COGL_SYSDEF_POLLOUT POLLOUT
+#define COGL_SYSDEF_POLLERR POLLERR
+#define COGL_SYSDEF_POLLHUP POLLHUP
+#define COGL_SYSDEF_POLLNVAL POLLNVAL
 
 G_BEGIN_DECLS
 

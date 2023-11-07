@@ -27,7 +27,7 @@
  *
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
 

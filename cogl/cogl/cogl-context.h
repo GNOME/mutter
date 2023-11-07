@@ -42,7 +42,6 @@
 typedef struct _CoglContext CoglContext;
 typedef struct _CoglTimestampQuery CoglTimestampQuery;
 
-#include "cogl/cogl-defines.h"
 #include "cogl/cogl-display.h"
 #include "cogl/cogl-pipeline.h"
 #include "cogl/cogl-primitive.h"

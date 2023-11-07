@@ -42,7 +42,7 @@
  * shows how to pack actors inside a #ClutterBinLayout.
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include <math.h>
 

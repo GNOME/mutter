@@ -17,7 +17,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "clutter/clutter-keymap-private.h"
 #include "clutter/clutter-private.h"

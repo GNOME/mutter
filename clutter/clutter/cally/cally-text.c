@@ -35,7 +35,7 @@
  * [class@Clutter.Text], #AtkText and #AtkEditableText
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "cally/cally-text.h"
 #include "cally/cally-actor-private.h"

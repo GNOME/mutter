@@ -66,7 +66,7 @@
  *
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include <glib.h>
 

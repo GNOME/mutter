@@ -31,7 +31,7 @@
  *   Robert Bragg <robert@linux.intel.com>
  */
 
-#include "cogl-config.h"
+#include "config.h"
 
 #include "cogl/cogl-indices.h"
 #include "cogl/cogl-indices-private.h"

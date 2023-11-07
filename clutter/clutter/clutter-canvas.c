@@ -39,7 +39,7 @@
  * for an example of how to use #ClutterCanvas..
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include <math.h>
 #include <cairo-gobject.h>

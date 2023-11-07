@@ -1,5 +1,5 @@
 /*** BEGIN file-header ***/
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 #include "clutter/clutter-enum-types.h"
 /*** END file-header ***/
 

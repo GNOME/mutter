@@ -34,7 +34,7 @@
  * for an example of how to use #ClutterImage..
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "clutter/clutter-image.h"
 

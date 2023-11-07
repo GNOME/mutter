@@ -21,7 +21,7 @@
  * mousetweaks Copyright (C) 2007-2010 Gerd Kohlberger <gerdko gmail com>
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "clutter/clutter-backend-private.h"
 #include "clutter/clutter-enum-types.h"

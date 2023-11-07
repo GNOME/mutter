@@ -1,4 +1,4 @@
-#include "cogl-config.h"
+#include "config.h"
 
 #ifdef COGL_ENABLE_PROFILE
 

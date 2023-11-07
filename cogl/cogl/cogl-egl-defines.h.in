@@ -30,8 +30,8 @@
 
 #pragma once
 
-#ifdef COGL_HAS_EGL_SUPPORT
+#ifdef HAVE_EGL
 
 @COGL_EGL_INCLUDES@
 
-#endif /* COGL_HAS_EGL_SUPPORT */
+#endif /* HAVE_EGL */

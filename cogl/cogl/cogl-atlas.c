@@ -29,7 +29,7 @@
  *  Neil Roberts   <neil@linux.intel.com>
  */
 
-#include "cogl-config.h"
+#include "config.h"
 
 #include "cogl/cogl-atlas.h"
 #include "cogl/cogl-rectangle-map.h"

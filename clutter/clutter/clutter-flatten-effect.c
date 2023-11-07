@@ -27,7 +27,7 @@
    need to do anything on top of the ClutterOffscreenEffect class so
    it only exists because that class is abstract */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "clutter/clutter-flatten-effect.h"
 #include "clutter/clutter-private.h"

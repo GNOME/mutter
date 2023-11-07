@@ -34,7 +34,7 @@
  * to share the resources associated with painting the same content..
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-content-private.h"

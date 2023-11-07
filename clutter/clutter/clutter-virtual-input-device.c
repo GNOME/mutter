@@ -21,7 +21,7 @@
  * Author: Jonas Ådahl <jadahl@gmail.com>
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include <glib-object.h>
 

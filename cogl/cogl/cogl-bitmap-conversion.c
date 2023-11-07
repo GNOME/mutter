@@ -28,7 +28,7 @@
  *
  */
 
-#include "cogl-config.h"
+#include "config.h"
 
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-bitmap-private.h"

@@ -35,7 +35,7 @@
 #endif
 
 #include "cogl/cogl-types.h"
-#include "cogl/cogl-defines.h"
+#include "config.h"
 #include "cogl/cogl-macros.h"
 #include "cogl/deprecated/cogl-program.h"
 

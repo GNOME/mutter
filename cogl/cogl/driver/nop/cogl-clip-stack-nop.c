@@ -28,7 +28,7 @@
  *
  */
 
-#include "cogl-config.h"
+#include "config.h"
 
 #include "cogl/cogl-clip-stack.h"
 #include "cogl/driver/nop/cogl-clip-stack-nop-private.h"

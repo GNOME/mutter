@@ -35,7 +35,7 @@
  * [class@Actor] using a [class@LayoutManager].
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "clutter/clutter-layout-meta.h"
 #include "clutter/clutter-debug.h"

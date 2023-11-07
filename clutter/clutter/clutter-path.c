@@ -58,7 +58,7 @@
  * [method@Path.add_string] for details.
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include <string.h>
 #include <stdarg.h>

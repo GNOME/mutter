@@ -31,7 +31,7 @@
  *  Neil Roberts   <neil@linux.intel.com>
  */
 
-#include "cogl-config.h"
+#include "config.h"
 
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-util.h"
@@ -42,7 +42,7 @@
 #include "cogl/cogl-journal-private.h"
 #include "cogl/cogl-framebuffer-private.h"
 #include "cogl/driver/gl/cogl-texture-2d-gl-private.h"
-#ifdef COGL_HAS_EGL_SUPPORT
+#ifdef HAVE_EGL
 #include "cogl/winsys/cogl-winsys-egl-private.h"
 #endif
 
@@ -450,7 +450,7 @@ cogl_texture_2d_new_from_data (CoglContext *ctx,
   return tex_2d;
 }
 
-#if defined (COGL_HAS_EGL_SUPPORT) && defined (EGL_KHR_image_base)
+#if defined (HAVE_EGL) && defined (EGL_KHR_image_base)
 /* NB: The reason we require the width, height and format to be passed
  * even though they may seem redundant is because GLES 1/2 don't
  * provide a way to query these properties. */
@@ -493,7 +493,7 @@ cogl_egl_texture_2d_new_from_image (CoglContext *ctx,
 
   return tex;
 }
-#endif /* defined (COGL_HAS_EGL_SUPPORT) && defined (EGL_KHR_image_base) */
+#endif /* defined (HAVE_EGL) && defined (EGL_KHR_image_base) */
 
 void
 _cogl_texture_2d_externally_modified (CoglTexture *texture)

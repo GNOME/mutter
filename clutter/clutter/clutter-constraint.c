@@ -125,7 +125,7 @@
  * can be recovered at any point using clutter_actor_meta_get_actor().
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include <string.h>
 

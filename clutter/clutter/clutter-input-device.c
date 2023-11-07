@@ -32,7 +32,7 @@
  * its contents are usually defined by the Clutter backend in use.
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "clutter/clutter-input-device.h"
 

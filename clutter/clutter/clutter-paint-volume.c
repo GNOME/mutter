@@ -24,7 +24,7 @@
  *      Emmanuele Bassi <ebassi@linux.intel.com>
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include <string.h>
 

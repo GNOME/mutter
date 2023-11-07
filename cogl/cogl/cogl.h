@@ -53,7 +53,6 @@
  * API common to the 1.x and 2.0 api...
  */
 
-#include "cogl/cogl-defines.h"
 #include "cogl/cogl-macros.h"
 
 #include "cogl/cogl1-context.h"

@@ -1,4 +1,4 @@
-#include "cogl-config.h"
+#include "config.h"
 
 #include "cogl/cogl.h"
 #include "cogl/cogl-pipeline-cache-private.h"

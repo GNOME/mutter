@@ -519,7 +519,7 @@ get_extension_event_name (MetaX11Display *x11_display,
   return NULL;
 }
 
-#ifdef COGL_HAS_TRACING
+#ifdef HAVE_PROFILER
 static const char *
 get_event_name (MetaX11Display *x11_display,
                 XEvent         *event)

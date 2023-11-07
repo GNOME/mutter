@@ -1,4 +1,4 @@
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "clutter/clutter-easing.h"
 

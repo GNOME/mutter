@@ -29,7 +29,7 @@
  *   Robert Bragg <robert@linux.intel.com>
  */
 
-#include "cogl-config.h"
+#include "config.h"
 
 #include <gio/gio.h>
 #include <stdlib.h>
@@ -46,22 +46,22 @@
 
 #include "cogl/winsys/cogl-winsys-private.h"
 
-#ifdef COGL_HAS_EGL_PLATFORM_XLIB_SUPPORT
+#ifdef HAVE_EGL_PLATFORM_XLIB
 #include "cogl/winsys/cogl-winsys-egl-x11-private.h"
 #endif
-#ifdef COGL_HAS_GLX_SUPPORT
+#ifdef HAVE_GLX
 #include "cogl/winsys/cogl-winsys-glx-private.h"
 #endif
 
-#ifdef COGL_HAS_XLIB
+#ifdef HAVE_X11
 #include "cogl/cogl-xlib-renderer.h"
 #endif
 
-#ifdef HAVE_COGL_GL
+#ifdef HAVE_GL
 extern const CoglTextureDriver _cogl_texture_driver_gl;
 extern const CoglDriverVtable _cogl_driver_gl;
 #endif
-#ifdef HAVE_COGL_GLES2
+#ifdef HAVE_GLES2
 extern const CoglTextureDriver _cogl_texture_driver_gles;
 extern const CoglDriverVtable _cogl_driver_gles;
 #endif
@@ -85,7 +85,7 @@ typedef struct _CoglDriverDescription
 
 static CoglDriverDescription _cogl_drivers[] =
 {
-#ifdef HAVE_COGL_GL
+#ifdef HAVE_GL
   {
     COGL_DRIVER_GL3,
     "gl3",
@@ -96,7 +96,7 @@ static CoglDriverDescription _cogl_drivers[] =
     COGL_GL_LIBNAME,
   },
 #endif
-#ifdef HAVE_COGL_GLES2
+#ifdef HAVE_GLES2
   {
     COGL_DRIVER_GLES2,
     "gles2",
@@ -119,10 +119,10 @@ static CoglDriverDescription _cogl_drivers[] =
 
 static CoglWinsysVtableGetter _cogl_winsys_vtable_getters[] =
 {
-#ifdef COGL_HAS_GLX_SUPPORT
+#ifdef HAVE_GLX
   _cogl_winsys_glx_get_vtable,
 #endif
-#ifdef COGL_HAS_EGL_PLATFORM_XLIB_SUPPORT
+#ifdef HAVE_EGL_PLATFORM_XLIB
   _cogl_winsys_egl_xlib_get_vtable,
 #endif
 };
@@ -203,14 +203,14 @@ cogl_renderer_new (void)
 
   _cogl_list_init (&renderer->idle_closures);
 
-#ifdef COGL_HAS_XLIB
+#ifdef HAVE_X11
   renderer->xlib_enable_event_retrieval = TRUE;
 #endif
 
   return renderer;
 }
 
-#ifdef COGL_HAS_XLIB
+#ifdef HAVE_X11
 void
 cogl_xlib_renderer_set_foreign_display (CoglRenderer *renderer,
                                         Display *xdisplay)
@@ -244,7 +244,7 @@ cogl_xlib_renderer_request_reset_on_video_memory_purge (CoglRenderer *renderer,
 
   renderer->xlib_want_reset_on_video_memory_purge = enable;
 }
-#endif /* COGL_HAS_XLIB */
+#endif /* HAVE_X11 */
 
 gboolean
 cogl_renderer_check_onscreen_template (CoglRenderer *renderer,

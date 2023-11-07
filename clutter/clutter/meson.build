@@ -244,21 +244,6 @@ cally_private_headers = [
 
 clutter_built_sources = []
 clutter_built_headers = []
-clutter_built_private_headers = []
-
-cdata = configuration_data()
-cdata.set_quoted('MUTTER_VERSION', meson.project_version())
-cdata.set_quoted('GETTEXT_PACKAGE', meson.project_name())
-cdata.set('CLUTTER_DRIVERS', '"*"')
-cdata.set('HAVE_PANGO_FT2', have_pango_ft2)
-
-clutter_build_config_h = configure_file(
-  input: 'clutter-build-config.h.meson',
-  output: 'clutter-build-config.h',
-  configuration: cdata,
-  install: false,
-)
-clutter_built_private_headers += clutter_build_config_h
 
 clutter_enum_types = gnome.mkenums('clutter-enum-types',
   sources: clutter_headers,
@@ -297,7 +282,7 @@ libmutter_clutter = shared_library(libmutter_clutter_name,
   version: '0.0.0',
   soversion: 0,
   c_args: clutter_c_args,
-  include_directories: clutter_includes,
+  include_directories: [clutter_includes, top_includepath],
   dependencies: [clutter_deps],
   gnu_symbol_visibility: 'hidden',
   link_with: [

@@ -46,7 +46,7 @@
  * #ClutterBoxLayout by using clutter_box_layout_set_spacing().
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include <math.h>
 

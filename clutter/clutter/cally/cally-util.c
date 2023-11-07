@@ -35,7 +35,7 @@
  * available any accessible object.
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -128,7 +128,7 @@ cally_util_get_toolkit_name (void)
 static const gchar *
 cally_util_get_toolkit_version (void)
 {
-  return MUTTER_VERSION;
+  return VERSION;
 }
 
 static guint

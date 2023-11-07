@@ -54,7 +54,7 @@
  *   Robert Bragg <robert@linux.intel.com>
  */
 
-#include "cogl-config.h"
+#include "config.h"
 
 #include "cogl/cogl-memory-stack-private.h"
 #include "cogl/cogl-list.h"

@@ -30,7 +30,7 @@
  * across the whole API.
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "clutter/clutter-types.h"
 #include "clutter/clutter-private.h"

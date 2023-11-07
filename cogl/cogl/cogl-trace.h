@@ -32,10 +32,10 @@
 #include <stdint.h>
 #include <errno.h>
 
-#include "cogl/cogl-defines.h"
+#include "config.h"
 #include "cogl/cogl-macros.h"
 
-#ifdef COGL_HAS_TRACING
+#ifdef HAVE_PROFILER
 
 typedef struct _CoglTraceContext CoglTraceContext;
 
@@ -137,7 +137,7 @@ cogl_is_tracing_enabled (void)
       ScopedCoglTrace##Name = &CoglTrace##Name; \
     }
 
-#else /* COGL_HAS_TRACING */
+#else /* HAVE_PROFILER */
 
 #include <stdio.h>
 
@@ -169,4 +169,4 @@ void cogl_set_tracing_enabled_on_thread (void       *data,
 COGL_EXPORT
 void cogl_set_tracing_disabled_on_thread (void *data);
 
-#endif /* COGL_HAS_TRACING */
+#endif /* HAVE_PROFILER */

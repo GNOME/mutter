@@ -277,7 +277,7 @@ create_onscreen (CoglContext *cogl_context,
   switch (cogl_renderer_get_winsys_id (cogl_renderer))
     {
     case COGL_WINSYS_ID_GLX:
-#ifdef COGL_HAS_GLX_SUPPORT
+#ifdef HAVE_GLX
       return COGL_ONSCREEN (cogl_onscreen_glx_new (cogl_context,
                                                    width, height));
 #else
@@ -285,7 +285,7 @@ create_onscreen (CoglContext *cogl_context,
       break;
 #endif
     case COGL_WINSYS_ID_EGL_XLIB:
-#ifdef COGL_HAS_EGL_SUPPORT
+#ifdef HAVE_EGL
       return COGL_ONSCREEN (cogl_onscreen_xlib_new (cogl_context,
                                                     width, height));
 #else

@@ -30,7 +30,7 @@
  *  Neil Roberts   <neil@linux.intel.com>
  */
 
-#include "cogl-config.h"
+#include "config.h"
 
 #include <string.h>
 

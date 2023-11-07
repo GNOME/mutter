@@ -33,16 +33,11 @@
 #include <glib.h>
 #include <math.h>
 
-#include "cogl/cogl-defines.h"
+#include "config.h"
 #include "cogl/cogl-pixel-format.h"
 #include "cogl/cogl-types.h"
 
 #include <stdio.h>
-
-/* Double check that config.h has been included */
-#ifndef COGL_CONFIG_H_INCLUDED
-#error "cogl-config.h must be included before including cogl-util.h"
-#endif
 
 int
 _cogl_util_next_p2 (int a);

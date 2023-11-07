@@ -25,11 +25,11 @@
  *
  */
 
-#include "cogl-config.h"
+#include "config.h"
 
 #include "cogl/cogl-trace.h"
 
-#ifdef COGL_HAS_TRACING
+#ifdef HAVE_PROFILER
 
 #include <sysprof-capture.h>
 #include <sysprof-capture-writer.h>
@@ -387,4 +387,4 @@ cogl_set_tracing_disabled_on_thread (void *data)
   fprintf (stderr, "Tracing not enabled");
 }
 
-#endif /* COGL_HAS_TRACING */
+#endif /* HAVE_PROFILER */

@@ -37,7 +37,7 @@
 #include "cogl/cogl-framebuffer.h"
 #include "cogl/cogl-texture-2d.h"
 
-#ifdef COGL_HAS_EGL_SUPPORT
+#ifdef HAVE_EGL
 #include "cogl/cogl-egl-defines.h"
 #endif
 
@@ -86,7 +86,7 @@ typedef struct _CoglTextureLoader
       int height; /* for 3d textures */
       int depth; /* for 3d textures */
     } bitmap;
-#if defined (COGL_HAS_EGL_SUPPORT) && defined (EGL_KHR_image_base)
+#if defined (HAVE_EGL) && defined (EGL_KHR_image_base)
     struct {
       EGLImageKHR image;
       int width;
@@ -95,7 +95,7 @@ typedef struct _CoglTextureLoader
       CoglEglImageFlags flags;
     } egl_image;
 #endif
-#if defined (COGL_HAS_EGL_SUPPORT)
+#if defined (HAVE_EGL)
     struct {
       int width;
       int height;

@@ -47,11 +47,11 @@
 
 #include <glib.h>
 
-#if !(defined(HAVE_COGL_GL) || defined(HAVE_COGL_GLES2))
+#if !(defined(HAVE_GL) || defined(HAVE_GLES2))
 
 #error No drivers defined
 
-#endif /* defined(HAVE_COGL_GL) || defined(HAVE_COGL_GLES2) */
+#endif /* defined(HAVE_GL) || defined(HAVE_GLES2) */
 
 /* XXX: should I rename these as
  * COGL_PIPELINE_STATE_INDEX_XYZ... ?

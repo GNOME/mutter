@@ -35,7 +35,7 @@
  * the logic for recognizing swipe gestures.
  */
 
-#include "clutter/clutter-build-config.h"
+#include "config.h"
 
 #include "clutter/clutter-swipe-action.h"
 
