@@ -157,10 +157,17 @@ device_removed (MetaPadActionMapper *mapper,
 static void
 meta_pad_action_mapper_init (MetaPadActionMapper *mapper)
 {
+  g_autoptr (GList) devices = NULL;
+  GList *l;
+
   mapper->pads = g_hash_table_new_full (NULL, NULL, NULL,
                                         (GDestroyNotify) pad_mapping_info_free);
 
   mapper->seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  devices = clutter_seat_list_devices (mapper->seat);
+
+  for (l = devices; l; l = l->next)
+    device_added (mapper, l->data);
 }
 
 MetaPadActionMapper *
