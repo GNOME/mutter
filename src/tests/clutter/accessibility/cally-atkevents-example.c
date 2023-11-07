@@ -124,9 +124,9 @@ make_ui (ClutterActor *stage)
       clutter_actor_set_position (rectangle, 150, editable_geom_y);
       clutter_actor_set_size (rectangle, 500, 75);
 
-      clutter_container_add_actor (CLUTTER_CONTAINER (stage), label);
-      clutter_container_add_actor (CLUTTER_CONTAINER (stage), editable);
-      clutter_container_add_actor (CLUTTER_CONTAINER (stage), rectangle);
+      clutter_actor_add_child (stage, label);
+      clutter_actor_add_child (stage, editable);
+      clutter_actor_add_child (stage, rectangle);
 
       label_geom_y += HEIGHT_STEP;
       editable_geom_y += HEIGHT_STEP;

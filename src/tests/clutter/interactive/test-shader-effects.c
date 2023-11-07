@@ -73,8 +73,10 @@ test_shader_effects_main (int argc, char *argv[])
                                        "fixed::anchor-y", 125.0,
                                        NULL);
 
-  clutter_container_add (CLUTTER_CONTAINER (stage), rect, hand, label, NULL);
-  
+  clutter_actor_add_child (stage, rect);
+  clutter_actor_add_child (stage, hand);
+  clutter_actor_add_child (stage, label);
+
   /* start the timeline and thus the animations */
   clutter_timeline_start (timeline);
 

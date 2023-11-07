@@ -42,7 +42,7 @@ test_text_main (gint    argc,
   clutter_text_set_font_name (CLUTTER_TEXT (text), FONT);
   clutter_text_set_color (CLUTTER_TEXT (text), &text_color);
 
-  clutter_container_add (CLUTTER_CONTAINER (stage), text, NULL);
+  clutter_actor_add_child (stage, text);
   clutter_actor_set_position (text, 40, 30);
   clutter_actor_set_width (text, 1024);
   clutter_text_set_line_wrap (CLUTTER_TEXT (text), TRUE);
@@ -57,7 +57,7 @@ test_text_main (gint    argc,
 
   text2 = clutter_text_new_with_buffer (buffer);
   clutter_text_set_color (CLUTTER_TEXT (text2), &text_color);
-  clutter_container_add (CLUTTER_CONTAINER (stage), text2, NULL);
+  clutter_actor_add_child (stage, text2);
   clutter_actor_set_position (text2, 40, 300);
   clutter_actor_set_width (text2, 1024);
   clutter_text_set_line_wrap (CLUTTER_TEXT (text2), TRUE);

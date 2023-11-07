@@ -219,7 +219,7 @@ test_easing_main (int argc, char *argv[])
 
   /* create the actor that we want to tween */
   rect = make_bouncer (50, 50);
-  clutter_container_add_actor (CLUTTER_CONTAINER (stage), rect);
+  clutter_actor_add_child (stage, rect);
   clutter_actor_set_position (rect, stage_width / 2, stage_height / 2);
 
   text = g_strdup_printf (HELP_TEXT,
@@ -228,7 +228,7 @@ test_easing_main (int argc, char *argv[])
                           n_easing_modes);
 
   label = clutter_text_new ();
-  clutter_container_add_actor (CLUTTER_CONTAINER (stage), label);
+  clutter_actor_add_child (stage, label);
   clutter_text_set_text (CLUTTER_TEXT (label), text);
   clutter_actor_add_constraint (label, clutter_align_constraint_new (stage, CLUTTER_ALIGN_X_AXIS, 0.95));
   clutter_actor_add_constraint (label, clutter_align_constraint_new (stage, CLUTTER_ALIGN_Y_AXIS, 0.95));

@@ -188,7 +188,7 @@ test_multitexture (TestUtilsGTestFixture *fixture,
   clutter_actor_set_background_color (CLUTTER_ACTOR (stage), &stage_color);
 
   group = clutter_actor_new ();
-  clutter_container_add_actor (CLUTTER_CONTAINER (stage), group);
+  clutter_actor_add_child (stage, group);
 
   /* We force continuous redrawing in case someone comments out the
    * clutter_test_quit and wants visual feedback for the test since we

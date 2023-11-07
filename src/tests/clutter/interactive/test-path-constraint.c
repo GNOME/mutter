@@ -122,7 +122,7 @@ test_path_constraint_main (int   argc,
   clutter_actor_set_size (rect, 128, 128);
   clutter_actor_set_reactive (rect, TRUE);
   clutter_actor_add_constraint_with_name (rect, "path", clutter_path_constraint_new (path, 0.0));
-  clutter_container_add_actor (CLUTTER_CONTAINER (stage), rect);
+  clutter_actor_add_child (stage, rect);
 
   g_signal_connect (rect, "button-press-event", G_CALLBACK (on_button_press), NULL);
   g_signal_connect (clutter_actor_get_constraint (rect, "path"),

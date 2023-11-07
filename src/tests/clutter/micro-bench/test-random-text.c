@@ -31,8 +31,7 @@ on_idle (gpointer data)
   /* Remove all of the children of the stage */
   children = clutter_actor_get_children (stage);
   for (node = children; node; node = node->next)
-    clutter_container_remove_actor (CLUTTER_CONTAINER (stage),
-                                    CLUTTER_ACTOR (node->data));
+    clutter_actor_remove_child (stage, CLUTTER_ACTOR (node->data));
   g_list_free (children);
 
   /* Fill the stage with new random labels */
@@ -63,7 +62,7 @@ on_idle (gpointer data)
 
       clutter_actor_set_position (label, xpos, ypos);
 
-      clutter_container_add (CLUTTER_CONTAINER (stage), label, NULL);
+      clutter_actor_add_child (stage, label);
 
       xpos += clutter_actor_get_width (label);
     }

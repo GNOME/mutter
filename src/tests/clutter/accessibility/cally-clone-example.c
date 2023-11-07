@@ -72,11 +72,11 @@ make_ui (ClutterActor *stage)
   full_entry = clutter_actor_new ();
   clutter_actor_set_position (full_entry, 0, 50);
   clutter_actor_set_size (full_entry, 100, 75);
-  clutter_container_add_actor (CLUTTER_CONTAINER (full_entry), label);
-  clutter_container_add_actor (CLUTTER_CONTAINER (full_entry), editable);
-  clutter_container_add_actor (CLUTTER_CONTAINER (full_entry), rectangle);
+  clutter_actor_add_child (full_entry, label);
+  clutter_actor_add_child (full_entry, editable);
+  clutter_actor_add_child (full_entry, rectangle);
   clutter_actor_set_scale (full_entry, 2, 1);
-  clutter_container_add_actor (CLUTTER_CONTAINER (stage), full_entry);
+  clutter_actor_add_child (stage, full_entry);
 
   /* Cloning! */
   cloned_entry = clutter_clone_new (full_entry);
@@ -84,7 +84,7 @@ make_ui (ClutterActor *stage)
   clutter_actor_set_scale (cloned_entry, 1, 2);
   clutter_actor_set_reactive (cloned_entry, TRUE);
 
-  clutter_container_add_actor (CLUTTER_CONTAINER (stage), cloned_entry);
+  clutter_actor_add_child (stage, cloned_entry);
 }
 
 int

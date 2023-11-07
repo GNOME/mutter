@@ -187,7 +187,7 @@ make_ui (ClutterActor *stage)
                                       &color_text);
   clutter_text_set_markup (CLUTTER_TEXT(text_actor),
                            "<span fgcolor=\"#FFFF00\" bgcolor=\"#00FF00\"><s>Lorem ipsum dolor sit amet</s></span>");
-  clutter_container_add_actor (CLUTTER_CONTAINER (stage), text_actor);
+  clutter_actor_add_child (stage, text_actor);
   dump_actor_default_atk_attributes (text_actor);
 
   /* text_editable */
@@ -204,7 +204,7 @@ make_ui (ClutterActor *stage)
   clutter_actor_set_reactive (text_editable_actor, TRUE);
   dump_actor_default_atk_attributes (text_editable_actor);
 
-  clutter_container_add_actor (CLUTTER_CONTAINER (stage), text_editable_actor);
+  clutter_actor_add_child (stage, text_editable_actor);
 
   /* test button */
   button = clutter_actor_new ();
@@ -215,14 +215,14 @@ make_ui (ClutterActor *stage)
   label = clutter_text_new_full ("Sans Bold 32px",
                                  "Test", &color_label);
   clutter_actor_set_position (button, 100, 200);
-  clutter_container_add_actor (CLUTTER_CONTAINER (button), rectangle);
-  clutter_container_add_actor (CLUTTER_CONTAINER (button), label);
+  clutter_actor_add_child (button, rectangle);
+  clutter_actor_add_child (button, label);
   clutter_actor_set_reactive (button, TRUE);
 
   g_signal_connect_after (button, "button-press-event",
                           G_CALLBACK (button_press_cb), NULL);
 
-  clutter_container_add_actor (CLUTTER_CONTAINER (stage), button);
+  clutter_actor_add_child (stage, button);
 }
 
 int

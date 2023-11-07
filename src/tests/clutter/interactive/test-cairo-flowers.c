@@ -231,8 +231,7 @@ test_cairo_flowers_main (int argc, char **argv)
       flowers[i]->rv   = rand() % 5 + 1;
       flowers[i]->v    = rand() % 10 + 2;
 
-      clutter_container_add_actor (CLUTTER_CONTAINER (stage),
-                                   flowers[i]->ctex);
+      clutter_actor_add_child (stage, flowers[i]->ctex);
       clutter_actor_set_position (flowers[i]->ctex,
                                   flowers[i]->x,
                                   flowers[i]->y);

@@ -3,12 +3,8 @@
 
 #include "tests/clutter-test-utils.h"
 
-#define TEST_TYPE_DESTROY               (test_destroy_get_type ())
-#define TEST_DESTROY(obj)               (G_TYPE_CHECK_INSTANCE_CAST ((obj), TEST_TYPE_DESTROY, TestDestroy))
-#define TEST_IS_DESTROY(obj)            (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TEST_TYPE_DESTROY))
-
-typedef struct _TestDestroy             TestDestroy;
-typedef struct _TestDestroyClass        TestDestroyClass;
+#define TEST_TYPE_DESTROY (test_destroy_get_type ())
+G_DECLARE_FINAL_TYPE (TestDestroy, test_destroy, TEST, DESTROY, ClutterActor)
 
 struct _TestDestroy
 {
@@ -20,64 +16,17 @@ struct _TestDestroy
   GList *children;
 };
 
-struct _TestDestroyClass
-{
-  ClutterActorClass parent_class;
-};
-
-static void clutter_container_init (ClutterContainerIface *iface);
-
-GType test_destroy_get_type (void);
-
-G_DEFINE_TYPE_WITH_CODE (TestDestroy, test_destroy, CLUTTER_TYPE_ACTOR,
-                         G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_CONTAINER,
-                                                clutter_container_init));
-
-static void
-test_destroy_add (ClutterContainer *container,
-                  ClutterActor *actor)
-{
-  TestDestroy *self = TEST_DESTROY (container);
-
-  if (!g_test_quiet ())
-    g_print ("Adding '%s' (type:%s)\n",
-             clutter_actor_get_name (actor),
-             G_OBJECT_TYPE_NAME (actor));
-
-  self->children = g_list_prepend (self->children, actor);
-  clutter_actor_add_child (CLUTTER_ACTOR (container), actor);
-}
-
-static void
-test_destroy_remove (ClutterContainer *container,
-                     ClutterActor *actor)
-{
-  TestDestroy *self = TEST_DESTROY (container);
-
-  if (!g_test_quiet ())
-    g_print ("Removing '%s' (type:%s)\n",
-             clutter_actor_get_name (actor),
-             G_OBJECT_TYPE_NAME (actor));
-
-  g_assert_true (g_list_find (self->children, actor));
-  self->children = g_list_remove (self->children, actor);
-
-  clutter_actor_remove_child (CLUTTER_ACTOR (container), actor);
-}
-
-static void
-clutter_container_init (ClutterContainerIface *iface)
-{
-  iface->add = test_destroy_add;
-  iface->remove = test_destroy_remove;
-}
+G_DEFINE_TYPE (TestDestroy, test_destroy, CLUTTER_TYPE_ACTOR)
 
 static void
 test_destroy_destroy (ClutterActor *self)
 {
   TestDestroy *test = TEST_DESTROY (self);
+  GList *children;
 
-  g_assert_cmpuint (g_list_length (test->children), ==, 3);
+  children = clutter_actor_get_children (self);
+  g_assert_cmpuint (g_list_length (children), ==, 3);
+  g_list_free (children);
 
   if (test->bg != NULL)
     {
@@ -101,12 +50,16 @@ test_destroy_destroy (ClutterActor *self)
       test->label = NULL;
     }
 
-  g_assert_cmpuint (g_list_length (test->children), ==, 1);
+  children = clutter_actor_get_children (self);
+  g_assert_cmpuint (g_list_length (children), ==, 1);
+  g_list_free (children);
 
   if (CLUTTER_ACTOR_CLASS (test_destroy_parent_class)->destroy)
     CLUTTER_ACTOR_CLASS (test_destroy_parent_class)->destroy (self);
 
-  g_assert_null (test->children);
+  children = clutter_actor_get_children (self);
+  g_assert_null (children);
+  g_list_free (children);
 }
 
 static void
@@ -121,11 +74,11 @@ static void
 test_destroy_init (TestDestroy *self)
 {
   self->bg = clutter_actor_new ();
-  clutter_container_add_actor (CLUTTER_CONTAINER (self), self->bg);
+  clutter_actor_add_child (CLUTTER_ACTOR (self), self->bg);
   clutter_actor_set_name (self->bg, "Background");
 
   self->label = clutter_text_new ();
-  clutter_container_add_actor (CLUTTER_CONTAINER (self), self->label);
+  clutter_actor_add_child (CLUTTER_ACTOR (self), self->label);
   clutter_actor_set_name (self->label, "Label");
 }
 
@@ -178,7 +131,7 @@ actor_destruction (void)
     g_print ("Adding external child...\n");
 
   clutter_actor_set_name (child, "Child");
-  clutter_container_add_actor (CLUTTER_CONTAINER (test), child);
+  clutter_actor_add_child (test, child);
   g_signal_connect (child, "parent-set", G_CALLBACK (on_parent_set),
                     &parent_set_called);
   g_signal_connect (child, "notify", G_CALLBACK (on_notify), &property_changed);

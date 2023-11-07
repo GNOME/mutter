@@ -46,7 +46,7 @@ create_source (void)
         clutter_actor_set_position (rect,
                                     DIVISION_WIDTH * x,
                                     DIVISION_HEIGHT * y);
-        clutter_container_add (CLUTTER_CONTAINER (group), rect, NULL);
+        clutter_actor_add_child (group, rect);
       }
 
   return group;
@@ -173,11 +173,11 @@ texture_fbo (TestConformSimpleFixture *fixture,
 
   /* Onscreen source with clone next to it */
   actor = create_source ();
-  clutter_container_add (CLUTTER_CONTAINER (state.stage), actor, NULL);
+  clutter_actor_add_child (state.stage, actor);
   clutter_actor_set_position (actor, 0, ypos * SOURCE_SIZE);
   actor = clutter_texture_new_from_actor (actor);
   clutter_actor_set_position (actor, SOURCE_SIZE, ypos * SOURCE_SIZE);
-  clutter_container_add (CLUTTER_CONTAINER (state.stage), actor, NULL);
+  clutter_actor_add_child (state.stage, actor);
   ypos++;
 
   /* Offscreen source with clone */
@@ -185,24 +185,24 @@ texture_fbo (TestConformSimpleFixture *fixture,
   actor = create_source ();
   actor = clutter_texture_new_from_actor (actor);
   clutter_actor_set_position (actor, SOURCE_SIZE, ypos * SOURCE_SIZE);
-  clutter_container_add (CLUTTER_CONTAINER (state.stage), actor, NULL);
+  clutter_actor_add_child (state.stage, actor);
 #endif
   ypos++;
 
   /* Source clipped to the top left division */
   actor = create_source ();
-  clutter_container_add (CLUTTER_CONTAINER (state.stage), actor, NULL);
+  clutter_actor_add_child (state.stage, actor);
   clutter_actor_set_position (actor, 0, ypos * SOURCE_SIZE);
   clutter_actor_set_clip (actor, 0, 0, DIVISION_WIDTH, DIVISION_HEIGHT);
   actor = clutter_texture_new_from_actor (actor);
   clutter_actor_set_position (actor, SOURCE_SIZE, ypos * SOURCE_SIZE);
-  clutter_container_add (CLUTTER_CONTAINER (state.stage), actor, NULL);
+  clutter_actor_add_child (state.stage, actor);
   ypos++;
 
   /* Source clipped to everything but top left division using a
      path */
   actor = create_source ();
-  clutter_container_add (CLUTTER_CONTAINER (state.stage), actor, NULL);
+  clutter_actor_add_child (state.stage, actor);
   clutter_actor_set_position (actor, 0, ypos * SOURCE_SIZE);
   g_signal_connect (actor, "paint",
                     G_CALLBACK (pre_paint_clip_cb), NULL);
@@ -210,7 +210,7 @@ texture_fbo (TestConformSimpleFixture *fixture,
                           G_CALLBACK (post_paint_clip_cb), NULL);
   actor = clutter_texture_new_from_actor (actor);
   clutter_actor_set_position (actor, SOURCE_SIZE, ypos * SOURCE_SIZE);
-  clutter_container_add (CLUTTER_CONTAINER (state.stage), actor, NULL);
+  clutter_actor_add_child (state.stage, actor);
   ypos++;
 
   clutter_actor_show (state.stage);

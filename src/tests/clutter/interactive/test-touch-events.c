@@ -145,7 +145,7 @@ test_touch_events_main (int argc, char *argv[])
   canvas_actor = g_object_new (CLUTTER_TYPE_ACTOR,
                                "content", canvas,
                                NULL);
-  clutter_container_add_actor (CLUTTER_CONTAINER (stage), canvas_actor);
+  clutter_actor_add_child (stage, canvas_actor);
 
   g_signal_connect (stage, "event", G_CALLBACK (event_cb), canvas_actor);
 
@@ -159,8 +159,8 @@ test_touch_events_main (int argc, char *argv[])
 
       /* Test that event delivery to actors work */
       g_signal_connect (rectangle, "event", G_CALLBACK (rect_event_cb), NULL);
-      
-      clutter_container_add_actor (CLUTTER_CONTAINER (stage), rectangle);
+
+      clutter_actor_add_child (stage, rectangle);
       clutter_actor_set_size (rectangle, size, size);
       clutter_actor_set_position (rectangle, 0, i * size);
       clutter_actor_set_reactive (rectangle, TRUE);

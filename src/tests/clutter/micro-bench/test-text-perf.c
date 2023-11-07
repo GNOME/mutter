@@ -175,10 +175,10 @@ main (int argc, char *argv[])
   for (row=0; row<rows; row++)
     for (col=0; col<cols; col++)
       {
-	label = create_label();
+        label = create_label();
         clutter_actor_set_scale (label, scale, scale);
-	clutter_actor_set_position (label, w * col * scale, h * row * scale);
-	clutter_container_add_actor (CLUTTER_CONTAINER (stage), label);
+        clutter_actor_set_position (label, w * col * scale, h * row * scale);
+        clutter_actor_add_child (stage, label);
       }
 
   clutter_actor_show (stage);

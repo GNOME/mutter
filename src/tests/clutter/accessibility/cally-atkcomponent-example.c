@@ -76,14 +76,14 @@ main (int argc, char *argv[])
     clutter_actor_set_size (group[i], SIZE, SIZE);
 
     if (i > 0)
-      clutter_container_add_actor (CLUTTER_CONTAINER (group[i]), group [i - 1]);
+      clutter_actor_add_child (group[i], group [i - 1]);
   }
 
-  clutter_container_add_actor (CLUTTER_CONTAINER (stage), button1);
-  clutter_container_add_actor (CLUTTER_CONTAINER (stage), button2);
-  clutter_container_add_actor (CLUTTER_CONTAINER (stage), button3);
-  clutter_container_add_actor (CLUTTER_CONTAINER (stage), group[3]);
-  clutter_container_add_actor (CLUTTER_CONTAINER (group[0]), button4);
+  clutter_actor_add_child (stage, button1);
+  clutter_actor_add_child (stage, button2);
+  clutter_actor_add_child (stage, button3);
+  clutter_actor_add_child (stage, group[3]);
+  clutter_actor_add_child (group[0], button4);
 
   clutter_actor_show (stage);
 

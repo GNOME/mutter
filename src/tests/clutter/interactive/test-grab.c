@@ -200,7 +200,7 @@ G_MODULE_EXPORT int
 test_grab_main (int argc, char *argv[])
 {
   ClutterActor   *stage, *actor;
-  ClutterColor    rcol = { 0xff, 0, 0, 0xff}, 
+  ClutterColor    rcol = { 0xff, 0, 0, 0xff},
                   bcol = { 0, 0, 0xff, 0xff },
                   ccol = { 0, 0xff, 0xff, 0xff },
                   ycol = { 0xff, 0xff, 0, 0xff };
@@ -224,7 +224,7 @@ test_grab_main (int argc, char *argv[])
   clutter_actor_set_size (actor, 100, 100);
   clutter_actor_set_position (actor, 100, 100);
   clutter_actor_set_reactive (actor, TRUE);
-  clutter_container_add (CLUTTER_CONTAINER (stage), actor, NULL);
+  clutter_actor_add_child (stage, actor);
   g_signal_connect (actor, "event", G_CALLBACK (debug_event_cb), (char *) "red box");
   g_signal_connect (actor, "button-press-event",
                     G_CALLBACK (grab_pointer_cb), NULL);
@@ -236,7 +236,7 @@ test_grab_main (int argc, char *argv[])
   clutter_actor_set_size (actor, 100, 100);
   clutter_actor_set_position (actor, 100, 300);
   clutter_actor_set_reactive (actor, TRUE);
-  clutter_container_add (CLUTTER_CONTAINER (stage), actor, NULL);
+  clutter_actor_add_child (stage, actor);
   g_signal_connect (actor, "event", G_CALLBACK (debug_event_cb), (char *) "yellow box");
   g_signal_connect (actor, "button-press-event",
                     G_CALLBACK (toggle_grab_pointer_cb), NULL);
@@ -246,7 +246,7 @@ test_grab_main (int argc, char *argv[])
   clutter_actor_set_size (actor, 100, 100);
   clutter_actor_set_position (actor, 300, 100);
   clutter_actor_set_reactive (actor, TRUE);
-  clutter_container_add (CLUTTER_CONTAINER (stage), actor, NULL);
+  clutter_actor_add_child (stage, actor);
   g_signal_connect (actor, "event",
                     G_CALLBACK (debug_event_cb), (char *) "blue box");
   g_signal_connect (actor, "button-press-event",
@@ -259,7 +259,7 @@ test_grab_main (int argc, char *argv[])
   clutter_actor_set_size (actor, 100, 100);
   clutter_actor_set_position (actor, 500, 100);
   clutter_actor_set_reactive (actor, TRUE);
-  clutter_container_add (CLUTTER_CONTAINER (stage), actor, NULL);
+  clutter_actor_add_child (stage, actor);
   g_signal_connect (actor, "event",
                     G_CALLBACK (debug_event_cb), (char *) "cyan box");
   g_signal_connect (actor, "button-press-event",

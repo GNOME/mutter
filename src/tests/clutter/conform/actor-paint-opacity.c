@@ -91,7 +91,7 @@ opacity_paint (void)
 
   group1 = clutter_actor_new ();
   clutter_actor_set_opacity (group1, 128);
-  clutter_container_add (CLUTTER_CONTAINER (stage), group1, NULL);
+  clutter_actor_add_child (stage, group1);
   clutter_actor_set_position (group1, 10, 30);
   clutter_actor_show (group1);
 
@@ -103,7 +103,7 @@ opacity_paint (void)
   clutter_text_get_color (CLUTTER_TEXT (label), &color_check);
   g_assert (color_check.alpha == label_color.alpha);
 
-  clutter_container_add (CLUTTER_CONTAINER (group1), label, NULL);
+  clutter_actor_add_child (group1, label);
 
   if (!g_test_quiet ())
     g_print ("label 50%% + group 50%%.get_color()/2\n");
@@ -117,7 +117,7 @@ opacity_paint (void)
   clutter_actor_destroy (label);
 
   group2 = clutter_actor_new ();
-  clutter_container_add (CLUTTER_CONTAINER (group1), group2, NULL);
+  clutter_actor_add_child (group1, group2);
   clutter_actor_set_position (group2, 10, 60);
 
   rect = clutter_actor_new ();
@@ -129,7 +129,7 @@ opacity_paint (void)
   clutter_actor_get_background_color (rect, &color_check);
   g_assert (color_check.alpha == rect_color.alpha);
 
-  clutter_container_add (CLUTTER_CONTAINER (group2), rect, NULL);
+  clutter_actor_add_child (group2, rect);
 
   if (!g_test_quiet ())
     g_print ("rect 100%% + group 100%% + group 50%%.get_color()/2\n");

@@ -157,7 +157,7 @@ test_cogl_tex_tile_main (int argc, char *argv[])
 
   /* Cogl Box */
   coglbox = test_coglbox_new ();
-  clutter_container_add_actor (CLUTTER_CONTAINER (stage), coglbox);
+  clutter_actor_add_child (stage, coglbox);
 
   /* Timeline for animation */
   timeline = clutter_timeline_new_for_actor (stage, 6000); /* 6 second duration */

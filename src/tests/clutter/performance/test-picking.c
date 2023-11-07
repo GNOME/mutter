@@ -93,7 +93,7 @@ main (int argc, char **argv)
       g_signal_connect (rect, "motion-event",
                         G_CALLBACK (motion_event_cb), NULL);
 
-      clutter_container_add_actor (CLUTTER_CONTAINER (stage), rect);
+      clutter_actor_add_child (stage, rect);
     }
 
   clutter_actor_show (stage);

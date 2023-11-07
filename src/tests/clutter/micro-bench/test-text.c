@@ -19,20 +19,20 @@ on_after_paint (ClutterActor        *actor,
 {
   static GTimer *timer = NULL;
   static int fps = 0;
-  
+
   if (!timer)
     {
       timer = g_timer_new ();
       g_timer_start (timer);
     }
-  
+
   if (g_timer_elapsed (timer, NULL) >= 1)
     {
       printf ("fps: %d\n", fps);
       g_timer_start (timer);
       fps = 0;
     }
-  
+
   ++fps;
 }
 
@@ -62,7 +62,7 @@ main (int argc, char *argv[])
 
   group = clutter_actor_new ();
   clutter_actor_set_size (group, STAGE_WIDTH, STAGE_WIDTH);
-  clutter_container_add_actor (CLUTTER_CONTAINER (stage), group);
+  clutter_actor_add_child (stage, group);
 
   clutter_threads_add_idle (queue_redraw, stage);
 
@@ -108,7 +108,7 @@ main (int argc, char *argv[])
                                               (1.0*STAGE_HEIGHT/ROWS));*/
           clutter_actor_set_scale (label, scale, scale);
           clutter_text_set_line_wrap (CLUTTER_TEXT (label), FALSE);
-          clutter_container_add_actor (CLUTTER_CONTAINER (group), label);
+          clutter_actor_add_child (group, label);
         }
   }
   clutter_actor_show (stage);

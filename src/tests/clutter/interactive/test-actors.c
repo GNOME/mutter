@@ -227,7 +227,7 @@ test_actors_main (int argc, char *argv[])
       clutter_actor_set_translation (oh->hand[i], -100.f, -106.5, 0);
 
       /* Add to our group group */
-      clutter_container_add_actor (CLUTTER_CONTAINER (oh->group), oh->hand[i]);
+      clutter_actor_add_child (oh->group, oh->hand[i]);
 
       g_signal_connect (oh->hand[i], "button-press-event",
                         G_CALLBACK (on_button_press_event),
@@ -239,7 +239,7 @@ test_actors_main (int argc, char *argv[])
     }
 
   /* Add the group to the stage */
-  clutter_container_add_actor (CLUTTER_CONTAINER (oh->stage), oh->group);
+  clutter_actor_add_child (oh->stage, oh->group);
 
   /* Show everying */
   clutter_actor_show (oh->stage);

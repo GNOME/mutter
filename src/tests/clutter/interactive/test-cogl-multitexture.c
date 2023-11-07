@@ -201,7 +201,7 @@ test_cogl_multitexture_main (int argc, char *argv[])
                              &GRAPHENE_POINT3D_INIT (0.5, 0.5, 0));
 
   clutter_actor_set_translation (data->parent_container, -86.f, -125.f, 0.f);
-  clutter_container_add_actor (CLUTTER_CONTAINER(stage), state->group);
+  clutter_actor_add_child (stage, state->group);
 
   state->timeline = clutter_timeline_new_for_actor (stage, 2812);
 
