@@ -79,7 +79,6 @@ typedef struct {
   JsonNode *node;
   GParamSpec *pspec;
 
-  guint is_child : 1;
   guint is_layout : 1;
 } PropertyInfo;
 

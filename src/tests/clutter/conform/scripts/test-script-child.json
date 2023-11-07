@@ -7,8 +7,7 @@
       "id" : "test-rect-1",
       "width" : 100.0,
       "height" : 100.0,
-      "background-color" : [ 255, 0, 0, 255 ],
-      "child::focus" : true
+      "background-color" : [ 255, 0, 0, 255 ]
     },
     {
       "type" : "ClutterActor",

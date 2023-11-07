@@ -32,10 +32,8 @@
 #include <glib.h>
 #include <gmodule.h>
 
-#define CLUTTER_DISABLE_DEPRECATION_WARNINGS
-#include "clutter/deprecated/clutter-container.h"
-
 #include "clutter/clutter-actor.h"
+#include "clutter/clutter-container.h"
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-enum-types.h"
 
@@ -78,10 +76,10 @@ _clutter_script_get_type_from_symbol (const gchar *symbol)
 
   if (!module)
     module = g_module_open (NULL, 0);
-  
+
   if (g_module_symbol (module, symbol, (gpointer)&func))
     gtype = func ();
-  
+
   return gtype;
 }
 
@@ -97,7 +95,7 @@ _clutter_script_get_type_from_class (const gchar *name)
 
   if (G_UNLIKELY (!module))
     module = g_module_open (NULL, 0);
-  
+
   for (i = 0; name[i] != '\0'; i++)
     {
       gchar c = name[i];
@@ -135,7 +133,7 @@ _clutter_script_get_type_from_class (const gchar *name)
     }
 
   g_string_append (symbol_name, "_get_type");
-  
+
   symbol = g_string_free (symbol_name, FALSE);
 
   if (g_module_symbol (module, symbol, (gpointer)&func))
@@ -143,7 +141,7 @@ _clutter_script_get_type_from_class (const gchar *name)
       CLUTTER_NOTE (SCRIPT, "Type function: %s", symbol);
       gtype = func ();
     }
-  
+
   g_free (symbol);
 
   return gtype;
@@ -173,10 +171,10 @@ _clutter_script_enum_from_string (GType        type,
   gchar *endptr;
   gint value;
   gboolean retval = TRUE;
-  
+
   g_return_val_if_fail (G_TYPE_IS_ENUM (type), 0);
   g_return_val_if_fail (string != NULL, 0);
-  
+
   value = strtoul (string, &endptr, 0);
   if (endptr != string) /* parsed a number */
     *enum_value = value;
@@ -191,7 +189,7 @@ _clutter_script_enum_from_string (GType        type,
 	*enum_value = ev->value;
       else
         retval = FALSE;
-      
+
       g_type_class_unref (eclass);
     }
 
@@ -213,7 +211,7 @@ _clutter_script_flags_from_string (GType        type,
   g_return_val_if_fail (string != NULL, 0);
 
   ret = TRUE;
-  
+
   value = strtoul (string, &endptr, 0);
   if (endptr != string) /* parsed a number */
     *flags_value = value;
@@ -227,19 +225,19 @@ _clutter_script_flags_from_string (GType        type,
       for (value = i = j = 0; ; i++)
 	{
           gboolean eos = (flagstr[i] == '\0') ? TRUE : FALSE;
-	  
+
 	  if (!eos && flagstr[i] != '|')
 	    continue;
-	  
+
 	  flag = &flagstr[j];
 	  endptr = &flagstr[i];
-	  
+
 	  if (!eos)
 	    {
 	      flagstr[i++] = '\0';
 	      j = i;
 	    }
-	  
+
 	  /* trim spaces */
 	  for (;;)
 	    {
@@ -249,7 +247,7 @@ _clutter_script_flags_from_string (GType        type,
 
 	      flag = g_utf8_next_char (flag);
 	    }
-	  
+
 	  while (endptr > flag)
 	    {
               gunichar ch;
@@ -262,16 +260,16 @@ _clutter_script_flags_from_string (GType        type,
 
 	      endptr = prevptr;
 	    }
-	  
+
 	  if (endptr > flag)
 	    {
 	      *endptr = '\0';
 
 	      fv = g_flags_get_value_by_name (fclass, flag);
-	      
+
 	      if (!fv)
 		fv = g_flags_get_value_by_nick (fclass, flag);
-	      
+
 	      if (fv)
 		value |= fv->value;
 	      else
@@ -280,16 +278,16 @@ _clutter_script_flags_from_string (GType        type,
 		  break;
 		}
 	    }
-	  
+
 	  if (eos)
 	    {
 	      *flags_value = value;
 	      break;
 	    }
 	}
-      
+
       g_free (flagstr);
-      
+
       g_type_class_unref (fclass);
     }
 
@@ -943,7 +941,6 @@ clutter_script_parser_object_end (JsonParser *json_parser,
       pinfo->name = g_strdup (name);
       pinfo->node = json_node_copy (node);
       pinfo->pspec = NULL;
-      pinfo->is_child = g_str_has_prefix (name, "child::") ? TRUE : FALSE;
       pinfo->is_layout = g_str_has_prefix (name, "layout::") ? TRUE : FALSE;
 
       oinfo->properties = g_list_prepend (oinfo->properties, pinfo);
@@ -1439,10 +1436,9 @@ clutter_script_translate_parameters (ClutterScript  *script,
       GValue value = G_VALUE_INIT;
       gboolean res = FALSE;
 
-      if (pinfo->is_child || pinfo->is_layout)
+      if (pinfo->is_layout)
         {
-          CLUTTER_NOTE (SCRIPT, "Skipping %s property '%s'",
-                        pinfo->is_child ? "child" : "layout",
+          CLUTTER_NOTE (SCRIPT, "Skipping layout property '%s'",
                         pinfo->name);
           unparsed = g_list_prepend (unparsed, pinfo);
           continue;
@@ -1656,109 +1652,10 @@ apply_layout_properties (ClutterScript    *script,
 }
 
 static void
-apply_child_properties (ClutterScript    *script,
-                        ClutterContainer *container,
-                        ClutterActor     *actor,
-                        ObjectInfo       *oinfo)
-{
-  ClutterScriptable *scriptable = NULL;
-  ClutterScriptableIface *iface = NULL;
-  gboolean parse_custom_node = FALSE;
-  GList *l, *unresolved, *properties;
-  GObjectClass *klass;
-  GType meta_type;
-
-  meta_type = CLUTTER_CONTAINER_GET_IFACE (container)->child_meta_type;
-  if (meta_type == G_TYPE_INVALID)
-    return;
-
-  klass = G_OBJECT_GET_CLASS (container);
-
-  /* shortcut, to avoid typechecking every time */
-  if (CLUTTER_IS_SCRIPTABLE (container))
-    {
-      scriptable = CLUTTER_SCRIPTABLE (container);
-      iface = CLUTTER_SCRIPTABLE_GET_IFACE (scriptable);
-
-      parse_custom_node = iface->parse_custom_node != NULL ? TRUE : FALSE;
-    }
-
-  properties = oinfo->properties;
-  oinfo->properties = NULL;
-
-  unresolved = NULL;
-  for (l = properties; l != NULL; l = l->next)
-    {
-      PropertyInfo *pinfo = l->data;
-      GValue value = G_VALUE_INIT;
-      gboolean res = FALSE;
-      const gchar *name;
-
-      if (!pinfo->is_child)
-        {
-          unresolved = g_list_prepend (unresolved, pinfo);
-          continue;
-        }
-
-      name = pinfo->name + strlen ("child::");
-
-      pinfo->pspec =
-        clutter_container_class_find_child_property (klass, name);
-
-      if (pinfo->pspec != NULL)
-        g_param_spec_ref (pinfo->pspec);
-
-      CLUTTER_NOTE (SCRIPT, "Parsing %s child property (id:%s)",
-                    pinfo->pspec != NULL ? "regular" : "custom",
-                    name);
-
-      if (parse_custom_node)
-        res = iface->parse_custom_node (scriptable, script, &value,
-                                        name,
-                                        pinfo->node);
-
-      if (!res)
-        res = _clutter_script_parse_node (script, &value,
-                                          name,
-                                          pinfo->node,
-                                          pinfo->pspec);
-
-      if (!res)
-        {
-          CLUTTER_NOTE (SCRIPT, "Child property '%s' ignored", name);
-          unresolved = g_list_prepend (unresolved, pinfo);
-          continue;
-        }
-
-      
-      CLUTTER_NOTE (SCRIPT,
-                    "Setting %s child property '%s' (type:%s) to "
-                    "object '%s' (id:%s)",
-                    iface->set_custom_property != NULL ? "custom" : "regular",
-                    name,
-                    g_type_name (G_VALUE_TYPE (&value)),
-                    g_type_name (oinfo->gtype),
-                    oinfo->id);
-
-      clutter_container_child_set_property (container, actor,
-                                            name,
-                                            &value);
-
-      g_value_unset (&value);
-
-      property_info_free (pinfo);
-    }
-
-  g_list_free (properties);
-
-  oinfo->properties = unresolved;
-}
-
-static void
 add_children (ClutterScript *script,
               ObjectInfo    *oinfo)
 {
-  ClutterContainer *container = CLUTTER_CONTAINER (oinfo->object);
+  ClutterActor *container = CLUTTER_ACTOR (oinfo->object);
   GList *l, *unresolved;
 
   unresolved = NULL;
@@ -1797,7 +1694,7 @@ add_children (ClutterScript *script,
                     name,
                     g_type_name (G_OBJECT_TYPE (container)));
 
-      clutter_container_add_actor (container, CLUTTER_ACTOR (object));
+      clutter_actor_add_child (container, CLUTTER_ACTOR (object));
     }
 
   g_list_free_full (oinfo->children, g_free);
@@ -1809,7 +1706,7 @@ static inline void
 _clutter_script_check_unresolved (ClutterScript *script,
                                   ObjectInfo    *oinfo)
 {
-  if (oinfo->children != NULL && CLUTTER_IS_CONTAINER (oinfo->object))
+  if (oinfo->children != NULL && CLUTTER_IS_ACTOR (oinfo->object))
     add_children (script, oinfo);
 
   /* this is a bit *eugh*, but it allows us to effectively make sure
@@ -1823,7 +1720,6 @@ _clutter_script_check_unresolved (ClutterScript *script,
       parent = clutter_actor_get_parent (CLUTTER_ACTOR (oinfo->object));
       if (parent != NULL)
         {
-          ClutterContainer *container = CLUTTER_CONTAINER (parent);
           ClutterActor *child;
 
           for (child = clutter_actor_get_first_child (parent);
@@ -1841,10 +1737,7 @@ _clutter_script_check_unresolved (ClutterScript *script,
               if (child_info == NULL)
                 continue;
 
-              apply_child_properties (script, container,
-                                      child,
-                                      child_info);
-              apply_layout_properties (script, container,
+              apply_layout_properties (script, CLUTTER_CONTAINER (parent),
                                        child,
                                        child_info);
             }
