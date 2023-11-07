@@ -537,7 +537,6 @@
 #include "clutter/clutter-color-static.h"
 #include "clutter/clutter-color.h"
 #include "clutter/clutter-constraint-private.h"
-#include "clutter/clutter-container.h"
 #include "clutter/clutter-content-private.h"
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-easing.h"
@@ -563,8 +562,6 @@
 #include "clutter/clutter-timeline.h"
 #include "clutter/clutter-transition.h"
 #include "clutter/clutter-units.h"
-
-#include "clutter/deprecated/clutter-container.h"
 
 /* Internal enum used to control mapped state update.  This is a hint
  * which indicates when to do something other than just enforce
@@ -944,7 +941,6 @@ typedef struct _TransitionClosure
   gulong completed_id;
 } TransitionClosure;
 
-static void clutter_container_iface_init  (ClutterContainerIface  *iface);
 static void clutter_scriptable_iface_init (ClutterScriptableIface *iface);
 static void clutter_animatable_iface_init (ClutterAnimatableInterface *iface);
 static void atk_implementor_iface_init    (AtkImplementorIface    *iface);
@@ -1030,8 +1026,6 @@ G_DEFINE_TYPE_WITH_CODE (ClutterActor,
                          clutter_actor,
                          G_TYPE_INITIALLY_UNOWNED,
                          G_ADD_PRIVATE (ClutterActor)
-                         G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_CONTAINER,
-                                                clutter_container_iface_init)
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_SCRIPTABLE,
                                                 clutter_scriptable_iface_init)
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_ANIMATABLE,
@@ -4085,7 +4079,6 @@ remove_child (ClutterActor *self,
 
 typedef enum
 {
-  REMOVE_CHILD_DESTROY_META       = 1 << 0,
   REMOVE_CHILD_EMIT_PARENT_SET    = 1 << 1,
   REMOVE_CHILD_EMIT_CHILD_REMOVED = 1 << 2,
   REMOVE_CHILD_CHECK_STATE        = 1 << 3,
@@ -4095,7 +4088,6 @@ typedef enum
 
   /* default flags for public API */
   REMOVE_CHILD_DEFAULT_FLAGS      = REMOVE_CHILD_STOP_TRANSITIONS |
-                                    REMOVE_CHILD_DESTROY_META |
                                     REMOVE_CHILD_EMIT_PARENT_SET |
                                     REMOVE_CHILD_EMIT_CHILD_REMOVED |
                                     REMOVE_CHILD_CHECK_STATE |
@@ -4117,7 +4109,7 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
                                      ClutterActorRemoveChildFlags  flags)
 {
   ClutterActor *old_first, *old_last;
-  gboolean destroy_meta, emit_parent_set, emit_child_removed, check_state;
+  gboolean emit_parent_set, emit_child_removed, check_state;
   gboolean notify_first_last;
   gboolean stop_transitions;
   gboolean clear_stage_views;
@@ -4130,7 +4122,6 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
       return;
     }
 
-  destroy_meta = (flags & REMOVE_CHILD_DESTROY_META) != 0;
   emit_parent_set = (flags & REMOVE_CHILD_EMIT_PARENT_SET) != 0;
   emit_child_removed = (flags & REMOVE_CHILD_EMIT_CHILD_REMOVED) != 0;
   check_state = (flags & REMOVE_CHILD_CHECK_STATE) != 0;
@@ -4143,9 +4134,6 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
 
   if (stop_transitions)
     _clutter_actor_stop_transitions (child);
-
-  if (destroy_meta)
-    clutter_container_destroy_child_meta (CLUTTER_CONTAINER (self), child);
 
   if (check_state)
     {
@@ -5471,7 +5459,7 @@ clutter_actor_dispose (GObject *object)
   if (priv->parent != NULL)
     {
       ClutterActor *parent = priv->parent;
-      clutter_container_remove_actor (CLUTTER_CONTAINER (parent), self);
+      clutter_actor_remove_child (parent, self);
     }
 
   /* parent must be gone at this point */
@@ -6911,8 +6899,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * This signal might result in the finalization of the #ClutterActor
    * if all references are released.
    *
-   * Composite actors and actors implementing the #ClutterContainer
-   * interface should override the default implementation of the
+   * Composite actors should override the default implementation of the
    * class handler of this signal and call clutter_actor_destroy() on
    * their children. When overriding the default class handler, it is
    * required to chain up to the parent's implementation.
@@ -10994,7 +10981,6 @@ typedef void (* ClutterActorAddChildFunc) (ClutterActor *parent,
 
 typedef enum
 {
-  ADD_CHILD_CREATE_META        = 1 << 0,
   ADD_CHILD_EMIT_PARENT_SET    = 1 << 1,
   ADD_CHILD_EMIT_CHILD_ADDED   = 1 << 2,
   ADD_CHILD_CHECK_STATE        = 1 << 3,
@@ -11002,8 +10988,7 @@ typedef enum
   ADD_CHILD_SHOW_ON_SET_PARENT = 1 << 5,
 
   /* default flags for public API */
-  ADD_CHILD_DEFAULT_FLAGS    = ADD_CHILD_CREATE_META |
-                               ADD_CHILD_EMIT_PARENT_SET |
+  ADD_CHILD_DEFAULT_FLAGS    = ADD_CHILD_EMIT_PARENT_SET |
                                ADD_CHILD_EMIT_CHILD_ADDED |
                                ADD_CHILD_CHECK_STATE |
                                ADD_CHILD_NOTIFY_FIRST_LAST |
@@ -11034,7 +11019,6 @@ clutter_actor_add_child_internal (ClutterActor              *self,
                                   gpointer                   data)
 {
   ClutterTextDirection text_dir;
-  gboolean create_meta;
   gboolean emit_parent_set, emit_child_added;
   gboolean check_state;
   gboolean notify_first_last;
@@ -11114,7 +11098,6 @@ clutter_actor_add_child_internal (ClutterActor              *self,
       return;
     }
 
-  create_meta = (flags & ADD_CHILD_CREATE_META) != 0;
   emit_parent_set = (flags & ADD_CHILD_EMIT_PARENT_SET) != 0;
   emit_child_added = (flags & ADD_CHILD_EMIT_CHILD_ADDED) != 0;
   check_state = (flags & ADD_CHILD_CHECK_STATE) != 0;
@@ -11126,9 +11109,6 @@ clutter_actor_add_child_internal (ClutterActor              *self,
 
   obj = G_OBJECT (self);
   g_object_freeze_notify (obj);
-
-  if (create_meta)
-    clutter_container_create_child_meta (CLUTTER_CONTAINER (self), child);
 
   g_object_ref_sink (child);
   child->priv->parent = NULL;
@@ -11969,14 +11949,6 @@ clutter_actor_store_content_box (ClutterActor *self,
   clutter_actor_queue_redraw (self);
 
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_CONTENT_BOX]);
-}
-
-static void
-clutter_container_iface_init (ClutterContainerIface *iface)
-{
-  /* we don't override anything, as ClutterContainer already has a default
-   * implementation that we can use, and which calls into our own API.
-   */
 }
 
 typedef enum
@@ -14052,12 +14024,7 @@ set_direction_recursive (ClutterActor *actor,
  *
  * The passed text direction must not be %CLUTTER_TEXT_DIRECTION_DEFAULT
  *
- * If @self implements #ClutterContainer then this function will recurse
- * inside all the children of @self (including the internal ones).
- *
- * Composite actors not implementing #ClutterContainer, or actors requiring
- * special handling when the text direction changes, should connect to
- * the #GObject::notify signal for the #ClutterActor:text-direction property
+ * This function will recurse inside all the children of @self
  */
 void
 clutter_actor_set_text_direction (ClutterActor         *self,

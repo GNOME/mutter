@@ -50,7 +50,6 @@
 #include "clutter/clutter-color-static.h"
 #include "clutter/clutter-colorize-effect.h"
 #include "clutter/clutter-constraint.h"
-#include "clutter/clutter-container.h"
 #include "clutter/clutter-content.h"
 #include "clutter/clutter-deform-effect.h"
 #include "clutter/clutter-desaturate-effect.h"
@@ -108,8 +107,6 @@
 #include "clutter/clutter-units.h"
 #include "clutter/clutter-virtual-input-device.h"
 #include "clutter/clutter-zoom-action.h"
-
-#include "clutter/clutter-deprecated.h"
 
 #include "clutter/clutter-autocleanups.h"
 

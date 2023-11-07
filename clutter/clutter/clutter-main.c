@@ -1322,18 +1322,3 @@ _clutter_diagnostic_enabled (void)
 
   return *clutter_enable_diagnostic != '0';
 }
-
-void
-_clutter_diagnostic_message (const char *format, ...)
-{
-  va_list args;
-  char *fmt;
-
-  fmt = g_strconcat ("[DIAGNOSTIC]: ", format, NULL);
-
-  va_start (args, format);
-  g_logv (G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE, fmt, args);
-  va_end (args);
-
-  g_free (fmt);
-}

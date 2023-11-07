@@ -28,10 +28,10 @@
 
 /**
  * ClutterChildMeta:
- * 
+ *
  * Base interface for container specific state for child actors.
- * 
- * A child data is meant to be used when you need to keep track 
+ *
+ * A child data is meant to be used when you need to keep track
  * of information about each individual child added to a container.
  *
  * In order to use it you should create your own subclass of
@@ -53,7 +53,7 @@
  *
  * The child data for an actor can be retrieved using the
  * clutter_container_get_child_meta() function.
- * 
+ *
  * The properties of the data and your subclass can be manipulated with
  * clutter_container_child_set() and clutter_container_child_get() which
  * act like g_object_set() and g_object_get().
@@ -93,7 +93,7 @@ clutter_child_meta_set_property (GObject      *object,
 {
   ClutterChildMeta *child_meta = CLUTTER_CHILD_META (object);
 
-  switch (prop_id) 
+  switch (prop_id)
     {
     case PROP_CONTAINER:
       child_meta->container = g_value_get_object (value);
@@ -109,7 +109,7 @@ clutter_child_meta_set_property (GObject      *object,
     }
 }
 
-static void 
+static void
 clutter_child_meta_get_property (GObject    *object,
                                  guint       prop_id,
                                  GValue     *value,
@@ -117,7 +117,7 @@ clutter_child_meta_get_property (GObject    *object,
 {
   ClutterChildMeta *child_meta = CLUTTER_CHILD_META (object);
 
-  switch (prop_id) 
+  switch (prop_id)
     {
     case PROP_CONTAINER:
       g_value_set_object (value, child_meta->container);
@@ -148,7 +148,7 @@ clutter_child_meta_class_init (ClutterChildMetaClass *klass)
    */
   obj_props[PROP_CONTAINER] =
     g_param_spec_object ("container", NULL, NULL,
-                         CLUTTER_TYPE_CONTAINER,
+                         CLUTTER_TYPE_ACTOR,
                          G_PARAM_CONSTRUCT_ONLY |
                          CLUTTER_PARAM_READWRITE);
 
@@ -179,9 +179,9 @@ clutter_child_meta_init (ClutterChildMeta *self)
  *
  * Retrieves the container using @data
  *
- * Return value: (transfer none): a #ClutterContainer
+ * Return value: (transfer none): a #ClutterActor
  */
-ClutterContainer *
+ClutterActor *
 clutter_child_meta_get_container (ClutterChildMeta *data)
 {
   g_return_val_if_fail (CLUTTER_IS_CHILD_META (data), NULL);

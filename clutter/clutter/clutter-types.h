@@ -46,8 +46,6 @@ typedef struct _ClutterActor                    ClutterActor;
 typedef struct _ClutterStage                    ClutterStage;
 typedef struct _ClutterFrame                    ClutterFrame;
 typedef struct _ClutterFrameInfo                ClutterFrameInfo;
-typedef struct _ClutterContainer                ClutterContainer; /* dummy */
-typedef struct _ClutterChildMeta                ClutterChildMeta;
 typedef struct _ClutterLayoutMeta               ClutterLayoutMeta;
 typedef struct _ClutterActorMeta                ClutterActorMeta;
 typedef struct _ClutterLayoutManager            ClutterLayoutManager;
@@ -102,7 +100,7 @@ typedef struct _ClutterEventSequence            ClutterEventSequence;
 /**
  * ClutterPaintVolume:
  *
- * A #ClutterPaintVolume represents a bounding volume whose internal 
+ * A #ClutterPaintVolume represents a bounding volume whose internal
  * representation isn't defined but can be set and queried in terms
  * of an axis aligned bounding box.
  *
@@ -121,8 +119,8 @@ typedef struct _ClutterPaintVolume      ClutterPaintVolume;
  * @x2: X coordinate of the bottom right corner
  * @y2: Y coordinate of the bottom right corner
  *
- * Bounding box of an actor. 
- * 
+ * Bounding box of an actor.
+ *
  * The coordinates of the top left and right bottom corners
  * of an actor. The coordinates of the two points are expressed in
  * pixels with sub-pixel precision

@@ -52,7 +52,7 @@ struct _ClutterChildMeta
   GObject parent_instance;
 
   /*< public >*/
-  ClutterContainer *container;
+  ClutterActor *container;
   ClutterActor *actor;
 };
 
@@ -65,13 +65,13 @@ struct _ClutterChildMetaClass
 {
   /*< private >*/
   GObjectClass parent_class;
-}; 
+};
 
 CLUTTER_EXPORT
 GType clutter_child_meta_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
-ClutterContainer *      clutter_child_meta_get_container        (ClutterChildMeta *data);
+ClutterActor     *      clutter_child_meta_get_container        (ClutterChildMeta *data);
 CLUTTER_EXPORT
 ClutterActor     *      clutter_child_meta_get_actor            (ClutterChildMeta *data);
 

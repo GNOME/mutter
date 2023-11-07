@@ -24,7 +24,7 @@
 
 /**
  * CallyActor:
- * 
+ *
  * Implementation of the ATK interfaces for [class@Clutter.Actor]
  *
  * #CallyActor implements the required ATK interfaces of [class@Clutter.Actor]
@@ -564,7 +564,7 @@ cally_actor_real_add_actor (ClutterActor *container,
   CallyActorPrivate *priv       = cally_actor->priv;
   gint              index;
 
-  g_return_val_if_fail (CLUTTER_IS_CONTAINER (container), 0);
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (container), 0);
   g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), 0);
 
   g_object_notify (G_OBJECT (atk_child), "accessible_parent");
@@ -591,7 +591,7 @@ cally_actor_real_remove_actor (ClutterActor *container,
   CallyActorPrivate  *priv        = NULL;
   gint               index;
 
-  g_return_val_if_fail (CLUTTER_IS_CONTAINER (container), 0);
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (container), 0);
   g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), 0);
 
   atk_parent = ATK_OBJECT (data);

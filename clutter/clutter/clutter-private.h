@@ -166,7 +166,6 @@ gboolean                _clutter_context_get_show_fps                   (void);
 
 /* Diagnostic mode */
 gboolean        _clutter_diagnostic_enabled     (void);
-void            _clutter_diagnostic_message     (const char *fmt, ...) G_GNUC_PRINTF (1, 2);
 
 CLUTTER_EXPORT
 void            _clutter_set_sync_to_vblank     (gboolean      sync_to_vblank);

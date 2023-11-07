@@ -25,7 +25,7 @@
 
 /**
  * ClutterScript:
- * 
+ *
  * Loads a scene from UI definition data
  *
  * #ClutterScript is an object used for loading and building parts or a
@@ -139,8 +139,6 @@
 #include "clutter/clutter-enum-types.h"
 #include "clutter/clutter-private.h"
 #include "clutter/clutter-debug.h"
-
-#include "clutter/deprecated/clutter-container.h"
 
 enum
 {
@@ -586,7 +584,7 @@ clutter_script_get_objects_valist (ClutterScript *script,
   while (name)
     {
       GObject **obj = NULL;
-      
+
       obj = va_arg (args, GObject**);
 
       *obj = clutter_script_get_object (script, name);
@@ -749,7 +747,7 @@ clutter_script_ensure_objects (ClutterScript *script)
  * @script: a #ClutterScript
  * @type_name: name of the type to look up
  *
- * Looks up a type by name, using the virtual function that 
+ * Looks up a type by name, using the virtual function that
  * #ClutterScript has for that purpose. This function should
  * rarely be used.
  *
@@ -853,7 +851,7 @@ clutter_script_default_connect (ClutterScript *script,
  * This method invokes [method@Script.connect_signals_full] internally
  * and uses  #GModule's introspective features (by opening the current
  * module's scope) to look at the application's symbol table.
- * 
+ *
  * Note that this function will not work if #GModule is not supported by
  * the platform Clutter is running on.
  */
@@ -1093,14 +1091,14 @@ clutter_script_lookup_filename (ClutterScript *script,
     dirname = g_path_get_dirname (script->priv->filename);
   else
     dirname = g_get_current_dir ();
-  
+
   retval = g_build_filename (dirname, filename, NULL);
   if (!g_file_test (retval, G_FILE_TEST_EXISTS))
     {
       g_free (retval);
       retval = NULL;
     }
-  
+
   g_free (dirname);
 
   return retval;

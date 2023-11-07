@@ -33,7 +33,6 @@
 #include <gmodule.h>
 
 #include "clutter/clutter-actor.h"
-#include "clutter/clutter-container.h"
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-enum-types.h"
 
