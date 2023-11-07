@@ -340,6 +340,8 @@ meta_display_handle_event (MetaDisplay        *display,
   if (event_type != CLUTTER_DEVICE_ADDED &&
       event_type != CLUTTER_DEVICE_REMOVED)
     handle_idletime_for_event (display, event);
+  else
+    meta_pad_action_mapper_handle_event (display->pad_action_mapper, event);
 
   if (event_type == CLUTTER_MOTION)
     {
