@@ -431,6 +431,9 @@ meta_window_get_property(GObject         *object,
     case PROP_ON_ALL_WORKSPACES:
       g_value_set_boolean (value, win->on_all_workspaces);
       break;
+    case PROP_IS_ALIVE:
+      g_value_set_boolean (value, win->is_alive);
+      break;
     case PROP_DISPLAY:
       g_value_set_object (value, win->display);
       break;
