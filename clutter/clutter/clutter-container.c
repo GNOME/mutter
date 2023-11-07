@@ -37,7 +37,6 @@
 
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-child-meta.h"
-#include "clutter/clutter-container-private.h"
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-main.h"
 #include "clutter/clutter-marshal.h"
@@ -64,7 +63,7 @@
 
 /**
  * ClutterContainer:
- * 
+ *
  * An interface for container actors
  *
  * #ClutterContainer is an interface implemented by [class@Actor], and
@@ -75,8 +74,6 @@
 
 enum
 {
-  ACTOR_ADDED,
-  ACTOR_REMOVED,
   CHILD_NOTIFY,
 
   LAST_SIGNAL
@@ -120,39 +117,6 @@ clutter_container_default_init (ClutterContainerInterface *iface)
 
   quark_child_meta =
     g_quark_from_static_string ("clutter-container-child-data");
-
-  /**
-   * ClutterContainer::actor-added:
-   * @container: the actor which received the signal
-   * @actor: the new child that has been added to @container
-   *
-   * The signal is emitted each time an actor
-   * has been added to @container.
-   */
-  container_signals[ACTOR_ADDED] =
-    g_signal_new (I_("actor-added"),
-                  iface_type,
-                  G_SIGNAL_RUN_FIRST,
-                  G_STRUCT_OFFSET (ClutterContainerIface, actor_added),
-                  NULL, NULL, NULL,
-                  G_TYPE_NONE, 1,
-                  CLUTTER_TYPE_ACTOR);
-  /**
-   * ClutterContainer::actor-removed:
-   * @container: the actor which received the signal
-   * @actor: the child that has been removed from @container
-   *
-   * The signal is emitted each time an actor
-   * is removed from @container.
-   */
-  container_signals[ACTOR_REMOVED] =
-    g_signal_new (I_("actor-removed"),
-                  iface_type,
-                  G_SIGNAL_RUN_FIRST,
-                  G_STRUCT_OFFSET (ClutterContainerIface, actor_removed),
-                  NULL, NULL, NULL,
-                  G_TYPE_NONE, 1,
-                  CLUTTER_TYPE_ACTOR);
 
   /**
    * ClutterContainer::child-notify:
@@ -765,7 +729,7 @@ clutter_container_child_set (ClutterContainer *container,
   GObjectClass *klass;
   const gchar *name;
   va_list var_args;
-  
+
   g_return_if_fail (CLUTTER_IS_CONTAINER (container));
   g_return_if_fail (CLUTTER_IS_ACTOR (actor));
 
@@ -779,7 +743,7 @@ clutter_container_child_set (ClutterContainer *container,
       GValue value = G_VALUE_INIT;
       gchar *error = NULL;
       GParamSpec *pspec;
-    
+
       pspec = clutter_container_class_find_child_property (klass, name);
       if (!pspec)
         {
@@ -898,7 +862,7 @@ clutter_container_child_get_property (ClutterContainer *container,
  *
  * In general, a copy is made of the property contents and the caller is
  * responsible for freeing the memory in the appropriate manner for the type, for
- * instance by calling g_free() or g_object_unref(). 
+ * instance by calling g_free() or g_object_unref().
  */
 void
 clutter_container_child_get (ClutterContainer *container,
@@ -909,7 +873,7 @@ clutter_container_child_get (ClutterContainer *container,
   GObjectClass *klass;
   const gchar *name;
   va_list var_args;
-  
+
   g_return_if_fail (CLUTTER_IS_CONTAINER (container));
   g_return_if_fail (CLUTTER_IS_ACTOR (actor));
 
@@ -923,7 +887,7 @@ clutter_container_child_get (ClutterContainer *container,
       GValue value = G_VALUE_INIT;
       gchar *error = NULL;
       GParamSpec *pspec;
-    
+
       pspec = clutter_container_class_find_child_property (klass, name);
       if (!pspec)
         {
@@ -984,24 +948,4 @@ clutter_container_child_notify (ClutterContainer *container,
   CLUTTER_CONTAINER_GET_IFACE (container)->child_notify (container,
                                                          child,
                                                          pspec);
-}
-
-void
-_clutter_container_emit_actor_added (ClutterContainer *container,
-                                     ClutterActor     *actor)
-{
-  g_return_if_fail (CLUTTER_IS_CONTAINER (container));
-  g_return_if_fail (CLUTTER_IS_ACTOR (actor));
-
-  g_signal_emit (container, container_signals[ACTOR_ADDED], 0, actor);
-}
-
-void
-_clutter_container_emit_actor_removed (ClutterContainer *container,
-                                       ClutterActor     *actor)
-{
-  g_return_if_fail (CLUTTER_IS_CONTAINER (container));
-  g_return_if_fail (CLUTTER_IS_ACTOR (actor));
-
-  g_signal_emit (container, container_signals[ACTOR_REMOVED], 0, actor);
 }

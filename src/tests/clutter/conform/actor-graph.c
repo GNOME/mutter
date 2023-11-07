@@ -400,9 +400,9 @@ actor_remove_all (void)
 }
 
 static void
-actor_added (ClutterContainer *container,
-             ClutterActor     *child,
-             gpointer          data)
+actor_added (ClutterActor *container,
+             ClutterActor *child,
+             gpointer      data)
 {
   ClutterActor *actor = CLUTTER_ACTOR (container);
   int *counter = data;
@@ -419,9 +419,9 @@ actor_added (ClutterContainer *container,
 }
 
 static void
-actor_removed (ClutterContainer *container,
-               ClutterActor     *child,
-               gpointer          data)
+actor_removed (ClutterActor *container,
+               ClutterActor *child,
+               gpointer      data)
 {
   int *counter = data;
 

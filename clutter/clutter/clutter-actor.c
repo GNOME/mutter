@@ -24,8 +24,8 @@
 
 /**
  * ClutterActor:
- * 
- * The basic element of the scene graph 
+ *
+ * The basic element of the scene graph
  *
  * The ClutterActor class is the basic element of the scene graph in Clutter,
  * and it encapsulates the position, size, and transformations of a node in
@@ -104,8 +104,8 @@
  * given index by using clutter_actor_get_child_at_index().
  *
  * If you need to track additions of children to a #ClutterActor, use
- * the #ClutterContainer::actor-added signal; similarly, to track removals
- * of children from a ClutterActor, use the #ClutterContainer::actor-removed
+ * the #ClutterActor::actor-added signal; similarly, to track removals
+ * of children from a ClutterActor, use the #ClutterActor::actor-removed
  * signal.
  *
  * See [basic-actor.c](https://git.gnome.org/browse/clutter/tree/examples/basic-actor.c?h=clutter-1.18).
@@ -537,7 +537,7 @@
 #include "clutter/clutter-color-static.h"
 #include "clutter/clutter-color.h"
 #include "clutter/clutter-constraint-private.h"
-#include "clutter/clutter-container-private.h"
+#include "clutter/clutter-container.h"
 #include "clutter/clutter-content-private.h"
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-easing.h"
@@ -926,6 +926,8 @@ enum
   TRANSITION_STOPPED,
   STAGE_VIEWS_CHANGED,
   RESOURCE_SCALE_CHANGED,
+  ACTOR_ADDED,
+  ACTOR_REMOVED,
   CLONED,
   DECLONED,
 
@@ -4197,7 +4199,7 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
 
   /* we need to emit the signal before dropping the reference */
   if (emit_actor_removed)
-    _clutter_container_emit_actor_removed (CLUTTER_CONTAINER (self), child);
+    g_signal_emit (self, actor_signals[ACTOR_REMOVED], 0, child);
 
   if (notify_first_last)
     {
@@ -7422,6 +7424,39 @@ clutter_actor_class_init (ClutterActorClass *klass)
                   G_STRUCT_OFFSET (ClutterActorClass, resource_scale_changed),
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
+
+  /**
+   * ClutterActor::actor-added:
+   * @actor: the actor which received the signal
+   * @child: the new child that has been added to @actor
+   *
+   * The signal is emitted each time an actor
+   * has been added to @actor.
+   */
+  actor_signals[ACTOR_ADDED] =
+    g_signal_new (I_("actor-added"),
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (ClutterActorClass, actor_added),
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 1,
+                  CLUTTER_TYPE_ACTOR);
+  /**
+   * ClutterActor::actor-removed:
+   * @actor: the actor which received the signal
+   * @child: the child that has been removed from @actor
+   *
+   * The signal is emitted each time an actor
+   * is removed from @actor.
+   */
+  actor_signals[ACTOR_REMOVED] =
+    g_signal_new (I_("actor-removed"),
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (ClutterActorClass, actor_removed),
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 1,
+                  CLUTTER_TYPE_ACTOR);
 
   /*< private > */
   actor_signals[CLONED] =
@@ -11176,7 +11211,7 @@ clutter_actor_add_child_internal (ClutterActor              *self,
     }
 
   if (emit_actor_added)
-    _clutter_container_emit_actor_added (CLUTTER_CONTAINER (self), child);
+    g_signal_emit (self, actor_signals[ACTOR_ADDED], 0, child);
 
   if (notify_first_last)
     {
@@ -11203,7 +11238,7 @@ clutter_actor_add_child_internal (ClutterActor              *self,
  * This function will take into consideration the #ClutterActor:depth
  * of @child, and will keep the list of children sorted.
  *
- * This function will emit the #ClutterContainer::actor-added signal
+ * This function will emit the #ClutterActor::actor-added signal
  * on @self.
  */
 void
@@ -11237,7 +11272,7 @@ clutter_actor_add_child (ClutterActor *self,
  * This function will not take into consideration the #ClutterActor:depth
  * of @child.
  *
- * This function will emit the #ClutterContainer::actor-added signal
+ * This function will emit the #ClutterActor::actor-added signal
  * on @self.
  */
 void
@@ -11272,7 +11307,7 @@ clutter_actor_insert_child_at_index (ClutterActor *self,
  * This function will not take into consideration the #ClutterActor:depth
  * of @child.
  *
- * This function will emit the #ClutterContainer::actor-added signal
+ * This function will emit the #ClutterActor::actor-added signal
  * on @self.
  */
 void
@@ -11311,7 +11346,7 @@ clutter_actor_insert_child_above (ClutterActor *self,
  * This function will not take into consideration the #ClutterActor:depth
  * of @child.
  *
- * This function will emit the #ClutterContainer::actor-added signal
+ * This function will emit the #ClutterActor::actor-added signal
  * on @self.
  */
 void
@@ -11382,7 +11417,7 @@ clutter_actor_get_paint_visibility (ClutterActor *actor)
  * you will have to acquire a referenced on it before calling this
  * function.
  *
- * This function will emit the #ClutterContainer::actor-removed
+ * This function will emit the #ClutterActor::actor-removed
  * signal on @self.
  */
 void
