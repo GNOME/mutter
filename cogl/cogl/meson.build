@@ -5,6 +5,8 @@ cogl_gir_includes = [
   'GL-1.0',
   'GObject-2.0',
   'Graphene-1.0',
+  'Pango-1.0',
+  'PangoCairo-1.0',
 ]
 
 if have_introspection
@@ -19,6 +21,7 @@ cogl_deprecated_headers = [
 ]
 
 cogl_headers = [
+  'pango/cogl-pango.h',
   'cogl.h',
   'cogl-atlas.h',
   'cogl-atlas-texture.h',
@@ -276,6 +279,15 @@ cogl_sources = [
   'deprecated/cogl-shader-private.h',
   'deprecated/cogl-shader.c',
   'gl-prototypes/cogl-all-functions.h',
+  'pango/cogl-pango-display-list.c',
+  'pango/cogl-pango-display-list.h',
+  'pango/cogl-pango-fontmap.c',
+  'pango/cogl-pango-glyph-cache.c',
+  'pango/cogl-pango-glyph-cache.h',
+  'pango/cogl-pango-pipeline-cache.c',
+  'pango/cogl-pango-pipeline-cache.h',
+  'pango/cogl-pango-private.h',
+  'pango/cogl-pango-render.c',
   'winsys/cogl-winsys-private.h',
   'winsys/cogl-winsys.c',
 ]

@@ -31,8 +31,8 @@
 #include <glib.h>
 #include <string.h>
 
-#include "cogl-pango/cogl-pango-display-list.h"
-#include "cogl-pango/cogl-pango-pipeline-cache.h"
+#include "cogl/pango/cogl-pango-display-list.h"
+#include "cogl/pango/cogl-pango-pipeline-cache.h"
 #include "cogl/cogl-context-private.h"
 
 typedef enum

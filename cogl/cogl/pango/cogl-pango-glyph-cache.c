@@ -30,8 +30,8 @@
 
 #include <glib.h>
 
-#include "cogl-pango/cogl-pango-glyph-cache.h"
-#include "cogl-pango/cogl-pango-private.h"
+#include "cogl/pango/cogl-pango-glyph-cache.h"
+#include "cogl/pango/cogl-pango-private.h"
 #include "cogl/cogl-atlas.h"
 #include "cogl/cogl-atlas-texture-private.h"
 

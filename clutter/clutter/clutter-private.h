@@ -29,8 +29,6 @@
 #include <glib.h>
 #include <pango/pango.h>
 
-#include "cogl-pango/cogl-pango.h"
-
 #include "clutter/clutter-backend.h"
 #include "clutter/clutter-context.h"
 #include "clutter/clutter-effect.h"

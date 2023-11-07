@@ -56,7 +56,7 @@
 #include "clutter/clutter-keysyms.h"
 #include "clutter/clutter-main.h"
 #include "clutter/clutter-marshal.h"
-#include "clutter/clutter-private.h"    /* includes <cogl-pango/cogl-pango.h> */
+#include "clutter/clutter-private.h"
 #include "clutter/clutter-property-transition.h"
 #include "clutter/clutter-text-buffer.h"
 #include "clutter/clutter-paint-volume-private.h"

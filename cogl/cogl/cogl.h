@@ -90,6 +90,7 @@
 #include "cogl/cogl-trace.h"
 #include "cogl/cogl-scanout.h"
 #include "cogl/cogl-graphene.h"
+#include "cogl/pango/cogl-pango.h"
 
 /* The gobject introspection scanner seems to parse public headers in
  * isolation which means we need to be extra careful about how we

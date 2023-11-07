@@ -22,6 +22,5 @@ docs_dir = pkgdatadir / 'doc'
 
 subdir('clutter')
 subdir('cogl')
-subdir('cogl-pango')
 subdir('meta')
 subdir('mtk')

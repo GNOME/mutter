@@ -44,9 +44,9 @@
 #include "cogl/cogl-debug.h"
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-texture-private.h"
-#include "cogl-pango/cogl-pango-private.h"
-#include "cogl-pango/cogl-pango-glyph-cache.h"
-#include "cogl-pango/cogl-pango-display-list.h"
+#include "cogl/pango/cogl-pango-private.h"
+#include "cogl/pango/cogl-pango-glyph-cache.h"
+#include "cogl/pango/cogl-pango-display-list.h"
 
 #define PANGO_UNKNOWN_GLYPH_WIDTH 10
 #define PANGO_UNKNOWN_GLYPH_HEIGHT 14

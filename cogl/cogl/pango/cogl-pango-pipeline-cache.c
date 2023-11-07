@@ -35,7 +35,7 @@
 
 #include <glib.h>
 
-#include "cogl-pango/cogl-pango-pipeline-cache.h"
+#include "cogl/pango/cogl-pango-pipeline-cache.h"
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-texture-private.h"
 

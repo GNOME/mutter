@@ -35,7 +35,7 @@
 
 #pragma once
 
-#include "cogl-pango/cogl-pango.h"
+#include "cogl/pango/cogl-pango.h"
 
 G_BEGIN_DECLS
 

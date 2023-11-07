@@ -22,6 +22,16 @@ search_index = true
   description = "A thin layer of mathematical types for 3D libraries"
   docs_url = "https://ebassi.github.io/graphene/docs"
 
+  [dependencies."Pango-1.0"]
+  name = "Pango"
+  description = "Text shaping and rendering"
+  docs_url = "https://docs.gtk.org/Pango/"
+
+  [dependencies."PangoCairo-1.0"]
+  name = "PangoCairo"
+  description = "Cairo support for Pango"
+  docs_url = "https://docs.gtk.org/PangoCairo/"
+
   [dependencies."cairo-1.0"]
   name = "cairo"
   description = "A 2D graphics library with support for multiple output devices"
