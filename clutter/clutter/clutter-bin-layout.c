@@ -49,7 +49,6 @@
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-animatable.h"
 #include "clutter/clutter-bin-layout.h"
-#include "clutter/clutter-child-meta.h"
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-enum-types.h"
 #include "clutter/clutter-layout-meta.h"

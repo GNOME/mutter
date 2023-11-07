@@ -42,7 +42,6 @@
 #include "clutter/clutter-box-layout.h"
 #include "clutter/clutter-brightness-contrast-effect.h"
 #include "clutter/clutter-canvas.h"
-#include "clutter/clutter-child-meta.h"
 #include "clutter/clutter-click-action.h"
 #include "clutter/clutter-clone.h"
 #include "clutter/clutter-color.h"

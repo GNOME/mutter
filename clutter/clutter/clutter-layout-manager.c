@@ -531,11 +531,7 @@ get_child_meta (ClutterLayoutManager *manager,
   layout = g_object_get_qdata (G_OBJECT (actor), quark_layout_meta);
   if (layout != NULL)
     {
-      ClutterChildMeta *child = CLUTTER_CHILD_META (layout);
-
-      if (layout->manager == manager &&
-          CLUTTER_ACTOR (child->container) == container &&
-          child->actor == actor)
+      if (clutter_layout_meta_is_for (layout, manager, container, actor))
         return layout;
 
       /* if the LayoutMeta referenced is not attached to the

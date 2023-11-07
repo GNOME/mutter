@@ -57,7 +57,6 @@
 
 #include "clutter/clutter-actor.h"
 #include "clutter/clutter-animatable.h"
-#include "clutter/clutter-child-meta.h"
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-enum-types.h"
 #include "clutter/clutter-flow-layout.h"
