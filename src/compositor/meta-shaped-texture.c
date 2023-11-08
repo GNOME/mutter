@@ -53,6 +53,17 @@ static void clutter_content_iface_init (ClutterContentInterface *iface);
 
 enum
 {
+  PROP_0,
+
+  PROP_CLUTTER_CONTEXT,
+
+  N_PROPS
+};
+
+static GParamSpec *obj_props[N_PROPS];
+
+enum
+{
   SIZE_CHANGED,
 
   LAST_SIGNAL,
@@ -68,6 +79,8 @@ static CoglPipelineKey blended_overlay_pipeline_key =
 struct _MetaShapedTexture
 {
   GObject parent;
+
+  ClutterContext *clutter_context;
 
   MetaMultiTexture *texture;
   CoglTexture *mask_texture;
@@ -115,11 +128,49 @@ G_DEFINE_TYPE_WITH_CODE (MetaShapedTexture, meta_shaped_texture, G_TYPE_OBJECT,
                                                 clutter_content_iface_init));
 
 static void
+meta_shaped_texture_set_property (GObject      *object,
+                                  guint         prop_id,
+                                  const GValue *value,
+                                  GParamSpec   *pspec)
+{
+  MetaShapedTexture *stex = META_SHAPED_TEXTURE (object);
+
+  switch (prop_id)
+    {
+    case PROP_CLUTTER_CONTEXT:
+      stex->clutter_context = g_value_get_object (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+    }
+}
+
+static void
+meta_shaped_texture_get_property (GObject    *object,
+                                  guint       prop_id,
+                                  GValue     *value,
+                                  GParamSpec *pspec)
+{
+  MetaShapedTexture *stex = META_SHAPED_TEXTURE (object);
+
+  switch (prop_id)
+    {
+    case PROP_CLUTTER_CONTEXT:
+      g_value_set_object (value, stex->clutter_context);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+    }
+}
+
+static void
 meta_shaped_texture_class_init (MetaShapedTextureClass *klass)
 {
   GObjectClass *object_class = (GObjectClass *) klass;
 
   object_class->dispose = meta_shaped_texture_dispose;
+  object_class->set_property = meta_shaped_texture_set_property;
+  object_class->get_property = meta_shaped_texture_get_property;
 
   signals[SIZE_CHANGED] = g_signal_new ("size-changed",
                                         G_TYPE_FROM_CLASS (klass),
@@ -127,6 +178,14 @@ meta_shaped_texture_class_init (MetaShapedTextureClass *klass)
                                         0,
                                         NULL, NULL, NULL,
                                         G_TYPE_NONE, 0);
+
+  obj_props[PROP_CLUTTER_CONTEXT] =
+    g_param_spec_object ("clutter-context", NULL, NULL,
+                         CLUTTER_TYPE_CONTEXT,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }
 
 static void
@@ -1512,9 +1571,11 @@ meta_shaped_texture_set_fallback_size (MetaShapedTexture *stex,
 }
 
 MetaShapedTexture *
-meta_shaped_texture_new (void)
+meta_shaped_texture_new (ClutterContext *clutter_context)
 {
-  return g_object_new (META_TYPE_SHAPED_TEXTURE, NULL);
+  return g_object_new (META_TYPE_SHAPED_TEXTURE,
+                       "clutter-context", clutter_context,
+                       NULL);
 }
 
 /**

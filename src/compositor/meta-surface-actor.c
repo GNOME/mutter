@@ -251,6 +251,35 @@ meta_surface_actor_get_property (GObject      *object,
 }
 
 static void
+texture_size_changed (MetaShapedTexture *texture,
+                      MetaSurfaceActor  *surface_actor)
+{
+  g_signal_emit (surface_actor, signals[SIZE_CHANGED], 0);
+}
+
+static void
+meta_surface_actor_constructed (GObject *object)
+{
+  MetaSurfaceActor *surface_actor = META_SURFACE_ACTOR (object);
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (surface_actor);
+  ClutterContext *clutter_context =
+    clutter_actor_get_context (CLUTTER_ACTOR (surface_actor));
+
+  priv->is_obscured = TRUE;
+  priv->texture = meta_shaped_texture_new (clutter_context);
+  g_signal_connect_object (priv->texture, "size-changed",
+                           G_CALLBACK (texture_size_changed), surface_actor,
+                           G_CONNECT_DEFAULT);
+  clutter_actor_set_content (CLUTTER_ACTOR (surface_actor),
+                             CLUTTER_CONTENT (priv->texture));
+  clutter_actor_set_request_mode (CLUTTER_ACTOR (surface_actor),
+                                  CLUTTER_REQUEST_CONTENT_SIZE);
+
+  G_OBJECT_CLASS (meta_surface_actor_parent_class)->constructed (object);
+}
+
+static void
 meta_surface_actor_dispose (GObject *object)
 {
   MetaSurfaceActor *self = META_SURFACE_ACTOR (object);
@@ -271,6 +300,7 @@ meta_surface_actor_class_init (MetaSurfaceActorClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   ClutterActorClass *actor_class = CLUTTER_ACTOR_CLASS (klass);
 
+  object_class->constructed = meta_surface_actor_constructed;
   object_class->dispose = meta_surface_actor_dispose;
   object_class->get_property = meta_surface_actor_get_property;
 
@@ -370,27 +400,8 @@ cullable_iface_init (MetaCullableInterface *iface)
 }
 
 static void
-texture_size_changed (MetaShapedTexture *texture,
-                      gpointer           user_data)
-{
-  MetaSurfaceActor *actor = META_SURFACE_ACTOR (user_data);
-  g_signal_emit (actor, signals[SIZE_CHANGED], 0);
-}
-
-static void
 meta_surface_actor_init (MetaSurfaceActor *self)
 {
-  MetaSurfaceActorPrivate *priv =
-    meta_surface_actor_get_instance_private (self);
-
-  priv->is_obscured = TRUE;
-  priv->texture = meta_shaped_texture_new ();
-  g_signal_connect_object (priv->texture, "size-changed",
-                           G_CALLBACK (texture_size_changed), self, 0);
-  clutter_actor_set_content (CLUTTER_ACTOR (self),
-                             CLUTTER_CONTENT (priv->texture));
-  clutter_actor_set_request_mode (CLUTTER_ACTOR (self),
-                                  CLUTTER_REQUEST_CONTENT_SIZE);
 }
 
 MetaShapedTexture *
