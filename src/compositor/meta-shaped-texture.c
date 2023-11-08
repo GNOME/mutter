@@ -117,9 +117,9 @@ G_DEFINE_TYPE_WITH_CODE (MetaShapedTexture, meta_shaped_texture, G_TYPE_OBJECT,
 static void
 meta_shaped_texture_class_init (MetaShapedTextureClass *klass)
 {
-  GObjectClass *gobject_class = (GObjectClass *) klass;
+  GObjectClass *object_class = (GObjectClass *) klass;
 
-  gobject_class->dispose = meta_shaped_texture_dispose;
+  object_class->dispose = meta_shaped_texture_dispose;
 
   signals[SIZE_CHANGED] = g_signal_new ("size-changed",
                                         G_TYPE_FROM_CLASS (klass),
