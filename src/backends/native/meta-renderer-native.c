@@ -1610,11 +1610,11 @@ meta_renderer_native_finish_frame (MetaRendererNative *renderer_native,
 }
 
 static gboolean
-create_secondary_egl_config (MetaEgl               *egl,
-                             MetaRendererNativeMode mode,
-                             EGLDisplay             egl_display,
-                             EGLConfig             *egl_config,
-                             GError               **error)
+create_secondary_egl_config (MetaEgl                    *egl,
+                             MetaRendererNativeGpuData  *renderer_gpu_data,
+                             EGLDisplay                  egl_display,
+                             EGLConfig                  *egl_config,
+                             GError                    **error)
 {
   EGLint attributes[] = {
     EGL_RED_SIZE, 1,
@@ -1627,16 +1627,67 @@ create_secondary_egl_config (MetaEgl               *egl,
     EGL_NONE
   };
 
-  switch (mode)
+  switch (renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
     case META_RENDERER_NATIVE_MODE_SURFACELESS:
-      return choose_egl_config_from_gbm_format (egl,
-                                                egl_display,
-                                                attributes,
-                                                GBM_FORMAT_XRGB8888,
-                                                egl_config,
-                                                error);
+      {
+        MetaGpuKms *gpu_kms = renderer_gpu_data->gpu_kms;
+        static const uint32_t gles3_formats[] = {
+          GBM_FORMAT_ARGB2101010,
+          GBM_FORMAT_ABGR2101010,
+          GBM_FORMAT_RGBA1010102,
+          GBM_FORMAT_BGRA1010102,
+          GBM_FORMAT_XRGB8888,
+          GBM_FORMAT_ARGB8888,
+        };
+        int i;
+
+        for (i = 0; i < G_N_ELEMENTS (gles3_formats); i++)
+          {
+            g_clear_error (error);
+
+            if (gpu_kms)
+              {
+                GList *l;
+
+                for (l = meta_gpu_get_crtcs (META_GPU (gpu_kms)); l; l = l->next)
+                  {
+                    MetaCrtc *crtc = l->data;
+
+                    if (!meta_crtc_kms_supports_format (META_CRTC_KMS (crtc), gles3_formats[i]))
+                      break;
+                  }
+
+                /* If any CRTC doesn't support the format, we can't use it */
+                if (l)
+                  {
+                    g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                                 "KMS CRTC doesn't support GBM format");
+                    continue;
+                  }
+              }
+
+            if (choose_egl_config_from_gbm_format (egl,
+                                                   egl_display,
+                                                   attributes,
+                                                   gles3_formats[i],
+                                                   egl_config,
+                                                   error))
+              {
+                MetaDrmFormatBuf format_string;
+
+                meta_drm_format_to_string (&format_string, gles3_formats[i]);
+                meta_topic (META_DEBUG_KMS,
+                            "Using GBM format %s for secondary GPU EGL",
+                            format_string.s);
+
+                return TRUE;
+              }
+          }
+
+        return FALSE;
+      }
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
       return meta_egl_choose_first_config (egl,
@@ -1728,7 +1779,7 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
 
   meta_egl_bind_api (egl, EGL_OPENGL_ES_API, NULL);
 
-  if (!create_secondary_egl_config (egl, renderer_gpu_data->mode, egl_display,
+  if (!create_secondary_egl_config (egl, renderer_gpu_data, egl_display,
                                     &egl_config, error))
     goto out;
 

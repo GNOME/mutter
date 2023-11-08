@@ -1760,7 +1760,17 @@ choose_onscreen_egl_config (CoglOnscreen  *onscreen,
   MetaCrtcKms *crtc_kms = META_CRTC_KMS (onscreen_native->crtc);
   EGLint attrs[MAX_EGL_CONFIG_ATTRIBS];
   g_autoptr (GError) local_error = NULL;
-  static const uint32_t formats[] = {
+  static const uint32_t alphaless_10bpc_formats[] = {
+    GBM_FORMAT_XRGB2101010,
+    GBM_FORMAT_XBGR2101010,
+    GBM_FORMAT_RGBX1010102,
+    GBM_FORMAT_BGRX1010102,
+  };
+  static const uint32_t default_formats[] = {
+    GBM_FORMAT_ARGB2101010,
+    GBM_FORMAT_ABGR2101010,
+    GBM_FORMAT_RGBA1010102,
+    GBM_FORMAT_BGRA1010102,
     GBM_FORMAT_XRGB8888,
     GBM_FORMAT_ARGB8888,
   };
@@ -1769,12 +1779,27 @@ choose_onscreen_egl_config (CoglOnscreen  *onscreen,
                                          &cogl_display->onscreen_template->config,
                                          attrs);
 
+  /* Secondary GPU contexts use GLES3, which doesn't guarantee that 10 bpc
+   * formats without alpha are renderable
+   */
+  if (!should_surface_be_sharable (onscreen) &&
+      meta_renderer_native_choose_gbm_format (crtc_kms,
+                                              egl,
+                                              egl_display,
+                                              attrs,
+                                              alphaless_10bpc_formats,
+                                              G_N_ELEMENTS (alphaless_10bpc_formats),
+                                              "surface",
+                                              out_config,
+                                              error))
+    return TRUE;
+
   if (meta_renderer_native_choose_gbm_format (crtc_kms,
                                               egl,
                                               egl_display,
                                               attrs,
-                                              formats,
-                                              G_N_ELEMENTS (formats),
+                                              default_formats,
+                                              G_N_ELEMENTS (default_formats),
                                               "surface",
                                               out_config,
                                               error))
