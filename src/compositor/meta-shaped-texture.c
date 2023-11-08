@@ -122,7 +122,7 @@ meta_shaped_texture_class_init (MetaShapedTextureClass *klass)
   gobject_class->dispose = meta_shaped_texture_dispose;
 
   signals[SIZE_CHANGED] = g_signal_new ("size-changed",
-                                        G_TYPE_FROM_CLASS (gobject_class),
+                                        G_TYPE_FROM_CLASS (klass),
                                         G_SIGNAL_RUN_LAST,
                                         0,
                                         NULL, NULL, NULL,
