@@ -1331,12 +1331,22 @@ meta_monitor_manager_setup (MetaMonitorManager *manager)
 }
 
 static void
+on_started (MetaContext        *context,
+            MetaMonitorManager *monitor_manager)
+{
+  g_signal_connect (monitor_manager, "notify::experimental-hdr",
+                    G_CALLBACK (meta_monitor_manager_reconfigure),
+                    NULL);
+}
+
+static void
 meta_monitor_manager_constructed (GObject *object)
 {
   MetaMonitorManager *manager = META_MONITOR_MANAGER (object);
   MetaMonitorManagerPrivate *priv =
     meta_monitor_manager_get_instance_private (manager);
   MetaBackend *backend = manager->backend;
+  MetaContext *context = meta_backend_get_context (backend);
   MetaSettings *settings = meta_backend_get_settings (backend);
 
   manager->display_config = meta_dbus_display_config_skeleton_new ();
@@ -1375,13 +1385,10 @@ meta_monitor_manager_constructed (GObject *object)
                            G_CALLBACK (lid_is_closed_changed),
                            manager, 0);
 
+  g_signal_connect (context, "started", G_CALLBACK (on_started), manager);
   g_signal_connect (backend, "prepare-shutdown",
                     G_CALLBACK (prepare_shutdown),
                     manager);
-
-  g_signal_connect (manager, "notify::experimental-hdr",
-                    G_CALLBACK (ensure_hdr_settings),
-                    NULL);
 
   manager->current_switch_config = META_MONITOR_SWITCH_CONFIG_UNKNOWN;
 
