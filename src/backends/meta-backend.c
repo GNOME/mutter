@@ -265,14 +265,9 @@ meta_backend_destroy (MetaBackend *backend)
 }
 
 static void
-meta_backend_sync_screen_size (MetaBackend *backend)
+meta_backend_update_stage (MetaBackend *backend)
 {
-  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-  int width, height;
-
-  meta_monitor_manager_get_screen_size (priv->monitor_manager, &width, &height);
-
-  META_BACKEND_GET_CLASS (backend)->update_screen_size (backend, width, height);
+  META_BACKEND_GET_CLASS (backend)->update_stage (backend);
 }
 
 static void
@@ -347,7 +342,7 @@ update_cursors (MetaBackend *backend)
 void
 meta_backend_monitors_changed (MetaBackend *backend)
 {
-  meta_backend_sync_screen_size (backend);
+  meta_backend_update_stage (backend);
   update_cursors (backend);
 }
 
@@ -546,7 +541,7 @@ meta_backend_real_post_init (MetaBackend *backend)
 
   meta_monitor_manager_setup (priv->monitor_manager);
 
-  meta_backend_sync_screen_size (backend);
+  meta_backend_update_stage (backend);
 
   priv->idle_manager = meta_idle_manager_new (backend);
 

@@ -102,15 +102,18 @@ meta_backend_x11_nested_get_input_settings (MetaBackend *backend)
 }
 
 static void
-meta_backend_x11_nested_update_screen_size (MetaBackend *backend,
-                                            int          width,
-                                            int          height)
+meta_backend_x11_nested_update_stage (MetaBackend *backend)
 {
   ClutterActor *stage = meta_backend_get_stage (backend);
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  int width, height;
 
   meta_renderer_rebuild_views (renderer);
   clutter_stage_clear_stage_views (CLUTTER_STAGE (stage));
+
+  meta_monitor_manager_get_screen_size (monitor_manager, &width, &height);
   clutter_actor_set_size (stage, width, height);
 }
 
@@ -320,7 +323,7 @@ meta_backend_x11_nested_class_init (MetaBackendX11NestedClass *klass)
   backend_class->create_monitor_manager = meta_backend_x11_nested_create_monitor_manager;
   backend_class->get_cursor_renderer = meta_backend_x11_nested_get_cursor_renderer;
   backend_class->get_input_settings = meta_backend_x11_nested_get_input_settings;
-  backend_class->update_screen_size = meta_backend_x11_nested_update_screen_size;
+  backend_class->update_stage = meta_backend_x11_nested_update_stage;
   backend_class->select_stage_events = meta_backend_x11_nested_select_stage_events;
   backend_class->lock_layout_group = meta_backend_x11_nested_lock_layout_group;
   backend_class->set_keymap = meta_backend_x11_nested_set_keymap;

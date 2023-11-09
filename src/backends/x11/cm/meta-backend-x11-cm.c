@@ -183,14 +183,16 @@ meta_backend_x11_cm_get_input_settings (MetaBackend *backend)
 }
 
 static void
-meta_backend_x11_cm_update_screen_size (MetaBackend *backend,
-                                        int          width,
-                                        int          height)
+meta_backend_x11_cm_update_stage (MetaBackend *backend)
 {
   MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
   Display *xdisplay = meta_backend_x11_get_xdisplay (x11);
   Window xwin = meta_backend_x11_get_xwindow (x11);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  int width, height;
 
+  meta_monitor_manager_get_screen_size (monitor_manager, &width, &height);
   XResizeWindow (xdisplay, xwin, width, height);
 }
 
@@ -543,7 +545,7 @@ meta_backend_x11_cm_class_init (MetaBackendX11CmClass *klass)
   backend_class->get_cursor_renderer = meta_backend_x11_cm_get_cursor_renderer;
   backend_class->create_cursor_tracker = meta_backend_x11_cm_create_cursor_tracker;
   backend_class->get_input_settings = meta_backend_x11_cm_get_input_settings;
-  backend_class->update_screen_size = meta_backend_x11_cm_update_screen_size;
+  backend_class->update_stage = meta_backend_x11_cm_update_stage;
   backend_class->select_stage_events = meta_backend_x11_cm_select_stage_events;
   backend_class->lock_layout_group = meta_backend_x11_cm_lock_layout_group;
   backend_class->set_keymap = meta_backend_x11_cm_set_keymap;

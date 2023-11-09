@@ -450,16 +450,19 @@ meta_backend_native_set_pointer_constraint (MetaBackend           *backend,
 }
 
 static void
-meta_backend_native_update_screen_size (MetaBackend *backend,
-                                        int width, int height)
+meta_backend_native_update_stage (MetaBackend *backend)
 {
   ClutterActor *stage = meta_backend_get_stage (backend);
   ClutterStageWindow *stage_window =
     _clutter_stage_get_window (CLUTTER_STAGE (stage));
   MetaStageNative *stage_native = META_STAGE_NATIVE (stage_window);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  int width, height;
 
   meta_stage_native_rebuild_views (stage_native);
 
+  meta_monitor_manager_get_screen_size (monitor_manager, &width, &height);
   clutter_actor_set_size (stage, width, height);
 }
 
@@ -899,7 +902,7 @@ meta_backend_native_class_init (MetaBackendNativeClass *klass)
   backend_class->get_keymap = meta_backend_native_get_keymap;
   backend_class->get_keymap_layout_group = meta_backend_native_get_keymap_layout_group;
   backend_class->lock_layout_group = meta_backend_native_lock_layout_group;
-  backend_class->update_screen_size = meta_backend_native_update_screen_size;
+  backend_class->update_stage = meta_backend_native_update_stage;
 
   backend_class->set_pointer_constraint = meta_backend_native_set_pointer_constraint;
 

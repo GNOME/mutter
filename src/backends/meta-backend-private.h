@@ -100,7 +100,7 @@ struct _MetaBackendClass
   void (* lock_layout_group) (MetaBackend *backend,
                               guint        idx);
 
-  void (* update_screen_size) (MetaBackend *backend, int width, int height);
+  void (* update_stage) (MetaBackend *backend);
   void (* select_stage_events) (MetaBackend *backend);
 
   void (* set_pointer_constraint) (MetaBackend           *backend,
