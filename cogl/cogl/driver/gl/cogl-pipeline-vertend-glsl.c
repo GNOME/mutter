@@ -280,21 +280,28 @@ _cogl_glsl_shader_set_source_with_boilerplate (CoglContext *ctx,
 
   if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_SHOW_SOURCE)))
     {
-      GString *buf = g_string_new (NULL);
+      GString *buf;
+      g_auto (GStrv) lines = NULL;
       int i;
 
-      g_string_append_printf (buf,
-                              "%s shader:\n",
-                              shader_gl_type == GL_VERTEX_SHADER ?
-                              "vertex" : "fragment");
+      buf = g_string_new (NULL);
       for (i = 0; i < count; i++)
         if (lengths[i] != -1)
           g_string_append_len (buf, strings[i], lengths[i]);
         else
           g_string_append (buf, strings[i]);
 
-      g_message ("%s", buf->str);
+      lines = g_strsplit (buf->str, "\n", 0);
+      g_string_free (buf, TRUE);
 
+      buf = g_string_new (NULL);
+      for (i = 0; lines[i]; i++)
+        g_string_append_printf (buf, "%4d: %s\n", i + 1, lines[i]);
+
+      g_message ("%s shader:\n%s",
+                 shader_gl_type == GL_VERTEX_SHADER ?
+                 "vertex" : "fragment",
+                 buf->str);
       g_string_free (buf, TRUE);
     }
 
