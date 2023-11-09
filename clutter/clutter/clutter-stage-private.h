@@ -170,4 +170,6 @@ ClutterGrab * clutter_stage_grab_input_only (ClutterStage        *self,
                                              gpointer             user_data,
                                              GDestroyNotify       user_data_destroy);
 
+void clutter_stage_invalidate_devices (ClutterStage *stage);
+
 G_END_DECLS
