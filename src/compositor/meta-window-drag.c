@@ -71,7 +71,7 @@ struct _MetaWindowDrag {
   /* if TRUE, window was maximized at start of current grab op */
   gboolean shaken_loose;
 
-  gulong unmanaging_id;
+  gulong unmanaged_id;
   gulong size_changed_id;
 
   guint tile_preview_timeout_id;
@@ -380,7 +380,7 @@ meta_window_drag_end (MetaWindowDrag *window_drag)
 
   clutter_grab_dismiss (window_drag->grab);
 
-  g_clear_signal_handler (&window_drag->unmanaging_id, grab_window);
+  g_clear_signal_handler (&window_drag->unmanaged_id, grab_window);
   g_clear_signal_handler (&window_drag->size_changed_id, grab_window);
 
   meta_topic (META_DEBUG_WINDOW_OPS,
@@ -400,8 +400,8 @@ meta_window_drag_end (MetaWindowDrag *window_drag)
 }
 
 static void
-on_grab_window_unmanaging (MetaWindow     *window,
-                           MetaWindowDrag *window_drag)
+on_grab_window_unmanaged (MetaWindow     *window,
+                          MetaWindowDrag *window_drag)
 {
   meta_window_drag_end (window_drag);
 }
@@ -1848,9 +1848,9 @@ meta_window_drag_begin (MetaWindowDrag       *window_drag,
   meta_window_ungrab_keys (grab_window);
 
   g_set_object (&window_drag->effective_grab_window, grab_window);
-  window_drag->unmanaging_id =
-    g_signal_connect (grab_window, "unmanaging",
-                      G_CALLBACK (on_grab_window_unmanaging), window_drag);
+  window_drag->unmanaged_id =
+    g_signal_connect (grab_window, "unmanaged",
+                      G_CALLBACK (on_grab_window_unmanaged), window_drag);
 
   window_drag->leading_device = device;
   window_drag->leading_touch_sequence = sequence;
