@@ -17,7 +17,7 @@ const char *
 test_swipe_action_describe (void);
 
 static void
-swept_cb (ClutterSwipeAction    *action,
+swipe_cb (ClutterSwipeAction    *action,
           ClutterActor          *actor,
           ClutterSwipeDirection  direction,
           gpointer               data_)
@@ -75,7 +75,7 @@ swept_cb (ClutterSwipeAction    *action,
       g_free (old_str);
     }
 
-  g_print ("swept: '%s': %s\n", clutter_actor_get_name (actor), direction_str);
+  g_print ("swipe: '%s': %s\n", clutter_actor_get_name (actor), direction_str);
 
   g_free (direction_str);
 }
@@ -95,7 +95,7 @@ attach_action (ClutterActor *actor, guint axis)
 
   action = g_object_new (CLUTTER_TYPE_SWIPE_ACTION, NULL);
   clutter_actor_add_action (actor, action);
-  g_signal_connect (action, "swept", G_CALLBACK (swept_cb), GUINT_TO_POINTER (axis));
+  g_signal_connect (action, "swipe", G_CALLBACK (swipe_cb), GUINT_TO_POINTER (axis));
   g_signal_connect (action, "gesture-cancel", G_CALLBACK (gesture_cancel_cb), NULL);
 }
 

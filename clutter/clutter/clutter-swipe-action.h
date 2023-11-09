@@ -57,8 +57,6 @@ struct _ClutterSwipeAction
 
 /**
  * ClutterSwipeActionClass:
- * @swept: class handler for the #ClutterSwipeAction::swept signal;
- *   deprecated since 1.14
  * @swipe: class handler for the #ClutterSwipeAction::swipe signal
  *
  * The #ClutterSwipeActionClass structure contains
@@ -70,7 +68,7 @@ struct _ClutterSwipeActionClass
   ClutterGestureActionClass parent_class;
 
   /*< public >*/
-  void (* swept)  (ClutterSwipeAction    *action,
+  void (* swipe)  (ClutterSwipeAction    *action,
                    ClutterActor          *actor,
                    ClutterSwipeDirection  direction);
 };
