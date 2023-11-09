@@ -6,6 +6,7 @@
   <interface name="org.gnome.Mutter.DebugControl">
 
     <property name="EnableHDR" type="b" access="readwrite" />
+    <property name="ForceLinearBlending" type="b" access="readwrite" />
 
   </interface>
 

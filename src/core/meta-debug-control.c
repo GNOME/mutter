@@ -113,7 +113,7 @@ on_experimental_hdr_changed (MetaMonitorManager *monitor_manager,
   g_object_get (G_OBJECT (monitor_manager),
                 "experimental-hdr", &experimental_hdr,
                 NULL);
-  
+
   enable = g_strcmp0 (experimental_hdr, "on") == 0;
   if (enable == meta_dbus_debug_control_get_enable_hdr (dbus_debug_control))
     return;
@@ -219,6 +219,19 @@ meta_debug_control_class_init (MetaDebugControlClass *klass)
 static void
 meta_debug_control_init (MetaDebugControl *debug_control)
 {
+  MetaDBusDebugControl *dbus_debug_control =
+    META_DBUS_DEBUG_CONTROL (debug_control);
+
+  meta_dbus_debug_control_set_force_linear_blending (dbus_debug_control, FALSE);
+}
+
+gboolean
+meta_debug_control_is_linear_blending_forced (MetaDebugControl *debug_control)
+{
+  MetaDBusDebugControl *dbus_debug_control =
+    META_DBUS_DEBUG_CONTROL (debug_control);
+
+  return meta_dbus_debug_control_get_force_linear_blending (dbus_debug_control);
 }
 
 void

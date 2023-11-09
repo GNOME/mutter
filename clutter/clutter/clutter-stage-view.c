@@ -42,6 +42,8 @@ enum
   PROP_FRAMEBUFFER,
   PROP_OFFSCREEN,
   PROP_USE_SHADOWFB,
+  PROP_COLOR_STATE,
+  PROP_OUTPUT_COLOR_STATE,
   PROP_SCALE,
   PROP_REFRESH_RATE,
   PROP_VBLANK_DURATION_US,
@@ -69,6 +71,7 @@ typedef struct _ClutterStageViewPrivate
   float scale;
   CoglFramebuffer *framebuffer;
   ClutterColorState *color_state;
+  ClutterColorState *output_color_state;
 
   CoglOffscreen *offscreen;
   CoglPipeline *offscreen_pipeline;
@@ -186,6 +189,7 @@ clutter_stage_view_ensure_offscreen_blit_pipeline (ClutterStageView *view)
     clutter_stage_view_get_instance_private (view);
   ClutterStageViewClass *view_class =
     CLUTTER_STAGE_VIEW_GET_CLASS (view);
+  g_autoptr (CoglSnippet) snippet = NULL;
 
   g_assert (priv->offscreen != NULL);
 
@@ -197,6 +201,11 @@ clutter_stage_view_ensure_offscreen_blit_pipeline (ClutterStageView *view)
 
   if (view_class->setup_offscreen_transform)
     view_class->setup_offscreen_transform (view, priv->offscreen_pipeline);
+
+  snippet = clutter_color_state_get_transform_snippet (priv->color_state,
+                                                       priv->output_color_state);
+  if (snippet)
+    cogl_pipeline_add_snippet (priv->offscreen_pipeline, snippet);
 }
 
 void
@@ -995,6 +1004,21 @@ clutter_stage_view_set_framebuffer (ClutterStageView *view,
 }
 
 static void
+clutter_stage_view_set_color_state (ClutterStageView  *view,
+                                    ClutterColorState *color_state)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  if (priv->color_state == color_state)
+    return;
+
+  g_set_object (&priv->color_state, color_state);
+
+  clutter_stage_view_invalidate_offscreen_blit_pipeline (view);
+}
+
+static void
 clutter_stage_view_get_property (GObject    *object,
                                  guint       prop_id,
                                  GValue     *value,
@@ -1023,6 +1047,12 @@ clutter_stage_view_get_property (GObject    *object,
       break;
     case PROP_USE_SHADOWFB:
       g_value_set_boolean (value, priv->use_shadowfb);
+      break;
+    case PROP_COLOR_STATE:
+      g_value_set_object (value, priv->color_state);
+      break;
+    case PROP_OUTPUT_COLOR_STATE:
+      g_value_set_object (value, priv->output_color_state);
       break;
     case PROP_SCALE:
       g_value_set_float (value, priv->scale);
@@ -1069,6 +1099,12 @@ clutter_stage_view_set_property (GObject      *object,
     case PROP_USE_SHADOWFB:
       priv->use_shadowfb = g_value_get_boolean (value);
       break;
+    case PROP_COLOR_STATE:
+      clutter_stage_view_set_color_state (view, g_value_get_object (value));
+      break;
+    case PROP_OUTPUT_COLOR_STATE:
+      priv->output_color_state = g_value_dup_object (value);
+      break;
     case PROP_SCALE:
       priv->scale = g_value_get_float (value);
       break;
@@ -1089,7 +1125,6 @@ clutter_stage_view_constructed (GObject *object)
   ClutterStageView *view = CLUTTER_STAGE_VIEW (object);
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
-  ClutterContext *context;
 
   if (priv->use_shadowfb)
     init_shadowfb (view);
@@ -1100,10 +1135,15 @@ clutter_stage_view_constructed (GObject *object)
                                                &frame_clock_listener_iface,
                                                view);
 
-  context = clutter_actor_get_context (CLUTTER_ACTOR (priv->stage));
-  priv->color_state = clutter_color_state_new (context,
-                                               CLUTTER_COLORSPACE_DEFAULT,
-                                               CLUTTER_TRANSFER_FUNCTION_DEFAULT);
+  if (!priv->color_state)
+    {
+      ClutterContext *context =
+        clutter_actor_get_context (CLUTTER_ACTOR (priv->stage));
+
+      priv->color_state = clutter_color_state_new (context,
+                                                   CLUTTER_COLORSPACE_DEFAULT,
+                                                   CLUTTER_TRANSFER_FUNCTION_DEFAULT);
+    }
 
   clutter_stage_view_add_redraw_clip (view, NULL);
   clutter_stage_view_schedule_update (view);
@@ -1213,6 +1253,20 @@ clutter_stage_view_class_init (ClutterStageViewClass *klass)
                           G_PARAM_READWRITE |
                           G_PARAM_CONSTRUCT_ONLY |
                           G_PARAM_STATIC_STRINGS);
+
+  obj_props[PROP_COLOR_STATE] =
+    g_param_spec_object ("color-state", NULL, NULL,
+                         CLUTTER_TYPE_COLOR_STATE,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT |
+                         G_PARAM_STATIC_STRINGS);
+
+  obj_props[PROP_OUTPUT_COLOR_STATE] =
+    g_param_spec_object ("output-color-state", NULL, NULL,
+                         CLUTTER_TYPE_COLOR_STATE,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT |
+                         G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_SCALE] =
     g_param_spec_float ("scale", NULL, NULL,

@@ -125,6 +125,25 @@ meta_renderer_native_ensure_gpu_data (MetaRendererNative  *renderer_native,
 static void
 meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native);
 
+static char *
+enum_to_string (GType        type,
+                unsigned int enum_value)
+{
+  GEnumClass *enum_class;
+  GEnumValue *value;
+  char *retval = NULL;
+
+  enum_class = g_type_class_ref (type);
+
+  value = g_enum_get_value (enum_class, enum_value);
+  if (value)
+    retval = g_strdup (value->value_nick);
+
+  g_type_class_unref (enum_class);
+
+  return retval;
+}
+
 static void
 meta_renderer_native_gpu_data_free (MetaRendererNativeGpuData *renderer_gpu_data)
 {
@@ -1253,6 +1272,36 @@ meta_renderer_native_create_offscreen (MetaRendererNative    *renderer_native,
   return fb;
 }
 
+static CoglOffscreen *
+create_offscreen_with_formats (MetaRendererNative  *renderer_native,
+                               CoglPixelFormat     *formats,
+                               size_t               n_formats,
+                               int                  width,
+                               int                  height,
+                               GError             **error)
+{
+  g_autoptr (GError) local_error = NULL;
+  size_t i;
+
+  for (i = 0; i < n_formats; i++)
+    {
+      CoglOffscreen *offscreen;
+
+      g_clear_error (&local_error);
+
+      offscreen = meta_renderer_native_create_offscreen (renderer_native,
+                                                         formats[i],
+                                                         width,
+                                                         height,
+                                                         &local_error);
+      if (offscreen)
+        return offscreen;
+    }
+
+  g_propagate_error (error, g_steal_pointer (&local_error));
+  return NULL;
+}
+
 static const CoglWinsysVtable *
 get_native_cogl_winsys_vtable (CoglRenderer *cogl_renderer)
 {
@@ -1330,6 +1379,57 @@ should_force_shadow_fb (MetaRendererNative *renderer_native,
   return meta_kms_device_prefers_shadow_buffer (kms_device);
 }
 
+static ClutterColorspace
+get_color_space_from_output (MetaOutput *output)
+{
+  switch (meta_output_peek_color_space (output))
+    {
+    case META_OUTPUT_COLORSPACE_DEFAULT:
+    case META_OUTPUT_COLORSPACE_UNKNOWN:
+      return CLUTTER_COLORSPACE_DEFAULT;
+    case META_OUTPUT_COLORSPACE_BT2020:
+      return CLUTTER_COLORSPACE_BT2020;
+    }
+  g_assert_not_reached ();
+}
+
+static void
+get_transfer_function_from_output (MetaOutput              *output,
+                                   ClutterTransferFunction *view_transfer_function,
+                                   ClutterTransferFunction *output_transfer_function)
+{
+  const MetaOutputHdrMetadata *hdr_metadata =
+    meta_output_peek_hdr_metadata (output);
+
+  if (hdr_metadata->active)
+    {
+      switch (meta_output_peek_hdr_metadata (output)->eotf)
+        {
+        case META_OUTPUT_HDR_METADATA_EOTF_PQ:
+          *view_transfer_function = CLUTTER_TRANSFER_FUNCTION_LINEAR;
+          *output_transfer_function = CLUTTER_TRANSFER_FUNCTION_PQ;
+          return;
+        case META_OUTPUT_HDR_METADATA_EOTF_TRADITIONAL_GAMMA_SDR:
+          *view_transfer_function = CLUTTER_TRANSFER_FUNCTION_DEFAULT;
+          *output_transfer_function = CLUTTER_TRANSFER_FUNCTION_DEFAULT;
+          return;
+        case META_OUTPUT_HDR_METADATA_EOTF_TRADITIONAL_GAMMA_HDR:
+          g_warning ("Unhandled HDR EOTF (traditional gamma hdr)");
+          return;
+        case META_OUTPUT_HDR_METADATA_EOTF_HLG:
+          g_warning ("Unhandled HDR EOTF (HLG)");
+          return;
+        }
+
+      g_assert_not_reached ();
+    }
+  else
+    {
+      *view_transfer_function = CLUTTER_TRANSFER_FUNCTION_DEFAULT;
+      *output_transfer_function = CLUTTER_TRANSFER_FUNCTION_DEFAULT;
+    }
+}
+
 static MetaRendererView *
 meta_renderer_native_create_view (MetaRenderer        *renderer,
                                   MetaLogicalMonitor  *logical_monitor,
@@ -1339,13 +1439,23 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
 {
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
   MetaBackend *backend = meta_renderer_get_backend (renderer);
+  MetaContext *context = meta_backend_get_context (backend);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
+  MetaDebugControl *debug_control = meta_context_get_debug_control (context);
   CoglContext *cogl_context =
     cogl_context_from_renderer_native (renderer_native);
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
+  ClutterContext *clutter_context = meta_backend_get_clutter_context (backend);
   const MetaCrtcConfig *crtc_config;
   const MetaCrtcModeInfo *crtc_mode_info;
+  ClutterColorspace colorspace;
+  ClutterTransferFunction view_transfer_function =
+    CLUTTER_TRANSFER_FUNCTION_DEFAULT;
+  ClutterTransferFunction output_transfer_function =
+    CLUTTER_TRANSFER_FUNCTION_DEFAULT;
+  ClutterColorState *view_color_state;
+  ClutterColorState *output_color_state;
   MetaMonitorTransform view_transform;
   g_autoptr (CoglFramebuffer) framebuffer = NULL;
   g_autoptr (CoglOffscreen) offscreen = NULL;
@@ -1421,15 +1531,73 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
       framebuffer = COGL_FRAMEBUFFER (virtual_onscreen);
     }
 
+  colorspace = get_color_space_from_output (output);
+  get_transfer_function_from_output (output,
+                                     &view_transfer_function,
+                                     &output_transfer_function);
+
+  if (meta_debug_control_is_linear_blending_forced (debug_control))
+    view_transfer_function = CLUTTER_TRANSFER_FUNCTION_LINEAR;
+
+  if (meta_is_topic_enabled (META_DEBUG_RENDER))
+    {
+      g_autofree char *colorspace_name = NULL;
+      g_autofree char *view_transfer_function_name = NULL;
+      g_autofree char *output_transfer_function_name = NULL;
+
+      colorspace_name = enum_to_string (CLUTTER_TYPE_COLORSPACE,
+                                        colorspace);
+      view_transfer_function_name =
+        enum_to_string (CLUTTER_TYPE_TRANSFER_FUNCTION,
+                        view_transfer_function);
+      output_transfer_function_name =
+        enum_to_string (CLUTTER_TYPE_TRANSFER_FUNCTION,
+                        output_transfer_function);
+
+      meta_topic (META_DEBUG_RENDER,
+                  "Using colorspace %s "
+                  "and transfer functions %s (view) and %s (output) "
+                  "for view %s",
+                  colorspace_name,
+                  view_transfer_function_name,
+                  output_transfer_function_name,
+                  meta_output_get_name (output));
+    }
+
+  view_color_state = clutter_color_state_new (clutter_context,
+                                              colorspace,
+                                              view_transfer_function);
+  output_color_state = clutter_color_state_new (clutter_context,
+                                                colorspace,
+                                                output_transfer_function);
+
   view_transform = calculate_view_transform (monitor_manager,
                                              logical_monitor,
                                              output,
                                              crtc);
-  if (view_transform != META_MONITOR_TRANSFORM_NORMAL)
+
+  if (view_transform != META_MONITOR_TRANSFORM_NORMAL ||
+      view_transfer_function != output_transfer_function)
     {
       int offscreen_width;
       int offscreen_height;
+      CoglPixelFormat formats[10];
+      size_t n_formats = 0;
       CoglPixelFormat format;
+
+      if (view_transfer_function == CLUTTER_TRANSFER_FUNCTION_LINEAR)
+        {
+          formats[n_formats++] = COGL_PIXEL_FORMAT_XRGB_FP_16161616;
+          formats[n_formats++] = COGL_PIXEL_FORMAT_XBGR_FP_16161616;
+          formats[n_formats++] = COGL_PIXEL_FORMAT_RGBA_FP_16161616_PRE;
+          formats[n_formats++] = COGL_PIXEL_FORMAT_BGRA_FP_16161616_PRE;
+          formats[n_formats++] = COGL_PIXEL_FORMAT_ARGB_FP_16161616_PRE;
+          formats[n_formats++] = COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE;
+        }
+      else
+        {
+          formats[n_formats++] = cogl_framebuffer_get_internal_format (framebuffer);
+        }
 
       if (meta_monitor_transform_is_rotated (view_transform))
         {
@@ -1442,14 +1610,22 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
           offscreen_height = onscreen_height;
         }
 
-      format = cogl_framebuffer_get_internal_format (framebuffer);
-      offscreen = meta_renderer_native_create_offscreen (renderer_native,
-                                                         format,
-                                                         offscreen_width,
-                                                         offscreen_height,
-                                                         &local_error);
+      offscreen = create_offscreen_with_formats (renderer_native,
+                                                 formats,
+                                                 n_formats,
+                                                 offscreen_width,
+                                                 offscreen_height,
+                                                 &local_error);
       if (!offscreen)
         g_error ("Failed to allocate back buffer texture: %s", local_error->message);
+
+      format =
+        cogl_framebuffer_get_internal_format (COGL_FRAMEBUFFER (offscreen));
+      meta_topic (META_DEBUG_RENDER,
+                  "Using an additional intermediate %s offscreen (%dx%d) for %s",
+                  cogl_pixel_format_to_string (format),
+                  offscreen_width, offscreen_height,
+                  meta_output_get_name (output));
     }
 
   if (meta_backend_is_stage_views_scaled (backend))
@@ -1468,6 +1644,8 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
                               "scale", scale,
                               "framebuffer", framebuffer,
                               "offscreen", offscreen,
+                              "color-state", view_color_state,
+                              "output-color-state", output_color_state,
                               "use-shadowfb", use_shadowfb,
                               "transform", view_transform,
                               "refresh-rate", crtc_mode_info->refresh_rate,

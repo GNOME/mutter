@@ -491,18 +491,26 @@ prepare_shutdown (MetaBackend        *backend,
 }
 
 static void
-ensure_hdr_settings (MetaMonitorManager *manager)
+set_color_space_and_hdr_metadata (MetaMonitorManager    *manager,
+                                  gboolean               enable,
+                                  MetaOutputColorspace  *color_space,
+                                  MetaOutputHdrMetadata *hdr_metadata)
 {
-  MetaMonitorManagerPrivate *priv =
-    meta_monitor_manager_get_instance_private (manager);
-  MetaOutputColorspace color_space;
-  MetaOutputHdrMetadata hdr_metadata;
-  GList *l;
+  MetaBackend *backend = meta_monitor_manager_get_backend (manager);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
 
-  if (g_strcmp0 (priv->experimental_hdr, "on") == 0)
+  if (enable &&
+      !cogl_has_feature (cogl_context, COGL_FEATURE_ID_TEXTURE_HALF_FLOAT))
     {
-      color_space = META_OUTPUT_COLORSPACE_BT2020;
-      hdr_metadata = (MetaOutputHdrMetadata) {
+      g_warning ("Tried to enable HDR without half float rendering support, ignoring");
+      enable = FALSE;
+    }
+
+  if (enable)
+    {
+      *color_space = META_OUTPUT_COLORSPACE_BT2020;
+      *hdr_metadata = (MetaOutputHdrMetadata) {
         .active = TRUE,
         .eotf = META_OUTPUT_HDR_METADATA_EOTF_PQ,
       };
@@ -513,8 +521,8 @@ ensure_hdr_settings (MetaMonitorManager *manager)
     }
   else
     {
-      color_space = META_OUTPUT_COLORSPACE_DEFAULT;
-      hdr_metadata = (MetaOutputHdrMetadata) {
+      *color_space = META_OUTPUT_COLORSPACE_DEFAULT;
+      *hdr_metadata = (MetaOutputHdrMetadata) {
         .active = FALSE,
       };
 
@@ -522,6 +530,21 @@ ensure_hdr_settings (MetaMonitorManager *manager)
                   "MonitorManager: Trying to enable default mode "
                   "(Colorimetry: default, TF: default, HDR Metadata: None):");
     }
+}
+
+static void
+ensure_hdr_settings (MetaMonitorManager *manager)
+{
+  MetaMonitorManagerPrivate *priv =
+    meta_monitor_manager_get_instance_private (manager);
+  MetaOutputColorspace color_space;
+  MetaOutputHdrMetadata hdr_metadata;
+  GList *l;
+
+  set_color_space_and_hdr_metadata (manager,
+                                    g_strcmp0 (priv->experimental_hdr, "on") == 0,
+                                    &color_space,
+                                    &hdr_metadata);
 
   for (l = manager->monitors; l; l = l->next)
     {
@@ -1336,9 +1359,15 @@ static void
 on_started (MetaContext        *context,
             MetaMonitorManager *monitor_manager)
 {
+  MetaDebugControl *debug_control = meta_context_get_debug_control (context);
+
   g_signal_connect (monitor_manager, "notify::experimental-hdr",
                     G_CALLBACK (meta_monitor_manager_reconfigure),
                     NULL);
+  g_signal_connect_data (debug_control, "notify::force-linear-blending",
+                         G_CALLBACK (meta_monitor_manager_reconfigure),
+                         monitor_manager, NULL,
+                         G_CONNECT_SWAPPED | G_CONNECT_AFTER);
 }
 
 static void
