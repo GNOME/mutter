@@ -27,9 +27,12 @@
 #include "backends/meta-monitor-manager-private.h"
 #include "meta/meta-shaped-texture.h"
 
-MetaShapedTexture * meta_shaped_texture_new (ClutterContext *clutter_context);
+MetaShapedTexture * meta_shaped_texture_new (ClutterContext    *clutter_context,
+                                             ClutterColorState *color_state);
 void meta_shaped_texture_set_texture (MetaShapedTexture *stex,
                                       MetaMultiTexture  *multi_texture);
+void meta_shaped_texture_set_color_state (MetaShapedTexture *stex,
+                                          ClutterColorState *color_state);
 void meta_shaped_texture_set_is_y_inverted (MetaShapedTexture *stex,
                                             gboolean           is_y_inverted);
 void meta_shaped_texture_set_snippet (MetaShapedTexture *stex,

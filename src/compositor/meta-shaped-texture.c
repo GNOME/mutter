@@ -56,6 +56,7 @@ enum
   PROP_0,
 
   PROP_CLUTTER_CONTEXT,
+  PROP_COLOR_STATE,
 
   N_PROPS
 };
@@ -76,6 +77,16 @@ static CoglPipelineKey opaque_overlay_pipeline_key =
 static CoglPipelineKey blended_overlay_pipeline_key =
   "meta-shaped-texture-blended-pipeline-key";
 
+typedef enum _PipelineCacheSlot
+{
+  PIPELINE_CACHE_SLOT_UNMASKED,
+  PIPELINE_CACHE_SLOT_UNMASKED_TOWER,
+  PIPELINE_CACHE_SLOT_MASKED,
+  PIPELINE_CACHE_SLOT_MASKED_TOWER,
+  PIPELINE_CACHE_SLOT_UNBLENDED,
+  PIPELINE_CACHE_SLOT_UNBLENDED_TOWER,
+} PipelineCacheSlot;
+
 struct _MetaShapedTexture
 {
   GObject parent;
@@ -85,15 +96,10 @@ struct _MetaShapedTexture
   MetaMultiTexture *texture;
   CoglTexture *mask_texture;
   CoglSnippet *snippet;
+  ClutterColorState *color_state;
 
   CoglPipeline *base_pipeline;
   CoglPipeline *combined_pipeline;
-  CoglPipeline *unmasked_pipeline;
-  CoglPipeline *unmasked_tower_pipeline;
-  CoglPipeline *masked_pipeline;
-  CoglPipeline *masked_tower_pipeline;
-  CoglPipeline *unblended_pipeline;
-  CoglPipeline *unblended_tower_pipeline;
 
   MetaTextureMipmap *texture_mipmap;
 
@@ -140,6 +146,9 @@ meta_shaped_texture_set_property (GObject      *object,
     case PROP_CLUTTER_CONTEXT:
       stex->clutter_context = g_value_get_object (value);
       break;
+    case PROP_COLOR_STATE:
+      g_set_object (&stex->color_state, g_value_get_object (value));
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     }
@@ -156,6 +165,9 @@ meta_shaped_texture_get_property (GObject    *object,
   switch (prop_id)
     {
     case PROP_CLUTTER_CONTEXT:
+      g_value_set_object (value, stex->clutter_context);
+      break;
+    case PROP_COLOR_STATE:
       g_value_set_object (value, stex->clutter_context);
       break;
     default:
@@ -182,6 +194,12 @@ meta_shaped_texture_class_init (MetaShapedTextureClass *klass)
   obj_props[PROP_CLUTTER_CONTEXT] =
     g_param_spec_object ("clutter-context", NULL, NULL,
                          CLUTTER_TYPE_CONTEXT,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_COLOR_STATE] =
+    g_param_spec_object ("color-state", NULL, NULL,
+                         CLUTTER_TYPE_COLOR_STATE,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
@@ -285,14 +303,13 @@ meta_shaped_texture_set_clip_region (MetaShapedTexture *stex,
 static void
 meta_shaped_texture_reset_pipelines (MetaShapedTexture *stex)
 {
+  ClutterPipelineCache *pipeline_cache =
+    clutter_context_get_pipeline_cache (stex->clutter_context);
+
   g_clear_object (&stex->base_pipeline);
   g_clear_object (&stex->combined_pipeline);
-  g_clear_object (&stex->unmasked_pipeline);
-  g_clear_object (&stex->unmasked_tower_pipeline);
-  g_clear_object (&stex->masked_pipeline);
-  g_clear_object (&stex->masked_tower_pipeline);
-  g_clear_object (&stex->unblended_pipeline);
-  g_clear_object (&stex->unblended_tower_pipeline);
+
+  clutter_pipeline_cache_unset_all_pipelines (pipeline_cache, stex);
 }
 
 static void
@@ -303,6 +320,7 @@ meta_shaped_texture_dispose (GObject *object)
   g_clear_pointer (&stex->texture_mipmap, meta_texture_mipmap_free);
 
   g_clear_object (&stex->texture);
+  g_clear_object (&stex->color_state);
 
   meta_shaped_texture_set_mask_texture (stex, NULL);
   meta_shaped_texture_reset_pipelines (stex);
@@ -440,31 +458,84 @@ get_combined_pipeline (MetaShapedTexture   *stex,
   return pipeline;
 }
 
+static void
+attach_and_save_color_snippet (MetaShapedTexture *stex,
+                               ClutterColorState *color_state,
+                               ClutterColorState *target_color_state,
+                               CoglPipeline      *pipeline,
+                               PipelineCacheSlot  cache_slot)
+{
+  ClutterPipelineCache *pipeline_cache =
+    clutter_context_get_pipeline_cache (stex->clutter_context);
+  g_autoptr (CoglSnippet) color_snippet = NULL;
+
+  color_snippet =
+    clutter_color_state_get_transform_snippet (color_state, target_color_state);
+  if (color_snippet)
+    cogl_pipeline_add_snippet (pipeline, color_snippet);
+
+  clutter_pipeline_cache_set_pipeline (pipeline_cache,
+                                       stex,
+                                       cache_slot,
+                                       color_state,
+                                       target_color_state,
+                                       pipeline);
+}
+
 static CoglPipeline *
 get_unmasked_pipeline (MetaShapedTexture   *stex,
                        ClutterPaintContext *paint_context,
                        MetaMultiTexture    *tex)
 {
+  ClutterPipelineCache *pipeline_cache =
+    clutter_context_get_pipeline_cache (stex->clutter_context);
+  ClutterColorState *color_state;
+  ClutterColorState *target_color_state;
+
+  color_state = stex->color_state;
+  target_color_state =
+    clutter_paint_context_get_target_color_state (paint_context);
+
   if (stex->texture == tex)
     {
       CoglPipeline *pipeline;
 
-      if (stex->unmasked_pipeline)
-        return stex->unmasked_pipeline;
+      pipeline =
+        clutter_pipeline_cache_get_pipeline (pipeline_cache,
+                                             stex,
+                                             PIPELINE_CACHE_SLOT_UNMASKED,
+                                             color_state,
+                                             target_color_state);
+      if (pipeline)
+        return pipeline;
 
       pipeline = cogl_pipeline_copy (get_combined_pipeline (stex, paint_context));
       if (stex->snippet)
         cogl_pipeline_add_layer_snippet (pipeline, 0, stex->snippet);
 
-      stex->unmasked_pipeline = pipeline;
+      attach_and_save_color_snippet (stex,
+                                     color_state, target_color_state,
+                                     pipeline, PIPELINE_CACHE_SLOT_UNMASKED);
       return pipeline;
     }
   else
     {
       CoglPipeline *pipeline;
 
+      pipeline =
+        clutter_pipeline_cache_get_pipeline (pipeline_cache,
+                                             stex,
+                                             PIPELINE_CACHE_SLOT_UNMASKED_TOWER,
+                                             color_state,
+                                             target_color_state);
+      if (pipeline)
+        return pipeline;
+
       pipeline = cogl_pipeline_copy (get_base_pipeline (stex, paint_context));
-      stex->unmasked_tower_pipeline = pipeline;
+
+      attach_and_save_color_snippet (stex,
+                                     color_state, target_color_state,
+                                     pipeline, PIPELINE_CACHE_SLOT_UNMASKED_TOWER);
       return pipeline;
     }
 }
@@ -474,14 +545,29 @@ get_masked_pipeline (MetaShapedTexture   *stex,
                      ClutterPaintContext *paint_context,
                      MetaMultiTexture    *tex)
 {
+  ClutterPipelineCache *pipeline_cache =
+    clutter_context_get_pipeline_cache (stex->clutter_context);
+  ClutterColorState *color_state;
+  ClutterColorState *target_color_state;
+
+  color_state = stex->color_state;
+  target_color_state =
+    clutter_paint_context_get_target_color_state (paint_context);
+
   g_assert (meta_multi_texture_get_n_planes (stex->texture) == 1);
 
   if (stex->texture == tex)
     {
       CoglPipeline *pipeline;
 
-      if (stex->masked_pipeline)
-        return stex->masked_pipeline;
+      pipeline =
+        clutter_pipeline_cache_get_pipeline (pipeline_cache,
+                                             stex,
+                                             PIPELINE_CACHE_SLOT_MASKED,
+                                             color_state,
+                                             target_color_state);
+      if (pipeline)
+        return pipeline;
 
       pipeline = cogl_pipeline_copy (get_base_pipeline (stex, paint_context));
       cogl_pipeline_set_layer_combine (pipeline, 1,
@@ -490,22 +576,32 @@ get_masked_pipeline (MetaShapedTexture   *stex,
       if (stex->snippet)
         cogl_pipeline_add_layer_snippet (pipeline, 0, stex->snippet);
 
-      stex->masked_pipeline = pipeline;
+      attach_and_save_color_snippet (stex,
+                                     color_state, target_color_state,
+                                     pipeline, PIPELINE_CACHE_SLOT_MASKED);
       return pipeline;
     }
   else
     {
       CoglPipeline *pipeline;
 
-      if (stex->masked_tower_pipeline)
-        return stex->masked_tower_pipeline;
+      pipeline =
+        clutter_pipeline_cache_get_pipeline (pipeline_cache,
+                                             stex,
+                                             PIPELINE_CACHE_SLOT_MASKED_TOWER,
+                                             color_state,
+                                             target_color_state);
+      if (pipeline)
+        return pipeline;
 
       pipeline = cogl_pipeline_copy (get_base_pipeline (stex, paint_context));
       cogl_pipeline_set_layer_combine (pipeline, 1,
                                        "RGBA = MODULATE (PREVIOUS, TEXTURE[A])",
                                        NULL);
 
-      stex->masked_tower_pipeline = pipeline;
+      attach_and_save_color_snippet (stex,
+                                     color_state, target_color_state,
+                                     pipeline, PIPELINE_CACHE_SLOT_MASKED_TOWER);
       return pipeline;
     }
 }
@@ -515,12 +611,27 @@ get_unblended_pipeline (MetaShapedTexture   *stex,
                         ClutterPaintContext *paint_context,
                         MetaMultiTexture    *tex)
 {
+  ClutterPipelineCache *pipeline_cache =
+    clutter_context_get_pipeline_cache (stex->clutter_context);
+  ClutterColorState *color_state;
+  ClutterColorState *target_color_state;
+
+  color_state = stex->color_state;
+  target_color_state =
+    clutter_paint_context_get_target_color_state (paint_context);
+
   if (stex->texture == tex)
     {
       CoglPipeline *pipeline;
 
-      if (stex->unblended_pipeline)
-        return stex->unblended_pipeline;
+      pipeline =
+        clutter_pipeline_cache_get_pipeline (pipeline_cache,
+                                             stex,
+                                             PIPELINE_CACHE_SLOT_UNBLENDED,
+                                             color_state,
+                                             target_color_state);
+      if (pipeline)
+        return pipeline;
 
       pipeline = cogl_pipeline_copy (get_combined_pipeline (stex, paint_context));
       cogl_pipeline_set_layer_combine (pipeline, 0,
@@ -529,22 +640,32 @@ get_unblended_pipeline (MetaShapedTexture   *stex,
       if (stex->snippet)
         cogl_pipeline_add_layer_snippet (pipeline, 0, stex->snippet);
 
-      stex->unblended_pipeline = pipeline;
+      attach_and_save_color_snippet (stex,
+                                     color_state, target_color_state,
+                                     pipeline, PIPELINE_CACHE_SLOT_UNBLENDED);
       return pipeline;
     }
   else
     {
       CoglPipeline *pipeline;
 
-      if (stex->unblended_tower_pipeline)
-        return stex->unblended_tower_pipeline;
+      pipeline =
+        clutter_pipeline_cache_get_pipeline (pipeline_cache,
+                                             stex,
+                                             PIPELINE_CACHE_SLOT_UNBLENDED_TOWER,
+                                             color_state,
+                                             target_color_state);
+      if (pipeline)
+        return pipeline;
 
       pipeline = cogl_pipeline_copy (get_base_pipeline (stex, paint_context));
       cogl_pipeline_set_layer_combine (pipeline, 0,
                                        "RGBA = REPLACE (TEXTURE)",
                                        NULL);
 
-      stex->unblended_tower_pipeline = pipeline;
+      attach_and_save_color_snippet (stex,
+                                     color_state, target_color_state,
+                                     pipeline, PIPELINE_CACHE_SLOT_UNBLENDED_TOWER);
       return pipeline;
     }
 }
@@ -1212,6 +1333,21 @@ meta_shaped_texture_set_texture (MetaShapedTexture *stex,
 }
 
 /**
+ * meta_shaped_texture_set_color_state:
+ * @stex: The #MetaShapedTexture
+ * @color_state: A #ClutterColorState
+ */
+void
+meta_shaped_texture_set_color_state (MetaShapedTexture *stex,
+                                     ClutterColorState *color_state)
+{
+  g_return_if_fail (META_IS_SHAPED_TEXTURE (stex));
+
+  if (g_set_object (&stex->color_state, color_state))
+    meta_shaped_texture_reset_pipelines (stex);
+}
+
+/**
  * meta_shaped_texture_set_is_y_inverted: (skip)
  */
 void
@@ -1576,10 +1712,12 @@ meta_shaped_texture_set_fallback_size (MetaShapedTexture *stex,
 }
 
 MetaShapedTexture *
-meta_shaped_texture_new (ClutterContext *clutter_context)
+meta_shaped_texture_new (ClutterContext    *clutter_context,
+                         ClutterColorState *color_state)
 {
   return g_object_new (META_TYPE_SHAPED_TEXTURE,
                        "clutter-context", clutter_context,
+                       "color-state", color_state,
                        NULL);
 }
 

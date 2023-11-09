@@ -265,9 +265,11 @@ meta_surface_actor_constructed (GObject *object)
     meta_surface_actor_get_instance_private (surface_actor);
   ClutterContext *clutter_context =
     clutter_actor_get_context (CLUTTER_ACTOR (surface_actor));
+  ClutterColorState *color_state =
+    clutter_actor_get_color_state (CLUTTER_ACTOR (surface_actor));
 
   priv->is_obscured = TRUE;
-  priv->texture = meta_shaped_texture_new (clutter_context);
+  priv->texture = meta_shaped_texture_new (clutter_context, color_state);
   g_signal_connect_object (priv->texture, "size-changed",
                            G_CALLBACK (texture_size_changed), surface_actor,
                            G_CONNECT_DEFAULT);

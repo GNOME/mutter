@@ -183,13 +183,18 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
     {
       CoglSnippet *snippet;
       gboolean is_y_inverted;
+      ClutterColorState *color_state;
       MetaMultiTexture *texture;
 
       snippet = meta_wayland_buffer_create_snippet (buffer);
       is_y_inverted = meta_wayland_buffer_is_y_inverted (buffer);
 
+      color_state =
+        clutter_actor_get_color_state (CLUTTER_ACTOR (surface_actor));
+
       texture = meta_wayland_surface_get_texture (surface);
       meta_shaped_texture_set_texture (stex, texture);
+      meta_shaped_texture_set_color_state (stex, color_state);
       meta_shaped_texture_set_snippet (stex, snippet);
       meta_shaped_texture_set_is_y_inverted (stex, is_y_inverted);
       meta_shaped_texture_set_buffer_scale (stex, surface->applied_state.scale);
