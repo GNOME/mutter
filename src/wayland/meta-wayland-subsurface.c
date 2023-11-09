@@ -132,10 +132,10 @@ meta_wayland_subsurface_union_geometry (MetaWaylandSubsurface *subsurface,
   META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (&surface->applied_state,
                                            subsurface_surface)
     {
-      MetaWaylandSubsurface *subsurface;
+      MetaWaylandSubsurface *sub_surface;
 
-      subsurface = META_WAYLAND_SUBSURFACE (subsurface_surface->role);
-      meta_wayland_subsurface_union_geometry (subsurface,
+      sub_surface = META_WAYLAND_SUBSURFACE (subsurface_surface->role);
+      meta_wayland_subsurface_union_geometry (sub_surface,
                                               parent_x + geometry.x,
                                               parent_y + geometry.y,
                                               out_geometry);

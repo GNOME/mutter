@@ -784,7 +784,6 @@ cogl_onscreen_glx_swap_region (CoglOnscreen  *onscreen,
 
       drawable =
         onscreen_glx->glxwin ? onscreen_glx->glxwin : onscreen_glx->xwin;
-      int i;
       for (i = 0; i < n_rectangles; i++)
         {
           int *rect = &rectangles[4 * i];
@@ -794,7 +793,6 @@ cogl_onscreen_glx_swap_region (CoglOnscreen  *onscreen,
     }
   else if (context->glBlitFramebuffer)
     {
-      int i;
       /* XXX: checkout how this state interacts with the code to use
        * glBlitFramebuffer in Neil's texture atlasing branch */
 

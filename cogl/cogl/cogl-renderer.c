@@ -414,7 +414,6 @@ _cogl_renderer_choose_driver (CoglRenderer *renderer,
   if (driver_override != COGL_DRIVER_ANY)
     {
       gboolean found = FALSE;
-      int i;
 
       for (i = 0; i < G_N_ELEMENTS (_cogl_drivers); i++)
         {

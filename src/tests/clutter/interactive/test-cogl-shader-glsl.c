@@ -191,7 +191,7 @@ set_shader_num (int new_no)
 {
   CoglShader *shader;
   CoglProgram *program;
-  CoglPipeline *pipeline;
+  CoglPipeline *shader_pipeline;
   CoglContext *ctx =
     clutter_backend_get_cogl_context (clutter_get_default_backend ());
   int image_width = cogl_texture_get_width (redhand);
@@ -202,7 +202,7 @@ set_shader_num (int new_no)
            new_no,
            shaders[new_no].name);
 
-  pipeline = cogl_pipeline_new (ctx);
+  shader_pipeline = cogl_pipeline_new (ctx);
 
   shader = cogl_create_shader (COGL_SHADER_TYPE_FRAGMENT);
   cogl_shader_source (shader, shaders[new_no].source);
@@ -226,7 +226,7 @@ set_shader_num (int new_no)
   uniform_no = cogl_program_get_uniform_location (program, "y_step");
   cogl_program_set_uniform_1f (program, uniform_no, 1.0f / image_height);
 
-  cogl_pipeline_set_user_program (pipeline, program);
+  cogl_pipeline_set_user_program (shader_pipeline, program);
   g_object_unref (program);
 
   shader_no = new_no;
@@ -314,7 +314,7 @@ test_cogl_shader_glsl_main (int argc, char *argv[])
   char *file;
   GError *error;
   ClutterColor stage_color = { 0x61, 0x64, 0x8c, 0xff };
-  CoglPipeline *pipeline;
+  CoglPipeline *shader_pipeline;
   CoglContext *ctx =
     clutter_backend_get_cogl_context (clutter_get_default_backend ());
 
@@ -333,8 +333,8 @@ test_cogl_shader_glsl_main (int argc, char *argv[])
   if (redhand == NULL)
     g_error ("image load failed: %s", error->message);
 
-  pipeline = cogl_pipeline_new (ctx);
-  cogl_pipeline_set_layer_texture (pipeline, 0, redhand);
+  shader_pipeline = cogl_pipeline_new (ctx);
+  cogl_pipeline_set_layer_texture (shader_pipeline, 0, redhand);
 
   set_shader_num (0);
   g_signal_connect (actor, "paint", G_CALLBACK (on_paint), NULL);

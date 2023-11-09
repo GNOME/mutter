@@ -94,12 +94,12 @@ can_blit_buffer (ContextData *context_data,
 
   for (i = 0; i < context_data->buffer_support->len; i++)
     {
-      BufferTypeSupport *support =
+      BufferTypeSupport *other_support =
         &g_array_index (context_data->buffer_support, BufferTypeSupport, i);
 
-      if (support->drm_format == drm_format &&
-          support->drm_modifier == drm_modifier)
-        return support->can_blit;
+      if (other_support->drm_format == drm_format &&
+          other_support->drm_modifier == drm_modifier)
+        return other_support->can_blit;
     }
 
   if (!meta_egl_has_extensions (egl, egl_display, NULL,

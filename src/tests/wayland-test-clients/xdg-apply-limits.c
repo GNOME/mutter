@@ -97,16 +97,16 @@ draw_subsurface (WaylandDisplay    *display,
 
 static void
 handle_xdg_toplevel_configure (void                *data,
-                               struct xdg_toplevel *xdg_toplevel,
+                               struct xdg_toplevel *test_xdg_toplevel,
                                int32_t              width,
                                int32_t              height,
-                               struct wl_array     *state)
+                               struct wl_array     *configure_state)
 {
 }
 
 static void
 handle_xdg_toplevel_close (void                *data,
-                           struct xdg_toplevel *xdg_toplevel)
+                           struct xdg_toplevel *test_xdg_toplevel)
 {
   g_assert_not_reached ();
 }

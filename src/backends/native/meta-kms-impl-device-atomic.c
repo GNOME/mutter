@@ -672,7 +672,7 @@ process_plane_assignment (MetaKmsImplDevice  *impl_device,
           struct {
             MetaKmsPlaneProp prop;
             uint64_t value;
-          } props[] = {
+          } cursor_props[] = {
             {
               .prop = META_KMS_PLANE_PROP_HOTSPOT_X,
               .value = plane_assignment->cursor_hotspot.is_valid ?
@@ -687,12 +687,12 @@ process_plane_assignment (MetaKmsImplDevice  *impl_device,
             },
           };
 
-          for (i = 0; i < G_N_ELEMENTS (props); i++)
+          for (i = 0; i < G_N_ELEMENTS (cursor_props); i++)
             {
               if (!add_plane_property (impl_device,
                                        plane, req,
-                                       props[i].prop,
-                                       props[i].value,
+                                       cursor_props[i].prop,
+                                       cursor_props[i].value,
                                        error))
                 return FALSE;
             }

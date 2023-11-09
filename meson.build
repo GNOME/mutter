@@ -526,6 +526,7 @@ if buildtype != 'plain'
     '-Wno-unused-parameter',
     '-Wno-missing-field-initializers',
     '-Wno-type-limits',
+    '-Wshadow',
   ]
 
   if get_option('debug')

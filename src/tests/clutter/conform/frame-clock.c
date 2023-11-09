@@ -496,9 +496,7 @@ before_frame_frame_clock_before_frame (ClutterFrameClock *frame_clock,
                                        ClutterFrame      *frame,
                                        gpointer           user_data)
 {
-  int64_t *expected_frame_count = user_data;
-
-  g_assert_cmpint (*expected_frame_count, ==, clutter_frame_get_count (frame));
+  g_assert_cmpint (expected_frame_count, ==, clutter_frame_get_count (frame));
 }
 
 static ClutterFrameResult
@@ -506,12 +504,11 @@ before_frame_frame_clock_frame (ClutterFrameClock *frame_clock,
                                 ClutterFrame      *frame,
                                 gpointer           user_data)
 {
-  int64_t *expected_frame_count = user_data;
   ClutterFrameInfo frame_info;
 
-  g_assert_cmpint (*expected_frame_count, ==, clutter_frame_get_count (frame));
+  g_assert_cmpint (expected_frame_count, ==, clutter_frame_get_count (frame));
 
-  (*expected_frame_count)++;
+  expected_frame_count++;
 
   init_frame_info (&frame_info, g_get_monotonic_time ());
   clutter_frame_clock_notify_presented (frame_clock, &frame_info);

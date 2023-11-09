@@ -356,7 +356,6 @@ meta_wayland_tablet_tool_set_focus (MetaWaylandTabletTool *tool,
 
       if (!wl_list_empty (l))
         {
-          struct wl_client *client = wl_resource_get_client (tool->focus_surface->resource);
           struct wl_display *display = wl_client_get_display (client);
 
           tool->proximity_serial = wl_display_next_serial (display);

@@ -2657,7 +2657,7 @@ create_logical_monitor_config_from_variant (MetaMonitorManager          *manager
   gboolean is_primary;
   GVariantIter *monitor_configs_iter;
   GList *monitor_configs = NULL;
-  MetaMonitorConfig *monitor_config;
+  MetaMonitorConfig *first_monitor_config;
 
   g_variant_get (logical_monitor_config_variant, LOGICAL_MONITOR_CONFIG_FORMAT,
                  &x,
@@ -2702,16 +2702,16 @@ create_logical_monitor_config_from_variant (MetaMonitorManager          *manager
       goto err;
     }
 
-  monitor_config = monitor_configs->data;
+  first_monitor_config = monitor_configs->data;
   if (!find_monitor_mode_scale (manager,
                                 layout_mode,
-                                monitor_config,
+                                first_monitor_config,
                                 scale,
                                 &scale,
                                 error))
     goto err;
 
-  if (!derive_logical_monitor_size (monitor_config, &width, &height,
+  if (!derive_logical_monitor_size (first_monitor_config, &width, &height,
                                     scale, transform, layout_mode, error))
     goto err;
 

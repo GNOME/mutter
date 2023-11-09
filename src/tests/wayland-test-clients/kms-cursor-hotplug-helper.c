@@ -100,7 +100,7 @@ static void
 pointer_handle_enter (void              *data,
                       struct wl_pointer *pointer,
                       uint32_t           serial,
-                      struct wl_surface *surface,
+                      struct wl_surface *wl_surface,
                       wl_fixed_t         sx,
                       wl_fixed_t         sy)
 {
@@ -125,7 +125,7 @@ static void
 pointer_handle_leave (void              *data,
                       struct wl_pointer *pointer,
                       uint32_t           serial,
-                      struct wl_surface *surface)
+                      struct wl_surface *wl_surface)
 {
 }
 
@@ -167,12 +167,12 @@ static const struct wl_pointer_listener pointer_listener = {
 
 static void
 seat_handle_capabilities (void                    *data,
-                          struct wl_seat          *wl_seat,
+                          struct wl_seat          *seat,
                           enum wl_seat_capability  caps)
 {
   if (caps & WL_SEAT_CAPABILITY_POINTER)
     {
-      wl_pointer = wl_seat_get_pointer (wl_seat);
+      wl_pointer = wl_seat_get_pointer (seat);
       wl_pointer_add_listener (wl_pointer, &pointer_listener, NULL);
     }
 }
@@ -249,14 +249,14 @@ main (int    argc,
       char **argv)
 {
   g_autoptr (WaylandDisplay) display = NULL;
-  struct wl_registry *wl_registry;
+  struct wl_registry *registry;
   struct xdg_toplevel *xdg_toplevel;
   struct xdg_surface *xdg_surface;
   struct wl_cursor_theme *cursor_theme;
 
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER);
-  wl_registry = wl_display_get_registry (display->display);
-  wl_registry_add_listener (wl_registry, &registry_listener, display);
+  registry = wl_display_get_registry (display->display);
+  wl_registry_add_listener (registry, &registry_listener, display);
   wl_display_roundtrip (display->display);
 
   g_signal_connect (display, "sync-event", G_CALLBACK (on_sync_event), NULL);

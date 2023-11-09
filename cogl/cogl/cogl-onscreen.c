@@ -353,16 +353,14 @@ cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
 
   if (!_cogl_winsys_has_feature (COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT))
     {
-      CoglFrameInfo *info;
+      g_autoptr (CoglFrameInfo) pending_info = NULL;
 
       g_warn_if_fail (priv->pending_frame_infos.length == 1);
 
-      info = g_queue_pop_tail (&priv->pending_frame_infos);
+      pending_info = g_queue_pop_tail (&priv->pending_frame_infos);
 
-      _cogl_onscreen_queue_event (onscreen, COGL_FRAME_EVENT_SYNC, info);
-      _cogl_onscreen_queue_event (onscreen, COGL_FRAME_EVENT_COMPLETE, info);
-
-      g_object_unref (info);
+      _cogl_onscreen_queue_event (onscreen, COGL_FRAME_EVENT_SYNC, pending_info);
+      _cogl_onscreen_queue_event (onscreen, COGL_FRAME_EVENT_COMPLETE, pending_info);
     }
 
   priv->frame_counter++;
@@ -413,16 +411,14 @@ cogl_onscreen_swap_region (CoglOnscreen *onscreen,
 
   if (!_cogl_winsys_has_feature (COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT))
     {
-      CoglFrameInfo *info;
+      g_autoptr (CoglFrameInfo) pending_info = NULL;
 
       g_warn_if_fail (priv->pending_frame_infos.length == 1);
 
-      info = g_queue_pop_tail (&priv->pending_frame_infos);
+      pending_info = g_queue_pop_tail (&priv->pending_frame_infos);
 
-      _cogl_onscreen_queue_event (onscreen, COGL_FRAME_EVENT_SYNC, info);
-      _cogl_onscreen_queue_event (onscreen, COGL_FRAME_EVENT_COMPLETE, info);
-
-      g_object_unref (info);
+      _cogl_onscreen_queue_event (onscreen, COGL_FRAME_EVENT_SYNC, pending_info);
+      _cogl_onscreen_queue_event (onscreen, COGL_FRAME_EVENT_COMPLETE, pending_info);
     }
 
   priv->frame_counter++;

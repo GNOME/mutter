@@ -863,12 +863,12 @@ meta_thread_flush_callbacks (MetaThread *thread)
       g_mutex_lock (&priv->callbacks_mutex);
       for (i = 0; i < main_thread_sources->len; i++)
         {
-          MetaThreadCallbackSource *source =
+          MetaThreadCallbackSource *callback_source =
             g_ptr_array_index (main_thread_sources, i);
 
           pending_callbacks =
             g_list_concat (pending_callbacks,
-                           g_steal_pointer (&source->callbacks));
+                           g_steal_pointer (&callback_source->callbacks));
         }
 
       callback_sources = g_hash_table_get_values (priv->callback_sources);

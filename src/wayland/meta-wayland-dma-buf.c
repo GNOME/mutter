@@ -462,15 +462,15 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
           CoglEglImageFlags flags;
           CoglTexture *cogl_texture;
           uint32_t drm_format = 0;
-          const MetaFormatInfo *format_info;
+          const MetaFormatInfo *plane_format_info;
           int plane_index = mt_format_info->plane_indices[i];
           CoglPixelFormat subformat = mt_format_info->subformats[i];
           int horizontal_factor = mt_format_info->hsub[i];
           int vertical_factor = mt_format_info->vsub[i];
 
-          format_info = meta_format_info_from_cogl_format (subformat);
-          g_return_val_if_fail (format_info != NULL, FALSE);
-          drm_format = format_info->drm_format;
+          plane_format_info = meta_format_info_from_cogl_format (subformat);
+          g_return_val_if_fail (plane_format_info != NULL, FALSE);
+          drm_format = plane_format_info->drm_format;
 
           egl_image = meta_egl_create_dmabuf_image (egl,
                                                     egl_display,

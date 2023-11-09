@@ -326,13 +326,12 @@ cogl_onscreen_egl_swap_buffers_with_damage (CoglOnscreen  *onscreen,
      and just returns an error if this is not the case so we can't
      just pretend this isn't in the spec. */
   cogl_context_flush_framebuffer_state (context,
-                                        COGL_FRAMEBUFFER (onscreen),
-                                        COGL_FRAMEBUFFER (onscreen),
+                                        framebuffer,
+                                        framebuffer,
                                         COGL_FRAMEBUFFER_STATE_BIND);
 
   if (n_rectangles && priv->pf_eglSwapBuffersWithDamage)
     {
-      CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
       size_t size = n_rectangles * sizeof (int) * 4;
       int *flipped = alloca (size);
       int i;

@@ -853,7 +853,6 @@ do_paint_content (MetaShapedTexture   *stex,
       if (blended_tex_region)
         {
           /* 1) blended_tex_region is not empty. Paint the rectangles. */
-          int i;
           int n_rects = mtk_region_num_rectangles (blended_tex_region);
 
           for (i = 0; i < n_rects; i++)

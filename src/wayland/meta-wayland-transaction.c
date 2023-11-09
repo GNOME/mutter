@@ -456,8 +456,6 @@ meta_wayland_transaction_commit (MetaWaylandTransaction *transaction)
     {
       if (surface->transaction.first_committed)
         {
-          MetaWaylandTransactionEntry *entry;
-
           entry = g_hash_table_lookup (surface->transaction.last_committed->entries,
                                        surface);
           entry->next_transaction = transaction;

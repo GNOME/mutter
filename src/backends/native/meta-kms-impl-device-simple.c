@@ -785,7 +785,6 @@ retry_page_flips (gpointer user_data)
 
   if (impl_device_simple->pending_page_flip_retries)
     {
-      GList *l;
       uint64_t earliest_retry_time_us = 0;
 
       for (l = impl_device_simple->pending_page_flip_retries; l; l = l->next)

@@ -423,13 +423,13 @@ on_window_added (MetaStack  *stack,
 
 static void
 on_window_actor_destroyed (MetaWindowActor       *actor,
-                           MetaWaylandTestDriver *test_driver)
+                           MetaWaylandTestDriver *driver)
 {
-  meta_wayland_test_driver_emit_sync_event (test_driver, 0);
+  meta_wayland_test_driver_emit_sync_event (driver, 0);
 }
 
 static void
-on_unmap_sync_point (MetaWaylandTestDriver *test_driver,
+on_unmap_sync_point (MetaWaylandTestDriver *driver,
                      unsigned int           sequence,
                      struct wl_resource    *surface_resource,
                      struct wl_client      *wl_client)
@@ -456,7 +456,7 @@ on_unmap_sync_point (MetaWaylandTestDriver *test_driver,
       MetaWindowActor *window_actor = meta_window_actor_from_actor (actor);
       g_signal_connect (window_actor, "destroy",
                         G_CALLBACK (on_window_actor_destroyed),
-                        test_driver);
+                        driver);
     }
   else if (sequence == 1)
     {
@@ -877,7 +877,7 @@ enum
 };
 
 static void
-on_toplevel_suspended_sync_point (MetaWaylandTestDriver *test_driver,
+on_toplevel_suspended_sync_point (MetaWaylandTestDriver *driver,
                                   unsigned int           sequence,
                                   struct wl_resource    *surface_resource,
                                   struct wl_client      *wl_client)

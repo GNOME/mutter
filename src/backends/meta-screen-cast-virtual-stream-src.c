@@ -635,8 +635,6 @@ ensure_virtual_monitor (MetaScreenCastVirtualStreamSrc *virtual_src,
   virtual_monitor = create_virtual_monitor (virtual_src, video_format, &error);
   if (!virtual_monitor)
     {
-      MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (virtual_src);
-
       g_warning ("Failed to create virtual monitor with size %dx%d: %s",
                  video_format->size.width, video_format->size.height,
                  error->message);

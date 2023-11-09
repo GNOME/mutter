@@ -171,11 +171,11 @@ meta_logical_monitor_add_monitor (MetaLogicalMonitor *logical_monitor,
 
   for (l = logical_monitor->monitors; l; l = l->next)
     {
-      MetaMonitor *monitor = l->data;
+      MetaMonitor *other_monitor = l->data;
       GList *outputs;
       GList *l_output;
 
-      outputs = meta_monitor_get_outputs (monitor);
+      outputs = meta_monitor_get_outputs (other_monitor);
       for (l_output = outputs; l_output; l_output = l_output->next)
         {
           MetaOutput *output = l_output->data;

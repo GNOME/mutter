@@ -277,10 +277,10 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
   META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (&surface->applied_state,
                                            subsurface_surface)
     {
-      MetaWaylandActorSurface *actor_surface;
+      MetaWaylandActorSurface *actor_subsurface;
 
-      actor_surface = META_WAYLAND_ACTOR_SURFACE (subsurface_surface->role);
-      meta_wayland_actor_surface_sync_actor_state (actor_surface);
+      actor_subsurface = META_WAYLAND_ACTOR_SURFACE (subsurface_surface->role);
+      meta_wayland_actor_surface_sync_actor_state (actor_subsurface);
     }
 }
 
@@ -419,11 +419,11 @@ meta_wayland_actor_surface_reset_actor (MetaWaylandActorSurface *actor_surface)
   META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (&surface->applied_state,
                                            subsurface_surface)
     {
-      MetaWaylandActorSurface *actor_surface;
+      MetaWaylandActorSurface *actor_subsurface;
 
-      actor_surface = META_WAYLAND_ACTOR_SURFACE (subsurface_surface->role);
-      meta_wayland_actor_surface_reset_actor (actor_surface);
-      meta_wayland_actor_surface_sync_actor_state (actor_surface);
+      actor_subsurface = META_WAYLAND_ACTOR_SURFACE (subsurface_surface->role);
+      meta_wayland_actor_surface_reset_actor (actor_subsurface);
+      meta_wayland_actor_surface_sync_actor_state (actor_subsurface);
     }
 
   clear_surface_actor (actor_surface);

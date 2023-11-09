@@ -17,6 +17,9 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  */
+/* Till https://gitlab.freedesktop.org/pipewire/pipewire/-/issues/3915 is fixed */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
 
 #include "config.h"
 
@@ -1826,3 +1829,5 @@ meta_screen_cast_stream_src_get_preferred_format (MetaScreenCastStreamSrc *src)
 
   return klass->get_preferred_format (src);
 }
+
+#pragma GCC diagnostic pop

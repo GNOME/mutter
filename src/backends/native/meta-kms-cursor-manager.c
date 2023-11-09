@@ -475,15 +475,15 @@ update_filter_cb (MetaKmsImpl       *impl,
       for (i = 0; i < crtc_states->len; i++)
         {
           CrtcStateImpl *crtc_state_impl = g_ptr_array_index (crtc_states, i);
-          MetaKmsCrtc *crtc = crtc_state_impl->crtc;
+          MetaKmsCrtc *state_crtc = crtc_state_impl->crtc;
           MetaDrmBuffer *old_buffer = NULL;
 
-          if (meta_kms_crtc_get_device (crtc) !=
+          if (meta_kms_crtc_get_device (state_crtc) !=
               meta_kms_update_get_device (update))
             continue;
 
           update = maybe_update_cursor_plane (cursor_manager_impl,
-                                              crtc, update, &old_buffer);
+                                              state_crtc, update, &old_buffer);
           if (old_buffer)
             old_buffers = g_list_prepend (old_buffers, old_buffer);
         }

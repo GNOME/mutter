@@ -78,14 +78,14 @@ test_utils_compare_pixel (const uint8_t *screen_pixel,
 }
 
 void
-test_utils_check_pixel (CoglFramebuffer *test_fb,
+test_utils_check_pixel (CoglFramebuffer *framebuffer,
                         int              x,
                         int              y,
                         uint32_t         expected_pixel)
 {
   uint8_t pixel[4];
 
-  cogl_framebuffer_read_pixels (test_fb,
+  cogl_framebuffer_read_pixels (framebuffer,
                                 x, y, 1, 1,
                                 COGL_PIXEL_FORMAT_RGBA_8888_PRE,
                                 pixel);
@@ -94,14 +94,14 @@ test_utils_check_pixel (CoglFramebuffer *test_fb,
 }
 
 void
-test_utils_check_pixel_and_alpha (CoglFramebuffer *test_fb,
+test_utils_check_pixel_and_alpha (CoglFramebuffer *framebuffer,
                                   int              x,
                                   int              y,
                                   uint32_t         expected_pixel)
 {
   uint8_t pixel[4];
 
-  cogl_framebuffer_read_pixels (test_fb,
+  cogl_framebuffer_read_pixels (framebuffer,
                                 x, y, 1, 1,
                                 COGL_PIXEL_FORMAT_RGBA_8888_PRE,
                                 pixel);
@@ -110,7 +110,7 @@ test_utils_check_pixel_and_alpha (CoglFramebuffer *test_fb,
 }
 
 void
-test_utils_check_pixel_rgb (CoglFramebuffer *test_fb,
+test_utils_check_pixel_rgb (CoglFramebuffer *framebuffer,
                             int              x,
                             int              y,
                             int              r,
@@ -124,14 +124,14 @@ test_utils_check_pixel_rgb (CoglFramebuffer *test_fb,
   g_return_if_fail (g <= 0xFF);
   g_return_if_fail (b <= 0xFF);
 
-  test_utils_check_pixel (test_fb, x, y,
+  test_utils_check_pixel (framebuffer, x, y,
                           (((guint32) r) << 24) |
                           (((guint32) g) << 16) |
                           (((guint32) b) << 8));
 }
 
 void
-test_utils_check_region (CoglFramebuffer *test_fb,
+test_utils_check_region (CoglFramebuffer *framebuffer,
                          int              x,
                          int              y,
                          int              width,
@@ -141,7 +141,7 @@ test_utils_check_region (CoglFramebuffer *test_fb,
   uint8_t *pixels, *p;
 
   pixels = p = g_malloc (width * height * 4);
-  cogl_framebuffer_read_pixels (test_fb,
+  cogl_framebuffer_read_pixels (framebuffer,
                                 x,
                                 y,
                                 width,

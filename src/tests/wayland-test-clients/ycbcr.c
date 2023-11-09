@@ -25,8 +25,6 @@
 #include "wayland-test-client-utils.h"
 
 static struct wl_surface *surface;
-static struct xdg_surface *xdg_surface;
-static struct xdg_toplevel *xdg_toplevel;
 
 static gboolean waiting_for_configure = FALSE;
 
@@ -191,6 +189,8 @@ main (int    argc,
       char **argv)
 {
   g_autoptr (WaylandDisplay) display = NULL;
+  struct xdg_surface *xdg_surface;
+  struct xdg_toplevel *xdg_toplevel;
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER);
 
   surface = wl_compositor_create_surface (display->compositor);

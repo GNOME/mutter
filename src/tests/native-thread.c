@@ -1080,7 +1080,7 @@ meta_test_thread_change_thread_type (void)
   MetaThread *thread;
   g_autoptr (GError) error = NULL;
   GThread *main_thread;
-  GThread *test_thread;
+  GThread *thread_test;
 
   thread = g_initable_new (META_TYPE_THREAD_TEST,
                            NULL, &error,
@@ -1094,27 +1094,27 @@ meta_test_thread_change_thread_type (void)
 
   main_thread = g_thread_self ();
 
-  test_thread = main_thread;
-  meta_thread_post_impl_task (thread, assert_not_thread, &test_thread, NULL,
+  thread_test = main_thread;
+  meta_thread_post_impl_task (thread, assert_not_thread, &thread_test, NULL,
                               NULL, NULL);
 
   meta_thread_reset_thread_type (thread, META_THREAD_TYPE_USER);
-  g_assert_null (test_thread);
+  g_assert_null (thread_test);
 
-  test_thread = main_thread;
-  meta_thread_post_impl_task (thread, assert_thread, &test_thread, NULL,
+  thread_test = main_thread;
+  meta_thread_post_impl_task (thread, assert_thread, &thread_test, NULL,
                               NULL, NULL);
 
   meta_thread_reset_thread_type (thread, META_THREAD_TYPE_KERNEL);
-  g_assert_null (test_thread);
+  g_assert_null (thread_test);
 
-  test_thread = main_thread;
-  meta_thread_post_impl_task (thread, assert_not_thread, &test_thread, NULL,
+  thread_test = main_thread;
+  meta_thread_post_impl_task (thread, assert_not_thread, &thread_test, NULL,
                               NULL, NULL);
 
   g_object_unref (thread);
   g_assert_null (thread);
-  g_assert_null (test_thread);
+  g_assert_null (thread_test);
 }
 
 static GVariant *

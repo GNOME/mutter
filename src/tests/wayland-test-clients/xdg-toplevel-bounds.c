@@ -59,7 +59,7 @@ handle_xdg_toplevel_configure (void                *data,
                                struct xdg_toplevel *xdg_toplevel,
                                int32_t              width,
                                int32_t              height,
-                               struct wl_array     *state)
+                               struct wl_array     *configure_state)
 {
 }
 
