@@ -422,6 +422,68 @@ get_pad_features (XIDeviceInfo *info,
   *n_strips = strips;
 }
 
+static gboolean
+guess_serial_from_libinput_prop (MetaSeatX11        *seat_x11,
+                                 ClutterInputDevice *device,
+                                 unsigned int       *serial_out)
+{
+  Display *xdisplay = xdisplay_from_seat (seat_x11);
+  int device_id = meta_input_device_x11_get_device_id (device);
+  gulong nitems, bytes_after;
+  uint32_t *data = NULL;
+  int rc, format;
+  Atom type;
+  Atom prop;
+
+  prop = XInternAtom (xdisplay, "libinput Tablet Tool Serial", True);
+  if (prop != None)
+    {
+      mtk_x11_error_trap_push (xdisplay);
+      rc = XIGetProperty (xdisplay,
+                          device_id,
+                          prop,
+                          0, 1, False, XA_CARDINAL, &type, &format, &nitems, &bytes_after,
+                          (guchar **) &data);
+      mtk_x11_error_trap_pop (xdisplay);
+
+      if (rc != Success || type != XA_CARDINAL || format != 32 || nitems != 1)
+        {
+          XFree (data);
+          return FALSE;
+        }
+
+      *serial_out = *data;
+      XFree (data);
+      return TRUE;
+    }
+
+  /* xf86-input-libinput < 1.5.0 doesn't have the serial prop, let's check
+   * for a generic property that tells us if it's libinput handling this device.
+   * If that's the case we give the tool a "random" fixed serial to pass through
+   * the code that assumes 0 == no tool.
+   */
+  prop = XInternAtom (xdisplay, "libinput Send Events Mode Enabled", True);
+  if (prop == None)
+    return FALSE;
+
+  mtk_x11_error_trap_push (xdisplay);
+  rc = XIGetProperty (xdisplay,
+                      device_id,
+                      prop,
+                      0, 1, False, XA_INTEGER, &type, &format, &nitems, &bytes_after,
+                      (guchar **) &data);
+  mtk_x11_error_trap_pop (xdisplay);
+  XFree (data);
+
+  if (rc != Success)
+      return FALSE;
+
+  *serial_out = 0xffffffaa;
+
+  return TRUE;
+}
+
+
 /* The Wacom driver exports the tool type as property. Use that over
    guessing based on the device name */
 static gboolean
@@ -807,6 +869,35 @@ remove_device (MetaSeatX11        *seat_x11,
     }
 }
 
+static void
+update_tool (MetaSeatX11        *seat_x11,
+             ClutterInputDevice *device,
+             int                 serial_id)
+{
+  ClutterInputDeviceTool *tool = NULL;
+  ClutterInputDeviceToolType type;
+  MetaInputSettings *input_settings;
+
+  if (serial_id != 0)
+    {
+      tool = g_hash_table_lookup (seat_x11->tools_by_serial,
+                                  GUINT_TO_POINTER (serial_id));
+      if (!tool)
+        {
+          type = clutter_input_device_get_device_type (device) == CLUTTER_ERASER_DEVICE ?
+            CLUTTER_INPUT_DEVICE_TOOL_ERASER : CLUTTER_INPUT_DEVICE_TOOL_PEN;
+          tool = meta_input_device_tool_x11_new (serial_id, type);
+          g_hash_table_insert (seat_x11->tools_by_serial,
+                               GUINT_TO_POINTER (serial_id),
+                               tool);
+        }
+    }
+
+  meta_input_device_x11_update_tool (device, tool);
+  input_settings = meta_backend_get_input_settings (seat_x11->backend);
+  meta_input_settings_notify_tool_change (input_settings, device, tool);
+}
+
 static gboolean
 meta_seat_x11_handle_event_post (ClutterSeat        *seat,
                                  const ClutterEvent *event)
@@ -815,7 +906,9 @@ meta_seat_x11_handle_event_post (ClutterSeat        *seat,
   ClutterInputDevice *device;
   MetaInputSettings *input_settings;
   ClutterEventType event_type;
-  gboolean is_touch;
+  gboolean is_touch, is_tablet_tool;
+  unsigned int serial;
+  ClutterInputDeviceType type;
 
   event_type = clutter_event_type (event);
 
@@ -824,8 +917,9 @@ meta_seat_x11_handle_event_post (ClutterSeat        *seat,
     return TRUE;
 
   device = clutter_event_get_device (event);
-  is_touch =
-    clutter_input_device_get_device_type (device) == CLUTTER_TOUCHSCREEN_DEVICE;
+  type = clutter_input_device_get_device_type (device);
+  is_touch = type == CLUTTER_TOUCHSCREEN_DEVICE;
+  is_tablet_tool = type == CLUTTER_PEN_DEVICE || type == CLUTTER_ERASER_DEVICE;
   input_settings = meta_backend_get_input_settings (seat_x11->backend);
 
   switch (event_type)
@@ -833,6 +927,8 @@ meta_seat_x11_handle_event_post (ClutterSeat        *seat,
       case CLUTTER_DEVICE_ADDED:
         meta_input_settings_add_device (input_settings, device);
         seat_x11->has_touchscreens |= is_touch;
+        if (is_tablet_tool && guess_serial_from_libinput_prop (seat_x11, device, &serial))
+          update_tool(seat_x11, device, serial);
         break;
       case CLUTTER_DEVICE_REMOVED:
         if (is_touch)
@@ -971,31 +1067,10 @@ translate_property_event (MetaSeatX11 *seat_x11,
 
   if (xev->property == serial_ids_prop)
     {
-      ClutterInputDeviceTool *tool = NULL;
-      ClutterInputDeviceToolType type;
-      MetaInputSettings *input_settings;
       int serial_id;
 
       serial_id = device_get_tool_serial (seat_x11, device);
-
-      if (serial_id != 0)
-        {
-          tool = g_hash_table_lookup (seat_x11->tools_by_serial,
-                                      GUINT_TO_POINTER (serial_id));
-          if (!tool)
-            {
-              type = clutter_input_device_get_device_type (device) == CLUTTER_ERASER_DEVICE ?
-                CLUTTER_INPUT_DEVICE_TOOL_ERASER : CLUTTER_INPUT_DEVICE_TOOL_PEN;
-              tool = meta_input_device_tool_x11_new (serial_id, type);
-              g_hash_table_insert (seat_x11->tools_by_serial,
-                                   GUINT_TO_POINTER (serial_id),
-                                   tool);
-            }
-        }
-
-      meta_input_device_x11_update_tool (device, tool);
-      input_settings = meta_backend_get_input_settings (seat_x11->backend);
-      meta_input_settings_notify_tool_change (input_settings, device, tool);
+      update_tool(seat_x11, device, serial_id);
     }
 }
 
