@@ -1481,7 +1481,8 @@ meta_window_actor_blit_to_framebuffer (MetaScreenCastWindow *screen_cast_window,
 
   paint_context =
     clutter_paint_context_new_for_framebuffer (framebuffer, NULL,
-                                               CLUTTER_PAINT_FLAG_NONE);
+                                               CLUTTER_PAINT_FLAG_NONE,
+                                               clutter_actor_get_color_state (actor));
   clutter_actor_paint (actor, paint_context);
   clutter_paint_context_destroy (paint_context);
 
@@ -1614,7 +1615,8 @@ create_framebuffer_from_window_actor (MetaWindowActor  *self,
 
   paint_context =
     clutter_paint_context_new_for_framebuffer (framebuffer, NULL,
-                                               CLUTTER_PAINT_FLAG_NONE);
+                                               CLUTTER_PAINT_FLAG_NONE,
+                                               clutter_actor_get_color_state (actor));
   clutter_actor_paint (actor, paint_context);
   clutter_paint_context_destroy (paint_context);
 

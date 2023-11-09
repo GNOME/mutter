@@ -3460,6 +3460,8 @@ clutter_actor_paint (ClutterActor        *self,
     }
 #endif
 
+  clutter_paint_context_push_color_state (paint_context, priv->color_state);
+
   actor_node = clutter_actor_node_new (self, -1);
   root_node = clutter_paint_node_ref (actor_node);
 
@@ -3574,7 +3576,7 @@ clutter_actor_paint (ClutterActor        *self,
       if (G_UNLIKELY (clutter_paint_debug_flags & CLUTTER_DEBUG_REDRAWS))
         _clutter_actor_paint_cull_result (self, success, result, actor_node);
       else if (result == CLUTTER_CULL_RESULT_OUT && success)
-        return;
+        goto out;
     }
 
   if (priv->effects == NULL)
@@ -3593,6 +3595,9 @@ clutter_actor_paint (ClutterActor        *self,
    * unless a new redraw was queued up.
    */
   priv->is_dirty = priv->propagated_one_redraw;
+
+out:
+  clutter_paint_context_pop_color_state (paint_context);
 }
 
 /**

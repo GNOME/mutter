@@ -34,3 +34,8 @@ clutter_paint_context_get_clip_frusta (ClutterPaintContext *paint_context);
 
 void clutter_paint_context_assign_frame (ClutterPaintContext *paint_context,
                                          ClutterFrame        *frame);
+
+void clutter_paint_context_push_target_color_state (ClutterPaintContext *paint_context,
+                                                    ClutterColorState   *color_state);
+
+void clutter_paint_context_pop_target_color_state (ClutterPaintContext *paint_context);
