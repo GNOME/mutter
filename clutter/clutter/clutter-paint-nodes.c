@@ -358,8 +358,7 @@ clutter_pipeline_node_finalize (ClutterPaintNode *node)
 {
   ClutterPipelineNode *pnode = CLUTTER_PIPELINE_NODE (node);
 
-  if (pnode->pipeline != NULL)
-    g_object_unref (pnode->pipeline);
+  g_clear_object (&pnode->pipeline);
 
   CLUTTER_PAINT_NODE_CLASS (clutter_pipeline_node_parent_class)->finalize (node);
 }
@@ -720,8 +719,7 @@ clutter_text_node_finalize (ClutterPaintNode *node)
 {
   ClutterTextNode *tnode = CLUTTER_TEXT_NODE (node);
 
-  if (tnode->layout != NULL)
-    g_object_unref (tnode->layout);
+  g_clear_object (&tnode->layout);
 
   CLUTTER_PAINT_NODE_CLASS (clutter_text_node_parent_class)->finalize (node);
 }
@@ -1264,9 +1262,7 @@ clutter_layer_node_finalize (ClutterPaintNode *node)
 {
   ClutterLayerNode *lnode = CLUTTER_LAYER_NODE (node);
 
-  if (lnode->pipeline != NULL)
-    g_object_unref (lnode->pipeline);
-
+  g_clear_object (&lnode->pipeline);
   g_clear_object (&lnode->offscreen);
 
   CLUTTER_PAINT_NODE_CLASS (clutter_layer_node_parent_class)->finalize (node);
