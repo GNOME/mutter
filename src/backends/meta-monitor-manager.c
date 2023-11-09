@@ -3765,11 +3765,10 @@ meta_monitor_manager_rebuild (MetaMonitorManager *manager,
 
   meta_monitor_manager_update_logical_state (manager, config);
 
-  meta_monitor_manager_notify_monitors_changed (manager);
-
   ensure_privacy_screen_settings (manager);
-
   ensure_hdr_settings (manager);
+
+  meta_monitor_manager_notify_monitors_changed (manager);
 
   g_list_free_full (old_logical_monitors, g_object_unref);
 }
