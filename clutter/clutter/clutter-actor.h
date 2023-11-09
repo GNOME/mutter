@@ -51,36 +51,6 @@ G_BEGIN_DECLS
 #define CLUTTER_IS_ACTOR_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_ACTOR))
 #define CLUTTER_ACTOR_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_ACTOR, ClutterActorClass))
 
-/**
- * CLUTTER_ACTOR_SET_FLAGS:
- * @a: a #ClutterActor
- * @f: the #ClutterActorFlags to set
- *
- * Sets the given flags on a #ClutterActor
- *
- * Deprecated: 1.24: Changing flags directly is heavily discouraged in
- *   newly written code. #ClutterActor will take care of setting the
- *   internal state.
- */
-#define CLUTTER_ACTOR_SET_FLAGS(a,f) \
-  CLUTTER_MACRO_DEPRECATED \
-  (((ClutterActor*)(a))->flags |= (f))
-
-/**
- * CLUTTER_ACTOR_UNSET_FLAGS:
- * @a: a #ClutterActor
- * @f: the #ClutterActorFlags to unset
- *
- * Unsets the given flags on a #ClutterActor
- *
- * Deprecated: 1.24: Changing flags directly is heavily discouraged in
- *   newly written code. #ClutterActor will take care of unsetting the
- *   internal state.
- */
-#define CLUTTER_ACTOR_UNSET_FLAGS(a,f) \
-  CLUTTER_MACRO_DEPRECATED \
-  (((ClutterActor*)(a))->flags &= ~(f))
-
 typedef struct _ClutterActorClass    ClutterActorClass;
 typedef struct _ClutterActorPrivate  ClutterActorPrivate;
 

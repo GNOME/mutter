@@ -556,7 +556,7 @@ clutter_stage_realize (ClutterActor *self)
   is_realized = _clutter_stage_window_realize (priv->impl);
 
   if (!is_realized)
-    CLUTTER_ACTOR_UNSET_FLAGS (self, CLUTTER_ACTOR_REALIZED);
+    self->flags &= ~CLUTTER_ACTOR_REALIZED;
 }
 
 static void
@@ -568,7 +568,7 @@ clutter_stage_unrealize (ClutterActor *self)
   g_assert (priv->impl != NULL);
   _clutter_stage_window_unrealize (priv->impl);
 
-  CLUTTER_ACTOR_UNSET_FLAGS (self, CLUTTER_ACTOR_REALIZED);
+  self->flags &= ~CLUTTER_ACTOR_REALIZED;
 }
 
 static void

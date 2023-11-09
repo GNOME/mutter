@@ -1458,7 +1458,7 @@ clutter_actor_real_map (ClutterActor *self)
   CLUTTER_NOTE (ACTOR, "Mapping actor '%s'",
                 _clutter_actor_get_debug_name (self));
 
-  CLUTTER_ACTOR_SET_FLAGS (self, CLUTTER_ACTOR_MAPPED);
+  self->flags |= CLUTTER_ACTOR_MAPPED;
 
   if (priv->unmapped_paint_branch_counter == 0)
     {
@@ -1599,7 +1599,7 @@ clutter_actor_real_unmap (ClutterActor *self)
       clutter_actor_unmap (iter);
     }
 
-  CLUTTER_ACTOR_UNSET_FLAGS (self, CLUTTER_ACTOR_MAPPED);
+  self->flags &= ~CLUTTER_ACTOR_MAPPED;
 
   if (priv->unmapped_paint_branch_counter == 0)
     {
@@ -1677,7 +1677,7 @@ clutter_actor_real_show (ClutterActor *self)
   if (clutter_actor_is_visible (self))
     return;
 
-  CLUTTER_ACTOR_SET_FLAGS (self, CLUTTER_ACTOR_VISIBLE);
+  self->flags |= CLUTTER_ACTOR_VISIBLE;
 
   /* we notify on the "visible" flag in the clutter_actor_show()
    * wrapper so the entire show signal emission completes first,
@@ -1815,7 +1815,7 @@ clutter_actor_real_hide (ClutterActor *self)
   if (!clutter_actor_is_visible (self))
     return;
 
-  CLUTTER_ACTOR_UNSET_FLAGS (self, CLUTTER_ACTOR_VISIBLE);
+  self->flags &= ~CLUTTER_ACTOR_VISIBLE;
 
   /* we notify on the "visible" flag in the clutter_actor_hide()
    * wrapper so the entire hide signal emission completes first,
@@ -1971,7 +1971,7 @@ clutter_actor_realize_internal (ClutterActor *self)
 
   CLUTTER_NOTE (ACTOR, "Realizing actor '%s'", _clutter_actor_get_debug_name (self));
 
-  CLUTTER_ACTOR_SET_FLAGS (self, CLUTTER_ACTOR_REALIZED);
+  self->flags |= CLUTTER_ACTOR_REALIZED;
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_REALIZED]);
 
   g_signal_emit (self, actor_signals[REALIZE], 0);
@@ -2082,7 +2082,7 @@ unrealize_actor_after_children_cb (ClutterActor *self,
   /* We want to unset the realized flag only _after_
    * child actors are unrealized, to maintain invariants.
    */
-  CLUTTER_ACTOR_UNSET_FLAGS (self, CLUTTER_ACTOR_REALIZED);
+  self->flags &= ~CLUTTER_ACTOR_REALIZED;
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_REALIZED]);
 
   if (stage != NULL &&
@@ -11869,9 +11869,9 @@ clutter_actor_set_reactive (ClutterActor *actor,
     return;
 
   if (reactive)
-    CLUTTER_ACTOR_SET_FLAGS (actor, CLUTTER_ACTOR_REACTIVE);
+    actor->flags |= CLUTTER_ACTOR_REACTIVE;
   else
-    CLUTTER_ACTOR_UNSET_FLAGS (actor, CLUTTER_ACTOR_REACTIVE);
+    actor->flags &= ~CLUTTER_ACTOR_REACTIVE;
 
   g_object_notify_by_pspec (G_OBJECT (actor), obj_props[PROP_REACTIVE]);
 
