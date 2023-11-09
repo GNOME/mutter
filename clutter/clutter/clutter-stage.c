@@ -840,8 +840,8 @@ clutter_stage_dequeue_actor_relayout (ClutterStage *stage,
     }
 }
 
-static void
-clutter_stage_invalidate_views_devices (ClutterStage *stage)
+void
+clutter_stage_invalidate_devices (ClutterStage *stage)
 {
   GList *l;
 
@@ -900,7 +900,7 @@ clutter_stage_maybe_relayout (ClutterActor *actor)
   CLUTTER_NOTE (ACTOR, "<<< Completed recomputing layout of %d subtrees", count);
 
   if (count)
-    clutter_stage_invalidate_views_devices (stage);
+    clutter_stage_invalidate_devices (stage);
 }
 
 GSList *

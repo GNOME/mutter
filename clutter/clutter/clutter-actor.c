@@ -960,7 +960,7 @@ static void push_in_paint_unmapped_branch (ClutterActor *self,
 static void pop_in_paint_unmapped_branch (ClutterActor *self,
                                           guint         count);
 
-static void clutter_actor_update_pointer (ClutterActor *self);
+static void clutter_actor_update_devices (ClutterActor *self);
 
 static GQuark quark_actor_layout_info = 0;
 static GQuark quark_actor_transform_info = 0;
@@ -2404,7 +2404,7 @@ update_pointer_if_not_animated (ClutterActor *actor)
 {
   if (!clutter_actor_has_transitions (actor) &&
       !CLUTTER_ACTOR_IN_RELAYOUT (actor))
-    clutter_actor_update_pointer (actor);
+    clutter_actor_update_devices (actor);
 }
 
 /*< private >
@@ -12236,19 +12236,13 @@ clutter_actor_set_animatable_property (ClutterActor *actor,
 }
 
 static void
-clutter_actor_update_pointer (ClutterActor *self)
+clutter_actor_update_devices (ClutterActor *self)
 {
-  ClutterInputDevice *pointer;
   ClutterStage *stage;
-  ClutterSeat *seat;
 
   stage = CLUTTER_STAGE (_clutter_actor_get_stage_internal (self));
-  if (!stage)
-    return;
-
-  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
-  pointer = clutter_seat_get_pointer (seat);
-  clutter_stage_repick_device (stage, pointer);
+  if (stage)
+    clutter_stage_invalidate_devices (stage);
 }
 
 static void
@@ -12301,7 +12295,7 @@ clutter_actor_set_final_state (ClutterAnimatable *animatable,
         }
     }
 
-  clutter_actor_update_pointer (actor);
+  clutter_actor_update_devices (actor);
 
   g_free (p_name);
 }
