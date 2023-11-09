@@ -2681,6 +2681,9 @@ clutter_stage_paint_to_framebuffer (ClutterStage                *stage,
   ClutterPaintContext *paint_context;
   g_autoptr (MtkRegion) redraw_clip = NULL;
 
+  COGL_TRACE_BEGIN_SCOPED (PaintToFramebuffer,
+                           "Clutter::Stage::paint_to_framebuffer()");
+
   if (paint_flags & CLUTTER_PAINT_FLAG_CLEAR)
     {
       CoglColor clear_color;
