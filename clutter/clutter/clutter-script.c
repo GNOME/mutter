@@ -140,8 +140,6 @@
 #include "clutter/clutter-private.h"
 #include "clutter/clutter-debug.h"
 
-#include "clutter/deprecated/clutter-container.h"
-
 enum
 {
   PROP_0,

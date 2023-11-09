@@ -564,8 +564,6 @@
 #include "clutter/clutter-transition.h"
 #include "clutter/clutter-units.h"
 
-#include "clutter/deprecated/clutter-container.h"
-
 /* Internal enum used to control mapped state update.  This is a hint
  * which indicates when to do something other than just enforce
  * invariants.
@@ -5473,7 +5471,7 @@ clutter_actor_dispose (GObject *object)
   if (priv->parent != NULL)
     {
       ClutterActor *parent = priv->parent;
-      clutter_container_remove_actor (CLUTTER_CONTAINER (parent), self);
+      clutter_actor_remove_child (parent, self);
     }
 
   /* parent must be gone at this point */

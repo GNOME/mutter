@@ -46,9 +46,6 @@
 
 #include <math.h>
 
-#define CLUTTER_DISABLE_DEPRECATION_WARNINGS
-#include "clutter/deprecated/clutter-container.h"
-
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-animatable.h"
 #include "clutter/clutter-bin-layout.h"

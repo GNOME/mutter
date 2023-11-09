@@ -132,9 +132,7 @@
 #include <glib-object.h>
 #include <gobject/gvaluecollector.h>
 
-#define CLUTTER_DISABLE_DEPRECATION_WARNINGS
-#include "clutter/deprecated/clutter-container.h"
-
+#include "clutter/clutter-container.h"
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-layout-manager.h"
 #include "clutter/clutter-layout-meta.h"

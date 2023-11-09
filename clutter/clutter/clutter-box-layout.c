@@ -50,12 +50,9 @@
 
 #include <math.h>
 
-#define CLUTTER_DISABLE_DEPRECATION_WARNINGS
-#include "clutter/deprecated/clutter-container.h"
-
 #include "clutter/clutter-box-layout.h"
-
 #include "clutter/clutter-actor-private.h"
+#include "clutter/clutter-container.h"
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-enum-types.h"
 #include "clutter/clutter-layout-meta.h"

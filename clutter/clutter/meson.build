@@ -28,7 +28,6 @@ clutter_headers = [
   'clutter-container.h',
   'clutter-content.h',
   'clutter-deform-effect.h',
-  'clutter-deprecated.h',
   'clutter-desaturate-effect.h',
   'clutter-effect.h',
   'clutter-enums.h',
@@ -227,10 +226,6 @@ clutter_nonintrospected_sources = [
   'clutter-easing.c',
 ]
 
-clutter_deprecated_headers = [
-  'deprecated/clutter-container.h',
-]
-
 clutter_backend_private_headers = []
 
 cally_headers = [
@@ -278,7 +273,7 @@ clutter_build_config_h = configure_file(
 clutter_built_private_headers += clutter_build_config_h
 
 clutter_enum_types = gnome.mkenums('clutter-enum-types',
-  sources: [clutter_headers, clutter_deprecated_headers],
+  sources: clutter_headers,
   c_template: 'clutter-enum-types.c.in',
   h_template: 'clutter-enum-types.h.in',
   install_dir: clutter_clutter_includedir,
@@ -305,7 +300,6 @@ libmutter_clutter = shared_library(libmutter_clutter_name,
     clutter_headers,
     clutter_private_headers,
     clutter_nonintrospected_sources,
-    clutter_deprecated_headers,
     clutter_built_sources,
     clutter_built_headers,
     cally_sources,
@@ -346,7 +340,6 @@ if have_introspection
       clutter_built_headers,
       clutter_sources,
       clutter_headers,
-      clutter_deprecated_headers,
     ],
     nsversion: libmutter_api_version,
     namespace: 'Clutter',
@@ -395,9 +388,6 @@ install_headers(clutter_headers,
 
 install_headers(cally_headers,
   subdir: clutter_includesubdir / 'cally')
-
-install_headers(clutter_deprecated_headers,
-  subdir: clutter_clutter_includesubdir / 'deprecated')
 
 pkg.generate(libmutter_clutter,
   name: 'Mutters Clutter',

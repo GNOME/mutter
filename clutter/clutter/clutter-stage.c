@@ -42,7 +42,6 @@
 #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
 
 #include "clutter/clutter-stage.h"
-#include "clutter/deprecated/clutter-container.h"
 
 #include "clutter/clutter-action-private.h"
 #include "clutter/clutter-actor-private.h"
