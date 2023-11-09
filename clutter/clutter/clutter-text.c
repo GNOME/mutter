@@ -234,7 +234,6 @@ enum
   PROP_LINE_WRAP_MODE,
   PROP_JUSTIFY,
   PROP_ELLIPSIZE,
-  PROP_POSITION, /* XXX:2.0 - remove */
   PROP_SELECTION_BOUND,
   PROP_SELECTION_COLOR,
   PROP_SELECTION_COLOR_SET,
@@ -262,7 +261,6 @@ static GParamSpec *obj_props[PROP_LAST];
 enum
 {
   TEXT_CHANGED,
-  CURSOR_EVENT, /* XXX:2.0 - remove */
   ACTIVATE,
   INSERT_TEXT,
   DELETE_TEXT,
@@ -1337,7 +1335,6 @@ clutter_text_ensure_cursor_position (ClutterText *self,
     {
       priv->cursor_rect = cursor_rect;
 
-      g_signal_emit (self, text_signals[CURSOR_EVENT], 0, &cursor_rect);
       g_signal_emit (self, text_signals[CURSOR_CHANGED], 0);
 
       update_cursor_location (self);
@@ -1396,8 +1393,6 @@ clutter_text_delete_selection (ClutterText *self)
   /* Not required to be guarded by g_object_freeze/thaw_notify */
   if (priv->position != old_position)
     {
-      /* XXX:2.0 - remove */
-      g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_POSITION]);
       g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_CURSOR_POSITION]);
       g_signal_emit (self, text_signals[CURSOR_CHANGED], 0);
     }
@@ -1543,7 +1538,6 @@ clutter_text_set_property (GObject      *gobject,
       clutter_text_set_ellipsize (self, g_value_get_enum (value));
       break;
 
-    case PROP_POSITION: /* XXX:2.0: remove */
     case PROP_CURSOR_POSITION:
       clutter_text_set_cursor_position (self, g_value_get_int (value));
       break;
@@ -1660,7 +1654,6 @@ clutter_text_get_property (GObject    *gobject,
       g_value_set_int (value, priv->cursor_size);
       break;
 
-    case PROP_POSITION: /* XXX:2.0 - remove */
     case PROP_CURSOR_POSITION:
       g_value_set_int (value, priv->position);
       break;
@@ -4001,22 +3994,6 @@ clutter_text_class_init (ClutterTextClass *klass)
   g_object_class_install_property (gobject_class, PROP_CURSOR_SIZE, pspec);
 
   /**
-   * ClutterText:position:
-   *
-   * The current input cursor position. -1 is taken to be the end of the text
-   *
-   * Deprecated: 1.12: Use [property@Text:cursor-position] instead.
-   */
-  pspec = g_param_spec_int ("position", NULL, NULL,
-                            -1, G_MAXINT,
-                            -1,
-                            G_PARAM_READWRITE |
-                            G_PARAM_STATIC_STRINGS |
-                            G_PARAM_DEPRECATED);
-  obj_props[PROP_POSITION] = pspec;
-  g_object_class_install_property (gobject_class, PROP_POSITION, pspec);
-
-  /**
    * ClutterText:cursor-position:
    *
    * The current input cursor position. -1 is taken to be the end of the text
@@ -4294,27 +4271,6 @@ clutter_text_class_init (ClutterTextClass *klass)
                   G_TYPE_NONE, 2,
                   G_TYPE_INT,
                   G_TYPE_INT);
-
-  /**
-   * ClutterText::cursor-event:
-   * @self: the #ClutterText that emitted the signal
-   * @rect: the coordinates of the cursor
-   *
-   * The signal is emitted whenever the cursor position
-   * changes inside a #ClutterText actor. Inside @rect it is stored
-   * the current position and size of the cursor, relative to the actor
-   * itself.
-   *
-   * Deprecated: 1.16: Use the [signal@Text::cursor-changed] signal instead
-   */
-  text_signals[CURSOR_EVENT] =
-    g_signal_new (I_("cursor-event"),
-		  G_TYPE_FROM_CLASS (gobject_class),
-		  G_SIGNAL_RUN_LAST | G_SIGNAL_DEPRECATED,
-		  G_STRUCT_OFFSET (ClutterTextClass, cursor_event),
-		  NULL, NULL, NULL,
-		  G_TYPE_NONE, 1,
-		  GRAPHENE_TYPE_RECT | G_SIGNAL_TYPE_STATIC_SCOPE);
 
   /**
    * ClutterText::cursor-changed:
@@ -6034,8 +5990,6 @@ clutter_text_set_cursor_position (ClutterText *self,
 
   clutter_text_queue_redraw (CLUTTER_ACTOR (self));
 
-  /* XXX:2.0 - remove */
-  g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_POSITION]);
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_CURSOR_POSITION]);
   g_signal_emit (self, text_signals[CURSOR_CHANGED], 0);
 }
