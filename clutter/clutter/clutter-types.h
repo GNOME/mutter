@@ -99,8 +99,6 @@ typedef enum _ClutterPaintFlag                  ClutterPaintFlag;
  */
 typedef struct _ClutterEventSequence            ClutterEventSequence;
 
-typedef struct _ClutterShader                   ClutterShader; /* deprecated */
-
 /**
  * ClutterPaintVolume:
  *
