@@ -465,7 +465,7 @@ _cogl_driver_update_features (CoglContext *ctx,
 
   ctx->glsl_major = 1;
   ctx->glsl_minor = 2;
-  ctx->glsl_version_to_use = 120;
+  ctx->glsl_version_to_use = 140;
 
   glsl_version = (char *)ctx->glGetString (GL_SHADING_LANGUAGE_VERSION);
   _cogl_gl_util_parse_gl_version (glsl_version,
