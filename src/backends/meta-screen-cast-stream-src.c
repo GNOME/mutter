@@ -599,6 +599,9 @@ do_record_frame (MetaScreenCastStreamSrc   *src,
       int height = priv->video_format.size.height;
       int stride = meta_screen_cast_stream_src_calculate_stride (src, spa_data);
 
+      COGL_TRACE_BEGIN_SCOPED (RecordToBuffer,
+                               "Meta::ScreenCastStreamSrc::record_to_buffer()");
+
       return meta_screen_cast_stream_src_record_to_buffer (src,
                                                            paint_phase,
                                                            width,
@@ -614,6 +617,9 @@ do_record_frame (MetaScreenCastStreamSrc   *src,
                              GINT_TO_POINTER (spa_data->fd));
       CoglFramebuffer *dmabuf_fbo =
         cogl_dma_buf_handle_get_framebuffer (dmabuf_handle);
+
+      COGL_TRACE_BEGIN_SCOPED (RecordToFramebuffer,
+                               "Meta::ScreenCastStreamSrc::record_to_framebuffer()");
 
       return meta_screen_cast_stream_src_record_to_framebuffer (src,
                                                                 paint_phase,
@@ -764,6 +770,9 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
   struct spa_buffer *spa_buffer;
   struct spa_meta_header *header;
   struct spa_data *spa_data;
+
+  COGL_TRACE_BEGIN_SCOPED (MaybeRecordFrame,
+                           "Meta::ScreenCastStreamSrc::maybe_record_frame_with_timestamp()");
 
   /* Accumulate the damaged region since we might not schedule a frame capture
    * eventually but once we do, we should report all the previous damaged areas.
