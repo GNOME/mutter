@@ -315,10 +315,19 @@ meta_shaped_texture_dispose (GObject *object)
   G_OBJECT_CLASS (meta_shaped_texture_parent_class)->dispose (object);
 }
 
-static CoglPipeline *
-get_base_pipeline (MetaShapedTexture *stex,
-                   CoglContext       *ctx)
+static CoglContext *
+cogl_context_from_paint_context (ClutterPaintContext *paint_context)
 {
+  CoglFramebuffer *framebuffer = clutter_paint_context_get_framebuffer (paint_context);
+
+  return cogl_framebuffer_get_context (framebuffer);
+}
+
+static CoglPipeline *
+get_base_pipeline (MetaShapedTexture   *stex,
+                   ClutterPaintContext *paint_context)
+{
+  CoglContext *cogl_context = cogl_context_from_paint_context (paint_context);
   CoglPipeline *pipeline;
   graphene_matrix_t matrix;
   int i, n_planes;
@@ -326,7 +335,7 @@ get_base_pipeline (MetaShapedTexture *stex,
   if (stex->base_pipeline)
     return stex->base_pipeline;
 
-  pipeline = cogl_pipeline_new (ctx);
+  pipeline = cogl_pipeline_new (cogl_context);
 
   /* We'll add as many layers as there are planes in the multi texture,
    * plus an extra one for the mask */
@@ -395,8 +404,8 @@ get_base_pipeline (MetaShapedTexture *stex,
 }
 
 static CoglPipeline *
-get_combined_pipeline (MetaShapedTexture *stex,
-                       CoglContext       *ctx)
+get_combined_pipeline (MetaShapedTexture   *stex,
+                       ClutterPaintContext *paint_context)
 {
   MetaMultiTextureFormat format;
   CoglPipeline *pipeline;
@@ -407,7 +416,7 @@ get_combined_pipeline (MetaShapedTexture *stex,
   if (stex->combined_pipeline)
     return stex->combined_pipeline;
 
-  pipeline = cogl_pipeline_copy (get_base_pipeline (stex, ctx));
+  pipeline = cogl_pipeline_copy (get_base_pipeline (stex, paint_context));
   format = meta_multi_texture_get_format (stex->texture);
   n_planes = meta_multi_texture_get_n_planes (stex->texture);
 
@@ -432,9 +441,9 @@ get_combined_pipeline (MetaShapedTexture *stex,
 }
 
 static CoglPipeline *
-get_unmasked_pipeline (MetaShapedTexture *stex,
-                       CoglContext       *ctx,
-                       MetaMultiTexture  *tex)
+get_unmasked_pipeline (MetaShapedTexture   *stex,
+                       ClutterPaintContext *paint_context,
+                       MetaMultiTexture    *tex)
 {
   if (stex->texture == tex)
     {
@@ -443,7 +452,7 @@ get_unmasked_pipeline (MetaShapedTexture *stex,
       if (stex->unmasked_pipeline)
         return stex->unmasked_pipeline;
 
-      pipeline = cogl_pipeline_copy (get_combined_pipeline (stex, ctx));
+      pipeline = cogl_pipeline_copy (get_combined_pipeline (stex, paint_context));
       if (stex->snippet)
         cogl_pipeline_add_layer_snippet (pipeline, 0, stex->snippet);
 
@@ -454,19 +463,16 @@ get_unmasked_pipeline (MetaShapedTexture *stex,
     {
       CoglPipeline *pipeline;
 
-      if (stex->unmasked_tower_pipeline)
-        return stex->unmasked_tower_pipeline;
-
-      pipeline = cogl_pipeline_copy (get_base_pipeline (stex, ctx));
+      pipeline = cogl_pipeline_copy (get_base_pipeline (stex, paint_context));
       stex->unmasked_tower_pipeline = pipeline;
       return pipeline;
     }
 }
 
 static CoglPipeline *
-get_masked_pipeline (MetaShapedTexture *stex,
-                     CoglContext       *ctx,
-                     MetaMultiTexture  *tex)
+get_masked_pipeline (MetaShapedTexture   *stex,
+                     ClutterPaintContext *paint_context,
+                     MetaMultiTexture    *tex)
 {
   g_assert (meta_multi_texture_get_n_planes (stex->texture) == 1);
 
@@ -477,7 +483,7 @@ get_masked_pipeline (MetaShapedTexture *stex,
       if (stex->masked_pipeline)
         return stex->masked_pipeline;
 
-      pipeline = cogl_pipeline_copy (get_base_pipeline (stex, ctx));
+      pipeline = cogl_pipeline_copy (get_base_pipeline (stex, paint_context));
       cogl_pipeline_set_layer_combine (pipeline, 1,
                                        "RGBA = MODULATE (PREVIOUS, TEXTURE[A])",
                                        NULL);
@@ -494,7 +500,7 @@ get_masked_pipeline (MetaShapedTexture *stex,
       if (stex->masked_tower_pipeline)
         return stex->masked_tower_pipeline;
 
-      pipeline = cogl_pipeline_copy (get_base_pipeline (stex, ctx));
+      pipeline = cogl_pipeline_copy (get_base_pipeline (stex, paint_context));
       cogl_pipeline_set_layer_combine (pipeline, 1,
                                        "RGBA = MODULATE (PREVIOUS, TEXTURE[A])",
                                        NULL);
@@ -505,9 +511,9 @@ get_masked_pipeline (MetaShapedTexture *stex,
 }
 
 static CoglPipeline *
-get_unblended_pipeline (MetaShapedTexture *stex,
-                        CoglContext       *ctx,
-                        MetaMultiTexture  *tex)
+get_unblended_pipeline (MetaShapedTexture   *stex,
+                        ClutterPaintContext *paint_context,
+                        MetaMultiTexture    *tex)
 {
   if (stex->texture == tex)
     {
@@ -516,7 +522,7 @@ get_unblended_pipeline (MetaShapedTexture *stex,
       if (stex->unblended_pipeline)
         return stex->unblended_pipeline;
 
-      pipeline = cogl_pipeline_copy (get_combined_pipeline (stex, ctx));
+      pipeline = cogl_pipeline_copy (get_combined_pipeline (stex, paint_context));
       cogl_pipeline_set_layer_combine (pipeline, 0,
                                        "RGBA = REPLACE (TEXTURE)",
                                        NULL);
@@ -533,7 +539,7 @@ get_unblended_pipeline (MetaShapedTexture *stex,
       if (stex->unblended_tower_pipeline)
         return stex->unblended_tower_pipeline;
 
-      pipeline = cogl_pipeline_copy (get_base_pipeline (stex, ctx));
+      pipeline = cogl_pipeline_copy (get_base_pipeline (stex, paint_context));
       cogl_pipeline_set_layer_combine (pipeline, 0,
                                        "RGBA = REPLACE (TEXTURE)",
                                        NULL);
@@ -544,20 +550,21 @@ get_unblended_pipeline (MetaShapedTexture *stex,
 }
 
 static CoglPipeline *
-get_opaque_overlay_pipeline (CoglContext *ctx)
+get_opaque_overlay_pipeline (ClutterPaintContext *paint_context)
 {
+  CoglContext *cogl_context = cogl_context_from_paint_context (paint_context);
   CoglPipeline *pipeline;
   CoglColor color;
 
-  pipeline = cogl_context_get_named_pipeline (ctx,
+  pipeline = cogl_context_get_named_pipeline (cogl_context,
                                               &opaque_overlay_pipeline_key);
   if (!pipeline)
     {
-      pipeline = cogl_pipeline_new (ctx);
+      pipeline = cogl_pipeline_new (cogl_context);
       cogl_color_init_from_4f (&color,  0.0f, 0.2f, 0.0f, 0.2f);
       cogl_pipeline_set_color (pipeline, &color);
 
-      cogl_context_set_named_pipeline (ctx,
+      cogl_context_set_named_pipeline (cogl_context,
                                        &opaque_overlay_pipeline_key,
                                        pipeline);
     }
@@ -566,20 +573,21 @@ get_opaque_overlay_pipeline (CoglContext *ctx)
 }
 
 static CoglPipeline *
-get_blended_overlay_pipeline (CoglContext *ctx)
+get_blended_overlay_pipeline (ClutterPaintContext *paint_context)
 {
+  CoglContext *cogl_context = cogl_context_from_paint_context (paint_context);
   CoglPipeline *pipeline;
   CoglColor color;
 
-  pipeline = cogl_context_get_named_pipeline (ctx,
+  pipeline = cogl_context_get_named_pipeline (cogl_context,
                                               &blended_overlay_pipeline_key);
   if (!pipeline)
     {
-      pipeline = cogl_pipeline_new (ctx);
+      pipeline = cogl_pipeline_new (cogl_context);
       cogl_color_init_from_4f (&color,  0.2f, 0.0f, 0.2f, 0.2f);
       cogl_pipeline_set_color (pipeline, &color);
 
-      cogl_context_set_named_pipeline (ctx,
+      cogl_context_set_named_pipeline (cogl_context,
                                        &blended_overlay_pipeline_key,
                                        pipeline);
     }
@@ -696,7 +704,6 @@ do_paint_content (MetaShapedTexture   *stex,
   MtkRectangle content_rect;
   gboolean use_opaque_region;
   MtkRegion *blended_tex_region;
-  CoglContext *ctx;
   CoglPipelineFilter min_filter, mag_filter;
   MetaTransforms transforms;
   MetaMultiTexture *paint_tex = stex->texture;
@@ -779,8 +786,6 @@ do_paint_content (MetaShapedTexture   *stex,
         }
     }
 
-  ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
-
   use_opaque_region = stex->opaque_region && opacity == 255;
 
   if (use_opaque_region)
@@ -839,7 +844,7 @@ do_paint_content (MetaShapedTexture   *stex,
         {
           CoglPipeline *opaque_pipeline;
 
-          opaque_pipeline = get_unblended_pipeline (stex, ctx, paint_tex);
+          opaque_pipeline = get_unblended_pipeline (stex, paint_context, paint_tex);
 
           for (i = 0; i < n_planes; i++)
             {
@@ -863,7 +868,7 @@ do_paint_content (MetaShapedTexture   *stex,
                 {
                   CoglPipeline *opaque_overlay_pipeline;
 
-                  opaque_overlay_pipeline = get_opaque_overlay_pipeline (ctx);
+                  opaque_overlay_pipeline = get_opaque_overlay_pipeline (paint_context);
                   paint_clipped_rectangle_node (stex, root_node,
                                                 opaque_overlay_pipeline,
                                                 &rect, alloc);
@@ -890,11 +895,11 @@ do_paint_content (MetaShapedTexture   *stex,
 
       if (stex->mask_texture == NULL)
         {
-          blended_pipeline = get_unmasked_pipeline (stex, ctx, paint_tex);
+          blended_pipeline = get_unmasked_pipeline (stex, paint_context, paint_tex);
         }
       else
         {
-          blended_pipeline = get_masked_pipeline (stex, ctx, paint_tex);
+          blended_pipeline = get_masked_pipeline (stex, paint_context, paint_tex);
           cogl_pipeline_set_layer_texture (blended_pipeline, n_planes, stex->mask_texture);
           cogl_pipeline_set_layer_filters (blended_pipeline, n_planes, min_filter, mag_filter);
         }
@@ -932,7 +937,7 @@ do_paint_content (MetaShapedTexture   *stex,
                 {
                   CoglPipeline *blended_overlay_pipeline;
 
-                  blended_overlay_pipeline = get_blended_overlay_pipeline (ctx);
+                  blended_overlay_pipeline = get_blended_overlay_pipeline (paint_context);
                   paint_clipped_rectangle_node (stex, root_node,
                                                 blended_overlay_pipeline,
                                                 &rect, alloc);
@@ -955,7 +960,7 @@ do_paint_content (MetaShapedTexture   *stex,
               CoglPipeline *blended_overlay_pipeline;
               g_autoptr (ClutterPaintNode) node_overlay = NULL;
 
-              blended_overlay_pipeline = get_blended_overlay_pipeline (ctx);
+              blended_overlay_pipeline = get_blended_overlay_pipeline (paint_context);
 
               node_overlay = clutter_pipeline_node_new (blended_overlay_pipeline);
               clutter_paint_node_set_static_name (node_overlay,
