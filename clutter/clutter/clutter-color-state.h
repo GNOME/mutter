@@ -48,4 +48,8 @@ ClutterColorspace clutter_color_state_get_colorspace (ClutterColorState *color_s
 CLUTTER_EXPORT
 ClutterTransferFunction clutter_color_state_get_transfer_function (ClutterColorState *color_state);
 
+CLUTTER_EXPORT
+CoglSnippet * clutter_color_state_get_transform_snippet (ClutterColorState *color_state,
+                                                         ClutterColorState *target_color_state);
+
 G_END_DECLS
