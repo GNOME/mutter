@@ -41,6 +41,7 @@
 #include "cogl/cogl-profile.h"
 #include "cogl/cogl-attribute-private.h"
 #include "cogl/cogl-point-in-poly-private.h"
+#include "cogl/cogl-trace.h"
 #include "cogl/cogl-private.h"
 #include "cogl/cogl1-context.h"
 
@@ -1380,6 +1381,8 @@ _cogl_journal_flush (CoglJournal *journal)
                      "flush: discard",
                      "The time spent discarding the Cogl journal after a flush",
                      0 /* no application private data */);
+
+  COGL_TRACE_BEGIN_SCOPED (Flush, "Cogl::Journal::flush()");
 
   if (journal->entries->len == 0)
     {
