@@ -49,6 +49,7 @@
 #include "cogl/cogl1-context.h"
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-primitives-private.h"
+#include "cogl/cogl-trace.h"
 #include "cogl/winsys/cogl-winsys-private.h"
 
 enum
@@ -1688,6 +1689,8 @@ cogl_framebuffer_finish (CoglFramebuffer *framebuffer)
   CoglFramebufferPrivate *priv =
     cogl_framebuffer_get_instance_private (framebuffer);
 
+  COGL_TRACE_BEGIN_SCOPED (Finish, "Cogl::Framebuffer::finish()");
+
   _cogl_framebuffer_flush_journal (framebuffer);
 
   cogl_framebuffer_driver_finish (priv->driver);
@@ -1698,6 +1701,8 @@ cogl_framebuffer_flush (CoglFramebuffer *framebuffer)
 {
   CoglFramebufferPrivate *priv =
     cogl_framebuffer_get_instance_private (framebuffer);
+
+  COGL_TRACE_BEGIN_SCOPED (Flush, "Cogl::Framebuffer::flush()");
 
   _cogl_framebuffer_flush_journal (framebuffer);
 
