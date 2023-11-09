@@ -25,8 +25,8 @@
 static WaylandDisplay *display;
 static struct wl_surface *toplevel_surface, *child_surface, *grandchild_surface;
 static struct wl_subsurface *child, *grandchild;
-static struct xdg_surface *xdg_surface;
-static struct xdg_toplevel *xdg_toplevel;
+static struct xdg_surface *test_xdg_surface;
+static struct xdg_toplevel *test_xdg_toplevel;
 
 static gboolean waiting_for_configure = FALSE;
 static gboolean fullscreen = 0;
@@ -130,13 +130,13 @@ main (int    argc,
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER);
 
   toplevel_surface = wl_compositor_create_surface (display->compositor);
-  xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, toplevel_surface);
-  xdg_surface_add_listener (xdg_surface, &xdg_surface_listener, NULL);
-  xdg_toplevel = xdg_surface_get_toplevel (xdg_surface);
-  xdg_toplevel_add_listener (xdg_toplevel, &xdg_toplevel_listener, NULL);
-  xdg_toplevel_set_title (xdg_toplevel, "subsurface-corner-cases");
+  test_xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, toplevel_surface);
+  xdg_surface_add_listener (test_xdg_surface, &xdg_surface_listener, NULL);
+  test_xdg_toplevel = xdg_surface_get_toplevel (test_xdg_surface);
+  xdg_toplevel_add_listener (test_xdg_toplevel, &xdg_toplevel_listener, NULL);
+  xdg_toplevel_set_title (test_xdg_toplevel, "subsurface-corner-cases");
 
-  xdg_toplevel_set_fullscreen (xdg_toplevel, NULL);
+  xdg_toplevel_set_fullscreen (test_xdg_toplevel, NULL);
   wl_surface_commit (toplevel_surface);
   wait_for_configure ();
 

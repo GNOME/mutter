@@ -370,15 +370,15 @@ meta_dbus_session_manager_create_session (MetaDbusSessionManager  *session_manag
       GValue value = G_VALUE_INIT;
       GParamSpec *pspec;
       GType ptype;
-      gchar *error = NULL;
+      gchar *error_message = NULL;
 
       pspec = g_object_class_find_property (object_class,
                                             property_name);
       g_assert (pspec);
 
       ptype = G_PARAM_SPEC_VALUE_TYPE (pspec);
-      G_VALUE_COLLECT_INIT (&value, ptype, var_args, 0, &error);
-      g_assert (!error);
+      G_VALUE_COLLECT_INIT (&value, ptype, var_args, 0, &error_message);
+      g_assert (!error_message);
 
       g_array_append_val (names, property_name);
       g_array_append_val (values, value);

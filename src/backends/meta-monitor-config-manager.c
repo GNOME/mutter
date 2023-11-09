@@ -1321,12 +1321,12 @@ create_for_switch_config_all_mirror (MetaMonitorConfigManager *config_manager)
 
   for (l = monitors; l; l = l->next)
     {
-      MetaMonitor *monitor = l->data;
+      MetaMonitor *other_monitor = l->data;
       MetaMonitorMode *mode = NULL;
       GList *ll;
       float scale;
 
-      for (ll = meta_monitor_get_modes (monitor); ll; ll = ll->next)
+      for (ll = meta_monitor_get_modes (other_monitor); ll; ll = ll->next)
         {
           gint mode_w, mode_h;
 
@@ -1340,10 +1340,10 @@ create_for_switch_config_all_mirror (MetaMonitorConfigManager *config_manager)
       if (!mode)
         continue;
 
-      scale = compute_scale_for_monitor (config_manager, monitor,
+      scale = compute_scale_for_monitor (config_manager, other_monitor,
                                          primary_monitor);
       best_scale = MAX (best_scale, scale);
-      monitor_configs = g_list_prepend (monitor_configs, create_monitor_config (monitor, mode));
+      monitor_configs = g_list_prepend (monitor_configs, create_monitor_config (other_monitor, mode));
     }
 
   scale_logical_monitor_width (layout_mode, best_scale,

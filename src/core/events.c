@@ -333,10 +333,6 @@ meta_display_handle_event (MetaDisplay        *display,
 
   if (event_type == CLUTTER_MOTION)
     {
-      ClutterInputDevice *device;
-
-      device = clutter_event_get_device (event);
-
 #ifdef HAVE_WAYLAND
       if (wayland_compositor)
         {

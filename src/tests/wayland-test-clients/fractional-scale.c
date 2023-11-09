@@ -24,9 +24,9 @@
 #include "wayland-test-client-utils.h"
 
 static WaylandDisplay *display;
-static struct wl_surface *surface;
-static struct xdg_surface *xdg_surface;
-static struct xdg_toplevel *xdg_toplevel;
+static struct wl_surface *wl_surface;
+static struct xdg_surface *test_xdg_surface;
+static struct xdg_toplevel *test_xdg_toplevel;
 static struct wp_viewport *viewport;
 static struct wp_fractional_scale_v1 *fractional_scale_obj;
 
@@ -68,13 +68,13 @@ maybe_redraw (void)
   buffer_width = ceilf (logical_width * fractional_buffer_scale);
   buffer_height = ceilf (logical_height * fractional_buffer_scale);
 
-  draw_surface (display, surface, buffer_width, buffer_height, 0x1f109f20);
+  draw_surface (display, wl_surface, buffer_width, buffer_height, 0x1f109f20);
   wp_viewport_set_destination (viewport, logical_width, logical_height);
 
-  callback = wl_surface_frame (surface);
+  callback = wl_surface_frame (wl_surface);
   wl_callback_add_listener (callback, &frame_listener, NULL);
 
-  wl_surface_commit (surface);
+  wl_surface_commit (wl_surface);
 
   waiting_for_configure = TRUE;
   waiting_for_scale = TRUE;
@@ -123,7 +123,7 @@ static const struct xdg_surface_listener xdg_surface_listener = {
 };
 
 static void handle_preferred_scale (void                          *data,
-                                    struct wp_fractional_scale_v1 *fractional_scale_obj,
+                                    struct wp_fractional_scale_v1 *fractional_scale,
                                     uint32_t                       wire_scale)
 {
   float new_fractional_buffer_scale;
@@ -149,23 +149,23 @@ main (int    argc,
 {
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER);
 
-  surface = wl_compositor_create_surface (display->compositor);
-  xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, surface);
-  xdg_surface_add_listener (xdg_surface, &xdg_surface_listener, NULL);
-  xdg_toplevel = xdg_surface_get_toplevel (xdg_surface);
-  xdg_toplevel_add_listener (xdg_toplevel, &xdg_toplevel_listener, NULL);
-  xdg_toplevel_set_title (xdg_toplevel, "fractional-scale");
-  xdg_toplevel_set_fullscreen (xdg_toplevel, NULL);
+  wl_surface = wl_compositor_create_surface (display->compositor);
+  test_xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, wl_surface);
+  xdg_surface_add_listener (test_xdg_surface, &xdg_surface_listener, NULL);
+  test_xdg_toplevel = xdg_surface_get_toplevel (test_xdg_surface);
+  xdg_toplevel_add_listener (test_xdg_toplevel, &xdg_toplevel_listener, NULL);
+  xdg_toplevel_set_title (test_xdg_toplevel, "fractional-scale");
+  xdg_toplevel_set_fullscreen (test_xdg_toplevel, NULL);
 
-  viewport = wp_viewporter_get_viewport (display->viewporter, surface);
+  viewport = wp_viewporter_get_viewport (display->viewporter, wl_surface);
   fractional_scale_obj =
     wp_fractional_scale_manager_v1_get_fractional_scale (display->fractional_scale_mgr,
-                                                         surface);
+                                                         wl_surface);
   wp_fractional_scale_v1_add_listener (fractional_scale_obj,
                                        &fractional_scale_listener,
                                        NULL);
 
-  wl_surface_commit (surface);
+  wl_surface_commit (wl_surface);
 
   waiting_for_configure = TRUE;
   waiting_for_scale = FALSE;

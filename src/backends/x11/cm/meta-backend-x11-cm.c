@@ -408,7 +408,6 @@ meta_backend_x11_cm_handle_host_xevent (MetaBackendX11 *x11,
     {
       MetaCompositor *compositor = display->compositor;
       MetaCompositorX11 *compositor_x11 = META_COMPOSITOR_X11 (compositor);
-      Display *xdisplay = meta_backend_x11_get_xdisplay (x11);
 
       if (meta_dnd_handle_xdnd_event (backend, compositor_x11,
                                       xdisplay, event))

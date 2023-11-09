@@ -1900,21 +1900,21 @@ meta_display_ping_window (MetaWindow *window,
 
   for (l = display->pending_pings; l; l = l->next)
     {
-      MetaPingData *ping_data = l->data;
+      MetaPingData *pending_ping_data = l->data;
 
-      if (window == ping_data->window)
+      if (window == pending_ping_data->window)
         {
           meta_topic (META_DEBUG_PING,
                       "Window %s already is being pinged with serial %u",
-                      window->desc, ping_data->serial);
+                      window->desc, pending_ping_data->serial);
           return;
         }
 
-      if (serial == ping_data->serial)
+      if (serial == pending_ping_data->serial)
         {
           meta_warning ("Ping serial %u was reused for window %s, "
                         "previous use was for window %s.",
-                        serial, window->desc, ping_data->window->desc);
+                        serial, window->desc, pending_ping_data->window->desc);
           return;
         }
     }
@@ -3239,9 +3239,9 @@ check_fullscreen_func (gpointer data)
     {
       /* DOCK window stacking depends on the monitor's fullscreen
          status so we need to trigger a re-layering. */
-      MetaWindow *window = meta_stack_get_top (display->stack);
-      if (window)
-        meta_stack_update_layer (display->stack, window);
+      MetaWindow *top_window = meta_stack_get_top (display->stack);
+      if (top_window)
+        meta_stack_update_layer (display->stack, top_window);
 
       g_signal_emit (display, display_signals[IN_FULLSCREEN_CHANGED], 0, NULL);
     }

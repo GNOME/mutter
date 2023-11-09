@@ -95,10 +95,6 @@ cursor_sprite_prepare_at (MetaCursorSprite         *cursor_sprite,
 
   if (!meta_wayland_surface_is_xwayland (surface))
     {
-      MetaWaylandSurfaceRole *surface_role =
-        META_WAYLAND_SURFACE_ROLE (cursor_surface);
-      MetaWaylandSurface *surface =
-        meta_wayland_surface_role_get_surface (surface_role);
       MetaContext *context =
         meta_wayland_compositor_get_context (surface->compositor);
       MetaBackend *backend = meta_context_get_backend (context);

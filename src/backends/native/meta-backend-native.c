@@ -655,7 +655,7 @@ init_gpus (MetaBackendNative  *native,
   for (l = devices; l; l = l->next)
     {
       GUdevDevice *device = l->data;
-      GError *local_error = NULL;
+      GError *device_error = NULL;
 
       if (should_ignore_device (native, device))
         {
@@ -664,25 +664,25 @@ init_gpus (MetaBackendNative  *native,
           continue;
         }
 
-      if (!add_drm_device (native, device, &local_error))
+      if (!add_drm_device (native, device, &device_error))
         {
           if (meta_backend_is_headless (backend) &&
-              g_error_matches (local_error, G_IO_ERROR,
+              g_error_matches (device_error, G_IO_ERROR,
                                G_IO_ERROR_PERMISSION_DENIED))
             {
               meta_topic (META_DEBUG_BACKEND,
                           "Ignoring unavailable gpu '%s': %s'",
                           g_udev_device_get_device_file (device),
-                          local_error->message);
+                          device_error->message);
             }
           else
             {
               g_warning ("Failed to open gpu '%s': %s",
                          g_udev_device_get_device_file (device),
-                         local_error->message);
+                         device_error->message);
             }
 
-          g_clear_error (&local_error);
+          g_clear_error (&device_error);
           continue;
         }
     }

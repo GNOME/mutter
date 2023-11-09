@@ -415,6 +415,7 @@ xserver_died (GObject      *source,
         return;
 
       g_warning ("Failed to finish waiting for Xwayland: %s", error->message);
+      g_clear_error (&error);
     }
 
   x11_display_policy =
@@ -433,8 +434,6 @@ xserver_died (GObject      *source,
     }
   else if (x11_display_policy == META_X11_DISPLAY_POLICY_ON_DEMAND)
     {
-      g_autoptr (GError) error = NULL;
-
       if (display->x11_display)
         meta_display_shutdown_x11 (display);
 

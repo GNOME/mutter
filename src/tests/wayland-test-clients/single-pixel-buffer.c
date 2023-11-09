@@ -23,9 +23,9 @@
 #include "wayland-test-client-utils.h"
 
 static WaylandDisplay *display;
-static struct wl_surface *surface;
-static struct xdg_surface *xdg_surface;
-static struct xdg_toplevel *xdg_toplevel;
+static struct wl_surface *wl_surface;
+static struct xdg_surface *test_xdg_surface;
+static struct xdg_toplevel *test_xdg_toplevel;
 static struct wl_buffer *buffer;
 static struct wl_surface *subsurface_surface;
 static struct wl_subsurface *subsurface;
@@ -132,17 +132,17 @@ main (int    argc,
 
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER);
 
-  surface = wl_compositor_create_surface (display->compositor);
-  xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, surface);
-  xdg_surface_add_listener (xdg_surface, &xdg_surface_listener, NULL);
-  xdg_toplevel = xdg_surface_get_toplevel (xdg_surface);
-  xdg_toplevel_add_listener (xdg_toplevel, &xdg_toplevel_listener, NULL);
+  wl_surface = wl_compositor_create_surface (display->compositor);
+  test_xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, wl_surface);
+  xdg_surface_add_listener (test_xdg_surface, &xdg_surface_listener, NULL);
+  test_xdg_toplevel = xdg_surface_get_toplevel (test_xdg_surface);
+  xdg_toplevel_add_listener (test_xdg_toplevel, &xdg_toplevel_listener, NULL);
 
-  xdg_toplevel_set_fullscreen (xdg_toplevel, NULL);
-  wl_surface_commit (surface);
+  xdg_toplevel_set_fullscreen (test_xdg_toplevel, NULL);
+  wl_surface_commit (wl_surface);
   wait_for_configure ();
 
-  viewport = wp_viewporter_get_viewport (display->viewporter, surface);
+  viewport = wp_viewporter_get_viewport (display->viewporter, wl_surface);
   wp_viewport_set_destination (viewport, window_width, window_height);
 
   buffer =
@@ -152,9 +152,9 @@ main (int    argc,
                                                               0xffffffff,
                                                               0xffffffff);
   wl_buffer_add_listener (buffer, &buffer_listener, NULL);
-  wl_surface_attach (surface, buffer, 0, 0);
-  wl_surface_commit (surface);
-  wait_for_effects_completed (display, surface);
+  wl_surface_attach (wl_surface, buffer, 0, 0);
+  wl_surface_commit (wl_surface);
+  wait_for_effects_completed (display, wl_surface);
   wait_for_view_verified (display, 0);
 
   wait_for_buffer_released ();
@@ -162,10 +162,10 @@ main (int    argc,
   subsurface_surface = wl_compositor_create_surface (display->compositor);
   subsurface = wl_subcompositor_get_subsurface (display->subcompositor,
                                                 subsurface_surface,
-                                                surface);
+                                                wl_surface);
   wl_subsurface_set_desync (subsurface);
   wl_subsurface_set_position (subsurface, 20, 20);
-  wl_surface_commit (surface);
+  wl_surface_commit (wl_surface);
 
   subsurface_viewport = wp_viewporter_get_viewport (display->viewporter,
                                                     subsurface_surface);

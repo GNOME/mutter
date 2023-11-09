@@ -255,9 +255,9 @@ meta_window_actor_wayland_rebuild_surface_tree (MetaWindowActor *actor)
 
       if (!g_list_find (surface_actors, child_actor))
         {
-          MetaSurfaceActor *surface_actor = META_SURFACE_ACTOR (child_actor);
+          MetaSurfaceActor *child_surface_actor = META_SURFACE_ACTOR (child_actor);
 
-          meta_window_actor_remove_surface_actor (actor, surface_actor);
+          meta_window_actor_remove_surface_actor (actor, child_surface_actor);
           clutter_actor_remove_child (CLUTTER_ACTOR (self->surface_container),
                                       child_actor);
         }

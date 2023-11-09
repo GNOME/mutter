@@ -36,9 +36,9 @@ typedef enum _State
 
 static WaylandDisplay *display;
 
-static struct wl_surface *surface;
-static struct xdg_surface *xdg_surface;
-static struct xdg_toplevel *xdg_toplevel;
+static struct wl_surface *wl_surface;
+static struct xdg_surface *test_xdg_surface;
+static struct xdg_toplevel *test_xdg_toplevel;
 
 static struct wl_surface *subsurface_surface;
 static struct wl_subsurface *subsurface;
@@ -52,7 +52,7 @@ static void init_surfaces (void);
 static void
 draw_main (void)
 {
-  draw_surface (display, surface, 700, 500, 0xff00ff00);
+  draw_surface (display, wl_surface, 700, 500, 0xff00ff00);
 }
 
 static void
@@ -66,7 +66,7 @@ handle_xdg_toplevel_configure (void                *data,
                                struct xdg_toplevel *xdg_toplevel,
                                int32_t              width,
                                int32_t              height,
-                               struct wl_array     *state)
+                               struct wl_array     *configure_state)
 {
 }
 
@@ -105,12 +105,12 @@ reset_surface (void)
 {
   struct wl_callback *callback;
 
-  callback = test_driver_sync_actor_destroyed (display->test_driver, surface);
+  callback = test_driver_sync_actor_destroyed (display->test_driver, wl_surface);
   wl_callback_add_listener (callback, &actor_destroy_listener, NULL);
 
-  xdg_toplevel_destroy (xdg_toplevel);
-  xdg_surface_destroy (xdg_surface);
-  wl_surface_destroy (surface);
+  xdg_toplevel_destroy (test_xdg_toplevel);
+  xdg_surface_destroy (test_xdg_surface);
+  wl_surface_destroy (wl_surface);
 
   state = STATE_WAIT_FOR_ACTOR_DESTROYED;
 }
@@ -159,9 +159,9 @@ handle_xdg_surface_configure (void               *data,
     }
 
   xdg_surface_ack_configure (xdg_surface, serial);
-  frame_callback = wl_surface_frame (surface);
+  frame_callback = wl_surface_frame (wl_surface);
   wl_callback_add_listener (frame_callback, &frame_listener, NULL);
-  wl_surface_commit (surface);
+  wl_surface_commit (wl_surface);
   wl_display_flush (display->display);
 }
 
@@ -172,18 +172,18 @@ static const struct xdg_surface_listener xdg_surface_listener = {
 static void
 init_surfaces (void)
 {
-  surface = wl_compositor_create_surface (display->compositor);
-  xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, surface);
-  xdg_surface_add_listener (xdg_surface, &xdg_surface_listener, NULL);
-  xdg_toplevel = xdg_surface_get_toplevel (xdg_surface);
-  xdg_toplevel_add_listener (xdg_toplevel, &xdg_toplevel_listener, NULL);
-  xdg_toplevel_set_title (xdg_toplevel, "subsurface-reparenting-test");
+  wl_surface = wl_compositor_create_surface (display->compositor);
+  test_xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, wl_surface);
+  xdg_surface_add_listener (test_xdg_surface, &xdg_surface_listener, NULL);
+  test_xdg_toplevel = xdg_surface_get_toplevel (test_xdg_surface);
+  xdg_toplevel_add_listener (test_xdg_toplevel, &xdg_toplevel_listener, NULL);
+  xdg_toplevel_set_title (test_xdg_toplevel, "subsurface-reparenting-test");
 
   subsurface = wl_subcompositor_get_subsurface (display->subcompositor,
                                                 subsurface_surface,
-                                                surface);
+                                                wl_surface);
   wl_subsurface_set_position (subsurface, 100, 100);
-  wl_surface_commit (surface);
+  wl_surface_commit (wl_surface);
 }
 
 int

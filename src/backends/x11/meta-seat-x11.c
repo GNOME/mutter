@@ -2297,7 +2297,7 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
 
         if (clutter_input_device_get_device_type (source_device) == CLUTTER_PAD_DEVICE)
           {
-            uint32_t button, group = 0, mode = 0;
+            uint32_t pad_button, group = 0, mode = 0;
 
             /* We got these events because of the passive button grab */
             XIAllowEvents (xdisplay, xev->sourceid, XIAsyncDevice, xev->time);
@@ -2316,11 +2316,11 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
               xev->detail -= 4;
 
             /* Pad buttons are 0-indexed */
-            button = xev->detail - 1;
+            pad_button = xev->detail - 1;
 
 #ifdef HAVE_LIBWACOM
             meta_input_device_x11_update_pad_state (device,
-                                                    button,
+                                                    pad_button,
                                                     (xi_event->evtype == XI_ButtonPress),
                                                     &group,
                                                     &mode);
@@ -2332,7 +2332,7 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
                                                   CLUTTER_EVENT_NONE,
                                                   us2ms (xev->time),
                                                   source_device,
-                                                  button,
+                                                  pad_button,
                                                   group,
                                                   mode);
 
@@ -2345,7 +2345,7 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
                      meta_input_device_x11_get_device_id (device),
                      clutter_input_device_get_device_name (device),
                      xev->time,
-                     button);
+                     pad_button);
             break;
           }
 

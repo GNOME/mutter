@@ -24,13 +24,13 @@
 #include "wayland-test-client-utils.h"
 
 static WaylandDisplay *display;
-static struct wl_registry *registry;
-static struct wl_seat *seat;
-static struct wl_pointer *pointer;
+static struct wl_registry *wl_registry;
+static struct wl_seat *wl_seat;
+static struct wl_pointer *wl_pointer;
 
 static struct wl_surface *toplevel_surface;
 static struct xdg_surface *toplevel_xdg_surface;
-static struct xdg_toplevel *xdg_toplevel;
+static struct xdg_toplevel *test_xdg_toplevel;
 
 static struct wl_surface *popup_surface;
 static struct xdg_surface *popup_xdg_surface;
@@ -181,7 +181,7 @@ pointer_handle_button (void              *data,
   xdg_popup = xdg_surface_get_popup (popup_xdg_surface, toplevel_xdg_surface,
                                      positioner);
   xdg_positioner_destroy (positioner);
-  xdg_popup_grab (xdg_popup, seat, serial);
+  xdg_popup_grab (xdg_popup, wl_seat, serial);
   wl_surface_commit (popup_surface);
 
   if (click_count == 1)
@@ -216,13 +216,13 @@ static const struct wl_pointer_listener pointer_listener = {
 
 static void
 seat_handle_capabilities (void                    *data,
-                          struct wl_seat          *wl_seat,
+                          struct wl_seat          *seat,
                           enum wl_seat_capability  caps)
 {
   if (caps & WL_SEAT_CAPABILITY_POINTER)
     {
-      pointer = wl_seat_get_pointer (wl_seat);
-      wl_pointer_add_listener (pointer, &pointer_listener, NULL);
+      wl_pointer = wl_seat_get_pointer (seat);
+      wl_pointer_add_listener (wl_pointer, &pointer_listener, NULL);
     }
 }
 
@@ -239,7 +239,7 @@ static const struct wl_seat_listener seat_listener = {
 };
 
 static void
-on_sync_event (WaylandDisplay *display,
+on_sync_event (WaylandDisplay *wl_display,
                uint32_t        serial)
 {
   g_assert (serial == 0);
@@ -265,8 +265,8 @@ handle_registry_global (void               *data,
 {
   if (strcmp (interface, "wl_seat") == 0)
     {
-      seat = wl_registry_bind (registry, id, &wl_seat_interface, 1);
-      wl_seat_add_listener (seat, &seat_listener, NULL);
+      wl_seat = wl_registry_bind (registry, id, &wl_seat_interface, 1);
+      wl_seat_add_listener (wl_seat, &seat_listener, NULL);
     }
 }
 
@@ -290,8 +290,8 @@ main (int    argc,
 
   g_signal_connect (display, "sync-event", G_CALLBACK (on_sync_event), NULL);
 
-  registry = wl_display_get_registry (display->display);
-  wl_registry_add_listener (registry, &registry_listener, NULL);
+  wl_registry = wl_display_get_registry (display->display);
+  wl_registry_add_listener (wl_registry, &registry_listener, NULL);
   wl_display_roundtrip (display->display);
   wl_display_roundtrip (display->display);
 
@@ -312,9 +312,9 @@ main (int    argc,
                                                       toplevel_surface);
   xdg_surface_add_listener (toplevel_xdg_surface,
                             &toplevel_xdg_surface_listener, NULL);
-  xdg_toplevel = xdg_surface_get_toplevel (toplevel_xdg_surface);
-  xdg_toplevel_add_listener (xdg_toplevel, &xdg_toplevel_listener, NULL);
-  xdg_toplevel_set_title (xdg_toplevel, "subsurface-parent-unmapped");
+  test_xdg_toplevel = xdg_surface_get_toplevel (toplevel_xdg_surface);
+  xdg_toplevel_add_listener (test_xdg_toplevel, &xdg_toplevel_listener, NULL);
+  xdg_toplevel_set_title (test_xdg_toplevel, "subsurface-parent-unmapped");
   wl_surface_commit (toplevel_surface);
 
   popup_surface = wl_compositor_create_surface (display->compositor);

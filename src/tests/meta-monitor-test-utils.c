@@ -543,10 +543,10 @@ meta_check_monitor_configuration (MetaContext           *context,
   all_crtcs = NULL;
   for (l = meta_backend_get_gpus (backend); l; l = l->next)
     {
-      MetaGpu *gpu = l->data;
+      MetaGpu *current_gpu = l->data;
 
       all_crtcs = g_list_concat (all_crtcs,
-                                 g_list_copy (meta_gpu_get_crtcs (gpu)));
+                                 g_list_copy (meta_gpu_get_crtcs (current_gpu)));
     }
 
   for (i = 0; i < expect->n_logical_monitors; i++)

@@ -32,9 +32,6 @@ typedef enum _ServiceClientType
   SERVICE_CLIENT_TYPE_PORTAL_BACKEND,
 } ServiceClientType;
 
-static WaylandDisplay *display;
-static WaylandSurface *surface;
-
 static void
 on_sync_event (WaylandDisplay *display,
                uint32_t        serial,
@@ -51,6 +48,9 @@ main (int    argc,
   g_autoptr (MetaDBusServiceChannel) service_channel = NULL;
   g_autoptr (GVariant) fd_variant = NULL;
   g_autoptr (GUnixFDList) fd_list = NULL;
+  g_autoptr (WaylandDisplay) display = NULL;
+  g_autoptr (WaylandSurface) surface = NULL;
+
   int fd;
   struct wl_display *wayland_display;
   uint32_t last_sync_event = UINT32_MAX;
@@ -92,7 +92,4 @@ main (int    argc,
       if (wl_display_dispatch (display->display) == -1)
         return EXIT_FAILURE;
     }
-
-  g_object_unref (surface);
-  g_object_unref (display);
 }

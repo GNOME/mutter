@@ -164,10 +164,10 @@ meta_monitor_manager_native_ensure_initial_config (MetaMonitorManager *manager)
 
 static void
 apply_crtc_assignments (MetaMonitorManager    *manager,
-                        MetaCrtcAssignment   **crtcs,
-                        unsigned int           n_crtcs,
-                        MetaOutputAssignment **outputs,
-                        unsigned int           n_outputs)
+                        MetaCrtcAssignment   **crtc_assignments,
+                        unsigned int           n_crtc_assignments,
+                        MetaOutputAssignment **output_assignments,
+                        unsigned int           n_output_assignments)
 {
   MetaBackend *backend = meta_monitor_manager_get_backend (manager);
   g_autoptr (GList) to_configure_outputs = NULL;
@@ -200,9 +200,9 @@ apply_crtc_assignments (MetaMonitorManager    *manager,
       to_configure_crtcs = g_list_append (to_configure_crtcs, crtc);
     }
 
-  for (i = 0; i < n_crtcs; i++)
+  for (i = 0; i < n_crtc_assignments; i++)
     {
-      MetaCrtcAssignment *crtc_assignment = crtcs[i];
+      MetaCrtcAssignment *crtc_assignment = crtc_assignments[i];
       MetaCrtc *crtc = crtc_assignment->crtc;
 
       to_configure_crtcs = g_list_remove (to_configure_crtcs, crtc);
@@ -231,8 +231,8 @@ apply_crtc_assignments (MetaMonitorManager    *manager,
               to_configure_outputs = g_list_remove (to_configure_outputs,
                                                     output);
 
-              output_assignment = meta_find_output_assignment (outputs,
-                                                               n_outputs,
+              output_assignment = meta_find_output_assignment (output_assignments,
+                                                               n_output_assignments,
                                                                output);
               meta_output_assign_crtc (output, crtc, output_assignment);
             }

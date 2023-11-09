@@ -31,9 +31,9 @@ typedef enum _State
 
 static WaylandDisplay *display;
 
-static struct wl_surface *surface;
-static struct xdg_surface *xdg_surface;
-static struct xdg_toplevel *xdg_toplevel;
+static struct wl_surface *wl_surface;
+static struct xdg_surface *test_xdg_surface;
+static struct xdg_toplevel *test_xdg_toplevel;
 
 static struct wl_callback *frame_callback;
 
@@ -46,15 +46,15 @@ static int32_t pending_bounds_height;
 static void
 init_surface (void)
 {
-  xdg_toplevel_set_title (xdg_toplevel, "toplevel-bounds-test");
-  wl_surface_commit (surface);
+  xdg_toplevel_set_title (test_xdg_toplevel, "toplevel-bounds-test");
+  wl_surface_commit (wl_surface);
 }
 
 static void
 draw_main (int width,
            int height)
 {
-  draw_surface (display, surface, width, height, 0xff00ff00);
+  draw_surface (display, wl_surface, width, height, 0xff00ff00);
 }
 
 static void
@@ -62,7 +62,7 @@ handle_xdg_toplevel_configure (void                *data,
                                struct xdg_toplevel *xdg_toplevel,
                                int32_t              width,
                                int32_t              height,
-                               struct wl_array     *state)
+                               struct wl_array     *configure_state)
 {
 }
 
@@ -131,9 +131,9 @@ handle_xdg_surface_configure (void               *data,
     }
 
   xdg_surface_ack_configure (xdg_surface, serial);
-  frame_callback = wl_surface_frame (surface);
+  frame_callback = wl_surface_frame (wl_surface);
   wl_callback_add_listener (frame_callback, &frame_listener, NULL);
-  wl_surface_commit (surface);
+  wl_surface_commit (wl_surface);
   wl_display_flush (display->display);
 }
 
@@ -142,7 +142,7 @@ static const struct xdg_surface_listener xdg_surface_listener = {
 };
 
 static void
-on_sync_event (WaylandDisplay *display,
+on_sync_event (WaylandDisplay *wl_display,
                uint32_t        serial)
 {
   g_assert (serial == 0);
@@ -158,16 +158,16 @@ main (int    argc,
                                  WAYLAND_DISPLAY_CAPABILITY_XDG_SHELL_V4);
   g_signal_connect (display, "sync-event", G_CALLBACK (on_sync_event), NULL);
 
-  surface = wl_compositor_create_surface (display->compositor);
-  xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, surface);
-  xdg_surface_add_listener (xdg_surface, &xdg_surface_listener, NULL);
-  xdg_toplevel = xdg_surface_get_toplevel (xdg_surface);
-  xdg_toplevel_add_listener (xdg_toplevel, &xdg_toplevel_listener, NULL);
+  wl_surface = wl_compositor_create_surface (display->compositor);
+  test_xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, wl_surface);
+  xdg_surface_add_listener (test_xdg_surface, &xdg_surface_listener, NULL);
+  test_xdg_toplevel = xdg_surface_get_toplevel (test_xdg_surface);
+  xdg_toplevel_add_listener (test_xdg_toplevel, &xdg_toplevel_listener, NULL);
 
   init_surface ();
   state = STATE_WAIT_FOR_CONFIGURE_1;
 
-  wl_surface_commit (surface);
+  wl_surface_commit (wl_surface);
 
   running = TRUE;
   while (running)

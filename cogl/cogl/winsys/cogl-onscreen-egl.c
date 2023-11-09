@@ -305,8 +305,8 @@ cogl_onscreen_egl_swap_buffers_with_damage (CoglOnscreen  *onscreen,
      and just returns an error if this is not the case so we can't
      just pretend this isn't in the spec. */
   cogl_context_flush_framebuffer_state (context,
-                                        COGL_FRAMEBUFFER (onscreen),
-                                        COGL_FRAMEBUFFER (onscreen),
+                                        framebuffer,
+                                        framebuffer,
                                         COGL_FRAMEBUFFER_STATE_BIND);
 
   if (cogl_has_feature (context, COGL_FEATURE_ID_TIMESTAMP_QUERY))
@@ -317,14 +317,13 @@ cogl_onscreen_egl_swap_buffers_with_damage (CoglOnscreen  *onscreen,
 
       /* Set up a timestamp query for when all rendering will be finished. */
       info->timestamp_query =
-        cogl_framebuffer_create_timestamp_query (COGL_FRAMEBUFFER (onscreen));
+        cogl_framebuffer_create_timestamp_query (framebuffer);
 
       info->has_valid_gpu_rendering_duration = TRUE;
     }
 
   if (n_rectangles && priv->pf_eglSwapBuffersWithDamage)
     {
-      CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
       size_t size = n_rectangles * sizeof (int) * 4;
       int *flipped = alloca (size);
       int i;

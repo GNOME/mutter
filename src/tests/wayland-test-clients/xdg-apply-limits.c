@@ -33,9 +33,9 @@ typedef enum _State
 
 static WaylandDisplay *display;
 
-static struct wl_surface *surface;
-static struct xdg_surface *xdg_surface;
-static struct xdg_toplevel *xdg_toplevel;
+static struct wl_surface *wl_surface;
+static struct xdg_surface *test_xdg_surface;
+static struct xdg_toplevel *test_xdg_toplevel;
 
 static struct wl_surface *subsurface_surface;
 static struct wl_subsurface *subsurface;
@@ -49,8 +49,8 @@ static State state;
 static void
 init_surface (void)
 {
-  xdg_toplevel_set_title (xdg_toplevel, "toplevel-limits-test");
-  wl_surface_commit (surface);
+  xdg_toplevel_set_title (test_xdg_toplevel, "toplevel-limits-test");
+  wl_surface_commit (wl_surface);
 }
 
 static void
@@ -78,12 +78,12 @@ reset_surface (void)
   if (display->test_driver)
     {
       callback = test_driver_sync_actor_destroyed (display->test_driver,
-                                                   surface);
+                                                   wl_surface);
       wl_callback_add_listener (callback, &actor_destroy_listener, NULL);
     }
 
-  wl_surface_attach (surface, NULL, 0, 0);
-  wl_surface_commit (surface);
+  wl_surface_attach (wl_surface, NULL, 0, 0);
+  wl_surface_commit (wl_surface);
 
   state = STATE_WAIT_FOR_ACTOR_DESTROYED;
 }
@@ -91,7 +91,7 @@ reset_surface (void)
 static void
 draw_main (void)
 {
-  draw_surface (display, surface, 700, 500, 0xff00ff00);
+  draw_surface (display, wl_surface, 700, 500, 0xff00ff00);
 }
 
 static void
@@ -105,7 +105,7 @@ handle_xdg_toplevel_configure (void                *data,
                                struct xdg_toplevel *xdg_toplevel,
                                int32_t              width,
                                int32_t              height,
-                               struct wl_array     *state)
+                               struct wl_array     *configure_state)
 {
 }
 
@@ -175,9 +175,9 @@ handle_xdg_surface_configure (void               *data,
     }
 
   xdg_surface_ack_configure (xdg_surface, serial);
-  frame_callback = wl_surface_frame (surface);
+  frame_callback = wl_surface_frame (wl_surface);
   wl_callback_add_listener (frame_callback, &frame_listener, NULL);
-  wl_surface_commit (surface);
+  wl_surface_commit (wl_surface);
   wl_display_flush (display->display);
 }
 
@@ -191,16 +191,16 @@ main (int    argc,
 {
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER);
 
-  surface = wl_compositor_create_surface (display->compositor);
-  xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, surface);
-  xdg_surface_add_listener (xdg_surface, &xdg_surface_listener, NULL);
-  xdg_toplevel = xdg_surface_get_toplevel (xdg_surface);
-  xdg_toplevel_add_listener (xdg_toplevel, &xdg_toplevel_listener, NULL);
+  wl_surface = wl_compositor_create_surface (display->compositor);
+  test_xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, wl_surface);
+  xdg_surface_add_listener (test_xdg_surface, &xdg_surface_listener, NULL);
+  test_xdg_toplevel = xdg_surface_get_toplevel (test_xdg_surface);
+  xdg_toplevel_add_listener (test_xdg_toplevel, &xdg_toplevel_listener, NULL);
 
   subsurface_surface = wl_compositor_create_surface (display->compositor);
   subsurface = wl_subcompositor_get_subsurface (display->subcompositor,
                                                 subsurface_surface,
-                                                surface);
+                                                wl_surface);
   wl_subsurface_set_position (subsurface, 100, 100);
   draw_subsurface ();
   wl_surface_commit (subsurface_surface);
@@ -209,9 +209,9 @@ main (int    argc,
   state = STATE_WAIT_FOR_CONFIGURE_1;
 
   /* set minimum and maximum size and commit */
-  xdg_toplevel_set_min_size (xdg_toplevel, 700, 500);
-  xdg_toplevel_set_max_size (xdg_toplevel, 700, 500);
-  wl_surface_commit (surface);
+  xdg_toplevel_set_min_size (test_xdg_toplevel, 700, 500);
+  xdg_toplevel_set_max_size (test_xdg_toplevel, 700, 500);
+  wl_surface_commit (wl_surface);
 
   test_driver_sync_point (display->test_driver, 0, NULL);
 

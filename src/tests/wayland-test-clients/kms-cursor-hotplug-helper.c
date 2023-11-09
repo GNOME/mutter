@@ -30,9 +30,9 @@ static struct wl_seat *wl_seat;
 static struct wl_pointer *wl_pointer;
 static uint32_t enter_serial;
 
-static struct wl_surface *surface;
-static struct xdg_surface *xdg_surface;
-static struct xdg_toplevel *xdg_toplevel;
+static struct wl_surface *wl_surface;
+static struct xdg_surface *test_xdg_surface;
+static struct xdg_toplevel *test_xdg_toplevel;
 struct wl_surface *cursor_surface;
 struct wl_cursor_theme *cursor_theme;
 struct wl_cursor *cursor;
@@ -43,15 +43,15 @@ static gboolean running;
 static void
 init_surface (void)
 {
-  xdg_toplevel_set_title (xdg_toplevel, "kms-cursor-hotplug-helper");
-  wl_surface_commit (surface);
+  xdg_toplevel_set_title (test_xdg_toplevel, "kms-cursor-hotplug-helper");
+  wl_surface_commit (wl_surface);
 }
 
 static void
 draw_main (int width,
            int height)
 {
-  draw_surface (display, surface, width, height, 0xff00ff00);
+  draw_surface (display, wl_surface, width, height, 0xff00ff00);
 }
 
 static void
@@ -91,7 +91,7 @@ handle_xdg_surface_configure (void               *data,
 {
   draw_main (100, 100);
   xdg_surface_ack_configure (xdg_surface, serial);
-  wl_surface_commit (surface);
+  wl_surface_commit (wl_surface);
 }
 
 static const struct xdg_surface_listener xdg_surface_listener = {
@@ -170,12 +170,12 @@ static const struct wl_pointer_listener pointer_listener = {
 
 static void
 seat_handle_capabilities (void                    *data,
-                          struct wl_seat          *wl_seat,
+                          struct wl_seat          *seat,
                           enum wl_seat_capability  caps)
 {
   if (caps & WL_SEAT_CAPABILITY_POINTER)
     {
-      wl_pointer = wl_seat_get_pointer (wl_seat);
+      wl_pointer = wl_seat_get_pointer (seat);
       wl_pointer_add_listener (wl_pointer, &pointer_listener, NULL);
     }
 }
@@ -221,7 +221,7 @@ static const struct wl_registry_listener registry_listener = {
 };
 
 static void
-on_sync_event (WaylandDisplay *display,
+on_sync_event (WaylandDisplay *wl_display,
                uint32_t        serial)
 {
   if (serial == 1)
@@ -258,11 +258,11 @@ main (int    argc,
 
   g_signal_connect (display, "sync-event", G_CALLBACK (on_sync_event), NULL);
 
-  surface = wl_compositor_create_surface (display->compositor);
-  xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, surface);
-  xdg_surface_add_listener (xdg_surface, &xdg_surface_listener, NULL);
-  xdg_toplevel = xdg_surface_get_toplevel (xdg_surface);
-  xdg_toplevel_add_listener (xdg_toplevel, &xdg_toplevel_listener, NULL);
+  wl_surface = wl_compositor_create_surface (display->compositor);
+  test_xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, wl_surface);
+  xdg_surface_add_listener (test_xdg_surface, &xdg_surface_listener, NULL);
+  test_xdg_toplevel = xdg_surface_get_toplevel (test_xdg_surface);
+  xdg_toplevel_add_listener (test_xdg_toplevel, &xdg_toplevel_listener, NULL);
 
   cursor_surface = wl_compositor_create_surface (display->compositor);
   cursor_theme = wl_cursor_theme_load (NULL, 24, display->shm);
@@ -272,7 +272,7 @@ main (int    argc,
   g_assert_nonnull (cursor2);
 
   init_surface ();
-  wl_surface_commit (surface);
+  wl_surface_commit (wl_surface);
 
   running = TRUE;
   while (running)
