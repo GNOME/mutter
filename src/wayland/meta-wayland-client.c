@@ -495,6 +495,43 @@ meta_wayland_client_make_desktop (MetaWaylandClient *client,
   meta_window_set_type (window, META_WINDOW_DESKTOP);
 }
 
+/**
+ * meta_wayland_client_make_dock
+ * @client: a #MetaWaylandClient
+ * @window: (not nullable): a MetaWindow
+ * @gravity: one #MetaGravity, must not be META_GRAVITY_STATIC
+ *
+ * Mark window as DOCK window
+ */
+void
+meta_wayland_client_make_dock (MetaWaylandClient *client,
+                               MetaWindow        *window,
+                               MetaGravity        gravity)
+{
+  MtkRectangle rect = { 0 };
+
+  g_return_if_fail (META_IS_WAYLAND_CLIENT (client));
+  g_return_if_fail (META_IS_WINDOW (window));
+  g_return_if_fail (window->type == META_WINDOW_NORMAL);
+  g_return_if_fail (gravity != META_GRAVITY_STATIC);
+
+  if (!meta_wayland_client_owns_window (client, window))
+    return;
+
+  meta_window_set_type (window, META_WINDOW_DOCK);
+
+  meta_window_get_gravity_position (window,
+                                    gravity,
+                                    &rect.x, &rect.y);
+
+  meta_window_move_resize_internal (window,
+                                    (META_MOVE_RESIZE_MOVE_ACTION |
+                                     META_MOVE_RESIZE_CONSTRAIN),
+                                    META_GRAVITY_NORTH_WEST,
+                                    rect);
+  window->placed = TRUE;
+}
+
 gboolean
 meta_wayland_client_matches (MetaWaylandClient      *client,
                              const struct wl_client *wayland_client)

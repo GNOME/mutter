@@ -64,5 +64,10 @@ META_EXPORT
 void meta_wayland_client_make_desktop (MetaWaylandClient *client,
                                        MetaWindow        *window);
 
+META_EXPORT
+void meta_wayland_client_make_dock (MetaWaylandClient *client,
+                                    MetaWindow        *window,
+                                    MetaGravity        gravity);
+
 G_END_DECLS
 
