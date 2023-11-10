@@ -42,12 +42,12 @@
 #include "clutter/clutter-marshal.h"
 #include "clutter/clutter-private.h"
 
-struct _ClutterRotateActionPrivate
+typedef struct _ClutterRotateActionPrivate
 {
   gfloat initial_vector[2];
   gdouble initial_vector_norm;
   gdouble initial_rotation;
-};
+} ClutterRotateActionPrivate;
 
 enum
 {
@@ -64,7 +64,8 @@ static gboolean
 clutter_rotate_action_gesture_begin (ClutterGestureAction  *action,
                                      ClutterActor          *actor)
 {
-  ClutterRotateActionPrivate *priv = CLUTTER_ROTATE_ACTION (action)->priv;
+  ClutterRotateActionPrivate *priv =
+    clutter_rotate_action_get_instance_private (CLUTTER_ROTATE_ACTION (action));
   gfloat p1[2], p2[2];
 
   /* capture initial vector */
@@ -87,7 +88,8 @@ static gboolean
 clutter_rotate_action_gesture_progress (ClutterGestureAction *action,
                                         ClutterActor         *actor)
 {
-  ClutterRotateActionPrivate *priv = CLUTTER_ROTATE_ACTION (action)->priv;
+  ClutterRotateActionPrivate *priv =
+    clutter_rotate_action_get_instance_private (CLUTTER_ROTATE_ACTION (action));
   gfloat p1[2], p2[2];
   gfloat vector[2];
   gboolean retval;
@@ -126,9 +128,9 @@ clutter_rotate_action_gesture_progress (ClutterGestureAction *action,
       /* The angle given is comprise between 0 and 180 degrees, we
          need some logic on top to get a value between 0 and 360. */
       mult[0] = priv->initial_vector[0] * vector[1] -
-        priv->initial_vector[1] * vector[0];
+                priv->initial_vector[1] * vector[0];
       mult[1] = priv->initial_vector[1] * vector[0] -
-        priv->initial_vector[0] * vector[1];
+                priv->initial_vector[0] * vector[1];
 
       if (mult[0] < 0)
         angle = -angle;
@@ -206,12 +208,8 @@ clutter_rotate_action_class_init (ClutterRotateActionClass *klass)
 static void
 clutter_rotate_action_init (ClutterRotateAction *self)
 {
-  ClutterGestureAction *gesture;
-
-  self->priv = clutter_rotate_action_get_instance_private (self);
-
-  gesture = CLUTTER_GESTURE_ACTION (self);
-  clutter_gesture_action_set_n_touch_points (gesture, 2);
+  clutter_gesture_action_set_n_touch_points (CLUTTER_GESTURE_ACTION (self),
+                                             2);
 }
 
 /**
