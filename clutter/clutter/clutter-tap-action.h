@@ -42,21 +42,13 @@
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_TAP_ACTION               (clutter_tap_action_get_type ())
-#define CLUTTER_TAP_ACTION(obj)               (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_TAP_ACTION, ClutterTapAction))
-#define CLUTTER_IS_TAP_ACTION(obj)            (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_TAP_ACTION))
-#define CLUTTER_TAP_ACTION_CLASS(klass)       (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_TAP_ACTION, ClutterTapActionClass))
-#define CLUTTER_IS_TAP_ACTION_CLASS(klass)    (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_TAP_ACTION))
-#define CLUTTER_TAP_ACTION_GET_CLASS(obj)     (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_TAP_ACTION, ClutterTapActionClass))
 
-typedef struct _ClutterTapAction              ClutterTapAction;
-typedef struct _ClutterTapActionPrivate       ClutterTapActionPrivate;
-typedef struct _ClutterTapActionClass         ClutterTapActionClass;
-
-struct _ClutterTapAction
-{
-  /*< private >*/
-  ClutterGestureAction parent_instance;
-};
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (ClutterTapAction,
+                          clutter_tap_action,
+                          CLUTTER,
+                          TAP_ACTION,
+                          ClutterGestureAction)
 
 /**
  * ClutterTapActionClass:
@@ -74,9 +66,6 @@ struct _ClutterTapActionClass
   gboolean (* tap)               (ClutterTapAction    *action,
                                   ClutterActor        *actor);
 };
-
-CLUTTER_EXPORT
-GType clutter_tap_action_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
 ClutterAction * clutter_tap_action_new   (void);
