@@ -24,7 +24,7 @@
 
 /**
  * ClutterSnapConstraint:
- * 
+ *
  * A constraint snapping two actors together
  *
  * #ClutterSnapConstraint is a constraint the snaps the edges of two
@@ -45,9 +45,6 @@
 #include "clutter/clutter-enum-types.h"
 #include "clutter/clutter-private.h"
 
-#define CLUTTER_SNAP_CONSTRAINT_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_SNAP_CONSTRAINT, ClutterSnapConstraintClass))
-#define CLUTTER_IS_SNAP_CONSTRAINT_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_SNAP_CONSTRAINT))
-#define CLUTTER_SNAP_CONSTRAINT_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_SNAP_CONSTRAINT, ClutterSnapConstraintClass))
 
 struct _ClutterSnapConstraint
 {
@@ -62,11 +59,6 @@ struct _ClutterSnapConstraint
   gfloat offset;
 };
 
-struct _ClutterSnapConstraintClass
-{
-  ClutterConstraintClass parent_class;
-};
-
 enum
 {
   PROP_0,
@@ -79,9 +71,9 @@ enum
   PROP_LAST
 };
 
-G_DEFINE_TYPE (ClutterSnapConstraint,
-               clutter_snap_constraint,
-               CLUTTER_TYPE_CONSTRAINT);
+G_DEFINE_FINAL_TYPE (ClutterSnapConstraint,
+                     clutter_snap_constraint,
+                     CLUTTER_TYPE_CONSTRAINT);
 
 static GParamSpec *obj_props[PROP_LAST] = { NULL, };
 

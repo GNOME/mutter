@@ -33,14 +33,10 @@
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_SNAP_CONSTRAINT    (clutter_snap_constraint_get_type ())
-#define CLUTTER_SNAP_CONSTRAINT(obj)    (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_SNAP_CONSTRAINT, ClutterSnapConstraint))
-#define CLUTTER_IS_SNAP_CONSTRAINT(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_SNAP_CONSTRAINT))
-
-typedef struct _ClutterSnapConstraint           ClutterSnapConstraint;
-typedef struct _ClutterSnapConstraintClass      ClutterSnapConstraintClass;
 
 CLUTTER_EXPORT
-GType clutter_snap_constraint_get_type (void) G_GNUC_CONST;
+G_DECLARE_FINAL_TYPE (ClutterSnapConstraint, clutter_snap_constraint,
+                      CLUTTER, SNAP_CONSTRAINT, ClutterConstraint)
 
 CLUTTER_EXPORT
 ClutterConstraint *     clutter_snap_constraint_new             (ClutterActor          *source,
