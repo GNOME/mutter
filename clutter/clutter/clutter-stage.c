@@ -1627,12 +1627,20 @@ clutter_stage_class_init (ClutterStageClass *klass)
 }
 
 static void
+on_seat_unfocus_inhibited_changed (ClutterStage *stage,
+                                   ClutterSeat  *seat)
+{
+  clutter_stage_repick_device (stage, clutter_seat_get_pointer (seat));
+}
+
+static void
 clutter_stage_init (ClutterStage *self)
 {
   MtkRectangle geom = { 0, };
   ClutterStagePrivate *priv;
   ClutterStageWindow *impl;
   ClutterBackend *backend;
+  ClutterSeat *seat;
   GError *error;
 
   /* a stage is a top-level object */
@@ -1686,6 +1694,12 @@ clutter_stage_init (ClutterStage *self)
   clutter_stage_set_title (self, g_get_prgname ());
   clutter_stage_set_key_focus (self, NULL);
   clutter_stage_set_viewport (self, geom.width, geom.height);
+
+  seat = clutter_backend_get_default_seat (backend);
+  g_signal_connect_object (seat, "is-unfocus-inhibited-changed",
+                           G_CALLBACK (on_seat_unfocus_inhibited_changed),
+                           self,
+                           G_CONNECT_SWAPPED);
 }
 
 static void
@@ -3568,28 +3582,36 @@ clutter_stage_pick_and_update_device (ClutterStage             *stage,
                                       graphene_point_t          point,
                                       uint32_t                  time_ms)
 {
-  ClutterActor *new_actor;
+  ClutterActor *new_actor = NULL;
   MtkRegion *clear_area = NULL;
+  ClutterSeat *seat;
 
-  if ((flags & CLUTTER_DEVICE_UPDATE_IGNORE_CACHE) == 0)
+  seat = clutter_input_device_get_seat (device);
+
+  if (sequence ||
+      device != clutter_seat_get_pointer (seat) ||
+      clutter_seat_is_unfocus_inhibited (seat))
     {
-      if (clutter_stage_check_in_clear_area (stage, device,
-                                             sequence, point))
+      if ((flags & CLUTTER_DEVICE_UPDATE_IGNORE_CACHE) == 0)
         {
-          clutter_stage_set_device_coords (stage, device,
-                                           sequence, point);
-          return clutter_stage_get_device_actor (stage, device, sequence);
+          if (clutter_stage_check_in_clear_area (stage, device,
+                                                 sequence, point))
+            {
+              clutter_stage_set_device_coords (stage, device,
+                                               sequence, point);
+              return clutter_stage_get_device_actor (stage, device, sequence);
+            }
         }
+
+      new_actor = _clutter_stage_do_pick (stage,
+                                          point.x,
+                                          point.y,
+                                          CLUTTER_PICK_REACTIVE,
+                                          &clear_area);
+
+      /* Picking should never fail, but if it does, we bail out here */
+      g_return_val_if_fail (new_actor != NULL, NULL);
     }
-
-  new_actor = _clutter_stage_do_pick (stage,
-                                      point.x,
-                                      point.y,
-                                      CLUTTER_PICK_REACTIVE,
-                                      &clear_area);
-
-  /* Picking should never fail, but if it does, we bail out here */
-  g_return_val_if_fail (new_actor != NULL, NULL);
 
   clutter_stage_update_device (stage,
                                device, sequence,
@@ -4393,7 +4415,9 @@ clutter_stage_emit_event (ClutterStage       *self,
       }
     }
 
-  g_assert (target_actor != NULL);
+  if (!target_actor)
+    return;
+
   seat_grab_actor = priv->topmost_grab ? priv->topmost_grab->actor : CLUTTER_ACTOR (self);
 
   is_sequence_begin =

@@ -662,6 +662,7 @@ grab_input_only (void)
 }
 
 CLUTTER_TEST_SUITE (
+  CLUTTER_TEST_UNIT ("/grab/input-only", grab_input_only);
   CLUTTER_TEST_UNIT ("/grab/grab-under-pointer", grab_under_pointer)
   CLUTTER_TEST_UNIT ("/grab/grab-under-pointers-parent", grab_under_pointers_parent)
   CLUTTER_TEST_UNIT ("/grab/grab-outside-pointer", grab_outside_pointer)
@@ -672,5 +673,4 @@ CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/grab/grab-unordered-ungrab-2", grab_unordered_ungrab_2)
   CLUTTER_TEST_UNIT ("/grab/key-focus-in-grab", grab_key_focus_in_grab);
   CLUTTER_TEST_UNIT ("/grab/key-focus-outside-grab", grab_key_focus_outside_grab);
-  CLUTTER_TEST_UNIT ("/grab/input-only", grab_input_only);
 )
