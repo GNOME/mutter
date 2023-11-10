@@ -34,23 +34,13 @@
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_OFFSCREEN_EFFECT           (clutter_offscreen_effect_get_type ())
-#define CLUTTER_OFFSCREEN_EFFECT(o)             (G_TYPE_CHECK_INSTANCE_CAST ((o), CLUTTER_TYPE_OFFSCREEN_EFFECT, ClutterOffscreenEffect))
-#define CLUTTER_IS_OFFSCREEN_EFFECT(o)          (G_TYPE_CHECK_INSTANCE_TYPE ((o), CLUTTER_TYPE_OFFSCREEN_EFFECT))
-#define CLUTTER_OFFSCREEN_EFFECT_CLASS(k)       (G_TYPE_CHECK_CLASS_CAST ((k), CLUTTER_TYPE_OFFSCREEN_EFFECT, ClutterOffscreenEffectClass))
-#define CLUTTER_IS_OFFSCREEN_EFFECT_CLASS(k)    (G_TYPE_CHECK_CLASS_TYPE ((k), CLUTTER_TYPE_OFFSCREEN_EFFECT))
-#define CLUTTER_OFFSCREEN_EFFECT_GET_CLASS(o)   (G_TYPE_INSTANCE_GET_CLASS ((o), CLUTTER_TYPE_OFFSCREEN_EFFECT, ClutterOffscreenEffectClass))
 
-typedef struct _ClutterOffscreenEffect          ClutterOffscreenEffect;
-typedef struct _ClutterOffscreenEffectPrivate   ClutterOffscreenEffectPrivate;
-typedef struct _ClutterOffscreenEffectClass     ClutterOffscreenEffectClass;
-
-struct _ClutterOffscreenEffect
-{
-  /*< private >*/
-  ClutterEffect parent_instance;
-
-  ClutterOffscreenEffectPrivate *priv;
-};
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (ClutterOffscreenEffect,
+                          clutter_offscreen_effect,
+                          CLUTTER,
+                          OFFSCREEN_EFFECT,
+                          ClutterEffect)
 
 /**
  * ClutterOffscreenEffectClass:
@@ -74,9 +64,6 @@ struct _ClutterOffscreenEffectClass
                          ClutterPaintNode       *node,
                          ClutterPaintContext    *paint_context);
 };
-
-CLUTTER_EXPORT
-GType clutter_offscreen_effect_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
 CoglPipeline *  clutter_offscreen_effect_get_pipeline           (ClutterOffscreenEffect *effect);
