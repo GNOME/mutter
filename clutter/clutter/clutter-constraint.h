@@ -33,19 +33,13 @@
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_CONSTRAINT                 (clutter_constraint_get_type ())
-#define CLUTTER_CONSTRAINT(obj)                 (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_CONSTRAINT, ClutterConstraint))
-#define CLUTTER_IS_CONSTRAINT(obj)              (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_CONSTRAINT))
-#define CLUTTER_CONSTRAINT_CLASS(klass)         (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_CONSTRAINT, ClutterConstraintClass))
-#define CLUTTER_IS_CONSTRAINT_CLASS(klass)      (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_CONSTRAINT))
-#define CLUTTER_CONSTRAINT_GET_CLASS(obj)       (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_CONSTRAINT, ClutterConstraintClass))
 
-typedef struct _ClutterConstraintClass          ClutterConstraintClass;
-
-struct _ClutterConstraint
-{
-  /*< private >*/
-  ClutterActorMeta parent_instance;
-};
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (ClutterConstraint,
+                          clutter_constraint,
+                          CLUTTER,
+                          CONSTRAINT,
+                          ClutterActorMeta)
 
 /**
  * ClutterConstraintClass:
@@ -75,9 +69,6 @@ struct _ClutterConstraintClass
                                   float              *minimum_size,
                                   float              *natural_size);
 };
-
-CLUTTER_EXPORT
-GType clutter_constraint_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
 void clutter_constraint_update_preferred_size (ClutterConstraint  *constraint,
