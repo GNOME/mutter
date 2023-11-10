@@ -35,19 +35,13 @@
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_EFFECT             (clutter_effect_get_type ())
-#define CLUTTER_EFFECT(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_EFFECT, ClutterEffect))
-#define CLUTTER_IS_EFFECT(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_EFFECT))
-#define CLUTTER_EFFECT_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_EFFECT, ClutterEffectClass))
-#define CLUTTER_IS_EFFECT_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_EFFECT))
-#define CLUTTER_EFFECT_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_EFFECT, ClutterEffectClass))
 
-typedef struct _ClutterEffectClass      ClutterEffectClass;
-
-struct _ClutterEffect
-{
-  /*< private >*/
-  ClutterActorMeta parent_instance;
-};
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (ClutterEffect,
+                          clutter_effect,
+                          CLUTTER,
+                          EFFECT,
+                          ClutterActorMeta)
 
 /**
  * ClutterEffectClass:
@@ -86,9 +80,6 @@ struct _ClutterEffectClass
   void     (* pick)                (ClutterEffect           *effect,
                                     ClutterPickContext      *pick_context);
 };
-
-CLUTTER_EXPORT
-GType clutter_effect_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
 void    clutter_effect_queue_repaint    (ClutterEffect *effect);
