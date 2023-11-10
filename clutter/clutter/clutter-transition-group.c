@@ -43,28 +43,28 @@
 #include "clutter/clutter-private.h"
 #include "clutter/clutter-timeline-private.h"
 
-struct _ClutterTransitionGroupPrivate
+struct _ClutterTransitionGroup
 {
+  ClutterTransition parent_instance;
+
   GHashTable *transitions;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE (ClutterTransitionGroup, clutter_transition_group, CLUTTER_TYPE_TRANSITION)
+G_DEFINE_FINAL_TYPE (ClutterTransitionGroup, clutter_transition_group, CLUTTER_TYPE_TRANSITION)
 
 static void
 clutter_transition_group_new_frame (ClutterTimeline *timeline,
                                     gint             elapsed)
 {
-  ClutterTransitionGroupPrivate *priv;
+  ClutterTransitionGroup *transition = CLUTTER_TRANSITION_GROUP (timeline);
   GHashTableIter iter;
   gpointer element;
   gint64 msecs;
 
-  priv = CLUTTER_TRANSITION_GROUP (timeline)->priv;
-
   /* get the time elapsed since the last ::new-frame... */
   msecs = clutter_timeline_get_delta (timeline);
 
-  g_hash_table_iter_init (&iter, priv->transitions);
+  g_hash_table_iter_init (&iter, transition->transitions);
   while (g_hash_table_iter_next (&iter, &element, NULL))
     {
       ClutterTimeline *t = element;
@@ -81,13 +81,11 @@ static void
 clutter_transition_group_attached (ClutterTransition *transition,
                                    ClutterAnimatable *animatable)
 {
-  ClutterTransitionGroupPrivate *priv;
+  ClutterTransitionGroup *group = CLUTTER_TRANSITION_GROUP (transition);
   GHashTableIter iter;
   gpointer element;
 
-  priv = CLUTTER_TRANSITION_GROUP (transition)->priv;
-
-  g_hash_table_iter_init (&iter, priv->transitions);
+  g_hash_table_iter_init (&iter, group->transitions);
   while (g_hash_table_iter_next (&iter, &element, NULL))
     {
       ClutterTransition *t = element;
@@ -100,13 +98,11 @@ static void
 clutter_transition_group_detached (ClutterTransition *transition,
                                    ClutterAnimatable *animatable)
 {
-  ClutterTransitionGroupPrivate *priv;
+  ClutterTransitionGroup *group = CLUTTER_TRANSITION_GROUP (transition);
   GHashTableIter iter;
   gpointer element;
 
-  priv = CLUTTER_TRANSITION_GROUP (transition)->priv;
-
-  g_hash_table_iter_init (&iter, priv->transitions);
+  g_hash_table_iter_init (&iter, group->transitions);
   while (g_hash_table_iter_next (&iter, &element, NULL))
     {
       ClutterTransition *t = element;
@@ -118,13 +114,11 @@ clutter_transition_group_detached (ClutterTransition *transition,
 static void
 clutter_transition_group_started (ClutterTimeline *timeline)
 {
-  ClutterTransitionGroupPrivate *priv;
+  ClutterTransitionGroup *transition = CLUTTER_TRANSITION_GROUP (timeline);
   GHashTableIter iter;
   gpointer element;
 
-  priv = CLUTTER_TRANSITION_GROUP (timeline)->priv;
-
-  g_hash_table_iter_init (&iter, priv->transitions);
+  g_hash_table_iter_init (&iter, transition->transitions);
   while (g_hash_table_iter_next (&iter, &element, NULL))
     {
       ClutterTransition *t = element;
@@ -136,11 +130,9 @@ clutter_transition_group_started (ClutterTimeline *timeline)
 static void
 clutter_transition_group_finalize (GObject *gobject)
 {
-  ClutterTransitionGroupPrivate *priv;
+  ClutterTransitionGroup *transition = CLUTTER_TRANSITION_GROUP (gobject);
 
-  priv = CLUTTER_TRANSITION_GROUP (gobject)->priv;
-
-  g_hash_table_unref (priv->transitions);
+  g_hash_table_unref (transition->transitions);
 
   G_OBJECT_CLASS (clutter_transition_group_parent_class)->finalize (gobject);
 }
@@ -164,8 +156,7 @@ clutter_transition_group_class_init (ClutterTransitionGroupClass *klass)
 static void
 clutter_transition_group_init (ClutterTransitionGroup *self)
 {
-  self->priv = clutter_transition_group_get_instance_private (self);
-  self->priv->transitions =
+  self->transitions =
     g_hash_table_new_full (NULL, NULL, (GDestroyNotify) g_object_unref, NULL);
 }
 
@@ -201,7 +192,7 @@ clutter_transition_group_add_transition (ClutterTransitionGroup *group,
   g_return_if_fail (CLUTTER_IS_TRANSITION_GROUP (group));
   g_return_if_fail (CLUTTER_IS_TRANSITION (transition));
 
-  g_hash_table_add (group->priv->transitions, g_object_ref (transition));
+  g_hash_table_add (group->transitions, g_object_ref (transition));
 }
 
 /**
@@ -220,7 +211,7 @@ clutter_transition_group_remove_transition (ClutterTransitionGroup *group,
 {
   g_return_if_fail (CLUTTER_IS_TRANSITION_GROUP (group));
 
-  g_hash_table_remove (group->priv->transitions, transition);
+  g_hash_table_remove (group->transitions, transition);
 }
 
 /**
@@ -237,5 +228,5 @@ clutter_transition_group_remove_all (ClutterTransitionGroup *group)
 {
   g_return_if_fail (CLUTTER_IS_TRANSITION_GROUP (group));
 
-  g_hash_table_remove_all (group->priv->transitions);
+  g_hash_table_remove_all (group->transitions);
 }

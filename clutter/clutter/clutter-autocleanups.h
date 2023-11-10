@@ -64,7 +64,6 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterSwipeAction, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterTapAction, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterTextBuffer, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterText, g_object_unref)
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterTransitionGroup, g_object_unref)
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterActorBox, clutter_actor_box_free)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterColor, clutter_color_free)
