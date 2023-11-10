@@ -33,14 +33,10 @@
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_BIND_CONSTRAINT    (clutter_bind_constraint_get_type ())
-#define CLUTTER_BIND_CONSTRAINT(obj)    (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_BIND_CONSTRAINT, ClutterBindConstraint))
-#define CLUTTER_IS_BIND_CONSTRAINT(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_BIND_CONSTRAINT))
-
-typedef struct _ClutterBindConstraint           ClutterBindConstraint;
-typedef struct _ClutterBindConstraintClass      ClutterBindConstraintClass;
 
 CLUTTER_EXPORT
-GType clutter_bind_constraint_get_type (void) G_GNUC_CONST;
+G_DECLARE_FINAL_TYPE (ClutterBindConstraint, clutter_bind_constraint,
+                      CLUTTER, BIND_CONSTRAINT, ClutterConstraint)
 
 CLUTTER_EXPORT
 ClutterConstraint *   clutter_bind_constraint_new            (ClutterActor          *source,

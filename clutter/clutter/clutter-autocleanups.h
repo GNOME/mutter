@@ -31,7 +31,6 @@
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterActor, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterBackend, g_object_unref)
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterBindConstraint, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterBlurEffect, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterBoxLayout, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterBrightnessContrastEffect, g_object_unref)

@@ -24,7 +24,7 @@
 
 /**
  * ClutterBindConstraint:
- * 
+ *
  * A constraint binding the position or size of an actor
  *
  * #ClutterBindConstraint is a [class@Constraint] that binds the
@@ -94,10 +94,6 @@
 #include "clutter/clutter-enum-types.h"
 #include "clutter/clutter-private.h"
 
-#define CLUTTER_BIND_CONSTRAINT_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_BIND_CONSTRAINT, ClutterBindConstraintClass))
-#define CLUTTER_IS_BIND_CONSTRAINT_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_BIND_CONSTRAINT))
-#define CLUTTER_BIND_CONSTRAINT_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_BIND_CONSTRAINT, ClutterBindConstraintClass))
-
 struct _ClutterBindConstraint
 {
   ClutterConstraint parent_instance;
@@ -106,11 +102,6 @@ struct _ClutterBindConstraint
   ClutterActor *source;
   ClutterBindCoordinate coordinate;
   gfloat offset;
-};
-
-struct _ClutterBindConstraintClass
-{
-  ClutterConstraintClass parent_class;
 };
 
 enum
@@ -126,9 +117,9 @@ enum
 
 static GParamSpec *obj_props[PROP_LAST];
 
-G_DEFINE_TYPE (ClutterBindConstraint,
-               clutter_bind_constraint,
-               CLUTTER_TYPE_CONSTRAINT);
+G_DEFINE_FINAL_TYPE (ClutterBindConstraint,
+                     clutter_bind_constraint,
+                     CLUTTER_TYPE_CONSTRAINT);
 
 static void
 source_queue_relayout (ClutterActor          *source,
