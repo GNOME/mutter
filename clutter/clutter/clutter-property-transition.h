@@ -33,22 +33,13 @@
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_PROPERTY_TRANSITION                (clutter_property_transition_get_type ())
-#define CLUTTER_PROPERTY_TRANSITION(obj)                (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_PROPERTY_TRANSITION, ClutterPropertyTransition))
-#define CLUTTER_IS_PROPERTY_TRANSITION(obj)             (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_PROPERTY_TRANSITION))
-#define CLUTTER_PROPERTY_TRANSITION_CLASS(klass)        (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_PROPERTY_TRANSITION, ClutterPropertyTransitionClass))
-#define CLUTTER_IS_PROPERTY_TRANSITION_CLASS(klass)     (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_PROPERTY_TRANSITION))
-#define CLUTTER_PROPERTY_TRANSITION_GET_CLASS(obj)      (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_PROPERTY_TRANSITION, ClutterPropertyTransitionClass))
 
-typedef struct _ClutterPropertyTransitionPrivate        ClutterPropertyTransitionPrivate;
-typedef struct _ClutterPropertyTransitionClass          ClutterPropertyTransitionClass;
-
-struct _ClutterPropertyTransition
-{
-  /*< private >*/
-  ClutterTransition parent_instance;
-
-  ClutterPropertyTransitionPrivate *priv;
-};
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (ClutterPropertyTransition,
+                          clutter_property_transition,
+                          CLUTTER,
+                          PROPERTY_TRANSITION,
+                          ClutterTransition)
 
 /**
  * ClutterPropertyTransitionClass:
@@ -61,9 +52,6 @@ struct _ClutterPropertyTransitionClass
   /*< private >*/
   ClutterTransitionClass parent_class;
 };
-
-CLUTTER_EXPORT
-GType clutter_property_transition_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
 ClutterTransition *     clutter_property_transition_new_for_actor       (ClutterActor              *actor,
