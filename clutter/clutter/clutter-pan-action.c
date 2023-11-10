@@ -84,7 +84,7 @@ typedef enum
   SCROLL_PINNED_VERTICAL
 } PinState;
 
-struct _ClutterPanActionPrivate
+typedef struct _ClutterPanActionPrivate
 {
   ClutterPanAxis pan_axis;
 
@@ -108,7 +108,7 @@ struct _ClutterPanActionPrivate
   guint should_interpolate : 1;
 
   PinState pin_state;
-};
+} ClutterPanActionPrivate;
 
 enum
 {
@@ -142,7 +142,8 @@ emit_pan (ClutterPanAction *self,
           ClutterActor     *actor,
           gboolean          is_interpolated)
 {
-  ClutterPanActionPrivate *priv = self->priv;
+  ClutterPanActionPrivate *priv =
+    clutter_pan_action_get_instance_private (self);
   gboolean retval;
 
   if (priv->pin_state == SCROLL_PINNED_UNKNOWN)
@@ -181,18 +182,20 @@ static void
 emit_pan_stopped (ClutterPanAction *self,
                   ClutterActor     *actor)
 {
-  ClutterPanActionPrivate *priv = self->priv;
+  ClutterPanActionPrivate *priv =
+    clutter_pan_action_get_instance_private (self);
 
   g_signal_emit (self, pan_signals[PAN_STOPPED], 0, actor);
   priv->state = PAN_STATE_INACTIVE;
 }
 
 static void
-on_deceleration_stopped (ClutterTimeline           *timeline,
-                         gboolean                   is_finished,
+on_deceleration_stopped (ClutterTimeline  *timeline,
+                         gboolean          is_finished,
                          ClutterPanAction *self)
 {
-  ClutterPanActionPrivate *priv = self->priv;
+  ClutterPanActionPrivate *priv =
+    clutter_pan_action_get_instance_private (self);
   ClutterActor *actor;
 
   g_object_unref (timeline);
@@ -207,7 +210,8 @@ on_deceleration_new_frame (ClutterTimeline     *timeline,
                            gint                 elapsed_time,
                            ClutterPanAction    *self)
 {
-  ClutterPanActionPrivate *priv = self->priv;
+  ClutterPanActionPrivate *priv =
+    clutter_pan_action_get_instance_private (self);
   ClutterActor *actor;
   gdouble progress;
   gfloat interpolated_x, interpolated_y;
@@ -230,7 +234,8 @@ gesture_prepare (ClutterGestureAction  *gesture,
                  ClutterActor          *actor)
 {
   ClutterPanAction *self = CLUTTER_PAN_ACTION (gesture);
-  ClutterPanActionPrivate *priv = self->priv;
+  ClutterPanActionPrivate *priv =
+    clutter_pan_action_get_instance_private (self);
 
   if (priv->state == PAN_STATE_INTERPOLATING && priv->deceleration_timeline)
     clutter_timeline_stop (priv->deceleration_timeline);
@@ -243,7 +248,8 @@ gesture_begin (ClutterGestureAction  *gesture,
                ClutterActor          *actor)
 {
   ClutterPanAction *self = CLUTTER_PAN_ACTION (gesture);
-  ClutterPanActionPrivate *priv = self->priv;
+  ClutterPanActionPrivate *priv =
+    clutter_pan_action_get_instance_private (self);
 
   priv->pin_state = SCROLL_PINNED_UNKNOWN;
   priv->state = PAN_STATE_PANNING;
@@ -269,7 +275,8 @@ gesture_cancel (ClutterGestureAction *gesture,
                 ClutterActor         *actor)
 {
   ClutterPanAction *self = CLUTTER_PAN_ACTION (gesture);
-  ClutterPanActionPrivate *priv = self->priv;
+  ClutterPanActionPrivate *priv =
+    clutter_pan_action_get_instance_private (self);
 
   priv->state = PAN_STATE_INACTIVE;
 }
@@ -279,7 +286,8 @@ gesture_end (ClutterGestureAction *gesture,
              ClutterActor         *actor)
 {
   ClutterPanAction *self = CLUTTER_PAN_ACTION (gesture);
-  ClutterPanActionPrivate *priv = self->priv;
+  ClutterPanActionPrivate *priv =
+    clutter_pan_action_get_instance_private (self);
   gfloat velocity, velocity_x, velocity_y;
   gfloat delta_x, delta_y;
   gfloat tau;
@@ -384,7 +392,8 @@ clutter_pan_action_get_property (GObject    *gobject,
                                  GParamSpec *pspec)
 {
   ClutterPanAction *self = CLUTTER_PAN_ACTION (gobject);
-  ClutterPanActionPrivate *priv = self->priv;
+  ClutterPanActionPrivate *priv =
+    clutter_pan_action_get_instance_private (self);
 
   switch (prop_id)
     {
@@ -392,15 +401,15 @@ clutter_pan_action_get_property (GObject    *gobject,
       g_value_set_enum (value, priv->pan_axis);
       break;
 
-    case PROP_INTERPOLATE :
+    case PROP_INTERPOLATE:
       g_value_set_boolean (value, priv->should_interpolate);
       break;
 
-    case PROP_DECELERATION :
+    case PROP_DECELERATION:
       g_value_set_double (value, priv->deceleration_rate);
       break;
 
-    case PROP_ACCELERATION_FACTOR :
+    case PROP_ACCELERATION_FACTOR:
       g_value_set_double (value, priv->acceleration_factor);
       break;
 
@@ -423,7 +432,8 @@ clutter_pan_action_constructed (GObject *gobject)
 static void
 clutter_pan_action_dispose (GObject *gobject)
 {
-  ClutterPanActionPrivate *priv = CLUTTER_PAN_ACTION (gobject)->priv;
+  ClutterPanActionPrivate *priv =
+    clutter_pan_action_get_instance_private (CLUTTER_PAN_ACTION (gobject));
 
   g_clear_object (&priv->deceleration_timeline);
 
@@ -435,7 +445,8 @@ clutter_pan_action_set_actor (ClutterActorMeta *meta,
                               ClutterActor     *actor)
 {
   ClutterPanAction *self = CLUTTER_PAN_ACTION (meta);
-  ClutterPanActionPrivate *priv = self->priv;
+  ClutterPanActionPrivate *priv =
+    clutter_pan_action_get_instance_private (self);
   ClutterActor *old_actor;
 
   old_actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (self));
@@ -575,10 +586,12 @@ clutter_pan_action_class_init (ClutterPanActionClass *klass)
 static void
 clutter_pan_action_init (ClutterPanAction *self)
 {
-  self->priv = clutter_pan_action_get_instance_private (self);
-  self->priv->deceleration_rate = default_deceleration_rate;
-  self->priv->acceleration_factor = default_acceleration_factor;
-  self->priv->state = PAN_STATE_INACTIVE;
+  ClutterPanActionPrivate *priv =
+    clutter_pan_action_get_instance_private (self);
+
+  priv->deceleration_rate = default_deceleration_rate;
+  priv->acceleration_factor = default_acceleration_factor;
+  priv->state = PAN_STATE_INACTIVE;
 }
 
 /**
@@ -611,7 +624,7 @@ clutter_pan_action_set_pan_axis (ClutterPanAction *self,
   g_return_if_fail (axis >= CLUTTER_PAN_AXIS_NONE &&
                     axis <= CLUTTER_PAN_AXIS_AUTO);
 
-  priv = self->priv;
+  priv = clutter_pan_action_get_instance_private (self);
 
   if (priv->pan_axis == axis)
     return;
@@ -632,10 +645,13 @@ clutter_pan_action_set_pan_axis (ClutterPanAction *self,
 ClutterPanAxis
 clutter_pan_action_get_pan_axis (ClutterPanAction *self)
 {
+  ClutterPanActionPrivate *priv;
+
   g_return_val_if_fail (CLUTTER_IS_PAN_ACTION (self),
                         CLUTTER_PAN_AXIS_NONE);
 
-  return self->priv->pan_axis;
+  priv = clutter_pan_action_get_instance_private (self);
+  return priv->pan_axis;
 }
 
 /**
@@ -654,7 +670,7 @@ clutter_pan_action_set_interpolate (ClutterPanAction *self,
 
   g_return_if_fail (CLUTTER_IS_PAN_ACTION (self));
 
-  priv = self->priv;
+  priv = clutter_pan_action_get_instance_private (self);
 
   should_interpolate = !!should_interpolate;
 
@@ -679,10 +695,13 @@ clutter_pan_action_set_interpolate (ClutterPanAction *self,
 gboolean
 clutter_pan_action_get_interpolate (ClutterPanAction *self)
 {
+  ClutterPanActionPrivate *priv;
+
   g_return_val_if_fail (CLUTTER_IS_PAN_ACTION (self),
                         FALSE);
 
-  return self->priv->should_interpolate;
+  priv = clutter_pan_action_get_instance_private (self);
+  return priv->should_interpolate;
 }
 
 /**
@@ -698,11 +717,14 @@ void
 clutter_pan_action_set_deceleration (ClutterPanAction *self,
                                      gdouble           rate)
 {
+  ClutterPanActionPrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_PAN_ACTION (self));
   g_return_if_fail (rate <= 1.0);
   g_return_if_fail (rate > 0.0);
 
-  self->priv->deceleration_rate = rate;
+  priv = clutter_pan_action_get_instance_private (self);
+  priv->deceleration_rate = rate;
   g_object_notify_by_pspec (G_OBJECT (self), pan_props[PROP_DECELERATION]);
 }
 
@@ -717,8 +739,12 @@ clutter_pan_action_set_deceleration (ClutterPanAction *self,
 gdouble
 clutter_pan_action_get_deceleration (ClutterPanAction *self)
 {
+  ClutterPanActionPrivate *priv;
+
   g_return_val_if_fail (CLUTTER_IS_PAN_ACTION (self), 0.95);
-  return self->priv->deceleration_rate;
+
+  priv = clutter_pan_action_get_instance_private (self);
+  return priv->deceleration_rate;
 }
 
 /**
@@ -733,10 +759,13 @@ void
 clutter_pan_action_set_acceleration_factor (ClutterPanAction *self,
                                             gdouble           factor)
 {
+  ClutterPanActionPrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_PAN_ACTION (self));
   g_return_if_fail (factor >= 0.0);
 
-  self->priv->acceleration_factor = factor;
+  priv = clutter_pan_action_get_instance_private (self);
+  priv->acceleration_factor = factor;
   g_object_notify_by_pspec (G_OBJECT (self), pan_props[PROP_ACCELERATION_FACTOR]);
 }
 
@@ -751,8 +780,12 @@ clutter_pan_action_set_acceleration_factor (ClutterPanAction *self,
 gdouble
 clutter_pan_action_get_acceleration_factor (ClutterPanAction *self)
 {
+  ClutterPanActionPrivate *priv;
+
   g_return_val_if_fail (CLUTTER_IS_PAN_ACTION (self), 1.0);
-  return self->priv->acceleration_factor;
+
+  priv = clutter_pan_action_get_instance_private (self);
+  return priv->acceleration_factor;
 }
 
 /**
@@ -775,7 +808,7 @@ clutter_pan_action_get_interpolated_coords (ClutterPanAction *self,
 
   g_return_if_fail (CLUTTER_IS_PAN_ACTION (self));
 
-  priv = self->priv;
+  priv = clutter_pan_action_get_instance_private (self);
 
   if (interpolated_x)
     *interpolated_x = priv->release_x + priv->interpolated_x;
@@ -806,7 +839,7 @@ clutter_pan_action_get_interpolated_delta (ClutterPanAction *self,
 
   g_return_val_if_fail (CLUTTER_IS_PAN_ACTION (self), 0.0f);
 
-  priv = self->priv;
+  priv = clutter_pan_action_get_instance_private (self);
 
   if (delta_x)
     *delta_x = priv->dx;
@@ -842,7 +875,7 @@ clutter_pan_action_get_constrained_motion_delta (ClutterPanAction *self,
 
   g_return_val_if_fail (CLUTTER_IS_PAN_ACTION (self), 0.0f);
 
-  priv = self->priv;
+  priv = clutter_pan_action_get_instance_private (self);
 
   distance = clutter_pan_action_get_motion_delta (self, point,
                                                   &delta_x,
@@ -905,7 +938,7 @@ clutter_pan_action_get_motion_delta (ClutterPanAction *self,
 
   g_return_val_if_fail (CLUTTER_IS_PAN_ACTION (self), 0.0f);
 
-  priv = self->priv;
+  priv = clutter_pan_action_get_instance_private (self);
 
   switch (priv->state)
     {
@@ -955,7 +988,7 @@ clutter_pan_action_get_motion_coords (ClutterPanAction *self,
 
   g_return_if_fail (CLUTTER_IS_PAN_ACTION (self));
 
-  priv = self->priv;
+  priv = clutter_pan_action_get_instance_private (self);
 
   switch (priv->state)
     {
