@@ -50,7 +50,6 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterPropertyTransition, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterScrollActor, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterShaderEffect, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterStage, g_object_unref)
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterSwipeAction, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterText, g_object_unref)
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterActorBox, clutter_actor_box_free)

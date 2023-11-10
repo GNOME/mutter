@@ -44,13 +44,13 @@
 #include "clutter/clutter-marshal.h"
 #include "clutter/clutter-private.h"
 
-struct _ClutterSwipeActionPrivate
+typedef struct _ClutterSwipeActionPrivate
 {
   ClutterSwipeDirection h_direction;
   ClutterSwipeDirection v_direction;
 
   float distance_x, distance_y;
-};
+} ClutterSwipeActionPrivate;
 
 enum
 {
@@ -67,7 +67,8 @@ static gboolean
 gesture_begin (ClutterGestureAction  *action,
                ClutterActor          *actor)
 {
-  ClutterSwipeActionPrivate *priv = CLUTTER_SWIPE_ACTION (action)->priv;
+  ClutterSwipeActionPrivate *priv =
+    clutter_swipe_action_get_instance_private (CLUTTER_SWIPE_ACTION (action));
 
   /* reset the state at the beginning of a new gesture */
   priv->h_direction = 0;
@@ -85,7 +86,8 @@ static gboolean
 gesture_progress (ClutterGestureAction *action,
                   ClutterActor         *actor)
 {
-  ClutterSwipeActionPrivate *priv = CLUTTER_SWIPE_ACTION (action)->priv;
+  ClutterSwipeActionPrivate *priv =
+    clutter_swipe_action_get_instance_private (CLUTTER_SWIPE_ACTION (action));
   gfloat press_x, press_y;
   gfloat motion_x, motion_y;
   gfloat delta_x, delta_y;
@@ -134,7 +136,8 @@ static void
 gesture_end (ClutterGestureAction *action,
              ClutterActor         *actor)
 {
-  ClutterSwipeActionPrivate *priv = CLUTTER_SWIPE_ACTION (action)->priv;
+  ClutterSwipeActionPrivate *priv =
+    clutter_swipe_action_get_instance_private (CLUTTER_SWIPE_ACTION (action));
   gfloat press_x, press_y;
   gfloat release_x, release_y;
   ClutterSwipeDirection direction = 0;
@@ -210,7 +213,6 @@ clutter_swipe_action_class_init (ClutterSwipeActionClass *klass)
 static void
 clutter_swipe_action_init (ClutterSwipeAction *self)
 {
-  self->priv = clutter_swipe_action_get_instance_private (self);
 }
 
 /**

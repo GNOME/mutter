@@ -37,23 +37,13 @@
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_SWIPE_ACTION               (clutter_swipe_action_get_type ())
-#define CLUTTER_SWIPE_ACTION(obj)               (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_SWIPE_ACTION, ClutterSwipeAction))
-#define CLUTTER_IS_SWIPE_ACTION(obj)            (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_SWIPE_ACTION))
-#define CLUTTER_SWIPE_ACTION_CLASS(klass)       (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_SWIPE_ACTION, ClutterSwipeActionClass))
-#define CLUTTER_IS_SWIPE_ACTION_CLASS(klass)    (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_SWIPE_ACTION))
-#define CLUTTER_SWIPE_ACTION_GET_CLASS(obj)     (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_SWIPE_ACTION, ClutterSwipeActionClass))
 
-typedef struct _ClutterSwipeAction              ClutterSwipeAction;
-typedef struct _ClutterSwipeActionPrivate       ClutterSwipeActionPrivate;
-typedef struct _ClutterSwipeActionClass         ClutterSwipeActionClass;
-
-struct _ClutterSwipeAction
-{
-  /*< private >*/
-  ClutterGestureAction parent_instance;
-
-  ClutterSwipeActionPrivate *priv;
-};
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (ClutterSwipeAction,
+                          clutter_swipe_action,
+                          CLUTTER,
+                          SWIPE_ACTION,
+                          ClutterGestureAction)
 
 /**
  * ClutterSwipeActionClass:
@@ -72,9 +62,6 @@ struct _ClutterSwipeActionClass
                    ClutterActor          *actor,
                    ClutterSwipeDirection  direction);
 };
-
-CLUTTER_EXPORT
-GType clutter_swipe_action_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
 ClutterAction * clutter_swipe_action_new        (void);
