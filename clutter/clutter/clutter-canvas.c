@@ -54,7 +54,7 @@
 #include "clutter/clutter-private.h"
 #include "clutter/clutter-settings.h"
 
-struct _ClutterCanvasPrivate
+typedef struct _ClutterCanvasPrivate
 {
   cairo_t *cr;
 
@@ -66,7 +66,7 @@ struct _ClutterCanvasPrivate
   gboolean dirty;
 
   CoglBitmap *buffer;
-};
+} ClutterCanvasPrivate;
 
 enum
 {
@@ -122,7 +122,8 @@ clutter_cairo_context_draw_marshaller (GClosure     *closure,
 static void
 clutter_canvas_finalize (GObject *gobject)
 {
-  ClutterCanvasPrivate *priv = CLUTTER_CANVAS (gobject)->priv;
+  ClutterCanvasPrivate *priv =
+    clutter_canvas_get_instance_private (CLUTTER_CANVAS (gobject));
 
   g_clear_object (&priv->buffer);
   g_clear_object (&priv->texture);
@@ -136,7 +137,8 @@ clutter_canvas_set_property (GObject      *gobject,
                              const GValue *value,
                              GParamSpec   *pspec)
 {
-  ClutterCanvasPrivate *priv = CLUTTER_CANVAS (gobject)->priv;
+  ClutterCanvasPrivate *priv =
+    clutter_canvas_get_instance_private (CLUTTER_CANVAS (gobject));
 
   switch (prop_id)
     {
@@ -191,7 +193,8 @@ clutter_canvas_get_property (GObject    *gobject,
                              GValue     *value,
                              GParamSpec *pspec)
 {
-  ClutterCanvasPrivate *priv = CLUTTER_CANVAS (gobject)->priv;
+  ClutterCanvasPrivate *priv =
+    clutter_canvas_get_instance_private (CLUTTER_CANVAS (gobject));
 
   switch (prop_id)
     {
@@ -293,11 +296,11 @@ clutter_canvas_class_init (ClutterCanvasClass *klass)
 static void
 clutter_canvas_init (ClutterCanvas *self)
 {
-  self->priv = clutter_canvas_get_instance_private (self);
+  ClutterCanvasPrivate *priv = clutter_canvas_get_instance_private (self);
 
-  self->priv->width = -1;
-  self->priv->height = -1;
-  self->priv->scale_factor = 1.0f;
+  priv->width = -1;
+  priv->height = -1;
+  priv->scale_factor = 1.0f;
 }
 
 static void
@@ -307,7 +310,8 @@ clutter_canvas_paint_content (ClutterContent      *content,
                               ClutterPaintContext *paint_context)
 {
   ClutterCanvas *self = CLUTTER_CANVAS (content);
-  ClutterCanvasPrivate *priv = self->priv;
+  ClutterCanvasPrivate *priv =
+    clutter_canvas_get_instance_private (self);
   ClutterPaintNode *node;
 
   if (priv->buffer == NULL)
@@ -333,7 +337,8 @@ clutter_canvas_paint_content (ClutterContent      *content,
 static void
 clutter_canvas_emit_draw (ClutterCanvas *self)
 {
-  ClutterCanvasPrivate *priv = self->priv;
+  ClutterCanvasPrivate *priv =
+    clutter_canvas_get_instance_private (self);
   int real_width, real_height;
   cairo_surface_t *surface;
   gboolean mapped_buffer;
@@ -397,7 +402,7 @@ clutter_canvas_emit_draw (ClutterCanvas *self)
                                   priv->scale_factor,
                                   priv->scale_factor);
 
-  self->priv->cr = cr = cairo_create (surface);
+  priv->cr = cr = cairo_create (surface);
 
   g_signal_emit (self, canvas_signals[DRAW], 0,
                  cr, priv->width, priv->height,
@@ -412,7 +417,7 @@ clutter_canvas_emit_draw (ClutterCanvas *self)
     }
 #endif
 
-  self->priv->cr = NULL;
+  priv->cr = NULL;
   cairo_destroy (cr);
 
   if (mapped_buffer)
@@ -433,7 +438,8 @@ static void
 clutter_canvas_invalidate (ClutterContent *content)
 {
   ClutterCanvas *self = CLUTTER_CANVAS (content);
-  ClutterCanvasPrivate *priv = self->priv;
+  ClutterCanvasPrivate *priv =
+    clutter_canvas_get_instance_private (self);
 
   g_clear_object (&priv->buffer);
 
@@ -448,7 +454,8 @@ clutter_canvas_get_preferred_size (ClutterContent *content,
                                    gfloat         *width,
                                    gfloat         *height)
 {
-  ClutterCanvasPrivate *priv = CLUTTER_CANVAS (content)->priv;
+  ClutterCanvasPrivate *priv =
+    clutter_canvas_get_instance_private (CLUTTER_CANVAS (content));
 
   if (priv->width < 0 || priv->height < 0)
     return FALSE;
@@ -494,6 +501,8 @@ clutter_canvas_invalidate_internal (ClutterCanvas *canvas,
                                     int            width,
                                     int            height)
 {
+  ClutterCanvasPrivate *priv =
+    clutter_canvas_get_instance_private (canvas);
   gboolean width_changed = FALSE, height_changed = FALSE;
   gboolean res = FALSE;
   GObject *obj;
@@ -502,17 +511,17 @@ clutter_canvas_invalidate_internal (ClutterCanvas *canvas,
 
   g_object_freeze_notify (obj);
 
-  if (canvas->priv->width != width)
+  if (priv->width != width)
     {
-      canvas->priv->width = width;
+      priv->width = width;
       width_changed = TRUE;
 
       g_object_notify_by_pspec (obj, obj_props[PROP_WIDTH]);
     }
 
-  if (canvas->priv->height != height)
+  if (priv->height != height)
     {
-      canvas->priv->height = height;
+      priv->height = height;
       height_changed = TRUE;
 
       g_object_notify_by_pspec (obj, obj_props[PROP_HEIGHT]);
@@ -577,12 +586,15 @@ void
 clutter_canvas_set_scale_factor (ClutterCanvas *canvas,
                                  float          scale)
 {
+  ClutterCanvasPrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_CANVAS (canvas));
   g_return_if_fail (scale > 0.0f);
 
-  if (canvas->priv->scale_factor != scale)
+  priv = clutter_canvas_get_instance_private (canvas);
+  if (priv->scale_factor != scale)
     {
-      canvas->priv->scale_factor = scale;
+      priv->scale_factor = scale;
 
       g_object_freeze_notify (G_OBJECT (canvas));
       clutter_content_invalidate (CLUTTER_CONTENT (canvas));
@@ -603,7 +615,10 @@ clutter_canvas_set_scale_factor (ClutterCanvas *canvas,
 float
 clutter_canvas_get_scale_factor (ClutterCanvas *canvas)
 {
+  ClutterCanvasPrivate *priv;
+
   g_return_val_if_fail (CLUTTER_IS_CANVAS (canvas), -1.0f);
 
-  return canvas->priv->scale_factor;
+  priv = clutter_canvas_get_instance_private (canvas);
+  return priv->scale_factor;
 }

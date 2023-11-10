@@ -33,23 +33,13 @@
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_CANVAS             (clutter_canvas_get_type ())
-#define CLUTTER_CANVAS(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_CANVAS, ClutterCanvas))
-#define CLUTTER_IS_CANVAS(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_CANVAS))
-#define CLUTTER_CANVAS_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_CANVAS, ClutterCanvasClass))
-#define CLUTTER_IS_CANVAS_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_CANVAS))
-#define CLUTTER_CANVAS_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_CANVAS, ClutterCanvasClass))
 
-typedef struct _ClutterCanvas           ClutterCanvas;
-typedef struct _ClutterCanvasPrivate    ClutterCanvasPrivate;
-typedef struct _ClutterCanvasClass      ClutterCanvasClass;
-
-struct _ClutterCanvas
-{
-  /*< private >*/
-  GObject parent_instance;
-
-  ClutterCanvasPrivate *priv;
-};
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (ClutterCanvas,
+                          clutter_canvas,
+                          CLUTTER,
+                          CANVAS,
+                          GObject)
 
 /**
  * ClutterCanvasClass:
@@ -69,9 +59,6 @@ struct _ClutterCanvasClass
                      int            width,
                      int            height);
 };
-
-CLUTTER_EXPORT
-GType clutter_canvas_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
 ClutterContent *        clutter_canvas_new                      (void);
