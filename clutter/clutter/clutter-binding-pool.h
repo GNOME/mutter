@@ -34,11 +34,13 @@
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_BINDING_POOL       (clutter_binding_pool_get_type ())
-#define CLUTTER_BINDING_POOL(obj)       (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_BINDING_POOL, ClutterBindingPool))
-#define CLUTTER_IS_BINDING_POOL(obj)    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_BINDING_POOL))
 
-typedef struct _ClutterBindingPool      ClutterBindingPool;
-typedef struct _ClutterBindingPoolClass ClutterBindingPoolClass;
+CLUTTER_EXPORT
+G_DECLARE_FINAL_TYPE (ClutterBindingPool,
+                      clutter_binding_pool,
+                      CLUTTER,
+                      BINDING_POOL,
+                      GObject)
 
 /**
  * ClutterBindingActionFunc:
@@ -60,9 +62,6 @@ typedef gboolean (* ClutterBindingActionFunc) (GObject             *gobject,
                                                guint                key_val,
                                                ClutterModifierType  modifiers,
                                                gpointer             user_data);
-
-CLUTTER_EXPORT
-GType clutter_binding_pool_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
 ClutterBindingPool *  clutter_binding_pool_new              (const gchar         *name);

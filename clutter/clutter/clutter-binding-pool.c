@@ -23,7 +23,7 @@
 
 /**
  * ClutterBindingPool
- * 
+ *
  * Pool for key bindings
  *
  * #ClutterBindingPool is a data structure holding a set of key bindings.
@@ -101,16 +101,12 @@
 #include "clutter/clutter-marshal.h"
 #include "clutter/clutter-private.h"
 
-#define CLUTTER_BINDING_POOL_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST ((k), CLUTTER_TYPE_BINDING_POOL, ClutterBindingPoolClass))
-#define CLUTTER_IS_BINDING_POOL_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), CLUTTER_TYPE_BINDING_POOL))
-#define CLUTTER_BINDING_POOL_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), CLUTTER_TYPE_BINDING_POOL, ClutterBindingPoolClass))
-
-#define BINDING_MOD_MASK        ((CLUTTER_SHIFT_MASK   | \
+#define BINDING_MOD_MASK        ((CLUTTER_SHIFT_MASK | \
                                   CLUTTER_CONTROL_MASK | \
-                                  CLUTTER_MOD1_MASK    | \
-                                  CLUTTER_SUPER_MASK   | \
-                                  CLUTTER_HYPER_MASK   | \
-                                  CLUTTER_META_MASK)   | CLUTTER_RELEASE_MASK)
+                                  CLUTTER_MOD1_MASK | \
+                                  CLUTTER_SUPER_MASK | \
+                                  CLUTTER_HYPER_MASK | \
+                                  CLUTTER_META_MASK) | CLUTTER_RELEASE_MASK)
 
 typedef struct _ClutterBindingEntry     ClutterBindingEntry;
 
@@ -125,11 +121,6 @@ struct _ClutterBindingPool
 
   GSList *entries;
   GHashTable *entries_hash;
-};
-
-struct _ClutterBindingPoolClass
-{
-  GObjectClass parent_class;
 };
 
 struct _ClutterBindingEntry
@@ -155,7 +146,7 @@ enum
 
 static GParamSpec *obj_props[PROP_LAST];
 
-G_DEFINE_TYPE (ClutterBindingPool, clutter_binding_pool, G_TYPE_OBJECT);
+G_DEFINE_FINAL_TYPE (ClutterBindingPool, clutter_binding_pool, G_TYPE_OBJECT);
 
 static guint
 binding_entry_hash (gconstpointer v)
