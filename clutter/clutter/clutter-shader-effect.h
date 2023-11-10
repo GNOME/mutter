@@ -33,23 +33,13 @@
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_SHADER_EFFECT              (clutter_shader_effect_get_type ())
-#define CLUTTER_SHADER_EFFECT(obj)              (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_SHADER_EFFECT, ClutterShaderEffect))
-#define CLUTTER_IS_SHADER_EFFECT(obj)           (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_SHADER_EFFECT))
-#define CLUTTER_SHADER_EFFECT_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_SHADER_EFFECT, ClutterShaderEffectClass))
-#define CLUTTER_IS_SHADER_EFFECT_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_SHADER_EFFECT))
-#define CLUTTER_SHADER_EFFECT_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_SHADER_EFFECT, ClutterShaderEffectClass))
 
-typedef struct _ClutterShaderEffect             ClutterShaderEffect;
-typedef struct _ClutterShaderEffectPrivate      ClutterShaderEffectPrivate;
-typedef struct _ClutterShaderEffectClass        ClutterShaderEffectClass;
-
-struct _ClutterShaderEffect
-{
-  /*< private >*/
-  ClutterOffscreenEffect parent_instance;
-
-  ClutterShaderEffectPrivate *priv;
-};
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (ClutterShaderEffect,
+                          clutter_shader_effect,
+                          CLUTTER,
+                          SHADER_EFFECT,
+                          ClutterOffscreenEffect)
 
 /**
  * ClutterShaderEffectClass:
@@ -70,9 +60,6 @@ struct _ClutterShaderEffectClass
   /*< public >*/
   gchar * (* get_static_shader_source) (ClutterShaderEffect *effect);
 };
-
-CLUTTER_EXPORT
-GType clutter_shader_effect_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
 ClutterEffect * clutter_shader_effect_new               (ClutterShaderType    shader_type);

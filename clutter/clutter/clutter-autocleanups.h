@@ -44,7 +44,6 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterInputDevice, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterInterval, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterPageTurnEffect, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterScrollActor, g_object_unref)
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterShaderEffect, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterStage, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterText, g_object_unref)
 
