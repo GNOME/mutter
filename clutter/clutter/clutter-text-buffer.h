@@ -28,11 +28,13 @@
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_TEXT_BUFFER            (clutter_text_buffer_get_type ())
-#define CLUTTER_TEXT_BUFFER(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_TEXT_BUFFER, ClutterTextBuffer))
-#define CLUTTER_TEXT_BUFFER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_TEXT_BUFFER, ClutterTextBufferClass))
-#define CLUTTER_IS_TEXT_BUFFER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_TEXT_BUFFER))
-#define CLUTTER_IS_TEXT_BUFFER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_TEXT_BUFFER))
-#define CLUTTER_TEXT_BUFFER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_TEXT_BUFFER, ClutterTextBufferClass))
+
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (ClutterTextBuffer,
+                          clutter_text_buffer,
+                          CLUTTER,
+                          TEXT_BUFFER,
+                          GObject)
 
 /**
  * CLUTTER_TEXT_BUFFER_MAX_SIZE:
@@ -40,18 +42,6 @@ G_BEGIN_DECLS
  * Maximum size of text buffer, in bytes.
  */
 #define CLUTTER_TEXT_BUFFER_MAX_SIZE        G_MAXUSHORT
-
-typedef struct _ClutterTextBuffer            ClutterTextBuffer;
-typedef struct _ClutterTextBufferClass       ClutterTextBufferClass;
-typedef struct _ClutterTextBufferPrivate     ClutterTextBufferPrivate;
-
-struct _ClutterTextBuffer
-{
-  /*< private >*/
-  GObject parent_instance;
-
-  ClutterTextBufferPrivate *priv;
-};
 
 /**
  * ClutterTextBufferClass:
@@ -96,9 +86,6 @@ struct _ClutterTextBufferClass
                                           guint              position,
                                           guint              n_chars);
 };
-
-CLUTTER_EXPORT
-GType               clutter_text_buffer_get_type            (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
 ClutterTextBuffer*  clutter_text_buffer_new                 (void);

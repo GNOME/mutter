@@ -66,16 +66,16 @@ enum
 
 static guint signals[LAST_SIGNAL] = { 0 };
 
-struct _ClutterTextBufferPrivate
+typedef struct _ClutterTextBufferPrivate
 {
-  gint  max_length;
+  gint max_length;
 
   /* Only valid if this class is not derived */
   gchar *normal_text;
-  gsize  normal_text_size;
-  gsize  normal_text_bytes;
-  guint  normal_text_chars;
-};
+  gsize normal_text_size;
+  gsize normal_text_bytes;
+  guint normal_text_chars;
+} ClutterTextBufferPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterTextBuffer, clutter_text_buffer, G_TYPE_OBJECT)
 
@@ -99,28 +99,33 @@ trash_area (gchar *area,
 
 static const gchar*
 clutter_text_buffer_normal_get_text (ClutterTextBuffer *buffer,
-                                  gsize          *n_bytes)
+                                     gsize             *n_bytes)
 {
+  ClutterTextBufferPrivate *priv =
+    clutter_text_buffer_get_instance_private (buffer);
   if (n_bytes)
-    *n_bytes = buffer->priv->normal_text_bytes;
-  if (!buffer->priv->normal_text)
-      return "";
-  return buffer->priv->normal_text;
+    *n_bytes = priv->normal_text_bytes;
+  if (!priv->normal_text)
+    return "";
+  return priv->normal_text;
 }
 
 static guint
 clutter_text_buffer_normal_get_length (ClutterTextBuffer *buffer)
 {
-  return buffer->priv->normal_text_chars;
+  ClutterTextBufferPrivate *priv =
+    clutter_text_buffer_get_instance_private (buffer);
+  return priv->normal_text_chars;
 }
 
 static guint
 clutter_text_buffer_normal_insert_text (ClutterTextBuffer *buffer,
-                                     guint           position,
-                                     const gchar    *chars,
-                                     guint           n_chars)
+                                        guint              position,
+                                        const gchar       *chars,
+                                        guint              n_chars)
 {
-  ClutterTextBufferPrivate *pv = buffer->priv;
+  ClutterTextBufferPrivate *pv =
+    clutter_text_buffer_get_instance_private (buffer);;
   gsize prev_size;
   gsize n_bytes;
   gsize at;
@@ -181,10 +186,11 @@ clutter_text_buffer_normal_insert_text (ClutterTextBuffer *buffer,
 
 static guint
 clutter_text_buffer_normal_delete_text (ClutterTextBuffer *buffer,
-                                     guint           position,
-                                     guint           n_chars)
+                                        guint              position,
+                                        guint              n_chars)
 {
-  ClutterTextBufferPrivate *pv = buffer->priv;
+  ClutterTextBufferPrivate *pv =
+    clutter_text_buffer_get_instance_private (buffer);;
   gsize start, end;
 
   if (position > pv->normal_text_chars)
@@ -244,19 +250,21 @@ clutter_text_buffer_real_deleted_text (ClutterTextBuffer *buffer,
 static void
 clutter_text_buffer_init (ClutterTextBuffer *self)
 {
-  self->priv = clutter_text_buffer_get_instance_private (self);
+  ClutterTextBufferPrivate *priv =
+    clutter_text_buffer_get_instance_private (self);
 
-  self->priv->normal_text = NULL;
-  self->priv->normal_text_chars = 0;
-  self->priv->normal_text_bytes = 0;
-  self->priv->normal_text_size = 0;
+  priv->normal_text = NULL;
+  priv->normal_text_chars = 0;
+  priv->normal_text_bytes = 0;
+  priv->normal_text_size = 0;
 }
 
 static void
 clutter_text_buffer_finalize (GObject *obj)
 {
   ClutterTextBuffer *buffer = CLUTTER_TEXT_BUFFER (obj);
-  ClutterTextBufferPrivate *pv = buffer->priv;
+  ClutterTextBufferPrivate *pv =
+    clutter_text_buffer_get_instance_private (buffer);
 
   if (pv->normal_text)
     {
@@ -557,14 +565,17 @@ void
 clutter_text_buffer_set_max_length (ClutterTextBuffer *buffer,
                                     gint               max_length)
 {
+  ClutterTextBufferPrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_TEXT_BUFFER (buffer));
 
+  priv = clutter_text_buffer_get_instance_private (buffer);
   max_length = CLAMP (max_length, 0, CLUTTER_TEXT_BUFFER_MAX_SIZE);
 
   if (max_length > 0 && clutter_text_buffer_get_length (buffer) > max_length)
     clutter_text_buffer_delete_text (buffer, max_length, -1);
 
-  buffer->priv->max_length = max_length;
+  priv->max_length = max_length;
   g_object_notify_by_pspec (G_OBJECT (buffer), obj_props[PROP_MAX_LENGTH]);
 }
 
@@ -581,8 +592,12 @@ clutter_text_buffer_set_max_length (ClutterTextBuffer *buffer,
 gint
 clutter_text_buffer_get_max_length (ClutterTextBuffer *buffer)
 {
+  ClutterTextBufferPrivate *priv;
+
   g_return_val_if_fail (CLUTTER_IS_TEXT_BUFFER (buffer), 0);
-  return buffer->priv->max_length;
+
+  priv = clutter_text_buffer_get_instance_private (buffer);
+  return priv->max_length;
 }
 
 /**
@@ -617,7 +632,7 @@ clutter_text_buffer_insert_text (ClutterTextBuffer *buffer,
   g_return_val_if_fail (CLUTTER_IS_TEXT_BUFFER (buffer), 0);
 
   length = clutter_text_buffer_get_length (buffer);
-  pv = buffer->priv;
+  pv = clutter_text_buffer_get_instance_private (buffer);;
 
   if (n_chars < 0)
     n_chars = g_utf8_strlen (chars, -1);
