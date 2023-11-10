@@ -85,12 +85,12 @@ typedef struct _KeyFrame
   ClutterInterval *interval;
 } KeyFrame;
 
-struct _ClutterKeyframeTransitionPrivate
+typedef struct _ClutterKeyframeTransitionPrivate
 {
   GArray *frames;
 
   gint current_frame;
-};
+} ClutterKeyframeTransitionPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterKeyframeTransition,
                             clutter_keyframe_transition,
@@ -126,15 +126,19 @@ sort_by_key (gconstpointer a,
 static inline void
 clutter_keyframe_transition_sort_frames (ClutterKeyframeTransition *transition)
 {
-  if (transition->priv->frames != NULL)
-    g_array_sort (transition->priv->frames, sort_by_key);
+  ClutterKeyframeTransitionPrivate *priv =
+    clutter_keyframe_transition_get_instance_private (transition);
+
+  if (priv->frames != NULL)
+    g_array_sort (priv->frames, sort_by_key);
 }
 
 static inline void
 clutter_keyframe_transition_init_frames (ClutterKeyframeTransition *transition,
                                          gssize                     n_key_frames)
 {
-  ClutterKeyframeTransitionPrivate *priv = transition->priv;
+  ClutterKeyframeTransitionPrivate *priv =
+    clutter_keyframe_transition_get_instance_private (transition);
   guint i;
 
   priv->frames = g_array_sized_new (FALSE, FALSE,
@@ -165,7 +169,8 @@ clutter_keyframe_transition_init_frames (ClutterKeyframeTransition *transition,
 static inline void
 clutter_keyframe_transition_update_frames (ClutterKeyframeTransition *transition)
 {
-  ClutterKeyframeTransitionPrivate *priv = transition->priv;
+  ClutterKeyframeTransitionPrivate *priv =
+    clutter_keyframe_transition_get_instance_private (transition);
   guint i;
 
   if (priv->frames == NULL)
@@ -215,7 +220,8 @@ clutter_keyframe_transition_compute_value (ClutterTransition *transition,
 {
   ClutterKeyframeTransition *self = CLUTTER_KEYFRAME_TRANSITION (transition);
   ClutterTimeline *timeline = CLUTTER_TIMELINE (transition);
-  ClutterKeyframeTransitionPrivate *priv = self->priv;
+  ClutterKeyframeTransitionPrivate *priv =
+    clutter_keyframe_transition_get_instance_private (self);
   ClutterTransitionClass *parent_class;
   ClutterTimelineDirection direction;
   ClutterInterval *real_interval;
@@ -332,10 +338,12 @@ static void
 clutter_keyframe_transition_started (ClutterTimeline *timeline)
 {
   ClutterKeyframeTransition *transition;
+  ClutterKeyframeTransitionPrivate *priv;
 
   transition = CLUTTER_KEYFRAME_TRANSITION (timeline);
+  priv = clutter_keyframe_transition_get_instance_private (transition);
 
-  transition->priv->current_frame = -1;
+  priv->current_frame = -1;
 
   clutter_keyframe_transition_sort_frames (transition);
   clutter_keyframe_transition_update_frames (transition);
@@ -344,9 +352,9 @@ clutter_keyframe_transition_started (ClutterTimeline *timeline)
 static void
 clutter_keyframe_transition_completed (ClutterTimeline *timeline)
 {
-  ClutterKeyframeTransitionPrivate *priv;
-
-  priv = CLUTTER_KEYFRAME_TRANSITION (timeline)->priv;
+  ClutterKeyframeTransition *transition = CLUTTER_KEYFRAME_TRANSITION (timeline);
+  ClutterKeyframeTransitionPrivate *priv =
+    clutter_keyframe_transition_get_instance_private (transition);
 
   priv->current_frame = -1;
 }
@@ -354,9 +362,9 @@ clutter_keyframe_transition_completed (ClutterTimeline *timeline)
 static void
 clutter_keyframe_transition_finalize (GObject *gobject)
 {
-  ClutterKeyframeTransitionPrivate *priv;
-
-  priv = CLUTTER_KEYFRAME_TRANSITION (gobject)->priv;
+  ClutterKeyframeTransition *transition = CLUTTER_KEYFRAME_TRANSITION (gobject);
+  ClutterKeyframeTransitionPrivate *priv =
+    clutter_keyframe_transition_get_instance_private (transition);
 
   if (priv->frames != NULL)
     g_array_unref (priv->frames);
@@ -382,7 +390,6 @@ clutter_keyframe_transition_class_init (ClutterKeyframeTransitionClass *klass)
 static void
 clutter_keyframe_transition_init (ClutterKeyframeTransition *self)
 {
-  self->priv = clutter_keyframe_transition_get_instance_private (self);
 }
 
 /**
@@ -428,7 +435,7 @@ clutter_keyframe_transition_set_key_frames (ClutterKeyframeTransition *transitio
   g_return_if_fail (n_key_frames > 0);
   g_return_if_fail (key_frames != NULL);
 
-  priv = transition->priv;
+  priv = clutter_keyframe_transition_get_instance_private (transition);
 
   if (priv->frames == NULL)
     clutter_keyframe_transition_init_frames (transition, n_key_frames);
@@ -468,7 +475,7 @@ clutter_keyframe_transition_set_values (ClutterKeyframeTransition *transition,
   g_return_if_fail (n_values > 0);
   g_return_if_fail (values != NULL);
 
-  priv = transition->priv;
+  priv = clutter_keyframe_transition_get_instance_private (transition);
 
   if (priv->frames == NULL)
     clutter_keyframe_transition_init_frames (transition, n_values);
@@ -513,7 +520,7 @@ clutter_keyframe_transition_set_modes (ClutterKeyframeTransition  *transition,
   g_return_if_fail (n_modes > 0);
   g_return_if_fail (modes != NULL);
 
-  priv = transition->priv;
+  priv = clutter_keyframe_transition_get_instance_private (transition);
 
   if (priv->frames == NULL)
     clutter_keyframe_transition_init_frames (transition, n_modes);
@@ -558,7 +565,7 @@ clutter_keyframe_transition_set (ClutterKeyframeTransition *transition,
   g_return_if_fail (gtype != G_TYPE_INVALID);
   g_return_if_fail (n_key_frames > 0);
 
-  priv = transition->priv;
+  priv = clutter_keyframe_transition_get_instance_private (transition);
 
   if (priv->frames == NULL)
     clutter_keyframe_transition_init_frames (transition, n_key_frames);
@@ -603,12 +610,15 @@ clutter_keyframe_transition_set (ClutterKeyframeTransition *transition,
 void
 clutter_keyframe_transition_clear (ClutterKeyframeTransition *transition)
 {
+  ClutterKeyframeTransitionPrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_KEYFRAME_TRANSITION (transition));
 
-  if (transition->priv->frames != NULL)
+  priv = clutter_keyframe_transition_get_instance_private (transition);
+  if (priv->frames != NULL)
     {
-      g_array_unref (transition->priv->frames);
-      transition->priv->frames = NULL;
+      g_array_unref (priv->frames);
+      priv->frames = NULL;
     }
 }
 
@@ -623,12 +633,15 @@ clutter_keyframe_transition_clear (ClutterKeyframeTransition *transition)
 guint
 clutter_keyframe_transition_get_n_key_frames (ClutterKeyframeTransition *transition)
 {
+  ClutterKeyframeTransitionPrivate *priv;
+
   g_return_val_if_fail (CLUTTER_IS_KEYFRAME_TRANSITION (transition), 0);
 
-  if (transition->priv->frames == NULL)
+  priv = clutter_keyframe_transition_get_instance_private (transition);
+  if (priv->frames == NULL)
     return 0;
 
-  return transition->priv->frames->len - 1;
+  return priv->frames->len - 1;
 }
 
 /**
@@ -656,7 +669,7 @@ clutter_keyframe_transition_set_key_frame (ClutterKeyframeTransition *transition
 
   g_return_if_fail (CLUTTER_IS_KEYFRAME_TRANSITION (transition));
 
-  priv = transition->priv;
+  priv = clutter_keyframe_transition_get_instance_private (transition);
   g_return_if_fail (priv->frames != NULL);
   g_return_if_fail (index_ < priv->frames->len - 1);
 
@@ -692,7 +705,7 @@ clutter_keyframe_transition_get_key_frame (ClutterKeyframeTransition *transition
 
   g_return_if_fail (CLUTTER_IS_KEYFRAME_TRANSITION (transition));
 
-  priv = transition->priv;
+  priv = clutter_keyframe_transition_get_instance_private (transition);
   g_return_if_fail (priv->frames != NULL);
   g_return_if_fail (index_ < priv->frames->len - 1);
 

@@ -33,22 +33,14 @@
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_KEYFRAME_TRANSITION                (clutter_keyframe_transition_get_type ())
-#define CLUTTER_KEYFRAME_TRANSITION(obj)                (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_KEYFRAME_TRANSITION, ClutterKeyframeTransition))
-#define CLUTTER_IS_KEYFRAME_TRANSITION(obj)             (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_KEYFRAME_TRANSITION))
-#define CLUTTER_KEYFRAME_TRANSITION_CLASS(klass)        (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_KEYFRAME_TRANSITION, ClutterKeyframeTransitionClass))
-#define CLUTTER_IS_KEYFRAME_TRANSITION_CLASS(klass)     (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_KEYFRAME_TRANSITION))
-#define CLUTTER_KEYFRAME_TRANSITION_GET_CLASS(obj)      (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_KEYFRAME_TRANSITION, ClutterKeyframeTransitionClass))
 
-typedef struct _ClutterKeyframeTransitionPrivate        ClutterKeyframeTransitionPrivate;
-typedef struct _ClutterKeyframeTransitionClass          ClutterKeyframeTransitionClass;
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (ClutterKeyframeTransition,
+                          clutter_keyframe_transition,
+                          CLUTTER,
+                          KEYFRAME_TRANSITION,
+                          ClutterPropertyTransition)
 
-struct _ClutterKeyframeTransition
-{
-  /*< private >*/
-  ClutterPropertyTransition parent_instance;
-
-  ClutterKeyframeTransitionPrivate *priv;
-};
 
 /**
  * ClutterKeyframeTransitionClass:
@@ -61,9 +53,6 @@ struct _ClutterKeyframeTransitionClass
   /*< private >*/
   ClutterPropertyTransitionClass parent_class;
 };
-
-CLUTTER_EXPORT
-GType clutter_keyframe_transition_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
 ClutterTransition *     clutter_keyframe_transition_new                 (const char *property_name);
