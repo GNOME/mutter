@@ -9,14 +9,11 @@
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_SETTINGS           (clutter_settings_get_type ())
-#define CLUTTER_SETTINGS(obj)           (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_SETTINGS, ClutterSettings))
-#define CLUTTER_IS_SETTINGS(obj)        (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_SETTINGS))
-
-typedef struct _ClutterSettings         ClutterSettings;
-typedef struct _ClutterSettingsClass    ClutterSettingsClass;
 
 CLUTTER_EXPORT
-GType clutter_settings_get_type (void) G_GNUC_CONST;
+G_DECLARE_FINAL_TYPE (ClutterSettings, clutter_settings,
+                      CLUTTER, SETTINGS,
+                      GObject)
 
 CLUTTER_EXPORT
 ClutterSettings *clutter_settings_get_default (void);

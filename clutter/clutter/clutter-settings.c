@@ -1,6 +1,6 @@
 /**
  * ClutterSettings:
- * 
+ *
  * Settings configuration
  *
  * Clutter depends on some settings to perform operations like detecting
@@ -34,10 +34,6 @@
 #include <stdlib.h>
 
 #define DEFAULT_FONT_NAME       "Sans 12"
-
-#define CLUTTER_SETTINGS_CLASS(klass)           (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_SETTINGS, ClutterSettingsClass))
-#define CLUTTER_IS_SETTINGS_CLASS(klass)        (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_SETTINGS))
-#define CLUTTER_SETTINGS_GET_CLASS(obj)         (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_SETTINGS, ClutterSettingsClass))
 
 typedef struct
 {
@@ -84,11 +80,6 @@ struct _ClutterSettings
   gint unscaled_font_dpi;
 };
 
-struct _ClutterSettingsClass
-{
-  GObjectClass parent_class;
-};
-
 enum
 {
   PROP_0,
@@ -119,7 +110,7 @@ enum
 
 static GParamSpec *obj_props[PROP_LAST];
 
-G_DEFINE_TYPE (ClutterSettings, clutter_settings, G_TYPE_OBJECT);
+G_DEFINE_FINAL_TYPE (ClutterSettings, clutter_settings, G_TYPE_OBJECT);
 
 static inline void
 settings_update_font_options (ClutterSettings *self)
