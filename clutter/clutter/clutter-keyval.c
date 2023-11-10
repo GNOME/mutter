@@ -176,9 +176,9 @@ clutter_keys_keyval_compare (const void *pkey, const void *pbase)
  * clutter_keyval_name:
  * @keyval: A key value.
  *  
- * Returns: (nullable): The corresponding symbolic name.
+ * Returns: (nullable) (transfer none): The corresponding symbolic name.
  */
-char *
+const char *
 clutter_keyval_name (unsigned int keyval)
 {
   static char buf[100];

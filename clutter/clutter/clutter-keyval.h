@@ -35,6 +35,6 @@ void clutter_keyval_convert_case (unsigned int  symbol,
                                   unsigned int *upper);
 
 CLUTTER_EXPORT
-char * clutter_keyval_name       (unsigned int keyval);
+const char * clutter_keyval_name (unsigned int keyval);
 
 G_END_DECLS
