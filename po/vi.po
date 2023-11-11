@@ -3,22 +3,22 @@
 # This file is distributed under the same license as the Metacity package.
 # Nguyễn Thái Ngọc Duy <pclouds@gmail.com>, 2002-2004, 2007, 2008, 2011-2013.
 # Clytie Siddall <clytie@riverland.net.au>, 2005-2009.
-# Trần Ngọc Quân <vnwildman@gmail.com>, 2014-2022.
+# Trần Ngọc Quân <vnwildman@gmail.com>, 2014-2023.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter main\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2023-03-30 11:40+0000\n"
-"PO-Revision-Date: 2023-04-01 08:20+0700\n"
+"POT-Creation-Date: 2023-10-31 23:39+0000\n"
+"PO-Revision-Date: 2023-11-11 14:05+0700\n"
 "Last-Translator: Trần Ngọc Quân <vnwildman@gmail.com>\n"
-"Language-Team: Vietnamese <gnome-vi-list@gnome.org>\n"
+"Language-Team: Vietnamese <Vietnamese <gnome-vi-list@gnome.org>>\n"
 "Language: vi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Gtranslator 3.38.0\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"X-Generator: Gtranslator 42.0\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -157,20 +157,20 @@ msgid "Switch to last workspace"
 msgstr "Chuyển sang không gian làm việc cuối"
 
 #: data/50-mutter-navigation.xml:131
-msgid "Move to workspace on the left"
+msgid "Switch to workspace on the left"
 msgstr "Chuyển sang không gian làm việc bên trái"
 
 #: data/50-mutter-navigation.xml:134
-msgid "Move to workspace on the right"
+msgid "Switch to workspace on the right"
 msgstr "Chuyển sang không gian làm việc bên phải"
 
 #: data/50-mutter-navigation.xml:138
-msgid "Move to workspace above"
-msgstr "Chuyển sang không gian làm việc trên"
+msgid "Switch to workspace above"
+msgstr "Chuyển sang không gian làm việc phía trên"
 
 #: data/50-mutter-navigation.xml:142
-msgid "Move to workspace below"
-msgstr "Chuyển sang không gian làm việc dưới"
+msgid "Switch to workspace below"
+msgstr "Chuyển sang không gian làm việc phía dưới"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -436,6 +436,10 @@ msgstr "Chuyển các cấu hình màn hình"
 msgid "Rotates the built-in monitor configuration"
 msgstr "Quay cấu hình màn hình tích hợp"
 
+#: data/org.gnome.mutter.gschema.xml.in:184
+msgid "Cancel any active input capture session"
+msgstr "Hủy mọi phiên chụp liệu đầu vào đang hoạt động"
+
 #: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
 msgstr "Chuyển sang VT 1"
@@ -584,26 +588,26 @@ msgstr ""
 "trợ tùy chọn dòng lệnh +byteswappedclients/-byteswappedclients để kiểm soát "
 "cài đặt đó. Xwayland cần được khởi động lại để cài đặt này có hiệu lực."
 
-#: src/backends/meta-monitor.c:253
+#: src/backends/meta-monitor.c:251
 msgid "Built-in display"
 msgstr "Màn hình tích hợp"
 
-#: src/backends/meta-monitor.c:280
+#: src/backends/meta-monitor.c:278
 msgid "Unknown"
 msgstr "Không rõ"
 
-#: src/backends/meta-monitor.c:282
+#: src/backends/meta-monitor.c:280
 msgid "Unknown Display"
 msgstr "Không hiểu màn hình"
 
-#: src/backends/meta-monitor.c:290
+#: src/backends/meta-monitor.c:288
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:298
+#: src/backends/meta-monitor.c:296
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -611,23 +615,15 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#. This probably means that a non-WM compositor like xcompmgr is running;
-#. * we have no way to get it to exit
-#: src/compositor/compositor.c:416
-#, c-format
-msgid ""
-"Another compositing manager is already running on screen %i on display “%s”."
-msgstr "Bộ quản lý cửa sổ đã đang chạy trên màn ảnh %i trên màn hình “%s”."
-
-#: src/core/bell.c:192
+#: src/core/bell.c:193
 msgid "Bell event"
 msgstr "Sự kiện chuông"
 
-#: src/core/display.c:703
+#: src/core/display.c:723
 msgid "Privacy Screen Enabled"
 msgstr "Màn hình riêng tư được bật"
 
-#: src/core/display.c:704
+#: src/core/display.c:724
 msgid "Privacy Screen Disabled"
 msgstr "Màn hình riêng tư bị bật"
 
@@ -687,10 +683,14 @@ msgstr "Thêm màn hình ảo lâu dài (WxH hoặc WxH@R)"
 msgid "Run with X11 backend"
 msgstr "Chạy với ứng dụng chạy phía sau X11"
 
+#: src/core/meta-context-main.c:671
+msgid "Profile performance using trace instrumentation"
+msgstr "Hiệu suất hồ sơ bằng cách sử dụng thiết bị theo dõi"
+
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:861
+#: src/core/meta-pad-action-mapper.c:805
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Chuyển chế độ (Nhóm %d)"
@@ -698,16 +698,16 @@ msgstr "Chuyển chế độ (Nhóm %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:884
+#: src/core/meta-pad-action-mapper.c:827
 msgid "Switch monitor"
 msgstr "Chuyển màn hình"
 
-#: src/core/meta-pad-action-mapper.c:886
+#: src/core/meta-pad-action-mapper.c:829
 msgid "Show on-screen help"
 msgstr "Hiển thị trợ giúp trên-màn-hình"
 
 #. Translators: this string will appear in Sysprof
-#: src/core/meta-profiler.c:80 src/core/meta-profiler.c:217
+#: src/core/meta-profiler.c:109 src/core/meta-profiler.c:299
 msgid "Compositor"
 msgstr "Bộ tổng hợp"
 
@@ -719,25 +719,25 @@ msgstr "Hiển thị phiên bản"
 msgid "Mutter plugin to use"
 msgstr "Phần bổ sung Mutter cần dùng"
 
-#: src/core/prefs.c:1913
+#: src/core/prefs.c:1843
 #, c-format
 msgid "Workspace %d"
 msgstr "Không gian làm việc %d"
 
-#: src/core/util.c:142
+#: src/core/util.c:139
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter đã được biên dịch không hỗ trợ chế độ chi tiết"
 
-#: src/core/workspace.c:541
+#: src/core/workspace.c:512
 msgid "Workspace switched"
 msgstr "Đã chuyển đổi không gian làm việc"
 
-#: src/wayland/meta-wayland-tablet-pad.c:530
+#: src/wayland/meta-wayland-tablet-pad.c:532
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Chuyển chế độ: Chế độ %d"
 
-#: src/x11/meta-x11-display.c:701
+#: src/x11/meta-x11-display.c:717
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -746,25 +746,39 @@ msgstr ""
 "Màn hình “%s” đã có bộ quản lý cửa sổ rồi; hãy thử dùng tùy chọn --replace "
 "để thay thế bộ quản lý cửa sổ đang dùng."
 
-#: src/x11/meta-x11-display.c:1062
+#: src/x11/meta-x11-display.c:1082
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Gặp lỗi khi mở bộ hiển thị Hệ thống Cửa sổ X “%s”"
 
-#: src/x11/meta-x11-display.c:1207
+#: src/x11/meta-x11-display.c:1209
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Màn hình %d trên bộ hiển thị “%s” là không hợp lệ"
 
-#: src/x11/meta-x11-selection-input-stream.c:481
+#. This probably means that a non-WM compositor like xcompmgr is running;
+#. * we have no way to get it to exit
+#: src/x11/meta-x11-display.c:2460
+#, c-format
+msgid ""
+"Another compositing manager is already running on screen %i on display “%s”."
+msgstr "Bộ quản lý cửa sổ đã đang chạy trên màn ảnh %i trên màn hình “%s”."
+
+#: src/x11/meta-x11-selection-input-stream.c:475
 #, c-format
 msgid "Format %s not supported"
 msgstr "Không hỗ trợ định dạng %s"
 
-#: src/x11/window-props.c:549
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (trên %s)"
+
+#~ msgid "Move to workspace above"
+#~ msgstr "Chuyển sang không gian làm việc trên"
+
+#~ msgid "Move to workspace below"
+#~ msgstr "Chuyển sang không gian làm việc dưới"
 
 #~ msgid "Mutter"
 #~ msgstr "Mutter"
