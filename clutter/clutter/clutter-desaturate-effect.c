@@ -24,7 +24,7 @@
 
 /**
  * ClutterDesaturateEffect:
- * 
+ *
  * A desaturation effect
  *
  * #ClutterDesaturateEffect is a sub-class of #ClutterEffect that
@@ -32,10 +32,6 @@
  * of the desaturation effect is controllable and animatable through
  * the #ClutterDesaturateEffect:factor property.
  */
-
-#define CLUTTER_DESATURATE_EFFECT_CLASS(klass)        (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_DESATURATE_EFFECT, ClutterDesaturateEffectClass))
-#define CLUTTER_IS_DESATURATE_EFFECT_CLASS(klass)     (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_DESATURATE_EFFECT))
-#define CLUTTER_DESATURATE_EFFECT_GET_CLASS(obj)      (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_DESATURATE_EFFECT, ClutterDesaturateEffectClass))
 
 #include "config.h"
 
@@ -47,13 +43,10 @@
 
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-enum-types.h"
-#include "clutter/clutter-offscreen-effect.h"
 #include "clutter/clutter-private.h"
 
-struct _ClutterDesaturateEffect
+typedef struct _ClutterDesaturateEffectPrivate
 {
-  ClutterOffscreenEffect parent_instance;
-
   /* the desaturation factor, also known as "strength" */
   gdouble factor;
 
@@ -63,14 +56,8 @@ struct _ClutterDesaturateEffect
   gint tex_height;
 
   CoglPipeline *pipeline;
-};
+} ClutterDesaturateEffectPrivate;
 
-struct _ClutterDesaturateEffectClass
-{
-  ClutterOffscreenEffectClass parent_class;
-
-  CoglPipeline *base_pipeline;
-};
 
 /* the magic gray vec3 has been taken from the NTSC conversion weights
  * as defined by:
@@ -103,9 +90,9 @@ enum
 
 static GParamSpec *obj_props[PROP_LAST];
 
-G_DEFINE_TYPE (ClutterDesaturateEffect,
-               clutter_desaturate_effect,
-               CLUTTER_TYPE_OFFSCREEN_EFFECT);
+G_DEFINE_TYPE_WITH_PRIVATE (ClutterDesaturateEffect,
+                            clutter_desaturate_effect,
+                            CLUTTER_TYPE_OFFSCREEN_EFFECT);
 
 static CoglPipeline *
 clutter_desaturate_effect_create_pipeline (ClutterOffscreenEffect *effect,
@@ -113,18 +100,22 @@ clutter_desaturate_effect_create_pipeline (ClutterOffscreenEffect *effect,
 {
   ClutterDesaturateEffect *desaturate_effect =
     CLUTTER_DESATURATE_EFFECT (effect);
+  ClutterDesaturateEffectPrivate *priv =
+    clutter_desaturate_effect_get_instance_private (desaturate_effect);
 
-  cogl_pipeline_set_layer_texture (desaturate_effect->pipeline, 0, texture);
+  cogl_pipeline_set_layer_texture (priv->pipeline, 0, texture);
 
-  return g_object_ref (desaturate_effect->pipeline);
+  return g_object_ref (priv->pipeline);
 }
 
 static void
 clutter_desaturate_effect_dispose (GObject *gobject)
 {
   ClutterDesaturateEffect *self = CLUTTER_DESATURATE_EFFECT (gobject);
+  ClutterDesaturateEffectPrivate *priv =
+    clutter_desaturate_effect_get_instance_private (self);
 
-  g_clear_object (&self->pipeline);
+  g_clear_object (&priv->pipeline);
 
   G_OBJECT_CLASS (clutter_desaturate_effect_parent_class)->dispose (gobject);
 }
@@ -157,11 +148,13 @@ clutter_desaturate_effect_get_property (GObject    *gobject,
                                         GParamSpec *pspec)
 {
   ClutterDesaturateEffect *effect = CLUTTER_DESATURATE_EFFECT (gobject);
+  ClutterDesaturateEffectPrivate *priv =
+    clutter_desaturate_effect_get_instance_private (effect);
 
   switch (prop_id)
     {
     case PROP_FACTOR:
-      g_value_set_double (value, effect->factor);
+      g_value_set_double (value, priv->factor);
       break;
 
     default:
@@ -173,10 +166,13 @@ clutter_desaturate_effect_get_property (GObject    *gobject,
 static void
 update_factor_uniform (ClutterDesaturateEffect *self)
 {
-  if (self->factor_uniform > -1)
-    cogl_pipeline_set_uniform_1f (self->pipeline,
-                                  self->factor_uniform,
-                                  self->factor);
+  ClutterDesaturateEffectPrivate *priv =
+    clutter_desaturate_effect_get_instance_private (self);
+
+  if (priv->factor_uniform > -1)
+    cogl_pipeline_set_uniform_1f (priv->pipeline,
+                                  priv->factor_uniform,
+                                  priv->factor);
 }
 
 static void
@@ -212,6 +208,8 @@ static void
 clutter_desaturate_effect_init (ClutterDesaturateEffect *self)
 {
   ClutterDesaturateEffectClass *klass = CLUTTER_DESATURATE_EFFECT_GET_CLASS (self);
+  ClutterDesaturateEffectPrivate *priv =
+    clutter_desaturate_effect_get_instance_private (self);
 
   if (G_UNLIKELY (klass->base_pipeline == NULL))
     {
@@ -230,12 +228,12 @@ clutter_desaturate_effect_init (ClutterDesaturateEffect *self)
       cogl_pipeline_set_layer_null_texture (klass->base_pipeline, 0);
     }
 
-  self->pipeline = cogl_pipeline_copy (klass->base_pipeline);
+  priv->pipeline = cogl_pipeline_copy (klass->base_pipeline);
 
-  self->factor_uniform =
-    cogl_pipeline_get_uniform_location (self->pipeline, "factor");
+  priv->factor_uniform =
+    cogl_pipeline_get_uniform_location (priv->pipeline, "factor");
 
-  self->factor = 1.0;
+  priv->factor = 1.0;
 
   update_factor_uniform (self);
 }
@@ -271,12 +269,15 @@ void
 clutter_desaturate_effect_set_factor (ClutterDesaturateEffect *effect,
                                       double                   factor)
 {
+  ClutterDesaturateEffectPrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_DESATURATE_EFFECT (effect));
   g_return_if_fail (factor >= 0.0 && factor <= 1.0);
 
-  if (fabs (effect->factor - factor) >= 0.00001)
+  priv = clutter_desaturate_effect_get_instance_private (effect);
+  if (fabs (priv->factor - factor) >= 0.00001)
     {
-      effect->factor = factor;
+      priv->factor = factor;
       update_factor_uniform (effect);
 
       clutter_effect_queue_repaint (CLUTTER_EFFECT (effect));
@@ -296,7 +297,10 @@ clutter_desaturate_effect_set_factor (ClutterDesaturateEffect *effect,
 gdouble
 clutter_desaturate_effect_get_factor (ClutterDesaturateEffect *effect)
 {
+  ClutterDesaturateEffectPrivate *priv;
+
   g_return_val_if_fail (CLUTTER_IS_DESATURATE_EFFECT (effect), 0.0);
 
-  return effect->factor;
+  priv = clutter_desaturate_effect_get_instance_private (effect);
+  return priv->factor;
 }
