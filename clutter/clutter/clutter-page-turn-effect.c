@@ -27,7 +27,7 @@
 
 /**
  * ClutterPageTurnEffect:
- * 
+ *
  * A page turning effect
  *
  * A simple page turning effect
@@ -42,10 +42,6 @@
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-private.h"
 
-#define CLUTTER_PAGE_TURN_EFFECT_CLASS(k)       (G_TYPE_CHECK_CLASS_CAST ((k), CLUTTER_TYPE_PAGE_TURN_EFFECT, ClutterPageTurnEffectClass))
-#define CLUTTER_IS_PAGE_TURN_EFFECT_CLASS(k)    (G_TYPE_CHECK_CLASS_TYPE ((k), CLUTTER_TYPE_PAGE_TURN_EFFECT))
-#define CLUTTER_PAGE_TURN_EFFECT_GET_CLASS(o)   (G_TYPE_INSTANCE_GET_CLASS ((o), CLUTTER_TYPE_PAGE_TURN_EFFECT, ClutterPageTurnEffectClass))
-
 struct _ClutterPageTurnEffect
 {
   ClutterDeformEffect parent_instance;
@@ -54,11 +50,6 @@ struct _ClutterPageTurnEffect
   gdouble angle;
 
   gfloat radius;
-};
-
-struct _ClutterPageTurnEffectClass
-{
-  ClutterDeformEffectClass parent_class;
 };
 
 enum
