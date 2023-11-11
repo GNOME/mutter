@@ -29,27 +29,19 @@
 #endif
 
 #include "clutter/clutter-layout-manager.h"
+#include "clutter/clutter.h"
+#include "clutter/clutter-autocleanups.h"
 
 G_BEGIN_DECLS
 
-#define CLUTTER_TYPE_BIN_LAYOUT                 (clutter_bin_layout_get_type ())
-#define CLUTTER_BIN_LAYOUT(obj)                 (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_BIN_LAYOUT, ClutterBinLayout))
-#define CLUTTER_IS_BIN_LAYOUT(obj)              (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_BIN_LAYOUT))
-#define CLUTTER_BIN_LAYOUT_CLASS(klass)         (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_BIN_LAYOUT, ClutterBinLayoutClass))
-#define CLUTTER_IS_BIN_LAYOUT_CLASS(klass)      (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_BIN_LAYOUT))
-#define CLUTTER_BIN_LAYOUT_GET_CLASS(obj)       (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_BIN_LAYOUT, ClutterBinLayoutClass))
+#define CLUTTER_TYPE_BIN_LAYOUT (clutter_bin_layout_get_type ())
 
-typedef struct _ClutterBinLayout                ClutterBinLayout;
-typedef struct _ClutterBinLayoutPrivate         ClutterBinLayoutPrivate;
-typedef struct _ClutterBinLayoutClass           ClutterBinLayoutClass;
-
-struct _ClutterBinLayout
-{
-  /*< private >*/
-  ClutterLayoutManager parent_instance;
-
-  ClutterBinLayoutPrivate *priv;
-};
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (ClutterBinLayout,
+                          clutter_bin_layout,
+                          CLUTTER,
+                          BIN_LAYOUT,
+                          ClutterLayoutManager)
 
 /**
  * ClutterBinLayoutClass:
@@ -62,9 +54,6 @@ struct _ClutterBinLayoutClass
   /*< private >*/
   ClutterLayoutManagerClass parent_class;
 };
-
-CLUTTER_EXPORT
-GType clutter_bin_layout_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
 ClutterLayoutManager *  clutter_bin_layout_new  (void);

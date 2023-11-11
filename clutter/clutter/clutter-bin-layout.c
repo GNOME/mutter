@@ -24,7 +24,7 @@
 
 /**
  * ClutterBinLayout:
- * 
+ *
  * A simple layout manager
  *
  * #ClutterBinLayout is a layout manager which implements the following
@@ -46,9 +46,6 @@
 
 #include <math.h>
 
-#define CLUTTER_DISABLE_DEPRECATION_WARNINGS
-#include "clutter/deprecated/clutter-container.h"
-
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-animatable.h"
 #include "clutter/clutter-bin-layout.h"
@@ -58,14 +55,9 @@
 #include "clutter/clutter-layout-meta.h"
 #include "clutter/clutter-private.h"
 
-struct _ClutterBinLayoutPrivate
-{
-  ClutterContainer *container;
-};
-
-G_DEFINE_TYPE_WITH_PRIVATE (ClutterBinLayout,
-                            clutter_bin_layout,
-                            CLUTTER_TYPE_LAYOUT_MANAGER)
+G_DEFINE_TYPE (ClutterBinLayout,
+               clutter_bin_layout,
+               CLUTTER_TYPE_LAYOUT_MANAGER)
 
 static void
 clutter_bin_layout_get_preferred_width (ClutterLayoutManager *manager,
@@ -261,20 +253,6 @@ clutter_bin_layout_allocate (ClutterLayoutManager   *manager,
 }
 
 static void
-clutter_bin_layout_set_container (ClutterLayoutManager *manager,
-                                  ClutterContainer     *container)
-{
-  ClutterBinLayoutPrivate *priv;
-  ClutterLayoutManagerClass *parent_class;
-
-  priv = CLUTTER_BIN_LAYOUT (manager)->priv;
-  priv->container = container;
-
-  parent_class = CLUTTER_LAYOUT_MANAGER_CLASS (clutter_bin_layout_parent_class);
-  parent_class->set_container (manager, container);
-}
-
-static void
 clutter_bin_layout_class_init (ClutterBinLayoutClass *klass)
 {
   ClutterLayoutManagerClass *layout_class =
@@ -283,13 +261,11 @@ clutter_bin_layout_class_init (ClutterBinLayoutClass *klass)
   layout_class->get_preferred_width = clutter_bin_layout_get_preferred_width;
   layout_class->get_preferred_height = clutter_bin_layout_get_preferred_height;
   layout_class->allocate = clutter_bin_layout_allocate;
-  layout_class->set_container = clutter_bin_layout_set_container;
 }
 
 static void
 clutter_bin_layout_init (ClutterBinLayout *self)
 {
-  self->priv = clutter_bin_layout_get_instance_private (self);
 }
 
 /**
