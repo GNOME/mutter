@@ -102,6 +102,4 @@
 #include "clutter/clutter-virtual-input-device.h"
 #include "clutter/clutter-zoom-action.h"
 
-#include "clutter/clutter-autocleanups.h"
-
 #undef __CLUTTER_H_INSIDE__

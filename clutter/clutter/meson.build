@@ -8,7 +8,6 @@ clutter_headers = [
   'clutter-actor.h',
   'clutter-align-constraint.h',
   'clutter-animatable.h',
-  'clutter-autocleanups.h',
   'clutter-backend.h',
   'clutter-bind-constraint.h',
   'clutter-binding-pool.h',

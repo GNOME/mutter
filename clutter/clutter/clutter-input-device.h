@@ -61,6 +61,8 @@ struct _ClutterInputDeviceClass
 #define CLUTTER_IS_INPUT_DEVICE_CLASS(klass)    (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_INPUT_DEVICE))
 #define CLUTTER_INPUT_DEVICE_GET_CLASS(obj)     (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_INPUT_DEVICE, ClutterInputDeviceClass))
 
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterInputDevice, g_object_unref)
+
 typedef struct _ClutterInputDeviceClass ClutterInputDeviceClass;
 
 CLUTTER_EXPORT
