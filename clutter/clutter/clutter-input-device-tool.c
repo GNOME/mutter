@@ -26,15 +26,13 @@
 #include "clutter/clutter-input-device-tool.h"
 #include "clutter/clutter-private.h"
 
-typedef struct _ClutterInputDeviceToolPrivate ClutterInputDeviceToolPrivate;
-
-struct _ClutterInputDeviceToolPrivate
+typedef struct _ClutterInputDeviceToolPrivate
 {
   ClutterInputDeviceToolType type;
   guint64 serial;
   guint64 id;
   ClutterInputAxisFlags axes;
-};
+} ClutterInputDeviceToolPrivate;
 
 enum
 {

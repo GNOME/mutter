@@ -33,18 +33,6 @@
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_INPUT_DEVICE_TOOL            (clutter_input_device_tool_get_type ())
-#define CLUTTER_INPUT_DEVICE_TOOL(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_INPUT_DEVICE_TOOL, ClutterInputDeviceTool))
-#define CLUTTER_IS_INPUT_DEVICE_TOOL(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_INPUT_DEVICE_TOOL))
-#define CLUTTER_INPUT_DEVICE_TOOL_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_INPUT_DEVICE_TOOL, ClutterInputDeviceToolClass))
-#define CLUTTER_IS_INPUT_DEVICE_TOOL_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_INPUT_DEVICE_TOOL))
-#define CLUTTER_INPUT_DEVICE_TOOL_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_INPUT_DEVICE_TOOL, ClutterInputDeviceToolClass))
-
-typedef struct _ClutterInputDeviceToolClass ClutterInputDeviceToolClass;
-
-struct _ClutterInputDeviceTool
-{
-  GObject parent_instance;
-};
 
 struct _ClutterInputDeviceToolClass
 {
@@ -52,7 +40,10 @@ struct _ClutterInputDeviceToolClass
 };
 
 CLUTTER_EXPORT
-GType                      clutter_input_device_tool_get_type (void) G_GNUC_CONST;
+G_DECLARE_DERIVABLE_TYPE (ClutterInputDeviceTool,
+                          clutter_input_device_tool,
+                          CLUTTER, INPUT_DEVICE_TOOL,
+                          GObject)
 
 CLUTTER_EXPORT
 guint64                    clutter_input_device_tool_get_serial    (ClutterInputDeviceTool *tool);
