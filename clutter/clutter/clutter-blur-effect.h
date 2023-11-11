@@ -29,18 +29,24 @@
 #endif
 
 #include "clutter/clutter-effect.h"
+#include "clutter/clutter-offscreen-effect.h"
 
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_BLUR_EFFECT        (clutter_blur_effect_get_type ())
-#define CLUTTER_BLUR_EFFECT(obj)        (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_BLUR_EFFECT, ClutterBlurEffect))
-#define CLUTTER_IS_BLUR_EFFECT(obj)     (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_BLUR_EFFECT))
-
-typedef struct _ClutterBlurEffect       ClutterBlurEffect;
-typedef struct _ClutterBlurEffectClass  ClutterBlurEffectClass;
 
 CLUTTER_EXPORT
-GType clutter_blur_effect_get_type (void) G_GNUC_CONST;
+G_DECLARE_DERIVABLE_TYPE (ClutterBlurEffect,
+                          clutter_blur_effect,
+                          CLUTTER, BLUR_EFFECT,
+                          ClutterOffscreenEffect)
+
+struct _ClutterBlurEffectClass
+{
+  ClutterOffscreenEffectClass parent_class;
+
+  CoglPipeline *base_pipeline;
+};
 
 CLUTTER_EXPORT
 ClutterEffect *clutter_blur_effect_new (void);
