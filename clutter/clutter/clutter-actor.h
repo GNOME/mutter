@@ -51,6 +51,8 @@ G_BEGIN_DECLS
 #define CLUTTER_IS_ACTOR_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_ACTOR))
 #define CLUTTER_ACTOR_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_ACTOR, ClutterActorClass))
 
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterActor, g_object_unref)
+
 typedef struct _ClutterActorClass    ClutterActorClass;
 typedef struct _ClutterActorPrivate  ClutterActorPrivate;
 
