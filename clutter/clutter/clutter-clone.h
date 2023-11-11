@@ -31,24 +31,7 @@
 
 G_BEGIN_DECLS
 
-#define CLUTTER_TYPE_CLONE              (clutter_clone_get_type())
-#define CLUTTER_CLONE(obj)              (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_CLONE, ClutterClone))
-#define CLUTTER_CLONE_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_CLONE, ClutterCloneClass))
-#define CLUTTER_IS_CLONE(obj)           (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_CLONE))
-#define CLUTTER_IS_CLONE_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_CLONE))
-#define CLUTTER_CLONE_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_CLONE, ClutterCloneClass))
-
-typedef struct _ClutterClone            ClutterClone;
-typedef struct _ClutterCloneClass       ClutterCloneClass;
-typedef struct _ClutterClonePrivate     ClutterClonePrivate;
-
-struct _ClutterClone
-{
-  /*< private >*/
-  ClutterActor parent_instance;
-
-  ClutterClonePrivate *priv;
-};
+#define CLUTTER_TYPE_CLONE              (clutter_clone_get_type ())
 
 /**
  * ClutterCloneClass:
@@ -62,7 +45,10 @@ struct _ClutterCloneClass
 };
 
 CLUTTER_EXPORT
-GType clutter_clone_get_type (void) G_GNUC_CONST;
+G_DECLARE_DERIVABLE_TYPE (ClutterClone,
+                          clutter_clone,
+                          CLUTTER, CLONE,
+                          ClutterActor)
 
 CLUTTER_EXPORT
 ClutterActor *  clutter_clone_new               (ClutterActor *source);
