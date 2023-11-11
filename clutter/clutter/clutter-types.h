@@ -63,6 +63,7 @@ typedef struct _ClutterTransition       	ClutterTransition;
 typedef struct _ClutterPropertyTransition       ClutterPropertyTransition;
 typedef struct _ClutterKeyframeTransition       ClutterKeyframeTransition;
 typedef struct _ClutterTransitionGroup		ClutterTransitionGroup;
+typedef struct _ClutterText               ClutterText;
 
 typedef struct _ClutterAction                   ClutterAction;
 typedef struct _ClutterConstraint               ClutterConstraint;

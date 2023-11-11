@@ -30,6 +30,5 @@
 #ifndef __GI_SCANNER__
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterInputDevice, g_object_unref)
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterText, g_object_unref)
 
 #endif /* __GI_SCANNER__ */
