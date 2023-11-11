@@ -33,22 +33,13 @@
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_INTERVAL                   (clutter_interval_get_type ())
-#define CLUTTER_INTERVAL(obj)                   (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_INTERVAL, ClutterInterval))
-#define CLUTTER_IS_INTERVAL(obj)                (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_INTERVAL))
-#define CLUTTER_INTERVAL_CLASS(klass)           (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_INTERVAL, ClutterIntervalClass))
-#define CLUTTER_IS_INTERVAL_CLASS(klass)        (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_INTERVAL))
-#define CLUTTER_INTERVAL_GET_CLASS(obj)         (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_INTERVAL, ClutterIntervalClass))
 
-typedef struct _ClutterIntervalPrivate          ClutterIntervalPrivate;
-typedef struct _ClutterIntervalClass            ClutterIntervalClass;
-
-struct _ClutterInterval
-{
-  /*< private >*/
-  GInitiallyUnowned parent_instance;
-
-  ClutterIntervalPrivate *priv;
-};
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (ClutterInterval,
+                          clutter_interval,
+                          CLUTTER,
+                          INTERVAL,
+                          GInitiallyUnowned)
 
 /**
  * ClutterIntervalClass:
@@ -71,9 +62,6 @@ struct _ClutterIntervalClass
                               gdouble          factor,
                               GValue          *value);
 };
-
-CLUTTER_EXPORT
-GType            clutter_interval_get_type           (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
 ClutterInterval *clutter_interval_new                (GType            gtype,

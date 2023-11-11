@@ -77,12 +77,12 @@ enum
   N_VALUES
 };
 
-struct _ClutterIntervalPrivate
+typedef struct _ClutterIntervalPrivate
 {
   GType value_type;
 
   GValue *values;
-};
+} ClutterIntervalPrivate;
 
 G_DEFINE_TYPE_WITH_CODE (ClutterInterval,
                          clutter_interval,
@@ -376,7 +376,8 @@ clutter_interval_real_compute_value (ClutterInterval *interval,
 static void
 clutter_interval_finalize (GObject *gobject)
 {
-  ClutterIntervalPrivate *priv = CLUTTER_INTERVAL (gobject)->priv;
+  ClutterIntervalPrivate *priv =
+    clutter_interval_get_instance_private (CLUTTER_INTERVAL (gobject));
 
   if (G_IS_VALUE (&priv->values[INITIAL]))
     g_value_unset (&priv->values[INITIAL]);
@@ -433,9 +434,8 @@ clutter_interval_get_property (GObject    *gobject,
                                GValue     *value,
                                GParamSpec *pspec)
 {
-  ClutterIntervalPrivate *priv;
-  
-  priv = clutter_interval_get_instance_private (CLUTTER_INTERVAL (gobject));
+  ClutterIntervalPrivate *priv =
+    clutter_interval_get_instance_private (CLUTTER_INTERVAL (gobject));
 
   switch (prop_id)
     {
@@ -511,10 +511,11 @@ clutter_interval_class_init (ClutterIntervalClass *klass)
 static void
 clutter_interval_init (ClutterInterval *self)
 {
-  self->priv = clutter_interval_get_instance_private (self);
+  ClutterIntervalPrivate *priv =
+    clutter_interval_get_instance_private (self);
 
-  self->priv->value_type = G_TYPE_INVALID;
-  self->priv->values = g_malloc0 (sizeof (GValue) * N_VALUES);
+  priv->value_type = G_TYPE_INVALID;
+  priv->values = g_malloc0 (sizeof (GValue) * N_VALUES);
 }
 
 static inline void
@@ -522,7 +523,8 @@ clutter_interval_set_value_internal (ClutterInterval *interval,
                                      gint             index_,
                                      const GValue    *value)
 {
-  ClutterIntervalPrivate *priv = interval->priv;
+  ClutterIntervalPrivate *priv =
+    clutter_interval_get_instance_private (interval);
   GType value_type;
 
   g_assert (index_ >= INITIAL && index_ <= RESULT);
@@ -571,7 +573,8 @@ clutter_interval_get_value_internal (ClutterInterval *interval,
                                      gint             index_,
                                      GValue          *value)
 {
-  ClutterIntervalPrivate *priv = interval->priv;
+  ClutterIntervalPrivate *priv =
+    clutter_interval_get_instance_private (interval);
 
   g_assert (index_ >= INITIAL && index_ <= RESULT);
 
@@ -582,7 +585,9 @@ static gboolean
 clutter_interval_set_initial_internal (ClutterInterval *interval,
                                        va_list         *args)
 {
-  GType gtype = interval->priv->value_type;
+  ClutterIntervalPrivate *priv =
+    clutter_interval_get_instance_private (interval);
+  GType gtype = priv->value_type;
   GValue value = G_VALUE_INIT;
   gchar *error;
 
@@ -611,7 +616,9 @@ static gboolean
 clutter_interval_set_final_internal (ClutterInterval *interval,
                                      va_list         *args)
 {
-  GType gtype = interval->priv->value_type;
+  ClutterIntervalPrivate *priv =
+    clutter_interval_get_instance_private (interval);
+  GType gtype = priv->value_type;
   GValue value = G_VALUE_INIT;
   gchar *error;
 
@@ -640,7 +647,9 @@ static void
 clutter_interval_get_interval_valist (ClutterInterval *interval,
                                       va_list          var_args)
 {
-  GType gtype = interval->priv->value_type;
+  ClutterIntervalPrivate *priv =
+    clutter_interval_get_instance_private (interval);
+  GType gtype = priv->value_type;
   GValue value = G_VALUE_INIT;
   gchar *error;
 
@@ -758,11 +767,13 @@ clutter_interval_clone (ClutterInterval *interval)
   ClutterInterval *retval;
   GType gtype;
   GValue *tmp;
+  ClutterIntervalPrivate *priv;
 
   g_return_val_if_fail (CLUTTER_IS_INTERVAL (interval), NULL);
-  g_return_val_if_fail (interval->priv->value_type != G_TYPE_INVALID, NULL);
+  priv = clutter_interval_get_instance_private (interval);
+  g_return_val_if_fail (priv->value_type != G_TYPE_INVALID, NULL);
 
-  gtype = interval->priv->value_type;
+  gtype = priv->value_type;
   retval = g_object_new (CLUTTER_TYPE_INTERVAL, "value-type", gtype, NULL);
 
   tmp = clutter_interval_peek_initial_value (interval);
@@ -785,9 +796,12 @@ clutter_interval_clone (ClutterInterval *interval)
 GType
 clutter_interval_get_value_type (ClutterInterval *interval)
 {
+  ClutterIntervalPrivate *priv;
+
   g_return_val_if_fail (CLUTTER_IS_INTERVAL (interval), G_TYPE_INVALID);
 
-  return interval->priv->value_type;
+  priv = clutter_interval_get_instance_private (interval);
+  return priv->value_type;
 }
 
 /**
@@ -867,9 +881,12 @@ clutter_interval_get_initial_value (ClutterInterval *interval,
 GValue *
 clutter_interval_peek_initial_value (ClutterInterval *interval)
 {
+  ClutterIntervalPrivate *priv;
+
   g_return_val_if_fail (CLUTTER_IS_INTERVAL (interval), NULL);
 
-  return interval->priv->values + INITIAL;
+  priv = clutter_interval_get_instance_private (interval);
+  return priv->values + INITIAL;
 }
 
 /**
@@ -948,9 +965,12 @@ clutter_interval_set_final (ClutterInterval *interval,
 GValue *
 clutter_interval_peek_final_value (ClutterInterval *interval)
 {
+  ClutterIntervalPrivate *priv;
+
   g_return_val_if_fail (CLUTTER_IS_INTERVAL (interval), NULL);
 
-  return interval->priv->values + FINAL;
+  priv = clutter_interval_get_instance_private (interval);
+  return priv->values + FINAL;
 }
 
 /**
@@ -975,10 +995,12 @@ void
 clutter_interval_set_interval (ClutterInterval *interval,
                                ...)
 {
+  ClutterIntervalPrivate *priv;
   va_list args;
 
   g_return_if_fail (CLUTTER_IS_INTERVAL (interval));
-  g_return_if_fail (interval->priv->value_type != G_TYPE_INVALID);
+  priv = clutter_interval_get_instance_private (interval);
+  g_return_if_fail (priv->value_type != G_TYPE_INVALID);
 
   va_start (args, interval);
 
@@ -1013,10 +1035,12 @@ void
 clutter_interval_get_interval (ClutterInterval *interval,
                                ...)
 {
+  ClutterIntervalPrivate *priv;
   va_list args;
 
   g_return_if_fail (CLUTTER_IS_INTERVAL (interval));
-  g_return_if_fail (interval->priv->value_type != G_TYPE_INVALID);
+  priv = clutter_interval_get_instance_private (interval);
+  g_return_if_fail (priv->value_type != G_TYPE_INVALID);
 
   va_start (args, interval);
   clutter_interval_get_interval_valist (interval, args);
@@ -1089,22 +1113,24 @@ const GValue *
 clutter_interval_compute (ClutterInterval *interval,
                           gdouble          factor)
 {
+  ClutterIntervalPrivate *priv;
   GValue *value;
   gboolean res;
 
   g_return_val_if_fail (CLUTTER_IS_INTERVAL (interval), NULL);
 
-  value = &(interval->priv->values[RESULT]);
+  priv = clutter_interval_get_instance_private (interval);
+  value = &(priv->values[RESULT]);
 
   if (G_VALUE_TYPE (value) == G_TYPE_INVALID)
-    g_value_init (value, interval->priv->value_type);
+    g_value_init (value, priv->value_type);
 
   res = CLUTTER_INTERVAL_GET_CLASS (interval)->compute_value (interval,
                                                               factor,
                                                               value);
 
   if (res)
-    return interval->priv->values + RESULT;
+    return priv->values + RESULT;
 
   return NULL;
 }
@@ -1125,7 +1151,7 @@ clutter_interval_is_valid (ClutterInterval *interval)
 
   g_return_val_if_fail (CLUTTER_IS_INTERVAL (interval), FALSE);
 
-  priv = interval->priv;
+  priv = clutter_interval_get_instance_private (interval);
 
   return G_IS_VALUE (&priv->values[INITIAL]) &&
          G_IS_VALUE (&priv->values[FINAL]);
