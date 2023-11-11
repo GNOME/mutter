@@ -33,35 +33,12 @@
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_FIXED_LAYOUT               (clutter_fixed_layout_get_type ())
-#define CLUTTER_FIXED_LAYOUT(obj)               (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_FIXED_LAYOUT, ClutterFixedLayout))
-#define CLUTTER_IS_FIXED_LAYOUT(obj)            (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_FIXED_LAYOUT))
-#define CLUTTER_FIXED_LAYOUT_CLASS(klass)       (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_FIXED_LAYOUT, ClutterFixedLayoutClass))
-#define CLUTTER_IS_FIXED_LAYOUT_CLASS(klass)    (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_FIXED_LAYOUT))
-#define CLUTTER_FIXED_LAYOUT_GET_CLASS(obj)     (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_FIXED_LAYOUT, ClutterFixedLayoutClass))
-
-typedef struct _ClutterFixedLayout              ClutterFixedLayout;
-typedef struct _ClutterFixedLayoutClass         ClutterFixedLayoutClass;
-
-struct _ClutterFixedLayout
-{
-  /*< private >*/
-  ClutterLayoutManager parent_instance;
-};
-
-/**
- * ClutterFixedLayoutClass:
- *
- * The #ClutterFixedLayoutClass structure contains only private data
- * and it should be accessed using the provided API
- */
-struct _ClutterFixedLayoutClass
-{
-  /*< private >*/
-  ClutterLayoutManagerClass parent_class;
-};
 
 CLUTTER_EXPORT
-GType clutter_fixed_layout_get_type (void) G_GNUC_CONST;
+G_DECLARE_FINAL_TYPE (ClutterFixedLayout,
+                      clutter_fixed_layout,
+                      CLUTTER, FIXED_LAYOUT,
+                      ClutterLayoutManager)
 
 CLUTTER_EXPORT
 ClutterLayoutManager *clutter_fixed_layout_new (void);
