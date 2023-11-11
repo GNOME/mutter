@@ -33,38 +33,12 @@
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_FLOW_LAYOUT                (clutter_flow_layout_get_type ())
-#define CLUTTER_FLOW_LAYOUT(obj)                (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_FLOW_LAYOUT, ClutterFlowLayout))
-#define CLUTTER_IS_FLOW_LAYOUT(obj)             (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_FLOW_LAYOUT))
-#define CLUTTER_FLOW_LAYOUT_CLASS(klass)        (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_FLOW_LAYOUT, ClutterFlowLayoutClass))
-#define CLUTTER_IS_FLOW_LAYOUT_CLASS(klass)     (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_FLOW_LAYOUT))
-#define CLUTTER_FLOW_LAYOUT_GET_CLASS(obj)      (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_FLOW_LAYOUT, ClutterFlowLayoutClass))
-
-typedef struct _ClutterFlowLayout               ClutterFlowLayout;
-typedef struct _ClutterFlowLayoutPrivate        ClutterFlowLayoutPrivate;
-typedef struct _ClutterFlowLayoutClass          ClutterFlowLayoutClass;
-
-struct _ClutterFlowLayout
-{
-  /*< private >*/
-  ClutterLayoutManager parent_instance;
-
-  ClutterFlowLayoutPrivate *priv;
-};
-
-/**
- * ClutterFlowLayoutClass:
- *
- * The #ClutterFlowLayoutClass structure contains only private data
- * and should be accessed using the provided API
- */
-struct _ClutterFlowLayoutClass
-{
-  /*< private >*/
-  ClutterLayoutManagerClass parent_class;
-};
 
 CLUTTER_EXPORT
-GType clutter_flow_layout_get_type (void) G_GNUC_CONST;
+G_DECLARE_FINAL_TYPE (ClutterFlowLayout,
+                      clutter_flow_layout,
+                      CLUTTER, FLOW_LAYOUT,
+                      ClutterLayoutManager)
 
 CLUTTER_EXPORT
 ClutterLayoutManager * clutter_flow_layout_new                (ClutterFlowOrientation  orientation);
