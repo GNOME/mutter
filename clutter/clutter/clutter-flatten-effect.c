@@ -33,6 +33,11 @@
 #include "clutter/clutter-private.h"
 #include "clutter/clutter-actor-private.h"
 
+struct _ClutterFlattenEffect
+{
+  ClutterOffscreenEffect parent;
+};
+
 G_DEFINE_TYPE (ClutterFlattenEffect,
                _clutter_flatten_effect,
                CLUTTER_TYPE_OFFSCREEN_EFFECT);

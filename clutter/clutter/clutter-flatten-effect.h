@@ -28,42 +28,15 @@
 
 G_BEGIN_DECLS
 
-#define CLUTTER_TYPE_FLATTEN_EFFECT                                     \
-  (_clutter_flatten_effect_get_type())
-#define CLUTTER_FLATTEN_EFFECT(obj)                                     \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj),                                   \
-                               CLUTTER_TYPE_FLATTEN_EFFECT,             \
-                               ClutterFlattenEffect))
-#define CLUTTER_FLATTEN_EFFECT_CLASS(klass)                             \
-  (G_TYPE_CHECK_CLASS_CAST ((klass),                                    \
-                            CLUTTER_TYPE_FLATTEN_EFFECT,                \
-                            ClutterFlattenEffectClass))
-#define CLUTTER_IS_FLATTEN_EFFECT(obj)                                  \
-  (G_TYPE_CHECK_INSTANCE_TYPE ((obj),                                   \
-                               CLUTTER_TYPE_FLATTEN_EFFECT))
-#define CLUTTER_IS_FLATTEN_EFFECT_CLASS(klass)                          \
-  (G_TYPE_CHECK_CLASS_TYPE ((klass),                                    \
-                            CLUTTER_TYPE_FLATTEN_EFFECT))
-#define CLUTTER_FLATTEN_EFFECT_GET_CLASS(obj)                           \
-  (G_TYPE_INSTANCE_GET_CLASS ((obj),                                    \
-                              CLUTTER_FLATTEN_EFFECT,                   \
-                              ClutterFlattenEffectClass))
+#define CLUTTER_TYPE_FLATTEN_EFFECT (_clutter_flatten_effect_get_type ())
 
-typedef struct _ClutterFlattenEffect        ClutterFlattenEffect;
-typedef struct _ClutterFlattenEffectClass   ClutterFlattenEffectClass;
-typedef struct _ClutterFlattenEffectPrivate ClutterFlattenEffectPrivate;
+CLUTTER_EXPORT
+G_DECLARE_FINAL_TYPE (ClutterFlattenEffect,
+                      _clutter_flatten_effect,
+                      CLUTTER,
+                      FLATTEN_EFFECT,
+                      ClutterOffscreenEffect)
 
-struct _ClutterFlattenEffectClass
-{
-  ClutterOffscreenEffectClass parent_class;
-};
-
-struct _ClutterFlattenEffect
-{
-  ClutterOffscreenEffect parent;
-};
-
-GType _clutter_flatten_effect_get_type (void) G_GNUC_CONST;
 
 ClutterEffect *_clutter_flatten_effect_new (void);
 
