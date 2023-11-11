@@ -52,14 +52,14 @@
 #include "clutter/clutter-property-transition.h"
 #include "clutter/clutter-transition.h"
 
-struct _ClutterScrollActorPrivate
+typedef struct _ClutterScrollActorPrivate
 {
   graphene_point_t scroll_to;
 
   ClutterScrollMode scroll_mode;
 
   ClutterTransition *transition;
-};
+} ClutterScrollActorPrivate;
 
 enum
 {
@@ -95,7 +95,8 @@ static void
 clutter_scroll_actor_set_scroll_to_internal (ClutterScrollActor     *self,
                                              const graphene_point_t *point)
 {
-  ClutterScrollActorPrivate *priv = self->priv;
+  ClutterScrollActorPrivate *priv =
+    clutter_scroll_actor_get_instance_private (self);
   ClutterActor *actor = CLUTTER_ACTOR (self);
   graphene_matrix_t m;
   float dx, dy;
@@ -149,11 +150,13 @@ clutter_scroll_actor_get_property (GObject    *gobject,
                                    GParamSpec *pspec)
 {
   ClutterScrollActor *actor = CLUTTER_SCROLL_ACTOR (gobject);
+  ClutterScrollActorPrivate *priv =
+    clutter_scroll_actor_get_instance_private (actor);
 
   switch (prop_id)
     {
     case PROP_SCROLL_MODE:
-      g_value_set_flags (value, actor->priv->scroll_mode);
+      g_value_set_flags (value, priv->scroll_mode);
       break;
 
     default:
@@ -187,8 +190,10 @@ clutter_scroll_actor_class_init (ClutterScrollActorClass *klass)
 static void
 clutter_scroll_actor_init (ClutterScrollActor *self)
 {
-  self->priv = clutter_scroll_actor_get_instance_private (self);
-  self->priv->scroll_mode = CLUTTER_SCROLL_BOTH;
+  ClutterScrollActorPrivate *priv =
+    clutter_scroll_actor_get_instance_private (self);
+
+  priv->scroll_mode = CLUTTER_SCROLL_BOTH;
 
   clutter_actor_set_clip_to_allocation (CLUTTER_ACTOR (self), TRUE);
 }
@@ -227,8 +232,10 @@ clutter_scroll_actor_get_initial_state (ClutterAnimatable *animatable,
   if (strcmp (property_name, "scroll-to") == 0)
     {
       ClutterScrollActor *self = CLUTTER_SCROLL_ACTOR (animatable);
+      ClutterScrollActorPrivate *priv =
+        clutter_scroll_actor_get_instance_private (self);
 
-      g_value_set_boxed (value, &self->priv->scroll_to);
+      g_value_set_boxed (value, &priv->scroll_to);
     }
   else
     parent_animatable_iface->get_initial_state (animatable, property_name, value);
@@ -280,8 +287,7 @@ clutter_scroll_actor_set_scroll_mode (ClutterScrollActor *actor,
 
   g_return_if_fail (CLUTTER_IS_SCROLL_ACTOR (actor));
 
-  priv = actor->priv;
-
+  priv = clutter_scroll_actor_get_instance_private (actor);
   if (priv->scroll_mode == mode)
     return;
 
@@ -301,9 +307,12 @@ clutter_scroll_actor_set_scroll_mode (ClutterScrollActor *actor,
 ClutterScrollMode
 clutter_scroll_actor_get_scroll_mode (ClutterScrollActor *actor)
 {
+  ClutterScrollActorPrivate *priv;
+
   g_return_val_if_fail (CLUTTER_IS_SCROLL_ACTOR (actor), CLUTTER_SCROLL_NONE);
 
-  return actor->priv->scroll_mode;
+  priv = clutter_scroll_actor_get_instance_private (actor);
+  return priv->scroll_mode;
 }
 
 /**
@@ -329,7 +338,7 @@ clutter_scroll_actor_scroll_to_point (ClutterScrollActor     *actor,
   g_return_if_fail (CLUTTER_IS_SCROLL_ACTOR (actor));
   g_return_if_fail (point != NULL);
 
-  priv = actor->priv;
+  priv = clutter_scroll_actor_get_instance_private (actor);
 
   info = _clutter_actor_get_animation_info (CLUTTER_ACTOR (actor));
 

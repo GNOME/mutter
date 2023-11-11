@@ -31,22 +31,6 @@
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_SCROLL_ACTOR               (clutter_scroll_actor_get_type ())
-#define CLUTTER_SCROLL_ACTOR(obj)               (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_SCROLL_ACTOR, ClutterScrollActor))
-#define CLUTTER_IS_SCROLL_ACTOR(obj)            (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_SCROLL_ACTOR))
-#define CLUTTER_SCROLL_ACTOR_CLASS(klass)       (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_SCROLL_ACTOR, ClutterScrollActorClass))
-#define CLUTTER_IS_SCROLL_ACTOR_CLASS(klass)    (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_SCROLL_ACTOR))
-#define CLUTTER_SCROLL_ACTOR_GET_CLASS(obj)     (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_SCROLL_ACTOR, ClutterScrollActorClass))
-
-typedef struct _ClutterScrollActorPrivate       ClutterScrollActorPrivate;
-typedef struct _ClutterScrollActorClass         ClutterScrollActorClass;
-
-struct _ClutterScrollActor
-{
-  /*< private >*/
-  ClutterActor parent_instance;
-
-  ClutterScrollActorPrivate *priv;
-};
 
 /**
  * ClutterScrollActorClass:
@@ -61,7 +45,10 @@ struct _ClutterScrollActorClass
 };
 
 CLUTTER_EXPORT
-GType clutter_scroll_actor_get_type (void) G_GNUC_CONST;
+G_DECLARE_DERIVABLE_TYPE (ClutterScrollActor,
+                          clutter_scroll_actor,
+                          CLUTTER, SCROLL_ACTOR,
+                          ClutterActor)
 
 CLUTTER_EXPORT
 ClutterActor *          clutter_scroll_actor_new                (void);
