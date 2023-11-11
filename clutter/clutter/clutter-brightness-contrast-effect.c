@@ -24,17 +24,12 @@
 
 /**
  * ClutterBrightnessContrastEffect:
- * 
+ *
  * Increase/decrease brightness and/or contrast of actor.
  *
  * #ClutterBrightnessContrastEffect is a sub-class of #ClutterEffect that
  * changes the overall brightness of a #ClutterActor.
  */
-
-#define CLUTTER_BRIGHTNESS_CONTRAST_EFFECT_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_BRIGHTNESS_CONTRAST_EFFECT, ClutterBrightnessContrastEffectClass))
-#define CLUTTER_IS_BRIGHTNESS_CONTRAST_EFFECT_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_BRIGHTNESS_CONTRAST_EFFECT))
-#define CLUTTER_BRIGHTNESS_CONTRAST_EFFECT_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_BRIGHTNESS_CONTRAST_EFFECT, ClutterBrightnessContrastEffectClass))
-
 #include "config.h"
 
 #include <math.h>
@@ -44,13 +39,10 @@
 #include "clutter/clutter-brightness-contrast-effect.h"
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-enum-types.h"
-#include "clutter/clutter-offscreen-effect.h"
 #include "clutter/clutter-private.h"
 
-struct _ClutterBrightnessContrastEffect
+typedef struct _ClutterBrightnessContrastEffectPrivate
 {
-  ClutterOffscreenEffect parent_instance;
-
   /* Brightness and contrast changes. */
   gfloat brightness_red;
   gfloat brightness_green;
@@ -65,14 +57,8 @@ struct _ClutterBrightnessContrastEffect
   gint contrast_uniform;
 
   CoglPipeline *pipeline;
-};
+} ClutterBrightnessContrastEffectPrivate;
 
-struct _ClutterBrightnessContrastEffectClass
-{
-  ClutterOffscreenEffectClass parent_class;
-
-  CoglPipeline *base_pipeline;
-};
 
 /* Brightness effects in GLSL.
  */
@@ -106,19 +92,22 @@ enum
 
 static GParamSpec *obj_props[PROP_LAST];
 
-G_DEFINE_TYPE (ClutterBrightnessContrastEffect,
-               clutter_brightness_contrast_effect,
-               CLUTTER_TYPE_OFFSCREEN_EFFECT);
+G_DEFINE_TYPE_WITH_PRIVATE (ClutterBrightnessContrastEffect,
+                            clutter_brightness_contrast_effect,
+                            CLUTTER_TYPE_OFFSCREEN_EFFECT)
 
 static gboolean
 will_have_no_effect (ClutterBrightnessContrastEffect *self)
 {
-  return (G_APPROX_VALUE (self->brightness_red, no_change, FLT_EPSILON) &&
-          G_APPROX_VALUE (self->brightness_green, no_change, FLT_EPSILON) &&
-          G_APPROX_VALUE (self->brightness_blue, no_change, FLT_EPSILON) &&
-          G_APPROX_VALUE (self->contrast_red, no_change, FLT_EPSILON) &&
-          G_APPROX_VALUE (self->contrast_green, no_change, FLT_EPSILON) &&
-          G_APPROX_VALUE (self->contrast_blue, no_change, FLT_EPSILON));
+  ClutterBrightnessContrastEffectPrivate *priv =
+    clutter_brightness_contrast_effect_get_instance_private (self);
+
+  return (G_APPROX_VALUE (priv->brightness_red, no_change, FLT_EPSILON) &&
+          G_APPROX_VALUE (priv->brightness_green, no_change, FLT_EPSILON) &&
+          G_APPROX_VALUE (priv->brightness_blue, no_change, FLT_EPSILON) &&
+          G_APPROX_VALUE (priv->contrast_red, no_change, FLT_EPSILON) &&
+          G_APPROX_VALUE (priv->contrast_green, no_change, FLT_EPSILON) &&
+          G_APPROX_VALUE (priv->contrast_blue, no_change, FLT_EPSILON));
 }
 
 static CoglPipeline *
@@ -127,10 +116,12 @@ clutter_brightness_contrast_effect_create_pipeline (ClutterOffscreenEffect *effe
 {
   ClutterBrightnessContrastEffect *self =
     CLUTTER_BRIGHTNESS_CONTRAST_EFFECT (effect);
+  ClutterBrightnessContrastEffectPrivate *priv =
+    clutter_brightness_contrast_effect_get_instance_private (self);
 
-  cogl_pipeline_set_layer_texture (self->pipeline, 0, texture);
+  cogl_pipeline_set_layer_texture (priv->pipeline, 0, texture);
 
-  return g_object_ref (self->pipeline);
+  return g_object_ref (priv->pipeline);
 }
 
 static gboolean
@@ -154,8 +145,10 @@ static void
 clutter_brightness_contrast_effect_dispose (GObject *gobject)
 {
   ClutterBrightnessContrastEffect *self = CLUTTER_BRIGHTNESS_CONTRAST_EFFECT (gobject);
+  ClutterBrightnessContrastEffectPrivate *priv =
+    clutter_brightness_contrast_effect_get_instance_private (self);
 
-  g_clear_object (&self->pipeline);
+  g_clear_object (&priv->pipeline);
 
   G_OBJECT_CLASS (clutter_brightness_contrast_effect_parent_class)->dispose (gobject);
 }
@@ -203,15 +196,17 @@ clutter_brightness_contrast_effect_get_property (GObject    *gobject,
                                                  GParamSpec *pspec)
 {
   ClutterBrightnessContrastEffect *effect = CLUTTER_BRIGHTNESS_CONTRAST_EFFECT (gobject);
+  ClutterBrightnessContrastEffectPrivate *priv =
+    clutter_brightness_contrast_effect_get_instance_private (effect);
   ClutterColor color;
 
   switch (prop_id)
     {
     case PROP_BRIGHTNESS:
       {
-        color.red = (effect->brightness_red + 1.0f) * 127.0f;
-        color.green = (effect->brightness_green + 1.0f) * 127.0f;
-        color.blue = (effect->brightness_blue + 1.0f) * 127.0f;
+        color.red = (priv->brightness_red + 1.0f) * 127.0f;
+        color.green = (priv->brightness_green + 1.0f) * 127.0f;
+        color.blue = (priv->brightness_blue + 1.0f) * 127.0f;
         color.alpha = 0xff;
 
         clutter_value_set_color (value, &color);
@@ -220,9 +215,9 @@ clutter_brightness_contrast_effect_get_property (GObject    *gobject,
 
     case PROP_CONTRAST:
       {
-        color.red = (effect->contrast_red + 1.0f) * 127.0f;
-        color.green = (effect->contrast_green + 1.0f) * 127.0f;
-        color.blue = (effect->contrast_blue + 1.0f) * 127.0f;
+        color.red = (priv->contrast_red + 1.0f) * 127.0f;
+        color.green = (priv->contrast_green + 1.0f) * 127.0f;
+        color.blue = (priv->contrast_blue + 1.0f) * 127.0f;
         color.alpha = 0xff;
 
         clutter_value_set_color (value, &color);
@@ -308,44 +303,47 @@ get_brightness_values (gfloat  value,
 static inline void
 update_uniforms (ClutterBrightnessContrastEffect *self)
 {
-  if (self->brightness_multiplier_uniform > -1 &&
-      self->brightness_offset_uniform > -1)
+  ClutterBrightnessContrastEffectPrivate *priv =
+    clutter_brightness_contrast_effect_get_instance_private (self);
+
+  if (priv->brightness_multiplier_uniform > -1 &&
+      priv->brightness_offset_uniform > -1)
     {
       float brightness_multiplier[3];
       float brightness_offset[3];
 
-      get_brightness_values (self->brightness_red,
+      get_brightness_values (priv->brightness_red,
                              brightness_multiplier + 0,
                              brightness_offset + 0);
-      get_brightness_values (self->brightness_green,
+      get_brightness_values (priv->brightness_green,
                              brightness_multiplier + 1,
                              brightness_offset + 1);
-      get_brightness_values (self->brightness_blue,
+      get_brightness_values (priv->brightness_blue,
                              brightness_multiplier + 2,
                              brightness_offset + 2);
 
-      cogl_pipeline_set_uniform_float (self->pipeline,
-                                       self->brightness_multiplier_uniform,
+      cogl_pipeline_set_uniform_float (priv->pipeline,
+                                       priv->brightness_multiplier_uniform,
                                        3, /* n_components */
                                        1, /* count */
                                        brightness_multiplier);
-      cogl_pipeline_set_uniform_float (self->pipeline,
-                                       self->brightness_offset_uniform,
+      cogl_pipeline_set_uniform_float (priv->pipeline,
+                                       priv->brightness_offset_uniform,
                                        3, /* n_components */
                                        1, /* count */
                                        brightness_offset);
     }
 
-  if (self->contrast_uniform > -1)
+  if (priv->contrast_uniform > -1)
     {
       float contrast[3] = {
-        tan ((self->contrast_red + 1) * G_PI_4),
-        tan ((self->contrast_green + 1) * G_PI_4),
-        tan ((self->contrast_blue + 1) * G_PI_4)
+        tan ((priv->contrast_red + 1) * G_PI_4),
+        tan ((priv->contrast_green + 1) * G_PI_4),
+        tan ((priv->contrast_blue + 1) * G_PI_4)
       };
 
-      cogl_pipeline_set_uniform_float (self->pipeline,
-                                       self->contrast_uniform,
+      cogl_pipeline_set_uniform_float (priv->pipeline,
+                                       priv->contrast_uniform,
                                        3, /* n_components */
                                        1, /* count */
                                        contrast);
@@ -356,14 +354,16 @@ static void
 clutter_brightness_contrast_effect_init (ClutterBrightnessContrastEffect *self)
 {
   ClutterBrightnessContrastEffectClass *klass;
+  ClutterBrightnessContrastEffectPrivate *priv =
+    clutter_brightness_contrast_effect_get_instance_private (self);
 
-  self->brightness_red = no_change;
-  self->brightness_green = no_change;
-  self->brightness_blue = no_change;
+  priv->brightness_red = no_change;
+  priv->brightness_green = no_change;
+  priv->brightness_blue = no_change;
 
-  self->contrast_red = no_change;
-  self->contrast_green = no_change;
-  self->contrast_blue = no_change;
+  priv->contrast_red = no_change;
+  priv->contrast_green = no_change;
+  priv->contrast_blue = no_change;
 
   klass = CLUTTER_BRIGHTNESS_CONTRAST_EFFECT_GET_CLASS (self);
 
@@ -384,16 +384,16 @@ clutter_brightness_contrast_effect_init (ClutterBrightnessContrastEffect *self)
       cogl_pipeline_set_layer_null_texture (klass->base_pipeline, 0);
     }
 
-  self->pipeline = cogl_pipeline_copy (klass->base_pipeline);
+  priv->pipeline = cogl_pipeline_copy (klass->base_pipeline);
 
-  self->brightness_multiplier_uniform =
-    cogl_pipeline_get_uniform_location (self->pipeline,
+  priv->brightness_multiplier_uniform =
+    cogl_pipeline_get_uniform_location (priv->pipeline,
                                         "brightness_multiplier");
-  self->brightness_offset_uniform =
-    cogl_pipeline_get_uniform_location (self->pipeline,
+  priv->brightness_offset_uniform =
+    cogl_pipeline_get_uniform_location (priv->pipeline,
                                         "brightness_offset");
-  self->contrast_uniform =
-    cogl_pipeline_get_uniform_location (self->pipeline, "contrast");
+  priv->contrast_uniform =
+    cogl_pipeline_get_uniform_location (priv->pipeline, "contrast");
 
   update_uniforms (self);
 }
@@ -431,16 +431,19 @@ clutter_brightness_contrast_effect_set_brightness_full (ClutterBrightnessContras
                                                         gfloat                           green,
                                                         gfloat                           blue)
 {
+  ClutterBrightnessContrastEffectPrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_BRIGHTNESS_CONTRAST_EFFECT (effect));
 
-  if (G_APPROX_VALUE (red, effect->brightness_red, FLT_EPSILON) &&
-      G_APPROX_VALUE (green, effect->brightness_green, FLT_EPSILON) &&
-      G_APPROX_VALUE (blue, effect->brightness_blue, FLT_EPSILON))
+  priv = clutter_brightness_contrast_effect_get_instance_private (effect);
+  if (G_APPROX_VALUE (red, priv->brightness_red, FLT_EPSILON) &&
+      G_APPROX_VALUE (green, priv->brightness_green, FLT_EPSILON) &&
+      G_APPROX_VALUE (blue, priv->brightness_blue, FLT_EPSILON))
     return;
 
-  effect->brightness_red = red;
-  effect->brightness_green = green;
-  effect->brightness_blue = blue;
+  priv->brightness_red = red;
+  priv->brightness_green = green;
+  priv->brightness_blue = blue;
 
   update_uniforms (effect);
 
@@ -467,16 +470,19 @@ clutter_brightness_contrast_effect_get_brightness (ClutterBrightnessContrastEffe
                                                    gfloat                          *green,
                                                    gfloat                          *blue)
 {
+  ClutterBrightnessContrastEffectPrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_BRIGHTNESS_CONTRAST_EFFECT (effect));
 
+  priv = clutter_brightness_contrast_effect_get_instance_private (effect);
   if (red != NULL)
-    *red = effect->brightness_red;
+    *red = priv->brightness_red;
 
   if (green != NULL)
-    *green = effect->brightness_green;
+    *green = priv->brightness_green;
 
   if (blue != NULL)
-    *blue = effect->brightness_blue;
+    *blue = priv->brightness_blue;
 }
 
 /**
@@ -515,16 +521,19 @@ clutter_brightness_contrast_effect_set_contrast_full (ClutterBrightnessContrastE
                                                       gfloat                          green,
                                                       gfloat                          blue)
 {
+  ClutterBrightnessContrastEffectPrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_BRIGHTNESS_CONTRAST_EFFECT (effect));
 
-  if (G_APPROX_VALUE (red, effect->contrast_red, FLT_EPSILON) &&
-      G_APPROX_VALUE (green, effect->contrast_green, FLT_EPSILON) &&
-      G_APPROX_VALUE (blue, effect->contrast_blue, FLT_EPSILON))
+  priv = clutter_brightness_contrast_effect_get_instance_private (effect);
+  if (G_APPROX_VALUE (red, priv->contrast_red, FLT_EPSILON) &&
+      G_APPROX_VALUE (green, priv->contrast_green, FLT_EPSILON) &&
+      G_APPROX_VALUE (blue, priv->contrast_blue, FLT_EPSILON))
     return;
 
-  effect->contrast_red = red;
-  effect->contrast_green = green;
-  effect->contrast_blue = blue;
+  priv->contrast_red = red;
+  priv->contrast_green = green;
+  priv->contrast_blue = blue;
 
   update_uniforms (effect);
 
@@ -551,16 +560,19 @@ clutter_brightness_contrast_effect_get_contrast (ClutterBrightnessContrastEffect
                                                  gfloat                          *green,
                                                  gfloat                          *blue)
 {
+  ClutterBrightnessContrastEffectPrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_BRIGHTNESS_CONTRAST_EFFECT (effect));
 
+  priv = clutter_brightness_contrast_effect_get_instance_private (effect);
   if (red != NULL)
-    *red = effect->contrast_red;
+    *red = priv->contrast_red;
 
   if (green != NULL)
-    *green = effect->contrast_green;
+    *green = priv->contrast_green;
 
   if (blue != NULL)
-    *blue = effect->contrast_blue;
+    *blue = priv->contrast_blue;
 }
 
 /**

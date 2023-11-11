@@ -30,18 +30,25 @@
 
 #include "clutter/clutter-color.h"
 #include "clutter/clutter-effect.h"
+#include "clutter/clutter-offscreen-effect.h"
 
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_BRIGHTNESS_CONTRAST_EFFECT     (clutter_brightness_contrast_effect_get_type ())
-#define CLUTTER_BRIGHTNESS_CONTRAST_EFFECT(obj)     (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_BRIGHTNESS_CONTRAST_EFFECT, ClutterBrightnessContrastEffect))
-#define CLUTTER_IS_BRIGHTNESS_CONTRAST_EFFECT(obj)  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_BRIGHTNESS_CONTRAST_EFFECT))
 
-typedef struct _ClutterBrightnessContrastEffect         ClutterBrightnessContrastEffect;
-typedef struct _ClutterBrightnessContrastEffectClass    ClutterBrightnessContrastEffectClass;
+
+struct _ClutterBrightnessContrastEffectClass
+{
+  ClutterOffscreenEffectClass parent_class;
+
+  CoglPipeline *base_pipeline;
+};
 
 CLUTTER_EXPORT
-GType clutter_brightness_contrast_effect_get_type (void) G_GNUC_CONST;
+G_DECLARE_DERIVABLE_TYPE (ClutterBrightnessContrastEffect,
+                          clutter_brightness_contrast_effect,
+                          CLUTTER, BRIGHTNESS_CONTRAST_EFFECT,
+                          ClutterOffscreenEffect)
 
 CLUTTER_EXPORT
 ClutterEffect * clutter_brightness_contrast_effect_new                          (void);
