@@ -55,7 +55,7 @@ struct _ClutterColor
   guint8 red;
   guint8 green;
   guint8 blue;
-  
+
   guint8 alpha;
 };
 
@@ -144,6 +144,8 @@ void          clutter_color_interpolate (const ClutterColor *initial,
                                          const ClutterColor *final,
                                          gdouble             progress,
                                          ClutterColor       *result);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterColor, clutter_color_free)
 
 #define CLUTTER_TYPE_PARAM_COLOR           (clutter_param_color_get_type ())
 #define CLUTTER_PARAM_SPEC_COLOR(pspec)    (G_TYPE_CHECK_INSTANCE_CAST ((pspec), CLUTTER_TYPE_PARAM_COLOR, ClutterParamSpecColor))

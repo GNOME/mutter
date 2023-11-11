@@ -30,7 +30,6 @@
 #ifndef __GI_SCANNER__
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterActor, g_object_unref)
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterBackend, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterBrightnessContrastEffect, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterClone, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterDesaturateEffect, g_object_unref)
@@ -38,12 +37,5 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterInputDevice, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterScrollActor, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterStage, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterText, g_object_unref)
-
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterActorBox, clutter_actor_box_free)
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterColor, clutter_color_free)
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterMargin, clutter_margin_free)
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterPaintContext, clutter_paint_context_unref)
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterPaintNode, clutter_paint_node_unref)
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterPaintVolume, clutter_paint_volume_free)
 
 #endif /* __GI_SCANNER__ */

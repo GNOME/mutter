@@ -76,3 +76,5 @@ ClutterPaintFlag clutter_paint_context_get_paint_flags (ClutterPaintContext *pai
 
 CLUTTER_EXPORT
 ClutterFrame * clutter_paint_context_get_frame (ClutterPaintContext *paint_context);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterPaintContext, clutter_paint_context_unref)

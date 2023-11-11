@@ -95,6 +95,8 @@ CLUTTER_EXPORT
 void                    clutter_paint_node_add_primitive                (ClutterPaintNode      *node,
                                                                          CoglPrimitive         *primitive);
 
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterPaintNode, clutter_paint_node_unref)
+
 /**
  * CLUTTER_VALUE_HOLDS_PAINT_NODE:
  * @value: a #GValue

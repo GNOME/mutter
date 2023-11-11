@@ -253,6 +253,8 @@ void             clutter_actor_box_scale          (ClutterActorBox       *box,
 CLUTTER_EXPORT
 gboolean         clutter_actor_box_is_initialized (ClutterActorBox       *box);
 
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterActorBox, clutter_actor_box_free)
+
 /*
  * ClutterPaintVolume
  */
@@ -297,6 +299,8 @@ CLUTTER_EXPORT
 gboolean            clutter_paint_volume_set_from_allocation (ClutterPaintVolume       *pv,
                                                               ClutterActor             *actor);
 
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterPaintVolume, clutter_paint_volume_free)
+
 /**
  * ClutterMargin:
  * @left: the margin from the left
@@ -323,6 +327,8 @@ CLUTTER_EXPORT
 ClutterMargin * clutter_margin_copy     (const ClutterMargin *margin_);
 CLUTTER_EXPORT
 void            clutter_margin_free     (ClutterMargin       *margin_);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterMargin, clutter_margin_free)
 
 /**
  * ClutterProgressFunc:

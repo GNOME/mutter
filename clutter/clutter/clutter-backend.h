@@ -72,4 +72,6 @@ void                            clutter_backend_set_input_method        (Clutter
 CLUTTER_EXPORT
 ClutterSeat *                   clutter_backend_get_default_seat        (ClutterBackend             *backend);
 
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterBackend, g_object_unref)
+
 G_END_DECLS
