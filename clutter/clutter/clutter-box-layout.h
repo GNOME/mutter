@@ -36,38 +36,12 @@
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_BOX_LAYOUT                 (clutter_box_layout_get_type ())
-#define CLUTTER_BOX_LAYOUT(obj)                 (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_BOX_LAYOUT, ClutterBoxLayout))
-#define CLUTTER_IS_BOX_LAYOUT(obj)              (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_BOX_LAYOUT))
-#define CLUTTER_BOX_LAYOUT_CLASS(klass)         (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_BOX_LAYOUT, ClutterBoxLayoutClass))
-#define CLUTTER_IS_BOX_LAYOUT_CLASS(klass)      (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_BOX_LAYOUT))
-#define CLUTTER_BOX_LAYOUT_GET_CLASS(obj)       (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_BOX_LAYOUT, ClutterBoxLayoutClass))
-
-typedef struct _ClutterBoxLayout                ClutterBoxLayout;
-typedef struct _ClutterBoxLayoutPrivate         ClutterBoxLayoutPrivate;
-typedef struct _ClutterBoxLayoutClass           ClutterBoxLayoutClass;
-
-struct _ClutterBoxLayout
-{
-  /*< private >*/
-  ClutterLayoutManager parent_instance;
-
-  ClutterBoxLayoutPrivate *priv;
-};
-
-/**
- * ClutterBoxLayoutClass:
- *
- * The #ClutterBoxLayoutClass structure contains only private
- * data and should be accessed using the provided API
- */
-struct _ClutterBoxLayoutClass
-{
-  /*< private >*/
-  ClutterLayoutManagerClass parent_class;
-};
 
 CLUTTER_EXPORT
-GType clutter_box_layout_get_type (void) G_GNUC_CONST;
+G_DECLARE_FINAL_TYPE (ClutterBoxLayout,
+                      clutter_box_layout,
+                      CLUTTER, BOX_LAYOUT,
+                      ClutterLayoutManager)
 
 CLUTTER_EXPORT
 ClutterLayoutManager *  clutter_box_layout_new                 (void);
