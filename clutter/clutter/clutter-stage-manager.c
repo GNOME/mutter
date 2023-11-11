@@ -61,7 +61,14 @@ enum
 static guint manager_signals[LAST_SIGNAL] = { 0, };
 static ClutterStage *default_stage = NULL;
 
-G_DEFINE_TYPE (ClutterStageManager, clutter_stage_manager, G_TYPE_OBJECT);
+typedef struct _ClutterStageManagerPrivate
+{
+  GSList *stages;
+} ClutterStageManagerPrivate;
+
+G_DEFINE_TYPE_WITH_PRIVATE (ClutterStageManager,
+                            clutter_stage_manager,
+                            G_TYPE_OBJECT);
 
 static void
 clutter_stage_manager_get_property (GObject    *gobject,
@@ -83,13 +90,13 @@ clutter_stage_manager_get_property (GObject    *gobject,
 static void
 clutter_stage_manager_dispose (GObject *gobject)
 {
-  ClutterStageManager *stage_manager;
+  ClutterStageManager *stage_manager = CLUTTER_STAGE_MANAGER (gobject);
+  ClutterStageManagerPrivate *priv =
+    clutter_stage_manager_get_instance_private (stage_manager);
 
-  stage_manager = CLUTTER_STAGE_MANAGER (gobject);
-
-  g_slist_free_full (stage_manager->stages,
+  g_slist_free_full (priv->stages,
                      (GDestroyNotify) clutter_actor_destroy);
-  stage_manager->stages = NULL;
+  priv->stages = NULL;
 
   G_OBJECT_CLASS (clutter_stage_manager_parent_class)->dispose (gobject);
 }
@@ -200,7 +207,10 @@ clutter_stage_manager_get_default_stage (ClutterStageManager *stage_manager)
 GSList *
 clutter_stage_manager_list_stages (ClutterStageManager *stage_manager)
 {
-  return g_slist_copy (stage_manager->stages);
+  ClutterStageManagerPrivate *priv =
+    clutter_stage_manager_get_instance_private (stage_manager);
+
+  return g_slist_copy (priv->stages);
 }
 
 /**
@@ -217,14 +227,19 @@ clutter_stage_manager_list_stages (ClutterStageManager *stage_manager)
 const GSList *
 clutter_stage_manager_peek_stages (ClutterStageManager *stage_manager)
 {
-  return stage_manager->stages;
+  ClutterStageManagerPrivate *priv =
+    clutter_stage_manager_get_instance_private (stage_manager);
+
+  return priv->stages;
 }
 
 void
 _clutter_stage_manager_add_stage (ClutterStageManager *stage_manager,
                                   ClutterStage        *stage)
 {
-  if (g_slist_find (stage_manager->stages, stage))
+  ClutterStageManagerPrivate *priv =
+    clutter_stage_manager_get_instance_private (stage_manager);
+  if (g_slist_find (priv->stages, stage))
     {
       g_warning ("Trying to add a stage to the list of managed stages, "
                  "but it is already in it, aborting.");
@@ -233,7 +248,7 @@ _clutter_stage_manager_add_stage (ClutterStageManager *stage_manager,
 
   g_object_ref_sink (stage);
 
-  stage_manager->stages = g_slist_append (stage_manager->stages, stage);
+  priv->stages = g_slist_append (priv->stages, stage);
 
   g_signal_emit (stage_manager, manager_signals[STAGE_ADDED], 0, stage);
 }
@@ -242,13 +257,15 @@ void
 _clutter_stage_manager_remove_stage (ClutterStageManager *stage_manager,
                                      ClutterStage        *stage)
 {
+  ClutterStageManagerPrivate *priv =
+    clutter_stage_manager_get_instance_private (stage_manager);
   /* this might be called multiple times from a ::dispose, so it
    * needs to just return without warning
    */
-  if (!g_slist_find (stage_manager->stages, stage))
+  if (!g_slist_find (priv->stages, stage))
     return;
 
-  stage_manager->stages = g_slist_remove (stage_manager->stages, stage);
+  priv->stages = g_slist_remove (priv->stages, stage);
 
   /* if the default stage is being destroyed then we unset the pointer */
   if (default_stage == stage)

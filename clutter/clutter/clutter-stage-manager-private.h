@@ -28,13 +28,6 @@
 
 G_BEGIN_DECLS
 
-struct _ClutterStageManager
-{
-  GObject parent_instance;
-
-  GSList *stages;
-};
-
 /* stage manager */
 void _clutter_stage_manager_add_stage         (ClutterStageManager *stage_manager,
                                                ClutterStage        *stage);

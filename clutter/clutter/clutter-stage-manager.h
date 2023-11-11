@@ -32,14 +32,13 @@
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_STAGE_MANAGER              (clutter_stage_manager_get_type ())
-#define CLUTTER_STAGE_MANAGER(obj)              (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_STAGE_MANAGER, ClutterStageManager))
-#define CLUTTER_IS_STAGE_MANAGER(obj)           (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_STAGE_MANAGER))
-#define CLUTTER_STAGE_MANAGER_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_STAGE_MANAGER, ClutterStageManagerClass))
-#define CLUTTER_IS_STAGE_MANAGER_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_STAGE_MANAGER))
-#define CLUTTER_STAGE_MANAGER_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_STAGE_MANAGER, ClutterStageManagerClass))
 
-typedef struct _ClutterStageManager             ClutterStageManager;
-typedef struct _ClutterStageManagerClass        ClutterStageManagerClass;
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (ClutterStageManager,
+                          clutter_stage_manager,
+                          CLUTTER,
+                          STAGE_MANAGER,
+                          GObject)
 
 /**
  * ClutterStageManagerClass:
@@ -57,9 +56,6 @@ struct _ClutterStageManagerClass
   void (* stage_removed) (ClutterStageManager *stage_manager,
                           ClutterStage        *stage);
 };
-
-CLUTTER_EXPORT
-GType clutter_stage_manager_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
 ClutterStageManager *clutter_stage_manager_get_default       (void);
