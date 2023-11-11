@@ -35,24 +35,14 @@
 
 G_BEGIN_DECLS
 
-#define CLUTTER_TYPE_STAGE              (clutter_stage_get_type())
+#define CLUTTER_TYPE_STAGE              (clutter_stage_get_type ())
 
-#define CLUTTER_STAGE(obj)              (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_STAGE, ClutterStage))
-#define CLUTTER_STAGE_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_STAGE, ClutterStageClass))
-#define CLUTTER_IS_STAGE(obj)           (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_STAGE))
-#define CLUTTER_IS_STAGE_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_STAGE))
-#define CLUTTER_STAGE_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_STAGE, ClutterStageClass))
-
-typedef struct _ClutterStageClass   ClutterStageClass;
-typedef struct _ClutterStagePrivate ClutterStagePrivate;
-
-struct _ClutterStage
-{
-  /*< private >*/
-  ClutterActor parent_instance;
-
-  ClutterStagePrivate *priv;
-};
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (ClutterStage,
+                          clutter_stage,
+                          CLUTTER,
+                          STAGE,
+                          ClutterActor)
 /**
  * ClutterStageClass:
  * @activate: handler for the #ClutterStage::activate signal
@@ -143,8 +133,6 @@ struct _ClutterFrameInfo
 
 CLUTTER_EXPORT
 GType clutter_perspective_get_type (void) G_GNUC_CONST;
-CLUTTER_EXPORT
-GType clutter_stage_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
 void            clutter_stage_get_perspective                   (ClutterStage          *stage,
