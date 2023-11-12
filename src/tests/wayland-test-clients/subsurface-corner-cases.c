@@ -77,19 +77,9 @@ static const struct xdg_toplevel_listener xdg_toplevel_listener = {
 static void
 draw_toplevel (void)
 {
-  struct wl_buffer *buffer;
-  void *buffer_data;
-  int size;
-  uint32_t *pixels;
-
-  if (!create_shm_buffer (display, window_width, window_height,
-                          &buffer, &buffer_data, &size))
-    g_error ("Failed to create shm buffer");
-
-  for (pixels = buffer_data; size > 0; size -= 4)
-    *pixels++ = 0xffffffffu;
-
-  wl_surface_attach (toplevel_surface, buffer, 0, 0);
+  draw_surface (display, toplevel_surface,
+                window_width, window_height,
+                0xffffffffu);
 }
 
 static void
@@ -107,34 +97,19 @@ static const struct xdg_surface_listener xdg_surface_listener = {
 };
 
 static void
-draw_descendant (struct wl_surface *descendant,
-                 uint32_t           color)
-{
-  struct wl_buffer *buffer;
-  void *buffer_data;
-  int size;
-  uint32_t *pixels;
-
-  if (!create_shm_buffer (display, window_width / 2, window_height / 2,
-                          &buffer, &buffer_data, &size))
-    g_error ("Failed to create shm buffer");
-
-  for (pixels = buffer_data; size > 0; size -= 4)
-    *pixels++ = color;
-
-  wl_surface_attach (descendant, buffer, 0, 0);
-}
-
-static void
 draw_child (void)
 {
-  draw_descendant (child_surface, 0xff000000u);
+  draw_surface (display, child_surface,
+                window_width / 2, window_height / 2,
+                0xff000000u);
 }
 
 static void
 draw_grandchild (void)
 {
-  draw_descendant (grandchild_surface, 0xffff0000u);
+  draw_surface (display, grandchild_surface,
+                window_width / 2, window_height / 2,
+                0xffff0000u);
 }
 
 static void
