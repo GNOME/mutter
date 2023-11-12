@@ -525,7 +525,6 @@ void
 meta_kms_update_add_page_flip_listener (MetaKmsUpdate                       *update,
                                         MetaKmsCrtc                         *crtc,
                                         const MetaKmsPageFlipListenerVtable *vtable,
-                                        MetaKmsPageFlipListenerFlag          flags,
                                         GMainContext                        *main_context,
                                         gpointer                             user_data,
                                         GDestroyNotify                       destroy_notify)
@@ -541,7 +540,6 @@ meta_kms_update_add_page_flip_listener (MetaKmsUpdate                       *upd
   *listener = (MetaKmsPageFlipListener) {
     .crtc = crtc,
     .vtable = vtable,
-    .flags = flags,
     .main_context = main_context,
     .user_data = user_data,
     .destroy_notify = destroy_notify,

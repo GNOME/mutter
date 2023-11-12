@@ -27,7 +27,6 @@
 typedef struct _MetaKmsPageFlipClosure
 {
   const MetaKmsPageFlipListenerVtable *vtable;
-  MetaKmsPageFlipListenerFlag flags;
   GMainContext *main_context;
   gpointer user_data;
   GDestroyNotify destroy_notify;
@@ -55,7 +54,6 @@ struct _MetaKmsPageFlipData
 
 static MetaKmsPageFlipClosure *
 meta_kms_page_flip_closure_new (const MetaKmsPageFlipListenerVtable *vtable,
-                                MetaKmsPageFlipListenerFlag          flags,
                                 GMainContext                        *main_context,
                                 gpointer                             user_data,
                                 GDestroyNotify                       destroy_notify)
@@ -65,7 +63,6 @@ meta_kms_page_flip_closure_new (const MetaKmsPageFlipListenerVtable *vtable,
   closure = g_new0 (MetaKmsPageFlipClosure, 1);
   *closure = (MetaKmsPageFlipClosure) {
     .vtable = vtable,
-    .flags = flags,
     .main_context = main_context,
     .user_data = user_data,
     .destroy_notify = destroy_notify,
@@ -131,14 +128,13 @@ meta_kms_page_flip_data_unref (MetaKmsPageFlipData *page_flip_data)
 void
 meta_kms_page_flip_data_add_listener (MetaKmsPageFlipData                 *page_flip_data,
                                       const MetaKmsPageFlipListenerVtable *vtable,
-                                      MetaKmsPageFlipListenerFlag          flags,
                                       GMainContext                        *main_context,
                                       gpointer                             user_data,
                                       GDestroyNotify                       destroy_notify)
 {
   MetaKmsPageFlipClosure *closure;
 
-  closure = meta_kms_page_flip_closure_new (vtable, flags,
+  closure = meta_kms_page_flip_closure_new (vtable,
                                             main_context,
                                             user_data,
                                             destroy_notify);

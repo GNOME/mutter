@@ -1103,7 +1103,6 @@ generate_page_flip_datas (MetaKmsImplDevice  *impl_device,
       destroy_notify = g_steal_pointer (&listener->destroy_notify);
       meta_kms_page_flip_data_add_listener (page_flip_data,
                                             listener->vtable,
-                                            listener->flags,
                                             listener->main_context,
                                             user_data,
                                             destroy_notify);
@@ -1126,7 +1125,6 @@ generate_page_flip_datas (MetaKmsImplDevice  *impl_device,
                 g_steal_pointer (&other_listener->destroy_notify);
               meta_kms_page_flip_data_add_listener (page_flip_data,
                                                     other_listener->vtable,
-                                                    other_listener->flags,
                                                     other_listener->main_context,
                                                     other_user_data,
                                                     other_destroy_notify);

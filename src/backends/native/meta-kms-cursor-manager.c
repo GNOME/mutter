@@ -420,7 +420,6 @@ maybe_update_cursor_plane (MetaKmsCursorManagerImpl  *cursor_manager_impl,
   meta_kms_update_add_page_flip_listener (update,
                                           crtc,
                                           &cursor_page_flip_listener_vtable,
-                                          META_KMS_PAGE_FLIP_LISTENER_FLAG_NONE,
                                           meta_thread_impl_get_main_context (thread_impl),
                                           crtc_state_impl_ref (crtc_state_impl),
                                           (GDestroyNotify) crtc_state_impl_unref);

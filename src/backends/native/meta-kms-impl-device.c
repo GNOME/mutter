@@ -1310,7 +1310,6 @@ do_process (MetaKmsImplDevice *impl_device,
           meta_kms_update_add_page_flip_listener (update,
                                                   crtc_frame->crtc,
                                                   &crtc_page_flip_listener_vtable,
-                                                  META_KMS_PAGE_FLIP_LISTENER_FLAG_NONE,
                                                   thread_context,
                                                   crtc_frame, NULL);
           crtc_frame->pending_page_flip = TRUE;

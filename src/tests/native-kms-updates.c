@@ -393,7 +393,6 @@ meta_test_kms_update_page_flip (void)
   data.thread = g_thread_self ();
   meta_kms_update_add_page_flip_listener (update, crtc,
                                           &page_flip_listener_vtable,
-                                          META_KMS_PAGE_FLIP_LISTENER_FLAG_NONE,
                                           NULL,
                                           &data,
                                           page_flip_data_destroy);
@@ -416,7 +415,6 @@ meta_test_kms_update_page_flip (void)
                                 META_KMS_ASSIGN_PLANE_FLAG_NONE);
   meta_kms_update_add_page_flip_listener (update, crtc,
                                           &page_flip_listener_vtable,
-                                          META_KMS_PAGE_FLIP_LISTENER_FLAG_NONE,
                                           NULL,
                                           &data,
                                           page_flip_data_destroy);
@@ -672,7 +670,6 @@ off_thread_page_flip_thread_func (gpointer user_data)
   page_flip_data.thread = g_thread_self ();
   meta_kms_update_add_page_flip_listener (update, crtc,
                                           &page_flip_listener_vtable,
-                                          META_KMS_PAGE_FLIP_LISTENER_FLAG_NONE,
                                           data->main_context,
                                           &page_flip_data,
                                           page_flip_data_destroy);
@@ -690,7 +687,6 @@ off_thread_page_flip_thread_func (gpointer user_data)
 
   meta_kms_update_add_page_flip_listener (update, crtc,
                                           &page_flip_listener_vtable,
-                                          META_KMS_PAGE_FLIP_LISTENER_FLAG_NONE,
                                           data->main_context,
                                           &page_flip_data,
                                           page_flip_data_destroy);
