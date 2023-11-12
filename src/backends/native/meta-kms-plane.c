@@ -500,6 +500,11 @@ init_properties (MetaKmsPlane            *plane,
           .name = "FB_DAMAGE_CLIPS",
           .type = DRM_MODE_PROP_BLOB,
         },
+      [META_KMS_PLANE_PROP_IN_FENCE_FD] =
+        {
+          .name = "IN_FENCE_FD",
+          .type = DRM_MODE_PROP_SIGNED_RANGE,
+        },
     },
     .rotation_bitmask = {
       [META_KMS_PLANE_ROTATION_BIT_ROTATE_0] =
