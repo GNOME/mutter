@@ -69,7 +69,7 @@ typedef struct
   gfloat transformed_update_y;
 } ZoomPoint;
 
-struct _ClutterZoomActionPrivate
+typedef struct _ClutterZoomActionPrivate
 {
   ClutterStage *stage;
 
@@ -87,7 +87,7 @@ struct _ClutterZoomActionPrivate
   gdouble initial_scale_y;
 
   gdouble zoom_initial_distance;
-};
+} ClutterZoomActionPrivate;
 
 enum
 {
@@ -142,7 +142,8 @@ static gboolean
 clutter_zoom_action_gesture_begin (ClutterGestureAction *action,
                                    ClutterActor         *actor)
 {
-  ClutterZoomActionPrivate *priv = ((ClutterZoomAction *) action)->priv;
+  ClutterZoomActionPrivate *priv =
+    clutter_zoom_action_get_instance_private (CLUTTER_ZOOM_ACTION (action));
   gfloat dx, dy;
 
   capture_point_initial_position (action, actor, 0, &priv->points[0]);
@@ -179,7 +180,8 @@ static gboolean
 clutter_zoom_action_gesture_progress (ClutterGestureAction *action,
                                       ClutterActor         *actor)
 {
-  ClutterZoomActionPrivate *priv = ((ClutterZoomAction *) action)->priv;
+  ClutterZoomActionPrivate *priv =
+    clutter_zoom_action_get_instance_private (CLUTTER_ZOOM_ACTION (action));
   gdouble distance, new_scale;
   gfloat dx, dy;
   gboolean retval;
@@ -210,7 +212,8 @@ static void
 clutter_zoom_action_gesture_cancel (ClutterGestureAction *action,
                                     ClutterActor         *actor)
 {
-  ClutterZoomActionPrivate *priv = ((ClutterZoomAction *) action)->priv;
+  ClutterZoomActionPrivate *priv =
+    clutter_zoom_action_get_instance_private (CLUTTER_ZOOM_ACTION (action));
 
   clutter_actor_set_translation (actor,
                                  priv->initial_x,
@@ -275,12 +278,8 @@ clutter_zoom_action_class_init (ClutterZoomActionClass *klass)
 static void
 clutter_zoom_action_init (ClutterZoomAction *self)
 {
-  ClutterGestureAction *gesture;
-
-  self->priv = clutter_zoom_action_get_instance_private (self);
-
-  gesture = CLUTTER_GESTURE_ACTION (self);
-  clutter_gesture_action_set_n_touch_points (gesture, 2);
+  clutter_gesture_action_set_n_touch_points (CLUTTER_GESTURE_ACTION (self),
+                                             2);
 }
 
 /**
@@ -307,10 +306,14 @@ void
 clutter_zoom_action_get_focal_point (ClutterZoomAction *action,
                                      graphene_point_t  *point)
 {
+  ClutterZoomActionPrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_ZOOM_ACTION (action));
   g_return_if_fail (point != NULL);
 
-  *point = action->priv->focal_point;
+  priv = clutter_zoom_action_get_instance_private (action);
+
+  *point = priv->focal_point;
 }
 
 /**
@@ -325,8 +328,12 @@ void
 clutter_zoom_action_get_transformed_focal_point (ClutterZoomAction *action,
                                                  graphene_point_t  *point)
 {
+  ClutterZoomActionPrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_ZOOM_ACTION (action));
   g_return_if_fail (point != NULL);
 
-  *point = action->priv->transformed_focal_point;
+  priv = clutter_zoom_action_get_instance_private (action);
+
+  *point = priv->transformed_focal_point;
 }

@@ -35,23 +35,13 @@
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_ZOOM_ACTION                (clutter_zoom_action_get_type ())
-#define CLUTTER_ZOOM_ACTION(obj)                (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_ZOOM_ACTION, ClutterZoomAction))
-#define CLUTTER_IS_ZOOM_ACTION(obj)             (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_ZOOM_ACTION))
-#define CLUTTER_ZOOM_ACTION_CLASS(klass)        (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_ZOOM_ACTION, ClutterZoomActionClass))
-#define CLUTTER_IS_ZOOM_ACTION_CLASS(klass)     (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_ZOOM_ACTION))
-#define CLUTTER_ZOOM_ACTION_GET_CLASS(obj)      (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_ZOOM_ACTION, ClutterZoomActionClass))
 
-typedef struct _ClutterZoomAction               ClutterZoomAction;
-typedef struct _ClutterZoomActionPrivate        ClutterZoomActionPrivate;
-typedef struct _ClutterZoomActionClass          ClutterZoomActionClass;
-
-struct _ClutterZoomAction
-{
-  /*< private >*/
-  ClutterGestureAction parent_instance;
-
-  ClutterZoomActionPrivate *priv;
-};
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (ClutterZoomAction,
+                          clutter_zoom_action,
+                          CLUTTER,
+                          ZOOM_ACTION,
+                          ClutterGestureAction)
 
 /**
  * ClutterZoomActionClass:
@@ -65,9 +55,6 @@ struct _ClutterZoomActionClass
   /*< private >*/
   ClutterGestureActionClass parent_class;
 };
-
-CLUTTER_EXPORT
-GType clutter_zoom_action_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
 ClutterAction * clutter_zoom_action_new                         (void);
