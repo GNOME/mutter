@@ -411,13 +411,13 @@ meta_onscreen_native_dummy_power_save_page_flip (CoglOnscreen *onscreen)
 }
 
 static void
-meta_onscreen_native_flip_crtc (CoglOnscreen                *onscreen,
-                                MetaRendererView            *view,
-                                MetaCrtc                    *crtc,
-                                MetaKmsUpdate               *kms_update,
-                                MetaKmsPageFlipListenerFlag  flags,
-                                const int                   *rectangles,
-                                int                          n_rectangles)
+meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
+                                MetaRendererView       *view,
+                                MetaCrtc               *crtc,
+                                MetaKmsUpdate          *kms_update,
+                                MetaKmsAssignPlaneFlag  flags,
+                                const int              *rectangles,
+                                int                     n_rectangles)
 {
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
@@ -445,7 +445,8 @@ meta_onscreen_native_flip_crtc (CoglOnscreen                *onscreen,
 
       plane_assignment = meta_crtc_kms_assign_primary_plane (crtc_kms,
                                                              buffer,
-                                                             kms_update);
+                                                             kms_update,
+                                                             flags);
 
       if (rectangles != NULL && n_rectangles != 0)
         {
@@ -468,7 +469,7 @@ meta_onscreen_native_flip_crtc (CoglOnscreen                *onscreen,
   meta_kms_update_add_page_flip_listener (kms_update,
                                           kms_crtc,
                                           &page_flip_listener_vtable,
-                                          flags,
+                                          META_KMS_PAGE_FLIP_LISTENER_FLAG_NONE,
                                           NULL,
                                           g_object_ref (view),
                                           g_object_unref);
@@ -498,7 +499,8 @@ meta_onscreen_native_set_crtc_mode (CoglOnscreen              *onscreen,
         MetaDrmBuffer *buffer;
 
         buffer = META_DRM_BUFFER (onscreen_native->egl.dumb_fb);
-        meta_crtc_kms_assign_primary_plane (crtc_kms, buffer, kms_update);
+        meta_crtc_kms_assign_primary_plane (crtc_kms, buffer, kms_update,
+                                            META_KMS_ASSIGN_PLANE_FLAG_NONE);
         break;
       }
 #endif
@@ -1175,7 +1177,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
                                       onscreen_native->view,
                                       onscreen_native->crtc,
                                       kms_update,
-                                      META_KMS_PAGE_FLIP_LISTENER_FLAG_NONE,
+                                      META_KMS_ASSIGN_PLANE_FLAG_NONE,
                                       rectangles,
                                       n_rectangles);
     }
@@ -1274,7 +1276,8 @@ meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen  *onscreen,
   kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
 
   test_update = meta_kms_update_new (kms_device);
-  meta_crtc_kms_assign_primary_plane (crtc_kms, fb, test_update);
+  meta_crtc_kms_assign_primary_plane (crtc_kms, fb, test_update,
+                                      META_KMS_ASSIGN_PLANE_FLAG_NONE);
 
   meta_topic (META_DEBUG_KMS,
               "Posting direct scanout test update for CRTC %u (%s) synchronously",
@@ -1396,7 +1399,7 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
                                   onscreen_native->view,
                                   onscreen_native->crtc,
                                   kms_update,
-                                  META_KMS_PAGE_FLIP_LISTENER_FLAG_NONE,
+                                  META_KMS_ASSIGN_PLANE_FLAG_NONE,
                                   NULL,
                                   0);
 

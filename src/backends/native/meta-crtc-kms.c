@@ -257,16 +257,16 @@ meta_crtc_kms_apply_transform (MetaCrtcKms            *crtc_kms,
 }
 
 MetaKmsPlaneAssignment *
-meta_crtc_kms_assign_primary_plane (MetaCrtcKms   *crtc_kms,
-                                    MetaDrmBuffer *buffer,
-                                    MetaKmsUpdate *kms_update)
+meta_crtc_kms_assign_primary_plane (MetaCrtcKms            *crtc_kms,
+                                    MetaDrmBuffer          *buffer,
+                                    MetaKmsUpdate          *kms_update,
+                                    MetaKmsAssignPlaneFlag  flags)
 {
   MetaCrtc *crtc = META_CRTC (crtc_kms);
   const MetaCrtcConfig *crtc_config;
   const MetaCrtcModeInfo *crtc_mode_info;
   MetaFixed16Rectangle src_rect;
   MtkRectangle dst_rect;
-  MetaKmsAssignPlaneFlag flags;
   MetaKmsCrtc *kms_crtc;
   MetaKmsDevice *kms_device;
   MetaKmsPlane *primary_kms_plane;
@@ -287,8 +287,6 @@ meta_crtc_kms_assign_primary_plane (MetaCrtcKms   *crtc_kms,
     .width = crtc_mode_info->width,
     .height = crtc_mode_info->height,
   };
-
-  flags = META_KMS_ASSIGN_PLANE_FLAG_NONE;
 
   kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
   kms_device = meta_kms_crtc_get_device (kms_crtc);

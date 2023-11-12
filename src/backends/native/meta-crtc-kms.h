@@ -40,9 +40,10 @@ G_DECLARE_FINAL_TYPE (MetaCrtcKms, meta_crtc_kms,
 void meta_crtc_kms_apply_transform (MetaCrtcKms            *crtc_kms,
                                     MetaKmsPlaneAssignment *kms_plane_assignment);
 
-MetaKmsPlaneAssignment * meta_crtc_kms_assign_primary_plane (MetaCrtcKms   *crtc_kms,
-                                                             MetaDrmBuffer *buffer,
-                                                             MetaKmsUpdate *kms_update);
+MetaKmsPlaneAssignment * meta_crtc_kms_assign_primary_plane (MetaCrtcKms            *crtc_kms,
+                                                             MetaDrmBuffer          *buffer,
+                                                             MetaKmsUpdate          *kms_update,
+                                                             MetaKmsAssignPlaneFlag  flags);
 
 void meta_crtc_kms_set_mode (MetaCrtcKms   *crtc_kms,
                              MetaKmsUpdate *kms_update);
