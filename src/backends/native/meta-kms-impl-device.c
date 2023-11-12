@@ -21,6 +21,8 @@
 
 #include <errno.h>
 #include <glib/gstdio.h>
+#include <linux/dma-buf.h>
+#include <sys/ioctl.h>
 #include <sys/timerfd.h>
 #include <xf86drm.h>
 
@@ -99,6 +101,9 @@ typedef struct _MetaKmsImplDevicePrivate
   GHashTable *crtc_frames;
 
   gboolean deadline_timer_inhibited;
+
+  gboolean sync_file_retrieved;
+  int sync_file;
 } MetaKmsImplDevicePrivate;
 
 static void
@@ -1026,6 +1031,60 @@ meta_kms_impl_device_get_fd (MetaKmsImplDevice *impl_device)
   return meta_device_file_get_fd (priv->device_file);
 }
 
+/**
+ * meta_kms_impl_device_get_signaled_sync_file:
+ * @impl_device: a #MetaKmsImplDevice object
+ *
+ * Returns a file descriptor which references a sync_file. The file descriptor
+ * must not be closed by the caller.
+ *
+ * Always returns the same file descriptor for the same impl_device. The
+ * referenced sync_file will always be considered signaled.
+ *
+ * Returns a negative value if a sync_file fd couldn't be retrieved.
+ */
+int
+meta_kms_impl_device_get_signaled_sync_file (MetaKmsImplDevice *impl_device)
+{
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+
+  meta_assert_in_kms_impl (meta_kms_impl_get_kms (priv->impl));
+
+  if (!priv->sync_file_retrieved)
+    {
+      uint32_t syncobj_handle;
+      int drm_fd, ret;
+
+      priv->sync_file = -1;
+      priv->sync_file_retrieved = TRUE;
+
+      drm_fd = meta_kms_impl_device_get_fd (impl_device);
+      ret = drmSyncobjCreate (drm_fd,
+                              DRM_SYNCOBJ_CREATE_SIGNALED,
+                              &syncobj_handle);
+      if (ret < 0)
+        {
+          meta_topic (META_DEBUG_KMS,
+                      "drmSyncobjCreate failed: %s",
+                      g_strerror (errno));
+          return -1;
+        }
+
+      ret = drmSyncobjExportSyncFile (drm_fd, syncobj_handle, &priv->sync_file);
+      if (ret < 0)
+        {
+          meta_topic (META_DEBUG_KMS,
+                      "drmSyncobjExportSyncFile failed: %s",
+                      g_strerror (errno));
+        }
+
+      drmSyncobjDestroy (drm_fd, syncobj_handle);
+    }
+
+  return priv->sync_file;
+}
+
 static void
 disarm_crtc_frame_deadline_timer (CrtcFrame *crtc_frame)
 {
@@ -1825,6 +1884,8 @@ meta_kms_impl_device_finalize (GObject *object)
   g_free (priv->driver_description);
   g_free (priv->path);
 
+  g_clear_fd (&priv->sync_file, NULL);
+
   G_OBJECT_CLASS (meta_kms_impl_device_parent_class)->finalize (object);
 }
 
@@ -1946,6 +2007,8 @@ meta_kms_impl_device_initable_init (GInitable     *initable,
   priv->crtc_frames =
     g_hash_table_new_full (NULL, NULL,
                            NULL, (GDestroyNotify) crtc_frame_free);
+
+  priv->sync_file = -1;
 
   return TRUE;
 }

@@ -145,6 +145,8 @@ void meta_kms_impl_device_hold_fd (MetaKmsImplDevice *impl_device);
 
 void meta_kms_impl_device_unhold_fd (MetaKmsImplDevice *impl_device);
 
+int meta_kms_impl_device_get_signaled_sync_file (MetaKmsImplDevice *impl_device);
+
 MetaKmsResourceChanges meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device,
                                                            uint32_t           crtc_id,
                                                            uint32_t           connector_id);
