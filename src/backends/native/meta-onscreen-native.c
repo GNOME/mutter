@@ -1277,7 +1277,7 @@ meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen  *onscreen,
 
   test_update = meta_kms_update_new (kms_device);
   meta_crtc_kms_assign_primary_plane (crtc_kms, fb, test_update,
-                                      META_KMS_ASSIGN_PLANE_FLAG_NONE);
+                                      META_KMS_ASSIGN_PLANE_FLAG_DIRECT_SCANOUT);
 
   meta_topic (META_DEBUG_KMS,
               "Posting direct scanout test update for CRTC %u (%s) synchronously",
@@ -1399,7 +1399,7 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
                                   onscreen_native->view,
                                   onscreen_native->crtc,
                                   kms_update,
-                                  META_KMS_ASSIGN_PLANE_FLAG_NONE,
+                                  META_KMS_ASSIGN_PLANE_FLAG_DIRECT_SCANOUT,
                                   NULL,
                                   0);
 
