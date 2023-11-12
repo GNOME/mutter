@@ -588,6 +588,30 @@ process_plane_assignment (MetaKmsImplDevice  *impl_device,
                                    error))
             return FALSE;
         }
+
+      if (plane_assignment->flags & META_KMS_ASSIGN_PLANE_FLAG_DIRECT_SCANOUT)
+        {
+          int signaled_sync_file;
+
+          signaled_sync_file =
+            meta_kms_impl_device_get_signaled_sync_file (impl_device);
+
+          if (signaled_sync_file >= 0)
+            {
+              g_autoptr (GError) local_error = NULL;
+
+              if (!add_plane_property (impl_device,
+                                       plane, req,
+                                       META_KMS_PLANE_PROP_IN_FENCE_FD,
+                                       signaled_sync_file,
+                                       &local_error))
+                {
+                  meta_topic (META_DEBUG_KMS,
+                              "add_plane_property failed for IN_FENCE_FD: %s",
+                              local_error->message);
+                }
+            }
+        }
     }
   else
     {
