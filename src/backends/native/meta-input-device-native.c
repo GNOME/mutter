@@ -488,6 +488,10 @@ update_internal_xkb_state (MetaInputDeviceNative *device,
   xkb_mod_mask_t group_mods;
   struct xkb_state *xkb_state;
 
+  if (device->stickykeys_latched_mask == new_latched_mask &&
+      device->stickykeys_locked_mask == new_locked_mask)
+    return;
+
   g_rw_lock_writer_lock (&seat_impl->state_lock);
 
   xkb_state = meta_seat_impl_get_xkb_state_in_impl (seat_impl);
