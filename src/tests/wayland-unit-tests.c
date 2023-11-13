@@ -68,7 +68,7 @@ buffer_transform (void)
 }
 
 static void
-single_pixel_buffer (void)
+buffer_single_pixel_buffer (void)
 {
   MetaWaylandTestClient *wayland_test_client;
 
@@ -716,7 +716,7 @@ on_client_destroyed (MetaWaylandClient *client,
 }
 
 static void
-wayland_registry_filter (void)
+registry_filter (void)
 {
   g_autoptr (GError) error = NULL;
   MetaWaylandCompositor *wayland_compositor =
@@ -815,7 +815,7 @@ set_true (gpointer user_data)
 }
 
 static void
-wayland_idle_inhibit_instant_destroy (void)
+idle_inhibit_instant_destroy (void)
 {
   MetaWaylandTestClient *wayland_test_client;
   gboolean done;
@@ -853,8 +853,8 @@ init_tests (void)
 {
   g_test_add_func ("/wayland/buffer/transform",
                    buffer_transform);
-  g_test_add_func ("/wayland/buffer/single_pixel_buffer",
-                   single_pixel_buffer);
+  g_test_add_func ("/wayland/buffer/single-pixel-buffer",
+                   buffer_single_pixel_buffer);
   g_test_add_func ("/wayland/subsurface/remap-toplevel",
                    subsurface_remap_toplevel);
   g_test_add_func ("/wayland/subsurface/reparent",
@@ -878,9 +878,9 @@ init_tests (void)
   g_test_add_func ("/wayland/xdg-foreign/set-parent-of",
                    xdg_foreign_set_parent_of);
   g_test_add_func ("/wayland/registry/filter",
-                   wayland_registry_filter);
+                   registry_filter);
   g_test_add_func ("/wayland/idle-inhibit/instant-destroy",
-                   wayland_idle_inhibit_instant_destroy);
+                   idle_inhibit_instant_destroy);
 }
 
 int
