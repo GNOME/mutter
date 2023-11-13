@@ -992,9 +992,13 @@ meta_thread_register_callback_context (MetaThread   *thread,
   MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
   GSource *source;
   MetaThreadCallbackSource *callback_source;
+  g_autofree char *name = NULL;
 
   source = g_source_new (&callback_source_funcs,
                          sizeof (MetaThreadCallbackSource));
+  name = g_strdup_printf ("[mutter] MetaThread '%s' callback source",
+                          meta_thread_get_name (thread));
+  g_source_set_name (source, name);
   callback_source = (MetaThreadCallbackSource *) source;
   g_mutex_init (&callback_source->mutex);
   g_cond_init (&callback_source->cond);
