@@ -1486,6 +1486,7 @@ meta_input_device_native_new_in_impl (MetaSeatImpl           *seat_impl,
   MetaInputDeviceNative *device;
   ClutterInputDeviceType type;
   ClutterInputCapabilities capabilities;
+  ClutterInputMode mode;
   char *vendor, *product;
   int n_rings = 0, n_strips = 0, n_groups = 1, n_buttons = 0;
   char *node_path;
@@ -1496,6 +1497,12 @@ meta_input_device_native_new_in_impl (MetaSeatImpl           *seat_impl,
   vendor = g_strdup_printf ("%.4x", libinput_device_get_id_vendor (libinput_device));
   product = g_strdup_printf ("%.4x", libinput_device_get_id_product (libinput_device));
   node_path = g_strdup_printf ("/dev/input/%s", libinput_device_get_sysname (libinput_device));
+
+  if (libinput_device_has_capability (libinput_device,
+                                      LIBINPUT_DEVICE_CAP_TABLET_TOOL))
+    mode = CLUTTER_INPUT_MODE_FLOATING;
+  else
+    mode = CLUTTER_INPUT_MODE_PHYSICAL;
 
   if (libinput_device_has_capability (libinput_device,
                                       LIBINPUT_DEVICE_CAP_TABLET_PAD))
@@ -1511,7 +1518,7 @@ meta_input_device_native_new_in_impl (MetaSeatImpl           *seat_impl,
                          "name", libinput_device_get_name (libinput_device),
                          "device-type", type,
                          "capabilities", capabilities,
-                         "device-mode", CLUTTER_INPUT_MODE_PHYSICAL,
+                         "device-mode", mode,
                          "vendor-id", vendor,
                          "product-id", product,
                          "n-rings", n_rings,
