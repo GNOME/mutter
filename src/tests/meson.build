@@ -584,6 +584,7 @@ if have_native_tests
         test_client_executables.get('xdg-apply-limits'),
         test_client_executables.get('xdg-foreign'),
         test_client_executables.get('xdg-toplevel-bounds'),
+        test_client_executables.get('ycbcr'),
       ],
     },
   ]

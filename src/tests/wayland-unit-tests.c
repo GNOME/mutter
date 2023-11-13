@@ -81,6 +81,16 @@ buffer_single_pixel_buffer (void)
   meta_wayland_test_client_finish (wayland_test_client);
 }
 
+static void
+buffer_ycbcr_basic (void)
+{
+  MetaWaylandTestClient *wayland_test_client;
+
+  wayland_test_client =
+    meta_wayland_test_client_new (test_context, "ycbcr");
+  meta_wayland_test_client_finish (wayland_test_client);
+}
+
 static gboolean
 set_true (gpointer user_data)
 {
@@ -878,6 +888,8 @@ init_tests (void)
                    buffer_transform);
   g_test_add_func ("/wayland/buffer/single-pixel-buffer",
                    buffer_single_pixel_buffer);
+  g_test_add_func ("/wayland/buffer/ycbcr-basic",
+                   buffer_ycbcr_basic);
   g_test_add_func ("/wayland/idle-inhibit/instant-destroy",
                    idle_inhibit_instant_destroy);
   g_test_add_func ("/wayland/registry/filter",

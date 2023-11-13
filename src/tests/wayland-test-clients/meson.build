@@ -78,6 +78,9 @@ wayland_test_clients = [
   {
     'name': 'xdg-toplevel-bounds',
   },
+  {
+    'name': 'ycbcr',
+  },
 ]
 
 test_client_executables = {}
