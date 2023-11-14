@@ -159,3 +159,5 @@ void meta_wayland_surface_cursor_update (MetaWaylandSurface *cursor_surface);
 void meta_wayland_pointer_update_cursor_surface (MetaWaylandPointer *pointer);
 
 gboolean meta_wayland_pointer_is_grabbed (MetaWaylandPointer *pointer);
+
+MetaWaylandSurface * meta_wayland_pointer_get_current_surface (MetaWaylandPointer *pointer);

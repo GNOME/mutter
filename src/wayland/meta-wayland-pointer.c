@@ -1536,3 +1536,9 @@ meta_wayland_pointer_is_grabbed (MetaWaylandPointer *pointer)
 {
   return pointer->grab != &pointer->default_grab;
 }
+
+MetaWaylandSurface *
+meta_wayland_pointer_get_current_surface (MetaWaylandPointer *pointer)
+{
+  return pointer->current;
+}
