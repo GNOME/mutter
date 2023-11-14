@@ -44,12 +44,6 @@ clutter_pkg_private_deps = [
   pangocairo_dep,
 ]
 
-if get_option('debug')
-  clutter_pkg_private_deps += [
-    json_glib_dep,
-  ]
-endif
-
 if have_pango_ft2
   clutter_pkg_private_deps += [
     pangoft2_dep,

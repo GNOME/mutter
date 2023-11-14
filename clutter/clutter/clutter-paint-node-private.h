@@ -26,10 +26,6 @@
 
 #include <glib-object.h>
 
-#ifdef CLUTTER_ENABLE_DEBUG
-#include <json-glib/json-glib.h>
-#endif
-
 #include "clutter/clutter-backend.h"
 #include "clutter/clutter-paint-context.h"
 #include "clutter/clutter-paint-node.h"
@@ -74,11 +70,6 @@ struct _ClutterPaintNodeClass
                           ClutterPaintContext *paint_context);
   void     (* post_draw) (ClutterPaintNode    *node,
                           ClutterPaintContext *paint_context);
-
-#ifdef CLUTTER_ENABLE_DEBUG
-  JsonNode*(* serialize) (ClutterPaintNode *node);
-#endif
-
   CoglFramebuffer *(* get_framebuffer) (ClutterPaintNode *node);
 };
 
@@ -121,8 +112,6 @@ gpointer                _clutter_paint_node_create                      (GType g
 ClutterPaintNode *      _clutter_transform_node_new                     (const graphene_matrix_t     *matrix);
 ClutterPaintNode *      _clutter_dummy_node_new                         (ClutterActor                *actor,
                                                                          CoglFramebuffer             *framebuffer);
-
-void                    _clutter_paint_node_dump_tree                   (ClutterPaintNode            *root);
 
 G_GNUC_INTERNAL
 void                    clutter_paint_node_remove_child                 (ClutterPaintNode      *node,

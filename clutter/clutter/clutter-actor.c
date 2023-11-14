@@ -3509,14 +3509,6 @@ clutter_actor_paint_node (ClutterActor        *actor,
   if (clutter_paint_node_get_n_children (root) == 0)
     return FALSE;
 
-#ifdef CLUTTER_ENABLE_DEBUG
-  if (CLUTTER_HAS_DEBUG (PAINT))
-    {
-      /* dump the tree only if we have one */
-      _clutter_paint_node_dump_tree (root);
-    }
-#endif /* CLUTTER_ENABLE_DEBUG */
-
   clutter_paint_node_paint (root, paint_context);
 
   return TRUE;

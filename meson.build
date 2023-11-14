@@ -28,7 +28,6 @@ cairo_req = '>= 1.10.0'
 pangocairo_req = '>= 1.20'
 pixman_req = '>= 0.42'
 gsettings_desktop_schemas_req = '>= 40.alpha'
-json_glib_req = '>= 0.12.0'
 x11_req = '>= 1.7.0'
 xcomposite_req = '>= 0.4'
 xkbcommon_req = '>= 0.4.3'
@@ -123,7 +122,6 @@ gobject_dep = dependency('gobject-2.0', version: glib_req)
 gthread_dep = dependency('gobject-2.0', version: glib_req)
 gmodule_no_export_dep = dependency('gmodule-no-export-2.0', version: glib_req)
 gnome_settings_daemon_dep = dependency('gnome-settings-daemon', required: false)
-json_glib_dep = dependency('json-glib-1.0', version: json_glib_req, required: get_option('debug'))
 xkbcommon_dep = dependency('xkbcommon', version: xkbcommon_req)
 ice_dep = dependency('ice')
 atk_dep = dependency('atk', version: atk_req)

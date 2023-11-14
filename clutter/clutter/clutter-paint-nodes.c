@@ -280,32 +280,6 @@ clutter_dummy_node_pre_draw (ClutterPaintNode    *node,
   return TRUE;
 }
 
-#ifdef CLUTTER_ENABLE_DEBUG
-static JsonNode *
-clutter_dummy_node_serialize (ClutterPaintNode *node)
-{
-  ClutterDummyNode *dnode = (ClutterDummyNode *) node;
-  JsonBuilder *builder;
-  JsonNode *res;
-
-  if (dnode->actor == NULL)
-    return json_node_new (JSON_NODE_NULL);
-
-  builder = json_builder_new ();
-  json_builder_begin_object (builder);
-
-  json_builder_set_member_name (builder, "actor");
-  json_builder_add_string_value (builder, _clutter_actor_get_debug_name (dnode->actor));
-
-  json_builder_end_object (builder);
-
-  res = json_builder_get_root (builder);
-  g_object_unref (builder);
-
-  return res;
-}
-#endif
-
 static CoglFramebuffer *
 clutter_dummy_node_get_framebuffer (ClutterPaintNode *node)
 {
@@ -330,9 +304,6 @@ clutter_dummy_node_class_init (ClutterDummyNodeClass *klass)
   ClutterPaintNodeClass *node_class = CLUTTER_PAINT_NODE_CLASS (klass);
 
   node_class->pre_draw = clutter_dummy_node_pre_draw;
-#ifdef CLUTTER_ENABLE_DEBUG
-  node_class->serialize = clutter_dummy_node_serialize;
-#endif
   node_class->get_framebuffer = clutter_dummy_node_get_framebuffer;
   node_class->finalize = clutter_dummy_node_finalize;
 }
@@ -492,48 +463,6 @@ clutter_pipeline_node_post_draw (ClutterPaintNode    *node,
 {
 }
 
-#ifdef CLUTTER_ENABLE_DEBUG
-static JsonNode *
-clutter_pipeline_node_serialize (ClutterPaintNode *node)
-{
-  ClutterPipelineNode *pnode = CLUTTER_PIPELINE_NODE (node);
-  JsonBuilder *builder;
-  CoglColor color;
-  JsonNode *res;
-
-  if (pnode->pipeline == NULL)
-    return json_node_new (JSON_NODE_NULL);
-
-  builder = json_builder_new ();
-  json_builder_begin_object (builder);
-
-  cogl_pipeline_get_color (pnode->pipeline, &color);
-  json_builder_set_member_name (builder, "color");
-  json_builder_begin_array (builder);
-  json_builder_add_double_value (builder, cogl_color_get_red (&color));
-  json_builder_add_double_value (builder, cogl_color_get_green (&color));
-  json_builder_add_double_value (builder, cogl_color_get_blue (&color));
-  json_builder_add_double_value (builder, cogl_color_get_alpha (&color));
-  json_builder_end_array (builder);
-
-#if 0
-  json_builder_set_member_name (builder, "layers");
-  json_builder_begin_array (builder);
-  cogl_pipeline_foreach_layer (pnode->pipeline,
-                               clutter_pipeline_node_serialize_layer,
-                               builder);
-  json_builder_end_array (builder);
-#endif
-
-  json_builder_end_object (builder);
-
-  res = json_builder_get_root (builder);
-  g_object_unref (builder);
-
-  return res;
-}
-#endif
-
 static void
 clutter_pipeline_node_class_init (ClutterPipelineNodeClass *klass)
 {
@@ -544,9 +473,6 @@ clutter_pipeline_node_class_init (ClutterPipelineNodeClass *klass)
   node_class->draw = clutter_pipeline_node_draw;
   node_class->post_draw = clutter_pipeline_node_post_draw;
   node_class->finalize = clutter_pipeline_node_finalize;
-#ifdef CLUTTER_ENABLE_DEBUG
-  node_class->serialize = clutter_pipeline_node_serialize;
-#endif
 }
 
 static void
@@ -873,49 +799,6 @@ clutter_text_node_draw (ClutterPaintNode    *node,
     }
 }
 
-#ifdef CLUTTER_ENABLE_DEBUG
-static JsonNode *
-clutter_text_node_serialize (ClutterPaintNode *node)
-{
-  ClutterTextNode *tnode = CLUTTER_TEXT_NODE (node);
-  JsonBuilder *builder;
-  JsonNode *res;
-
-  builder = json_builder_new ();
-
-  json_builder_begin_object (builder);
-
-  json_builder_set_member_name (builder, "layout");
-
-  if (pango_layout_get_character_count (tnode->layout) > 12)
-    {
-      const char *text = pango_layout_get_text (tnode->layout);
-      char *str;
-
-      str = g_strndup (text, 12);
-      json_builder_add_string_value (builder, str);
-      g_free (str);
-    }
-  else
-    json_builder_add_string_value (builder, pango_layout_get_text (tnode->layout));
-
-  json_builder_set_member_name (builder, "color");
-  json_builder_begin_array (builder);
-  json_builder_add_double_value (builder, cogl_color_get_red (&tnode->color));
-  json_builder_add_double_value (builder, cogl_color_get_green (&tnode->color));
-  json_builder_add_double_value (builder, cogl_color_get_blue (&tnode->color));
-  json_builder_add_double_value (builder, cogl_color_get_alpha (&tnode->color));
-  json_builder_end_array (builder);
-
-  json_builder_end_object (builder);
-
-  res = json_builder_get_root (builder);
-  g_object_unref (builder);
-
-  return res;
-}
-#endif
-
 static void
 clutter_text_node_class_init (ClutterTextNodeClass *klass)
 {
@@ -924,9 +807,6 @@ clutter_text_node_class_init (ClutterTextNodeClass *klass)
   node_class->pre_draw = clutter_text_node_pre_draw;
   node_class->draw = clutter_text_node_draw;
   node_class->finalize = clutter_text_node_finalize;
-#ifdef CLUTTER_ENABLE_DEBUG
-  node_class->serialize = clutter_text_node_serialize;
-#endif
 }
 
 static void
@@ -1163,27 +1043,6 @@ clutter_actor_node_post_draw (ClutterPaintNode    *node,
     }
 }
 
-#ifdef CLUTTER_ENABLE_DEBUG
-static JsonNode *
-clutter_actor_node_serialize (ClutterPaintNode *node)
-{
-  ClutterActorNode *actor_node = CLUTTER_ACTOR_NODE (node);
-  g_autoptr (JsonBuilder) builder = NULL;
-  const char *debug_name;
-
-  debug_name = _clutter_actor_get_debug_name (actor_node->actor);
-
-  builder = json_builder_new ();
-
-  json_builder_begin_object (builder);
-  json_builder_set_member_name (builder, "actor");
-  json_builder_add_string_value (builder, debug_name);
-  json_builder_end_object (builder);
-
-  return json_builder_get_root (builder);
-}
-#endif
-
 static void
 clutter_actor_node_class_init (ClutterActorNodeClass *klass)
 {
@@ -1193,9 +1052,6 @@ clutter_actor_node_class_init (ClutterActorNodeClass *klass)
   node_class->pre_draw = clutter_actor_node_pre_draw;
   node_class->draw = clutter_actor_node_draw;
   node_class->post_draw = clutter_actor_node_post_draw;
-#ifdef CLUTTER_ENABLE_DEBUG
-  node_class->serialize = clutter_actor_node_serialize;
-#endif
 }
 
 static void
@@ -1251,48 +1107,9 @@ struct _ClutterEffectNodeClass
 
 G_DEFINE_TYPE (ClutterEffectNode, clutter_effect_node, CLUTTER_TYPE_PAINT_NODE)
 
-#ifdef CLUTTER_ENABLE_DEBUG
-static JsonNode *
-clutter_effect_node_serialize (ClutterPaintNode *node)
-{
-  ClutterEffectNode *effect_node = CLUTTER_EFFECT_NODE (node);
-  ClutterActorMeta *effect_meta = CLUTTER_ACTOR_META (effect_node->effect);
-  g_autoptr (JsonBuilder) builder = NULL;
-  g_autoptr (GString) string = NULL;
-  const char *meta_name;
-
-  meta_name = clutter_actor_meta_get_name (effect_meta);
-
-  string = g_string_new (NULL);
-  g_string_append (string, G_OBJECT_TYPE_NAME (effect_node->effect));
-  g_string_append (string, " (");
-  if (meta_name)
-    g_string_append_printf (string, "\"%s\"", meta_name);
-  else
-    g_string_append (string, "unnamed");
-  g_string_append (string, ")");
-
-  builder = json_builder_new ();
-
-  json_builder_begin_object (builder);
-  json_builder_set_member_name (builder, "effect");
-  json_builder_add_string_value (builder, string->str);
-  json_builder_end_object (builder);
-
-  return json_builder_get_root (builder);
-}
-#endif
-
 static void
 clutter_effect_node_class_init (ClutterEffectNodeClass *klass)
 {
-#ifdef CLUTTER_ENABLE_DEBUG
-
-  ClutterPaintNodeClass *node_class;
-
-  node_class = CLUTTER_PAINT_NODE_CLASS (klass);
-  node_class->serialize = clutter_effect_node_serialize;
-#endif
 }
 
 static void
@@ -1455,27 +1272,6 @@ clutter_layer_node_finalize (ClutterPaintNode *node)
   CLUTTER_PAINT_NODE_CLASS (clutter_layer_node_parent_class)->finalize (node);
 }
 
-#ifdef CLUTTER_ENABLE_DEBUG
-static JsonNode *
-clutter_layer_node_serialize (ClutterPaintNode *node)
-{
-  ClutterLayerNode *layer_node = CLUTTER_LAYER_NODE (node);
-  g_autoptr (JsonBuilder) builder = NULL;
-  g_autofree char *framebuffer_ptr = NULL;
-
-  builder = json_builder_new ();
-
-  framebuffer_ptr = g_strdup_printf ("%p", layer_node->offscreen);
-
-  json_builder_begin_object (builder);
-  json_builder_set_member_name (builder, "framebuffer");
-  json_builder_add_string_value (builder, framebuffer_ptr);
-  json_builder_end_object (builder);
-
-  return json_builder_get_root (builder);
-}
-#endif
-
 static void
 clutter_layer_node_class_init (ClutterLayerNodeClass *klass)
 {
@@ -1485,9 +1281,6 @@ clutter_layer_node_class_init (ClutterLayerNodeClass *klass)
   node_class->pre_draw = clutter_layer_node_pre_draw;
   node_class->post_draw = clutter_layer_node_post_draw;
   node_class->finalize = clutter_layer_node_finalize;
-#ifdef CLUTTER_ENABLE_DEBUG
-  node_class->serialize = clutter_layer_node_serialize;
-#endif
 }
 
 static void
@@ -1616,26 +1409,6 @@ clutter_blit_node_finalize (ClutterPaintNode *node)
   CLUTTER_PAINT_NODE_CLASS (clutter_blit_node_parent_class)->finalize (node);
 }
 
-#ifdef CLUTTER_ENABLE_DEBUG
-static JsonNode *
-clutter_blit_node_serialize (ClutterPaintNode *node)
-{
-  ClutterBlitNode *blit_node = CLUTTER_BLIT_NODE (node);
-  g_autoptr (JsonBuilder) builder = NULL;
-  g_autofree char *src_ptr = NULL;
-
-  src_ptr = g_strdup_printf ("%p", blit_node->src);
-
-  builder = json_builder_new ();
-  json_builder_begin_object (builder);
-  json_builder_set_member_name (builder, "source");
-  json_builder_add_string_value (builder, src_ptr);
-  json_builder_end_object (builder);
-
-  return json_builder_get_root (builder);
-}
-#endif
-
 static void
 clutter_blit_node_class_init (ClutterBlitNodeClass *klass)
 {
@@ -1645,9 +1418,6 @@ clutter_blit_node_class_init (ClutterBlitNodeClass *klass)
   node_class->pre_draw = clutter_blit_node_pre_draw;
   node_class->draw = clutter_blit_node_draw;
   node_class->finalize = clutter_blit_node_finalize;
-#ifdef CLUTTER_ENABLE_DEBUG
-  node_class->serialize = clutter_blit_node_serialize;
-#endif
 }
 
 static void
@@ -1754,26 +1524,6 @@ clutter_blur_node_finalize (ClutterPaintNode *node)
   CLUTTER_PAINT_NODE_CLASS (clutter_blur_node_parent_class)->finalize (node);
 }
 
-#ifdef CLUTTER_ENABLE_DEBUG
-static JsonNode *
-clutter_blur_node_serialize (ClutterPaintNode *node)
-{
-  ClutterBlurNode *blur_node = CLUTTER_BLUR_NODE (node);
-  g_autoptr (JsonBuilder) builder = NULL;
-  g_autofree char *src_ptr = NULL;
-
-  src_ptr = g_strdup_printf ("%d", blur_node->sigma);
-
-  builder = json_builder_new ();
-  json_builder_begin_object (builder);
-  json_builder_set_member_name (builder, "sigma");
-  json_builder_add_string_value (builder, src_ptr);
-  json_builder_end_object (builder);
-
-  return json_builder_get_root (builder);
-}
-#endif
-
 static void
 clutter_blur_node_class_init (ClutterBlurNodeClass *klass)
 {
@@ -1782,9 +1532,6 @@ clutter_blur_node_class_init (ClutterBlurNodeClass *klass)
   node_class = CLUTTER_PAINT_NODE_CLASS (klass);
   node_class->post_draw = clutter_blur_node_post_draw;
   node_class->finalize = clutter_blur_node_finalize;
-#ifdef CLUTTER_ENABLE_DEBUG
-  node_class->serialize = clutter_blur_node_serialize;
-#endif
 }
 
 static void
