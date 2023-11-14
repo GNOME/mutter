@@ -937,3 +937,16 @@ meta_wayland_tablet_tool_can_popup (MetaWaylandTabletTool *tool,
 {
   return tool->down_serial == serial || tool->button_serial == serial;
 }
+
+gboolean
+meta_wayland_tablet_tool_has_current_tablet (MetaWaylandTabletTool *tool,
+                                             MetaWaylandTablet     *tablet)
+{
+  return tool->current_tablet == tablet;
+}
+
+MetaWaylandSurface *
+meta_wayland_tablet_tool_get_current_surface (MetaWaylandTabletTool *tool)
+{
+  return tool->current;
+}

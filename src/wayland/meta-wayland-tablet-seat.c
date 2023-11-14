@@ -603,3 +603,25 @@ meta_wayland_tablet_seat_get_grab_info (MetaWaylandTabletSeat *tablet_seat,
 
   return FALSE;
 }
+
+MetaWaylandSurface *
+meta_wayland_tablet_seat_get_current_surface (MetaWaylandTabletSeat *tablet_seat,
+                                              ClutterInputDevice    *device)
+{
+  MetaWaylandTablet *tablet;
+  g_autoptr (GList) tools = NULL;
+  GList *l;
+
+  tools = g_hash_table_get_values (tablet_seat->tools);
+  tablet = meta_wayland_tablet_seat_lookup_tablet (tablet_seat, device);
+
+  for (l = tools; l; l = l->next)
+    {
+      MetaWaylandTabletTool *tool = l->data;
+
+      if (meta_wayland_tablet_tool_has_current_tablet (tool, tablet))
+        return meta_wayland_tablet_tool_get_current_surface (tool);
+    }
+
+  return NULL;
+}
