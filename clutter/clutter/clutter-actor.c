@@ -103,10 +103,10 @@
  * clutter_actor_get_children(), as well as retrieving a specific child at a
  * given index by using clutter_actor_get_child_at_index().
  *
- * If you need to track additions of children to a #ClutterActor, use
- * the #ClutterActor::actor-added signal; similarly, to track removals
- * of children from a ClutterActor, use the #ClutterActor::actor-removed
- * signal.
+ * If you need to track additions of children to a [type@Clutter.Actor], use
+ * the [signal@Clutter.Actor::child-added] signal; similarly, to track
+ * removals of children from a ClutterActor, use the
+ * [signal@Clutter.Actor::child-removed] signal.
  *
  * See [basic-actor.c](https://git.gnome.org/browse/clutter/tree/examples/basic-actor.c?h=clutter-1.18).
  *
@@ -926,8 +926,8 @@ enum
   TRANSITION_STOPPED,
   STAGE_VIEWS_CHANGED,
   RESOURCE_SCALE_CHANGED,
-  ACTOR_ADDED,
-  ACTOR_REMOVED,
+  CHILD_ADDED,
+  CHILD_REMOVED,
   CLONED,
   DECLONED,
 
@@ -4087,7 +4087,7 @@ typedef enum
 {
   REMOVE_CHILD_DESTROY_META       = 1 << 0,
   REMOVE_CHILD_EMIT_PARENT_SET    = 1 << 1,
-  REMOVE_CHILD_EMIT_ACTOR_REMOVED = 1 << 2,
+  REMOVE_CHILD_EMIT_CHILD_REMOVED = 1 << 2,
   REMOVE_CHILD_CHECK_STATE        = 1 << 3,
   REMOVE_CHILD_NOTIFY_FIRST_LAST  = 1 << 4,
   REMOVE_CHILD_STOP_TRANSITIONS   = 1 << 5,
@@ -4097,7 +4097,7 @@ typedef enum
   REMOVE_CHILD_DEFAULT_FLAGS      = REMOVE_CHILD_STOP_TRANSITIONS |
                                     REMOVE_CHILD_DESTROY_META |
                                     REMOVE_CHILD_EMIT_PARENT_SET |
-                                    REMOVE_CHILD_EMIT_ACTOR_REMOVED |
+                                    REMOVE_CHILD_EMIT_CHILD_REMOVED |
                                     REMOVE_CHILD_CHECK_STATE |
                                     REMOVE_CHILD_NOTIFY_FIRST_LAST |
                                     REMOVE_CHILD_CLEAR_STAGE_VIEWS,
@@ -4117,7 +4117,7 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
                                      ClutterActorRemoveChildFlags  flags)
 {
   ClutterActor *old_first, *old_last;
-  gboolean destroy_meta, emit_parent_set, emit_actor_removed, check_state;
+  gboolean destroy_meta, emit_parent_set, emit_child_removed, check_state;
   gboolean notify_first_last;
   gboolean stop_transitions;
   gboolean clear_stage_views;
@@ -4132,7 +4132,7 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
 
   destroy_meta = (flags & REMOVE_CHILD_DESTROY_META) != 0;
   emit_parent_set = (flags & REMOVE_CHILD_EMIT_PARENT_SET) != 0;
-  emit_actor_removed = (flags & REMOVE_CHILD_EMIT_ACTOR_REMOVED) != 0;
+  emit_child_removed = (flags & REMOVE_CHILD_EMIT_CHILD_REMOVED) != 0;
   check_state = (flags & REMOVE_CHILD_CHECK_STATE) != 0;
   notify_first_last = (flags & REMOVE_CHILD_NOTIFY_FIRST_LAST) != 0;
   stop_transitions = (flags & REMOVE_CHILD_STOP_TRANSITIONS) != 0;
@@ -4198,8 +4198,8 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
     g_signal_emit (child, actor_signals[PARENT_SET], 0, self);
 
   /* we need to emit the signal before dropping the reference */
-  if (emit_actor_removed)
-    g_signal_emit (self, actor_signals[ACTOR_REMOVED], 0, child);
+  if (emit_child_removed)
+    g_signal_emit (self, actor_signals[CHILD_REMOVED], 0, child);
 
   if (notify_first_last)
     {
@@ -7426,34 +7426,34 @@ clutter_actor_class_init (ClutterActorClass *klass)
                   G_TYPE_NONE, 0);
 
   /**
-   * ClutterActor::actor-added:
+   * ClutterActor::child-added:
    * @actor: the actor which received the signal
    * @child: the new child that has been added to @actor
    *
    * The signal is emitted each time an actor
    * has been added to @actor.
    */
-  actor_signals[ACTOR_ADDED] =
-    g_signal_new (I_("actor-added"),
+  actor_signals[CHILD_ADDED] =
+    g_signal_new (I_("child-added"),
                   G_TYPE_FROM_CLASS (object_class),
                   G_SIGNAL_RUN_FIRST,
-                  G_STRUCT_OFFSET (ClutterActorClass, actor_added),
+                  G_STRUCT_OFFSET (ClutterActorClass, child_added),
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 1,
                   CLUTTER_TYPE_ACTOR);
   /**
-   * ClutterActor::actor-removed:
+   * ClutterActor::child-removed:
    * @actor: the actor which received the signal
    * @child: the child that has been removed from @actor
    *
    * The signal is emitted each time an actor
    * is removed from @actor.
    */
-  actor_signals[ACTOR_REMOVED] =
-    g_signal_new (I_("actor-removed"),
+  actor_signals[CHILD_REMOVED] =
+    g_signal_new (I_("child-removed"),
                   G_TYPE_FROM_CLASS (object_class),
                   G_SIGNAL_RUN_FIRST,
-                  G_STRUCT_OFFSET (ClutterActorClass, actor_removed),
+                  G_STRUCT_OFFSET (ClutterActorClass, child_removed),
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 1,
                   CLUTTER_TYPE_ACTOR);
@@ -10996,7 +10996,7 @@ typedef enum
 {
   ADD_CHILD_CREATE_META        = 1 << 0,
   ADD_CHILD_EMIT_PARENT_SET    = 1 << 1,
-  ADD_CHILD_EMIT_ACTOR_ADDED   = 1 << 2,
+  ADD_CHILD_EMIT_CHILD_ADDED   = 1 << 2,
   ADD_CHILD_CHECK_STATE        = 1 << 3,
   ADD_CHILD_NOTIFY_FIRST_LAST  = 1 << 4,
   ADD_CHILD_SHOW_ON_SET_PARENT = 1 << 5,
@@ -11004,7 +11004,7 @@ typedef enum
   /* default flags for public API */
   ADD_CHILD_DEFAULT_FLAGS    = ADD_CHILD_CREATE_META |
                                ADD_CHILD_EMIT_PARENT_SET |
-                               ADD_CHILD_EMIT_ACTOR_ADDED |
+                               ADD_CHILD_EMIT_CHILD_ADDED |
                                ADD_CHILD_CHECK_STATE |
                                ADD_CHILD_NOTIFY_FIRST_LAST |
                                ADD_CHILD_SHOW_ON_SET_PARENT,
@@ -11035,7 +11035,7 @@ clutter_actor_add_child_internal (ClutterActor              *self,
 {
   ClutterTextDirection text_dir;
   gboolean create_meta;
-  gboolean emit_parent_set, emit_actor_added;
+  gboolean emit_parent_set, emit_child_added;
   gboolean check_state;
   gboolean notify_first_last;
   gboolean show_on_set_parent;
@@ -11116,7 +11116,7 @@ clutter_actor_add_child_internal (ClutterActor              *self,
 
   create_meta = (flags & ADD_CHILD_CREATE_META) != 0;
   emit_parent_set = (flags & ADD_CHILD_EMIT_PARENT_SET) != 0;
-  emit_actor_added = (flags & ADD_CHILD_EMIT_ACTOR_ADDED) != 0;
+  emit_child_added = (flags & ADD_CHILD_EMIT_CHILD_ADDED) != 0;
   check_state = (flags & ADD_CHILD_CHECK_STATE) != 0;
   notify_first_last = (flags & ADD_CHILD_NOTIFY_FIRST_LAST) != 0;
   show_on_set_parent = (flags & ADD_CHILD_SHOW_ON_SET_PARENT) != 0;
@@ -11210,8 +11210,8 @@ clutter_actor_add_child_internal (ClutterActor              *self,
       clutter_actor_queue_relayout (self);
     }
 
-  if (emit_actor_added)
-    g_signal_emit (self, actor_signals[ACTOR_ADDED], 0, child);
+  if (emit_child_added)
+    g_signal_emit (self, actor_signals[CHILD_ADDED], 0, child);
 
   if (notify_first_last)
     {
@@ -11238,7 +11238,7 @@ clutter_actor_add_child_internal (ClutterActor              *self,
  * This function will take into consideration the #ClutterActor:depth
  * of @child, and will keep the list of children sorted.
  *
- * This function will emit the #ClutterActor::actor-added signal
+ * This function will emit the [signal@Clutter.Actor::child-added] signal
  * on @self.
  */
 void
@@ -11272,7 +11272,7 @@ clutter_actor_add_child (ClutterActor *self,
  * This function will not take into consideration the #ClutterActor:depth
  * of @child.
  *
- * This function will emit the #ClutterActor::actor-added signal
+ * This function will emit the [signal@Clutter.Actor::child-added] signal
  * on @self.
  */
 void
@@ -11307,7 +11307,7 @@ clutter_actor_insert_child_at_index (ClutterActor *self,
  * This function will not take into consideration the #ClutterActor:depth
  * of @child.
  *
- * This function will emit the #ClutterActor::actor-added signal
+ * This function will emit the [signal@Clutter.Actor::child-added] signal
  * on @self.
  */
 void
@@ -11346,7 +11346,7 @@ clutter_actor_insert_child_above (ClutterActor *self,
  * This function will not take into consideration the #ClutterActor:depth
  * of @child.
  *
- * This function will emit the #ClutterActor::actor-added signal
+ * This function will emit the [signal@Clutter.Actor::child-added] signal
  * on @self.
  */
 void
@@ -11417,7 +11417,7 @@ clutter_actor_get_paint_visibility (ClutterActor *actor)
  * you will have to acquire a referenced on it before calling this
  * function.
  *
- * This function will emit the #ClutterActor::actor-removed
+ * This function will emit the [signal@Clutter.Actor::child-removed]
  * signal on @self.
  */
 void

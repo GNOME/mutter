@@ -247,9 +247,9 @@ struct _ClutterActorClass
   float    (* calculate_resource_scale) (ClutterActor *self,
                                          int           phase);
 
-  void     (* actor_added)          (ClutterActor         *self,
+  void     (* child_added)          (ClutterActor         *self,
                                      ClutterActor         *child);
-  void     (* actor_removed)        (ClutterActor         *self,
+  void     (* child_removed)        (ClutterActor         *self,
                                      ClutterActor         *child);
 };
 

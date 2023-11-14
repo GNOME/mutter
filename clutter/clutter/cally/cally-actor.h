@@ -61,8 +61,8 @@ typedef void (* CallyActionFunc) (CallyActor *cally_actor);
  *
  * Action function, to be used on #AtkAction implementations as
  * an individual action.
- * 
- * Unlike #CallyActionFunc, this function uses the @user_data 
+ *
+ * Unlike #CallyActionFunc, this function uses the @user_data
  * argument passed to [method@Actor.add_action_full].
  */
 typedef void (* CallyActionCallback) (CallyActor *cally_actor,
@@ -79,10 +79,8 @@ struct _CallyActor
 /**
  * CallyActorClass:
  * @notify_clutter: Signal handler for notify signal on Clutter actor
- * @add_actor: Signal handler for actor-added signal on
- *   ClutterContainer interface
- * @remove_actor: Signal handler for actor-added signal on
- *   ClutterContainer interface
+ * @add_actor: Signal handler for child-added signal on Clutter actor
+ * @remove_actor: Signal handler for child-removed signal on Clutter actor
  *
  * The <structname>CallyActorClass</structname> structure contains
  * only private data

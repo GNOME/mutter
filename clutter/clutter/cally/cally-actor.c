@@ -240,13 +240,13 @@ cally_actor_initialize (AtkObject *obj,
    * need to remove these handlers.
    */
   handler_id = g_signal_connect (actor,
-                                 "actor-added",
+                                 "child-added",
                                  G_CALLBACK (cally_actor_add_actor),
                                  obj);
   g_object_set_data (G_OBJECT (obj), "cally-add-handler-id",
                      GUINT_TO_POINTER (handler_id));
   handler_id = g_signal_connect (actor,
-                                 "actor-removed",
+                                 "child-removed",
                                  G_CALLBACK (cally_actor_remove_actor),
                                  obj);
   g_object_set_data (G_OBJECT (obj), "cally-remove-handler-id",
