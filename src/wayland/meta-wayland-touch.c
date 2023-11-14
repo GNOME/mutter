@@ -637,6 +637,22 @@ meta_wayland_touch_get_press_coords (MetaWaylandTouch     *touch,
   return TRUE;
 }
 
+MetaWaylandSurface *
+meta_wayland_touch_get_surface (MetaWaylandTouch     *touch,
+                                ClutterEventSequence *sequence)
+{
+  MetaWaylandTouchInfo *touch_info;
+
+  if (!touch->touches)
+    return NULL;
+
+  touch_info = touch_get_info (touch, sequence, FALSE);
+  if (!touch_info || !touch_info->touch_surface)
+    return NULL;
+
+  return touch_info->touch_surface->surface;
+}
+
 static void
 meta_wayland_touch_init (MetaWaylandTouch *touch)
 {
