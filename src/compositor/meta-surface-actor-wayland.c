@@ -184,8 +184,8 @@ meta_surface_actor_wayland_apply_transform (ClutterActor      *actor,
     goto out;
 
   root_surface = surface;
-  while (root_surface->output_state.parent)
-    root_surface = root_surface->output_state.parent;
+  while (root_surface->applied_state.parent)
+    root_surface = root_surface->applied_state.parent;
 
   window = meta_wayland_surface_get_window (root_surface);
   if (!window)
@@ -227,7 +227,7 @@ meta_surface_actor_wayland_apply_transform (ClutterActor      *actor,
           adj_actor_x += roundf (surface->sub.x * scale) / scale;
           adj_actor_y += roundf (surface->sub.y * scale) / scale;
 
-          surface = surface->output_state.parent;
+          surface = surface->applied_state.parent;
         }
       while (surface);
     }

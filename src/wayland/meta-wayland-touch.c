@@ -578,7 +578,7 @@ touch_can_grab_surface (MetaWaylandTouchInfo *touch_info,
   if (touch_info->touch_surface->surface == surface)
     return TRUE;
 
-  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (&surface->output_state,
+  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (&surface->applied_state,
                                            subsurface)
     {
       if (touch_can_grab_surface (touch_info, subsurface))

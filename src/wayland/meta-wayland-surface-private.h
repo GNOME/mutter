@@ -187,7 +187,7 @@ struct _MetaWaylandSurface
     GNode *subsurface_branch_node;
     GNode *subsurface_leaf_node;
     MetaMultiTexture *texture;
-  } output_state, protocol_state;
+  } applied_state, committed_state;
 
   /* Extension resources. */
   struct wl_resource *wl_subsurface;

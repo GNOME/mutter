@@ -912,7 +912,7 @@ tablet_tool_can_grab_surface (MetaWaylandTabletTool *tool,
   if (tool->focus_surface == surface)
     return TRUE;
 
-  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (&surface->output_state,
+  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (&surface->applied_state,
                                            subsurface)
     {
       if (tablet_tool_can_grab_surface (tool, subsurface))

@@ -58,7 +58,7 @@ meta_wayland_shell_surface_calculate_geometry (MetaWaylandShellSurface *shell_su
     .height = meta_wayland_surface_get_height (surface),
   };
 
-  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (&surface->output_state,
+  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (&surface->applied_state,
                                            subsurface_surface)
     {
       MetaWaylandSubsurface *subsurface;

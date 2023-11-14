@@ -73,14 +73,14 @@ meta_wayland_transaction_sync_child_states (MetaWaylandSurface *surface)
   MetaWaylandSubsurface *subsurface;
   MetaWaylandActorSurface *actor_surface;
 
-  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (&surface->output_state, subsurface_surface)
+  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (&surface->applied_state, subsurface_surface)
     {
       subsurface = META_WAYLAND_SUBSURFACE (subsurface_surface->role);
       actor_surface = META_WAYLAND_ACTOR_SURFACE (subsurface);
       meta_wayland_actor_surface_sync_actor_state (actor_surface);
     }
 
-  if (!surface->output_state.parent &&
+  if (!surface->applied_state.parent &&
       surface->role && META_IS_WAYLAND_SUBSURFACE (surface->role))
     {
       /* Unmapped sub-surface */
@@ -105,7 +105,7 @@ void
 meta_wayland_transaction_drop_subsurface_state (MetaWaylandTransaction *transaction,
                                                 MetaWaylandSurface     *surface)
 {
-  MetaWaylandSurface *parent = surface->protocol_state.parent;
+  MetaWaylandSurface *parent = surface->committed_state.parent;
   MetaWaylandTransactionEntry *entry;
 
   entry = meta_wayland_transaction_get_entry (transaction, surface);
@@ -126,9 +126,9 @@ is_ancestor (MetaWaylandSurface *candidate,
 {
   MetaWaylandSurface *ancestor;
 
-  for (ancestor = reference->output_state.parent;
+  for (ancestor = reference->applied_state.parent;
        ancestor;
-       ancestor = ancestor->output_state.parent)
+       ancestor = ancestor->applied_state.parent)
     {
       if (ancestor == candidate)
         return TRUE;
@@ -145,7 +145,7 @@ meta_wayland_transaction_compare (const void *key1,
   MetaWaylandSurface *surface2 = *(MetaWaylandSurface **) key2;
 
   /* Order of siblings doesn't matter */
-  if (surface1->output_state.parent == surface2->output_state.parent)
+  if (surface1->applied_state.parent == surface2->applied_state.parent)
     return 0;
 
   /* Ancestor surfaces come before descendant surfaces */

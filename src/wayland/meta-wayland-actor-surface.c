@@ -275,7 +275,7 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
 
   meta_shaped_texture_ensure_size_valid (stex);
 
-  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (&surface->output_state,
+  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (&surface->applied_state,
                                            subsurface_surface)
     {
       MetaWaylandActorSurface *actor_surface;
@@ -424,7 +424,7 @@ meta_wayland_actor_surface_reset_actor (MetaWaylandActorSurface *actor_surface)
     meta_wayland_surface_role_get_surface (META_WAYLAND_SURFACE_ROLE (actor_surface));
   MetaWaylandSurface *subsurface_surface;
 
-  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (&surface->output_state,
+  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (&surface->applied_state,
                                            subsurface_surface)
     {
       MetaWaylandActorSurface *actor_surface;
