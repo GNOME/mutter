@@ -529,6 +529,8 @@ static const MetaWaylandKeyboardGrabInterface default_keyboard_grab_interface = 
 void
 meta_wayland_keyboard_enable (MetaWaylandKeyboard *keyboard)
 {
+  MetaWaylandInputDevice *input_device = META_WAYLAND_INPUT_DEVICE (keyboard);
+  MetaWaylandSeat *seat = meta_wayland_input_device_get_seat (input_device);
   MetaBackend *backend = backend_from_keyboard (keyboard);
   ClutterBackend *clutter_backend = clutter_get_default_backend ();
 
@@ -549,6 +551,8 @@ meta_wayland_keyboard_enable (MetaWaylandKeyboard *keyboard)
                     G_CALLBACK (on_kbd_a11y_mask_changed), keyboard);
 
   meta_wayland_keyboard_take_keymap (keyboard, meta_backend_get_keymap (backend));
+
+  meta_wayland_keyboard_set_focus (keyboard, seat->input_focus);
 }
 
 static void

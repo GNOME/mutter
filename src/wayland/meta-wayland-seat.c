@@ -155,14 +155,7 @@ meta_wayland_seat_set_capabilities (MetaWaylandSeat *seat,
     meta_wayland_pointer_disable (seat->pointer);
 
   if (CAPABILITY_ENABLED (prev_flags, flags, WL_SEAT_CAPABILITY_KEYBOARD))
-    {
-      MetaWaylandCompositor *compositor =
-        meta_wayland_seat_get_compositor (seat);
-
-      meta_wayland_keyboard_enable (seat->keyboard);
-
-      meta_wayland_compositor_sync_focus (compositor);
-    }
+    meta_wayland_keyboard_enable (seat->keyboard);
   else if (CAPABILITY_DISABLED (prev_flags, flags, WL_SEAT_CAPABILITY_KEYBOARD))
     meta_wayland_keyboard_disable (seat->keyboard);
 
@@ -409,12 +402,39 @@ meta_wayland_seat_handle_event (MetaWaylandSeat *seat,
   return FALSE;
 }
 
+static void
+input_focus_destroyed (MetaWaylandSurface *surface,
+                       MetaWaylandSeat    *seat)
+{
+  meta_wayland_seat_set_input_focus (seat, NULL);
+}
+
 void
 meta_wayland_seat_set_input_focus (MetaWaylandSeat    *seat,
                                    MetaWaylandSurface *surface)
 {
   MetaWaylandCompositor *compositor = meta_wayland_seat_get_compositor (seat);
   MetaWaylandTabletSeat *tablet_seat;
+
+  if (seat->input_focus == surface)
+    return;
+
+  if (seat->input_focus)
+    {
+      g_clear_signal_handler (&seat->input_focus_destroy_id,
+                              seat->input_focus);
+      seat->input_focus = NULL;
+    }
+
+  seat->input_focus = surface;
+
+  if (surface)
+    {
+      seat->input_focus_destroy_id =
+        g_signal_connect (surface, "destroy",
+                          G_CALLBACK (input_focus_destroyed),
+                          seat);
+    }
 
   if (meta_wayland_seat_has_keyboard (seat))
     {

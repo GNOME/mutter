@@ -48,6 +48,9 @@ struct _MetaWaylandSeat
 
   MetaWaylandTextInput *text_input;
 
+  MetaWaylandSurface *input_focus;
+  gulong input_focus_destroy_id;
+
   guint capabilities;
 };
 
