@@ -112,6 +112,8 @@
 
 #include "config.h"
 
+#define COGL_DISABLE_DEPRECATION_WARNINGS
+
 #include "cogl/cogl.h"
 
 #include "clutter/clutter-shader-effect.h"

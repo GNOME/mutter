@@ -1,3 +1,5 @@
+#define COGL_DISABLE_DEPRECATION_WARNINGS
+
 #include <clutter/clutter.h>
 
 #include <errno.h>

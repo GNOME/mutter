@@ -50,7 +50,6 @@ if have_introspection
   mtk_introspection_args = introspection_args + [
     '-DMTK_SYSCONFDIR="@0@"'.format(prefix / sysconfdir),
     '-DMTK_COMPILATION=1',
-    '-DCOGL_DISABLE_DEPRECATION_WARNINGS',
     '-DG_LOG_DOMAIN="Mtk"'
   ]
 

@@ -1,3 +1,5 @@
+#define COGL_DISABLE_DEPRECATION_WARNINGS
+
 #include <cogl/cogl.h>
 
 #include <string.h>

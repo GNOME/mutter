@@ -7,7 +7,6 @@ clutter_includes = [clutter_includepath, cogl_includepath]
 clutter_c_args = [
   '-DCLUTTER_SYSCONFDIR="@0@"'.format(prefix / sysconfdir),
   '-DCLUTTER_COMPILATION=1',
-  '-DCOGL_DISABLE_DEPRECATION_WARNINGS',
   '-DCOGL_ENABLE_MUTTER_API',
   '-DG_LOG_DOMAIN="Clutter"',
 ]

@@ -17,6 +17,8 @@
 
 #include "config.h"
 
+#define COGL_DISABLE_DEPRECATION_WARNINGS
+
 #include "clutter/clutter-stage-view.h"
 #include "clutter/clutter-stage-view-private.h"
 

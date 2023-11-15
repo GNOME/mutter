@@ -25,6 +25,8 @@
  *  Emmanuele Bassi
  */
 
+#define COGL_DISABLE_DEPRECATION_WARNINGS
+
 #include "config.h"
 
 #include "backends/meta-stage-impl-private.h"

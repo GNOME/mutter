@@ -177,7 +177,6 @@ mutter_deps = [
 
 mutter_c_args = [
   '-DCOGL_ENABLE_MUTTER_API',
-  '-DCOGL_DISABLE_DEPRECATION_WARNINGS',
   '-DSN_API_NOT_YET_FROZEN=1',
   '-DGETTEXT_PACKAGE="@0@"'.format(meson.project_name()),
 ]

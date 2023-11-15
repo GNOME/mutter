@@ -1,6 +1,5 @@
 clutter_tests_micro_bench_c_args = [
   '-DG_DISABLE_SINGLE_INCLUDES',
-  '-DCOGL_DISABLE_DEPRECATION_WARNINGS',
   '-DGETTEXT_PACKAGE="@0@"'.format(meson.project_name()),
 ]
 clutter_tests_micro_bench_c_args += clutter_debug_c_args

@@ -303,7 +303,6 @@ if have_introspection
   clutter_introspection_args = introspection_args + [
     '-DCLUTTER_SYSCONFDIR="@0@"'.format(prefix / sysconfdir),
     '-DCLUTTER_COMPILATION=1',
-    '-DCOGL_DISABLE_DEPRECATION_WARNINGS',
     '-DG_LOG_DOMAIN="Clutter"'
   ]
 

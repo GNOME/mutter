@@ -4,7 +4,6 @@ clutter_tests_interactive_includepath = include_directories('.')
 clutter_tests_interactive_c_args = [
   '-DTESTS_DATADIR="@0@"'.format(clutter_tests_interactive_srcdir),
   '-DG_DISABLE_SINGLE_INCLUDES',
-  '-DCOGL_DISABLE_DEPRECATION_WARNINGS',
   '-DGETTEXT_PACKAGE="@0@"'.format(meson.project_name()),
 ]
 clutter_tests_interactive_c_args += clutter_debug_c_args
