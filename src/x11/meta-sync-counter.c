@@ -283,7 +283,7 @@ meta_sync_counter_update (MetaSyncCounter *sync_counter,
   gboolean needs_frame_drawn = FALSE;
   gboolean no_delay_frame = FALSE;
 
-  COGL_TRACE_BEGIN (MetaWindowSyncRequestCounter, "X11: Sync request counter");
+  COGL_TRACE_BEGIN_SCOPED (MetaWindowSyncRequestCounter, "X11: Sync request counter");
 
   if (sync_counter->extended_sync_request_counter && new_counter_value % 2 == 0)
     {
@@ -327,7 +327,6 @@ meta_sync_counter_update (MetaSyncCounter *sync_counter,
                          new_counter_value,
                          needs_frame_drawn ? "yes" : "no");
       COGL_TRACE_DESCRIBE (MetaWindowSyncRequestCounter, description);
-      COGL_TRACE_END (MetaWindowSyncRequestCounter);
     }
 #endif
 }
@@ -361,8 +360,8 @@ do_send_frame_drawn (MetaSyncCounter *sync_counter,
   int64_t now_us;
   XClientMessageEvent ev = { 0, };
 
-  COGL_TRACE_BEGIN (MetaWindowActorX11FrameDrawn,
-                    "X11: Send _NET_WM_FRAME_DRAWN");
+  COGL_TRACE_BEGIN_SCOPED (MetaWindowActorX11FrameDrawn,
+                           "X11: Send _NET_WM_FRAME_DRAWN");
 
   now_us = g_get_monotonic_time ();
   frame->frame_drawn_time =
@@ -395,7 +394,6 @@ do_send_frame_drawn (MetaSyncCounter *sync_counter,
                                      frame->sync_request_serial);
       COGL_TRACE_DESCRIBE (MetaWindowActorX11FrameDrawn,
                            description);
-      COGL_TRACE_END (MetaWindowActorX11FrameDrawn);
     }
 #endif
 }
@@ -411,8 +409,8 @@ do_send_frame_timings (MetaSyncCounter *sync_counter,
   Display *xdisplay = meta_x11_display_get_xdisplay (display->x11_display);
   XClientMessageEvent ev = { 0, };
 
-  COGL_TRACE_BEGIN (MetaWindowActorX11FrameTimings,
-                    "X11: Send _NET_WM_FRAME_TIMINGS");
+  COGL_TRACE_BEGIN_SCOPED (MetaWindowActorX11FrameTimings,
+                           "X11: Send _NET_WM_FRAME_TIMINGS");
 
   ev.type = ClientMessage;
   ev.window = sync_counter->xwindow;
@@ -458,7 +456,6 @@ do_send_frame_timings (MetaSyncCounter *sync_counter,
                          frame->sync_request_serial,
                          presentation_time);
       COGL_TRACE_DESCRIBE (MetaWindowActorX11FrameTimings, description);
-      COGL_TRACE_END (MetaWindowActorX11FrameTimings);
     }
 #endif
 }

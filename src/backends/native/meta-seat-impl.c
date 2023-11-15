@@ -243,8 +243,8 @@ meta_seat_impl_clear_repeat_source (MetaSeatImpl *seat_impl)
 static void
 dispatch_libinput (MetaSeatImpl *seat_impl)
 {
-  COGL_TRACE_BEGIN (MetaSeatImplDispatchLibinput,
-                    "MetaSeatImpl (dispatch libinput)");
+  COGL_TRACE_BEGIN_SCOPED (MetaSeatImplDispatchLibinput,
+                           "MetaSeatImpl (dispatch libinput)");
   libinput_dispatch (seat_impl->libinput);
   COGL_TRACE_END (MetaSeatImplDispatchLibinput);
 

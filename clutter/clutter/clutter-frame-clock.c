@@ -766,18 +766,18 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
   frame->target_presentation_time_us = frame_clock->next_presentation_time_us;
   frame->min_render_time_allowed_us = frame_clock->min_render_time_allowed_us;
 
-  COGL_TRACE_BEGIN (ClutterFrameClockEvents, "Frame Clock (before frame)");
+  COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockEvents, "Frame Clock (before frame)");
   if (iface->before_frame)
     iface->before_frame (frame_clock, frame, frame_clock->listener.user_data);
   COGL_TRACE_END (ClutterFrameClockEvents);
 
-  COGL_TRACE_BEGIN (ClutterFrameClockTimelines, "Frame Clock (timelines)");
+  COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockTimelines, "Frame Clock (timelines)");
   if (frame_clock->is_next_presentation_time_valid)
     time_us = frame_clock->next_presentation_time_us;
   advance_timelines (frame_clock, time_us);
   COGL_TRACE_END (ClutterFrameClockTimelines);
 
-  COGL_TRACE_BEGIN (ClutterFrameClockFrame, "Frame Clock (frame)");
+  COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockFrame, "Frame Clock (frame)");
   result = iface->frame (frame_clock, frame, frame_clock->listener.user_data);
   COGL_TRACE_END (ClutterFrameClockFrame);
 

@@ -3641,18 +3641,18 @@ update_window_visibilities (MetaDisplay *display,
   should_show = g_list_sort (should_show, window_stack_cmp);
   should_show = g_list_reverse (should_show);
 
-  COGL_TRACE_BEGIN (MetaDisplayShowUnplacedWindows,
-                    "Display: Show unplaced windows");
+  COGL_TRACE_BEGIN_SCOPED (MetaDisplayShowUnplacedWindows,
+                           "Display: Show unplaced windows");
   g_list_foreach (unplaced, (GFunc) meta_window_update_visibility, NULL);
   COGL_TRACE_END (MetaDisplayShowUnplacedWindows);
 
   meta_stack_freeze (display->stack);
 
-  COGL_TRACE_BEGIN (MetaDisplayShowWindows, "Display: Show windows");
+  COGL_TRACE_BEGIN_SCOPED (MetaDisplayShowWindows, "Display: Show windows");
   g_list_foreach (should_show, (GFunc) meta_window_update_visibility, NULL);
   COGL_TRACE_END (MetaDisplayShowWindows);
 
-  COGL_TRACE_BEGIN (MetaDisplayHideWindows, "Display: Hide windows");
+  COGL_TRACE_BEGIN_SCOPED (MetaDisplayHideWindows, "Display: Hide windows");
   g_list_foreach (should_hide, (GFunc) meta_window_update_visibility, NULL);
   COGL_TRACE_END (MetaDisplayHideWindows);
 

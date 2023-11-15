@@ -1845,8 +1845,8 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
   MetaWaylandCompositor *wayland_compositor;
 #endif
 
-  COGL_TRACE_BEGIN (MetaX11DisplayHandleXevent,
-                    "X11Display (handle X11 event)");
+  COGL_TRACE_BEGIN_SCOPED (MetaX11DisplayHandleXevent,
+                           "X11Display (handle X11 event)");
 
   if (event->type == GenericEvent)
     XGetEventData (x11_display->xdisplay, &event->xcookie);
@@ -1959,7 +1959,6 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
 
   COGL_TRACE_DESCRIBE (MetaX11DisplayHandleXevent,
                        get_event_name (x11_display, event));
-  COGL_TRACE_END (MetaX11DisplayHandleXevent);
 }
 
 
