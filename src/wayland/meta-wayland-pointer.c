@@ -1092,6 +1092,14 @@ meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
 }
 
 void
+meta_wayland_pointer_focus_surface (MetaWaylandPointer *pointer,
+                                    MetaWaylandSurface *surface)
+{
+  const MetaWaylandPointerGrabInterface *interface = pointer->grab->interface;
+  interface->focus (pointer->grab, surface);
+}
+
+void
 meta_wayland_pointer_start_grab (MetaWaylandPointer *pointer,
                                  MetaWaylandPointerGrab *grab)
 {
