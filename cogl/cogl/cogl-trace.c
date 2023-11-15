@@ -102,6 +102,9 @@ cogl_trace_context_new (int         fd,
       writer = sysprof_capture_writer_new (COGL_TRACE_OUTPUT_FILE, BUFFER_LENGTH);
     }
 
+  if (!writer)
+    return NULL;
+
   context = g_new0 (CoglTraceContext, 1);
   context->writer = writer;
   g_atomic_ref_count_init (&context->ref_count);
@@ -143,6 +146,13 @@ setup_trace_context (int          fd,
     }
 
   cogl_trace_context = cogl_trace_context_new (fd, filename);
+
+  if (!cogl_trace_context)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Failed to setup trace context");
+      return FALSE;
+    }
 
   return TRUE;
 }
