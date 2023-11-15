@@ -193,7 +193,7 @@ create_impl_source (MetaThreadImpl *thread_impl)
   MetaThreadImplSource *impl_source;
 
   source = g_source_new (&impl_source_funcs, sizeof (MetaThreadImplSource));
-  source_name = g_strdup_printf ("MetaThreadImpl '%s' task source",
+  source_name = g_strdup_printf ("[mutter] MetaThreadImpl '%s' task source",
                                  meta_thread_get_name (priv->thread));
   g_source_set_name (source, source_name);
   impl_source = (MetaThreadImplSource *) source;
