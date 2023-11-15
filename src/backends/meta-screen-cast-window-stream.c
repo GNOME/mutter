@@ -99,6 +99,7 @@ meta_screen_cast_window_stream_new (MetaScreenCastSession     *session,
                          "cursor-mode", cursor_mode,
                          "flags", flags,
                          "window", window,
+                         "is-configured", TRUE,
                          NULL);
 }
 
