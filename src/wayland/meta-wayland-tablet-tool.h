@@ -86,3 +86,6 @@ gboolean meta_wayland_tablet_tool_has_current_tablet (MetaWaylandTabletTool *too
                                                       MetaWaylandTablet     *tablet);
 
 MetaWaylandSurface * meta_wayland_tablet_tool_get_current_surface (MetaWaylandTabletTool *tool);
+
+void meta_wayland_tablet_tool_focus_surface (MetaWaylandTabletTool *tool,
+                                             MetaWaylandSurface    *surface);
