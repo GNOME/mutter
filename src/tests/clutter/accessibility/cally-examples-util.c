@@ -18,6 +18,8 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
+/* For `g_module_build_path` usage */
+#define GLIB_DISABLE_DEPRECATION_WARNINGS
 
 #include <gmodule.h>
 #include <stdlib.h>
