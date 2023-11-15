@@ -53,7 +53,10 @@ G_DEFINE_INTERFACE (MetaWaylandPopupSurface, meta_wayland_popup_surface,
 
 struct _MetaWaylandPopupGrab
 {
-  MetaWaylandPointerGrab  generic;
+  MetaWaylandSeat *seat;
+  MetaWaylandEventHandler *handler;
+
+  int press_count;
 
   struct wl_client       *grab_client;
   struct wl_list          all_popups;
@@ -66,12 +69,7 @@ struct _MetaWaylandPopup
   struct wl_list link;
 };
 
-static void
-meta_wayland_popup_grab_begin (MetaWaylandPopupGrab *grab,
-                               MetaWaylandSurface   *surface);
-
-static void
-meta_wayland_popup_grab_end (MetaWaylandPopupGrab *grab);
+static void meta_wayland_popup_grab_finish (MetaWaylandPopupGrab *grab);
 
 static void
 meta_wayland_popup_surface_default_init (MetaWaylandPopupSurfaceInterface *iface)
@@ -90,121 +88,165 @@ meta_wayland_popup_surface_dismiss (MetaWaylandPopupSurface *popup_surface)
   META_WAYLAND_POPUP_SURFACE_GET_IFACE (popup_surface)->dismiss (popup_surface);
 }
 
+static void
+meta_wayland_popup_surface_finish (MetaWaylandPopupSurface *popup_surface)
+{
+  META_WAYLAND_POPUP_SURFACE_GET_IFACE (popup_surface)->finish (popup_surface);
+}
+
 static MetaWaylandSurface *
 meta_wayland_popup_surface_get_surface (MetaWaylandPopupSurface *popup_surface)
 {
   return META_WAYLAND_POPUP_SURFACE_GET_IFACE (popup_surface)->get_surface (popup_surface);
 }
 
-static void
-popup_grab_focus (MetaWaylandPointerGrab *grab,
-		  MetaWaylandSurface     *surface)
+static MetaWaylandSurface *
+popup_grab_get_focus_surface (MetaWaylandEventHandler *handler,
+                              ClutterInputDevice      *device,
+                              ClutterEventSequence    *sequence,
+                              gpointer                 user_data)
 {
-  MetaWaylandPopupGrab *popup_grab = (MetaWaylandPopupGrab*)grab;
-  MetaWaylandSeat *seat = meta_wayland_pointer_get_seat (grab->pointer);
-  MetaWaylandPointer *pointer = grab->pointer;
+  MetaWaylandPopupGrab *popup_grab = user_data;
+  ClutterSeat *clutter_seat = clutter_input_device_get_seat (device);
+  MetaWaylandSurface *surface;
 
-  /*
-   * We rely on having a pointer grab even when the seat doesn't have
-   * the pointer capability. In this case, we shouldn't update any pointer focus
-   * since there is no such thing when the seat doesn't have the pointer
-   * capability.
-   */
-  if (!meta_wayland_seat_has_pointer (seat))
-    return;
+  if (device == clutter_seat_get_keyboard (clutter_seat) &&
+      !wl_list_empty (&popup_grab->all_popups))
+    {
+      /* Keyboard focus must always go to the topmost surface */
+      return meta_wayland_popup_grab_get_top_popup (popup_grab);
+    }
+  else
+    {
+      surface = meta_wayland_event_handler_chain_up_get_focus_surface (handler,
+                                                                       device,
+                                                                       sequence);
 
-  /* Popup grabs are in owner-events mode (ie, events for the same client
-     are reported as normal) */
-  if (surface &&
-      wl_resource_get_client (surface->resource) == popup_grab->grab_client)
-    meta_wayland_pointer_set_focus (grab->pointer, surface);
-  else if (pointer->button_count == 0)
-    meta_wayland_pointer_set_focus (grab->pointer, NULL);
+      if (surface &&
+          wl_resource_get_client (surface->resource) == popup_grab->grab_client)
+        return surface;
+    }
+
+  return NULL;
 }
 
 static void
-popup_grab_motion (MetaWaylandPointerGrab *grab,
-		   const ClutterEvent     *event)
+popup_grab_focus (MetaWaylandEventHandler *handler,
+                  ClutterInputDevice      *device,
+                  ClutterEventSequence    *sequence,
+                  MetaWaylandSurface      *surface,
+                  gpointer                 user_data)
 {
-  meta_wayland_pointer_send_motion (grab->pointer, event);
+  meta_wayland_event_handler_chain_up_focus (handler, device, sequence, surface);
 }
 
-static void
-popup_grab_button (MetaWaylandPointerGrab *grab,
-		   const ClutterEvent     *event)
+static gboolean
+popup_grab_press (MetaWaylandEventHandler *handler,
+                  const ClutterEvent      *event,
+                  gpointer                 user_data)
 {
-  MetaWaylandPointer *pointer = grab->pointer;
+  MetaWaylandPopupGrab *popup_grab = user_data;
 
-  if (pointer->focus_surface)
-    meta_wayland_pointer_send_button (grab->pointer, event);
-  else if (clutter_event_type (event) == CLUTTER_BUTTON_RELEASE &&
-	   pointer->button_count == 0)
-    meta_wayland_pointer_end_popup_grab (grab->pointer);
+  popup_grab->press_count++;
+
+  return CLUTTER_EVENT_PROPAGATE;
 }
 
-static void
-popup_grab_cancel (MetaWaylandPointerGrab *grab)
+static gboolean
+popup_grab_release (MetaWaylandEventHandler *handler,
+                    const ClutterEvent      *event,
+                    gpointer                 user_data)
 {
-  meta_wayland_pointer_end_popup_grab (grab->pointer);
+  MetaWaylandPopupGrab *popup_grab = user_data;
+  ClutterInputDevice *device = clutter_event_get_source_device (event);
+  ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
+
+  popup_grab->press_count = MAX (0, popup_grab->press_count - 1);
+
+  if (popup_grab->press_count == 0)
+    {
+      MetaWaylandSurface *surface;
+
+      surface = meta_wayland_event_handler_chain_up_get_focus_surface (popup_grab->handler,
+                                                                       device,
+                                                                       sequence);
+      if (!surface ||
+          wl_resource_get_client (surface->resource) != popup_grab->grab_client)
+        {
+          meta_wayland_popup_grab_finish (popup_grab);
+          return CLUTTER_EVENT_STOP;
+        }
+    }
+
+  return CLUTTER_EVENT_PROPAGATE;
 }
 
-static MetaWaylandPointerGrabInterface popup_grab_interface = {
+static MetaWaylandEventInterface popup_event_interface = {
+  popup_grab_get_focus_surface,
   popup_grab_focus,
-  popup_grab_motion,
-  popup_grab_button,
-  popup_grab_cancel
+  NULL, /* motion */
+  popup_grab_press,
+  popup_grab_release,
 };
 
 MetaWaylandPopupGrab *
-meta_wayland_popup_grab_create (MetaWaylandPointer      *pointer,
+meta_wayland_popup_grab_create (MetaWaylandSeat         *seat,
                                 MetaWaylandPopupSurface *popup_surface)
 {
   MetaWaylandSurface *surface =
     meta_wayland_popup_surface_get_surface (popup_surface);
   struct wl_client *client = wl_resource_get_client (surface->resource);
+  MetaWaylandInput *input = meta_wayland_seat_get_input (seat);
   MetaWaylandPopupGrab *grab;
 
   grab = g_new0 (MetaWaylandPopupGrab, 1);
-  grab->generic.interface = &popup_grab_interface;
-  grab->generic.pointer = pointer;
+  grab->seat = seat;
   grab->grab_client = client;
   wl_list_init (&grab->all_popups);
 
-  meta_wayland_popup_grab_begin (grab, surface);
+  grab->handler =
+    meta_wayland_input_attach_event_handler (input,
+                                             &popup_event_interface,
+                                             grab);
 
   return grab;
 }
 
 void
-meta_wayland_popup_grab_destroy (MetaWaylandPopupGrab *grab)
-{
-  meta_wayland_popup_grab_end (grab);
-  g_free (grab);
-}
-
-static void
-meta_wayland_popup_grab_begin (MetaWaylandPopupGrab *grab,
-                               MetaWaylandSurface   *surface)
-{
-  MetaWaylandPointer *pointer = grab->generic.pointer;
-
-  meta_wayland_pointer_start_grab (pointer, (MetaWaylandPointerGrab*)grab);
-}
-
-void
-meta_wayland_popup_grab_end (MetaWaylandPopupGrab *grab)
+meta_wayland_popup_grab_finish (MetaWaylandPopupGrab *grab)
 {
   MetaWaylandPopup *popup, *tmp;
 
-  g_assert (grab->generic.interface == &popup_grab_interface);
-
   wl_list_for_each_safe (popup, tmp, &grab->all_popups, link)
     {
-      meta_wayland_popup_surface_done (popup->popup_surface);
+      MetaWaylandPopupSurface *popup_surface = popup->popup_surface;
+
+      meta_wayland_popup_surface_done (popup_surface);
       meta_wayland_popup_destroy (popup);
+      meta_wayland_popup_surface_finish (popup_surface);
+    }
+}
+
+void
+meta_wayland_popup_grab_destroy (MetaWaylandPopupGrab *grab)
+{
+  g_assert (wl_list_empty (&grab->all_popups));
+
+  if (grab->handler)
+    {
+      MetaWaylandInput *input = meta_wayland_seat_get_input (grab->seat);
+
+      meta_wayland_input_detach_event_handler (input, grab->handler);
+      grab->handler = NULL;
     }
 
-  meta_wayland_pointer_end_grab (grab->generic.pointer);
+  g_free (grab);
+}
+
+gboolean
+meta_wayland_popup_grab_has_popups (MetaWaylandPopupGrab *grab)
+{
+  return !wl_list_empty (&grab->all_popups);
 }
 
 MetaWaylandSurface *
@@ -218,41 +260,45 @@ meta_wayland_popup_grab_get_top_popup (MetaWaylandPopupGrab *grab)
   return meta_wayland_popup_surface_get_surface (popup->popup_surface);
 }
 
-gboolean
-meta_wayland_pointer_grab_is_popup_grab (MetaWaylandPointerGrab *grab)
-{
-  return grab->interface == &popup_grab_interface;
-}
-
 void
 meta_wayland_popup_destroy (MetaWaylandPopup *popup)
 {
   meta_wayland_popup_surface_dismiss (popup->popup_surface);
-
   wl_list_remove (&popup->link);
   g_free (popup);
+}
+
+static void
+meta_wayland_popup_grab_repick_keyboard_focus (MetaWaylandPopupGrab *popup_grab)
+{
+  MetaWaylandSeat *seat = popup_grab->seat;
+  MetaContext *context =
+    meta_wayland_compositor_get_context (seat->compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
+  ClutterBackend *clutter_backend =
+    meta_backend_get_clutter_backend (backend);
+  ClutterSeat *clutter_seat =
+    clutter_backend_get_default_seat (clutter_backend);
+  MetaWaylandInput *input;
+
+  input = meta_wayland_seat_get_input (seat);
+  meta_wayland_input_invalidate_focus (input,
+                                       clutter_seat_get_keyboard (clutter_seat),
+                                       NULL);
 }
 
 void
 meta_wayland_popup_dismiss (MetaWaylandPopup *popup)
 {
+  MetaWaylandPopupSurface *popup_surface = popup->popup_surface;
   MetaWaylandPopupGrab *popup_grab = popup->grab;
 
   meta_wayland_popup_destroy (popup);
 
   if (wl_list_empty (&popup_grab->all_popups))
-    {
-      meta_wayland_pointer_end_popup_grab (popup_grab->generic.pointer);
-    }
+    meta_wayland_popup_surface_finish (popup_surface);
   else
-    {
-      MetaWaylandSurface *top_popup_surface;
-      MetaWaylandSeat *seat;
-
-      top_popup_surface = meta_wayland_popup_grab_get_top_popup (popup_grab);
-      seat = meta_wayland_pointer_get_seat (popup_grab->generic.pointer);
-      meta_wayland_seat_set_input_focus (seat, top_popup_surface);
-    }
+    meta_wayland_popup_grab_repick_keyboard_focus (popup_grab);
 }
 
 MetaWaylandSurface *
@@ -268,7 +314,6 @@ meta_wayland_popup_create (MetaWaylandPopupSurface *popup_surface,
   MetaWaylandSurface *surface =
     meta_wayland_popup_surface_get_surface (popup_surface);
   MetaWaylandPopup *popup;
-  MetaWaylandSeat *seat;
 
   /* Don't allow creating popups if the grab has a different client. */
   if (grab->grab_client != wl_resource_get_client (surface->resource))
@@ -280,8 +325,7 @@ meta_wayland_popup_create (MetaWaylandPopupSurface *popup_surface,
 
   wl_list_insert (&grab->all_popups, &popup->link);
 
-  seat = meta_wayland_pointer_get_seat (grab->generic.pointer);
-  meta_wayland_seat_set_input_focus (seat, surface);
+  meta_wayland_popup_grab_repick_keyboard_focus (grab);
 
   return popup;
 }

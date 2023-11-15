@@ -55,6 +55,7 @@ typedef struct _MetaWaylandXdgShellClient
   struct wl_resource *resource;
   GList *surfaces;
   GList *surface_constructors;
+  MetaWaylandPopupGrab *popup_grab;
 } MetaWaylandXdgShellClient;
 
 struct _MetaWaylandXdgPositioner
@@ -1125,6 +1126,9 @@ finish_popup_setup (MetaWaylandXdgPopup *xdg_popup)
   MetaWaylandShellSurface *shell_surface =
     META_WAYLAND_SHELL_SURFACE (xdg_surface);
   MetaWaylandSurfaceRole *surface_role = META_WAYLAND_SURFACE_ROLE (xdg_popup);
+  MetaWaylandXdgSurfacePrivate *xdg_surface_priv =
+    meta_wayland_xdg_surface_get_instance_private (xdg_surface);
+  MetaWaylandXdgShellClient *xdg_shell_client = xdg_surface_priv->shell_client;
   struct wl_resource *xdg_wm_base_resource =
     meta_wayland_xdg_surface_get_wm_base_resource (xdg_surface);
   MetaWaylandSurface *surface =
@@ -1153,7 +1157,7 @@ finish_popup_setup (MetaWaylandXdgPopup *xdg_popup)
 
   if (seat)
     {
-      MetaWaylandSurface *top_popup;
+      MetaWaylandSurface *top_popup = NULL;
 
       if (!meta_wayland_seat_can_popup (seat, serial))
         {
@@ -1161,7 +1165,9 @@ finish_popup_setup (MetaWaylandXdgPopup *xdg_popup)
           return;
         }
 
-      top_popup = meta_wayland_pointer_get_top_popup (seat->pointer);
+      if (xdg_shell_client->popup_grab)
+        top_popup = meta_wayland_popup_grab_get_top_popup (xdg_shell_client->popup_grab);
+
       if (top_popup && parent_surface != top_popup)
         {
           wl_resource_post_error (xdg_wm_base_resource,
@@ -1193,8 +1199,16 @@ finish_popup_setup (MetaWaylandXdgPopup *xdg_popup)
 
       meta_window_focus (window, meta_display_get_current_time (display));
       popup_surface = META_WAYLAND_POPUP_SURFACE (surface->role);
-      popup = meta_wayland_pointer_start_popup_grab (seat->pointer,
-                                                     popup_surface);
+
+      if (!xdg_shell_client->popup_grab)
+        {
+          xdg_shell_client->popup_grab =
+            meta_wayland_popup_grab_create (seat, popup_surface);
+        }
+
+      popup = meta_wayland_popup_create (popup_surface,
+                                         xdg_shell_client->popup_grab);
+
       if (popup == NULL)
         {
           xdg_popup_send_popup_done (xdg_popup->resource);
@@ -1506,6 +1520,23 @@ meta_wayland_xdg_popup_dismiss (MetaWaylandPopupSurface *popup_surface)
   meta_wayland_xdg_popup_unmap (xdg_popup);
 }
 
+static void
+meta_wayland_xdg_popup_finish (MetaWaylandPopupSurface *popup_surface)
+{
+  MetaWaylandXdgPopup *xdg_popup = META_WAYLAND_XDG_POPUP (popup_surface);
+  MetaWaylandXdgSurface *xdg_surface = META_WAYLAND_XDG_SURFACE (xdg_popup);
+  MetaWaylandXdgSurfacePrivate *xdg_surface_priv =
+    meta_wayland_xdg_surface_get_instance_private (xdg_surface);
+  MetaWaylandXdgShellClient *xdg_shell_client = xdg_surface_priv->shell_client;
+
+  if (xdg_shell_client->popup_grab &&
+      !meta_wayland_popup_grab_has_popups (xdg_shell_client->popup_grab))
+    {
+      meta_wayland_popup_grab_destroy (xdg_shell_client->popup_grab);
+      xdg_shell_client->popup_grab = NULL;
+    }
+}
+
 static MetaWaylandSurface *
 meta_wayland_xdg_popup_get_surface (MetaWaylandPopupSurface *popup_surface)
 {
@@ -1520,6 +1551,7 @@ popup_surface_iface_init (MetaWaylandPopupSurfaceInterface *iface)
 {
   iface->done = meta_wayland_xdg_popup_done;
   iface->dismiss = meta_wayland_xdg_popup_dismiss;
+  iface->finish = meta_wayland_xdg_popup_finish;
   iface->get_surface = meta_wayland_xdg_popup_get_surface;
 }
 

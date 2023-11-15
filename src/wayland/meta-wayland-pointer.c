@@ -1140,32 +1140,6 @@ meta_wayland_pointer_cancel_grab (MetaWaylandPointer *pointer)
 }
 
 void
-meta_wayland_pointer_end_popup_grab (MetaWaylandPointer *pointer)
-{
-  MetaWaylandPopupGrab *popup_grab = (MetaWaylandPopupGrab*)pointer->grab;
-
-  meta_wayland_popup_grab_destroy (popup_grab);
-}
-
-MetaWaylandPopup *
-meta_wayland_pointer_start_popup_grab (MetaWaylandPointer      *pointer,
-                                       MetaWaylandPopupSurface *popup_surface)
-{
-  MetaWaylandPopupGrab *grab;
-
-  if (pointer->grab != &pointer->default_grab &&
-      !meta_wayland_pointer_grab_is_popup_grab (pointer->grab))
-    return NULL;
-
-  if (pointer->grab == &pointer->default_grab)
-    grab = meta_wayland_popup_grab_create (pointer, popup_surface);
-  else
-    grab = (MetaWaylandPopupGrab*)pointer->grab;
-
-  return meta_wayland_popup_create (popup_surface, grab);
-}
-
-void
 meta_wayland_pointer_get_relative_coordinates (MetaWaylandPointer *pointer,
 					       MetaWaylandSurface *surface,
 					       wl_fixed_t         *sx,
@@ -1382,18 +1356,6 @@ gboolean
 meta_wayland_pointer_can_popup (MetaWaylandPointer *pointer, uint32_t serial)
 {
   return pointer->grab_serial == serial;
-}
-
-MetaWaylandSurface *
-meta_wayland_pointer_get_top_popup (MetaWaylandPointer *pointer)
-{
-  MetaWaylandPopupGrab *grab;
-
-  if (!meta_wayland_pointer_grab_is_popup_grab (pointer->grab))
-    return NULL;
-
-  grab = (MetaWaylandPopupGrab*)pointer->grab;
-  return meta_wayland_popup_grab_get_top_popup(grab);
 }
 
 static void
