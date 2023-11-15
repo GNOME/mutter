@@ -1,4 +1,3 @@
-#define CLUTTER_DISABLE_DEPRECATION_WARNINGS
 #include <stdlib.h>
 #include <glib.h>
 #include <clutter/clutter.h>

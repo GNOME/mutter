@@ -5,7 +5,6 @@ clutter_test_accessibility_common_sources = [
 
 clutter_test_accessibility_c_args = [
   '-DPREFIXDIR="@0@"'.format(libdir),
-  '-DCLUTTER_DISABLE_DEPRECATION_WARNINGS',
   '-DGLIB_DISABLE_DEPRECATION_WARNINGS',
   '-DGETTEXT_PACKAGE="@0@"'.format(meson.project_name()),
 ]

@@ -29,8 +29,6 @@
 
 #include "config.h"
 
-#define CLUTTER_DISABLE_DEPRECATION_WARNINGS
-
 #include "cally/cally.h"
 
 #include "cally/cally-actor.h"

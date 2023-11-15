@@ -3,7 +3,6 @@ clutter_tests_performance_c_args = [
   '-DG_DISABLE_SINGLE_INCLUDES',
   '-DGLIB_DISABLE_DEPRECATION_WARNINGS',
   '-DCOGL_DISABLE_DEPRECATION_WARNINGS',
-  '-DCLUTTER_DISABLE_DEPRECATION_WARNINGS',
   '-DGETTEXT_PACKAGE="@0@"'.format(meson.project_name()),
 ]
 

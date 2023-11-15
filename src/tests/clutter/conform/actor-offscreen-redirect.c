@@ -1,4 +1,3 @@
-#define CLUTTER_DISABLE_DEPRECATION_WARNINGS
 #include <clutter/clutter.h>
 
 #include "tests/clutter-test-utils.h"

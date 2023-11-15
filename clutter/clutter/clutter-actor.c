@@ -487,8 +487,6 @@
 
 #include "cogl/cogl.h"
 
-#define CLUTTER_DISABLE_DEPRECATION_WARNINGS
-
 #include "clutter/clutter-actor-private.h"
 
 #include "clutter/clutter-action.h"

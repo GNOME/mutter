@@ -39,8 +39,6 @@
 
 #include <math.h>
 
-#define CLUTTER_DISABLE_DEPRECATION_WARNINGS
-
 #include "clutter/clutter-stage.h"
 
 #include "clutter/clutter-action-private.h"
