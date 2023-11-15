@@ -970,6 +970,8 @@ meta_wayland_dma_buf_create_source (MetaWaylandBuffer               *buffer,
           source =
             (MetaWaylandDmaBufSource *) g_source_new (&meta_wayland_dma_buf_source_funcs,
                                                       sizeof (*source));
+          g_source_set_name ((GSource *) source, "[mutter] DmaBuf readiness source");
+
           source->buffer = g_object_ref (buffer);
           source->dispatch = dispatch;
           source->user_data = user_data;
