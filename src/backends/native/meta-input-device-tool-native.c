@@ -102,10 +102,10 @@ meta_input_device_tool_native_set_pressure_curve_in_impl (ClutterInputDeviceTool
                     curve[3] >= 0 && curve[3] <= 1);
 
   evdev_tool = META_INPUT_DEVICE_TOOL_NATIVE (tool);
-  evdev_tool->pressure_curve[0] = curve[0];
-  evdev_tool->pressure_curve[1] = curve[1];
-  evdev_tool->pressure_curve[2] = curve[2];
-  evdev_tool->pressure_curve[3] = curve[3];
+  evdev_tool->pressure_curve[0].x = curve[0];
+  evdev_tool->pressure_curve[0].y = curve[1];
+  evdev_tool->pressure_curve[1].x = curve[2];
+  evdev_tool->pressure_curve[1].y = curve[3];
 }
 
 void
@@ -162,10 +162,10 @@ meta_input_device_tool_native_translate_pressure_in_impl (ClutterInputDeviceTool
   evdev_tool = META_INPUT_DEVICE_TOOL_NATIVE (tool);
 
   return calculate_bezier_position (CLAMP (pressure, 0, 1),
-                                    evdev_tool->pressure_curve[0],
-                                    evdev_tool->pressure_curve[1],
-                                    evdev_tool->pressure_curve[2],
-                                    evdev_tool->pressure_curve[3]);
+                                    evdev_tool->pressure_curve[0].x,
+                                    evdev_tool->pressure_curve[0].y,
+                                    evdev_tool->pressure_curve[1].x,
+                                    evdev_tool->pressure_curve[1].y);
 }
 
 uint32_t

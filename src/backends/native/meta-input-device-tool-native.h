@@ -23,6 +23,7 @@
 #error "This header cannot be included directly. Use "backends/native/meta-input-thread.h""
 #endif /* META_INPUT_THREAD_H_INSIDE */
 
+#include <graphene.h>
 #include <libinput.h>
 
 #include "clutter/clutter.h"
@@ -59,7 +60,7 @@ struct _MetaInputDeviceToolNative
   ClutterInputDeviceTool parent_instance;
   struct libinput_tablet_tool *tool;
   GHashTable *button_map;
-  double pressure_curve[4];
+  graphene_point_t pressure_curve[2];
 };
 
 struct _MetaInputDeviceToolNativeClass
