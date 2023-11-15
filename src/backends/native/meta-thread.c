@@ -547,12 +547,16 @@ wrap_main_context (MetaThread   *thread,
   MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
   g_autoptr (GSource) source = NULL;
   WrapperSource *wrapper_source;
+  g_autofree char *name = NULL;
 
   if (!g_main_context_acquire (thread_main_context))
     g_return_if_reached ();
 
   source = g_source_new (&wrapper_source_funcs,
-                                sizeof (WrapperSource));
+                         sizeof (WrapperSource));
+  name = g_strdup_printf ("[mutter] MetaThread '%s' wrapper source",
+                          meta_thread_get_name (thread));
+  g_source_set_name (source, name);
   wrapper_source = (WrapperSource *) source;
   wrapper_source->thread_main_context = thread_main_context;
   g_source_set_ready_time (source, -1);
