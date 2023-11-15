@@ -139,6 +139,7 @@ meta_event_source_new (MetaEis      *eis,
   MetaEventSource *event_source;
 
   source = g_source_new (event_funcs, sizeof (MetaEventSource));
+  g_source_set_name (source, "[mutter] EIS event source");
   event_source = (MetaEventSource *) source;
 
   /* setup the source */
