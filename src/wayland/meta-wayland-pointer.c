@@ -91,12 +91,6 @@ static void
 meta_wayland_pointer_set_current (MetaWaylandPointer *pointer,
                                   MetaWaylandSurface *surface);
 
-static void
-meta_wayland_pointer_reset_grab (MetaWaylandPointer *pointer);
-
-static void
-meta_wayland_pointer_cancel_grab (MetaWaylandPointer *pointer);
-
 static MetaBackend *
 backend_from_pointer (MetaWaylandPointer *pointer)
 {
@@ -449,59 +443,6 @@ meta_wayland_pointer_send_button (MetaWaylandPointer *pointer,
 }
 
 static void
-default_grab_focus (MetaWaylandPointerGrab *grab,
-                    MetaWaylandSurface     *surface)
-{
-  MetaWaylandPointer *pointer = grab->pointer;
-  MetaWaylandSeat *seat = meta_wayland_pointer_get_seat (pointer);
-  MetaBackend *backend = backend_from_pointer (pointer);
-  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
-
-  if (!meta_wayland_seat_has_pointer (seat))
-    return;
-
-  if (clutter_stage_get_grab_actor (stage) != NULL)
-    return;
-
-  if (surface)
-    {
-      MetaWindow *window = NULL;
-
-      window = surface_get_effective_window (surface);
-
-      /* Avoid focusing a non-alive surface */
-      if (!window || !meta_window_get_alive (window))
-        surface = NULL;
-    }
-
-  meta_wayland_pointer_set_focus (pointer, surface);
-}
-
-static void
-default_grab_motion (MetaWaylandPointerGrab *grab,
-		     const ClutterEvent     *event)
-{
-  MetaWaylandPointer *pointer = grab->pointer;
-
-  meta_wayland_pointer_send_motion (pointer, event);
-}
-
-static void
-default_grab_button (MetaWaylandPointerGrab *grab,
-		     const ClutterEvent     *event)
-{
-  MetaWaylandPointer *pointer = grab->pointer;
-
-  meta_wayland_pointer_send_button (pointer, event);
-}
-
-static const MetaWaylandPointerGrabInterface default_pointer_grab_interface = {
-  default_grab_focus,
-  default_grab_motion,
-  default_grab_button
-};
-
-static void
 meta_wayland_pointer_on_cursor_changed (MetaCursorTracker *cursor_tracker,
                                         MetaWaylandPointer *pointer)
 {
@@ -547,8 +488,6 @@ meta_wayland_pointer_disable (MetaWaylandPointer *pointer)
                               pointer->cursor_surface);
     }
 
-  meta_wayland_pointer_cancel_grab (pointer);
-  meta_wayland_pointer_reset_grab (pointer);
   meta_wayland_pointer_set_focus (pointer, NULL);
   meta_wayland_pointer_set_current (pointer, NULL);
 
@@ -704,7 +643,7 @@ static void
 notify_motion (MetaWaylandPointer *pointer,
                const ClutterEvent *event)
 {
-  pointer->grab->interface->motion (pointer->grab, event);
+  meta_wayland_pointer_send_motion (pointer, event);
 }
 
 static void
@@ -728,7 +667,7 @@ handle_button_event (MetaWaylandPointer *pointer,
       clutter_event_get_coords (event, &pointer->grab_x, &pointer->grab_y);
     }
 
-  pointer->grab->interface->button (pointer->grab, event);
+  meta_wayland_pointer_send_button (pointer, event);
 
   if (implicit_grab)
     {
@@ -1095,48 +1034,28 @@ void
 meta_wayland_pointer_focus_surface (MetaWaylandPointer *pointer,
                                     MetaWaylandSurface *surface)
 {
-  const MetaWaylandPointerGrabInterface *interface = pointer->grab->interface;
-  interface->focus (pointer->grab, surface);
-}
+  MetaWaylandSeat *seat = meta_wayland_pointer_get_seat (pointer);
+  MetaBackend *backend = backend_from_pointer (pointer);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
 
-void
-meta_wayland_pointer_start_grab (MetaWaylandPointer *pointer,
-                                 MetaWaylandPointerGrab *grab)
-{
-  const MetaWaylandPointerGrabInterface *interface;
+  if (!meta_wayland_seat_has_pointer (seat))
+    return;
 
-  meta_wayland_pointer_cancel_grab (pointer);
+  if (clutter_stage_get_grab_actor (stage) != NULL)
+    return;
 
-  pointer->grab = grab;
-  interface = pointer->grab->interface;
-  grab->pointer = pointer;
+  if (surface)
+    {
+      MetaWindow *window = NULL;
 
-  interface->focus (pointer->grab, pointer->current);
-}
+      window = surface_get_effective_window (surface);
 
-static void
-meta_wayland_pointer_reset_grab (MetaWaylandPointer *pointer)
-{
-  pointer->grab = &pointer->default_grab;
-}
+      /* Avoid focusing a non-alive surface */
+      if (!window || !meta_window_get_alive (window))
+        surface = NULL;
+    }
 
-void
-meta_wayland_pointer_end_grab (MetaWaylandPointer *pointer)
-{
-  const MetaWaylandPointerGrabInterface *interface;
-
-  pointer->grab = &pointer->default_grab;
-  interface = pointer->grab->interface;
-  interface->focus (pointer->grab, pointer->current);
-
-  meta_wayland_pointer_update_cursor_surface (pointer);
-}
-
-static void
-meta_wayland_pointer_cancel_grab (MetaWaylandPointer *pointer)
-{
-  if (pointer->grab->interface->cancel)
-    pointer->grab->interface->cancel (pointer->grab);
+  meta_wayland_pointer_set_focus (pointer, surface);
 }
 
 void
@@ -1468,9 +1387,6 @@ meta_wayland_pointer_get_seat (MetaWaylandPointer *pointer)
 static void
 meta_wayland_pointer_init (MetaWaylandPointer *pointer)
 {
-  pointer->default_grab.interface = &default_pointer_grab_interface;
-  pointer->default_grab.pointer = pointer;
-  pointer->grab = &pointer->default_grab;
   pointer->pointer_clients =
     g_hash_table_new_full (NULL, NULL, NULL,
                            (GDestroyNotify) meta_wayland_pointer_client_free);
@@ -1499,12 +1415,6 @@ meta_wayland_pointer_class_init (MetaWaylandPointerClass *klass)
                                                  0,
                                                  NULL, NULL, NULL,
                                                  G_TYPE_NONE, 0);
-}
-
-gboolean
-meta_wayland_pointer_is_grabbed (MetaWaylandPointer *pointer)
-{
-  return pointer->grab != &pointer->default_grab;
 }
 
 MetaWaylandSurface *

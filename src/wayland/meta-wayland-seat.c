@@ -665,10 +665,6 @@ meta_wayland_seat_get_compositor (MetaWaylandSeat *seat)
 gboolean
 meta_wayland_seat_is_grabbed (MetaWaylandSeat *seat)
 {
-  if (meta_wayland_seat_has_pointer (seat) &&
-      meta_wayland_pointer_is_grabbed (seat->pointer))
-    return TRUE;
-
   if (!meta_wayland_input_is_current_handler (seat->input_handler,
                                               seat->default_handler))
     return TRUE;

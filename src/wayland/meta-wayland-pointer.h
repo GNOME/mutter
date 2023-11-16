@@ -36,23 +36,6 @@ G_DECLARE_FINAL_TYPE (MetaWaylandPointer, meta_wayland_pointer,
                       META, WAYLAND_POINTER,
                       MetaWaylandInputDevice)
 
-struct _MetaWaylandPointerGrabInterface
-{
-  void (*focus) (MetaWaylandPointerGrab *grab,
-                 MetaWaylandSurface     *surface);
-  void (*motion) (MetaWaylandPointerGrab *grab,
-		  const ClutterEvent     *event);
-  void (*button) (MetaWaylandPointerGrab *grab,
-		  const ClutterEvent     *event);
-  void (*cancel) (MetaWaylandPointerGrab *grab);
-};
-
-struct _MetaWaylandPointerGrab
-{
-  const MetaWaylandPointerGrabInterface *interface;
-  MetaWaylandPointer *pointer;
-};
-
 struct _MetaWaylandPointerClient
 {
   struct wl_list pointer_resources;
@@ -79,8 +62,6 @@ struct _MetaWaylandPointer
   MetaWaylandSurface *cursor_surface;
   gulong cursor_surface_destroy_id;
 
-  MetaWaylandPointerGrab *grab;
-  MetaWaylandPointerGrab default_grab;
   guint32 grab_button;
   guint32 grab_serial;
   guint32 grab_time;
@@ -117,11 +98,6 @@ void meta_wayland_pointer_broadcast_frame (MetaWaylandPointer *pointer);
 void meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
                                      MetaWaylandSurface *surface);
 
-void meta_wayland_pointer_start_grab (MetaWaylandPointer *pointer,
-                                      MetaWaylandPointerGrab *grab);
-
-void meta_wayland_pointer_end_grab (MetaWaylandPointer *pointer);
-
 void meta_wayland_pointer_get_relative_coordinates (MetaWaylandPointer *pointer,
                                                     MetaWaylandSurface *surface,
                                                     wl_fixed_t         *x,
@@ -150,8 +126,6 @@ MetaWaylandSeat *meta_wayland_pointer_get_seat (MetaWaylandPointer *pointer);
 void meta_wayland_surface_cursor_update (MetaWaylandSurface *cursor_surface);
 
 void meta_wayland_pointer_update_cursor_surface (MetaWaylandPointer *pointer);
-
-gboolean meta_wayland_pointer_is_grabbed (MetaWaylandPointer *pointer);
 
 MetaWaylandSurface * meta_wayland_pointer_get_current_surface (MetaWaylandPointer *pointer);
 
