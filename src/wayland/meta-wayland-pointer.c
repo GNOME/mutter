@@ -303,6 +303,9 @@ sync_focus_surface (MetaWaylandPointer *pointer)
 {
   MetaBackend *backend = backend_from_pointer (pointer);
   ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+  MetaWaylandInputDevice *input_device = META_WAYLAND_INPUT_DEVICE (pointer);
+  MetaWaylandSeat *seat = meta_wayland_input_device_get_seat (input_device);
+  MetaWaylandInput *input;
 
   if (clutter_stage_get_grab_actor (stage) != NULL)
     {
@@ -310,8 +313,8 @@ sync_focus_surface (MetaWaylandPointer *pointer)
       return;
     }
 
-  const MetaWaylandPointerGrabInterface *interface = pointer->grab->interface;
-  interface->focus (pointer->grab, pointer->current);
+  input = meta_wayland_seat_get_input (seat);
+  meta_wayland_input_invalidate_focus (input, pointer->device, NULL);
 }
 
 static void
@@ -458,9 +461,6 @@ default_grab_focus (MetaWaylandPointerGrab *grab,
     return;
 
   if (clutter_stage_get_grab_actor (stage) != NULL)
-    return;
-
-  if (pointer->button_count > 0)
     return;
 
   if (surface)
@@ -1549,4 +1549,13 @@ MetaWaylandSurface *
 meta_wayland_pointer_get_current_surface (MetaWaylandPointer *pointer)
 {
   return pointer->current;
+}
+
+MetaWaylandSurface *
+meta_wayland_pointer_get_implicit_grab_surface (MetaWaylandPointer *pointer)
+{
+  if (pointer->button_count > 0)
+    return pointer->focus_surface;
+
+  return NULL;
 }
