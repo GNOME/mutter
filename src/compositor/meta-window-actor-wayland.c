@@ -524,21 +524,20 @@ maybe_configure_black_background (MetaWindowActorWayland *self,
   return TRUE;
 }
 
-static void
-meta_window_actor_wayland_sync_geometry (MetaWindowActor *actor)
+static gboolean
+do_sync_geometry (MetaWindowActorWayland *self)
 {
-  MetaWindowActorWayland *self = META_WINDOW_ACTOR_WAYLAND (actor);
+  MetaWindowActor *actor = META_WINDOW_ACTOR (self);
   ClutterActor *surface_container = CLUTTER_ACTOR (self->surface_container);
-  MetaWindow *window;
+  MetaWindow *window = meta_window_actor_get_meta_window (actor);
   float surfaces_width, surfaces_height;
   float background_width, background_height;
 
-  window = meta_window_actor_get_meta_window (actor);
   if (window->unmanaging)
-    return;
+    return FALSE;
 
   if (!clutter_actor_is_mapped (CLUTTER_ACTOR (actor)))
-    return;
+    return FALSE;
 
   if (maybe_configure_black_background (self,
                                         &surfaces_width, &surfaces_height,
@@ -576,6 +575,16 @@ meta_window_actor_wayland_sync_geometry (MetaWindowActor *actor)
       clutter_actor_set_position (surface_container, 0, 0);
       g_clear_pointer (&self->background, clutter_actor_destroy);
     }
+
+  return TRUE;
+}
+
+static void
+meta_window_actor_wayland_sync_geometry (MetaWindowActor *actor)
+{
+  MetaWindowActorWayland *self = META_WINDOW_ACTOR_WAYLAND (actor);
+
+  do_sync_geometry (self);
 }
 
 static void
@@ -607,15 +616,15 @@ meta_window_actor_wayland_constructed (GObject *object)
 }
 
 static void
-meta_window_actor_wayland_map (ClutterActor *self)
+meta_window_actor_wayland_map (ClutterActor *actor)
 {
+  MetaWindowActorWayland *self = META_WINDOW_ACTOR_WAYLAND (actor);
   ClutterActorClass *parent_class =
     CLUTTER_ACTOR_CLASS (meta_window_actor_wayland_parent_class);
-  MetaWindowActor *window_actor = META_WINDOW_ACTOR (self);
 
-  meta_window_actor_wayland_sync_geometry (window_actor);
+  do_sync_geometry (self);
 
-  parent_class->map (self);
+  parent_class->map (actor);
 }
 
 static void
