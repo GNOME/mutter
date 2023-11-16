@@ -669,10 +669,6 @@ meta_wayland_seat_is_grabbed (MetaWaylandSeat *seat)
       meta_wayland_pointer_is_grabbed (seat->pointer))
     return TRUE;
 
-  if (meta_wayland_seat_has_keyboard (seat) &&
-      meta_wayland_keyboard_is_grabbed (seat->keyboard))
-    return TRUE;
-
   if (!meta_wayland_input_is_current_handler (seat->input_handler,
                                               seat->default_handler))
     return TRUE;

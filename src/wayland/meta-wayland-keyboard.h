@@ -54,20 +54,6 @@ G_DECLARE_FINAL_TYPE (MetaWaylandKeyboard, meta_wayland_keyboard,
                       META, WAYLAND_KEYBOARD,
                       MetaWaylandInputDevice)
 
-struct _MetaWaylandKeyboardGrabInterface
-{
-  gboolean (*key)       (MetaWaylandKeyboardGrab *grab,
-                         const ClutterEvent      *event);
-  void     (*modifiers) (MetaWaylandKeyboardGrab *grab,
-                         ClutterModifierType      modifiers);
-};
-
-struct _MetaWaylandKeyboardGrab
-{
-  const MetaWaylandKeyboardGrabInterface *interface;
-  MetaWaylandKeyboard *keyboard;
-};
-
 typedef struct
 {
   struct xkb_keymap *keymap;
@@ -98,9 +84,6 @@ struct _MetaWaylandKeyboard
   enum xkb_state_component mods_changed;
   xkb_mod_mask_t kbd_a11y_latched_mods;
   xkb_mod_mask_t kbd_a11y_locked_mods;
-
-  MetaWaylandKeyboardGrab *grab;
-  MetaWaylandKeyboardGrab default_grab;
 
   GSettings *settings;
 };
@@ -134,9 +117,3 @@ gboolean meta_wayland_keyboard_can_grab_surface (MetaWaylandKeyboard *keyboard,
                                                  uint32_t             serial);
 gboolean meta_wayland_keyboard_can_popup (MetaWaylandKeyboard *keyboard,
                                           uint32_t             serial);
-
-void meta_wayland_keyboard_start_grab (MetaWaylandKeyboard     *keyboard,
-                                       MetaWaylandKeyboardGrab *grab);
-void meta_wayland_keyboard_end_grab   (MetaWaylandKeyboard     *keyboard);
-
-gboolean meta_wayland_keyboard_is_grabbed (MetaWaylandKeyboard *keyboard);
