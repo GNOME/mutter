@@ -429,7 +429,7 @@ meta_onscreen_native_flip_crtc (CoglOnscreen                *onscreen,
   MetaKmsPlaneAssignment *plane_assignment;
 
   COGL_TRACE_BEGIN_SCOPED (MetaOnscreenNativeFlipCrtcs,
-                           "Onscreen (flip CRTCs)");
+                           "Meta::OnscreenNative::flip_crtc()");
 
   gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
 
@@ -482,7 +482,7 @@ meta_onscreen_native_set_crtc_mode (CoglOnscreen              *onscreen,
   MetaCrtcKms *crtc_kms = META_CRTC_KMS (onscreen_native->crtc);
 
   COGL_TRACE_BEGIN_SCOPED (MetaOnscreenNativeSetCrtcModes,
-                           "Onscreen (set CRTC modes)");
+                           "Meta::OnscreenNative::set_crtc_mode()");
 
   switch (renderer_gpu_data->mode)
     {
@@ -616,7 +616,7 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
   struct gbm_bo *bo;
 
   COGL_TRACE_BEGIN_SCOPED (CopySharedFramebufferSecondaryGpu,
-                           "FB Copy (secondary GPU)");
+                           "copy_shared_framebuffer_gpu()");
 
   render_device = renderer_gpu_data->render_device;
   egl_display = meta_render_device_get_egl_display (render_device);
@@ -723,7 +723,7 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
   int ret;
 
   COGL_TRACE_BEGIN_SCOPED (CopySharedFramebufferPrimaryGpu,
-                           "FB Copy (primary GPU)");
+                           "copy_shared_framebuffer_primary_gpu()");
 
   if (!secondary_gpu_state ||
       secondary_gpu_state->egl_surface == EGL_NO_SURFACE)
@@ -834,7 +834,7 @@ copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
   gboolean ret;
 
   COGL_TRACE_BEGIN_SCOPED (CopySharedFramebufferCpu,
-                           "FB Copy (CPU)");
+                           "copy_shared_framebuffer_cpu()");
 
   buffer_dumb = secondary_gpu_get_next_dumb_buffer (secondary_gpu_state);
   buffer = META_DRM_BUFFER (buffer_dumb);
@@ -882,7 +882,7 @@ update_secondary_gpu_state_pre_swap_buffers (CoglOnscreen *onscreen,
   MetaDrmBuffer *copy = NULL;
 
   COGL_TRACE_BEGIN_SCOPED (MetaRendererNativeGpuStatePreSwapBuffers,
-                           "Onscreen (secondary gpu pre-swap-buffers)");
+                           "update_secondary_gpu_state_pre_swap_buffers()");
 
   secondary_gpu_state = onscreen_native->secondary_gpu_state;
   if (secondary_gpu_state)
@@ -948,7 +948,7 @@ update_secondary_gpu_state_post_swap_buffers (CoglOnscreen   *onscreen,
   MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
 
   COGL_TRACE_BEGIN_SCOPED (MetaRendererNativeGpuStatePostSwapBuffers,
-                           "Onscreen (secondary gpu post-swap-buffers)");
+                           "update_secondary_gpu_state_post_swap_buffers()");
 
   secondary_gpu_state = onscreen_native->secondary_gpu_state;
   if (secondary_gpu_state)
@@ -1075,7 +1075,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
   MetaKmsDevice *kms_device;
 
   COGL_TRACE_BEGIN_SCOPED (MetaRendererNativeSwapBuffers,
-                           "Onscreen (swap-buffers)");
+                           "Meta::OnscreenNative::swap_buffers_with_damage()");
 
   secondary_gpu_fb =
     update_secondary_gpu_state_pre_swap_buffers (onscreen,
@@ -1188,7 +1188,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
     }
 
   COGL_TRACE_BEGIN_SCOPED (MetaRendererNativePostKmsUpdate,
-                           "Onscreen (post pending update)");
+                           "Meta::OnscreenNative::swap_buffers_with_damage#post_pending_update()");
 
   switch (renderer_gpu_data->mode)
     {

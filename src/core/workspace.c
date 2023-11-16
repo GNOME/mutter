@@ -365,7 +365,7 @@ meta_workspace_add_window (MetaWorkspace *workspace,
   g_return_if_fail (g_list_find (workspace->mru_list, window) == NULL);
 
   COGL_TRACE_BEGIN_SCOPED (MetaWorkspaceAddWindow,
-                           "Workspace (add window)");
+                           "Meta::Workspace::add_window()");
 
   workspace_manager = workspace->display->workspace_manager;
 
@@ -395,7 +395,7 @@ meta_workspace_remove_window (MetaWorkspace *workspace,
   MetaWorkspaceManager *workspace_manager = workspace->display->workspace_manager;
 
   COGL_TRACE_BEGIN_SCOPED (MetaWorkspaceRemoveWindow,
-                           "Workspace (remove window)");
+                           "Meta::Workspace::remove_window()");
 
   workspace->windows = g_list_remove (workspace->windows, window);
 

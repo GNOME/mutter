@@ -1846,7 +1846,7 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
 #endif
 
   COGL_TRACE_BEGIN_SCOPED (MetaX11DisplayHandleXevent,
-                           "X11Display (handle X11 event)");
+                           "Meta::X11Display::handle_xevent()");
 
   if (event->type == GenericEvent)
     XGetEventData (x11_display->xdisplay, &event->xcookie);

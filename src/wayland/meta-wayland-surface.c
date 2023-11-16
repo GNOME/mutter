@@ -916,7 +916,7 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
   MetaWaylandSurface *subsurface_surface;
 
   COGL_TRACE_BEGIN_SCOPED (MetaWaylandSurfaceCommit,
-                           "WaylandSurface (commit)");
+                           "Meta::WaylandSurface::commit()");
 
   if (buffer)
     {

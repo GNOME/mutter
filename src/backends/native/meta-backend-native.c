@@ -964,7 +964,7 @@ meta_backend_native_pause (MetaBackendNative *native)
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
 
   COGL_TRACE_BEGIN_SCOPED (MetaBackendNativePause,
-                           "Backend (pause)");
+                           "Meta::BackendNative::pause()");
 
   meta_seat_native_release_devices (seat);
   meta_renderer_pause (renderer);
@@ -989,7 +989,7 @@ void meta_backend_native_resume (MetaBackendNative *native)
   MetaInputSettings *input_settings;
 
   COGL_TRACE_BEGIN_SCOPED (MetaBackendNativeResume,
-                           "Backend (resume)");
+                           "Meta::BackendNative::resume()");
 
   meta_monitor_manager_native_resume (monitor_manager_native);
   meta_udev_resume (native->udev);

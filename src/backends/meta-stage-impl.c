@@ -680,7 +680,7 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
   g_clear_pointer (&fb_clip_region, mtk_region_unref);
 
   COGL_TRACE_BEGIN_SCOPED (MetaStageImplRedrawViewSwapFramebuffer,
-                           "Paint (swap framebuffer)");
+                           "Meta::StageImpl::redraw_view_primary#swap_framebuffer()");
 
   if (queued_redraw_clip)
     {

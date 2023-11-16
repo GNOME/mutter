@@ -1208,7 +1208,7 @@ do_process (MetaKmsImplDevice *impl_device,
   MetaKmsResourceChanges changes = META_KMS_RESOURCE_CHANGE_NONE;
 
   COGL_TRACE_BEGIN_SCOPED (MetaKmsImplDeviceProcess,
-                           "KMS device impl (processing)");
+                           "Meta::KmsImplDevice::do_process()");
 
   update = meta_kms_impl_filter_update (impl, latch_crtc, update, flags);
 

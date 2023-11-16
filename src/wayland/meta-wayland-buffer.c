@@ -585,7 +585,7 @@ meta_wayland_buffer_attach (MetaWaylandBuffer  *buffer,
                             MetaMultiTexture  **texture,
                             GError            **error)
 {
-  COGL_TRACE_BEGIN_SCOPED (MetaWaylandBufferAttach, "WaylandBuffer (attach)");
+  COGL_TRACE_BEGIN_SCOPED (MetaWaylandBufferAttach, "Meta::WaylandBuffer::attach()");
 
   clear_tainted_scanout_onscreens (buffer);
 
@@ -818,7 +818,7 @@ meta_wayland_buffer_try_acquire_scanout (MetaWaylandBuffer *buffer,
   CoglScanout *scanout = NULL;
 
   COGL_TRACE_BEGIN_SCOPED (MetaWaylandBufferTryScanout,
-                           "WaylandBuffer (try scanout)");
+                           "Meta::WaylandBuffer::try_acquire_scanout()");
 
   if (buffer->tainted_scanout_onscreens &&
       g_hash_table_lookup (buffer->tainted_scanout_onscreens, onscreen))

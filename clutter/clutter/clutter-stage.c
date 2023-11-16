@@ -480,7 +480,7 @@ clutter_stage_paint_view (ClutterStage     *stage,
   if (!priv->impl)
     return;
 
-  COGL_TRACE_BEGIN_SCOPED (ClutterStagePaintView, "Paint (view)");
+  COGL_TRACE_BEGIN_SCOPED (ClutterStagePaintView, "Clutter::Stage::paint_view()");
 
   if (g_signal_has_handler_pending (stage, stage_signals[PAINT_VIEW],
                                     0, TRUE))
@@ -866,7 +866,7 @@ clutter_stage_maybe_relayout (ClutterActor *actor)
   if (priv->pending_relayouts == NULL)
     return;
 
-  COGL_TRACE_BEGIN_SCOPED (ClutterStageRelayout, "Layout");
+  COGL_TRACE_BEGIN_SCOPED (ClutterStageRelayout, "Clutter::Stage::maybe_relayout()");
 
   CLUTTER_NOTE (ACTOR, ">>> Recomputing layout");
 
@@ -940,7 +940,7 @@ clutter_stage_finish_layout (ClutterStage *stage)
   int phase;
 
   COGL_TRACE_BEGIN_SCOPED (ClutterStageUpdateActorStageViews,
-                           "Actor stage-views");
+                           "Clutter::Stage::finish_layout()");
 
   /* If an actor needs an immediate relayout because its resource scale
    * changed, we give it another chance to allocate correctly before
@@ -973,7 +973,7 @@ clutter_stage_update_devices (ClutterStage *stage,
   ClutterStagePrivate *priv = stage->priv;
   GSList *l;
 
-  COGL_TRACE_BEGIN_SCOPED (ClutterStageUpdateDevices, "UpdateDevices");
+  COGL_TRACE_BEGIN_SCOPED (ClutterStageUpdateDevices, "Clutter::Stage::update_devices()");
 
   for (l = devices; l; l = l->next)
     {
@@ -1076,7 +1076,7 @@ _clutter_stage_do_pick_on_view (ClutterStage      *stage,
   graphene_ray_t ray;
   ClutterActor *actor;
 
-  COGL_TRACE_BEGIN_SCOPED (ClutterStagePickView, "Pick (view)");
+  COGL_TRACE_BEGIN_SCOPED (ClutterStagePickView, "Clutter::Stage::do_pick_on_view()");
 
   setup_ray_for_coordinates (stage, x, y, &p, &ray);
 
@@ -1948,7 +1948,7 @@ clutter_stage_read_pixels (ClutterStage *stage,
   float pixel_height;
   uint8_t *pixels;
 
-  COGL_TRACE_BEGIN_SCOPED (ClutterStageReadPixels, "Read Pixels");
+  COGL_TRACE_BEGIN_SCOPED (ClutterStageReadPixels, "Clutter::Stage::read_pixels()");
 
   g_return_val_if_fail (CLUTTER_IS_STAGE (stage), NULL);
 

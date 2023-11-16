@@ -940,7 +940,7 @@ maybe_update_top_window_actor_for_views (MetaCompositor *compositor)
   priv->needs_update_top_window_actors = FALSE;
 
   COGL_TRACE_BEGIN_SCOPED (UpdateTopWindowActorForViews,
-                           "Compositor (update top window actors)");
+                           "Meta::Compositor::update_top_window_actor_for_views()");
 
   stage = CLUTTER_STAGE (meta_backend_get_stage (priv->backend));
 
@@ -1059,7 +1059,7 @@ meta_compositor_before_paint (MetaCompositor     *compositor,
     meta_compositor_get_instance_private (compositor);
 
   COGL_TRACE_BEGIN_SCOPED (MetaCompositorPrePaint,
-                           "Compositor (before-paint)");
+                           "Meta::Compositor::before_paint()");
 
   maybe_update_top_window_actor_for_views (compositor);
 
@@ -1124,7 +1124,7 @@ meta_compositor_after_paint (MetaCompositor     *compositor,
     meta_compositor_get_instance_private (compositor);
 
   COGL_TRACE_BEGIN_SCOPED (MetaCompositorPostPaint,
-                           "Compositor (after-paint)");
+                           "Meta::Compositor::after_paint()");
   META_COMPOSITOR_GET_CLASS (compositor)->after_paint (compositor, compositor_view);
 
   priv->frame_in_progress = FALSE;

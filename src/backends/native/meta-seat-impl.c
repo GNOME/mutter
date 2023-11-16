@@ -244,9 +244,9 @@ static void
 dispatch_libinput (MetaSeatImpl *seat_impl)
 {
   COGL_TRACE_BEGIN_SCOPED (MetaSeatImplDispatchLibinput,
-                           "MetaSeatImpl (dispatch libinput)");
+                           "Meta::SeatImpl::dispatch_libinput()");
+
   libinput_dispatch (seat_impl->libinput);
-  COGL_TRACE_END (MetaSeatImplDispatchLibinput);
 
   process_events (seat_impl);
 }
@@ -2651,7 +2651,7 @@ process_events (MetaSeatImpl *seat_impl)
   struct libinput_event *event;
 
   COGL_TRACE_BEGIN_SCOPED (MetaSeatImplProcessEvents,
-                           "MetaSeatImpl (process events)");
+                           "Meta::SeatImpl::process_events()");
 
   while ((event = libinput_get_event (seat_impl->libinput)))
     {

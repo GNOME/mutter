@@ -116,7 +116,9 @@ later_type_to_string (MetaLaterType when)
 static gboolean
 meta_later_invoke (MetaLater *later)
 {
-  COGL_TRACE_BEGIN_SCOPED (later, later_type_to_string (later->when));
+  COGL_TRACE_BEGIN_SCOPED (later, "Meta::Later::invoke()");
+  COGL_TRACE_DESCRIBE (later, later_type_to_string (later->when));
+
   return later->func (later->user_data);
 }
 

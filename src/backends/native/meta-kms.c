@@ -284,7 +284,7 @@ meta_kms_update_states_in_impl (MetaKms          *kms,
   GList *l;
 
   COGL_TRACE_BEGIN_SCOPED (MetaKmsUpdateStates,
-                           "KMS (update states)");
+                           "Meta::Kms::update_states_in_impl()");
 
   meta_assert_in_kms_impl (kms);
 

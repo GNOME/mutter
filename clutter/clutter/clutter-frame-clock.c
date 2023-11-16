@@ -250,7 +250,7 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
                                       ClutterFrameInfo  *frame_info)
 {
   COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockNotifyPresented,
-                           "Frame Clock (presented)");
+                           "Clutter::FrameClock::presented()");
 
   if (G_UNLIKELY (CLUTTER_HAS_DEBUG (FRAME_CLOCK)))
     {
@@ -389,7 +389,7 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
 void
 clutter_frame_clock_notify_ready (ClutterFrameClock *frame_clock)
 {
-  COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockNotifyReady, "Frame Clock (ready)");
+  COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockNotifyReady, "Clutter::FrameClock::ready()");
 
   switch (frame_clock->state)
     {
@@ -714,7 +714,7 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
   int64_t this_dispatch_ready_time_us;
   int64_t this_dispatch_time_us;
 
-  COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockDispatch, "Frame Clock (dispatch)");
+  COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockDispatch, "Clutter::FrameClock::dispatch()");
 
   this_dispatch_ready_time_us = g_source_get_ready_time (frame_clock->source);
   this_dispatch_time_us = time_us;
@@ -766,18 +766,18 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
   frame->target_presentation_time_us = frame_clock->next_presentation_time_us;
   frame->min_render_time_allowed_us = frame_clock->min_render_time_allowed_us;
 
-  COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockEvents, "Frame Clock (before frame)");
+  COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockEvents, "Clutter::FrameListener::before_frame()");
   if (iface->before_frame)
     iface->before_frame (frame_clock, frame, frame_clock->listener.user_data);
   COGL_TRACE_END (ClutterFrameClockEvents);
 
-  COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockTimelines, "Frame Clock (timelines)");
+  COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockTimelines, "Clutter::FrameClock::advance_timelines()");
   if (frame_clock->is_next_presentation_time_valid)
     time_us = frame_clock->next_presentation_time_us;
   advance_timelines (frame_clock, time_us);
   COGL_TRACE_END (ClutterFrameClockTimelines);
 
-  COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockFrame, "Frame Clock (frame)");
+  COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockFrame, "Clutter::FrameListener::frame()");
   result = iface->frame (frame_clock, frame, frame_clock->listener.user_data);
   COGL_TRACE_END (ClutterFrameClockFrame);
 

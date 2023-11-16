@@ -1725,7 +1725,7 @@ meta_display_notify_window_created (MetaDisplay  *display,
                                     MetaWindow   *window)
 {
   COGL_TRACE_BEGIN_SCOPED (MetaDisplayNotifyWindowCreated,
-                           "Display (notify window created)");
+                           "Meta::Display::notify_window_created()");
   g_signal_emit (display, display_signals[WINDOW_CREATED], 0, window);
 }
 
@@ -3619,7 +3619,7 @@ update_window_visibilities (MetaDisplay *display,
   GList *l;
 
   COGL_TRACE_BEGIN_SCOPED (MetaDisplayUpdateVisibility,
-                           "Display: Update visibility");
+                           "Meta::Display::update_window_visibilities()");
 
   for (l = windows; l; l = l->next)
     {
@@ -3642,17 +3642,19 @@ update_window_visibilities (MetaDisplay *display,
   should_show = g_list_reverse (should_show);
 
   COGL_TRACE_BEGIN_SCOPED (MetaDisplayShowUnplacedWindows,
-                           "Display: Show unplaced windows");
+                           "Meta::Display::update_window_visibilities#show_unplaced()");
   g_list_foreach (unplaced, (GFunc) meta_window_update_visibility, NULL);
   COGL_TRACE_END (MetaDisplayShowUnplacedWindows);
 
   meta_stack_freeze (display->stack);
 
-  COGL_TRACE_BEGIN_SCOPED (MetaDisplayShowWindows, "Display: Show windows");
+  COGL_TRACE_BEGIN_SCOPED (MetaDisplayShowWindows,
+                           "Meta::Display::update_window_visibilities#show()");
   g_list_foreach (should_show, (GFunc) meta_window_update_visibility, NULL);
   COGL_TRACE_END (MetaDisplayShowWindows);
 
-  COGL_TRACE_BEGIN_SCOPED (MetaDisplayHideWindows, "Display: Hide windows");
+  COGL_TRACE_BEGIN_SCOPED (MetaDisplayHideWindows,
+                           "Meta::Display::update_window_visibilities#hide()");
   g_list_foreach (should_hide, (GFunc) meta_window_update_visibility, NULL);
   COGL_TRACE_END (MetaDisplayHideWindows);
 

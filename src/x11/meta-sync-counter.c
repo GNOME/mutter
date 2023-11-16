@@ -283,7 +283,7 @@ meta_sync_counter_update (MetaSyncCounter *sync_counter,
   gboolean needs_frame_drawn = FALSE;
   gboolean no_delay_frame = FALSE;
 
-  COGL_TRACE_BEGIN_SCOPED (MetaWindowSyncRequestCounter, "X11: Sync request counter");
+  COGL_TRACE_BEGIN_SCOPED (MetaWindowSyncRequestCounter, "Meta::SyncCounter::update()");
 
   if (sync_counter->extended_sync_request_counter && new_counter_value % 2 == 0)
     {
@@ -361,7 +361,7 @@ do_send_frame_drawn (MetaSyncCounter *sync_counter,
   XClientMessageEvent ev = { 0, };
 
   COGL_TRACE_BEGIN_SCOPED (MetaWindowActorX11FrameDrawn,
-                           "X11: Send _NET_WM_FRAME_DRAWN");
+                           "Meta::SyncCounter::do_send_frame_drawn()");
 
   now_us = g_get_monotonic_time ();
   frame->frame_drawn_time =
@@ -410,7 +410,7 @@ do_send_frame_timings (MetaSyncCounter *sync_counter,
   XClientMessageEvent ev = { 0, };
 
   COGL_TRACE_BEGIN_SCOPED (MetaWindowActorX11FrameTimings,
-                           "X11: Send _NET_WM_FRAME_TIMINGS");
+                           "Meta::SyncCounter::do_send_frame_timings()");
 
   ev.type = ClientMessage;
   ev.window = sync_counter->xwindow;

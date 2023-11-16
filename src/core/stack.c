@@ -175,7 +175,7 @@ meta_stack_changed (MetaStack *stack)
   if (stack->freeze_count > 0)
     return;
 
-  COGL_TRACE_BEGIN_SCOPED (MetaStackChangedSort, "Stack: Changed");
+  COGL_TRACE_BEGIN_SCOPED (MetaStackChangedSort, "Meta::Stack::changed()");
 
   stack_ensure_sorted (stack);
   g_signal_emit (stack, signals[CHANGED], 0);
@@ -188,7 +188,7 @@ meta_stack_add (MetaStack  *stack,
   MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
 
   COGL_TRACE_BEGIN_SCOPED (MetaStackAdd,
-                           "Stack (add window)");
+                           "Meta::Stack::add()");
 
   g_return_if_fail (meta_window_is_stackable (window));
 
@@ -221,7 +221,7 @@ meta_stack_remove (MetaStack  *stack,
   MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
 
   COGL_TRACE_BEGIN_SCOPED (MetaStackRemove,
-                           "Stack (remove window)");
+                           "Meta::Stack::remove()");
 
   meta_topic (META_DEBUG_STACK, "Removing window %s from the stack", window->desc);
 
@@ -333,7 +333,7 @@ meta_stack_thaw (MetaStack *stack)
 {
   g_return_if_fail (stack->freeze_count > 0);
 
-  COGL_TRACE_BEGIN_SCOPED (MetaStackThaw, "Stack: thaw");
+  COGL_TRACE_BEGIN_SCOPED (MetaStackThaw, "Meta::Stack::thaw()");
 
   stack->freeze_count -= 1;
   meta_stack_changed (stack);

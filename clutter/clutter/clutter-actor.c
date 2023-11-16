@@ -3571,7 +3571,7 @@ clutter_actor_paint (ClutterActor        *self,
   if (G_UNLIKELY (clutter_debug_flags & CLUTTER_DEBUG_DETAILED_TRACE))
     {
       COGL_TRACE_BEGIN_ANCHORED (ClutterActorPaint,
-                                 "ClutterActor (paint)");
+                                 "Clutter::Actor::paint()");
       COGL_TRACE_DESCRIBE (ClutterActorPaint,
                            _clutter_actor_get_debug_name (self));
     }
@@ -8734,7 +8734,7 @@ clutter_actor_allocate (ClutterActor          *self,
   if (G_UNLIKELY (clutter_debug_flags & CLUTTER_DEBUG_DETAILED_TRACE))
     {
       COGL_TRACE_BEGIN_ANCHORED (ClutterActorAllocate,
-                                 "ClutterActor (allocate)");
+                                 "Clutter::Actor::allocate()");
       COGL_TRACE_DESCRIBE (ClutterActorAllocate,
                            _clutter_actor_get_debug_name (self));
     }

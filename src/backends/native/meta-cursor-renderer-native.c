@@ -310,7 +310,7 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
   GList *l;
 
   COGL_TRACE_BEGIN_SCOPED (MetaCursorRendererNative,
-                           "CursorRendererNative (update cursor)");
+                           "Meta::CursorRendererNative::update_cursor()");
 
   cursor_changed = priv->current_cursor != cursor_sprite;
 
@@ -1052,7 +1052,7 @@ realize_cursor_sprite_for_crtc (MetaCursorRenderer *renderer,
               meta_kms_device_get_path (kms_device));
 
   COGL_TRACE_BEGIN_SCOPED (CursorRendererNativeRealize,
-                           "Cursor Renderer Native (realize for crtc)");
+                           "Meta::CursorRendererNative::realize_cursor_sprite_for_crtc()");
   if (META_IS_CURSOR_SPRITE_XCURSOR (cursor_sprite))
     {
       MetaCursorSpriteXcursor *sprite_xcursor =

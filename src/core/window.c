@@ -1010,7 +1010,7 @@ static void
 meta_window_manage (MetaWindow *window)
 {
   COGL_TRACE_BEGIN_SCOPED (MetaWindowManage,
-                           "Window (manage)");
+                           "Meta::Window::manage()");
 
   META_WINDOW_GET_CLASS (window)->manage (window);
 }
@@ -1025,7 +1025,7 @@ meta_window_constructed (GObject *object)
   MetaWorkspaceManager *workspace_manager = display->workspace_manager;
 
   COGL_TRACE_BEGIN_SCOPED (MetaWindowSharedInit,
-                           "Window (init)");
+                           "Meta::Window::constructed()");
 
   window->constructing = TRUE;
 
