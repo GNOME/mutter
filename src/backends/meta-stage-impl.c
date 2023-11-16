@@ -518,6 +518,9 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
   int fb_width, fb_height;
   int buffer_age = 0;
 
+  COGL_TRACE_BEGIN_SCOPED (RedrawViewPrimary,
+                           "Meta::StageImpl::redraw_view_primary()");
+
   clutter_stage_view_get_layout (stage_view, &view_rect);
   fb_scale = clutter_stage_view_get_scale (stage_view);
   fb_width = cogl_framebuffer_get_width (fb);
