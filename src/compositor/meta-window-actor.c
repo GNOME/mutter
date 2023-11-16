@@ -964,8 +964,6 @@ meta_window_actor_sync_actor_geometry (MetaWindowActor *self,
   if (meta_window_actor_is_frozen (self) && !did_placement)
     return META_WINDOW_ACTOR_CHANGE_POSITION | META_WINDOW_ACTOR_CHANGE_SIZE;
 
-  META_WINDOW_ACTOR_GET_CLASS (self)->sync_geometry (self, &actor_rect);
-
   if (clutter_actor_has_allocation (actor))
     {
       ClutterActorBox box;
@@ -995,6 +993,8 @@ meta_window_actor_sync_actor_geometry (MetaWindowActor *self,
 
   if (changes & META_WINDOW_ACTOR_CHANGE_SIZE)
     clutter_actor_set_size (actor, actor_rect.width, actor_rect.height);
+
+  META_WINDOW_ACTOR_GET_CLASS (self)->sync_geometry (self);
 
   return changes;
 }

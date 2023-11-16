@@ -1406,8 +1406,7 @@ meta_window_actor_x11_is_single_surface_actor (MetaWindowActor *actor)
 }
 
 static void
-meta_window_actor_x11_sync_geometry (MetaWindowActor    *actor,
-                                     const MtkRectangle *actor_rect)
+meta_window_actor_x11_sync_geometry (MetaWindowActor *actor)
 {
 }
 
