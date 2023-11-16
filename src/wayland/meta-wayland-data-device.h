@@ -29,6 +29,7 @@
 #include "meta/meta-selection-source.h"
 #include "wayland/meta-wayland-data-offer.h"
 #include "wayland/meta-wayland-data-source.h"
+#include "wayland/meta-wayland-input.h"
 #include "wayland/meta-wayland-types.h"
 
 typedef struct _MetaWaylandDragGrab MetaWaylandDragGrab;
@@ -73,12 +74,15 @@ void     meta_wayland_data_device_unset_dnd_selection (MetaWaylandDataDevice *da
 const MetaWaylandDragDestFuncs *
          meta_wayland_data_device_get_drag_dest_funcs (void);
 
-void     meta_wayland_data_device_start_drag     (MetaWaylandDataDevice                 *data_device,
-                                                  struct wl_client                      *client,
-                                                  const MetaWaylandPointerGrabInterface *funcs,
-                                                  MetaWaylandSurface                    *surface,
-                                                  MetaWaylandDataSource                 *source,
-                                                  MetaWaylandSurface                    *icon_surface);
+void meta_wayland_data_device_start_drag (MetaWaylandDataDevice           *data_device,
+                                          struct wl_client                *client,
+                                          const MetaWaylandEventInterface *event_iface,
+                                          MetaWaylandSurface              *surface,
+                                          MetaWaylandDataSource           *source,
+                                          MetaWaylandSurface              *icon_surface,
+                                          ClutterInputDevice              *device,
+                                          ClutterEventSequence            *sequence,
+                                          graphene_point_t                 drag_start);
 
 void     meta_wayland_data_device_end_drag       (MetaWaylandDataDevice                 *data_device);
 
@@ -88,3 +92,5 @@ MetaWaylandSurface *
          meta_wayland_drag_grab_get_focus        (MetaWaylandDragGrab             *drag_grab);
 void     meta_wayland_drag_grab_update_feedback_actor (MetaWaylandDragGrab *drag_grab,
                                                        const ClutterEvent  *event);
+
+MetaWaylandSeat * meta_wayland_drag_grab_get_seat (MetaWaylandDragGrab *drag_grab);
