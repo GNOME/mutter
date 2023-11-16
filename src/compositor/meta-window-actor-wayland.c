@@ -50,6 +50,7 @@ struct _MetaWindowActorWayland
   ClutterActor *background;
   MetaSurfaceContainerActorWayland *surface_container;
   gulong highest_scale_monitor_handler_id;
+  gboolean needs_sync;
 };
 
 static void cullable_iface_init (MetaCullableInterface *iface);
@@ -582,7 +583,7 @@ meta_window_actor_wayland_sync_geometry (MetaWindowActor *actor)
 {
   MetaWindowActorWayland *self = META_WINDOW_ACTOR_WAYLAND (actor);
 
-  do_sync_geometry (self);
+  self->needs_sync = !do_sync_geometry (self);
 }
 
 static void
@@ -594,7 +595,11 @@ meta_window_actor_wayland_map (ClutterActor *actor)
 
   parent_class->map (actor);
 
-  do_sync_geometry (self);
+  if (self->needs_sync)
+    {
+      do_sync_geometry (self);
+      self->needs_sync = FALSE;
+    }
 }
 
 static void
