@@ -523,8 +523,7 @@ maybe_configure_black_background (MetaWindowActorWayland *self,
 }
 
 static void
-meta_window_actor_wayland_sync_geometry (MetaWindowActor    *actor,
-                                         const MtkRectangle *actor_rect)
+meta_window_actor_wayland_sync_geometry (MetaWindowActor *actor)
 {
   MetaWindowActorWayland *self = META_WINDOW_ACTOR_WAYLAND (actor);
   ClutterActor *surface_container = CLUTTER_ACTOR (self->surface_container);
@@ -543,6 +542,7 @@ meta_window_actor_wayland_sync_geometry (MetaWindowActor    *actor,
                                         &surfaces_width, &surfaces_height,
                                         &background_width, &background_height))
     {
+      MtkRectangle actor_rect;
       int geometry_scale;
       int child_actor_width, child_actor_height;
 
@@ -557,10 +557,11 @@ meta_window_actor_wayland_sync_geometry (MetaWindowActor    *actor,
                                             NULL);
         }
 
+      meta_window_get_buffer_rect (window, &actor_rect);
       geometry_scale =
         meta_window_actor_get_geometry_scale (actor);
-      child_actor_width = actor_rect->width / geometry_scale;
-      child_actor_height = actor_rect->height / geometry_scale;
+      child_actor_width = actor_rect.width / geometry_scale;
+      child_actor_height = actor_rect.height / geometry_scale;
 
       clutter_actor_set_size (self->background,
                               background_width, background_height);
@@ -609,11 +610,8 @@ meta_window_actor_wayland_map (ClutterActor *self)
   ClutterActorClass *parent_class =
     CLUTTER_ACTOR_CLASS (meta_window_actor_wayland_parent_class);
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (self);
-  MetaWindow *window = meta_window_actor_get_meta_window (window_actor);
-  MtkRectangle actor_rect;
 
-  meta_window_get_buffer_rect (window, &actor_rect);
-  meta_window_actor_wayland_sync_geometry (window_actor, &actor_rect);
+  meta_window_actor_wayland_sync_geometry (window_actor);
 
   parent_class->map (self);
 }
