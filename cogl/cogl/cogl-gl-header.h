@@ -36,7 +36,12 @@
 
 #include "config.h"
 
-@COGL_GL_HEADER_INCLUDES@
+#if defined(HAVE_GL)
+#include <GL/gl.h>
+#elif defined(HAVE_GLES2)
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+#endif
 
 #ifndef GL_OES_EGL_image
 #define GLeglImageOES void *

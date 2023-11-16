@@ -214,6 +214,10 @@ if have_gles2
   endif
 endif
 
+if not have_gl and not have_gles2
+  error('Neither GLES2 or OpenGL was enabled')
+endif
+
 if have_wayland
   wayland_server_dep = dependency('wayland-server', version: wayland_server_req)
   wayland_client_dep = dependency('wayland-client', version: wayland_server_req)

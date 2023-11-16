@@ -1,44 +1,6 @@
 cogl_cogl_includesubdir = cogl_includesubdir / 'cogl'
 cogl_cogl_includedir = cogl_includedir / 'cogl'
 
-if have_gl
-  cogl_gl_header_includes = ['GL/gl.h']
-elif have_gles2
-  cogl_gl_header_includes = ['GLES2/gl2.h', 'GLES2/gl2ext.h']
-else
-  error('Neither GLES2 or OpenGL was enabled')
-endif
-
-cogl_gl_header_includes_string = ''
-foreach gl_header : cogl_gl_header_includes
- cogl_gl_header_includes_string += '#include <@0@>\n'.format(gl_header)
-endforeach
-
-cdata = configuration_data()
-cdata.set('COGL_GL_HEADER_INCLUDES', cogl_gl_header_includes_string)
-
-cogl_gl_header_h = configure_file(
-  input: 'cogl-gl-header.h.in',
-  output: 'cogl-gl-header.h',
-  configuration: cdata,
-  install: false,
-)
-
-if have_egl
-  cogl_egl_includes_string = '#include <EGL/egl.h>\n#include <EGL/eglext.h>\n#include <EGL/eglmesaext.h>'
-else
-  cogl_egl_includes_string = ''
-endif
-
-cdata = configuration_data()
-cdata.set('COGL_EGL_INCLUDES', cogl_egl_includes_string)
-cogl_egl_defines_h = configure_file(
-  input: 'cogl-egl-defines.h.in',
-  output: 'cogl-egl-defines.h',
-  configuration: cdata,
-  install: false,
-)
-
 cogl_deprecated_headers = [
   'deprecated/cogl-program.h',
   'deprecated/cogl-shader.h',
@@ -170,6 +132,12 @@ endif
 
 if have_gles2
   cogl_driver_sources += gles_driver_sources
+endif
+
+if have_gl or have_gles2
+  cogl_nonintrospected_headers += [
+    'cogl-gl-header.h'
+  ]
 endif
 
 cogl_sources = [
@@ -362,7 +330,7 @@ endif
 if have_egl
   cogl_nonintrospected_headers += [
     'cogl-egl.h',
-    cogl_egl_defines_h,
+    'cogl-egl-defines.h',
   ]
   cogl_sources += [
     'cogl-egl-private.h',

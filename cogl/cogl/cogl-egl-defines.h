@@ -32,6 +32,8 @@
 
 #ifdef HAVE_EGL
 
-@COGL_EGL_INCLUDES@
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
+#include <EGL/eglmesaext.h>
 
 #endif /* HAVE_EGL */
