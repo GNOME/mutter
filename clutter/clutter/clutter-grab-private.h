@@ -1,9 +1,7 @@
 /*
  * Clutter.
  *
- * An OpenGL based 'interactive canvas' library.
- *
- * Copyright (C) 2021 Red Hat Inc.
+ * Copyright (C) 2023 Red Hat Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,21 +21,25 @@
 
 #pragma once
 
-#if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
-#error "Only <clutter/clutter.h> can be included directly."
-#endif
+#include "clutter-grab.h"
+#include "clutter-stage.h"
 
-#include <glib-object.h>
+G_BEGIN_DECLS
 
-#include "clutter-macros.h"
-#include "clutter-enums.h"
+struct _ClutterGrab
+{
+  GObject parent_instance;
+  ClutterStage *stage;
 
-#define CLUTTER_TYPE_GRAB (clutter_grab_get_type ())
-CLUTTER_EXPORT
-G_DECLARE_FINAL_TYPE (ClutterGrab, clutter_grab, CLUTTER, GRAB, GObject)
+  ClutterActor *actor;
+  gboolean owns_actor;
 
-CLUTTER_EXPORT
-void clutter_grab_dismiss (ClutterGrab *grab);
+  ClutterGrab *prev;
+  ClutterGrab *next;
+};
 
-CLUTTER_EXPORT
-ClutterGrabState clutter_grab_get_seat_state (ClutterGrab *grab);
+ClutterGrab * clutter_grab_new (ClutterStage *stage,
+                                ClutterActor *actor,
+                                gboolean      owns_actor);
+
+G_END_DECLS

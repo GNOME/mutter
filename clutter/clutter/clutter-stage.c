@@ -50,7 +50,7 @@
 #include "clutter/clutter-event-private.h"
 #include "clutter/clutter-frame-clock.h"
 #include "clutter/clutter-frame.h"
-#include "clutter/clutter-grab.h"
+#include "clutter/clutter-grab-private.h"
 #include "clutter/clutter-input-device-private.h"
 #include "clutter/clutter-input-only-actor.h"
 #include "clutter/clutter-main.h"
@@ -137,18 +137,6 @@ typedef struct _ClutterStagePrivate
 
   guint actor_needs_immediate_relayout : 1;
 } ClutterStagePrivate;
-
-struct _ClutterGrab
-{
-  grefcount ref_count;
-  ClutterStage *stage;
-
-  ClutterActor *actor;
-  gboolean owns_actor;
-
-  ClutterGrab *prev;
-  ClutterGrab *next;
-};
 
 enum
 {
@@ -3880,44 +3868,6 @@ clutter_stage_notify_grab (ClutterStage *stage,
     }
 
   clutter_stage_notify_grab_on_key_focus (stage, cur_actor, old_actor);
-}
-
-ClutterGrab *
-clutter_grab_ref (ClutterGrab *grab)
-{
-  g_ref_count_inc (&grab->ref_count);
-  return grab;
-}
-
-void
-clutter_grab_unref (ClutterGrab *grab)
-{
-  if (g_ref_count_dec (&grab->ref_count))
-    {
-      clutter_grab_dismiss (grab);
-      g_free (grab);
-    }
-}
-
-G_DEFINE_BOXED_TYPE (ClutterGrab, clutter_grab,
-                     clutter_grab_ref, clutter_grab_unref)
-
-static ClutterGrab *
-clutter_grab_new (ClutterStage *stage,
-                  ClutterActor *actor,
-                  gboolean      owns_actor)
-{
-  ClutterGrab *grab;
-
-  grab = g_new0 (ClutterGrab, 1);
-  g_ref_count_init (&grab->ref_count);
-  grab->stage = stage;
-
-  grab->actor = actor;
-  if (owns_actor)
-    grab->owns_actor = TRUE;
-
-  return grab;
 }
 
 static ClutterGrab *

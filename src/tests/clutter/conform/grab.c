@@ -237,7 +237,7 @@ grab_under_pointer (void)
   event_log_compare ((EventLog *) &grab_log, data.events);
 
   clutter_grab_dismiss (grab);
-  clutter_grab_unref (grab);
+  g_clear_object (&grab);
   event_log_compare ((EventLog *) &ungrab_log, data.events);
 
   test_data_shutdown (&data);
@@ -264,7 +264,7 @@ grab_under_pointers_parent (void)
   event_log_compare ((EventLog *) &grab_log, data.events);
 
   clutter_grab_dismiss (grab);
-  clutter_grab_unref (grab);
+  g_clear_object (&grab);
   event_log_compare ((EventLog *) &ungrab_log, data.events);
 
   test_data_shutdown (&data);
@@ -295,7 +295,7 @@ grab_outside_pointer (void)
   event_log_compare ((EventLog *) &grab_log, data.events);
 
   clutter_grab_dismiss (grab);
-  clutter_grab_unref (grab);
+  g_clear_object (&grab);
   event_log_compare ((EventLog *) &ungrab_log, data.events);
 
   test_data_shutdown (&data);
@@ -320,7 +320,7 @@ grab_stage (void)
   event_log_compare ((EventLog *) &grab_log, data.events);
 
   clutter_grab_dismiss (grab);
-  clutter_grab_unref (grab);
+  g_clear_object (&grab);
   event_log_compare ((EventLog *) &ungrab_log, data.events);
 
   test_data_shutdown (&data);
@@ -364,11 +364,11 @@ grab_stack_1 (void)
 
   /* Dismiss orderly */
   clutter_grab_dismiss (grab2);
-  clutter_grab_unref (grab2);
+  g_clear_object (&grab2);
   event_log_compare ((EventLog *) &ungrab2_log, data.events);
 
   clutter_grab_dismiss (grab1);
-  clutter_grab_unref (grab1);
+  g_clear_object (&grab1);
   event_log_compare ((EventLog *) &ungrab1_log, data.events);
 
   test_data_shutdown (&data);
@@ -414,11 +414,11 @@ grab_stack_2 (void)
 
   /* Dismiss orderly */
   clutter_grab_dismiss (grab2);
-  clutter_grab_unref (grab2);
+  g_clear_object (&grab2);
   event_log_compare ((EventLog *) &ungrab2_log, data.events);
 
   clutter_grab_dismiss (grab1);
-  clutter_grab_unref (grab1);
+  g_clear_object (&grab1);
   event_log_compare ((EventLog *) &ungrab1_log, data.events);
 
   test_data_shutdown (&data);
@@ -462,11 +462,11 @@ grab_unordered_ungrab_1 (void)
 
   /* Dismiss disorderly */
   clutter_grab_dismiss (grab1);
-  clutter_grab_unref (grab1);
+  g_clear_object (&grab1);
   event_log_compare ((EventLog *) &ungrab1_log, data.events);
 
   clutter_grab_dismiss (grab2);
-  clutter_grab_unref (grab2);
+  g_clear_object (&grab2);
   event_log_compare ((EventLog *) &ungrab2_log, data.events);
 
   test_data_shutdown (&data);
@@ -508,11 +508,11 @@ grab_unordered_ungrab_2 (void)
 
   /* Dismiss disorderly */
   clutter_grab_dismiss (grab1);
-  clutter_grab_unref (grab1);
+  g_clear_object (&grab1);
   event_log_compare ((EventLog *) &ungrab1_log, data.events);
 
   clutter_grab_dismiss (grab2);
-  clutter_grab_unref (grab2);
+  g_clear_object (&grab2);
   event_log_compare ((EventLog *) &ungrab2_log, data.events);
 
   test_data_shutdown (&data);
@@ -533,7 +533,7 @@ grab_key_focus_in_grab (void)
   g_assert_true (clutter_actor_has_key_focus (data.b));
 
   clutter_grab_dismiss (grab);
-  clutter_grab_unref (grab);
+  g_clear_object (&grab);
   g_assert_true (clutter_actor_has_key_focus (data.b));
 
   test_data_shutdown (&data);
@@ -554,7 +554,7 @@ grab_key_focus_outside_grab (void)
   g_assert_false (clutter_actor_has_key_focus (data.b));
 
   clutter_grab_dismiss (grab);
-  clutter_grab_unref (grab);
+  g_clear_object (&grab);
   g_assert_true (clutter_actor_has_key_focus (data.b));
 
   test_data_shutdown (&data);
@@ -643,7 +643,7 @@ grab_input_only (void)
     g_main_context_iteration (NULL, TRUE);
   event_log_compare ((EventLog *) &grab2_log, data.events);
 
-  clutter_grab_unref (grab);
+  g_clear_object (&grab);
   event_log_compare ((EventLog *) &grab3_log, data.events);
 
   clutter_virtual_input_device_notify_button (pointer,
