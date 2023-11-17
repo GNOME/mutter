@@ -32,10 +32,12 @@ G_BEGIN_DECLS
 G_DECLARE_FINAL_TYPE (MetaPointerConstraint, meta_pointer_constraint,
                       META, POINTER_CONSTRAINT, GObject);
 
-MetaPointerConstraint * meta_pointer_constraint_new (const MtkRegion *region,
-                                                     double           min_edge_distance);
+MetaPointerConstraint * meta_pointer_constraint_new (const MtkRegion  *region,
+                                                     graphene_point_t  origin,
+                                                     double            min_edge_distance);
 
-MtkRegion * meta_pointer_constraint_get_region (MetaPointerConstraint *constraint);
+MtkRegion * meta_pointer_constraint_get_region (MetaPointerConstraint *constraint,
+                                                graphene_point_t      *origin);
 
 double meta_pointer_constraint_get_min_edge_distance (MetaPointerConstraint *constraint);
 

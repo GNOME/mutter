@@ -400,13 +400,15 @@ meta_backend_native_set_pointer_constraint (MetaBackend           *backend,
 
   if (constraint)
     {
+      graphene_point_t origin;
       double min_edge_distance;
 
-      region = meta_pointer_constraint_get_region (constraint);
+      region = meta_pointer_constraint_get_region (constraint, &origin);
       min_edge_distance =
         meta_pointer_constraint_get_min_edge_distance (constraint);
       constraint_impl = meta_pointer_constraint_impl_native_new (constraint,
                                                                  region,
+                                                                 origin,
                                                                  min_edge_distance);
     }
 

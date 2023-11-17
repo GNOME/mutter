@@ -245,10 +245,10 @@ meta_pointer_confinement_wayland_create_constraint (MetaPointerConfinementWaylan
     }
 
   meta_wayland_surface_get_absolute_coordinates (surface, 0, 0, &dx, &dy);
-  mtk_region_translate (region, dx, dy);
 
   min_edge_distance = wl_fixed_to_double (1) * geometry_scale;
   constraint = meta_pointer_constraint_new (g_steal_pointer (&region),
+                                            GRAPHENE_POINT_INIT (dx, dy),
                                             min_edge_distance);
 
   return constraint;

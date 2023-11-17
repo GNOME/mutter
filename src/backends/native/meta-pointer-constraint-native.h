@@ -37,6 +37,7 @@ G_DECLARE_FINAL_TYPE (MetaPointerConstraintImplNative,
 
 MetaPointerConstraintImpl * meta_pointer_constraint_impl_native_new (MetaPointerConstraint *constraint_impl,
                                                                      const MtkRegion       *region,
+                                                                     graphene_point_t       origin,
                                                                      double                 min_edge_distance);
 
 G_END_DECLS

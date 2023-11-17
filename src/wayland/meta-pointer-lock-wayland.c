@@ -74,10 +74,12 @@ meta_pointer_lock_wayland_create_constraint (MetaPointerConfinementWayland *conf
                                                  &sx, &sy);
 
   meta_wayland_surface_get_absolute_coordinates (surface, sx, sy, &x, &y);
-  rect = (MtkRectangle) { .x = x, .y = y, .width = 1, .height = 1 };
+  rect = (MtkRectangle) { .x = 0, .y = 0, .width = 0, .height = 0 };
   region = mtk_region_create_rectangle (&rect);
 
-  constraint = meta_pointer_constraint_new (g_steal_pointer (&region), 0.0);
+  constraint = meta_pointer_constraint_new (g_steal_pointer (&region),
+                                            GRAPHENE_POINT_INIT (x, y),
+                                            0.0);
 
   return constraint;
 }
