@@ -84,19 +84,10 @@ void meta_wayland_pointer_update (MetaWaylandPointer *pointer,
 gboolean meta_wayland_pointer_handle_event (MetaWaylandPointer *pointer,
                                             const ClutterEvent *event);
 
-void meta_wayland_pointer_send_motion (MetaWaylandPointer *pointer,
-                                       const ClutterEvent *event);
-
 void meta_wayland_pointer_send_relative_motion (MetaWaylandPointer *pointer,
                                                 const ClutterEvent *event);
 
-void meta_wayland_pointer_send_button (MetaWaylandPointer *pointer,
-                                       const ClutterEvent *event);
-
 void meta_wayland_pointer_broadcast_frame (MetaWaylandPointer *pointer);
-
-void meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
-                                     MetaWaylandSurface *surface);
 
 void meta_wayland_pointer_get_relative_coordinates (MetaWaylandPointer *pointer,
                                                     MetaWaylandSurface *surface,
@@ -122,8 +113,6 @@ void meta_wayland_pointer_unbind_pointer_client_resource (struct wl_resource *re
 void meta_wayland_relative_pointer_init (MetaWaylandCompositor *compositor);
 
 MetaWaylandSeat *meta_wayland_pointer_get_seat (MetaWaylandPointer *pointer);
-
-void meta_wayland_surface_cursor_update (MetaWaylandSurface *cursor_surface);
 
 void meta_wayland_pointer_update_cursor_surface (MetaWaylandPointer *pointer);
 

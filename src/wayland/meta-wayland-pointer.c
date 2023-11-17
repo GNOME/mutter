@@ -91,6 +91,9 @@ static void
 meta_wayland_pointer_set_current (MetaWaylandPointer *pointer,
                                   MetaWaylandSurface *surface);
 
+static void meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
+                                            MetaWaylandSurface *surface);
+
 static MetaBackend *
 backend_from_pointer (MetaWaylandPointer *pointer)
 {
@@ -378,7 +381,7 @@ meta_wayland_pointer_send_relative_motion (MetaWaylandPointer *pointer,
     }
 }
 
-void
+static void
 meta_wayland_pointer_send_motion (MetaWaylandPointer *pointer,
                                   const ClutterEvent *event)
 {
@@ -406,7 +409,7 @@ meta_wayland_pointer_send_motion (MetaWaylandPointer *pointer,
   meta_wayland_pointer_broadcast_frame (pointer);
 }
 
-void
+static void
 meta_wayland_pointer_send_button (MetaWaylandPointer *pointer,
                                   const ClutterEvent *event)
 {
@@ -945,7 +948,7 @@ focus_surface_alive_notify (MetaWindow         *window,
   sync_focus_surface (pointer);
 }
 
-void
+static void
 meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
                                 MetaWaylandSurface *surface)
 {
