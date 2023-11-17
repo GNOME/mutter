@@ -334,6 +334,16 @@ meta_wayland_drag_grab_get_seat (MetaWaylandDragGrab *drag_grab)
   return drag_grab->seat;
 }
 
+ClutterInputDevice *
+meta_wayland_drag_grab_get_device (MetaWaylandDragGrab    *drag_grab,
+                                   ClutterEventSequence  **sequence)
+{
+  if (sequence)
+    *sequence = drag_grab->sequence;
+
+  return drag_grab->device;
+}
+
 static void
 data_source_update_user_dnd_action (MetaWaylandDataSource *source,
                                     ClutterModifierType    modifiers)

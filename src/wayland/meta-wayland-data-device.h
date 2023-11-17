@@ -94,3 +94,6 @@ void     meta_wayland_drag_grab_update_feedback_actor (MetaWaylandDragGrab *drag
                                                        const ClutterEvent  *event);
 
 MetaWaylandSeat * meta_wayland_drag_grab_get_seat (MetaWaylandDragGrab *drag_grab);
+
+ClutterInputDevice * meta_wayland_drag_grab_get_device (MetaWaylandDragGrab    *drag_grab,
+                                                        ClutterEventSequence  **sequence);
