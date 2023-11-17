@@ -592,9 +592,9 @@ meta_window_actor_wayland_map (ClutterActor *actor)
   ClutterActorClass *parent_class =
     CLUTTER_ACTOR_CLASS (meta_window_actor_wayland_parent_class);
 
-  do_sync_geometry (self);
-
   parent_class->map (actor);
+
+  do_sync_geometry (self);
 }
 
 static void
