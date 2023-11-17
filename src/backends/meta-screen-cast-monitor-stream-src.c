@@ -136,12 +136,14 @@ maybe_record_frame_on_idle (gpointer user_data)
   MetaScreenCastMonitorStreamSrc *monitor_src =
     META_SCREEN_CAST_MONITOR_STREAM_SRC (user_data);
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (monitor_src);
+  MetaScreenCastPaintPhase paint_phase;
   MetaScreenCastRecordFlag flags;
 
   monitor_src->maybe_record_idle_id = 0;
 
   flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
-  meta_screen_cast_stream_src_maybe_record_frame (src, flags, NULL);
+  paint_phase = META_SCREEN_CAST_PAINT_PHASE_DETACHED;
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags, paint_phase, NULL);
 
   return G_SOURCE_REMOVE;
 }
@@ -169,10 +171,13 @@ stage_painted (MetaStage        *stage,
   if (meta_screen_cast_stream_src_uses_dma_bufs (src))
     {
       MetaScreenCastRecordFlag flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
+      MetaScreenCastPaintPhase paint_phase =
+        META_SCREEN_CAST_PAINT_PHASE_PRE_SWAP_BUFFER;
 
       record_result =
         meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (src,
                                                                        flags,
+                                                                       paint_phase,
                                                                        NULL,
                                                                        presentation_time_us);
     }
@@ -196,6 +201,7 @@ before_stage_painted (MetaStage        *stage,
   MetaScreenCastMonitorStreamSrc *monitor_src =
     META_SCREEN_CAST_MONITOR_STREAM_SRC (user_data);
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (monitor_src);
+  MetaScreenCastPaintPhase paint_phase;
   MetaScreenCastRecordFlag flags;
   int64_t presentation_time_us;
 
@@ -212,8 +218,10 @@ before_stage_painted (MetaStage        *stage,
     presentation_time_us = g_get_monotonic_time ();
 
   flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
+  paint_phase = META_SCREEN_CAST_PAINT_PHASE_PRE_PAINT;
   meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (src,
                                                                  flags,
+                                                                 paint_phase,
                                                                  NULL,
                                                                  presentation_time_us);
 }
@@ -285,6 +293,7 @@ static void
 sync_cursor_state (MetaScreenCastMonitorStreamSrc *monitor_src)
 {
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (monitor_src);
+  MetaScreenCastPaintPhase paint_phase;
   MetaScreenCastRecordFlag flags;
 
   if (is_redraw_queued (monitor_src))
@@ -294,7 +303,10 @@ sync_cursor_state (MetaScreenCastMonitorStreamSrc *monitor_src)
     return;
 
   flags = META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY;
-  meta_screen_cast_stream_src_maybe_record_frame (src, flags, NULL);
+  paint_phase = META_SCREEN_CAST_PAINT_PHASE_DETACHED;
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags,
+                                                  paint_phase,
+                                                  NULL);
 }
 
 static void
@@ -530,12 +542,13 @@ meta_screen_cast_monitor_stream_src_disable (MetaScreenCastStreamSrc *src)
 }
 
 static gboolean
-meta_screen_cast_monitor_stream_src_record_to_buffer (MetaScreenCastStreamSrc  *src,
-                                                      int                       width,
-                                                      int                       height,
-                                                      int                       stride,
-                                                      uint8_t                  *data,
-                                                      GError                  **error)
+meta_screen_cast_monitor_stream_src_record_to_buffer (MetaScreenCastStreamSrc   *src,
+                                                      MetaScreenCastPaintPhase   paint_phase,
+                                                      int                        width,
+                                                      int                        height,
+                                                      int                        stride,
+                                                      uint8_t                   *data,
+                                                      GError                   **error)
 {
   MetaScreenCastMonitorStreamSrc *monitor_src =
     META_SCREEN_CAST_MONITOR_STREAM_SRC (src);
@@ -579,9 +592,10 @@ meta_screen_cast_monitor_stream_src_record_to_buffer (MetaScreenCastStreamSrc  *
 }
 
 static gboolean
-meta_screen_cast_monitor_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc  *src,
-                                                           CoglFramebuffer          *framebuffer,
-                                                           GError                  **error)
+meta_screen_cast_monitor_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc   *src,
+                                                           MetaScreenCastPaintPhase   paint_phase,
+                                                           CoglFramebuffer           *framebuffer,
+                                                           GError                   **error)
 {
   MetaScreenCastMonitorStreamSrc *monitor_src =
     META_SCREEN_CAST_MONITOR_STREAM_SRC (src);

@@ -368,10 +368,14 @@ screen_cast_window_damaged (MetaWindowActor               *actor,
                             MetaScreenCastWindowStreamSrc *window_src)
 {
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (window_src);
+  MetaScreenCastPaintPhase paint_phase;
   MetaScreenCastRecordFlag flags;
 
   flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
-  meta_screen_cast_stream_src_maybe_record_frame (src, flags, NULL);
+  paint_phase = META_SCREEN_CAST_PAINT_PHASE_DETACHED;
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags,
+                                                  paint_phase,
+                                                  NULL);
 }
 
 static void
@@ -386,13 +390,17 @@ static void
 sync_cursor_state (MetaScreenCastWindowStreamSrc *window_src)
 {
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (window_src);
+  MetaScreenCastPaintPhase paint_phase;
   MetaScreenCastRecordFlag flags;
 
   if (meta_screen_cast_window_has_damage (window_src->screen_cast_window))
     return;
 
   flags = META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY;
-  meta_screen_cast_stream_src_maybe_record_frame (src, flags, NULL);
+  paint_phase = META_SCREEN_CAST_PAINT_PHASE_DETACHED;
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags,
+                                                  paint_phase,
+                                                  NULL);
 }
 
 static void
@@ -429,6 +437,7 @@ meta_screen_cast_window_stream_src_enable (MetaScreenCastStreamSrc *src)
   MetaBackend *backend = get_backend (window_src);
   ClutterStage *stage = get_stage (window_src);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
+  MetaScreenCastPaintPhase paint_phase;
   MetaWindowActor *window_actor;
   MetaScreenCastStream *stream;
   MetaScreenCastRecordFlag flags;
@@ -475,7 +484,10 @@ meta_screen_cast_window_stream_src_enable (MetaScreenCastStreamSrc *src)
     }
 
   flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
-  meta_screen_cast_stream_src_maybe_record_frame (src, flags, NULL);
+  paint_phase = META_SCREEN_CAST_PAINT_PHASE_DETACHED;
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags,
+                                                  paint_phase,
+                                                  NULL);
 }
 
 static void
@@ -488,12 +500,13 @@ meta_screen_cast_window_stream_src_disable (MetaScreenCastStreamSrc *src)
 }
 
 static gboolean
-meta_screen_cast_window_stream_src_record_to_buffer (MetaScreenCastStreamSrc  *src,
-                                                     int                       width,
-                                                     int                       height,
-                                                     int                       stride,
-                                                     uint8_t                  *data,
-                                                     GError                  **error)
+meta_screen_cast_window_stream_src_record_to_buffer (MetaScreenCastStreamSrc   *src,
+                                                     MetaScreenCastPaintPhase   paint_phase,
+                                                     int                        width,
+                                                     int                        height,
+                                                     int                        stride,
+                                                     uint8_t                   *data,
+                                                     GError                   **error)
 {
   MetaScreenCastWindowStreamSrc *window_src =
     META_SCREEN_CAST_WINDOW_STREAM_SRC (src);
@@ -504,9 +517,10 @@ meta_screen_cast_window_stream_src_record_to_buffer (MetaScreenCastStreamSrc  *s
 }
 
 static gboolean
-meta_screen_cast_window_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc  *src,
-                                                          CoglFramebuffer          *framebuffer,
-                                                          GError                  **error)
+meta_screen_cast_window_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc   *src,
+                                                          MetaScreenCastPaintPhase   paint_phase,
+                                                          CoglFramebuffer           *framebuffer,
+                                                          GError                   **error)
 {
   MetaScreenCastWindowStreamSrc *window_src =
     META_SCREEN_CAST_WINDOW_STREAM_SRC (src);
@@ -546,10 +560,14 @@ meta_screen_cast_window_stream_src_record_to_framebuffer (MetaScreenCastStreamSr
 static void
 meta_screen_cast_window_stream_record_follow_up (MetaScreenCastStreamSrc *src)
 {
+  MetaScreenCastPaintPhase paint_phase;
   MetaScreenCastRecordFlag flags;
 
   flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
-  meta_screen_cast_stream_src_maybe_record_frame (src, flags, NULL);
+  paint_phase = META_SCREEN_CAST_PAINT_PHASE_DETACHED;
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags,
+                                                  paint_phase,
+                                                  NULL);
 }
 
 static void

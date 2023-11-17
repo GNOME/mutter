@@ -161,13 +161,17 @@ static void
 sync_cursor_state (MetaScreenCastAreaStreamSrc *area_src)
 {
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (area_src);
+  MetaScreenCastPaintPhase paint_phase;
   MetaScreenCastRecordFlag flags;
 
   if (is_redraw_queued (area_src))
     return;
 
   flags = META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY;
-  meta_screen_cast_stream_src_maybe_record_frame (src, flags, NULL);
+  paint_phase = META_SCREEN_CAST_PAINT_PHASE_DETACHED;
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags,
+                                                  paint_phase,
+                                                  NULL);
 }
 
 static void
@@ -232,12 +236,16 @@ maybe_record_frame_on_idle (gpointer user_data)
   MetaScreenCastAreaStreamSrc *area_src =
     META_SCREEN_CAST_AREA_STREAM_SRC (user_data);
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (area_src);
+  MetaScreenCastPaintPhase paint_phase;
   MetaScreenCastRecordFlag flags;
 
   area_src->maybe_record_idle_id = 0;
 
   flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
-  meta_screen_cast_stream_src_maybe_record_frame (src, flags, NULL);
+  paint_phase = META_SCREEN_CAST_PAINT_PHASE_DETACHED;
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags,
+                                                  paint_phase,
+                                                  NULL);
 
   return G_SOURCE_REMOVE;
 }
@@ -452,12 +460,13 @@ meta_screen_cast_area_stream_src_disable (MetaScreenCastStreamSrc *src)
 }
 
 static gboolean
-meta_screen_cast_area_stream_src_record_to_buffer (MetaScreenCastStreamSrc  *src,
-                                                   int                       width,
-                                                   int                       height,
-                                                   int                       stride,
-                                                   uint8_t                  *data,
-                                                   GError                  **error)
+meta_screen_cast_area_stream_src_record_to_buffer (MetaScreenCastStreamSrc   *src,
+                                                   MetaScreenCastPaintPhase   paint_phase,
+                                                   int                        width,
+                                                   int                        height,
+                                                   int                        stride,
+                                                   uint8_t                   *data,
+                                                   GError                   **error)
 {
   MetaScreenCastAreaStreamSrc *area_src =
     META_SCREEN_CAST_AREA_STREAM_SRC (src);
@@ -495,9 +504,10 @@ meta_screen_cast_area_stream_src_record_to_buffer (MetaScreenCastStreamSrc  *src
 }
 
 static gboolean
-meta_screen_cast_area_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc  *src,
-                                                        CoglFramebuffer          *framebuffer,
-                                                        GError                  **error)
+meta_screen_cast_area_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc   *src,
+                                                        MetaScreenCastPaintPhase   paint_phase,
+                                                        CoglFramebuffer           *framebuffer,
+                                                        GError                   **error)
 {
   MetaScreenCastAreaStreamSrc *area_src =
     META_SCREEN_CAST_AREA_STREAM_SRC (src);
@@ -537,12 +547,16 @@ meta_screen_cast_area_stream_record_follow_up (MetaScreenCastStreamSrc *src)
 {
   MetaScreenCastAreaStreamSrc *area_src =
     META_SCREEN_CAST_AREA_STREAM_SRC (src);
+  MetaScreenCastPaintPhase paint_phase;
   MetaScreenCastRecordFlag flags;
 
   g_clear_handle_id (&area_src->maybe_record_idle_id, g_source_remove);
 
   flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
-  meta_screen_cast_stream_src_maybe_record_frame (src, flags, NULL);
+  paint_phase = META_SCREEN_CAST_PAINT_PHASE_DETACHED;
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags,
+                                                  paint_phase,
+                                                  NULL);
 }
 
 static void

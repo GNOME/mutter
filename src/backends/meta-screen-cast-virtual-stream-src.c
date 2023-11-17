@@ -125,6 +125,7 @@ static void
 sync_cursor_state (MetaScreenCastVirtualStreamSrc *virtual_src)
 {
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (virtual_src);
+  MetaScreenCastPaintPhase paint_phase;
   MetaScreenCastRecordFlag flags;
 
   if (is_redraw_queued (virtual_src))
@@ -134,7 +135,10 @@ sync_cursor_state (MetaScreenCastVirtualStreamSrc *virtual_src)
     return;
 
   flags = META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY;
-  meta_screen_cast_stream_src_maybe_record_frame (src, flags, NULL);
+  paint_phase = META_SCREEN_CAST_PAINT_PHASE_DETACHED;
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags,
+                                                  paint_phase,
+                                                  NULL);
 }
 
 static void
@@ -201,10 +205,14 @@ actors_painted (MetaStage        *stage,
                 gpointer          user_data)
 {
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (user_data);
+  MetaScreenCastPaintPhase paint_phase;
   MetaScreenCastRecordFlag flags;
 
   flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
-  meta_screen_cast_stream_src_maybe_record_frame (src, flags, redraw_clip);
+  paint_phase = META_SCREEN_CAST_PAINT_PHASE_PRE_SWAP_BUFFER;
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags,
+                                                  paint_phase,
+                                                  redraw_clip);
 }
 
 static void
@@ -366,12 +374,13 @@ meta_screen_cast_virtual_stream_src_disable (MetaScreenCastStreamSrc *src)
 }
 
 static gboolean
-meta_screen_cast_virtual_stream_src_record_to_buffer (MetaScreenCastStreamSrc  *src,
-                                                      int                       width,
-                                                      int                       height,
-                                                      int                       stride,
-                                                      uint8_t                  *data,
-                                                      GError                  **error)
+meta_screen_cast_virtual_stream_src_record_to_buffer (MetaScreenCastStreamSrc   *src,
+                                                      MetaScreenCastPaintPhase   paint_phase,
+                                                      int                        width,
+                                                      int                        height,
+                                                      int                        stride,
+                                                      uint8_t                   *data,
+                                                      GError                   **error)
 {
   MetaScreenCastStream *stream;
   ClutterPaintFlag paint_flags;
@@ -410,9 +419,10 @@ meta_screen_cast_virtual_stream_src_record_to_buffer (MetaScreenCastStreamSrc  *
 }
 
 static gboolean
-meta_screen_cast_virtual_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc  *src,
-                                                           CoglFramebuffer          *framebuffer,
-                                                           GError                  **error)
+meta_screen_cast_virtual_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc   *src,
+                                                           MetaScreenCastPaintPhase   paint_phase,
+                                                           CoglFramebuffer           *framebuffer,
+                                                           GError                   **error)
 {
   ClutterStageView *view;
   CoglFramebuffer *view_framebuffer;

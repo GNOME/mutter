@@ -252,28 +252,31 @@ meta_screen_cast_stream_src_get_videocrop (MetaScreenCastStreamSrc *src,
 }
 
 static gboolean
-meta_screen_cast_stream_src_record_to_buffer (MetaScreenCastStreamSrc  *src,
-                                              int                       width,
-                                              int                       height,
-                                              int                       stride,
-                                              uint8_t                  *data,
-                                              GError                  **error)
+meta_screen_cast_stream_src_record_to_buffer (MetaScreenCastStreamSrc   *src,
+                                              MetaScreenCastPaintPhase   paint_phase,
+                                              int                        width,
+                                              int                        height,
+                                              int                        stride,
+                                              uint8_t                   *data,
+                                              GError                   **error)
 {
   MetaScreenCastStreamSrcClass *klass =
     META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
 
-  return klass->record_to_buffer (src, width, height, stride, data, error);
+  return klass->record_to_buffer (src, paint_phase,
+                                  width, height, stride, data, error);
 }
 
 static gboolean
-meta_screen_cast_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc  *src,
-                                                   CoglFramebuffer          *framebuffer,
-                                                   GError                  **error)
+meta_screen_cast_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc   *src,
+                                                   MetaScreenCastPaintPhase   paint_phase,
+                                                   CoglFramebuffer           *framebuffer,
+                                                   GError                   **error)
 {
   MetaScreenCastStreamSrcClass *klass =
     META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
 
-  return klass->record_to_framebuffer (src, framebuffer, error);
+  return klass->record_to_framebuffer (src, paint_phase, framebuffer, error);
 }
 
 static void
@@ -582,6 +585,7 @@ meta_screen_cast_stream_src_calculate_stride (MetaScreenCastStreamSrc *src,
 static gboolean
 do_record_frame (MetaScreenCastStreamSrc   *src,
                  MetaScreenCastRecordFlag   flags,
+                 MetaScreenCastPaintPhase   paint_phase,
                  struct spa_buffer         *spa_buffer,
                  GError                   **error)
 {
@@ -596,6 +600,7 @@ do_record_frame (MetaScreenCastStreamSrc   *src,
       int stride = meta_screen_cast_stream_src_calculate_stride (src, spa_data);
 
       return meta_screen_cast_stream_src_record_to_buffer (src,
+                                                           paint_phase,
                                                            width,
                                                            height,
                                                            stride,
@@ -611,6 +616,7 @@ do_record_frame (MetaScreenCastStreamSrc   *src,
         cogl_dma_buf_handle_get_framebuffer (dmabuf_handle);
 
       return meta_screen_cast_stream_src_record_to_framebuffer (src,
+                                                                paint_phase,
                                                                 dmabuf_fbo,
                                                                 error);
     }
@@ -730,12 +736,14 @@ maybe_add_damaged_regions_metadata (MetaScreenCastStreamSrc *src,
 MetaScreenCastRecordResult
 meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
                                                 MetaScreenCastRecordFlag  flags,
+                                                MetaScreenCastPaintPhase  paint_phase,
                                                 const MtkRegion          *redraw_clip)
 {
   int64_t now_us = g_get_monotonic_time ();
 
   return meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (src,
                                                                         flags,
+                                                                        paint_phase,
                                                                         redraw_clip,
                                                                         now_us);
 }
@@ -743,6 +751,7 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
 MetaScreenCastRecordResult
 meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStreamSrc  *src,
                                                                MetaScreenCastRecordFlag  flags,
+                                                               MetaScreenCastPaintPhase  paint_phase,
                                                                const MtkRegion          *redraw_clip,
                                                                int64_t                   frame_timestamp_us)
 {
@@ -842,7 +851,7 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
       g_autoptr (GError) error = NULL;
 
       g_clear_handle_id (&priv->follow_up_frame_source_id, g_source_remove);
-      if (do_record_frame (src, flags, spa_buffer, &error))
+      if (do_record_frame (src, flags, paint_phase, spa_buffer, &error))
         {
           maybe_add_damaged_regions_metadata (src, spa_buffer);
           struct spa_meta_region *spa_meta_video_crop;

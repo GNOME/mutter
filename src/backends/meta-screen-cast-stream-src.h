@@ -47,6 +47,13 @@ typedef enum _MetaScreenCastRecordResult
   META_SCREEN_CAST_RECORD_RESULT_RECORDED_CURSOR = 1 << 1,
 } MetaScreenCastRecordResult;
 
+typedef enum _MetaScreenCastPaintPhase
+{
+  META_SCREEN_CAST_PAINT_PHASE_DETACHED,
+  META_SCREEN_CAST_PAINT_PHASE_PRE_PAINT,
+  META_SCREEN_CAST_PAINT_PHASE_PRE_SWAP_BUFFER,
+} MetaScreenCastPaintPhase;
+
 #define META_TYPE_SCREEN_CAST_STREAM_SRC (meta_screen_cast_stream_src_get_type ())
 G_DECLARE_DERIVABLE_TYPE (MetaScreenCastStreamSrc,
                           meta_screen_cast_stream_src,
@@ -64,14 +71,16 @@ struct _MetaScreenCastStreamSrcClass
   void (* enable) (MetaScreenCastStreamSrc *src);
   void (* disable) (MetaScreenCastStreamSrc *src);
   gboolean (* record_to_buffer) (MetaScreenCastStreamSrc  *src,
+                                 MetaScreenCastPaintPhase  paint_phase,
                                  int                       width,
                                  int                       height,
                                  int                       stride,
                                  uint8_t                  *data,
                                  GError                  **error);
-  gboolean (* record_to_framebuffer) (MetaScreenCastStreamSrc  *src,
-                                      CoglFramebuffer          *framebuffer,
-                                      GError                  **error);
+  gboolean (* record_to_framebuffer) (MetaScreenCastStreamSrc   *src,
+                                      MetaScreenCastPaintPhase   paint_phase,
+                                      CoglFramebuffer           *framebuffer,
+                                      GError                   **error);
   void (* record_follow_up) (MetaScreenCastStreamSrc *src);
 
   gboolean (* get_videocrop) (MetaScreenCastStreamSrc *src,
@@ -91,10 +100,12 @@ gboolean meta_screen_cast_stream_src_is_enabled (MetaScreenCastStreamSrc *src);
 
 MetaScreenCastRecordResult meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
                                                                            MetaScreenCastRecordFlag  flags,
+                                                                           MetaScreenCastPaintPhase  paint_phase,
                                                                            const MtkRegion          *redraw_clip);
 
 MetaScreenCastRecordResult meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStreamSrc  *src,
                                                                                           MetaScreenCastRecordFlag  flags,
+                                                                                          MetaScreenCastPaintPhase  paint_phase,
                                                                                           const MtkRegion          *redraw_clip,
                                                                                           int64_t                   frame_timestamp_us);
 
