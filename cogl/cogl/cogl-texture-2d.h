@@ -40,7 +40,7 @@
 #include "cogl/cogl-bitmap.h"
 
 #ifdef HAVE_EGL
-#include "cogl/cogl-egl-defines.h"
+#include "cogl/cogl-egl.h"
 #endif
 
 G_BEGIN_DECLS

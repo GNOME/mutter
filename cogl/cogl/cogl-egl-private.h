@@ -30,7 +30,7 @@
 
 #pragma once
 
-#include "cogl/cogl-egl-defines.h"
+#include "cogl/cogl-egl.h"
 
 #if defined(GL_OES_EGL_image) && !defined(GLeglImageOES)
 #define GLeglImageOES void *

@@ -330,7 +330,6 @@ endif
 if have_egl
   cogl_nonintrospected_headers += [
     'cogl-egl.h',
-    'cogl-egl-defines.h',
   ]
   cogl_sources += [
     'cogl-egl-private.h',
