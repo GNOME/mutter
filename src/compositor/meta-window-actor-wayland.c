@@ -588,6 +588,18 @@ meta_window_actor_wayland_sync_geometry (MetaWindowActor *actor)
 }
 
 static void
+meta_window_actor_wayland_map (ClutterActor *actor)
+{
+  MetaWindowActorWayland *self = META_WINDOW_ACTOR_WAYLAND (actor);
+  ClutterActorClass *parent_class =
+    CLUTTER_ACTOR_CLASS (meta_window_actor_wayland_parent_class);
+
+  do_sync_geometry (self);
+
+  parent_class->map (actor);
+}
+
+static void
 meta_window_actor_wayland_dispose (GObject *object)
 {
   MetaWindowActorWayland *self = META_WINDOW_ACTOR_WAYLAND (object);
@@ -613,18 +625,6 @@ meta_window_actor_wayland_constructed (GObject *object)
     g_signal_connect_swapped (window, "highest-scale-monitor-changed",
                               G_CALLBACK (clutter_actor_notify_transform_invalid),
                               self->surface_container);
-}
-
-static void
-meta_window_actor_wayland_map (ClutterActor *actor)
-{
-  MetaWindowActorWayland *self = META_WINDOW_ACTOR_WAYLAND (actor);
-  ClutterActorClass *parent_class =
-    CLUTTER_ACTOR_CLASS (meta_window_actor_wayland_parent_class);
-
-  do_sync_geometry (self);
-
-  parent_class->map (actor);
 }
 
 static void
