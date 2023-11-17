@@ -42,4 +42,6 @@ ClutterGrab * clutter_grab_new (ClutterStage *stage,
                                 ClutterActor *actor,
                                 gboolean      owns_actor);
 
+void clutter_grab_notify (ClutterGrab *grab);
+
 G_END_DECLS

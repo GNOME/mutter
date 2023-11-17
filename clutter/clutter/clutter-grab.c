@@ -23,6 +23,17 @@
 
 #include "clutter-grab-private.h"
 
+#include "clutter-private.h"
+
+enum
+{
+  PROP_0,
+  PROP_REVOKED,
+  N_PROPS,
+};
+
+static GParamSpec *props[N_PROPS] = { 0, };
+
 G_DEFINE_FINAL_TYPE (ClutterGrab, clutter_grab, G_TYPE_OBJECT)
 
 static void
@@ -44,12 +55,41 @@ clutter_grab_finalize (GObject *object)
 }
 
 static void
+clutter_grab_get_property (GObject    *object,
+                           guint       prop_id,
+                           GValue     *value,
+                           GParamSpec *pspec)
+{
+  ClutterGrab *grab = CLUTTER_GRAB (object);
+
+  switch (prop_id)
+    {
+    case PROP_REVOKED:
+      g_value_set_boolean (value, clutter_grab_is_revoked (grab));
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
 clutter_grab_class_init (ClutterGrabClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->dispose = clutter_grab_dispose;
   object_class->finalize = clutter_grab_finalize;
+  object_class->get_property = clutter_grab_get_property;
+
+  props[PROP_REVOKED] =
+    g_param_spec_boolean ("revoked", NULL, NULL,
+                          FALSE,
+                          G_PARAM_READABLE |
+                          G_PARAM_STATIC_STRINGS |
+                          G_PARAM_EXPLICIT_NOTIFY);
+
+  g_object_class_install_properties (object_class, N_PROPS, props);
 }
 
 static void
@@ -72,4 +112,18 @@ clutter_grab_new (ClutterStage *stage,
     grab->owns_actor = TRUE;
 
   return grab;
+}
+
+void
+clutter_grab_notify (ClutterGrab *grab)
+{
+  g_object_notify (G_OBJECT (grab), "revoked");
+}
+
+gboolean
+clutter_grab_is_revoked (ClutterGrab *grab)
+{
+  g_return_val_if_fail (CLUTTER_IS_GRAB (grab), FALSE);
+
+  return grab->prev != NULL;
 }

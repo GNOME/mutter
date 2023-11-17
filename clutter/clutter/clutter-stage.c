@@ -3930,6 +3930,9 @@ clutter_stage_grab_full (ClutterStage *stage,
   if (was_grabbed != !!priv->topmost_grab)
     g_object_notify_by_pspec (G_OBJECT (stage), obj_props[PROP_IS_GRABBED]);
 
+  if (grab->next)
+    clutter_grab_notify (grab->next);
+
   return grab;
 }
 
@@ -4035,6 +4038,9 @@ clutter_stage_unlink_grab (ClutterStage *stage,
 
   if (grab->owns_actor)
     g_clear_pointer (&grab->actor, clutter_actor_destroy);
+
+  if (priv->topmost_grab)
+    clutter_grab_notify (priv->topmost_grab);
 }
 
 /**
