@@ -664,16 +664,6 @@ meta_wayland_seat_get_compositor (MetaWaylandSeat *seat)
 }
 
 gboolean
-meta_wayland_seat_is_grabbed (MetaWaylandSeat *seat)
-{
-  if (!meta_wayland_input_is_current_handler (seat->input_handler,
-                                              seat->default_handler))
-    return TRUE;
-
-  return FALSE;
-}
-
-gboolean
 meta_wayland_seat_handle_event (MetaWaylandSeat *seat,
                                 const ClutterEvent *event)
 {

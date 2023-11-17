@@ -569,15 +569,6 @@ static void
 sync_focus_surface (MetaWaylandTabletTool *tool,
                     const ClutterEvent    *event)
 {
-  MetaBackend *backend = backend_from_tool (tool);
-  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
-
-  if (clutter_stage_get_grab_actor (stage))
-    {
-      meta_wayland_tablet_tool_set_focus (tool, NULL, event);
-      return;
-    }
-
   meta_wayland_tablet_tool_set_focus (tool, tool->current, event);
 }
 

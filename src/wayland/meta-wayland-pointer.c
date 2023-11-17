@@ -298,17 +298,9 @@ surface_get_effective_window (MetaWaylandSurface *surface)
 static void
 sync_focus_surface (MetaWaylandPointer *pointer)
 {
-  MetaBackend *backend = backend_from_pointer (pointer);
-  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
   MetaWaylandInputDevice *input_device = META_WAYLAND_INPUT_DEVICE (pointer);
   MetaWaylandSeat *seat = meta_wayland_input_device_get_seat (input_device);
   MetaWaylandInput *input;
-
-  if (clutter_stage_get_grab_actor (stage) != NULL)
-    {
-      meta_wayland_pointer_set_focus (pointer, NULL);
-      return;
-    }
 
   input = meta_wayland_seat_get_input (seat);
   meta_wayland_input_invalidate_focus (input, pointer->device, NULL);
@@ -1051,13 +1043,8 @@ meta_wayland_pointer_focus_surface (MetaWaylandPointer *pointer,
                                     MetaWaylandSurface *surface)
 {
   MetaWaylandSeat *seat = meta_wayland_pointer_get_seat (pointer);
-  MetaBackend *backend = backend_from_pointer (pointer);
-  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
 
   if (!meta_wayland_seat_has_pointer (seat))
-    return;
-
-  if (clutter_stage_get_grab_actor (stage) != NULL)
     return;
 
   if (surface)

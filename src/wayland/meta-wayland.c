@@ -1030,12 +1030,6 @@ meta_wayland_compositor_get_context (MetaWaylandCompositor *compositor)
   return compositor->context;
 }
 
-gboolean
-meta_wayland_compositor_is_grabbed (MetaWaylandCompositor *compositor)
-{
-  return meta_wayland_seat_is_grabbed (compositor->seat);
-}
-
 /**
  * meta_wayland_compositor_get_wayland_display:
  * @compositor: The #MetaWaylandCompositor
@@ -1067,19 +1061,13 @@ static void
 meta_wayland_compositor_update_focus (MetaWaylandCompositor *compositor,
                                       MetaWindow            *window)
 {
-  MetaContext *context = meta_wayland_compositor_get_context (compositor);
-  MetaDisplay *display = meta_context_get_display (context);
   MetaWindow *focus_window = NULL;
 
   /* Compositor not ready yet */
   if (!compositor->seat)
     return;
 
-  if (!display || !meta_display_windows_are_interactable (display))
-    focus_window = NULL;
-  else if (!window)
-    focus_window = NULL;
-  else if (window && meta_window_get_wayland_surface (window))
+  if (window && meta_window_get_wayland_surface (window))
     focus_window = window;
   else
     meta_topic (META_DEBUG_FOCUS, "Focus change has no effect, because there is no matching wayland surface");

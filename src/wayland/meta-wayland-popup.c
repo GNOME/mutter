@@ -207,7 +207,7 @@ meta_wayland_popup_grab_create (MetaWaylandSeat         *seat,
   grab->handler =
     meta_wayland_input_attach_event_handler (input,
                                              &popup_event_interface,
-                                             FALSE, grab);
+                                             TRUE, grab);
 
   return grab;
 }

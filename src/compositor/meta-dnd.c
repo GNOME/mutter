@@ -256,52 +256,12 @@ static void
 meta_dnd_wayland_on_motion_event (MetaDnd            *dnd,
                                   const ClutterEvent *event)
 {
-  MetaWaylandDragGrab *current_grab;
   gfloat event_x, event_y;
-  MetaWaylandDataDevice *data_device = data_device_from_dnd (dnd);
 
   g_return_if_fail (event != NULL);
 
   clutter_event_get_coords (event, &event_x, &event_y);
   meta_dnd_notify_dnd_position_change (dnd, (int)event_x, (int)event_y);
-
-  current_grab = meta_wayland_data_device_get_current_grab (data_device);
-  if (current_grab)
-    meta_wayland_drag_grab_update_feedback_actor (current_grab, event);
-}
-
-static void
-meta_dnd_wayland_end_notify (MetaDnd *dnd)
-{
-  MetaDndPrivate *priv = meta_dnd_get_instance_private (dnd);
-  MetaWaylandDataDevice *data_device = data_device_from_dnd (dnd);
-
-  meta_wayland_data_device_set_dnd_source (data_device, NULL);
-  meta_wayland_data_device_unset_dnd_selection (data_device);
-  meta_wayland_data_device_end_drag (data_device);
-
-  priv->dnd_during_modal = FALSE;
-
-  meta_dnd_notify_dnd_leave (dnd);
-}
-
-static void
-meta_dnd_wayland_on_button_released (MetaDnd            *dnd,
-                                     const ClutterEvent *event)
-{
-  meta_dnd_wayland_end_notify (dnd);
-}
-
-static void
-meta_dnd_wayland_on_key_pressed (MetaDnd            *dnd,
-                                 const ClutterEvent *event)
-{
-  guint key = clutter_event_get_key_symbol (event);
-
-  if (key != CLUTTER_KEY_Escape)
-    return;
-
-  meta_dnd_wayland_end_notify (dnd);
 }
 
 void
@@ -309,22 +269,15 @@ meta_dnd_wayland_maybe_handle_event (MetaDnd            *dnd,
                                      const ClutterEvent *event)
 {
   MetaWaylandDataDevice *data_device = data_device_from_dnd (dnd);
-  MetaDndPrivate *priv = meta_dnd_get_instance_private (dnd);
   ClutterEventType event_type;
 
   if (!meta_wayland_data_device_get_current_grab (data_device))
     return;
 
-  g_warn_if_fail (priv->dnd_during_modal);
-
   event_type = clutter_event_type (event);
 
   if (event_type == CLUTTER_MOTION)
     meta_dnd_wayland_on_motion_event (dnd, event);
-  else if (event_type == CLUTTER_BUTTON_RELEASE)
-    meta_dnd_wayland_on_button_released (dnd, event);
-  else if (event_type == CLUTTER_KEY_PRESS)
-    meta_dnd_wayland_on_key_pressed (dnd, event);
 }
 
 void

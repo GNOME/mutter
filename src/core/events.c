@@ -482,13 +482,7 @@ meta_display_handle_event (MetaDisplay        *display,
       bypass_clutter = !IS_GESTURE_EVENT (event_type);
       bypass_wayland = meta_window_has_modals (window);
 
-      if (
-#ifdef HAVE_WAYLAND
-          (!wayland_compositor ||
-           !meta_wayland_compositor_is_grabbed (wayland_compositor)) &&
-#endif
-          !meta_display_is_grabbed (display))
-        meta_window_handle_ungrabbed_event (window, event);
+      meta_window_handle_ungrabbed_event (window, event);
 
       /* This might start a grab op. If it does, then filter out the
        * event, and if it doesn't, replay the event to release our
@@ -532,10 +526,6 @@ meta_display_handle_event (MetaDisplay        *display,
 
  out:
 #ifdef HAVE_WAYLAND
-  /* If a Wayland client has a grab, don't pass that through to Clutter */
-  if (wayland_compositor && meta_wayland_compositor_is_grabbed (wayland_compositor))
-    bypass_clutter = bypass_clutter || !bypass_wayland;
-
   if (wayland_compositor && !bypass_wayland)
     {
       if (window && event_type == CLUTTER_MOTION &&
