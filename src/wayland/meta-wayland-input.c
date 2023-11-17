@@ -27,12 +27,14 @@
 
 #include "wayland/meta-wayland-seat.h"
 #include "wayland/meta-wayland-tablet-seat.h"
+#include "wayland/meta-wayland.h"
 
 struct _MetaWaylandEventHandler
 {
   const MetaWaylandEventInterface *iface;
   MetaWaylandInput *input;
   gpointer user_data;
+  gboolean grabbing;
   struct wl_list link;
 };
 
@@ -42,9 +44,19 @@ struct _MetaWaylandInput
 
   MetaWaylandSeat *seat;
   struct wl_list event_handler_list;
+  ClutterStage *stage;
+  ClutterGrab *grab;
 };
 
+static void meta_wayland_input_sync_focus (MetaWaylandInput *input);
+
 G_DEFINE_FINAL_TYPE (MetaWaylandInput, meta_wayland_input, G_TYPE_OBJECT)
+
+static void
+on_stage_is_grabbed_change (MetaWaylandInput *input)
+{
+  meta_wayland_input_sync_focus (input);
+}
 
 static void
 meta_wayland_input_init (MetaWaylandInput *input)
@@ -57,6 +69,10 @@ meta_wayland_input_finalize (GObject *object)
 {
   MetaWaylandInput *input = META_WAYLAND_INPUT (object);
   MetaWaylandEventHandler *handler, *next;
+
+  g_signal_handlers_disconnect_by_func (input->stage,
+                                        on_stage_is_grabbed_change,
+                                        input);
 
   wl_list_for_each_safe (handler, next, &input->event_handler_list, link)
     meta_wayland_input_detach_event_handler (input, handler);
@@ -76,9 +92,18 @@ MetaWaylandInput *
 meta_wayland_input_new (MetaWaylandSeat *seat)
 {
   MetaWaylandInput *input;
+  MetaWaylandCompositor *compositor = seat->compositor;
+  MetaContext *context =
+    meta_wayland_compositor_get_context (compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
 
   input = g_object_new (META_TYPE_WAYLAND_INPUT, NULL);
   input->seat = seat;
+  input->stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+
+  g_signal_connect_swapped (input->stage, "notify::is-grabbed",
+                            G_CALLBACK (on_stage_is_grabbed_change),
+                            input);
 
   return input;
 }
@@ -88,14 +113,18 @@ meta_wayland_event_handler_invalidate_focus (MetaWaylandEventHandler *handler,
                                              ClutterInputDevice      *device,
                                              ClutterEventSequence    *sequence)
 {
+  MetaWaylandInput *input = handler->input;
   MetaWaylandSurface *surface = NULL;
 
   if (!handler->iface->focus)
     return;
 
-  /* Only the first handler can focus other than a NULL surface */
-  if (meta_wayland_input_is_current_handler (handler->input, handler) &&
-      handler->iface->get_focus_surface)
+  if (handler->iface->get_focus_surface &&
+      /* Only the first handler can focus other than a NULL surface */
+      meta_wayland_input_is_current_handler (input, handler) &&
+      /* Stage should either be ungrabbed, or grabbed to self */
+      (!clutter_stage_get_grab_actor (input->stage) ||
+       (input->grab && !clutter_grab_is_revoked (input->grab))))
     {
       surface = handler->iface->get_focus_surface (handler,
                                                    device, sequence,
@@ -212,9 +241,35 @@ meta_wayland_event_handler_handle_event (MetaWaylandEventHandler *handler,
   g_assert_not_reached ();
 }
 
+static void
+meta_wayland_input_sync_focus (MetaWaylandInput *input)
+{
+  MetaWaylandEventHandler *handler;
+
+  g_assert (!wl_list_empty (&input->event_handler_list));
+  handler = wl_container_of (input->event_handler_list.next, handler, link);
+  meta_wayland_event_handler_invalidate_all_focus (handler);
+}
+
+static void
+on_grab_revocation_change (MetaWaylandInput *input)
+{
+  meta_wayland_input_sync_focus (input);
+}
+
+static gboolean
+grab_handle_event (const ClutterEvent *event,
+                   gpointer            user_data)
+{
+  MetaWaylandInput *input = user_data;
+
+  return meta_wayland_input_handle_event (input, event);
+}
+
 MetaWaylandEventHandler *
 meta_wayland_input_attach_event_handler (MetaWaylandInput                *input,
                                          const MetaWaylandEventInterface *iface,
+                                         gboolean                         grab,
                                          gpointer                         user_data)
 {
   MetaWaylandEventHandler *handler;
@@ -222,13 +277,43 @@ meta_wayland_input_attach_event_handler (MetaWaylandInput                *input,
   handler = g_new0 (MetaWaylandEventHandler, 1);
   handler->iface = iface;
   handler->input = input;
+  handler->grabbing = grab;
   handler->user_data = user_data;
   wl_list_init (&handler->link);
   wl_list_insert (&input->event_handler_list, &handler->link);
 
+  if (grab && !input->grab)
+    {
+      MetaWaylandCompositor *compositor = input->seat->compositor;
+      MetaContext *context =
+        meta_wayland_compositor_get_context (compositor);
+      MetaBackend *backend = meta_context_get_backend (context);
+      ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+
+      input->grab = clutter_stage_grab_input_only (stage,
+                                                   grab_handle_event,
+                                                   input,
+                                                   NULL);
+      g_signal_connect_swapped (input->grab, "notify::revoked",
+                                G_CALLBACK (on_grab_revocation_change),
+                                input);
+    }
+
   meta_wayland_event_handler_invalidate_all_focus (handler);
 
   return handler;
+}
+
+static gboolean
+should_be_grabbed (MetaWaylandInput *input)
+{
+  MetaWaylandEventHandler *handler;
+  gboolean grabbing = FALSE;
+
+  wl_list_for_each (handler, &input->event_handler_list, link)
+    grabbing |= handler->grabbing;
+
+  return grabbing;
 }
 
 void
@@ -247,6 +332,16 @@ meta_wayland_input_detach_event_handler (MetaWaylandInput        *input,
                          head, link);
 
       meta_wayland_event_handler_invalidate_all_focus (head);
+    }
+
+  if (input->grab && !should_be_grabbed (input))
+    {
+      g_signal_handlers_disconnect_by_func (input->grab,
+                                            on_grab_revocation_change,
+                                            input);
+
+      clutter_grab_dismiss (input->grab);
+      g_clear_object (&input->grab);
     }
 
   g_free (handler);

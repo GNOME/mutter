@@ -77,6 +77,7 @@ MetaWaylandInput * meta_wayland_input_new (MetaWaylandSeat *seat);
 
 MetaWaylandEventHandler * meta_wayland_input_attach_event_handler (MetaWaylandInput                *input,
                                                                    const MetaWaylandEventInterface *iface,
+                                                                   gboolean                         grab,
                                                                    gpointer                         user_data);
 
 gboolean meta_wayland_input_is_current_handler (MetaWaylandInput        *input,

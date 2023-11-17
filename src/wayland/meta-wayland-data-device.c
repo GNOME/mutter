@@ -745,6 +745,7 @@ meta_wayland_data_device_start_drag (MetaWaylandDataDevice           *data_devic
   drag_grab->handler =
     meta_wayland_input_attach_event_handler (input,
                                              event_iface,
+                                             FALSE,
                                              drag_grab);
   meta_wayland_data_source_set_seat (source, seat);
 }

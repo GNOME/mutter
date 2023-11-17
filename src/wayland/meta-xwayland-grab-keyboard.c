@@ -251,7 +251,7 @@ meta_xwayland_keyboard_grab_activate (MetaXwaylandKeyboardActiveGrab *active_gra
           active_grab->handler =
             meta_wayland_input_attach_event_handler (input,
                                                      &grab_event_interface,
-                                                     active_grab);
+                                                     FALSE, active_grab);
         }
     }
 

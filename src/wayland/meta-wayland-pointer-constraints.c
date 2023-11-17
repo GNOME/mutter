@@ -397,6 +397,7 @@ meta_wayland_pointer_constraint_enable (MetaWaylandPointerConstraint *constraint
   constraint->handler =
     meta_wayland_input_attach_event_handler (input,
                                              &pointer_constraints_event_interface,
+                                             FALSE,
                                              constraint);
 
   constraint->confinement =

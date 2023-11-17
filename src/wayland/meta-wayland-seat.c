@@ -308,7 +308,8 @@ meta_wayland_seat_new (MetaWaylandCompositor *compositor,
   seat->input_handler = meta_wayland_input_new (seat);
   seat->default_handler =
     meta_wayland_input_attach_event_handler (seat->input_handler,
-                                             &default_event_interface, seat);
+                                             &default_event_interface,
+                                             FALSE, seat);
 
   return seat;
 }
