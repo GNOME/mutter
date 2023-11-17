@@ -57,7 +57,6 @@ struct _MetaWaylandPointerConstraint
   gboolean is_enabled;
   MtkRegion *region;
   struct wl_resource *resource;
-  const MetaWaylandEventInterface *event_interface;
   MetaWaylandEventHandler *handler;
   MetaWaylandSeat *seat;
   enum zwp_pointer_constraints_v1_lifetime lifetime;
@@ -100,6 +99,7 @@ G_DEFINE_TYPE (MetaWaylandPointerConstraint, meta_wayland_pointer_constraint,
 
 static const struct zwp_locked_pointer_v1_interface locked_pointer_interface;
 static const struct zwp_confined_pointer_v1_interface confined_pointer_interface;
+static const MetaWaylandEventInterface pointer_constraints_event_interface;
 
 static void
 meta_wayland_pointer_constraint_destroy (MetaWaylandPointerConstraint *constraint);
@@ -291,8 +291,7 @@ meta_wayland_pointer_constraint_new (MetaWaylandSurface                       *s
                                      MetaWaylandSeat                          *seat,
                                      MetaWaylandRegion                        *region,
                                      enum zwp_pointer_constraints_v1_lifetime  lifetime,
-                                     struct wl_resource                       *resource,
-                                     const MetaWaylandEventInterface          *event_interface)
+                                     struct wl_resource                       *resource)
 {
   MetaWaylandPointerConstraint *constraint;
 
@@ -304,7 +303,6 @@ meta_wayland_pointer_constraint_new (MetaWaylandSurface                       *s
   constraint->seat = seat;
   constraint->lifetime = lifetime;
   constraint->resource = resource;
-  constraint->event_interface = event_interface;
 
   if (region)
     {
@@ -398,7 +396,7 @@ meta_wayland_pointer_constraint_enable (MetaWaylandPointerConstraint *constraint
   input = meta_wayland_seat_get_input (constraint->seat);
   constraint->handler =
     meta_wayland_input_attach_event_handler (input,
-                                             constraint->event_interface,
+                                             &pointer_constraints_event_interface,
                                              constraint);
 
   constraint->confinement =
@@ -865,8 +863,7 @@ init_pointer_constraint (struct wl_resource                       *resource,
                          MetaWaylandRegion                        *region,
                          enum zwp_pointer_constraints_v1_lifetime  lifetime,
                          const struct wl_interface                *interface,
-                         const void                               *implementation,
-                         const MetaWaylandEventInterface          *event_interface)
+                         const void                               *implementation)
 {
   struct wl_client *client = wl_resource_get_client (resource);
   struct wl_resource *cr;
@@ -906,7 +903,7 @@ init_pointer_constraint (struct wl_resource                       *resource,
   constraint = meta_wayland_pointer_constraint_new (surface, seat,
                                                     region,
                                                     lifetime,
-                                                    cr, event_interface);
+                                                    cr);
   if (constraint == NULL)
     {
       wl_client_post_no_memory (client);
@@ -1000,7 +997,7 @@ static const struct zwp_locked_pointer_v1_interface locked_pointer_interface = {
 };
 
 static MetaWaylandSurface *
-locked_pointer_grab_get_focus_surface (MetaWaylandEventHandler *handler,
+pointer_constraints_get_focus_surface (MetaWaylandEventHandler *handler,
                                        ClutterInputDevice      *device,
                                        ClutterEventSequence    *sequence,
                                        gpointer                 user_data)
@@ -1011,7 +1008,7 @@ locked_pointer_grab_get_focus_surface (MetaWaylandEventHandler *handler,
 }
 
 static void
-locked_pointer_grab_focus (MetaWaylandEventHandler *handler,
+pointer_constraints_focus (MetaWaylandEventHandler *handler,
                            ClutterInputDevice      *device,
                            ClutterEventSequence    *sequence,
                            MetaWaylandSurface      *surface,
@@ -1028,28 +1025,9 @@ locked_pointer_grab_focus (MetaWaylandEventHandler *handler,
     meta_wayland_event_handler_chain_up_focus (handler, device, sequence, surface);
 }
 
-static gboolean
-locked_pointer_grab_motion (MetaWaylandEventHandler *handler,
-                            const ClutterEvent      *event,
-                            gpointer                 user_data)
-{
-  MetaWaylandPointerConstraint *constraint = user_data;
-
-  if (clutter_event_type (event) != CLUTTER_MOTION)
-    return CLUTTER_EVENT_PROPAGATE;
-  if (clutter_event_get_device_tool (event) != NULL)
-    return CLUTTER_EVENT_PROPAGATE;
-
-  meta_wayland_pointer_send_relative_motion (constraint->seat->pointer, event);
-  meta_wayland_pointer_broadcast_frame (constraint->seat->pointer);
-
-  return CLUTTER_EVENT_STOP;
-}
-
-static const MetaWaylandEventInterface locked_pointer_event_interface = {
-  locked_pointer_grab_get_focus_surface,
-  locked_pointer_grab_focus,
-  locked_pointer_grab_motion,
+static const MetaWaylandEventInterface pointer_constraints_event_interface = {
+  pointer_constraints_get_focus_surface,
+  pointer_constraints_focus,
 };
 
 static void
@@ -1076,43 +1054,8 @@ pointer_constraints_lock_pointer (struct wl_client   *client,
 
   init_pointer_constraint (resource, id, surface, seat, region, lifetime,
                            &zwp_locked_pointer_v1_interface,
-                           &locked_pointer_interface,
-                           &locked_pointer_event_interface);
+                           &locked_pointer_interface);
 }
-
-static MetaWaylandSurface *
-confined_pointer_grab_get_focus_surface (MetaWaylandEventHandler *handler,
-                                         ClutterInputDevice      *device,
-                                         ClutterEventSequence    *sequence,
-                                         gpointer                 user_data)
-{
-  return meta_wayland_event_handler_chain_up_get_focus_surface (handler,
-                                                                device,
-                                                                sequence);
-}
-
-static void
-confined_pointer_grab_focus (MetaWaylandEventHandler *handler,
-                             ClutterInputDevice      *device,
-                             ClutterEventSequence    *sequence,
-                             MetaWaylandSurface      *surface,
-                             gpointer                 user_data)
-{
-  MetaWaylandPointerConstraint *constraint = user_data;
-
-  if (!sequence &&
-      (clutter_input_device_get_capabilities (device) &
-       CLUTTER_INPUT_CAPABILITY_POINTER) &&
-      surface != constraint->surface)
-    meta_wayland_pointer_constraint_deactivate (constraint);
-  else
-    meta_wayland_event_handler_chain_up_focus (handler, device, sequence, surface);
-}
-
-static const MetaWaylandEventInterface confined_pointer_event_interface = {
-  confined_pointer_grab_get_focus_surface,
-  confined_pointer_grab_focus,
-};
 
 static void
 confined_pointer_destroy (struct wl_client   *client,
@@ -1159,8 +1102,7 @@ pointer_constraints_confine_pointer (struct wl_client   *client,
 
   init_pointer_constraint (resource, id, surface, seat, region, lifetime,
                            &zwp_confined_pointer_v1_interface,
-                           &confined_pointer_interface,
-                           &confined_pointer_event_interface);
+                           &confined_pointer_interface);
 
 }
 
