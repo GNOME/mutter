@@ -601,12 +601,20 @@ meta_screen_cast_monitor_stream_src_record_to_framebuffer (MetaScreenCastStreamS
     META_SCREEN_CAST_MONITOR_STREAM_SRC (src);
   MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
   MetaBackend *backend = get_backend (monitor_src);
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
   ClutterStage *stage = get_stage (monitor_src);
+  g_autoptr (GError) local_error = NULL;
   MetaMonitor *monitor;
   MetaLogicalMonitor *logical_monitor;
+  MetaRendererView *renderer_view;
+  ClutterStageView *view;
   MtkRectangle logical_monitor_layout;
+  MtkRectangle view_layout;
+  MetaCrtc *crtc;
+  gboolean do_stage_paint = TRUE;
   float view_scale;
-  ClutterPaintFlag paint_flags = CLUTTER_PAINT_FLAG_CLEAR;
+  GList *outputs;
+  int x, y;
 
   monitor = get_monitor (monitor_src);
   logical_monitor = meta_monitor_get_logical_monitor (monitor);
@@ -617,22 +625,90 @@ meta_screen_cast_monitor_stream_src_record_to_framebuffer (MetaScreenCastStreamS
   else
     view_scale = 1.0;
 
-  switch (meta_screen_cast_stream_get_cursor_mode (stream))
+  if (paint_phase == META_SCREEN_CAST_PAINT_PHASE_DETACHED)
+    goto stage_paint;
+
+  outputs = meta_monitor_get_outputs (monitor);
+  if (outputs->next)
+    goto stage_paint;
+
+  crtc = meta_output_get_assigned_crtc (outputs->data);
+  renderer_view = meta_renderer_get_view_for_crtc (renderer, crtc);
+
+  g_assert (renderer_view != NULL);
+
+  view = CLUTTER_STAGE_VIEW (renderer_view);
+  clutter_stage_view_get_layout (view, &view_layout);
+
+  x = (int) roundf ((view_layout.x - logical_monitor_layout.x) * view_scale);
+  y = (int) roundf ((view_layout.y - logical_monitor_layout.y) * view_scale);
+
+  switch (paint_phase)
     {
-    case META_SCREEN_CAST_CURSOR_MODE_METADATA:
-    case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
-      paint_flags |= CLUTTER_PAINT_FLAG_NO_CURSORS;
+    case META_SCREEN_CAST_PAINT_PHASE_PRE_PAINT:
+      {
+        CoglScanout *scanout = clutter_stage_view_peek_scanout (view);
+
+        if (scanout)
+          {
+            cogl_scanout_blit_to_framebuffer (scanout,
+                                              framebuffer,
+                                              x, y,
+                                              &local_error);
+          }
+      }
       break;
-    case META_SCREEN_CAST_CURSOR_MODE_EMBEDDED:
-      paint_flags |= CLUTTER_PAINT_FLAG_FORCE_CURSORS;
+
+    case META_SCREEN_CAST_PAINT_PHASE_PRE_SWAP_BUFFER:
+      {
+        CoglFramebuffer *view_framebuffer =
+          clutter_stage_view_get_framebuffer (view);
+
+        cogl_blit_framebuffer (view_framebuffer,
+                               framebuffer,
+                               0, 0,
+                               x, y,
+                               cogl_framebuffer_get_width (view_framebuffer),
+                               cogl_framebuffer_get_height (view_framebuffer),
+                               &local_error);
+      }
       break;
+
+    case META_SCREEN_CAST_PAINT_PHASE_DETACHED:
+      g_assert_not_reached ();
     }
 
-  clutter_stage_paint_to_framebuffer (stage,
-                                      framebuffer,
-                                      &logical_monitor_layout,
-                                      view_scale,
-                                      paint_flags);
+  if (local_error)
+    {
+      g_warning ("Error blitting to screencast framebuffer: %s",
+                 local_error->message);
+    }
+
+  do_stage_paint = local_error != NULL;
+
+stage_paint:
+  if (do_stage_paint)
+    {
+      ClutterPaintFlag paint_flags = CLUTTER_PAINT_FLAG_CLEAR;
+
+      switch (meta_screen_cast_stream_get_cursor_mode (stream))
+        {
+        case META_SCREEN_CAST_CURSOR_MODE_METADATA:
+        case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
+          paint_flags |= CLUTTER_PAINT_FLAG_NO_CURSORS;
+          break;
+
+        case META_SCREEN_CAST_CURSOR_MODE_EMBEDDED:
+          paint_flags |= CLUTTER_PAINT_FLAG_FORCE_CURSORS;
+          break;
+        }
+
+      clutter_stage_paint_to_framebuffer (stage,
+                                          framebuffer,
+                                          &logical_monitor_layout,
+                                          view_scale,
+                                          paint_flags);
+    }
 
   cogl_framebuffer_flush (framebuffer);
 
