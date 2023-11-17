@@ -397,11 +397,18 @@ meta_wayland_pointer_send_motion (MetaWaylandPointer *pointer,
   meta_wayland_surface_get_relative_coordinates (pointer->focus_surface,
                                                  x, y, &sx, &sy);
 
-  wl_resource_for_each (resource, &pointer->focus_client->pointer_resources)
+  if (pointer->last_rel_x != sx ||
+      pointer->last_rel_y != sy)
     {
-      wl_pointer_send_motion (resource, time,
-                              wl_fixed_from_double (sx),
-                              wl_fixed_from_double (sy));
+      wl_resource_for_each (resource, &pointer->focus_client->pointer_resources)
+        {
+          wl_pointer_send_motion (resource, time,
+                                  wl_fixed_from_double (sx),
+                                  wl_fixed_from_double (sy));
+        }
+
+      pointer->last_rel_x = sx;
+      pointer->last_rel_y = sy;
     }
 
   meta_wayland_pointer_send_relative_motion (pointer, event);
@@ -469,6 +476,9 @@ meta_wayland_pointer_enable (MetaWaylandPointer *pointer)
                     "cursor-changed",
                     G_CALLBACK (meta_wayland_pointer_on_cursor_changed),
                     pointer);
+
+  pointer->last_rel_x = -FLT_MAX;
+  pointer->last_rel_y = -FLT_MAX;
 }
 
 void
@@ -965,6 +975,9 @@ meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
 
   if (pointer->focus_surface == surface)
     return;
+
+  pointer->last_rel_x = -FLT_MAX;
+  pointer->last_rel_y = -FLT_MAX;
 
   if (pointer->focus_surface != NULL)
     {

@@ -66,6 +66,7 @@ struct _MetaWaylandPointer
   guint32 grab_serial;
   guint32 grab_time;
   float grab_x, grab_y;
+  float last_rel_x, last_rel_y;
 
   ClutterInputDevice *device;
   MetaWaylandSurface *current;
