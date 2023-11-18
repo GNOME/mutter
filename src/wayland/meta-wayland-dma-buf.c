@@ -921,6 +921,25 @@ static GSourceFuncs meta_wayland_dma_buf_source_funcs = {
   .finalize = meta_wayland_dma_buf_source_finalize
 };
 
+static MetaWaylandDmaBufSource *
+create_source (MetaWaylandBuffer               *buffer,
+               MetaWaylandDmaBufSourceDispatch  dispatch,
+               gpointer                         user_data)
+{
+  MetaWaylandDmaBufSource *source;
+
+  source =
+    (MetaWaylandDmaBufSource *) g_source_new (&meta_wayland_dma_buf_source_funcs,
+                                              sizeof (*source));
+  g_source_set_name ((GSource *) source, "[mutter] DmaBuf readiness source");
+
+  source->buffer = g_object_ref (buffer);
+  source->dispatch = dispatch;
+  source->user_data = user_data;
+
+  return source;
+}
+
 /**
  * meta_wayland_dma_buf_create_source:
  * @buffer: A #MetaWaylandBuffer object
@@ -958,16 +977,7 @@ meta_wayland_dma_buf_create_source (MetaWaylandBuffer               *buffer,
         continue;
 
       if (!source)
-        {
-          source =
-            (MetaWaylandDmaBufSource *) g_source_new (&meta_wayland_dma_buf_source_funcs,
-                                                      sizeof (*source));
-          g_source_set_name ((GSource *) source, "[mutter] DmaBuf readiness source");
-
-          source->buffer = g_object_ref (buffer);
-          source->dispatch = dispatch;
-          source->user_data = user_data;
-        }
+        source = create_source (buffer, dispatch, user_data);
 
       source->fd_tags[i] = g_source_add_unix_fd (&source->base, fd, G_IO_IN);
     }
