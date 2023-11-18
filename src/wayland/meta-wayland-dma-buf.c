@@ -39,6 +39,8 @@
 
 #include <drm_fourcc.h>
 #include <glib/gstdio.h>
+#include <linux/dma-buf.h>
+#include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -838,10 +840,11 @@ typedef struct _MetaWaylandDmaBufSource
   gpointer user_data;
 
   gpointer fd_tags[META_WAYLAND_DMA_BUF_MAX_FDS];
+  int owned_sync_fd[META_WAYLAND_DMA_BUF_MAX_FDS];
 } MetaWaylandDmaBufSource;
 
 static gboolean
-meta_wayland_dma_buf_fd_readable (int fd)
+is_fd_readable (int fd)
 {
   GPollFD poll_fd;
 
@@ -872,11 +875,16 @@ meta_wayland_dma_buf_source_dispatch (GSource     *base,
   for (i = 0; i < META_WAYLAND_DMA_BUF_MAX_FDS; i++)
     {
       gpointer fd_tag = source->fd_tags[i];
+      int fd;
 
       if (!fd_tag)
         continue;
 
-      if (!meta_wayland_dma_buf_fd_readable (dma_buf->fds[i]))
+      fd = source->owned_sync_fd[i];
+      if (fd < 0)
+        fd = dma_buf->fds[i];
+
+      if (!is_fd_readable (fd))
         {
           ready = FALSE;
           continue;
@@ -884,6 +892,7 @@ meta_wayland_dma_buf_source_dispatch (GSource     *base,
 
       g_source_remove_unix_fd (&source->base, fd_tag);
       source->fd_tags[i] = NULL;
+      g_clear_fd (&source->owned_sync_fd[i], NULL);
     }
 
   if (!ready)
@@ -910,6 +919,7 @@ meta_wayland_dma_buf_source_finalize (GSource *base)
         {
           g_source_remove_unix_fd (&source->base, fd_tag);
           source->fd_tags[i] = NULL;
+          g_clear_fd (&source->owned_sync_fd[i], NULL);
         }
     }
 
@@ -927,6 +937,7 @@ create_source (MetaWaylandBuffer               *buffer,
                gpointer                         user_data)
 {
   MetaWaylandDmaBufSource *source;
+  int i;
 
   source =
     (MetaWaylandDmaBufSource *) g_source_new (&meta_wayland_dma_buf_source_funcs,
@@ -937,7 +948,28 @@ create_source (MetaWaylandBuffer               *buffer,
   source->dispatch = dispatch;
   source->user_data = user_data;
 
+  for (i = 0; i < META_WAYLAND_DMA_BUF_MAX_FDS; i++)
+    source->owned_sync_fd[i] = -1;
+
   return source;
+}
+
+static int
+get_sync_file (int dma_buf_fd)
+{
+  struct dma_buf_export_sync_file dbesf = { .flags = DMA_BUF_SYNC_READ };
+  int ret;
+
+  do
+    {
+      ret = ioctl (dma_buf_fd, DMA_BUF_IOCTL_EXPORT_SYNC_FILE, &dbesf);
+    }
+  while (ret == -1 && errno == EINTR);
+
+  if (ret == 0)
+    return dbesf.fd;
+
+  return -1;
 }
 
 /**
@@ -973,11 +1005,15 @@ meta_wayland_dma_buf_create_source (MetaWaylandBuffer               *buffer,
       if (fd < 0)
         break;
 
-      if (meta_wayland_dma_buf_fd_readable (fd))
+      if (is_fd_readable (fd))
         continue;
 
       if (!source)
         source = create_source (buffer, dispatch, user_data);
+
+      source->owned_sync_fd[i] = get_sync_file (fd);
+      if (source->owned_sync_fd[i] >= 0)
+        fd = source->owned_sync_fd[i];
 
       source->fd_tags[i] = g_source_add_unix_fd (&source->base, fd, G_IO_IN);
     }
