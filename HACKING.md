@@ -349,4 +349,46 @@ click_action_clicked_cb (ClutterClickAction *click_action,
 }
 ```
 
+## Trace Span Naming
+
+Trace spans should be named in C++ style, i.e.
+`Namespace::Class::method(args)`. For example:
+
+```c
+static void
+meta_wayland_surface_commit (MetaWaylandSurface *surface)
+{
+  /* ... */
+
+  COGL_TRACE_BEGIN_SCOPED (MetaWaylandSurfaceCommit,
+                           "Meta::WaylandSurface::commit()");
+
+  /* ... */
+}
+```
+
+This is to facilitate automatic name shrinking in profilers that will cut out
+the least important parts of the name (args, then namespaces in order, then
+class) to fit the name on screen when zoomed-out.
+
+If you need to annotate multiple spans within a function, you can append their
+name to the function name, delimited by a `#` sign. For example:
+
+```c
+void
+meta_thing_do_stuff (MetaThing *thing)
+{
+  COGL_TRACE_BEGIN_SCOPED (OneThing, "Meta::Thing::do_stuff#one_thing()");
+  /* Code that does one thing that takes time */
+  COGL_TRACE_END (OneThing);
+
+  COGL_TRACE_BEGIN_SCOPED (OtherThing, "Meta::Thing::do_stuff#other_thing()");
+  /* Code that does other thing that takes time */
+  COGL_TRACE_END (OtherThing);
+}
+```
+
+Keeping in the entire method name helps in profiler views that don't show
+parent-child relationships, i.e. a global span statistics view.
+
 [gnome-coding-style]: https://developer.gnome.org/documentation/guidelines/programming/coding-style.html
