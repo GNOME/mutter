@@ -152,7 +152,8 @@ void meta_seat_impl_notify_relative_motion_in_impl (MetaSeatImpl       *seat_imp
                                                     float               dx,
                                                     float               dy,
                                                     float               dx_unaccel,
-                                                    float               dy_unaccel);
+                                                    float               dy_unaccel,
+                                                    double             *axes);
 
 void meta_seat_impl_notify_absolute_motion_in_impl (MetaSeatImpl       *seat_impl,
                                                     ClutterInputDevice *input_device,
