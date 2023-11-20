@@ -69,7 +69,7 @@ clutter_input_only_action_class_init (ClutterInputOnlyActionClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   ClutterActionClass *action_class = CLUTTER_ACTION_CLASS (klass);
 
-  object_class->finalize = clutter_input_only_action_dispose;
+  object_class->dispose = clutter_input_only_action_dispose;
 
   action_class->handle_event = clutter_input_only_action_handle_event;
 }
