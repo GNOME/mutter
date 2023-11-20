@@ -226,7 +226,8 @@ notify_relative_motion_in_impl (GTask *task)
 						 virtual_evdev->impl_state->device,
 						 event->time_us,
 						 event->x, event->y,
-						 event->x, event->y);
+						 event->x, event->y,
+						 NULL);
   g_task_return_boolean (task, TRUE);
   return G_SOURCE_REMOVE;
 }

@@ -577,7 +577,8 @@ meta_seat_impl_notify_relative_motion_in_impl (MetaSeatImpl       *seat_impl,
                                                float               dx,
                                                float               dy,
                                                float               dx_unaccel,
-                                               float               dy_unaccel)
+                                               float               dy_unaccel,
+                                               double             *axes)
 {
   MetaInputDeviceNative *device_native =
     META_INPUT_DEVICE_NATIVE (input_device);
@@ -635,7 +636,7 @@ meta_seat_impl_notify_relative_motion_in_impl (MetaSeatImpl       *seat_impl,
                                                    dy_unaccel),
                               GRAPHENE_POINT_INIT (dx_constrained,
                                                    dy_constrained),
-                              NULL);
+                              axes);
 
   queue_event (seat_impl, event);
 }
@@ -1358,7 +1359,8 @@ notify_relative_tool_motion_in_impl (ClutterInputDevice *input_device,
                                                  time_us,
                                                  dx, dy,
                                                  /* FIXME */
-                                                 dx, dy);
+                                                 dx, dy,
+                                                 axes);
 }
 
 static void
@@ -2131,7 +2133,8 @@ process_device_event (MetaSeatImpl          *seat_impl,
                                                        device,
                                                        time_us,
                                                        dx, dy,
-                                                       dx_unaccel, dy_unaccel);
+                                                       dx_unaccel, dy_unaccel,
+                                                       NULL);
 
         break;
       }
