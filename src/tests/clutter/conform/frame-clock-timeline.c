@@ -71,6 +71,7 @@ frame_clock_timeline_basic (void)
   main_loop = g_main_loop_new (NULL, FALSE);
   frame_clock = clutter_frame_clock_new (refresh_rate,
                                          0,
+                                         NULL,
                                          &timeline_frame_listener_iface,
                                          NULL);
   g_object_add_weak_pointer (G_OBJECT (frame_clock), (gpointer *) &frame_clock);
@@ -153,11 +154,13 @@ frame_clock_timeline_switch (void)
 
   frame_clock1 = clutter_frame_clock_new (refresh_rate,
                                           0,
+                                          NULL,
                                           &timeline_frame_listener_iface,
                                           NULL);
   g_object_add_weak_pointer (G_OBJECT (frame_clock1), (gpointer *) &frame_clock1);
   frame_clock2 = clutter_frame_clock_new (refresh_rate,
                                           0,
+                                          NULL,
                                           &timeline_frame_listener_iface,
                                           NULL);
   g_object_add_weak_pointer (G_OBJECT (frame_clock2), (gpointer *) &frame_clock2);

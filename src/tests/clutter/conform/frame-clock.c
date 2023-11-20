@@ -147,6 +147,7 @@ frame_clock_schedule_update (void)
   test.main_loop = g_main_loop_new (NULL, FALSE);
   frame_clock = clutter_frame_clock_new (refresh_rate,
                                          0,
+                                         NULL,
                                          &frame_listener_iface,
                                          &test);
 
@@ -234,6 +235,7 @@ frame_clock_immediate_present (void)
   main_loop = g_main_loop_new (NULL, FALSE);
   frame_clock = clutter_frame_clock_new (refresh_rate,
                                          0,
+                                         NULL,
                                          &immediate_frame_listener_iface,
                                          main_loop);
 
@@ -312,6 +314,7 @@ frame_clock_delayed_damage (void)
   test.main_loop = g_main_loop_new (NULL, FALSE);
   frame_clock = clutter_frame_clock_new (refresh_rate,
                                          0,
+                                         NULL,
                                          &delayed_damage_frame_listener_iface,
                                          &test);
 
@@ -372,6 +375,7 @@ frame_clock_no_damage (void)
   main_loop = g_main_loop_new (NULL, FALSE);
   frame_clock = clutter_frame_clock_new (refresh_rate,
                                          0,
+                                         NULL,
                                          &no_damage_frame_listener_iface,
                                          NULL);
 
@@ -459,6 +463,7 @@ frame_clock_schedule_update_now (void)
   test.base.main_loop = g_main_loop_new (NULL, FALSE);
   frame_clock = clutter_frame_clock_new (refresh_rate,
                                          0,
+                                         NULL,
                                          &update_now_frame_listener_iface,
                                          &test);
 
@@ -541,6 +546,7 @@ frame_clock_before_frame (void)
   main_loop = g_main_loop_new (NULL, FALSE);
   frame_clock = clutter_frame_clock_new (refresh_rate,
                                          0,
+                                         NULL,
                                          &before_frame_frame_listener_iface,
                                          &expected_frame_count);
 
@@ -622,6 +628,7 @@ frame_clock_inhibit (void)
   test.main_loop = g_main_loop_new (NULL, FALSE);
   test.frame_clock = clutter_frame_clock_new (refresh_rate,
                                               0,
+                                              NULL,
                                               &inhibit_frame_listener_iface,
                                               &test);
 
@@ -685,6 +692,7 @@ frame_clock_reschedule_on_idle (void)
   test.base.main_loop = g_main_loop_new (NULL, FALSE);
   frame_clock = clutter_frame_clock_new (refresh_rate,
                                          0,
+                                         NULL,
                                          &reschedule_on_idle_listener_iface,
                                          &test);
   fake_hw_clock = fake_hw_clock_new (frame_clock, NULL, NULL);
@@ -722,6 +730,7 @@ frame_clock_destroy_signal (void)
 
   frame_clock = clutter_frame_clock_new (refresh_rate,
                                          0,
+                                         NULL,
                                          &dummy_frame_listener_iface,
                                          NULL);
 
@@ -741,6 +750,7 @@ frame_clock_destroy_signal (void)
 
   frame_clock = clutter_frame_clock_new (refresh_rate,
                                          0,
+                                         NULL,
                                          &dummy_frame_listener_iface,
                                          NULL);
   frame_clock_backup = frame_clock;
@@ -811,6 +821,7 @@ frame_clock_notify_ready (void)
   main_loop = g_main_loop_new (NULL, FALSE);
   frame_clock = clutter_frame_clock_new (refresh_rate,
                                          0,
+                                         NULL,
                                          &frame_clock_ready_listener_iface,
                                          main_loop);
 

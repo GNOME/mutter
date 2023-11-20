@@ -1113,6 +1113,7 @@ clutter_stage_view_constructed (GObject *object)
 
   priv->frame_clock = clutter_frame_clock_new (priv->refresh_rate,
                                                priv->vblank_duration_us,
+                                               priv->name,
                                                &frame_clock_listener_iface,
                                                view);
 

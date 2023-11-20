@@ -110,6 +110,8 @@ struct _ClutterFrameClock
   int64_t missed_frame_report_time_us;
 
   int64_t last_dispatch_interval_us;
+
+  char *output_name;
 };
 
 G_DEFINE_TYPE (ClutterFrameClock, clutter_frame_clock,
@@ -897,6 +899,7 @@ init_frame_clock_source (ClutterFrameClock *frame_clock)
 ClutterFrameClock *
 clutter_frame_clock_new (float                            refresh_rate,
                          int64_t                          vblank_duration_us,
+                         const char                      *output_name,
                          const ClutterFrameListenerIface *iface,
                          gpointer                         user_data)
 {
@@ -913,6 +916,8 @@ clutter_frame_clock_new (float                            refresh_rate,
 
   clutter_frame_clock_set_refresh_rate (frame_clock, refresh_rate);
   frame_clock->vblank_duration_us = vblank_duration_us;
+
+  frame_clock->output_name = g_strdup (output_name);
 
   return frame_clock;
 }
@@ -937,6 +942,8 @@ clutter_frame_clock_dispose (GObject *object)
       g_source_destroy (frame_clock->source);
       g_clear_pointer (&frame_clock->source, g_source_unref);
     }
+
+  g_clear_pointer (&frame_clock->output_name, g_free);
 
   G_OBJECT_CLASS (clutter_frame_clock_parent_class)->dispose (object);
 }
