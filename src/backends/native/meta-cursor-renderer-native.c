@@ -340,7 +340,7 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
           continue;
         }
 
-      if (cursor_sprite)
+      if (cursor_sprite && !meta_backend_is_hw_cursors_inhibited (backend))
         {
           meta_cursor_sprite_realize_texture (cursor_sprite);
 
