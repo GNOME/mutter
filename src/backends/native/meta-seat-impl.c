@@ -575,6 +575,26 @@ constrain_all_screen_monitors (ClutterInputDevice *device,
 }
 
 static void
+constrain_to_viewports (MetaSeatImpl       *seat_impl,
+                        ClutterInputDevice *device,
+                        uint64_t            time_us,
+                        float              *x_inout,
+                        float              *y_inout)
+{
+  if (seat_impl->viewports)
+    {
+      /* if we're moving inside a monitor, we're fine */
+      if (meta_viewport_info_get_view_at (seat_impl->viewports,
+                                          *x_inout, *y_inout) >= 0)
+        return;
+
+      /* if we're trying to escape, clamp to the CRTC we're coming from */
+      constrain_all_screen_monitors (device, seat_impl->viewports,
+                                     x_inout, y_inout);
+    }
+}
+
+static void
 constrain_coordinates (MetaSeatImpl       *seat_impl,
                        ClutterInputDevice *input_device,
                        uint64_t            time_us,
@@ -583,16 +603,31 @@ constrain_coordinates (MetaSeatImpl       *seat_impl,
                        float              *x_out,
                        float              *y_out)
 {
+  MetaInputDeviceNative *device_evdev = META_INPUT_DEVICE_NATIVE (input_device);
+
   if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)
     {
-      /* Viewport may be unset during startup */
-      if (seat_impl->viewports)
-        {
-          meta_input_device_native_translate_coordinates_in_impl (input_device,
-                                                                  seat_impl->viewports,
-                                                                  &x,
-                                                                  &y);
-        }
+        if (device_evdev->mapping_mode == META_INPUT_DEVICE_MAPPING_RELATIVE)
+          {
+            constrain_to_barriers (seat_impl, input_device,
+                                   us2ms (time_us),
+                                   &x, &y);
+            constrain_to_viewports (seat_impl,
+                                    input_device,
+                                    time_us,
+                                    &x, &y);
+          }
+        else
+          {
+            /* Viewport may be unset during startup */
+            if (seat_impl->viewports)
+              {
+                meta_input_device_native_translate_coordinates_in_impl (input_device,
+                                                                        seat_impl->viewports,
+                                                                        &x,
+                                                                        &y);
+              }
+          }
     }
   else
     {
@@ -1186,17 +1221,7 @@ meta_seat_impl_constrain_pointer (MetaSeatImpl       *seat_impl,
                                               new_x, new_y);
     }
 
-  if (seat_impl->viewports)
-    {
-      /* if we're moving inside a monitor, we're fine */
-      if (meta_viewport_info_get_view_at (seat_impl->viewports,
-                                          *new_x, *new_y) >= 0)
-        return;
-
-      /* if we're trying to escape, clamp to the CRTC we're coming from */
-      constrain_all_screen_monitors (core_pointer, seat_impl->viewports,
-                                     new_x, new_y);
-    }
+  constrain_to_viewports (seat_impl, core_pointer, time_us, new_x, new_y);
 }
 
 static void
