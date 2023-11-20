@@ -65,9 +65,6 @@ COGL_EXPORT
 void cogl_stop_tracing (void);
 
 COGL_EXPORT
-gboolean cogl_is_tracing (void);
-
-COGL_EXPORT
 void cogl_set_tracing_enabled_on_thread (GMainContext *main_context,
                                          const char   *group);
 
@@ -155,9 +152,6 @@ gboolean cogl_start_tracing_with_fd (int      fd,
 
 COGL_EXPORT
 void cogl_stop_tracing (void);
-
-COGL_EXPORT
-gboolean cogl_is_tracing (void);
 
 COGL_EXPORT
 void cogl_set_tracing_enabled_on_thread (void       *data,
