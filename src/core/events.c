@@ -46,14 +46,6 @@
 #include "wayland/meta-wayland-private.h"
 #endif
 
-#define IS_GESTURE_EVENT(et) ((et) == CLUTTER_TOUCHPAD_SWIPE || \
-                              (et) == CLUTTER_TOUCHPAD_PINCH || \
-                              (et) == CLUTTER_TOUCHPAD_HOLD || \
-                              (et) == CLUTTER_TOUCH_BEGIN || \
-                              (et) == CLUTTER_TOUCH_UPDATE || \
-                              (et) == CLUTTER_TOUCH_END || \
-                              (et) == CLUTTER_TOUCH_CANCEL)
-
 #define IS_KEY_EVENT(et) ((et) == CLUTTER_KEY_PRESS || \
                           (et) == CLUTTER_KEY_RELEASE)
 
@@ -231,8 +223,6 @@ meta_display_handle_event (MetaDisplay        *display,
   MetaCompositor *compositor = meta_display_get_compositor (display);
   ClutterInputDevice *device;
   MetaWindow *window = NULL;
-  gboolean bypass_clutter = FALSE;
-  G_GNUC_UNUSED gboolean bypass_wayland = FALSE;
   MetaGestureTracker *gesture_tracker;
   ClutterEventSequence *sequence;
   ClutterEventType event_type;
@@ -262,11 +252,7 @@ meta_display_handle_event (MetaDisplay        *display,
   event_type = clutter_event_type (event);
 
   if (meta_display_process_captured_input (display, event))
-    {
-      bypass_clutter = TRUE;
-      bypass_wayland = TRUE;
-      goto out;
-    }
+    return CLUTTER_EVENT_STOP;
 
   device = clutter_event_get_device (event);
   clutter_input_pointer_a11y_update (device, event);
@@ -297,10 +283,7 @@ meta_display_handle_event (MetaDisplay        *display,
       !has_grab &&
       !meta_compositor_get_current_window_drag (compositor) &&
       meta_wayland_text_input_update (wayland_text_input, event))
-    {
-      bypass_wayland = bypass_clutter = TRUE;
-      goto out;
-    }
+    return CLUTTER_EVENT_STOP;
 
   if (wayland_compositor)
     meta_wayland_compositor_update (wayland_compositor, event);
@@ -331,10 +314,7 @@ meta_display_handle_event (MetaDisplay        *display,
 
       if (handle_pad_event &&
           meta_pad_action_mapper_handle_event (display->pad_action_mapper, event))
-        {
-          bypass_wayland = bypass_clutter = TRUE;
-          goto out;
-        }
+        return CLUTTER_EVENT_STOP;
     }
 
   if (event_type != CLUTTER_DEVICE_ADDED &&
@@ -398,11 +378,7 @@ meta_display_handle_event (MetaDisplay        *display,
   if (meta_gesture_tracker_handle_event (gesture_tracker,
                                          stage_from_display (display),
                                          event))
-    {
-      bypass_wayland = TRUE;
-      bypass_clutter = FALSE;
-      goto out;
-    }
+    return CLUTTER_EVENT_PROPAGATE;
 
   /* For key events, it's important to enforce single-handling, or
    * we can get into a confused state. So if a keybinding is
@@ -412,11 +388,7 @@ meta_display_handle_event (MetaDisplay        *display,
    */
   if (!meta_compositor_get_current_window_drag (compositor) &&
       meta_keybindings_process_event (display, window, event))
-    {
-      bypass_clutter = TRUE;
-      bypass_wayland = TRUE;
-      goto out;
-    }
+    return CLUTTER_EVENT_STOP;
 
   /* Do not pass keyboard events to Wayland if key focus is not on the
    * stage in normal mode (e.g. during keynav in the panel)
@@ -424,10 +396,7 @@ meta_display_handle_event (MetaDisplay        *display,
   if (!has_grab)
     {
       if (IS_KEY_EVENT (event_type) && !stage_has_key_focus (display))
-        {
-          bypass_wayland = TRUE;
-          goto out;
-        }
+        return CLUTTER_EVENT_PROPAGATE;
     }
 
   if (meta_is_wayland_compositor () &&
@@ -438,40 +407,17 @@ meta_display_handle_event (MetaDisplay        *display,
 
       grab_mods = meta_display_get_compositor_modifiers (display);
       if ((clutter_event_get_state (event) & grab_mods) != 0)
-        {
-          bypass_wayland = TRUE;
-          goto out;
-        }
+        return CLUTTER_EVENT_PROPAGATE;
     }
 
   if (display->current_pad_osd)
-    {
-      bypass_wayland = TRUE;
-      goto out;
-    }
+    return CLUTTER_EVENT_PROPAGATE;
 
   if (stage_has_grab (display))
-    {
-      bypass_wayland = TRUE;
-      bypass_clutter = FALSE;
-      goto out;
-    }
+    return CLUTTER_EVENT_PROPAGATE;
 
   if (window)
     {
-      /* Events that are likely to trigger compositor gestures should
-       * be known to clutter so they can propagate along the hierarchy.
-       * Gesture-wise, there's two groups of events we should be getting
-       * here:
-       * - CLUTTER_TOUCH_* with a touch sequence that's not yet accepted
-       *   by the gesture tracker, these might trigger gesture actions
-       *   into recognition. Already accepted touch sequences are handled
-       *   directly by meta_gesture_tracker_handle_event().
-       * - CLUTTER_TOUCHPAD_* events over windows. These can likewise
-       *   trigger ::captured-event handlers along the way.
-       */
-      bypass_clutter = !IS_GESTURE_EVENT (event_type);
-
       meta_window_handle_ungrabbed_event (window, event);
 
       /* This might start a grab op. If it does, then filter out the
@@ -480,8 +426,7 @@ meta_display_handle_event (MetaDisplay        *display,
 
       if (meta_compositor_get_current_window_drag (compositor))
         {
-          bypass_clutter = TRUE;
-          bypass_wayland = TRUE;
+          return CLUTTER_EVENT_STOP;
         }
       else
         {
@@ -496,13 +441,8 @@ meta_display_handle_event (MetaDisplay        *display,
            */
           if (window->close_dialog &&
               meta_close_dialog_is_visible (window->close_dialog))
-            {
-              bypass_wayland = TRUE;
-              bypass_clutter = FALSE;
-            }
+            return CLUTTER_EVENT_PROPAGATE;
         }
-
-      goto out;
     }
   else
     {
@@ -514,9 +454,8 @@ meta_display_handle_event (MetaDisplay        *display,
 #endif
     }
 
- out:
 #ifdef HAVE_WAYLAND
-  if (wayland_compositor && !bypass_wayland)
+  if (wayland_compositor)
     {
       uint32_t time_ms;
 
@@ -526,11 +465,11 @@ meta_display_handle_event (MetaDisplay        *display,
         meta_window_check_alive_on_event (window, time_ms);
 
       if (meta_wayland_compositor_handle_event (wayland_compositor, event))
-        bypass_clutter = TRUE;
+        return CLUTTER_EVENT_STOP;
     }
 #endif
 
-  return bypass_clutter;
+  return CLUTTER_EVENT_PROPAGATE;
 }
 
 static gboolean
