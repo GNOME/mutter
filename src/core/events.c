@@ -475,7 +475,6 @@ meta_display_handle_event (MetaDisplay        *display,
        *   trigger ::captured-event handlers along the way.
        */
       bypass_clutter = !IS_GESTURE_EVENT (event_type);
-      bypass_wayland = meta_window_has_modals (window);
 
       meta_window_handle_ungrabbed_event (window, event);
 

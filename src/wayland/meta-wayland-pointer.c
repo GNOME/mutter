@@ -573,6 +573,9 @@ repick_for_event (MetaWaylandPointer *pointer,
         META_SURFACE_ACTOR_WAYLAND (actor);
 
       surface = meta_surface_actor_wayland_get_surface (actor_wayland);
+
+      if (meta_window_has_modals (meta_wayland_surface_get_window (surface)))
+        surface = NULL;
     }
   else
     {
