@@ -109,12 +109,9 @@ update_displayed_cursor (MetaCursorTracker *tracker)
 {
   MetaCursorTrackerPrivate *priv =
     meta_cursor_tracker_get_instance_private (tracker);
-  MetaContext *context = meta_backend_get_context (priv->backend);
-  MetaDisplay *display = meta_context_get_display (context);
   MetaCursorSprite *cursor = NULL;
 
-  if (display && meta_display_windows_are_interactable (display) &&
-      priv->has_window_cursor)
+  if (priv->has_window_cursor)
     cursor = priv->window_cursor;
   else
     cursor = priv->root_cursor;
