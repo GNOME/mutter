@@ -44,17 +44,11 @@ meta_compositor_server_monotonic_to_high_res_xserver_time (MetaCompositor *compo
 static void
 meta_compositor_server_grab_begin (MetaCompositor *compositor)
 {
-#ifdef HAVE_WAYLAND
-  meta_dnd_wayland_handle_begin_modal (compositor);
-#endif
 }
 
 static void
 meta_compositor_server_grab_end (MetaCompositor *compositor)
 {
-#ifdef HAVE_WAYLAND
-  meta_dnd_wayland_handle_end_modal (compositor);
-#endif
 }
 
 static MetaCompositorView *

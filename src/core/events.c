@@ -456,11 +456,6 @@ meta_display_handle_event (MetaDisplay        *display,
 
   if (stage_has_grab (display))
     {
-#ifdef HAVE_WAYLAND
-      if (wayland_compositor)
-        meta_dnd_wayland_maybe_handle_event (meta_backend_get_dnd (backend), event);
-#endif
-
       bypass_wayland = TRUE;
       bypass_clutter = FALSE;
       goto out;

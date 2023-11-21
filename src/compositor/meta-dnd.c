@@ -241,18 +241,7 @@ meta_dnd_handle_xdnd_event (MetaBackend       *backend,
 #endif
 
 #ifdef HAVE_WAYLAND
-static MetaWaylandDataDevice *
-data_device_from_dnd (MetaDnd *dnd)
-{
-  MetaDndPrivate *priv = meta_dnd_get_instance_private (dnd);
-  MetaContext *context = meta_backend_get_context (priv->backend);
-  MetaWaylandCompositor *compositor =
-    meta_context_get_wayland_compositor (context);
-
-  return &compositor->seat->data_device;
-}
-
-static void
+void
 meta_dnd_wayland_on_motion_event (MetaDnd            *dnd,
                                   const ClutterEvent *event)
 {
@@ -262,22 +251,6 @@ meta_dnd_wayland_on_motion_event (MetaDnd            *dnd,
 
   clutter_event_get_coords (event, &event_x, &event_y);
   meta_dnd_notify_dnd_position_change (dnd, (int)event_x, (int)event_y);
-}
-
-void
-meta_dnd_wayland_maybe_handle_event (MetaDnd            *dnd,
-                                     const ClutterEvent *event)
-{
-  MetaWaylandDataDevice *data_device = data_device_from_dnd (dnd);
-  ClutterEventType event_type;
-
-  if (!meta_wayland_data_device_get_current_grab (data_device))
-    return;
-
-  event_type = clutter_event_type (event);
-
-  if (event_type == CLUTTER_MOTION)
-    meta_dnd_wayland_on_motion_event (dnd, event);
 }
 
 void

@@ -34,6 +34,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "backends/meta-dnd-private.h"
 #include "compositor/meta-dnd-actor-private.h"
 #include "core/meta-selection-private.h"
 #include "meta/meta-selection-source-memory.h"
@@ -364,6 +365,8 @@ static void
 data_device_end_drag_grab (MetaWaylandDragGrab *drag_grab)
 {
   MetaWaylandDataDevice *data_device = &drag_grab->seat->data_device;
+  MetaDisplay *display = display_from_data_device (data_device);
+  MetaCompositor *compositor = meta_display_get_compositor (display);
 
   meta_wayland_drag_grab_set_source (drag_grab, NULL);
   meta_wayland_drag_grab_set_focus (drag_grab, NULL);
@@ -396,6 +399,8 @@ data_device_end_drag_grab (MetaWaylandDragGrab *drag_grab)
       meta_wayland_input_detach_event_handler (input, drag_grab->handler);
       drag_grab->handler = NULL;
     }
+
+  meta_dnd_wayland_handle_end_modal (compositor);
 
   g_free (drag_grab);
 }
@@ -482,6 +487,10 @@ drag_grab_motion (MetaWaylandEventHandler *handler,
                   gpointer                 user_data)
 {
   MetaWaylandDragGrab *drag_grab = user_data;
+  MetaWaylandCompositor *compositor =
+    meta_wayland_seat_get_compositor (drag_grab->seat);
+  MetaContext *context = meta_wayland_compositor_get_context (compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
   graphene_point_t point;
   uint32_t time_ms;
 
@@ -502,6 +511,8 @@ drag_grab_motion (MetaWaylandEventHandler *handler,
       meta_feedback_actor_update (META_FEEDBACK_ACTOR (drag_grab->feedback_actor),
                                   event);
     }
+
+  meta_dnd_wayland_on_motion_event (meta_backend_get_dnd (backend), event);
 
   return CLUTTER_EVENT_STOP;
 }
@@ -672,6 +683,8 @@ meta_wayland_data_device_start_drag (MetaWaylandDataDevice           *data_devic
                                      graphene_point_t                 drag_start)
 {
   MetaWaylandSeat *seat = wl_container_of (data_device, seat, data_device);
+  MetaDisplay *display = display_from_data_device (data_device);
+  MetaCompositor *compositor = meta_display_get_compositor (display);
   MetaWaylandDragGrab *drag_grab;
   graphene_point_t pos, surface_pos;
   ClutterModifierType modifiers;
@@ -715,8 +728,6 @@ meta_wayland_data_device_start_drag (MetaWaylandDataDevice           *data_devic
 
   if (icon_surface)
     {
-      MetaDisplay *display = display_from_data_device (data_device);
-      MetaCompositor *compositor = meta_display_get_compositor (display);
       ClutterActor *drag_surface_actor;
 
       drag_grab->drag_surface = icon_surface;
@@ -748,6 +759,8 @@ meta_wayland_data_device_start_drag (MetaWaylandDataDevice           *data_devic
                                              TRUE,
                                              drag_grab);
   meta_wayland_data_source_set_seat (source, seat);
+
+  meta_dnd_wayland_handle_begin_modal (compositor);
 }
 
 void
