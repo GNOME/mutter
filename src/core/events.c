@@ -237,7 +237,6 @@ meta_display_handle_event (MetaDisplay        *display,
   ClutterEventSequence *sequence;
   ClutterEventType event_type;
   gboolean has_grab;
-  uint32_t time_ms;
 #ifdef HAVE_WAYLAND
   MetaWaylandCompositor *wayland_compositor;
   MetaWaylandTextInput *wayland_text_input = NULL;
@@ -261,7 +260,6 @@ meta_display_handle_event (MetaDisplay        *display,
 
   sequence = clutter_event_get_event_sequence (event);
   event_type = clutter_event_type (event);
-  time_ms = clutter_event_get_time (event);
 
   if (meta_display_process_captured_input (display, event))
     {
@@ -372,8 +370,6 @@ meta_display_handle_event (MetaDisplay        *display,
     }
 
   window = get_window_for_event (display, event, event_actor);
-
-  display->current_time = time_ms;
 
   if (window && !window->override_redirect &&
       (event_type == CLUTTER_KEY_PRESS ||
@@ -522,6 +518,9 @@ meta_display_handle_event (MetaDisplay        *display,
 #ifdef HAVE_WAYLAND
   if (wayland_compositor && !bypass_wayland)
     {
+      uint32_t time_ms;
+
+      time_ms = clutter_event_get_time (event);
       if (window && event_type == CLUTTER_MOTION &&
           time_ms != CLUTTER_CURRENT_TIME)
         meta_window_check_alive_on_event (window, time_ms);
@@ -531,7 +530,6 @@ meta_display_handle_event (MetaDisplay        *display,
     }
 #endif
 
-  display->current_time = META_CURRENT_TIME;
   return bypass_clutter;
 }
 
@@ -541,8 +539,13 @@ event_callback (const ClutterEvent *event,
                 gpointer            data)
 {
   MetaDisplay *display = data;
+  gboolean retval;
 
-  return meta_display_handle_event (display, event, event_actor);
+  display->current_time = clutter_event_get_time (event);
+  retval = meta_display_handle_event (display, event, event_actor);
+  display->current_time = META_CURRENT_TIME;
+
+  return retval;
 }
 
 void
