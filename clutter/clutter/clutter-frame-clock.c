@@ -253,6 +253,8 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
 {
   COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockNotifyPresented,
                            "Clutter::FrameClock::presented()");
+  COGL_TRACE_DESCRIBE (ClutterFrameClockNotifyPresented,
+                       frame_clock->output_name);
 
   if (G_UNLIKELY (CLUTTER_HAS_DEBUG (FRAME_CLOCK)))
     {
@@ -392,6 +394,7 @@ void
 clutter_frame_clock_notify_ready (ClutterFrameClock *frame_clock)
 {
   COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockNotifyReady, "Clutter::FrameClock::ready()");
+  COGL_TRACE_DESCRIBE (ClutterFrameClockNotifyReady, frame_clock->output_name);
 
   switch (frame_clock->state)
     {
@@ -717,6 +720,7 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
   int64_t this_dispatch_time_us;
 
   COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockDispatch, "Clutter::FrameClock::dispatch()");
+  COGL_TRACE_DESCRIBE (ClutterFrameClockDispatch, frame_clock->output_name);
 
   this_dispatch_ready_time_us = g_source_get_ready_time (frame_clock->source);
   this_dispatch_time_us = time_us;
