@@ -998,8 +998,13 @@ G_DEFINE_TYPE_WITH_CODE (ClutterActor,
 const char *
 _clutter_actor_get_debug_name (ClutterActor *actor)
 {
-  ClutterActorPrivate *priv = actor->priv;
+  ClutterActorPrivate *priv;
   const char *retval;
+
+  if (!actor)
+    return "<unnamed>[<ClutterActor>NULL]";
+
+  priv = actor->priv;
 
   if (G_UNLIKELY (priv->debug_name == NULL))
     {
