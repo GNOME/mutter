@@ -509,6 +509,72 @@ meta_seat_impl_notify_key_in_impl (MetaSeatImpl       *seat_impl,
 }
 
 static void
+constrain_to_barriers (MetaSeatImpl       *seat_impl,
+                       ClutterInputDevice *device,
+                       uint32_t            time,
+                       float              *new_x,
+                       float              *new_y)
+{
+  meta_barrier_manager_native_process_in_impl (seat_impl->barrier_manager,
+                                               device,
+                                               time,
+                                               new_x, new_y);
+}
+
+/*
+ * The pointer constrain code is mostly a rip-off of the XRandR code from Xorg.
+ * (from xserver/randr/rrcrtc.c, RRConstrainCursorHarder)
+ *
+ * Copyright © 2006 Keith Packard
+ * Copyright 2010 Red Hat, Inc
+ *
+ */
+
+static void
+constrain_all_screen_monitors (ClutterInputDevice *device,
+                               MetaViewportInfo   *viewports,
+                               float              *x,
+                               float              *y)
+{
+  float cx, cy;
+  int i, n_views;
+
+  meta_input_device_native_get_coords_in_impl (META_INPUT_DEVICE_NATIVE (device),
+                                               &cx, &cy);
+
+  /* if we're trying to escape, clamp to the CRTC we're coming from */
+
+  n_views = meta_viewport_info_get_num_views (viewports);
+
+  for (i = 0; i < n_views; i++)
+    {
+      int left, right, top, bottom;
+      MtkRectangle rect;
+
+      meta_viewport_info_get_view_info (viewports, i, &rect, NULL);
+
+      left = rect.x;
+      right = left + rect.width;
+      top = rect.y;
+      bottom = top + rect.height;
+
+      if ((cx >= left) && (cx < right) && (cy >= top) && (cy < bottom))
+        {
+          if (*x < left)
+            *x = left;
+          if (*x >= right)
+            *x = right - 1;
+          if (*y < top)
+            *y = top;
+          if (*y >= bottom)
+            *y = bottom - 1;
+
+          return;
+        }
+    }
+}
+
+static void
 constrain_coordinates (MetaSeatImpl       *seat_impl,
                        ClutterInputDevice *input_device,
                        uint64_t            time_us,
@@ -1094,72 +1160,6 @@ meta_seat_impl_notify_touch_event_in_impl (MetaSeatImpl       *seat_impl,
     }
 
   queue_event (seat_impl, event);
-}
-
-static void
-constrain_to_barriers (MetaSeatImpl       *seat_impl,
-                       ClutterInputDevice *device,
-                       uint32_t            time,
-                       float              *new_x,
-                       float              *new_y)
-{
-  meta_barrier_manager_native_process_in_impl (seat_impl->barrier_manager,
-                                               device,
-                                               time,
-                                               new_x, new_y);
-}
-
-/*
- * The pointer constrain code is mostly a rip-off of the XRandR code from Xorg.
- * (from xserver/randr/rrcrtc.c, RRConstrainCursorHarder)
- *
- * Copyright © 2006 Keith Packard
- * Copyright 2010 Red Hat, Inc
- *
- */
-
-static void
-constrain_all_screen_monitors (ClutterInputDevice *device,
-                               MetaViewportInfo   *viewports,
-                               float              *x,
-                               float              *y)
-{
-  float cx, cy;
-  int i, n_views;
-
-  meta_input_device_native_get_coords_in_impl (META_INPUT_DEVICE_NATIVE (device),
-                                               &cx, &cy);
-
-  /* if we're trying to escape, clamp to the CRTC we're coming from */
-
-  n_views = meta_viewport_info_get_num_views (viewports);
-
-  for (i = 0; i < n_views; i++)
-    {
-      int left, right, top, bottom;
-      MtkRectangle rect;
-
-      meta_viewport_info_get_view_info (viewports, i, &rect, NULL);
-
-      left = rect.x;
-      right = left + rect.width;
-      top = rect.y;
-      bottom = top + rect.height;
-
-      if ((cx >= left) && (cx < right) && (cy >= top) && (cy < bottom))
-        {
-          if (*x < left)
-            *x = left;
-          if (*x >= right)
-            *x = right - 1;
-          if (*y < top)
-            *y = top;
-          if (*y >= bottom)
-            *y = bottom - 1;
-
-          return;
-        }
-    }
 }
 
 void
