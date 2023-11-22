@@ -1974,7 +1974,7 @@ notify_discrete_axis (MetaSeatImpl                  *seat_impl,
   if (libinput_event_pointer_has_axis (axis_event,
                                        LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL))
     {
-      dx_value120 = libinput_event_pointer_get_scroll_value_v120 ( 
+      dx_value120 = libinput_event_pointer_get_scroll_value_v120 (
           axis_event, LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL);
     }
   if (libinput_event_pointer_has_axis (axis_event,
