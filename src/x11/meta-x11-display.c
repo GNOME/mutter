@@ -2557,3 +2557,16 @@ meta_x11_display_redirect_windows (MetaX11Display *x11_display,
       g_usleep (G_USEC_PER_SEC);
     }
 }
+
+Window
+meta_x11_display_lookup_xwindow (MetaX11Display *x11_display,
+                                 MetaWindow     *window)
+{
+  g_return_val_if_fail (META_IS_X11_DISPLAY (x11_display), None);
+  g_return_val_if_fail (META_IS_WINDOW (window), None);
+
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
+    return meta_window_x11_get_xwindow (window);
+
+  return None;
+}
