@@ -26,13 +26,71 @@
 struct _MetaWaylandSurfaceRoleDND
 {
   MetaWaylandActorSurface parent;
+  ClutterInputDevice *device;
+  ClutterEventSequence *sequence;
   int32_t pending_offset_x;
   int32_t pending_offset_y;
 };
 
+enum
+{
+  PROP_0,
+  PROP_DEVICE,
+  PROP_EVENT_SEQUENCE,
+  N_PROPS,
+};
+
+static GParamSpec *props[N_PROPS] = { 0, };
+
 G_DEFINE_TYPE (MetaWaylandSurfaceRoleDND,
                meta_wayland_surface_role_dnd,
                META_TYPE_WAYLAND_ACTOR_SURFACE)
+
+static void
+dnd_surface_set_property (GObject      *object,
+                          guint         prop_id,
+                          const GValue *value,
+                          GParamSpec   *pspec)
+{
+  MetaWaylandSurfaceRoleDND *surface_role_dnd =
+    META_WAYLAND_SURFACE_ROLE_DND (object);
+
+  switch (prop_id)
+    {
+    case PROP_DEVICE:
+      surface_role_dnd->device = g_value_get_object (value);
+      break;
+    case PROP_EVENT_SEQUENCE:
+      surface_role_dnd->sequence = g_value_get_boxed (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
+dnd_surface_get_property (GObject    *object,
+                          guint       prop_id,
+                          GValue     *value,
+                          GParamSpec *pspec)
+{
+  MetaWaylandSurfaceRoleDND *surface_role_dnd =
+    META_WAYLAND_SURFACE_ROLE_DND (object);
+
+  switch (prop_id)
+    {
+    case PROP_DEVICE:
+      g_value_set_object (value, surface_role_dnd->device);
+      break;
+    case PROP_EVENT_SEQUENCE:
+      g_value_set_boxed (value, surface_role_dnd->sequence);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
 
 static void
 dnd_surface_assigned (MetaWaylandSurfaceRole *surface_role)
@@ -70,6 +128,8 @@ dnd_surface_apply_state (MetaWaylandSurfaceRole  *surface_role,
 static MetaLogicalMonitor *
 dnd_surface_find_logical_monitor (MetaWaylandActorSurface *actor_surface)
 {
+  MetaWaylandSurfaceRoleDND *surface_role_dnd =
+    META_WAYLAND_SURFACE_ROLE_DND (actor_surface);
   MetaWaylandSurfaceRole *surface_role =
     META_WAYLAND_SURFACE_ROLE (actor_surface);
   MetaWaylandSurface *surface =
@@ -77,13 +137,16 @@ dnd_surface_find_logical_monitor (MetaWaylandActorSurface *actor_surface)
   MetaContext *context =
     meta_wayland_compositor_get_context (surface->compositor);
   MetaBackend *backend = meta_context_get_backend (context);
-  MetaCursorTracker *cursor_tracker =
-    meta_backend_get_cursor_tracker (backend);
   MetaMonitorManager *monitor_manager =
      meta_backend_get_monitor_manager (backend);
+  ClutterSeat *seat =
+    clutter_input_device_get_seat (surface_role_dnd->device);
   graphene_point_t point;
 
-  meta_cursor_tracker_get_pointer (cursor_tracker, &point, NULL);
+  if (!clutter_seat_query_state (seat, surface_role_dnd->device,
+                                 surface_role_dnd->sequence, &point, NULL))
+    return NULL;
+
   return meta_monitor_manager_get_logical_monitor_at (monitor_manager,
                                                       point.x, point.y);
 }
@@ -97,17 +160,16 @@ dnd_subsurface_get_geometry_scale (MetaWaylandActorSurface *actor_surface)
     meta_wayland_compositor_get_context (surface->compositor);
   MetaBackend *backend = meta_context_get_backend (context);
 
-  if (meta_backend_is_stage_views_scaled (backend))
-    {
-      return 1;
-    }
-  else
+  if (!meta_backend_is_stage_views_scaled (backend))
     {
       MetaLogicalMonitor *logical_monitor;
 
       logical_monitor = dnd_surface_find_logical_monitor (actor_surface);
-      return (int) roundf (meta_logical_monitor_get_scale (logical_monitor));
+      if (logical_monitor)
+        return (int) roundf (meta_logical_monitor_get_scale (logical_monitor));
     }
+
+  return 1;
 }
 
 static void
@@ -149,14 +211,33 @@ meta_wayland_surface_role_dnd_init (MetaWaylandSurfaceRoleDND *role)
 static void
 meta_wayland_surface_role_dnd_class_init (MetaWaylandSurfaceRoleDNDClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
   MetaWaylandSurfaceRoleClass *surface_role_class =
     META_WAYLAND_SURFACE_ROLE_CLASS (klass);
   MetaWaylandActorSurfaceClass *actor_surface_class =
     META_WAYLAND_ACTOR_SURFACE_CLASS (klass);
+
+  object_class->set_property = dnd_surface_set_property;
+  object_class->get_property = dnd_surface_get_property;
 
   surface_role_class->assigned = dnd_surface_assigned;
   surface_role_class->apply_state = dnd_surface_apply_state;
 
   actor_surface_class->get_geometry_scale = dnd_subsurface_get_geometry_scale;
   actor_surface_class->sync_actor_state = dnd_subsurface_sync_actor_state;
+
+  props[PROP_DEVICE] =
+    g_param_spec_object ("device", NULL, NULL,
+                         CLUTTER_TYPE_INPUT_DEVICE,
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS);
+  props[PROP_EVENT_SEQUENCE] =
+    g_param_spec_boxed ("event-sequence", NULL, NULL,
+                        CLUTTER_TYPE_EVENT_SEQUENCE,
+                        G_PARAM_CONSTRUCT_ONLY |
+                        G_PARAM_READWRITE |
+                        G_PARAM_STATIC_STRINGS);
+
+  g_object_class_install_properties (object_class, N_PROPS, props);
 }

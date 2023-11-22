@@ -815,6 +815,8 @@ data_device_start_drag (struct wl_client  *client,
   if (icon_resource &&
       !meta_wayland_surface_assign_role (icon_surface,
                                          META_TYPE_WAYLAND_SURFACE_ROLE_DND,
+                                         "device", device,
+                                         "event-sequence", sequence,
                                          NULL))
     {
       wl_resource_post_error (resource, WL_DATA_DEVICE_ERROR_ROLE,
