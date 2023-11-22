@@ -1883,7 +1883,7 @@ create_surfaces_gbm (CoglOnscreen        *onscreen,
     {
       g_set_error (error, COGL_WINSYS_ERROR,
                    COGL_WINSYS_ERROR_CREATE_ONSCREEN,
-                   "Failed to allocate surface");
+                   "Failed to allocate surface: %s", g_strerror (errno));
       return FALSE;
     }
 
