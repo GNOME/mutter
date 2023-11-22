@@ -438,16 +438,6 @@ meta_compositor_x11_monotonic_to_high_res_xserver_time (MetaCompositor *composit
   return monotonic_time_us + compositor_x11->xserver_time_offset_us;
 }
 
-static void
-meta_compositor_x11_grab_begin (MetaCompositor *compositor)
-{
-}
-
-static void
-meta_compositor_x11_grab_end (MetaCompositor *compositor)
-{
-}
-
 static MetaCompositorView *
 meta_compositor_x11_create_view (MetaCompositor   *compositor,
                                  ClutterStageView *stage_view)
@@ -527,7 +517,5 @@ meta_compositor_x11_class_init (MetaCompositorX11Class *klass)
   compositor_class->remove_window = meta_compositor_x11_remove_window;
   compositor_class->monotonic_to_high_res_xserver_time =
    meta_compositor_x11_monotonic_to_high_res_xserver_time;
-  compositor_class->grab_begin = meta_compositor_x11_grab_begin;
-  compositor_class->grab_end = meta_compositor_x11_grab_end;
   compositor_class->create_view = meta_compositor_x11_create_view;
 }

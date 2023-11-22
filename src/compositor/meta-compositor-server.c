@@ -41,16 +41,6 @@ meta_compositor_server_monotonic_to_high_res_xserver_time (MetaCompositor *compo
   return meta_translate_to_high_res_xserver_time (monotonic_time_us);
 }
 
-static void
-meta_compositor_server_grab_begin (MetaCompositor *compositor)
-{
-}
-
-static void
-meta_compositor_server_grab_end (MetaCompositor *compositor)
-{
-}
-
 static MetaCompositorView *
 meta_compositor_server_create_view (MetaCompositor   *compositor,
                                     ClutterStageView *stage_view)
@@ -81,7 +71,5 @@ meta_compositor_server_class_init (MetaCompositorServerClass *klass)
   compositor_class->manage = meta_compositor_server_manage;
   compositor_class->monotonic_to_high_res_xserver_time =
    meta_compositor_server_monotonic_to_high_res_xserver_time;
-  compositor_class->grab_begin = meta_compositor_server_grab_begin;
-  compositor_class->grab_end = meta_compositor_server_grab_end;
   compositor_class->create_view = meta_compositor_server_create_view;
 }
