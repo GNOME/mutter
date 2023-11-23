@@ -342,7 +342,15 @@ void
 cogl_trace_describe (CoglTraceHead *head,
                      const char    *description)
 {
-  head->description = g_strdup (description);
+  if (head->description)
+    {
+      char *old_description = head->description;
+      head->description =
+        g_strdup_printf ("%s, %s", old_description, description);
+      g_free (old_description);
+    }
+  else
+    head->description = g_strdup (description);
 }
 
 #else
