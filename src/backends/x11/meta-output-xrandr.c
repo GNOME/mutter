@@ -835,6 +835,21 @@ output_info_init_tile_info (MetaOutputInfo *output_info,
   XFree (prop);
 }
 
+static gboolean
+sanity_check_duplicate (MetaCrtcMode **modes,
+                        size_t         n_modes,
+                        MetaCrtcMode  *mode)
+{
+  size_t i;
+
+  for (i = 0; i < n_modes; i++)
+    {
+      if (meta_crtc_mode_get_id (modes[i]) == meta_crtc_mode_get_id (mode))
+        return FALSE;
+    }
+
+  return TRUE;
+}
 
 static void
 output_info_init_modes (MetaOutputInfo *output_info,
@@ -857,8 +872,17 @@ output_info_init_modes (MetaOutputInfo *output_info,
 
           if (xrandr_output->modes[i] == (XID) meta_crtc_mode_get_id (mode))
             {
-              output_info->modes[n_actual_modes] = mode;
-              n_actual_modes += 1;
+              if (sanity_check_duplicate (output_info->modes, n_actual_modes, mode))
+                {
+                  output_info->modes[n_actual_modes] = mode;
+                  n_actual_modes += 1;
+                }
+              else
+                {
+                  g_warning ("X11 server advertized duplicate identical modes "
+                             "(0x%" G_GINT64_MODIFIER "x)",
+                             meta_crtc_mode_get_id (mode));
+                }
               break;
             }
         }
