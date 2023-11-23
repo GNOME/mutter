@@ -86,6 +86,10 @@ COGL_EXPORT void
 cogl_trace_describe (CoglTraceHead *head,
                      const char    *description);
 
+COGL_EXPORT void
+cogl_trace_mark (const char *name,
+                 const char *description);
+
 static inline void
 cogl_auto_trace_end_helper (CoglTraceHead **head)
 {
@@ -132,6 +136,17 @@ cogl_is_tracing_enabled (void)
       ScopedCoglTrace##Name = &CoglTrace##Name; \
     }
 
+#define COGL_TRACE_MESSAGE(name, ...) \
+  G_STMT_START \
+    { \
+      if (cogl_is_tracing_enabled ()) \
+        { \
+          g_autofree char *CoglTraceMessage = g_strdup_printf (__VA_ARGS__); \
+          cogl_trace_mark (name, CoglTraceMessage); \
+        } \
+    } \
+  G_STMT_END
+
 #else /* HAVE_PROFILER */
 
 #include <stdio.h>
@@ -141,6 +156,7 @@ cogl_is_tracing_enabled (void)
 #define COGL_TRACE_DESCRIBE(Name, description) (void) 0
 #define COGL_TRACE_SCOPED_ANCHOR(Name) (void) 0
 #define COGL_TRACE_BEGIN_ANCHORED(Name, name) (void) 0
+#define COGL_TRACE_MESSAGE(name, ...) (void) 0
 
 COGL_EXPORT
 gboolean cogl_start_tracing_with_path (const char  *filename,
