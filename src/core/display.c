@@ -1223,6 +1223,8 @@ void
 meta_display_close (MetaDisplay *display,
                     guint32      timestamp)
 {
+  MetaBackend *backend = backend_from_display (display);
+  ClutterActor *stage = meta_backend_get_stage (backend);
   MetaCompositor *compositor;
   MetaLaters *laters;
 
@@ -1271,6 +1273,8 @@ meta_display_close (MetaDisplay *display,
   g_hash_table_destroy (display->stamps);
 
   meta_display_shutdown_keys (display);
+
+  g_signal_handlers_disconnect_by_func (stage, on_is_grabbed_changed, display);
 
   g_clear_object (&display->bell);
   g_clear_object (&display->startup_notification);
