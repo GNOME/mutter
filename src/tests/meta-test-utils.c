@@ -781,6 +781,31 @@ meta_set_custom_monitor_config_full (MetaBackend            *backend,
 }
 
 static void
+set_true_cb (gpointer user_data)
+{
+  gboolean *value = user_data;
+
+  *value = TRUE;
+}
+
+void
+meta_wait_for_monitors_changed (MetaContext *context)
+{
+  MetaBackend *backend = meta_context_get_backend (context);
+  MetaMonitorManager *monitor_manager = meta_backend_get_monitor_manager (backend);
+  gulong monitors_changed_handler_id;
+  gboolean monitors_changed = FALSE;
+
+  monitors_changed_handler_id =
+    g_signal_connect_swapped (monitor_manager, "monitors-changed",
+                              G_CALLBACK (set_true_cb), &monitors_changed);
+  while (!monitors_changed)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_signal_handler_disconnect (monitor_manager, monitors_changed_handler_id);
+}
+
+static void
 on_view_presented (ClutterStage      *stage,
                    ClutterStageView  *view,
                    ClutterFrameInfo  *frame_info,

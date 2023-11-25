@@ -115,6 +115,9 @@ void meta_set_custom_monitor_config_full (MetaBackend            *backend,
                                           MetaMonitorsConfigFlag  configs_flags);
 
 META_EXPORT
+void meta_wait_for_monitors_changed (MetaContext *context);
+
+META_EXPORT
 void meta_wait_for_paint (MetaContext *context);
 
 META_EXPORT
