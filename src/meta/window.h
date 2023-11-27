@@ -449,3 +449,6 @@ gboolean meta_window_has_pointer (MetaWindow *window);
 META_EXPORT
 void meta_window_set_initial_configuration (MetaWindow                     *window,
                                             MetaWindowInitialConfiguration config);
+META_EXPORT
+void meta_window_set_initial_monitor (MetaWindow *window,
+                                      gint monitor);

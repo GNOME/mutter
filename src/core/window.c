@@ -3962,6 +3962,26 @@ meta_window_move_frame (MetaWindow *window,
   meta_window_move_resize_internal (window, flags, META_GRAVITY_NORTH_WEST, rect);
 }
 
+void
+meta_window_set_initial_monitor (MetaWindow *window,
+                                 gint monitor)
+{
+  MtkRectangle new_area;
+
+  if (window->tile_mode != META_TILE_NONE)
+    window->tile_monitor_number = monitor;
+
+  meta_window_get_work_area_for_monitor (window,
+                                         monitor,
+                                         &new_area);
+
+  meta_window_move_between_rects (window, META_MOVE_RESIZE_FORCE_UPDATE_MONITOR, NULL, &new_area);
+  window->preferred_output_winsys_id = window->monitor->winsys_id;
+
+  if (window->fullscreen || window->override_redirect)
+    meta_display_queue_check_fullscreen (window->display);
+}
+
 static void
 meta_window_move_between_rects (MetaWindow          *window,
                                 MetaMoveResizeFlags  move_resize_flags,
@@ -7740,7 +7760,7 @@ meta_window_set_initial_configuration (MetaWindow                     *window,
                                        MetaWindowInitialConfiguration  config)
 {
   g_return_if_fail (META_IS_WINDOW (window));
+
   window->has_initial_config = TRUE;
   window->config = config;
-  g_warning ("initial config set y=%d", config.position.y);
 }
