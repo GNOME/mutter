@@ -832,17 +832,6 @@ meta_monitor_manager_xrandr_init_monitors (MetaMonitorManagerXrandr *manager_xra
   XRRFreeMonitors (m);
 }
 
-static gboolean
-meta_monitor_manager_xrandr_is_transform_handled (MetaMonitorManager  *manager,
-                                                  MetaCrtc            *crtc,
-                                                  MetaMonitorTransform transform)
-{
-  g_warn_if_fail ((meta_crtc_get_all_transforms (crtc) & transform) ==
-                  transform);
-
-  return TRUE;
-}
-
 static float
 meta_monitor_manager_xrandr_calculate_monitor_mode_scale (MetaMonitorManager           *manager,
                                                           MetaLogicalMonitorLayoutMode  layout_mode,
@@ -980,7 +969,6 @@ meta_monitor_manager_xrandr_class_init (MetaMonitorManagerXrandrClass *klass)
   manager_class->change_backlight = meta_monitor_manager_xrandr_change_backlight;
   manager_class->tiled_monitor_added = meta_monitor_manager_xrandr_tiled_monitor_added;
   manager_class->tiled_monitor_removed = meta_monitor_manager_xrandr_tiled_monitor_removed;
-  manager_class->is_transform_handled = meta_monitor_manager_xrandr_is_transform_handled;
   manager_class->calculate_monitor_mode_scale = meta_monitor_manager_xrandr_calculate_monitor_mode_scale;
   manager_class->calculate_supported_scales = meta_monitor_manager_xrandr_calculate_supported_scales;
   manager_class->get_capabilities = meta_monitor_manager_xrandr_get_capabilities;
