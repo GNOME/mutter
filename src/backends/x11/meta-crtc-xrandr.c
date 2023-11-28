@@ -293,7 +293,7 @@ meta_crtc_xrandr_new (MetaGpuXrandr      *gpu_xrandr,
                                                    crtc_xrandr->rect.height),
                               crtc_xrandr->current_mode,
                               crtc_xrandr->transform);
-      meta_crtc_set_config (META_CRTC (crtc_xrandr), crtc_config);
+      meta_crtc_set_config (META_CRTC (crtc_xrandr), crtc_config, NULL);
     }
 
   return crtc_xrandr;
