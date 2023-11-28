@@ -502,6 +502,7 @@ apply_crtc_assignments (MetaMonitorManager    *manager,
           int x, y;
           xcb_randr_rotation_t rotation;
           xcb_randr_mode_t mode;
+          MetaCrtcConfig *crtc_config;
 
           crtc_mode = crtc_assignment->mode;
 
@@ -556,10 +557,10 @@ apply_crtc_assignments (MetaMonitorManager    *manager,
               continue;
             }
 
-          meta_crtc_set_config (crtc,
-                                &crtc_assignment->layout,
-                                crtc_mode,
-                                crtc_assignment->transform);
+          crtc_config = meta_crtc_config_new (&crtc_assignment->layout,
+                                              crtc_mode,
+                                              crtc_assignment->transform);
+          meta_crtc_set_config (crtc, crtc_config);
         }
     }
 

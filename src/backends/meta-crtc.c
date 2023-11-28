@@ -111,21 +111,12 @@ meta_crtc_get_all_transforms (MetaCrtc *crtc)
 }
 
 void
-meta_crtc_set_config (MetaCrtc             *crtc,
-                      graphene_rect_t      *layout,
-                      MetaCrtcMode         *mode,
-                      MetaMonitorTransform  transform)
+meta_crtc_set_config (MetaCrtc       *crtc,
+                      MetaCrtcConfig *config)
 {
   MetaCrtcPrivate *priv = meta_crtc_get_instance_private (crtc);
-  MetaCrtcConfig *config;
 
   meta_crtc_unset_config (crtc);
-
-  config = g_new0 (MetaCrtcConfig, 1);
-  config->layout = *layout;
-  config->mode = mode;
-  config->transform = transform;
-
   priv->config = config;
 }
 
@@ -401,4 +392,19 @@ meta_crtc_class_init (MetaCrtcClass *klass)
                        G_PARAM_CONSTRUCT_ONLY |
                        G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
+}
+
+MetaCrtcConfig *
+meta_crtc_config_new (graphene_rect_t      *layout,
+                      MetaCrtcMode         *mode,
+                      MetaMonitorTransform  transform)
+{
+  MetaCrtcConfig *config;
+
+  config = g_new0 (MetaCrtcConfig, 1);
+  config->layout = *layout;
+  config->mode = mode;
+  config->transform = transform;
+
+  return config;
 }

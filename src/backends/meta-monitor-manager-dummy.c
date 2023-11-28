@@ -516,12 +516,13 @@ apply_crtc_assignments (MetaMonitorManager    *manager,
         }
       else
         {
+          MetaCrtcConfig *crtc_config;
           unsigned int j;
 
-          meta_crtc_set_config (crtc,
-                                &crtc_assignment->layout,
-                                crtc_assignment->mode,
-                                crtc_assignment->transform);
+          crtc_config = meta_crtc_config_new (&crtc_assignment->layout,
+                                              crtc_assignment->mode,
+                                              crtc_assignment->transform);
+          meta_crtc_set_config (crtc, crtc_config);
 
           for (j = 0; j < crtc_assignment->outputs->len; j++)
             {

@@ -284,13 +284,16 @@ meta_crtc_xrandr_new (MetaGpuXrandr      *gpu_xrandr,
 
   if (crtc_xrandr->current_mode)
     {
-      meta_crtc_set_config (META_CRTC (crtc_xrandr),
-                            &GRAPHENE_RECT_INIT (crtc_xrandr->rect.x,
-                                                 crtc_xrandr->rect.y,
-                                                 crtc_xrandr->rect.width,
-                                                 crtc_xrandr->rect.height),
-                            crtc_xrandr->current_mode,
-                            crtc_xrandr->transform);
+      MetaCrtcConfig *crtc_config;
+
+      crtc_config =
+        meta_crtc_config_new (&GRAPHENE_RECT_INIT (crtc_xrandr->rect.x,
+                                                   crtc_xrandr->rect.y,
+                                                   crtc_xrandr->rect.width,
+                                                   crtc_xrandr->rect.height),
+                              crtc_xrandr->current_mode,
+                              crtc_xrandr->transform);
+      meta_crtc_set_config (META_CRTC (crtc_xrandr), crtc_config);
     }
 
   return crtc_xrandr;

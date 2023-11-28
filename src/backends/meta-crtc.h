@@ -70,10 +70,8 @@ void meta_crtc_unassign_output (MetaCrtc   *crtc,
 MetaMonitorTransform meta_crtc_get_all_transforms (MetaCrtc *crtc);
 
 META_EXPORT_TEST
-void meta_crtc_set_config (MetaCrtc             *crtc,
-                           graphene_rect_t      *layout,
-                           MetaCrtcMode         *mode,
-                           MetaMonitorTransform  transform);
+void meta_crtc_set_config (MetaCrtc       *crtc,
+                           MetaCrtcConfig *config);
 
 META_EXPORT_TEST
 void meta_crtc_unset_config (MetaCrtc *crtc);
@@ -108,5 +106,10 @@ MetaGammaLut * meta_gamma_lut_copy_to_size (const MetaGammaLut *gamma,
 META_EXPORT_TEST
 gboolean meta_gamma_lut_equal (const MetaGammaLut *gamma,
                                const MetaGammaLut *other_gamma);
+
+META_EXPORT_TEST
+MetaCrtcConfig * meta_crtc_config_new (graphene_rect_t      *layout,
+                                       MetaCrtcMode         *mode,
+                                       MetaMonitorTransform  transform);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaGammaLut, meta_gamma_lut_free)
