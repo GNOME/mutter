@@ -42,34 +42,6 @@ struct _MetaRendererX11Nested
 G_DEFINE_TYPE (MetaRendererX11Nested, meta_renderer_x11_nested,
                META_TYPE_RENDERER_X11)
 
-static MetaMonitorTransform
-calculate_view_transform (MetaMonitorManager *monitor_manager,
-                          MetaLogicalMonitor *logical_monitor)
-{
-  MetaMonitor *main_monitor;
-  MetaOutput *main_output;
-  MetaCrtc *crtc;
-  MetaMonitorTransform crtc_transform;
-
-  main_monitor = meta_logical_monitor_get_monitors (logical_monitor)->data;
-  main_output = meta_monitor_get_main_output (main_monitor);
-  crtc = meta_output_get_assigned_crtc (main_output);
-  crtc_transform =
-    meta_monitor_logical_to_crtc_transform (main_monitor,
-                                            logical_monitor->transform);
-  /*
-   * Pick any monitor and output and check; all CRTCs of a logical monitor will
-   * always have the same transform assigned to them.
-   */
-
-  if (meta_monitor_manager_is_transform_handled (monitor_manager,
-                                                 crtc,
-                                                 crtc_transform))
-    return META_MONITOR_TRANSFORM_NORMAL;
-  else
-    return crtc_transform;
-}
-
 static CoglOffscreen *
 create_offscreen (CoglContext *cogl_context,
                   int          width,
@@ -95,21 +67,15 @@ meta_renderer_x11_nested_create_view (MetaRenderer       *renderer,
                                       MetaCrtc           *crtc)
 {
   MetaBackend *backend = meta_renderer_get_backend (renderer);
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
-  MetaMonitorTransform view_transform;
   float view_scale;
   const MetaCrtcConfig *crtc_config;
   int width, height;
   CoglOffscreen *fake_onscreen;
-  CoglOffscreen *offscreen;
   MtkRectangle view_layout;
   const MetaCrtcModeInfo *mode_info;
   MetaRendererView *view;
-
-  view_transform = calculate_view_transform (monitor_manager, logical_monitor);
 
   if (meta_backend_is_stage_views_scaled (backend))
     view_scale = logical_monitor->scale;
@@ -121,11 +87,6 @@ meta_renderer_x11_nested_create_view (MetaRenderer       *renderer,
   height = roundf (crtc_config->layout.size.height * view_scale);
 
   fake_onscreen = create_offscreen (cogl_context, width, height);
-
-  if (view_transform != META_MONITOR_TRANSFORM_NORMAL)
-    offscreen = create_offscreen (cogl_context, width, height);
-  else
-    offscreen = NULL;
 
   mtk_rectangle_from_graphene_rect (&crtc_config->layout,
                                     MTK_ROUNDING_STRATEGY_ROUND,
@@ -140,8 +101,7 @@ meta_renderer_x11_nested_create_view (MetaRenderer       *renderer,
                        "crtc", crtc,
                        "refresh-rate", mode_info->refresh_rate,
                        "framebuffer", COGL_FRAMEBUFFER (fake_onscreen),
-                       "offscreen", COGL_FRAMEBUFFER (offscreen),
-                       "transform", view_transform,
+                       "transform", META_MONITOR_TRANSFORM_NORMAL,
                        "scale", view_scale,
                        NULL);
   g_object_set_data (G_OBJECT (view), "crtc", crtc);
