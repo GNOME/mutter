@@ -200,8 +200,8 @@ meta_kms_device_get_planes (MetaKmsDevice *device)
   return device->planes;
 }
 
-static MetaKmsPlane *
-get_plane_with_type_for (MetaKmsDevice    *device,
+static gboolean
+has_plane_with_type_for (MetaKmsDevice    *device,
                          MetaKmsCrtc      *crtc,
                          MetaKmsPlaneType  type)
 {
@@ -215,24 +215,17 @@ get_plane_with_type_for (MetaKmsDevice    *device,
         continue;
 
       if (meta_kms_plane_is_usable_with (plane, crtc))
-        return plane;
+        return TRUE;
     }
 
-  return NULL;
+  return FALSE;
 }
 
-MetaKmsPlane *
-meta_kms_device_get_primary_plane_for (MetaKmsDevice *device,
-                                       MetaKmsCrtc   *crtc)
+gboolean
+meta_kms_device_has_cursor_plane_for (MetaKmsDevice*device,
+                                      MetaKmsCrtc  *crtc)
 {
-  return get_plane_with_type_for (device, crtc, META_KMS_PLANE_TYPE_PRIMARY);
-}
-
-MetaKmsPlane *
-meta_kms_device_get_cursor_plane_for (MetaKmsDevice *device,
-                                      MetaKmsCrtc   *crtc)
-{
-  return get_plane_with_type_for (device, crtc, META_KMS_PLANE_TYPE_CURSOR);
+  return has_plane_with_type_for (device, crtc, META_KMS_PLANE_TYPE_CURSOR);
 }
 
 GList *
