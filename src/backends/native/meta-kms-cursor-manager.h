@@ -28,6 +28,7 @@
 typedef struct _MetaKmsCrtcLayout
 {
   MetaKmsCrtc *crtc;
+  MetaKmsPlane *cursor_plane;
   graphene_rect_t layout;
   float scale;
 } MetaKmsCrtcLayout;

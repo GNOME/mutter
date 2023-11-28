@@ -45,6 +45,7 @@ typedef struct _CrtcStateImpl
   MetaKmsCursorManagerImpl *cursor_manager_impl;
 
   MetaKmsCrtc *crtc;
+  MetaKmsPlane *cursor_plane;
   graphene_rect_t layout;
   float scale;
   MetaMonitorTransform transform;
@@ -97,6 +98,7 @@ find_crtc_state (MetaKmsCursorManagerImpl *cursor_manager_impl,
 static CrtcStateImpl *
 crtc_state_impl_new (MetaKmsCursorManagerImpl *cursor_manager_impl,
                      MetaKmsCrtc              *crtc,
+                     MetaKmsPlane             *cursor_plane,
                      graphene_rect_t           layout,
                      float                     scale,
                      MetaDrmBuffer            *buffer)
@@ -107,6 +109,7 @@ crtc_state_impl_new (MetaKmsCursorManagerImpl *cursor_manager_impl,
   g_atomic_ref_count_init (&crtc_state_impl->ref_count);
   crtc_state_impl->cursor_manager_impl = cursor_manager_impl;
   crtc_state_impl->crtc = crtc;
+  crtc_state_impl->cursor_plane = cursor_plane;
   crtc_state_impl->layout = layout;
   crtc_state_impl->scale = scale;
   crtc_state_impl->buffer = buffer;
@@ -365,7 +368,7 @@ maybe_update_cursor_plane (MetaKmsCursorManagerImpl  *cursor_manager_impl,
       meta_kms_update_realize (update, impl_device);
     }
 
-  cursor_plane = meta_kms_device_get_cursor_plane_for (device, crtc);
+  cursor_plane = crtc_state_impl->cursor_plane;
 
   if (should_have_cursor)
     {
@@ -838,6 +841,7 @@ update_viewports_in_impl (MetaThreadImpl  *thread_impl,
           crtc_state_impl =
             crtc_state_impl_new (cursor_manager_impl,
                                  crtc_layout->crtc,
+                                 crtc_layout->cursor_plane,
                                  crtc_layout->layout,
                                  crtc_layout->scale,
                                  g_steal_pointer (&old_crtc_state->buffer));
@@ -847,6 +851,7 @@ update_viewports_in_impl (MetaThreadImpl  *thread_impl,
           crtc_state_impl =
             crtc_state_impl_new (cursor_manager_impl,
                                  crtc_layout->crtc,
+                                 crtc_layout->cursor_plane,
                                  crtc_layout->layout,
                                  crtc_layout->scale,
                                  NULL);

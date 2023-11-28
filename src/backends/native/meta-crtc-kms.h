@@ -45,6 +45,8 @@ MetaKmsPlaneAssignment * meta_crtc_kms_assign_primary_plane (MetaCrtcKms        
                                                              MetaKmsUpdate          *kms_update,
                                                              MetaKmsAssignPlaneFlag  flags);
 
+MetaKmsPlane * meta_crtc_kms_get_assigned_cursor_plane (MetaCrtcKms *crtc_kms);
+
 void meta_crtc_kms_set_mode (MetaCrtcKms   *crtc_kms,
                              MetaKmsUpdate *kms_update);
 
