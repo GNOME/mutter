@@ -1078,23 +1078,27 @@ meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native)
           MetaOnscreenNative *onscreen_native =
             META_ONSCREEN_NATIVE (framebuffer);
           MetaCrtc *crtc;
+          MetaCrtcKms *crtc_kms;
           MetaKmsCrtc *kms_crtc;
+          MetaKmsPlane *kms_plane;
           MtkRectangle view_layout;
           float view_scale;
           MetaKmsCrtcLayout crtc_layout;
 
-          renderer_native->pending_mode_set_views =
-            g_list_prepend (renderer_native->pending_mode_set_views,
-                            stage_view);
-          meta_onscreen_native_invalidate (onscreen_native);
           crtc = meta_onscreen_native_get_crtc (onscreen_native);
-          kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
+          crtc_kms = META_CRTC_KMS (crtc);
+
+          kms_plane = meta_crtc_kms_get_assigned_cursor_plane (crtc_kms);
+          if (!kms_plane)
+            continue;
+          kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
 
           clutter_stage_view_get_layout (stage_view, &view_layout);
           view_scale = clutter_stage_view_get_scale (stage_view);
 
           crtc_layout = (MetaKmsCrtcLayout) {
             .crtc = kms_crtc,
+            .cursor_plane = kms_plane,
             .layout = GRAPHENE_RECT_INIT (view_layout.x,
                                           view_layout.y,
                                           view_layout.width,
@@ -1102,6 +1106,11 @@ meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native)
             .scale = view_scale,
           };
           g_array_append_val (crtc_layouts, crtc_layout);
+
+          meta_onscreen_native_invalidate (onscreen_native);
+          renderer_native->pending_mode_set_views =
+            g_list_prepend (renderer_native->pending_mode_set_views,
+                            stage_view);
         }
     }
   renderer_native->pending_mode_set = TRUE;
