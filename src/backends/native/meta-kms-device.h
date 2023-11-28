@@ -60,13 +60,8 @@ GList * meta_kms_device_get_crtcs (MetaKmsDevice *device);
 META_EXPORT_TEST
 GList * meta_kms_device_get_planes (MetaKmsDevice *device);
 
-META_EXPORT_TEST
-MetaKmsPlane * meta_kms_device_get_primary_plane_for (MetaKmsDevice *device,
-                                                      MetaKmsCrtc   *crtc);
-
-META_EXPORT_TEST
-MetaKmsPlane * meta_kms_device_get_cursor_plane_for (MetaKmsDevice *device,
-                                                     MetaKmsCrtc   *crtc);
+gboolean meta_kms_device_has_cursor_plane_for (MetaKmsDevice*device,
+                                               MetaKmsCrtc  *crtc);
 
 GList * meta_kms_device_get_fallback_modes (MetaKmsDevice *device);
 

@@ -1772,10 +1772,8 @@ meta_kms_impl_device_simple_initable_init (GInitable     *initable,
   for (l = meta_kms_device_get_crtcs (device); l; l = l->next)
     {
       MetaKmsCrtc *crtc = l->data;
-      MetaKmsPlane *plane;
 
-      plane = meta_kms_device_get_cursor_plane_for (device, crtc);
-      if (plane)
+      if (meta_kms_device_has_cursor_plane_for (device, crtc))
         continue;
 
       meta_topic (META_DEBUG_KMS,
