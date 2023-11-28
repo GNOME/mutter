@@ -29,6 +29,12 @@ MetaKmsCrtc * meta_get_test_kms_crtc (MetaKmsDevice *device);
 
 MetaKmsConnector * meta_get_test_kms_connector (MetaKmsDevice *device);
 
+MetaKmsPlane * meta_get_primary_test_plane_for (MetaKmsDevice *device,
+                                                MetaKmsCrtc   *crtc);
+
+MetaKmsPlane * meta_get_cursor_test_plane_for (MetaKmsDevice *device,
+                                               MetaKmsCrtc   *crtc);
+
 MetaDrmBuffer * meta_create_test_dumb_buffer (MetaKmsDevice *device,
                                               int            width,
                                               int            height);

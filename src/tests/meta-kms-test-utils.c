@@ -29,6 +29,8 @@
 #include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-mode.h"
+#include "backends/native/meta-kms-plane.h"
+#include "backends/native/meta-kms-types.h"
 #include "backends/native/meta-kms-update.h"
 #include "backends/native/meta-kms.h"
 
@@ -65,6 +67,41 @@ meta_get_test_kms_connector (MetaKmsDevice *device)
   g_assert_cmpuint (g_list_length (connectors), ==, 1);
 
   return META_KMS_CONNECTOR (connectors->data);
+}
+
+static MetaKmsPlane *
+get_plane_with_type_for (MetaKmsDevice    *device,
+                         MetaKmsCrtc      *crtc,
+                         MetaKmsPlaneType  type)
+{
+  GList *l;
+
+  for (l = meta_kms_device_get_planes (device); l; l = l->next)
+    {
+      MetaKmsPlane *plane = l->data;
+
+      if (meta_kms_plane_get_plane_type (plane) != type)
+        continue;
+
+      if (meta_kms_plane_is_usable_with (plane, crtc))
+        return plane;
+    }
+
+  return NULL;
+}
+
+MetaKmsPlane *
+meta_get_primary_test_plane_for (MetaKmsDevice *device,
+                                 MetaKmsCrtc   *crtc)
+{
+  return get_plane_with_type_for (device, crtc, META_KMS_PLANE_TYPE_PRIMARY);
+}
+
+MetaKmsPlane *
+meta_get_cursor_test_plane_for (MetaKmsDevice *device,
+                                MetaKmsCrtc   *crtc)
+{
+  return get_plane_with_type_for (device, crtc, META_KMS_PLANE_TYPE_CURSOR);
 }
 
 static MetaDeviceFile *
