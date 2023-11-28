@@ -462,6 +462,13 @@ calculate_clear_area (ClutterPickStack  *pick_stack,
   MtkRectangle rect;
   int i;
 
+  if (!clutter_actor_has_allocation (pick_rec->actor))
+    {
+      if (clear_area)
+        *clear_area = NULL;
+      return;
+    }
+
   clutter_actor_get_abs_allocation_vertices (pick_rec->actor,
                                              (graphene_point3d_t *) &verts);
   if (!get_verts_rectangle (verts, &rect))
