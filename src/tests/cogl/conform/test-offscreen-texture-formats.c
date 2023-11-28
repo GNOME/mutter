@@ -71,6 +71,12 @@ test_offscreen_texture_formats_store_rgb10 (void)
   };
   int i;
 
+  if (!cogl_has_feature (test_ctx, COGL_FEATURE_ID_TEXTURE_RGBA1010102))
+    {
+      g_test_skip ("Driver does not support 10bpc formats");
+      return;
+    }
+
   /* The extra fraction is there to avoid rounding inconsistencies in OpenGL
    * implementations. */
   red = (rgb10_red / (float) ((1 << 10) - 1)) + 0.00001;
@@ -301,6 +307,12 @@ test_offscreen_texture_formats_paint_rgb10 (void)
     COGL_PIXEL_FORMAT_BGRA_1010102_PRE,
   };
   int i;
+
+  if (!cogl_has_feature (test_ctx, COGL_FEATURE_ID_TEXTURE_RGBA1010102))
+    {
+      g_test_skip ("Driver does not support 10bpc formats");
+      return;
+    }
 
   /* The extra fraction is there to avoid rounding inconsistencies in OpenGL
    * implementations. */
