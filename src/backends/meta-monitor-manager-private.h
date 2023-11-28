@@ -87,6 +87,9 @@ struct _MetaCrtcAssignment
   graphene_rect_t layout;
   MetaMonitorTransform transform;
   GPtrArray *outputs;
+
+  gpointer backend_private;
+  GDestroyNotify backend_private_destroy;
 };
 
 /*

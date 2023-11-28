@@ -261,6 +261,12 @@ assign_monitor_crtc (MetaMonitor         *monitor,
   };
   g_ptr_array_add (crtc_assignment->outputs, output);
 
+  if (!meta_crtc_assign_extra (crtc,
+                               crtc_assignment,
+                               data->crtc_assignments,
+                               error))
+    return FALSE;
+
   /*
    * Only one output can be marked as primary (due to Xrandr limitation),
    * so only mark the main output of the first monitor in the logical monitor
@@ -1748,6 +1754,8 @@ meta_monitors_config_class_init (MetaMonitorsConfigClass *klass)
 static void
 meta_crtc_assignment_free (MetaCrtcAssignment *assignment)
 {
+  g_clear_pointer (&assignment->backend_private,
+                   assignment->backend_private_destroy);
   g_ptr_array_free (assignment->outputs, TRUE);
   g_free (assignment);
 }

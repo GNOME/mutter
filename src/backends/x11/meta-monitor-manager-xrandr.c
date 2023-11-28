@@ -560,7 +560,8 @@ apply_crtc_assignments (MetaMonitorManager    *manager,
           crtc_config = meta_crtc_config_new (&crtc_assignment->layout,
                                               crtc_mode,
                                               crtc_assignment->transform);
-          meta_crtc_set_config (crtc, crtc_config);
+          meta_crtc_set_config (crtc, crtc_config,
+                                crtc_assignment->backend_private);
         }
     }
 

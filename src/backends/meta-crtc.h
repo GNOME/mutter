@@ -46,6 +46,15 @@ struct _MetaCrtcClass
 
   void (* set_gamma_lut) (MetaCrtc           *crtc,
                           const MetaGammaLut *lut);
+
+  gboolean (* assign_extra) (MetaCrtc            *crtc,
+                             MetaCrtcAssignment  *crtc_assignment,
+                             GPtrArray           *crtc_assignments,
+                             GError             **error);
+
+  void (* set_config) (MetaCrtc             *crtc,
+                       const MetaCrtcConfig *config,
+                       gpointer              backend_private);
 };
 
 META_EXPORT_TEST
@@ -71,13 +80,19 @@ MetaMonitorTransform meta_crtc_get_all_transforms (MetaCrtc *crtc);
 
 META_EXPORT_TEST
 void meta_crtc_set_config (MetaCrtc       *crtc,
-                           MetaCrtcConfig *config);
+                           MetaCrtcConfig *config,
+                           gpointer        backend_private);
 
 META_EXPORT_TEST
 void meta_crtc_unset_config (MetaCrtc *crtc);
 
 META_EXPORT_TEST
 const MetaCrtcConfig * meta_crtc_get_config (MetaCrtc *crtc);
+
+gboolean meta_crtc_assign_extra (MetaCrtc            *crtc,
+                                 MetaCrtcAssignment  *crtc_assignment,
+                                 GPtrArray           *crtc_assignments,
+                                 GError             **error);
 
 size_t meta_crtc_get_gamma_lut_size (MetaCrtc *crtc);
 

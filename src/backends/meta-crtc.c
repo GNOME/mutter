@@ -112,11 +112,17 @@ meta_crtc_get_all_transforms (MetaCrtc *crtc)
 
 void
 meta_crtc_set_config (MetaCrtc       *crtc,
-                      MetaCrtcConfig *config)
+                      MetaCrtcConfig *config,
+                      gpointer        backend_private)
 {
   MetaCrtcPrivate *priv = meta_crtc_get_instance_private (crtc);
+  MetaCrtcClass *klass = META_CRTC_GET_CLASS (crtc);
 
   meta_crtc_unset_config (crtc);
+
+  if (klass->set_config)
+    klass->set_config (crtc, config, backend_private);
+
   priv->config = config;
 }
 
@@ -134,6 +140,20 @@ meta_crtc_get_config (MetaCrtc *crtc)
   MetaCrtcPrivate *priv = meta_crtc_get_instance_private (crtc);
 
   return priv->config;
+}
+
+gboolean
+meta_crtc_assign_extra (MetaCrtc            *crtc,
+                        MetaCrtcAssignment  *crtc_assignment,
+                        GPtrArray           *crtc_assignments,
+                        GError             **error)
+{
+  MetaCrtcClass *klass = META_CRTC_GET_CLASS (crtc);
+
+  if (klass->assign_extra)
+    return klass->assign_extra (crtc, crtc_assignment, crtc_assignments, error);
+  else
+    return TRUE;
 }
 
 size_t
