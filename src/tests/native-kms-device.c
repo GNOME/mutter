@@ -76,9 +76,9 @@ meta_test_kms_device_sanity (void)
 
   planes = meta_kms_device_get_planes (device);
   g_assert_cmpuint (g_list_length (planes), ==, 2);
-  primary_plane = meta_kms_device_get_primary_plane_for (device, crtc);
+  primary_plane = meta_get_primary_test_plane_for (device, crtc);
   g_assert_nonnull (primary_plane);
-  cursor_plane = meta_kms_device_get_cursor_plane_for (device, crtc);
+  cursor_plane = meta_get_cursor_test_plane_for (device, crtc);
   g_assert_nonnull (cursor_plane);
   g_assert (cursor_plane != primary_plane);
   g_assert_nonnull (g_list_find (planes, primary_plane));
@@ -280,7 +280,7 @@ meta_test_kms_device_mode_set (void)
 
   primary_buffer = meta_create_test_mode_dumb_buffer (device, mode);
 
-  primary_plane = meta_kms_device_get_primary_plane_for (device, crtc);
+  primary_plane = meta_get_primary_test_plane_for (device, crtc);
   meta_kms_update_assign_plane (update,
                                 crtc,
                                 primary_plane,
@@ -334,7 +334,7 @@ meta_test_kms_device_power_save (void)
   crtc = meta_get_test_kms_crtc (device);
   connector = meta_get_test_kms_connector (device);
   mode = meta_kms_connector_get_preferred_mode (connector);
-  primary_plane = meta_kms_device_get_primary_plane_for (device, crtc);
+  primary_plane = meta_get_primary_test_plane_for (device, crtc);
   primary_buffer = meta_create_test_mode_dumb_buffer (device, mode);
 
   /*
@@ -480,8 +480,8 @@ meta_test_kms_device_discard_disabled (void)
   crtc = meta_get_test_kms_crtc (device);
   connector = meta_get_test_kms_connector (device);
   mode = meta_kms_connector_get_preferred_mode (connector);
-  primary_plane = meta_kms_device_get_primary_plane_for (device, crtc);
-  cursor_plane = meta_kms_device_get_cursor_plane_for (device, crtc);
+  primary_plane = meta_get_primary_test_plane_for (device, crtc);
+  cursor_plane = meta_get_cursor_test_plane_for (device, crtc);
 
   device_pool = meta_backend_native_get_device_pool (backend_native);
   device_file = meta_device_pool_open (device_pool,
@@ -659,7 +659,7 @@ meta_test_kms_device_empty_update (void)
   crtc = meta_get_test_kms_crtc (device);
   connector = meta_get_test_kms_connector (device);
   mode = meta_kms_connector_get_preferred_mode (connector);
-  primary_plane = meta_kms_device_get_primary_plane_for (device, crtc);
+  primary_plane = meta_get_primary_test_plane_for (device, crtc);
   primary_buffer = meta_create_test_mode_dumb_buffer (device, mode);
 
   /*

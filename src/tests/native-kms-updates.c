@@ -88,7 +88,7 @@ populate_update (MetaKmsUpdate        *update,
 
       *buffer = meta_create_test_mode_dumb_buffer (device, mode);
 
-      primary_plane = meta_kms_device_get_primary_plane_for (device, crtc);
+      primary_plane = meta_get_primary_test_plane_for (device, crtc);
       meta_kms_update_assign_plane (update,
                                     crtc,
                                     primary_plane,
@@ -142,10 +142,10 @@ meta_test_kms_update_plane_assignments (void)
   crtc = meta_get_test_kms_crtc (device);
   connector = meta_get_test_kms_connector (device);
 
-  primary_plane = meta_kms_device_get_primary_plane_for (device, crtc);
+  primary_plane = meta_get_primary_test_plane_for (device, crtc);
   g_assert_nonnull (primary_plane);
 
-  cursor_plane = meta_kms_device_get_cursor_plane_for (device, crtc);
+  cursor_plane = meta_get_cursor_test_plane_for (device, crtc);
   g_assert_nonnull (cursor_plane);
 
   mode = meta_kms_connector_get_preferred_mode (connector);
@@ -380,7 +380,7 @@ meta_test_kms_update_page_flip (void)
 
   primary_buffer1 = meta_create_test_mode_dumb_buffer (device, mode);
 
-  primary_plane = meta_kms_device_get_primary_plane_for (device, crtc);
+  primary_plane = meta_get_primary_test_plane_for (device, crtc);
   meta_kms_update_assign_plane (update,
                                 crtc,
                                 primary_plane,
@@ -458,8 +458,8 @@ meta_test_kms_update_merge (void)
   device = meta_get_test_kms_device (test_context);
   crtc = meta_get_test_kms_crtc (device);
   connector = meta_get_test_kms_connector (device);
-  primary_plane = meta_kms_device_get_primary_plane_for (device, crtc);
-  cursor_plane = meta_kms_device_get_cursor_plane_for (device, crtc);
+  primary_plane = meta_get_primary_test_plane_for (device, crtc);
+  cursor_plane = meta_get_cursor_test_plane_for (device, crtc);
 
   mode = meta_kms_connector_get_preferred_mode (connector);
 
