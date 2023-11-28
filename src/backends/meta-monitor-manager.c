@@ -3608,17 +3608,6 @@ meta_monitor_manager_tiled_monitor_removed (MetaMonitorManager *manager,
     manager_class->tiled_monitor_removed (manager, monitor);
 }
 
-gboolean
-meta_monitor_manager_is_transform_handled (MetaMonitorManager  *manager,
-                                           MetaCrtc            *crtc,
-                                           MetaMonitorTransform transform)
-{
-  MetaMonitorManagerClass *manager_class =
-    META_MONITOR_MANAGER_GET_CLASS (manager);
-
-  return manager_class->is_transform_handled (manager, crtc, transform);
-}
-
 static void
 meta_monitor_manager_real_read_current_state (MetaMonitorManager *manager)
 {

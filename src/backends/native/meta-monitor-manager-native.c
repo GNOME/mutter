@@ -437,15 +437,6 @@ meta_monitor_manager_native_resume (MetaMonitorManagerNative *manager_native)
   meta_monitor_manager_native_connect_hotplug_handler (manager_native);
 }
 
-static gboolean
-meta_monitor_manager_native_is_transform_handled (MetaMonitorManager  *manager,
-                                                  MetaCrtc            *crtc,
-                                                  MetaMonitorTransform transform)
-{
-  return meta_crtc_native_is_transform_handled (META_CRTC_NATIVE (crtc),
-                                                transform);
-}
-
 static MetaMonitorScalesConstraint
 get_monitor_scale_constraints_from_layout_mode (MetaLogicalMonitorLayoutMode layout_mode)
 {
@@ -717,8 +708,6 @@ meta_monitor_manager_native_class_init (MetaMonitorManagerNativeClass *klass)
     meta_monitor_manager_native_apply_monitors_config;
   manager_class->set_power_save_mode =
     meta_monitor_manager_native_set_power_save_mode;
-  manager_class->is_transform_handled =
-    meta_monitor_manager_native_is_transform_handled;
   manager_class->calculate_monitor_mode_scale =
     meta_monitor_manager_native_calculate_monitor_mode_scale;
   manager_class->calculate_supported_scales =

@@ -1234,9 +1234,8 @@ calculate_view_transform (MetaMonitorManager *monitor_manager,
   crtc_transform =
     meta_output_logical_to_crtc_transform (output, logical_monitor->transform);
 
-  if (meta_monitor_manager_is_transform_handled (monitor_manager,
-                                                 crtc,
-                                                 crtc_transform))
+  if (meta_crtc_native_is_transform_handled (META_CRTC_NATIVE (crtc),
+                                             crtc_transform))
     return META_MONITOR_TRANSFORM_NORMAL;
   else
     return crtc_transform;
