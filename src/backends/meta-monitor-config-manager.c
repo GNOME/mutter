@@ -177,7 +177,6 @@ assign_monitor_crtc (MetaMonitor         *monitor,
   MetaCrtc *crtc;
   MetaMonitorTransform transform;
   MetaMonitorTransform crtc_transform;
-  MetaMonitorTransform crtc_hw_transform;
   int crtc_x, crtc_y;
   float x_offset, y_offset;
   float scale = 0.0;
@@ -209,12 +208,6 @@ assign_monitor_crtc (MetaMonitor         *monitor,
 
   transform = data->logical_monitor_config->transform;
   crtc_transform = meta_monitor_logical_to_crtc_transform (monitor, transform);
-  if (meta_monitor_manager_is_transform_handled (data->monitor_manager,
-                                                 crtc,
-                                                 crtc_transform))
-    crtc_hw_transform = crtc_transform;
-  else
-    crtc_hw_transform = META_MONITOR_TRANSFORM_NORMAL;
 
   meta_monitor_calculate_crtc_pos (monitor, mode, output, crtc_transform,
                                    &crtc_x, &crtc_y);
@@ -256,7 +249,7 @@ assign_monitor_crtc (MetaMonitor         *monitor,
     .crtc = crtc,
     .mode = crtc_mode,
     .layout = crtc_layout,
-    .transform = crtc_hw_transform,
+    .transform = crtc_transform,
     .outputs = g_ptr_array_new ()
   };
   g_ptr_array_add (crtc_assignment->outputs, output);
