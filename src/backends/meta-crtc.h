@@ -110,4 +110,3 @@ gboolean meta_gamma_lut_equal (const MetaGammaLut *gamma,
                                const MetaGammaLut *other_gamma);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaGammaLut, meta_gamma_lut_free)
-
