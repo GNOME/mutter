@@ -45,15 +45,6 @@ _cogl_util_one_at_a_time_mix (unsigned int hash)
   return hash;
 }
 
-/* tests/conform/test-bitmask.c tests some cogl internals and includes this
- * file directly but since these functions depend on other internal Cogl
- * symbols we hide them from test-bitmask.c
- *
- * XXX: maybe there's a better way for us to handle internal testing
- * to avoid needing hacks like this.
- */
-#ifndef _COGL_IN_TEST_BITMASK
-
 /* Given a set of red, green and blue component masks, a depth and
  * bits per pixel this function tries to determine a corresponding
  * CoglPixelFormat.
@@ -174,5 +165,3 @@ _cogl_util_pixel_format_from_masks (unsigned long r_mask,
 
   return image_format;
 }
-
-#endif /* _COGL_IN_TEST_BITMASK */
