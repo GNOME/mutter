@@ -1845,7 +1845,7 @@ create_surfaces_gbm (CoglOnscreen        *onscreen,
         COGL_EGL_WINSYS_FEATURE_NO_CONFIG_CONTEXT) ||
       !choose_onscreen_egl_config (onscreen, &egl_config, error))
     egl_config = cogl_display_egl->egl_config;
-    
+
   format = get_gbm_format_from_egl (egl,
                                     cogl_renderer_egl->edpy,
                                     egl_config);
