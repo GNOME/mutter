@@ -108,7 +108,7 @@ _cogl_driver_gl_context_init (CoglContext *context)
   CoglGLContext *gl_context;
 
   if (!context->driver_context)
-    context->driver_context = g_new0 (CoglContext, 1);
+    context->driver_context = g_new0 (CoglGLContext, 1);
 
   gl_context = _cogl_driver_gl_context (context);
   if (!gl_context)
