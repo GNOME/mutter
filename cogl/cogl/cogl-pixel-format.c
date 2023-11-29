@@ -393,13 +393,6 @@ static const CoglPixelFormatInfo format_info_table[] = {
     .bpp = { 2 },
   },
   {
-    .cogl_format = COGL_PIXEL_FORMAT_DEPTH_32,
-    .format_str = "DEPTH_32",
-    .n_planes = 1,
-    .aligned = 1,
-    .bpp = { 4 },
-  },
-  {
     .cogl_format = COGL_PIXEL_FORMAT_DEPTH_24_STENCIL_8,
     .format_str = "DEPTH_24_STENCIL_8",
     .n_planes = 1,

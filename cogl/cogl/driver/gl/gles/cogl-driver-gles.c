@@ -244,11 +244,6 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       glformat = GL_DEPTH_COMPONENT;
       gltype = GL_UNSIGNED_SHORT;
       break;
-    case COGL_PIXEL_FORMAT_DEPTH_32:
-      glintformat = GL_DEPTH_COMPONENT;
-      glformat = GL_DEPTH_COMPONENT;
-      gltype = GL_UNSIGNED_INT;
-      break;
 
     case COGL_PIXEL_FORMAT_DEPTH_24_STENCIL_8:
       glintformat = GL_DEPTH_STENCIL;
