@@ -63,6 +63,7 @@ G_BEGIN_DECLS
 #define COGL_PRIVATE(x) private_member_ ## x
 #endif
 
+#ifndef __GI_SCANNER__
 /* To help catch accidental changes to public structs that should
  * be stack allocated we use this macro to compile time assert that
  * a struct size is as expected.
@@ -72,7 +73,9 @@ typedef struct { \
           char compile_time_assert_ ## TYPE ## _size[ \
               (sizeof (TYPE) == (SIZE)) ? 1 : -1]; \
         } _ ## TYPE ## SizeCheck
-
+#else
+#define COGL_STRUCT_SIZE_ASSERT(TYPE, SIZE)
+#endif
 
 typedef struct _CoglFramebuffer CoglFramebuffer;
 

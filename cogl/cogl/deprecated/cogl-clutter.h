@@ -34,7 +34,6 @@
 
 G_BEGIN_DECLS
 
-#define cogl_clutter_winsys_has_feature cogl_clutter_winsys_has_feature_CLUTTER
 COGL_DEPRECATED_FOR (cogl_has_feature)
 COGL_EXPORT gboolean
 cogl_clutter_winsys_has_feature (CoglWinsysFeature feature);
