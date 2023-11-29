@@ -3967,15 +3967,12 @@ meta_window_set_initial_monitor (MetaWindow *window,
                                  gint monitor)
 {
   MtkRectangle new_area;
-
   if (window->tile_mode != META_TILE_NONE)
     window->tile_monitor_number = monitor;
 
-  meta_window_get_work_area_for_monitor (window,
-                                         monitor,
-                                         &new_area);
-
-  meta_window_move_between_rects (window, META_MOVE_RESIZE_FORCE_UPDATE_MONITOR, NULL, &new_area);
+  window->monitor = monitor;
+  meta_window_update_monitor (window,
+                              META_WINDOW_UPDATE_MONITOR_FLAGS_FORCE);
   window->preferred_output_winsys_id = window->monitor->winsys_id;
 
   if (window->fullscreen || window->override_redirect)
