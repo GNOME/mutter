@@ -39,31 +39,6 @@
 
 #include <stdio.h>
 
-int
-_cogl_util_next_p2 (int a);
-
-/* The signbit macro is defined by ISO C99 so it should be available,
-   however if it's not we can fallback to an evil hack */
-#ifdef signbit
-#define cogl_util_float_signbit(x) signbit(x)
-#else
-/* This trick was stolen from here:
-   http://lists.boost.org/Archives/boost/2006/08/108731.php
-
-   It xors the integer reinterpretations of -1.0f and 1.0f. In theory
-   they should only differ by the signbit so that gives a mask for the
-   sign which we can just test against the value */
-static inline gboolean
-cogl_util_float_signbit (float x)
-{
-  static const union { float f; uint32_t i; } negative_one = { -1.0f };
-  static const union { float f; uint32_t i; } positive_one = { +1.0f };
-  union { float f; uint32_t i; } value = { x };
-
-  return !!((negative_one.i ^ positive_one.i) & value.i);
-}
-#endif
-
 /* This is a replacement for the nearbyint function which always
    rounds to the nearest integer. nearbyint is apparently a C99
    function so it might not always be available but also it seems in
@@ -72,13 +47,6 @@ cogl_util_float_signbit (float x)
    negative numbers. */
 #define COGL_UTIL_NEARBYINT(x) ((int) ((x) < 0.0f ? (x) - 0.5f : (x) + 0.5f))
 
-/* Returns whether the given integer is a power of two */
-static inline gboolean
-_cogl_util_is_pot (unsigned int num)
-{
-  /* Make sure there is only one bit set */
-  return (num & (num - 1)) == 0;
-}
 
 /* Split Bob Jenkins' One-at-a-Time hash
  *

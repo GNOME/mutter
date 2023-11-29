@@ -35,26 +35,6 @@
 #include "cogl/cogl-util.h"
 #include "cogl/cogl-private.h"
 
-/*
- * cogl_util_next_p2:
- * @a: Value to get the next power of two
- *
- * Calculates the next power of two greater than or equal to @a.
- *
- * Return value: @a if @a is already a power of two, otherwise returns
- *   the next nearest power of two.
- */
-COGL_EXPORT int
-_cogl_util_next_p2 (int a)
-{
-  int rval = 1;
-
-  while (rval < a)
-    rval <<= 1;
-
-  return rval;
-}
-
 unsigned int
 _cogl_util_one_at_a_time_mix (unsigned int hash)
 {
