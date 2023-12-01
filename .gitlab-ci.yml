@@ -299,6 +299,7 @@ check-code-style:
     - job: build-fedora-container@x86_64
       artifacts: false
   script:
+      git config --global --add safe.directory $CI_PROJECT_DIR ;
       git remote add target $CI_MERGE_REQUEST_PROJECT_URL.git ;
       git fetch target $CI_MERGE_REQUEST_TARGET_BRANCH_NAME ;
       export common_parent_sha=$(diff --old-line-format='' --new-line-format='' <(git rev-list --first-parent "target/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME") <(git rev-list --first-parent HEAD) | head -1) ;
