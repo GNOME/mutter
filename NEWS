@@ -1,3 +1,11 @@
+44.7
+====
+* Fix disabling check-alive timeout [Sebastian K.; !3367]
+* Propagate focus appearance to all ancestors [Sebastian W.; !3356]
+
+Contributors:
+  Sebastian Keller, Sebastian Wick
+
 44.6
 ====
 * wayland: Send keyboard modifiers after the enter event [Alexandros; !3341]
