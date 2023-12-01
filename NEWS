@@ -1,3 +1,17 @@
+45.2
+====
+* Disable HW cursor when inhibited by backend [Robert; !3412]
+* Fix disabling check-alive timeout [Sebastian K.; !3367]
+* Propagate focus appearance to all ancestors [Sebastian W.; !3356]
+* Fix tablets on X11 having the wrong device [Carlos; !3393]
+* Fixed crash [Carlos; !3370]
+
+Contributors:
+  Carlos Garnacho, Sebastian Keller, Robert Mader, Sebastian Wick
+
+Translators:
+  Ngọc Quân Trần [vi], Ekaterine Papava [ka]
+
 45.1
 ====
 * Fix filtering keybinding events in presence of grabs [Sebastian K.; !3054]
