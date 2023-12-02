@@ -36,7 +36,6 @@
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_ACTOR_BOX          (clutter_actor_box_get_type ())
-#define CLUTTER_TYPE_KNOT               (clutter_knot_get_type ())
 #define CLUTTER_TYPE_MARGIN             (clutter_margin_get_type ())
 #define CLUTTER_TYPE_PAINT_VOLUME       (clutter_paint_volume_get_type ())
 #define CLUTTER_TYPE_PERSPECTIVE        (clutter_perspective_get_type ())
@@ -69,13 +68,9 @@ typedef struct _ClutterAction                   ClutterAction;
 typedef struct _ClutterConstraint               ClutterConstraint;
 typedef struct _ClutterEffect                   ClutterEffect;
 
-typedef struct _ClutterPath                     ClutterPath;
-typedef struct _ClutterPathNode                 ClutterPathNode;
-
 typedef struct _ClutterActorBox                 ClutterActorBox;
 typedef struct _ClutterColor                    ClutterColor;
 typedef struct _ClutterColorState               ClutterColorState;
-typedef struct _ClutterKnot                     ClutterKnot;
 typedef struct _ClutterMargin                   ClutterMargin;
 typedef struct _ClutterPerspective              ClutterPerspective;
 
@@ -257,59 +252,6 @@ void             clutter_actor_box_scale          (ClutterActorBox       *box,
 
 CLUTTER_EXPORT
 gboolean         clutter_actor_box_is_initialized (ClutterActorBox       *box);
-
-/**
- * ClutterKnot:
- * @x: X coordinate of the knot
- * @y: Y coordinate of the knot
- *
- * Point in a path behaviour.
- */
-struct _ClutterKnot
-{
-  gint x;
-  gint y;
-};
-
-CLUTTER_EXPORT
-GType        clutter_knot_get_type (void) G_GNUC_CONST;
-CLUTTER_EXPORT
-ClutterKnot *clutter_knot_copy     (const ClutterKnot *knot);
-CLUTTER_EXPORT
-void         clutter_knot_free     (ClutterKnot       *knot);
-CLUTTER_EXPORT
-gboolean     clutter_knot_equal    (const ClutterKnot *knot_a,
-                                    const ClutterKnot *knot_b);
-
-/**
- * ClutterPathNode:
- * @type: the node's type
- * @points: the coordinates of the node
- *
- * Represents a single node of a #ClutterPath.
- *
- * Some of the coordinates in @points may be unused for some node
- * types. %CLUTTER_PATH_MOVE_TO and %CLUTTER_PATH_LINE_TO use only one
- * pair of coordinates, %CLUTTER_PATH_CURVE_TO uses all three and
- * %CLUTTER_PATH_CLOSE uses none.
- */
-struct _ClutterPathNode
-{
-  ClutterPathNodeType type;
-
-  ClutterKnot points[3];
-};
-
-CLUTTER_EXPORT
-GType clutter_path_node_get_type (void) G_GNUC_CONST;
-
-CLUTTER_EXPORT
-ClutterPathNode *clutter_path_node_copy  (const ClutterPathNode *node);
-CLUTTER_EXPORT
-void             clutter_path_node_free  (ClutterPathNode       *node);
-CLUTTER_EXPORT
-gboolean         clutter_path_node_equal (const ClutterPathNode *node_a,
-                                          const ClutterPathNode *node_b);
 
 /*
  * ClutterPaintVolume

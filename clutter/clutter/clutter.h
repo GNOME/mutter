@@ -82,8 +82,6 @@
 #include "clutter/clutter-paint-nodes.h"
 #include "clutter/clutter-paint-node.h"
 #include "clutter/clutter-pan-action.h"
-#include "clutter/clutter-path-constraint.h"
-#include "clutter/clutter-path.h"
 #include "clutter/clutter-property-transition.h"
 #include "clutter/clutter-rotate-action.h"
 #include "clutter/clutter-scroll-actor.h"

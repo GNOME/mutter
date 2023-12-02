@@ -1021,38 +1021,6 @@ typedef enum /*< prefix=CLUTTER_UNIT >*/
   CLUTTER_UNIT_CM
 } ClutterUnitType;
 
-#define CLUTTER_PATH_RELATIVE           (32)
-
-/**
- * ClutterPathNodeType:
- * @CLUTTER_PATH_MOVE_TO: jump to the given position
- * @CLUTTER_PATH_LINE_TO: create a line from the last node to the
- *   given position
- * @CLUTTER_PATH_CURVE_TO: bezier curve using the last position and
- *   three control points.
- * @CLUTTER_PATH_CLOSE: create a line from the last node to the last
- *   %CLUTTER_PATH_MOVE_TO node.
- * @CLUTTER_PATH_REL_MOVE_TO: same as %CLUTTER_PATH_MOVE_TO but with
- *   coordinates relative to the last node.
- * @CLUTTER_PATH_REL_LINE_TO: same as %CLUTTER_PATH_LINE_TO but with
- *   coordinates relative to the last node.
- * @CLUTTER_PATH_REL_CURVE_TO: same as %CLUTTER_PATH_CURVE_TO but with
- *   coordinates relative to the last node.
- *
- * Types of nodes in a #ClutterPath.
- */
-typedef enum
-{
-  CLUTTER_PATH_MOVE_TO      = 0,
-  CLUTTER_PATH_LINE_TO      = 1,
-  CLUTTER_PATH_CURVE_TO     = 2,
-  CLUTTER_PATH_CLOSE        = 3,
-
-  CLUTTER_PATH_REL_MOVE_TO  = CLUTTER_PATH_MOVE_TO | CLUTTER_PATH_RELATIVE,
-  CLUTTER_PATH_REL_LINE_TO  = CLUTTER_PATH_LINE_TO | CLUTTER_PATH_RELATIVE,
-  CLUTTER_PATH_REL_CURVE_TO = CLUTTER_PATH_CURVE_TO | CLUTTER_PATH_RELATIVE
-} ClutterPathNodeType;
-
 /**
  * ClutterActorAlign:
  * @CLUTTER_ACTOR_ALIGN_FILL: Stretch to cover the whole allocated space
