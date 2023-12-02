@@ -52,13 +52,6 @@ typedef enum _CoglBufferFlags
 
 typedef enum
 {
-  COGL_BUFFER_USAGE_HINT_TEXTURE,
-  COGL_BUFFER_USAGE_HINT_ATTRIBUTE_BUFFER,
-  COGL_BUFFER_USAGE_HINT_INDEX_BUFFER
-} CoglBufferUsageHint;
-
-typedef enum
-{
   COGL_BUFFER_BIND_TARGET_PIXEL_PACK,
   COGL_BUFFER_BIND_TARGET_PIXEL_UNPACK,
   COGL_BUFFER_BIND_TARGET_ATTRIBUTE_BUFFER,
@@ -79,7 +72,6 @@ struct _CoglBuffer
 
   GLuint gl_handle; /* OpenGL handle */
   unsigned int size; /* size of the buffer, in bytes */
-  CoglBufferUsageHint usage_hint;
   CoglBufferUpdateHint update_hint;
 
   /* points to the mapped memory when the CoglBuffer is a VBO, PBO,

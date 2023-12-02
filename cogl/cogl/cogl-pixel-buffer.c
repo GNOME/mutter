@@ -73,7 +73,6 @@ _cogl_pixel_buffer_new (CoglContext *context,
                                "context", context,
                                "size", size,
                                "default-target", COGL_BUFFER_BIND_TARGET_PIXEL_UNPACK,
-                               "usage-hint", COGL_BUFFER_USAGE_HINT_TEXTURE,
                                "update-hint", COGL_BUFFER_UPDATE_HINT_STATIC,
                                NULL);
 

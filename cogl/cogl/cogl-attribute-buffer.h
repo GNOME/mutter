@@ -81,7 +81,7 @@ GType               cogl_attribute_buffer_get_type       (void) G_GNUC_CONST;
  *
  * The underlying storage of this buffer isn't allocated by this
  * function so that you have an opportunity to use the
- * cogl_buffer_set_update_hint() and cogl_buffer_set_usage_hint()
+ * cogl_buffer_set_update_hint()
  * functions which may influence how the storage is allocated. The
  * storage will be allocated once you upload data to the buffer.
  *

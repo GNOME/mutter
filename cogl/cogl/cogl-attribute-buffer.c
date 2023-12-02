@@ -59,7 +59,6 @@ cogl_attribute_buffer_new_with_size (CoglContext *context,
                          "context", context,
                          "size", bytes,
                          "default-target", COGL_BUFFER_BIND_TARGET_ATTRIBUTE_BUFFER,
-                         "usage-hint", COGL_BUFFER_USAGE_HINT_ATTRIBUTE_BUFFER,
                          "update-hint", COGL_BUFFER_UPDATE_HINT_STATIC,
                          NULL);
 

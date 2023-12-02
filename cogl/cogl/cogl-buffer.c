@@ -57,7 +57,6 @@ enum
   PROP_CONTEXT,
   PROP_SIZE,
   PROP_DEFAULT_TARGET,
-  PROP_USAGE_HINT,
   PROP_UPDATE_HINT,
 
   PROP_LAST
@@ -162,10 +161,6 @@ cogl_buffer_set_property (GObject      *gobject,
         }
       break;
 
-    case PROP_USAGE_HINT:
-      buffer->usage_hint = g_value_get_uint (value);
-      break;
-
     case PROP_UPDATE_HINT:
       buffer->update_hint = g_value_get_uint (value);
       break;
@@ -196,11 +191,6 @@ cogl_buffer_class_init (CoglBufferClass *klass)
                          G_PARAM_STATIC_STRINGS);
   obj_props[PROP_DEFAULT_TARGET] =
     g_param_spec_uint ("default-target", NULL, NULL,
-                       0, G_MAXINT, 0,
-                       G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY |
-                       G_PARAM_STATIC_STRINGS);
-  obj_props[PROP_USAGE_HINT] =
-    g_param_spec_uint ("usage-hint", NULL, NULL,
                        0, G_MAXINT, 0,
                        G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY |
                        G_PARAM_STATIC_STRINGS);
