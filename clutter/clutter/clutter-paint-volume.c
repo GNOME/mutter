@@ -37,6 +37,8 @@
 #include "clutter/clutter-stage-private.h"
 #include "clutter/clutter-actor-box-private.h"
 
+static void _clutter_paint_volume_axis_align (ClutterPaintVolume *pv);
+
 G_DEFINE_BOXED_TYPE (ClutterPaintVolume, clutter_paint_volume,
                      clutter_paint_volume_copy,
                      clutter_paint_volume_free);
@@ -736,7 +738,7 @@ _clutter_paint_volume_get_bounding_box (ClutterPaintVolume *pv,
   box->y2 = y_max;
 }
 
-void
+static void
 _clutter_paint_volume_project (ClutterPaintVolume *pv,
                                const graphene_matrix_t *modelview,
                                const graphene_matrix_t *projection,
@@ -821,7 +823,7 @@ _clutter_paint_volume_transform (ClutterPaintVolume *pv,
 /* Given a paint volume that has been transformed by an arbitrary
  * modelview and is no longer axis aligned, this derives a replacement
  * that is axis aligned. */
-void
+static void
 _clutter_paint_volume_axis_align (ClutterPaintVolume *pv)
 {
   int count;

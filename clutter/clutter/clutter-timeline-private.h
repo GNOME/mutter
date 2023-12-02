@@ -25,6 +25,5 @@
 
 void                    _clutter_timeline_advance                       (ClutterTimeline    *timeline,
                                                                          int64_t             tick_time);
-int64_t                 _clutter_timeline_get_delta                     (ClutterTimeline    *timeline);
 void                    _clutter_timeline_do_tick                       (ClutterTimeline    *timeline,
                                                                          int64_t             tick_time);

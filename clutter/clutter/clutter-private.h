@@ -64,9 +64,6 @@ typedef struct _ClutterContext      ClutterContext;
 #define CLUTTER_ACTOR_IN_PAINT(a)               ((CLUTTER_PRIVATE_FLAGS (a) & CLUTTER_IN_PAINT) != FALSE)
 #define CLUTTER_ACTOR_IN_PICK(a)                ((CLUTTER_PRIVATE_FLAGS (a) & CLUTTER_IN_PICK) != FALSE)
 #define CLUTTER_ACTOR_IN_RELAYOUT(a)            ((CLUTTER_PRIVATE_FLAGS (a) & CLUTTER_IN_RELAYOUT) != FALSE)
-#define CLUTTER_ACTOR_IN_PREF_WIDTH(a)          ((CLUTTER_PRIVATE_FLAGS (a) & CLUTTER_IN_PREF_WIDTH) != FALSE)
-#define CLUTTER_ACTOR_IN_PREF_HEIGHT(a)         ((CLUTTER_PRIVATE_FLAGS (a) & CLUTTER_IN_PREF_HEIGHT) != FALSE)
-#define CLUTTER_ACTOR_IN_PREF_SIZE(a)           ((CLUTTER_PRIVATE_FLAGS (a) & (CLUTTER_IN_PREF_HEIGHT|CLUTTER_IN_PREF_WIDTH)) != FALSE)
 #define CLUTTER_ACTOR_IN_MAP_UNMAP(a)           ((CLUTTER_PRIVATE_FLAGS (a) & CLUTTER_IN_MAP_UNMAP) != FALSE)
 
 #define CLUTTER_PARAM_ANIMATABLE        (1 << G_PARAM_USER_SHIFT)
@@ -120,9 +117,6 @@ gboolean                _clutter_context_get_show_fps                   (void);
 /* Diagnostic mode */
 gboolean        _clutter_diagnostic_enabled     (void);
 
-CLUTTER_EXPORT
-void            _clutter_set_sync_to_vblank     (gboolean      sync_to_vblank);
-
 /* use this function as the accumulator if you have a signal with
  * a G_TYPE_BOOLEAN return value; this will stop the emission as
  * soon as one handler returns TRUE
@@ -142,8 +136,6 @@ gboolean _clutter_boolean_continue_accumulator (GSignalInvocationHint *ihint,
                                                 gpointer               dummy);
 
 void _clutter_run_repaint_functions (ClutterRepaintFlags flags);
-
-GType _clutter_layout_manager_get_child_meta_type (ClutterLayoutManager *manager);
 
 void  _clutter_util_fully_transform_vertices (const graphene_matrix_t  *modelview,
                                               const graphene_matrix_t  *projection,

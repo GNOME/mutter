@@ -261,15 +261,6 @@ clutter_input_method_focus_out (ClutterInputMethod *im)
   klass->focus_out (im);
 }
 
-ClutterInputFocus *
-clutter_input_method_get_focus (ClutterInputMethod *im)
-{
-  ClutterInputMethodPrivate *priv;
-
-  priv = clutter_input_method_get_instance_private (im);
-  return priv->focus;
-}
-
 static void
 clutter_input_method_put_im_event (ClutterInputMethod      *im,
                                    ClutterEventType         event_type,

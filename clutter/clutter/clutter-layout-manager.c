@@ -455,12 +455,6 @@ clutter_layout_manager_set_container (ClutterLayoutManager *manager,
     klass->set_container (manager, container);
 }
 
-GType
-_clutter_layout_manager_get_child_meta_type (ClutterLayoutManager *manager)
-{
-  return CLUTTER_LAYOUT_MANAGER_GET_CLASS (manager)->get_child_meta_type (manager);
-}
-
 static inline ClutterLayoutMeta *
 create_child_meta (ClutterLayoutManager *manager,
                    ClutterActor         *container,

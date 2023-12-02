@@ -172,30 +172,6 @@ clutter_stage_manager_get_default (void)
   return context->stage_manager;
 }
 
-/*< private >
- * _clutter_stage_manager_set_default_stage:
- * @stage_manager: a #ClutterStageManager
- * @stage: a #ClutterStage
- *
- * Sets @stage as the default stage
- *
- * A no-op if there already is a default stage
- */
-void
-_clutter_stage_manager_set_default_stage (ClutterStageManager *stage_manager,
-                                          ClutterStage        *stage)
-{
-  if (G_UNLIKELY (default_stage == NULL))
-    {
-      default_stage = stage;
-
-      /* the default stage is immediately realized */
-      clutter_actor_realize (CLUTTER_ACTOR (stage));
-
-      g_object_notify (G_OBJECT (stage_manager), "default-stage");
-    }
-}
-
 /**
  * clutter_stage_manager_get_default_stage:
  * @stage_manager: a #ClutterStageManager

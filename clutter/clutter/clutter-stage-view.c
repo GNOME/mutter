@@ -656,26 +656,6 @@ clutter_stage_view_has_full_redraw_clip (ClutterStageView *view)
   return priv->has_redraw_clip && !priv->redraw_clip;
 }
 
-const MtkRegion *
-clutter_stage_view_peek_redraw_clip (ClutterStageView *view)
-{
-  ClutterStageViewPrivate *priv =
-    clutter_stage_view_get_instance_private (view);
-
-  return priv->redraw_clip;
-}
-
-MtkRegion *
-clutter_stage_view_take_redraw_clip (ClutterStageView *view)
-{
-  ClutterStageViewPrivate *priv =
-    clutter_stage_view_get_instance_private (view);
-
-  priv->has_redraw_clip = FALSE;
-
-  return g_steal_pointer (&priv->redraw_clip);
-}
-
 MtkRegion *
 clutter_stage_view_take_accumulated_redraw_clip (ClutterStageView *view)
 {

@@ -676,17 +676,6 @@ clutter_settings_set_property (GObject      *gobject,
     }
 }
 
-void
-clutter_settings_set_property_internal (ClutterSettings *self,
-                                        const char *property,
-                                        GValue *value)
-{
-
-  property = g_intern_string (property);
-
-  g_object_set_property (G_OBJECT (self), property, value);
-}
-
 static void
 clutter_settings_get_property (GObject    *gobject,
                                guint       prop_id,

@@ -60,6 +60,9 @@
 
 static inline void      clutter_paint_operation_clear   (ClutterPaintOperation *op);
 
+static void clutter_paint_node_remove_child (ClutterPaintNode *node,
+                                             ClutterPaintNode *child);
+
 static void
 value_paint_node_init (GValue *value)
 {
@@ -393,7 +396,7 @@ clutter_paint_node_add_child (ClutterPaintNode *node,
  * This function will release the reference on @child acquired by
  * using clutter_paint_node_add_child().
  */
-void
+static void
 clutter_paint_node_remove_child (ClutterPaintNode *node,
                                  ClutterPaintNode *child)
 {
@@ -428,168 +431,6 @@ clutter_paint_node_remove_child (ClutterPaintNode *node,
   clutter_paint_node_unref (child);
 }
 
-/**
- * clutter_paint_node_replace_child:
- * @node: a #ClutterPaintNode
- * @old_child: the child replaced by @new_child
- * @new_child: the child that replaces @old_child
- *
- * Atomically replaces @old_child with @new_child in the list of
- * children of @node.
- *
- * This function will release the reference on @old_child acquired
- * by @node, and will acquire a new reference on @new_child.
- */
-void
-clutter_paint_node_replace_child (ClutterPaintNode *node,
-                                  ClutterPaintNode *old_child,
-                                  ClutterPaintNode *new_child)
-{
-  ClutterPaintNode *prev, *next;
-
-  g_return_if_fail (CLUTTER_IS_PAINT_NODE (node));
-  g_return_if_fail (CLUTTER_IS_PAINT_NODE (old_child));
-  g_return_if_fail (old_child->parent == node);
-  g_return_if_fail (CLUTTER_IS_PAINT_NODE (new_child));
-  g_return_if_fail (new_child->parent == NULL);
-
-  prev = old_child->prev_sibling;
-  next = old_child->next_sibling;
-
-  new_child->parent = node;
-  new_child->prev_sibling = prev;
-  new_child->next_sibling = next;
-  clutter_paint_node_ref (new_child);
-
-  if (prev != NULL)
-    prev->next_sibling = new_child;
-
-  if (next != NULL)
-    next->prev_sibling = new_child;
-
-  if (node->first_child == old_child)
-    node->first_child = new_child;
-
-  if (node->last_child == old_child)
-    node->last_child = new_child;
-
-  old_child->prev_sibling = NULL;
-  old_child->next_sibling = NULL;
-  old_child->parent = NULL;
-  clutter_paint_node_unref (old_child);
-}
-
-/**
- * clutter_paint_node_remove_all:
- * @node: a #ClutterPaintNode
- *
- * Removes all children of @node.
- *
- * This function releases the reference acquired by @node on its
- * children.
- */
-void
-clutter_paint_node_remove_all (ClutterPaintNode *node)
-{
-  ClutterPaintNode *iter;
-
-  g_return_if_fail (CLUTTER_IS_PAINT_NODE (node));
-
-  iter = node->first_child;
-  while (iter != NULL)
-    {
-      ClutterPaintNode *next = iter->next_sibling;
-
-      clutter_paint_node_remove_child (node, iter);
-
-      iter = next;
-    }
-}
-
-/**
- * clutter_paint_node_get_first_child:
- * @node: a #ClutterPaintNode
- *
- * Retrieves the first child of the @node.
- *
- * Return value: (transfer none): a pointer to the first child of
- *   the #ClutterPaintNode.
- */
-ClutterPaintNode *
-clutter_paint_node_get_first_child (ClutterPaintNode *node)
-{
-  g_return_val_if_fail (CLUTTER_IS_PAINT_NODE (node), NULL);
-
-  return node->first_child;
-}
-
-/**
- * clutter_paint_node_get_previous_sibling:
- * @node: a #ClutterPaintNode
- *
- * Retrieves the previous sibling of @node.
- *
- * Return value: (transfer none): a pointer to the previous sibling
- *   of the #ClutterPaintNode.
- */
-ClutterPaintNode *
-clutter_paint_node_get_previous_sibling (ClutterPaintNode *node)
-{
-  g_return_val_if_fail (CLUTTER_IS_PAINT_NODE (node), NULL);
-
-  return node->prev_sibling;
-}
-
-/**
- * clutter_paint_node_get_next_sibling:
- * @node: a #ClutterPaintNode
- *
- * Retrieves the next sibling of @node.
- *
- * Return value: (transfer none): a pointer to the next sibling
- *   of a #ClutterPaintNode
- */
-ClutterPaintNode *
-clutter_paint_node_get_next_sibling (ClutterPaintNode *node)
-{
-  g_return_val_if_fail (CLUTTER_IS_PAINT_NODE (node), NULL);
-
-  return node->next_sibling;
-}
-
-/**
- * clutter_paint_node_get_last_child:
- * @node: a #ClutterPaintNode
- *
- * Retrieves the last child of @node.
- *
- * Return value: (transfer none): a pointer to the last child
- *   of a #ClutterPaintNode
- */
-ClutterPaintNode *
-clutter_paint_node_get_last_child (ClutterPaintNode *node)
-{
-  g_return_val_if_fail (CLUTTER_IS_PAINT_NODE (node), NULL);
-
-  return node->last_child;
-}
-
-/**
- * clutter_paint_node_get_parent:
- * @node: a #ClutterPaintNode
- *
- * Retrieves the parent of @node.
- *
- * Return value: (transfer none): a pointer to the parent of
- *   a #ClutterPaintNode
- */
-ClutterPaintNode *
-clutter_paint_node_get_parent (ClutterPaintNode *node)
-{
-  g_return_val_if_fail (CLUTTER_IS_PAINT_NODE (node), NULL);
-
-  return node->parent;
-}
 
 /**
  * clutter_paint_node_get_n_children:

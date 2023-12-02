@@ -40,7 +40,5 @@ void _clutter_stage_manager_add_stage         (ClutterStageManager *stage_manage
                                                ClutterStage        *stage);
 void _clutter_stage_manager_remove_stage      (ClutterStageManager *stage_manager,
                                                ClutterStage        *stage);
-void _clutter_stage_manager_set_default_stage (ClutterStageManager *stage_manager,
-                                               ClutterStage        *stage);
 
 G_END_DECLS

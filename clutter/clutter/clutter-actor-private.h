@@ -209,10 +209,6 @@ void                            _clutter_actor_apply_relative_transformation_mat
                                                                                          ClutterActor      *ancestor,
                                                                                          graphene_matrix_t *matrix);
 
-void                            _clutter_actor_rerealize                                (ClutterActor    *self,
-                                                                                         ClutterCallback  callback,
-                                                                                         gpointer         data);
-
 void                            _clutter_actor_set_in_clone_paint                       (ClutterActor *self,
                                                                                          gboolean      is_in_clone_paint);
 
@@ -231,8 +227,6 @@ void                            _clutter_actor_set_has_key_focus                
 void                            _clutter_actor_queue_redraw_full                        (ClutterActor             *self,
                                                                                          const ClutterPaintVolume *volume,
                                                                                          ClutterEffect            *effect);
-
-void                            _clutter_actor_finish_queue_redraw                      (ClutterActor *self);
 
 gboolean                        _clutter_actor_set_default_paint_volume                 (ClutterActor       *self,
                                                                                          GType               check_gtype,

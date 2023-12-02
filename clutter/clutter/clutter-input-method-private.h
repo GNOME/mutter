@@ -19,8 +19,6 @@
 
 #pragma once
 
-ClutterInputFocus * clutter_input_method_get_focus (ClutterInputMethod *method);
-
 void clutter_input_method_reset               (ClutterInputMethod *method);
 
 void clutter_input_method_set_cursor_location (ClutterInputMethod    *method,
@@ -37,5 +35,3 @@ void clutter_input_method_set_can_show_preedit (ClutterInputMethod *method,
                                                 gboolean            can_show_preedit);
 gboolean clutter_input_method_filter_key_event (ClutterInputMethod    *method,
                                                 const ClutterKeyEvent *key);
-
-void clutter_input_method_toggle_input_panel (ClutterInputMethod *method);

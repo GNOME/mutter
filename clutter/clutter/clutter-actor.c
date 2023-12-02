@@ -2086,68 +2086,6 @@ clutter_actor_unrealize_not_hiding (ClutterActor *self)
                            stage);
 }
 
-/*
- * _clutter_actor_rerealize:
- * @self: A #ClutterActor
- * @callback: Function to call while unrealized
- * @data: data for callback
- *
- * If an actor is already unrealized, this just calls the callback.
- *
- * If it is realized, it unrealizes temporarily, calls the callback,
- * and then re-realizes the actor.
- *
- * As a side effect, leaves all children of the actor unrealized if
- * the actor was realized but not showing.  This is because when we
- * unrealize the actor temporarily we must unrealize its children
- * (e.g. children of a stage can't be realized if stage window is
- * gone). And we aren't clever enough to save the realization state of
- * all children. In most cases this should not matter, because
- * the children will automatically realize when they next become mapped.
- */
-void
-_clutter_actor_rerealize (ClutterActor    *self,
-                          ClutterCallback  callback,
-                          void            *data)
-{
-  gboolean was_mapped;
-  gboolean was_showing;
-  gboolean was_realized;
-
-  g_return_if_fail (CLUTTER_IS_ACTOR (self));
-
-#ifdef CLUTTER_ENABLE_DEBUG
-  clutter_actor_verify_map_state (self);
-#endif
-
-  was_realized = clutter_actor_is_realized (self);
-  was_mapped = clutter_actor_is_mapped (self);
-  was_showing = clutter_actor_is_visible (self);
-
-  /* Must be unmapped to unrealize. Note we only have to hide this
-   * actor if it was mapped (if all parents were showing).  If actor
-   * is merely visible (but not mapped), then that's fine, we can
-   * leave it visible.
-   */
-  if (was_mapped)
-    clutter_actor_hide (self);
-
-  g_assert (!clutter_actor_is_mapped (self));
-
-  /* unrealize self and all children */
-  clutter_actor_unrealize_not_hiding (self);
-
-  if (callback != NULL)
-    {
-      (* callback) (self, data);
-    }
-
-  if (was_showing)
-    clutter_actor_show (self); /* will realize only if mapping implies it */
-  else if (was_realized)
-    clutter_actor_realize (self); /* realize self and all parents */
-}
-
 static void
 clutter_actor_real_pick (ClutterActor       *self,
                          ClutterPickContext *pick_context)
