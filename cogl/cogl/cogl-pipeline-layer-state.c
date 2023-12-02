@@ -691,8 +691,7 @@ cogl_pipeline_add_layer_snippet (CoglPipeline *pipeline,
 
 gboolean
 _cogl_pipeline_layer_texture_data_equal (CoglPipelineLayer *authority0,
-                                         CoglPipelineLayer *authority1,
-                                         CoglPipelineEvalFlags flags)
+                                         CoglPipelineLayer *authority1)
 {
   if (authority0->texture == NULL)
     {

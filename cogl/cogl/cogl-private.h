@@ -72,14 +72,6 @@ typedef enum
   COGL_N_PRIVATE_FEATURES
 } CoglPrivateFeature;
 
-/* Sometimes when evaluating pipelines, either during comparisons or
- * if calculating a hash value we need to tweak the evaluation
- * semantics */
-typedef enum _CoglPipelineEvalFlags
-{
-  COGL_PIPELINE_EVAL_FLAG_NONE = 0
-} CoglPipelineEvalFlags;
-
 void
 _cogl_transform_point (const graphene_matrix_t *matrix_mv,
                        const graphene_matrix_t *matrix_p,

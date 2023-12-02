@@ -636,8 +636,7 @@ _cogl_pipeline_layer_resolve_authorities (CoglPipelineLayer *layer,
 gboolean
 _cogl_pipeline_layer_equal (CoglPipelineLayer *layer0,
                             CoglPipelineLayer *layer1,
-                            unsigned long differences_mask,
-                            CoglPipelineEvalFlags flags)
+                            unsigned long differences_mask)
 {
   unsigned long layers_difference;
   CoglPipelineLayer *authorities0[COGL_PIPELINE_LAYER_STATE_SPARSE_COUNT];
@@ -664,8 +663,7 @@ _cogl_pipeline_layer_equal (CoglPipelineLayer *layer0,
       CoglPipelineLayerStateIndex state_index =
         COGL_PIPELINE_LAYER_STATE_TEXTURE_DATA_INDEX;
       if (!_cogl_pipeline_layer_texture_data_equal (authorities0[state_index],
-                                                    authorities1[state_index],
-                                                    flags))
+                                                    authorities1[state_index]))
         return FALSE;
     }
 

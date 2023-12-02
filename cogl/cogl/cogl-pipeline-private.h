@@ -228,7 +228,6 @@ typedef struct
 typedef struct _CoglPipelineHashState
 {
   unsigned long layer_differences;
-  CoglPipelineEvalFlags flags;
   unsigned int hash;
 } CoglPipelineHashState;
 
@@ -700,14 +699,12 @@ gboolean
 _cogl_pipeline_equal (CoglPipeline *pipeline0,
                       CoglPipeline *pipeline1,
                       unsigned int differences,
-                      unsigned long layer_differences,
-                      CoglPipelineEvalFlags flags);
+                      unsigned long layer_differences);
 
 unsigned int
 _cogl_pipeline_hash (CoglPipeline *pipeline,
                      unsigned int differences,
-                     unsigned long layer_differences,
-                     CoglPipelineEvalFlags flags);
+                     unsigned long layer_differences);
 
 /* Makes a copy of the given pipeline that is a child of the root
  * pipeline rather than a child of the source pipeline. That way the

@@ -446,8 +446,7 @@ compare_entry_pipelines (CoglJournalEntry *entry0, CoglJournalEntry *entry1)
                             entry1->pipeline,
                             (COGL_PIPELINE_STATE_ALL &
                              ~COGL_PIPELINE_STATE_COLOR),
-                            COGL_PIPELINE_LAYER_STATE_ALL,
-                            0))
+                            COGL_PIPELINE_LAYER_STATE_ALL))
     return TRUE;
   else
     return FALSE;
@@ -1883,8 +1882,7 @@ _cogl_journal_try_read_pixel (CoglJournal *journal,
       if (!_cogl_pipeline_equal (ctx->opaque_color_pipeline, entry->pipeline,
                                  (COGL_PIPELINE_STATE_ALL &
                                   ~COGL_PIPELINE_STATE_COLOR),
-                                 COGL_PIPELINE_LAYER_STATE_ALL,
-                                 0))
+                                 COGL_PIPELINE_LAYER_STATE_ALL))
         return FALSE;
 
 

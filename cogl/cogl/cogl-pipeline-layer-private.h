@@ -296,8 +296,7 @@ _cogl_pipeline_layer_resolve_authorities (CoglPipelineLayer *layer,
 gboolean
 _cogl_pipeline_layer_equal (CoglPipelineLayer *layer0,
                             CoglPipelineLayer *layer1,
-                            unsigned long differences_mask,
-                            CoglPipelineEvalFlags flags);
+                            unsigned long differences_mask);
 
 CoglPipelineLayer *
 _cogl_pipeline_layer_pre_change_notify (CoglPipeline *required_owner,

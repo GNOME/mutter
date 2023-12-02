@@ -43,8 +43,7 @@ _cogl_pipeline_set_layer_unit (CoglPipeline *required_owner,
 
 gboolean
 _cogl_pipeline_layer_texture_data_equal (CoglPipelineLayer *authority0,
-                                         CoglPipelineLayer *authority1,
-                                         CoglPipelineEvalFlags flags);
+                                         CoglPipelineLayer *authority1);
 
 gboolean
 _cogl_pipeline_layer_combine_state_equal (CoglPipelineLayer *authority0,

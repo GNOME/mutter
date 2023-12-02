@@ -1846,8 +1846,7 @@ _cogl_pipeline_apply_overrides (CoglPipeline *pipeline,
 static gboolean
 _cogl_pipeline_layers_equal (CoglPipeline *authority0,
                              CoglPipeline *authority1,
-                             unsigned long differences,
-                             CoglPipelineEvalFlags flags)
+                             unsigned long differences)
 {
   int i;
 
@@ -1861,8 +1860,7 @@ _cogl_pipeline_layers_equal (CoglPipeline *authority0,
     {
       if (!_cogl_pipeline_layer_equal (authority0->layers_cache[i],
                                        authority1->layers_cache[i],
-                                       differences,
-                                       flags))
+                                       differences))
         return FALSE;
     }
   return TRUE;
@@ -2008,8 +2006,7 @@ gboolean
 _cogl_pipeline_equal (CoglPipeline *pipeline0,
                       CoglPipeline *pipeline1,
                       unsigned int differences,
-                      unsigned long layer_differences,
-                      CoglPipelineEvalFlags flags)
+                      unsigned long layer_differences)
 {
   unsigned long pipelines_difference;
   CoglPipeline *authorities0[COGL_PIPELINE_STATE_SPARSE_COUNT];
@@ -2140,8 +2137,7 @@ _cogl_pipeline_equal (CoglPipeline *pipeline0,
           {
             if (!_cogl_pipeline_layers_equal (authorities0[bit],
                                               authorities1[bit],
-                                              layer_differences,
-                                              flags))
+                                              layer_differences))
               goto done;
             break;
           }
@@ -2492,8 +2488,7 @@ _cogl_pipeline_init_state_hash_functions (void)
 unsigned int
 _cogl_pipeline_hash (CoglPipeline *pipeline,
                      unsigned int differences,
-                     unsigned long layer_differences,
-                     CoglPipelineEvalFlags flags)
+                     unsigned long layer_differences)
 {
   CoglPipeline *authorities[COGL_PIPELINE_STATE_SPARSE_COUNT];
   unsigned int mask;
@@ -2503,7 +2498,6 @@ _cogl_pipeline_hash (CoglPipeline *pipeline,
 
   state.hash = 0;
   state.layer_differences = layer_differences;
-  state.flags = flags;
 
   _cogl_pipeline_update_real_blend_enable (pipeline, FALSE);
 
