@@ -56,7 +56,6 @@ typedef struct _CoglPipelineLayer CoglPipelineLayer;
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglPipelineLayer, g_object_unref)
 
-COGL_EXPORT
 GType               cogl_pipeline_layer_get_type       (void) G_GNUC_CONST;
 
 /* XXX: should I rename these as
@@ -342,17 +341,11 @@ typedef enum
 CoglPipelineLayerType
 _cogl_pipeline_layer_get_type (CoglPipelineLayer *layer);
 
-COGL_EXPORT CoglTexture *
+CoglTexture *
 _cogl_pipeline_layer_get_texture (CoglPipelineLayer *layer);
 
 CoglTexture *
 _cogl_pipeline_layer_get_texture_real (CoglPipelineLayer *layer);
-
-CoglPipelineWrapMode
-_cogl_pipeline_layer_get_wrap_mode_s (CoglPipelineLayer *layer);
-
-CoglPipelineWrapMode
-_cogl_pipeline_layer_get_wrap_mode_t (CoglPipelineLayer *layer);
 
 void
 _cogl_pipeline_layer_copy_differences (CoglPipelineLayer *dest,

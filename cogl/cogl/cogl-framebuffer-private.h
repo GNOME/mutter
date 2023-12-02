@@ -152,8 +152,6 @@ _cogl_framebuffer_set_internal_format (CoglFramebuffer *framebuffer,
 CoglPixelFormat
 cogl_framebuffer_get_internal_format (CoglFramebuffer *framebuffer);
 
-void _cogl_framebuffer_free (CoglFramebuffer *framebuffer);
-
 void
 _cogl_framebuffer_clear_without_flush4f (CoglFramebuffer *framebuffer,
                                          unsigned long buffers,
@@ -181,10 +179,10 @@ cogl_framebuffer_set_depth_buffer_clear_needed (CoglFramebuffer *framebuffer);
 CoglClipStack *
 _cogl_framebuffer_get_clip_stack (CoglFramebuffer *framebuffer);
 
-COGL_EXPORT CoglMatrixStack *
+CoglMatrixStack *
 _cogl_framebuffer_get_modelview_stack (CoglFramebuffer *framebuffer);
 
-COGL_EXPORT CoglMatrixStack *
+CoglMatrixStack *
 _cogl_framebuffer_get_projection_stack (CoglFramebuffer *framebuffer);
 
 void
@@ -203,20 +201,6 @@ cogl_context_flush_framebuffer_state (CoglContext          *context,
                                       CoglFramebuffer      *read_buffer,
                                       CoglFramebufferState  state);
 
-CoglFramebuffer *
-_cogl_get_read_framebuffer (void);
-
-GSList *
-_cogl_create_framebuffer_stack (void);
-
-void
-_cogl_free_framebuffer_stack (GSList *stack);
-
-void
-_cogl_framebuffer_save_clip_stack (CoglFramebuffer *framebuffer);
-
-void
-_cogl_framebuffer_restore_clip_stack (CoglFramebuffer *framebuffer);
 
 /* This can be called directly by the CoglJournal to draw attributes
  * skipping the implicit journal flush, the framebuffer flush and
@@ -281,17 +265,6 @@ _cogl_framebuffer_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
                                            CoglReadPixelsFlags source,
                                            CoglBitmap *bitmap,
                                            GError **error);
-
-/*
- * _cogl_framebuffer_get_stencil_bits:
- * @framebuffer: a pointer to a #CoglFramebuffer
- *
- * Retrieves the number of stencil bits of @framebuffer
- *
- * Return value: the number of bits
- */
-COGL_EXPORT int
-_cogl_framebuffer_get_stencil_bits (CoglFramebuffer *framebuffer);
 
 CoglJournal *
 cogl_framebuffer_get_journal (CoglFramebuffer *framebuffer);

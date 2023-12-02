@@ -110,9 +110,6 @@ struct _CoglBufferClass
   GObjectClass parent_class;
 };
 
-CoglBufferUsageHint
-_cogl_buffer_get_usage_hint (CoglBuffer *buffer);
-
 CoglBuffer *
 _cogl_buffer_immutable_ref (CoglBuffer *buffer);
 
@@ -142,10 +139,8 @@ void *
 _cogl_buffer_map_range_for_fill_or_fallback (CoglBuffer *buffer,
                                              size_t offset,
                                              size_t size);
-COGL_EXPORT void *
-_cogl_buffer_map_for_fill_or_fallback (CoglBuffer *buffer);
 
-COGL_EXPORT void
+void
 _cogl_buffer_unmap_for_fill_or_fallback (CoglBuffer *buffer);
 
 G_END_DECLS

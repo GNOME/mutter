@@ -47,7 +47,7 @@
 #define GL_FUNC_ADD 0x8006
 #endif
 
-gboolean
+static gboolean
 _cogl_pipeline_color_equal (CoglPipeline *authority0,
                             CoglPipeline *authority1)
 {

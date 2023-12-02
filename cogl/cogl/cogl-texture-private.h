@@ -240,7 +240,7 @@ struct _CoglTexturePixel
   uint8_t data[4];
 };
 
-COGL_EXPORT gboolean
+gboolean
 _cogl_texture_can_hardware_repeat (CoglTexture *texture);
 
 void

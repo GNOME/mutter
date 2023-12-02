@@ -34,13 +34,10 @@
 #include "cogl/cogl-renderer.h"
 #include "cogl/cogl-closure-list-private.h"
 
-void
-_cogl_poll_renderer_remove_fd (CoglRenderer *renderer, int fd);
-
 typedef int64_t (*CoglPollPrepareCallback) (void *user_data);
 typedef void (*CoglPollDispatchCallback) (void *user_data, int revents);
 
-COGL_EXPORT void
+void
 _cogl_poll_renderer_add_fd (CoglRenderer *renderer,
                             int fd,
                             CoglPollFDEvent events,
@@ -58,7 +55,7 @@ _cogl_poll_renderer_add_source (CoglRenderer *renderer,
 
 typedef void (*CoglIdleCallback) (void *user_data);
 
-COGL_EXPORT CoglClosure *
+CoglClosure *
 _cogl_poll_renderer_add_idle (CoglRenderer *renderer,
                               CoglIdleCallback idle_cb,
                               void *user_data,

@@ -143,7 +143,7 @@ find_pollfd (CoglRenderer *renderer, int fd)
   return -1;
 }
 
-void
+static void
 _cogl_poll_renderer_remove_fd (CoglRenderer *renderer, int fd)
 {
   int i = find_pollfd (renderer, fd);

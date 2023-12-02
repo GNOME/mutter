@@ -75,7 +75,6 @@ struct _CoglNodeClass
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglNode, g_object_unref)
 
-COGL_EXPORT
 GType       cogl_node_get_type (void) G_GNUC_CONST;
 
 void

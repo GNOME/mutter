@@ -55,6 +55,9 @@ typedef struct _CoglOnscreenPrivate
   GQueue pending_frame_infos;
 } CoglOnscreenPrivate;
 
+static void
+_cogl_onscreen_queue_full_dirty (CoglOnscreen *onscreen);
+
 G_DEFINE_TYPE_WITH_PRIVATE (CoglOnscreen, cogl_onscreen, COGL_TYPE_FRAMEBUFFER)
 
 static gpointer
@@ -275,7 +278,7 @@ _cogl_onscreen_queue_full_dirty (CoglOnscreen *onscreen)
   _cogl_onscreen_queue_dirty (onscreen, &info);
 }
 
-void
+static void
 _cogl_onscreen_queue_event (CoglOnscreen *onscreen,
                             CoglFrameEvent type,
                             CoglFrameInfo *info)

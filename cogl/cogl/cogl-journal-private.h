@@ -70,7 +70,6 @@ typedef struct _CoglJournal
 
 #define COGL_TYPE_JOURNAL (cogl_journal_get_type ())
 
-COGL_EXPORT
 G_DECLARE_FINAL_TYPE (CoglJournal,
                       cogl_journal,
                       COGL,

@@ -412,7 +412,7 @@ cogl_pipeline_set_layer_wrap_mode (CoglPipeline *pipeline,
 }
 
 /* FIXME: deprecate this API */
-CoglPipelineWrapMode
+static CoglPipelineWrapMode
 _cogl_pipeline_layer_get_wrap_mode_s (CoglPipelineLayer *layer)
 {
   CoglPipelineLayerState change = COGL_PIPELINE_LAYER_STATE_SAMPLER;
@@ -449,7 +449,7 @@ cogl_pipeline_get_layer_wrap_mode_s (CoglPipeline *pipeline, int layer_index)
 }
 
 /* FIXME: deprecate this API */
-CoglPipelineWrapMode
+static CoglPipelineWrapMode
 _cogl_pipeline_layer_get_wrap_mode_t (CoglPipelineLayer *layer)
 {
   CoglPipelineLayerState change = COGL_PIPELINE_LAYER_STATE_SAMPLER;

@@ -1176,16 +1176,6 @@ cogl_framebuffer_get_depth_bits (CoglFramebuffer *framebuffer)
   return bits.depth;
 }
 
-int
-_cogl_framebuffer_get_stencil_bits (CoglFramebuffer *framebuffer)
-{
-  CoglFramebufferBits bits;
-
-  cogl_framebuffer_query_bits (framebuffer, &bits);
-
-  return bits.stencil;
-}
-
 gboolean
 cogl_framebuffer_get_is_stereo (CoglFramebuffer *framebuffer)
 {

@@ -2424,7 +2424,7 @@ _cogl_pipeline_hash_layer_cb (CoglPipelineLayer *layer,
   return TRUE;
 }
 
-void
+static void
 _cogl_pipeline_hash_layers_state (CoglPipeline *authority,
                                   CoglPipelineHashState *state)
 {

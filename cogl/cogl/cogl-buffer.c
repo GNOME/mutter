@@ -325,12 +325,6 @@ cogl_buffer_unmap (CoglBuffer *buffer)
 }
 
 void *
-_cogl_buffer_map_for_fill_or_fallback (CoglBuffer *buffer)
-{
-  return _cogl_buffer_map_range_for_fill_or_fallback (buffer, 0, buffer->size);
-}
-
-void *
 _cogl_buffer_map_range_for_fill_or_fallback (CoglBuffer *buffer,
                                              size_t offset,
                                              size_t size)
