@@ -509,22 +509,6 @@ typedef enum /*< prefix=CLUTTER_EFFECT_PAINT >*/
   CLUTTER_EFFECT_PAINT_BYPASS_EFFECT = (1 << 1)
 } ClutterEffectPaintFlags;
 
-/**
- * ClutterBoxAlignment:
- * @CLUTTER_BOX_ALIGNMENT_START: Align the child to the top or to
- *   to the left, depending on the used axis
- * @CLUTTER_BOX_ALIGNMENT_CENTER: Align the child to the center
- * @CLUTTER_BOX_ALIGNMENT_END: Align the child to the bottom or to
- *   the right, depending on the used axis
- *
- * The alignment policies available on each axis of the #ClutterBoxLayout
- */
-typedef enum
-{
-  CLUTTER_BOX_ALIGNMENT_START,
-  CLUTTER_BOX_ALIGNMENT_END,
-  CLUTTER_BOX_ALIGNMENT_CENTER
-} ClutterBoxAlignment;
 
 /**
  * ClutterLongPressState:
@@ -645,23 +629,6 @@ typedef enum /*< prefix=CLUTTER_COLOR >*/
   /* Fully transparent black */
   CLUTTER_COLOR_TRANSPARENT
 } ClutterStaticColor;
-
-/**
- * ClutterDragAxis:
- * @CLUTTER_DRAG_AXIS_NONE: No constraint
- * @CLUTTER_DRAG_X_AXIS: Set a constraint on the X axis
- * @CLUTTER_DRAG_Y_AXIS: Set a constraint on the Y axis
- *
- * The axis of the constraint that should be applied on the
- * dragging action
- */
-typedef enum /*< prefix=CLUTTER_DRAG >*/
-{
-  CLUTTER_DRAG_AXIS_NONE = 0,
-
-  CLUTTER_DRAG_X_AXIS,
-  CLUTTER_DRAG_Y_AXIS
-} ClutterDragAxis;
 
 /**
  * ClutterEventFlags:
@@ -999,27 +966,6 @@ typedef enum
   CLUTTER_TIMELINE_FORWARD,
   CLUTTER_TIMELINE_BACKWARD
 } ClutterTimelineDirection;
-
-/**
- * ClutterUnitType:
- * @CLUTTER_UNIT_PIXEL: Unit expressed in pixels (with subpixel precision)
- * @CLUTTER_UNIT_EM: Unit expressed in em
- * @CLUTTER_UNIT_MM: Unit expressed in millimeters
- * @CLUTTER_UNIT_POINT: Unit expressed in points
- * @CLUTTER_UNIT_CM: Unit expressed in centimeters
- *
- * The type of unit in which a value is expressed
- *
- * This enumeration might be expanded at later date
- */
-typedef enum /*< prefix=CLUTTER_UNIT >*/
-{
-  CLUTTER_UNIT_PIXEL,
-  CLUTTER_UNIT_EM,
-  CLUTTER_UNIT_MM,
-  CLUTTER_UNIT_POINT,
-  CLUTTER_UNIT_CM
-} ClutterUnitType;
 
 /**
  * ClutterActorAlign:
