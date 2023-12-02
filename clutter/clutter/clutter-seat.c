@@ -308,9 +308,7 @@ clutter_seat_class_init (ClutterSeatClass *klass)
    * The name of the seat.
    **/
   props[PROP_NAME] =
-    g_param_spec_string ("name",
-                         P_("Seat name"),
-                         P_("Seat name"),
+    g_param_spec_string ("name", NULL, NULL,
                          NULL,
                          G_PARAM_STATIC_STRINGS |
                          G_PARAM_READWRITE |

@@ -74,10 +74,6 @@ typedef struct _ClutterContext      ClutterContext;
 /* automagic interning of a static string */
 #define I_(str)  (g_intern_static_string ((str)))
 
-/* keep this for source compatibility with clutter */
-#define P_(String) (String)
-#define N_(String) (String)
-
 /* This is a replacement for the nearbyint function which always rounds to the
  * nearest integer. nearbyint is apparently a C99 function so it might not
  * always be available but also it seems in glibc it is defined as a function
