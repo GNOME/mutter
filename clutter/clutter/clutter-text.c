@@ -3794,7 +3794,8 @@ clutter_text_class_init (ClutterTextClass *klass)
    */
   pspec = g_param_spec_object ("buffer", NULL, NULL,
                                CLUTTER_TYPE_TEXT_BUFFER,
-                               CLUTTER_PARAM_READWRITE);
+                               G_PARAM_READWRITE |
+                               G_PARAM_STATIC_STRINGS);
   obj_props[PROP_BUFFER] = pspec;
   g_object_class_install_property (gobject_class, PROP_BUFFER, pspec);
 
@@ -3808,7 +3809,8 @@ clutter_text_class_init (ClutterTextClass *klass)
    */
   pspec = g_param_spec_string ("font-name", NULL, NULL,
                                NULL,
-                               CLUTTER_PARAM_READWRITE);
+                               G_PARAM_READWRITE |
+                               G_PARAM_STATIC_STRINGS);
   obj_props[PROP_FONT_NAME] = pspec;
   g_object_class_install_property (gobject_class, PROP_FONT_NAME, pspec);
 
@@ -3822,7 +3824,8 @@ clutter_text_class_init (ClutterTextClass *klass)
    */
   pspec = g_param_spec_boxed ("font-description", NULL, NULL,
                               PANGO_TYPE_FONT_DESCRIPTION,
-                              CLUTTER_PARAM_READWRITE);
+                              G_PARAM_READWRITE |
+                              G_PARAM_STATIC_STRINGS);
   obj_props[PROP_FONT_DESCRIPTION] = pspec;
   g_object_class_install_property (gobject_class,
                                    PROP_FONT_DESCRIPTION,
@@ -3835,7 +3838,8 @@ clutter_text_class_init (ClutterTextClass *klass)
    */
   pspec = g_param_spec_string ("text", NULL, NULL,
                                "",
-                               CLUTTER_PARAM_READWRITE);
+                               G_PARAM_READWRITE |
+                               G_PARAM_STATIC_STRINGS);
   obj_props[PROP_TEXT] = pspec;
   g_object_class_install_property (gobject_class, PROP_TEXT, pspec);
 
@@ -3846,7 +3850,8 @@ clutter_text_class_init (ClutterTextClass *klass)
    */
   pspec = clutter_param_spec_color ("color", NULL, NULL,
                                     &default_text_color,
-                                    CLUTTER_PARAM_READWRITE |
+                                    G_PARAM_READWRITE |
+                                    G_PARAM_STATIC_STRINGS |
                                     CLUTTER_PARAM_ANIMATABLE);
   obj_props[PROP_COLOR] = pspec;
   g_object_class_install_property (gobject_class, PROP_COLOR, pspec);
@@ -3899,7 +3904,8 @@ clutter_text_class_init (ClutterTextClass *klass)
    */
   pspec = g_param_spec_boolean ("cursor-visible", NULL, NULL,
                                 TRUE,
-                                CLUTTER_PARAM_READWRITE);
+                                G_PARAM_READWRITE |
+                                G_PARAM_STATIC_STRINGS);
   obj_props[PROP_CURSOR_VISIBLE] = pspec;
   g_object_class_install_property (gobject_class, PROP_CURSOR_VISIBLE, pspec);
 
@@ -3910,7 +3916,8 @@ clutter_text_class_init (ClutterTextClass *klass)
    */
   pspec = clutter_param_spec_color ("cursor-color", NULL, NULL,
                                     &default_cursor_color,
-                                    CLUTTER_PARAM_READWRITE |
+                                    G_PARAM_READWRITE |
+                                    G_PARAM_STATIC_STRINGS |
                                     CLUTTER_PARAM_ANIMATABLE);
   obj_props[PROP_CURSOR_COLOR] = pspec;
   g_object_class_install_property (gobject_class, PROP_CURSOR_COLOR, pspec);
@@ -3922,7 +3929,8 @@ clutter_text_class_init (ClutterTextClass *klass)
    */
   pspec = g_param_spec_boolean ("cursor-color-set", NULL, NULL,
                                 FALSE,
-                                CLUTTER_PARAM_READABLE);
+                                G_PARAM_READABLE |
+                                G_PARAM_STATIC_STRINGS);
   obj_props[PROP_CURSOR_COLOR_SET] = pspec;
   g_object_class_install_property (gobject_class, PROP_CURSOR_COLOR_SET, pspec);
 
@@ -3934,7 +3942,8 @@ clutter_text_class_init (ClutterTextClass *klass)
    */
   pspec = g_param_spec_int ("cursor-size", NULL, NULL,
                             -1, G_MAXINT, DEFAULT_CURSOR_SIZE,
-                            CLUTTER_PARAM_READWRITE);
+                            G_PARAM_READWRITE |
+                            G_PARAM_STATIC_STRINGS);
   obj_props[PROP_CURSOR_SIZE] = pspec;
   g_object_class_install_property (gobject_class, PROP_CURSOR_SIZE, pspec);
 
@@ -3946,7 +3955,8 @@ clutter_text_class_init (ClutterTextClass *klass)
   pspec = g_param_spec_int ("cursor-position", NULL, NULL,
                             -1, G_MAXINT,
                             -1,
-                            CLUTTER_PARAM_READWRITE);
+                            G_PARAM_READWRITE |
+                            G_PARAM_STATIC_STRINGS);
   obj_props[PROP_CURSOR_POSITION] = pspec;
   g_object_class_install_property (gobject_class, PROP_CURSOR_POSITION, pspec);
 
@@ -3958,7 +3968,8 @@ clutter_text_class_init (ClutterTextClass *klass)
   pspec = g_param_spec_int ("selection-bound", NULL, NULL,
                             -1, G_MAXINT,
                             -1,
-                            CLUTTER_PARAM_READWRITE);
+                            G_PARAM_READWRITE |
+                            G_PARAM_STATIC_STRINGS);
   obj_props[PROP_SELECTION_BOUND] = pspec;
   g_object_class_install_property (gobject_class, PROP_SELECTION_BOUND, pspec);
 
@@ -3969,7 +3980,8 @@ clutter_text_class_init (ClutterTextClass *klass)
    */
   pspec = clutter_param_spec_color ("selection-color", NULL, NULL,
                                     &default_selection_color,
-                                    CLUTTER_PARAM_READWRITE |
+                                    G_PARAM_READWRITE |
+                                    G_PARAM_STATIC_STRINGS |
                                     CLUTTER_PARAM_ANIMATABLE);
   obj_props[PROP_SELECTION_COLOR] = pspec;
   g_object_class_install_property (gobject_class, PROP_SELECTION_COLOR, pspec);
@@ -3981,7 +3993,8 @@ clutter_text_class_init (ClutterTextClass *klass)
    */
   pspec = g_param_spec_boolean ("selection-color-set", NULL, NULL,
                                 FALSE,
-                                CLUTTER_PARAM_READABLE);
+                                G_PARAM_READABLE |
+                                G_PARAM_STATIC_STRINGS);
   obj_props[PROP_SELECTION_COLOR_SET] = pspec;
   g_object_class_install_property (gobject_class, PROP_SELECTION_COLOR_SET, pspec);
 
@@ -3993,7 +4006,8 @@ clutter_text_class_init (ClutterTextClass *klass)
    */
   pspec = g_param_spec_boxed ("attributes", NULL, NULL,
                               PANGO_TYPE_ATTR_LIST,
-                              CLUTTER_PARAM_READWRITE);
+                              G_PARAM_READWRITE |
+                              G_PARAM_STATIC_STRINGS);
   obj_props[PROP_ATTRIBUTES] = pspec;
   g_object_class_install_property (gobject_class, PROP_ATTRIBUTES, pspec);
 
@@ -4012,7 +4026,8 @@ clutter_text_class_init (ClutterTextClass *klass)
    */
   pspec = g_param_spec_boolean ("use-markup", NULL, NULL,
                                 FALSE,
-                                CLUTTER_PARAM_READWRITE);
+                                G_PARAM_READWRITE |
+                                G_PARAM_STATIC_STRINGS);
   obj_props[PROP_USE_MARKUP] = pspec;
   g_object_class_install_property (gobject_class, PROP_USE_MARKUP, pspec);
 
@@ -4025,7 +4040,8 @@ clutter_text_class_init (ClutterTextClass *klass)
    */
   pspec = g_param_spec_boolean ("line-wrap", NULL, NULL,
                                 FALSE,
-                                CLUTTER_PARAM_READWRITE);
+                                G_PARAM_READWRITE |
+                                G_PARAM_STATIC_STRINGS);
   obj_props[PROP_LINE_WRAP] = pspec;
   g_object_class_install_property (gobject_class, PROP_LINE_WRAP, pspec);
 
@@ -4038,7 +4054,8 @@ clutter_text_class_init (ClutterTextClass *klass)
   pspec = g_param_spec_enum ("line-wrap-mode", NULL, NULL,
                              PANGO_TYPE_WRAP_MODE,
                              PANGO_WRAP_WORD,
-                             CLUTTER_PARAM_READWRITE);
+                             G_PARAM_READWRITE |
+                             G_PARAM_STATIC_STRINGS);
   obj_props[PROP_LINE_WRAP_MODE] = pspec;
   g_object_class_install_property (gobject_class, PROP_LINE_WRAP_MODE, pspec);
 
@@ -4050,7 +4067,8 @@ clutter_text_class_init (ClutterTextClass *klass)
   pspec = g_param_spec_enum ("ellipsize", NULL, NULL,
                              PANGO_TYPE_ELLIPSIZE_MODE,
                              PANGO_ELLIPSIZE_NONE,
-                             CLUTTER_PARAM_READWRITE);
+                             G_PARAM_READWRITE |
+                             G_PARAM_STATIC_STRINGS);
   obj_props[PROP_ELLIPSIZE] = pspec;
   g_object_class_install_property (gobject_class, PROP_ELLIPSIZE, pspec);
 
@@ -4063,7 +4081,8 @@ clutter_text_class_init (ClutterTextClass *klass)
   pspec = g_param_spec_enum ("line-alignment", NULL, NULL,
                              PANGO_TYPE_ALIGNMENT,
                              PANGO_ALIGN_LEFT,
-                             CLUTTER_PARAM_READWRITE);
+                             G_PARAM_READWRITE |
+                             G_PARAM_STATIC_STRINGS);
   obj_props[PROP_LINE_ALIGNMENT] = pspec;
   g_object_class_install_property (gobject_class, PROP_LINE_ALIGNMENT, pspec);
 
@@ -4075,7 +4094,8 @@ clutter_text_class_init (ClutterTextClass *klass)
    */
   pspec = g_param_spec_boolean ("justify", NULL, NULL,
                                 FALSE,
-                                CLUTTER_PARAM_READWRITE);
+                                G_PARAM_READWRITE |
+                                G_PARAM_STATIC_STRINGS);
   obj_props[PROP_JUSTIFY] = pspec;
   g_object_class_install_property (gobject_class, PROP_JUSTIFY, pspec);
 
@@ -4087,7 +4107,8 @@ clutter_text_class_init (ClutterTextClass *klass)
    */
   pspec = g_param_spec_unichar ("password-char", NULL, NULL,
                                 0,
-                                CLUTTER_PARAM_READWRITE);
+                                G_PARAM_READWRITE |
+                                G_PARAM_STATIC_STRINGS);
   obj_props[PROP_PASSWORD_CHAR] = pspec;
   g_object_class_install_property (gobject_class, PROP_PASSWORD_CHAR, pspec);
 
@@ -4098,7 +4119,8 @@ clutter_text_class_init (ClutterTextClass *klass)
    */
   pspec = g_param_spec_int ("max-length", NULL, NULL,
                             -1, G_MAXINT, 0,
-                            CLUTTER_PARAM_READWRITE);
+                            G_PARAM_READWRITE |
+                            G_PARAM_STATIC_STRINGS);
   obj_props[PROP_MAX_LENGTH] = pspec;
   g_object_class_install_property (gobject_class, PROP_MAX_LENGTH, pspec);
 
@@ -4118,7 +4140,8 @@ clutter_text_class_init (ClutterTextClass *klass)
    */
   pspec = g_param_spec_boolean ("single-line-mode", NULL, NULL,
                                 FALSE,
-                                CLUTTER_PARAM_READWRITE);
+                                G_PARAM_READWRITE |
+                                G_PARAM_STATIC_STRINGS);
   obj_props[PROP_SINGLE_LINE_MODE] = pspec;
   g_object_class_install_property (gobject_class, PROP_SINGLE_LINE_MODE, pspec);
 
@@ -4129,7 +4152,8 @@ clutter_text_class_init (ClutterTextClass *klass)
    */
   pspec = clutter_param_spec_color ("selected-text-color", NULL, NULL,
                                     &default_selected_text_color,
-                                    CLUTTER_PARAM_READWRITE |
+                                    G_PARAM_READWRITE |
+                                    G_PARAM_STATIC_STRINGS |
                                     CLUTTER_PARAM_ANIMATABLE);
   obj_props[PROP_SELECTED_TEXT_COLOR] = pspec;
   g_object_class_install_property (gobject_class, PROP_SELECTED_TEXT_COLOR, pspec);
@@ -4141,19 +4165,24 @@ clutter_text_class_init (ClutterTextClass *klass)
    */
   pspec = g_param_spec_boolean ("selected-text-color-set", NULL, NULL,
                                 FALSE,
-                                CLUTTER_PARAM_READABLE);
+                                G_PARAM_READABLE |
+                                G_PARAM_STATIC_STRINGS);
   obj_props[PROP_SELECTED_TEXT_COLOR_SET] = pspec;
   g_object_class_install_property (gobject_class, PROP_SELECTED_TEXT_COLOR_SET, pspec);
 
   pspec = g_param_spec_flags ("input-hints", NULL, NULL,
                               CLUTTER_TYPE_INPUT_CONTENT_HINT_FLAGS,
-                              0, CLUTTER_PARAM_READWRITE);
+                              0,
+                              G_PARAM_READWRITE |
+                              G_PARAM_STATIC_STRINGS);
   obj_props[PROP_INPUT_HINTS] = pspec;
   g_object_class_install_property (gobject_class, PROP_INPUT_HINTS, pspec);
 
   pspec = g_param_spec_enum ("input-purpose", NULL, NULL,
                              CLUTTER_TYPE_INPUT_CONTENT_PURPOSE,
-                             0, CLUTTER_PARAM_READWRITE);
+                             0,
+                             G_PARAM_READWRITE |
+                             G_PARAM_STATIC_STRINGS);
   obj_props[PROP_INPUT_PURPOSE] = pspec;
   g_object_class_install_property (gobject_class, PROP_INPUT_PURPOSE, pspec);
 

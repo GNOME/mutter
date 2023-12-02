@@ -218,7 +218,8 @@ clutter_page_turn_effect_class_init (ClutterPageTurnEffectClass *klass)
   pspec = g_param_spec_double ("period", NULL, NULL,
                                0.0, 1.0,
                                0.0,
-                               CLUTTER_PARAM_READWRITE);
+                               G_PARAM_READWRITE |
+                               G_PARAM_STATIC_STRINGS);
   obj_props[PROP_PERIOD] = pspec;
   g_object_class_install_property (gobject_class, PROP_PERIOD, pspec);
 
@@ -230,7 +231,8 @@ clutter_page_turn_effect_class_init (ClutterPageTurnEffectClass *klass)
   pspec = g_param_spec_double ("angle", NULL, NULL,
                                0.0, 360.0,
                                0.0,
-                               CLUTTER_PARAM_READWRITE);
+                               G_PARAM_READWRITE |
+                               G_PARAM_STATIC_STRINGS);
   obj_props[PROP_ANGLE] = pspec;
   g_object_class_install_property (gobject_class, PROP_ANGLE, pspec);
 
@@ -242,7 +244,8 @@ clutter_page_turn_effect_class_init (ClutterPageTurnEffectClass *klass)
   pspec = g_param_spec_float ("radius", NULL, NULL,
                               -G_MAXFLOAT, G_MAXFLOAT,
                               24.0,
-                              CLUTTER_PARAM_READWRITE);
+                              G_PARAM_READWRITE |
+                              G_PARAM_STATIC_STRINGS);
   obj_props[PROP_RADIUS] = pspec;
   g_object_class_install_property (gobject_class, PROP_RADIUS, pspec);
 

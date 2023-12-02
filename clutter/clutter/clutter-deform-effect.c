@@ -578,7 +578,8 @@ clutter_deform_effect_class_init (ClutterDeformEffectClass *klass)
     g_param_spec_uint ("x-tiles", NULL, NULL,
                        1, G_MAXUINT,
                        DEFAULT_N_TILES,
-                       CLUTTER_PARAM_READWRITE);
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterDeformEffect:y-tiles:
@@ -590,7 +591,8 @@ clutter_deform_effect_class_init (ClutterDeformEffectClass *klass)
     g_param_spec_uint ("y-tiles", NULL, NULL,
                        1, G_MAXUINT,
                        DEFAULT_N_TILES,
-                       CLUTTER_PARAM_READWRITE);
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterDeformEffect:back-material:
@@ -603,7 +605,8 @@ clutter_deform_effect_class_init (ClutterDeformEffectClass *klass)
   obj_props[PROP_BACK_MATERIAL] =
     g_param_spec_object ("back-material", NULL, NULL,
                          COGL_TYPE_PIPELINE,
-                         CLUTTER_PARAM_READWRITE);
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS);
 
   gobject_class->finalize = clutter_deform_effect_finalize;
   gobject_class->set_property = clutter_deform_effect_set_property;

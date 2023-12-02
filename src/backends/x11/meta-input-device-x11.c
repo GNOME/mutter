@@ -369,7 +369,8 @@ meta_input_device_x11_class_init (MetaInputDeviceX11Class *klass)
     g_param_spec_int ("id", NULL, NULL,
                       -1, G_MAXINT,
                       0,
-                      CLUTTER_PARAM_READWRITE |
+                      G_PARAM_READWRITE |
+                      G_PARAM_STATIC_STRINGS |
                       G_PARAM_CONSTRUCT_ONLY);
 
   g_object_class_install_properties (gobject_class, N_PROPS, props);

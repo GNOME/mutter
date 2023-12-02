@@ -310,7 +310,8 @@ clutter_binding_pool_class_init (ClutterBindingPoolClass *klass)
   obj_props[PROP_NAME] =
     g_param_spec_string ("name", NULL, NULL,
                          NULL,
-                         CLUTTER_PARAM_READWRITE |
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS |
                          G_PARAM_CONSTRUCT_ONLY);
 
   g_object_class_install_properties (gobject_class,

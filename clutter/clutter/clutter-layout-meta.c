@@ -158,7 +158,8 @@ clutter_layout_meta_class_init (ClutterLayoutMetaClass *klass)
     g_param_spec_object ("manager", NULL, NULL,
                          CLUTTER_TYPE_LAYOUT_MANAGER,
                          G_PARAM_CONSTRUCT_ONLY |
-                         CLUTTER_PARAM_READWRITE);
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterLayoutMeta:container:
@@ -169,7 +170,8 @@ clutter_layout_meta_class_init (ClutterLayoutMetaClass *klass)
     g_param_spec_object ("container", NULL, NULL,
                          CLUTTER_TYPE_ACTOR,
                          G_PARAM_CONSTRUCT_ONLY |
-                         CLUTTER_PARAM_READWRITE);
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterLayoutMeta:actor:
@@ -180,7 +182,8 @@ clutter_layout_meta_class_init (ClutterLayoutMetaClass *klass)
     g_param_spec_object ("actor", NULL, NULL,
                          CLUTTER_TYPE_ACTOR,
                          G_PARAM_CONSTRUCT_ONLY |
-                         CLUTTER_PARAM_READWRITE);
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (gobject_class, PROP_LAST, obj_props);
 }

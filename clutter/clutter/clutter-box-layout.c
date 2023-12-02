@@ -938,7 +938,8 @@ clutter_box_layout_class_init (ClutterBoxLayoutClass *klass)
   obj_props[PROP_HOMOGENEOUS] =
     g_param_spec_boolean ("homogeneous", NULL, NULL,
                           FALSE,
-                          CLUTTER_PARAM_READWRITE);
+                          G_PARAM_READWRITE |
+                          G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterBoxLayout:spacing:
@@ -948,7 +949,8 @@ clutter_box_layout_class_init (ClutterBoxLayoutClass *klass)
   obj_props[PROP_SPACING] =
     g_param_spec_uint ("spacing", NULL, NULL,
                        0, G_MAXUINT, 0,
-                       CLUTTER_PARAM_READWRITE);
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS);
 
   gobject_class->set_property = clutter_box_layout_set_property;
   gobject_class->get_property = clutter_box_layout_get_property;

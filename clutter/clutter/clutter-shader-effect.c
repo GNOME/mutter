@@ -446,7 +446,9 @@ clutter_shader_effect_class_init (ClutterShaderEffectClass *klass)
     g_param_spec_enum ("shader-type", NULL, NULL,
                        CLUTTER_TYPE_SHADER_TYPE,
                        CLUTTER_FRAGMENT_SHADER,
-                       CLUTTER_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY);
+                       G_PARAM_WRITABLE |
+                       G_PARAM_STATIC_STRINGS |
+                       G_PARAM_CONSTRUCT_ONLY);
 
   gobject_class->set_property = clutter_shader_effect_set_property;
   gobject_class->finalize = clutter_shader_effect_finalize;

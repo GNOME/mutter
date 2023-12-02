@@ -646,7 +646,9 @@ clutter_timeline_class_init (ClutterTimelineClass *klass)
   obj_props[PROP_ACTOR] =
     g_param_spec_object ("actor", NULL, NULL,
                          CLUTTER_TYPE_ACTOR,
-                         G_PARAM_CONSTRUCT | CLUTTER_PARAM_READWRITE);
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS |
+                         G_PARAM_CONSTRUCT);
   /**
    * ClutterTimeline:delay:
    *
@@ -657,7 +659,8 @@ clutter_timeline_class_init (ClutterTimelineClass *klass)
     g_param_spec_uint ("delay", NULL, NULL,
                        0, G_MAXUINT,
                        0,
-                       CLUTTER_PARAM_READWRITE);
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterTimeline:duration:
@@ -669,7 +672,8 @@ clutter_timeline_class_init (ClutterTimelineClass *klass)
     g_param_spec_uint ("duration", NULL, NULL,
                        0, G_MAXUINT,
                        1000,
-                       CLUTTER_PARAM_READWRITE);
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterTimeline:direction:
@@ -681,7 +685,8 @@ clutter_timeline_class_init (ClutterTimelineClass *klass)
     g_param_spec_enum ("direction", NULL, NULL,
                        CLUTTER_TYPE_TIMELINE_DIRECTION,
                        CLUTTER_TIMELINE_FORWARD,
-                       CLUTTER_PARAM_READWRITE);
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterTimeline:auto-reverse:
@@ -692,7 +697,8 @@ clutter_timeline_class_init (ClutterTimelineClass *klass)
   obj_props[PROP_AUTO_REVERSE] =
     g_param_spec_boolean ("auto-reverse", NULL, NULL,
                           FALSE,
-                          CLUTTER_PARAM_READWRITE);
+                          G_PARAM_READWRITE |
+                          G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterTimeline:repeat-count:
@@ -708,7 +714,8 @@ clutter_timeline_class_init (ClutterTimelineClass *klass)
     g_param_spec_int ("repeat-count", NULL, NULL,
                       -1, G_MAXINT,
                       0,
-                      CLUTTER_PARAM_READWRITE);
+                      G_PARAM_READWRITE |
+                      G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterTimeline:progress-mode:
@@ -719,7 +726,8 @@ clutter_timeline_class_init (ClutterTimelineClass *klass)
     g_param_spec_enum ("progress-mode", NULL, NULL,
                        CLUTTER_TYPE_ANIMATION_MODE,
                        CLUTTER_LINEAR,
-                       CLUTTER_PARAM_READWRITE);
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterTimeline:frame-clock:
@@ -729,7 +737,9 @@ clutter_timeline_class_init (ClutterTimelineClass *klass)
   obj_props[PROP_FRAME_CLOCK] =
     g_param_spec_object ("frame-clock", NULL, NULL,
                          CLUTTER_TYPE_FRAME_CLOCK,
-                         G_PARAM_CONSTRUCT | CLUTTER_PARAM_READWRITE);
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS |
+                         G_PARAM_CONSTRUCT);
 
   object_class->dispose = clutter_timeline_dispose;
   object_class->finalize = clutter_timeline_finalize;

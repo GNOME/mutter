@@ -122,20 +122,28 @@ clutter_input_device_tool_class_init (ClutterInputDeviceToolClass *klass)
     g_param_spec_enum ("type", NULL, NULL,
                        CLUTTER_TYPE_INPUT_DEVICE_TOOL_TYPE,
                        CLUTTER_INPUT_DEVICE_TOOL_NONE,
-                       CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS |
+                       G_PARAM_CONSTRUCT_ONLY);
   props[PROP_SERIAL] =
     g_param_spec_uint64 ("serial", NULL, NULL,
                          0, G_MAXUINT64, 0,
-                         CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS |
+                         G_PARAM_CONSTRUCT_ONLY);
   props[PROP_ID] =
     g_param_spec_uint64 ("id", NULL, NULL,
                          0, G_MAXUINT64, 0,
-                         CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS |
+                         G_PARAM_CONSTRUCT_ONLY);
   props[PROP_AXES] =
     g_param_spec_flags ("axes", NULL, NULL,
                         CLUTTER_TYPE_INPUT_AXIS_FLAGS,
                         CLUTTER_INPUT_AXIS_FLAG_NONE,
-                        CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+                        G_PARAM_READWRITE |
+                        G_PARAM_STATIC_STRINGS |
+                        G_PARAM_CONSTRUCT_ONLY);
 
   g_object_class_install_properties (gobject_class, PROP_LAST, props);
 }

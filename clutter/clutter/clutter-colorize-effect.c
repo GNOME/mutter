@@ -180,7 +180,8 @@ clutter_colorize_effect_class_init (ClutterColorizeEffectClass *klass)
   obj_props[PROP_TINT] =
     clutter_param_spec_color ("tint", NULL, NULL,
                               &default_tint,
-                              CLUTTER_PARAM_READWRITE);
+                              G_PARAM_READWRITE |
+                              G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (gobject_class, PROP_LAST, obj_props);
 }

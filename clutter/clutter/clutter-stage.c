@@ -1385,7 +1385,8 @@ clutter_stage_class_init (ClutterStageClass *klass)
   obj_props[PROP_PERSPECTIVE] =
       g_param_spec_boxed ("perspective", NULL, NULL,
                           CLUTTER_TYPE_PERSPECTIVE,
-                          CLUTTER_PARAM_READABLE |
+                          G_PARAM_READABLE |
+                          G_PARAM_STATIC_STRINGS |
                           G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -1396,7 +1397,8 @@ clutter_stage_class_init (ClutterStageClass *klass)
   obj_props[PROP_TITLE] =
       g_param_spec_string ("title", NULL, NULL,
                            NULL,
-                           CLUTTER_PARAM_READWRITE |
+                           G_PARAM_READWRITE |
+                           G_PARAM_STATIC_STRINGS |
                            G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -1410,7 +1412,8 @@ clutter_stage_class_init (ClutterStageClass *klass)
   obj_props[PROP_KEY_FOCUS] =
       g_param_spec_object ("key-focus", NULL, NULL,
                            CLUTTER_TYPE_ACTOR,
-                           CLUTTER_PARAM_READWRITE |
+                           G_PARAM_READWRITE |
+                           G_PARAM_STATIC_STRINGS |
                            G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -1421,7 +1424,8 @@ clutter_stage_class_init (ClutterStageClass *klass)
   obj_props[PROP_IS_GRABBED] =
       g_param_spec_boolean ("is-grabbed", NULL, NULL,
                             FALSE,
-                            CLUTTER_PARAM_READABLE |
+                            G_PARAM_READABLE |
+                            G_PARAM_STATIC_STRINGS |
                             G_PARAM_EXPLICIT_NOTIFY);
 
   g_object_class_install_properties (gobject_class, PROP_LAST, obj_props);

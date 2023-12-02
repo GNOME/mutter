@@ -1341,11 +1341,13 @@ meta_input_device_native_class_init (MetaInputDeviceNativeClass *klass)
   obj_props[PROP_DEVICE_MATRIX] =
     g_param_spec_boxed ("device-matrix", NULL, NULL,
                         GRAPHENE_TYPE_MATRIX,
-                        CLUTTER_PARAM_READWRITE);
+                        G_PARAM_READWRITE |
+                        G_PARAM_STATIC_STRINGS);
   obj_props[PROP_OUTPUT_ASPECT_RATIO] =
     g_param_spec_double ("output-aspect-ratio", NULL, NULL,
                          0, G_MAXDOUBLE, 0,
-                         CLUTTER_PARAM_READWRITE);
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }

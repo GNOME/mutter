@@ -185,13 +185,15 @@ clutter_path_class_init (ClutterPathClass *klass)
 
   pspec = g_param_spec_string ("description", NULL, NULL,
                                "",
-                               CLUTTER_PARAM_READWRITE);
+                               G_PARAM_READWRITE |
+                               G_PARAM_STATIC_STRINGS);
   obj_props[PROP_DESCRIPTION] = pspec;
   g_object_class_install_property (gobject_class, PROP_DESCRIPTION, pspec);
 
   pspec = g_param_spec_uint ("length", NULL, NULL,
                              0, G_MAXUINT, 0,
-                             CLUTTER_PARAM_READABLE);
+                             G_PARAM_READABLE |
+                             G_PARAM_STATIC_STRINGS);
   obj_props[PROP_LENGTH] = pspec;
   g_object_class_install_property (gobject_class, PROP_LENGTH, pspec);
 }

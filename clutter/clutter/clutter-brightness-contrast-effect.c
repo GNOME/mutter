@@ -265,7 +265,8 @@ clutter_brightness_contrast_effect_class_init (ClutterBrightnessContrastEffectCl
   obj_props[PROP_BRIGHTNESS] =
     clutter_param_spec_color ("brightness", NULL, NULL,
                               &no_brightness_change,
-                              CLUTTER_PARAM_READWRITE);
+                              G_PARAM_READWRITE |
+                              G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterBrightnessContrastEffect:contrast:
@@ -281,7 +282,8 @@ clutter_brightness_contrast_effect_class_init (ClutterBrightnessContrastEffectCl
   obj_props[PROP_CONTRAST] =
     clutter_param_spec_color ("contrast", NULL, NULL,
                               &no_contrast_change,
-                              CLUTTER_PARAM_READWRITE);
+                              G_PARAM_READWRITE |
+                              G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (gobject_class, PROP_LAST, obj_props);
 }

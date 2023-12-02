@@ -845,7 +845,8 @@ meta_input_settings_native_class_init (MetaInputSettingsNativeClass *klass)
   props[PROP_SEAT_IMPL] =
     g_param_spec_object ("seat-impl", NULL, NULL,
                          META_TYPE_SEAT_IMPL,
-                         CLUTTER_PARAM_READWRITE |
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS |
                          G_PARAM_CONSTRUCT_ONLY);
 
   g_object_class_install_properties (object_class, N_PROPS, props);

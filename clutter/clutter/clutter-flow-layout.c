@@ -916,7 +916,9 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
     g_param_spec_enum ("orientation", NULL, NULL,
                        CLUTTER_TYPE_FLOW_ORIENTATION,
                        CLUTTER_FLOW_HORIZONTAL,
-                       CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT);
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS |
+                       G_PARAM_CONSTRUCT);
 
   /**
    * ClutterFlowLayout:homogeneous:
@@ -927,7 +929,8 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
   flow_properties[PROP_HOMOGENEOUS] =
     g_param_spec_boolean ("homogeneous", NULL, NULL,
                           FALSE,
-                          CLUTTER_PARAM_READWRITE);
+                          G_PARAM_READWRITE |
+                          G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterFlowLayout:column-spacing:
@@ -940,7 +943,8 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
     g_param_spec_float ("column-spacing", NULL, NULL,
                         0.0, G_MAXFLOAT,
                         0.0,
-                        CLUTTER_PARAM_READWRITE);
+                        G_PARAM_READWRITE |
+                        G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterFlowLayout:row-spacing:
@@ -953,7 +957,8 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
     g_param_spec_float ("row-spacing", NULL, NULL,
                         0.0, G_MAXFLOAT,
                         0.0,
-                        CLUTTER_PARAM_READWRITE);
+                        G_PARAM_READWRITE |
+                        G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterFlowLayout:min-column-width:
@@ -964,7 +969,8 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
     g_param_spec_float ("min-column-width", NULL, NULL,
                         0.0, G_MAXFLOAT,
                         0.0,
-                        CLUTTER_PARAM_READWRITE);
+                        G_PARAM_READWRITE |
+                        G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterFlowLayout:max-column-width:
@@ -976,7 +982,8 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
     g_param_spec_float ("max-column-width", NULL, NULL,
                         -1.0, G_MAXFLOAT,
                         -1.0,
-                        CLUTTER_PARAM_READWRITE);
+                        G_PARAM_READWRITE |
+                        G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterFlowLayout:min-row-height:
@@ -987,7 +994,8 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
     g_param_spec_float ("min-row-height", NULL, NULL,
                         0.0, G_MAXFLOAT,
                         0.0,
-                        CLUTTER_PARAM_READWRITE);
+                        G_PARAM_READWRITE |
+                        G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterFlowLayout:max-row-height:
@@ -999,7 +1007,8 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
     g_param_spec_float ("max-row-height", NULL, NULL,
                         -1.0, G_MAXFLOAT,
                         -1.0,
-                        CLUTTER_PARAM_READWRITE);
+                        G_PARAM_READWRITE |
+                        G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterFlowLayout:snap-to-grid:
@@ -1010,7 +1019,8 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
   flow_properties[PROP_SNAP_TO_GRID] =
     g_param_spec_boolean ("snap-to-grid", NULL, NULL,
                           TRUE,
-                          CLUTTER_PARAM_READWRITE);
+                          G_PARAM_READWRITE |
+                          G_PARAM_STATIC_STRINGS);
 
   gobject_class->finalize = clutter_flow_layout_finalize;
   gobject_class->set_property = clutter_flow_layout_set_property;

@@ -478,7 +478,8 @@ clutter_pan_action_class_init (ClutterPanActionClass *klass)
     g_param_spec_enum ("pan-axis", NULL, NULL,
                        CLUTTER_TYPE_PAN_AXIS,
                        CLUTTER_PAN_AXIS_NONE,
-                       CLUTTER_PARAM_READWRITE);
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterPanAction:interpolate:
@@ -488,7 +489,8 @@ clutter_pan_action_class_init (ClutterPanActionClass *klass)
   pan_props[PROP_INTERPOLATE] =
     g_param_spec_boolean ("interpolate", NULL, NULL,
                           FALSE,
-                          CLUTTER_PARAM_READWRITE);
+                          G_PARAM_READWRITE |
+                          G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterPanAction:deceleration:
@@ -501,7 +503,8 @@ clutter_pan_action_class_init (ClutterPanActionClass *klass)
   pan_props[PROP_DECELERATION] =
     g_param_spec_double ("deceleration", NULL, NULL,
                          FLOAT_EPSILON, 1.0, default_deceleration_rate,
-                         CLUTTER_PARAM_READWRITE);
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterPanAction:acceleration-factor:
@@ -515,7 +518,8 @@ clutter_pan_action_class_init (ClutterPanActionClass *klass)
   pan_props[PROP_ACCELERATION_FACTOR] =
     g_param_spec_double ("acceleration-factor", NULL, NULL,
                          1.0, G_MAXDOUBLE, default_acceleration_factor,
-                         CLUTTER_PARAM_READWRITE);
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS);
 
   gobject_class->constructed = clutter_pan_action_constructed;
   gobject_class->set_property = clutter_pan_action_set_property;

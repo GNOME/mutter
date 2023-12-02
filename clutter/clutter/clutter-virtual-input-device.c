@@ -282,12 +282,16 @@ clutter_virtual_input_device_class_init (ClutterVirtualInputDeviceClass *klass)
   obj_props[PROP_SEAT] =
     g_param_spec_object ("seat", NULL, NULL,
                          CLUTTER_TYPE_SEAT,
-                         CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS |
+                         G_PARAM_CONSTRUCT_ONLY);
   obj_props[PROP_DEVICE_TYPE] =
     g_param_spec_enum ("device-type", NULL, NULL,
                        CLUTTER_TYPE_INPUT_DEVICE_TYPE,
                        CLUTTER_POINTER_DEVICE,
-                       CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS |
+                       G_PARAM_CONSTRUCT_ONLY);
 
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
 }

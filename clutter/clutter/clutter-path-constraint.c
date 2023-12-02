@@ -200,7 +200,8 @@ clutter_path_constraint_class_init (ClutterPathConstraintClass *klass)
   path_properties[PROP_PATH] =
     g_param_spec_object ("path", NULL, NULL,
                          CLUTTER_TYPE_PATH,
-                         CLUTTER_PARAM_READWRITE);
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterPathConstraint:offset:
@@ -211,7 +212,8 @@ clutter_path_constraint_class_init (ClutterPathConstraintClass *klass)
     g_param_spec_float ("offset", NULL, NULL,
                         -1.0, 2.0,
                         0.0,
-                        CLUTTER_PARAM_READWRITE);
+                        G_PARAM_READWRITE |
+                        G_PARAM_STATIC_STRINGS);
 
   gobject_class->set_property = clutter_path_constraint_set_property;
   gobject_class->get_property = clutter_path_constraint_get_property;

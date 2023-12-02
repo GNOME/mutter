@@ -198,7 +198,8 @@ clutter_desaturate_effect_class_init (ClutterDesaturateEffectClass *klass)
     g_param_spec_double ("factor", NULL, NULL,
                          0.0, 1.0,
                          1.0,
-                         CLUTTER_PARAM_READWRITE);
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS);
 
   gobject_class->dispose = clutter_desaturate_effect_dispose;
   gobject_class->set_property = clutter_desaturate_effect_set_property;

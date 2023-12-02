@@ -208,7 +208,8 @@ clutter_actor_meta_class_init (ClutterActorMetaClass *klass)
   obj_props[PROP_ACTOR] =
     g_param_spec_object ("actor", NULL, NULL,
                          CLUTTER_TYPE_ACTOR,
-                         CLUTTER_PARAM_READABLE |
+                         G_PARAM_READABLE |
+                         G_PARAM_STATIC_STRINGS |
                          G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -219,7 +220,8 @@ clutter_actor_meta_class_init (ClutterActorMetaClass *klass)
   obj_props[PROP_NAME] =
     g_param_spec_string ("name", NULL, NULL,
                          NULL,
-                         CLUTTER_PARAM_READWRITE);
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterActorMeta:enabled:
@@ -229,7 +231,8 @@ clutter_actor_meta_class_init (ClutterActorMetaClass *klass)
   obj_props[PROP_ENABLED] =
     g_param_spec_boolean ("enabled", NULL, NULL,
                           TRUE,
-                          CLUTTER_PARAM_READWRITE);
+                          G_PARAM_READWRITE |
+                          G_PARAM_STATIC_STRINGS);
 
   gobject_class->finalize = clutter_actor_meta_finalize;
   gobject_class->set_property = clutter_actor_meta_set_property;

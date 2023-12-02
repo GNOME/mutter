@@ -111,7 +111,8 @@ clutter_stage_manager_class_init (ClutterStageManagerClass *klass)
                                    PROP_DEFAULT_STAGE,
                                    g_param_spec_object ("default-stage", NULL, NULL,
                                                         CLUTTER_TYPE_STAGE,
-                                                        CLUTTER_PARAM_READABLE));
+                                                        G_PARAM_READABLE |
+                                                        G_PARAM_STATIC_STRINGS));
 
   /**
    * ClutterStageManager::stage-added:

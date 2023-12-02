@@ -299,7 +299,8 @@ clutter_seat_class_init (ClutterSeatClass *klass)
   props[PROP_TOUCH_MODE] =
     g_param_spec_boolean ("touch-mode", NULL, NULL,
                           FALSE,
-                          CLUTTER_PARAM_READABLE);
+                          G_PARAM_READABLE |
+                          G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterSeat::name:

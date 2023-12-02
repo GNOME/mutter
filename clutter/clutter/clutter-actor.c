@@ -5842,7 +5842,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_float ("fixed-x", NULL, NULL,
                         -G_MAXFLOAT, G_MAXFLOAT,
                         0.0,
-                        CLUTTER_PARAM_READWRITE |
+                        G_PARAM_READWRITE |
+                        G_PARAM_STATIC_STRINGS |
                         G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -5857,7 +5858,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_float ("fixed-y", NULL, NULL,
                         -G_MAXFLOAT, G_MAXFLOAT,
                         0,
-                        CLUTTER_PARAM_READWRITE |
+                        G_PARAM_READWRITE |
+                        G_PARAM_STATIC_STRINGS |
                         G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -5869,7 +5871,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
   obj_props[PROP_FIXED_POSITION_SET] =
     g_param_spec_boolean ("fixed-position-set", NULL, NULL,
                           FALSE,
-                          CLUTTER_PARAM_READWRITE |
+                          G_PARAM_READWRITE |
+                          G_PARAM_STATIC_STRINGS |
                           G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -5886,7 +5889,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_float ("min-width", NULL, NULL,
                         0.0, G_MAXFLOAT,
                         0.0,
-                        CLUTTER_PARAM_READWRITE |
+                        G_PARAM_READWRITE |
+                        G_PARAM_STATIC_STRINGS |
                         G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -5902,7 +5906,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_float ("min-height", NULL, NULL,
                         0.0, G_MAXFLOAT,
                         0.0,
-                        CLUTTER_PARAM_READWRITE |
+                        G_PARAM_READWRITE |
+                        G_PARAM_STATIC_STRINGS |
                         G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -5918,7 +5923,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_float ("natural-width", NULL, NULL,
                         0.0, G_MAXFLOAT,
                         0.0,
-                        CLUTTER_PARAM_READWRITE |
+                        G_PARAM_READWRITE |
+                        G_PARAM_STATIC_STRINGS |
                         G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -5934,7 +5940,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_float ("natural-height", NULL, NULL,
                         0.0, G_MAXFLOAT,
                         0.0,
-                        CLUTTER_PARAM_READWRITE |
+                        G_PARAM_READWRITE |
+                        G_PARAM_STATIC_STRINGS |
                         G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -5946,7 +5953,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
   obj_props[PROP_MIN_WIDTH_SET] =
     g_param_spec_boolean ("min-width-set", NULL, NULL,
                           FALSE,
-                          CLUTTER_PARAM_READWRITE |
+                          G_PARAM_READWRITE |
+                          G_PARAM_STATIC_STRINGS |
                           G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -5958,7 +5966,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
   obj_props[PROP_MIN_HEIGHT_SET] =
     g_param_spec_boolean ("min-height-set", NULL, NULL,
                           FALSE,
-                          CLUTTER_PARAM_READWRITE |
+                          G_PARAM_READWRITE |
+                          G_PARAM_STATIC_STRINGS |
                           G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -5970,7 +5979,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
   obj_props[PROP_NATURAL_WIDTH_SET] =
     g_param_spec_boolean ("natural-width-set", NULL, NULL,
                           FALSE,
-                          CLUTTER_PARAM_READWRITE |
+                          G_PARAM_READWRITE |
+                          G_PARAM_STATIC_STRINGS |
                           G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -5982,7 +5992,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
   obj_props[PROP_NATURAL_HEIGHT_SET] =
     g_param_spec_boolean ("natural-height-set", NULL, NULL,
                           FALSE,
-                          CLUTTER_PARAM_READWRITE |
+                          G_PARAM_READWRITE |
+                          G_PARAM_STATIC_STRINGS |
                           G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -6062,7 +6073,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_enum ("request-mode", NULL, NULL,
                        CLUTTER_TYPE_REQUEST_MODE,
                        CLUTTER_REQUEST_HEIGHT_FOR_WIDTH,
-                       CLUTTER_PARAM_READWRITE |
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS |
                        G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -6119,7 +6131,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_flags ("offscreen-redirect", NULL, NULL,
                         CLUTTER_TYPE_OFFSCREEN_REDIRECT,
                         0,
-                        CLUTTER_PARAM_READWRITE);
+                        G_PARAM_READWRITE |
+                        G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterActor:visible:
@@ -6131,7 +6144,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
   obj_props[PROP_VISIBLE] =
     g_param_spec_boolean ("visible", NULL, NULL,
                           FALSE,
-                          CLUTTER_PARAM_READWRITE |
+                          G_PARAM_READWRITE |
+                          G_PARAM_STATIC_STRINGS |
                           G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -6143,7 +6157,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
   obj_props[PROP_MAPPED] =
     g_param_spec_boolean ("mapped", NULL, NULL,
                           FALSE,
-                          CLUTTER_PARAM_READABLE |
+                          G_PARAM_READABLE |
+                          G_PARAM_STATIC_STRINGS |
                           G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -6154,7 +6169,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
   obj_props[PROP_REALIZED] =
     g_param_spec_boolean ("realized", NULL, NULL,
                           FALSE,
-                          CLUTTER_PARAM_READABLE |
+                          G_PARAM_READABLE |
+                          G_PARAM_STATIC_STRINGS |
                           G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -6167,7 +6183,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
   obj_props[PROP_REACTIVE] =
     g_param_spec_boolean ("reactive", NULL, NULL,
                           FALSE,
-                          CLUTTER_PARAM_READWRITE |
+                          G_PARAM_READWRITE |
+                          G_PARAM_STATIC_STRINGS |
                           G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -6178,7 +6195,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
   obj_props[PROP_HAS_CLIP] =
     g_param_spec_boolean ("has-clip", NULL, NULL,
                           FALSE,
-                          CLUTTER_PARAM_READABLE |
+                          G_PARAM_READABLE |
+                          G_PARAM_STATIC_STRINGS |
                           G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -6207,7 +6225,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
   obj_props[PROP_NAME] =
     g_param_spec_string ("name", NULL, NULL,
                          NULL,
-                         CLUTTER_PARAM_READWRITE |
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS |
                          G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -6476,7 +6495,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
   obj_props[PROP_SHOW_ON_SET_PARENT] = /* XXX:2.0 - remove */
     g_param_spec_boolean ("show-on-set-parent", NULL, NULL,
                           TRUE,
-                          CLUTTER_PARAM_READWRITE);
+                          G_PARAM_READWRITE |
+                          G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterActor:clip-to-allocation:
@@ -6490,7 +6510,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
   obj_props[PROP_CLIP_TO_ALLOCATION] =
     g_param_spec_boolean ("clip-to-allocation", NULL, NULL,
                           FALSE,
-                          CLUTTER_PARAM_READWRITE |
+                          G_PARAM_READWRITE |
+                          G_PARAM_STATIC_STRINGS |
                           G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -6502,7 +6523,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_enum ("text-direction", NULL, NULL,
                        CLUTTER_TYPE_TEXT_DIRECTION,
                        CLUTTER_TEXT_DIRECTION_LTR,
-                       CLUTTER_PARAM_READWRITE |
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS |
                        G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -6514,7 +6536,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
   obj_props[PROP_HAS_POINTER] =
     g_param_spec_boolean ("has-pointer", NULL, NULL,
                           FALSE,
-                          CLUTTER_PARAM_READABLE |
+                          G_PARAM_READABLE |
+                          G_PARAM_STATIC_STRINGS |
                           G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -6525,7 +6548,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
   obj_props[PROP_ACTIONS] =
     g_param_spec_object ("actions", NULL, NULL,
                          CLUTTER_TYPE_ACTION,
-                         CLUTTER_PARAM_WRITABLE |
+                         G_PARAM_WRITABLE |
+                         G_PARAM_STATIC_STRINGS |
                          G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -6536,7 +6560,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
   obj_props[PROP_CONSTRAINTS] =
     g_param_spec_object ("constraints", NULL, NULL,
                          CLUTTER_TYPE_CONSTRAINT,
-                         CLUTTER_PARAM_WRITABLE |
+                         G_PARAM_WRITABLE |
+                         G_PARAM_STATIC_STRINGS |
                          G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -6547,7 +6572,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
   obj_props[PROP_EFFECT] =
     g_param_spec_object ("effect", NULL, NULL,
                          CLUTTER_TYPE_EFFECT,
-                         CLUTTER_PARAM_WRITABLE |
+                         G_PARAM_WRITABLE |
+                         G_PARAM_STATIC_STRINGS |
                          G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -6559,7 +6585,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
   obj_props[PROP_LAYOUT_MANAGER] =
     g_param_spec_object ("layout-manager", NULL, NULL,
                          CLUTTER_TYPE_LAYOUT_MANAGER,
-                         CLUTTER_PARAM_READWRITE |
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS |
                          G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -6599,7 +6626,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_enum ("x-align", NULL, NULL,
                        CLUTTER_TYPE_ACTOR_ALIGN,
                        CLUTTER_ACTOR_ALIGN_FILL,
-                       CLUTTER_PARAM_READWRITE |
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS |
                        G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -6612,7 +6640,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_enum ("y-align", NULL, NULL,
                        CLUTTER_TYPE_ACTOR_ALIGN,
                        CLUTTER_ACTOR_ALIGN_FILL,
-                       CLUTTER_PARAM_READWRITE |
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS |
                        G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -6699,7 +6728,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
   obj_props[PROP_BACKGROUND_COLOR_SET] =
     g_param_spec_boolean ("background-color-set", NULL, NULL,
                           FALSE,
-                          CLUTTER_PARAM_READABLE |
+                          G_PARAM_READABLE |
+                          G_PARAM_STATIC_STRINGS |
                           G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -6726,7 +6756,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
   obj_props[PROP_FIRST_CHILD] =
     g_param_spec_object ("first-child", NULL, NULL,
                          CLUTTER_TYPE_ACTOR,
-                         CLUTTER_PARAM_READABLE |
+                         G_PARAM_READABLE |
+                         G_PARAM_STATIC_STRINGS |
                          G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -6737,7 +6768,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
   obj_props[PROP_LAST_CHILD] =
     g_param_spec_object ("last-child", NULL, NULL,
                          CLUTTER_TYPE_ACTOR,
-                         CLUTTER_PARAM_READABLE |
+                         G_PARAM_READABLE |
+                         G_PARAM_STATIC_STRINGS |
                          G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -6749,7 +6781,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
   obj_props[PROP_CONTENT] =
     g_param_spec_object ("content", NULL, NULL,
                          CLUTTER_TYPE_CONTENT,
-                         CLUTTER_PARAM_READWRITE |
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS |
                          G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -6773,7 +6806,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_enum ("content-gravity", NULL, NULL,
                        CLUTTER_TYPE_CONTENT_GRAVITY,
                        CLUTTER_CONTENT_GRAVITY_RESIZE_FILL,
-                       CLUTTER_PARAM_READWRITE |
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS |
                        G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -6799,14 +6833,16 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_enum ("minification-filter", NULL, NULL,
                        CLUTTER_TYPE_SCALING_FILTER,
                        CLUTTER_SCALING_FILTER_LINEAR,
-                       CLUTTER_PARAM_READWRITE |
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS |
                        G_PARAM_EXPLICIT_NOTIFY);
 
   obj_props[PROP_MAGNIFICATION_FILTER] =
     g_param_spec_enum ("magnification-filter", NULL, NULL,
                        CLUTTER_TYPE_SCALING_FILTER,
                        CLUTTER_SCALING_FILTER_LINEAR,
-                       CLUTTER_PARAM_READWRITE |
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS |
                        G_PARAM_EXPLICIT_NOTIFY);
 
   /**
@@ -6831,8 +6867,9 @@ clutter_actor_class_init (ClutterActorClass *klass)
   obj_props[PROP_COLOR_STATE] =
     g_param_spec_object ("color-state", NULL, NULL,
                          CLUTTER_TYPE_COLOR_STATE,
-                         CLUTTER_PARAM_READWRITE |
+                         G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT |
+                         G_PARAM_STATIC_STRINGS |
                          G_PARAM_EXPLICIT_NOTIFY);
 
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);

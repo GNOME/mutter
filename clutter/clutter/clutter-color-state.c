@@ -153,7 +153,8 @@ clutter_color_state_class_init (ClutterColorStateClass *klass)
     g_param_spec_enum ("colorspace", NULL, NULL,
                        CLUTTER_TYPE_COLORSPACE,
                        CLUTTER_COLORSPACE_SRGB,
-                       CLUTTER_PARAM_READWRITE |
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS |
                        G_PARAM_CONSTRUCT_ONLY);
 
   g_object_class_install_properties (gobject_class, N_PROPS, obj_props);

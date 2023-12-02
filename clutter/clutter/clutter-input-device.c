@@ -319,7 +319,8 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
   obj_props[PROP_NAME] =
     g_param_spec_string ("name", NULL, NULL,
                          NULL,
-                         CLUTTER_PARAM_READWRITE |
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS |
                          G_PARAM_CONSTRUCT_ONLY);
 
   /**
@@ -331,7 +332,8 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
     g_param_spec_enum ("device-type", NULL, NULL,
                        CLUTTER_TYPE_INPUT_DEVICE_TYPE,
                        CLUTTER_POINTER_DEVICE,
-                       CLUTTER_PARAM_READWRITE |
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS |
                        G_PARAM_CONSTRUCT_ONLY);
 
   /**
@@ -342,7 +344,8 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
   obj_props[PROP_CAPABILITIES] =
     g_param_spec_flags ("capabilities", NULL, NULL,
                         CLUTTER_TYPE_INPUT_CAPABILITIES, 0,
-                        CLUTTER_PARAM_READWRITE |
+                        G_PARAM_READWRITE |
+                        G_PARAM_STATIC_STRINGS |
                         G_PARAM_CONSTRUCT_ONLY);
 
   /**
@@ -353,7 +356,9 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
   obj_props[PROP_SEAT] =
     g_param_spec_object ("seat", NULL, NULL,
                          CLUTTER_TYPE_SEAT,
-                         CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS |
+                         G_PARAM_CONSTRUCT_ONLY);
 
   /**
    * ClutterInputDevice:mode:
@@ -364,7 +369,9 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
     g_param_spec_enum ("device-mode", NULL, NULL,
                        CLUTTER_TYPE_INPUT_MODE,
                        CLUTTER_INPUT_MODE_FLOATING,
-                       CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS |
+                       G_PARAM_CONSTRUCT_ONLY);
 
   /**
    * ClutterInputDevice:has-cursor:
@@ -374,7 +381,9 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
   obj_props[PROP_HAS_CURSOR] =
     g_param_spec_boolean ("has-cursor", NULL, NULL,
                           FALSE,
-                          CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+                          G_PARAM_READWRITE |
+                          G_PARAM_STATIC_STRINGS |
+                          G_PARAM_CONSTRUCT_ONLY);
 
   /**
    * ClutterInputDevice:vendor-id:
@@ -384,7 +393,9 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
   obj_props[PROP_VENDOR_ID] =
     g_param_spec_string ("vendor-id", NULL, NULL,
                          NULL,
-                         CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS |
+                         G_PARAM_CONSTRUCT_ONLY);
 
   /**
    * ClutterInputDevice:product-id:
@@ -394,32 +405,44 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
   obj_props[PROP_PRODUCT_ID] =
     g_param_spec_string ("product-id", NULL, NULL,
                          NULL,
-                         CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS |
+                         G_PARAM_CONSTRUCT_ONLY);
 
   obj_props[PROP_N_RINGS] =
     g_param_spec_int ("n-rings", NULL, NULL,
                       0, G_MAXINT, 0,
-                      CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+                      G_PARAM_READWRITE |
+                      G_PARAM_STATIC_STRINGS |
+                      G_PARAM_CONSTRUCT_ONLY);
 
   obj_props[PROP_N_STRIPS] =
     g_param_spec_int ("n-strips", NULL, NULL,
                       0, G_MAXINT, 0,
-                      CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+                      G_PARAM_READWRITE |
+                      G_PARAM_STATIC_STRINGS |
+                      G_PARAM_CONSTRUCT_ONLY);
 
   obj_props[PROP_N_MODE_GROUPS] =
     g_param_spec_int ("n-mode-groups", NULL, NULL,
                       0, G_MAXINT, 0,
-                      CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+                      G_PARAM_READWRITE |
+                      G_PARAM_STATIC_STRINGS |
+                      G_PARAM_CONSTRUCT_ONLY);
 
   obj_props[PROP_N_BUTTONS] =
     g_param_spec_int ("n-buttons", NULL, NULL,
                       0, G_MAXINT, 0,
-                      CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+                      G_PARAM_READWRITE |
+                      G_PARAM_STATIC_STRINGS |
+                      G_PARAM_CONSTRUCT_ONLY);
 
   obj_props[PROP_DEVICE_NODE] =
     g_param_spec_string ("device-node", NULL, NULL,
                          NULL,
-                         CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS |
+                         G_PARAM_CONSTRUCT_ONLY);
 
   gobject_class->constructed = clutter_input_device_constructed;
   gobject_class->dispose = clutter_input_device_dispose;

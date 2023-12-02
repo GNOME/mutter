@@ -291,7 +291,9 @@ clutter_align_constraint_class_init (ClutterAlignConstraintClass *klass)
   obj_props[PROP_SOURCE] =
     g_param_spec_object ("source", NULL, NULL,
                            CLUTTER_TYPE_ACTOR,
-                           CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT);
+                           G_PARAM_READWRITE |
+                           G_PARAM_STATIC_STRINGS |
+                           G_PARAM_CONSTRUCT);
 
   /**
    * ClutterAlignConstraint:align-axis:
@@ -302,7 +304,9 @@ clutter_align_constraint_class_init (ClutterAlignConstraintClass *klass)
     g_param_spec_enum ("align-axis", NULL, NULL,
                        CLUTTER_TYPE_ALIGN_AXIS,
                        CLUTTER_ALIGN_X_AXIS,
-                       CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT);
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS |
+                       G_PARAM_CONSTRUCT);
 
   /**
    * ClutterAlignConstraint:pivot-point:
@@ -340,7 +344,9 @@ clutter_align_constraint_class_init (ClutterAlignConstraintClass *klass)
     g_param_spec_float ("factor", NULL, NULL,
                         0.0, 1.0,
                         0.0,
-                        CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT);
+                        G_PARAM_READWRITE |
+                        G_PARAM_STATIC_STRINGS |
+                        G_PARAM_CONSTRUCT);
 
   gobject_class->dispose = clutter_align_constraint_dispose;
   gobject_class->set_property = clutter_align_constraint_set_property;

@@ -779,7 +779,8 @@ clutter_settings_class_init (ClutterSettingsClass *klass)
     g_param_spec_int ("double-click-time", NULL, NULL,
                       0, G_MAXINT,
                       250,
-                      CLUTTER_PARAM_READWRITE);
+                      G_PARAM_READWRITE |
+                      G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterSettings:double-click-distance:
@@ -791,7 +792,8 @@ clutter_settings_class_init (ClutterSettingsClass *klass)
     g_param_spec_int ("double-click-distance", NULL, NULL,
                       0, G_MAXINT,
                       5,
-                      CLUTTER_PARAM_READWRITE);
+                      G_PARAM_READWRITE |
+                      G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterSettings:dnd-drag-threshold:
@@ -803,7 +805,8 @@ clutter_settings_class_init (ClutterSettingsClass *klass)
     g_param_spec_int ("dnd-drag-threshold", NULL, NULL,
                       1, G_MAXINT,
                       8,
-                      CLUTTER_PARAM_READWRITE);
+                      G_PARAM_READWRITE |
+                      G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterSettings:font-name:
@@ -814,7 +817,8 @@ clutter_settings_class_init (ClutterSettingsClass *klass)
   obj_props[PROP_FONT_NAME] =
     g_param_spec_string ("font-name", NULL, NULL,
                          NULL,
-                         CLUTTER_PARAM_READWRITE);
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterSettings:font-antialias:
@@ -827,7 +831,8 @@ clutter_settings_class_init (ClutterSettingsClass *klass)
     g_param_spec_int ("font-antialias", NULL, NULL,
                       -1, 1,
                       -1,
-                      CLUTTER_PARAM_READWRITE);
+                      G_PARAM_READWRITE |
+                      G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterSettings:font-dpi:
@@ -840,13 +845,15 @@ clutter_settings_class_init (ClutterSettingsClass *klass)
     g_param_spec_int ("font-dpi", NULL, NULL,
                       -1, 1024 * 1024,
                       -1,
-                      CLUTTER_PARAM_READWRITE);
+                      G_PARAM_READWRITE |
+                      G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_UNSCALED_FONT_DPI] =
     g_param_spec_int ("unscaled-font-dpi", NULL, NULL,
                       -1, 1024 * 1024,
                       -1,
-                      CLUTTER_PARAM_WRITABLE);
+                      G_PARAM_WRITABLE |
+                      G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterSettings:font-hinting:
@@ -859,7 +866,8 @@ clutter_settings_class_init (ClutterSettingsClass *klass)
     g_param_spec_int ("font-hinting", NULL, NULL,
                       -1, 1,
                       -1,
-                      CLUTTER_PARAM_READWRITE);
+                      G_PARAM_READWRITE |
+                      G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterSettings:font-hint-style:
@@ -875,7 +883,8 @@ clutter_settings_class_init (ClutterSettingsClass *klass)
   obj_props[PROP_FONT_HINT_STYLE] =
     g_param_spec_string ("font-hint-style", NULL, NULL,
                          NULL,
-                         CLUTTER_PARAM_READWRITE);
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterSettings:font-subpixel-order:
@@ -892,7 +901,8 @@ clutter_settings_class_init (ClutterSettingsClass *klass)
   obj_props[PROP_FONT_RGBA] =
     g_param_spec_string ("font-subpixel-order", NULL, NULL,
                          NULL,
-                         CLUTTER_PARAM_READWRITE);
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterSettings:long-press-duration:
@@ -906,13 +916,15 @@ clutter_settings_class_init (ClutterSettingsClass *klass)
     g_param_spec_int ("long-press-duration", NULL, NULL,
                       0, G_MAXINT,
                       500,
-                      CLUTTER_PARAM_READWRITE);
+                      G_PARAM_READWRITE |
+                      G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_FONTCONFIG_TIMESTAMP] =
     g_param_spec_uint ("fontconfig-timestamp", NULL, NULL,
                        0, G_MAXUINT,
                        0,
-                       CLUTTER_PARAM_WRITABLE);
+                       G_PARAM_WRITABLE |
+                       G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterText:password-hint-time:
@@ -926,7 +938,8 @@ clutter_settings_class_init (ClutterSettingsClass *klass)
     g_param_spec_uint ("password-hint-time", NULL, NULL,
                        0, G_MAXUINT,
                        0,
-                       CLUTTER_PARAM_READWRITE);
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS);
 
   gobject_class->set_property = clutter_settings_set_property;
   gobject_class->get_property = clutter_settings_get_property;

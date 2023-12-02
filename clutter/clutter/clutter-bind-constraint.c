@@ -394,7 +394,9 @@ clutter_bind_constraint_class_init (ClutterBindConstraintClass *klass)
   obj_props[PROP_SOURCE] =
     g_param_spec_object ("source", NULL, NULL,
                          CLUTTER_TYPE_ACTOR,
-                         CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT);
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS |
+                         G_PARAM_CONSTRUCT);
 
   /**
    * ClutterBindConstraint:coordinate:
@@ -405,7 +407,9 @@ clutter_bind_constraint_class_init (ClutterBindConstraintClass *klass)
     g_param_spec_enum ("coordinate", NULL, NULL,
                        CLUTTER_TYPE_BIND_COORDINATE,
                        CLUTTER_BIND_X,
-                       CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT);
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS |
+                       G_PARAM_CONSTRUCT);
 
   /**
    * ClutterBindConstraint:offset:
@@ -416,7 +420,9 @@ clutter_bind_constraint_class_init (ClutterBindConstraintClass *klass)
     g_param_spec_float ("offset", NULL, NULL,
                         -G_MAXFLOAT, G_MAXFLOAT,
                         0.0f,
-                        CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT);
+                        G_PARAM_READWRITE |
+                        G_PARAM_STATIC_STRINGS |
+                        G_PARAM_CONSTRUCT);
 
   g_object_class_install_properties (gobject_class,
                                      PROP_LAST,

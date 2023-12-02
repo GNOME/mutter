@@ -313,7 +313,9 @@ clutter_snap_constraint_class_init (ClutterSnapConstraintClass *klass)
   obj_props[PROP_SOURCE] =
     g_param_spec_object ("source", NULL, NULL,
                          CLUTTER_TYPE_ACTOR,
-                         CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT);
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS |
+                         G_PARAM_CONSTRUCT);
 
   /**
    * ClutterSnapConstraint:from-edge:
@@ -324,7 +326,9 @@ clutter_snap_constraint_class_init (ClutterSnapConstraintClass *klass)
     g_param_spec_enum ("from-edge", NULL, NULL,
                        CLUTTER_TYPE_SNAP_EDGE,
                        CLUTTER_SNAP_EDGE_RIGHT,
-                       CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT);
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS |
+                       G_PARAM_CONSTRUCT);
 
   /**
    * ClutterSnapConstraint:to-edge:
@@ -335,7 +339,9 @@ clutter_snap_constraint_class_init (ClutterSnapConstraintClass *klass)
     g_param_spec_enum ("to-edge", NULL, NULL,
                        CLUTTER_TYPE_SNAP_EDGE,
                        CLUTTER_SNAP_EDGE_RIGHT,
-                       CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT);
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS |
+                       G_PARAM_CONSTRUCT);
 
   /**
    * ClutterSnapConstraint:offset:
@@ -347,7 +353,9 @@ clutter_snap_constraint_class_init (ClutterSnapConstraintClass *klass)
     g_param_spec_float ("offset", NULL, NULL,
                         -G_MAXFLOAT, G_MAXFLOAT,
                         0.0f,
-                        CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT);
+                        G_PARAM_READWRITE |
+                        G_PARAM_STATIC_STRINGS |
+                        G_PARAM_CONSTRUCT);
 
   gobject_class->dispose = clutter_snap_constraint_dispose;
   gobject_class->set_property = clutter_snap_constraint_set_property;

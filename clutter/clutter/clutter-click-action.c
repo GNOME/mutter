@@ -560,7 +560,8 @@ clutter_click_action_class_init (ClutterClickActionClass *klass)
   obj_props[PROP_PRESSED] =
     g_param_spec_boolean ("pressed", NULL, NULL,
                           FALSE,
-                          CLUTTER_PARAM_READABLE);
+                          G_PARAM_READABLE |
+                          G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterClickAction:held:
@@ -570,7 +571,8 @@ clutter_click_action_class_init (ClutterClickActionClass *klass)
   obj_props[PROP_HELD] =
     g_param_spec_boolean ("held", NULL, NULL,
                           FALSE,
-                          CLUTTER_PARAM_READABLE);
+                          G_PARAM_READABLE |
+                          G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterClickAction:long-press-duration:
@@ -585,7 +587,8 @@ clutter_click_action_class_init (ClutterClickActionClass *klass)
     g_param_spec_int ("long-press-duration", NULL, NULL,
                       -1, G_MAXINT,
                       -1,
-                      CLUTTER_PARAM_READWRITE);
+                      G_PARAM_READWRITE |
+                      G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterClickAction:long-press-threshold:
@@ -600,7 +603,8 @@ clutter_click_action_class_init (ClutterClickActionClass *klass)
     g_param_spec_int ("long-press-threshold", NULL, NULL,
                       -1, G_MAXINT,
                       -1,
-                      CLUTTER_PARAM_READWRITE);
+                      G_PARAM_READWRITE |
+                      G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (gobject_class,
                                      PROP_LAST,
