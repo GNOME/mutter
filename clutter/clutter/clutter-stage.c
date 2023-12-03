@@ -970,6 +970,8 @@ clutter_stage_finish_layout (ClutterStage *stage)
     }
 
   g_warn_if_fail (!priv->actor_needs_immediate_relayout);
+
+  _clutter_stage_paint_volume_stack_free_all (stage);
 }
 
 void
