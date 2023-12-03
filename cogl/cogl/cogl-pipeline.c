@@ -1447,6 +1447,7 @@ _cogl_pipeline_prune_to_n_layers (CoglPipeline *pipeline, int n)
    * before we change the number of layers */
   state.keep_n = n;
   state.current_pos = 0;
+  state.first_index_to_prune = 0;
   _cogl_pipeline_foreach_layer_internal (pipeline,
                                          update_prune_layers_info_cb,
                                          &state);
