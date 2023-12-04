@@ -18,6 +18,7 @@
  */
 
 #include <cogl/cogl.h>
+#include <cogl/cogl-half-float.h>
 
 #include "tests/cogl-test-utils.h"
 
@@ -29,6 +30,133 @@ get_bits (uint32_t in,
   int mask = (1 << (end - begin + 1)) - 1;
 
   return (in >> begin) & mask;
+}
+
+static void
+test_offscreen_texture_formats_store_fp16 (void)
+{
+  const uint16_t red = cogl_float_to_half (72.912f);
+  const uint16_t green = cogl_float_to_half (0.20f);
+  const uint16_t blue = cogl_float_to_half (0.01f);
+  const uint16_t alpha = cogl_float_to_half (0.7821f);
+  const uint16_t one = cogl_float_to_half (1.0f);
+
+  GError *error = NULL;
+  CoglPixelFormat formats[] = {
+    COGL_PIXEL_FORMAT_RGBX_FP_16161616,
+    COGL_PIXEL_FORMAT_RGBA_FP_16161616_PRE,
+    COGL_PIXEL_FORMAT_BGRX_FP_16161616,
+    COGL_PIXEL_FORMAT_BGRA_FP_16161616_PRE,
+    COGL_PIXEL_FORMAT_XRGB_FP_16161616,
+    COGL_PIXEL_FORMAT_ARGB_FP_16161616_PRE,
+    COGL_PIXEL_FORMAT_XBGR_FP_16161616,
+    COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE,
+  };
+  int i;
+
+  if (!cogl_has_feature (test_ctx, COGL_FEATURE_ID_TEXTURE_HALF_FLOAT))
+    {
+      g_test_skip ("Driver does not support fp formats");
+      return;
+    }
+
+  for (i = 0; i < G_N_ELEMENTS (formats); i++)
+    {
+      CoglTexture *tex;
+      CoglOffscreen *offscreen;
+      uint32_t rgb8_readback[4];
+      int j, k;
+
+      /* Allocate 2x2 to ensure we avoid any fast paths. */
+      tex = cogl_texture_2d_new_with_format (test_ctx, 2, 2, formats[i]);
+
+      offscreen = cogl_offscreen_new_with_texture (tex);
+      cogl_framebuffer_allocate (COGL_FRAMEBUFFER (offscreen), &error);
+      g_assert_no_error (error);
+
+      cogl_framebuffer_clear4f (COGL_FRAMEBUFFER (offscreen),
+                                COGL_BUFFER_BIT_COLOR,
+                                cogl_half_to_float (red),
+                                cogl_half_to_float (green),
+                                cogl_half_to_float (blue),
+                                cogl_half_to_float (alpha));
+
+      for (j = 0; j < G_N_ELEMENTS (formats); j++)
+        {
+          uint8_t readback[8 * 4];
+
+          cogl_framebuffer_read_pixels (COGL_FRAMEBUFFER (offscreen), 0, 0, 2, 2,
+                                        formats[j],
+                                        readback);
+
+          for (k = 0; k < 4; k++)
+            {
+              uint16_t channels[4];
+              uint16_t *pixel_data = (uint16_t *)&readback[8 * k];
+
+              switch (formats[j])
+                {
+                case COGL_PIXEL_FORMAT_RGBX_FP_16161616:
+                case COGL_PIXEL_FORMAT_RGBA_FP_16161616_PRE:
+                  channels[0] = pixel_data[0];
+                  channels[1] = pixel_data[1];
+                  channels[2] = pixel_data[2];
+                  channels[3] = pixel_data[3];
+                  break;
+                case COGL_PIXEL_FORMAT_BGRX_FP_16161616:
+                case COGL_PIXEL_FORMAT_BGRA_FP_16161616_PRE:
+                  channels[0] = pixel_data[2];
+                  channels[1] = pixel_data[1];
+                  channels[2] = pixel_data[0];
+                  channels[3] = pixel_data[3];
+                  break;
+                case COGL_PIXEL_FORMAT_XRGB_FP_16161616:
+                case COGL_PIXEL_FORMAT_ARGB_FP_16161616_PRE:
+                  channels[0] = pixel_data[1];
+                  channels[1] = pixel_data[2];
+                  channels[2] = pixel_data[3];
+                  channels[3] = pixel_data[0];
+                  break;
+                case COGL_PIXEL_FORMAT_XBGR_FP_16161616:
+                case COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE:
+                  channels[0] = pixel_data[3];
+                  channels[1] = pixel_data[2];
+                  channels[2] = pixel_data[1];
+                  channels[3] = pixel_data[0];
+                  break;
+                default:
+                  g_assert_not_reached ();
+                }
+
+              if ((formats[i] & COGL_A_BIT) && (formats[j] & COGL_A_BIT))
+                g_assert_cmpint (channels[3], ==, alpha);
+              else if (!(formats[i] & COGL_A_BIT) && !(formats[j] & COGL_A_BIT))
+                g_assert_cmpint (channels[3], ==, one);
+
+              g_assert_cmpfloat (fabs (cogl_half_to_float (channels[0]) - cogl_half_to_float (red)), <, 0.005);
+              g_assert_cmpfloat (fabs (cogl_half_to_float (channels[1]) - cogl_half_to_float (green)), <, 0.005);
+              g_assert_cmpfloat (fabs (cogl_half_to_float (channels[2]) - cogl_half_to_float (blue)), <, 0.005);
+            }
+        }
+
+      cogl_framebuffer_read_pixels (COGL_FRAMEBUFFER (offscreen), 0, 0, 2, 2,
+                                    COGL_PIXEL_FORMAT_RGBX_8888,
+                                    (uint8_t *) &rgb8_readback);
+      for (k = 0; k < 4; k++)
+        {
+          uint8_t *rgb8_buf = (uint8_t *) &rgb8_readback[k];
+
+          /* test only green and blue because they are < 1.0 */
+          g_assert_cmpfloat (fabs (cogl_half_to_float (green) - (rgb8_buf[1] / 255.0f)), <, 0.005);
+          g_assert_cmpfloat (fabs (cogl_half_to_float (blue) - (rgb8_buf[2] / 255.0f)), <, 0.005);
+
+          if (!(formats[i] & COGL_A_BIT))
+            g_assert_cmpint (rgb8_buf[3], ==, 0xff);
+        }
+
+      g_object_unref (offscreen);
+      g_object_unref (tex);
+    }
 }
 
 static int
@@ -284,6 +412,136 @@ test_offscreen_texture_formats_store_rgb8 (void)
 
       g_object_unref (offscreen);
       g_object_unref (tex);
+    }
+}
+
+static void
+test_offscreen_texture_formats_paint_fp16 (void)
+{
+  const uint16_t red = cogl_float_to_half (72.912f);
+  const uint16_t green = cogl_float_to_half (0.20f);
+  const uint16_t blue = cogl_float_to_half (0.01f);
+  const uint16_t alpha = cogl_float_to_half (0.7821f);
+  const uint16_t one = cogl_float_to_half (1.0f);
+
+  CoglPixelFormat formats[] = {
+    COGL_PIXEL_FORMAT_RGBX_FP_16161616,
+    COGL_PIXEL_FORMAT_RGBA_FP_16161616_PRE,
+    COGL_PIXEL_FORMAT_BGRX_FP_16161616,
+    COGL_PIXEL_FORMAT_BGRA_FP_16161616_PRE,
+    COGL_PIXEL_FORMAT_XRGB_FP_16161616,
+    COGL_PIXEL_FORMAT_ARGB_FP_16161616_PRE,
+    COGL_PIXEL_FORMAT_XBGR_FP_16161616,
+    COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE,
+  };
+  int i;
+
+  if (!cogl_has_feature (test_ctx, COGL_FEATURE_ID_TEXTURE_HALF_FLOAT))
+    {
+      g_test_skip ("Driver does not support fp formats");
+      return;
+    }
+
+  for (i = 0; i < G_N_ELEMENTS (formats); i++)
+    {
+      CoglTexture *tex_src;
+      CoglOffscreen *offscreen_src;
+      GError *error = NULL;
+      int j;
+
+      tex_src = cogl_texture_2d_new_with_format (test_ctx, 2, 2, formats[i]);
+      offscreen_src = cogl_offscreen_new_with_texture (tex_src);
+      cogl_framebuffer_allocate (COGL_FRAMEBUFFER (offscreen_src), &error);
+      g_assert_no_error (error);
+
+      for (j = 0; j < G_N_ELEMENTS (formats); j++)
+        {
+          CoglTexture *tex_dst;
+          CoglOffscreen *offscreen_dst;
+          CoglPipeline *pipeline;
+          uint8_t readback[8 * 4];
+          int k;
+
+          tex_dst = cogl_texture_2d_new_with_format (test_ctx, 2, 2, formats[j]);
+          offscreen_dst = cogl_offscreen_new_with_texture (tex_dst);
+          cogl_framebuffer_allocate (COGL_FRAMEBUFFER (offscreen_dst), &error);
+          g_assert_no_error (error);
+
+          cogl_framebuffer_clear4f (COGL_FRAMEBUFFER (offscreen_src),
+                                    COGL_BUFFER_BIT_COLOR,
+                                    cogl_half_to_float (red),
+                                    cogl_half_to_float (green),
+                                    cogl_half_to_float (blue),
+                                    cogl_half_to_float (alpha));
+
+          pipeline = cogl_pipeline_new (test_ctx);
+          cogl_pipeline_set_blend (pipeline,
+                                   "RGBA = ADD (SRC_COLOR, 0)", NULL);
+          cogl_pipeline_set_layer_texture (pipeline, 0, tex_src);
+          cogl_framebuffer_draw_rectangle (COGL_FRAMEBUFFER (offscreen_dst),
+                                           pipeline,
+                                           -1.0, -1.0, 1.0, 1.0);
+          g_object_unref (pipeline);
+
+          cogl_framebuffer_read_pixels (COGL_FRAMEBUFFER (offscreen_dst),
+                                        0, 0, 2, 2, formats[j],
+                                        readback);
+
+          for (k = 0; k < 4; k++)
+            {
+              uint16_t channels[4];
+              uint16_t *pixel_data = (uint16_t *)&readback[8 * k];
+
+              switch (formats[j])
+                {
+                case COGL_PIXEL_FORMAT_RGBX_FP_16161616:
+                case COGL_PIXEL_FORMAT_RGBA_FP_16161616_PRE:
+                  channels[0] = pixel_data[0];
+                  channels[1] = pixel_data[1];
+                  channels[2] = pixel_data[2];
+                  channels[3] = pixel_data[3];
+                  break;
+                case COGL_PIXEL_FORMAT_BGRX_FP_16161616:
+                case COGL_PIXEL_FORMAT_BGRA_FP_16161616_PRE:
+                  channels[0] = pixel_data[2];
+                  channels[1] = pixel_data[1];
+                  channels[2] = pixel_data[0];
+                  channels[3] = pixel_data[3];
+                  break;
+                case COGL_PIXEL_FORMAT_XRGB_FP_16161616:
+                case COGL_PIXEL_FORMAT_ARGB_FP_16161616_PRE:
+                  channels[0] = pixel_data[1];
+                  channels[1] = pixel_data[2];
+                  channels[2] = pixel_data[3];
+                  channels[3] = pixel_data[0];
+                  break;
+                case COGL_PIXEL_FORMAT_XBGR_FP_16161616:
+                case COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE:
+                  channels[0] = pixel_data[3];
+                  channels[1] = pixel_data[2];
+                  channels[2] = pixel_data[1];
+                  channels[3] = pixel_data[0];
+                  break;
+                default:
+                  g_assert_not_reached ();
+                }
+
+              if ((formats[i] & COGL_A_BIT) && (formats[j] & COGL_A_BIT))
+                g_assert_cmpint (channels[3], ==, alpha);
+              else if (!(formats[i] & COGL_A_BIT) && !(formats[j] & COGL_A_BIT))
+                g_assert_cmpint (channels[3], ==, one);
+
+              g_assert_cmpfloat (fabs (cogl_half_to_float (channels[0]) - cogl_half_to_float (red)), <, 0.005);
+              g_assert_cmpfloat (fabs (cogl_half_to_float (channels[1]) - cogl_half_to_float (green)), <, 0.005);
+              g_assert_cmpfloat (fabs (cogl_half_to_float (channels[2]) - cogl_half_to_float (blue)), <, 0.005);
+            }
+
+          g_object_unref (offscreen_dst);
+          g_object_unref (tex_dst);
+        }
+
+      g_object_unref (offscreen_src);
+      g_object_unref (tex_src);
     }
 }
 
@@ -548,10 +806,14 @@ test_offscreen_texture_formats_paint_rgb8 (void)
 }
 
 COGL_TEST_SUITE (
+  g_test_add_func ("/offscreen/texture-formats/store-fp16",
+                   test_offscreen_texture_formats_store_fp16);
   g_test_add_func ("/offscreen/texture-formats/store-rgb10",
                    test_offscreen_texture_formats_store_rgb10);
   g_test_add_func ("/offscreen/texture-formats/store-8",
                    test_offscreen_texture_formats_store_rgb8);
+  g_test_add_func ("/offscreen/texture-formats/paint-fp16",
+                   test_offscreen_texture_formats_paint_fp16);
   g_test_add_func ("/offscreen/texture-formats/paint-rgb10",
                    test_offscreen_texture_formats_paint_rgb10);
   g_test_add_func ("/offscreen/texture-formats/paint-rgb8",
