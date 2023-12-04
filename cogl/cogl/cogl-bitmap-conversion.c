@@ -34,6 +34,7 @@
 #include "cogl/cogl-bitmap-private.h"
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-texture-private.h"
+#include "cogl/cogl-half-float.h"
 
 #include <string.h>
 
@@ -41,7 +42,53 @@ typedef enum
 {
   MEDIUM_TYPE_8,
   MEDIUM_TYPE_16,
+  MEDIUM_TYPE_FLOAT,
 } MediumType;
+
+inline static uint32_t
+pack_flt (GLfloat b)
+{
+  return *(uint32_t *) &b;
+}
+
+inline static GLfloat
+unpack_flt (uint32_t b)
+{
+  return *(GLfloat *) &b;
+}
+
+#define CLAMP_NORM(b) (MAX (MIN ((b), 1.0), 0.0))
+
+#define UNPACK_1(b) ((b) * ((1 << (sizeof (component_type) * 8)) - 1))
+#define UNPACK_2(b) (((b) * ((1 << (sizeof (component_type) * 8)) - 1) + \
+                                 1) / 3)
+#define UNPACK_4(b) (((b) * ((1 << (sizeof (component_type) * 8)) - 1) + \
+                                 7) / 0xf)
+#define UNPACK_5(b) (((b) * ((1 << (sizeof (component_type) * 8)) - 1) + \
+                      0xf) / 0x1f)
+#define UNPACK_6(b) (((b) * ((1 << (sizeof (component_type) * 8)) - 1) + \
+                      0x1f) / 0x3f)
+#define UNPACK_10(b) (((b) * ((1 << (sizeof (component_type) * 8)) - 1) + \
+                       0x1ff) / 0x3ff)
+#define UNPACK_SHORT(b) (CLAMP_NORM (cogl_half_to_float (b)) * \
+                         ((1 << (sizeof (component_type) * 8)) - 1))
+#define UNPACK_FLOAT(b) (CLAMP_NORM (unpack_flt (b)) * \
+                         ((1 << (sizeof (component_type) * 8)) - 1))
+
+/* Pack and round to nearest */
+#define PACK_SIZE(b, max) \
+  (((b) * (max) + (1 << (sizeof (component_type) * 8 - 1)) - 1) / \
+   ((1 << (sizeof (component_type) * 8)) - 1))
+
+#define PACK_1(b) PACK_SIZE (b, 1)
+#define PACK_2(b) PACK_SIZE (b, 3)
+#define PACK_4(b) PACK_SIZE (b, 0xf)
+#define PACK_5(b) PACK_SIZE (b, 0x1f)
+#define PACK_6(b) PACK_SIZE (b, 0x3f)
+#define PACK_10(b) PACK_SIZE (b, 0x3ff)
+#define PACK_SHORT(b) cogl_float_to_half ( \
+                        (b) / ((1 << (sizeof (component_type) * 8)) - 1))
+#define PACK_FLOAT(b) pack_flt ((b) / ((1 << (sizeof (component_type) * 8)) - 1))
 
 #define component_type uint8_t
 #define component_size 8
@@ -66,6 +113,69 @@ typedef enum
 #undef UNPACK_BYTE
 #undef component_type
 #undef component_size
+
+#undef CLAMP_NORM
+#undef UNPACK_1
+#undef UNPACK_2
+#undef UNPACK_4
+#undef UNPACK_5
+#undef UNPACK_6
+#undef UNPACK_10
+#undef UNPACK_SHORT
+#undef UNPACK_FLOAT
+#undef PACK_SIZE
+#undef PACK_1
+#undef PACK_2
+#undef PACK_4
+#undef PACK_5
+#undef PACK_6
+#undef PACK_10
+#undef PACK_SHORT
+#undef PACK_FLOAT
+
+#define UNPACK_1(b) ((b) / 1.0f)
+#define UNPACK_2(b) ((b) / 3.0f)
+#define UNPACK_4(b) ((b) / 15.0f)
+#define UNPACK_5(b) ((b) / 31.0f)
+#define UNPACK_6(b) ((b) / 63.0f)
+#define UNPACK_BYTE(b) ((b) / 255.0f)
+#define UNPACK_10(b) ((b) / 1023.0f)
+#define UNPACK_SHORT(b) cogl_half_to_float (b)
+#define UNPACK_FLOAT(b) unpack_flt (b)
+#define PACK_1(b) ((uint32_t) (b))
+#define PACK_2(b) ((uint32_t) ((b) * 3.5f))
+#define PACK_4(b) ((uint32_t) ((b) * 15.5f))
+#define PACK_5(b) ((uint32_t) ((b) * 31.5f))
+#define PACK_6(b) ((uint32_t) ((b) * 63.5f))
+#define PACK_BYTE(b) ((uint32_t) ((b) * 255.5f))
+#define PACK_10(b) ((uint32_t) ((b) * 1023.5f))
+#define PACK_SHORT(b) cogl_float_to_half (b)
+#define PACK_FLOAT(b) pack_flt((b) / 1.0)
+
+#define component_type float
+#define component_size float
+#include "cogl-bitmap-packing.h"
+#undef PACK_BYTE
+#undef UNPACK_BYTE
+#undef component_type
+#undef component_size
+
+#undef UNPACK_1
+#undef UNPACK_2
+#undef UNPACK_4
+#undef UNPACK_5
+#undef UNPACK_6
+#undef UNPACK_10
+#undef UNPACK_SHORT
+#undef UNPACK_FLOAT
+#undef PACK_1
+#undef PACK_2
+#undef PACK_4
+#undef PACK_5
+#undef PACK_6
+#undef PACK_10
+#undef PACK_SHORT
+#undef PACK_FLOAT
 
 /* (Un)Premultiplication */
 
@@ -295,6 +405,39 @@ _cogl_bitmap_premult_unpacked_span_16 (uint16_t *data,
     }
 }
 
+static void
+_cogl_bitmap_unpremult_unpacked_span_float (float *data,
+                                            int    width)
+{
+  while (width-- > 0)
+    {
+      float alpha = data[3];
+
+      if (alpha == 0.0)
+        memset (data, 0, sizeof (float) * 3);
+      else
+        {
+          data[0] = data[0] / alpha;
+          data[1] = data[1] / alpha;
+          data[2] = data[2] / alpha;
+        }
+    }
+}
+
+static void
+_cogl_bitmap_premult_unpacked_span_float (float *data,
+                                          int    width)
+{
+  while (width-- > 0)
+    {
+      float alpha = data[3];
+
+      data[0] = data[0] * alpha;
+      data[1] = data[1] * alpha;
+      data[2] = data[2] * alpha;
+    }
+}
+
 static gboolean
 _cogl_bitmap_can_fast_premult (CoglPixelFormat format)
 {
@@ -314,12 +457,6 @@ _cogl_bitmap_can_fast_premult (CoglPixelFormat format)
 static gboolean
 determine_medium_size (CoglPixelFormat format)
 {
-  /* If the format is using more than 8 bits per component then we'll
-     unpack into a 16-bit per component buffer instead of 8-bit so we
-     won't lose as much precision. If we ever add support for formats
-     with more than 16 bits for at least one of the components then we
-     should probably do something else here, maybe convert to
-     floats */
   switch (format)
     {
     case COGL_PIXEL_FORMAT_R_16:
@@ -364,6 +501,8 @@ determine_medium_size (CoglPixelFormat format)
     case COGL_PIXEL_FORMAT_BGRA_1010102_PRE:
     case COGL_PIXEL_FORMAT_ARGB_2101010_PRE:
     case COGL_PIXEL_FORMAT_ABGR_2101010_PRE:
+      return MEDIUM_TYPE_16;
+
     case COGL_PIXEL_FORMAT_RGBX_FP_16161616:
     case COGL_PIXEL_FORMAT_RGBA_FP_16161616:
     case COGL_PIXEL_FORMAT_BGRX_FP_16161616:
@@ -376,7 +515,9 @@ determine_medium_size (CoglPixelFormat format)
     case COGL_PIXEL_FORMAT_BGRA_FP_16161616_PRE:
     case COGL_PIXEL_FORMAT_ARGB_FP_16161616_PRE:
     case COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE:
-      return MEDIUM_TYPE_16;
+    case COGL_PIXEL_FORMAT_RGBA_FP_32323232:
+    case COGL_PIXEL_FORMAT_RGBA_FP_32323232_PRE:
+      return MEDIUM_TYPE_FLOAT;
     }
 
   g_assert_not_reached ();
@@ -392,6 +533,8 @@ calculate_medium_size_pixel_size (MediumType medium_type)
       return sizeof (uint8_t) * 4;
     case MEDIUM_TYPE_16:
       return sizeof (uint16_t) * 4;
+    case MEDIUM_TYPE_FLOAT:
+      return sizeof (float) * 4;
     }
 
   g_assert_not_reached ();
@@ -493,6 +636,9 @@ _cogl_bitmap_convert_into_bitmap (CoglBitmap *src_bmp,
         case MEDIUM_TYPE_16:
           _cogl_unpack_16 (src_format, src, tmp_row, width);
           break;
+        case MEDIUM_TYPE_FLOAT:
+          _cogl_unpack_float (src_format, src, tmp_row, width);
+          break;
         }
 
       /* Handle premultiplication */
@@ -508,6 +654,9 @@ _cogl_bitmap_convert_into_bitmap (CoglBitmap *src_bmp,
                 case MEDIUM_TYPE_16:
                   _cogl_bitmap_premult_unpacked_span_16 (tmp_row, width);
                   break;
+                case MEDIUM_TYPE_FLOAT:
+                  _cogl_bitmap_premult_unpacked_span_float (tmp_row, width);
+                  break;
                 }
             }
           else
@@ -520,6 +669,9 @@ _cogl_bitmap_convert_into_bitmap (CoglBitmap *src_bmp,
                 case MEDIUM_TYPE_16:
                   _cogl_bitmap_unpremult_unpacked_span_16 (tmp_row, width);
                   break;
+                case MEDIUM_TYPE_FLOAT:
+                  _cogl_bitmap_unpremult_unpacked_span_float (tmp_row, width);
+                  break;
                 }
             }
         }
@@ -531,6 +683,9 @@ _cogl_bitmap_convert_into_bitmap (CoglBitmap *src_bmp,
           break;
         case MEDIUM_TYPE_16:
           _cogl_pack_16 (dst_format, tmp_row, dst, width);
+          break;
+        case MEDIUM_TYPE_FLOAT:
+          _cogl_pack_float (dst_format, tmp_row, dst, width);
           break;
         }
     }
