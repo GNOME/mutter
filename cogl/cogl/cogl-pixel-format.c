@@ -386,6 +386,20 @@ static const CoglPixelFormatInfo format_info_table[] = {
     .aligned = 1
   },
   {
+    .cogl_format = COGL_PIXEL_FORMAT_RGBA_FP_32323232,
+    .format_str = "RGBA_FP_32323232",
+    .n_planes = 1,
+    .bpp = { 16 },
+    .aligned = 1
+  },
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_RGBA_FP_32323232_PRE,
+    .format_str = "RGBA_FP_32323232_PRE",
+    .n_planes = 1,
+    .bpp = { 16 },
+    .aligned = 1
+  },
+  {
     .cogl_format = COGL_PIXEL_FORMAT_DEPTH_16,
     .format_str = "DEPTH_16",
     .n_planes = 1,

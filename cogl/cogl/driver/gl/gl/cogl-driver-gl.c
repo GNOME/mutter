@@ -302,6 +302,13 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
                                          &gltype);
       break;
 
+    case COGL_PIXEL_FORMAT_RGBA_FP_32323232:
+    case COGL_PIXEL_FORMAT_RGBA_FP_32323232_PRE:
+      glintformat = GL_RGBA32F;
+      glformat = GL_RGBA;
+      gltype = GL_FLOAT;
+      break;
+
     case COGL_PIXEL_FORMAT_DEPTH_16:
       glintformat = GL_DEPTH_COMPONENT16;
       glformat = GL_DEPTH_COMPONENT;

@@ -68,6 +68,9 @@
 #ifndef GL_RGBA16F
 #define GL_RGBA16F 0x881A
 #endif
+#ifndef GL_RGBA32F
+#define GL_RGBA32F 0x8814
+#endif
 #ifndef GL_HALF_FLOAT
 #define GL_HALF_FLOAT 0x140B
 #endif
@@ -322,6 +325,20 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
                                          &gltype);
       break;
 
+    case COGL_PIXEL_FORMAT_RGBA_FP_32323232:
+    case COGL_PIXEL_FORMAT_RGBA_FP_32323232_PRE:
+      if (cogl_has_feature (context, COGL_FEATURE_ID_TEXTURE_HALF_FLOAT))
+        {
+          glintformat = GL_RGBA32F;
+          glformat = GL_RGBA;
+          gltype = GL_FLOAT;
+        }
+      else
+        {
+          g_assert_not_reached ();
+        }
+      break;
+
     case COGL_PIXEL_FORMAT_DEPTH_16:
       glintformat = GL_DEPTH_COMPONENT;
       glformat = GL_DEPTH_COMPONENT;
@@ -429,7 +446,11 @@ _cogl_driver_get_read_pixels_format (CoglContext     *context,
     case COGL_PIXEL_FORMAT_BGRA_FP_16161616_PRE:
     case COGL_PIXEL_FORMAT_ARGB_FP_16161616_PRE:
     case COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE:
-      g_assert_not_reached ();
+    case COGL_PIXEL_FORMAT_RGBA_FP_32323232:
+    case COGL_PIXEL_FORMAT_RGBA_FP_32323232_PRE:
+      required_gl_format = GL_RGBA;
+      required_gl_type = GL_FLOAT;
+      required_format = COGL_PIXEL_FORMAT_RGBA_FP_32323232;
       break;
 
     case COGL_PIXEL_FORMAT_DEPTH_16:
@@ -617,7 +638,8 @@ _cogl_driver_update_features (CoglContext *context,
 #endif
 
   if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 2) ||
-      (_cogl_check_extension ("GL_OES_texture_half_float", gl_extensions) &&
+      (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 0) &&
+       _cogl_check_extension ("GL_OES_texture_half_float", gl_extensions) &&
        _cogl_check_extension ("GL_EXT_color_buffer_half_float", gl_extensions)))
     COGL_FLAGS_SET (context->features,
                     COGL_FEATURE_ID_TEXTURE_HALF_FLOAT, TRUE);

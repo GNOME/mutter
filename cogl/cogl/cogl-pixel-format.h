@@ -101,9 +101,8 @@ G_BEGIN_DECLS
  * 4-6   = 2 bpp, not aligned (e.g. 565, 4444, 5551)
  * 7     = YUV: undefined bpp, undefined alignment
  * 9     = 2 bpp, aligned
- * 10    = depth, aligned (8, 16, 24, 32, 32f)
  * 11    = 8 bpp fp16
- * 12    = 3 bpp, not aligned
+ * 12    = 16 bpp fp32
  * 13    = 4 bpp, not aligned (e.g. 2101010)
  * 14    = 2 bpp, aligned (e.g. G_16)
  * 15    = 4 bpp, aligned (e.g. RG_1616)
@@ -186,6 +185,8 @@ G_BEGIN_DECLS
  * @COGL_PIXEL_FORMAT_BGRA_FP_16161616_PRE: Premultiplied BGRA half floating point, 64 bit
  * @COGL_PIXEL_FORMAT_ARGB_FP_16161616_PRE: Premultiplied ARGB half floating point, 64 bit
  * @COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE: Premultiplied ABGR half floating point, 64 bit
+ * @COGL_PIXEL_FORMAT_RGBA_FP_32323232: RGBA floating point, 128 bit
+ * @COGL_PIXEL_FORMAT_RGBA_FP_32323232_PRE: Premultiplied RGBA floating point, 128 bit
  *
  * Pixel formats used by Cogl. For the formats with a byte per
  * component, the order of the components specify the order in
@@ -265,6 +266,9 @@ typedef enum /*< prefix=COGL_PIXEL_FORMAT >*/
   COGL_PIXEL_FORMAT_BGRA_FP_16161616_PRE = (11 | COGL_A_BIT | COGL_PREMULT_BIT | COGL_BGR_BIT),
   COGL_PIXEL_FORMAT_ARGB_FP_16161616_PRE = (11 | COGL_A_BIT | COGL_PREMULT_BIT | COGL_AFIRST_BIT),
   COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE = (11 | COGL_A_BIT | COGL_PREMULT_BIT | COGL_BGR_BIT | COGL_AFIRST_BIT),
+
+  COGL_PIXEL_FORMAT_RGBA_FP_32323232 = (12 | COGL_A_BIT),
+  COGL_PIXEL_FORMAT_RGBA_FP_32323232_PRE = (12 | COGL_A_BIT | COGL_PREMULT_BIT),
 
   COGL_PIXEL_FORMAT_DEPTH_16  = (9 | COGL_DEPTH_BIT),
 
