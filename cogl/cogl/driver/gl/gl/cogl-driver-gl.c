@@ -487,11 +487,9 @@ _cogl_driver_update_features (CoglContext *ctx,
 
   COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_TEXTURE_RG, TRUE);
 
-  COGL_FLAGS_SET (private_features,
-                  COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_RGBA1010102, TRUE);
+  COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_TEXTURE_RGBA1010102, TRUE);
 
-  COGL_FLAGS_SET (private_features,
-                  COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_HALF_FLOAT, TRUE);
+  COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_TEXTURE_HALF_FLOAT, TRUE);
 
   if (ctx->glGenQueries && ctx->glQueryCounter && ctx->glGetInteger64v)
     COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_TIMESTAMP_QUERY, TRUE);

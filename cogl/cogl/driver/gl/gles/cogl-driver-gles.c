@@ -138,8 +138,7 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
     case COGL_PIXEL_FORMAT_ABGR_2101010:
     case COGL_PIXEL_FORMAT_ABGR_2101010_PRE:
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
-      if (_cogl_has_private_feature
-          (context,  COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_RGBA1010102))
+      if (cogl_has_feature (context, COGL_FEATURE_ID_TEXTURE_RGBA1010102))
         {
           glintformat = GL_RGB10_A2_EXT;
           glformat = GL_RGBA;
@@ -157,8 +156,7 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
     case COGL_PIXEL_FORMAT_ARGB_2101010:
     case COGL_PIXEL_FORMAT_ARGB_2101010_PRE:
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
-      if (_cogl_has_private_feature
-          (context,  COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_RGBA1010102))
+      if (cogl_has_feature (context, COGL_FEATURE_ID_TEXTURE_RGBA1010102))
         {
           glintformat = GL_RGB10_A2_EXT;
           glformat = GL_RGBA;
@@ -230,8 +228,7 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
     case COGL_PIXEL_FORMAT_RGBX_FP_16161616:
     case COGL_PIXEL_FORMAT_RGBA_FP_16161616:
     case COGL_PIXEL_FORMAT_RGBA_FP_16161616_PRE:
-      if (!_cogl_has_private_feature
-          (context, COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_HALF_FLOAT))
+      if (cogl_has_feature (context, COGL_FEATURE_ID_TEXTURE_HALF_FLOAT))
         g_warning ("Missing 16 bpc half float extension");
 
       glintformat = GL_RGBA;
@@ -284,9 +281,8 @@ _cogl_driver_read_pixels_format_supported (CoglContext *context,
 
   if (glintformat == GL_RGB10_A2_EXT &&
       glformat == GL_RGBA &&
-      gltype == GL_UNSIGNED_INT_2_10_10_10_REV_EXT &&
-      _cogl_has_private_feature (context,
-                                 COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_RGBA1010102))
+      gltype == GL_UNSIGNED_INT_2_10_10_10_REV &&
+      cogl_has_feature (context, COGL_FEATURE_ID_TEXTURE_RGBA1010102))
     return TRUE;
 
   return FALSE;
@@ -366,9 +362,9 @@ _cogl_driver_update_features (CoglContext *context,
   if (!COGL_CHECK_GL_VERSION (gl_major, gl_minor, 2, 0))
     {
       g_set_error (error,
-                       COGL_DRIVER_ERROR,
-                       COGL_DRIVER_ERROR_INVALID_VERSION,
-                       "OpenGL ES 2.0 or better is required");
+                   COGL_DRIVER_ERROR,
+                   COGL_DRIVER_ERROR_INVALID_VERSION,
+                   "OpenGL ES 2.0 or better is required");
       g_strfreev (gl_extensions);
       return FALSE;
     }
@@ -430,13 +426,15 @@ _cogl_driver_update_features (CoglContext *context,
     COGL_FLAGS_SET (private_features,
                     COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_BGRA8888, TRUE);
 
-  if (_cogl_check_extension ("GL_EXT_texture_type_2_10_10_10_REV", gl_extensions))
-    COGL_FLAGS_SET (private_features,
-                    COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_RGBA1010102, TRUE);
+  if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 0))
+    COGL_FLAGS_SET (context->features,
+                    COGL_FEATURE_ID_TEXTURE_RGBA1010102, TRUE);
 
-  if (_cogl_check_extension ("GL_OES_texture_half_float", gl_extensions))
-    COGL_FLAGS_SET (private_features,
-                    COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_HALF_FLOAT, TRUE);
+  if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 2) ||
+      (_cogl_check_extension ("GL_OES_texture_half_float", gl_extensions) &&
+       _cogl_check_extension ("GL_EXT_color_buffer_half_float", gl_extensions)))
+    COGL_FLAGS_SET (context->features,
+                    COGL_FEATURE_ID_TEXTURE_HALF_FLOAT, TRUE);
 
   if (_cogl_check_extension ("GL_EXT_unpack_subimage", gl_extensions))
     COGL_FLAGS_SET (private_features,
