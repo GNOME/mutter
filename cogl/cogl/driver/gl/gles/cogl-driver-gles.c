@@ -523,9 +523,11 @@ _cogl_driver_update_features (CoglContext *context,
     COGL_FLAGS_SET (private_features,
                     COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_BGRA8888, TRUE);
 
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
   if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 0))
     COGL_FLAGS_SET (context->features,
                     COGL_FEATURE_ID_TEXTURE_RGBA1010102, TRUE);
+#endif
 
   if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 2) ||
       (_cogl_check_extension ("GL_OES_texture_half_float", gl_extensions) &&
