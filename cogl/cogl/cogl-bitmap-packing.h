@@ -645,7 +645,7 @@ G_PASTE (_cogl_pack_bgrx_8888_, component_size) (const component_type *src,
       dst[2] = PACK_BYTE (src[0]);
       dst[1] = PACK_BYTE (src[1]);
       dst[0] = PACK_BYTE (src[2]);
-      dst[3] = PACK_BYTE (255);
+      dst[3] = 255;
       src += 4;
       dst += 4;
     }
@@ -677,7 +677,7 @@ G_PASTE (_cogl_pack_xrgb_8888_, component_size) (const component_type *src,
       dst[1] = PACK_BYTE (src[0]);
       dst[2] = PACK_BYTE (src[1]);
       dst[3] = PACK_BYTE (src[2]);
-      dst[0] = PACK_BYTE (255);
+      dst[0] = 255;
       src += 4;
       dst += 4;
     }
@@ -709,7 +709,7 @@ G_PASTE (_cogl_pack_xbgr_8888_, component_size) (const component_type *src,
       dst[3] = PACK_BYTE (src[0]);
       dst[2] = PACK_BYTE (src[1]);
       dst[1] = PACK_BYTE (src[2]);
-      dst[0] = PACK_BYTE (255);
+      dst[0] = 255;
       src += 4;
       dst += 4;
     }
@@ -741,7 +741,7 @@ G_PASTE (_cogl_pack_rgbx_8888_, component_size) (const component_type *src,
       dst[0] = PACK_BYTE (src[0]);
       dst[1] = PACK_BYTE (src[1]);
       dst[2] = PACK_BYTE (src[2]);
-      dst[3] = PACK_BYTE (255);
+      dst[3] = 255;
       src += 4;
       dst += 4;
     }
