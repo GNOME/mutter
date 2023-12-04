@@ -280,16 +280,23 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       glformat = GL_BGRA;
       gltype = GL_HALF_FLOAT;
       break;
-    case COGL_PIXEL_FORMAT_XRGB_FP_16161616:
     case COGL_PIXEL_FORMAT_ARGB_FP_16161616:
     case COGL_PIXEL_FORMAT_ARGB_FP_16161616_PRE:
-    case COGL_PIXEL_FORMAT_XBGR_FP_16161616:
     case COGL_PIXEL_FORMAT_ABGR_FP_16161616:
     case COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE:
       required_format =
         _cogl_driver_pixel_format_to_gl (context,
                                          COGL_PIXEL_FORMAT_RGBA_FP_16161616 |
                                          (format & COGL_PREMULT_BIT),
+                                         &glintformat,
+                                         &glformat,
+                                         &gltype);
+      break;
+    case COGL_PIXEL_FORMAT_XRGB_FP_16161616:
+    case COGL_PIXEL_FORMAT_XBGR_FP_16161616:
+      required_format =
+        _cogl_driver_pixel_format_to_gl (context,
+                                         COGL_PIXEL_FORMAT_RGBX_FP_16161616,
                                          &glintformat,
                                          &glformat,
                                          &gltype);
