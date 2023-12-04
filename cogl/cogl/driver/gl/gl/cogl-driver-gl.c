@@ -329,13 +329,18 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
   return required_format;
 }
 
-static gboolean
-_cogl_driver_read_pixels_format_supported (CoglContext *context,
-                                           GLenum       glintformat,
-                                           GLenum       glformat,
-                                           GLenum       gltype)
+static CoglPixelFormat
+_cogl_driver_get_read_pixels_format (CoglContext     *context,
+                                     CoglPixelFormat  from,
+                                     CoglPixelFormat  to,
+                                     GLenum          *gl_format_out,
+                                     GLenum          *gl_type_out)
 {
-  return TRUE;
+  return _cogl_driver_pixel_format_to_gl (context,
+                                          to,
+                                          NULL,
+                                          gl_format_out,
+                                          gl_type_out);
 }
 
 static gboolean
@@ -533,7 +538,7 @@ _cogl_driver_gl =
     _cogl_driver_gl_is_hardware_accelerated,
     _cogl_gl_get_graphics_reset_status,
     _cogl_driver_pixel_format_to_gl,
-    _cogl_driver_read_pixels_format_supported,
+    _cogl_driver_get_read_pixels_format,
     _cogl_driver_update_features,
     _cogl_driver_gl_create_framebuffer_driver,
     _cogl_driver_gl_flush_framebuffer_state,

@@ -424,14 +424,13 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
   CoglPixelFormat format = cogl_bitmap_get_format (bitmap);
   CoglPixelFormat internal_format =
     cogl_framebuffer_get_internal_format (framebuffer);
-  CoglPixelFormat required_format;
-  GLenum gl_intformat;
+  CoglPixelFormat read_format;
   GLenum gl_format;
   GLenum gl_type;
   GLenum gl_pack_enum = GL_FALSE;
   int bytes_per_pixel;
-  gboolean is_read_pixels_format_supported;
   gboolean format_mismatch;
+  gboolean stride_mismatch;
   gboolean pack_invert_set;
   int status = FALSE;
 
@@ -448,12 +447,6 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
   if (!cogl_framebuffer_is_y_flipped (framebuffer))
     y = framebuffer_height - y - height;
 
-  required_format = ctx->driver_vtable->pixel_format_to_gl (ctx,
-                                                            format,
-                                                            &gl_intformat,
-                                                            &gl_format,
-                                                            &gl_type);
-
   if (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_MESA_PACK_INVERT) &&
       (source & COGL_READ_PIXELS_NO_FLIP) == 0 &&
       !cogl_framebuffer_is_y_flipped (framebuffer))
@@ -469,38 +462,27 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
   else
     pack_invert_set = FALSE;
 
-  bytes_per_pixel = cogl_pixel_format_get_bytes_per_pixel (format, 0);
-  is_read_pixels_format_supported =
-    ctx->driver_vtable->read_pixels_format_supported (ctx,
-                                                      gl_intformat,
-                                                      gl_format,
-                                                      gl_type);
-  format_mismatch =
-    (required_format & ~COGL_PREMULT_BIT) !=
-    (format & ~COGL_PREMULT_BIT);
+  read_format = ctx->driver_vtable->get_read_pixels_format (ctx,
+                                                            internal_format,
+                                                            format,
+                                                            &gl_format,
+                                                            &gl_type);
 
-  if (!is_read_pixels_format_supported ||
-      format_mismatch ||
-      (!_cogl_has_private_feature (ctx,
-                                   COGL_PRIVATE_FEATURE_READ_PIXELS_ANY_STRIDE) &&
-       cogl_bitmap_get_rowstride (bitmap) != bytes_per_pixel * width))
+  format_mismatch =
+    (read_format & ~COGL_PREMULT_BIT) != (format & ~COGL_PREMULT_BIT);
+
+  bytes_per_pixel = cogl_pixel_format_get_bytes_per_pixel (format, 0);
+  stride_mismatch =
+    !_cogl_has_private_feature (ctx,
+                                COGL_PRIVATE_FEATURE_READ_PIXELS_ANY_STRIDE) &&
+    (cogl_bitmap_get_rowstride (bitmap) != bytes_per_pixel * width);
+
+  if (format_mismatch || stride_mismatch)
     {
       CoglBitmap *tmp_bmp;
-      CoglPixelFormat read_format;
       int bpp, rowstride;
       uint8_t *tmp_data;
       gboolean succeeded;
-
-      if (is_read_pixels_format_supported)
-        {
-          read_format = required_format;
-        }
-      else
-        {
-          read_format = COGL_PIXEL_FORMAT_RGBA_8888;
-          gl_format = GL_RGBA;
-          gl_type = GL_UNSIGNED_BYTE;
-        }
 
       if (COGL_PIXEL_FORMAT_CAN_HAVE_PREMULT (read_format))
         {

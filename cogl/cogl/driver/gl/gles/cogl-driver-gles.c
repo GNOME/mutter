@@ -356,22 +356,109 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
   return required_format;
 }
 
-static gboolean
-_cogl_driver_read_pixels_format_supported (CoglContext *context,
-                                           GLenum       glintformat,
-                                           GLenum       glformat,
-                                           GLenum       gltype)
+static CoglPixelFormat
+_cogl_driver_get_read_pixels_format (CoglContext     *context,
+                                     CoglPixelFormat  from,
+                                     CoglPixelFormat  to,
+                                     GLenum          *gl_format_out,
+                                     GLenum          *gl_type_out)
 {
-  if (glformat == GL_RGBA && gltype == GL_UNSIGNED_BYTE)
-    return TRUE;
+  CoglPixelFormat required_format = 0;
+  GLenum required_gl_format = 0;
+  GLenum required_gl_type = 0;
+  CoglPixelFormat to_required_format;
+  GLenum to_gl_format;
+  GLenum to_gl_type;
 
-  if (glintformat == GL_RGB10_A2_EXT &&
-      glformat == GL_RGBA &&
-      gltype == GL_UNSIGNED_INT_2_10_10_10_REV &&
-      cogl_has_feature (context, COGL_FEATURE_ID_TEXTURE_RGBA1010102))
-    return TRUE;
+  switch (from)
+    {
+    /* fixed point normalized */
+    case COGL_PIXEL_FORMAT_A_8:
+    case COGL_PIXEL_FORMAT_R_8:
+    case COGL_PIXEL_FORMAT_RG_88:
+    case COGL_PIXEL_FORMAT_RGB_888:
+    case COGL_PIXEL_FORMAT_BGR_888:
+    case COGL_PIXEL_FORMAT_BGRA_8888:
+    case COGL_PIXEL_FORMAT_BGRA_8888_PRE:
+    case COGL_PIXEL_FORMAT_BGRX_8888:
+    case COGL_PIXEL_FORMAT_RGBX_8888:
+    case COGL_PIXEL_FORMAT_XRGB_8888:
+    case COGL_PIXEL_FORMAT_XBGR_8888:
+    case COGL_PIXEL_FORMAT_ARGB_8888:
+    case COGL_PIXEL_FORMAT_ARGB_8888_PRE:
+    case COGL_PIXEL_FORMAT_ABGR_8888:
+    case COGL_PIXEL_FORMAT_ABGR_8888_PRE:
+    case COGL_PIXEL_FORMAT_RGBA_8888:
+    case COGL_PIXEL_FORMAT_RGBA_8888_PRE:
+    case COGL_PIXEL_FORMAT_RGB_565:
+    case COGL_PIXEL_FORMAT_RGBA_4444:
+    case COGL_PIXEL_FORMAT_RGBA_4444_PRE:
+    case COGL_PIXEL_FORMAT_RGBA_5551:
+    case COGL_PIXEL_FORMAT_RGBA_5551_PRE:
+      required_gl_format = GL_RGBA;
+      required_gl_type = GL_UNSIGNED_BYTE;
+      required_format = COGL_PIXEL_FORMAT_RGBA_8888;
+      break;
 
-  return FALSE;
+    /* fixed point normalized, 10bpc special case */
+    case COGL_PIXEL_FORMAT_ABGR_2101010:
+    case COGL_PIXEL_FORMAT_ABGR_2101010_PRE:
+    case COGL_PIXEL_FORMAT_RGBA_1010102:
+    case COGL_PIXEL_FORMAT_RGBA_1010102_PRE:
+    case COGL_PIXEL_FORMAT_BGRA_1010102:
+    case COGL_PIXEL_FORMAT_BGRA_1010102_PRE:
+    case COGL_PIXEL_FORMAT_XBGR_2101010:
+    case COGL_PIXEL_FORMAT_XRGB_2101010:
+    case COGL_PIXEL_FORMAT_ARGB_2101010:
+    case COGL_PIXEL_FORMAT_ARGB_2101010_PRE:
+      required_gl_format = GL_RGBA;
+      required_gl_type = GL_UNSIGNED_INT_2_10_10_10_REV;
+      required_format = COGL_PIXEL_FORMAT_ABGR_2101010;
+      break;
+
+    /* floating point */
+    case COGL_PIXEL_FORMAT_RGBX_FP_16161616:
+    case COGL_PIXEL_FORMAT_RGBA_FP_16161616:
+    case COGL_PIXEL_FORMAT_RGBA_FP_16161616_PRE:
+    case COGL_PIXEL_FORMAT_BGRX_FP_16161616:
+    case COGL_PIXEL_FORMAT_BGRA_FP_16161616:
+    case COGL_PIXEL_FORMAT_XRGB_FP_16161616:
+    case COGL_PIXEL_FORMAT_ARGB_FP_16161616:
+    case COGL_PIXEL_FORMAT_XBGR_FP_16161616:
+    case COGL_PIXEL_FORMAT_ABGR_FP_16161616:
+    case COGL_PIXEL_FORMAT_BGRA_FP_16161616_PRE:
+    case COGL_PIXEL_FORMAT_ARGB_FP_16161616_PRE:
+    case COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE:
+      g_assert_not_reached ();
+      break;
+
+    case COGL_PIXEL_FORMAT_DEPTH_16:
+    case COGL_PIXEL_FORMAT_DEPTH_24_STENCIL_8:
+    case COGL_PIXEL_FORMAT_R_16:
+    case COGL_PIXEL_FORMAT_RG_1616:
+    case COGL_PIXEL_FORMAT_ANY:
+    case COGL_PIXEL_FORMAT_YUV:
+      g_assert_not_reached ();
+      break;
+    }
+
+  g_assert (required_format != 0);
+
+  to_required_format = _cogl_driver_pixel_format_to_gl (context,
+                                                        to,
+                                                        NULL,
+                                                        &to_gl_format,
+                                                        &to_gl_type);
+
+  *gl_format_out = required_gl_format;
+  *gl_type_out = required_gl_type;
+
+  if (to_required_format != to ||
+      to_gl_format != required_gl_format ||
+      to_gl_type != required_gl_type)
+    return required_format;
+
+  return to_required_format;
 }
 
 static gboolean
@@ -594,7 +681,7 @@ _cogl_driver_gles =
     _cogl_driver_gl_is_hardware_accelerated,
     _cogl_gl_get_graphics_reset_status,
     _cogl_driver_pixel_format_to_gl,
-    _cogl_driver_read_pixels_format_supported,
+    _cogl_driver_get_read_pixels_format,
     _cogl_driver_update_features,
     _cogl_driver_gl_create_framebuffer_driver,
     _cogl_driver_gl_flush_framebuffer_state,
