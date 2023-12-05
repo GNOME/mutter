@@ -3994,17 +3994,6 @@ meta_window_move_resize_internal (MetaWindow          *window,
       meta_window_update_monitor (window, update_monitor_flags);
     }
 
-#ifdef HAVE_X11_CLIENT
-  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
-    {
-      MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
-      MetaWindowX11Private *priv = meta_window_x11_get_private (window_x11);
-
-      if ((result & META_MOVE_RESIZE_RESULT_FRAME_SHAPE_CHANGED) && priv->frame_bounds)
-        g_clear_pointer (&priv->frame_bounds, mtk_region_unref);
-    }
-#endif
-
   meta_window_foreach_transient (window, maybe_move_attached_window, NULL);
 
   meta_stack_update_window_tile_matches (window->display->stack,

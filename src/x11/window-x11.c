@@ -1318,7 +1318,6 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
   gboolean need_move_frame = FALSE;
   gboolean need_resize_client = FALSE;
   gboolean need_resize_frame = FALSE;
-  gboolean frame_shape_changed = FALSE;
   gboolean configure_frame_first;
   gboolean is_configure_request;
   MetaWindowDrag *window_drag;
@@ -1515,7 +1514,7 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
     }
 
   if (configure_frame_first && priv->frame)
-    frame_shape_changed = meta_frame_sync_to_window (priv->frame, need_resize_frame);
+    meta_frame_sync_to_window (priv->frame, need_resize_frame);
 
   if (mask != 0)
     {
@@ -1526,7 +1525,7 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
     }
 
   if (!configure_frame_first && priv->frame)
-    frame_shape_changed = meta_frame_sync_to_window (priv->frame, need_resize_frame);
+    meta_frame_sync_to_window (priv->frame, need_resize_frame);
 
   mtk_x11_error_trap_pop (window->display->x11_display->xdisplay);
 
@@ -1541,8 +1540,6 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
   if (priv->showing_resize_popup)
     meta_window_refresh_resize_popup (window);
 
-  if (frame_shape_changed)
-    *result |= META_MOVE_RESIZE_RESULT_FRAME_SHAPE_CHANGED;
   if (need_move_client || need_move_frame)
     *result |= META_MOVE_RESIZE_RESULT_MOVED;
   if (need_resize_client || need_resize_frame)
