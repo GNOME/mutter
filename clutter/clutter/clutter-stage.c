@@ -126,8 +126,6 @@ struct _ClutterStagePrivate
   GPtrArray *cur_event_actors;
   GArray *cur_event_emission_chain;
 
-  GArray *paint_volume_stack;
-
   GSList *pending_relayouts;
 
   int update_freeze_count;
@@ -440,8 +438,6 @@ clutter_stage_do_paint_view (ClutterStage     *stage,
       setup_clip_frustum (stage, &clip_rect, &clip_frustum);
       g_array_append_val (clip_frusta, clip_frustum);
     }
-
-  _clutter_stage_paint_volume_stack_free_all (stage);
 
   paint_flags = clutter_stage_view_get_default_paint_flags (view);
 
@@ -1290,8 +1286,6 @@ clutter_stage_finalize (GObject *object)
 
   g_free (priv->title);
 
-  g_array_free (priv->paint_volume_stack, TRUE);
-
   G_OBJECT_CLASS (clutter_stage_parent_class)->finalize (object);
 }
 
@@ -1694,9 +1688,6 @@ clutter_stage_init (ClutterStage *self)
   clutter_stage_set_title (self, g_get_prgname ());
   clutter_stage_set_key_focus (self, NULL);
   clutter_stage_set_viewport (self, geom.width, geom.height);
-
-  priv->paint_volume_stack =
-    g_array_new (FALSE, FALSE, sizeof (ClutterPaintVolume));
 }
 
 static void
@@ -2527,35 +2518,6 @@ clutter_stage_schedule_update (ClutterStage *stage)
     }
 
   priv->update_scheduled = TRUE;
-}
-
-ClutterPaintVolume *
-_clutter_stage_paint_volume_stack_allocate (ClutterStage *stage)
-{
-  GArray *paint_volume_stack = stage->priv->paint_volume_stack;
-
-  g_array_set_size (paint_volume_stack,
-                    paint_volume_stack->len+1);
-
-  return &g_array_index (paint_volume_stack,
-                         ClutterPaintVolume,
-                         paint_volume_stack->len - 1);
-}
-
-void
-_clutter_stage_paint_volume_stack_free_all (ClutterStage *stage)
-{
-  GArray *paint_volume_stack = stage->priv->paint_volume_stack;
-  int i;
-
-  for (i = 0; i < paint_volume_stack->len; i++)
-    {
-      ClutterPaintVolume *pv =
-        &g_array_index (paint_volume_stack, ClutterPaintVolume, i);
-      clutter_paint_volume_free (pv);
-    }
-
-  g_array_set_size (paint_volume_stack, 0);
 }
 
 void

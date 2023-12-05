@@ -1675,7 +1675,7 @@ set_show_on_set_parent (ClutterActor *self,
 static void
 clutter_actor_queue_redraw_on_parent (ClutterActor *self)
 {
-  const ClutterPaintVolume *pv;
+  g_autoptr (ClutterPaintVolume) pv = NULL;
 
   if (!self->priv->parent)
     return;
@@ -5584,7 +5584,7 @@ clutter_actor_real_get_paint_volume (ClutterActor       *self,
        child != NULL;
        child = child->priv->next_sibling)
     {
-      const ClutterPaintVolume *child_volume;
+      g_autoptr (ClutterPaintVolume) child_volume = NULL;
 
       /* we ignore unmapped children, since they won't be painted.
        *
@@ -14517,12 +14517,10 @@ clutter_actor_get_paint_volume (ClutterActor *self)
  * transformed paint volume of all of its children and union them
  * together using clutter_paint_volume_union().
  *
- * Return value: (transfer none) (nullable): a pointer to a #ClutterPaintVolume,
- *   or %NULL if no volume could be determined. The returned pointer is
- *   not guaranteed to be valid across multiple frames; if you wish to
- *   keep it, you will have to copy it using clutter_paint_volume_copy().
+ * Return value: (transfer full) (nullable): a pointer to a #ClutterPaintVolume,
+ *   or %NULL if no volume could be determined.
  */
-const ClutterPaintVolume *
+ClutterPaintVolume *
 clutter_actor_get_transformed_paint_volume (ClutterActor *self,
                                             ClutterActor *relative_to_ancestor)
 {
@@ -14541,10 +14539,7 @@ clutter_actor_get_transformed_paint_volume (ClutterActor *self,
   if (volume == NULL)
     return NULL;
 
-  transformed_volume =
-    _clutter_stage_paint_volume_stack_allocate (CLUTTER_STAGE (stage));
-
-  _clutter_paint_volume_copy_static (volume, transformed_volume);
+  transformed_volume = clutter_paint_volume_copy (volume);
 
   _clutter_paint_volume_transform_relative (transformed_volume,
                                             relative_to_ancestor);

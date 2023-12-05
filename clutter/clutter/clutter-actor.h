@@ -589,7 +589,7 @@ void                            clutter_actor_get_background_color              
 CLUTTER_EXPORT
 const ClutterPaintVolume *      clutter_actor_get_paint_volume                  (ClutterActor               *self);
 CLUTTER_EXPORT
-const ClutterPaintVolume *      clutter_actor_get_transformed_paint_volume      (ClutterActor               *self,
+ClutterPaintVolume *            clutter_actor_get_transformed_paint_volume      (ClutterActor               *self,
                                                                                  ClutterActor               *relative_to_ancestor);
 
 /* Events */

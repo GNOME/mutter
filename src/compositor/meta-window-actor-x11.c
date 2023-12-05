@@ -1351,7 +1351,7 @@ meta_window_actor_x11_get_paint_volume (ClutterActor       *actor,
   if (surface)
     {
       ClutterActor *surface_actor = CLUTTER_ACTOR (surface);
-      const ClutterPaintVolume *child_volume;
+      g_autoptr (ClutterPaintVolume) child_volume = NULL;
 
       child_volume = clutter_actor_get_transformed_paint_volume (surface_actor,
                                                                  actor);

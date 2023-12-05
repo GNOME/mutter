@@ -146,7 +146,7 @@ meta_window_group_get_paint_volume (ClutterActor       *self,
   clutter_actor_iter_init (&iter, self);
   while (clutter_actor_iter_next (&iter, &child))
     {
-      const ClutterPaintVolume *child_volume;
+      g_autoptr (ClutterPaintVolume) child_volume = NULL;
 
       if (!clutter_actor_is_mapped (child))
         continue;
