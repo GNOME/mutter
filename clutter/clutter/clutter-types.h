@@ -43,6 +43,7 @@ G_BEGIN_DECLS
 
 typedef struct _ClutterActor                    ClutterActor;
 
+typedef struct _ClutterContext                  ClutterContext;
 typedef struct _ClutterStage                    ClutterStage;
 typedef struct _ClutterFrame                    ClutterFrame;
 typedef struct _ClutterFrameInfo                ClutterFrameInfo;
