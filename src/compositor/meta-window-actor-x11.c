@@ -1088,22 +1088,18 @@ update_opaque_region (MetaWindowActorX11 *actor_x11)
 static void
 update_frame_bounds (MetaWindowActorX11 *actor_x11)
 {
+  MtkRegion *frame_bounds = NULL;
   MetaWindow *window =
     meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
-  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
-  MetaWindowX11Private *priv = meta_window_x11_get_private (window_x11);
+  MetaFrame *frame = meta_window_x11_get_frame (window);
 
   g_clear_pointer (&actor_x11->frame_bounds, mtk_region_unref);
 
- if (!priv->frame_bounds)
-    {
-      MetaFrame *frame = meta_window_x11_get_frame (window);
-      if (frame)
-        priv->frame_bounds = meta_frame_get_frame_bounds (frame);
-    }
+  if (frame)
+    frame_bounds = meta_frame_get_frame_bounds (frame);
 
-  if (priv->frame_bounds)
-    actor_x11->frame_bounds = mtk_region_copy (priv->frame_bounds);
+  if (frame_bounds)
+    actor_x11->frame_bounds = mtk_region_copy (frame_bounds);
 }
 
 static void
