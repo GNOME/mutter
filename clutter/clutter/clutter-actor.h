@@ -251,6 +251,9 @@ struct _ClutterActorClass
                                      ClutterActor         *child);
   void     (* child_removed)        (ClutterActor         *self,
                                      ClutterActor         *child);
+
+  /* private */
+  GType layout_manager_type;
 };
 
 /**
@@ -882,5 +885,11 @@ void clutter_actor_invalidate_transform (ClutterActor *self);
 
 CLUTTER_EXPORT
 void clutter_actor_invalidate_paint_volume (ClutterActor *self);
+
+CLUTTER_EXPORT
+void clutter_actor_class_set_layout_manager_type (ClutterActorClass *actor_class,
+                                                  GType              type);
+CLUTTER_EXPORT
+GType clutter_actor_class_get_layout_manager_type (ClutterActorClass *actor_class);
 
 G_END_DECLS
