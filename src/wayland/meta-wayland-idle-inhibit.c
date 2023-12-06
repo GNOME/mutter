@@ -308,9 +308,9 @@ on_actor_changed (MetaWaylandSurface       *surface,
                   MetaWaylandIdleInhibitor *inhibitor)
 {
   g_clear_signal_handler (&inhibitor->is_obscured_changed_handler,
-                          inhibitor->surface);
+                          inhibitor->actor);
   g_clear_signal_handler (&inhibitor->actor_destroyed_handler_id,
-                          inhibitor->surface);
+                          inhibitor->actor);
   attach_actor (inhibitor);
 }
 
