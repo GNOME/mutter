@@ -167,7 +167,7 @@ meta_remote_access_controller_inhibit_remote_access (MetaRemoteAccessController 
  * @controller: a #MetaRemoteAccessController
  *
  * Uninhibits remote access sessions from being created and running. If this was
- * the last inhibitation that was inhibited, new remote access sessions can now
+ * the last inhibition that was inhibited, new remote access sessions can now
  * be created.
  */
 void
