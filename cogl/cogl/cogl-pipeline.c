@@ -170,18 +170,9 @@ cogl_pipeline_init (CoglPipeline *pipeline)
 {
 }
 
-/*
- * This initializes the first pipeline owned by the Cogl context. All
- * subsequently instantiated pipelines created via the cogl_pipeline_new()
- * API will initially be a copy of this pipeline.
- *
- * The default pipeline is the topmost ancestor for all pipelines.
- */
-void
-_cogl_pipeline_init_default_pipeline (CoglContext *ctx)
+static CoglPipelineBigState *
+create_default_big_state (void)
 {
-  /* Create new - blank - pipeline */
-  CoglPipeline *pipeline = g_object_new (COGL_TYPE_PIPELINE, NULL);
   /* XXX: NB: It's important that we zero this to avoid polluting
    * pipeline hash values with un-initialized data */
   CoglPipelineBigState *big_state = g_new0 (CoglPipelineBigState, 1);
@@ -190,31 +181,9 @@ _cogl_pipeline_init_default_pipeline (CoglContext *ctx)
   CoglPipelineCullFaceState *cull_face_state = &big_state->cull_face_state;
   CoglPipelineUniformsState *uniforms_state = &big_state->uniforms_state;
 
-  /* Take this opportunity to setup the backends... */
-  _cogl_pipeline_fragend = &_cogl_pipeline_glsl_fragend;
-  _cogl_pipeline_progend = &_cogl_pipeline_glsl_progend;
-  _cogl_pipeline_vertend = &_cogl_pipeline_glsl_vertend;
-
-  pipeline->is_weak = FALSE;
-  pipeline->journal_ref_count = 0;
-  pipeline->differences = COGL_PIPELINE_STATE_ALL_SPARSE;
-
-  pipeline->real_blend_enable = FALSE;
-
-  pipeline->layer_differences = NULL;
-  pipeline->n_layers = 0;
-
-  pipeline->big_state = big_state;
-  pipeline->has_big_state = TRUE;
-#ifdef COGL_DEBUG_ENABLED
-  pipeline->static_breadcrumb = "default pipeline";
-  pipeline->has_static_breadcrumb = TRUE;
-#endif
-
-  pipeline->age = 0;
-
-  /* Use the same defaults as the GL spec... */
-  cogl_color_init_from_4ub (&pipeline->color, 0xff, 0xff, 0xff, 0xff);
+  big_state->user_program = NULL;
+  big_state->point_size = 0.0f;
+  cogl_depth_state_init (&big_state->depth_state);
 
   /* Use the same defaults as the GL spec... */
   alpha_state->alpha_func = COGL_PIPELINE_ALPHA_FUNC_ALWAYS;
@@ -230,12 +199,6 @@ _cogl_pipeline_init_default_pipeline (CoglContext *ctx)
   blend_state->blend_src_factor_rgb = GL_ONE;
   blend_state->blend_dst_factor_rgb = GL_ONE_MINUS_SRC_ALPHA;
 
-  big_state->user_program = NULL;
-
-  cogl_depth_state_init (&big_state->depth_state);
-
-  big_state->point_size = 0.0f;
-
   cull_face_state->mode = COGL_PIPELINE_CULL_FACE_MODE_NONE;
   cull_face_state->front_winding = COGL_WINDING_COUNTER_CLOCKWISE;
 
@@ -243,7 +206,42 @@ _cogl_pipeline_init_default_pipeline (CoglContext *ctx)
   _cogl_bitmask_init (&uniforms_state->changed_mask);
   uniforms_state->override_values = NULL;
 
-  ctx->default_pipeline = pipeline;
+  return big_state;
+}
+
+/*
+ * This initializes the first pipeline owned by the Cogl context. All
+ * subsequently instantiated pipelines created via the cogl_pipeline_new()
+ * API will initially be a copy of this pipeline.
+ *
+ * The default pipeline is the topmost ancestor for all pipelines.
+ */
+void
+_cogl_pipeline_init_default_pipeline (CoglContext *context)
+{
+  /* Create new - blank - pipeline */
+  CoglPipeline *pipeline = g_object_new (COGL_TYPE_PIPELINE, NULL);
+  pipeline->context = context;
+
+  pipeline->differences = COGL_PIPELINE_STATE_ALL_SPARSE;
+
+  pipeline->big_state = create_default_big_state ();
+  pipeline->has_big_state = TRUE;
+
+  /* Use the same defaults as the GL spec... */
+  cogl_color_init_from_4ub (&pipeline->color, 0xff, 0xff, 0xff, 0xff);
+
+#ifdef COGL_ENABLE_DEBUG
+  pipeline->static_breadcrumb = "default pipeline";
+  pipeline->has_static_breadcrumb = TRUE;
+#endif
+
+  context->default_pipeline = pipeline;
+
+  /* Take this opportunity to setup the backends... */
+  _cogl_pipeline_fragend = &_cogl_pipeline_glsl_fragend;
+  _cogl_pipeline_progend = &_cogl_pipeline_glsl_progend;
+  _cogl_pipeline_vertend = &_cogl_pipeline_glsl_vertend;
 }
 
 
@@ -323,13 +321,7 @@ _cogl_pipeline_copy (CoglPipeline *src, gboolean is_weak)
 {
   CoglPipeline *pipeline = g_object_new (COGL_TYPE_PIPELINE, NULL);
 
-  pipeline->is_weak = is_weak;
-
-  pipeline->journal_ref_count = 0;
-
-  pipeline->differences = 0;
-
-  pipeline->has_big_state = FALSE;
+  pipeline->context = src->context;
 
   /* NB: real_blend_enable isn't a sparse property, it's valid for
    * every pipeline node so we have fast access to it. */
@@ -343,14 +335,7 @@ _cogl_pipeline_copy (CoglPipeline *src, gboolean is_weak)
    * you wouldn't have to walk up the ancestry to find the authority
    * because the value would be cached directly in each pipeline.
    */
-
   pipeline->layers_cache_dirty = TRUE;
-
-#ifdef COGL_DEBUG_ENABLED
-  pipeline->has_static_breadcrumb = FALSE;
-#endif
-
-  pipeline->age = 0;
 
   _cogl_pipeline_set_parent (pipeline, src, !is_weak);
 
@@ -375,12 +360,10 @@ _cogl_pipeline_weak_copy (CoglPipeline *pipeline,
                           void *user_data)
 {
   CoglPipeline *copy;
-  CoglPipeline *copy_pipeline;
 
   copy = _cogl_pipeline_copy (pipeline, TRUE);
-  copy_pipeline = COGL_PIPELINE (copy);
-  copy_pipeline->destroy_callback = callback;
-  copy_pipeline->destroy_data = user_data;
+  copy->destroy_callback = callback;
+  copy->destroy_data = user_data;
 
   return copy;
 }
@@ -388,9 +371,8 @@ _cogl_pipeline_weak_copy (CoglPipeline *pipeline,
 CoglPipeline *
 cogl_pipeline_new (CoglContext *context)
 {
-  CoglPipeline *new;
+  CoglPipeline *new = cogl_pipeline_copy (context->default_pipeline);
 
-  new = cogl_pipeline_copy (context->default_pipeline);
 #ifdef COGL_DEBUG_ENABLED
   _cogl_pipeline_set_static_breadcrumb (new, "new");
 #endif

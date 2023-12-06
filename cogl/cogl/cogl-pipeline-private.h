@@ -264,6 +264,8 @@ struct _CoglPipeline
    * type to track the tree hierarchy so we can share code... */
   CoglNode parent_instance;
 
+  CoglContext *context;
+
   /* When weak pipelines are destroyed the user is notified via this
    * callback */
   CoglPipelineDestroyCallback destroy_callback;
