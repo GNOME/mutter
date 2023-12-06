@@ -291,12 +291,16 @@ static void
 attach_actor (MetaWaylandIdleInhibitor *inhibitor)
 {
   inhibitor->actor = meta_wayland_surface_get_actor (inhibitor->surface);
-  inhibitor->is_obscured_changed_handler =
-    g_signal_connect (inhibitor->actor, "notify::is-obscured",
-                      G_CALLBACK (is_obscured_changed), inhibitor);
-  inhibitor->actor_destroyed_handler_id =
-    g_signal_connect (inhibitor->actor, "destroy",
-                      G_CALLBACK (on_actor_destroyed), inhibitor);
+
+  if (inhibitor->actor)
+    {
+      inhibitor->is_obscured_changed_handler =
+        g_signal_connect (inhibitor->actor, "notify::is-obscured",
+                          G_CALLBACK (is_obscured_changed), inhibitor);
+      inhibitor->actor_destroyed_handler_id =
+        g_signal_connect (inhibitor->actor, "destroy",
+                          G_CALLBACK (on_actor_destroyed), inhibitor);
+    }
 }
 
 static void
