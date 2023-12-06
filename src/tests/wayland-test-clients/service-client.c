@@ -93,6 +93,6 @@ main (int    argc,
         return EXIT_FAILURE;
     }
 
-  wayland_surface_free (surface);
+  g_object_unref (surface);
   g_object_unref (display);
 }

@@ -47,6 +47,10 @@ G_DEFINE_TYPE (WaylandDisplay,
                wayland_display,
                G_TYPE_OBJECT)
 
+G_DEFINE_TYPE (WaylandSurface,
+               wayland_surface,
+               G_TYPE_OBJECT)
+
 static int
 create_tmpfile_cloexec (char *tmpname)
 {
@@ -450,6 +454,31 @@ static const struct xdg_surface_listener xdg_surface_listener = {
   handle_xdg_surface_configure,
 };
 
+static void
+wayland_surface_dispose (GObject *object)
+{
+  WaylandSurface *surface = WAYLAND_SURFACE (object);
+
+  g_clear_pointer (&surface->xdg_toplevel, xdg_toplevel_destroy);
+  g_clear_pointer (&surface->xdg_surface, xdg_surface_destroy);
+  g_clear_pointer (&surface->wl_surface, wl_surface_destroy);
+
+  G_OBJECT_CLASS (wayland_surface_parent_class)->dispose (object);
+}
+
+static void
+wayland_surface_class_init (WaylandSurfaceClass *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->dispose = wayland_surface_dispose;
+}
+
+static void
+wayland_surface_init (WaylandSurface *surface)
+{
+}
+
 WaylandSurface *
 wayland_surface_new (WaylandDisplay *display,
                      const char     *title,
@@ -459,7 +488,8 @@ wayland_surface_new (WaylandDisplay *display,
 {
   WaylandSurface *surface;
 
-  surface = g_new0 (WaylandSurface, 1);
+  surface = g_object_new (WAYLAND_TYPE_SURFACE, NULL);
+
   surface->display = display;
   surface->default_width = default_width;
   surface->default_height = default_height;
@@ -475,15 +505,6 @@ wayland_surface_new (WaylandDisplay *display,
   xdg_toplevel_set_title (surface->xdg_toplevel, title);
 
   return surface;
-}
-
-void
-wayland_surface_free (WaylandSurface *surface)
-{
-  g_clear_pointer (&surface->xdg_toplevel, xdg_toplevel_destroy);
-  g_clear_pointer (&surface->xdg_surface, xdg_surface_destroy);
-  g_clear_pointer (&surface->wl_surface, wl_surface_destroy);
-  g_free (surface);
 }
 
 const char *

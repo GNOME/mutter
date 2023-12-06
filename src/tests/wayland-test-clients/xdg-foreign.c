@@ -130,10 +130,10 @@ int
 main (int    argc,
       char **argv)
 {
-  WaylandSurface *window1;
-  WaylandSurface *window2;
-  WaylandSurface *window3;
-  WaylandSurface *window4;
+  g_autoptr (WaylandSurface) window1;
+  g_autoptr (WaylandSurface) window2;
+  g_autoptr (WaylandSurface) window3;
+  g_autoptr (WaylandSurface) window4;
   g_autofree char *handle1 = NULL;
   g_autofree char *handle3 = NULL;
   struct wl_registry *registry;
@@ -221,11 +221,6 @@ main (int    argc,
       if (wl_display_dispatch (display->display) == -1)
         return EXIT_FAILURE;
     }
-
-  wayland_surface_free (window1);
-  wayland_surface_free (window2);
-  wayland_surface_free (window3);
-  wayland_surface_free (window4);
 
   g_object_unref (display);
 

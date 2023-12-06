@@ -60,6 +60,11 @@ typedef struct _WaylandSurface
   uint32_t color;
 } WaylandSurface;
 
+#define WAYLAND_TYPE_SURFACE (wayland_surface_get_type ())
+G_DECLARE_FINAL_TYPE (WaylandSurface, wayland_surface,
+                      WAYLAND, SURFACE,
+                      GObject)
+
 int create_anonymous_file (off_t size);
 
 WaylandDisplay * wayland_display_new (WaylandDisplayCapabilities capabilities);
@@ -72,8 +77,6 @@ WaylandSurface * wayland_surface_new (WaylandDisplay *display,
                                       int             default_width,
                                       int             default_height,
                                       uint32_t        color);
-
-void wayland_surface_free (WaylandSurface *surface);
 
 gboolean create_shm_buffer (WaylandDisplay    *display,
                             int                width,
