@@ -1914,14 +1914,14 @@ handle_connect_to_eis (MetaDBusRemoteDesktopSession *skeleton,
 
   if (!session->eis)
     {
-      uint32_t device_types_bitmask;
-      MetaRemoteDesktopDeviceTypes device_types;
+      MetaRemoteDesktopDeviceTypes device_types = META_REMOTE_DESKTOP_DEVICE_TYPE_NONE;
       MetaEisDeviceTypes eis_device_types;
+      GVariant *v;
 
-      if (g_variant_lookup (arg_options, "device-types", "u",
-                            &device_types_bitmask))
+      v = g_variant_lookup_value (arg_options, "device-types", G_VARIANT_TYPE_UINT32);
+      if (v)
         {
-          device_types = device_types_bitmask;
+          device_types = g_variant_get_uint32 (v);
         }
       else
         {
