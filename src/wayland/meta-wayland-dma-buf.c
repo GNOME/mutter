@@ -65,7 +65,7 @@
 #include "backends/native/meta-renderer-native.h"
 #endif
 
-#include "linux-dmabuf-unstable-v1-server-protocol.h"
+#include "linux-dmabuf-v1-server-protocol.h"
 
 #define META_WAYLAND_DMA_BUF_MAX_FDS 4
 

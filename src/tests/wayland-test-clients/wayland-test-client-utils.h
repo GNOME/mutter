@@ -7,7 +7,7 @@
 #include <wayland-client.h>
 
 #include "fractional-scale-v1-client-protocol.h"
-#include "linux-dmabuf-unstable-v1-client-protocol.h"
+#include "linux-dmabuf-v1-client-protocol.h"
 #include "single-pixel-buffer-v1-client-protocol.h"
 #include "test-driver-client-protocol.h"
 #include "viewporter-client-protocol.h"

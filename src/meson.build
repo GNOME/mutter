@@ -1060,7 +1060,7 @@ if have_wayland
     ['gtk-shell', 'private', ],
     ['idle-inhibit', 'unstable', 'v1', ],
     ['keyboard-shortcuts-inhibit', 'unstable', 'v1', ],
-    ['linux-dmabuf', 'unstable', 'v1', ],
+    ['linux-dmabuf', 'stable', 'v1', ],
     ['pointer-constraints', 'unstable', 'v1', ],
     ['pointer-gestures', 'unstable', 'v1', ],
     ['presentation-time', 'stable', ],
@@ -1098,7 +1098,12 @@ if have_wayland
     protocol_type = p.get(1)
 
     if protocol_type == 'stable'
-      output_base = protocol_name
+      if p.length() == 3
+        protocol_version = p.get(2)
+        output_base = '@0@-@1@'.format(protocol_name, protocol_version)
+      else
+        output_base = protocol_name
+      endif
       input = protocols_dir / protocol_type / protocol_name / '@0@.xml'.format(output_base)
     elif protocol_type == 'staging'
       protocol_version = p.get(2)
