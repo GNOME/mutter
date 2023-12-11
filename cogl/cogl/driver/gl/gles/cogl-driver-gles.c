@@ -568,13 +568,13 @@ _cogl_driver_update_features (CoglContext *context,
                                      gl_minor,
                                      gl_extensions);
 
-  if (!_cogl_check_extension ("OES_rgb8_rgba8", gl_extensions) &&
+  if (!_cogl_check_extension ("GL_OES_rgb8_rgba8", gl_extensions) &&
       !COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 0))
     {
       g_set_error (error,
                    COGL_DRIVER_ERROR,
                    COGL_DRIVER_ERROR_INVALID_VERSION,
-                   "OES_rgb8_rgba8 is required for GLES 2");
+                   "GL_OES_rgb8_rgba8 is required for GLES 2");
       g_strfreev (gl_extensions);
       return FALSE;
     }
