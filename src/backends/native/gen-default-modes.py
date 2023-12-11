@@ -17,6 +17,7 @@
 
 import os
 import sys
+import re
 
 if len(sys.argv) != 2:
   print("Usage: %s [output file]"%sys.argv[0])
@@ -91,7 +92,7 @@ def drm_mode_info_from_modeline(line):
 
 def portrait_drm_mode_info_from_modeline(line):
     sline = line.split()
-    return "{ %d, %d, %d, %d, %d, 0, %d, %d, %d, %d, 0, 0, %s, DRM_MODE_TYPE_DEFAULT, \"%dx%d_%s }," % \
+    return "{ %d, %d, %d, %d, %d, 0, %d, %d, %d, %d, 0, 0, %s, DRM_MODE_TYPE_DEFAULT, \"%dx%d%s\" }," % \
         (int(float(sline[2]) * 1000),
          int(sline[7]),
          int(sline[8]),
@@ -102,15 +103,24 @@ def portrait_drm_mode_info_from_modeline(line):
          int(sline[5]),
          int(sline[6]),
          sync_flags(sline[12], sline[11]),
-         int(sline[7]), int(sline[3]), sline[1].split("_")[1])
+         int(sline[7]), int(sline[3]), re.match(r'^"[0-9]+x[0-9]+(.*)"$', sline[1]).group(1))
 
 for resolution in common_resolutions:
     for refresh_rate in common_refresh_rates:
         cvt = os.popen("%s %s %s %s" % ('cvt', resolution[0], resolution[1], refresh_rate))
         cvt.readline() # discard comment line
         line = cvt.readline()
-        output_lines.append(drm_mode_info_from_modeline(line))
         cvt.close()
+
+        if refresh_rate % 60 == 0:
+            cvt_rb = os.popen("%s %s %s %s %s" % ('cvt', '-r', resolution[0], resolution[1], refresh_rate))
+            cvt_rb.readline() # discard comment line
+            line_rb = cvt_rb.readline()
+            output_lines.append(drm_mode_info_from_modeline(line_rb))
+            cvt_rb.close()
+
+        output_lines.append(drm_mode_info_from_modeline(line))
+
 output_lines.append("};")
 
 output_lines.append("")
@@ -120,8 +130,17 @@ for resolution in common_resolutions:
         cvt = os.popen("%s %s %s %s" % ('cvt', resolution[0], resolution[1], refresh_rate))
         cvt.readline() # discard comment line
         line = cvt.readline()
-        output_lines.append(portrait_drm_mode_info_from_modeline(line))
         cvt.close()
+
+        if refresh_rate % 60 == 0:
+            cvt_rb = os.popen("%s %s %s %s %s" % ('cvt', '-r', resolution[0], resolution[1], refresh_rate))
+            cvt_rb.readline() # discard comment line
+            line_rb = cvt_rb.readline()
+            output_lines.append(portrait_drm_mode_info_from_modeline(line_rb))
+            cvt_rb.close()
+
+        output_lines.append(portrait_drm_mode_info_from_modeline(line))
+
 output_lines.append("};")
 
 try:
