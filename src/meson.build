@@ -735,6 +735,8 @@ if have_native_backend
     'backends/native/meta-backend-native-types.h',
     'backends/native/meta-barrier-native.c',
     'backends/native/meta-barrier-native.h',
+    'backends/native/meta-bezier.c',
+    'backends/native/meta-bezier.h',
     'backends/native/meta-clutter-backend-native.c',
     'backends/native/meta-clutter-backend-native.h',
     'backends/native/meta-crtc-kms.c',
