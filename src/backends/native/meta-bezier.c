@@ -29,6 +29,11 @@
  * (private; a building block for the public bspline object)                *
  ****************************************************************************/
 
+/* This is used in meta_bezier_advance to represent the full
+   length of the bezier curve. Anything less than that represents a
+   fraction of the length */
+#define META_BEZIER_MAX_LENGTH (1 << 18)
+
 /*
  * The t parameter of the bezier is from interval <0,1>, so we can use
  * 14.18 format and special multiplication functions that preserve
@@ -55,11 +60,26 @@
 
 typedef gint32 _FixedT;
 
+typedef struct _MetaBezierKnot MetaBezierKnot;
+
+struct _MetaBezierKnot
+{
+  int x;
+  int y;
+};
+
 /*
  * This is a private type representing a single cubic bezier
  */
 struct _MetaBezier
 {
+  /* The precision, i.e. the number of possible points between 0.0 and 1.0.
+   * We require a normalized bezier curve but then later sample to a given
+   * precision. The bezier coefficients are scaled up by this factor and later
+   * scaled down again during sampling.
+   */
+  unsigned int precision;
+
   /*
    * bezier coefficients -- these are calculated using multiplication and
    * addition from integer input, so these are also integers
@@ -76,19 +96,38 @@ struct _MetaBezier
 
   /* length of the bezier */
   unsigned int length;
+
+  /* the sampled points on the curve */
+  double *points;
 };
 
+/**
+ * meta_bezier_new:
+ * @precision: the number of points we can sample between 0.0 and 1.0
+ *
+ * Create a new bezier curve with the given precision. This precision defines
+ * the maximum number of points we can sample and thus thus how much linear
+ * interpolation needs to be done when looking up a point on the curve.
+ */
 MetaBezier *
-meta_bezier_new (void)
+meta_bezier_new (unsigned int precision)
 {
-  return g_new0 (MetaBezier, 1);
+  MetaBezier *b;
+
+  g_return_val_if_fail (precision > 0, NULL);
+
+  b = g_new0 (MetaBezier, 1);
+  b->precision = precision;
+  b->points = g_new0 (double, precision);
+  return b;
 }
 
 void
-meta_bezier_free (MetaBezier * b)
+meta_bezier_free (MetaBezier *b)
 {
   if (G_LIKELY (b))
     {
+      g_free (b->points);
       g_free (b);
     }
 }
@@ -121,8 +160,10 @@ meta_bezier_t2y (const MetaBezier *b,
  * Advances along the bezier to relative length L and returns the coordinances
  * in knot
  */
-void
-meta_bezier_advance (const MetaBezier *b, gint L, MetaBezierKnot * knot)
+static void
+meta_bezier_advance (const MetaBezier *b,
+                     int               L,
+                     MetaBezierKnot   *knot)
 {
   _FixedT t = L;
 
@@ -135,6 +176,113 @@ meta_bezier_advance (const MetaBezier *b, gint L, MetaBezierKnot * knot)
            (double) t / (double) CBZ_T_ONE,
            knot->x, knot->y);
 #endif
+}
+
+static void
+meta_bezier_sample (MetaBezier *b)
+{
+  const size_t N = b->precision;
+  const double MIN_EPSILON = 0.00001;
+  MetaBezierKnot pos;
+  int i;
+  double epsilon;
+  double t;
+  double ts[N]; /* maps pos.x -> t */
+  double *points = b->points;
+
+  for (i = 0; i < N; i++)
+    {
+      points[i] = -1.0;
+      ts[i] = -1.0;
+    }
+
+  ts[0] = 0;
+  ts[N - 1] = 1;
+  points[0] = 0;
+  /* Fill in the last point so linear interpolation (see below) is
+   * guaranteed. This should always yield 1.0 anyway. */
+  meta_bezier_advance (b, META_BEZIER_MAX_LENGTH, &pos);
+  points[N - 1] = pos.y / N;
+
+  epsilon = 1.0 / N;
+  t = epsilon;
+
+  /* We walk forward from t=0 to t=1.0, calculating every bezier
+   * point on the curve and for all x values we remember our matching t.
+   * If any x coordinate is missing, we reduce the epsilon and restart
+   * with this higher granularity from the last t that gave us a value
+   * below the missing x.
+   */
+  do
+    {
+      for (i = 1; i < N; i++)
+        {
+          if (ts[i] == -1.0)
+            {
+              t = ts[i - 1];
+              epsilon /= 2.0;
+              break;
+            }
+        }
+
+      while (t < 1.0)
+        {
+          meta_bezier_advance (b, t * META_BEZIER_MAX_LENGTH, &pos);
+          if (pos.x < N)
+            {
+              if (points[MAX (pos.x - 1, 0)] == -1)
+                {
+                  /* Skipped over at least one x coordinate, let's restart
+                   * as long as we have have a sensible epsilon. Some curves
+                   * may never find all points. */
+                  if (epsilon > MIN_EPSILON)
+                    break;
+                }
+
+              if (points[pos.x] == -1)
+                {
+                  points[pos.x] = (double)pos.y / N;
+                  ts[pos.x] = t;
+                }
+            }
+
+          t += epsilon;
+        }
+    }
+  while (t < 1.0 && epsilon > MIN_EPSILON);
+
+  /* Do linear interpolation of the remaining points, if any */
+  i = 0;
+  while (i < N - 1)
+    {
+      double *current = &points[++i];
+      int prev = points[i - 1];
+
+      if (*current == -1.0)
+        {
+          int next_idx = i;
+          int next;
+          double delta;
+
+          do
+            {
+              next = points[++next_idx];
+            } while (next == -1.0 && next_idx < N); /* N-1 is guaranteed valid */
+
+          delta = (next - prev) / (next_idx - i + 1);
+
+          while (i < next_idx)
+            {
+              *current = prev + delta;
+              prev = *current;
+              current++;
+              i++;
+            }
+        }
+    }
+
+  for (i = 0; i < N; i++)
+    g_warn_if_fail (points[i] != -1.0);
 }
 
 static int
@@ -223,16 +371,32 @@ sqrti (int number)
 
 void
 meta_bezier_init (MetaBezier *b,
-                  gint x_0, gint y_0,
-                  gint x_1, gint y_1,
-                  gint x_2, gint y_2,
-                  gint x_3, gint y_3)
+                  double      x_1,
+                  double      y_1,
+                  double      x_2,
+                  double      y_2)
 {
+  double x_0 = 0.0,
+         y_0 = 0.0,
+         x_3 = 1.0,
+         y_3 = 1.0;
   _FixedT t;
   int i;
   int xp = x_0;
   int yp = y_0;
   _FixedT length[CBZ_T_SAMPLES + 1];
+
+  g_warn_if_fail (x_1 >= 0.0 && x_1 <= 1.0);
+  g_warn_if_fail (x_2 >= 0.0 && x_2 <= 1.0);
+  g_warn_if_fail (y_1 >= 0.0 && y_1 <= 1.0);
+  g_warn_if_fail (y_2 >= 0.0 && y_2 <= 1.0);
+
+  x_1 *= b->precision;
+  y_1 *= b->precision;
+  x_2 *= b->precision;
+  y_2 *= b->precision;
+  x_3 *= b->precision;
+  y_3 *= b->precision;
 
 #if 0
   g_debug ("Initializing bezier at {{%d,%d},{%d,%d},{%d,%d},{%d,%d}}",
@@ -291,13 +455,33 @@ meta_bezier_init (MetaBezier *b,
 
   b->length = length[CBZ_T_SAMPLES];
 
+  meta_bezier_sample (b);
+
 #if 0
   g_debug ("length %d", b->length);
 #endif
 }
 
-guint
-meta_bezier_get_length (const MetaBezier *b)
+/**
+ * meta_bezier_lookup:
+ * @b: a #MetaBezier curve
+ * @pos: the position on the bezier curve in the [0.0, 1.0] range
+ *
+ * Returns the value of this normalized point on the curve.
+ */
+double
+meta_bezier_lookup (const MetaBezier *b,
+                    double            pos)
 {
-  return b->length;
+  /* The position may be fine-grained than our calculated bezier curve,
+   * find the two closest points and do a linear interpolation between
+   * those two points.
+   */
+  int low_idx = CLAMP ((int)(pos * b->precision), 0, b->precision - 1);
+  int high_idx = CLAMP (low_idx + 1, 0, b->precision - 1);
+  double low = b->points[low_idx];
+  double high = b->points[high_idx];
+  double rval = low + (high - low) * (pos - (int)pos);
+
+  return rval;
 }

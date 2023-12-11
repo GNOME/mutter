@@ -353,6 +353,7 @@ if have_native_tests
         'native-screen-cast.h',
         'native-virtual-monitor.c',
         'native-virtual-monitor.h',
+        'native-bezier-tests.c',
       ],
       'depends': [
         screen_cast_client,

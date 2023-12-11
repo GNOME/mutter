@@ -21,38 +21,28 @@
 
 #include <glib.h>
 
+#include "core/util-private.h"
 
 G_BEGIN_DECLS
 
-/* This is used in meta_bezier_advance to represent the full
-   length of the bezier curve. Anything less than that represents a
-   fraction of the length */
-#define META_BEZIER_MAX_LENGTH (1 << 18)
-
 typedef struct _MetaBezier MetaBezier;
-typedef struct _MetaBezierKnot MetaBezierKnot;
 
-struct _MetaBezierKnot
-{
-  gint x;
-  gint y;
-};
+META_EXPORT_TEST
+MetaBezier * meta_bezier_new (unsigned int precision);
 
-MetaBezier *meta_bezier_new (void);
-
+META_EXPORT_TEST
 void        meta_bezier_free (MetaBezier *b);
 
-void        meta_bezier_advance (const MetaBezier *b,
-                                 gint              L,
-                                 MetaBezierKnot   *knot);
-
+META_EXPORT_TEST
 void        meta_bezier_init (MetaBezier *b,
-                              gint x_0, gint y_0,
-                              gint x_1, gint y_1,
-                              gint x_2, gint y_2,
-                              gint x_3, gint y_3);
+                              double      x_1,
+                              double      y_1,
+                              double      x_2,
+                              double      y_2);
 
-guint       meta_bezier_get_length (const MetaBezier *b);
+META_EXPORT_TEST
+double      meta_bezier_lookup (const MetaBezier *b,
+                                double            pos);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaBezier, meta_bezier_free);
 
