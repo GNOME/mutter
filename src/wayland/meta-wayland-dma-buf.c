@@ -713,7 +713,7 @@ buffer_params_add (struct wl_client   *client,
       dma_buf->drm_modifier != drm_modifier)
     {
       wl_resource_post_error (resource,
-                              ZWP_LINUX_BUFFER_PARAMS_V1_ERROR_INVALID_WL_BUFFER,
+                              ZWP_LINUX_BUFFER_PARAMS_V1_ERROR_INVALID_FORMAT,
                               "mismatching modifier between planes");
       return;
     }
@@ -1843,7 +1843,7 @@ meta_wayland_dma_buf_manager_new (MetaWaylandCompositor  *compositor,
 
   device_id = device_stat.st_rdev;
 
-  protocol_version = 4;
+  protocol_version = 5;
 
 initialize:
 
