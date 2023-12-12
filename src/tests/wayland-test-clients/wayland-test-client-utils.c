@@ -27,6 +27,8 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <gio/gio.h>
+#include <glib/gstdio.h>
 #include <sys/mman.h>
 #include <glib.h>
 #include <stdlib.h>
@@ -43,6 +45,30 @@ static guint signals[N_SIGNALS];
 static struct wl_callback *effects_complete_callback;
 static struct wl_callback *view_verification_callback;
 
+struct _WaylandBufferClass
+{
+  GObjectClass parent_class;
+
+  gboolean (* allocate) (WaylandBuffer *buffer,
+                         unsigned int   n_modifiers,
+                         uint64_t      *modifiers,
+                         uint32_t       bo_flags);
+
+  void * (* mmap_plane) (WaylandBuffer *buffer,
+                         int            plane,
+                         size_t        *stride_out);
+};
+
+#define WAYLAND_TYPE_BUFFER_SHM (wayland_buffer_shm_get_type ())
+G_DECLARE_FINAL_TYPE (WaylandBufferShm, wayland_buffer_shm,
+                      WAYLAND, BUFFER_SHM,
+                      WaylandBuffer)
+
+#define WAYLAND_TYPE_BUFFER_DMABUF (wayland_buffer_dmabuf_get_type ())
+G_DECLARE_FINAL_TYPE (WaylandBufferDmabuf, wayland_buffer_dmabuf,
+                      WAYLAND, BUFFER_DMABUF,
+                      WaylandBuffer)
+
 G_DEFINE_TYPE (WaylandDisplay,
                wayland_display,
                G_TYPE_OBJECT)
@@ -50,6 +76,54 @@ G_DEFINE_TYPE (WaylandDisplay,
 G_DEFINE_TYPE (WaylandSurface,
                wayland_surface,
                G_TYPE_OBJECT)
+
+typedef struct _WaylandBufferPrivate
+{
+  WaylandDisplay *display;
+  uint32_t format;
+  uint32_t width;
+  uint32_t height;
+  struct wl_buffer *buffer;
+} WaylandBufferPrivate;
+
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (WaylandBuffer,
+                                     wayland_buffer,
+                                     G_TYPE_OBJECT)
+
+struct _WaylandBufferShm
+{
+  WaylandBuffer parent;
+
+  int n_planes;
+  size_t plane_offset[4];
+  size_t stride[4];
+  size_t size;
+  int fd;
+  void *data;
+};
+
+G_DEFINE_TYPE (WaylandBufferShm,
+               wayland_buffer_shm,
+               WAYLAND_TYPE_BUFFER)
+
+struct _WaylandBufferDmabuf
+{
+  WaylandBuffer parent;
+
+  uint64_t modifier;
+  int n_planes;
+  struct gbm_bo *bo[4];
+  int fd[4];
+  uint32_t offset[4];
+  uint32_t stride[4];
+  void *data[4];
+  void *map_data[4];
+  uint32_t map_stride[4];
+};
+
+G_DEFINE_TYPE (WaylandBufferDmabuf,
+               wayland_buffer_dmabuf,
+               WAYLAND_TYPE_BUFFER)
 
 static int
 create_tmpfile_cloexec (char *tmpname)
@@ -676,4 +750,646 @@ wait_for_sync_event (WaylandDisplay *display,
     }
 
   g_signal_handler_disconnect (display, handler_id);
+}
+
+struct wl_buffer *
+wayland_buffer_get_wl_buffer (WaylandBuffer *buffer)
+{
+  WaylandBufferPrivate *priv = wayland_buffer_get_instance_private (buffer);
+
+  return priv->buffer;
+}
+
+void
+wayland_buffer_fill_color (WaylandBuffer *buffer,
+                           uint32_t       color)
+{
+  WaylandBufferPrivate *priv = wayland_buffer_get_instance_private (buffer);
+  int i, j;
+
+  for (i = 0; i < priv->height; i++)
+    {
+      for (j = 0; j < priv->width; j++)
+        {
+          wayland_buffer_draw_pixel (buffer, j, i, color);
+        }
+    }
+}
+
+void
+wayland_buffer_draw_pixel (WaylandBuffer *buffer,
+                           size_t         x,
+                           size_t         y,
+                           uint32_t       rgba)
+{
+  WaylandBufferPrivate *priv = wayland_buffer_get_instance_private (buffer);
+  uint8_t *data;
+  size_t stride;
+  uint8_t alpha = (rgba >> 24) & 0xff;
+  uint8_t red = (rgba >> 16) & 0xff;
+  uint8_t green = (rgba >> 8) & 0xff;
+  uint8_t blue = (rgba >> 0) & 0xff;
+
+  data = wayland_buffer_mmap_plane (buffer, 0, &stride);
+
+  switch (priv->format)
+    {
+    case DRM_FORMAT_ARGB8888:
+      {
+        uint8_t *pixel;
+
+        pixel = (data + (stride * y) + (x * 4));
+        pixel[0] = blue;
+        pixel[1] = green;
+        pixel[2] = red;
+        pixel[3] = alpha;
+      }
+      break;
+    case DRM_FORMAT_XRGB8888:
+      {
+        uint8_t *pixel;
+
+        pixel = (data + (stride * y) + (x * 4));
+        pixel[0] = blue;
+        pixel[1] = green;
+        pixel[2] = red;
+        pixel[3] = 255;
+      }
+      break;
+    default:
+      g_assert_not_reached ();
+    }
+}
+
+void *
+wayland_buffer_mmap_plane (WaylandBuffer *buffer,
+                           int            plane,
+                           size_t        *stride_out)
+{
+  return WAYLAND_BUFFER_GET_CLASS (buffer)->mmap_plane (buffer,
+                                                        plane,
+                                                        stride_out);
+}
+
+static gboolean
+wayland_buffer_allocate (WaylandBuffer *buffer,
+                         unsigned int   n_modifiers,
+                         uint64_t      *modifiers,
+                         uint32_t       bo_flags)
+{
+  return WAYLAND_BUFFER_GET_CLASS (buffer)->allocate (buffer,
+                                                      n_modifiers,
+                                                      modifiers,
+                                                      bo_flags);
+}
+
+static void
+wayland_buffer_dispose (GObject *object)
+{
+  WaylandBuffer *buffer = WAYLAND_BUFFER (object);
+  WaylandBufferPrivate *priv = wayland_buffer_get_instance_private (buffer);
+
+  g_clear_object (&priv->display);
+
+  G_OBJECT_CLASS (wayland_buffer_parent_class)->dispose (object);
+}
+
+static void
+wayland_buffer_class_init (WaylandBufferClass *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->dispose = wayland_buffer_dispose;
+}
+
+static void
+wayland_buffer_init (WaylandBuffer *buffer)
+{
+}
+
+WaylandBuffer *
+wayland_buffer_create (WaylandDisplay                  *display,
+                       const struct wl_buffer_listener *listener,
+                       uint32_t                         width,
+                       uint32_t                         height,
+                       uint32_t                         format,
+                       uint64_t                        *modifiers,
+                       unsigned int                     n_modifiers,
+                       uint32_t                         bo_flags)
+{
+  g_autoptr (WaylandBuffer) buffer;
+  WaylandBufferPrivate *priv;
+
+  if (display->gbm_device)
+    {
+      buffer = g_object_new (WAYLAND_TYPE_BUFFER_DMABUF, NULL);
+    }
+  else
+    {
+      buffer = g_object_new (WAYLAND_TYPE_BUFFER_SHM, NULL);
+    }
+
+  priv = wayland_buffer_get_instance_private (buffer);
+  priv->display = g_object_ref (display);
+  priv->format = format;
+  priv->width = width;
+  priv->height = height;
+
+  if (!wayland_buffer_allocate (buffer, n_modifiers, modifiers, bo_flags))
+    return NULL;
+
+  wl_buffer_add_listener (priv->buffer, listener, buffer);
+
+  return g_steal_pointer (&buffer);
+}
+
+static gboolean
+wayland_buffer_shm_allocate (WaylandBuffer *buffer,
+                             unsigned int   n_modifiers,
+                             uint64_t      *modifiers,
+                             uint32_t       bo_flags)
+{
+  WaylandBufferShm *shm = WAYLAND_BUFFER_SHM (buffer);
+  WaylandBufferPrivate *priv = wayland_buffer_get_instance_private (buffer);
+  WaylandDisplay *display = priv->display;
+  g_autofd int fd = -1;
+  struct wl_shm_pool *pool;
+  enum wl_shm_format shm_format;
+  int bpp[4];
+  int hsub[4];
+  int vsub[4];
+  gboolean may_alloc_linear;
+  int i;
+
+  may_alloc_linear = !modifiers;
+  for (i = 0; i < n_modifiers; i++)
+    {
+      if (modifiers[i] == DRM_FORMAT_MOD_INVALID ||
+          modifiers[i] == DRM_FORMAT_MOD_LINEAR)
+        {
+          may_alloc_linear = TRUE;
+          break;
+        }
+    }
+
+  if (!may_alloc_linear)
+    return FALSE;
+
+  switch (priv->format)
+    {
+    case DRM_FORMAT_ARGB8888:
+      shm->n_planes = 1;
+      shm_format = WL_SHM_FORMAT_ARGB8888;
+      bpp[0] = 4;
+      hsub[0] = 1;
+      vsub[0] = 1;
+      break;
+    case DRM_FORMAT_XRGB8888:
+      shm->n_planes = 1;
+      shm_format = WL_SHM_FORMAT_XRGB8888;
+      bpp[0] = 4;
+      hsub[0] = 1;
+      vsub[0] = 1;
+      break;
+    case DRM_FORMAT_YUYV:
+      shm->n_planes = 1;
+      shm_format = priv->format;
+      bpp[0] = 2;
+      hsub[0] = 1;
+      vsub[0] = 1;
+      break;
+    case DRM_FORMAT_NV12:
+      shm->n_planes = 2;
+      shm_format = priv->format;
+      bpp[0] = 1;
+      bpp[1] = 2;
+      hsub[0] = 1;
+      hsub[1] = 2;
+      vsub[0] = 1;
+      vsub[1] = 2;
+      break;
+    case DRM_FORMAT_P010:
+      shm->n_planes = 2;
+      shm_format = priv->format;
+      bpp[0] = 2;
+      bpp[1] = 4;
+      hsub[0] = 1;
+      hsub[1] = 2;
+      vsub[0] = 1;
+      vsub[1] = 2;
+      break;
+    case DRM_FORMAT_YUV420:
+      shm->n_planes = 3;
+      shm_format = priv->format;
+      bpp[0] = 1;
+      bpp[1] = 1;
+      bpp[2] = 1;
+      hsub[0] = 1;
+      hsub[1] = 2;
+      hsub[2] = 2;
+      vsub[0] = 1;
+      vsub[1] = 2;
+      hsub[2] = 2;
+      break;
+    default:
+      g_assert_not_reached ();
+    }
+
+  for (i = 0; i < shm->n_planes; i++)
+    {
+      int stride;
+      int size;
+
+      stride = priv->width / hsub[i] * bpp[i];
+      size = priv->height / vsub[i] * stride;
+
+      shm->plane_offset[i] = shm->size;
+      shm->stride[i] = stride;
+
+      shm->size += size;
+    }
+
+  fd = create_anonymous_file (shm->size);
+  if (fd < 0)
+    {
+      fprintf (stderr, "Creating a buffer file for %ld B failed: %m\n",
+               shm->size);
+      return FALSE;
+    }
+
+  shm->data = mmap (NULL, shm->size,
+                    PROT_READ | PROT_WRITE, MAP_SHARED,
+                    fd, 0);
+
+  if (!shm->data)
+    {
+      fprintf (stderr, "mmaping shm buffer failed: %m\n");
+      return FALSE;
+    }
+
+  pool = wl_shm_create_pool (display->shm, fd, shm->size);
+  priv->buffer = wl_shm_pool_create_buffer (pool, 0,
+                                            priv->width, priv->height,
+                                            shm->size / priv->height,
+                                            shm_format);
+  wl_shm_pool_destroy (pool);
+
+  shm->fd = g_steal_fd (&fd);
+
+  return TRUE;
+}
+
+static void *
+wayland_buffer_shm_mmap_plane (WaylandBuffer *buffer,
+                               int            plane,
+                               size_t        *stride_out)
+{
+  WaylandBufferShm *shm = WAYLAND_BUFFER_SHM (buffer);
+  g_assert (plane < shm->n_planes);
+
+  if (stride_out)
+    *stride_out = shm->stride[plane];
+
+  return ((uint8_t *) shm->data) + shm->plane_offset[plane];
+}
+
+static void
+wayland_buffer_shm_dispose (GObject *object)
+{
+  WaylandBufferShm *shm = WAYLAND_BUFFER_SHM (object);
+
+  g_clear_fd (&shm->fd, NULL);
+
+  if (shm->data)
+    {
+      munmap (shm->data, shm->size);
+      shm->data = NULL;
+    }
+
+  G_OBJECT_CLASS (wayland_buffer_shm_parent_class)->dispose (object);
+}
+
+static void
+wayland_buffer_shm_class_init (WaylandBufferShmClass *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+  WaylandBufferClass *buffer_class = WAYLAND_BUFFER_CLASS (klass);
+
+  buffer_class->allocate = wayland_buffer_shm_allocate;
+  buffer_class->mmap_plane = wayland_buffer_shm_mmap_plane;
+  object_class->dispose = wayland_buffer_shm_dispose;
+}
+
+static void
+wayland_buffer_shm_init (WaylandBufferShm *shm)
+{
+  shm->fd = -1;
+}
+
+static gboolean
+alloc_dmabuf_simple (WaylandBuffer *buffer,
+                     unsigned int   n_modifiers,
+                     uint64_t      *modifiers,
+                     uint32_t       bo_flags)
+{
+  WaylandBufferDmabuf *dmabuf = WAYLAND_BUFFER_DMABUF (buffer);
+  WaylandBufferPrivate *priv = wayland_buffer_get_instance_private (buffer);
+  WaylandDisplay *display = priv->display;
+  struct gbm_device *gbm_device = display->gbm_device;
+  struct zwp_linux_dmabuf_v1 *wl_dmabuf = display->linux_dmabuf;
+  struct zwp_linux_buffer_params_v1 *wl_params;
+  struct gbm_bo *bo = NULL;
+  int i;
+
+  if (n_modifiers > 0)
+    {
+      bo = gbm_bo_create_with_modifiers2 (gbm_device,
+                                          priv->width, priv->height,
+                                          priv->format,
+                                          modifiers, n_modifiers,
+                                          bo_flags);
+  }
+
+  if (!bo)
+    {
+      bo = gbm_bo_create (gbm_device,
+                          priv->width, priv->height,
+                          priv->format,
+                          bo_flags);
+    }
+
+  if (!bo)
+    return FALSE;
+
+  dmabuf->modifier = gbm_bo_get_modifier (bo);
+  dmabuf->bo[0] = bo;
+  dmabuf->n_planes = gbm_bo_get_plane_count (bo);
+
+  if (dmabuf->modifier == DRM_FORMAT_MOD_LINEAR ||
+      (dmabuf->modifier == DRM_FORMAT_MOD_INVALID &&
+       (bo_flags & GBM_BO_USE_LINEAR)))
+    {
+      dmabuf->data[0] = gbm_bo_map (dmabuf->bo[0], 0, 0,
+                                    priv->width, priv->height,
+                                    GBM_BO_TRANSFER_WRITE,
+                                    &dmabuf->map_stride[0],
+                                    &dmabuf->map_data[0]);
+
+      if (!dmabuf->data[0])
+        {
+          g_clear_pointer (&bo, gbm_bo_destroy);
+          return FALSE;
+        }
+    }
+
+  wl_params = zwp_linux_dmabuf_v1_create_params (wl_dmabuf);
+
+  for (i = 0; i < dmabuf->n_planes; i++)
+    {
+      dmabuf->fd[i] = gbm_bo_get_fd_for_plane (bo, i);
+      dmabuf->stride[i] = gbm_bo_get_stride_for_plane (bo, i);
+      dmabuf->offset[i] = gbm_bo_get_offset (bo, i);
+
+      g_assert_cmpint (dmabuf->fd[i], >=, 0);
+      g_assert_cmpint (dmabuf->stride[i], >, 0);
+
+      zwp_linux_buffer_params_v1_add (wl_params, dmabuf->fd[i], i,
+                                      dmabuf->offset[i], dmabuf->stride[i],
+                                      dmabuf->modifier >> 32,
+                                      dmabuf->modifier & 0xffffffff);
+    }
+
+  priv->buffer =
+    zwp_linux_buffer_params_v1_create_immed(wl_params,
+                                            priv->width,
+                                            priv->height,
+                                            priv->format,
+                                            0);
+  g_assert_nonnull (priv->buffer);
+
+  return TRUE;
+}
+
+static gboolean
+alloc_dmabuf_ycbcr (WaylandBuffer *buffer,
+                    uint32_t       bo_flags)
+{
+  WaylandBufferDmabuf *dmabuf = WAYLAND_BUFFER_DMABUF (buffer);
+  WaylandBufferPrivate *priv = wayland_buffer_get_instance_private (buffer);
+  WaylandDisplay *display = priv->display;
+  struct gbm_device *gbm_device = display->gbm_device;
+  struct zwp_linux_dmabuf_v1 *wl_dmabuf = display->linux_dmabuf;
+  struct zwp_linux_buffer_params_v1 *wl_params;
+  uint32_t formats[4];
+  int hsub[4];
+  int vsub[4];
+  int i;
+
+  dmabuf->modifier = DRM_FORMAT_MOD_LINEAR;
+
+  switch (priv->format)
+    {
+    case DRM_FORMAT_NV12:
+      dmabuf->n_planes = 2;
+      formats[0] = DRM_FORMAT_R8;
+      formats[1] = DRM_FORMAT_RG88;
+      hsub[0] = 1;
+      hsub[1] = 2;
+      vsub[0] = 1;
+      vsub[1] = 2;
+      break;
+    case DRM_FORMAT_P010:
+      dmabuf->n_planes = 2;
+      formats[0] = DRM_FORMAT_R16;
+      formats[1] = DRM_FORMAT_RG1616;
+      hsub[0] = 1;
+      hsub[1] = 2;
+      vsub[0] = 1;
+      vsub[1] = 2;
+      break;
+    case DRM_FORMAT_YUV420:
+      dmabuf->n_planes = 3;
+      formats[0] = DRM_FORMAT_R8;
+      formats[1] = DRM_FORMAT_R8;
+      formats[2] = DRM_FORMAT_R8;
+      hsub[0] = 1;
+      hsub[1] = 2;
+      hsub[2] = 2;
+      vsub[0] = 1;
+      vsub[1] = 2;
+      hsub[2] = 2;
+      break;
+    }
+
+  wl_params = zwp_linux_dmabuf_v1_create_params (wl_dmabuf);
+
+  for (i = 0; i < dmabuf->n_planes; i++)
+    {
+      size_t width = priv->width / hsub[i];
+      size_t height = priv->height / vsub[i];
+
+      dmabuf->bo[i] = gbm_bo_create_with_modifiers2 (gbm_device,
+                                                     width, height,
+                                                     formats[i],
+                                                     &dmabuf->modifier, 1,
+                                                     bo_flags | GBM_BO_USE_LINEAR);
+
+      if (!dmabuf->bo[i])
+        {
+          dmabuf->bo[i] = gbm_bo_create (gbm_device,
+                                         width, height,
+                                         formats[i],
+                                         bo_flags | GBM_BO_USE_LINEAR);
+        }
+
+      if (!dmabuf->bo[i])
+        break;
+
+      dmabuf->data[i] = gbm_bo_map (dmabuf->bo[i], 0, 0,
+                                    width, height,
+                                    GBM_BO_TRANSFER_WRITE,
+                                    &dmabuf->map_stride[i],
+                                    &dmabuf->map_data[i]);
+
+      if (!dmabuf->data[i])
+        break;
+
+      dmabuf->fd[i] = gbm_bo_get_fd_for_plane (dmabuf->bo[i], 0);
+      dmabuf->stride[i] = gbm_bo_get_stride_for_plane (dmabuf->bo[i], 0);
+      dmabuf->offset[i] = gbm_bo_get_offset (dmabuf->bo[i], 0);
+
+      zwp_linux_buffer_params_v1_add (wl_params, dmabuf->fd[i], i,
+                                      dmabuf->offset[i], dmabuf->stride[i],
+                                      dmabuf->modifier >> 32,
+                                      dmabuf->modifier & 0xffffffff);
+    }
+
+  if (i != dmabuf->n_planes)
+    {
+      for (i = 0; i < dmabuf->n_planes; i++)
+        {
+          if (dmabuf->data[i])
+            {
+              gbm_bo_unmap (dmabuf->bo[i], dmabuf->map_data[i]);
+              dmabuf->data[i] = NULL;
+              dmabuf->map_data[i] = NULL;
+            }
+
+          g_clear_pointer (&dmabuf->bo[i], gbm_bo_destroy);
+        }
+
+      return FALSE;
+    }
+
+  priv->buffer =
+    zwp_linux_buffer_params_v1_create_immed(wl_params,
+                                            priv->width,
+                                            priv->height,
+                                            priv->format,
+                                            0);
+  g_assert_nonnull (priv->buffer);
+
+  return TRUE;
+}
+
+static gboolean
+wayland_buffer_dmabuf_allocate (WaylandBuffer *buffer,
+                                unsigned int   n_modifiers,
+                                uint64_t      *modifiers,
+                                uint32_t       bo_flags)
+{
+  WaylandBufferPrivate *priv = wayland_buffer_get_instance_private (buffer);
+  WaylandDisplay *display = priv->display;
+  DmaBufFormat *dma_buf_format;
+  gboolean may_alloc_linear;
+  int i;
+
+  dma_buf_format = g_hash_table_lookup (display->formats,
+                                        GUINT_TO_POINTER (priv->format));
+  g_assert_nonnull (dma_buf_format);
+
+  may_alloc_linear = !modifiers;
+  for (i = 0; i < n_modifiers; i++)
+    {
+      if (modifiers[i] == DRM_FORMAT_MOD_INVALID ||
+          modifiers[i] == DRM_FORMAT_MOD_LINEAR)
+        {
+          may_alloc_linear = TRUE;
+          break;
+        }
+    }
+
+  switch (priv->format)
+    {
+    case DRM_FORMAT_ARGB8888:
+    case DRM_FORMAT_XRGB8888:
+    case DRM_FORMAT_YUYV:
+      return alloc_dmabuf_simple (buffer, n_modifiers, modifiers, bo_flags);
+    case DRM_FORMAT_NV12:
+    case DRM_FORMAT_P010:
+    case DRM_FORMAT_YUV420:
+      if (!may_alloc_linear)
+        return FALSE;
+      return alloc_dmabuf_ycbcr (buffer, bo_flags);
+    default:
+      g_assert_not_reached ();
+    }
+
+  return FALSE;
+}
+
+static void *
+wayland_buffer_dmabuf_mmap_plane (WaylandBuffer *buffer,
+                                  int            plane,
+                                  size_t        *stride_out)
+{
+  WaylandBufferDmabuf *dmabuf = WAYLAND_BUFFER_DMABUF (buffer);
+  g_assert (plane < dmabuf->n_planes);
+
+  if (stride_out)
+    *stride_out = dmabuf->map_stride[plane];
+
+  return (uint8_t *) dmabuf->data[plane];
+}
+
+static void
+wayland_buffer_dmabuf_dispose (GObject *object)
+{
+  WaylandBufferDmabuf *dmabuf = WAYLAND_BUFFER_DMABUF (object);
+  int i;
+
+  for (i = 0; i < 4; i++)
+    {
+      if (dmabuf->data[i])
+        {
+          gbm_bo_unmap (dmabuf->bo[i], dmabuf->map_data[i]);
+          dmabuf->data[i] = NULL;
+          dmabuf->map_data[i] = NULL;
+        }
+
+      g_clear_pointer (&dmabuf->bo[i], gbm_bo_destroy);
+    }
+
+  for (i = 0; i < dmabuf->n_planes; i++)
+    g_clear_fd (&dmabuf->fd[i], NULL);
+}
+
+static void
+wayland_buffer_dmabuf_class_init (WaylandBufferDmabufClass *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+  WaylandBufferClass *buffer_class = WAYLAND_BUFFER_CLASS (klass);
+
+  buffer_class->allocate = wayland_buffer_dmabuf_allocate;
+  buffer_class->mmap_plane = wayland_buffer_dmabuf_mmap_plane;
+  object_class->dispose = wayland_buffer_dmabuf_dispose;
+}
+
+static void
+wayland_buffer_dmabuf_init (WaylandBufferDmabuf *dmabuf)
+{
+  int i;
+
+  for (i = 0; i < 4; i++)
+    dmabuf->fd[i] = -1;
 }

@@ -81,6 +81,11 @@ G_DECLARE_FINAL_TYPE (WaylandSurface, wayland_surface,
                       WAYLAND, SURFACE,
                       GObject)
 
+#define WAYLAND_TYPE_BUFFER (wayland_buffer_get_type ())
+G_DECLARE_DERIVABLE_TYPE (WaylandBuffer, wayland_buffer,
+                          WAYLAND, BUFFER,
+                          GObject)
+
 int create_anonymous_file (off_t size);
 
 WaylandDisplay * wayland_display_new (WaylandDisplayCapabilities capabilities);
@@ -118,3 +123,26 @@ void wait_for_view_verified (WaylandDisplay *display,
 
 void wait_for_sync_event (WaylandDisplay *display,
                           uint32_t        serial);
+
+WaylandBuffer *wayland_buffer_create (WaylandDisplay                  *display,
+                                      const struct wl_buffer_listener *listener,
+                                      uint32_t                         width,
+                                      uint32_t                         height,
+                                      uint32_t                         format,
+                                      uint64_t                        *modifiers,
+                                      unsigned int                     n_modifiers,
+                                      uint32_t                         bo_flags);
+
+struct wl_buffer * wayland_buffer_get_wl_buffer (WaylandBuffer *buffer);
+
+void wayland_buffer_fill_color (WaylandBuffer *buffer,
+                                uint32_t       color);
+
+void wayland_buffer_draw_pixel (WaylandBuffer *buffer,
+                                size_t         x,
+                                size_t         y,
+                                uint32_t       color);
+
+void * wayland_buffer_mmap_plane (WaylandBuffer *buffer,
+                                  int            plane,
+                                  size_t        *stride_out);
