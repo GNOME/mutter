@@ -94,16 +94,17 @@ draw_main (void)
   static uint32_t color1 = 0xff00ffff;
   static uint32_t color2 = 0xffff00ff;
   static uint32_t color3 = 0xffffff00;
-  struct wl_buffer *buffer;
-  void *buffer_data;
-  uint32_t *pixels;
-  int x, y, size;
+  WaylandBuffer *buffer;
+  int x, y;
 
-  if (!create_shm_buffer (display, window_width, window_height,
-                          &buffer, &buffer_data, &size))
-    g_error ("Failed to create shm buffer");
+  buffer = wayland_buffer_create (display, NULL,
+                                  window_width, window_height,
+                                  DRM_FORMAT_XRGB8888,
+                                  NULL, 0,
+                                  GBM_BO_USE_LINEAR);
+  if (!buffer)
+    g_error ("Failed to create buffer");
 
-  pixels = buffer_data;
   for (y = 0; y < window_height; y++)
     {
       for (x = 0; x < window_width; x++)
@@ -125,11 +126,11 @@ draw_main (void)
                 current_color = color3;
             }
 
-          pixels[y * window_width + x] = current_color;
+          wayland_buffer_draw_pixel (buffer, x, y, current_color);
         }
     }
 
-  wl_surface_attach (surface, buffer, 0, 0);
+  wl_surface_attach (surface, wayland_buffer_get_wl_buffer (buffer), 0, 0);
 }
 
 static void
