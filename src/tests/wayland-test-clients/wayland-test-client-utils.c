@@ -168,6 +168,53 @@ static const struct test_driver_listener test_driver_listener = {
 };
 
 static void
+dmabuf_modifiers (void                       *user_data,
+                  struct zwp_linux_dmabuf_v1 *zwp_linux_dmabuf,
+                  uint32_t                    format,
+                  uint32_t                    modifier_hi,
+                  uint32_t                    modifier_lo)
+{
+  WaylandDisplay *display = WAYLAND_DISPLAY (user_data);
+  DmaBufFormat *dma_format;
+  uint64_t modifier;
+
+
+  dma_format = g_hash_table_lookup (display->formats,
+                                    GUINT_TO_POINTER (format));
+  if (!dma_format)
+    {
+      dma_format = g_new0 (DmaBufFormat, 1);
+      dma_format->format = format;
+      g_hash_table_insert (display->formats,
+                           GUINT_TO_POINTER (format),
+                           dma_format);
+    }
+
+  modifier = ((uint64_t)modifier_hi << 32) | modifier_lo;
+
+  if (modifier != DRM_FORMAT_MOD_INVALID)
+    {
+      dma_format->n_modifiers++;
+      dma_format->modifiers = g_realloc_n (dma_format->modifiers,
+                                           dma_format->n_modifiers,
+                                           sizeof (uint64_t));
+      dma_format->modifiers[dma_format->n_modifiers - 1] = modifier;
+    }
+}
+
+static void
+dmabuf_format (void                       *user_data,
+               struct zwp_linux_dmabuf_v1 *zwp_linux_dmabuf,
+               uint32_t                    format)
+{
+}
+
+static const struct zwp_linux_dmabuf_v1_listener dmabuf_listener = {
+  dmabuf_format,
+  dmabuf_modifiers
+};
+
+static void
 handle_registry_global (void               *user_data,
                         struct wl_registry *registry,
                         uint32_t            id,
@@ -191,6 +238,14 @@ handle_registry_global (void               *user_data,
     {
       display->shm = wl_registry_bind (registry,
                                        id, &wl_shm_interface, 1);
+    }
+  else if (strcmp (interface, zwp_linux_dmabuf_v1_interface.name) == 0)
+    {
+      display->linux_dmabuf =
+        wl_registry_bind (registry,
+                          id, &zwp_linux_dmabuf_v1_interface, 3);
+      zwp_linux_dmabuf_v1_add_listener (display->linux_dmabuf,
+                                        &dmabuf_listener, display);
     }
   else if (strcmp (interface, wp_fractional_scale_manager_v1_interface.name) == 0)
     {
@@ -263,6 +318,8 @@ wayland_display_new_full (WaylandDisplayCapabilities  capabilities,
   display->capabilities = capabilities;
   display->properties = g_hash_table_new_full (g_str_hash, g_str_equal,
                                                g_free, g_free);
+  display->formats = g_hash_table_new_full (NULL, NULL, NULL, g_free);
+
   display->display = wayland_display;
 
   display->registry = wl_display_get_registry (display->display);
@@ -300,6 +357,7 @@ wayland_display_finalize (GObject *object)
 
   wl_display_disconnect (display->display);
   g_clear_pointer (&display->properties, g_hash_table_unref);
+  g_clear_pointer (&display->formats, g_hash_table_unref);
 
   G_OBJECT_CLASS (wayland_display_parent_class)->finalize (object);
 }

@@ -7,6 +7,7 @@
 #include <wayland-client.h>
 
 #include "fractional-scale-v1-client-protocol.h"
+#include "linux-dmabuf-unstable-v1-client-protocol.h"
 #include "single-pixel-buffer-v1-client-protocol.h"
 #include "test-driver-client-protocol.h"
 #include "viewporter-client-protocol.h"
@@ -19,6 +20,13 @@ typedef enum _WaylandDisplayCapabilities
   WAYLAND_DISPLAY_CAPABILITY_XDG_SHELL_V4 = 1 << 1,
 } WaylandDisplayCapabilities;
 
+typedef struct _DmaBufFormat
+{
+  uint32_t format;
+  uint64_t *modifiers;
+  int n_modifiers;
+} DmaBufFormat;
+
 typedef struct _WaylandDisplay
 {
   GObject parent;
@@ -30,6 +38,7 @@ typedef struct _WaylandDisplay
   struct wl_compositor *compositor;
   struct wl_subcompositor *subcompositor;
   struct wl_shm *shm;
+  struct zwp_linux_dmabuf_v1 *linux_dmabuf;
   struct wp_fractional_scale_manager_v1 *fractional_scale_mgr;
   struct wp_single_pixel_buffer_manager_v1 *single_pixel_mgr;
   struct wp_viewporter *viewporter;
@@ -41,6 +50,9 @@ typedef struct _WaylandDisplay
   GHashTable *properties;
 
   struct gbm_device *gbm_device;
+
+  /* format to DmaBufFormat mapping */
+  GHashTable *formats;
 } WaylandDisplay;
 
 #define WAYLAND_TYPE_DISPLAY (wayland_display_get_type ())
