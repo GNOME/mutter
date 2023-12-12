@@ -99,13 +99,6 @@ WaylandSurface * wayland_surface_new (WaylandDisplay *display,
                                       int             default_height,
                                       uint32_t        color);
 
-gboolean create_shm_buffer (WaylandDisplay    *display,
-                            int                width,
-                            int                height,
-                            struct wl_buffer **out_buffer,
-                            void             **out_data,
-                            int               *out_size);
-
 void draw_surface (WaylandDisplay    *display,
                    struct wl_surface *surface,
                    int                width,
