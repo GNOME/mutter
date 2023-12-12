@@ -543,17 +543,20 @@ draw_surface (WaylandDisplay    *display,
               int                height,
               uint32_t           color)
 {
-  struct wl_buffer *buffer;
-  void *buffer_data;
-  int size;
+  WaylandBuffer *buffer;
 
-  if (!create_shm_buffer (display, width, height,
-                          &buffer, &buffer_data, &size))
-    g_error ("Failed to create shm buffer");
+  buffer = wayland_buffer_create (display, NULL,
+                                  width, height,
+                                  DRM_FORMAT_ARGB8888,
+                                  NULL, 0,
+                                  GBM_BO_USE_LINEAR);
 
-  fill (buffer_data, width, height, color);
+  if (!buffer)
+    g_error ("Failed to create buffer");
 
-  wl_surface_attach (surface, buffer, 0, 0);
+  wayland_buffer_fill_color (buffer, color);
+
+  wl_surface_attach (surface, wayland_buffer_get_wl_buffer (buffer), 0, 0);
 }
 
 static void
