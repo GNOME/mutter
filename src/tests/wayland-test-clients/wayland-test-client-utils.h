@@ -1,5 +1,7 @@
 #pragma once
 
+#include <drm_fourcc.h>
+#include <gbm.h>
 #include <glib-object.h>
 #include <stdio.h>
 #include <wayland-client.h>
@@ -37,6 +39,8 @@ typedef struct _WaylandDisplay
   uint32_t sync_event_serial_next;
 
   GHashTable *properties;
+
+  struct gbm_device *gbm_device;
 } WaylandDisplay;
 
 #define WAYLAND_TYPE_DISPLAY (wayland_display_get_type ())

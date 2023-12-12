@@ -107,6 +107,26 @@ create_anonymous_file (off_t size)
   return fd;
 }
 
+static struct gbm_device *
+create_gbm_device (WaylandDisplay *display)
+{
+  const char *gpu_path;
+  int fd;
+
+  gpu_path = lookup_property_value (display, "gpu-path");
+  if (!gpu_path)
+    return NULL;
+
+  fd = open (gpu_path, O_RDWR);
+  if (fd < 0)
+    {
+      g_error ("Failed to open drm render node %s: %s",
+               gpu_path, g_strerror (errno));
+    }
+
+  return gbm_create_device (fd);
+}
+
 static void
 handle_xdg_wm_base_ping (void               *user_data,
                          struct xdg_wm_base *xdg_wm_base,
@@ -260,6 +280,8 @@ wayland_display_new_full (WaylandDisplayCapabilities  capabilities,
     g_assert_nonnull (display->test_driver);
 
   wl_display_roundtrip (display->display);
+
+  display->gbm_device = create_gbm_device (display);
 
   return display;
 }

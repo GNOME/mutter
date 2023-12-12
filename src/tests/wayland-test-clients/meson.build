@@ -20,10 +20,6 @@ wayland_test_clients = [
   },
   {
     'name': 'dma-buf-scanout',
-    'extra_deps': [
-      libdrm_dep,
-      libgbm_dep,
-    ],
   },
   {
     'name': 'fractional-scale',
@@ -92,6 +88,8 @@ foreach test : wayland_test_clients
     glib_dep,
     gobject_dep,
     wayland_client_dep,
+    libdrm_dep,
+    libgbm_dep,
     m_dep,
   ]
   if test.has_key('extra_deps')
