@@ -820,6 +820,33 @@ meta_window_wayland_set_transient_for (MetaWindow *window,
   return TRUE;
 }
 
+static void
+meta_window_wayland_stage_to_protocol (MetaWindow *window,
+                                       int         stage_x,
+                                       int         stage_y,
+                                       int        *protocol_x,
+                                       int        *protocol_y)
+{
+  if (protocol_x)
+    *protocol_x = stage_x;
+  if (protocol_y)
+    *protocol_y = stage_y;
+}
+
+static void
+meta_window_wayland_protocol_to_stage (MetaWindow          *window,
+                                       int                  protocol_x,
+                                       int                  protocol_y,
+                                       int                 *stage_x,
+                                       int                 *stage_y,
+                                       MtkRoundingStrategy  rounding_strategy)
+{
+  if (stage_x)
+    *stage_x = protocol_x;
+  if (stage_y)
+    *stage_y = protocol_y;
+}
+
 static MetaStackLayer
 meta_window_wayland_calculate_layer (MetaWindow *window)
 {
@@ -938,6 +965,8 @@ meta_window_wayland_class_init (MetaWindowWaylandClass *klass)
   window_class->is_focus_async = meta_window_wayland_is_focus_async;
   window_class->get_wayland_surface = meta_window_wayland_get_wayland_surface;
   window_class->set_transient_for = meta_window_wayland_set_transient_for;
+  window_class->stage_to_protocol = meta_window_wayland_stage_to_protocol;
+  window_class->protocol_to_stage = meta_window_wayland_protocol_to_stage;
 
   obj_props[PROP_SURFACE] =
     g_param_spec_object ("surface", NULL, NULL,

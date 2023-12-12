@@ -8037,3 +8037,103 @@ meta_window_set_normal_hints (MetaWindow    *window,
        */
     }
 }
+
+/**
+ * meta_window_stage_to_protocol_rect:
+ * @window: A #MetaWindow
+ * @stage_rect: x #MtkRectangle in stage coordinate space
+ * @protocol_rect: (out): x #MtkRectangle in protocol coordinate space
+ *
+ * Transform the coordinates from stage coordinates to protocol coordinates
+ */
+void
+meta_window_stage_to_protocol_rect (MetaWindow         *window,
+                                    const MtkRectangle *stage_rect,
+                                    MtkRectangle       *protocol_rect)
+{
+  MetaWindowClass *klass = META_WINDOW_GET_CLASS (window);
+
+  klass->stage_to_protocol (window,
+                            stage_rect->x, stage_rect->y,
+                            &protocol_rect->x, &protocol_rect->y);
+  klass->stage_to_protocol (window,
+                            stage_rect->width, stage_rect->height,
+                            &protocol_rect->width, &protocol_rect->height);
+}
+
+/**
+ * meta_window_stage_to_protocol_point:
+ * @window: A #MetaWindow
+ * @stage_x: x cordinate in stage coordinate space
+ * @stage_y: y cordinate in stage coordinate space
+ * @protocol_x: (out): x cordinate in protocol coordinate space
+ * @protocol_y: (out): y cordinate in protocol coordinate space
+ *
+ * Transform the coordinates from stage coordinates to protocol coordinates
+ */
+void
+meta_window_stage_to_protocol_point (MetaWindow *window,
+                                     int         stage_x,
+                                     int         stage_y,
+                                     int        *protocol_x,
+                                     int        *protocol_y)
+{
+  MetaWindowClass *klass = META_WINDOW_GET_CLASS (window);
+
+  klass->stage_to_protocol (window,
+                            stage_x, stage_y,
+                            protocol_x, protocol_y);
+}
+
+/**
+ * meta_window_protocol_to_stage_rect:
+ * @window: A #MetaWindow
+ * @protocol_rect: rectangle in protocol coordinate space
+ * @stage_rect: (out): rect in stage coordinate space
+ *
+ * Transform the coordinates from protocol coordinates to coordinates expected
+ * by the stage and internal window management logic.
+ */
+void
+meta_window_protocol_to_stage_rect (MetaWindow *window,
+                                    const MtkRectangle *protocol_rect,
+                                    MtkRectangle       *stage_rect)
+{
+  MetaWindowClass *klass = META_WINDOW_GET_CLASS (window);
+
+  klass->protocol_to_stage (window,
+                            protocol_rect->x, protocol_rect->y,
+                            &stage_rect->x, &stage_rect->y,
+                            MTK_ROUNDING_STRATEGY_SHRINK);
+  klass->protocol_to_stage (window,
+                            protocol_rect->width, protocol_rect->height,
+                            &stage_rect->width, &stage_rect->height,
+                            MTK_ROUNDING_STRATEGY_GROW);
+}
+
+/**
+ * meta_window_protocol_to_stage_point:
+ * @window: A #MetaWindow
+ * @protocol_x: x cordinate in protocol coordinate space
+ * @protocol_y: y cordinate in protocol coordinate space
+ * @stage_x: (out): x cordinate in stage coordinate space
+ * @stage_y: (out): y cordinate in stage coordinate space
+ *
+ * Transform the coordinates from protocol coordinates to coordinates expected
+ * by the stage and internal window management logic.
+ */
+void
+meta_window_protocol_to_stage_point (MetaWindow          *window,
+                                     int                  protocol_x,
+                                     int                  protocol_y,
+                                     int                 *stage_x,
+                                     int                 *stage_y,
+                                     MtkRoundingStrategy  rounding_strategy)
+{
+  MetaWindowClass *klass = META_WINDOW_GET_CLASS (window);
+
+  klass->protocol_to_stage (window,
+                            protocol_x, protocol_y,
+                            stage_x, stage_y,
+                            rounding_strategy);
+}

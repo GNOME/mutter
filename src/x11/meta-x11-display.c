@@ -132,6 +132,42 @@ backend_from_x11_display (MetaX11Display *x11_display)
 }
 
 static void
+stage_to_protocol (MetaX11Display *x11_display,
+                   int             stage_x,
+                   int             stage_y,
+                   int            *protocol_x,
+                   int            *protocol_y)
+{
+  MetaDisplay *display = meta_x11_display_get_display (x11_display);
+  MetaContext *context = meta_display_get_context (display);
+  int scale = 1;
+
+  switch (meta_context_get_compositor_type (context))
+    {
+    case META_COMPOSITOR_TYPE_WAYLAND:
+      {
+#ifdef HAVE_XWAYLAND
+        MetaWaylandCompositor *wayland_compositor =
+          meta_context_get_wayland_compositor (context);
+        MetaXWaylandManager *xwayland_manager =
+          &wayland_compositor->xwayland_manager;
+
+        scale = meta_xwayland_get_effective_scale (xwayland_manager);
+#endif
+        break;
+      }
+
+    case META_COMPOSITOR_TYPE_X11:
+      break;
+    }
+
+  if (protocol_x)
+    *protocol_x = stage_x * scale;
+  if (protocol_y)
+    *protocol_y = stage_y * scale;
+}
+
+static void
 meta_x11_display_unmanage_windows (MetaX11Display *x11_display)
 {
   GList *windows, *l;
@@ -181,10 +217,32 @@ update_ui_scaling_factor (MetaX11Display *x11_display)
   MetaX11DisplayPrivate *priv =
     meta_x11_display_get_instance_private (x11_display);
   MetaBackend *backend = backend_from_x11_display (x11_display);
-  MetaSettings *settings = meta_backend_get_settings (backend);
-  int ui_scaling_factor;
+  MetaContext *context = meta_backend_get_context (backend);
+  int ui_scaling_factor = 1;
 
-  ui_scaling_factor = meta_settings_get_ui_scaling_factor (settings);
+  switch (meta_context_get_compositor_type (context))
+    {
+    case META_COMPOSITOR_TYPE_WAYLAND:
+      {
+#ifdef HAVE_XWAYLAND
+        MetaWaylandCompositor *wayland_compositor =
+          meta_context_get_wayland_compositor (context);
+        MetaXWaylandManager *xwayland_manager =
+          &wayland_compositor->xwayland_manager;
+
+        ui_scaling_factor = meta_xwayland_get_effective_scale (xwayland_manager);
+#endif
+        break;
+      }
+    case META_COMPOSITOR_TYPE_X11:
+      {
+        MetaSettings *settings = meta_backend_get_settings (backend);
+
+        ui_scaling_factor = meta_settings_get_ui_scaling_factor (settings);
+        break;
+      }
+    }
+
   meta_dbus_x11_set_ui_scaling_factor (priv->dbus_api, ui_scaling_factor);
 }
 
@@ -638,6 +696,9 @@ set_desktop_geometry_hint (MetaX11Display *x11_display)
     return;
 
   meta_display_get_size (x11_display->display, &monitor_width, &monitor_height);
+  stage_to_protocol (x11_display,
+                     monitor_width, monitor_height,
+                     &monitor_width, &monitor_height);
 
   data[0] = monitor_width;
   data[1] = monitor_height;
@@ -1047,14 +1108,22 @@ set_workspace_work_area_hint (MetaWorkspace  *workspace,
 
   for (l = logical_monitors; l; l = l->next)
     {
-      MtkRectangle area;
+      MtkRectangle stage_area;
+      MtkRectangle protocol_area;
 
-      meta_workspace_get_work_area_for_logical_monitor (workspace, l->data, &area);
+      meta_workspace_get_work_area_for_logical_monitor (workspace, l->data,
+                                                        &stage_area);
 
-      tmp[0] = area.x;
-      tmp[1] = area.y;
-      tmp[2] = area.width;
-      tmp[3] = area.height;
+      stage_to_protocol (x11_display,
+                         stage_area.x, stage_area.y,
+                         &protocol_area.x, &protocol_area.y);
+      stage_to_protocol (x11_display,
+                         stage_area.width, stage_area.height,
+                         &protocol_area.width, &protocol_area.height);
+      tmp[0] = protocol_area.x;
+      tmp[1] = protocol_area.y;
+      tmp[2] = protocol_area.width;
+      tmp[3] = protocol_area.height;
 
       tmp += 4;
     }
@@ -1083,7 +1152,6 @@ set_work_area_hint (MetaDisplay    *display,
   int num_workspaces;
   GList *l;
   unsigned long *data, *tmp;
-  MtkRectangle area;
 
   num_workspaces = meta_workspace_manager_get_n_workspaces (workspace_manager);
   data = g_new (unsigned long, num_workspaces * 4);
@@ -1092,14 +1160,22 @@ set_work_area_hint (MetaDisplay    *display,
   for (l = workspace_manager->workspaces; l; l = l->next)
     {
       MetaWorkspace *workspace = l->data;
+      MtkRectangle stage_area;
+      MtkRectangle protocol_area;
 
-      meta_workspace_get_work_area_all_monitors (workspace, &area);
+      meta_workspace_get_work_area_all_monitors (workspace, &stage_area);
       set_workspace_work_area_hint (workspace, x11_display);
 
-      tmp[0] = area.x;
-      tmp[1] = area.y;
-      tmp[2] = area.width;
-      tmp[3] = area.height;
+      stage_to_protocol (x11_display,
+                         stage_area.x, stage_area.y,
+                         &protocol_area.x, &protocol_area.y);
+      stage_to_protocol (x11_display,
+                         stage_area.width, stage_area.height,
+                         &protocol_area.width, &protocol_area.height);
+      tmp[0] = protocol_area.x;
+      tmp[1] = protocol_area.y;
+      tmp[2] = protocol_area.width;
+      tmp[3] = protocol_area.height;
 
       tmp += 4;
     }
@@ -1279,6 +1355,41 @@ initialize_dbus_interface (MetaX11Display *x11_display)
   update_ui_scaling_factor (x11_display);
 }
 
+static void
+experimental_features_changed (MetaSettings           *settings,
+                               MetaExperimentalFeature old_experimental_features,
+                               MetaX11Display         *x11_display)
+{
+  gboolean was_xwayland_native_scaling;
+  gboolean was_stage_views_scaled;
+  gboolean is_xwayland_native_scaling;
+  gboolean is_stage_views_scaled;
+
+  was_xwayland_native_scaling =
+    !!(old_experimental_features &
+       META_EXPERIMENTAL_FEATURE_XWAYLAND_NATIVE_SCALING);
+  was_stage_views_scaled =
+    !!(old_experimental_features &
+       META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER);
+
+  is_xwayland_native_scaling =
+    meta_settings_is_experimental_feature_enabled (
+      settings,
+      META_EXPERIMENTAL_FEATURE_XWAYLAND_NATIVE_SCALING);
+  is_stage_views_scaled =
+    meta_settings_is_experimental_feature_enabled (
+      settings,
+      META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER);
+
+  if (is_xwayland_native_scaling != was_xwayland_native_scaling ||
+      is_stage_views_scaled != was_stage_views_scaled)
+    {
+      update_ui_scaling_factor (x11_display);
+      set_desktop_geometry_hint (x11_display);
+      set_work_area_hint (x11_display->display, x11_display);
+    }
+}
+
 /**
  * meta_x11_display_new:
  *
@@ -1297,6 +1408,7 @@ meta_x11_display_new (MetaDisplay  *display,
   MetaBackend *backend = meta_context_get_backend (context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
+  MetaSettings *settings = meta_backend_get_settings (backend);
   g_autoptr (MetaX11Display) x11_display = NULL;
   Display *xdisplay;
   Screen *xscreen;
@@ -1469,7 +1581,7 @@ meta_x11_display_new (MetaDisplay  *display,
                            "monitors-changed-internal",
                            G_CALLBACK (on_monitors_changed_internal),
                            x11_display,
-                           0);
+                           G_CONNECT_AFTER);
 
   init_leader_window (x11_display, &timestamp);
   x11_display->timestamp = timestamp;
@@ -1561,6 +1673,11 @@ meta_x11_display_new (MetaDisplay  *display,
   set_workspace_names (x11_display);
 
   meta_prefs_add_listener (prefs_changed_callback, x11_display);
+
+  g_signal_connect_object (settings,
+                           "experimental-features-changed",
+                           G_CALLBACK (experimental_features_changed),
+                           x11_display, 0);
 
   set_work_area_hint (display, x11_display);
 
@@ -1775,16 +1892,12 @@ meta_x11_display_reload_cursor (MetaX11Display *x11_display)
 }
 
 static void
-set_cursor_theme (Display     *xdisplay,
-                  MetaBackend *backend)
+set_cursor_theme (Display    *xdisplay,
+                  const char *theme,
+                  int         size)
 {
-  MetaSettings *settings = meta_backend_get_settings (backend);
-  int scale;
-
-  scale = meta_settings_get_ui_scaling_factor (settings);
-  XcursorSetTheme (xdisplay, meta_prefs_get_cursor_theme ());
-  XcursorSetDefaultSize (xdisplay,
-                         meta_prefs_get_cursor_size () * scale);
+  XcursorSetTheme (xdisplay, theme);
+  XcursorSetDefaultSize (xdisplay, size);
 }
 
 static void
@@ -1836,8 +1949,37 @@ static void
 update_cursor_theme (MetaX11Display *x11_display)
 {
   MetaBackend *backend = backend_from_x11_display (x11_display);
+  MetaContext *context = meta_backend_get_context (backend);
+  MetaSettings *settings = meta_backend_get_settings (backend);
+  int scale = 1;
+  int size;
+  const char *theme;
 
-  set_cursor_theme (x11_display->xdisplay, backend);
+  switch (meta_context_get_compositor_type (context))
+    {
+    case META_COMPOSITOR_TYPE_WAYLAND:
+      {
+#ifdef HAVE_XWAYLAND
+        MetaWaylandCompositor *wayland_compositor =
+          meta_context_get_wayland_compositor (context);
+        MetaXWaylandManager *xwayland_manager =
+          &wayland_compositor->xwayland_manager;
+
+        scale = meta_xwayland_get_effective_scale (xwayland_manager);
+#endif
+        break;
+      }
+
+    case META_COMPOSITOR_TYPE_X11:
+      scale = meta_settings_get_ui_scaling_factor (settings);
+      break;
+    }
+
+  size = meta_prefs_get_cursor_size () * scale;
+
+  theme = meta_prefs_get_cursor_theme ();
+
+  set_cursor_theme (x11_display->xdisplay, theme, size);
   schedule_reload_x11_cursor (x11_display);
 
 #ifdef HAVE_X11
@@ -1846,7 +1988,7 @@ update_cursor_theme (MetaX11Display *x11_display)
       MetaBackendX11 *backend_x11 = META_BACKEND_X11 (backend);
       Display *xdisplay = meta_backend_x11_get_xdisplay (backend_x11);
 
-      set_cursor_theme (xdisplay, backend);
+      set_cursor_theme (xdisplay, theme, size);
       meta_backend_x11_reload_cursor (backend_x11);
     }
 #endif

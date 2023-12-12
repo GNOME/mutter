@@ -27,8 +27,9 @@
 #include "x11/window-x11-private.h"
 #include "x11/xprops.h"
 #include "wayland/meta-window-xwayland.h"
-#include "wayland/meta-wayland.h"
+#include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-surface-private.h"
+#include "wayland/meta-xwayland.h"
 
 enum
 {
@@ -316,6 +317,69 @@ meta_window_xwayland_process_property_notify (MetaWindow     *window,
 }
 
 static void
+meta_window_xwayland_stage_to_protocol (MetaWindow *window,
+                                        int         stage_x,
+                                        int         stage_y,
+                                        int        *protocol_x,
+                                        int        *protocol_y)
+{
+  MetaDisplay *display = meta_window_get_display (window);
+  MetaContext *context = meta_display_get_context (display);
+  MetaWaylandCompositor *wayland_compositor =
+    meta_context_get_wayland_compositor (context);
+  MetaXWaylandManager *xwayland_manager = &wayland_compositor->xwayland_manager;
+  int scale;
+
+  scale = meta_xwayland_get_effective_scale (xwayland_manager);
+  if (protocol_x)
+    *protocol_x = stage_x * scale;
+  if (protocol_y)
+    *protocol_y = stage_y * scale;
+}
+
+static void
+meta_window_xwayland_protocol_to_stage (MetaWindow          *window,
+                                        int                  protocol_x,
+                                        int                  protocol_y,
+                                        int                 *stage_x,
+                                        int                 *stage_y,
+                                        MtkRoundingStrategy  rounding_strategy)
+{
+  MetaDisplay *display = meta_window_get_display (window);
+  MetaContext *context = meta_display_get_context (display);
+  MetaWaylandCompositor *wayland_compositor =
+    meta_context_get_wayland_compositor (context);
+  MetaXWaylandManager *xwayland_manager = &wayland_compositor->xwayland_manager;
+  int xwayland_scale;
+  float scale;
+
+  xwayland_scale = meta_xwayland_get_effective_scale (xwayland_manager);
+  scale = 1.0f / xwayland_scale;
+
+  switch (rounding_strategy)
+    {
+    case MTK_ROUNDING_STRATEGY_SHRINK:
+      if (stage_x)
+        *stage_x = (int) floorf (protocol_x * scale);
+      if (stage_y)
+        *stage_y = (int) floorf (protocol_y * scale);
+      break;
+    case MTK_ROUNDING_STRATEGY_GROW:
+      if (stage_x)
+        *stage_x = (int) ceilf (protocol_x * scale);
+      if (stage_y)
+        *stage_y = (int) ceilf (protocol_y * scale);
+      break;
+    case MTK_ROUNDING_STRATEGY_ROUND:
+      if (stage_x)
+        *stage_x = (int) roundf (protocol_x * scale);
+      if (stage_y)
+        *stage_y = (int) roundf (protocol_y * scale);
+      break;
+    }
+}
+
+static void
 meta_window_xwayland_class_init (MetaWindowXwaylandClass *klass)
 {
   MetaWindowClass *window_class = META_WINDOW_CLASS (klass);
@@ -326,6 +390,8 @@ meta_window_xwayland_class_init (MetaWindowXwaylandClass *klass)
   window_class->force_restore_shortcuts = meta_window_xwayland_force_restore_shortcuts;
   window_class->shortcuts_inhibited = meta_window_xwayland_shortcuts_inhibited;
   window_class->get_wayland_surface = meta_window_xwayland_get_wayland_surface;
+  window_class->stage_to_protocol = meta_window_xwayland_stage_to_protocol;
+  window_class->protocol_to_stage = meta_window_xwayland_protocol_to_stage;
 
   window_x11_class->freeze_commits = meta_window_xwayland_freeze_commits;
   window_x11_class->thaw_commits = meta_window_xwayland_thaw_commits;

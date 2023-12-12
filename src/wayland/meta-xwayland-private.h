@@ -20,6 +20,7 @@
 #include <glib.h>
 
 #include "wayland/meta-wayland-private.h"
+#include "wayland/meta-xwayland.h"
 
 gboolean
 meta_xwayland_init (MetaXWaylandManager    *manager,

@@ -800,9 +800,6 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
           state->buffer->type != META_WAYLAND_BUFFER_TYPE_SINGLE_PIXEL));
     }
 
-  if (state->scale > 0)
-    surface->applied_state.scale = state->scale;
-
   if (state->has_new_buffer_transform)
     surface->buffer_transform = state->buffer_transform;
 
@@ -820,6 +817,28 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
       surface->viewport.dst_width = state->viewport_dst_width;
       surface->viewport.dst_height = state->viewport_dst_height;
       surface->viewport.has_dst_size = surface->viewport.dst_width > 0;
+    }
+
+  if (meta_wayland_surface_is_xwayland (surface))
+    {
+#ifdef HAVE_XWAYLAND
+      MetaXWaylandManager *xwayland_manager =
+        &surface->compositor->xwayland_manager;
+
+      if (surface->viewport.has_dst_size)
+        {
+          surface->applied_state.scale = 1;
+        }
+      else
+        {
+          surface->applied_state.scale =
+            meta_xwayland_get_effective_scale (xwayland_manager);
+        }
+#endif
+    }
+  else if (state->scale > 0)
+    {
+      surface->applied_state.scale = state->scale;
     }
 
   state->derived.surface_size_changed =
@@ -999,8 +1018,9 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
       MetaMultiTexture *committed_texture = surface->committed_state.texture;
       int committed_scale = surface->committed_state.scale;
 
-      if ((meta_multi_texture_get_width (committed_texture) % committed_scale != 0) ||
-          (meta_multi_texture_get_height (committed_texture) % committed_scale != 0))
+      if (((meta_multi_texture_get_width (committed_texture) % committed_scale != 0) ||
+           (meta_multi_texture_get_height (committed_texture) % committed_scale != 0)) &&
+          !meta_wayland_surface_is_xwayland (surface))
         {
           if (surface->role && !META_IS_WAYLAND_CURSOR_SURFACE (surface->role))
             {
@@ -1530,6 +1550,16 @@ meta_wayland_surface_update_outputs (MetaWaylandSurface *surface)
   g_hash_table_foreach (surface->compositor->outputs,
                         update_surface_output_state,
                         surface);
+
+  if (meta_wayland_surface_is_xwayland (surface))
+    {
+#ifdef HAVE_XWAYLAND
+      MetaXWaylandManager *xwayland_manager =
+        &surface->compositor->xwayland_manager;
+
+      surface->applied_state.scale = meta_xwayland_get_effective_scale (xwayland_manager);
+#endif
+    }
 }
 
 void

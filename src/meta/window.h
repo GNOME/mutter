@@ -425,3 +425,13 @@ MetaWindowClientType meta_window_get_client_type (MetaWindow *window);
 
 META_EXPORT
 gboolean meta_window_has_pointer (MetaWindow *window);
+
+META_EXPORT
+void meta_window_stage_to_protocol_rect (MetaWindow         *window,
+                                         const MtkRectangle *stage_rect,
+                                         MtkRectangle       *protocol_rect);
+
+META_EXPORT
+void meta_window_protocol_to_stage_rect (MetaWindow *window,
+                                         const MtkRectangle *protocol_rect,
+                                         MtkRectangle       *stage_rect);

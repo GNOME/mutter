@@ -616,6 +616,18 @@ struct _MetaWindowClass
 
   gboolean (*set_transient_for) (MetaWindow *window,
                                  MetaWindow *parent);
+
+  void (*stage_to_protocol) (MetaWindow *window,
+                             int         stage_x,
+                             int         stage_y,
+                             int        *protocol_x,
+                             int        *protocol_y);
+  void (*protocol_to_stage) (MetaWindow          *window,
+                             int                  protocol_x,
+                             int                  protocol_y,
+                             int                 *stage_x,
+                             int                 *stage_y,
+                             MtkRoundingStrategy  rounding_strategy);
 };
 
 /* These differ from window->has_foo_func in that they consider
@@ -884,3 +896,16 @@ meta_window_should_attach_to_parent (MetaWindow *window);
  */
 void meta_window_set_normal_hints (MetaWindow    *window,
                                    MetaSizeHints *hints);
+
+void meta_window_stage_to_protocol_point (MetaWindow *window,
+                                          int         stage_x,
+                                          int         stage_y,
+                                          int        *protocol_x,
+                                          int        *protocol_y);
+
+void meta_window_protocol_to_stage_point (MetaWindow          *window,
+                                          int                  protocol_x,
+                                          int                  protocol_y,
+                                          int                 *stage_x,
+                                          int                 *stage_y,
+                                          MtkRoundingStrategy  rounding_strategy);

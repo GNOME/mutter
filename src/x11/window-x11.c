@@ -112,6 +112,56 @@ meta_window_x11_get_private (MetaWindowX11 *window_x11)
 }
 
 static void
+meta_window_x11_stage_to_protocol (MetaWindow *window,
+                                   int         stage_x,
+                                   int         stage_y,
+                                   int        *protocol_x,
+                                   int        *protocol_y)
+{
+  if (protocol_x)
+    *protocol_x = stage_x;
+  if (protocol_y)
+    *protocol_y = stage_y;
+}
+
+static void
+meta_window_x11_protocol_to_stage (MetaWindow          *window,
+                                   int                  protocol_x,
+                                   int                  protocol_y,
+                                   int                 *stage_x,
+                                   int                 *stage_y,
+                                   MtkRoundingStrategy  rounding_strategy)
+{
+  if (stage_x)
+    *stage_x = protocol_x;
+  if (stage_y)
+    *stage_y = protocol_y;
+}
+
+static MtkRectangle *
+protocol_rects_to_stage_rects (MetaWindow *window,
+                               size_t      n_rects,
+                               XRectangle *protocol_rects)
+{
+  MtkRectangle *rects;
+  size_t i;
+
+  rects = g_new0 (MtkRectangle, n_rects);
+  for (i = 0; i < n_rects; i++)
+    {
+      MtkRectangle protocol_rect =
+        MTK_RECTANGLE_INIT (protocol_rects[i].x,
+                            protocol_rects[i].y,
+                            protocol_rects[i].width,
+                            protocol_rects[i].height);
+
+      meta_window_protocol_to_stage_rect (window, &protocol_rect, &rects[i]);
+    }
+
+  return rects;
+}
+
+static void
 send_icccm_message (MetaWindow *window,
                     Atom        atom,
                     guint32     timestamp)
@@ -255,8 +305,11 @@ send_configure_notify (MetaWindow *window)
   event.xconfigure.display = x11_display->xdisplay;
   event.xconfigure.event = priv->xwindow;
   event.xconfigure.window = priv->xwindow;
-  event.xconfigure.x = priv->client_rect.x - priv->border_width;
-  event.xconfigure.y = priv->client_rect.y - priv->border_width;
+  meta_window_stage_to_protocol_point (window,
+                                       priv->client_rect.x - priv->border_width,
+                                       priv->client_rect.y - priv->border_width,
+                                       &event.xconfigure.x,
+                                       &event.xconfigure.y);
   if (priv->frame)
     {
       if (window->withdrawn)
@@ -268,19 +321,36 @@ send_configure_notify (MetaWindow *window)
 
           meta_frame_calc_borders (priv->frame, &borders);
 
-          event.xconfigure.x = priv->frame->rect.x + borders.invisible.left;
-          event.xconfigure.y = priv->frame->rect.y + borders.invisible.top;
+          meta_window_stage_to_protocol_point (window,
+                                               (priv->frame->rect.x +
+                                                borders.invisible.left),
+                                               (priv->frame->rect.y +
+                                                borders.invisible.top),
+                                               &event.xconfigure.x,
+                                               &event.xconfigure.y);
         }
       else
         {
+          int dx, dy;
+
           /* Need to be in root window coordinates */
-          event.xconfigure.x += priv->frame->rect.x;
-          event.xconfigure.y += priv->frame->rect.y;
+          meta_window_stage_to_protocol_point (window,
+                                               priv->frame->rect.x,
+                                               priv->frame->rect.y,
+                                               &dx,
+                                               &dy);
+          event.xconfigure.x += dx;
+          event.xconfigure.y += dy;
         }
     }
-  event.xconfigure.width = priv->client_rect.width;
-  event.xconfigure.height = priv->client_rect.height;
-  event.xconfigure.border_width = priv->border_width; /* requested not actual */
+  meta_window_stage_to_protocol_point (window,
+                                       priv->client_rect.width,
+                                       priv->client_rect.height,
+                                       &event.xconfigure.width,
+                                       &event.xconfigure.height);
+  meta_window_stage_to_protocol_point (window,
+                                       priv->border_width, 0,
+                                       &event.xconfigure.border_width, NULL);
   event.xconfigure.above = None; /* FIXME */
   event.xconfigure.override_redirect = False;
 
@@ -1150,20 +1220,27 @@ update_net_frame_extents (MetaWindow *window)
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
   MetaX11Display *x11_display = window->display->x11_display;
-
+  int left, right, top, bottom;
   unsigned long data[4];
   MetaFrameBorders borders;
   Window xwindow = meta_window_x11_get_xwindow (window);
 
   meta_frame_calc_borders (priv->frame, &borders);
-  /* Left */
-  data[0] = borders.visible.left;
-  /* Right */
-  data[1] = borders.visible.right;
-  /* Top */
-  data[2] = borders.visible.top;
-  /* Bottom */
-  data[3] = borders.visible.bottom;
+  meta_window_stage_to_protocol_point (window,
+                                       borders.visible.left,
+                                       borders.visible.right,
+                                       &left,
+                                       &right);
+  meta_window_stage_to_protocol_point (window,
+                                       borders.visible.top,
+                                       borders.visible.bottom,
+                                       &top,
+                                       &bottom);
+
+  data[0] = left;
+  data[1] = right;
+  data[2] = top;
+  data[3] = bottom;
 
   meta_topic (META_DEBUG_GEOMETRY,
               "Setting _NET_FRAME_EXTENTS on managed window 0x%lx "
@@ -1321,6 +1398,7 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
   MetaFrameBorders borders;
   MtkRectangle client_rect;
+  MtkRectangle values_rect;
   int size_dx, size_dy;
   XWindowChanges values;
   unsigned int mask;
@@ -1495,11 +1573,12 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
   else
     configure_frame_first = size_dx + size_dy >= 0;
 
+  meta_window_stage_to_protocol_rect (window, &client_rect, &values_rect);
   values.border_width = 0;
-  values.x = client_rect.x;
-  values.y = client_rect.y;
-  values.width = client_rect.width;
-  values.height = client_rect.height;
+  values.x = values_rect.x;
+  values.y = values_rect.y;
+  values.width = values_rect.width;
+  values.height = values_rect.height;
 
   mask = 0;
   if (is_configure_request && priv->border_width != 0)
@@ -1603,6 +1682,17 @@ meta_window_x11_update_struts (MetaWindow *window)
               strut_begin = struts[4+(i*2)];
               strut_end   = struts[4+(i*2)+1];
 
+              meta_window_protocol_to_stage_point (window,
+                                                   strut_begin, 0,
+                                                   &strut_begin, NULL,
+                                                   MTK_ROUNDING_STRATEGY_SHRINK);
+              meta_window_protocol_to_stage_point (window,
+                                                   strut_end,
+                                                   thickness,
+                                                   &strut_end,
+                                                   &thickness,
+                                                   MTK_ROUNDING_STRATEGY_GROW);
+
               temp = g_new0 (MetaStrut, 1);
               temp->side = 1 << i; /* See MetaSide def.  Matches nicely, eh? */
               meta_display_get_size (window->display,
@@ -1666,6 +1756,11 @@ meta_window_x11_update_struts (MetaWindow *window)
               thickness = struts[i];
               if (thickness == 0)
                 continue;
+
+              meta_window_protocol_to_stage_point (window,
+                                                   thickness, 0,
+                                                   &thickness, NULL,
+                                                   MTK_ROUNDING_STRATEGY_GROW);
 
               temp = g_new0 (MetaStrut, 1);
               temp->side = 1 << i;
@@ -2060,9 +2155,10 @@ static void
 meta_window_x11_constructed (GObject *object)
 {
   MetaWindow *window = META_WINDOW (object);
-  MetaWindowX11 *x11_window = META_WINDOW_X11 (object);
-  MetaWindowX11Private *priv = meta_window_x11_get_instance_private (x11_window);
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (object);
+  MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
   XWindowAttributes attrs = priv->attributes;
+  MtkRectangle rect;
 
   meta_verbose ("attrs->map_state = %d (%s)",
                 attrs.map_state,
@@ -2077,16 +2173,16 @@ meta_window_x11_constructed (GObject *object)
   window->client_type = META_WINDOW_CLIENT_TYPE_X11;
   window->override_redirect = attrs.override_redirect;
 
-  window->rect.x = attrs.x;
-  window->rect.y = attrs.y;
-  window->rect.width = attrs.width;
-  window->rect.height = attrs.height;
+  rect = MTK_RECTANGLE_INIT (attrs.x, attrs.y, attrs.width, attrs.height);
+  meta_window_protocol_to_stage_rect (window, &rect, &rect);
+
+  window->rect = rect;
 
   /* size_hints are the "request" */
-  window->size_hints.x = attrs.x;
-  window->size_hints.y = attrs.y;
-  window->size_hints.width = attrs.width;
-  window->size_hints.height = attrs.height;
+  window->size_hints.x = rect.x;
+  window->size_hints.y = rect.y;
+  window->size_hints.width = rect.width;
+  window->size_hints.height = rect.height;
 
   window->depth = attrs.depth;
   priv->xvisual = attrs.visual;
@@ -2097,11 +2193,12 @@ meta_window_x11_constructed (GObject *object)
   priv->frame = NULL;
   window->decorated = TRUE;
   window->hidden = FALSE;
-  priv->border_width = attrs.border_width;
   priv->xclient_leader = None;
 
-  priv->keys_grabbed = FALSE;
-  priv->grab_on_frame = FALSE;
+  meta_window_protocol_to_stage_point (window,
+                                       attrs.border_width, 0,
+                                       &priv->border_width, NULL,
+                                       MTK_ROUNDING_STRATEGY_GROW);
 
   g_signal_connect (window, "notify::decorated",
                     G_CALLBACK (meta_window_x11_update_input_region),
@@ -2210,6 +2307,8 @@ meta_window_x11_class_init (MetaWindowX11Class *klass)
   window_class->calculate_layer = meta_window_x11_calculate_layer;
   window_class->is_focus_async = meta_window_x11_is_focus_async;
   window_class->set_transient_for = meta_window_x11_set_transient_for;
+  window_class->stage_to_protocol = meta_window_x11_stage_to_protocol;
+  window_class->protocol_to_stage = meta_window_x11_protocol_to_stage;
 
   klass->freeze_commits = meta_window_x11_impl_freeze_commits;
   klass->thaw_commits = meta_window_x11_impl_thaw_commits;
@@ -2359,24 +2458,6 @@ meta_window_x11_set_net_wm_state (MetaWindow *window)
   update_gtk_edge_constraints (window);
 }
 
-static MtkRegion *
-region_create_from_x_rectangles (const XRectangle *rects,
-                                 int               n_rects)
-{
-  int i;
-  MtkRectangle *mtk_rects = g_newa (MtkRectangle, n_rects);
-
-  for (i = 0; i < n_rects; i++)
-    {
-      mtk_rects[i].x = rects[i].x;
-      mtk_rects[i].y = rects[i].y;
-      mtk_rects[i].width = rects[i].width;
-      mtk_rects[i].height = rects[i].height;
-    }
-
-  return mtk_region_create_rectangles (mtk_rects, n_rects);
-}
-
 static void
 meta_window_set_input_region (MetaWindow *window,
                               MtkRegion  *region)
@@ -2449,15 +2530,16 @@ meta_window_x11_update_input_region (MetaWindow *window)
     {
       /* Translate the set of XShape rectangles that we
        * get from the X server to a MtkRegion. */
-      XRectangle *rects = NULL;
+      XRectangle *protocol_rects = NULL;
+      g_autoptr (MtkRectangle) rects = NULL;
       int n_rects = -1, ordering;
 
       mtk_x11_error_trap_push (x11_display->xdisplay);
-      rects = XShapeGetRectangles (x11_display->xdisplay,
-                                   xwindow,
-                                   ShapeInput,
-                                   &n_rects,
-                                   &ordering);
+      protocol_rects = XShapeGetRectangles (x11_display->xdisplay,
+                                            xwindow,
+                                            ShapeInput,
+                                            &n_rects,
+                                            &ordering);
       mtk_x11_error_trap_pop (x11_display->xdisplay);
 
       /* XXX: The X Shape specification is quite unfortunately specified.
@@ -2472,6 +2554,9 @@ meta_window_x11_update_input_region (MetaWindow *window)
        * It would be great to have a less-broken extension for this, but
        * hey, it's X11!
        */
+
+      if (n_rects >= 1)
+        rects = protocol_rects_to_stage_rects (window, n_rects, protocol_rects);
 
       if (n_rects == -1)
         {
@@ -2496,10 +2581,10 @@ meta_window_x11_update_input_region (MetaWindow *window)
       else
         {
           /* Window has a custom shape. */
-          region = region_create_from_x_rectangles (rects, n_rects);
+          region = mtk_region_create_rectangles (rects, n_rects);
         }
 
-      meta_XFree (rects);
+      meta_XFree (protocol_rects);
     }
 
   if (region != NULL)
@@ -2546,7 +2631,7 @@ meta_window_x11_update_shape_region (MetaWindow *window)
     {
       /* Translate the set of XShape rectangles that we
        * get from the X server to a MtkRegion. */
-      XRectangle *rects = NULL;
+      XRectangle *protocol_rects = NULL;
       int n_rects, ordering;
 
       int x_bounding, y_bounding, x_clip, y_clip;
@@ -2562,18 +2647,22 @@ meta_window_x11_update_shape_region (MetaWindow *window)
 
       if (bounding_shaped)
         {
-          rects = XShapeGetRectangles (x11_display->xdisplay,
-                                       priv->xwindow,
-                                       ShapeBounding,
-                                       &n_rects,
-                                       &ordering);
+          protocol_rects = XShapeGetRectangles (x11_display->xdisplay,
+                                                priv->xwindow,
+                                                ShapeBounding,
+                                                &n_rects,
+                                                &ordering);
         }
       mtk_x11_error_trap_pop (x11_display->xdisplay);
 
-      if (rects)
+      if (protocol_rects)
         {
-          region = region_create_from_x_rectangles (rects, n_rects);
-          XFree (rects);
+          g_autoptr (MtkRectangle) rects = NULL;
+
+          rects = protocol_rects_to_stage_rects (window, n_rects, protocol_rects);
+          region = mtk_region_create_rectangles (rects, n_rects);
+
+          XFree (protocol_rects);
         }
     }
 
@@ -2959,6 +3048,7 @@ meta_window_x11_configure_request (MetaWindow *window,
 {
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
+  MtkRectangle rect;
 
   /* Note that x, y is the corner of the window border,
    * and width, height is the size of the window inside
@@ -2967,15 +3057,24 @@ meta_window_x11_configure_request (MetaWindow *window,
    * requested border here.
    */
   if (event->xconfigurerequest.value_mask & CWBorderWidth)
-    priv->border_width = event->xconfigurerequest.border_width;
+    {
+      meta_window_protocol_to_stage_point (window,
+                                           event->xconfigurerequest.border_width, 0,
+                                           &priv->border_width, NULL,
+                                           MTK_ROUNDING_STRATEGY_GROW);
+    }
 
-  meta_window_move_resize_request(window,
-                                  event->xconfigurerequest.value_mask,
-                                  window->size_hints.win_gravity,
-                                  event->xconfigurerequest.x,
-                                  event->xconfigurerequest.y,
-                                  event->xconfigurerequest.width,
-                                  event->xconfigurerequest.height);
+  rect = MTK_RECTANGLE_INIT (event->xconfigurerequest.x, event->xconfigurerequest.y,
+                             event->xconfigurerequest.width, event->xconfigurerequest.height);
+  meta_window_protocol_to_stage_rect (window, &rect, &rect);
+
+  meta_window_move_resize_request (window,
+                                   event->xconfigurerequest.value_mask,
+                                   window->size_hints.win_gravity,
+                                   rect.x,
+                                   rect.y,
+                                   rect.width,
+                                   rect.height);
 
   /* Handle stacking. We only handle raises/lowers, mostly because
    * stack.c really can't deal with anything else.  I guess we'll fix
@@ -3471,8 +3570,12 @@ meta_window_x11_client_message (MetaWindow *window,
       guint32 timestamp;
       MetaWindowDrag *window_drag;
 
-      x_root = event->xclient.data.l[0];
-      y_root = event->xclient.data.l[1];
+      meta_window_protocol_to_stage_point (window,
+                                           event->xclient.data.l[0],
+                                           event->xclient.data.l[1],
+                                           &x_root,
+                                           &y_root,
+                                           MTK_ROUNDING_STRATEGY_SHRINK);
       action = event->xclient.data.l[2];
       button = event->xclient.data.l[3];
 
@@ -3636,6 +3739,7 @@ meta_window_x11_client_message (MetaWindow *window,
     {
       MetaGravity gravity;
       guint value_mask;
+      MtkRectangle rect;
 
       gravity = (MetaGravity) (event->xclient.data.l[0] & 0xff);
       value_mask = (event->xclient.data.l[0] & 0xf00) >> 8;
@@ -3644,13 +3748,19 @@ meta_window_x11_client_message (MetaWindow *window,
       if (gravity == 0)
         gravity = window->size_hints.win_gravity;
 
+      rect = MTK_RECTANGLE_INIT (event->xclient.data.l[1],
+                                 event->xclient.data.l[2],
+                                 event->xclient.data.l[3],
+                                 event->xclient.data.l[4]);
+      meta_window_protocol_to_stage_rect (window, &rect, &rect);
+
       meta_window_move_resize_request(window,
                                       value_mask,
                                       gravity,
-                                      event->xclient.data.l[1],  /* x */
-                                      event->xclient.data.l[2],  /* y */
-                                      event->xclient.data.l[3],  /* width */
-                                      event->xclient.data.l[4]); /* height */
+                                      rect.x,
+                                      rect.y,
+                                      rect.width,
+                                      rect.height);
     }
   else if (event->xclient.message_type ==
            x11_display->atom__NET_ACTIVE_WINDOW &&
@@ -3707,11 +3817,14 @@ meta_window_x11_client_message (MetaWindow *window,
   else if (event->xclient.message_type ==
            x11_display->atom__GTK_SHOW_WINDOW_MENU)
     {
-      gulong x, y;
+      int x, y;
 
       /* l[0] is device_id, which we don't use */
-      x = event->xclient.data.l[1];
-      y = event->xclient.data.l[2];
+      meta_window_protocol_to_stage_point (window,
+                                           event->xclient.data.l[1],
+                                           event->xclient.data.l[2],
+                                           &x, &y,
+                                           MTK_ROUNDING_STRATEGY_SHRINK);
 
       meta_window_show_menu (window, META_WINDOW_MENU_WM, x, y);
     }
@@ -4237,10 +4350,12 @@ meta_window_x11_configure_notify (MetaWindow      *window,
   g_assert (window->override_redirect);
   g_assert (priv->frame == NULL);
 
-  window->rect.x = event->x;
-  window->rect.y = event->y;
-  window->rect.width = event->width;
-  window->rect.height = event->height;
+  meta_window_protocol_to_stage_rect (window,
+                                      &MTK_RECTANGLE_INIT (event->x,
+                                                           event->y,
+                                                           event->width,
+                                                           event->height),
+                                      &window->rect);
 
   priv->client_rect = window->rect;
   window->buffer_rect = window->rect;

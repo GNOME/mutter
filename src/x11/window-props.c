@@ -305,10 +305,11 @@ reload_icon_geometry (MetaWindow    *window,
         {
           MtkRectangle geometry;
 
-          geometry.x = (int)value->v.cardinal_list.cardinals[0];
-          geometry.y = (int)value->v.cardinal_list.cardinals[1];
-          geometry.width = (int)value->v.cardinal_list.cardinals[2];
-          geometry.height = (int)value->v.cardinal_list.cardinals[3];
+          geometry = MTK_RECTANGLE_INIT (value->v.cardinal_list.cardinals[0],
+                                         value->v.cardinal_list.cardinals[1],
+                                         value->v.cardinal_list.cardinals[2],
+                                         value->v.cardinal_list.cardinals[3]);
+          meta_window_protocol_to_stage_rect (window, &geometry, &geometry);
 
           meta_window_set_icon_geometry (window, &geometry);
         }
@@ -373,11 +374,27 @@ reload_gtk_frame_extents (MetaWindow    *window,
         }
       else
         {
+          int left, right, top, bottom;
           MetaFrameBorder extents;
-          extents.left   = (int)value->v.cardinal_list.cardinals[0];
-          extents.right  = (int)value->v.cardinal_list.cardinals[1];
-          extents.top    = (int)value->v.cardinal_list.cardinals[2];
-          extents.bottom = (int)value->v.cardinal_list.cardinals[3];
+
+          meta_window_protocol_to_stage_point (window,
+                                               value->v.cardinal_list.cardinals[0],
+                                               value->v.cardinal_list.cardinals[1],
+                                               &left,
+                                               &right,
+                                               MTK_ROUNDING_STRATEGY_GROW);
+          meta_window_protocol_to_stage_point (window,
+                                               value->v.cardinal_list.cardinals[2],
+                                               value->v.cardinal_list.cardinals[3],
+                                               &top,
+                                               &bottom,
+                                               MTK_ROUNDING_STRATEGY_GROW);
+
+          extents.left = left;
+          extents.right = right;
+          extents.top = top;
+          extents.bottom = bottom;
+
           meta_window_set_custom_frame_extents (window, &extents, initial);
         }
     }
@@ -680,13 +697,15 @@ reload_opaque_region (MetaWindow    *window,
       i = 0;
       while (i < nitems)
         {
+          MtkRectangle region_rect = MTK_RECTANGLE_INIT (region[i + 0],
+                                                         region[i + 1],
+                                                         region[i + 2],
+                                                         region[i + 3]);
           MtkRectangle *rect = &rects[rect_index];
 
-          rect->x = region[i++];
-          rect->y = region[i++];
-          rect->width = region[i++];
-          rect->height = region[i++];
+          meta_window_protocol_to_stage_rect (window, &region_rect, rect);
 
+          i += 4;
           rect_index++;
         }
 
@@ -1220,6 +1239,50 @@ hints_have_changed (const MetaSizeHints *old,
 }
 
 static void
+scale_size_hints (MetaWindow    *window,
+                  MetaSizeHints *hints)
+{
+  meta_window_protocol_to_stage_point (window,
+                                       hints->x, hints->y,
+                                       &hints->x, &hints->y,
+                                       MTK_ROUNDING_STRATEGY_SHRINK);
+  meta_window_protocol_to_stage_point (window,
+                                       hints->width, hints->height,
+                                       &hints->width, &hints->height,
+                                       MTK_ROUNDING_STRATEGY_GROW);
+
+  meta_window_protocol_to_stage_point (window,
+                                       hints->min_width, hints->min_height,
+                                       &hints->min_width, &hints->min_height,
+                                       MTK_ROUNDING_STRATEGY_GROW);
+
+  meta_window_protocol_to_stage_point (window,
+                                       hints->max_width, hints->max_height,
+                                       &hints->max_width, &hints->max_height,
+                                       MTK_ROUNDING_STRATEGY_GROW);
+
+  meta_window_protocol_to_stage_point (window,
+                                       hints->width_inc, hints->height_inc,
+                                       &hints->width_inc, &hints->height_inc,
+                                       MTK_ROUNDING_STRATEGY_ROUND);
+
+  meta_window_protocol_to_stage_point (window,
+                                       hints->min_aspect.x, hints->min_aspect.y,
+                                       &hints->min_aspect.x, &hints->min_aspect.y,
+                                       MTK_ROUNDING_STRATEGY_ROUND);
+
+  meta_window_protocol_to_stage_point (window,
+                                       hints->max_aspect.x, hints->max_aspect.y,
+                                       &hints->max_aspect.x, &hints->max_aspect.y,
+                                       MTK_ROUNDING_STRATEGY_ROUND);
+
+  meta_window_protocol_to_stage_point (window,
+                                       hints->base_width, hints->base_height,
+                                       &hints->base_width, &hints->base_height,
+                                       MTK_ROUNDING_STRATEGY_GROW);
+}
+
+static void
 reload_normal_hints (MetaWindow    *window,
                      MetaPropValue *value,
                      gboolean       initial)
@@ -1233,8 +1296,18 @@ reload_normal_hints (MetaWindow    *window,
 
       old_hints = window->size_hints;
 
-      meta_window_set_normal_hints (window,
-                                    (MetaSizeHints*)value->v.size_hints.hints);
+      if (value->v.size_hints.hints)
+        {
+          MetaSizeHints new_hints;
+
+          new_hints = *(MetaSizeHints *) value->v.size_hints.hints;
+          scale_size_hints (window, &new_hints);
+          meta_window_set_normal_hints (window, &new_hints);
+        }
+      else
+        {
+          meta_window_set_normal_hints (window, NULL);
+        }
 
       hints_have_differences = hints_have_changed (&old_hints,
                                                    &window->size_hints);

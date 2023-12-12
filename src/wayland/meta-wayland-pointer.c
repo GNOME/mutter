@@ -1250,6 +1250,20 @@ pointer_set_cursor (struct wl_client *client,
       cursor_surface = META_WAYLAND_CURSOR_SURFACE (surface->role);
       meta_wayland_cursor_surface_set_renderer (cursor_surface,
                                                 cursor_renderer);
+
+#ifdef HAVE_XWAYLAND
+      if (meta_wayland_surface_is_xwayland (surface))
+        {
+          MetaXWaylandManager *xwayland_manager =
+            &surface->compositor->xwayland_manager;
+          int scale;
+
+          scale = meta_xwayland_get_effective_scale (xwayland_manager);
+          hot_x = (int32_t) round (hot_x / (double) scale);
+          hot_y = (int32_t) round (hot_y / (double) scale);
+        }
+#endif
+
       meta_wayland_cursor_surface_set_hotspot (cursor_surface,
                                                hot_x, hot_y);
 
