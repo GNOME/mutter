@@ -39,6 +39,11 @@ typedef struct _WaylandDisplay
   GHashTable *properties;
 } WaylandDisplay;
 
+#define WAYLAND_TYPE_DISPLAY (wayland_display_get_type ())
+G_DECLARE_FINAL_TYPE (WaylandDisplay, wayland_display,
+                      WAYLAND, DISPLAY,
+                      GObject)
+
 typedef struct _WaylandSurface
 {
   WaylandDisplay *display;
@@ -54,10 +59,6 @@ typedef struct _WaylandSurface
 
   uint32_t color;
 } WaylandSurface;
-
-G_DECLARE_FINAL_TYPE (WaylandDisplay, wayland_display,
-                      WAYLAND, DISPLAY,
-                      GObject)
 
 int create_anonymous_file (off_t size);
 

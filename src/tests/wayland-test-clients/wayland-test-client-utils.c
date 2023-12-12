@@ -43,7 +43,9 @@ static guint signals[N_SIGNALS];
 static struct wl_callback *effects_complete_callback;
 static struct wl_callback *view_verification_callback;
 
-G_DEFINE_TYPE (WaylandDisplay, wayland_display, G_TYPE_OBJECT)
+G_DEFINE_TYPE (WaylandDisplay,
+               wayland_display,
+               G_TYPE_OBJECT)
 
 static int
 create_tmpfile_cloexec (char *tmpname)
@@ -232,7 +234,7 @@ wayland_display_new_full (WaylandDisplayCapabilities  capabilities,
 
   g_assert_nonnull (wayland_display);
 
-  display = g_object_new (wayland_display_get_type (), NULL);
+  display = g_object_new (WAYLAND_TYPE_DISPLAY, NULL);
 
   display->capabilities = capabilities;
   display->properties = g_hash_table_new_full (g_str_hash, g_str_equal,
