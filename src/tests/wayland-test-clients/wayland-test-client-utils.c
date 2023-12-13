@@ -1115,6 +1115,12 @@ alloc_dmabuf_ycbcr (WaylandBuffer *buffer,
 
   switch (priv->format)
     {
+    case DRM_FORMAT_YUYV:
+      dmabuf->n_planes = 1;
+      formats[0] = DRM_FORMAT_ARGB8888;
+      hsub[0] = 2;
+      vsub[0] = 1;
+      break;
     case DRM_FORMAT_NV12:
       dmabuf->n_planes = 2;
       formats[0] = DRM_FORMAT_R8;
@@ -1249,8 +1255,8 @@ wayland_buffer_dmabuf_allocate (WaylandBuffer *buffer,
     {
     case DRM_FORMAT_ARGB8888:
     case DRM_FORMAT_XRGB8888:
-    case DRM_FORMAT_YUYV:
       return alloc_dmabuf_simple (buffer, n_modifiers, modifiers, bo_flags);
+    case DRM_FORMAT_YUYV:
     case DRM_FORMAT_NV12:
     case DRM_FORMAT_P010:
     case DRM_FORMAT_YUV420:
