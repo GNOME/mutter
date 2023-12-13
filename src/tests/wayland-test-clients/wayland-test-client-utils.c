@@ -1097,8 +1097,8 @@ alloc_dmabuf_simple (WaylandBuffer *buffer,
 }
 
 static gboolean
-alloc_dmabuf_ycbcr (WaylandBuffer *buffer,
-                    uint32_t       bo_flags)
+alloc_dmabuf_complex (WaylandBuffer *buffer,
+                      uint32_t       bo_flags)
 {
   WaylandBufferDmabuf *dmabuf = WAYLAND_BUFFER_DMABUF (buffer);
   WaylandBufferPrivate *priv = wayland_buffer_get_instance_private (buffer);
@@ -1151,6 +1151,8 @@ alloc_dmabuf_ycbcr (WaylandBuffer *buffer,
       vsub[1] = 2;
       hsub[2] = 2;
       break;
+    default:
+      return FALSE;
     }
 
   wl_params = zwp_linux_dmabuf_v1_create_params (wl_dmabuf);
@@ -1240,6 +1242,9 @@ wayland_buffer_dmabuf_allocate (WaylandBuffer *buffer,
                                         GUINT_TO_POINTER (priv->format));
   g_assert_nonnull (dma_buf_format);
 
+  if (alloc_dmabuf_simple (buffer, n_modifiers, modifiers, bo_flags))
+    return TRUE;
+
   may_alloc_linear = !modifiers;
   for (i = 0; i < n_modifiers; i++)
     {
@@ -1251,23 +1256,10 @@ wayland_buffer_dmabuf_allocate (WaylandBuffer *buffer,
         }
     }
 
-  switch (priv->format)
-    {
-    case DRM_FORMAT_ARGB8888:
-    case DRM_FORMAT_XRGB8888:
-      return alloc_dmabuf_simple (buffer, n_modifiers, modifiers, bo_flags);
-    case DRM_FORMAT_YUYV:
-    case DRM_FORMAT_NV12:
-    case DRM_FORMAT_P010:
-    case DRM_FORMAT_YUV420:
-      if (!may_alloc_linear)
-        return FALSE;
-      return alloc_dmabuf_ycbcr (buffer, bo_flags);
-    default:
-      g_assert_not_reached ();
-    }
+  if (!may_alloc_linear)
+    return FALSE;
 
-  return FALSE;
+  return alloc_dmabuf_complex (buffer, bo_flags);
 }
 
 static void *
