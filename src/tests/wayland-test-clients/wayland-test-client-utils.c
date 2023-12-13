@@ -973,7 +973,7 @@ wayland_buffer_shm_allocate (WaylandBuffer *buffer,
   pool = wl_shm_create_pool (display->shm, fd, shm->size);
   priv->buffer = wl_shm_pool_create_buffer (pool, 0,
                                             priv->width, priv->height,
-                                            shm->size / priv->height,
+                                            shm->stride[0],
                                             shm_format);
   wl_shm_pool_destroy (pool);
 
