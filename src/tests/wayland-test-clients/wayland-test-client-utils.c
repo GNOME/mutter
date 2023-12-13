@@ -932,7 +932,7 @@ wayland_buffer_shm_allocate (WaylandBuffer *buffer,
       hsub[2] = 2;
       vsub[0] = 1;
       vsub[1] = 2;
-      hsub[2] = 2;
+      vsub[2] = 2;
       break;
     default:
       g_assert_not_reached ();
@@ -1166,7 +1166,7 @@ alloc_dmabuf_complex (WaylandBuffer *buffer,
       hsub[2] = 2;
       vsub[0] = 1;
       vsub[1] = 2;
-      hsub[2] = 2;
+      vsub[2] = 2;
       break;
     default:
       return FALSE;
