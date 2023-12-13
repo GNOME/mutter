@@ -33,7 +33,3 @@
  */
 #define CALLY_GET_CLUTTER_ACTOR(cally_object) \
   (CLUTTER_ACTOR (atk_gobject_accessible_get_object (ATK_GOBJECT_ACCESSIBLE (cally_object))))
-
-void _cally_actor_get_top_level_origin (ClutterActor *actor,
-                                        gint         *x,
-                                        gint         *y);

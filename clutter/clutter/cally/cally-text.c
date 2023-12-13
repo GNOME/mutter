@@ -1423,7 +1423,7 @@ static void cally_text_get_character_extents (AtkText *text,
   ClutterActor    *actor        = NULL;
   ClutterText     *clutter_text = NULL;
   gint x = 0, y = 0, width = 0, height = 0;
-  gint index, x_window, y_window, x_toplevel, y_toplevel;
+  gint index, x_window, y_window;
   gint x_layout, y_layout;
   PangoLayout *layout;
   PangoRectangle extents;
@@ -1459,13 +1459,6 @@ static void cally_text_get_character_extents (AtkText *text,
   y = (extents.y / PANGO_SCALE) + y_layout + y_window;
   width = extents.width / PANGO_SCALE;
   height = extents.height / PANGO_SCALE;
-
-  if (coords == ATK_XY_SCREEN)
-    {
-      _cally_actor_get_top_level_origin (actor, &x_toplevel, &y_toplevel);
-      x += x_toplevel;
-      y += y_toplevel;
-    }
 
 done:
   if (widthp)
@@ -2281,7 +2274,7 @@ _cally_misc_get_index_at_point (ClutterText *clutter_text,
                                 gint         y,
                                 AtkCoordType coords)
 {
-  gint index, x_window, y_window, x_toplevel, y_toplevel;
+  gint index, x_window, y_window;
   gint x_temp, y_temp;
   gboolean ret;
   graphene_point3d_t verts[4];
@@ -2296,14 +2289,6 @@ _cally_misc_get_index_at_point (ClutterText *clutter_text,
 
   x_temp =  x - x_layout - x_window;
   y_temp =  y - y_layout - y_window;
-
-  if (coords == ATK_XY_SCREEN)
-    {
-      _cally_actor_get_top_level_origin (CLUTTER_ACTOR (clutter_text), &x_toplevel,
-                                         &y_toplevel);
-      x_temp -= x_toplevel;
-      y_temp -= y_toplevel;
-    }
 
   layout = clutter_text_get_layout (clutter_text);
   ret = pango_layout_xy_to_index (layout,

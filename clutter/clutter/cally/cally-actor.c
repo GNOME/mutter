@@ -647,7 +647,6 @@ cally_actor_get_extents (AtkComponent *component,
 {
   CallyActor   *cally_actor = NULL;
   ClutterActor *actor      = NULL;
-  gint          top_level_x, top_level_y;
   gfloat        f_width, f_height;
   graphene_point3d_t verts[4];
   ClutterActor  *stage = NULL;
@@ -673,22 +672,6 @@ cally_actor_get_extents (AtkComponent *component,
   *y = verts[0].y;
   *width = ceilf (f_width);
   *height = ceilf (f_height);
-
-  /* In the ATK_XY_WINDOW case, we consider the stage as the
-   * "top-level-window"
-   *
-   * http://library.gnome.org/devel/atk/stable/AtkUtil.html#AtkCoordType
-   */
-
-  if (coord_type == ATK_XY_SCREEN)
-    {
-      _cally_actor_get_top_level_origin (actor, &top_level_x, &top_level_y);
-
-      *x += top_level_x;
-      *y += top_level_y;
-    }
-
-  return;
 }
 
 static gint
@@ -723,25 +706,6 @@ cally_actor_grab_focus (AtkComponent    *component)
                                actor);
 
   return TRUE;
-}
-
-/*
- *
- * This gets the top level origin, it is, the position of the stage in
- * the global screen. You can see it as the absolute display position
- * of the stage. This is 0,0 for a compositor.
- */
-void
-_cally_actor_get_top_level_origin (ClutterActor *actor,
-                                   gint         *xp,
-                                   gint         *yp)
-{
-  /* default values */
-  if (xp)
-    *xp = 0;
-
-  if (yp)
-    *yp = 0;
 }
 
 /* AtkAction implementation */
