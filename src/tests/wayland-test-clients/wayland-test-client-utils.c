@@ -1103,11 +1103,11 @@ alloc_dmabuf_simple (WaylandBuffer *buffer,
     }
 
   priv->buffer =
-    zwp_linux_buffer_params_v1_create_immed(wl_params,
-                                            priv->width,
-                                            priv->height,
-                                            priv->format,
-                                            0);
+    zwp_linux_buffer_params_v1_create_immed (wl_params,
+                                             priv->width,
+                                             priv->height,
+                                             priv->format,
+                                             0);
   g_assert_nonnull (priv->buffer);
 
   return TRUE;
@@ -1233,11 +1233,11 @@ alloc_dmabuf_complex (WaylandBuffer *buffer,
     }
 
   priv->buffer =
-    zwp_linux_buffer_params_v1_create_immed(wl_params,
-                                            priv->width,
-                                            priv->height,
-                                            priv->format,
-                                            0);
+    zwp_linux_buffer_params_v1_create_immed (wl_params,
+                                             priv->width,
+                                             priv->height,
+                                             priv->format,
+                                             0);
   g_assert_nonnull (priv->buffer);
 
   return TRUE;
