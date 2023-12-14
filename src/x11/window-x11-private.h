@@ -23,7 +23,6 @@
 #pragma once
 
 #include "core/window-private.h"
-#include "x11/iconcache.h"
 #include "x11/meta-sync-counter.h"
 #include "x11/window-x11.h"
 
@@ -70,7 +69,6 @@ struct _MetaWindowX11Private
    * relative to the frame. */
   MtkRectangle client_rect;
 
-  MetaIconCache icon_cache;
   Pixmap wm_hints_pixmap;
   Pixmap wm_hints_mask;
 

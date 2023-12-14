@@ -546,7 +546,6 @@ meta_window_x11_manage (MetaWindow *window)
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
 
   meta_sync_counter_init (&priv->sync_counter, window, window->xwindow);
-  meta_icon_cache_init (&priv->icon_cache);
 
   meta_x11_display_register_x_window (display->x11_display,
                                       &window->xwindow,

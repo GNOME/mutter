@@ -478,8 +478,6 @@ if have_x11_client
     'x11/group-private.h',
     'x11/group-props.c',
     'x11/group-props.h',
-    'x11/iconcache.c',
-    'x11/iconcache.h',
     'x11/meta-selection-source-x11.c',
     'x11/meta-selection-source-x11-private.h',
     'x11/meta-startup-notification-x11.c',
