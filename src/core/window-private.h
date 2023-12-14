@@ -32,8 +32,6 @@
 #pragma once
 
 #include <X11/Xutil.h>
-#include <cairo.h>
-#include <gdk-pixbuf/gdk-pixbuf.h>
 
 #include "backends/meta-logical-monitor.h"
 #include "clutter/clutter.h"
@@ -583,9 +581,6 @@ struct _MetaWindowClass
                                   gboolean   *skip_taskbar_out,
                                   gboolean   *skip_pager_out);
 
-  cairo_surface_t * (*get_icon) (MetaWindow *window);
-  cairo_surface_t * (*get_mini_icon) (MetaWindow *window);
-
   pid_t (*get_client_pid)        (MetaWindow *window);
   void (*update_main_monitor)    (MetaWindow                   *window,
                                   MetaWindowUpdateMonitorFlags  flags);
@@ -829,10 +824,6 @@ MetaLogicalMonitor * meta_window_get_main_logical_monitor (MetaWindow *window);
 MetaLogicalMonitor * meta_window_get_highest_scale_monitor (MetaWindow *window);
 void meta_window_update_monitor (MetaWindow                   *window,
                                  MetaWindowUpdateMonitorFlags  flags);
-
-cairo_surface_t * meta_window_get_icon (MetaWindow *window);
-
-cairo_surface_t * meta_window_get_mini_icon (MetaWindow *window);
 
 void meta_window_set_urgent (MetaWindow *window,
                              gboolean    urgent);

@@ -287,35 +287,6 @@ reload_net_wm_window_type (MetaWindow    *window,
 }
 
 static void
-reload_icon (MetaWindow    *window,
-             Atom           atom)
-{
-  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
-  MetaWindowX11Private *priv = meta_window_x11_get_private (window_x11);
-
-  meta_icon_cache_property_changed (&priv->icon_cache,
-                                    window->display->x11_display,
-                                    atom);
-  meta_window_x11_queue_update_icon (window_x11);
-}
-
-static void
-reload_net_wm_icon (MetaWindow    *window,
-                    MetaPropValue *value,
-                    gboolean       initial)
-{
-  reload_icon (window, window->display->x11_display->atom__NET_WM_ICON);
-}
-
-static void
-reload_kwm_win_icon (MetaWindow    *window,
-                     MetaPropValue *value,
-                     gboolean       initial)
-{
-  reload_icon (window, window->display->x11_display->atom__KWM_WIN_ICON);
-}
-
-static void
 reload_icon_geometry (MetaWindow    *window,
                       MetaPropValue *value,
                       gboolean       initial)
@@ -1698,7 +1669,6 @@ reload_wm_hints (MetaWindow    *window,
                                     window->display->x11_display,
                                     XA_WM_HINTS);
 
-  meta_window_x11_queue_update_icon (window_x11);
   meta_window_queue (window, META_QUEUE_MOVE_RESIZE);
 }
 
@@ -1951,8 +1921,6 @@ meta_x11_display_init_window_prop_hooks (MetaX11Display *x11_display)
     { x11_display->atom__GTK_MENUBAR_OBJECT_PATH,          META_PROP_VALUE_UTF8,         reload_gtk_menubar_object_path,          LOAD_INIT },
     { x11_display->atom__GTK_FRAME_EXTENTS,                META_PROP_VALUE_CARDINAL_LIST,reload_gtk_frame_extents,                LOAD_INIT },
     { x11_display->atom__NET_WM_USER_TIME_WINDOW, META_PROP_VALUE_WINDOW, reload_net_wm_user_time_window, LOAD_INIT },
-    { x11_display->atom__NET_WM_ICON,      META_PROP_VALUE_INVALID,  reload_net_wm_icon,  NONE },
-    { x11_display->atom__KWM_WIN_ICON,     META_PROP_VALUE_INVALID,  reload_kwm_win_icon, NONE },
     { x11_display->atom__NET_WM_ICON_GEOMETRY, META_PROP_VALUE_CARDINAL_LIST, reload_icon_geometry, LOAD_INIT },
     { x11_display->atom_WM_CLIENT_LEADER,  META_PROP_VALUE_INVALID, complain_about_broken_client, NONE },
     { x11_display->atom_SM_CLIENT_ID,      META_PROP_VALUE_INVALID, complain_about_broken_client, NONE },

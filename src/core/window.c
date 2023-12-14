@@ -186,8 +186,6 @@ enum
   PROP_0,
 
   PROP_TITLE,
-  PROP_ICON,
-  PROP_MINI_ICON,
   PROP_DECORATED,
   PROP_FULLSCREEN,
   PROP_MAXIMIZED_HORIZONTALLY,
@@ -359,12 +357,6 @@ meta_window_get_property(GObject         *object,
     case PROP_TITLE:
       g_value_set_string (value, win->title);
       break;
-    case PROP_ICON:
-      g_value_set_pointer (value, meta_window_get_icon (win));
-      break;
-    case PROP_MINI_ICON:
-      g_value_set_pointer (value, meta_window_get_mini_icon (win));
-      break;
     case PROP_DECORATED:
       g_value_set_boolean (value, win->decorated);
       break;
@@ -499,12 +491,6 @@ meta_window_class_init (MetaWindowClass *klass)
     g_param_spec_string ("title", NULL, NULL,
                          NULL,
                          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
-  obj_props[PROP_ICON] =
-    g_param_spec_pointer ("icon", NULL, NULL,
-                          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
-  obj_props[PROP_MINI_ICON] =
-    g_param_spec_pointer ("mini-icon", NULL, NULL,
-                          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
   obj_props[PROP_DECORATED] =
     g_param_spec_boolean ("decorated", NULL, NULL,
                           TRUE,
@@ -5367,28 +5353,6 @@ meta_window_set_icon_geometry (MetaWindow   *window,
     {
       window->icon_geometry_set = FALSE;
     }
-}
-
-cairo_surface_t *
-meta_window_get_icon (MetaWindow *window)
-{
-  MetaWindowClass *klass = META_WINDOW_GET_CLASS (window);
-
-  if (klass->get_icon)
-    return klass->get_icon (window);
-  else
-    return NULL;
-}
-
-cairo_surface_t *
-meta_window_get_mini_icon (MetaWindow *window)
-{
-  MetaWindowClass *klass = META_WINDOW_GET_CLASS (window);
-
-  if (klass->get_mini_icon)
-    return klass->get_mini_icon (window);
-  else
-    return NULL;
 }
 
 GList*

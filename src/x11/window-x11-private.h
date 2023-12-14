@@ -74,10 +74,6 @@ struct _MetaWindowX11Private
   Pixmap wm_hints_pixmap;
   Pixmap wm_hints_mask;
 
-  cairo_surface_t *icon;
-  cairo_surface_t *mini_icon;
-  guint update_icon_handle_id;
-
   /* Freeze/thaw on resize (for Xwayland) */
   gboolean thaw_after_paint;
 
@@ -91,8 +87,6 @@ MetaWindowX11Private * meta_window_x11_get_private (MetaWindowX11 *window_x11);
 
 void meta_window_x11_set_bypass_compositor_hint (MetaWindowX11            *window_x11,
                                                  MetaBypassCompositorHint  requested_value);
-
-void meta_window_x11_queue_update_icon (MetaWindowX11 *window_x11);
 
 void meta_window_x11_initialize_state (MetaWindow *window);
 
