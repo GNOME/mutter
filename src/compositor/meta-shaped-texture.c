@@ -101,6 +101,7 @@ struct _MetaShapedTexture
   int viewport_dst_width;
   int viewport_dst_height;
 
+  MetaMultiTextureFormat tex_format;
   int tex_width, tex_height;
   int fallback_width, fallback_height;
   int dst_width, dst_height;
@@ -577,6 +578,7 @@ static void
 set_multi_texture (MetaShapedTexture *stex,
                    MetaMultiTexture  *multi_tex)
 {
+  MetaMultiTextureFormat format;
   int width, height;
 
   g_clear_object (&stex->texture);
@@ -584,18 +586,22 @@ set_multi_texture (MetaShapedTexture *stex,
   if (multi_tex != NULL)
     {
       stex->texture = g_object_ref (multi_tex);
+      format = meta_multi_texture_get_format (multi_tex);
       width = meta_multi_texture_get_width (multi_tex);
       height = meta_multi_texture_get_height (multi_tex);
     }
   else
     {
+      format = META_MULTI_TEXTURE_FORMAT_INVALID;
       width = 0;
       height = 0;
     }
 
   if (stex->tex_width != width ||
-      stex->tex_height != height)
+      stex->tex_height != height ||
+      stex->tex_format != format)
     {
+      stex->tex_format = format;
       stex->tex_width = width;
       stex->tex_height = height;
       meta_shaped_texture_reset_pipelines (stex);
