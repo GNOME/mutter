@@ -9668,7 +9668,9 @@ clutter_actor_get_transformed_position (ClutterActor *self,
   graphene_point3d_t v2;
 
   v1.x = v1.y = v1.z = 0;
-  clutter_actor_apply_transform_to_point (self, &v1, &v2);
+
+  if (!_clutter_actor_fully_transform_vertices (self, &v1, &v2, 1))
+    return;
 
   if (x)
     *x = v2.x;
