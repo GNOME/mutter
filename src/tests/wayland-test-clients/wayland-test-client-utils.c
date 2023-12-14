@@ -793,6 +793,20 @@ wayland_buffer_init (WaylandBuffer *buffer)
 {
 }
 
+static void
+handle_buffer_release (void             *user_data,
+                       struct wl_buffer *buffer_resource)
+{
+  WaylandBuffer *buffer = WAYLAND_BUFFER (user_data);
+
+  wl_buffer_destroy (buffer_resource);
+  g_object_unref (buffer);
+}
+
+static const struct wl_buffer_listener default_buffer_listener = {
+  handle_buffer_release
+};
+
 WaylandBuffer *
 wayland_buffer_create (WaylandDisplay                  *display,
                        const struct wl_buffer_listener *listener,
@@ -823,6 +837,9 @@ wayland_buffer_create (WaylandDisplay                  *display,
 
   if (!wayland_buffer_allocate (buffer, n_modifiers, modifiers, bo_flags))
     return NULL;
+
+  if (!listener)
+    listener = &default_buffer_listener;
 
   wl_buffer_add_listener (priv->buffer, listener, buffer);
 
