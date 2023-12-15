@@ -40,7 +40,7 @@
 #define CBZ_T_MUL(x,y) ((((x) >> 3) * ((y) >> 3)) >> 12)
 #define CBZ_T_POW2(x) CBZ_T_MUL (x, x)
 #define CBZ_T_POW3(x) CBZ_T_MUL (CBZ_T_POW2 (x), x)
-#define CBZ_T_DIV(x,y) ((((x) << 9)/(y)) << 9)
+#define CBZ_T_DIV(x,y) ((((x) << 9) / (y)) << 9)
 
 /*
  * Constants for sampling of the bezier
@@ -64,18 +64,18 @@ struct _MetaBezier
    * bezier coefficients -- these are calculated using multiplication and
    * addition from integer input, so these are also integers
    */
-  gint ax;
-  gint bx;
-  gint cx;
-  gint dx;
+  int ax;
+  int bx;
+  int cx;
+  int dx;
 
-  gint ay;
-  gint by;
-  gint cy;
-  gint dy;
+  int ay;
+  int by;
+  int cy;
+  int dy;
 
   /* length of the bezier */
-  guint length;
+  unsigned int length;
 };
 
 MetaBezier *
@@ -93,26 +93,28 @@ meta_bezier_free (MetaBezier * b)
     }
 }
 
-static gint
-meta_bezier_t2x (const MetaBezier * b, _FixedT t)
+static int
+meta_bezier_t2x (const MetaBezier *b,
+                 _FixedT           t)
 {
   /*
    * NB -- the int coefficients can be at most 8192 for the multiplication
    * to work in this fashion due to the limits of the 14.18 fixed.
    */
-  return ((b->ax*CBZ_T_POW3(t) + b->bx*CBZ_T_POW2(t) + b->cx*t) >> CBZ_T_Q)
-    + b->dx;
+  return ((b->ax * CBZ_T_POW3 (t) + b->bx * CBZ_T_POW2 (t) + b->cx * t) >> CBZ_T_Q)
+         + b->dx;
 }
 
-static gint
-meta_bezier_t2y (const MetaBezier * b, _FixedT t)
+static int
+meta_bezier_t2y (const MetaBezier *b,
+                 _FixedT           t)
 {
   /*
    * NB -- the int coefficients can be at most 8192 for the multiplication
    * to work in this fashion due to the limits of the 14.18 fixed.
    */
-  return ((b->ay*CBZ_T_POW3(t) + b->by*CBZ_T_POW2(t) + b->cy*t) >> CBZ_T_Q)
-    + b->dy;
+  return ((b->ay * CBZ_T_POW3 (t) + b->by * CBZ_T_POW2 (t) + b->cy * t) >> CBZ_T_Q)
+         + b->dy;
 }
 
 /*
@@ -129,9 +131,9 @@ meta_bezier_advance (const MetaBezier *b, gint L, MetaBezierKnot * knot)
 
 #if 0
   g_debug ("advancing to relative pt %f: t %f, {%d,%d}",
-                (double) L / (double) CBZ_T_ONE,
-                (double) t / (double) CBZ_T_ONE,
-                knot->x, knot->y);
+           (double) L / (double) CBZ_T_ONE,
+           (double) t / (double) CBZ_T_ONE,
+           knot->x, knot->y);
 #endif
 }
 
@@ -139,83 +141,83 @@ static int
 sqrti (int number)
 {
 #if defined __SSE2__
-    /* The GCC built-in with SSE2 (sqrtsd) is up to twice as fast as
-     * the pure integer code below. It is also more accurate.
-     */
-    return __builtin_sqrt (number);
+  /* The GCC built-in with SSE2 (sqrtsd) is up to twice as fast as
+   * the pure integer code below. It is also more accurate.
+   */
+  return __builtin_sqrt (number);
 #else
-    /* This is a fixed point implementation of the Quake III sqrt algorithm,
-     * described, for example, at
-     *   http://www.codemaestro.com/reviews/review00000105.html
-     *
-     * While the original QIII is extremely fast, the use of floating division
-     * and multiplication makes it perform very on arm processors without FPU.
-     *
-     * The key to successfully replacing the floating point operations with
-     * fixed point is in the choice of the fixed point format. The QIII
-     * algorithm does not calculate the square root, but its reciprocal ('y'
-     * below), which is only at the end turned to the inverse value. In order
-     * for the algorithm to produce satisfactory results, the reciprocal value
-     * must be represented with sufficient precision; the 16.16 we use
-     * elsewhere in clutter is not good enough, and 10.22 is used instead.
-     */
-    _FixedT x;
-    uint32_t y_1;        /* 10.22 fixed point */
-    uint32_t f = 0x600000; /* '1.5' as 10.22 fixed */
+  /* This is a fixed point implementation of the Quake III sqrt algorithm,
+   * described, for example, at
+   *   http://www.codemaestro.com/reviews/review00000105.html
+   *
+   * While the original QIII is extremely fast, the use of floating division
+   * and multiplication makes it perform very on arm processors without FPU.
+   *
+   * The key to successfully replacing the floating point operations with
+   * fixed point is in the choice of the fixed point format. The QIII
+   * algorithm does not calculate the square root, but its reciprocal ('y'
+   * below), which is only at the end turned to the inverse value. In order
+   * for the algorithm to produce satisfactory results, the reciprocal value
+   * must be represented with sufficient precision; the 16.16 we use
+   * elsewhere in clutter is not good enough, and 10.22 is used instead.
+   */
+  _FixedT x;
+  uint32_t y_1;        /* 10.22 fixed point */
+  uint32_t f = 0x600000; /* '1.5' as 10.22 fixed */
 
-    union
+  union
+  {
+    float f;
+    uint32_t i;
+  } flt, flt2;
+
+  flt.f = number;
+
+  x = FIXED_FROM_INT (number) / 2;
+
+  /* The QIII initial estimate */
+  flt.i = 0x5f3759df - ( flt.i >> 1 );
+
+  /* Now, we convert the float to 10.22 fixed. We exploit the mechanism
+   * described at http://www.d6.com/users/checker/pdfs/gdmfp.pdf.
+   *
+   * We want 22 bit fraction; a single precision float uses 23 bit
+   * mantisa, so we only need to add 2^(23-22) (no need for the 1.5
+   * multiplier as we are only dealing with positive numbers).
+   *
+   * Note: we have to use two separate variables here -- for some reason,
+   * if we try to use just the flt variable, gcc on ARM optimises the whole
+   * addition out, and it all goes pear shape, since without it, the bits
+   * in the float will not be correctly aligned.
+   */
+  flt2.f = flt.f + 2.0;
+  flt2.i &= 0x7FFFFF;
+
+  /* Now we correct the estimate */
+  y_1 = (flt2.i >> 11) * (flt2.i >> 11);
+  y_1 = (y_1 >> 8) * (x >> 8);
+
+  y_1 = f - y_1;
+  flt2.i = (flt2.i >> 11) * (y_1 >> 11);
+
+  /* If the original argument is less than 342, we do another
+   * iteration to improve precision (for arguments >= 342, the single
+   * iteration produces generally better results).
+   */
+  if (x < 171)
     {
-      float f;
-      uint32_t i;
-    } flt, flt2;
+      y_1 = (flt2.i >> 11) * (flt2.i >> 11);
+      y_1 = (y_1 >> 8) * (x >> 8);
 
-    flt.f = number;
+      y_1 = f - y_1;
+      flt2.i = (flt2.i >> 11) * (y_1 >> 11);
+    }
 
-    x = FIXED_FROM_INT (number) / 2;
-
-    /* The QIII initial estimate */
-    flt.i = 0x5f3759df - ( flt.i >> 1 );
-
-    /* Now, we convert the float to 10.22 fixed. We exploit the mechanism
-     * described at http://www.d6.com/users/checker/pdfs/gdmfp.pdf.
-     *
-     * We want 22 bit fraction; a single precision float uses 23 bit
-     * mantisa, so we only need to add 2^(23-22) (no need for the 1.5
-     * multiplier as we are only dealing with positive numbers).
-     *
-     * Note: we have to use two separate variables here -- for some reason,
-     * if we try to use just the flt variable, gcc on ARM optimises the whole
-     * addition out, and it all goes pear shape, since without it, the bits
-     * in the float will not be correctly aligned.
-     */
-    flt2.f = flt.f + 2.0;
-    flt2.i &= 0x7FFFFF;
-
-    /* Now we correct the estimate */
-    y_1 = (flt2.i >> 11) * (flt2.i >> 11);
-    y_1 = (y_1 >> 8) * (x >> 8);
-
-    y_1 = f - y_1;
-    flt2.i = (flt2.i >> 11) * (y_1 >> 11);
-
-    /* If the original argument is less than 342, we do another
-     * iteration to improve precision (for arguments >= 342, the single
-     * iteration produces generally better results).
-     */
-    if (x < 171)
-      {
-        y_1 = (flt2.i >> 11) * (flt2.i >> 11);
-        y_1 = (y_1 >> 8) * (x >> 8);
-
-        y_1 = f - y_1;
-        flt2.i = (flt2.i >> 11) * (y_1 >> 11);
-      }
-
-    /* Invert, round and convert from 10.22 to an integer
-     * 0x1e3c68 is a magical rounding constant that produces slightly
-     * better results than 0x200000.
-     */
-    return (number * flt2.i + 0x1e3c68) >> 22;
+  /* Invert, round and convert from 10.22 to an integer
+   * 0x1e3c68 is a magical rounding constant that produces slightly
+   * better results than 0x200000.
+   */
+  return (number * flt2.i + 0x1e3c68) >> 22;
 #endif
 }
 
@@ -230,7 +232,7 @@ meta_bezier_init (MetaBezier *b,
   int i;
   int xp = x_0;
   int yp = y_0;
-  _FixedT length [CBZ_T_SAMPLES + 1];
+  _FixedT length[CBZ_T_SAMPLES + 1];
 
 #if 0
   g_debug ("Initializing bezier at {{%d,%d},{%d,%d},{%d,%d},{%d,%d}}",
@@ -277,9 +279,9 @@ meta_bezier_init (MetaBezier *b,
       int x = meta_bezier_t2x (b, t);
       int y = meta_bezier_t2y (b, t);
 
-      guint l = sqrti ((y - yp)*(y - yp) + (x - xp)*(x - xp));
+      unsigned int l = sqrti ((y - yp) * (y - yp) + (x - xp) * (x - xp));
 
-      l += length[i-1];
+      l += length[i - 1];
 
       length[i] = l;
 
