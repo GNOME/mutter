@@ -1044,7 +1044,7 @@ _cogl_pipeline_pre_change_notify (CoglPipeline     *pipeline,
                                   const CoglColor  *new_color,
                                   gboolean          from_layer_change)
 {
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
+  CoglContext *ctx = pipeline->context;
 
   /* If primitives have been logged in the journal referencing the
    * current state of this pipeline we need to flush the journal
@@ -1567,7 +1567,7 @@ _cogl_pipeline_get_layer_with_flags (CoglPipeline *pipeline,
   CoglPipelineLayer *layer;
   int unit_index;
   int i;
-  CoglContext *ctx;
+  CoglContext *ctx = pipeline->context;
 
   /* The layer index of the layer we want info about */
   layer_info.layer_index = layer_index;
@@ -1595,8 +1595,6 @@ _cogl_pipeline_get_layer_with_flags (CoglPipeline *pipeline,
 
   if (layer_info.layer || (flags & COGL_PIPELINE_GET_LAYER_NO_CREATE))
     return layer_info.layer;
-
-  ctx = _cogl_context_get_default ();
 
   unit_index = layer_info.insert_after + 1;
   if (unit_index == 0)
@@ -1721,14 +1719,13 @@ fallback_layer_cb (CoglPipelineLayer *layer, void *user_data)
 {
   CoglPipelineFallbackState *state = user_data;
   CoglPipeline *pipeline = state->pipeline;
+  CoglContext *ctx = pipeline->context;
   CoglTexture *texture = NULL;
   COGL_STATIC_COUNTER (layer_fallback_counter,
                        "layer fallback counter",
                        "Increments each time a layer's texture is "
                        "forced to a fallback texture",
                        0 /* no application private data */);
-
-  _COGL_GET_CONTEXT (ctx, FALSE);
 
   if (!(state->fallback_layers & 1<<state->i))
     return TRUE;
@@ -2563,9 +2560,8 @@ _cogl_pipeline_deep_copy (CoglPipeline *pipeline,
                           unsigned long layer_differences)
 {
   CoglPipeline *new, *authority;
+  CoglContext *ctx = pipeline->context;
   gboolean copy_layer_state;
-
-  _COGL_GET_CONTEXT (ctx, NULL);
 
   if ((differences & COGL_PIPELINE_STATE_LAYERS))
     {
@@ -2769,10 +2765,9 @@ int
 cogl_pipeline_get_uniform_location (CoglPipeline *pipeline,
                                     const char *uniform_name)
 {
+  CoglContext *ctx = pipeline->context;
   void *location_ptr;
   char *uniform_name_copy;
-
-  _COGL_GET_CONTEXT (ctx, -1);
 
   /* This API is designed as if the uniform locations are specific to
      a pipeline but they are actually unique across a whole
