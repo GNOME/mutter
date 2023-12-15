@@ -26,6 +26,7 @@
 #include <graphene.h>
 #include <libinput.h>
 
+#include "backends/native/meta-bezier.h"
 #include "clutter/clutter.h"
 
 G_BEGIN_DECLS
@@ -55,12 +56,15 @@ G_BEGIN_DECLS
 typedef struct _MetaInputDeviceToolNative MetaInputDeviceToolNative;
 typedef struct _MetaInputDeviceToolNativeClass MetaInputDeviceToolNativeClass;
 
+#define N_PRESSURECURVE_POINTS 256
+
 struct _MetaInputDeviceToolNative
 {
   ClutterInputDeviceTool parent_instance;
   struct libinput_tablet_tool *tool;
   GHashTable *button_map;
   graphene_point_t pressure_curve[2];
+  MetaBezier *bezier;
 };
 
 struct _MetaInputDeviceToolNativeClass
