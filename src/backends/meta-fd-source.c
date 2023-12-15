@@ -20,6 +20,8 @@
 
 #include "config.h"
 
+#include <unistd.h>
+
 #include "backends/meta-fd-source.h"
 
 typedef struct _MetaFdtSource
