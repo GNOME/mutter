@@ -698,7 +698,6 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
 {
   gboolean had_damage = FALSE;
   int old_width, old_height;
-  int surface_scale;
 
   old_width = meta_wayland_surface_get_width (surface);
   old_height = meta_wayland_surface_get_height (surface);
@@ -745,36 +744,6 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
 
   if (state->scale > 0)
     surface->applied_state.scale = state->scale;
-
-  surface_scale = surface->applied_state.scale;
-  if ((meta_wayland_surface_get_buffer_width (surface) % surface_scale != 0) ||
-      (meta_wayland_surface_get_buffer_height (surface) % surface_scale != 0))
-    {
-      if (surface->role && !META_IS_WAYLAND_CURSOR_SURFACE (surface->role))
-        {
-          wl_resource_post_error (surface->resource, WL_SURFACE_ERROR_INVALID_SIZE,
-                                  "Buffer size (%dx%d) must be an integer multiple "
-                                  "of the buffer_scale (%d).",
-                                  meta_wayland_surface_get_buffer_width (surface),
-                                  meta_wayland_surface_get_buffer_height (surface),
-                                  surface_scale);
-        }
-      else
-        {
-          struct wl_resource *resource = surface->resource;
-          pid_t pid;
-
-          wl_client_get_credentials (wl_resource_get_client (resource), &pid, NULL,
-                                     NULL);
-
-          g_warning ("Bug in client with pid %ld: Cursor buffer size (%dx%d) is "
-                     "not an integer multiple of the buffer_scale (%d).",
-                     (long) pid,
-                     meta_wayland_surface_get_buffer_width (surface),
-                     meta_wayland_surface_get_buffer_height (surface),
-                     surface_scale);
-        }
-    }
 
   if (state->has_new_buffer_transform)
     surface->buffer_transform = state->buffer_transform;
@@ -926,6 +895,8 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
 
   if (buffer)
     {
+      int committed_scale = surface->committed_state.scale;
+      MetaMultiTexture *committed_texture;
       g_autoptr (GError) error = NULL;
 
       g_clear_signal_handler (&pending->buffer_destroy_handler_id,
@@ -947,7 +918,38 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
           return;
         }
 
-      pending->texture = g_object_ref (surface->committed_state.texture);
+      committed_texture = surface->committed_state.texture;
+      if ((meta_multi_texture_get_width (committed_texture) % committed_scale != 0) ||
+          (meta_multi_texture_get_height (committed_texture) % committed_scale != 0))
+        {
+          if (surface->role && !META_IS_WAYLAND_CURSOR_SURFACE (surface->role))
+            {
+              wl_resource_post_error (surface->resource, WL_SURFACE_ERROR_INVALID_SIZE,
+                                      "Buffer size (%dx%d) must be an integer multiple "
+                                      "of the buffer_scale (%d).",
+                                      meta_wayland_surface_get_buffer_width (surface),
+                                      meta_wayland_surface_get_buffer_height (surface),
+                                      committed_scale);
+              return;
+            }
+          else
+            {
+              struct wl_resource *resource = surface->resource;
+              pid_t pid;
+
+              wl_client_get_credentials (wl_resource_get_client (resource), &pid, NULL,
+                                         NULL);
+
+              g_warning ("Bug in client with pid %ld: Cursor buffer size (%dx%d) is "
+                         "not an integer multiple of the buffer_scale (%d).",
+                         (long) pid,
+                         meta_wayland_surface_get_buffer_width (surface),
+                         meta_wayland_surface_get_buffer_height (surface),
+                         committed_scale);
+            }
+        }
+
+      pending->texture = g_object_ref (committed_texture);
 
       g_object_ref (buffer);
       meta_wayland_buffer_inc_use_count (buffer);
