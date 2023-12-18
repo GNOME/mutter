@@ -43,37 +43,6 @@ G_DEFINE_BOXED_TYPE (ClutterPaintVolume, clutter_paint_volume,
                      clutter_paint_volume_copy,
                      clutter_paint_volume_free);
 
-/*<private>
- * _clutter_paint_volume_new:
- * @actor: a #ClutterActor
- *
- * Creates a new #ClutterPaintVolume for the given @actor.
- *
- * Return value: the newly allocated #ClutterPaintVolume. Use
- *   clutter_paint_volume_free() to free the resources it uses
- */
-ClutterPaintVolume *
-_clutter_paint_volume_new (ClutterActor *actor)
-{
-  ClutterPaintVolume *pv;
-
-  g_return_val_if_fail (actor != NULL, NULL);
-
-  pv = g_new0 (ClutterPaintVolume, 1);
-
-  pv->actor = actor;
-
-  memset (pv->vertices, 0, 8 * sizeof (graphene_point3d_t));
-
-  pv->is_static = FALSE;
-  pv->is_empty = TRUE;
-  pv->is_axis_aligned = TRUE;
-  pv->is_complete = TRUE;
-  pv->is_2d = TRUE;
-
-  return pv;
-}
-
 /* Since paint volumes are used so heavily in a typical paint
  * traversal of a Clutter scene graph and since paint volumes often
  * have a very short life cycle that maps well to stack allocation we

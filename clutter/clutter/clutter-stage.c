@@ -649,18 +649,6 @@ _clutter_stage_queue_event (ClutterStage *stage,
   clutter_stage_schedule_update (stage);
 }
 
-gboolean
-_clutter_stage_has_queued_events (ClutterStage *stage)
-{
-  ClutterStagePrivate *priv;
-
-  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), FALSE);
-
-  priv = stage->priv;
-
-  return priv->event_queue->length > 0;
-}
-
 static ClutterEvent *
 clutter_stage_compress_motion (ClutterStage       *stage,
                                ClutterEvent       *event,
@@ -1023,15 +1011,6 @@ is_full_stage_redraw_queued (ClutterStage *stage)
     }
 
   return TRUE;
-}
-
-gboolean
-_clutter_stage_has_full_redraw_queued (ClutterStage *stage)
-{
-  if (CLUTTER_ACTOR_IN_DESTRUCTION (stage))
-    return FALSE;
-
-  return is_full_stage_redraw_queued (stage);
 }
 
 static void
@@ -3017,7 +2996,7 @@ free_pointer_device_entry (PointerDeviceEntry *entry)
   g_free (entry);
 }
 
-void
+static void
 clutter_stage_update_device_entry (ClutterStage         *self,
                                    ClutterInputDevice   *device,
                                    ClutterEventSequence *sequence,

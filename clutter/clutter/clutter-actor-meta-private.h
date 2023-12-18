@@ -80,15 +80,9 @@ GList *                 _clutter_meta_group_get_metas_no_internal   (ClutterMeta
 void                    _clutter_meta_group_clear_metas_no_internal (ClutterMetaGroup *group);
 
 /* ActorMeta */
-void                    _clutter_actor_meta_set_actor           (ClutterActorMeta *meta,
-                                                                 ClutterActor     *actor);
-
 const gchar *           _clutter_actor_meta_get_debug_name      (ClutterActorMeta *meta);
 
 void                    _clutter_actor_meta_set_priority        (ClutterActorMeta *meta,
                                                                  gint priority);
-int                     _clutter_actor_meta_get_priority        (ClutterActorMeta *meta);
-
-gboolean                _clutter_actor_meta_is_internal         (ClutterActorMeta *meta);
 
 G_END_DECLS

@@ -355,7 +355,7 @@ clutter_actor_meta_get_enabled (ClutterActorMeta *meta)
  * Sets or unsets a back pointer to the #ClutterActor that owns
  * the @meta
  */
-void
+static void
 _clutter_actor_meta_set_actor (ClutterActorMeta *meta,
                                ClutterActor     *actor)
 {
@@ -406,7 +406,7 @@ _clutter_actor_meta_set_priority (ClutterActorMeta *meta,
   priv->priority = priority;
 }
 
-gint
+static gint
 _clutter_actor_meta_get_priority (ClutterActorMeta *meta)
 {
   ClutterActorMetaPrivate *priv;
@@ -418,7 +418,7 @@ _clutter_actor_meta_get_priority (ClutterActorMeta *meta)
   return priv->priority;
 }
 
-gboolean
+static gboolean
 _clutter_actor_meta_is_internal (ClutterActorMeta *meta)
 {
   ClutterActorMetaPrivate *priv =
