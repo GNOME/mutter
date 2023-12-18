@@ -1,51 +1,5 @@
 # Debugging
 
-## Nested D-Bus session
-
-### Installing
-
-Download and place [dbus-session.sh](uploads/a209c8f1fe6b51df669b58bab1300199/dbus-session.sh) in `~/.local/bin/` and make it executable.
-
-### Using
-
-To create a nested D-Bus user session, run
-
-```sh
-dbus-session.sh -n
-```
-
-This will create a D-Bus session, and attach to it.
-
-To attach to the same session from another terminal, run
-
-```sh
-dbus-session.sh -x
-```
-
-## Nested mutter or gnome-shell
-
-To run a nested mutter or gnome-shell instance, i.e. when you are presented with a floating window running mutter or gnome-shell, first enter a [nested D-Bus session](#nested-d-bus-session), then pass `--nested` to either gnome-shell or mutter. E.g.
-
-```sh
-mutter --nested
-```
-
-## Headless GNOME Shell and GNOME Remote Desktop
-
-First create [nested D-Bus session](#nested-d-bus-session). In this, run gnome-shell in headless mode with a virtual monitor. E.g.
-
-```sh
-[jonas@localhost gnome-shell]$ dbus-session.sh -n
-[ D-Bus 60ff ][jonas@localhost gnome-shell]$ gnome-shell --headless --virtual-monitor 1280x720
-```
-
-```sh
-[jonas@localhost gnome-remote-desktop]$ dbus-session.sh -x
-[ D-Bus 60ff ][jonas@localhost gnome-remote-desktop]$ ./build/src/gnome-remote-desktop-daemon
-```
-
-
-
 ## Reproducing CI test failures locally
 
 1. Create a podman that can run gdb locally using the same image used in CI. The example below uses the tag `x86_64-2022-01-20` but this will depend on the image used by the failed CI job. The Fedora version may also differ.

@@ -35,6 +35,7 @@ documentation and API references below first.
 - [Coding style and conventions](doc/coding-style.md)
 - [Git conventions](doc/git-conventions.md)
 - [Code overview](doc/code-overview.md)
+- [Building and Running](doc/building-and-running.md)
 - [Debugging](doc/debugging.md)
 - [Monitor configuration](doc/monitor-configuration.md)
 
