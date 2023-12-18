@@ -14666,6 +14666,9 @@ clutter_actor_get_real_resource_scale (ClutterActor *self)
           max_scale = MAX (clutter_stage_view_get_scale (view), max_scale);
         }
 
+      if (max_scale < 0.f)
+        max_scale = 1.f;
+
       guessed_scale = max_scale;
     }
   else
