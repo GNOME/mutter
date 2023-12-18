@@ -1,8 +1,6 @@
-Monitor configuration
-=====================
+# Monitor configuration
 
-File locations
---------------
+## File locations
 
 Monitor configurations are stored as XML files called `monitors.xml` on the file
 system. There are two types of locations for the XML file: the system level and
@@ -16,8 +14,7 @@ The directory for the user level configuration is defined in accordance to the
 $XDG_CONFIG_HOME environment variable defined in the XDG Base Directory
 Specification. The default is `~/.config/monitors.xml`
 
-File contents
--------------
+## File contents
 
 A configuration file consists of an XML document with the root element
 `<monitors version="2">`. In this document multiple configurations are stored as
@@ -28,8 +25,7 @@ Each configuration corresponds to a specific hardware setup, where a given set
 of monitors are connected to the computer. There can only be one configuration
 per hardware setup.
 
-Writing configuration
----------------------
+## Writing configuration
 
 Monitor configurations are managed by Mutter via the Display panel in Settings,
 which uses a D-Bus API to communicate with Mutter. Each time a new configuration
@@ -39,8 +35,7 @@ updated content.
 Previously defined monitor configurations for hardware state other than the
 current are left intact.
 
-Configuration policy
---------------------
+## Configuration policy
 
 The monitor configuration policy determines how Mutter configures monitors. This
 can mean for example in what order configuration files should be preferred, or
