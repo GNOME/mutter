@@ -823,7 +823,7 @@ meta_background_get_texture (MetaBackground       *self,
 
           monitor->texture = meta_create_texture (texture_width,
                                                   texture_height,
-                                                  COGL_TEXTURE_COMPONENTS_RGB,
+                                                  COGL_TEXTURE_COMPONENTS_RGBA,
                                                   META_TEXTURE_FLAGS_NONE);
           offscreen = cogl_offscreen_new_with_texture (monitor->texture);
           monitor->fbo = COGL_FRAMEBUFFER (offscreen);
