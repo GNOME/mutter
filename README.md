@@ -26,7 +26,9 @@ debugging purposes.
 
 To contribute, open merge requests at https://gitlab.gnome.org/GNOME/mutter.
 
-It can be useful to look at the documentation and API references below first.
+It can be useful to first look at the
+[GNOME Handbook](https://handbook.gnome.org/development.html) and the
+documentation and API references below first.
 
 ## Documentation
 
