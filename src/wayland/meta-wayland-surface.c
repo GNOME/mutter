@@ -284,6 +284,7 @@ surface_process_damage (MetaWaylandSurface *surface,
 
   if (!mtk_region_is_empty (surface_region))
     {
+      int surface_scale = surface->applied_state.scale;
       MtkRectangle surface_rect;
       g_autoptr (MtkRegion) scaled_region = NULL;
       g_autoptr (MtkRegion) transformed_region = NULL;
@@ -300,7 +301,7 @@ surface_process_damage (MetaWaylandSurface *surface,
       mtk_region_intersect_rectangle (surface_region, &surface_rect);
 
       /* The damage region must be in the same coordinate space as the buffer,
-       * i.e. scaled with surface->scale. */
+       * i.e. scaled with surface->applied_state.scale. */
       if (surface->viewport.has_src_rect)
         {
           src_rect = (graphene_rect_t) {
@@ -326,15 +327,15 @@ surface_process_damage (MetaWaylandSurface *surface,
             }
 
           src_rect = (graphene_rect_t) {
-            .size.width = width / surface->scale,
-            .size.height = height / surface->scale
+            .size.width = width / surface_scale,
+            .size.height = height / surface_scale
           };
         }
       viewport_region = meta_region_crop_and_scale (surface_region,
                                                     &src_rect,
                                                     surface_rect.width,
                                                     surface_rect.height);
-      scaled_region = meta_region_scale (viewport_region, surface->scale);
+      scaled_region = meta_region_scale (viewport_region, surface_scale);
       transformed_region = meta_region_transform (scaled_region,
                                                   surface->buffer_transform,
                                                   buffer_rect.width,
@@ -697,6 +698,7 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
 {
   gboolean had_damage = FALSE;
   int old_width, old_height;
+  int surface_scale;
 
   old_width = meta_wayland_surface_get_width (surface);
   old_height = meta_wayland_surface_get_height (surface);
@@ -742,10 +744,11 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
     }
 
   if (state->scale > 0)
-    surface->scale = state->scale;
+    surface->applied_state.scale = state->scale;
 
-  if ((meta_wayland_surface_get_buffer_width (surface) % surface->scale != 0) ||
-      (meta_wayland_surface_get_buffer_height (surface) % surface->scale != 0))
+  surface_scale = surface->applied_state.scale;
+  if ((meta_wayland_surface_get_buffer_width (surface) % surface_scale != 0) ||
+      (meta_wayland_surface_get_buffer_height (surface) % surface_scale != 0))
     {
       if (surface->role && !META_IS_WAYLAND_CURSOR_SURFACE (surface->role))
         {
@@ -754,7 +757,7 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
                                   "of the buffer_scale (%d).",
                                   meta_wayland_surface_get_buffer_width (surface),
                                   meta_wayland_surface_get_buffer_height (surface),
-                                  surface->scale);
+                                  surface_scale);
         }
       else
         {
@@ -769,7 +772,7 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
                      (long) pid,
                      meta_wayland_surface_get_buffer_width (surface),
                      meta_wayland_surface_get_buffer_height (surface),
-                     surface->scale);
+                     surface_scale);
         }
     }
 
@@ -917,6 +920,9 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
 
   COGL_TRACE_BEGIN_SCOPED (MetaWaylandSurfaceCommit,
                            "Meta::WaylandSurface::commit()");
+
+  if (pending->scale > 0)
+    surface->committed_state.scale = pending->scale;
 
   if (buffer)
     {
@@ -1526,7 +1532,8 @@ meta_wayland_surface_create (MetaWaylandCompositor *compositor,
   int surface_version;
 
   surface->compositor = compositor;
-  surface->scale = 1;
+  surface->applied_state.scale = 1;
+  surface->committed_state.scale = 1;
 
   surface_version = wl_resource_get_version (compositor_resource);
   surface->resource = wl_resource_create (client,
@@ -2160,7 +2167,7 @@ meta_wayland_surface_get_width (MetaWaylandSurface *surface)
       else
         width = meta_wayland_surface_get_buffer_width (surface);
 
-      return width / surface->scale;
+      return width / surface->applied_state.scale;
     }
 }
 
@@ -2184,7 +2191,7 @@ meta_wayland_surface_get_height (MetaWaylandSurface *surface)
       else
         height = meta_wayland_surface_get_buffer_height (surface);
 
-      return height / surface->scale;
+      return height / surface->applied_state.scale;
     }
 }
 
@@ -2268,6 +2275,8 @@ meta_wayland_surface_can_scanout_untransformed (MetaWaylandSurface *surface,
                                                 MetaRendererView   *view,
                                                 int                 geometry_scale)
 {
+  int surface_scale = surface->applied_state.scale;
+
   if (meta_renderer_view_get_transform (view) != surface->buffer_transform)
     {
       meta_topic (META_DEBUG_RENDER,
@@ -2330,7 +2339,7 @@ meta_wayland_surface_can_scanout_untransformed (MetaWaylandSurface *surface,
           float view_scale;
 
           view_scale = clutter_stage_view_get_scale (CLUTTER_STAGE_VIEW (view));
-          if (!G_APPROX_VALUE (view_scale, surface->scale, FLT_EPSILON))
+          if (!G_APPROX_VALUE (view_scale, surface_scale, FLT_EPSILON))
             {
               meta_topic (META_DEBUG_RENDER,
                           "Surface can not be scanned out untransformed: "
@@ -2340,7 +2349,7 @@ meta_wayland_surface_can_scanout_untransformed (MetaWaylandSurface *surface,
         }
       else
         {
-          if (geometry_scale != surface->scale)
+          if (geometry_scale != surface_scale)
             {
               meta_topic (META_DEBUG_RENDER,
                           "Surface can not be scanned out untransformed: "
@@ -2357,11 +2366,11 @@ meta_wayland_surface_can_scanout_untransformed (MetaWaylandSurface *surface,
           !G_APPROX_VALUE (surface->viewport.src_rect.origin.y, 0.0,
                            FLT_EPSILON) ||
           !G_APPROX_VALUE (surface->viewport.src_rect.size.width *
-                           surface->scale,
+                           surface_scale,
                            meta_wayland_surface_get_buffer_width (surface),
                            FLT_EPSILON) ||
           !G_APPROX_VALUE (surface->viewport.src_rect.size.height *
-                           surface->scale,
+                           surface_scale,
                            meta_wayland_surface_get_buffer_height (surface),
                            FLT_EPSILON))
         {

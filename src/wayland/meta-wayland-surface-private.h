@@ -158,7 +158,6 @@ struct _MetaWaylandSurface
   MetaWaylandSurfaceRole *role;
   MtkRegion *input_region;
   MtkRegion *opaque_region;
-  int scale;
   int32_t offset_x, offset_y;
   GHashTable *outputs;
   MetaMonitorTransform buffer_transform;
@@ -187,6 +186,7 @@ struct _MetaWaylandSurface
     GNode *subsurface_branch_node;
     GNode *subsurface_leaf_node;
     MetaMultiTexture *texture;
+    int scale;
   } applied_state, committed_state;
 
   /* Extension resources. */

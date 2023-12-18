@@ -68,10 +68,12 @@ update_cursor_sprite_texture (MetaWaylandCursorSurface *cursor_surface)
 
   if (texture && meta_multi_texture_is_simple (texture))
     {
+      int surface_scale = surface->applied_state.scale;
+
       meta_cursor_sprite_set_texture (cursor_sprite,
                                       meta_multi_texture_get_plane (texture, 0),
-                                      priv->hot_x * surface->scale,
-                                      priv->hot_y * surface->scale);
+                                      priv->hot_x * surface_scale,
+                                      priv->hot_y * surface_scale);
     }
   else
     {
@@ -108,13 +110,14 @@ cursor_sprite_prepare_at (MetaCursorSprite         *cursor_sprite,
         meta_monitor_manager_get_logical_monitor_at (monitor_manager, x, y);
       if (logical_monitor)
         {
+          int surface_scale = surface->applied_state.scale;
           float texture_scale;
 
           if (meta_backend_is_stage_views_scaled (backend))
-            texture_scale = 1.0 / surface->scale;
+            texture_scale = 1.0 / surface_scale;
           else
             texture_scale = (meta_logical_monitor_get_scale (logical_monitor) /
-                             surface->scale);
+                             surface_scale);
 
           meta_cursor_sprite_set_texture_scale (cursor_sprite, texture_scale);
           meta_cursor_sprite_set_texture_transform (cursor_sprite,
