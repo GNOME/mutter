@@ -895,8 +895,6 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
 
   if (buffer)
     {
-      int committed_scale = surface->committed_state.scale;
-      MetaMultiTexture *committed_texture;
       g_autoptr (GError) error = NULL;
 
       g_clear_signal_handler (&pending->buffer_destroy_handler_id,
@@ -918,7 +916,21 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
           return;
         }
 
-      committed_texture = surface->committed_state.texture;
+      pending->texture = g_object_ref (surface->committed_state.texture);
+
+      g_object_ref (buffer);
+      meta_wayland_buffer_inc_use_count (buffer);
+    }
+  else if (pending->newly_attached)
+    {
+      g_clear_object (&surface->committed_state.texture);
+    }
+
+  if (surface->committed_state.texture)
+    {
+      MetaMultiTexture *committed_texture = surface->committed_state.texture;
+      int committed_scale = surface->committed_state.scale;
+
       if ((meta_multi_texture_get_width (committed_texture) % committed_scale != 0) ||
           (meta_multi_texture_get_height (committed_texture) % committed_scale != 0))
         {
@@ -948,15 +960,6 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
                          committed_scale);
             }
         }
-
-      pending->texture = g_object_ref (committed_texture);
-
-      g_object_ref (buffer);
-      meta_wayland_buffer_inc_use_count (buffer);
-    }
-  else if (pending->newly_attached)
-    {
-      g_clear_object (&surface->committed_state.texture);
     }
 
   if (meta_wayland_surface_is_synchronized (surface))
