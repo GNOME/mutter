@@ -151,14 +151,17 @@ ensure_mipmap_texture (MetaTextureMipmap *mipmap)
    * then just use the original texture instead of mipmap texture, which is
    * faster anyway.
    */
-  width = meta_multi_texture_get_width (mipmap->base_texture) / 2;
-  height = meta_multi_texture_get_height (mipmap->base_texture) / 2;
+  width = meta_multi_texture_get_width (mipmap->base_texture);
+  height = meta_multi_texture_get_height (mipmap->base_texture);
 
   if (!width || !height)
     {
       free_mipmaps (mipmap);
       return;
     }
+
+  width = MAX (width / 2, 1);
+  height = MAX (height / 2, 1);
 
   if (!mipmap->mipmap_texture ||
       meta_multi_texture_get_width (mipmap->mipmap_texture) != width ||
