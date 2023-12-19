@@ -61,22 +61,22 @@ static const char rgba_shader[] =
 static const char y_xuxv_shader[] =
   "vec4 yuva = vec4(0.0, 0.0, 0.0, cogl_color_in.a);                        \n"
   "yuva.x = texture2D(cogl_sampler0, cogl_tex_coord0_in.st).x;              \n"
-  "yuva.yz = texture2D(cogl_sampler1, cogl_tex_coord1_in.st).ga;            \n"
+  "yuva.yz = texture2D(cogl_sampler1, cogl_tex_coord0_in.st).ga;            \n"
   "cogl_color_out = yuv_to_rgb(yuva);                                       \n";
 
 /* Shader for 1 Y-plane and 1 UV-plane */
 static const char y_uv_shader[] =
   "vec4 yuva = vec4(0.0, 0.0, 0.0, cogl_color_in.a);                        \n"
   "yuva.x = texture2D(cogl_sampler0, cogl_tex_coord0_in.st).x;              \n"
-  "yuva.yz = texture2D(cogl_sampler1, cogl_tex_coord1_in.st).rg;            \n"
+  "yuva.yz = texture2D(cogl_sampler1, cogl_tex_coord0_in.st).rg;            \n"
   "cogl_color_out = yuv_to_rgb(yuva);                                       \n";
 
 /* Shader for 1 Y-plane, 1 U-plane and 1 V-plane */
 static const char y_u_v_shader[] =
   "vec4 yuva = vec4(0.0, 0.0, 0.0, cogl_color_in.a);                        \n"
   "yuva.x = texture2D(cogl_sampler0, cogl_tex_coord0_in.st).x;              \n"
-  "yuva.y = texture2D(cogl_sampler1, cogl_tex_coord1_in.st).x;              \n"
-  "yuva.z = texture2D(cogl_sampler2, cogl_tex_coord2_in.st).x;              \n"
+  "yuva.y = texture2D(cogl_sampler1, cogl_tex_coord0_in.st).x;              \n"
+  "yuva.z = texture2D(cogl_sampler2, cogl_tex_coord0_in.st).x;              \n"
   "cogl_color_out = yuv_to_rgb(yuva);                                       \n";
 
 typedef struct _MetaMultiTextureFormatInfo
