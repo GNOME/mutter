@@ -640,6 +640,7 @@ do_paint_content (MetaShapedTexture   *stex,
   MetaMultiTexture *paint_tex = stex->texture;
   CoglFramebuffer *framebuffer;
   int sample_width, sample_height;
+  int texture_width, texture_height;
   gboolean debug_paint_opaque_region;
   int n_planes;
 
@@ -650,6 +651,9 @@ do_paint_content (MetaShapedTexture   *stex,
 
   if (dst_width == 0 || dst_height == 0) /* no contents yet */
     return;
+
+  texture_width = meta_multi_texture_get_width (stex->texture);
+  texture_height = meta_multi_texture_get_height (stex->texture);
 
   content_rect = (MtkRectangle) {
     .x = 0,
@@ -676,8 +680,8 @@ do_paint_content (MetaShapedTexture   *stex,
     }
   else
     {
-      sample_width = meta_multi_texture_get_width (stex->texture);
-      sample_height = meta_multi_texture_get_height (stex->texture);
+      sample_width = texture_width;
+      sample_height = texture_height;
     }
   if (meta_monitor_transform_is_rotated (stex->transform))
     flip_ints (&sample_width, &sample_height);
@@ -702,7 +706,9 @@ do_paint_content (MetaShapedTexture   *stex,
        */
       if (stex->create_mipmaps &&
           transforms.x_scale < 0.5 &&
-          transforms.y_scale < 0.5)
+          transforms.y_scale < 0.5 &&
+          texture_width >= 8 &&
+          texture_height >= 8)
         {
           paint_tex = meta_texture_mipmap_get_paint_texture (stex->texture_mipmap);
           min_filter = COGL_PIPELINE_FILTER_LINEAR_MIPMAP_NEAREST;
