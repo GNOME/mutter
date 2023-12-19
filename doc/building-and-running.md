@@ -65,6 +65,15 @@ $ toolbox enter mutter
 ⬢ meson test -C builddir --print-errorlogs --suite mutter/tty
 ```
 
+## Updating Ref-Tests
+
+Ref-tests compare image captures of Mutter against a reference image. Sometimes a change of the rendering result is expected with some code changes. In those cases it's required to update the reference images. This can be done by running the tests with:
+```sh
+MESA_LOADER_DRIVER_OVERRIDE=swrast MUTTER_REF_TEST_UPDATE='/path/to/test/case'
+```
+
+This makes sure a software renderer is being used and the reference image of the test case `/path/to/test/case` is updated. More information is available in `src/tests/meta-ref-test.c`.
+
 ## Running a nested instance
 
 While the test suite helps to catch mistakes, there are a lot of cases where we actually need to run and interact with Mutter. The least invasive method is running a "nested" instance.
