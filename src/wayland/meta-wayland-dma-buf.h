@@ -64,5 +64,5 @@ meta_wayland_dma_buf_create_source (MetaWaylandBuffer               *buffer,
                                     gpointer                         user_data);
 
 CoglScanout *
-meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandDmaBufBuffer *dma_buf,
-                                          CoglOnscreen            *onscreen);
+meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandBuffer *buffer,
+                                          CoglOnscreen      *onscreen);

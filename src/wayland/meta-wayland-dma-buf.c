@@ -605,23 +605,32 @@ import_scanout_gbm_bo (MetaWaylandDmaBufBuffer  *dma_buf,
 #endif
 
 CoglScanout *
-meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandDmaBufBuffer *dma_buf,
-                                          CoglOnscreen            *onscreen)
+meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandBuffer *buffer,
+                                          CoglOnscreen      *onscreen)
 {
 #ifdef HAVE_NATIVE_BACKEND
-  MetaContext *context =
-    meta_wayland_compositor_get_context (dma_buf->manager->compositor);
-  MetaBackend *backend = meta_context_get_backend (context);
-  MetaRenderer *renderer = meta_backend_get_renderer (backend);
-  MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
-  int n_planes;
+  MetaWaylandDmaBufBuffer *dma_buf;
+  MetaContext *context;
+  MetaBackend *backend;
+  MetaRenderer *renderer;
+  MetaRendererNative *renderer_native;
   MetaDeviceFile *device_file;
   MetaGpuKms *gpu_kms;
   struct gbm_bo *gbm_bo;
-  gboolean use_modifier;
+  g_autoptr (MetaDrmBufferGbm) fb = NULL;
   g_autoptr (GError) error = NULL;
   MetaDrmBufferFlags flags;
-  g_autoptr (MetaDrmBufferGbm) fb = NULL;
+  gboolean use_modifier;
+  int n_planes;
+
+  dma_buf = meta_wayland_dma_buf_from_buffer (buffer);
+  if (!dma_buf)
+    return NULL;
+
+  context = meta_wayland_compositor_get_context (dma_buf->manager->compositor);
+  backend = meta_context_get_backend (context);
+  renderer = meta_backend_get_renderer (backend);
+  renderer_native = META_RENDERER_NATIVE (renderer);
 
   for (n_planes = 0; n_planes < META_WAYLAND_DMA_BUF_MAX_FDS; n_planes++)
     {

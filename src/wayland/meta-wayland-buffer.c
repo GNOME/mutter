@@ -928,13 +928,7 @@ meta_wayland_buffer_try_acquire_scanout (MetaWaylandBuffer *buffer,
       break;
     case META_WAYLAND_BUFFER_TYPE_DMA_BUF:
       {
-        MetaWaylandDmaBufBuffer *dma_buf;
-
-        dma_buf = meta_wayland_dma_buf_from_buffer (buffer);
-        if (!dma_buf)
-          return NULL;
-
-        scanout = meta_wayland_dma_buf_try_acquire_scanout (dma_buf, onscreen);
+        scanout = meta_wayland_dma_buf_try_acquire_scanout (buffer, onscreen);
         break;
       }
     case META_WAYLAND_BUFFER_TYPE_UNKNOWN:
