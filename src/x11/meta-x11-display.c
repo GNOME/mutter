@@ -2104,11 +2104,8 @@ meta_x11_display_set_input_focus (MetaX11Display *x11_display,
         xwindow = window->frame->xwindow;
       else
         xwindow = meta_window_x11_get_xwindow (window);
-
-#ifdef HAVE_X11
-      if (!meta_is_wayland_compositor ())
-        clutter_stage_set_key_focus (stage, NULL);
     }
+#ifdef HAVE_X11
   else if (!meta_is_wayland_compositor () &&
            stage_has_focus_actor (x11_display))
     {
@@ -2116,8 +2113,6 @@ meta_x11_display_set_input_focus (MetaX11Display *x11_display,
        * focus on the stage window, otherwise focus the no focus window.
        */
       xwindow = meta_x11_get_stage_window (stage);
-    }
-#else
     }
 #endif
 
@@ -2129,6 +2124,11 @@ meta_x11_display_set_input_focus (MetaX11Display *x11_display,
   serial = XNextRequest (x11_display->xdisplay);
   meta_x11_display_update_focus_window (x11_display, xwindow, serial, TRUE);
   mtk_x11_error_trap_pop (x11_display->xdisplay);
+
+#ifdef HAVE_X11
+  if (window && !meta_is_wayland_compositor ())
+    clutter_stage_set_key_focus (stage, NULL);
+#endif
 }
 
 static MetaX11DisplayLogicalMonitorData *
