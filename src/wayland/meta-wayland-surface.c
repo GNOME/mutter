@@ -927,8 +927,8 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
               wl_resource_post_error (surface->resource, WL_SURFACE_ERROR_INVALID_SIZE,
                                       "Buffer size (%dx%d) must be an integer multiple "
                                       "of the buffer_scale (%d).",
-                                      meta_wayland_surface_get_buffer_width (surface),
-                                      meta_wayland_surface_get_buffer_height (surface),
+                                      meta_multi_texture_get_width (committed_texture),
+                                      meta_multi_texture_get_height (committed_texture),
                                       committed_scale);
               return;
             }
@@ -943,8 +943,8 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
               g_warning ("Bug in client with pid %ld: Cursor buffer size (%dx%d) is "
                          "not an integer multiple of the buffer_scale (%d).",
                          (long) pid,
-                         meta_wayland_surface_get_buffer_width (surface),
-                         meta_wayland_surface_get_buffer_height (surface),
+                         meta_multi_texture_get_width (committed_texture),
+                         meta_multi_texture_get_height (committed_texture),
                          committed_scale);
             }
         }
