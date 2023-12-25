@@ -25,7 +25,9 @@
 #include "backends/x11/nested/meta-cursor-renderer-x11-nested.h"
 #include "backends/x11/nested/meta-renderer-x11-nested.h"
 
+#ifdef HAVE_WAYLAND
 #include "wayland/meta-wayland.h"
+#endif
 
 typedef struct _MetaBackendX11NestedPrivate
 {

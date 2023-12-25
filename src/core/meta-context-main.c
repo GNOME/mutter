@@ -33,7 +33,6 @@
 #include "backends/meta-virtual-monitor.h"
 #include "backends/x11/cm/meta-backend-x11-cm.h"
 #include "meta/meta-backend.h"
-#include "wayland/meta-wayland.h"
 #include "x11/session.h"
 
 #ifdef HAVE_NATIVE_BACKEND
@@ -42,6 +41,7 @@
 
 #ifdef HAVE_WAYLAND
 #include "backends/x11/nested/meta-backend-x11-nested.h"
+#include "wayland/meta-wayland.h"
 #endif
 
 typedef struct _MetaContextMainOptions
