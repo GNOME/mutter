@@ -216,11 +216,11 @@ clutter_stage_view_transform_rect_to_onscreen (ClutterStageView   *view,
 {
   ClutterStageViewClass *view_class = CLUTTER_STAGE_VIEW_GET_CLASS (view);
 
-  return view_class->transform_rect_to_onscreen (view,
-                                                 src_rect,
-                                                 dst_width,
-                                                 dst_height,
-                                                 dst_rect);
+  view_class->transform_rect_to_onscreen (view,
+                                          src_rect,
+                                          dst_width,
+                                          dst_height,
+                                          dst_rect);
 }
 
 static void
