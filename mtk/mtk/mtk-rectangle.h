@@ -117,7 +117,7 @@ gboolean mtk_rectangle_contains_rect (const MtkRectangle *outer_rect,
                                       const MtkRectangle *inner_rect);
 
 MTK_EXPORT
-graphene_rect_t mtk_rectangle_to_graphene_rect (MtkRectangle *rect);
+graphene_rect_t mtk_rectangle_to_graphene_rect (const MtkRectangle *rect);
 
 MTK_EXPORT
 void mtk_rectangle_from_graphene_rect (const graphene_rect_t *rect,

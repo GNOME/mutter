@@ -286,7 +286,7 @@ mtk_rectangle_contains_rect (const MtkRectangle *outer_rect,
  * Returns: Return a graphene_rect_t created from `rect`
  */
 graphene_rect_t
-mtk_rectangle_to_graphene_rect (MtkRectangle *rect)
+mtk_rectangle_to_graphene_rect (const MtkRectangle *rect)
 {
   return (graphene_rect_t) {
            .origin = {
