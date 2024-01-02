@@ -168,7 +168,7 @@ static int                  _cally_misc_get_index_at_point (ClutterText *clutter
                                                             gint         y,
                                                             AtkCoordType coords);
 
-struct _CallyTextPrivate
+typedef struct _CallyTextPrivate
 {
   /* Cached ClutterText values*/
   gint cursor_position;
@@ -187,7 +187,7 @@ struct _CallyTextPrivate
 
   /* action */
   guint activate_action_id;
-};
+} CallyTextPrivate;
 
 G_DEFINE_TYPE_WITH_CODE (CallyText,
                          cally_text,
@@ -218,8 +218,6 @@ cally_text_init (CallyText *cally_text)
 {
   CallyTextPrivate *priv = cally_text_get_instance_private (cally_text);
 
-  cally_text->priv = priv;
-
   priv->cursor_position = 0;
   priv->selection_bound = 0;
 
@@ -239,11 +237,13 @@ static void
 cally_text_finalize   (GObject *obj)
 {
   CallyText *cally_text = CALLY_TEXT (obj);
+  CallyTextPrivate *priv =
+    cally_text_get_instance_private (cally_text);
 
-/*   g_object_unref (cally_text->priv->textutil); */
-/*   cally_text->priv->textutil = NULL; */
+/*   g_object_unref (priv->textutil); */
+/*   priv->textutil = NULL; */
 
-  g_clear_handle_id (&cally_text->priv->insert_idle_handler, g_source_remove);
+  g_clear_handle_id (&priv->insert_idle_handler, g_source_remove);
 
   G_OBJECT_CLASS (cally_text_parent_class)->finalize (obj);
 }
@@ -281,16 +281,18 @@ cally_text_real_initialize(AtkObject *obj,
 {
   ClutterText *clutter_text = NULL;
   CallyText *cally_text = NULL;
+  CallyTextPrivate *priv;
 
   ATK_OBJECT_CLASS (cally_text_parent_class)->initialize (obj, data);
 
   g_return_if_fail (CLUTTER_TEXT (data));
 
   cally_text = CALLY_TEXT (obj);
+  priv = cally_text_get_instance_private (cally_text);
   clutter_text = CLUTTER_TEXT (data);
 
-  cally_text->priv->cursor_position = clutter_text_get_cursor_position (clutter_text);
-  cally_text->priv->selection_bound = clutter_text_get_selection_bound (clutter_text);
+  priv->cursor_position = clutter_text_get_cursor_position (clutter_text);
+  priv->selection_bound = clutter_text_get_selection_bound (clutter_text);
 
   g_signal_connect (clutter_text, "insert-text",
                     G_CALLBACK (_cally_text_insert_text_cb),
@@ -1536,6 +1538,7 @@ _cally_text_delete_text_cb (ClutterText *clutter_text,
                             gpointer     data)
 {
   CallyText *cally_text = NULL;
+  CallyTextPrivate *priv;
 
   g_return_if_fail (CALLY_IS_TEXT (data));
 
@@ -1544,12 +1547,13 @@ _cally_text_delete_text_cb (ClutterText *clutter_text,
     return;
 
   cally_text = CALLY_TEXT (data);
+  priv = cally_text_get_instance_private (cally_text);
 
-  if (!cally_text->priv->signal_name_delete)
+  if (!priv->signal_name_delete)
     {
-      cally_text->priv->signal_name_delete = "text_changed::delete";
-      cally_text->priv->position_delete = start_pos;
-      cally_text->priv->length_delete = end_pos - start_pos;
+      priv->signal_name_delete = "text_changed::delete";
+      priv->position_delete = start_pos;
+      priv->length_delete = end_pos - start_pos;
     }
 
   _notify_delete (cally_text);
@@ -1563,25 +1567,27 @@ _cally_text_insert_text_cb (ClutterText *clutter_text,
                             gpointer     data)
 {
   CallyText *cally_text = NULL;
+  CallyTextPrivate *priv;
 
   g_return_if_fail (CALLY_IS_TEXT (data));
 
   cally_text = CALLY_TEXT (data);
+  priv = cally_text_get_instance_private (cally_text);
 
-  if (!cally_text->priv->signal_name_insert)
+  if (!priv->signal_name_insert)
     {
-      cally_text->priv->signal_name_insert = "text_changed::insert";
-      cally_text->priv->position_insert = *position;
-      cally_text->priv->length_insert = g_utf8_strlen (new_text, new_text_length);
+      priv->signal_name_insert = "text_changed::insert";
+      priv->position_insert = *position;
+      priv->length_insert = g_utf8_strlen (new_text, new_text_length);
     }
 
   /*
    * The signal will be emitted when the cursor position is updated,
    * or in an idle handler if it not updated.
    */
-  if (cally_text->priv->insert_idle_handler == 0)
-    cally_text->priv->insert_idle_handler = clutter_threads_add_idle (_idle_notify_insert,
-                                                                      cally_text);
+  if (priv->insert_idle_handler == 0)
+    priv->insert_idle_handler = clutter_threads_add_idle (_idle_notify_insert,
+                                                          cally_text);
 }
 
 /***** atkeditabletext.h ******/
@@ -1713,20 +1719,22 @@ cally_text_notify_clutter (GObject    *obj,
 }
 
 static gboolean
-_check_for_selection_change (CallyText *cally_text,
+_check_for_selection_change (CallyText   *cally_text,
                              ClutterText *clutter_text)
 {
   gboolean ret_val = FALSE;
   gint clutter_pos = -1;
   gint clutter_bound = -1;
+  CallyTextPrivate *priv =
+    cally_text_get_instance_private (cally_text);
 
   clutter_pos = clutter_text_get_cursor_position (clutter_text);
   clutter_bound = clutter_text_get_selection_bound (clutter_text);
 
   if (clutter_pos != clutter_bound)
     {
-      if (clutter_pos != cally_text->priv->cursor_position ||
-          clutter_bound != cally_text->priv->selection_bound)
+      if (clutter_pos != priv->cursor_position ||
+          clutter_bound != priv->selection_bound)
         /*
          * This check is here as this function can be called for
          * notification of selection_bound and current_pos.  The
@@ -1739,11 +1747,11 @@ _check_for_selection_change (CallyText *cally_text,
   else
     {
       /* We had a selection */
-      ret_val = (cally_text->priv->cursor_position != cally_text->priv->selection_bound);
+      ret_val = (priv->cursor_position != priv->selection_bound);
     }
 
-  cally_text->priv->cursor_position = clutter_pos;
-  cally_text->priv->selection_bound = clutter_bound;
+  priv->cursor_position = clutter_pos;
+  priv->selection_bound = clutter_bound;
 
   return ret_val;
 }
@@ -1751,10 +1759,11 @@ _check_for_selection_change (CallyText *cally_text,
 static gboolean
 _idle_notify_insert (gpointer data)
 {
-  CallyText *cally_text = NULL;
+  CallyText *cally_text = CALLY_TEXT (data);
+  CallyTextPrivate *priv =
+    cally_text_get_instance_private (cally_text);
 
-  cally_text = CALLY_TEXT (data);
-  cally_text->priv->insert_idle_handler = 0;
+  priv->insert_idle_handler = 0;
 
   _notify_insert (cally_text);
 
@@ -1764,26 +1773,30 @@ _idle_notify_insert (gpointer data)
 static void
 _notify_insert (CallyText *cally_text)
 {
-  if (cally_text->priv->signal_name_insert)
+  CallyTextPrivate *priv =
+    cally_text_get_instance_private (cally_text);
+  if (priv->signal_name_insert)
     {
       g_signal_emit_by_name (cally_text,
-                             cally_text->priv->signal_name_insert,
-                             cally_text->priv->position_insert,
-                             cally_text->priv->length_insert);
-      cally_text->priv->signal_name_insert = NULL;
+                             priv->signal_name_insert,
+                             priv->position_insert,
+                             priv->length_insert);
+      priv->signal_name_insert = NULL;
     }
 }
 
 static void
 _notify_delete (CallyText *cally_text)
 {
-  if (cally_text->priv->signal_name_delete)
+  CallyTextPrivate *priv =
+    cally_text_get_instance_private (cally_text);
+  if (priv->signal_name_delete)
     {
       g_signal_emit_by_name (cally_text,
-                             cally_text->priv->signal_name_delete,
-                             cally_text->priv->position_delete,
-                             cally_text->priv->length_delete);
-      cally_text->priv->signal_name_delete = NULL;
+                             priv->signal_name_delete,
+                             priv->position_delete,
+                             priv->length_delete);
+      priv->signal_name_delete = NULL;
     }
 }
 /* atkaction */
@@ -1802,25 +1815,26 @@ static void
 _check_activate_action (CallyText   *cally_text,
                         ClutterText *clutter_text)
 {
-
+  CallyTextPrivate *priv =
+    cally_text_get_instance_private (cally_text);
   if (clutter_text_get_activatable (clutter_text))
     {
-      if (cally_text->priv->activate_action_id != 0)
+      if (priv->activate_action_id != 0)
         return;
 
-      cally_text->priv->activate_action_id = cally_actor_add_action (CALLY_ACTOR (cally_text),
-                                                                     "activate", NULL, NULL,
-                                                                     _cally_text_activate_action);
+      priv->activate_action_id = cally_actor_add_action (CALLY_ACTOR (cally_text),
+                                                         "activate", NULL, NULL,
+                                                         _cally_text_activate_action);
     }
   else
     {
-      if (cally_text->priv->activate_action_id == 0)
+      if (priv->activate_action_id == 0)
         return;
 
       if (cally_actor_remove_action (CALLY_ACTOR (cally_text),
-                                     cally_text->priv->activate_action_id))
+                                     priv->activate_action_id))
         {
-          cally_text->priv->activate_action_id = 0;
+          priv->activate_action_id = 0;
         }
     }
 }

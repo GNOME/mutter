@@ -30,23 +30,16 @@
 G_BEGIN_DECLS
 
 #define CALLY_TYPE_TEXT                 (cally_text_get_type ())
-#define CALLY_TEXT(obj)                 (G_TYPE_CHECK_INSTANCE_CAST ((obj), CALLY_TYPE_TEXT, CallyText))
-#define CALLY_TEXT_CLASS(klass)         (G_TYPE_CHECK_CLASS_CAST ((klass), CALLY_TYPE_TEXT, CallyTextClass))
-#define CALLY_IS_TEXT(obj)              (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CALLY_TYPE_TEXT))
-#define CALLY_IS_TEXT_CLASS(klass)      (G_TYPE_CHECK_CLASS_TYPE ((klass), CALLY_TYPE_TEXT))
-#define CALLY_TEXT_GET_CLASS(obj)       (G_TYPE_INSTANCE_GET_CLASS ((obj), CALLY_TYPE_TEXT, CallyTextClass))
 
-typedef struct _CallyText               CallyText;
-typedef struct _CallyTextClass          CallyTextClass;
-typedef struct _CallyTextPrivate        CallyTextPrivate;
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (CallyText,
+                          cally_text,
+                          CALLY,
+                          TEXT,
+                          CallyActor)
 
-struct _CallyText
-{
-  /*< private >*/
-  CallyActor parent;
-
-  CallyTextPrivate *priv;
-};
+typedef struct _CallyText CallyText;
+typedef struct _CallyTextClass CallyTextClass;
 
 struct _CallyTextClass
 {
@@ -54,8 +47,6 @@ struct _CallyTextClass
   CallyActorClass parent_class;
 };
 
-CLUTTER_EXPORT
-GType      cally_text_get_type (void) G_GNUC_CONST;
 CLUTTER_EXPORT
 AtkObject* cally_text_new      (ClutterActor *actor);
 
