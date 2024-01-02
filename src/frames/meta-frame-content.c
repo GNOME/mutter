@@ -26,6 +26,7 @@ struct _MetaFrameContent
   GtkWidget parent_instance;
   Window window;
   GtkBorder border;
+  gboolean border_initialized;
 };
 
 enum {
@@ -100,13 +101,15 @@ static void
 meta_frame_content_update_border (MetaFrameContent *content,
                                   GtkBorder         border)
 {
-  if (content->border.left == border.left &&
+  if (content->border_initialized &&
+      content->border.left == border.left &&
       content->border.right == border.right &&
       content->border.top == border.top &&
       content->border.bottom == border.bottom)
     return;
 
   content->border = border;
+  content->border_initialized = TRUE;
   g_object_notify (G_OBJECT (content), "border");
 }
 
