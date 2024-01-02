@@ -62,7 +62,7 @@ static void             cally_util_stage_removed_cb     (ClutterStageManager *st
                                                          ClutterStage *stage,
                                                          gpointer data);
 
-struct _CallyRootPrivate
+typedef struct _CallyRootPrivate
 {
 /* We save the CallyStage objects. Other option could save the stage
  * list, and then just get the a11y object on the ref_child, etc. But
@@ -75,7 +75,7 @@ struct _CallyRootPrivate
   /* signals id */
   gulong stage_added_id;
   gulong stage_removed_id;
-};
+} CallyRootPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (CallyRoot, cally_root,  ATK_TYPE_GOBJECT_ACCESSIBLE)
 
@@ -98,11 +98,11 @@ cally_root_class_init (CallyRootClass *klass)
 static void
 cally_root_init (CallyRoot *root)
 {
-  root->priv = cally_root_get_instance_private (root);
+  CallyRootPrivate *priv = cally_root_get_instance_private (root);
 
-  root->priv->stage_list = NULL;
-  root->priv->stage_added_id = 0;
-  root->priv->stage_removed_id = 0;
+  priv->stage_list = NULL;
+  priv->stage_added_id = 0;
+  priv->stage_removed_id = 0;
 }
 
 /**
@@ -134,20 +134,22 @@ cally_root_finalize (GObject *object)
 {
   CallyRoot *root = CALLY_ROOT (object);
   GObject *stage_manager = NULL;
+  CallyRootPrivate *priv;
 
   g_return_if_fail (CALLY_IS_ROOT (object));
 
-  if (root->priv->stage_list)
+  priv = cally_root_get_instance_private (root);
+  if (priv->stage_list)
     {
-      g_slist_free (root->priv->stage_list);
-      root->priv->stage_list = NULL;
+      g_slist_free (priv->stage_list);
+      priv->stage_list = NULL;
     }
 
   stage_manager = atk_gobject_accessible_get_object (ATK_GOBJECT_ACCESSIBLE (root));
 
-  g_clear_signal_handler (&root->priv->stage_added_id, stage_manager);
+  g_clear_signal_handler (&priv->stage_added_id, stage_manager);
 
-  g_clear_signal_handler (&root->priv->stage_removed_id, stage_manager);
+  g_clear_signal_handler (&priv->stage_removed_id, stage_manager);
 
   G_OBJECT_CLASS (cally_root_parent_class)->finalize (object);
 }
@@ -162,13 +164,14 @@ cally_root_initialize (AtkObject              *accessible,
   const GSList        *stage_list    = NULL;
   ClutterStage        *clutter_stage = NULL;
   AtkObject           *cally_stage   = NULL;
-  CallyRoot           *root          = NULL;
+  CallyRoot *root = CALLY_ROOT (accessible);
+  CallyRootPrivate *priv = cally_root_get_instance_private (root);
+
 
   accessible->role = ATK_ROLE_APPLICATION;
   accessible->accessible_parent = NULL;
 
   /* children initialization */
-  root = CALLY_ROOT (accessible);
   stage_manager = CLUTTER_STAGE_MANAGER (data);
   stage_list = clutter_stage_manager_peek_stages (stage_manager);
 
@@ -179,15 +182,14 @@ cally_root_initialize (AtkObject              *accessible,
 
       atk_object_set_parent (cally_stage, ATK_OBJECT (root));
 
-      root->priv->stage_list = g_slist_append (root->priv->stage_list,
-                                               cally_stage);
+      priv->stage_list = g_slist_append (priv->stage_list, cally_stage);
     }
 
-  root->priv->stage_added_id =
+  priv->stage_added_id =
     g_signal_connect (G_OBJECT (stage_manager), "stage-added",
                       G_CALLBACK (cally_util_stage_added_cb), root);
 
-  root->priv->stage_removed_id =
+  priv->stage_removed_id =
     g_signal_connect (G_OBJECT (stage_manager), "stage-removed",
                       G_CALLBACK (cally_util_stage_removed_cb), root);
 
@@ -199,21 +201,22 @@ static gint
 cally_root_get_n_children (AtkObject *obj)
 {
   CallyRoot *root = CALLY_ROOT (obj);
+  CallyRootPrivate *priv = cally_root_get_instance_private (root);
 
-  return g_slist_length (root->priv->stage_list);
+  return g_slist_length (priv->stage_list);
 }
 
 static AtkObject*
 cally_root_ref_child (AtkObject *obj,
-                     gint i)
+                      gint       i)
 {
-  CallyRoot *cally_root = NULL;
+  CallyRoot *cally_root = CALLY_ROOT (obj);
+  CallyRootPrivate *priv = cally_root_get_instance_private (cally_root);
   GSList *stage_list = NULL;
   gint num = 0;
   AtkObject *item = NULL;
 
-  cally_root = CALLY_ROOT (obj);
-  stage_list = cally_root->priv->stage_list;
+  stage_list = priv->stage_list;
   num = g_slist_length (stage_list);
 
   g_return_val_if_fail ((i < num)&&(i >= 0), NULL);
@@ -245,21 +248,22 @@ cally_root_get_name (AtkObject *obj)
 
 static void
 cally_util_stage_added_cb (ClutterStageManager *stage_manager,
-                           ClutterStage *stage,
-                           gpointer data)
+                           ClutterStage        *stage,
+                           gpointer             data)
 {
   CallyRoot *root = CALLY_ROOT (data);
   AtkObject *cally_stage = NULL;
+  CallyRootPrivate *priv = cally_root_get_instance_private (root);
+
   gint index = -1;
 
   cally_stage = clutter_actor_get_accessible (CLUTTER_ACTOR (stage));
 
   atk_object_set_parent (cally_stage, ATK_OBJECT (root));
 
-  root->priv->stage_list = g_slist_append (root->priv->stage_list,
-                                           cally_stage);
+  priv->stage_list = g_slist_append (priv->stage_list, cally_stage);
 
-  index = g_slist_index (root->priv->stage_list, cally_stage);
+  index = g_slist_index (priv->stage_list, cally_stage);
   g_signal_emit_by_name (root, "children_changed::add",
                          index, cally_stage, NULL);
   g_signal_emit_by_name (cally_stage, "create", 0);
@@ -267,21 +271,23 @@ cally_util_stage_added_cb (ClutterStageManager *stage_manager,
 
 static void
 cally_util_stage_removed_cb (ClutterStageManager *stage_manager,
-                             ClutterStage *stage,
-                             gpointer data)
+                             ClutterStage        *stage,
+                             gpointer             data)
 {
   CallyRoot *root = CALLY_ROOT (data);
   AtkObject *cally_stage = NULL;
+  CallyRootPrivate *priv
+    = cally_root_get_instance_private (root);
   gint index = -1;
 
   cally_stage = clutter_actor_get_accessible (CLUTTER_ACTOR (stage));
 
-  index = g_slist_index (root->priv->stage_list, cally_stage);
+  index = g_slist_index (priv->stage_list, cally_stage);
 
-  root->priv->stage_list = g_slist_remove (root->priv->stage_list,
-                                           cally_stage);
+  priv->stage_list = g_slist_remove (priv->stage_list,
+                                     cally_stage);
 
-  index = g_slist_index (root->priv->stage_list, cally_stage);
+  index = g_slist_index (priv->stage_list, cally_stage);
   g_signal_emit_by_name (root, "children_changed::remove",
                          index, cally_stage, NULL);
   g_signal_emit_by_name (cally_stage, "destroy", 0);
