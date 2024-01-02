@@ -30,23 +30,16 @@
 G_BEGIN_DECLS
 
 #define CALLY_TYPE_CLONE            (cally_clone_get_type ())
-#define CALLY_CLONE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), CALLY_TYPE_CLONE, CallyClone))
-#define CALLY_CLONE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), CALLY_TYPE_CLONE, CallyCloneClass))
-#define CALLY_IS_CLONE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CALLY_TYPE_CLONE))
-#define CALLY_IS_CLONE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), CALLY_TYPE_CLONE))
-#define CALLY_CLONE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), CALLY_TYPE_CLONE, CallyCloneClass))
 
-typedef struct _CallyClone        CallyClone;
-typedef struct _CallyCloneClass   CallyCloneClass;
-typedef struct _CallyClonePrivate CallyClonePrivate;
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (CallyClone,
+                          cally_clone,
+                          CALLY,
+                          CLONE,
+                          CallyActor)
 
-struct _CallyClone
-{
-  /*< private >*/
-  CallyActor parent;
-
-  CallyClonePrivate *priv;
-};
+typedef struct _CallyClone CallyClone;
+typedef struct _CallyCloneClass CallyCloneClass;
 
 struct _CallyCloneClass
 {
@@ -54,8 +47,6 @@ struct _CallyCloneClass
   CallyActorClass parent_class;
 };
 
-CLUTTER_EXPORT
-GType      cally_clone_get_type (void) G_GNUC_CONST;
 CLUTTER_EXPORT
 AtkObject *cally_clone_new      (ClutterActor *actor);
 
