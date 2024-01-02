@@ -50,16 +50,6 @@ typedef enum _CoglBufferFlags
   COGL_BUFFER_FLAG_MAPPED_FALLBACK = 1UL << 2
 } CoglBufferFlags;
 
-typedef enum
-{
-  COGL_BUFFER_BIND_TARGET_PIXEL_PACK,
-  COGL_BUFFER_BIND_TARGET_PIXEL_UNPACK,
-  COGL_BUFFER_BIND_TARGET_ATTRIBUTE_BUFFER,
-  COGL_BUFFER_BIND_TARGET_INDEX_BUFFER,
-
-  COGL_BUFFER_BIND_TARGET_COUNT
-} CoglBufferBindTarget;
-
 struct _CoglBuffer
 {
   GObject parent_instance;

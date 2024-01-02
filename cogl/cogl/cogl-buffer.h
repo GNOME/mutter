@@ -186,6 +186,19 @@ typedef enum /*< prefix=COGL_BUFFER_MAP_HINT >*/
 } CoglBufferMapHint;
 
 /**
+ * CoglBufferBindTarget:
+ */
+typedef enum /*< prefix=COGL_BUFFER_BIND_TARGET >*/
+{
+  COGL_BUFFER_BIND_TARGET_PIXEL_PACK,
+  COGL_BUFFER_BIND_TARGET_PIXEL_UNPACK,
+  COGL_BUFFER_BIND_TARGET_ATTRIBUTE_BUFFER,
+  COGL_BUFFER_BIND_TARGET_INDEX_BUFFER,
+
+  COGL_BUFFER_BIND_TARGET_COUNT
+} CoglBufferBindTarget;
+
+/**
  * cogl_buffer_map:
  * @buffer: a buffer object
  * @access: how the mapped buffer will be used by the application
