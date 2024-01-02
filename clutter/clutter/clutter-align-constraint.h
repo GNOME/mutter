@@ -33,14 +33,10 @@
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_ALIGN_CONSTRAINT           (clutter_align_constraint_get_type ())
-#define CLUTTER_ALIGN_CONSTRAINT(obj)           (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_ALIGN_CONSTRAINT, ClutterAlignConstraint))
-#define CLUTTER_IS_ALIGN_CONSTRAINT(obj)        (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_ALIGN_CONSTRAINT))
-
-typedef struct _ClutterAlignConstraint          ClutterAlignConstraint;
-typedef struct _ClutterAlignConstraintClass     ClutterAlignConstraintClass;
 
 CLUTTER_EXPORT
-GType clutter_align_constraint_get_type (void) G_GNUC_CONST;
+G_DECLARE_FINAL_TYPE (ClutterAlignConstraint, clutter_align_constraint,
+                      CLUTTER, ALIGN_CONSTRAINT, ClutterConstraint)
 
 CLUTTER_EXPORT
 ClutterConstraint *clutter_align_constraint_new            (ClutterActor           *source,

@@ -24,7 +24,7 @@
 
 /**
  * ClutterAlignConstraint:
- * 
+ *
  * A constraint aligning the position of an actor
  *
  * #ClutterAlignConstraint is a [class@Constraint] that aligns the position
@@ -45,10 +45,6 @@
 
 #include <math.h>
 
-#define CLUTTER_ALIGN_CONSTRAINT_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_ALIGN_CONSTRAINT, ClutterAlignConstraintClass))
-#define CLUTTER_IS_ALIGN_CONSTRAINT_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_ALIGN_CONSTRAINT))
-#define CLUTTER_ALIGN_CONSTRAINT_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_ALIGN_CONSTRAINT, ClutterAlignConstraintClass))
-
 struct _ClutterAlignConstraint
 {
   ClutterConstraint parent_instance;
@@ -58,11 +54,6 @@ struct _ClutterAlignConstraint
   ClutterAlignAxis align_axis;
   graphene_point_t pivot;
   gfloat factor;
-};
-
-struct _ClutterAlignConstraintClass
-{
-  ClutterConstraintClass parent_class;
 };
 
 enum
@@ -79,9 +70,9 @@ enum
 
 static GParamSpec *obj_props[PROP_LAST];
 
-G_DEFINE_TYPE (ClutterAlignConstraint,
-               clutter_align_constraint,
-               CLUTTER_TYPE_CONSTRAINT);
+G_DEFINE_FINAL_TYPE (ClutterAlignConstraint,
+                     clutter_align_constraint,
+                     CLUTTER_TYPE_CONSTRAINT);
 
 static void
 source_queue_relayout (ClutterActor           *actor,
