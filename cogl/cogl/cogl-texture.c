@@ -40,6 +40,7 @@
 #include "cogl/cogl-bitmap.h"
 #include "cogl/cogl-bitmap-private.h"
 #include "cogl/cogl-buffer-private.h"
+#include "cogl/cogl-enum-types.h"
 #include "cogl/cogl-pixel-buffer-private.h"
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-texture-private.h"
@@ -135,7 +136,7 @@ cogl_texture_set_property (GObject      *gobject,
       break;
 
     case PROP_FORMAT:
-      _cogl_texture_set_internal_format (texture, g_value_get_uint (value));
+      _cogl_texture_set_internal_format (texture, g_value_get_enum (value));
       /* Although we want to initialize texture::components according
       * to the source format, we always want the internal layout to
       * be considered premultiplied by default.
@@ -188,8 +189,8 @@ cogl_texture_class_init (CoglTextureClass *klass)
                           G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY |
                           G_PARAM_STATIC_STRINGS);
   obj_props[PROP_FORMAT] =
-    g_param_spec_uint ("format", NULL, NULL,
-                       COGL_PIXEL_FORMAT_ANY, G_MAXINT,
+    g_param_spec_enum ("format", NULL, NULL,
+                       COGL_TYPE_PIXEL_FORMAT,
                        COGL_PIXEL_FORMAT_ANY,
                        G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY |
                        G_PARAM_STATIC_STRINGS);

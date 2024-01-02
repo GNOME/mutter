@@ -18,7 +18,6 @@ cogl_headers = [
   'cogl-pipeline-layer-state.h',
   'cogl-pipeline-state.h',
   'cogl-pipeline.h',
-  'cogl-pixel-format.h',
   'cogl-snippet.h',
   'cogl-texture-2d-sliced.h',
   'cogl-texture-2d.h',
@@ -356,7 +355,26 @@ if have_egl_xlib
   ]
 endif
 
+cogl_enum_headers = [
+  'cogl-pixel-format.h',
+]
+
+cogl_headers += [
+  cogl_enum_headers,
+]
+
+cogl_enums = gnome.mkenums('cogl-enums',
+         sources: cogl_enum_headers,
+      c_template: 'cogl-enum-types.c.in',
+      h_template: 'cogl-enum-types.h.in',
+     install_dir: cogl_cogl_includedir,
+  install_header: true,
+)
+
+cogl_sources += [cogl_enums[0]]
+
 cogl_introspected_headers = [
+  cogl_enums[1],
   cogl_headers,
   cogl_deprecated_headers,
 ]
