@@ -30,32 +30,22 @@
 G_BEGIN_DECLS
 
 #define CALLY_TYPE_UTIL            (cally_util_get_type ())
-#define CALLY_UTIL(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), CALLY_TYPE_UTIL, CallyUtil))
-#define CALLY_UTIL_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), CALLY_TYPE_UTIL, CallyUtilClass))
-#define CALLY_IS_UTIL(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CALLY_TYPE_UTIL))
-#define CALLY_IS_UTIL_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), CALLY_TYPE_UTIL))
-#define CALLY_UTIL_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), CALLY_TYPE_UTIL, CallyUtilClass))
 
 typedef struct _CallyUtil        CallyUtil;
 typedef struct _CallyUtilClass   CallyUtilClass;
-typedef struct _CallyUtilPrivate CallyUtilPrivate;
 
-struct _CallyUtil
-{
-  /*< private >*/
-  AtkUtil parent;
-
-  CallyUtilPrivate *priv;
-};
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (CallyUtil,
+                          cally_util,
+                          CALLY,
+                          UTIL,
+                          AtkUtil)
 
 struct _CallyUtilClass
 {
   /*< private >*/
   AtkUtilClass parent_class;
 };
-
-CLUTTER_EXPORT
-GType cally_util_get_type (void) G_GNUC_CONST;
 
 void _cally_util_override_atk_util (void);
 
