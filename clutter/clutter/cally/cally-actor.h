@@ -35,11 +35,13 @@
 G_BEGIN_DECLS
 
 #define CALLY_TYPE_ACTOR            (cally_actor_get_type ())
-#define CALLY_ACTOR(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), CALLY_TYPE_ACTOR, CallyActor))
-#define CALLY_ACTOR_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), CALLY_TYPE_ACTOR, CallyActorClass))
-#define CALLY_IS_ACTOR(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CALLY_TYPE_ACTOR))
-#define CALLY_IS_ACTOR_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), CALLY_TYPE_ACTOR))
-#define CALLY_ACTOR_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), CALLY_TYPE_ACTOR, CallyActorClass))
+
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (CallyActor,
+                          cally_actor,
+                          CALLY,
+                          ACTOR,
+                          AtkGObjectAccessible)
 
 typedef struct _CallyActor           CallyActor;
 typedef struct _CallyActorClass      CallyActorClass;
@@ -68,14 +70,6 @@ typedef void (* CallyActionFunc) (CallyActor *cally_actor);
 typedef void (* CallyActionCallback) (CallyActor *cally_actor,
                                       gpointer    user_data);
 
-struct _CallyActor
-{
-  /*< private >*/
-  AtkGObjectAccessible parent;
-
-  CallyActorPrivate *priv;
-};
-
 /**
  * CallyActorClass:
  * @notify_clutter: Signal handler for notify signal on Clutter actor
@@ -99,9 +93,6 @@ struct _CallyActorClass
                               ClutterActor *actor,
                               gpointer      data);
 };
-
-CLUTTER_EXPORT
-GType      cally_actor_get_type              (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
 AtkObject* cally_actor_new                   (ClutterActor        *actor);
