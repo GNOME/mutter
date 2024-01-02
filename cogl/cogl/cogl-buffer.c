@@ -43,6 +43,7 @@
 #include <string.h>
 #include <glib.h>
 
+#include "cogl/cogl-enum-types.h"
 #include "cogl/cogl-util.h"
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-pixel-buffer-private.h"
@@ -135,7 +136,7 @@ cogl_buffer_set_property (GObject      *gobject,
       {
         gboolean use_malloc = FALSE;
 
-        buffer->last_target = g_value_get_uint (value);
+        buffer->last_target = g_value_get_enum (value);
         if (buffer->last_target == COGL_BUFFER_BIND_TARGET_PIXEL_PACK ||
             buffer->last_target == COGL_BUFFER_BIND_TARGET_PIXEL_UNPACK)
           {
@@ -165,7 +166,7 @@ cogl_buffer_set_property (GObject      *gobject,
       break;
 
     case PROP_UPDATE_HINT:
-      buffer->update_hint = g_value_get_uint (value);
+      buffer->update_hint = g_value_get_enum (value);
       break;
 
     default:
@@ -193,13 +194,15 @@ cogl_buffer_class_init (CoglBufferClass *klass)
                          G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
   obj_props[PROP_DEFAULT_TARGET] =
-    g_param_spec_uint ("default-target", NULL, NULL,
-                       0, G_MAXINT, 0,
+    g_param_spec_enum ("default-target", NULL, NULL,
+                       COGL_TYPE_BUFFER_BIND_TARGET,
+                       COGL_BUFFER_BIND_TARGET_PIXEL_PACK,
                        G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY |
                        G_PARAM_STATIC_STRINGS);
   obj_props[PROP_UPDATE_HINT] =
-    g_param_spec_uint ("update-hint", NULL, NULL,
-                       0, G_MAXINT, 0,
+    g_param_spec_enum ("update-hint", NULL, NULL,
+                       COGL_TYPE_BUFFER_UPDATE_HINT,
+                       COGL_BUFFER_UPDATE_HINT_STATIC,
                        G_PARAM_WRITABLE | G_PARAM_CONSTRUCT |
                        G_PARAM_STATIC_STRINGS);
 

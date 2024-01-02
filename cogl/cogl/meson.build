@@ -32,7 +32,6 @@ cogl_nonintrospected_headers = [
   'cogl-atlas-texture.h',
   'cogl-attribute-buffer.h',
   'cogl-attribute.h',
-  'cogl-buffer.h',
   'cogl-depth-state.h',
   'cogl-display.h',
   'cogl-dma-buf-handle.h',
@@ -356,6 +355,7 @@ if have_egl_xlib
 endif
 
 cogl_enum_headers = [
+  'cogl-buffer.h',
   'cogl-pixel-format.h',
 ]
 
