@@ -30,23 +30,16 @@
 G_BEGIN_DECLS
 
 #define CALLY_TYPE_STAGE            (cally_stage_get_type ())
-#define CALLY_STAGE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), CALLY_TYPE_STAGE, CallyStage))
-#define CALLY_STAGE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), CALLY_TYPE_STAGE, CallyStageClass))
-#define CALLY_IS_STAGE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CALLY_TYPE_STAGE))
-#define CALLY_IS_STAGE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), CALLY_TYPE_STAGE))
-#define CALLY_STAGE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), CALLY_TYPE_STAGE, CallyStageClass))
 
-typedef struct _CallyStage        CallyStage;
-typedef struct _CallyStageClass   CallyStageClass;
-typedef struct _CallyStagePrivate CallyStagePrivate;
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (CallyStage,
+                          cally_stage,
+                          CALLY,
+                          STAGE,
+                          CallyActor)
 
-struct _CallyStage
-{
-  /*< private >*/
-  CallyActor parent;
-
-  CallyStagePrivate *priv;
-};
+typedef struct _CallyStage CallyStage;
+typedef struct _CallyStageClass CallyStageClass;
 
 struct _CallyStageClass
 {
@@ -54,8 +47,6 @@ struct _CallyStageClass
   CallyActorClass parent_class;
 };
 
-CLUTTER_EXPORT
-GType      cally_stage_get_type (void) G_GNUC_CONST;
 CLUTTER_EXPORT
 AtkObject *cally_stage_new      (ClutterActor *actor);
 

@@ -50,13 +50,13 @@ static void                  cally_stage_activate_cb     (ClutterStage *stage,
 static void                  cally_stage_deactivate_cb   (ClutterStage *stage,
                                                           gpointer      data);
 
-struct _CallyStagePrivate
+typedef struct _CallyStagePrivate
 {
   /* NULL means that the stage will receive the focus */
   ClutterActor *key_focus;
 
   gboolean active;
-};
+} CallyStagePrivate;
 
 G_DEFINE_TYPE_WITH_CODE (CallyStage,
                          cally_stage,
@@ -79,8 +79,6 @@ static void
 cally_stage_init (CallyStage *cally_stage)
 {
   CallyStagePrivate *priv = cally_stage_get_instance_private (cally_stage);
-
-  cally_stage->priv = priv;
 
   priv->active = FALSE;
 }
@@ -117,24 +115,25 @@ cally_stage_notify_key_focus_cb (ClutterStage *stage,
 {
   ClutterActor *key_focus = NULL;
   AtkObject *new = NULL;
+  CallyStagePrivate *priv = cally_stage_get_instance_private (self);
 
-  if (self->priv->active == FALSE)
+  if (priv->active == FALSE)
     return;
 
   key_focus = clutter_stage_get_key_focus (stage);
 
-  if (key_focus != self->priv->key_focus)
+  if (key_focus != priv->key_focus)
     {
       AtkObject *old = NULL;
 
-      if (self->priv->key_focus != NULL)
+      if (priv->key_focus != NULL)
         {
-          if (self->priv->key_focus != CLUTTER_ACTOR (stage))
+          if (priv->key_focus != CLUTTER_ACTOR (stage))
             {
-              g_object_remove_weak_pointer (G_OBJECT (self->priv->key_focus),
-                                            (gpointer *) &self->priv->key_focus);
+              g_object_remove_weak_pointer (G_OBJECT (priv->key_focus),
+                                            (gpointer *) &priv->key_focus);
             }
-          old = clutter_actor_get_accessible (self->priv->key_focus);
+          old = clutter_actor_get_accessible (priv->key_focus);
         }
       else
         old = clutter_actor_get_accessible (CLUTTER_ACTOR (stage));
@@ -147,7 +146,7 @@ cally_stage_notify_key_focus_cb (ClutterStage *stage,
   /* we keep notifying the focus gain without checking previous
    * key-focus to avoid some missing events due timing
    */
-  self->priv->key_focus = key_focus;
+  priv->key_focus = key_focus;
 
   if (key_focus != NULL)
     {
@@ -160,8 +159,8 @@ cally_stage_notify_key_focus_cb (ClutterStage *stage,
        */
       if (key_focus != CLUTTER_ACTOR (stage))
         {
-          g_object_add_weak_pointer (G_OBJECT (self->priv->key_focus),
-                                     (gpointer *) &self->priv->key_focus);
+          g_object_add_weak_pointer (G_OBJECT (priv->key_focus),
+                                     (gpointer *) &priv->key_focus);
         }
 
       new = clutter_actor_get_accessible (key_focus);
@@ -200,9 +199,11 @@ cally_stage_ref_state_set   (AtkObject *obj)
   CallyStage   *cally_stage = NULL;
   AtkStateSet  *state_set   = NULL;
   ClutterStage *stage       = NULL;
+  CallyStagePrivate *priv;
 
   g_return_val_if_fail (CALLY_IS_STAGE (obj), NULL);
   cally_stage = CALLY_STAGE (obj);
+  priv = cally_stage_get_instance_private (cally_stage);
 
   state_set = ATK_OBJECT_CLASS (cally_stage_parent_class)->ref_state_set (obj);
   stage = CLUTTER_STAGE (CALLY_GET_CLUTTER_ACTOR (cally_stage));
@@ -210,7 +211,7 @@ cally_stage_ref_state_set   (AtkObject *obj)
   if (stage == NULL)
     return state_set;
 
-  if (cally_stage->priv->active)
+  if (priv->active)
     atk_state_set_add_state (state_set, ATK_STATE_ACTIVE);
 
   return state_set;
@@ -229,12 +230,14 @@ cally_stage_activate_cb     (ClutterStage *stage,
                              gpointer      data)
 {
   CallyStage *cally_stage = NULL;
+  CallyStagePrivate *priv;
 
   g_return_if_fail (CALLY_IS_STAGE (data));
 
   cally_stage = CALLY_STAGE (data);
+  priv = cally_stage_get_instance_private (cally_stage);
 
-  cally_stage->priv->active = TRUE;
+  priv->active = TRUE;
 
   atk_object_notify_state_change (ATK_OBJECT (cally_stage),
                                   ATK_STATE_ACTIVE, TRUE);
@@ -247,12 +250,14 @@ cally_stage_deactivate_cb   (ClutterStage *stage,
                              gpointer      data)
 {
   CallyStage *cally_stage = NULL;
+  CallyStagePrivate *priv;
 
   g_return_if_fail (CALLY_IS_STAGE (data));
 
   cally_stage = CALLY_STAGE (data);
+  priv = cally_stage_get_instance_private (cally_stage);
 
-  cally_stage->priv->active = FALSE;
+  priv->active = FALSE;
 
   atk_object_notify_state_change (ATK_OBJECT (cally_stage),
                                   ATK_STATE_ACTIVE, FALSE);
