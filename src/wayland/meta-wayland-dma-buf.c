@@ -359,9 +359,7 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
   MetaMultiTextureFormat multi_format;
   CoglPixelFormat cogl_format;
   const MetaFormatInfo *format_info;
-#ifdef HAVE_NATIVE_BACKEND
   MetaDrmFormatBuf format_buf;
-#endif
 
   if (buffer->dma_buf.texture)
     return TRUE;
@@ -378,7 +376,6 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
   cogl_format = format_info->cogl_format;
   multi_format = format_info->multi_texture_format;
 
-#ifdef HAVE_NATIVE_BACKEND
   meta_topic (META_DEBUG_WAYLAND,
               "[dma-buf] wl_buffer@%u DRM format %s "
               "-> MetaMultiTextureFormat %s / CoglPixelFormat %s",
@@ -386,7 +383,6 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
               meta_drm_format_to_string (&format_buf, dma_buf->drm_format),
               meta_multi_texture_format_to_string (multi_format),
               cogl_pixel_format_to_string (cogl_format));
-#endif
 
   if (multi_format == META_MULTI_TEXTURE_FORMAT_SIMPLE)
     {
