@@ -88,13 +88,7 @@ cogl_pango_font_map_create_context (CoglPangoFontMap *fm)
 {
   g_return_val_if_fail (COGL_PANGO_IS_FONT_MAP (fm), NULL);
 
-#if PANGO_VERSION_CHECK (1, 22, 0)
-  /* We can just directly use the pango context from the Cairo font
-     map */
-  return pango_font_map_create_context (PANGO_FONT_MAP (fm));
-#else
   return pango_cairo_font_map_create_context (PANGO_CAIRO_FONT_MAP (fm));
-#endif
 }
 
 static CoglPangoFontMapPriv *
