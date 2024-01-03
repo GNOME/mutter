@@ -132,33 +132,36 @@ cogl_buffer_set_property (GObject      *gobject,
       break;
 
     case PROP_DEFAULT_TARGET:
-      gboolean use_malloc = FALSE;
-      buffer->last_target = g_value_get_uint (value);
-      if (buffer->last_target == COGL_BUFFER_BIND_TARGET_PIXEL_PACK ||
-          buffer->last_target == COGL_BUFFER_BIND_TARGET_PIXEL_UNPACK)
-        {
-          if (!_cogl_has_private_feature (buffer->context, COGL_PRIVATE_FEATURE_PBOS))
-            use_malloc = TRUE;
-        }
+      {
+        gboolean use_malloc = FALSE;
 
-      if (use_malloc)
-        {
-          buffer->map_range = malloc_map_range;
-          buffer->unmap = malloc_unmap;
-          buffer->set_data = malloc_set_data;
+        buffer->last_target = g_value_get_uint (value);
+        if (buffer->last_target == COGL_BUFFER_BIND_TARGET_PIXEL_PACK ||
+            buffer->last_target == COGL_BUFFER_BIND_TARGET_PIXEL_UNPACK)
+          {
+            if (!_cogl_has_private_feature (buffer->context, COGL_PRIVATE_FEATURE_PBOS))
+              use_malloc = TRUE;
+          }
 
-          buffer->data = g_malloc (buffer->size);
-        }
-      else
-        {
-          buffer->map_range = buffer->context->driver_vtable->buffer_map_range;
-          buffer->unmap = buffer->context->driver_vtable->buffer_unmap;
-          buffer->set_data = buffer->context->driver_vtable->buffer_set_data;
+        if (use_malloc)
+          {
+            buffer->map_range = malloc_map_range;
+            buffer->unmap = malloc_unmap;
+            buffer->set_data = malloc_set_data;
 
-          buffer->context->driver_vtable->buffer_create (buffer);
+            buffer->data = g_malloc (buffer->size);
+          }
+        else
+          {
+            buffer->map_range = buffer->context->driver_vtable->buffer_map_range;
+            buffer->unmap = buffer->context->driver_vtable->buffer_unmap;
+            buffer->set_data = buffer->context->driver_vtable->buffer_set_data;
 
-          buffer->flags |= COGL_BUFFER_FLAG_BUFFER_OBJECT;
-        }
+            buffer->context->driver_vtable->buffer_create (buffer);
+
+            buffer->flags |= COGL_BUFFER_FLAG_BUFFER_OBJECT;
+          }
+      }
       break;
 
     case PROP_UPDATE_HINT:
