@@ -23,11 +23,6 @@
 #include <drm_fourcc.h>
 #include <glib.h>
 
-/* added in libdrm 2.4.95 */
-#ifndef DRM_FORMAT_INVALID
-#define DRM_FORMAT_INVALID 0
-#endif
-
 float
 meta_calculate_drm_mode_refresh_rate (const drmModeModeInfo *drm_mode)
 {

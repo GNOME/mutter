@@ -51,6 +51,7 @@ wayland_protocols_req = '>= 1.32'
 # native backend version requirements
 libinput_req = '>= 1.19.0'
 gbm_req = '>= 21.3'
+libdrm_req = '>= 2.4.95'
 
 # screen cast version requirements
 libpipewire_req = '>= 0.3.33'
@@ -270,7 +271,7 @@ if have_native_backend
 endif
 
 if have_wayland or have_native_backend
-  libdrm_dep = dependency('libdrm')
+  libdrm_dep = dependency('libdrm', version: libdrm_req)
 endif
 
 have_egl_device = get_option('egl_device')

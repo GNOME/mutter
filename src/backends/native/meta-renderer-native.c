@@ -76,11 +76,6 @@
 #define EGL_DRM_MASTER_FD_EXT 0x333C
 #endif
 
-/* added in libdrm 2.4.95 */
-#ifndef DRM_FORMAT_INVALID
-#define DRM_FORMAT_INVALID 0
-#endif
-
 struct _MetaRendererNative
 {
   MetaRenderer parent;
