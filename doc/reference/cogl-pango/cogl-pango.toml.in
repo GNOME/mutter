@@ -4,6 +4,7 @@ browse_url = "https://gitlab.gnome.org/GNOME/mutter/"
 repository_url = "https://gitlab.gnome.org/GNOME/mutter.git"
 website_url = "https://blogs.gnome.org/shell-dev/"
 docs_url = "https://docs.gtk.org/"
+logo_url = "logo.svg"
 authors = "Mutter Development Team"
 license = "GPL-2.0-or-later"
 description = "A Low Level GPU Graphics and Utilities API"
@@ -39,6 +40,7 @@ base_url = "https://gitlab.gnome.org/GNOME/mutter/-/blob/@vcs_tag@/"
 content_files = [
 ]
 content_images = [
+  "logo.svg",
 ]
 urlmap_file = "urlmap.js"
 
