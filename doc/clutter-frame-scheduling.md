@@ -1,4 +1,4 @@
-# Frame scheduling
+# Clutter Frame scheduling
 
 `ClutterFrameClock` state diagram.
 
