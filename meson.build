@@ -22,7 +22,6 @@ graphene_req = '>= 1.10.2'
 gtk3_req = '>= 3.19.8'
 gtk4_req = '>= 4.0.0'
 gdk_pixbuf_req = '>= 2.0'
-uprof_req = '>= 0.3'
 pango_req = '>= 1.46.0'
 cairo_req = '>= 1.10.0'
 pangocairo_req = '>= 1.20'
@@ -106,7 +105,7 @@ mutter_installed_tests_libexecdir = libexecdir / 'installed-tests' / libmutter_n
 
 m_dep = cc.find_library('m', required: true)
 graphene_dep = dependency('graphene-gobject-1.0', version: graphene_req)
-gdk_pixbuf_dep = dependency('gdk-pixbuf-2.0')
+gdk_pixbuf_dep = dependency('gdk-pixbuf-2.0', version: gdk_pixbuf_req)
 pango_dep = dependency('pango', version: pango_req)
 cairo_dep = dependency('cairo', version: cairo_req)
 cairo_gobject_dep = dependency('cairo-gobject', version: cairo_req)
@@ -318,7 +317,7 @@ endif
 
 have_introspection = get_option('introspection')
 if have_introspection
-  gobject_introspection_dep = dependency('gobject-introspection-1.0')
+  gobject_introspection_dep = dependency('gobject-introspection-1.0', version: gi_req)
 
   introspection_args = [
     '--quiet',
@@ -437,6 +436,7 @@ if have_profiler
       'help=false',
     ],
     fallback: ['sysprof', 'libsysprof_capture_dep'],
+    version: sysprof_req,
   )
 
   if libsysprof_capture_dep.type_name() == 'pkgconfig'
