@@ -148,27 +148,12 @@ G_DEFINE_TYPE (MetaWaylandDmaBufManager, meta_wayland_dma_buf_manager,
 
 static GQuark quark_dma_buf_surface_feedback;
 
+#ifdef HAVE_NATIVE_BACKEND
 static gboolean
-should_send_modifiers (MetaBackend *backend)
+should_send_modifiers_native (MetaBackend *backend)
 {
   MetaRendererNative *renderer_native;
   MetaGpuKms *gpu_kms;
-
-  if (!META_IS_BACKEND_NATIVE (backend))
-    {
-      MetaEgl *egl = meta_backend_get_egl (backend);
-      ClutterBackend *clutter_backend =
-        meta_backend_get_clutter_backend (backend);
-      CoglContext *cogl_context =
-        clutter_backend_get_cogl_context (clutter_backend);
-      EGLDisplay egl_display = cogl_egl_context_get_egl_display (cogl_context);
-
-      return meta_egl_has_extensions (egl,
-                                      egl_display,
-                                      NULL,
-                                      "EGL_EXT_image_dma_buf_import_modifiers",
-                                      NULL);
-    }
 
   renderer_native = META_RENDERER_NATIVE (meta_backend_get_renderer (backend));
   gpu_kms = meta_renderer_native_get_primary_gpu (renderer_native);
@@ -177,7 +162,30 @@ should_send_modifiers (MetaBackend *backend)
 
   return meta_renderer_native_send_modifiers (renderer_native);
 }
+#endif
 
+static gboolean
+should_send_modifiers (MetaBackend *backend)
+{
+  MetaEgl *egl = meta_backend_get_egl (backend);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
+  EGLDisplay egl_display = cogl_egl_context_get_egl_display (cogl_context);
+
+#ifdef HAVE_NATIVE_BACKEND
+  if (META_IS_BACKEND_NATIVE (backend))
+    return should_send_modifiers_native (backend);
+#endif
+
+  return meta_egl_has_extensions (egl,
+                                  egl_display,
+                                  NULL,
+                                  "EGL_EXT_image_dma_buf_import_modifiers",
+                                  NULL);
+}
+
+#ifdef HAVE_NATIVE_BACKEND
 static gboolean
 should_send_modifiers_scanout_tranches (MetaBackend *backend)
 {
@@ -189,6 +197,7 @@ should_send_modifiers_scanout_tranches (MetaBackend *backend)
   renderer_native = META_RENDERER_NATIVE (meta_backend_get_renderer (backend));
   return meta_renderer_native_has_addfb2 (renderer_native);
 }
+#endif
 
 static gint
 compare_tranches (gconstpointer a,

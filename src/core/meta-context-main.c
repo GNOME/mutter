@@ -25,9 +25,9 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-#if defined(HAVE_NATIVE_BACKEND) && defined(HAVE_WAYLAND)
+#ifdef HAVE_WAYLAND
 #include <systemd/sd-login.h>
-#endif /* HAVE_WAYLAND && HAVE_NATIVE_BACKEND */
+#endif
 
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-virtual-monitor.h"

@@ -189,6 +189,7 @@ emit_frame_callbacks_for_stage_view (MetaWaylandCompositor *compositor,
     }
 }
 
+#ifdef HAVE_NATIVE_BACKEND
 static gboolean
 frame_callback_source_dispatch (GSource     *source,
                                 GSourceFunc  callback,
@@ -279,6 +280,7 @@ ensure_source_for_stage_view (MetaWaylandCompositor *compositor,
 
   return source;
 }
+#endif /* HAVE_NATIVE_BACKEND */
 
 static void
 on_after_update (ClutterStage          *stage,
