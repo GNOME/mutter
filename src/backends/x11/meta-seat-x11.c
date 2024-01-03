@@ -2206,7 +2206,7 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
 
         if (clutter_input_device_get_device_type (source_device) == CLUTTER_PAD_DEVICE)
           {
-            uint32_t button, group, mode;
+            uint32_t button, group = 0, mode = 0;
 
             /* We got these events because of the passive button grab */
             XIAllowEvents (xdisplay, xev->sourceid, XIAsyncDevice, xev->time);
