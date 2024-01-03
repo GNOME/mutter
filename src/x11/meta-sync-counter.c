@@ -21,7 +21,7 @@
 
 #include "compositor/compositor-private.h"
 #include "core/window-private.h"
-#include "meta/meta-x11-errors.h"
+#include "mtk/mtk-x11.h"
 #include "x11/meta-sync-counter.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/window-x11-private.h"
@@ -97,7 +97,7 @@ meta_sync_counter_create_sync_alarm (MetaSyncCounter *sync_counter)
       sync_counter->sync_request_alarm != None)
     return;
 
-  meta_x11_error_trap_push (x11_display);
+  mtk_x11_error_trap_push (x11_display->xdisplay);
 
   /* In the new (extended style), the counter value is initialized by
    * the client before mapping the window. In the old style, we're
@@ -109,7 +109,7 @@ meta_sync_counter_create_sync_alarm (MetaSyncCounter *sync_counter)
                               sync_counter->sync_request_counter,
                               &init))
         {
-          meta_x11_error_trap_pop_with_return (x11_display);
+          mtk_x11_error_trap_pop_with_return (x11_display->xdisplay);
           sync_counter->sync_request_counter = None;
           return;
         }
@@ -148,7 +148,7 @@ meta_sync_counter_create_sync_alarm (MetaSyncCounter *sync_counter)
                                                        XSyncCAEvents,
                                                        &values);
 
-  if (meta_x11_error_trap_pop_with_return (x11_display) == Success)
+  if (mtk_x11_error_trap_pop_with_return (x11_display->xdisplay) == Success)
     {
       meta_x11_display_register_sync_alarm (x11_display,
                                             &sync_counter->sync_request_alarm,
@@ -378,10 +378,10 @@ do_send_frame_drawn (MetaSyncCounter *sync_counter,
   ev.data.l[2] = frame->frame_drawn_time & G_GUINT64_CONSTANT (0xffffffff);
   ev.data.l[3] = frame->frame_drawn_time >> 32;
 
-  meta_x11_error_trap_push (display->x11_display);
+  mtk_x11_error_trap_push (xdisplay);
   XSendEvent (xdisplay, ev.window, False, 0, (XEvent *) &ev);
   XFlush (xdisplay);
-  meta_x11_error_trap_pop (display->x11_display);
+  mtk_x11_error_trap_pop (xdisplay);
 
 #ifdef HAVE_PROFILER
   if (G_UNLIKELY (cogl_is_tracing_enabled ()))
@@ -438,10 +438,10 @@ do_send_frame_timings (MetaSyncCounter *sync_counter,
   ev.data.l[3] = refresh_interval;
   ev.data.l[4] = 1000 * META_SYNC_DELAY;
 
-  meta_x11_error_trap_push (display->x11_display);
+  mtk_x11_error_trap_push (xdisplay);
   XSendEvent (xdisplay, ev.window, False, 0, (XEvent *) &ev);
   XFlush (xdisplay);
-  meta_x11_error_trap_pop (display->x11_display);
+  mtk_x11_error_trap_pop (xdisplay);
 
 #ifdef HAVE_PROFILER
   if (G_UNLIKELY (cogl_is_tracing_enabled ()))

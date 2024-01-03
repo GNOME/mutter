@@ -39,7 +39,6 @@
 #include "cogl/cogl.h"
 #include "core/display-private.h"
 #include "meta/meta-context.h"
-#include "meta/meta-x11-errors.h"
 
 #define STAGE_X11_IS_MAPPED(s)  ((((MetaStageX11 *) (s))->wm_state & STAGE_X11_WITHDRAWN) == 0)
 

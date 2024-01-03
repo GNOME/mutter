@@ -57,7 +57,7 @@
 #include "core/display-private.h"
 #include "meta/meta-cursor-tracker.h"
 #include "meta/util.h"
-#include "mtk/mtk-x11-errors.h"
+#include "mtk/mtk-x11.h"
 
 struct _MetaBackendX11Private
 {

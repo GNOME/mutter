@@ -48,7 +48,7 @@
 #include "core/meta-workspace-manager-private.h"
 #include "core/util-private.h"
 #include "meta/group.h"
-#include "meta/meta-x11-errors.h"
+#include "mtk/mtk-x11.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/window-x11-private.h"
 #include "x11/window-x11.h"
@@ -536,11 +536,11 @@ set_title_text (MetaWindow  *window,
   /* Bug 330671 -- Don't forget to clear _NET_WM_VISIBLE_(ICON_)NAME */
   if (!modified && previous_was_modified)
     {
-      meta_x11_error_trap_push (window->display->x11_display);
+      mtk_x11_error_trap_push (window->display->x11_display->xdisplay);
       XDeleteProperty (window->display->x11_display->xdisplay,
                        meta_window_x11_get_xwindow (window),
                        atom);
-      meta_x11_error_trap_pop (window->display->x11_display);
+      mtk_x11_error_trap_pop (window->display->x11_display->xdisplay);
     }
 
   return modified;

@@ -23,7 +23,7 @@
 
 #include "meta-x11-selection-input-stream-private.h"
 
-#include "meta/meta-x11-errors.h"
+#include "mtk/mtk-x11.h"
 #include "x11/meta-x11-display-private.h"
 
 typedef struct MetaX11SelectionInputStreamPrivate MetaX11SelectionInputStreamPrivate;
@@ -128,9 +128,9 @@ meta_x11_selection_input_stream_flush (MetaX11SelectionInputStream *stream)
   Display *xdisplay = priv->x11_display->xdisplay;
   gssize written;
 
-  meta_x11_error_trap_push (priv->x11_display);
+  mtk_x11_error_trap_push (xdisplay);
   XDeleteProperty (xdisplay, priv->window, priv->xproperty);
-  meta_x11_error_trap_pop (priv->x11_display);
+  mtk_x11_error_trap_pop (xdisplay);
 
   if (!meta_x11_selection_input_stream_has_data (stream))
     return;
@@ -348,18 +348,18 @@ get_selection_property (MetaX11Display *x11_display,
   gint prop_format;
   uint8_t *data = NULL;
 
-  meta_x11_error_trap_push (x11_display);
+  mtk_x11_error_trap_push (x11_display->xdisplay);
 
   if (XGetWindowProperty (x11_display->xdisplay, owner, property,
                           0, 0x1FFFFFFF, False,
                           AnyPropertyType, &prop_type, &prop_format,
                           &nitems, &nbytes, &data) != Success)
     {
-      meta_x11_error_trap_pop (x11_display);
+      mtk_x11_error_trap_pop (x11_display->xdisplay);
       goto err;
     }
 
-  if (meta_x11_error_trap_pop_with_return (x11_display) != Success)
+  if (mtk_x11_error_trap_pop_with_return (x11_display->xdisplay) != Success)
     goto err;
 
   if (prop_type != None)

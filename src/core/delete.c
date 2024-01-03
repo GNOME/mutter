@@ -31,7 +31,6 @@
 #include "compositor/compositor-private.h"
 #include "core/util-private.h"
 #include "core/window-private.h"
-#include "meta/meta-x11-errors.h"
 #include "meta/workspace.h"
 
 static void

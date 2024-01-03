@@ -69,7 +69,6 @@
 #include "backends/x11/cm/meta-backend-x11-cm.h"
 #include "backends/x11/nested/meta-backend-x11-nested.h"
 #include "compositor/meta-compositor-x11.h"
-#include "meta/meta-x11-errors.h"
 #include "x11/meta-startup-notification-x11.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/window-x11.h"

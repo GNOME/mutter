@@ -31,7 +31,6 @@
 #include "compositor/meta-module.h"
 #include "core/meta-inhibit-shortcuts-dialog-default-private.h"
 #include "core/window-private.h"
-#include "meta/meta-x11-errors.h"
 #include "meta/prefs.h"
 #include "meta/workspace.h"
 

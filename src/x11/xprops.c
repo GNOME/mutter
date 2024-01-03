@@ -89,7 +89,7 @@ from The Open Group.
 
 #include "core/util-private.h"
 #include "core/window-private.h"
-#include "meta/meta-x11-errors.h"
+#include "mtk/mtk-x11.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/mutter-Xatomtype.h"
 
@@ -125,11 +125,11 @@ validate_or_free_results (GetPropertyResults *results,
       (!must_have_items || results->n_items > 0))
     return TRUE;
 
-  meta_x11_error_trap_push (x11_display);
+  mtk_x11_error_trap_push (x11_display->xdisplay);
   type_name = XGetAtomName (x11_display->xdisplay, results->type);
   expected_name = XGetAtomName (x11_display->xdisplay, expected_type);
   prop_name = XGetAtomName (x11_display->xdisplay, results->xatom);
-  meta_x11_error_trap_pop (x11_display);
+  mtk_x11_error_trap_pop (x11_display->xdisplay);
 
   w = meta_x11_display_lookup_x_window (x11_display, results->xwindow);
 
@@ -432,9 +432,9 @@ utf8_list_from_results (GetPropertyResults *results,
         {
           char *name;
 
-          meta_x11_error_trap_push (results->x11_display);
+          mtk_x11_error_trap_push (results->x11_display->xdisplay);
           name = XGetAtomName (results->x11_display->xdisplay, results->xatom);
-          meta_x11_error_trap_pop (results->x11_display);
+          mtk_x11_error_trap_pop (results->x11_display->xdisplay);
           meta_warning ("Property %s on window 0x%lx contained invalid UTF-8 for item %d in the list",
                         name, results->xwindow, i);
           meta_XFree (name);
@@ -486,12 +486,12 @@ meta_prop_set_utf8_string_hint (MetaX11Display *x11_display,
                                 Atom           atom,
                                 const char    *val)
 {
-  meta_x11_error_trap_push (x11_display);
+  mtk_x11_error_trap_push (x11_display->xdisplay);
   XChangeProperty (x11_display->xdisplay,
                    xwindow, atom,
                    x11_display->atom_UTF8_STRING,
                    8, PropModeReplace, (guchar*) val, strlen (val));
-  meta_x11_error_trap_pop (x11_display);
+  mtk_x11_error_trap_pop (x11_display->xdisplay);
 }
 
 static gboolean
@@ -625,9 +625,9 @@ text_property_to_utf8 (GetPropertyResults  *results,
         {
           char *name;
 
-          meta_x11_error_trap_push (results->x11_display);
+          mtk_x11_error_trap_push (results->x11_display->xdisplay);
           name = XGetAtomName (results->x11_display->xdisplay, results->xatom);
-          meta_x11_error_trap_pop (results->x11_display);
+          mtk_x11_error_trap_pop (results->x11_display->xdisplay);
           meta_warning ("Property %s on window 0x%lx contained invalid UTF-8",
                         name, results->xwindow);
           meta_XFree (name);

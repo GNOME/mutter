@@ -32,7 +32,7 @@
 #include "compositor/meta-shaped-texture-private.h"
 #include "compositor/meta-window-actor-private.h"
 #include "core/window-private.h"
-#include "meta/meta-x11-errors.h"
+#include "mtk/mtk-x11.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/window-x11.h"
 
@@ -77,10 +77,10 @@ free_damage (MetaSurfaceActorX11 *self)
 
   xdisplay = meta_x11_display_get_xdisplay (display->x11_display);
 
-  meta_x11_error_trap_push (display->x11_display);
+  mtk_x11_error_trap_push (xdisplay);
   XDamageDestroy (xdisplay, self->damage);
   self->damage = None;
-  meta_x11_error_trap_pop (display->x11_display);
+  mtk_x11_error_trap_pop (xdisplay);
 }
 
 static void
@@ -102,10 +102,10 @@ detach_pixmap (MetaSurfaceActorX11 *self)
   meta_shaped_texture_set_texture (stex, NULL);
   cogl_flush ();
 
-  meta_x11_error_trap_push (display->x11_display);
+  mtk_x11_error_trap_push (xdisplay);
   XFreePixmap (xdisplay, self->pixmap);
   self->pixmap = None;
-  meta_x11_error_trap_pop (display->x11_display);
+  mtk_x11_error_trap_pop (xdisplay);
 
   g_clear_object (&self->texture);
 }
@@ -153,10 +153,10 @@ update_pixmap (MetaSurfaceActorX11 *self)
       Pixmap new_pixmap;
       Window xwindow = meta_window_x11_get_toplevel_xwindow (self->window);
 
-      meta_x11_error_trap_push (display->x11_display);
+      mtk_x11_error_trap_push (xdisplay);
       new_pixmap = XCompositeNameWindowPixmap (xdisplay, xwindow);
 
-      if (meta_x11_error_trap_pop_with_return (display->x11_display) != Success)
+      if (mtk_x11_error_trap_pop_with_return (xdisplay) != Success)
         {
           /* Probably a BadMatch if the window isn't viewable; we could
            * GrabServer/GetWindowAttributes/NameWindowPixmap/UngrabServer/Sync
@@ -234,9 +234,9 @@ meta_surface_actor_x11_handle_updates (MetaSurfaceActorX11 *self)
 
   if (self->received_damage)
     {
-      meta_x11_error_trap_push (display->x11_display);
+      mtk_x11_error_trap_push (xdisplay);
       XDamageSubtract (xdisplay, self->damage, None, None);
-      meta_x11_error_trap_pop (display->x11_display);
+      mtk_x11_error_trap_pop (xdisplay);
 
       self->received_damage = FALSE;
     }
@@ -276,7 +276,7 @@ sync_unredirected (MetaSurfaceActorX11 *self)
   Display *xdisplay = meta_x11_display_get_xdisplay (display->x11_display);
   Window xwindow = meta_window_x11_get_toplevel_xwindow (self->window);
 
-  meta_x11_error_trap_push (display->x11_display);
+  mtk_x11_error_trap_push (xdisplay);
 
   if (self->unredirected)
     {
@@ -291,7 +291,7 @@ sync_unredirected (MetaSurfaceActorX11 *self)
       clutter_actor_queue_redraw (CLUTTER_ACTOR (self));
     }
 
-  meta_x11_error_trap_pop (display->x11_display);
+  mtk_x11_error_trap_pop (xdisplay);
 }
 
 void
@@ -316,10 +316,10 @@ release_x11_resources (MetaSurfaceActorX11 *self)
 {
   MetaX11Display *x11_display = meta_display_get_x11_display (self->display);
 
-  meta_x11_error_trap_push (x11_display);
+  mtk_x11_error_trap_push (x11_display->xdisplay);
   detach_pixmap (self);
   free_damage (self);
-  meta_x11_error_trap_pop (x11_display);
+  mtk_x11_error_trap_pop (x11_display->xdisplay);
 }
 
 static void
@@ -358,9 +358,9 @@ create_damage (MetaSurfaceActorX11 *self)
   Display *xdisplay = meta_x11_display_get_xdisplay (x11_display);
   Window xwindow = meta_window_x11_get_toplevel_xwindow (self->window);
 
-  meta_x11_error_trap_push (x11_display);
+  mtk_x11_error_trap_push (xdisplay);
   self->damage = XDamageCreate (xdisplay, xwindow, XDamageReportBoundingBox);
-  meta_x11_error_trap_pop (x11_display);
+  mtk_x11_error_trap_pop (xdisplay);
 }
 
 static void

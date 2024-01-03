@@ -45,7 +45,6 @@
 #include "core/boxes-private.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/workspace-private.h"
-#include "meta/meta-x11-errors.h"
 #include "meta/prefs.h"
 #include "x11/meta-x11-display-private.h"
 

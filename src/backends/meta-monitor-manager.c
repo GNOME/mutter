@@ -60,7 +60,6 @@
 #include "core/util-private.h"
 #include "meta/main.h"
 #include "meta/meta-enum-types.h"
-#include "meta/meta-x11-errors.h"
 
 #include "meta-dbus-display-config.h"
 

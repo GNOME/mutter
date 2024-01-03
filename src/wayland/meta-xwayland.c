@@ -49,7 +49,7 @@
 #include "backends/meta-settings-private.h"
 #include "meta/main.h"
 #include "meta/meta-backend.h"
-#include "meta/meta-x11-errors.h"
+#include "mtk/mtk-x11.h"
 #include "wayland/meta-xwayland-grab-keyboard.h"
 #include "wayland/meta-xwayland-surface.h"
 #include "x11/meta-x11-display-private.h"
@@ -1227,7 +1227,7 @@ meta_xwayland_set_primary_output (MetaX11Display *x11_display)
   if (!resources)
     return;
 
-  meta_x11_error_trap_push (x11_display);
+  mtk_x11_error_trap_push (x11_display->xdisplay);
   for (i = 0; i < resources->noutput; i++)
     {
       RROutput output_id = resources->outputs[i];
@@ -1261,7 +1261,7 @@ meta_xwayland_set_primary_output (MetaX11Display *x11_display)
           break;
         }
     }
-  meta_x11_error_trap_pop (x11_display);
+  mtk_x11_error_trap_pop (x11_display->xdisplay);
 
   XRRFreeScreenResources (resources);
 }

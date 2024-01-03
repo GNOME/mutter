@@ -19,7 +19,7 @@
 
 #include "config.h"
 
-#include "meta/meta-x11-errors.h"
+#include "mtk/mtk-x11.h"
 #include "x11/meta-x11-selection-input-stream-private.h"
 #include "x11/meta-selection-source-x11-private.h"
 
@@ -155,9 +155,9 @@ atoms_to_mimetypes (MetaX11Display *display,
     {
       char *mimetype;
 
-      meta_x11_error_trap_push (display);
+      mtk_x11_error_trap_push (xdisplay);
       mimetype = XGetAtomName (xdisplay, atoms[i]);
-      meta_x11_error_trap_pop (display);
+      mtk_x11_error_trap_pop (xdisplay);
 
       if (!mimetype)
         continue;

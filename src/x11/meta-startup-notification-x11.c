@@ -23,7 +23,7 @@
 
 #include "core/display-private.h"
 #include "core/startup-notification-private.h"
-#include "meta/meta-x11-errors.h"
+#include "mtk/mtk-x11.h"
 #include "x11/meta-x11-display-private.h"
 
 #ifdef HAVE_STARTUP_NOTIFICATION
@@ -199,7 +199,7 @@ sn_error_trap_push (SnDisplay *sn_display,
 
   display = find_display (xdisplay);
   if (display != NULL)
-    meta_x11_error_trap_push (display->x11_display);
+    mtk_x11_error_trap_push (display->x11_display->xdisplay);
 }
 
 static void
@@ -210,7 +210,7 @@ sn_error_trap_pop (SnDisplay *sn_display,
 
   display = find_display (xdisplay);
   if (display != NULL)
-    meta_x11_error_trap_pop (display->x11_display);
+    mtk_x11_error_trap_pop (display->x11_display->xdisplay);
 }
 
 static void

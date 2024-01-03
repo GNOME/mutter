@@ -21,7 +21,7 @@
 #include <X11/Xatom.h>
 
 #include "core/frame.h"
-#include "meta/meta-x11-errors.h"
+#include "mtk/mtk-x11.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/window-x11.h"
 #include "x11/window-x11-private.h"
@@ -208,12 +208,12 @@ apply_allow_commits_x11_property (MetaWindowXwayland *xwayland_window,
 
   property[0] = !!allow_commits;
 
-  meta_x11_error_trap_push (x11_display);
+  mtk_x11_error_trap_push (x11_display->xdisplay);
   XChangeProperty (x11_display->xdisplay, xwin,
                    x11_display->atom__XWAYLAND_ALLOW_COMMITS,
                    XA_CARDINAL, 32, PropModeReplace,
                    (guchar*) &property, 1);
-  meta_x11_error_trap_pop (x11_display);
+  mtk_x11_error_trap_pop (x11_display->xdisplay);
   XFlush (x11_display->xdisplay);
 }
 
