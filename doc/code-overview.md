@@ -11,6 +11,7 @@ Hardware acceleration pipeline abstraction layer. Handles things like allocating
 Compositing toolkit, containing an actor and render node based scene graph, and has features such as input event routing, transformation and animation. Handles compositing, both Wayland surfaces, X11 windows, and is the basis of the UI toolkit implemented by [GNOME Shell](https://gitlab.gnome.org/GNOME/gnome-shell). Originally a fork of [the Clutter project](https://gitlab.gnome.org/GNOME/clutter).
 
 * [Frame Scheduling](clutter-frame-scheduling.md)
+* [Rendering Model](clutter-rendering-model.md)
 
 ## Mtk
 
