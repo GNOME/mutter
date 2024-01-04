@@ -48,12 +48,6 @@ struct _CallyUtil
   CallyUtilPrivate *priv;
 };
 
-/**
- * CallyUtilClass:
- *
- * The <structname>CallyUtilClass</structname> structure contains only
- * private data
- */
 struct _CallyUtilClass
 {
   /*< private >*/

@@ -81,9 +81,6 @@ struct _CallyActor
  * @notify_clutter: Signal handler for notify signal on Clutter actor
  * @add_actor: Signal handler for child-added signal on Clutter actor
  * @remove_actor: Signal handler for child-removed signal on Clutter actor
- *
- * The <structname>CallyActorClass</structname> structure contains
- * only private data
  */
 struct _CallyActorClass
 {

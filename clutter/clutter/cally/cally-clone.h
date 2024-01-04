@@ -48,12 +48,6 @@ struct _CallyClone
   CallyClonePrivate *priv;
 };
 
-/**
- * CallyCloneClass:
- *
- * The <structname>CallyCloneClass</structname> structure contains only
- * private data
- */
 struct _CallyCloneClass
 {
   /*< private >*/

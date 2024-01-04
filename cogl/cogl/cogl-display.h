@@ -86,11 +86,6 @@ G_DECLARE_FINAL_TYPE (CoglDisplay,
  * common state of the display pipeline that applies to the whole
  * application.
  *
- * <note>Many applications don't need to explicitly use
- * cogl_display_new() and can just jump straight to cogl_context_new()
- * and pass a %NULL display argument so Cogl will automatically
- * connect and setup a renderer and display.</note>
- *
  * A @display can only be made for a specific choice of renderer which
  * is why this takes the @renderer argument.
  *

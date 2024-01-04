@@ -203,12 +203,12 @@ typedef struct {
  * @n_vertices: The number of vertices to process when drawing
  * @...: A %NULL terminated list of attributes
  *
- * Combines a set of #CoglAttribute<!-- -->s with a specific draw @mode
+ * Combines a set of `CoglAttribute`s with a specific draw @mode
  * and defines a vertex count so a #CoglPrimitive object can be retained and
  * drawn later with no addition information required.
  *
  * The value passed as @n_vertices will simply update the
- * #CoglPrimitive <structfield>n_vertices</structfield> property as if
+ * #CoglPrimitive `n_vertices` property as if
  * cogl_primitive_set_n_vertices() were called. This property defines
  * the number of vertices to read when drawing.
  *
@@ -226,12 +226,12 @@ cogl_primitive_new (CoglVerticesMode mode,
  * @attributes: An array of CoglAttribute
  * @n_attributes: The number of attributes
  *
- * Combines a set of #CoglAttribute<!-- -->s with a specific draw @mode
+ * Combines a set of `CoglAttribute`s with a specific draw @mode
  * and defines a vertex count so a #CoglPrimitive object can be retained and
  * drawn later with no addition information required.
  *
  * The value passed as @n_vertices will simply update the
- * #CoglPrimitive <structfield>n_vertices</structfield> property as if
+ * #CoglPrimitive `n_vertices` property as if
  * cogl_primitive_set_n_vertices() were called. This property defines
  * the number of vertices to read when drawing.
  *
@@ -258,7 +258,7 @@ cogl_primitive_new_with_attributes (CoglVerticesMode mode,
  * attribute with a #CoglAttribute and upload your data.
  *
  * For example to draw a convex polygon you can do:
- * |[
+ * ```c
  * CoglVertexP2 triangle[] =
  * {
  *   { 0,   300 },
@@ -268,21 +268,21 @@ cogl_primitive_new_with_attributes (CoglVerticesMode mode,
  * prim = cogl_primitive_new_p2 (COGL_VERTICES_MODE_TRIANGLE_FAN,
  *                               3, triangle);
  * cogl_primitive_draw (prim);
- * ]|
+ * ```
  *
  * The value passed as @n_vertices is initially used to determine how
  * much can be read from @data but it will also be used to update the
- * #CoglPrimitive <structfield>n_vertices</structfield> property as if
+ * #CoglPrimitive `n_vertices` property as if
  * cogl_primitive_set_n_vertices() were called. This property defines
  * the number of vertices to read when drawing.
 
- * <note>The primitive API doesn't support drawing with sliced
+ * The primitive API doesn't support drawing with sliced
  * textures (since switching between slices implies changing state and
  * so that implies multiple primitives need to be submitted). If your
  * hardware doesn't support non-power of two textures (For example you
  * are using GLES 1.1) then you will need to make sure your assets are
  * resized to a power-of-two size (though they don't have to be square)
- * </note>
+ * 
  *
  * Return value: (transfer full): A newly allocated #CoglPrimitive
  * with a reference of 1. This can be freed using g_object_unref().
@@ -308,7 +308,7 @@ cogl_primitive_new_p2 (CoglContext *context,
  * attribute with a #CoglAttribute and upload your data.
  *
  * For example to draw a convex polygon you can do:
- * |[
+ * ```c
  * CoglVertexP3 triangle[] =
  * {
  *   { 0,   300, 0 },
@@ -318,21 +318,21 @@ cogl_primitive_new_p2 (CoglContext *context,
  * prim = cogl_primitive_new_p3 (COGL_VERTICES_MODE_TRIANGLE_FAN,
  *                               3, triangle);
  * cogl_primitive_draw (prim);
- * ]|
+ * ```
  *
  * The value passed as @n_vertices is initially used to determine how
  * much can be read from @data but it will also be used to update the
- * #CoglPrimitive <structfield>n_vertices</structfield> property as if
+ * #CoglPrimitive `n_vertices` property as if
  * cogl_primitive_set_n_vertices() were called. This property defines
  * the number of vertices to read when drawing.
 
- * <note>The primitive API doesn't support drawing with sliced
+ * The primitive API doesn't support drawing with sliced
  * textures (since switching between slices implies changing state and
  * so that implies multiple primitives need to be submitted). If your
  * hardware doesn't support non-power of two textures (For example you
  * are using GLES 1.1) then you will need to make sure your assets are
  * resized to a power-of-two size (though they don't have to be square)
- * </note>
+ * 
  *
  * Return value: (transfer full): A newly allocated #CoglPrimitive
  * with a reference of 1. This can be freed using g_object_unref().
@@ -355,12 +355,12 @@ cogl_primitive_new_p3 (CoglContext *context,
  * Provides a convenient way to describe a primitive, such as a single
  * triangle strip or a triangle fan, that will internally allocate the
  * necessary #CoglAttributeBuffer storage, describe the position
- * and color attributes with #CoglAttribute<!-- -->s and upload
+ * and color attributes with `CoglAttribute`s and upload
  * your data.
  *
  * For example to draw a convex polygon with a linear gradient you
  * can do:
- * |[
+ * ```c
  * CoglVertexP2C4 triangle[] =
  * {
  *   { 0,   300,  0xff, 0x00, 0x00, 0xff },
@@ -370,21 +370,21 @@ cogl_primitive_new_p3 (CoglContext *context,
  * prim = cogl_primitive_new_p2c4 (COGL_VERTICES_MODE_TRIANGLE_FAN,
  *                                 3, triangle);
  * cogl_primitive_draw (prim);
- * ]|
+ * ```
  *
  * The value passed as @n_vertices is initially used to determine how
  * much can be read from @data but it will also be used to update the
- * #CoglPrimitive <structfield>n_vertices</structfield> property as if
+ * #CoglPrimitive `n_vertices` property as if
  * cogl_primitive_set_n_vertices() were called. This property defines
  * the number of vertices to read when drawing.
 
- * <note>The primitive API doesn't support drawing with sliced
+ * The primitive API doesn't support drawing with sliced
  * textures (since switching between slices implies changing state and
  * so that implies multiple primitives need to be submitted). If your
  * hardware doesn't support non-power of two textures (For example you
  * are using GLES 1.1) then you will need to make sure your assets are
  * resized to a power-of-two size (though they don't have to be square)
- * </note>
+ * 
  *
  * Return value: (transfer full): A newly allocated #CoglPrimitive
  * with a reference of 1. This can be freed using g_object_unref().
@@ -407,12 +407,12 @@ cogl_primitive_new_p2c4 (CoglContext *context,
  * Provides a convenient way to describe a primitive, such as a single
  * triangle strip or a triangle fan, that will internally allocate the
  * necessary #CoglAttributeBuffer storage, describe the position
- * and color attributes with #CoglAttribute<!-- -->s and upload
+ * and color attributes with `CoglAttribute`s and upload
  * your data.
  *
  * For example to draw a convex polygon with a linear gradient you
  * can do:
- * |[
+ * ```c
  * CoglVertexP3C4 triangle[] =
  * {
  *   { 0,   300, 0,  0xff, 0x00, 0x00, 0xff },
@@ -422,21 +422,21 @@ cogl_primitive_new_p2c4 (CoglContext *context,
  * prim = cogl_primitive_new_p3c4 (COGL_VERTICES_MODE_TRIANGLE_FAN,
  *                                 3, triangle);
  * cogl_primitive_draw (prim);
- * ]|
+ * ```
  *
  * The value passed as @n_vertices is initially used to determine how
  * much can be read from @data but it will also be used to update the
- * #CoglPrimitive <structfield>n_vertices</structfield> property as if
+ * #CoglPrimitive `n_vertices` property as if
  * cogl_primitive_set_n_vertices() were called. This property defines
  * the number of vertices to read when drawing.
 
- * <note>The primitive API doesn't support drawing with sliced
+ * The primitive API doesn't support drawing with sliced
  * textures (since switching between slices implies changing state and
  * so that implies multiple primitives need to be submitted). If your
  * hardware doesn't support non-power of two textures (For example you
  * are using GLES 1.1) then you will need to make sure your assets are
  * resized to a power-of-two size (though they don't have to be square)
- * </note>
+ * 
  *
  * Return value: (transfer full): A newly allocated #CoglPrimitive
  * with a reference of 1. This can be freed using g_object_unref().
@@ -459,12 +459,12 @@ cogl_primitive_new_p3c4 (CoglContext *context,
  * Provides a convenient way to describe a primitive, such as a single
  * triangle strip or a triangle fan, that will internally allocate the
  * necessary #CoglAttributeBuffer storage, describe the position and
- * texture coordinate attributes with #CoglAttribute<!-- -->s and
+ * texture coordinate attributes with `CoglAttribute`s and
  * upload your data.
  *
  * For example to draw a convex polygon with texture mapping you can
  * do:
- * |[
+ * ```c
  * CoglVertexP2T2 triangle[] =
  * {
  *   { 0,   300,  0.0, 1.0},
@@ -474,21 +474,21 @@ cogl_primitive_new_p3c4 (CoglContext *context,
  * prim = cogl_primitive_new_p2t2 (COGL_VERTICES_MODE_TRIANGLE_FAN,
  *                                 3, triangle);
  * cogl_primitive_draw (prim);
- * ]|
+ * ```
  *
  * The value passed as @n_vertices is initially used to determine how
  * much can be read from @data but it will also be used to update the
- * #CoglPrimitive <structfield>n_vertices</structfield> property as if
+ * #CoglPrimitive `n_vertices` property as if
  * cogl_primitive_set_n_vertices() were called. This property defines
  * the number of vertices to read when drawing.
 
- * <note>The primitive API doesn't support drawing with sliced
+ * The primitive API doesn't support drawing with sliced
  * textures (since switching between slices implies changing state and
  * so that implies multiple primitives need to be submitted). If your
  * hardware doesn't support non-power of two textures (For example you
  * are using GLES 1.1) then you will need to make sure your assets are
  * resized to a power-of-two size (though they don't have to be square)
- * </note>
+ * 
  *
  * Return value: (transfer full): A newly allocated #CoglPrimitive
  * with a reference of 1. This can be freed using g_object_unref().
@@ -511,12 +511,12 @@ cogl_primitive_new_p2t2 (CoglContext *context,
  * Provides a convenient way to describe a primitive, such as a single
  * triangle strip or a triangle fan, that will internally allocate the
  * necessary #CoglAttributeBuffer storage, describe the position and
- * texture coordinate attributes with #CoglAttribute<!-- -->s and
+ * texture coordinate attributes with `CoglAttribute`s and
  * upload your data.
  *
  * For example to draw a convex polygon with texture mapping you can
  * do:
- * |[
+ * ```c
  * CoglVertexP3T2 triangle[] =
  * {
  *   { 0,   300, 0,  0.0, 1.0},
@@ -526,21 +526,21 @@ cogl_primitive_new_p2t2 (CoglContext *context,
  * prim = cogl_primitive_new_p3t2 (COGL_VERTICES_MODE_TRIANGLE_FAN,
  *                                 3, triangle);
  * cogl_primitive_draw (prim);
- * ]|
+ * ```
  *
  * The value passed as @n_vertices is initially used to determine how
  * much can be read from @data but it will also be used to update the
- * #CoglPrimitive <structfield>n_vertices</structfield> property as if
+ * #CoglPrimitive `n_vertices` property as if
  * cogl_primitive_set_n_vertices() were called. This property defines
  * the number of vertices to read when drawing.
 
- * <note>The primitive API doesn't support drawing with sliced
+ * The primitive API doesn't support drawing with sliced
  * textures (since switching between slices implies changing state and
  * so that implies multiple primitives need to be submitted). If your
  * hardware doesn't support non-power of two textures (For example you
  * are using GLES 1.1) then you will need to make sure your assets are
  * resized to a power-of-two size (though they don't have to be square)
- * </note>
+ * 
  *
  * Return value: (transfer full): A newly allocated #CoglPrimitive
  * with a reference of 1. This can be freed using g_object_unref().
@@ -563,12 +563,12 @@ cogl_primitive_new_p3t2 (CoglContext *context,
  * Provides a convenient way to describe a primitive, such as a single
  * triangle strip or a triangle fan, that will internally allocate the
  * necessary #CoglAttributeBuffer storage, describe the position, texture
- * coordinate and color attributes with #CoglAttribute<!-- -->s and
+ * coordinate and color attributes with `CoglAttribute`s and
  * upload your data.
  *
  * For example to draw a convex polygon with texture mapping and a
  * linear gradient you can do:
- * |[
+ * ```c
  * CoglVertexP2T2C4 triangle[] =
  * {
  *   { 0,   300,  0.0, 1.0,  0xff, 0x00, 0x00, 0xff},
@@ -578,21 +578,21 @@ cogl_primitive_new_p3t2 (CoglContext *context,
  * prim = cogl_primitive_new_p2t2c4 (COGL_VERTICES_MODE_TRIANGLE_FAN,
  *                                   3, triangle);
  * cogl_primitive_draw (prim);
- * ]|
+ * ```
  *
  * The value passed as @n_vertices is initially used to determine how
  * much can be read from @data but it will also be used to update the
- * #CoglPrimitive <structfield>n_vertices</structfield> property as if
+ * #CoglPrimitive `n_vertices` property as if
  * cogl_primitive_set_n_vertices() were called. This property defines
  * the number of vertices to read when drawing.
 
- * <note>The primitive API doesn't support drawing with sliced
+ * The primitive API doesn't support drawing with sliced
  * textures (since switching between slices implies changing state and
  * so that implies multiple primitives need to be submitted). If your
  * hardware doesn't support non-power of two textures (For example you
  * are using GLES 1.1) then you will need to make sure your assets are
  * resized to a power-of-two size (though they don't have to be square)
- * </note>
+ * 
  *
  * Return value: (transfer full): A newly allocated #CoglPrimitive
  * with a reference of 1. This can be freed using g_object_unref().
@@ -615,12 +615,12 @@ cogl_primitive_new_p2t2c4 (CoglContext *context,
  * Provides a convenient way to describe a primitive, such as a single
  * triangle strip or a triangle fan, that will internally allocate the
  * necessary #CoglAttributeBuffer storage, describe the position, texture
- * coordinate and color attributes with #CoglAttribute<!-- -->s and
+ * coordinate and color attributes with `CoglAttribute`s and
  * upload your data.
  *
  * For example to draw a convex polygon with texture mapping and a
  * linear gradient you can do:
- * |[
+ * ```c
  * CoglVertexP3T2C4 triangle[] =
  * {
  *   { 0,   300, 0,  0.0, 1.0,  0xff, 0x00, 0x00, 0xff},
@@ -630,21 +630,21 @@ cogl_primitive_new_p2t2c4 (CoglContext *context,
  * prim = cogl_primitive_new_p3t2c4 (COGL_VERTICES_MODE_TRIANGLE_FAN,
  *                                   3, triangle);
  * cogl_primitive_draw (prim);
- * ]|
+ * ```
  *
  * The value passed as @n_vertices is initially used to determine how
  * much can be read from @data but it will also be used to update the
- * #CoglPrimitive <structfield>n_vertices</structfield> property as if
+ * #CoglPrimitive `n_vertices` property as if
  * cogl_primitive_set_n_vertices() were called. This property defines
  * the number of vertices to read when drawing.
 
- * <note>The primitive API doesn't support drawing with sliced
+ * The primitive API doesn't support drawing with sliced
  * textures (since switching between slices implies changing state and
  * so that implies multiple primitives need to be submitted). If your
  * hardware doesn't support non-power of two textures (For example you
  * are using GLES 1.1) then you will need to make sure your assets are
  * resized to a power-of-two size (though they don't have to be square)
- * </note>
+ * 
  *
  * Return value: (transfer full): A newly allocated #CoglPrimitive
  * with a reference of 1. This can be freed using g_object_unref().
@@ -674,9 +674,9 @@ cogl_primitive_set_first_vertex (CoglPrimitive *primitive,
  * number of vertices to read can also be phrased as the number
  * of indices to read.
  *
- * <note>To be clear; it doesn't refer to the number of vertices - in
+ * To be clear; it doesn't refer to the number of vertices - in
  * terms of data - associated with the primitive it's just the number
- * of vertices to read and draw.</note>
+ * of vertices to read and draw.
  *
  * Returns: The number of vertices to read when drawing.
  */
@@ -694,9 +694,9 @@ cogl_primitive_get_n_vertices (CoglPrimitive *primitive);
  * Usually this value is set implicitly when associating vertex data
  * or indices with a #CoglPrimitive.
  *
- * <note>To be clear; it doesn't refer to the number of vertices - in
+ * To be clear; it doesn't refer to the number of vertices - in
  * terms of data - associated with the primitive it's just the number
- * of vertices to read and draw.</note>
+ * of vertices to read and draw.
  */
 COGL_EXPORT void
 cogl_primitive_set_n_vertices (CoglPrimitive *primitive,
@@ -725,14 +725,14 @@ cogl_primitive_set_mode (CoglPrimitive *primitive,
  * shared data multiple times instead of duplicating the data.
  *
  * The value passed as @n_indices will simply update the
- * #CoglPrimitive <structfield>n_vertices</structfield> property as if
+ * #CoglPrimitive `n_vertices` property as if
  * cogl_primitive_set_n_vertices() were called. This property defines
  * the number of vertices to draw or, put another way, how many
  * indices should be read from @indices when drawing.
  *
- * <note>The #CoglPrimitive <structfield>first_vertex</structfield> property
+ * The #CoglPrimitive `first_vertex` property
  * also affects drawing with indices by defining the first entry of the
- * indices to start drawing from.</note>
+ * indices to start drawing from.
  */
 COGL_EXPORT void
 cogl_primitive_set_indices (CoglPrimitive *primitive,

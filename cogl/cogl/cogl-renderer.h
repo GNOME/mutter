@@ -65,12 +65,6 @@ G_BEGIN_DECLS
  *
  * Once you have a configured #CoglRenderer it can be used to create a
  * #CoglDisplay object using cogl_display_new().
- *
- * <note>Many applications don't need to explicitly use
- * cogl_renderer_new() or cogl_display_new() and can just jump
- * straight to cogl_context_new() and pass a %NULL display argument so
- * Cogl will automatically connect and setup a renderer and
- * display.</note>
  */
 
 
@@ -124,12 +118,6 @@ G_DECLARE_FINAL_TYPE (CoglRenderer,
  *
  * Once you have setup your renderer then the next step is to create a
  * #CoglDisplay using cogl_display_new().
- *
- * <note>Many applications don't need to explicitly use
- * cogl_renderer_new() or cogl_display_new() and can just jump
- * straight to cogl_context_new() and pass a %NULL display argument
- * so Cogl will automatically connect and setup a renderer and
- * display.</note>
  *
  * Return value: (transfer full): A newly created #CoglRenderer.
  */

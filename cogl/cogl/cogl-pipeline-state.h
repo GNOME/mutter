@@ -184,7 +184,7 @@ cogl_pipeline_get_alpha_test_reference (CoglPipeline *pipeline);
 /**
  * cogl_pipeline_set_blend:
  * @pipeline: A #CoglPipeline object
- * @blend_string: A <link linkend="cogl-Blend-Strings">Cogl blend string</link>
+ * @blend_string: A Cogl blend string
  *   describing the desired blend function.
  * @error: return location for a #GError that may report lack of driver
  *   support if you give separate blend string statements for the alpha
@@ -193,64 +193,50 @@ cogl_pipeline_get_alpha_test_reference (CoglPipeline *pipeline);
  *   warning will be printed out using GLib's logging facilities if an
  *   error is encountered.
  *
- * If not already familiar; please refer <link linkend="cogl-Blend-Strings">here</link>
- * for an overview of what blend strings are, and their syntax.
- *
  * Blending occurs after the alpha test function, and combines fragments with
  * the framebuffer.
 
  * Currently the only blend function Cogl exposes is ADD(). So any valid
  * blend statements will be of the form:
  *
- * |[
+ * ```
  *   &lt;channel-mask&gt;=ADD(SRC_COLOR*(&lt;factor&gt;), DST_COLOR*(&lt;factor&gt;))
- * ]|
+ * ```
  *
  * This is the list of source-names usable as blend factors:
- * <itemizedlist>
- *   <listitem><para>SRC_COLOR: The color of the incoming fragment</para></listitem>
- *   <listitem><para>DST_COLOR: The color of the framebuffer</para></listitem>
- *   <listitem><para>CONSTANT: The constant set via cogl_pipeline_set_blend_constant()</para></listitem>
- * </itemizedlist>
- *
- * The source names can be used according to the
- * <link linkend="cogl-Blend-String-syntax">color-source and factor syntax</link>,
- * so for example "(1-SRC_COLOR[A])" would be a valid factor, as would
- * "(CONSTANT[RGB])"
+ * 
+ * - `SRC_COLOR`: The color of the incoming fragment
+ * - `DST_COLOR`: The color of the framebuffer
+ * - `CONSTANT`: The constant set via cogl_pipeline_set_blend_constant()
  *
  * These can also be used as factors:
- * <itemizedlist>
- *   <listitem>0: (0, 0, 0, 0)</listitem>
- *   <listitem>1: (1, 1, 1, 1)</listitem>
- *   <listitem>SRC_ALPHA_SATURATE_FACTOR: (f,f,f,1) where f = MIN(SRC_COLOR[A],1-DST_COLOR[A])</listitem>
- * </itemizedlist>
+ * 
+ * - `0`: (0, 0, 0, 0)
+ * - `1`: (1, 1, 1, 1)
+ * - `SRC_ALPHA_SATURATE_FACTOR`: (f,f,f,1) where `f = MIN(SRC_COLOR[A],1-DST_COLOR[A])`
  *
- * <note>Remember; all color components are normalized to the range [0, 1]
- * before computing the result of blending.</note>
+ * Remember; all color components are normalized to the range [0, 1]
+ * before computing the result of blending.
  *
- * <example id="cogl-Blend-Strings-blend-unpremul">
- *   <title>Blend Strings/1</title>
- *   <para>Blend a non-premultiplied source over a destination with
- *   premultiplied alpha:</para>
- *   <programlisting>
+ * - Blend Strings/1:
+ * Blend a non-premultiplied source over a destination with
+ * premultiplied alpha:
+ *   ```
  * "RGB = ADD(SRC_COLOR*(SRC_COLOR[A]), DST_COLOR*(1-SRC_COLOR[A]))"
  * "A   = ADD(SRC_COLOR, DST_COLOR*(1-SRC_COLOR[A]))"
- *   </programlisting>
- * </example>
+ *   ```
  *
- * <example id="cogl-Blend-Strings-blend-premul">
- *   <title>Blend Strings/2</title>
- *   <para>Blend a premultiplied source over a destination with
- *   premultiplied alpha</para>
- *   <programlisting>
+ * Blend Strings/2:
+ *   Blend a premultiplied source over a destination with
+ *   premultiplied alpha
+ *   ```
  * "RGBA = ADD(SRC_COLOR, DST_COLOR*(1-SRC_COLOR[A]))"
- *   </programlisting>
- * </example>
+ *   ```
  *
  * The default blend string is:
- * |[
+ * ```
  *    RGBA = ADD (SRC_COLOR, DST_COLOR*(1-SRC_COLOR[A]))
- * ]|
+ * ```
  *
  * That gives normal alpha-blending when the calculated color for the pipeline
  * is in premultiplied form.
@@ -366,7 +352,7 @@ cogl_pipeline_get_user_program (CoglPipeline *pipeline);
  *
  * This is an example of how it can be used to associate an ARBfp
  * program with a #CoglPipeline:
- * |[
+ * ```c
  * CoglShader *shader;
  * CoglProgram *program;
  * CoglPipeline *pipeline;
@@ -386,7 +372,7 @@ cogl_pipeline_get_user_program (CoglPipeline *pipeline);
  *
  * cogl_set_source_color4ub (0xff, 0x00, 0x00, 0xff);
  * cogl_rectangle (0, 0, 100, 100);
- * ]|
+ * ```
  *
  * It is possibly worth keeping in mind that this API is not part of
  * the long term design for how we want to expose shaders to Cogl

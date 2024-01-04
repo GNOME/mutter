@@ -60,9 +60,9 @@ G_BEGIN_DECLS
  * shared texture atlases using a high-level #CoglAtlasTexture which
  * represents a sub-region of one of these atlases.
  *
- * <note>A #CoglAtlasTexture is a high-level meta texture which has
+ * A #CoglAtlasTexture is a high-level meta texture which has
  * some limitations to be aware of. Please see the documentation for
- * #CoglMetaTexture for more details.</note>
+ * #CoglMetaTexture for more details.
  */
 #define COGL_TYPE_ATLAS_TEXTURE            (cogl_atlas_texture_get_type ())
 #define COGL_ATLAS_TEXTURE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_ATLAS_TEXTURE, CoglAtlasTexture))
@@ -100,13 +100,13 @@ GType               cogl_atlas_texture_get_type       (void) G_GNUC_CONST;
  * using cogl_texture_set_components() and
  * cogl_texture_set_premultiplied().
  *
- * <note>Allocate call can fail if Cogl considers the internal
+ * Allocate call can fail if Cogl considers the internal
  * format to be incompatible with the format of its internal
- * atlases.</note>
+ * atlases.
  *
- * <note>The returned #CoglAtlasTexture is a high-level meta-texture
+ * The returned #CoglAtlasTexture is a high-level meta-texture
  * with some limitations. See the documentation for #CoglMetaTexture
- * for more details.</note>
+ * for more details.
  *
  * Returns: (transfer full): A new #CoglAtlasTexture object.
  */
@@ -131,7 +131,7 @@ cogl_atlas_texture_new_with_size (CoglContext *ctx,
  * memory. A #CoglAtlasTexture represents a sub-region within one of
  * Cogl's shared texture atlases.
  *
- * <note>This api will always immediately allocate GPU memory for the
+ * This api will always immediately allocate GPU memory for the
  * texture and upload the given data so that the @data pointer does
  * not need to remain valid once this function returns. This means it
  * is not possible to configure the texture before it is allocated. If
@@ -140,15 +140,15 @@ cogl_atlas_texture_new_with_size (CoglContext *ctx,
  * instead create a #CoglBitmap for your data and use
  * cogl_atlas_texture_new_from_bitmap() or use
  * cogl_atlas_texture_new_with_size() and then upload data using
- * cogl_texture_set_data()</note>
+ * cogl_texture_set_data()
  *
- * <note>Allocate call can fail if Cogl considers the internal
+ * Allocate call can fail if Cogl considers the internal
  * format to be incompatible with the format of its internal
- * atlases.</note>
+ * atlases.
  *
- * <note>The returned #CoglAtlasTexture is a high-level
+ * The returned #CoglAtlasTexture is a high-level
  * meta-texture with some limitations. See the documentation for
- * #CoglMetaTexture for more details.</note>
+ * #CoglMetaTexture for more details.
  *
  * Return value: (transfer full): A new #CoglAtlasTexture object or
  *          %NULL on failure and @error will be updated.
@@ -181,13 +181,13 @@ cogl_atlas_texture_new_from_data (CoglContext *ctx,
  * using cogl_texture_set_components() and
  * cogl_texture_set_premultiplied().
  *
- * <note>Allocate call can fail if Cogl considers the internal
+ * Allocate call can fail if Cogl considers the internal
  * format to be incompatible with the format of its internal
- * atlases.</note>
+ * atlases.
  *
- * <note>The returned #CoglAtlasTexture is a high-level meta-texture
+ * The returned #CoglAtlasTexture is a high-level meta-texture
  * with some limitations. See the documentation for #CoglMetaTexture
- * for more details.</note>
+ * for more details.
  *
  * Returns: (transfer full): A new #CoglAtlasTexture object.
  */

@@ -48,12 +48,6 @@ struct _CallyStage
   CallyStagePrivate *priv;
 };
 
-/**
- * CallyStageClass:
- *
- * The <structname>CallyStageClass</structname> structure contains only
- * private data
- */
 struct _CallyStageClass
 {
   /*< private >*/

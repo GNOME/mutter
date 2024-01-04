@@ -59,8 +59,8 @@ G_BEGIN_DECLS
  * use this api in addition later, it is simply enough to use
  * cogl_glib_renderer_source_new() instead.
  *
- * <note>This api is actually just a thin convenience wrapper around
- * cogl_glib_renderer_source_new()</note>
+ * This api is actually just a thin convenience wrapper around
+ * cogl_glib_renderer_source_new()
  *
  * Return value: a new #GSource
  */

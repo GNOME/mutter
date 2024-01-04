@@ -294,10 +294,10 @@ cogl_texture_get_gl_texture (CoglTexture *texture,
  *
  * Copies the pixel data from a cogl texture to system memory.
  *
- * <note>Don't pass the value of cogl_texture_get_rowstride() as the
+ * Don't pass the value of cogl_texture_get_rowstride() as the
  * @rowstride argument, the rowstride should be the rowstride you
  * want for the destination @data buffer not the rowstride of the
- * source texture</note>
+ * source texture
  *
  * Return value: the size of the texture data in bytes
  */
@@ -328,7 +328,7 @@ cogl_texture_get_data (CoglTexture *texture,
  * Sets the pixels in a rectangular subregion of @texture from an in-memory
  * buffer containing pixel data.
  *
- * <note>The region set can't be larger than the source @data</note>
+ * The region set can't be larger than the source @data
  *
  * Return value: %TRUE if the subregion upload was successful, and
  *   %FALSE otherwise
@@ -374,16 +374,16 @@ cogl_texture_set_region (CoglTexture *texture,
  * fraction then round the number down (floor()), but clamp to 1
  * something like this:
  *
- * |[
+ * ```
  *  next_width = MAX (1, floor (prev_width));
- * ]|
+ * ```
  *
  * You can determine the number of mipmap levels for a given texture
  * like this:
  *
- * |[
+ * ```
  *  n_levels = 1 + floor (log2 (max_dimension));
- * ]|
+ * ```
  *
  * Where %max_dimension is the larger of cogl_texture_get_width() and
  * cogl_texture_get_height().
@@ -391,10 +391,10 @@ cogl_texture_set_region (CoglTexture *texture,
  * It is an error to pass a @level number >= the number of levels that
  * @texture can have according to the above calculation.
  *
- * <note>Since the storage for a #CoglTexture is allocated lazily then
+ * Since the storage for a #CoglTexture is allocated lazily then
  * if the given @texture has not previously been allocated then this
  * api can return %FALSE and throw an exceptional @error if there is
- * not enough memory to allocate storage for @texture.</note>
+ * not enough memory to allocate storage for @texture.
  *
  * Return value: %TRUE if the data upload was successful, and
  *               %FALSE otherwise
@@ -423,8 +423,8 @@ cogl_texture_set_data (CoglTexture *texture,
  * Copies a specified source region from @bitmap to the position
  * (@src_x, @src_y) of the given destination texture @handle.
  *
- * <note>The region updated can't be larger than the source
- * bitmap</note>
+ * The region updated can't be larger than the source
+ * bitmap
  *
  * Return value: %TRUE if the subregion upload was successful, and
  *   %FALSE otherwise
@@ -448,10 +448,10 @@ cogl_texture_set_region_from_bitmap (CoglTexture *texture,
  * allows you to be sure that there is enough memory for the
  * texture and if not then the error can be handled gracefully.
  *
- * <note>Normally applications don't need to use this api directly
+ * Normally applications don't need to use this api directly
  * since the texture will be implicitly allocated when data is set on
  * the texture, or if the texture is attached to a #CoglOffscreen
- * framebuffer and rendered too.</note>
+ * framebuffer and rendered too.
  *
  * Return value: %TRUE if the texture was successfully allocated,
  *               otherwise %FALSE and @error will be updated if it

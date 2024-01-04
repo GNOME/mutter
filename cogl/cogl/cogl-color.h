@@ -440,10 +440,10 @@ cogl_color_unpremultiply (CoglColor *color);
  * @v1: a #CoglColor
  * @v2: a #CoglColor
  *
- * Compares two #CoglColor<!-- -->s and checks if they are the same.
+ * Compares two `CoglColor`s and checks if they are the same.
  *
  * This function can be passed to g_hash_table_new() as the @key_equal_func
- * parameter, when using #CoglColor<!-- -->s as keys in a #GHashTable.
+ * parameter, when using `CoglColor`s as keys in a #GHashTable.
  *
  * Return value: %TRUE if the two colors are the same.
  */

@@ -57,164 +57,66 @@ G_BEGIN_DECLS
  *
  * For use in all GLSL shaders, the Cogl builtins are as follows:
  *
- * <tip>
- * <glosslist>
- *  <glossentry>
- *   <glossterm>uniform mat4
- *         <emphasis>cogl_modelview_matrix</emphasis></glossterm>
- *   <glossdef><para>
+ * - `uniform mat4 cogl_modelview_matrix`
  *    The current modelview matrix. This is equivalent to
  *    #gl_ModelViewMatrix.
- *   </para></glossdef>
- *  </glossentry>
- *  <glossentry>
- *   <glossterm>uniform mat4
- *         <emphasis>cogl_projection_matrix</emphasis></glossterm>
- *   <glossdef><para>
+ * - `uniform mat4 cogl_projection_matrix`
  *    The current projection matrix. This is equivalent to
  *    #gl_ProjectionMatrix.
- *   </para></glossdef>
- *  </glossentry>
- *  <glossentry>
- *   <glossterm>uniform mat4
- *         <emphasis>cogl_modelview_projection_matrix</emphasis></glossterm>
- *   <glossdef><para>
+* - `uniform mat4 cogl_modelview_projection_matrix`
  *    The combined modelview and projection matrix. A vertex shader
  *    would typically use this to transform the incoming vertex
  *    position. The separate modelview and projection matrices are
  *    usually only needed for lighting calculations. This is
  *    equivalent to #gl_ModelViewProjectionMatrix.
- *   </para></glossdef>
- *  </glossentry>
- *  <glossentry>
- *   <glossterm>uniform mat4
- *         <emphasis>cogl_texture_matrix</emphasis>[]</glossterm>
- *   <glossdef><para>
+ * - `uniform mat4 cogl_texture_matrix[]`
  *    An array of matrices for transforming the texture
  *    coordinates. This is equivalent to #gl_TextureMatrix.
- *   </para></glossdef>
- *  </glossentry>
- * </glosslist>
- * </tip>
  *
  * In a vertex shader, the following are also available:
  *
- * <tip>
- * <glosslist>
- *  <glossentry>
- *   <glossterm>attribute vec4
- *         <emphasis>cogl_position_in</emphasis></glossterm>
- *   <glossdef><para>
+ * - `attribute vec4 cogl_position_in`
  *    The incoming vertex position. This is equivalent to #gl_Vertex.
- *   </para></glossdef>
- *  </glossentry>
- *  <glossentry>
- *   <glossterm>attribute vec4
- *         <emphasis>cogl_color_in</emphasis></glossterm>
- *   <glossdef><para>
+ * - `attribute vec4 cogl_color_in`
  *    The incoming vertex color. This is equivalent to #gl_Color.
- *   </para></glossdef>
- *  </glossentry>
- *  <glossentry>
- *   <glossterm>attribute vec4
- *         <emphasis>cogl_tex_coord_in</emphasis></glossterm>
- *   <glossdef><para>
+ * - `attribute vec4 cogl_tex_coord_in`
  *    The texture coordinate for the first texture unit. This is
  *    equivalent to #gl_MultiTexCoord0.
- *   </para></glossdef>
- *  </glossentry>
- *  <glossentry>
- *   <glossterm>attribute vec4
- *         <emphasis>cogl_tex_coord0_in</emphasis></glossterm>
- *   <glossdef><para>
+ * - `attribute vec4 cogl_tex_coord0_in`
  *    The texture coordinate for the first texture unit. This is
  *    equivalent to #gl_MultiTexCoord0. There is also
  *    #cogl_tex_coord1_in and so on.
- *   </para></glossdef>
- *  </glossentry>
- *  <glossentry>
- *   <glossterm>attribute vec3
- *         <emphasis>cogl_normal_in</emphasis></glossterm>
- *   <glossdef><para>
+ * - `attribute vec3 cogl_normal_in`
  *    The normal of the vertex. This is equivalent to #gl_Normal.
- *   </para></glossdef>
- *  </glossentry>
- *  <glossentry>
- *   <glossterm>vec4
- *         <emphasis>cogl_position_out</emphasis></glossterm>
- *   <glossdef><para>
+ * - `vec4 cogl_position_out`
  *    The calculated position of the vertex. This must be written to
  *    in all vertex shaders. This is equivalent to #gl_Position.
- *   </para></glossdef>
- *  </glossentry>
- *  <glossentry>
- *   <glossterm>float
- *         <emphasis>cogl_point_size_out</emphasis></glossterm>
- *   <glossdef><para>
+ * - `float cogl_point_size_out`
  *    The calculated size of a point. This is equivalent to #gl_PointSize.
- *   </para></glossdef>
- *  </glossentry>
- *  <glossentry>
- *   <glossterm>varying vec4
- *         <emphasis>cogl_color_out</emphasis></glossterm>
- *   <glossdef><para>
+ * - `varying vec4 cogl_color_out`
  *    The calculated color of a vertex. This is equivalent to #gl_FrontColor.
- *   </para></glossdef>
- *  </glossentry>
- *  <glossentry>
- *   <glossterm>varying vec4
- *         <emphasis>cogl_tex_coord_out</emphasis>[]</glossterm>
- *   <glossdef><para>
+ * - `varying vec4 cogl_tex_coord_out[]`
  *    An array of calculated texture coordinates for a vertex. This is
  *    equivalent to #gl_TexCoord.
- *   </para></glossdef>
- *  </glossentry>
- * </glosslist>
- * </tip>
  *
  * In a fragment shader, the following are also available:
  *
- * <tip>
- * <glosslist>
- *  <glossentry>
- *   <glossterm>varying vec4 <emphasis>cogl_color_in</emphasis></glossterm>
- *   <glossdef><para>
+ * - `varying vec4 cogl_color_in`
  *    The calculated color of a vertex. This is equivalent to #gl_FrontColor.
- *   </para></glossdef>
- *  </glossentry>
- *  <glossentry>
- *   <glossterm>varying vec4
- *              <emphasis>cogl_tex_coord_in</emphasis>[]</glossterm>
- *   <glossdef><para>
+ * - `varying vec4 cogl_tex_coord_in[]`
  *    An array of calculated texture coordinates for a vertex. This is
  *    equivalent to #gl_TexCoord.
- *   </para></glossdef>
- *  </glossentry>
- *  <glossentry>
- *   <glossterm>vec4 <emphasis>cogl_color_out</emphasis></glossterm>
- *   <glossdef><para>
+ * - `vec4 cogl_color_out`
  *    The final calculated color of the fragment. All fragment shaders
  *    must write to this variable. This is equivalent to
  *    #gl_FrontColor.
- *   </para></glossdef>
- *  </glossentry>
- *  <glossentry>
- *   <glossterm>float <emphasis>cogl_depth_out</emphasis></glossterm>
- *   <glossdef><para>
+ * - `float cogl_depth_out`
  *    An optional output variable specifying the depth value to use
  *    for this fragment. This is equivalent to #gl_FragDepth.
- *   </para></glossdef>
- *  </glossentry>
- *  <glossentry>
- *   <glossterm>bool <emphasis>cogl_front_facing</emphasis></glossterm>
- *   <glossdef><para>
+ * - `bool cogl_front_facing`
  *    A readonly variable that will be true if the current primitive
  *    is front facing. This can be used to implement two-sided
  *    coloring algorithms. This is equivalent to #gl_FrontFacing.
- *   </para></glossdef>
- *  </glossentry>
- * </glosslist>
- * </tip>
  *
  * It's worth nothing that this API isn't what Cogl would like to have
  * in the long term and it may be removed in Cogl 2.0. The
@@ -264,10 +166,7 @@ cogl_create_shader (CoglShaderType shader_type);
  *
  * Replaces the current source associated with a shader with a new
  * one.
- *
- * Please see <link
- * linkend="cogl-Shaders-and-Programmable-Pipeline.description">above</link>
- * for a description of the recommended format for the shader code.
+ * 
  * Deprecated: 1.16: Use #CoglSnippet api
  */
 COGL_DEPRECATED_FOR (cogl_snippet_)

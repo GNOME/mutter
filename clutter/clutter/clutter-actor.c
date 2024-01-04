@@ -5429,8 +5429,7 @@ clutter_actor_finalize (GObject *object)
  * implementation from the first ancestor class for which such an
  * implementation is defined.
  *
- * The documentation of the <ulink
- * url="http://developer.gnome.org/doc/API/2.0/atk/index.html">ATK</ulink>
+ * The documentation of the [https://gnome.pages.gitlab.gnome.org/at-spi2-core/atk/](ATK)
  * library contains more information about accessible objects and
  * their uses.
  *

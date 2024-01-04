@@ -75,7 +75,7 @@ G_BEGIN_DECLS
  * index buffer that specifies the 6 vertices by indexing the shared
  * vertices multiple times.
  *
- * |[
+ * ```c
  *   CoglVertexP2 quad_vertices[] = {
  *     {x0, y0}, //0 = top left
  *     {x1, y1}, //1 = bottom left
@@ -84,7 +84,7 @@ G_BEGIN_DECLS
  *   };
  *   //tell the gpu how to interpret the quad as 2 triangles...
  *   unsigned char indices[] = {0, 1, 2, 0, 2, 3};
- * ]|
+ * ```
  *
  * Even in the above illustration we see a saving of 10bytes for one
  * quad compared to having data for 6 vertices and no indices but if

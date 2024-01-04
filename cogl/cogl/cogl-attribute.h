@@ -65,10 +65,10 @@ G_DECLARE_FINAL_TYPE (CoglAttribute,
  * @name: The name of the attribute (used to reference it from GLSL)
  * @stride: The number of bytes to jump to get to the next attribute
  *          value for the next vertex. (Usually
- *          <literal>sizeof (MyVertex)</literal>)
+ *          `sizeof (MyVertex)`)
  * @offset: The byte offset from the start of @attribute_buffer for
  *          the first attribute value. (Usually
- *          <literal>offsetof (MyVertex, component0)</literal>
+ *          `offsetof (MyVertex, component0)`
  * @components: The number of components (e.g. 4 for an rgba color or
  *              3 for and (x,y,z) position)
  * @type: FIXME
@@ -79,50 +79,48 @@ G_DECLARE_FINAL_TYPE (CoglAttribute,
  * The @name is used to access the attribute inside a GLSL vertex
  * shader and there are some special names you should use if they are
  * applicable:
- *  <itemizedlist>
- *    <listitem>"cogl_position_in" (used for vertex positions)</listitem>
- *    <listitem>"cogl_color_in" (used for vertex colors)</listitem>
- *    <listitem>"cogl_tex_coord0_in", "cogl_tex_coord1", ...
- * (used for vertex texture coordinates)</listitem>
- *    <listitem>"cogl_normal_in" (used for vertex normals)</listitem>
- *    <listitem>"cogl_point_size_in" (used to set the size of points
+ * 
+ * - "cogl_position_in" (used for vertex positions)
+ * - "cogl_color_in" (used for vertex colors)
+ * - "cogl_tex_coord0_in", "cogl_tex_coord1", ...
+ * (used for vertex texture coordinates)
+ * - "cogl_normal_in" (used for vertex normals)
+ * - "cogl_point_size_in" (used to set the size of points
  *    per-vertex. Note this can only be used if
  *    %COGL_FEATURE_ID_POINT_SIZE_ATTRIBUTE is advertised and
  *    cogl_pipeline_set_per_vertex_point_size() is called on the pipeline.
- *    </listitem>
- *  </itemizedlist>
  *
  * The attribute values corresponding to different vertices can either
  * be tightly packed or interleaved with other attribute values. For
  * example it's common to define a structure for a single vertex like:
- * |[
+ * ```c
  * typedef struct
  * {
  *   float x, y, z; /<!-- -->* position attribute *<!-- -->/
  *   float s, t; /<!-- -->* texture coordinate attribute *<!-- -->/
  * } MyVertex;
- * ]|
+ * ```
  *
  * And then create an array of vertex data something like:
- * |[
+ * ```c
  * MyVertex vertices[100] = { .... }
- * ]|
+ * ```
  *
  * In this case, to describe either the position or texture coordinate
- * attribute you have to move <literal>sizeof (MyVertex)</literal> bytes to
+ * attribute you have to move `sizeof (MyVertex)` bytes to
  * move from one vertex to the next.  This is called the attribute
  * @stride. If you weren't interleving attributes and you instead had
  * a packed array of float x, y pairs then the attribute stride would
- * be <literal>(2 * sizeof (float))</literal>. So the @stride is the number of
+ * be `(2 * sizeof (float))`. So the @stride is the number of
  * bytes to move to find the attribute value of the next vertex.
  *
  * Normally a list of attributes starts at the beginning of an array.
- * So for the <literal>MyVertex</literal> example above the @offset is the
- * offset inside the <literal>MyVertex</literal> structure to the first
+ * So for the `MyVertex` example above the @offset is the
+ * offset inside the `MyVertex` structure to the first
  * component of the attribute. For the texture coordinate attribute
- * the offset would be <literal>offsetof (MyVertex, s)</literal> or instead of
- * using the offsetof macro you could use <literal>sizeof (float) *
- * 3</literal>.  If you've divided your @array into blocks of non-interleved
+ * the offset would be `offsetof (MyVertex, s)` or instead of
+ * using the offsetof macro you could use `sizeof (float) *
+ * 3`.  If you've divided your @array into blocks of non-interleved
  * attributes then you will need to calculate the @offset as the number of
  * bytes in blocks preceding the attribute you're describing.
  *

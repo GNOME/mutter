@@ -80,11 +80,11 @@ GType               cogl_sub_texture_get_type       (void) G_GNUC_CONST;
  * #CoglMetaTexture interface because it's not a low level texture
  * that hardware can understand natively.
  *
- * <note>Remember: Unless you are using high level drawing APIs such
+ * Remember: Unless you are using high level drawing APIs such
  * as cogl_rectangle() or other APIs documented to understand the
  * #CoglMetaTexture interface then you need to use the
  * #CoglMetaTexture interface to resolve a #CoglSubTexture into a
- * low-level texture before drawing.</note>
+ * low-level texture before drawing.
  *
  * Return value: (transfer full): A newly allocated #CoglSubTexture
  *          representing a sub-region of @parent_texture.

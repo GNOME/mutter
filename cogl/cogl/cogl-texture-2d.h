@@ -152,7 +152,7 @@ cogl_texture_2d_new_with_size (CoglContext *ctx,
  * Creates a low-level #CoglTexture2D texture based on data residing
  * in memory.
  *
- * <note>This api will always immediately allocate GPU memory for the
+ * This api will always immediately allocate GPU memory for the
  * texture and upload the given data so that the @data pointer does
  * not need to remain valid once this function returns. This means it
  * is not possible to configure the texture before it is allocated. If
@@ -161,7 +161,7 @@ cogl_texture_2d_new_with_size (CoglContext *ctx,
  * instead create a #CoglBitmap for your data and use
  * cogl_texture_2d_new_from_bitmap() or use
  * cogl_texture_2d_new_with_size() and then upload data using
- * cogl_texture_set_data()</note>
+ * cogl_texture_set_data()
  *
  * Returns: (transfer full): A newly allocated #CoglTexture2D, or if
  *          the size is not supported (because it is too large or a

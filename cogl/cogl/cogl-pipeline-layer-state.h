@@ -140,8 +140,8 @@ typedef enum
  * explicitly specify the type of default texture required, use
  * cogl_pipeline_set_layer_null_texture() instead.
  *
- * <note>In the future, we may define other types of pipeline layers, such
- * as purely GLSL based layers.</note>
+ * In the future, we may define other types of pipeline layers, such
+ * as purely GLSL based layers.
  */
 COGL_EXPORT void
 cogl_pipeline_set_layer_texture (CoglPipeline *pipeline,
@@ -193,88 +193,64 @@ cogl_pipeline_remove_layer (CoglPipeline *pipeline,
  * cogl_pipeline_set_layer_combine:
  * @pipeline: A #CoglPipeline object
  * @layer_index: Specifies the layer you want define a combine function for
- * @blend_string: A <link linkend="cogl-Blend-Strings">Cogl blend string</link>
- *    describing the desired texture combine function.
+ * @blend_string: A Cogl blend string describing the desired
+ *  texture combine function.
  * @error: A #GError that may report parse errors or lack of GPU/driver
  *   support. May be %NULL, in which case a warning will be printed out if an
  *   error is encountered.
  *
- * If not already familiar; you can refer
- * <link linkend="cogl-Blend-Strings">here</link> for an overview of what blend
- * strings are and there syntax.
  *
  * These are all the functions available for texture combining:
- * <itemizedlist>
- *   <listitem>REPLACE(arg0) = arg0</listitem>
- *   <listitem>MODULATE(arg0, arg1) = arg0 x arg1</listitem>
- *   <listitem>ADD(arg0, arg1) = arg0 + arg1</listitem>
- *   <listitem>ADD_SIGNED(arg0, arg1) = arg0 + arg1 - 0.5</listitem>
- *   <listitem>INTERPOLATE(arg0, arg1, arg2) = arg0 x arg2 + arg1 x (1 - arg2)</listitem>
- *   <listitem>SUBTRACT(arg0, arg1) = arg0 - arg1</listitem>
- *   <listitem>
- *     <programlisting>
+ * 
+ * - `REPLACE(arg0) = arg0`
+ * - `MODULATE(arg0, arg1) = arg0 x arg1`
+ * - `ADD(arg0, arg1) = arg0 + arg1`
+ * - `ADD_SIGNED(arg0, arg1) = arg0 + arg1 - 0.5`
+ * - `INTERPOLATE(arg0, arg1, arg2) = arg0 x arg2 + arg1 x (1 - arg2)`
+ * - `SUBTRACT(arg0, arg1) = arg0 - arg1`
+ * - 
+ * ```
  *  DOT3_RGB(arg0, arg1) = 4 x ((arg0[R] - 0.5)) * (arg1[R] - 0.5) +
  *                              (arg0[G] - 0.5)) * (arg1[G] - 0.5) +
  *                              (arg0[B] - 0.5)) * (arg1[B] - 0.5))
- *     </programlisting>
- *   </listitem>
- *   <listitem>
- *     <programlisting>
+ * ```
+ * -
+ * ```
  *  DOT3_RGBA(arg0, arg1) = 4 x ((arg0[R] - 0.5)) * (arg1[R] - 0.5) +
  *                               (arg0[G] - 0.5)) * (arg1[G] - 0.5) +
  *                               (arg0[B] - 0.5)) * (arg1[B] - 0.5))
- *     </programlisting>
- *   </listitem>
- * </itemizedlist>
+ * ```
  *
- * Refer to the
- * <link linkend="cogl-Blend-String-syntax">color-source syntax</link> for
- * describing the arguments. The valid source names for texture combining
- * are:
- * <variablelist>
- *   <varlistentry>
- *     <term>TEXTURE</term>
- *     <listitem>Use the color from the current texture layer</listitem>
- *   </varlistentry>
- *   <varlistentry>
- *     <term>TEXTURE_0, TEXTURE_1, etc</term>
- *     <listitem>Use the color from the specified texture layer</listitem>
- *   </varlistentry>
- *   <varlistentry>
- *     <term>CONSTANT</term>
- *     <listitem>Use the color from the constant given with
- *     cogl_pipeline_set_layer_combine_constant()</listitem>
- *   </varlistentry>
- *   <varlistentry>
- *     <term>PRIMARY</term>
- *     <listitem>Use the color of the pipeline as set with
- *     cogl_pipeline_set_color()</listitem>
- *   </varlistentry>
- *   <varlistentry>
- *     <term>PREVIOUS</term>
- *     <listitem>Either use the texture color from the previous layer, or
+ * The valid source names for texture combining are:
+ * 
+ * - `TEXTURE`: Use the color from the current texture layer
+ * - `TEXTURE_0, TEXTURE_1, etc`: Use the color from the specified texture layer
+ * - `CONSTANT`: Use the color from the constant given with
+ *     [method@Cogl.Pipeline.set_layer_combine_constant]
+ * - `PRIMARY`: Use the color of the pipeline as set with
+ *     [method@Cogl.Pipeline.set_color]
+ * - `PREVIOUS`: Either use the texture color from the previous layer, or
  *     if this is layer 0, use the color of the pipeline as set with
- *     cogl_pipeline_set_color()</listitem>
- *   </varlistentry>
- * </variablelist>
+ *     [method@Cogl.Pipeline.set_color]
+ * 
+ * Layer Combine Examples:
+ * 
+ * This is effectively what the default blending is:
+ * 
+ * ```
+ * RGBA = MODULATE (PREVIOUS, TEXTURE)
+ * ```
+ * 
+ * This could be used to cross-fade between two images, using
+ * the alpha component of a constant as the interpolator. The constant
+ * color is given by calling [method@Cogl.Pipeline.set_layer_combine_constant].
+ * 
+ * ```
+ * RGBA = INTERPOLATE (PREVIOUS, TEXTURE, CONSTANT[A])
+ * ```
  *
- * <refsect2 id="cogl-Layer-Combine-Examples">
- *   <title>Layer Combine Examples</title>
- *   <para>This is effectively what the default blending is:</para>
- *   <informalexample><programlisting>
- *   RGBA = MODULATE (PREVIOUS, TEXTURE)
- *   </programlisting></informalexample>
- *   <para>This could be used to cross-fade between two images, using
- *   the alpha component of a constant as the interpolator. The constant
- *   color is given by calling
- *   cogl_pipeline_set_layer_combine_constant().</para>
- *   <informalexample><programlisting>
- *   RGBA = INTERPOLATE (PREVIOUS, TEXTURE, CONSTANT[A])
- *   </programlisting></informalexample>
- * </refsect2>
- *
- * <note>You can't give a multiplication factor for arguments as you can
- * with blending.</note>
+ * You can't give a multiplication factor for arguments as you can
+ * with blending.
  *
  * Return value: %TRUE if the blend string was successfully parsed, and the
  *   described texture combining is supported by the underlying driver and
@@ -352,10 +328,10 @@ cogl_pipeline_get_layer_filters (CoglPipeline       *pipeline,
  * Changes the decimation and interpolation filters used when a texture is
  * drawn at other scales than 100%.
  *
- * <note>It is an error to pass anything other than
+ * It is an error to pass anything other than
  * %COGL_PIPELINE_FILTER_NEAREST or %COGL_PIPELINE_FILTER_LINEAR as
  * magnification filters since magnification doesn't ever need to
- * reference values stored in the mipmap chain.</note>
+ * reference values stored in the mipmap chain.
  */
 COGL_EXPORT void
 cogl_pipeline_set_layer_filters (CoglPipeline      *pipeline,

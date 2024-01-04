@@ -49,12 +49,6 @@ struct _CallyRoot
   CallyRootPrivate *priv;
 };
 
-/**
- * CallyRootClass:
- *
- * The <structname>CallyRootClass</structname> structure contains only
- * private data
- */
 struct _CallyRootClass
 {
   /*< private >*/

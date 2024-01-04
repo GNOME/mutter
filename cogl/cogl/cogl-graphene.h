@@ -78,7 +78,7 @@ cogl_graphene_matrix_project_point (const graphene_matrix_t *matrix,
  * cogl_graphene_matrix_project_points().
  *
  * Here's an example with differing input/output strides:
- * |[
+ * ```c
  * typedef struct {
  *   float x,y;
  *   uint8_t r,g,b,a;
@@ -102,7 +102,7 @@ cogl_graphene_matrix_project_point (const graphene_matrix_t *matrix,
  *                               sizeof (MyOutVertex),
  *                               &results[0].x,
  *                               N_VERTICES);
- * ]|
+ * ```
  */
 COGL_EXPORT void
 cogl_graphene_matrix_transform_points (const graphene_matrix_t *matrix,
@@ -131,7 +131,7 @@ cogl_graphene_matrix_transform_points (const graphene_matrix_t *matrix,
  * the input array to do the transform in-place.
  *
  * Here's an example with differing input/output strides:
- * |[
+ * ```c
  * typedef struct {
  *   float x,y;
  *   uint8_t r,g,b,a;
@@ -155,7 +155,7 @@ cogl_graphene_matrix_transform_points (const graphene_matrix_t *matrix,
  *                             sizeof (MyOutVertex),
  *                             &results[0].x,
  *                             N_VERTICES);
- * ]|
+ * ```
  */
 COGL_EXPORT void
 cogl_graphene_matrix_project_points (const graphene_matrix_t *matrix,

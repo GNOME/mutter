@@ -83,8 +83,8 @@ int64_t cogl_frame_info_get_frame_counter (CoglFrameInfo *info);
  * The presentation time measured in microseconds, is based on
  * CLOCK_MONOTONIC.
  *
- * <note>Some buggy Mesa drivers up to 9.0.1 may
- * incorrectly report non-monotonic timestamps.</note>
+ * Some buggy Mesa drivers up to 9.0.1 may
+ * incorrectly report non-monotonic timestamps.
  *
  * Return value: the presentation time for the frame
  */
@@ -98,11 +98,11 @@ int64_t cogl_frame_info_get_presentation_time_us (CoglFrameInfo *info);
  * Gets the refresh rate in Hertz for the output that the frame was on
  * at the time the frame was presented.
  *
- * <note>Some platforms can't associate a #CoglOutput with a
+ * Some platforms can't associate a #CoglOutput with a
  * #CoglFrameInfo object but are able to report a refresh rate via
  * this api. Therefore if you need this information then this api is
  * more reliable than using cogl_frame_info_get_output() followed by
- * cogl_output_get_refresh_rate().</note>
+ * cogl_output_get_refresh_rate().
  *
  * Return value: the refresh rate in Hertz
  */

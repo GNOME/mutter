@@ -198,7 +198,7 @@ meta_multi_texture_class_init (MetaMultiTextureClass *klass)
  * @n_planes: The number of planes
  *
  * Creates a #MetaMultiTexture with the given @format. Each of the
- * #CoglTexture<!-- -->s represents a plane.
+ * `CoglTexture`s represents a plane.
  *
  * Returns: (transfer full): A new #MetaMultiTexture. Use g_object_unref() when
  * you're done with it.

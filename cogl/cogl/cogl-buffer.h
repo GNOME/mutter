@@ -202,7 +202,7 @@ typedef enum /*< prefix=COGL_BUFFER_BIND_TARGET >*/
  * cogl_buffer_map:
  * @buffer: a buffer object
  * @access: how the mapped buffer will be used by the application
- * @hints: A mask of #CoglBufferMapHint<!-- -->s that tell Cogl how
+ * @hints: A mask of `CoglBufferMapHint`s that tell Cogl how
  *   the data will be modified once mapped.
  *
  * Maps the buffer into the application address space for direct
@@ -234,7 +234,7 @@ cogl_buffer_map (CoglBuffer *buffer,
  * @offset: Offset within the buffer to start the mapping
  * @size: The size of data to map
  * @access: how the mapped buffer will be used by the application
- * @hints: A mask of #CoglBufferMapHint<!-- -->s that tell Cogl how
+ * @hints: A mask of `CoglBufferMapHint`s that tell Cogl how
  *   the data will be modified once mapped.
  * @error: A #GError for catching exceptional errors
  *

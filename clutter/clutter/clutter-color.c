@@ -761,8 +761,7 @@ clutter_color_from_string (ClutterColor *color,
  * @color: a #ClutterColor
  *
  * Returns a textual specification of @color in the hexadecimal form
- * <literal>&num;rrggbbaa</literal>, where <literal>r</literal>,
- * <literal>g</literal>, <literal>b</literal> and <literal>a</literal> are
+ * `&num;rrggbbaa`, where `r`, `g`, `b` and `a` are
  * hexadecimal digits representing the red, green, blue and alpha components
  * respectively.
  *

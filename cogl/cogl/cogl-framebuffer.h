@@ -110,12 +110,12 @@ struct _CoglFramebufferClass
  * check and handle any errors that might arise from an unsupported
  * configuration so that fallback configurations may be tried.
  *
- * <note>Many applications don't support any fallback options at least when
+ * Many applications don't support any fallback options at least when
  * they are initially developed and in that case the don't need to use this API
  * since Cogl will automatically allocate a framebuffer when it first gets
  * used.  The disadvantage of relying on automatic allocation is that the
  * program will abort with an error message if there is an error during
- * automatic allocation.</note>
+ * automatic allocation.
  *
  * Return value: %TRUE if there were no error allocating the framebuffer, else %FALSE.
  */
@@ -167,9 +167,9 @@ cogl_framebuffer_get_height (CoglFramebuffer *framebuffer);
  * contents down by specify and width and height that's half the real
  * size of the framebuffer.
  *
- * <note>Although the function takes floating point arguments, existing
+ * Although the function takes floating point arguments, existing
  * drivers only allow the use of integer values. In the future floating
- * point values will be exposed via a checkable feature.</note>
+ * point values will be exposed via a checkable feature.
  *
  */
 COGL_EXPORT void
@@ -382,10 +382,10 @@ cogl_framebuffer_set_modelview_matrix (CoglFramebuffer         *framebuffer,
  * Replaces the current projection matrix with a perspective matrix
  * based on the provided values.
  *
- * <note>You should be careful not to have to great a @z_far / @z_near
+ * You should be careful not to have to great a @z_far / @z_near
  * ratio since that will reduce the effectiveness of depth testing
  * since there won't be enough precision to identify the depth of
- * objects near to each other.</note>
+ * objects near to each other.
  */
 COGL_EXPORT void
 cogl_framebuffer_perspective (CoglFramebuffer *framebuffer,
@@ -428,11 +428,11 @@ cogl_framebuffer_frustum (CoglFramebuffer *framebuffer,
  * @y_1: The y coordinate for the first horizontal clipping plane
  * @x_2: The x coordinate for the second vertical clipping plane
  * @y_2: The y coordinate for the second horizontal clipping plane
- * @near: The <emphasis>distance</emphasis> to the near clipping
- *   plane (will be <emphasis>negative</emphasis> if the plane is
+ * @near: The *distance* to the near clipping
+ *   plane (will be *negative* if the plane is
  *   behind the viewer)
- * @far: The <emphasis>distance</emphasis> to the far clipping
- *   plane (will be <emphasis>negative</emphasis> if the plane is
+ * @far: The *distance* to the far clipping
+ *   plane (will be *negative* if the plane is
  *   behind the viewer)
  *
  * Replaces the current projection matrix with an orthographic projection
@@ -622,9 +622,9 @@ cogl_framebuffer_get_is_stereo (CoglFramebuffer *framebuffer);
  * Returns whether dithering has been requested for the given @framebuffer.
  * See cogl_framebuffer_set_dither_enabled() for more details about dithering.
  *
- * <note>This may return %TRUE even when the underlying @framebuffer
+ * This may return %TRUE even when the underlying @framebuffer
  * display pipeline does not support dithering. This value only represents
- * the user's request for dithering.</note>
+ * the user's request for dithering.
  *
  * Return value: %TRUE if dithering has been requested or %FALSE if not.
  */
@@ -737,19 +737,19 @@ cogl_framebuffer_set_stereo_mode (CoglFramebuffer *framebuffer,
  * as "single-sample" rendering. A value of 1 or greater is referred
  * to as "multisample" rendering.
  *
- * <note>There are some semantic differences between single-sample
+ * There are some semantic differences between single-sample
  * rendering and multisampling with just 1 point sample such as it
  * being redundant to use the cogl_framebuffer_resolve_samples() and
  * cogl_framebuffer_resolve_samples_region() apis with single-sample
- * rendering.</note>
+ * rendering.
  *
- * <note>It's recommended that
+ * It's recommended that
  * cogl_framebuffer_resolve_samples_region() be explicitly used at the
  * end of rendering to a point sample buffer to minimize the number of
  * samples that get resolved. By default Cogl will implicitly resolve
  * all framebuffer samples but if only a small region of a
  * framebuffer has changed this can lead to redundant work being
- * done.</note>
+ * done.
  *
  */
 COGL_EXPORT void
@@ -865,7 +865,7 @@ cogl_framebuffer_get_context (CoglFramebuffer *framebuffer);
 /**
  * cogl_framebuffer_clear:
  * @framebuffer: A #CoglFramebuffer
- * @buffers: A mask of #CoglBufferBit<!-- -->'s identifying which auxiliary
+ * @buffers: A mask of `CoglBufferBit`s identifying which auxiliary
  *   buffers to clear
  * @color: The color to clear the color buffer too if specified in
  *         @buffers.
@@ -882,7 +882,7 @@ cogl_framebuffer_clear (CoglFramebuffer *framebuffer,
 /**
  * cogl_framebuffer_clear4f:
  * @framebuffer: A #CoglFramebuffer
- * @buffers: A mask of #CoglBufferBit<!-- -->'s identifying which auxiliary
+ * @buffers: A mask of `CoglBufferBit`s identifying which auxiliary
  *   buffers to clear
  * @red: The red component of color to clear the color buffer too if
  *       specified in @buffers.
@@ -918,13 +918,13 @@ cogl_framebuffer_clear4f (CoglFramebuffer *framebuffer,
  * and with the top left corner positioned at (@x_1, @y_1) and the
  * bottom right corner positioned at (@x_2, @y_2).
  *
- * <note>The position is the position before the rectangle has been
+ * The position is the position before the rectangle has been
  * transformed by the model-view matrix and the projection
- * matrix.</note>
+ * matrix.
  *
- * <note>If you want to describe a rectangle with a texture mapped on
+ * If you want to describe a rectangle with a texture mapped on
  * it then you can use
- * cogl_framebuffer_draw_textured_rectangle().</note>
+ * cogl_framebuffer_draw_textured_rectangle().
  */
 COGL_EXPORT void
 cogl_framebuffer_draw_rectangle (CoglFramebuffer *framebuffer,
@@ -953,9 +953,9 @@ cogl_framebuffer_draw_rectangle (CoglFramebuffer *framebuffer,
  * left corner will have texture coordinates of (@s_1, @t_1) and the
  * bottom right corner will have texture coordinates of (@s_2, @t_2).
  *
- * <note>The position is the position before the rectangle has been
+ * The position is the position before the rectangle has been
  * transformed by the model-view matrix and the projection
- * matrix.</note>
+ * matrix.
  *
  * This is a high level drawing api that can handle any kind of
  * #CoglMetaTexture texture such as #CoglTexture2DSliced textures
@@ -964,10 +964,10 @@ cogl_framebuffer_draw_rectangle (CoglFramebuffer *framebuffer,
  * which only support low level texture types that are directly
  * supported by GPUs such as #CoglTexture2D.
  *
- * <note>The given texture coordinates will only be used for the first
+ * The given texture coordinates will only be used for the first
  * texture layer of the pipeline and if your pipeline has more than
  * one layer then all other layers will have default texture
- * coordinates of @s_1=0.0 @t_1=0.0 @s_2=1.0 @t_2=1.0 </note>
+ * coordinates of @s_1=0.0 @t_1=0.0 @s_2=1.0 @t_2=1.0 
  *
  * The given texture coordinates should always be normalized such that
  * (0, 0) corresponds to the top left and (1, 1) corresponds to the
@@ -1009,9 +1009,9 @@ cogl_framebuffer_draw_textured_rectangle (CoglFramebuffer *framebuffer,
  * contain multiple texture layers this interface lets you supply
  * texture coordinates for each layer of the pipeline.
  *
- * <note>The position is the position before the rectangle has been
+ * The position is the position before the rectangle has been
  * transformed by the model-view matrix and the projection
- * matrix.</note>
+ * matrix.
  *
  * This is a high level drawing api that can handle any kind of
  * #CoglMetaTexture texture for the first layer such as
@@ -1020,7 +1020,7 @@ cogl_framebuffer_draw_textured_rectangle (CoglFramebuffer *framebuffer,
  * such as cogl_primitive_draw() which only support low level texture
  * types that are directly supported by GPUs such as #CoglTexture2D.
  *
- * <note>This api can not currently handle multiple high-level meta
+ * This api can not currently handle multiple high-level meta
  * texture layers. The first layer may be a high level meta texture
  * such as #CoglTexture2DSliced but all other layers much be low
  * level textures such as #CoglTexture2D.
@@ -1073,9 +1073,9 @@ cogl_framebuffer_draw_multitextured_rectangle (CoglFramebuffer *framebuffer,
  * the second rectangle are (coordinates[4], coordinates[5]) and
  * (coordinates[6], coordinates[7]) and so on...
  *
- * <note>The position is the position before the rectangle has been
+ * The position is the position before the rectangle has been
  * transformed by the model-view matrix and the projection
- * matrix.</note>
+ * matrix.
  *
  * As a general rule for better performance its recommended to use
  * this this API instead of calling
@@ -1103,9 +1103,9 @@ cogl_framebuffer_draw_rectangles (CoglFramebuffer *framebuffer,
  * @pipeline state in the same way that
  * cogl_framebuffer_draw_textured_rectangle() does.
  *
- * <note>The position is the position before the rectangle has been
+ * The position is the position before the rectangle has been
  * transformed by the model-view matrix and the projection
- * matrix.</note>
+ * matrix.
  *
  * This is a high level drawing api that can handle any kind of
  * #CoglMetaTexture texture such as #CoglTexture2DSliced textures
@@ -1240,7 +1240,7 @@ cogl_framebuffer_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
  *
  * The implementation of the function looks like this:
  *
- * |[
+ * ```c
  * bitmap = cogl_bitmap_new_for_data (context,
  *                                    width, height,
  *                                    format,
@@ -1252,7 +1252,7 @@ cogl_framebuffer_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
  *                                           COGL_READ_PIXELS_COLOR_BUFFER,
  *                                           bitmap);
  * g_object_unref (bitmap);
- * ]|
+ * ```
  *
  * Return value: %TRUE if the read succeeded or %FALSE otherwise.
  */

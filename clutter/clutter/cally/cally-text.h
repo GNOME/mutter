@@ -48,12 +48,6 @@ struct _CallyText
   CallyTextPrivate *priv;
 };
 
-/**
- * CallyTextClass:
- *
- * The <structname>CallyTextClass</structname> structure contains only
- * private data
- */
 struct _CallyTextClass
 {
   /*< private >*/

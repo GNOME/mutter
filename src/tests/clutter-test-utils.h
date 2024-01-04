@@ -51,16 +51,16 @@ G_BEGIN_DECLS
  *
  * Defines the entry point and initializes a Clutter test unit, e.g.:
  *
- * |[
+ * ```
  * CLUTTER_TEST_SUITE (
  *   CLUTTER_TEST_UNIT ("/foobarize", foobarize)
  *   CLUTTER_TEST_UNIT ("/bar-enabled", bar_enabled)
  * )
- * ]|
+ * ```
  *
  * Expands to:
  *
- * |[
+ * ```c
  * int
  * main (int   argc,
  *       char *argv[])
@@ -72,7 +72,7 @@ G_BEGIN_DECLS
  *
  *   return clutter_test_run ();
  * }
- * ]|
+ * ```
  */
 #define CLUTTER_TEST_SUITE(units) \
 int \

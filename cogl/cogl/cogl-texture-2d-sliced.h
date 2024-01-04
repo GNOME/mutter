@@ -111,11 +111,11 @@ GType               cogl_texture_2d_sliced_get_type       (void) G_GNUC_CONST;
  * allocate the underlying storage or let Cogl automatically allocate
  * storage lazily.
  *
- * <note>It's possible for the allocation of a sliced texture to fail
+ * It's possible for the allocation of a sliced texture to fail
  * later due to impossible slicing constraints if a negative
  * @max_waste value is given. If the given virtual texture size size
  * is larger than is supported by the hardware but slicing is disabled
- * the texture size would be too large to handle.</note>
+ * the texture size would be too large to handle.
  *
  * Returns: (transfer full): A new #CoglTexture2DSliced object with no storage
  *          allocated yet.
@@ -159,7 +159,7 @@ cogl_texture_2d_sliced_new_with_size (CoglContext *ctx,
  * wasted padding at the bottom and right of the textures is less than
  * specified. A negative @max_waste will disable slicing.
  *
- * <note>This api will always immediately allocate GPU memory for all
+ * This api will always immediately allocate GPU memory for all
  * the required texture slices and upload the given data so that the
  * @data pointer does not need to remain valid once this function
  * returns. This means it is not possible to configure the texture
@@ -168,13 +168,13 @@ cogl_texture_2d_sliced_new_with_size (CoglContext *ctx,
  * for example) then you can instead create a #CoglBitmap for your
  * data and use cogl_texture_2d_sliced_new_from_bitmap() or use
  * cogl_texture_2d_sliced_new_with_size() and then upload data using
- * cogl_texture_set_data()</note>
+ * cogl_texture_set_data()
  *
- * <note>It's possible for the allocation of a sliced texture to fail
+ * It's possible for the allocation of a sliced texture to fail
  * due to impossible slicing constraints if a negative @max_waste
  * value is given. If the given virtual texture size is larger than is
  * supported by the hardware but slicing is disabled the texture size
- * would be too large to handle.</note>
+ * would be too large to handle.
  *
  * Return value: (transfer full): A newly created #CoglTexture2DSliced
  *               or %NULL on failure and @error will be updated.
@@ -219,11 +219,11 @@ cogl_texture_2d_sliced_new_from_data (CoglContext *ctx,
  * allocate the underlying storage or let Cogl automatically allocate
  * storage lazily.
  *
- * <note>It's possible for the allocation of a sliced texture to fail
+ * It's possible for the allocation of a sliced texture to fail
  * later due to impossible slicing constraints if a negative
  * @max_waste value is given. If the given virtual texture size is
  * larger than is supported by the hardware but slicing is disabled
- * the texture size would be too large to handle.</note>
+ * the texture size would be too large to handle.
  *
  * Return value: (transfer full): A newly created #CoglTexture2DSliced
  *               or %NULL on failure and @error will be updated.

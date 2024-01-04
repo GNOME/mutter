@@ -570,7 +570,7 @@ _cogl_get_n_args_for_combine_func (CoglPipelineCombineFunc func);
  * To understand this better its good to know a bit about the internal
  * design of #CoglPipeline...
  *
- * Internally #CoglPipeline<!-- -->s are represented as a graph of
+ * Internally `CoglPipeline`s are represented as a graph of
  * property diff's, where each node is a diff of properties that gets
  * applied on top of its parent. Copying a pipeline creates an empty
  * diff and a child->parent relationship between the empty diff and
@@ -617,7 +617,7 @@ _cogl_get_n_args_for_combine_func (CoglPipelineCombineFunc func);
  *
  * This is the recommended coding pattern for validating an input
  * pipeline and caching a derived result:
- * |[
+ * ```c
  * static GQuark _cogl_my_cache_key = 0;
  *
  * typedef struct {
@@ -673,7 +673,7 @@ _cogl_get_n_args_for_combine_func (CoglPipelineCombineFunc func);
  *
  *    return cache->validated_source;
  * }
- * ]|
+ * ```
  */
 CoglPipeline *
 _cogl_pipeline_weak_copy (CoglPipeline *pipeline,

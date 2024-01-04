@@ -186,15 +186,12 @@ cogl_blend_string_error_quark (void);
  * The @COGL_SYSTEM_ERROR_UNSUPPORTED error can be thrown for a
  * variety of reasons. For example:
  *
- * <itemizedlist>
- *  <listitem><para>You've tried to use a feature that is not
- *   advertised by cogl_has_feature().</para></listitem>
- *  <listitem><para>The GPU can not handle the configuration you have
- *   requested. An example might be if you try to use too many texture
- *   layers in a single #CoglPipeline</para></listitem>
- *  <listitem><para>The driver does not support some
- *   configuration.</para></listiem>
- * </itemizedlist>
+ * - You've tried to use a feature that is not advertised by
+ *   [func@Cogl.has_feature].
+ * - The GPU can not handle the configuration you have requested.
+ *   An example might be if you try to use too many texture
+ *   layers in a single #CoglPipeline
+ * - The driver does not support some configuration.
  *
  * Currently this is only used by Cogl API marked as experimental so
  * this enum should also be considered experimental.
@@ -254,19 +251,14 @@ typedef enum
 
 /**
  * CoglVerticesMode:
- * @COGL_VERTICES_MODE_POINTS: FIXME, equivalent to
- * <constant>GL_POINTS</constant>
- * @COGL_VERTICES_MODE_LINES: FIXME, equivalent to <constant>GL_LINES</constant>
- * @COGL_VERTICES_MODE_LINE_LOOP: FIXME, equivalent to
- * <constant>GL_LINE_LOOP</constant>
- * @COGL_VERTICES_MODE_LINE_STRIP: FIXME, equivalent to
- * <constant>GL_LINE_STRIP</constant>
- * @COGL_VERTICES_MODE_TRIANGLES: FIXME, equivalent to
- * <constant>GL_TRIANGLES</constant>
- * @COGL_VERTICES_MODE_TRIANGLE_STRIP: FIXME, equivalent to
- * <constant>GL_TRIANGLE_STRIP</constant>
- * @COGL_VERTICES_MODE_TRIANGLE_FAN: FIXME, equivalent to <constant>GL_TRIANGLE_FAN</constant>
- *
+ * @COGL_VERTICES_MODE_POINTS: FIXME, equivalent to `GL_POINTS`
+ * @COGL_VERTICES_MODE_LINES: FIXME, equivalent to `GL_LINES`
+ * @COGL_VERTICES_MODE_LINE_LOOP: FIXME, equivalent to `GL_LINE_LOOP`
+ * @COGL_VERTICES_MODE_LINE_STRIP: FIXME, equivalent to `GL_LINE_STRIP`
+ * @COGL_VERTICES_MODE_TRIANGLES: FIXME, equivalent to `GL_TRIANGLES`
+ * @COGL_VERTICES_MODE_TRIANGLE_STRIP: FIXME, equivalent to `GL_TRIANGLE_STRIP`
+ * @COGL_VERTICES_MODE_TRIANGLE_FAN: FIXME, equivalent to `GL_TRIANGLE_FAN`
+ * 
  * Different ways of interpreting vertices when drawing.
  */
 typedef enum

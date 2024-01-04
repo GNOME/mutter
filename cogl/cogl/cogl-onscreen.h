@@ -113,11 +113,11 @@ typedef enum _CoglScanoutError
  * cogl_onscreen_show() and set its own type directly with the Wayland
  * client API via cogl_wayland_onscreen_get_surface().
  *
- * <note>Since Cogl doesn't explicitly track the visibility status of
+ * Since Cogl doesn't explicitly track the visibility status of
  * onscreen framebuffers it won't try to avoid redundant window system
  * requests e.g. to show an already visible window. This also means
  * that it's acceptable to alternatively use native APIs to show and
- * hide windows without confusing Cogl.</note>
+ * hide windows without confusing Cogl.
  */
 COGL_EXPORT void
 cogl_onscreen_show (CoglOnscreen *onscreen);
@@ -135,11 +135,11 @@ cogl_onscreen_show (CoglOnscreen *onscreen);
  * This function does not implicitly allocate the given @onscreen
  * framebuffer before hiding it.
  *
- * <note>Since Cogl doesn't explicitly track the visibility status of
+ * Since Cogl doesn't explicitly track the visibility status of
  * onscreen framebuffers it won't try to avoid redundant window system
  * requests e.g. to show an already visible window. This also means
  * that it's acceptable to alternatively use native APIs to show and
- * hide windows without confusing Cogl.</note>
+ * hide windows without confusing Cogl.
  */
 COGL_EXPORT void
 cogl_onscreen_hide (CoglOnscreen *onscreen);
@@ -156,11 +156,11 @@ cogl_onscreen_hide (CoglOnscreen *onscreen);
  * start a new frame that incrementally builds on the contents of the previous
  * frame.
  *
- * <note>It is highly recommended that applications use
+ * It is highly recommended that applications use
  * cogl_onscreen_swap_buffers_with_damage() instead whenever possible
  * and also use the cogl_onscreen_get_buffer_age() api so they can
  * perform incremental updates to older buffers instead of having to
- * render a full buffer for every frame.</note>
+ * render a full buffer for every frame.
  */
 COGL_EXPORT void
 cogl_onscreen_swap_buffers (CoglOnscreen  *onscreen,
@@ -189,10 +189,10 @@ cogl_onscreen_swap_buffers (CoglOnscreen  *onscreen,
  *
  * The queried value remains valid until the next buffer swap.
  *
- * <note>One caveat is that under X11 the buffer age does not reflect
+ * One caveat is that under X11 the buffer age does not reflect
  * changes to buffer contents caused by the window systems. X11
  * applications must track Expose events to determine what buffer
- * regions need to additionally be repaired each frame.</note>
+ * regions need to additionally be repaired each frame.
  *
  * The recommended way to take advantage of this buffer age api is to
  * build up a circular buffer of length 3 for tracking damage regions
@@ -202,14 +202,14 @@ cogl_onscreen_swap_buffers (CoglOnscreen  *onscreen,
  * everything that must be redrawn to update the old contents for the
  * new frame.
  *
- * <note>If the system doesn't not support being able to track the age
+ * If the system doesn't not support being able to track the age
  * of back buffers then this function will always return 0 which
- * implies that the contents are undefined.</note>
+ * implies that the contents are undefined.
  *
- * <note>The %COGL_FEATURE_ID_BUFFER_AGE feature can optionally be
+ * The %COGL_FEATURE_ID_BUFFER_AGE feature can optionally be
  * explicitly checked to determine if Cogl is currently tracking the
  * age of #CoglOnscreen back buffer contents. If this feature is
- * missing then this function will always return 0.</note>
+ * missing then this function will always return 0.
  *
  * Return value: The age of the buffer contents or 0 when the buffer
  *               contents are undefined.
@@ -278,9 +278,9 @@ cogl_onscreen_queue_damage_region (CoglOnscreen *onscreen,
  * function instead of cogl_onscreen_swap_buffers() to improve
  * performance when running under a compositor.
  *
- * <note>It is highly recommended to use this API in conjunction with
+ * It is highly recommended to use this API in conjunction with
  * the cogl_onscreen_get_buffer_age() api so that your application can
- * perform incremental rendering based on old back buffers.</note>
+ * perform incremental rendering based on old back buffers.
  */
 COGL_EXPORT void
 cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
@@ -354,9 +354,9 @@ cogl_onscreen_swap_region (CoglOnscreen *onscreen,
  * opportunity to collect statistics about a frame since the
  * #CoglFrameInfo should hold the most data at this point.
  *
- * <note>A frame may not be completed before the next frame can start
+ * A frame may not be completed before the next frame can start
  * so applications should avoid needing to collect all statistics for
- * a particular frame before they can start a new frame.</note>
+ * a particular frame before they can start a new frame.
  */
 typedef enum _CoglFrameEvent
 {

@@ -233,7 +233,7 @@ clutter_test_add_data_full (const char     *test_path,
  * The typical test suite is composed of a list of functions
  * called by clutter_test_run(), for instance:
  *
- * |[
+ * ```c
  * static void unit_foo (void) { ... }
  *
  * static void unit_bar (void) { ... }
@@ -251,7 +251,7 @@ clutter_test_add_data_full (const char     *test_path,
  *
  *   return clutter_test_run ();
  * }
- * ]|
+ * ```
  *
  * Return value: the exit code for the test suite
  */
