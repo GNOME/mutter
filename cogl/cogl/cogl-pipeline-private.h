@@ -308,13 +308,6 @@ struct _CoglPipeline
    * be allocated dynamically when required... */
   CoglPipelineBigState *big_state;
 
-#ifdef COGL_DEBUG_ENABLED
-  /* For debugging purposes it's possible to associate a static const
-   * string with a pipeline which can be an aid when trying to trace
-   * where the pipeline originates from */
-  const char      *static_breadcrumb;
-#endif
-
   /* Cached state... */
 
   /* A cached, complete list of the layers this pipeline depends
@@ -360,12 +353,17 @@ struct _CoglPipeline
 
   unsigned int          layers_cache_dirty:1;
 
-#ifdef COGL_DEBUG_ENABLED
+  /* Debugging, only used when defined(COGL_ENABLE_DEBUG) */
+
   /* For debugging purposes it's possible to associate a static const
    * string with a pipeline which can be an aid when trying to trace
    * where the pipeline originates from */
   unsigned int          has_static_breadcrumb:1;
-#endif
+
+  /* For debugging purposes it's possible to associate a static const
+   * string with a pipeline which can be an aid when trying to trace
+   * where the pipeline originates from */
+  const char      *static_breadcrumb;
 };
 
 struct _CoglPipelineClass
@@ -728,7 +726,7 @@ void
 _cogl_pipeline_apply_overrides (CoglPipeline *pipeline,
                                 CoglPipelineFlushOptions *options);
 
-#ifdef COGL_DEBUG_ENABLED
+#ifdef COGL_ENABLE_DEBUG
 void
 _cogl_pipeline_set_static_breadcrumb (CoglPipeline *pipeline,
                                       const char *breadcrumb);

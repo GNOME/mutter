@@ -56,7 +56,7 @@ _cogl_matrix_entry_new (CoglMatrixOp operation)
   entry->ref_count = 1;
   entry->op = operation;
 
-#ifdef COGL_DEBUG_ENABLED
+#ifdef COGL_ENABLE_DEBUG
   entry->composite_gets = 0;
 #endif
 
@@ -154,7 +154,7 @@ _cogl_matrix_entry_identity_init (CoglMatrixEntry *entry)
   entry->ref_count = 1;
   entry->op = COGL_MATRIX_OP_LOAD_IDENTITY;
   entry->parent = NULL;
-#ifdef COGL_DEBUG_ENABLED
+#ifdef COGL_ENABLE_DEBUG
   entry->composite_gets = 0;
 #endif
 }

@@ -373,7 +373,7 @@ cogl_pipeline_new (CoglContext *context)
 {
   CoglPipeline *new = cogl_pipeline_copy (context->default_pipeline);
 
-#ifdef COGL_DEBUG_ENABLED
+#ifdef COGL_ENABLE_DEBUG
   _cogl_pipeline_set_static_breadcrumb (new, "new");
 #endif
   return new;
@@ -1159,7 +1159,7 @@ _cogl_pipeline_pre_change_notify (CoglPipeline     *pipeline,
 
       new_authority =
         cogl_pipeline_copy (_cogl_pipeline_get_parent (pipeline));
-#ifdef COGL_DEBUG_ENABLED
+#ifdef COGL_ENABLE_DEBUG
       _cogl_pipeline_set_static_breadcrumb (new_authority,
                                             "pre_change_notify:copy-on-write");
 #endif
@@ -2302,7 +2302,7 @@ _cogl_pipeline_journal_unref (CoglPipeline *pipeline)
   g_object_unref (pipeline);
 }
 
-#ifdef COGL_DEBUG_ENABLED
+#ifdef COGL_ENABLE_DEBUG
 void
 _cogl_pipeline_set_static_breadcrumb (CoglPipeline *pipeline,
                                       const char *breadcrumb)

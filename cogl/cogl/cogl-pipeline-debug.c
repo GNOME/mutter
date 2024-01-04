@@ -163,7 +163,7 @@ dump_pipeline_cb (CoglNode *node, void *user_data)
                           pipeline_id,
                           pipeline,
                           G_OBJECT (pipeline)->ref_count,
-#ifdef COGL_DEBUG_ENABLED
+#ifdef COGL_ENABLE_DEBUG
                           pipeline->has_static_breadcrumb ?
                           pipeline->static_breadcrumb : "NULL"
 #else
