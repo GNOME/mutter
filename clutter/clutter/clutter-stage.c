@@ -4305,60 +4305,60 @@ clutter_stage_emit_event (ClutterStage       *self,
 
   switch (event_type)
     {
-      case CLUTTER_NOTHING:
-      case CLUTTER_DEVICE_REMOVED:
-      case CLUTTER_DEVICE_ADDED:
-      case CLUTTER_EVENT_LAST:
-        return;
+    case CLUTTER_NOTHING:
+    case CLUTTER_DEVICE_REMOVED:
+    case CLUTTER_DEVICE_ADDED:
+    case CLUTTER_EVENT_LAST:
+      return;
 
-      case CLUTTER_KEY_PRESS:
-      case CLUTTER_KEY_RELEASE:
-      case CLUTTER_PAD_BUTTON_PRESS:
-      case CLUTTER_PAD_BUTTON_RELEASE:
-      case CLUTTER_PAD_STRIP:
-      case CLUTTER_PAD_RING:
-      case CLUTTER_IM_COMMIT:
-      case CLUTTER_IM_DELETE:
-      case CLUTTER_IM_PREEDIT:
-        {
-          target_actor = priv->key_focused_actor ?
-            priv->key_focused_actor : CLUTTER_ACTOR (self);
-          break;
-        }
+    case CLUTTER_KEY_PRESS:
+    case CLUTTER_KEY_RELEASE:
+    case CLUTTER_PAD_BUTTON_PRESS:
+    case CLUTTER_PAD_BUTTON_RELEASE:
+    case CLUTTER_PAD_STRIP:
+    case CLUTTER_PAD_RING:
+    case CLUTTER_IM_COMMIT:
+    case CLUTTER_IM_DELETE:
+    case CLUTTER_IM_PREEDIT:
+      {
+        target_actor = priv->key_focused_actor ?
+                       priv->key_focused_actor : CLUTTER_ACTOR (self);
+        break;
+      }
 
-      /* x11 stage enter/leave events */
-      case CLUTTER_ENTER:
-      case CLUTTER_LEAVE:
-        {
-          target_actor = entry->current_actor;
-          break;
-        }
+    /* x11 stage enter/leave events */
+    case CLUTTER_ENTER:
+    case CLUTTER_LEAVE:
+      {
+        target_actor = entry->current_actor;
+        break;
+      }
 
-      case CLUTTER_MOTION:
-      case CLUTTER_BUTTON_PRESS:
-      case CLUTTER_BUTTON_RELEASE:
-      case CLUTTER_SCROLL:
-      case CLUTTER_TOUCHPAD_PINCH:
-      case CLUTTER_TOUCHPAD_SWIPE:
-      case CLUTTER_TOUCHPAD_HOLD:
-      case CLUTTER_TOUCH_UPDATE:
-      case CLUTTER_TOUCH_BEGIN:
-      case CLUTTER_TOUCH_CANCEL:
-      case CLUTTER_TOUCH_END:
-      case CLUTTER_PROXIMITY_IN:
-      case CLUTTER_PROXIMITY_OUT:
-        {
-          float x, y;
+    case CLUTTER_MOTION:
+    case CLUTTER_BUTTON_PRESS:
+    case CLUTTER_BUTTON_RELEASE:
+    case CLUTTER_SCROLL:
+    case CLUTTER_TOUCHPAD_PINCH:
+    case CLUTTER_TOUCHPAD_SWIPE:
+    case CLUTTER_TOUCHPAD_HOLD:
+    case CLUTTER_TOUCH_UPDATE:
+    case CLUTTER_TOUCH_BEGIN:
+    case CLUTTER_TOUCH_CANCEL:
+    case CLUTTER_TOUCH_END:
+    case CLUTTER_PROXIMITY_IN:
+    case CLUTTER_PROXIMITY_OUT:
+      {
+        float x, y;
 
-          clutter_event_get_coords (event, &x, &y);
+        clutter_event_get_coords (event, &x, &y);
 
-          CLUTTER_NOTE (EVENT,
-                        "Reactive event received at %.2f, %.2f - actor: %p",
-                        x, y, entry->current_actor);
+        CLUTTER_NOTE (EVENT,
+                      "Reactive event received at %.2f, %.2f - actor: %p",
+                      x, y, entry->current_actor);
 
-          target_actor = entry->current_actor;
-          break;
-        }
+        target_actor = entry->current_actor;
+        break;
+      }
     }
 
   g_assert (target_actor != NULL);
