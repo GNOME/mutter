@@ -2258,17 +2258,17 @@ region_create_from_x_rectangles (const XRectangle *rects,
                                  int               n_rects)
 {
   int i;
-  MtkRectangle *cairo_rects = g_newa (MtkRectangle, n_rects);
+  MtkRectangle *mtk_rects = g_newa (MtkRectangle, n_rects);
 
   for (i = 0; i < n_rects; i++)
     {
-      cairo_rects[i].x = rects[i].x;
-      cairo_rects[i].y = rects[i].y;
-      cairo_rects[i].width = rects[i].width;
-      cairo_rects[i].height = rects[i].height;
+      mtk_rects[i].x = rects[i].x;
+      mtk_rects[i].y = rects[i].y;
+      mtk_rects[i].width = rects[i].width;
+      mtk_rects[i].height = rects[i].height;
     }
 
-  return mtk_region_create_rectangles (cairo_rects, n_rects);
+  return mtk_region_create_rectangles (mtk_rects, n_rects);
 }
 
 static void
