@@ -982,8 +982,9 @@ typedef enum
  * assigned to it during the allocation.
  *
  * Alignment only matters if the allocated space given to an actor is
- * bigger than its natural size; for example, when the #ClutterActor:x-expand
- * or the #ClutterActor:y-expand properties of #ClutterActor are set to %TRUE.
+ * bigger than its natural size; for example, when
+ * the [property@Clutter.Actor:x-expand] or the [property@Clutter.Actor:y-expand]
+ * properties of #ClutterActor are set to %TRUE.
  */
 typedef enum
 {

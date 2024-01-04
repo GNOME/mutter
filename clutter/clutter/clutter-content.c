@@ -192,7 +192,7 @@ clutter_content_invalidate (ClutterContent *content)
  * set to %CLUTTER_REQUEST_CONTENT_SIZE will have a relayout queued.
  *
  * Attached actors with other request modes are not redrawn. To redraw them
- * too, use clutter_content_invalidate().
+ * too, use [method@Clutter.Content.invalidate].
  */
 void
 clutter_content_invalidate_size (ClutterContent *content)
@@ -234,7 +234,7 @@ clutter_content_invalidate_size (ClutterContent *content)
  * is associated to a #ClutterContent, to set up a backpointer from
  * the @content to the @actor.
  *
- * This function will invoke the #ClutterContentInterface.attached() virtual
+ * This function will invoke the [vfunc@Clutter.Content.attached] virtual
  * function.
  */
 void
@@ -268,7 +268,7 @@ _clutter_content_attached (ClutterContent *content,
  * This function should be used internally every time a #ClutterActor
  * removes the association with a #ClutterContent.
  *
- * This function will invoke the #ClutterContentInterface.detached() virtual
+ * This function will invoke the [vfunc@Clutter.Content.detached] virtual
  * function.
  */
 void
@@ -298,7 +298,7 @@ _clutter_content_detached (ClutterContent *content,
  *
  * Creates the render tree for the @content and @actor.
  *
- * This function will invoke the #ClutterContentInterface.paint_content()
+ * This function will invoke the [vfunc@Clutter.Content.paint_content]
  * virtual function.
  */
 void

@@ -35,12 +35,12 @@
  *
  * Effects should be the preferred way to affect the paint sequence of an
  * actor without sub-classing the actor itself and overriding the
- * #ClutterActorClass.paint()_ virtual function.
+ * [vfunc@Clutter.Actor.paint] virtual function.
  *
  * ## Implementing a ClutterEffect
  *
  * Creating a sub-class of #ClutterEffect requires overriding the
- * #ClutterEffectClass.paint() method. The implementation of the function should look
+ * [vfunc@Clutter.Effect.paint] method. The implementation of the function should look
  * something like this:
  *
  * ```c

@@ -113,10 +113,10 @@ typedef struct _ClutterIMEvent          ClutterIMEvent;
  * ClutterEventFilterFunc:
  * @event: the event that is going to be emitted
  * @event_actor: the current device actor of the events device
- * @user_data: the data pointer passed to clutter_event_add_filter()
+ * @user_data: the data pointer passed to [func@Clutter.Event.add_filter]
  *
  * A function pointer type used by event filters that are added with
- * clutter_event_add_filter().
+ * [func@Clutter.Event.add_filter].
  *
  * Return value: %CLUTTER_EVENT_STOP to indicate that the event
  *   has been handled or %CLUTTER_EVENT_PROPAGATE otherwise.

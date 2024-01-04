@@ -30,20 +30,20 @@
  *
  * A layout manager arranging children on a single line
  *
- * The #ClutterBoxLayout is a #ClutterLayoutManager implementing the
+ * The #ClutterBoxLayout is a [class@Clutter.LayoutManager] implementing the
  * following layout policy:
  *
  *  - all children are arranged on a single line
- *  - the axis used is controlled by the #ClutterBoxLayout:orientation property
- *  - each child will be allocated to its natural size or, if #ClutterActor:x-expand or
- *  #ClutterActor:y-expand are set, the available size
- *  - honours the #ClutterActor's #ClutterActor:x-align and #ClutterActor:y-align properties
+ *  - the axis used is controlled by the [property@Clutter.BoxLayout:orientation] property
+ *  - each child will be allocated to its natural size or, if [property@Clutter.Actor:x-expand] or
+ *  [property@Clutter.Actor:y-expand] are set, the available size
+ *  - honours the #ClutterActor's [property@Clutter.Actor:x-align] and [property@Clutter.Actor:y-align] properties
  *  to fill the available size
- *  - if the #ClutterBoxLayout:homogeneous boolean property is set, then all widgets will
+ *  - if the [property@Clutter.BoxLayout:homogeneous] boolean property is set, then all widgets will
  *  get the same size, ignoring expand settings and the preferred sizes
  *
  * It is possible to control the spacing between children of a
- * #ClutterBoxLayout by using clutter_box_layout_set_spacing().
+ * #ClutterBoxLayout by using [method@Clutter.BoxLayout.set_spacing].
  */
 
 #include "config.h"
@@ -1018,7 +1018,7 @@ clutter_box_layout_set_spacing (ClutterBoxLayout *layout,
  * clutter_box_layout_get_spacing:
  * @layout: a #ClutterBoxLayout
  *
- * Retrieves the spacing set using clutter_box_layout_set_spacing()
+ * Retrieves the spacing set using [method@Clutter.BoxLayout.set_spacing]
  *
  * Return value: the spacing between children of the #ClutterBoxLayout
  */

@@ -26,14 +26,13 @@
  * 
  * An actor that displays a clone of a source actor
  *
- * #ClutterClone is a #ClutterActor which draws with the paint
+ * #ClutterClone is a [class@Clutter.Actor] which draws with the paint
  * function of another actor, scaled to fit its own allocation.
  *
  * #ClutterClone can be used to efficiently clone any other actor.
  *
- * Unlike clutter_texture_new_from_actor(), #ClutterClone does not require
- * the presence of support for FBOs in the underlying GL or GLES
- * implementation.
+ * #ClutterClone does not require the presence of support for FBOs
+ * in the underlying GL or GLES implementation.
  */
 
 #include "config.h"

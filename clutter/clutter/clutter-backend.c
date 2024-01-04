@@ -442,7 +442,7 @@ clutter_backend_get_resolution (ClutterBackend *backend)
  * copy the #cairo_font_options_t.
  *
  * If @options is %NULL, the first following call to
- * clutter_backend_get_font_options() will return the default font
+ * [method@Clutter.Backend.get_font_options] will return the default font
  * options for @backend.
  *
  * This function is intended for actors creating a Pango layout

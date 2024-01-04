@@ -501,7 +501,7 @@ clutter_align_constraint_set_align_axis (ClutterAlignConstraint *align,
  * clutter_align_constraint_get_align_axis:
  * @align: a #ClutterAlignConstraint
  *
- * Retrieves the value set using clutter_align_constraint_set_align_axis()
+ * Retrieves the value set using [method@Clutter.AlignConstraint.set_align_axis]
  *
  * Return value: the alignment axis
  */
@@ -555,7 +555,7 @@ clutter_align_constraint_set_pivot_point (ClutterAlignConstraint *align,
  * @pivot_point: (out caller-allocates): return location for a #GraphenePoint
  *
  * Gets the pivot point used by the constraint set with
- * clutter_align_constraint_set_pivot_point(). If no custom pivot
+ * [method@Clutter.AlignConstraint.set_pivot_point]. If no custom pivot
  * point is set, -1 is set.
  */
 void
@@ -603,7 +603,7 @@ clutter_align_constraint_set_factor (ClutterAlignConstraint *align,
  * clutter_align_constraint_get_factor:
  * @align: a #ClutterAlignConstraint
  *
- * Retrieves the factor set using clutter_align_constraint_set_factor()
+ * Retrieves the factor set using [method@Clutter.AlignConstraint.set_factor]
  *
  * Return value: the alignment factor
  */

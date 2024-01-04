@@ -89,9 +89,9 @@ struct _ClutterActor
 
 /**
  * ClutterActorClass:
- * @show: signal class handler for #ClutterActor::show; it must chain
+ * @show: signal class handler for [signal@Clutter.Actor::show]; it must chain
  *   up to the parent's implementation
- * @hide: signal class handler for #ClutterActor::hide; it must chain
+ * @hide: signal class handler for [signal@Clutter.Actor::hide]; it must chain
  *   up to the parent's implementation
  * @hide_all: virtual function for containers and composite actors, to
  *   determine which children should be shown when calling
@@ -131,26 +131,26 @@ struct _ClutterActor
  *   have changed, the cached transformation must be invalidated by calling
  *   clutter_actor_invalidate_transform(); it must chain up to the parent's
  *   implementation
- * @parent_set: signal class handler for the #ClutterActor::parent-set
- * @destroy: signal class handler for #ClutterActor::destroy. It must
+ * @parent_set: signal class handler for the [signal@Clutter.Actor::parent-set]
+ * @destroy: signal class handler for [signal@Clutter.Actor::destroy]. It must
  *   chain up to the parent's implementation
  * @pick: virtual function, used to draw an outline of the actor with
  *   the given color
- * @event: class handler for #ClutterActor::event
- * @button_press_event: class handler for #ClutterActor::button-press-event
+ * @event: class handler for [signal@Clutter.Actor::event]
+ * @button_press_event: class handler for [signal@Clutter.Actor::button-press-event]
  * @button_release_event: class handler for
- *   #ClutterActor::button-release-event
- * @scroll_event: signal class closure for #ClutterActor::scroll-event
- * @key_press_event: signal class closure for #ClutterActor::key-press-event
+ *   [signal@Clutter.Actor::button-release-event]
+ * @scroll_event: signal class closure for [signal@Clutter.Actor::scroll-event]
+ * @key_press_event: signal class closure for [signal@Clutter.Actor::key-press-event]
  * @key_release_event: signal class closure for
- *   #ClutterActor::key-release-event
- * @motion_event: signal class closure for #ClutterActor::motion-event
- * @enter_event: signal class closure for #ClutterActor::enter-event
- * @leave_event: signal class closure for #ClutterActor::leave-event
- * @captured_event: signal class closure for #ClutterActor::captured-event
- * @key_focus_in: signal class closure for #ClutterActor::key-focus-in
- * @key_focus_out: signal class closure for #ClutterActor::key-focus-out
- * @queue_relayout: class handler for #ClutterActor::queue-relayout
+ *   [signal@Clutter.Actor::key-release-event]
+ * @motion_event: signal class closure for [signal@Clutter.Actor::motion-event]
+ * @enter_event: signal class closure for [signal@Clutter.Actor::enter-event]
+ * @leave_event: signal class closure for [signal@Clutter.Actor::leave-event]
+ * @captured_event: signal class closure for [signal@Clutter.Actor::captured-event]
+ * @key_focus_in: signal class closure for [signal@Clutter.Actor::key-focus-in]
+ * @key_focus_out: signal class closure for [signal@Clutter.Actor::key-focus-out]
+ * @queue_relayout: class handler for [signal@Clutter.Actor::queue-relayout]
  * @get_accessible: virtual function, returns the accessible object that
  *   describes the actor to an assistive technology.
  * @get_paint_volume: virtual function, for sub-classes to define their
@@ -161,7 +161,7 @@ struct _ClutterActor
  *   clutter_actor_set_offscreen_redirect() for details.
  * @paint_node: virtual function for creating paint nodes and attaching
  *   them to the render tree
- * @touch_event: signal class closure for #ClutterActor::touch-event
+ * @touch_event: signal class closure for [signal@Clutter.Actor::touch-event]
  *
  * Base class for actors.
  */

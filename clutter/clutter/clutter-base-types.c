@@ -49,7 +49,7 @@
  * Creates a new #ClutterMargin.
  *
  * Return value: (transfer full): a newly allocated #ClutterMargin. Use
- *   clutter_margin_free() to free the resources associated with it when
+ *   [method@Clutter.Margin.free] to free the resources associated with it when
  *   done.
  */
 ClutterMargin *
@@ -80,8 +80,8 @@ clutter_margin_copy (const ClutterMargin *margin_)
  * clutter_margin_free:
  * @margin_: a #ClutterMargin
  *
- * Frees the resources allocated by clutter_margin_new() and
- * clutter_margin_copy().
+ * Frees the resources allocated by [ctor@Clutter.Margin.new] and
+ * [method@Clutter.Margin.copy].
  */
 void
 clutter_margin_free (ClutterMargin *margin_)

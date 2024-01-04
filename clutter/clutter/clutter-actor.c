@@ -66,11 +66,11 @@
  * ## Managing actor children
  *
  * Each actor can have multiple children, by calling
- * clutter_actor_add_child() to add a new child actor, and
- * clutter_actor_remove_child() to remove an existing child. #ClutterActor
+ * [method@Clutter.Actor.add_child] to add a new child actor, and
+ * [method@Clutter.Actor.remove_child] to remove an existing child. #ClutterActor
  * will hold a reference on each child actor, which will be released when
  * the child is removed from its parent, or destroyed using
- * clutter_actor_destroy().
+ * [method@Clutter.Actor.destroy].
  *
  * ```c
  *  ClutterActor *actor = clutter_actor_new ();
@@ -97,32 +97,30 @@
  * Children can be inserted at a given index, or above and below
  * another child actor. The order of insertion determines the order of the
  * children when iterating over them. Iterating over children is performed
- * by using clutter_actor_get_first_child(), clutter_actor_get_previous_sibling(),
- * clutter_actor_get_next_sibling(), and clutter_actor_get_last_child(). It is
+ * by using [method@Clutter.Actor.get_first_child], [method@Clutter.Actor.get_previous_sibling],
+ * [method@Clutter.Actor.get_next_sibling], and [method@Clutter.Actor.get_last_child]. It is
  * also possible to retrieve a list of children by using
- * clutter_actor_get_children(), as well as retrieving a specific child at a
- * given index by using clutter_actor_get_child_at_index().
+ * [method@Clutter.Actor.get_children], as well as retrieving a specific child at a
+ * given index by using [method@Clutter.Actor.get_child_at_index].
  *
  * If you need to track additions of children to a [type@Clutter.Actor], use
  * the [signal@Clutter.Actor::child-added] signal; similarly, to track
  * removals of children from a ClutterActor, use the
  * [signal@Clutter.Actor::child-removed] signal.
  *
- * See [basic-actor.c](https://git.gnome.org/browse/clutter/tree/examples/basic-actor.c?h=clutter-1.18).
- *
  * ## Painting an actor
  *
  * There are three ways to paint an actor:
  *
- *  - set a delegate #ClutterContent as the value for the #ClutterActor:content property of the actor
- *  - subclass #ClutterActor and override the #ClutterActorClass.paint_node() virtual function
- *  - subclass #ClutterActor and override the #ClutterActorClass.paint() virtual function.
+ *  - set a delegate #ClutterContent as the value for the [property@Clutter.Actor:content] property of the actor
+ *  - subclass #ClutterActor and override the [vfunc@Clutter.Actor.paint_node] virtual function
+ *  - subclass #ClutterActor and override the [vfunc@Clutter.Actor.paint] virtual function.
  *
  * A #ClutterContent is a delegate object that takes over the painting
  * operations of one, or more actors. The #ClutterContent painting will
- * be performed on top of the #ClutterActor:background-color of the actor,
+ * be performed on top of the [property@Clutter.Actor:background-color] of the actor,
  * and before calling the actor's own implementation of the
- * #ClutterActorClass.paint_node() virtual function.
+ * [vfunc@Clutter.Actor.paint_node] virtual function.
  *
  * ```c
  * ClutterActor *actor = clutter_actor_new ();
@@ -135,14 +133,14 @@
  * clutter_actor_set_content (actor, image_content);
  * ```
  *
- * The #ClutterActorClass.paint_node() virtual function is invoked whenever
+ * The [vfunc@Clutter.Actor.paint_node] virtual function is invoked whenever
  * an actor needs to be painted. The implementation of the virtual function
  * must only paint the contents of the actor itself, and not the contents of
  * its children, if the actor has any.
  *
  * The #ClutterPaintNode passed to the virtual function is the local root of
  * the render tree; any node added to it will be rendered at the correct
- * position, as defined by the actor's #ClutterActor:allocation.
+ * position, as defined by the actor's [property@Clutter.Actor:allocation].
  *
  * ```c
  * static void
@@ -169,26 +167,26 @@
  * }
  * ```
  *
- * The #ClutterActorClass.paint() virtual function function gives total
+ * The [vfunc@Clutter.Actor.paint] virtual function function gives total
  * control to the paint sequence of the actor itself, including the
  * children of the actor, if any. It is strongly discouraged to override
- * the #ClutterActorClass.paint() virtual function and it will be removed
+ * the [vfunc@Clutter.Actor.paint] virtual function and it will be removed
  * when the Clutter API changes.
  *
  * ## Handling events on an actor
  *
  * A #ClutterActor can receive and handle input device events, for
  * instance pointer events and key events, as long as its
- * #ClutterActor:reactive property is set to %TRUE.
+ * [property@Clutter.Actor:reactive] property is set to %TRUE.
  *
  * Once an actor has been determined to be the source of an event,
  * Clutter will traverse the scene graph from the top-level actor towards the
- * event source, emitting the #ClutterActor::captured-event signal on each
+ * event source, emitting the [signal@Clutter.Actor::captured-event] signal on each
  * ancestor until it reaches the source; this phase is also called
  * the "capture" phase. If the event propagation was not stopped, the graph
  * is walked backwards, from the source actor to the top-level, and the
- * #ClutterActor::event signal is emitted, alongside eventual event-specific
- * signals like #ClutterActor::button-press-event or #ClutterActor::motion-event;
+ * [signal@Clutter.Actor::event signal] is emitted, alongside eventual event-specific
+ * signals like [signal@Clutter.Actor::button-press-event] or [signal@Clutter.Actor::motion-event];
  * this phase is also called the "bubble" phase.
  *
  * At any point of the signal emission, signal handlers can stop the propagation
@@ -217,7 +215,7 @@
  *
  * Implicit animations depend on the current easing state; in order to use
  * the default easing state for an actor you should call the
- * clutter_actor_save_easing_state() function:
+ * [method@Clutter.Actor.save_easing_state] function:
  *
  * ```c
  * // assume that the actor is currently positioned at (100, 100)
@@ -238,7 +236,7 @@
  *
  * Implicit animations use a default duration of 250 milliseconds,
  * and a default easing mode of %CLUTTER_EASE_OUT_CUBIC, unless you call
- * clutter_actor_set_easing_mode() and clutter_actor_set_easing_duration()
+ * [method@Clutter.Actor.set_easing_mode] and [method@Clutter.Actor.set_easing_duration]
  * after changing the easing state of the actor.
  *
  * It is possible to animate multiple properties of an actor
@@ -284,20 +282,20 @@
  * clutter_actor_restore_easing_state (actor);
  * ```
  *
- * the first call to clutter_actor_set_x() will begin a transition
- * of the #ClutterActor:x property from the current value to the value of
- * 200 over a duration of one second; the second call to clutter_actor_set_x()
+ * the first call to [method@Clutter.Actor.set_x] will begin a transition
+ * of the [property@Clutter.Actor:x] property from the current value to the value of
+ * 200 over a duration of one second; the second call to [method@Clutter.Actor.set_x]
  * will change the transition's final value to 100 and the duration to 500
  * milliseconds.
  *
  * It is possible to receive a notification of the completion of an
- * implicit transition by using the #ClutterActor::transition-stopped
+ * implicit transition by using the [signal@Clutter.Actor::transition-stopped]
  * signal, decorated with the name of the property. In case you want to
  * know when all the currently in flight transitions are complete, use
- * the #ClutterActor::transitions-completed signal instead.
+ * the [signal@Clutter.Actor::transitions-completed] signal instead.
  *
- * It is possible to retrieve the #ClutterTransition used by the
- * animatable properties by using clutter_actor_get_transition() and using
+ * It is possible to retrieve the [class@Clutter.Transition] used by the
+ * animatable properties by using [method@Clutter.Actor.get_transition] and using
  * the property name as the transition name.
  *
  * The explicit animation model supported by Clutter requires that
@@ -318,19 +316,19 @@
  * clutter_actor_add_transition (actor, "animate-opacity", transition);
  * ```
  *
- * The example above will animate the #ClutterActor:opacity property
+ * The example above will animate the [property@Clutter.Actor:opacity] property
  * of an actor between fully opaque and fully transparent, and back, over
  * a span of 3 seconds. The animation does not begin until it is added to
  * the actor.
  *
  * The explicit animation API applies to all #GObject properties,
- * as well as the custom properties defined through the #ClutterAnimatable
+ * as well as the custom properties defined through the [iface@Clutter.Animatable]
  * interface, regardless of whether they are defined as implicitly
  * animatable or not.
  *
  * The explicit animation API should also be used when using custom
- * animatable properties for #ClutterAction, #ClutterConstraint, and
- * #ClutterEffect instances associated to an actor; see the section on
+ * animatable properties for [class@Clutter.Action], [class@Clutter.Constraint], and
+ * [class@Clutter.Effect] instances associated to an actor; see the section on
  * custom animatable properties below for an example.
  *
  * Finally, explicit animations are useful for creating animations
@@ -369,25 +367,25 @@
  * sub-class of #ClutterActor only for actors that should be used as leaf
  * nodes of a scene graph.
  *
- * By overriding the #ClutterActorClass.get_preferred_width() and
- * #ClutterActorClass.get_preferred_height() virtual functions it is
+ * By overriding the [vfunc@Clutter.Actor.get_preferred_width] and
+ * [vfunc@Clutter.Actor.get_preferred_height] virtual functions it is
  * possible to change or provide the preferred size of an actor; similarly,
- * by overriding the #ClutterActorClass.allocate() virtual function it is
+ * by overriding the [vfunc@Clutter.Actor.allocate] virtual function it is
  * possible to control the layout of the children of an actor. Make sure to
  * always chain up to the parent implementation of the
- * #ClutterActorClass.allocate() virtual function.
+ * [vfunc@Clutter.Actor.allocate] virtual function.
  *
  * In general, it is strongly encouraged to use delegation and composition
  * instead of direct subclassing.
  *
  * ## Custom animatable properties
  *
- * #ClutterActor allows accessing properties of #ClutterAction,
- * #ClutterEffect, and #ClutterConstraint instances associated to an actor
- * instance for animation purposes, as well as its #ClutterLayoutManager.
+ * #ClutterActor allows accessing properties of [class@Clutter.Action],
+ * [class@Clutter.Effect], and [class@Clutter.Constraint] instances associated to an actor
+ * instance for animation purposes, as well as its [class@Clutter.LayoutManager].
  *
- * In order to access a specific #ClutterAction or a #ClutterConstraint
- * property it is necessary to set the #ClutterActorMeta:name property on the
+ * In order to access a specific [class@Clutter.Action] or a [class@Clutter.Constraint]
+ * property it is necessary to set the [property@Clutter.ActorMeta:name] property on the
  * given action or constraint.
  *
  * The property can be accessed using the following syntax:
@@ -404,12 +402,12 @@
  *  - the `property-name` fragment is the name of the action, effect, or constraint
  *    property to be animated.
  *
- * The example below animates a #ClutterBindConstraint applied to an actor
+ * The example below animates a [class@Clutter.BindConstraint] applied to an actor
  * using an explicit transition. The `rect` actor has a binding constraint
  * on the `origin` actor, and in its initial state is overlapping the actor
  * to which is bound to.
  *
- * As the actor has only one #ClutterLayoutManager, the syntax for accessing its
+ * As the actor has only one [class@Clutter.LayoutManager], the syntax for accessing its
  * properties is simpler:
  *
  * ```
@@ -1459,7 +1457,7 @@ clutter_actor_real_map (ClutterActor *self)
  * actor is not visible.
  *
  * Calling this function is strongly discouraged: the default
- * implementation of #ClutterActorClass.map() will map all the children
+ * implementation of [vfunc@Clutter.Actor.map] will map all the children
  * of an actor when mapping its parent.
  *
  * When overriding map, it is mandatory to chain up to the parent
@@ -1485,7 +1483,7 @@ clutter_actor_map (ClutterActor *self)
  *
  * Checks whether a #ClutterActor has been set as mapped.
  *
- * See also #ClutterActor:mapped
+ * See also [property@Clutter.Actor:mapped]
  *
  * Returns: %TRUE if the actor is mapped4
  */
@@ -1593,17 +1591,17 @@ clutter_actor_real_unmap (ClutterActor *self)
  * unmaps its children if they were mapped.
  *
  * Calling this function is not encouraged: the default #ClutterActor
- * implementation of #ClutterActorClass.unmap() will also unmap any
+ * implementation of [vfunc@Clutter.Actor.unmap] will also unmap any
  * eventual children by default when their parent is unmapped.
  *
- * When overriding #ClutterActorClass.unmap(), it is mandatory to
+ * When overriding [vfunc@Clutter.Actor.unmap], it is mandatory to
  * chain up to the parent implementation.
  *
  * It is important to note that the implementation of the
- * #ClutterActorClass.unmap() virtual function may be called after
- * the #ClutterActorClass.destroy() or the #GObjectClass.dispose()
+ * [vfunc@Clutter.Actor.unmap] virtual function may be called after
+ * the [vfunc@Clutter.Actor.destroy] or the [vfunc@GObject.Object.dispose]
  * implementation, but it is guaranteed to be called before the
- * #GObjectClass.finalize() implementation.
+ * [vfunc@GObject.Object.finalize] implementation.
  */
 void
 clutter_actor_unmap (ClutterActor *self)
@@ -1697,7 +1695,7 @@ clutter_actor_queue_redraw_on_parent (ClutterActor *self)
  * Actors are visible by default.
  *
  * If this function is called on an actor without a parent, the
- * #ClutterActor:show-on-set-parent will be set to %TRUE as a side
+ * [property@Clutter.Actor:show-on-set-parent] will be set to %TRUE as a side
  * effect.
  */
 void
@@ -1788,7 +1786,7 @@ clutter_actor_real_hide (ClutterActor *self)
  * Actors are visible by default.
  *
  * If this function is called on an actor without a parent, the
- * #ClutterActor:show-on-set-parent property will be set to %FALSE
+ * [property@Clutter.Actor:show-on-set-parent] property will be set to %FALSE
  * as a side-effect.
  */
 void
@@ -2128,7 +2126,7 @@ clutter_actor_real_pick (ClutterActor       *self,
  * @pick_context: a #ClutterPickContext
  *
  * Should be called inside the implementation of the
- * #ClutterActor::pick virtual function in order to check whether
+ * [vfunc@Clutter.Actor.pick] virtual function in order to check whether
  * the actor should be picked or not.
  *
  * This function should never be called directly by applications.
@@ -2356,7 +2354,7 @@ transform_changed (ClutterActor *actor)
  * This function only performs basic storage and property notification.
  *
  * This function should be called by clutter_actor_set_allocation()
- * and by the default implementation of #ClutterActorClass.allocate().
+ * and by the default implementation of [vfunc@Clutter.Actor.destroyallocate
  *
  * Return value: %TRUE if the allocation of the #ClutterActor has been
  *   changed, and %FALSE otherwise
@@ -3462,7 +3460,7 @@ clutter_actor_paint_node (ClutterActor        *actor,
  * This function is context-aware, and will either cause a
  * regular paint or a pick paint.
  *
- * This function will call the #ClutterActorClass.paint() virtual
+ * This function will call the [vfunc@Clutter.Actor.paint] virtual
  * function.
  *
  * This function does not paint the actor if the actor is set to 0,
@@ -4300,7 +4298,7 @@ clutter_actor_set_translation_factor (ClutterActor      *self,
  * @translate_z: the translation along the Z axis
  *
  * Sets an additional translation transformation on a #ClutterActor,
- * relative to the #ClutterActor:pivot-point.
+ * relative to the [property@Clutter.Actor:pivot-point].
  */
 void
 clutter_actor_set_translation (ClutterActor *self,
@@ -4396,10 +4394,10 @@ clutter_actor_set_rotation_angle_internal (ClutterActor *self,
  * Sets the @angle of rotation of a #ClutterActor on the given @axis.
  *
  * This function is a convenience for setting the rotation properties
- * #ClutterActor:rotation-angle-x, #ClutterActor:rotation-angle-y,
- * and #ClutterActor:rotation-angle-z.
+ * [property@Clutter.Actor:rotation-angle-x], [property@Clutter.Actor:rotation-angle-y],
+ * and [property@Clutter.Actor:rotation-angle-z].
  *
- * The center of rotation is established by the #ClutterActor:pivot-point
+ * The center of rotation is established by the [property@Clutter.Actor:pivot-point]
  * property.
  */
 void
@@ -5665,7 +5663,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * position for the actor. If read, returns the fixed position if any,
    * otherwise the allocation if available, otherwise 0.
    *
-   * The #ClutterActor:x property is animatable.
+   * The [property@Clutter.Actor:x] property is animatable.
    */
   obj_props[PROP_X] =
     g_param_spec_float ("x", NULL, NULL,
@@ -5683,7 +5681,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * position for the actor.  If read, returns the fixed position if
    * any, otherwise the allocation if available, otherwise 0.
    *
-   * The #ClutterActor:y property is animatable.
+   * The [property@Clutter.Actor:y] property is animatable.
    */
   obj_props[PROP_Y] =
     g_param_spec_float ("y", NULL, NULL,
@@ -5700,10 +5698,10 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The position of the origin of the actor.
    *
    * This property is a shorthand for setting and getting the
-   * #ClutterActor:x and #ClutterActor:y properties at the same
+   * [property@Clutter.Actor:x] and [property@Clutter.Actor:y] properties at the same
    * time.
    *
-   * The #ClutterActor:position property is animatable.
+   * The [property@Clutter.Actor:position] property is animatable.
    */
   obj_props[PROP_POSITION] =
     g_param_spec_boxed ("position", NULL, NULL,
@@ -5720,7 +5718,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * natural size request of the actor to the given width. If read, returns
    * the allocated width if available, otherwise the width request.
    *
-   * The #ClutterActor:width property is animatable.
+   * The [property@Clutter.Actor:width] property is animatable.
    */
   obj_props[PROP_WIDTH] =
     g_param_spec_float ("width", NULL, NULL,
@@ -5738,7 +5736,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * natural size request of the actor to the given height. If read, returns
    * the allocated height if available, otherwise the height request.
    *
-   * The #ClutterActor:height property is animatable.
+   * The [property@Clutter.Actor:height] property is animatable.
    */
   obj_props[PROP_HEIGHT] =
     g_param_spec_float ("height", NULL, NULL,
@@ -5755,9 +5753,10 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The size of the actor.
    *
    * This property is a shorthand for setting and getting the
-   * #ClutterActor:width and #ClutterActor:height at the same time.
+   * [property@Clutter.Actor:width] and [property@Clutter.Actor:height]
+   * at the same time.
    *
-   * The #ClutterActor:size property is animatable.
+   * The [property@Clutter.Actor:size] property is animatable.
    */
   obj_props[PROP_SIZE] =
     g_param_spec_boxed ("size", NULL, NULL,
@@ -5772,7 +5771,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    *
    * The fixed X position of the actor in pixels.
    *
-   * Writing this property sets #ClutterActor:fixed-position-set
+   * Writing this property sets [property@Clutter.Actor:fixed-position-set]
    * property as well, as a side effect
    */
   obj_props[PROP_FIXED_X] =
@@ -5788,7 +5787,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    *
    * The fixed Y position of the actor in pixels.
    *
-   * Writing this property sets the #ClutterActor:fixed-position-set
+   * Writing this property sets the [property@Clutter.Actor:fixed-position-set]
    * property as well, as a side effect
    */
   obj_props[PROP_FIXED_Y] =
@@ -5802,8 +5801,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
   /**
    * ClutterActor:fixed-position-set:
    *
-   * This flag controls whether the #ClutterActor:fixed-x and
-   * #ClutterActor:fixed-y properties are used
+   * This flag controls whether the [property@Clutter.Actor:fixed-x] and
+   * [property@Clutter.Actor:fixed-y] properties are used
    */
   obj_props[PROP_FIXED_POSITION_SET] =
     g_param_spec_boolean ("fixed-position-set", NULL, NULL,
@@ -5817,7 +5816,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    *
    * A forced minimum width request for the actor, in pixels
    *
-   * Writing this property sets the #ClutterActor:min-width-set property
+   * Writing this property sets the [property@Clutter.Actor:min-width-set] property
    * as well, as a side effect.
    *
    *This property overrides the usual width request of the actor.
@@ -5835,7 +5834,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    *
    * A forced minimum height request for the actor, in pixels
    *
-   * Writing this property sets the #ClutterActor:min-height-set property
+   * Writing this property sets the [property@Clutter.Actor:min-height-set] property
    * as well, as a side effect. This property overrides the usual height
    * request of the actor.
    */
@@ -5852,7 +5851,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    *
    * A forced natural width request for the actor, in pixels
    *
-   * Writing this property sets the #ClutterActor:natural-width-set
+   * Writing this property sets the [property@Clutter.Actor:natural-width-set]
    * property as well, as a side effect. This property overrides the
    * usual width request of the actor
    */
@@ -5869,7 +5868,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    *
    * A forced natural height request for the actor, in pixels
    *
-   * Writing this property sets the #ClutterActor:natural-height-set
+   * Writing this property sets the [property@Clutter.Actor:natural-height-set]
    * property as well, as a side effect. This property overrides the
    * usual height request of the actor
    */
@@ -5884,7 +5883,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
   /**
    * ClutterActor:min-width-set:
    *
-   * This flag controls whether the #ClutterActor:min-width property
+   * This flag controls whether the [property@Clutter.Actor:min-width] property
    * is used
    */
   obj_props[PROP_MIN_WIDTH_SET] =
@@ -5897,7 +5896,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
   /**
    * ClutterActor:min-height-set:
    *
-   * This flag controls whether the #ClutterActor:min-height property
+   * This flag controls whether the [property@Clutter.Actor:min-height] property
    * is used
    */
   obj_props[PROP_MIN_HEIGHT_SET] =
@@ -5910,7 +5909,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
   /**
    * ClutterActor:natural-width-set:
    *
-   * This flag controls whether the #ClutterActor:natural-width property
+   * This flag controls whether the [property@Clutter.Actor:natural-width] property
    * is used
    */
   obj_props[PROP_NATURAL_WIDTH_SET] =
@@ -5923,7 +5922,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
   /**
    * ClutterActor:natural-height-set:
    *
-   * This flag controls whether the #ClutterActor:natural-height property
+   * This flag controls whether the [property@Clutter.Actor:natural-height] property
    * is used
    */
   obj_props[PROP_NATURAL_HEIGHT_SET] =
@@ -6003,7 +6002,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * will retrieve the minimum and natural width and height depending on the
    * preferred request mode of the #ClutterActor "child".
    *
-   * The clutter_actor_get_preferred_size() function will implement this
+   * The [method@Clutter.Actor.get_preferred_size] function will implement this
    * check for you.
    */
   obj_props[PROP_REQUEST_MODE] =
@@ -6024,10 +6023,10 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * whereas negative values will bring the actor's position farther from
    * the user.
    *
-   * The #ClutterActor:z-position does not affect the paint or allocation
+   * The [property@Clutter.Actor:z-position] does not affect the paint or allocation
    * order.
    *
-   * The #ClutterActor:z-position property is animatable.
+   * The [property@Clutter.Actor:z-position] property is animatable.
    */
   obj_props[PROP_Z_POSITION] =
     g_param_spec_float ("z-position", NULL, NULL,
@@ -6044,7 +6043,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * Opacity of an actor, between 0 (fully transparent) and
    * 255 (fully opaque)
    *
-   * The #ClutterActor:opacity property is animatable.
+   * The [property@Clutter.Actor:opacity] property is animatable.
    */
   obj_props[PROP_OPACITY] =
     g_param_spec_uint ("opacity", NULL, NULL,
@@ -6076,7 +6075,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    *
    * Whether the actor is set to be visible or not
    *
-   * See also #ClutterActor:mapped
+   * See also [property@Clutter.Actor:mapped]
    */
   obj_props[PROP_VISIBLE] =
     g_param_spec_boolean ("visible", NULL, NULL,
@@ -6127,7 +6126,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
   /**
    * ClutterActor:has-clip:
    *
-   * Whether the actor has the #ClutterActor:clip property set or not
+   * Whether the actor has the [property@Clutter.Actor:clip-rect] property set or not
    */
   obj_props[PROP_HAS_CLIP] =
     g_param_spec_boolean ("has-clip", NULL, NULL,
@@ -6144,7 +6143,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    *
    * Setting this property to %NULL will unset the existing clip.
    *
-   * Setting this property will change the #ClutterActor:has-clip
+   * Setting this property will change the [property@Clutter.Actor:has-clip]
    * property as a side effect.
    */
   obj_props[PROP_CLIP_RECT] =
@@ -6177,7 +6176,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    *
    * The default pivot point is located at (0, 0).
    *
-   * The #ClutterActor:pivot-point property is animatable.
+   * The [property@Clutter.Actor:pivot-point] property is animatable.
    */
   obj_props[PROP_PIVOT_POINT] =
     g_param_spec_boxed ("pivot-point", NULL, NULL,
@@ -6190,10 +6189,10 @@ clutter_actor_class_init (ClutterActorClass *klass)
   /**
    * ClutterActor:pivot-point-z:
    *
-   * The Z component of the #ClutterActor:pivot-point, expressed as a value
+   * The Z component of the [property@Clutter.Actor:pivot-point], expressed as a value
    * along the Z axis.
    *
-   * The #ClutterActor:pivot-point-z property is animatable.
+   * The [property@Clutter.Actor:pivot-point-z] property is animatable.
    */
   obj_props[PROP_PIVOT_POINT_Z] =
     g_param_spec_float ("pivot-point-z", NULL, NULL,
@@ -6209,7 +6208,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    *
    * The horizontal scale of the actor.
    *
-   * The #ClutterActor:scale-x property is animatable.
+   * The [property@Clutter.Actor:scale-x] property is animatable.
    */
   obj_props[PROP_SCALE_X] =
     g_param_spec_double ("scale-x", NULL, NULL,
@@ -6225,7 +6224,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    *
    * The vertical scale of the actor.
    *
-   * The #ClutterActor:scale-y property is animatable.
+   * The [property@Clutter.Actor:scale-y] property is animatable.
    */
   obj_props[PROP_SCALE_Y] =
     g_param_spec_double ("scale-y", NULL, NULL,
@@ -6241,7 +6240,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    *
    * The scale factor of the actor along the Z axis.
    *
-   * The #ClutterActor:scale-y property is animatable.
+   * The [property@Clutter.Actor:scale-y] property is animatable.
    */
   obj_props[PROP_SCALE_Z] =
     g_param_spec_double ("scale-z", NULL, NULL,
@@ -6257,7 +6256,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    *
    * The rotation angle on the X axis.
    *
-   * The #ClutterActor:rotation-angle-x property is animatable.
+   * The [property@Clutter.Actor:rotation-angle-x] property is animatable.
    */
   obj_props[PROP_ROTATION_ANGLE_X] =
     g_param_spec_double ("rotation-angle-x", NULL, NULL,
@@ -6273,7 +6272,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    *
    * The rotation angle on the Y axis
    *
-   * The #ClutterActor:rotation-angle-y property is animatable.
+   * The [property@Clutter.Actor:rotation-angle-y] property is animatable.
    */
   obj_props[PROP_ROTATION_ANGLE_Y] =
     g_param_spec_double ("rotation-angle-y", NULL, NULL,
@@ -6289,7 +6288,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    *
    * The rotation angle on the Z axis
    *
-   * The #ClutterActor:rotation-angle-z property is animatable.
+   * The [property@Clutter.Actor:rotation-angle-z] property is animatable.
    */
   obj_props[PROP_ROTATION_ANGLE_Z] =
     g_param_spec_double ("rotation-angle-z", NULL, NULL,
@@ -6303,9 +6302,9 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * ClutterActor:translation-x:
    *
    * An additional translation applied along the X axis, relative
-   * to the actor's #ClutterActor:pivot-point.
+   * to the actor's [property@Clutter.Actor:pivot-point].
    *
-   * The #ClutterActor:translation-x property is animatable.
+   * The [property@Clutter.Actor:translation-x] property is animatable.
    */
   obj_props[PROP_TRANSLATION_X] =
     g_param_spec_float ("translation-x", NULL, NULL,
@@ -6320,9 +6319,9 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * ClutterActor:translation-y:
    *
    * An additional translation applied along the Y axis, relative
-   * to the actor's #ClutterActor:pivot-point.
+   * to the actor's [property@Clutter.Actor:pivot-point].
    *
-   * The #ClutterActor:translation-y property is animatable.
+   * The [property@Clutter.Actor:translation-y] property is animatable.
    */
   obj_props[PROP_TRANSLATION_Y] =
     g_param_spec_float ("translation-y", NULL, NULL,
@@ -6337,9 +6336,9 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * ClutterActor:translation-z:
    *
    * An additional translation applied along the Z axis, relative
-   * to the actor's #ClutterActor:pivot-point.
+   * to the actor's [property@Clutter.Actor:pivot-point].
    *
-   * The #ClutterActor:translation-z property is animatable.
+   * The [property@Clutter.Actor:translation-z] property is animatable.
    */
   obj_props[PROP_TRANSLATION_Z] =
     g_param_spec_float ("translation-z", NULL, NULL,
@@ -6356,18 +6355,19 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * Overrides the transformations of a #ClutterActor with a custom
    * matrix.
    *
-   * The matrix specified by the #ClutterActor:transform property is
+   * The matrix specified by the [property@Clutter.Actor:transform] property is
    * applied to the actor and its children relative to the actor's
-   * #ClutterActor:allocation and #ClutterActor:pivot-point.
+   * [property@Clutter.Actor:allocation] and
+   * [property@Clutter.Actor:pivot-point].
    *
    * Application code should rarely need to use this function directly.
    *
    * Setting this property with a #graphene_matrix_t will set the
-   * #ClutterActor:transform-set property to %TRUE as a side effect;
+   * [property@Clutter.Actor:transform-set] property to %TRUE as a side effect;
    * setting this property with %NULL will set the
-   * #ClutterActor:transform-set property to %FALSE.
+   * [property@Clutter.Actor:transform-set] property to %FALSE.
    *
-   * The #ClutterActor:transform property is animatable.
+   * The [property@Clutter.Actor:transform] property is animatable.
    */
   obj_props[PROP_TRANSFORM] =
     g_param_spec_boxed ("transform", NULL, NULL,
@@ -6380,7 +6380,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
   /**
    * ClutterActor:transform-set:
    *
-   * Whether the #ClutterActor:transform property is set.
+   * Whether the [property@Clutter.Actor:transform] property is set.
    */
   obj_props[PROP_TRANSFORM_SET] =
     g_param_spec_boolean ("transform-set", NULL, NULL,
@@ -6395,11 +6395,11 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * Applies a transformation matrix on each child of an actor.
    *
    * Setting this property with a #graphene_matrix_t will set the
-   * #ClutterActor:child-transform-set property to %TRUE as a side effect;
+   * [property@Clutter.Actor:child-transform-set] property to %TRUE as a side effect;
    * setting this property with %NULL will set the
-   * #ClutterActor:child-transform-set property to %FALSE.
+   * [property@Clutter.Actor:child-transform-set] property to %FALSE.
    *
-   * The #ClutterActor:child-transform property is animatable.
+   * The [property@Clutter.Actor:child-transform] property is animatable.
    */
   obj_props[PROP_CHILD_TRANSFORM] =
     g_param_spec_boxed ("child-transform", NULL, NULL,
@@ -6412,7 +6412,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
   /**
    * ClutterActor:child-transform-set:
    *
-   * Whether the #ClutterActor:child-transform property is set.
+   * Whether the [property@Clutter.Actor:child-transform] property is set.
    */
   obj_props[PROP_CHILD_TRANSFORM_SET] =
     g_param_spec_boolean ("child-transform-set", NULL, NULL,
@@ -6556,7 +6556,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * ClutterActor:x-align:
    *
    * The alignment of an actor on the X axis, if the actor has been given
-   * extra space for its allocation. See also the #ClutterActor:x-expand
+   * extra space for its allocation. See also the [property@Clutter.Actor:x-expand]
    * property.
    */
   obj_props[PROP_X_ALIGN] =
@@ -6589,7 +6589,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * This property adds a margin to the actor's preferred size; the margin
    * will be automatically taken into account when allocating the actor.
    *
-   * The #ClutterActor:margin-top property is animatable.
+   * The [property@Clutter.Actor:margin-top] property is animatable.
    */
   obj_props[PROP_MARGIN_TOP] =
     g_param_spec_float ("margin-top", NULL, NULL,
@@ -6608,7 +6608,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * This property adds a margin to the actor's preferred size; the margin
    * will be automatically taken into account when allocating the actor.
    *
-   * The #ClutterActor:margin-bottom property is animatable.
+   * The [property@Clutter.Actor:margin-bottom] property is animatable.
    */
   obj_props[PROP_MARGIN_BOTTOM] =
     g_param_spec_float ("margin-bottom", NULL, NULL,
@@ -6627,7 +6627,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * This property adds a margin to the actor's preferred size; the margin
    * will be automatically taken into account when allocating the actor.
    *
-   * The #ClutterActor:margin-left property is animatable.
+   * The [property@Clutter.Actor:margin-left] property is animatable.
    */
   obj_props[PROP_MARGIN_LEFT] =
     g_param_spec_float ("margin-left", NULL, NULL,
@@ -6646,7 +6646,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * This property adds a margin to the actor's preferred size; the margin
    * will be automatically taken into account when allocating the actor.
    *
-   * The #ClutterActor:margin-right property is animatable.
+   * The [property@Clutter.Actor:margin-right] property is animatable.
    */
   obj_props[PROP_MARGIN_RIGHT] =
     g_param_spec_float ("margin-right", NULL, NULL,
@@ -6660,7 +6660,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
   /**
    * ClutterActor:background-color-set:
    *
-   * Whether the #ClutterActor:background-color property has been set.
+   * Whether the [property@Clutter.Actor:background-color] property has been set.
    */
   obj_props[PROP_BACKGROUND_COLOR_SET] =
     g_param_spec_boolean ("background-color-set", NULL, NULL,
@@ -6675,7 +6675,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * Paints a solid fill of the actor's allocation using the specified
    * color.
    *
-   * The #ClutterActor:background-color property is animatable.
+   * The [property@Clutter.Actor:background-color] property is animatable.
    */
   obj_props[PROP_BACKGROUND_COLOR] =
     clutter_param_spec_color ("background-color", NULL, NULL,
@@ -6726,10 +6726,10 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * ClutterActor:content-gravity:
    *
    * The alignment that should be honoured by the #ClutterContent
-   * set with the #ClutterActor:content property.
+   * set with the [property@Clutter.Actor:content] property.
    *
    * Changing the value of this property will change the bounding box of
-   * the content; you can use the #ClutterActor:content-box property to
+   * the content; you can use the [property@Clutter.Actor:content-box] property to
    * get the position and size of the content within the actor's
    * allocation.
    *
@@ -6737,7 +6737,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * that have a preferred size, and if the preferred size is smaller than
    * the actor's allocation.
    *
-   * The #ClutterActor:content-gravity property is animatable.
+   * The [property@Clutter.Actor:content-gravity] property is animatable.
    */
   obj_props[PROP_CONTENT_GRAVITY] =
     g_param_spec_enum ("content-gravity", NULL, NULL,
@@ -6752,8 +6752,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
    *
    * The bounding box for the #ClutterContent used by the actor.
    *
-   * The value of this property is controlled by the #ClutterActor:allocation
-   * and #ClutterActor:content-gravity properties of #ClutterActor.
+   * The value of this property is controlled by the [property@Clutter.Actor:allocation]
+   * and [property@Clutter.Actor:content-gravity] properties of #ClutterActor.
    *
    * The bounding box for the content is guaranteed to never exceed the
    * allocation's of the actor.
@@ -6785,7 +6785,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
   /**
    * ClutterActor:content-repeat:
    *
-   * The repeat policy for the actor's #ClutterActor:content.
+   * The repeat policy for the actor's [property@Clutter.Actor:content].
    */
   obj_props[PROP_CONTENT_REPEAT] =
     g_param_spec_flags ("content-repeat", NULL, NULL,
@@ -7150,10 +7150,11 @@ clutter_actor_class_init (ClutterActorClass *klass)
    *
    * The signal is emitted when an event is captured
    * by Clutter. This signal will be emitted starting from the top-level
-   * container (the #ClutterStage) to the actor which received the event
+   * container (the [class@Clutter.Stage]) to the actor which received the event
    * going down the hierarchy. This signal can be used to intercept every
    * event before the specialized events (like
-   * ClutterActor::button-press-event or ::key-released-event) are
+   * [signal@Clutter.Actor::button-press-event] or 
+   * [signal@Clutter.Actor::button-release-event]) are
    * emitted.
    *
    * Return value: %TRUE if the event has been handled by the actor,
@@ -7214,14 +7215,14 @@ clutter_actor_class_init (ClutterActorClass *klass)
    *
    * The signal is emitted each time an actor is being painted
    * in "pick mode". The pick mode is used to identify the actor during
-   * the event handling phase, or by clutter_stage_get_actor_at_pos().
+   * the event handling phase, or by [method@Clutter.Stage.get_actor_at_pos].
    *
    * Subclasses of #ClutterActor should override the class signal handler
    * and paint themselves in that function.
    *
    * It is possible to connect a handler to the signal in order
    * to set up some custom aspect of a paint in pick mode.
-   * Deprecated: 1.12: Override the #ClutterActorClass.pick virtual function
+   * Deprecated: 1.12: Override the [vfunc@Clutter.Actor.pick] virtual function
    *   instead.
    */
   actor_signals[PICK] =
@@ -7257,8 +7258,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * The signal is emitted once a transition
    * is stopped; a transition is stopped once it reached its total
    * duration (including eventual repeats), it has been stopped
-   * using clutter_timeline_stop(), or it has been removed from the
-   * transitions applied on @actor, using clutter_actor_remove_transition().
+   * using [method@Clutter.Timeline.stop], or it has been removed from the
+   * transitions applied on @actor, using [method@Clutter.Actor.remove_transition].
    */
   actor_signals[TRANSITION_STOPPED] =
     g_signal_new (I_("transition-stopped"),
@@ -7324,7 +7325,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * @actor: a #ClutterActor
    *
    * The signal is emitted when the resource scale
-   * value returned by clutter_actor_get_resource_scale() changes.
+   * value returned by [method@Clutter.Actor.get_resource_scale] changes.
    *
    * This signal can be used to get notified about the correct resource scale
    * when the scale had to be queried outside of the paint cycle.
@@ -7759,9 +7760,9 @@ clutter_actor_queue_relayout (ClutterActor *self)
  * width are the actor's natural ones.
  *
  * If you need to control the height for the preferred width, or the width for
- * the preferred height, you should use clutter_actor_get_preferred_width()
- * and clutter_actor_get_preferred_height(), and check the actor's preferred
- * geometry management using the #ClutterActor:request-mode property.
+ * the preferred height, you should [method@Clutter.Actor.get_preferred_width]
+ * and [method@Clutter.Actor.get_preferred_height], and check the actor's preferred
+ * geometry management using the [property@Clutter.Actor:request-mode] property.
  */
 void
 clutter_actor_get_preferred_size (ClutterActor *self,
@@ -8669,13 +8670,14 @@ clutter_actor_allocate_internal (ClutterActor           *self,
  * Assigns the size of a #ClutterActor from the given @box.
  *
  * This function should only be called on the children of an actor when
- * overriding the #ClutterActorClass.allocate() virtual function.
+ * overriding the [vfunc@Clutter.Actor.allocate] virtual function.
  *
  * This function will adjust the stored allocation to take into account
- * the alignment flags set in the #ClutterActor:x-align and
- * #ClutterActor:y-align properties, as well as the margin values set in
- * the #ClutterActor:margin-top, #ClutterActor:margin-right,
- * #ClutterActor:margin-bottom, and #ClutterActor:margin-left properties.
+ * the alignment flags set in the [property@Clutter.Actor:x-align] and
+ * [property@Clutter.Actor:y-align] properties, as well as the margin values set in
+ * the[property@Clutter.Actor:margin-top], [property@Clutter.Actor:margin-right],
+ * [property@Clutter.Actor:margin-bottom], and
+ * [property@Clutter.Actor:margin-left] properties.
  *
  * This function will respect the easing state of the #ClutterActor and
  * interpolate between the current allocation and the new one if the
@@ -8794,7 +8796,7 @@ clutter_actor_allocate (ClutterActor          *self,
  * Stores the allocation of @self as defined by @box.
  *
  * This function can only be called from within the implementation of
- * the #ClutterActorClass.allocate() virtual function.
+ * the [vfunc@Clutter.Actor.allocate] virtual function.
  *
  * The allocation @box should have been adjusted to take into account
  * constraints, alignment, and margin properties.
@@ -8802,7 +8804,7 @@ clutter_actor_allocate (ClutterActor          *self,
  * This function should only be used by subclasses of #ClutterActor
  * that wish to store their allocation but cannot chain up to the
  * parent's implementation; the default implementation of the
- * #ClutterActorClass.allocate() virtual function will call this
+ * [vfunc@Clutter.Actor.allocate] virtual function will call this
  * function.
  */
 void
@@ -9157,8 +9159,8 @@ clutter_actor_set_natural_height_set (ClutterActor *self,
  * Sets the geometry request mode of @self.
  *
  * The @mode determines the order for invoking
- * clutter_actor_get_preferred_width() and
- * clutter_actor_get_preferred_height()
+ [method@Clutter.Actor.get_preferred_width] and
+ [method@Clutter.Actor.get_preferred_height]
  */
 void
 clutter_actor_set_request_mode (ClutterActor       *self,
@@ -9340,8 +9342,8 @@ clutter_actor_set_size (ClutterActor *self,
  *
  * If you care whether you get the request vs. the allocation, you
  * should probably call a different function like
- * clutter_actor_get_allocation_box() or
- * clutter_actor_get_preferred_width().
+ * [method@Clutter.Actor.get_allocation_box] or
+ * [method@Clutter.Actor.get_preferred_width].
  */
 void
 clutter_actor_get_size (ClutterActor *self,
@@ -9496,7 +9498,7 @@ clutter_actor_get_transformed_position (ClutterActor *self,
  * be transformed and returned.
  *
  * If you want the transformed allocation, see
- * clutter_actor_get_abs_allocation_vertices() instead.
+ * [method@Clutter.Actor.get_abs_allocation_vertices] instead.
  *
  * When the actor (or one of its ancestors) is rotated around the
  * X or Y axis, it no longer appears as on the stage as a rectangle, but
@@ -9504,8 +9506,8 @@ clutter_actor_get_transformed_position (ClutterActor *self,
  * of the smallest rectangle that encapsulates the entire quad. Please
  * note that in this case no assumptions can be made about the relative
  * position of this envelope to the absolute position of the actor, as
- * returned by clutter_actor_get_transformed_position(); if you need this
- * information, you need to use clutter_actor_get_abs_allocation_vertices()
+ * returned by [method@Clutter.Actor.get_transformed_position]; if you need this
+ * information, you need to use [method@Clutter.Actor.get_abs_allocation_vertices]
  * to get the coords of the actual quadrangle.
  */
 void
@@ -9591,12 +9593,12 @@ clutter_actor_get_transformed_size (ClutterActor *self,
  *
  * If you care whether you get the preferred width or the width that
  * has been assigned to the actor, you should probably call a different
- * function like clutter_actor_get_allocation_box() to retrieve the
- * allocated size or clutter_actor_get_preferred_width() to retrieve the
+ * function like [method@Clutter.Actor.get_allocation_box] to retrieve the
+ * allocated size [method@Clutter.Actor.get_preferred_width] to retrieve the
  * preferred width.
  *
  * If an actor has a fixed width, for instance a width that has been
- * assigned using clutter_actor_set_width(), the width returned will
+ * assigned using [method@Clutter.Actor.set_width], the width returned will
  * be the same value.
  *
  * Return value: the width of the actor, in pixels
@@ -9653,12 +9655,12 @@ clutter_actor_get_width (ClutterActor *self)
  *
  * If you care whether you get the preferred height or the height that
  * has been assigned to the actor, you should probably call a different
- * function like clutter_actor_get_allocation_box() to retrieve the
- * allocated size or clutter_actor_get_preferred_height() to retrieve the
+ * function like [method@Clutter.Actor.get_allocation_box] to retrieve the
+ * allocated size [method@Clutter.Actor.get_preferred_height] to retrieve the
  * preferred height.
  *
  * If an actor has a fixed height, for instance a height that has been
- * assigned using clutter_actor_set_height(), the height returned will
+ * assigned using [method@Clutter.Actor.set_height], the height returned will
  * be the same value.
  *
  * Return value: the height of the actor, in pixels
@@ -9765,7 +9767,7 @@ clutter_actor_set_height (ClutterActor *self,
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
-  /* see the comment in clutter_actor_set_width() above */
+  /* see the comment [method@Clutter.Actor.or_set_width] above */
   if (clutter_actor_get_easing_duration (self) == 0)
     {
       g_object_freeze_notify (G_OBJECT (self));
@@ -9870,7 +9872,7 @@ clutter_actor_set_position_internal (ClutterActor           *self,
  * Overrides any layout manager and forces a fixed position for
  * the actor.
  *
- * The #ClutterActor:x property is animatable.
+ * The [property@Clutter.Actor:x] property is animatable.
  */
 void
 clutter_actor_set_x (ClutterActor *self,
@@ -9895,7 +9897,7 @@ clutter_actor_set_x (ClutterActor *self,
  * Overrides any layout manager and forces a fixed position for
  * the actor.
  *
- * The #ClutterActor:y property is animatable.
+ * The [property@Clutter.Actor:y] property is animatable.
  */
 void
 clutter_actor_set_y (ClutterActor *self,
@@ -9922,8 +9924,8 @@ clutter_actor_set_y (ClutterActor *self,
  * If the actor has a valid allocation, this function will return
  * the X coordinate of the origin of the allocation box.
  *
- * If the actor has any fixed coordinate set using clutter_actor_set_x(),
- * clutter_actor_set_position(), this function will return that coordinate.
+ * If the actor has any fixed coordinate set using [method@Clutter.Actor.set_x],
+ * [method@Clutter.Actor.set_position], this function will return that coordinate.
  *
  * If both the allocation and a fixed position are missing, this function
  * will return 0.
@@ -9969,8 +9971,8 @@ clutter_actor_get_x (ClutterActor *self)
  * If the actor has a valid allocation, this function will return
  * the Y coordinate of the origin of the allocation box.
  *
- * If the actor has any fixed coordinate set using clutter_actor_set_y(),
- * clutter_actor_set_position(), this function will return that coordinate.
+ * If the actor has any fixed coordinate set using [method@Clutter.Actor.set_y],
+ * [method@Clutter.Actor.set_position], this function will return that coordinate.
  *
  * If both the allocation and a fixed position are missing, this function
  * will return 0.
@@ -10012,10 +10014,10 @@ clutter_actor_get_y (ClutterActor *self)
  *
  * Scales an actor with the given factors.
  *
- * The scale transformation is relative the the #ClutterActor:pivot-point.
+ * The scale transformation is relative the [property@Clutter.Actor:pivot-point].
  *
- * The #ClutterActor:scale-x and #ClutterActor:scale-y properties are
- * animatable.
+ * The [property@Clutter.Actor:scale-x] and [property@Clutter.Actor:scale-y]
+ * properties are animatable.
  */
 void
 clutter_actor_set_scale (ClutterActor *self,
@@ -10039,9 +10041,9 @@ clutter_actor_set_scale (ClutterActor *self,
  *
  * Scales an actor on the Z axis by the given @scale_z factor.
  *
- * The scale transformation is relative the the #ClutterActor:pivot-point.
+ * The scale transformation is relative the the [property@Clutter.Actor:pivot-point].
  *
- * The #ClutterActor:scale-z property is animatable.
+ * The [property@Clutter.Actor:scale-z] property is animatable.
  */
 void
 clutter_actor_set_scale_z (ClutterActor *self,
@@ -10085,7 +10087,7 @@ clutter_actor_get_scale (ClutterActor *self,
  * @self: A #ClutterActor
  *
  * Retrieves the scaling factor along the Z axis, as set using
- * clutter_actor_set_scale_z().
+ * [method@Clutter.Actor.set_scale_z].
  *
  * Return value: the scaling factor along the Z axis
  */
@@ -10129,7 +10131,7 @@ clutter_actor_set_opacity_internal (ClutterActor *self,
  * Sets the actor's opacity, with zero being completely transparent and
  * 255 (0xff) being fully opaque.
  *
- * The #ClutterActor:opacity property is animatable.
+ * The [property@Clutter.Actor:opacity] property is animatable.
  */
 void
 clutter_actor_set_opacity (ClutterActor *self,
@@ -10397,7 +10399,7 @@ clutter_actor_set_z_position_internal (ClutterActor *self,
  *
  * Sets the actor's position on the Z axis.
  *
- * See #ClutterActor:z-position.
+ * See [property@Clutter.Actor:z-position].
  */
 void
 clutter_actor_set_z_position (ClutterActor *self,
@@ -10436,7 +10438,7 @@ clutter_actor_get_z_position (ClutterActor *self)
  * @pivot_x: the normalized X coordinate of the pivot point
  * @pivot_y: the normalized Y coordinate of the pivot point
  *
- * Sets the position of the #ClutterActor:pivot-point around which the
+ * Sets the position of the [property@Clutter.Actor:pivot-point] around which the
  * scaling and rotation transformations occur.
  *
  * The pivot point's coordinates are in normalized space, with the (0, 0)
@@ -10467,7 +10469,7 @@ clutter_actor_set_pivot_point (ClutterActor *self,
  * @pivot_y: (out) (optional): return location for the normalized Y
  *   coordinate of the pivot point, or %NULL
  *
- * Retrieves the coordinates of the #ClutterActor:pivot-point.
+ * Retrieves the coordinates of the [property@Clutter.Actor:pivot-point].
  */
 void
 clutter_actor_get_pivot_point (ClutterActor *self,
@@ -10492,7 +10494,7 @@ clutter_actor_get_pivot_point (ClutterActor *self,
  * @self: a #ClutterActor
  * @pivot_z: the Z coordinate of the actor's pivot point
  *
- * Sets the component on the Z axis of the #ClutterActor:pivot-point around
+ * Sets the component on the Z axis of the [property@Clutter.Actor:pivot-point] around
  * which the scaling and rotation transformations occur.
  *
  * The @pivot_z value is expressed as a distance along the Z axis.
@@ -10515,7 +10517,7 @@ clutter_actor_set_pivot_point_z (ClutterActor *self,
  * clutter_actor_get_pivot_point_z:
  * @self: a #ClutterActor
  *
- * Retrieves the Z component of the #ClutterActor:pivot-point.
+ * Retrieves the Z component of the [property@Clutter.Actor:pivot-point].
  */
 gfloat
 clutter_actor_get_pivot_point_z (ClutterActor *self)
@@ -11139,9 +11141,9 @@ clutter_actor_add_child_internal (ClutterActor              *self,
  * Adds @child to the children of @self.
  *
  * This function will acquire a reference on @child that will only
- * be released when calling clutter_actor_remove_child().
+ * be released when calling [method@Clutter.Actor.remove_child].
  *
- * This function will take into consideration the #ClutterActor:depth
+ * This function will take into consideration the depth
  * of @child, and will keep the list of children sorted.
  *
  * This function will emit the [signal@Clutter.Actor::child-added] signal
@@ -11173,9 +11175,9 @@ clutter_actor_add_child (ClutterActor *self,
  * in @self, or is less than 0, then the new child is added at the end.
  *
  * This function will acquire a reference on @child that will only
- * be released when calling clutter_actor_remove_child().
+ * be released when calling [method@Clutter.Actor.remove_child].
  *
- * This function will not take into consideration the #ClutterActor:depth
+ * This function will not take into consideration the depth
  * of @child.
  *
  * This function will emit the [signal@Clutter.Actor::child-added] signal
@@ -11208,9 +11210,9 @@ clutter_actor_insert_child_at_index (ClutterActor *self,
  * of @self.
  *
  * This function will acquire a reference on @child that will only
- * be released when calling clutter_actor_remove_child().
+ * be released when calling [method@Clutter.Actor.remove_child].
  *
- * This function will not take into consideration the #ClutterActor:depth
+ * This function will not take into consideration the depth
  * of @child.
  *
  * This function will emit the [signal@Clutter.Actor::child-added] signal
@@ -11247,9 +11249,9 @@ clutter_actor_insert_child_above (ClutterActor *self,
  * of @self.
  *
  * This function will acquire a reference on @child that will only
- * be released when calling clutter_actor_remove_child().
+ * be released when calling [method@Clutter.Actor.remove_child].
  *
- * This function will not take into consideration the #ClutterActor:depth
+ * This function will not take into consideration the depth
  * of @child.
  *
  * This function will emit the [signal@Clutter.Actor::child-added] signal
@@ -11319,7 +11321,7 @@ clutter_actor_get_paint_visibility (ClutterActor *actor)
  * Removes @child from the children of @self.
  *
  * This function will release the reference added by
- * clutter_actor_add_child(), so if you want to keep using @child
+ * [method@Clutter.Actor.add_child], so if you want to keep using @child
  * you will have to acquire a referenced on it before calling this
  * function.
  *
@@ -11385,19 +11387,19 @@ clutter_actor_remove_all_children (ClutterActor *self)
  *
  * This function releases the reference added by inserting a child
  * actor in the list of children of @self, and ensures that the
- * #ClutterActor::destroy signal is emitted on each child of the
+ * [signal@Clutter.Actor::destroy] signal is emitted on each child of the
  * actor.
  *
- * By default, #ClutterActor will emit the #ClutterActor::destroy signal
+ * By default, #ClutterActor will emit the [signal@Clutter.Actor::destroy] signal
  * when its reference count drops to 0; the default handler of the
- * #ClutterActor::destroy signal will destroy all the children of an
+ * [signal@Clutter.Actor::destroy] signal will destroy all the children of an
  * actor. This function ensures that all children are destroyed, instead
- * of just removed from @self, unlike clutter_actor_remove_all_children()
+ * of just removed from @self, unlike [method@Clutter.Actor.remove_all_children]
  * which will merely release the reference and remove each child.
  *
  * Unless you acquired an additional reference on each child of @self
- * prior to calling clutter_actor_remove_all_children() and want to reuse
- * the actors, you should use clutter_actor_destroy_all_children() in
+ * prior to calling [method@Clutter.Actor.remove_all_children] and want to reuse
+ * the actors, you should use [method@Clutter.Actor.destroy_all_children] in
  * order to make sure that children are destroyed and signal handlers
  * are disconnected even in cases where circular references prevent this
  * from automatically happening through reference counting alone.
@@ -12320,7 +12322,7 @@ clutter_animatable_iface_init (ClutterAnimatableInterface *iface)
  * This function can be computationally intensive.
  *
  * This function only works when the allocation is up-to-date, i.e. inside of
- * the #ClutterActorClass.paint() implementation
+ * the [vfunc@Clutter.Actor.paint] implementation
  *
  * Return value: %TRUE if conversion was successful.
  */
@@ -12678,7 +12680,7 @@ clutter_actor_allocate_available_size (ClutterActor           *self,
  * This function is a utility call for #ClutterActor implementations
  * that allocates the actor's preferred natural size. It can be used
  * by fixed layout managers (like #ClutterGroup or so called
- * 'composite actors') inside the ClutterActor::allocate
+ * 'composite actors') inside the [vfunc@Clutter.Actor.allocate]
  * implementation to give each child exactly how much space it
  * requires, regardless of the size of the parent.
  *
@@ -12727,13 +12729,13 @@ clutter_actor_allocate_preferred_size (ClutterActor *self,
  * allocation will be offset by their value.
  *
  * This function takes into consideration the geometry request specified by
- * the #ClutterActor:request-mode property, and the text direction.
+ * the [property@Clutter.Actor:request-mode] property, and the text direction.
  *
  * This function is useful for fluid layout managers using legacy alignment
- * flags. Newly written layout managers should use the #ClutterActor:x-align
- * and #ClutterActor:y-align properties, instead, and just call
- * clutter_actor_allocate() inside their #ClutterActorClass.allocate()
- * implementation.
+ * flags. Newly written layout managers should use the
+ * [property@Clutter.Actor:x-align] and [property@Clutter.Actor:y-align]
+ * properties, instead, and just call [method@Clutter.Actor.allocate]
+ * inside their [vfunc@Clutter.Actor.allocate] implementation.
  */
 void
 clutter_actor_allocate_align_fill (ClutterActor           *self,
@@ -12977,7 +12979,7 @@ clutter_actor_get_pango_context (ClutterActor *self)
  * is already configured using the appropriate font map, resolution
  * and font options.
  *
- * See also clutter_actor_get_pango_context().
+ * See also [method@Clutter.Actor.get_pango_context].
  *
  * Return value: (transfer full): the newly created #PangoContext.
  *   Use g_object_unref() on the returned value to deallocate its
@@ -13353,7 +13355,7 @@ clutter_actor_set_transform_internal (ClutterActor            *self,
  * matrix, which will be applied relative to the origin of the
  * actor's allocation and to the actor's pivot point.
  *
- * The #ClutterActor:transform property is animatable.
+ * The [property@Clutter.Actor:transform] property is animatable.
  */
 void
 clutter_actor_set_transform (ClutterActor            *self,
@@ -13409,7 +13411,7 @@ _clutter_actor_set_in_clone_paint (ClutterActor *self,
  * Checks whether @self is being currently painted by a #ClutterClone
  *
  * This function is useful only inside implementations of the
- * #ClutterActorClass.paint() virtual function.
+ * [vfunc@Clutter.Actor.paint] virtual function.
  *
  * This function should not be used by applications
  *
@@ -13661,7 +13663,7 @@ clutter_actor_add_action_internal (ClutterActor      *self,
  * A #ClutterAction can only belong to one actor at a time
  *
  * The #ClutterActor will hold a reference on @action until either
- * clutter_actor_remove_action() or clutter_actor_clear_actions()
+ * [method@Clutter.Actor.remove_action] or [method@Clutter.Actor.clear_actions]
  * is called
  */
 void
@@ -13855,8 +13857,8 @@ clutter_actor_clear_actions (ClutterActor *self)
  * to @self
  *
  * The #ClutterActor will hold a reference on the @constraint until
- * either clutter_actor_remove_constraint() or
- * clutter_actor_clear_constraints() is called.
+ * either [method@Clutter.Actor.remove_constraint] or
+ * [method@Clutter.Actor.clear_constraints] is called.
  */
 void
 clutter_actor_add_constraint (ClutterActor      *self,
@@ -14095,10 +14097,10 @@ clutter_actor_get_clip_to_allocation (ClutterActor *self)
  * @self: a #ClutterActor
  * @effect: a #ClutterEffect
  *
- * Adds @effect to the list of `ClutterEffect`s applied to @self
+ * Adds @effect to the list of [class@Clutter.Effect]s applied to @self
  *
  * The #ClutterActor will hold a reference on the @effect until either
- * clutter_actor_remove_effect() or clutter_actor_clear_effects() is
+ * [method@Clutter.Actor.remove_effect] or [method@Clutter.Actor.clear_effects] is
  * called.
  */
 void
@@ -14463,21 +14465,21 @@ _clutter_actor_get_paint_volume_mutable (ClutterActor *self)
  * The paint volume is defined as the 3D space occupied by an actor
  * when being painted.
  *
- * This function will call the #ClutterActorClass.get_paint_volume()
+ * This function will call the [vfunc@Clutter.Actor.get_paint_volume]
  * virtual function of the #ClutterActor class. Sub-classes of #ClutterActor
  * should not usually care about overriding the default implementation,
  * unless they are, for instance: painting outside their allocation, or
- * actors with a depth factor (not in terms of #ClutterActor:depth but real
+ * actors with a depth factor (not in terms of depth but real
  * 3D depth).
  *
- * Note: 2D actors overriding #ClutterActorClass.get_paint_volume()
+ * Note: 2D actors overriding [vfunc@Clutter.Actor.get_paint_volume]
  * should ensure that their volume has a depth of 0. (This will be true
- * as long as you don't call clutter_paint_volume_set_depth().)
+ * as long as you don't call [method@Clutter.PaintVolume.set_depth].)
  *
  * Return value: (transfer none) (nullable): a pointer to a #ClutterPaintVolume,
  *   or %NULL if no volume could be determined. The returned pointer
  *   is not guaranteed to be valid across multiple frames; if you want
- *   to keep it, you will need to copy it using clutter_paint_volume_copy().
+ *   to keep it, you will need to copy it using [method@Clutter.PaintVolume.copy].
  */
 const ClutterPaintVolume *
 clutter_actor_get_paint_volume (ClutterActor *self)
@@ -14494,16 +14496,15 @@ clutter_actor_get_paint_volume (ClutterActor *self)
  *    (or %NULL for the stage)
  *
  * Retrieves the 3D paint volume of an actor like
- * clutter_actor_get_paint_volume() does (Please refer to the
- * documentation of clutter_actor_get_paint_volume() for more
- * details.) and it additionally transforms the paint volume into the
- * coordinate space of @relative_to_ancestor. (Or the stage if %NULL
+ * [method@Clutter.Actor.get_paint_volume] does and it additionally
+ * transforms the paint volume into the coordinate 
+ * space of @relative_to_ancestor. (Or the stage if %NULL
  * is passed for @relative_to_ancestor)
  *
  * This can be used by containers that base their paint volume on
  * the volume of their children. Such containers can query the
  * transformed paint volume of all of its children and union them
- * together using clutter_paint_volume_union().
+ * together using [method@Clutter.PaintVolume.union].
  *
  * Return value: (transfer full) (nullable): a pointer to a #ClutterPaintVolume,
  *   or %NULL if no volume could be determined.
@@ -15074,8 +15075,8 @@ clutter_actor_pick_frame_clock (ClutterActor  *self,
  * the opacity property.
  *
  * Custom actors can override the default response by implementing the
- * #ClutterActorClass.has_overlaps() virtual function. See
- * clutter_actor_set_offscreen_redirect() for more information.
+ * [vfunc@Clutter.Actor.has_overlaps]. See
+ * [method@Clutter.Actor.set_offscreen_redirect] for more information.
  *
  * Return value: %TRUE if the actor may have overlapping primitives, and
  *   %FALSE otherwise
@@ -15566,7 +15567,7 @@ _clutter_actor_get_layout_info_or_defaults (ClutterActor *self)
  * Sets the horizontal alignment policy of a #ClutterActor, in case the
  * actor received extra horizontal space.
  *
- * See also the #ClutterActor:x-align property.
+ * See also the [property@Clutter.Actor:x-align] property.
  */
 void
 clutter_actor_set_x_align (ClutterActor      *self,
@@ -15593,7 +15594,7 @@ clutter_actor_set_x_align (ClutterActor      *self,
  * @self: a #ClutterActor
  *
  * Retrieves the horizontal alignment policy set using
- * clutter_actor_set_x_align().
+ * [method@Clutter.Actor.set_x_align].
  *
  * Return value: the horizontal alignment policy.
  */
@@ -15613,7 +15614,7 @@ clutter_actor_get_x_align (ClutterActor *self)
  * Sets the vertical alignment policy of a #ClutterActor, in case the
  * actor received extra vertical space.
  *
- * See also the #ClutterActor:y-align property.
+ * See also the [property@Clutter.Actor:y-align] property.
  */
 void
 clutter_actor_set_y_align (ClutterActor      *self,
@@ -15640,7 +15641,7 @@ clutter_actor_set_y_align (ClutterActor      *self,
  * @self: a #ClutterActor
  *
  * Retrieves the vertical alignment policy set using
- * clutter_actor_set_y_align().
+ * [method@Clutter.Actor.set_y_align].
  *
  * Return value: the vertical alignment policy.
  */
@@ -15733,7 +15734,7 @@ clutter_actor_get_margin (ClutterActor  *self,
  *
  * Sets the margin from the top of a #ClutterActor.
  *
- * The #ClutterActor:margin-top property is animatable.
+ * The [property@Clutter.Actor:margin-top] property is animatable.
  */
 void
 clutter_actor_set_margin_top (ClutterActor *self,
@@ -15777,7 +15778,7 @@ clutter_actor_get_margin_top (ClutterActor *self)
  *
  * Sets the margin from the bottom of a #ClutterActor.
  *
- * The #ClutterActor:margin-bottom property is animatable.
+ * The [property@Clutter.Actor:margin-bottom] property is animatable.
  */
 void
 clutter_actor_set_margin_bottom (ClutterActor *self,
@@ -15821,7 +15822,7 @@ clutter_actor_get_margin_bottom (ClutterActor *self)
  *
  * Sets the margin from the left of a #ClutterActor.
  *
- * The #ClutterActor:margin-left property is animatable.
+ * The [property@Clutter.Actor:margin-left] property is animatable.
  */
 void
 clutter_actor_set_margin_left (ClutterActor *self,
@@ -15865,7 +15866,7 @@ clutter_actor_get_margin_left (ClutterActor *self)
  *
  * Sets the margin from the right of a #ClutterActor.
  *
- * The #ClutterActor:margin-right property is animatable.
+ * The [property@Clutter.Actor:margin-right] property is animatable.
  */
 void
 clutter_actor_set_margin_right (ClutterActor *self,
@@ -15935,9 +15936,9 @@ clutter_actor_set_background_color_internal (ClutterActor *self,
  * actor. The default background color of an actor is transparent.
  *
  * To check whether an actor has a background color, you can use the
- * #ClutterActor:background-color-set actor property.
+ * [property@Clutter.Actor:background-color-set] actor property.
  *
- * The #ClutterActor:background-color property is animatable.
+ * The [property@Clutter.Actor:background-color] property is animatable.
  */
 void
 clutter_actor_set_background_color (ClutterActor       *self,
@@ -15971,7 +15972,7 @@ clutter_actor_set_background_color (ClutterActor       *self,
  * @self: a #ClutterActor
  * @color: (out caller-allocates): return location for a #ClutterColor
  *
- * Retrieves the color set using clutter_actor_set_background_color().
+ * Retrieves the color set using [method@Clutter.Actor.set_background_color].
  */
 void
 clutter_actor_get_background_color (ClutterActor *self,
@@ -16228,11 +16229,11 @@ clutter_actor_iter_prev (ClutterActorIter  *iter,
  * Safely removes the #ClutterActor currently pointer to by the iterator
  * from its parent.
  *
- * This function can only be called after clutter_actor_iter_next() or
- * clutter_actor_iter_prev() returned %TRUE, and cannot be called more
+ * This function can only be called after [method@Clutter.ActorIter.next] or
+  [method@Clutter.ActorIter.prev] returned %TRUE, and cannot be called more
  * than once for the same actor.
  *
- * This function will call clutter_actor_remove_child() internally.
+ * This function will call [method@Clutter.Actor.remove_child] internally.
  */
 void
 clutter_actor_iter_remove (ClutterActorIter *iter)
@@ -16267,11 +16268,11 @@ clutter_actor_iter_remove (ClutterActorIter *iter)
  * Safely destroys the #ClutterActor currently pointer to by the iterator
  * from its parent.
  *
- * This function can only be called after clutter_actor_iter_next() or
- * clutter_actor_iter_prev() returned %TRUE, and cannot be called more
+ * This function can only be called after [method@Clutter.ActorIter.next] or
+ * [method@Clutter.ActorIter.prev] returned %TRUE, and cannot be called more
  * than once for the same actor.
  *
- * This function will call clutter_actor_destroy() internally.
+ * This function will call [method@Clutter.Actor.destroy] internally.
  */
 void
 clutter_actor_iter_destroy (ClutterActorIter *iter)
@@ -17008,7 +17009,7 @@ clutter_actor_get_easing_delay (ClutterActor *self)
  * is finished.
  *
  * If you just want to get notifications of the completion of a transition,
- * you should use the #ClutterActor::transition-stopped signal, using the
+ * you should use the [signal@Clutter.Actor::transition-stopped] signal, using the
  * transition name as the signal detail.
  *
  * Return value: (transfer none) (nullable): a #ClutterTransition, or %NULL if
@@ -17091,7 +17092,7 @@ clutter_actor_save_easing_state (ClutterActor *self)
  * @self: a #ClutterActor
  *
  * Restores the easing state as it was prior to a call to
- * clutter_actor_save_easing_state().
+ * [method@Clutter.Actor.save_easing_state].
  */
 void
 clutter_actor_restore_easing_state (ClutterActor *self)
@@ -17219,10 +17220,10 @@ clutter_actor_get_content (ClutterActor *self)
  *
  * Sets the gravity of the #ClutterContent used by @self.
  *
- * See the description of the #ClutterActor:content-gravity property for
+ * See the description of the [property@Clutter.Actor:content-gravity] property for
  * more information.
  *
- * The #ClutterActor:content-gravity property is animatable.
+ * The [property@Clutter.Actor:content-gravity] property is animatable.
  */
 void
 clutter_actor_set_content_gravity (ClutterActor *self,
@@ -17258,7 +17259,7 @@ clutter_actor_set_content_gravity (ClutterActor *self,
  * @self: a #ClutterActor
  *
  * Retrieves the content gravity as set using
- * clutter_actor_set_content_gravity().
+ * [method@Clutter.Actor.set_content_gravity].
  *
  * Return value: the content gravity
  */
@@ -17289,7 +17290,7 @@ clutter_actor_get_content_gravity (ClutterActor *self)
  *
  * If the #ClutterContent used by the actor has a preferred size, then
  * it is possible to modify the content box by using the
- * #ClutterActor:content-gravity property.
+ * [property@Clutter.Actor:content-gravity] property.
  */
 void
 clutter_actor_get_content_box (ClutterActor    *self,
@@ -17473,10 +17474,10 @@ clutter_actor_get_content_box (ClutterActor    *self,
  * @mag_filter: the magnification filter for the content
  *
  * Sets the minification and magnification filter to be applied when
- * scaling the #ClutterActor:content of a #ClutterActor.
+ * scaling the [property@Clutter.Actor:content] of a #ClutterActor.
  *
- * The #ClutterActor:minification-filter will be used when reducing
- * the size of the content; the #ClutterActor:magnification-filter
+ * The [property@Clutter.Actor:minification-filter] will be used when reducing
+ * the size of the content; the [property@Clutter.Actor:magnification-filter]
  * will be used when increasing the size of the content.
  */
 void
@@ -17527,7 +17528,7 @@ clutter_actor_set_content_scaling_filters (ClutterActor         *self,
  * @mag_filter: (out) (optional): return location for the magnification
  *   filter, or %NULL
  *
- * Retrieves the values set using clutter_actor_set_content_scaling_filters().
+ * Retrieves the values set using [method@Clutter.Actor.set_content_scaling_filters].
  */
 void
 clutter_actor_get_content_scaling_filters (ClutterActor         *self,
@@ -17623,9 +17624,9 @@ clutter_actor_set_x_expand (ClutterActor *self,
  * clutter_actor_get_x_expand:
  * @self: a #ClutterActor
  *
- * Retrieves the value set with clutter_actor_set_x_expand().
+ * Retrieves the value set with [method@Clutter.Actor.set_x_expand].
  *
- * See also: clutter_actor_needs_expand()
+ * See also: [method@Clutter.Actor.needs_expand]
  *
  * Return value: %TRUE if the actor has been set to expand
  */
@@ -17682,9 +17683,9 @@ clutter_actor_set_y_expand (ClutterActor *self,
  * clutter_actor_get_y_expand:
  * @self: a #ClutterActor
  *
- * Retrieves the value set with clutter_actor_set_y_expand().
+ * Retrieves the value set with [method@Clutter.Actor.set_y_expand].
  *
- * See also: clutter_actor_needs_expand()
+ * See also: [method@Clutter.Actor.needs_expand]
  *
  * Return value: %TRUE if the actor has been set to expand
  */
@@ -17782,7 +17783,7 @@ clutter_actor_compute_expand (ClutterActor *self)
  * assign extra space to their children.
  *
  * If you want to know whether the actor was explicitly set to expand,
- * use clutter_actor_get_x_expand() or clutter_actor_get_y_expand().
+ * use [method@Clutter.Actor.get_x_expand] or [method@Clutter.Actor.get_y_expand].
  *
  * Return value: %TRUE if the actor should expand
  */
@@ -17817,7 +17818,7 @@ clutter_actor_needs_expand (ClutterActor       *self,
  * @self: a #ClutterActor
  * @repeat: the repeat policy
  *
- * Sets the policy for repeating the #ClutterActor:content of a
+ * Sets the policy for repeating the [property@Clutter.Actor:content] of a
  * #ClutterActor. The behaviour is deferred to the #ClutterContent
  * implementation.
  */
@@ -17840,7 +17841,7 @@ clutter_actor_set_content_repeat (ClutterActor         *self,
  * @self: a #ClutterActor
  *
  * Retrieves the repeat policy for a #ClutterActor set by
- * clutter_actor_set_content_repeat().
+ * [method@Clutter.Actor.set_content_repeat].
  *
  * Return value: the content repeat policy
  */
@@ -17949,7 +17950,7 @@ clutter_actor_set_child_transform_internal (ClutterActor            *self,
  *
  * If @transform is %NULL, the child transform will be unset.
  *
- * The #ClutterActor:child-transform property is animatable.
+ * The [property@Clutter.Actor:child-transform] property is animatable.
  */
 void
 clutter_actor_set_child_transform (ClutterActor            *self,
@@ -17978,7 +17979,7 @@ clutter_actor_set_child_transform (ClutterActor            *self,
  * @transform: (out caller-allocates): a #graphene_matrix_t
  *
  * Retrieves the child transformation matrix set using
- * clutter_actor_set_child_transform(); if none is currently set,
+ * [method@Clutter.Actor.set_child_transform]; if none is currently set,
  * the @transform matrix will be initialized to the identity matrix.
  */
 void
@@ -18394,9 +18395,10 @@ clutter_actor_bind_model_with_properties (ClutterActor *self,
  * of the #ClutterActorClass.paint_node virtual function.
  *
  * The returned paint node has the geometry set to the size of the
- * #ClutterActor:content-box property; it uses the filters specified
- * in the #ClutterActor:minification-filter and #ClutterActor:magnification-filter
- * properties; and respects the #ClutterActor:content-repeat property.
+ * [property@Clutter.Actor:content-box] property; it uses the filters specified
+ * in the [property@Clutter.Actor:minification-filter] 
+ * and [property@Clutter.Actor:magnification-filter]
+ * properties; and respects the [property@Clutter.Actor:content-repeat] property.
  *
  * Returns: (transfer full): The newly created #ClutterPaintNode4
  */
@@ -18492,7 +18494,7 @@ clutter_actor_invalidate_transform (ClutterActor *self)
  * @self: A #ClutterActor
  *
  * Invalidates the cached paint volume of @self. This is needed for
- * implementations overriding the #ClutterActorClass.get_paint_volume()
+ * implementations overriding the [vfunc@Clutter.Actor.get_paint_volume]
  * virtual function and has to be called every time the paint volume
  * returned by that function would change.
  */

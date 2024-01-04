@@ -813,11 +813,11 @@ clutter_interval_set_initial_value (ClutterInterval *interval,
  * @interval: a #ClutterInterval
  * @...: the initial value of the interval.
  *
- * Variadic arguments version of clutter_interval_set_initial_value().
+ * Variadic arguments version of [method@Clutter.Interval.set_initial_value].
  *
  * This function is meant as a convenience for the C API.
  *
- * Language bindings should use clutter_interval_set_initial_value()
+ * Language bindings should use [method@Clutter.Interval.set_initial_value]
  * instead.
  */
 void
@@ -916,11 +916,11 @@ clutter_interval_get_final_value (ClutterInterval *interval,
  * @interval: a #ClutterInterval
  * @...: the final value of the interval
  *
- * Variadic arguments version of clutter_interval_set_final_value().
+ * Variadic arguments version of [method@Clutter.Interval.set_final_value].
  *
  * This function is meant as a convenience for the C API.
  *
- * Language bindings should use clutter_interval_set_final_value() instead.
+ * Language bindings should use [method@Clutter.Interval.set_final_value] instead.
  */
 void
 clutter_interval_set_final (ClutterInterval *interval,
@@ -958,8 +958,8 @@ clutter_interval_peek_final_value (ClutterInterval *interval)
  * @interval: a #ClutterInterval
  * @...: the initial and final values of the interval
  *
- * Variable arguments wrapper for clutter_interval_set_initial_value()
- * and clutter_interval_set_final_value() that avoids using the
+ * Variable arguments wrapper for [method@Clutter.Interval.set_initial_value]
+ * and [method@Clutter.Interval.set_final_value] that avoids using the
  * #GValue arguments:
  *
  * ```c
@@ -997,8 +997,8 @@ out:
  * @...: return locations for the initial and final values of
  *   the interval
  *
- * Variable arguments wrapper for clutter_interval_get_initial_value()
- * and clutter_interval_get_final_value() that avoids using the
+ * Variable arguments wrapper for [method@Clutter.Interval.get_initial_value]
+ * and [method@Clutter.Interval.get_final_value] that avoids using the
  * #GValue arguments:
  *
  * ```c
@@ -1075,7 +1075,7 @@ clutter_interval_compute_value (ClutterInterval *interval,
  * Computes the value between the @interval boundaries given the
  * progress @factor
  *
- * Unlike clutter_interval_compute_value(), this function will
+ * Unlike [method@Clutter.Interval.compute_value], this function will
  * return a const pointer to the computed value
  *
  * You should use this function if you immediately pass the computed

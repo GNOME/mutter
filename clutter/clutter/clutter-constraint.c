@@ -34,7 +34,7 @@
  * the position or size of the #ClutterActor to which it is applied, by
  * updating the actor's allocation. Each #ClutterConstraint can change the
  * allocation of the actor to which they are applied by overriding the
- * #ClutterConstraintClass.update_allocation() virtual function.
+ * [vfunc@Clutter.Constraint.update_allocation] virtual function.
  *
  * ## Using Constraints
  *
@@ -48,7 +48,7 @@
  * #ClutterBoxLayout lay out their children.
  *
  * Constraints are attached to a #ClutterActor, and are available
- * for inspection using clutter_actor_get_constraints().
+ * for inspection using [method@Clutter.Actor.get_constraints].
  *
  * Clutter provides different implementation of the #ClutterConstraint
  * abstract class, for instance:
@@ -69,14 +69,14 @@
  * resizable stage. Only the central actor has an explicit size, and no
  * actor has an explicit position.
  *
- *  - The #ClutterActor with #ClutterActor:name `layerA` is explicitly
+ *  - The #ClutterActor with [property@Clutter.Actor:name] `layerA` is explicitly
  *  sized to 100 pixels by 25 pixels, and it's added to the #ClutterStage
  *  - two #ClutterAlignConstraints are used to anchor `layerA` to the
  *  center of the stage, by using 0.5 as the alignment #ClutterAlignConstraint:factor on
  *  both the X and Y axis
- *  - the #ClutterActor with #ClutterActor:name `layerB` is added to the
+ *  - the #ClutterActor with [property@Clutter.Actor:name] `layerB` is added to the
  *  #ClutterStage with no explicit size
- *  - the #ClutterActor:x and #ClutterActor:width of `layerB` are bound
+ *  - the [property@Clutter.Actor:x] and [property@Clutter.Actor:width] of `layerB` are bound
  *  to the same properties of `layerA` using two #ClutterBindConstraint
  *  objects, thus keeping `layerB` aligned to `layerA`
  *  - the top edge of `layerB` is snapped together with the bottom edge
@@ -85,7 +85,7 @@
  *  #ClutterSnapConstraintss to allow for some padding; since `layerB` is
  *  snapped between two different #ClutterActors, its height is stretched
  *  to match the gap
- *  - the #ClutterActor with #ClutterActor:name `layerC` mirrors `layerB`,
+ *  - the #ClutterActor with [property@Clutter.Actor:name] `layerC` mirrors `layerB`,
  *  snapping the top edge of the #ClutterStage to the top edge of `layerC`
  *  and the top edge of `layerA` to the bottom edge of `layerC`
  *
@@ -102,7 +102,7 @@
  * ## Implementing a ClutterConstraint
  *
  * Creating a sub-class of #ClutterConstraint requires the
- * implementation of the #ClutterConstraintClass.update_allocation()
+ * implementation of the [vfunc@Clutter.Constraint.update_allocation]
  * virtual function.
  *
  * The `update_allocation()` virtual function is called during the

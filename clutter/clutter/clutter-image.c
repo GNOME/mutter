@@ -339,7 +339,7 @@ clutter_image_set_bytes (ClutterImage     *image,
  * If the @image does not have any image data set when this function is
  * called, a new texture will be created with the size of the width and
  * height of the rectangle, i.e. calling this function on a newly created
- * #ClutterImage will be the equivalent of calling clutter_image_set_data().
+ * #ClutterImage will be the equivalent of calling [method@Clutter.Image.set_data].
  *
  * If the image data was successfully loaded, the @image will be invalidated.
  *
@@ -411,7 +411,7 @@ clutter_image_set_area (ClutterImage        *image,
  * Retrieves a pointer to the Cogl texture used by @image.
  *
  * If you change the contents of the returned Cogl texture you will need
- * to manually invalidate the @image with clutter_content_invalidate()
+ * to manually invalidate the @image with [method@Clutter.Content.invalidate]
  * in order to update the actors using @image as their content.
  *
  * Return value: (transfer none): a pointer to the Cogl texture, or %NULL

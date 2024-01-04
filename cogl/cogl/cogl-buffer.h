@@ -48,8 +48,8 @@ G_BEGIN_DECLS
  * Common buffer functions, including data upload APIs
  *
  * The CoglBuffer API provides a common interface to manipulate
- * buffers that have been allocated either via cogl_pixel_buffer_new()
- * or cogl_attribute_buffer_new(). The API allows you to upload data
+ * buffers that have been allocated either via `cogl_pixel_buffer_new()`
+ * or `cogl_attribute_buffer_new()`. The API allows you to upload data
  * to these buffers and define usage hints that help Cogl manage your
  * buffer optimally.
  *
@@ -141,7 +141,7 @@ cogl_buffer_set_update_hint (CoglBuffer          *buffer,
  * cogl_buffer_get_update_hint:
  * @buffer: a buffer object
  *
- * Retrieves the update hints set using cogl_buffer_set_update_hint()
+ * Retrieves the update hints set using [method@Cogl.Buffer.set_update_hint]
  *
  * Return value: the #CoglBufferUpdateHint currently used by the buffer
  */
@@ -155,7 +155,7 @@ cogl_buffer_get_update_hint (CoglBuffer *buffer);
  * @COGL_BUFFER_ACCESS_READ_WRITE: the buffer will be used for both reading and
  *   writing
  *
- * The access hints for cogl_buffer_set_update_hint()
+ * The access hints for [method@Cogl.Buffer.set_update_hint]
  */
 typedef enum /*< prefix=COGL_BUFFER_ACCESS >*/
 {
@@ -206,7 +206,7 @@ typedef enum /*< prefix=COGL_BUFFER_BIND_TARGET >*/
  *   the data will be modified once mapped.
  *
  * Maps the buffer into the application address space for direct
- * access. This is equivalent to calling cogl_buffer_map_range() with
+ * access. This is equivalent to calling [method@Cogl.Buffer.map_range] with
  * zero as the offset and the size of the entire buffer as the size.
  *
  * It is strongly recommended that you pass
@@ -269,7 +269,7 @@ cogl_buffer_map_range (CoglBuffer *buffer,
  * cogl_buffer_unmap:
  * @buffer: a buffer object
  *
- * Unmaps a buffer previously mapped by cogl_buffer_map().
+ * Unmaps a buffer previously mapped by [method@Cogl.Buffer.map].
  */
 COGL_EXPORT void
 cogl_buffer_unmap (CoglBuffer *buffer);

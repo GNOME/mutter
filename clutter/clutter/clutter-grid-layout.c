@@ -45,18 +45,18 @@
  * A layout manager for a grid of actors
  *
  * #ClutterGridLayout is a layout manager which arranges its child widgets in
- * rows and columns. It is a very similar to #ClutterBoxLayout, but it
- * consistently uses #ClutterActor's alignment and expansion flags instead of
+ * rows and columns. It is a very similar to [class@Clutter.BoxLayout], but it
+ * consistently uses [class@Clutter.Actor]'s alignment and expansion flags instead of
  * custom child properties.
  *
- * Children are added using clutter_grid_layout_attach(). They can span
+ * Children are added using [method@Clutter.GridLayout.attach]. They can span
  * multiple rows or columns. It is also possible to add a child next to an
- * existing child, using clutter_grid_layout_attach_next_to(). The behaviour of
+ * existing child, using [method@Clutter.GridLayout.attach_next_to]. The behaviour of
  * #ClutterGridLayout when several children occupy the same grid cell is undefined.
  *
  * #ClutterGridLayout can be used like a #ClutterBoxLayout by just using
- * clutter_actor_add_child(), which will place children next to each other in
- * the direction determined by the #ClutterGridLayout:orientation property.
+ * [method@Clutter.Actor.add_child], which will place children next to each other in
+ * the direction determined by the [property@Clutter.GridLayout:orientation] property.
  */
 
 #define CLUTTER_TYPE_GRID_CHILD          (clutter_grid_child_get_type ())
@@ -1713,7 +1713,7 @@ clutter_grid_layout_attach_next_to (ClutterGridLayout   *layout,
  *
  * #ClutterGridLayout uses the orientation as a hint when adding
  * children to the #ClutterActor using it as a layout manager via
- * clutter_actor_add_child(); changing this value will not have
+ * [method@Clutter.Actor.add_child]; changing this value will not have
  * any effect on children that are already part of the layout.
  */
 void
@@ -1982,7 +1982,7 @@ clutter_grid_layout_set_row_spacing (ClutterGridLayout *layout,
  * clutter_grid_layout_get_row_spacing:
  * @layout: a #ClutterGridLayout
  *
- * Retrieves the spacing set using clutter_grid_layout_set_row_spacing()
+ * Retrieves the spacing set using [method@Clutter.GridLayout.set_row_spacing]
  *
  * Return value: the spacing between rows of @layout
  */
@@ -2029,7 +2029,7 @@ clutter_grid_layout_set_column_spacing (ClutterGridLayout *layout,
  * clutter_grid_layout_get_column_spacing:
  * @layout: a #ClutterGridLayout
  *
- * Retrieves the spacing set using clutter_grid_layout_set_column_spacing()
+ * Retrieves the spacing set using [method@Clutter.GridLayout.set_column_spacing]
  *
  * Return value: the spacing between coluns of @layout
  */

@@ -30,7 +30,7 @@
  * includes the name "Util" it is in fact one of the most important
  * interfaces to be implemented in any ATK toolkit implementation.
 
- * For instance, it defines atk_get_root(), the method that returns
+ * For instance, it defines [func@Atk.get_root], the method that returns
  * the root object in the hierarchy. Without it, you don't have
  * available any accessible object.
  */

@@ -48,7 +48,7 @@
  *                                    0.5, 128, CLUTTER_EASE_IN_OUT_CUBIC);
  * ```
  *
- * The example above sets up a keyframe transition for the #ClutterActor:opacity
+ * The example above sets up a keyframe transition for the [property@Clutter.Actor:opacity]
  * property of a #ClutterActor; the transition starts and sets the value of the
  * property to fully transparent; between the start of the transition and its mid
  * point, it will animate the property to half opacity, using an easy in/easy out
@@ -540,9 +540,9 @@ clutter_keyframe_transition_set_modes (ClutterKeyframeTransition  *transition,
  * Sets the key frames of the @transition.
  *
  * This variadic arguments function is a convenience for C developers;
- * language bindings should use clutter_keyframe_transition_set_key_frames(),
- * clutter_keyframe_transition_set_modes(), and
- * clutter_keyframe_transition_set_values() instead.
+ * language bindings should use [method@Clutter.KeyframeTransition.set_key_frames],
+ * [method@Clutter.KeyframeTransition.set_modes], and
+ * [method@Clutter.KeyframeTransition.set_values] instead.
  */
 void
 clutter_keyframe_transition_set (ClutterKeyframeTransition *transition,

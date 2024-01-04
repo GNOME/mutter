@@ -102,7 +102,7 @@ cogl_bitmap_new_from_buffer (CoglBuffer *buffer,
  *
  * The data for the bitmap will be stored in a newly created
  * #CoglPixelBuffer. You can get a pointer to the pixel buffer using
- * cogl_bitmap_get_buffer(). The #CoglBuffer API can then be
+ * [method@Cogl.Bitmap.get_buffer]. The #CoglBuffer API can then be
  * used to fill the bitmap with data.
  *
  * Cogl will try its best to provide a hardware array you can
@@ -111,7 +111,7 @@ cogl_bitmap_new_from_buffer (CoglBuffer *buffer,
  * reasons, such arrays are likely to have a stride larger than width
  * * bytes_per_pixel. The user must take the stride into account when
  * writing into it. The stride can be retrieved with
- * cogl_bitmap_get_rowstride().
+ * [method@Cogl.Bitmap.get_rowstride].
  *
  * Return value: (transfer full): a #CoglPixelBuffer representing the
  *               newly created array or %NULL on failure
@@ -135,7 +135,7 @@ cogl_bitmap_new_with_size (CoglContext *context,
  * Creates a bitmap using some existing data. The data is not copied
  * so the application must keep the buffer alive for the lifetime of
  * the #CoglBitmap. This can be used for example with
- * cogl_framebuffer_read_pixels_into_bitmap() to read data directly
+ * [method@Cogl.Framebuffer.read_pixels_into_bitmap] to read data directly
  * into an application buffer with the specified rowstride.
  *
  * Return value: (transfer full): A new #CoglBitmap.

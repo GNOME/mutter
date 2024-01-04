@@ -245,7 +245,7 @@ clutter_desaturate_effect_init (ClutterDesaturateEffect *self)
  * @factor: the desaturation factor, between 0.0 and 1.0
  *
  * Creates a new #ClutterDesaturateEffect to be used with
- * clutter_actor_add_effect()
+ * [method@Clutter.Actor.add_effect]
  *
  * Return value: the newly created #ClutterDesaturateEffect or %NULL
  */

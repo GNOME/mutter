@@ -532,7 +532,7 @@ clutter_bind_constraint_set_source (ClutterBindConstraint *constraint,
  * clutter_bind_constraint_get_source:
  * @constraint: a #ClutterBindConstraint
  *
- * Retrieves the #ClutterActor set using clutter_bind_constraint_set_source()
+ * Retrieves the #ClutterActor set using [method@Clutter.BindConstraint.set_source]
  *
  * Return value: (transfer none): a pointer to the source actor
  */
@@ -613,7 +613,7 @@ clutter_bind_constraint_set_offset (ClutterBindConstraint *constraint,
  * clutter_bind_constraint_get_offset:
  * @constraint: a #ClutterBindConstraint
  *
- * Retrieves the offset set using clutter_bind_constraint_set_offset()
+ * Retrieves the offset set using [method@Clutter.BindConstraint.set_offset]
  *
  * Return value: the offset, in pixels
  */

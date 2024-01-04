@@ -200,7 +200,7 @@ clutter_blur_effect_init (ClutterBlurEffect *self)
  * clutter_blur_effect_new:
  *
  * Creates a new #ClutterBlurEffect to be used with
- * clutter_actor_add_effect()
+ * [method@Clutter.Actor.add_effect]
  *
  * Return value: the newly created #ClutterBlurEffect or %NULL
  */

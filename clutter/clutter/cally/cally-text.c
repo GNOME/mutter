@@ -735,7 +735,7 @@ pango_layout_get_line_after (PangoLayout     *layout,
  *
  * The @boundary_type determines the size of the returned slice of
  * text. For the exact semantics of this function, see
- * atk_text_get_text_after_offset().
+ * [method@Atk.Text.get_text_after_offset].
  *
  * Returns: a newly allocated string containing a slice of text
  *     from layout. Free with g_free().
@@ -834,7 +834,7 @@ _gtk_pango_get_text_at (PangoLayout     *layout,
  *
  * The @boundary_type determines the size of the returned slice of
  * text. For the exact semantics of this function, see
- * atk_text_get_text_before_offset().
+ * [method@Atk.Text.get_text_before_offset].
  *
  * Returns: a newly allocated string containing a slice of text
  *     from layout. Free with g_free().
@@ -935,7 +935,7 @@ _gtk_pango_get_text_before (PangoLayout     *layout,
  *
  * The @boundary_type determines the size of the returned slice of
  * text. For the exact semantics of this function, see
- * atk_text_get_text_after_offset().
+ * [method@Atk.Text.get_text_after_offset].
  *
  * Returns: a newly allocated string containing a slice of text
  *     from layout. Free with g_free().

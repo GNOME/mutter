@@ -49,8 +49,8 @@ typedef struct _ClutterBindingPoolClass ClutterBindingPoolClass;
  * @user_data: data passed to the function
  *
  * The prototype for the callback function registered with
- * clutter_binding_pool_install_action() and invoked by
- * clutter_binding_pool_activate().
+ * [method@Clutter.BindingPool.install_action] and invoked by
+ * [method@Clutter.BindingPool.activate].
  *
  * Return value: the function should return %TRUE if the key
  *   binding has been handled, and return %FALSE otherwise

@@ -253,7 +253,7 @@ cogl_program_get_uniform_location (CoglProgram *program,
  * cogl_program_set_uniform_1f:
  * @program: A linked program
  * @uniform_location: the uniform location retrieved from
- *    cogl_program_get_uniform_location().
+ *    [method@Program.get_uniform_location].
  * @value: the new value of the uniform.
  *
  * Changes the value of a floating point uniform for the given linked
@@ -270,7 +270,7 @@ cogl_program_set_uniform_1f (CoglProgram *program,
  * cogl_program_set_uniform_1i:
  * @program: A linked program
  * @uniform_location: the uniform location retrieved from
- *    cogl_program_get_uniform_location().
+ *    [method@Program.get_uniform_location].
  * @value: the new value of the uniform.
  *
  * Changes the value of an integer uniform for the given linked
@@ -287,7 +287,7 @@ cogl_program_set_uniform_1i (CoglProgram *program,
  * cogl_program_set_uniform_float:
  * @program: A linked program
  * @uniform_location: the uniform location retrieved from
- *    cogl_program_get_uniform_location().
+ *    [method@Program.get_uniform_location].
  * @n_components: The number of components for the uniform. For
  * example with glsl you'd use 3 for a vec3 or 4 for a vec4.
  * @count: For uniform arrays this is the array length otherwise just
@@ -310,7 +310,7 @@ cogl_program_set_uniform_float (CoglProgram *program,
  * cogl_program_set_uniform_int:
  * @program: A linked program
  * @uniform_location: the uniform location retrieved from
- *    cogl_program_get_uniform_location().
+ *    [method@Program.get_uniform_location].
  * @n_components: The number of components for the uniform. For
  * example with glsl you'd use 3 for a vec3 or 4 for a vec4.
  * @count: For uniform arrays this is the array length otherwise just
@@ -333,7 +333,7 @@ cogl_program_set_uniform_int (CoglProgram *program,
  * cogl_program_set_uniform_matrix:
  * @program: A linked program
  * @uniform_location: the uniform location retrieved from
- *    cogl_program_get_uniform_location().
+ *    [method@Program.get_uniform_location].
  * @dimensions: The dimensions of the matrix. So for for example pass
  *    2 for a 2x2 matrix or 3 for 3x3.
  * @count: For uniform arrays this is the array length otherwise just

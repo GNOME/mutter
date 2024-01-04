@@ -32,17 +32,17 @@
  * container actor: it controls the preferred size of the actor to which
  * it has been paired, and it controls the allocation of its children.
  *
- * Any composite or container #ClutterActor subclass can delegate the
+ * Any composite or container [class@Clutter.Actor] subclass can delegate the
  * layouting of its children to a #ClutterLayoutManager.
  *
  * Clutter provides some simple #ClutterLayoutManager sub-classes, like
- * #ClutterFlowLayout and #ClutterBinLayout.
+ * [class@Clutter.FlowLayout] and [class@Clutter.BinLayout].
  *
  * ## Implementing a ClutterLayoutManager
  * The implementation of a layout manager does not differ from  the
  * implementation of the size requisition and allocation bits of
- * #ClutterActor, so you should read the relative documentation
- * for subclassing #ClutterActor.
+ * [class@Clutter.Actor], so you should read the relative documentation
+ * for subclassing [class@Clutter.Actor].
  *
  * The layout manager implementation can hold a back pointer to the container
  * [type@Clutter.Actor] by implementing the
@@ -52,8 +52,8 @@
  * cycles.
  *
  * If a layout manager has properties affecting the layout policies then it should
- * emit the #ClutterLayoutManager::layout-changed signal on itself by using the
- * clutter_layout_manager_layout_changed() function whenever one of these properties
+ * emit the [signal@Clutter.LayoutManager::layout-changed] signal on itself by using the
+ * [method@Clutter.LayoutManager.layout_changed] function whenever one of these properties
  * changes.
  *
  * ## Layout Properties
@@ -61,12 +61,12 @@
  * If a layout manager has layout properties, that is properties that
  * should exist only as the result of the presence of a specific (layout
  * manager, container actor, child actor) combination, and it wishes to store
- * those properties inside a #ClutterLayoutMeta, then it should override the
- * #ClutterLayoutManagerClass.get_child_meta_type() virtual function to return
- * the #GType of the #ClutterLayoutMeta sub-class used to store the layout
+ * those properties inside a [class@Clutter.LayoutMeta], then it should override the
+ * [vfunc@Clutter.LayoutManager.get_child_meta_type] virtual function to return
+ * the #GType of the [class@Clutter.LayoutMeta] sub-class used to store the layout
  * properties; optionally, the #ClutterLayoutManager sub-class might also
- * override the #ClutterLayoutManagerClass.create_child_meta() virtual function
- * to control how the #ClutterLayoutMeta instance is created, otherwise the
+ * override the [vfunc@Clutter.LayoutManager.create_child_meta] virtual function
+ * to control how the [class@Clutter.LayoutMeta] instance is created, otherwise the
  * default implementation will be equivalent to:
  *
  * ```c
@@ -84,8 +84,8 @@
  * ```
  *
  * Where `manager` is the  #ClutterLayoutManager, `container` is the
- * #ClutterActor using the #ClutterLayoutManager, and `actor` is
- * the #ClutterActor child of the #ClutterActor.
+ * [class@Clutter.Actor] using the #ClutterLayoutManager, and `actor` is
+ * the [class@Clutter.Actor] child of the [class@Clutter.Actor].
  */
 
 #include "config.h"
@@ -295,7 +295,7 @@ clutter_layout_manager_class_init (ClutterLayoutManagerClass *klass)
    * Sub-classes of #ClutterLayoutManager that implement a layout that
    * can be controlled or changed using parameters should emit the
    * ::layout-changed signal whenever one of the parameters changes,
-   * by using clutter_layout_manager_layout_changed().
+   * by using [method@Clutter.LayoutManager.layout_changed].
    */
   manager_signals[LAYOUT_CHANGED] =
     g_signal_new (I_("layout-changed"),
@@ -325,7 +325,7 @@ clutter_layout_manager_init (ClutterLayoutManager *manager)
  * Computes the minimum and natural widths of the @container according
  * to @manager.
  *
- * See also clutter_actor_get_preferred_width()
+ * See also [method@Clutter.Actor.get_preferred_width]
  */
 void
 clutter_layout_manager_get_preferred_width (ClutterLayoutManager *manager,
@@ -358,7 +358,7 @@ clutter_layout_manager_get_preferred_width (ClutterLayoutManager *manager,
  * Computes the minimum and natural heights of the @container according
  * to @manager.
  *
- * See also clutter_actor_get_preferred_height()
+ * See also [method@Clutter.Actor.get_preferred_height]
  */
 void
 clutter_layout_manager_get_preferred_height (ClutterLayoutManager *manager,
@@ -387,7 +387,7 @@ clutter_layout_manager_get_preferred_height (ClutterLayoutManager *manager,
  *
  * Allocates the children of @container given an area
  *
- * See also clutter_actor_allocate()
+ * See also [method@Clutter.Actor.allocate]
  */
 void
 clutter_layout_manager_allocate (ClutterLayoutManager   *manager,
@@ -408,7 +408,7 @@ clutter_layout_manager_allocate (ClutterLayoutManager   *manager,
  * clutter_layout_manager_layout_changed:
  * @manager: a #ClutterLayoutManager
  *
- * Emits the #ClutterLayoutManager::layout-changed signal on @manager
+ * Emits the [signal@Clutter.LayoutManager::layout-changed] signal on @manager
  *
  * This function should only be called by implementations of the
  * #ClutterLayoutManager class
@@ -590,7 +590,7 @@ layout_get_property_internal (ClutterLayoutManager *manager,
  * Sets a list of properties and their values on the #ClutterLayoutMeta
  * associated by @manager to a child of @container
  *
- * Languages bindings should use clutter_layout_manager_child_set_property()
+ * Languages bindings should use [method@Clutter.LayoutManager.child_set_property]
  * instead
  */
 void

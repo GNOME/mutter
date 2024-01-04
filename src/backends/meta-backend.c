@@ -26,13 +26,14 @@
  * Handles monitor config, modesetting, cursor sprites, ...
  *
  * MetaBackend is the abstraction that deals with several things like:
+ *
  * - Modesetting (depending on the backend, this can be done either by X or KMS)
- * - Initializing the #MetaSettings
+ * - Initializing the [struct@Meta.Settings]
  * - Setting up Monitor configuration
  * - Input device configuration (using the #ClutterDeviceManager)
  * - Creating the #MetaRenderer
- * - Setting up the stage of the scene graph (using #MetaStage)
- * - Creating the object that deals with the cursor (using #MetaCursorTracker)
+ * - Setting up the stage of the scene graph (using [class@Meta.Stage])
+ * - Creating the object that deals with the cursor (using [class@Meta.CursorTracker])
  *     and its possible pointer constraint (using #MetaPointerConstraint)
  * - Setting the cursor sprite (using #MetaCursorRenderer)
  * - Interacting with logind (using the appropriate D-Bus interface)
@@ -40,8 +41,8 @@
  * - Setup Remote Desktop / Screencasting (#MetaRemoteDesktop)
  * - Setup the #MetaEgl object
  *
- * Note that the #MetaBackend is not a subclass of #ClutterBackend. It is
- * responsible for creating the correct one, based on the backend that is
+ * Note that the #MetaBackend is not a subclass of [class@Clutter.Backend].
+ * It is responsible for creating the correct one, based on the backend that is
  * used (#MetaBackendNative or #MetaBackendX11).
  */
 

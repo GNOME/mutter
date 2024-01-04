@@ -41,7 +41,7 @@
  * ## Implementing ClutterDeformEffect
  *
  * Sub-classes of #ClutterDeformEffect should override the
- * #ClutterDeformEffectClass.deform_vertex() virtual function; this function
+ * [vfunc@Clutter.DeformEffect.deform_vertex] virtual function; this function
  * is called on every vertex that needs to be deformed by the effect.
  * Each passed vertex is an in-out parameter that initially contains the
  * position of the vertex and should be modified according to a specific

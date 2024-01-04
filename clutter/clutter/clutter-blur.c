@@ -385,7 +385,7 @@ out:
  * @blur: a #ClutterBlur
  *
  * Applies the blur. The resulting texture can be retrieved by
- * clutter_blur_get_texture().
+ * [method@Clutter.Blur.get_texture].
  */
 void
 clutter_blur_apply (ClutterBlur *blur)
@@ -402,7 +402,7 @@ clutter_blur_apply (ClutterBlur *blur)
  * @blur: a #ClutterBlur
  *
  * Retrieves the texture where the blurred contents are stored. The
- * contents are undefined until clutter_blur_apply() is called.
+ * contents are undefined until [method@Clutter.Blur.apply] is called.
  *
  * Returns: (transfer none): a #CoglTexture
  */

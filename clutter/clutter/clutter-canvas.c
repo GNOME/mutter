@@ -27,16 +27,13 @@
  * 
  * Content for 2D painting
  *
- * The #ClutterCanvas class is a #ClutterContent implementation that allows
+ * The #ClutterCanvas class is a [iface@Clutter.Content] implementation that allows
  * drawing using the Cairo API on a 2D surface.
  *
  * In order to draw on a #ClutterCanvas, you should connect a handler to the
- * #ClutterCanvas::draw signal; the signal will receive a #cairo_t context
- * that can be used to draw. #ClutterCanvas will emit the #ClutterCanvas::draw
- * signal when invalidated using clutter_content_invalidate().
- *
- * See [canvas.c](https://git.gnome.org/browse/clutter/tree/examples/canvas.c?h=clutter-1.18)
- * for an example of how to use #ClutterCanvas..
+ * [signal@Clutter.Canvas::draw] signal; the signal will receive a #cairo_t context
+ * that can be used to draw. #ClutterCanvas will emit the [signal@Clutter.Canvas::draw]
+ * signal when invalidated using [method@Clutter.Content.invalidate].
  */
 
 #include "config.h"
@@ -478,9 +475,9 @@ clutter_content_iface_init (ClutterContentInterface *iface)
  *
  * Creates a new instance of #ClutterCanvas.
  *
- * You should call clutter_canvas_set_size() to set the size of the canvas.
+ * You should call [method@Clutter.Canvas.set_size] to set the size of the canvas.
  *
- * You should call clutter_content_invalidate() every time you wish to
+ * You should call [method@Clutter.Content.invalidate] every time you wish to
  * draw the contents of the canvas.
  *
  * Return value: (transfer full): The newly allocated instance of
@@ -545,7 +542,7 @@ clutter_canvas_invalidate_internal (ClutterCanvas *canvas,
  *
  * If you want to invalidate the contents of the @canvas when setting
  * the size, you can use the return value of the function to conditionally
- * call clutter_content_invalidate():
+ * call [method@Clutter.Content.invalidate]:
  *
  * ```c
  *   if (!clutter_canvas_set_size (canvas, width, height))

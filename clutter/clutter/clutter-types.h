@@ -340,7 +340,7 @@ void            clutter_margin_free     (ClutterMargin       *margin_);
  *
  * This function will be called by #ClutterInterval if the
  * type of the values of the interval was registered using
- * clutter_interval_register_progress_func().
+ * [func@Clutter.Interval.register_progress_func].
  *
  * Return value: %TRUE if the function successfully computed
  *   the value and stored it inside @retval

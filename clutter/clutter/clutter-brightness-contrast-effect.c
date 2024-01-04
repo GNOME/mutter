@@ -402,7 +402,7 @@ clutter_brightness_contrast_effect_init (ClutterBrightnessContrastEffect *self)
  * clutter_brightness_contrast_effect_new:
  *
  * Creates a new #ClutterBrightnessContrastEffect to be used with
- * clutter_actor_add_effect()
+ * [method@Clutter.Actor.add_effect]
  *
  * Return value: (transfer full): the newly created
  *   #ClutterBrightnessContrastEffect or %NULL.  Use g_object_unref() when

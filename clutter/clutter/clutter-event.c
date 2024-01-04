@@ -686,7 +686,7 @@ clutter_event_get_key_unicode (const ClutterEvent *event)
  *
  * Returns the modifier state decomposed into independent
  * pressed/latched/locked states. The effective state is a
- * composition of these 3 states, see clutter_event_get_state().
+ * composition of these 3 states, see [method@Clutter.Event.get_state].
  **/
 void
 clutter_event_get_key_state (const ClutterEvent  *event,
@@ -762,7 +762,7 @@ clutter_event_get_device_type (const ClutterEvent *event)
  *
  * Retrieves the #ClutterInputDevice for the event.
  * If you want the physical device the event originated from, use
- * clutter_event_get_source_device().
+ * [method@Clutter.Event.get_source_device].
  *
  * The #ClutterInputDevice structure is completely opaque and should
  * be cast to the platform-specific implementation.
@@ -1072,10 +1072,10 @@ clutter_get_current_event (void)
  *
  * Retrieves the hardware device that originated the event.
  *
- * If you need the virtual device, use clutter_event_get_device().
+ * If you need the virtual device, use [method@Clutter.Event.get_device].
  *
  * If no hardware device originated this event, this function will
- * return the same device as clutter_event_get_device().
+ * return the same device as [method@Clutter.Event.get_device].
  *
  * Return value: (transfer none): a pointer to a #ClutterInputDevice
  *   or %NULL
@@ -1305,7 +1305,7 @@ _clutter_event_process_filters (ClutterEvent *event,
  * emitted for the event and it will take precedence over any grabs.
  *
  * Return value: an identifier for the event filter, to be used
- *   with clutter_event_remove_filter().
+ *   with [func@Clutter.Event.remove_filter].
  */
 guint
 clutter_event_add_filter (ClutterStage          *stage,
@@ -1332,10 +1332,10 @@ clutter_event_add_filter (ClutterStage          *stage,
 
 /**
  * clutter_event_remove_filter:
- * @id: The ID of the event filter, as returned from clutter_event_add_filter()
+ * @id: The ID of the event filter, as returned from [func@Clutter.Event.add_filter]
  *
  * Removes an event filter that was previously added with
- * clutter_event_add_filter().
+ * [func@Clutter.Event.add_filter].
  */
 void
 clutter_event_remove_filter (guint id)
@@ -1504,7 +1504,7 @@ clutter_event_get_gesture_motion_delta (const ClutterEvent *event,
  *      position in the Y axis, or %NULL
  *
  * Returns the unaccelerated gesture motion deltas relative to the current
- * pointer position. Unlike clutter_event_get_gesture_motion_delta(),
+ * pointer position. Unlike [method@Clutter.Event.get_gesture_motion_delta],
  * pointer acceleration is ignored.
  **/
 void

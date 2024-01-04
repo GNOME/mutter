@@ -876,7 +876,7 @@ clutter_color_progress (const GValue *a,
  * @color: a #ClutterColor
  *
  * Makes a copy of the color structure.  The result must be
- * freed using clutter_color_free().
+ * freed using [method@Clutter.Color.free].
  *
  * Return value: (transfer full): an allocated copy of @color.
  */
@@ -893,7 +893,7 @@ clutter_color_copy (const ClutterColor *color)
  * clutter_color_free:
  * @color: a #ClutterColor
  *
- * Frees a color structure created with clutter_color_copy().
+ * Frees a color structure created with [method@Clutter.Color.copy].
  */
 void
 clutter_color_free (ClutterColor *color)
@@ -918,7 +918,7 @@ clutter_color_free (ClutterColor *color)
  * ```
  *
  * Return value: (transfer full): the newly allocated color.
- *   Use clutter_color_free() when done
+ *   Use [method@Clutter.Color.free] when done
  */
 ClutterColor *
 clutter_color_new (guint8 red,
@@ -939,7 +939,7 @@ clutter_color_new (guint8 red,
  * Allocates a new, transparent black #ClutterColor.
  *
  * Return value: (transfer full): the newly allocated #ClutterColor; use
- *   clutter_color_free() to free its resources
+ *   [method@Clutter.Color.free] to free its resources
  */
 ClutterColor *
 clutter_color_alloc (void)

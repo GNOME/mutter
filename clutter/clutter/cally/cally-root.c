@@ -29,7 +29,7 @@
  * Somewhat equivalent to #GailTopLevel. We consider that this class
  * expose the a11y information of the [class@Clutter.StageManager], as the
  * children of this object are the different [class@Clutter.Stage] managed (so
- * the [class@GObject.Object] used in the atk_object_initialize() is the
+ * the [class@GObject.Object] used in the [method@Atk.Object.initialize] is the
  * [class@Clutter.StageManager]).
  */
 
