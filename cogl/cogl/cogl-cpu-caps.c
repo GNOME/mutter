@@ -39,10 +39,11 @@
 
 CoglCpuCaps cogl_cpu_caps;
 
+#ifdef __x86_64
 static inline uint64_t
 xgetbv (void)
 {
-#if defined(__GNUC__)
+#ifdef __GCC_ASM_FLAG_OUTPUTS__
   uint32_t eax, edx;
 
   __asm __volatile (
@@ -58,13 +59,35 @@ xgetbv (void)
 #endif
 }
 
+static inline void
+cpuid (uint32_t  ax,
+       uint32_t *p)
+{
+#ifdef __GCC_ASM_FLAG_OUTPUTS__
+   __asm __volatile (
+     "cpuid\n\t"
+     : "=a" (p[0]),
+       "=b" (p[1]),
+       "=c" (p[2]),
+       "=d" (p[3])
+     : "0" (ax)
+   );
+#else
+   p[0] = 0;
+   p[1] = 0;
+   p[2] = 0;
+   p[3] = 0;
+#endif
+}
+#endif
+
 void
 cogl_init_cpu_caps (void)
 {
-#ifdef HAVE_CPUID
+#ifdef __x86_64
   uint32_t regs[4];
 
-  cpuid(0x00000000, regs);
+  cpuid (0x00000000, regs);
 
   if (regs[0] >= 0x00000001)
     {
@@ -75,9 +98,9 @@ cogl_init_cpu_caps (void)
 
       has_avx = (((regs2[2] >> 28) & 1) && /* AVX */
                  ((regs2[2] >> 27) & 1) && /* OSXSAVE */
-                 ((xgetbv() & 6) == 6));   /* XMM & YMM */
+                 ((xgetbv () & 6) == 6));   /* XMM & YMM */
       if (((regs2[2] >> 29) & 1) && has_avx)
-        cpu_caps |= COGL_CPU_CAP_F16C;
+        cogl_cpu_caps |= COGL_CPU_CAP_F16C;
     }
 #endif
 }
