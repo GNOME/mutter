@@ -141,12 +141,6 @@ struct _ClutterFrameInfo
   int64_t cpu_time_before_buffer_swap_us;
 };
 
-typedef struct _ClutterCapture
-{
-  cairo_surface_t *image;
-  MtkRectangle rect;
-} ClutterCapture;
-
 CLUTTER_EXPORT
 GType clutter_perspective_get_type (void) G_GNUC_CONST;
 CLUTTER_EXPORT
