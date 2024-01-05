@@ -21,7 +21,6 @@
 
 #ifdef HAVE_PANGO_FT2
 /* for pango_fc_font_map_cache_clear() */
-#define PANGO_ENABLE_BACKEND
 #include <pango/pangofc-fontmap.h>
 #endif /* HAVE_PANGO_FT2 */
 

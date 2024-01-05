@@ -28,12 +28,6 @@
 
 #include "config.h"
 
-/* This is needed to get the Pango headers to export stuff needed to
-   subclass */
-#ifndef PANGO_ENABLE_BACKEND
-#define PANGO_ENABLE_BACKEND 1
-#endif
-
 #include <pango/pango-fontmap.h>
 #include <pango/pangocairo.h>
 #include <pango/pango-renderer.h>

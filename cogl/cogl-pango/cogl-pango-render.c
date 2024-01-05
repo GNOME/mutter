@@ -35,17 +35,6 @@
 
 #include "config.h"
 
-#ifndef PANGO_ENABLE_BACKEND
-#define PANGO_ENABLE_BACKEND 1
-#endif
-
-#ifndef PANGO_UNKNOWN_GLYPH_WIDTH
-#define PANGO_UNKNOWN_GLYPH_WIDTH 10
-#endif
-#ifndef PANGO_UNKNOWN_GLYPH_HEIGHT
-#define PANGO_UNKNOWN_GLYPH_HEIGHT 14
-#endif
-
 #include <pango/pango-fontmap.h>
 #include <pango/pangocairo.h>
 #include <pango/pango-renderer.h>
@@ -58,6 +47,9 @@
 #include "cogl-pango/cogl-pango-private.h"
 #include "cogl-pango/cogl-pango-glyph-cache.h"
 #include "cogl-pango/cogl-pango-display-list.h"
+
+#define PANGO_UNKNOWN_GLYPH_WIDTH 10
+#define PANGO_UNKNOWN_GLYPH_HEIGHT 14
 
 enum
 {
