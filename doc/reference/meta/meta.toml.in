@@ -39,6 +39,7 @@ base_url = "https://gitlab.gnome.org/GNOME/mutter/-/blob/@vcs_tag@/"
 [extra]
 # The same order will be used when generating the index
 content_files = [
+  "kms-abstractions.md",
 ]
 content_images = [
   "logo.svg",
