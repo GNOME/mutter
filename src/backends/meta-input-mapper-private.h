@@ -21,10 +21,8 @@
 
 #pragma once
 
-#include <clutter/clutter.h>
-
 #include "backends/meta-backend-types.h"
-
+#include "clutter/clutter-input-device.h"
 #include "meta-dbus-input-mapping.h"
 
 #define META_TYPE_INPUT_MAPPER (meta_input_mapper_get_type ())

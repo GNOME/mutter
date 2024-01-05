@@ -22,6 +22,7 @@
 #include "clutter/clutter-event-private.h"
 #include "clutter/clutter-private.h"
 #include "clutter/clutter-input-device-private.h"
+#include "clutter/clutter-input-focus.h"
 #include "clutter/clutter-input-method.h"
 #include "clutter/clutter-input-method-private.h"
 #include "clutter/clutter-input-focus-private.h"

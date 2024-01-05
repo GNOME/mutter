@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include <clutter/clutter.h>
-
 #define CLUTTER_TYPE_INPUT_METHOD (clutter_input_method_get_type ())
 
 CLUTTER_EXPORT
