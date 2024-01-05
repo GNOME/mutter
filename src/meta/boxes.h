@@ -22,7 +22,8 @@
 #pragma once
 
 #include <glib-object.h>
-#include <meta/common.h>
+
+#include "meta/common.h"
 
 /**
  * MetaStrut:

@@ -24,8 +24,8 @@
 #include <X11/Xlib.h>
 #include <glib.h>
 
-#include <meta/common.h>
-#include <meta/types.h>
+#include "meta/common.h"
+#include "meta/types.h"
 
 /* note, can return NULL */
 META_EXPORT

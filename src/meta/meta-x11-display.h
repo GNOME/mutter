@@ -22,9 +22,9 @@
 #include <glib-object.h>
 #include <X11/Xlib.h>
 
-#include <meta/common.h>
-#include <meta/prefs.h>
-#include <meta/types.h>
+#include "meta/common.h"
+#include "meta/prefs.h"
+#include "meta/types.h"
 
 typedef void (* MetaX11DisplayEventFunc) (MetaX11Display *x11_display,
                                           XEvent         *xev,

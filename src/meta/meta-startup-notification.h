@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <meta/meta-launch-context.h>
+#include "meta/meta-launch-context.h"
 
 #define META_TYPE_STARTUP_SEQUENCE (meta_startup_sequence_get_type ())
 #define META_TYPE_STARTUP_NOTIFICATION (meta_startup_notification_get_type ())

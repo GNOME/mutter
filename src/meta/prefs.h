@@ -22,12 +22,13 @@
 
 #pragma once
 
-/* This header is a "common" one between the UI and core side */
-#include <meta/common.h>
-#include <meta/types.h>
 #include <pango/pango-font.h>
 #include <gdesktop-enums.h>
 #include <gio/gio.h>
+
+/* This header is a "common" one between the UI and core side */
+#include "meta/common.h"
+#include "meta/types.h"
 
 /**
  * MetaPreference:

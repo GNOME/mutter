@@ -23,8 +23,8 @@
 
 #include <X11/Xlib.h>
 
-#include <meta/util.h>
-#include <meta/meta-x11-display.h>
+#include "meta/util.h"
+#include "meta/meta-x11-display.h"
 
 META_EXPORT
 void      meta_x11_error_trap_push (MetaX11Display *x11_display);

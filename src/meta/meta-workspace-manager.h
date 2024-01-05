@@ -24,10 +24,10 @@
 
 #include <glib-object.h>
 
-#include <meta/common.h>
-#include <meta/display.h>
-#include <meta/prefs.h>
-#include <meta/types.h>
+#include "meta/common.h"
+#include "meta/display.h"
+#include "meta/prefs.h"
+#include "meta/types.h"
 
 #define META_TYPE_WORKSPACE_MANAGER (meta_workspace_manager_get_type ())
 

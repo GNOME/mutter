@@ -22,12 +22,12 @@
 #include <glib-object.h>
 #include <X11/Xlib.h>
 
-#include <meta/types.h>
-#include <meta/prefs.h>
-#include <meta/common.h>
-#include <meta/workspace.h>
-#include <meta/meta-sound-player.h>
-#include <meta/meta-startup-notification.h>
+#include "meta/types.h"
+#include "meta/prefs.h"
+#include "meta/common.h"
+#include "meta/workspace.h"
+#include "meta/meta-sound-player.h"
+#include "meta/meta-startup-notification.h"
 
 /**
  * MetaTabList:

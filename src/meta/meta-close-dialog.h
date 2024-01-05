@@ -22,7 +22,8 @@
 #pragma once
 
 #include <glib-object.h>
-#include <meta/window.h>
+
+#include "meta/window.h"
 
 #define META_TYPE_CLOSE_DIALOG (meta_close_dialog_get_type ())
 

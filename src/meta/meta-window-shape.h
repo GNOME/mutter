@@ -24,7 +24,7 @@
 
 #include <glib-object.h>
 
-#include <meta/common.h>
+#include "meta/common.h"
 
 META_EXPORT
 GType meta_window_shape_get_type (void) G_GNUC_CONST;

@@ -19,7 +19,8 @@
 #pragma once
 
 #include <glib-object.h>
-#include <meta/window.h>
+
+#include "meta/window.h"
 
 #define META_TYPE_INHIBIT_SHORTCUTS_DIALOG (meta_inhibit_shortcuts_dialog_get_type ())
 

@@ -25,8 +25,8 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#include <meta/common.h>
-#include <meta/meta-later.h>
+#include "meta/common.h"
+#include "meta/meta-later.h"
 
 META_EXPORT
 gboolean meta_is_verbose  (void);

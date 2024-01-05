@@ -17,8 +17,8 @@
 
 #pragma once
 
-#include <meta/display.h>
-#include <meta/common.h>
+#include "meta/display.h"
+#include "meta/common.h"
 
 #define META_TYPE_KEY_BINDING               (meta_key_binding_get_type ())
 

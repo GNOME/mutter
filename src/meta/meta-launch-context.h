@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include <meta/workspace.h>
+#include "meta/workspace.h"
 
 META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaLaunchContext, meta_launch_context, META, LAUNCH_CONTEXT, GAppLaunchContext)

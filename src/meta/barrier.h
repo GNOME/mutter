@@ -4,7 +4,7 @@
 
 #include <glib-object.h>
 
-#include <meta/display.h>
+#include "meta/display.h"
 
 G_BEGIN_DECLS
 

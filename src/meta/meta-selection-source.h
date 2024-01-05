@@ -21,7 +21,7 @@
 
 #include <gio/gio.h>
 
-#include <meta/common.h>
+#include "meta/common.h"
 
 typedef enum
 {

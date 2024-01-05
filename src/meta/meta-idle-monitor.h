@@ -20,7 +20,8 @@
 #pragma once
 
 #include <glib-object.h>
-#include <meta/types.h>
+
+#include "meta/types.h"
 
 #define META_TYPE_IDLE_MONITOR (meta_idle_monitor_get_type ())
 META_EXPORT

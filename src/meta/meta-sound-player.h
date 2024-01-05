@@ -21,7 +21,7 @@
 
 #include <gio/gio.h>
 
-#include <meta/common.h>
+#include "meta/common.h"
 
 #define META_TYPE_SOUND_PLAYER (meta_sound_player_get_type ())
 

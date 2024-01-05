@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include <meta/common.h>
-#include <meta/types.h>
+#include "meta/common.h"
+#include "meta/types.h"
 
 META_EXPORT
 int meta_settings_get_ui_scaling_factor (MetaSettings *settings);

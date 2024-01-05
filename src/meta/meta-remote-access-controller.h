@@ -20,7 +20,7 @@
 
 #include <glib-object.h>
 
-#include <meta/common.h>
+#include "meta/common.h"
 
 #define META_TYPE_REMOTE_ACCESS_HANDLE meta_remote_access_handle_get_type ()
 

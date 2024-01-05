@@ -21,10 +21,10 @@
 
 #include <glib.h>
 
-#include <meta/types.h>
-#include <meta/boxes.h>
-#include <meta/window.h>
-#include <meta/workspace.h>
+#include "meta/types.h"
+#include "meta/boxes.h"
+#include "meta/window.h"
+#include "meta/workspace.h"
 
 #define META_TYPE_COMPOSITOR (meta_compositor_get_type ())
 META_EXPORT

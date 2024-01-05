@@ -4,7 +4,7 @@
 
 #include "clutter/clutter.h"
 
-#include <meta/common.h>
+#include "meta/common.h"
 
 #define META_TYPE_BACKGROUND_GROUP (meta_background_group_get_type ())
 

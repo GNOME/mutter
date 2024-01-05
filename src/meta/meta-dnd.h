@@ -22,8 +22,8 @@
 #include <glib-object.h>
 #include <string.h>
 
-#include <meta/common.h>
-#include <meta/types.h>
+#include "meta/common.h"
+#include "meta/types.h"
 
 #define META_TYPE_DND (meta_dnd_get_type ())
 
