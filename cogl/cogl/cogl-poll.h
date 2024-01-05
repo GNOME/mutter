@@ -51,9 +51,9 @@
 G_BEGIN_DECLS
 
 /**
- * SECTION:cogl-poll
- * @short_description: Functions for integrating Cogl with an
- *   application's main loop
+ * CoglPoll:
+ *
+ * Functions for integrating Cogl with an application's main loop
  *
  * Cogl needs to integrate with the application's main loop so that it
  * can internally handle some events from the driver. All Cogl

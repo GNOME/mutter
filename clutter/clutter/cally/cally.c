@@ -17,16 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
-
-/**
- * SECTION:cally
- * @Title: Cally
- * @short_description: Cally initialization methods.
- *
- * Cally initialization methods.
- *
- */
-
 #include "config.h"
 
 #include "cally/cally.h"

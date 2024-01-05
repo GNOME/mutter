@@ -46,13 +46,6 @@
 
 G_BEGIN_DECLS
 
-/**
- * SECTION:cogl-types
- * @short_description: Types used throughout the library
- *
- * General types used by various Cogl functions.
-*/
-
 /* Some structures are meant to be opaque but they have public
    definitions because we want the size to be public so they can be
    allocated on the stack. This macro is used to ensure that users

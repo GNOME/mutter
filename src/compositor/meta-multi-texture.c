@@ -18,9 +18,9 @@
  */
 
 /**
- * SECTION:meta-multi-texture
- * @title: MetaMultiTexture
- * @short_description: A texture that can have multiple planes.
+ * MetaMultiTexture:
+ *
+ * A texture that can have multiple planes.
  *
  * #MetaMultiTexture allows one to deal with non-trivial formats that
  * have multiple planes, requires subsampling and/or aren't in RGB. A common

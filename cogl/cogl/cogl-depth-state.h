@@ -39,14 +39,9 @@
 G_BEGIN_DECLS
 
 /**
- * SECTION:cogl-depth-state
- * @short_description: Functions for describing the depth testing
- *                     state of your GPU.
- */
-
-/**
  * CoglDepthState:
- *
+ * 
+ * Functions for describing the depth testing state of your GPU.
  */
 typedef struct {
   /*< private >*/

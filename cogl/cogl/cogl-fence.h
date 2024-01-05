@@ -38,20 +38,13 @@
 #include "cogl/cogl-framebuffer.h"
 
 /**
- * SECTION:cogl-fence
- * @short_description: Functions for notification of command completion
+ * CoglFence:
+ *
+ * Functions for notification of command completion
  *
  * Cogl allows notification of GPU command completion; users may mark
  * points in the GPU command stream and receive notification when the GPU
  * has executed to that point.
- */
-
-/**
- * CoglFence:
- *
- * An opaque object representing a fence. This type is currently
- * unused but in the future may be used to pass extra information
- * about the fence completion.
  */
 typedef struct _CoglFence CoglFence;
 

@@ -45,21 +45,6 @@
 
 G_BEGIN_DECLS
 
-/**
- * SECTION:cogl-pixel-format
- * @short_description: Pixel formats supported by Cogl
- *
- * The pixel format of an image descrbes how the bits of each pixel are
- * represented in memory. For example: an image can be laid out as one long
- * sequence of pixels, where each pixel is a sequence of 8 bits of Red, Green
- * and Blue. The amount of bits that are used can be different for each pixel
- * format, as well as the components (for example an Alpha layer to include
- * transparency, or non_RGBA).
- *
- * Other examples of factors that can influence the layout in memory are the
- * system's endianness.
- */
-
 #define COGL_A_BIT              (1 << 4)
 #define COGL_BGR_BIT            (1 << 5)
 #define COGL_AFIRST_BIT         (1 << 6)

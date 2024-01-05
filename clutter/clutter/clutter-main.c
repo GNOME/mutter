@@ -20,33 +20,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
-
-/**
- * SECTION:clutter-main
- * @short_description: Various 'global' Clutter functions.
- *
- * Functions to retrieve various global Clutter resources and other utility
- * functions for mainloops, events and threads
- *
- * ## The Clutter Threading Model
- *
- * Clutter is *thread-aware*: all operations performed by Clutter are assumed
- * to be under the Big Clutter Lock, which is created when the threading is
- * initialized through clutter_init(), and entered when calling user-related
- * code during event handling and actor drawing.
- *
- * The only safe and portable way to use the Clutter API in a multi-threaded
- * environment is to only access the Clutter API from a thread that did called
- * clutter_init() and clutter_main().
- *
- * The common pattern for using threads with Clutter is to use worker threads
- * to perform blocking operations and then install idle or timeout sources with
- * the result when the thread finishes, and update the UI from those callbacks.
- *
- * For a working example of how to use a worker thread to update the UI, see
- * [threads.c](https://git.gnome.org/browse/clutter/tree/examples/threads.c?h=clutter-1.18)
- */
-
 #include "config.h"
 
 #include <stdlib.h>

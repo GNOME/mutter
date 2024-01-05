@@ -47,8 +47,9 @@
 G_BEGIN_DECLS
 
 /**
- * SECTION:cogl-framebuffer
- * @short_description: A common interface for manipulating framebuffers
+ * CoglFrameBuffer:
+ *
+ * A common interface for manipulating framebuffers
  *
  * Framebuffers are a collection of buffers that can be rendered too.
  * A framebuffer may be comprised of one or more color buffers, an

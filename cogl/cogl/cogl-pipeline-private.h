@@ -490,17 +490,6 @@ void
 _cogl_pipeline_prune_empty_layer_difference (CoglPipeline *layers_authority,
                                              CoglPipelineLayer *layer);
 
-/*
- * SECTION:cogl-pipeline-internals
- * @short_description: Functions for creating custom primitives that make use
- *    of Cogl pipelines for filling.
- *
- * Normally you shouldn't need to use this API directly, but if you need to
- * developing a custom/specialised primitive - probably using raw OpenGL - then
- * this API aims to expose enough of the pipeline internals to support being
- * able to fill your geometry according to a given Cogl pipeline.
- */
-
 gboolean
 _cogl_pipeline_get_real_blend_enabled (CoglPipeline *pipeline);
 

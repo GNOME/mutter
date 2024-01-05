@@ -19,9 +19,8 @@
  */
 
 /**
- * SECTION: meta-wayland-client
- * @title MetaWaylandClient
- * @include: gio/gsubprocess.h
+ * MetaWaylandClient:
+ * 
  * A class that allows to launch a trusted client and detect if an specific
  * Wayland window belongs to it.
  */

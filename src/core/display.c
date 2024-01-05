@@ -97,8 +97,6 @@
 #endif
 
 /*
- * SECTION:pings
- *
  * Sometimes we want to see whether a window is responding,
  * so we send it a "ping" message and see whether it sends us back a "pong"
  * message within a reasonable time. Here we have a system which lets us

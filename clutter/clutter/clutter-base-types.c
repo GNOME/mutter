@@ -20,16 +20,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
-
-/**
- * SECTION:clutter-geometric-types
- * @Title: Base geometric types
- * @Short_Description: Common geometric data types used by Clutter
- *
- * Clutter defines a set of geometric data structures that are commonly used
- * across the whole API.
- */
-
 #include "config.h"
 
 #include "clutter/clutter-types.h"

@@ -24,8 +24,7 @@
  */
 
 /**
- * SECTION:clutter-feature
- * @short_description: Run-time detection of Clutter features
+ * Run-time detection of Clutter features
  *
  * Parts of Clutter depend on the underlying platform, including the
  * capabilities of the backend used and the OpenGL features exposed through the

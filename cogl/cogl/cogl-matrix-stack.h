@@ -43,59 +43,9 @@
 #include <graphene.h>
 
 /**
- * SECTION:cogl-matrix-stack
- * @short_description: Functions for efficiently tracking many
- *                     related transformations
- *
- * Matrices can be used (for example) to describe the model-view
- * transforms of objects, texture transforms, and projective
- * transforms.
- *
- * The #graphene_matrix_t api provides a good way to manipulate individual
- * matrices representing a single transformation but if you need to
- * track many-many such transformations for many objects that are
- * organized in a scenegraph for example then using a separate
- * #graphene_matrix_t for each object may not be the most efficient way.
- *
- * A #CoglMatrixStack enables applications to track lots of
- * transformations that are related to each other in some kind of
- * hierarchy.  In a scenegraph for example if you want to know how to
- * transform a particular node then you usually have to walk up
- * through the ancestors and accumulate their transforms before
- * finally applying the transform of the node itself. In this model
- * things are grouped together spatially according to their ancestry
- * and all siblings with the same parent share the same initial
- * transformation. The #CoglMatrixStack API is suited to tracking lots
- * of transformations that fit this kind of model.
- *
- * Compared to using the #graphene_matrix_t api directly to track many
- * related transforms, these can be some advantages to using a
- * #CoglMatrixStack:
- *
- * - Faster equality comparisons of transformations
- * - Efficient comparisons of the differences between arbitrary
- *   transformations
- * - Avoid redundant arithmetic related to common transforms
- * - Can be more space efficient (not always though)
- *
- * For reference (to give an idea of when a #CoglMatrixStack can
- * provide a space saving) a #graphene_matrix_t can be expected to take 72
- * bytes whereas a single #CoglMatrixEntry in a #CoglMatrixStack is
- * currently around 32 bytes on a 32bit CPU or 36 bytes on a 64bit
- * CPU. An entry is needed for each individual operation applied to
- * the stack (such as rotate, scale, translate) so if most of your
- * leaf node transformations only need one or two simple operations
- * relative to their parent then a matrix stack will likely take less
- * space than having a #graphene_matrix_t for each node.
- *
- * Even without any space saving though the ability to perform fast
- * comparisons and avoid redundant arithmetic (especially sine and
- * cosine calculations for rotations) can make using a matrix stack
- * worthwhile.
- */
-
-/**
  * CoglMatrixStack:
+ *
+ * Efficiently tracking many related transformations.
  *
  * Tracks your current position within a hierarchy and lets you build
  * up a graph of transformations as you traverse through a hierarchy

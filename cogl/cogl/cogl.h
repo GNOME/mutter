@@ -99,13 +99,6 @@
  * code has been migrated down into Cogl! */
 #include "cogl/deprecated/cogl-clutter.h"
 
-/**
- * SECTION:cogl
- * @short_description: General purpose API
- *
- * General utility functions for COGL.
- */
-
 /* The gobject introspection scanner seems to parse public headers in
  * isolation which means we need to be extra careful about how we
  * define and undefine __COGL_H_INSIDE__ used to detect when internal

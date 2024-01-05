@@ -39,9 +39,8 @@
 G_BEGIN_DECLS
 
 /**
- * SECTION:cogl-meta-texture
- * @short_description: Interface for high-level textures built from
- *                     low-level textures like #CoglTexture2D.
+ * Interface for high-level textures built from 
+ * low-level textures like #CoglTexture2D.
  *
  * Cogl helps to make it easy to deal with high level textures such
  * as `CoglAtlasTexture`s, `CoglSubTexture`s,
