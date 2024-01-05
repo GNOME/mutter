@@ -473,11 +473,11 @@ typedef enum /*< prefix=CLUTTER_ALIGN >*/
  * @CLUTTER_BIND_WIDTH: Bind the width
  * @CLUTTER_BIND_HEIGHT: Bind the height
  * @CLUTTER_BIND_POSITION: Equivalent to to %CLUTTER_BIND_X and
- *   %CLUTTER_BIND_Y (added in Clutter 1.6)
+ *   %CLUTTER_BIND_Y
  * @CLUTTER_BIND_SIZE: Equivalent to %CLUTTER_BIND_WIDTH and
- *   %CLUTTER_BIND_HEIGHT (added in Clutter 1.6)
+ *   %CLUTTER_BIND_HEIGHT
  * @CLUTTER_BIND_ALL: Equivalent to %CLUTTER_BIND_POSITION and
- *   %CLUTTER_BIND_SIZE (added in Clutter 1.10)
+ *   %CLUTTER_BIND_SIZE
  *
  * Specifies which property should be used in a binding
  */
@@ -661,28 +661,20 @@ typedef enum /*< flags prefix=CLUTTER_EVENT >*/
  * @CLUTTER_BUTTON_RELEASE: Pointer button release event
  * @CLUTTER_SCROLL: Pointer scroll event
  * @CLUTTER_TOUCH_BEGIN: A new touch event sequence has started;
- *   event added in 1.10
  * @CLUTTER_TOUCH_UPDATE: A touch event sequence has been updated;
- *   event added in 1.10
  * @CLUTTER_TOUCH_END: A touch event sequence has finished;
- *   event added in 1.10
  * @CLUTTER_TOUCH_CANCEL: A touch event sequence has been canceled;
- *   event added in 1.10
  * @CLUTTER_TOUCHPAD_PINCH: A pinch gesture event, the current state is
- *   determined by its phase field; event added in 1.24
+ *   determined by its phase field;
  * @CLUTTER_TOUCHPAD_SWIPE: A swipe gesture event, the current state is
- *   determined by its phase field; event added in 1.24
+ *   determined by its phase field;
  * @CLUTTER_TOUCHPAD_HOLD: A hold gesture event, the current state is
  *   determined by its phase field. A hold gesture starts when the user places a
  *   finger on the touchpad and ends when all fingers are lifted. It is
  *   cancelled when the finger(s) move past a certain threshold.
- *   Event added in 40.4
  * @CLUTTER_PROXIMITY_IN: A tool entered in proximity to a tablet;
- *   event added in 1.28
  * @CLUTTER_PROXIMITY_OUT: A tool left from the proximity area of a tablet;
- *   event added in 1.28
  * @CLUTTER_EVENT_LAST: Marks the end of the #ClutterEventType enumeration;
- *   added in 1.10
  *
  * Types of events.
  */
