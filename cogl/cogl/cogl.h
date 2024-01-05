@@ -56,7 +56,7 @@
 #include "cogl/cogl-types.h"
 
 
-#include <cogl/deprecated/cogl-shader.h>
+#include "cogl/deprecated/cogl-shader.h"
 
 #ifdef COGL_ENABLE_MUTTER_API
 #include "cogl/cogl-mutter.h"
@@ -97,7 +97,7 @@
 #include "cogl/cogl-graphene.h"
 /* XXX: This will definitely go away once all the Clutter winsys
  * code has been migrated down into Cogl! */
-#include <cogl/deprecated/cogl-clutter.h>
+#include "cogl/deprecated/cogl-clutter.h"
 
 /**
  * SECTION:cogl

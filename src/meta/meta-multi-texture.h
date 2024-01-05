@@ -20,9 +20,9 @@
 #pragma once
 
 #include <glib-object.h>
-#include <cogl/cogl.h>
-#include <meta/common.h>
 
+#include "cogl/cogl.h"
+#include "meta/common.h"
 #include "meta/meta-multi-texture-format.h"
 
 G_BEGIN_DECLS

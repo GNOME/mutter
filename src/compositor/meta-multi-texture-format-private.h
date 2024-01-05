@@ -19,8 +19,7 @@
 
 #pragma once
 
-#include <cogl/cogl.h>
-
+#include "cogl/cogl.h"
 #include "meta/meta-multi-texture-format.h"
 
 G_BEGIN_DECLS

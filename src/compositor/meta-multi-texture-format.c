@@ -34,9 +34,10 @@
 
 #include "compositor/meta-multi-texture-format-private.h"
 
-#include <cogl/cogl.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "cogl/cogl.h"
 
 static const char *shader_global_conversions =
   "vec4 yuv_to_rgb(vec4 yuva)                                               \n"
