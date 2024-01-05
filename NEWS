@@ -1,3 +1,82 @@
+46.alpha
+========
+* Fix filtering keybinding events in presence of grabs [Sebastian K.; !3054]
+* Fix direct scanout support when using integer scaling [Daniel; !3290]
+* Fix capitalization of some keys when caps lock is on [Carlos; !3306]
+* Fix vsync regression [Robert; !3286]
+* Fix visibility of software cursors when using direct scanout [Robert; !3302]
+* Fix artifacts at the bottom of some surfaces [Robert; !3310]
+* Discard monitor configs with fractional scale when unusable [Jonas Å.; !3299]
+* Apply track point settings [Rohan; !3089]
+* xwayland: Enable XDG portal only when not nested [Olivier; !3303]
+* Inhibit real-time scheduling when mode setting [Ray; !3324]
+* Don't delay frame updates after idle period [Michel; !3174]
+* Fix running Xwayland in headless setup with nvidia driver [Olivier; !3320]
+* wayland: Send keyboard modifiers after the enter event [Alexandros; !3341]
+* wayland/client: Add make_desktop() method [Florian; !3305]
+* Add a target workspace to raise_and_make_recent()  [Sebastian W.; !3315]
+* clutter: Drop cairo helpers [Bilal; !3086]
+* cogl: Port away from CoglObject  [Bilal; !3193]
+* mtk: Add a Region type  [Bilal; !3292]
+* Propagate focus appearance to all ancestors [Sebastian W.; !3356]
+* Ignore locked modifiers in keybinding machinery [Carlos; !3369]
+* Fix disabling check-alive timeout [Sebastian K.; !3367]
+* Drop ClutterContainer interface [Zander; !3377, !3384]
+* Improve sloppy and mouse focus modes [Sebastian W.; !3258]
+* Sync geometry only when window is mapped [Sebastian W.; !3401, !3404]
+* Improve repick due to transform changes [Carlos; !3385]
+* Fix tablets on X11 having the wrong device [Carlos; !3393]
+* Disable HW cursor when inhibited by backend [Robert; !3412]
+* screencast: Bring back blitting [Georges; !3406]
+* backends/native: Try 10 bpc formats [Michel; !3139]
+* Fix forcing EGLStream with NVIDIA proprietary driver [Daniel; !2905]
+* screencast: Add ability to stop streams [Jonas Å., Pascal; !3307]
+* Use standard cursor names from CSS specification [Carlos; !3295]
+* Avoids over-synchronization due to client reads [Michel; !3389, !3408]
+* Add more profiling instrumentation [Ivan; !3417]
+* Allow specifyig the layout manager for an actor type [Florian; !3445]
+* Fix handling of relative mode for tablets [Peter; !3410]
+* Dynamically assign hardware planes during configuration [Jonas Å.; !3428]
+* Simplify X11 focus management [Carlos; !3269]
+* background: Fix background color around image [Sebastian W.; !3459]
+* text-input: Use correct offsets in delete_surrounding_text [Alynx; !2712]
+* Add wayland shm YCbCr support [Sebastian W.; !3371]
+* Set a minimum guessed scale [Joan; !3464]
+* Fix building without native backend [Bilal; !3480]
+* Fix occasional artifacts at top of X11 fullscreen windows [Carlos; !3476]
+* Add documentation for building, running and debugging
+  [Sebastian W.; !3465, !3485]
+* Improve tablet pressure curve calculation [Peter; !3399]
+* Fixed crashes [Carlos, Jonas D., Robert, Sebastian W., Jonas Å., Sebastian K.;
+  !3287, !3283, !3311, !3322, !3318, !3370, !3392, !3335, !3422, !3376, !3453]
+* Plugged leaks [Sebastian K.; !3411, !3442]
+* Misc. bug fixes and cleanups [Daniel, Corentin, Carlos, Jonas Å., Ivan,
+  Michel, Sebastian W., Robert, Barnabás, Peter, Bilal, Sebastian K., Zander,
+  Florian, Mike, Qiu, Olivier, Christopher, Mart; !3212, !3298, !3267, !3297,
+  !3313, !3316, !3317, !3323, !3325, !3326, !3328, !3330, !3332, !3319, !3097,
+  !3288, !3347, !3178, !3240, !3338, !3352, !3321, !2618, !3309, !3353, !3348,
+  !3349, !3358, !3361, !3362, !3276, !3340, !3365, !3366, !3364, !3363, !3375,
+  !3181, !3374, !3379, !3382, !3388, !3354, !3386, !3398, !3395, !3397, !3368,
+  !3400, !3396, !3405, !3403, !3409, !3413, !3402, !3280, !3394, !3421, !3423,
+  !3431, !3432, !3425, !3438, !3440, !3430, !3429, !2016, !3443, !3444, !3441,
+  !3451, !3350, !3434, !3437, !3447, !1908, !3456, !3452, !3454, !3455, !2620,
+  !3463, !3466, !3458, !3468, !3469, !3474, !3473, !3471, !3479, !3482, !3487,
+  !3486, !3478, !3488, !3357, !3491]
+
+Contributors:
+  Jonas Ådahl, Zander Brown, Michel Dänzer, Jonas Dreßler, Bilal Elmoussaoui,
+  Christopher Fore, Olivier Fourdan, Alexandros Frantzis, Carlos Garnacho,
+  Mike Gorse, Peter Hutterer, Rohan Hendrik Jotz-Lean, Sebastian Keller,
+  Robert Mader, Ivan Molodetskikh, Florian Müllner,
+  Georges Basile Stavracas Neto, Corentin Noël, Pascal Nowack, Barnabás Pőcze,
+  Mart Raudsepp, Ray Strode, Joan Torres, Daniel van Vugt, Qiu Wenbo,
+  Sebastian Wick, Alynx Zhou
+
+Translators:
+  Kristjan SCHMIDT [eo], Rafael Fontenelle [pt_BR], Guillaume Bernard [fr],
+  Jordi Mas i Hernandez [ca], Florentina Mușat [ro], Ngọc Quân Trần [vi],
+  Artur S0 [ru]
+
 45.0
 ====
 * Fix focus-follows-mouse mode [Carlos; !3256]
