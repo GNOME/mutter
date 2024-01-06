@@ -57,5 +57,3 @@ void meta_cursor_tracker_register_cursor_sprite (MetaCursorTracker *tracker,
 
 void meta_cursor_tracker_unregister_cursor_sprite (MetaCursorTracker *tracker,
                                                    MetaCursorSprite  *sprite);
-
-GList * meta_cursor_tracker_peek_cursor_sprites (MetaCursorTracker *tracker);

@@ -25,8 +25,6 @@
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-barrier-native.h"
 
-MetaBarrierManagerNative *meta_backend_native_get_barrier_manager (MetaBackendNative *native);
-
 META_EXPORT_TEST
 MetaDevicePool * meta_backend_native_get_device_pool (MetaBackendNative *native);
 

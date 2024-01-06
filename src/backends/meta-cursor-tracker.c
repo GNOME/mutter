@@ -570,11 +570,3 @@ meta_cursor_tracker_unregister_cursor_sprite (MetaCursorTracker *tracker,
   priv->cursor_sprites = g_list_remove (priv->cursor_sprites, sprite);
 }
 
-GList *
-meta_cursor_tracker_peek_cursor_sprites (MetaCursorTracker *tracker)
-{
-  MetaCursorTrackerPrivate *priv =
-    meta_cursor_tracker_get_instance_private (tracker);
-
-  return priv->cursor_sprites;
-}

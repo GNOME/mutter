@@ -57,8 +57,6 @@ META_EXPORT_TEST
 gboolean meta_settings_is_experimental_feature_enabled (MetaSettings           *settings,
                                                         MetaExperimentalFeature feature);
 
-MetaExperimentalFeature meta_settings_get_experimental_features (MetaSettings *settings);
-
 META_EXPORT_TEST
 void meta_settings_override_experimental_features (MetaSettings *settings);
 

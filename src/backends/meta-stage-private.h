@@ -57,8 +57,6 @@ void              meta_stage_update_cursor_overlay   (MetaStage            *stag
 void meta_overlay_set_visible (MetaOverlay *overlay,
                                gboolean     is_visible);
 
-gboolean meta_overlay_is_visible (MetaOverlay *overlay);
-
 void meta_stage_set_active (MetaStage *stage,
                             gboolean   is_active);
 

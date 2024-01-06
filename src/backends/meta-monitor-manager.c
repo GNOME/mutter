@@ -760,7 +760,7 @@ meta_monitor_manager_apply_monitors_config (MetaMonitorManager      *manager,
   return TRUE;
 }
 
-gboolean
+static gboolean
 meta_monitor_manager_has_hotplug_mode_update (MetaMonitorManager *manager)
 {
   GList *gpus;

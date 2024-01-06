@@ -284,7 +284,7 @@ invoke_page_flip_closure_discarded (MetaThread *thread,
                               page_flip_data->error);
 }
 
-void
+static void
 meta_kms_page_flip_data_take_error (MetaKmsPageFlipData *page_flip_data,
                                     GError              *error)
 {

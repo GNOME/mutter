@@ -329,8 +329,6 @@ void                meta_monitor_manager_power_save_mode_changed (MetaMonitorMan
 void                meta_monitor_manager_confirm_configuration (MetaMonitorManager *manager,
                                                                 gboolean            ok);
 
-gboolean           meta_monitor_manager_has_hotplug_mode_update (MetaMonitorManager *manager);
-
 META_EXPORT_TEST
 void               meta_monitor_manager_read_current_state (MetaMonitorManager *manager);
 
@@ -349,10 +347,6 @@ void               meta_monitor_manager_tiled_monitor_added (MetaMonitorManager 
                                                              MetaMonitor        *monitor);
 void               meta_monitor_manager_tiled_monitor_removed (MetaMonitorManager *manager,
                                                                MetaMonitor        *monitor);
-
-gboolean           meta_monitor_manager_is_transform_handled (MetaMonitorManager  *manager,
-                                                              MetaCrtc            *crtc,
-                                                              MetaMonitorTransform transform);
 
 META_EXPORT_TEST
 MetaMonitorsConfig * meta_monitor_manager_ensure_configured (MetaMonitorManager *manager);
@@ -407,10 +401,6 @@ MetaMonitorConfigManager *
                    meta_monitor_manager_get_config_manager (MetaMonitorManager *manager);
 
 void meta_monitor_manager_rotate_monitor (MetaMonitorManager *manager);
-
-void meta_monitor_manager_clear_output (MetaOutput *output);
-void meta_monitor_manager_clear_mode (MetaCrtcMode *mode);
-void meta_monitor_manager_clear_crtc (MetaCrtc *crtc);
 
 gboolean meta_monitor_has_aspect_as_size (MetaMonitor *monitor);
 

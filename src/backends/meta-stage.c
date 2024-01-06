@@ -472,12 +472,6 @@ meta_overlay_set_visible (MetaOverlay *overlay,
   queue_redraw_for_overlay (overlay->stage, overlay);
 }
 
-gboolean
-meta_overlay_is_visible (MetaOverlay *overlay)
-{
-  return overlay->is_visible;
-}
-
 void
 meta_stage_set_active (MetaStage *stage,
                        gboolean   is_active)

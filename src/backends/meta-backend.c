@@ -1596,14 +1596,6 @@ meta_backend_get_default_seat (MetaBackend *backend)
   return priv->default_seat;
 }
 
-MetaPointerConstraint *
-meta_backend_get_client_pointer_constraint (MetaBackend *backend)
-{
-  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-
-  return priv->client_pointer_constraint;
-}
-
 /**
  * meta_backend_set_client_pointer_constraint:
  * @backend: a #MetaBackend object.
