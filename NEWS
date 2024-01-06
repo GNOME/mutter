@@ -1,3 +1,14 @@
+44.8
+====
+* Fix occasional artifacts at top of X11 fullscreen windows [Carlos; !3476]
+* background: Fix background color around image [Sebastian W.; !3459]
+* Fixed crash [Sebastian K.; !3453]
+* Misc. bug fixes and cleanups [Ivan, Mart; !3425, !3471]
+
+Contributors:
+  Carlos Garnacho, Sebastian Keller, Ivan Molodetskikh, Mart Raudsepp,
+  Sebastian Wick
+
 44.7
 ====
 * Fix disabling check-alive timeout [Sebastian K.; !3367]
