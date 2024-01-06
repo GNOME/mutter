@@ -238,10 +238,6 @@ GList* meta_rectangle_find_nonintersected_monitor_edges (
                                            const GSList        *all_struts);
 
 META_EXPORT_TEST
-gboolean meta_rectangle_is_adjacent_to (MtkRectangle *rect,
-                                        MtkRectangle *other);
-
-META_EXPORT_TEST
 void meta_rectangle_transform (const MtkRectangle   *rect,
                                MetaMonitorTransform  transform,
                                int                   width,

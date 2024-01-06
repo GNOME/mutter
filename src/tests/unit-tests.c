@@ -201,43 +201,11 @@ meta_test_util_later_schedule_from_later (void)
 }
 
 static void
-meta_test_adjacent_to (void)
-{
-  MtkRectangle base = { .x = 10, .y = 10, .width = 10, .height = 10 };
-  MtkRectangle adjacent[] = {
-    { .x = 20, .y = 10, .width = 10, .height = 10 },
-    { .x = 0, .y = 10, .width = 10, .height = 10 },
-    { .x = 0, .y = 1, .width = 10, .height = 10 },
-    { .x = 20, .y = 19, .width = 10, .height = 10 },
-    { .x = 10, .y = 20, .width = 10, .height = 10 },
-    { .x = 10, .y = 0, .width = 10, .height = 10 },
-  };
-  MtkRectangle not_adjacent[] = {
-    { .x = 0, .y = 0, .width = 10, .height = 10 },
-    { .x = 20, .y = 20, .width = 10, .height = 10 },
-    { .x = 21, .y = 10, .width = 10, .height = 10 },
-    { .x = 10, .y = 21, .width = 10, .height = 10 },
-    { .x = 10, .y = 5, .width = 10, .height = 10 },
-    { .x = 11, .y = 10, .width = 10, .height = 10 },
-    { .x = 19, .y = 10, .width = 10, .height = 10 },
-  };
-  unsigned int i;
-
-  for (i = 0; i < G_N_ELEMENTS (adjacent); i++)
-    g_assert (meta_rectangle_is_adjacent_to (&base, &adjacent[i]));
-
-  for (i = 0; i < G_N_ELEMENTS (not_adjacent); i++)
-    g_assert (!meta_rectangle_is_adjacent_to (&base, &not_adjacent[i]));
-}
-
-static void
 init_tests (void)
 {
   g_test_add_func ("/util/meta-later/order", meta_test_util_later_order);
   g_test_add_func ("/util/meta-later/schedule-from-later",
                    meta_test_util_later_schedule_from_later);
-
-  g_test_add_func ("/core/boxes/adjacent-to", meta_test_adjacent_to);
 
   init_monitor_store_tests ();
   init_monitor_config_migration_tests ();

@@ -170,6 +170,36 @@ test_basic_fitting (void)
   g_assert (!mtk_rectangle_could_fit_rect (&temp3, &temp2));
 }
 
+static void
+test_adjacent_to (void)
+{
+  MtkRectangle base = { .x = 10, .y = 10, .width = 10, .height = 10 };
+  MtkRectangle adjacent[] = {
+    { .x = 20, .y = 10, .width = 10, .height = 10 },
+    { .x = 0, .y = 10, .width = 10, .height = 10 },
+    { .x = 0, .y = 1, .width = 10, .height = 10 },
+    { .x = 20, .y = 19, .width = 10, .height = 10 },
+    { .x = 10, .y = 20, .width = 10, .height = 10 },
+    { .x = 10, .y = 0, .width = 10, .height = 10 },
+  };
+  MtkRectangle not_adjacent[] = {
+    { .x = 0, .y = 0, .width = 10, .height = 10 },
+    { .x = 20, .y = 20, .width = 10, .height = 10 },
+    { .x = 21, .y = 10, .width = 10, .height = 10 },
+    { .x = 10, .y = 21, .width = 10, .height = 10 },
+    { .x = 10, .y = 5, .width = 10, .height = 10 },
+    { .x = 11, .y = 10, .width = 10, .height = 10 },
+    { .x = 19, .y = 10, .width = 10, .height = 10 },
+  };
+  unsigned int i;
+
+  for (i = 0; i < G_N_ELEMENTS (adjacent); i++)
+    g_assert (mtk_rectangle_is_adjacent_to (&base, &adjacent[i]));
+
+  for (i = 0; i < G_N_ELEMENTS (not_adjacent); i++)
+    g_assert (!mtk_rectangle_is_adjacent_to (&base, &not_adjacent[i]));
+}
+
 int
 main (int    argc,
       char **argv)
@@ -184,6 +214,7 @@ main (int    argc,
   g_test_add_func ("/mtk/rectangle/equal", test_equal);
   g_test_add_func ("/mtk/rectangle/overlap", test_overlap_funcs);
   g_test_add_func ("/mtk/rectangle/basic-fitting", test_basic_fitting);
+  g_test_add_func ("/mtk/rectangle/adjacent-to", test_adjacent_to);
 
   return g_test_run ();
 }

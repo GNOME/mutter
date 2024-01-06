@@ -136,3 +136,7 @@ void mtk_rectangle_scale_double (const MtkRectangle  *rect,
                                  double               scale,
                                  MtkRoundingStrategy  rounding_strategy,
                                  MtkRectangle        *dest);
+
+MTK_EXPORT
+gboolean mtk_rectangle_is_adjacent_to (const MtkRectangle *rect,
+                                       const MtkRectangle *other);

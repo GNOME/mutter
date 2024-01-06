@@ -1359,7 +1359,7 @@ meta_wayland_xdg_popup_post_apply_state (MetaWaylandSurfaceRole  *surface_role,
   meta_window_get_buffer_rect (window, &buffer_rect);
   meta_window_get_buffer_rect (parent_window, &parent_buffer_rect);
   if (!mtk_rectangle_overlap (&buffer_rect, &parent_buffer_rect) &&
-      !meta_rectangle_is_adjacent_to (&buffer_rect, &parent_buffer_rect))
+      !mtk_rectangle_is_adjacent_to (&buffer_rect, &parent_buffer_rect))
     {
       g_warning ("Buggy client caused popup to be placed outside of "
                  "parent window");

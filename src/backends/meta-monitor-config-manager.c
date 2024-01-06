@@ -1898,8 +1898,8 @@ has_adjacent_neighbour (MetaMonitorsConfig       *config,
       if (logical_monitor_config == other_logical_monitor_config)
         continue;
 
-      if (meta_rectangle_is_adjacent_to (&logical_monitor_config->layout,
-                                         &other_logical_monitor_config->layout))
+      if (mtk_rectangle_is_adjacent_to (&logical_monitor_config->layout,
+                                        &other_logical_monitor_config->layout))
         return TRUE;
     }
 

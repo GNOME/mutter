@@ -381,3 +381,26 @@ mtk_rectangle_scale_double (const MtkRectangle  *rect,
   graphene_rect_scale (&tmp, scale, scale, &tmp);
   mtk_rectangle_from_graphene_rect (&tmp, rounding_strategy, dest);
 }
+
+gboolean
+mtk_rectangle_is_adjacent_to (const MtkRectangle *rect,
+                              const MtkRectangle *other)
+{
+  int rect_x1 = rect->x;
+  int rect_y1 = rect->y;
+  int rect_x2 = rect->x + rect->width;
+  int rect_y2 = rect->y + rect->height;
+  int other_x1 = other->x;
+  int other_y1 = other->y;
+  int other_x2 = other->x + other->width;
+  int other_y2 = other->y + other->height;
+
+  if ((rect_x1 == other_x2 || rect_x2 == other_x1) &&
+      !(rect_y2 <= other_y1 || rect_y1 >= other_y2))
+    return TRUE;
+  else if ((rect_y1 == other_y2 || rect_y2 == other_y1) &&
+           !(rect_x2 <= other_x1 || rect_x1 >= other_x2))
+    return TRUE;
+  else
+    return FALSE;
+}

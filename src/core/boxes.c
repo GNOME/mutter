@@ -703,7 +703,7 @@ meta_rectangle_is_adjacent_to_any_in_region (const GList  *spanning_rects,
       if (rect == other || mtk_rectangle_equal (rect, other))
         continue;
 
-      if (meta_rectangle_is_adjacent_to (rect, other))
+      if (mtk_rectangle_is_adjacent_to (rect, other))
         return TRUE;
     }
 
@@ -1824,29 +1824,6 @@ meta_rectangle_find_nonintersected_monitor_edges (
   ret = g_list_sort (ret, meta_rectangle_edge_cmp);
 
   return ret;
-}
-
-gboolean
-meta_rectangle_is_adjacent_to (MtkRectangle *rect,
-                               MtkRectangle *other)
-{
-  int rect_x1 = rect->x;
-  int rect_y1 = rect->y;
-  int rect_x2 = rect->x + rect->width;
-  int rect_y2 = rect->y + rect->height;
-  int other_x1 = other->x;
-  int other_y1 = other->y;
-  int other_x2 = other->x + other->width;
-  int other_y2 = other->y + other->height;
-
-  if ((rect_x1 == other_x2 || rect_x2 == other_x1) &&
-      !(rect_y2 <= other_y1 || rect_y1 >= other_y2))
-    return TRUE;
-  else if ((rect_y1 == other_y2 || rect_y2 == other_y1) &&
-           !(rect_x2 <= other_x1 || rect_x1 >= other_x2))
-    return TRUE;
-  else
-    return FALSE;
 }
 
 /**
