@@ -1849,19 +1849,6 @@ meta_rectangle_is_adjacent_to (MtkRectangle *rect,
     return FALSE;
 }
 
-void
-meta_rectangle_scale_double (const MtkRectangle  *rect,
-                             double               scale,
-                             MtkRoundingStrategy  rounding_strategy,
-                             MtkRectangle        *dest)
-{
-  graphene_rect_t tmp = GRAPHENE_RECT_INIT (rect->x, rect->y,
-                                            rect->width, rect->height);
-
-  graphene_rect_scale (&tmp, scale, scale, &tmp);
-  mtk_rectangle_from_graphene_rect (&tmp, rounding_strategy, dest);
-}
-
 /**
  * meta_rectangle_transform:
  * @rect: the #MtkRectangle to be transformed

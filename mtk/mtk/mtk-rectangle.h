@@ -130,3 +130,9 @@ void mtk_rectangle_crop_and_scale (const MtkRectangle    *rect,
                                    int                    dst_width,
                                    int                    dst_height,
                                    MtkRectangle          *dest);
+
+MTK_EXPORT
+void mtk_rectangle_scale_double (const MtkRectangle  *rect,
+                                 double               scale,
+                                 MtkRoundingStrategy  rounding_strategy,
+                                 MtkRectangle        *dest);
