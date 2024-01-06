@@ -70,8 +70,6 @@ MetaWindowActorChanges meta_window_actor_sync_actor_geometry (MetaWindowActor *s
                                                               gboolean         did_placement);
 
 void     meta_window_actor_update_opacity      (MetaWindowActor *self);
-void     meta_window_actor_mapped              (MetaWindowActor *self);
-void     meta_window_actor_unmapped            (MetaWindowActor *self);
 void     meta_window_actor_sync_updates_frozen (MetaWindowActor *self);
 
 META_EXPORT_TEST

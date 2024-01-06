@@ -21,10 +21,9 @@
 
 #include "config.h"
 
-#include "compositor/meta-background-actor-private.h"
 #include "compositor/meta-background-content-private.h"
-
 #include "compositor/meta-cullable.h"
+#include "meta/meta-background-actor.h"
 
 enum
 {
@@ -192,21 +191,4 @@ cullable_iface_init (MetaCullableInterface *iface)
 {
   iface->cull_unobscured = meta_background_actor_cull_unobscured;
   iface->cull_redraw_clip = meta_background_actor_cull_redraw_clip;
-}
-
-/**
- * meta_background_actor_get_clip_region:
- * @self: a #MetaBackgroundActor
- *
- * Return value (transfer none): a #MtkRegion that represents the part of
- * the background not obscured by other #MetaBackgroundActor or
- * #MetaWindowActor objects.
- */
-MtkRegion *
-meta_background_actor_get_clip_region (MetaBackgroundActor *self)
-{
-  if (!self->content)
-    return NULL;
-
-  return meta_background_content_get_clip_region (self->content);
 }

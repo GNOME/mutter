@@ -1535,14 +1535,6 @@ meta_shaped_texture_set_buffer_scale (MetaShapedTexture *stex,
   invalidate_size (stex);
 }
 
-int
-meta_shaped_texture_get_buffer_scale (MetaShapedTexture *stex)
-{
-  g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), 1.0);
-
-  return stex->buffer_scale;
-}
-
 /**
  * meta_shaped_texture_get_width:
  * @stex: A #MetaShapedTexture

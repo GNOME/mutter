@@ -21,5 +21,3 @@
 #include "meta/meta-dnd.h"
 
 MetaDnd * meta_dnd_new (MetaBackend *backend);
-
-MetaBackend * meta_dnd_get_backend (MetaDnd *dnd);

@@ -294,7 +294,6 @@ mutter_sources = [
   'compositor/edge-resistance.c',
   'compositor/edge-resistance.h',
   'compositor/meta-background-actor.c',
-  'compositor/meta-background-actor-private.h',
   'compositor/meta-background-content.c',
   'compositor/meta-background-content-private.h',
   'compositor/meta-background.c',

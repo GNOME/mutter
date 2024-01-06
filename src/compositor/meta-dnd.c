@@ -117,14 +117,6 @@ meta_dnd_new (MetaBackend *backend)
   return dnd;
 }
 
-MetaBackend *
-meta_dnd_get_backend (MetaDnd *dnd)
-{
-  MetaDndPrivate *priv = meta_dnd_get_instance_private (dnd);
-
-  return priv->backend;
-}
-
 #ifdef HAVE_X11
 void
 meta_dnd_init_xdnd (MetaX11Display *x11_display)
@@ -252,8 +244,8 @@ meta_dnd_handle_xdnd_event (MetaBackend       *backend,
 static MetaWaylandDataDevice *
 data_device_from_dnd (MetaDnd *dnd)
 {
-  MetaBackend *backend = meta_dnd_get_backend (dnd);
-  MetaContext *context = meta_backend_get_context (backend);
+  MetaDndPrivate *priv = meta_dnd_get_instance_private (dnd);
+  MetaContext *context = meta_backend_get_context (priv->backend);
   MetaWaylandCompositor *compositor =
     meta_context_get_wayland_compositor (context);
 

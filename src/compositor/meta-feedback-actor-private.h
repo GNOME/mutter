@@ -44,11 +44,6 @@ struct _MetaFeedbackActorClass
   ClutterActorClass parent_class;
 };
 
-
-ClutterActor * meta_feedback_actor_new (MetaCompositor *compositor,
-                                        float           anchor_x,
-                                        float           anchor_y);
-
 void meta_feedback_actor_set_anchor (MetaFeedbackActor *actor,
                                      float              anchor_x,
                                      float              anchor_y);

@@ -196,29 +196,6 @@ meta_feedback_actor_init (MetaFeedbackActor *self)
   clutter_actor_set_reactive (CLUTTER_ACTOR (self), FALSE);
 }
 
-/**
- * meta_feedback_actor_new:
- *
- * Creates a new actor to draw the current drag and drop surface.
- *
- * Return value: the newly created background actor
- */
-ClutterActor *
-meta_feedback_actor_new (MetaCompositor *compositor,
-                         float           anchor_x,
-                         float           anchor_y)
-{
-  MetaFeedbackActor *self;
-
-  self = g_object_new (META_TYPE_FEEDBACK_ACTOR,
-                       "compositor", compositor,
-                       "anchor-x", anchor_x,
-                       "anchor-y", anchor_y,
-                       NULL);
-
-  return CLUTTER_ACTOR (self);
-}
-
 void
 meta_feedback_actor_set_anchor (MetaFeedbackActor *self,
                                 float              anchor_x,
