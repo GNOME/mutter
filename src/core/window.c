@@ -165,6 +165,8 @@ static MetaWindow * meta_window_find_tile_match (MetaWindow   *window,
                                                  MetaTileMode  mode);
 static void update_edge_constraints (MetaWindow *window);
 
+static gboolean meta_window_should_attach_to_parent (MetaWindow *window);
+
 static void initable_iface_init (GInitableIface *initable_iface);
 
 typedef struct _MetaWindowPrivate
@@ -2992,12 +2994,6 @@ meta_window_tile (MetaWindow   *window,
                                     window->unconstrained_rect);
 }
 
-MetaTileMode
-meta_window_get_tile_mode (MetaWindow *window)
-{
-  return window->tile_mode;
-}
-
 void
 meta_window_restore_tile (MetaWindow   *window,
                           MetaTileMode  mode,
@@ -5353,7 +5349,7 @@ meta_window_set_icon_geometry (MetaWindow   *window,
     }
 }
 
-GList*
+static GList*
 meta_window_get_workspaces (MetaWindow *window)
 {
   MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;

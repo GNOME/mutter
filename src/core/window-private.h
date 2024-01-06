@@ -630,12 +630,9 @@ struct _MetaWindowClass
 #define META_WINDOW_ALLOWS_RESIZE(w)   (META_WINDOW_ALLOWS_RESIZE_EXCEPT_HINTS (w) &&                \
                                         (((w)->size_hints.min_width < (w)->size_hints.max_width) ||  \
                                          ((w)->size_hints.min_height < (w)->size_hints.max_height)))
-#define META_WINDOW_ALLOWS_HORIZONTAL_RESIZE(w) (META_WINDOW_ALLOWS_RESIZE_EXCEPT_HINTS (w) && (w)->size_hints.min_width < (w)->size_hints.max_width)
-#define META_WINDOW_ALLOWS_VERTICAL_RESIZE(w)   (META_WINDOW_ALLOWS_RESIZE_EXCEPT_HINTS (w) && (w)->size_hints.min_height < (w)->size_hints.max_height)
 
 void        meta_window_unmanage           (MetaWindow  *window,
                                             guint32      timestamp);
-void        meta_window_unmanage_on_idle   (MetaWindow *window);
 void        meta_window_queue              (MetaWindow  *window,
                                             MetaQueueType queue_types);
 META_EXPORT_TEST
@@ -644,7 +641,6 @@ void        meta_window_untile             (MetaWindow        *window);
 META_EXPORT_TEST
 void        meta_window_tile               (MetaWindow        *window,
                                             MetaTileMode       mode);
-MetaTileMode meta_window_get_tile_mode     (MetaWindow        *window);
 void        meta_window_restore_tile       (MetaWindow        *window,
                                             MetaTileMode       mode,
                                             int                width,
@@ -697,8 +693,6 @@ void        meta_window_get_session_geometry (MetaWindow  *window,
                                               int         *width,
                                               int         *height);
 
-void        meta_window_update_unfocused_button_grabs (MetaWindow *window);
-
 void        meta_window_update_appears_focused (MetaWindow *window);
 
 void     meta_window_set_focused_internal (MetaWindow *window,
@@ -721,8 +715,6 @@ void meta_window_show_menu (MetaWindow         *window,
                             MetaWindowMenuType  menu,
                             int                 x,
                             int                 y);
-
-GList* meta_window_get_workspaces (MetaWindow *window);
 
 void meta_window_get_work_area_for_logical_monitor (MetaWindow         *window,
                                                     MetaLogicalMonitor *logical_monitor,
@@ -772,7 +764,6 @@ void meta_window_set_user_time (MetaWindow *window,
 void meta_window_update_for_monitors_changed (MetaWindow *window);
 void meta_window_on_all_workspaces_changed (MetaWindow *window);
 
-gboolean meta_window_should_attach_to_parent (MetaWindow *window);
 gboolean meta_window_can_tile_side_by_side   (MetaWindow *window,
                                               int         monitor_number);
 

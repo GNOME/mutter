@@ -62,6 +62,8 @@ static guint workspace_manager_signals [LAST_SIGNAL] = { 0 };
 static void prefs_changed_callback (MetaPreference pref,
                                     gpointer       data);
 
+static void meta_workspace_manager_init_workspaces (MetaWorkspaceManager *workspace_manager);
+
 static void
 meta_workspace_manager_get_property (GObject    *object,
                                      guint       prop_id,

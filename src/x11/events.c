@@ -253,7 +253,7 @@ event_get_time (MetaX11Display *x11_display,
     }
 }
 
-const char*
+static const char*
 meta_event_detail_to_string (int d)
 {
   const char *detail = "???";
@@ -290,7 +290,7 @@ meta_event_detail_to_string (int d)
   return detail;
 }
 
-const char*
+static const char*
 meta_event_mode_to_string (int m)
 {
   const char *mode = "???";

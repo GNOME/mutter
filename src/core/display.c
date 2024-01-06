@@ -208,6 +208,11 @@ static void    prefs_changed_callback    (MetaPreference pref,
 static int mru_cmp (gconstpointer a,
                     gconstpointer b);
 
+static void meta_display_reload_cursor (MetaDisplay *display);
+
+static void meta_display_unmanage_windows (MetaDisplay *display,
+                                           guint32      timestamp);
+
 static void
 meta_display_show_osd (MetaDisplay *display,
                        gint         monitor_idx,
@@ -1582,7 +1587,7 @@ meta_display_update_focus_window (MetaDisplay *display,
   g_object_notify (G_OBJECT (display), "focus-window");
 }
 
-gboolean
+static gboolean
 meta_display_timestamp_too_old (MetaDisplay *display,
                                 guint32     *timestamp)
 {
@@ -1823,7 +1828,7 @@ meta_display_is_grabbed (MetaDisplay *display)
   return meta_compositor_get_current_window_drag (display->compositor) != NULL;
 }
 
-void
+static void
 meta_display_queue_retheme_all_windows (MetaDisplay *display)
 {
   GSList* windows;
@@ -2944,7 +2949,7 @@ meta_display_notify_pad_group_switch (MetaDisplay        *display,
   g_string_free (message, TRUE);
 }
 
-void
+static void
 meta_display_foreach_window (MetaDisplay           *display,
                              MetaListWindowsFlags   flags,
                              MetaDisplayWindowFunc  func,

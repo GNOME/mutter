@@ -47,7 +47,6 @@ struct _MetaWorkspaceManager
 
 MetaWorkspaceManager *meta_workspace_manager_new (MetaDisplay *display);
 
-void meta_workspace_manager_init_workspaces         (MetaWorkspaceManager *workspace_manager);
 void meta_workspace_manager_update_workspace_layout (MetaWorkspaceManager *workspace_manager,
                                                      MetaDisplayCorner     starting_corner,
                                                      gboolean              vertical_layout,

@@ -37,9 +37,6 @@ struct _MetaStartupSequenceClass
 MetaStartupNotification *
          meta_startup_notification_new             (MetaDisplay             *display);
 
-gboolean meta_startup_notification_handle_xevent   (MetaStartupNotification *sn,
-                                                    XEvent                  *xevent);
-
 void     meta_startup_notification_add_sequence    (MetaStartupNotification *sn,
                                                     MetaStartupSequence     *seq);
 void     meta_startup_notification_remove_sequence (MetaStartupNotification *sn,

@@ -33,7 +33,6 @@
 #define META_EXPORT_TEST META_EXPORT
 
 void     meta_set_verbose (gboolean setting);
-void     meta_set_debugging (gboolean setting);
 
 void     meta_set_is_wayland_compositor (gboolean setting);
 

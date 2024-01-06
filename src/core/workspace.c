@@ -1304,12 +1304,6 @@ meta_workspace_get_neighbor (MetaWorkspace      *workspace,
   return meta_workspace_manager_get_workspace_by_index (workspace->manager, i);
 }
 
-const char*
-meta_workspace_get_name (MetaWorkspace *workspace)
-{
-  return meta_prefs_get_workspace_name (meta_workspace_index (workspace));
-}
-
 static MetaWindow *
 workspace_find_focused_window (MetaWorkspace *workspace)
 {

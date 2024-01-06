@@ -540,24 +540,6 @@ meta_gesture_tracker_set_sequence_state (MetaGestureTracker   *tracker,
   return TRUE;
 }
 
-MetaSequenceState
-meta_gesture_tracker_get_sequence_state (MetaGestureTracker   *tracker,
-                                         ClutterEventSequence *sequence)
-{
-  MetaGestureTrackerPrivate *priv;
-  MetaSequenceInfo *info;
-
-  g_return_val_if_fail (META_IS_GESTURE_TRACKER (tracker), META_SEQUENCE_PENDING_END);
-
-  priv = meta_gesture_tracker_get_instance_private (tracker);
-  info = g_hash_table_lookup (priv->sequences, sequence);
-
-  if (!info)
-    return META_SEQUENCE_PENDING_END;
-
-  return info->state;
-}
-
 gint
 meta_gesture_tracker_get_n_current_touches (MetaGestureTracker *tracker)
 {

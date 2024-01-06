@@ -102,6 +102,4 @@ MetaWindow * meta_workspace_get_default_focus_window_at_point (MetaWorkspace *wo
                                                                int            root_y);
 GList * meta_workspace_get_default_focus_candidates (MetaWorkspace *workspace);
 
-const char* meta_workspace_get_name (MetaWorkspace *workspace);
-
 void meta_workspace_index_changed (MetaWorkspace *workspace);
