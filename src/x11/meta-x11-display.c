@@ -109,6 +109,10 @@ static void meta_x11_display_set_input_focus (MetaX11Display *x11_display,
                                               MetaWindow     *window,
                                               uint32_t        timestamp);
 
+static Window meta_x11_display_create_offscreen_window (MetaX11Display *x11_display,
+                                                        Window          parent,
+                                                        long            valuemask);
+
 static MetaBackend *
 backend_from_x11_display (MetaX11Display *x11_display)
 {
@@ -1635,13 +1639,6 @@ meta_x11_display_create_offscreen_window (MetaX11Display *x11_display,
                         &attrs);
 }
 
-Cursor
-meta_x11_display_create_x_cursor (MetaX11Display *x11_display,
-                                  MetaCursor      cursor)
-{
-  return meta_create_x_cursor (x11_display->xdisplay, cursor);
-}
-
 static char *
 get_screen_name (Display *xdisplay,
                  int      number)
@@ -1672,14 +1669,14 @@ get_screen_name (Display *xdisplay,
   return scr;
 }
 
-void
+static void
 meta_x11_display_reload_cursor (MetaX11Display *x11_display)
 {
   Cursor xcursor;
   MetaCursor cursor = x11_display->display->current_cursor;
 
   /* Set a cursor for X11 applications that don't specify their own */
-  xcursor = meta_x11_display_create_x_cursor (x11_display, cursor);
+  xcursor = meta_create_x_cursor (x11_display->xdisplay, cursor);
 
   XDefineCursor (x11_display->xdisplay, x11_display->xroot, xcursor);
   XFlush (x11_display->xdisplay);

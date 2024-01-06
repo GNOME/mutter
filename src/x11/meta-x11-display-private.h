@@ -192,15 +192,6 @@ MetaX11Display *meta_x11_display_new (MetaDisplay *display, GError **error);
 
 void meta_x11_display_restore_active_workspace (MetaX11Display *x11_display);
 
-Window meta_x11_display_create_offscreen_window (MetaX11Display *x11_display,
-                                                 Window          parent,
-                                                 long            valuemask);
-
-Cursor meta_x11_display_create_x_cursor (MetaX11Display *x11_display,
-                                         MetaCursor      cursor);
-
-void meta_x11_display_reload_cursor (MetaX11Display *x11_display);
-
 MetaWindow *meta_x11_display_lookup_x_window     (MetaX11Display *x11_display,
                                                   Window          xwindow);
 void        meta_x11_display_register_x_window   (MetaX11Display *x11_display,
