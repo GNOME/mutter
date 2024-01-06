@@ -124,3 +124,9 @@ void mtk_rectangle_from_graphene_rect (const graphene_rect_t *rect,
                                        MtkRoundingStrategy    rounding_strategy,
                                        MtkRectangle          *dest);
 
+MTK_EXPORT
+void mtk_rectangle_crop_and_scale (const MtkRectangle    *rect,
+                                   const graphene_rect_t *src_rect,
+                                   int                    dst_width,
+                                   int                    dst_height,
+                                   MtkRectangle          *dest);

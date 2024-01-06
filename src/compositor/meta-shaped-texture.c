@@ -1113,11 +1113,11 @@ meta_shaped_texture_update_area (MetaShapedTexture *stex,
       inverted_dst_width = ceilf (viewport.size.width);
       inverted_dst_height = ceilf (viewport.size.height);
 
-      meta_rectangle_crop_and_scale (clip,
-                                     &inverted_viewport,
-                                     inverted_dst_width,
-                                     inverted_dst_height,
-                                     clip);
+      mtk_rectangle_crop_and_scale (clip,
+                                    &inverted_viewport,
+                                    inverted_dst_width,
+                                    inverted_dst_height,
+                                    clip);
     }
 
   meta_texture_mipmap_invalidate (stex->texture_mipmap);

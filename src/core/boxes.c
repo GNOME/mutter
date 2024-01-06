@@ -1946,21 +1946,3 @@ meta_rectangle_transform (const MtkRectangle   *rect,
     }
 }
 
-void
-meta_rectangle_crop_and_scale (const MtkRectangle *rect,
-                               graphene_rect_t    *src_rect,
-                               int                 dst_width,
-                               int                 dst_height,
-                               MtkRectangle       *dest)
-{
-  graphene_rect_t tmp = GRAPHENE_RECT_INIT (rect->x, rect->y,
-                                            rect->width, rect->height);
-
-  graphene_rect_scale (&tmp,
-                       src_rect->size.width / dst_width,
-                       src_rect->size.height / dst_height,
-                       &tmp);
-  graphene_rect_offset (&tmp, src_rect->origin.x, src_rect->origin.y);
-
-  mtk_rectangle_from_graphene_rect (&tmp, MTK_ROUNDING_STRATEGY_GROW, dest);
-}

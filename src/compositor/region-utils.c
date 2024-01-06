@@ -416,11 +416,11 @@ meta_region_crop_and_scale (MtkRegion       *region,
     {
       rects[i] = mtk_region_get_rectangle (region, i);
 
-      meta_rectangle_crop_and_scale (&rects[i],
-                                     src_rect,
-                                     dst_width,
-                                     dst_height,
-                                     &rects[i]);
+      mtk_rectangle_crop_and_scale (&rects[i],
+                                    src_rect,
+                                    dst_width,
+                                    dst_height,
+                                    &rects[i]);
     }
 
   viewport_region = mtk_region_create_rectangles (rects, n_rects);

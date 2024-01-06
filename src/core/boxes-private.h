@@ -253,9 +253,3 @@ void meta_rectangle_transform (const MtkRectangle   *rect,
                                int                   width,
                                int                   height,
                                MtkRectangle         *dest);
-
-void meta_rectangle_crop_and_scale (const MtkRectangle *rect,
-                                    graphene_rect_t    *src_rect,
-                                    int                 dst_width,
-                                    int                 dst_height,
-                                    MtkRectangle       *dest);
