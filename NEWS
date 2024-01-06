@@ -1,3 +1,24 @@
+45.3
+====
+* Fix handling of relative mode for tablets [Peter; !3410]
+* Fix forcing EGLStream with NVIDIA proprietary driver [Daniel; !2905]
+* Sync geometry only when window is mapped [Sebastian W.; !3401, !3404]
+* Improve repick due to transform changes [Carlos; !3385]
+* wayland/client: Add make_desktop() method [Florian; !3305]
+* Fix occasional artifacts at top of X11 fullscreen windows [Carlos; !3476]
+* background: Fix background color around image [Sebastian W.; !3459]
+* Fixed crashes [Sebastian K., Carlos, Jonas; !3453, !3422, !3335, !3392]
+* Plugged leaks [Robert, Sebastian K.; !3439, !3411]
+* Misc. bug fixes and cleanups [Sebastian W., Christopher, Daniel, Olivier,
+  Michel, Qiu, Carlos, Ivan, Mike, Mart, Bilal; !3456, !3455, !2620, !3447,
+  !3444, !3440, !3438, !3425, !3413, !3403, !3397, !3469, !3468, !3471, !3479]
+
+Contributors:
+  Jonas Ådahl, Robert Balas, Michel Dänzer, Bilal Elmoussaoui, Christopher Fore,
+  Olivier Fourdan, Carlos Garnacho, Mike Gorse, Peter Hutterer,
+  Sebastian Keller, Ivan Molodetskikh, Florian Müllner, Mart Raudsepp,
+  Daniel van Vugt, Qiu Wenbo, Sebastian Wick
+
 45.2
 ====
 * Disable HW cursor when inhibited by backend [Robert; !3412]
