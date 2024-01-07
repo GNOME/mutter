@@ -274,9 +274,7 @@ meta_surface_actor_class_init (MetaSurfaceActorClass *klass)
   actor_class->get_paint_volume = meta_surface_actor_get_paint_volume;
 
   obj_props[PROP_IS_OBSCURED] =
-    g_param_spec_boolean ("is-obscured",
-                          "is obscured",
-                          "If the surface actor is fully obscured",
+    g_param_spec_boolean ("is-obscured", NULL, NULL,
                           TRUE,
                           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);

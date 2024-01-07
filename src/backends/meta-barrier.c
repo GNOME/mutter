@@ -357,9 +357,7 @@ meta_barrier_class_init (MetaBarrierClass *klass)
                         G_PARAM_CONSTRUCT_ONLY |
                         G_PARAM_STATIC_STRINGS);
   obj_props[PROP_FLAGS] =
-    g_param_spec_flags ("flags",
-                        "Flags",
-                        "Flags for manipulating barrier behavior",
+    g_param_spec_flags ("flags", NULL, NULL,
                         META_TYPE_BARRIER_FLAGS,
                         META_BARRIER_FLAG_NONE,
                         G_PARAM_READWRITE |

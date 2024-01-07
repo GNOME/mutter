@@ -211,9 +211,7 @@ meta_window_actor_class_init (MetaWindowActorClass *klass)
                   G_TYPE_NONE, 0);
 
   obj_props[PROP_META_WINDOW] =
-    g_param_spec_object ("meta-window",
-                         "MetaWindow",
-                         "The displayed MetaWindow",
+    g_param_spec_object ("meta-window", NULL, NULL,
                          META_TYPE_WINDOW,
                          G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);

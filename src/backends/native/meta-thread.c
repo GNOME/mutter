@@ -708,27 +708,21 @@ meta_thread_class_init (MetaThreadClass *klass)
   object_class->finalize = meta_thread_finalize;
 
   obj_props[PROP_BACKEND] =
-    g_param_spec_object ("backend",
-                         "backend",
-                         "MetaBackend",
+    g_param_spec_object ("backend", NULL, NULL,
                          META_TYPE_BACKEND,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_NAME] =
-    g_param_spec_string ("name",
-                         "name",
-                         "Name of thread",
+    g_param_spec_string ("name", NULL, NULL,
                          NULL,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_THREAD_TYPE] =
-    g_param_spec_enum ("thread-type",
-                       "thread-type",
-                       "Type of thread",
+    g_param_spec_enum ("thread-type", NULL, NULL,
                        META_TYPE_THREAD_TYPE,
                        META_THREAD_TYPE_KERNEL,
                        G_PARAM_READWRITE |
@@ -736,9 +730,7 @@ meta_thread_class_init (MetaThreadClass *klass)
                        G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_WANTS_REALTIME] =
-    g_param_spec_boolean ("wants-realtime",
-                          "wants-realtime",
-                          "Wants real-time thread scheduling",
+    g_param_spec_boolean ("wants-realtime", NULL, NULL,
                           FALSE,
                           G_PARAM_READWRITE |
                           G_PARAM_CONSTRUCT_ONLY |

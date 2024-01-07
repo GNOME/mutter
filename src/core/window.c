@@ -609,9 +609,7 @@ meta_window_class_init (MetaWindowClass *klass)
    * MetaWindow::suspend-state: (skip)
    */
   obj_props[PROP_SUSPEND_STATE] =
-    g_param_spec_enum ("suspend-state",
-                       "Suspend state",
-                       "The suspend state of the window",
+    g_param_spec_enum ("suspend-state", NULL, NULL,
                        META_TYPE_WINDOW_SUSPEND_STATE,
                        META_WINDOW_SUSPEND_STATE_SUSPENDED,
                        G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
