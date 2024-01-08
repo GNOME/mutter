@@ -92,11 +92,6 @@ void     meta_region_iterator_init      (MetaRegionIterator *iter,
 gboolean meta_region_iterator_at_end    (MetaRegionIterator *iter);
 void     meta_region_iterator_next      (MetaRegionIterator *iter);
 
-MtkRegion * meta_make_border_region (MtkRegion *region,
-                                     int        x_amount,
-                                     int        y_amount,
-                                     gboolean   flip);
-
 MtkRegion * meta_region_transform (const MtkRegion      *region,
                                    MetaMonitorTransform  transform,
                                    int                   width,
