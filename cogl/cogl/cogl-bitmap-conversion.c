@@ -45,16 +45,22 @@ typedef enum
   MEDIUM_TYPE_FLOAT,
 } MediumType;
 
+G_STATIC_ASSERT (sizeof (uint32_t) == sizeof (GLfloat));
+
 inline static uint32_t
 pack_flt (GLfloat b)
 {
-  return *(uint32_t *) &b;
+  uint32_t ret;
+  memcpy (&ret, &b, sizeof (uint32_t));
+  return ret;
 }
 
 inline static GLfloat
 unpack_flt (uint32_t b)
 {
-  return *(GLfloat *) &b;
+  GLfloat ret;
+  memcpy (&ret, &b, sizeof (GLfloat));
+  return ret;
 }
 
 #define CLAMP_NORM(b) (MAX (MIN ((b), 1.0), 0.0))
