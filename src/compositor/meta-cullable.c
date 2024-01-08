@@ -26,7 +26,6 @@
 #include "clutter/clutter-mutter.h"
 #include "compositor/clutter-utils.h"
 #include "compositor/meta-cullable.h"
-#include "compositor/region-utils.h"
 
 G_DEFINE_INTERFACE (MetaCullable, meta_cullable, CLUTTER_TYPE_ACTOR);
 

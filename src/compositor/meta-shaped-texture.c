@@ -44,7 +44,6 @@
 #include "cogl/cogl.h"
 #include "compositor/clutter-utils.h"
 #include "compositor/meta-texture-mipmap.h"
-#include "compositor/region-utils.h"
 #include "core/boxes-private.h"
 #include "meta/meta-shaped-texture.h"
 

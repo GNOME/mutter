@@ -176,3 +176,35 @@ gboolean mtk_region_iterator_at_end (MtkRegionIterator *iter);
 
 MTK_EXPORT
 void mtk_region_iterator_next (MtkRegionIterator *iter);
+
+typedef struct _MtkRegionBuilder MtkRegionBuilder;
+
+#define MTK_REGION_BUILDER_MAX_LEVELS 16
+
+struct _MtkRegionBuilder {
+  /* To merge regions in binary tree order, we need to keep track of
+   * the regions that we've already merged together at different
+   * levels of the tree. We fill in an array in the pattern:
+   *
+   * |a  |
+   * |b  |a  |
+   * |c  |   |ab |
+   * |d  |c  |ab |
+   * |e  |   |   |abcd|
+   */
+  MtkRegion *levels[MTK_REGION_BUILDER_MAX_LEVELS];
+  int n_levels;
+};
+
+MTK_EXPORT
+void mtk_region_builder_init (MtkRegionBuilder *builder);
+
+MTK_EXPORT
+void mtk_region_builder_add_rectangle (MtkRegionBuilder *builder,
+                                       int               x,
+                                       int               y,
+                                       int               width,
+                                       int               height);
+
+MTK_EXPORT
+MtkRegion * mtk_region_builder_finish (MtkRegionBuilder *builder);

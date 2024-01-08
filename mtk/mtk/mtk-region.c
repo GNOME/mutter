@@ -515,3 +515,104 @@ mtk_region_iterator_next (MtkRegionIterator *iter)
       iter->line_end = TRUE;
     }
 }
+
+/* Various algorithms in this file require unioning together a set of rectangles
+ * that are unsorted or overlap; unioning such a set of rectangles 1-by-1
+ * using mtk_region_union_rectangle() produces O(N^2) behavior (if the union
+ * adds or removes rectangles in the middle of the region, then it has to
+ * move all the rectangles after that.) To avoid this behavior, MtkRegionBuilder
+ * creates regions for small groups of rectangles and merges them together in
+ * a binary tree.
+ *
+ * Possible improvement: From a glance at the code, accumulating all the rectangles
+ *  into a flat array and then calling the (not usefully documented)
+ *  mtk_region_create_rectangles() would have the same behavior and would be
+ *  simpler and a bit more efficient.
+ */
+
+/* Optimium performance seems to be with MAX_CHUNK_RECTANGLES=4; 8 is about 10% slower.
+ * But using 8 may be more robust to systems with slow malloc(). */
+#define MAX_CHUNK_RECTANGLES 8
+
+void
+mtk_region_builder_init (MtkRegionBuilder *builder)
+{
+  int i;
+
+  for (i = 0; i < MTK_REGION_BUILDER_MAX_LEVELS; i++)
+    builder->levels[i] = NULL;
+  builder->n_levels = 1;
+}
+
+void
+mtk_region_builder_add_rectangle (MtkRegionBuilder *builder,
+                                  int               x,
+                                  int               y,
+                                  int               width,
+                                  int               height)
+{
+  MtkRectangle rect;
+  int i;
+
+  if (builder->levels[0] == NULL)
+    builder->levels[0] = mtk_region_create ();
+
+  rect.x = x;
+  rect.y = y;
+  rect.width = width;
+  rect.height = height;
+
+  mtk_region_union_rectangle (builder->levels[0], &rect);
+  if (mtk_region_num_rectangles (builder->levels[0]) >= MAX_CHUNK_RECTANGLES)
+    {
+      for (i = 1; i < builder->n_levels + 1; i++)
+        {
+          if (builder->levels[i] == NULL)
+            {
+              if (i < MTK_REGION_BUILDER_MAX_LEVELS)
+                {
+                  builder->levels[i] = builder->levels[i - 1];
+                  builder->levels[i - 1] = NULL;
+                  if (i == builder->n_levels)
+                    builder->n_levels++;
+                }
+
+              break;
+            }
+          else
+            {
+              mtk_region_union (builder->levels[i], builder->levels[i - 1]);
+              mtk_region_unref (builder->levels[i - 1]);
+              builder->levels[i - 1] = NULL;
+            }
+        }
+    }
+}
+
+MtkRegion *
+mtk_region_builder_finish (MtkRegionBuilder *builder)
+{
+  MtkRegion *result = NULL;
+  int i;
+
+  for (i = 0; i < builder->n_levels; i++)
+    {
+      if (builder->levels[i])
+        {
+          if (result == NULL)
+            {
+              result = builder->levels[i];
+            }
+          else
+            {
+              mtk_region_union (result, builder->levels[i]);
+              mtk_region_unref (builder->levels[i]);
+            }
+        }
+    }
+
+  if (result == NULL)
+    result = mtk_region_create ();
+
+  return result;
+}

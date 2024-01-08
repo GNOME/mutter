@@ -22,7 +22,6 @@
 #include <string.h>
 
 #include "compositor/cogl-utils.h"
-#include "compositor/region-utils.h"
 #include "meta/meta-shadow-factory.h"
 #include "meta/util.h"
 
@@ -700,23 +699,23 @@ flip_buffer (guchar *buffer,
 }
 
 static void
-add_expanded_rect (MetaRegionBuilder  *builder,
-                   int                 x,
-                   int                 y,
-                   int                 width,
-                   int                 height,
-                   int                 x_amount,
-                   int                 y_amount,
-                   gboolean            flip)
+add_expanded_rect (MtkRegionBuilder *builder,
+                   int               x,
+                   int               y,
+                   int               width,
+                   int               height,
+                   int               x_amount,
+                   int               y_amount,
+                   gboolean          flip)
 {
   if (flip)
-    meta_region_builder_add_rectangle (builder,
-                                       y - y_amount, x - x_amount,
-                                       height + 2 * y_amount, width + 2 * x_amount);
+    mtk_region_builder_add_rectangle (builder,
+                                      y - y_amount, x - x_amount,
+                                      height + 2 * y_amount, width + 2 * x_amount);
   else
-    meta_region_builder_add_rectangle (builder,
-                                       x - x_amount, y - y_amount,
-                                       width + 2 * x_amount, height + 2 * y_amount);
+    mtk_region_builder_add_rectangle (builder,
+                                      x - x_amount, y - y_amount,
+                                      width + 2 * x_amount, height + 2 * y_amount);
 }
 
 static MtkRegion *
@@ -725,11 +724,11 @@ expand_region (MtkRegion *region,
                int        y_amount,
                gboolean   flip)
 {
-  MetaRegionBuilder builder;
+  MtkRegionBuilder builder;
   int n;
   int i;
 
-  meta_region_builder_init (&builder);
+  mtk_region_builder_init (&builder);
 
   n = mtk_region_num_rectangles (region);
   for (i = 0; i < n; i++)
@@ -742,7 +741,7 @@ expand_region (MtkRegion *region,
                          x_amount, y_amount, flip);
     }
 
-  return meta_region_builder_finish (&builder);
+  return mtk_region_builder_finish (&builder);
 }
 
 /* This computes a (clipped version) of the inverse of the region
@@ -753,12 +752,12 @@ expand_region_inverse (MtkRegion *region,
                        int        y_amount,
                        gboolean   flip)
 {
-  MetaRegionBuilder builder;
+  MtkRegionBuilder builder;
   MtkRegionIterator iter;
   MtkRectangle extents;
   int last_x;
 
-  meta_region_builder_init (&builder);
+  mtk_region_builder_init (&builder);
 
   extents = mtk_region_get_extents (region);
   add_expanded_rect (&builder,
@@ -800,7 +799,7 @@ expand_region_inverse (MtkRegion *region,
         }
     }
 
-  return meta_region_builder_finish (&builder);
+  return mtk_region_builder_finish (&builder);
 }
 
 /**

@@ -31,7 +31,6 @@
 #include "backends/meta-screen-cast-window.h"
 #include "compositor/meta-shaped-texture-private.h"
 #include "compositor/meta-window-actor-private.h"
-#include "compositor/region-utils.h"
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-subsurface.h"

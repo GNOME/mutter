@@ -24,7 +24,6 @@
 #include "compositor/meta-cullable.h"
 #include "compositor/meta-surface-actor-wayland.h"
 #include "compositor/meta-window-actor-wayland.h"
-#include "compositor/region-utils.h"
 #include "meta/meta-window-actor.h"
 #include "wayland/meta-wayland-surface-private.h"
 #include "wayland/meta-window-wayland.h"

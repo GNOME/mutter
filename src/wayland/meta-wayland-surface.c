@@ -31,7 +31,7 @@
 #include "compositor/meta-surface-actor-wayland.h"
 #include "compositor/meta-surface-actor.h"
 #include "compositor/meta-window-actor-private.h"
-#include "compositor/region-utils.h"
+#include "core/boxes-private.h"
 #include "core/display-private.h"
 #include "core/window-private.h"
 #include "wayland/meta-wayland-actor-surface.h"

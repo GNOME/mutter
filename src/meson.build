@@ -334,8 +334,6 @@ mutter_sources = [
   'compositor/meta-window-group.c',
   'compositor/meta-window-group-private.h',
   'compositor/meta-window-shape.c',
-  'compositor/region-utils.c',
-  'compositor/region-utils.h',
   'core/bell.c',
   'core/bell.h',
   'core/boxes.c',

@@ -9,7 +9,6 @@
 #include "compositor/meta-cullable.h"
 #include "compositor/meta-window-actor-private.h"
 #include "compositor/meta-window-group-private.h"
-#include "compositor/region-utils.h"
 #include "core/display-private.h"
 #include "core/window-private.h"
 

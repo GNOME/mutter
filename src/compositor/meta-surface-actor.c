@@ -24,7 +24,6 @@
 #include "compositor/meta-cullable.h"
 #include "compositor/meta-shaped-texture-private.h"
 #include "compositor/meta-window-actor-private.h"
-#include "compositor/region-utils.h"
 #include "meta/meta-shaped-texture.h"
 
 enum

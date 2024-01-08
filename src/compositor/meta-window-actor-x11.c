@@ -29,7 +29,6 @@
 #include "compositor/meta-shaped-texture-private.h"
 #include "compositor/meta-surface-actor.h"
 #include "compositor/meta-surface-actor-x11.h"
-#include "compositor/region-utils.h"
 #include "core/frame.h"
 #include "core/window-private.h"
 #include "meta/compositor.h"
@@ -705,9 +704,9 @@ scan_visible_region (guchar    *mask_data,
                      MtkRegion *scan_area)
 {
   int i, n_rects = mtk_region_num_rectangles (scan_area);
-  MetaRegionBuilder builder;
+  MtkRegionBuilder builder;
 
-  meta_region_builder_init (&builder);
+  mtk_region_builder_init (&builder);
 
   for (i = 0; i < n_rects; i++)
     {
@@ -726,14 +725,14 @@ scan_visible_region (guchar    *mask_data,
 
               if (x2 > x)
                 {
-                  meta_region_builder_add_rectangle (&builder, x, y, x2 - x, 1);
+                  mtk_region_builder_add_rectangle (&builder, x, y, x2 - x, 1);
                   x = x2;
                 }
             }
         }
     }
 
-  return meta_region_builder_finish (&builder);
+  return mtk_region_builder_finish (&builder);
 }
 
 static void

@@ -35,7 +35,7 @@
 #include "backends/meta-crtc.h"
 #include "backends/meta-renderer.h"
 #include "clutter/clutter-mutter.h"
-#include "compositor/region-utils.h"
+#include "core/boxes-private.h"
 
 enum
 {

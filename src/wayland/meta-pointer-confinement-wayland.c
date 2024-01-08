@@ -38,7 +38,6 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-pointer-constraint.h"
-#include "compositor/region-utils.h"
 #include "wayland/meta-wayland-pointer-constraints.h"
 #include "wayland/meta-wayland-pointer.h"
 #include "wayland/meta-wayland-seat.h"
