@@ -335,7 +335,7 @@ surface_process_damage (MetaWaylandSurface *surface,
                                                     &src_rect,
                                                     surface_rect.width,
                                                     surface_rect.height);
-      scaled_region = meta_region_scale (viewport_region, surface_scale);
+      scaled_region = mtk_region_scale (viewport_region, surface_scale);
       transformed_region = meta_region_transform (scaled_region,
                                                   surface->buffer_transform,
                                                   buffer_rect.width,

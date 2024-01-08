@@ -114,4 +114,8 @@ MTK_EXPORT
 MtkRegionOverlap mtk_region_contains_rectangle (const MtkRegion    *region,
                                                 const MtkRectangle *rect);
 
+MTK_EXPORT
+MtkRegion * mtk_region_scale (MtkRegion *region,
+                              int        scale);
+
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MtkRegion, mtk_region_unref)

@@ -176,33 +176,6 @@ meta_region_iterator_next (MetaRegionIterator *iter)
     }
 }
 
-MtkRegion *
-meta_region_scale (MtkRegion *region,
-                   int        scale)
-{
-  int n_rects, i;
-  MtkRectangle *rects;
-  MtkRegion *scaled_region;
-
-  if (scale == 1)
-    return mtk_region_copy (region);
-
-  n_rects = mtk_region_num_rectangles (region);
-  MTK_RECTANGLE_CREATE_ARRAY_SCOPED (n_rects, rects);
-  for (i = 0; i < n_rects; i++)
-    {
-      rects[i] = mtk_region_get_rectangle (region, i);
-      rects[i].x *= scale;
-      rects[i].y *= scale;
-      rects[i].width *= scale;
-      rects[i].height *= scale;
-    }
-
-  scaled_region = mtk_region_create_rectangles (rects, n_rects);
-
-  return scaled_region;
-}
-
 static void
 add_expanded_rect (MetaRegionBuilder  *builder,
                    int                 x,

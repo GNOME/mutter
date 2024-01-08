@@ -92,9 +92,6 @@ void     meta_region_iterator_init      (MetaRegionIterator *iter,
 gboolean meta_region_iterator_at_end    (MetaRegionIterator *iter);
 void     meta_region_iterator_next      (MetaRegionIterator *iter);
 
-MtkRegion * meta_region_scale (MtkRegion *region,
-                               int        scale);
-
 MtkRegion * meta_make_border_region (MtkRegion *region,
                                      int        x_amount,
                                      int        y_amount,

@@ -240,7 +240,7 @@ meta_pointer_confinement_wayland_create_constraint (MetaPointerConfinementWaylan
     {
       g_autoptr (MtkRegion) scaled_region = NULL;
 
-      scaled_region = meta_region_scale (region, geometry_scale);
+      scaled_region = mtk_region_scale (region, geometry_scale);
       g_clear_pointer (&region, mtk_region_unref);
       region = g_steal_pointer (&scaled_region);
     }
