@@ -27,7 +27,7 @@
 
 #include <string.h>
 
-#include "compositor/region-utils.h"
+#include "mtk/mtk-region.h"
 
 struct _MetaWindowShape
 {
@@ -43,7 +43,7 @@ MetaWindowShape *
 meta_window_shape_new (MtkRegion *region)
 {
   MetaWindowShape *shape;
-  MetaRegionIterator iter;
+  MtkRegionIterator iter;
   MtkRectangle extents;
   int max_yspan_y1 = 0;
   int max_yspan_y2 = 0;
@@ -66,9 +66,9 @@ meta_window_shape_new (MtkRegion *region)
       return shape;
     }
 
-  for (meta_region_iterator_init (&iter, region);
-       !meta_region_iterator_at_end (&iter);
-       meta_region_iterator_next (&iter))
+  for (mtk_region_iterator_init (&iter, region);
+       !mtk_region_iterator_at_end (&iter);
+       mtk_region_iterator_next (&iter))
     {
       int max_line_xspan_x1 = -1;
       int max_line_xspan_x2 = -1;
@@ -117,9 +117,9 @@ meta_window_shape_new (MtkRegion *region)
   shape->rectangles = g_new (MtkRectangle, shape->n_rectangles);
 
   hash = 0;
-  for (meta_region_iterator_init (&iter, region);
-       !meta_region_iterator_at_end (&iter);
-       meta_region_iterator_next (&iter))
+  for (mtk_region_iterator_init (&iter, region);
+       !mtk_region_iterator_at_end (&iter);
+       mtk_region_iterator_next (&iter))
     {
       int x1, x2, y1, y2;
 

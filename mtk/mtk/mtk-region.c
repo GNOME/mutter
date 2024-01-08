@@ -468,3 +468,50 @@ mtk_region_apply_matrix_transform_expand (const MtkRegion   *region,
 
   return transformed_region;
 }
+
+void
+mtk_region_iterator_init (MtkRegionIterator *iter,
+                          MtkRegion         *region)
+{
+  iter->region = region;
+  iter->i = 0;
+  iter->n_rectangles = mtk_region_num_rectangles (region);
+  iter->line_start = TRUE;
+
+  if (iter->n_rectangles > 1)
+    {
+      iter->rectangle = mtk_region_get_rectangle (region, 0);
+      iter->next_rectangle = mtk_region_get_rectangle (region, 1);
+
+      iter->line_end = iter->next_rectangle.y != iter->rectangle.y;
+    }
+  else if (iter->n_rectangles > 0)
+    {
+      iter->rectangle = mtk_region_get_rectangle (region, 0);
+      iter->line_end = TRUE;
+    }
+}
+
+gboolean
+mtk_region_iterator_at_end (MtkRegionIterator *iter)
+{
+  return iter->i >= iter->n_rectangles;
+}
+
+void
+mtk_region_iterator_next (MtkRegionIterator *iter)
+{
+  iter->i++;
+  iter->rectangle = iter->next_rectangle;
+  iter->line_start = iter->line_end;
+
+  if (iter->i + 1 < iter->n_rectangles)
+    {
+      iter->next_rectangle = mtk_region_get_rectangle (iter->region, iter->i + 1);
+      iter->line_end = iter->next_rectangle.y != iter->rectangle.y;
+    }
+  else
+    {
+      iter->line_end = TRUE;
+    }
+}

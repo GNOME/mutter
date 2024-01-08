@@ -754,7 +754,7 @@ expand_region_inverse (MtkRegion *region,
                        gboolean   flip)
 {
   MetaRegionBuilder builder;
-  MetaRegionIterator iter;
+  MtkRegionIterator iter;
   MtkRectangle extents;
   int last_x;
 
@@ -775,9 +775,9 @@ expand_region_inverse (MtkRegion *region,
                      x_amount, y_amount, flip);
 
   last_x = extents.x;
-  for (meta_region_iterator_init (&iter, region);
-       !meta_region_iterator_at_end (&iter);
-       meta_region_iterator_next (&iter))
+  for (mtk_region_iterator_init (&iter, region);
+       !mtk_region_iterator_at_end (&iter);
+       mtk_region_iterator_next (&iter))
     {
       if (iter.rectangle.x > last_x)
         add_expanded_rect (&builder,

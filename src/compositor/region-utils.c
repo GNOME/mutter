@@ -126,56 +126,6 @@ meta_region_builder_finish (MetaRegionBuilder *builder)
   return result;
 }
 
-
-/* MetaRegionIterator */
-
-void
-meta_region_iterator_init (MetaRegionIterator *iter,
-                           MtkRegion          *region)
-{
-  iter->region = region;
-  iter->i = 0;
-  iter->n_rectangles = mtk_region_num_rectangles (region);
-  iter->line_start = TRUE;
-
-  if (iter->n_rectangles > 1)
-    {
-      iter->rectangle = mtk_region_get_rectangle (region, 0);
-      iter->next_rectangle = mtk_region_get_rectangle (region, 1);
-
-      iter->line_end = iter->next_rectangle.y != iter->rectangle.y;
-    }
-  else if (iter->n_rectangles > 0)
-    {
-      iter->rectangle = mtk_region_get_rectangle (region, 0);
-      iter->line_end = TRUE;
-    }
-}
-
-gboolean
-meta_region_iterator_at_end (MetaRegionIterator *iter)
-{
-  return iter->i >= iter->n_rectangles;
-}
-
-void
-meta_region_iterator_next (MetaRegionIterator *iter)
-{
-  iter->i++;
-  iter->rectangle = iter->next_rectangle;
-  iter->line_start = iter->line_end;
-
-  if (iter->i + 1 < iter->n_rectangles)
-    {
-      iter->next_rectangle = mtk_region_get_rectangle (iter->region, iter->i + 1);
-      iter->line_end = iter->next_rectangle.y != iter->rectangle.y;
-    }
-  else
-    {
-      iter->line_end = TRUE;
-    }
-}
-
 MtkRegion *
 meta_region_transform (const MtkRegion      *region,
                        MetaMonitorTransform  transform,

@@ -26,41 +26,6 @@
 #include "clutter/clutter.h"
 #include "core/boxes-private.h"
 
-/**
- * MetaRegionIterator:
- * @region: region being iterated
- * @rectangle: current rectangle
- * @line_start: whether the current rectangle starts a horizontal band
- * @line_end: whether the current rectangle ends a horizontal band
- *
- * MtkRegion is a yx banded region; sometimes its useful to iterate through
- * such a region treating the start and end of each horizontal band in a distinct
- * fashion.
- *
- * Usage:
- *
- *  MetaRegionIterator iter;
- *  for (meta_region_iterator_init (&iter, region);
- *       !meta_region_iterator_at_end (&iter);
- *       meta_region_iterator_next (&iter))
- *  {
- *    [ Use iter.rectangle, iter.line_start, iter.line_end ]
- *  }
- */
-typedef struct _MetaRegionIterator MetaRegionIterator;
-
-struct _MetaRegionIterator {
-  MtkRegion *region;
-  MtkRectangle rectangle;
-  gboolean line_start;
-  gboolean line_end;
-  int i;
-
-  /*< private >*/
-  int n_rectangles;
-  MtkRectangle next_rectangle;
-};
-
 typedef struct _MetaRegionBuilder MetaRegionBuilder;
 
 #define META_REGION_BUILDER_MAX_LEVELS 16
@@ -86,11 +51,6 @@ void     meta_region_builder_add_rectangle (MetaRegionBuilder *builder,
                                             int                width,
                                             int                height);
 MtkRegion * meta_region_builder_finish (MetaRegionBuilder *builder);
-
-void     meta_region_iterator_init      (MetaRegionIterator *iter,
-                                         MtkRegion          *region);
-gboolean meta_region_iterator_at_end    (MetaRegionIterator *iter);
-void     meta_region_iterator_next      (MetaRegionIterator *iter);
 
 MtkRegion * meta_region_transform (const MtkRegion      *region,
                                    MetaMonitorTransform  transform,
