@@ -28,7 +28,15 @@
 #include "backends/native/meta-input-thread.h"
 #include "backends/native/meta-input-settings-native.h"
 
-G_DEFINE_TYPE (MetaInputSettingsNative, meta_input_settings_native, META_TYPE_INPUT_SETTINGS)
+struct _MetaInputSettingsNative
+{
+  MetaInputSettings parent_instance;
+  MetaSeatImpl *seat_impl;
+};
+
+G_DEFINE_FINAL_TYPE (MetaInputSettingsNative,
+                     meta_input_settings_native,
+                     META_TYPE_INPUT_SETTINGS)
 
 enum
 {
