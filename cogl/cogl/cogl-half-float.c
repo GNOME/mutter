@@ -31,6 +31,13 @@
 
 #include <math.h>
 
+#if defined(__SSE__) || \
+    (defined(_M_IX86_FP) && (_M_IX86_FP >= 1)) || \
+    (defined(_M_X64) && !defined(_M_ARM64EC))
+#include <xmmintrin.h>
+#include <emmintrin.h>
+#endif
+
 #include "cogl/cogl-half-float.h"
 #include "cogl/cogl-soft-float.h"
 
