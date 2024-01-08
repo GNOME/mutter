@@ -261,6 +261,37 @@ meta_wayland_surface_assign_role (MetaWaylandSurface *surface,
     }
 }
 
+static MtkRegion *
+region_transform (const MtkRegion      *region,
+                  MetaMonitorTransform  transform,
+                  int                   width,
+                  int                   height)
+{
+  MtkRegion *transformed_region;
+  MtkRectangle *rects;
+  int n_rects, i;
+
+  if (transform == META_MONITOR_TRANSFORM_NORMAL)
+    return mtk_region_copy (region);
+
+  n_rects = mtk_region_num_rectangles (region);
+  MTK_RECTANGLE_CREATE_ARRAY_SCOPED (n_rects, rects);
+  for (i = 0; i < n_rects; i++)
+    {
+      rects[i] = mtk_region_get_rectangle (region, i);
+
+      meta_rectangle_transform (&rects[i],
+                                transform,
+                                width,
+                                height,
+                                &rects[i]);
+    }
+
+  transformed_region = mtk_region_create_rectangles (rects, n_rects);
+
+  return transformed_region;
+}
+
 static void
 surface_process_damage (MetaWaylandSurface *surface,
                         MtkRegion          *surface_region,
@@ -336,10 +367,10 @@ surface_process_damage (MetaWaylandSurface *surface,
                                                    surface_rect.width,
                                                    surface_rect.height);
       scaled_region = mtk_region_scale (viewport_region, surface_scale);
-      transformed_region = meta_region_transform (scaled_region,
-                                                  surface->buffer_transform,
-                                                  buffer_rect.width,
-                                                  buffer_rect.height);
+      transformed_region = region_transform (scaled_region,
+                                             surface->buffer_transform,
+                                             buffer_rect.width,
+                                             buffer_rect.height);
 
       /* Now add the scaled, cropped and transformed damage region to the
        * buffer damage. Buffer damage is already in the correct coordinate

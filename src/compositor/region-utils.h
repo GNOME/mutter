@@ -51,8 +51,3 @@ void     meta_region_builder_add_rectangle (MetaRegionBuilder *builder,
                                             int                width,
                                             int                height);
 MtkRegion * meta_region_builder_finish (MetaRegionBuilder *builder);
-
-MtkRegion * meta_region_transform (const MtkRegion      *region,
-                                   MetaMonitorTransform  transform,
-                                   int                   width,
-                                   int                   height);

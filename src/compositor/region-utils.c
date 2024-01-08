@@ -125,34 +125,3 @@ meta_region_builder_finish (MetaRegionBuilder *builder)
 
   return result;
 }
-
-MtkRegion *
-meta_region_transform (const MtkRegion      *region,
-                       MetaMonitorTransform  transform,
-                       int                   width,
-                       int                   height)
-{
-  int n_rects, i;
-  MtkRectangle *rects;
-  MtkRegion *transformed_region;
-
-  if (transform == META_MONITOR_TRANSFORM_NORMAL)
-    return mtk_region_copy (region);
-
-  n_rects = mtk_region_num_rectangles (region);
-  MTK_RECTANGLE_CREATE_ARRAY_SCOPED (n_rects, rects);
-  for (i = 0; i < n_rects; i++)
-    {
-      rects[i] = mtk_region_get_rectangle (region, i);
-
-      meta_rectangle_transform (&rects[i],
-                                transform,
-                                width,
-                                height,
-                                &rects[i]);
-    }
-
-  transformed_region = mtk_region_create_rectangles (rects, n_rects);
-
-  return transformed_region;
-}
