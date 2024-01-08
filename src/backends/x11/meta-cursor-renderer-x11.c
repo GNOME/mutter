@@ -30,20 +30,20 @@
 #include "backends/meta-stage-private.h"
 #include "backends/x11/meta-backend-x11.h"
 
-struct _MetaCursorRendererX11Private
+struct _MetaCursorRendererX11
 {
+  MetaCursorRenderer parent_instance;
+
   gboolean server_cursor_visible;
 };
-typedef struct _MetaCursorRendererX11Private MetaCursorRendererX11Private;
 
-G_DEFINE_TYPE_WITH_PRIVATE (MetaCursorRendererX11, meta_cursor_renderer_x11, META_TYPE_CURSOR_RENDERER);
+G_DEFINE_FINAL_TYPE (MetaCursorRendererX11, meta_cursor_renderer_x11, META_TYPE_CURSOR_RENDERER);
 
 static gboolean
 meta_cursor_renderer_x11_update_cursor (MetaCursorRenderer *renderer,
                                         MetaCursorSprite   *cursor_sprite)
 {
   MetaCursorRendererX11 *x11 = META_CURSOR_RENDERER_X11 (renderer);
-  MetaCursorRendererX11Private *priv = meta_cursor_renderer_x11_get_instance_private (x11);
   MetaBackend *backend = meta_cursor_renderer_get_backend (renderer);
   MetaBackendX11 *backend_x11 = META_BACKEND_X11 (backend);
   Window xwindow = meta_backend_x11_get_xwindow (backend_x11);
@@ -78,20 +78,20 @@ meta_cursor_renderer_x11_update_cursor (MetaCursorRenderer *renderer,
         }
     }
 
-  if (has_server_cursor != priv->server_cursor_visible)
+  if (has_server_cursor != x11->server_cursor_visible)
     {
       if (has_server_cursor)
         XFixesShowCursor (xdisplay, xwindow);
       else
         XFixesHideCursor (xdisplay, xwindow);
 
-      priv->server_cursor_visible = has_server_cursor;
+      x11->server_cursor_visible = has_server_cursor;
     }
 
   if (cursor_sprite)
     meta_cursor_sprite_realize_texture (cursor_sprite);
 
-  return !priv->server_cursor_visible;
+  return !x11->server_cursor_visible;
 }
 
 static void
@@ -105,8 +105,6 @@ meta_cursor_renderer_x11_class_init (MetaCursorRendererX11Class *klass)
 static void
 meta_cursor_renderer_x11_init (MetaCursorRendererX11 *x11)
 {
-  MetaCursorRendererX11Private *priv = meta_cursor_renderer_x11_get_instance_private (x11);
-
   /* XFixes has no way to retrieve the current cursor visibility. */
-  priv->server_cursor_visible = TRUE;
+  x11->server_cursor_visible = TRUE;
 }
