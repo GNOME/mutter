@@ -101,7 +101,3 @@ MtkRegion * meta_region_transform (const MtkRegion      *region,
                                    MetaMonitorTransform  transform,
                                    int                   width,
                                    int                   height);
-
-MtkRegion *
-meta_region_apply_matrix_transform_expand (const MtkRegion   *region,
-                                           graphene_matrix_t *transform);

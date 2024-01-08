@@ -53,7 +53,7 @@ region_apply_transform_expand_maybe_ref (MtkRegion         *region,
   if (mtk_region_is_empty (region))
     return mtk_region_ref (region);
 
-  return meta_region_apply_matrix_transform_expand (region, transform);
+  return mtk_region_apply_matrix_transform_expand (region, transform);
 }
 
 /**

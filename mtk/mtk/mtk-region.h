@@ -124,4 +124,8 @@ MtkRegion * mtk_region_crop_and_scale (MtkRegion       *region,
                                        int              dst_width,
                                        int              dst_height);
 
+MTK_EXPORT
+MtkRegion * mtk_region_apply_matrix_transform_expand (const MtkRegion   *region,
+                                                      graphene_matrix_t *transform);
+
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MtkRegion, mtk_region_unref)

@@ -120,8 +120,8 @@ meta_window_group_paint (ClutterActor        *actor,
    * multihead setup with mismatched monitor sizes, we could intersect this
    * with an accurate union of the monitors to avoid painting shadows that are
    * visible only in the holes. */
-  clip_region = meta_region_apply_matrix_transform_expand (redraw_clip,
-                                                           &stage_to_actor);
+  clip_region = mtk_region_apply_matrix_transform_expand (redraw_clip,
+                                                          &stage_to_actor);
 
   meta_cullable_cull_redraw_clip (META_CULLABLE (window_group), clip_region);
 

@@ -492,7 +492,7 @@ meta_surface_actor_is_obscured_on_stage_view (MetaSurfaceActor *self,
                                                         stage,
                                                         &transform);
 
-      intersection_region = meta_region_apply_matrix_transform_expand (unobscured_region, &transform);
+      intersection_region = mtk_region_apply_matrix_transform_expand (unobscured_region, &transform);
 
       clutter_stage_view_get_layout (stage_view, &stage_rect);
       mtk_region_intersect_rectangle (intersection_region,

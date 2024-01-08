@@ -435,3 +435,36 @@ mtk_region_crop_and_scale (MtkRegion       *region,
 
   return viewport_region;
 }
+
+MtkRegion *
+mtk_region_apply_matrix_transform_expand (const MtkRegion   *region,
+                                          graphene_matrix_t *transform)
+{
+  MtkRegion *transformed_region;
+  MtkRectangle *rects;
+  int n_rects, i;
+
+  if (graphene_matrix_is_identity (transform))
+    return mtk_region_copy (region);
+
+  n_rects = mtk_region_num_rectangles (region);
+  MTK_RECTANGLE_CREATE_ARRAY_SCOPED (n_rects, rects);
+  for (i = 0; i < n_rects; i++)
+    {
+      graphene_rect_t transformed_rect, rect;
+      MtkRectangle int_rect;
+
+      int_rect = mtk_region_get_rectangle (region, i);
+      rect = mtk_rectangle_to_graphene_rect (&int_rect);
+
+      graphene_matrix_transform_bounds (transform, &rect, &transformed_rect);
+
+      mtk_rectangle_from_graphene_rect (&transformed_rect,
+                                        MTK_ROUNDING_STRATEGY_GROW,
+                                        &rects[i]);
+    }
+
+  transformed_region = mtk_region_create_rectangles (rects, n_rects);
+
+  return transformed_region;
+}
