@@ -118,4 +118,10 @@ MTK_EXPORT
 MtkRegion * mtk_region_scale (MtkRegion *region,
                               int        scale);
 
+MTK_EXPORT
+MtkRegion * mtk_region_crop_and_scale (MtkRegion       *region,
+                                       graphene_rect_t *src_rect,
+                                       int              dst_width,
+                                       int              dst_height);
+
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MtkRegion, mtk_region_unref)

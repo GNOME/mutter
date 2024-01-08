@@ -331,10 +331,10 @@ surface_process_damage (MetaWaylandSurface *surface,
             .size.height = height / surface_scale
           };
         }
-      viewport_region = meta_region_crop_and_scale (surface_region,
-                                                    &src_rect,
-                                                    surface_rect.width,
-                                                    surface_rect.height);
+      viewport_region = mtk_region_crop_and_scale (surface_region,
+                                                   &src_rect,
+                                                   surface_rect.width,
+                                                   surface_rect.height);
       scaled_region = mtk_region_scale (viewport_region, surface_scale);
       transformed_region = meta_region_transform (scaled_region,
                                                   surface->buffer_transform,

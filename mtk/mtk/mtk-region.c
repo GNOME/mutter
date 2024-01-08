@@ -387,3 +387,51 @@ mtk_region_scale (MtkRegion *region,
 
   return scaled_region;
 }
+
+MtkRegion *
+mtk_region_crop_and_scale (MtkRegion       *region,
+                           graphene_rect_t *src_rect,
+                           int              dst_width,
+                           int              dst_height)
+{
+  int n_rects, i;
+  MtkRectangle *rects;
+  MtkRegion *viewport_region;
+
+  if (G_APPROX_VALUE (src_rect->size.width, dst_width, FLT_EPSILON) &&
+      G_APPROX_VALUE (src_rect->size.height, dst_height, FLT_EPSILON) &&
+      G_APPROX_VALUE (roundf (src_rect->origin.x),
+                      src_rect->origin.x, FLT_EPSILON) &&
+      G_APPROX_VALUE (roundf (src_rect->origin.y),
+                      src_rect->origin.y, FLT_EPSILON))
+    {
+      viewport_region = mtk_region_copy (region);
+
+      if (!G_APPROX_VALUE (src_rect->origin.x, 0, FLT_EPSILON) ||
+          !G_APPROX_VALUE (src_rect->origin.y, 0, FLT_EPSILON))
+        {
+          mtk_region_translate (viewport_region,
+                                (int) src_rect->origin.x,
+                                (int) src_rect->origin.y);
+        }
+
+      return viewport_region;
+    }
+
+  n_rects = mtk_region_num_rectangles (region);
+  MTK_RECTANGLE_CREATE_ARRAY_SCOPED (n_rects, rects);
+  for (i = 0; i < n_rects; i++)
+    {
+      rects[i] = mtk_region_get_rectangle (region, i);
+
+      mtk_rectangle_crop_and_scale (&rects[i],
+                                    src_rect,
+                                    dst_width,
+                                    dst_height,
+                                    &rects[i]);
+    }
+
+  viewport_region = mtk_region_create_rectangles (rects, n_rects);
+
+  return viewport_region;
+}
