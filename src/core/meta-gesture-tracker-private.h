@@ -28,19 +28,14 @@
 #include "meta/window.h"
 
 #define META_TYPE_GESTURE_TRACKER            (meta_gesture_tracker_get_type ())
-#define META_GESTURE_TRACKER(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_GESTURE_TRACKER, MetaGestureTracker))
-#define META_GESTURE_TRACKER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  META_TYPE_GESTURE_TRACKER, MetaGestureTrackerClass))
-#define META_IS_GESTURE_TRACKER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_GESTURE_TRACKER))
-#define META_IS_GESTURE_TRACKER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  META_TYPE_GESTURE_TRACKER))
-#define META_GESTURE_TRACKER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  META_TYPE_GESTURE_TRACKER, MetaGestureTrackerClass))
 
 typedef struct _MetaGestureTracker MetaGestureTracker;
 typedef struct _MetaGestureTrackerClass MetaGestureTrackerClass;
 
-struct _MetaGestureTracker
-{
-  GObject parent_instance;
-};
+G_DECLARE_DERIVABLE_TYPE (MetaGestureTracker,
+                          meta_gesture_tracker,
+                          META, GESTURE_TRACKER,
+                          GObject)
 
 struct _MetaGestureTrackerClass
 {
@@ -50,8 +45,6 @@ struct _MetaGestureTrackerClass
                           ClutterEventSequence *sequence,
                           MetaSequenceState     state);
 };
-
-GType                meta_gesture_tracker_get_type           (void) G_GNUC_CONST;
 
 MetaGestureTracker * meta_gesture_tracker_new                (void);
 
