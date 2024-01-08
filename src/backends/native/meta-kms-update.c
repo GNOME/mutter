@@ -607,6 +607,7 @@ meta_kms_plane_assignment_set_cursor_hotspot (MetaKmsPlaneAssignment *plane_assi
                                               int                     x,
                                               int                     y)
 {
+  plane_assignment->cursor_hotspot.has_update = TRUE;
   plane_assignment->cursor_hotspot.is_valid = TRUE;
   plane_assignment->cursor_hotspot.x = x;
   plane_assignment->cursor_hotspot.y = y;

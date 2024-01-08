@@ -66,6 +66,7 @@ typedef struct _MetaKmsPlaneAssignment
   MetaKmsPlaneRotation rotation;
 
   struct {
+    gboolean has_update;
     gboolean is_valid;
     int x;
     int y;

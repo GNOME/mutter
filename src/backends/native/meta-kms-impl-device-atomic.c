@@ -612,6 +612,37 @@ process_plane_assignment (MetaKmsImplDevice  *impl_device,
                 }
             }
         }
+
+      if (plane_assignment->cursor_hotspot.has_update)
+        {
+          struct {
+            MetaKmsPlaneProp prop;
+            uint64_t value;
+          } props[] = {
+            {
+              .prop = META_KMS_PLANE_PROP_HOTSPOT_X,
+              .value = plane_assignment->cursor_hotspot.is_valid ?
+                       plane_assignment->cursor_hotspot.x :
+                       0,
+            },
+            {
+              .prop = META_KMS_PLANE_PROP_HOTSPOT_Y,
+              .value = plane_assignment->cursor_hotspot.is_valid ?
+                       plane_assignment->cursor_hotspot.y :
+                       0,
+            },
+          };
+
+          for (i = 0; i < G_N_ELEMENTS (props); i++)
+            {
+              if (!add_plane_property (impl_device,
+                                       plane, req,
+                                       props[i].prop,
+                                       props[i].value,
+                                       error))
+                return FALSE;
+            }
+        }
     }
   else
     {
