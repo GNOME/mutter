@@ -26,15 +26,6 @@
 
 #include <math.h>
 
-#define META_REGION_MAX_STACK_RECTS 256
-
-#define META_REGION_CREATE_RECTANGLE_ARRAY_SCOPED(n_rects, rects) \
-  g_autofree MtkRectangle *G_PASTE(__n, __LINE__) = NULL; \
-  if (n_rects < META_REGION_MAX_STACK_RECTS) \
-    rects = g_newa (MtkRectangle, n_rects); \
-  else \
-    rects = G_PASTE(__n, __LINE__) = g_new (MtkRectangle, n_rects);
-
 /* MetaRegionBuilder */
 
 /* Various algorithms in this file require unioning together a set of rectangles
@@ -197,7 +188,7 @@ meta_region_scale (MtkRegion *region,
     return mtk_region_copy (region);
 
   n_rects = mtk_region_num_rectangles (region);
-  META_REGION_CREATE_RECTANGLE_ARRAY_SCOPED (n_rects, rects);
+  MTK_RECTANGLE_CREATE_ARRAY_SCOPED (n_rects, rects);
   for (i = 0; i < n_rects; i++)
     {
       rects[i] = mtk_region_get_rectangle (region, i);
@@ -363,7 +354,7 @@ meta_region_transform (const MtkRegion      *region,
     return mtk_region_copy (region);
 
   n_rects = mtk_region_num_rectangles (region);
-  META_REGION_CREATE_RECTANGLE_ARRAY_SCOPED (n_rects, rects);
+  MTK_RECTANGLE_CREATE_ARRAY_SCOPED (n_rects, rects);
   for (i = 0; i < n_rects; i++)
     {
       rects[i] = mtk_region_get_rectangle (region, i);
@@ -411,7 +402,7 @@ meta_region_crop_and_scale (MtkRegion       *region,
     }
 
   n_rects = mtk_region_num_rectangles (region);
-  META_REGION_CREATE_RECTANGLE_ARRAY_SCOPED (n_rects, rects);
+  MTK_RECTANGLE_CREATE_ARRAY_SCOPED (n_rects, rects);
   for (i = 0; i < n_rects; i++)
     {
       rects[i] = mtk_region_get_rectangle (region, i);
@@ -440,7 +431,7 @@ meta_region_apply_matrix_transform_expand (const MtkRegion   *region,
     return mtk_region_copy (region);
 
   n_rects = mtk_region_num_rectangles (region);
-  META_REGION_CREATE_RECTANGLE_ARRAY_SCOPED (n_rects, rects);
+  MTK_RECTANGLE_CREATE_ARRAY_SCOPED (n_rects, rects);
   for (i = 0; i < n_rects; i++)
     {
       graphene_rect_t transformed_rect, rect;

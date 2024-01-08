@@ -36,6 +36,15 @@ typedef enum _MtkRoundingStrategy
 } MtkRoundingStrategy;
 
 
+#define MTK_RECTANGLE_MAX_STACK_RECTS 256
+
+#define MTK_RECTANGLE_CREATE_ARRAY_SCOPED(n_rects, rects) \
+  g_autofree MtkRectangle *G_PASTE(__n, __LINE__) = NULL; \
+  if (n_rects < MTK_RECTANGLE_MAX_STACK_RECTS) \
+    rects = g_newa (MtkRectangle, n_rects); \
+  else \
+    rects = G_PASTE(__n, __LINE__) = g_new (MtkRectangle, n_rects);
+
 /**
  * MtkRectangle:
  * @x: X coordinate of the top-left corner
