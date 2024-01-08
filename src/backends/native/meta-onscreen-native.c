@@ -2125,7 +2125,7 @@ init_secondary_gpu_state_gpu_copy_mode (MetaRendererNative         *renderer_nat
   if (!gbm_surface)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "Failed to create gbm_surface: %s", strerror (errno));
+                   "Failed to create gbm_surface: %s", g_strerror (errno));
       return FALSE;
     }
 
