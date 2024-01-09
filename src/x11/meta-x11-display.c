@@ -2088,10 +2088,14 @@ meta_x11_display_set_input_focus (MetaX11Display *x11_display,
                                   MetaWindow     *window,
                                   uint32_t        timestamp)
 {
-  Window xwindow;
+  Window xwindow = x11_display->no_focus_window;
   gulong serial;
+#ifdef HAVE_X11
+  MetaDisplay *display = x11_display->display;
+  ClutterStage *stage = CLUTTER_STAGE (meta_get_stage_for_display (display));
+#endif
 
-  if (window)
+  if (window && META_IS_WINDOW_X11 (window))
     {
       /* For output-only windows, focus the frame.
        * This seems to result in the client window getting key events
@@ -2106,33 +2110,19 @@ meta_x11_display_set_input_focus (MetaX11Display *x11_display,
 
 #ifdef HAVE_X11
       if (!meta_is_wayland_compositor ())
-        {
-          MetaDisplay *display = x11_display->display;
-          ClutterStage *stage = CLUTTER_STAGE (meta_get_stage_for_display (display));
-
-          clutter_stage_set_key_focus (stage, NULL);
-        }
-#endif
+        clutter_stage_set_key_focus (stage, NULL);
     }
-  else
+  else if (!meta_is_wayland_compositor () &&
+           stage_has_focus_actor (x11_display))
     {
-#ifdef HAVE_X11
       /* If we expect keyboard focus (e.g. there is a focused actor, keep
        * focus on the stage window, otherwise focus the no focus window.
        */
-      if (!meta_is_wayland_compositor () &&
-          stage_has_focus_actor (x11_display))
-        {
-          MetaDisplay *display = x11_display->display;
-          ClutterStage *stage = CLUTTER_STAGE (meta_get_stage_for_display (display));
-          xwindow = meta_x11_get_stage_window (stage);
-        }
-      else
-#endif
-        {
-          xwindow = x11_display->no_focus_window;
-        }
+      xwindow = meta_x11_get_stage_window (stage);
     }
+#else
+    }
+#endif
 
   meta_topic (META_DEBUG_FOCUS, "Setting X11 input focus for window %s to 0x%lx",
               window ? window->desc : "none", xwindow);
