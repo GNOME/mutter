@@ -21,7 +21,7 @@ If a commit fixes a regression caused by a particular commit, it can be marked
 with the `Fixes:` tag. To produce such a tag, use
 
 ```
-git show -s --pretty='format:Fixes: %h (\"%s\")' <COMMIT>
+git show -s --pretty='format:Fixes: %h ("%s")' <COMMIT>
 ```
 
 or create an alias
