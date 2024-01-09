@@ -1,4 +1,4 @@
-Title: KMS abstraction
+# KMS abstraction
 
 The KMS abstraction consists of various building blocks for helping out with
 interacting with the various drm API's, enabling users to use a

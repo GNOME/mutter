@@ -22,5 +22,6 @@ The Meta Toolkit containing utilities shared by other parts of mutter.
 The display server and window manager library. Contains a X11 window manager and compositing manager implementation, as well as a Wayland display server implementation.
 
 * [Compositor stage and hardware relationships](mutter-relationships.md)
+* [KMS abstraction](mutter-kms-abstractions.md)
 * [Window constraints](mutter-constraints.txt)
 * [How to get focus right](mutter-focus.txt)
