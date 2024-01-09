@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ff7800"><!-- primary color -->
+
+  <title>Mutter</title>
+
+  <link rel="canonical" href="https://gnome.pages.gitlab.gnome.org/mutter/" />
+  <link rel="alternate" type="application/rss+xml" title="Mutter"
+    href="https://gnome.pages.gitlab.gnome.org/mutter/feed.xml" />
+
+  <link rel="stylesheet" href="style.css" />
+
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
+
+  <!-- Twitter -->
+  <meta property="twitter:title" content="Mutter" />
+  <meta property="twitter:image" content="https://gnome.pages.gitlab.gnome.org/mutter/assets/card.png" />
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:description" content="Mutter Window Manager website." />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Mutter" />
+  <meta property="og:url" content="https://mutter.gnome.org" />
+  <meta property="og:description" content="Mutter Window Manager website." />
+  <meta property="og:image" content="https://gnome.pages.gitlab.gnome.org/mutter/assets/card.png" />
+</head>
+
+
+<body>
+
+  <header class="site-header">
+    <a href="/">
+      <h1 id="logo"></h1>
+    </a>
+  </header>
+
+
+  <div class="container">
+    <picture class="full">
+      <source srcset="assets/splash-dark.png" media="(prefers-color-scheme: dark)" />
+      <img src="assets/splash.png" />
+    </picture>
+
+    <p>Mutter is a Wayland display server and X11 window manager and compositor library.</p>
+
+    <p>When used as a Wayland display server, it runs on top of KMS and libinput. It implements the compositor side of
+      the Wayland core protocol as well as various protocol extensions. It also has functionality related to running X11
+      applications using Xwayland.
+      When used on top of Xorg it acts as a X11 window manager and compositing manager. It contains functionality
+      related to, among other things, window management, window compositing, focus tracking, workspace management,
+      keybindings and monitor configuration.</p>
+
+    <p>Mutter is used by, for example, <a href="https://gitlab.gnome.org/GNOME/gnome-shell/">GNOME Shell</a>, the GNOME
+      core user interface, and by <a href="https://github.com/elementary/gala">Gala</a>, elementary OS’s window
+      manager. It can also be run standalone, using the command “mutter”, but just running plain mutter is only intended
+      for debugging purposes.</p>
+
+    <h2 id="contributing">Contributing</h2>
+
+    <p>Mutter is <a href="https://spdx.org/licenses/GPL-2.0-or-later">Free Software</a> and is developed in the open.
+    </p>
+
+    <p>To contribute, open merge requests at <a href="https://gitlab.gnome.org/GNOME/mutter"><code
+          class="language-plaintext highlighter-rouge">https://gitlab.gnome.org/GNOME/mutter</code></a>.</p>
+
+    <h2 id="api-documentation">API documentation</h2>
+
+    <ul class="tiles">
+
+      <li><a href="https://gnome.pages.gitlab.gnome.org/mutter/meta/">
+          <h3>Meta</h3>
+          <p>The display server and window manager library. Contains a X11 window manager and compositing manager
+            implementation, as well as a Wayland display server implementation.</p>
+        </a></li>
+
+      <li><a href="https://gnome.pages.gitlab.gnome.org/mutter/clutter/">
+          <h3>Clutter</h3>
+          <p>
+            Compositing toolkit, containing an actor and render node based scene graph, and has features such as input
+            event routing, transformation and animation. Handles compositing, both Wayland surfaces, X11 windows, and is
+            the basis of the UI toolkit implemented by GNOME Shell.
+          </p>
+        </a></li>
+
+      <li><a href="https://gnome.pages.gitlab.gnome.org/mutter/cally/">
+          <h3>Cally</h3>
+          <p>The Clutter Accessibility Implementation Library.</p>
+        </a></li>
+
+      <li><a href="https://gnome.pages.gitlab.gnome.org/mutter/cogl/">
+          <h3>Cogl</h3>
+          <p>Hardware acceleration pipeline abstraction layer. Handles things like allocating framebuffer, allocating,
+            importing and drawing textures, internally using OpenGL.</p>
+        </a></li>
+
+      <li><a href="https://gnome.pages.gitlab.gnome.org/mutter/cogl-pango/">
+          <h3>CoglPango</h3>
+          <p>A Low Level GPU Graphics and Utilities API.</p>
+        </a></li>
+
+      <li><a href="https://gnome.pages.gitlab.gnome.org/mutter/mtk/">
+          <h3>Mtk</h3>
+          <p>The Meta Toolkit containing utilities shared by other parts of mutter.</p>
+        </a></li>
+    </ul>
+
+    <h2 id="useful-links">Useful Links</h2>
+
+    <ul>
+      <li><a href="https://gitlab.gnome.org/GNOME/mutter/">Source Code</a></li>
+      <li><a href="https://gitlab.gnome.org/GNOME/mutter/-/tree/main#contributing">Contribution Guide</a>
+      </li>
+      <li><a
+          href="https://gitlab.gnome.org/GNOME/mutter/-/jobs/artifacts/main/file/coveragereport/index.html?job=coverage">Code
+          Coverage Report</a></li>
+    </ul>
+
+  </div>
+
+  <footer class="site-footer">
+    <p>&copy; Mutter, 2021 &ndash; 2024</p>
+
+    <p><a
+        href="https://gitlab.gnome.org/GNOME/mutter/-/tree/main/doc/website?ref_type=heads">Website
+        source</a></p>
+  </footer>
+
+
+</body>
+
+</html>
