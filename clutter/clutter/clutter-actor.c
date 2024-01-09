@@ -18385,7 +18385,7 @@ clutter_actor_bind_model_with_properties (ClutterActor *self,
   clutter_actor_bind_model (self, model, bind_child_with_properties, clos, bind_closure_free);
 }
 
-/*< private >
+/*
  * clutter_actor_create_texture_paint_node:
  * @self: a #ClutterActor
  * @texture: a #CoglTexture

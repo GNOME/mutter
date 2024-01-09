@@ -308,6 +308,9 @@ CLUTTER_EXPORT
 void                            clutter_actor_continue_paint                    (ClutterActor                *self,
                                                                                  ClutterPaintContext         *paint_context);
 CLUTTER_EXPORT
+ClutterPaintNode *              clutter_actor_create_texture_paint_node         (ClutterActor                *self,
+                                                                                 CoglTexture                 *texture);
+CLUTTER_EXPORT
 void                            clutter_actor_pick                              (ClutterActor                *actor,
                                                                                  ClutterPickContext          *pick_context);
 CLUTTER_EXPORT

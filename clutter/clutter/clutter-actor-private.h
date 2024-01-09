@@ -249,9 +249,6 @@ void                            clutter_actor_clear_stage_views_recursive       
 
 float                           clutter_actor_get_real_resource_scale                   (ClutterActor *actor);
 
-ClutterPaintNode *              clutter_actor_create_texture_paint_node                 (ClutterActor *self,
-                                                                                         CoglTexture  *texture);
-
 void clutter_actor_finish_layout (ClutterActor *self,
                                   int           phase);
 
