@@ -443,3 +443,12 @@ meta_renderer_native_gles3_blit_shared_bo (MetaEgl        *egl,
 
   return TRUE;
 }
+
+void
+meta_renderer_native_gles3_forget_context (MetaGles3  *gles3,
+                                           EGLContext  egl_context)
+{
+  GQuark context_data_quark = get_quark_for_egl_context (egl_context);
+
+  g_object_set_qdata (G_OBJECT (gles3), context_data_quark, NULL);
+}

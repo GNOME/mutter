@@ -63,6 +63,7 @@
 #include "backends/native/meta-output-kms.h"
 #include "backends/native/meta-render-device-gbm.h"
 #include "backends/native/meta-render-device-surfaceless.h"
+#include "backends/native/meta-renderer-native-gles3.h"
 #include "backends/native/meta-renderer-native-private.h"
 #include "backends/native/meta-renderer-view-native.h"
 #include "cogl/cogl.h"
@@ -136,6 +137,9 @@ meta_renderer_native_gpu_data_free (MetaRendererNativeGpuData *renderer_gpu_data
         meta_render_device_get_egl_display (render_device);
       MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
       MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
+
+      meta_renderer_native_gles3_forget_context (renderer_native->gles3,
+                                                 renderer_gpu_data->secondary.egl_context);
 
       meta_egl_destroy_context (egl,
                                 egl_display,
