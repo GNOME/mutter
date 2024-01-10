@@ -21,8 +21,13 @@
 
 #include "meta-input-device-tool-x11.h"
 
-G_DEFINE_TYPE (MetaInputDeviceToolX11, meta_input_device_tool_x11,
-               CLUTTER_TYPE_INPUT_DEVICE_TOOL)
+struct _MetaInputDeviceToolX11
+{
+  ClutterInputDeviceTool parent_instance;
+};
+
+G_DEFINE_FINAL_TYPE (MetaInputDeviceToolX11, meta_input_device_tool_x11,
+                     CLUTTER_TYPE_INPUT_DEVICE_TOOL)
 
 static void
 meta_input_device_tool_x11_class_init (MetaInputDeviceToolX11Class *klass)

@@ -23,26 +23,12 @@
 
 #define META_TYPE_INPUT_DEVICE_TOOL_X11 (meta_input_device_tool_x11_get_type ())
 
-#define META_INPUT_DEVICE_TOOL_X11(o) (G_TYPE_CHECK_INSTANCE_CAST ((o), META_TYPE_INPUT_DEVICE_TOOL_X11, MetaInputDeviceToolX11))
-#define META_IS_INPUT_DEVICE_TOOL_X11(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), META_TYPE_INPUT_DEVICE_TOOL_X11))
-#define META_INPUT_DEVICE_TOOL_X11_CLASS(c) (G_TYPE_CHECK_CLASS_CAST ((c), META_TYPE_INPUT_DEVICE_TOOL_X11, MetaInputDeviceToolX11Class))
-#define META_IS_INPUT_DEVICE_TOOL_X11_CLASS(c) (G_TYPE_CHECK_CLASS_TYPE ((c), META_TYPE_INPUT_DEVICE_TOOL_X1))
-#define META_INPUT_DEVICE_TOOL_X11_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), META_TYPE_INPUT_DEVICE_TOOL_X11, MetaInputDeviceToolX11Class))
+G_DECLARE_FINAL_TYPE (MetaInputDeviceToolX11,
+                      meta_input_device_tool_x11,
+                      META, INPUT_DEVICE_TOOL_X11,
+                      ClutterInputDeviceTool)
 
 typedef struct _MetaInputDeviceToolX11 MetaInputDeviceToolX11;
-typedef struct _MetaInputDeviceToolX11Class MetaInputDeviceToolX11Class;
-
-struct _MetaInputDeviceToolX11
-{
-  ClutterInputDeviceTool parent_instance;
-};
-
-struct _MetaInputDeviceToolX11Class
-{
-  ClutterInputDeviceToolClass parent_class;
-};
-
-GType meta_input_device_tool_x11_get_type (void) G_GNUC_CONST;
 
 ClutterInputDeviceTool * meta_input_device_tool_x11_new (guint                        serial,
                                                          ClutterInputDeviceToolType   type);
