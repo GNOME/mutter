@@ -33,36 +33,38 @@ enum
   PROP_PATH,
 };
 
-struct _MetaModulePrivate
+struct _MetaModule
 {
-  GModule      *lib;
-  gchar        *path;
-  GType         plugin_type;
+  GTypeModule parent_instance;
+
+  GModule *lib;
+  gchar *path;
+  GType plugin_type;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE (MetaModule, meta_module, G_TYPE_TYPE_MODULE);
+G_DEFINE_FINAL_TYPE (MetaModule, meta_module, G_TYPE_TYPE_MODULE);
 
 static gboolean
 meta_module_load (GTypeModule *gmodule)
 {
-  MetaModulePrivate  *priv = META_MODULE (gmodule)->priv;
-  GType                (*register_type) (GTypeModule *) = NULL;
+  MetaModule *module = META_MODULE (gmodule);
+  GType (*register_type) (GTypeModule *) = NULL;
 
-  if (priv->lib && priv->plugin_type)
+  if (module->lib && module->plugin_type)
     return TRUE;
 
-  g_assert (priv->path);
+  g_assert (module->path);
 
-  if (!priv->lib &&
-      !(priv->lib = g_module_open (priv->path, 0)))
+  if (!module->lib &&
+      !(module->lib = g_module_open (module->path, 0)))
     {
       g_warning ("Could not load library [%s (%s)]",
-                 priv->path, g_module_error ());
+                 module->path, g_module_error ());
       return FALSE;
     }
 
-  if (g_module_symbol (priv->lib, "meta_plugin_register_type",
-		       (gpointer *)(void *)&register_type) &&
+  if (g_module_symbol (module->lib, "meta_plugin_register_type",
+                       (gpointer *)(void *)&register_type) &&
       register_type)
     {
       GType plugin_type;
@@ -70,18 +72,18 @@ meta_module_load (GTypeModule *gmodule)
       if (!(plugin_type = register_type (gmodule)))
         {
           g_warning ("Could not register type for plugin %s",
-                     priv->path);
+                     module->path);
           return FALSE;
         }
       else
         {
-          priv->plugin_type =  plugin_type;
+          module->plugin_type = plugin_type;
         }
 
       return TRUE;
     }
   else
-    g_warning ("Broken plugin module [%s]", priv->path);
+    g_warning ("Broken plugin module [%s]", module->path);
 
   return FALSE;
 }
@@ -89,21 +91,21 @@ meta_module_load (GTypeModule *gmodule)
 static void
 meta_module_unload (GTypeModule *gmodule)
 {
-  MetaModulePrivate *priv = META_MODULE (gmodule)->priv;
+  MetaModule *module = META_MODULE (gmodule);
 
-  g_module_close (priv->lib);
+  g_module_close (module->lib);
 
-  priv->lib = NULL;
-  priv->plugin_type = 0;
+  module->lib = NULL;
+  module->plugin_type = 0;
 }
 
 static void
 meta_module_finalize (GObject *object)
 {
-  MetaModulePrivate *priv = META_MODULE (object)->priv;
+  MetaModule *module = META_MODULE (object);
 
-  g_free (priv->path);
-  priv->path = NULL;
+  g_free (module->path);
+  module->path = NULL;
 
   G_OBJECT_CLASS (meta_module_parent_class)->finalize (object);
 }
@@ -114,13 +116,13 @@ meta_module_set_property (GObject      *object,
                           const GValue *value,
                           GParamSpec   *pspec)
 {
-  MetaModulePrivate *priv = META_MODULE (object)->priv;
+  MetaModule *module = META_MODULE (object);
 
   switch (prop_id)
     {
     case PROP_PATH:
-      g_free (priv->path);
-      priv->path = g_value_dup_string (value);
+      g_free (module->path);
+      module->path = g_value_dup_string (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -134,12 +136,12 @@ meta_module_get_property (GObject    *object,
                           GValue     *value,
                           GParamSpec *pspec)
 {
-  MetaModulePrivate *priv = META_MODULE (object)->priv;
+  MetaModule *module = META_MODULE (object);
 
   switch (prop_id)
     {
     case PROP_PATH:
-      g_value_set_string (value, priv->path);
+      g_value_set_string (value, module->path);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -171,14 +173,11 @@ meta_module_class_init (MetaModuleClass *klass)
 static void
 meta_module_init (MetaModule *self)
 {
-  self->priv = meta_module_get_instance_private (self);
 }
 
 GType
 meta_module_get_plugin_type (MetaModule *module)
 {
-  MetaModulePrivate *priv = META_MODULE (module)->priv;
-
-  return priv->plugin_type;
+  return module->plugin_type;
 }
 
