@@ -555,10 +555,11 @@ coverage:
 #    - test-mutter@aarch64
     - test-mutter-kvm@x86_64
 
-can-build-gnome-shell@x86_64:
+can-run-gnome-shell@x86_64:
   extends:
     - .mutter.distribution-image
     - .mutter.fedora@x86_64
+    - .test-setup
   stage: test
   needs:
     - build-mutter@x86_64
@@ -569,6 +570,7 @@ can-build-gnome-shell@x86_64:
     - .gitlab-ci/checkout-gnome-shell.sh
     - meson setup gnome-shell gnome-shell/build --prefix /usr -Dbuildtype=debugoptimized -Dman=false --werror --fatal-meson-warnings
     - sudo meson install -C gnome-shell/build
+    - dbus-run-session -- xvfb-run meson test -C gnome-shell/build --no-rebuild
 
 test-mutter-coverity:
   rules:
