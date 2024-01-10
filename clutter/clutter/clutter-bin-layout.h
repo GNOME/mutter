@@ -35,11 +35,23 @@ G_BEGIN_DECLS
 #define CLUTTER_TYPE_BIN_LAYOUT (clutter_bin_layout_get_type ())
 
 CLUTTER_EXPORT
-G_DECLARE_FINAL_TYPE (ClutterBinLayout,
-                      clutter_bin_layout,
-                      CLUTTER,
-                      CIN_LAYOUT,
-                      ClutterLayoutManager)
+G_DECLARE_DERIVABLE_TYPE (ClutterBinLayout,
+                          clutter_bin_layout,
+                          CLUTTER,
+                          BIN_LAYOUT,
+                          ClutterLayoutManager)
+
+/**
+ * ClutterBinLayoutClass:
+ *
+ * The #ClutterBinLayoutClass structure contains only private
+ * data and should be accessed using the provided API
+ */
+struct _ClutterBinLayoutClass
+{
+  /*< private >*/
+  ClutterLayoutManagerClass parent_class;
+};
 
 CLUTTER_EXPORT
 ClutterLayoutManager *  clutter_bin_layout_new  (void);

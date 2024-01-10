@@ -54,14 +54,9 @@
 #include "clutter/clutter-layout-meta.h"
 #include "clutter/clutter-private.h"
 
-struct _ClutterBinLayout
-{
-  ClutterLayoutManager parent_instance;
-};
-
-G_DEFINE_FINAL_TYPE (ClutterBinLayout,
-                     clutter_bin_layout,
-                     CLUTTER_TYPE_LAYOUT_MANAGER)
+G_DEFINE_TYPE (ClutterBinLayout,
+               clutter_bin_layout,
+               CLUTTER_TYPE_LAYOUT_MANAGER)
 
 static void
 clutter_bin_layout_get_preferred_width (ClutterLayoutManager *manager,
