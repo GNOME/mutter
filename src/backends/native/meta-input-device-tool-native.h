@@ -33,46 +33,15 @@ G_BEGIN_DECLS
 
 #define META_TYPE_INPUT_DEVICE_TOOL_NATIVE (meta_input_device_tool_native_get_type ())
 
-#define META_INPUT_DEVICE_TOOL_NATIVE(o) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((o), \
-  META_TYPE_INPUT_DEVICE_TOOL_NATIVE, MetaInputDeviceToolNative))
-
-#define META_IS_INPUT_DEVICE_TOOL_NATIVE(o) \
-  (G_TYPE_CHECK_INSTANCE_TYPE ((o), \
-  META_TYPE_INPUT_DEVICE_TOOL_NATIVE))
-
-#define META_INPUT_DEVICE_TOOL_NATIVE_CLASS(c) \
-  (G_TYPE_CHECK_CLASS_CAST ((c), \
-  META_TYPE_INPUT_DEVICE_TOOL_EVDEV, MetaInputDeviceToolNativeClass))
-
-#define META_IS_INPUT_DEVICE_TOOL_NATIVE_CLASS(c) \
-  (G_TYPE_CHECK_CLASS_TYPE ((c), \
-  META_TYPE_INPUT_DEVICE_TOOL_NATIVE))
-
-#define META_INPUT_DEVICE_TOOL_NATIVE_GET_CLASS(o) \
-  (G_TYPE_INSTANCE_GET_CLASS ((o), \
-  META_TYPE_INPUT_DEVICE_TOOL_NATIVE, MetaInputDeviceToolNativeClass))
+G_DECLARE_FINAL_TYPE (MetaInputDeviceToolNative,
+                      meta_input_device_tool_native,
+                      META,
+                      INPUT_DEVICE_TOOL_NATIVE,
+                      ClutterInputDeviceTool)
 
 typedef struct _MetaInputDeviceToolNative MetaInputDeviceToolNative;
-typedef struct _MetaInputDeviceToolNativeClass MetaInputDeviceToolNativeClass;
 
 #define N_PRESSURECURVE_POINTS 256
-
-struct _MetaInputDeviceToolNative
-{
-  ClutterInputDeviceTool parent_instance;
-  struct libinput_tablet_tool *tool;
-  GHashTable *button_map;
-  graphene_point_t pressure_curve[2];
-  MetaBezier *bezier;
-};
-
-struct _MetaInputDeviceToolNativeClass
-{
-  ClutterInputDeviceToolClass parent_class;
-};
-
-GType                    meta_input_device_tool_native_get_type (void) G_GNUC_CONST;
 
 ClutterInputDeviceTool * meta_input_device_tool_native_new      (struct libinput_tablet_tool *tool,
                                                                  uint64_t                     serial,

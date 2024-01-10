@@ -21,8 +21,17 @@
 
 #include "backends/native/meta-input-thread.h"
 
-G_DEFINE_TYPE (MetaInputDeviceToolNative, meta_input_device_tool_native,
-               CLUTTER_TYPE_INPUT_DEVICE_TOOL)
+struct _MetaInputDeviceToolNative
+{
+  ClutterInputDeviceTool parent_instance;
+  struct libinput_tablet_tool *tool;
+  GHashTable *button_map;
+  graphene_point_t pressure_curve[2];
+  MetaBezier *bezier;
+};
+
+G_DEFINE_FINAL_TYPE (MetaInputDeviceToolNative, meta_input_device_tool_native,
+                     CLUTTER_TYPE_INPUT_DEVICE_TOOL)
 
 static void
 meta_input_device_tool_native_finalize (GObject *object)
