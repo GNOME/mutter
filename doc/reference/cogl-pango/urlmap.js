@@ -6,5 +6,5 @@ baseURLs = [
     [ 'GObject', 'https://docs.gtk.org/gobject/' ],
     [ 'Pango', 'https://docs.gtk.org/Pango/' ],
     [ 'PangoCairo', 'https://docs.gtk.org/PangoCairo/' ],
-    [ 'Cogl', 'https://gnome.pages.gitlab.gnome.org/mutter/cogl/' ],
+    [ 'Cogl', 'https://mutter.gnome.org/cogl/' ],
 ]

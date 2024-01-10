@@ -41,12 +41,12 @@ documentation and API references below first.
 
 ## API Reference
 
-- Meta: <https://gnome.pages.gitlab.gnome.org/mutter/meta/>
-- Clutter: <https://gnome.pages.gitlab.gnome.org/mutter/clutter/>
-- Cally: <https://gnome.pages.gitlab.gnome.org/mutter/cally/>
-- Cogl: <https://gnome.pages.gitlab.gnome.org/mutter/cogl/>
-- CoglPango: <https://gnome.pages.gitlab.gnome.org/mutter/cogl-pango/>
-- Mtk: <https://gnome.pages.gitlab.gnome.org/mutter/mtk/>
+- Meta: <https://mutter.gnome.org/meta/>
+- Clutter: <https://mutter.gnome.org/clutter/>
+- Cally: <https://mutter.gnome.org/cally/>
+- Cogl: <https://mutter.gnome.org/cogl/>
+- CoglPango: <https://mutter.gnome.org/cogl-pango/>
+- Mtk: <https://mutter.gnome.org/mtk/>
 
 ## License
 

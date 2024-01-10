@@ -7,5 +7,5 @@ baseURLs = [
     [ 'GObject', 'https://docs.gtk.org/gobject/' ],
     [ 'Gio', 'https://docs.gtk.org/gio/' ],
     [ 'Atk', 'https://docs.gtk.org/atk/' ],
-    [ 'Clutter', 'https://gnome.pages.gitlab.gnome.org/mutter/clutter/' ],
+    [ 'Clutter', 'https://mutter.gnome.org/clutter/' ],
 ]
