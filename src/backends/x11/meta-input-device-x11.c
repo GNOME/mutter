@@ -30,6 +30,8 @@
 
 struct _MetaInputDeviceX11
 {
+  MetaInputDevice parent_instance;
+
   ClutterInputDevice device;
 
   int32_t device_id;
@@ -71,10 +73,6 @@ typedef struct _MetaX11ScrollInfo
   guint last_value_valid : 1;
 } MetaX11ScrollInfo;
 
-struct _MetaInputDeviceX11Class
-{
-  ClutterInputDeviceClass device_class;
-};
 
 #define N_BUTTONS       5
 
@@ -87,9 +85,9 @@ enum
 
 static GParamSpec *props[N_PROPS] = { 0 };
 
-G_DEFINE_TYPE (MetaInputDeviceX11,
-               meta_input_device_x11,
-               META_TYPE_INPUT_DEVICE)
+G_DEFINE_FINAL_TYPE (MetaInputDeviceX11,
+                     meta_input_device_x11,
+                     META_TYPE_INPUT_DEVICE)
 
 static void
 meta_input_device_x11_constructed (GObject *object)
