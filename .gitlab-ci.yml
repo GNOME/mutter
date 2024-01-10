@@ -103,8 +103,8 @@ variables:
       zenity
       gi-docgen
       python3-dbusmock
-      pkgconfig(libgcrypt)
-      pkgconfig(libdisplay-info)
+      "pkgconfig(libgcrypt)"
+      "pkgconfig(libdisplay-info)"
 
     FDO_DISTRIBUTION_EXEC: |
       set -e
