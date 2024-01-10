@@ -1,5 +1,5 @@
 include:
-  - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/28b430bd847da130d7c678772b8be260abaab5b3/templates/fedora.yml'
+  - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/145b1bc7ef1702d2bd71584010d7113c6786a506/templates/fedora.yml'
   - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/34f4ade99434043f88e164933f570301fd18b125/templates/ci-fairy.yml'
 
 stages:
@@ -85,7 +85,7 @@ variables:
     - .skip-git-clone
   variables:
     FDO_DISTRIBUTION_VERSION: 39
-    BASE_TAG: '2023-09-12.0'
+    BASE_TAG: '2024-01-10.0'
     MUTTER_USER: 'meta-user'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
@@ -133,6 +133,10 @@ variables:
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.freedesktop.org/libinput/libei.git \
         1.0.901 .
+
+      ./.gitlab-ci/install-meson-project.sh \
+        https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas.git \
+        master .
 
       rpm -e --nodeps gnome-bluetooth-libs-devel \
                       mutter mutter-devel \
