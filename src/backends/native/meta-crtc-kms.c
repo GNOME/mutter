@@ -327,15 +327,6 @@ meta_crtc_kms_set_config (MetaCrtc             *crtc,
 }
 
 static gboolean
-is_transform_handled (MetaCrtcKms          *crtc_kms,
-                      MetaMonitorTransform  transform)
-{
-
-  return meta_kms_plane_is_transform_handled (crtc_kms->assigned_primary_plane,
-                                              transform);
-}
-
-static gboolean
 meta_crtc_kms_is_transform_handled (MetaCrtcNative       *crtc_native,
                                     MetaMonitorTransform  transform)
 {
@@ -343,7 +334,8 @@ meta_crtc_kms_is_transform_handled (MetaCrtcNative       *crtc_native,
 
   g_return_val_if_fail (crtc_kms->assigned_primary_plane, FALSE);
 
-  return is_transform_handled (crtc_kms, transform);
+  return meta_kms_plane_is_transform_handled (crtc_kms->assigned_primary_plane,
+                                              transform);
 }
 
 static gboolean
