@@ -24,23 +24,10 @@
 #include "backends/meta-input-settings-private.h"
 
 #define META_TYPE_INPUT_SETTINGS_X11             (meta_input_settings_x11_get_type ())
-#define META_INPUT_SETTINGS_X11(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_INPUT_SETTINGS_X11, MetaInputSettingsX11))
-#define META_INPUT_SETTINGS_X11_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass),  META_TYPE_INPUT_SETTINGS_X11, MetaInputSettingsX11Class))
-#define META_IS_INPUT_SETTINGS_X11(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_INPUT_SETTINGS_X11))
-#define META_IS_INPUT_SETTINGS_X11_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass),  META_TYPE_INPUT_SETTINGS_X11))
-#define META_INPUT_SETTINGS_X11_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS ((obj),  META_TYPE_INPUT_SETTINGS_X11, MetaInputSettingsX11Class))
+
+G_DECLARE_FINAL_TYPE (MetaInputSettingsX11,
+                      meta_input_settings_x11,
+                      META, INPUT_SETTINGS_X11,
+                      MetaInputSettings)
 
 typedef struct _MetaInputSettingsX11 MetaInputSettingsX11;
-typedef struct _MetaInputSettingsX11Class MetaInputSettingsX11Class;
-
-struct _MetaInputSettingsX11
-{
-  MetaInputSettings parent_instance;
-};
-
-struct _MetaInputSettingsX11Class
-{
-  MetaInputSettingsClass parent_class;
-};
-
-GType meta_input_settings_x11_get_type (void) G_GNUC_CONST;

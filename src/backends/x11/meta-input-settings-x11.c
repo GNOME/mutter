@@ -39,8 +39,13 @@ typedef struct
   XDevice *xdev;
 } DeviceHandle;
 
-G_DEFINE_TYPE (MetaInputSettingsX11, meta_input_settings_x11,
-               META_TYPE_INPUT_SETTINGS)
+struct _MetaInputSettingsX11
+{
+  MetaInputSettings parent_instance;
+};
+
+G_DEFINE_FINAL_TYPE (MetaInputSettingsX11, meta_input_settings_x11,
+                     META_TYPE_INPUT_SETTINGS)
 
 typedef enum
 {
