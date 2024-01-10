@@ -29,9 +29,6 @@
  *
  * #ClutterImage is a #ClutterContent implementation that displays
  * image data inside a [class@Actor].
- *
- * See [image.c](https://git.gnome.org/browse/clutter/tree/examples/image-content.c?h=clutter-1.18)
- * for an example of how to use #ClutterImage..
  */
 
 #include "config.h"

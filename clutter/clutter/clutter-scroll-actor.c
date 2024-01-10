@@ -35,9 +35,6 @@
  *
  * #ClutterScrollActor does not provide pointer or keyboard event handling,
  * nor does it provide visible scroll handles.
- *
- * See [scroll-actor.c](https://git.gnome.org/browse/clutter/tree/examples/scroll-actor.c?h=clutter-1.18)
- * for an example of how to use #ClutterScrollActor..
  */
 
 #include "config.h"

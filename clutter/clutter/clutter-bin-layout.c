@@ -37,9 +37,6 @@
  *   of the other;
  *   - for each layer there are horizontal and vertical
  *   alignment policies.
- *
- * The [bin-layout example](https://git.gnome.org/browse/clutter/tree/examples/bin-layout.c?h=clutter-1.18)
- * shows how to pack actors inside a #ClutterBinLayout.
  */
 
 #include "config.h"

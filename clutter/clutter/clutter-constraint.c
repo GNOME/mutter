@@ -64,35 +64,6 @@
  *  horizontal or vertical edges then it can also expand to fit the empty
  *  space.
  *
- * The [constraints example](https://git.gnome.org/browse/clutter/tree/examples/constraints.c?h=clutter-1.18)
- * uses various types of #ClutterConstraints to lay out three actors on a
- * resizable stage. Only the central actor has an explicit size, and no
- * actor has an explicit position.
- *
- *  - The #ClutterActor with [property@Clutter.Actor:name] `layerA` is explicitly
- *  sized to 100 pixels by 25 pixels, and it's added to the #ClutterStage
- *  - two #ClutterAlignConstraints are used to anchor `layerA` to the
- *  center of the stage, by using 0.5 as the alignment #ClutterAlignConstraint:factor on
- *  both the X and Y axis
- *  - the #ClutterActor with [property@Clutter.Actor:name] `layerB` is added to the
- *  #ClutterStage with no explicit size
- *  - the [property@Clutter.Actor:x] and [property@Clutter.Actor:width] of `layerB` are bound
- *  to the same properties of `layerA` using two #ClutterBindConstraint
- *  objects, thus keeping `layerB` aligned to `layerA`
- *  - the top edge of `layerB` is snapped together with the bottom edge
- *  of `layerA`; the bottom edge of `layerB` is also snapped together with
- *  the bottom edge of the #ClutterStage; an offset is  given to the two
- *  #ClutterSnapConstraintss to allow for some padding; since `layerB` is
- *  snapped between two different #ClutterActors, its height is stretched
- *  to match the gap
- *  - the #ClutterActor with [property@Clutter.Actor:name] `layerC` mirrors `layerB`,
- *  snapping the top edge of the #ClutterStage to the top edge of `layerC`
- *  and the top edge of `layerA` to the bottom edge of `layerC`
- *
- * You can try resizing interactively the #ClutterStage and verify
- * that the three #ClutterActors maintain the same position and
- * size relative to each other, and to the #ClutterStage.
- *
  * It is important to note that Clutter does not avoid loops or
  * competing constraints; if two or more #ClutterConstraints
  * are operating on the same positional or dimensional attributes of an

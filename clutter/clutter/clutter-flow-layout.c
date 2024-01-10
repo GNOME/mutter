@@ -46,9 +46,6 @@
  *   - the size of the columns or rows can be controlled
  *   for both minimum and maximum; the spacing can also be controlled
  *   in both columns and rows.
- *
- * The [flow-layout example](https://git.gnome.org/browse/clutter/tree/examples/flow-layout.c?h=clutter-1.18)
- * shows how to use the #ClutterFlowLayout.
  */
 
 #include "config.h"
