@@ -35,10 +35,16 @@ G_BEGIN_DECLS
 #define CLUTTER_TYPE_FIXED_LAYOUT               (clutter_fixed_layout_get_type ())
 
 CLUTTER_EXPORT
-G_DECLARE_FINAL_TYPE (ClutterFixedLayout,
-                      clutter_fixed_layout,
-                      CLUTTER, FIXED_LAYOUT,
-                      ClutterLayoutManager)
+G_DECLARE_DERIVABLE_TYPE (ClutterFixedLayout,
+                          clutter_fixed_layout,
+                          CLUTTER, FIXED_LAYOUT,
+                          ClutterLayoutManager)
+
+struct _ClutterFixedLayoutClass
+{
+  /*< private >*/
+  ClutterLayoutManagerClass parent_class;
+};
 
 CLUTTER_EXPORT
 ClutterLayoutManager *clutter_fixed_layout_new (void);

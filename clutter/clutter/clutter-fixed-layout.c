@@ -39,14 +39,9 @@
 #include "clutter/clutter-fixed-layout.h"
 #include "clutter/clutter-private.h"
 
-struct _ClutterFixedLayout
-{
-  ClutterLayoutManager parent_instance;
-};
-
-G_DEFINE_FINAL_TYPE (ClutterFixedLayout,
-                     clutter_fixed_layout,
-                     CLUTTER_TYPE_LAYOUT_MANAGER);
+G_DEFINE_TYPE (ClutterFixedLayout,
+               clutter_fixed_layout,
+               CLUTTER_TYPE_LAYOUT_MANAGER);
 
 static void
 clutter_fixed_layout_get_preferred_width (ClutterLayoutManager *manager,
