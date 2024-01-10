@@ -41,6 +41,7 @@
 #include "backends/native/meta-frame-native.h"
 #include "backends/native/meta-kms-connector.h"
 #include "backends/native/meta-kms-device.h"
+#include "backends/native/meta-kms-plane.h"
 #include "backends/native/meta-kms-utils.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-output-kms.h"
@@ -412,6 +413,73 @@ meta_onscreen_native_dummy_power_save_page_flip (CoglOnscreen *onscreen)
 }
 
 static void
+apply_transform (MetaCrtcKms            *crtc_kms,
+                 MetaKmsPlaneAssignment *kms_plane_assignment,
+                 MetaKmsPlane           *kms_plane)
+{
+  MetaCrtc *crtc = META_CRTC (crtc_kms);
+  const MetaCrtcConfig *crtc_config;
+  MetaMonitorTransform hw_transform;
+
+  crtc_config = meta_crtc_get_config (crtc);
+
+  hw_transform = crtc_config->transform;
+  if (!meta_kms_plane_is_transform_handled (kms_plane, hw_transform))
+    hw_transform = META_MONITOR_TRANSFORM_NORMAL;
+  if (!meta_kms_plane_is_transform_handled (kms_plane, hw_transform))
+    return;
+
+  meta_kms_plane_update_set_rotation (kms_plane,
+                                      kms_plane_assignment,
+                                      hw_transform);
+}
+
+static MetaKmsPlaneAssignment *
+assign_primary_plane (MetaCrtcKms            *crtc_kms,
+                      MetaDrmBuffer          *buffer,
+                      MetaKmsUpdate          *kms_update,
+                      MetaKmsAssignPlaneFlag  flags)
+{
+  MetaCrtc *crtc = META_CRTC (crtc_kms);
+  const MetaCrtcConfig *crtc_config;
+  const MetaCrtcModeInfo *crtc_mode_info;
+  MetaFixed16Rectangle src_rect;
+  MtkRectangle dst_rect;
+  MetaKmsCrtc *kms_crtc;
+  MetaKmsPlane *primary_kms_plane;
+  MetaKmsPlaneAssignment *plane_assignment;
+
+  crtc_config = meta_crtc_get_config (crtc);
+  crtc_mode_info = meta_crtc_mode_get_info (crtc_config->mode);
+
+  src_rect = (MetaFixed16Rectangle) {
+    .x = meta_fixed_16_from_int (0),
+    .y = meta_fixed_16_from_int (0),
+    .width = meta_fixed_16_from_int (crtc_mode_info->width),
+    .height = meta_fixed_16_from_int (crtc_mode_info->height),
+  };
+  dst_rect = (MtkRectangle) {
+    .x = 0,
+    .y = 0,
+    .width = crtc_mode_info->width,
+    .height = crtc_mode_info->height,
+  };
+
+  kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
+  primary_kms_plane = meta_crtc_kms_get_assigned_primary_plane (crtc_kms);
+  plane_assignment = meta_kms_update_assign_plane (kms_update,
+                                                   kms_crtc,
+                                                   primary_kms_plane,
+                                                   buffer,
+                                                   src_rect,
+                                                   dst_rect,
+                                                   flags);
+  apply_transform (crtc_kms, plane_assignment, primary_kms_plane);
+
+  return plane_assignment;
+}
+
+static void
 meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
                                 MetaRendererView       *view,
                                 MetaCrtc               *crtc,
@@ -444,10 +512,10 @@ meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
     case META_RENDERER_NATIVE_MODE_GBM:
       buffer = onscreen_native->gbm.next_fb;
 
-      plane_assignment = meta_crtc_kms_assign_primary_plane (crtc_kms,
-                                                             buffer,
-                                                             kms_update,
-                                                             flags);
+      plane_assignment = assign_primary_plane (crtc_kms,
+                                               buffer,
+                                               kms_update,
+                                               flags);
 
       if (rectangles != NULL && n_rectangles != 0)
         {
@@ -596,8 +664,8 @@ meta_onscreen_native_set_crtc_mode (CoglOnscreen              *onscreen,
         MetaDrmBuffer *buffer;
 
         buffer = META_DRM_BUFFER (onscreen_native->egl.dumb_fb);
-        meta_crtc_kms_assign_primary_plane (crtc_kms, buffer, kms_update,
-                                            META_KMS_ASSIGN_PLANE_FLAG_NONE);
+        assign_primary_plane (crtc_kms, buffer, kms_update,
+                              META_KMS_ASSIGN_PLANE_FLAG_NONE);
         break;
       }
 #endif
@@ -1372,8 +1440,8 @@ meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen  *onscreen,
   kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
 
   test_update = meta_kms_update_new (kms_device);
-  meta_crtc_kms_assign_primary_plane (crtc_kms, fb, test_update,
-                                      META_KMS_ASSIGN_PLANE_FLAG_DIRECT_SCANOUT);
+  assign_primary_plane (crtc_kms, fb, test_update,
+                        META_KMS_ASSIGN_PLANE_FLAG_DIRECT_SCANOUT);
 
   meta_topic (META_DEBUG_KMS,
               "Posting direct scanout test update for CRTC %u (%s) synchronously",

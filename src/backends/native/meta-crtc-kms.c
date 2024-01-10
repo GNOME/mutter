@@ -356,76 +356,16 @@ meta_crtc_kms_is_hw_cursor_supported (MetaCrtcNative *crtc_native)
   return meta_kms_device_has_cursor_plane_for (kms_device, kms_crtc);
 }
 
-void
-meta_crtc_kms_apply_transform (MetaCrtcKms            *crtc_kms,
-                               MetaKmsPlaneAssignment *kms_plane_assignment)
-{
-  MetaCrtc *crtc = META_CRTC (crtc_kms);
-  const MetaCrtcConfig *crtc_config;
-  MetaMonitorTransform hw_transform;
-
-  crtc_config = meta_crtc_get_config (crtc);
-
-  hw_transform = crtc_config->transform;
-  if (!is_transform_handled (crtc_kms, hw_transform))
-    hw_transform = META_MONITOR_TRANSFORM_NORMAL;
-  if (!is_transform_handled (crtc_kms, hw_transform))
-    return;
-
-  meta_kms_plane_update_set_rotation (crtc_kms->assigned_primary_plane,
-                                      kms_plane_assignment,
-                                      hw_transform);
-}
-
-MetaKmsPlaneAssignment *
-meta_crtc_kms_assign_primary_plane (MetaCrtcKms            *crtc_kms,
-                                    MetaDrmBuffer          *buffer,
-                                    MetaKmsUpdate          *kms_update,
-                                    MetaKmsAssignPlaneFlag  flags)
-{
-  MetaCrtc *crtc = META_CRTC (crtc_kms);
-  const MetaCrtcConfig *crtc_config;
-  const MetaCrtcModeInfo *crtc_mode_info;
-  MetaFixed16Rectangle src_rect;
-  MtkRectangle dst_rect;
-  MetaKmsCrtc *kms_crtc;
-  MetaKmsPlane *primary_kms_plane;
-  MetaKmsPlaneAssignment *plane_assignment;
-
-  crtc_config = meta_crtc_get_config (crtc);
-  crtc_mode_info = meta_crtc_mode_get_info (crtc_config->mode);
-
-  src_rect = (MetaFixed16Rectangle) {
-    .x = meta_fixed_16_from_int (0),
-    .y = meta_fixed_16_from_int (0),
-    .width = meta_fixed_16_from_int (crtc_mode_info->width),
-    .height = meta_fixed_16_from_int (crtc_mode_info->height),
-  };
-  dst_rect = (MtkRectangle) {
-    .x = 0,
-    .y = 0,
-    .width = crtc_mode_info->width,
-    .height = crtc_mode_info->height,
-  };
-
-  kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
-  primary_kms_plane = crtc_kms->assigned_primary_plane;
-  plane_assignment = meta_kms_update_assign_plane (kms_update,
-                                                   kms_crtc,
-                                                   primary_kms_plane,
-                                                   buffer,
-                                                   src_rect,
-                                                   dst_rect,
-                                                   flags);
-  meta_crtc_kms_apply_transform (crtc_kms, plane_assignment);
-
-  return plane_assignment;
-}
-
 MetaKmsPlane *
 meta_crtc_kms_get_assigned_cursor_plane (MetaCrtcKms *crtc_kms)
 {
   return crtc_kms->assigned_cursor_plane;
+}
+
+MetaKmsPlane *
+meta_crtc_kms_get_assigned_primary_plane (MetaCrtcKms *crtc_kms)
+{
+  return crtc_kms->assigned_primary_plane;
 }
 
 static GList *

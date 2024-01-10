@@ -37,13 +37,7 @@ G_DECLARE_FINAL_TYPE (MetaCrtcKms, meta_crtc_kms,
                       META, CRTC_KMS,
                       MetaCrtcNative)
 
-void meta_crtc_kms_apply_transform (MetaCrtcKms            *crtc_kms,
-                                    MetaKmsPlaneAssignment *kms_plane_assignment);
-
-MetaKmsPlaneAssignment * meta_crtc_kms_assign_primary_plane (MetaCrtcKms            *crtc_kms,
-                                                             MetaDrmBuffer          *buffer,
-                                                             MetaKmsUpdate          *kms_update,
-                                                             MetaKmsAssignPlaneFlag  flags);
+MetaKmsPlane * meta_crtc_kms_get_assigned_primary_plane (MetaCrtcKms *crtc_kms);
 
 MetaKmsPlane * meta_crtc_kms_get_assigned_cursor_plane (MetaCrtcKms *crtc_kms);
 
