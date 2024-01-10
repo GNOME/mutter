@@ -428,23 +428,6 @@ meta_crtc_kms_get_kms_crtc (MetaCrtcKms *crtc_kms)
   return crtc_kms->kms_crtc;
 }
 
-/**
- * meta_crtc_kms_supports_format:
- * @crtc_kms: a #MetaCrtcKms
- * @drm_format: a DRM pixel format
- *
- * Returns true if the CRTC supports the format on its primary plane.
- */
-gboolean
-meta_crtc_kms_supports_format (MetaCrtcKms *crtc_kms,
-                               uint32_t     drm_format)
-{
-  g_return_val_if_fail (crtc_kms->assigned_primary_plane, FALSE);
-
-  return meta_kms_plane_is_format_supported (crtc_kms->assigned_primary_plane,
-                                             drm_format);
-}
-
 MetaCrtcKms *
 meta_crtc_kms_from_kms_crtc (MetaKmsCrtc *kms_crtc)
 {

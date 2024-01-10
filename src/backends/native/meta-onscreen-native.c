@@ -1928,6 +1928,7 @@ choose_onscreen_egl_config (CoglOnscreen  *onscreen,
   EGLDisplay egl_display = cogl_renderer_egl->edpy;
   MetaEgl *egl = meta_onscreen_native_get_egl (onscreen_native);
   MetaCrtcKms *crtc_kms = META_CRTC_KMS (onscreen_native->crtc);
+  MetaKmsPlane *kms_plane = meta_crtc_kms_get_assigned_primary_plane (crtc_kms);
   EGLint attrs[MAX_EGL_CONFIG_ATTRIBS];
   g_autoptr (GError) local_error = NULL;
   static const uint32_t alphaless_10bpc_formats[] = {
@@ -1945,6 +1946,8 @@ choose_onscreen_egl_config (CoglOnscreen  *onscreen,
     GBM_FORMAT_ARGB8888,
   };
 
+  g_return_val_if_fail (META_IS_KMS_PLANE (kms_plane), FALSE);
+
   cogl_display_egl_determine_attributes (cogl_display,
                                          &cogl_display->onscreen_template->config,
                                          attrs);
@@ -1953,7 +1956,7 @@ choose_onscreen_egl_config (CoglOnscreen  *onscreen,
    * formats without alpha are renderable
    */
   if (!should_surface_be_sharable (onscreen) &&
-      meta_renderer_native_choose_gbm_format (crtc_kms,
+      meta_renderer_native_choose_gbm_format (kms_plane,
                                               egl,
                                               egl_display,
                                               attrs,
@@ -1964,7 +1967,7 @@ choose_onscreen_egl_config (CoglOnscreen  *onscreen,
                                               error))
     return TRUE;
 
-  if (meta_renderer_native_choose_gbm_format (crtc_kms,
+  if (meta_renderer_native_choose_gbm_format (kms_plane,
                                               egl,
                                               egl_display,
                                               attrs,

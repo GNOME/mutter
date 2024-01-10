@@ -56,6 +56,7 @@
 #include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-kms-cursor-manager.h"
 #include "backends/native/meta-kms-device.h"
+#include "backends/native/meta-kms-plane.h"
 #include "backends/native/meta-kms-utils.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-onscreen-native.h"
@@ -407,7 +408,7 @@ choose_egl_config_from_gbm_format (MetaEgl       *egl,
 }
 
 gboolean
-meta_renderer_native_choose_gbm_format (MetaCrtcKms     *crtc_kms,
+meta_renderer_native_choose_gbm_format (MetaKmsPlane    *kms_plane,
                                         MetaEgl         *egl,
                                         EGLDisplay       egl_display,
                                         EGLint          *attributes,
@@ -423,7 +424,8 @@ meta_renderer_native_choose_gbm_format (MetaCrtcKms     *crtc_kms,
     {
       g_clear_error (error);
 
-      if (crtc_kms && !meta_crtc_kms_supports_format (crtc_kms, formats[i]))
+      if (kms_plane &&
+          !meta_kms_plane_is_format_supported (kms_plane, formats[i]))
         {
           g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                        "KMS CRTC doesn't support format");
@@ -1649,9 +1651,12 @@ create_secondary_egl_config (MetaEgl                    *egl,
 
                 for (l = meta_gpu_get_crtcs (META_GPU (gpu_kms)); l; l = l->next)
                   {
-                    MetaCrtc *crtc = l->data;
+                    MetaCrtcKms *crtc_kms = META_CRTC_KMS (l->data);
+                    MetaKmsPlane *kms_plane =
+                      meta_crtc_kms_get_assigned_primary_plane (crtc_kms);
 
-                    if (!meta_crtc_kms_supports_format (META_CRTC_KMS (crtc), gles3_formats[i]))
+                    if (!meta_kms_plane_is_format_supported (kms_plane,
+                                                             gles3_formats[i]))
                       break;
                   }
 

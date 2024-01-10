@@ -1289,6 +1289,7 @@ ensure_scanout_tranche (MetaWaylandDmaBufSurfaceFeedback *surface_feedback,
   MetaBackend *backend = meta_context_get_backend (context);
   MetaWaylandDmaBufFeedback *feedback = surface_feedback->feedback;
   MetaCrtcKms *crtc_kms;
+  MetaKmsPlane *kms_plane;
   MetaWaylandDmaBufTranche *tranche;
   GList *el;
   int i;
@@ -1297,7 +1298,11 @@ ensure_scanout_tranche (MetaWaylandDmaBufSurfaceFeedback *surface_feedback,
   MetaWaylandDmaBufTrancheFlags flags;
 
   g_return_if_fail (META_IS_CRTC_KMS (crtc));
+
   crtc_kms = META_CRTC_KMS (crtc);
+  kms_plane = meta_crtc_kms_get_assigned_primary_plane (crtc_kms);
+
+  g_return_if_fail (META_IS_KMS_PLANE (kms_plane));
 
   el = g_list_find_custom (feedback->tranches, NULL, find_scanout_tranche_func);
   if (el)
@@ -1344,7 +1349,7 @@ ensure_scanout_tranche (MetaWaylandDmaBufSurfaceFeedback *surface_feedback,
           if (format.drm_modifier != DRM_FORMAT_MOD_INVALID)
             continue;
 
-          if (!meta_crtc_kms_supports_format (crtc_kms, format.drm_format))
+          if (!meta_kms_plane_is_format_supported (kms_plane, format.drm_format))
             continue;
 
           g_array_append_val (formats, format);
