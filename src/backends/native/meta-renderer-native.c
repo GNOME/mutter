@@ -1608,6 +1608,36 @@ meta_renderer_native_finish_frame (MetaRendererNative *renderer_native,
 }
 
 static gboolean
+all_primary_planes_support_format (MetaCrtcKms *crtc_kms,
+                                   uint32_t     drm_format)
+{
+  MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
+  MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);
+  gboolean supported = FALSE;
+  GList *l;
+
+  for (l = meta_kms_device_get_planes (kms_device); l; l = l->next)
+    {
+      MetaKmsPlane *kms_plane = l->data;
+
+      if (meta_kms_plane_get_plane_type (kms_plane) !=
+          META_KMS_PLANE_TYPE_PRIMARY)
+        continue;
+
+      if (!meta_kms_plane_is_usable_with (kms_plane, kms_crtc))
+        continue;
+
+      supported = TRUE;
+
+      if (!meta_kms_plane_is_format_supported (kms_plane, drm_format))
+        return FALSE;
+    }
+
+  return supported;
+}
+
+
+static gboolean
 create_secondary_egl_config (MetaEgl                    *egl,
                              MetaRendererNativeGpuData  *renderer_gpu_data,
                              EGLDisplay                  egl_display,
@@ -1652,11 +1682,9 @@ create_secondary_egl_config (MetaEgl                    *egl,
                 for (l = meta_gpu_get_crtcs (META_GPU (gpu_kms)); l; l = l->next)
                   {
                     MetaCrtcKms *crtc_kms = META_CRTC_KMS (l->data);
-                    MetaKmsPlane *kms_plane =
-                      meta_crtc_kms_get_assigned_primary_plane (crtc_kms);
 
-                    if (!meta_kms_plane_is_format_supported (kms_plane,
-                                                             gles3_formats[i]))
+                    if (!all_primary_planes_support_format (crtc_kms,
+                                                            gles3_formats[i]))
                       break;
                   }
 
