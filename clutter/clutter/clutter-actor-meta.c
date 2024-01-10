@@ -433,7 +433,7 @@ _clutter_actor_meta_is_internal (ClutterActorMeta *meta)
  * ClutterMetaGroup: a collection of ClutterActorMeta instances
  */
 
-G_DEFINE_TYPE (ClutterMetaGroup, _clutter_meta_group, G_TYPE_OBJECT);
+G_DEFINE_FINAL_TYPE (ClutterMetaGroup, _clutter_meta_group, G_TYPE_OBJECT);
 
 static void
 _clutter_meta_group_dispose (GObject *gobject)
