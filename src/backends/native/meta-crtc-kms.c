@@ -453,22 +453,6 @@ meta_crtc_kms_get_modifiers (MetaCrtcKms *crtc_kms,
 }
 
 /**
- * meta_crtc_kms_copy_drm_format_list:
- * @crtc_kms: a #MetaCrtc object that has to be a #MetaCrtcKms
- *
- * Returns a new #GArray that the caller must destroy. The array
- * contains all the DRM pixel formats the CRTC supports on
- * its primary plane. The array element type is uint32_t.
- */
-GArray *
-meta_crtc_kms_copy_drm_format_list (MetaCrtcKms *crtc_kms)
-{
-  g_return_val_if_fail (crtc_kms->assigned_primary_plane, NULL);
-
-  return meta_kms_plane_copy_drm_format_list (crtc_kms->assigned_primary_plane);
-}
-
-/**
  * meta_crtc_kms_supports_format:
  * @crtc_kms: a #MetaCrtcKms
  * @drm_format: a DRM pixel format

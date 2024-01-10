@@ -1906,8 +1906,9 @@ get_supported_kms_formats (CoglOnscreen *onscreen)
 {
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaCrtcKms *crtc_kms = META_CRTC_KMS (onscreen_native->crtc);
+  MetaKmsPlane *plane = meta_crtc_kms_get_assigned_primary_plane (crtc_kms);
 
-  return meta_crtc_kms_copy_drm_format_list (crtc_kms);
+  return meta_kms_plane_copy_drm_format_list (plane);
 }
 
 static gboolean

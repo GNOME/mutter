@@ -50,9 +50,6 @@ MetaKmsCrtc * meta_crtc_kms_get_kms_crtc (MetaCrtcKms *crtc_kms);
 GArray * meta_crtc_kms_get_modifiers (MetaCrtcKms *crtc_kms,
                                       uint32_t     format);
 
-GArray *
-meta_crtc_kms_copy_drm_format_list (MetaCrtcKms *crtc_kms);
-
 gboolean
 meta_crtc_kms_supports_format (MetaCrtcKms *crtc_kms,
                                uint32_t     drm_format);
