@@ -1801,11 +1801,14 @@ static GArray *
 get_supported_kms_modifiers (MetaCrtcKms *crtc_kms,
                              uint32_t     format)
 {
+  MetaKmsPlane *plane = meta_crtc_kms_get_assigned_primary_plane (crtc_kms);
   GArray *modifiers;
   GArray *crtc_mods;
   unsigned int i;
 
-  crtc_mods = meta_crtc_kms_get_modifiers (crtc_kms, format);
+  g_return_val_if_fail (plane, NULL);
+
+  crtc_mods = meta_kms_plane_get_modifiers_for_format (plane, format);
   if (!crtc_mods)
     return NULL;
 

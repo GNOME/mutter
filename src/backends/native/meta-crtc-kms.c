@@ -429,30 +429,6 @@ meta_crtc_kms_get_kms_crtc (MetaCrtcKms *crtc_kms)
 }
 
 /**
- * meta_crtc_kms_get_modifiers:
- * @crtc_kms: a #MetaCrtc object that has to be a #MetaCrtcKms
- * @format: a DRM pixel format
- *
- * Returns a pointer to a #GArray containing all the supported
- * modifiers for the given DRM pixel format on the CRTC's primary
- * plane. The array element type is uint64_t.
- *
- * The caller must not modify or destroy the array or its contents.
- *
- * Returns NULL if the modifiers are not known or the format is not
- * supported.
- */
-GArray *
-meta_crtc_kms_get_modifiers (MetaCrtcKms *crtc_kms,
-                             uint32_t     format)
-{
-  g_return_val_if_fail (crtc_kms->assigned_primary_plane, NULL);
-
-  return meta_kms_plane_get_modifiers_for_format (crtc_kms->assigned_primary_plane,
-                                                  format);
-}
-
-/**
  * meta_crtc_kms_supports_format:
  * @crtc_kms: a #MetaCrtcKms
  * @drm_format: a DRM pixel format

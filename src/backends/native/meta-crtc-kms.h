@@ -47,9 +47,6 @@ void meta_crtc_kms_set_mode (MetaCrtcKms   *crtc_kms,
 META_EXPORT_TEST
 MetaKmsCrtc * meta_crtc_kms_get_kms_crtc (MetaCrtcKms *crtc_kms);
 
-GArray * meta_crtc_kms_get_modifiers (MetaCrtcKms *crtc_kms,
-                                      uint32_t     format);
-
 gboolean
 meta_crtc_kms_supports_format (MetaCrtcKms *crtc_kms,
                                uint32_t     drm_format);

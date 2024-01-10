@@ -60,6 +60,7 @@
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-drm-buffer-gbm.h"
 #include "backends/native/meta-kms-device.h"
+#include "backends/native/meta-kms-plane.h"
 #include "backends/native/meta-kms-utils.h"
 #include "backends/native/meta-onscreen-native.h"
 #include "backends/native/meta-renderer-native.h"
@@ -1266,9 +1267,12 @@ crtc_supports_modifier (MetaCrtcKms *crtc_kms,
                         uint32_t     drm_format,
                         uint64_t     drm_modifier)
 {
+  MetaKmsPlane *plane = meta_crtc_kms_get_assigned_primary_plane (crtc_kms);
   GArray *crtc_modifiers;
 
-  crtc_modifiers = meta_crtc_kms_get_modifiers (crtc_kms, drm_format);
+  g_return_val_if_fail (plane, FALSE);
+
+  crtc_modifiers = meta_kms_plane_get_modifiers_for_format (plane, drm_format);
   if (!crtc_modifiers)
     return FALSE;
 
