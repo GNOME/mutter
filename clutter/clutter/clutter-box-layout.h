@@ -38,10 +38,16 @@ G_BEGIN_DECLS
 #define CLUTTER_TYPE_BOX_LAYOUT                 (clutter_box_layout_get_type ())
 
 CLUTTER_EXPORT
-G_DECLARE_FINAL_TYPE (ClutterBoxLayout,
-                      clutter_box_layout,
-                      CLUTTER, BOX_LAYOUT,
-                      ClutterLayoutManager)
+G_DECLARE_DERIVABLE_TYPE (ClutterBoxLayout,
+                          clutter_box_layout,
+                          CLUTTER, BOX_LAYOUT,
+                          ClutterLayoutManager)
+
+struct _ClutterBoxLayoutClass
+{
+  /*< private >*/
+  ClutterLayoutManagerClass parent_class;
+};
 
 CLUTTER_EXPORT
 ClutterLayoutManager *  clutter_box_layout_new                 (void);
