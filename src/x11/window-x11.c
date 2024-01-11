@@ -2607,6 +2607,8 @@ meta_window_move_resize_request (MetaWindow  *window,
                                  int          new_width,
                                  int          new_height)
 {
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_private (META_WINDOW_X11 (window));
   int x, y, width, height;
   gboolean allow_position_change;
   gboolean in_grab_op;
@@ -2763,7 +2765,7 @@ meta_window_move_resize_request (MetaWindow  *window,
            * the monitor.
            */
           if (meta_prefs_get_force_fullscreen() &&
-              (window->decorated || !meta_window_is_client_decorated (window)) &&
+              (window->decorated || !priv->has_custom_frame_extents) &&
               mtk_rectangle_equal (&rect, &monitor_rect) &&
               window->has_fullscreen_func &&
               !window->fullscreen)

@@ -424,9 +424,6 @@ META_EXPORT
 gboolean meta_window_allows_resize (MetaWindow *window);
 
 META_EXPORT
-gboolean meta_window_is_client_decorated (MetaWindow *window);
-
-META_EXPORT
 gboolean meta_window_titlebar_is_onscreen    (MetaWindow *window);
 
 META_EXPORT

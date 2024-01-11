@@ -6011,35 +6011,6 @@ meta_window_get_tile_area (MetaWindow   *window,
 }
 
 /**
- * meta_window_is_client_decorated:
- *
- * Check if if the window has decorations drawn by the client.
- *
- * `window->decorated` refers only to whether we should add decorations.
- */
-gboolean
-meta_window_is_client_decorated (MetaWindow *window)
-{
-  if (window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND)
-    {
-      /* Assume all Wayland clients draw decorations - not strictly
-       * true but good enough for current purposes.
-       */
-      return TRUE;
-    }
-  else
-    {
-      /* Currently the implementation here is hackish -
-       * has_custom_frame_extents() is set if _GTK_FRAME_EXTENTS is set
-       * to any value even 0. GTK+ always sets _GTK_FRAME_EXTENTS for
-       * client-side-decorated window, even if the value is 0 because
-       * the window is maxized and has no invisible borders or shadows.
-       */
-      return window->has_custom_frame_extents;
-    }
-}
-
-/**
  * meta_window_foreach_transient:
  * @window: a #MetaWindow
  * @func: (scope call) (closure user_data): Called for each window which is a transient of @window (transitively)
