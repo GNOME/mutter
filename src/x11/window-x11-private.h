@@ -100,6 +100,7 @@ struct _MetaWindowX11Private
   /* maintained by group.c */
   MetaGroup *group;
 
+  gboolean has_custom_frame_extents;
   MetaSyncCounter sync_counter;
 
   /* Used by keybindings.c */

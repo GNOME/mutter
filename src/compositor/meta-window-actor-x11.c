@@ -384,6 +384,9 @@ has_shadow (MetaWindowActorX11 *actor_x11)
 {
   MetaWindow *window =
     meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
+  MetaWindowX11 *x11_window = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_private (x11_window);
 
   if (actor_x11->shadow_mode == META_SHADOW_MODE_FORCED_OFF)
     return FALSE;
@@ -422,7 +425,7 @@ has_shadow (MetaWindowActorX11 *actor_x11)
    * If a window specifies that it has custom frame extents, that likely
    * means that it is drawing a shadow itself. Don't draw our own.
    */
-  if (window->has_custom_frame_extents)
+  if (priv->has_custom_frame_extents)
     return FALSE;
 
   /*
