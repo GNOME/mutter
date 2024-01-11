@@ -220,8 +220,8 @@ cogl_onscreen_get_buffer_age (CoglOnscreen *onscreen);
 /**
  * cogl_onscreen_queue_damage_region:
  * @onscreen: A #CoglOnscreen framebuffer
- * @rectangles: An array of integer 4-tuples representing damaged
- *              rectangles as (x, y, width, height) tuples.
+ * @rectangles: (array length=n_rectangles): An array of integer 4-tuples
+ *              representing damaged rectangles as (x, y, width, height) tuples.
  * @n_rectangles: The number of 4-tuples to be read from @rectangles
  *
  * Implementation for https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_partial_update.txt
@@ -240,8 +240,8 @@ cogl_onscreen_queue_damage_region (CoglOnscreen *onscreen,
 /**
  * cogl_onscreen_swap_buffers_with_damage:
  * @onscreen: A #CoglOnscreen framebuffer
- * @rectangles: An array of integer 4-tuples representing damaged
- *              rectangles as (x, y, width, height) tuples.
+ * @rectangles: (array length=n_rectangles): An array of integer 4-tuples
+ *              representing damaged rectangles as (x, y, width, height) tuples.
  * @n_rectangles: The number of 4-tuples to be read from @rectangles
  *
  * Swaps the current back buffer being rendered too, to the front for
@@ -309,8 +309,8 @@ cogl_onscreen_add_frame_info (CoglOnscreen  *onscreen,
 /**
  * cogl_onscreen_swap_region:
  * @onscreen: A #CoglOnscreen framebuffer
- * @rectangles: An array of integer 4-tuples representing rectangles as
- *              (x, y, width, height) tuples.
+ * @rectangles: (array length=n_rectangles): An array of integer 4-tuples
+ *              representing rectangles as (x, y, width, height) tuples.
  * @n_rectangles: The number of 4-tuples to be read from @rectangles
  *
  * Swaps a region of the back buffer being rendered too, to the front for
@@ -436,8 +436,8 @@ GType cogl_frame_closure_get_type (void);
  * wasting resources, drawing more frames than your system compositor
  * can display.
  *
- * Return value: a #CoglFrameClosure pointer that can be used to
- *               remove the callback and associated @user_data later.
+ * Returns: (transfer none): a #CoglFrameClosure pointer that can be used to
+ *          remove the callback and associated @user_data later.
  */
 COGL_EXPORT CoglFrameClosure *
 cogl_onscreen_add_frame_callback (CoglOnscreen *onscreen,
@@ -541,8 +541,8 @@ GType cogl_onscreen_dirty_closure_get_type (void);
  * the dirty region to ensure that the framebuffer is actually ready
  * for rendering.
  *
- * Return value: a #CoglOnscreenDirtyClosure pointer that can be used to
- *               remove the callback and associated @user_data later.
+ * Returns: (transfer none): a #CoglOnscreenDirtyClosure pointer that can be
+ *          used to remove the callback and associated @user_data later.
  */
 COGL_EXPORT CoglOnscreenDirtyClosure *
 cogl_onscreen_add_dirty_callback (CoglOnscreen *onscreen,
