@@ -62,7 +62,7 @@ struct _MetaKmsConnector
 {
   GObject parent;
 
-  MetaKmsDevice *device;
+  MetaKmsImplDevice *impl_device;
 
   uint32_t id;
   uint32_t type;
@@ -93,7 +93,7 @@ typedef enum _MetaKmsPrivacyScreenHwState
 MetaKmsDevice *
 meta_kms_connector_get_device (MetaKmsConnector *connector)
 {
-  return connector->device;
+  return meta_kms_impl_device_get_device (connector->impl_device);
 }
 
 uint32_t
@@ -1122,15 +1122,10 @@ meta_kms_connector_update_state_in_impl (MetaKmsConnector *connector,
                                          drmModeRes       *drm_resources,
                                          drmModeConnector *drm_connector)
 {
-  MetaKmsImplDevice *impl_device;
-  MetaKmsResourceChanges changes;
-
-  impl_device = meta_kms_device_get_impl_device (connector->device);
-  changes = meta_kms_connector_read_state (connector, impl_device,
-                                           drm_connector,
-                                           drm_resources);
-
-  return changes;
+  return meta_kms_connector_read_state (connector,
+                                        connector->impl_device,
+                                        drm_connector,
+                                        drm_resources);
 }
 
 void
@@ -1149,7 +1144,6 @@ MetaKmsResourceChanges
 meta_kms_connector_predict_state_in_impl (MetaKmsConnector *connector,
                                           MetaKmsUpdate    *update)
 {
-  MetaKmsImplDevice *impl_device;
   MetaKmsConnectorState *current_state;
   GList *mode_sets;
   GList *l;
@@ -1232,8 +1226,7 @@ meta_kms_connector_predict_state_in_impl (MetaKmsConnector *connector,
         }
     }
 
-  impl_device = meta_kms_device_get_impl_device (connector->device);
-  sync_fd_held (connector, impl_device);
+  sync_fd_held (connector, connector->impl_device);
 
   return changes;
 }
@@ -1582,7 +1575,7 @@ meta_kms_connector_new (MetaKmsImplDevice *impl_device,
 
   g_assert (drm_connector);
   connector = g_object_new (META_TYPE_KMS_CONNECTOR, NULL);
-  connector->device = meta_kms_impl_device_get_device (impl_device);
+  connector->impl_device = impl_device;
   connector->id = drm_connector->connector_id;
   connector->type = drm_connector->connector_type;
   connector->type_id = drm_connector->connector_type_id;
@@ -1603,12 +1596,7 @@ meta_kms_connector_finalize (GObject *object)
   MetaKmsConnector *connector = META_KMS_CONNECTOR (object);
 
   if (connector->fd_held)
-    {
-      MetaKmsImplDevice *impl_device;
-
-      impl_device = meta_kms_device_get_impl_device (connector->device);
-      meta_kms_impl_device_unhold_fd (impl_device);
-    }
+    meta_kms_impl_device_unhold_fd (connector->impl_device);
 
   g_clear_pointer (&connector->current_state, meta_kms_connector_state_free);
   g_free (connector->name);
