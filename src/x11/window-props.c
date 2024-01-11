@@ -324,13 +324,16 @@ meta_window_set_custom_frame_extents (MetaWindow      *window,
                                       MetaFrameBorder *extents,
                                       gboolean         is_initial)
 {
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_private (window_x11);
   if (extents)
     {
-      if (window->has_custom_frame_extents &&
+      if (priv->has_custom_frame_extents &&
           memcmp (&window->custom_frame_extents, extents, sizeof (MetaFrameBorder)) == 0)
         return;
 
-      window->has_custom_frame_extents = TRUE;
+      priv->has_custom_frame_extents = TRUE;
       window->custom_frame_extents = *extents;
 
       /* If we're setting the frame extents on map, then this is telling
@@ -346,10 +349,10 @@ meta_window_set_custom_frame_extents (MetaWindow      *window,
     }
   else
     {
-      if (!window->has_custom_frame_extents)
+      if (!priv->has_custom_frame_extents)
         return;
 
-      window->has_custom_frame_extents = FALSE;
+      priv->has_custom_frame_extents = FALSE;
       memset (&window->custom_frame_extents, 0, sizeof (window->custom_frame_extents));
     }
 

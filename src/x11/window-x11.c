@@ -2775,7 +2775,7 @@ meta_window_move_resize_request (MetaWindow  *window,
            * the monitor.
            */
           if (meta_prefs_get_force_fullscreen() &&
-              (window->decorated || !meta_window_is_client_decorated (window)) &&
+              (window->decorated || !priv->has_custom_frame_extents) &&
               mtk_rectangle_equal (&rect, &monitor_rect) &&
               window->has_fullscreen_func &&
               !window->fullscreen)
