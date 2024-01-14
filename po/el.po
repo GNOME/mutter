@@ -18,18 +18,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: metacity.gnome-2-26\n"
-"Report-Msgid-Bugs-To: https://bugzilla.gnome.org/enter_bug.cgi?"
-"product=mutter&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2017-02-28 06:20+0000\n"
-"PO-Revision-Date: 2017-04-07 13:41+0300\n"
-"Last-Translator: Tom Tryfonidis <tomtryf@gnome.org>\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
+"POT-Creation-Date: 2023-10-19 08:07+0000\n"
+"PO-Revision-Date: 2024-01-15 00:21+0200\n"
+"Last-Translator: Efstathios Iosifidis <eiosifidis@gnome.org>\n"
 "Language-Team: Greek, Modern (1453-) <opensuse-translation-el@opensuse.org>\n"
 "Language: el\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.8.11\n"
+"X-Generator: Poedit 3.4\n"
 "X-Project-Style: gnome\n"
 
 #: data/50-mutter-navigation.xml:6
@@ -64,127 +63,131 @@ msgstr "Μετακίνηση παραθύρου έναν χώρο εργασία
 msgid "Move window one workspace to the right"
 msgstr "Μετακίνηση παραθύρου έναν χώρο εργασίας δεξιά"
 
-#: data/50-mutter-navigation.xml:30
+#: data/50-mutter-navigation.xml:31
 msgid "Move window one workspace up"
 msgstr "Μετακίνηση παραθύρου έναν χώρο εργασίας πάνω"
 
-#: data/50-mutter-navigation.xml:33
+#: data/50-mutter-navigation.xml:35
 msgid "Move window one workspace down"
 msgstr "Μετακίνηση παραθύρου έναν χώρο εργασίας κάτω"
 
-#: data/50-mutter-navigation.xml:36
+#: data/50-mutter-navigation.xml:38
 msgid "Move window one monitor to the left"
 msgstr "Μετακίνηση παραθύρου κατά μια οθόνη στα αριστερά"
 
-#: data/50-mutter-navigation.xml:39
+#: data/50-mutter-navigation.xml:41
 msgid "Move window one monitor to the right"
 msgstr "Μετακίνηση παραθύρου κατά μια οθόνη στα δεξιά"
 
-#: data/50-mutter-navigation.xml:42
+#: data/50-mutter-navigation.xml:44
 msgid "Move window one monitor up"
 msgstr "Μετακίνηση παραθύρου κατά μια οθόνη προς τα πάνω"
 
-#: data/50-mutter-navigation.xml:45
+#: data/50-mutter-navigation.xml:47
 msgid "Move window one monitor down"
 msgstr "Μετακίνηση παραθύρου κατά μια οθόνη προς τα κάτω"
 
-#: data/50-mutter-navigation.xml:49
+#: data/50-mutter-navigation.xml:51
 msgid "Switch applications"
 msgstr "Εναλλαγή εφαρμογών"
 
-#: data/50-mutter-navigation.xml:54
+#: data/50-mutter-navigation.xml:56
 msgid "Switch to previous application"
 msgstr "Εναλλαγή στην προηγούμενη εφαρμογή"
 
-#: data/50-mutter-navigation.xml:58
+#: data/50-mutter-navigation.xml:60
 msgid "Switch windows"
 msgstr "Εναλλαγή παραθύρων"
 
-#: data/50-mutter-navigation.xml:63
+#: data/50-mutter-navigation.xml:65
 msgid "Switch to previous window"
 msgstr "Εναλλαγή στο προηγούμενο παράθυρο"
 
-#: data/50-mutter-navigation.xml:67
+#: data/50-mutter-navigation.xml:69
 msgid "Switch windows of an application"
 msgstr "Εναλλαγή παραθύρων μιας εφαρμογής"
 
-#: data/50-mutter-navigation.xml:72
+#: data/50-mutter-navigation.xml:74
 msgid "Switch to previous window of an application"
 msgstr "Εναλλαγή στο προηγούμενο παράθυρο μιας εφαρμογής"
 
-#: data/50-mutter-navigation.xml:76
+#: data/50-mutter-navigation.xml:78
 msgid "Switch system controls"
 msgstr "Εναλλαγή ελέγχων συστήματος"
 
-#: data/50-mutter-navigation.xml:81
+#: data/50-mutter-navigation.xml:83
 msgid "Switch to previous system control"
 msgstr "Εναλλαγή σε προηγούμενους ελέγχους συστήματος"
 
-#: data/50-mutter-navigation.xml:85
+#: data/50-mutter-navigation.xml:87
 msgid "Switch windows directly"
 msgstr "Άμεση εναλλαγή παραθύρων"
 
-#: data/50-mutter-navigation.xml:90
+#: data/50-mutter-navigation.xml:92
 msgid "Switch directly to previous window"
 msgstr "Άμεση εναλλαγή στο προηγούμενο παράθυρο"
 
-#: data/50-mutter-navigation.xml:94
+#: data/50-mutter-navigation.xml:96
 msgid "Switch windows of an app directly"
 msgstr "Άμεση εναλλαγή παραθύρων μιας εφαρμογής"
 
-#: data/50-mutter-navigation.xml:99
+#: data/50-mutter-navigation.xml:101
 msgid "Switch directly to previous window of an app"
 msgstr "Άμεση εναλλαγή στο προηγούμενο παράθυρο μιας εφαρμογής"
 
-#: data/50-mutter-navigation.xml:103
+#: data/50-mutter-navigation.xml:105
 msgid "Switch system controls directly"
 msgstr "Άμεση εναλλαγή ελέγχων συστήματος"
 
-#: data/50-mutter-navigation.xml:108
+#: data/50-mutter-navigation.xml:110
 msgid "Switch directly to previous system control"
 msgstr "Άμεση εναλλαγή σε προηγούμενους ελέγχους συστήματος"
 
-#: data/50-mutter-navigation.xml:111
+#: data/50-mutter-navigation.xml:113
 msgid "Hide all normal windows"
 msgstr "Απόκρυψη όλων των κανονικών παραθύρων"
 
-#: data/50-mutter-navigation.xml:114
+#: data/50-mutter-navigation.xml:116
 msgid "Switch to workspace 1"
 msgstr "Εναλλαγή στον χώρο εργασίας 1"
 
-#: data/50-mutter-navigation.xml:117
+#: data/50-mutter-navigation.xml:119
 msgid "Switch to workspace 2"
 msgstr "Εναλλαγή στον χώρο εργασίας 2"
 
-#: data/50-mutter-navigation.xml:120
+#: data/50-mutter-navigation.xml:122
 msgid "Switch to workspace 3"
 msgstr "Εναλλαγή στον χώρο εργασίας 3"
 
-#: data/50-mutter-navigation.xml:123
+#: data/50-mutter-navigation.xml:125
 msgid "Switch to workspace 4"
 msgstr "Εναλλαγή στον χώρο εργασίας 4"
 
-#: data/50-mutter-navigation.xml:126
+#: data/50-mutter-navigation.xml:128
 msgid "Switch to last workspace"
 msgstr "Εναλλαγή στον τελευταίο χώρο εργασίας"
 
-#: data/50-mutter-navigation.xml:129
-msgid "Move to workspace left"
-msgstr "Μετακίνηση στον χώρο εργασίας αριστερά"
+#: data/50-mutter-navigation.xml:131
+#| msgid "Switch to workspace 1"
+msgid "Switch to workspace on the left"
+msgstr "Εναλλαγή στον χώρο εργασίας αριστερά"
 
-#: data/50-mutter-navigation.xml:132
-msgid "Move to workspace right"
-msgstr "Μετακίνηση στον χώρο εργασίας δεξιά"
-
-#: data/50-mutter-navigation.xml:135
-msgid "Move to workspace above"
-msgstr "Μετακίνηση στον χώρο εργασίας επάνω"
+#: data/50-mutter-navigation.xml:134
+#| msgid "Switch to workspace 1"
+msgid "Switch to workspace on the right"
+msgstr "Εναλλαγή στον χώρο εργασίας δεξιά"
 
 #: data/50-mutter-navigation.xml:138
-msgid "Move to workspace below"
-msgstr "Μετακίνηση στον χώρο εργασίας κάτω"
+#| msgid "Switch to workspace 1"
+msgid "Switch to workspace above"
+msgstr "Εναλλαγή στον χώρο εργασίας πάνω"
 
-#: data/50-mutter-system.xml:6
+#: data/50-mutter-navigation.xml:142
+#| msgid "Switch to workspace 1"
+msgid "Switch to workspace below"
+msgstr "Εναλλαγή στον χώρο εργασίας κάτω"
+
+#: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
 msgstr "Σύστημα"
 
@@ -192,9 +195,9 @@ msgstr "Σύστημα"
 msgid "Show the run command prompt"
 msgstr "Εμφάνιση της προτροπής της εντολής run"
 
-#: data/50-mutter-system.xml:10
-msgid "Show the activities overview"
-msgstr "Εμφάνιση της επισκόπησης των δραστηριοτήτων"
+#: data/50-mutter-wayland.xml:8
+msgid "Restore the keyboard shortcuts"
+msgstr "Επαναφορά των συντομεύσεων πληκτρολογίου"
 
 #: data/50-mutter-windows.xml:6
 msgid "Windows"
@@ -221,66 +224,58 @@ msgid "Restore window"
 msgstr "Επαναφορά παραθύρου"
 
 #: data/50-mutter-windows.xml:18
-msgid "Toggle shaded state"
-msgstr "Εναλλαγή σκιασμένης κατάστασης"
-
-#: data/50-mutter-windows.xml:20
 msgid "Close window"
 msgstr "Κλείσιμο παραθύρου"
 
-#: data/50-mutter-windows.xml:22
+#: data/50-mutter-windows.xml:20
 msgid "Hide window"
 msgstr "Απόκρυψη παραθύρου"
 
-#: data/50-mutter-windows.xml:24
+#: data/50-mutter-windows.xml:22
 msgid "Move window"
 msgstr "Μετακίνηση παραθύρου"
 
-#: data/50-mutter-windows.xml:26
+#: data/50-mutter-windows.xml:24
 msgid "Resize window"
 msgstr "Αυξομείωση παραθύρου"
 
-#: data/50-mutter-windows.xml:29
+#: data/50-mutter-windows.xml:27
 msgid "Toggle window on all workspaces or one"
 msgstr "Εναλλαγή παραθύρου σε όλες τις επιφάνειες εργασίας ή σε μία"
 
-#: data/50-mutter-windows.xml:31
+#: data/50-mutter-windows.xml:29
 msgid "Raise window if covered, otherwise lower it"
 msgstr "Ανύψωση παραθύρου εάν καλύπτεται, αλλιώς βύθισή του"
 
-#: data/50-mutter-windows.xml:33
+#: data/50-mutter-windows.xml:31
 msgid "Raise window above other windows"
 msgstr "Ανύψωση παραθύρου πάνω από τα άλλα παράθυρα"
 
-#: data/50-mutter-windows.xml:35
+#: data/50-mutter-windows.xml:33
 msgid "Lower window below other windows"
 msgstr "Βύθιση παραθύρου κάτω από τα άλλα παράθυρα"
 
-#: data/50-mutter-windows.xml:37
+#: data/50-mutter-windows.xml:35
 msgid "Maximize window vertically"
 msgstr "Μεγιστοποίηση παραθύρου κάθετα"
 
-#: data/50-mutter-windows.xml:39
+#: data/50-mutter-windows.xml:37
 msgid "Maximize window horizontally"
 msgstr "Μεγιστοποίηση παραθύρου οριζόντια"
 
-#: data/50-mutter-windows.xml:43
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:164
 msgid "View split on left"
 msgstr "Μεγιστοποίηση στα αριστερά"
 
-#: data/50-mutter-windows.xml:47
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:169
 msgid "View split on right"
 msgstr "Μεγιστοποίηση στα δεξιά"
 
-#: data/mutter.desktop.in:4
-msgid "Mutter"
-msgstr "Mutter"
-
-#: data/org.gnome.mutter.gschema.xml.in:7
+#: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
 msgstr "Μετατροπέας για χρήση στις εκτεταμένες ενέργειες διαχείρισης παραθύρων"
 
-#: data/org.gnome.mutter.gschema.xml.in:8
+#: data/org.gnome.mutter.gschema.xml.in:16
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
@@ -292,11 +287,11 @@ msgstr ""
 "είναι το «πλήκτρο Windows» σε μηχανήματα PC. Αναμένεται ότι αυτή η "
 "αντιστοίχιση θα είναι είτε η προεπιλογή ή θα ορίζεται στην κενή συμβολοσειρά."
 
-#: data/org.gnome.mutter.gschema.xml.in:20
+#: data/org.gnome.mutter.gschema.xml.in:28
 msgid "Attach modal dialogs"
 msgstr "Επισύναψη σχηματικών διαλόγων"
 
-#: data/org.gnome.mutter.gschema.xml.in:21
+#: data/org.gnome.mutter.gschema.xml.in:29
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
 "attached to the titlebar of the parent window and are moved together with "
@@ -306,13 +301,13 @@ msgstr ""
 "εμφανίζονται στην μπάρα τίτλου του γονικού παραθύρου και μετακινούνται μαζί "
 "με το γονικό παράθυρο."
 
-#: data/org.gnome.mutter.gschema.xml.in:30
+#: data/org.gnome.mutter.gschema.xml.in:38
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr ""
 "Ενεργοποίηση της παράθεσης παραθύρων όταν τα μετακινείτε στις άκρες της "
 "οθόνης"
 
-#: data/org.gnome.mutter.gschema.xml.in:31
+#: data/org.gnome.mutter.gschema.xml.in:39
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
@@ -323,11 +318,11 @@ msgstr ""
 "καλύψουν το μισό της οθόνης. Το σύρσιμο των παραθύρων στο πάνω μέρος της "
 "οθόνης τα μεγιστοποιεί ολοκληρωτικά."
 
-#: data/org.gnome.mutter.gschema.xml.in:40
+#: data/org.gnome.mutter.gschema.xml.in:48
 msgid "Workspaces are managed dynamically"
 msgstr "Οι χώροι εργασίας διαχειρίζονται δυναμικά"
 
-#: data/org.gnome.mutter.gschema.xml.in:41
+#: data/org.gnome.mutter.gschema.xml.in:49
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
 "static number of workspaces (determined by the num-workspaces key in org."
@@ -337,11 +332,11 @@ msgstr ""
 "στατικός αριθμός χώρων εργασίας (καθορίζεται από το κλειδί num-workspaces "
 "στο org.gnome.desktop.wm.preferences)."
 
-#: data/org.gnome.mutter.gschema.xml.in:50
+#: data/org.gnome.mutter.gschema.xml.in:58
 msgid "Workspaces only on primary"
 msgstr "Χώροι εργασίας μόνο στην κύρια"
 
-#: data/org.gnome.mutter.gschema.xml.in:51
+#: data/org.gnome.mutter.gschema.xml.in:59
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
@@ -349,24 +344,12 @@ msgstr ""
 "Καθορίζει εάν η εναλλαγή των χώρων εργασίας θα συμβαίνει για τα παράθυρα σε "
 "όλες τις οθόνες ή μόνο για τα παράθυρα της κύριας οθόνης."
 
-#: data/org.gnome.mutter.gschema.xml.in:59
-msgid "No tab popup"
-msgstr "Καμία αναδυόμενη καρτέλα"
-
-#: data/org.gnome.mutter.gschema.xml.in:60
-msgid ""
-"Determines whether the use of popup and highlight frame should be disabled "
-"for window cycling."
-msgstr ""
-"Καθορίζει αν πρέπει να απενεργοποιηθεί η χρήση της ανάδυσης και επισήμανσης "
-"του πλαισίου για την κυκλική εναλλαγή των παραθύρων."
-
-#: data/org.gnome.mutter.gschema.xml.in:68
+#: data/org.gnome.mutter.gschema.xml.in:67
 msgid "Delay focus changes until the pointer stops moving"
 msgstr ""
 "Η καθυστέρηση της εστίασης αλλάζει μέχρι ο δείκτης να σταματήσει να κινείται"
 
-#: data/org.gnome.mutter.gschema.xml.in:69
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -376,11 +359,11 @@ msgstr ""
 "τότε η εστίαση δεν θα αλλάξει αμέσως όταν ανοίγετε ένα παράθυρο, αλλά μόνο "
 "όταν ο δείκτης σταματήσει να κινείται."
 
-#: data/org.gnome.mutter.gschema.xml.in:79
+#: data/org.gnome.mutter.gschema.xml.in:78
 msgid "Draggable border width"
 msgstr "Συρόμενο πλάτος περιγράμματος"
 
-#: data/org.gnome.mutter.gschema.xml.in:80
+#: data/org.gnome.mutter.gschema.xml.in:79
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -389,13 +372,13 @@ msgstr ""
 "θέματος δεν είναι αρκετά, θα προστεθούν αόρατα περιγράμματα για την κάλυψη "
 "αυτής της τιμής."
 
-#: data/org.gnome.mutter.gschema.xml.in:89
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid "Auto maximize nearly monitor sized windows"
 msgstr ""
 "Αυτόματη μεγιστοποίηση των παραθύρων των οποίων το μέγεθος είναι κοντά με το "
 "μέγεθος της οθόνης"
 
-#: data/org.gnome.mutter.gschema.xml.in:90
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
@@ -403,11 +386,11 @@ msgstr ""
 "Εάν ενεργοποιηθεί, τα νέα παράθυρα που είναι αρχικά στο μέγεθος της οθόνης "
 "μεγιστοποιούνται αυτόματα."
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
 msgstr "Τοποθέτηση νέων παραθύρων στο κέντρο"
 
-#: data/org.gnome.mutter.gschema.xml.in:99
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
@@ -415,66 +398,298 @@ msgstr ""
 "Αν είναι αληθές, τα νέα παράθυρα θα είναι πάντα τοποθετημένα στο κέντρο της "
 "κύριας οθόνης."
 
-#: data/org.gnome.mutter.gschema.xml.in:120
-msgid "Select window from tab popup"
-msgstr "Επιλογή παραθύρου από την αναδυόμενη καρτέλα"
+#: data/org.gnome.mutter.gschema.xml.in:107
+msgid "Enable experimental features"
+msgstr "Ενεργοποίηση πειραματικών χαρακτηριστικών"
 
-#: data/org.gnome.mutter.gschema.xml.in:125
-msgid "Cancel tab popup"
-msgstr "Ακύρωση αναδυόμενης καρτέλας"
+#: data/org.gnome.mutter.gschema.xml.in:108
+msgid ""
+"To enable experimental features, add the feature keyword to the list. "
+"Whether the feature requires restarting the compositor depends on the given "
+"feature. Any experimental feature is not required to still be available, or "
+"configurable. Don’t expect adding anything in this setting to be future "
+"proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
+"mutter default to layout logical monitors in a logical pixel coordinate "
+"space, while scaling monitor framebuffers instead of window content, to "
+"manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
+"mutter always allocate scanout buffers with explicit modifiers, if supported "
+"by the driver. Requires a restart. • “rt-scheduler” — makes mutter request a "
+"low priority real-time scheduling. Requires a restart. • “autoclose-"
+"xwayland” — automatically terminates Xwayland if all relevant X11 clients "
+"are gone. Requires a restart."
+msgstr ""
+"Για να ενεργοποιήσετε πειραματικά χαρακτηριστικά, προσθέστε τη λέξη-κλειδί "
+"του χαρακτηριστικού στη λίστα. Εάν το χαρακτηριστικό απαιτεί επανεκκίνηση του "
+"συνθέτη, εξαρτάται από το συγκεκριμένο χαρακτηριστικό. Κανένα πειραματικό "
+"χαρακτηριστικό δεν είναι υποχρεωμένο να παραμένει διαθέσιμο ή ρυθμιστικό. Μην "
+"περιμένετε ότι η προσθήκη οτιδήποτε σε αυτή τη ρύθμιση είναι μελλοντοστραφής. "
+"Προς το παρόν δυνατές λέξεις-κλειδιά: • «scale-monitor-framebuffer» — καθιστά "
+"το mutter προεπιλεγμένο για διάταξη λογικών οθονών σε έναν λογικό χώρο "
+"συντεταγμένων pixel, ενώ κλιμακώνει τα framebuffers των οθονών αντί του περιεχομένου "
+"του παραθύρου, για τη διαχείριση οθονών HiDPI. Δεν απαιτεί επανεκκίνηση. • "
+"«kms-modifiers» — καθιστά το mutter πάντα να δεσμεύει buffer εξόδου με σαφείς "
+"μεταβολείς, αν υποστηρίζεται από τον οδηγό. Απαιτεί επανεκκίνηση. • «rt-scheduler» — "
+"καθιστά το mutter να ζητά χαμηλή προτεραιότητα προγραμματισμού πραγματικού χρόνου. "
+"Απαιτεί επανεκκίνηση. • «autoclose-xwayland» — τερματίζει αυτόματα το Xwayland αν "
+"όλοι σχετικοί πελάτες X11 εξαφανιστούν. Απαιτεί επανεκκίνηση."
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:6
+#: data/org.gnome.mutter.gschema.xml.in:141
+msgid "Modifier to use to locate the pointer"
+msgstr "Τροποποιητής που θα χρησιμοποιηθεί για τον εντοπισμό του δείκτη"
+
+#: data/org.gnome.mutter.gschema.xml.in:142
+msgid "This key will initiate the “locate pointer” action."
+msgstr "Αυτό το κλειδί θα ξεκινήσει τη δράση «εντοπισμός δείκτη»."
+
+#: data/org.gnome.mutter.gschema.xml.in:149
+msgid "Timeout for check-alive ping"
+msgstr "Χρονικό όριο για τον έλεγχο αν είναι ενεργό"
+
+#: data/org.gnome.mutter.gschema.xml.in:150
+msgid ""
+"Number of milliseconds a client has to respond to a ping request in order to "
+"not be detected as frozen. Using 0 will disable the alive check completely."
+msgstr ""
+"Αριθμός χιλιοστών του δευτερολέπτου που ένας πελάτης έχει για να απαντήσει σε ένα "
+"αίτημα ping ώστε να μην ανιχνευθεί ως ανενεργός. Η χρήση του 0 θα απενεργοποιήσει "
+"εντελώς τον έλεγχο αν είναι ενεργός."
+
+#: data/org.gnome.mutter.gschema.xml.in:174
+#| msgid "Switch monitor"
+msgid "Switch monitor configurations"
+msgstr "Εναλλαγή ρυθμίσεων οθόνης"
+
+#: data/org.gnome.mutter.gschema.xml.in:179
+msgid "Rotates the built-in monitor configuration"
+msgstr "Περιστρέφει την ενσωματωμένη ρύθμιση της οθόνης"
+
+#: data/org.gnome.mutter.gschema.xml.in:184
+msgid "Cancel any active input capture session"
+msgstr "Ακύρωση οποιασδήποτε ενεργής συνεδρίας καταγραφής εισόδου"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
-msgstr "Εναλλαγή στο VT 1 "
+msgstr "Εναλλαγή στο VT 1"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:10
+#: data/org.gnome.mutter.wayland.gschema.xml.in:16
 msgid "Switch to VT 2"
 msgstr "Εναλλαγή στο VT 2"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:14
+#: data/org.gnome.mutter.wayland.gschema.xml.in:20
 msgid "Switch to VT 3"
 msgstr "Εναλλαγή στο VT 3"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:18
+#: data/org.gnome.mutter.wayland.gschema.xml.in:24
 msgid "Switch to VT 4"
 msgstr "Εναλλαγή στο VT 4"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:22
+#: data/org.gnome.mutter.wayland.gschema.xml.in:28
 msgid "Switch to VT 5"
 msgstr "Εναλλαγή στο VT 5"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:26
+#: data/org.gnome.mutter.wayland.gschema.xml.in:32
 msgid "Switch to VT 6"
 msgstr "Εναλλαγή στο VT 6"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:30
+#: data/org.gnome.mutter.wayland.gschema.xml.in:36
 msgid "Switch to VT 7"
 msgstr "Εναλλαγή στο VT 7"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:34
+#: data/org.gnome.mutter.wayland.gschema.xml.in:40
 msgid "Switch to VT 8"
 msgstr "Εναλλαγή στο VT 8"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:38
+#: data/org.gnome.mutter.wayland.gschema.xml.in:44
 msgid "Switch to VT 9"
 msgstr "Εναλλαγή στο VT 9"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:42
+#: data/org.gnome.mutter.wayland.gschema.xml.in:48
 msgid "Switch to VT 10"
 msgstr "Εναλλαγή στο VT 10"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:46
+#: data/org.gnome.mutter.wayland.gschema.xml.in:52
 msgid "Switch to VT 11"
 msgstr "Εναλλαγή στο VT 11"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:50
+#: data/org.gnome.mutter.wayland.gschema.xml.in:56
 msgid "Switch to VT 12"
 msgstr "Εναλλαγή στο VT 12"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:60
+msgid "Re-enable shortcuts"
+msgstr ""
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:70
+msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
+msgstr ""
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:71
+msgid ""
+"Allow all keyboard events to be routed to X11 “override redirect” windows "
+"with a grab when running in Xwayland. This option is to support X11 clients "
+"which map an “override redirect” window (which do not receive keyboard "
+"focus) and issue a keyboard grab to force all keyboard events to that "
+"window. This option is seldom used and has no effect on regular X11 windows "
+"which can receive keyboard focus under normal circumstances. For a X11 grab "
+"to be taken into account under Wayland, the client must also either send a "
+"specific X11 ClientMessage to the root window or be among the applications "
+"allowed in key “xwayland-grab-access-rules”."
+msgstr ""
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:90
+msgid "Xwayland applications allowed to issue keyboard grabs"
+msgstr ""
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:91
+msgid ""
+"List the resource names or resource class of X11 windows either allowed or "
+"not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
+"resource class of a given X11 window can be obtained using the command "
+"“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
+"Values starting with “!” are denied, which has precedence over the list of "
+"values allowed, to revoke applications from the default system list. The "
+"default system list includes the following applications: "
+"“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
+"using the specific keyboard shortcut defined by the keybinding key “restore-"
+"shortcuts”."
+msgstr ""
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:116
+msgid "Disable selected X extensions in Xwayland"
+msgstr ""
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:117
+msgid ""
+"This option disables the selected X extensions in Xwayland if Xwayland was "
+"built with support for those X extensions. This option has no effect if "
+"Xwayland was built without support for the selected extensions. Xwayland "
+"needs to be restarted for this setting to take effect."
+msgstr ""
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:130
+msgid "Allow X11 clients with a different endianness to connect to Xwayland"
+msgstr ""
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:131
+msgid ""
+"Allow connections from clients with an endianness different to that of "
+"Xwayland. The X server byte-swapping code is a huge attack surface, much of "
+"that code in Xwayland is prone to security issues. The use-case of byte-"
+"swapped clients is very niche, and disabled by default in Xwayland. Enable "
+"this option to instruct Xwayland to accept connections from X11 clients with "
+"a different endianness. This option has no effect if Xwayland does not "
+"support the command line option +byteswappedclients/-byteswappedclients to "
+"control that setting. Xwayland needs to be restarted for this setting to "
+"take effect."
+msgstr ""
+
+#: src/backends/meta-monitor.c:251
+msgid "Built-in display"
+msgstr "Ενσωματωμένη οθόνη"
+
+#: src/backends/meta-monitor.c:278
+msgid "Unknown"
+msgstr "Άγνωστη"
+
+#: src/backends/meta-monitor.c:280
+msgid "Unknown Display"
+msgstr "Άγνωστη οθόνη"
+
+#: src/backends/meta-monitor.c:288
+#, c-format
+#| msgid "%s %s"
+msgctxt ""
+"This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
+msgid "%s %s"
+msgstr "%s %s"
+
+#: src/backends/meta-monitor.c:296
+#, c-format
+#| msgid "%s %s"
+msgctxt ""
+"This is a monitor vendor name followed by product/model name where size in "
+"inches could not be calculated, e.g. Dell U2414H"
+msgid "%s %s"
+msgstr "%s %s"
+
+#: src/core/bell.c:193
+msgid "Bell event"
+msgstr "Ηχητικό συμβάν κουδουνιού"
+
+#: src/core/display.c:723
+msgid "Privacy Screen Enabled"
+msgstr ""
+
+#: src/core/display.c:724
+msgid "Privacy Screen Disabled"
+msgstr ""
+
+#: src/core/meta-context-main.c:579
+msgid "Replace the running window manager"
+msgstr "Αντικατάσταση του τρέχοντος διαχειριστή παραθύρων"
+
+#: src/core/meta-context-main.c:585
+msgid "X Display to use"
+msgstr "Εμφάνιση Χ για χρήση"
+
+#: src/core/meta-context-main.c:591
+msgid "Disable connection to session manager"
+msgstr "Απενεργοποίηση σύνδεσης στο διαχειριστή συνεδρίας"
+
+#: src/core/meta-context-main.c:597
+msgid "Specify session management ID"
+msgstr "Καθορισμός αναγνωριστικού διαχείρισης συνεδρίας"
+
+#: src/core/meta-context-main.c:603
+msgid "Initialize session from savefile"
+msgstr "Εκκίνηση συνεδρίας από savefile"
+
+#: src/core/meta-context-main.c:609
+msgid "Make X calls synchronous"
+msgstr "Να καταστούν σύγχρονες οι κλήσεις του X"
+
+#: src/core/meta-context-main.c:617
+msgid "Run as a wayland compositor"
+msgstr "Εκτέλεση ως wayland compositor"
+
+#: src/core/meta-context-main.c:623
+msgid "Run as a nested compositor"
+msgstr "Εκτέλεση ως ενσωματωμένος compositor"
+
+#: src/core/meta-context-main.c:629
+msgid "Run wayland compositor without starting Xwayland"
+msgstr ""
+
+#: src/core/meta-context-main.c:635
+msgid "Specify Wayland display name to use"
+msgstr ""
+
+#: src/core/meta-context-main.c:643
+msgid "Run as a full display server, rather than nested"
+msgstr "Εκτέλεση ως διακομιστής πλήρους οθόνης, αντί ενσωματωμένης"
+
+#: src/core/meta-context-main.c:648
+#, fuzzy
+#| msgid "Run as a full display server, rather than nested"
+msgid "Run as a headless display server"
+msgstr "Εκτέλεση ως διακομιστής πλήρους οθόνης, αντί ενσωματωμένης"
+
+#: src/core/meta-context-main.c:653
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr ""
+
+#: src/core/meta-context-main.c:665
+msgid "Run with X11 backend"
+msgstr ""
+
+#: src/core/meta-context-main.c:671
+msgid "Profile performance using trace instrumentation"
+msgstr ""
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:1800
+#: src/core/meta-pad-action-mapper.c:805
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Λειτουργία διακόπτη (ομάδα %d)"
@@ -482,144 +697,52 @@ msgstr "Λειτουργία διακόπτη (ομάδα %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:1822
+#: src/core/meta-pad-action-mapper.c:827
 msgid "Switch monitor"
 msgstr "Εναλλαγή οθόνης"
 
-#: src/backends/meta-input-settings.c:1824
+#: src/core/meta-pad-action-mapper.c:829
 msgid "Show on-screen help"
 msgstr "Εμφάνιση βοήθειας στην οθόνη"
 
-#: src/backends/meta-monitor-manager.c:675
-msgid "Built-in display"
-msgstr "Ενσωματωμένη οθόνη"
-
-#: src/backends/meta-monitor-manager.c:698
-msgid "Unknown"
-msgstr "Άγνωστη"
-
-#: src/backends/meta-monitor-manager.c:700
-msgid "Unknown Display"
-msgstr "Άγνωστη οθόνη"
-
-#. TRANSLATORS: this is a monitor vendor name, followed by a
-#. * size in inches, like 'Dell 15"'
-#.
-#: src/backends/meta-monitor-manager.c:708
-#, c-format
-msgid "%s %s"
-msgstr "%s %s"
-
-#. This probably means that a non-WM compositor like xcompmgr is running;
-#. * we have no way to get it to exit
-#: src/compositor/compositor.c:471
-#, c-format
-msgid ""
-"Another compositing manager is already running on screen %i on display “%s”."
+#. Translators: this string will appear in Sysprof
+#: src/core/meta-profiler.c:109 src/core/meta-profiler.c:299
+msgid "Compositor"
 msgstr ""
-"Εκτελείται ένας άλλος διαχειριστής παραθύρων στην οθόνη %i προβολή «%s»."
 
-#: src/core/bell.c:194
-msgid "Bell event"
-msgstr "Ηχητικό συμβάν κουδουνιού"
-
-#. Translators: %s is a window title
-#: src/core/delete.c:127
-#, c-format
-msgid "“%s” is not responding."
-msgstr "Το “%s” δεν ανταποκρίνεται."
-
-#: src/core/delete.c:129
-msgid "Application is not responding."
-msgstr "Η εφαρμογή δεν ανταποκρίνεται."
-
-#: src/core/delete.c:134
-msgid ""
-"You may choose to wait a short while for it to continue or force the "
-"application to quit entirely."
-msgstr ""
-"Μπορείτε να επιλέξετε να περιμένετε λίγο για να συνεχίσει, ή να εξαναγκάσετε "
-"την εφαρμογή σε έξοδο."
-
-#: src/core/delete.c:141
-msgid "_Force Quit"
-msgstr "_Εξαναγκασμός σε τερματισμό"
-
-#: src/core/delete.c:141
-msgid "_Wait"
-msgstr "_Αναμονή"
-
-# gconf/gconf-internals.c:2416
-#: src/core/display.c:608
-#, c-format
-msgid "Failed to open X Window System display “%s”\n"
-msgstr "Αποτυχία ανοίγματος οθόνης του συστήματος παραθύρων Χ «%s»\n"
-
-#: src/core/main.c:189
-msgid "Disable connection to session manager"
-msgstr "Απενεργοποίηση σύνδεσης στο διαχειριστή συνεδρίας"
-
-#: src/core/main.c:195
-msgid "Replace the running window manager"
-msgstr "Αντικατάσταση του τρέχοντος διαχειριστή παραθύρων"
-
-#: src/core/main.c:201
-msgid "Specify session management ID"
-msgstr "Καθορισμός αναγνωριστικού διαχείρισης συνεδρίας"
-
-#: src/core/main.c:206
-msgid "X Display to use"
-msgstr "Εμφάνιση Χ για χρήση"
-
-#: src/core/main.c:212
-msgid "Initialize session from savefile"
-msgstr "Εκκίνηση συνεδρίας από savefile"
-
-#: src/core/main.c:218
-msgid "Make X calls synchronous"
-msgstr "Να καταστούν σύγχρονες οι κλήσεις του X"
-
-#: src/core/main.c:225
-msgid "Run as a wayland compositor"
-msgstr "Εκτέλεση ως wayland compositor"
-
-#: src/core/main.c:231
-msgid "Run as a nested compositor"
-msgstr "Εκτέλεση ως ενσωματωμένος compositor"
-
-#: src/core/main.c:239
-msgid "Run as a full display server, rather than nested"
-msgstr "Εκτέλεση ως διακομιστής πλήρους οθόνης, αντί ενσωματωμένης"
-
-#: src/core/mutter.c:39
-#, c-format
-msgid ""
-"mutter %s\n"
-"Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
-"This is free software; see the source for copying conditions.\n"
-"There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
-"PARTICULAR PURPOSE.\n"
-msgstr ""
-"mutter %s\n"
-"Πνευματικά Δικαιώματα © 2001-%d Havoc Pennington, Red Hat, Inc., και άλλοι\n"
-"Αυτό είναι ελεύθερο λογισμικό, βλ. τον πηγαίο κώδικα για όρους αντιγραφής.\n"
-"ΔΕΝ παρέχεται καμία εγγύηση, ούτε ΕΜΠΟΡΕΥΣΙΜΟΤΗΤΑΣ ούτε ΚΑΤΑΛΛΗΛΟΤΗΤΑΣ ΓΙΑ "
-"ΣΥΓΚΕΚΡΙΜΕΝΟ ΣΚΟΠΟ.\n"
-
-#: src/core/mutter.c:53
+#: src/core/mutter.c:74
 msgid "Print version"
 msgstr "Εμφάνιση έκδοσης"
 
-#: src/core/mutter.c:59
+#: src/core/mutter.c:80
 msgid "Mutter plugin to use"
 msgstr "Πρόσθετα του Mutter για χρήση"
 
-#: src/core/prefs.c:1997
+#: src/core/prefs.c:1843
 #, c-format
 msgid "Workspace %d"
 msgstr "Χώρος εργασίας %d"
 
-#: src/core/screen.c:580
+#: src/core/util.c:139
+#, fuzzy
+#| msgid "Mutter was compiled without support for verbose mode\n"
+msgid "Mutter was compiled without support for verbose mode"
+msgstr ""
+"Το Mutter έχει μεταγλωττιστεί χωρίς υποστήριξη για λειτουργία εμφάνισης "
+"λεπτομερειών\n"
+
+#: src/core/workspace.c:512
+#, fuzzy
+#| msgid "Workspace %s%d"
+msgid "Workspace switched"
+msgstr "Χώρος Εργασίας %s%d"
+
+#: src/wayland/meta-wayland-tablet-pad.c:532
+#, c-format
+msgid "Mode Switch: Mode %d"
+msgstr "Λειτουργία διακόπτη: Λειτουργία %d"
+
+#: src/x11/meta-x11-display.c:717
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -629,34 +752,116 @@ msgstr ""
 "χρησιμοποιήσετε την επιλογή --replace για να αντικαταστήσετε τον τρέχων "
 "διαχειριστή παραθύρων."
 
-#: src/core/screen.c:665
+# gconf/gconf-internals.c:2416
+#: src/x11/meta-x11-display.c:1082
 #, c-format
-msgid "Screen %d on display “%s” is invalid\n"
-msgstr "Η οθόνη %d στην προβολή «%s» δεν είναι έγκυρη\n"
+#| msgid "Failed to open X Window System display “%s”\n"
+msgid "Failed to open X Window System display “%s”"
+msgstr "Αποτυχία ανοίγματος της οθόνης του X Window System «%s»"
 
-#: src/core/util.c:120
-msgid "Mutter was compiled without support for verbose mode\n"
-msgstr ""
-"Το Mutter έχει μεταγλωττιστεί χωρίς υποστήριξη για λειτουργία εμφάνισης "
-"λεπτομερειών\n"
-
-#: src/wayland/meta-wayland-tablet-pad.c:563
+#: src/x11/meta-x11-display.c:1209
 #, c-format
-msgid "Mode Switch: Mode %d"
-msgstr "Λειτουργία διακόπτη: Λειτουργία %d"
+#| msgid "Screen %d on display “%s” is invalid\n"
+msgid "Screen %d on display “%s” is invalid"
+msgstr "Δεν είναι έγκυρη η οθόνη %d στην οθόνη «%s»"
 
-#: src/x11/session.c:1815
+#. This probably means that a non-WM compositor like xcompmgr is running;
+#. * we have no way to get it to exit
+#: src/x11/meta-x11-display.c:2460
+#, c-format
 msgid ""
-"These windows do not support “save current setup” and will have to be "
-"restarted manually next time you log in."
-msgstr ""
-"Αυτά τα παράθυρα δεν υποστηρίζουν «αποθήκευση της τρέχουσας εγκατάστασης» "
-"και θα πρέπει να επανεκκινηθούν χειροκίνητα στην επόμενη είσοδο σας."
+"Another compositing manager is already running on screen %i on display “%s”."
+msgstr "Ένας άλλος διαχειριστής σύνθεσης εκτελείται ήδη στην οθόνη %i της οθόνης «%s»."
 
-#: src/x11/window-props.c:559
+#: src/x11/meta-x11-selection-input-stream.c:475
+#, c-format
+msgid "Format %s not supported"
+msgstr "Μη υποστηριζόμενη μορφή %s"
+
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (σε %s)"
+
+#~ msgid "Move to workspace left"
+#~ msgstr "Μετακίνηση στον χώρο εργασίας αριστερά"
+
+#~ msgid "Move to workspace right"
+#~ msgstr "Μετακίνηση στον χώρο εργασίας δεξιά"
+
+#~ msgid "Move to workspace above"
+#~ msgstr "Μετακίνηση στον χώρο εργασίας επάνω"
+
+#~ msgid "Move to workspace below"
+#~ msgstr "Μετακίνηση στον χώρο εργασίας κάτω"
+
+#~ msgid "Show the activities overview"
+#~ msgstr "Εμφάνιση της επισκόπησης των δραστηριοτήτων"
+
+#~ msgid "Toggle shaded state"
+#~ msgstr "Εναλλαγή σκιασμένης κατάστασης"
+
+#~ msgid "Mutter"
+#~ msgstr "Mutter"
+
+#~ msgid "No tab popup"
+#~ msgstr "Καμία αναδυόμενη καρτέλα"
+
+#~ msgid ""
+#~ "Determines whether the use of popup and highlight frame should be "
+#~ "disabled for window cycling."
+#~ msgstr ""
+#~ "Καθορίζει αν πρέπει να απενεργοποιηθεί η χρήση της ανάδυσης και "
+#~ "επισήμανσης του πλαισίου για την κυκλική εναλλαγή των παραθύρων."
+
+#~ msgid "Select window from tab popup"
+#~ msgstr "Επιλογή παραθύρου από την αναδυόμενη καρτέλα"
+
+#~ msgid "Cancel tab popup"
+#~ msgstr "Ακύρωση αναδυόμενης καρτέλας"
+
+#, c-format
+#~ msgid "“%s” is not responding."
+#~ msgstr "Το “%s” δεν ανταποκρίνεται."
+
+#~ msgid "Application is not responding."
+#~ msgstr "Η εφαρμογή δεν ανταποκρίνεται."
+
+#~ msgid ""
+#~ "You may choose to wait a short while for it to continue or force the "
+#~ "application to quit entirely."
+#~ msgstr ""
+#~ "Μπορείτε να επιλέξετε να περιμένετε λίγο για να συνεχίσει, ή να "
+#~ "εξαναγκάσετε την εφαρμογή σε έξοδο."
+
+#~ msgid "_Force Quit"
+#~ msgstr "_Εξαναγκασμός σε τερματισμό"
+
+#~ msgid "_Wait"
+#~ msgstr "_Αναμονή"
+
+#, c-format
+#~ msgid ""
+#~ "mutter %s\n"
+#~ "Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+#~ "This is free software; see the source for copying conditions.\n"
+#~ "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+#~ "PARTICULAR PURPOSE.\n"
+#~ msgstr ""
+#~ "mutter %s\n"
+#~ "Πνευματικά Δικαιώματα © 2001-%d Havoc Pennington, Red Hat, Inc., και "
+#~ "άλλοι\n"
+#~ "Αυτό είναι ελεύθερο λογισμικό, βλ. τον πηγαίο κώδικα για όρους "
+#~ "αντιγραφής.\n"
+#~ "ΔΕΝ παρέχεται καμία εγγύηση, ούτε ΕΜΠΟΡΕΥΣΙΜΟΤΗΤΑΣ ούτε ΚΑΤΑΛΛΗΛΟΤΗΤΑΣ "
+#~ "ΓΙΑ ΣΥΓΚΕΚΡΙΜΕΝΟ ΣΚΟΠΟ.\n"
+
+#~ msgid ""
+#~ "These windows do not support “save current setup” and will have to be "
+#~ "restarted manually next time you log in."
+#~ msgstr ""
+#~ "Αυτά τα παράθυρα δεν υποστηρίζουν «αποθήκευση της τρέχουσας εγκατάστασης» "
+#~ "και θα πρέπει να επανεκκινηθούν χειροκίνητα στην επόμενη είσοδο σας."
 
 #~ msgid "background texture could not be created from file"
 #~ msgstr "η υφή παρασκηνίου δεν μπόρεσε να δημιουργηθεί από αρχείο"
@@ -832,8 +1037,8 @@ msgstr "%s (σε %s)"
 #~ "Coordinate expression has operator \"%c\" following operator \"%c\" with "
 #~ "no operand in between"
 #~ msgstr ""
-#~ "Η συντεταγμένη έκφραση έχει τελεστή \"%c\" που ακολουθεί έναν τελεστή \"%c"
-#~ "\" χωρίς τελεστέο μεταξύ τους"
+#~ "Η συντεταγμένη έκφραση έχει τελεστή \"%c\" που ακολουθεί έναν τελεστή "
+#~ "\"%c\" χωρίς τελεστέο μεταξύ τους"
 
 #~ msgid "Coordinate expression had unknown variable or constant \"%s\""
 #~ msgstr "Η συντεταγμένη έκφραση έχει άγνωστη μεταβλητή ή συνεχής \"%s\""
@@ -884,8 +1089,9 @@ msgstr "%s (σε %s)"
 #~ "No frame style set for window type \"%s\" in theme \"%s\", add a <window "
 #~ "type=\"%s\" style_set=\"whatever\"/> element"
 #~ msgstr ""
-#~ "Δεν έχει ορισθεί στυλ πλαισίου για τον τύπο παραθύρου \"%s\" στο θέμα \"%s"
-#~ "\", προσθέστε ένα <window type=\"%s\" style_set=\"whatever\"/> στοιχείο"
+#~ "Δεν έχει ορισθεί στυλ πλαισίου για τον τύπο παραθύρου \"%s\" στο θέμα "
+#~ "\"%s\", προσθέστε ένα <window type=\"%s\" style_set=\"whatever\"/> "
+#~ "στοιχείο"
 
 #~ msgid ""
 #~ "User-defined constants must begin with a capital letter; \"%s\" does not"
@@ -976,8 +1182,8 @@ msgstr "%s (σε %s)"
 #~ msgstr "Το στοιχείο <%s> δεν επιτρέπεται κάτω από <%s>"
 
 #~ msgid ""
-#~ "Cannot specify both \"button_width\"/\"button_height\" and \"aspect_ratio"
-#~ "\" for buttons"
+#~ "Cannot specify both \"button_width\"/\"button_height\" and "
+#~ "\"aspect_ratio\" for buttons"
 #~ msgstr ""
 #~ "Δεν είναι δυνατός ο καθορισμός των \"button_width\"/\"button_height\" και "
 #~ "\"aspect_ratio\" για τα κουμπιά"
@@ -1208,8 +1414,8 @@ msgstr "%s (σε %s)"
 #~ msgid ""
 #~ "Could not acquire window manager selection on screen %d display \"%s\"\n"
 #~ msgstr ""
-#~ "Αδυναμία λήψης επιλογής διαχειριστή παραθύρων στην οθόνη %d προβολή \"%s"
-#~ "\"\n"
+#~ "Αδυναμία λήψης επιλογής διαχειριστή παραθύρων στην οθόνη %d προβολή "
+#~ "\"%s\"\n"
 
 #~ msgid "Could not release screen %d on display \"%s\"\n"
 #~ msgstr "Αδυναμία απελευθέρωσης οθόνης %d στην προβολή \"%s\"\n"
@@ -1373,9 +1579,6 @@ msgstr "%s (σε %s)"
 
 #~ msgid "Workspace 1_0"
 #~ msgstr "Χώρος Εργασίας 1_0"
-
-#~ msgid "Workspace %s%d"
-#~ msgstr "Χώρος Εργασίας %s%d"
 
 #~ msgid "Move to Another _Workspace"
 #~ msgstr "Μετακίνηση σε άλλο _χώρο εργασίας"
