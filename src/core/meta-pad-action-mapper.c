@@ -475,6 +475,7 @@ emulate_modifiers (ClutterVirtualInputDevice *device,
   } mod_map[] = {
     { CLUTTER_SHIFT_MASK, CLUTTER_KEY_Shift_L },
     { CLUTTER_CONTROL_MASK, CLUTTER_KEY_Control_L },
+    { CLUTTER_MOD1_MASK, CLUTTER_KEY_Alt_L },
     { CLUTTER_META_MASK, CLUTTER_KEY_Meta_L }
   };
 
