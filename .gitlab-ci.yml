@@ -360,6 +360,12 @@ build-mutter@x86_64:
     - job: build-fedora-container@x86_64
       artifacts: false
 
+build-mutter-gnome-os@x86_64:
+  image: quay.io/gnome_infrastructure/gnome-build-meta:sdk-latest
+  extends:
+    - .build-mutter
+
+
 build-mutter@aarch64:
   extends:
     - .build-mutter
