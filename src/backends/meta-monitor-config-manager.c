@@ -383,9 +383,9 @@ meta_monitor_config_manager_assign (MetaMonitorManager *manager,
                                     GPtrArray         **out_output_assignments,
                                     GError            **error)
 {
-  GPtrArray *crtc_assignments;
-  GPtrArray *output_assignments;
-  GArray *reserved_crtcs;
+  g_autoptr (GPtrArray) crtc_assignments = NULL;
+  g_autoptr (GPtrArray) output_assignments = NULL;
+  g_autoptr (GArray) reserved_crtcs = NULL;
   GList *l;
 
   crtc_assignments =
@@ -432,18 +432,11 @@ meta_monitor_config_manager_assign (MetaMonitorManager *manager,
                                          config, logical_monitor_config,
                                          crtc_assignments, output_assignments,
                                          reserved_crtcs, error))
-        {
-          g_ptr_array_free (crtc_assignments, TRUE);
-          g_ptr_array_free (output_assignments, TRUE);
-          g_array_free (reserved_crtcs, TRUE);
-          return FALSE;
-        }
+        return FALSE;
     }
 
-  g_array_free (reserved_crtcs, TRUE);
-
-  *out_crtc_assignments = crtc_assignments;
-  *out_output_assignments = output_assignments;
+  *out_crtc_assignments = g_steal_pointer (&crtc_assignments);
+  *out_output_assignments = g_steal_pointer (&output_assignments);
 
   return TRUE;
 }
