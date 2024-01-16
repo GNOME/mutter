@@ -2,8 +2,8 @@
 
 ## Commit Messages
 
-Commit messages should follow the [GNOME commit message
-guidelines](https://wiki.gnome.org/Git/CommitMessages). We require an URL
+Commit messages should follow the guidelines in the [GNOME
+handbook](https://handbook.gnome.org/development/commit-messages.html). We require an URL
 to either an issue or a merge request in each commit. Try to always prefix
 commit subjects with a relevant topic, such as `compositor:` or
 `clutter/actor:`, and it's always better to write too much in the commit
