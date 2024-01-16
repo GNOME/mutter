@@ -130,6 +130,10 @@ void
 meta_crtc_unset_config (MetaCrtc *crtc)
 {
   MetaCrtcPrivate *priv = meta_crtc_get_instance_private (crtc);
+  MetaCrtcClass *klass = META_CRTC_GET_CLASS (crtc);
+
+  if (klass->unset_config)
+    klass->unset_config (crtc);
 
   g_clear_pointer (&priv->config, g_free);
 }

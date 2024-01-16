@@ -56,6 +56,8 @@ struct _MetaCrtcClass
                        const MetaCrtcConfig *config,
                        gpointer              backend_private);
 
+  void (* unset_config) (MetaCrtc *crtc);
+
   gboolean (* is_leased) (MetaCrtc *crtc);
 };
 
