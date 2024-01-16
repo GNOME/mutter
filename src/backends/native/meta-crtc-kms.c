@@ -256,6 +256,25 @@ is_plane_assigned (MetaKmsPlane     *plane,
   return FALSE;
 }
 
+static gboolean
+is_plane_leased (MetaKmsDevice *kms_device,
+                 MetaKmsPlane  *kms_plane)
+{
+  GList *l;
+
+  for (l = meta_kms_device_get_crtcs (kms_device); l; l = l->next)
+    {
+      MetaKmsCrtc *kms_crtc = l->data;
+      MetaCrtcKms *crtc_kms = meta_crtc_kms_from_kms_crtc (kms_crtc);
+
+      if (meta_kms_crtc_is_leased (kms_crtc) &&
+          crtc_kms->assigned_primary_plane == kms_plane)
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
 static MetaKmsPlane *
 find_unassigned_plane (MetaCrtcKms      *crtc_kms,
                        MetaKmsPlaneType  kms_plane_type,
@@ -277,6 +296,9 @@ find_unassigned_plane (MetaCrtcKms      *crtc_kms,
 
       if (is_plane_assigned (kms_plane, kms_plane_type,
                              crtc_assignments))
+        continue;
+
+      if (is_plane_leased (kms_device, kms_plane))
         continue;
 
       return kms_plane;
