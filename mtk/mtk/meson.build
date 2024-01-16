@@ -67,9 +67,7 @@ if have_introspection
       'Graphene-1.0',
     ],
     extra_args: mtk_introspection_args + ['--c-include=mtk/mtk.h'],
-    install_dir_gir: pkglibdir,
-    install_dir_typelib: pkglibdir,
-    install: true,
+    kwargs: introspection_common,
   )
 
 endif

@@ -60,9 +60,7 @@ if have_introspection
       '-UCOGL_COMPILATION',
       '-DG_LOG_DOMAIN="CoglPango"',
     ],
-    install_dir_gir: pkglibdir,
-    install_dir_typelib: pkglibdir,
-    install: true
+    kwargs: introspection_common,
   )
 endif
 

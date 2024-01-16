@@ -98,9 +98,7 @@ if have_introspection
       mutter_deps,
     ],
     extra_args: mutter_c_args + introspection_args,
-    install_dir_gir: pkglibdir,
-    install_dir_typelib: pkglibdir,
-    install: true
+    kwargs: introspection_common,
   )
 endif
 

@@ -426,9 +426,7 @@ if have_introspection
       '-DCOGL_GIR_SCANNING',
     ],
     header: 'cogl/cogl.h',
-    install_dir_gir: pkglibdir,
-    install_dir_typelib: pkglibdir,
-    install: true
+    kwargs: introspection_common,
   )
 endif
 

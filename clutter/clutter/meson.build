@@ -323,9 +323,7 @@ if have_introspection
     ],
     dependencies: [cogl_deps],
     extra_args: clutter_introspection_args + ['--c-include=clutter/clutter.h'],
-    install_dir_gir: pkglibdir,
-    install_dir_typelib: pkglibdir,
-    install: true,
+    kwargs: introspection_common,
   )
 
   libmutter_cally_gir = gnome.generate_gir(libmutter_clutter,
@@ -344,9 +342,7 @@ if have_introspection
     ],
     dependencies: [cogl_deps],
     extra_args: clutter_introspection_args,
-    install_dir_gir: pkglibdir,
-    install_dir_typelib: pkglibdir,
-    install: true
+    kwargs: introspection_common,
   )
 endif
 

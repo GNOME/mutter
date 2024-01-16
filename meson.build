@@ -324,6 +324,13 @@ if have_introspection
     '--quiet',
     '-U_GNU_SOURCE',
   ]
+
+  introspection_common = {
+    'install_dir_gir': pkglibdir,
+    'install_dir_typelib': pkglibdir,
+    'install': true,
+    'fatal_warnings': get_option('werror'),
+  }
 endif
 
 have_documentation = get_option('docs')
