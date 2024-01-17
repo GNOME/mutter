@@ -28,7 +28,6 @@
 #endif
 
 #include <cairo.h>
-#include <pango/pango.h>
 
 #include "cogl/cogl.h"
 

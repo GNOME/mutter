@@ -23,10 +23,11 @@
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
 
+#include <glib-object.h>
+
+#include "clutter/clutter-enums.h"
 #include "clutter/clutter-macros.h"
 
-#include <glib-object.h>
-#include <pango/pango.h>
 
 typedef struct _ClutterKeymap ClutterKeymap;
 typedef struct _ClutterKeymapClass ClutterKeymapClass;
@@ -35,7 +36,7 @@ struct _ClutterKeymapClass
 {
   GObjectClass parent_class;
 
-  PangoDirection (* get_direction) (ClutterKeymap *keymap);
+  ClutterTextDirection (* get_direction) (ClutterKeymap *keymap);
 };
 
 #define CLUTTER_TYPE_KEYMAP (clutter_keymap_get_type ())
@@ -50,4 +51,4 @@ gboolean clutter_keymap_get_num_lock_state  (ClutterKeymap *keymap);
 CLUTTER_EXPORT
 gboolean clutter_keymap_get_caps_lock_state (ClutterKeymap *keymap);
 
-PangoDirection clutter_keymap_get_direction (ClutterKeymap *keymap);
+ClutterTextDirection clutter_keymap_get_direction (ClutterKeymap *keymap);

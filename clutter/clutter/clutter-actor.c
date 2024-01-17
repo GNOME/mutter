@@ -12892,18 +12892,17 @@ update_pango_context (ClutterBackend *backend,
   PangoFontDescription *font_desc;
   const cairo_font_options_t *font_options;
   gchar *font_name;
-  PangoDirection pango_dir;
   gdouble resolution;
 
   settings = clutter_settings_get_default ();
 
   /* update the text direction */
-  if (clutter_get_default_text_direction () == CLUTTER_TEXT_DIRECTION_RTL)
-    pango_dir = PANGO_DIRECTION_RTL;
-  else
-    pango_dir = PANGO_DIRECTION_LTR;
-
-  pango_context_set_base_dir (context, pango_dir);
+  pango_context_set_base_dir (
+    context, 
+    clutter_text_direction_to_pango_direction (
+      clutter_get_default_text_direction ()
+    )
+  );
 
   g_object_get (settings, "font-name", &font_name, NULL);
 

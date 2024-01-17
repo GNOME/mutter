@@ -27,6 +27,7 @@
 
 #include <string.h>
 #include <glib.h>
+#include <pango/pango.h>
 
 #include "cogl-pango/cogl-pango.h"
 
@@ -145,10 +146,13 @@ void  _clutter_util_fully_transform_vertices (const graphene_matrix_t  *modelvie
                                               int                       n_vertices);
 
 CLUTTER_EXPORT
-PangoDirection _clutter_pango_unichar_direction (gunichar ch);
+ClutterTextDirection clutter_unichar_direction (gunichar ch);
 
-PangoDirection _clutter_pango_find_base_dir     (const gchar *text,
-                                                 gint         length);
+ClutterTextDirection _clutter_find_base_dir (const gchar *text,
+                                             gint         length);
+
+PangoDirection
+clutter_text_direction_to_pango_direction (ClutterTextDirection dir);
 
 typedef enum _ClutterCullResult
 {

@@ -732,17 +732,16 @@ clutter_text_create_layout_no_cache (ClutterText       *text,
     }
   else
     {
-      PangoDirection pango_dir;
+      ClutterTextDirection dir;
 
       if (priv->password_char != 0)
-        pango_dir = PANGO_DIRECTION_NEUTRAL;
+        dir = CLUTTER_TEXT_DIRECTION_DEFAULT;
       else
-        pango_dir = _clutter_pango_find_base_dir (contents, contents_len);
+        dir = _clutter_find_base_dir (contents, contents_len);
 
-      if (pango_dir == PANGO_DIRECTION_NEUTRAL)
+      if (dir == CLUTTER_TEXT_DIRECTION_DEFAULT)
         {
           ClutterBackend *backend = clutter_get_default_backend ();
-          ClutterTextDirection text_dir;
 
           if (clutter_actor_has_key_focus (CLUTTER_ACTOR (text)))
             {
@@ -751,22 +750,20 @@ clutter_text_create_layout_no_cache (ClutterText       *text,
 
               seat = clutter_backend_get_default_seat (backend);
               keymap = clutter_seat_get_keymap (seat);
-              pango_dir = clutter_keymap_get_direction (keymap);
+              dir = clutter_keymap_get_direction (keymap);
             }
           else
             {
-              text_dir = clutter_actor_get_text_direction (CLUTTER_ACTOR (text));
-
-              if (text_dir == CLUTTER_TEXT_DIRECTION_RTL)
-                pango_dir = PANGO_DIRECTION_RTL;
-              else
-                pango_dir = PANGO_DIRECTION_LTR;
-           }
+              dir = clutter_actor_get_text_direction (CLUTTER_ACTOR (text));
+            }
         }
 
-      pango_context_set_base_dir (clutter_actor_get_pango_context (CLUTTER_ACTOR (text)), pango_dir);
+      pango_context_set_base_dir (
+        clutter_actor_get_pango_context (CLUTTER_ACTOR (text)), 
+        clutter_text_direction_to_pango_direction (dir)
+      );
 
-      priv->resolved_direction = pango_dir;
+      priv->resolved_direction = dir;
 
       pango_layout_set_text (layout, contents, contents_len);
     }
@@ -2686,7 +2683,7 @@ clutter_text_paint (ClutterActor        *self,
       actor_width = alloc_width - 2 * TEXT_PADDING;
       text_width  = pango_to_pixels (logical_rect.width);
 
-      rtl = priv->resolved_direction == PANGO_DIRECTION_RTL;
+      rtl = priv->resolved_direction == CLUTTER_TEXT_DIRECTION_RTL;
 
       if (actor_width < text_width)
         {
