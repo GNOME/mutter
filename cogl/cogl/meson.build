@@ -410,7 +410,6 @@ if have_introspection
     namespace: 'Cogl',
     includes: [
       libmutter_mtk_gir[0],
-      'cairo-1.0',
       'GL-1.0',
       'GObject-2.0',
       'Graphene-1.0', 
