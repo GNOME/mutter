@@ -29,7 +29,6 @@ clutter_c_args += clutter_debug_c_args
 
 clutter_pkg_deps = [
   atk_dep,
-  cairo_gobject_dep,
   glib_dep,
   gobject_dep,
   gio_dep,
