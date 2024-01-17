@@ -20,7 +20,6 @@
 #pragma once
 
 #include <glib-object.h>
-#include <pango/pango.h>
 
 #include "clutter/clutter.h"
 

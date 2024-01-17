@@ -25,7 +25,9 @@
 
 #include <math.h>
 
+#ifdef HAVE_FONTS
 #include <pango/pango-attributes.h>
+#endif
 
 #include "clutter/clutter-interval.h"
 #include "clutter/clutter-main.h"
@@ -640,7 +642,9 @@ gboolean
 clutter_color_from_string (ClutterColor *color,
                            const gchar  *str)
 {
+#ifdef HAVE_FONTS
   PangoColor pango_color = { 0, };
+#endif
 
   g_return_val_if_fail (color != NULL, FALSE);
   g_return_val_if_fail (str != NULL, FALSE);
@@ -735,6 +739,7 @@ clutter_color_from_string (ClutterColor *color,
         }
     }
 
+#ifdef HAVE_FONTS
   /* fall back to pango for X11-style named colors; see:
    *
    *   http://en.wikipedia.org/wiki/X11_color_names
@@ -752,6 +757,7 @@ clutter_color_from_string (ClutterColor *color,
 
       return TRUE;
     }
+#endif
 
   return FALSE;
 }

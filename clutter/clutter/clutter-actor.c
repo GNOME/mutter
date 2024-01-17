@@ -600,7 +600,9 @@ struct _ClutterActorPrivate
   /* a back-pointer to the Pango context that we can use
    * to create pre-configured PangoLayout
    */
+#ifdef HAVE_FONTS
   PangoContext *pango_context;
+#endif
 
   /* the text direction configured for this child - either by
    * application code, or by the actor's parent
@@ -3069,6 +3071,7 @@ _clutter_actor_draw_paint_volume_full (ClutterActor       *self,
   clutter_paint_node_add_child (node, pipeline_node);
   g_object_unref (prim);
 
+#ifdef HAVE_FONTS
   if (label)
     {
       g_autoptr (ClutterPaintNode) text_node = NULL;
@@ -3091,6 +3094,7 @@ _clutter_actor_draw_paint_volume_full (ClutterActor       *self,
 
       g_object_unref (layout);
     }
+#endif
 }
 
 static void
@@ -3137,7 +3141,6 @@ _clutter_actor_paint_cull_result (ClutterActor      *self,
                                   ClutterCullResult  result,
                                   ClutterPaintNode  *node)
 {
-  ClutterActorPrivate *priv = self->priv;
   ClutterPaintVolume *pv;
   ClutterColor color;
 
@@ -3164,6 +3167,7 @@ _clutter_actor_paint_cull_result (ClutterActor      *self,
                                            _clutter_actor_get_debug_name (self),
                                            &color,
                                            node);
+#ifdef HAVE_FONTS
   else
     {
       g_autoptr (ClutterPaintNode) text_node = NULL;
@@ -3174,8 +3178,8 @@ _clutter_actor_paint_cull_result (ClutterActor      *self,
         g_strdup_printf ("CULL FAILURE: %s", _clutter_actor_get_debug_name (self));
       clutter_color_init (&color, 255, 255, 255, 255);
 
-      width = clutter_actor_box_get_width (&priv->allocation);
-      height = clutter_actor_box_get_height (&priv->allocation);
+      width = clutter_actor_box_get_width (&self->priv->allocation);
+      height = clutter_actor_box_get_height (&self->priv->allocation);
 
       layout = pango_layout_new (clutter_actor_get_pango_context (self));
       pango_layout_set_text (layout, label, -1);
@@ -3195,6 +3199,7 @@ _clutter_actor_paint_cull_result (ClutterActor      *self,
       g_free (label);
       g_object_unref (layout);
     }
+#endif
 }
 
 static int clone_paint_level = 0;
@@ -5352,7 +5357,9 @@ clutter_actor_dispose (GObject *object)
   g_clear_signal_handler (&priv->resolution_changed_id, backend);
   g_clear_signal_handler (&priv->font_changed_id, backend);
 
+#ifdef HAVE_FONTS
   g_clear_object (&priv->pango_context);
+#endif
   g_clear_object (&priv->actions);
   g_clear_object (&priv->color_state);
   g_clear_object (&priv->constraints);
@@ -12884,6 +12891,7 @@ clutter_actor_grab_key_focus (ClutterActor *self)
     clutter_stage_set_key_focus (CLUTTER_STAGE (stage), self);
 }
 
+#ifdef HAVE_FONTS
 static void
 update_pango_context (ClutterBackend *backend,
                       PangoContext   *context)
@@ -13034,6 +13042,7 @@ clutter_actor_create_pango_layout (ClutterActor *self,
 
   return layout;
 }
+#endif /* HAVE_FONTS */
 
 /**
  * clutter_actor_set_opacity_override:

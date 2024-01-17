@@ -33,6 +33,8 @@
 #include <gdesktop-enums.h>
 #include <stdlib.h>
 
+#ifdef HAVE_FONTS
+
 #define DEFAULT_FONT_NAME       "Sans 12"
 
 typedef struct
@@ -47,12 +49,16 @@ typedef struct
   const char *clutter_font_subpixel_order;
 } FontSettings;
 
+#endif
+
 struct _ClutterSettings
 {
   GObject parent_instance;
 
   ClutterBackend *backend;
+#ifdef HAVE_FONTS
   GSettings *font_settings;
+#endif
   GSettings *mouse_settings;
   GSettings *mouse_a11y_settings;
 
@@ -63,6 +69,7 @@ struct _ClutterSettings
 
   gdouble resolution;
 
+#ifdef HAVE_FONTS
   gchar *font_name;
   gint font_dpi;
 
@@ -71,13 +78,15 @@ struct _ClutterSettings
   gchar *xft_hint_style;
   gchar *xft_rgba;
 
-  gint long_press_duration;
-
   guint last_fontconfig_timestamp;
+
+  gint unscaled_font_dpi;
+#endif
+
+  gint long_press_duration;
 
   guint password_hint_time;
 
-  gint unscaled_font_dpi;
 };
 
 enum
@@ -89,6 +98,7 @@ enum
 
   PROP_DND_DRAG_THRESHOLD,
 
+#ifdef HAVE_FONTS
   PROP_FONT_NAME,
 
   PROP_FONT_ANTIALIAS,
@@ -97,13 +107,16 @@ enum
   PROP_FONT_HINT_STYLE,
   PROP_FONT_RGBA,
 
-  PROP_LONG_PRESS_DURATION,
 
   PROP_FONTCONFIG_TIMESTAMP,
 
   PROP_PASSWORD_HINT_TIME,
 
   PROP_UNSCALED_FONT_DPI,
+
+#endif
+
+  PROP_LONG_PRESS_DURATION,
 
   PROP_LAST
 };
@@ -112,6 +125,7 @@ static GParamSpec *obj_props[PROP_LAST];
 
 G_DEFINE_FINAL_TYPE (ClutterSettings, clutter_settings, G_TYPE_OBJECT);
 
+#ifdef HAVE_FONTS
 static inline void
 settings_update_font_options (ClutterSettings *self)
 {
@@ -366,6 +380,7 @@ init_font_options (ClutterSettings *self)
 
   cairo_font_options_destroy (options);
 }
+#endif
 
 static void
 sync_mouse_options (ClutterSettings *self)
@@ -382,6 +397,7 @@ sync_mouse_options (ClutterSettings *self)
                 NULL);
 }
 
+#ifdef HAVE_FONTS
 static gboolean
 on_font_settings_change_event (GSettings *settings,
 			       gpointer   keys,
@@ -403,6 +419,7 @@ on_font_settings_change_event (GSettings *settings,
 
   return FALSE;
 }
+#endif
 
 static gboolean
 on_mouse_settings_change_event (GSettings *settings,
@@ -518,12 +535,15 @@ on_mouse_a11y_settings_change_event (GSettings *settings,
 static void
 load_initial_settings (ClutterSettings *self)
 {
+#ifdef HAVE_FONTS
   static const gchar *font_settings_path = "org.gnome.desktop.interface";
+#endif
   static const gchar *mouse_settings_path = "org.gnome.desktop.peripherals.mouse";
   static const char *mouse_a11y_settings_path = "org.gnome.desktop.a11y.mouse";
   GSettingsSchemaSource *source = g_settings_schema_source_get_default ();
   GSettingsSchema *schema;
 
+#ifdef HAVE_FONTS
   schema = g_settings_schema_source_lookup (source, font_settings_path, TRUE);
   if (!schema)
     {
@@ -540,6 +560,7 @@ load_initial_settings (ClutterSettings *self)
                             self);
         }
     }
+#endif
 
   schema = g_settings_schema_source_lookup (source, mouse_settings_path, TRUE);
   if (!schema)
@@ -577,11 +598,13 @@ clutter_settings_finalize (GObject *gobject)
 {
   ClutterSettings *self = CLUTTER_SETTINGS (gobject);
 
+#ifdef HAVE_FONTS
   g_free (self->font_name);
   g_free (self->xft_hint_style);
   g_free (self->xft_rgba);
 
   g_clear_object (&self->font_settings);
+#endif
   g_clear_object (&self->mouse_settings);
   g_clear_object (&self->mouse_a11y_settings);
 
@@ -610,6 +633,7 @@ clutter_settings_set_property (GObject      *gobject,
       self->dnd_drag_threshold = g_value_get_int (value);
       break;
 
+#ifdef HAVE_FONTS
     case PROP_FONT_NAME:
       g_free (self->font_name);
       self->font_name = g_value_dup_string (value);
@@ -643,21 +667,22 @@ clutter_settings_set_property (GObject      *gobject,
       settings_update_font_options (self);
       break;
 
-    case PROP_LONG_PRESS_DURATION:
-      self->long_press_duration = g_value_get_int (value);
-      break;
-
     case PROP_FONTCONFIG_TIMESTAMP:
       settings_update_fontmap (self, g_value_get_uint (value));
+      break;
+
+    case PROP_UNSCALED_FONT_DPI:
+      self->font_dpi = g_value_get_int (value);
+      settings_update_resolution (self);
       break;
 
     case PROP_PASSWORD_HINT_TIME:
       self->password_hint_time = g_value_get_uint (value);
       break;
 
-    case PROP_UNSCALED_FONT_DPI:
-      self->font_dpi = g_value_get_int (value);
-      settings_update_resolution (self);
+#endif
+    case PROP_LONG_PRESS_DURATION:
+      self->long_press_duration = g_value_get_int (value);
       break;
 
     default:
@@ -688,6 +713,7 @@ clutter_settings_get_property (GObject    *gobject,
       g_value_set_int (value, self->dnd_drag_threshold);
       break;
 
+#ifdef HAVE_FONTS
     case PROP_FONT_NAME:
       g_value_set_string (value, self->font_name);
       break;
@@ -712,12 +738,13 @@ clutter_settings_get_property (GObject    *gobject,
       g_value_set_string (value, self->xft_rgba);
       break;
 
-    case PROP_LONG_PRESS_DURATION:
-      g_value_set_int (value, self->long_press_duration);
-      break;
-
     case PROP_PASSWORD_HINT_TIME:
       g_value_set_uint (value, self->password_hint_time);
+      break;
+#endif
+
+    case PROP_LONG_PRESS_DURATION:
+      g_value_set_int (value, self->long_press_duration);
       break;
 
     default:
@@ -787,6 +814,7 @@ clutter_settings_class_init (ClutterSettingsClass *klass)
                       G_PARAM_READWRITE |
                       G_PARAM_STATIC_STRINGS);
 
+#ifdef HAVE_FONTS
   /**
    * ClutterSettings:font-name:
    *
@@ -883,20 +911,6 @@ clutter_settings_class_init (ClutterSettingsClass *klass)
                          G_PARAM_READWRITE |
                          G_PARAM_STATIC_STRINGS);
 
-  /**
-   * ClutterSettings:long-press-duration:
-   *
-   * Sets the minimum duration for a press to be recognized as a long press
-   * gesture. The duration is expressed in milliseconds.
-   *
-   * See also [property@ClickAction:long-press-duration].
-   */
-  obj_props[PROP_LONG_PRESS_DURATION] =
-    g_param_spec_int ("long-press-duration", NULL, NULL,
-                      0, G_MAXINT,
-                      500,
-                      G_PARAM_READWRITE |
-                      G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_FONTCONFIG_TIMESTAMP] =
     g_param_spec_uint ("fontconfig-timestamp", NULL, NULL,
@@ -919,7 +933,22 @@ clutter_settings_class_init (ClutterSettingsClass *klass)
                        0,
                        G_PARAM_READWRITE |
                        G_PARAM_STATIC_STRINGS);
+#endif
 
+  /**
+   * ClutterSettings:long-press-duration:
+   *
+   * Sets the minimum duration for a press to be recognized as a long press
+   * gesture. The duration is expressed in milliseconds.
+   *
+   * See also [property@ClickAction:long-press-duration].
+   */
+  obj_props[PROP_LONG_PRESS_DURATION] =
+    g_param_spec_int ("long-press-duration", NULL, NULL,
+                      0, G_MAXINT,
+                      500,
+                      G_PARAM_READWRITE |
+                      G_PARAM_STATIC_STRINGS);
   gobject_class->set_property = clutter_settings_set_property;
   gobject_class->get_property = clutter_settings_get_property;
   gobject_class->dispatch_properties_changed =
@@ -931,15 +960,11 @@ clutter_settings_class_init (ClutterSettingsClass *klass)
 static void
 clutter_settings_init (ClutterSettings *self)
 {
+#ifdef HAVE_FONTS
   self->resolution = -1.0;
 
   self->font_dpi = -1;
   self->unscaled_font_dpi = -1;
-
-  self->double_click_time = 250;
-  self->double_click_distance = 5;
-
-  self->dnd_drag_threshold = 8;
 
   self->font_name = g_strdup (DEFAULT_FONT_NAME);
 
@@ -947,6 +972,12 @@ clutter_settings_init (ClutterSettings *self)
   self->xft_hinting = -1;
   self->xft_hint_style = NULL;
   self->xft_rgba = NULL;
+
+#endif
+  self->double_click_time = 250;
+  self->double_click_distance = 5;
+
+  self->dnd_drag_threshold = 8;
 
   self->long_press_duration = 500;
 }

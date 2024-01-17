@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include <cairo/cairo.h>
 #include <X11/Xlib.h>
 
 #include "clutter/clutter.h"

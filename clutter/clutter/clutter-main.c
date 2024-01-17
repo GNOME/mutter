@@ -43,7 +43,9 @@
 #include "clutter/clutter-backend-private.h"
 
 #include "cogl/cogl.h"
+#ifdef HAVE_FONTS
 #include "cogl-pango/cogl-pango.h"
+#endif
 
 #include "cally/cally.h" /* For accessibility support */
 
@@ -655,6 +657,7 @@ clutter_stage_process_event (ClutterStage *stage,
   context->current_event = g_slist_delete_link (context->current_event, context->current_event);
 }
 
+#ifdef HAVE_FONTS
 /**
  * clutter_get_font_map:
  *
@@ -670,6 +673,7 @@ clutter_get_font_map (void)
 {
   return PANGO_FONT_MAP (clutter_context_get_pango_fontmap (ClutterCntx));
 }
+#endif
 
 typedef struct _ClutterRepaintFunction
 {

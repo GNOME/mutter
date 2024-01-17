@@ -27,7 +27,9 @@
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
 
+#ifdef HAVE_FONTS
 #include <cairo.h>
+#endif
 
 #include "cogl/cogl.h"
 
@@ -50,6 +52,7 @@ GType clutter_backend_get_type (void) G_GNUC_CONST;
 CLUTTER_EXPORT
 ClutterBackend *                clutter_get_default_backend             (void);
 
+#ifdef HAVE_FONTS
 CLUTTER_EXPORT
 gdouble                         clutter_backend_get_resolution          (ClutterBackend             *backend);
 
@@ -58,6 +61,7 @@ void                            clutter_backend_set_font_options        (Clutter
                                                                          const cairo_font_options_t *options);
 CLUTTER_EXPORT
 const cairo_font_options_t *    clutter_backend_get_font_options        (ClutterBackend             *backend);
+#endif
 
 CLUTTER_EXPORT
 CoglContext *                   clutter_backend_get_cogl_context        (ClutterBackend             *backend);

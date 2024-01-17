@@ -28,7 +28,9 @@
 #include "cally/cally-main.h"
 #include "cally/cally-root.h"
 #include "cally/cally-stage.h"
+#ifdef HAVE_FONTS
 #include "cally/cally-text.h"
+#endif
 #include "cally/cally-util.h"
 
 #undef __CALLY_H_INSIDE__

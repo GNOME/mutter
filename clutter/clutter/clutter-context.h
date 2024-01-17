@@ -22,7 +22,9 @@
 #include "clutter-backend.h"
 #include "clutter-stage-manager.h"
 #include "clutter-settings.h"
+#ifdef HAVE_FONTS
 #include "cogl-pango/cogl-pango.h"
+#endif
 
 typedef enum _ClutterContextFlags
 {
@@ -59,9 +61,11 @@ void clutter_context_destroy (ClutterContext *context);
 CLUTTER_EXPORT
 ClutterBackend * clutter_context_get_backend (ClutterContext *context);
 
+#ifdef HAVE_FONTS
 /**
  * clutter_context_get_pango_fontmap: (skip)
  */
 CoglPangoFontMap * clutter_context_get_pango_fontmap (ClutterContext *context);
+#endif
 
 ClutterTextDirection clutter_context_get_text_direction (ClutterContext *context);

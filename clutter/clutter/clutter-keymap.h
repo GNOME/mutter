@@ -28,6 +28,7 @@
 #include "clutter/clutter-enums.h"
 #include "clutter/clutter-macros.h"
 
+#include <glib-object.h>
 
 typedef struct _ClutterKeymap ClutterKeymap;
 typedef struct _ClutterKeymapClass ClutterKeymapClass;
