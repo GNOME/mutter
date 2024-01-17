@@ -7153,7 +7153,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * container (the [class@Clutter.Stage]) to the actor which received the event
    * going down the hierarchy. This signal can be used to intercept every
    * event before the specialized events (like
-   * [signal@Clutter.Actor::button-press-event] or 
+   * [signal@Clutter.Actor::button-press-event] or
    * [signal@Clutter.Actor::button-release-event]) are
    * emitted.
    *
@@ -14497,7 +14497,7 @@ clutter_actor_get_paint_volume (ClutterActor *self)
  *
  * Retrieves the 3D paint volume of an actor like
  * [method@Clutter.Actor.get_paint_volume] does and it additionally
- * transforms the paint volume into the coordinate 
+ * transforms the paint volume into the coordinate
  * space of @relative_to_ancestor. (Or the stage if %NULL
  * is passed for @relative_to_ancestor)
  *
@@ -18396,7 +18396,7 @@ clutter_actor_bind_model_with_properties (ClutterActor *self,
  *
  * The returned paint node has the geometry set to the size of the
  * [property@Clutter.Actor:content-box] property; it uses the filters specified
- * in the [property@Clutter.Actor:minification-filter] 
+ * in the [property@Clutter.Actor:minification-filter]
  * and [property@Clutter.Actor:magnification-filter]
  * properties; and respects the [property@Clutter.Actor:content-repeat] property.
  *
