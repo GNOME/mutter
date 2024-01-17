@@ -17,7 +17,6 @@ mutter_pkg_deps = [
   gio_unix_dep,
   glib_dep,
   gsettings_desktop_schemas_dep,
-  pango_dep,
 ]
 
 mutter_pkg_private_deps = [

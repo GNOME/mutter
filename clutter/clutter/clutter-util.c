@@ -256,8 +256,8 @@ clutter_interval_register_progress_func (GType               value_type,
   G_UNLOCK (progress_funcs);
 }
 
-PangoDirection
-_clutter_pango_unichar_direction (gunichar ch)
+ClutterTextDirection
+clutter_unichar_direction (gunichar ch)
 {
   FriBidiCharType fribidi_ch_type;
 
@@ -266,34 +266,49 @@ _clutter_pango_unichar_direction (gunichar ch)
   fribidi_ch_type = fribidi_get_bidi_type (ch);
 
   if (!FRIBIDI_IS_STRONG (fribidi_ch_type))
-    return PANGO_DIRECTION_NEUTRAL;
+    return CLUTTER_TEXT_DIRECTION_DEFAULT;
   else if (FRIBIDI_IS_RTL (fribidi_ch_type))
-    return PANGO_DIRECTION_RTL;
+    return CLUTTER_TEXT_DIRECTION_RTL;
   else
-    return PANGO_DIRECTION_LTR;
+    return CLUTTER_TEXT_DIRECTION_LTR;
 }
 
-PangoDirection
-_clutter_pango_find_base_dir (const gchar *text,
-                              gint         length)
+ClutterTextDirection
+_clutter_find_base_dir (const gchar *text,
+                        gint         length)
 {
-  PangoDirection dir = PANGO_DIRECTION_NEUTRAL;
+  ClutterTextDirection dir = CLUTTER_TEXT_DIRECTION_DEFAULT;
   const gchar *p;
 
-  g_return_val_if_fail (text != NULL || length == 0, PANGO_DIRECTION_NEUTRAL);
+  g_return_val_if_fail (text != NULL || length == 0, CLUTTER_TEXT_DIRECTION_DEFAULT);
 
   p = text;
   while ((length < 0 || p < text + length) && *p)
     {
       gunichar wc = g_utf8_get_char (p);
 
-      dir = _clutter_pango_unichar_direction (wc);
+      dir = clutter_unichar_direction (wc);
 
-      if (dir != PANGO_DIRECTION_NEUTRAL)
+      if (dir != CLUTTER_TEXT_DIRECTION_DEFAULT)
         break;
 
       p = g_utf8_next_char (p);
     }
 
   return dir;
+}
+
+PangoDirection
+clutter_text_direction_to_pango_direction (ClutterTextDirection dir)
+{
+  switch (dir)
+    {
+    case CLUTTER_TEXT_DIRECTION_RTL:
+      return PANGO_DIRECTION_RTL;
+    case CLUTTER_TEXT_DIRECTION_LTR:
+      return PANGO_DIRECTION_LTR;
+    default:
+    case CLUTTER_TEXT_DIRECTION_DEFAULT:
+      return PANGO_DIRECTION_NEUTRAL;
+    }
 }

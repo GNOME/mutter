@@ -49,7 +49,7 @@ struct _DirectionCacheEntry
 {
   uint32_t serial;
   Atom group_atom;
-  PangoDirection direction;
+  ClutterTextDirection direction;
 };
 
 struct _MetaKeymapX11
@@ -67,7 +67,7 @@ struct _MetaKeymapX11
   ClutterModifierType scroll_lock_mask;
   ClutterModifierType level3_shift_mask;
 
-  PangoDirection current_direction;
+  ClutterTextDirection current_direction;
 
   XkbDescPtr xkb_desc;
   int xkb_event_base;
@@ -244,7 +244,7 @@ update_locked_mods (MetaKeymapX11 *keymap_x11,
  * is taken from GDK:
  *      gdk/x11/gdkkeys-x11.c
  */
-static PangoDirection
+static ClutterTextDirection
 get_direction (XkbDescPtr xkb,
                int        group)
 {
@@ -257,16 +257,16 @@ get_direction (XkbDescPtr xkb,
     {
       int level = 0;
       KeySym sym = XkbKeySymEntry (xkb, code, level, group);
-      PangoDirection dir =
-        _clutter_pango_unichar_direction (clutter_keysym_to_unicode (sym));
+      ClutterTextDirection dir =
+        clutter_unichar_direction (clutter_keysym_to_unicode (sym));
 
       switch (dir)
         {
-        case PANGO_DIRECTION_RTL:
+        case CLUTTER_TEXT_DIRECTION_RTL:
           rtl_minus_ltr++;
           break;
 
-        case PANGO_DIRECTION_LTR:
+        case CLUTTER_TEXT_DIRECTION_LTR:
           rtl_minus_ltr--;
           break;
 
@@ -276,12 +276,12 @@ get_direction (XkbDescPtr xkb,
     }
 
   if (rtl_minus_ltr > 0)
-    return PANGO_DIRECTION_RTL;
+    return CLUTTER_TEXT_DIRECTION_RTL;
 
-  return PANGO_DIRECTION_LTR;
+  return CLUTTER_TEXT_DIRECTION_LTR;
 }
 
-static PangoDirection
+static ClutterTextDirection
 get_direction_from_cache (MetaKeymapX11 *keymap_x11,
                           XkbDescPtr     xkb,
                           int            group)
@@ -289,7 +289,7 @@ get_direction_from_cache (MetaKeymapX11 *keymap_x11,
   Atom group_atom = xkb->names->groups[group];
   gboolean cache_hit = FALSE;
   DirectionCacheEntry *cache = keymap_x11->group_direction_cache;
-  PangoDirection direction = PANGO_DIRECTION_NEUTRAL;
+  ClutterTextDirection direction = CLUTTER_TEXT_DIRECTION_DEFAULT;
   int i;
 
   if (keymap_x11->has_direction)
@@ -313,7 +313,7 @@ get_direction_from_cache (MetaKeymapX11 *keymap_x11,
       for (i = 0; i < G_N_ELEMENTS (keymap_x11->group_direction_cache); i++)
         {
           cache[i].group_atom = 0;
-          cache[i].direction = PANGO_DIRECTION_NEUTRAL;
+          cache[i].direction = CLUTTER_TEXT_DIRECTION_DEFAULT;
           cache[i].serial = keymap_x11->current_cache_serial;
         }
 
@@ -514,12 +514,12 @@ meta_keymap_x11_finalize (GObject *object)
   G_OBJECT_CLASS (meta_keymap_x11_parent_class)->finalize (object);
 }
 
-static PangoDirection
+static ClutterTextDirection
 meta_keymap_x11_get_direction (ClutterKeymap *keymap)
 {
   MetaKeymapX11 *keymap_x11;
 
-  g_return_val_if_fail (META_IS_KEYMAP_X11 (keymap), PANGO_DIRECTION_NEUTRAL);
+  g_return_val_if_fail (META_IS_KEYMAP_X11 (keymap), CLUTTER_TEXT_DIRECTION_DEFAULT);
 
   keymap_x11 = META_KEYMAP_X11 (keymap);
 
@@ -538,7 +538,7 @@ meta_keymap_x11_get_direction (ClutterKeymap *keymap)
     }
   else
     {
-      return PANGO_DIRECTION_NEUTRAL;
+      return CLUTTER_TEXT_DIRECTION_DEFAULT;
     }
 }
 
@@ -565,7 +565,7 @@ meta_keymap_x11_class_init (MetaKeymapX11Class *klass)
 static void
 meta_keymap_x11_init (MetaKeymapX11 *keymap)
 {
-  keymap->current_direction = PANGO_DIRECTION_NEUTRAL;
+  keymap->current_direction = CLUTTER_TEXT_DIRECTION_DEFAULT;
   keymap->current_group = -1;
   keymap->reserved_keycodes = g_hash_table_new (NULL, NULL);
   keymap->available_keycodes = g_queue_new ();

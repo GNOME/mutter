@@ -50,7 +50,6 @@
 #include "config.h"
 
 #include <gobject/gvaluecollector.h>
-#include <pango/pango.h>
 
 #include "cogl/cogl.h"
 #include "clutter/clutter-paint-node-private.h"

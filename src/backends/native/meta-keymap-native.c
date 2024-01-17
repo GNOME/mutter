@@ -53,10 +53,10 @@ meta_keymap_native_finalize (GObject *object)
   G_OBJECT_CLASS (meta_keymap_native_parent_class)->finalize (object);
 }
 
-static PangoDirection
+static ClutterTextDirection
 meta_keymap_native_get_direction (ClutterKeymap *keymap)
 {
-  return PANGO_DIRECTION_NEUTRAL;
+  return CLUTTER_TEXT_DIRECTION_DEFAULT;
 }
 
 static void

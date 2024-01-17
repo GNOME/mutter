@@ -22,7 +22,6 @@
 
 #pragma once
 
-#include <pango/pango-font.h>
 #include <gdesktop-enums.h>
 #include <gio/gio.h>
 
