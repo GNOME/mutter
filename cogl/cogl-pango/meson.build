@@ -15,6 +15,7 @@ cogl_pango_public_headers = [
 ]
 
 cogl_pango_deps = [
+  cairo_dep,
   pango_dep,
   pangocairo_dep,
   libmutter_cogl_dep,
