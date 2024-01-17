@@ -837,7 +837,9 @@ meta_window_place (MetaWindow        *window,
     }
 
   if (window->type == META_WINDOW_DIALOG ||
-      window->type == META_WINDOW_MODAL_DIALOG)
+      window->type == META_WINDOW_MODAL_DIALOG ||
+      (window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND &&
+       window->type == META_WINDOW_NORMAL))
     {
       MetaWindow *parent = meta_window_get_transient_for (window);
 
