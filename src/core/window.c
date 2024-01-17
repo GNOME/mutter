@@ -4396,7 +4396,7 @@ meta_window_get_frame_rect (const MetaWindow *window,
 /**
  * meta_window_get_client_area_rect:
  * @window: a #MetaWindow
- * @rect: (out): pointer to a cairo rectangle
+ * @rect: (out): pointer to a rectangle
  *
  * Gets the rectangle for the boundaries of the client area, relative
  * to the buffer rect.
