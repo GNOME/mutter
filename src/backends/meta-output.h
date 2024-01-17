@@ -40,6 +40,14 @@ typedef enum
   META_OUTPUT_HDR_METADATA_EOTF_HLG,
 } MetaOutputHdrMetadataEOTF;
 
+typedef enum _MetaOutputRGBRange
+{
+  META_OUTPUT_RGB_RANGE_UNKNOWN = 0,
+  META_OUTPUT_RGB_RANGE_AUTO,
+  META_OUTPUT_RGB_RANGE_FULL,
+  META_OUTPUT_RGB_RANGE_LIMITED,
+} MetaOutputRGBRange;
+
 typedef struct _MetaOutputHdrMetadata
 {
   gboolean active;

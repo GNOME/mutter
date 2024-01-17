@@ -110,6 +110,11 @@ typedef struct _MetaKmsConnectorUpdate
     gboolean has_update;
     MetaOutputHdrMetadata value;
   } hdr;
+
+  struct {
+    gboolean has_update;
+    MetaOutputRGBRange value;
+  } broadcast_rgb;
 } MetaKmsConnectorUpdate;
 
 typedef struct _MetaKmsPageFlipListener

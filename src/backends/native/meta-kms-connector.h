@@ -69,6 +69,11 @@ typedef struct _MetaKmsConnectorState
     gboolean supported;
     gboolean unknown;
   } hdr;
+
+  struct {
+    MetaOutputRGBRange value;
+    uint64_t supported;
+  } broadcast_rgb;
 } MetaKmsConnectorState;
 
 META_EXPORT_TEST
@@ -97,5 +102,8 @@ const MetaKmsRange * meta_kms_connector_get_max_bpc (MetaKmsConnector *connector
 
 gboolean meta_kms_connector_is_color_space_supported (MetaKmsConnector     *connector,
                                                       MetaOutputColorspace  color_space);
+
+gboolean meta_kms_connector_is_broadcast_rgb_supported (MetaKmsConnector   *connector,
+                                                        MetaOutputRGBRange  broadcast_rgb);
 
 gboolean meta_kms_connector_is_hdr_metadata_supported (MetaKmsConnector *connector);

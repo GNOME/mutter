@@ -56,6 +56,7 @@ typedef struct _MetaKmsConnectorPropTable
   MetaKmsEnum scaling_mode_enum[META_KMS_CONNECTOR_SCALING_MODE_N_PROPS];
   MetaKmsEnum panel_orientation_enum[META_KMS_CONNECTOR_PANEL_ORIENTATION_N_PROPS];
   MetaKmsEnum colorspace_enum[META_KMS_CONNECTOR_COLORSPACE_N_PROPS];
+  MetaKmsEnum broadcast_rgb_enum[META_KMS_CONNECTOR_BROADCAST_RGB_N_PROPS];
 } MetaKmsConnectorPropTable;
 
 struct _MetaKmsConnector
@@ -253,6 +254,13 @@ meta_kms_connector_is_hdr_metadata_supported (MetaKmsConnector *connector)
   return connector->current_state->hdr.supported;
 }
 
+gboolean
+meta_kms_connector_is_broadcast_rgb_supported (MetaKmsConnector   *connector,
+                                               MetaOutputRGBRange  broadcast_rgb)
+{
+  return !!(connector->current_state->broadcast_rgb.supported & (1 << broadcast_rgb));
+}
+
 static void
 set_panel_orientation (MetaKmsConnectorState *state,
                        MetaKmsProp           *panel_orientation)
@@ -355,6 +363,53 @@ meta_output_color_space_to_drm_color_space (MetaOutputColorspace color_space)
     }
 }
 
+static MetaOutputRGBRange
+drm_broadcast_rgb_to_output_rgb_range (uint64_t drm_broadcast_rgb)
+{
+  switch (drm_broadcast_rgb)
+    {
+    case META_KMS_CONNECTOR_BROADCAST_RGB_AUTOMATIC:
+      return META_OUTPUT_RGB_RANGE_AUTO;
+    case META_KMS_CONNECTOR_BROADCAST_RGB_FULL:
+      return META_OUTPUT_RGB_RANGE_FULL;
+    case META_KMS_CONNECTOR_BROADCAST_RGB_LIMITED_16_235:
+      return META_OUTPUT_RGB_RANGE_LIMITED;
+    default:
+      return META_OUTPUT_RGB_RANGE_UNKNOWN;
+    }
+}
+
+static uint64_t
+supported_drm_broadcast_rgb_to_output_rgb_range (uint64_t drm_support)
+{
+  uint64_t supported = 0;
+
+  if (drm_support & (1 << META_KMS_CONNECTOR_BROADCAST_RGB_AUTOMATIC))
+    supported |= (1 << META_OUTPUT_RGB_RANGE_AUTO);
+  if (drm_support & (1 << META_KMS_CONNECTOR_BROADCAST_RGB_FULL))
+    supported |= (1 << META_OUTPUT_RGB_RANGE_FULL);
+  if (drm_support & (1 << META_KMS_CONNECTOR_BROADCAST_RGB_LIMITED_16_235))
+    supported |= (1 << META_OUTPUT_RGB_RANGE_LIMITED);
+
+  return supported;
+}
+
+uint64_t
+meta_output_rgb_range_to_drm_broadcast_rgb (MetaOutputRGBRange rgb_range)
+{
+  switch (rgb_range)
+    {
+    case META_OUTPUT_RGB_RANGE_FULL:
+      return META_KMS_CONNECTOR_BROADCAST_RGB_FULL;
+    case META_OUTPUT_RGB_RANGE_LIMITED:
+      return META_KMS_CONNECTOR_BROADCAST_RGB_LIMITED_16_235;
+    case META_OUTPUT_RGB_RANGE_UNKNOWN:
+    case META_OUTPUT_RGB_RANGE_AUTO:
+    default:
+      return META_KMS_CONNECTOR_BROADCAST_RGB_AUTOMATIC;
+    }
+}
+
 static void
 state_set_properties (MetaKmsConnectorState *state,
                       MetaKmsImplDevice     *impl_device,
@@ -407,6 +462,15 @@ state_set_properties (MetaKmsConnectorState *state,
         drm_color_spaces_to_output_color_spaces (prop->value);
       state->colorspace.supported =
         supported_drm_color_spaces_to_output_color_spaces (prop->supported_variants);
+    }
+
+  prop = &props[META_KMS_CONNECTOR_PROP_BROADCAST_RGB];
+  if (prop->prop_id)
+    {
+      state->broadcast_rgb.value =
+        drm_broadcast_rgb_to_output_rgb_range (prop->value);
+      state->broadcast_rgb.supported =
+        supported_drm_broadcast_rgb_to_output_rgb_range (prop->supported_variants);
     }
 }
 
@@ -1013,6 +1077,10 @@ meta_kms_connector_state_changes (MetaKmsConnectorState *state,
       !hdr_metadata_equal (&state->hdr.value, &new_state->hdr.value))
     return META_KMS_RESOURCE_CHANGE_FULL;
 
+  if (state->broadcast_rgb.value != new_state->broadcast_rgb.value ||
+      state->broadcast_rgb.supported != new_state->broadcast_rgb.supported)
+    return META_KMS_RESOURCE_CHANGE_FULL;
+
   if (state->privacy_screen_state != new_state->privacy_screen_state)
     return META_KMS_RESOURCE_CHANGE_PRIVACY_SCREEN;
 
@@ -1224,6 +1292,14 @@ meta_kms_connector_predict_state_in_impl (MetaKmsConnector *connector,
                           connector));
           current_state->hdr.value = connector_update->hdr.value;
         }
+
+      if (connector_update->broadcast_rgb.has_update)
+        {
+          g_warn_if_fail (meta_kms_connector_is_broadcast_rgb_supported (
+                          connector,
+                          connector_update->broadcast_rgb.value));
+          current_state->broadcast_rgb.value = connector_update->broadcast_rgb.value;
+        }
     }
 
   sync_fd_held (connector, connector->impl_device);
@@ -1349,6 +1425,14 @@ init_properties (MetaKmsConnector  *connector,
         {
           .name = "HDR_OUTPUT_METADATA",
           .type = DRM_MODE_PROP_BLOB,
+        },
+      [META_KMS_CONNECTOR_PROP_BROADCAST_RGB] =
+        {
+          .name = "Broadcast RGB",
+          .type = DRM_MODE_PROP_ENUM,
+          .enum_values = prop_table->broadcast_rgb_enum,
+          .num_enum_values = META_KMS_CONNECTOR_BROADCAST_RGB_N_PROPS,
+          .default_value = META_KMS_CONNECTOR_BROADCAST_RGB_UNKNOWN,
         },
     },
     .dpms_enum = {
@@ -1520,6 +1604,20 @@ init_properties (MetaKmsConnector  *connector,
         {
           .name = "DCI-P3_RGB_Theater",
         },
+    },
+    .broadcast_rgb_enum = {
+      [META_KMS_CONNECTOR_BROADCAST_RGB_AUTOMATIC] =
+        {
+          .name = "Automatic",
+        },
+      [META_KMS_CONNECTOR_BROADCAST_RGB_FULL] =
+        {
+          .name = "Full",
+        },
+      [META_KMS_CONNECTOR_BROADCAST_RGB_LIMITED_16_235] =
+        {
+          .name = "Limited 16:235",
+        }
     },
   };
 }

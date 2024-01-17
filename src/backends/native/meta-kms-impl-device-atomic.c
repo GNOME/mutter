@@ -292,6 +292,25 @@ process_connector_update (MetaKmsImplDevice  *impl_device,
         return FALSE;
     }
 
+  if (connector_update->broadcast_rgb.has_update)
+    {
+      MetaOutputRGBRange rgb_range = connector_update->broadcast_rgb.value;
+      uint64_t value = meta_output_rgb_range_to_drm_broadcast_rgb (rgb_range);
+
+      meta_topic (META_DEBUG_KMS,
+                  "[atomic] Setting Broadcast RGB to %u on connector %u (%s)",
+                  rgb_range,
+                  meta_kms_connector_get_id (connector),
+                  meta_kms_impl_device_get_path (impl_device));
+
+      if (!add_connector_property (impl_device,
+                                   connector, req,
+                                   META_KMS_CONNECTOR_PROP_BROADCAST_RGB,
+                                   value,
+                                   error))
+        return FALSE;
+    }
+
   return TRUE;
 }
 

@@ -134,6 +134,10 @@ void meta_kms_update_set_hdr_metadata (MetaKmsUpdate         *update,
                                        MetaKmsConnector      *connector,
                                        MetaOutputHdrMetadata *metadata);
 
+void meta_kms_update_set_broadcast_rgb (MetaKmsUpdate      *update,
+                                        MetaKmsConnector   *connector,
+                                        MetaOutputRGBRange  rgb_range);
+
 META_EXPORT_TEST
 void meta_kms_update_set_power_save (MetaKmsUpdate *update);
 

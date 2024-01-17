@@ -39,6 +39,7 @@ typedef enum _MetaKmsConnectorProp
   META_KMS_CONNECTOR_PROP_MAX_BPC,
   META_KMS_CONNECTOR_PROP_COLORSPACE,
   META_KMS_CONNECTOR_PROP_HDR_OUTPUT_METADATA,
+  META_KMS_CONNECTOR_PROP_BROADCAST_RGB,
   META_KMS_CONNECTOR_N_PROPS
 } MetaKmsConnectorProp;
 
@@ -113,6 +114,15 @@ typedef enum _MetaKmsConnectorColorspace
   META_KMS_CONNECTOR_COLORSPACE_UNKNOWN,
 } MetaKmsConnectorColorspace;
 
+typedef enum _MetaKmsConnectorBroadcastRGB
+{
+  META_KMS_CONNECTOR_BROADCAST_RGB_AUTOMATIC = 0,
+  META_KMS_CONNECTOR_BROADCAST_RGB_FULL,
+  META_KMS_CONNECTOR_BROADCAST_RGB_LIMITED_16_235,
+  META_KMS_CONNECTOR_BROADCAST_RGB_N_PROPS,
+  META_KMS_CONNECTOR_BROADCAST_RGB_UNKNOWN,
+} MetaKmsConnectorBroadcastRGB;
+
 uint32_t meta_kms_connector_get_prop_id (MetaKmsConnector     *connector,
                                          MetaKmsConnectorProp  prop);
 
@@ -140,6 +150,8 @@ gboolean meta_kms_connector_is_same_as (MetaKmsConnector *connector,
                                         drmModeConnector *drm_connector);
 
 uint64_t meta_output_color_space_to_drm_color_space (MetaOutputColorspace color_space);
+
+uint64_t meta_output_rgb_range_to_drm_broadcast_rgb (MetaOutputRGBRange rgb_range);
 
 META_EXPORT_TEST
 void meta_set_drm_hdr_metadata (MetaOutputHdrMetadata      *metadata,

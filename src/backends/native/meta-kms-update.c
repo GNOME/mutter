@@ -444,8 +444,6 @@ meta_kms_update_set_color_space (MetaKmsUpdate        *update,
   MetaKmsConnectorUpdate *connector_update;
 
   g_assert (meta_kms_connector_get_device (connector) == update->device);
-  g_return_if_fail (meta_kms_connector_is_color_space_supported (connector,
-                                                                 color_space));
 
   connector_update = ensure_connector_update (update, connector);
   connector_update->colorspace.has_update = TRUE;
@@ -468,6 +466,22 @@ meta_kms_update_set_hdr_metadata (MetaKmsUpdate         *update,
 
   /* Currently required on AMDGPU but should in general not require mode sets */
   update->needs_modeset = TRUE;
+}
+
+void
+meta_kms_update_set_broadcast_rgb (MetaKmsUpdate      *update,
+                                   MetaKmsConnector   *connector,
+                                   MetaOutputRGBRange  rgb_range)
+{
+  MetaKmsConnectorUpdate *connector_update;
+
+  g_assert (meta_kms_connector_get_device (connector) == update->device);
+  g_return_if_fail (meta_kms_connector_is_broadcast_rgb_supported (connector,
+                                                                   rgb_range));
+
+  connector_update = ensure_connector_update (update, connector);
+  connector_update->broadcast_rgb.has_update = TRUE;
+  connector_update->broadcast_rgb.value = rgb_range;
 }
 
 static MetaKmsCrtcColorUpdate *
