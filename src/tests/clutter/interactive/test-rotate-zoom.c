@@ -16,7 +16,6 @@
  */
 #include <stdlib.h>
 #include <math.h>
-#include <cairo.h>
 #include <glib.h>
 #include <clutter/clutter.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
