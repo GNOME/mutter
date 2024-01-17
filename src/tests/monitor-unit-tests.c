@@ -3349,6 +3349,100 @@ meta_test_monitor_max_bpc_config (void)
 }
 
 static void
+meta_test_monitor_rgb_range_config (void)
+{
+  MonitorTestCase test_case = {
+    .setup = {
+      .modes = {
+        {
+          .width = 1024,
+          .height = 768,
+          .refresh_rate = 60.0
+        }
+      },
+      .n_modes = 1,
+      .outputs = {
+        {
+          .crtc = 0,
+          .modes = { 0 },
+          .n_modes = 1,
+          .preferred_mode = 0,
+          .possible_crtcs = { 0 },
+          .n_possible_crtcs = 1,
+          .width_mm = 222,
+          .height_mm = 125,
+          .rgb_range = META_OUTPUT_RGB_RANGE_FULL,
+        }
+      },
+      .n_outputs = 1,
+      .crtcs = {
+        {
+          .current_mode = 0
+        }
+      },
+      .n_crtcs = 1
+    },
+
+    .expect = {
+      .monitors = {
+        {
+          .outputs = { 0 },
+          .n_outputs = 1,
+          .modes = {
+            {
+              .width = 1024,
+              .height = 768,
+              .refresh_rate = 60.0,
+              .crtc_modes = {
+                {
+                  .output = 0,
+                  .crtc_mode = 0
+                }
+              }
+            }
+          },
+          .n_modes = 1,
+          .current_mode = 0,
+          .width_mm = 222,
+          .height_mm = 125,
+          .rgb_range = META_OUTPUT_RGB_RANGE_FULL,
+        }
+      },
+      .n_monitors = 1,
+      .logical_monitors = {
+        {
+          .monitors = { 0 },
+          .n_monitors = 1,
+          .layout = { .x = 0, .y = 0, .width = 1024, .height = 768 },
+          .scale = 1
+        }
+      },
+      .n_logical_monitors = 1,
+      .primary_logical_monitor = 0,
+      .n_outputs = 1,
+      .crtcs = {
+        {
+          .current_mode = 0,
+        }
+      },
+      .n_crtcs = 1,
+      .screen_width = 1024,
+      .screen_height = 768
+    }
+  };
+  MetaMonitorTestSetup *test_setup;
+
+  test_setup = meta_create_monitor_test_setup (test_backend,
+                                               &test_case.setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+  emulate_hotplug (test_setup);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      meta_check_monitor_configuration (test_context,
+                                                        &test_case.expect));
+  check_monitor_test_clients_state ();
+}
+
+static void
 meta_test_monitor_preferred_non_first_mode (void)
 {
   MonitorTestCase test_case = {
@@ -9626,6 +9720,8 @@ init_monitor_tests (void)
                     meta_test_monitor_underscanning_config);
   add_monitor_test ("/backends/monitor/max-bpc-config",
                     meta_test_monitor_max_bpc_config);
+  add_monitor_test ("/backends/monitor/rgb-range-config",
+                    meta_test_monitor_rgb_range_config);
   add_monitor_test ("/backends/monitor/preferred-non-first-mode",
                     meta_test_monitor_preferred_non_first_mode);
   add_monitor_test ("/backends/monitor/non-upright-panel",
