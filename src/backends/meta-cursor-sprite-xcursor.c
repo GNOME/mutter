@@ -72,9 +72,9 @@ translate_meta_cursor (MetaCursor cursor)
     case META_CURSOR_BUSY:
       return "wait";
     case META_CURSOR_DND_IN_DRAG:
-      return "no-drop";
+      return "default";
     case META_CURSOR_DND_MOVE:
-      return "grabbing";
+      return "default";
     case META_CURSOR_DND_COPY:
       return "copy";
     case META_CURSOR_DND_UNSUPPORTED_TARGET:
