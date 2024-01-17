@@ -63,7 +63,6 @@ if have_introspection
     export_packages: [libmutter_mtk_name],
     includes: [
       'GObject-2.0',
-      'cairo-1.0',
       'Graphene-1.0',
     ],
     extra_args: mtk_introspection_args + ['--c-include=mtk/mtk.h'],
