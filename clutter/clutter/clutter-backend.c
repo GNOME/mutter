@@ -84,13 +84,16 @@ clutter_backend_dispose (GObject *gobject)
     }
 
   g_clear_pointer (&backend->cogl_source, g_source_destroy);
+#ifdef HAVE_FONTS
   g_clear_pointer (&backend->font_name, g_free);
   g_clear_pointer (&backend->font_options, cairo_font_options_destroy);
+#endif
   g_clear_object (&backend->input_method);
 
   G_OBJECT_CLASS (clutter_backend_parent_class)->dispose (gobject);
 }
 
+#ifdef HAVE_FONTS
 static void
 clutter_backend_real_resolution_changed (ClutterBackend *backend)
 {
@@ -111,6 +114,7 @@ clutter_backend_real_resolution_changed (ClutterBackend *backend)
   if (context->font_map != NULL)
     cogl_pango_font_map_set_resolution (context->font_map, resolution);
 }
+#endif
 
 static gboolean
 clutter_backend_do_real_create_context (ClutterBackend  *backend,
@@ -325,7 +329,9 @@ clutter_backend_class_init (ClutterBackendClass *klass)
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 
+#ifdef HAVE_FONTS
   klass->resolution_changed = clutter_backend_real_resolution_changed;
+#endif
 
   klass->create_context = clutter_backend_real_create_context;
 }
@@ -398,6 +404,7 @@ clutter_get_default_backend (void)
   return clutter_context->backend;
 }
 
+#ifdef HAVE_FONTS
 /**
  * clutter_backend_get_resolution:
  * @backend: a #ClutterBackend
@@ -496,6 +503,7 @@ clutter_backend_get_font_options (ClutterBackend *backend)
 
   return backend->font_options;
 }
+#endif /* HAVE_FONTS */
 
 /**
  * clutter_backend_get_cogl_context:

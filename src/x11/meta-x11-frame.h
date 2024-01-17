@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <cairo.h>
+
 #include "core/window-private.h"
 
 #include "x11/meta-sync-counter.h"

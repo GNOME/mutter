@@ -92,7 +92,9 @@
 #include "clutter/clutter-stage-manager.h"
 #include "clutter/clutter-stage-view.h"
 #include "clutter/clutter-tap-action.h"
+#ifdef HAVE_FONTS
 #include "clutter/clutter-text.h"
+#endif
 #include "clutter/clutter-texture-content.h"
 #include "clutter/clutter-timeline.h"
 #include "clutter/clutter-transition-group.h"

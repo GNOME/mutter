@@ -45,9 +45,11 @@ struct _ClutterBackend
 
   CoglOnscreen *dummy_onscreen;
 
+#ifdef HAVE_FONTS
   cairo_font_options_t *font_options;
 
   gchar *font_name;
+#endif
 
   float fallback_resource_scale;
 

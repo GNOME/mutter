@@ -20,7 +20,9 @@
 
 #include "clutter/clutter-context-private.h"
 
+#ifdef HAVE_FONTS
 #include <hb-glib.h>
+#endif
 
 #include "cally/cally.h"
 #include "clutter/clutter-backend-private.h"
@@ -125,6 +127,7 @@ clutter_get_text_direction (void)
       else if (strcmp (direction, "ltr") == 0)
         dir = CLUTTER_TEXT_DIRECTION_LTR;
     }
+#ifdef HAVE_FONTS
   else
     {
       PangoLanguage *language;
@@ -150,6 +153,7 @@ clutter_get_text_direction (void)
             continue;
         }
     }
+#endif
 
   CLUTTER_NOTE (MISC, "Text direction: %s",
                 dir == CLUTTER_TEXT_DIRECTION_RTL ? "rtl" : "ltr");
@@ -286,6 +290,7 @@ clutter_context_get_backend (ClutterContext *context)
   return context->backend;
 }
 
+#ifdef HAVE_FONTS
 CoglPangoFontMap *
 clutter_context_get_pango_fontmap (ClutterContext *context)
 {
@@ -308,6 +313,7 @@ clutter_context_get_pango_fontmap (ClutterContext *context)
 
   return context->font_map;
 }
+#endif /* HAVE_FONTS */
 
 ClutterTextDirection
 clutter_context_get_text_direction (ClutterContext *context)

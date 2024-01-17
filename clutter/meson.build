@@ -29,20 +29,29 @@ clutter_c_args += clutter_debug_c_args
 
 clutter_pkg_deps = [
   atk_dep,
-  cairo_dep,
   glib_dep,
   gobject_dep,
   gio_dep,
-  pango_dep,
-  harfbuzz_dep,
 ]
+
+if have_fonts
+  clutter_pkg_deps += [
+    cairo_dep,
+    pango_dep,
+    harfbuzz_dep,
+  ]
+endif
 
 clutter_pkg_private_deps = [
   fribidi_dep,
   gthread_dep,
   gmodule_no_export_dep,
-  pangocairo_dep,
 ]
+if have_fonts 
+  clutter_pkg_private_deps += [
+    pangocairo_dep,
+  ]
+endif
 
 if have_pango_ft2
   clutter_pkg_private_deps += [
@@ -50,7 +59,7 @@ if have_pango_ft2
   ]
 endif
 
-if have_wayland
+if have_wayland and have_fonts
   clutter_pkg_private_deps += [
     wayland_egl_dep,
     wayland_server_dep,

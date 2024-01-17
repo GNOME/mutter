@@ -19,20 +19,25 @@ clutter_tests_interactive_test_sources = [
   'test-cogl-shader-glsl.c',
   'test-cogl-tex-tile.c',
   'test-cogl-offscreen.c',
-  'test-cogl-tex-polygon.c',
   'test-animation.c',
   'test-binding-pool.c',
-  'test-text.c',
-  'test-text-field.c',
-  'test-stage-sizing.c',
-  'test-swipe-action.c',
   'test-cogl-point-sprites.c',
   'test-devices.c',
-  'test-content.c',
   'test-keyframe-transition.c',
   'test-rotate-zoom.c',
-  'test-image.c',
 ]
+
+if have_fonts
+  clutter_tests_interactive_test_sources += [
+    'test-cogl-tex-polygon.c',
+    'test-content.c',
+    'test-image.c',
+    'test-stage-sizing.c',
+    'test-swipe-action.c',
+    'test-text.c',
+    'test-text-field.c',
+  ]
+endif
 
 gen_test_unit_names = find_program('meson/gen-test-unit-names.sh')
 clutter_interactive_test_unit_names_h = custom_target('gen-test-unit-names',

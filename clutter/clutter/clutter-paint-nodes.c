@@ -27,7 +27,9 @@
 
 #include "clutter/clutter-paint-node-private.h"
 
+#ifdef HAVE_FONTS
 #include <pango/pango.h>
+#endif
 
 #include "cogl/cogl.h"
 #include "clutter/clutter-actor-private.h"
@@ -689,7 +691,7 @@ clutter_texture_node_new (CoglTexture          *texture,
   return (ClutterPaintNode *) tnode;
 }
 
-
+#ifdef HAVE_FONTS
 /**
  * ClutterTextNode:
  */
@@ -852,6 +854,7 @@ clutter_text_node_new (PangoLayout        *layout,
 
   return (ClutterPaintNode *) res;
 }
+#endif
 
 /**
  * ClutterClipNode:

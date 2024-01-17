@@ -29,7 +29,9 @@
 #include <glib.h>
 #include <pango/pango.h>
 
+#ifdef HAVE_FONTS
 #include "cogl-pango/cogl-pango.h"
+#endif
 
 #include "clutter/clutter-backend.h"
 #include "clutter/clutter-context.h"
@@ -140,8 +142,10 @@ ClutterTextDirection clutter_unichar_direction (gunichar ch);
 ClutterTextDirection _clutter_find_base_dir (const gchar *text,
                                              gint         length);
 
+#ifdef HAVE_FONTS
 PangoDirection
 clutter_text_direction_to_pango_direction (ClutterTextDirection dir);
+#endif
 
 typedef enum _ClutterCullResult
 {

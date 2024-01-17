@@ -602,7 +602,9 @@ struct _ClutterActorPrivate
   /* a back-pointer to the Pango context that we can use
    * to create pre-configured PangoLayout
    */
+#ifdef HAVE_FONTS
   PangoContext *pango_context;
+#endif
 
   /* the text direction configured for this child - either by
    * application code, or by the actor's parent
@@ -5295,7 +5297,9 @@ clutter_actor_dispose (GObject *object)
   g_clear_signal_handler (&priv->resolution_changed_id, backend);
   g_clear_signal_handler (&priv->font_changed_id, backend);
 
+#ifdef HAVE_FONTS
   g_clear_object (&priv->pango_context);
+#endif
   g_clear_object (&priv->actions);
   g_clear_object (&priv->color_state);
   g_clear_object (&priv->constraints);
@@ -12827,6 +12831,7 @@ clutter_actor_grab_key_focus (ClutterActor *self)
     clutter_stage_set_key_focus (CLUTTER_STAGE (stage), self);
 }
 
+#ifdef HAVE_FONTS
 static void
 update_pango_context (ClutterBackend *backend,
                       PangoContext   *context)
@@ -12977,6 +12982,7 @@ clutter_actor_create_pango_layout (ClutterActor *self,
 
   return layout;
 }
+#endif /* HAVE_FONTS */
 
 /**
  * clutter_actor_set_opacity_override:

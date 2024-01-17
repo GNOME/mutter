@@ -297,10 +297,11 @@ check_key_visibility (ClutterStage *stage)
      we would lose any password char from the derived toolkit, it is
      still better fill this with a default unichar that the original
      one */
-
+#ifdef HAVE_FONTS
   if (CLUTTER_IS_TEXT (focus))
     return clutter_text_get_password_char (CLUTTER_TEXT (focus));
   else
+#endif
     return DEFAULT_PASSWORD_CHAR;
 }
 

@@ -23,6 +23,8 @@ docs_dir = pkgdatadir / 'doc'
 subdir('cally')
 subdir('clutter')
 subdir('cogl')
+if have_fonts
 subdir('cogl-pango')
+endif
 subdir('meta')
 subdir('mtk')

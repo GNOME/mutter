@@ -19,6 +19,12 @@ mutter_pkg_deps = [
   gsettings_desktop_schemas_dep,
 ]
 
+if have_fonts
+  mutter_pkg_deps += [
+    pango_dep,
+  ]
+endif
+
 mutter_pkg_private_deps = [
   colord_dep,
   lcms2_dep,
@@ -1263,6 +1269,22 @@ if have_introspection
     endif
   endforeach
 
+  libmutter_gir_includes = [
+    'GObject-2.0',
+    'GDesktopEnums-3.0',
+    'xlib-2.0',
+    'xfixes-4.0',
+    libmutter_cogl_gir[0],
+    libmutter_clutter_gir[0],
+    libmutter_mtk_gir[0],
+  ]
+
+  if have_fonts
+    libmutter_gir_includes += [
+      libmutter_cogl_pango_gir[0],
+    ]
+  endif
+
   libmutter_gir = gnome.generate_gir(libmutter,
     sources: [
       mutter_enum_types[1],
@@ -1272,16 +1294,7 @@ if have_introspection
     nsversion: libmutter_api_version,
     namespace: 'Meta',
     symbol_prefix: 'meta',
-    includes: [
-      'GObject-2.0',
-      'GDesktopEnums-3.0',
-      'xlib-2.0',
-      'xfixes-4.0',
-      libmutter_cogl_gir[0],
-      libmutter_cogl_pango_gir[0],
-      libmutter_clutter_gir[0],
-      libmutter_mtk_gir[0],
-    ],
+    includes: libmutter_gir_includes,
     dependencies: [
       libmutter_dep,
       mutter_deps,

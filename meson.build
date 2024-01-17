@@ -107,9 +107,7 @@ mutter_installed_tests_libexecdir = libexecdir / 'installed-tests' / libmutter_n
 m_dep = cc.find_library('m', required: true)
 graphene_dep = dependency('graphene-gobject-1.0', version: graphene_req)
 gdk_pixbuf_dep = dependency('gdk-pixbuf-2.0', version: gdk_pixbuf_req)
-pango_dep = dependency('pango', version: pango_req)
 cairo_dep = dependency('cairo', version: cairo_req)
-pangocairo_dep = dependency('pangocairo', version: pangocairo_req)
 pixman_dep = dependency('pixman-1', version: pixman_req)
 fribidi_dep = dependency('fribidi', version: fribidi_req)
 gsettings_desktop_schemas_dep = dependency('gsettings-desktop-schemas',
@@ -127,9 +125,16 @@ atk_dep = dependency('atk', version: atk_req)
 dbus_dep = dependency('dbus-1')
 colord_dep = dependency('colord', version: colord_req)
 lcms2_dep = dependency('lcms2', version: lcms2_req)
-harfbuzz_dep = dependency('harfbuzz', version: harfbuzz_req)
 libeis_dep = dependency('libeis-1.0', version: libei_req)
 libei_dep = dependency('libei-1.0', version: libei_req)
+
+have_fonts = false
+
+if have_fonts
+  harfbuzz_dep = dependency('harfbuzz', version: harfbuzz_req)
+  pango_dep = dependency('pango', version: pango_req)
+  pangocairo_dep = dependency('pangocairo', version: pangocairo_req)
+endif
 
 have_wayland = get_option('wayland')
 # For now always require X11 support
@@ -532,6 +537,7 @@ cdata.set('HAVE_GLX', have_glx)
 cdata.set('HAVE_EGL_PLATFORM_XLIB', have_egl_xlib)
 cdata.set('HAVE_GL', have_gl)
 cdata.set('HAVE_GLES2', have_gles2)
+cdata.set('HAVE_FONTS', have_fonts)
 cdata.set('HAVE_WAYLAND', have_wayland)
 cdata.set('HAVE_XWAYLAND', have_xwayland)
 cdata.set('HAVE_X11', have_x11)
@@ -720,6 +726,7 @@ summary('Remote desktop', have_remote_desktop, section: 'Options')
 summary('libgnome-desktop', have_gnome_desktop, section: 'Options')
 summary('libdisplay-info', have_libdisplay_info, section: 'Options')
 summary('Sound player', have_sound_player, section: 'Options')
+summary('Fonts', have_fonts, section: 'Options')
 summary('gudev', have_libgudev, section: 'Options')
 summary('Wacom', have_libwacom, section: 'Options')
 summary('SM', have_sm, section: 'Options')

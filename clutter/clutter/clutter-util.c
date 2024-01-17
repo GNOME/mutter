@@ -298,6 +298,7 @@ _clutter_find_base_dir (const gchar *text,
   return dir;
 }
 
+#ifdef HAVE_FONTS
 PangoDirection
 clutter_text_direction_to_pango_direction (ClutterTextDirection dir)
 {
@@ -312,3 +313,4 @@ clutter_text_direction_to_pango_direction (ClutterTextDirection dir)
       return PANGO_DIRECTION_NEUTRAL;
     }
 }
+#endif

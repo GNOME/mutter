@@ -29,7 +29,10 @@
 
 #include "clutter/clutter-actor.h"
 #include "clutter/clutter-stage.h"
+
+#ifdef HAVE_FONTS
 #include <pango/pango.h>
+#endif
 
 G_BEGIN_DECLS
 
@@ -131,8 +134,10 @@ guint                   clutter_threads_add_repaint_func_full   (ClutterRepaintF
 CLUTTER_EXPORT
 void                    clutter_threads_remove_repaint_func     (guint          handle_id);
 
+#ifdef HAVE_FONTS
 CLUTTER_EXPORT
 PangoFontMap *          clutter_get_font_map                    (void);
+#endif
 
 CLUTTER_EXPORT
 ClutterTextDirection    clutter_get_default_text_direction      (void);

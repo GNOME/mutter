@@ -72,6 +72,23 @@ if have_introspection
     endif
   endforeach
 
+  libmutter_test_gir_includes = [
+    'GObject-2.0',
+    'GDesktopEnums-3.0',
+    'xlib-2.0',
+    'xfixes-4.0',
+    libmutter_mtk_gir[0],
+    libmutter_cogl_gir[0],
+    libmutter_clutter_gir[0],
+    libmutter_gir[0],
+  ]
+
+  if have_fonts
+    libmutter_test_gir_includes += [
+      libmutter_cogl_pango_gir[0],
+    ]
+  endif
+
   libmutter_test_gir =  gnome.generate_gir(libmutter_test,
     sources: [
       mutter_test_introspected_sources,
@@ -81,17 +98,7 @@ if have_introspection
     namespace: 'MetaTest',
     symbol_prefix: 'meta',
     identifier_prefix: 'Meta',
-    includes: [
-      'GObject-2.0',
-      'GDesktopEnums-3.0',
-      'xlib-2.0',
-      'xfixes-4.0',
-      libmutter_mtk_gir[0],
-      libmutter_cogl_gir[0],
-      libmutter_cogl_pango_gir[0],
-      libmutter_clutter_gir[0],
-      libmutter_gir[0],
-    ],
+    includes: libmutter_test_gir_includes,
     dependencies: [
       libmutter_test_dep,
       libmutter_dep,

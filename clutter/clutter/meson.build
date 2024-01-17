@@ -71,8 +71,6 @@ clutter_headers = [
   'clutter-stage-manager.h',
   'clutter-stage-view.h',
   'clutter-tap-action.h',
-  'clutter-text.h',
-  'clutter-text-buffer.h',
   'clutter-texture-content.h',
   'clutter-timeline.h',
   'clutter-transition-group.h',
@@ -81,6 +79,13 @@ clutter_headers = [
   'clutter-virtual-input-device.h',
   'clutter-zoom-action.h',
 ]
+
+if have_fonts
+  clutter_headers += [
+    'clutter-text.h',
+    'clutter-text-buffer.h',
+  ]
+endif
 
 clutter_sources = [
   'clutter-action.c',
@@ -158,8 +163,6 @@ clutter_sources = [
   'clutter-stage-view.c',
   'clutter-stage-window.c',
   'clutter-tap-action.c',
-  'clutter-text.c',
-  'clutter-text-buffer.c',
   'clutter-texture-content.c',
   'clutter-transition-group.c',
   'clutter-transition.c',
@@ -168,6 +171,13 @@ clutter_sources = [
   'clutter-paint-volume.c',
   'clutter-zoom-action.c',
 ]
+
+if have_fonts
+  clutter_sources += [
+    'clutter-text.c',
+    'clutter-text-buffer.c',
+  ]
+endif
 
 clutter_private_headers = [
   'clutter-actor-meta-private.h',
@@ -218,9 +228,14 @@ cally_headers = [
     'cally/cally-main.h',
     'cally/cally-root.h',
     'cally/cally-stage.h',
-    'cally/cally-text.h',
     'cally/cally-util.h',
 ]
+
+if have_fonts
+  cally_headers += [
+    'cally/cally-text.h',
+  ]
+endif
 
 cally_sources = [
     'cally/cally-actor.c',
@@ -228,9 +243,14 @@ cally_sources = [
     'cally/cally-clone.c',
     'cally/cally-root.c',
     'cally/cally-stage.c',
-    'cally/cally-text.c',
     'cally/cally-util.c',
 ]
+
+if have_fonts
+  cally_sources += [
+    'cally/cally-text.c',
+  ]
+endif
 
 cally_private_headers = [
   'cally/cally-actor-private.h',
@@ -261,6 +281,16 @@ clutter_built_sources += clutter_marshal[0]
 clutter_built_headers += clutter_marshal[1]
 
 libmutter_clutter_name = 'mutter-clutter-' + libmutter_api_version
+libmutter_clutter_link_with = [
+  libmutter_cogl,
+]
+
+if have_fonts
+  libmutter_clutter_link_with += [
+    libmutter_cogl_pango,
+  ]
+endif
+
 libmutter_clutter = shared_library(libmutter_clutter_name,
   sources: [
     clutter_sources,
@@ -279,10 +309,7 @@ libmutter_clutter = shared_library(libmutter_clutter_name,
   include_directories: [clutter_includes, top_includepath],
   dependencies: [clutter_deps],
   gnu_symbol_visibility: 'hidden',
-  link_with: [
-    libmutter_cogl,
-    libmutter_cogl_pango,
-  ],
+  link_with: libmutter_clutter_link_with,
   install_rpath: pkglibdir,
   install_dir: pkglibdir,
   install: true,
@@ -300,6 +327,22 @@ if have_introspection
     '-DG_LOG_DOMAIN="Clutter"'
   ]
 
+  clutter_gir_includes = [
+    libmutter_mtk_gir[0],
+    libmutter_cogl_gir[0],
+    'GL-1.0',
+    'GObject-2.0',
+    'Gio-2.0',
+    'cairo-1.0',
+    'Atk-1.0',
+  ]
+
+  if have_fonts
+    clutter_gir_includes += [
+      libmutter_cogl_pango_gir[0],
+    ]
+  endif
+
   libmutter_clutter_gir = gnome.generate_gir(libmutter_clutter,
     sources: [
       clutter_built_sources,
@@ -310,19 +353,23 @@ if have_introspection
     nsversion: libmutter_api_version,
     namespace: 'Clutter',
     export_packages: [libmutter_clutter_name],
-    includes: [
-      libmutter_mtk_gir[0],
-      libmutter_cogl_gir[0],
-      libmutter_cogl_pango_gir[0],
-      'GL-1.0',
-      'GObject-2.0',
-      'cairo-1.0',
-      'Atk-1.0',
-    ],
+    includes: clutter_gir_includes,
     dependencies: [cogl_deps],
     extra_args: clutter_introspection_args + ['--c-include=clutter/clutter.h'],
     kwargs: introspection_common,
   )
+
+  cally_gir_includes = [
+    libmutter_mtk_gir[0],
+    libmutter_cogl_gir[0],
+    libmutter_clutter_gir[0],
+  ]
+
+  if have_fonts
+    cally_gir_includes += [
+      libmutter_cogl_pango_gir[0],
+    ]
+  endif
 
   libmutter_cally_gir = gnome.generate_gir(libmutter_clutter,
     sources: [
@@ -332,12 +379,7 @@ if have_introspection
     nsversion: libmutter_api_version,
     header: 'cally/cally.h',
     namespace: 'Cally',
-    includes: [
-      libmutter_mtk_gir[0],
-      libmutter_cogl_gir[0],
-      libmutter_cogl_pango_gir[0],
-      libmutter_clutter_gir[0],
-    ],
+    includes: cally_gir_includes,
     dependencies: [cogl_deps],
     extra_args: clutter_introspection_args,
     kwargs: introspection_common,

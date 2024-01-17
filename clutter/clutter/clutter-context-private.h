@@ -34,7 +34,9 @@ struct _ClutterContext
    * ordered from least recently added to most recently added */
   GList *event_filters;
 
+#ifdef HAVE_FONTS
   CoglPangoFontMap *font_map;
+#endif
 
   GSList *current_event;
 

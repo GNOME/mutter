@@ -22,9 +22,11 @@
 #include "cally/cally.h"
 
 #include "cally/cally-actor.h"
-#include "cally/cally-stage.h"
-#include "cally/cally-text.h"
 #include "cally/cally-clone.h"
+#include "cally/cally-stage.h"
+#ifdef HAVE_FONTS
+#include "cally/cally-text.h"
+#endif
 
 #include "cally/cally-factory.h"
 #include "cally/cally-util.h"
@@ -37,7 +39,9 @@
 /* factories initialization*/
 CALLY_ACCESSIBLE_FACTORY (CALLY_TYPE_ACTOR, cally_actor, cally_actor_new)
 CALLY_ACCESSIBLE_FACTORY (CALLY_TYPE_STAGE, cally_stage, cally_stage_new)
+#ifdef HAVE_FONTS
 CALLY_ACCESSIBLE_FACTORY (CALLY_TYPE_TEXT, cally_text, cally_text_new)
+#endif
 CALLY_ACCESSIBLE_FACTORY (CALLY_TYPE_CLONE, cally_clone, cally_clone_new)
 
 /**
@@ -54,7 +58,9 @@ cally_accessibility_init (void)
   /* setting the factories */
   CALLY_ACTOR_SET_FACTORY (CLUTTER_TYPE_ACTOR, cally_actor);
   CALLY_ACTOR_SET_FACTORY (CLUTTER_TYPE_STAGE, cally_stage);
+#ifdef HAVE_FONTS
   CALLY_ACTOR_SET_FACTORY (CLUTTER_TYPE_TEXT, cally_text);
+#endif
   CALLY_ACTOR_SET_FACTORY (CLUTTER_TYPE_CLONE, cally_clone);
 
   /* Initialize the CallyUtility class */
