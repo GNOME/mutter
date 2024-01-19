@@ -106,6 +106,7 @@ struct _MetaOutputAssignment
   gboolean is_underscanning;
   gboolean has_max_bpc;
   unsigned int max_bpc;
+  unsigned int rgb_range;
 };
 
 /*

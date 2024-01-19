@@ -269,6 +269,9 @@ meta_output_assign_crtc (MetaOutput                 *output,
   priv->is_presentation = output_assignment->is_presentation;
   priv->is_underscanning = output_assignment->is_underscanning;
 
+  if (output_assignment->rgb_range)
+    priv->rgb_range = output_assignment->rgb_range;
+
   priv->has_max_bpc = output_assignment->has_max_bpc;
   if (priv->has_max_bpc)
     priv->max_bpc = output_assignment->max_bpc;

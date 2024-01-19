@@ -285,7 +285,8 @@ assign_monitor_crtc (MetaMonitor         *monitor,
     .is_presentation = assign_output_as_presentation,
     .is_underscanning = data->monitor_config->enable_underscanning,
     .has_max_bpc = data->monitor_config->has_max_bpc,
-    .max_bpc = data->monitor_config->max_bpc
+    .max_bpc = data->monitor_config->max_bpc,
+    .rgb_range = data->monitor_config->rgb_range,
   };
 
   g_ptr_array_add (data->crtc_assignments, crtc_assignment);
@@ -690,7 +691,8 @@ create_monitor_config (MetaMonitor     *monitor,
   *monitor_config = (MetaMonitorConfig) {
     .monitor_spec = meta_monitor_spec_clone (monitor_spec),
     .mode_spec = g_memdup2 (mode_spec, sizeof (MetaMonitorModeSpec)),
-    .enable_underscanning = meta_monitor_is_underscanning (monitor)
+    .enable_underscanning = meta_monitor_is_underscanning (monitor),
+    .rgb_range = meta_monitor_get_rgb_range (monitor),
   };
 
   monitor_config->has_max_bpc =
