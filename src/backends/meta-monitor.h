@@ -121,6 +121,8 @@ gboolean meta_monitor_is_underscanning (MetaMonitor *monitor);
 gboolean meta_monitor_get_max_bpc (MetaMonitor  *monitor,
                                    unsigned int *max_bpc);
 
+MetaOutputRGBRange meta_monitor_get_rgb_range (MetaMonitor *monitor);
+
 gboolean meta_monitor_is_laptop_panel (MetaMonitor *monitor);
 
 gboolean meta_monitor_is_virtual (MetaMonitor *monitor);

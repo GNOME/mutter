@@ -381,6 +381,16 @@ meta_monitor_get_max_bpc (MetaMonitor  *monitor,
   return meta_output_get_max_bpc (output, max_bpc);
 }
 
+MetaOutputRGBRange
+meta_monitor_get_rgb_range (MetaMonitor *monitor)
+{
+  MetaOutput *output;
+
+  output = meta_monitor_get_main_output (monitor);
+
+  return meta_output_peek_rgb_range (output);
+}
+
 gboolean
 meta_monitor_is_laptop_panel (MetaMonitor *monitor)
 {
