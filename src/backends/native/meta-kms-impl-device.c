@@ -1629,11 +1629,22 @@ meta_kms_impl_device_schedule_process (MetaKmsImplDevice *impl_device,
   if (ensure_deadline_timer_armed (impl_device, crtc_frame, &error))
     return;
 
-  if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND))
-    g_warning ("Failed to determine deadline: %s", error->message);
-
   priv = meta_kms_impl_device_get_instance_private (impl_device);
-  priv->deadline_timer_state = META_DEADLINE_TIMER_STATE_DISABLED;
+
+  if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED))
+    {
+      meta_topic (META_DEBUG_KMS, "Could not determine deadline: %s",
+                  error->message);
+
+      priv->deadline_timer_state = META_DEADLINE_TIMER_STATE_INHIBITED;
+    }
+  else
+    {
+      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND))
+        g_warning ("Failed to determine deadline: %s", error->message);
+
+      priv->deadline_timer_state = META_DEADLINE_TIMER_STATE_DISABLED;
+    }
 
 needs_flush:
   meta_kms_device_set_needs_flush (meta_kms_crtc_get_device (crtc), crtc);
