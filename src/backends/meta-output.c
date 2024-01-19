@@ -646,8 +646,13 @@ meta_output_init (MetaOutput *output)
   MetaOutputPrivate *priv = meta_output_get_instance_private (output);
 
   priv->backlight = -1;
+  priv->is_primary = FALSE;
+  priv->is_presentation = FALSE;
+  priv->is_underscanning = FALSE;
   priv->color_space = META_OUTPUT_COLORSPACE_DEFAULT;
   priv->hdr_metadata.active = FALSE;
+  priv->has_max_bpc = FALSE;
+  priv->max_bpc = 0;
 }
 
 static void
