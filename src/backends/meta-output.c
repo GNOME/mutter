@@ -74,6 +74,7 @@ typedef struct _MetaOutputPrivate
 
   MetaOutputHdrMetadata hdr_metadata;
   MetaOutputColorspace color_space;
+  MetaOutputRGBRange rgb_range;
 } MetaOutputPrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaOutput, meta_output, G_TYPE_OBJECT)
@@ -640,6 +641,14 @@ meta_output_peek_hdr_metadata (MetaOutput *output)
   return &priv->hdr_metadata;
 }
 
+MetaOutputRGBRange
+meta_output_peek_rgb_range (MetaOutput *output)
+{
+  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
+
+  return priv->rgb_range;
+}
+
 static void
 meta_output_init (MetaOutput *output)
 {
@@ -653,6 +662,7 @@ meta_output_init (MetaOutput *output)
   priv->hdr_metadata.active = FALSE;
   priv->has_max_bpc = FALSE;
   priv->max_bpc = 0;
+  priv->rgb_range = META_OUTPUT_RGB_RANGE_AUTO;
 }
 
 static void
