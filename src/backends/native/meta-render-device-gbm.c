@@ -150,6 +150,8 @@ meta_render_device_gbm_allocate_dma_buf (MetaRenderDevice    *render_device,
                                          int                  width,
                                          int                  height,
                                          uint32_t             format,
+                                         uint64_t            *modifiers,
+                                         int                  n_modifiers,
                                          MetaDrmBufferFlags   flags,
                                          GError             **error)
 {
@@ -159,9 +161,21 @@ meta_render_device_gbm_allocate_dma_buf (MetaRenderDevice    *render_device,
   struct gbm_bo *gbm_bo;
   MetaDrmBufferGbm *buffer_gbm;
 
-  gbm_bo = gbm_bo_create (render_device_gbm->gbm_device,
-                          width, height, format,
-                          GBM_BO_USE_RENDERING | GBM_BO_USE_LINEAR);
+  if (n_modifiers == 0)
+    {
+      gbm_bo = gbm_bo_create (render_device_gbm->gbm_device,
+                              width, height, format,
+                              GBM_BO_USE_RENDERING);
+    }
+  else
+    {
+      g_warn_if_fail (!(flags & META_DRM_BUFFER_FLAG_DISABLE_MODIFIERS));
+      gbm_bo = gbm_bo_create_with_modifiers2 (render_device_gbm->gbm_device,
+                                              width, height, format,
+                                              modifiers, n_modifiers,
+                                              GBM_BO_USE_RENDERING);
+    }
+
   if (!gbm_bo)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,

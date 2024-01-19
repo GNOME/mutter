@@ -37,6 +37,8 @@ struct _MetaRenderDeviceClass
                                         int                  width,
                                         int                  height,
                                         uint32_t             format,
+                                        uint64_t            *modifiers,
+                                        int                  n_modifiers,
                                         MetaDrmBufferFlags   flags,
                                         GError             **error);
   MetaDrmBuffer * (* import_dma_buf) (MetaRenderDevice  *render_device,

@@ -345,6 +345,8 @@ meta_render_device_allocate_dma_buf (MetaRenderDevice    *render_device,
                                      int                  width,
                                      int                  height,
                                      uint32_t             format,
+                                     uint64_t            *modifiers,
+                                     int                  n_modifiers,
                                      MetaDrmBufferFlags   flags,
                                      GError             **error)
 {
@@ -353,7 +355,9 @@ meta_render_device_allocate_dma_buf (MetaRenderDevice    *render_device,
   if (klass->allocate_dma_buf)
     {
       return klass->allocate_dma_buf (render_device,
-                                      width, height, format,
+                                      width, height,
+                                      format,
+                                      modifiers, n_modifiers,
                                       flags,
                                       error);
     }

@@ -941,6 +941,7 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
   int dmabuf_fd;
   g_autoptr (GError) error = NULL;
   const MetaFormatInfo *format_info;
+  uint64_t modifier;
 
   COGL_TRACE_BEGIN_SCOPED (CopySharedFramebufferPrimaryGpu,
                            "copy_shared_framebuffer_primary_gpu()");
@@ -977,13 +978,14 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
       return NULL;
     }
 
+  modifier = DRM_FORMAT_MOD_LINEAR;
   dmabuf_fb =
     meta_renderer_native_create_dma_buf_framebuffer (renderer_native,
                                                      dmabuf_fd,
                                                      width,
                                                      height,
                                                      stride,
-                                                     0, DRM_FORMAT_MOD_LINEAR,
+                                                     0, &modifier,
                                                      drm_format,
                                                      &error);
 

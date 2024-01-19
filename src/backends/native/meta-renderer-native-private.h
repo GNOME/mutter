@@ -97,7 +97,7 @@ CoglFramebuffer * meta_renderer_native_create_dma_buf_framebuffer (MetaRendererN
                                                                    uint32_t             height,
                                                                    uint32_t             stride,
                                                                    uint32_t             offset,
-                                                                   uint64_t             modifier,
+                                                                   uint64_t            *modifier,
                                                                    uint32_t             drm_format,
                                                                    GError             **error);
 

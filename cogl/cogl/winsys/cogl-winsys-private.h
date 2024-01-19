@@ -91,6 +91,8 @@ typedef struct _CoglWinsysVtable
   CoglDmaBufHandle *
   (*renderer_create_dma_buf) (CoglRenderer     *renderer,
                               CoglPixelFormat   format,
+                              uint64_t         *modifiers,
+                              int               n_modifiers,
                               int               width,
                               int               height,
                               GError          **error);

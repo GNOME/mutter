@@ -347,6 +347,8 @@ cogl_renderer_foreach_output (CoglRenderer *renderer,
  * cogl_renderer_create_dma_buf: (skip)
  * @renderer: A #CoglRenderer
  * @format: A #CoglPixelFormat
+ * @modifiers: array of DRM format modifiers
+ * @n_modifiers: length of modifiers array
  * @width: width of the new
  * @height: height of the new
  * @error: (nullable): return location for a #GError
@@ -355,6 +357,9 @@ cogl_renderer_foreach_output (CoglRenderer *renderer,
  * format @format, and exports the new framebuffer's DMA buffer
  * handle.
  *
+ * Passing an empty modifier array (passing a 0 n_modifiers) means implicit
+ * modifiers will be used.
+ *
  * Returns: (nullable)(transfer full): a #CoglDmaBufHandle. The
  * return result must be released with cogl_dma_buf_handle_free()
  * after use.
@@ -362,6 +367,8 @@ cogl_renderer_foreach_output (CoglRenderer *renderer,
 COGL_EXPORT CoglDmaBufHandle *
 cogl_renderer_create_dma_buf (CoglRenderer     *renderer,
                               CoglPixelFormat   format,
+                              uint64_t         *modifiers,
+                              int               n_modifiers,
                               int               width,
                               int               height,
                               GError          **error);

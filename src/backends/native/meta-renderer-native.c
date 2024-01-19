@@ -633,7 +633,7 @@ meta_renderer_native_create_dma_buf_framebuffer (MetaRendererNative  *renderer_n
                                                  uint32_t             height,
                                                  uint32_t             stride,
                                                  uint32_t             offset,
-                                                 uint64_t             modifier,
+                                                 uint64_t            *modifier,
                                                  uint32_t             drm_format,
                                                  GError             **error)
 {
@@ -647,7 +647,6 @@ meta_renderer_native_create_dma_buf_framebuffer (MetaRendererNative  *renderer_n
   EGLImageKHR egl_image;
   uint32_t strides[1];
   uint32_t offsets[1];
-  uint64_t modifiers[1];
   CoglPixelFormat cogl_format;
   CoglEglImageFlags flags;
   CoglTexture *cogl_tex;
@@ -660,7 +659,6 @@ meta_renderer_native_create_dma_buf_framebuffer (MetaRendererNative  *renderer_n
 
   strides[0] = stride;
   offsets[0] = offset;
-  modifiers[0] = modifier;
   egl_image = meta_egl_create_dmabuf_image (egl,
                                             egl_display,
                                             width,
@@ -670,7 +668,7 @@ meta_renderer_native_create_dma_buf_framebuffer (MetaRendererNative  *renderer_n
                                             &dmabuf_fd,
                                             strides,
                                             offsets,
-                                            modifiers,
+                                            modifier,
                                             error);
   if (egl_image == EGL_NO_IMAGE_KHR)
     return NULL;
@@ -945,6 +943,8 @@ meta_renderer_native_queue_mode_set_update (MetaRendererNative *renderer_native,
 static CoglDmaBufHandle *
 meta_renderer_native_create_dma_buf (CoglRenderer     *cogl_renderer,
                                      CoglPixelFormat   format,
+                                     uint64_t         *modifiers,
+                                     int               n_modifiers,
                                      int               width,
                                      int               height,
                                      GError          **error)
@@ -964,7 +964,6 @@ meta_renderer_native_create_dma_buf (CoglRenderer     *cogl_renderer,
         uint32_t stride;
         uint32_t offset;
         uint32_t bpp;
-        uint64_t modifier;
         uint32_t drm_format;
         CoglFramebuffer *dmabuf_fb;
         CoglDmaBufHandle *dmabuf_handle;
@@ -985,6 +984,7 @@ meta_renderer_native_create_dma_buf (CoglRenderer     *cogl_renderer,
         buffer = meta_render_device_allocate_dma_buf (render_device,
                                                       width, height,
                                                       drm_format,
+                                                      modifiers, n_modifiers,
                                                       flags,
                                                       error);
         if (!buffer)
@@ -997,17 +997,32 @@ meta_renderer_native_create_dma_buf (CoglRenderer     *cogl_renderer,
         stride = meta_drm_buffer_get_stride (buffer);
         offset = meta_drm_buffer_get_offset (buffer, 0);
         bpp = meta_drm_buffer_get_bpp (buffer);
-        modifier = meta_drm_buffer_get_modifier (buffer);
+        if (n_modifiers)
+          {
+            uint64_t modifier = meta_drm_buffer_get_modifier (buffer);
 
-        dmabuf_fb =
-          meta_renderer_native_create_dma_buf_framebuffer (renderer_native,
-                                                           dmabuf_fd,
-                                                           width, height,
-                                                           stride,
-                                                           offset,
-                                                           modifier,
-                                                           drm_format,
-                                                           error);
+            dmabuf_fb =
+              meta_renderer_native_create_dma_buf_framebuffer (renderer_native,
+                                                               dmabuf_fd,
+                                                               width, height,
+                                                               stride,
+                                                               offset,
+                                                               &modifier,
+                                                               drm_format,
+                                                               error);
+          }
+        else
+          {
+            dmabuf_fb =
+              meta_renderer_native_create_dma_buf_framebuffer (renderer_native,
+                                                               dmabuf_fd,
+                                                               width, height,
+                                                               stride,
+                                                               offset,
+                                                               NULL,
+                                                               drm_format,
+                                                               error);
+          }
 
         if (!dmabuf_fb)
           {

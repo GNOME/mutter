@@ -758,6 +758,8 @@ cogl_renderer_foreach_output (CoglRenderer *renderer,
 CoglDmaBufHandle *
 cogl_renderer_create_dma_buf (CoglRenderer     *renderer,
                               CoglPixelFormat   format,
+                              uint64_t         *modifiers,
+                              int               n_modifiers,
                               int               width,
                               int               height,
                               GError          **error)
@@ -765,7 +767,9 @@ cogl_renderer_create_dma_buf (CoglRenderer     *renderer,
   const CoglWinsysVtable *winsys = _cogl_renderer_get_winsys (renderer);
 
   if (winsys->renderer_create_dma_buf)
-    return winsys->renderer_create_dma_buf (renderer, format,
+    return winsys->renderer_create_dma_buf (renderer,
+                                            format,
+                                            modifiers, n_modifiers,
                                             width, height,
                                             error);
 

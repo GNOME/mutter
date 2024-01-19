@@ -42,6 +42,8 @@ MetaDrmBuffer * meta_render_device_allocate_dma_buf (MetaRenderDevice    *render
                                                      int                  width,
                                                      int                  height,
                                                      uint32_t             format,
+                                                     uint64_t            *modifiers,
+                                                     int                  n_modifiers,
                                                      MetaDrmBufferFlags   flags,
                                                      GError             **error);
 
