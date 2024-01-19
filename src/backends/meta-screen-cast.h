@@ -49,15 +49,19 @@ G_DECLARE_FINAL_TYPE (MetaScreenCast, meta_screen_cast,
 
 MetaBackend * meta_screen_cast_get_backend (MetaScreenCast *screen_cast);
 
-void meta_screen_cast_disable_dma_bufs (MetaScreenCast *screen_cast);
+GArray * meta_screen_cast_query_modifiers (MetaScreenCast  *screen_cast,
+                                           CoglPixelFormat  format);
 
-bool meta_screen_cast_query_modifiers (MetaScreenCast   *screen_cast,
-                                       CoglPixelFormat   format,
-                                       uint64_t        **modifiers,
-                                       int              *n_modifiers);
+gboolean meta_screen_cast_get_preferred_modifier (MetaScreenCast  *screen_cast,
+                                                  CoglPixelFormat  format,
+                                                  GArray          *modifiers,
+                                                  int              width,
+                                                  int              height,
+                                                  uint64_t        *preferred_modifier);
 
 CoglDmaBufHandle * meta_screen_cast_create_dma_buf_handle (MetaScreenCast  *screen_cast,
                                                            CoglPixelFormat  format,
+                                                           uint64_t         modifier,
                                                            int              width,
                                                            int              height);
 

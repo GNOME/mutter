@@ -62,10 +62,6 @@
 #include "meta/main.h"
 #include "meta-dbus-rtkit1.h"
 
-#ifdef HAVE_REMOTE_DESKTOP
-#include "backends/meta-screen-cast.h"
-#endif
-
 #ifdef HAVE_EGL_DEVICE
 #include "backends/native/meta-render-device-egl-stream.h"
 #endif
@@ -162,42 +158,6 @@ meta_backend_native_create_default_seat (MetaBackend  *backend,
                                      NULL));
 }
 
-#ifdef HAVE_REMOTE_DESKTOP
-static void
-maybe_disable_screen_cast_dma_bufs (MetaBackendNative *native)
-{
-  MetaBackend *backend = META_BACKEND (native);
-  MetaRenderer *renderer = meta_backend_get_renderer (backend);
-  MetaScreenCast *screen_cast = meta_backend_get_screen_cast (backend);
-  ClutterBackend *clutter_backend =
-    meta_backend_get_clutter_backend (backend);
-  CoglContext *cogl_context =
-    clutter_backend_get_cogl_context (clutter_backend);
-  CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
-  g_autoptr (GError) error = NULL;
-  g_autoptr (CoglDmaBufHandle) dmabuf_handle = NULL;
-
-  if (!meta_renderer_is_hardware_accelerated (renderer))
-    {
-      g_message ("Disabling DMA buffer screen sharing "
-                 "(not hardware accelerated)");
-      meta_screen_cast_disable_dma_bufs (screen_cast);
-    }
-
-  dmabuf_handle = cogl_renderer_create_dma_buf (cogl_renderer,
-                                                COGL_PIXEL_FORMAT_BGRX_8888,
-                                                NULL, 0,
-                                                1, 1,
-                                                &error);
-  if (!dmabuf_handle)
-    {
-      g_message ("Disabling DMA buffer screen sharing "
-                 "(implicit modifiers not supported)");
-      meta_screen_cast_disable_dma_bufs (screen_cast);
-    }
-}
-#endif /* HAVE_REMOTE_DESKTOP */
-
 static void
 update_viewports (MetaBackend *backend)
 {
@@ -219,10 +179,6 @@ meta_backend_native_post_init (MetaBackend *backend)
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
 
   META_BACKEND_CLASS (meta_backend_native_parent_class)->post_init (backend);
-
-#ifdef HAVE_REMOTE_DESKTOP
-  maybe_disable_screen_cast_dma_bufs (backend_native);
-#endif
 
   g_clear_pointer (&backend_native->startup_render_devices,
                    g_hash_table_unref);

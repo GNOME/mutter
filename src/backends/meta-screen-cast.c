@@ -24,13 +24,19 @@
 
 #include <pipewire/pipewire.h>
 
-#ifdef HAVE_NATIVE_BACKEND
-#include <drm_fourcc.h>
-#endif
-
 #include "backends/meta-backend-private.h"
 #include "backends/meta-remote-desktop-session.h"
 #include "backends/meta-screen-cast-session.h"
+
+#ifdef HAVE_NATIVE_BACKEND
+#include "backends/native/meta-drm-buffer.h"
+#include "backends/native/meta-render-device.h"
+#include "backends/native/meta-renderer-native-private.h"
+
+#include "cogl/cogl-egl.h"
+
+#include "common/meta-cogl-drm-formats.h"
+#endif
 
 #define META_SCREEN_CAST_DBUS_SERVICE "org.gnome.Mutter.ScreenCast"
 #define META_SCREEN_CAST_DBUS_PATH "/org/gnome/Mutter/ScreenCast"
@@ -39,8 +45,6 @@
 struct _MetaScreenCast
 {
   MetaDbusSessionManager parent;
-
-  gboolean disable_dma_bufs;
 };
 
 G_DEFINE_TYPE (MetaScreenCast, meta_screen_cast,
@@ -54,68 +58,228 @@ meta_screen_cast_get_backend (MetaScreenCast *screen_cast)
   return meta_dbus_session_manager_get_backend (session_manager);
 }
 
-void
-meta_screen_cast_disable_dma_bufs (MetaScreenCast *screen_cast)
+gboolean
+meta_screen_cast_get_preferred_modifier (MetaScreenCast  *screen_cast,
+                                         CoglPixelFormat  format,
+                                         GArray          *modifiers,
+                                         int              width,
+                                         int              height,
+                                         uint64_t        *preferred_modifier)
 {
-  screen_cast->disable_dma_bufs = TRUE;
-}
-
-bool
-meta_screen_cast_query_modifiers (MetaScreenCast   *screen_cast,
-                                  CoglPixelFormat   format,
-                                  uint64_t        **modifiers,
-                                  int              *n_modifiers)
-{
-  MetaDbusSessionManager *session_manager =
-    META_DBUS_SESSION_MANAGER (screen_cast);
+#ifdef HAVE_NATIVE_BACKEND
   MetaBackend *backend =
-    meta_dbus_session_manager_get_backend (session_manager);
+    meta_screen_cast_get_backend (screen_cast);
   ClutterBackend *clutter_backend =
     meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
-  CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
+  CoglRenderer *cogl_renderer =
+    cogl_context_get_renderer (cogl_context);
+  CoglRendererEGL *cogl_renderer_egl =
+    cogl_renderer->winsys;
+  MetaRendererNativeGpuData *renderer_gpu_data =
+    cogl_renderer_egl->platform;
+  MetaRenderDevice *render_device =
+    renderer_gpu_data->render_device;
+  MetaRendererNative *renderer_native =
+    renderer_gpu_data->renderer_native;
+  int dmabuf_fd;
+  uint32_t stride;
+  uint32_t offset;
   g_autoptr (GError) error = NULL;
-  bool ret;
+  const MetaFormatInfo *format_info;
+  gboolean use_implicit_modifier;
 
-  if (screen_cast->disable_dma_bufs)
-    return FALSE;
+  g_assert (cogl_renderer_is_dma_buf_supported (cogl_renderer));
+
+  format_info = meta_format_info_from_cogl_format (format);
+  g_assert (format_info);
+
+  while (modifiers->len > 0)
+    {
+      g_autoptr (MetaDrmBuffer) dmabuf = NULL;
+      g_autoptr (CoglFramebuffer) fb = NULL;
+
+      if ((modifiers->len > 1) ||
+          (g_array_index (modifiers, uint64_t, 0) != DRM_FORMAT_MOD_INVALID))
+        use_implicit_modifier = FALSE;
+      else
+        use_implicit_modifier = TRUE;
+
+      dmabuf = meta_render_device_allocate_dma_buf (render_device,
+                                                    width, height,
+                                                    format_info->drm_format,
+                                                    (uint64_t *) modifiers->data,
+                                                    use_implicit_modifier ? 0 : modifiers->len,
+                                                    META_DRM_BUFFER_FLAG_NONE,
+                                                    &error);
+      if (!dmabuf)
+        break;
+
+      stride = meta_drm_buffer_get_stride (dmabuf);
+      offset = meta_drm_buffer_get_offset (dmabuf, 0);
+
+      dmabuf_fd = meta_drm_buffer_export_fd (dmabuf, &error);
+      if (dmabuf_fd == -1)
+        break;
+
+      if (use_implicit_modifier)
+        {
+          *preferred_modifier = DRM_FORMAT_MOD_INVALID;
+          fb = meta_renderer_native_create_dma_buf_framebuffer (renderer_native,
+                                                                dmabuf_fd,
+                                                                width, height,
+                                                                stride,
+                                                                offset,
+                                                                NULL,
+                                                                format_info->drm_format,
+                                                                &error);
+        }
+      else
+        {
+          *preferred_modifier = meta_drm_buffer_get_modifier (dmabuf);
+          fb = meta_renderer_native_create_dma_buf_framebuffer (renderer_native,
+                                                                dmabuf_fd,
+                                                                width, height,
+                                                                stride,
+                                                                offset,
+                                                                preferred_modifier,
+                                                                format_info->drm_format,
+                                                                &error);
+        }
+      close (dmabuf_fd);
+
+      if (!fb)
+        {
+          int i;
+
+          for (i = 0; i < modifiers->len; i++)
+            {
+              if (g_array_index (modifiers, uint64_t, i) == *preferred_modifier)
+                {
+                  g_array_remove_index (modifiers, i);
+                  break;
+                }
+            }
+        }
+      else
+        {
+          return TRUE;
+        }
+    }
+#endif
+
+  g_array_set_size (modifiers, 0);
+  return FALSE;
+}
+
+GArray *
+meta_screen_cast_query_modifiers (MetaScreenCast  *screen_cast,
+                                  CoglPixelFormat  format)
+{
+#ifdef HAVE_NATIVE_BACKEND
+  MetaBackend *backend =
+    meta_screen_cast_get_backend (screen_cast);
+  ClutterBackend *clutter_backend =
+    meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
+  CoglRenderer *cogl_renderer =
+    cogl_context_get_renderer (cogl_context);
+  EGLDisplay egl_display =
+    cogl_egl_context_get_egl_display (cogl_context);
+  MetaEgl *egl =
+    meta_backend_get_egl (backend);
+  EGLint num_modifiers;
+  g_autofree EGLuint64KHR *all_modifiers = NULL;
+  g_autofree EGLBoolean *external_only = NULL;
+  g_autoptr (GError) error = NULL;
+  g_autoptr (CoglDmaBufHandle) dmabuf_handle = NULL;
+  GArray *modifiers = NULL;
+  gboolean ret;
+  const MetaFormatInfo *format_info;
+  uint64_t modifier;
+  int i;
 
   if (!cogl_renderer_is_dma_buf_supported (cogl_renderer))
-    return FALSE;
+    return g_array_new (FALSE, FALSE, sizeof (uint64_t));
+
+  format_info = meta_format_info_from_cogl_format (format);
+  g_assert (format_info);
 
   // TODO: query cogl_renderer for modifiers
   // BEGIN stub
-#ifdef HAVE_NATIVE_BACKEND
-  uint64_t *modifier_list;
+  ret = meta_egl_query_dma_buf_modifiers (egl,
+                                          egl_display,
+                                          format_info->drm_format,
+                                          0,
+                                          NULL,
+                                          NULL,
+                                          &num_modifiers,
+                                          &error);
+  if (!ret || num_modifiers == 0)
+    {
+      if (error)
+        g_warning ("Failed to query DMA-BUF modifiers: %s", error->message);
+      goto add_implicit_modifier;
+    }
 
-  modifier_list = calloc (1, sizeof (uint64_t));
-  modifier_list[0] = DRM_FORMAT_MOD_INVALID;
+  all_modifiers = g_new (uint64_t, num_modifiers);
+  external_only = g_new (EGLBoolean, num_modifiers);
 
-  *modifiers = modifier_list;
-  *n_modifiers = 1;
-  ret = TRUE;
-#else
-  ret = FALSE;
-#endif
+  ret = meta_egl_query_dma_buf_modifiers (egl,
+                                          egl_display,
+                                          format_info->drm_format,
+                                          num_modifiers,
+                                          all_modifiers,
+                                          external_only,
+                                          &num_modifiers,
+                                          &error);
+  if (!ret)
+    {
+      g_warning ("Failed to query DMA-BUF modifiers: %s", error->message);
+      goto add_implicit_modifier;
+    }
+
+  modifiers = g_array_sized_new (FALSE, FALSE, sizeof (uint64_t),
+                                 num_modifiers + 1);
+
+  for (i = 0; i < num_modifiers; i++)
+    {
+      if (!external_only[i])
+        {
+          modifier = all_modifiers[i];
+          g_array_append_vals (modifiers, &modifier, 1);
+        }
+    }
   // END stub
 
-  if (!ret)
-    g_warning ("Failed to query supported modifiers: %s",
-               error->message);
-  return ret;
+add_implicit_modifier:
+  if (!modifiers)
+    {
+      g_warning ("Couldn't retrieve the supported modifiers");
+      modifiers = g_array_new (FALSE, FALSE, sizeof (uint64_t));
+    }
+
+  modifier = DRM_FORMAT_MOD_INVALID;
+  g_array_append_vals (modifiers, &modifier, 1);
+
+  return modifiers;
+#else
+  return g_array_new (FALSE, FALSE, sizeof (uint64_t));
+#endif
 }
 
 CoglDmaBufHandle *
 meta_screen_cast_create_dma_buf_handle (MetaScreenCast  *screen_cast,
                                         CoglPixelFormat  format,
+                                        uint64_t         modifier,
                                         int              width,
                                         int              height)
 {
-  MetaDbusSessionManager *session_manager =
-    META_DBUS_SESSION_MANAGER (screen_cast);
+#ifdef HAVE_NATIVE_BACKEND
   MetaBackend *backend =
-    meta_dbus_session_manager_get_backend (session_manager);
+    meta_screen_cast_get_backend (screen_cast);
   ClutterBackend *clutter_backend =
     meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context =
@@ -123,25 +287,20 @@ meta_screen_cast_create_dma_buf_handle (MetaScreenCast  *screen_cast,
   CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
   g_autoptr (GError) error = NULL;
   CoglDmaBufHandle *dmabuf_handle;
+  int n_modifiers;
 
-  if (screen_cast->disable_dma_bufs)
-    return NULL;
+  n_modifiers = (modifier == DRM_FORMAT_MOD_INVALID) ? 0
+                                                     : 1;
 
   dmabuf_handle = cogl_renderer_create_dma_buf (cogl_renderer,
                                                 format,
-                                                NULL, 0,
+                                                &modifier, n_modifiers,
                                                 width, height,
                                                 &error);
-  if (!dmabuf_handle)
-    {
-      g_warning ("Failed to allocate DMA buffer, "
-                 "disabling DMA buffer based screen casting: %s",
-                 error->message);
-      screen_cast->disable_dma_bufs = TRUE;
-      return NULL;
-    }
-
   return dmabuf_handle;
+#else
+  return NULL;
+#endif
 }
 
 static MetaRemoteDesktopSession *
