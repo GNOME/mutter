@@ -85,7 +85,7 @@ variables:
     - .skip-git-clone
   variables:
     FDO_DISTRIBUTION_VERSION: 39
-    BASE_TAG: '2024-01-10.0'
+    BASE_TAG: '2024-01-19.0'
     MUTTER_USER: 'meta-user'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
@@ -137,6 +137,10 @@ variables:
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas.git \
         master .
+
+      ./.gitlab-ci/install-meson-project.sh \
+        https://gitlab.freedesktop.org/wayland/wayland-protocols.git \
+        1.33 .
 
       rpm -e --nodeps gnome-bluetooth-libs-devel \
                       mutter mutter-devel \
