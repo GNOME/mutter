@@ -875,7 +875,15 @@ meta_wayland_text_input_update (MetaWaylandTextInput *text_input,
 
   if (event_type == CLUTTER_KEY_PRESS ||
       event_type == CLUTTER_KEY_RELEASE)
-    return clutter_input_focus_filter_event (text_input->input_focus, event);
+    {
+      gboolean filtered = FALSE;
+
+      filtered = clutter_input_focus_filter_event (text_input->input_focus, event);
+      if (!filtered)
+        meta_wayland_text_input_focus_flush_done (text_input->input_focus);
+
+      return filtered;
+    }
 
   return FALSE;
 }
@@ -892,11 +900,6 @@ meta_wayland_text_input_handle_event (MetaWaylandTextInput *text_input,
     return FALSE;
 
   event_type = clutter_event_type (event);
-
-  if ((event_type == CLUTTER_KEY_PRESS ||
-       event_type == CLUTTER_KEY_RELEASE) &&
-      clutter_event_get_flags (event) & CLUTTER_EVENT_FLAG_INPUT_METHOD)
-    meta_wayland_text_input_focus_flush_done (text_input->input_focus);
 
   retval = clutter_input_focus_process_event (text_input->input_focus, event);
 
