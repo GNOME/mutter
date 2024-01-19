@@ -551,6 +551,28 @@ set_max_bpc (MetaOutputKms *output_kms,
 }
 
 static void
+set_rgb_range (MetaOutputKms *output_kms,
+               MetaKmsUpdate *kms_update)
+{
+  MetaOutput *output = META_OUTPUT (output_kms);
+  MetaKmsConnector *kms_connector =
+    meta_output_kms_get_kms_connector (output_kms);
+  MetaOutputRGBRange rgb_range = meta_output_peek_rgb_range (output);
+
+  if (rgb_range == META_OUTPUT_RGB_RANGE_AUTO &&
+      !meta_kms_connector_is_broadcast_rgb_supported (kms_connector, rgb_range))
+    return;
+
+  if (!meta_kms_connector_is_broadcast_rgb_supported (kms_connector, rgb_range))
+    {
+      g_warning ("Ignoring unsupported RGB Range");
+      return;
+    }
+
+  meta_kms_update_set_broadcast_rgb (kms_update, kms_connector, rgb_range);
+}
+
+static void
 meta_onscreen_native_set_crtc_mode (CoglOnscreen              *onscreen,
                                     MetaKmsUpdate             *kms_update,
                                     MetaRendererNativeGpuData *renderer_gpu_data)
@@ -584,6 +606,7 @@ meta_onscreen_native_set_crtc_mode (CoglOnscreen              *onscreen,
   meta_crtc_kms_set_mode (crtc_kms, kms_update);
   set_underscan (META_OUTPUT_KMS (onscreen_native->output), kms_update);
   set_max_bpc (META_OUTPUT_KMS (onscreen_native->output), kms_update);
+  set_rgb_range (META_OUTPUT_KMS (onscreen_native->output), kms_update);
 }
 
 static void
