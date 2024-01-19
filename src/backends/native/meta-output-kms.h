@@ -30,12 +30,6 @@ G_DECLARE_FINAL_TYPE (MetaOutputKms, meta_output_kms,
                       META, OUTPUT_KMS,
                       MetaOutputNative)
 
-void meta_output_kms_set_underscan (MetaOutputKms *output_kms,
-                                    MetaKmsUpdate *kms_update);
-
-void meta_output_kms_set_max_bpc (MetaOutputKms *output_kms,
-                                  MetaKmsUpdate *kms_update);
-
 gboolean meta_output_kms_is_privacy_screen_invalid (MetaOutputKms *output_kms);
 
 gboolean meta_output_kms_can_clone (MetaOutputKms *output_kms,

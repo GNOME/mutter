@@ -39,6 +39,7 @@
 #include "backends/native/meta-drm-buffer-import.h"
 #include "backends/native/meta-drm-buffer.h"
 #include "backends/native/meta-frame-native.h"
+#include "backends/native/meta-kms-connector.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-utils.h"
 #include "backends/native/meta-kms.h"
@@ -475,6 +476,81 @@ meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
 }
 
 static void
+set_underscan (MetaOutputKms *output_kms,
+               MetaKmsUpdate *kms_update)
+{
+  MetaOutput *output = META_OUTPUT (output_kms);
+  const MetaOutputInfo *output_info = meta_output_get_info (output);
+  MetaKmsConnector *kms_connector =
+    meta_output_kms_get_kms_connector (output_kms);
+
+  if (!output_info->supports_underscanning)
+    return;
+
+  if (meta_output_is_underscanning (output))
+    {
+      MetaCrtc *crtc;
+      const MetaCrtcConfig *crtc_config;
+      const MetaCrtcModeInfo *crtc_mode_info;
+      uint64_t hborder, vborder;
+
+      crtc = meta_output_get_assigned_crtc (output);
+      crtc_config = meta_crtc_get_config (crtc);
+      crtc_mode_info = meta_crtc_mode_get_info (crtc_config->mode);
+
+      hborder = MIN (128, (uint64_t) round (crtc_mode_info->width * 0.05));
+      vborder = MIN (128, (uint64_t) round (crtc_mode_info->height * 0.05));
+
+      g_debug ("Setting underscan of connector %s to %" G_GUINT64_FORMAT " x %" G_GUINT64_FORMAT,
+               meta_kms_connector_get_name (kms_connector),
+               hborder, vborder);
+
+      meta_kms_update_set_underscanning (kms_update,
+                                         kms_connector,
+                                         hborder, vborder);
+    }
+  else
+    {
+      g_debug ("Unsetting underscan of connector %s",
+               meta_kms_connector_get_name (kms_connector));
+
+      meta_kms_update_unset_underscanning (kms_update,
+                                           kms_connector);
+    }
+}
+
+static void
+set_max_bpc (MetaOutputKms *output_kms,
+             MetaKmsUpdate *kms_update)
+{
+  MetaKmsConnector *kms_connector =
+    meta_output_kms_get_kms_connector (output_kms);
+  const MetaKmsRange *range;
+
+  range = meta_kms_connector_get_max_bpc (kms_connector);
+  if (range)
+    {
+      MetaOutput *output = META_OUTPUT (output_kms);
+      unsigned int max_bpc;
+
+      if (!meta_output_get_max_bpc (output, &max_bpc))
+        return;
+
+      if (max_bpc >= range->min_value && max_bpc <= range->max_value)
+        {
+          meta_kms_update_set_max_bpc (kms_update, kms_connector, max_bpc);
+        }
+      else
+        {
+          g_warning ("Ignoring out of range value %u for max bpc (%u-%u)",
+                     max_bpc,
+                     (unsigned) range->min_value,
+                     (unsigned) range->max_value);
+        }
+    }
+}
+
+static void
 meta_onscreen_native_set_crtc_mode (CoglOnscreen              *onscreen,
                                     MetaKmsUpdate             *kms_update,
                                     MetaRendererNativeGpuData *renderer_gpu_data)
@@ -506,10 +582,8 @@ meta_onscreen_native_set_crtc_mode (CoglOnscreen              *onscreen,
     }
 
   meta_crtc_kms_set_mode (crtc_kms, kms_update);
-  meta_output_kms_set_underscan (META_OUTPUT_KMS (onscreen_native->output),
-                                 kms_update);
-  meta_output_kms_set_max_bpc (META_OUTPUT_KMS (onscreen_native->output),
-                               kms_update);
+  set_underscan (META_OUTPUT_KMS (onscreen_native->output), kms_update);
+  set_max_bpc (META_OUTPUT_KMS (onscreen_native->output), kms_update);
 }
 
 static void
