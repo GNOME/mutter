@@ -1930,6 +1930,16 @@ meta_kms_impl_device_init_mode_setting (MetaKmsImplDevice  *impl_device,
 }
 
 void
+meta_kms_impl_device_resume (MetaKmsImplDevice *impl_device)
+{
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+
+  if (priv->deadline_timer_state == META_DEADLINE_TIMER_STATE_INHIBITED)
+    priv->deadline_timer_state = META_DEADLINE_TIMER_STATE_ENABLED;
+}
+
+void
 meta_kms_impl_device_prepare_shutdown (MetaKmsImplDevice *impl_device)
 {
   MetaKmsImplDevicePrivate *priv =
