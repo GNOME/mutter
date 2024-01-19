@@ -272,10 +272,23 @@ handle_hotplug_event (MetaKms                *kms,
     meta_kms_emit_resources_changed (kms, changes);
 }
 
+static gpointer
+resume_in_impl (MetaThreadImpl  *thread_impl,
+                gpointer         user_data,
+                GError         **error)
+{
+  MetaKmsImpl *impl = META_KMS_IMPL (thread_impl);
+
+  meta_kms_impl_resume (impl);
+  return GINT_TO_POINTER (TRUE);
+}
+
 void
 meta_kms_resume (MetaKms *kms)
 {
   handle_hotplug_event (kms, NULL, META_KMS_RESOURCE_CHANGE_FULL);
+
+  meta_kms_run_impl_task_sync (kms, resume_in_impl, NULL, NULL);
 }
 
 static void
