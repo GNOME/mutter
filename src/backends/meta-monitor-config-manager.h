@@ -33,6 +33,7 @@ typedef struct _MetaMonitorConfig
   gboolean enable_underscanning;
   gboolean has_max_bpc;
   unsigned int max_bpc;
+  MetaOutputRGBRange rgb_range;
 } MetaMonitorConfig;
 
 typedef struct _MetaLogicalMonitorConfig
