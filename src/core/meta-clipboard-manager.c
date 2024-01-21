@@ -146,12 +146,22 @@ owner_changed_cb (MetaSelection       *selection,
     }
   else if (!new_owner && display->saved_clipboard)
     {
+      g_autoptr (GError) error = NULL;
+      g_autoptr (MetaSelectionSource) new_source = NULL;
+
       /* Old owner is gone, time to take over */
-      new_owner = meta_selection_source_memory_new (display->saved_clipboard_mimetype,
-                                                    display->saved_clipboard);
-      g_set_object (&display->selection_source, new_owner);
-      meta_selection_set_owner (selection, selection_type, new_owner);
-      g_object_unref (new_owner);
+      new_source = meta_selection_source_memory_new (display->saved_clipboard_mimetype,
+                                                     display->saved_clipboard,
+                                                     &error);
+      if (!new_source)
+        {
+          g_warning ("MetaClipboardManager failed to create new MetaSelectionSourceMemory: %s",
+                     error->message);
+          return;
+        }
+
+      g_set_object (&display->selection_source, new_source);
+      meta_selection_set_owner (selection, selection_type, new_source);
     }
 }
 

@@ -21,16 +21,74 @@
 
 #include "meta/meta-selection-source-memory.h"
 
+#include <gio/gunixinputstream.h>
+
+#include "core/meta-anonymous-file.h"
+
 struct _MetaSelectionSourceMemory
 {
   MetaSelectionSource parent_instance;
   char *mimetype;
-  GBytes *content;
+  MetaAnonymousFile *content;
 };
 
 G_DEFINE_TYPE (MetaSelectionSourceMemory,
                meta_selection_source_memory,
                META_TYPE_SELECTION_SOURCE)
+
+struct _MetaUnixInputStream
+{
+  GUnixInputStream parent_instance;
+};
+
+#define META_TYPE_UNIX_INPUT_STREAM (meta_unix_input_stream_get_type ())
+G_DECLARE_FINAL_TYPE (MetaUnixInputStream,
+                      meta_unix_input_stream,
+                      META, UNIX_INPUT_STREAM,
+                      GUnixInputStream)
+
+G_DEFINE_FINAL_TYPE (MetaUnixInputStream,
+                     meta_unix_input_stream,
+                     G_TYPE_UNIX_INPUT_STREAM)
+
+static gboolean
+meta_unix_input_stream_close_fn (GInputStream  *input_stream,
+                                 GCancellable  *cancellable,
+                                 GError       **error)
+{
+  GUnixInputStream *stream = G_UNIX_INPUT_STREAM (input_stream);
+  int fd;
+
+  if (!g_unix_input_stream_get_close_fd (stream))
+    return TRUE;
+
+  fd = g_unix_input_stream_get_fd (stream);
+  meta_anonymous_file_close_fd (fd);
+
+  return TRUE;
+}
+
+static void
+meta_unix_input_stream_class_init (MetaUnixInputStreamClass *klass)
+{
+  GInputStreamClass *input_stream_class = G_INPUT_STREAM_CLASS (klass);
+
+  input_stream_class->close_fn = meta_unix_input_stream_close_fn;
+}
+
+static void
+meta_unix_input_stream_init (MetaUnixInputStream *stream)
+{
+}
+
+static GInputStream *
+meta_unix_input_stream_new (int fd)
+{
+  return G_INPUT_STREAM (g_object_new (META_TYPE_UNIX_INPUT_STREAM,
+                                       "fd", fd,
+                                       "close-fd", true,
+                                       NULL));
+}
 
 static void
 meta_selection_source_memory_read_async (MetaSelectionSource *source,
@@ -42,6 +100,7 @@ meta_selection_source_memory_read_async (MetaSelectionSource *source,
   MetaSelectionSourceMemory *source_mem = META_SELECTION_SOURCE_MEMORY (source);
   GInputStream *stream;
   g_autoptr (GTask) task = NULL;
+  int fd;
 
   if (g_strcmp0 (mimetype, source_mem->mimetype) != 0)
     {
@@ -55,7 +114,20 @@ meta_selection_source_memory_read_async (MetaSelectionSource *source,
   task = g_task_new (source, cancellable, callback, user_data);
   g_task_set_source_tag (task, meta_selection_source_memory_read_async);
 
-  stream = g_memory_input_stream_new_from_bytes (source_mem->content);
+  fd = meta_anonymous_file_open_fd (source_mem->content,
+                                    META_ANONYMOUS_FILE_MAPMODE_SHARED);
+
+  if (fd == -1)
+    {
+      g_task_report_new_error (source, callback, user_data,
+                               meta_selection_source_memory_read_async,
+                               G_IO_ERROR, G_IO_ERROR_FAILED,
+                               "Failed to open MetaAnonymousFile");
+      return;
+    }
+
+  stream = meta_unix_input_stream_new (fd);
+
   g_task_return_pointer (task, stream, g_object_unref);
 }
 
@@ -85,7 +157,7 @@ meta_selection_source_memory_finalize (GObject *object)
 {
   MetaSelectionSourceMemory *source_mem = META_SELECTION_SOURCE_MEMORY (object);
 
-  g_clear_pointer (&source_mem->content, g_bytes_unref);
+  g_clear_pointer (&source_mem->content, meta_anonymous_file_free);
   g_free (source_mem->mimetype);
 
   G_OBJECT_CLASS (meta_selection_source_memory_parent_class)->finalize (object);
@@ -111,16 +183,30 @@ meta_selection_source_memory_init (MetaSelectionSourceMemory *source)
 
 MetaSelectionSource *
 meta_selection_source_memory_new (const char  *mimetype,
-                                  GBytes      *content)
+                                  GBytes      *content,
+                                  GError     **error)
 {
   MetaSelectionSourceMemory *source;
+  MetaAnonymousFile *anon_file;
+  const uint8_t *data;
+  size_t size;
 
   g_return_val_if_fail (mimetype != NULL, NULL);
   g_return_val_if_fail (content != NULL, NULL);
 
+  data = g_bytes_get_data (content, &size);
+  anon_file = meta_anonymous_file_new (size, data);
+
+  if (anon_file == NULL)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Failed to create MetaAnonymousFile");
+      return NULL;
+    }
+
   source = g_object_new (META_TYPE_SELECTION_SOURCE_MEMORY, NULL);
   source->mimetype = g_strdup (mimetype);
-  source->content = g_bytes_ref (content);
+  source->content = anon_file;
 
   return META_SELECTION_SOURCE (source);
 }

@@ -30,5 +30,6 @@ G_DECLARE_FINAL_TYPE (MetaSelectionSourceMemory,
                       MetaSelectionSource)
 
 META_EXPORT
-MetaSelectionSource * meta_selection_source_memory_new (const char *mimetype,
-                                                        GBytes     *content);
+MetaSelectionSource * meta_selection_source_memory_new (const char  *mimetype,
+                                                        GBytes      *content,
+                                                        GError     **error);
