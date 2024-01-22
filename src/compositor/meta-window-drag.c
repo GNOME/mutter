@@ -26,7 +26,10 @@
 #include "core/frame.h"
 #include "core/window-private.h"
 #include "meta/meta-enum-types.h"
+
+#ifdef HAVE_X11_CLIENT
 #include "x11/window-x11.h"
+#endif
 
 enum {
   PROP_0,
@@ -1495,9 +1498,11 @@ update_resize (MetaWindowDrag          *window_drag,
    * resize the window when the window responds, or when we time
    * the response out.
    */
+#ifdef HAVE_X11_CLIENT
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
       meta_window_x11_is_awaiting_sync_response (window))
     return;
+#endif
 
   meta_window_get_frame_rect (window, &old_rect);
 
