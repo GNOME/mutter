@@ -1089,8 +1089,6 @@ meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native)
           crtc_kms = META_CRTC_KMS (crtc);
 
           kms_plane = meta_crtc_kms_get_assigned_cursor_plane (crtc_kms);
-          if (!kms_plane)
-            continue;
           kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
 
           clutter_stage_view_get_layout (stage_view, &view_layout);
