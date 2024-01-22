@@ -64,7 +64,6 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
-#include <X11/Xatom.h>
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"
@@ -85,13 +84,13 @@
 #include "meta/meta-enum-types.h"
 #include "meta/prefs.h"
 #include "mtk/mtk-x11.h"
-#include "x11/meta-x11-display-private.h"
-#include "x11/window-props.h"
-#include "x11/window-x11.h"
-#include "x11/xprops.h"
 
 #ifdef HAVE_X11_CLIENT
+#include "x11/meta-x11-display-private.h"
+#include "x11/window-props.h"
 #include "x11/window-x11-private.h"
+#include "x11/window-x11.h"
+#include "x11/xprops.h"
 #endif
 
 #ifdef HAVE_WAYLAND
@@ -932,9 +931,11 @@ meta_window_update_desc (MetaWindow *window)
 {
   g_clear_pointer (&window->desc, g_free);
 
+#ifdef HAVE_X11_CLIENT
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
     window->desc = g_strdup_printf ("0x%lx", meta_window_x11_get_xwindow (window));
   else
+#endif
     {
       guint64 small_stamp = window->stamp - G_GUINT64_CONSTANT (0x100000000);
 
@@ -1016,7 +1017,9 @@ meta_window_constructed (GObject *object)
   meta_stack_freeze (display->stack);
 
   /* initialize the remaining size_hints as if size_hints.flags were zero */
+#ifdef HAVE_X11_CLIENT
   meta_set_normal_hints (window, NULL);
+#endif
 
   /* And this is our unmaximized size */
   window->saved_rect = window->rect;
@@ -1556,22 +1559,28 @@ meta_window_unmanage (MetaWindow  *window,
 static void
 set_wm_state (MetaWindow *window)
 {
+#ifdef HAVE_X11_CLIENT
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
     meta_window_x11_set_wm_state (window);
+#endif
 }
 
 static void
 set_net_wm_state (MetaWindow *window)
 {
+#ifdef HAVE_X11_CLIENT
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
     meta_window_x11_set_net_wm_state (window);
+#endif
 }
 
 static void
 set_allowed_actions_hint (MetaWindow *window)
 {
+#ifdef HAVE_X11_CLIENT
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
     meta_window_x11_set_allowed_actions_hint (window);
+#endif
 }
 
 /**
