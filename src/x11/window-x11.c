@@ -557,7 +557,7 @@ meta_window_x11_manage (MetaWindow *window)
                                       window);
 
   /* assign the window to its group, or create a new group if needed */
-  window->group = NULL;
+  priv->group = NULL;
   priv->xgroup_leader = None;
   meta_window_compute_group (window);
 

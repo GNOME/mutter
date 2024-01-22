@@ -1453,9 +1453,13 @@ meta_window_unmanage (MetaWindow  *window,
        */
 
       meta_stack_freeze (window->display->stack);
-      group = meta_window_get_group (window);
-      if (group)
-        meta_group_update_layers (group);
+      if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
+        {
+          group = meta_window_get_group (window);
+          if (group)
+            meta_group_update_layers (group);
+        }
+
       meta_stack_thaw (window->display->stack);
     }
 
@@ -1463,7 +1467,8 @@ meta_window_unmanage (MetaWindow  *window,
 
   /* safe to do this early as group.c won't re-add to the
    * group if window->unmanaging */
-  meta_window_shutdown_group (window);
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
+    meta_window_shutdown_group (window);
 
   /* If we have the focus, focus some other window.
    * This is done first, so that if the unmap causes
@@ -4458,7 +4463,7 @@ meta_window_get_titlebar_rect (MetaWindow   *window,
 const char*
 meta_window_get_startup_id (MetaWindow *window)
 {
-  if (window->startup_id == NULL)
+  if (window->startup_id == NULL && window->client_type == META_WINDOW_CLIENT_TYPE_X11)
     {
       MetaGroup *group;
 
@@ -6114,10 +6119,13 @@ meta_window_get_default_layer (MetaWindow *window)
 void
 meta_window_update_layer (MetaWindow *window)
 {
-  MetaGroup *group;
+  MetaGroup *group = NULL;
 
   meta_stack_freeze (window->display->stack);
-  group = meta_window_get_group (window);
+
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
+    group = meta_window_get_group (window);
+
   if (group)
     meta_group_update_layers (group);
   else

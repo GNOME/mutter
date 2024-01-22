@@ -135,10 +135,16 @@ meta_group_unref (MetaGroup *group)
 MetaGroup*
 meta_window_get_group (MetaWindow *window)
 {
+  MetaWindowX11 *window_x11;
+  MetaWindowX11Private *priv;
+
   if (window->unmanaging)
     return NULL;
 
-  return window->group;
+  window_x11 = META_WINDOW_X11 (window);
+  priv = meta_window_x11_get_private (window_x11);
+
+  return priv->group;
 }
 
 void
@@ -148,6 +154,8 @@ meta_window_compute_group (MetaWindow *window)
   MetaWindow *ancestor;
   MetaX11Display *x11_display = window->display->x11_display;
   Window win_leader = meta_window_x11_get_xgroup_leader (window);
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_private (META_WINDOW_X11 (window));
 
   /* use window->xwindow if no window->xgroup_leader */
 
@@ -159,7 +167,7 @@ meta_window_compute_group (MetaWindow *window)
   if (x11_display->groups_by_leader)
     {
       if (ancestor != window)
-        group = ancestor->group;
+        group = meta_window_get_group (ancestor);
       else if (win_leader != None)
         group = g_hash_table_lookup (x11_display->groups_by_leader,
                                      &win_leader);
@@ -173,7 +181,7 @@ meta_window_compute_group (MetaWindow *window)
 
   if (group != NULL)
     {
-      window->group = group;
+      priv->group = group;
       group->refcount += 1;
     }
   else
@@ -190,13 +198,13 @@ meta_window_compute_group (MetaWindow *window)
         group = meta_group_new (x11_display,
                                 meta_window_x11_get_xwindow (window));
 
-      window->group = group;
+      priv->group = group;
     }
 
-  if (!window->group)
+  if (!priv->group)
     return;
 
-  window->group->windows = g_slist_prepend (window->group->windows, window);
+  priv->group->windows = g_slist_prepend (priv->group->windows, window);
 
   meta_topic (META_DEBUG_GROUPS,
               "Adding %s to group with leader 0x%lx",
@@ -206,17 +214,20 @@ meta_window_compute_group (MetaWindow *window)
 static void
 remove_window_from_group (MetaWindow *window)
 {
-  if (window->group != NULL)
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_private (META_WINDOW_X11 (window));
+
+  if (priv->group != NULL)
     {
       meta_topic (META_DEBUG_GROUPS,
                   "Removing %s from group with leader 0x%lx",
-                  window->desc, window->group->group_leader);
+                  window->desc, priv->group->group_leader);
 
-      window->group->windows =
-        g_slist_remove (window->group->windows,
+      priv->group->windows =
+        g_slist_remove (priv->group->windows,
                         window);
-      meta_group_unref (window->group);
-      window->group = NULL;
+      meta_group_unref (priv->group);
+      priv->group = NULL;
     }
 }
 

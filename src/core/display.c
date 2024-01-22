@@ -1988,14 +1988,20 @@ in_tab_chain (MetaWindow  *window,
   gboolean in_dock_tab_chain;
   gboolean in_group_tab_chain;
   MetaGroup *focus_group = NULL;
+  MetaGroup *window_group = NULL;
 
   in_normal_tab_chain_type = window->type != META_WINDOW_DOCK && window->type != META_WINDOW_DESKTOP;
   in_normal_tab_chain = meta_window_is_focusable (window) && in_normal_tab_chain_type && !window->skip_taskbar;
   in_dock_tab_chain = meta_window_is_focusable (window) && (!in_normal_tab_chain_type || window->skip_taskbar);
 
-  if (window->display->focus_window)
-    focus_group = window->display->focus_window->group;
-  in_group_tab_chain = meta_window_is_focusable (window) && (!focus_group || meta_window_get_group (window) == focus_group);
+  if (window->display->focus_window &&
+      window->display->focus_window->client_type == META_WINDOW_CLIENT_TYPE_X11)
+    focus_group = meta_window_get_group (window->display->focus_window);
+
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
+    window_group = meta_window_get_group (window);
+
+  in_group_tab_chain = meta_window_is_focusable (window) && (!focus_group || window_group == focus_group);
 
   return (type == META_TAB_LIST_NORMAL && in_normal_tab_chain)
          || (type == META_TAB_LIST_DOCKS && in_dock_tab_chain)

@@ -87,6 +87,9 @@ struct _MetaWindowX11Private
   /* Bypass compositor hints */
   MetaBypassCompositorHint bypass_compositor;
 
+  /* maintained by group.c */
+  MetaGroup *group;
+
   MetaSyncCounter sync_counter;
 };
 

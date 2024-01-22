@@ -321,9 +321,6 @@ struct _MetaWindow
   /* Managed by delete.c */
   MetaCloseDialog *close_dialog;
 
-  /* maintained by group.c */
-  MetaGroup *group;
-
   GObject *compositor_private;
 
   /* Focused window that is (directly or indirectly) attached to this one */
