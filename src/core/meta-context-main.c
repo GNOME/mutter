@@ -423,6 +423,7 @@ meta_context_main_setup (MetaContext  *context,
   return TRUE;
 }
 
+#ifdef HAVE_X11
 static MetaBackend *
 create_x11_cm_backend (MetaContext  *context,
                        GError      **error)
@@ -440,8 +441,9 @@ create_x11_cm_backend (MetaContext  *context,
                          "display-name", context_main->options.x11.display_name,
                          NULL);
 }
+#endif
 
-#ifdef HAVE_WAYLAND
+#if defined (HAVE_X11) && defined (HAVE_WAYLAND)
 static MetaBackend *
 create_nested_backend (MetaContext  *context,
                        GError      **error)
@@ -451,7 +453,9 @@ create_nested_backend (MetaContext  *context,
                          "context", context,
                          NULL);
 }
+#endif
 
+#ifdef HAVE_WAYLAND
 #ifdef HAVE_NATIVE_BACKEND
 static MetaBackend *
 create_headless_backend (MetaContext  *context,
@@ -488,16 +492,19 @@ meta_context_main_create_backend (MetaContext  *context,
   compositor_type = meta_context_get_compositor_type (context);
   switch (compositor_type)
     {
-#ifdef HAVE_X11
     case META_COMPOSITOR_TYPE_X11:
+#ifdef HAVE_X11
       return create_x11_cm_backend (context, error);
 #endif
     case META_COMPOSITOR_TYPE_WAYLAND:
 #ifdef HAVE_WAYLAND
+#ifdef HAVE_X11
       if (context_main->options.nested)
         return create_nested_backend (context, error);
+      else
+#endif
 #ifdef HAVE_NATIVE_BACKEND
-      else if (context_main->options.headless)
+      if (context_main->options.headless)
         return create_headless_backend (context, error);
       else
         return create_native_backend (context, error);
@@ -510,6 +517,7 @@ meta_context_main_create_backend (MetaContext  *context,
   g_assert_not_reached ();
 }
 
+#ifdef HAVE_X11
 static void
 meta_context_main_notify_ready (MetaContext *context)
 {
@@ -525,7 +533,6 @@ meta_context_main_notify_ready (MetaContext *context)
   g_clear_pointer (&context_main->options.sm.save_file, g_free);
 }
 
-#ifdef HAVE_X11
 static gboolean
 meta_context_main_is_x11_sync (MetaContext *context)
 {
@@ -745,8 +752,8 @@ meta_context_main_class_init (MetaContextMainClass *klass)
   context_class->is_replacing = meta_context_main_is_replacing;
   context_class->setup = meta_context_main_setup;
   context_class->create_backend = meta_context_main_create_backend;
-  context_class->notify_ready = meta_context_main_notify_ready;
 #ifdef HAVE_X11
+  context_class->notify_ready = meta_context_main_notify_ready;
   context_class->is_x11_sync = meta_context_main_is_x11_sync;
 #endif
 }
