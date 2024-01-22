@@ -43,9 +43,12 @@
 #include "core/display-private.h"
 #include "core/frame.h"
 #include "meta/util.h"
+
+#ifdef HAVE_X11_CLIENT
 #include "mtk/mtk-x11.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/window-x11.h"
+#endif
 
 /* The complexity here comes from resolving two competing factors:
  *
@@ -496,6 +499,7 @@ copy_stack (GArray *stack)
   return copy;
 }
 
+#ifdef HAVE_X11_CLIENT
 static void
 query_xserver_stack (MetaDisplay      *display,
                      MetaStackTracker *tracker)
@@ -557,12 +561,12 @@ drop_x11_windows (MetaDisplay      *display,
       l = next;
     }
 }
+#endif /* HAVE_X11_CLIENT */
 
 static void
 on_stack_changed (MetaStack        *stack,
                   MetaStackTracker *tracker)
 {
-  MetaDisplay *display = tracker->display;
   GArray *all_root_children_stacked;
   GList *l;
   GArray *hidden_stack_ids;
@@ -590,6 +594,7 @@ on_stack_changed (MetaStack        *stack,
       meta_topic (META_DEBUG_STACK, "  %u:%d - %s ",
 		  w->layer, w->stack_position, w->desc);
 
+#ifdef HAVE_X11_CLIENT
       if (w->client_type == META_WINDOW_CLIENT_TYPE_X11)
         {
           if (w->frame)
@@ -598,6 +603,7 @@ on_stack_changed (MetaStack        *stack,
 	          stack_id = meta_window_x11_get_xwindow (w);
         }
       else
+#endif
         stack_id = w->stamp;
 
       /* We don't restack hidden windows along with the rest, though they are
@@ -612,15 +618,17 @@ on_stack_changed (MetaStack        *stack,
       g_array_append_val (all_root_children_stacked, stack_id);
     }
 
-  if (display->x11_display)
+#ifdef HAVE_X11_CLIENT
+  if (tracker->display->x11_display)
     {
       uint64_t guard_window_id;
 
       /* The screen guard window sits above all hidden windows and acts as
        * a barrier to input reaching these windows. */
-      guard_window_id = display->x11_display->guard_window;
+      guard_window_id = tracker->display->x11_display->guard_window;
       g_array_append_val (hidden_stack_ids, guard_window_id);
     }
+#endif
 
   /* Sync to server */
 
@@ -651,6 +659,7 @@ meta_stack_tracker_new (MetaStack *stack)
   tracker->verified_stack = g_array_new (FALSE, FALSE, sizeof (guint64));
   tracker->unverified_predictions = g_queue_new ();
 
+#ifdef HAVE_X11_CLIENT
   g_signal_connect (tracker->display,
                     "x11-display-setup",
                     G_CALLBACK (query_xserver_stack),
@@ -659,6 +668,7 @@ meta_stack_tracker_new (MetaStack *stack)
                     "x11-display-closing",
                     G_CALLBACK (drop_x11_windows),
                     tracker);
+#endif
   g_signal_connect (tracker->stack, "changed",
                     G_CALLBACK (on_stack_changed),
                     tracker);
@@ -688,12 +698,14 @@ meta_stack_tracker_free (MetaStackTracker *tracker)
   g_queue_free (tracker->unverified_predictions);
   tracker->unverified_predictions = NULL;
 
+#ifdef HAVE_X11_CLIENT
   g_signal_handlers_disconnect_by_func (tracker->display,
                                         (gpointer)query_xserver_stack,
                                         tracker);
   g_signal_handlers_disconnect_by_func (tracker->display,
                                         drop_x11_windows,
                                         tracker);
+#endif
   g_signal_handlers_disconnect_by_func (tracker->stack,
                                         on_stack_changed,
                                         tracker);
@@ -795,6 +807,7 @@ meta_stack_tracker_record_lower_below (MetaStackTracker *tracker,
   stack_tracker_apply_prediction (tracker, op);
 }
 
+#ifdef HAVE_X11_CLIENT
 static void
 stack_tracker_event_received (MetaStackTracker *tracker,
 			      MetaStackOp      *op)
@@ -935,17 +948,22 @@ meta_stack_tracker_configure_event (MetaStackTracker    *tracker,
 
   stack_tracker_event_received (tracker, &op);
 }
+#endif /* HAVE_X11_CLIENT */
 
 static gboolean
 meta_stack_tracker_is_guard_window (MetaStackTracker *tracker,
                                     uint64_t          stack_id)
 {
+#ifdef HAVE_X11_CLIENT
   MetaX11Display *x11_display = tracker->display->x11_display;
 
   if (!x11_display)
     return FALSE;
 
   return stack_id == x11_display->guard_window;
+#else
+  return FALSE;
+#endif
 }
 
 /**
@@ -1032,6 +1050,7 @@ meta_stack_tracker_sync_stack (MetaStackTracker *tracker)
     {
       guint64 window = windows[i];
 
+#ifdef HAVE_X11_CLIENT
       if (META_STACK_ID_IS_X11 (window))
         {
           MetaX11Display *x11_display = tracker->display->x11_display;
@@ -1052,6 +1071,7 @@ meta_stack_tracker_sync_stack (MetaStackTracker *tracker)
             meta_windows = g_list_prepend (meta_windows, meta_window);
         }
       else
+#endif
         meta_windows = g_list_prepend (meta_windows,
                                        meta_display_lookup_stamp (tracker->display, window));
     }
@@ -1104,6 +1124,7 @@ meta_stack_tracker_queue_sync_stack (MetaStackTracker *tracker)
  * otherwise it searches downwards looking for the nearest X window.
  *
  * If no X based sibling could be found return NULL. */
+#ifdef HAVE_X11_CLIENT
 static Window
 find_x11_sibling_downwards (MetaStackTracker *tracker,
                             guint64           sibling)
@@ -1161,6 +1182,7 @@ find_x11_sibling_upwards (MetaStackTracker *tracker,
 
   return None;
 }
+#endif
 
 static void
 meta_stack_tracker_lower_below (MetaStackTracker *tracker,
@@ -1168,6 +1190,7 @@ meta_stack_tracker_lower_below (MetaStackTracker *tracker,
                                 guint64           sibling)
 {
   gulong serial = 0;
+#ifdef HAVE_X11_CLIENT
   MetaX11Display *x11_display = tracker->display->x11_display;
 
   if (META_STACK_ID_IS_X11 (window))
@@ -1191,6 +1214,7 @@ meta_stack_tracker_lower_below (MetaStackTracker *tracker,
           mtk_x11_error_trap_pop (x11_display->xdisplay);
         }
     }
+#endif
 
   meta_stack_tracker_record_lower_below (tracker,
                                          window, sibling,
@@ -1203,6 +1227,7 @@ meta_stack_tracker_raise_above (MetaStackTracker *tracker,
                                 guint64           sibling)
 {
   gulong serial = 0;
+#ifdef HAVE_X11_CLIENT
   MetaX11Display *x11_display = tracker->display->x11_display;
 
   if (META_STACK_ID_IS_X11 (window))
@@ -1226,6 +1251,7 @@ meta_stack_tracker_raise_above (MetaStackTracker *tracker,
           mtk_x11_error_trap_pop (x11_display->xdisplay);
         }
     }
+#endif
 
   meta_stack_tracker_record_raise_above (tracker, window,
                                          sibling, serial);
