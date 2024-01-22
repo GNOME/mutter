@@ -36,6 +36,10 @@
 #include "meta/prefs.h"
 #include "meta/workspace.h"
 
+#ifdef HAVE_X11_CLIENT
+#include "x11/window-x11-private.h"
+#endif
+
 typedef enum
 {
   META_LEFT,
@@ -410,7 +414,9 @@ avoid_being_obscured_as_second_modal_dialog (MetaWindow *window,
 
   if (window->denied_focus_and_not_transient &&
       window->type == META_WINDOW_MODAL_DIALOG &&
-      meta_window_same_application (window, focus_window) &&
+#ifdef HAVE_X11_CLIENT
+      meta_window_x11_same_application (window, focus_window) &&
+#endif
       window_overlaps_focus_window (window))
     {
       find_most_freespace (window, focus_window, *x, *y, x, y);

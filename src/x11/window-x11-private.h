@@ -105,4 +105,7 @@ Window meta_window_x11_get_xtransient_for (MetaWindow *window);
 
 gboolean meta_window_x11_has_pointer (MetaWindow *window);
 
+gboolean meta_window_x11_same_application (MetaWindow *window,
+                                           MetaWindow *other_window);
+
 G_END_DECLS

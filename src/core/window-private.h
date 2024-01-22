@@ -717,10 +717,6 @@ void meta_window_get_tile_area                  (MetaWindow    *window,
                                                  MetaTileMode   mode,
                                                  MtkRectangle  *tile_area);
 
-
-gboolean meta_window_same_application (MetaWindow *window,
-                                       MetaWindow *other_window);
-
 void meta_window_free_delete_dialog (MetaWindow *window);
 
 MetaStackLayer meta_window_get_default_layer (MetaWindow *window);

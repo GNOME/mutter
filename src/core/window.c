@@ -79,13 +79,13 @@
 #include "core/util-private.h"
 #include "core/workspace-private.h"
 #include "meta/compositor-mutter.h"
-#include "meta/group.h"
 #include "meta/meta-cursor-tracker.h"
 #include "meta/meta-enum-types.h"
 #include "meta/prefs.h"
 #include "mtk/mtk-x11.h"
 
 #ifdef HAVE_X11_CLIENT
+#include "meta/group.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/window-props.h"
 #include "x11/window-x11-private.h"
@@ -1444,10 +1444,10 @@ meta_window_unmanage (MetaWindow  *window,
   if (meta_prefs_get_workspaces_only_on_primary ())
     meta_window_on_all_workspaces_changed (window);
 
+#ifdef HAVE_X11_CLIENT
   if (window->fullscreen)
     {
-      MetaGroup *group;
-
+      MetaGroup *group = NULL;
       /* If the window is fullscreen, it may be forcing
        * other windows in its group to a higher layer
        */
@@ -1459,16 +1459,18 @@ meta_window_unmanage (MetaWindow  *window,
           if (group)
             meta_group_update_layers (group);
         }
-
       meta_stack_thaw (window->display->stack);
     }
+#endif
 
   meta_display_remove_pending_pings_for_window (window->display, window);
 
   /* safe to do this early as group.c won't re-add to the
    * group if window->unmanaging */
+#ifdef HAVE_X11_CLIENT
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
     meta_window_shutdown_group (window);
+#endif
 
   /* If we have the focus, focus some other window.
    * This is done first, so that if the unmap causes
@@ -4463,6 +4465,7 @@ meta_window_get_titlebar_rect (MetaWindow   *window,
 const char*
 meta_window_get_startup_id (MetaWindow *window)
 {
+#ifdef HAVE_X11_CLIENT
   if (window->startup_id == NULL && window->client_type == META_WINDOW_CLIENT_TYPE_X11)
     {
       MetaGroup *group;
@@ -4472,6 +4475,7 @@ meta_window_get_startup_id (MetaWindow *window)
       if (group != NULL)
         return meta_group_get_startup_id (group);
     }
+#endif
 
   return window->startup_id;
 }
@@ -5928,19 +5932,6 @@ meta_window_get_tile_area (MetaWindow   *window,
     tile_area->x += work_area.width - tile_area->width;
 }
 
-gboolean
-meta_window_same_application (MetaWindow *window,
-                              MetaWindow *other_window)
-{
-  MetaGroup *group       = meta_window_get_group (window);
-  MetaGroup *other_group = meta_window_get_group (other_window);
-
-  return
-    group!=NULL &&
-    other_group!=NULL &&
-    group==other_group;
-}
-
 /**
  * meta_window_is_client_decorated:
  *
@@ -6119,18 +6110,23 @@ meta_window_get_default_layer (MetaWindow *window)
 void
 meta_window_update_layer (MetaWindow *window)
 {
+#ifdef HAVE_X11_CLIENT
   MetaGroup *group = NULL;
-
-  meta_stack_freeze (window->display->stack);
 
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
     group = meta_window_get_group (window);
 
+  meta_stack_freeze (window->display->stack);
   if (group)
     meta_group_update_layers (group);
   else
     meta_stack_update_layer (window->display->stack, window);
   meta_stack_thaw (window->display->stack);
+#else
+  meta_stack_freeze (window->display->stack);
+  meta_stack_update_layer (window->display->stack, window);
+  meta_stack_thaw (window->display->stack);
+#endif
 }
 
 /* ensure_mru_position_after ensures that window appears after

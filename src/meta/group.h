@@ -21,7 +21,9 @@
 
 #pragma once
 
+#ifdef HAVE_X11_CLIENT
 #include <X11/Xlib.h>
+#endif
 #include <glib.h>
 
 #include "meta/common.h"
@@ -40,13 +42,14 @@ void       meta_window_shutdown_group  (MetaWindow *window);
 META_EXPORT
 void       meta_window_group_leader_changed (MetaWindow *window);
 
+META_EXPORT
+GSList*    meta_group_list_windows     (MetaGroup *group);
+
+#ifdef HAVE_X11_CLIENT
 /* note, can return NULL */
 META_EXPORT
 MetaGroup *meta_x11_display_lookup_group (MetaX11Display *x11_display,
                                           Window          group_leader);
-
-META_EXPORT
-GSList*    meta_group_list_windows     (MetaGroup *group);
 
 META_EXPORT
 void       meta_group_update_layers    (MetaGroup *group);
@@ -60,3 +63,4 @@ int        meta_group_get_size         (MetaGroup *group);
 META_EXPORT
 gboolean meta_group_property_notify   (MetaGroup  *group,
                                        XEvent     *event);
+#endif

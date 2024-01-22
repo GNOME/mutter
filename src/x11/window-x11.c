@@ -2564,7 +2564,7 @@ meta_window_x11_update_shape_region (MetaWindow *window)
   meta_window_set_shape_region (window, region);
 }
 
-/* Generally meta_window_same_application() is a better idea
+/* Generally meta_window_x11_same_application() is a better idea
  * of "sameness", since it handles the case where multiple apps
  * want to look like the same app or the same app wants to look
  * like multiple apps, but in the case of workarounds for legacy
@@ -2841,7 +2841,7 @@ meta_window_x11_configure_request (MetaWindow *window,
                       window->desc);
         }
       else if (active_window &&
-               !meta_window_same_application (window, active_window) &&
+               !meta_window_x11_same_application (window, active_window) &&
                !meta_window_same_client (window, active_window) &&
                XSERVER_TIME_IS_BEFORE (window->net_wm_user_time,
                                        active_window->net_wm_user_time))
@@ -4485,4 +4485,16 @@ meta_window_x11_has_pointer (MetaWindow *window)
   free (buttons.mask);
 
   return meta_x11_display_lookup_x_window (x11_display, child) == window;
+}
+
+gboolean
+meta_window_x11_same_application (MetaWindow *window,
+                                  MetaWindow *other_window)
+{
+  MetaGroup *group = meta_window_get_group (window);
+  MetaGroup *other_group = meta_window_get_group (other_window);
+
+  return (group != NULL &&
+          other_group != NULL &&
+          group == other_group);
 }
