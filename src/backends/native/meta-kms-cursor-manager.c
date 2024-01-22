@@ -333,6 +333,10 @@ maybe_update_cursor_plane (MetaKmsCursorManagerImpl  *cursor_manager_impl,
   crtc_state_impl = find_crtc_state (cursor_manager_impl, crtc);
   g_return_val_if_fail (crtc_state_impl, update);
 
+  cursor_plane = crtc_state_impl->cursor_plane;
+  if (!cursor_plane)
+    return update;
+
   if (!crtc_state_impl->cursor_invalidated)
     return update;
 
@@ -367,8 +371,6 @@ maybe_update_cursor_plane (MetaKmsCursorManagerImpl  *cursor_manager_impl,
       update = meta_kms_update_new (device);
       meta_kms_update_realize (update, impl_device);
     }
-
-  cursor_plane = crtc_state_impl->cursor_plane;
 
   if (should_have_cursor)
     {
