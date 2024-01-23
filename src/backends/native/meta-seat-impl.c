@@ -832,7 +832,7 @@ meta_seat_impl_notify_button_in_impl (MetaSeatImpl       *seat_impl,
       button_nr = CLUTTER_BUTTON_MIDDLE;
       break;
 
-    case 0x149: /* BTN_STYLUS3 */
+    case BTN_STYLUS3:
       button_nr = 8;
       break;
 
