@@ -2584,7 +2584,7 @@ meta_onscreen_native_invalidate (MetaOnscreenNative *onscreen_native)
 
   if (meta_crtc_get_gamma_lut_size (onscreen_native->crtc) > 0)
     onscreen_native->is_gamma_lut_invalid = TRUE;
-  if (meta_output_is_privacy_screen_supported (onscreen_native->output))
+  if (output_info->supports_privacy_screen)
     onscreen_native->is_privacy_screen_invalid = TRUE;
   if (output_info->supported_color_spaces &
       (1 << META_OUTPUT_COLORSPACE_DEFAULT))
@@ -2673,7 +2673,7 @@ meta_onscreen_native_new (MetaRendererNative *renderer_native,
                           onscreen_native);
     }
 
-  if (meta_output_is_privacy_screen_supported (output))
+  if (output_info->supports_privacy_screen)
     {
       onscreen_native->is_privacy_screen_invalid = TRUE;
       onscreen_native->privacy_screen_changed_handler_id =

@@ -151,6 +151,7 @@ typedef struct _MetaOutputInfo
 
   gboolean supports_underscanning;
   gboolean supports_color_transform;
+  gboolean supports_privacy_screen;
 
   unsigned int max_bpc_min;
   unsigned int max_bpc_max;
@@ -245,8 +246,6 @@ void meta_output_set_backlight (MetaOutput *output,
 int meta_output_get_backlight (MetaOutput *output);
 
 MetaPrivacyScreenState meta_output_get_privacy_screen_state (MetaOutput *output);
-
-gboolean meta_output_is_privacy_screen_supported (MetaOutput *output);
 
 gboolean meta_output_is_privacy_screen_enabled (MetaOutput *output);
 
