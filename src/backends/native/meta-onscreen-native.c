@@ -624,31 +624,28 @@ static void
 set_max_bpc (MetaOutputKms *output_kms,
              MetaKmsUpdate *kms_update)
 {
+  MetaOutput *output = META_OUTPUT (output_kms);
+  const MetaOutputInfo *output_info = meta_output_get_info (output);
   MetaKmsConnector *kms_connector =
     meta_output_kms_get_kms_connector (output_kms);
-  const MetaKmsRange *range;
+  unsigned int max_bpc;
 
-  range = meta_kms_connector_get_max_bpc (kms_connector);
-  if (range)
+  if (!meta_output_get_max_bpc (output, &max_bpc))
+    return;
+
+  if (output_info->max_bpc_min == 0 && output_info->max_bpc_max == 0)
+    return;
+
+  if (max_bpc < output_info->max_bpc_min || max_bpc > output_info->max_bpc_max)
     {
-      MetaOutput *output = META_OUTPUT (output_kms);
-      unsigned int max_bpc;
-
-      if (!meta_output_get_max_bpc (output, &max_bpc))
-        return;
-
-      if (max_bpc >= range->min_value && max_bpc <= range->max_value)
-        {
-          meta_kms_update_set_max_bpc (kms_update, kms_connector, max_bpc);
-        }
-      else
-        {
-          g_warning ("Ignoring out of range value %u for max bpc (%u-%u)",
-                     max_bpc,
-                     (unsigned) range->min_value,
-                     (unsigned) range->max_value);
-        }
+      g_warning ("Ignoring out of range value %u for max bpc (%u-%u)",
+                 max_bpc,
+                 (unsigned) output_info->max_bpc_min,
+                 (unsigned) output_info->max_bpc_max);
+      return;
     }
+
+  meta_kms_update_set_max_bpc (kms_update, kms_connector, max_bpc);
 }
 
 static void

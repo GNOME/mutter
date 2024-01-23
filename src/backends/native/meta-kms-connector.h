@@ -107,3 +107,6 @@ gboolean meta_kms_connector_is_broadcast_rgb_supported (MetaKmsConnector   *conn
                                                         MetaOutputRGBRange  broadcast_rgb);
 
 gboolean meta_kms_connector_is_hdr_metadata_supported (MetaKmsConnector *connector);
+
+gboolean meta_kms_connector_is_max_bpc_supported (MetaKmsConnector *connector,
+                                                  int               max_bpc);

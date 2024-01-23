@@ -430,6 +430,8 @@ meta_kms_update_set_max_bpc (MetaKmsUpdate    *update,
   MetaKmsConnectorUpdate *connector_update;
 
   g_assert (meta_kms_connector_get_device (connector) == update->device);
+  g_return_if_fail (meta_kms_connector_is_max_bpc_supported (connector,
+                                                             max_bpc));
 
   connector_update = ensure_connector_update (update, connector);
   connector_update->max_bpc.value = max_bpc;

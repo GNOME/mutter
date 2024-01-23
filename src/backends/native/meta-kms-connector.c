@@ -261,6 +261,14 @@ meta_kms_connector_is_broadcast_rgb_supported (MetaKmsConnector   *connector,
   return !!(connector->current_state->broadcast_rgb.supported & (1 << broadcast_rgb));
 }
 
+gboolean
+meta_kms_connector_is_max_bpc_supported (MetaKmsConnector *connector,
+                                         int               max_bpc)
+{
+  return max_bpc >= connector->current_state->max_bpc.min_value &&
+         max_bpc <= connector->current_state->max_bpc.max_value;
+}
+
 static void
 set_panel_orientation (MetaKmsConnectorState *state,
                        MetaKmsProp           *panel_orientation)
