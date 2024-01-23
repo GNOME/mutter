@@ -653,15 +653,16 @@ set_rgb_range (MetaOutputKms *output_kms,
                MetaKmsUpdate *kms_update)
 {
   MetaOutput *output = META_OUTPUT (output_kms);
+  const MetaOutputInfo *output_info = meta_output_get_info (output);
   MetaKmsConnector *kms_connector =
     meta_output_kms_get_kms_connector (output_kms);
   MetaOutputRGBRange rgb_range = meta_output_peek_rgb_range (output);
 
   if (rgb_range == META_OUTPUT_RGB_RANGE_AUTO &&
-      !meta_kms_connector_is_broadcast_rgb_supported (kms_connector, rgb_range))
+      !(output_info->supported_rgb_ranges & (1 << rgb_range)))
     return;
 
-  if (!meta_kms_connector_is_broadcast_rgb_supported (kms_connector, rgb_range))
+  if (!(output_info->supported_rgb_ranges & (1 << rgb_range)))
     {
       g_warning ("Ignoring unsupported RGB Range");
       return;

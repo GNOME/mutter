@@ -427,6 +427,8 @@ meta_output_kms_new (MetaGpuKms        *gpu_kms,
   output_info->supports_privacy_screen =
     (connector_state->privacy_screen_state != META_PRIVACY_SCREEN_UNAVAILABLE);
 
+  output_info->supported_rgb_ranges = connector_state->broadcast_rgb.supported;
+
   output = g_object_new (META_TYPE_OUTPUT_KMS,
                          "id", ((uint64_t) gpu_id << 32) | connector_id,
                          "gpu", gpu,
