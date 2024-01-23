@@ -65,54 +65,6 @@ meta_output_kms_get_privacy_screen_state (MetaOutput *output)
   return connector_state->privacy_screen_state;
 }
 
-static gboolean
-meta_output_kms_is_color_space_supported (MetaOutput           *output,
-                                          MetaOutputColorspace  color_space)
-{
-  MetaOutputKms *output_kms = META_OUTPUT_KMS (output);
-  const MetaKmsConnectorState *connector_state;
-  const MetaOutputInfo *output_info;
-
-  output_info = meta_output_get_info (output);
-
-  if (!meta_output_info_is_color_space_supported (output_info, color_space))
-    {
-      meta_topic (META_DEBUG_COLOR,
-                  "MetaOutput: Output %s signals that it doesn't support "
-                  "Colorspace %s",
-                  meta_output_get_name (output),
-                  meta_output_colorspace_get_name (color_space));
-      return FALSE;
-    }
-
-  connector_state =
-    meta_kms_connector_get_current_state (output_kms->kms_connector);
-
-  if (!(connector_state->colorspace.supported & (1 << color_space)))
-    {
-      meta_topic (META_DEBUG_COLOR,
-                  "MetaOutput: KMS Connector for output %s doesn't support "
-                  "Colorspace %s",
-                  meta_output_get_name (output),
-                  meta_output_colorspace_get_name (color_space));
-      return FALSE;
-    }
-
-  return TRUE;
-}
-
-static gboolean
-meta_output_kms_is_hdr_metadata_supported (MetaOutput *output)
-{
-  MetaOutputKms *output_kms = META_OUTPUT_KMS (output);
-  const MetaKmsConnectorState *connector_state;
-
-  connector_state =
-    meta_kms_connector_get_current_state (output_kms->kms_connector);
-
-  return connector_state->hdr.supported;
-}
-
 uint32_t
 meta_output_kms_get_connector_id (MetaOutputKms *output_kms)
 {
@@ -428,6 +380,50 @@ meta_output_kms_new (MetaGpuKms        *gpu_kms,
 
   output_info->tile_info = connector_state->tile_info;
 
+  if (output_info->edid_info)
+    {
+      MetaEdidColorimetry edid_colorimetry =
+        output_info->edid_info->colorimetry;
+      uint64_t connector_colorimetry = connector_state->colorspace.supported;
+
+      if (connector_colorimetry & (1 << META_OUTPUT_COLORSPACE_DEFAULT))
+        output_info->supported_color_spaces |= (1 << META_OUTPUT_COLORSPACE_DEFAULT);
+
+      if ((edid_colorimetry & META_EDID_COLORIMETRY_BT2020RGB) &&
+          (connector_colorimetry & (1 << META_OUTPUT_COLORSPACE_BT2020)))
+        output_info->supported_color_spaces |= (1 << META_OUTPUT_COLORSPACE_BT2020);
+    }
+
+  if (connector_state->hdr.supported &&
+      output_info->edid_info &&
+      (output_info->edid_info->hdr_static_metadata.sm &
+       META_EDID_STATIC_METADATA_TYPE1))
+    {
+      MetaEdidTransferFunction edid_tf =
+        output_info->edid_info->hdr_static_metadata.tf;
+
+      if (edid_tf & META_EDID_TF_TRADITIONAL_GAMMA_SDR)
+        {
+          output_info->supported_hdr_eotfs |=
+            (1 << META_OUTPUT_HDR_METADATA_EOTF_TRADITIONAL_GAMMA_SDR);
+        }
+      if (edid_tf & META_EDID_TF_TRADITIONAL_GAMMA_HDR)
+        {
+          output_info->supported_hdr_eotfs |=
+            (1 << META_OUTPUT_HDR_METADATA_EOTF_TRADITIONAL_GAMMA_HDR);
+        }
+      if (edid_tf & META_EDID_TF_PQ)
+        {
+          output_info->supported_hdr_eotfs |=
+            (1 << META_OUTPUT_HDR_METADATA_EOTF_PQ);
+        }
+      if (edid_tf & META_EDID_TF_HLG)
+        {
+          output_info->supported_hdr_eotfs |=
+            (1 << META_OUTPUT_HDR_METADATA_EOTF_HLG);
+        }
+    }
+
   output = g_object_new (META_TYPE_OUTPUT_KMS,
                          "id", ((uint64_t) gpu_id << 32) | connector_id,
                          "gpu", gpu,
@@ -486,10 +482,6 @@ meta_output_kms_class_init (MetaOutputKmsClass *klass)
 
   output_class->get_privacy_screen_state =
     meta_output_kms_get_privacy_screen_state;
-  output_class->is_color_space_supported =
-    meta_output_kms_is_color_space_supported;
-  output_class->is_hdr_metadata_supported =
-    meta_output_kms_is_hdr_metadata_supported;
 
   output_native_class->read_edid = meta_output_kms_read_edid;
 }

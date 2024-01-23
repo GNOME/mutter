@@ -2246,8 +2246,9 @@ meta_monitor_set_color_space (MetaMonitor           *monitor,
   for (l = priv->outputs; l; l = l->next)
     {
       MetaOutput *output = l->data;
+      const MetaOutputInfo *output_info = meta_output_get_info (output);
 
-      if (!meta_output_is_color_space_supported (output, color_space))
+      if (!(output_info->supported_color_spaces & (1 << color_space)))
         {
           g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
                                "The color space is not supported by this monitor");
@@ -2276,8 +2277,9 @@ meta_monitor_set_hdr_metadata (MetaMonitor            *monitor,
   for (l = priv->outputs; l; l = l->next)
     {
       MetaOutput *output = l->data;
+      const MetaOutputInfo *output_info = meta_output_get_info (output);
 
-      if (!meta_output_is_hdr_metadata_supported (output, metadata->eotf))
+      if (!(output_info->supported_hdr_eotfs & (1 << metadata->eotf)))
         {
           g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
                                "HDR metadata is not supported by this monitor");
