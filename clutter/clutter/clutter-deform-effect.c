@@ -53,7 +53,6 @@
 #include "cogl/cogl.h"
 
 #include "clutter/clutter-deform-effect.h"
-#include "clutter/clutter-color.h"
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-enum-types.h"
 #include "clutter/clutter-paint-node.h"

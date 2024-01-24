@@ -70,7 +70,6 @@ typedef struct _ClutterConstraint               ClutterConstraint;
 typedef struct _ClutterEffect                   ClutterEffect;
 
 typedef struct _ClutterActorBox                 ClutterActorBox;
-typedef struct _ClutterColor                    ClutterColor;
 typedef struct _ClutterColorState               ClutterColorState;
 typedef struct _ClutterMargin                   ClutterMargin;
 typedef struct _ClutterPerspective              ClutterPerspective;

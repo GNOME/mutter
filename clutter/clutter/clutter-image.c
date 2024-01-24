@@ -36,7 +36,6 @@
 #include "clutter/clutter-image.h"
 
 #include "clutter/clutter-actor-private.h"
-#include "clutter/clutter-color.h"
 #include "clutter/clutter-content-private.h"
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-paint-node.h"

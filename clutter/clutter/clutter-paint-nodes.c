@@ -32,7 +32,6 @@
 #include "cogl/cogl.h"
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-blur-private.h"
-#include "clutter/clutter-color.h"
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-private.h"
 #include "clutter/clutter-paint-context-private.h"

@@ -44,14 +44,6 @@ G_BEGIN_DECLS
 
 typedef struct _ClutterContext      ClutterContext;
 
-#define CLUTTER_REGISTER_VALUE_TRANSFORM_TO(TYPE_TO,func)             { \
-  g_value_register_transform_func (g_define_type_id, TYPE_TO, func);    \
-}
-
-#define CLUTTER_REGISTER_VALUE_TRANSFORM_FROM(TYPE_FROM,func)         { \
-  g_value_register_transform_func (TYPE_FROM, g_define_type_id, func);  \
-}
-
 #define CLUTTER_REGISTER_INTERVAL_PROGRESS(func)                      { \
   clutter_interval_register_progress_func (g_define_type_id, func);     \
 }

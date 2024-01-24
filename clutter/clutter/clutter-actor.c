@@ -492,7 +492,6 @@
 #include "clutter/clutter-actor-meta-private.h"
 #include "clutter/clutter-animatable.h"
 #include "clutter/clutter-color-state.h"
-#include "clutter/clutter-color.h"
 #include "clutter/clutter-constraint-private.h"
 #include "clutter/clutter-content-private.h"
 #include "clutter/clutter-debug.h"

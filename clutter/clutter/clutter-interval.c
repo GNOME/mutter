@@ -51,7 +51,6 @@
 #include <glib-object.h>
 #include <gobject/gvaluecollector.h>
 
-#include "clutter/clutter-color.h"
 #include "clutter/clutter-interval.h"
 #include "clutter/clutter-private.h"
 
