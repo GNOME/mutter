@@ -107,14 +107,12 @@ typedef enum
 
 struct _CoglColor
 {
-  /*< private >*/
-  uint8_t COGL_PRIVATE (red);
-  uint8_t COGL_PRIVATE (green);
-  uint8_t COGL_PRIVATE (blue);
+  uint8_t red;
+  uint8_t green;
+  uint8_t blue;
 
-  uint8_t COGL_PRIVATE (alpha);
+  uint8_t alpha;
 };
-COGL_STRUCT_SIZE_ASSERT (CoglColor, 4);
 
 /**
  * CoglTextureVertex:
