@@ -551,3 +551,137 @@ cogl_color_init_from_hsl (CoglColor *color,
 
   cogl_color_init_from_4f (color, clr[0], clr[1], clr[2], 1.0f);
 }
+
+/**
+ * cogl_value_set_color:
+ * @value: a #GValue initialized to #COGL_TYPE_COLOR
+ * @color: the color to set
+ *
+ * Sets @value to @color.
+ */
+void
+cogl_value_set_color (GValue          *value,
+                      const CoglColor *color)
+{
+  g_return_if_fail (COGL_VALUE_HOLDS_COLOR (value));
+
+  g_value_set_boxed (value, color);
+}
+
+/**
+ * cogl_value_get_color:
+ * @value: a #GValue initialized to #COGL_TYPE_COLOR
+ *
+ * Gets the #CoglColor contained in @value.
+ *
+ * Return value: (transfer none): the color inside the passed #GValue
+ */
+const CoglColor *
+cogl_value_get_color (const GValue *value)
+{
+  g_return_val_if_fail (COGL_VALUE_HOLDS_COLOR (value), NULL);
+
+  return g_value_get_boxed (value);
+}
+
+static void
+param_color_init (GParamSpec *pspec)
+{
+  CoglParamSpecColor *cspec = COGL_PARAM_SPEC_COLOR (pspec);
+
+  cspec->default_value = NULL;
+}
+
+static void
+param_color_finalize (GParamSpec *pspec)
+{
+  CoglParamSpecColor *cspec = COGL_PARAM_SPEC_COLOR (pspec);
+
+  cogl_color_free (cspec->default_value);
+}
+
+static void
+param_color_set_default (GParamSpec *pspec,
+                         GValue     *value)
+{
+  const CoglColor *default_value =
+    COGL_PARAM_SPEC_COLOR (pspec)->default_value;
+  cogl_value_set_color (value, default_value);
+}
+
+static gint
+param_color_values_cmp (GParamSpec   *pspec,
+                        const GValue *value1,
+                        const GValue *value2)
+{
+  const CoglColor *color1 = g_value_get_boxed (value1);
+  const CoglColor *color2 = g_value_get_boxed (value2);
+  int pixel1, pixel2;
+
+  if (color1 == NULL)
+    return color2 == NULL ? 0 : -1;
+
+  pixel1 = cogl_color_hash (color1);
+  pixel2 = cogl_color_hash (color2);
+
+  if (pixel1 < pixel2)
+    return -1;
+  else if (pixel1 == pixel2)
+    return 0;
+  else
+    return 1;
+}
+
+GType
+cogl_param_color_get_type (void)
+{
+  static GType pspec_type = 0;
+
+  if (G_UNLIKELY (pspec_type == 0))
+    {
+      const GParamSpecTypeInfo pspec_info = {
+        sizeof (CoglParamSpecColor),
+        16,
+        param_color_init,
+        COGL_TYPE_COLOR,
+        param_color_finalize,
+        param_color_set_default,
+        NULL,
+        param_color_values_cmp,
+      };
+
+      pspec_type = g_param_type_register_static (g_intern_static_string ("CoglParamSpecColor"),
+                                                 &pspec_info);
+    }
+
+  return pspec_type;
+}
+
+/**
+ * cogl_param_spec_color: (skip)
+ * @name: name of the property
+ * @nick: short name
+ * @blurb: description (can be translatable)
+ * @default_value: default value
+ * @flags: flags for the param spec
+ *
+ * Creates a #GParamSpec for properties using #CoglColor.
+ *
+ * Returns: (transfer full): the newly created #GParamSpec
+ */
+GParamSpec *
+cogl_param_spec_color (const gchar     *name,
+                       const gchar     *nick,
+                       const gchar     *blurb,
+                       const CoglColor *default_value,
+                       GParamFlags      flags)
+{
+  CoglParamSpecColor *cspec;
+
+  cspec = g_param_spec_internal (COGL_TYPE_PARAM_COLOR,
+                                 name, nick, blurb, flags);
+
+  cspec->default_value = cogl_color_copy (default_value);
+
+  return G_PARAM_SPEC (cspec);
+}

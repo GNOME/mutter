@@ -298,4 +298,65 @@ cogl_color_init_from_hsl (CoglColor *color,
                           float      saturation,
                           float      luminance);
 
+
+#define COGL_TYPE_PARAM_COLOR           (cogl_param_color_get_type ())
+#define COGL_PARAM_SPEC_COLOR(pspec)    (G_TYPE_CHECK_INSTANCE_CAST ((pspec), COGL_TYPE_PARAM_COLOR, CoglParamSpecColor))
+#define COGL_IS_PARAM_SPEC_COLOR(pspec) (G_TYPE_CHECK_INSTANCE_TYPE ((pspec), COGL_TYPE_PARAM_COLOR))
+
+/**
+ * COGL_VALUE_HOLDS_COLOR:
+ * @x: a #GValue
+ *
+ * Evaluates to %TRUE if @x holds a `CoglColor`.
+ */
+#define COGL_VALUE_HOLDS_COLOR(x)       (G_VALUE_HOLDS ((x), COGL_TYPE_COLOR))
+
+typedef struct _CoglParamSpecColor CoglParamSpecColor;
+
+/**
+ * CoglParamSpecColor: (skip)
+ * @default_value: default color value
+ *
+ * A #GParamSpec subclass for defining properties holding
+ * a #CoglColor.
+ */
+struct _CoglParamSpecColor
+{
+  /*< private >*/
+  GParamSpec parent_instance;
+
+  /*< public >*/
+  CoglColor *default_value;
+};
+
+COGL_EXPORT
+void cogl_value_set_color (GValue          *value,
+                           const CoglColor *color);
+
+COGL_EXPORT
+const CoglColor * cogl_value_get_color (const GValue *value);
+
+COGL_EXPORT
+GType cogl_param_color_get_type (void) G_GNUC_CONST;
+
+
+/**
+ * cogl_param_spec_color: (skip)
+ * @name: name of the property
+ * @nick: short name
+ * @blurb: description (can be translatable)
+ * @default_value: default value
+ * @flags: flags for the param spec
+ *
+ * Creates a #GParamSpec for properties using #CoglColor.
+ *
+ * Returns: (transfer full): the newly created #GParamSpec
+ */
+COGL_EXPORT
+GParamSpec * cogl_param_spec_color (const gchar     *name,
+                                    const gchar     *nick,
+                                    const gchar     *blurb,
+                                    const CoglColor *default_value,
+                                    GParamFlags      flags);
+
 G_END_DECLS
