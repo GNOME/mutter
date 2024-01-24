@@ -824,12 +824,12 @@ meta_seat_impl_notify_button_in_impl (MetaSeatImpl       *seat_impl,
 
     case BTN_RIGHT:
     case BTN_STYLUS:
-      button_nr = CLUTTER_BUTTON_SECONDARY;
+      button_nr = CLUTTER_BUTTON_MIDDLE;
       break;
 
     case BTN_MIDDLE:
     case BTN_STYLUS2:
-      button_nr = CLUTTER_BUTTON_MIDDLE;
+      button_nr = CLUTTER_BUTTON_SECONDARY;
       break;
 
     case BTN_STYLUS3:
