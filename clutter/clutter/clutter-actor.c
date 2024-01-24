@@ -12958,11 +12958,11 @@ clutter_actor_get_pango_context (ClutterActor *self)
       priv->pango_context = clutter_actor_create_pango_context (self);
 
       priv->resolution_changed_id =
-        g_signal_connect_object (backend, "resolution-changed",
-                                 G_CALLBACK (update_pango_context), priv->pango_context, 0);
+        g_signal_connect (backend, "resolution-changed",
+                          G_CALLBACK (update_pango_context), priv->pango_context);
       priv->font_changed_id =
-        g_signal_connect_object (backend, "font-changed",
-                                 G_CALLBACK (update_pango_context), priv->pango_context, 0);
+        g_signal_connect (backend, "font-changed",
+                          G_CALLBACK (update_pango_context), priv->pango_context);
     }
   else
     update_pango_context (backend, priv->pango_context);
