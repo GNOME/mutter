@@ -159,6 +159,8 @@ gboolean        _clutter_run_progress_function  (GType gtype,
 
 void            clutter_timeline_cancel_delay (ClutterTimeline *timeline);
 
+void clutter_interval_register_progress_funcs (void);
+
 static inline void
 clutter_round_to_256ths (float *f)
 {

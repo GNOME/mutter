@@ -32,7 +32,6 @@
 #include "clutter/clutter-event-private.h"
 #include "clutter/clutter-input-device-private.h"
 #include "clutter/clutter-input-pointer-a11y-private.h"
-#include "clutter/clutter-graphene.h"
 #include "clutter/clutter-main.h"
 #include "clutter/clutter-mutter.h"
 #include "clutter/clutter-private.h"

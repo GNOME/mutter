@@ -25,8 +25,8 @@
 #include "cally/cally.h"
 #include "clutter/clutter-backend-private.h"
 #include "clutter/clutter-debug.h"
-#include "clutter/clutter-graphene.h"
 #include "clutter/clutter-main.h"
+#include "clutter/clutter-private.h"
 #include "clutter/clutter-paint-node-private.h"
 #include "clutter/clutter-settings-private.h"
 
@@ -101,7 +101,7 @@ clutter_context_class_init (ClutterContextClass *klass)
 
   object_class->dispose = clutter_context_dispose;
 
-  clutter_graphene_init ();
+  clutter_interval_register_progress_funcs ();
 }
 
 static void

@@ -24,8 +24,6 @@
 
 #include "config.h"
 
-#include "clutter/clutter-graphene.h"
-
 #include "clutter/clutter-private.h"
 #include "clutter/clutter-types.h"
 
@@ -114,8 +112,40 @@ graphene_size_progress (const GValue *a,
   return TRUE;
 }
 
+static void
+cogl_color_interpolate (const CoglColor *initial,
+                        const CoglColor *final,
+                        gdouble          progress,
+                        CoglColor       *result)
+{
+  g_return_if_fail (initial != NULL);
+  g_return_if_fail (final != NULL);
+  g_return_if_fail (result != NULL);
+
+  result->red = initial->red + (final->red - initial->red) * progress;
+  result->green = initial->green + (final->green - initial->green) * progress;
+  result->blue = initial->blue + (final->blue - initial->blue) * progress;
+  result->alpha = initial->alpha + (final->alpha - initial->alpha) * progress;
+}
+
+static gboolean
+cogl_color_progress (const GValue *a,
+                     const GValue *b,
+                     gdouble       progress,
+                     GValue       *retval)
+{
+  const CoglColor *a_color = cogl_value_get_color (a);
+  const CoglColor *b_color = cogl_value_get_color (b);
+  CoglColor res = { 0, };
+
+  cogl_color_interpolate (a_color, b_color, progress, &res);
+  cogl_value_set_color (retval, &res);
+
+  return TRUE;
+}
+
 void
-clutter_graphene_init (void)
+clutter_interval_register_progress_funcs (void)
 {
   clutter_interval_register_progress_func (GRAPHENE_TYPE_MATRIX,
                                            graphene_matrix_progress);
@@ -127,4 +157,6 @@ clutter_graphene_init (void)
                                            graphene_rect_progress);
   clutter_interval_register_progress_func (GRAPHENE_TYPE_SIZE,
                                            graphene_size_progress);
+  clutter_interval_register_progress_func (COGL_TYPE_COLOR,
+                                           cogl_color_progress);
 }
