@@ -877,18 +877,30 @@ update_tool (MetaSeatX11        *seat_x11,
   ClutterInputDeviceTool *tool = NULL;
   ClutterInputDeviceToolType type;
   MetaInputSettings *input_settings;
+  int lookup_serial;
 
   if (serial_id != 0)
     {
+      /* stylus and eraser share the same serial, so bitflip the eraser's
+       * serial to make them distinct in the hashtable */
+      if (clutter_input_device_get_device_type (device) == CLUTTER_ERASER_DEVICE)
+        {
+          lookup_serial = ~serial_id;
+          type = CLUTTER_INPUT_DEVICE_TOOL_ERASER;
+        }
+      else
+        {
+          lookup_serial = serial_id;
+          type = CLUTTER_INPUT_DEVICE_TOOL_PEN;
+        }
+
       tool = g_hash_table_lookup (seat_x11->tools_by_serial,
-                                  GUINT_TO_POINTER (serial_id));
+                                  GUINT_TO_POINTER (lookup_serial));
       if (!tool)
         {
-          type = clutter_input_device_get_device_type (device) == CLUTTER_ERASER_DEVICE ?
-            CLUTTER_INPUT_DEVICE_TOOL_ERASER : CLUTTER_INPUT_DEVICE_TOOL_PEN;
           tool = meta_input_device_tool_x11_new (serial_id, type);
           g_hash_table_insert (seat_x11->tools_by_serial,
-                               GUINT_TO_POINTER (serial_id),
+                               GUINT_TO_POINTER (lookup_serial),
                                tool);
         }
     }
