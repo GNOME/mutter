@@ -3,7 +3,7 @@ cogl_tests = [
   [ 'test-blend-strings', [] ],
   [ 'test-blend', [] ],
   [ 'test-depth-test', [] ],
-  [ 'test-color-hsl', [] ],
+  [ 'test-color', [] ],
   [ 'test-backface-culling', [] ],
   [ 'test-just-vertex-shader', [] ],
   [ 'test-pipeline-user-matrix', [] ],
