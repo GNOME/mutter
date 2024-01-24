@@ -36,10 +36,21 @@
 #include "cogl/cogl-color.h"
 #include "cogl/cogl-color-private.h"
 
-G_DEFINE_BOXED_TYPE (CoglColor,
-                     cogl_color,
-                     cogl_color_copy,
-                     cogl_color_free)
+static void
+cogl_value_transform_color_string (const GValue *src,
+                                   GValue       *dest);
+static void
+cogl_value_transform_string_color (const GValue *src,
+                                   GValue       *dest);
+
+G_DEFINE_BOXED_TYPE_WITH_CODE (CoglColor,
+                               cogl_color,
+                               cogl_color_copy,
+                               cogl_color_free,
+                               {
+                                  g_value_register_transform_func (g_define_type_id, G_TYPE_STRING, cogl_value_transform_color_string);
+                                  g_value_register_transform_func (G_TYPE_STRING, g_define_type_id, cogl_value_transform_string_color);
+                               });
 
 CoglColor *
 cogl_color_copy (const CoglColor *color)
@@ -684,4 +695,38 @@ cogl_param_spec_color (const gchar     *name,
   cspec->default_value = cogl_color_copy (default_value);
 
   return G_PARAM_SPEC (cspec);
+}
+
+static void
+cogl_value_transform_color_string (const GValue *src,
+                                   GValue       *dest)
+{
+  const CoglColor *color = g_value_get_boxed (src);
+
+  if (color)
+    {
+      gchar *string = cogl_color_to_string (color);
+
+      g_value_take_string (dest, string);
+    }
+  else
+    g_value_set_string (dest, NULL);
+}
+
+static void
+cogl_value_transform_string_color (const GValue *src,
+                                   GValue       *dest)
+{
+  const char *str = g_value_get_string (src);
+
+  if (str)
+    {
+      CoglColor color = { 0, };
+
+      cogl_color_from_string (&color, str);
+
+      cogl_value_set_color (dest, &color);
+    }
+  else
+    cogl_value_set_color (dest, NULL);
 }
