@@ -3443,7 +3443,7 @@ meta_window_x11_client_message (MetaWindow *window,
                                      device,
                                      sequence,
                                      timestamp,
-                                     NULL);
+                                     &GRAPHENE_POINT_INIT (x_root, y_root));
 
           window_drag =
             meta_compositor_get_current_window_drag (window->display->compositor);
