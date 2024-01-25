@@ -1616,7 +1616,7 @@ meta_wayland_surface_begin_grab_op (MetaWaylandSurface   *surface,
                                     grab_op,
                                     device, sequence,
                                     meta_display_get_current_time_roundtrip (window->display),
-                                    NULL);
+                                    &GRAPHENE_POINT_INIT (x, y));
 }
 
 /**
