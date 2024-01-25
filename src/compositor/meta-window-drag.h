@@ -43,3 +43,6 @@ MetaWindow * meta_window_drag_get_window (MetaWindowDrag *window_drag);
 MetaGrabOp meta_window_drag_get_grab_op (MetaWindowDrag *window_drag);
 
 void meta_window_drag_update_edges (MetaWindowDrag *window_drag);
+
+void meta_window_drag_set_position_hint (MetaWindowDrag   *window_drag,
+                                         graphene_point_t *pos_hint);
