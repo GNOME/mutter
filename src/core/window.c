@@ -6076,19 +6076,21 @@ meta_window_is_ancestor_of_transient (MetaWindow *window,
  * @device: (nullable):
  * @sequence: (nullable):
  * @timestamp:
+ * @pos_hint: (nullable):
  **/
 gboolean
 meta_window_begin_grab_op (MetaWindow           *window,
                            MetaGrabOp            op,
                            ClutterInputDevice   *device,
                            ClutterEventSequence *sequence,
-                           guint32               timestamp)
+                           guint32               timestamp,
+                           graphene_point_t     *pos_hint)
 {
   return meta_compositor_drag_window (window->display->compositor,
                                       window, op,
                                       device, sequence,
                                       timestamp,
-                                      NULL);
+                                      pos_hint);
 }
 
 MetaStackLayer
@@ -7456,7 +7458,8 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
                                          op,
                                          clutter_event_get_device (event),
                                          clutter_event_get_event_sequence (event),
-                                         time_ms);
+                                         time_ms,
+                                         NULL);
             }
         }
     }
@@ -7477,7 +7480,8 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
                                      META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED,
                                      clutter_event_get_device (event),
                                      clutter_event_get_event_sequence (event),
-                                     time_ms);
+                                     time_ms,
+                                     NULL);
         }
     }
 }

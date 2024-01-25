@@ -3406,7 +3406,8 @@ meta_window_x11_client_message (MetaWindow *window,
           meta_window_begin_grab_op (window, op,
                                      clutter_seat_get_pointer (seat),
                                      NULL,
-                                     timestamp);
+                                     timestamp,
+                                     NULL);
         }
       else if (op != META_GRAB_OP_NONE &&
                ((window->has_move_func && op == META_GRAB_OP_MOVING) ||
@@ -3441,7 +3442,8 @@ meta_window_x11_client_message (MetaWindow *window,
           meta_window_begin_grab_op (window, op,
                                      device,
                                      sequence,
-                                     timestamp);
+                                     timestamp,
+                                     NULL);
 
           window_drag =
             meta_compositor_get_current_window_drag (window->display->compositor);

@@ -2683,7 +2683,8 @@ handle_begin_move (MetaDisplay           *display,
                                  META_GRAB_OP_KEYBOARD_MOVING |
                                  META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED,
                                  device, NULL,
-                                 clutter_event_get_time ((ClutterEvent *) event));
+                                 clutter_event_get_time ((ClutterEvent *) event),
+                                 NULL);
     }
 }
 
@@ -2707,7 +2708,8 @@ handle_begin_resize (MetaDisplay           *display,
                                  META_GRAB_OP_KEYBOARD_RESIZING_UNKNOWN |
                                  META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED,
                                  device, NULL,
-                                 clutter_event_get_time ((ClutterEvent *) event));
+                                 clutter_event_get_time ((ClutterEvent *) event),
+                                 NULL);
     }
 }
 

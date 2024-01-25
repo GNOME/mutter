@@ -399,7 +399,8 @@ gboolean meta_window_begin_grab_op (MetaWindow           *window,
                                     MetaGrabOp            op,
                                     ClutterInputDevice   *device,
                                     ClutterEventSequence *sequence,
-                                    guint32               timestamp);
+                                    guint32               timestamp,
+                                    graphene_point_t     *pos_hint);
 
 META_EXPORT
 gboolean meta_window_can_maximize (MetaWindow *window);
