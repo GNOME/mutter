@@ -611,6 +611,7 @@ meta_pad_action_mapper_get_action_direction (MetaPadActionMapper *mapper,
   MetaPadDirection inc_dir, dec_dir;
   uint32_t number;
   double value;
+  gboolean detect_wraparound = FALSE;
 
   switch (clutter_event_type (event))
     {
@@ -619,6 +620,7 @@ meta_pad_action_mapper_get_action_direction (MetaPadActionMapper *mapper,
       clutter_event_get_pad_details (event, &number, NULL, NULL, &value);
       inc_dir = META_PAD_DIRECTION_CW;
       dec_dir = META_PAD_DIRECTION_CCW;
+      detect_wraparound = TRUE;
       break;
     case CLUTTER_PAD_STRIP:
       pad_feature = META_PAD_FEATURE_STRIP;
@@ -635,8 +637,17 @@ meta_pad_action_mapper_get_action_direction (MetaPadActionMapper *mapper,
       mapper->last_pad_action_info.number == number &&
       value >= 0 && mapper->last_pad_action_info.value >= 0)
     {
-      *direction = (value - mapper->last_pad_action_info.value) > 0 ?
-        inc_dir : dec_dir;
+      double delta = value - mapper->last_pad_action_info.value;
+
+      if (detect_wraparound)
+        {
+          if (delta < -180.0)
+            delta += 360;
+          else if (delta > 180.0)
+            delta -= 360;
+        }
+
+      *direction = delta > 0 ?  inc_dir : dec_dir;
       has_direction = TRUE;
     }
 
