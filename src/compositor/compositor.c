@@ -1571,7 +1571,8 @@ meta_compositor_drag_window (MetaCompositor       *compositor,
                              MetaGrabOp            grab_op,
                              ClutterInputDevice   *device,
                              ClutterEventSequence *sequence,
-                             uint32_t              timestamp)
+                             uint32_t              timestamp,
+                             graphene_point_t     *pos_hint)
 {
   MetaCompositorPrivate *priv =
     meta_compositor_get_instance_private (compositor);
@@ -1581,6 +1582,9 @@ meta_compositor_drag_window (MetaCompositor       *compositor,
     return FALSE;
 
   window_drag = meta_window_drag_new (window, grab_op);
+
+  if (pos_hint)
+    meta_window_drag_set_position_hint (window_drag, pos_hint);
 
   if (!meta_window_drag_begin (window_drag, device, sequence, timestamp))
     return FALSE;

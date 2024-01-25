@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <graphene.h>
+
 #include "clutter/clutter-mutter.h"
 #include "clutter/clutter.h"
 #include "compositor/meta-compositor-view.h"
@@ -76,7 +78,8 @@ gboolean meta_compositor_drag_window (MetaCompositor       *compositor,
                                       MetaGrabOp            grab_op,
                                       ClutterInputDevice   *device,
                                       ClutterEventSequence *sequence,
-                                      uint32_t              timestamp);
+                                      uint32_t              timestamp,
+                                      graphene_point_t     *pos_hint);
 
 MetaWindowDrag * meta_compositor_get_current_window_drag (MetaCompositor *compositor);
 

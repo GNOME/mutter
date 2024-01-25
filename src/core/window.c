@@ -6087,7 +6087,8 @@ meta_window_begin_grab_op (MetaWindow           *window,
   return meta_compositor_drag_window (window->display->compositor,
                                       window, op,
                                       device, sequence,
-                                      timestamp);
+                                      timestamp,
+                                      NULL);
 }
 
 MetaStackLayer
