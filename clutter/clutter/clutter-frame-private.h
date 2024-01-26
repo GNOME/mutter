@@ -45,4 +45,5 @@ gpointer clutter_frame_new (size_t              size,
 #define clutter_frame_new(FrameType, release) \
   ((FrameType *) (clutter_frame_new (sizeof (FrameType), release)))
 
+CLUTTER_EXPORT
 ClutterFrameResult clutter_frame_get_result (ClutterFrame *frame);
