@@ -293,7 +293,6 @@ on_after_update (ClutterStage          *stage,
 #if defined(HAVE_NATIVE_BACKEND)
   MetaContext *context = meta_wayland_compositor_get_context (compositor);
   MetaBackend *backend = meta_context_get_backend (context);
-  MetaFrameNative *frame_native;
   GSource *source;
   int64_t frame_deadline_us;
 
@@ -303,11 +302,10 @@ on_after_update (ClutterStage          *stage,
       return;
     }
 
-  frame_native = meta_frame_native_from_frame (frame);
-
   source = ensure_source_for_stage_view (compositor, stage_view);
 
-  if (meta_frame_native_had_kms_update (frame_native) ||
+  if (clutter_frame_get_result (frame) ==
+      CLUTTER_FRAME_RESULT_PENDING_PRESENTED ||
       !clutter_frame_get_frame_deadline (frame,
                                          &frame_deadline_us))
     {
