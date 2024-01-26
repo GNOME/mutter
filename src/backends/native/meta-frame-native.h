@@ -36,6 +36,3 @@ MetaKmsUpdate * meta_frame_native_steal_kms_update (MetaFrameNative *frame_nativ
 
 META_EXPORT_TEST
 gboolean meta_frame_native_has_kms_update (MetaFrameNative *frame_native);
-
-META_EXPORT_TEST
-gboolean meta_frame_native_had_kms_update (MetaFrameNative *frame_native);
