@@ -101,7 +101,6 @@ variables:
       qemu-system-x86-core
       busybox
       zenity
-      gi-docgen
       python3-dbusmock
       "pkgconfig(libgcrypt)"
       "pkgconfig(libdisplay-info)"
@@ -141,6 +140,10 @@ variables:
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.freedesktop.org/wayland/wayland-protocols.git \
         1.33
+
+      ./.gitlab-ci/install-meson-project.sh \
+        https://gitlab.gnome.org/GNOME/gi-docgen.git \
+        main
 
       rpm -e --nodeps gnome-bluetooth-libs-devel \
                       mutter mutter-devel \
