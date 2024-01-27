@@ -333,11 +333,6 @@ if have_introspection
 endif
 
 have_documentation = get_option('docs')
-if have_documentation
-  gidocgen_dep = dependency('gi-docgen', version: '>= 2021.1',
-                            fallback: ['gi-docgen', 'dummy_dep'])
-endif
-
 have_tests = get_option('tests')
 have_core_tests = false
 have_cogl_tests = false
