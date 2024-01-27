@@ -39,8 +39,9 @@ meta_crtc_mode_kms_get_kms_mode (MetaCrtcModeKms *mode_kms)
 }
 
 MetaCrtcModeKms *
-meta_crtc_mode_kms_new (MetaKmsMode *kms_mode,
-                        uint64_t     id)
+meta_crtc_mode_kms_new (MetaKmsMode             *kms_mode,
+                        MetaCrtcRefreshRateMode  refresh_rate_mode,
+                        uint64_t                 id)
 {
   const drmModeModeInfo *drm_mode = meta_kms_mode_get_drm_mode (kms_mode);
   g_autoptr (MetaCrtcModeInfo) crtc_mode_info = NULL;
@@ -53,6 +54,8 @@ meta_crtc_mode_kms_new (MetaKmsMode *kms_mode,
   crtc_mode_info->flags = drm_mode->flags;
   crtc_mode_info->refresh_rate =
     meta_calculate_drm_mode_refresh_rate (drm_mode);
+  crtc_mode_info->refresh_rate_mode =
+    refresh_rate_mode;
   crtc_mode_info->vblank_duration_us =
     meta_calculate_drm_mode_vblank_duration_us (drm_mode);
   crtc_mode_info->pixel_clock_khz = drm_mode->clock;

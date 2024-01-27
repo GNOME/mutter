@@ -162,8 +162,9 @@ compare_outputs (gconstpointer one,
 }
 
 MetaCrtcMode *
-meta_gpu_kms_get_mode_from_kms_mode (MetaGpuKms  *gpu_kms,
-                                     MetaKmsMode *kms_mode)
+meta_gpu_kms_get_mode_from_kms_mode (MetaGpuKms              *gpu_kms,
+                                     MetaKmsMode             *kms_mode,
+                                     MetaCrtcRefreshRateMode  refresh_rate_mode)
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
   GList *l;
@@ -171,10 +172,22 @@ meta_gpu_kms_get_mode_from_kms_mode (MetaGpuKms  *gpu_kms,
   for (l = meta_gpu_get_modes (gpu); l; l = l->next)
     {
       MetaCrtcModeKms *crtc_mode_kms = l->data;
+      MetaCrtcMode *crtc_mode;
+      const MetaCrtcModeInfo *crtc_mode_info;
 
-      if (meta_kms_mode_equal (kms_mode,
-                               meta_crtc_mode_kms_get_kms_mode (crtc_mode_kms)))
-        return META_CRTC_MODE (crtc_mode_kms);
+      if (!meta_kms_mode_equal (kms_mode,
+                                meta_crtc_mode_kms_get_kms_mode (crtc_mode_kms)))
+        continue;
+
+      crtc_mode = META_CRTC_MODE (crtc_mode_kms);
+
+      crtc_mode_info = meta_crtc_mode_get_info (crtc_mode);
+      g_assert (crtc_mode_info != NULL);
+
+      if (refresh_rate_mode != crtc_mode_info->refresh_rate_mode)
+        continue;
+
+      return META_CRTC_MODE (crtc_mode_kms);
     }
 
   g_assert_not_reached ();
@@ -274,7 +287,19 @@ init_modes (MetaGpuKms *gpu_kms)
       MetaKmsMode *kms_mode = value;
       MetaCrtcModeKms *mode;
 
-      mode = meta_crtc_mode_kms_new (kms_mode, mode_id);
+      if (!meta_gpu_kms_disable_vrr (gpu_kms))
+        {
+          mode = meta_crtc_mode_kms_new (kms_mode,
+                                         META_CRTC_REFRESH_RATE_MODE_VARIABLE,
+                                         mode_id);
+          modes = g_list_append (modes, mode);
+
+          mode_id++;
+        }
+
+      mode = meta_crtc_mode_kms_new (kms_mode,
+                                     META_CRTC_REFRESH_RATE_MODE_FIXED,
+                                     mode_id);
       modes = g_list_append (modes, mode);
 
       mode_id++;

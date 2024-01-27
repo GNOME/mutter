@@ -44,6 +44,12 @@ typedef enum _MetaCrtcModeFlag
   META_CRTC_MODE_FLAG_MASK = 0x3fff
 } MetaCrtcModeFlag;
 
+typedef enum _MetaCrtcRefreshRateMode
+{
+  META_CRTC_REFRESH_RATE_MODE_FIXED,
+  META_CRTC_REFRESH_RATE_MODE_VARIABLE,
+} MetaCrtcRefreshRateMode;
+
 typedef struct _MetaCrtcModeInfo
 {
   grefcount ref_count;
@@ -51,6 +57,7 @@ typedef struct _MetaCrtcModeInfo
   int width;
   int height;
   float refresh_rate;
+  MetaCrtcRefreshRateMode refresh_rate_mode;
   int64_t vblank_duration_us;
   uint32_t pixel_clock_khz;
   MetaCrtcModeFlag flags;

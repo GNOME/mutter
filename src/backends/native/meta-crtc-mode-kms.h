@@ -30,5 +30,6 @@ G_DECLARE_FINAL_TYPE (MetaCrtcModeKms, meta_crtc_mode_kms,
 
 MetaKmsMode * meta_crtc_mode_kms_get_kms_mode (MetaCrtcModeKms *mode_kms);
 
-MetaCrtcModeKms * meta_crtc_mode_kms_new (MetaKmsMode *kms_mode,
-                                          uint64_t     id);
+MetaCrtcModeKms * meta_crtc_mode_kms_new (MetaKmsMode             *kms_mode,
+                                          MetaCrtcRefreshRateMode  refresh_rate_mode,
+                                          uint64_t                 id);

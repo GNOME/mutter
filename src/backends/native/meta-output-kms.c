@@ -179,7 +179,9 @@ add_common_modes (MetaOutputInfo *output_info,
       if (is_duplicate)
         continue;
 
-      crtc_mode = meta_gpu_kms_get_mode_from_kms_mode (gpu_kms, fallback_mode);
+      crtc_mode = meta_gpu_kms_get_mode_from_kms_mode (gpu_kms,
+                                                       fallback_mode,
+                                                       META_CRTC_REFRESH_RATE_MODE_FIXED);
       g_ptr_array_add (array, crtc_mode);
     }
 
@@ -280,7 +282,9 @@ init_output_modes (MetaOutputInfo    *output_info,
       MetaKmsMode *kms_mode = l->data;
       MetaCrtcMode *crtc_mode;
 
-      crtc_mode = meta_gpu_kms_get_mode_from_kms_mode (gpu_kms, kms_mode);
+      crtc_mode = meta_gpu_kms_get_mode_from_kms_mode (gpu_kms,
+                                                       kms_mode,
+                                                       META_CRTC_REFRESH_RATE_MODE_FIXED);
       output_info->modes[i] = crtc_mode;
       if (kms_mode == kms_preferred_mode)
         output_info->preferred_mode = output_info->modes[i];
