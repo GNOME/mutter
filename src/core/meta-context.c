@@ -202,7 +202,8 @@ meta_context_notify_ready (MetaContext *context)
   g_return_if_fail (priv->state == META_CONTEXT_STATE_STARTED ||
                     priv->state == META_CONTEXT_STATE_RUNNING);
 
-  META_CONTEXT_GET_CLASS (context)->notify_ready (context);
+  if (META_CONTEXT_GET_CLASS (context)->notify_ready)
+    META_CONTEXT_GET_CLASS (context)->notify_ready (context);
 }
 
 const char *
