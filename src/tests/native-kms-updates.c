@@ -38,27 +38,6 @@ typedef enum
   POPULATE_UPDATE_FLAG_MODE = 1 << 1,
 } PopulateUpdateFlags;
 
-const MetaKmsCrtcState *
-meta_kms_crtc_get_current_state (MetaKmsCrtc *crtc)
-{
-  static MetaKmsCrtcState mock_state;
-  static const MetaKmsCrtcState *
-    (* real_get_current_state) (MetaKmsCrtc *crtc) = NULL;
-  const MetaKmsCrtcState *state;
-
-  if (!real_get_current_state)
-    real_get_current_state = dlsym (RTLD_NEXT, __func__);
-
-  state = real_get_current_state (crtc);
-  if (!state)
-    return NULL;
-
-  mock_state = *state;
-  mock_state.gamma.size = 3;
-
-  return &mock_state;
-}
-
 static void
 populate_update (MetaKmsUpdate        *update,
                  MetaDrmBuffer       **buffer,
@@ -434,6 +413,7 @@ meta_test_kms_update_merge (void)
   MetaKmsDevice *device;
   MetaKmsUpdate *update1;
   MetaKmsCrtc *crtc;
+  const MetaKmsCrtcState *crtc_state;
   MetaKmsConnector *connector;
   MetaKmsPlane *primary_plane;
   MetaKmsPlane *cursor_plane;
@@ -449,14 +429,13 @@ meta_test_kms_update_merge (void)
   MetaKmsModeSet *mode_set;
   GList *plane_assignments;
   MetaKmsPlaneAssignment *plane_assignment;
-  GList *crtc_color_updates;
-  MetaKmsCrtcColorUpdate *crtc_color_update;
   MetaGammaLut *crtc_gamma;
   GList *connector_updates;
   MetaKmsConnectorUpdate *connector_update;
 
   device = meta_get_test_kms_device (test_context);
   crtc = meta_get_test_kms_crtc (device);
+  crtc_state = meta_kms_crtc_get_current_state (crtc);
   connector = meta_get_test_kms_connector (device);
   primary_plane = meta_get_primary_test_plane_for (device, crtc);
   cursor_plane = meta_get_cursor_test_plane_for (device, crtc);
@@ -513,11 +492,20 @@ meta_test_kms_update_merge (void)
                             g_list_append (NULL, connector),
                             mode);
 
-  lut = meta_gamma_lut_new (3,
-                            (uint16_t[]) { 1, 2, 3 },
-                            (uint16_t[]) { 4, 5, 6 },
-                            (uint16_t[]) { 7, 8, 9 });
-  meta_kms_update_set_crtc_gamma (update2, crtc, lut);
+  if (crtc_state->gamma.supported)
+    {
+      int i;
+
+      lut = meta_gamma_lut_new_sized (crtc_state->gamma.size);
+      for (i = 0; i < lut->size; i++)
+        {
+          lut->red[i] = 42;
+          lut->green[i] = 42;
+          lut->blue[i] = 42;
+        }
+
+      meta_kms_update_set_crtc_gamma (update2, crtc, lut);
+    }
 
   cursor_buffer2 = meta_create_test_dumb_buffer (device, 64, 64);
   cursor_plane_assignment =
@@ -596,23 +584,26 @@ meta_test_kms_update_merge (void)
   g_assert_cmpint (plane_assignment->dst_rect.width, ==, 64);
   g_assert_cmpint (plane_assignment->dst_rect.height, ==, 64);
 
-  crtc_color_updates = meta_kms_update_get_crtc_color_updates (update1);
-  g_assert_cmpuint (g_list_length (crtc_color_updates), ==, 1);
-  crtc_color_update = crtc_color_updates->data;
-  crtc_gamma = crtc_color_update->gamma.state;
-  g_assert_nonnull (crtc_gamma);
+  if (crtc_state->gamma.supported)
+    {
+      MetaKmsCrtcColorUpdate *crtc_color_update;
+      GList *crtc_color_updates;
+      int i;
 
-  g_assert_nonnull (crtc_gamma);
-  g_assert_cmpint (crtc_gamma->size, ==, 3);
-  g_assert_cmpuint (crtc_gamma->red[0], ==, 1);
-  g_assert_cmpuint (crtc_gamma->red[1], ==, 2);
-  g_assert_cmpuint (crtc_gamma->red[2], ==, 3);
-  g_assert_cmpuint (crtc_gamma->green[0], ==, 4);
-  g_assert_cmpuint (crtc_gamma->green[1], ==, 5);
-  g_assert_cmpuint (crtc_gamma->green[2], ==, 6);
-  g_assert_cmpuint (crtc_gamma->blue[0], ==, 7);
-  g_assert_cmpuint (crtc_gamma->blue[1], ==, 8);
-  g_assert_cmpuint (crtc_gamma->blue[2], ==, 9);
+      crtc_color_updates = meta_kms_update_get_crtc_color_updates (update1);
+      g_assert_cmpuint (g_list_length (crtc_color_updates), ==, 1);
+      crtc_color_update = crtc_color_updates->data;
+
+      crtc_gamma = crtc_color_update->gamma.state;
+      g_assert_nonnull (crtc_gamma);
+
+      for (i = 0; i < crtc_gamma->size; i++)
+        {
+          g_assert_cmpuint (crtc_gamma->red[i], ==, 42);
+          g_assert_cmpuint (crtc_gamma->green[i], ==, 42);
+          g_assert_cmpuint (crtc_gamma->blue[i], ==, 42);
+        }
+    }
 
   connector_updates = meta_kms_update_get_connector_updates (update1);
   g_assert_cmpuint (g_list_length (connector_updates), ==, 1);
