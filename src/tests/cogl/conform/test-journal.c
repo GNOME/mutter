@@ -11,6 +11,7 @@ test_journal_unref_flush (void)
   CoglTexture *texture;
   CoglOffscreen *offscreen;
   CoglPipeline *pipeline;
+  CoglColor color;
   const int width = 1;
   const int height = 1;
   const int stride = width * 4;
@@ -26,7 +27,8 @@ test_journal_unref_flush (void)
   g_object_add_weak_pointer (G_OBJECT (offscreen), (gpointer *) &offscreen);
 
   pipeline = cogl_pipeline_new (test_ctx);
-  cogl_pipeline_set_color4ub (pipeline, 0x33, 0x33, 0x33, 0x33);
+  cogl_color_init_from_4f (&color, 0.2, 0.2, 0.2, 0.2);
+  cogl_pipeline_set_color (pipeline, &color);
   cogl_framebuffer_draw_rectangle (COGL_FRAMEBUFFER (offscreen),
                                    pipeline,
                                    -1, -1, 1, 1);

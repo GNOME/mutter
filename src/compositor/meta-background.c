@@ -857,13 +857,16 @@ meta_background_get_texture (MetaBackground       *self,
         {
           CoglPipeline *pipeline = create_pipeline (PIPELINE_REPLACE);
           int mipmap_level;
+          CoglColor color;
 
           mipmap_level = get_best_mipmap_level (texture2,
                                                 texture_width,
                                                 texture_height);
 
-          cogl_pipeline_set_color4f (pipeline,
-                                      self->blend_factor, self->blend_factor, self->blend_factor, self->blend_factor);
+          cogl_color_init_from_4f (&color,
+                                   self->blend_factor, self->blend_factor,
+                                   self->blend_factor, self->blend_factor);
+          cogl_pipeline_set_color (pipeline, &color);
           cogl_pipeline_set_layer_texture (pipeline, 0, texture2);
           cogl_pipeline_set_layer_wrap_mode (pipeline, 0, get_wrap_mode (self->style));
           cogl_pipeline_set_layer_max_mipmap_level (pipeline, 0, mipmap_level);
@@ -886,16 +889,16 @@ meta_background_get_texture (MetaBackground       *self,
         {
           CoglPipeline *pipeline = create_pipeline (PIPELINE_ADD);
           int mipmap_level;
+          CoglColor color;
 
           mipmap_level = get_best_mipmap_level (texture1,
                                                 texture_width,
                                                 texture_height);
 
-          cogl_pipeline_set_color4f (pipeline,
-                                     (1 - self->blend_factor),
-                                     (1 - self->blend_factor),
-                                     (1 - self->blend_factor),
-                                     (1 - self->blend_factor));
+          cogl_color_init_from_4f (&color,
+                                   (1 - self->blend_factor), (1 - self->blend_factor),
+                                   (1 - self->blend_factor), (1 - self->blend_factor));
+          cogl_pipeline_set_color (pipeline, &color);
           cogl_pipeline_set_layer_texture (pipeline, 0, texture1);
           cogl_pipeline_set_layer_wrap_mode (pipeline, 0, get_wrap_mode (self->style));
           cogl_pipeline_set_layer_max_mipmap_level (pipeline, 0, mipmap_level);

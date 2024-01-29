@@ -173,6 +173,7 @@ test_short_verts (TestState *state, int offset_x, int offset_y)
   CoglPipeline *pipeline, *pipeline2;
   CoglSnippet *snippet;
   CoglPrimitive *primitive;
+  CoglColor color;
 
   static const ShortVert short_verts[] =
     {
@@ -184,7 +185,8 @@ test_short_verts (TestState *state, int offset_x, int offset_y)
 
   pipeline = cogl_pipeline_copy (state->pipeline);
 
-  cogl_pipeline_set_color4ub (pipeline, 255, 0, 0, 255);
+  cogl_color_init_from_4f (&color, 1.0, 0.0, 0.0, 1.0);
+  cogl_pipeline_set_color (pipeline, &color);
 
   buffer = cogl_attribute_buffer_new (test_ctx,
                                       sizeof (short_verts), short_verts);

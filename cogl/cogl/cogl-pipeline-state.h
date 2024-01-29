@@ -60,44 +60,6 @@ cogl_pipeline_set_color (CoglPipeline    *pipeline,
                          const CoglColor *color);
 
 /**
- * cogl_pipeline_set_color4ub:
- * @pipeline: A #CoglPipeline object
- * @red: The red component
- * @green: The green component
- * @blue: The blue component
- * @alpha: The alpha component
- *
- * Sets the basic color of the pipeline, used when no lighting is enabled.
- *
- * The default value is (0xff, 0xff, 0xff, 0xff)
- */
-COGL_EXPORT void
-cogl_pipeline_set_color4ub (CoglPipeline *pipeline,
-			    uint8_t red,
-                            uint8_t green,
-                            uint8_t blue,
-                            uint8_t alpha);
-
-/**
- * cogl_pipeline_set_color4f:
- * @pipeline: A #CoglPipeline object
- * @red: The red component
- * @green: The green component
- * @blue: The blue component
- * @alpha: The alpha component
- *
- * Sets the basic color of the pipeline, used when no lighting is enabled.
- *
- * The default value is (1.0, 1.0, 1.0, 1.0)
- */
-COGL_EXPORT void
-cogl_pipeline_set_color4f (CoglPipeline *pipeline,
-                           float         red,
-                           float         green,
-                           float         blue,
-                           float         alpha);
-
-/**
  * cogl_pipeline_get_color:
  * @pipeline: A #CoglPipeline object
  * @color: (out): The location to store the color

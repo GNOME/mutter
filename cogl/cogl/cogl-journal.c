@@ -344,9 +344,10 @@ _cogl_journal_flush_modelview_and_entries (CoglJournalEntry *batch_start,
   if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_RECTANGLES)))
     {
       static CoglPipeline *outline = NULL;
-      uint8_t color_intensity;
+      float color_intensity;
       int i;
       CoglAttribute *loop_attributes[1];
+      CoglColor color;
 
       if (outline == NULL)
         outline = cogl_pipeline_new (ctx);
@@ -358,15 +359,16 @@ _cogl_journal_flush_modelview_and_entries (CoglJournalEntry *batch_start,
          in the order 0xff, 0xcc, 0x99, and 0x66. This gives a total
          of 24 colours. If there are more than 24 batches on the stage
          then it will wrap around */
-      color_intensity = 0xff - 0x33 * (ctx->journal_rectangles_color >> 3);
-      cogl_pipeline_set_color4ub (outline,
-                                  (ctx->journal_rectangles_color & 1) ?
-                                  color_intensity : 0,
-                                  (ctx->journal_rectangles_color & 2) ?
-                                  color_intensity : 0,
-                                  (ctx->journal_rectangles_color & 4) ?
-                                  color_intensity : 0,
-                                  0xff);
+      color_intensity = (0xff - 0x33 * (ctx->journal_rectangles_color >> 3) ) / 255.0;
+      cogl_color_init_from_4f (&color,
+                               (ctx->journal_rectangles_color & 1) ?
+                               color_intensity : 0.0,
+                               (ctx->journal_rectangles_color & 2) ?
+                               color_intensity : 0.0,
+                               (ctx->journal_rectangles_color & 4) ?
+                               color_intensity : 0.0,
+                               1.0);
+      cogl_pipeline_set_color (outline, &color);
 
       loop_attributes[0] = attributes[0]; /* we just want the position */
       for (i = 0; i < batch_len; i++)

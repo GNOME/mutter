@@ -11,7 +11,8 @@ create_two_layer_pipeline (void)
   CoglColor color;
 
   /* The pipeline is initially black */
-  cogl_pipeline_set_color4ub (pipeline, 0, 0, 0, 255);
+  cogl_color_init_from_4f (&color, 0.0, 0.0, 0.0, 255.0);
+  cogl_pipeline_set_color (pipeline, &color);
 
   /* The first layer adds a full red component */
   cogl_color_init_from_4ub (&color, 255, 0, 0, 255);

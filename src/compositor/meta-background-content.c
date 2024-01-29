@@ -398,6 +398,7 @@ setup_pipeline (MetaBackgroundContent *self,
   float color_component;
   CoglFramebuffer *fb;
   CoglPipelineFilter min_filter, mag_filter;
+  CoglColor color;
 
   opacity = clutter_actor_get_paint_opacity (actor);
   if (opacity < 255)
@@ -538,11 +539,12 @@ setup_pipeline (MetaBackgroundContent *self,
   else
     color_component = opacity / 255.;
 
-  cogl_pipeline_set_color4f (self->pipeline,
-                             color_component,
-                             color_component,
-                             color_component,
-                             opacity / 255.);
+  cogl_color_init_from_4f (&color,
+                           color_component,
+                           color_component,
+                           color_component,
+                           opacity / 255.);
+  cogl_pipeline_set_color (self->pipeline, &color);
 
   fb = clutter_paint_context_get_framebuffer (paint_context);
   if (meta_actor_painting_untransformed (fb,

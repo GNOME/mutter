@@ -105,6 +105,7 @@ on_paint (ClutterActor        *actor,
 {
   CoglTexture *tex0, *tex1;
   CoglPipeline *pipeline;
+  CoglColor color;
   gboolean status;
   GError *error = NULL;
   float tex_coords[] = {
@@ -118,7 +119,10 @@ on_paint (ClutterActor        *actor,
   pipeline = cogl_pipeline_new ();
 
   /* An arbitrary color which should be replaced by the first texture layer */
-  cogl_pipeline_set_color4ub (pipeline, 0x80, 0x80, 0x80, 0x80);
+  cogl_color_init_from_4f (&color,
+                           128.0 / 255.0, 128.0 / 255.0,
+                           128.0 / 255.0, 128.0 / 255.0);
+  cogl_pipeline_set_color (pipeline, &color);
   cogl_pipekine_set_blend (pipeline, "RGBA = ADD (SRC_COLOR, 0)", NULL);
 
   cogl_pipeline_set_layer_texture (pipeline, 0, tex0);

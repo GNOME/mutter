@@ -140,6 +140,7 @@ paint_damage_region (ClutterStageWindow *stage_window,
   CoglFramebuffer *framebuffer = clutter_stage_view_get_framebuffer (view);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   static CoglPipeline *overlay_blue = NULL;
+  CoglColor blue_color, red_color;
   MetaStageImpl *stage_impl = META_STAGE_IMPL (stage_window);
   ClutterActor *actor = CLUTTER_ACTOR (stage_impl->wrapper);
   graphene_matrix_t transform;
@@ -156,7 +157,8 @@ paint_damage_region (ClutterStageWindow *stage_window,
   if (G_UNLIKELY (overlay_blue == NULL))
     {
       overlay_blue = cogl_pipeline_new (ctx);
-      cogl_pipeline_set_color4ub (overlay_blue, 0x00, 0x00, 0x33, 0x33);
+      cogl_color_init_from_4f (&blue_color, 0.0, 0.0, 0.2, 0.2);
+      cogl_pipeline_set_color (overlay_blue, &blue_color);
     }
 
   n_rects = mtk_region_num_rectangles (swap_region);
@@ -182,7 +184,8 @@ paint_damage_region (ClutterStageWindow *stage_window,
       if (G_UNLIKELY (overlay_red == NULL))
         {
           overlay_red = cogl_pipeline_new (ctx);
-          cogl_pipeline_set_color4ub (overlay_red, 0x33, 0x00, 0x00, 0x33);
+          cogl_color_init_from_4f (&red_color, 0.2, 0.0, 0.0, 0.2);
+          cogl_pipeline_set_color (overlay_red, &red_color);
         }
 
       n_rects = mtk_region_num_rectangles (queued_redraw_clip);

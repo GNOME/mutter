@@ -47,11 +47,13 @@ simple_fragment_snippet (TestState *state)
 {
   CoglPipeline *pipeline;
   CoglSnippet *snippet;
+  CoglColor color;
 
   /* Simple fragment snippet */
   pipeline = cogl_pipeline_new (test_ctx);
 
-  cogl_pipeline_set_color4ub (pipeline, 255, 0, 0, 255);
+  cogl_color_init_from_4f (&color, 1.0, 0.0, 0.0, 1.0);
+  cogl_pipeline_set_color (pipeline, &color);
 
   snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT,
                               NULL, /* declarations */
@@ -71,11 +73,13 @@ simple_vertex_snippet (TestState *state)
 {
   CoglPipeline *pipeline;
   CoglSnippet *snippet;
+  CoglColor color;
 
   /* Simple vertex snippet */
   pipeline = cogl_pipeline_new (test_ctx);
 
-  cogl_pipeline_set_color4ub (pipeline, 255, 0, 0, 255);
+  cogl_color_init_from_4f (&color, 1.0, 0.0, 0.0, 1.0);
+  cogl_pipeline_set_color (pipeline, &color);
 
   snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_VERTEX,
                               NULL,
@@ -95,6 +99,7 @@ shared_uniform (TestState *state)
 {
   CoglPipeline *pipeline;
   CoglSnippet *snippet;
+  CoglColor color;
   int location;
 
   /* Snippets sharing a uniform across the vertex and fragment
@@ -104,7 +109,9 @@ shared_uniform (TestState *state)
   location = cogl_pipeline_get_uniform_location (pipeline, "a_value");
   cogl_pipeline_set_uniform_1f (pipeline, location, 0.25f);
 
-  cogl_pipeline_set_color4ub (pipeline, 255, 0, 0, 255);
+  cogl_color_init_from_4f (&color, 1.0, 0.0, 0.0, 1.0);
+  cogl_pipeline_set_color (pipeline, &color);
+
 
   snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_VERTEX,
                               "uniform float a_value;",
@@ -131,13 +138,15 @@ lots_snippets (TestState *state)
 {
   CoglPipeline *pipeline;
   CoglSnippet *snippet;
+  CoglColor color;
   int location;
   int i;
 
   /* Lots of snippets on one pipeline */
   pipeline = cogl_pipeline_new (test_ctx);
 
-  cogl_pipeline_set_color4ub (pipeline, 0, 0, 0, 255);
+  cogl_color_init_from_4f (&color, 0.0, 0.0, 0.0, 1.0);
+  cogl_pipeline_set_color (pipeline, &color);
 
   for (i = 0; i < 3; i++)
     {
@@ -175,12 +184,14 @@ shared_variable_pre_post (TestState *state)
 {
   CoglPipeline *pipeline;
   CoglSnippet *snippet;
+  CoglColor color;
 
   /* Test that the pre string can declare variables used by the post
      string */
   pipeline = cogl_pipeline_new (test_ctx);
 
-  cogl_pipeline_set_color4ub (pipeline, 255, 255, 255, 255);
+  cogl_color_init_from_4f (&color, 1.0, 1.0, 1.0, 1.0);
+  cogl_pipeline_set_color (pipeline, &color);
 
   snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT,
                               NULL, /* declarations */
@@ -489,6 +500,7 @@ test_vertex_transform_hook (TestState *state)
 {
   CoglPipeline *pipeline;
   CoglSnippet *snippet;
+  CoglColor color;
   graphene_matrix_t identity_matrix;
   graphene_matrix_t matrix;
   float v[16];
@@ -500,7 +512,8 @@ test_vertex_transform_hook (TestState *state)
 
   pipeline = cogl_pipeline_new (test_ctx);
 
-  cogl_pipeline_set_color4ub (pipeline, 255, 0, 255, 255);
+  cogl_color_init_from_4f (&color, 1.0, 0.0, 1.0, 1.0);
+  cogl_pipeline_set_color (pipeline, &color);
 
   snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_VERTEX_TRANSFORM,
                               "uniform mat4 pmat;",
@@ -642,6 +655,7 @@ test_snippet_order (TestState *state)
 {
   CoglPipeline *pipeline;
   CoglSnippet *snippet;
+  CoglColor color;
 
   /* Verify that the snippets are executed in the right order. We'll
      replace the r component of the color in the pre sections of the
@@ -652,7 +666,8 @@ test_snippet_order (TestState *state)
      component from the first */
   pipeline = cogl_pipeline_new (test_ctx);
 
-  cogl_pipeline_set_color4ub (pipeline, 0, 0, 0, 255);
+  cogl_color_init_from_4f (&color, 0.0, 0.0, 0.0, 1.0);
+  cogl_pipeline_set_color (pipeline, &color);
 
   snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT,
                               NULL,

@@ -173,6 +173,7 @@ key_group_paint (ClutterActor        *actor,
       if (i == self->selected_index)
         {
           ClutterActorBox box = { 0, };
+          CoglColor color;
 
           clutter_actor_get_allocation_box (child, &box);
 
@@ -181,7 +182,8 @@ key_group_paint (ClutterActor        *actor,
           box.x2 += 2;
           box.y2 += 2;
 
-          cogl_pipeline_set_color4ub (pipeline, 255, 255, 0, 224);
+          cogl_color_init_from_4f (&color, 1.0, 1.0, 0.0, 224.0 / 255.0);
+          cogl_pipeline_set_color (pipeline, &color);
 
           cogl_framebuffer_draw_rectangle (framebuffer, pipeline,
                                            box.x1, box.y1, box.x2, box.y2);

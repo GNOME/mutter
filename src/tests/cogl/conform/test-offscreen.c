@@ -45,6 +45,7 @@ test_paint (TestState *state)
   CoglFramebuffer *framebuffer;
   CoglPipeline *opaque_pipeline;
   CoglPipeline *texture_pipeline;
+  CoglColor color;
 
   tex = cogl_texture_2d_new_with_size (test_ctx,
                                        state->fb_width,
@@ -74,19 +75,24 @@ test_paint (TestState *state)
 
   opaque_pipeline = cogl_pipeline_new (test_ctx);
   /* red, top left */
-  cogl_pipeline_set_color4ub (opaque_pipeline, 0xff, 0x00, 0x00, 0xff);
+  cogl_color_init_from_4f (&color, 1.0, 0.0, 0.0, 1.0);
+  cogl_pipeline_set_color (opaque_pipeline, &color);
   cogl_framebuffer_draw_rectangle (framebuffer, opaque_pipeline,
                                    -0.5, 0.5, 0, 0);
   /* green, top right */
-  cogl_pipeline_set_color4ub (opaque_pipeline, 0x00, 0xff, 0x00, 0xff);
+  /* red, top left */
+  cogl_color_init_from_4f (&color, 0.0, 1.0, 0.0, 1.0);
+  cogl_pipeline_set_color (opaque_pipeline, &color);
   cogl_framebuffer_draw_rectangle (framebuffer, opaque_pipeline,
                                    0, 0.5, 0.5, 0);
   /* blue, bottom left */
-  cogl_pipeline_set_color4ub (opaque_pipeline, 0x00, 0x00, 0xff, 0xff);
+  cogl_color_init_from_4f (&color, 0.0, 0.0, 1.0, 1.0);
+  cogl_pipeline_set_color (opaque_pipeline, &color);
   cogl_framebuffer_draw_rectangle (framebuffer, opaque_pipeline,
                                    -0.5, 0, 0, -0.5);
   /* white, bottom right */
-  cogl_pipeline_set_color4ub (opaque_pipeline, 0xff, 0xff, 0xff, 0xff);
+  cogl_color_init_from_4f (&color, 1.0, 1.0, 1.0, 1.0);
+  cogl_pipeline_set_color (opaque_pipeline, &color);
   cogl_framebuffer_draw_rectangle (framebuffer, opaque_pipeline,
                                    0, 0, 0.5, -0.5);
 
@@ -124,11 +130,12 @@ test_flush (TestState *state)
   CoglTexture *tex;
   CoglOffscreen *offscreen;
   CoglFramebuffer *framebuffer;
-  CoglColor clear_color;
+  CoglColor clear_color, pipeline_color;
   int i;
 
   pipeline = cogl_pipeline_new (test_ctx);
-  cogl_pipeline_set_color4ub (pipeline, 255, 0, 0, 255);
+  cogl_color_init_from_4f (&pipeline_color, 1.0, 0.0, 0.0, 1.0);
+  cogl_pipeline_set_color (pipeline, &pipeline_color);
 
   for (i = 0; i < 3; i++)
     {

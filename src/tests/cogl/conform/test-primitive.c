@@ -157,6 +157,7 @@ test_paint (TestState *state)
 {
   CoglPipeline *pipeline;
   CoglTexture *tex;
+  CoglColor color;
   uint8_t tex_data[6];
   int i;
 
@@ -177,11 +178,12 @@ test_paint (TestState *state)
                                           6, /* rowstride */
                                           tex_data);
   pipeline = cogl_pipeline_new (test_ctx);
-  cogl_pipeline_set_color4ub (pipeline,
-                              (PRIM_COLOR >> 24) & 0xff,
-                              (PRIM_COLOR >> 16) & 0xff,
-                              (PRIM_COLOR >> 8) & 0xff,
-                              (PRIM_COLOR >> 0) & 0xff);
+  cogl_color_init_from_4f (&color,
+                           ((PRIM_COLOR >> 24) & 0xff) / 255.0,
+                           ((PRIM_COLOR >> 16) & 0xff) / 255.0,
+                           ((PRIM_COLOR >> 8) & 0xff) / 255.0,
+                           ((PRIM_COLOR >> 0) & 0xff) / 255.0);
+  cogl_pipeline_set_color (pipeline, &color);
   cogl_pipeline_set_layer_texture (pipeline, 0, tex);
   g_object_unref (tex);
 

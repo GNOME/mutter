@@ -50,9 +50,11 @@ test_point_size (void)
 {
   int fb_width = cogl_framebuffer_get_width (test_fb);
   int fb_height = cogl_framebuffer_get_height (test_fb);
+  CoglColor color;
   int point_size;
   int x_pos;
 
+  cogl_color_init_from_4f (&color, 0.0, 1.0, 0.0, 1.0);
   cogl_framebuffer_orthographic (test_fb,
                                  0, 0, /* x_1, y_1 */
                                  fb_width, /* x_2 */
@@ -79,7 +81,7 @@ test_point_size (void)
                                &point);
 
       cogl_pipeline_set_point_size (pipeline, point_size);
-      cogl_pipeline_set_color4ub (pipeline, 0, 255, 0, 255);
+      cogl_pipeline_set_color (pipeline, &color);
       cogl_primitive_draw (prim, test_fb, pipeline);
 
       g_object_unref (prim);

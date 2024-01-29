@@ -105,6 +105,7 @@ do_test (const char *attribute_name,
   int fb_height = cogl_framebuffer_get_height (test_fb);
   CoglPrimitive *primitive;
   CoglPipeline *pipeline;
+  CoglColor color;
   int i;
 
   cogl_framebuffer_orthographic (test_fb,
@@ -119,7 +120,8 @@ do_test (const char *attribute_name,
 
   primitive = create_primitive (attribute_name);
   pipeline = cogl_pipeline_new (test_ctx);
-  cogl_pipeline_set_color4ub (pipeline, 0x00, 0xff, 0x00, 0xff);
+  cogl_color_init_from_4f (&color, 0.0, 1.0, 0.0, 1.0);
+  cogl_pipeline_set_color (pipeline, &color);
   cogl_pipeline_set_per_vertex_point_size (pipeline, TRUE, NULL);
   if (pipeline_setup_func)
     pipeline_setup_func (pipeline);

@@ -49,9 +49,11 @@ test_coglbox_paint (ClutterActor        *self,
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   gfloat texcoords[4] = { 0, 0, 1, 1 };
   CoglPipeline *pipeline;
+  CoglColor color;
 
   pipeline = cogl_pipeline_new (ctx);
-  cogl_pipeline_set_color4ub (pipeline, 0x66, 0x66, 0xdd, 0xff);
+  cogl_color_init_from_4f (&color, 0.4, 0.4, 221.0 / 255.0, 1.0);
+  cogl_pipeline_set_color (pipeline, &color);
   cogl_framebuffer_draw_rectangle (framebuffer, pipeline, 0, 0, 400, 400);
   g_object_unref (pipeline);
 
@@ -65,17 +67,23 @@ test_coglbox_paint (ClutterActor        *self,
   g_object_unref (pipeline);
 
   pipeline = cogl_pipeline_new (ctx);
-  cogl_pipeline_set_color4ub (pipeline, 0xff, 0, 0, 0xff);
+
+  cogl_color_init_from_4f (&color, 1.0, 0.0, 0.0, 1.0);
+  cogl_pipeline_set_color (pipeline, &color);
   cogl_framebuffer_draw_rectangle (coglbox->framebuffer, pipeline,
                                    20, 20, 20 + 100, 20 + 100);
 
-  cogl_pipeline_set_color4ub (pipeline, 0, 0xff, 0, 0xff);
+  cogl_color_init_from_4f (&color, 0.0, 1.0, 0.0, 1.0);
+  cogl_pipeline_set_color (pipeline, &color);
   cogl_framebuffer_draw_rectangle (coglbox->framebuffer, pipeline,
                                    80, 80, 80 + 100, 80 + 100);
   g_object_unref (pipeline);
 
   pipeline = cogl_pipeline_new (ctx);
-  cogl_pipeline_set_color4ub (pipeline, 0x88, 0x88, 0x88, 0x88);
+  cogl_color_init_from_4f (&color,
+                           136.0 / 255.0, 136.0 / 255.0,
+                           136.0 / 255.0, 136.0 / 255.0);
+  cogl_pipeline_set_color (pipeline, &color);
   cogl_pipeline_set_layer_texture (pipeline, 0, coglbox->texture_id);
   cogl_framebuffer_draw_textured_rectangle (framebuffer, pipeline,
                                             100, 100,

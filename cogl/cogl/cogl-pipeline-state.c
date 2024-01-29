@@ -368,30 +368,6 @@ cogl_pipeline_set_color (CoglPipeline    *pipeline,
   pipeline->dirty_real_blend_enable = TRUE;
 }
 
-void
-cogl_pipeline_set_color4ub (CoglPipeline *pipeline,
-			    uint8_t red,
-                            uint8_t green,
-                            uint8_t blue,
-                            uint8_t alpha)
-{
-  CoglColor color;
-  cogl_color_init_from_4ub (&color, red, green, blue, alpha);
-  cogl_pipeline_set_color (pipeline, &color);
-}
-
-void
-cogl_pipeline_set_color4f (CoglPipeline *pipeline,
-			   float red,
-                           float green,
-                           float blue,
-                           float alpha)
-{
-  CoglColor color;
-  cogl_color_init_from_4f (&color, red, green, blue, alpha);
-  cogl_pipeline_set_color (pipeline, &color);
-}
-
 static void
 _cogl_pipeline_set_alpha_test_function (CoglPipeline *pipeline,
                                         CoglPipelineAlphaFunc alpha_func)

@@ -424,15 +424,15 @@ clutter_offscreen_effect_real_paint_target (ClutterOffscreenEffect *effect,
   ClutterOffscreenEffectPrivate *priv =
     clutter_offscreen_effect_get_instance_private (effect);
   ClutterPaintNode *pipeline_node;
-  guint8 paint_opacity;
+  float paint_opacity;
+  CoglColor color;
 
-  paint_opacity = clutter_actor_get_paint_opacity (priv->actor);
+  paint_opacity = clutter_actor_get_paint_opacity (priv->actor) / 255.0;
 
-  cogl_pipeline_set_color4ub (priv->pipeline,
-                              paint_opacity,
-                              paint_opacity,
-                              paint_opacity,
-                              paint_opacity);
+  cogl_color_init_from_4f (&color,
+                           paint_opacity, paint_opacity,
+                           paint_opacity, paint_opacity);
+  cogl_pipeline_set_color (priv->pipeline, &color);
 
   pipeline_node = clutter_pipeline_node_new (priv->pipeline);
   clutter_paint_node_set_static_name (pipeline_node,

@@ -97,6 +97,7 @@
  *                       ClutterActor     *actor)
  *  {
  *    MyEffect *self = MY_EFFECT (meta);
+ *    CoglColor color;
  *
  *    // Clear the previous state //
  *    if (self->rect_1)
@@ -120,11 +121,13 @@
  *
  *    // Create a red material
  *    self->rect_1 = cogl_pipeline_new ();
- *    cogl_pipeline_set_color4f (self->rect_1, 1.0, 0.0, 0.0, 1.0);
+ *    cogl_color_init_from_4f (&color, 1.0, 1.0, 1.0, 1.0);
+ *    cogl_pipeline_set_color (self->rect_1, &color);
  *
  *    // Create a green material
  *    self->rect_2 = cogl_pipeline_new ();
- *    cogl_pipeline_set_color4f (self->rect_2, 0.0, 1.0, 0.0, 1.0);
+ *    cogl_color_init_from_4f (&color, 0.0, 1.0, 0.0, 1.0);
+ *    cogl_pipeline_set_color (self->rect_2, &color);
  *  }
  *
  *  static gboolean

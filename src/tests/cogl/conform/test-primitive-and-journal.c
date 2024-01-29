@@ -55,9 +55,10 @@ create_primitives (CoglPrimitive *primitives[2])
 static CoglPipeline *
 create_pipeline (void)
 {
+  CoglColor color;
   CoglPipeline *pipeline = cogl_pipeline_new (test_ctx);
-
-  cogl_pipeline_set_color4ub (pipeline, 0, 255, 0, 255);
+  cogl_color_init_from_4f (&color, 0.0, 1.0, 0.0, 1.0);
+  cogl_pipeline_set_color (pipeline, &color);
 
   return pipeline;
 }

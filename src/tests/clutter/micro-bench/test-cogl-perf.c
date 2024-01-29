@@ -32,6 +32,7 @@ test_rectangles (TestState           *state,
   int x;
   int y;
   CoglPipeline *pipeline;
+  CoglColor color;
 
   /* Should the rectangles be randomly positioned/colored/rotated?
    *
@@ -61,14 +62,16 @@ test_rectangles (TestState           *state,
     {
       for (x = 0; x < STAGE_WIDTH; x += RECT_WIDTH)
         {
+          cogl_color_init_from_4f (&color,
+                                   1,
+                                   (1.0f / STAGE_WIDTH) * y,
+                                   (1.0f / STAGE_HEIGHT) * x,
+                                   1);
+
           cogl_framebuffer_push_matrix (framebuffer);
           cogl_framebuffer_translate (framebuffer, x, y, 0);
           cogl_framebuffer_rotate (framebuffer, 45, 0, 0, 1);
-          cogl_pipeline_set_color4f (pipeline,
-                                     1,
-                                     (1.0f / STAGE_WIDTH) * y,
-                                     (1.0f / STAGE_HEIGHT) * x,
-                                     1);
+          cogl_pipeline_set_color (pipeline, &color);
           cogl_framebuffer_draw_rectangle (framebuffer, pipeline,
                                            0, 0, RECT_WIDTH, RECT_HEIGHT);
           cogl_framebuffer_pop_matrix (framebuffer);
@@ -82,11 +85,12 @@ test_rectangles (TestState           *state,
           cogl_framebuffer_push_matrix (framebuffer);
           cogl_framebuffer_translate (framebuffer, x, y, 0);
           cogl_framebuffer_rotate (framebuffer, 0, 0, 0, 1);
-          cogl_pipeline_set_color4f (pipeline,
-                                     1,
-                                     (1.0f / STAGE_WIDTH) * x,
-                                     (1.0f / STAGE_HEIGHT) * y,
-                                     (1.0f / STAGE_WIDTH) * x);
+          cogl_color_init_from_4f (&color,
+                                   1,
+                                   (1.0f / STAGE_WIDTH) * x,
+                                   (1.0f / STAGE_HEIGHT) * y,
+                                   (1.0f / STAGE_WIDTH) * x);
+          cogl_pipeline_set_color (pipeline, &color);
           cogl_framebuffer_draw_rectangle (framebuffer, pipeline,
                                            0, 0, RECT_WIDTH, RECT_HEIGHT);
           cogl_framebuffer_pop_matrix (framebuffer);

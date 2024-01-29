@@ -202,6 +202,7 @@ meta_shadow_paint (MetaShadow      *shadow,
                    MtkRegion       *clip,
                    gboolean         clip_strictly)
 {
+  CoglColor color;
   float texture_width = cogl_texture_get_width (shadow->texture);
   float texture_height = cogl_texture_get_height (shadow->texture);
   int i, j;
@@ -214,8 +215,10 @@ meta_shadow_paint (MetaShadow      *shadow,
   if (clip && mtk_region_is_empty (clip))
     return;
 
-  cogl_pipeline_set_color4ub (shadow->pipeline,
-                              opacity, opacity, opacity, opacity);
+  cogl_color_init_from_4f (&color,
+                           opacity / 255.0, opacity / 255.0,
+                           opacity / 255.0, opacity / 255.0);
+  cogl_pipeline_set_color (shadow->pipeline, &color);
 
   if (shadow->scale_width)
     {

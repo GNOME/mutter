@@ -48,6 +48,7 @@ paint_test_backface_culling (TestState *state,
 {
   int draw_num;
   CoglPipeline *base_pipeline = cogl_pipeline_new (test_ctx);
+  CoglColor color;
 
   cogl_framebuffer_orthographic (framebuffer,
                                  0, 0,
@@ -114,7 +115,10 @@ paint_test_backface_culling (TestState *state,
       /* If the texture is sliced then cogl_polygon doesn't work so
          we'll just use a solid color instead */
       if (cogl_texture_is_sliced (state->texture))
-        cogl_pipeline_set_color4ub (pipeline, 255, 0, 0, 255);
+        {
+          cogl_color_init_from_4f (&color, 1.0, 0.0, 0.0, 1.0);
+          cogl_pipeline_set_color (pipeline, &color);
+        }
 
       /* Draw a front-facing polygon */
       verts[0].x = x1;    verts[0].y = y2;

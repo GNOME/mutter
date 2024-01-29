@@ -13,6 +13,7 @@ test_pipeline_shader_state (void)
   CoglPipeline *draw_pipeline;
   CoglTexture *tex;
   CoglSnippet *snippet;
+  CoglColor color;
 
   float width = cogl_framebuffer_get_width (test_fb);
   float height = cogl_framebuffer_get_height (test_fb);
@@ -35,7 +36,8 @@ test_pipeline_shader_state (void)
 
   base_pipeline = cogl_pipeline_new (test_ctx);
   cogl_pipeline_set_layer_texture (base_pipeline, 1, tex);
-  cogl_pipeline_set_color4f (base_pipeline, 1, 0, 0, 1);
+  cogl_color_init_from_4f (&color, 1.0, 0.0, 0.0, 1.0);
+  cogl_pipeline_set_color (base_pipeline, &color);
 
 
   /* Derive a pipeline from the template, making a change that affects

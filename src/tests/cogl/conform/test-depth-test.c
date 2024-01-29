@@ -46,6 +46,7 @@ draw_rectangle (TestState *state,
   uint8_t Ca = MASK_ALPHA (rect_state->color);
   CoglPipeline *pipeline;
   CoglDepthState depth_state;
+  CoglColor color;
 
   cogl_depth_state_init (&depth_state);
   cogl_depth_state_set_test_enabled (&depth_state, rect_state->test_enable);
@@ -62,10 +63,13 @@ draw_rectangle (TestState *state,
       return FALSE;
     }
 
+  cogl_color_init_from_4f (&color,
+                           Cr / 255.0, Cg / 255.0,
+                           Cb / 255.0, Ca / 255.0);
+  cogl_pipeline_set_color (pipeline, &color);
+
   if (!legacy_mode)
     {
-      cogl_pipeline_set_color4ub (pipeline, Cr, Cg, Cb, Ca);
-
       cogl_framebuffer_set_depth_write_enabled (test_fb,
                                                 rect_state->fb_write_enable);
       cogl_framebuffer_push_matrix (test_fb);
@@ -85,7 +89,6 @@ draw_rectangle (TestState *state,
       legacy_pipeline = cogl_pipeline_new (test_ctx);
 
       cogl_framebuffer_push_matrix (test_fb);
-      cogl_pipeline_set_color4ub (pipeline, Cr, Cg, Cb, Ca);
       cogl_framebuffer_translate (test_fb, 0, 0, rect_state->depth);
       cogl_framebuffer_draw_rectangle (test_fb,
                                        pipeline,

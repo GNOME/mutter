@@ -50,7 +50,7 @@ test_blend_paint (TestState  *state,
   uint8_t Bg = MASK_GREEN (blend_constant);
   uint8_t Bb = MASK_BLUE (blend_constant);
   uint8_t Ba = MASK_ALPHA (blend_constant);
-  CoglColor blend_const_color;
+  CoglColor blend_const_color, pipeline_color;
 
   CoglPipeline *pipeline;
   gboolean status;
@@ -60,7 +60,10 @@ test_blend_paint (TestState  *state,
 
   /* First write out the destination color without any blending... */
   pipeline = cogl_pipeline_new (test_ctx);
-  cogl_pipeline_set_color4ub (pipeline, Dr, Dg, Db, Da);
+  cogl_color_init_from_4f (&pipeline_color,
+                           Dr / 255.0, Dg / 255.0,
+                           Db / 255.0, Da / 255.0);
+  cogl_pipeline_set_color (pipeline, &pipeline_color);
   cogl_pipeline_set_blend (pipeline, "RGBA = ADD (SRC_COLOR, 0)", NULL);
   cogl_framebuffer_draw_rectangle (test_fb,
                                    pipeline,
@@ -75,7 +78,10 @@ test_blend_paint (TestState  *state,
    */
 
   pipeline = cogl_pipeline_new (test_ctx);
-  cogl_pipeline_set_color4ub (pipeline, Sr, Sg, Sb, Sa);
+  cogl_color_init_from_4f (&pipeline_color,
+                           Sr / 255.0, Sg / 255.0,
+                           Sb / 255.0, Sa / 255.0);
+  cogl_pipeline_set_color (pipeline, &pipeline_color);
 
   status = cogl_pipeline_set_blend (pipeline, blend_string, &error);
   if (!status)
@@ -174,7 +180,7 @@ test_tex_combine (TestState *state,
   uint8_t Cg = MASK_GREEN (combine_constant);
   uint8_t Cb = MASK_BLUE (combine_constant);
   uint8_t Ca = MASK_ALPHA (combine_constant);
-  CoglColor combine_const_color;
+  CoglColor combine_const_color, pipeline_color;
 
   CoglPipeline *pipeline;
   gboolean status;
@@ -188,7 +194,10 @@ test_tex_combine (TestState *state,
 
   pipeline = cogl_pipeline_new (test_ctx);
 
-  cogl_pipeline_set_color4ub (pipeline, 0x80, 0x80, 0x80, 0x80);
+  cogl_color_init_from_4f (&pipeline_color,
+                           128.0 / 255.0, 128.0 / 255.0,
+                           128.0 / 255.0, 128.0 / 255.0);
+  cogl_pipeline_set_color (pipeline, &pipeline_color);
   cogl_pipeline_set_blend (pipeline, "RGBA = ADD (SRC_COLOR, 0)", NULL);
 
   cogl_pipeline_set_layer_texture (pipeline, 0, tex0);

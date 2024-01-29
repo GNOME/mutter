@@ -48,6 +48,7 @@ test_coglbox_paint (ClutterActor        *self,
     clutter_paint_context_get_framebuffer (paint_context);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   CoglPipeline *pipeline;
+  CoglColor color;
   gfloat texcoords[4] = { 0.0f, 0.0f, 1.0f, 1.0f };
   gfloat angle;
   gfloat frac;
@@ -71,7 +72,8 @@ test_coglbox_paint (ClutterActor        *self,
   cogl_framebuffer_push_matrix (framebuffer);
 
   pipeline = cogl_pipeline_new (ctx);
-  cogl_pipeline_set_color4ub (pipeline, 0x66, 0x66, 0xdd, 0xff);
+  cogl_color_init_from_4f (&color, 0.4, 0.4, 221.0 / 255.0, 1.0);
+  cogl_pipeline_set_color (pipeline, &color);
   cogl_framebuffer_draw_rectangle (framebuffer, pipeline, 0, 0, 400, 400);
   g_object_unref (pipeline);
 
