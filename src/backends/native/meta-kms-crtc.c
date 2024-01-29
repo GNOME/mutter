@@ -180,6 +180,9 @@ read_crtc_legacy_gamma (MetaKmsCrtc       *crtc,
                        crtc_state->gamma.value->red,
                        crtc_state->gamma.value->green,
                        crtc_state->gamma.value->blue);
+
+  if (meta_gamma_lut_is_identity (crtc_state->gamma.value))
+    g_clear_pointer (&crtc_state->gamma.value, meta_gamma_lut_free);
 }
 
 static void

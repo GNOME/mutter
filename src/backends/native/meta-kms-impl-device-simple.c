@@ -534,13 +534,21 @@ process_crtc_color_updates (MetaKmsImplDevice  *impl_device,
         }
       else
         {
+          const MetaKmsCrtcState *crtc_state =
+            meta_kms_crtc_get_current_state (crtc);
+          g_autoptr (MetaGammaLut) identity_lut =
+            meta_gamma_lut_new_identity (crtc_state->gamma.size);
+
           meta_topic (META_DEBUG_KMS,
                       "[simple] Setting CRTC (%u, %s) gamma to bypass",
                       meta_kms_crtc_get_id (crtc),
                       meta_kms_impl_device_get_path (impl_device));
 
           ret = drmModeCrtcSetGamma (fd, meta_kms_crtc_get_id (crtc),
-                                     0, NULL, NULL, NULL);
+                                     identity_lut->size,
+                                     identity_lut->red,
+                                     identity_lut->green,
+                                     identity_lut->blue);
         }
 
       if (ret != 0)
