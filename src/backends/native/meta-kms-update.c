@@ -430,8 +430,6 @@ meta_kms_update_set_max_bpc (MetaKmsUpdate    *update,
   MetaKmsConnectorUpdate *connector_update;
 
   g_assert (meta_kms_connector_get_device (connector) == update->device);
-  g_return_if_fail (meta_kms_connector_is_max_bpc_supported (connector,
-                                                             max_bpc));
 
   connector_update = ensure_connector_update (update, connector);
   connector_update->max_bpc.value = max_bpc;
@@ -460,7 +458,6 @@ meta_kms_update_set_hdr_metadata (MetaKmsUpdate         *update,
   MetaKmsConnectorUpdate *connector_update;
 
   g_assert (meta_kms_connector_get_device (connector) == update->device);
-  g_return_if_fail (meta_kms_connector_is_hdr_metadata_supported (connector));
 
   connector_update = ensure_connector_update (update, connector);
   connector_update->hdr.has_update = TRUE;
@@ -478,8 +475,6 @@ meta_kms_update_set_broadcast_rgb (MetaKmsUpdate      *update,
   MetaKmsConnectorUpdate *connector_update;
 
   g_assert (meta_kms_connector_get_device (connector) == update->device);
-  g_return_if_fail (meta_kms_connector_is_broadcast_rgb_supported (connector,
-                                                                   rgb_range));
 
   connector_update = ensure_connector_update (update, connector);
   connector_update->broadcast_rgb.has_update = TRUE;

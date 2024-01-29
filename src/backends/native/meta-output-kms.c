@@ -75,8 +75,19 @@ gboolean
 meta_output_kms_can_clone (MetaOutputKms *output_kms,
                            MetaOutputKms *other_output_kms)
 {
-  return meta_kms_connector_can_clone (output_kms->kms_connector,
-                                       other_output_kms->kms_connector);
+  const MetaKmsConnectorState *state =
+    meta_kms_connector_get_current_state (output_kms->kms_connector);
+  const MetaKmsConnectorState *other_state =
+    meta_kms_connector_get_current_state (other_output_kms->kms_connector);
+
+  if (state->common_possible_clones == 0 ||
+      other_state->common_possible_clones == 0)
+    return FALSE;
+
+  if (state->encoder_device_idxs != other_state->encoder_device_idxs)
+    return FALSE;
+
+  return TRUE;
 }
 
 static GBytes *

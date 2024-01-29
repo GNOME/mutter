@@ -138,23 +138,6 @@ meta_kms_connector_get_name (MetaKmsConnector *connector)
   return connector->name;
 }
 
-gboolean
-meta_kms_connector_can_clone (MetaKmsConnector *connector,
-                              MetaKmsConnector *other_connector)
-{
-  MetaKmsConnectorState *state = connector->current_state;
-  MetaKmsConnectorState *other_state = other_connector->current_state;
-
-  if (state->common_possible_clones == 0 ||
-      other_state->common_possible_clones == 0)
-    return FALSE;
-
-  if (state->encoder_device_idxs != other_state->encoder_device_idxs)
-    return FALSE;
-
-  return TRUE;
-}
-
 MetaKmsMode *
 meta_kms_connector_get_preferred_mode (MetaKmsConnector *connector)
 {
@@ -207,34 +190,6 @@ sync_fd_held (MetaKmsConnector  *connector,
     meta_kms_impl_device_unhold_fd (impl_device);
 
   connector->fd_held = should_hold_fd;
-}
-
-gboolean
-meta_kms_connector_is_color_space_supported (MetaKmsConnector     *connector,
-                                             MetaOutputColorspace  color_space)
-{
-  return !!(connector->current_state->colorspace.supported & (1 << color_space));
-}
-
-gboolean
-meta_kms_connector_is_hdr_metadata_supported (MetaKmsConnector *connector)
-{
-  return connector->current_state->hdr.supported;
-}
-
-gboolean
-meta_kms_connector_is_broadcast_rgb_supported (MetaKmsConnector   *connector,
-                                               MetaOutputRGBRange  broadcast_rgb)
-{
-  return !!(connector->current_state->broadcast_rgb.supported & (1 << broadcast_rgb));
-}
-
-gboolean
-meta_kms_connector_is_max_bpc_supported (MetaKmsConnector *connector,
-                                         int               max_bpc)
-{
-  return max_bpc >= connector->current_state->max_bpc.min_value &&
-         max_bpc <= connector->current_state->max_bpc.max_value;
 }
 
 static void
@@ -1251,24 +1206,21 @@ meta_kms_connector_predict_state_in_impl (MetaKmsConnector *connector,
 
       if (connector_update->colorspace.has_update)
         {
-          g_warn_if_fail (meta_kms_connector_is_color_space_supported (
-                          connector,
-                          connector_update->colorspace.value));
+          g_warn_if_fail (current_state->colorspace.supported &
+                          (1 << connector_update->colorspace.value));
           current_state->colorspace.value = connector_update->colorspace.value;
         }
 
       if (connector_update->hdr.has_update)
         {
-          g_warn_if_fail (meta_kms_connector_is_hdr_metadata_supported (
-                          connector));
+          g_warn_if_fail (current_state->hdr.supported);
           current_state->hdr.value = connector_update->hdr.value;
         }
 
       if (connector_update->broadcast_rgb.has_update)
         {
-          g_warn_if_fail (meta_kms_connector_is_broadcast_rgb_supported (
-                          connector,
-                          connector_update->broadcast_rgb.value));
+          g_warn_if_fail (current_state->broadcast_rgb.supported &
+                          (1 << connector_update->broadcast_rgb.value));
           current_state->broadcast_rgb.value = connector_update->broadcast_rgb.value;
         }
     }

@@ -94,22 +94,8 @@ uint32_t meta_kms_connector_get_id (MetaKmsConnector *connector);
 
 const char * meta_kms_connector_get_name (MetaKmsConnector *connector);
 
-gboolean meta_kms_connector_can_clone (MetaKmsConnector *connector,
-                                       MetaKmsConnector *other_connector);
-
 META_EXPORT_TEST
 MetaKmsMode * meta_kms_connector_get_preferred_mode (MetaKmsConnector *connector);
 
 META_EXPORT_TEST
 const MetaKmsConnectorState * meta_kms_connector_get_current_state (MetaKmsConnector *connector);
-
-gboolean meta_kms_connector_is_color_space_supported (MetaKmsConnector     *connector,
-                                                      MetaOutputColorspace  color_space);
-
-gboolean meta_kms_connector_is_broadcast_rgb_supported (MetaKmsConnector   *connector,
-                                                        MetaOutputRGBRange  broadcast_rgb);
-
-gboolean meta_kms_connector_is_hdr_metadata_supported (MetaKmsConnector *connector);
-
-gboolean meta_kms_connector_is_max_bpc_supported (MetaKmsConnector *connector,
-                                                  int               max_bpc);
