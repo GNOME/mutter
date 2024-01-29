@@ -88,10 +88,3 @@ typedef enum _MetaKmsPropType
   META_KMS_PROP_TYPE_RAW = 0,
   META_KMS_PROP_TYPE_FIXED_16,
 } MetaKmsPropType;
-
-typedef struct _MetaKmsRange
-{
-  uint64_t value;
-  uint64_t min_value;
-  uint64_t max_value;
-} MetaKmsRange;

@@ -316,7 +316,6 @@ meta_output_kms_new (MetaGpuKms        *gpu_kms,
   const MetaKmsConnectorState *connector_state;
   GArray *crtcs;
   GList *l;
-  const MetaKmsRange *max_bpc_range;
 
   gpu_id = meta_gpu_kms_get_id (gpu_kms);
   connector_id = meta_kms_connector_get_id (kms_connector);
@@ -367,11 +366,10 @@ meta_output_kms_new (MetaGpuKms        *gpu_kms,
   output_info->hotplug_mode_update = connector_state->hotplug_mode_update;
   output_info->supports_underscanning = connector_state->underscan.supported;
 
-  max_bpc_range = meta_kms_connector_get_max_bpc (kms_connector);
-  if (max_bpc_range)
+  if (connector_state->max_bpc.supported)
     {
-      output_info->max_bpc_min = max_bpc_range->min_value;
-      output_info->max_bpc_max = max_bpc_range->max_value;
+      output_info->max_bpc_min = connector_state->max_bpc.min_value;
+      output_info->max_bpc_max = connector_state->max_bpc.max_value;
     }
 
   if (connector_state->edid_data)

@@ -57,7 +57,12 @@ typedef struct _MetaKmsConnectorState
 
   MetaMonitorTransform panel_orientation_transform;
 
-  MetaKmsRange max_bpc;
+  struct {
+    uint64_t value;
+    uint64_t min_value;
+    uint64_t max_value;
+    gboolean supported;
+  } max_bpc;
 
   struct {
     MetaOutputColorspace value;
@@ -99,8 +104,6 @@ META_EXPORT_TEST
 const MetaKmsConnectorState * meta_kms_connector_get_current_state (MetaKmsConnector *connector);
 
 gboolean meta_kms_connector_is_privacy_screen_supported (MetaKmsConnector *connector);
-
-const MetaKmsRange * meta_kms_connector_get_max_bpc (MetaKmsConnector *connector);
 
 gboolean meta_kms_connector_is_color_space_supported (MetaKmsConnector     *connector,
                                                       MetaOutputColorspace  color_space);

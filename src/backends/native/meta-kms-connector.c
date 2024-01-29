@@ -195,19 +195,6 @@ has_privacy_screen_software_toggle (MetaKmsConnector *connector)
     META_KMS_CONNECTOR_PROP_PRIVACY_SCREEN_SW_STATE) != 0;
 }
 
-const MetaKmsRange *
-meta_kms_connector_get_max_bpc (MetaKmsConnector *connector)
-{
-  const MetaKmsRange *range = NULL;
-
-  if (connector->current_state &&
-      meta_kms_connector_get_prop_id (connector,
-                                      META_KMS_CONNECTOR_PROP_MAX_BPC))
-    range = &connector->current_state->max_bpc;
-
-  return range;
-}
-
 static void
 sync_fd_held (MetaKmsConnector  *connector,
               MetaKmsImplDevice *impl_device)
@@ -446,6 +433,7 @@ state_set_properties (MetaKmsConnectorState *state,
   prop = &props[META_KMS_CONNECTOR_PROP_MAX_BPC];
   if (prop->prop_id)
     {
+      state->max_bpc.supported = TRUE;
       state->max_bpc.value = prop->value;
       state->max_bpc.min_value = prop->range_min;
       state->max_bpc.max_value = prop->range_max;
@@ -1063,7 +1051,8 @@ meta_kms_connector_state_changes (MetaKmsConnectorState *state,
   if (!kms_modes_equal (state->modes, new_state->modes))
     return META_KMS_RESOURCE_CHANGE_FULL;
 
-  if (state->max_bpc.value != new_state->max_bpc.value ||
+  if (state->max_bpc.supported != new_state->max_bpc.supported ||
+      state->max_bpc.value != new_state->max_bpc.value ||
       state->max_bpc.min_value != new_state->max_bpc.min_value ||
       state->max_bpc.max_value != new_state->max_bpc.max_value)
     return META_KMS_RESOURCE_CHANGE_FULL;
