@@ -184,13 +184,12 @@ dump_pipeline_cb (CoglNode *node, void *user_data)
 
   if (pipeline->differences & COGL_PIPELINE_STATE_COLOR)
     {
+      g_autofree char *color = NULL;
+
       changes = TRUE;
+      color = cogl_color_to_string (&pipeline->color);
       g_string_append_printf (changes_label,
-                              "\\lcolor=0x%02X%02X%02X%02X\\n",
-                              (int) (cogl_color_get_red (&pipeline->color) * 255.0),
-                              (int) (cogl_color_get_green (&pipeline->color) * 255.0),
-                              (int) (cogl_color_get_blue (&pipeline->color) * 255.0),
-                              (int) (cogl_color_get_alpha (&pipeline->color) * 255.0));
+                              "\\lcolor=%s\\n", color);
     }
 
   if (pipeline->differences & COGL_PIPELINE_STATE_BLEND)
