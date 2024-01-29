@@ -181,13 +181,6 @@ meta_kms_connector_get_current_state (MetaKmsConnector *connector)
   return connector->current_state;
 }
 
-gboolean
-meta_kms_connector_is_privacy_screen_supported (MetaKmsConnector *connector)
-{
-  return meta_kms_connector_get_prop_id (connector,
-    META_KMS_CONNECTOR_PROP_PRIVACY_SCREEN_HW_STATE) != 0;
-}
-
 static gboolean
 has_privacy_screen_software_toggle (MetaKmsConnector *connector)
 {
@@ -270,39 +263,23 @@ set_panel_orientation (MetaKmsConnectorState *state,
   state->panel_orientation_transform = transform;
 }
 
-static void
-set_privacy_screen (MetaKmsConnectorState *state,
-                    MetaKmsConnector      *connector,
-                    MetaKmsProp           *hw_state)
+static MetaPrivacyScreenState
+privacy_screen_state_hw (MetaKmsConnectorPrivacyScreen privacy_screen)
 {
-  MetaKmsConnectorPrivacyScreen privacy_screen = hw_state->value;
-
-  if (!meta_kms_connector_is_privacy_screen_supported (connector))
-    return;
-
   switch (privacy_screen)
     {
     case META_KMS_PRIVACY_SCREEN_HW_STATE_DISABLED:
-      state->privacy_screen_state = META_PRIVACY_SCREEN_DISABLED;
-      break;
+      return META_PRIVACY_SCREEN_DISABLED;
     case META_KMS_PRIVACY_SCREEN_HW_STATE_DISABLED_LOCKED:
-      state->privacy_screen_state = META_PRIVACY_SCREEN_DISABLED;
-      state->privacy_screen_state |= META_PRIVACY_SCREEN_LOCKED;
-      break;
+      return META_PRIVACY_SCREEN_DISABLED | META_PRIVACY_SCREEN_LOCKED;
     case META_KMS_PRIVACY_SCREEN_HW_STATE_ENABLED:
-      state->privacy_screen_state = META_PRIVACY_SCREEN_ENABLED;
-      break;
+      return META_PRIVACY_SCREEN_ENABLED;
     case META_KMS_PRIVACY_SCREEN_HW_STATE_ENABLED_LOCKED:
-      state->privacy_screen_state = META_PRIVACY_SCREEN_ENABLED;
-      state->privacy_screen_state |= META_PRIVACY_SCREEN_LOCKED;
-      break;
+      return META_PRIVACY_SCREEN_ENABLED | META_PRIVACY_SCREEN_LOCKED;
     default:
-      state->privacy_screen_state = META_PRIVACY_SCREEN_DISABLED;
       g_warning ("Unknown privacy screen state: %u", privacy_screen);
+      return META_PRIVACY_SCREEN_DISABLED;
     }
-
-  if (!has_privacy_screen_software_toggle (connector))
-    state->privacy_screen_state |= META_PRIVACY_SCREEN_LOCKED;
 }
 
 static MetaOutputColorspace
@@ -428,7 +405,12 @@ state_set_properties (MetaKmsConnectorState *state,
 
   prop = &props[META_KMS_CONNECTOR_PROP_PRIVACY_SCREEN_HW_STATE];
   if (prop->prop_id)
-    set_privacy_screen (state, connector, prop);
+    {
+      state->privacy_screen_state = privacy_screen_state_hw (prop->value);
+
+      if (!has_privacy_screen_software_toggle (connector))
+        state->privacy_screen_state |= META_PRIVACY_SCREEN_LOCKED;
+    }
 
   prop = &props[META_KMS_CONNECTOR_PROP_MAX_BPC];
   if (prop->prop_id)
