@@ -25,7 +25,7 @@ MUTTER_DEBUG="focus,stack" dbus-run-session mutter --wayland --nested
 
 ## Looking Glass
 
-Gnome Shell has a build-in debugger called [Looking Glass](https://gitlab.gnome.org/GNOME/gnome-shell/-/blob/main/docs/lookingGlass.md). It's possible to enable Mutter debug topics at runtime, show damage, run arbitrary JS code in the shell, and much more. It can be opened with the "Run a Command" prompt (Alt+F2) by executing `lg`.
+Gnome Shell has a build-in debugger called [Looking Glass](https://gitlab.gnome.org/GNOME/gnome-shell/-/blob/main/docs/looking-glass.md). It's possible to enable Mutter debug topics at runtime, show damage, run arbitrary JS code in the shell, and much more. It can be opened with the "Run a Command" prompt (Alt+F2) by executing `lg`.
 
 ## Tests
 
