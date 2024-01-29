@@ -210,6 +210,14 @@ typedef struct
 G_DEFINE_TYPE (MetaMonitorConfigStore, meta_monitor_config_store,
                G_TYPE_OBJECT)
 
+static void
+meta_monitor_config_init (MetaMonitorConfig *config)
+{
+  config->enable_underscanning = FALSE;
+  config->has_max_bpc = FALSE;
+  config->max_bpc = 0;
+}
+
 static gboolean
 text_equals (const char *text,
              int         len,
@@ -387,6 +395,7 @@ handle_start_element (GMarkupParseContext  *context,
         else if (g_str_equal (element_name, "monitor"))
           {
             parser->current_monitor_config = g_new0 (MetaMonitorConfig, 1);
+            meta_monitor_config_init (parser->current_monitor_config);
 
             parser->state = STATE_MONITOR;
           }
