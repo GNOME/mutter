@@ -220,6 +220,48 @@ meta_gamma_lut_new_sized (int size)
 }
 
 MetaGammaLut *
+meta_gamma_lut_new_identity (int size)
+{
+  MetaGammaLut *lut = meta_gamma_lut_new_sized (size);
+  int i;
+
+  if (size < 2)
+    return lut;
+
+  for (i = 0; i < size; i++)
+    {
+      double value = (i / (double) (size - 1));
+
+      lut->red[i] = value * UINT16_MAX;
+      lut->green[i] = value * UINT16_MAX;
+      lut->blue[i] = value * UINT16_MAX;
+    }
+
+  return lut;
+}
+
+gboolean
+meta_gamma_lut_is_identity (const MetaGammaLut *lut)
+{
+  int i;
+
+  if (!lut)
+    return TRUE;
+
+  for (i = 0; i < lut->size; i++)
+    {
+      uint16_t value = (i / (double) (lut->size - 1)) * UINT16_MAX;
+
+      if (ABS (lut->red[i] - value) > 1 ||
+          ABS (lut->green[i] - value) > 1 ||
+          ABS (lut->blue[i] - value) > 1)
+        return FALSE;
+    }
+
+  return TRUE;
+}
+
+MetaGammaLut *
 meta_gamma_lut_copy (const MetaGammaLut *gamma)
 {
   g_return_val_if_fail (gamma != NULL, NULL);
