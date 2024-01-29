@@ -74,6 +74,10 @@ typedef struct _MetaKmsConnectorState
     MetaOutputRGBRange value;
     uint64_t supported;
   } broadcast_rgb;
+
+  struct {
+    gboolean supported;
+  } underscan;
 } MetaKmsConnectorState;
 
 META_EXPORT_TEST
@@ -93,8 +97,6 @@ MetaKmsMode * meta_kms_connector_get_preferred_mode (MetaKmsConnector *connector
 
 META_EXPORT_TEST
 const MetaKmsConnectorState * meta_kms_connector_get_current_state (MetaKmsConnector *connector);
-
-gboolean meta_kms_connector_is_underscanning_supported (MetaKmsConnector *connector);
 
 gboolean meta_kms_connector_is_privacy_screen_supported (MetaKmsConnector *connector);
 

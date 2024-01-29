@@ -365,8 +365,7 @@ meta_output_kms_new (MetaGpuKms        *gpu_kms,
   output_info->suggested_x = connector_state->suggested_x;
   output_info->suggested_y = connector_state->suggested_y;
   output_info->hotplug_mode_update = connector_state->hotplug_mode_update;
-  output_info->supports_underscanning =
-    meta_kms_connector_is_underscanning_supported (kms_connector);
+  output_info->supports_underscanning = connector_state->underscan.supported;
 
   max_bpc_range = meta_kms_connector_get_max_bpc (kms_connector);
   if (max_bpc_range)
