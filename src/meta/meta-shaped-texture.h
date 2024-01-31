@@ -23,7 +23,9 @@
 
 #pragma once
 
+#if 0
 #include <cairo/cairo.h>
+#endif
 
 #include "clutter/clutter.h"
 #include "meta/common.h"
@@ -51,8 +53,10 @@ META_EXPORT
 void meta_shaped_texture_set_mask_texture (MetaShapedTexture *stex,
                                            CoglTexture       *mask_texture);
 
+#if 0
 META_EXPORT
 cairo_surface_t * meta_shaped_texture_get_image (MetaShapedTexture *stex,
                                                  MtkRectangle      *clip);
+#endif
 
 G_END_DECLS

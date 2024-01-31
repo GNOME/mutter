@@ -37,8 +37,11 @@
 #include "core/place.h"
 #include "core/workspace-private.h"
 #include "meta/prefs.h"
+
+#ifdef HAVE_X11_CLIENT
 #include "x11/meta-x11-frame.h"
 #include "x11/window-x11-private.h"
+#endif
 
 /*
 This is the short and sweet version of how to hack on this file; see

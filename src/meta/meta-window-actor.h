@@ -46,9 +46,11 @@ void               meta_window_actor_sync_visibility      (MetaWindowActor *self
 META_EXPORT
 gboolean       meta_window_actor_is_destroyed (MetaWindowActor *self);
 
+#if 0
 META_EXPORT
 cairo_surface_t * meta_window_actor_get_image (MetaWindowActor *self,
                                                MtkRectangle    *clip);
+#endif
 
 META_EXPORT
 ClutterContent * meta_window_actor_paint_to_content (MetaWindowActor  *self,

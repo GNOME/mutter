@@ -1427,6 +1427,7 @@ meta_shaped_texture_should_get_via_offscreen (MetaShapedTexture *stex)
  * Returns: (nullable) (transfer full): a new cairo surface to be freed with
  * cairo_surface_destroy().
  */
+#if 0
 cairo_surface_t *
 meta_shaped_texture_get_image (MetaShapedTexture *stex,
                                MtkRectangle      *clip)
@@ -1498,6 +1499,7 @@ meta_shaped_texture_get_image (MetaShapedTexture *stex,
 
   return surface;
 }
+#endif
 
 void
 meta_shaped_texture_set_fallback_size (MetaShapedTexture *stex,

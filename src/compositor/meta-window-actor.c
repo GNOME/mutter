@@ -1349,6 +1349,7 @@ meta_window_actor_transform_cursor_position (MetaScreenCastWindow *screen_cast_w
   return TRUE;
 }
 
+#if 0
 static void
 meta_window_actor_capture_into (MetaScreenCastWindow *screen_cast_window,
                                 MtkRectangle         *bounds,
@@ -1404,6 +1405,7 @@ meta_window_actor_capture_into (MetaScreenCastWindow *screen_cast_window,
 
   cairo_surface_destroy (image);
 }
+#endif
 
 static gboolean
 meta_window_actor_blit_to_framebuffer (MetaScreenCastWindow *screen_cast_window,
@@ -1525,7 +1527,9 @@ screen_cast_window_iface_init (MetaScreenCastWindowInterface *iface)
   iface->get_buffer_bounds = meta_window_actor_get_buffer_bounds;
   iface->transform_relative_position = meta_window_actor_transform_relative_position;
   iface->transform_cursor_position = meta_window_actor_transform_cursor_position;
+#if 0
   iface->capture_into = meta_window_actor_capture_into;
+#endif
   iface->blit_to_framebuffer = meta_window_actor_blit_to_framebuffer;
   iface->has_damage = meta_window_actor_has_damage;
   iface->inc_usage = meta_window_actor_inc_screen_cast_usage;
@@ -1640,6 +1644,7 @@ meta_window_actor_is_single_surface_actor (MetaWindowActor *self)
  * Returns: (nullable) (transfer full): a new cairo surface to be freed with
  * cairo_surface_destroy().
  */
+#if 0
 cairo_surface_t *
 meta_window_actor_get_image (MetaWindowActor *self,
                              MtkRectangle    *clip)
@@ -1738,6 +1743,7 @@ out:
   clutter_actor_uninhibit_culling (actor);
   return surface;
 }
+#endif
 
 /**
  * meta_window_actor_paint_to_content:

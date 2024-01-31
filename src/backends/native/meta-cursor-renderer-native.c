@@ -665,6 +665,7 @@ load_cursor_sprite_gbm_buffer_for_crtc (MetaCursorRendererNative *native,
   return TRUE;
 }
 
+#if 0
 static cairo_surface_t *
 scale_and_transform_cursor_sprite_cpu (uint8_t              *pixels,
                                        cairo_format_t        pixel_format,
@@ -752,6 +753,7 @@ gbm_format_to_cairo_format (uint32_t gbm_format)
       return CAIRO_FORMAT_ARGB32;
     }
 }
+#endif
 
 static gboolean
 load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
@@ -771,6 +773,7 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
       relative_transform != META_MONITOR_TRANSFORM_NORMAL ||
       gbm_format != GBM_FORMAT_ARGB8888)
     {
+      #if 0
       cairo_surface_t *surface;
       cairo_format_t cairo_format;
 
@@ -796,6 +799,7 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
                                                 GBM_FORMAT_ARGB8888);
 
       cairo_surface_destroy (surface);
+      #endif
     }
   else
     {

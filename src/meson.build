@@ -13,7 +13,7 @@ mutter_lib_deps = [
 ]
 
 mutter_pkg_deps = [
-  cairo_dep,
+#  cairo_dep,
   gio_unix_dep,
   glib_dep,
   gsettings_desktop_schemas_dep,

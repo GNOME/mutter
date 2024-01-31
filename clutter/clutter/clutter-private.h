@@ -27,9 +27,10 @@
 
 #include <string.h>
 #include <glib.h>
-#include <pango/pango.h>
 
 #ifdef HAVE_FONTS
+#include <pango/pango.h>
+
 #include "cogl-pango/cogl-pango.h"
 #endif
 
