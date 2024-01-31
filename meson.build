@@ -133,7 +133,7 @@ libei_dep = dependency('libei-1.0', version: libei_req)
 
 have_wayland = get_option('wayland')
 # For now always require X11 support
-have_x11 = true
+have_x11 = get_option('x11')
 have_xwayland = get_option('xwayland')
 have_x11_client = have_x11 or have_xwayland
 
