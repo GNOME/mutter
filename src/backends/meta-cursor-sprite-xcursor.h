@@ -19,7 +19,11 @@
 #pragma once
 
 #include <glib-object.h>
+#ifdef HAVE_X11_CLIENT
 #include <X11/Xcursor/Xcursor.h>
+#else
+#include "backends/xcursor.h"
+#endif
 
 #include "backends/meta-cursor.h"
 #include "meta/types.h"
