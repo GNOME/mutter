@@ -223,6 +223,7 @@ META_EXPORT_TEST
 GSList*     meta_display_list_windows        (MetaDisplay          *display,
                                               MetaListWindowsFlags  flags);
 
+#ifdef HAVE_X11
 void     meta_display_grab_window_buttons    (MetaDisplay *display,
                                               MetaWindow  *window);
 void     meta_display_ungrab_window_buttons  (MetaDisplay *display,
@@ -232,6 +233,7 @@ void meta_display_grab_focus_window_button   (MetaDisplay *display,
                                               MetaWindow  *window);
 void meta_display_ungrab_focus_window_button (MetaDisplay *display,
                                               MetaWindow  *window);
+#endif
 
 void meta_display_ping_window      (MetaWindow  *window,
                                     guint32      serial);

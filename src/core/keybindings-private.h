@@ -131,8 +131,10 @@ typedef struct
 
 void     meta_display_init_keys             (MetaDisplay *display);
 void     meta_display_shutdown_keys         (MetaDisplay *display);
+#ifdef HAVE_X11
 void     meta_window_grab_keys              (MetaWindow  *window);
 void     meta_window_ungrab_keys            (MetaWindow  *window);
+#endif
 gboolean meta_keybindings_process_event     (MetaDisplay        *display,
                                              MetaWindow         *window,
                                              const ClutterEvent *event);
@@ -150,8 +152,10 @@ void meta_prefs_get_locate_pointer_binding (MetaKeyCombo *combo);
 const char *meta_prefs_get_iso_next_group_option (void);
 gboolean meta_prefs_is_locate_pointer_enabled (void);
 
+#ifdef HAVE_X11
 void meta_x11_display_grab_keys   (MetaX11Display *x11_display);
 void meta_x11_display_ungrab_keys (MetaX11Display *x11_display);
+#endif
 
 gboolean meta_display_process_keybinding_event (MetaDisplay        *display,
                                                 const char         *name,

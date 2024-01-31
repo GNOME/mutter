@@ -387,7 +387,9 @@ meta_window_drag_end (MetaWindowDrag *window_drag)
 
   meta_topic (META_DEBUG_WINDOW_OPS,
               "Restoring passive key grabs on %s", grab_window->desc);
+#ifdef HAVE_X11
   meta_window_grab_keys (grab_window);
+#endif
 
   meta_display_set_cursor (display, META_CURSOR_DEFAULT);
 
@@ -1849,9 +1851,10 @@ meta_window_drag_begin (MetaWindowDrag       *window_drag,
                   "Pointer grab failed on a pointer grab op");
       return FALSE;
     }
-
+#ifdef HAVE_X11
   /* Temporarily release the passive key grabs on the window */
   meta_window_ungrab_keys (grab_window);
+#endif
 
   g_set_object (&window_drag->effective_grab_window, grab_window);
   window_drag->unmanaged_id =

@@ -5241,6 +5241,7 @@ meta_window_set_focused_internal (MetaWindow *window,
        *
        * There is dicussion in bugs 102209, 115072, and 461577
        */
+#ifdef HAVE_X11
       if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK ||
           !meta_prefs_get_raise_on_click())
         {
@@ -5249,6 +5250,7 @@ meta_window_set_focused_internal (MetaWindow *window,
              grabs go way so we need to re-grab the window buttons. */
           meta_display_grab_window_buttons (window->display, window);
         }
+#endif
 
       g_signal_emit (window, window_signals[FOCUS], 0);
 
@@ -5268,10 +5270,12 @@ meta_window_set_focused_internal (MetaWindow *window,
       if (!window->attached_focus_window)
         meta_window_update_appears_focused (window);
 
+#ifdef HAVE_X11
       /* Re-grab for click to focus and raise-on-click, if necessary */
       if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK ||
           !meta_prefs_get_raise_on_click ())
         meta_display_grab_focus_window_button (window->display, window);
+#endif
     }
 }
 
@@ -5392,7 +5396,9 @@ meta_window_type_changed (MetaWindow *window)
   /* update stacking constraints */
   meta_window_update_layer (window);
 
+#ifdef HAVE_X11_CLIENT
   meta_window_grab_keys (window);
+#endif
 
   g_object_freeze_notify (object);
 
