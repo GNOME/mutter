@@ -5378,6 +5378,7 @@ meta_window_type_changed (MetaWindow *window)
   if (!window->override_redirect)
     set_net_wm_state (window);
 
+#ifdef HAVE_X11_CLIENT
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
     {
       /* Update frame */
@@ -5386,6 +5387,7 @@ meta_window_type_changed (MetaWindow *window)
       else
         meta_window_destroy_frame (window);
     }
+#endif
 
   /* update stacking constraints */
   meta_window_update_layer (window);
