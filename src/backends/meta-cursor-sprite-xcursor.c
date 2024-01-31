@@ -95,6 +95,7 @@ translate_meta_cursor (MetaCursor cursor)
   return NULL;
 }
 
+#ifdef HAVE_X11_CLIENT
 static Cursor
 create_blank_cursor (Display *xdisplay)
 {
@@ -121,6 +122,7 @@ create_blank_cursor (Display *xdisplay)
 
   return cursor;
 }
+#endif
 
 static XcursorImages *
 create_blank_cursor_images (void)
@@ -143,6 +145,7 @@ meta_cursor_sprite_xcursor_get_cursor (MetaCursorSpriteXcursor *sprite_xcursor)
   return sprite_xcursor->cursor;
 }
 
+#ifdef HAVE_X11_CLIENT
 Cursor
 meta_create_x_cursor (Display    *xdisplay,
                       MetaCursor  cursor)
@@ -152,6 +155,7 @@ meta_create_x_cursor (Display    *xdisplay,
 
   return XcursorLibraryLoadCursor (xdisplay, translate_meta_cursor (cursor));
 }
+#endif
 
 static XcursorImages *
 load_cursor_on_client (MetaCursor cursor, int scale)

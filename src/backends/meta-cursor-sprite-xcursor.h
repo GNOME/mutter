@@ -42,5 +42,7 @@ MetaCursor meta_cursor_sprite_xcursor_get_cursor (MetaCursorSpriteXcursor *sprit
 
 XcursorImage * meta_cursor_sprite_xcursor_get_current_image (MetaCursorSpriteXcursor *sprite_xcursor);
 
+#ifdef HAVE_X11_CLIENT
 Cursor meta_create_x_cursor (Display    *xdisplay,
                              MetaCursor  cursor);
+#endif
