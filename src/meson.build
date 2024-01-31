@@ -1190,6 +1190,8 @@ foreach built_source : mutter_built_sources
   endif
 endforeach
 
+subdir('third_party')
+
 libmutter = shared_library(libmutter_name,
   mutter_sources,
   mutter_built_sources,
