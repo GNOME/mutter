@@ -1665,7 +1665,7 @@ reload_wm_hints (MetaWindow    *window,
       meta_verbose ("Window %s changed its group leader to 0x%lx",
                     window->desc, priv->xgroup_leader);
 
-      meta_window_group_leader_changed (window);
+      meta_window_x11_group_leader_changed (window);
     }
 
   meta_window_set_urgent (window, urgent);

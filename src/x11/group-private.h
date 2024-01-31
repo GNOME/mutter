@@ -32,3 +32,8 @@ struct _MetaGroup
   char *startup_id;
   char *wm_client_machine;
 };
+
+MetaGroup * meta_group_new (MetaX11Display *x11_display,
+                            Window          group_leader);
+
+void meta_group_unref (MetaGroup *group);

@@ -512,7 +512,7 @@ create_constraints (Constraint **constraints,
           GSList *tmp2;
           MetaGroup *group;
 
-          group = meta_window_get_group (w);
+          group = meta_window_x11_get_group (w);
 
           if (group != NULL)
             group_windows = meta_group_list_windows (group);

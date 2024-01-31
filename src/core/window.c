@@ -1455,7 +1455,7 @@ meta_window_unmanage (MetaWindow  *window,
       meta_stack_freeze (window->display->stack);
       if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
         {
-          group = meta_window_get_group (window);
+          group = meta_window_x11_get_group (window);
           if (group)
             meta_group_update_layers (group);
         }
@@ -1469,7 +1469,7 @@ meta_window_unmanage (MetaWindow  *window,
    * group if window->unmanaging */
 #ifdef HAVE_X11_CLIENT
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
-    meta_window_shutdown_group (window);
+    meta_window_x11_shutdown_group (window);
 #endif
 
   /* If we have the focus, focus some other window.
@@ -4470,7 +4470,7 @@ meta_window_get_startup_id (MetaWindow *window)
     {
       MetaGroup *group;
 
-      group = meta_window_get_group (window);
+      group = meta_window_x11_get_group (window);
 
       if (group != NULL)
         return meta_group_get_startup_id (group);
@@ -6114,7 +6114,7 @@ meta_window_update_layer (MetaWindow *window)
   MetaGroup *group = NULL;
 
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
-    group = meta_window_get_group (window);
+    group = meta_window_x11_get_group (window);
 
   meta_stack_freeze (window->display->stack);
   if (group)

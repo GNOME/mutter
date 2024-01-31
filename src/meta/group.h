@@ -31,16 +31,7 @@
 
 /* note, can return NULL */
 META_EXPORT
-MetaGroup* meta_window_get_group       (MetaWindow *window);
-
-META_EXPORT
-void       meta_window_compute_group   (MetaWindow* window);
-
-META_EXPORT
-void       meta_window_shutdown_group  (MetaWindow *window);
-
-META_EXPORT
-void       meta_window_group_leader_changed (MetaWindow *window);
+MetaGroup * meta_window_x11_get_group (MetaWindow *window);
 
 META_EXPORT
 GSList*    meta_group_list_windows     (MetaGroup *group);

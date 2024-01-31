@@ -108,4 +108,9 @@ gboolean meta_window_x11_has_pointer (MetaWindow *window);
 gboolean meta_window_x11_same_application (MetaWindow *window,
                                            MetaWindow *other_window);
 
+void meta_window_x11_shutdown_group (MetaWindow *window);
+
+META_EXPORT
+void meta_window_x11_group_leader_changed (MetaWindow *window);
+
 G_END_DECLS

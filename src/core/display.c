@@ -1993,10 +1993,10 @@ in_tab_chain (MetaWindow  *window,
 
   if (window->display->focus_window &&
       window->display->focus_window->client_type == META_WINDOW_CLIENT_TYPE_X11)
-    focus_group = meta_window_get_group (window->display->focus_window);
+    focus_group = meta_window_x11_get_group (window->display->focus_window);
 
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
-    window_group = meta_window_get_group (window);
+    window_group = meta_window_x11_get_group (window);
 
   in_group_tab_chain = meta_window_is_focusable (window) && (!focus_group || window_group == focus_group);
 #endif
