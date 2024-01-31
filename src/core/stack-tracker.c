@@ -41,6 +41,8 @@
 
 #include "compositor/compositor-private.h"
 #include "core/display-private.h"
+#include "core/stack.h"
+#include "core/window-private.h"
 #include "meta/util.h"
 
 #ifdef HAVE_X11_CLIENT
@@ -1033,7 +1035,9 @@ meta_stack_tracker_sync_stack (MetaStackTracker *tracker)
   GList *meta_windows;
   int n_windows;
   int i;
+#ifdef HAVE_X11_CLIENT
   MetaFrame *frame;
+#endif
 
   if (tracker->sync_stack_later)
     {
