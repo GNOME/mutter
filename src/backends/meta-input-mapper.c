@@ -392,8 +392,32 @@ match_builtin (MetaInputMapper *mapper,
 }
 
 static gboolean
+monitor_has_twin (MetaMonitor *monitor,
+                  GList       *monitors)
+{
+  GList *l;
+
+  for (l = monitors; l; l = l->next)
+    {
+      if (l->data == monitor)
+        continue;
+
+      if (g_strcmp0 (meta_monitor_get_vendor (monitor),
+                     meta_monitor_get_vendor (l->data)) == 0 &&
+          g_strcmp0 (meta_monitor_get_product (monitor),
+                     meta_monitor_get_product (l->data)) == 0 &&
+          g_strcmp0 (meta_monitor_get_serial (monitor),
+                     meta_monitor_get_serial (l->data)) == 0)
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
+static gboolean
 match_config (MetaMapperInputInfo *info,
-              MetaMonitor         *monitor)
+              MetaMonitor         *monitor,
+              GList               *monitors)
 {
   gboolean match = FALSE;
   char **edid;
@@ -402,10 +426,10 @@ match_config (MetaMapperInputInfo *info,
   edid = g_settings_get_strv (info->settings, "output");
   n_values = g_strv_length (edid);
 
-  if (n_values != 3)
+  if (n_values < 3)
     {
       g_warning ("EDID configuration for device '%s' "
-                 "is incorrect, must have 3 values",
+                 "is incorrect, must have at least 3 values",
                  clutter_input_device_get_device_name (info->device));
       goto out;
     }
@@ -416,6 +440,17 @@ match_config (MetaMapperInputInfo *info,
   match = (g_strcmp0 (meta_monitor_get_vendor (monitor), edid[0]) == 0 &&
            g_strcmp0 (meta_monitor_get_product (monitor), edid[1]) == 0 &&
            g_strcmp0 (meta_monitor_get_serial (monitor), edid[2]) == 0);
+
+  if (match && n_values >= 4 && monitor_has_twin (monitor, monitors))
+    {
+      /* The 4th value if set contains the ID (e.g. HDMI-1), use it
+       * for disambiguation if multiple monitors with the same
+       * EDID data are found.
+       */
+      MetaOutput *output;
+      output = meta_monitor_get_main_output (monitor);
+      match = g_strcmp0 (meta_output_get_name (output), edid[3]) == 0;
+    }
 
  out:
   g_strfreev (edid);
@@ -482,7 +517,7 @@ guess_candidates (MetaInputMapper     *mapper,
       if (automatic && builtin && match_builtin (mapper, l->data))
         match.score |= 1 << META_MATCH_IS_BUILTIN;
 
-      if (!automatic && match_config (input, l->data))
+      if (!automatic && match_config (input, l->data, monitors))
         match.score |= 1 << META_MATCH_CONFIG;
 
       if (match.score > 0)
