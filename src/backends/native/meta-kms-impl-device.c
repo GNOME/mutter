@@ -72,6 +72,7 @@ typedef struct _CrtcDeadline
     gboolean armed;
     gboolean is_deadline_page_flip;
     int64_t expected_presentation_time_us;
+    gboolean has_expected_presentation_time;
   } deadline;
 } CrtcFrame;
 
@@ -1138,6 +1139,7 @@ arm_crtc_frame_deadline_timer (CrtcFrame *crtc_frame,
                    TFD_TIMER_ABSTIME, &its, NULL);
 
   crtc_frame->deadline.expected_presentation_time_us = next_presentation_us;
+  crtc_frame->deadline.has_expected_presentation_time = next_presentation_us != 0;
   crtc_frame->deadline.armed = TRUE;
 }
 
@@ -1179,14 +1181,23 @@ crtc_page_flip_feedback_flipped (MetaKmsCrtc  *crtc,
       };
       presentation_time_us = meta_timeval_to_microseconds (&page_flip_timeval);
 
-      meta_topic (META_DEBUG_KMS,
-                  "Deadline page flip presentation time: %"G_GINT64_FORMAT" us, "
-                  "expected %"G_GINT64_FORMAT" us "
-                  "(diff: %"G_GINT64_FORMAT")",
-                  presentation_time_us,
-                  crtc_frame->deadline.expected_presentation_time_us,
-                  crtc_frame->deadline.expected_presentation_time_us -
-                  presentation_time_us);
+      if (crtc_frame->deadline.has_expected_presentation_time)
+        {
+          meta_topic (META_DEBUG_KMS,
+                      "Deadline page flip presentation time: %" G_GINT64_FORMAT " us, "
+                      "expected %" G_GINT64_FORMAT " us "
+                      "(diff: %" G_GINT64_FORMAT ")",
+                      presentation_time_us,
+                      crtc_frame->deadline.expected_presentation_time_us,
+                      crtc_frame->deadline.expected_presentation_time_us -
+                      presentation_time_us);
+        }
+      else
+        {
+          meta_topic (META_DEBUG_KMS,
+                      "Deadline page flip presentation time: %" G_GINT64_FORMAT " us",
+                      presentation_time_us);
+        }
     }
 
   notify_crtc_frame_ready (crtc_frame);
