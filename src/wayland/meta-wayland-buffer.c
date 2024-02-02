@@ -897,6 +897,16 @@ try_acquire_egl_image_scanout (MetaWaylandBuffer *buffer,
 #endif
 }
 
+static void
+scanout_destroyed (gpointer  data,
+                   GObject  *where_the_object_was)
+{
+  MetaWaylandBuffer *buffer = data;
+
+  meta_wayland_buffer_dec_use_count (buffer);
+  g_object_unref (buffer);
+}
+
 CoglScanout *
 meta_wayland_buffer_try_acquire_scanout (MetaWaylandBuffer *buffer,
                                          CoglOnscreen      *onscreen)
@@ -936,9 +946,15 @@ meta_wayland_buffer_try_acquire_scanout (MetaWaylandBuffer *buffer,
       return NULL;
     }
 
-  if (scanout)
-    g_signal_connect (scanout, "scanout-failed",
-                      G_CALLBACK (on_scanout_failed), buffer);
+  if (!scanout)
+    return NULL;
+
+  g_signal_connect (scanout, "scanout-failed",
+                    G_CALLBACK (on_scanout_failed), buffer);
+
+  g_object_ref (buffer);
+  meta_wayland_buffer_inc_use_count (buffer);
+  g_object_weak_ref (G_OBJECT (scanout), scanout_destroyed, buffer);
 
   return scanout;
 }

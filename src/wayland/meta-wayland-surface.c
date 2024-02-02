@@ -2253,39 +2253,18 @@ meta_wayland_surface_get_buffer_height (MetaWaylandSurface *surface)
     return 0;
 }
 
-static void
-scanout_destroyed (gpointer  data,
-                   GObject  *where_the_object_was)
-{
-  MetaWaylandBuffer *buffer = data;
-
-  meta_wayland_buffer_dec_use_count (buffer);
-  g_object_unref (buffer);
-}
-
 CoglScanout *
 meta_wayland_surface_try_acquire_scanout (MetaWaylandSurface *surface,
                                           CoglOnscreen       *onscreen)
 {
-  CoglScanout *scanout;
-  MetaWaylandBuffer *buffer;
-
   if (!surface->buffer)
     return NULL;
 
   if (surface->buffer->use_count == 0)
     return NULL;
 
-  scanout = meta_wayland_buffer_try_acquire_scanout (surface->buffer,
-                                                     onscreen);
-  if (!scanout)
-    return NULL;
-
-  buffer = g_object_ref (surface->buffer);
-  meta_wayland_buffer_inc_use_count (buffer);
-  g_object_weak_ref (G_OBJECT (scanout), scanout_destroyed, buffer);
-
-  return scanout;
+  return meta_wayland_buffer_try_acquire_scanout (surface->buffer,
+                                                  onscreen);
 }
 
 MetaCrtc *
