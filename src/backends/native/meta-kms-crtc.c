@@ -31,6 +31,8 @@
 #define DEADLINE_EVASION_US 800
 #define DEADLINE_EVASION_WITH_KMS_TOPIC_US 1000
 
+#define MINIMUM_REFRESH_RATE 30.f
+
 typedef struct _MetaKmsCrtcPropTable
 {
   MetaKmsProp props[META_KMS_CRTC_N_PROPS];
@@ -550,9 +552,6 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
   int ret;
   int64_t next_presentation_us;
   int64_t next_deadline_us;
-  drmModeModeInfo *drm_mode;
-  int64_t vblank_duration_us;
-  int64_t deadline_evasion_us;
 
   if (!crtc->current_state.is_drm_mode_valid)
     {
@@ -578,30 +577,45 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
       return FALSE;
     }
 
-  drm_mode = &crtc->current_state.drm_mode;
-  next_presentation_us =
-    s2us (vblank.reply.tval_sec) + vblank.reply.tval_usec + 0.5 +
-    G_USEC_PER_SEC / meta_calculate_drm_mode_refresh_rate (drm_mode);
-
-  /*
-   *                         1
-   * time per pixel = -----------------
-   *                   Pixel clock (Hz)
-   *
-   * number of pixels = vdisplay * htotal
-   *
-   * time spent scanning out = time per pixel * number of pixels
-   *
-   */
-
-  if (meta_is_topic_enabled (META_DEBUG_KMS))
-    deadline_evasion_us = DEADLINE_EVASION_WITH_KMS_TOPIC_US;
+  if (crtc->current_state.vrr_enabled)
+    {
+      next_presentation_us = 0;
+      next_deadline_us =
+        s2us (vblank.reply.tval_sec) + vblank.reply.tval_usec + 0.5 +
+        G_USEC_PER_SEC / MINIMUM_REFRESH_RATE;
+    }
   else
-    deadline_evasion_us = DEADLINE_EVASION_US;
+    {
+      drmModeModeInfo *drm_mode;
+      int64_t vblank_duration_us;
+      int64_t deadline_evasion_us;
 
-  vblank_duration_us = meta_calculate_drm_mode_vblank_duration_us (drm_mode);
-  next_deadline_us = next_presentation_us - (vblank_duration_us +
-                                             deadline_evasion_us);
+      drm_mode = &crtc->current_state.drm_mode;
+
+      next_presentation_us =
+        s2us (vblank.reply.tval_sec) + vblank.reply.tval_usec + 0.5 +
+        G_USEC_PER_SEC / meta_calculate_drm_mode_refresh_rate (drm_mode);
+
+      /*
+       *                         1
+       * time per pixel = -----------------
+       *                   Pixel clock (Hz)
+       *
+       * number of pixels = vdisplay * htotal
+       *
+       * time spent scanning out = time per pixel * number of pixels
+       *
+       */
+
+      if (meta_is_topic_enabled (META_DEBUG_KMS))
+        deadline_evasion_us = DEADLINE_EVASION_WITH_KMS_TOPIC_US;
+      else
+        deadline_evasion_us = DEADLINE_EVASION_US;
+
+      vblank_duration_us = meta_calculate_drm_mode_vblank_duration_us (drm_mode);
+      next_deadline_us = next_presentation_us - (vblank_duration_us +
+                                                 deadline_evasion_us);
+    }
 
   *out_next_presentation_us = next_presentation_us;
   *out_next_deadline_us = next_deadline_us;
