@@ -4,11 +4,11 @@
 
 ```mermaid
 stateDiagram
-    Init --> Scheduled : schedule update() -> now
-    Idle --> Scheduled : schedule update() -> given presentation time
-    Scheduled --> Dispatching : target time hit
+    Init --> Scheduled/ScheduledNow : schedule update() -> now
+    Idle --> Scheduled/ScheduledNow : schedule update() -> given presentation time
+    Scheduled/ScheduledNow --> Dispatching : target time hit
     Dispatching --> PendingPresented : queued page flip
     Dispatching --> Idle : no queued page flip
-    PendingPresented --> Scheduled : page flipped, if recent schedule update
+    PendingPresented --> Scheduled/ScheduledNow : page flipped, if recent schedule update
     PendingPresented --> Idle : page flipped
 ```

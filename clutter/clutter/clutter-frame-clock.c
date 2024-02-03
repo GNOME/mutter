@@ -55,6 +55,7 @@ typedef enum _ClutterFrameClockState
   CLUTTER_FRAME_CLOCK_STATE_INIT,
   CLUTTER_FRAME_CLOCK_STATE_IDLE,
   CLUTTER_FRAME_CLOCK_STATE_SCHEDULED,
+  CLUTTER_FRAME_CLOCK_STATE_SCHEDULED_NOW,
   CLUTTER_FRAME_CLOCK_STATE_DISPATCHING,
   CLUTTER_FRAME_CLOCK_STATE_PENDING_PRESENTED,
 } ClutterFrameClockState;
@@ -390,6 +391,7 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
     case CLUTTER_FRAME_CLOCK_STATE_INIT:
     case CLUTTER_FRAME_CLOCK_STATE_IDLE:
     case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED:
+    case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED_NOW:
       g_warn_if_reached ();
       break;
     case CLUTTER_FRAME_CLOCK_STATE_DISPATCHING:
@@ -411,6 +413,7 @@ clutter_frame_clock_notify_ready (ClutterFrameClock *frame_clock)
     case CLUTTER_FRAME_CLOCK_STATE_INIT:
     case CLUTTER_FRAME_CLOCK_STATE_IDLE:
     case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED:
+    case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED_NOW:
       g_warn_if_reached ();
       break;
     case CLUTTER_FRAME_CLOCK_STATE_DISPATCHING:
@@ -620,6 +623,11 @@ clutter_frame_clock_inhibit (ClutterFrameClock *frame_clock)
           frame_clock->pending_reschedule = TRUE;
           frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_IDLE;
           break;
+        case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED_NOW:
+          frame_clock->pending_reschedule = TRUE;
+          frame_clock->pending_reschedule_now = TRUE;
+          frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_IDLE;
+          break;
         case CLUTTER_FRAME_CLOCK_STATE_DISPATCHING:
         case CLUTTER_FRAME_CLOCK_STATE_PENDING_PRESENTED:
           break;
@@ -659,6 +667,8 @@ clutter_frame_clock_schedule_update_now (ClutterFrameClock *frame_clock)
     case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED:
       next_update_time_us = g_get_monotonic_time ();
       break;
+    case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED_NOW:
+      return;
     case CLUTTER_FRAME_CLOCK_STATE_DISPATCHING:
     case CLUTTER_FRAME_CLOCK_STATE_PENDING_PRESENTED:
       frame_clock->pending_reschedule = TRUE;
@@ -670,7 +680,7 @@ clutter_frame_clock_schedule_update_now (ClutterFrameClock *frame_clock)
 
   frame_clock->next_update_time_us = next_update_time_us;
   g_source_set_ready_time (frame_clock->source, next_update_time_us);
-  frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_SCHEDULED;
+  frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_SCHEDULED_NOW;
   frame_clock->is_next_presentation_time_valid = FALSE;
   frame_clock->has_next_frame_deadline = FALSE;
 }
@@ -702,6 +712,7 @@ clutter_frame_clock_schedule_update (ClutterFrameClock *frame_clock)
         (frame_clock->next_frame_deadline_us != 0);
       break;
     case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED:
+    case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED_NOW:
       return;
     case CLUTTER_FRAME_CLOCK_STATE_DISPATCHING:
     case CLUTTER_FRAME_CLOCK_STATE_PENDING_PRESENTED:
@@ -808,6 +819,7 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
       break;
     case CLUTTER_FRAME_CLOCK_STATE_IDLE:
     case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED:
+    case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED_NOW:
       break;
     case CLUTTER_FRAME_CLOCK_STATE_DISPATCHING:
       switch (result)
