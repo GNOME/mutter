@@ -83,6 +83,9 @@ struct _ClutterFrameClock
   gboolean has_next_frame_deadline;
   int64_t next_frame_deadline_us;
 
+  gboolean has_last_next_presentation_time;
+  int64_t last_next_presentation_time_us;
+
   /* Buffer must be submitted to KMS and GPU rendering must be finished
    * this amount of time before the next presentation time.
    */
@@ -258,18 +261,23 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
   COGL_TRACE_DESCRIBE (ClutterFrameClockNotifyPresented,
                        frame_clock->output_name);
 
+  frame_clock->last_next_presentation_time_us =
+    frame_clock->next_presentation_time_us;
+  frame_clock->has_last_next_presentation_time =
+    frame_clock->is_next_presentation_time_valid;
+
   if (G_UNLIKELY (CLUTTER_HAS_DEBUG (FRAME_CLOCK)))
     {
       int64_t now_us;
 
-      if (frame_clock->is_next_presentation_time_valid &&
+      if (frame_clock->has_last_next_presentation_time &&
           frame_info->presentation_time != 0)
         {
           int64_t diff_us;
           int n_missed_frames;
 
           diff_us = llabs (frame_info->presentation_time -
-                           frame_clock->next_presentation_time_us);
+                           frame_clock->last_next_presentation_time_us);
           n_missed_frames =
             (int) roundf ((float) diff_us /
                           (float) frame_clock->refresh_interval_us);
@@ -543,9 +551,8 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
       next_presentation_time_us = now_us - current_phase_us + refresh_interval_us;
     }
 
-  if (frame_clock->is_next_presentation_time_valid)
+  if (frame_clock->has_last_next_presentation_time)
     {
-      int64_t last_next_presentation_time_us;
       int64_t time_since_last_next_presentation_time_us;
 
       /*
@@ -562,9 +569,8 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
        *             time_since_last_next_presentation_time_us
        *
        */
-      last_next_presentation_time_us = frame_clock->next_presentation_time_us;
       time_since_last_next_presentation_time_us =
-        next_presentation_time_us - last_next_presentation_time_us;
+        next_presentation_time_us - frame_clock->last_next_presentation_time_us;
       if (time_since_last_next_presentation_time_us > 0 &&
           time_since_last_next_presentation_time_us < (refresh_interval_us / 2))
         {
