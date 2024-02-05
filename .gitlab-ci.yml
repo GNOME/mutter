@@ -124,23 +124,23 @@ variables:
 
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/jadahl/catch.git \
-        main . 29ad36e2b1d28ac9d8b2bc44af46296cb1db5d66
+        main
 
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/GNOME/glib.git \
-        main . a7c34b431bfaf3d56de64cb1cfea851ac11099d3
+        main
 
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.freedesktop.org/libinput/libei.git \
-        1.0.901 .
+        1.0.901
 
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas.git \
-        master .
+        master
 
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.freedesktop.org/wayland/wayland-protocols.git \
-        1.33 .
+        1.33
 
       rpm -e --nodeps gnome-bluetooth-libs-devel \
                       mutter mutter-devel \
