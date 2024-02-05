@@ -754,7 +754,7 @@ check_barrier (MetaInputCaptureSession  *session,
       MetaLogicalMonitor *next;
       MtkRectangle layout, fake_layout;
 
-      monitor = meta_monitor_manager_get_logical_monitor_at (monitor_manager, 0, 0);
+      monitor = meta_monitor_manager_get_primary_logical_monitor (monitor_manager);
       while ((next = meta_monitor_manager_get_logical_monitor_neighbor (monitor_manager, monitor, META_DISPLAY_RIGHT)))
         monitor = next;
 
