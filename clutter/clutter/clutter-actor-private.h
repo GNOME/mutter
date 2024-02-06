@@ -83,9 +83,7 @@ typedef ClutterActorTraverseVisitFlags (*ClutterTraverseCallback) (ClutterActor 
  * @user_data: The private data specified when starting the iteration
  *
  * A generic callback for iterating over actor, such as with
- * _clutter_actor_foreach_child. The difference when compared to
- * #ClutterCallback is that it returns a boolean so it is possible to break
- * out of an iteration early.
+ * _clutter_actor_foreach_child.
  *
  * Return value: %TRUE to continue iterating or %FALSE to break iteration
  * early.

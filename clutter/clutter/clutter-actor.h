@@ -56,24 +56,6 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterActor, g_object_unref)
 typedef struct _ClutterActorClass    ClutterActorClass;
 typedef struct _ClutterActorPrivate  ClutterActorPrivate;
 
-/**
- * ClutterCallback:
- * @actor: a #ClutterActor
- * @data: (closure): user data
- *
- * Generic callback
- */
-typedef void (*ClutterCallback) (ClutterActor *actor,
-                                 gpointer      data);
-
-/**
- * CLUTTER_CALLBACK:
- * @f: a function
- *
- * Convenience macro to cast a function to #ClutterCallback
- */
-#define CLUTTER_CALLBACK(f)        ((ClutterCallback) (f))
-
 
 struct _ClutterActor
 {

@@ -42,27 +42,6 @@ G_DECLARE_FINAL_TYPE (ClutterBindingPool,
                       BINDING_POOL,
                       GObject)
 
-/**
- * ClutterBindingActionFunc:
- * @gobject: a #GObject
- * @action_name: the name of the action
- * @key_val: the key symbol
- * @modifiers: bitmask of the modifier flags
- * @user_data: data passed to the function
- *
- * The prototype for the callback function registered with
- * [method@Clutter.BindingPool.install_action] and invoked by
- * [method@Clutter.BindingPool.activate].
- *
- * Return value: the function should return %TRUE if the key
- *   binding has been handled, and return %FALSE otherwise
- */
-typedef gboolean (* ClutterBindingActionFunc) (GObject             *gobject,
-                                               const gchar         *action_name,
-                                               guint                key_val,
-                                               ClutterModifierType  modifiers,
-                                               gpointer             user_data);
-
 CLUTTER_EXPORT
 ClutterBindingPool *  clutter_binding_pool_new              (const gchar         *name);
 CLUTTER_EXPORT

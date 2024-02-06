@@ -24,9 +24,6 @@
 #include "backends/native/meta-kms-types.h"
 #include "backends/native/meta-kms-types-private.h"
 
-typedef void (* MetaKmsCallback) (MetaKms  *kms,
-                                  gpointer  user_data);
-
 void meta_kms_queue_callback (MetaKms            *kms,
                               GMainContext       *main_context,
                               MetaThreadCallback  callback,

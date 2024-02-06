@@ -429,7 +429,7 @@ clutter_binding_pool_find (const gchar *name)
  * @action_name: the name of the action
  * @key_val: key symbol
  * @modifiers: bitmask of modifiers
- * @callback: (type Clutter.BindingActionFunc): function to be called
+ * @callback: function to be called
  *   when the action is activated
  * @data: data to be passed to @callback
  * @notify: function to be called when the action is removed
