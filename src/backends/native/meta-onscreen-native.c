@@ -1277,6 +1277,9 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
           g_warning ("Failed to lock front buffer on %s: %s",
                      meta_device_file_get_path (render_device_file),
                      error->message);
+
+          frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
+          meta_onscreen_native_notify_frame_complete (onscreen);
           return;
         }
 
