@@ -38,16 +38,14 @@
 
 #include "backends/meta-screen-cast-session.h"
 #include "backends/meta-screen-cast-stream.h"
-#include "clutter/clutter-mutter.h"
 #include "core/meta-fraction.h"
-#include "meta/boxes.h"
 
 #define PRIVATE_OWNER_FROM_FIELD(TypeName, field_ptr, field_name) \
-  (TypeName *)((guint8 *)(field_ptr) - G_PRIVATE_OFFSET (TypeName, field_name))
+        (TypeName *)((guint8 *)(field_ptr) - G_PRIVATE_OFFSET (TypeName, field_name))
 
 #define CURSOR_META_SIZE(width, height) \
-  (sizeof (struct spa_meta_cursor) + \
-   sizeof (struct spa_meta_bitmap) + width * height * 4)
+        (sizeof (struct spa_meta_cursor) + \
+         sizeof (struct spa_meta_bitmap) + width * height * 4)
 
 #define NUM_DAMAGED_RECTS 32
 #define DEFAULT_SIZE SPA_RECTANGLE (1280, 720)
