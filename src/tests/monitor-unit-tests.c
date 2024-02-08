@@ -8715,6 +8715,27 @@ meta_test_monitor_migrated_wiggle_discard (void)
     g_error ("Failed to remove test data output file: %s", error->message);
 }
 
+static void
+meta_test_monitor_custom_detached_groups (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorConfigManager *config_manager = monitor_manager->config_manager;
+  MetaMonitorConfigStore *config_store =
+    meta_monitor_config_manager_get_store (config_manager);
+  g_autofree char *path = NULL;
+  g_autoptr (GError) error = NULL;
+
+  path = g_test_build_filename (G_TEST_DIST, "tests", "monitor-configs",
+                                "detached-groups.xml", NULL);
+  meta_monitor_config_store_set_custom (config_store, path, NULL,
+                                        META_MONITORS_CONFIG_FLAG_NONE,
+                                        &error);
+  g_assert_nonnull (error);
+  g_assert_cmpstr (error->message, ==, "Logical monitors not adjacent");
+}
+
 static gboolean
 quit_main_loop (gpointer data)
 {
@@ -10081,6 +10102,8 @@ init_monitor_tests (void)
                     meta_test_monitor_custom_oneoff);
   add_monitor_test ("/backends/monitor/custom/lid-switch-config",
                     meta_test_monitor_custom_lid_switch_config);
+  add_monitor_test ("/backends/monitor/custom/detached-groups",
+                    meta_test_monitor_custom_detached_groups);
 
   add_monitor_test ("/backends/monitor/migrated/rotated",
                     meta_test_monitor_migrated_rotated);

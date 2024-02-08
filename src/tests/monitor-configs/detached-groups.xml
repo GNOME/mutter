@@ -1,0 +1,153 @@
+<monitors version="2">
+  <!--
+    Roughly contains the following layout:
+
+       +-----+-----+           +-----+-----+
+       |     |     |           |     |     |
+       |     |     |           |     |     |
+       +-----+-----+           +-----+-----+
+       |     |     |           |     |     |
+       |     |     |           |     |     |
+       +-----+-----+           +-----+-----+
+  -->
+  <configuration>
+    <logicalmonitor>
+      <x>0</x>
+      <y>0</y>
+      <primary>yes</primary>
+      <monitor>
+	<monitorspec>
+	  <connector>DP-1</connector>
+	  <vendor>MetaProduct&apos;s Inc.</vendor>
+	  <product>MetaMonitor</product>
+	  <serial>0x1000</serial>
+	</monitorspec>
+	<mode>
+	  <width>1024</width>
+	  <height>768</height>
+	  <rate>60</rate>
+	</mode>
+      </monitor>
+    </logicalmonitor>
+    <logicalmonitor>
+      <x>0</x>
+      <y>768</y>
+      <monitor>
+	<monitorspec>
+	  <connector>DP-2</connector>
+	  <vendor>MetaProduct&apos;s Inc.</vendor>
+	  <product>MetaMonitor</product>
+	  <serial>0x1001</serial>
+	</monitorspec>
+	<mode>
+	  <width>1024</width>
+	  <height>768</height>
+	  <rate>60</rate>
+	</mode>
+      </monitor>
+    </logicalmonitor>
+    <logicalmonitor>
+      <x>1024</x>
+      <y>768</y>
+      <monitor>
+	<monitorspec>
+	  <connector>DP-2</connector>
+	  <vendor>MetaProduct&apos;s Inc.</vendor>
+	  <product>MetaMonitor</product>
+	  <serial>0x1001</serial>
+	</monitorspec>
+	<mode>
+	  <width>1024</width>
+	  <height>768</height>
+	  <rate>60</rate>
+	</mode>
+      </monitor>
+    </logicalmonitor>
+    <logicalmonitor>
+      <x>1024</x>
+      <y>0</y>
+      <monitor>
+	<monitorspec>
+	  <connector>DP-2</connector>
+	  <vendor>MetaProduct&apos;s Inc.</vendor>
+	  <product>MetaMonitor</product>
+	  <serial>0x1001</serial>
+	</monitorspec>
+	<mode>
+	  <width>1024</width>
+	  <height>768</height>
+	  <rate>60</rate>
+	</mode>
+      </monitor>
+    </logicalmonitor>
+
+    <logicalmonitor>
+      <x>10000</x>
+      <y>0</y>
+      <monitor>
+	<monitorspec>
+	  <connector>DP-1</connector>
+	  <vendor>MetaProduct&apos;s Inc.</vendor>
+	  <product>MetaMonitor</product>
+	  <serial>0x1000</serial>
+	</monitorspec>
+	<mode>
+	  <width>1024</width>
+	  <height>768</height>
+	  <rate>60</rate>
+	</mode>
+      </monitor>
+    </logicalmonitor>
+    <logicalmonitor>
+      <x>10000</x>
+      <y>768</y>
+      <monitor>
+	<monitorspec>
+	  <connector>DP-2</connector>
+	  <vendor>MetaProduct&apos;s Inc.</vendor>
+	  <product>MetaMonitor</product>
+	  <serial>0x1001</serial>
+	</monitorspec>
+	<mode>
+	  <width>1024</width>
+	  <height>768</height>
+	  <rate>60</rate>
+	</mode>
+      </monitor>
+    </logicalmonitor>
+    <logicalmonitor>
+      <x>11024</x>
+      <y>768</y>
+      <monitor>
+	<monitorspec>
+	  <connector>DP-2</connector>
+	  <vendor>MetaProduct&apos;s Inc.</vendor>
+	  <product>MetaMonitor</product>
+	  <serial>0x1001</serial>
+	</monitorspec>
+	<mode>
+	  <width>1024</width>
+	  <height>768</height>
+	  <rate>60</rate>
+	</mode>
+      </monitor>
+    </logicalmonitor>
+    <logicalmonitor>
+      <x>11024</x>
+      <y>0</y>
+      <monitor>
+	<monitorspec>
+	  <connector>DP-2</connector>
+	  <vendor>MetaProduct&apos;s Inc.</vendor>
+	  <product>MetaMonitor</product>
+	  <serial>0x1001</serial>
+	</monitorspec>
+	<mode>
+	  <width>1024</width>
+	  <height>768</height>
+	  <rate>60</rate>
+	</mode>
+      </monitor>
+    </logicalmonitor>
+  </configuration>
+</monitors>

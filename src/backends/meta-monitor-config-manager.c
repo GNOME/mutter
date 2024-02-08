@@ -1876,20 +1876,20 @@ meta_verify_logical_monitor_config (MetaLogicalMonitorConfig    *logical_monitor
   return TRUE;
 }
 
-static gboolean
-has_adjacent_neighbour (MetaMonitorsConfig       *config,
-                        MetaLogicalMonitorConfig *logical_monitor_config)
+static GList *
+find_adjacent_neighbours (GList                    *logical_monitor_configs,
+                          MetaLogicalMonitorConfig *logical_monitor_config)
 {
+  GList *adjacent_neighbors = NULL;
   GList *l;
 
-  if (!config->logical_monitor_configs->next)
+  if (!logical_monitor_configs->next)
     {
-      g_assert (config->logical_monitor_configs->data ==
-                logical_monitor_config);
-      return TRUE;
+      g_assert (logical_monitor_configs->data == logical_monitor_config);
+      return NULL;
     }
 
-  for (l = config->logical_monitor_configs; l; l = l->next)
+  for (l = logical_monitor_configs; l; l = l->next)
     {
       MetaLogicalMonitorConfig *other_logical_monitor_config = l->data;
 
@@ -1898,10 +1898,52 @@ has_adjacent_neighbour (MetaMonitorsConfig       *config,
 
       if (mtk_rectangle_is_adjacent_to (&logical_monitor_config->layout,
                                         &other_logical_monitor_config->layout))
-        return TRUE;
+        {
+          adjacent_neighbors = g_list_prepend (adjacent_neighbors,
+                                               other_logical_monitor_config);
+        }
     }
 
-  return FALSE;
+  return adjacent_neighbors;
+}
+
+static void
+traverse_new_neighbours (GList                    *logical_monitor_configs,
+                         MetaLogicalMonitorConfig *logical_monitor_config,
+                         GHashTable               *neighbourhood)
+{
+  g_autoptr (GList) adjacent_neighbours = NULL;
+  GList *l;
+
+  g_hash_table_add (neighbourhood, logical_monitor_config);
+
+  adjacent_neighbours = find_adjacent_neighbours (logical_monitor_configs,
+                                                  logical_monitor_config);
+
+  for (l = adjacent_neighbours; l; l = l->next)
+    {
+      MetaLogicalMonitorConfig *neighbour = l->data;
+
+      if (g_hash_table_contains (neighbourhood, neighbour))
+        continue;
+
+      traverse_new_neighbours (logical_monitor_configs, neighbour, neighbourhood);
+    }
+}
+
+static gboolean
+is_connected_to_all (MetaLogicalMonitorConfig *logical_monitor_config,
+                     GList                    *logical_monitor_configs)
+{
+  g_autoptr (GHashTable) neighbourhood = NULL;
+
+  neighbourhood = g_hash_table_new (NULL, NULL);
+
+  traverse_new_neighbours (logical_monitor_configs,
+                           logical_monitor_config,
+                           neighbourhood);
+
+  return g_hash_table_size (neighbourhood) == g_list_length (logical_monitor_configs);
 }
 
 gboolean
@@ -1962,6 +2004,7 @@ meta_verify_monitors_config (MetaMonitorsConfig *config,
   min_y = INT_MAX;
   region = NULL;
   has_primary = FALSE;
+
   for (l = config->logical_monitor_configs; l; l = l->next)
     {
       MetaLogicalMonitorConfig *logical_monitor_config = l->data;
@@ -2002,7 +2045,7 @@ meta_verify_monitors_config (MetaMonitorsConfig *config,
           has_primary = TRUE;
         }
 
-      if (!has_adjacent_neighbour (config, logical_monitor_config))
+      if (!is_connected_to_all (logical_monitor_config, config->logical_monitor_configs))
         {
           g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                        "Logical monitors not adjacent");
