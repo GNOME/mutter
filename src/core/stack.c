@@ -510,9 +510,10 @@ create_constraints (Constraint **constraints,
         {
           GSList *group_windows;
           GSList *tmp2;
-          MetaGroup *group;
+          MetaGroup *group = NULL;
 
-          group = meta_window_x11_get_group (w);
+          if (w->client_type == META_WINDOW_CLIENT_TYPE_X11)
+            group = meta_window_x11_get_group (w);
 
           if (group != NULL)
             group_windows = meta_group_list_windows (group);
