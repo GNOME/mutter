@@ -861,7 +861,7 @@ cogl_onscreen_glx_swap_region (CoglOnscreen  *onscreen,
 
     x_min = CLAMP (x_min, 0, framebuffer_width);
     x_max = CLAMP (x_max, 0, framebuffer_width);
-    y_min = CLAMP (y_min, 0, framebuffer_width);
+    y_min = CLAMP (y_min, 0, framebuffer_height);
     y_max = CLAMP (y_max, 0, framebuffer_height);
 
     output =
