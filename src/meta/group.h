@@ -41,6 +41,7 @@ GSList*    meta_group_list_windows     (MetaGroup *group);
 META_EXPORT
 MetaGroup *meta_x11_display_lookup_group (MetaX11Display *x11_display,
                                           Window          group_leader);
+#endif
 
 META_EXPORT
 void       meta_group_update_layers    (MetaGroup *group);
@@ -51,6 +52,7 @@ const char* meta_group_get_startup_id  (MetaGroup *group);
 META_EXPORT
 int        meta_group_get_size         (MetaGroup *group);
 
+#ifdef HAVE_X11
 META_EXPORT
 gboolean meta_group_property_notify   (MetaGroup  *group,
                                        XEvent     *event);
