@@ -3010,7 +3010,6 @@ _clutter_actor_apply_relative_transformation_matrix (ClutterActor      *self,
 static void
 _clutter_actor_draw_paint_volume_full (ClutterActor       *self,
                                        ClutterPaintVolume *pv,
-                                       const char         *label,
                                        const ClutterColor *color,
                                        ClutterPaintNode   *node)
 {
@@ -3068,29 +3067,6 @@ _clutter_actor_draw_paint_volume_full (ClutterActor       *self,
   clutter_paint_node_add_primitive (pipeline_node, prim);
   clutter_paint_node_add_child (node, pipeline_node);
   g_object_unref (prim);
-
-  if (label)
-    {
-      g_autoptr (ClutterPaintNode) text_node = NULL;
-      PangoLayout *layout;
-
-      layout = pango_layout_new (clutter_actor_get_pango_context (self));
-      pango_layout_set_text (layout, label, -1);
-
-      text_node = clutter_text_node_new (layout, color);
-      clutter_paint_node_set_static_name (text_node,
-                                          "ClutterActor (paint volume label)");
-      clutter_paint_node_add_rectangle (text_node,
-                                        &(ClutterActorBox) {
-                                          .x1 = pv->vertices[0].x,
-                                          .y1 = pv->vertices[0].y,
-                                          .x2 = pv->vertices[2].x,
-                                          .y2 = pv->vertices[2].y,
-                                        });
-      clutter_paint_node_add_child (node, text_node);
-
-      g_object_unref (layout);
-    }
 }
 
 static void
@@ -3115,7 +3091,6 @@ _clutter_actor_draw_paint_volume (ClutterActor     *self,
 
       clutter_color_init (&color, 0, 0, 255, 255);
       _clutter_actor_draw_paint_volume_full (self, &fake_pv,
-                                             _clutter_actor_get_debug_name (self),
                                              &color,
                                              node);
 
@@ -3125,7 +3100,6 @@ _clutter_actor_draw_paint_volume (ClutterActor     *self,
     {
       clutter_color_init (&color, 0, 255, 0, 255);
       _clutter_actor_draw_paint_volume_full (self, pv,
-                                             _clutter_actor_get_debug_name (self),
                                              &color,
                                              node);
     }
@@ -3137,7 +3111,6 @@ _clutter_actor_paint_cull_result (ClutterActor      *self,
                                   ClutterCullResult  result,
                                   ClutterPaintNode  *node)
 {
-  ClutterActorPrivate *priv = self->priv;
   ClutterPaintVolume *pv;
   ClutterColor color;
 
@@ -3161,40 +3134,8 @@ _clutter_actor_paint_cull_result (ClutterActor      *self,
 
   if (success && (pv = _clutter_actor_get_paint_volume_mutable (self)))
     _clutter_actor_draw_paint_volume_full (self, pv,
-                                           _clutter_actor_get_debug_name (self),
                                            &color,
                                            node);
-  else
-    {
-      g_autoptr (ClutterPaintNode) text_node = NULL;
-      PangoLayout *layout;
-      float width;
-      float height;
-      char *label =
-        g_strdup_printf ("CULL FAILURE: %s", _clutter_actor_get_debug_name (self));
-      clutter_color_init (&color, 255, 255, 255, 255);
-
-      width = clutter_actor_box_get_width (&priv->allocation);
-      height = clutter_actor_box_get_height (&priv->allocation);
-
-      layout = pango_layout_new (clutter_actor_get_pango_context (self));
-      pango_layout_set_text (layout, label, -1);
-
-      text_node = clutter_text_node_new (layout, &color);
-      clutter_paint_node_set_static_name (text_node,
-                                          "ClutterActor (paint volume text)");
-      clutter_paint_node_add_rectangle (text_node,
-                                        &(ClutterActorBox) {
-                                          .x1 = 0.f,
-                                          .y1 = 0.f,
-                                          .x2 = width,
-                                          .y2 = height,
-                                        });
-      clutter_paint_node_add_child (node, text_node);
-
-      g_free (label);
-      g_object_unref (layout);
-    }
 }
 
 static int clone_paint_level = 0;
