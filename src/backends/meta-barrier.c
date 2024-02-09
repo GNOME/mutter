@@ -57,8 +57,6 @@ enum
   PROP_0,
 
   PROP_BACKEND,
-  PROP_DISPLAY,
-
   PROP_X1,
   PROP_Y1,
   PROP_X2,
@@ -81,22 +79,6 @@ enum
 
 static guint obj_signals[LAST_SIGNAL];
 
-static MetaBackend *
-backend_from_display (MetaDisplay *display)
-{
-  MetaContext *context = meta_display_get_context (display);
-
-  return meta_context_get_backend (context);
-}
-
-static MetaDisplay *
-display_from_backend (MetaBackend *backend)
-{
-  MetaContext *context = meta_backend_get_context (backend);
-
-  return meta_context_get_display (context);
-}
-
 static void
 meta_barrier_get_property (GObject    *object,
                            guint       prop_id,
@@ -110,9 +92,6 @@ meta_barrier_get_property (GObject    *object,
     {
     case PROP_BACKEND:
       g_value_set_object (value, priv->backend);
-      break;
-    case PROP_DISPLAY:
-      g_value_set_object (value, display_from_backend (priv->backend));
       break;
     case PROP_X1:
       g_value_set_int (value, priv->border.line.a.x);
@@ -153,15 +132,6 @@ meta_barrier_set_property (GObject      *object,
     case PROP_BACKEND:
       priv->backend = g_value_get_object (value);
       break;
-    case PROP_DISPLAY:
-      {
-        MetaDisplay *display;
-
-        display = g_value_get_object (value);
-        if (display)
-          priv->backend = backend_from_display (g_value_get_object (value));
-        break;
-      }
     case PROP_X1:
       priv->border.line.a.x = g_value_get_int (value);
       break;
@@ -315,13 +285,6 @@ meta_barrier_class_init (MetaBarrierClass *klass)
   obj_props[PROP_BACKEND] =
     g_param_spec_object ("backend", NULL, NULL,
                          META_TYPE_BACKEND,
-                         G_PARAM_READWRITE |
-                         G_PARAM_CONSTRUCT_ONLY |
-                         G_PARAM_STATIC_STRINGS);
-  obj_props[PROP_DISPLAY] =
-    g_param_spec_object ("display", NULL, NULL,
-                         META_TYPE_DISPLAY,
-                         G_PARAM_DEPRECATED |
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
