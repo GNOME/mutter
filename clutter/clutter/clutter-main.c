@@ -47,6 +47,13 @@
 
 #include "cally/cally.h" /* For accessibility support */
 
+typedef struct
+{
+  GSourceFunc func;
+  gpointer data;
+  GDestroyNotify notify;
+} ClutterThreadsDispatch;
+
 /* main context */
 static ClutterContext *ClutterCntx       = NULL;
 
@@ -108,7 +115,7 @@ clutter_disable_accessibility (void)
   clutter_enable_accessibility = FALSE;
 }
 
-gboolean
+static gboolean
 _clutter_threads_dispatch (gpointer data)
 {
   ClutterThreadsDispatch *dispatch = data;
@@ -120,7 +127,7 @@ _clutter_threads_dispatch (gpointer data)
   return ret;
 }
 
-void
+static void
 _clutter_threads_dispatch_free (gpointer data)
 {
   ClutterThreadsDispatch *dispatch = data;
