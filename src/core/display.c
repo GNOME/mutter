@@ -2538,29 +2538,6 @@ meta_display_modifiers_accelerator_activate (MetaDisplay *display)
 }
 
 /**
- * meta_display_supports_extended_barriers:
- * @display: a #MetaDisplay
- *
- * Returns: whether pointer barriers can be supported.
- *
- * When running as an X compositor the X server needs XInput 2
- * version 2.3. When running as a display server it is supported
- * when running on the native backend.
- *
- * Clients should use this method to determine whether their
- * interfaces should depend on new barrier features.
- */
-gboolean
-meta_display_supports_extended_barriers (MetaDisplay *display)
-{
-  MetaContext *context = meta_display_get_context (display);
-  MetaBackend *backend = meta_context_get_backend (context);
-
-  return !!(meta_backend_get_capabilities (backend) &
-            META_BACKEND_CAPABILITY_BARRIERS);
-}
-
-/**
  * meta_display_get_context:
  * @display: a #MetaDisplay
  *

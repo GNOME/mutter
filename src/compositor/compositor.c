@@ -292,23 +292,6 @@ meta_compositor_get_feedback_group (MetaCompositor *compositor)
 }
 
 /**
- * meta_get_feedback_group_for_display:
- * @display: a #MetaDisplay
- *
- * Returns: (transfer none): The feedback group corresponding to @display
- */
-ClutterActor *
-meta_get_feedback_group_for_display (MetaDisplay *display)
-{
-  MetaCompositor *compositor;
-
-  g_return_val_if_fail (display, NULL);
-
-  compositor = get_compositor_for_display (display);
-  return meta_compositor_get_feedback_group (compositor);
-}
-
-/**
  * meta_get_window_actors:
  * @display: a #MetaDisplay
  *
