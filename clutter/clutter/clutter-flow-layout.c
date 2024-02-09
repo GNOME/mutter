@@ -66,7 +66,7 @@ struct _ClutterFlowLayout
 
   ClutterActor *container;
 
-  ClutterFlowOrientation orientation;
+  ClutterOrientation orientation;
 
   gfloat col_spacing;
   gfloat row_spacing;
@@ -165,7 +165,7 @@ compute_lines (ClutterFlowLayout *self,
                gfloat             avail_width,
                gfloat             avail_height)
 {
-  if (self->orientation == CLUTTER_FLOW_HORIZONTAL)
+  if (self->orientation == CLUTTER_ORIENTATION_HORIZONTAL)
     return get_columns (self, avail_width);
   else
     return get_rows (self, avail_height);
@@ -230,7 +230,7 @@ clutter_flow_layout_get_preferred_width (ClutterLayoutManager *manager,
       if (!clutter_actor_is_visible (child))
         continue;
 
-      if (self->orientation == CLUTTER_FLOW_VERTICAL && for_height > 0)
+      if (self->orientation == CLUTTER_ORIENTATION_VERTICAL && for_height > 0)
         {
           clutter_actor_get_preferred_height (child, -1,
                                               &child_min,
@@ -302,7 +302,7 @@ clutter_flow_layout_get_preferred_width (ClutterLayoutManager *manager,
   if (self->col_width < self->min_col_width)
     self->col_width = self->min_col_width;
 
-  if (self->orientation == CLUTTER_FLOW_VERTICAL && for_height > 0)
+  if (self->orientation == CLUTTER_ORIENTATION_VERTICAL && for_height > 0)
     {
       /* if we have a non-full row we need to add it */
       if (line_item_count > 0)
@@ -421,7 +421,7 @@ clutter_flow_layout_get_preferred_height (ClutterLayoutManager *manager,
       if (!clutter_actor_is_visible (child))
         continue;
 
-      if (self->orientation == CLUTTER_FLOW_HORIZONTAL && for_width > 0)
+      if (self->orientation == CLUTTER_ORIENTATION_HORIZONTAL && for_width > 0)
         {
           clutter_actor_get_preferred_width (child, -1,
                                              &child_min,
@@ -494,7 +494,7 @@ clutter_flow_layout_get_preferred_height (ClutterLayoutManager *manager,
   if (self->row_height < self->min_row_height)
     self->row_height = self->min_row_height;
 
-  if (self->orientation == CLUTTER_FLOW_HORIZONTAL && for_width > 0)
+  if (self->orientation == CLUTTER_ORIENTATION_HORIZONTAL && for_width > 0)
     {
       /* if we have a non-full row we need to add it */
       if (line_item_count > 0)
@@ -618,7 +618,7 @@ clutter_flow_layout_allocate (ClutterLayoutManager   *manager,
                                           &item_width,
                                           &item_height);
 
-      if (self->orientation == CLUTTER_FLOW_HORIZONTAL)
+      if (self->orientation == CLUTTER_ORIENTATION_HORIZONTAL)
         {
           if ((self->snap_to_grid &&
                line_item_count == items_per_line && line_item_count > 0) ||
@@ -720,7 +720,7 @@ clutter_flow_layout_allocate (ClutterLayoutManager   *manager,
       child_alloc.y2 = ceil (child_alloc.y1 + item_height);
       clutter_actor_allocate (child, &child_alloc);
 
-      if (self->orientation == CLUTTER_FLOW_HORIZONTAL)
+      if (self->orientation == CLUTTER_ORIENTATION_HORIZONTAL)
         item_x = new_x;
       else
         item_y = new_y;
@@ -745,7 +745,7 @@ clutter_flow_layout_set_container (ClutterLayoutManager *manager,
       /* we need to change the :request-mode of the container
        * to match the orientation
        */
-      request_mode = (self->orientation == CLUTTER_FLOW_HORIZONTAL)
+      request_mode = (self->orientation == CLUTTER_ORIENTATION_HORIZONTAL)
                    ? CLUTTER_REQUEST_HEIGHT_FOR_WIDTH
                    : CLUTTER_REQUEST_WIDTH_FOR_HEIGHT;
       clutter_actor_set_request_mode (CLUTTER_ACTOR (self->container),
@@ -909,8 +909,8 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
    */
   flow_properties[PROP_ORIENTATION] =
     g_param_spec_enum ("orientation", NULL, NULL,
-                       CLUTTER_TYPE_FLOW_ORIENTATION,
-                       CLUTTER_FLOW_HORIZONTAL,
+                       CLUTTER_TYPE_ORIENTATION,
+                       CLUTTER_ORIENTATION_HORIZONTAL,
                        G_PARAM_READWRITE |
                        G_PARAM_STATIC_STRINGS |
                        G_PARAM_CONSTRUCT);
@@ -1028,7 +1028,7 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
 static void
 clutter_flow_layout_init (ClutterFlowLayout *self)
 {
-  self->orientation = CLUTTER_FLOW_HORIZONTAL;
+  self->orientation = CLUTTER_ORIENTATION_HORIZONTAL;
 
   self->col_spacing = 0;
   self->row_spacing = 0;
@@ -1050,7 +1050,7 @@ clutter_flow_layout_init (ClutterFlowLayout *self)
  * Return value: the newly created #ClutterFlowLayout
  */
 ClutterLayoutManager *
-clutter_flow_layout_new (ClutterFlowOrientation orientation)
+clutter_flow_layout_new (ClutterOrientation orientation)
 {
   return g_object_new (CLUTTER_TYPE_FLOW_LAYOUT,
                        "orientation", orientation,
@@ -1069,8 +1069,8 @@ clutter_flow_layout_new (ClutterFlowOrientation orientation)
  * orientation also controls the direction of the overflowing
  */
 void
-clutter_flow_layout_set_orientation (ClutterFlowLayout      *layout,
-                                     ClutterFlowOrientation  orientation)
+clutter_flow_layout_set_orientation (ClutterFlowLayout  *layout,
+                                     ClutterOrientation  orientation)
 {
   g_return_if_fail (CLUTTER_IS_FLOW_LAYOUT (layout));
 
@@ -1087,7 +1087,7 @@ clutter_flow_layout_set_orientation (ClutterFlowLayout      *layout,
           /* we need to change the :request-mode of the container
            * to match the orientation
            */
-          request_mode = (layout->orientation == CLUTTER_FLOW_HORIZONTAL)
+          request_mode = (layout->orientation == CLUTTER_ORIENTATION_HORIZONTAL)
                        ? CLUTTER_REQUEST_HEIGHT_FOR_WIDTH
                        : CLUTTER_REQUEST_WIDTH_FOR_HEIGHT;
           clutter_actor_set_request_mode (CLUTTER_ACTOR (layout->container),
@@ -1110,11 +1110,11 @@ clutter_flow_layout_set_orientation (ClutterFlowLayout      *layout,
  *
  * Return value: the orientation of the #ClutterFlowLayout
  */
-ClutterFlowOrientation
+ClutterOrientation
 clutter_flow_layout_get_orientation (ClutterFlowLayout *layout)
 {
   g_return_val_if_fail (CLUTTER_IS_FLOW_LAYOUT (layout),
-                        CLUTTER_FLOW_HORIZONTAL);
+                        CLUTTER_ORIENTATION_HORIZONTAL);
 
   return layout->orientation;
 }

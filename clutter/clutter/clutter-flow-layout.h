@@ -41,13 +41,13 @@ G_DECLARE_FINAL_TYPE (ClutterFlowLayout,
                       ClutterLayoutManager)
 
 CLUTTER_EXPORT
-ClutterLayoutManager * clutter_flow_layout_new                (ClutterFlowOrientation  orientation);
+ClutterLayoutManager * clutter_flow_layout_new                (ClutterOrientation      orientation);
 
 CLUTTER_EXPORT
 void                   clutter_flow_layout_set_orientation    (ClutterFlowLayout      *layout,
-                                                               ClutterFlowOrientation  orientation);
+                                                               ClutterOrientation      orientation);
 CLUTTER_EXPORT
-ClutterFlowOrientation clutter_flow_layout_get_orientation    (ClutterFlowLayout      *layout);
+ClutterOrientation     clutter_flow_layout_get_orientation    (ClutterFlowLayout      *layout);
 CLUTTER_EXPORT
 void                   clutter_flow_layout_set_homogeneous    (ClutterFlowLayout      *layout,
                                                                gboolean                homogeneous);
