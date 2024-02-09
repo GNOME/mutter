@@ -185,36 +185,6 @@ typedef enum
 } MetaFrameType;
 
 /**
- * MetaVirtualModifier:
- * @META_VIRTUAL_SHIFT_MASK: Shift mask
- * @META_VIRTUAL_CONTROL_MASK: Control mask
- * @META_VIRTUAL_ALT_MASK: Alt mask
- * @META_VIRTUAL_META_MASK: Meta mask
- * @META_VIRTUAL_SUPER_MASK: Super mask
- * @META_VIRTUAL_HYPER_MASK: Hyper mask
- * @META_VIRTUAL_MOD2_MASK: Mod2 mask
- * @META_VIRTUAL_MOD3_MASK: Mod3 mask
- * @META_VIRTUAL_MOD4_MASK: Mod4 mask
- * @META_VIRTUAL_MOD5_MASK: Mod5 mask
- */
-typedef enum
-{
-  /* Create gratuitous divergence from regular
-   * X mod bits, to be sure we find bugs
-   */
-  META_VIRTUAL_SHIFT_MASK    = 1 << 5,
-  META_VIRTUAL_CONTROL_MASK  = 1 << 6,
-  META_VIRTUAL_ALT_MASK      = 1 << 7,
-  META_VIRTUAL_META_MASK     = 1 << 8,
-  META_VIRTUAL_SUPER_MASK    = 1 << 9,
-  META_VIRTUAL_HYPER_MASK    = 1 << 10,
-  META_VIRTUAL_MOD2_MASK     = 1 << 11,
-  META_VIRTUAL_MOD3_MASK     = 1 << 12,
-  META_VIRTUAL_MOD4_MASK     = 1 << 13,
-  META_VIRTUAL_MOD5_MASK     = 1 << 14
-} MetaVirtualModifier;
-
-/**
  * MetaDirection:
  * @META_DIRECTION_LEFT: Left
  * @META_DIRECTION_RIGHT: Right
