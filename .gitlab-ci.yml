@@ -134,10 +134,6 @@ variables:
         master
 
       ./.gitlab-ci/install-meson-project.sh \
-        https://gitlab.freedesktop.org/wayland/wayland-protocols.git \
-        1.33
-
-      ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/GNOME/gi-docgen.git \
         main
 
