@@ -200,19 +200,19 @@ void meta_kms_update_merge_from (MetaKmsUpdate *update,
 static inline MetaFixed16
 meta_fixed_16_from_int (int16_t d)
 {
-  return d * 65536;
+  return d * (1 << 16);
 }
 
 static inline int16_t
 meta_fixed_16_to_int (MetaFixed16 fixed)
 {
-  return fixed / 65536;
+  return fixed / (1 << 16);
 }
 
 static inline double
 meta_fixed_16_to_double (MetaFixed16 fixed)
 {
-  return fixed / 65536.0;
+  return fixed / (double) (1 << 16);
 }
 
 static inline MtkRectangle
