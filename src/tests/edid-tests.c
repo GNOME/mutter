@@ -68,12 +68,14 @@ main (int    argc,
   MetaEdidInfo *edid_info;
   edid_info = meta_edid_info_new_parse (edid_blob,edid_blob_len);
 
-  g_assert (edid_info != NULL);
-  g_assert (strcmp (edid_info->manufacturer_code, "GSM") == 0);
-  g_assert (edid_info->product_code == 23507);
-  g_assert (edid_info->hdr_static_metadata.max_luminance == 408);
-  g_assert (edid_info->hdr_static_metadata.tf ==
-            (META_EDID_TF_TRADITIONAL_GAMMA_SDR | META_EDID_TF_PQ));
-  g_assert (edid_info->colorimetry ==
-            (META_EDID_COLORIMETRY_BT2020YCC | META_EDID_COLORIMETRY_BT2020RGB));
+  g_assert_nonnull (edid_info);
+  g_assert_cmpstr (edid_info->manufacturer_code, ==, "GSM");
+  g_assert_cmpint (edid_info->product_code, ==, 23507);
+  g_assert_cmpfloat_with_epsilon (edid_info->hdr_static_metadata.max_luminance,
+                                  408.0f, 1.0f);
+  g_assert_cmpint (edid_info->hdr_static_metadata.tf, ==,
+                   (META_EDID_TF_TRADITIONAL_GAMMA_SDR | META_EDID_TF_PQ));
+  g_assert_cmpint (edid_info->colorimetry, ==,
+                   (META_EDID_COLORIMETRY_BT2020YCC |
+                    META_EDID_COLORIMETRY_BT2020RGB));
 }

@@ -59,10 +59,9 @@ typedef enum
 
 struct _MetaEdidHdrStaticMetadata
 {
-  int available;
-  int max_luminance;
-  int min_luminance;
-  int max_fal;
+  float max_luminance;
+  float min_luminance;
+  float max_fal;
   MetaEdidTransferFunction tf;
   MetaEdidStaticMetadataType sm;
 };
