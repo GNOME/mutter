@@ -120,6 +120,7 @@ variables:
       dnf builddep -y gnome-shell --setopt=install_weak_deps=False
       dnf builddep -y kernel --setopt=install_weak_deps=False
       dnf builddep -y libei --setopt=install_weak_deps=False
+      dnf builddep -y gi-docgen --setopt=install_weak_deps=False
 
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/jadahl/catch.git \
