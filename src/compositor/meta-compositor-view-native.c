@@ -86,7 +86,6 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
   MetaCrtc *crtc;
   CoglFramebuffer *framebuffer;
   MetaWindowActor *window_actor;
-  MetaWindow *window;
   MtkRectangle view_rect;
   ClutterActorBox actor_box;
   MetaSurfaceActor *surface_actor;
@@ -179,14 +178,6 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
     {
       meta_topic (META_DEBUG_RENDER,
                   "No direct scanout candidate: window-actor has transition");
-      return FALSE;
-    }
-
-  window = meta_window_actor_get_meta_window (window_actor);
-  if (!window)
-    {
-      meta_topic (META_DEBUG_RENDER,
-                  "No direct scanout candidate: no meta-window");
       return FALSE;
     }
 
