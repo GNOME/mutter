@@ -2275,6 +2275,17 @@ meta_monitor_set_privacy_screen_enabled (MetaMonitor  *monitor,
 }
 
 gboolean
+meta_monitor_get_min_refresh_rate (MetaMonitor *monitor,
+                                   int         *min_refresh_rate)
+{
+  const MetaOutputInfo *output_info =
+    meta_monitor_get_main_output_info (monitor);
+
+  return meta_output_info_get_min_refresh_rate (output_info,
+                                                min_refresh_rate);
+}
+
+gboolean
 meta_monitor_set_color_space (MetaMonitor           *monitor,
                               MetaOutputColorspace   color_space,
                               GError               **error)

@@ -303,6 +303,9 @@ gboolean meta_monitor_set_privacy_screen_enabled (MetaMonitor  *monitor,
                                                   gboolean      enabled,
                                                   GError      **error);
 
+gboolean meta_monitor_get_min_refresh_rate (MetaMonitor *monitor,
+                                            int         *min_refresh_rate);
+
 META_EXPORT_TEST
 size_t meta_monitor_get_gamma_lut_size (MetaMonitor *monitor);
 
