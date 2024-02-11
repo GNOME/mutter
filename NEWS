@@ -1,3 +1,11 @@
+44.9
+====
+* Fix capitalization of some keys when caps lock is on [Carlos; !3547]
+
+Contributors:
+  Carlos Garnacho
+
+
 44.8
 ====
 * Fix occasional artifacts at top of X11 fullscreen windows [Carlos; !3476]
