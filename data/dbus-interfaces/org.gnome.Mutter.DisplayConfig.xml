@@ -359,6 +359,9 @@
 				     it's enabled and second value whether it's
 				     hardware locked (and so can't be changed
 				     via gsettings)
+	    - "min-refresh-rate" (i): minimum refresh rate of monitor when
+	                              Variable Refresh Rate is active (absence
+	                              of this means unknown)
 
         Possible mode flags:
 	  1 : preferred mode
