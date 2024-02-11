@@ -1,3 +1,48 @@
+46.beta
+=======
+* Implement mouse cursor hotspots for KMS atomic [Albert, Zack; !3337, !3503]
+* Improve project and development documentation
+  [Bilal, Sebastian W.; !3489, !3505, !3519]
+* Add a documentation website [Bilal; !3490]
+* Refactor wayland focus management [Carlos; !3511]
+* Remove experimental rt-scheduler feature [Dallas; !3296]
+* Remove ClutterCanvas [Shmuel; !3470]
+* Consider reduced blanking with lower pixelclock [Kai-Heng; !3449]
+* Fix centering non-modal transients over parent [Florian; !3533]
+* Allow XKB model to be configured [Leorize; !2760]
+* Enable KMS deadline timer after a VT switch if it was inhibited [Dor; !3534]
+* Prepare for variable refresh rate support [Dor; !3521, !3560, !3561]
+* Restore IM state flushing before handling key events [Carlos; !3536]
+* Swap stylus buttons to match traditional order [Peter; !3541]
+* Fix handling of pad ring wrap arounds [Peter; !3545]
+* Support Broadcast RGB/RGB range KMS property [Sebastian W.; !3535]
+* Ensure all planes support EGL config format [Sebastian W.; !3512]
+* Handle Alt modifier in pad actions [Peter; !3522]
+* Store eraser and stylus tools separately [Peter; !3542]
+* Disambiguate output mapped to tablet with connector name [Carlos; !3556]
+* Fix lost keyboard focus after dismissing popups [Carlos; !3568]
+* Implement direct scanout for cropped and scaled surfaces
+  [Robert; !3559, !3177]
+* Fixed crashes [Peter, Carlos, Sebastian W., Simon, Olivier, Daniel; !3383,
+  !3517, !3518, !2774, !3446, !3539, !3562, !3565]
+* Misc. bug fixes and cleanups [Bilal, Daniel, Sebastian W., Robert, Zander,
+  Florian, Carlos, Corentin, Shmuel, Dor, Sebastian K., Jonas; !3498, !3418,
+  !3500, !3492, !3484, !3504, !3499, !3333, !3351, !3501, !3211, !3506, !3387,
+  !3509, !3510, !3483, !3467, !3514, !3515, !3516, !3520, !3513, !3507, !3526,
+  !3527, !3528, !3450, !3531, !3549, !3532, !3543, !3529, !3530, !3550, !3554,
+  !3540, !3569, !3563, !3570, !3555, !3572, !3571, !3538, !3573, !3575]
+
+Contributors:
+  Dor Askayo, Zander Brown, Jonas Dreßler, Bilal Elmoussaoui, Albert Esteve,
+  Kai-Heng Feng, Olivier Fourdan, Carlos Garnacho, Peter Hutterer,
+  Sebastian Keller, Leorize, Robert Mader, Simon McVittie, Shmuel Melamud,
+  Florian Müllner, Corentin Noël, Zack Rusin, Dallas Strouse, Daniel van Vugt,
+  Sebastian Wick
+
+Translators:
+  Ekaterine Papava [ka], Efstathios Iosifidis [el], Artur S0 [ru],
+  Daniel Rusek [cs], Fran Dieguez [gl], Sabri Ünal [tr]
+
 46.alpha
 ========
 * Fix filtering keybinding events in presence of grabs [Sebastian K.; !3054]
