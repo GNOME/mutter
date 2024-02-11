@@ -44,6 +44,7 @@ decode_edid_descriptors (const struct di_edid                    *di_edid,
                          MetaEdidInfo                            *info)
 {
   enum di_edid_display_descriptor_tag desc_tag;
+  const struct di_edid_display_range_limits *range_limits;
 
   desc_tag = di_edid_display_descriptor_get_tag (desc);
 
@@ -56,6 +57,11 @@ decode_edid_descriptors (const struct di_edid                    *di_edid,
     case DI_EDID_DISPLAY_DESCRIPTOR_PRODUCT_NAME:
       info->dsc_product_name =
         g_strdup (di_edid_display_descriptor_get_string (desc));
+      break;
+    case DI_EDID_DISPLAY_DESCRIPTOR_RANGE_LIMITS:
+      range_limits = di_edid_display_descriptor_get_range_limits (desc);
+      g_assert (range_limits != NULL);
+      info->min_vert_rate_hz = range_limits->min_vert_rate_hz;
       break;
     default:
         break;
