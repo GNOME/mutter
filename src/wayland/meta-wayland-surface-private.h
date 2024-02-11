@@ -162,6 +162,9 @@ struct _MetaWaylandSurface
   GHashTable *outputs;
   MetaMonitorTransform buffer_transform;
 
+  int preferred_scale;
+  MetaMonitorTransform preferred_transform;
+
   /* Buffer reference state. */
   MetaWaylandBuffer *buffer;
 

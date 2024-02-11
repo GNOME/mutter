@@ -1437,6 +1437,25 @@ out:
   return scale;
 }
 
+static MetaMonitorTransform
+meta_wayland_surface_get_output_transform (MetaWaylandSurface *surface)
+{
+  MetaMonitorTransform transform = META_MONITOR_TRANSFORM_NORMAL;
+  MetaWindow *window;
+  MetaLogicalMonitor *logical_monitor;
+
+  window = meta_wayland_surface_get_window (surface);
+  if (!window)
+    return transform;
+
+  logical_monitor = meta_window_get_highest_scale_monitor (window);
+  if (!logical_monitor)
+    return transform;
+
+  transform = meta_logical_monitor_get_transform (logical_monitor);
+  return transform;
+}
+
 static void
 update_surface_output_state (gpointer key, gpointer value, gpointer user_data)
 {
@@ -2403,6 +2422,27 @@ committed_state_handle_highest_scale_monitor (MetaWaylandSurface *surface)
   scale = meta_wayland_surface_get_highest_output_scale (surface);
 
   meta_wayland_fractional_scale_maybe_send_preferred_scale (surface, scale);
+
+  if (wl_resource_get_version (surface->resource) >=
+      WL_SURFACE_PREFERRED_BUFFER_SCALE_SINCE_VERSION)
+    {
+      int ceiled_scale;
+      MetaMonitorTransform transform;
+
+      ceiled_scale = ceil (scale);
+      if (ceiled_scale > 0 && ceiled_scale != surface->preferred_scale)
+        {
+          wl_surface_send_preferred_buffer_scale (surface->resource, ceiled_scale);
+          surface->preferred_scale = ceiled_scale;
+        }
+
+      transform = meta_wayland_surface_get_output_transform (surface);
+      if (transform != surface->preferred_transform)
+        {
+          wl_surface_send_preferred_buffer_transform (surface->resource, ceiled_scale);
+          surface->preferred_transform = transform;
+        }
+    }
 
   META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (&surface->committed_state,
                                            subsurface_surface)
