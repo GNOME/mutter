@@ -195,6 +195,9 @@ META_EXPORT_TEST
 void meta_output_info_parse_edid (MetaOutputInfo *output_info,
                                   GBytes         *edid);
 
+gboolean meta_output_info_get_min_refresh_rate (const MetaOutputInfo *output_info,
+                                                int                  *min_refresh_rate);
+
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaOutputInfo, meta_output_info_unref)
 
 #define META_TYPE_OUTPUT (meta_output_get_type ())

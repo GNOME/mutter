@@ -509,6 +509,25 @@ meta_output_set_privacy_screen_enabled (MetaOutput  *output,
   return TRUE;
 }
 
+gboolean
+meta_output_info_get_min_refresh_rate (const MetaOutputInfo *output_info,
+                                       int                  *min_refresh_rate)
+{
+  int min_vert_rate_hz;
+
+  if (!output_info->edid_info)
+    return FALSE;
+
+  min_vert_rate_hz = output_info->edid_info->min_vert_rate_hz;
+
+  if (min_vert_rate_hz <= 0)
+    return FALSE;
+
+  *min_refresh_rate = min_vert_rate_hz;
+
+  return TRUE;
+}
+
 void
 meta_output_set_color_space (MetaOutput           *output,
                              MetaOutputColorspace  color_space)
