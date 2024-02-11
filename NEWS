@@ -1,3 +1,14 @@
+45.4
+====
+* Restore IM state flushing before handling key events [Carlos; !3536]
+* Fixed crashes [Carlos, Olivier; !3523, !3562]
+
+Contributors:
+  Olivier Fourdan, Carlos Garnacho
+
+Translators:
+  Efstathios Iosifidis [el]
+
 45.3
 ====
 * Fix handling of relative mode for tablets [Peter; !3410]
