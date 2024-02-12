@@ -844,34 +844,33 @@ meta_wayland_pointer_handle_event (MetaWaylandPointer *pointer,
     {
     case CLUTTER_MOTION:
       handle_motion_event (pointer, event);
-      break;
+      return pointer->focus_surface ?
+        CLUTTER_EVENT_STOP : CLUTTER_EVENT_PROPAGATE;
 
     case CLUTTER_BUTTON_PRESS:
     case CLUTTER_BUTTON_RELEASE:
       handle_button_event (pointer, event);
-      break;
+      return pointer->focus_surface ?
+        CLUTTER_EVENT_STOP : CLUTTER_EVENT_PROPAGATE;
 
     case CLUTTER_SCROLL:
       handle_scroll_event (pointer, event);
-      break;
+      return pointer->focus_surface ?
+        CLUTTER_EVENT_STOP : CLUTTER_EVENT_PROPAGATE;
 
     case CLUTTER_TOUCHPAD_SWIPE:
       meta_wayland_pointer_gesture_swipe_handle_event (pointer, event);
-      break;
+      return CLUTTER_EVENT_PROPAGATE;
 
     case CLUTTER_TOUCHPAD_PINCH:
-      meta_wayland_pointer_gesture_pinch_handle_event (pointer, event);
-      break;
+      return meta_wayland_pointer_gesture_pinch_handle_event (pointer, event);
 
     case CLUTTER_TOUCHPAD_HOLD:
-      meta_wayland_pointer_gesture_hold_handle_event (pointer, event);
-      break;
+      return meta_wayland_pointer_gesture_hold_handle_event (pointer, event);
 
     default:
-      break;
+      return CLUTTER_EVENT_PROPAGATE;
     }
-
-  return FALSE;
 }
 
 static void
