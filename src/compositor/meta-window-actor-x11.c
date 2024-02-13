@@ -859,7 +859,12 @@ build_and_scan_frame_mask (MetaWindowActorX11 *actor_x11,
       region_to_cairo_path (frame_paint_region, cr);
       cairo_clip (cr);
 
-      meta_frame_get_mask (window->frame, &frame_rect, cr);
+      cairo_rectangle (cr,
+                       0, 0,
+                       window->frame->rect.width,
+                       window->frame->rect.height);
+      cairo_set_source_rgb (cr, 0, 0, 0);
+      cairo_fill (cr);
 
       cairo_surface_flush (image);
       scanned_region = scan_visible_region (mask_data, stride, frame_paint_region);

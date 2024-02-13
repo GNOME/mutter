@@ -69,10 +69,6 @@ void meta_frame_clear_cached_borders (MetaFrame *frame);
 
 MtkRegion *meta_frame_get_frame_bounds (MetaFrame *frame);
 
-void meta_frame_get_mask (MetaFrame    *frame,
-                          MtkRectangle *frame_rect,
-                          cairo_t      *cr);
-
 gboolean meta_frame_handle_xevent (MetaFrame *frame,
                                    XEvent    *event);
 

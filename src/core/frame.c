@@ -413,23 +413,6 @@ meta_frame_get_frame_bounds (MetaFrame *frame)
   return bounds;
 }
 
-void
-meta_frame_get_mask (MetaFrame    *frame,
-                     MtkRectangle *frame_rect,
-                     cairo_t      *cr)
-{
-  MetaFrameBorders borders;
-
-  meta_frame_calc_borders (frame, &borders);
-
-  cairo_rectangle (cr,
-                   0, 0,
-                   frame->rect.width,
-                   frame->rect.height);
-  cairo_set_source_rgb (cr, 0, 0, 0);
-  cairo_fill (cr);
-}
-
 Window
 meta_frame_get_xwindow (MetaFrame *frame)
 {
