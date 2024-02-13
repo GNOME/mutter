@@ -74,14 +74,6 @@
                            CLUTTER_BUTTON4_MASK |       \
                            CLUTTER_BUTTON5_MASK)
 
-static gboolean add_builtin_keybinding (MetaDisplay          *display,
-                                        const char           *name,
-                                        GSettings            *settings,
-                                        MetaKeyBindingFlags   flags,
-                                        MetaKeyBindingAction  action,
-                                        MetaKeyHandlerFunc    handler,
-                                        int                   handler_arg);
-
 static void
 resolved_key_combo_reset (MetaResolvedKeyCombo *resolved_combo)
 {
