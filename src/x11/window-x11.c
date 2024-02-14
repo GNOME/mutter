@@ -2087,6 +2087,8 @@ meta_window_x11_constructed (GObject *object)
   priv->border_width = attrs.border_width;
   priv->xclient_leader = None;
 
+  priv->keys_grabbed = FALSE;
+
   g_signal_connect (window, "notify::decorated",
                     G_CALLBACK (meta_window_x11_update_input_region),
                     window);

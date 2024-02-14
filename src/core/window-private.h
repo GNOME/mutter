@@ -507,7 +507,6 @@ struct _MetaWindow
   guint constructing : 1;
 
   /* Used by keybindings.c */
-  guint keys_grabbed : 1;     /* normal keybindings grabbed */
   guint grab_on_frame : 1;    /* grabs are on the frame */
 
   /* Set if the reason for unmanaging the window is that

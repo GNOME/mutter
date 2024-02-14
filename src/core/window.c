@@ -1059,7 +1059,6 @@ meta_window_constructed (GObject *object)
   window->placed = ((window->mapped && !window->hidden) || window->override_redirect);
   window->denied_focus_and_not_transient = FALSE;
   window->unmanaging = FALSE;
-  window->keys_grabbed = FALSE;
   window->grab_on_frame = FALSE;
   window->withdrawn = FALSE;
   window->initial_workspace_set = FALSE;

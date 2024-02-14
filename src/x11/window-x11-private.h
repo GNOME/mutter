@@ -91,6 +91,9 @@ struct _MetaWindowX11Private
   MetaGroup *group;
 
   MetaSyncCounter sync_counter;
+
+  /* Used by keybindings.c */
+  gboolean keys_grabbed;     /* normal keybindings grabbed */
 };
 
 MetaWindowX11Private * meta_window_x11_get_private (MetaWindowX11 *window_x11);

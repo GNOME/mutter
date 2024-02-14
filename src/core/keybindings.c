@@ -46,7 +46,7 @@
 #include "meta/prefs.h"
 #include "mtk/mtk-x11.h"
 #include "x11/meta-x11-display-private.h"
-#include "x11/window-x11.h"
+#include "x11/window-x11-private.h"
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
@@ -1601,20 +1601,22 @@ meta_window_grab_keys (MetaWindow  *window)
 {
   MetaDisplay *display = window->display;
   MetaKeyBindingManager *keys = &display->key_binding_manager;
+  MetaWindowX11Private *priv;
 
   if (meta_is_wayland_compositor ())
     return;
 
+  priv = meta_window_x11_get_private (META_WINDOW_X11 (window));
   if (window->type == META_WINDOW_DOCK
       || window->override_redirect)
     {
-      if (window->keys_grabbed)
+      if (priv->keys_grabbed)
         change_window_keygrabs (keys, meta_window_x11_get_xwindow (window), FALSE);
-      window->keys_grabbed = FALSE;
+      priv->keys_grabbed = FALSE;
       return;
     }
 
-  if (window->keys_grabbed)
+  if (priv->keys_grabbed)
     {
       if (window->frame && !window->grab_on_frame)
         change_window_keygrabs (keys, meta_window_x11_get_xwindow (window), FALSE);
@@ -1629,14 +1631,21 @@ meta_window_grab_keys (MetaWindow  *window)
                           meta_window_x11_get_toplevel_xwindow (window),
                           TRUE);
 
-  window->keys_grabbed = TRUE;
+  priv->keys_grabbed = TRUE;
   window->grab_on_frame = window->frame != NULL;
 }
 
 void
 meta_window_ungrab_keys (MetaWindow  *window)
 {
-  if (!meta_is_wayland_compositor () && window->keys_grabbed)
+  MetaWindowX11Private *priv;
+
+  if (meta_is_wayland_compositor ())
+    return;
+
+  priv = meta_window_x11_get_private (META_WINDOW_X11 (window));
+
+  if (priv->keys_grabbed)
     {
       MetaDisplay *display = window->display;
       MetaKeyBindingManager *keys = &display->key_binding_manager;
@@ -1647,7 +1656,7 @@ meta_window_ungrab_keys (MetaWindow  *window)
       else if (!window->grab_on_frame)
         change_window_keygrabs (keys, meta_window_x11_get_xwindow (window), FALSE);
 
-      window->keys_grabbed = FALSE;
+      priv->keys_grabbed = FALSE;
     }
 }
 
