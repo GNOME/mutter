@@ -1618,10 +1618,10 @@ meta_window_grab_keys (MetaWindow  *window)
 
   if (priv->keys_grabbed)
     {
-      if (window->frame && !window->grab_on_frame)
+      if (window->frame && !priv->grab_on_frame)
         change_window_keygrabs (keys, meta_window_x11_get_xwindow (window), FALSE);
       else if (window->frame == NULL &&
-               window->grab_on_frame)
+               priv->grab_on_frame)
         ; /* continue to regrab on client window */
       else
         return; /* already all good */
@@ -1632,7 +1632,7 @@ meta_window_grab_keys (MetaWindow  *window)
                           TRUE);
 
   priv->keys_grabbed = TRUE;
-  window->grab_on_frame = window->frame != NULL;
+  priv->grab_on_frame = window->frame != NULL;
 }
 
 void
@@ -1650,10 +1650,10 @@ meta_window_ungrab_keys (MetaWindow  *window)
       MetaDisplay *display = window->display;
       MetaKeyBindingManager *keys = &display->key_binding_manager;
 
-      if (window->grab_on_frame &&
+      if (priv->grab_on_frame &&
           window->frame != NULL)
         change_window_keygrabs (keys, window->frame->xwindow, FALSE);
-      else if (!window->grab_on_frame)
+      else if (!priv->grab_on_frame)
         change_window_keygrabs (keys, meta_window_x11_get_xwindow (window), FALSE);
 
       priv->keys_grabbed = FALSE;

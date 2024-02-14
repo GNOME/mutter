@@ -2088,6 +2088,7 @@ meta_window_x11_constructed (GObject *object)
   priv->xclient_leader = None;
 
   priv->keys_grabbed = FALSE;
+  priv->grab_on_frame = FALSE;
 
   g_signal_connect (window, "notify::decorated",
                     G_CALLBACK (meta_window_x11_update_input_region),

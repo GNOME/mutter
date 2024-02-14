@@ -506,9 +506,6 @@ struct _MetaWindow
   /* Are we in meta_window_new()? */
   guint constructing : 1;
 
-  /* Used by keybindings.c */
-  guint grab_on_frame : 1;    /* grabs are on the frame */
-
   /* Set if the reason for unmanaging the window is that
    * it was withdrawn
    */
