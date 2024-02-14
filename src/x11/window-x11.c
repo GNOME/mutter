@@ -2149,6 +2149,7 @@ meta_window_x11_finalize (GObject *object)
   MetaWindowX11 *win = META_WINDOW_X11 (object);
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (win);
 
+  g_clear_pointer (&priv->shape_region, mtk_region_unref);
   g_clear_pointer (&priv->input_region, mtk_region_unref);
   g_clear_pointer (&priv->opaque_region, mtk_region_unref);
   g_clear_pointer (&priv->wm_client_machine, g_free);
@@ -2507,13 +2508,16 @@ static void
 meta_window_set_shape_region (MetaWindow *window,
                               MtkRegion  *region)
 {
-  if (mtk_region_equal (window->shape_region, region))
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (META_WINDOW_X11 (window));
+
+  if (mtk_region_equal (priv->shape_region, region))
     return;
 
-  g_clear_pointer (&window->shape_region, mtk_region_unref);
+  g_clear_pointer (&priv->shape_region, mtk_region_unref);
 
   if (region != NULL)
-    window->shape_region = mtk_region_ref (region);
+    priv->shape_region = mtk_region_ref (region);
 
   meta_compositor_window_shape_changed (window->display->compositor, window);
 }
@@ -4322,6 +4326,8 @@ gboolean
 meta_window_x11_can_unredirect (MetaWindowX11 *window_x11)
 {
   MetaWindow *window = META_WINDOW (window_x11);
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
 
   if (has_requested_dont_bypass_compositor (window_x11))
     return FALSE;
@@ -4329,7 +4335,7 @@ meta_window_x11_can_unredirect (MetaWindowX11 *window_x11)
   if (window->opacity != 0xFF)
     return FALSE;
 
-  if (window->shape_region != NULL)
+  if (priv->shape_region != NULL)
     return FALSE;
 
   if (!window->monitor)

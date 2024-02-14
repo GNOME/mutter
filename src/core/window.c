@@ -314,7 +314,6 @@ meta_window_finalize (GObject *object)
   MetaWindow *window = META_WINDOW (object);
 
   g_clear_pointer (&window->frame_bounds, mtk_region_unref);
-  g_clear_pointer (&window->shape_region, mtk_region_unref);
 
   if (window->transient_for)
     g_object_unref (window->transient_for);

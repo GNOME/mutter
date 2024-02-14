@@ -915,19 +915,20 @@ update_shape_region (MetaWindowActorX11 *actor_x11)
 {
   MetaWindow *window =
     meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
+  MetaWindowX11Private *priv = meta_window_x11_get_private (META_WINDOW_X11 (window));
   MtkRegion *region = NULL;
   MtkRectangle client_area;
 
   get_client_area_rect (actor_x11, &client_area);
 
-  if (window->frame && window->shape_region)
+  if (window->frame && priv->shape_region)
     {
-      region = mtk_region_copy (window->shape_region);
+      region = mtk_region_copy (priv->shape_region);
       mtk_region_translate (region, client_area.x, client_area.y);
     }
-  else if (window->shape_region != NULL)
+  else if (priv->shape_region != NULL)
     {
-      region = mtk_region_ref (window->shape_region);
+      region = mtk_region_ref (priv->shape_region);
     }
   else
     {
@@ -937,7 +938,7 @@ update_shape_region (MetaWindowActorX11 *actor_x11)
       region = mtk_region_create_rectangle (&client_area);
     }
 
-  if (window->shape_region || window->frame)
+  if (priv->shape_region || window->frame)
     build_and_scan_frame_mask (actor_x11, region);
 
   g_clear_pointer (&actor_x11->shape_region, mtk_region_unref);
@@ -959,7 +960,7 @@ update_input_region (MetaWindowActorX11 *actor_x11)
     meta_window_x11_get_private (META_WINDOW_X11 (window));
   g_autoptr (MtkRegion) region = NULL;
 
-  if (window->shape_region && priv->input_region)
+  if (priv->shape_region && priv->input_region)
     {
       MtkRectangle client_area;
       g_autoptr (MtkRegion) frames_input = NULL;
@@ -977,13 +978,13 @@ update_input_region (MetaWindowActorX11 *actor_x11)
 
       region = g_steal_pointer (&frames_input);
     }
-  else if (window->shape_region)
+  else if (priv->shape_region)
     {
       MtkRectangle client_area;
 
       meta_window_get_client_area_rect (window, &client_area);
 
-      region = mtk_region_copy (window->shape_region);
+      region = mtk_region_copy (priv->shape_region);
       mtk_region_translate (region, client_area.x, client_area.y);
     }
   else if (priv->input_region)

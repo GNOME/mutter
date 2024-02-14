@@ -75,6 +75,10 @@ struct _MetaWindowX11Private
   /* the input shape region for picking */
   MtkRegion *input_region;
 
+  /* if non-NULL, the bounding shape region of the window. Relative to
+   * the server-side client window. */
+  MtkRegion *shape_region;
+
   Pixmap wm_hints_pixmap;
   Pixmap wm_hints_mask;
 
