@@ -344,7 +344,6 @@ struct _MetaWindow
     } current;
   } placement;
 
-  guint unmanage_idle_id;
   guint close_dialog_timeout_id;
 
   pid_t client_pid;
@@ -398,7 +397,6 @@ struct _MetaWindow
 
   /* Minimize is the state controlled by the minimize button */
   guint minimized : 1;
-  guint tab_unminimized : 1;
 
   /* Whether the window is mapped; actual server-side state
    * see also unmaps_pending

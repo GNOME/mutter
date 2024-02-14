@@ -1046,7 +1046,6 @@ meta_window_constructed (GObject *object)
   window->tile_hfraction = -1.;
   window->initially_iconic = FALSE;
   window->minimized = FALSE;
-  window->tab_unminimized = FALSE;
   window->iconic = FALSE;
   window->known_to_compositor = FALSE;
   window->visible_to_compositor = FALSE;
@@ -1398,7 +1397,6 @@ meta_window_unmanage (MetaWindow  *window,
   window->unmanaging = TRUE;
 
   g_clear_handle_id (&priv->suspend_timoeut_id, g_source_remove);
-  g_clear_handle_id (&window->unmanage_idle_id, g_source_remove);
   g_clear_handle_id (&window->close_dialog_timeout_id, g_source_remove);
 
   g_signal_emit (window, window_signals[UNMANAGING], 0);
