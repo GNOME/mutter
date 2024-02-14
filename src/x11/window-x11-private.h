@@ -69,6 +69,9 @@ struct _MetaWindowX11Private
    * relative to the frame. */
   MtkRectangle client_rect;
 
+  /* if non-NULL, the opaque region _NET_WM_OPAQUE_REGION */
+  MtkRegion *opaque_region;
+
   Pixmap wm_hints_pixmap;
   Pixmap wm_hints_mask;
 

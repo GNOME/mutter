@@ -629,13 +629,16 @@ static void
 meta_window_set_opaque_region (MetaWindow *window,
                                MtkRegion  *region)
 {
-  if (mtk_region_equal (window->opaque_region, region))
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_private (META_WINDOW_X11 (window));
+
+  if (mtk_region_equal (priv->opaque_region, region))
     return;
 
-  g_clear_pointer (&window->opaque_region, mtk_region_unref);
+  g_clear_pointer (&priv->opaque_region, mtk_region_unref);
 
   if (region != NULL)
-    window->opaque_region = mtk_region_ref (region);
+    priv->opaque_region = mtk_region_ref (region);
 
   meta_compositor_window_shape_changed (window->display->compositor, window);
 }

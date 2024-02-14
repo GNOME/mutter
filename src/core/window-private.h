@@ -243,9 +243,6 @@ struct _MetaWindow
    * the server-side client window. */
   MtkRegion *shape_region;
 
-  /* if non-NULL, the opaque region _NET_WM_OPAQUE_REGION */
-  MtkRegion *opaque_region;
-
   /* the input shape region for picking */
   MtkRegion *input_region;
 

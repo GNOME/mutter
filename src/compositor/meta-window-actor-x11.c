@@ -39,7 +39,7 @@
 #include "x11/window-x11.h"
 #include "x11/meta-sync-counter.h"
 #include "x11/meta-x11-display-private.h"
-#include "x11/window-x11.h"
+#include "x11/window-x11-private.h"
 
 enum
 {
@@ -1018,13 +1018,15 @@ update_opaque_region (MetaWindowActorX11 *actor_x11)
 {
   MetaWindow *window =
     meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_private (META_WINDOW_X11 (window));
   gboolean is_maybe_transparent;
   g_autoptr (MtkRegion) opaque_region = NULL;
   MetaSurfaceActor *surface;
 
   is_maybe_transparent = is_actor_maybe_transparent (actor_x11);
   if (is_maybe_transparent &&
-      (window->opaque_region ||
+      (priv->opaque_region ||
        (window->frame && window->frame->opaque_region)))
     {
       MtkRectangle client_area;
@@ -1037,7 +1039,7 @@ update_opaque_region (MetaWindowActorX11 *actor_x11)
       if (opaque_region && meta_window_x11_has_alpha_channel (window))
         mtk_region_subtract_rectangle (opaque_region, &client_area);
 
-      if (window->opaque_region)
+      if (priv->opaque_region)
         {
           g_autoptr (MtkRegion) client_opaque_region = NULL;
 
@@ -1051,7 +1053,7 @@ update_opaque_region (MetaWindowActorX11 *actor_x11)
            * to be undefined, and considered a client bug. In mutter's
            * case, graphical glitches will occur.
            */
-          client_opaque_region = mtk_region_copy (window->opaque_region);
+          client_opaque_region = mtk_region_copy (priv->opaque_region);
           mtk_region_translate (client_opaque_region,
                                 client_area.x, client_area.y);
 
