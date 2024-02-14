@@ -955,9 +955,11 @@ update_input_region (MetaWindowActorX11 *actor_x11)
     meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
   MetaSurfaceActor *surface =
     meta_window_actor_get_surface (META_WINDOW_ACTOR (actor_x11));
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_private (META_WINDOW_X11 (window));
   g_autoptr (MtkRegion) region = NULL;
 
-  if (window->shape_region && window->input_region)
+  if (window->shape_region && priv->input_region)
     {
       MtkRectangle client_area;
       g_autoptr (MtkRegion) frames_input = NULL;
@@ -965,11 +967,11 @@ update_input_region (MetaWindowActorX11 *actor_x11)
 
       get_client_area_rect (actor_x11, &client_area);
 
-      frames_input = mtk_region_copy (window->input_region);
+      frames_input = mtk_region_copy (priv->input_region);
       mtk_region_subtract_rectangle (frames_input, &client_area);
 
       client_input = mtk_region_copy (actor_x11->shape_region);
-      mtk_region_intersect (client_input, window->input_region);
+      mtk_region_intersect (client_input, priv->input_region);
 
       mtk_region_union (frames_input, client_input);
 
@@ -984,8 +986,8 @@ update_input_region (MetaWindowActorX11 *actor_x11)
       region = mtk_region_copy (window->shape_region);
       mtk_region_translate (region, client_area.x, client_area.y);
     }
-  else if (window->input_region)
-    region = mtk_region_ref (window->input_region);
+  else if (priv->input_region)
+    region = mtk_region_ref (priv->input_region);
   else
     region = NULL;
 

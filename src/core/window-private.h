@@ -243,9 +243,6 @@ struct _MetaWindow
    * the server-side client window. */
   MtkRegion *shape_region;
 
-  /* the input shape region for picking */
-  MtkRegion *input_region;
-
   /* _NET_WM_WINDOW_OPACITY rescaled to 0xFF */
   guint8 opacity;
 
