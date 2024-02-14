@@ -1786,24 +1786,27 @@ meta_wayland_surface_get_relative_coordinates (MetaWaylandSurface *surface,
 }
 
 void
-meta_wayland_surface_get_absolute_coordinates (MetaWaylandSurface *surface,
-                                               float               sx,
-                                               float               sy,
+meta_wayland_surface_get_absolute_coordinates (MetaWaylandSurface  *surface,
+                                               float                sx,
+                                               float                sy,
                                                float               *x,
                                                float               *y)
 {
   ClutterActor *actor =
     CLUTTER_ACTOR (meta_wayland_surface_get_actor (surface));
+  MetaWindow *window = meta_wayland_surface_get_window (surface);
+  ClutterActor *window_actor =
+    CLUTTER_ACTOR (meta_window_actor_from_window (window));
   graphene_point3d_t sv = {
     .x = sx,
     .y = sy,
   };
   graphene_point3d_t v = { 0 };
 
-  clutter_actor_apply_relative_transform_to_point (actor, NULL, &sv, &v);
+  clutter_actor_apply_relative_transform_to_point (actor, window_actor, &sv, &v);
 
-  *x = v.x;
-  *y = v.y;
+  *x = clutter_actor_get_x (window_actor) + v.x;
+  *y = clutter_actor_get_y (window_actor) + v.y;
 }
 
 static void
