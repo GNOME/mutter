@@ -189,7 +189,6 @@ struct _MetaWindow
   char *res_class;
   char *res_name;
   char *role;
-  char *sm_client_id;
   char *wm_client_machine;
 
   char *startup_id;

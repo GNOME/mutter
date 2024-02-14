@@ -324,7 +324,6 @@ meta_window_finalize (GObject *object)
   if (window->cgroup_path)
     g_object_unref (window->cgroup_path);
 
-  g_free (window->sm_client_id);
   g_free (window->wm_client_machine);
   g_free (window->startup_id);
   g_free (window->role);
@@ -1098,7 +1097,6 @@ meta_window_constructed (GObject *object)
   window->res_class = NULL;
   window->res_name = NULL;
   window->role = NULL;
-  window->sm_client_id = NULL;
   window->wm_client_machine = NULL;
   window->is_remote = FALSE;
   window->startup_id = NULL;

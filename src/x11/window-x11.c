@@ -188,7 +188,7 @@ update_sm_hints (MetaWindow *window)
   Window leader;
 
   priv->xclient_leader = None;
-  window->sm_client_id = NULL;
+  priv->sm_client_id = NULL;
 
   /* If not on the current window, we can get the client
    * leader from transient parents. If we find a client
@@ -211,7 +211,7 @@ update_sm_hints (MetaWindow *window)
 
       meta_prop_get_latin1_string (window->display->x11_display, leader,
                                    window->display->x11_display->atom_SM_CLIENT_ID,
-                                   &window->sm_client_id);
+                                   &priv->sm_client_id);
     }
   else
     {
@@ -225,9 +225,9 @@ update_sm_hints (MetaWindow *window)
           meta_prop_get_latin1_string (window->display->x11_display,
                                        priv->xwindow,
                                        window->display->x11_display->atom_SM_CLIENT_ID,
-                                       &window->sm_client_id);
+                                       &priv->sm_client_id);
 
-          if (window->sm_client_id)
+          if (priv->sm_client_id)
             meta_warning ("Window %s sets SM_CLIENT_ID on itself, instead of on the WM_CLIENT_LEADER window as specified in the ICCCM.",
                           window->desc);
         }
@@ -235,7 +235,7 @@ update_sm_hints (MetaWindow *window)
 
   meta_verbose ("Window %s client leader: 0x%lx SM_CLIENT_ID: '%s'",
                 window->desc, priv->xclient_leader,
-                window->sm_client_id ? window->sm_client_id : "none");
+                priv->sm_client_id ? priv->sm_client_id : "none");
 }
 
 static void
@@ -2144,6 +2144,17 @@ meta_window_x11_set_property (GObject      *object,
 }
 
 static void
+meta_window_x11_finalize (GObject *object)
+{
+  MetaWindowX11 *win = META_WINDOW_X11 (object);
+  MetaWindowX11Private *priv = meta_window_x11_get_instance_private (win);
+
+  g_clear_pointer (&priv->sm_client_id, g_free);
+
+  G_OBJECT_CLASS (meta_window_x11_parent_class)->finalize (object);
+}
+
+static void
 meta_window_x11_class_init (MetaWindowX11Class *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
@@ -2152,6 +2163,7 @@ meta_window_x11_class_init (MetaWindowX11Class *klass)
   object_class->get_property = meta_window_x11_get_property;
   object_class->set_property = meta_window_x11_set_property;
   object_class->constructed = meta_window_x11_constructed;
+  object_class->finalize = meta_window_x11_finalize;
 
   window_class->manage = meta_window_x11_manage;
   window_class->unmanage = meta_window_x11_unmanage;

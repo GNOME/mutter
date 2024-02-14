@@ -32,6 +32,7 @@
 #include "core/util-private.h"
 #include "meta/meta-context.h"
 #include "x11/meta-x11-display-private.h"
+#include "x11/window-x11-private.h"
 
 #ifndef HAVE_SM
 void
@@ -959,10 +960,12 @@ save_state (MetaContext *context)
   while (tmp != NULL)
     {
       MetaWindow *window;
+      MetaWindowX11Private *priv;
 
       window = tmp->data;
+      priv = meta_window_x11_get_private (META_WINDOW_X11 (window));
 
-      if (window->sm_client_id)
+      if (priv->sm_client_id)
         {
           char *sm_client_id;
           char *res_class;
@@ -975,7 +978,7 @@ save_state (MetaContext *context)
            * in practice they are always ascii though.)
            */
 
-          sm_client_id = encode_text_as_utf8_markup (window->sm_client_id);
+          sm_client_id = encode_text_as_utf8_markup (priv->sm_client_id);
           res_class = window->res_class ?
             encode_text_as_utf8_markup (window->res_class) : NULL;
           res_name = window->res_name ?
@@ -988,7 +991,7 @@ save_state (MetaContext *context)
             title = NULL;
 
           meta_topic (META_DEBUG_SM, "Saving session managed window %s, client ID '%s'",
-                      window->desc, window->sm_client_id);
+                      window->desc, priv->sm_client_id);
 
           fprintf (outfile,
                    "  <window id=\"%s\" class=\"%s\" name=\"%s\" title=\"%s\" role=\"%s\" type=\"%s\" stacking=\"%d\">\n",
@@ -1566,10 +1569,12 @@ get_possible_matches (MetaWindow *window)
   GSList *retval;
   GSList *tmp;
   gboolean ignore_client_id;
+  MetaWindowX11Private *priv;
 
   retval = NULL;
 
   ignore_client_id = g_getenv ("MUTTER_DEBUG_SM") != NULL;
+  priv = meta_window_x11_get_private (META_WINDOW_X11 (window));
 
   tmp = window_info_list;
   while (tmp != NULL)
@@ -1579,7 +1584,7 @@ get_possible_matches (MetaWindow *window)
       info = tmp->data;
 
       if ((ignore_client_id ||
-           both_null_or_matching (info->id, window->sm_client_id)) &&
+           both_null_or_matching (info->id, priv->sm_client_id)) &&
           both_null_or_matching (info->res_class, window->res_class) &&
           both_null_or_matching (info->res_name, window->res_name) &&
           both_null_or_matching (info->role, window->role))
@@ -1596,10 +1601,10 @@ get_possible_matches (MetaWindow *window)
         {
           if (meta_is_verbose ())
             {
-              if (!both_null_or_matching (info->id, window->sm_client_id))
+              if (!both_null_or_matching (info->id, priv->sm_client_id))
                 meta_topic (META_DEBUG_SM, "Window %s has SM client ID %s, saved state has %s, no match",
                             window->desc,
-                            window->sm_client_id ? window->sm_client_id : "(none)",
+                            priv->sm_client_id ? priv->sm_client_id : "(none)",
                             info->id ? info->id : "(none)");
               else if (!both_null_or_matching (info->res_class, window->res_class))
                 meta_topic (META_DEBUG_SM, "Window %s has class %s doesn't match saved class %s, no match",
@@ -1677,13 +1682,15 @@ meta_window_lookup_saved_state (MetaWindow *window)
 {
   GSList *possibles;
   const MetaWindowSessionInfo *info;
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_private (META_WINDOW_X11 (window));
 
   /* Window is not session managed.
    * I haven't yet figured out how to deal with these
    * in a way that doesn't cause broken side effects in
    * situations other than on session restore.
    */
-  if (window->sm_client_id == NULL)
+  if (priv->sm_client_id == NULL)
     {
       meta_topic (META_DEBUG_SM,
                   "Window %s is not session managed, not checking for saved state",

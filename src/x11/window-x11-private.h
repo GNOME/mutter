@@ -95,6 +95,8 @@ struct _MetaWindowX11Private
   /* Used by keybindings.c */
   gboolean keys_grabbed;     /* normal keybindings grabbed */
   gboolean grab_on_frame;    /* grabs are on the frame */
+
+  char *sm_client_id;
 };
 
 MetaWindowX11Private * meta_window_x11_get_private (MetaWindowX11 *window_x11);
