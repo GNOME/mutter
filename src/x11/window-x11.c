@@ -2149,6 +2149,7 @@ meta_window_x11_finalize (GObject *object)
   MetaWindowX11 *win = META_WINDOW_X11 (object);
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (win);
 
+  g_clear_pointer (&priv->wm_client_machine, g_free);
   g_clear_pointer (&priv->sm_client_id, g_free);
 
   G_OBJECT_CLASS (meta_window_x11_parent_class)->finalize (object);

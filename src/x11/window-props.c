@@ -211,16 +211,18 @@ reload_wm_client_machine (MetaWindow    *window,
                           MetaPropValue *value,
                           gboolean       initial)
 {
-  g_free (window->wm_client_machine);
-  window->wm_client_machine = NULL;
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_private (META_WINDOW_X11 (window));
+
+  g_clear_pointer (&priv->wm_client_machine, g_free);
 
   if (value->type != META_PROP_VALUE_INVALID)
-    window->wm_client_machine = g_strdup (value->v.str);
+    priv->wm_client_machine = g_strdup (value->v.str);
 
   meta_verbose ("Window has client machine \"%s\"",
-                window->wm_client_machine ? window->wm_client_machine : "unset");
+                priv->wm_client_machine ? priv->wm_client_machine : "unset");
 
-  if (window->wm_client_machine == NULL)
+  if (priv->wm_client_machine == NULL)
     {
       window->is_remote = FALSE;
     }
@@ -230,7 +232,7 @@ reload_wm_client_machine (MetaWindow    *window,
 
       gethostname (hostname, HOST_NAME_MAX + 1);
 
-      window->is_remote = g_strcmp0 (window->wm_client_machine, hostname) != 0;
+      window->is_remote = g_strcmp0 (priv->wm_client_machine, hostname) != 0;
     }
 }
 
@@ -503,6 +505,8 @@ set_title_text (MetaWindow  *window,
                 Atom         atom,
                 char       **target)
 {
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_private (META_WINDOW_X11 (window));
   gboolean modified = FALSE;
 
   if (!target)
@@ -522,7 +526,7 @@ set_title_text (MetaWindow  *window,
   else if (meta_window_is_remote (window))
     {
       *target = g_strdup_printf (_("%s (on %s)"),
-                      title, window->wm_client_machine);
+                                 title, priv->wm_client_machine);
       modified = TRUE;
     }
   else

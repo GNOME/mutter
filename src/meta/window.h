@@ -333,9 +333,6 @@ META_EXPORT
 pid_t       meta_window_get_pid (MetaWindow *window);
 
 META_EXPORT
-const char *meta_window_get_client_machine (MetaWindow *window);
-
-META_EXPORT
 gboolean    meta_window_is_remote (MetaWindow *window);
 
 META_EXPORT

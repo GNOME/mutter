@@ -96,6 +96,7 @@ struct _MetaWindowX11Private
   gboolean keys_grabbed;     /* normal keybindings grabbed */
   gboolean grab_on_frame;    /* grabs are on the frame */
 
+  char *wm_client_machine;
   char *sm_client_id;
 };
 

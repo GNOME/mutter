@@ -324,7 +324,6 @@ meta_window_finalize (GObject *object)
   if (window->cgroup_path)
     g_object_unref (window->cgroup_path);
 
-  g_free (window->wm_client_machine);
   g_free (window->startup_id);
   g_free (window->role);
   g_free (window->res_class);
@@ -1097,7 +1096,6 @@ meta_window_constructed (GObject *object)
   window->res_class = NULL;
   window->res_name = NULL;
   window->role = NULL;
-  window->wm_client_machine = NULL;
   window->is_remote = FALSE;
   window->startup_id = NULL;
 
@@ -6813,25 +6811,6 @@ meta_window_unit_cgroup_equal (MetaWindow *window1,
     return FALSE;
 
   return g_file_equal (window1_file, window2_file);
-}
-
-/**
- * meta_window_get_client_machine:
- * @window: a #MetaWindow
- *
- * Returns name of the client machine from which this windows was created,
- * if known (obtained from the WM_CLIENT_MACHINE property).
- *
- * Returns: (transfer none) (nullable): the machine name, or %NULL; the string
- * is owned by the window manager and should not be freed or modified by the
- * caller.
- */
-const char *
-meta_window_get_client_machine (MetaWindow *window)
-{
-  g_return_val_if_fail (META_IS_WINDOW (window), NULL);
-
-  return window->wm_client_machine;
 }
 
 /**
