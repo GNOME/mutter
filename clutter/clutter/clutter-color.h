@@ -98,25 +98,6 @@ CLUTTER_EXPORT
 void          clutter_color_free        (ClutterColor       *color);
 
 CLUTTER_EXPORT
-void          clutter_color_add         (const ClutterColor *a,
-                                         const ClutterColor *b,
-                                         ClutterColor       *result);
-CLUTTER_EXPORT
-void          clutter_color_subtract    (const ClutterColor *a,
-                                         const ClutterColor *b,
-                                         ClutterColor       *result);
-CLUTTER_EXPORT
-void          clutter_color_lighten     (const ClutterColor *color,
-                                         ClutterColor       *result);
-CLUTTER_EXPORT
-void          clutter_color_darken      (const ClutterColor *color,
-                                         ClutterColor       *result);
-CLUTTER_EXPORT
-void          clutter_color_shade       (const ClutterColor *color,
-                                         gdouble             factor,
-                                         ClutterColor       *result);
-
-CLUTTER_EXPORT
 gchar *       clutter_color_to_string   (const ClutterColor *color);
 CLUTTER_EXPORT
 gboolean      clutter_color_from_string (ClutterColor       *color,

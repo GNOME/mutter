@@ -260,7 +260,6 @@ static void
 color_operators (void)
 {
   ClutterColor op1, op2;
-  ClutterColor res;
 
   clutter_color_from_pixel (&op1, 0xff0000ff);
   g_assert_cmpuint (op1.red, ==, 0xff);
@@ -273,43 +272,6 @@ color_operators (void)
   g_assert_cmpuint (op2.green, ==, 0xff);
   g_assert_cmpuint (op2.blue, ==, 0);
   g_assert_cmpuint (op2.alpha, ==, 0xff);
-
-  if (!g_test_quiet ())
-    g_print ("Adding %x, %x; expected result: %x\n",
-             clutter_color_to_pixel (&op1),
-             clutter_color_to_pixel (&op2),
-             0xffff00ff);
-
-  clutter_color_add (&op1, &op2, &res);
-  g_assert_cmpuint (clutter_color_to_pixel (&res), ==, 0xffff00ff);
-
-  if (!g_test_quiet ())
-    g_print ("Checking alpha channel on color add\n");
-
-  op1.alpha = 0xdd;
-  op2.alpha = 0xcc;
-  clutter_color_add (&op1, &op2, &res);
-  g_assert_cmpuint (clutter_color_to_pixel (&res), ==, 0xffff00dd);
-
-  clutter_color_from_pixel (&op1, 0xffffffff);
-  clutter_color_from_pixel (&op2, 0xff00ffff);
-
-  if (!g_test_quiet ())
-    g_print ("Subtracting %x, %x; expected result: %x\n",
-             clutter_color_to_pixel (&op1),
-             clutter_color_to_pixel (&op2),
-             0x00ff00ff);
-
-  clutter_color_subtract (&op1, &op2, &res);
-  g_assert_cmpuint (clutter_color_to_pixel (&res), ==, 0x00ff00ff);
-
-  if (!g_test_quiet ())
-    g_print ("Checking alpha channel on color subtract\n");
-
-  op1.alpha = 0xdd;
-  op2.alpha = 0xcc;
-  clutter_color_subtract (&op1, &op2, &res);
-  g_assert_cmpuint (clutter_color_to_pixel (&res), ==, 0x00ff00cc);
 }
 
 CLUTTER_TEST_SUITE (

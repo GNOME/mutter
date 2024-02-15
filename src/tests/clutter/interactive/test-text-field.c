@@ -226,8 +226,6 @@ create_entry (const ClutterColor *color,
 
   clutter_actor_set_reactive (retval, TRUE);
 
-  clutter_color_darken (color, &selection);
-
   clutter_text_set_editable (CLUTTER_TEXT (retval), TRUE);
   clutter_text_set_selectable (CLUTTER_TEXT (retval), TRUE);
   clutter_text_set_activatable (CLUTTER_TEXT (retval), TRUE);

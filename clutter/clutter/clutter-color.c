@@ -34,93 +34,6 @@
 #include "clutter/clutter-debug.h"
 
 /**
- * clutter_color_add:
- * @a: a #ClutterColor
- * @b: a #ClutterColor
- * @result: (out caller-allocates): return location for the result
- *
- * Adds @a to @b and saves the resulting color inside @result.
- *
- * The alpha channel of @result is set as as the maximum value
- * between the alpha channels of @a and @b.
- */
-void
-clutter_color_add (const ClutterColor *a,
-		   const ClutterColor *b,
-		   ClutterColor       *result)
-{
-  g_return_if_fail (a != NULL);
-  g_return_if_fail (b != NULL);
-  g_return_if_fail (result != NULL);
-
-  result->red   = CLAMP (a->red   + b->red,   0, 255);
-  result->green = CLAMP (a->green + b->green, 0, 255);
-  result->blue  = CLAMP (a->blue  + b->blue,  0, 255);
-
-  result->alpha = MAX (a->alpha, b->alpha);
-}
-
-/**
- * clutter_color_subtract:
- * @a: a #ClutterColor
- * @b: a #ClutterColor
- * @result: (out caller-allocates): return location for the result
- *
- * Subtracts @b from @a and saves the resulting color inside @result.
- *
- * This function assumes that the components of @a are greater than the
- * components of @b; the result is, otherwise, undefined.
- *
- * The alpha channel of @result is set as the minimum value
- * between the alpha channels of @a and @b.
- */
-void
-clutter_color_subtract (const ClutterColor *a,
-			const ClutterColor *b,
-			ClutterColor       *result)
-{
-  g_return_if_fail (a != NULL);
-  g_return_if_fail (b != NULL);
-  g_return_if_fail (result != NULL);
-
-  result->red   = CLAMP (a->red   - b->red,   0, 255);
-  result->green = CLAMP (a->green - b->green, 0, 255);
-  result->blue  = CLAMP (a->blue  - b->blue,  0, 255);
-
-  result->alpha = MIN (a->alpha, b->alpha);
-}
-
-/**
- * clutter_color_lighten:
- * @color: a #ClutterColor
- * @result: (out caller-allocates): return location for the lighter color
- *
- * Lightens @color by a fixed amount, and saves the changed color
- * in @result.
- */
-void
-clutter_color_lighten (const ClutterColor *color,
-		       ClutterColor       *result)
-{
-  clutter_color_shade (color, 1.3, result);
-}
-
-/**
- * clutter_color_darken:
- * @color: a #ClutterColor
- * @result: (out caller-allocates): return location for the darker color
- *
- * Darkens @color by a fixed amount, and saves the changed color
- * in @result.
- */
-void
-clutter_color_darken (const ClutterColor *color,
-		      ClutterColor       *result)
-{
-  clutter_color_shade (color, 0.7, result);
-}
-
-/**
  * clutter_color_to_hls:
  * @color: a #ClutterColor
  * @hue: (out): return location for the hue value or %NULL
@@ -271,34 +184,6 @@ clutter_color_from_hls (ClutterColor *color,
   color->red   = floorf (clr[0] * 255.0 + 0.5);
   color->green = floorf (clr[1] * 255.0 + 0.5);
   color->blue  = floorf (clr[2] * 255.0 + 0.5);
-}
-
-/**
- * clutter_color_shade:
- * @color: a #ClutterColor
- * @factor: the shade factor to apply
- * @result: (out caller-allocates): return location for the shaded color
- *
- * Shades @color by @factor and saves the modified color into @result.
- */
-void
-clutter_color_shade (const ClutterColor *color,
-                     gdouble             factor,
-                     ClutterColor       *result)
-{
-  float h, l, s;
-
-  g_return_if_fail (color != NULL);
-  g_return_if_fail (result != NULL);
-  
-  clutter_color_to_hls (color, &h, &l, &s);
-
-  l = CLAMP (l * factor, 0.0, 1.0);
-  s = CLAMP (s * factor, 0.0, 1.0);
-  
-  clutter_color_from_hls (result, h, l, s);
-
-  result->alpha = color->alpha;
 }
 
 /**
