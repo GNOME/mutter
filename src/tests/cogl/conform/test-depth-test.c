@@ -37,8 +37,7 @@ static gboolean
 draw_rectangle (TestState *state,
                 int x,
                 int y,
-                TestDepthState *rect_state,
-                gboolean legacy_mode)
+                TestDepthState *rect_state)
 {
   uint8_t Cr = MASK_RED (rect_state->color);
   uint8_t Cg = MASK_GREEN (rect_state->color);
@@ -68,38 +67,17 @@ draw_rectangle (TestState *state,
                            Cb / 255.0, Ca / 255.0);
   cogl_pipeline_set_color (pipeline, &color);
 
-  if (!legacy_mode)
-    {
-      cogl_framebuffer_set_depth_write_enabled (test_fb,
-                                                rect_state->fb_write_enable);
-      cogl_framebuffer_push_matrix (test_fb);
-      cogl_framebuffer_translate (test_fb, 0, 0, rect_state->depth);
-      cogl_framebuffer_draw_rectangle (test_fb,
-                                       pipeline,
-                                       x * QUAD_WIDTH,
-                                       y * QUAD_WIDTH,
-                                       x * QUAD_WIDTH + QUAD_WIDTH,
-                                       y * QUAD_WIDTH + QUAD_WIDTH);
-      cogl_framebuffer_pop_matrix (test_fb);
-    }
-  else
-    {
-      CoglPipeline *legacy_pipeline;
-
-      legacy_pipeline = cogl_pipeline_new (test_ctx);
-
-      cogl_framebuffer_push_matrix (test_fb);
-      cogl_framebuffer_translate (test_fb, 0, 0, rect_state->depth);
-      cogl_framebuffer_draw_rectangle (test_fb,
-                                       pipeline,
-                                       x * QUAD_WIDTH,
-                                       y * QUAD_WIDTH,
-                                       x * QUAD_WIDTH + QUAD_WIDTH,
-                                       y * QUAD_WIDTH + QUAD_WIDTH);
-      cogl_framebuffer_pop_matrix (test_fb);
-
-      g_object_unref (legacy_pipeline);
-    }
+  cogl_framebuffer_set_depth_write_enabled (test_fb,
+                                            rect_state->fb_write_enable);
+  cogl_framebuffer_push_matrix (test_fb);
+  cogl_framebuffer_translate (test_fb, 0, 0, rect_state->depth);
+  cogl_framebuffer_draw_rectangle (test_fb,
+                                    pipeline,
+                                    x * QUAD_WIDTH,
+                                    y * QUAD_WIDTH,
+                                    x * QUAD_WIDTH + QUAD_WIDTH,
+                                    y * QUAD_WIDTH + QUAD_WIDTH);
+  cogl_framebuffer_pop_matrix (test_fb);
 
   g_object_unref (pipeline);
 
@@ -113,17 +91,16 @@ test_depth (TestState *state,
             TestDepthState *rect0_state,
             TestDepthState *rect1_state,
             TestDepthState *rect2_state,
-            gboolean legacy_mode,
             uint32_t expected_result)
 {
   gboolean missing_feature = FALSE;
 
   if (rect0_state)
-    missing_feature |= !draw_rectangle (state, x, y, rect0_state, legacy_mode);
+    missing_feature |= !draw_rectangle (state, x, y, rect0_state);
   if (rect1_state)
-    missing_feature |= !draw_rectangle (state, x, y, rect1_state, legacy_mode);
+    missing_feature |= !draw_rectangle (state, x, y, rect1_state);
   if (rect2_state)
-    missing_feature |= !draw_rectangle (state, x, y, rect2_state, legacy_mode);
+    missing_feature |= !draw_rectangle (state, x, y, rect2_state);
 
   /* We don't consider it an error that we can't test something
    * the driver doesn't support. */
@@ -176,39 +153,33 @@ paint (TestState *state)
 
     test_depth (state, 0, 0, /* position */
                 &rect0_state, &rect1_state, &rect2_state,
-                FALSE, /* legacy mode */
                 0x00ff00ff); /* expected */
 
     rect2_state.test_function = COGL_DEPTH_TEST_FUNCTION_ALWAYS;
     test_depth (state, 1, 0, /* position */
                 &rect0_state, &rect1_state, &rect2_state,
-                FALSE, /* legacy mode */
                 0x0000ffff); /* expected */
 
     rect2_state.test_function = COGL_DEPTH_TEST_FUNCTION_LESS;
     test_depth (state, 2, 0, /* position */
                 &rect0_state, &rect1_state, &rect2_state,
-                FALSE, /* legacy mode */
                 0x0000ffff); /* expected */
 
     rect2_state.test_function = COGL_DEPTH_TEST_FUNCTION_GREATER;
     test_depth (state, 3, 0, /* position */
                 &rect0_state, &rect1_state, &rect2_state,
-                FALSE, /* legacy mode */
                 0x00ff00ff); /* expected */
 
     rect0_state.test_enable = TRUE;
     rect1_state.write_enable = FALSE;
     test_depth (state, 4, 0, /* position */
                 &rect0_state, &rect1_state, &rect2_state,
-                FALSE, /* legacy mode */
                 0x0000ffff); /* expected */
 
     rect1_state.write_enable = TRUE;
     rect1_state.fb_write_enable = FALSE;
     test_depth (state, 4, 0, /* position */
                 &rect0_state, &rect1_state, &rect2_state,
-                FALSE, /* legacy mode */
                 0x0000ffff); /* expected */
 
     /* Re-enable FB depth writing to verify state flush */
@@ -216,7 +187,6 @@ paint (TestState *state)
     rect1_state.fb_write_enable = TRUE;
     test_depth (state, 4, 0, /* position */
                 &rect0_state, &rect1_state, &rect2_state,
-                FALSE, /* legacy mode */
                 0x00ff00ff); /* expected */
   }
 
@@ -247,7 +217,6 @@ paint (TestState *state)
 
     test_depth (state, 0, 1, /* position */
                 &rect0_state, &rect1_state, NULL,
-                FALSE, /* legacy mode */
                 0xff0000ff); /* expected */
   }
 }
