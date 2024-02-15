@@ -755,20 +755,11 @@ cogl_onscreen_glx_swap_region (CoglOnscreen  *onscreen,
    * the GPU, only the CPU so we have to resort to synchronizing the
    * GPU with the CPU to throttle it.
    *
-   * Note: since calling glFinish() and synchronizing the CPU with
-   * the GPU is far from ideal, we hope that this is only a short
-   * term solution.
-   * - One idea is to using sync objects to track render
-   *   completion so we can throttle the backlog (ideally with an
-   *   additional extension that lets us get notifications in our
-   *   mainloop instead of having to busy wait for the
-   *   completion.)
-   * - Another option is to support clipped redraws by reusing the
-   *   contents of old back buffers such that we can flip instead
-   *   of using a blit and then we can use GLX_INTEL_swap_events
-   *   to throttle. For this though we would still probably want an
-   *   additional extension so we can report the limited region of
-   *   the window damage to X/compositors.
+   * Note: calling glFinish() and synchronizing the CPU with the GPU is far
+   * from ideal. One idea is to use sync objects to track render completion
+   * so we can throttle the backlog (ideally with an additional extension that
+   * lets us get notifications in our mainloop instead of having to busy wait
+   * for the completion).
    */
   cogl_framebuffer_finish (framebuffer);
 
