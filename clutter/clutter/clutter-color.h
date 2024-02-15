@@ -68,7 +68,13 @@ struct _ClutterColor
  *
  * A macro that initializes a #ClutterColor, to be used when declaring it.
  */
-#define CLUTTER_COLOR_INIT(r,g,b,a)     { (r), (g), (b), (a) }
+#define CLUTTER_COLOR_INIT(_r, _g, _b, _a) \
+        (ClutterColor) { \
+          .red = (_r), \
+          .green = (_g), \
+          .blue = (_b), \
+          .alpha = (_a) \
+        }
 
 CLUTTER_EXPORT
 GType clutter_color_get_type (void) G_GNUC_CONST;
@@ -191,8 +197,5 @@ GParamSpec *    clutter_param_spec_color        (const gchar        *name,
                                                  const gchar        *blurb,
                                                  const ClutterColor *default_value,
                                                  GParamFlags         flags);
-
-CLUTTER_EXPORT
-const ClutterColor *clutter_color_get_static (ClutterStaticColor color);
 
 G_END_DECLS

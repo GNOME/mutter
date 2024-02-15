@@ -324,12 +324,10 @@ clutter_deform_effect_paint_target (ClutterOffscreenEffect *effect,
 
   if (G_UNLIKELY (priv->lines_primitive != NULL))
     {
-      const ClutterColor *red;
+      static ClutterColor red = CLUTTER_COLOR_INIT (255, 0, 0, 255);
       ClutterPaintNode *lines_node;
 
-      red = clutter_color_get_static (CLUTTER_COLOR_RED);
-
-      lines_node = clutter_color_node_new (red);
+      lines_node = clutter_color_node_new (&red);
       clutter_paint_node_set_static_name (lines_node,
                                           "ClutterDeformEffect (lines)");
       clutter_paint_node_add_child (node, lines_node);

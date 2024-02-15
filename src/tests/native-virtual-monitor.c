@@ -106,7 +106,7 @@ meta_test_virtual_monitor_create (void)
   actor = clutter_actor_new ();
   clutter_actor_set_position (actor, 10, 10);
   clutter_actor_set_size (actor, 40, 40);
-  clutter_actor_set_background_color (actor, CLUTTER_COLOR_LightSkyBlue);
+  clutter_actor_set_background_color (actor, &CLUTTER_COLOR_INIT (114, 159, 207, 255));
   clutter_actor_add_child (meta_backend_get_stage (backend), actor);
 
   for (i = 0; i < 5; i++)

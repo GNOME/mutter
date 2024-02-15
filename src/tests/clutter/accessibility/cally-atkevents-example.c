@@ -91,7 +91,8 @@ make_ui (ClutterActor *stage)
   ClutterColor     color_rect    = { 0x00, 0xff, 0xff, 0x55 };
   float label_geom_y, editable_geom_y;
 
-  clutter_actor_set_background_color (CLUTTER_ACTOR (stage), CLUTTER_COLOR_White);
+  clutter_actor_set_background_color (CLUTTER_ACTOR (stage),
+                                      &CLUTTER_COLOR_INIT (255, 255, 255, 255));
   clutter_actor_set_size (stage, WIDTH, HEIGHT);
 
   label_geom_y = 50;
@@ -108,7 +109,7 @@ make_ui (ClutterActor *stage)
       /* editable */
       editable = clutter_text_new_full ("Sans Bold 32px",
                                         "ddd",
-                                        CLUTTER_COLOR_Red);
+                                        &CLUTTER_COLOR_INIT (255, 0, 0, 255));
       clutter_actor_set_position (editable, 150, editable_geom_y);
       clutter_actor_set_size (editable, 500, 75);
       clutter_text_set_editable (CLUTTER_TEXT (editable), TRUE);

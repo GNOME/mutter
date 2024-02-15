@@ -95,7 +95,7 @@ meta_test_ref_test_sanity (void)
   actor1 = clutter_actor_new ();
   clutter_actor_set_position (actor1, 10, 10);
   clutter_actor_set_size (actor1, 50, 50);
-  clutter_actor_set_background_color (actor1, CLUTTER_COLOR_Orange);
+  clutter_actor_set_background_color (actor1, &CLUTTER_COLOR_INIT (245, 121, 0, 255));
   clutter_actor_add_child (stage, actor1);
 
   meta_ref_test_verify_view (get_view (),
@@ -105,7 +105,7 @@ meta_test_ref_test_sanity (void)
   actor2 = clutter_actor_new ();
   clutter_actor_set_position (actor2, 20, 20);
   clutter_actor_set_size (actor2, 50, 50);
-  clutter_actor_set_background_color (actor2, CLUTTER_COLOR_SkyBlue);
+  clutter_actor_set_background_color (actor2, &CLUTTER_COLOR_INIT (52, 101, 164, 255));
   clutter_actor_add_child (stage, actor2);
 
   g_test_expect_message ("libmutter-test",

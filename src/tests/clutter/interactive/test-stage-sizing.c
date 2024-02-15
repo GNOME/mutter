@@ -47,7 +47,7 @@ test_stage_sizing_main (int argc, char *argv[])
 
   rect = clutter_actor_new ();
   clutter_actor_set_layout_manager (rect, clutter_bin_layout_new ());
-  clutter_actor_set_background_color (rect, CLUTTER_COLOR_SkyBlue);
+  clutter_actor_set_background_color (rect, &CLUTTER_COLOR_INIT (52, 101, 164, 255));
   clutter_actor_set_reactive (rect, TRUE);
   g_signal_connect_swapped (rect, "button-press-event",
                             G_CALLBACK (shrink_clicked_cb), stage);
@@ -58,7 +58,7 @@ test_stage_sizing_main (int argc, char *argv[])
 
   rect = clutter_actor_new ();
   clutter_actor_set_layout_manager (rect, clutter_bin_layout_new ());
-  clutter_actor_set_background_color (rect, CLUTTER_COLOR_Butter);
+  clutter_actor_set_background_color (rect, &CLUTTER_COLOR_INIT (237, 212, 0, 255));
   clutter_actor_set_reactive (rect, TRUE);
   g_signal_connect_swapped (rect, "button-press-event",
                             G_CALLBACK (expand_clicked_cb), stage);

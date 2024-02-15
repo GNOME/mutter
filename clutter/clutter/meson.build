@@ -18,7 +18,6 @@ clutter_headers = [
   'clutter-click-action.h',
   'clutter-clone.h',
   'clutter-color-state.h',
-  'clutter-color-static.h',
   'clutter-color.h',
   'clutter-colorize-effect.h',
   'clutter-constraint.h',

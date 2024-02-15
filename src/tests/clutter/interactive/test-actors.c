@@ -156,7 +156,7 @@ test_actors_main (int argc, char *argv[])
   oh->stage = clutter_test_get_stage ();
   clutter_actor_set_size (oh->stage, 800, 600);
   clutter_actor_set_name (oh->stage, "Default Stage");
-  clutter_actor_set_background_color (oh->stage, CLUTTER_COLOR_LightSkyBlue);
+  clutter_actor_set_background_color (oh->stage, &CLUTTER_COLOR_INIT (114, 159, 207, 255));
   g_signal_connect (oh->stage, "destroy", G_CALLBACK (stop_and_quit), oh);
 
   clutter_stage_set_title (CLUTTER_STAGE (oh->stage), "Actors");

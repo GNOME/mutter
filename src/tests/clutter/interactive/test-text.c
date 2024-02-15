@@ -33,7 +33,7 @@ test_text_main (gint    argc,
 
   stage = clutter_test_get_stage ();
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Text Editing");
-  clutter_actor_set_background_color (stage, CLUTTER_COLOR_Black);
+  clutter_actor_set_background_color (stage, &CLUTTER_COLOR_INIT (0, 0, 0, 255));
   g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
 
   buffer = clutter_text_buffer_new_with_text ("·", -1);
@@ -53,7 +53,7 @@ test_text_main (gint    argc,
   clutter_text_set_editable (CLUTTER_TEXT (text), TRUE);
   clutter_text_set_selectable (CLUTTER_TEXT (text), TRUE);
   clutter_text_set_cursor_color (CLUTTER_TEXT (text), &cursor_color);
-  clutter_text_set_selected_text_color (CLUTTER_TEXT (text), CLUTTER_COLOR_Blue);
+  clutter_text_set_selected_text_color (CLUTTER_TEXT (text), &CLUTTER_COLOR_INIT (0, 0, 255, 255));
 
   text2 = clutter_text_new_with_buffer (buffer);
   clutter_text_set_color (CLUTTER_TEXT (text2), &text_color);
@@ -66,7 +66,7 @@ test_text_main (gint    argc,
   clutter_text_set_editable (CLUTTER_TEXT (text2), TRUE);
   clutter_text_set_selectable (CLUTTER_TEXT (text2), TRUE);
   clutter_text_set_cursor_color (CLUTTER_TEXT (text2), &cursor_color);
-  clutter_text_set_selected_text_color (CLUTTER_TEXT (text2), CLUTTER_COLOR_Green);
+  clutter_text_set_selected_text_color (CLUTTER_TEXT (text2), &CLUTTER_COLOR_INIT (0, 255, 0, 255));
 
   if (argv[1])
     {

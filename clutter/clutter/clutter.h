@@ -45,7 +45,6 @@
 #include "clutter/clutter-clone.h"
 #include "clutter/clutter-color.h"
 #include "clutter/clutter-color-state.h"
-#include "clutter/clutter-color-static.h"
 #include "clutter/clutter-colorize-effect.h"
 #include "clutter/clutter-constraint.h"
 #include "clutter/clutter-content.h"

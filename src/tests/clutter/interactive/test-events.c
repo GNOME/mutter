@@ -389,12 +389,12 @@ test_events_main (int argc, char *argv[])
   g_signal_connect (stage, "event", G_CALLBACK (input_cb), (char *) "stage");
 
   focus_box = clutter_actor_new ();
-  clutter_actor_set_background_color (focus_box, CLUTTER_COLOR_Black);
+  clutter_actor_set_background_color (focus_box, &CLUTTER_COLOR_INIT (0, 0, 0, 255));
   clutter_actor_set_name (focus_box, "Focus Box");
   clutter_actor_add_child (stage, focus_box);
 
   actor = clutter_actor_new ();
-  clutter_actor_set_background_color (actor, CLUTTER_COLOR_Green);
+  clutter_actor_set_background_color (actor, &CLUTTER_COLOR_INIT (0, 255, 0, 255));
   clutter_actor_set_name (actor, "Green Box");
   clutter_actor_set_size (actor, 100, 100);
   clutter_actor_set_position (actor, 250, 100);
@@ -409,7 +409,7 @@ test_events_main (int argc, char *argv[])
 
   /* non reactive */
   actor = clutter_actor_new ();
-  clutter_actor_set_background_color (actor, CLUTTER_COLOR_Black);
+  clutter_actor_set_background_color (actor, &CLUTTER_COLOR_INIT (0, 0, 0, 255));
   clutter_actor_set_name (actor, "Black Box");
   clutter_actor_set_size (actor, 400, 50);
   clutter_actor_set_position (actor, 100, 250);
@@ -422,7 +422,7 @@ test_events_main (int argc, char *argv[])
 
   /* non reactive group, with reactive child */
   actor = clutter_actor_new ();
-  clutter_actor_set_background_color (actor, CLUTTER_COLOR_Yellow);
+  clutter_actor_set_background_color (actor, &CLUTTER_COLOR_INIT (255, 255, 0, 255));
   clutter_actor_set_name (actor, "Yellow Box");
   clutter_actor_set_size (actor, 100, 100);
   clutter_actor_set_reactive (actor, TRUE);
@@ -437,7 +437,7 @@ test_events_main (int argc, char *argv[])
 
   /* border actor */
   actor = clutter_actor_new ();
-  clutter_actor_set_background_color (actor, CLUTTER_COLOR_Magenta);
+  clutter_actor_set_background_color (actor, &CLUTTER_COLOR_INIT (255, 0, 255, 255));
   clutter_actor_set_name (actor, "Border Box");
   clutter_actor_set_size (actor, 100, 100);
   clutter_actor_set_position (actor,

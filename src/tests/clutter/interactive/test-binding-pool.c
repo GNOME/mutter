@@ -271,7 +271,7 @@ test_binding_pool_main (int argc, char *argv[])
   /* add three rectangles to the key group */
   clutter_actor_add_child (key_group,
                            g_object_new (CLUTTER_TYPE_ACTOR,
-                                         "background-color", CLUTTER_COLOR_Red,
+                                         "background-color", &CLUTTER_COLOR_INIT (255, 0, 0, 255),
                                          "name", "Red Rectangle",
                                          "width", 100.0,
                                          "height", 100.0,
@@ -280,7 +280,7 @@ test_binding_pool_main (int argc, char *argv[])
                                          NULL));
   clutter_actor_add_child (key_group,
                            g_object_new (CLUTTER_TYPE_ACTOR,
-                                         "background-color", CLUTTER_COLOR_Green,
+                                         "background-color", &CLUTTER_COLOR_INIT (0, 255, 0, 255),
                                          "name", "Green Rectangle",
                                          "width", 100.0,
                                          "height", 100.0,
@@ -289,7 +289,7 @@ test_binding_pool_main (int argc, char *argv[])
                                          NULL));
   clutter_actor_add_child (key_group,
                            g_object_new (CLUTTER_TYPE_ACTOR,
-                                         "background-color", CLUTTER_COLOR_Blue,
+                                         "background-color", &CLUTTER_COLOR_INIT (0, 0, 255, 255),
                                          "name", "Blue Rectangle",
                                          "width", 100.0,
                                          "height", 100.0,
