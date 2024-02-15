@@ -23,7 +23,6 @@
 #include "backends/meta-monitor-config-manager.h"
 
 #include "backends/meta-backend-private.h"
-#include "backends/meta-monitor-config-migration.h"
 #include "backends/meta-monitor-config-store.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-output.h"
@@ -506,7 +505,6 @@ meta_monitor_config_manager_get_stored (MetaMonitorConfigManager *config_manager
   MetaMonitorManager *monitor_manager = config_manager->monitor_manager;
   MetaMonitorsConfigKey *config_key;
   MetaMonitorsConfig *config;
-  GError *error = NULL;
 
   config_key =
     meta_create_monitors_config_key_for_current_state (monitor_manager);
@@ -516,22 +514,6 @@ meta_monitor_config_manager_get_stored (MetaMonitorConfigManager *config_manager
   config = meta_monitor_config_store_lookup (config_manager->config_store,
                                              config_key);
   meta_monitors_config_key_free (config_key);
-
-  if (!config)
-    return NULL;
-
-  if (config->flags & META_MONITORS_CONFIG_FLAG_MIGRATED)
-    {
-      if (!meta_finish_monitors_config_migration (monitor_manager, config,
-                                                  &error))
-        {
-          g_warning ("Failed to finish monitors config migration: %s",
-                     error->message);
-          g_error_free (error);
-          meta_monitor_config_store_remove (config_manager->config_store, config);
-          return NULL;
-        }
-    }
 
   return config;
 }

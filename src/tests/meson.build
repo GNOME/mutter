@@ -247,8 +247,6 @@ test_cases += [
       'unit-tests.c',
       'boxes-tests.c',
       'boxes-tests.h',
-      'monitor-config-migration-unit-tests.c',
-      'monitor-config-migration-unit-tests.h',
       'monitor-store-unit-tests.c',
       'monitor-store-unit-tests.h',
       'monitor-transform-tests.c',

@@ -33,7 +33,6 @@
 #include "meta/compositor.h"
 #include "meta/meta-context.h"
 #include "tests/boxes-tests.h"
-#include "tests/monitor-config-migration-unit-tests.h"
 #include "tests/monitor-store-unit-tests.h"
 #include "tests/monitor-transform-tests.h"
 #include "tests/meta-test-utils.h"
@@ -208,7 +207,6 @@ init_tests (void)
                    meta_test_util_later_schedule_from_later);
 
   init_monitor_store_tests ();
-  init_monitor_config_migration_tests ();
   init_boxes_tests ();
   init_monitor_transform_tests ();
   init_orientation_manager_tests ();

@@ -25,7 +25,6 @@
 #include <string.h>
 
 #include "backends/meta-monitor-config-manager.h"
-#include "backends/meta-monitor-config-migration.h"
 
 #define MONITORS_CONFIG_XML_FORMAT_VERSION 2
 
@@ -126,24 +125,12 @@ struct _MetaMonitorConfigStore
   MetaMonitorConfigPolicy policy;
 };
 
-#define META_MONITOR_CONFIG_STORE_ERROR (meta_monitor_config_store_error_quark ())
-static GQuark meta_monitor_config_store_error_quark (void);
-
-enum
-{
-  META_MONITOR_CONFIG_STORE_ERROR_NEEDS_MIGRATION
-};
-
-G_DEFINE_QUARK (meta-monitor-config-store-error-quark,
-                meta_monitor_config_store_error)
-
 typedef enum
 {
   STATE_INITIAL,
   STATE_UNKNOWN,
   STATE_MONITORS,
   STATE_CONFIGURATION,
-  STATE_MIGRATED,
   STATE_LOGICAL_MONITOR,
   STATE_LOGICAL_MONITOR_X,
   STATE_LOGICAL_MONITOR_Y,
@@ -185,7 +172,6 @@ typedef struct
 
   ParserState monitor_spec_parent_state;
 
-  gboolean current_was_migrated;
   GList *current_logical_monitor_configs;
   MetaMonitorSpec *current_monitor_spec;
   gboolean current_transform_flipped;
@@ -277,15 +263,6 @@ handle_start_element (GMarkupParseContext  *context,
                          "Missing config file format version");
           }
 
-        if (g_str_equal (version, "1"))
-          {
-            g_set_error_literal (error,
-                                 META_MONITOR_CONFIG_STORE_ERROR,
-                                 META_MONITOR_CONFIG_STORE_ERROR_NEEDS_MIGRATION,
-                                 "monitors.xml has the old format");
-            return;
-          }
-
         if (!g_str_equal (version, QUOTE (MONITORS_CONFIG_XML_FORMAT_VERSION)))
           {
             g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
@@ -302,7 +279,6 @@ handle_start_element (GMarkupParseContext  *context,
         if (g_str_equal (element_name, "configuration"))
           {
             parser->state = STATE_CONFIGURATION;
-            parser->current_was_migrated = FALSE;
           }
         else if (g_str_equal (element_name, "policy"))
           {
@@ -343,12 +319,6 @@ handle_start_element (GMarkupParseContext  *context,
 
             parser->state = STATE_LOGICAL_MONITOR;
           }
-        else if (g_str_equal (element_name, "migrated"))
-          {
-            parser->current_was_migrated = TRUE;
-
-            parser->state = STATE_MIGRATED;
-          }
         else if (g_str_equal (element_name, "disabled"))
           {
             parser->state = STATE_DISABLED;
@@ -359,13 +329,6 @@ handle_start_element (GMarkupParseContext  *context,
                                    "configuration", STATE_CONFIGURATION);
           }
 
-        return;
-      }
-
-    case STATE_MIGRATED:
-      {
-        g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
-                     "Unexpected element '%s'", element_name);
         return;
       }
 
@@ -909,23 +872,13 @@ handle_end_element (GMarkupParseContext  *context,
 
         g_assert (g_str_equal (element_name, "logicalmonitor"));
 
-        if (parser->current_was_migrated)
-          logical_monitor_config->scale = -1;
-        else if (logical_monitor_config->scale == 0)
+        if (logical_monitor_config->scale == 0)
           logical_monitor_config->scale = 1;
 
         parser->current_logical_monitor_configs =
           g_list_append (parser->current_logical_monitor_configs,
                          logical_monitor_config);
         parser->current_logical_monitor_config = NULL;
-
-        parser->state = STATE_CONFIGURATION;
-        return;
-      }
-
-    case STATE_MIGRATED:
-      {
-        g_assert (g_str_equal (element_name, "migrated"));
 
         parser->state = STATE_CONFIGURATION;
         return;
@@ -949,11 +902,7 @@ handle_end_element (GMarkupParseContext  *context,
 
         g_assert (g_str_equal (element_name, "configuration"));
 
-        if (parser->current_was_migrated)
-          layout_mode = META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL;
-        else
-          layout_mode =
-            meta_monitor_manager_get_default_layout_mode (store->monitor_manager);
+        layout_mode = meta_monitor_manager_get_default_layout_mode (store->monitor_manager);
 
         for (l = parser->current_logical_monitor_configs; l; l = l->next)
           {
@@ -970,9 +919,6 @@ handle_end_element (GMarkupParseContext  *context,
                                                      error))
               return;
           }
-
-        if (parser->current_was_migrated)
-          config_flags |= META_MONITORS_CONFIG_FLAG_MIGRATED;
 
         config_flags |= parser->extra_config_flags;
 
@@ -1213,7 +1159,6 @@ handle_text (GMarkupParseContext *context,
     case STATE_INITIAL:
     case STATE_MONITORS:
     case STATE_CONFIGURATION:
-    case STATE_MIGRATED:
     case STATE_LOGICAL_MONITOR:
     case STATE_MONITOR:
     case STATE_MONITOR_SPEC:
@@ -1711,9 +1656,8 @@ append_logical_monitor_xml (GString                  *buffer,
                           logical_monitor_config->layout.y);
   g_ascii_dtostr (scale_str, G_ASCII_DTOSTR_BUF_SIZE,
                   logical_monitor_config->scale);
-  if ((config->flags & META_MONITORS_CONFIG_FLAG_MIGRATED) == 0)
-    g_string_append_printf (buffer, "      <scale>%s</scale>\n",
-                            scale_str);
+  g_string_append_printf (buffer, "      <scale>%s</scale>\n",
+                          scale_str);
   if (logical_monitor_config->is_primary)
     g_string_append (buffer, "      <primary>yes</primary>\n");
   if (logical_monitor_config->is_presentation)
@@ -1743,9 +1687,6 @@ generate_config_xml (MetaMonitorConfigStore *config_store)
         continue;
 
       g_string_append (buffer, "  <configuration>\n");
-
-      if (config->flags & META_MONITORS_CONFIG_FLAG_MIGRATED)
-        g_string_append (buffer, "    <migrated/>\n");
 
       for (l = config->logical_monitor_configs; l; l = l->next)
         {
@@ -2133,16 +2074,8 @@ meta_monitor_config_store_reset (MetaMonitorConfigStore *config_store)
                                  &system_configs,
                                  &error))
             {
-              if (g_error_matches (error,
-                                   META_MONITOR_CONFIG_STORE_ERROR,
-                                   META_MONITOR_CONFIG_STORE_ERROR_NEEDS_MIGRATION))
-                g_warning ("System monitor configuration file (%s) is "
-                           "incompatible; ask your administrator to migrate "
-                           "the system monitor configuration.",
-                           system_file_path);
-              else
-                g_warning ("Failed to read monitors config file '%s': %s",
-                           system_file_path, error->message);
+              g_warning ("Failed to read monitors config file '%s': %s",
+                         system_file_path, error->message);
               g_clear_error (&error);
             }
         }
@@ -2161,23 +2094,9 @@ meta_monitor_config_store_reset (MetaMonitorConfigStore *config_store)
                              &user_configs,
                              &error))
         {
-          if (error->domain == META_MONITOR_CONFIG_STORE_ERROR &&
-              error->code == META_MONITOR_CONFIG_STORE_ERROR_NEEDS_MIGRATION)
-            {
-              g_clear_error (&error);
-              if (!meta_migrate_old_user_monitors_config (config_store, &error))
-                {
-                  g_warning ("Failed to migrate old monitors config file: %s",
-                             error->message);
-                  g_error_free (error);
-                }
-            }
-          else
-            {
-              g_warning ("Failed to read monitors config file '%s': %s",
-                         user_file_path, error->message);
-              g_error_free (error);
-            }
+          g_warning ("Failed to read monitors config file '%s': %s",
+                     user_file_path, error->message);
+          g_error_free (error);
         }
     }
 

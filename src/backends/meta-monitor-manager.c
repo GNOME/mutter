@@ -646,9 +646,6 @@ meta_monitor_manager_apply_monitors_config (MetaMonitorManager      *manager,
   MetaMonitorManagerClass *manager_class =
     META_MONITOR_MANAGER_GET_CLASS (manager);
 
-  g_assert (!config ||
-            !(config->flags & META_MONITORS_CONFIG_FLAG_MIGRATED));
-
   if (!manager_class->apply_monitors_config (manager, config, method, error))
     return FALSE;
 

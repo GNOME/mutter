@@ -250,8 +250,6 @@ mutter_sources = [
   'backends/meta-monitor.c',
   'backends/meta-monitor-config-manager.c',
   'backends/meta-monitor-config-manager.h',
-  'backends/meta-monitor-config-migration.c',
-  'backends/meta-monitor-config-migration.h',
   'backends/meta-monitor-config-store.c',
   'backends/meta-monitor-config-store.h',
   'backends/meta-monitor.h',
