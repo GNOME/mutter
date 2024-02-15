@@ -344,15 +344,6 @@ cogl_onscreen_glx_bind (CoglOnscreen *onscreen)
 }
 
 static void
-_cogl_winsys_wait_for_gpu (CoglOnscreen *onscreen)
-{
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
-
-  ctx->glFinish ();
-}
-
-static void
 ensure_ust_type (CoglRenderer *renderer,
                  GLXDrawable   drawable)
 {
@@ -779,7 +770,7 @@ cogl_onscreen_glx_swap_region (CoglOnscreen  *onscreen,
    *   additional extension so we can report the limited region of
    *   the window damage to X/compositors.
    */
-  _cogl_winsys_wait_for_gpu (onscreen);
+  cogl_framebuffer_finish (framebuffer);
 
   if (blit_sub_buffer_is_synchronized && have_counter && can_wait)
     {
@@ -944,7 +935,7 @@ cogl_onscreen_glx_swap_buffers_with_damage (CoglOnscreen  *onscreen,
        * obviously does not happen when we use _GLX_SWAP and let
        * the driver do the right thing
        */
-      _cogl_winsys_wait_for_gpu (onscreen);
+      cogl_framebuffer_finish (framebuffer);
 
       if (have_counter && can_wait)
         {
