@@ -645,10 +645,10 @@ cogl_framebuffer_clear (CoglFramebuffer *framebuffer,
                         const CoglColor *color)
 {
   cogl_framebuffer_clear4f (framebuffer, buffers,
-                            cogl_color_get_red_float (color),
-                            cogl_color_get_green_float (color),
-                            cogl_color_get_blue_float (color),
-                            cogl_color_get_alpha_float (color));
+                            cogl_color_get_red (color),
+                            cogl_color_get_green (color),
+                            cogl_color_get_blue (color),
+                            cogl_color_get_alpha (color));
 }
 
 /* We will lazily allocate framebuffers if necessary when querying

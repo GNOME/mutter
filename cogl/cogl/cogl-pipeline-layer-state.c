@@ -1029,10 +1029,10 @@ cogl_pipeline_set_layer_combine_constant (CoglPipeline *pipeline,
    * state we want to change */
   authority = _cogl_pipeline_layer_get_authority (layer, state);
 
-  color_as_floats[0] = cogl_color_get_red_float (constant_color);
-  color_as_floats[1] = cogl_color_get_green_float (constant_color);
-  color_as_floats[2] = cogl_color_get_blue_float (constant_color);
-  color_as_floats[3] = cogl_color_get_alpha_float (constant_color);
+  color_as_floats[0] = cogl_color_get_red (constant_color);
+  color_as_floats[1] = cogl_color_get_green (constant_color);
+  color_as_floats[2] = cogl_color_get_blue (constant_color);
+  color_as_floats[3] = cogl_color_get_alpha (constant_color);
 
   if (memcmp (authority->big_state->texture_combine_constant,
               color_as_floats, sizeof (float) * 4) == 0)

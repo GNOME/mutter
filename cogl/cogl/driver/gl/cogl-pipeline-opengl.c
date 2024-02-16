@@ -321,14 +321,10 @@ _cogl_pipeline_flush_color_blend_alpha_depth_state (
           blend_factor_uses_constant (blend_state->blend_dst_factor_rgb) ||
           blend_factor_uses_constant (blend_state->blend_dst_factor_alpha))
         {
-          float red =
-            cogl_color_get_red_float (&blend_state->blend_constant);
-          float green =
-            cogl_color_get_green_float (&blend_state->blend_constant);
-          float blue =
-            cogl_color_get_blue_float (&blend_state->blend_constant);
-          float alpha =
-            cogl_color_get_alpha_float (&blend_state->blend_constant);
+          float red = cogl_color_get_red (&blend_state->blend_constant);
+          float green = cogl_color_get_green (&blend_state->blend_constant);
+          float blue = cogl_color_get_blue (&blend_state->blend_constant);
+          float alpha = cogl_color_get_alpha (&blend_state->blend_constant);
 
 
           GE (ctx, glBlendColor (red, green, blue, alpha));
@@ -1117,10 +1113,10 @@ done:
       if (attribute != -1)
         GE (ctx,
             glVertexAttrib4f (attribute,
-                              cogl_color_get_red_float (&authority->color),
-                              cogl_color_get_green_float (&authority->color),
-                              cogl_color_get_blue_float (&authority->color),
-                              cogl_color_get_alpha_float (&authority->color)));
+                              cogl_color_get_red (&authority->color),
+                              cogl_color_get_green (&authority->color),
+                              cogl_color_get_blue (&authority->color),
+                              cogl_color_get_alpha (&authority->color)));
     }
 
   /* Give the progend a chance to update any uniforms that might not
