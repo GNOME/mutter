@@ -25,6 +25,7 @@
 #include <string.h>
 
 #include "backends/meta-monitor-config-manager.h"
+#include "backends/meta-monitor-config-utils.h"
 
 #define MONITORS_CONFIG_XML_FORMAT_VERSION 2
 
@@ -651,69 +652,6 @@ handle_start_element (GMarkupParseContext  *context,
     }
 }
 
-static gboolean
-derive_logical_monitor_layout (MetaLogicalMonitorConfig    *logical_monitor_config,
-                               MetaLogicalMonitorLayoutMode layout_mode,
-                               GError                     **error)
-{
-  MetaMonitorConfig *monitor_config;
-  int mode_width, mode_height;
-  int width = 0, height = 0;
-  float scale;
-  GList *l;
-
-  monitor_config = logical_monitor_config->monitor_configs->data;
-  mode_width = monitor_config->mode_spec->width;
-  mode_height = monitor_config->mode_spec->height;
-
-  for (l = logical_monitor_config->monitor_configs->next; l; l = l->next)
-    {
-      monitor_config = l->data;
-
-      if (monitor_config->mode_spec->width != mode_width ||
-          monitor_config->mode_spec->height != mode_height)
-        {
-          g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                       "Monitors in logical monitor incompatible");
-          return FALSE;
-        }
-    }
-
-  if (mtk_monitor_transform_is_rotated (logical_monitor_config->transform))
-    {
-      width = mode_height;
-      height = mode_width;
-    }
-  else
-    {
-      width = mode_width;
-      height = mode_height;
-    }
-
-  scale = logical_monitor_config->scale;
-
-  switch (layout_mode)
-    {
-    case META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL:
-      width = (int) roundf (width / scale);
-      height = (int) roundf (height / scale);
-      break;
-    case META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL:
-      if (!G_APPROX_VALUE (scale, roundf (scale), FLT_EPSILON))
-        {
-          g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                       "A fractional scale with physical layout mode not allowed");
-          return FALSE;
-        }
-      break;
-    }
-
-  logical_monitor_config->layout.width = width;
-  logical_monitor_config->layout.height = height;
-
-  return TRUE;
-}
-
 static void
 finish_monitor_spec (ConfigParser *parser)
 {
@@ -740,6 +678,107 @@ finish_monitor_spec (ConfigParser *parser)
     default:
       g_assert_not_reached ();
     }
+}
+
+static void
+get_monitor_size_with_rotation (MetaLogicalMonitorConfig *logical_monitor_config,
+                                unsigned int             *width_out,
+                                unsigned int             *height_out)
+{
+  MetaMonitorConfig *monitor_config =
+    logical_monitor_config->monitor_configs->data;
+
+  if (mtk_monitor_transform_is_rotated (logical_monitor_config->transform))
+    {
+      *width_out = monitor_config->mode_spec->height;
+      *height_out = monitor_config->mode_spec->width;
+    }
+  else
+    {
+      *width_out = monitor_config->mode_spec->width;
+      *height_out = monitor_config->mode_spec->height;
+    }
+}
+
+static void
+derive_logical_monitor_layouts (GList                       *logical_monitor_configs,
+                                MetaLogicalMonitorLayoutMode layout_mode)
+{
+  GList *l;
+
+  for (l = logical_monitor_configs; l; l = l->next)
+    {
+      MetaLogicalMonitorConfig *logical_monitor_config = l->data;
+      unsigned int width, height;
+
+      get_monitor_size_with_rotation (logical_monitor_config, &width, &height);
+
+      if (layout_mode == META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL)
+        {
+          width = (int) roundf (width / logical_monitor_config->scale);
+          height = (int) roundf (height / logical_monitor_config->scale);
+        }
+
+      logical_monitor_config->layout.width = width;
+      logical_monitor_config->layout.height = height;
+    }
+}
+
+static gboolean
+detect_layout_mode_configs (MetaMonitorManager      *monitor_manager,
+                            GList                   *logical_monitor_configs,
+                            GList                   *disabled_monitor_specs,
+                            MetaMonitorsConfigFlag   config_flags,
+                            MetaMonitorsConfig     **physical_layout_mode_config,
+                            MetaMonitorsConfig     **logical_layout_mode_config,
+                            GError                 **error)
+{
+  GList *logical_monitor_configs_copy, *disabled_monitor_specs_copy;
+  MetaMonitorsConfig *physical_config, *logical_config;
+  g_autoptr (GError) local_error_physical = NULL;
+  g_autoptr (GError) local_error_logical = NULL;
+
+  logical_monitor_configs_copy =
+    meta_clone_logical_monitor_config_list (logical_monitor_configs);
+  disabled_monitor_specs_copy =
+    g_list_copy_deep (disabled_monitor_specs, (GCopyFunc) meta_monitor_spec_clone, NULL);
+
+  derive_logical_monitor_layouts (logical_monitor_configs,
+                                  META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL);
+  physical_config =
+    meta_monitors_config_new_full (g_steal_pointer (&logical_monitor_configs),
+                                   g_steal_pointer (&disabled_monitor_specs),
+                                   META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL,
+                                   config_flags);
+
+  if (!meta_verify_monitors_config (physical_config, monitor_manager,
+                                    &local_error_physical))
+    g_clear_object (&physical_config);
+
+  derive_logical_monitor_layouts (logical_monitor_configs_copy,
+                                  META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL);
+  logical_config =
+    meta_monitors_config_new_full (g_steal_pointer (&logical_monitor_configs_copy),
+                                   g_steal_pointer (&disabled_monitor_specs_copy),
+                                   META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL,
+                                   config_flags);
+
+  if (!meta_verify_monitors_config (logical_config, monitor_manager,
+                                    &local_error_logical))
+    g_clear_object (&logical_config);
+
+  if (!physical_config && !logical_config)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Detected neither physical (%s) nor logical (%s) layout mode",
+                   local_error_physical->message, local_error_logical->message);
+      return  FALSE;
+    }
+
+  *physical_layout_mode_config = physical_config;
+  *logical_layout_mode_config = logical_config;
+
+  return TRUE;
 }
 
 static void
@@ -917,51 +956,72 @@ handle_end_element (GMarkupParseContext  *context,
       {
         MetaMonitorConfigStore *store = parser->config_store;
         MetaMonitorsConfig *config;
-        GList *l;
         MetaLogicalMonitorLayoutMode layout_mode = parser->current_layout_mode;
         MetaMonitorsConfigFlag config_flags = META_MONITORS_CONFIG_FLAG_NONE;
 
         g_assert (g_str_equal (element_name, "configuration"));
 
-        if (!parser->is_current_layout_mode_valid)
-          layout_mode = meta_monitor_manager_get_default_layout_mode (store->monitor_manager);
-
-        for (l = parser->current_logical_monitor_configs; l; l = l->next)
-          {
-            MetaLogicalMonitorConfig *logical_monitor_config = l->data;
-
-            if (!derive_logical_monitor_layout (logical_monitor_config,
-                                                layout_mode,
-                                                error))
-              return;
-
-            if (!meta_verify_logical_monitor_config (logical_monitor_config,
-                                                     layout_mode,
-                                                     store->monitor_manager,
-                                                     error))
-              return;
-          }
-
         config_flags |= parser->extra_config_flags;
 
-        config =
-          meta_monitors_config_new_full (parser->current_logical_monitor_configs,
-                                         parser->current_disabled_monitor_specs,
-                                         layout_mode,
-                                         config_flags);
-
-        parser->current_logical_monitor_configs = NULL;
-        parser->current_disabled_monitor_specs = NULL;
-
-        if (!meta_verify_monitors_config (config, store->monitor_manager,
-                                          error))
+        if (!parser->is_current_layout_mode_valid)
           {
-            g_object_unref (config);
-            return;
-          }
+            MetaMonitorsConfig *physical_layout_mode_config;
+            MetaMonitorsConfig *logical_layout_mode_config;
 
-        g_hash_table_replace (parser->pending_configs,
-                              config->key, config);
+            if (!detect_layout_mode_configs (store->monitor_manager,
+                                             parser->current_logical_monitor_configs,
+                                             parser->current_disabled_monitor_specs,
+                                             config_flags,
+                                             &physical_layout_mode_config,
+                                             &logical_layout_mode_config,
+                                             error))
+              {
+                parser->current_logical_monitor_configs = NULL;
+                parser->current_disabled_monitor_specs = NULL;
+                return;
+              }
+
+            parser->current_logical_monitor_configs = NULL;
+            parser->current_disabled_monitor_specs = NULL;
+
+            if (physical_layout_mode_config)
+              {
+                g_hash_table_replace (parser->pending_configs,
+                                      physical_layout_mode_config->key,
+                                      physical_layout_mode_config);
+              }
+
+            if (logical_layout_mode_config)
+              {
+                g_hash_table_replace (parser->pending_configs,
+                                      logical_layout_mode_config->key,
+                                      logical_layout_mode_config);
+              }
+          }
+        else
+          {
+            derive_logical_monitor_layouts (parser->current_logical_monitor_configs,
+                                            layout_mode);
+
+            config =
+              meta_monitors_config_new_full (parser->current_logical_monitor_configs,
+                                             parser->current_disabled_monitor_specs,
+                                             layout_mode,
+                                             config_flags);
+
+            parser->current_logical_monitor_configs = NULL;
+            parser->current_disabled_monitor_specs = NULL;
+
+            if (!meta_verify_monitors_config (config, store->monitor_manager,
+                                              error))
+              {
+                g_object_unref (config);
+                return;
+              }
+
+            g_hash_table_replace (parser->pending_configs,
+                                  config->key, config);
+          }
 
         parser->state = STATE_MONITORS;
         return;
