@@ -325,10 +325,7 @@ out:
 }
 
 static void
-on_before_update (ClutterStage     *stage,
-                  ClutterStageView *stage_view,
-                  ClutterFrame     *frame,
-                  MetaCompositor   *compositor)
+maybe_do_sync (MetaCompositor *compositor)
 {
   MetaCompositorX11 *compositor_x11 = META_COMPOSITOR_X11 (compositor);
 
@@ -364,6 +361,15 @@ on_before_update (ClutterStage     *stage,
 }
 
 static void
+on_before_update (ClutterStage     *stage,
+                  ClutterStageView *stage_view,
+                  ClutterFrame     *frame,
+                  MetaCompositor   *compositor)
+{
+  maybe_do_sync (compositor);
+}
+
+static void
 on_after_update (ClutterStage     *stage,
                  ClutterStageView *stage_view,
                  ClutterFrame     *frame,
@@ -391,6 +397,22 @@ meta_compositor_x11_before_paint (MetaCompositor     *compositor,
 
   parent_class = META_COMPOSITOR_CLASS (meta_compositor_x11_parent_class);
   parent_class->before_paint (compositor, compositor_view);
+
+  /* We must sync after MetaCompositor's before_paint because that's the final
+   * time XDamageSubtract may happen before painting (when it calls
+   * meta_window_actor_x11_before_paint -> handle_updates ->
+   * meta_surface_actor_x11_handle_updates). If a client was to redraw between
+   * the last damage event and XDamageSubtract, and the bounding box of the
+   * region didn't grow, then we will not receive a new damage report for it
+   * (because XDamageReportBoundingBox). Then if we haven't synchronized again
+   * and the same region doesn't change on subsequent frames, we have lost some
+   * part of the update from the client. So to ensure the correct pixels get
+   * composited we must sync at least once between XDamageSubtract and
+   * compositing, which is here. More related documentation can be found in
+   * maybe_do_sync.
+   */
+
+  maybe_do_sync (compositor);
 }
 
 static void
