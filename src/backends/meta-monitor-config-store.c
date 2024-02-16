@@ -782,6 +782,492 @@ detect_layout_mode_configs (MetaMonitorManager      *monitor_manager,
 }
 
 static void
+maybe_convert_scales (GList *logical_monitor_configs)
+{
+  GList *l;
+
+  for (l = logical_monitor_configs; l; l = l->next)
+    {
+      MetaLogicalMonitorConfig *logical_monitor_config = l->data;
+      unsigned int width, height;
+      float existing_scale = logical_monitor_config->scale;
+      float existing_scaled_width, existing_scaled_height;
+      float new_scale = 0.0f;
+
+      get_monitor_size_with_rotation (logical_monitor_config, &width, &height);
+
+      existing_scaled_width = width / existing_scale;
+      existing_scaled_height = height / existing_scale;
+
+      if (floorf (existing_scaled_width) == existing_scaled_width &&
+          floorf (existing_scaled_height) == existing_scaled_height)
+        continue;
+
+      new_scale =
+        meta_get_closest_monitor_scale_factor_for_resolution (width,
+                                                              height,
+                                                              existing_scale,
+                                                              0.1f);
+      if (new_scale == 0.0f)
+        new_scale = 1.0f;
+
+      logical_monitor_config->scale = new_scale;
+    }
+}
+
+static gboolean
+try_convert_1_dimensional_line (GList    *logical_monitor_configs,
+                                gboolean  horizontal)
+{
+  int i;
+  unsigned int n_monitors = g_list_length (logical_monitor_configs);
+  unsigned int n_monitors_found;
+  unsigned int looking_for;
+  unsigned int accumulated;
+  MetaLogicalMonitorConfig *prev_logical_monitor_config;
+
+  /* Before we change any values, make sure monitors are actually aligned on a
+   * straight line.
+   */
+  looking_for = 0;
+  n_monitors_found = 0;
+  for (i = 0; i < n_monitors; i++)
+    {
+      GList *l;
+
+      for (l = logical_monitor_configs; l; l = l->next)
+        {
+          MetaLogicalMonitorConfig *logical_monitor_config = l->data;
+          unsigned int width, height;
+
+          if ((horizontal && logical_monitor_config->layout.x != looking_for) ||
+              (!horizontal && logical_monitor_config->layout.y != looking_for))
+            continue;
+
+          get_monitor_size_with_rotation (logical_monitor_config, &width, &height);
+
+          looking_for += horizontal ? width : height;
+
+          n_monitors_found++;
+        }
+    }
+
+  if (n_monitors_found != n_monitors)
+    {
+      /* If we haven't found all the monitors on our straight line, we can't
+       * run the algorithm.
+       */
+      return FALSE;
+    }
+
+  looking_for = 0;
+  accumulated = 0;
+  prev_logical_monitor_config = NULL;
+  for (i = 0; i < n_monitors; i++)
+    {
+      GList *l;
+
+      for (l = logical_monitor_configs; l; l = l->next)
+        {
+          MetaLogicalMonitorConfig *logical_monitor_config = l->data;
+          unsigned int width, height;
+          float scale = logical_monitor_config->scale;
+
+          if ((horizontal && logical_monitor_config->layout.x != looking_for) ||
+              (!horizontal && logical_monitor_config->layout.y != looking_for))
+            continue;
+
+          get_monitor_size_with_rotation (logical_monitor_config, &width, &height);
+
+          if (horizontal)
+            {
+              logical_monitor_config->layout.x = accumulated;
+
+              /* In the other dimension, always center in relation to the previous
+               * monitor.
+               */
+              if (prev_logical_monitor_config)
+                {
+                  unsigned int prev_width, prev_height;
+                  float centerline;
+
+                  get_monitor_size_with_rotation (prev_logical_monitor_config,
+                                                  &prev_width, &prev_height);
+
+                  centerline = prev_logical_monitor_config->layout.y +
+                    (int) roundf ((prev_height / prev_logical_monitor_config->scale) / 2.0f);
+
+                  logical_monitor_config->layout.y =
+                    (int) (centerline - roundf ((height / scale) / 2.0f));
+                }
+            }
+          else
+            {
+              logical_monitor_config->layout.y = accumulated;
+
+              /* See comment above */
+              if (prev_logical_monitor_config)
+                {
+                  unsigned int prev_width, prev_height;
+                  float centerline;
+
+                  get_monitor_size_with_rotation (prev_logical_monitor_config,
+                                                  &prev_width, &prev_height);
+
+                  centerline = prev_logical_monitor_config->layout.x +
+                    roundf ((prev_width / prev_logical_monitor_config->scale) / 2.0f);
+
+                  logical_monitor_config->layout.x =
+                    (int) (centerline - roundf ((width / scale) / 2.0f));
+                }
+            }
+
+          looking_for += horizontal ? width : height;
+          accumulated += (int) roundf ((horizontal ? width : height) / scale);
+
+          prev_logical_monitor_config = logical_monitor_config;
+          break;
+        }
+    }
+
+  return TRUE;
+}
+
+static gboolean
+try_convert_2d_with_baseline (GList    *logical_monitor_configs,
+                              gboolean  horizontal)
+{
+  /* Look for a shared baseline which every monitor is aligned to,
+   * then calculate the new layout keeping that baseline.
+   *
+   * This one consists of a lot of steps, to make explanations easier,
+   * we'll assume a horizontal baseline for all explanations in comments.
+   */
+
+  int i;
+  unsigned int n_monitors = g_list_length (logical_monitor_configs);
+  MetaLogicalMonitorConfig *first_logical_monitor_config =
+    logical_monitor_configs->data;
+  unsigned int width, height;
+  unsigned int looking_for_1, looking_for_2;
+  gboolean baseline_is_1, baseline_is_2;
+  GList *l;
+  unsigned int baseline;
+  unsigned int cur_side_1, cur_side_2;
+
+  get_monitor_size_with_rotation (first_logical_monitor_config,
+                                  &width, &height);
+
+  /* Step 1: We don't know whether the first monitor is above or below the
+   * baseline, so there are two possible baselines: Top or bottom edge of
+   * the first monitor.
+   *
+   * Find out which one the actual baseline is, top or bottom edge!
+   */
+
+  looking_for_1 = horizontal
+    ? first_logical_monitor_config->layout.y
+    : first_logical_monitor_config->layout.x;
+  looking_for_2 = horizontal
+    ? first_logical_monitor_config->layout.y + height
+    : first_logical_monitor_config->layout.x + width;
+
+  baseline_is_1 = baseline_is_2 = TRUE;
+
+  for (l = logical_monitor_configs; l; l = l->next)
+    {
+      MetaLogicalMonitorConfig *logical_monitor_config = l->data;
+
+      get_monitor_size_with_rotation (logical_monitor_config,
+                                      &width, &height);
+
+      if ((horizontal &&
+           logical_monitor_config->layout.y != looking_for_1 &&
+           logical_monitor_config->layout.y + height != looking_for_1) ||
+          (!horizontal &&
+           logical_monitor_config->layout.x != looking_for_1 &&
+           logical_monitor_config->layout.x + width != looking_for_1))
+        baseline_is_1 = FALSE;
+
+      if ((horizontal &&
+           logical_monitor_config->layout.y != looking_for_2 &&
+           logical_monitor_config->layout.y + height != looking_for_2) ||
+          (!horizontal &&
+           logical_monitor_config->layout.x != looking_for_2 &&
+           logical_monitor_config->layout.x + width != looking_for_2))
+        baseline_is_2 = FALSE;
+    }
+
+  if (!baseline_is_1 && !baseline_is_2)
+    {
+      /* We couldn't find a clear baseline which all monitors are aligned with,
+       * this conversion won't work!
+       */
+      return FALSE;
+    }
+
+  baseline = baseline_is_1 ? looking_for_1 : looking_for_2;
+
+  /* Step 2: Now that we have a baseline, go through the monitors
+   * above the baseline which need to be scaled, and move their top
+   * edge so that their bottom edge is still aligned with the baseline.
+   *
+   * For the monitors below the baseline there's no such need, because
+   * even with scale, their top edge will remain aligned with the
+   * baseline.
+   */
+
+  for (l = logical_monitor_configs; l; l = l->next)
+    {
+      MetaLogicalMonitorConfig *logical_monitor_config = l->data;
+
+      if (logical_monitor_config->scale == 1.0f)
+        continue;
+
+      /* Filter out all the monitors below the baseline */
+      if ((horizontal && logical_monitor_config->layout.y == baseline) ||
+          (!horizontal && logical_monitor_config->layout.x == baseline))
+        continue;
+
+      get_monitor_size_with_rotation (logical_monitor_config,
+                                      &width, &height);
+
+      if (horizontal)
+        {
+          logical_monitor_config->layout.y =
+            baseline - (int) roundf (height / logical_monitor_config->scale);
+        }
+      else
+        {
+          logical_monitor_config->layout.x =
+            baseline - (int) roundf (width / logical_monitor_config->scale);
+        }
+    }
+
+  /* Step 3: Still not done... Now we're done aligning monitors with the
+   * baseline, but the scaling might also have opened holes in the horizontal
+   * direction.
+   *
+   * We need to "walk along" the monitor strips above and below the baseline
+   * and make sure everything is adjacent on both sides of the baseline.
+   */
+
+  cur_side_1 = 0;
+  cur_side_2 = 0;
+
+  for (i = 0; i < n_monitors; i++)
+    {
+      unsigned int min_side_1 = G_MAXUINT;
+      unsigned int min_side_2 = G_MAXUINT;
+      MetaLogicalMonitorConfig *lowest_mon_side_1 = NULL;
+      MetaLogicalMonitorConfig *lowest_mon_side_2 = NULL;
+
+      for (l = logical_monitor_configs; l; l = l->next)
+        {
+          MetaLogicalMonitorConfig *logical_monitor_config = l->data;
+
+          if ((horizontal && logical_monitor_config->layout.y != baseline) ||
+              (!horizontal && logical_monitor_config->layout.x != baseline))
+            {
+              /* above the baseline */
+
+              if (horizontal)
+                {
+                  if (logical_monitor_config->layout.x >= cur_side_1 &&
+                      logical_monitor_config->layout.x < min_side_1)
+                    {
+                      min_side_1 = logical_monitor_config->layout.x;
+                      lowest_mon_side_1 = logical_monitor_config;
+                    }
+                }
+              else
+                {
+                  if (logical_monitor_config->layout.y >= cur_side_1 &&
+                      logical_monitor_config->layout.y < min_side_1)
+                    {
+                      min_side_1 = logical_monitor_config->layout.y;
+                      lowest_mon_side_1 = logical_monitor_config;
+                    }
+                }
+            }
+          else
+            {
+              /* below the baseline */
+
+              if (horizontal)
+                {
+                  if (logical_monitor_config->layout.x >= cur_side_2 &&
+                      logical_monitor_config->layout.x < min_side_2)
+                    {
+                      min_side_2 = logical_monitor_config->layout.x;
+                      lowest_mon_side_2 = logical_monitor_config;
+                    }
+                }
+              else
+                {
+                  if (logical_monitor_config->layout.y >= cur_side_2 &&
+                      logical_monitor_config->layout.y < min_side_2)
+                    {
+                      min_side_2 = logical_monitor_config->layout.y;
+                      lowest_mon_side_2 = logical_monitor_config;
+                    }
+                }
+            }
+        }
+
+      if (lowest_mon_side_1)
+        {
+          get_monitor_size_with_rotation (lowest_mon_side_1, &width, &height);
+
+          if (horizontal)
+            {
+              lowest_mon_side_1->layout.x = cur_side_1;
+              cur_side_1 += (int) roundf (width / lowest_mon_side_1->scale);
+            }
+          else
+            {
+              lowest_mon_side_1->layout.y = cur_side_1;
+              cur_side_1 += (int) roundf (height / lowest_mon_side_1->scale);
+            }
+        }
+
+      if (lowest_mon_side_2)
+        {
+          get_monitor_size_with_rotation (lowest_mon_side_2, &width, &height);
+
+          if (horizontal)
+            {
+              lowest_mon_side_2->layout.x = cur_side_2;
+              cur_side_2 += (int) roundf (width / lowest_mon_side_2->scale);
+            }
+          else
+            {
+              lowest_mon_side_2->layout.y = cur_side_2;
+              cur_side_2 += (int) roundf (height / lowest_mon_side_2->scale);
+            }
+        }
+    }
+
+  return TRUE;
+}
+
+static void
+convert_align_on_horizontal_line (GList *logical_monitor_configs)
+{
+  GList *l;
+  unsigned int accumulated_x = 0;
+
+  for (l = logical_monitor_configs; l; l = l->next)
+    {
+      MetaLogicalMonitorConfig *logical_monitor_config = l->data;
+      unsigned int width, height;
+
+      get_monitor_size_with_rotation (logical_monitor_config, &width, &height);
+
+      logical_monitor_config->layout.x = accumulated_x;
+      logical_monitor_config->layout.y = 0;
+
+      accumulated_x += (int) roundf (width / logical_monitor_config->scale);
+    }
+}
+
+static void
+adjust_for_offset (GList *logical_monitor_configs)
+{
+  GList *l;
+  int offset_x, offset_y;
+
+  offset_x = offset_y = G_MAXINT;
+
+  for (l = logical_monitor_configs; l; l = l->next)
+    {
+      MetaLogicalMonitorConfig *logical_monitor_config = l->data;
+
+      offset_x = MIN (offset_x, logical_monitor_config->layout.x);
+      offset_y = MIN (offset_y, logical_monitor_config->layout.y);
+    }
+
+  if (offset_x == G_MAXINT && offset_y == G_MAXINT)
+    return;
+
+  for (l = logical_monitor_configs; l; l = l->next)
+    {
+      MetaLogicalMonitorConfig *logical_monitor_config = l->data;
+
+      if (offset_x != G_MAXINT)
+        logical_monitor_config->layout.x -= offset_x;
+
+      if (offset_y != G_MAXINT)
+        logical_monitor_config->layout.y -= offset_y;
+    }
+}
+
+static MetaMonitorsConfig *
+attempt_layout_mode_conversion (MetaMonitorManager     *monitor_manager,
+                                GList                  *logical_monitor_configs,
+                                GList                  *disabled_monitor_specs,
+                                MetaMonitorsConfigFlag  config_flags)
+{
+  GList *logical_monitor_configs_copy;
+  MetaMonitorsConfig *new_logical_config;
+  g_autoptr (GError) local_error = NULL;
+
+  logical_monitor_configs_copy =
+    meta_clone_logical_monitor_config_list (logical_monitor_configs);
+
+  maybe_convert_scales (logical_monitor_configs_copy);
+  derive_logical_monitor_layouts (logical_monitor_configs_copy,
+                                  META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL);
+
+  if (meta_verify_logical_monitor_config_list (logical_monitor_configs,
+                                               META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL,
+                                               monitor_manager,
+                                               &local_error))
+    {
+      /* Great, it was enough to convert the scales and the config is now already
+       * valid in LOGICAL mode, can skip the fallible conversion paths.
+       */
+      goto create_full_config;
+    }
+
+  if (!try_convert_1_dimensional_line (logical_monitor_configs_copy, TRUE) &&
+      !try_convert_1_dimensional_line (logical_monitor_configs_copy, FALSE) &&
+      !try_convert_2d_with_baseline (logical_monitor_configs_copy, TRUE) &&
+      !try_convert_2d_with_baseline (logical_monitor_configs_copy, FALSE))
+    {
+      /* All algorithms we have to convert failed, this is expected for complex
+       * layouts, so fall back to the simple method and align all monitors on
+       * a horizontal line.
+       */
+      convert_align_on_horizontal_line (logical_monitor_configs_copy);
+    }
+
+  adjust_for_offset (logical_monitor_configs_copy);
+
+create_full_config:
+  new_logical_config =
+    meta_monitors_config_new_full (g_steal_pointer (&logical_monitor_configs_copy),
+                                   g_list_copy_deep (disabled_monitor_specs,
+                                                     (GCopyFunc) meta_monitor_spec_clone,
+                                                     NULL),
+                                   META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL,
+                                   config_flags);
+
+  if (!meta_verify_monitors_config (new_logical_config, monitor_manager, &local_error))
+    {
+      /* Verification of the converted config failed, this should not happen as the
+       * conversion functions should give up in case conversion is not possible.
+       */
+      g_warning ("Verification of converted monitor config failed: %s",
+                 local_error->message);
+      g_object_unref (new_logical_config);
+      return NULL;
+    }
+
+  return new_logical_config;
+}
+
+static void
 handle_end_element (GMarkupParseContext  *context,
                     const char           *element_name,
                     gpointer              user_data,
@@ -989,6 +1475,19 @@ handle_end_element (GMarkupParseContext  *context,
                 g_hash_table_replace (parser->pending_configs,
                                       physical_layout_mode_config->key,
                                       physical_layout_mode_config);
+
+                /* If the config only works with PHYSICAL layout mode, we'll attempt to
+                 * convert the PHYSICAL config to LOGICAL. This will fail for
+                 * more complex configurations though.
+                 */
+                if (!logical_layout_mode_config)
+                  {
+                    logical_layout_mode_config =
+                      attempt_layout_mode_conversion (store->monitor_manager,
+                                                      physical_layout_mode_config->logical_monitor_configs,
+                                                      physical_layout_mode_config->disabled_monitor_specs,
+                                                      config_flags);
+                  }
               }
 
             if (logical_layout_mode_config)
