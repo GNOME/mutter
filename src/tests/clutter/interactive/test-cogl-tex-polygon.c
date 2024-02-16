@@ -83,11 +83,11 @@ test_coglbox_fade_texture (CoglFramebuffer *framebuffer,
     {
       CoglColor cogl_color;
 
-      cogl_color_init_from_4ub (&cogl_color,
-                                255,
-                                255,
-                                255,
-                                ((i ^ (i >> 1)) & 1) ? 0 : 128);
+      cogl_color_init_from_4f (&cogl_color,
+                               1.0,
+                               1.0,
+                               1.0,
+                               ((i ^ (i >> 1)) & 1) ? 0.0 : 128.0 / 255.0);
       cogl_color_premultiply (&cogl_color);
       vertices[i].r = cogl_color_get_red (&cogl_color) * 255.0;
       vertices[i].g = cogl_color_get_green (&cogl_color) * 255.0;

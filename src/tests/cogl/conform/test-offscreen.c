@@ -149,7 +149,7 @@ test_flush (TestState *state)
       offscreen = cogl_offscreen_new_with_texture (tex);
       framebuffer = COGL_FRAMEBUFFER (offscreen);
 
-      cogl_color_init_from_4ub (&clear_color, 0, 0, 0, 255);
+      cogl_color_init_from_4f (&clear_color, 0.0, 0.0, 0.0, 1.0);
       cogl_framebuffer_clear (framebuffer, COGL_BUFFER_BIT_COLOR, &clear_color);
 
       cogl_framebuffer_draw_rectangle (framebuffer, pipeline, -1, -1, 1, 1);

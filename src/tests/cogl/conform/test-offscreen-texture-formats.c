@@ -439,7 +439,9 @@ test_offscreen_texture_formats_store_rgb8 (void)
   };
   int i;
 
-  cogl_color_init_from_4ub (&color, red, green, blue, alpha);
+  cogl_color_init_from_4f (&color,
+                           red / 255.0, green / 255.0,
+                           blue / 255.0, alpha / 255.0);
 
   for (i = 0; i < G_N_ELEMENTS (formats); i++)
     {
@@ -810,7 +812,9 @@ test_offscreen_texture_formats_paint_rgb8 (void)
   };
   int i;
 
-  cogl_color_init_from_4ub (&color, red, green, blue, alpha);
+  cogl_color_init_from_4f (&color,
+                           red / 255.0, green / 255.0,
+                           blue / 255.0, alpha / 255.0);
 
   for (i = 0; i < G_N_ELEMENTS (formats); i++)
     {

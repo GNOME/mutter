@@ -77,7 +77,7 @@ clutter_page_turn_effect_deform_vertex (ClutterDeformEffect *effect,
 {
   ClutterPageTurnEffect *self = CLUTTER_PAGE_TURN_EFFECT (effect);
   gfloat cx, cy, rx, ry, radians, turn_angle;
-  guint shade;
+  float shade;
 
   if (self->period == 0.0)
     return;
@@ -103,12 +103,12 @@ clutter_page_turn_effect_deform_vertex (ClutterDeformEffect *effect,
        * ray (i.e. the page crease)
        */
       turn_angle = (rx / self->radius * G_PI_2) - G_PI_2;
-      shade = (sin (turn_angle) * 96.0f) + 159.0f;
+      shade = ((sin (turn_angle) * 96.0f) + 159.0f) / 255.0;
 
       /* Add a gradient that makes it look like lighting and hides the switch
        * between textures.
        */
-      cogl_color_init_from_4ub (&vertex->color, shade, shade, shade, 0xff);
+      cogl_color_init_from_4f (&vertex->color, shade, shade, shade, 1.0);
     }
 
   if (rx > 0)

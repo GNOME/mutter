@@ -97,7 +97,9 @@ test_blend_paint (TestState  *state,
       return;
     }
 
-  cogl_color_init_from_4ub (&blend_const_color, Br, Bg, Bb, Ba);
+  cogl_color_init_from_4f (&blend_const_color,
+                           Br / 255.0, Bg / 255.0,
+                           Bb / 255.0, Ba / 255.0);
   cogl_pipeline_set_blend_constant (pipeline, &blend_const_color);
 
   cogl_framebuffer_draw_rectangle (test_fb,
@@ -215,7 +217,9 @@ test_tex_combine (TestState *state,
                combine_string, error->message);
     }
 
-  cogl_color_init_from_4ub (&combine_const_color, Cr, Cg, Cb, Ca);
+  cogl_color_init_from_4f (&combine_const_color,
+                           Cr / 255.0, Cg / 255.0,
+                           Cb / 255.0, Ca / 255.0);
   cogl_pipeline_set_layer_combine_constant (pipeline, 1, &combine_const_color);
 
   cogl_framebuffer_draw_rectangle (test_fb,

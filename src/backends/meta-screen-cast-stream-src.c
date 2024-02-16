@@ -354,7 +354,7 @@ draw_cursor_sprite_via_offscreen (MetaScreenCastStreamSrc  *src,
                                            &matrix);
   cogl_pipeline_set_layer_matrix (pipeline, 0, &matrix);
 
-  cogl_color_init_from_4ub (&clear_color, 0, 0, 0, 0);
+  cogl_color_init_from_4f (&clear_color, 0.0, 0.0, 0.0, 0.0);
   cogl_framebuffer_clear (fb, COGL_BUFFER_BIT_COLOR, &clear_color);
   cogl_framebuffer_draw_rectangle (fb, pipeline,
                                    -1, 1, 1, -1);

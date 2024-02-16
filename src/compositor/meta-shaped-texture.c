@@ -846,7 +846,8 @@ do_paint_content (MetaShapedTexture   *stex,
           cogl_pipeline_set_layer_filters (blended_pipeline, i, min_filter, mag_filter);
         }
 
-      cogl_color_init_from_4ub (&color, opacity, opacity, opacity, opacity);
+      cogl_color_init_from_4f (&color, opacity / 255.0, opacity / 255.0,
+                               opacity / 255.0, opacity / 255.0);
       cogl_pipeline_set_color (blended_pipeline, &color);
 
       if (blended_tex_region)

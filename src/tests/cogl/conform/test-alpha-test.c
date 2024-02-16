@@ -37,7 +37,7 @@ test_alpha_test (void)
                                          COGL_PIPELINE_ALPHA_FUNC_GEQUAL,
                                          254 / 255.0f /* alpha reference */);
 
-  cogl_color_init_from_4ub (&clear_color, 0x00, 0x00, 0xff, 0xff);
+  cogl_color_init_from_4f (&clear_color, 0.0, 0.0, 1.0, 1.0);
   cogl_framebuffer_clear (test_fb,
                           COGL_BUFFER_BIT_COLOR,
                           &clear_color);

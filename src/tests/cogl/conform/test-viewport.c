@@ -84,7 +84,7 @@ on_after_paint (ClutterActor     *actor,
   float height;
 
   /* for clearing the offscreen framebuffer to black... */
-  cogl_color_init_from_4ub (&black, 0x00, 0x00, 0x00, 0xff);
+  cogl_color_init_from_4f (&black, 0.0, 0.0, 0.0, 1.0);
 
   cogl_get_viewport (saved_viewport);
   cogl_get_projection_matrix (&saved_projection);

@@ -82,23 +82,6 @@ COGL_EXPORT void
 cogl_color_free (CoglColor *color);
 
 /**
- * cogl_color_init_from_4ub:
- * @color: A pointer to a #CoglColor to initialize
- * @red: value of the red channel, between 0 and 255
- * @green: value of the green channel, between 0 and 255
- * @blue: value of the blue channel, between 0 and 255
- * @alpha: value of the alpha channel, between 0 and 255
- *
- * Sets the values of the passed channels into a #CoglColor.
- */
-COGL_EXPORT void
-cogl_color_init_from_4ub (CoglColor *color,
-                          uint8_t red,
-                          uint8_t green,
-                          uint8_t blue,
-                          uint8_t alpha);
-
-/**
  * cogl_color_init_from_4f:
  * @color: A pointer to a #CoglColor to initialize
  * @red: value of the red channel, between 0 and 1.0

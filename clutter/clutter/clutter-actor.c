@@ -3056,11 +3056,11 @@ _clutter_actor_draw_paint_volume_full (ClutterActor       *self,
                                 n_vertices,
                                 (CoglVertexP3 *)line_ends);
 
-  cogl_color_init_from_4ub (&cogl_color,
-                            color->red,
-                            color->green,
-                            color->blue,
-                            color->alpha);
+  cogl_color_init_from_4f (&cogl_color,
+                           color->red / 255.0,
+                           color->green / 255.0,
+                           color->blue / 255.0,
+                           color->alpha / 255.0);
   cogl_pipeline_set_color (outline, &cogl_color);
 
   pipeline_node = clutter_pipeline_node_new (outline);

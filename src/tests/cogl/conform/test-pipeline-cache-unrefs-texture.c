@@ -69,7 +69,7 @@ test_pipeline_cache_unrefs_texture (void)
   for (i = 0; i < N_TEXTURES; i++)
     {
       CoglColor combine_constant;
-      cogl_color_init_from_4ub (&combine_constant, i, 0, 0, 255);
+      cogl_color_init_from_4f (&combine_constant, i / 255.0, 0.0, 0.0, 1.0);
       cogl_pipeline_set_layer_combine_constant (simple_pipeline,
                                                 i,
                                                 &combine_constant);

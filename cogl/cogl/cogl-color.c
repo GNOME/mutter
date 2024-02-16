@@ -58,21 +58,6 @@ cogl_color_free (CoglColor *color)
 }
 
 void
-cogl_color_init_from_4ub (CoglColor *color,
-                          uint8_t red,
-                          uint8_t green,
-                          uint8_t blue,
-                          uint8_t alpha)
-{
-  g_return_if_fail (color != NULL);
-
-  color->red   = red;
-  color->green = green;
-  color->blue  = blue;
-  color->alpha = alpha;
-}
-
-void
 cogl_color_init_from_4f (CoglColor *color,
                          float red,
                          float green,

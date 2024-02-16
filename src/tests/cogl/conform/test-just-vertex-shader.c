@@ -36,11 +36,11 @@ paint (TestState *state)
   CoglShader *shader;
   CoglProgram *program;
 
-  cogl_color_init_from_4ub (&color, 0, 0, 0, 255);
+  cogl_color_init_from_4f (&color, 0.0, 0.0, 0.0, 1.0);
   cogl_framebuffer_clear (test_fb, COGL_BUFFER_BIT_COLOR, &color);
 
   /* Set the primary vertex color as red */
-  cogl_color_init_from_4ub (&color, 0xff, 0x00, 0x00, 0xff);
+  cogl_color_init_from_4f (&color, 1.0, 0.0, 0.0, 1.0);
   cogl_pipeline_set_color (pipeline, &color);
 
   /* Override the vertex color in the texture environment with a

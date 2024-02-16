@@ -161,11 +161,11 @@ clutter_root_node_new (CoglFramebuffer    *framebuffer,
 
   res = _clutter_paint_node_create (CLUTTER_TYPE_ROOT_NODE);
 
-  cogl_color_init_from_4ub (&res->clear_color,
-                            clear_color->red,
-                            clear_color->green,
-                            clear_color->blue,
-                            clear_color->alpha);
+  cogl_color_init_from_4f (&res->clear_color,
+                           clear_color->red / 255.0,
+                           clear_color->green / 255.0,
+                           clear_color->blue / 255.0,
+                           clear_color->alpha / 255.0);
   cogl_color_premultiply (&res->clear_color);
 
   res->framebuffer = g_object_ref (framebuffer);
@@ -565,11 +565,11 @@ clutter_color_node_new (const ClutterColor *color)
     {
       CoglColor cogl_color;
 
-      cogl_color_init_from_4ub (&cogl_color,
-                                color->red,
-                                color->green,
-                                color->blue,
-                                color->alpha);
+      cogl_color_init_from_4f (&cogl_color,
+                               color->red / 255.0,
+                               color->green / 255.0,
+                               color->blue / 255.0,
+                               color->alpha / 255.0);
       cogl_color_premultiply (&cogl_color);
 
       cogl_pipeline_set_color (cnode->pipeline, &cogl_color);
@@ -674,15 +674,15 @@ clutter_texture_node_new (CoglTexture          *texture,
 
   if (color != NULL)
     {
-      cogl_color_init_from_4ub (&cogl_color,
-                                color->red,
-                                color->green,
-                                color->blue,
-                                color->alpha);
+      cogl_color_init_from_4f (&cogl_color,
+                               color->red / 255.0,
+                               color->green / 255.0,
+                               color->blue / 255.0,
+                               color->alpha / 255.0);
       cogl_color_premultiply (&cogl_color);
     }
   else
-    cogl_color_init_from_4ub (&cogl_color, 255, 255, 255, 255);
+    cogl_color_init_from_4f (&cogl_color, 1.0, 1.0, 1.0, 1.0);
 
   cogl_pipeline_set_color (tnode->pipeline, &cogl_color);
 
@@ -843,11 +843,11 @@ clutter_text_node_new (PangoLayout        *layout,
 
   if (color != NULL)
     {
-      cogl_color_init_from_4ub (&res->color,
-                                color->red,
-                                color->green,
-                                color->blue,
-                                color->alpha);
+      cogl_color_init_from_4f (&res->color,
+                               color->red / 255.0,
+                               color->green / 255.0,
+                               color->blue / 255.0,
+                               color->alpha / 255.0);
     }
 
   return (ClutterPaintNode *) res;

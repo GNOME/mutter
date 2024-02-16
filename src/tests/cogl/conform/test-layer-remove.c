@@ -11,11 +11,11 @@ create_two_layer_pipeline (void)
   CoglColor color;
 
   /* The pipeline is initially black */
-  cogl_color_init_from_4f (&color, 0.0, 0.0, 0.0, 255.0);
+  cogl_color_init_from_4f (&color, 0.0, 0.0, 0.0, 1.0);
   cogl_pipeline_set_color (pipeline, &color);
 
   /* The first layer adds a full red component */
-  cogl_color_init_from_4ub (&color, 255, 0, 0, 255);
+  cogl_color_init_from_4f (&color, 1.0, 0.0, 0.0, 1.0);
   cogl_pipeline_set_layer_combine_constant (pipeline, 0, &color);
   cogl_pipeline_set_layer_combine (pipeline,
                                    0, /* layer_num */
@@ -23,7 +23,7 @@ create_two_layer_pipeline (void)
                                    NULL);
 
   /* The second layer adds a full green component */
-  cogl_color_init_from_4ub (&color, 0, 255, 0, 255);
+  cogl_color_init_from_4f (&color, 0.0, 1.0, 0.0, 1.0);
   cogl_pipeline_set_layer_combine_constant (pipeline, 1, &color);
   cogl_pipeline_set_layer_combine (pipeline,
                                    1, /* layer_num */
@@ -122,7 +122,7 @@ test_layer_remove (void)
   /* Check that we can modify a layer in a child pipeline */
   pipeline0 = create_two_layer_pipeline ();
   pipeline1 = cogl_pipeline_copy (pipeline0);
-  cogl_color_init_from_4ub (&color, 0, 0, 255, 255);
+  cogl_color_init_from_4f (&color, 0.0, 0.0, 1.0, 1.0);
   cogl_pipeline_set_layer_combine_constant (pipeline1, 0, &color);
   test_color (pipeline0, 0xffff00ff, pos++);
   test_color (pipeline1, 0x00ffffff, pos++);
@@ -133,7 +133,7 @@ test_layer_remove (void)
   /* Check that we can modify a layer in a child pipeline but then remove it */
   pipeline0 = create_two_layer_pipeline ();
   pipeline1 = cogl_pipeline_copy (pipeline0);
-  cogl_color_init_from_4ub (&color, 0, 0, 255, 255);
+  cogl_color_init_from_4f (&color, 0.0, 0.0, 1.0, 1.0);
   cogl_pipeline_set_layer_combine_constant (pipeline1, 0, &color);
   cogl_pipeline_remove_layer (pipeline1, 0);
   test_color (pipeline0, 0xffff00ff, pos++);

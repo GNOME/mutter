@@ -1448,7 +1448,7 @@ meta_window_actor_blit_to_framebuffer (MetaScreenCastWindow *screen_cast_window,
 
   clutter_actor_inhibit_culling (actor);
 
-  cogl_color_init_from_4ub (&clear_color, 0, 0, 0, 0);
+  cogl_color_init_from_4f (&clear_color, 0.0, 0.0, 0.0, 0.0);
   cogl_framebuffer_clear (framebuffer, COGL_BUFFER_BIT_COLOR, &clear_color);
   cogl_framebuffer_orthographic (framebuffer,
                                  0, 0,
@@ -1606,7 +1606,7 @@ create_framebuffer_from_window_actor (MetaWindowActor  *self,
       return NULL;
     }
 
-  cogl_color_init_from_4ub (&clear_color, 0, 0, 0, 0);
+  cogl_color_init_from_4f (&clear_color, 0.0, 0.0, 0.0, 0.0);
   cogl_framebuffer_clear (framebuffer, COGL_BUFFER_BIT_COLOR, &clear_color);
   cogl_framebuffer_orthographic (framebuffer, 0, 0, clip->width, clip->height,
                                  0, 1.0);

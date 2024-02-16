@@ -194,8 +194,8 @@ create_default_big_state (void)
   blend_state->blend_equation_alpha = GL_FUNC_ADD;
   blend_state->blend_src_factor_alpha = GL_ONE;
   blend_state->blend_dst_factor_alpha = GL_ONE_MINUS_SRC_ALPHA;
-  cogl_color_init_from_4ub (&blend_state->blend_constant,
-                            0x00, 0x00, 0x00, 0x00);
+  cogl_color_init_from_4f (&blend_state->blend_constant,
+                            0.0, 0.0, 0.0, 0.0);
   blend_state->blend_src_factor_rgb = GL_ONE;
   blend_state->blend_dst_factor_rgb = GL_ONE_MINUS_SRC_ALPHA;
 
@@ -229,7 +229,7 @@ _cogl_pipeline_init_default_pipeline (CoglContext *context)
   pipeline->has_big_state = TRUE;
 
   /* Use the same defaults as the GL spec... */
-  cogl_color_init_from_4ub (&pipeline->color, 0xff, 0xff, 0xff, 0xff);
+  cogl_color_init_from_4f (&pipeline->color, 1.0, 1.0, 1.0, 1.0);
 
 #ifdef COGL_ENABLE_DEBUG
   pipeline->static_breadcrumb = "default pipeline";
