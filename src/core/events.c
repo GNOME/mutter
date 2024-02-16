@@ -46,6 +46,14 @@
 #include "wayland/meta-wayland-private.h"
 #endif
 
+#define IS_GESTURE_EVENT(et) ((et) == CLUTTER_TOUCHPAD_SWIPE || \
+                              (et) == CLUTTER_TOUCHPAD_PINCH || \
+                              (et) == CLUTTER_TOUCHPAD_HOLD || \
+                              (et) == CLUTTER_TOUCH_BEGIN || \
+                              (et) == CLUTTER_TOUCH_UPDATE || \
+                              (et) == CLUTTER_TOUCH_END || \
+                              (et) == CLUTTER_TOUCH_CANCEL)
+
 #define IS_KEY_EVENT(et) ((et) == CLUTTER_KEY_PRESS || \
                           (et) == CLUTTER_KEY_RELEASE)
 
@@ -467,7 +475,12 @@ meta_display_handle_event (MetaDisplay        *display,
       if (meta_wayland_compositor_handle_event (wayland_compositor, event))
         return CLUTTER_EVENT_STOP;
     }
+  else
 #endif
+    {
+      if (window && !IS_GESTURE_EVENT (event_type))
+        return CLUTTER_EVENT_STOP;
+    }
 
   return CLUTTER_EVENT_PROPAGATE;
 }
