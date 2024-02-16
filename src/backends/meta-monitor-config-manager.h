@@ -49,6 +49,7 @@ typedef struct _MetaLogicalMonitorConfig
 typedef struct _MetaMonitorsConfigKey
 {
   GList *monitor_specs;
+  MetaLogicalMonitorLayoutMode layout_mode;
 } MetaMonitorsConfigKey;
 
 enum _MetaMonitorsConfigFlag

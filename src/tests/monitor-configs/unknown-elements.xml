@@ -3,6 +3,7 @@
     <anotherlevel>text</anotherlevel>
   </unknownundermonitors>
   <configuration>
+    <layoutmode>logical</layoutmode>
     <unknownunderconfiguration>
       <anotherlevel>text</anotherlevel>
     </unknownunderconfiguration>

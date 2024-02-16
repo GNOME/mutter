@@ -5,6 +5,7 @@
     </stores>
   </policy>
   <configuration>
+    <layoutmode>logical</layoutmode>
     <logicalmonitor>
       <x>0</x>
       <y>0</y>

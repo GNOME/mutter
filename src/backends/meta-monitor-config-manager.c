@@ -493,7 +493,8 @@ meta_create_monitors_config_key_for_current_state (MetaMonitorManager *monitor_m
 
   config_key = g_new0 (MetaMonitorsConfigKey, 1);
   *config_key = (MetaMonitorsConfigKey) {
-    .monitor_specs = monitor_specs
+    .monitor_specs = monitor_specs,
+    .layout_mode = meta_monitor_manager_get_default_layout_mode (monitor_manager),
   };
 
   return config_key;
@@ -1521,8 +1522,9 @@ meta_logical_monitor_config_free (MetaLogicalMonitorConfig *logical_monitor_conf
 }
 
 static MetaMonitorsConfigKey *
-meta_monitors_config_key_new (GList *logical_monitor_configs,
-                              GList *disabled_monitor_specs)
+meta_monitors_config_key_new (GList                        *logical_monitor_configs,
+                              GList                        *disabled_monitor_specs,
+                              MetaLogicalMonitorLayoutMode  layout_mode)
 {
   MetaMonitorsConfigKey *config_key;
   GList *monitor_specs;
@@ -1557,7 +1559,8 @@ meta_monitors_config_key_new (GList *logical_monitor_configs,
 
   config_key = g_new0 (MetaMonitorsConfigKey, 1);
   *config_key = (MetaMonitorsConfigKey) {
-    .monitor_specs = monitor_specs
+    .monitor_specs = monitor_specs,
+    .layout_mode = layout_mode
   };
 
   return config_key;
@@ -1578,7 +1581,7 @@ meta_monitors_config_key_hash (gconstpointer data)
   GList *l;
   unsigned long hash;
 
-  hash = 0;
+  hash = config_key->layout_mode;
   for (l = config_key->monitor_specs; l; l = l->next)
     {
       MetaMonitorSpec *monitor_spec = l->data;
@@ -1599,6 +1602,9 @@ meta_monitors_config_key_equal (gconstpointer data_a,
   const MetaMonitorsConfigKey *config_key_a = data_a;
   const MetaMonitorsConfigKey *config_key_b = data_b;
   GList *l_a, *l_b;
+
+  if (config_key_a->layout_mode != config_key_b->layout_mode)
+    return FALSE;
 
   for (l_a = config_key_a->monitor_specs, l_b = config_key_b->monitor_specs;
        l_a && l_b;
@@ -1651,9 +1657,11 @@ meta_monitors_config_new_full (GList                        *logical_monitor_con
   config = g_object_new (META_TYPE_MONITORS_CONFIG, NULL);
   config->logical_monitor_configs = logical_monitor_configs;
   config->disabled_monitor_specs = disabled_monitor_specs;
-  config->key = meta_monitors_config_key_new (logical_monitor_configs,
-                                              disabled_monitor_specs);
   config->layout_mode = layout_mode;
+  config->key = meta_monitors_config_key_new (logical_monitor_configs,
+                                              disabled_monitor_specs,
+                                              layout_mode);
+
   config->flags = flags;
   config->switch_config = META_MONITOR_SWITCH_CONFIG_UNKNOWN;
 
