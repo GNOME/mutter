@@ -197,6 +197,7 @@ typedef struct
   int unknown_level;
 
   MetaMonitorsConfigFlag extra_config_flags;
+  gboolean should_update_file;
 } ConfigParser;
 
 G_DEFINE_TYPE (MetaMonitorConfigStore, meta_monitor_config_store,
@@ -1496,6 +1497,8 @@ handle_end_element (GMarkupParseContext  *context,
                                       logical_layout_mode_config->key,
                                       logical_layout_mode_config);
               }
+
+            parser->should_update_file = TRUE;
           }
         else
           {
@@ -2031,6 +2034,7 @@ read_config_file (MetaMonitorConfigStore  *config_store,
                   GFile                   *file,
                   MetaMonitorsConfigFlag   extra_config_flags,
                   GHashTable             **out_configs,
+                  gboolean                *should_update_file,
                   GError                 **error)
 {
   char *buffer;
@@ -2052,6 +2056,7 @@ read_config_file (MetaMonitorConfigStore  *config_store,
     .extra_config_flags = extra_config_flags,
     .unknown_state_root = -1,
     .pending_store = -1,
+    .should_update_file = FALSE
   };
 
   parse_context = g_markup_parse_context_new (&config_parser,
@@ -2075,6 +2080,7 @@ read_config_file (MetaMonitorConfigStore  *config_store,
     }
 
   *out_configs = g_steal_pointer (&parser.pending_configs);
+  *should_update_file = parser.should_update_file;
 
   g_markup_parse_context_free (parse_context);
   g_free (buffer);
@@ -2486,6 +2492,7 @@ meta_monitor_config_store_set_custom (MetaMonitorConfigStore  *config_store,
                                       GError                 **error)
 {
   GHashTable *new_configs = NULL;
+  gboolean should_save_configs = FALSE;
 
   g_clear_object (&config_store->custom_read_file);
   g_clear_object (&config_store->custom_write_file);
@@ -2503,11 +2510,16 @@ meta_monitor_config_store_set_custom (MetaMonitorConfigStore  *config_store,
                          config_store->custom_read_file,
                          config_flags,
                          &new_configs,
+                         &should_save_configs,
                          error))
     return FALSE;
 
   g_clear_pointer (&config_store->configs, g_hash_table_unref);
   config_store->configs = g_steal_pointer (&new_configs);
+
+  if (should_save_configs)
+    maybe_save_configs (config_store);
+
   return TRUE;
 }
 
@@ -2662,6 +2674,7 @@ meta_monitor_config_store_reset (MetaMonitorConfigStore *config_store)
   const char * const *system_dirs;
   char *user_file_path;
   GError *error = NULL;
+  gboolean should_save_configs = FALSE;
 
   g_clear_object (&config_store->user_file);
   g_clear_object (&config_store->custom_read_file);
@@ -2684,11 +2697,21 @@ meta_monitor_config_store_reset (MetaMonitorConfigStore *config_store)
                                  system_file,
                                  META_MONITORS_CONFIG_FLAG_SYSTEM_CONFIG,
                                  &system_configs,
+                                 &should_save_configs,
                                  &error))
             {
               g_warning ("Failed to read monitors config file '%s': %s",
                          system_file_path, error->message);
               g_clear_error (&error);
+            }
+
+          if (should_save_configs)
+            {
+              g_warning ("System monitor configuration file (%s) needs "
+                         "updating; ask your administrator to migrate "
+                         "the system monitor configuration.",
+                         system_file_path);
+              should_save_configs = FALSE;
             }
         }
     }
@@ -2704,6 +2727,7 @@ meta_monitor_config_store_reset (MetaMonitorConfigStore *config_store)
                              config_store->user_file,
                              META_MONITORS_CONFIG_FLAG_NONE,
                              &user_configs,
+                             &should_save_configs,
                              &error))
         {
           g_warning ("Failed to read monitors config file '%s': %s",
@@ -2740,6 +2764,8 @@ meta_monitor_config_store_reset (MetaMonitorConfigStore *config_store)
         replace_configs (config_store, user_configs);
     }
 
+  if (should_save_configs)
+    maybe_save_configs (config_store);
 
   g_free (user_file_path);
 }
