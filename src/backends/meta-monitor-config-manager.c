@@ -2009,6 +2009,12 @@ meta_verify_monitors_config (MetaMonitorsConfig *config,
     {
       MetaLogicalMonitorConfig *logical_monitor_config = l->data;
 
+      if (!meta_verify_logical_monitor_config (logical_monitor_config,
+                                               config->layout_mode,
+                                               monitor_manager,
+                                               error))
+        return FALSE;
+
       if (global_scale_required)
         {
           MetaLogicalMonitorConfig *prev_logical_monitor_config =
