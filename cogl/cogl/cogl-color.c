@@ -87,22 +87,10 @@ cogl_color_init_from_4f (CoglColor *color,
   color->alpha =  (alpha * 255);
 }
 
-unsigned char
-cogl_color_get_red_byte (const CoglColor *color)
-{
-  return color->red;
-}
-
 float
 cogl_color_get_red (const CoglColor *color)
 {
   return  ((float) color->red / 255.0);
-}
-
-unsigned char
-cogl_color_get_green_byte (const CoglColor *color)
-{
-  return color->green;
 }
 
 float
@@ -111,22 +99,10 @@ cogl_color_get_green (const CoglColor *color)
   return  ((float) color->green / 255.0);
 }
 
-unsigned char
-cogl_color_get_blue_byte (const CoglColor *color)
-{
-  return color->blue;
-}
-
 float
 cogl_color_get_blue (const CoglColor *color)
 {
   return  ((float) color->blue / 255.0);
-}
-
-unsigned char
-cogl_color_get_alpha_byte (const CoglColor *color)
-{
-  return color->alpha;
 }
 
 float

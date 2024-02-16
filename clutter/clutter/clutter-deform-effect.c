@@ -251,10 +251,10 @@ clutter_deform_effect_paint_target (ClutterOffscreenEffect *effect,
               vertex_out->z = vertex.z;
               vertex_out->s = vertex.tx;
               vertex_out->t = vertex.ty;
-              vertex_out->r = cogl_color_get_red_byte (&vertex.color);
-              vertex_out->g = cogl_color_get_green_byte (&vertex.color);
-              vertex_out->b = cogl_color_get_blue_byte (&vertex.color);
-              vertex_out->a = cogl_color_get_alpha_byte (&vertex.color);
+              vertex_out->r = cogl_color_get_red (&vertex.color) * 255.0;
+              vertex_out->g = cogl_color_get_green (&vertex.color) * 255.0;
+              vertex_out->b = cogl_color_get_blue (&vertex.color) * 255.0;
+              vertex_out->a = cogl_color_get_alpha (&vertex.color) * 255.0;
             }
         }
 

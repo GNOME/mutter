@@ -639,14 +639,15 @@ _cogl_pipeline_change_implies_transparency (CoglPipeline *pipeline,
   if (unknown_color_alpha)
     return TRUE;
 
-  if ((override_color && cogl_color_get_alpha_byte (override_color) != 0xff))
+  if (override_color &&
+      !G_APPROX_VALUE (cogl_color_get_alpha (override_color), 1.0, FLT_EPSILON))
     return TRUE;
 
   if (changes & COGL_PIPELINE_STATE_COLOR)
     {
       CoglColor tmp;
       cogl_pipeline_get_color (pipeline, &tmp);
-      if (cogl_color_get_alpha_byte (&tmp) != 0xff)
+      if (!G_APPROX_VALUE (cogl_color_get_alpha (&tmp), 1.0, FLT_EPSILON))
         return TRUE;
     }
 

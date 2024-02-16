@@ -116,54 +116,6 @@ cogl_color_init_from_4f (CoglColor *color,
                          float alpha);
 
 /**
- * cogl_color_get_red_byte:
- * @color: a #CoglColor
- *
- * Retrieves the red channel of @color as a byte value
- * between 0 and 255
- *
- * Return value: the red channel of the passed color
- */
-COGL_EXPORT unsigned char
-cogl_color_get_red_byte (const CoglColor *color);
-
-/**
- * cogl_color_get_green_byte:
- * @color: a #CoglColor
- *
- * Retrieves the green channel of @color as a byte value
- * between 0 and 255
- *
- * Return value: the green channel of the passed color
- */
-COGL_EXPORT unsigned char
-cogl_color_get_green_byte (const CoglColor *color);
-
-/**
- * cogl_color_get_blue_byte:
- * @color: a #CoglColor
- *
- * Retrieves the blue channel of @color as a byte value
- * between 0 and 255
- *
- * Return value: the blue channel of the passed color
- */
-COGL_EXPORT unsigned char
-cogl_color_get_blue_byte (const CoglColor *color);
-
-/**
- * cogl_color_get_alpha_byte:
- * @color: a #CoglColor
- *
- * Retrieves the alpha channel of @color as a byte value
- * between 0 and 255
- *
- * Return value: the alpha channel of the passed color
- */
-COGL_EXPORT unsigned char
-cogl_color_get_alpha_byte (const CoglColor *color);
-
-/**
  * cogl_color_get_red:
  * @color: a #CoglColor
  *

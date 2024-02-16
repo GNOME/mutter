@@ -89,10 +89,10 @@ test_coglbox_fade_texture (CoglFramebuffer *framebuffer,
                                 255,
                                 ((i ^ (i >> 1)) & 1) ? 0 : 128);
       cogl_color_premultiply (&cogl_color);
-      vertices[i].r = cogl_color_get_red_byte (&cogl_color);
-      vertices[i].g = cogl_color_get_green_byte (&cogl_color);
-      vertices[i].b = cogl_color_get_blue_byte (&cogl_color);
-      vertices[i].a = cogl_color_get_alpha_byte (&cogl_color);
+      vertices[i].r = cogl_color_get_red (&cogl_color) * 255.0;
+      vertices[i].g = cogl_color_get_green (&cogl_color) * 255.0;
+      vertices[i].b = cogl_color_get_blue (&cogl_color) * 255.0;
+      vertices[i].a = cogl_color_get_alpha (&cogl_color) * 255.0;
     }
 
   primitive =
