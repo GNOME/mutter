@@ -194,7 +194,6 @@ meta_screen_cast_query_modifiers (MetaScreenCast  *screen_cast,
   g_autofree EGLuint64KHR *all_modifiers = NULL;
   g_autofree EGLBoolean *external_only = NULL;
   g_autoptr (GError) error = NULL;
-  g_autoptr (CoglDmaBufHandle) dmabuf_handle = NULL;
   GArray *modifiers = NULL;
   gboolean ret;
   const MetaFormatInfo *format_info;
@@ -208,7 +207,6 @@ meta_screen_cast_query_modifiers (MetaScreenCast  *screen_cast,
   g_assert (format_info);
 
   // TODO: query cogl_renderer for modifiers
-  // BEGIN stub
   ret = meta_egl_query_dma_buf_modifiers (egl,
                                           egl_display,
                                           format_info->drm_format,
@@ -252,7 +250,6 @@ meta_screen_cast_query_modifiers (MetaScreenCast  *screen_cast,
           g_array_append_vals (modifiers, &modifier, 1);
         }
     }
-  // END stub
 
 add_implicit_modifier:
   if (!modifiers)
