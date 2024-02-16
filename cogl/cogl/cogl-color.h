@@ -61,17 +61,6 @@ COGL_EXPORT
 GType cogl_color_get_type (void);
 
 /**
- * cogl_color_new:
- *
- * Creates a new (empty) color
- *
- * Return value: a newly-allocated #CoglColor. Use cogl_color_free()
- *   to free the allocated resources
- */
-COGL_EXPORT CoglColor *
-cogl_color_new (void);
-
-/**
  * cogl_color_copy:
  * @color: the color to copy
  *
@@ -125,17 +114,6 @@ cogl_color_init_from_4f (CoglColor *color,
                          float green,
                          float blue,
                          float alpha);
-
-/**
- * cogl_color_init_from_4fv:
- * @color: A pointer to a #CoglColor to initialize
- * @color_array: a pointer to an array of 4 float color components
- *
- * Sets the values of the passed channels into a #CoglColor
- */
-COGL_EXPORT void
-cogl_color_init_from_4fv (CoglColor *color,
-                          const float *color_array);
 
 /**
  * cogl_color_get_red_byte:
@@ -282,138 +260,6 @@ COGL_EXPORT float
 cogl_color_get_alpha (const CoglColor *color);
 
 /**
- * cogl_color_set_red_byte:
- * @color: a #CoglColor
- * @red: a byte value between 0 and 255
- *
- * Sets the red channel of @color to @red.
- */
-COGL_EXPORT void
-cogl_color_set_red_byte (CoglColor     *color,
-                         unsigned char  red);
-
-/**
- * cogl_color_set_green_byte:
- * @color: a #CoglColor
- * @green: a byte value between 0 and 255
- *
- * Sets the green channel of @color to @green.
- */
-COGL_EXPORT void
-cogl_color_set_green_byte (CoglColor     *color,
-                           unsigned char  green);
-
-/**
- * cogl_color_set_blue_byte:
- * @color: a #CoglColor
- * @blue: a byte value between 0 and 255
- *
- * Sets the blue channel of @color to @blue.
- */
-COGL_EXPORT void
-cogl_color_set_blue_byte (CoglColor     *color,
-                          unsigned char  blue);
-
-/**
- * cogl_color_set_alpha_byte:
- * @color: a #CoglColor
- * @alpha: a byte value between 0 and 255
- *
- * Sets the alpha channel of @color to @alpha.
- */
-COGL_EXPORT void
-cogl_color_set_alpha_byte (CoglColor     *color,
-                           unsigned char  alpha);
-
-/**
- * cogl_color_set_red_float:
- * @color: a #CoglColor
- * @red: a float value between 0.0f and 1.0f
- *
- * Sets the red channel of @color to @red.
- */
-COGL_EXPORT void
-cogl_color_set_red_float (CoglColor *color,
-                          float      red);
-
-/**
- * cogl_color_set_green_float:
- * @color: a #CoglColor
- * @green: a float value between 0.0f and 1.0f
- *
- * Sets the green channel of @color to @green.
- */
-COGL_EXPORT void
-cogl_color_set_green_float (CoglColor *color,
-                            float      green);
-
-/**
- * cogl_color_set_blue_float:
- * @color: a #CoglColor
- * @blue: a float value between 0.0f and 1.0f
- *
- * Sets the blue channel of @color to @blue.
- */
-COGL_EXPORT void
-cogl_color_set_blue_float (CoglColor *color,
-                           float      blue);
-
-/**
- * cogl_color_set_alpha_float:
- * @color: a #CoglColor
- * @alpha: a float value between 0.0f and 1.0f
- *
- * Sets the alpha channel of @color to @alpha.
- */
-COGL_EXPORT void
-cogl_color_set_alpha_float (CoglColor *color,
-                            float      alpha);
-
-/**
- * cogl_color_set_red:
- * @color: a #CoglColor
- * @red: a float value between 0.0f and 1.0f
- *
- * Sets the red channel of @color to @red.
- */
-COGL_EXPORT void
-cogl_color_set_red (CoglColor *color,
-                    float      red);
-
-/**
- * cogl_color_set_green:
- * @color: a #CoglColor
- * @green: a float value between 0.0f and 1.0f
- *
- * Sets the green channel of @color to @green.
- */
-COGL_EXPORT void
-cogl_color_set_green (CoglColor *color,
-                      float green);
-
-/**
- * cogl_color_set_blue:
- * @color: a #CoglColor
- * @blue: a float value between 0.0f and 1.0f
- *
- * Sets the blue channel of @color to @blue.
- */
-COGL_EXPORT void
-cogl_color_set_blue (CoglColor *color,
-                     float blue);
-
-/**
- * cogl_color_set_alpha:
- * @color: a #CoglColor
- * @alpha: a float value between 0.0f and 1.0f
- *
- * Sets the alpha channel of @color to @alpha.
- */
-COGL_EXPORT void
-cogl_color_set_alpha (CoglColor *color,
-                      float alpha);
-
-/**
  * cogl_color_premultiply:
  * @color: the color to premultiply
  *
@@ -423,17 +269,6 @@ cogl_color_set_alpha (CoglColor *color,
  */
 COGL_EXPORT void
 cogl_color_premultiply (CoglColor *color);
-
-/**
- * cogl_color_unpremultiply:
- * @color: the color to unpremultiply
- *
- * Converts a pre-multiplied color to a non-premultiplied color. For
- * example, semi-transparent red is (0.5, 0, 0, 0.5) when premultiplied
- * and (1.0, 0, 0, 0.5) when non-premultiplied.
- */
-COGL_EXPORT void
-cogl_color_unpremultiply (CoglColor *color);
 
 /**
  * cogl_color_equal:

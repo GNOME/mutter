@@ -41,13 +41,6 @@ G_DEFINE_BOXED_TYPE (CoglColor,
                      cogl_color_copy,
                      cogl_color_free)
 
-
-CoglColor *
-cogl_color_new (void)
-{
-  return g_new0 (CoglColor, 1);
-}
-
 CoglColor *
 cogl_color_copy (const CoglColor *color)
 {
@@ -92,18 +85,6 @@ cogl_color_init_from_4f (CoglColor *color,
   color->green =  (green * 255);
   color->blue  =  (blue * 255);
   color->alpha =  (alpha * 255);
-}
-
-void
-cogl_color_init_from_4fv (CoglColor *color,
-                          const float *color_array)
-{
-  g_return_if_fail (color != NULL);
-
-  color->red   =  (color_array[0] * 255);
-  color->green =  (color_array[1] * 255);
-  color->blue  =  (color_array[2] * 255);
-  color->alpha =  (color_array[3] * 255);
 }
 
 unsigned char
@@ -179,106 +160,11 @@ cogl_color_get_alpha (const CoglColor *color)
 }
 
 void
-cogl_color_set_red_byte (CoglColor     *color,
-                         unsigned char  red)
-{
-  color->red = red;
-}
-
-void
-cogl_color_set_red_float (CoglColor *color,
-                          float      red)
-{
-  color->red = red * 255.0;
-}
-
-void
-cogl_color_set_red (CoglColor *color,
-                    float      red)
-{
-  color->red = red * 255.0;
-}
-
-void
-cogl_color_set_green_byte (CoglColor     *color,
-                           unsigned char  green)
-{
-  color->green = green;
-}
-
-void
-cogl_color_set_green_float (CoglColor *color,
-                            float green)
-{
-  color->green = green * 255.0;
-}
-
-void
-cogl_color_set_green (CoglColor *color,
-                      float green)
-{
-  color->green = green * 255.0;
-}
-
-void
-cogl_color_set_blue_byte (CoglColor *color,
-                          unsigned char blue)
-{
-  color->blue = blue;
-}
-
-void
-cogl_color_set_blue_float (CoglColor *color,
-                           float blue)
-{
-  color->blue = blue * 255.0;
-}
-
-void
-cogl_color_set_blue (CoglColor *color,
-                     float blue)
-{
-  color->blue = blue * 255.0;
-}
-
-void
-cogl_color_set_alpha_byte (CoglColor *color,
-                           unsigned char  alpha)
-{
-  color->alpha = alpha;
-}
-
-void
-cogl_color_set_alpha_float (CoglColor *color,
-                            float alpha)
-{
-  color->alpha = alpha * 255.0;
-}
-
-void
-cogl_color_set_alpha (CoglColor *color,
-                      float alpha)
-{
-  color->alpha = alpha * 255.0;
-}
-
-void
 cogl_color_premultiply (CoglColor *color)
 {
   color->red = (color->red * color->alpha + 128) / 255;
   color->green = (color->green * color->alpha + 128) / 255;
   color->blue = (color->blue * color->alpha + 128) / 255;
-}
-
-void
-cogl_color_unpremultiply (CoglColor *color)
-{
-  if (color->alpha != 0)
-    {
-      color->red = (color->red * 255) / color->alpha;
-      color->green = (color->green * 255) / color->alpha;
-      color->blue = (color->blue * 255) / color->alpha;
-    }
 }
 
 gboolean
