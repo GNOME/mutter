@@ -22,6 +22,8 @@
 #include <glib.h>
 #include <glib/gprintf.h>
 
+#include "config.h"
+
 #include "clutter/clutter-keyval.h"
 #include "clutter/clutter-event.h"
 #include "clutter/clutter-keysyms.h"

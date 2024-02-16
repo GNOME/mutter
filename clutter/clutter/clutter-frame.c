@@ -15,6 +15,8 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "config.h"
+
 #include "clutter/clutter-frame-private.h"
 
 G_DEFINE_BOXED_TYPE (ClutterFrame, clutter_frame,

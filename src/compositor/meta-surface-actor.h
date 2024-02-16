@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include "config.h"
-
 #include "backends/meta-backend-types.h"
 #include "meta/meta-shaped-texture.h"
 #include "meta/window.h"

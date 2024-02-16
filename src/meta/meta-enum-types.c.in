@@ -1,4 +1,5 @@
 /*** BEGIN file-header ***/
+#include "config.h"
 #include "meta/meta-enum-types.h"
 /*** END file-header ***/
 

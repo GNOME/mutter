@@ -32,7 +32,6 @@
 #include <stdint.h>
 #include <errno.h>
 
-#include "config.h"
 #include "cogl/cogl-macros.h"
 
 #ifdef HAVE_PROFILER

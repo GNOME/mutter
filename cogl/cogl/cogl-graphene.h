@@ -28,7 +28,6 @@
 
 #pragma once
 
-#include "config.h"
 #include "cogl/cogl-macros.h"
 #include "cogl/cogl-types.h"
 

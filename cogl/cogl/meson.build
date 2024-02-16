@@ -132,12 +132,6 @@ if have_gles2
   cogl_driver_sources += gles_driver_sources
 endif
 
-if have_gl or have_gles2
-  cogl_nonintrospected_headers += [
-    'cogl-gl-header.h'
-  ]
-endif
-
 cogl_sources = [
   cogl_driver_sources,
   'cogl-atlas-texture-private.h',
@@ -194,6 +188,7 @@ cogl_sources = [
   'cogl-framebuffer-private.h',
   'cogl-framebuffer.c',
   'cogl-glib-source.c',
+  'cogl-gl-header.h',
   'cogl-glsl-shader-boilerplate.h',
   'cogl-graphene.c',
   'cogl-half-float.c',

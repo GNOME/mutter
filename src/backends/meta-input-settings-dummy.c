@@ -19,6 +19,8 @@
  * Author: Marco Trevisan <marco.trevisan@canonical.com>
  */
 
+#include "config.h"
+
 #include "backends/meta-input-settings-dummy.h"
 
 G_DEFINE_TYPE (MetaInputSettingsDummy,

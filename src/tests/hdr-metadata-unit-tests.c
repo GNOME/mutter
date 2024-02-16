@@ -18,6 +18,8 @@
  * Author: Sebastian Wick <sebastian.wick@redhat.com>
  */
 
+#include "config.h"
+
 #include "hdr-metadata-unit-tests.h"
 
 #include "tests/meta-monitor-test-utils.h"

@@ -33,7 +33,6 @@
 #include <glib.h>
 #include <math.h>
 
-#include "config.h"
 #include "cogl/cogl-pixel-format.h"
 #include "cogl/cogl-types.h"
 

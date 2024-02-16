@@ -30,7 +30,6 @@
 
 #pragma once
 
-#include "config.h"
 #include "cogl/cogl-context.h"
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-framebuffer-private.h"

@@ -36,7 +36,6 @@
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
 
-#include "config.h"
 #include "cogl/cogl-context.h"
 
 #include <poll.h>

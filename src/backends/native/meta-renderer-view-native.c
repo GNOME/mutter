@@ -20,6 +20,8 @@
  *     Dor Askayo <dor.askayo@gmail.com>
  */
 
+#include "config.h"
+
 #include "backends/native/meta-renderer-view-native.h"
 
 #include "backends/native/meta-frame-native.h"

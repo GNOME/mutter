@@ -30,9 +30,6 @@
 
 #pragma once
 
-#include "config.h"
-#include "config.h"
-
 #include "cogl/cogl-texture.h"
 #include "cogl/cogl-meta-texture.h"
 #include "cogl/cogl-frame-info-private.h"

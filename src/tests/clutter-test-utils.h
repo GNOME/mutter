@@ -19,8 +19,6 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "config.h"
-
 #pragma once
 
 #define __CLUTTER_H_INSIDE__
