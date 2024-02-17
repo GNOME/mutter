@@ -310,9 +310,6 @@ typedef struct {
 
   gpointer result;
 
-  guint check_actor : 1;
-  guint check_color : 1;
-
   guint was_painted : 1;
 } ValidateData;
 
@@ -321,23 +318,11 @@ validate_stage (gpointer data_)
 {
   ValidateData *data = data_;
 
-  if (data->check_actor)
-    {
-      data->result =
-        clutter_stage_get_actor_at_pos (CLUTTER_STAGE (data->stage),
-                                        CLUTTER_PICK_ALL,
-                                        data->point.x,
-                                        data->point.y);
-    }
-
-  if (data->check_color)
-    {
-      data->result =
-        clutter_stage_read_pixels (CLUTTER_STAGE (data->stage),
-                                   data->point.x,
-                                   data->point.y,
-                                   1, 1);
-    }
+  data->result =
+    clutter_stage_get_actor_at_pos (CLUTTER_STAGE (data->stage),
+                                    CLUTTER_PICK_ALL,
+                                    data->point.x,
+                                    data->point.y);
 
   if (!g_test_verbose ())
     {
@@ -395,7 +380,6 @@ clutter_test_check_actor_at_point (ClutterActor            *stage,
   data = g_new0 (ValidateData, 1);
   data->stage = stage;
   data->point = *point;
-  data->check_actor = TRUE;
 
   if (g_test_verbose ())
     {
@@ -422,75 +406,6 @@ clutter_test_check_actor_at_point (ClutterActor            *stage,
   g_free (data);
 
   return *result == actor;
-}
-
-/**
- * clutter_test_check_color_at_point:
- * @stage: a #ClutterStage
- * @point: coordinates to check
- * @color: expected color
- * @result: (out caller-allocates): color at the given coordinates
- *
- * Checks the color at the given coordinates on @stage, and matches
- * it with the red, green, and blue channels of @color. The alpha
- * component of @color and @result is ignored.
- *
- * Returns: %TRUE if the colors match
- */
-gboolean
-clutter_test_check_color_at_point (ClutterActor           *stage,
-                                   const graphene_point_t *point,
-                                   const ClutterColor     *color,
-                                   ClutterColor           *result)
-{
-  ValidateData *data;
-  gboolean retval;
-  guint8 *buffer;
-  gulong press_id = 0;
-
-  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), FALSE);
-  g_return_val_if_fail (point != NULL, FALSE);
-  g_return_val_if_fail (color != NULL, FALSE);
-  g_return_val_if_fail (result != NULL, FALSE);
-
-  data = g_new0 (ValidateData, 1);
-  data->stage = stage;
-  data->point = *point;
-  data->check_color = TRUE;
-
-  if (g_test_verbose ())
-    {
-      g_printerr ("Press ESC to close the stage and resume the test\n");
-      press_id = g_signal_connect (stage, "key-press-event",
-                                   G_CALLBACK (on_key_press_event),
-                                   data);
-    }
-
-  clutter_actor_show (stage);
-
-  clutter_threads_add_repaint_func_full (CLUTTER_REPAINT_FLAGS_POST_PAINT,
-                                         validate_stage,
-                                         data,
-                                         NULL);
-
-  while (!data->was_painted)
-    g_main_context_iteration (NULL, TRUE);
-
-  g_clear_signal_handler (&press_id, stage);
-
-  buffer = data->result;
-
-  clutter_color_init (result, buffer[0], buffer[1], buffer[2], 255);
-
-  /* we only check the color channels, so we can't use clutter_color_equal() */
-  retval = buffer[0] == color->red &&
-           buffer[1] == color->green &&
-           buffer[2] == color->blue;
-
-  g_free (data->result);
-  g_free (data);
-
-  return retval;
 }
 
 static void

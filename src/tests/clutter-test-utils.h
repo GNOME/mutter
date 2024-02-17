@@ -25,7 +25,6 @@
 
 #include "clutter/clutter-types.h"
 #include "clutter/clutter-actor.h"
-#include "clutter/clutter-color.h"
 #include "clutter/clutter-event-private.h"
 #include "clutter/clutter-private.h"
 #include "meta/common.h"
@@ -142,33 +141,10 @@ G_STMT_START { \
   } \
 } G_STMT_END
 
-#define clutter_test_assert_color_at_point(stage,point,color) \
-G_STMT_START { \
-  const graphene_point_t *__p = (point); \
-  const ClutterColor *__c = (color); \
-  ClutterActor *__stage = (stage); \
-  ClutterColor __res; \
-  if (clutter_test_check_color_at_point (__stage, __p, __c, &__res)) ; else { \
-    char *__str1 = clutter_color_to_string (__c); \
-    char *__str2 = clutter_color_to_string (&__res); \
-    char *__msg = g_strdup_printf ("assertion failed (color %s at %.2f,%.2f): found color %s", \
-                                   __str1, __p->x, __p->y, __str2); \
-    g_assertion_message (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, __msg); \
-    g_free (__msg); \
-    g_free (__str1); \
-    g_free (__str2); \
-  } \
-} G_STMT_END
-
 CLUTTER_EXPORT
 gboolean        clutter_test_check_actor_at_point       (ClutterActor            *stage,
                                                          const graphene_point_t  *point,
                                                          ClutterActor            *actor,
                                                          ClutterActor           **result);
-CLUTTER_EXPORT
-gboolean        clutter_test_check_color_at_point       (ClutterActor           *stage,
-                                                         const graphene_point_t *point,
-                                                         const ClutterColor     *color,
-                                                         ClutterColor           *result);
 
 G_END_DECLS
