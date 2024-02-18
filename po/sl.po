@@ -4,14 +4,14 @@
 #
 # Andraž Tori <andraz.tori1@guest.arnes.si>, 2000.
 # Matjaž Horvat <m@owca.info>, 2006.
-# Matej Urbančič <mateju@src.gnome.org>, 2007–2023.
+# Matej Urbančič <mateju@src.gnome.org>, 2007–2024.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
-"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2023-07-28 18:15+0000\n"
-"PO-Revision-Date: 2023-07-29 16:37+0200\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
+"POT-Creation-Date: 2024-02-14 22:15+0000\n"
+"PO-Revision-Date: 2024-02-18 17:40+0100\n"
 "Last-Translator: Matej Urbančič <mateju@src.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: sl_SI\n"
@@ -21,7 +21,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || "
 "n%100==4 ? 3 : 0);\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 3.0.1\n"
+"X-Generator: Poedit 3.4.2\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -252,19 +252,19 @@ msgstr "Razpni okno navpično"
 msgid "Maximize window horizontally"
 msgstr "Razpni okno vodoravno"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:164
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:160
 msgid "View split on left"
 msgstr "Poglej razdelek na levi"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:169
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:165
 msgid "View split on right"
 msgstr "Poglej razdelek na desni"
 
-#: data/org.gnome.mutter.gschema.xml.in:15
+#: data/org.gnome.mutter.gschema.xml.in:14
 msgid "Modifier to use for extended window management operations"
 msgstr "Spremenilnik, ki naj se uporabi za upravljanje oken"
 
-#: data/org.gnome.mutter.gschema.xml.in:16
+#: data/org.gnome.mutter.gschema.xml.in:15
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
@@ -276,11 +276,11 @@ msgstr ""
 "opremi računalnika. Pričakovano je, da je vrednost določena privzeto ali pa "
 "ni določena."
 
-#: data/org.gnome.mutter.gschema.xml.in:28
+#: data/org.gnome.mutter.gschema.xml.in:27
 msgid "Attach modal dialogs"
 msgstr "Pripni modalna pogovorna okna"
 
-#: data/org.gnome.mutter.gschema.xml.in:29
+#: data/org.gnome.mutter.gschema.xml.in:28
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
 "attached to the titlebar of the parent window and are moved together with "
@@ -289,11 +289,11 @@ msgstr ""
 "Izbrana možnost omogoči, da je namesto samostojnih nazivnih vrstic, na to "
 "mesto pripeto modalno pogovorno okno, ki se premika z nadrejenim oknom."
 
-#: data/org.gnome.mutter.gschema.xml.in:38
+#: data/org.gnome.mutter.gschema.xml.in:37
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr "Omogoči prilagajanje velikosti okna ob dotiku robov zaslona"
 
-#: data/org.gnome.mutter.gschema.xml.in:39
+#: data/org.gnome.mutter.gschema.xml.in:38
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
@@ -303,11 +303,11 @@ msgstr ""
 "razpeta po navpični osi in razširjena na polovično širino. Dotik vrhnjega "
 "roba razpne okno čez cel zaslon."
 
-#: data/org.gnome.mutter.gschema.xml.in:48
+#: data/org.gnome.mutter.gschema.xml.in:47
 msgid "Workspaces are managed dynamically"
 msgstr "Število delovnih površin je spremenljivo"
 
-#: data/org.gnome.mutter.gschema.xml.in:49
+#: data/org.gnome.mutter.gschema.xml.in:48
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
 "static number of workspaces (determined by the num-workspaces key in org."
@@ -317,11 +317,11 @@ msgstr ""
 "število stalno (določenih s ključem števila delovnih površin med možnostmi v "
 "org.gnome.desktop.wm.preferences)."
 
-#: data/org.gnome.mutter.gschema.xml.in:58
+#: data/org.gnome.mutter.gschema.xml.in:57
 msgid "Workspaces only on primary"
 msgstr "Delovne površine le na prvem zaslonu"
 
-#: data/org.gnome.mutter.gschema.xml.in:59
+#: data/org.gnome.mutter.gschema.xml.in:58
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
@@ -329,11 +329,11 @@ msgstr ""
 "Določa ali naj se delovne površine preklapljajo na vseh zaslonih ali le na "
 "prvem, glavnem zaslonu."
 
-#: data/org.gnome.mutter.gschema.xml.in:67
+#: data/org.gnome.mutter.gschema.xml.in:66
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "Zamakni spremembe žarišča, dokler se kazalnik še premika"
 
-#: data/org.gnome.mutter.gschema.xml.in:68
+#: data/org.gnome.mutter.gschema.xml.in:67
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -343,11 +343,11 @@ msgstr ""
 "ali »miška«, ne spremeni takoj ob izbiri okna. Žarišče se spremeni, ko se "
 "kazalnik preneha premikati."
 
-#: data/org.gnome.mutter.gschema.xml.in:78
+#: data/org.gnome.mutter.gschema.xml.in:77
 msgid "Draggable border width"
 msgstr "Prilagodljiva obroba pravokotnika"
 
-#: data/org.gnome.mutter.gschema.xml.in:79
+#: data/org.gnome.mutter.gschema.xml.in:78
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -355,11 +355,11 @@ msgstr ""
 "Delež skupne prilagodljive obrobe. V kolikor vidni robovi teme niso dovolj, "
 "so dodane nevidne obrobe za dodatno prilagajanje."
 
-#: data/org.gnome.mutter.gschema.xml.in:88
+#: data/org.gnome.mutter.gschema.xml.in:87
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "Samodejno razpni okna, ki so skoraj enaka velikosti zaslona"
 
-#: data/org.gnome.mutter.gschema.xml.in:89
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
@@ -367,22 +367,22 @@ msgstr ""
 "Izbrana možnost omogoča, da bodo okna, ki so skoraj tako velika, kot je "
 "velik zaslon, med preslikavo samodejno razpeta."
 
-#: data/org.gnome.mutter.gschema.xml.in:97
+#: data/org.gnome.mutter.gschema.xml.in:96
 msgid "Place new windows in the center"
 msgstr "Postavi novo okno v središče"
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
 msgstr ""
 "Izbrana možnost določa, da bo novo okno vedno v središču dejavnega zaslona."
 
-#: data/org.gnome.mutter.gschema.xml.in:107
+#: data/org.gnome.mutter.gschema.xml.in:106
 msgid "Enable experimental features"
 msgstr "Omogoči preizkusne možnosti"
 
-#: data/org.gnome.mutter.gschema.xml.in:108
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -393,10 +393,8 @@ msgid ""
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
 "mutter always allocate scanout buffers with explicit modifiers, if supported "
-"by the driver. Requires a restart. • “rt-scheduler” — makes mutter request a "
-"low priority real-time scheduling. Requires a restart. • “autoclose-"
-"xwayland” — automatically terminates Xwayland if all relevant X11 clients "
-"are gone. Requires a restart."
+"by the driver. Requires a restart. • “autoclose-xwayland” — automatically "
+"terminates Xwayland if all relevant X11 clients are gone. Requires a restart."
 msgstr ""
 "Za omogočanje preizkusnih možnosti je treba dodati ključne besede na seznam "
 "ključev. Ali vpisana možnost zahteva ponovni zagon sestavljalnika, je "
@@ -407,24 +405,23 @@ msgstr ""
 "predpomnilnik in ne vsebine za upravljanje z zasloni HiDPI. Možnost ne "
 "zahteva ponovnega zagona.•»kms-modifiers« – zahteva dodeljevanje "
 "medpomnilnika s spremenilniki, če to podpirajo uporabljeni gonilniki. "
-"Možnost zahteva ponovni zagon.• »rt-scheduler« – postavi zahteve mutter na "
-"nižjo prednostno raven. Možnost zahteva ponovni zagon. • »autoclose-"
-"xwayland« – samodejno konča okolje Xwayland, če ni razpoložljivega okolja "
-"X11. Prav tako zahteva ponoven zagon."
+"Možnost zahteva ponovni zagon. • »autoclose-xwayland« – samodejno konča "
+"okolje Xwayland, če ni razpoložljivega okolja X11. Prav tako zahteva ponoven "
+"zagon."
 
-#: data/org.gnome.mutter.gschema.xml.in:141
+#: data/org.gnome.mutter.gschema.xml.in:137
 msgid "Modifier to use to locate the pointer"
 msgstr "Spremenilnik, ki naj se uporabi za določanje mesta kazalnika"
 
-#: data/org.gnome.mutter.gschema.xml.in:142
+#: data/org.gnome.mutter.gschema.xml.in:138
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Ključ začne dejanje »zaznavanja kazalnika«."
 
-#: data/org.gnome.mutter.gschema.xml.in:149
+#: data/org.gnome.mutter.gschema.xml.in:145
 msgid "Timeout for check-alive ping"
 msgstr "Časovni zamik za preverjanje delovanja z ukazom ping"
 
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:146
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -433,15 +430,15 @@ msgstr ""
 "preden sistem sporoči napako odziva. Vrednost 0 povsem omogoči preverjanje "
 "stanja povezave."
 
-#: data/org.gnome.mutter.gschema.xml.in:174
+#: data/org.gnome.mutter.gschema.xml.in:170
 msgid "Switch monitor configurations"
 msgstr "Nastavitve nadzornika preklopa"
 
-#: data/org.gnome.mutter.gschema.xml.in:179
+#: data/org.gnome.mutter.gschema.xml.in:175
 msgid "Rotates the built-in monitor configuration"
 msgstr "Zavrti vgrajene nastavitve zaslona"
 
-#: data/org.gnome.mutter.gschema.xml.in:184
+#: data/org.gnome.mutter.gschema.xml.in:180
 msgid "Cancel any active input capture session"
 msgstr "Prekliči vse dejavne seje zajemanja"
 
@@ -592,26 +589,26 @@ msgstr ""
 "byteswappedclients za nadzor te nastavitve. Xwayland je treba ponovno "
 "zagnati, da ta nastavitev začne veljati."
 
-#: src/backends/meta-monitor.c:253
+#: src/backends/meta-monitor.c:251
 msgid "Built-in display"
 msgstr "Vgrajen zaslon"
 
-#: src/backends/meta-monitor.c:280
+#: src/backends/meta-monitor.c:278
 msgid "Unknown"
 msgstr "Neznano"
 
-#: src/backends/meta-monitor.c:282
+#: src/backends/meta-monitor.c:280
 msgid "Unknown Display"
 msgstr "Neznan zaslon"
 
-#: src/backends/meta-monitor.c:290
+#: src/backends/meta-monitor.c:288
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:298
+#: src/backends/meta-monitor.c:296
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -623,78 +620,82 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Dogodek zvonjenja"
 
-#: src/core/display.c:714
+#: src/core/display.c:733
 msgid "Privacy Screen Enabled"
 msgstr "Zasebni zaslon je omogočen"
 
-#: src/core/display.c:715
+#: src/core/display.c:734
 msgid "Privacy Screen Disabled"
 msgstr "Zasebni zaslon je onemogočen"
 
-#: src/core/meta-context-main.c:581
+#: src/core/meta-context-main.c:594
 msgid "Replace the running window manager"
 msgstr "Zamenjaj trenutni upravljalnik oken"
 
-#: src/core/meta-context-main.c:587
+#: src/core/meta-context-main.c:600
 msgid "X Display to use"
 msgstr "Zaslon X za uporabo"
 
-#: src/core/meta-context-main.c:593
+#: src/core/meta-context-main.c:606
 msgid "Disable connection to session manager"
 msgstr "Onemogoči povezavo z upravljalnikom sej"
 
-#: src/core/meta-context-main.c:599
+#: src/core/meta-context-main.c:612
 msgid "Specify session management ID"
 msgstr "Navedite ID upravljanja seje"
 
-#: src/core/meta-context-main.c:605
+#: src/core/meta-context-main.c:618
 msgid "Initialize session from savefile"
 msgstr "Začni sejo iz shranjene datoteke"
 
-#: src/core/meta-context-main.c:611
+#: src/core/meta-context-main.c:624
 msgid "Make X calls synchronous"
 msgstr "Uskladi klice X"
 
-#: src/core/meta-context-main.c:619
+#: src/core/meta-context-main.c:632
 msgid "Run as a wayland compositor"
 msgstr "Zaženi izbirnik wayland"
 
-#: src/core/meta-context-main.c:625
+#: src/core/meta-context-main.c:638
 msgid "Run as a nested compositor"
 msgstr "Zaženi kot gnezden vpisovalnik"
 
-#: src/core/meta-context-main.c:631
+#: src/core/meta-context-main.c:644
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Zaženi sestavljalnik wayland brez zagona okolja Xwayland"
 
-#: src/core/meta-context-main.c:637
+#: src/core/meta-context-main.c:650
 msgid "Specify Wayland display name to use"
 msgstr "Določilo prikazno ime Wayland za uporabo"
 
-#: src/core/meta-context-main.c:645
+#: src/core/meta-context-main.c:658
 msgid "Run as a full display server, rather than nested"
 msgstr "Zaženi kot polni zaslonski strežnik in ne vstavljeno"
 
-#: src/core/meta-context-main.c:650
+#: src/core/meta-context-main.c:663
 msgid "Run as a headless display server"
 msgstr "Zaženi kot zaslonski strežni"
 
-#: src/core/meta-context-main.c:655
+#: src/core/meta-context-main.c:668
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Dodaj navidezni monitor (WxH ali WxH@R)"
 
-#: src/core/meta-context-main.c:667
+#: src/core/meta-context-main.c:680
 msgid "Run with X11 backend"
 msgstr "Zaženi z zaledjem X11"
 
-#: src/core/meta-context-main.c:673
+#: src/core/meta-context-main.c:686
 msgid "Profile performance using trace instrumentation"
 msgstr "Preglej delovanje z uporabo sledilnika"
+
+#: src/core/meta-context-main.c:692
+msgid "Enable debug control D-Bus interface"
+msgstr "Omogoči vmesnik razhroščevalnika vodila D-Bus"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:861
+#: src/core/meta-pad-action-mapper.c:826
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Preklop načina (skupina %d)"
@@ -702,16 +703,16 @@ msgstr "Preklop načina (skupina %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:884
+#: src/core/meta-pad-action-mapper.c:848
 msgid "Switch monitor"
 msgstr "Nadzornik preklopa"
 
-#: src/core/meta-pad-action-mapper.c:886
+#: src/core/meta-pad-action-mapper.c:850
 msgid "Show on-screen help"
 msgstr "Pokaži zaslonsko pomoč"
 
 #. Translators: this string will appear in Sysprof
-#: src/core/meta-profiler.c:111 src/core/meta-profiler.c:301
+#: src/core/meta-profiler.c:109 src/core/meta-profiler.c:299
 msgid "Compositor"
 msgstr "Sestavljalnik"
 
@@ -735,16 +736,16 @@ msgstr ""
 "Program Mutter je kodno preveden brez podpore za podrobni način izpisovanja"
 
 # G:1 K:0 O:0
-#: src/core/workspace.c:535
+#: src/core/workspace.c:511
 msgid "Workspace switched"
 msgstr "Delovna površina je zamenjana"
 
-#: src/wayland/meta-wayland-tablet-pad.c:530
+#: src/wayland/meta-wayland-tablet-pad.c:532
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Način preklopa: način %d"
 
-#: src/x11/meta-x11-display.c:708
+#: src/x11/meta-x11-display.c:723
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -753,19 +754,19 @@ msgstr ""
 "Zaslon »%s« že ima določen upravljalnik oken; poskušajte uporabiti možnost --"
 "replace za zamenjavo trenutnega upravljalnika zaslona."
 
-#: src/x11/meta-x11-display.c:1073
+#: src/x11/meta-x11-display.c:1088
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Odpiranje zaslona »%s« okenskega sistema X je spodletelo"
 
-#: src/x11/meta-x11-display.c:1219
+#: src/x11/meta-x11-display.c:1268
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Zaslon %d na prikazu »%s« ni veljaven"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2550
+#: src/x11/meta-x11-display.c:2539
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -777,7 +778,7 @@ msgstr ""
 msgid "Format %s not supported"
 msgstr "Zapis %s ni podprt."
 
-#: src/x11/window-props.c:548
+#: src/x11/window-props.c:524
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (na %s)"
