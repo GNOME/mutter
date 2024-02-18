@@ -5,13 +5,13 @@
 # Michiel Sikkes <michiels@gnome.org>, 2005.
 # Wouter Bolsterlee <wbolster@gnome.org>, 2006–2012.
 # Hannie Dumoleyn <hannie@ubuntu-nl.org>, 2016.
-# Nathan Follens <nfollens@gnome.org>, 2017, 2019-2023.
+# Nathan Follens <nfollens@gnome.org>, 2017, 2019-2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
-"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2023-08-23 16:49+0000\n"
-"PO-Revision-Date: 2023-09-03 15:48+0200\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
+"POT-Creation-Date: 2024-02-12 13:12+0000\n"
+"PO-Revision-Date: 2024-02-18 17:09+0100\n"
 "Last-Translator: Nathan Follens <nfollens@gnome.org>\n"
 "Language-Team: GNOME-NL https://matrix.to/#/#nl:gnome.org\n"
 "Language: nl\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Project-Style: gnome\n"
-"X-Generator: Poedit 3.3.2\n"
+"X-Generator: Poedit 3.4.2\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -250,19 +250,19 @@ msgstr "Venster verticaal maximaliseren"
 msgid "Maximize window horizontally"
 msgstr "Venster horizontaal maximaliseren"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:164
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:160
 msgid "View split on left"
 msgstr "Weergave gesplitst op links"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:169
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:165
 msgid "View split on right"
 msgstr "Weergave gesplitst op rechts"
 
-#: data/org.gnome.mutter.gschema.xml.in:15
+#: data/org.gnome.mutter.gschema.xml.in:14
 msgid "Modifier to use for extended window management operations"
 msgstr "Controletoets voor uitgebreide vensterbeheerfunctionaliteit"
 
-#: data/org.gnome.mutter.gschema.xml.in:16
+#: data/org.gnome.mutter.gschema.xml.in:15
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
@@ -274,11 +274,11 @@ msgstr ""
 "toets’ en de bedoeling is dat deze sneltoets ofwel de standaardwaarde bevat "
 "ofwel leeggemaakt is."
 
-#: data/org.gnome.mutter.gschema.xml.in:28
+#: data/org.gnome.mutter.gschema.xml.in:27
 msgid "Attach modal dialogs"
 msgstr "Blokkerende dialoogvensters vastmaken"
 
-#: data/org.gnome.mutter.gschema.xml.in:29
+#: data/org.gnome.mutter.gschema.xml.in:28
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
 "attached to the titlebar of the parent window and are moved together with "
@@ -288,11 +288,11 @@ msgstr ""
 "maar vastgekoppeld aan het achterliggende venster en bewegen daardoor ook "
 "mee met het achterliggende venster."
 
-#: data/org.gnome.mutter.gschema.xml.in:38
+#: data/org.gnome.mutter.gschema.xml.in:37
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr "Randtegels inschakelen bij het slepen van vensters naar schermranden"
 
-#: data/org.gnome.mutter.gschema.xml.in:39
+#: data/org.gnome.mutter.gschema.xml.in:38
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
@@ -303,11 +303,11 @@ msgstr ""
 "schermgrootte brengen. Het laten vallen van vensters op de bovenrand van het "
 "scherm maximaliseert ze helemaal."
 
-#: data/org.gnome.mutter.gschema.xml.in:48
+#: data/org.gnome.mutter.gschema.xml.in:47
 msgid "Workspaces are managed dynamically"
 msgstr "Werkbladen worden dynamisch beheerd"
 
-#: data/org.gnome.mutter.gschema.xml.in:49
+#: data/org.gnome.mutter.gschema.xml.in:48
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
 "static number of workspaces (determined by the num-workspaces key in org."
@@ -317,11 +317,11 @@ msgstr ""
 "werkbladen is (gegeven door de sleutel num-workspaces in org.gnome.desktop."
 "wm.preferences)."
 
-#: data/org.gnome.mutter.gschema.xml.in:58
+#: data/org.gnome.mutter.gschema.xml.in:57
 msgid "Workspaces only on primary"
 msgstr "Werkbladen alleen voor primaire venster"
 
-#: data/org.gnome.mutter.gschema.xml.in:59
+#: data/org.gnome.mutter.gschema.xml.in:58
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
@@ -329,11 +329,11 @@ msgstr ""
 "Geeft aan of wisselen van werkblad voor vensters op alle schermen of alleen "
 "voor vensters op het hoofdscherm moet gebeuren."
 
-#: data/org.gnome.mutter.gschema.xml.in:67
+#: data/org.gnome.mutter.gschema.xml.in:66
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "Aandacht vertragen totdat de muispijl stopt met bewegen"
 
-#: data/org.gnome.mutter.gschema.xml.in:68
+#: data/org.gnome.mutter.gschema.xml.in:67
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -343,11 +343,11 @@ msgstr ""
 "‘mouse’, dan zal de aandacht niet direct veranderd worden bij het binnengaan "
 "van een venster, maar slechts wanneer de muispijl stopt met bewegen."
 
-#: data/org.gnome.mutter.gschema.xml.in:78
+#: data/org.gnome.mutter.gschema.xml.in:77
 msgid "Draggable border width"
 msgstr "Sleepbare randbreedte"
 
-#: data/org.gnome.mutter.gschema.xml.in:79
+#: data/org.gnome.mutter.gschema.xml.in:78
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -356,11 +356,11 @@ msgstr ""
 "onvoldoende zijn, worden onzichtbare randen toegevoegd om deze waarde te "
 "bereiken."
 
-#: data/org.gnome.mutter.gschema.xml.in:88
+#: data/org.gnome.mutter.gschema.xml.in:87
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "Vensters van bijna-monitorformaat auto-maximaliseren"
 
-#: data/org.gnome.mutter.gschema.xml.in:89
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
@@ -368,11 +368,11 @@ msgstr ""
 "Indien ingeschakeld, worden vensters die initieel ongeveer even groot zijn "
 "als de monitor automatisch gemaximaliseerd."
 
-#: data/org.gnome.mutter.gschema.xml.in:97
+#: data/org.gnome.mutter.gschema.xml.in:96
 msgid "Place new windows in the center"
 msgstr "Plaats nieuwe vensters in het midden"
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
@@ -380,11 +380,11 @@ msgstr ""
 "Indien waar zullen nieuwe vensters steeds in het midden van het actieve "
 "scherm van de monitor geplaatst worden."
 
-#: data/org.gnome.mutter.gschema.xml.in:107
+#: data/org.gnome.mutter.gschema.xml.in:106
 msgid "Enable experimental features"
 msgstr "Experimentele functies inschakelen"
 
-#: data/org.gnome.mutter.gschema.xml.in:108
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -395,10 +395,8 @@ msgid ""
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
 "mutter always allocate scanout buffers with explicit modifiers, if supported "
-"by the driver. Requires a restart. • “rt-scheduler” — makes mutter request a "
-"low priority real-time scheduling. Requires a restart. • “autoclose-"
-"xwayland” — automatically terminates Xwayland if all relevant X11 clients "
-"are gone. Requires a restart."
+"by the driver. Requires a restart. • “autoclose-xwayland” — automatically "
+"terminates Xwayland if all relevant X11 clients are gone. Requires a restart."
 msgstr ""
 "Voeg het sleutelwoord van een experimentele functie toe aan de lijst om deze "
 "in te schakelen. Of de compositor herstart moet worden vooraleer de functie "
@@ -412,24 +410,22 @@ msgstr ""
 "opnieuw opstarten niet vereist. • ‘kms-modifiers’ — zorgt ervoor dat mutter "
 "scanoutbuffers steeds toewijst met uitdrukkelijke modifiers, indien dit "
 "ondersteund wordt door het stuurprogramma. Hiervoor is opnieuw opstarten "
-"vereist. • “rt-scheduler” — zorgt ervoor dat mutter real-time plannen met "
-"lage prioriteit aanvraagt. Hiervoor is opnieuw opstarten vereist. • "
-"“autoclose-xwayland” — beëindigt Xwayland automatisch wanneer er geen "
-"relevante X11-cliënten meer zijn. Hiervoor is opnieuw opstarten vereist."
+"vereist. • “autoclose-xwayland” — beëindigt Xwayland automatisch wanneer er "
+"geen relevante X11-cliënten meer zijn. Hiervoor is opnieuw opstarten vereist."
 
-#: data/org.gnome.mutter.gschema.xml.in:141
+#: data/org.gnome.mutter.gschema.xml.in:137
 msgid "Modifier to use to locate the pointer"
 msgstr "Controletoets om de muispijl te lokaliseren"
 
-#: data/org.gnome.mutter.gschema.xml.in:142
+#: data/org.gnome.mutter.gschema.xml.in:138
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Deze sleutel activeert de actie ‘muispijl lokaliseren’."
 
-#: data/org.gnome.mutter.gschema.xml.in:149
+#: data/org.gnome.mutter.gschema.xml.in:145
 msgid "Timeout for check-alive ping"
 msgstr "Time-out voor levenscontroleping"
 
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:146
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -438,15 +434,15 @@ msgstr ""
 "verzoek om niet als bevroren beschouwd te worden. Stel dit in op 0 om de "
 "levenscontrole volledig uit te schakelen."
 
-#: data/org.gnome.mutter.gschema.xml.in:174
+#: data/org.gnome.mutter.gschema.xml.in:170
 msgid "Switch monitor configurations"
 msgstr "Tussen beeldschermconfiguraties schakelen"
 
-#: data/org.gnome.mutter.gschema.xml.in:179
+#: data/org.gnome.mutter.gschema.xml.in:175
 msgid "Rotates the built-in monitor configuration"
 msgstr "Roteert de ingebouwde beeldschermconfiguratie"
 
-#: data/org.gnome.mutter.gschema.xml.in:184
+#: data/org.gnome.mutter.gschema.xml.in:180
 msgid "Cancel any active input capture session"
 msgstr "Alle actieve sessies voor opvang van invoer annuleren"
 
@@ -605,26 +601,26 @@ msgstr ""
 "+byteswappedclients/-byteswappedclients om die instelling te beheren. "
 "Xwayland moet herstart worden om deze instelling toe te passen."
 
-#: src/backends/meta-monitor.c:253
+#: src/backends/meta-monitor.c:251
 msgid "Built-in display"
 msgstr "Ingebouwd beeldscherm"
 
-#: src/backends/meta-monitor.c:280
+#: src/backends/meta-monitor.c:278
 msgid "Unknown"
 msgstr "Onbekend"
 
-#: src/backends/meta-monitor.c:282
+#: src/backends/meta-monitor.c:280
 msgid "Unknown Display"
 msgstr "Onbekend beeldscherm"
 
-#: src/backends/meta-monitor.c:290
+#: src/backends/meta-monitor.c:288
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:298
+#: src/backends/meta-monitor.c:296
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -636,79 +632,83 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Bel-gebeurtenis"
 
-#: src/core/display.c:723
+#: src/core/display.c:733
 msgid "Privacy Screen Enabled"
 msgstr "Privacyscherm ingeschakeld"
 
-#: src/core/display.c:724
+#: src/core/display.c:734
 msgid "Privacy Screen Disabled"
 msgstr "Privacyscherm uitgeschakeld"
 
-#: src/core/meta-context-main.c:581
+#: src/core/meta-context-main.c:594
 msgid "Replace the running window manager"
 msgstr "De huidige toepassing voor vensterbeheer vervangen"
 
-#: src/core/meta-context-main.c:587
+#: src/core/meta-context-main.c:600
 msgid "X Display to use"
 msgstr "De te gebruiken X-weergave"
 
-#: src/core/meta-context-main.c:593
+#: src/core/meta-context-main.c:606
 msgid "Disable connection to session manager"
 msgstr "Schakel de verbinding met het sessiebeheer uit"
 
-#: src/core/meta-context-main.c:599
+#: src/core/meta-context-main.c:612
 msgid "Specify session management ID"
 msgstr "Bepaal de ID van het sessiebeheer"
 
-#: src/core/meta-context-main.c:605
+#: src/core/meta-context-main.c:618
 msgid "Initialize session from savefile"
 msgstr "Initialiseer de sessie middels een opslagbestand"
 
-#: src/core/meta-context-main.c:611
+#: src/core/meta-context-main.c:624
 msgid "Make X calls synchronous"
 msgstr "X-aanroepen synchroon maken"
 
-#: src/core/meta-context-main.c:619
+#: src/core/meta-context-main.c:632
 msgid "Run as a wayland compositor"
 msgstr "Uitvoeren als een wayland compositor"
 
-#: src/core/meta-context-main.c:625
+#: src/core/meta-context-main.c:638
 msgid "Run as a nested compositor"
 msgstr "Uitvoeren als een geneste compositor"
 
-#: src/core/meta-context-main.c:631
+#: src/core/meta-context-main.c:644
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Wayland-compositor uitvoeren zonder Xwayland te starten"
 
-#: src/core/meta-context-main.c:637
+#: src/core/meta-context-main.c:650
 msgid "Specify Wayland display name to use"
 msgstr "Bepaal de te gebruiken Wayland-weergavenaam"
 
-#: src/core/meta-context-main.c:645
+#: src/core/meta-context-main.c:658
 msgid "Run as a full display server, rather than nested"
 msgstr "Uitvoeren als een volledige displayserver, in plaats van genest"
 
-#: src/core/meta-context-main.c:650
+#: src/core/meta-context-main.c:663
 msgid "Run as a headless display server"
 msgstr "Uitvoeren als een ‘headless’ displayserver"
 
-#: src/core/meta-context-main.c:655
+#: src/core/meta-context-main.c:668
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Blijvend virtueel beeldscherm toevoegen (BxH of BxH@V)"
 
-#: src/core/meta-context-main.c:667
+#: src/core/meta-context-main.c:680
 msgid "Run with X11 backend"
 msgstr "Uitvoeren met X11-backend"
 
 # Onduidelijk of 'profile' hier een naamwoord of werkwoord is - Nathan
-#: src/core/meta-context-main.c:673
+#: src/core/meta-context-main.c:686
 msgid "Profile performance using trace instrumentation"
 msgstr "Prestaties profileren met trace-hulpmiddelen"
+
+#: src/core/meta-context-main.c:692
+msgid "Enable debug control D-Bus interface"
+msgstr "Debugbesturing van D-Bus-interface inschakelen"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:807
+#: src/core/meta-pad-action-mapper.c:826
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Moduswisselaar (groep %d)"
@@ -716,16 +716,16 @@ msgstr "Moduswisselaar (groep %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:829
+#: src/core/meta-pad-action-mapper.c:848
 msgid "Switch monitor"
 msgstr "Van beeldscherm wisselen"
 
-#: src/core/meta-pad-action-mapper.c:831
+#: src/core/meta-pad-action-mapper.c:850
 msgid "Show on-screen help"
 msgstr "Hulptekst op scherm tonen"
 
 #. Translators: this string will appear in Sysprof
-#: src/core/meta-profiler.c:111 src/core/meta-profiler.c:301
+#: src/core/meta-profiler.c:109 src/core/meta-profiler.c:299
 msgid "Compositor"
 msgstr "Compositor"
 
@@ -746,16 +746,16 @@ msgstr "Werkblad %d"
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter is gecompileerd zonder ondersteuning voor verbose-mode"
 
-#: src/core/workspace.c:535
+#: src/core/workspace.c:511
 msgid "Workspace switched"
 msgstr "Werkblad gewisseld"
 
-#: src/wayland/meta-wayland-tablet-pad.c:534
+#: src/wayland/meta-wayland-tablet-pad.c:532
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Moduswisselaar: modus %d"
 
-#: src/x11/meta-x11-display.c:708
+#: src/x11/meta-x11-display.c:723
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -764,19 +764,19 @@ msgstr ""
 "Beeldscherm ‘%s’ heeft al een vensterbeheerder; probeer de optie: --replace "
 "te gebruiken om de huidige vensterbeheerder te vervangen."
 
-#: src/x11/meta-x11-display.c:1073
+#: src/x11/meta-x11-display.c:1088
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Openen van X Window System display ‘%s’ mislukt"
 
-#: src/x11/meta-x11-display.c:1219
+#: src/x11/meta-x11-display.c:1268
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Scherm %d op beeldscherm ‘%s’ is ongeldig"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2540
+#: src/x11/meta-x11-display.c:2539
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -789,7 +789,7 @@ msgstr ""
 msgid "Format %s not supported"
 msgstr "Formaat %s wordt niet ondersteund"
 
-#: src/x11/window-props.c:548
+#: src/x11/window-props.c:524
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (op %s)"
