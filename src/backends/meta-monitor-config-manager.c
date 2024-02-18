@@ -1756,8 +1756,11 @@ meta_verify_logical_monitor_config (MetaLogicalMonitorConfig    *logical_monitor
                                     GError                     **error)
 {
   GList *l;
-  int expected_mode_width = 0;
-  int expected_mode_height = 0;
+  int layout_width, layout_height;
+  MetaMonitorConfig *first_monitor_config;
+  int mode_width, mode_height;
+  int expected_mode_width = 0, expected_mode_height = 0;
+  float scale = logical_monitor_config->scale;
 
   if (logical_monitor_config->layout.x < 0 ||
       logical_monitor_config->layout.y < 0)
@@ -1776,40 +1779,72 @@ meta_verify_logical_monitor_config (MetaLogicalMonitorConfig    *logical_monitor
       return FALSE;
     }
 
-  if (mtk_monitor_transform_is_rotated (logical_monitor_config->transform))
-    {
-      expected_mode_width = logical_monitor_config->layout.height;
-      expected_mode_height = logical_monitor_config->layout.width;
-    }
-  else
-    {
-      expected_mode_width = logical_monitor_config->layout.width;
-      expected_mode_height = logical_monitor_config->layout.height;
-    }
-
-  switch (layout_mode)
-    {
-    case META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL:
-      expected_mode_width = (int) roundf (expected_mode_width *
-                                          logical_monitor_config->scale);
-      expected_mode_height = (int) roundf (expected_mode_height *
-                                           logical_monitor_config->scale);
-      break;
-    case META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL:
-      break;
-    }
+  first_monitor_config = logical_monitor_config->monitor_configs->data;
+  mode_width = first_monitor_config->mode_spec->width;
+  mode_height = first_monitor_config->mode_spec->height;
 
   for (l = logical_monitor_config->monitor_configs; l; l = l->next)
     {
       MetaMonitorConfig *monitor_config = l->data;
 
-      if (monitor_config->mode_spec->width != expected_mode_width ||
-          monitor_config->mode_spec->height != expected_mode_height)
+      if (monitor_config->mode_spec->width != mode_width ||
+          monitor_config->mode_spec->height != mode_height)
         {
           g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                       "Monitor modes in logical monitor conflict");
+                       "Monitors modes in logical monitor not equal");
           return FALSE;
         }
+    }
+
+  if (mtk_monitor_transform_is_rotated (logical_monitor_config->transform))
+    {
+      layout_width = logical_monitor_config->layout.height;
+      layout_height = logical_monitor_config->layout.width;
+    }
+  else
+    {
+      layout_width = logical_monitor_config->layout.width;
+      layout_height = logical_monitor_config->layout.height;
+    }
+
+  switch (layout_mode)
+    {
+    case META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL:
+      {
+        float scaled_width = mode_width / scale;
+        float scaled_height = mode_height / scale;
+
+        if (floorf (scaled_width) != scaled_width ||
+            floorf (scaled_height) != scaled_height)
+          {
+            g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                         "Scaled logical monitor size is fractional");
+            return FALSE;
+          }
+
+        expected_mode_width = (int) roundf (layout_width * scale);
+        expected_mode_height = (int) roundf (layout_height * scale);
+        break;
+      }
+
+    case META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL:
+      if (!G_APPROX_VALUE (scale, roundf (scale), FLT_EPSILON))
+        {
+          g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                       "A fractional scale with physical layout mode not allowed");
+          return FALSE;
+        }
+
+      expected_mode_width = layout_width;
+      expected_mode_height = layout_height;
+      break;
+    }
+
+  if (mode_width != expected_mode_width || mode_height != expected_mode_height)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Monitor mode size doesn't match scaled monitor layout");
+      return FALSE;
     }
 
   return TRUE;
