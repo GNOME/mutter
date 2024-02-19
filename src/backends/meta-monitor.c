@@ -1994,11 +1994,11 @@ meta_monitor_mode_should_be_advertised (MetaMonitorMode *monitor_mode)
                                        monitor_mode->spec.height);
 }
 
-static float
-get_closest_scale_factor_for_resolution (float width,
-                                         float height,
-                                         float scale,
-                                         float threshold)
+float
+meta_get_closest_monitor_scale_factor_for_resolution (float width,
+                                                      float height,
+                                                      float scale,
+                                                      float threshold)
 {
   unsigned int i, j;
   float scaled_h;
@@ -2095,9 +2095,10 @@ meta_monitor_calculate_supported_scales (MetaMonitor                 *monitor,
               float scale;
               float scale_value = i + j * SCALE_FACTORS_STEPS;
 
-              scale = get_closest_scale_factor_for_resolution (width, height,
-                                                               scale_value,
-                                                               max_bound);
+              scale = meta_get_closest_monitor_scale_factor_for_resolution (width,
+                                                                            height,
+                                                                            scale_value,
+                                                                            max_bound);
               if (scale > 0.0)
                 g_array_append_val (supported_scales, scale);
             }

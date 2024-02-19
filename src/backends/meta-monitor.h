@@ -233,6 +233,11 @@ float meta_monitor_calculate_mode_scale (MetaMonitor                 *monitor,
                                          MetaMonitorMode             *monitor_mode,
                                          MetaMonitorScalesConstraint  constraints);
 
+float meta_get_closest_monitor_scale_factor_for_resolution (float width,
+                                                            float height,
+                                                            float scale,
+                                                            float threshold);
+
 META_EXPORT_TEST
 float * meta_monitor_calculate_supported_scales (MetaMonitor                 *monitor,
                                                  MetaMonitorMode             *monitor_mode,
