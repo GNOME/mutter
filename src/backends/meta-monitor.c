@@ -2009,9 +2009,6 @@ meta_get_closest_monitor_scale_factor_for_resolution (float width,
 
   best_scale = 0;
 
-  if (!is_scale_valid_for_size (width, height, scale))
-    return best_scale;
-
   if (fmodf (width, scale) == 0.0 && fmodf (height, scale) == 0.0)
     return scale;
 
@@ -2094,6 +2091,9 @@ meta_monitor_calculate_supported_scales (MetaMonitor                 *monitor,
             {
               float scale;
               float scale_value = i + j * SCALE_FACTORS_STEPS;
+
+              if (!is_scale_valid_for_size (width, height, scale_value))
+                continue;
 
               scale = meta_get_closest_monitor_scale_factor_for_resolution (width,
                                                                             height,
