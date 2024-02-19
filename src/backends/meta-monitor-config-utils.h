@@ -19,4 +19,11 @@
 
 #include <glib.h>
 
+#include "backends/meta-monitor-manager-private.h"
+
 GList * meta_clone_logical_monitor_config_list (GList *logical_monitor_configs_in);
+
+gboolean meta_verify_logical_monitor_config_list (GList                         *logical_monitor_configs,
+                                                  MetaLogicalMonitorLayoutMode   layout_mode,
+                                                  MetaMonitorManager            *monitor_manager,
+                                                  GError                       **error);
