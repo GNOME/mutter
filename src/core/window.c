@@ -1112,12 +1112,16 @@ meta_window_constructed (GObject *object)
   window->compositor_private = NULL;
 
   if (window->rect.width > 0 && window->rect.height > 0)
-    window->monitor = meta_window_find_monitor_from_frame_rect (window);
+    {
+      window->monitor = meta_window_find_monitor_from_frame_rect (window);
+      window->highest_scale_monitor =
+        meta_window_find_highest_scale_monitor_from_frame_rect (window);
+    }
   else
-    window->monitor = meta_backend_get_current_logical_monitor (backend);
-
-  window->highest_scale_monitor =
-    meta_window_find_highest_scale_monitor_from_frame_rect (window);
+    {
+      window->monitor = meta_backend_get_current_logical_monitor (backend);
+      window->highest_scale_monitor = window->monitor;
+    }
 
   if (window->monitor)
     window->preferred_output_winsys_id = window->monitor->winsys_id;
@@ -3725,8 +3729,11 @@ meta_window_update_monitor (MetaWindow                   *window,
     }
 
   old_highest_scale = window->highest_scale_monitor;
-  window->highest_scale_monitor =
-    meta_window_find_highest_scale_monitor_from_frame_rect (window);
+
+  window->highest_scale_monitor = window->rect.width > 0 && window->rect.height > 0
+    ? meta_window_find_highest_scale_monitor_from_frame_rect (window)
+    : window->monitor;
+
   if (old_highest_scale != window->highest_scale_monitor)
     g_signal_emit (window, window_signals[HIGHEST_SCALE_MONITOR_CHANGED], 0);
 }
