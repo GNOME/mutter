@@ -784,22 +784,22 @@ meta_window_place (MetaWindow        *window,
     {
       switch (window->type)
         {
-          /* Only accept USPosition on normal windows because the app is full
+          /* Only accept USER_POSITION on normal windows because the app is full
            * of shit claiming the user set -geometry for a dialog or dock
            */
         case META_WINDOW_NORMAL:
-          if (window->size_hints.flags & USPosition)
+          if (window->size_hints.flags & META_SIZE_HINTS_USER_POSITION)
             {
               /* don't constrain with placement algorithm */
               meta_topic (META_DEBUG_PLACEMENT,
-                          "Honoring USPosition for %s instead of using placement algorithm",
+                          "Honoring USER_POSITION for %s instead of using placement algorithm",
                           window->desc);
 
               goto done;
             }
           break;
 
-          /* Ignore even USPosition on dialogs, splashscreen */
+          /* Ignore even USER_POSITION on dialogs, splashscreen */
         case META_WINDOW_DIALOG:
         case META_WINDOW_MODAL_DIALOG:
         case META_WINDOW_SPLASHSCREEN:
@@ -819,10 +819,10 @@ meta_window_place (MetaWindow        *window,
 	case META_WINDOW_COMBO:
 	case META_WINDOW_DND:
 	case META_WINDOW_OVERRIDE_OTHER:
-          if (window->size_hints.flags & PPosition)
+          if (window->size_hints.flags & META_SIZE_HINTS_PROGRAM_POSITION)
             {
               meta_topic (META_DEBUG_PLACEMENT,
-                          "Not placing non-normal non-dialog window with PPosition set");
+                          "Not placing non-normal non-dialog window with PROGRAM_POSITION set");
               goto done;
             }
           break;
@@ -832,11 +832,11 @@ meta_window_place (MetaWindow        *window,
     {
       /* workarounds enabled */
 
-      if ((window->size_hints.flags & PPosition) ||
-          (window->size_hints.flags & USPosition))
+      if ((window->size_hints.flags & META_SIZE_HINTS_PROGRAM_POSITION) ||
+          (window->size_hints.flags & META_SIZE_HINTS_USER_POSITION))
         {
           meta_topic (META_DEBUG_PLACEMENT,
-                      "Not placing window with PPosition or USPosition set");
+                      "Not placing window with PROGRAM_POSITION or USER_POSITION set");
           avoid_being_obscured_as_second_modal_dialog (window, &x, &y);
           goto done;
         }

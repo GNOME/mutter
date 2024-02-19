@@ -1320,7 +1320,7 @@ meta_window_wayland_set_min_size (MetaWindow *window,
     {
       window->size_hints.min_width = 0;
       window->size_hints.min_height = 0;
-      window->size_hints.flags &= ~PMinSize;
+      window->size_hints.flags &= ~META_SIZE_HINTS_PROGRAM_MIN_SIZE;
 
       return;
     }
@@ -1335,7 +1335,7 @@ meta_window_wayland_set_min_size (MetaWindow *window,
 
   window->size_hints.min_width = (int) MIN (new_width, G_MAXINT);
   window->size_hints.min_height = (int) MIN (new_height, G_MAXINT);
-  window->size_hints.flags |= PMinSize;
+  window->size_hints.flags |= META_SIZE_HINTS_PROGRAM_MIN_SIZE;
 }
 
 void
@@ -1354,7 +1354,7 @@ meta_window_wayland_set_max_size (MetaWindow *window,
     {
       window->size_hints.max_width = G_MAXINT;
       window->size_hints.max_height = G_MAXINT;
-      window->size_hints.flags &= ~PMaxSize;
+      window->size_hints.flags &= ~META_SIZE_HINTS_PROGRAM_MAX_SIZE;
 
       return;
     }
@@ -1371,7 +1371,7 @@ meta_window_wayland_set_max_size (MetaWindow *window,
                                         new_width : G_MAXINT);
   window->size_hints.max_height = (int)  ((new_height > 0 && new_height < G_MAXINT) ?
                                           new_height : G_MAXINT);
-  window->size_hints.flags |= PMaxSize;
+  window->size_hints.flags |= META_SIZE_HINTS_PROGRAM_MAX_SIZE;
 }
 
 void
@@ -1382,7 +1382,7 @@ meta_window_wayland_get_min_size (MetaWindow *window,
   gint64 current_width, current_height;
   float scale;
 
-  if (!(window->size_hints.flags & PMinSize))
+  if (!(window->size_hints.flags & META_SIZE_HINTS_PROGRAM_MIN_SIZE))
     {
       /* Zero means unlimited */
       *width = 0;
@@ -1414,7 +1414,7 @@ meta_window_wayland_get_max_size (MetaWindow *window,
   gint64 current_height = 0;
   float scale;
 
-  if (!(window->size_hints.flags & PMaxSize))
+  if (!(window->size_hints.flags & META_SIZE_HINTS_PROGRAM_MAX_SIZE))
     {
       /* Zero means unlimited */
       *width = 0;

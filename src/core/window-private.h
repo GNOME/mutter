@@ -164,6 +164,49 @@ typedef enum
   META_EDGE_RESISTANCE_WINDOWS     = 1 << 2,
 } MetaEdgeResistanceFlags;
 
+typedef enum
+{
+  /* Equivalent to USPosition */
+  META_SIZE_HINTS_USER_POSITION = (1L << 0),
+  /* Equivalent to USSize */
+  META_SIZE_HINTS_USER_SIZE = (1L << 1),
+  /* Equivalent to PPosition */
+  META_SIZE_HINTS_PROGRAM_POSITION = (1L << 2),
+  /* Equivalent to PSize */
+  META_SIZE_HINTS_PROGRAM_SIZE = (1L << 3),
+  /* Equivalent to PMinSize */
+  META_SIZE_HINTS_PROGRAM_MIN_SIZE = (1L << 4),
+  /* Equivalent to PMaxSize */
+  META_SIZE_HINTS_PROGRAM_MAX_SIZE = (1L << 5),
+  /* Equivalent to PResizeInc */
+  META_SIZE_HINTS_PROGRAM_RESIZE_INCREMENTS = (1L << 6),
+  /* Equivalent to PAspect */
+  META_SIZE_HINTS_PROGRAM_ASPECT = (1L << 7),
+  /* Equivalent to PBaseSize */
+  META_SIZE_HINTS_PROGRAM_BASE_SIZE = (1L << 8),
+  /* Equivalent to PWinGravity */
+  META_SIZE_HINTS_PROGRAM_WIN_GRAVITY = (1L << 9),
+} MetaSizeHintsFlags;
+
+/**
+ * A copy of XSizeHints that is meant to stay ABI compatible
+ * with XSizeHints for x11 code paths usages
+ */
+typedef struct _MetaSizeHints {
+  long flags; /* MetaSizeHintsFlags but kept as long to be able to cast between XSizeHints and MetaSizeHints */
+  int x, y;
+  int width, height;
+  int min_width, min_height;
+  int max_width, max_height;
+  int width_inc, height_inc;
+  struct {
+    int x;  /* numerator */
+    int y;  /* denominator */
+  } min_aspect, max_aspect;
+  int base_width, base_height;
+  int win_gravity;
+} MetaSizeHints;
+
 struct _MetaWindow
 {
   GObject parent_instance;
@@ -300,7 +343,7 @@ struct _MetaWindow
   MtkRectangle icon_geometry;
 
   /* x/y/w/h here get filled with ConfigureRequest values */
-  XSizeHints size_hints;
+  MetaSizeHints size_hints;
 
   /* Managed by stack.c */
   MetaStackLayer layer;

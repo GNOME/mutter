@@ -1423,16 +1423,16 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
       !(need_resize_client || need_resize_frame))
     need_configure_notify = TRUE;
 
-  /* MapRequest events with a PPosition or UPosition hint with a frame
+  /* MapRequest events with a PROGRAM_POSITION or USER_POSITION hint with a frame
    * are moved by mutter without resizing; send a configure notify
    * in such cases.  See #322840.  (Note that window->constructing is
    * only true iff this call is due to a MapRequest, and when
-   * PPosition/UPosition hints aren't set, mutter seems to send a
+   * PROGRAM_POSITION/USER_POSITION hints aren't set, mutter seems to send a
    * ConfigureNotify anyway due to the above code.)
    */
   if (window->constructing && window->frame &&
-      ((window->size_hints.flags & PPosition) ||
-       (window->size_hints.flags & USPosition)))
+      ((window->size_hints.flags & META_SIZE_HINTS_PROGRAM_POSITION) ||
+       (window->size_hints.flags & META_SIZE_HINTS_USER_POSITION)))
     need_configure_notify = TRUE;
 
   /* If resizing, freeze commits - This is for Xwayland, and a no-op on Xorg */
@@ -2660,11 +2660,11 @@ meta_window_move_resize_request (MetaWindow  *window,
           window->type == META_WINDOW_MODAL_DIALOG ||
           window->type == META_WINDOW_SPLASHSCREEN)
         ; /* No position change for these */
-      else if ((window->size_hints.flags & PPosition) ||
-               /* USPosition is just stale if window is placed;
+      else if ((window->size_hints.flags & META_SIZE_HINTS_PROGRAM_POSITION) ||
+               /* USER_POSITION is just stale if window is placed;
                 * no --geometry involved here.
                 */
-               ((window->size_hints.flags & USPosition) &&
+               ((window->size_hints.flags & META_SIZE_HINTS_USER_POSITION) &&
                 !window->placed))
         allow_position_change = TRUE;
     }
@@ -2693,9 +2693,9 @@ meta_window_move_resize_request (MetaWindow  *window,
   else
     {
       meta_topic (META_DEBUG_GEOMETRY,
-		  "Not allowing position change for window %s PPosition 0x%lx USPosition 0x%lx type %u",
-		  window->desc, window->size_hints.flags & PPosition,
-		  window->size_hints.flags & USPosition,
+		  "Not allowing position change for window %s PROGRAM_POSITION 0x%lx USER_POSITION 0x%lx type %u",
+		  window->desc, window->size_hints.flags & META_SIZE_HINTS_PROGRAM_POSITION,
+		  window->size_hints.flags & META_SIZE_HINTS_USER_POSITION,
 		  window->type);
     }
 

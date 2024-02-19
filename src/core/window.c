@@ -2539,8 +2539,8 @@ meta_window_unminimize (MetaWindow  *window)
 }
 
 static void
-ensure_size_hints_satisfied (MtkRectangle     *rect,
-                             const XSizeHints *size_hints)
+ensure_size_hints_satisfied (MtkRectangle        *rect,
+                             const MetaSizeHints *size_hints)
 {
   int minw, minh, maxw, maxh;   /* min/max width/height                      */
   int basew, baseh, winc, hinc; /* base width/height, width/height increment */
