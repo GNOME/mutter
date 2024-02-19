@@ -24,6 +24,7 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-monitor-config-store.h"
+#include "backends/meta-monitor-config-utils.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-output.h"
 #include "core/boxes-private.h"
@@ -1008,58 +1009,6 @@ meta_monitor_config_manager_create_suggested (MetaMonitorConfigManager *config_m
                                  META_MONITORS_CONFIG_FLAG_NONE);
 }
 
-static GList *
-clone_monitor_config_list (GList *monitor_configs_in)
-{
-  MetaMonitorConfig *monitor_config_in;
-  MetaMonitorConfig *monitor_config_out;
-  GList *monitor_configs_out = NULL;
-  GList *l;
-
-  for (l = monitor_configs_in; l; l = l->next)
-    {
-      monitor_config_in = l->data;
-      monitor_config_out = g_new0 (MetaMonitorConfig, 1);
-      *monitor_config_out = (MetaMonitorConfig) {
-        .monitor_spec = meta_monitor_spec_clone (monitor_config_in->monitor_spec),
-        .mode_spec = g_memdup2 (monitor_config_in->mode_spec,
-                                sizeof (MetaMonitorModeSpec)),
-        .enable_underscanning = monitor_config_in->enable_underscanning,
-        .has_max_bpc = monitor_config_in->has_max_bpc,
-        .max_bpc = monitor_config_in->max_bpc
-      };
-      monitor_configs_out =
-        g_list_append (monitor_configs_out, monitor_config_out);
-    }
-
-  return monitor_configs_out;
-}
-
-static GList *
-clone_logical_monitor_config_list (GList *logical_monitor_configs_in)
-{
-  MetaLogicalMonitorConfig *logical_monitor_config_in;
-  MetaLogicalMonitorConfig *logical_monitor_config_out;
-  GList *logical_monitor_configs_out = NULL;
-  GList *l;
-
-  for (l = logical_monitor_configs_in; l; l = l->next)
-    {
-      logical_monitor_config_in = l->data;
-
-      logical_monitor_config_out =
-        g_memdup2 (logical_monitor_config_in,
-                   sizeof (MetaLogicalMonitorConfig));
-      logical_monitor_config_out->monitor_configs =
-        clone_monitor_config_list (logical_monitor_config_in->monitor_configs);
-
-      logical_monitor_configs_out =
-        g_list_append (logical_monitor_configs_out, logical_monitor_config_out);
-    }
-
-  return logical_monitor_configs_out;
-}
-
 static MetaLogicalMonitorConfig *
 find_logical_config_for_builtin_monitor (MetaMonitorConfigManager *config_manager,
                                          GList                    *logical_monitor_configs)
@@ -1141,7 +1090,7 @@ create_for_builtin_display_rotation (MetaMonitorConfigManager *config_manager,
     return NULL;
 
   logical_monitor_configs =
-    clone_logical_monitor_config_list (base_config->logical_monitor_configs);
+    meta_clone_logical_monitor_config_list (base_config->logical_monitor_configs);
   logical_monitor_config =
     find_logical_config_for_builtin_monitor (config_manager,
                                              logical_monitor_configs);

@@ -208,7 +208,6 @@ gboolean meta_verify_monitors_config (MetaMonitorsConfig *config,
                                       MetaMonitorManager *monitor_manager,
                                       GError            **error);
 
-
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaMonitorConfig, meta_monitor_config_free)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaLogicalMonitorConfig,
                                meta_logical_monitor_config_free)
