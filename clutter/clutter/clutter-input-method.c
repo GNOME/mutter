@@ -496,3 +496,32 @@ clutter_input_method_forward_key (ClutterInputMethod *im,
   clutter_event_put (event);
   clutter_event_free (event);
 }
+
+void
+clutter_input_method_set_handled_actions (ClutterInputMethod      *im,
+                                          ClutterInputActionFlags  actions)
+{
+  ClutterInputMethodClass *im_class = CLUTTER_INPUT_METHOD_GET_CLASS (im);
+
+  g_return_if_fail (CLUTTER_IS_INPUT_METHOD (im));
+  g_return_if_fail ((actions & ~(CLUTTER_INPUT_ACTION_FLAG_ALL)) == 0);
+
+  if (im_class->set_handled_actions)
+    im_class->set_handled_actions (im, actions);
+}
+
+void
+clutter_input_method_trigger_action (ClutterInputMethod *im,
+                                     ClutterInputAction  action)
+{
+  ClutterInputMethodPrivate *priv;
+
+  g_return_if_fail (CLUTTER_IS_INPUT_METHOD (im));
+  g_return_if_fail (action < CLUTTER_INPUT_ACTION_LAST);
+
+  priv = clutter_input_method_get_instance_private (im);
+  if (!priv->focus)
+    return;
+
+  clutter_input_focus_trigger_action (priv->focus, action);
+}

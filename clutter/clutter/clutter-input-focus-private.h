@@ -26,3 +26,6 @@ void clutter_input_focus_focus_out (ClutterInputFocus  *focus);
 void clutter_input_focus_commit (ClutterInputFocus *focus,
                                  const gchar       *text);
 void clutter_input_focus_request_surrounding (ClutterInputFocus *focus);
+
+void clutter_input_focus_trigger_action (ClutterInputFocus  *focus,
+                                         ClutterInputAction  action);

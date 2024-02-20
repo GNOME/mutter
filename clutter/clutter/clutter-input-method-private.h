@@ -35,3 +35,6 @@ void clutter_input_method_set_can_show_preedit (ClutterInputMethod *method,
                                                 gboolean            can_show_preedit);
 gboolean clutter_input_method_filter_key_event (ClutterInputMethod    *method,
                                                 const ClutterKeyEvent *key);
+
+void clutter_input_method_set_handled_actions (ClutterInputMethod      *method,
+                                               ClutterInputActionFlags  actions);
