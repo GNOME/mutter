@@ -1078,6 +1078,8 @@ typedef enum
   CLUTTER_INPUT_CONTENT_HINT_SENSITIVE_DATA      = 1 << 7,
   CLUTTER_INPUT_CONTENT_HINT_LATIN               = 1 << 8,
   CLUTTER_INPUT_CONTENT_HINT_MULTILINE           = 1 << 9,
+  CLUTTER_INPUT_CONTENT_HINT_INHIBIT_OSK         = 1 << 10,
+  CLUTTER_INPUT_CONTENT_HINT_NO_EMOJI            = 1 << 11,
 } ClutterInputContentHintFlags;
 
 typedef enum
