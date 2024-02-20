@@ -124,9 +124,6 @@
 /* Whether the Xwayland supports +/-byteswappedclients */
 #mesondefine HAVE_XWAYLAND_BYTE_SWAPPED_CLIENTS
 
-/* Defined if libdisplay-info is enabled */
-#mesondefine HAVE_LIBDISPLAY_INFO
-
 /* Whether the Xwayland has -enable-ei-portal option */
 #mesondefine HAVE_XWAYLAND_ENABLE_EI_PORTAL
 

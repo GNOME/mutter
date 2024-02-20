@@ -365,7 +365,6 @@ check-code-style:
       -Degl_device=true
       -Dwayland_eglstream=true
       -Dcatch=true
-      -Dlibdisplay_info=enabled
 
 .build-mutter:
   extends:

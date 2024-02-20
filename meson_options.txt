@@ -218,10 +218,3 @@ option('catch',
   value: false,
   description: 'Use catch to catch backtraces'
 )
-
-option('libdisplay_info',
-  type: 'feature',
-  value: 'enabled',
-  deprecated: {'true': 'enabled', 'false': 'disabled'},
-  description: 'Build with or without libdisplay-info'
-)

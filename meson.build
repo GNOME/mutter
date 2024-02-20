@@ -39,6 +39,7 @@ libwacom_req = '>= 0.13'
 atk_req = '>= 2.5.3'
 harfbuzz_req = '>= 2.6'
 libei_req = '>= 1.0.901'
+libdisplay_info_req = '>= 0.2'
 
 # optional version requirements
 udev_req = '>= 228'
@@ -130,6 +131,7 @@ harfbuzz_dep = dependency('harfbuzz', version: harfbuzz_req)
 libeis_dep = dependency('libeis-1.0', version: libei_req)
 libei_dep = dependency('libei-1.0', version: libei_req)
 gvdb_dep = dependency('gvdb')
+libdisplay_info_dep = dependency('libdisplay-info', version: libdisplay_info_req)
 
 have_wayland = get_option('wayland')
 have_x11 = get_option('x11')
@@ -169,10 +171,6 @@ if have_x11_client
     xtst_dep = dependency('xtst')
   endif
 endif
-
-use_libdisplay_info = get_option('libdisplay_info')
-libdisplay_info_dep = dependency('libdisplay-info', required: use_libdisplay_info)
-have_libdisplay_info = libdisplay_info_dep.found()
 
 have_gnome_desktop = get_option('libgnome_desktop')
 if have_gnome_desktop
@@ -563,7 +561,6 @@ cdata.set('HAVE_SM', have_sm)
 cdata.set('HAVE_STARTUP_NOTIFICATION', have_startup_notification)
 cdata.set('HAVE_INTROSPECTION', have_introspection)
 cdata.set('HAVE_PROFILER', have_profiler)
-cdata.set('HAVE_LIBDISPLAY_INFO', have_libdisplay_info)
 cdata.set('HAVE_TIMERFD', have_timerfd)
 cdata.set('HAVE_MALLOC_TRIM', have_malloc_trim)
 cdata.set('HAVE_EVENTFD', have_eventfd)
@@ -735,7 +732,6 @@ summary('Native Backend', have_native_backend, section: 'Options')
 summary('EGL Device', have_egl_device, section: 'Options')
 summary('Remote desktop', have_remote_desktop, section: 'Options')
 summary('libgnome-desktop', have_gnome_desktop, section: 'Options')
-summary('libdisplay-info', have_libdisplay_info, section: 'Options')
 summary('Sound player', have_sound_player, section: 'Options')
 summary('gudev', have_libgudev, section: 'Options')
 summary('Wacom', have_libwacom, section: 'Options')

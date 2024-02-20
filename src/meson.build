@@ -27,17 +27,12 @@ mutter_pkg_private_deps = [
   xkbcommon_dep,
   gdk_pixbuf_dep,
   libeis_dep,
+  libdisplay_info_dep,
 ]
 
 if have_gnome_desktop
   mutter_pkg_private_deps += [
     gnome_desktop_dep,
-  ]
-endif
-
-if have_libdisplay_info
-  mutter_pkg_private_deps += [
-    libdisplay_info_dep,
   ]
 endif
 
