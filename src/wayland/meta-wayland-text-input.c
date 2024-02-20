@@ -40,7 +40,18 @@ typedef enum
   META_WAYLAND_PENDING_STATE_SURROUNDING_TEXT = 1 << 2,
   META_WAYLAND_PENDING_STATE_CHANGE_CAUSE     = 1 << 3,
   META_WAYLAND_PENDING_STATE_ENABLED          = 1 << 4,
+  META_WAYLAND_PENDING_STATE_ACTIONS          = 1 << 5,
+  META_WAYLAND_PENDING_STATE_PANEL_VISIBILITY = 1 << 6,
 } MetaWaylandTextInputPendingState;
+
+typedef struct _PreeditStyleHint PreeditStyleHint;
+
+struct _PreeditStyleHint
+{
+  enum zwp_text_input_v3_preedit_hint hint;
+  int start;
+  int end;
+};
 
 typedef struct _MetaWaylandTextInput MetaWaylandTextInput;
 
@@ -84,6 +95,9 @@ struct _MetaWaylandTextInput
   uint32_t content_type_hint;
   uint32_t content_type_purpose;
   uint32_t text_change_cause;
+  uint32_t enable_serial;
+  ClutterInputActionFlags available_actions;
+  gboolean show_panel;
   gboolean enabled;
 
   struct
@@ -93,6 +107,19 @@ struct _MetaWaylandTextInput
     uint32_t anchor;
     gboolean changed;
   } preedit;
+
+  struct
+  {
+    GArray *hints;
+    gboolean changed;
+  } preedit_style;
+
+  struct
+  {
+    ClutterInputFocus *focus;
+    graphene_rect_t rect;
+    gulong signal_id;
+  } cursor_update;
 
   guint done_idle_id;
 };
@@ -171,6 +198,28 @@ clutter_input_focus_send_done (ClutterInputFocus *focus)
                                                  text_input->preedit.string,
                                                  text_input->preedit.cursor,
                                                  text_input->preedit.anchor);
+
+          if (text_input->preedit_style.hints &&
+              wl_resource_get_version (resource) >=
+              ZWP_TEXT_INPUT_V3_PREEDIT_HINT_SINCE_VERSION)
+            {
+              int i;
+
+              for (i = 0; i < text_input->preedit_style.hints->len; i++)
+                {
+                  PreeditStyleHint style_hint;
+
+                  style_hint =
+                    g_array_index (text_input->preedit_style.hints,
+                                   PreeditStyleHint, i);
+
+                  zwp_text_input_v3_send_preedit_hint (resource,
+                                                       style_hint.start,
+                                                       style_hint.end,
+                                                       style_hint.hint);
+                }
+            }
+
           text_input->preedit.changed = FALSE;
         }
 
@@ -292,13 +341,73 @@ meta_wayland_text_input_focus_commit_text (ClutterInputFocus *focus,
 }
 
 static void
+translate_preedit_attributes (MetaWaylandTextInput    *text_input,
+                              const char              *text,
+                              ClutterPreeditAttribute *style_hints,
+                              unsigned int             n_style_hints)
+{
+  unsigned int i;
+
+  if (!text_input->preedit_style.hints)
+    {
+      text_input->preedit_style.hints =
+        g_array_new (FALSE, FALSE, sizeof (PreeditStyleHint));
+    }
+
+  g_array_set_size (text_input->preedit_style.hints, 0);
+
+  if (!style_hints || n_style_hints == 0)
+    return;
+
+  for (i = 0; i < n_style_hints; i++)
+    {
+      ClutterPreeditAttribute *preedit_attr = &style_hints[i];
+      PreeditStyleHint style_hint;
+
+      style_hint.start =
+        g_utf8_offset_to_pointer (text, preedit_attr->start) - text;
+      style_hint.end =
+        g_utf8_offset_to_pointer (text, preedit_attr->end) - text;
+
+      switch (preedit_attr->hint)
+        {
+        case CLUTTER_PREEDIT_STYLE_NONE:
+          return;
+          break;
+        case CLUTTER_PREEDIT_STYLE_WHOLE:
+          style_hint.hint = ZWP_TEXT_INPUT_V3_PREEDIT_HINT_WHOLE;
+          break;
+        case CLUTTER_PREEDIT_STYLE_SELECTION:
+          style_hint.hint = ZWP_TEXT_INPUT_V3_PREEDIT_HINT_SELECTION;
+          break;
+        case CLUTTER_PREEDIT_STYLE_PREDICTION:
+          style_hint.hint = ZWP_TEXT_INPUT_V3_PREEDIT_HINT_PREDICTION;
+          break;
+        case CLUTTER_PREEDIT_STYLE_PREFIX:
+          style_hint.hint = ZWP_TEXT_INPUT_V3_PREEDIT_HINT_PREFIX;
+          break;
+        case CLUTTER_PREEDIT_STYLE_SUFFIX:
+          style_hint.hint = ZWP_TEXT_INPUT_V3_PREEDIT_HINT_SUFFIX;
+          break;
+        case CLUTTER_PREEDIT_STYLE_SPELLING_ERROR:
+          style_hint.hint = ZWP_TEXT_INPUT_V3_PREEDIT_HINT_SPELLING_ERROR;
+          break;
+        case CLUTTER_PREEDIT_STYLE_COMPOSE_ERROR:
+          style_hint.hint = ZWP_TEXT_INPUT_V3_PREEDIT_HINT_COMPOSE_ERROR;
+          break;
+        }
+
+      g_array_append_val (text_input->preedit_style.hints, style_hint);
+    }
+}
+
+static void
 meta_wayland_text_input_focus_set_preedit_text (ClutterInputFocus       *focus,
                                                 const gchar             *text,
                                                 unsigned int             cursor,
                                                 unsigned int             anchor,
                                                 ClutterPreeditAttribute *style_hints,
                                                 unsigned int             n_style_hints)
-
 {
   MetaWaylandTextInput *text_input;
   gsize cursor_pos = 0, anchor_pos = 0;
@@ -314,9 +423,43 @@ meta_wayland_text_input_focus_set_preedit_text (ClutterInputFocus       *focus,
       anchor_pos = g_utf8_offset_to_pointer (text, anchor) - text;
     }
 
+  translate_preedit_attributes (text_input, text, style_hints, n_style_hints);
+
   text_input->preedit.cursor = cursor_pos;
   text_input->preedit.anchor = anchor_pos;
   text_input->preedit.changed = TRUE;
+
+  meta_wayland_text_input_focus_defer_done (focus);
+}
+
+static void
+meta_wayland_text_input_focus_action (ClutterInputFocus  *focus,
+                                      ClutterInputAction  action)
+{
+  MetaWaylandTextInput *text_input;
+  struct wl_resource *resource;
+  uint32_t protocol_action = 0, serial;
+
+  text_input = META_WAYLAND_TEXT_INPUT_FOCUS (focus)->text_input;
+
+  switch (action)
+    {
+    case CLUTTER_INPUT_ACTION_SUBMIT:
+      protocol_action = ZWP_TEXT_INPUT_V3_ACTION_SUBMIT;
+      break;
+    case CLUTTER_INPUT_ACTION_LAST:
+      g_assert_not_reached ();
+      break;
+    }
+
+  serial = wl_display_next_serial (text_input->seat->wl_display);
+
+  wl_resource_for_each (resource, &text_input->focus_resource_list)
+    {
+      if (wl_resource_get_version (resource) >=
+          ZWP_TEXT_INPUT_V3_ACTION_SINCE_VERSION)
+        zwp_text_input_v3_send_action (resource, protocol_action, serial);
+    }
 
   meta_wayland_text_input_focus_defer_done (focus);
 }
@@ -330,6 +473,7 @@ meta_wayland_text_input_focus_class_init (MetaWaylandTextInputFocusClass *klass)
   focus_class->delete_surrounding = meta_wayland_text_input_focus_delete_surrounding;
   focus_class->commit_text = meta_wayland_text_input_focus_commit_text;
   focus_class->set_preedit_text = meta_wayland_text_input_focus_set_preedit_text;
+  focus_class->action = meta_wayland_text_input_focus_action;
 }
 
 static void
@@ -470,9 +614,18 @@ text_input_destructor (struct wl_resource *resource)
 {
   MetaWaylandTextInput *text_input = wl_resource_get_user_data (resource);
 
+  if (text_input->surface)
+    {
+      g_clear_signal_handler (&text_input->cursor_update.signal_id,
+                              text_input->surface);
+    }
+
   g_hash_table_remove (text_input->resource_serials, resource);
+  g_clear_pointer (&text_input->preedit_style.hints, g_array_unref);
   wl_list_remove (wl_resource_get_link (resource));
   reset_text_input_focus (text_input);
+
+  g_clear_object (&text_input->cursor_update.focus);
 }
 
 static void
@@ -584,6 +737,10 @@ translate_hints (uint32_t hints)
     clutter_hints |= CLUTTER_INPUT_CONTENT_HINT_LATIN;
   if (hints & ZWP_TEXT_INPUT_V3_CONTENT_HINT_MULTILINE)
     clutter_hints |= CLUTTER_INPUT_CONTENT_HINT_MULTILINE;
+  if (hints & ZWP_TEXT_INPUT_V3_CONTENT_HINT_ON_SCREEN_INPUT_PROVIDED)
+    clutter_hints |= CLUTTER_INPUT_CONTENT_HINT_INHIBIT_OSK;
+  if (hints & ZWP_TEXT_INPUT_V3_CONTENT_HINT_NO_EMOJI)
+    clutter_hints |= CLUTTER_INPUT_CONTENT_HINT_NO_EMOJI;
 
   return clutter_hints;
 }
@@ -666,7 +823,22 @@ meta_wayland_text_input_reset (MetaWaylandTextInput *text_input)
   text_input->content_type_purpose = ZWP_TEXT_INPUT_V3_CONTENT_PURPOSE_NORMAL;
   text_input->text_change_cause = ZWP_TEXT_INPUT_V3_CHANGE_CAUSE_INPUT_METHOD;
   text_input->cursor_rect = (MtkRectangle) { 0, 0, 0, 0 };
+  text_input->enable_serial = 0;
   text_input->pending_state = META_WAYLAND_PENDING_STATE_NONE;
+}
+
+static void
+update_cursor_location (MetaWaylandSurface *surface,
+                        gpointer            user_data)
+{
+  MetaWaylandTextInput *text_input = user_data;
+
+  clutter_input_focus_set_cursor_location (text_input->cursor_update.focus,
+                                           &text_input->cursor_update.rect);
+
+  g_clear_object (&text_input->cursor_update.focus);
+  graphene_rect_init (&text_input->cursor_update.rect, 0, 0, 0, 0);
+  g_clear_signal_handler (&text_input->cursor_update.signal_id, surface);
 }
 
 static void
@@ -675,7 +847,6 @@ text_input_commit_state (struct wl_client   *client,
 {
   MetaWaylandTextInput *text_input = wl_resource_get_user_data (resource);
   ClutterInputFocus *focus = text_input->input_focus;
-  gboolean enable_panel = FALSE;
   MetaBackend *backend = backend_from_text_input (text_input);
   ClutterBackend *clutter_backend =
     meta_backend_get_clutter_backend (backend);
@@ -693,12 +864,18 @@ text_input_commit_state (struct wl_client   *client,
     {
       if (text_input->enabled)
         {
+          gboolean can_show_preedit;
+
           if (!clutter_input_focus_is_focused (focus))
             clutter_input_method_focus_in (input_method, focus);
-          else
-            enable_panel = TRUE;
 
-          clutter_input_focus_set_can_show_preedit (focus, TRUE);
+          can_show_preedit =
+            wl_resource_get_version (resource) <
+            ZWP_TEXT_INPUT_V3_CONTENT_HINT_PREEDIT_SHOWN_SINCE_VERSION ||
+            (text_input->pending_state & META_WAYLAND_PENDING_STATE_CONTENT_TYPE &&
+             text_input->content_type_hint & ZWP_TEXT_INPUT_V3_CONTENT_HINT_PREEDIT_SHOWN);
+
+          clutter_input_focus_set_can_show_preedit (focus, can_show_preedit);
         }
       else if (clutter_input_focus_is_focused (focus))
         {
@@ -746,7 +923,6 @@ text_input_commit_state (struct wl_client   *client,
 
   if (text_input->pending_state & META_WAYLAND_PENDING_STATE_INPUT_RECT)
     {
-      graphene_rect_t cursor_rect;
       float x1, y1, x2, y2;
       MtkRectangle rect;
 
@@ -758,17 +934,98 @@ text_input_commit_state (struct wl_client   *client,
                                                      rect.y + rect.height,
                                                      &x2, &y2);
 
-      graphene_rect_init (&cursor_rect, x1, y1, x2 - x1, y2 - y1);
-      clutter_input_focus_set_cursor_location (text_input->input_focus,
-                                               &cursor_rect);
+      g_set_object (&text_input->cursor_update.focus, focus);
+      graphene_rect_init (&text_input->cursor_update.rect,
+                          x1, y1, x2 - x1, y2 - y1);
+
+      text_input->cursor_update.signal_id =
+        g_signal_connect (text_input->surface, "pre-state-applied",
+                          G_CALLBACK (update_cursor_location),
+                          text_input);
     }
 
-  meta_wayland_text_input_reset (text_input);
+  if (text_input->pending_state & META_WAYLAND_PENDING_STATE_ACTIONS)
+    {
+      clutter_input_focus_set_handled_actions (focus,
+                                               text_input->available_actions);
+    }
 
-  if (enable_panel)
-    clutter_input_focus_set_input_panel_state (focus, CLUTTER_INPUT_PANEL_STATE_ON);
+  if (text_input->pending_state & META_WAYLAND_PENDING_STATE_PANEL_VISIBILITY)
+    {
+      ClutterInputPanelState panel_state;
+
+      if (text_input->show_panel)
+        panel_state = CLUTTER_INPUT_PANEL_STATE_ON;
+      else
+        panel_state = CLUTTER_INPUT_PANEL_STATE_OFF;
+
+      clutter_input_focus_set_input_panel_state (focus, panel_state);
+    }
 
   meta_wayland_text_input_focus_defer_done (focus);
+  meta_wayland_text_input_reset (text_input);
+}
+
+static void
+text_input_set_available_actions (struct wl_client   *client,
+                                  struct wl_resource *resource,
+                                  struct wl_array    *available_actions)
+{
+  MetaWaylandTextInput *text_input = wl_resource_get_user_data (resource);
+  uint32_t *action, actions = 0;
+  ClutterInputActionFlags flags_map[] = {
+    CLUTTER_INPUT_ACTION_FLAG_NONE,
+    CLUTTER_INPUT_ACTION_FLAG_SUBMIT,
+  };
+
+  wl_array_for_each (action, available_actions)
+    {
+      if (*action == 0)
+        {
+          wl_resource_post_error (resource,
+                                  ZWP_TEXT_INPUT_V3_ERROR_INVALID_ACTION,
+                                  "Invalid 'none' action in set");
+        }
+      else if (*action >= G_N_ELEMENTS (flags_map))
+        {
+          wl_resource_post_error (resource,
+                                  ZWP_TEXT_INPUT_V3_ERROR_INVALID_ACTION,
+                                  "Unknown action %d in set", *action);
+        }
+      else if ((actions & flags_map[*action]) != 0)
+        {
+          wl_resource_post_error (resource,
+                                  ZWP_TEXT_INPUT_V3_ERROR_INVALID_ACTION,
+                                  "Action %d doubly set", *action);
+        }
+      else
+        {
+          actions |= flags_map[*action];
+        }
+    }
+
+  text_input->available_actions = actions;
+  text_input->pending_state |= META_WAYLAND_PENDING_STATE_ACTIONS;
+}
+
+static void
+text_input_show_input_panel (struct wl_client   *client,
+                             struct wl_resource *resource)
+{
+  MetaWaylandTextInput *text_input = wl_resource_get_user_data (resource);
+
+  text_input->show_panel = TRUE;
+  text_input->pending_state |= META_WAYLAND_PENDING_STATE_PANEL_VISIBILITY;
+}
+
+static void
+text_input_hide_input_panel (struct wl_client   *client,
+                             struct wl_resource *resource)
+{
+  MetaWaylandTextInput *text_input = wl_resource_get_user_data (resource);
+
+  text_input->show_panel = FALSE;
+  text_input->pending_state |= META_WAYLAND_PENDING_STATE_PANEL_VISIBILITY;
 }
 
 static struct zwp_text_input_v3_interface meta_text_input_interface = {
@@ -780,6 +1037,9 @@ static struct zwp_text_input_v3_interface meta_text_input_interface = {
   text_input_set_content_type,
   text_input_set_cursor_rectangle,
   text_input_commit_state,
+  text_input_set_available_actions,
+  text_input_show_input_panel,
+  text_input_hide_input_panel,
 };
 
 MetaWaylandTextInput *
@@ -816,14 +1076,16 @@ static void
 meta_wayland_text_input_create_new_resource (MetaWaylandTextInput *text_input,
                                              struct wl_client     *client,
                                              struct wl_resource   *seat_resource,
+                                             struct wl_resource   *manager_resource,
                                              uint32_t              id)
 {
   struct wl_resource *text_input_resource;
 
-  text_input_resource = wl_resource_create (client,
-                                            &zwp_text_input_v3_interface,
-                                            META_ZWP_TEXT_INPUT_V3_VERSION,
-                                            id);
+  text_input_resource =
+    wl_resource_create (client,
+                        &zwp_text_input_v3_interface,
+                        wl_resource_get_version (manager_resource),
+                        id);
 
   wl_resource_set_implementation (text_input_resource,
                                   &meta_text_input_interface,
@@ -854,14 +1116,15 @@ text_input_manager_destroy (struct wl_client   *client,
 
 static void
 text_input_manager_get_text_input (struct wl_client   *client,
-                                   struct wl_resource *resource,
+                                   struct wl_resource *manager_resource,
                                    uint32_t            id,
                                    struct wl_resource *seat_resource)
 {
   MetaWaylandSeat *seat = wl_resource_get_user_data (seat_resource);
 
   meta_wayland_text_input_create_new_resource (seat->text_input, client,
-                                               seat_resource, id);
+                                               seat_resource,
+                                               manager_resource, id);
 }
 
 static struct zwp_text_input_manager_v3_interface meta_text_input_manager_interface = {
@@ -879,7 +1142,7 @@ bind_text_input (struct wl_client *client,
 
   resource = wl_resource_create (client,
                                  &zwp_text_input_manager_v3_interface,
-                                 META_ZWP_TEXT_INPUT_V3_VERSION,
+                                 MIN (version, META_ZWP_TEXT_INPUT_V3_VERSION),
                                  id);
   wl_resource_set_implementation (resource,
                                   &meta_text_input_manager_interface,
