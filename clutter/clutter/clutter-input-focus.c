@@ -38,6 +38,7 @@ struct _ClutterInputFocusPrivate
   ClutterInputMethod *im;
   char *preedit;
   ClutterPreeditResetMode mode;
+  ClutterInputActionFlags actions;
 };
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (ClutterInputFocus, clutter_input_focus, G_TYPE_OBJECT)
@@ -59,6 +60,7 @@ clutter_input_focus_real_focus_out (ClutterInputFocus  *focus)
 
   priv = clutter_input_focus_get_instance_private (focus);
   priv->im = NULL;
+  priv->actions = 0;
 }
 
 static void
@@ -333,4 +335,34 @@ clutter_input_focus_set_preedit_text (ClutterInputFocus *focus,
 
   CLUTTER_INPUT_FOCUS_GET_CLASS (focus)->set_preedit_text (focus, preedit,
                                                            cursor, anchor);
+}
+
+void
+clutter_input_focus_set_handled_actions (ClutterInputFocus       *focus,
+                                         ClutterInputActionFlags  actions)
+{
+  ClutterInputFocusPrivate *priv;
+
+  g_return_if_fail (CLUTTER_IS_INPUT_FOCUS (focus));
+  g_return_if_fail (clutter_input_focus_is_focused (focus));
+
+  priv = clutter_input_focus_get_instance_private (focus);
+  priv->actions = actions;
+  clutter_input_method_set_handled_actions (priv->im, actions);
+}
+
+void
+clutter_input_focus_trigger_action (ClutterInputFocus  *focus,
+                                    ClutterInputAction  action)
+{
+  ClutterInputFocusPrivate *priv;
+
+  g_return_if_fail (CLUTTER_IS_INPUT_FOCUS (focus));
+  g_return_if_fail (action < CLUTTER_INPUT_ACTION_LAST);
+
+  priv = clutter_input_focus_get_instance_private (focus);
+  g_return_if_fail ((priv->actions & (1 << action)) != 0);
+
+  if (CLUTTER_INPUT_FOCUS_GET_CLASS (focus)->action)
+    CLUTTER_INPUT_FOCUS_GET_CLASS (focus)->action (focus, action);
 }

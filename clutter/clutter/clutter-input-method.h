@@ -50,6 +50,9 @@ struct _ClutterInputMethodClass
 
   gboolean (* filter_key_event) (ClutterInputMethod *im,
                                  const ClutterEvent *key);
+
+  void (* set_handled_actions) (ClutterInputMethod      *im,
+                                ClutterInputActionFlags  actions);
 };
 
 CLUTTER_EXPORT
@@ -90,3 +93,7 @@ void clutter_input_method_forward_key (ClutterInputMethod *im,
                                        uint32_t            state,
                                        uint64_t            time_,
                                        gboolean            press);
+
+CLUTTER_EXPORT
+void clutter_input_method_trigger_action (ClutterInputMethod *im,
+                                          ClutterInputAction  action);
