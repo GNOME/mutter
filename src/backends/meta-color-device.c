@@ -991,15 +991,17 @@ create_icc_profile_from_edid (MetaColorDevice     *color_device,
   const char *serial;
   g_autofree char *vendor_name = NULL;
   cmsHPROFILE lcms_profile;
+  const struct di_color_primaries *primaries =
+    &edid_info->default_color_primaries;
 
-  if (G_APPROX_VALUE (edid_info->red_x, 0.0, FLT_EPSILON) ||
-      G_APPROX_VALUE (edid_info->red_y, 0.0, FLT_EPSILON) ||
-      G_APPROX_VALUE (edid_info->green_x, 0.0, FLT_EPSILON) ||
-      G_APPROX_VALUE (edid_info->green_y, 0.0, FLT_EPSILON) ||
-      G_APPROX_VALUE (edid_info->blue_x, 0.0, FLT_EPSILON) ||
-      G_APPROX_VALUE (edid_info->blue_y, 0.0, FLT_EPSILON) ||
-      G_APPROX_VALUE (edid_info->white_x, 0.0, FLT_EPSILON) ||
-      G_APPROX_VALUE (edid_info->white_y, 0.0, FLT_EPSILON))
+  if (G_APPROX_VALUE (primaries->primary[0].x, 0.0, FLT_EPSILON) ||
+      G_APPROX_VALUE (primaries->primary[0].y, 0.0, FLT_EPSILON) ||
+      G_APPROX_VALUE (primaries->primary[1].x, 0.0, FLT_EPSILON) ||
+      G_APPROX_VALUE (primaries->primary[1].y, 0.0, FLT_EPSILON) ||
+      G_APPROX_VALUE (primaries->primary[2].x, 0.0, FLT_EPSILON) ||
+      G_APPROX_VALUE (primaries->primary[2].y, 0.0, FLT_EPSILON) ||
+      G_APPROX_VALUE (primaries->default_white.x, 0.0, FLT_EPSILON) ||
+      G_APPROX_VALUE (primaries->default_white.y, 0.0, FLT_EPSILON))
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "EDID for %s contains bogus Color Characteristics",
@@ -1007,8 +1009,8 @@ create_icc_profile_from_edid (MetaColorDevice     *color_device,
       return NULL;
     }
 
-  if (edid_info->gamma + FLT_EPSILON < 1.0 ||
-      edid_info->gamma > 4.0)
+  if (edid_info->default_gamma + FLT_EPSILON < 1.0 ||
+      edid_info->default_gamma > 4.0)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "EDID for %s contains bogus Display Transfer "
@@ -1027,18 +1029,18 @@ create_icc_profile_from_edid (MetaColorDevice     *color_device,
 
   cd_icc = cd_icc_new ();
 
-  chroma.Red.x = edid_info->red_x;
-  chroma.Red.y = edid_info->red_y;
-  chroma.Green.x = edid_info->green_x;
-  chroma.Green.y = edid_info->green_y;
-  chroma.Blue.x = edid_info->blue_x;
-  chroma.Blue.y = edid_info->blue_y;
-  white_point.x = edid_info->white_x;
-  white_point.y = edid_info->white_y;
+  chroma.Red.x = primaries->primary[0].x;
+  chroma.Red.y = primaries->primary[0].y;
+  chroma.Green.x = primaries->primary[1].x;
+  chroma.Green.y = primaries->primary[1].y;
+  chroma.Blue.x = primaries->primary[2].x;
+  chroma.Blue.y = primaries->primary[2].y;
+  white_point.x = primaries->default_white.x;
+  white_point.y = primaries->default_white.y;
   white_point.Y = 1.0;
 
   /* Estimate the transfer function for the gamma */
-  transfer_curve[0] = cmsBuildGamma (NULL, edid_info->gamma);
+  transfer_curve[0] = cmsBuildGamma (NULL, edid_info->default_gamma);
   transfer_curve[1] = transfer_curve[0];
   transfer_curve[2] = transfer_curve[0];
 

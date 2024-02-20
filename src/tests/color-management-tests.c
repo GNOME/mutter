@@ -81,29 +81,53 @@ static MonitorTestCaseSetup base_monitor_setup = {
 /* Extracted from a 'California Institute of Technology, 0x1403' monitor. */
 #define CALTECH_MONITOR_EDID (\
   (MetaEdidInfo) { \
-    .gamma = 2.200000, \
-    .red_x = 0.683594, \
-    .red_y = 0.312500, \
-    .green_x = 0.255859, \
-    .green_y = 0.685547, \
-    .blue_x = 0.139648, \
-    .blue_y = 0.056641, \
-    .white_x = 0.313477, \
-    .white_y = 0.326172, \
+    .default_gamma = 2.200000f, \
+    .default_color_primaries = { \
+      .primary = { \
+          { \
+            .x = 0.683594f, \
+            .y = 0.312500f, \
+          }, \
+          { \
+            .x = 0.255859f, \
+            .y = 0.685547f, \
+          }, \
+          { \
+            .x = 0.139648f, \
+            .y = 0.056641f, \
+          }, \
+      }, \
+      .default_white = { \
+        .x = 0.313477f, \
+        .y = 0.326172f, \
+      }, \
+    } \
   })
 
 /* Extracted from a 'Ancor Communications Inc, VX239, ECLMRS004144' monitor. */
 #define ANCOR_VX239_EDID (\
   (MetaEdidInfo) { \
-    .gamma = 2.200000, \
-    .red_x = 0.651367, \
-    .red_y = 0.335938, \
-    .green_x = 0.321289, \
-    .green_y = 0.614258, \
-    .blue_x = 0.154297, \
-    .blue_y = 0.063477, \
-    .white_x = 0.313477, \
-    .white_y = 0.329102, \
+    .default_gamma = 2.200000f, \
+    .default_color_primaries = { \
+      .primary = { \
+          { \
+            .x = 0.651367f, \
+            .y = 0.335938f, \
+          }, \
+          { \
+            .x = 0.321289f, \
+            .y = 0.614258f, \
+          }, \
+          { \
+            .x = 0.154297f, \
+            .y = 0.063477f, \
+          }, \
+      }, \
+      .default_white = { \
+        .x = 0.313477f, \
+        .y = 0.329102f, \
+      }, \
+    } \
   })
 
 #define assert_color_xyz_equal(color, expected_color) \
@@ -433,33 +457,41 @@ meta_test_color_management_device_basic (void)
       g_assert_nonnull (meta_monitor_get_edid_checksum_md5 (monitor));
       monitor_edid_info = meta_monitor_get_edid_info (monitor);
 
-      g_assert_cmpfloat_with_epsilon (expected_edid_info->gamma,
-                                      monitor_edid_info->gamma,
+      g_assert_cmpfloat_with_epsilon (expected_edid_info->default_gamma,
+                                      monitor_edid_info->default_gamma,
                                       FLT_EPSILON);
-      g_assert_cmpfloat_with_epsilon (expected_edid_info->red_x,
-                                      monitor_edid_info->red_x,
-                                      FLT_EPSILON);
-      g_assert_cmpfloat_with_epsilon (expected_edid_info->red_y,
-                                      monitor_edid_info->red_y,
-                                      FLT_EPSILON);
-      g_assert_cmpfloat_with_epsilon (expected_edid_info->green_x,
-                                      monitor_edid_info->green_x,
-                                      FLT_EPSILON);
-      g_assert_cmpfloat_with_epsilon (expected_edid_info->green_y,
-                                      monitor_edid_info->green_y,
-                                      FLT_EPSILON);
-      g_assert_cmpfloat_with_epsilon (expected_edid_info->blue_x,
-                                      monitor_edid_info->blue_x,
-                                      FLT_EPSILON);
-      g_assert_cmpfloat_with_epsilon (expected_edid_info->blue_y,
-                                      monitor_edid_info->blue_y,
-                                      FLT_EPSILON);
-      g_assert_cmpfloat_with_epsilon (expected_edid_info->white_x,
-                                      monitor_edid_info->white_x,
-                                      FLT_EPSILON);
-      g_assert_cmpfloat_with_epsilon (expected_edid_info->white_y,
-                                      monitor_edid_info->white_y,
-                                      FLT_EPSILON);
+      g_assert_cmpfloat_with_epsilon (
+        expected_edid_info->default_color_primaries.primary[0].x,
+        monitor_edid_info->default_color_primaries.primary[0].x,
+        FLT_EPSILON);
+      g_assert_cmpfloat_with_epsilon (
+        expected_edid_info->default_color_primaries.primary[0].y,
+        monitor_edid_info->default_color_primaries.primary[0].y,
+        FLT_EPSILON);
+      g_assert_cmpfloat_with_epsilon (
+        expected_edid_info->default_color_primaries.primary[1].x,
+        monitor_edid_info->default_color_primaries.primary[1].x,
+        FLT_EPSILON);
+      g_assert_cmpfloat_with_epsilon (
+        expected_edid_info->default_color_primaries.primary[1].y,
+        monitor_edid_info->default_color_primaries.primary[1].y,
+        FLT_EPSILON);
+      g_assert_cmpfloat_with_epsilon (
+        expected_edid_info->default_color_primaries.primary[2].x,
+        monitor_edid_info->default_color_primaries.primary[2].x,
+        FLT_EPSILON);
+      g_assert_cmpfloat_with_epsilon (
+        expected_edid_info->default_color_primaries.primary[2].y,
+        monitor_edid_info->default_color_primaries.primary[2].y,
+        FLT_EPSILON);
+      g_assert_cmpfloat_with_epsilon (
+        expected_edid_info->default_color_primaries.default_white.x,
+        monitor_edid_info->default_color_primaries.default_white.x,
+        FLT_EPSILON);
+      g_assert_cmpfloat_with_epsilon (
+        expected_edid_info->default_color_primaries.default_white.y,
+        monitor_edid_info->default_color_primaries.default_white.y,
+        FLT_EPSILON);
 
       color_device = meta_color_manager_get_color_device (color_manager,
                                                           monitor);
@@ -605,7 +637,7 @@ meta_test_color_management_profile_device_bogus (void)
 
   edid_info = CALTECH_MONITOR_EDID;
   /* Decoding gamma is in [1, 4] */
-  edid_info.gamma = 0.7;
+  edid_info.default_gamma = 0.7;
   test_case_setup.outputs[0].serial = "profile_device_bogus/gamma";
   test_case_setup.outputs[0].edid_info = edid_info;
   test_case_setup.outputs[0].has_edid_info = TRUE;
@@ -630,7 +662,7 @@ meta_test_color_management_profile_device_bogus (void)
   g_assert_null (color_profile);
 
   edid_info = CALTECH_MONITOR_EDID;
-  edid_info.green_y = 0.0;
+  edid_info.default_color_primaries.primary[1].y = 0.0;
   test_case_setup.outputs[0].serial = "profile_device_bogus/chromaticity";
   test_case_setup.outputs[0].edid_info = edid_info;
   test_case_setup.outputs[0].has_edid_info = TRUE;

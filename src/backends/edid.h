@@ -24,74 +24,28 @@
 #pragma once
 
 #include <stdint.h>
+#include <libdisplay-info/info.h>
 
 #include "core/util-private.h"
 
-typedef struct _MetaEdidInfo MetaEdidInfo;
-typedef struct _MetaEdidHdrStaticMetadata MetaEdidHdrStaticMetadata;
-
-typedef enum
-{
-  META_EDID_COLORIMETRY_XVYCC601    = (1 << 0),
-  META_EDID_COLORIMETRY_XVYCC709    = (1 << 1),
-  META_EDID_COLORIMETRY_SYCC601     = (1 << 2),
-  META_EDID_COLORIMETRY_OPYCC601    = (1 << 3),
-  META_EDID_COLORIMETRY_OPRGB       = (1 << 4),
-  META_EDID_COLORIMETRY_BT2020CYCC  = (1 << 5),
-  META_EDID_COLORIMETRY_BT2020YCC   = (1 << 6),
-  META_EDID_COLORIMETRY_BT2020RGB   = (1 << 7),
-  META_EDID_COLORIMETRY_ST2113RGB   = (1 << 14),
-  META_EDID_COLORIMETRY_ICTCP       = (1 << 15),
-} MetaEdidColorimetry;
-
-typedef enum
-{
-  META_EDID_TF_TRADITIONAL_GAMMA_SDR = (1 << 0),
-  META_EDID_TF_TRADITIONAL_GAMMA_HDR = (1 << 1),
-  META_EDID_TF_PQ                    = (1 << 2),
-  META_EDID_TF_HLG                   = (1 << 3),
-} MetaEdidTransferFunction;
-
-typedef enum
-{
-  META_EDID_STATIC_METADATA_TYPE1 = (1 << 0),
-} MetaEdidStaticMetadataType;
-
-struct _MetaEdidHdrStaticMetadata
-{
-  float max_luminance;
-  float min_luminance;
-  float max_fal;
-  MetaEdidTransferFunction tf;
-  MetaEdidStaticMetadataType sm;
-};
-
-struct _MetaEdidInfo
+typedef struct _MetaEdidInfo
 {
   char *manufacturer_code;
   int product_code;
   unsigned int serial_number;
 
-  double gamma;                         /* -1.0 if not specified */
-
-  double red_x;
-  double red_y;
-  double green_x;
-  double green_y;
-  double blue_x;
-  double blue_y;
-  double white_x;
-  double white_y;
-
   /* Optional product description */
   char *dsc_serial_number;
   char *dsc_product_name;
 
+  struct di_color_primaries default_color_primaries;
+  double default_gamma; /* -1.0 if not specified FIXME, now 0 */
+
   int32_t min_vert_rate_hz;
 
-  MetaEdidColorimetry colorimetry;
-  MetaEdidHdrStaticMetadata hdr_static_metadata;
-};
+  struct di_supported_signal_colorimetry colorimetry;
+  struct di_hdr_static_metadata hdr_static_metadata;
+} MetaEdidInfo;
 
 META_EXPORT_TEST
 MetaEdidInfo *meta_edid_info_new_parse (const uint8_t *edid,

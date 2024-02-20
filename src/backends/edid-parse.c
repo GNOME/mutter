@@ -35,166 +35,25 @@
 
 #include "backends/edid.h"
 
-static void
-decode_edid_descriptors (const struct di_edid                    *di_edid,
-                         const struct di_edid_display_descriptor *desc,
-                         MetaEdidInfo                            *info)
+MetaEdidInfo *
+meta_edid_info_new_parse (const uint8_t *edid,
+                          size_t         size)
 {
-  enum di_edid_display_descriptor_tag desc_tag;
-  const struct di_edid_display_range_limits *range_limits;
-
-  desc_tag = di_edid_display_descriptor_get_tag (desc);
-
-  switch (desc_tag)
-    {
-    case DI_EDID_DISPLAY_DESCRIPTOR_PRODUCT_SERIAL:
-      info->dsc_serial_number =
-        g_strdup (di_edid_display_descriptor_get_string (desc));
-      break;
-    case DI_EDID_DISPLAY_DESCRIPTOR_PRODUCT_NAME:
-      info->dsc_product_name =
-        g_strdup (di_edid_display_descriptor_get_string (desc));
-      break;
-    case DI_EDID_DISPLAY_DESCRIPTOR_RANGE_LIMITS:
-      range_limits = di_edid_display_descriptor_get_range_limits (desc);
-      g_assert (range_limits != NULL);
-      info->min_vert_rate_hz = range_limits->min_vert_rate_hz;
-      break;
-    default:
-        break;
-    }
-}
-
-static void
-decode_edid_colorimetry (const struct di_cta_colorimetry_block *colorimetry,
-                         MetaEdidInfo                          *info)
-{
-  /* Colorimetry Data Block */
-  if (colorimetry->xvycc_601)
-    info->colorimetry |= META_EDID_COLORIMETRY_XVYCC601;
-  if (colorimetry->xvycc_709)
-    info->colorimetry |= META_EDID_COLORIMETRY_XVYCC709;
-  if (colorimetry->sycc_601)
-    info->colorimetry |= META_EDID_COLORIMETRY_SYCC601;
-  if (colorimetry->opycc_601)
-    info->colorimetry |= META_EDID_COLORIMETRY_OPYCC601;
-  if (colorimetry->oprgb)
-    info->colorimetry |= META_EDID_COLORIMETRY_OPRGB;
-  if (colorimetry->bt2020_cycc)
-    info->colorimetry |= META_EDID_COLORIMETRY_BT2020CYCC;
-  if (colorimetry->bt2020_ycc)
-    info->colorimetry |= META_EDID_COLORIMETRY_BT2020YCC;
-  if (colorimetry->bt2020_rgb)
-    info->colorimetry |= META_EDID_COLORIMETRY_BT2020RGB;
-  if (colorimetry->st2113_rgb)
-    info->colorimetry |= META_EDID_COLORIMETRY_ST2113RGB;
-  if (colorimetry->ictcp)
-    info->colorimetry |= META_EDID_COLORIMETRY_ICTCP;
-}
-
-static void
-decode_edid_hdr_static_metadata (const struct di_cta_hdr_static_metadata_block *hdr,
-                                 MetaEdidInfo                                  *info)
-{
-  /* HDR Static Metadata Block */
-  if (hdr->descriptors->type1)
-    info->hdr_static_metadata.sm |= META_EDID_STATIC_METADATA_TYPE1;
-
-  if (hdr->eotfs->traditional_sdr)
-    info->hdr_static_metadata.tf |= META_EDID_TF_TRADITIONAL_GAMMA_SDR;
-  if (hdr->eotfs->traditional_hdr)
-    info->hdr_static_metadata.tf |= META_EDID_TF_TRADITIONAL_GAMMA_HDR;
-  if (hdr->eotfs->pq)
-    info->hdr_static_metadata.tf |= META_EDID_TF_PQ;
-  if (hdr->eotfs->hlg)
-    info->hdr_static_metadata.tf |= META_EDID_TF_HLG;
-
-  info->hdr_static_metadata.max_luminance =
-    hdr->desired_content_max_luminance;
-  info->hdr_static_metadata.max_fal =
-    hdr->desired_content_max_frame_avg_luminance;
-  info->hdr_static_metadata.min_luminance =
-    hdr->desired_content_min_luminance;
-}
-
-static void
-decode_edid_cta_ext (const struct di_edid_cta *cta,
-                     MetaEdidInfo             *info)
-{
-  const struct di_cta_data_block *const *data_blks;
-  const struct di_cta_data_block *data_blk;
-  enum di_cta_data_block_tag data_blk_tag;
-  const struct di_cta_colorimetry_block *colorimetry;
-  const struct di_cta_hdr_static_metadata_block *hdr_static_metadata;
-  size_t data_index;
-
-  data_blks = di_edid_cta_get_data_blocks (cta);
-  for (data_index = 0; data_blks[data_index] != NULL; data_index++)
-    {
-      data_blk = data_blks[data_index];
-      data_blk_tag = di_cta_data_block_get_tag (data_blk);
-
-      switch (data_blk_tag)
-        {
-        case DI_CTA_DATA_BLOCK_COLORIMETRY:
-          colorimetry = di_cta_data_block_get_colorimetry (data_blk);
-          g_assert (colorimetry);
-          decode_edid_colorimetry (colorimetry, info);
-          break;
-        case DI_CTA_DATA_BLOCK_HDR_STATIC_METADATA:
-          hdr_static_metadata =
-            di_cta_data_block_get_hdr_static_metadata (data_blk);
-          g_assert (hdr_static_metadata);
-          decode_edid_hdr_static_metadata (hdr_static_metadata, info);
-          break;
-        default:
-          break;
-        }
-    }
-}
-
-static void
-decode_edid_extensions (const struct di_edid_ext *ext,
-                        MetaEdidInfo             *info)
-{
-  enum di_edid_ext_tag ext_tag;
-  const struct di_edid_cta *cta;
-  ext_tag = di_edid_ext_get_tag (ext);
-
-  switch (ext_tag)
-    {
-    case DI_EDID_EXT_CEA:
-      cta = di_edid_ext_get_cta (ext);
-      decode_edid_cta_ext (cta, info);
-      break;
-    default:
-      break;
-    }
-}
-
-static gboolean
-decode_edid_info (const uint8_t *edid,
-                  MetaEdidInfo  *info,
-                  size_t         size)
-{
+  g_autofree MetaEdidInfo *info = g_new0 (MetaEdidInfo, 1);
+  struct di_info *di_info;
   const struct di_edid *di_edid;
-  struct di_info *edid_info;
   const struct di_edid_vendor_product *vendor_product;
-  const struct di_edid_chromaticity_coords *chromaticity_coords;
-  float gamma;
   const struct di_edid_display_descriptor *const *edid_descriptors;
-  const struct di_edid_ext *const *extensions;
-  size_t desc_index;
-  size_t ext_index;
+  const struct di_color_primaries *default_color_primaries;
+  const struct di_supported_signal_colorimetry *signal_colorimetry;
+  const struct di_hdr_static_metadata *hdr_static_metadata;
 
-  edid_info = di_info_parse_edid (edid, size);
+  di_info = di_info_parse_edid (edid, size);
 
-  if (!edid_info)
-    {
-      return FALSE;
-    }
+  if (!di_info)
+    return NULL;
 
-  di_edid = di_info_get_edid (edid_info);
+  di_edid = di_info_get_edid (di_info);
 
   /* Vendor and Product identification */
   vendor_product = di_edid_get_vendor_product (di_edid);
@@ -208,61 +67,57 @@ decode_edid_info (const uint8_t *edid,
   /* Serial Number */
   info->serial_number = vendor_product->serial;
 
-  /* Color Characteristics */
-  chromaticity_coords = di_edid_get_chromaticity_coords (di_edid);
-  info->red_x = chromaticity_coords->red_x;
-  info->red_y = chromaticity_coords->red_y;
-  info->green_x = chromaticity_coords->green_x;
-  info->green_y = chromaticity_coords->green_y;
-  info->blue_x = chromaticity_coords->blue_x;
-  info->blue_y = chromaticity_coords->blue_y;
-  info->white_x = chromaticity_coords->white_x;
-  info->white_y = chromaticity_coords->white_y;
-
-  /* Gamma */
-  gamma = di_edid_get_basic_gamma (di_edid);
-  if (gamma != 0)
-    info->gamma = gamma;
-  else
-    info->gamma = -1;
-
-  /* Descriptors */
+  /* Product Serial and Name */
   edid_descriptors = di_edid_get_display_descriptors (di_edid);
-  for (desc_index = 0; edid_descriptors[desc_index] != NULL; desc_index++)
+  for (; *edid_descriptors; edid_descriptors++)
     {
-      decode_edid_descriptors (di_edid, edid_descriptors[desc_index], info);
+      const struct di_edid_display_descriptor *desc = *edid_descriptors;
+      enum di_edid_display_descriptor_tag desc_tag =
+        di_edid_display_descriptor_get_tag (desc);
+      const struct di_edid_display_range_limits *range_limits;
+
+      switch (desc_tag)
+        {
+        case DI_EDID_DISPLAY_DESCRIPTOR_PRODUCT_SERIAL:
+          info->dsc_serial_number =
+            g_strdup (di_edid_display_descriptor_get_string (desc));
+          break;
+        case DI_EDID_DISPLAY_DESCRIPTOR_PRODUCT_NAME:
+          info->dsc_product_name =
+            g_strdup (di_edid_display_descriptor_get_string (desc));
+          break;
+        case DI_EDID_DISPLAY_DESCRIPTOR_RANGE_LIMITS:
+          range_limits = di_edid_display_descriptor_get_range_limits (desc);
+          info->min_vert_rate_hz = range_limits->min_vert_rate_hz;
+          break;
+        default:
+            break;
+        }
     }
 
-  /* Extension Blocks */
-  extensions = di_edid_get_extensions (di_edid);
+  /* Default Color Characteristics */
+  default_color_primaries = di_info_get_default_color_primaries (di_info);
+  memcpy (&info->default_color_primaries,
+          default_color_primaries,
+          sizeof (*default_color_primaries));
 
-  for (ext_index = 0; extensions[ext_index] != NULL; ext_index++)
-    {
-      decode_edid_extensions (extensions[ext_index], info);
-    }
+  /* Default Gamma */
+  info->default_gamma = di_info_get_default_gamma (di_info);
 
-  di_info_destroy (edid_info);
+  /* Supported Signal Colorimetry */
+  signal_colorimetry = di_info_get_supported_signal_colorimetry (di_info);
+  memcpy (&info->colorimetry,
+          signal_colorimetry,
+          sizeof (*signal_colorimetry));
 
-  return TRUE;
-}
+  /* Supported HDR Static Metadata */
+  hdr_static_metadata = di_info_get_hdr_static_metadata (di_info);
+  memcpy (&info->hdr_static_metadata,
+          hdr_static_metadata,
+          sizeof (*hdr_static_metadata));
 
-MetaEdidInfo *
-meta_edid_info_new_parse (const uint8_t *edid,
-                          size_t         size)
-{
-  MetaEdidInfo *info;
-
-  info = g_new0 (MetaEdidInfo, 1);
-
-  if (decode_edid_info (edid, info, size))
-    {
-      return info;
-    }
-  else
-    {
-      meta_edid_info_free (info);
-      return NULL;
-    }
+  di_info_destroy (di_info);
+  return g_steal_pointer (&info);
 }
 
 void
