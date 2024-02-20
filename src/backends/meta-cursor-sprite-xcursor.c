@@ -95,33 +95,6 @@ meta_cursor_get_name (MetaCursor cursor)
   return NULL;
 }
 
-static Cursor
-create_blank_cursor (Display *xdisplay)
-{
-  Pixmap pixmap;
-  XColor color;
-  Cursor cursor;
-  XGCValues gc_values;
-  GC gc;
-
-  pixmap = XCreatePixmap (xdisplay, DefaultRootWindow (xdisplay), 1, 1, 1);
-
-  gc_values.foreground = BlackPixel (xdisplay, DefaultScreen (xdisplay));
-  gc = XCreateGC (xdisplay, pixmap, GCForeground, &gc_values);
-
-  XFillRectangle (xdisplay, pixmap, gc, 0, 0, 1, 1);
-
-  color.pixel = 0;
-  color.red = color.blue = color.green = 0;
-
-  cursor = XCreatePixmapCursor (xdisplay, pixmap, pixmap, &color, &color, 1, 1);
-
-  XFreeGC (xdisplay, gc);
-  XFreePixmap (xdisplay, pixmap);
-
-  return cursor;
-}
-
 static XcursorImages *
 create_blank_cursor_images (void)
 {
@@ -141,16 +114,6 @@ MetaCursor
 meta_cursor_sprite_xcursor_get_cursor (MetaCursorSpriteXcursor *sprite_xcursor)
 {
   return sprite_xcursor->cursor;
-}
-
-Cursor
-meta_create_x_cursor (Display    *xdisplay,
-                      MetaCursor  cursor)
-{
-  if (cursor == META_CURSOR_BLANK)
-    return create_blank_cursor (xdisplay);
-
-  return XcursorLibraryLoadCursor (xdisplay, meta_cursor_get_name (cursor));
 }
 
 static XcursorImages *

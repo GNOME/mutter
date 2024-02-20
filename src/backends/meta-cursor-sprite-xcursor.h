@@ -38,7 +38,4 @@ MetaCursor meta_cursor_sprite_xcursor_get_cursor (MetaCursorSpriteXcursor *sprit
 
 XcursorImage * meta_cursor_sprite_xcursor_get_current_image (MetaCursorSpriteXcursor *sprite_xcursor);
 
-Cursor meta_create_x_cursor (Display    *xdisplay,
-                             MetaCursor  cursor);
-
 const char * meta_cursor_get_name (MetaCursor cursor);

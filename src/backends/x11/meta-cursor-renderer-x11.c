@@ -39,6 +39,44 @@ struct _MetaCursorRendererX11
 
 G_DEFINE_FINAL_TYPE (MetaCursorRendererX11, meta_cursor_renderer_x11, META_TYPE_CURSOR_RENDERER);
 
+
+static Cursor
+create_blank_cursor (Display *xdisplay)
+{
+  Pixmap pixmap;
+  XColor color;
+  Cursor cursor;
+  XGCValues gc_values;
+  GC gc;
+
+  pixmap = XCreatePixmap (xdisplay, DefaultRootWindow (xdisplay), 1, 1, 1);
+
+  gc_values.foreground = BlackPixel (xdisplay, DefaultScreen (xdisplay));
+  gc = XCreateGC (xdisplay, pixmap, GCForeground, &gc_values);
+
+  XFillRectangle (xdisplay, pixmap, gc, 0, 0, 1, 1);
+
+  color.pixel = 0;
+  color.red = color.blue = color.green = 0;
+
+  cursor = XCreatePixmapCursor (xdisplay, pixmap, pixmap, &color, &color, 1, 1);
+
+  XFreeGC (xdisplay, gc);
+  XFreePixmap (xdisplay, pixmap);
+
+  return cursor;
+}
+
+static Cursor
+create_x_cursor (Display    *xdisplay,
+                 MetaCursor  cursor)
+{
+  if (cursor == META_CURSOR_BLANK)
+    return create_blank_cursor (xdisplay);
+
+  return XcursorLibraryLoadCursor (xdisplay, meta_cursor_get_name (cursor));
+}
+
 static gboolean
 meta_cursor_renderer_x11_update_cursor (MetaCursorRenderer *renderer,
                                         MetaCursorSprite   *cursor_sprite)
@@ -69,7 +107,7 @@ meta_cursor_renderer_x11_update_cursor (MetaCursorRenderer *renderer,
         {
           Cursor xcursor;
 
-          xcursor = meta_create_x_cursor (xdisplay, cursor);
+          xcursor = create_x_cursor (xdisplay, cursor);
           XDefineCursor (xdisplay, xwindow, xcursor);
           XFlush (xdisplay);
           XFreeCursor (xdisplay, xcursor);
