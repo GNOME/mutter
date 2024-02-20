@@ -44,8 +44,8 @@ struct _MetaCursorSpriteXcursor
 G_DEFINE_TYPE (MetaCursorSpriteXcursor, meta_cursor_sprite_xcursor,
                META_TYPE_CURSOR_SPRITE)
 
-static const char *
-translate_meta_cursor (MetaCursor cursor)
+const char *
+meta_cursor_get_name (MetaCursor cursor)
 {
   switch (cursor)
     {
@@ -150,7 +150,7 @@ meta_create_x_cursor (Display    *xdisplay,
   if (cursor == META_CURSOR_BLANK)
     return create_blank_cursor (xdisplay);
 
-  return XcursorLibraryLoadCursor (xdisplay, translate_meta_cursor (cursor));
+  return XcursorLibraryLoadCursor (xdisplay, meta_cursor_get_name (cursor));
 }
 
 static XcursorImages *
@@ -167,7 +167,7 @@ load_cursor_on_client (MetaCursor cursor, int scale)
   for (i = 0; i < G_N_ELEMENTS (cursors); i++)
     {
       xcursor_images =
-        XcursorLibraryLoadImages (translate_meta_cursor (cursors[i]),
+        XcursorLibraryLoadImages (meta_cursor_get_name (cursors[i]),
                                   meta_prefs_get_cursor_theme (),
                                   meta_prefs_get_cursor_size () * scale);
       if (xcursor_images)
