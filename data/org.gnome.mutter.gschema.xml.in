@@ -5,6 +5,7 @@
     <value nick="kms-modifiers" value="2"/>
     <value nick="autoclose-xwayland" value="4"/>
     <value nick="variable-refresh-rate" value="8"/>
+    <value nick="xwayland-native-scaling" value="16"/>
   </flags>
 
   <schema id="org.gnome.mutter" path="/org/gnome/mutter/"
@@ -136,6 +137,12 @@
                                         GPU and DRM driver. Configurable in
                                         Settings. Requires a restart.
 
+        • “xwayland-native-scaling”   — lets Xwayland clients use their native
+                                        scaling support. If scaling is not
+                                        supported by client, the client will
+                                        be unscaled. Setting only takes effect
+                                        when “scale-monitor-framebuffer” is
+                                        enabled as well.
       </description>
     </key>
 

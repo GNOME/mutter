@@ -32,6 +32,7 @@ typedef enum _MetaExperimentalFeature
   META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS  = (1 << 1),
   META_EXPERIMENTAL_FEATURE_AUTOCLOSE_XWAYLAND  = (1 << 2),
   META_EXPERIMENTAL_FEATURE_VARIABLE_REFRESH_RATE = (1 << 3),
+  META_EXPERIMENTAL_FEATURE_XWAYLAND_NATIVE_SCALING  = (1 << 4),
 } MetaExperimentalFeature;
 
 typedef enum _MetaXwaylandExtension
