@@ -410,6 +410,23 @@ clutter_text_input_focus_set_preedit_text (ClutterInputFocus       *focus,
 }
 
 static void
+clutter_text_input_focus_action (ClutterInputFocus  *focus,
+                                 ClutterInputAction  action)
+{
+  ClutterText *clutter_text = CLUTTER_TEXT_INPUT_FOCUS (focus)->text;
+
+  switch (action)
+    {
+    case CLUTTER_INPUT_ACTION_SUBMIT:
+      clutter_text_activate (clutter_text);
+      break;
+    case CLUTTER_INPUT_ACTION_LAST:
+      g_assert_not_reached ();
+      break;
+    }
+}
+
+static void
 clutter_text_input_focus_class_init (ClutterTextInputFocusClass *klass)
 {
   ClutterInputFocusClass *focus_class = CLUTTER_INPUT_FOCUS_CLASS (klass);
@@ -418,6 +435,7 @@ clutter_text_input_focus_class_init (ClutterTextInputFocusClass *klass)
   focus_class->delete_surrounding = clutter_text_input_focus_delete_surrounding;
   focus_class->commit_text = clutter_text_input_focus_commit_text;
   focus_class->set_preedit_text = clutter_text_input_focus_set_preedit_text;
+  focus_class->action = clutter_text_input_focus_action;
 }
 
 static void
@@ -2994,6 +3012,8 @@ clutter_text_im_focus (ClutterText *text)
   clutter_input_focus_set_content_hints (priv->input_focus,
                                          priv->input_hints);
   clutter_input_focus_set_can_show_preedit (priv->input_focus, TRUE);
+  clutter_input_focus_set_handled_actions (priv->input_focus,
+                                           CLUTTER_INPUT_ACTION_FLAG_SUBMIT);
   update_cursor_location (text);
 }
 
