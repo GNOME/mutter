@@ -21,7 +21,6 @@
 
 #pragma once
 
-#include <X11/extensions/Xfixes.h>
 #include <gmodule.h>
 
 #include "clutter/clutter.h"
@@ -52,7 +51,6 @@ typedef struct _MetaPluginInfo    MetaPluginInfo;
  * as if the effect terminated naturally
  * @kill_switch_workspace: virtual function called when the workspace-switching
  * effect needs to be killed prematurely
- * @xevent_filter: virtual function called when handling each event
  * @keybinding_filter: virtual function called when handling each keybinding
  * @plugin_info: virtual function that returns information about the
  * #MetaPlugin
@@ -164,20 +162,6 @@ struct _MetaPluginClass
    * killed prematurely.
    */
   void (*kill_switch_workspace)    (MetaPlugin     *plugin);
-
-  /**
-   * MetaPluginClass::xevent_filter:
-   * @event: (type xlib.XEvent):
-   *
-   * Virtual function called when handling each event.
-   *
-   * Returns: %TRUE if the plugin handled the event type (i.e., if the return
-   * value is %FALSE, there will be no subsequent call to the manager
-   * completed() callback, and the compositor must ensure that any appropriate
-   * post-effect cleanup is carried out.
-   */
-  gboolean (*xevent_filter) (MetaPlugin       *plugin,
-                             XEvent           *event);
 
   /**
    * MetaPluginClass::keybinding_filter:

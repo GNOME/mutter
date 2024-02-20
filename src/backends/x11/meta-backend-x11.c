@@ -348,9 +348,7 @@ handle_host_xevent (MetaBackend *backend,
   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
-  MetaContext *context = meta_backend_get_context (backend);
   gboolean bypass_clutter = FALSE;
-  MetaDisplay *display;
 
   switch (event->type)
     {
@@ -365,19 +363,7 @@ handle_host_xevent (MetaBackend *backend,
 
   XGetEventData (priv->xdisplay, &event->xcookie);
 
-  display = meta_context_get_display (context);
-  if (display)
-    {
-      MetaCompositor *compositor = display->compositor;
-      MetaPluginManager *plugin_mgr =
-        meta_compositor_get_plugin_manager (compositor);
-
-      if (meta_plugin_manager_xevent_filter (plugin_mgr, event))
-        bypass_clutter = TRUE;
-    }
-
-  bypass_clutter = (meta_backend_x11_handle_host_xevent (x11, event) ||
-                    bypass_clutter);
+  bypass_clutter = meta_backend_x11_handle_host_xevent (x11, event);
 
   if (event->type == (priv->xsync_event_base + XSyncAlarmNotify))
     handle_alarm_notify (backend, (XSyncAlarmNotifyEvent *) event);
