@@ -1075,7 +1075,7 @@ wayland_protocols = [
   ['session-management-v1', 'private', ],
   ['single-pixel-buffer', 'staging', 1, ],
   ['tablet', 'stable', 2, ],
-  ['text-input', 'unstable', 3, ],
+  ['text-input-unstable-v3', 'private', ],
   ['viewporter', 'stable', ],
   ['xdg-activation', 'staging', 1, ],
   ['xdg-dialog', 'staging', 1, ],
