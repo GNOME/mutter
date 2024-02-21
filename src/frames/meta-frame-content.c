@@ -25,14 +25,11 @@ struct _MetaFrameContent
 {
   GtkWidget parent_instance;
   Window window;
-  GtkBorder border;
-  gboolean border_initialized;
 };
 
 enum {
   PROP_0,
   PROP_XWINDOW,
-  PROP_BORDER,
   N_PROPS
 };
 
@@ -53,9 +50,6 @@ meta_frame_content_set_property (GObject      *object,
     case PROP_XWINDOW:
       frame_content->window = (Window) g_value_get_ulong (value);
       break;
-    case PROP_BORDER:
-      frame_content->border = *(GtkBorder*) g_value_get_boxed (value);
-      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -74,9 +68,6 @@ meta_frame_content_get_property (GObject    *object,
     {
     case PROP_XWINDOW:
       g_value_set_ulong (value, (gulong) frame_content->window);
-      break;
-    case PROP_BORDER:
-      g_value_set_boxed (value, &frame_content->border);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -98,50 +89,6 @@ meta_frame_content_measure (GtkWidget      *widget,
 }
 
 static void
-meta_frame_content_update_border (MetaFrameContent *content,
-                                  GtkBorder         border)
-{
-  if (content->border_initialized &&
-      content->border.left == border.left &&
-      content->border.right == border.right &&
-      content->border.top == border.top &&
-      content->border.bottom == border.bottom)
-    return;
-
-  content->border = border;
-  content->border_initialized = TRUE;
-  g_object_notify (G_OBJECT (content), "border");
-}
-
-static void
-meta_frame_content_size_allocate (GtkWidget *widget,
-                                  int        width,
-                                  int        height,
-                                  int        baseline)
-{
-  MetaFrameContent *content = META_FRAME_CONTENT (widget);
-  GtkWindow *window = GTK_WINDOW (gtk_widget_get_root (widget));
-  graphene_point_t point = {};
-  double scale;
-
-  if (!gtk_widget_compute_point (widget,
-                                 GTK_WIDGET (window),
-                                 &point, &point))
-    return;
-
-  scale = gdk_surface_get_scale_factor (gtk_native_get_surface (GTK_NATIVE (window)));
-
-  meta_frame_content_update_border (content,
-                                    /* FIXME: right/bottom are broken, if they
-                                     * are ever other than 0.
-                                     */
-                                    (GtkBorder) {
-                                      point.x * scale, 0,
-                                      point.y * scale, 0,
-                                    });
-}
-
-static void
 meta_frame_content_class_init (MetaFrameContentClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
@@ -151,7 +98,6 @@ meta_frame_content_class_init (MetaFrameContentClass *klass)
   object_class->get_property = meta_frame_content_get_property;
 
   widget_class->measure = meta_frame_content_measure;
-  widget_class->size_allocate = meta_frame_content_size_allocate;
 
   props[PROP_XWINDOW] = g_param_spec_ulong ("xwindow", NULL, NULL,
                                             0, G_MAXULONG, 0,
@@ -160,13 +106,6 @@ meta_frame_content_class_init (MetaFrameContentClass *klass)
                                             G_PARAM_STATIC_NAME |
                                             G_PARAM_STATIC_NICK |
                                             G_PARAM_STATIC_BLURB);
-  props[PROP_BORDER] = g_param_spec_boxed ("border", NULL, NULL,
-                                           GTK_TYPE_BORDER,
-                                           G_PARAM_READABLE |
-                                           G_PARAM_EXPLICIT_NOTIFY |
-                                           G_PARAM_STATIC_NAME |
-                                           G_PARAM_STATIC_NICK |
-                                           G_PARAM_STATIC_BLURB);
 
   g_object_class_install_properties (object_class,
                                      G_N_ELEMENTS (props),
@@ -190,10 +129,4 @@ Window
 meta_frame_content_get_window (MetaFrameContent *content)
 {
   return content->window;
-}
-
-GtkBorder
-meta_frame_content_get_border (MetaFrameContent *content)
-{
-  return content->border;
 }
