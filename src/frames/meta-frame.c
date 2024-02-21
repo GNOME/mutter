@@ -60,49 +60,6 @@ typedef struct
 
 G_DEFINE_TYPE (MetaFrame, meta_frame, GTK_TYPE_WINDOW)
 
-static void
-meta_frame_constructed (GObject *object)
-{
-  MetaFrame *frame = META_FRAME (object);
-  GdkDisplay *display;
-
-  display = gtk_widget_get_display (GTK_WIDGET (object));
-
-  frame->atom__NET_WM_VISIBLE_NAME =
-    gdk_x11_get_xatom_by_name_for_display (display, "_NET_WM_VISIBLE_NAME");
-  frame->atom__NET_WM_NAME =
-    gdk_x11_get_xatom_by_name_for_display (display, "_NET_WM_NAME");
-  frame->atom__MOTIF_WM_HINTS =
-    gdk_x11_get_xatom_by_name_for_display (display, "_MOTIF_WM_HINTS");
-  frame->atom__NET_WM_STATE =
-    gdk_x11_get_xatom_by_name_for_display (display, "_NET_WM_STATE");
-  frame->atom__NET_WM_STATE_FULLSCREEN =
-    gdk_x11_get_xatom_by_name_for_display (display, "_NET_WM_STATE_FULLSCREEN");
-
-  G_OBJECT_CLASS (meta_frame_parent_class)->constructed (object);
-}
-
-static void
-meta_frame_finalize (GObject *object)
-{
-  MetaFrame *frame = META_FRAME (object);
-
-  g_free (frame->net_wm_visible_name);
-  g_free (frame->net_wm_name);
-  g_free (frame->wm_name);
-
-  G_OBJECT_CLASS (meta_frame_parent_class)->finalize (object);
-}
-
-static void
-meta_frame_class_init (MetaFrameClass *klass)
-{
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
-
-  object_class->constructed = meta_frame_constructed;
-  object_class->finalize = meta_frame_finalize;
-}
-
 static gboolean
 client_window_has_wm_protocol (MetaFrame *frame,
                                Window     client_window,
@@ -196,13 +153,6 @@ on_frame_close_request (GtkWindow *window,
   gdk_x11_display_error_trap_pop_ignored (display);
 
   return TRUE;
-}
-
-static void
-meta_frame_init (MetaFrame *frame)
-{
-  g_signal_connect (frame, "close-request",
-                    G_CALLBACK (on_frame_close_request), NULL);
 }
 
 static void
@@ -498,6 +448,56 @@ frame_sync_wm_state (MetaFrame *frame,
   gdk_x11_display_error_trap_pop_ignored (display);
 
   XFree (data);
+}
+
+static void
+meta_frame_constructed (GObject *object)
+{
+  MetaFrame *frame = META_FRAME (object);
+  GdkDisplay *display;
+
+  display = gtk_widget_get_display (GTK_WIDGET (object));
+
+  frame->atom__NET_WM_VISIBLE_NAME =
+    gdk_x11_get_xatom_by_name_for_display (display, "_NET_WM_VISIBLE_NAME");
+  frame->atom__NET_WM_NAME =
+    gdk_x11_get_xatom_by_name_for_display (display, "_NET_WM_NAME");
+  frame->atom__MOTIF_WM_HINTS =
+    gdk_x11_get_xatom_by_name_for_display (display, "_MOTIF_WM_HINTS");
+  frame->atom__NET_WM_STATE =
+    gdk_x11_get_xatom_by_name_for_display (display, "_NET_WM_STATE");
+  frame->atom__NET_WM_STATE_FULLSCREEN =
+    gdk_x11_get_xatom_by_name_for_display (display, "_NET_WM_STATE_FULLSCREEN");
+
+  G_OBJECT_CLASS (meta_frame_parent_class)->constructed (object);
+}
+
+static void
+meta_frame_finalize (GObject *object)
+{
+  MetaFrame *frame = META_FRAME (object);
+
+  g_free (frame->net_wm_visible_name);
+  g_free (frame->net_wm_name);
+  g_free (frame->wm_name);
+
+  G_OBJECT_CLASS (meta_frame_parent_class)->finalize (object);
+}
+
+static void
+meta_frame_class_init (MetaFrameClass *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->constructed = meta_frame_constructed;
+  object_class->finalize = meta_frame_finalize;
+}
+
+static void
+meta_frame_init (MetaFrame *frame)
+{
+  g_signal_connect (frame, "close-request",
+                    G_CALLBACK (on_frame_close_request), NULL);
 }
 
 GtkWidget *
