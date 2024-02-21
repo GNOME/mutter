@@ -31,8 +31,6 @@
 
 #pragma once
 
-#include <X11/Xutil.h>
-
 #include "backends/meta-logical-monitor.h"
 #include "clutter/clutter.h"
 #include "core/stack.h"

@@ -23,6 +23,8 @@
 
 #include "meta/group.h"
 
+#include <X11/Xlib.h>
+
 struct _MetaGroup
 {
   int refcount;

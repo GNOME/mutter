@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include <X11/extensions/Xfixes.h>
-
 #include "clutter/clutter-mutter.h"
 #include "clutter/clutter.h"
 #include "compositor/meta-compositor-view.h"

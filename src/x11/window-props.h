@@ -29,6 +29,8 @@
 
 #pragma once
 
+#include <X11/Xutil.h>
+
 #include "core/window-private.h"
 
 /**

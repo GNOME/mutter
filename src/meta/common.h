@@ -24,9 +24,6 @@
 
 #pragma once
 
-#include <X11/Xlib.h>
-#include <X11/extensions/XInput.h>
-#include <X11/extensions/XInput2.h>
 #include <glib.h>
 
 #include "clutter/clutter.h"
