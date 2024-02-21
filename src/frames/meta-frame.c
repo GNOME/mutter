@@ -30,6 +30,8 @@
 struct _MetaFrame
 {
   GtkWindow parent_instance;
+  GtkBorder extents;
+
   Atom atom__NET_WM_VISIBLE_NAME;
   Atom atom__NET_WM_NAME;
   Atom atom__MOTIF_WM_HINTS;
@@ -187,20 +189,8 @@ update_extents (MetaFrame *frame,
                    (guchar *) &data, 4);
 
   gdk_x11_display_error_trap_pop_ignored (display);
-}
 
-static void
-on_border_changed (GObject    *object,
-                   GParamSpec *pspec,
-                   gpointer    user_data)
-{
-  MetaFrame *frame = user_data;
-  GtkWidget *content;
-  GtkBorder border;
-
-  content = gtk_window_get_child (GTK_WINDOW (frame));
-  border = meta_frame_content_get_border (META_FRAME_CONTENT (content));
-  update_extents (frame, border);
+  frame->extents = border;
 }
 
 static char *
@@ -485,10 +475,46 @@ meta_frame_finalize (GObject *object)
 }
 
 static void
+meta_frame_size_allocate (GtkWidget *widget,
+                          int        width,
+                          int        height,
+                          int        baseline)
+{
+  MetaFrame *frame = META_FRAME (widget);
+  GtkWidget *content;
+  GtkBorder extents;
+  graphene_point_t point = {};
+  double scale;
+
+  GTK_WIDGET_CLASS (meta_frame_parent_class)->size_allocate (widget, width, height, baseline);
+
+  content = gtk_window_get_child (GTK_WINDOW (frame));
+  if (!content)
+    return;
+
+  if (!gtk_widget_compute_point (content, widget, &point, &point))
+    return;
+
+  scale = gdk_surface_get_scale_factor (gtk_native_get_surface (GTK_NATIVE (widget)));
+  /* FIXME: right/bottom are broken, if they are ever other than 0. */
+  extents = (GtkBorder) { point.x * scale, 0, point.y * scale, 0 };
+
+  if (frame->extents.left == extents.left &&
+      frame->extents.right == extents.right &&
+      frame->extents.top == extents.top &&
+      frame->extents.bottom == extents.bottom)
+    return;
+
+  update_extents (frame, extents);
+}
+
+static void
 meta_frame_class_init (MetaFrameClass *klass)
 {
+  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
+  widget_class->size_allocate = meta_frame_size_allocate;
   object_class->constructed = meta_frame_constructed;
   object_class->finalize = meta_frame_finalize;
 }
@@ -517,9 +543,6 @@ meta_frame_new (Window window)
 
   content = meta_frame_content_new (window);
   gtk_window_set_child (GTK_WINDOW (frame), content);
-
-  g_signal_connect (content, "notify::border",
-                    G_CALLBACK (on_border_changed), frame);
 
   gtk_widget_realize (GTK_WIDGET (frame));
   surface = gtk_native_get_surface (GTK_NATIVE (frame));
