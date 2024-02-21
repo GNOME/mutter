@@ -3928,6 +3928,14 @@ meta_window_move_resize_internal (MetaWindow          *window,
 
   if (flags & META_MOVE_RESIZE_WAYLAND_CLIENT_RESIZE)
     meta_window_queue (window, META_QUEUE_MOVE_RESIZE);
+
+  /* This is a workaround for #1627. We still don't have any tests that can
+   * reproduce this issue reliably and this is not a proper fix! */
+  if (flags & META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE &&
+      (result & META_MOVE_RESIZE_RESULT_MOVED ||
+       result & META_MOVE_RESIZE_RESULT_RESIZED) &&
+      (window->maximized_horizontally || window->maximized_vertically))
+    meta_window_queue (window, META_QUEUE_MOVE_RESIZE);
 }
 
 /**
