@@ -266,7 +266,7 @@ reload_modmap (MetaKeyBindingManager *keys)
 
   xkb_state_unref (scratch_state);
 
-  keys->ignored_modifier_mask = (scroll_lock_mask | Mod2Mask | LockMask);
+  keys->ignored_modifier_mask = (scroll_lock_mask | CLUTTER_MOD2_MASK | CLUTTER_LOCK_MASK);
 
   meta_topic (META_DEBUG_KEYBINDINGS,
               "Ignoring modmask 0x%x scroll lock 0x%x hyper 0x%x super 0x%x meta 0x%x",
@@ -474,12 +474,12 @@ reload_iso_next_group_combos (MetaKeyBindingManager *keys)
   else if (g_str_equal (iso_next_group_option, "shift_caps_toggle") ||
            g_str_equal (iso_next_group_option, "shifts_toggle"))
     {
-      keys->iso_next_group_combo[0].mask = ShiftMask;
+      keys->iso_next_group_combo[0].mask = CLUTTER_SHIFT_MASK;
     }
   else if (g_str_equal (iso_next_group_option, "alt_caps_toggle") ||
            g_str_equal (iso_next_group_option, "alt_space_toggle"))
     {
-      keys->iso_next_group_combo[0].mask = Mod1Mask;
+      keys->iso_next_group_combo[0].mask = CLUTTER_MOD1_MASK;
     }
   else if (g_str_equal (iso_next_group_option, "ctrl_shift_toggle") ||
            g_str_equal (iso_next_group_option, "lctrl_lshift_toggle") ||
@@ -488,8 +488,8 @@ reload_iso_next_group_combos (MetaKeyBindingManager *keys)
       resolved_key_combo_copy (&keys->iso_next_group_combo[0],
                                &keys->iso_next_group_combo[1]);
 
-      keys->iso_next_group_combo[0].mask = ShiftMask;
-      keys->iso_next_group_combo[1].mask = ControlMask;
+      keys->iso_next_group_combo[0].mask = CLUTTER_SHIFT_MASK;
+      keys->iso_next_group_combo[1].mask = CLUTTER_CONTROL_MASK;
       keys->n_iso_next_group_combos = 2;
     }
   else if (g_str_equal (iso_next_group_option, "ctrl_alt_toggle"))
@@ -497,8 +497,8 @@ reload_iso_next_group_combos (MetaKeyBindingManager *keys)
       resolved_key_combo_copy (&keys->iso_next_group_combo[0],
                                &keys->iso_next_group_combo[1]);
 
-      keys->iso_next_group_combo[0].mask = Mod1Mask;
-      keys->iso_next_group_combo[1].mask = ControlMask;
+      keys->iso_next_group_combo[0].mask = CLUTTER_MOD1_MASK;
+      keys->iso_next_group_combo[1].mask = CLUTTER_CONTROL_MASK;
       keys->n_iso_next_group_combos = 2;
     }
   else if (g_str_equal (iso_next_group_option, "alt_shift_toggle") ||
@@ -507,8 +507,8 @@ reload_iso_next_group_combos (MetaKeyBindingManager *keys)
       resolved_key_combo_copy (&keys->iso_next_group_combo[0],
                                &keys->iso_next_group_combo[1]);
 
-      keys->iso_next_group_combo[0].mask = Mod1Mask;
-      keys->iso_next_group_combo[1].mask = ShiftMask;
+      keys->iso_next_group_combo[0].mask = CLUTTER_MOD1_MASK;
+      keys->iso_next_group_combo[1].mask = CLUTTER_SHIFT_MASK;
       keys->n_iso_next_group_combos = 2;
     }
   else
@@ -526,11 +526,11 @@ devirtualize_modifiers (MetaKeyBindingManager *keys,
   *mask = 0;
 
   if (modifiers & CLUTTER_SHIFT_MASK)
-    *mask |= ShiftMask;
+    *mask |= CLUTTER_SHIFT_MASK;
   if (modifiers & CLUTTER_CONTROL_MASK)
-    *mask |= ControlMask;
+    *mask |= CLUTTER_CONTROL_MASK;
   if (modifiers & CLUTTER_MOD1_MASK)
-    *mask |= Mod1Mask;
+    *mask |= CLUTTER_MOD1_MASK;
   if (modifiers & CLUTTER_META_MASK)
     *mask |= keys->meta_mask;
   if (modifiers & CLUTTER_HYPER_MASK)
@@ -538,13 +538,13 @@ devirtualize_modifiers (MetaKeyBindingManager *keys,
   if (modifiers & CLUTTER_SUPER_MASK)
     *mask |= keys->super_mask;
   if (modifiers & CLUTTER_MOD2_MASK)
-    *mask |= Mod2Mask;
+    *mask |= CLUTTER_MOD2_MASK;
   if (modifiers & CLUTTER_MOD3_MASK)
-    *mask |= Mod3Mask;
+    *mask |= CLUTTER_MOD3_MASK;
   if (modifiers & CLUTTER_MOD4_MASK)
-    *mask |= Mod4Mask;
+    *mask |= CLUTTER_MOD4_MASK;
   if (modifiers & CLUTTER_MOD5_MASK)
-    *mask |= Mod5Mask;
+    *mask |= CLUTTER_MOD5_MASK;
 }
 
 static void
@@ -1287,7 +1287,7 @@ meta_display_grab_window_buttons (MetaDisplay *display,
       meta_change_button_grab (keys, window,
                                TRUE,
                                FALSE,
-                               1, keys->window_grab_modifiers | ShiftMask);
+                               1, keys->window_grab_modifiers | CLUTTER_SHIFT_MASK);
     }
 }
 
