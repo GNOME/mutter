@@ -1261,7 +1261,7 @@ void
 meta_stack_tracker_lower (MetaStackTracker *tracker,
                           guint64           window)
 {
-  meta_stack_tracker_raise_above (tracker, window, None);
+  meta_stack_tracker_raise_above (tracker, window, 0);
 }
 
 static void

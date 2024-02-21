@@ -801,7 +801,7 @@ rebuild_binding_table (MetaKeyBindingManager *keys,
         {
           MetaKeyCombo *combo = tmp->data;
 
-          if (combo && (combo->keysym != None || combo->keycode != 0))
+          if (combo && (combo->keysym != 0 || combo->keycode != 0))
             {
               MetaKeyHandler *handler = HANDLER (pref->name);
 
@@ -824,7 +824,7 @@ rebuild_binding_table (MetaKeyBindingManager *keys,
   while (g)
     {
       MetaKeyGrab *grab = (MetaKeyGrab*)g->data;
-      if (grab->combo.keysym != None || grab->combo.keycode != 0)
+      if (grab->combo.keysym != 0 || grab->combo.keycode != 0)
         {
           MetaKeyHandler *handler = HANDLER ("external-grab");
 
