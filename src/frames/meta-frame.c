@@ -30,7 +30,6 @@
 struct _MetaFrame
 {
   GtkWindow parent_instance;
-  GtkWidget *content;
   Atom atom__NET_WM_VISIBLE_NAME;
   Atom atom__NET_WM_NAME;
   Atom atom__MOTIF_WM_HINTS;
