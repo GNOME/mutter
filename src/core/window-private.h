@@ -39,7 +39,6 @@
 #include "meta/util.h"
 #include "meta/window.h"
 #include "wayland/meta-wayland-types.h"
-#include "x11/group-private.h"
 
 typedef struct _MetaWindowQueue MetaWindowQueue;
 

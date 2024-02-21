@@ -82,10 +82,10 @@
 #include "meta/meta-cursor-tracker.h"
 #include "meta/meta-enum-types.h"
 #include "meta/prefs.h"
-#include "mtk/mtk-x11.h"
 
 #ifdef HAVE_X11_CLIENT
 #include "meta/group.h"
+#include "mtk/mtk-x11.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/window-props.h"
 #include "x11/window-x11-private.h"

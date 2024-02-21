@@ -25,10 +25,12 @@
 #include "compositor/compositor-private.h"
 #include "core/display-private.h"
 #include "backends/meta-dnd-private.h"
+
+#ifdef HAVE_X11
 #include "backends/x11/meta-backend-x11.h"
-#include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-stage-x11.h"
 #include "x11/meta-x11-display-private.h"
+#endif
 
 struct _MetaDndClass
 {

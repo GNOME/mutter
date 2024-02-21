@@ -29,18 +29,25 @@
 #include <systemd/sd-login.h>
 #endif
 
+#include "backends/meta-monitor.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-virtual-monitor.h"
-#include "backends/x11/cm/meta-backend-x11-cm.h"
 #include "meta/meta-backend.h"
+
+#ifdef HAVE_X11
+#include "backends/x11/cm/meta-backend-x11-cm.h"
 #include "x11/session.h"
+#endif
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
 #endif
 
-#ifdef HAVE_WAYLAND
+#if defined (HAVE_X11) && defined (HAVE_WAYLAND)
 #include "backends/x11/nested/meta-backend-x11-nested.h"
+#endif
+
+#ifdef HAVE_WAYLAND
 #include "wayland/meta-wayland.h"
 #endif
 

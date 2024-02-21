@@ -55,13 +55,16 @@
 #include "backends/meta-orientation-manager.h"
 #include "backends/meta-output.h"
 #include "backends/meta-virtual-monitor.h"
-#include "backends/x11/meta-monitor-manager-xrandr.h"
 #include "clutter/clutter.h"
 #include "core/util-private.h"
 #include "meta/main.h"
 #include "meta/meta-enum-types.h"
 
 #include "meta-dbus-display-config.h"
+
+#ifdef HAVE_X11
+#include "backends/x11/meta-monitor-manager-xrandr.h"
+#endif
 
 #define DEFAULT_DISPLAY_CONFIGURATION_TIMEOUT 20
 

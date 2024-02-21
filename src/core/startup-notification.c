@@ -29,7 +29,6 @@
 #include "core/display-private.h"
 #include "core/startup-notification-private.h"
 #include "core/util-private.h"
-#include "x11/meta-x11-display-private.h"
 
 /* This should be fairly long, as it should never be required unless
  * apps or .desktop files are buggy, and it's confusing if

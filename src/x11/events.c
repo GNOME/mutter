@@ -39,6 +39,7 @@
 #include "core/meta-workspace-manager-private.h"
 #include "core/window-private.h"
 #include "core/workspace-private.h"
+#include "meta/group.h"
 #include "meta/meta-backend.h"
 #include "meta/meta-context.h"
 #include "mtk/mtk-x11.h"

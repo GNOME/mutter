@@ -66,7 +66,6 @@
 #include "backends/meta-remote-access-controller-private.h"
 #include "backends/meta-settings-private.h"
 #include "backends/meta-stage-private.h"
-#include "backends/x11/meta-backend-x11.h"
 #include "clutter/clutter-mutter.h"
 #include "clutter/clutter-seat-private.h"
 #include "compositor/meta-dnd-private.h"

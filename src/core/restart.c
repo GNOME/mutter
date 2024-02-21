@@ -43,7 +43,6 @@
 #include "core/display-private.h"
 #include "core/util-private.h"
 #include "meta/main.h"
-#include "x11/meta-x11-display-private.h"
 
 static gboolean restart_helper_started = FALSE;
 static gboolean restart_message_shown = FALSE;

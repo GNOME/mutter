@@ -46,7 +46,6 @@
 #include "core/meta-workspace-manager-private.h"
 #include "core/workspace-private.h"
 #include "meta/prefs.h"
-#include "x11/meta-x11-display-private.h"
 
 void meta_workspace_queue_calc_showing   (MetaWorkspace *workspace);
 static void focus_ancestor_or_mru_window (MetaWorkspace *workspace,

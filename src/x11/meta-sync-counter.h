@@ -22,6 +22,7 @@
 #include "meta/window.h"
 
 #include <string.h>
+#include <X11/Xutil.h>
 #include <X11/extensions/sync.h>
 
 typedef struct
