@@ -867,9 +867,6 @@ gboolean meta_window_calculate_bounds (MetaWindow *window,
                                        int        *bounds_width,
                                        int        *bounds_height);
 
-void meta_window_set_frame_xwindow (MetaWindow *window,
-                                    Window      xframe);
-
 void meta_window_maybe_apply_size_hints (MetaWindow   *window,
                                          MtkRectangle *target_rect);
 
