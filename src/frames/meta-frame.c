@@ -156,8 +156,8 @@ on_frame_close_request (GtkWindow *window,
 }
 
 static void
-meta_frame_update_extents (MetaFrame *frame,
-                           GtkBorder  border)
+update_extents (MetaFrame *frame,
+                GtkBorder  border)
 {
   GtkWindow *window = GTK_WINDOW (frame);
   GdkDisplay *display = gtk_widget_get_display (GTK_WIDGET (frame));
@@ -200,7 +200,7 @@ on_border_changed (GObject    *object,
 
   content = gtk_window_get_child (GTK_WINDOW (frame));
   border = meta_frame_content_get_border (META_FRAME_CONTENT (content));
-  meta_frame_update_extents (frame, border);
+  update_extents (frame, border);
 }
 
 static char *
@@ -537,11 +537,8 @@ meta_frame_new (Window window)
 
   scale = gdk_surface_get_scale_factor (gtk_native_get_surface (GTK_NATIVE (frame)));
 
-  meta_frame_update_extents (META_FRAME (frame),
-                             (GtkBorder) {
-                               0, 0,
-                               frame_height * scale, 0,
-                             });
+  update_extents (META_FRAME (frame),
+                  (GtkBorder) { 0, 0, frame_height * scale, 0 });
 
   frame_sync_net_wm_visible_name (GTK_WINDOW (frame), window);
   frame_sync_net_wm_name (GTK_WINDOW (frame), window);
