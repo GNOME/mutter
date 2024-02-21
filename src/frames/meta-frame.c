@@ -532,8 +532,6 @@ meta_frame_new (Window window)
   GdkDisplay *display;
   GtkWidget *frame, *header, *content;
   GdkSurface *surface;
-  int frame_height = 0;
-  double scale;
 
   frame = g_object_new (META_TYPE_FRAME, NULL);
 
@@ -548,21 +546,9 @@ meta_frame_new (Window window)
   surface = gtk_native_get_surface (GTK_NATIVE (frame));
   gdk_x11_surface_set_frame_sync_enabled (surface, TRUE);
 
+  update_extents (META_FRAME (frame), (GtkBorder) { 0, 0, 0, 0 });
+
   frame_sync_wm_state (META_FRAME (frame), window);
-
-  if (!gtk_window_is_fullscreen (GTK_WINDOW (frame)))
-    {
-      gtk_widget_measure (header,
-                          GTK_ORIENTATION_VERTICAL, 1,
-                          &frame_height,
-                          NULL, NULL, NULL);
-    }
-
-  scale = gdk_surface_get_scale_factor (gtk_native_get_surface (GTK_NATIVE (frame)));
-
-  update_extents (META_FRAME (frame),
-                  (GtkBorder) { 0, 0, frame_height * scale, 0 });
-
   frame_sync_net_wm_visible_name (GTK_WINDOW (frame), window);
   frame_sync_net_wm_name (GTK_WINDOW (frame), window);
   frame_sync_wm_name (GTK_WINDOW (frame), window);
