@@ -2988,12 +2988,13 @@ clutter_text_get_preferred_height (ClutterActor *self,
           if ((priv->ellipsize && priv->wrap) && !priv->single_line_mode)
             {
               PangoLayoutLine *line;
+              PangoRectangle logical_line_rect = { 0, };
               gfloat line_height;
 
               line = pango_layout_get_line_readonly (layout, 0);
-              pango_layout_line_get_extents (line, NULL, &logical_rect);
+              pango_layout_line_get_extents (line, NULL, &logical_line_rect);
 
-              logical_height = logical_rect.y + logical_rect.height;
+              logical_height = logical_rect.y + logical_line_rect.height;
               line_height = pango_to_logical_pixels (logical_height,
                                                      resource_scale);
 
