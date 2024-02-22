@@ -477,9 +477,9 @@ meta_frame_finalize (GObject *object)
 {
   MetaFrame *frame = META_FRAME (object);
 
-  g_free (frame->net_wm_visible_name);
-  g_free (frame->net_wm_name);
-  g_free (frame->wm_name);
+  g_clear_pointer (&frame->net_wm_visible_name, g_free);
+  g_clear_pointer (&frame->net_wm_name, g_free);
+  g_clear_pointer (&frame->wm_name, g_free);
 
   G_OBJECT_CLASS (meta_frame_parent_class)->finalize (object);
 }
