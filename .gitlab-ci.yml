@@ -84,8 +84,8 @@ variables:
   extends:
     - .skip-git-clone
   variables:
-    FDO_DISTRIBUTION_VERSION: 39
-    BASE_TAG: '2024-02-14.0'
+    FDO_DISTRIBUTION_VERSION: 40
+    BASE_TAG: '2024-02-23.0'
     MUTTER_USER: 'meta-user'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
@@ -119,20 +119,11 @@ variables:
       dnf builddep -y mutter --setopt=install_weak_deps=False
       dnf builddep -y gnome-shell --setopt=install_weak_deps=False
       dnf builddep -y kernel --setopt=install_weak_deps=False
-      dnf builddep -y libei --setopt=install_weak_deps=False
       dnf builddep -y gi-docgen --setopt=install_weak_deps=False
 
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/jadahl/catch.git \
         main
-
-      ./.gitlab-ci/install-meson-project.sh \
-        https://gitlab.freedesktop.org/libinput/libei.git \
-        1.0.901
-
-      ./.gitlab-ci/install-meson-project.sh \
-        https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas.git \
-        master
 
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/GNOME/gi-docgen.git \
