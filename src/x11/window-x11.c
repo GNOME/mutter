@@ -1846,14 +1846,6 @@ get_standalone_layer (MetaWindow *window)
 
   switch (window->type)
     {
-    case META_WINDOW_DOCK:
-      if (window->wm_state_below ||
-          (window->monitor && window->monitor->in_fullscreen))
-        layer = META_LAYER_BOTTOM;
-      else
-        layer = META_LAYER_DOCK;
-      break;
-
     case META_WINDOW_DROPDOWN_MENU:
     case META_WINDOW_POPUP_MENU:
     case META_WINDOW_TOOLTIP:

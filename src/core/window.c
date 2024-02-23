@@ -6099,6 +6099,13 @@ meta_window_get_default_layer (MetaWindow *window)
     return META_LAYER_TOP;
   else if (window->type == META_WINDOW_DESKTOP)
     return META_LAYER_DESKTOP;
+  else if (window->type == META_WINDOW_DOCK)
+    {
+      if (window->monitor && window->monitor->in_fullscreen)
+        return META_LAYER_BOTTOM;
+      else
+        return META_LAYER_DOCK;
+    }
   else
     return META_LAYER_NORMAL;
 }
