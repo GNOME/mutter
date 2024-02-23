@@ -266,8 +266,8 @@ main (int    argc,
 
   cursor_surface = wl_compositor_create_surface (display->compositor);
   cursor_theme = wl_cursor_theme_load (NULL, 24, display->shm);
-  cursor = wl_cursor_theme_get_cursor (cursor_theme, "left_ptr");
-  cursor2 = wl_cursor_theme_get_cursor (cursor_theme, "right_ptr");
+  cursor = wl_cursor_theme_get_cursor (cursor_theme, "default");
+  cursor2 = wl_cursor_theme_get_cursor (cursor_theme, "text");
   g_assert_nonnull (cursor);
   g_assert_nonnull (cursor2);
 
