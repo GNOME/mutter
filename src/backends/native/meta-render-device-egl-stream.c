@@ -64,10 +64,11 @@ get_egl_device_display (MetaRenderDevice  *render_device,
                                         error);
 }
 
-static const char *
-get_drm_device_file (MetaEgl     *egl,
-                     EGLDeviceEXT device,
-                     GError     **error)
+static gboolean
+get_drm_device_file (MetaEgl       *egl,
+                     EGLDeviceEXT   device,
+                     const char   **out_device_file_path,
+                     GError       **error)
 {
   if (!meta_egl_egl_device_has_extensions (egl, device,
                                            NULL,
@@ -77,12 +78,11 @@ get_drm_device_file (MetaEgl     *egl,
       g_set_error (error, G_IO_ERROR,
                    G_IO_ERROR_FAILED,
                    "Missing required EGLDevice extension EGL_EXT_device_drm");
-      return NULL;
+      return FALSE;
     }
 
-  return meta_egl_query_device_string (egl, device,
-                                       EGL_DRM_DEVICE_FILE_EXT,
-                                       error);
+  return meta_egl_query_device_string (egl, device, EGL_DRM_DEVICE_FILE_EXT,
+                                       out_device_file_path, error);
 }
 
 static EGLDeviceEXT
@@ -133,8 +133,8 @@ find_egl_device (MetaRenderDevice  *render_device,
 
       g_clear_error (error);
 
-      egl_device_drm_path = get_drm_device_file (egl, devices[i], error);
-      if (!egl_device_drm_path)
+      if (!get_drm_device_file (egl, devices[i], &egl_device_drm_path, error) ||
+          !egl_device_drm_path)
         continue;
 
       if (g_str_equal (egl_device_drm_path, device_file_path))

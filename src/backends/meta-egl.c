@@ -169,6 +169,25 @@ set_egl_error (GError **error)
                        error_str);
 }
 
+static void
+check_egl_error (GError **error)
+{
+  EGLint error_number;
+  const char *error_str;
+
+  if (!error)
+    return;
+
+  error_number = eglGetError ();
+  if (error_number == EGL_SUCCESS)
+    return;
+
+  error_str = get_egl_error_str (error_number);
+  g_set_error_literal (error, META_EGL_ERROR,
+                       error_number,
+                       error_str);
+}
+
 gboolean
 meta_extensions_string_has_extensions_valist (const char   *extensions_str,
                                               const char ***missing_extensions,
@@ -781,25 +800,32 @@ meta_egl_query_devices (MetaEgl      *egl,
   return TRUE;
 }
 
-const char *
-meta_egl_query_device_string (MetaEgl     *egl,
-                              EGLDeviceEXT device,
-                              EGLint       name,
-                              GError     **error)
+gboolean
+meta_egl_query_device_string (MetaEgl       *egl,
+                              EGLDeviceEXT   device,
+                              EGLint         name,
+                              const char   **out_string,
+                              GError       **error)
 {
+  g_autoptr (GError) local_error = NULL;
   const char *device_string;
 
   if (!is_egl_proc_valid (egl->eglQueryDeviceStringEXT, error))
-    return NULL;
+    return FALSE;
 
   device_string = egl->eglQueryDeviceStringEXT (device, name);
   if (!device_string)
     {
-      set_egl_error (error);
-      return NULL;
+      check_egl_error (&local_error);
+      if (local_error)
+        {
+          g_propagate_error (error, local_error);
+          return FALSE;
+        }
     }
 
-  return device_string;
+  *out_string = device_string;
+  return TRUE;
 }
 
 gboolean
@@ -812,14 +838,18 @@ meta_egl_egl_device_has_extensions (MetaEgl        *egl,
   va_list var_args;
   const char *extensions_str;
   gboolean has_extensions;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
 
-  extensions_str = meta_egl_query_device_string (egl, device, EGL_EXTENSIONS,
-                                                 &error);
-  if (!extensions_str)
+  if (!meta_egl_query_device_string (egl, device, EGL_EXTENSIONS,
+                                     &extensions_str, &error))
     {
       g_warning ("Failed to query device string: %s", error->message);
-      g_error_free (error);
+      return FALSE;
+    }
+
+  if (!extensions_str)
+    {
+      g_warning ("EGL_EXTENSIONS device string returned NULL");
       return FALSE;
     }
 

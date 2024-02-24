@@ -173,10 +173,11 @@ gboolean meta_egl_query_devices (MetaEgl      *egl,
                                  EGLint       *num_devices,
                                  GError      **error);
 
-const char * meta_egl_query_device_string (MetaEgl     *egl,
-                                           EGLDeviceEXT device,
-                                           EGLint       name,
-                                           GError     **error);
+gboolean meta_egl_query_device_string (MetaEgl       *egl,
+                                       EGLDeviceEXT   device,
+                                       EGLint         name,
+                                       const char   **out_string,
+                                       GError       **error);
 
 gboolean meta_egl_egl_device_has_extensions (MetaEgl        *egl,
                                              EGLDeviceEXT    device,

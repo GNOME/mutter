@@ -1821,10 +1821,9 @@ meta_wayland_dma_buf_manager_new (MetaWaylandCompositor  *compositor,
                                           "EGL_EXT_device_drm_render_node",
                                           NULL))
     {
-      device_path = meta_egl_query_device_string (egl, egl_device,
-                                                  EGL_DRM_RENDER_NODE_FILE_EXT,
-                                                  &local_error);
-      if (local_error)
+      if (!meta_egl_query_device_string (egl, egl_device,
+                                         EGL_DRM_RENDER_NODE_FILE_EXT,
+                                         &device_path, &local_error))
         {
           g_warning ("Failed to query EGL render node path: %s",
                      local_error->message);
@@ -1837,13 +1836,13 @@ meta_wayland_dma_buf_manager_new (MetaWaylandCompositor  *compositor,
                                           "EGL_EXT_device_drm",
                                           NULL))
     {
-      device_path = meta_egl_query_device_string (egl, egl_device,
-                                                  EGL_DRM_DEVICE_FILE_EXT,
-                                                  &local_error);
-      if (local_error)
+      if (!meta_egl_query_device_string (egl, egl_device,
+                                         EGL_DRM_DEVICE_FILE_EXT,
+                                         &device_path, &local_error))
         {
           g_warning ("Failed to query EGL render node path: %s",
                      local_error->message);
+          g_clear_error (&local_error);
         }
     }
 
