@@ -158,7 +158,10 @@ set_egl_error (GError **error)
 
   error_number = eglGetError ();
   if (error_number == EGL_SUCCESS)
-    return;
+    {
+      g_warning ("Expected an EGL error but eglGetError returned EGL_SUCCESS");
+      error_number = -1;
+    }
 
   error_str = get_egl_error_str (error_number);
   g_set_error_literal (error, META_EGL_ERROR,
