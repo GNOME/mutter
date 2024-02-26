@@ -992,10 +992,9 @@ build_format_params (MetaScreenCastStreamSrc *src,
   MetaScreenCast *screen_cast =
     meta_screen_cast_session_get_screen_cast (session);
   GArray *modifiers;
-  CoglPixelFormat preferred_cogl_format =
-    meta_screen_cast_stream_src_get_preferred_format (src);
-  enum spa_video_format preferred_spa_video_format;
-  enum spa_video_format spa_video_formats[2];
+  CoglPixelFormat preferred_cogl_format;
+  enum spa_video_format preferred_spa_video_format = 0;
+  enum spa_video_format spa_video_formats[G_N_ELEMENTS (supported_formats)];
   int n_spa_video_formats = 0;
   struct spa_rectangle default_size = DEFAULT_SIZE;
   struct spa_rectangle min_size = MIN_SIZE;
@@ -1022,14 +1021,16 @@ build_format_params (MetaScreenCastStreamSrc *src,
       min_size = max_size = default_size = SPA_RECTANGLE (width, height);
     }
 
-  if (preferred_cogl_format != DEFAULT_COGL_PIXEL_FORMAT &&
-      spa_video_format_from_cogl_pixel_format (preferred_cogl_format,
+  preferred_cogl_format = meta_screen_cast_stream_src_get_preferred_format (src);
+  if (spa_video_format_from_cogl_pixel_format (preferred_cogl_format,
                                                &preferred_spa_video_format))
-    {
-      spa_video_formats[n_spa_video_formats++] = preferred_spa_video_format;
-    }
+    spa_video_formats[n_spa_video_formats++] = preferred_spa_video_format;
 
-  spa_video_formats[n_spa_video_formats++] = SPA_VIDEO_FORMAT_BGRx;
+  for (i = 0; i < G_N_ELEMENTS (supported_formats); i++)
+    {
+      if (supported_formats[i].spa_video_format != preferred_spa_video_format)
+        spa_video_formats[n_spa_video_formats++] = supported_formats[i].spa_video_format;
+    }
 
   g_assert (n_spa_video_formats > 0 &&
             n_spa_video_formats <= G_N_ELEMENTS (spa_video_formats));
