@@ -482,7 +482,8 @@ should_constraint_be_enabled (MetaWaylandPointerConstraint *constraint)
   if (window->unmanaging)
     return FALSE;
 
-  if (constraint->seat->pointer->current != constraint->surface)
+  if (constraint->surface !=
+      meta_wayland_pointer_get_focus_surface (constraint->seat->pointer))
     return FALSE;
 
   if (meta_wayland_surface_is_xwayland (constraint->surface))
