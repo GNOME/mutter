@@ -1421,6 +1421,12 @@ meta_wayland_pointer_get_current_surface (MetaWaylandPointer *pointer)
 }
 
 MetaWaylandSurface *
+meta_wayland_pointer_get_focus_surface (MetaWaylandPointer *pointer)
+{
+  return pointer->focus_surface;
+}
+
+MetaWaylandSurface *
 meta_wayland_pointer_get_implicit_grab_surface (MetaWaylandPointer *pointer)
 {
   if (pointer->button_count > 0)
