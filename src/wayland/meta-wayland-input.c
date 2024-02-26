@@ -137,9 +137,10 @@ meta_wayland_event_handler_invalidate_focus (MetaWaylandEventHandler *handler,
 }
 
 static void
-meta_wayland_event_handler_invalidate_all_focus (MetaWaylandEventHandler *handler)
+meta_wayland_input_invalidate_all_focus (MetaWaylandInput *input)
 {
-  MetaWaylandSeat *seat = handler->input->seat;
+  MetaWaylandEventHandler *handler;
+  MetaWaylandSeat *seat = input->seat;
   ClutterSeat *clutter_seat =
     clutter_backend_get_default_seat (clutter_get_default_backend ());
   ClutterInputDevice *device;
@@ -149,12 +150,14 @@ meta_wayland_event_handler_invalidate_all_focus (MetaWaylandEventHandler *handle
   if (meta_wayland_seat_has_pointer (seat))
     {
       device = clutter_seat_get_pointer (clutter_seat);
+      handler = wl_container_of (input->event_handler_list.next, handler, link);
       meta_wayland_event_handler_invalidate_focus (handler, device, NULL);
     }
 
   if (meta_wayland_seat_has_keyboard (seat))
     {
       device = clutter_seat_get_keyboard (clutter_seat);
+      handler = wl_container_of (input->event_handler_list.next, handler, link);
       meta_wayland_event_handler_invalidate_focus (handler, device, NULL);
     }
 
@@ -163,11 +166,17 @@ meta_wayland_event_handler_invalidate_all_focus (MetaWaylandEventHandler *handle
 
   g_hash_table_iter_init (&iter, seat->tablet_seat->tablets);
   while (g_hash_table_iter_next (&iter, (gpointer*) &device, NULL))
-    meta_wayland_event_handler_invalidate_focus (handler, device, NULL);
+    {
+      handler = wl_container_of (input->event_handler_list.next, handler, link);
+      meta_wayland_event_handler_invalidate_focus (handler, device, NULL);
+    }
 
   g_hash_table_iter_init (&iter, seat->tablet_seat->pads);
   while (g_hash_table_iter_next (&iter, (gpointer*) &device, NULL))
-    meta_wayland_event_handler_invalidate_focus (handler, device, NULL);
+    {
+      handler = wl_container_of (input->event_handler_list.next, handler, link);
+      meta_wayland_event_handler_invalidate_focus (handler, device, NULL);
+    }
 }
 
 static gboolean
@@ -248,7 +257,7 @@ meta_wayland_input_sync_focus (MetaWaylandInput *input)
 
   g_assert (!wl_list_empty (&input->event_handler_list));
   handler = wl_container_of (input->event_handler_list.next, handler, link);
-  meta_wayland_event_handler_invalidate_all_focus (handler);
+  meta_wayland_input_invalidate_all_focus (input);
 }
 
 static void
@@ -299,7 +308,7 @@ meta_wayland_input_attach_event_handler (MetaWaylandInput                *input,
                                 input);
     }
 
-  meta_wayland_event_handler_invalidate_all_focus (handler);
+  meta_wayland_input_invalidate_all_focus (input);
 
   return handler;
 }
@@ -331,7 +340,7 @@ meta_wayland_input_detach_event_handler (MetaWaylandInput        *input,
         wl_container_of (input->event_handler_list.next,
                          head, link);
 
-      meta_wayland_event_handler_invalidate_all_focus (head);
+      meta_wayland_input_invalidate_all_focus (input);
     }
 
   if (input->grab && !should_be_grabbed (input))
