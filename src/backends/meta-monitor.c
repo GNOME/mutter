@@ -1908,9 +1908,8 @@ calculate_scale (MetaMonitor                *monitor,
   float diag_inches;
   g_autofree float *scales = NULL;
   int n_scales;
-  float best_scale, best_dpi;
+  float best_scale, physical_dpi, perfect_scale, best_scale_error;
   int target_dpi;
-  const float scale_epsilon = 0.2f;
 
   /*
    * Somebody encoded the aspect ratio (16/9 or 16/10) instead of the physical
@@ -1933,44 +1932,27 @@ calculate_scale (MetaMonitor                *monitor,
 
   meta_monitor_mode_get_resolution (monitor_mode, &width_px, &height_px);
 
+  physical_dpi = sqrtf (width_px * width_px + height_px * height_px) /
+                 diag_inches;
+  perfect_scale = physical_dpi / target_dpi;
+
+  if (constraints & META_MONITOR_SCALES_CONSTRAINT_NO_FRAC)
+    perfect_scale -= 0.25f;
+
   /* We'll only be considering the supported scale factors */
   scales = meta_monitor_calculate_supported_scales (monitor, monitor_mode,
-                                                    META_MONITOR_SCALES_CONSTRAINT_NONE,
+                                                    constraints,
                                                     &n_scales);
   best_scale = scales[0];
   for (int i = 0; i < n_scales; i++)
     {
-      float width_scaled, height_scaled, diag_scaled, dpi;
+      float scale_error = fabsf (scales[i] - perfect_scale);
 
-      /*
-       * Compute the logical resolution of the display for this
-       * scale factor
-       */
-      width_scaled = (float) width_px / scales[i];
-      height_scaled = (float) height_px / scales[i];
-
-      /* Compute the number of logical pixels across the display's diagonal */
-      diag_scaled = sqrtf (width_scaled * width_scaled +
-                           height_scaled * height_scaled);
-
-      /*
-       * Computes the display's logical DPI - the number of logical pixels
-       * per inch on the display's diagonal
-       */
-      dpi = diag_scaled / diag_inches;
-
-      /* Pick the scale factor whose logical DPI is closest to the optimal value */
-      if (i == 0 || fabsf (dpi - target_dpi) < fabsf (best_dpi - target_dpi))
+      if (i == 0 || scale_error < best_scale_error)
         {
           best_scale = scales[i];
-          best_dpi = dpi;
+          best_scale_error = scale_error;
         }
-    }
-
-  if (constraints & META_MONITOR_SCALES_CONSTRAINT_NO_FRAC)
-    {
-      best_scale = floorf (MIN (scales[n_scales - 1],
-                                best_scale + 0.25f + scale_epsilon));
     }
 
   return best_scale;

@@ -47,7 +47,7 @@ Monitors:
    │   ├──2560x1440@60.000
    │   │   ├──Dimension: 2560x1440
    │   │   ├──Refresh rate: 60.000
-   │   │   ├──Preferred scale: 1.7582417726516724
+   │   │   ├──Preferred scale: 1.495327115058899
    │   │   ├──Supported scales: [1.0, 1.25, 1.495327115058899, 1.7582417726516724, 2.0, 2.253521203994751, 2.5, 2.7586207389831543, 3.0188679695129395]
    │   │   └──Properties: (2)
    │   │       ├──is-current ⇒  yes
@@ -91,7 +91,7 @@ Logical monitors:
 │  └──Properties: (0)
 └──Logical monitor #2
    ├──Position: (1744, 0)
-   ├──Scale: 1.7582417726516724
+   ├──Scale: 1.495327115058899
    ├──Transform: normal
    ├──Primary: no
    ├──Monitors: (1)
