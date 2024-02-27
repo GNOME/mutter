@@ -601,23 +601,17 @@ meta_wayland_seat_get_grab_info (MetaWaylandSeat       *seat,
         }
     }
 
-  if (meta_wayland_seat_has_pointer (seat))
+  if (meta_wayland_seat_has_pointer (seat) &&
+      meta_wayland_pointer_get_grab_info (seat->pointer,
+                                          surface,
+                                          serial,
+                                          require_pressed,
+                                          device_out,
+                                          x, y))
     {
-      if ((!require_pressed || seat->pointer->button_count > 0) &&
-          meta_wayland_pointer_can_grab_surface (seat->pointer, surface, serial))
-        {
-          if (device_out)
-            *device_out = seat->pointer->device;
-          if (sequence_out)
-            *sequence_out = NULL;
-
-          if (x)
-            *x = seat->pointer->grab_x;
-          if (y)
-            *y = seat->pointer->grab_y;
-
-          return TRUE;
-        }
+      if (sequence_out)
+        *sequence_out = NULL;
+      return TRUE;
     }
 
   if (meta_wayland_tablet_seat_get_grab_info (seat->tablet_seat,
