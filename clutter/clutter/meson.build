@@ -315,6 +315,7 @@ if have_introspection
       libmutter_cogl_gir[0],
       libmutter_cogl_pango_gir[0],
       'GL-1.0',
+      'Gio-2.0',
       'GObject-2.0',
       'cairo-1.0',
       'Atk-1.0',
