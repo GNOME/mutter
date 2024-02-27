@@ -905,34 +905,31 @@ void
 meta_wayland_compositor_restore_shortcuts (MetaWaylandCompositor *compositor,
                                            ClutterInputDevice    *source)
 {
-  MetaWaylandKeyboard *keyboard;
+  MetaWaylandSurface *focus;
 
   /* Clutter is not multi-seat aware yet, use the default seat instead */
-  keyboard = compositor->seat->keyboard;
-  if (!keyboard || !keyboard->focus_surface)
+  focus = meta_wayland_seat_get_input_focus (compositor->seat);
+  if (!focus)
     return;
 
-  if (!meta_wayland_surface_is_shortcuts_inhibited (keyboard->focus_surface,
-                                                    compositor->seat))
+  if (!meta_wayland_surface_is_shortcuts_inhibited (focus, compositor->seat))
     return;
 
-  meta_wayland_surface_restore_shortcuts (keyboard->focus_surface,
-                                          compositor->seat);
+  meta_wayland_surface_restore_shortcuts (focus, compositor->seat);
 }
 
 gboolean
 meta_wayland_compositor_is_shortcuts_inhibited (MetaWaylandCompositor *compositor,
                                                 ClutterInputDevice    *source)
 {
-  MetaWaylandKeyboard *keyboard;
+  MetaWaylandSurface *focus;
 
   /* Clutter is not multi-seat aware yet, use the default seat instead */
-  keyboard = compositor->seat->keyboard;
-  if (keyboard && keyboard->focus_surface != NULL)
-    return meta_wayland_surface_is_shortcuts_inhibited (keyboard->focus_surface,
-                                                        compositor->seat);
+  focus = meta_wayland_seat_get_input_focus (compositor->seat);
+  if (!focus)
+    return FALSE;
 
-  return FALSE;
+  return meta_wayland_surface_is_shortcuts_inhibited (focus, compositor->seat);
 }
 
 void
