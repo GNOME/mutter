@@ -1265,6 +1265,7 @@ if have_introspection
     namespace: 'Meta',
     symbol_prefix: 'meta',
     includes: [
+      'Gio-2.0',
       'GObject-2.0',
       'GDesktopEnums-3.0',
       'xlib-2.0',
