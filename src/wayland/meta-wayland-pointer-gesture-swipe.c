@@ -37,10 +37,12 @@ handle_swipe_begin (MetaWaylandPointer *pointer,
 {
   MetaWaylandPointerClient *pointer_client;
   MetaWaylandSeat *seat;
+  MetaWaylandSurface *focus_surface;
   struct wl_resource *resource;
   uint32_t serial, fingers;
 
-  pointer_client = pointer->focus_client;
+  pointer_client = meta_wayland_pointer_get_focus_client (pointer);
+  focus_surface = meta_wayland_pointer_get_focus_surface (pointer);
   seat = meta_wayland_pointer_get_seat (pointer);
   serial = wl_display_next_serial (seat->wl_display);
   fingers = clutter_event_get_touchpad_gesture_finger_count (event);
@@ -51,7 +53,7 @@ handle_swipe_begin (MetaWaylandPointer *pointer,
     {
       zwp_pointer_gesture_swipe_v1_send_begin (resource, serial,
                                                clutter_event_get_time (event),
-                                               pointer->focus_surface->resource,
+                                               focus_surface->resource,
                                                fingers);
     }
 }
@@ -64,7 +66,7 @@ handle_swipe_update (MetaWaylandPointer *pointer,
   struct wl_resource *resource;
   gdouble dx, dy;
 
-  pointer_client = pointer->focus_client;
+  pointer_client = meta_wayland_pointer_get_focus_client (pointer);
   clutter_event_get_gesture_motion_delta (event, &dx, &dy);
 
   wl_resource_for_each (resource, &pointer_client->swipe_gesture_resources)
@@ -85,7 +87,7 @@ broadcast_end (MetaWaylandPointer *pointer,
   MetaWaylandPointerClient *pointer_client;
   struct wl_resource *resource;
 
-  pointer_client = pointer->focus_client;
+  pointer_client = meta_wayland_pointer_get_focus_client (pointer);
 
   wl_resource_for_each (resource, &pointer_client->swipe_gesture_resources)
     {
@@ -123,7 +125,7 @@ meta_wayland_pointer_gesture_swipe_handle_event (MetaWaylandPointer *pointer,
   if (clutter_event_type (event) != CLUTTER_TOUCHPAD_SWIPE)
     return FALSE;
 
-  if (!pointer->focus_client)
+  if (!meta_wayland_pointer_get_focus_client (pointer))
     return FALSE;
 
   switch (clutter_event_get_gesture_phase (event))
