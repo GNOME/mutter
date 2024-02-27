@@ -563,6 +563,12 @@ meta_wayland_seat_set_input_focus (MetaWaylandSeat    *seat,
   meta_wayland_text_input_set_focus (seat->text_input, surface);
 }
 
+MetaWaylandSurface *
+meta_wayland_seat_get_input_focus (MetaWaylandSeat *seat)
+{
+  return seat->input_focus;
+}
+
 gboolean
 meta_wayland_seat_get_grab_info (MetaWaylandSeat       *seat,
                                  MetaWaylandSurface    *surface,

@@ -72,6 +72,8 @@ gboolean meta_wayland_seat_handle_event (MetaWaylandSeat *seat,
 void meta_wayland_seat_set_input_focus (MetaWaylandSeat    *seat,
                                         MetaWaylandSurface *surface);
 
+MetaWaylandSurface * meta_wayland_seat_get_input_focus (MetaWaylandSeat *seat);
+
 gboolean meta_wayland_seat_get_grab_info (MetaWaylandSeat       *seat,
                                           MetaWaylandSurface    *surface,
                                           uint32_t               serial,
