@@ -129,3 +129,5 @@ void meta_wayland_pointer_focus_surface (MetaWaylandPointer *pointer,
                                          MetaWaylandSurface *surface);
 
 MetaWaylandSurface * meta_wayland_pointer_get_implicit_grab_surface (MetaWaylandPointer *pointer);
+
+MetaWaylandPointerClient * meta_wayland_pointer_get_focus_client (MetaWaylandPointer *pointer);

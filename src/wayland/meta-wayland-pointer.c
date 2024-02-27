@@ -1460,3 +1460,9 @@ meta_wayland_pointer_get_implicit_grab_surface (MetaWaylandPointer *pointer)
 
   return NULL;
 }
+
+MetaWaylandPointerClient *
+meta_wayland_pointer_get_focus_client (MetaWaylandPointer *pointer)
+{
+  return pointer->focus_client;
+}
