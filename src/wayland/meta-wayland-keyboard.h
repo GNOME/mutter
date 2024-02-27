@@ -54,40 +54,6 @@ G_DECLARE_FINAL_TYPE (MetaWaylandKeyboard, meta_wayland_keyboard,
                       META, WAYLAND_KEYBOARD,
                       MetaWaylandInputDevice)
 
-typedef struct
-{
-  struct xkb_keymap *keymap;
-  struct xkb_state *state;
-  MetaAnonymousFile *keymap_rofile;
-} MetaWaylandXkbInfo;
-
-struct _MetaWaylandKeyboard
-{
-  MetaWaylandInputDevice parent;
-
-  struct wl_list resource_list;
-  struct wl_list focus_resource_list;
-
-  MetaWaylandSurface *focus_surface;
-  struct wl_listener focus_surface_listener;
-  uint32_t focus_serial;
-
-  uint32_t key_down_keycode;
-  uint32_t key_down_serial;
-
-  uint32_t key_up_keycode;
-  uint32_t key_up_serial;
-
-  struct wl_array pressed_keys;
-
-  MetaWaylandXkbInfo xkb_info;
-  enum xkb_state_component mods_changed;
-  xkb_mod_mask_t kbd_a11y_latched_mods;
-  xkb_mod_mask_t kbd_a11y_locked_mods;
-
-  GSettings *settings;
-};
-
 void meta_wayland_keyboard_enable (MetaWaylandKeyboard *keyboard);
 
 void meta_wayland_keyboard_disable (MetaWaylandKeyboard *keyboard);
