@@ -83,17 +83,17 @@ cogl_fence_closure_get_user_data (CoglFenceClosure *closure);
 /**
  * cogl_framebuffer_add_fence_callback:
  * @framebuffer: The #CoglFramebuffer the commands have been submitted to
- * @callback: (scope notified): A #CoglFenceCallback to be called when
+ * @callback: (scope async): A #CoglFenceCallback to be called when
  *            all commands submitted to Cogl have been executed
  * @user_data: (closure): Private data that will be passed to the callback
  *
  * Calls the provided callback when all previously-submitted commands have
  * been executed by the GPU.
  *
- * Returns non-NULL if the fence succeeded, or %NULL if it was unable to
- * be inserted and the callback will never be called.  The user does not
- * need to free the closure; it will be freed automatically when the
- * callback is called, or cancelled.
+ * Returns: (transfer none) (nullable): non-NULL if the fence succeeded,
+ * or %NULL if it was unable to  be inserted and the callback will never be
+ * called.  The user does not need to free the closure; it will be freed
+ * automatically when the callback is called, or cancelled.
  */
 COGL_EXPORT CoglFenceClosure *
 cogl_framebuffer_add_fence_callback (CoglFramebuffer *framebuffer,

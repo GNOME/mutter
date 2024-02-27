@@ -67,7 +67,7 @@ G_DECLARE_FINAL_TYPE (CoglBitmap,
                       GObject)
 
 /**
- * cogl_bitmap_new_from_buffer: (skip)
+ * cogl_bitmap_new_from_buffer:
  * @buffer: A #CoglBuffer containing image data
  * @format: The #CoglPixelFormat defining the format of the image data
  *          in the given @buffer.
@@ -91,7 +91,7 @@ cogl_bitmap_new_from_buffer (CoglBuffer *buffer,
                              int offset);
 
 /**
- * cogl_bitmap_new_with_size: (skip)
+ * cogl_bitmap_new_with_size:
  * @context: A #CoglContext
  * @width: width of the bitmap in pixels
  * @height: height of the bitmap in pixels
@@ -123,14 +123,15 @@ cogl_bitmap_new_with_size (CoglContext *context,
                            CoglPixelFormat format);
 
 /**
- * cogl_bitmap_new_for_data: (skip)
+ * cogl_bitmap_new_for_data:
  * @context: A #CoglContext
  * @width: The width of the bitmap.
  * @height: The height of the bitmap.
  * @format: The format of the pixel data.
  * @rowstride: The rowstride of the bitmap (the number of bytes from
  *   the start of one row of the bitmap to the next).
- * @data: A pointer to the data. The bitmap will take ownership of this data.
+ * @data: (array) (transfer full): A pointer to the data. The bitmap will take
+ *   ownership of this data.
  *
  * Creates a bitmap using some existing data. The data is not copied
  * so the application must keep the buffer alive for the lifetime of
@@ -187,7 +188,7 @@ COGL_EXPORT int
 cogl_bitmap_get_rowstride (CoglBitmap *bitmap);
 
 /**
- * cogl_bitmap_get_buffer: (skip)
+ * cogl_bitmap_get_buffer:
  * @bitmap: A #CoglBitmap
  *
  * Return value: (transfer none): the #CoglPixelBuffer that this

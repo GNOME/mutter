@@ -103,7 +103,7 @@ G_DECLARE_FINAL_TYPE (CoglContext,
                       GObject)
 
 /**
- * cogl_context_new: (constructor) (skip)
+ * cogl_context_new: (constructor)
  * @display: (allow-none): A #CoglDisplay pointer
  * @error: A GError return location.
  *
@@ -117,7 +117,7 @@ cogl_context_new (CoglDisplay *display,
                   GError **error);
 
 /**
- * cogl_context_get_display: (skip)
+ * cogl_context_get_display:
  * @context: A #CoglContext pointer
  *
  * Retrieves the #CoglDisplay that is internally associated with the
@@ -133,7 +133,7 @@ COGL_EXPORT CoglDisplay *
 cogl_context_get_display (CoglContext *context);
 
 /**
- * cogl_context_get_renderer: (skip)
+ * cogl_context_get_renderer:
  * @context: A #CoglContext pointer
  *
  * Retrieves the #CoglRenderer that is internally associated with the
@@ -342,6 +342,11 @@ COGL_EXPORT CoglPipeline *
 cogl_context_get_named_pipeline (CoglContext     *context,
                                  CoglPipelineKey *key);
 
+/**
+ * cogl_context_free_timestamp_query:
+ * @context: a #CoglContext pointer
+ * @query: (transfer full): a #CoglTimestampQuery
+ */
 COGL_EXPORT void
 cogl_context_free_timestamp_query (CoglContext        *context,
                                    CoglTimestampQuery *query);

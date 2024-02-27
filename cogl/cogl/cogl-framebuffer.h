@@ -495,7 +495,7 @@ cogl_framebuffer_push_rectangle_clip (CoglFramebuffer *framebuffer,
                                       float y_2);
 
 /**
- * cogl_framebuffer_push_primitive_clip: (skip)
+ * cogl_framebuffer_push_primitive_clip:
  * @framebuffer: A #CoglFramebuffer pointer
  * @primitive: A #CoglPrimitive describing a flat 2D shape
  * @bounds_x1: x coordinate for the top-left corner of the primitives

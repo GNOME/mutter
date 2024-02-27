@@ -179,7 +179,7 @@ COGL_EXPORT CoglWinsysID
 cogl_renderer_get_winsys_id (CoglRenderer *renderer);
 
 /**
- * cogl_renderer_check_onscreen_template: (skip)
+ * cogl_renderer_check_onscreen_template:
  * @renderer: A #CoglRenderer
  * @onscreen_template: A #CoglOnscreenTemplate
  * @error: A pointer to a #GError for reporting exceptions
@@ -375,7 +375,7 @@ cogl_renderer_create_dma_buf (CoglRenderer     *renderer,
 
 
 /**
- * cogl_renderer_is_dma_buf_supported: (skip)
+ * cogl_renderer_is_dma_buf_supported:
  * @renderer: A #CoglRenderer
  *
  * Returns: %TRUE if DMA buffers can be allocated
@@ -384,7 +384,7 @@ COGL_EXPORT gboolean
 cogl_renderer_is_dma_buf_supported (CoglRenderer *renderer);
 
 /**
- * cogl_renderer_bind_api: (skip)
+ * cogl_renderer_bind_api:
  */
 COGL_EXPORT void
 cogl_renderer_bind_api (CoglRenderer *renderer);

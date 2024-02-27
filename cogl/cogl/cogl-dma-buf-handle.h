@@ -53,7 +53,8 @@ cogl_dma_buf_handle_new (CoglFramebuffer *framebuffer,
                          GDestroyNotify   destroy_func);
 
 /**
- * cogl_dma_buf_handle_free: (skip)
+ * cogl_dma_buf_handle_free:
+ * @dmabuf_handle: (transfer full): a #CoglDmaBufHandle
  *
  * Releases @dmabuf_handle; it is a programming error to release
  * an already released handle.
@@ -79,7 +80,7 @@ cogl_dma_buf_handle_munmap (CoglDmaBufHandle  *dmabuf_handle,
                             GError           **error);
 
 /**
- * cogl_dma_buf_handle_get_framebuffer: (skip)
+ * cogl_dma_buf_handle_get_framebuffer:
  *
  * Retrieves the #CoglFramebuffer, backed by an exported DMABuf buffer,
  * of @dmabuf_handle.
@@ -90,7 +91,7 @@ COGL_EXPORT CoglFramebuffer *
 cogl_dma_buf_handle_get_framebuffer (CoglDmaBufHandle *dmabuf_handle);
 
 /**
- * cogl_dma_buf_handle_get_fd: (skip)
+ * cogl_dma_buf_handle_get_fd:
  *
  * Retrieves the file descriptor of @dmabuf_handle.
  *
@@ -100,7 +101,7 @@ COGL_EXPORT int
 cogl_dma_buf_handle_get_fd (CoglDmaBufHandle *dmabuf_handle);
 
 /**
- * cogl_dmabuf_handle_get_width: (skip)
+ * cogl_dmabuf_handle_get_width:
  *
  * Returns: the buffer width
  */
@@ -108,7 +109,7 @@ COGL_EXPORT int
 cogl_dma_buf_handle_get_width (CoglDmaBufHandle *dmabuf_handle);
 
 /**
- * cogl_dmabuf_handle_get_height: (skip)
+ * cogl_dmabuf_handle_get_height:
  *
  * Returns: the buffer height
  */
@@ -116,7 +117,7 @@ COGL_EXPORT int
 cogl_dma_buf_handle_get_height (CoglDmaBufHandle *dmabuf_handle);
 
 /**
- * cogl_dmabuf_handle_get_stride: (skip)
+ * cogl_dmabuf_handle_get_stride:
  *
  * Returns: the buffer stride
  */
@@ -124,7 +125,7 @@ COGL_EXPORT int
 cogl_dma_buf_handle_get_stride (CoglDmaBufHandle *dmabuf_handle);
 
 /**
- * cogl_dmabuf_handle_get_offset: (skip)
+ * cogl_dmabuf_handle_get_offset:
  *
  * Returns: the buffer offset
  */
@@ -132,7 +133,7 @@ COGL_EXPORT int
 cogl_dma_buf_handle_get_offset (CoglDmaBufHandle *dmabuf_handle);
 
 /**
- * cogl_dmabuf_handle_get_bpp: (skip)
+ * cogl_dmabuf_handle_get_bpp:
  *
  * Returns: the number of bytes per pixel
  */

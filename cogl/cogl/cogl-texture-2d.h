@@ -80,7 +80,7 @@ typedef enum _CoglEglImageFlags
 } CoglEglImageFlags;
 
 /**
- * cogl_texture_2d_new_with_format: (skip)
+ * cogl_texture_2d_new_with_format:
  * @ctx: A #CoglContext
  * @width: Width of the texture to allocate
  * @height: Height of the texture to allocate
@@ -111,7 +111,7 @@ cogl_texture_2d_new_with_format (CoglContext *ctx,
                                  CoglPixelFormat format);
 
 /**
- * cogl_texture_2d_new_with_size: (skip)
+ * cogl_texture_2d_new_with_size:
  * @ctx: A #CoglContext
  * @width: Width of the texture to allocate
  * @height: Height of the texture to allocate
@@ -138,7 +138,7 @@ cogl_texture_2d_new_with_size (CoglContext *ctx,
                                int height);
 
 /**
- * cogl_texture_2d_new_from_data: (skip)
+ * cogl_texture_2d_new_from_data:
  * @ctx: A #CoglContext
  * @width: width of texture in pixels
  * @height: height of texture in pixels
@@ -146,7 +146,7 @@ cogl_texture_2d_new_with_size (CoglContext *ctx,
  * @rowstride: the memory offset in bytes between the starts of
  *    scanlines in @data. A value of 0 will make Cogl automatically
  *    calculate @rowstride from @width and @format.
- * @data: pointer the memory region where the source buffer resides
+ * @data: (array): pointer the memory region where the source buffer resides
  * @error: A #GError for exceptions
  *
  * Creates a low-level #CoglTexture2D texture based on data residing

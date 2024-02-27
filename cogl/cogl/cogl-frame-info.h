@@ -109,9 +109,6 @@ int64_t cogl_frame_info_get_presentation_time_us (CoglFrameInfo *info);
 COGL_EXPORT
 float cogl_frame_info_get_refresh_rate (CoglFrameInfo *info);
 
-/**
- * cogl_frame_info_get_global_frame_counter: (skip)
- */
 COGL_EXPORT
 int64_t cogl_frame_info_get_global_frame_counter (CoglFrameInfo *info);
 

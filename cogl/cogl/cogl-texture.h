@@ -461,7 +461,7 @@ cogl_texture_allocate (CoglTexture *texture,
                        GError **error);
 
 /**
- * cogl_texture_is_get_data_supported: (skip)
+ * cogl_texture_is_get_data_supported:
  */
 COGL_EXPORT gboolean
 cogl_texture_is_get_data_supported (CoglTexture *texture);

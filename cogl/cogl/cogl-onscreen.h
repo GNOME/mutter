@@ -279,7 +279,7 @@ cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
                                         gpointer user_data);
 
 /**
- * cogl_onscreen_direct_scanout: (skip)
+ * cogl_onscreen_direct_scanout:
  */
 COGL_EXPORT gboolean
 cogl_onscreen_direct_scanout (CoglOnscreen   *onscreen,
@@ -289,7 +289,9 @@ cogl_onscreen_direct_scanout (CoglOnscreen   *onscreen,
                               GError        **error);
 
 /**
- * cogl_onscreen_add_frame_info: (skip)
+ * cogl_onscreen_add_frame_info:
+ * @onscreen: A #CoglOnscreen framebuffer
+ * @info: (transfer full): A #CoglFrameInfo
  */
 COGL_EXPORT void
 cogl_onscreen_add_frame_info (CoglOnscreen  *onscreen,

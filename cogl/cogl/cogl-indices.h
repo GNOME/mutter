@@ -124,6 +124,11 @@ cogl_indices_new_for_buffer (CoglIndicesType type,
                              CoglIndexBuffer *buffer,
                              size_t offset);
 
+/**
+ * cogl_indices_get_buffer:
+ *
+ * Returns: (transfer none): a #CoglIndexBuffer
+ */
 COGL_EXPORT CoglIndexBuffer *
 cogl_indices_get_buffer (CoglIndices *indices);
 
@@ -137,6 +142,11 @@ COGL_EXPORT void
 cogl_indices_set_offset (CoglIndices *indices,
                          size_t offset);
 
+/**
+ * cogl_get_rectangle_indices:
+ *
+ * Returns: (transfer none): a #CoglIndices
+ */
 COGL_EXPORT CoglIndices *
 cogl_get_rectangle_indices (CoglContext *context, int n_rectangles);
 

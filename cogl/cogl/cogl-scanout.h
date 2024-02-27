@@ -68,6 +68,11 @@ gboolean cogl_scanout_blit_to_framebuffer (CoglScanout      *scanout,
 int cogl_scanout_buffer_get_width (CoglScanoutBuffer *scanout_buffer);
 int cogl_scanout_buffer_get_height (CoglScanoutBuffer *scanout_buffer);
 
+/**
+ * cogl_scanout_get_buffer:
+ *
+ * Returns: (transfer none): a #CoglScanoutBuffer
+ */
 COGL_EXPORT
 CoglScanoutBuffer * cogl_scanout_get_buffer (CoglScanout *scanout);
 

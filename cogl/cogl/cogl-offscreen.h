@@ -91,7 +91,9 @@ COGL_EXPORT CoglOffscreen *
 cogl_offscreen_new_with_texture (CoglTexture *texture);
 
 /**
- * cogl_offscreen_get_texture: (skip)
+ * cogl_offscreen_get_texture:
+ *
+ * Returns: (transfer none): a #CoglTexture
  */
 COGL_EXPORT CoglTexture *
 cogl_offscreen_get_texture (CoglOffscreen *offscreen);

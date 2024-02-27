@@ -306,8 +306,10 @@ cogl_pipeline_get_n_layers (CoglPipeline *pipeline);
  * cogl_pipeline_get_layer_filters:
  * @pipeline: A #CoglPipeline object
  * @layer_index: the layer number to change.
- * @min_filter: Return location for the filter used when scaling a texture down.
- * @mag_filter: Return location for the filter used when magnifying a texture.
+ * @min_filter: (out): Return location for the filter used when scaling
+ *   a texture down.
+ * @mag_filter: (out): Return location for the filter used when magnifying
+ *   a texture.
  *
  * Returns the decimation and interpolation filters used when a texture is
  * drawn at other scales than 100%.

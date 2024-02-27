@@ -164,10 +164,10 @@ cogl_atlas_texture_new_from_data (CoglContext *ctx,
 
 /**
  * cogl_atlas_texture_new_from_bitmap:
- * @bitmap: A #CoglBitmap
+ * @bmp: A #CoglBitmap
  *
  * Creates a new #CoglAtlasTexture texture based on data residing in a
- * @bitmap. A #CoglAtlasTexture represents a sub-region within one of
+ * @bmp. A #CoglAtlasTexture represents a sub-region within one of
  * Cogl's shared texture atlases.
  *
  * The storage for the texture is not allocated before this function

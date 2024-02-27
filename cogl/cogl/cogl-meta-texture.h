@@ -39,6 +39,7 @@
 G_BEGIN_DECLS
 
 /**
+ * SECTION:meta-texture
  * Interface for high-level textures built from 
  * low-level textures like #CoglTexture2D.
  *
@@ -119,15 +120,14 @@ typedef void (*CoglMetaTextureCallback) (CoglTexture *sub_texture,
 
 /**
  * cogl_meta_texture_foreach_in_region:
- * @meta_texture: An object implementing the #CoglMetaTexture
- *                interface.
+ * @texture: An object implementing the #CoglMetaTexture interface.
  * @tx_1: The top-left x coordinate of the region to iterate
  * @ty_1: The top-left y coordinate of the region to iterate
  * @tx_2: The bottom-right x coordinate of the region to iterate
  * @ty_2: The bottom-right y coordinate of the region to iterate
  * @wrap_s: The wrap mode for the x-axis
  * @wrap_t: The wrap mode for the y-axis
- * @callback: A #CoglMetaTextureCallback pointer to be called
+ * @callback: (scope call): A #CoglMetaTextureCallback pointer to be called
  *            for each low-level texture within the specified region.
  * @user_data: A private pointer that is passed to @callback.
  *

@@ -220,10 +220,10 @@ cogl_primitive_new (CoglVerticesMode mode,
                     ...);
 
 /**
- * cogl_primitive_new_with_attributes: (skip)
+ * cogl_primitive_new_with_attributes:
  * @mode: A #CoglVerticesMode defining how to draw the vertices
  * @n_vertices: The number of vertices to process when drawing
- * @attributes: An array of CoglAttribute
+ * @attributes: (array length=n_attributes): An array of CoglAttribute
  * @n_attributes: The number of attributes
  *
  * Combines a set of `CoglAttribute`s with a specific draw @mode
@@ -244,12 +244,12 @@ cogl_primitive_new_with_attributes (CoglVerticesMode mode,
                                     int n_attributes);
 
 /**
- * cogl_primitive_new_p2: (skip)
+ * cogl_primitive_new_p2:
  * @context: A #CoglContext
  * @mode: A #CoglVerticesMode defining how to draw the vertices
  * @n_vertices: The number of vertices to read from @data and also
  *              the number of vertices to read when later drawing.
- * @data: (array length=n_vertices): (type Cogl.VertexP2): An array
+ * @data: (array length=n_vertices) (element-type Cogl.VertexP2): An array
  *        of #CoglVertexP2 vertices
  *
  * Provides a convenient way to describe a primitive, such as a single
@@ -294,12 +294,12 @@ cogl_primitive_new_p2 (CoglContext *context,
                        const CoglVertexP2 *data);
 
 /**
- * cogl_primitive_new_p3: (skip)
+ * cogl_primitive_new_p3:
  * @context: A #CoglContext
  * @mode: A #CoglVerticesMode defining how to draw the vertices
  * @n_vertices: The number of vertices to read from @data and also
  *              the number of vertices to read when later drawing.
- * @data: (array length=n_vertices): (type Cogl.VertexP3): An array of
+ * @data: (array length=n_vertices) (element-type Cogl.VertexP3): An array of
  *        #CoglVertexP3 vertices
  *
  * Provides a convenient way to describe a primitive, such as a single
@@ -344,12 +344,12 @@ cogl_primitive_new_p3 (CoglContext *context,
                        const CoglVertexP3 *data);
 
 /**
- * cogl_primitive_new_p2c4: (skip)
+ * cogl_primitive_new_p2c4:
  * @context: A #CoglContext
  * @mode: A #CoglVerticesMode defining how to draw the vertices
  * @n_vertices: The number of vertices to read from @data and also
  *              the number of vertices to read when later drawing.
- * @data: (array length=n_vertices): (type Cogl.VertexP2C4): An array
+ * @data: (array length=n_vertices) (element-type Cogl.VertexP2C4): An array
  *        of #CoglVertexP2C4 vertices
  *
  * Provides a convenient way to describe a primitive, such as a single
@@ -396,12 +396,12 @@ cogl_primitive_new_p2c4 (CoglContext *context,
                          const CoglVertexP2C4 *data);
 
 /**
- * cogl_primitive_new_p3c4: (skip)
+ * cogl_primitive_new_p3c4:
  * @context: A #CoglContext
  * @mode: A #CoglVerticesMode defining how to draw the vertices
  * @n_vertices: The number of vertices to read from @data and also
  *              the number of vertices to read when later drawing.
- * @data: (array length=n_vertices): (type Cogl.VertexP3C4): An array
+ * @data: (array length=n_vertices) (element-type Cogl.VertexP3C4): An array
  *        of #CoglVertexP3C4 vertices
  *
  * Provides a convenient way to describe a primitive, such as a single
@@ -448,12 +448,12 @@ cogl_primitive_new_p3c4 (CoglContext *context,
                          const CoglVertexP3C4 *data);
 
 /**
- * cogl_primitive_new_p2t2: (skip)
+ * cogl_primitive_new_p2t2:
  * @context: A #CoglContext
  * @mode: A #CoglVerticesMode defining how to draw the vertices
  * @n_vertices: The number of vertices to read from @data and also
  *              the number of vertices to read when later drawing.
- * @data: (array length=n_vertices): (type Cogl.VertexP2T2): An array
+ * @data: (array length=n_vertices) (element-type Cogl.VertexP2T2): An array
  *        of #CoglVertexP2T2 vertices
  *
  * Provides a convenient way to describe a primitive, such as a single
@@ -500,12 +500,12 @@ cogl_primitive_new_p2t2 (CoglContext *context,
                          const CoglVertexP2T2 *data);
 
 /**
- * cogl_primitive_new_p3t2: (skip)
+ * cogl_primitive_new_p3t2:
  * @context: A #CoglContext
  * @mode: A #CoglVerticesMode defining how to draw the vertices
  * @n_vertices: The number of vertices to read from @data and also
  *              the number of vertices to read when later drawing.
- * @data: (array length=n_vertices): (type Cogl.VertexP3T2): An array
+ * @data: (array length=n_vertices) (element-type Cogl.VertexP3T2): An array
  *        of #CoglVertexP3T2 vertices
  *
  * Provides a convenient way to describe a primitive, such as a single
@@ -552,12 +552,12 @@ cogl_primitive_new_p3t2 (CoglContext *context,
                          const CoglVertexP3T2 *data);
 
 /**
- * cogl_primitive_new_p2t2c4: (skip)
+ * cogl_primitive_new_p2t2c4:
  * @context: A #CoglContext
  * @mode: A #CoglVerticesMode defining how to draw the vertices
  * @n_vertices: The number of vertices to read from @data and also
  *              the number of vertices to read when later drawing.
- * @data: (array length=n_vertices): (type Cogl.VertexP2T2C4): An
+ * @data: (array length=n_vertices) (element-type Cogl.VertexP2T2C4): An
  *        array of #CoglVertexP2T2C4 vertices
  *
  * Provides a convenient way to describe a primitive, such as a single
@@ -604,12 +604,12 @@ cogl_primitive_new_p2t2c4 (CoglContext *context,
                            const CoglVertexP2T2C4 *data);
 
 /**
- * cogl_primitive_new_p3t2c4: (skip)
+ * cogl_primitive_new_p3t2c4:
  * @context: A #CoglContext
  * @mode: A #CoglVerticesMode defining how to draw the vertices
  * @n_vertices: The number of vertices to read from @data and also
  *              the number of vertices to read when later drawing.
- * @data: (array length=n_vertices): (type Cogl.VertexP3T2C4): An
+ * @data: (array length=n_vertices) (element-type Cogl.VertexP3T2C4): An
  *        array of #CoglVertexP3T2C4 vertices
  *
  * Provides a convenient way to describe a primitive, such as a single
@@ -710,9 +710,9 @@ cogl_primitive_set_mode (CoglPrimitive *primitive,
                          CoglVerticesMode mode);
 
 /**
- * cogl_primitive_set_indices: (skip)
+ * cogl_primitive_set_indices:
  * @primitive: A #CoglPrimitive
- * @indices: A #CoglIndices array
+ * @indices: (array length=n_indices): A #CoglIndices array
  * @n_indices: The number of indices to reference when drawing
  *
  * Associates a sequence of #CoglIndices with the given @primitive.
@@ -740,11 +740,11 @@ cogl_primitive_set_indices (CoglPrimitive *primitive,
                             int n_indices);
 
 /**
- * cogl_primitive_get_indices: (skip)
+ * cogl_primitive_get_indices:
  * @primitive: A #CoglPrimitive
  *
- * Return value: (transfer none): the indices that were set with
- * cogl_primitive_set_indices() or %NULL if no indices were set.
+ * Return value: (transfer none) (nullable) (array): the indices that were set
+ * with cogl_primitive_set_indices() or %NULL if no indices were set.
  */
 COGL_EXPORT CoglIndices *
 cogl_primitive_get_indices (CoglPrimitive *primitive);
@@ -794,7 +794,7 @@ cogl_primitive_foreach_attribute (CoglPrimitive *primitive,
                                   void *user_data);
 
 /**
- * cogl_primitive_draw: (skip)
+ * cogl_primitive_draw:
  * @primitive: A #CoglPrimitive geometry object
  * @framebuffer: A destination #CoglFramebuffer
  * @pipeline: A #CoglPipeline state object

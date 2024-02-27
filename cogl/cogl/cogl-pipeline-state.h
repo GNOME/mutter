@@ -348,7 +348,7 @@ cogl_pipeline_set_user_program (CoglPipeline *pipeline,
                                 CoglProgram  *program);
 
 /**
- * cogl_pipeline_set_depth_state: (skip)
+ * cogl_pipeline_set_depth_state:
  * @pipeline: A #CoglPipeline object
  * @state: A #CoglDepthState struct
  * @error: A #GError to report failures to setup the given @state.
@@ -361,7 +361,7 @@ cogl_pipeline_set_user_program (CoglPipeline *pipeline,
  * Note: Since some platforms do not support the depth range feature
  * it is possible for this function to fail and report an @error.
  *
- * Returns: TRUE if the GPU supports all the given @state else %FALSE
+ * Returns: %TRUE if the GPU supports all the given @state else %FALSE
  *          and returns an @error.
  */
 COGL_EXPORT gboolean
@@ -370,7 +370,7 @@ cogl_pipeline_set_depth_state (CoglPipeline *pipeline,
                                GError **error);
 
 /**
- * cogl_pipeline_get_depth_state: (skip)
+ * cogl_pipeline_get_depth_state:
  * @pipeline: A #CoglPipeline object
  * @state_out: (out): A destination #CoglDepthState struct
  *

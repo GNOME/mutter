@@ -72,7 +72,8 @@ GType               cogl_pixel_buffer_get_type       (void) G_GNUC_CONST;
  * cogl_pixel_buffer_new:
  * @context: A #CoglContext
  * @size: The number of bytes to allocate for the pixel data.
- * @data: An optional pointer to vertex data to upload immediately
+ * @data: (array length=size) (element-type guint8): An optional pointer to
+ *   vertex data to upload immediately
  *
  * Declares a new #CoglPixelBuffer of @size bytes to contain arrays of
  * pixels. Once declared, data can be set using cogl_buffer_set_data()

@@ -83,7 +83,7 @@ COGL_EXPORT
 GType               cogl_texture_2d_sliced_get_type       (void) G_GNUC_CONST;
 
 /**
- * cogl_texture_2d_sliced_new_with_size: (skip)
+ * cogl_texture_2d_sliced_new_with_size:
  * @ctx: A #CoglContext
  * @width: The virtual width of your sliced texture.
  * @height: The virtual height of your sliced texture.
@@ -127,7 +127,7 @@ cogl_texture_2d_sliced_new_with_size (CoglContext *ctx,
                                       int max_waste);
 
 /**
- * cogl_texture_2d_sliced_new_from_data: (skip)
+ * cogl_texture_2d_sliced_new_from_data:
  * @ctx: A #CoglContext
  * @width: width of texture in pixels
  * @height: height of texture in pixels
@@ -139,7 +139,7 @@ cogl_texture_2d_sliced_new_with_size (CoglContext *ctx,
  * @rowstride: the memory offset in bytes between the start of each
  *    row in @data. A value of 0 will make Cogl automatically
  *    calculate @rowstride from @width and @format.
- * @data: pointer the memory region where the source buffer resides
+ * @data: (array): pointer the memory region where the source buffer resides
  * @error: A #GError to catch exceptional errors or %NULL
  *
  * Creates a new #CoglTexture2DSliced texture based on data residing

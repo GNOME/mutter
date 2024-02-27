@@ -278,7 +278,8 @@ cogl_buffer_unmap (CoglBuffer *buffer);
  * cogl_buffer_set_data:
  * @buffer: a buffer object
  * @offset: destination offset (in bytes) in the buffer
- * @data: a pointer to the data to be copied into the buffer
+ * @data: (array) (element-type guint8): a pointer to the data to be copied
+ *   into the buffer
  * @size: number of bytes to copy
  *
  * Updates part of the buffer with new data from @data. Where to put this new

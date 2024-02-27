@@ -76,7 +76,7 @@ typedef struct _CoglColor               CoglColor;
 typedef struct _CoglTextureVertex       CoglTextureVertex;
 
 /**
- * CoglDmaBufHandle: (skip)
+ * CoglDmaBufHandle: (free-func cogl_dma_buf_handle_free)
  *
  * An opaque type that tracks the lifetime of a DMA buffer fd. Release
  * with cogl_dma_buf_handle_free().

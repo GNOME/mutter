@@ -8,34 +8,20 @@ cogl_deprecated_headers = [
 ]
 
 cogl_headers = [
-  'cogl-bitmap.h',
-  'cogl-color.h',
-  'cogl-context.h',
-  'cogl-frame-info.h',
-  'cogl-framebuffer.h',
-  'cogl-offscreen.h',
-  'cogl-onscreen.h',
-  'cogl-pipeline-layer-state.h',
-  'cogl-pipeline-state.h',
-  'cogl-pipeline.h',
-  'cogl-snippet.h',
-  'cogl-texture-2d-sliced.h',
-  'cogl-texture-2d.h',
-  'cogl-texture.h',
-  'cogl-trace.h',
-  'cogl-types.h',
   'cogl.h',
-  'cogl1-context.h',
-]
-
-cogl_nonintrospected_headers = [
   'cogl-atlas-texture.h',
   'cogl-attribute-buffer.h',
   'cogl-attribute.h',
+  'cogl-bitmap.h',
+  'cogl-color.h',
+  'cogl1-context.h',
+  'cogl-context.h',
   'cogl-depth-state.h',
   'cogl-display.h',
   'cogl-dma-buf-handle.h',
   'cogl-fence.h',
+  'cogl-framebuffer.h',
+  'cogl-frame-info.h',
   'cogl-glib-source.h',
   'cogl-graphene.h',
   'cogl-index-buffer.h',
@@ -43,16 +29,30 @@ cogl_nonintrospected_headers = [
   'cogl-macros.h',
   'cogl-matrix-stack.h',
   'cogl-meta-texture.h',
+  'cogl-offscreen.h',
+  'cogl-onscreen.h',
   'cogl-onscreen-template.h',
   'cogl-output.h',
+  'cogl-pipeline.h',
+  'cogl-pipeline-layer-state.h',
+  'cogl-pipeline-state.h',
   'cogl-pixel-buffer.h',
   'cogl-poll.h',
-  'cogl-primitive-texture.h',
   'cogl-primitive.h',
+  'cogl-primitive-texture.h',
   'cogl-renderer.h',
   'cogl-scanout.h',
+  'cogl-snippet.h',
   'cogl-sub-texture.h',
   'cogl-swap-chain.h',
+  'cogl-texture-2d.h',
+  'cogl-texture-2d-sliced.h',
+  'cogl-texture.h',
+  'cogl-trace.h',
+  'cogl-types.h',
+]
+
+cogl_nonintrospected_headers = [
 ]
 
 cogl_nodist_headers = [
