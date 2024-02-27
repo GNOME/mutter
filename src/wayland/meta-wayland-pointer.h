@@ -46,35 +46,6 @@ struct _MetaWaylandPointerClient
   ClutterEventType active_touchpad_gesture;
 };
 
-struct _MetaWaylandPointer
-{
-  MetaWaylandInputDevice parent;
-
-  MetaWaylandPointerClient *focus_client;
-  GHashTable *pointer_clients;
-
-  MetaWaylandSurface *focus_surface;
-  gulong focus_surface_destroyed_handler_id;
-  gulong focus_surface_alive_notify_id;
-  guint32 focus_serial;
-  guint32 click_serial;
-
-  MetaWaylandSurface *cursor_surface;
-  gulong cursor_surface_destroy_id;
-
-  guint32 grab_button;
-  guint32 grab_serial;
-  guint32 grab_time;
-  float grab_x, grab_y;
-  float last_rel_x, last_rel_y;
-
-  ClutterInputDevice *device;
-  MetaWaylandSurface *current;
-  gulong current_surface_destroyed_handler_id;
-
-  guint32 button_count;
-};
-
 void meta_wayland_pointer_enable (MetaWaylandPointer *pointer);
 
 void meta_wayland_pointer_disable (MetaWaylandPointer *pointer);
