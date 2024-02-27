@@ -51,15 +51,16 @@ struct _MetaWaylandOutput
   GObject parent;
 
   struct wl_global *global;
-  uint32_t mode_flags;
-  float refresh_rate;
-  int scale;
-  MetaMonitorTransform transform;
-  int mode_width;
-  int mode_height;
-
   GList *resources;
   GList *xdg_output_resources;
+
+  /* Protocol state */
+  MtkRectangle layout;
+  CoglSubpixelOrder subpixel_order;
+  MetaMonitorTransform transform;
+  MetaMonitorMode *mode;
+  MetaMonitorMode *preferred_mode;
+  float scale;
 
   MetaMonitor *monitor;
 };
@@ -131,17 +132,6 @@ cogl_subpixel_order_to_wl_output_subpixel (CoglSubpixelOrder subpixel_order)
   return WL_OUTPUT_SUBPIXEL_UNKNOWN;
 }
 
-static int
-calculate_wayland_output_scale (MetaMonitor *monitor)
-{
-  MetaLogicalMonitor *logical_monitor;
-  float scale;
-
-  logical_monitor = meta_monitor_get_logical_monitor (monitor);
-  scale = meta_logical_monitor_get_scale (logical_monitor);
-  return ceilf (scale);
-}
-
 static enum wl_output_transform
 wl_output_transform_from_transform (MetaMonitorTransform transform)
 {
@@ -174,100 +164,113 @@ send_output_events (struct wl_resource *resource,
                     gboolean            need_all_events,
                     gboolean           *pending_done_event)
 {
+  MetaLogicalMonitor *logical_monitor =
+    meta_monitor_get_logical_monitor (monitor);
   int version = wl_resource_get_version (resource);
-  MetaMonitorMode *current_mode;
-  MetaMonitorMode *preferred_mode;
-  guint mode_flags = WL_OUTPUT_MODE_CURRENT;
-  MetaLogicalMonitor *logical_monitor;
-  MetaLogicalMonitor *old_logical_monitor;
-  guint old_mode_flags;
-  gint old_scale;
-  float old_refresh_rate;
-  float refresh_rate;
-  MetaMonitorTransform old_transform;
+  MtkRectangle layout;
+  MtkRectangle old_layout;
   MetaMonitorTransform transform;
-  int new_width, new_height;
-
-  logical_monitor = meta_monitor_get_logical_monitor (monitor);
-  old_logical_monitor =
-    meta_monitor_get_logical_monitor (wayland_output->monitor);
-  old_mode_flags = wayland_output->mode_flags;
-  old_scale = wayland_output->scale;
-  old_transform = wayland_output->transform;
-  old_refresh_rate = wayland_output->refresh_rate;
-
-  current_mode = meta_monitor_get_current_mode (monitor);
-  refresh_rate = meta_monitor_mode_get_refresh_rate (current_mode);
-  transform = meta_logical_monitor_get_transform (logical_monitor);
-
+  MetaMonitorTransform old_transform;
+  MetaMonitorMode *mode;
+  MetaMonitorMode *old_mode;
+  MetaMonitorMode *preferred_mode;
+  MetaMonitorMode *old_preferred_mode;
+  guint mode_flags;
+  guint old_mode_flags;
+  int32_t refresh_rate_khz;
+  int32_t old_refresh_rate_khz;
+  int scale_int;
+  int old_scale_int;
+  int mode_width, mode_height;
+  int old_mode_width, old_mode_height;
   gboolean need_done = FALSE;
 
+  layout = meta_logical_monitor_get_layout (logical_monitor);
+  old_layout = wayland_output->layout;
+
+  transform = meta_logical_monitor_get_transform (logical_monitor);
+  old_transform = wayland_output->transform;
+
+  mode = meta_monitor_get_current_mode (monitor);
+  old_mode = wayland_output->mode;
+
+  preferred_mode = meta_monitor_get_preferred_mode (monitor);
+  old_preferred_mode = wayland_output->preferred_mode;
+
+  mode_flags = WL_OUTPUT_MODE_CURRENT;
+  if (mode == preferred_mode)
+    mode_flags |= WL_OUTPUT_MODE_PREFERRED;
+
+  old_mode_flags = WL_OUTPUT_MODE_CURRENT;
+  if (old_mode == old_preferred_mode)
+    old_mode_flags |= WL_OUTPUT_MODE_PREFERRED;
+
+  refresh_rate_khz = meta_monitor_mode_get_refresh_rate (mode) * 1000;
+  old_refresh_rate_khz = meta_monitor_mode_get_refresh_rate (old_mode) * 1000;
+
+  scale_int = ceilf (meta_logical_monitor_get_scale (logical_monitor));
+  old_scale_int = ceilf (wayland_output->scale);
+
+  meta_monitor_mode_get_resolution (mode, &mode_width, &mode_height);
+  meta_monitor_mode_get_resolution (old_mode,
+                                    &old_mode_width, &old_mode_height);
+
   if (need_all_events ||
-      old_logical_monitor->rect.x != logical_monitor->rect.x ||
-      old_logical_monitor->rect.y != logical_monitor->rect.y ||
+      old_layout.x != layout.x || old_layout.y != layout.y ||
       old_transform != transform)
     {
-      int width_mm, height_mm;
       const char *vendor;
       const char *product;
+      int physical_width_mm;
+      int physical_height_mm;
+      CoglSubpixelOrder subpixel_order;
+      enum wl_output_subpixel wl_subpixel_order;
       uint32_t wl_transform;
-      CoglSubpixelOrder cogl_subpixel_order;
-      enum wl_output_subpixel subpixel_order;
 
-      meta_monitor_get_physical_dimensions (monitor, &width_mm, &height_mm);
       vendor = meta_monitor_get_vendor (monitor);
       product = meta_monitor_get_product (monitor);
 
-      cogl_subpixel_order = meta_monitor_get_subpixel_order (monitor);
-      subpixel_order =
-        cogl_subpixel_order_to_wl_output_subpixel (cogl_subpixel_order);
+      meta_monitor_get_physical_dimensions (monitor,
+                                            &physical_width_mm,
+                                            &physical_height_mm);
+
+      subpixel_order = meta_monitor_get_subpixel_order (monitor);
+      wl_subpixel_order =
+        cogl_subpixel_order_to_wl_output_subpixel (subpixel_order);
 
       wl_transform = wl_output_transform_from_transform (transform);
 
       wl_output_send_geometry (resource,
-                               logical_monitor->rect.x,
-                               logical_monitor->rect.y,
-                               width_mm,
-                               height_mm,
-                               subpixel_order,
+                               layout.x,
+                               layout.y,
+                               physical_width_mm,
+                               physical_height_mm,
+                               wl_subpixel_order,
                                vendor ? vendor : "unknown",
                                product ? product : "unknown",
                                wl_transform);
       need_done = TRUE;
     }
 
-  preferred_mode = meta_monitor_get_preferred_mode (monitor);
-  if (current_mode == preferred_mode)
-    mode_flags |= WL_OUTPUT_MODE_PREFERRED;
-
-  meta_monitor_mode_get_resolution (current_mode,
-                                    &new_width,
-                                    &new_height);
   if (need_all_events ||
-      wayland_output->mode_width != new_width ||
-      wayland_output->mode_height != new_height ||
-      old_refresh_rate != refresh_rate ||
+      old_mode_width != mode_width ||
+      old_mode_height != mode_height ||
+      old_refresh_rate_khz != refresh_rate_khz ||
       old_mode_flags != mode_flags)
     {
       wl_output_send_mode (resource,
                            mode_flags,
-                           new_width,
-                           new_height,
-                           (int32_t) (refresh_rate * 1000));
+                           mode_width,
+                           mode_height,
+                           refresh_rate_khz);
       need_done = TRUE;
     }
 
-  if (version >= WL_OUTPUT_SCALE_SINCE_VERSION)
+  if (version >= WL_OUTPUT_SCALE_SINCE_VERSION &&
+      (need_all_events || old_scale_int != scale_int))
     {
-      int scale;
-
-      scale = calculate_wayland_output_scale (monitor);
-      if (need_all_events ||
-          old_scale != scale)
-        {
-          wl_output_send_scale (resource, scale);
-          need_done = TRUE;
-        }
+      wl_output_send_scale (resource, scale_int);
+      need_done = TRUE;
     }
 
   if (need_all_events && version >= WL_OUTPUT_NAME_SINCE_VERSION)
@@ -309,6 +312,7 @@ bind_output (struct wl_client *client,
   struct wl_resource *resource;
 #ifdef WITH_VERBOSE_MODE
   MetaLogicalMonitor *logical_monitor;
+  int mode_width, mode_height;
 #endif
 
   resource = wl_resource_create (client, &wl_output_interface, version, id);
@@ -331,13 +335,14 @@ bind_output (struct wl_client *client,
 
 #ifdef WITH_VERBOSE_MODE
   logical_monitor = meta_monitor_get_logical_monitor (monitor);
+  meta_monitor_mode_get_resolution (wayland_output->mode, &mode_width, &mode_height);
+
   meta_verbose ("Binding monitor %p/%s (%u, %u, %u, %u) x %f",
                 logical_monitor,
                 meta_monitor_get_product (monitor),
-                logical_monitor->rect.x, logical_monitor->rect.y,
-                wayland_output->mode_width,
-                wayland_output->mode_height,
-                wayland_output->refresh_rate);
+                wayland_output->layout.x, wayland_output->layout.y,
+                mode_width, mode_height,
+                meta_monitor_mode_get_refresh_rate (wayland_output->mode));
 #endif
 
   send_output_events (resource, wayland_output, monitor, TRUE, NULL);
@@ -349,28 +354,18 @@ static void
 meta_wayland_output_set_monitor (MetaWaylandOutput *wayland_output,
                                  MetaMonitor       *monitor)
 {
-  MetaMonitorMode *current_mode;
-  MetaMonitorMode *preferred_mode;
   MetaLogicalMonitor *logical_monitor;
 
   wayland_output->monitor = monitor;
-  wayland_output->mode_flags = WL_OUTPUT_MODE_CURRENT;
-
-  current_mode = meta_monitor_get_current_mode (monitor);
-  preferred_mode = meta_monitor_get_preferred_mode (monitor);
-
-  if (current_mode == preferred_mode)
-    wayland_output->mode_flags |= WL_OUTPUT_MODE_PREFERRED;
-  wayland_output->scale = calculate_wayland_output_scale (monitor);
-  wayland_output->refresh_rate = meta_monitor_mode_get_refresh_rate (current_mode);
 
   logical_monitor = meta_monitor_get_logical_monitor (monitor);
+  wayland_output->layout = meta_logical_monitor_get_layout (logical_monitor);
+  wayland_output->subpixel_order = meta_monitor_get_subpixel_order (monitor);
   wayland_output->transform =
     meta_logical_monitor_get_transform (logical_monitor);
-
-  meta_monitor_mode_get_resolution (current_mode,
-                                    &wayland_output->mode_width,
-                                    &wayland_output->mode_height);
+  wayland_output->mode = meta_monitor_get_current_mode (monitor);
+  wayland_output->preferred_mode = meta_monitor_get_preferred_mode (monitor);
+  wayland_output->scale = meta_logical_monitor_get_scale (logical_monitor);
 }
 
 static void
@@ -608,17 +603,29 @@ send_xdg_output_events (struct wl_resource *resource,
                         gboolean            need_all_events,
                         gboolean           *pending_done_event)
 {
+  MetaLogicalMonitor *logical_monitor =
+    meta_monitor_get_logical_monitor (monitor);
+  int version = wl_resource_get_version (resource);
   MtkRectangle layout;
-  MetaLogicalMonitor *logical_monitor;
-  int version;
+  MtkRectangle old_layout;
+  gboolean need_done = FALSE;
 
-  logical_monitor = meta_monitor_get_logical_monitor (monitor);
   layout = meta_logical_monitor_get_layout (logical_monitor);
+  old_layout = wayland_output->layout;
 
-  zxdg_output_v1_send_logical_position (resource, layout.x, layout.y);
-  zxdg_output_v1_send_logical_size (resource, layout.width, layout.height);
+  if (need_all_events ||
+      old_layout.x != layout.x || old_layout.y != layout.y)
+    {
+      zxdg_output_v1_send_logical_position (resource, layout.x, layout.y);
+      need_done = TRUE;
+    }
 
-  version = wl_resource_get_version (resource);
+  if (need_all_events ||
+      old_layout.width != layout.width || old_layout.height != layout.height)
+    {
+      zxdg_output_v1_send_logical_size (resource, layout.width, layout.height);
+      need_done = TRUE;
+    }
 
   if (need_all_events && version >= ZXDG_OUTPUT_V1_NAME_SINCE_VERSION)
     {
@@ -626,6 +633,7 @@ send_xdg_output_events (struct wl_resource *resource,
 
       name = meta_monitor_get_connector (monitor);
       zxdg_output_v1_send_name (resource, name);
+      need_done = TRUE;
     }
 
   if (need_all_events && version >= ZXDG_OUTPUT_V1_DESCRIPTION_SINCE_VERSION)
@@ -634,9 +642,10 @@ send_xdg_output_events (struct wl_resource *resource,
 
       description = meta_monitor_get_display_name (monitor);
       zxdg_output_v1_send_description (resource, description);
+      need_done = TRUE;
     }
 
-  if (pending_done_event)
+  if (pending_done_event && need_done)
     *pending_done_event = TRUE;
 }
 
