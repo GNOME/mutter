@@ -76,9 +76,14 @@ void     meta_wayland_tablet_tool_update              (MetaWaylandTabletTool  *t
 gboolean meta_wayland_tablet_tool_handle_event        (MetaWaylandTabletTool  *tool,
                                                        const ClutterEvent     *event);
 
-gboolean meta_wayland_tablet_tool_can_grab_surface (MetaWaylandTabletTool *tool,
-                                                    MetaWaylandSurface    *surface,
-                                                    uint32_t               serial);
+gboolean meta_wayland_tablet_tool_get_grab_info (MetaWaylandTabletTool *tool,
+                                                 MetaWaylandSurface    *surface,
+                                                 uint32_t               serial,
+                                                 gboolean               require_pressed,
+                                                 ClutterInputDevice   **device_out,
+                                                 float                 *x,
+                                                 float                 *y);
+
 gboolean meta_wayland_tablet_tool_can_popup        (MetaWaylandTabletTool *tool,
                                                     uint32_t               serial);
 

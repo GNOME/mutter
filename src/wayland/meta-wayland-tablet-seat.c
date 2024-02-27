@@ -587,19 +587,13 @@ meta_wayland_tablet_seat_get_grab_info (MetaWaylandTabletSeat *tablet_seat,
     {
       MetaWaylandTabletTool *tool = l->data;
 
-      if ((!require_pressed || tool->button_count > 0) &&
-          meta_wayland_tablet_tool_can_grab_surface (tool, surface, serial))
-        {
-          if (device_out)
-            *device_out = tool->device;
-
-          if (x)
-            *x = tool->grab_x;
-          if (y)
-            *y = tool->grab_y;
-
-          return TRUE;
-        }
+      if (meta_wayland_tablet_tool_get_grab_info (tool,
+                                                  surface,
+                                                  serial,
+                                                  require_pressed,
+                                                  device_out,
+                                                  x, y))
+        return TRUE;
     }
 
   return FALSE;

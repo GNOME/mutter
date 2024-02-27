@@ -913,13 +913,39 @@ tablet_tool_can_grab_surface (MetaWaylandTabletTool *tool,
   return FALSE;
 }
 
-gboolean
+static gboolean
 meta_wayland_tablet_tool_can_grab_surface (MetaWaylandTabletTool *tool,
                                            MetaWaylandSurface    *surface,
                                            uint32_t               serial)
 {
   return ((tool->down_serial == serial || tool->button_serial == serial) &&
           tablet_tool_can_grab_surface (tool, surface));
+}
+
+gboolean
+meta_wayland_tablet_tool_get_grab_info (MetaWaylandTabletTool *tool,
+                                        MetaWaylandSurface    *surface,
+                                        uint32_t               serial,
+                                        gboolean               require_pressed,
+                                        ClutterInputDevice   **device_out,
+                                        float                 *x,
+                                        float                 *y)
+{
+  if ((!require_pressed || tool->button_count > 0) &&
+      meta_wayland_tablet_tool_can_grab_surface (tool, surface, serial))
+    {
+      if (device_out)
+        *device_out = tool->device;
+
+      if (x)
+        *x = tool->grab_x;
+      if (y)
+        *y = tool->grab_y;
+
+      return TRUE;
+    }
+
+  return FALSE;
 }
 
 gboolean
