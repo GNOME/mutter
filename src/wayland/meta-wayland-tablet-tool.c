@@ -38,6 +38,35 @@
 
 #define TABLET_AXIS_MAX 65535
 
+struct _MetaWaylandTabletTool
+{
+  MetaWaylandTabletSeat *seat;
+  ClutterInputDevice *device;
+  ClutterInputDeviceTool *device_tool;
+  struct wl_list resource_list;
+  struct wl_list focus_resource_list;
+
+  MetaWaylandSurface *focus_surface;
+  struct wl_listener focus_surface_destroy_listener;
+
+  MetaWaylandSurface *cursor_surface;
+  struct wl_listener cursor_surface_destroy_listener;
+  MetaCursorRenderer *cursor_renderer;
+  MetaCursorSpriteXcursor *default_sprite;
+
+  MetaWaylandSurface *current;
+  guint32 pressed_buttons;
+  guint32 button_count;
+
+  guint32 proximity_serial;
+  guint32 down_serial;
+  guint32 button_serial;
+
+  float grab_x, grab_y;
+
+  MetaWaylandTablet *current_tablet;
+};
+
 static MetaBackend *
 backend_from_tool (MetaWaylandTabletTool *tool)
 {
