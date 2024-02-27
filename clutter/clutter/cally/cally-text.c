@@ -1682,7 +1682,7 @@ cally_text_notify_clutter (GObject    *obj,
   atk_obj = clutter_actor_get_accessible (CLUTTER_ACTOR (obj));
   cally_text = CALLY_TEXT (atk_obj);
 
-  if (g_strcmp0 (pspec->name, "position") == 0)
+  if (g_strcmp0 (pspec->name, "cursor-position") == 0)
     {
       /* the selection can change also for the cursor position */
       if (_check_for_selection_change (cally_text, clutter_text))
