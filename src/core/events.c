@@ -426,31 +426,20 @@ meta_display_handle_event (MetaDisplay        *display,
 
   if (window)
     {
-      meta_window_handle_ungrabbed_event (window, event);
+      if (meta_window_handle_ungrabbed_event (window, event))
+        return CLUTTER_EVENT_STOP;
 
-      /* This might start a grab op. If it does, then filter out the
-       * event, and if it doesn't, replay the event to release our
-       * own sync grab. */
-
-      if (meta_compositor_get_current_window_drag (compositor))
-        {
-          return CLUTTER_EVENT_STOP;
-        }
-      else
-        {
-          /* Only replay button press events, since that's where we
-           * have the synchronous grab. */
 #ifdef HAVE_X11_CLIENT
-          maybe_unfreeze_pointer_events (backend, event, EVENTS_UNFREEZE_REPLAY);
+      /* Now replay the button press event to release our own sync grab. */
+      maybe_unfreeze_pointer_events (backend, event, EVENTS_UNFREEZE_REPLAY);
 #endif
-          /* If the focus window has an active close dialog let clutter
-           * events go through, so fancy clutter dialogs can get to handle
-           * all events.
-           */
-          if (window->close_dialog &&
-              meta_close_dialog_is_visible (window->close_dialog))
-            return CLUTTER_EVENT_PROPAGATE;
-        }
+      /* If the focus window has an active close dialog let clutter
+       * events go through, so fancy clutter dialogs can get to handle
+       * all events.
+       */
+      if (window->close_dialog &&
+          meta_close_dialog_is_visible (window->close_dialog))
+        return CLUTTER_EVENT_PROPAGATE;
     }
   else
     {

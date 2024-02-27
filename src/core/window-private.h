@@ -797,8 +797,8 @@ void meta_window_set_transient_for        (MetaWindow *window,
 void meta_window_set_opacity              (MetaWindow *window,
                                            guint8      opacity);
 
-void meta_window_handle_ungrabbed_event (MetaWindow         *window,
-                                         const ClutterEvent *event);
+gboolean meta_window_handle_ungrabbed_event (MetaWindow         *window,
+                                             const ClutterEvent *event);
 
 void meta_window_get_client_area_rect (const MetaWindow *window,
                                        MtkRectangle     *rect);
