@@ -435,8 +435,7 @@ meta_wayland_tablet_seat_handle_event (MetaWaylandTabletSeat *tablet_seat,
       if (!tool)
         return CLUTTER_EVENT_PROPAGATE;
 
-      meta_wayland_tablet_tool_handle_event (tool, event);
-      return CLUTTER_EVENT_PROPAGATE;
+      return meta_wayland_tablet_tool_handle_event (tool, event);
     case CLUTTER_PAD_BUTTON_PRESS:
     case CLUTTER_PAD_BUTTON_RELEASE:
     case CLUTTER_PAD_RING:
