@@ -792,9 +792,7 @@ static void
 handle_motion_event (MetaWaylandTabletTool *tool,
                      const ClutterEvent    *event)
 {
-  if (!tool->focus_surface)
-    return;
-
+  g_assert (tool->focus_surface);
   broadcast_motion (tool, event);
   broadcast_axes (tool, event);
   broadcast_frame (tool, event);
@@ -807,8 +805,7 @@ handle_button_event (MetaWaylandTabletTool *tool,
   ClutterEventType event_type;
   int button;
 
-  if (!tool->focus_surface)
-    return;
+  g_assert (tool->focus_surface);
 
   event_type = clutter_event_type (event);
   button = clutter_event_get_button (event);
@@ -869,6 +866,9 @@ gboolean
 meta_wayland_tablet_tool_handle_event (MetaWaylandTabletTool *tool,
                                        const ClutterEvent    *event)
 {
+  if (!tool->focus_surface)
+    return CLUTTER_EVENT_PROPAGATE;
+
   switch (clutter_event_type (event))
     {
     case CLUTTER_PROXIMITY_IN:
