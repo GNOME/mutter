@@ -10616,6 +10616,26 @@ meta_test_monitor_calculate_mode_scale (void)
       .exp = 1.25,
       .exp_nofrac = 1.0,
     },
+    {
+      .name = "Generic 25\" 4K",
+      .width = 3840,
+      .height = 2160,
+      .width_mm = 554,
+      .height_mm = 312,
+      /* Ideal scale is 1.60, should round to 1.5 and 1.0 */
+      .exp = 1.5,
+      .exp_nofrac = 1.0,
+    },
+    {
+      .name = "Generic 23.5\" 4K",
+      .width = 3840,
+      .height = 2160,
+      .width_mm = 522,
+      .height_mm = 294,
+      /* Ideal scale is 1.70, should round to 1.75 and 1.0 */
+      .exp = 1.75,
+      .exp_nofrac = 1.0,
+    },
   };
   /* Set a rather high scale epsilon, to have "easy" scales as the
    * expectations, while ignoring that the actual scaling factors are slightly
