@@ -10527,13 +10527,13 @@ meta_test_monitor_calculate_mode_scale (void)
       .exp_nofrac = 1.0,
     },
     {
-       .name = "OnePlus 6",
-       .width = 1080,
-       .height = 2280,
-       .width_mm = 68, /* 19:9, 6.28" */
-       .height_mm = 144,
-       .exp = 2.5,
-       .exp_nofrac = 2.0,
+      .name = "OnePlus 6",
+      .width = 1080,
+      .height = 2280,
+      .width_mm = 68, /* 19:9, 6.28" */
+      .height_mm = 144,
+      .exp = 2.5,
+      .exp_nofrac = 2.0,
     },
     {
       .name = "Google Pixel 6a",
