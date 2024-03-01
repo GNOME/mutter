@@ -1586,12 +1586,16 @@ meta_compositor_drag_window (MetaCompositor       *compositor,
   if (pos_hint)
     meta_window_drag_set_position_hint (window_drag, pos_hint);
 
-  if (!meta_window_drag_begin (window_drag, device, sequence, timestamp))
-    return FALSE;
-
-  g_signal_connect (window_drag, "ended",
-                    G_CALLBACK (on_window_drag_ended), compositor);
   priv->current_drag = g_steal_pointer (&window_drag);
+
+  if (!meta_window_drag_begin (priv->current_drag, device, sequence, timestamp))
+    {
+      g_clear_object (&priv->current_drag);
+      return FALSE;
+    }
+
+  g_signal_connect (priv->current_drag, "ended",
+                    G_CALLBACK (on_window_drag_ended), compositor);
   return TRUE;
 }
 
