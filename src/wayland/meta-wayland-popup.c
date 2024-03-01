@@ -160,10 +160,13 @@ popup_grab_release (MetaWaylandEventHandler *handler,
   MetaWaylandPopupGrab *popup_grab = user_data;
   ClutterInputDevice *device = clutter_event_get_source_device (event);
   ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
+  gboolean close_popup;
+
+  close_popup = popup_grab->press_count == 1;
 
   popup_grab->press_count = MAX (0, popup_grab->press_count - 1);
 
-  if (popup_grab->press_count == 0)
+  if (close_popup)
     {
       MetaWaylandSurface *surface;
 
