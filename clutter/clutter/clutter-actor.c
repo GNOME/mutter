@@ -1502,13 +1502,14 @@ maybe_unset_key_focus (ClutterActor *self)
 {
   ClutterActor *stage;
 
-  if (!self->priv->has_key_focus)
+  stage = _clutter_actor_get_stage_internal (self);
+  if (!stage)
     return;
 
-  stage = _clutter_actor_get_stage_internal (self);
+  if (self != clutter_stage_get_key_focus (CLUTTER_STAGE (stage)))
+    return;
 
-  if (stage)
-    clutter_stage_set_key_focus (CLUTTER_STAGE (stage), NULL);
+  clutter_stage_set_key_focus (CLUTTER_STAGE (stage), NULL);
 }
 
 static void
