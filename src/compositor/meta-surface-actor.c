@@ -405,8 +405,11 @@ meta_surface_actor_get_texture (MetaSurfaceActor *self)
 void
 meta_surface_actor_schedule_update (MetaSurfaceActor *self)
 {
-  ClutterStage *stage =
-    CLUTTER_STAGE (clutter_actor_get_stage (CLUTTER_ACTOR (self)));
+  ClutterStage *stage;
+
+  stage = CLUTTER_STAGE (clutter_actor_get_stage (CLUTTER_ACTOR (self)));
+  if (!stage)
+    return;
 
   clutter_stage_schedule_update (stage);
 
