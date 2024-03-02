@@ -333,7 +333,7 @@ meta_wayland_tablet_tool_set_focus (MetaWaylandTabletTool *tool,
       tool->focus_surface = NULL;
     }
 
-  if (surface != NULL && tool->current_tablet)
+  if (surface != NULL && surface->resource != NULL && tool->current_tablet)
     {
       struct wl_client *client;
       struct wl_list *l;
