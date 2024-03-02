@@ -334,6 +334,8 @@ meta_cursor_for_grab_op (MetaGrabOp op)
       return META_CURSOR_EAST_RESIZE;
       break;
     case META_GRAB_OP_MOVING:
+      return META_CURSOR_DEFAULT;
+      break;
     case META_GRAB_OP_KEYBOARD_MOVING:
     case META_GRAB_OP_KEYBOARD_RESIZING_UNKNOWN:
       return META_CURSOR_MOVE_OR_RESIZE_WINDOW;
