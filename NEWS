@@ -1,3 +1,42 @@
+46.rc
+=====
+* screencast: Renegotiate when DMABUF allocation fails [columbarius; !2557]
+* Unify wayland pointer- and keyboard grab mechanisms [Carlos; !3420]
+* Add modifier-aware screencasting support [Doğukan; !3537]
+* Fix synchronization issue on Xorg [Daniel; !3590]
+* Send fractional_scale event immediately on window creation [Jonas; !3598]
+* wayland/client: Add make_dock() method [Leonhard; !3612]
+* Fix gray area on top of some X11 fullscreen windows [Sebastian K.; !3608]
+* Stick dragged windows to the right anchor point [Carlos; !3546]
+* cally/text: Fix emission of `text_caret_moved` signal [Florian; !3621]
+* clutter/text: Fix minimum height calculation [Julian; !3610]
+* Add experimental support for variable refresh rate [Dor; !1154]
+* Expose the minimum refresh rate of monitors through D-Bus [Dor; !3576]
+* Use "default" cursor for moving windows [Sebastian K.; !3634]
+* Fixed crashes [Carlos, Michel; !3618, !3632]
+* Misc. bug fixes and cleanups [Robert, Bilal, Dor, Florian, Sebastian W.,
+  Daniel, msizanoen, Corentin, Agustín, Sebastian K., Marco, Doğukan, Carlos,
+  Jonas, Barnabás; !3217, !3581, !3582, !3583, !3586, !3574, !3587, !3585,
+  !3584, !3588, !3553, !3589, !3593, !3595, !3597, !3599, !3327, !3603, !3606,
+  !3594, !3611, !3613, !3552, !3620, !3592, !3614, !3619, !3625, !3628, !3627,
+  !3624, !3629, !3630, !3633, !3027]
+
+Contributors:
+  Dor Askayo, columbarius, Agustín Dall'Alba, Michel Dänzer, Jonas Dreßler,
+  Bilal Elmoussaoui, Carlos Garnacho, Sebastian Keller, Doğukan Korkmaztürk,
+  Leonhard, Robert Mader, msizanoen, Florian Müllner, Corentin Noël,
+  Barnabás Pőcze, Julian Sparber, Marco Trevisan (Treviño), Daniel van Vugt,
+  Sebastian Wick
+
+Translators:
+  Ekaterine Papava [ka], Danial Behzadi [fa], Aurimas Černius [lt],
+  Yuri Chornoivan [uk], Yaron Shahrabani [he], Nathan Follens [nl],
+  Matej Urbančič [sl], Jordi Mas i Hernandez [ca], Kukuh Syafaat [id],
+  Luming Zh [zh_CN], Andi Chandler [en_GB], Asier Sarasua Garmendia [eu],
+  Quentin PAGÈS [oc], Rūdolfs Mazurs [lv], Irénée THIRION [fr],
+  Daniel Mustieles [es], Daniel Rusek [cs], Piotr Drąg [pl], Balázs Úr [hu],
+  Artur S0 [ru]
+
 46.beta
 =======
 * Implement mouse cursor hotspots for KMS atomic [Albert, Zack; !3337, !3503]
