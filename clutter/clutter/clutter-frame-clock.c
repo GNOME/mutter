@@ -19,6 +19,13 @@
 
 #include "clutter/clutter-frame-clock.h"
 
+#include <glib/gstdio.h>
+
+#ifdef HAVE_TIMERFD
+#include <sys/timerfd.h>
+#include <time.h>
+#endif
+
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-frame-private.h"
 #include "clutter/clutter-main.h"
@@ -50,6 +57,11 @@ typedef struct _ClutterClockSource
   GSource source;
 
   ClutterFrameClock *frame_clock;
+
+#ifdef HAVE_TIMERFD
+  int tfd;
+  struct itimerspec tfd_spec;
+#endif
 } ClutterClockSource;
 
 typedef enum _ClutterFrameClockState
@@ -1051,11 +1063,81 @@ clutter_frame_clock_get_max_render_time_debug_info (ClutterFrameClock *frame_clo
   return string;
 }
 
+static gboolean
+frame_clock_source_prepare (GSource *source,
+                            int     *timeout)
+{
+  G_GNUC_UNUSED ClutterClockSource *clock_source = (ClutterClockSource *)source;
+
+  *timeout = -1;
+
+#ifdef HAVE_TIMERFD
+  /* The cycle for GMainContext is:
+   *
+   *   - prepare():  where we update our timerfd deadline
+   *   - poll():     internal to GMainContext/GPollFunc
+   *   - check():    where GLib will check POLLIN and make ready
+   *   - dispatch(): where we actually process the pending work
+   *
+   * If we have a ready_time >= 0 then we need to set our deadline
+   * in nanoseconds for the timerfd. The timerfd will receive POLLIN
+   * after that point and poll() will return.
+   *
+   * If we have a ready_time of -1, then we need to disable our
+   * timerfd by setting tv_sec and tv_nsec to 0.
+   *
+   * In both cases, the POLLIN bit will be reset.
+   */
+  if (clock_source->tfd > -1)
+    {
+      int64_t ready_time = g_source_get_ready_time (source);
+      struct itimerspec tfd_spec;
+
+      tfd_spec.it_interval.tv_sec = 0;
+      tfd_spec.it_interval.tv_nsec = 0;
+
+      if (ready_time > -1)
+        {
+          tfd_spec.it_value.tv_sec = ready_time / G_USEC_PER_SEC;
+          tfd_spec.it_value.tv_nsec = (ready_time % G_USEC_PER_SEC) * 1000L;
+        }
+      else
+        {
+          tfd_spec.it_value.tv_sec = 0;
+          tfd_spec.it_value.tv_nsec = 0;
+        }
+
+      /* Avoid extraneous calls timerfd_settime() */
+      if (memcmp (&tfd_spec, &clock_source->tfd_spec, sizeof tfd_spec) != 0)
+        {
+          clock_source->tfd_spec = tfd_spec;
+
+          timerfd_settime (clock_source->tfd,
+                           TFD_TIMER_ABSTIME,
+                           &clock_source->tfd_spec,
+                           NULL);
+        }
+    }
+#endif
+
+  return FALSE;
+}
+
+static void
+frame_clock_source_finalize (GSource *source)
+{
+#ifdef HAVE_TIMERFD
+  ClutterClockSource *clock_source = (ClutterClockSource *)source;
+
+  g_clear_fd (&clock_source->tfd, NULL);
+#endif
+}
+
 static GSourceFuncs frame_clock_source_funcs = {
-  NULL,
+  frame_clock_source_prepare,
   NULL,
   frame_clock_source_dispatch,
-  NULL
+  frame_clock_source_finalize,
 };
 
 static void
@@ -1067,6 +1149,13 @@ init_frame_clock_source (ClutterFrameClock *frame_clock)
 
   source = g_source_new (&frame_clock_source_funcs, sizeof (ClutterClockSource));
   clock_source = (ClutterClockSource *) source;
+
+#ifdef HAVE_TIMERFD
+  clock_source->tfd = timerfd_create (CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
+
+  if (clock_source->tfd > -1)
+    g_source_add_unix_fd (source, clock_source->tfd, G_IO_IN);
+#endif
 
   name = g_strdup_printf ("[mutter] Clutter frame clock (%p)", frame_clock);
   g_source_set_name (source, name);

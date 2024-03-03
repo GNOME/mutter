@@ -331,6 +331,19 @@ if have_introspection
   }
 endif
 
+# Check for timerfd_create(2)
+have_timerfd = cc.links('''
+#include <sys/timerfd.h>
+#include <time.h>
+#include <unistd.h>
+int main (int argc, char ** argv) {
+  struct itimerspec ts = {{0}};
+  int fd = timerfd_create (CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
+  timerfd_settime (fd, TFD_TIMER_ABSTIME, &ts, NULL);
+  return 0;
+}
+''', name : 'timerfd_create(2) system call')
+
 have_documentation = get_option('docs')
 have_tests = get_option('tests')
 have_core_tests = false
@@ -551,6 +564,7 @@ cdata.set('HAVE_INTROSPECTION', have_introspection)
 cdata.set('HAVE_PROFILER', have_profiler)
 cdata.set('HAVE_LIBDISPLAY_INFO', have_libdisplay_info)
 cdata.set('HAVE_PANGO_FT2', have_pango_ft2)
+cdata.set('HAVE_TIMERFD', have_timerfd)
 
 if have_x11_client
   xkb_base = xkeyboard_config_dep.get_variable('xkb_base')
