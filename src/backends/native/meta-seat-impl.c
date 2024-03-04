@@ -812,38 +812,10 @@ meta_seat_impl_notify_button_in_impl (MetaSeatImpl       *seat_impl,
       return;
     }
 
-  /* The evdev button numbers don't map sequentially to clutter button
-   * numbers (the right and middle mouse buttons are in the opposite
-   * order) so we'll map them directly with a switch statement */
-  switch (button)
-    {
-    case BTN_LEFT:
-    case BTN_TOUCH:
-      button_nr = CLUTTER_BUTTON_PRIMARY;
-      break;
-
-    case BTN_MIDDLE:
-    case BTN_STYLUS:
-      button_nr = CLUTTER_BUTTON_MIDDLE;
-      break;
-
-    case BTN_RIGHT:
-    case BTN_STYLUS2:
-      button_nr = CLUTTER_BUTTON_SECONDARY;
-      break;
-
-    case BTN_STYLUS3:
-      button_nr = 8;
-      break;
-
-    default:
-      /* For compatibility reasons, all additional buttons go after the old 4-7 scroll ones */
-      if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)
-        button_nr = button - BTN_TOOL_PEN + 4;
-      else
-        button_nr = meta_evdev_button_to_clutter (button);
-      break;
-    }
+  if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)
+    button_nr = meta_evdev_tool_button_to_clutter (button);
+  else
+    button_nr = meta_evdev_button_to_clutter (button);
 
   if (button_nr < 1 || button_nr > 12)
     {
