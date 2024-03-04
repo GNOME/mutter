@@ -812,6 +812,17 @@ meta_seat_impl_notify_button_in_impl (MetaSeatImpl       *seat_impl,
       return;
     }
 
+  if (device_native->last_tool)
+    {
+      uint32_t mapped_button;
+      int tool_button_nr = meta_evdev_tool_button_to_clutter (button);
+
+      /* Apply the button event code as per the tool mapping */
+      mapped_button = meta_input_device_tool_native_get_button_code_in_impl (device_native->last_tool, tool_button_nr);
+      if (mapped_button != 0)
+        button = mapped_button;
+    }
+
   if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)
     button_nr = meta_evdev_tool_button_to_clutter (button);
   else
@@ -840,17 +851,6 @@ meta_seat_impl_notify_button_in_impl (MetaSeatImpl       *seat_impl,
     {
       meta_input_device_native_get_coords_in_impl (META_INPUT_DEVICE_NATIVE (seat_impl->core_pointer),
                                                    &x, &y);
-    }
-
-  if (device_native->last_tool)
-    {
-      /* Apply the button event code as per the tool mapping */
-      uint32_t mapped_button;
-
-      mapped_button = meta_input_device_tool_native_get_button_code_in_impl (device_native->last_tool,
-                                                                             button_nr);
-      if (mapped_button != 0)
-        button = mapped_button;
     }
 
   modifiers =
