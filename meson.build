@@ -593,7 +593,7 @@ if have_xwayland
   if xwayland_dep.found()
     xwayland_supports_initfd = xwayland_dep.get_variable('have_initfd') == 'true'
   else
-    xwayland_options = run_command(xwayland_path, '-help')
+    xwayland_options = run_command(xwayland_path, '-help', check: false)
     xwayland_supports_initfd = xwayland_options.stderr().contains('-initfd')
   endif
 
