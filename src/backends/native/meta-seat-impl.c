@@ -1102,7 +1102,7 @@ meta_seat_impl_notify_discrete_scroll_in_impl (MetaSeatImpl        *seat_impl,
                  dx,
                  dy,
                  scroll_source, CLUTTER_SCROLL_FINISHED_NONE,
-                 FALSE);
+                 TRUE);
 
   /* Notify discrete scroll only when the accumulated value reach 120 */
   evdev_device = META_INPUT_DEVICE_NATIVE (input_device);
