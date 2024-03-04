@@ -1458,6 +1458,9 @@ meta_input_capture_session_process_event (MetaInputCaptureSession *session,
         if (!session->eis_pointer)
           return TRUE;
 
+        if (clutter_event_is_pointer_emulated (event))
+          break;
+
         finish_flags = clutter_event_get_scroll_finish_flags (event);
 
         if ((finish_flags & CLUTTER_SCROLL_FINISHED_HORIZONTAL))
