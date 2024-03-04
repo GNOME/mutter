@@ -60,7 +60,9 @@ clutter_input_only_action_handle_event (ClutterAction      *action,
   ClutterInputOnlyAction *input_only_action =
     CLUTTER_INPUT_ONLY_ACTION (action);
 
-  return input_only_action->handle_event (event, input_only_action->user_data);
+  input_only_action->handle_event (event, input_only_action->user_data);
+
+  return CLUTTER_EVENT_PROPAGATE;
 }
 
 static void
