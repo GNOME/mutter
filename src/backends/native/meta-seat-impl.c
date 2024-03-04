@@ -789,7 +789,7 @@ meta_seat_impl_notify_button_in_impl (MetaSeatImpl       *seat_impl,
                                       uint32_t            button,
                                       uint32_t            state)
 {
-  MetaInputDeviceNative *device_native = (MetaInputDeviceNative *) input_device;
+  MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (input_device);
   ClutterEvent *event = NULL;
   ClutterModifierType modifiers;
   int button_nr;
