@@ -135,6 +135,8 @@ typedef struct _ClutterStagePrivate
   GHashTable *pointer_devices;
   GHashTable *touch_sequences;
 
+  GPtrArray *all_active_gestures;
+
   guint actor_needs_immediate_relayout : 1;
 } ClutterStagePrivate;
 
@@ -1263,6 +1265,9 @@ clutter_stage_finalize (GObject *object)
   g_assert (priv->cur_event_emission_chain->len == 0);
   g_array_unref (priv->cur_event_emission_chain);
 
+  g_assert (priv->all_active_gestures->len == 0);
+  g_ptr_array_free (priv->all_active_gestures, TRUE);
+
   g_hash_table_destroy (priv->pointer_devices);
   g_hash_table_destroy (priv->touch_sequences);
 
@@ -1672,6 +1677,8 @@ clutter_stage_init (ClutterStage *self)
   priv->touch_sequences =
     g_hash_table_new_full (NULL, NULL,
                            NULL, (GDestroyNotify) free_pointer_device_entry);
+
+  priv->all_active_gestures = g_ptr_array_sized_new (64);
 
   clutter_actor_set_background_color (CLUTTER_ACTOR (self),
                                       &default_stage_color);
@@ -4589,4 +4596,12 @@ clutter_stage_pointing_input_foreach (ClutterStage                 *self,
     }
 
   return TRUE;
+}
+
+GPtrArray *
+clutter_stage_get_active_gestures_array (ClutterStage *self)
+{
+  ClutterStagePrivate *priv = clutter_stage_get_instance_private (self);
+
+  return priv->all_active_gestures;
 }

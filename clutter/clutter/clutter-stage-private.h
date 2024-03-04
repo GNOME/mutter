@@ -154,4 +154,6 @@ ClutterGrab * clutter_stage_grab_input_only (ClutterStage        *self,
 
 void clutter_stage_invalidate_devices (ClutterStage *stage);
 
+GPtrArray * clutter_stage_get_active_gestures_array (ClutterStage *self);
+
 G_END_DECLS
