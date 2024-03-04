@@ -43,6 +43,7 @@ struct _MetaXwaylandSurface
   MetaWindow *window;
 
   gulong unmanaging_handler_id;
+  gulong highest_scale_monitor_handler_id;
 };
 
 G_DEFINE_TYPE (MetaXwaylandSurface,
@@ -63,6 +64,8 @@ clear_window (MetaXwaylandSurface *xwayland_surface)
     return;
 
   g_clear_signal_handler (&xwayland_surface->unmanaging_handler_id,
+                          xwayland_surface->window);
+  g_clear_signal_handler (&xwayland_surface->highest_scale_monitor_handler_id,
                           xwayland_surface->window);
   xwayland_window = META_WINDOW_XWAYLAND (xwayland_surface->window);
   meta_window_xwayland_set_surface (xwayland_window, NULL);
@@ -126,6 +129,12 @@ meta_xwayland_surface_associate_with_window (MetaXwaylandSurface *xwayland_surfa
   window_actor = meta_window_actor_from_window (window);
   if (window_actor)
     meta_window_actor_assign_surface_actor (window_actor, surface_actor);
+
+  xwayland_surface->highest_scale_monitor_handler_id =
+    g_signal_connect_swapped (window, "highest-scale-monitor-changed",
+                              G_CALLBACK (meta_wayland_surface_notify_highest_scale_monitor),
+                              surface);
+  meta_wayland_surface_notify_highest_scale_monitor (surface);
 }
 
 static void
