@@ -10,8 +10,8 @@
 msgid ""
 msgstr "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2024-02-12 13:12+0000\n"
-"PO-Revision-Date: 2024-02-22 10:00+0100\n"
+"POT-Creation-Date: 2024-03-02 12:22+0000\n"
+"PO-Revision-Date: 2024-03-04 10:00+0100\n"
 "Last-Translator: Asier Sarasua Garmendia <asiersarasua@ni.eus>\n"
 "Language-Team: Basque <librezale@librezale.eus>\n"
 "Language: eu\n"
@@ -248,19 +248,19 @@ msgstr "Maximizatu leihoa bertikalean"
 msgid "Maximize window horizontally"
 msgstr "Maximizatu leihoa horizontalean"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:160
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:167
 msgid "View split on left"
 msgstr "Ikusi zatia ezkerrean"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:165
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:172
 msgid "View split on right"
 msgstr "Ikusi zatia eskuinean"
 
-#: data/org.gnome.mutter.gschema.xml.in:14
+#: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
 msgstr "Aldatzailea leihoak kudeatzeko eragiketa hedatuetan erabiltzeko"
 
-#: data/org.gnome.mutter.gschema.xml.in:15
+#: data/org.gnome.mutter.gschema.xml.in:16
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
@@ -268,95 +268,95 @@ msgid ""
 "set to the empty string."
 msgstr "Gako honek “overlay” (gainjarria) hasieratuko du: hau leihoaren ikuspegi orokorraren eta aplikazioa abiarazteko sistemaren arteko konbinazioa da. Lehenetsi gisa, PC ordenagailuko “Windows tekla” da. Tekla konbinazio hau lehenetsia izatea edo kate huts gisa ezartzea da."
 
-#: data/org.gnome.mutter.gschema.xml.in:27
+#: data/org.gnome.mutter.gschema.xml.in:28
 msgid "Attach modal dialogs"
 msgstr "Erantsi elkarrizketa-koadro modala"
 
-#: data/org.gnome.mutter.gschema.xml.in:28
+#: data/org.gnome.mutter.gschema.xml.in:29
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
 "attached to the titlebar of the parent window and are moved together with "
 "the parent window."
 msgstr "True (egia) bada, titulu-barra independenteak eduki ordez, elkarrizketa-koadro modalak agertuko dira leiho gurasoko titulu-barrari erantsita eta leiho gurasoarekin batera mugituko dira."
 
-#: data/org.gnome.mutter.gschema.xml.in:37
+#: data/org.gnome.mutter.gschema.xml.in:38
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr "Gaitu lauzatzea leihoak pantailaren ertzetan jaregitean"
 
-#: data/org.gnome.mutter.gschema.xml.in:38
+#: data/org.gnome.mutter.gschema.xml.in:39
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
 "area. Dropping windows on the top screen edge maximizes them completely."
 msgstr "Gaituta egonez gero, pantailaren ertz bertikaletan leihoak jaregiteak hauek bertikalean maximizatuko dira, eta horizontalean tamainaz aldatuko dira area erabilgarriaren erdia estaltzeko. Pantailaren goiko ertzean leihoak jaregitean, hauek erabat maximizatuko dira."
 
-#: data/org.gnome.mutter.gschema.xml.in:47
+#: data/org.gnome.mutter.gschema.xml.in:48
 msgid "Workspaces are managed dynamically"
 msgstr "Laneko areak dinamikoki kudeatzen dira"
 
-#: data/org.gnome.mutter.gschema.xml.in:48
+#: data/org.gnome.mutter.gschema.xml.in:49
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
 "static number of workspaces (determined by the num-workspaces key in org."
 "gnome.desktop.wm.preferences)."
 msgstr "Laneko areak dinamikoki kudeatzen diren edo laneko areak kopuru estatikoa (“org.gnome.desktop.wm.preferences“-eko “num-workspaces” gakoak zehazten du) daukan zehazten du ."
 
-#: data/org.gnome.mutter.gschema.xml.in:57
+#: data/org.gnome.mutter.gschema.xml.in:58
 msgid "Workspaces only on primary"
 msgstr "Laneko areak soilik nagusian"
 
-#: data/org.gnome.mutter.gschema.xml.in:58
+#: data/org.gnome.mutter.gschema.xml.in:59
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
 msgstr "Laneko areaz aldatzean pantaila guztietako leihoei eragingo dien edo pantaila nagusiko leihoei soilik zehazten du."
 
-#: data/org.gnome.mutter.gschema.xml.in:66
+#: data/org.gnome.mutter.gschema.xml.in:67
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "Atzeratu fokuaren aldaketa erakuslea mugitzeari utzi arte"
 
-#: data/org.gnome.mutter.gschema.xml.in:67
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
 "the pointer stops moving."
 msgstr "TRUE (egia) gisa ezartzen bada, eta fokuaren modua “sloppy” edo “mouse” bada, fokua ez da berehala aldatuko leiho batean sartzean baizik eta soilik erakuslea gelditzean."
 
-#: data/org.gnome.mutter.gschema.xml.in:77
+#: data/org.gnome.mutter.gschema.xml.in:78
 msgid "Draggable border width"
 msgstr "Ertz arrastragarriaren zabalera"
 
-#: data/org.gnome.mutter.gschema.xml.in:78
+#: data/org.gnome.mutter.gschema.xml.in:79
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
 msgstr "Ertz arrastragarri guztien kopurua. Gaiaren ertz ikusgaiak ez badira nahikoak, ertz ikusezinak gehituko dira balio honekin bat etortzeko."
 
-#: data/org.gnome.mutter.gschema.xml.in:87
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "Maximizatu automatikoki monitorearen tamainaren gertuko leihoak"
 
-#: data/org.gnome.mutter.gschema.xml.in:88
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
 msgstr "Gaituta badago, ia monitorearen tamainara iristen diren leiho berriak automatikoki maximizatuko ditu."
 
-#: data/org.gnome.mutter.gschema.xml.in:96
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
 msgstr "Jarri leiho berriak zentroan"
 
-#: data/org.gnome.mutter.gschema.xml.in:97
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
 msgstr "TRUE (egia) denean, leiho berriak beti jarriko dira monitorearen pantaila aktiboaren zentroan."
 
-#: data/org.gnome.mutter.gschema.xml.in:106
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "Enable experimental features"
 msgstr "Gaitu eginbide esperimentalak"
 
-#: data/org.gnome.mutter.gschema.xml.in:107
+#: data/org.gnome.mutter.gschema.xml.in:108
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -368,36 +368,39 @@ msgid ""
 "manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
 "mutter always allocate scanout buffers with explicit modifiers, if supported "
 "by the driver. Requires a restart. • “autoclose-xwayland” — automatically "
-"terminates Xwayland if all relevant X11 clients are gone. Requires a restart."
-msgstr "Eginbide esperimentalak gaitzeko, gehitu eginbidearen gako-hitza zerrendari. Eginbideak konposatzailea berrabiaraztea behar izan dezake. Eginbide esperimentalak ez du erabilgarri edo konfiguragarri egon beharrik. Ez espero ezarpen honetan etorkizunean funtzionatzeko bermea duen ezer egoterik. Balizko gako-hitzak: • “scale-monitor-framebuffer” — HiDPI monitoreak kudeatzeko, mutter-ek monitore logikoak pixelen koordenatuen espazio logiko batean antolatzea ezartzen du lehenespen gisa, monitorearen framebufferrak eskalatuz leihoaren edukia eskalatu ordez. Ez da berrabiarazi behar. • “kms-modifiers” — mutter-ek eskaneatze-bufferrak beti aldatzaile esplizituekin esleitzen ditu, kontrolatzaileak onartzen badu. Berrabiarazi behar da. • “autoclose-xwayland” — Xwayland automatikoki amaitzen du X11 bezero nabarmenik ez badago. Berrabiarazi behar da."
+"terminates Xwayland if all relevant X11 clients are gone. Requires a "
+"restart. • “variable-refresh-rate” — makes mutter dynamically adjust the "
+"refresh rate of the monitor when applicable if supported by the monitor, GPU "
+"and DRM driver. Configurable in Settings. Requires a restart."
+msgstr "Eginbide esperimentalak gaitzeko, gehitu eginbidearen gako-hitza zerrendari. Eginbideak konposatzailea berrabiaraztea behar izan dezake. Eginbide esperimentalak ez du erabilgarri edo konfiguragarri egon beharrik. Ez espero ezarpen honetan etorkizunean funtzionatzeko bermea duen ezer egoterik. Balizko gako-hitzak: • “scale-monitor-framebuffer” — HiDPI monitoreak kudeatzeko, mutter-ek monitore logikoak pixelen koordenatuen espazio logiko batean antolatzea ezartzen du lehenespen gisa, monitorearen framebufferrak eskalatuz leihoaren edukia eskalatu ordez. Ez da berrabiarazi behar. • “kms-modifiers” — mutter-ek eskaneatze-bufferrak beti aldatzaile esplizituekin esleitzen ditu, kontrolatzaileak onartzen badu. Berrabiarazi behar da. • “autoclose-xwayland” — Xwayland automatikoki amaitzen du X11 bezero nabarmenik ez badago. Berrabiarazi behar da. • “variable-refresh-rate” — mutter-ek pantailaren freskatze-tasa dinamikoki doitu dezan ahalbidetzen du, pantailak, PUGak eta DRM kontrolatzaileak hori onartzen dutenean. Ezarpenetan konfiguratu daiteke. Berrabiarazi behar da."
 
-#: data/org.gnome.mutter.gschema.xml.in:137
+#: data/org.gnome.mutter.gschema.xml.in:144
 msgid "Modifier to use to locate the pointer"
 msgstr "Erakuslea kokatzeko erabiliko den aldatzailea"
 
-#: data/org.gnome.mutter.gschema.xml.in:138
+#: data/org.gnome.mutter.gschema.xml.in:145
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Gako honek “kokatu erakuslea” ekintza abiarazten du."
 
-#: data/org.gnome.mutter.gschema.xml.in:145
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid "Timeout for check-alive ping"
 msgstr "Bizirik egotearen ping-aren denbora-muga"
 
-#: data/org.gnome.mutter.gschema.xml.in:146
+#: data/org.gnome.mutter.gschema.xml.in:153
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
 msgstr "Bezero batek ping eskari bati erantzuteko duen milisegundo kopurua, izoztutzat hartu baino lehen. Erabiltzen den balioa 0 bada, bizirik egotearen egiaztatzea erabat desgaituko da."
 
-#: data/org.gnome.mutter.gschema.xml.in:170
+#: data/org.gnome.mutter.gschema.xml.in:177
 msgid "Switch monitor configurations"
 msgstr "Aldatu monitorearen konfigurazioak"
 
-#: data/org.gnome.mutter.gschema.xml.in:175
+#: data/org.gnome.mutter.gschema.xml.in:182
 msgid "Rotates the built-in monitor configuration"
 msgstr "Biratu barneko monitorearen konfigurazioa"
 
-#: data/org.gnome.mutter.gschema.xml.in:180
+#: data/org.gnome.mutter.gschema.xml.in:187
 msgid "Cancel any active input capture session"
 msgstr "Utzi bertan behera sarrera aktiboen kaptura-saio guztiak"
 
@@ -548,75 +551,75 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Soinuaren gertaera"
 
-#: src/core/display.c:733
+#: src/core/display.c:734
 msgid "Privacy Screen Enabled"
 msgstr "Pribatutasun-pantaila gaituta"
 
-#: src/core/display.c:734
+#: src/core/display.c:735
 msgid "Privacy Screen Disabled"
 msgstr "Pribatutasun-pantaila desgaituta"
 
-#: src/core/meta-context-main.c:594
+#: src/core/meta-context-main.c:601
 msgid "Replace the running window manager"
 msgstr "Ordeztu exekutatzen dagoen leiho-kudeatzailea"
 
-#: src/core/meta-context-main.c:600
+#: src/core/meta-context-main.c:607
 msgid "X Display to use"
 msgstr "X pantaila erabiltzeko"
 
-#: src/core/meta-context-main.c:606
+#: src/core/meta-context-main.c:613
 msgid "Disable connection to session manager"
 msgstr "Desgaitu saio-kudeatzailearen konexioa"
 
-#: src/core/meta-context-main.c:612
+#: src/core/meta-context-main.c:619
 msgid "Specify session management ID"
 msgstr "Zehaztu saio-kudeatzailearen IDa"
 
-#: src/core/meta-context-main.c:618
+#: src/core/meta-context-main.c:625
 msgid "Initialize session from savefile"
 msgstr "Hasieratu saioa babes-fitxategitik"
 
-#: src/core/meta-context-main.c:624
+#: src/core/meta-context-main.c:631
 msgid "Make X calls synchronous"
 msgstr "Bihurtu X dei sinkroniko"
 
-#: src/core/meta-context-main.c:632
+#: src/core/meta-context-main.c:639
 msgid "Run as a wayland compositor"
 msgstr "Exekutatu wayland konposatzaile gisa"
 
-#: src/core/meta-context-main.c:638
+#: src/core/meta-context-main.c:645
 msgid "Run as a nested compositor"
 msgstr "Exekutatu habiaratutako konposatzaile gisa"
 
-#: src/core/meta-context-main.c:644
+#: src/core/meta-context-main.c:651
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Exekutatu waylan konposatzailea Xwayland abiarazi gabe"
 
-#: src/core/meta-context-main.c:650
+#: src/core/meta-context-main.c:657
 msgid "Specify Wayland display name to use"
 msgstr "Zehaztu erabiliko den Wayland pantailaren izena"
 
-#: src/core/meta-context-main.c:658
+#: src/core/meta-context-main.c:665
 msgid "Run as a full display server, rather than nested"
 msgstr "Exekutatu pantaila-zerbitzari oso bezala, habiaratuta baino"
 
-#: src/core/meta-context-main.c:663
+#: src/core/meta-context-main.c:670
 msgid "Run as a headless display server"
 msgstr "Exekutatu bururik gabeko pantaila-zerbitzari gisa"
 
-#: src/core/meta-context-main.c:668
+#: src/core/meta-context-main.c:675
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Gehitu pantaila birtual iraunkorra (WxH edo WxH@R)"
 
-#: src/core/meta-context-main.c:680
+#: src/core/meta-context-main.c:687
 msgid "Run with X11 backend"
 msgstr "Exekutatu X11 motorra erabiliz"
 
-#: src/core/meta-context-main.c:686
+#: src/core/meta-context-main.c:693
 msgid "Profile performance using trace instrumentation"
 msgstr "Profilatu errendimendua aztarna-instrumentazioa erabiliz"
 
-#: src/core/meta-context-main.c:692
+#: src/core/meta-context-main.c:699
 msgid "Enable debug control D-Bus interface"
 msgstr "Gaitu arazketa-kontrolerako D-Bus interfazea"
 
@@ -652,7 +655,7 @@ msgstr "Bistaratu bertsioa"
 msgid "Mutter plugin to use"
 msgstr "Mutter-en osagaia erabiltzeko"
 
-#: src/core/prefs.c:1843
+#: src/core/prefs.c:1842
 #, c-format
 msgid "Workspace %d"
 msgstr "%d. laneko area"
@@ -661,7 +664,7 @@ msgstr "%d. laneko area"
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter modu xehatuaren euskarririk gabe konpilatu da"
 
-#: src/core/workspace.c:511
+#: src/core/workspace.c:510
 msgid "Workspace switched"
 msgstr "Laneko area aldatu da"
 
@@ -689,7 +692,7 @@ msgstr "%d pantaila, “%s” bistakoa, ez da baliozkoa"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2539
+#: src/x11/meta-x11-display.c:2538
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -700,7 +703,7 @@ msgstr "Dagoeneko beste konposatze-kudeatzailea ari da exekutatzen “%2$s” pa
 msgid "Format %s not supported"
 msgstr "%s formatua ez da onartzen"
 
-#: src/x11/window-props.c:524
+#: src/x11/window-props.c:528
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s)"
