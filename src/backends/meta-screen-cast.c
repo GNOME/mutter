@@ -153,6 +153,8 @@ meta_screen_cast_get_preferred_modifier (MetaScreenCast  *screen_cast,
         {
           int i;
 
+          g_clear_error (&error);
+
           for (i = 0; i < modifiers->len; i++)
             {
               if (g_array_index (modifiers, uint64_t, i) == *preferred_modifier)
