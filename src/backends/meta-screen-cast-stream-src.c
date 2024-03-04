@@ -28,6 +28,7 @@
 #include <spa/param/props.h>
 #include <spa/param/format-utils.h>
 #include <spa/param/video/format-utils.h>
+#include <spa/pod/dynamic.h>
 #include <spa/utils/result.h>
 #include <stdint.h>
 #include <sys/mman.h>
@@ -162,60 +163,67 @@ cogl_pixel_format_from_spa_video_format (enum spa_video_format  spa_format,
 }
 
 static struct spa_pod *
-push_format_object (struct spa_pod_builder *pod_builder,
-                    enum spa_video_format   format,
+push_format_object (enum spa_video_format   format,
                     uint64_t               *modifiers,
                     int                     n_modifiers,
                     gboolean                fixate_modifier,
                     ...)
 {
-  struct spa_pod_frame pod_frames[2];
+  struct spa_pod_dynamic_builder pod_builder;
+  struct spa_pod_frame pod_frame;
   va_list args;
 
-  spa_pod_builder_push_object (pod_builder, &pod_frames[0],
-                               SPA_TYPE_OBJECT_Format, SPA_PARAM_EnumFormat);
-  spa_pod_builder_add (pod_builder,
+  spa_pod_dynamic_builder_init (&pod_builder, NULL, 0, 1024);
+
+  spa_pod_builder_push_object (&pod_builder.b,
+                               &pod_frame,
+                               SPA_TYPE_OBJECT_Format,
+                               SPA_PARAM_EnumFormat);
+  spa_pod_builder_add (&pod_builder.b,
                        SPA_FORMAT_mediaType,
                        SPA_POD_Id (SPA_MEDIA_TYPE_video),
                        0);
-  spa_pod_builder_add (pod_builder,
+  spa_pod_builder_add (&pod_builder.b,
                        SPA_FORMAT_mediaSubtype,
                        SPA_POD_Id (SPA_MEDIA_SUBTYPE_raw),
                        0);
-  spa_pod_builder_add (pod_builder,
-                       SPA_FORMAT_VIDEO_format, SPA_POD_Id (format),
+  spa_pod_builder_add (&pod_builder.b,
+                       SPA_FORMAT_VIDEO_format,
+                       SPA_POD_Id (format),
                        0);
   if (n_modifiers > 0)
     {
       if (fixate_modifier)
         {
-          spa_pod_builder_prop (pod_builder,
+          spa_pod_builder_prop (&pod_builder.b,
                                 SPA_FORMAT_VIDEO_modifier,
                                 SPA_POD_PROP_FLAG_MANDATORY);
-          spa_pod_builder_long (pod_builder, modifiers[0]);
+          spa_pod_builder_long (&pod_builder.b, modifiers[0]);
         }
       else
         {
+          struct spa_pod_frame pod_frame_mods;
           int i;
 
-          spa_pod_builder_prop (pod_builder,
+          spa_pod_builder_prop (&pod_builder.b,
                                 SPA_FORMAT_VIDEO_modifier,
                                 (SPA_POD_PROP_FLAG_MANDATORY |
                                  SPA_POD_PROP_FLAG_DONT_FIXATE));
-          spa_pod_builder_push_choice (pod_builder, &pod_frames[1],
+          spa_pod_builder_push_choice (&pod_builder.b,
+                                       &pod_frame_mods,
                                        SPA_CHOICE_Enum,
                                        0);
-          spa_pod_builder_long (pod_builder, modifiers[0]);
+          spa_pod_builder_long (&pod_builder.b, modifiers[0]);
           for (i = 0; i < n_modifiers; i++)
-            spa_pod_builder_long (pod_builder, modifiers[i]);
-          spa_pod_builder_pop (pod_builder, &pod_frames[1]);
+            spa_pod_builder_long (&pod_builder.b, modifiers[i]);
+          spa_pod_builder_pop (&pod_builder.b, &pod_frame_mods);
         }
     }
 
   va_start (args, fixate_modifier);
-  spa_pod_builder_addv (pod_builder, args);
+  spa_pod_builder_addv (&pod_builder.b, args);
   va_end (args);
-  return spa_pod_builder_pop (pod_builder, &pod_frames[0]);
+  return spa_pod_builder_pop (&pod_builder.b, &pod_frame);
 }
 
 static void
@@ -972,10 +980,8 @@ meta_screen_cast_stream_src_close (MetaScreenCastStreamSrc *src)
 }
 
 static void
-build_format_params (MetaScreenCastStreamSrc  *src,
-                     struct spa_pod_builder   *pod_builder,
-                     const struct spa_pod    **params,
-                     uint32_t                 *n_params)
+build_format_params (MetaScreenCastStreamSrc *src,
+                     GPtrArray               *params)
 {
   MetaScreenCastStream *stream =
     meta_screen_cast_stream_src_get_stream (src);
@@ -997,6 +1003,7 @@ build_format_params (MetaScreenCastStreamSrc  *src,
   struct spa_fraction default_framerate = DEFAULT_FRAME_RATE;
   struct spa_fraction min_framerate = MIN_FRAME_RATE;
   struct spa_fraction max_framerate = MAX_FRAME_RATE;
+  struct spa_pod *pod;
   int width;
   int height;
   float frame_rate;
@@ -1045,8 +1052,7 @@ build_format_params (MetaScreenCastStreamSrc  *src,
       if (modifiers->len == 0)
         continue;
 
-      params[(*n_params)++] = push_format_object (
-        pod_builder,
+      pod = push_format_object (
         spa_video_formats[i], (uint64_t *) modifiers->data, modifiers->len, FALSE,
         SPA_FORMAT_VIDEO_size, SPA_POD_CHOICE_RANGE_Rectangle (&default_size,
                                                                &min_size,
@@ -1057,11 +1063,11 @@ build_format_params (MetaScreenCastStreamSrc  *src,
                                        &min_framerate,
                                        &max_framerate),
         0);
+      g_ptr_array_add (params, g_steal_pointer (&pod));
     }
   for (i = 0; i < n_spa_video_formats; i++)
     {
-      params[(*n_params)++] = push_format_object (
-        pod_builder,
+      pod = push_format_object (
         spa_video_formats[i], NULL, 0, FALSE,
         SPA_FORMAT_VIDEO_size, SPA_POD_CHOICE_RANGE_Rectangle (&default_size,
                                                                &min_size,
@@ -1072,6 +1078,7 @@ build_format_params (MetaScreenCastStreamSrc  *src,
                                        &min_framerate,
                                        &max_framerate),
         0);
+      g_ptr_array_add (params, g_steal_pointer (&pod));
     }
 }
 
@@ -1080,14 +1087,14 @@ renegotiate_pipewire_stream (MetaScreenCastStreamSrc *src)
 {
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
-  uint8_t buffer[1024];
-  struct spa_pod_builder pod_builder;
-  const struct spa_pod *params[4];
-  uint32_t n_params = 0;
+  g_autoptr (GPtrArray) params = NULL;
 
-  pod_builder = SPA_POD_BUILDER_INIT (buffer, sizeof (buffer));
-  build_format_params (src, &pod_builder, params, &n_params);
-  pw_stream_update_params (priv->pipewire_stream, params, n_params);
+  params = g_ptr_array_new_full (16, (GDestroyNotify) free);
+  build_format_params (src, params);
+
+  pw_stream_update_params (priv->pipewire_stream,
+                           (const struct spa_pod **) params->pdata,
+                           params->len);
 }
 
 static void
@@ -1131,20 +1138,23 @@ on_stream_state_changed (void                 *data,
 }
 
 static void
-add_video_damage_meta_param (struct spa_pod_builder *pod_builder,
-                             const struct spa_pod  **params,
-                             int                     idx)
+add_video_damage_meta_param (GPtrArray *params)
 {
+  struct spa_pod_dynamic_builder pod_builder;
+  struct spa_pod *pod;
   const size_t meta_region_size = sizeof (struct spa_meta_region);
 
-  params[idx] = spa_pod_builder_add_object (
-    pod_builder,
+  spa_pod_dynamic_builder_init (&pod_builder, NULL, 0, 1024);
+
+  pod = spa_pod_builder_add_object (
+    &pod_builder.b,
     SPA_TYPE_OBJECT_ParamMeta, SPA_PARAM_Meta,
     SPA_PARAM_META_type, SPA_POD_Id (SPA_META_VideoDamage),
     SPA_PARAM_META_size,
     SPA_POD_CHOICE_RANGE_Int (meta_region_size * NUM_DAMAGED_RECTS,
                               meta_region_size * 1,
                               meta_region_size * NUM_DAMAGED_RECTS));
+  g_ptr_array_add (params, g_steal_pointer (&pod));
 }
 
 static void
@@ -1157,20 +1167,20 @@ on_stream_param_changed (void                 *data,
     meta_screen_cast_stream_src_get_instance_private (src);
   MetaScreenCastStreamSrcClass *klass =
     META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
-  uint8_t params_buffer[1024];
-  struct spa_pod_builder pod_builder;
-  const struct spa_pod *params[5];
-  uint32_t n_params = 0;
+  struct spa_pod_dynamic_builder pod_builder;
+  struct spa_pod *pod;
+  g_autoptr (GPtrArray) params = NULL;
   int buffer_types;
   const struct spa_pod_prop *prop_modifier;
 
   if (!format || id != SPA_PARAM_Format)
     return;
 
+  params = g_ptr_array_new_full (16, (GDestroyNotify) free);
+
   spa_format_video_raw_parse (format,
                               &priv->video_format);
 
-  pod_builder = SPA_POD_BUILDER_INIT (params_buffer, sizeof (params_buffer));
   prop_modifier = spa_pod_find_prop (format, NULL, SPA_FORMAT_VIDEO_modifier);
 
   if (prop_modifier)
@@ -1227,8 +1237,7 @@ on_stream_param_changed (void                 *data,
                                                    priv->video_format.size.height,
                                                    &preferred_modifier))
         {
-          params[n_params++] = push_format_object (
-            &pod_builder,
+          pod = push_format_object (
             priv->video_format.format, &preferred_modifier, 1, TRUE,
             SPA_FORMAT_VIDEO_size, SPA_POD_Rectangle (&priv->video_format.size),
             SPA_FORMAT_VIDEO_framerate, SPA_POD_Fraction (&SPA_FRACTION (0, 1)),
@@ -1237,43 +1246,56 @@ on_stream_param_changed (void                 *data,
                                            &MIN_FRAME_RATE,
                                            &priv->video_format.max_framerate),
             0);
+          g_ptr_array_add (params, g_steal_pointer (&pod));
         }
 
-      build_format_params (src, &pod_builder, params, &n_params);
+      build_format_params (src, params);
 
-      pw_stream_update_params (priv->pipewire_stream, params, n_params);
+      pw_stream_update_params (priv->pipewire_stream,
+                               (const struct spa_pod **) params->pdata,
+                               params->len);
       return;
     }
 
-  params[n_params++] = spa_pod_builder_add_object (
-    &pod_builder,
+  spa_pod_dynamic_builder_init (&pod_builder, NULL, 0, 1024);
+  pod = spa_pod_builder_add_object (
+    &pod_builder.b,
     SPA_TYPE_OBJECT_ParamBuffers, SPA_PARAM_Buffers,
     SPA_PARAM_BUFFERS_buffers, SPA_POD_CHOICE_RANGE_Int (16, 2, 16),
     SPA_PARAM_BUFFERS_blocks, SPA_POD_Int (1),
     SPA_PARAM_BUFFERS_align, SPA_POD_Int (16),
     SPA_PARAM_BUFFERS_dataType, SPA_POD_CHOICE_FLAGS_Int (buffer_types));
+  g_ptr_array_add (params, g_steal_pointer (&pod));
 
-  params[n_params++] = spa_pod_builder_add_object (
-    &pod_builder,
+  spa_pod_dynamic_builder_init (&pod_builder, NULL, 0, 1024);
+  pod = spa_pod_builder_add_object (
+    &pod_builder.b,
     SPA_TYPE_OBJECT_ParamMeta, SPA_PARAM_Meta,
     SPA_PARAM_META_type, SPA_POD_Id (SPA_META_VideoCrop),
     SPA_PARAM_META_size, SPA_POD_Int (sizeof (struct spa_meta_region)));
+  g_ptr_array_add (params, g_steal_pointer (&pod));
 
-  params[n_params++] = spa_pod_builder_add_object (
-    &pod_builder,
+  spa_pod_dynamic_builder_init (&pod_builder, NULL, 0, 1024);
+  pod = spa_pod_builder_add_object (
+    &pod_builder.b,
     SPA_TYPE_OBJECT_ParamMeta, SPA_PARAM_Meta,
     SPA_PARAM_META_type, SPA_POD_Id (SPA_META_Cursor),
     SPA_PARAM_META_size, SPA_POD_Int (CURSOR_META_SIZE (384, 384)));
+  g_ptr_array_add (params, g_steal_pointer (&pod));
 
-  params[n_params++] = spa_pod_builder_add_object (
-    &pod_builder,
+  spa_pod_dynamic_builder_init (&pod_builder, NULL, 0, 1024);
+  pod = spa_pod_builder_add_object (
+    &pod_builder.b,
     SPA_TYPE_OBJECT_ParamMeta, SPA_PARAM_Meta,
     SPA_PARAM_META_type, SPA_POD_Id (SPA_META_Header),
     SPA_PARAM_META_size, SPA_POD_Int (sizeof (struct spa_meta_header)));
+  g_ptr_array_add (params, g_steal_pointer (&pod));
 
-  add_video_damage_meta_param (&pod_builder, params, n_params++);
+  add_video_damage_meta_param (params);
 
-  pw_stream_update_params (priv->pipewire_stream, params, n_params);
+  pw_stream_update_params (priv->pipewire_stream,
+                           (const struct spa_pod **) params->pdata,
+                           params->len);
 
   if (klass->notify_params_updated)
     klass->notify_params_updated (src, &priv->video_format);
@@ -1462,11 +1484,7 @@ create_pipewire_stream (MetaScreenCastStreamSrc  *src,
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
   struct pw_stream *pipewire_stream;
-  uint8_t buffer[1024];
-  struct spa_pod_builder pod_builder =
-    SPA_POD_BUILDER_INIT (buffer, sizeof (buffer));
-  const struct spa_pod *params[4];
-  uint32_t n_params = 0;
+  g_autoptr (GPtrArray) params = NULL;
   int result;
 
   priv->node_id = SPA_ID_INVALID;
@@ -1482,7 +1500,8 @@ create_pipewire_stream (MetaScreenCastStreamSrc  *src,
       return NULL;
     }
 
-  build_format_params (src, &pod_builder, params, &n_params);
+  params = g_ptr_array_new_full (16, (GDestroyNotify) free);
+  build_format_params (src, params);
 
   pw_stream_add_listener (pipewire_stream,
                           &priv->pipewire_stream_listener,
@@ -1494,7 +1513,9 @@ create_pipewire_stream (MetaScreenCastStreamSrc  *src,
                               SPA_ID_INVALID,
                               (PW_STREAM_FLAG_DRIVER |
                                PW_STREAM_FLAG_ALLOC_BUFFERS),
-                              params, n_params);
+                              (const struct spa_pod **) params->pdata,
+                              params->len);
+
   if (result != 0)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
