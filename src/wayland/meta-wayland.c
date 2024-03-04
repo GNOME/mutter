@@ -21,10 +21,17 @@
 
 #include "wayland/meta-wayland.h"
 
+#include <glib/gstdio.h>
+
 #include <sys/time.h>
 #include <string.h>
 #include <stdlib.h>
 #include <wayland-server.h>
+
+#ifdef HAVE_TIMERFD
+# include <sys/timerfd.h>
+# include <time.h>
+#endif
 
 #include "clutter/clutter.h"
 #include "cogl/cogl-egl.h"
@@ -97,6 +104,11 @@ typedef struct
 
   MetaWaylandCompositor *compositor;
   ClutterStageView *stage_view;
+
+#ifdef HAVE_TIMERFD
+  int tfd;
+  struct itimerspec tfd_spec;
+#endif
 } FrameCallbackSource;
 
 static void meta_wayland_compositor_update_focus (MetaWaylandCompositor *compositor,
@@ -192,6 +204,50 @@ emit_frame_callbacks_for_stage_view (MetaWaylandCompositor *compositor,
 }
 
 #ifdef HAVE_NATIVE_BACKEND
+
+static gboolean
+frame_callback_source_prepare (GSource *base,
+                               int     *timeout)
+{
+  FrameCallbackSource *source = (FrameCallbackSource *)base;
+
+  *timeout = -1;
+
+#ifdef HAVE_TIMERFD
+  if (source->tfd > -1)
+    {
+      int64_t ready_time = g_source_get_ready_time (base);
+      struct itimerspec tfd_spec;
+
+      tfd_spec.it_interval.tv_sec = 0;
+      tfd_spec.it_interval.tv_nsec = 0;
+
+      if (ready_time > -1)
+        {
+          tfd_spec.it_value.tv_sec = ready_time / G_USEC_PER_SEC;
+          tfd_spec.it_value.tv_nsec = (ready_time % G_USEC_PER_SEC) * 1000L;
+        }
+      else
+        {
+          tfd_spec.it_value.tv_sec = 0;
+          tfd_spec.it_value.tv_nsec = 0;
+        }
+
+      if (memcmp (&tfd_spec, &source->tfd_spec, sizeof tfd_spec) != 0)
+        {
+          source->tfd_spec = tfd_spec;
+
+          timerfd_settime (source->tfd,
+                           TFD_TIMER_ABSTIME,
+                           &source->tfd_spec,
+                           NULL);
+        }
+    }
+#endif
+
+  return FALSE;
+}
+
 static gboolean
 frame_callback_source_dispatch (GSource     *source,
                                 GSourceFunc  callback,
@@ -214,9 +270,14 @@ frame_callback_source_finalize (GSource *source)
 
   g_signal_handlers_disconnect_by_data (frame_callback_source->stage_view,
                                         source);
+
+#ifdef HAVE_TIMERFD
+  g_clear_fd (&frame_callback_source->tfd, NULL);
+#endif
 }
 
 static GSourceFuncs frame_callback_source_funcs = {
+  .prepare = frame_callback_source_prepare,
   .dispatch = frame_callback_source_dispatch,
   .finalize = frame_callback_source_finalize,
 };
@@ -259,6 +320,13 @@ frame_callback_source_new (MetaWaylandCompositor *compositor,
                     "destroy",
                     G_CALLBACK (on_stage_view_destroy),
                     source);
+
+#ifdef HAVE_TIMERFD
+  frame_callback_source->tfd = timerfd_create (CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
+
+  if (frame_callback_source->tfd > -1)
+    g_source_add_unix_fd (source, frame_callback_source->tfd, G_IO_IN);
+#endif
 
   return &frame_callback_source->source;
 }
