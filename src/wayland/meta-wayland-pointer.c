@@ -716,7 +716,6 @@ handle_scroll_event (MetaWaylandPointer *pointer,
   int32_t x_value120 = 0, y_value120 = 0;
   enum wl_pointer_axis_source source = -1;
   MetaWaylandPointerClient *client;
-  gboolean is_discrete_event = FALSE, is_value120_event = FALSE;
   ClutterScrollFinishFlags finish_flags;
 
   if (clutter_event_get_flags (event) & CLUTTER_EVENT_FLAG_POINTER_EMULATED)
@@ -745,28 +744,24 @@ handle_scroll_event (MetaWaylandPointer *pointer,
   switch (clutter_event_get_scroll_direction (event))
     {
     case CLUTTER_SCROLL_UP:
-      is_discrete_event = TRUE;
       y_value = -DEFAULT_AXIS_STEP_DISTANCE;
       y_discrete = -1;
       y_value120 = y_discrete * 120;
       break;
 
     case CLUTTER_SCROLL_DOWN:
-      is_discrete_event = TRUE;
       y_value = DEFAULT_AXIS_STEP_DISTANCE;
       y_discrete = 1;
       y_value120 = y_discrete * 120;
       break;
 
     case CLUTTER_SCROLL_LEFT:
-      is_discrete_event = TRUE;
       x_value = -DEFAULT_AXIS_STEP_DISTANCE;
       x_discrete = -1;
       x_value120 = x_discrete * 120;
       break;
 
     case CLUTTER_SCROLL_RIGHT:
-      is_discrete_event = TRUE;
       x_value = DEFAULT_AXIS_STEP_DISTANCE;
       x_discrete = 1;
       x_value120 = x_discrete * 120;
@@ -783,8 +778,7 @@ handle_scroll_event (MetaWaylandPointer *pointer,
         x_value = wl_fixed_from_double (dx) * factor;
         y_value = wl_fixed_from_double (dy) * factor;
 
-        is_value120_event = (source == WL_POINTER_AXIS_SOURCE_WHEEL);
-        if (is_value120_event)
+        if (source == WL_POINTER_AXIS_SOURCE_WHEEL)
           {
             x_value120 = (int32_t) (dx * 120);
             y_value120 = (int32_t) (dy * 120);
@@ -801,7 +795,6 @@ handle_scroll_event (MetaWaylandPointer *pointer,
   wl_resource_for_each (resource, &client->pointer_resources)
     {
       int client_version = wl_resource_get_version (resource);
-      gboolean send_axis_x = TRUE, send_axis_y = TRUE;
 
       if (client_version >= WL_POINTER_AXIS_SOURCE_SINCE_VERSION)
         wl_pointer_send_axis_source (resource, source);
@@ -815,8 +808,6 @@ handle_scroll_event (MetaWaylandPointer *pointer,
                                              WL_POINTER_AXIS_HORIZONTAL_SCROLL,
                                              x_value120);
             }
-
-          send_axis_x = !is_discrete_event;
         }
       else if (client_version >= WL_POINTER_AXIS_DISCRETE_SINCE_VERSION)
         {
@@ -826,11 +817,9 @@ handle_scroll_event (MetaWaylandPointer *pointer,
                                              WL_POINTER_AXIS_HORIZONTAL_SCROLL,
                                              x_discrete);
             }
-
-          send_axis_x = !is_value120_event;
         }
 
-      if (x_value && send_axis_x)
+      if (x_value)
         wl_pointer_send_axis (resource, clutter_event_get_time (event),
                               WL_POINTER_AXIS_HORIZONTAL_SCROLL, x_value);
 
@@ -848,8 +837,6 @@ handle_scroll_event (MetaWaylandPointer *pointer,
                                              WL_POINTER_AXIS_VERTICAL_SCROLL,
                                              y_value120);
             }
-
-          send_axis_y = !is_discrete_event;
         }
       else if (client_version >= WL_POINTER_AXIS_DISCRETE_SINCE_VERSION)
         {
@@ -859,11 +846,9 @@ handle_scroll_event (MetaWaylandPointer *pointer,
                                              WL_POINTER_AXIS_VERTICAL_SCROLL,
                                              y_discrete);
             }
-
-          send_axis_y = !is_value120_event;
         }
 
-      if (y_value && send_axis_y)
+      if (y_value)
         wl_pointer_send_axis (resource, clutter_event_get_time (event),
                               WL_POINTER_AXIS_VERTICAL_SCROLL, y_value);
 
