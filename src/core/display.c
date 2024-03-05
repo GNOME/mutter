@@ -996,6 +996,7 @@ meta_display_new (MetaContext  *context,
                            display, G_CONNECT_SWAPPED);
 
   display->pad_action_mapper = meta_pad_action_mapper_new (monitor_manager);
+  display->tool_action_mapper = meta_tool_action_mapper_new (backend);
 
   input_capture = meta_backend_get_input_capture (backend);
   meta_input_capture_set_event_router (input_capture,
