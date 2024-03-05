@@ -814,13 +814,31 @@ meta_seat_impl_notify_button_in_impl (MetaSeatImpl       *seat_impl,
 
   if (device_native->last_tool)
     {
-      uint32_t mapped_button;
+      GDesktopStylusButtonAction action;
       int tool_button_nr = meta_evdev_tool_button_to_clutter (button);
 
       /* Apply the button event code as per the tool mapping */
-      mapped_button = meta_input_device_tool_native_get_button_code_in_impl (device_native->last_tool, tool_button_nr);
-      if (mapped_button != 0)
-        button = mapped_button;
+      action = meta_input_device_tool_native_get_button_code_in_impl (device_native->last_tool, tool_button_nr);
+      switch (action)
+        {
+        case G_DESKTOP_STYLUS_BUTTON_ACTION_DEFAULT:
+          button = meta_clutter_tool_button_to_evdev (CLUTTER_BUTTON_PRIMARY);
+          break;
+        case G_DESKTOP_STYLUS_BUTTON_ACTION_MIDDLE:
+          button = meta_clutter_tool_button_to_evdev (CLUTTER_BUTTON_MIDDLE);
+          break;
+        case G_DESKTOP_STYLUS_BUTTON_ACTION_RIGHT:
+          button = meta_clutter_tool_button_to_evdev (CLUTTER_BUTTON_SECONDARY);
+          break;
+        case G_DESKTOP_STYLUS_BUTTON_ACTION_BACK:
+          button = BTN_BACK;
+          break;
+        case G_DESKTOP_STYLUS_BUTTON_ACTION_FORWARD:
+          button = BTN_FORWARD;
+          break;
+        default:
+          g_warn_if_reached ();
+        }
     }
 
   if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)

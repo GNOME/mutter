@@ -708,25 +708,6 @@ meta_input_settings_native_set_stylus_pressure (MetaInputSettings      *settings
   meta_input_device_tool_native_set_pressure_curve_in_impl (tool, pressure_curve);
 }
 
-static guint
-action_to_evcode (GDesktopStylusButtonAction action)
-{
-  switch (action)
-    {
-    case G_DESKTOP_STYLUS_BUTTON_ACTION_MIDDLE:
-      return BTN_STYLUS;
-    case G_DESKTOP_STYLUS_BUTTON_ACTION_RIGHT:
-      return BTN_STYLUS2;
-    case G_DESKTOP_STYLUS_BUTTON_ACTION_BACK:
-      return BTN_BACK;
-    case G_DESKTOP_STYLUS_BUTTON_ACTION_FORWARD:
-      return BTN_FORWARD;
-    case G_DESKTOP_STYLUS_BUTTON_ACTION_DEFAULT:
-    default:
-      return 0;
-    }
-}
-
 static void
 meta_input_settings_native_set_stylus_button_map (MetaInputSettings          *settings,
                                                   ClutterInputDevice         *device,
@@ -735,12 +716,9 @@ meta_input_settings_native_set_stylus_button_map (MetaInputSettings          *se
                                                   GDesktopStylusButtonAction  secondary,
                                                   GDesktopStylusButtonAction  tertiary)
 {
-  meta_input_device_tool_native_set_button_code_in_impl (tool, CLUTTER_BUTTON_MIDDLE,
-                                                         action_to_evcode (primary));
-  meta_input_device_tool_native_set_button_code_in_impl (tool, CLUTTER_BUTTON_SECONDARY,
-                                                         action_to_evcode (secondary));
-  meta_input_device_tool_native_set_button_code_in_impl (tool, 8, /* Back */
-                                                         action_to_evcode (tertiary));
+  meta_input_device_tool_native_set_button_code_in_impl (tool, CLUTTER_BUTTON_MIDDLE, primary);
+  meta_input_device_tool_native_set_button_code_in_impl (tool, CLUTTER_BUTTON_SECONDARY, secondary);
+  meta_input_device_tool_native_set_button_code_in_impl (tool, 8, tertiary);
 }
 
 static void
