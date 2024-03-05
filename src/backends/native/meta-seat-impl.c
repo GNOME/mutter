@@ -990,6 +990,7 @@ notify_discrete_scroll (ClutterInputDevice     *input_device,
                                        NULL,
                                        modifiers,
                                        GRAPHENE_POINT_INIT (x, y),
+                                       scroll_source,
                                        direction);
 
   queue_event (seat_impl, event);

@@ -64,6 +64,7 @@ ClutterEvent * clutter_event_scroll_discrete_new (ClutterEventFlags       flags,
                                                   ClutterInputDeviceTool *tool,
                                                   ClutterModifierType     modifiers,
                                                   graphene_point_t        coords,
+                                                  ClutterScrollSource     scroll_source,
                                                   ClutterScrollDirection  direction);
 CLUTTER_EXPORT
 ClutterEvent * clutter_event_crossing_new (ClutterEventType      type,

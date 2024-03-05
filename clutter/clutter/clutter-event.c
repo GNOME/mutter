@@ -2017,6 +2017,7 @@ clutter_event_scroll_discrete_new (ClutterEventFlags       flags,
                                    ClutterInputDeviceTool *tool,
                                    ClutterModifierType     modifiers,
                                    graphene_point_t        coords,
+                                   ClutterScrollSource     scroll_source,
                                    ClutterScrollDirection  direction)
 {
   ClutterEvent *event;
@@ -2031,6 +2032,7 @@ clutter_event_scroll_discrete_new (ClutterEventFlags       flags,
   event->scroll.x = coords.x;
   event->scroll.y = coords.y;
   event->scroll.direction = direction;
+  event->scroll.scroll_source = scroll_source;
   event->scroll.modifier_state = modifiers;
   event->scroll.tool = tool;
 
