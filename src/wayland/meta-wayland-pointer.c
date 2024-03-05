@@ -706,6 +706,34 @@ handle_button_event (MetaWaylandPointer *pointer,
     }
 }
 
+static gboolean
+maybe_filter_scroll_event (const ClutterEvent *event,
+                           int                 client_version)
+{
+  ClutterScrollSource source;
+
+  source = clutter_event_get_scroll_source (event);
+
+  switch (clutter_event_get_scroll_direction (event))
+    {
+    case CLUTTER_SCROLL_UP:
+    case CLUTTER_SCROLL_DOWN:
+    case CLUTTER_SCROLL_LEFT:
+    case CLUTTER_SCROLL_RIGHT:
+      if (source == CLUTTER_SCROLL_SOURCE_WHEEL)
+        return client_version >= WL_POINTER_AXIS_VALUE120_SINCE_VERSION;
+
+      return TRUE;
+    case CLUTTER_SCROLL_SMOOTH:
+      if (source == CLUTTER_SCROLL_SOURCE_WHEEL)
+        return client_version < WL_POINTER_AXIS_VALUE120_SINCE_VERSION;
+
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
 static void
 handle_scroll_event (MetaWaylandPointer *pointer,
                      const ClutterEvent *event)
@@ -717,9 +745,6 @@ handle_scroll_event (MetaWaylandPointer *pointer,
   enum wl_pointer_axis_source source = -1;
   MetaWaylandPointerClient *client;
   ClutterScrollFinishFlags finish_flags;
-
-  if (clutter_event_get_flags (event) & CLUTTER_EVENT_FLAG_POINTER_EMULATED)
-    return;
 
   client = pointer->focus_client;
   if (!client)
@@ -795,6 +820,9 @@ handle_scroll_event (MetaWaylandPointer *pointer,
   wl_resource_for_each (resource, &client->pointer_resources)
     {
       int client_version = wl_resource_get_version (resource);
+
+      if (maybe_filter_scroll_event (event, client_version))
+        continue;
 
       if (client_version >= WL_POINTER_AXIS_SOURCE_SINCE_VERSION)
         wl_pointer_send_axis_source (resource, source);
