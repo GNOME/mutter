@@ -1180,13 +1180,21 @@ cally_text_get_text_after_offset (AtkText         *text,
 static gint
 cally_text_get_caret_offset (AtkText *text)
 {
-  ClutterActor *actor        = NULL;
+  ClutterActor *actor = NULL;
+  ClutterTextBuffer *buffer;
+  int cursor_pos;
 
   actor = CALLY_GET_CLUTTER_ACTOR (text);
   if (actor == NULL) /* State is defunct */
     return -1;
 
-  return clutter_text_get_cursor_position (CLUTTER_TEXT (actor));
+  cursor_pos = clutter_text_get_cursor_position (CLUTTER_TEXT (actor));
+  if (cursor_pos >= 0)
+    return cursor_pos;
+
+  /* Cursor is at end */
+  buffer = clutter_text_get_buffer (CLUTTER_TEXT (actor));
+  return clutter_text_buffer_get_length (buffer);
 }
 
 static gboolean
