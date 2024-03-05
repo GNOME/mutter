@@ -748,24 +748,28 @@ handle_scroll_event (MetaWaylandPointer *pointer,
       is_discrete_event = TRUE;
       y_value = -DEFAULT_AXIS_STEP_DISTANCE;
       y_discrete = -1;
+      y_value120 = y_discrete * 120;
       break;
 
     case CLUTTER_SCROLL_DOWN:
       is_discrete_event = TRUE;
       y_value = DEFAULT_AXIS_STEP_DISTANCE;
       y_discrete = 1;
+      y_value120 = y_discrete * 120;
       break;
 
     case CLUTTER_SCROLL_LEFT:
       is_discrete_event = TRUE;
       x_value = -DEFAULT_AXIS_STEP_DISTANCE;
       x_discrete = -1;
+      x_value120 = x_discrete * 120;
       break;
 
     case CLUTTER_SCROLL_RIGHT:
       is_discrete_event = TRUE;
       x_value = DEFAULT_AXIS_STEP_DISTANCE;
       x_discrete = 1;
+      x_value120 = x_discrete * 120;
       break;
 
     case CLUTTER_SCROLL_SMOOTH:
@@ -805,19 +809,23 @@ handle_scroll_event (MetaWaylandPointer *pointer,
       /* X axis */
       if (client_version >= WL_POINTER_AXIS_VALUE120_SINCE_VERSION)
         {
-          if (is_value120_event && x_value120 != 0)
-            wl_pointer_send_axis_value120 (resource,
-                                           WL_POINTER_AXIS_HORIZONTAL_SCROLL,
-                                           x_value120);
+          if (x_value120 != 0)
+            {
+              wl_pointer_send_axis_value120 (resource,
+                                             WL_POINTER_AXIS_HORIZONTAL_SCROLL,
+                                             x_value120);
+            }
 
           send_axis_x = !is_discrete_event;
         }
       else if (client_version >= WL_POINTER_AXIS_DISCRETE_SINCE_VERSION)
         {
-          if (is_discrete_event && x_discrete != 0)
-            wl_pointer_send_axis_discrete (resource,
-                                           WL_POINTER_AXIS_HORIZONTAL_SCROLL,
-                                           x_discrete);
+          if (x_discrete != 0)
+            {
+              wl_pointer_send_axis_discrete (resource,
+                                             WL_POINTER_AXIS_HORIZONTAL_SCROLL,
+                                             x_discrete);
+            }
 
           send_axis_x = !is_value120_event;
         }
@@ -834,19 +842,23 @@ handle_scroll_event (MetaWaylandPointer *pointer,
       /* Y axis */
       if (client_version >= WL_POINTER_AXIS_VALUE120_SINCE_VERSION)
         {
-          if (is_value120_event && y_value120 != 0)
-            wl_pointer_send_axis_value120 (resource,
-                                           WL_POINTER_AXIS_VERTICAL_SCROLL,
-                                           y_value120);
+          if (y_value120 != 0)
+            {
+              wl_pointer_send_axis_value120 (resource,
+                                             WL_POINTER_AXIS_VERTICAL_SCROLL,
+                                             y_value120);
+            }
 
           send_axis_y = !is_discrete_event;
         }
       else if (client_version >= WL_POINTER_AXIS_DISCRETE_SINCE_VERSION)
         {
-          if (is_discrete_event && y_discrete != 0)
-            wl_pointer_send_axis_discrete (resource,
-                                           WL_POINTER_AXIS_VERTICAL_SCROLL,
-                                           y_discrete);
+          if (y_discrete != 0)
+            {
+              wl_pointer_send_axis_discrete (resource,
+                                             WL_POINTER_AXIS_VERTICAL_SCROLL,
+                                             y_discrete);
+            }
 
           send_axis_y = !is_value120_event;
         }
