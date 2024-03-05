@@ -666,6 +666,420 @@ event_delivery_actor_stop_sequence_event (void)
   g_signal_handlers_disconnect_by_func (stage, on_after_update, &was_updated);
 }
 
+static gboolean
+on_event_save_and_return_propagate (ClutterActor  *actor,
+                                    ClutterEvent  *event,
+                                    GList        **event_types)
+{
+  *event_types = g_list_append (*event_types, clutter_event_copy (event));
+
+  return CLUTTER_EVENT_PROPAGATE;
+}
+
+static void
+event_delivery_enter_leave_events_touch_impl_grab (void)
+{
+  ClutterActor *stage = clutter_test_get_stage ();
+  ClutterSeat *seat =
+    clutter_backend_get_default_seat (clutter_get_default_backend ());
+  g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
+  int64_t now_us;
+  ClutterActor *container, *child_1, *child_2;
+  gboolean was_updated;
+  GList *stage_events, *container_events, *child_1_events, *child_2_events;
+
+  virtual_pointer = clutter_seat_create_virtual_device (seat, CLUTTER_POINTER_DEVICE);
+  now_us = g_get_monotonic_time ();
+
+  container = clutter_actor_new ();
+  action_handle_event_retval = CLUTTER_EVENT_PROPAGATE;
+  clutter_actor_set_reactive (container, TRUE);
+  // move away from origin to avoid getting events for the core pointer
+  clutter_actor_set_position (container, 2, 2);
+  clutter_actor_set_size (container, 100, 100);
+  clutter_actor_add_child (stage, container);
+
+  child_1 = clutter_actor_new ();
+  action_handle_event_retval = CLUTTER_EVENT_PROPAGATE;
+  clutter_actor_set_reactive (child_1, TRUE);
+  // move away from origin to avoid getting events for the core pointer
+  clutter_actor_set_position (child_1, 2, 2);
+  clutter_actor_set_size (child_1, 20, 20);
+  clutter_actor_add_child (container, child_1);
+
+  child_2 = clutter_actor_new ();
+  clutter_actor_set_reactive (child_2, TRUE);
+  clutter_actor_set_position (child_2, 30, 0);
+  clutter_actor_set_size (child_2, 20, 20);
+  clutter_actor_add_child (container, child_2);
+
+  stage_events = container_events = child_1_events = child_2_events = NULL;
+  g_signal_connect (stage, "after-update", G_CALLBACK (on_after_update),
+                    &was_updated);
+  g_signal_connect (stage, "event", G_CALLBACK (on_event_save_and_return_propagate),
+                    &stage_events);
+  g_signal_connect (container, "event", G_CALLBACK (on_event_save_and_return_propagate),
+                    &container_events);
+  g_signal_connect (child_1, "event", G_CALLBACK (on_event_save_and_return_propagate),
+                    &child_1_events);
+  g_signal_connect (child_2, "event", G_CALLBACK (on_event_save_and_return_propagate),
+                    &child_2_events);
+
+  clutter_actor_show (stage);
+  wait_stage_updated (&was_updated);
+
+  /* First simply put a touchpoint on screen and lift it again */
+  g_list_free_full (stage_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (container_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_1_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_2_events, (GDestroyNotify) clutter_event_free);
+  stage_events = container_events = child_1_events = child_2_events = NULL;
+  clutter_virtual_input_device_notify_touch_down (virtual_pointer, now_us, 0, 5, 5);
+  wait_stage_updated (&was_updated);
+  g_assert_true (clutter_event_type (stage_events->data) == CLUTTER_ENTER);
+  g_assert_true (clutter_event_get_source (stage_events->data) == child_1);
+  g_assert_true (clutter_event_get_related (stage_events->data) == NULL);
+  g_assert_true (clutter_event_type (stage_events->next->data) == CLUTTER_TOUCH_BEGIN);
+  g_assert_true (stage_events->next->next == NULL);
+  g_assert_true (clutter_event_type (container_events->data) == CLUTTER_ENTER);
+  g_assert_true (clutter_event_type (container_events->next->data) == CLUTTER_TOUCH_BEGIN);
+  g_assert_true (container_events->next->next == NULL);
+  g_assert_true (clutter_event_type (child_1_events->data) == CLUTTER_ENTER);
+  g_assert_true (clutter_event_type (child_1_events->next->data) == CLUTTER_TOUCH_BEGIN);
+  g_assert_true (child_1_events->next->next == NULL);
+  g_assert_true (child_2_events == NULL);
+
+  g_list_free_full (stage_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (container_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_1_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_2_events, (GDestroyNotify) clutter_event_free);
+  stage_events = container_events = child_1_events = child_2_events = NULL;
+  clutter_virtual_input_device_notify_touch_up (virtual_pointer, now_us, 0);
+  wait_stage_updated (&was_updated);
+  g_assert_true (clutter_event_type (stage_events->data) == CLUTTER_TOUCH_END);
+  g_assert_true (clutter_event_type (stage_events->next->data) == CLUTTER_LEAVE);
+  g_assert_true (clutter_event_get_source (stage_events->next->data) == child_1);
+  g_assert_true (clutter_event_get_related (stage_events->next->data) == NULL);
+  g_assert_true (stage_events->next->next == NULL);
+  g_assert_true (clutter_event_type (container_events->data) == CLUTTER_TOUCH_END);
+  g_assert_true (clutter_event_type (container_events->next->data) == CLUTTER_LEAVE);
+  g_assert_true (container_events->next->next == NULL);
+  g_assert_true (clutter_event_type (child_1_events->data) == CLUTTER_TOUCH_END);
+  g_assert_true (clutter_event_type (child_1_events->next->data) == CLUTTER_LEAVE);
+  g_assert_true (child_1_events->next->next == NULL);
+  g_assert_true (child_2_events == NULL);
+
+  /* Now ensure the implicit grab is effective and move the touchpoint to
+   * the other actor.
+   */
+  g_list_free_full (stage_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (container_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_1_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_2_events, (GDestroyNotify) clutter_event_free);
+  stage_events = container_events = child_1_events = child_2_events = NULL;
+  clutter_virtual_input_device_notify_touch_down (virtual_pointer, now_us, 0, 5, 5);
+  wait_stage_updated (&was_updated);
+  g_assert_true (clutter_event_type (stage_events->data) == CLUTTER_ENTER);
+  g_assert_true (clutter_event_get_source (stage_events->data) == child_1);
+  g_assert_true (clutter_event_get_related (stage_events->data) == NULL);
+  g_assert_true (clutter_event_type (stage_events->next->data) == CLUTTER_TOUCH_BEGIN);
+  g_assert_true (stage_events->next->next == NULL);
+  g_assert_true (clutter_event_type (container_events->data) == CLUTTER_ENTER);
+  g_assert_true (clutter_event_get_source (container_events->data) == child_1);
+  g_assert_true (clutter_event_get_related (container_events->data) == NULL);
+  g_assert_true (clutter_event_type (container_events->next->data) == CLUTTER_TOUCH_BEGIN);
+  g_assert_true (container_events->next->next == NULL);
+  g_assert_true (clutter_event_type (child_1_events->data) == CLUTTER_ENTER);
+  g_assert_true (clutter_event_get_source (child_1_events->data) == child_1);
+  g_assert_true (clutter_event_get_related (child_1_events->data) == NULL);
+  g_assert_true (clutter_event_type (child_1_events->next->data) == CLUTTER_TOUCH_BEGIN);
+  g_assert_true (child_1_events->next->next == NULL);
+  g_assert_true (child_2_events == NULL);
+
+  g_list_free_full (stage_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (container_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_1_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_2_events, (GDestroyNotify) clutter_event_free);
+  stage_events = container_events = child_1_events = child_2_events = NULL;
+  clutter_virtual_input_device_notify_touch_motion (virtual_pointer, now_us, 0, 45, 5);
+  wait_stage_updated (&was_updated);
+  g_assert_true (clutter_event_type (stage_events->data) == CLUTTER_LEAVE);
+  g_assert_true (clutter_event_get_source (stage_events->data) == child_1);
+  g_assert_true (clutter_event_get_related (stage_events->data) == child_2);
+  g_assert_true (clutter_event_type (stage_events->next->data) == CLUTTER_ENTER);
+  g_assert_true (clutter_event_get_source (stage_events->next->data) == child_2);
+  g_assert_true (clutter_event_get_related (stage_events->next->data) == child_1);
+  g_assert_true (clutter_event_type (stage_events->next->next->data) == CLUTTER_TOUCH_UPDATE);
+  g_assert_true (stage_events->next->next->next == NULL);
+  g_assert_true (clutter_event_type (container_events->data) == CLUTTER_LEAVE);
+  g_assert_true (clutter_event_get_source (container_events->data) == child_1);
+  g_assert_true (clutter_event_get_related (container_events->data) == child_2);
+  g_assert_true (clutter_event_type (container_events->next->data) == CLUTTER_ENTER);
+  g_assert_true (clutter_event_get_source (container_events->next->data) == child_2);
+  g_assert_true (clutter_event_get_related (container_events->next->data) == child_1);
+  g_assert_true (clutter_event_type (container_events->next->next->data) == CLUTTER_TOUCH_UPDATE);
+  g_assert_true (container_events->next->next->next == NULL);
+  g_assert_true (clutter_event_type (child_1_events->data) == CLUTTER_LEAVE);
+  g_assert_true (clutter_event_get_source (child_1_events->data) == child_1);
+  g_assert_true (clutter_event_get_related (child_1_events->data) == child_2);
+  g_assert_true (clutter_event_type (child_1_events->next->data) == CLUTTER_ENTER);
+  g_assert_true (clutter_event_get_source (child_1_events->next->data) == child_2);
+  g_assert_true (clutter_event_get_related (child_1_events->next->data) == child_1);
+  g_assert_true (clutter_event_type (child_1_events->next->next->data) == CLUTTER_TOUCH_UPDATE);
+  g_assert_true (child_1_events->next->next->next == NULL);
+  g_assert_true (child_2_events == NULL);
+
+  g_list_free_full (stage_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (container_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_1_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_2_events, (GDestroyNotify) clutter_event_free);
+  stage_events = container_events = child_1_events = child_2_events = NULL;
+  clutter_virtual_input_device_notify_touch_up (virtual_pointer, now_us, 0);
+  wait_stage_updated (&was_updated);
+  g_assert_true (clutter_event_type (stage_events->data) == CLUTTER_TOUCH_END);
+  g_assert_true (clutter_event_type (stage_events->next->data) == CLUTTER_LEAVE);
+  g_assert_true (clutter_event_get_source (stage_events->next->data) == child_2);
+  g_assert_true (clutter_event_get_related (stage_events->next->data) == NULL);
+  g_assert_true (stage_events->next->next == NULL);
+  g_assert_true (clutter_event_type (container_events->data) == CLUTTER_TOUCH_END);
+  g_assert_true (clutter_event_type (container_events->next->data) == CLUTTER_LEAVE);
+  g_assert_true (clutter_event_get_source (container_events->next->data) == child_2);
+  g_assert_true (clutter_event_get_related (container_events->next->data) == NULL);
+  g_assert_true (container_events->next->next == NULL);
+  g_assert_true (clutter_event_type (child_1_events->data) == CLUTTER_TOUCH_END);
+  g_assert_true (clutter_event_type (child_1_events->next->data) == CLUTTER_LEAVE);
+  g_assert_true (clutter_event_get_source (child_1_events->next->data) == child_2);
+  g_assert_true (clutter_event_get_related (child_1_events->next->data) == NULL);
+  g_assert_true (child_1_events->next->next == NULL);
+  g_assert_true (child_2_events == NULL);
+
+  /* Implicit grab actor getting unmapped should not break the grab, only move
+   * up the parent.
+   */
+  g_list_free_full (stage_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (container_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_1_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_2_events, (GDestroyNotify) clutter_event_free);
+  stage_events = container_events = child_1_events = child_2_events = NULL;
+  clutter_virtual_input_device_notify_touch_down (virtual_pointer, now_us, 0, 5, 5);
+  wait_stage_updated (&was_updated);
+  g_assert_true (clutter_event_type (stage_events->data) == CLUTTER_ENTER);
+  g_assert_true (clutter_event_get_source (stage_events->data) == child_1);
+  g_assert_true (clutter_event_get_related (stage_events->data) == NULL);
+  g_assert_true (clutter_event_type (stage_events->next->data) == CLUTTER_TOUCH_BEGIN);
+  g_assert_true (stage_events->next->next == NULL);
+  g_assert_true (clutter_event_type (container_events->data) == CLUTTER_ENTER);
+  g_assert_true (clutter_event_type (container_events->next->data) == CLUTTER_TOUCH_BEGIN);
+  g_assert_true (container_events->next->next == NULL);
+  g_assert_true (clutter_event_type (child_1_events->data) == CLUTTER_ENTER);
+  g_assert_true (clutter_event_type (child_1_events->next->data) == CLUTTER_TOUCH_BEGIN);
+  g_assert_true (child_1_events->next->next == NULL);
+  g_assert_true (child_2_events == NULL);
+
+  g_list_free_full (stage_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (container_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_1_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_2_events, (GDestroyNotify) clutter_event_free);
+  stage_events = container_events = child_1_events = child_2_events = NULL;
+  clutter_virtual_input_device_notify_touch_motion (virtual_pointer, now_us, 0, 45, 5);
+  wait_stage_updated (&was_updated);
+  g_assert_true (clutter_event_type (stage_events->data) == CLUTTER_LEAVE);
+  g_assert_true (clutter_event_get_source (stage_events->data) == child_1);
+  g_assert_true (clutter_event_get_related (stage_events->data) == child_2);
+  g_assert_true (clutter_event_type (stage_events->next->data) == CLUTTER_ENTER);
+  g_assert_true (clutter_event_get_source (stage_events->next->data) == child_2);
+  g_assert_true (clutter_event_get_related (stage_events->next->data) == child_1);
+  g_assert_true (clutter_event_type (stage_events->next->next->data) == CLUTTER_TOUCH_UPDATE);
+  g_assert_true (stage_events->next->next->next == NULL);
+  g_assert_true (clutter_event_type (container_events->data) == CLUTTER_LEAVE);
+  g_assert_true (clutter_event_type (container_events->next->data) == CLUTTER_ENTER);
+  g_assert_true (clutter_event_type (container_events->next->next->data) == CLUTTER_TOUCH_UPDATE);
+  g_assert_true (container_events->next->next->next == NULL);
+  g_assert_true (clutter_event_type (child_1_events->data) == CLUTTER_LEAVE);
+  g_assert_true (clutter_event_type (child_1_events->next->data) == CLUTTER_ENTER);
+  g_assert_true (clutter_event_type (child_1_events->next->next->data) == CLUTTER_TOUCH_UPDATE);
+  g_assert_true (child_1_events->next->next->next == NULL);
+  g_assert_true (child_2_events == NULL);
+
+  g_list_free_full (stage_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (container_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_1_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_2_events, (GDestroyNotify) clutter_event_free);
+  stage_events = container_events = child_1_events = child_2_events = NULL;
+  clutter_actor_hide (child_1);
+  wait_stage_updated (&was_updated);
+  g_assert_true (stage_events == NULL);
+  g_assert_true (container_events == NULL);
+  g_assert_true (child_1_events == NULL);
+  g_assert_true (child_2_events == NULL);
+
+  g_list_free_full (stage_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (container_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_1_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_2_events, (GDestroyNotify) clutter_event_free);
+  stage_events = container_events = child_1_events = child_2_events = NULL;
+  clutter_virtual_input_device_notify_touch_motion (virtual_pointer, now_us, 0, 42, 5);
+  wait_stage_updated (&was_updated);
+  g_assert_true (clutter_event_type (stage_events->data) == CLUTTER_TOUCH_UPDATE);
+  g_assert_true (stage_events->next == NULL);
+  g_assert_true (clutter_event_type (container_events->data) == CLUTTER_TOUCH_UPDATE);
+  g_assert_true (container_events->next == NULL);
+  g_assert_true (child_1_events == NULL);
+  g_assert_true (child_2_events == NULL);
+
+  g_list_free_full (stage_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (container_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_1_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_2_events, (GDestroyNotify) clutter_event_free);
+  stage_events = container_events = child_1_events = child_2_events = NULL;
+  clutter_virtual_input_device_notify_touch_up (virtual_pointer, now_us, 0);
+  wait_stage_updated (&was_updated);
+  g_assert_true (clutter_event_type (stage_events->data) == CLUTTER_TOUCH_END);
+  g_assert_true (clutter_event_type (stage_events->next->data) == CLUTTER_LEAVE);
+  g_assert_true (clutter_event_get_source (stage_events->next->data) == child_2);
+  g_assert_true (clutter_event_get_related (stage_events->next->data) == NULL);
+  g_assert_true (stage_events->next->next == NULL);
+  g_assert_true (clutter_event_type (container_events->data) == CLUTTER_TOUCH_END);
+  g_assert_true (clutter_event_type (container_events->next->data) == CLUTTER_LEAVE);
+  g_assert_true (container_events->next->next == NULL);
+  g_assert_true (child_1_events == NULL);
+  g_assert_true (child_2_events == NULL);
+
+  clutter_actor_show (child_1);
+  wait_stage_updated (&was_updated);
+
+  /* First we unmap child_2 (that should emit crossing up to the container), then
+   * we unmap the container (that should move impl grab up to the stage).
+   */
+  g_list_free_full (stage_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (container_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_1_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_2_events, (GDestroyNotify) clutter_event_free);
+  stage_events = container_events = child_1_events = child_2_events = NULL;
+  clutter_virtual_input_device_notify_touch_down (virtual_pointer, now_us, 0, 5, 5);
+  wait_stage_updated (&was_updated);
+  g_assert_true (clutter_event_type (stage_events->data) == CLUTTER_ENTER);
+  g_assert_true (clutter_event_get_source (stage_events->data) == child_1);
+  g_assert_true (clutter_event_get_related (stage_events->data) == NULL);
+  g_assert_true (clutter_event_type (stage_events->next->data) == CLUTTER_TOUCH_BEGIN);
+  g_assert_true (stage_events->next->next == NULL);
+  g_assert_true (clutter_event_type (container_events->data) == CLUTTER_ENTER);
+  g_assert_true (clutter_event_type (container_events->next->data) == CLUTTER_TOUCH_BEGIN);
+  g_assert_true (container_events->next->next == NULL);
+  g_assert_true (clutter_event_type (child_1_events->data) == CLUTTER_ENTER);
+  g_assert_true (clutter_event_type (child_1_events->next->data) == CLUTTER_TOUCH_BEGIN);
+  g_assert_true (child_1_events->next->next == NULL);
+  g_assert_true (child_2_events == NULL);
+
+  g_list_free_full (stage_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (container_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_1_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_2_events, (GDestroyNotify) clutter_event_free);
+  stage_events = container_events = child_1_events = child_2_events = NULL;
+  clutter_virtual_input_device_notify_touch_motion (virtual_pointer, now_us, 0, 45, 5);
+  wait_stage_updated (&was_updated);
+  g_assert_true (clutter_event_type (stage_events->data) == CLUTTER_LEAVE);
+  g_assert_true (clutter_event_get_source (stage_events->data) == child_1);
+  g_assert_true (clutter_event_get_related (stage_events->data) == child_2);
+  g_assert_true (clutter_event_type (stage_events->next->data) == CLUTTER_ENTER);
+  g_assert_true (clutter_event_get_source (stage_events->next->data) == child_2);
+  g_assert_true (clutter_event_get_related (stage_events->next->data) == child_1);
+  g_assert_true (clutter_event_type (stage_events->next->next->data) == CLUTTER_TOUCH_UPDATE);
+  g_assert_true (stage_events->next->next->next == NULL);
+  g_assert_true (clutter_event_type (container_events->data) == CLUTTER_LEAVE);
+  g_assert_true (clutter_event_type (container_events->next->data) == CLUTTER_ENTER);
+  g_assert_true (clutter_event_type (container_events->next->next->data) == CLUTTER_TOUCH_UPDATE);
+  g_assert_true (container_events->next->next->next == NULL);
+  g_assert_true (clutter_event_type (child_1_events->data) == CLUTTER_LEAVE);
+  g_assert_true (clutter_event_type (child_1_events->next->data) == CLUTTER_ENTER);
+  g_assert_true (clutter_event_type (child_1_events->next->next->data) == CLUTTER_TOUCH_UPDATE);
+  g_assert_true (child_1_events->next->next->next == NULL);
+  g_assert_true (child_2_events == NULL);
+
+  g_list_free_full (stage_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (container_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_1_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_2_events, (GDestroyNotify) clutter_event_free);
+  stage_events = container_events = child_1_events = child_2_events = NULL;
+  clutter_actor_hide (child_2);
+  wait_stage_updated (&was_updated);
+  g_assert_true (clutter_event_type (stage_events->data) == CLUTTER_LEAVE);
+  g_assert_true (clutter_event_get_source (stage_events->data) == child_2);
+  g_assert_true (clutter_event_get_related (stage_events->data) == container);
+  g_assert_true (clutter_event_type (stage_events->next->data) == CLUTTER_ENTER);
+  g_assert_true (clutter_event_get_source (stage_events->next->data) == container);
+  g_assert_true (clutter_event_get_related (stage_events->next->data) == child_2);
+  g_assert_true (stage_events->next->next == NULL);
+  g_assert_true (clutter_event_type (container_events->data) == CLUTTER_LEAVE);
+  g_assert_true (clutter_event_get_source (container_events->data) == child_2);
+  g_assert_true (clutter_event_get_related (container_events->data) == container);
+  g_assert_true (clutter_event_type (container_events->next->data) == CLUTTER_ENTER);
+  g_assert_true (clutter_event_get_source (container_events->next->data) == container);
+  g_assert_true (clutter_event_get_related (container_events->next->data) == child_2);
+  g_assert_true (container_events->next->next == NULL);
+  g_assert_true (clutter_event_type (child_1_events->data) == CLUTTER_LEAVE);
+  g_assert_true (clutter_event_get_source (child_1_events->data) == child_2);
+  g_assert_true (clutter_event_get_related (child_1_events->data) == container);
+  g_assert_true (clutter_event_type (child_1_events->next->data) == CLUTTER_ENTER);
+  g_assert_true (clutter_event_get_source (child_1_events->next->data) == container);
+  g_assert_true (clutter_event_get_related (child_1_events->next->data) == child_2);
+  g_assert_true (child_1_events->next->next == NULL);
+  g_assert_true (child_2_events == NULL);
+
+  g_list_free_full (stage_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (container_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_1_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_2_events, (GDestroyNotify) clutter_event_free);
+  stage_events = container_events = child_1_events = child_2_events = NULL;
+  clutter_actor_hide (container);
+  wait_stage_updated (&was_updated);
+  g_assert_true (clutter_event_type (stage_events->data) == CLUTTER_LEAVE);
+  g_assert_true (clutter_event_get_source (stage_events->data) == container);
+  g_assert_true (clutter_event_get_related (stage_events->data) == stage);
+  g_assert_true (clutter_event_type (stage_events->next->data) == CLUTTER_ENTER);
+  g_assert_true (clutter_event_get_source (stage_events->next->data) == stage);
+  g_assert_true (clutter_event_get_related (stage_events->next->data) == container);
+  g_assert_true (stage_events->next->next == NULL);
+  g_assert_true (clutter_event_type (container_events->data) == CLUTTER_LEAVE);
+  g_assert_true (clutter_event_get_source (container_events->data) == container);
+  g_assert_true (clutter_event_get_related (container_events->data) == stage);
+  g_assert_true (clutter_event_type (container_events->next->data) == CLUTTER_ENTER);
+  g_assert_true (clutter_event_get_source (container_events->next->data) == stage);
+  g_assert_true (clutter_event_get_related (container_events->next->data) == container);
+  g_assert_true (container_events->next->next == NULL);
+  // child_1 doesn't see the crossings because the hide of the container goes
+  // like this: unmap child_1 -> clear impl grab child_1 -> unmap container -> clear impl grab container
+  // crossings only get generated during "unmap container", but we already moved
+  // the implicit grab up out of child 1 and up to the container with "clear impl grab child_1"
+  g_assert_true (child_1_events == NULL);
+  g_assert_true (child_2_events == NULL);
+
+  g_list_free_full (stage_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (container_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_1_events, (GDestroyNotify) clutter_event_free);
+  g_list_free_full (child_2_events, (GDestroyNotify) clutter_event_free);
+  stage_events = container_events = child_1_events = child_2_events = NULL;
+  clutter_virtual_input_device_notify_touch_up (virtual_pointer, now_us, 0);
+  wait_stage_updated (&was_updated);
+  g_assert_true (clutter_event_type (stage_events->data) == CLUTTER_TOUCH_END);
+  g_assert_true (clutter_event_type (stage_events->next->data) == CLUTTER_LEAVE);
+  g_assert_true (clutter_event_get_source (stage_events->next->data) == stage);
+  g_assert_true (clutter_event_get_related (stage_events->next->data) == NULL);
+  g_assert_true (stage_events->next->next == NULL);
+  g_assert_true (container_events == NULL);
+  g_assert_true (child_1_events == NULL);
+  g_assert_true (child_2_events == NULL);
+
+  g_signal_handlers_disconnect_by_func (child_2, on_event_save_and_return_propagate, &child_2_events);
+  g_signal_handlers_disconnect_by_func (child_1, on_event_save_and_return_propagate, &child_1_events);
+  g_signal_handlers_disconnect_by_func (container, on_event_save_and_return_propagate, &container_events);
+  g_signal_handlers_disconnect_by_func (stage, on_event_save_and_return_propagate, &stage_events);
+  clutter_actor_destroy (child_2);
+  clutter_actor_destroy (child_1);
+  clutter_actor_destroy (container);
+  g_signal_handlers_disconnect_by_func (stage, on_after_update, &was_updated);
+}
+
 CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/event/delivery/consecutive-touch-begin-end", event_delivery_consecutive_touch_begin_end);
   CLUTTER_TEST_UNIT ("/event/delivery/implicit-grabbing", event_delivery_implicit_grabbing);
@@ -673,4 +1087,5 @@ CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/event/delivery/implicit-grab-existing-clutter-grab", event_delivery_implicit_grab_existing_clutter_grab);
   CLUTTER_TEST_UNIT ("/event/delivery/stop-discrete-event", event_delivery_stop_discrete_event);
   CLUTTER_TEST_UNIT ("/event/delivery/actor-stop-sequence-event", event_delivery_actor_stop_sequence_event);
+  CLUTTER_TEST_UNIT ("/event/delivery/enter-leave-events-touch-impl-grab", event_delivery_enter_leave_events_touch_impl_grab);
 )
