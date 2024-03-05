@@ -947,7 +947,7 @@ clutter_event_free (ClutterEvent *event)
 /**
  * clutter_event_get:
  *
- * Pops an event off the event queue. Applications should not need to call 
+ * Pops an event off the event queue. Applications should not need to call
  * this.
  *
  * Return value: A #ClutterEvent or NULL if queue empty
@@ -1870,7 +1870,7 @@ clutter_event_button_new (ClutterEventType        type,
                           ClutterInputDeviceTool *tool,
                           ClutterModifierType     modifiers,
                           graphene_point_t        coords,
-			  int                     button,
+                          int                     button,
                           uint32_t                evcode,
                           double                 *axes)
 {
