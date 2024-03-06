@@ -235,6 +235,7 @@ meta_display_handle_event (MetaDisplay        *display,
   ClutterEventSequence *sequence;
   ClutterEventType event_type;
   gboolean has_grab;
+  MetaTabletActionMapper *mapper;
 #ifdef HAVE_WAYLAND
   MetaWaylandCompositor *wayland_compositor;
   MetaWaylandTextInput *wayland_text_input = NULL;
@@ -318,17 +319,23 @@ meta_display_handle_event (MetaDisplay        *display,
         }
 
       handle_pad_event = !display->current_pad_osd || is_mode_switch;
+      mapper = META_TABLET_ACTION_MAPPER (display->pad_action_mapper);
 
       if (handle_pad_event &&
-          meta_pad_action_mapper_handle_event (display->pad_action_mapper, event))
+          meta_tablet_action_mapper_handle_event (mapper, event))
         return CLUTTER_EVENT_STOP;
     }
 
   if (event_type != CLUTTER_DEVICE_ADDED &&
       event_type != CLUTTER_DEVICE_REMOVED)
-    handle_idletime_for_event (display, event);
+    {
+      handle_idletime_for_event (display, event);
+    }
   else
-    meta_pad_action_mapper_handle_event (display->pad_action_mapper, event);
+    {
+      mapper = META_TABLET_ACTION_MAPPER (display->pad_action_mapper);
+      meta_tablet_action_mapper_handle_event (mapper, event);
+    }
 
   if (event_type == CLUTTER_MOTION)
     {

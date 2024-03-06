@@ -23,18 +23,17 @@
 #include "clutter/clutter.h"
 #include "meta/display.h"
 #include "meta/meta-monitor-manager.h"
+#include "core/meta-tablet-action-mapper.h"
 
 #define META_TYPE_PAD_ACTION_MAPPER (meta_pad_action_mapper_get_type ())
 G_DECLARE_FINAL_TYPE (MetaPadActionMapper, meta_pad_action_mapper,
-                      META, PAD_ACTION_MAPPER, GObject)
+                      META, PAD_ACTION_MAPPER, MetaTabletActionMapper)
 
 MetaPadActionMapper * meta_pad_action_mapper_new (MetaMonitorManager *monitor_manager);
 
 gboolean meta_pad_action_mapper_is_button_grabbed (MetaPadActionMapper *mapper,
                                                    ClutterInputDevice  *pad,
                                                    guint                button);
-gboolean meta_pad_action_mapper_handle_event      (MetaPadActionMapper *mapper,
-                                                   const ClutterEvent  *event);
 
 char * meta_pad_action_mapper_get_button_label (MetaPadActionMapper *mapper,
                                                 ClutterInputDevice  *pad,

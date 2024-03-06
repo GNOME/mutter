@@ -378,6 +378,7 @@ mutter_sources = [
   'core/meta-selection-source.c',
   'core/meta-selection-source-memory.c',
   'core/meta-sound-player.c',
+  'core/meta-tablet-action-mapper.c',
   'core/meta-workspace-manager.c',
   'core/meta-workspace-manager-private.h',
   'core/place.c',
