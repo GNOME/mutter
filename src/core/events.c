@@ -325,6 +325,12 @@ meta_display_handle_event (MetaDisplay        *display,
           meta_tablet_action_mapper_handle_event (mapper, event))
         return CLUTTER_EVENT_STOP;
     }
+  else if (event_type == CLUTTER_BUTTON_PRESS ||
+           event_type == CLUTTER_BUTTON_RELEASE)
+    {
+      if (clutter_event_get_button (event) == 0)
+        return CLUTTER_EVENT_STOP;
+    }
 
   if (event_type != CLUTTER_DEVICE_ADDED &&
       event_type != CLUTTER_DEVICE_REMOVED)

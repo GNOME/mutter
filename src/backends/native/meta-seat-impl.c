@@ -792,7 +792,7 @@ meta_seat_impl_notify_button_in_impl (MetaSeatImpl       *seat_impl,
   MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (input_device);
   ClutterEvent *event = NULL;
   ClutterModifierType modifiers;
-  int button_nr;
+  int button_nr = 0;
   float x, y;
   static int maskmap[8] =
     {
@@ -823,36 +823,44 @@ meta_seat_impl_notify_button_in_impl (MetaSeatImpl       *seat_impl,
         {
         case G_DESKTOP_STYLUS_BUTTON_ACTION_DEFAULT:
           button = meta_clutter_tool_button_to_evdev (CLUTTER_BUTTON_PRIMARY);
+          button_nr = meta_evdev_tool_button_to_clutter (button);
           break;
         case G_DESKTOP_STYLUS_BUTTON_ACTION_MIDDLE:
           button = meta_clutter_tool_button_to_evdev (CLUTTER_BUTTON_MIDDLE);
+          button_nr = meta_evdev_tool_button_to_clutter (button);
           break;
         case G_DESKTOP_STYLUS_BUTTON_ACTION_RIGHT:
           button = meta_clutter_tool_button_to_evdev (CLUTTER_BUTTON_SECONDARY);
+          button_nr = meta_evdev_tool_button_to_clutter (button);
           break;
         case G_DESKTOP_STYLUS_BUTTON_ACTION_BACK:
           button = BTN_BACK;
+          button_nr = meta_evdev_tool_button_to_clutter (button);
           break;
         case G_DESKTOP_STYLUS_BUTTON_ACTION_FORWARD:
           button = BTN_FORWARD;
+          button_nr = meta_evdev_tool_button_to_clutter (button);
+          break;
+        case G_DESKTOP_STYLUS_BUTTON_ACTION_SWITCH_MONITOR:
+        case G_DESKTOP_STYLUS_BUTTON_ACTION_KEYBINDING:
+          // button evdev code left as-is, i.e. BTN_STYLUS or whatever
+          button_nr = 0;
           break;
         default:
           g_warn_if_reached ();
         }
     }
-
-  if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)
-    button_nr = meta_evdev_tool_button_to_clutter (button);
   else
-    button_nr = meta_evdev_button_to_clutter (button);
-
-  if (button_nr < 1 || button_nr > 12)
     {
-      g_warning ("Unhandled button event 0x%x", button);
-      return;
+      button_nr = meta_evdev_button_to_clutter (button);
+      if (button_nr < 1 || button_nr > 12)
+        {
+          g_warning ("Unhandled button event 0x%x", button);
+          return;
+        }
     }
 
-  if (button_nr < G_N_ELEMENTS (maskmap))
+  if (button_nr > 0 && button_nr < G_N_ELEMENTS (maskmap))
     {
       /* Update the modifiers */
       if (state)
