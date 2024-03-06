@@ -106,6 +106,97 @@ meta_test_evdev_to_clutter_to_evdev (void)
     }
 }
 
+static void
+meta_test_evdev_tool_to_clutter (void)
+{
+  struct {
+    uint32_t evdev_button;
+    uint32_t clutter_button;
+  } test_cases[] = {
+    { .evdev_button = BTN_TOUCH, .clutter_button = CLUTTER_BUTTON_PRIMARY },
+    { .evdev_button = BTN_STYLUS, .clutter_button = CLUTTER_BUTTON_MIDDLE },
+    { .evdev_button = BTN_STYLUS2, .clutter_button = CLUTTER_BUTTON_SECONDARY },
+    { .evdev_button = BTN_STYLUS3, .clutter_button = 8 },
+    { .evdev_button = BTN_LEFT, .clutter_button = CLUTTER_BUTTON_PRIMARY },
+    { .evdev_button = BTN_MIDDLE, .clutter_button = CLUTTER_BUTTON_MIDDLE },
+    { .evdev_button = BTN_RIGHT, .clutter_button = CLUTTER_BUTTON_SECONDARY },
+    /* fallback behavior */
+    { .evdev_button = BTN_SIDE, .clutter_button = 9 },
+    { .evdev_button = BTN_EXTRA, .clutter_button = 10 },
+  };
+  size_t i;
+
+  for (i = 0; i < G_N_ELEMENTS (test_cases); i++)
+    {
+      uint32_t evdev_button;
+      uint32_t expected_clutter_button;
+      uint32_t clutter_button;
+
+      evdev_button = test_cases[i].evdev_button;
+      expected_clutter_button = test_cases[i].clutter_button;
+
+      clutter_button = meta_evdev_tool_button_to_clutter (evdev_button);
+      g_assert_cmpuint (clutter_button, ==, expected_clutter_button);
+    }
+}
+
+static void
+meta_test_clutter_tool_to_evdev (void)
+{
+  struct {
+    uint32_t clutter_button;
+    uint32_t evdev_button;
+  } test_cases[] = {
+    { .clutter_button = CLUTTER_BUTTON_PRIMARY, .evdev_button = BTN_TOUCH },
+    { .clutter_button = CLUTTER_BUTTON_MIDDLE, .evdev_button = BTN_STYLUS },
+    { .clutter_button = CLUTTER_BUTTON_SECONDARY, .evdev_button = BTN_STYLUS2 },
+    { .clutter_button = 8, .evdev_button = BTN_STYLUS3 },
+    /* fallback behavior */
+    { .clutter_button = 9, .evdev_button = BTN_SIDE },
+    { .clutter_button = 10, .evdev_button = BTN_EXTRA },
+  };
+  size_t i;
+
+  for (i = 0; i < G_N_ELEMENTS (test_cases); i++)
+    {
+      uint32_t clutter_button;
+      uint32_t expected_evdev_button;
+      uint32_t evdev_button;
+
+      clutter_button = test_cases[i].clutter_button;
+      expected_evdev_button = test_cases[i].evdev_button;
+
+      evdev_button = meta_clutter_tool_button_to_evdev (clutter_button);
+      g_assert_cmpuint (evdev_button, ==, expected_evdev_button);
+    }
+}
+
+static void
+meta_test_evdev_tool_to_clutter_tool_to_evdev (void)
+{
+  uint32_t test_cases[] = {
+    BTN_TOUCH,
+    BTN_STYLUS,
+    BTN_STYLUS2,
+    BTN_STYLUS3,
+  };
+  size_t i;
+
+  for (i = 0; i < G_N_ELEMENTS (test_cases); i++)
+    {
+      uint32_t evdev_button;
+      uint32_t expected_evdev_button;
+      uint32_t clutter_button;
+
+      evdev_button = test_cases[i];
+      expected_evdev_button = evdev_button;
+
+      clutter_button = meta_evdev_tool_button_to_clutter (evdev_button);
+      evdev_button = meta_clutter_tool_button_to_evdev (clutter_button);
+      g_assert_cmpuint (evdev_button, ==, expected_evdev_button);
+    }
+}
+
 void
 init_button_transform_tests (void)
 {
@@ -115,4 +206,10 @@ init_button_transform_tests (void)
                    meta_test_evdev_to_clutter);
   g_test_add_func ("/backends/button-transform/evdev-clutter-evdev",
                    meta_test_evdev_to_clutter_to_evdev);
+  g_test_add_func ("/backends/button-transform/evdev-tool-clutter",
+                   meta_test_evdev_tool_to_clutter);
+  g_test_add_func ("/backends/button-transform/clutter-tool-to-evdev",
+                   meta_test_clutter_tool_to_evdev);
+  g_test_add_func ("/backends/button-transform/evdev-tool-clutter-tool-evdev",
+                   meta_test_evdev_tool_to_clutter_tool_to_evdev);
 }

@@ -123,6 +123,11 @@ static guint signals[N_SIGNALS];
 #define BTN_LEFT 0x110
 #define BTN_RIGHT 0x111
 #define BTN_MIDDLE 0x112
+#define BTN_STYLUS3 0x149
+#define BTN_TOUCH 0x14a
+#define BTN_STYLUS 0x14b
+#define BTN_STYLUS2 0x14c
+#define BTN_JOYSTICK 0x120
 #endif
 
 struct _MetaBackendPrivate
@@ -1851,6 +1856,50 @@ meta_clutter_button_to_evdev (uint32_t clutter_button)
     }
 
   return (clutter_button + (BTN_LEFT - 1)) - 4;
+}
+
+uint32_t
+meta_clutter_tool_button_to_evdev (uint32_t clutter_button)
+{
+  switch (clutter_button)
+    {
+    case CLUTTER_BUTTON_PRIMARY:
+      return BTN_TOUCH;
+    case CLUTTER_BUTTON_MIDDLE:
+      return BTN_STYLUS;
+    case CLUTTER_BUTTON_SECONDARY:
+      return BTN_STYLUS2;
+    case 8:
+      return BTN_STYLUS3;
+    }
+
+  return (clutter_button + (BTN_LEFT - 1)) - 5;
+}
+
+uint32_t
+meta_evdev_tool_button_to_clutter (uint32_t evdev_button)
+{
+  switch (evdev_button)
+    {
+    case BTN_TOUCH:
+    case BTN_LEFT:
+      return CLUTTER_BUTTON_PRIMARY;
+    case BTN_STYLUS:
+    case BTN_MIDDLE:
+      return CLUTTER_BUTTON_MIDDLE;
+    case BTN_STYLUS2:
+    case BTN_RIGHT:
+      return CLUTTER_BUTTON_SECONDARY;
+    case BTN_STYLUS3:
+      return 8;
+    }
+
+  g_return_val_if_fail (evdev_button > BTN_LEFT, 0);
+  g_return_val_if_fail (evdev_button < BTN_JOYSTICK, 0);
+
+  /* For compatibility reasons, all additional buttons (i.e. BTN_SIDE and
+   * higher) go after the old 4-7 scroll ones and 8 for BTN_STYLUS3 */
+  return (evdev_button - (BTN_LEFT - 1)) + 5;
 }
 
 uint32_t
