@@ -63,6 +63,7 @@ gnome = import('gnome')
 pkg = import('pkgconfig')
 i18n  = import('i18n')
 fs = import('fs')
+python = import('python')
 cc = meson.get_compiler('c')
 
 add_project_link_arguments(
@@ -356,6 +357,7 @@ have_installed_tests = false
 
 if have_tests
   gtk3_dep = dependency('gtk+-3.0', version: gtk3_req)
+  dbusmock_dep = python.find_installation('python3', modules: ['dbusmock'], required: false)
 
   have_core_tests = get_option('core_tests')
   if have_core_tests
@@ -364,6 +366,9 @@ if have_tests
     endif
     if not have_x11_client
       error('Tests requires an X11 client')
+    endif
+    if not dbusmock_dep.found()
+      error('Tests require python-dbusmock')
     endif
   endif
   have_native_tests = get_option('native_tests')
