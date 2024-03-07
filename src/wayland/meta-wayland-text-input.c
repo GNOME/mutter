@@ -255,10 +255,10 @@ meta_wayland_text_input_focus_delete_surrounding (ClutterInputFocus *focus,
   cursor = start + text_input->surrounding.cursor;
 
   before = g_utf8_offset_to_pointer (cursor, offset);
-  g_assert (before >= start);
+  g_return_if_fail (before >= start);
 
   after = g_utf8_offset_to_pointer (cursor, offset + len);
-  g_assert (after <= end);
+  g_return_if_fail (after <= end);
 
   before_length = cursor - before;
   after_length = after - cursor;
