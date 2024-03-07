@@ -229,7 +229,7 @@ meta_kms_crtc_state_changes (MetaKmsCrtcState *state,
   if (!meta_drm_mode_equal (&state->drm_mode, &other_state->drm_mode))
     return META_KMS_RESOURCE_CHANGE_FULL;
 
-  if (state->vrr_enabled != other_state->vrr_enabled)
+  if (state->vrr.enabled != other_state->vrr.enabled)
     return META_KMS_RESOURCE_CHANGE_FULL;
 
   if (!gamma_equal (state, other_state))
@@ -274,7 +274,10 @@ meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
 
   prop = &crtc->prop_table.props[META_KMS_CRTC_PROP_VRR_ENABLED];
   if (prop->prop_id)
-    crtc_state.vrr_enabled = !!prop->value;
+    {
+      crtc_state.vrr.supported = TRUE;
+      crtc_state.vrr.enabled = !!prop->value;
+    }
 
   read_gamma_state (crtc, &crtc_state, impl_device, drm_crtc);
 
@@ -399,7 +402,7 @@ meta_kms_crtc_predict_state_in_impl (MetaKmsCrtc   *crtc,
         continue;
 
       if (crtc_update->vrr.has_update)
-        crtc->current_state.vrr_enabled = !!crtc_update->vrr.is_enabled;
+        crtc->current_state.vrr.enabled = !!crtc_update->vrr.is_enabled;
 
       break;
     }
@@ -577,7 +580,7 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
       return FALSE;
     }
 
-  if (crtc->current_state.vrr_enabled)
+  if (crtc->current_state.vrr.enabled)
     {
       next_presentation_us = 0;
       next_deadline_us =
