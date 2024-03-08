@@ -1410,9 +1410,6 @@ meta_kms_impl_device_atomic_initable_init (GInitable     *initable,
       return FALSE;
     }
 
-  if (!meta_kms_impl_device_init_mode_setting (impl_device, error))
-    return FALSE;
-
   if (requires_hotspots (meta_kms_impl_device_get_driver_name (impl_device)))
     {
       if (drmSetClientCap (meta_kms_impl_device_get_fd (impl_device),
@@ -1423,6 +1420,13 @@ meta_kms_impl_device_atomic_initable_init (GInitable     *initable,
                        meta_kms_impl_device_get_driver_name (impl_device));
           return FALSE;
         }
+    }
+
+  if (!meta_kms_impl_device_init_mode_setting (impl_device, error))
+    return FALSE;
+
+  if (requires_hotspots (meta_kms_impl_device_get_driver_name (impl_device)))
+    {
       if (!has_cursor_hotspot_properties (impl_device))
         {
           g_set_error (error, META_KMS_ERROR, META_KMS_ERROR_NOT_SUPPORTED,
