@@ -589,6 +589,28 @@ meta_output_peek_rgb_range (MetaOutput *output)
   return priv->rgb_range;
 }
 
+gboolean
+meta_output_is_vrr_enabled (MetaOutput *output)
+{
+  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
+  MetaCrtc *crtc = priv->crtc;
+  const MetaCrtcConfig *crtc_config;
+  const MetaCrtcModeInfo *crtc_mode_info;
+
+  if (!crtc)
+    return FALSE;
+
+  crtc_config = meta_crtc_get_config (crtc);
+  g_assert (crtc_config != NULL);
+  g_assert (crtc_config->mode != NULL);
+
+  crtc_mode_info = meta_crtc_mode_get_info (crtc_config->mode);
+  g_assert (crtc_mode_info != NULL);
+
+  return crtc_mode_info->refresh_rate_mode ==
+         META_CRTC_REFRESH_RATE_MODE_VARIABLE;
+}
+
 static void
 meta_output_init (MetaOutput *output)
 {

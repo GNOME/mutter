@@ -271,6 +271,8 @@ MetaOutputHdrMetadata * meta_output_peek_hdr_metadata (MetaOutput *output);
 META_EXPORT_TEST
 MetaOutputRGBRange meta_output_peek_rgb_range (MetaOutput *output);
 
+gboolean meta_output_is_vrr_enabled (MetaOutput *output);
+
 void meta_output_add_possible_clone (MetaOutput *output,
                                      MetaOutput *possible_clone);
 

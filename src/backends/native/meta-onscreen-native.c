@@ -1740,40 +1740,19 @@ update_frame_sync_mode (MetaOnscreenNative *onscreen_native,
   onscreen_native->frame_sync_mode = sync_mode;
 }
 
-static MetaFrameSyncMode
-get_applicable_sync_mode (MetaOnscreenNative *onscreen_native)
-{
-  const MetaCrtcConfig *crtc_config;
-  const MetaCrtcModeInfo *crtc_mode_info;
-
-  crtc_config = meta_crtc_get_config (onscreen_native->crtc);
-  g_assert (crtc_config != NULL);
-  g_assert (crtc_config->mode != NULL);
-
-  crtc_mode_info = meta_crtc_mode_get_info (crtc_config->mode);
-  g_assert (crtc_mode_info != NULL);
-
-  if (crtc_mode_info->refresh_rate_mode ==
-      META_CRTC_REFRESH_RATE_MODE_FIXED)
-    return META_FRAME_SYNC_MODE_DISABLED;
-
-  return onscreen_native->requested_frame_sync_mode;
-}
-
 static void
 maybe_update_frame_sync_mode (MetaOnscreenNative *onscreen_native,
                               ClutterFrame       *frame)
 {
-  MetaFrameSyncMode applicable_sync_mode;
+  MetaFrameSyncMode sync_mode = onscreen_native->requested_frame_sync_mode;
 
-  applicable_sync_mode = get_applicable_sync_mode (onscreen_native);
+  if (!meta_output_is_vrr_enabled (onscreen_native->output))
+    sync_mode = META_FRAME_SYNC_MODE_DISABLED;
 
-  if (G_LIKELY (applicable_sync_mode == onscreen_native->frame_sync_mode))
+  if (G_LIKELY (sync_mode == onscreen_native->frame_sync_mode))
     return;
 
-  update_frame_sync_mode (onscreen_native,
-                          frame,
-                          applicable_sync_mode);
+  update_frame_sync_mode (onscreen_native, frame, sync_mode);
 }
 
 void
