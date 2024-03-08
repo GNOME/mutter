@@ -70,10 +70,12 @@ gboolean meta_plugin_manager_switch_workspace (MetaPluginManager   *mgr,
 gboolean meta_plugin_manager_filter_keybinding (MetaPluginManager  *mgr,
                                                 MetaKeyBinding     *binding);
 
+#ifdef HAVE_X11
 gboolean meta_plugin_manager_xevent_filter (MetaPluginManager *mgr,
                                             XEvent            *xev);
 gboolean _meta_plugin_xevent_filter (MetaPlugin *plugin,
                                      XEvent     *xev);
+#endif
 
 void     meta_plugin_manager_confirm_display_change (MetaPluginManager *mgr);
 

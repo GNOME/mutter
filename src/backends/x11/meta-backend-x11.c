@@ -348,9 +348,11 @@ handle_host_xevent (MetaBackend *backend,
   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
-  MetaContext *context = meta_backend_get_context (backend);
   gboolean bypass_clutter = FALSE;
+#ifdef HAVE_X11
+  MetaContext *context = meta_backend_get_context (backend);
   MetaDisplay *display;
+#endif
 
   switch (event->type)
     {
@@ -365,6 +367,7 @@ handle_host_xevent (MetaBackend *backend,
 
   XGetEventData (priv->xdisplay, &event->xcookie);
 
+#ifdef HAVE_X11
   display = meta_context_get_display (context);
   if (display)
     {
@@ -375,6 +378,7 @@ handle_host_xevent (MetaBackend *backend,
       if (meta_plugin_manager_xevent_filter (plugin_mgr, event))
         bypass_clutter = TRUE;
     }
+#endif
 
   bypass_clutter = (meta_backend_x11_handle_host_xevent (x11, event) ||
                     bypass_clutter);

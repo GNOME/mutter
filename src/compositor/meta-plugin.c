@@ -30,12 +30,16 @@
 #include "meta/meta-plugin.h"
 
 #include <string.h>
+#ifdef HAVE_X11
 #include <X11/Xlib.h>
 #include <X11/extensions/Xfixes.h>
 #include <X11/extensions/shape.h>
+#endif
 
-#include "backends/meta-monitor-manager-private.h"
+#ifdef HAVE_X11
 #include "backends/x11/meta-clutter-backend-x11.h"
+#endif
+#include "backends/meta-monitor-manager-private.h"
 #include "compositor/compositor-private.h"
 #include "compositor/meta-window-actor-private.h"
 #include "compositor/meta-plugin-manager.h"
@@ -71,6 +75,7 @@ meta_plugin_get_info (MetaPlugin *plugin)
   return NULL;
 }
 
+#ifdef HAVE_X11
 gboolean
 _meta_plugin_xevent_filter (MetaPlugin *plugin,
                             XEvent     *xev)
@@ -82,6 +87,7 @@ _meta_plugin_xevent_filter (MetaPlugin *plugin,
   else
     return FALSE;
 }
+#endif
 
 void
 meta_plugin_switch_workspace_completed (MetaPlugin *plugin)

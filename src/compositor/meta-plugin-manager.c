@@ -26,7 +26,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "backends/x11/meta-clutter-backend-x11.h"
 #include "compositor/compositor-private.h"
 #include "compositor/meta-module.h"
 #include "core/meta-inhibit-shortcuts-dialog-default-private.h"
@@ -332,6 +331,7 @@ meta_plugin_manager_filter_keybinding (MetaPluginManager *plugin_mgr,
   return FALSE;
 }
 
+#ifdef HAVE_X11
 gboolean
 meta_plugin_manager_xevent_filter (MetaPluginManager *plugin_mgr,
                                    XEvent            *xev)
@@ -340,6 +340,7 @@ meta_plugin_manager_xevent_filter (MetaPluginManager *plugin_mgr,
 
   return _meta_plugin_xevent_filter (plugin, xev);
 }
+#endif
 
 void
 meta_plugin_manager_confirm_display_change (MetaPluginManager *plugin_mgr)

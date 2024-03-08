@@ -21,7 +21,6 @@
 
 #pragma once
 
-#include <X11/extensions/Xfixes.h>
 #include <gmodule.h>
 
 #include "clutter/clutter.h"
@@ -37,6 +36,9 @@ META_EXPORT
 G_DECLARE_DERIVABLE_TYPE (MetaPlugin, meta_plugin, META, PLUGIN, GObject)
 
 typedef struct _MetaPluginInfo    MetaPluginInfo;
+
+/* Allows us to keep the xevent_filter vfunc even when building Mutter without X11 */
+typedef union _XEvent XEvent;
 
 /**
  * MetaPluginClass:
