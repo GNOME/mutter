@@ -345,6 +345,8 @@ int main (int argc, char ** argv) {
 }
 ''', name : 'timerfd_create(2) system call')
 
+have_malloc_trim = meson.get_compiler('c').has_function('malloc_trim')
+
 have_documentation = get_option('docs')
 have_tests = get_option('tests')
 have_core_tests = false
@@ -570,6 +572,7 @@ cdata.set('HAVE_PROFILER', have_profiler)
 cdata.set('HAVE_LIBDISPLAY_INFO', have_libdisplay_info)
 cdata.set('HAVE_PANGO_FT2', have_pango_ft2)
 cdata.set('HAVE_TIMERFD', have_timerfd)
+cdata.set('HAVE_MALLOC_TRIM', have_malloc_trim)
 
 if have_x11_client
   xkb_base = xkeyboard_config_dep.get_variable('xkb_base')
