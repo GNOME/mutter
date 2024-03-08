@@ -2118,11 +2118,20 @@ meta_x11_display_set_input_focus (MetaX11Display *x11_display,
   meta_topic (META_DEBUG_FOCUS, "Setting X11 input focus for window %s to 0x%lx",
               window ? window->desc : "none", xwindow);
 
-  mtk_x11_error_trap_push (x11_display->xdisplay);
-  meta_x11_display_set_input_focus_internal (x11_display, xwindow, timestamp);
-  serial = XNextRequest (x11_display->xdisplay);
-  meta_x11_display_update_focus_window (x11_display, xwindow, serial, TRUE);
-  mtk_x11_error_trap_pop (x11_display->xdisplay);
+  if (x11_display->is_server_focus)
+    {
+      serial = x11_display->server_focus_serial;
+    }
+  else
+    {
+      meta_x11_display_set_input_focus_internal (x11_display, xwindow, timestamp);
+      mtk_x11_error_trap_push (x11_display->xdisplay);
+      serial = XNextRequest (x11_display->xdisplay);
+      mtk_x11_error_trap_pop (x11_display->xdisplay);
+    }
+
+  meta_x11_display_update_focus_window (x11_display, xwindow, serial,
+                                        !x11_display->is_server_focus);
 
 #ifdef HAVE_X11
   if (window && !meta_is_wayland_compositor ())

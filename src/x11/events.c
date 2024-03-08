@@ -907,12 +907,11 @@ handle_window_focus_event (MetaX11Display *x11_display,
       (!x11_display->focused_by_us &&
        x11_display->server_focus_serial == x11_display->focus_serial))
     {
-      meta_x11_display_update_focus_window (x11_display,
-                                            focus_window ?
-                                            meta_window_x11_get_xwindow (focus_window) : None,
-                                            x11_display->server_focus_serial,
-                                            FALSE);
-      meta_display_update_focus_window (display, focus_window);
+      x11_display->is_server_focus = TRUE;
+      meta_display_set_input_focus (display, focus_window,
+                                    meta_display_get_current_time_roundtrip (display));
+      x11_display->is_server_focus = FALSE;
+
       return TRUE;
     }
   else
@@ -1895,13 +1894,11 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
     {
       meta_topic (META_DEBUG_FOCUS, "Earlier attempt to focus %s failed",
                   display->focus_window->desc);
-      meta_x11_display_update_focus_window (x11_display,
-                                            x11_display->server_focus_window,
-                                            x11_display->server_focus_serial,
-                                            FALSE);
-      meta_display_update_focus_window (display,
-                                        meta_x11_display_lookup_x_window (x11_display,
-                                                                          x11_display->server_focus_window));
+
+      x11_display->is_server_focus = TRUE;
+      meta_display_set_input_focus (display, display->focus_window,
+                                    meta_display_get_current_time_roundtrip (display));
+      x11_display->is_server_focus = FALSE;
     }
 
   if (event->xany.window == x11_display->xroot)

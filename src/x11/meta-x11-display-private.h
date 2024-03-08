@@ -152,6 +152,8 @@ struct _MetaX11Display
    */
   guint focused_by_us : 1;
 
+  guint is_server_focus : 1;
+
   guint keys_grabbed : 1;
 
   guint closing : 1;
