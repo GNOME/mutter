@@ -83,13 +83,6 @@ typedef struct _MetaOnscreenNativeSecondaryGpuState
   MetaSharedFramebufferImportStatus import_status;
 } MetaOnscreenNativeSecondaryGpuState;
 
-typedef enum _MetaFrameSyncMode
-{
-  META_FRAME_SYNC_MODE_INIT,
-  META_FRAME_SYNC_MODE_ENABLED,
-  META_FRAME_SYNC_MODE_DISABLED,
-} MetaFrameSyncMode;
-
 struct _MetaOnscreenNative
 {
   CoglOnscreenEgl parent;
@@ -117,8 +110,8 @@ struct _MetaOnscreenNative
   } egl;
 #endif
 
-  MetaFrameSyncMode requested_frame_sync_mode;
-  MetaFrameSyncMode frame_sync_mode;
+  gboolean frame_sync_requested;
+  gboolean frame_sync_enabled;
 
   MetaRendererView *view;
 
@@ -1683,76 +1676,49 @@ void
 meta_onscreen_native_request_frame_sync (MetaOnscreenNative *onscreen_native,
                                          gboolean            enabled)
 {
-  onscreen_native->requested_frame_sync_mode =
-    enabled
-    ? META_FRAME_SYNC_MODE_ENABLED
-    : META_FRAME_SYNC_MODE_DISABLED;
+  onscreen_native->frame_sync_requested = enabled;
 }
 
 gboolean
 meta_onscreen_native_is_frame_sync_enabled (MetaOnscreenNative *onscreen_native)
 {
-  return onscreen_native->frame_sync_mode == META_FRAME_SYNC_MODE_ENABLED;
+  return onscreen_native->frame_sync_enabled;
 }
 
 static void
-update_frame_sync_mode (MetaOnscreenNative *onscreen_native,
-                        ClutterFrame       *frame,
-                        MetaFrameSyncMode   sync_mode)
+maybe_update_frame_sync (MetaOnscreenNative *onscreen_native,
+                         ClutterFrame       *frame)
 {
   MetaCrtcKms *crtc_kms = META_CRTC_KMS (onscreen_native->crtc);
-  MetaFrameNative *frame_native;
-  MetaKmsCrtc *kms_crtc;
-  MetaKmsDevice *kms_device;
+  MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
+  MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);
+  const MetaKmsCrtcState *crtc_state =
+    meta_kms_crtc_get_current_state (kms_crtc);
+  MetaFrameNative *frame_native = meta_frame_native_from_frame (frame);
+  ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (onscreen_native->view);
+  ClutterFrameClock *frame_clock =
+    clutter_stage_view_get_frame_clock (stage_view);
+  ClutterFrameClockMode frame_clock_mode;
   MetaKmsUpdate *kms_update;
-  ClutterFrameClock *frame_clock;
+  gboolean frame_sync_enabled = FALSE;
 
-  frame_native = meta_frame_native_from_frame (frame);
+  if (meta_output_is_vrr_enabled (onscreen_native->output))
+    frame_sync_enabled = onscreen_native->frame_sync_requested;
 
-  frame_clock =
-    clutter_stage_view_get_frame_clock (CLUTTER_STAGE_VIEW (onscreen_native->view));
-
-  kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
-  kms_device = meta_kms_crtc_get_device (kms_crtc);
-
-  kms_update = meta_frame_native_ensure_kms_update (frame_native, kms_device);
-
-  switch (sync_mode)
+  if (frame_sync_enabled != onscreen_native->frame_sync_enabled)
     {
-    case META_FRAME_SYNC_MODE_ENABLED:
-      clutter_frame_clock_set_mode (frame_clock,
-                                    CLUTTER_FRAME_CLOCK_MODE_VARIABLE);
-      meta_kms_update_set_vrr (kms_update,
-                               kms_crtc,
-                               TRUE);
-      break;
-    case META_FRAME_SYNC_MODE_DISABLED:
-      clutter_frame_clock_set_mode (frame_clock,
-                                    CLUTTER_FRAME_CLOCK_MODE_FIXED);
-      meta_kms_update_set_vrr (kms_update,
-                               kms_crtc,
-                               FALSE);
-      break;
-    case META_FRAME_SYNC_MODE_INIT:
-      g_assert_not_reached ();
+      frame_clock_mode = frame_sync_enabled ? CLUTTER_FRAME_CLOCK_MODE_VARIABLE :
+                                              CLUTTER_FRAME_CLOCK_MODE_FIXED;
+      clutter_frame_clock_set_mode (frame_clock, frame_clock_mode);
+      onscreen_native->frame_sync_enabled = frame_sync_enabled;
     }
 
-  onscreen_native->frame_sync_mode = sync_mode;
-}
-
-static void
-maybe_update_frame_sync_mode (MetaOnscreenNative *onscreen_native,
-                              ClutterFrame       *frame)
-{
-  MetaFrameSyncMode sync_mode = onscreen_native->requested_frame_sync_mode;
-
-  if (!meta_output_is_vrr_enabled (onscreen_native->output))
-    sync_mode = META_FRAME_SYNC_MODE_DISABLED;
-
-  if (G_LIKELY (sync_mode == onscreen_native->frame_sync_mode))
-    return;
-
-  update_frame_sync_mode (onscreen_native, frame, sync_mode);
+  if (crtc_state->vrr.supported &&
+      frame_sync_enabled != crtc_state->vrr.enabled)
+    {
+      kms_update = meta_frame_native_ensure_kms_update (frame_native, kms_device);
+      meta_kms_update_set_vrr (kms_update, kms_crtc, frame_sync_enabled);
+    }
 }
 
 void
@@ -1765,7 +1731,7 @@ meta_onscreen_native_before_redraw (CoglOnscreen *onscreen,
 
   meta_kms_device_await_flush (meta_kms_crtc_get_device (kms_crtc),
                                kms_crtc);
-  maybe_update_frame_sync_mode (onscreen_native, frame);
+  maybe_update_frame_sync (onscreen_native, frame);
 }
 
 void
@@ -2864,8 +2830,6 @@ meta_onscreen_native_dispose (GObject *object)
 static void
 meta_onscreen_native_init (MetaOnscreenNative *onscreen_native)
 {
-  onscreen_native->requested_frame_sync_mode = META_FRAME_SYNC_MODE_DISABLED;
-  onscreen_native->frame_sync_mode = META_FRAME_SYNC_MODE_INIT;
 }
 
 static void
