@@ -73,6 +73,8 @@ struct _ClutterGestureClass
    *   when @self recognizes
    * @inhibit_until_cancelled: (inout): whether to inhibit @other_gesture
    *   until @self got cancelled
+   * @inhibit_until_recognize: (inout): whether to inhibit @other_gesture
+   *   until @self got cancelled
    *
    * This virtual function is called to request whether @self should
    * influence @other_gesture, i.e. whether @other_gesture should be moved
@@ -81,7 +83,8 @@ struct _ClutterGestureClass
   void (* should_influence) (ClutterGesture *self,
                              ClutterGesture *other_gesture,
                              gboolean       *cancel_on_recognizing,
-                             gboolean       *inhibit_until_cancelled);
+                             gboolean       *inhibit_until_cancelled,
+                             gboolean       *inhibit_until_recognize);
 
   /**
    * ClutterGestureClass::should_be_influenced_by:
@@ -91,6 +94,8 @@ struct _ClutterGestureClass
    *   when @other_gesture recognizes
    * @inhibited_until_cancelled: (inout): whether @self should be inhibited
    *   until @other_gesture got cancelled
+   * @inhibited_until_recognize: (inout): whether @self should be inhibited
+   *   until @other_gesture got cancelled
    *
    * This virtual function is called to request whether @other_gesture should
    * influence @self, i.e. whether @self should be moved to state
@@ -99,7 +104,8 @@ struct _ClutterGestureClass
   void (* should_be_influenced_by) (ClutterGesture *self,
                                     ClutterGesture *other_gesture,
                                     gboolean       *cancelled_on_recognizing,
-                                    gboolean       *inhibited_until_cancelled);
+                                    gboolean       *inhibited_until_cancelled,
+                                    gboolean       *inhibited_until_recognize);
 
   /**
    * ClutterGestureClass::should_start_while:
