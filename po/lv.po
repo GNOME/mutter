@@ -11,9 +11,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: lv\n"
-"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2024-01-13 15:54+0000\n"
-"PO-Revision-Date: 2024-02-25 21:59+0200\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
+"POT-Creation-Date: 2024-03-02 12:22+0000\n"
+"PO-Revision-Date: 2024-03-08 23:14+0200\n"
 "Last-Translator: Rūdolfs Mazurs <rudolfs.mazurs@gmail.com>\n"
 "Language-Team: Latvian <lata-l10n@googlegroups.com>\n"
 "Language: lv\n"
@@ -161,22 +161,18 @@ msgid "Switch to last workspace"
 msgstr "Pārslēgties uz pēdējo darbvietu"
 
 #: data/50-mutter-navigation.xml:131
-#| msgid "Move to workspace on the left"
 msgid "Switch to workspace on the left"
 msgstr "Pārslēgties uz darbvietu pa kreisi"
 
 #: data/50-mutter-navigation.xml:134
-#| msgid "Move to workspace on the right"
 msgid "Switch to workspace on the right"
 msgstr "Pārslēgties uz darbvietu pa labi"
 
 #: data/50-mutter-navigation.xml:138
-#| msgid "Switch to workspace 1"
 msgid "Switch to workspace above"
 msgstr "Pārslēgties uz darbvietu augšā"
 
 #: data/50-mutter-navigation.xml:142
-#| msgid "Switch to workspace 1"
 msgid "Switch to workspace below"
 msgstr "Pārslēgties uz darbvietu lejā"
 
@@ -256,19 +252,19 @@ msgstr "Maksimizēt logu vertikāli"
 msgid "Maximize window horizontally"
 msgstr "Maksimizēt logu horizontāli"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:160
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:167
 msgid "View split on left"
 msgstr "Izvietot kreisajā ekrāna pusē"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:165
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:172
 msgid "View split on right"
 msgstr "Izvietot labajā ekrāna pusē"
 
-#: data/org.gnome.mutter.gschema.xml.in:14
+#: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
 msgstr "Modifikators, kuru lietot paplašinātām loga pārvaldības darbībām"
 
-#: data/org.gnome.mutter.gschema.xml.in:15
+#: data/org.gnome.mutter.gschema.xml.in:16
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
@@ -280,11 +276,11 @@ msgstr ""
 "PC aparatūras. Tiek sagaidīts, ka šī sasaite ir vai nu noklusējuma, vai "
 "tukša virkne."
 
-#: data/org.gnome.mutter.gschema.xml.in:27
+#: data/org.gnome.mutter.gschema.xml.in:28
 msgid "Attach modal dialogs"
 msgstr "Piesaistīt modālos dialogus"
 
-#: data/org.gnome.mutter.gschema.xml.in:28
+#: data/org.gnome.mutter.gschema.xml.in:29
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
 "attached to the titlebar of the parent window and are moved together with "
@@ -294,11 +290,11 @@ msgstr ""
 "dialogs būs piesaistīts virsraksta joslai vecāka logam un tiks pārvietots "
 "kopā ar vecāka logu."
 
-#: data/org.gnome.mutter.gschema.xml.in:37
+#: data/org.gnome.mutter.gschema.xml.in:38
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr "Aktivēt logu sānisko izklāšanu, kad to nomet uz ekrāna malas"
 
-#: data/org.gnome.mutter.gschema.xml.in:38
+#: data/org.gnome.mutter.gschema.xml.in:39
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
@@ -308,11 +304,11 @@ msgstr ""
 "izklāti pa visu ekrāna augstumu pusē no pieejamā platuma, bet tie, kas "
 "nomesti uz augšējās malas, tiks izklāti pa visu ekrānu."
 
-#: data/org.gnome.mutter.gschema.xml.in:47
+#: data/org.gnome.mutter.gschema.xml.in:48
 msgid "Workspaces are managed dynamically"
 msgstr "Darbvirsmas tiek pārvaldītas dinamiski"
 
-#: data/org.gnome.mutter.gschema.xml.in:48
+#: data/org.gnome.mutter.gschema.xml.in:49
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
 "static number of workspaces (determined by the num-workspaces key in org."
@@ -322,11 +318,11 @@ msgstr ""
 "darbvirsmu skaits (ko nosaka num-workspaces atslēga laukā org.gnome.desktop."
 "wm.preferences)."
 
-#: data/org.gnome.mutter.gschema.xml.in:57
+#: data/org.gnome.mutter.gschema.xml.in:58
 msgid "Workspaces only on primary"
 msgstr "Darbvietas tikai uz galvenā"
 
-#: data/org.gnome.mutter.gschema.xml.in:58
+#: data/org.gnome.mutter.gschema.xml.in:59
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
@@ -334,11 +330,11 @@ msgstr ""
 "Nosaka, vai darbvietu pārslēgšanai vajadzētu notikt visiem logiem visos "
 "monitoros, vai tikai logiem galvenajā monitorā."
 
-#: data/org.gnome.mutter.gschema.xml.in:66
+#: data/org.gnome.mutter.gschema.xml.in:67
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "Aizkavēt fokusa izmaiņas, līdz rādītājs pārstāj kustēties"
 
-#: data/org.gnome.mutter.gschema.xml.in:67
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -348,11 +344,11 @@ msgstr ""
 "“mouse” (pele), tad fokuss nemainīsies uzreiz pēc ieiešanas logā, bet tikai "
 "pēc tam, kad rādītājs beidzis kustēties."
 
-#: data/org.gnome.mutter.gschema.xml.in:77
+#: data/org.gnome.mutter.gschema.xml.in:78
 msgid "Draggable border width"
 msgstr "Velkams malas platums"
 
-#: data/org.gnome.mutter.gschema.xml.in:78
+#: data/org.gnome.mutter.gschema.xml.in:79
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -360,11 +356,11 @@ msgstr ""
 "Kopējo velkamo malu apjoms. Ja motīva redzamās robežas nav pietiekamas, tiks "
 "pievienotas neredzamas robežas, lai iegūtu šo vērtību."
 
-#: data/org.gnome.mutter.gschema.xml.in:87
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "Automātiski maksimizēt logus, kas ir gandrīz ar monitora izmēru"
 
-#: data/org.gnome.mutter.gschema.xml.in:88
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
@@ -372,22 +368,22 @@ msgstr ""
 "Ja aktivizēts, jauni logi, kuru izmērs ir gandrīz tāds pats, kā monitoram, "
 "tiks maksimizēti."
 
-#: data/org.gnome.mutter.gschema.xml.in:96
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
 msgstr "Novietot logu vidū"
 
-#: data/org.gnome.mutter.gschema.xml.in:97
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
 msgstr ""
 "Ja patiess, jaunie logi vienmēr tiks novietoti monitora aktīvā ekrāna vidū."
 
-#: data/org.gnome.mutter.gschema.xml.in:106
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "Enable experimental features"
 msgstr "Ieslēgt eksperimentālās iespējas"
 
-#: data/org.gnome.mutter.gschema.xml.in:107
+#: data/org.gnome.mutter.gschema.xml.in:108
 #| msgid ""
 #| "To enable experimental features, add the feature keyword to the list. "
 #| "Whether the feature requires restarting the compositor depends on the "
@@ -399,10 +395,8 @@ msgstr "Ieslēgt eksperimentālās iespējas"
 #| "instead of window content, to manage HiDPI monitors. Does not require a "
 #| "restart. • “kms-modifiers” — makes mutter always allocate scanout buffers "
 #| "with explicit modifiers, if supported by the driver. Requires a restart. "
-#| "• “rt-scheduler” — makes mutter request a low priority real-time "
-#| "scheduling. Requires a restart. • “autoclose-xwayland” — automatically "
-#| "terminates Xwayland if all relevant X11 clients are gone. Requires a "
-#| "restart."
+#| "• “autoclose-xwayland” — automatically terminates Xwayland if all "
+#| "relevant X11 clients are gone. Requires a restart."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -414,7 +408,10 @@ msgid ""
 "manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
 "mutter always allocate scanout buffers with explicit modifiers, if supported "
 "by the driver. Requires a restart. • “autoclose-xwayland” — automatically "
-"terminates Xwayland if all relevant X11 clients are gone. Requires a restart."
+"terminates Xwayland if all relevant X11 clients are gone. Requires a "
+"restart. • “variable-refresh-rate” — makes mutter dynamically adjust the "
+"refresh rate of the monitor when applicable if supported by the monitor, GPU "
+"and DRM driver. Configurable in Settings. Requires a restart."
 msgstr ""
 "Lai ieslēgtu eksperimentālās iespējas, pievienojiet iespējas atslēgvārdu "
 "sarakstam. Vai iespējai būs nepieciešama kompozitora pārstartēšana, būs "
@@ -426,22 +423,25 @@ msgstr ""
 "loga saturu, lai pārvaldītu HiDPI monitorus. Pārstartēšana nav nepieciešama. "
 "• “kms-modifiers” — liek mutter vienmēr piešķirt scanout buferi ar "
 "eksplicītiem modifikatoriem, ja to atbalsta draiveris. Nepieciešama "
-"pārstartēšana. • “autoclose-xwayland” — automātiski aptur Xwayland, ja visi"
-" būtiskie X11 klienti ir pazuduši. Nepieciešama pārstartēšana."
+"pārstartēšana. • “autoclose-xwayland” — automātiski aptur Xwayland, ja visi "
+"būtiskie X11 klienti ir pazuduši. Nepieciešama pārstartēšana. •"
+" “variable-refresh-rate” — ja iespējams, liek mutter dinamiski pielāgot"
+" atsvaidzināšanas ātrumu monitoriem, ja to atbalsta monitors, GPU un DRM"
+" draiveris. Konfigurējams iestatījumos. Nepieciešama pārstartēšana."
 
-#: data/org.gnome.mutter.gschema.xml.in:137
+#: data/org.gnome.mutter.gschema.xml.in:144
 msgid "Modifier to use to locate the pointer"
 msgstr "Modifikators, ko izmantot, lai atrastu rādītāju"
 
-#: data/org.gnome.mutter.gschema.xml.in:138
+#: data/org.gnome.mutter.gschema.xml.in:145
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Šī atslēga inicializēs “atrast rādītāju” darbību."
 
-#: data/org.gnome.mutter.gschema.xml.in:145
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid "Timeout for check-alive ping"
 msgstr "Aktivitātes pārbaudes ping noildze"
 
-#: data/org.gnome.mutter.gschema.xml.in:146
+#: data/org.gnome.mutter.gschema.xml.in:153
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -450,15 +450,15 @@ msgstr ""
 "klientu neuzskatītu par iesalušu. Ja norādītais laiks ir 0, aktivitātes "
 "pārbaude netiks veikta."
 
-#: data/org.gnome.mutter.gschema.xml.in:170
+#: data/org.gnome.mutter.gschema.xml.in:177
 msgid "Switch monitor configurations"
 msgstr "Pārslēgt monitoru konfigurācijas"
 
-#: data/org.gnome.mutter.gschema.xml.in:175
+#: data/org.gnome.mutter.gschema.xml.in:182
 msgid "Rotates the built-in monitor configuration"
 msgstr "Pagriež iebūvētā monitora konfigurāciju"
 
-#: data/org.gnome.mutter.gschema.xml.in:180
+#: data/org.gnome.mutter.gschema.xml.in:187
 msgid "Cancel any active input capture session"
 msgstr "Atcelt visas aktīvās ievades tveršanas sesijas"
 
@@ -600,15 +600,15 @@ msgid ""
 "control that setting. Xwayland needs to be restarted for this setting to "
 "take effect."
 msgstr ""
-"Atļaut savienojumus no klientiem ar bitu secību, kas atšķiras no Xwayland"
-" izmantotā. X servera bitu apmaiņas kods ir liels uzbrukumu laukums, un"
-" Xwayland kodam šajā jomā ir drošības problēmas. Bitu apmaiņas klientu kodam"
-" pielietojumi ir ļoti reti, tāpēc tas pēc noklusējuma uz Xwayland ir"
-" izslēgts. Ieslēdziet šo opciju, lai instruētu Xwayland pieņemt savienojumus"
-" no X11 klientiem, kuri izmanto citu bitu secību. Šai opcijai nav efekta, ja"
-" Xwayland neatbalsta komandrindas opciju"
-" +byteswappedclients/-byteswappedclients, lai kontrolētu šo iestatījumu. Lai"
-" šis iestatījum stātos spēkā, ir jāpārstartē Xwayland."
+"Atļaut savienojumus no klientiem ar bitu secību, kas atšķiras no Xwayland "
+"izmantotā. X servera bitu apmaiņas kods ir liels uzbrukumu laukums, un "
+"Xwayland kodam šajā jomā ir drošības problēmas. Bitu apmaiņas klientu kodam "
+"pielietojumi ir ļoti reti, tāpēc tas pēc noklusējuma uz Xwayland ir "
+"izslēgts. Ieslēdziet šo opciju, lai instruētu Xwayland pieņemt savienojumus "
+"no X11 klientiem, kuri izmanto citu bitu secību. Šai opcijai nav efekta, ja "
+"Xwayland neatbalsta komandrindas opciju +byteswappedclients/-"
+"byteswappedclients, lai kontrolētu šo iestatījumu. Lai šis iestatījum stātos "
+"spēkā, ir jāpārstartē Xwayland."
 
 #: src/backends/meta-monitor.c:251
 msgid "Built-in display"
@@ -641,82 +641,82 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Zvana notikums"
 
-#: src/core/display.c:733
+#: src/core/display.c:734
 msgid "Privacy Screen Enabled"
 msgstr "Privātuma ekrāns ieslēgts"
 
-#: src/core/display.c:734
+#: src/core/display.c:735
 msgid "Privacy Screen Disabled"
 msgstr "Privātuma ekrāns izslēgts"
 
-#: src/core/meta-context-main.c:587
+#: src/core/meta-context-main.c:601
 msgid "Replace the running window manager"
 msgstr "Aizvietot darbojošos logu pārvaldnieku"
 
-#: src/core/meta-context-main.c:593
+#: src/core/meta-context-main.c:607
 msgid "X Display to use"
 msgstr "Lietojamais X displejs"
 
-#: src/core/meta-context-main.c:599
+#: src/core/meta-context-main.c:613
 msgid "Disable connection to session manager"
 msgstr "Deaktivēt savienojumu ar sesiju pārvaldnieku"
 
-#: src/core/meta-context-main.c:605
+#: src/core/meta-context-main.c:619
 msgid "Specify session management ID"
 msgstr "Norādiet sesiju pārvaldības ID"
 
-#: src/core/meta-context-main.c:611
+#: src/core/meta-context-main.c:625
 msgid "Initialize session from savefile"
 msgstr "Inicializēt sesiju no saglabātās datnes"
 
-#: src/core/meta-context-main.c:617
+#: src/core/meta-context-main.c:631
 msgid "Make X calls synchronous"
 msgstr "Padarīt X izsaukumus sinhronus"
 
-#: src/core/meta-context-main.c:625
+#: src/core/meta-context-main.c:639
 msgid "Run as a wayland compositor"
 msgstr "Palaist kā wayland kompozitoru"
 
-#: src/core/meta-context-main.c:631
+#: src/core/meta-context-main.c:645
 msgid "Run as a nested compositor"
 msgstr "Palaist kā ligzdotu kompozitoru"
 
-#: src/core/meta-context-main.c:637
+#: src/core/meta-context-main.c:651
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Palaist wayland kompozitoru nestartējot Xwayland"
 
-#: src/core/meta-context-main.c:643
+#: src/core/meta-context-main.c:657
 msgid "Specify Wayland display name to use"
 msgstr "Norādiet Wayland displeja nosaukumu, kuru izmantot"
 
-#: src/core/meta-context-main.c:651
+#: src/core/meta-context-main.c:665
 msgid "Run as a full display server, rather than nested"
 msgstr "Palaist kā pilnu attēlošanas serveri, nevis iegultu"
 
-#: src/core/meta-context-main.c:656
+#: src/core/meta-context-main.c:670
 msgid "Run as a headless display server"
 msgstr "Palaist kā bezdispleja attēlošanas serveri"
 
-#: src/core/meta-context-main.c:661
+#: src/core/meta-context-main.c:675
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Pievienot pastāvīgu virtuālo monitoru (WxH vai WxH@R)"
 
-#: src/core/meta-context-main.c:673
+#: src/core/meta-context-main.c:687
 msgid "Run with X11 backend"
 msgstr "Palaist ar X11 aizmuguri"
 
-#: src/core/meta-context-main.c:679
+#: src/core/meta-context-main.c:693
 msgid "Profile performance using trace instrumentation"
 msgstr "Profila veiktspēja izmanto trasēšnas instrumentāciju"
 
-#: src/core/meta-context-main.c:685
+#: src/core/meta-context-main.c:699
 msgid "Enable debug control D-Bus interface"
 msgstr "Ieslēgt atkļūdošanas vadību D-Bus saskarnē"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:814
+#: src/core/meta-pad-action-mapper.c:826
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Režīma slēdzis (grupa %d)"
@@ -724,11 +724,11 @@ msgstr "Režīma slēdzis (grupa %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:836
+#: src/core/meta-pad-action-mapper.c:848
 msgid "Switch monitor"
 msgstr "Pārslēgt monitoru"
 
-#: src/core/meta-pad-action-mapper.c:838
+#: src/core/meta-pad-action-mapper.c:850
 msgid "Show on-screen help"
 msgstr "Rādīt palīdzību uz ekrāna"
 
@@ -745,7 +745,7 @@ msgstr "Parādīt versiju"
 msgid "Mutter plugin to use"
 msgstr "Izmantojamais mutter spraudnis"
 
-#: src/core/prefs.c:1843
+#: src/core/prefs.c:1842
 #, c-format
 msgid "Workspace %d"
 msgstr "Darbvieta %d"
@@ -754,7 +754,7 @@ msgstr "Darbvieta %d"
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter tika kompilēts bez detalizētas izvades režīma atbalsta"
 
-#: src/core/workspace.c:511
+#: src/core/workspace.c:510
 msgid "Workspace switched"
 msgstr "Darbvieta pārslēgta"
 
@@ -784,7 +784,7 @@ msgstr "Ekrāna %d displejs “%s“ nav derīgs"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2539
+#: src/x11/meta-x11-display.c:2538
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -795,7 +795,7 @@ msgstr "Cits kompozīcijas pārvaldnieks jau darbojas ekrānā %d displejā “%
 msgid "Format %s not supported"
 msgstr "%s formāts nav atbalstīts"
 
-#: src/x11/window-props.c:524
+#: src/x11/window-props.c:528
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (uz %s)"
