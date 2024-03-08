@@ -289,8 +289,7 @@ init_output_modes (MetaOutputInfo    *output_info,
 
   output_info->preferred_mode = NULL;
 
-  add_vrr_modes = connector_state->vrr_capable &&
-                  !meta_gpu_kms_disable_vrr (gpu_kms);
+  add_vrr_modes = output_info->supports_vrr;
 
   if (add_vrr_modes)
     output_info->n_modes = g_list_length (connector_state->modes) * 2;
@@ -366,6 +365,7 @@ meta_output_kms_new (MetaGpuKms        *gpu_kms,
   MetaOutputKms *output_kms;
   uint32_t drm_connector_type;
   const MetaKmsConnectorState *connector_state;
+  const MetaKmsCrtcState *crtc_state;
   GArray *crtcs;
   GList *l;
 
@@ -394,8 +394,8 @@ meta_output_kms_new (MetaGpuKms        *gpu_kms,
   output_info->connector_type =
     meta_kms_connector_type_from_drm (drm_connector_type);
 
-  if (!init_output_modes (output_info, gpu_kms, kms_connector, error))
-    return NULL;
+  output_info->supports_vrr = connector_state->vrr_capable &&
+                              !meta_gpu_kms_disable_vrr (gpu_kms);
 
   crtcs = g_array_new (FALSE, FALSE, sizeof (MetaCrtc *));
 
@@ -407,8 +407,23 @@ meta_output_kms_new (MetaGpuKms        *gpu_kms,
 
       crtc_idx = meta_kms_crtc_get_idx (kms_crtc);
       if (connector_state->common_possible_crtcs & (1 << crtc_idx))
-        g_array_append_val (crtcs, crtc_kms);
+        {
+          g_array_append_val (crtcs, crtc_kms);
+
+          crtc_state = meta_kms_crtc_get_current_state (kms_crtc);
+          if (!crtc_state->vrr.supported)
+            {
+              meta_topic (META_DEBUG_KMS,
+                          "Output is VRR capable, but a possible CRTC for the "
+                          "output does not support VRR. Disabling support for "
+                          "VRR on the output.");
+              output_info->supports_vrr = FALSE;
+            }
+        }
     }
+
+  if (!init_output_modes (output_info, gpu_kms, kms_connector, error))
+    return NULL;
 
   output_info->n_possible_crtcs = crtcs->len;
   output_info->possible_crtcs = (MetaCrtc **) g_array_free (crtcs, FALSE);

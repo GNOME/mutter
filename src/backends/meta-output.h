@@ -170,6 +170,8 @@ typedef struct _MetaOutputInfo
   uint64_t supported_hdr_eotfs;
 
   uint64_t supported_rgb_ranges;
+
+  gboolean supports_vrr;
 } MetaOutputInfo;
 
 gboolean
