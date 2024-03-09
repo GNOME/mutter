@@ -77,6 +77,8 @@ frame_cb (CoglOnscreen  *onscreen,
           cogl_frame_info_get_presentation_time_us (frame_info),
         .flags = flags,
         .sequence = cogl_frame_info_get_sequence (frame_info),
+        .has_valid_gpu_rendering_duration =
+          cogl_frame_info_has_valid_gpu_rendering_duration (frame_info),
         .gpu_rendering_duration_ns =
           cogl_frame_info_get_rendering_duration_ns (frame_info),
         .cpu_time_before_buffer_swap_us =

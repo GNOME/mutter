@@ -361,7 +361,8 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
 
   frame_clock->got_measurements_last_frame = FALSE;
 
-  if (frame_info->cpu_time_before_buffer_swap_us != 0)
+  if (frame_info->cpu_time_before_buffer_swap_us != 0 &&
+      frame_info->has_valid_gpu_rendering_duration)
     {
       int64_t dispatch_to_swap_us, swap_to_rendering_done_us, swap_to_flip_us;
 

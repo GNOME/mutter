@@ -128,6 +128,9 @@ COGL_EXPORT
 unsigned int cogl_frame_info_get_sequence (CoglFrameInfo *info);
 
 COGL_EXPORT
+gboolean cogl_frame_info_has_valid_gpu_rendering_duration (CoglFrameInfo *info);
+
+COGL_EXPORT
 int64_t cogl_frame_info_get_rendering_duration_ns (CoglFrameInfo *info);
 
 COGL_EXPORT

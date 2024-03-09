@@ -318,6 +318,8 @@ cogl_onscreen_egl_swap_buffers_with_damage (CoglOnscreen  *onscreen,
       /* Set up a timestamp query for when all rendering will be finished. */
       info->timestamp_query =
         cogl_framebuffer_create_timestamp_query (COGL_FRAMEBUFFER (onscreen));
+
+      info->has_valid_gpu_rendering_duration = TRUE;
     }
 
   if (n_rectangles && priv->pf_eglSwapBuffersWithDamage)
