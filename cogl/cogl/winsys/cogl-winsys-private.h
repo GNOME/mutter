@@ -68,8 +68,7 @@ typedef struct _CoglWinsysVtable
 
   GCallback
   (*renderer_get_proc_address) (CoglRenderer *renderer,
-                                const char   *name,
-                                gboolean      in_core);
+                                const char   *name);
 
   gboolean
   (*renderer_connect) (CoglRenderer *renderer,

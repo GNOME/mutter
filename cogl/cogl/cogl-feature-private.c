@@ -52,7 +52,6 @@ _cogl_feature_check (CoglRenderer *renderer,
   const char *suffix = NULL;
   int func_num;
   CoglExtGlesAvailability gles_availability = 0;
-  gboolean in_core;
 
   switch (driver)
     {
@@ -77,7 +76,6 @@ _cogl_feature_check (CoglRenderer *renderer,
       (data->gles_availability & gles_availability))
     {
       suffix = "";
-      in_core = TRUE;
     }
   else
     {
@@ -130,8 +128,6 @@ _cogl_feature_check (CoglRenderer *renderer,
               break;
             }
         }
-
-      in_core = FALSE;
     }
 
   /* If we couldn't find anything that provides the functions then
@@ -148,8 +144,7 @@ _cogl_feature_check (CoglRenderer *renderer,
       full_function_name = g_strconcat (data->functions[func_num].name,
                                         suffix, NULL);
       func = _cogl_renderer_get_proc_address (renderer,
-                                              full_function_name,
-                                              in_core);
+                                              full_function_name);
       g_free (full_function_name);
 
       if (func == NULL)

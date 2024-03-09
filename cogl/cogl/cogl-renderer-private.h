@@ -96,5 +96,4 @@ _cogl_renderer_remove_native_filter (CoglRenderer *renderer,
 
 void *
 _cogl_renderer_get_proc_address (CoglRenderer *renderer,
-                                 const char *name,
-                                 gboolean in_core);
+                                 const char   *name);
