@@ -203,6 +203,10 @@ clutter_sprite_remove_all_actions_from_chain (ClutterSprite *sprite)
   ClutterSpritePrivate *priv = clutter_sprite_get_instance_private (sprite);
   unsigned int i;
 
+  CLUTTER_NOTE (GRABS,
+                "[device=%p sequence=%p] Removing actions from chain",
+                priv->sprite_device, priv->sequence);
+
   for (i = 0; i < priv->event_emission_chain->len; i++)
     {
       EventReceiver *receiver =

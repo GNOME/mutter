@@ -965,9 +965,11 @@ set_state_after (ClutterGesture *self,
                            state_to_string[old_state],
                            state_to_string[new_state]);
 
-  if (gesture_class->state_changed)
-    gesture_class->state_changed (self, old_state, new_state);
-
+  /* First we emit the signal handlers for gesture users. We need to do this
+   * before invoking ->state_changed() because the context of the gesture should
+   * still be available for the user, and in state_changed() the implementation
+   * will clean that up.
+   */
   if (old_state == CLUTTER_GESTURE_STATE_RECOGNIZING &&
       new_state == CLUTTER_GESTURE_STATE_COMPLETED)
     {
@@ -984,7 +986,20 @@ set_state_after (ClutterGesture *self,
       g_signal_emit (self, obj_signals[RECOGNIZE], 0);
     }
 
-  /* If state has been set recursively by implementation or signal handler, bail out */
+  /* Setting state recursively in a signal handler is unsupported and causes an error */
+  if (priv->state != new_state)
+    {
+      g_warning ("gesture <%s> [<%s>:%p]: Tried to set state recursively from "
+                 "recognize/cancel/end signal handler. Use notify::state signal "
+                 "instead.",
+                 clutter_actor_meta_get_name (CLUTTER_ACTOR_META (self)),
+                 G_OBJECT_TYPE_NAME (self), self);
+    }
+
+  if (gesture_class->state_changed)
+    gesture_class->state_changed (self, old_state, new_state);
+
+  /* If state has been set recursively by implementation, bail out */
   if (priv->state != new_state)
     return;
 
