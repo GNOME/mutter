@@ -4549,9 +4549,11 @@ static void
 meta_window_x11_compute_group (MetaWindow *window)
 {
   MetaGroup *group = NULL;
-  MetaWindow *ancestor;
   MetaX11Display *x11_display = window->display->x11_display;
+  MetaWindow *ancestor = meta_window_find_root_ancestor (window);
   Window win_leader = meta_window_x11_get_xgroup_leader (window);
+  Window xwindow = meta_window_x11_get_xwindow (window);
+  Window ancestor_leader = meta_window_x11_get_xgroup_leader (ancestor);
   MetaWindowX11Private *priv =
     meta_window_x11_get_private (META_WINDOW_X11 (window));
 
@@ -4560,21 +4562,19 @@ meta_window_x11_compute_group (MetaWindow *window)
   /* Determine the ancestor of the window; its group setting will override the
    * normal grouping rules; see bug 328211.
    */
-  ancestor = meta_window_find_root_ancestor (window);
 
   if (x11_display->groups_by_leader)
     {
-      if (ancestor != window)
+      if (ancestor != window && ancestor_leader != None)
         group = meta_window_x11_get_group (ancestor);
-      else if (win_leader != None)
+
+      if (win_leader != None && group == NULL)
         group = g_hash_table_lookup (x11_display->groups_by_leader,
                                      &win_leader);
-      else
-        {
-          Window xwindow = meta_window_x11_get_xwindow (window);
-          group = g_hash_table_lookup (x11_display->groups_by_leader,
-                                       &xwindow);
-        }
+
+      if (group == NULL)
+        group = g_hash_table_lookup (x11_display->groups_by_leader,
+                                     &xwindow);
     }
 
   if (group != NULL)
@@ -4584,17 +4584,13 @@ meta_window_x11_compute_group (MetaWindow *window)
     }
   else
     {
-      Window ancestor_leader = meta_window_x11_get_xgroup_leader (ancestor);
 
       if (ancestor != window && ancestor_leader != None)
-        group = meta_group_new (x11_display,
-                                ancestor_leader);
+        group = meta_group_new (x11_display, ancestor_leader);
       else if (win_leader != None)
-        group = meta_group_new (x11_display,
-                                win_leader);
+        group = meta_group_new (x11_display, win_leader);
       else
-        group = meta_group_new (x11_display,
-                                meta_window_x11_get_xwindow (window));
+        group = meta_group_new (x11_display, xwindow);
 
       priv->group = group;
     }
