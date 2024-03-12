@@ -420,7 +420,7 @@ meta_gesture_tracker_untrack_stage (MetaGestureTracker *tracker)
 gboolean
 meta_gesture_tracker_handle_event (MetaGestureTracker *tracker,
                                    ClutterStage       *stage,
-				   const ClutterEvent *event)
+                                   const ClutterEvent *event)
 {
   MetaGestureTrackerPrivate *priv;
   ClutterEventSequence *sequence;
