@@ -12,7 +12,7 @@ uncrustify_cfg = 'tools/uncrustify.cfg'
 
 def run_diff(sha):
     proc = subprocess.run(
-        ["git", "diff", "-U0", "--function-context", sha, "HEAD"],
+        ["git", "diff", "-U0", "--function-context", "--default-prefix", sha, "HEAD"],
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         encoding="utf-8",
