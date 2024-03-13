@@ -402,6 +402,7 @@ meta_monitor_is_laptop_panel (MetaMonitor *monitor)
     case META_CONNECTOR_TYPE_eDP:
     case META_CONNECTOR_TYPE_LVDS:
     case META_CONNECTOR_TYPE_DSI:
+    case META_CONNECTOR_TYPE_DPI:
       return TRUE;
     default:
       return FALSE;
