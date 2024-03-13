@@ -167,7 +167,9 @@ meta_drm_buffer_release_fb_id (MetaDrmBuffer *buffer)
   int ret;
 
   fd = meta_device_file_get_fd (priv->device_file);
-  ret = drmModeRmFB (fd, priv->fb_id);
+  ret = drmModeCloseFB (fd, priv->fb_id);
+  if (ret == -EINVAL)
+    ret = drmModeRmFB (fd, priv->fb_id);
   if (ret != 0)
     g_warning ("drmModeRmFB: %s", g_strerror (-ret));
 
