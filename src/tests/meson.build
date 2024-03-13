@@ -614,7 +614,7 @@ if have_native_tests
           'wayland-x11-interop-tests.c',
           wayland_test_client_utils,
           wayland_test_utils,
-          wayland_protocol_files['mutter-x11-interop']['protocol-code'],
+          wayland_protocol_client_headers,
           built_dbus_sources['meta-dbus-service-channel'],
         ],
         'depends': [

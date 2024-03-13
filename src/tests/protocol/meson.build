@@ -1,3 +1,5 @@
+wayland_scanner = find_program('wayland-scanner')
+
 test_driver_server_header = custom_target(
   'test-driver server header',
   input: 'test-driver.xml',
