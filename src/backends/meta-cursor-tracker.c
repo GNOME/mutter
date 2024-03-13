@@ -539,14 +539,14 @@ meta_cursor_tracker_set_pointer_visible (MetaCursorTracker *tracker,
 
   sync_cursor (tracker);
 
-  g_signal_emit (tracker, signals[VISIBILITY_CHANGED], 0);
-
   seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
 
   if (priv->is_showing)
     clutter_seat_inhibit_unfocus (seat);
   else
     clutter_seat_uninhibit_unfocus (seat);
+
+  g_signal_emit (tracker, signals[VISIBILITY_CHANGED], 0);
 }
 
 MetaBackend *
