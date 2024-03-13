@@ -1579,6 +1579,7 @@ make_connector_name (drmModeConnector *drm_connector)
     "eDP",
     "Virtual",
     "DSI",
+    "DPI",
   };
 
   if (drm_connector->connector_type < G_N_ELEMENTS (connector_type_names))

@@ -755,6 +755,8 @@ output_info_get_connector_type_from_name (const MetaOutputInfo *output_info)
     return META_CONNECTOR_TYPE_HDMIA;
   if (g_str_has_prefix (name, "VGA"))
     return META_CONNECTOR_TYPE_VGA;
+  if (g_str_has_prefix (name, "DPI"))
+    return META_CONNECTOR_TYPE_DPI;
   /* SNA uses DP, not DisplayPort. Test for both. */
   if (g_str_has_prefix (name, "DP") || g_str_has_prefix (name, "DisplayPort"))
     return META_CONNECTOR_TYPE_DisplayPort;
