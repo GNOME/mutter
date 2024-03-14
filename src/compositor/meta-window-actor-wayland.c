@@ -388,6 +388,7 @@ meta_window_actor_wayland_get_scanout_candidate (MetaWindowActor *actor)
       MetaSurfaceActorWayland *bg_surface_actor = NULL;
       MetaWaylandSurface *bg_surface;
       MetaWaylandBuffer *buffer;
+      MetaWaylandSinglePixelBuffer *sp_buffer;
 
       clutter_actor_iter_init (&iter, surface_container);
       while (clutter_actor_iter_next (&iter, &child_actor))
@@ -402,15 +403,11 @@ meta_window_actor_wayland_get_scanout_candidate (MetaWindowActor *actor)
 
       bg_surface = meta_surface_actor_wayland_get_surface (bg_surface_actor);
       buffer = meta_wayland_surface_get_buffer (bg_surface);
-      if (buffer->type == META_WAYLAND_BUFFER_TYPE_SINGLE_PIXEL)
-        {
-          MetaWaylandSinglePixelBuffer *sp_buffer;
 
-          sp_buffer = meta_wayland_single_pixel_buffer_from_buffer (buffer);
-          if (sp_buffer &&
-              meta_wayland_single_pixel_buffer_is_opaque_black (sp_buffer))
-            return topmost_surface_actor;
-        }
+      sp_buffer = buffer->single_pixel.single_pixel_buffer;
+      if (sp_buffer &&
+          meta_wayland_single_pixel_buffer_is_opaque_black (sp_buffer))
+        return topmost_surface_actor;
     }
 
   if (meta_surface_actor_is_opaque (topmost_surface_actor) &&
