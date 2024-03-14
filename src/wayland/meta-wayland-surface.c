@@ -810,14 +810,14 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
 
   if (state->opaque_region_set)
     {
-      g_clear_pointer (&surface->opaque_region, mtk_region_unref); 
+      g_clear_pointer (&surface->opaque_region, mtk_region_unref);
       if (state->opaque_region)
         surface->opaque_region = mtk_region_ref (state->opaque_region);
     }
 
   if (state->input_region_set)
     {
-      g_clear_pointer (&surface->input_region, mtk_region_unref); 
+      g_clear_pointer (&surface->input_region, mtk_region_unref);
       if (state->input_region)
         surface->input_region = mtk_region_ref (state->input_region);
     }
