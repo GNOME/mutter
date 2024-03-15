@@ -1,3 +1,38 @@
+46.0
+====
+* Fix duplicate scroll events over libei [Peter; !3637]
+* Fix window menu with mouse button modifier [Jonas; !3623]
+* Fix caret offset in accessible event [Carlos; !3643]
+* Fix handling of scroll events for mice [Carlos; !3642]
+* Use timerfd for clock timing [Christian; !3636]
+* Advertise support for BGRA for all screencast types [Robert; !3617]
+* Add support for preferred_buffer_scale/transform [Robert; !3580]
+* Use memfd to store selection data [Yotam; !3551]
+* Fix globally active input focus [Sebastian K.; !3651]
+* Call malloc_trim() after loading background image [Sebastian K.; !3653]
+* Fix dynamic max render time sometimes getting stuck on constant framerate
+  [Robert; !3655]
+* Introduce base of new gesture framework [Jonas; !2389]
+* Work around windows missing work area changes [Balló; !3601]
+* Fix black screen with some drivers [Sebastian W.; !3646]
+* Improve login screen <-> session transition [Jocelyn; !3659]
+* Fixed crashes [Bilal, Carlos; !3656, !3660]
+* Misc. bug fixes and cleanups [Philip, Peter, Sebastian W., Zander, Petr,
+  Sebastian K., Robert, Bilal, Jonas; !3640, !3647, !3648, !3654, !3658, !3622,
+  !1918, !3067, !3661, !3662, !3652, !3645]
+
+Contributors:
+  Yotam Bar-On, Zander Brown, Jonas Dreßler, Bilal Elmoussaoui, Jocelyn Falempe,
+  Carlos Garnacho, Balló György, Christian Hergert, Petr Hodina, Peter Hutterer,
+  Sebastian Keller, Robert Mader, Sebastian Wick, Philip Withnall
+
+Translators:
+  Sabri Ünal [tr], Aurimas Černius [lt], Jordi Mas i Hernandez [ca],
+  Asier Sarasua Garmendia [eu], Matej Urbančič [sl], Anders Jonsson [sv],
+  Bruce Cowan [en_GB], Guillaume Bernard [fr], Kukuh Syafaat [id],
+  Milo Casagrande [it], Rūdolfs Mazurs [lv], Fran Dieguez [gl],
+  Ask Hjorth Larsen [da]
+
 46.rc
 =====
 * screencast: Renegotiate when DMABUF allocation fails [columbarius; !2557]
