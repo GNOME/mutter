@@ -1,3 +1,10 @@
+45.5
+====
+* Remove experimental rt-scheduler feature [Dallas; !3657]
+
+Contributors:
+  Dallas Strouse
+
 45.4
 ====
 * Restore IM state flushing before handling key events [Carlos; !3536]
