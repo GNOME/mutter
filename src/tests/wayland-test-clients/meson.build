@@ -67,6 +67,9 @@ wayland_test_clients = [
     'name': 'subsurface-reparenting',
   },
   {
+    'name': 'toplevel-reuse-surface',
+  },
+  {
     'name': 'toplevel-show-states',
   },
   {

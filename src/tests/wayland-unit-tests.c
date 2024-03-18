@@ -562,6 +562,16 @@ toplevel_activation (void)
   meta_wayland_test_client_finish (wayland_test_client);
 }
 
+static void
+toplevel_reuse_surface (void)
+{
+  MetaWaylandTestClient *wayland_test_client;
+
+  wayland_test_client =
+    meta_wayland_test_client_new (test_context, "toplevel-reuse-surface");
+  meta_wayland_test_client_finish (wayland_test_client);
+}
+
 static gboolean
 mark_later_as_done (gpointer user_data)
 {
@@ -1039,6 +1049,8 @@ init_tests (void)
   g_test_add_func ("/wayland/toplevel/bounds/monitors",
                    toplevel_bounds_monitors);
 #endif
+  g_test_add_func ("/wayland/toplevel/reuse-surface",
+                   toplevel_reuse_surface);
   g_test_add_func ("/wayland/xdg-foreign/set-parent-of",
                    xdg_foreign_set_parent_of);
   g_test_add_func ("/wayland/toplevel/show-states",
