@@ -454,7 +454,8 @@ create_cursor_drm_buffer_gbm (MetaGpuKms         *gpu_kms,
                               GError            **error)
 {
   struct gbm_bo *bo;
-  uint8_t buf[4 * cursor_width * cursor_height];
+  uint32_t bo_stride;
+  uint8_t *buf;
   int i;
   MetaDrmBufferFlags flags;
   MetaDrmBufferGbm *buffer_gbm;
@@ -476,10 +477,16 @@ create_cursor_drm_buffer_gbm (MetaGpuKms         *gpu_kms,
       return NULL;
     }
 
-  memset (buf, 0, sizeof (buf));
+  bo_stride = gbm_bo_get_stride (bo);
+  buf = g_alloca0 (bo_stride * cursor_height);
+
   for (i = 0; i < height; i++)
-    memcpy (buf + i * 4 * cursor_width, pixels + i * stride, width * 4);
-  if (gbm_bo_write (bo, buf, cursor_width * cursor_height * 4) != 0)
+    {
+      memcpy (buf + i * bo_stride,
+              pixels + i * stride,
+              MIN (bo_stride, stride));
+    }
+  if (gbm_bo_write (bo, buf, bo_stride * cursor_height) != 0)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
                    "Failed write to gbm_bo: %s", g_strerror (errno));
