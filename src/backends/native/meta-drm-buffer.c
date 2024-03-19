@@ -24,6 +24,8 @@
 
 #include "backends/native/meta-drm-buffer-private.h"
 
+#include <xf86drm.h>
+
 #include <drm_fourcc.h>
 
 #include "backends/native/meta-device-pool.h"
@@ -157,6 +159,26 @@ meta_drm_buffer_do_ensure_fb_id (MetaDrmBuffer        *buffer,
   priv->handle = fb_args->handle;
 
   return TRUE;
+}
+
+int __attribute__((weak))
+drmModeCloseFB (int      fd,
+                uint32_t buffer_id)
+{
+  gulong request = 0xc00864d0; /* DRM_IOCTL_MODE_CLOSEFB */
+  int result;
+
+  struct {
+    uint32_t buffer_id;
+    uint32_t pad;
+  } args = { buffer_id, 0 };
+
+  result = drmIoctl (fd, request, &args);
+
+  if (result < 0)
+    return -errno;
+
+  return result;
 }
 
 static void
