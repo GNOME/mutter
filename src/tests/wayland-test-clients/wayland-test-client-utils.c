@@ -654,28 +654,28 @@ wait_for_view_verified (WaylandDisplay *display,
 }
 
 static void
-on_sync_event (WaylandDisplay *wl_display,
+on_sync_event (WaylandDisplay *display,
                uint32_t        serial,
                void           *user_data)
 {
-  g_assert_cmpuint (serial, ==, wl_display->sync_event_serial_next);
-  wl_display->sync_event_serial_next = serial + 1;
+  g_assert_cmpuint (serial, ==, display->sync_event_serial_next);
+  display->sync_event_serial_next = serial + 1;
 }
 
 void
-wait_for_sync_event (WaylandDisplay *wl_display,
+wait_for_sync_event (WaylandDisplay *display,
                      uint32_t        expected_serial)
 {
   gulong handler_id;
-  handler_id = g_signal_connect (wl_display, "sync-event", G_CALLBACK (on_sync_event), NULL);
+  handler_id = g_signal_connect (display, "sync-event", G_CALLBACK (on_sync_event), NULL);
 
-  while (expected_serial + 1 > wl_display->sync_event_serial_next)
+  while (expected_serial + 1 > display->sync_event_serial_next)
     {
-      if (wl_display_dispatch (wl_display->display) == -1)
+      if (wl_display_dispatch (display->display) == -1)
         g_error ("%s: Failed to dispatch Wayland display", __func__);
     }
 
-  g_signal_handler_disconnect (wl_display, handler_id);
+  g_signal_handler_disconnect (display, handler_id);
 }
 
 struct wl_buffer *

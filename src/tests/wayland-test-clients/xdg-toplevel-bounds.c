@@ -29,8 +29,6 @@ typedef enum _State
   STATE_WAIT_FOR_FRAME_1,
 } State;
 
-static WaylandDisplay *display;
-
 static struct wl_surface *wl_surface;
 static struct xdg_surface *test_xdg_surface;
 static struct xdg_toplevel *test_xdg_toplevel;
@@ -51,8 +49,9 @@ init_surface (void)
 }
 
 static void
-draw_main (int width,
-           int height)
+draw_main (WaylandDisplay *display,
+           int             width,
+           int             height)
 {
   draw_surface (display, wl_surface, width, height, 0xff00ff00);
 }
@@ -94,6 +93,8 @@ handle_frame_callback (void               *data,
                        struct wl_callback *callback,
                        uint32_t            time)
 {
+  WaylandDisplay *display = data;
+
   switch (state)
     {
     case STATE_WAIT_FOR_FRAME_1:
@@ -114,6 +115,8 @@ handle_xdg_surface_configure (void               *data,
                               struct xdg_surface *xdg_surface,
                               uint32_t            serial)
 {
+  WaylandDisplay *display = data;
+
   switch (state)
     {
     case STATE_INIT:
@@ -122,7 +125,8 @@ handle_xdg_surface_configure (void               *data,
       g_assert (pending_bounds_width > 0);
       g_assert (pending_bounds_height > 0);
 
-      draw_main (pending_bounds_width - 10,
+      draw_main (display,
+                 pending_bounds_width - 10,
                  pending_bounds_height - 10);
       state = STATE_WAIT_FOR_FRAME_1;
       break;
@@ -132,7 +136,7 @@ handle_xdg_surface_configure (void               *data,
 
   xdg_surface_ack_configure (xdg_surface, serial);
   frame_callback = wl_surface_frame (wl_surface);
-  wl_callback_add_listener (frame_callback, &frame_listener, NULL);
+  wl_callback_add_listener (frame_callback, &frame_listener, display);
   wl_surface_commit (wl_surface);
   wl_display_flush (display->display);
 }
@@ -142,7 +146,7 @@ static const struct xdg_surface_listener xdg_surface_listener = {
 };
 
 static void
-on_sync_event (WaylandDisplay *wl_display,
+on_sync_event (WaylandDisplay *display,
                uint32_t        serial)
 {
   g_assert (serial == 0);
@@ -154,13 +158,14 @@ int
 main (int    argc,
       char **argv)
 {
+  g_autoptr (WaylandDisplay) display;
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER |
                                  WAYLAND_DISPLAY_CAPABILITY_XDG_SHELL_V4);
   g_signal_connect (display, "sync-event", G_CALLBACK (on_sync_event), NULL);
 
   wl_surface = wl_compositor_create_surface (display->compositor);
   test_xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, wl_surface);
-  xdg_surface_add_listener (test_xdg_surface, &xdg_surface_listener, NULL);
+  xdg_surface_add_listener (test_xdg_surface, &xdg_surface_listener, display);
   test_xdg_toplevel = xdg_surface_get_toplevel (test_xdg_surface);
   xdg_toplevel_add_listener (test_xdg_toplevel, &xdg_toplevel_listener, NULL);
 
