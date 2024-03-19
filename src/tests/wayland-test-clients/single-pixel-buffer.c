@@ -22,7 +22,6 @@
 
 #include "wayland-test-client-utils.h"
 
-static WaylandDisplay *display;
 static struct wl_surface *surface;
 static struct xdg_surface *xdg_surface;
 static struct xdg_toplevel *xdg_toplevel;
@@ -91,7 +90,7 @@ static const struct xdg_surface_listener xdg_surface_listener = {
 };
 
 static void
-wait_for_configure (void)
+wait_for_configure (WaylandDisplay *display)
 {
   waiting_for_configure = TRUE;
   while (waiting_for_configure || window_width == 0)
@@ -114,7 +113,7 @@ static const struct wl_buffer_listener buffer_listener = {
 };
 
 static void
-wait_for_buffer_released (void)
+wait_for_buffer_released (WaylandDisplay *display)
 {
   while (buffer)
     {
@@ -127,6 +126,7 @@ int
 main (int    argc,
       char **argv)
 {
+  g_autoptr (WaylandDisplay) display = NULL;
   struct wp_viewport *viewport;
   struct wp_viewport *subsurface_viewport;
 
@@ -140,7 +140,7 @@ main (int    argc,
 
   xdg_toplevel_set_fullscreen (xdg_toplevel, NULL);
   wl_surface_commit (surface);
-  wait_for_configure ();
+  wait_for_configure (display);
 
   viewport = wp_viewporter_get_viewport (display->viewporter, surface);
   wp_viewport_set_destination (viewport, window_width, window_height);
@@ -157,7 +157,7 @@ main (int    argc,
   wait_for_effects_completed (display, surface);
   wait_for_view_verified (display, 0);
 
-  wait_for_buffer_released ();
+  wait_for_buffer_released (display);
 
   subsurface_surface = wl_compositor_create_surface (display->compositor);
   subsurface = wl_subcompositor_get_subsurface (display->subcompositor,
@@ -184,7 +184,7 @@ main (int    argc,
   wl_surface_commit (subsurface_surface);
   wait_for_view_verified (display, 1);
 
-  wait_for_buffer_released ();
+  wait_for_buffer_released (display);
 
   buffer =
     wp_single_pixel_buffer_manager_v1_create_u32_rgba_buffer (display->single_pixel_mgr,
@@ -197,7 +197,7 @@ main (int    argc,
   wl_surface_commit (subsurface_surface);
   wait_for_view_verified (display, 0);
 
-  wait_for_buffer_released ();
+  wait_for_buffer_released (display);
 
   buffer =
     wp_single_pixel_buffer_manager_v1_create_u32_rgba_buffer (display->single_pixel_mgr,
@@ -210,7 +210,7 @@ main (int    argc,
   wl_surface_commit (subsurface_surface);
   wait_for_view_verified (display, 2);
 
-  wait_for_buffer_released ();
+  wait_for_buffer_released (display);
 
   buffer =
     wp_single_pixel_buffer_manager_v1_create_u32_rgba_buffer (display->single_pixel_mgr,
@@ -223,7 +223,7 @@ main (int    argc,
   wl_surface_commit (subsurface_surface);
   wait_for_view_verified (display, 3);
 
-  wait_for_buffer_released ();
+  wait_for_buffer_released (display);
 
   buffer =
     wp_single_pixel_buffer_manager_v1_create_u32_rgba_buffer (display->single_pixel_mgr,
@@ -236,7 +236,7 @@ main (int    argc,
   wl_surface_commit (subsurface_surface);
   wait_for_view_verified (display, 4);
 
-  wait_for_buffer_released ();
+  wait_for_buffer_released (display);
 
   buffer =
     wp_single_pixel_buffer_manager_v1_create_u32_rgba_buffer (display->single_pixel_mgr,
@@ -249,7 +249,7 @@ main (int    argc,
   wl_surface_commit (subsurface_surface);
   wait_for_view_verified (display, 5);
 
-  wait_for_buffer_released ();
+  wait_for_buffer_released (display);
 
   buffer =
     wp_single_pixel_buffer_manager_v1_create_u32_rgba_buffer (display->single_pixel_mgr,
@@ -262,9 +262,7 @@ main (int    argc,
   wl_surface_commit (subsurface_surface);
   wait_for_view_verified (display, 6);
 
-  wait_for_buffer_released ();
-
-  g_clear_object (&display);
+  wait_for_buffer_released (display);
 
   return EXIT_SUCCESS;
 }

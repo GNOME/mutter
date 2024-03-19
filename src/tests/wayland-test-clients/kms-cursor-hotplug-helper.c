@@ -23,8 +23,6 @@
 
 #include "wayland-test-client-utils.h"
 
-static WaylandDisplay *display;
-
 static struct wl_registry *wl_registry;
 static struct wl_seat *wl_seat;
 static struct wl_pointer *wl_pointer;
@@ -48,8 +46,9 @@ init_surface (void)
 }
 
 static void
-draw_main (int width,
-           int height)
+draw_main (WaylandDisplay *display,
+           int             width,
+           int             height)
 {
   draw_surface (display, surface, width, height, 0xff00ff00);
 }
@@ -89,7 +88,9 @@ handle_xdg_surface_configure (void               *data,
                               struct xdg_surface *xdg_surface,
                               uint32_t            serial)
 {
-  draw_main (100, 100);
+  WaylandDisplay *display = data;
+
+  draw_main (display, 100, 100);
   xdg_surface_ack_configure (xdg_surface, serial);
   wl_surface_commit (surface);
 }
@@ -251,6 +252,7 @@ int
 main (int    argc,
       char **argv)
 {
+  g_autoptr (WaylandDisplay) display = NULL;
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER);
   wl_registry = wl_display_get_registry (display->display);
   wl_registry_add_listener (wl_registry, &registry_listener, display);
@@ -260,7 +262,7 @@ main (int    argc,
 
   surface = wl_compositor_create_surface (display->compositor);
   xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, surface);
-  xdg_surface_add_listener (xdg_surface, &xdg_surface_listener, NULL);
+  xdg_surface_add_listener (xdg_surface, &xdg_surface_listener, display);
   xdg_toplevel = xdg_surface_get_toplevel (xdg_surface);
   xdg_toplevel_add_listener (xdg_toplevel, &xdg_toplevel_listener, NULL);
 

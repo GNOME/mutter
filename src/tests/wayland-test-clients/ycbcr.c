@@ -24,8 +24,6 @@
 
 #include "wayland-test-client-utils.h"
 
-static WaylandDisplay *display;
-
 static struct wl_surface *surface;
 static struct xdg_surface *xdg_surface;
 static struct xdg_toplevel *xdg_toplevel;
@@ -63,8 +61,9 @@ typedef void (*ShaderFunc) (float  x,
                             float *out_cr);
 
 static void
-draw (uint32_t   drm_format,
-      ShaderFunc shader)
+draw (WaylandDisplay *display,
+      uint32_t        drm_format,
+      ShaderFunc      shader)
 {
   WaylandBuffer *buffer;
   uint8_t *planes[4];
@@ -180,7 +179,7 @@ static const struct xdg_surface_listener xdg_surface_listener = {
 };
 
 static void
-wait_for_configure (void)
+wait_for_configure (WaylandDisplay *display)
 {
   waiting_for_configure = TRUE;
   while (waiting_for_configure)
@@ -194,6 +193,7 @@ int
 main (int    argc,
       char **argv)
 {
+  g_autoptr (WaylandDisplay) display = NULL;
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER);
 
   surface = wl_compositor_create_surface (display->compositor);
@@ -205,27 +205,25 @@ main (int    argc,
   xdg_toplevel_set_fullscreen (xdg_toplevel, NULL);
   wl_surface_commit (surface);
 
-  wait_for_configure ();
+  wait_for_configure (display);
 
-  draw (DRM_FORMAT_YUYV, shader_luma_gradient);
+  draw (display, DRM_FORMAT_YUYV, shader_luma_gradient);
   wl_surface_commit (surface);
   wait_for_effects_completed (display, surface);
   wait_for_view_verified (display, 0);
 
-  draw (DRM_FORMAT_YUYV, shader_color_gradient);
+  draw (display, DRM_FORMAT_YUYV, shader_color_gradient);
   wl_surface_commit (surface);
   wait_for_view_verified (display, 1);
 
-  draw (DRM_FORMAT_YUV420, shader_luma_gradient);
+  draw (display, DRM_FORMAT_YUV420, shader_luma_gradient);
   wl_surface_commit (surface);
   wait_for_view_verified (display, 2);
 
-  draw (DRM_FORMAT_YUV420, shader_color_gradient);
+  draw (display, DRM_FORMAT_YUV420, shader_color_gradient);
   wl_surface_commit (surface);
   wait_for_view_verified (display, 3);
 
   g_clear_pointer (&xdg_toplevel, xdg_toplevel_destroy);
   g_clear_pointer (&xdg_surface, xdg_surface_destroy);
-
-  g_clear_object (&display);
 }

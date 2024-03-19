@@ -22,7 +22,6 @@
 
 #include "wayland-test-client-utils.h"
 
-static WaylandDisplay *display;
 static struct wl_surface *toplevel_surface, *child_surface, *grandchild_surface;
 static struct wl_subsurface *child, *grandchild;
 static struct xdg_surface *xdg_surface;
@@ -75,7 +74,7 @@ static const struct xdg_toplevel_listener xdg_toplevel_listener = {
 };
 
 static void
-draw_toplevel (void)
+draw_toplevel (WaylandDisplay *display)
 {
   draw_surface (display, toplevel_surface,
                 window_width, window_height,
@@ -97,7 +96,7 @@ static const struct xdg_surface_listener xdg_surface_listener = {
 };
 
 static void
-draw_child (void)
+draw_child (WaylandDisplay *display)
 {
   draw_surface (display, child_surface,
                 window_width / 2, window_height / 2,
@@ -105,7 +104,7 @@ draw_child (void)
 }
 
 static void
-draw_grandchild (void)
+draw_grandchild (WaylandDisplay *display)
 {
   draw_surface (display, grandchild_surface,
                 window_width / 2, window_height / 2,
@@ -113,7 +112,7 @@ draw_grandchild (void)
 }
 
 static void
-wait_for_configure (void)
+wait_for_configure (WaylandDisplay *display)
 {
   waiting_for_configure = TRUE;
   while (waiting_for_configure || window_width == 0)
@@ -127,6 +126,7 @@ int
 main (int    argc,
       char **argv)
 {
+  g_autoptr (WaylandDisplay) display = NULL;
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER);
 
   toplevel_surface = wl_compositor_create_surface (display->compositor);
@@ -138,9 +138,9 @@ main (int    argc,
 
   xdg_toplevel_set_fullscreen (xdg_toplevel, NULL);
   wl_surface_commit (toplevel_surface);
-  wait_for_configure ();
+  wait_for_configure (display);
 
-  draw_toplevel ();
+  draw_toplevel (display);
   wl_surface_commit (toplevel_surface);
   wait_for_effects_completed (display, toplevel_surface);
 
@@ -148,7 +148,7 @@ main (int    argc,
   child = wl_subcompositor_get_subsurface (display->subcompositor,
                                            child_surface,
                                            toplevel_surface);
-  draw_child ();
+  draw_child (display);
   wl_surface_commit (child_surface);
   /* No toplevel commit → sub-surface must not be mapped yet */
   wait_for_view_verified (display, 0);
@@ -174,7 +174,7 @@ main (int    argc,
   /* Toplevel commit → sub-surface must be unmapped */
   wait_for_view_verified (display, 5);
 
-  draw_child ();
+  draw_child (display);
   wl_surface_commit (child_surface);
   wl_subsurface_set_desync (child);
   wl_surface_attach (child_surface, NULL, 0, 0);
@@ -182,7 +182,7 @@ main (int    argc,
   /* Desync sub-surface must have been unmapped */
   wait_for_view_verified (display, 6);
 
-  draw_child ();
+  draw_child (display);
   wl_surface_commit (child_surface);
   wl_subsurface_set_sync (child);
   wl_subsurface_destroy (child);
@@ -192,7 +192,7 @@ main (int    argc,
   child = wl_subcompositor_get_subsurface (display->subcompositor,
                                            child_surface,
                                            toplevel_surface);
-  draw_child ();
+  draw_child (display);
   wl_surface_commit (child_surface);
   /* No toplevel commit → sub-surface must not be mapped yet */
   wait_for_view_verified (display, 8);
@@ -209,7 +209,7 @@ main (int    argc,
   child = wl_subcompositor_get_subsurface (display->subcompositor,
                                            child_surface,
                                            toplevel_surface);
-  draw_child ();
+  draw_child (display);
   wl_surface_commit (child_surface);
   wl_surface_commit (toplevel_surface);
   /* New sub-surface → placement below toplevel must not have taken effect */
@@ -219,7 +219,7 @@ main (int    argc,
   grandchild = wl_subcompositor_get_subsurface (display->subcompositor,
                                                 grandchild_surface,
                                                 child_surface);
-  draw_grandchild ();
+  draw_grandchild (display);
   wl_subsurface_set_position (grandchild, window_width / 4, window_height / 4);
   wl_surface_commit (grandchild_surface);
   wl_surface_commit (child_surface);
@@ -236,15 +236,13 @@ main (int    argc,
   grandchild = wl_subcompositor_get_subsurface (display->subcompositor,
                                                 grandchild_surface,
                                                 child_surface);
-  draw_grandchild ();
+  draw_grandchild (display);
   wl_subsurface_set_position (grandchild, window_width / 4, window_height / 4);
   wl_surface_commit (grandchild_surface);
   wl_surface_commit (child_surface);
   wl_surface_commit (toplevel_surface);
   /* New grandchild must be placed above its parent */
   wait_for_view_verified (display, 14);
-
-  g_clear_object (&display);
 
   return EXIT_SUCCESS;
 }

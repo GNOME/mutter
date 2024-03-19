@@ -24,8 +24,6 @@
 #include "xdg-foreign-unstable-v1-client-protocol.h"
 #include "xdg-foreign-unstable-v2-client-protocol.h"
 
-static WaylandDisplay *display;
-
 static struct zxdg_exporter_v1 *exporter_v1;
 static struct zxdg_exporter_v2 *exporter_v2;
 static struct zxdg_importer_v1 *importer_v1;
@@ -130,10 +128,11 @@ int
 main (int    argc,
       char **argv)
 {
-  g_autoptr (WaylandSurface) window1;
-  g_autoptr (WaylandSurface) window2;
-  g_autoptr (WaylandSurface) window3;
-  g_autoptr (WaylandSurface) window4;
+  g_autoptr (WaylandSurface) window1 = NULL;
+  g_autoptr (WaylandSurface) window2 = NULL;
+  g_autoptr (WaylandSurface) window3 = NULL;
+  g_autoptr (WaylandSurface) window4 = NULL;
+  g_autoptr (WaylandDisplay) display = NULL;
   g_autofree char *handle1 = NULL;
   g_autofree char *handle3 = NULL;
   struct wl_registry *registry;
@@ -221,8 +220,6 @@ main (int    argc,
       if (wl_display_dispatch (display->display) == -1)
         return EXIT_FAILURE;
     }
-
-  g_object_unref (display);
 
   return EXIT_SUCCESS;
 }

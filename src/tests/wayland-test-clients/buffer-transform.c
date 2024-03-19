@@ -22,7 +22,6 @@
 
 #include "wayland-test-client-utils.h"
 
-static WaylandDisplay *display;
 static struct wl_surface *surface;
 static struct xdg_surface *xdg_surface;
 static struct xdg_toplevel *xdg_toplevel;
@@ -88,7 +87,8 @@ static const struct xdg_surface_listener xdg_surface_listener = {
 };
 
 static void
-draw_main (gboolean rotated)
+draw_main (WaylandDisplay *display,
+           gboolean        rotated)
 {
   static uint32_t color0 = 0xffffffff;
   static uint32_t color1 = 0xff00ffff;
@@ -139,7 +139,7 @@ draw_main (gboolean rotated)
 }
 
 static void
-wait_for_configure (void)
+wait_for_configure (WaylandDisplay *display)
 {
   waiting_for_configure = TRUE;
   while (waiting_for_configure || window_width == 0)
@@ -153,6 +153,7 @@ int
 main (int    argc,
       char **argv)
 {
+  g_autoptr (WaylandDisplay) display = NULL;
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER);
 
   surface = wl_compositor_create_surface (display->compositor);
@@ -163,9 +164,9 @@ main (int    argc,
 
   xdg_toplevel_set_fullscreen(xdg_toplevel, NULL);
   wl_surface_commit (surface);
-  wait_for_configure ();
+  wait_for_configure (display);
 
-  draw_main (FALSE);
+  draw_main (display, FALSE);
   wl_surface_commit (surface);
   wait_for_effects_completed (display, surface);
 
@@ -185,7 +186,7 @@ main (int    argc,
   wl_surface_commit (surface);
   wait_for_view_verified (display, 3);
 
-  draw_main (TRUE);
+  draw_main (display, TRUE);
   wl_surface_set_buffer_transform (surface, WL_OUTPUT_TRANSFORM_90);
   wl_surface_commit (surface);
   wait_for_view_verified (display, 4);
@@ -201,8 +202,6 @@ main (int    argc,
   wl_surface_set_buffer_transform (surface, WL_OUTPUT_TRANSFORM_FLIPPED_270);
   wl_surface_commit (surface);
   wait_for_view_verified (display, 7);
-
-  g_clear_object (&display);
 
   return EXIT_SUCCESS;
 }

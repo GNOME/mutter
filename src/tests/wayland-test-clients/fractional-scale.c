@@ -23,7 +23,6 @@
 
 #include "wayland-test-client-utils.h"
 
-static WaylandDisplay *display;
 static struct wl_surface *surface;
 static struct xdg_surface *xdg_surface;
 static struct xdg_toplevel *xdg_toplevel;
@@ -43,6 +42,8 @@ handle_frame_callback (void               *data,
                        struct wl_callback *callback,
                        uint32_t            time)
 {
+  WaylandDisplay *display = data;
+
   wl_callback_destroy (callback);
   test_driver_sync_point (display->test_driver, sync_point++, NULL);
 }
@@ -52,7 +53,7 @@ static const struct wl_callback_listener frame_listener = {
 };
 
 static void
-maybe_redraw (void)
+maybe_redraw (WaylandDisplay *display)
 {
   struct wl_callback *callback;
   uint32_t buffer_width;
@@ -72,7 +73,7 @@ maybe_redraw (void)
   wp_viewport_set_destination (viewport, logical_width, logical_height);
 
   callback = wl_surface_frame (surface);
-  wl_callback_add_listener (callback, &frame_listener, NULL);
+  wl_callback_add_listener (callback, &frame_listener, display);
 
   wl_surface_commit (surface);
 
@@ -112,10 +113,11 @@ handle_xdg_surface_configure (void               *data,
                               struct xdg_surface *xdg_surface,
                               uint32_t            serial)
 {
+  WaylandDisplay *display = data;
   xdg_surface_ack_configure (xdg_surface, serial);
   waiting_for_configure = FALSE;
 
-  maybe_redraw ();
+  maybe_redraw (display);
 }
 
 static const struct xdg_surface_listener xdg_surface_listener = {
@@ -126,6 +128,7 @@ static void handle_preferred_scale (void                          *data,
                                     struct wp_fractional_scale_v1 *fractional_scale_obj,
                                     uint32_t                       wire_scale)
 {
+  WaylandDisplay *display = data;
   float new_fractional_buffer_scale;
 
   new_fractional_buffer_scale = wire_scale / 120.0;
@@ -136,7 +139,7 @@ static void handle_preferred_scale (void                          *data,
 
   fractional_buffer_scale = new_fractional_buffer_scale;
   waiting_for_scale = FALSE;
-  maybe_redraw ();
+  maybe_redraw (display);
 }
 
 static const struct wp_fractional_scale_v1_listener fractional_scale_listener = {
@@ -147,11 +150,12 @@ int
 main (int    argc,
       char **argv)
 {
+  g_autoptr (WaylandDisplay) display = NULL;
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER);
 
   surface = wl_compositor_create_surface (display->compositor);
   xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, surface);
-  xdg_surface_add_listener (xdg_surface, &xdg_surface_listener, NULL);
+  xdg_surface_add_listener (xdg_surface, &xdg_surface_listener, display);
   xdg_toplevel = xdg_surface_get_toplevel (xdg_surface);
   xdg_toplevel_add_listener (xdg_toplevel, &xdg_toplevel_listener, NULL);
   xdg_toplevel_set_title (xdg_toplevel, "fractional-scale");
@@ -163,7 +167,7 @@ main (int    argc,
                                                          surface);
   wp_fractional_scale_v1_add_listener (fractional_scale_obj,
                                        &fractional_scale_listener,
-                                       NULL);
+                                       display);
 
   wl_surface_commit (surface);
 

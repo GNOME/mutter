@@ -23,7 +23,6 @@
 
 #include "wayland-test-client-utils.h"
 
-static WaylandDisplay *display;
 static struct wl_registry *registry;
 static struct wl_seat *seat;
 static struct wl_pointer *pointer;
@@ -40,19 +39,19 @@ static struct wl_surface *subsurface_surface;
 static struct wl_subsurface *subsurface;
 
 static void
-draw_main (void)
+draw_main (WaylandDisplay *display)
 {
   draw_surface (display, toplevel_surface, 200, 200, 0xff00ffff);
 }
 
 static void
-draw_popup (void)
+draw_popup (WaylandDisplay *display)
 {
   draw_surface (display, popup_surface, 100, 100, 0xff005500);
 }
 
 static void
-draw_subsurface (void)
+draw_subsurface (WaylandDisplay *display)
 {
   draw_surface (display, subsurface_surface, 100, 50, 0xff001f00);
 }
@@ -83,8 +82,10 @@ handle_toplevel_xdg_surface_configure (void               *data,
                                        struct xdg_surface *xdg_surface,
                                        uint32_t            serial)
 {
+  WaylandDisplay *display = data;
+
   xdg_surface_ack_configure (xdg_surface, serial);
-  draw_main ();
+  draw_main (display);
   wl_surface_commit (toplevel_surface);
   wl_display_flush (display->display);
 }
@@ -125,6 +126,8 @@ handle_popup_frame_callback (void               *data,
                              struct wl_callback *callback,
                              uint32_t            time)
 {
+  WaylandDisplay *display = data;
+
   wl_callback_destroy (callback);
   test_driver_sync_point (display->test_driver, 0, popup_surface);
 }
@@ -138,16 +141,17 @@ handle_popup_xdg_surface_configure (void               *data,
                                     struct xdg_surface *xdg_surface,
                                     uint32_t            serial)
 {
+  WaylandDisplay *display = data;
   struct wl_callback *frame_callback;
 
-  draw_popup ();
+  draw_popup (display);
 
-  draw_subsurface ();
+  draw_subsurface (display);
   wl_surface_commit (subsurface_surface);
 
   xdg_surface_ack_configure (xdg_surface, serial);
   frame_callback = wl_surface_frame (popup_surface);
-  wl_callback_add_listener (frame_callback, &frame_listener, NULL);
+  wl_callback_add_listener (frame_callback, &frame_listener, display);
   wl_surface_commit (popup_surface);
   wl_display_flush (display->display);
 }
@@ -164,6 +168,7 @@ pointer_handle_button (void              *data,
                        uint32_t           button,
                        uint32_t           state)
 {
+  WaylandDisplay *display = data;
   struct xdg_positioner *positioner;
   static int click_count = 0;
 
@@ -174,7 +179,7 @@ pointer_handle_button (void              *data,
   popup_xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base,
                                                    popup_surface);
   xdg_surface_add_listener (popup_xdg_surface,
-                            &popup_xdg_surface_listener, NULL);
+                            &popup_xdg_surface_listener, display);
   positioner = xdg_wm_base_create_positioner (display->xdg_wm_base);
   xdg_positioner_set_size (positioner, 100, 100);
   xdg_positioner_set_anchor_rect (positioner, 0, 0, 1, 1);
@@ -219,10 +224,12 @@ seat_handle_capabilities (void                    *data,
                           struct wl_seat          *wl_seat,
                           enum wl_seat_capability  caps)
 {
+  WaylandDisplay *display = data;
+
   if (caps & WL_SEAT_CAPABILITY_POINTER)
     {
       pointer = wl_seat_get_pointer (wl_seat);
-      wl_pointer_add_listener (pointer, &pointer_listener, NULL);
+      wl_pointer_add_listener (pointer, &pointer_listener, display);
     }
 }
 
@@ -263,10 +270,12 @@ handle_registry_global (void               *data,
                         const char         *interface,
                         uint32_t            version)
 {
+  WaylandDisplay *display = data;
+
   if (strcmp (interface, "wl_seat") == 0)
     {
       seat = wl_registry_bind (registry, id, &wl_seat_interface, 1);
-      wl_seat_add_listener (seat, &seat_listener, NULL);
+      wl_seat_add_listener (seat, &seat_listener, display);
     }
 }
 
@@ -286,12 +295,13 @@ int
 main (int    argc,
       char **argv)
 {
+  g_autoptr (WaylandDisplay) display = NULL;
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER);
 
   g_signal_connect (display, "sync-event", G_CALLBACK (on_sync_event), NULL);
 
   registry = wl_display_get_registry (display->display);
-  wl_registry_add_listener (registry, &registry_listener, NULL);
+  wl_registry_add_listener (registry, &registry_listener, display);
   wl_display_roundtrip (display->display);
   wl_display_roundtrip (display->display);
 
@@ -311,7 +321,7 @@ main (int    argc,
   toplevel_xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base,
                                                       toplevel_surface);
   xdg_surface_add_listener (toplevel_xdg_surface,
-                            &toplevel_xdg_surface_listener, NULL);
+                            &toplevel_xdg_surface_listener, display);
   xdg_toplevel = xdg_surface_get_toplevel (toplevel_xdg_surface);
   xdg_toplevel_add_listener (xdg_toplevel, &xdg_toplevel_listener, NULL);
   xdg_toplevel_set_title (xdg_toplevel, "subsurface-parent-unmapped");
@@ -330,8 +340,6 @@ main (int    argc,
       if (wl_display_dispatch (display->display) == -1)
         return EXIT_FAILURE;
     }
-
-  g_clear_object (&display);
 
   return EXIT_SUCCESS;
 }

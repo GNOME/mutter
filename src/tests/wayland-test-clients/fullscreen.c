@@ -24,8 +24,6 @@
 
 #include "wayland-test-client-utils.h"
 
-static WaylandDisplay *display;
-
 static struct wl_surface *surface;
 static struct xdg_surface *xdg_surface;
 static struct xdg_toplevel *xdg_toplevel;
@@ -58,6 +56,8 @@ handle_xdg_surface_configure (void               *data,
                               struct xdg_surface *xdg_surface,
                               uint32_t            serial)
 {
+  WaylandDisplay *display = data;
+
   draw_surface (display, surface, 10, 10, 0x1f109f20);
   xdg_surface_ack_configure (xdg_surface, serial);
   wl_surface_commit (surface);
@@ -81,12 +81,13 @@ int
 main (int    argc,
       char **argv)
 {
+  g_autoptr (WaylandDisplay) display = NULL;
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER);
   g_signal_connect (display, "sync-event", G_CALLBACK (on_sync_event), NULL);
 
   surface = wl_compositor_create_surface (display->compositor);
   xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, surface);
-  xdg_surface_add_listener (xdg_surface, &xdg_surface_listener, NULL);
+  xdg_surface_add_listener (xdg_surface, &xdg_surface_listener, display);
   xdg_toplevel = xdg_surface_get_toplevel (xdg_surface);
   xdg_toplevel_add_listener (xdg_toplevel, &xdg_toplevel_listener, NULL);
   xdg_toplevel_set_title (xdg_toplevel, "fullscreen");

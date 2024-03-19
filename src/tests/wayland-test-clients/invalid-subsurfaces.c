@@ -24,33 +24,16 @@
 
 #include "wayland-test-client-utils.h"
 
-static WaylandDisplay *display;
-
-static void
-connect_to_display (void)
-{
-  g_assert_null (display);
-
-  display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_NONE);
-  g_assert_nonnull (display);
-}
-
-static void
-clean_up_display (void)
-{
-  g_clear_object (&display);
-}
-
 static void
 test_circular_subsurfaces1 (void)
 {
+  g_autoptr (WaylandDisplay) display = NULL;
   struct wl_surface *surface1;
   struct wl_subsurface *subsurface1;
   struct wl_surface *surface2;
   struct wl_subsurface *subsurface2;
 
-  connect_to_display ();
-
+  display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_NONE);
   surface1 = wl_compositor_create_surface (display->compositor);
   surface2 = wl_compositor_create_surface (display->compositor);
   g_assert_nonnull (surface1);
@@ -66,13 +49,12 @@ test_circular_subsurfaces1 (void)
   g_assert_nonnull (subsurface2);
 
   g_assert_cmpint (wl_display_roundtrip (display->display), ==, -1);
-
-  clean_up_display ();
 }
 
 static void
 test_circular_subsurfaces2 (void)
 {
+  g_autoptr (WaylandDisplay) display = NULL;
   struct wl_surface *surface1;
   struct wl_subsurface *subsurface1;
   struct wl_surface *surface2;
@@ -80,7 +62,7 @@ test_circular_subsurfaces2 (void)
   struct wl_surface *surface3;
   struct wl_subsurface *subsurface3;
 
-  connect_to_display ();
+  display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_NONE);
 
   surface1 = wl_compositor_create_surface (display->compositor);
   surface2 = wl_compositor_create_surface (display->compositor);
@@ -103,8 +85,6 @@ test_circular_subsurfaces2 (void)
   g_assert_nonnull (subsurface3);
 
   g_assert_cmpint (wl_display_roundtrip (display->display), ==, -1);
-
-  clean_up_display ();
 }
 
 int

@@ -24,7 +24,6 @@
 
 #include "idle-inhibit-unstable-v1-client-protocol.h"
 
-static WaylandDisplay *display;
 struct zwp_idle_inhibit_manager_v1 *idle_inhibit_manager;
 
 static void
@@ -59,7 +58,8 @@ main (int    argc,
       char **argv)
 {
   struct wl_registry *registry;
-  WaylandSurface *surface;
+  g_autoptr (WaylandSurface) surface;
+  g_autoptr (WaylandDisplay) display = NULL;
   struct zwp_idle_inhibitor_v1 *inhibitor;
 
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER);
