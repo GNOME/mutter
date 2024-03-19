@@ -124,7 +124,6 @@ if have_clutter_tests
   subdir('clutter')
 endif
 
-subdir('protocol')
 subdir('drm-mock')
 subdir('wayland-test-clients')
 
