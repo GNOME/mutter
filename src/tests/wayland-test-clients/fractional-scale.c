@@ -24,10 +24,7 @@
 #include "wayland-test-client-utils.h"
 
 static struct wl_surface *wl_surface;
-static struct xdg_surface *test_xdg_surface;
-static struct xdg_toplevel *test_xdg_toplevel;
 static struct wp_viewport *viewport;
-static struct wp_fractional_scale_v1 *fractional_scale_obj;
 
 static gboolean running;
 static gboolean waiting_for_configure;
@@ -151,15 +148,19 @@ main (int    argc,
       char **argv)
 {
   g_autoptr (WaylandDisplay) display;
+  struct xdg_toplevel *xdg_toplevel;
+  struct xdg_surface *xdg_surface;
+  struct wp_fractional_scale_v1 *fractional_scale_obj;
+
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER);
 
   wl_surface = wl_compositor_create_surface (display->compositor);
-  test_xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, wl_surface);
-  xdg_surface_add_listener (test_xdg_surface, &xdg_surface_listener, display);
-  test_xdg_toplevel = xdg_surface_get_toplevel (test_xdg_surface);
-  xdg_toplevel_add_listener (test_xdg_toplevel, &xdg_toplevel_listener, NULL);
-  xdg_toplevel_set_title (test_xdg_toplevel, "fractional-scale");
-  xdg_toplevel_set_fullscreen (test_xdg_toplevel, NULL);
+  xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, wl_surface);
+  xdg_surface_add_listener (xdg_surface, &xdg_surface_listener, display);
+  xdg_toplevel = xdg_surface_get_toplevel (xdg_surface);
+  xdg_toplevel_add_listener (xdg_toplevel, &xdg_toplevel_listener, NULL);
+  xdg_toplevel_set_title (xdg_toplevel, "fractional-scale");
+  xdg_toplevel_set_fullscreen (xdg_toplevel, NULL);
 
   viewport = wp_viewporter_get_viewport (display->viewporter, wl_surface);
   fractional_scale_obj =

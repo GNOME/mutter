@@ -23,20 +23,17 @@
 
 #include "wayland-test-client-utils.h"
 
-static struct wl_registry *wl_registry;
 static struct wl_seat *wl_seat;
 static struct wl_pointer *wl_pointer;
 
 static struct wl_surface *toplevel_surface;
 static struct xdg_surface *toplevel_xdg_surface;
-static struct xdg_toplevel *test_xdg_toplevel;
 
 static struct wl_surface *popup_surface;
 static struct xdg_surface *popup_xdg_surface;
 static struct xdg_popup *xdg_popup;
 
 static struct wl_surface *subsurface_surface;
-static struct wl_subsurface *subsurface;
 
 static void
 draw_main (WaylandDisplay *display)
@@ -296,6 +293,10 @@ main (int    argc,
       char **argv)
 {
   g_autoptr (WaylandDisplay) display;
+  struct wl_registry *wl_registry;
+  struct xdg_toplevel *xdg_toplevel;
+  struct wl_subsurface *subsurface;
+
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER);
 
   g_signal_connect (display, "sync-event", G_CALLBACK (on_sync_event), NULL);
@@ -322,9 +323,9 @@ main (int    argc,
                                                       toplevel_surface);
   xdg_surface_add_listener (toplevel_xdg_surface,
                             &toplevel_xdg_surface_listener, display);
-  test_xdg_toplevel = xdg_surface_get_toplevel (toplevel_xdg_surface);
-  xdg_toplevel_add_listener (test_xdg_toplevel, &xdg_toplevel_listener, NULL);
-  xdg_toplevel_set_title (test_xdg_toplevel, "subsurface-parent-unmapped");
+  xdg_toplevel = xdg_surface_get_toplevel (toplevel_xdg_surface);
+  xdg_toplevel_add_listener (xdg_toplevel, &xdg_toplevel_listener, NULL);
+  xdg_toplevel_set_title (xdg_toplevel, "subsurface-parent-unmapped");
   wl_surface_commit (toplevel_surface);
 
   popup_surface = wl_compositor_create_surface (display->compositor);

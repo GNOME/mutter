@@ -22,12 +22,7 @@
 
 #include "wayland-test-client-utils.h"
 
-static struct wl_surface *wl_surface;
-static struct xdg_surface *test_xdg_surface;
-static struct xdg_toplevel *test_xdg_toplevel;
 static struct wl_buffer *buffer;
-static struct wl_surface *subsurface_surface;
-static struct wl_subsurface *subsurface;
 
 static gboolean waiting_for_configure = FALSE;
 static gboolean fullscreen = 0;
@@ -129,16 +124,21 @@ main (int    argc,
   g_autoptr (WaylandDisplay) display;
   struct wp_viewport *viewport;
   struct wp_viewport *subsurface_viewport;
+  struct xdg_toplevel *xdg_toplevel;
+  struct xdg_surface *xdg_surface;
+  struct wl_surface *subsurface_surface;
+  struct wl_subsurface *subsurface;
+  struct wl_surface *wl_surface;
 
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER);
 
   wl_surface = wl_compositor_create_surface (display->compositor);
-  test_xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, wl_surface);
-  xdg_surface_add_listener (test_xdg_surface, &xdg_surface_listener, NULL);
-  test_xdg_toplevel = xdg_surface_get_toplevel (test_xdg_surface);
-  xdg_toplevel_add_listener (test_xdg_toplevel, &xdg_toplevel_listener, NULL);
+  xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, wl_surface);
+  xdg_surface_add_listener (xdg_surface, &xdg_surface_listener, NULL);
+  xdg_toplevel = xdg_surface_get_toplevel (xdg_surface);
+  xdg_toplevel_add_listener (xdg_toplevel, &xdg_toplevel_listener, NULL);
 
-  xdg_toplevel_set_fullscreen (test_xdg_toplevel, NULL);
+  xdg_toplevel_set_fullscreen (xdg_toplevel, NULL);
   wl_surface_commit (wl_surface);
   wait_for_configure (display);
 

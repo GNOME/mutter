@@ -23,15 +23,13 @@
 #include "wayland-test-client-utils.h"
 
 static struct wl_surface *wl_surface;
-static struct xdg_surface *test_xdg_surface;
-static struct xdg_toplevel *test_xdg_toplevel;
 
 static gboolean running;
 
 static void
-init_surface (void)
+init_surface (struct xdg_toplevel *xdg_toplevel)
 {
-  xdg_toplevel_set_title (test_xdg_toplevel, "bogus window geometry");
+  xdg_toplevel_set_title (xdg_toplevel, "bogus window geometry");
   wl_surface_commit (wl_surface);
 }
 
@@ -91,15 +89,18 @@ static void
 test_empty_window_geometry (void)
 {
   g_autoptr (WaylandDisplay) display;
+  struct xdg_toplevel *xdg_toplevel;
+  struct xdg_surface *xdg_surface;
+
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_NONE);
 
   wl_surface = wl_compositor_create_surface (display->compositor);
-  test_xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, wl_surface);
-  xdg_surface_add_listener (test_xdg_surface, &xdg_surface_listener, display);
-  test_xdg_toplevel = xdg_surface_get_toplevel (test_xdg_surface);
-  xdg_toplevel_add_listener (test_xdg_toplevel, &xdg_toplevel_listener, NULL);
+  xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, wl_surface);
+  xdg_surface_add_listener (xdg_surface, &xdg_surface_listener, display);
+  xdg_toplevel = xdg_surface_get_toplevel (xdg_surface);
+  xdg_toplevel_add_listener (xdg_toplevel, &xdg_toplevel_listener, NULL);
 
-  init_surface ();
+  init_surface (xdg_toplevel);
 
   running = TRUE;
   while (running)
@@ -108,8 +109,8 @@ test_empty_window_geometry (void)
         return;
     }
 
-  g_clear_pointer (&test_xdg_toplevel, xdg_toplevel_destroy);
-  g_clear_pointer (&test_xdg_surface, xdg_surface_destroy);
+  g_clear_pointer (&xdg_toplevel, xdg_toplevel_destroy);
+  g_clear_pointer (&xdg_surface, xdg_surface_destroy);
 }
 
 int

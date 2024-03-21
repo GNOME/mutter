@@ -33,10 +33,8 @@ typedef enum _State
 } State;
 
 static struct wl_surface *wl_surface;
-static struct xdg_surface *test_xdg_surface;
 static struct xdg_toplevel *test_xdg_toplevel;
 
-static struct wl_surface *subsurface_surface;
 static struct wl_subsurface *subsurface;
 
 static struct wl_callback *frame_callback;
@@ -90,7 +88,8 @@ draw_main (WaylandDisplay *display)
 }
 
 static void
-draw_subsurface (WaylandDisplay *display)
+draw_subsurface (WaylandDisplay    *display,
+                 struct wl_surface *subsurface_surface)
 {
   draw_surface (display, subsurface_surface, 500, 300, 0xff007f00);
 }
@@ -186,12 +185,15 @@ main (int    argc,
       char **argv)
 {
   g_autoptr (WaylandDisplay) display;
+  struct xdg_surface *xdg_surface;
+  struct wl_surface *subsurface_surface;
+
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER);
 
   wl_surface = wl_compositor_create_surface (display->compositor);
-  test_xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, wl_surface);
-  xdg_surface_add_listener (test_xdg_surface, &xdg_surface_listener, display);
-  test_xdg_toplevel = xdg_surface_get_toplevel (test_xdg_surface);
+  xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, wl_surface);
+  xdg_surface_add_listener (xdg_surface, &xdg_surface_listener, display);
+  test_xdg_toplevel = xdg_surface_get_toplevel (xdg_surface);
   xdg_toplevel_add_listener (test_xdg_toplevel, &xdg_toplevel_listener, NULL);
 
   subsurface_surface = wl_compositor_create_surface (display->compositor);
@@ -199,7 +201,7 @@ main (int    argc,
                                                 subsurface_surface,
                                                 wl_surface);
   wl_subsurface_set_position (subsurface, 100, 100);
-  draw_subsurface (display);
+  draw_subsurface (display, subsurface_surface);
   wl_surface_commit (subsurface_surface);
 
   init_surface ();

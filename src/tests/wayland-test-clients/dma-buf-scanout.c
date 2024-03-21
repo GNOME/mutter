@@ -56,8 +56,6 @@ typedef enum
 } WindowState;
 
 static struct wl_surface *wl_surface;
-static struct xdg_surface *test_xdg_surface;
-static struct xdg_toplevel *test_xdg_toplevel;
 
 static GList *active_buffers;
 
@@ -82,10 +80,10 @@ static const struct wl_buffer_listener buffer_listener = {
 };
 
 static void
-init_surface (void)
+init_surface (struct xdg_toplevel *xdg_toplevel)
 {
-  xdg_toplevel_set_title (test_xdg_toplevel, "dma-buf-scanout-test");
-  xdg_toplevel_set_fullscreen (test_xdg_toplevel, NULL);
+  xdg_toplevel_set_title (xdg_toplevel, "dma-buf-scanout-test");
+  xdg_toplevel_set_fullscreen (xdg_toplevel, NULL);
   wl_surface_commit (wl_surface);
 }
 
@@ -226,18 +224,21 @@ main (int    argc,
       char **argv)
 {
   g_autoptr (WaylandDisplay) display;
+  struct xdg_toplevel *xdg_toplevel;
+  struct xdg_surface *xdg_surface;
+
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER);
   g_signal_connect (display, "sync-event", G_CALLBACK (on_sync_event), NULL);
   wl_display_roundtrip (display->display);
   g_assert_nonnull (display->gbm_device);
 
   wl_surface = wl_compositor_create_surface (display->compositor);
-  test_xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, wl_surface);
-  xdg_surface_add_listener (test_xdg_surface, &xdg_surface_listener, display);
-  test_xdg_toplevel = xdg_surface_get_toplevel (test_xdg_surface);
-  xdg_toplevel_add_listener (test_xdg_toplevel, &xdg_toplevel_listener, display);
+  xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, wl_surface);
+  xdg_surface_add_listener (xdg_surface, &xdg_surface_listener, display);
+  xdg_toplevel = xdg_surface_get_toplevel (xdg_surface);
+  xdg_toplevel_add_listener (xdg_toplevel, &xdg_toplevel_listener, display);
 
-  init_surface ();
+  init_surface (xdg_toplevel);
 
   running = TRUE;
   while (running)

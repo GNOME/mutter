@@ -24,19 +24,17 @@
 
 #include "xdg-activation-v1-client-protocol.h"
 
-static struct wl_registry *wl_registry;
 static struct xdg_activation_v1 *activation;
 
 static struct wl_surface *wl_surface;
-static struct xdg_surface *test_xdg_surface;
-static struct xdg_toplevel *test_xdg_toplevel;
 
 static gboolean running;
 
 static void
-init_surface (const char *token)
+init_surface (struct xdg_toplevel *xdg_toplevel,
+              const char          *token)
 {
-  xdg_toplevel_set_title (test_xdg_toplevel, "startup notification client");
+  xdg_toplevel_set_title (xdg_toplevel, "startup notification client");
   xdg_activation_v1_activate (activation, token, wl_surface);
   wl_surface_commit (wl_surface);
 }
@@ -153,6 +151,10 @@ static void
 test_startup_notifications (void)
 {
   g_autoptr (WaylandDisplay) display;
+  struct wl_registry *wl_registry;
+  struct xdg_toplevel *xdg_toplevel;
+  struct xdg_surface *xdg_surface;
+
   g_autofree char *token = NULL;
 
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_NONE);
@@ -167,12 +169,12 @@ test_startup_notifications (void)
   token = get_token (display);
 
   wl_surface = wl_compositor_create_surface (display->compositor);
-  test_xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, wl_surface);
-  xdg_surface_add_listener (test_xdg_surface, &xdg_surface_listener, display);
-  test_xdg_toplevel = xdg_surface_get_toplevel (test_xdg_surface);
-  xdg_toplevel_add_listener (test_xdg_toplevel, &xdg_toplevel_listener, NULL);
+  xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, wl_surface);
+  xdg_surface_add_listener (xdg_surface, &xdg_surface_listener, display);
+  xdg_toplevel = xdg_surface_get_toplevel (xdg_surface);
+  xdg_toplevel_add_listener (xdg_toplevel, &xdg_toplevel_listener, NULL);
 
-  init_surface (token);
+  init_surface (xdg_toplevel, token);
 
   running = TRUE;
   while (running)
@@ -183,8 +185,8 @@ test_startup_notifications (void)
 
   wl_display_roundtrip (display->display);
 
-  g_clear_pointer (&test_xdg_toplevel, xdg_toplevel_destroy);
-  g_clear_pointer (&test_xdg_surface, xdg_surface_destroy);
+  g_clear_pointer (&xdg_toplevel, xdg_toplevel_destroy);
+  g_clear_pointer (&xdg_surface, xdg_surface_destroy);
   g_clear_pointer (&activation, xdg_activation_v1_destroy);
   g_clear_pointer (&wl_registry, wl_registry_destroy);
 }

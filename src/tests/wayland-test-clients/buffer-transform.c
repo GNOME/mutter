@@ -22,10 +22,6 @@
 
 #include "wayland-test-client-utils.h"
 
-static struct wl_surface *wl_surface;
-static struct xdg_surface *test_xdg_surface;
-static struct xdg_toplevel *test_xdg_toplevel;
-
 static gboolean waiting_for_configure = FALSE;
 static gboolean fullscreen = 0;
 static uint32_t window_width = 0;
@@ -87,8 +83,9 @@ static const struct xdg_surface_listener xdg_surface_listener = {
 };
 
 static void
-draw_main (WaylandDisplay *display,
-           gboolean        rotated)
+draw_main (WaylandDisplay    *display,
+           struct wl_surface *wl_surface,
+           gboolean           rotated)
 {
   static uint32_t color0 = 0xffffffff;
   static uint32_t color1 = 0xff00ffff;
@@ -154,19 +151,23 @@ main (int    argc,
       char **argv)
 {
   g_autoptr (WaylandDisplay) display;
+  struct xdg_toplevel *xdg_toplevel;
+  struct xdg_surface *xdg_surface;
+  struct wl_surface *wl_surface;
+
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER);
 
   wl_surface = wl_compositor_create_surface (display->compositor);
-  test_xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, wl_surface);
-  xdg_surface_add_listener (test_xdg_surface, &xdg_surface_listener, NULL);
-  test_xdg_toplevel = xdg_surface_get_toplevel (test_xdg_surface);
-  xdg_toplevel_add_listener (test_xdg_toplevel, &xdg_toplevel_listener, NULL);
+  xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, wl_surface);
+  xdg_surface_add_listener (xdg_surface, &xdg_surface_listener, NULL);
+  xdg_toplevel = xdg_surface_get_toplevel (xdg_surface);
+  xdg_toplevel_add_listener (xdg_toplevel, &xdg_toplevel_listener, NULL);
 
-  xdg_toplevel_set_fullscreen (test_xdg_toplevel, NULL);
+  xdg_toplevel_set_fullscreen (xdg_toplevel, NULL);
   wl_surface_commit (wl_surface);
   wait_for_configure (display);
 
-  draw_main (display, FALSE);
+  draw_main (display, wl_surface, FALSE);
   wl_surface_commit (wl_surface);
   wait_for_effects_completed (display, wl_surface);
 
@@ -186,7 +187,7 @@ main (int    argc,
   wl_surface_commit (wl_surface);
   wait_for_view_verified (display, 3);
 
-  draw_main (display, TRUE);
+  draw_main (display, wl_surface, TRUE);
   wl_surface_set_buffer_transform (wl_surface, WL_OUTPUT_TRANSFORM_90);
   wl_surface_commit (wl_surface);
   wait_for_view_verified (display, 4);
