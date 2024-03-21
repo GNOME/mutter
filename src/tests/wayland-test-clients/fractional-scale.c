@@ -24,10 +24,7 @@
 #include "wayland-test-client-utils.h"
 
 static struct wl_surface *surface;
-static struct xdg_surface *xdg_surface;
-static struct xdg_toplevel *xdg_toplevel;
 static struct wp_viewport *viewport;
-static struct wp_fractional_scale_v1 *fractional_scale_obj;
 
 static gboolean running;
 static gboolean waiting_for_configure;
@@ -151,6 +148,10 @@ main (int    argc,
       char **argv)
 {
   g_autoptr (WaylandDisplay) display = NULL;
+  struct xdg_toplevel *xdg_toplevel;
+  struct xdg_surface *xdg_surface;
+  struct wp_fractional_scale_v1 *fractional_scale_obj;
+
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER);
 
   surface = wl_compositor_create_surface (display->compositor);

@@ -32,11 +32,7 @@ typedef enum _State
 } State;
 
 static struct wl_surface *surface;
-static struct xdg_surface *xdg_surface;
 static struct xdg_toplevel *xdg_toplevel;
-
-static struct wl_surface *subsurface_surface;
-static struct wl_subsurface *subsurface;
 
 static struct wl_callback *frame_callback;
 
@@ -93,7 +89,8 @@ draw_main (WaylandDisplay *display)
 }
 
 static void
-draw_subsurface (WaylandDisplay *display)
+draw_subsurface (WaylandDisplay    *display,
+                 struct wl_surface *subsurface_surface)
 {
   draw_surface (display, subsurface_surface, 500, 300, 0xff007f00);
 }
@@ -192,6 +189,10 @@ main (int    argc,
       char **argv)
 {
   g_autoptr (WaylandDisplay) display = NULL;
+  struct xdg_surface *xdg_surface;
+  struct wl_surface *subsurface_surface;
+  struct wl_subsurface *subsurface;
+
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER);
 
   surface = wl_compositor_create_surface (display->compositor);
@@ -205,7 +206,7 @@ main (int    argc,
                                                 subsurface_surface,
                                                 surface);
   wl_subsurface_set_position (subsurface, 100, 100);
-  draw_subsurface (display);
+  draw_subsurface (display, subsurface_surface);
   wl_surface_commit (subsurface_surface);
 
   init_surface ();

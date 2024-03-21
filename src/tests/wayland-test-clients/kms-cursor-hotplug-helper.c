@@ -23,23 +23,19 @@
 
 #include "wayland-test-client-utils.h"
 
-static struct wl_registry *wl_registry;
 static struct wl_seat *wl_seat;
 static struct wl_pointer *wl_pointer;
 static uint32_t enter_serial;
 
 static struct wl_surface *surface;
-static struct xdg_surface *xdg_surface;
-static struct xdg_toplevel *xdg_toplevel;
 struct wl_surface *cursor_surface;
-struct wl_cursor_theme *cursor_theme;
 struct wl_cursor *cursor;
 struct wl_cursor *cursor2;
 
 static gboolean running;
 
 static void
-init_surface (void)
+init_surface (struct xdg_toplevel *xdg_toplevel)
 {
   xdg_toplevel_set_title (xdg_toplevel, "kms-cursor-hotplug-helper");
   wl_surface_commit (surface);
@@ -253,6 +249,11 @@ main (int    argc,
       char **argv)
 {
   g_autoptr (WaylandDisplay) display = NULL;
+  struct wl_registry *wl_registry;
+  struct xdg_toplevel *xdg_toplevel;
+  struct xdg_surface *xdg_surface;
+  struct wl_cursor_theme *cursor_theme;
+
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER);
   wl_registry = wl_display_get_registry (display->display);
   wl_registry_add_listener (wl_registry, &registry_listener, display);
@@ -273,7 +274,7 @@ main (int    argc,
   g_assert_nonnull (cursor);
   g_assert_nonnull (cursor2);
 
-  init_surface ();
+  init_surface (xdg_toplevel);
   wl_surface_commit (surface);
 
   running = TRUE;

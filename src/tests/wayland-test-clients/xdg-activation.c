@@ -24,17 +24,15 @@
 
 #include "xdg-activation-v1-client-protocol.h"
 
-static struct wl_registry *registry;
 static struct xdg_activation_v1 *activation;
 
 static struct wl_surface *surface;
-static struct xdg_surface *xdg_surface;
-static struct xdg_toplevel *xdg_toplevel;
 
 static gboolean running;
 
 static void
-init_surface (const char *token)
+init_surface (struct xdg_toplevel *xdg_toplevel,
+              const char          *token)
 {
   xdg_toplevel_set_title (xdg_toplevel, "startup notification client");
   xdg_activation_v1_activate (activation, token, surface);
@@ -153,6 +151,10 @@ static void
 test_startup_notifications (void)
 {
   g_autoptr (WaylandDisplay) display = NULL;
+  struct wl_registry *registry;
+  struct xdg_toplevel *xdg_toplevel;
+  struct xdg_surface *xdg_surface;
+
   g_autofree char *token = NULL;
 
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_NONE);
@@ -172,7 +174,7 @@ test_startup_notifications (void)
   xdg_toplevel = xdg_surface_get_toplevel (xdg_surface);
   xdg_toplevel_add_listener (xdg_toplevel, &xdg_toplevel_listener, NULL);
 
-  init_surface (token);
+  init_surface (xdg_toplevel, token);
 
   running = TRUE;
   while (running)

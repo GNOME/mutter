@@ -22,12 +22,7 @@
 
 #include "wayland-test-client-utils.h"
 
-static struct wl_surface *surface;
-static struct xdg_surface *xdg_surface;
-static struct xdg_toplevel *xdg_toplevel;
 static struct wl_buffer *buffer;
-static struct wl_surface *subsurface_surface;
-static struct wl_subsurface *subsurface;
 
 static gboolean waiting_for_configure = FALSE;
 static gboolean fullscreen = 0;
@@ -129,6 +124,11 @@ main (int    argc,
   g_autoptr (WaylandDisplay) display = NULL;
   struct wp_viewport *viewport;
   struct wp_viewport *subsurface_viewport;
+  struct xdg_toplevel *xdg_toplevel;
+  struct xdg_surface *xdg_surface;
+  struct wl_surface *subsurface_surface;
+  struct wl_subsurface *subsurface;
+  struct wl_surface *surface;
 
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER);
 

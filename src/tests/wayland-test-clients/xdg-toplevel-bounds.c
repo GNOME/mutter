@@ -30,8 +30,6 @@ typedef enum _State
 } State;
 
 static struct wl_surface *surface;
-static struct xdg_surface *xdg_surface;
-static struct xdg_toplevel *xdg_toplevel;
 
 static struct wl_callback *frame_callback;
 
@@ -42,7 +40,7 @@ static int32_t pending_bounds_width;
 static int32_t pending_bounds_height;
 
 static void
-init_surface (void)
+init_surface (struct xdg_toplevel *xdg_toplevel)
 {
   xdg_toplevel_set_title (xdg_toplevel, "toplevel-bounds-test");
   wl_surface_commit (surface);
@@ -159,6 +157,9 @@ main (int    argc,
       char **argv)
 {
   g_autoptr (WaylandDisplay) display = NULL;
+  struct xdg_toplevel *xdg_toplevel;
+  struct xdg_surface *xdg_surface;
+
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER |
                                  WAYLAND_DISPLAY_CAPABILITY_XDG_SHELL_V4);
   g_signal_connect (display, "sync-event", G_CALLBACK (on_sync_event), NULL);
@@ -169,7 +170,7 @@ main (int    argc,
   xdg_toplevel = xdg_surface_get_toplevel (xdg_surface);
   xdg_toplevel_add_listener (xdg_toplevel, &xdg_toplevel_listener, NULL);
 
-  init_surface ();
+  init_surface (xdg_toplevel);
   state = STATE_WAIT_FOR_CONFIGURE_1;
 
   wl_surface_commit (surface);
