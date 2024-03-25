@@ -128,11 +128,11 @@ int
 main (int    argc,
       char **argv)
 {
+  g_autoptr (WaylandDisplay) display = NULL;
   g_autoptr (WaylandSurface) window1 = NULL;
   g_autoptr (WaylandSurface) window2 = NULL;
   g_autoptr (WaylandSurface) window3 = NULL;
   g_autoptr (WaylandSurface) window4 = NULL;
-  g_autoptr (WaylandDisplay) display = NULL;
   g_autofree char *handle1 = NULL;
   g_autofree char *handle3 = NULL;
   struct wl_registry *registry;

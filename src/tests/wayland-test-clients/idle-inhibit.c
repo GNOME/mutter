@@ -58,8 +58,8 @@ main (int    argc,
       char **argv)
 {
   struct wl_registry *registry;
-  g_autoptr (WaylandSurface) surface;
   g_autoptr (WaylandDisplay) display = NULL;
+  g_autoptr (WaylandSurface) surface = NULL;
   struct zwp_idle_inhibitor_v1 *inhibitor;
 
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER);

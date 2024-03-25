@@ -62,6 +62,8 @@ G_DECLARE_FINAL_TYPE (WaylandDisplay, wayland_display,
 
 typedef struct _WaylandSurface
 {
+  GObject parent;
+
   WaylandDisplay *display;
 
   struct wl_surface *wl_surface;
