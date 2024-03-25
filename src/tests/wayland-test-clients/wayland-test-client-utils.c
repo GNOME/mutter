@@ -426,6 +426,13 @@ wayland_display_new (WaylandDisplayCapabilities capabilities)
                                    wl_display_connect (NULL));
 }
 
+void
+wayland_display_dispatch (WaylandDisplay *display)
+{
+  if (wl_display_dispatch (display->display) == -1)
+    g_error ("wl_display_dispatch failed");
+}
+
 static void
 wayland_display_finalize (GObject *object)
 {
@@ -632,10 +639,7 @@ wait_for_effects_completed (WaylandDisplay    *display,
                             NULL);
 
   while (effects_complete_callback)
-    {
-      if (wl_display_dispatch (display->display) == -1)
-        g_error ("%s: Failed to dispatch Wayland display", __func__);
-    }
+    wayland_display_dispatch (display);
 }
 
 static void
@@ -688,10 +692,7 @@ wait_for_view_verified (WaylandDisplay *display,
                             &view_verification_listener, NULL);
 
   while (view_verification_callback)
-    {
-      if (wl_display_dispatch (display->display) == -1)
-        g_error ("%s: Failed to dispatch Wayland display", __func__);
-    }
+    wayland_display_dispatch (display);
 }
 
 static void
@@ -711,10 +712,7 @@ wait_for_sync_event (WaylandDisplay *display,
   handler_id = g_signal_connect (display, "sync-event", G_CALLBACK (on_sync_event), NULL);
 
   while (expected_serial + 1 > display->sync_event_serial_next)
-    {
-      if (wl_display_dispatch (display->display) == -1)
-        g_error ("%s: Failed to dispatch Wayland display", __func__);
-    }
+    wayland_display_dispatch (display);
 
   g_signal_handler_disconnect (display, handler_id);
 }

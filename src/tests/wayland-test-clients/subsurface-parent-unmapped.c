@@ -337,10 +337,7 @@ main (int    argc,
   wl_subsurface_set_desync (subsurface);
 
   while (TRUE)
-    {
-      if (wl_display_dispatch (display->display) == -1)
-        return EXIT_FAILURE;
-    }
+    wayland_display_dispatch (display);
 
   return EXIT_SUCCESS;
 }

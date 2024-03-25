@@ -88,10 +88,7 @@ main (int    argc,
   wl_surface_commit (surface->wl_surface);
 
   while (last_sync_event != 1)
-    {
-      if (wl_display_dispatch (display->display) == -1)
-        return EXIT_FAILURE;
-    }
+    wayland_display_dispatch (display);
 
   g_object_unref (surface);
   g_object_unref (display);

@@ -95,6 +95,8 @@ WaylandDisplay * wayland_display_new (WaylandDisplayCapabilities capabilities);
 WaylandDisplay * wayland_display_new_full (WaylandDisplayCapabilities  capabilities,
                                            struct wl_display          *wayland_display);
 
+void wayland_display_dispatch (WaylandDisplay *display);
+
 WaylandSurface * wayland_surface_new (WaylandDisplay *display,
                                       const char     *title,
                                       int             default_width,

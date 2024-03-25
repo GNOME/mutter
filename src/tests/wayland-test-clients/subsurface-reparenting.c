@@ -204,10 +204,7 @@ main (int    argc,
   state = STATE_WAIT_FOR_CONFIGURE_1;
 
   while (TRUE)
-    {
-      if (wl_display_dispatch (display->display) == -1)
-        return EXIT_FAILURE;
-    }
+    wayland_display_dispatch (display);
 
   return EXIT_SUCCESS;
 }

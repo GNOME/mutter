@@ -242,10 +242,7 @@ main (int    argc,
 
   running = TRUE;
   while (running)
-    {
-      if (wl_display_dispatch (display->display) == -1)
-        return EXIT_FAILURE;
-    }
+    wayland_display_dispatch (display);
 
   g_list_free_full (active_buffers, (GDestroyNotify) g_object_unref);
 

@@ -178,10 +178,7 @@ test_startup_notifications (void)
 
   running = TRUE;
   while (running)
-    {
-      if (wl_display_dispatch (display->display) == -1)
-        return;
-    }
+    wayland_display_dispatch (display);
 
   wl_display_roundtrip (display->display);
 

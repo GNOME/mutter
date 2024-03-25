@@ -171,10 +171,7 @@ main (int    argc,
   zxdg_exported_v2_add_listener (exported3, &exported_v2_listener, &handle3);
 
   while (!handle1 && !handle3)
-    {
-      if (wl_display_dispatch (display->display) == -1)
-        return EXIT_FAILURE;
-    }
+    wayland_display_dispatch (display);
 
   zxdg_importer_v2_import_toplevel (importer_v2, "don't crash on bogus handle");
   zxdg_importer_v1_import (importer_v1, "don't crash on bogus handle");
@@ -216,10 +213,7 @@ main (int    argc,
   zxdg_exported_v2_destroy (exported3);
 
   while (!imported1_destroyed || !imported3_destroyed)
-    {
-      if (wl_display_dispatch (display->display) == -1)
-        return EXIT_FAILURE;
-    }
+    wayland_display_dispatch (display);
 
   return EXIT_SUCCESS;
 }

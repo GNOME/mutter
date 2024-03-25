@@ -183,10 +183,7 @@ wait_for_configure (WaylandDisplay *display)
 {
   waiting_for_configure = TRUE;
   while (waiting_for_configure)
-    {
-      if (wl_display_dispatch (display->display) == -1)
-        exit (EXIT_FAILURE);
-    }
+    wayland_display_dispatch (display);
 }
 
 int
