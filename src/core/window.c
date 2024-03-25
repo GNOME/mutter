@@ -1690,6 +1690,22 @@ window_has_buffer (MetaWindow *window)
   return TRUE;
 }
 
+static gboolean
+meta_window_is_showable (MetaWindow *window)
+{
+#ifdef HAVE_WAYLAND
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND &&
+      !window_has_buffer (window))
+    return FALSE;
+#endif
+
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
+      window->decorated && !window->frame)
+    return FALSE;
+
+  return TRUE;
+}
+
 /**
  * meta_window_should_be_showing_on_workspace:
  *
@@ -1703,14 +1719,7 @@ gboolean
 meta_window_should_be_showing_on_workspace (MetaWindow    *window,
                                             MetaWorkspace *workspace)
 {
-#ifdef HAVE_WAYLAND
-  if (window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND &&
-      !window_has_buffer (window))
-    return FALSE;
-#endif
-
-  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
-      window->decorated && !window->frame)
+  if (!meta_window_is_showable (window))
     return FALSE;
 
   /* Windows should be showing if they're located on the
