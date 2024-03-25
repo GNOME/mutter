@@ -152,3 +152,5 @@ void mtk_rectangle_scale_double (const MtkRectangle  *rect,
 MTK_EXPORT
 gboolean mtk_rectangle_is_adjacent_to (const MtkRectangle *rect,
                                        const MtkRectangle *other);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (MtkRectangle, mtk_rectangle_free)
