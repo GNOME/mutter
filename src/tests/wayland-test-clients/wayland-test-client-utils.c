@@ -43,6 +43,7 @@ enum
 
 static guint signals[N_SIGNALS];
 static struct wl_callback *effects_complete_callback;
+static struct wl_callback *window_shown_callback;
 static struct wl_callback *view_verification_callback;
 
 struct _WaylandBufferClass
@@ -622,6 +623,33 @@ wait_for_effects_completed (WaylandDisplay    *display,
       if (wl_display_dispatch (display->display) == -1)
         g_error ("%s: Failed to dispatch Wayland display", __func__);
     }
+}
+
+static void
+window_shown (void               *data,
+              struct wl_callback *callback,
+              uint32_t            serial)
+{
+  wl_callback_destroy (callback);
+  window_shown_callback = NULL;
+}
+
+static const struct wl_callback_listener window_shown_listener = {
+  window_shown,
+};
+
+void
+wait_for_window_shown (WaylandDisplay    *display,
+                       struct wl_surface *surface)
+{
+  window_shown_callback =
+    test_driver_sync_window_shown (display->test_driver, surface);
+  wl_callback_add_listener (window_shown_callback,
+                            &window_shown_listener,
+                            NULL);
+
+  while (window_shown_callback)
+    wayland_display_dispatch (display);
 }
 
 static void

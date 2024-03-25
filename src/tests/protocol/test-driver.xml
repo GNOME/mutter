@@ -11,6 +11,11 @@
       <arg name="surface" type="object" interface="wl_surface"/>
     </request>
 
+    <request name="sync_window_shown">
+      <arg name="callback" type="new_id" interface="wl_callback"/>
+      <arg name="surface" type="object" interface="wl_surface"/>
+    </request>
+
     <request name="sync_point">
       <arg name="sequence" type="uint"/>
       <arg name="surface" type="object" interface="wl_surface" allow-null="true"/>

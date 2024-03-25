@@ -163,6 +163,41 @@ sync_effects_completed (struct wl_client   *client,
 }
 
 static void
+on_window_shown (MetaWindow         *window,
+                 struct wl_resource *callback)
+{
+  g_signal_handlers_disconnect_by_data (window, callback);
+  wl_callback_send_done (callback, 0);
+}
+
+static void
+sync_window_shown (struct wl_client   *client,
+                   struct wl_resource *resource,
+                   uint32_t            id,
+                   struct wl_resource *surface_resource)
+{
+  MetaWaylandSurface *surface = wl_resource_get_user_data (surface_resource);
+  MetaWindow *window = meta_wayland_surface_get_window (surface);
+  struct wl_resource *callback;
+
+  g_assert_nonnull (surface);
+  g_assert_nonnull (window);
+
+  callback = wl_resource_create (client, &wl_callback_interface, 1, id);
+
+  if (meta_window_is_hidden (window))
+    {
+      g_signal_connect (meta_wayland_surface_get_window (surface),
+                        "shown", G_CALLBACK (on_window_shown),
+                        callback);
+    }
+  else
+    {
+      wl_callback_send_done (callback, 0);
+    }
+}
+
+static void
 sync_point (struct wl_client   *client,
             struct wl_resource *resource,
             uint32_t            sequence,
@@ -217,6 +252,7 @@ verify_view (struct wl_client   *client,
 static const struct test_driver_interface meta_test_driver_interface = {
   sync_actor_destroy,
   sync_effects_completed,
+  sync_window_shown,
   sync_point,
   verify_view,
 };
