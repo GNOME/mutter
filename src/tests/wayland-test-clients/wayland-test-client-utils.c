@@ -550,11 +550,16 @@ handle_xdg_surface_configure (void               *data,
                               uint32_t            serial)
 {
   WaylandSurface *surface = data;
+  struct wl_region *opaque_region;
 
   draw_surface (surface->display,
                 surface->wl_surface,
                 surface->width, surface->height,
                 surface->color);
+  opaque_region = wl_compositor_create_region (surface->display->compositor);
+  wl_region_add (opaque_region, 0, 0, surface->width, surface->height);
+  wl_surface_set_opaque_region (surface->wl_surface, opaque_region);
+  wl_region_destroy (opaque_region);
 
   xdg_surface_ack_configure (xdg_surface, serial);
   wl_surface_commit (surface->wl_surface);
@@ -629,6 +634,12 @@ wayland_surface_has_state (WaylandSurface          *surface,
                            enum xdg_toplevel_state  state)
 {
   return g_hash_table_contains (surface->current_state, GUINT_TO_POINTER (state));
+}
+
+void
+wayland_surface_set_opaque (WaylandSurface *surface)
+{
+  surface->is_opaque = TRUE;
 }
 
 const char *

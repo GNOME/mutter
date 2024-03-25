@@ -79,6 +79,7 @@ typedef struct _WaylandSurface
   int height;
 
   uint32_t color;
+  gboolean is_opaque;
 } WaylandSurface;
 
 #define WAYLAND_TYPE_SURFACE (wayland_surface_get_type ())
@@ -108,6 +109,8 @@ WaylandSurface * wayland_surface_new (WaylandDisplay *display,
 
 gboolean wayland_surface_has_state (WaylandSurface          *surface,
                                     enum xdg_toplevel_state  state);
+
+void wayland_surface_set_opaque (WaylandSurface *surface);
 
 void draw_surface (WaylandDisplay    *display,
                    struct wl_surface *surface,
