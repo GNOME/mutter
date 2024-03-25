@@ -29,17 +29,6 @@
 #include "core/meta-workspace-manager-private.h"
 #include "core/workspace-private.h"
 
-/* A simple macro for whether a given window's edges are potentially
- * relevant for resistance/snapping during a move/resize operation
- */
-#define WINDOW_EDGES_RELEVANT(window, display) \
-  meta_window_should_be_showing (window) &&    \
-  (!meta_compositor_get_current_window_drag (display->compositor) || \
-   window != meta_window_drag_get_window (meta_compositor_get_current_window_drag (display->compositor))) && \
-  window->type   != META_WINDOW_DESKTOP &&     \
-  window->type   != META_WINDOW_MENU    &&     \
-  window->type   != META_WINDOW_SPLASHSCREEN
-
 typedef struct _MetaEdgeResistanceData MetaEdgeResistanceData;
 
 struct _MetaEdgeResistanceData
@@ -51,6 +40,29 @@ struct _MetaEdgeResistanceData
 };
 
 static GQuark edge_resistance_data_quark = 0;
+
+static gboolean
+is_window_relevant_for_edges (MetaWindow *window)
+{
+  MetaWindowDrag *drag;
+
+  if (!meta_window_should_be_showing (window))
+    return FALSE;
+
+  drag = meta_compositor_get_current_window_drag (window->display->compositor);
+  if (drag && window == meta_window_drag_get_window (drag))
+    return FALSE;
+
+  switch (window->type)
+    {
+    case META_WINDOW_DESKTOP:
+    case META_WINDOW_MENU:
+    case META_WINDOW_SPLASHSCREEN:
+      return FALSE;
+    default:
+      return TRUE;
+    }
+}
 
 /* !WARNING!: this function can return invalid indices (namely, either -1 or
  * edges->len); this is by design, but you need to remember this.
@@ -879,12 +891,13 @@ static MetaEdgeResistanceData *
 compute_resistance_and_snapping_edges (MetaWindowDrag *window_drag)
 {
   MetaEdgeResistanceData *edge_data;
-  GList *stacked_windows;
-  GList *cur_window_iter;
-  GList *edges;
+  GList *l;
   /* Lists of window positions (rects) and their relative stacking positions */
   int stack_position;
-  GSList *obscuring_windows, *window_stacking;
+  g_autoslist (MtkRectangle) obscuring_windows = NULL;
+  g_autoptr (GList) stacked_windows = NULL;
+  g_autoptr (GSList) window_stacking = NULL;
+  g_autoptr (GList) edges = NULL;
   /* The portions of the above lists that still remain at the stacking position
    * in the layer that we are working on
    */
@@ -910,16 +923,16 @@ compute_resistance_and_snapping_edges (MetaWindowDrag *window_drag)
    * those below it instead of going both ways, we also need to keep a
    * counter list.  Messy, I know.
    */
-  obscuring_windows = window_stacking = NULL;
-  cur_window_iter = stacked_windows;
   stack_position = 0;
-  while (cur_window_iter != NULL)
+  for (l = stacked_windows; l; l = l->next)
     {
-      MetaWindow *cur_window = cur_window_iter->data;
-      if (WINDOW_EDGES_RELEVANT (cur_window, display))
+      MetaWindow *cur_window = l->data;
+
+      if (is_window_relevant_for_edges (cur_window))
         {
           MtkRectangle *new_rect;
-          new_rect = g_new (MtkRectangle, 1);
+
+          new_rect = mtk_rectangle_new_empty ();
           meta_window_get_frame_rect (cur_window, new_rect);
           obscuring_windows = g_slist_prepend (obscuring_windows, new_rect);
           window_stacking =
@@ -927,7 +940,6 @@ compute_resistance_and_snapping_edges (MetaWindowDrag *window_drag)
         }
 
       stack_position++;
-      cur_window_iter = cur_window_iter->next;
     }
   /* Put 'em in bottom to top order */
   rem_windows = obscuring_windows = g_slist_reverse (obscuring_windows);
@@ -940,18 +952,17 @@ compute_resistance_and_snapping_edges (MetaWindowDrag *window_drag)
    */
   edges = NULL;
   stack_position = 0;
-  cur_window_iter = stacked_windows;
-  while (cur_window_iter != NULL)
+  for (l = stacked_windows; l; l = l->next)
     {
+      MetaWindow *cur_window = l->data;
       MtkRectangle  cur_rect;
-      MetaWindow    *cur_window = cur_window_iter->data;
       meta_window_get_frame_rect (cur_window, &cur_rect);
 
       /* Check if we want to use this window's edges for edge
        * resistance (note that dock edges are considered screen edges
        * which are handled separately
        */
-      if (WINDOW_EDGES_RELEVANT (cur_window, display) &&
+      if (is_window_relevant_for_edges (cur_window) &&
           cur_window->type != META_WINDOW_DOCK)
         {
           GList *new_edges;
@@ -1035,16 +1046,7 @@ compute_resistance_and_snapping_edges (MetaWindowDrag *window_drag)
         }
 
       stack_position++;
-      cur_window_iter = cur_window_iter->next;
     }
-
-  /*
-   * 4th: Free the extra memory not needed and sort the list
-   */
-  g_list_free (stacked_windows);
-  /* Free the memory used by the obscuring windows/docks lists */
-  g_slist_free (window_stacking);
-  g_slist_free_full (obscuring_windows, g_free);
 
   /* Sort the list.  FIXME: Should I bother with this sorting?  I just
    * sort again later in cache_edges() anyway...
@@ -1060,7 +1062,6 @@ compute_resistance_and_snapping_edges (MetaWindowDrag *window_drag)
                            edges,
                            workspace_manager->active_workspace->monitor_edges,
                            workspace_manager->active_workspace->screen_edges);
-  g_list_free (edges);
 
   return edge_data;
 }
