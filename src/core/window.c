@@ -1690,6 +1690,15 @@ window_has_buffer (MetaWindow *window)
   return TRUE;
 }
 
+/**
+ * meta_window_should_be_showing_on_workspace:
+ *
+ * Tells whether a window should be showing on the passed workspace, while
+ * taking whether it can be immediately be shown. Whether it can be shown or
+ * not depends on what windowing system it was created from.
+ *
+ * Returns: %TRUE if the window should and can be shown.
+ */
 gboolean
 meta_window_should_be_showing_on_workspace (MetaWindow    *window,
                                             MetaWorkspace *workspace)
@@ -1710,6 +1719,15 @@ meta_window_should_be_showing_on_workspace (MetaWindow    *window,
           meta_window_showing_on_its_workspace (window));
 }
 
+/**
+ * meta_window_should_be_showing:
+ *
+ * Tells whether a window should be showing on the current workspace, while
+ * taking whether it can be immediately be shown. Whether it can be shown or
+ * not depends on what windowing system it was created from.
+ *
+ * Returns: %TRUE if the window should and can be shown.
+ */
 gboolean
 meta_window_should_be_showing (MetaWindow *window)
 {
