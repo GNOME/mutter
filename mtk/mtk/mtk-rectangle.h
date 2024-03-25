@@ -86,6 +86,9 @@ MtkRectangle * mtk_rectangle_new (int x,
                                   int width,
                                   int height);
 
+MTK_EXPORT
+MtkRectangle * mtk_rectangle_new_empty (void);
+
 /* Basic comparison functions */
 MTK_EXPORT
 int mtk_rectangle_area (const MtkRectangle *rect);

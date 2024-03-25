@@ -65,6 +65,12 @@ mtk_rectangle_new (int x,
   return rect;
 }
 
+MtkRectangle *
+mtk_rectangle_new_empty (void)
+{
+  return g_new0 (MtkRectangle, 1);
+}
+
 /**
  * mtk_rectangle_area:
  * @rect: A rectangle
