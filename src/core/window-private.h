@@ -684,7 +684,11 @@ void        meta_window_resize_frame_with_gravity (MetaWindow  *window,
 gboolean    meta_window_should_be_showing_on_workspace (MetaWindow    *window,
                                                         MetaWorkspace *workspace);
 
+META_EXPORT_TEST
 gboolean    meta_window_should_be_showing   (MetaWindow  *window);
+
+META_EXPORT_TEST
+gboolean    meta_window_should_show (MetaWindow  *window);
 
 void        meta_window_update_struts      (MetaWindow  *window);
 

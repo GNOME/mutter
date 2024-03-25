@@ -845,6 +845,30 @@ xdg_foreign_set_parent_of (void)
 }
 
 static void
+toplevel_show_states (void)
+{
+  MetaWaylandTestClient *wayland_test_client;
+  MetaWindow *window;
+
+  wayland_test_client =
+    meta_wayland_test_client_new (test_context, "toplevel-show-states");
+
+  wait_for_sync_point (0);
+  window = find_client_window ("showing-states");
+
+  g_assert_true (meta_window_should_show (window));
+  g_assert_false (meta_window_should_be_showing (window));
+
+  meta_wayland_test_driver_emit_sync_event (test_driver, 0);
+  wait_for_sync_point (1);
+
+  g_assert_true (meta_window_should_show (window));
+  g_assert_true (meta_window_should_be_showing (window));
+
+  meta_wayland_test_client_finish (wayland_test_client);
+}
+
+static void
 on_before_tests (void)
 {
   MetaWaylandCompositor *compositor =
@@ -921,6 +945,8 @@ init_tests (void)
 #endif
   g_test_add_func ("/wayland/xdg-foreign/set-parent-of",
                    xdg_foreign_set_parent_of);
+  g_test_add_func ("/wayland/toplevel/show-states",
+                   toplevel_show_states);
 }
 
 int

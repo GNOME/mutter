@@ -67,6 +67,9 @@ wayland_test_clients = [
     'name': 'subsurface-reparenting',
   },
   {
+    'name': 'toplevel-show-states',
+  },
+  {
     'name': 'xdg-activation',
   },
   {

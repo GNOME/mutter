@@ -1707,6 +1707,41 @@ meta_window_is_showable (MetaWindow *window)
 }
 
 /**
+ * meta_window_should_show_on_workspace:
+ *
+ * Tells whether a window should be showing on the passed workspace, without
+ * taking into account whether it can immediately be shown. Whether it can be
+ * shown or not depends on what windowing system it was created from.
+ *
+ * Returns: %TRUE if the window should show.
+ */
+static gboolean
+meta_window_should_show_on_workspace (MetaWindow    *window,
+                                      MetaWorkspace *workspace)
+{
+  return (meta_window_located_on_workspace (window, workspace) &&
+          meta_window_showing_on_its_workspace (window));
+}
+
+/**
+ * meta_window_should_show:
+ *
+ * Tells whether a window should be showing on the current workspace, without
+ * taking into account whether it can immediately be shown. Whether it can be
+ * shown or not depends on what windowing system it was created from.
+ *
+ * Returns: %TRUE if the window should show.
+ */
+gboolean
+meta_window_should_show (MetaWindow *window)
+{
+  MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
+  MetaWorkspace *active_workspace = workspace_manager->active_workspace;
+
+  return meta_window_should_show_on_workspace (window, active_workspace);
+}
+
+/**
  * meta_window_should_be_showing_on_workspace:
  *
  * Tells whether a window should be showing on the passed workspace, while
@@ -1722,10 +1757,7 @@ meta_window_should_be_showing_on_workspace (MetaWindow    *window,
   if (!meta_window_is_showable (window))
     return FALSE;
 
-  /* Windows should be showing if they're located on the
-   * workspace and they're showing on their own workspace. */
-  return (meta_window_located_on_workspace (window, workspace) &&
-          meta_window_showing_on_its_workspace (window));
+  return meta_window_should_show_on_workspace (window, workspace);
 }
 
 /**
