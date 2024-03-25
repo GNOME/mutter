@@ -18,6 +18,7 @@ typedef enum _WaylandDisplayCapabilities
   WAYLAND_DISPLAY_CAPABILITY_NONE = 0,
   WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER = 1 << 0,
   WAYLAND_DISPLAY_CAPABILITY_XDG_SHELL_V4 = 1 << 1,
+  WAYLAND_DISPLAY_CAPABILITY_XDG_SHELL_V6 = 1 << 2,
 } WaylandDisplayCapabilities;
 
 typedef struct _DmaBufFormat

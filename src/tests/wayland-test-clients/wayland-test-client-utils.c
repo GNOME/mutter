@@ -347,6 +347,9 @@ handle_registry_global (void               *user_data,
       if (display->capabilities &
           WAYLAND_DISPLAY_CAPABILITY_XDG_SHELL_V4)
         xdg_wm_base_version = 4;
+      if (display->capabilities &
+          WAYLAND_DISPLAY_CAPABILITY_XDG_SHELL_V6)
+        xdg_wm_base_version = 6;
 
       g_assert_cmpint (version, >=, xdg_wm_base_version);
 
@@ -539,9 +542,26 @@ handle_xdg_toplevel_close (void                *data,
   g_assert_not_reached ();
 }
 
+static void
+handle_xdg_toplevel_bounds (void                *data,
+                            struct xdg_toplevel *xdg_toplevel,
+                            int32_t              width,
+                            int32_t              height)
+{
+}
+
+static void
+handle_xdg_toplevel_wm_capabilities (void                *data,
+                                     struct xdg_toplevel *xdg_toplevel,
+                                     struct wl_array     *capabilities)
+{
+}
+
 static const struct xdg_toplevel_listener xdg_toplevel_listener = {
   handle_xdg_toplevel_configure,
   handle_xdg_toplevel_close,
+  handle_xdg_toplevel_bounds,
+  handle_xdg_toplevel_wm_capabilities,
 };
 
 static void
