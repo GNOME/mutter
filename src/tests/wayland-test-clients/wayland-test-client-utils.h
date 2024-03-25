@@ -70,6 +70,9 @@ typedef struct _WaylandSurface
   struct xdg_surface *xdg_surface;
   struct xdg_toplevel *xdg_toplevel;
 
+  GHashTable *pending_state;
+  GHashTable *current_state;
+
   int default_width;
   int default_height;
   int width;
@@ -102,6 +105,9 @@ WaylandSurface * wayland_surface_new (WaylandDisplay *display,
                                       int             default_width,
                                       int             default_height,
                                       uint32_t        color);
+
+gboolean wayland_surface_has_state (WaylandSurface          *surface,
+                                    enum xdg_toplevel_state  state);
 
 void draw_surface (WaylandDisplay    *display,
                    struct wl_surface *surface,

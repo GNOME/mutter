@@ -506,9 +506,10 @@ handle_xdg_toplevel_configure (void                *data,
                                struct xdg_toplevel *xdg_toplevel,
                                int32_t              width,
                                int32_t              height,
-                               struct wl_array     *state)
+                               struct wl_array     *states)
 {
   WaylandSurface *surface = data;
+  uint32_t *p;
 
   if (width == 0)
     surface->width = surface->default_width;
@@ -519,6 +520,16 @@ handle_xdg_toplevel_configure (void                *data,
     surface->height = surface->default_height;
   else
     surface->height = height;
+
+  g_assert_null (surface->pending_state);
+  surface->pending_state = g_hash_table_new (NULL, NULL);
+
+  wl_array_for_each (p, states)
+    {
+      uint32_t state = *p;
+
+      g_hash_table_add (surface->pending_state, GUINT_TO_POINTER (state));
+    }
 }
 
 static void
@@ -548,6 +559,9 @@ handle_xdg_surface_configure (void               *data,
   xdg_surface_ack_configure (xdg_surface, serial);
   wl_surface_commit (surface->wl_surface);
 
+  g_clear_pointer (&surface->current_state, g_hash_table_unref);
+  surface->current_state = g_steal_pointer (&surface->pending_state);
+
   g_signal_emit (surface->display, signals[SURFACE_PAINTED], 0, surface);
 }
 
@@ -563,6 +577,8 @@ wayland_surface_dispose (GObject *object)
   g_clear_pointer (&surface->xdg_toplevel, xdg_toplevel_destroy);
   g_clear_pointer (&surface->xdg_surface, xdg_surface_destroy);
   g_clear_pointer (&surface->wl_surface, wl_surface_destroy);
+  g_clear_pointer (&surface->pending_state, g_hash_table_unref);
+  g_clear_pointer (&surface->current_state, g_hash_table_unref);
 
   G_OBJECT_CLASS (wayland_surface_parent_class)->dispose (object);
 }
@@ -606,6 +622,13 @@ wayland_surface_new (WaylandDisplay *display,
   xdg_toplevel_set_title (surface->xdg_toplevel, title);
 
   return surface;
+}
+
+gboolean
+wayland_surface_has_state (WaylandSurface          *surface,
+                           enum xdg_toplevel_state  state)
+{
+  return g_hash_table_contains (surface->current_state, GUINT_TO_POINTER (state));
 }
 
 const char *
