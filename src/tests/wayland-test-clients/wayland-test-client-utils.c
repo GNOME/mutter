@@ -38,6 +38,7 @@
 enum
 {
   SYNC_EVENT,
+  SURFACE_PAINTED,
   N_SIGNALS
 };
 
@@ -453,6 +454,16 @@ wayland_display_class_init (WaylandDisplayClass *klass)
                   G_TYPE_NONE,
                   1,
                   G_TYPE_UINT);
+
+  signals[SURFACE_PAINTED] =
+    g_signal_new ("surface-painted",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE,
+                  1,
+                  WAYLAND_TYPE_SURFACE);
 }
 
 static void
@@ -529,6 +540,8 @@ handle_xdg_surface_configure (void               *data,
 
   xdg_surface_ack_configure (xdg_surface, serial);
   wl_surface_commit (surface->wl_surface);
+
+  g_signal_emit (surface->display, signals[SURFACE_PAINTED], 0, surface);
 }
 
 static const struct xdg_surface_listener xdg_surface_listener = {
