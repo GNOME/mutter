@@ -186,7 +186,7 @@ lock_front_buffer (MetaDrmBufferGbm  *buffer_gbm,
       return FALSE;
     }
 
-  return meta_drm_buffer_gbm_ensure_fb_id (META_DRM_BUFFER (buffer_gbm), error);
+  return TRUE;
 }
 
 MetaDrmBufferGbm *

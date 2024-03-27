@@ -1372,6 +1372,17 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
 #endif
     }
 
+  if (!meta_drm_buffer_ensure_fb_id (onscreen_native->gbm.next_fb, &error))
+    {
+      g_warning ("Failed to ensure KMS FB ID on %s: %s",
+                 meta_device_file_get_path (render_device_file),
+                 error->message);
+
+      frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
+      meta_onscreen_native_notify_frame_complete (onscreen);
+      return;
+    }
+
   /*
    * If we changed EGL context, cogl will have the wrong idea about what is
    * current, making it fail to set it when it needs to. Avoid that by making
