@@ -1090,7 +1090,9 @@ meta_wayland_init_shm (MetaWaylandCompositor *compositor)
 
       drm_format = shm_to_drm_format (possible_formats[i]);
       format_info = meta_format_info_from_drm_format (drm_format);
-      g_assert (format_info);
+
+      if (!format_info)
+        continue;
 
       if (!context_supports_format (cogl_context, format_info))
         continue;
