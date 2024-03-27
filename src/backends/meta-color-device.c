@@ -963,56 +963,62 @@ static void
 create_device_profile_from_edid (MetaColorDevice *color_device,
                                  GTask           *task)
 {
-  const MetaEdidInfo *edid_info;
+  const MetaEdidInfo *edid_info =
+    meta_monitor_get_edid_info (color_device->monitor);
+  GenerateProfileData *data = g_task_get_task_data (task);
+  g_autoptr (CdIcc) cd_icc = NULL;
+  g_autoptr (GBytes) bytes = NULL;
+  g_autofree char *file_md5_checksum = NULL;
+  g_autoptr (GError) error = NULL;
 
-  edid_info = meta_monitor_get_edid_info (color_device->monitor);
   if (edid_info)
     {
-      g_autoptr (CdIcc) cd_icc = NULL;
-      GBytes *bytes;
-      g_autoptr (GError) error = NULL;
-      GenerateProfileData *data = g_task_get_task_data (task);
-      const char *file_path = data->file_path;
-      g_autofree char *file_md5_checksum = NULL;
-
       meta_topic (META_DEBUG_COLOR,
                   "Generating ICC profile for '%s' from EDID",
                   meta_color_device_get_id (color_device));
 
       cd_icc = create_icc_profile_from_edid (color_device,
-                                             edid_info, file_path,
+                                             edid_info, data->file_path,
                                              &error);
-      if (!cd_icc)
-        {
-          g_task_return_error (task, g_steal_pointer (&error));
-          g_object_unref (task);
-          return;
-        }
-
-      bytes = cd_icc_save_data (cd_icc, CD_ICC_SAVE_FLAGS_NONE, &error);
-      if (!bytes)
-        {
-          g_task_return_error (task, g_steal_pointer (&error));
-          g_object_unref (task);
-          return;
-        }
-
-      file_md5_checksum = g_compute_checksum_for_bytes (G_CHECKSUM_MD5, bytes);
-      cd_icc_add_metadata (cd_icc, CD_PROFILE_METADATA_FILE_CHECKSUM,
-                           file_md5_checksum);
-
-      data->color_calibration =
-        meta_color_calibration_new (cd_icc, NULL);
-      data->cd_icc = g_steal_pointer (&cd_icc);
-      data->bytes = bytes;
-      save_icc_profile (file_path, task);
     }
   else
     {
-      g_task_return_new_error (task, G_IO_ERROR, G_IO_ERROR_FAILED,
-                               "No EDID available");
-      g_object_unref (task);
+      meta_topic (META_DEBUG_COLOR,
+                  "Generating sRGB ICC profile for '%s' because EDID is missing",
+                  meta_color_device_get_id (color_device));
+
+      cd_icc = cd_icc_new ();
+
+      if (!cd_icc_create_default_full (cd_icc,
+                                       CD_ICC_LOAD_FLAGS_PRIMARIES,
+                                       &error))
+        g_clear_object (&cd_icc);
     }
+
+  if (!cd_icc)
+    {
+      g_task_return_error (task, g_steal_pointer (&error));
+      g_object_unref (task);
+      return;
+    }
+
+  bytes = cd_icc_save_data (cd_icc, CD_ICC_SAVE_FLAGS_NONE, &error);
+  if (!bytes)
+    {
+      g_task_return_error (task, g_steal_pointer (&error));
+      g_object_unref (task);
+      return;
+    }
+
+  file_md5_checksum = g_compute_checksum_for_bytes (G_CHECKSUM_MD5, bytes);
+  cd_icc_add_metadata (cd_icc, CD_PROFILE_METADATA_FILE_CHECKSUM,
+                       file_md5_checksum);
+
+  data->color_calibration =
+    meta_color_calibration_new (cd_icc, NULL);
+  data->cd_icc = g_steal_pointer (&cd_icc);
+  data->bytes = g_steal_pointer (&bytes);
+  save_icc_profile (data->file_path, task);
 }
 
 static void
