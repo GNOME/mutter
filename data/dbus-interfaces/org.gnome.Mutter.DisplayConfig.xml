@@ -396,8 +396,8 @@
 	@layout_mode current layout mode represents the way logical monitors
 	are laid out on the screen. Possible modes include:
 
-	  1 : physical
-	  2 : logical
+	  1 : logical
+	  2 : physical
 
 	With physical layout mode, each logical monitor has the same dimensions
 	as the monitor modes of the associated monitors assigned to it, no
