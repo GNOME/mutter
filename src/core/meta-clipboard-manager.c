@@ -126,7 +126,7 @@ owner_changed_cb (MetaSelection       *selection,
             }
         }
 
-      if (best_idx < 0)
+      if (!best)
         {
           g_list_free_full (mimetypes, g_free);
           return;
@@ -148,6 +148,8 @@ owner_changed_cb (MetaSelection       *selection,
     {
       g_autoptr (GError) error = NULL;
       g_autoptr (MetaSelectionSource) new_source = NULL;
+
+      g_assert (display->saved_clipboard_mimetype != NULL);
 
       /* Old owner is gone, time to take over */
       new_source = meta_selection_source_memory_new (display->saved_clipboard_mimetype,
