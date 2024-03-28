@@ -1832,7 +1832,6 @@ meta_kms_impl_device_simple_initable_init (GInitable     *initable,
   MetaKmsImplDeviceSimple *impl_device_simple =
     META_KMS_IMPL_DEVICE_SIMPLE (initable);
   MetaKmsImplDevice *impl_device = META_KMS_IMPL_DEVICE (impl_device_simple);
-  MetaKmsDevice *device = meta_kms_impl_device_get_device (impl_device);
   GList *l;
 
   if (!initable_parent_iface->init (initable, cancellable, error))
@@ -1847,11 +1846,11 @@ meta_kms_impl_device_simple_initable_init (GInitable     *initable,
                            NULL,
                            (GDestroyNotify) cached_mode_set_free);
 
-  for (l = meta_kms_device_get_crtcs (device); l; l = l->next)
+  for (l = meta_kms_impl_device_peek_crtcs (impl_device); l; l = l->next)
     {
       MetaKmsCrtc *crtc = l->data;
 
-      if (meta_kms_device_has_cursor_plane_for (device, crtc))
+      if (meta_kms_impl_device_has_cursor_plane_for (impl_device, crtc))
         continue;
 
       meta_topic (META_DEBUG_KMS,
@@ -1859,9 +1858,9 @@ meta_kms_impl_device_simple_initable_init (GInitable     *initable,
                   meta_kms_crtc_get_id (crtc),
                   meta_kms_impl_device_get_path (impl_device));
 
-      meta_kms_device_add_fake_plane_in_impl (device,
-                                              META_KMS_PLANE_TYPE_CURSOR,
-                                              crtc);
+      meta_kms_impl_device_add_fake_plane (impl_device,
+                                           META_KMS_PLANE_TYPE_CURSOR,
+                                           crtc);
     }
 
   g_message ("Added device '%s' (%s) using non-atomic mode setting.",
