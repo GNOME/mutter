@@ -26,7 +26,7 @@ test_contains_point (void)
 {
   g_autoptr (MtkRegion) r1 = NULL;
 
-  r1 = mtk_region_create_rectangle (mtk_rectangle_new (0, 0, 100, 100));
+  r1 = mtk_region_create_rectangle (&MTK_RECTANGLE_INIT (0, 0, 100, 100));
 
   g_assert (!mtk_region_contains_point (r1, 200, 200));
   g_assert (mtk_region_contains_point (r1, 50, 50));
