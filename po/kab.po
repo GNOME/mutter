@@ -8,25 +8,26 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter main\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2024-03-21 19:54+0000\n"
-"PO-Revision-Date: 2024-03-23 15:39+0100\n"
-"Last-Translator: ButterflyOfFire <ButterflyOfFire@protonmail.com>\n"
+"POT-Creation-Date: 2024-03-23 14:41+0000\n"
+"PO-Revision-Date: 2024-03-30 05:47+0100\n"
+"Last-Translator: sa\n"
 "Language-Team: Kabyle <>\n"
 "Language: kab\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n>1;\n"
 "X-DL-Team: kab\n"
 "X-DL-Module: mutter\n"
 "X-DL-Branch: main\n"
 "X-DL-Domain: po\n"
 "X-DL-State: Translating\n"
-"Plural-Forms: nplurals=2; plural=n>1\n"
-"X-Generator: Gtranslator 41.0\n"
+"X-Generator: Poedit 3.4.2\n"
 
 #: data/50-mutter-navigation.xml:6
+#, fuzzy
 msgid "Navigation"
-msgstr ""
+msgstr "Tunigin"
 
 #: data/50-mutter-navigation.xml:9
 msgid "Move window to workspace 1"
@@ -50,95 +51,95 @@ msgstr "Smutti asfaylu ɣer tallunt umahil"
 
 #: data/50-mutter-navigation.xml:24
 msgid "Move window one workspace to the left"
-msgstr ""
+msgstr "Senkez asfaylu s tallunt n umahil ɣer uzelmaḍ"
 
 #: data/50-mutter-navigation.xml:27
 msgid "Move window one workspace to the right"
-msgstr ""
+msgstr "Senkez asfaylu s tallunt n umahil ɣer uyeffus"
 
 #: data/50-mutter-navigation.xml:31
 msgid "Move window one workspace up"
-msgstr ""
+msgstr "Senkez asfaylu s tallunt n umahil d asawen"
 
 #: data/50-mutter-navigation.xml:35
 msgid "Move window one workspace down"
-msgstr ""
+msgstr "Senkez asfaylu s tallunt n umahil d akessar"
 
 #: data/50-mutter-navigation.xml:38
 msgid "Move window one monitor to the left"
-msgstr ""
+msgstr "Senkez asfaylu s yiwen usefrak ɣer uzelmaḍ"
 
 #: data/50-mutter-navigation.xml:41
 msgid "Move window one monitor to the right"
-msgstr ""
+msgstr "Senkez asfaylu s yiwen usefrak ɣer uyeffus"
 
 #: data/50-mutter-navigation.xml:44
 msgid "Move window one monitor up"
-msgstr ""
+msgstr "Senkez asfaylu s yiwen usefrak d asawen"
 
 #: data/50-mutter-navigation.xml:47
 msgid "Move window one monitor down"
-msgstr ""
+msgstr "Senkez asfaylu s yiwen usefrak d akessar"
 
 #: data/50-mutter-navigation.xml:51
 msgid "Switch applications"
-msgstr ""
+msgstr "Senfel isnasen"
 
 #: data/50-mutter-navigation.xml:56
 msgid "Switch to previous application"
-msgstr ""
+msgstr "Uɣal ɣer usnas yezrin"
 
 #: data/50-mutter-navigation.xml:60
 msgid "Switch windows"
-msgstr ""
+msgstr "Senfel isfuyla"
 
 #: data/50-mutter-navigation.xml:65
 msgid "Switch to previous window"
-msgstr ""
+msgstr "Uɣal ɣer usfaylu yezrin"
 
 #: data/50-mutter-navigation.xml:69
 msgid "Switch windows of an application"
-msgstr ""
+msgstr "Senfel isfuyla n usnas"
 
 #: data/50-mutter-navigation.xml:74
 msgid "Switch to previous window of an application"
-msgstr ""
+msgstr "Uɣal ɣer usfaylu yezrin n usnas"
 
 #: data/50-mutter-navigation.xml:78
 msgid "Switch system controls"
-msgstr ""
+msgstr "Senfel isenqaden n unagraw"
 
 #: data/50-mutter-navigation.xml:83
 msgid "Switch to previous system control"
-msgstr ""
+msgstr "Uɣal ɣer usenqad n unagraw yezrin"
 
 #: data/50-mutter-navigation.xml:87
 msgid "Switch windows directly"
-msgstr ""
+msgstr "Senfel srid isfuyla"
 
 #: data/50-mutter-navigation.xml:92
 msgid "Switch directly to previous window"
-msgstr ""
+msgstr "Uɣam srid ɣer usfaylu yezrin"
 
 #: data/50-mutter-navigation.xml:96
 msgid "Switch windows of an app directly"
-msgstr ""
+msgstr "Senfel srid isfuyla n usnas"
 
 #: data/50-mutter-navigation.xml:101
 msgid "Switch directly to previous window of an app"
-msgstr ""
+msgstr "Uɣal srid usfaylu yezrin n usnas"
 
 #: data/50-mutter-navigation.xml:105
 msgid "Switch system controls directly"
-msgstr ""
+msgstr "Senfel srid isenqaden n ungraw"
 
 #: data/50-mutter-navigation.xml:110
 msgid "Switch directly to previous system control"
-msgstr ""
+msgstr "Uɣal srid ɣer usenqad n ungraw yezrin"
 
 #: data/50-mutter-navigation.xml:113
 msgid "Hide all normal windows"
-msgstr ""
+msgstr "Ffer akk isfuyla imugna"
 
 #: data/50-mutter-navigation.xml:116
 msgid "Switch to workspace 1"
@@ -182,11 +183,11 @@ msgstr "Anagraw"
 
 #: data/50-mutter-system.xml:8
 msgid "Show the run command prompt"
-msgstr ""
+msgstr "Sken aneftay n tladna n uselkem"
 
 #: data/50-mutter-wayland.xml:8
 msgid "Restore the keyboard shortcuts"
-msgstr ""
+msgstr "Err-d inegzumen n unasiw"
 
 #: data/50-mutter-windows.xml:6
 msgid "Windows"
@@ -194,15 +195,15 @@ msgstr "Isfuyla"
 
 #: data/50-mutter-windows.xml:8
 msgid "Activate the window menu"
-msgstr ""
+msgstr "Rmed umuɣ n usfaylu"
 
 #: data/50-mutter-windows.xml:10
 msgid "Toggle fullscreen mode"
-msgstr ""
+msgstr "Ldi/Mdel askar n ugdil aččuran"
 
 #: data/50-mutter-windows.xml:12
 msgid "Toggle maximization state"
-msgstr ""
+msgstr "Ldi/Mdel addad n usumɣer"
 
 #: data/50-mutter-windows.xml:14
 msgid "Maximize window"
@@ -210,7 +211,7 @@ msgstr "Semɣer asfaylu"
 
 #: data/50-mutter-windows.xml:16
 msgid "Restore window"
-msgstr ""
+msgstr "Err-d asfaylu"
 
 #: data/50-mutter-windows.xml:18
 msgid "Close window"
@@ -222,27 +223,27 @@ msgstr "Ffer asfaylu"
 
 #: data/50-mutter-windows.xml:22
 msgid "Move window"
-msgstr ""
+msgstr "Senkez asfaylu"
 
 #: data/50-mutter-windows.xml:24
 msgid "Resize window"
-msgstr ""
+msgstr "Semsawi teɣzi n usfaylu"
 
 #: data/50-mutter-windows.xml:27
 msgid "Toggle window on all workspaces or one"
-msgstr ""
+msgstr "Ldi/Mdel asfaylu deg meṛṛa tallunin n umahil neɣ deg yiwet kan"
 
 #: data/50-mutter-windows.xml:29
 msgid "Raise window if covered, otherwise lower it"
-msgstr ""
+msgstr "Sali asfaylu ma yella iɣumm, neɣ ṣbb-it"
 
 #: data/50-mutter-windows.xml:31
 msgid "Raise window above other windows"
-msgstr ""
+msgstr "Sezmer asfaylu yellan nnig yisfuyla niḍen"
 
 #: data/50-mutter-windows.xml:33
 msgid "Lower window below other windows"
-msgstr ""
+msgstr "Asfaylu n wadda ddaw n yisfuyla niḍen"
 
 #: data/50-mutter-windows.xml:35
 msgid "Maximize window vertically"
@@ -254,11 +255,11 @@ msgstr "Semɣer asfaylu s wudem aglawan"
 
 #: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:167
 msgid "View split on left"
-msgstr ""
+msgstr "Sken beṭṭu ɣer uzelmaḍ"
 
 #: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:172
 msgid "View split on right"
-msgstr ""
+msgstr "Sken beṭṭu ɣer uyeffus"
 
 #: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
@@ -348,7 +349,7 @@ msgstr ""
 
 #: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
-msgstr ""
+msgstr "Sers isfuyla imaynuten deg tlemmast"
 
 #: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
@@ -358,7 +359,7 @@ msgstr ""
 
 #: data/org.gnome.mutter.gschema.xml.in:107
 msgid "Enable experimental features"
-msgstr ""
+msgstr "Rmed timahilin tirmitanin"
 
 #: data/org.gnome.mutter.gschema.xml.in:108
 msgid ""
@@ -380,15 +381,15 @@ msgstr ""
 
 #: data/org.gnome.mutter.gschema.xml.in:144
 msgid "Modifier to use to locate the pointer"
-msgstr ""
+msgstr "Senfel ara yettwasqedcen i usideg n usewwaṛ"
 
 #: data/org.gnome.mutter.gschema.xml.in:145
 msgid "This key will initiate the “locate pointer” action."
-msgstr ""
+msgstr "Tasarut-a ad twennez tigawt n \"usideg n usewwaṛ\"."
 
 #: data/org.gnome.mutter.gschema.xml.in:152
 msgid "Timeout for check-alive ping"
-msgstr ""
+msgstr "Tanzagt n keffu n ping n usenqed"
 
 #: data/org.gnome.mutter.gschema.xml.in:153
 msgid ""
@@ -398,15 +399,15 @@ msgstr ""
 
 #: data/org.gnome.mutter.gschema.xml.in:177
 msgid "Switch monitor configurations"
-msgstr ""
+msgstr "Senfel tiwila n usefrak"
 
 #: data/org.gnome.mutter.gschema.xml.in:182
 msgid "Rotates the built-in monitor configuration"
-msgstr ""
+msgstr "Sezzi tawila n usefrak usliɣ"
 
 #: data/org.gnome.mutter.gschema.xml.in:187
 msgid "Cancel any active input capture session"
-msgstr ""
+msgstr "Sefsex akk n tɣimiyin n tuṭṭfa n unekcum yettwaremden"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
@@ -458,11 +459,11 @@ msgstr "Ddu ɣer VT 12"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:60
 msgid "Re-enable shortcuts"
-msgstr ""
+msgstr "Ales armad n yinegzumen n unasiw"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:70
 msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
-msgstr ""
+msgstr "Sireg tuṭṭfiwin X11 ad sekkṛent afukus n unasiw s Xwayland "
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:71
 msgid ""
@@ -479,7 +480,7 @@ msgstr ""
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:90
 msgid "Xwayland applications allowed to issue keyboard grabs"
-msgstr ""
+msgstr "Isnasen Xwayland ttusirgent ad gent tuṭṭfiwin n unasiw"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:91
 msgid ""
@@ -497,7 +498,7 @@ msgstr ""
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:116
 msgid "Disable selected X extensions in Xwayland"
-msgstr ""
+msgstr "Sens isiɣzaf X i yettwafernen deg Xwayland"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:117
 msgid ""
@@ -509,7 +510,7 @@ msgstr ""
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:130
 msgid "Allow X11 clients with a different endianness to connect to Xwayland"
-msgstr ""
+msgstr "Sireg imsaɣen X11 s at taggara yemgaraden i tuqqna ɣer Xwayland"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:131
 msgid ""
@@ -526,7 +527,7 @@ msgstr ""
 
 #: src/backends/meta-monitor.c:251
 msgid "Built-in display"
-msgstr ""
+msgstr "Agdil usliɣ"
 
 #: src/backends/meta-monitor.c:278
 msgid "Unknown"
@@ -534,7 +535,7 @@ msgstr "Arussin"
 
 #: src/backends/meta-monitor.c:280
 msgid "Unknown Display"
-msgstr ""
+msgstr "Agdil arussin"
 
 #: src/backends/meta-monitor.c:288
 #, c-format
@@ -553,79 +554,79 @@ msgstr "%s %s"
 
 #: src/core/bell.c:193
 msgid "Bell event"
-msgstr ""
+msgstr "Tadyant n unayna"
 
 #: src/core/display.c:734
 msgid "Privacy Screen Enabled"
-msgstr ""
+msgstr "Agdil n tbaḍnit yermed"
 
 #: src/core/display.c:735
 msgid "Privacy Screen Disabled"
-msgstr ""
+msgstr "Agdil n tbaḍnit yensa"
 
 #: src/core/meta-context-main.c:601
 msgid "Replace the running window manager"
-msgstr ""
+msgstr "Semselsi amsefrak n usfaylu yettwaselkamen"
 
 #: src/core/meta-context-main.c:607
 msgid "X Display to use"
-msgstr ""
+msgstr "Taskant X ara yettusqedcen"
 
 #: src/core/meta-context-main.c:613
 msgid "Disable connection to session manager"
-msgstr ""
+msgstr "Sens tuqqna i umsefrak n tɣimit"
 
 #: src/core/meta-context-main.c:619
 msgid "Specify session management ID"
-msgstr ""
+msgstr "Asulay n usefrek n tɣimit tuzzigt"
 
 #: src/core/meta-context-main.c:625
 msgid "Initialize session from savefile"
-msgstr ""
+msgstr "Wennez tiɣimit seg ufaylu i yettwaskelsen"
 
 #: src/core/meta-context-main.c:631
 msgid "Make X calls synchronous"
-msgstr ""
+msgstr "Err isawalen X mtawan"
 
 #: src/core/meta-context-main.c:639
 msgid "Run as a wayland compositor"
-msgstr ""
+msgstr "Selkem am umsuddas Wayland"
 
 #: src/core/meta-context-main.c:645
 msgid "Run as a nested compositor"
-msgstr ""
+msgstr "Selkem am umsuddas yemyekcamen"
 
 #: src/core/meta-context-main.c:651
 msgid "Run wayland compositor without starting Xwayland"
-msgstr ""
+msgstr "Selkem amsuddas wayland war asenker n Xwayland"
 
 #: src/core/meta-context-main.c:657
 msgid "Specify Wayland display name to use"
-msgstr ""
+msgstr "Sded agdil Wayland i useqdec"
 
 #: src/core/meta-context-main.c:665
 msgid "Run as a full display server, rather than nested"
-msgstr ""
+msgstr "Selkem am uqeddac n uskan aččuran, deg wadeg n umyikcam"
 
 #: src/core/meta-context-main.c:670
 msgid "Run as a headless display server"
-msgstr ""
+msgstr "Selkem am uqeddac n uskan war aqerru"
 
 #: src/core/meta-context-main.c:675
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
-msgstr ""
+msgstr "Rnu asefrak uhlis amaɣlal (WxH neɣ WxH@R)"
 
 #: src/core/meta-context-main.c:687
 msgid "Run with X11 backend"
-msgstr ""
+msgstr "Selkem s ugdil n deffir X11"
 
 #: src/core/meta-context-main.c:693
 msgid "Profile performance using trace instrumentation"
-msgstr ""
+msgstr "Timellit n umaɣnu s useqdec n ifecka n uḍfar"
 
 #: src/core/meta-context-main.c:699
 msgid "Enable debug control D-Bus interface"
-msgstr ""
+msgstr "Rmed agrudem D-Bus n usenqed n tseɣtayt"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
@@ -633,31 +634,31 @@ msgstr ""
 #: src/core/meta-pad-action-mapper.c:826
 #, c-format
 msgid "Mode Switch (Group %d)"
-msgstr ""
+msgstr "Asenfel n uskar (Agraw %d)"
 
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
 #: src/core/meta-pad-action-mapper.c:848
 msgid "Switch monitor"
-msgstr ""
+msgstr "Senfel asefrak"
 
 #: src/core/meta-pad-action-mapper.c:850
 msgid "Show on-screen help"
-msgstr ""
+msgstr "Sken tallalt ɣef ugdil"
 
 #. Translators: this string will appear in Sysprof
 #: src/core/meta-profiler.c:109 src/core/meta-profiler.c:299
 msgid "Compositor"
-msgstr ""
+msgstr "Amsuddas"
 
 #: src/core/mutter.c:74
 msgid "Print version"
-msgstr ""
+msgstr "Sken lqem"
 
 #: src/core/mutter.c:80
 msgid "Mutter plugin to use"
-msgstr ""
+msgstr "Azegrir Mutter ara yettwasqedcen"
 
 #: src/core/prefs.c:1842
 #, c-format
@@ -666,16 +667,16 @@ msgstr "Tallunt n umahil %d"
 
 #: src/core/util.c:139
 msgid "Mutter was compiled without support for verbose mode"
-msgstr ""
+msgstr "Mutter yettwasefsu war asefrek n uskar ɣezzifen"
 
 #: src/core/workspace.c:510
 msgid "Workspace switched"
-msgstr ""
+msgstr "Tallunt n umahil tettwasenfel"
 
 #: src/wayland/meta-wayland-tablet-pad.c:532
 #, c-format
 msgid "Mode Switch: Mode %d"
-msgstr ""
+msgstr "Asenfel n uskar: Askar %d"
 
 #: src/x11/meta-x11-display.c:723
 #, c-format
@@ -683,16 +684,18 @@ msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
 "replace the current window manager."
 msgstr ""
+"Sken \"%s\" yesεa yakan asefrak n usfaylu; εreḍ seqdec taxtiṛt --replace i "
+"usemselsi n usefrak n yisfuyla amiran."
 
 #: src/x11/meta-x11-display.c:1088
 #, c-format
 msgid "Failed to open X Window System display “%s”"
-msgstr ""
+msgstr "Yecceḍ ulday n uskan n n yifuyla X Window \"%s\""
 
 #: src/x11/meta-x11-display.c:1268
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
-msgstr ""
+msgstr "Agdil %d ɣef uskan \"%s\" d arameɣtu"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
@@ -701,11 +704,13 @@ msgstr ""
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
 msgstr ""
+"Asefrak niḍen n usuddes yella yakan yettwaselkam ɣef ugdil %i ɣef uskan "
+"\"%s\"."
 
 #: src/x11/meta-x11-selection-input-stream.c:475
 #, c-format
 msgid "Format %s not supported"
-msgstr ""
+msgstr "Amasal %s ur yettwasefrak ara"
 
 #: src/x11/window-props.c:528
 #, c-format
