@@ -156,6 +156,7 @@ enum
   X11_DISPLAY_CLOSING,
   OVERLAY_KEY,
   ACCELERATOR_ACTIVATED,
+  ACCELERATOR_DEACTIVATED,
   MODIFIERS_ACCELERATOR_ACTIVATED,
   FOCUS_WINDOW,
   WINDOW_CREATED,
@@ -324,6 +325,14 @@ meta_display_class_init (MetaDisplayClass *klass)
 
   display_signals[ACCELERATOR_ACTIVATED] =
     g_signal_new ("accelerator-activated",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 3, G_TYPE_UINT, CLUTTER_TYPE_INPUT_DEVICE, G_TYPE_UINT);
+
+  display_signals[ACCELERATOR_DEACTIVATED] =
+    g_signal_new ("accelerator-deactivated",
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST,
                   0,
@@ -2523,6 +2532,17 @@ meta_display_accelerator_activate (MetaDisplay           *display,
                                    const ClutterKeyEvent *event)
 {
   g_signal_emit (display, display_signals[ACCELERATOR_ACTIVATED], 0,
+                 action,
+                 clutter_event_get_source_device ((const ClutterEvent *) event),
+                 clutter_event_get_time ((const ClutterEvent *) event));
+}
+
+void
+meta_display_accelerator_deactivate (MetaDisplay           *display,
+                                     guint                  action,
+                                     const ClutterKeyEvent *event)
+{
+  g_signal_emit (display, display_signals[ACCELERATOR_DEACTIVATED], 0,
                  action,
                  clutter_event_get_source_device ((const ClutterEvent *) event),
                  clutter_event_get_time ((const ClutterEvent *) event));

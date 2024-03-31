@@ -71,6 +71,8 @@ struct _MetaKeyBinding
   MetaKeyCombo combo;
   MetaResolvedKeyCombo resolved_combo;
   gint flags;
+  /* The binding should respond to release, and was just pressed */
+  gboolean release_pending;
   MetaKeyHandler *handler;
 };
 

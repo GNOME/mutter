@@ -254,6 +254,9 @@ void meta_display_overlay_key_activate (MetaDisplay *display);
 void meta_display_accelerator_activate (MetaDisplay           *display,
                                         guint                  action,
                                         const ClutterKeyEvent *event);
+void meta_display_accelerator_deactivate (MetaDisplay           *display,
+                                          guint                  action,
+                                          const ClutterKeyEvent *event);
 gboolean meta_display_modifiers_accelerator_activate (MetaDisplay *display);
 
 void meta_display_update_focus_window (MetaDisplay *display,

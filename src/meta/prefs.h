@@ -430,6 +430,7 @@ typedef enum _MetaKeyBindingAction
  * @META_KEY_BINDING_IGNORE_AUTOREPEAT: ignore autorepeat
  * @META_KEY_BINDING_NO_AUTO_GRAB: not grabbed automatically
  * @META_KEY_BINDING_CUSTOM_TRIGGER: uses a custom keybinding action
+ * @META_KEY_BINDING_TRIGGER_RELEASE: notifies on release in addition to press
  */
 typedef enum
 {
@@ -441,6 +442,7 @@ typedef enum
   META_KEY_BINDING_IGNORE_AUTOREPEAT = 1 << 4,
   META_KEY_BINDING_NO_AUTO_GRAB = 1 << 5,
   META_KEY_BINDING_CUSTOM_TRIGGER = 1 << 6,
+  META_KEY_BINDING_TRIGGER_RELEASE = 1 << 7,
 } MetaKeyBindingFlags;
 
 /**

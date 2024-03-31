@@ -1698,7 +1698,10 @@ handle_external_grab (MetaDisplay           *display,
 {
   MetaKeyBindingManager *keys = &display->key_binding_manager;
   guint action = get_keybinding_action (keys, &binding->resolved_combo);
-  meta_display_accelerator_activate (display, action, event);
+  if (clutter_event_type ((ClutterEvent *) event) == CLUTTER_KEY_RELEASE)
+    meta_display_accelerator_deactivate (display, action, event);
+  else
+    meta_display_accelerator_activate (display, action, event);
 }
 
 
@@ -1855,10 +1858,6 @@ process_event (MetaDisplay          *display,
   MetaKeyBinding *binding;
   ClutterModifierType modifiers;
 
-  /* we used to have release-based bindings but no longer. */
-  if (clutter_event_type ((ClutterEvent *) event) == CLUTTER_KEY_RELEASE)
-    return FALSE;
-
   modifiers = get_modifiers ((ClutterEvent *) event);
   resolved_combo.mask = mask_from_event_params (keys, modifiers);
 
@@ -1904,11 +1903,40 @@ process_event (MetaDisplay          *display,
       return TRUE;
     }
 
-  meta_topic (META_DEBUG_KEYBINDINGS,
-              "Running handler for %s",
-              binding->name);
+  if (clutter_event_type ((ClutterEvent *) event) == CLUTTER_KEY_RELEASE)
+    {
+      if (binding->release_pending)
+        {
+          meta_topic (META_DEBUG_KEYBINDINGS,
+                      "Running release handler for %s",
+                      binding->name);
 
-  invoke_handler (display, binding->handler, window, event, binding);
+          invoke_handler (display, binding->handler, window, event, binding);
+          binding->release_pending = FALSE;
+        }
+      else
+        {
+          meta_topic (META_DEBUG_KEYBINDINGS,
+                      "Ignore release for handler %s",
+                      binding->name);
+        }
+    }
+  else
+    {
+      meta_topic (META_DEBUG_KEYBINDINGS,
+                  "Running handler for %s",
+                  binding->name);
+
+      invoke_handler (display, binding->handler, window, event, binding);
+      if (!binding->release_pending &&
+          ((binding->flags & META_KEY_BINDING_TRIGGER_RELEASE) != 0))
+        {
+          meta_topic (META_DEBUG_KEYBINDINGS,
+                      "Preparing release for handler %s",
+                      binding->name);
+          binding->release_pending = TRUE;
+        }
+    }
 
   return TRUE;
 
@@ -3260,6 +3288,7 @@ meta_display_init_keys (MetaDisplay *display)
 
   handler = g_new0 (MetaKeyHandler, 1);
   handler->name = g_strdup ("external-grab");
+  handler->flags = META_KEY_BINDING_TRIGGER_RELEASE;
   handler->func = handle_external_grab;
   handler->default_func = handle_external_grab;
   g_ref_count_init (&handler->ref_count);
