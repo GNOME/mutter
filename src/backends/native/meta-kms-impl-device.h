@@ -119,6 +119,9 @@ GList * meta_kms_impl_device_peek_crtcs (MetaKmsImplDevice *impl_device);
 
 GList * meta_kms_impl_device_peek_planes (MetaKmsImplDevice *impl_device);
 
+gboolean meta_kms_impl_device_has_cursor_plane_for (MetaKmsImplDevice *impl_device,
+                                                    MetaKmsCrtc       *crtc);
+
 const MetaKmsDeviceCaps * meta_kms_impl_device_get_caps (MetaKmsImplDevice *impl_device);
 
 GList * meta_kms_impl_device_copy_fallback_modes (MetaKmsImplDevice *impl_device);

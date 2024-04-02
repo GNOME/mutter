@@ -198,6 +198,26 @@ meta_kms_impl_device_peek_planes (MetaKmsImplDevice *impl_device)
   return priv->planes;
 }
 
+gboolean
+meta_kms_impl_device_has_cursor_plane_for (MetaKmsImplDevice *impl_device,
+                                           MetaKmsCrtc       *crtc)
+{
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+  GList *l;
+
+  for (l = priv->planes; l; l = l->next)
+    {
+      MetaKmsPlane *plane = l->data;
+
+      if (meta_kms_plane_get_plane_type (plane) == META_KMS_PLANE_TYPE_CURSOR &&
+          meta_kms_plane_is_usable_with (plane, crtc))
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
 const MetaKmsDeviceCaps *
 meta_kms_impl_device_get_caps (MetaKmsImplDevice *impl_device)
 {
