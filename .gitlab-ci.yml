@@ -237,6 +237,29 @@ workflow:
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
       when: on_success
 
+repo-sanity:
+  extends:
+    - .fdo.ci-fairy
+  stage: review
+  variables:
+    GIT_DEPTH: "1"
+  script:
+    - >
+      if [[ -z "$CI_REGISTRY_IMAGE" ]] ;
+      then
+        .gitlab-ci/simple-junit-report.sh check-junit-report.xml \
+          repo-sanity "The container registry should be enabled in the project general settings panel at $CI_PROJECT_URL/edit" ;
+        exit 1 ;
+      fi
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - check-junit-report.xml
+    reports:
+      junit: check-junit-report.xml
+  rules:
+    - !reference [.only-merge-requests, rules]
+
 check-commit-log:
   extends:
     - .fdo.ci-fairy
