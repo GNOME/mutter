@@ -200,6 +200,7 @@ struct _MetaWaylandSurface
     GNode *subsurface_leaf_node;
     MetaMultiTexture *texture;
     int scale;
+    gboolean is_valid;
   } applied_state, committed_state;
 
   /* Extension resources. */
@@ -432,6 +433,8 @@ meta_wayland_surface_state_new (void)
   return g_object_new (META_TYPE_WAYLAND_SURFACE_STATE, NULL);
 }
 gboolean meta_wayland_surface_is_xwayland (MetaWaylandSurface *surface);
+
+gboolean meta_wayland_surface_has_initial_commit (MetaWaylandSurface *surface);
 
 static inline GNode *
 meta_get_next_subsurface_sibling (GNode *n)

@@ -762,6 +762,8 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
 
   g_signal_emit (surface, surface_signals[SURFACE_PRE_STATE_APPLIED], 0);
 
+  surface->applied_state.is_valid = surface->committed_state.is_valid;
+
   if (surface->role)
     {
       meta_wayland_surface_role_pre_apply_state (surface->role, state);
@@ -970,6 +972,8 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
 
   COGL_TRACE_BEGIN_SCOPED (MetaWaylandSurfaceCommit,
                            "Meta::WaylandSurface::commit()");
+
+  surface->committed_state.is_valid = TRUE;
 
   if (pending->scale > 0)
     surface->committed_state.scale = pending->scale;
@@ -2656,4 +2660,10 @@ MetaLogicalMonitor *
 meta_wayland_surface_get_main_monitor (MetaWaylandSurface *surface)
 {
   return surface->main_monitor;
+}
+
+gboolean
+meta_wayland_surface_has_initial_commit (MetaWaylandSurface *surface)
+{
+  return surface->committed_state.is_valid;
 }
