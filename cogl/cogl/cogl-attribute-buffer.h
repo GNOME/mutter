@@ -92,7 +92,7 @@ GType               cogl_attribute_buffer_get_type       (void) G_GNUC_CONST;
  */
 COGL_EXPORT CoglAttributeBuffer *
 cogl_attribute_buffer_new_with_size (CoglContext *context,
-                                     size_t bytes);
+                                     size_t       bytes);
 
 /**
  * cogl_attribute_buffer_new:
@@ -122,7 +122,7 @@ cogl_attribute_buffer_new_with_size (CoglContext *context,
  */
 COGL_EXPORT CoglAttributeBuffer *
 cogl_attribute_buffer_new (CoglContext *context,
-                           size_t bytes,
-                           const void *data);
+                           size_t       bytes,
+                           const void  *data);
 
 G_END_DECLS

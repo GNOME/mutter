@@ -63,15 +63,15 @@ cogl_pixel_buffer_init (CoglPixelBuffer *buffer)
 
 static CoglPixelBuffer *
 _cogl_pixel_buffer_new (CoglContext *context,
-                        size_t size,
-                        const void *data,
-                        GError **error)
+                        size_t       size,
+                        const void  *data,
+                        GError     **error)
 {
   CoglPixelBuffer *pixel_buffer;
 
   pixel_buffer = g_object_new (COGL_TYPE_PIXEL_BUFFER,
                                "context", context,
-                               "size", size,
+                               "size", (uint64_t) size,
                                "default-target", COGL_BUFFER_BIND_TARGET_PIXEL_UNPACK,
                                "update-hint", COGL_BUFFER_UPDATE_HINT_STATIC,
                                NULL);
@@ -94,8 +94,8 @@ _cogl_pixel_buffer_new (CoglContext *context,
 
 CoglPixelBuffer *
 cogl_pixel_buffer_new (CoglContext *context,
-                       size_t size,
-                       const void *data)
+                       size_t       size,
+                       const void  *data)
 {
   GError *ignore_error = NULL;
   CoglPixelBuffer *buffer =

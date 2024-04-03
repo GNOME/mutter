@@ -51,13 +51,13 @@ cogl_attribute_buffer_init (CoglAttributeBuffer *buffer)
 
 CoglAttributeBuffer *
 cogl_attribute_buffer_new_with_size (CoglContext *context,
-                                     size_t bytes)
+                                     size_t       bytes)
 {
   CoglAttributeBuffer *buffer;
 
   buffer = g_object_new (COGL_TYPE_ATTRIBUTE_BUFFER,
                          "context", context,
-                         "size", bytes,
+                         "size", (uint64_t) bytes,
                          "default-target", COGL_BUFFER_BIND_TARGET_ATTRIBUTE_BUFFER,
                          "update-hint", COGL_BUFFER_UPDATE_HINT_STATIC,
                          NULL);
@@ -67,8 +67,8 @@ cogl_attribute_buffer_new_with_size (CoglContext *context,
 
 CoglAttributeBuffer *
 cogl_attribute_buffer_new (CoglContext *context,
-                           size_t bytes,
-                           const void *data)
+                           size_t       bytes,
+                           const void  *data)
 {
   CoglAttributeBuffer *buffer;
 

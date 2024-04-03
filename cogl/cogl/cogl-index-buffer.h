@@ -78,6 +78,6 @@ GType               cogl_index_buffer_get_type       (void) G_GNUC_CONST;
  */
 COGL_EXPORT CoglIndexBuffer *
 cogl_index_buffer_new (CoglContext *context,
-                       size_t bytes);
+                       size_t       bytes);
 
 G_END_DECLS

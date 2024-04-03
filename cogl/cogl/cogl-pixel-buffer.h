@@ -87,7 +87,7 @@ GType               cogl_pixel_buffer_get_type       (void) G_GNUC_CONST;
  */
 COGL_EXPORT CoglPixelBuffer *
 cogl_pixel_buffer_new (CoglContext *context,
-                       size_t size,
-                       const void *data);
+                       size_t       size,
+                       const void  *data);
 
 G_END_DECLS

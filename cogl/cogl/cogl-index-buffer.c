@@ -53,13 +53,14 @@ cogl_index_buffer_init (CoglIndexBuffer *buffer)
  * indices buffer should be able to contain multiple ranges of indices
  * which the wiki design doesn't currently consider. */
 CoglIndexBuffer *
-cogl_index_buffer_new (CoglContext *context, size_t bytes)
+cogl_index_buffer_new (CoglContext *context,
+                       size_t       bytes)
 {
   CoglIndexBuffer *indices;
 
   indices = g_object_new (COGL_TYPE_INDEX_BUFFER,
                           "context", context,
-                          "size", bytes,
+                          "size", (uint64_t) bytes,
                           "default-target", COGL_BUFFER_BIND_TARGET_INDEX_BUFFER,
                           "update-hint", COGL_BUFFER_UPDATE_HINT_STATIC,
                           NULL);
