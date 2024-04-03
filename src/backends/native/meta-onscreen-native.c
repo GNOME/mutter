@@ -505,6 +505,8 @@ meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
   MetaGpuKms *gpu_kms;
   MetaDrmBuffer *buffer;
   MetaKmsPlaneAssignment *plane_assignment;
+  graphene_rect_t src_rect;
+  MtkRectangle dst_rect;
 
   COGL_TRACE_BEGIN_SCOPED (MetaOnscreenNativeFlipCrtcs,
                            "Meta::OnscreenNative::flip_crtc()");
@@ -518,9 +520,6 @@ meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
   switch (renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
-      graphene_rect_t src_rect;
-      MtkRectangle dst_rect;
-
       buffer = onscreen_native->gbm.next_fb;
 
       if (onscreen_native->gbm.next_scanout)
