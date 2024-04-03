@@ -544,20 +544,29 @@ gboolean
 meta_sync_ring_insert_wait (void)
 {
   MetaSyncRing *ring = meta_sync_ring_get ();
+  MetaSync *sync;
 
   if (!ring)
     return FALSE;
 
   g_return_val_if_fail (ring->xdisplay != NULL, FALSE);
 
-  if (ring->current_sync->state != META_SYNC_STATE_READY)
+  sync = ring->current_sync;
+
+  if (sync->state == META_SYNC_STATE_WAITING)
+    {
+      meta_gl_delete_sync (sync->gpu_fence);
+      sync->gpu_fence = 0;
+      sync->state = META_SYNC_STATE_READY;
+    }
+  else if (sync->state != META_SYNC_STATE_READY)
     {
       meta_warning ("MetaSyncRing: Sync object is not ready -- were events handled properly?");
       if (!meta_sync_ring_reboot (ring->xdisplay))
         return FALSE;
     }
 
-  meta_sync_insert (ring->current_sync);
+  meta_sync_insert (sync);
 
   return TRUE;
 }
