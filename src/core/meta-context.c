@@ -44,6 +44,7 @@ enum
   PROP_0,
 
   PROP_NAME,
+  PROP_NICK,
   PROP_UNSAFE_MODE,
 
   N_PROPS
@@ -74,6 +75,7 @@ typedef enum _MetaContextState
 typedef struct _MetaContextPrivate
 {
   char *name;
+  char *nick;
   char *plugin_name;
   GType plugin_gtype;
   char *gnome_wm_keybindings;
@@ -227,6 +229,14 @@ meta_context_get_name (MetaContext *context)
   g_return_val_if_fail (META_IS_CONTEXT (context), NULL);
 
   return priv->name;
+}
+
+const char *
+meta_context_get_nick (MetaContext *context)
+{
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  return priv->nick;
 }
 
 /**
@@ -731,6 +741,9 @@ meta_context_get_property (GObject    *object,
     case PROP_NAME:
       g_value_set_string (value, priv->name);
       break;
+    case PROP_NICK:
+      g_value_set_string (value, priv->nick);
+      break;
     case PROP_UNSAFE_MODE:
       g_value_set_boolean (value, priv->unsafe_mode);
       break;
@@ -754,6 +767,9 @@ meta_context_set_property (GObject      *object,
     case PROP_NAME:
       priv->name = g_value_dup_string (value);
       break;
+    case PROP_NICK:
+      priv->nick = g_value_dup_string (value);
+      break;
     case PROP_UNSAFE_MODE:
       meta_context_set_unsafe_mode (META_CONTEXT (object),
                                     g_value_get_boolean (value));
@@ -762,6 +778,64 @@ meta_context_set_property (GObject      *object,
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
     }
+}
+
+static char *
+derive_nick (MetaContext *context)
+{
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+  const char *source = NULL;
+  g_autofree char *nick = NULL;
+  int name_i, nick_i;
+  size_t len;
+
+  if (priv->name)
+    source = priv->name;
+
+  if (priv->nick)
+    source = priv->nick;
+
+  if (!source)
+    return g_strdup (PACKAGE_NAME);
+
+  len = strlen (source);
+  nick = g_malloc0 (len + 1);
+  for (name_i = 0, nick_i = 0; name_i < len; name_i++)
+    {
+      char name_char = source[name_i];
+
+      if (g_ascii_isalpha (name_char))
+        nick[nick_i++] = g_ascii_tolower (name_char);
+      else if (g_ascii_isspace (name_char))
+        nick[nick_i++] = '-';
+      else if (g_ascii_isdigit (name_char) ||
+               name_char == '-' ||
+               name_char == '_')
+        nick[nick_i++] = name_char;
+    }
+
+  if (nick_i == 0)
+    return g_strdup (PACKAGE_NAME);
+
+  return g_steal_pointer (&nick);
+}
+
+static void
+meta_context_constructed (GObject *object)
+{
+  MetaContext *context = META_CONTEXT (object);
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+  char *nick;
+
+  nick = derive_nick (context);
+
+  if (priv->nick && nick && g_strcmp0 (priv->nick, nick) != 0)
+    g_warning ("Invalid nick '%s'! Using '%s' instead.", priv->nick, nick);
+
+  g_clear_pointer (&priv->nick, g_free);
+  priv->nick = nick;
+
+  G_OBJECT_CLASS (meta_context_parent_class)->constructed (object);
 }
 
 static void
@@ -811,6 +885,7 @@ meta_context_finalize (GObject *object)
   g_clear_pointer (&priv->gnome_wm_keybindings, g_free);
   g_clear_pointer (&priv->plugin_name, g_free);
   g_clear_pointer (&priv->name, g_free);
+  g_clear_pointer (&priv->nick, g_free);
 
   G_OBJECT_CLASS (meta_context_parent_class)->finalize (object);
 }
@@ -822,6 +897,7 @@ meta_context_class_init (MetaContextClass *klass)
 
   object_class->get_property = meta_context_get_property;
   object_class->set_property = meta_context_set_property;
+  object_class->constructed = meta_context_constructed;
   object_class->dispose = meta_context_dispose;
   object_class->finalize = meta_context_finalize;
 
@@ -830,6 +906,12 @@ meta_context_class_init (MetaContextClass *klass)
 
   obj_props[PROP_NAME] =
     g_param_spec_string ("name", NULL, NULL,
+                         NULL,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_NICK] =
+    g_param_spec_string ("nick", NULL, NULL,
                          NULL,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |

@@ -60,6 +60,8 @@ struct _MetaContextClass
 
 const char * meta_context_get_name (MetaContext *context);
 
+const char * meta_context_get_nick (MetaContext *context);
+
 const char * meta_context_get_gnome_wm_keybindings (MetaContext *context);
 
 void meta_context_set_unsafe_mode (MetaContext *context,
