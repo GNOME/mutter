@@ -26,6 +26,22 @@
       <arg name="sequence" type="uint"/>
     </request>
 
+    <request name="move_to">
+      <arg name="surface" type="object" interface="wl_surface"/>
+      <arg name="x" type="int"/>
+      <arg name="y" type="int"/>
+    </request>
+
+    <enum name="direction">
+      <entry name="left" value="1"/>
+      <entry name="right" value="2"/>
+    </enum>
+
+    <request name="tile">
+      <arg name="surface" type="object" interface="wl_surface"/>
+      <arg name="direction" type="uint" enum="direction"/>
+    </request>
+
     <event name="sync_event">
       <arg name="sequence" type="uint"/>
     </event>

@@ -249,12 +249,52 @@ verify_view (struct wl_client   *client,
                              meta_ref_test_determine_ref_test_flag ());
 }
 
+static void
+move_to (struct wl_client   *client,
+         struct wl_resource *resource,
+         struct wl_resource *surface_resource,
+         int32_t             x,
+         int32_t             y)
+{
+  MetaWaylandSurface *surface = wl_resource_get_user_data (surface_resource);
+  MetaWindow *window = meta_wayland_surface_get_window (surface);
+
+  meta_window_move_frame (window, TRUE, x, y);
+}
+
+static void
+tile (struct wl_client   *client,
+      struct wl_resource *resource,
+      struct wl_resource *surface_resource,
+      uint32_t            direction_value)
+{
+  enum test_driver_direction direction = direction_value;
+  MetaWaylandSurface *surface = wl_resource_get_user_data (surface_resource);
+  MetaWindow *window = meta_wayland_surface_get_window (surface);
+
+  switch (direction)
+    {
+    case TEST_DRIVER_DIRECTION_LEFT:
+      meta_window_tile (window, META_TILE_LEFT);
+      break;
+    case TEST_DRIVER_DIRECTION_RIGHT:
+      meta_window_tile (window, META_TILE_RIGHT);
+      break;
+    default:
+      wl_client_post_implementation_error (client,
+                                           "Invalid direction");
+      break;
+    }
+}
+
 static const struct test_driver_interface meta_test_driver_interface = {
   sync_actor_destroy,
   sync_effects_completed,
   sync_window_shown,
   sync_point,
   verify_view,
+  move_to,
+  tile,
 };
 
 static void
