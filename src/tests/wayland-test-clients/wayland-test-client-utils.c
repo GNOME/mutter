@@ -43,6 +43,15 @@ enum
 };
 
 static guint signals[N_SIGNALS];
+
+enum
+{
+  SURFACE_CONFIGURE,
+  N_SURFACE_SIGNALS
+};
+
+static guint surface_signals[N_SIGNALS];
+
 static struct wl_callback *effects_complete_callback;
 static struct wl_callback *window_shown_callback;
 static struct wl_callback *view_verification_callback;
@@ -572,6 +581,8 @@ handle_xdg_surface_configure (void               *data,
   WaylandSurface *surface = data;
   struct wl_region *opaque_region;
 
+  g_signal_emit (surface, surface_signals[SURFACE_CONFIGURE], 0);
+
   draw_surface (surface->display,
                 surface->wl_surface,
                 surface->width, surface->height,
@@ -614,6 +625,14 @@ wayland_surface_class_init (WaylandSurfaceClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->dispose = wayland_surface_dispose;
+
+  surface_signals[SURFACE_CONFIGURE] =
+    g_signal_new ("configure",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
 }
 
 static void
