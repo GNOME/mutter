@@ -54,6 +54,9 @@ typedef struct _WaylandDisplay
 
   /* format to DmaBufFormat mapping */
   GHashTable *formats;
+
+  gpointer test_state;
+  GDestroyNotify destroy_test_state;
 } WaylandDisplay;
 
 #define WAYLAND_TYPE_DISPLAY (wayland_display_get_type ())

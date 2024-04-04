@@ -450,6 +450,7 @@ wayland_display_finalize (GObject *object)
 {
   WaylandDisplay *display = WAYLAND_DISPLAY (object);
 
+  g_clear_pointer (&display->test_state, display->destroy_test_state);
   wl_display_disconnect (display->display);
   g_clear_pointer (&display->properties, g_hash_table_unref);
   g_clear_pointer (&display->formats, g_hash_table_unref);
