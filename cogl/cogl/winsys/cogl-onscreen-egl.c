@@ -309,9 +309,6 @@ cogl_onscreen_egl_swap_buffers_with_damage (CoglOnscreen  *onscreen,
                                         COGL_FRAMEBUFFER (onscreen),
                                         COGL_FRAMEBUFFER_STATE_BIND);
 
-  /* Update our "latest" sync fd to contain all previous work */
-  _cogl_context_update_sync (context);
-
   if (cogl_has_feature (context, COGL_FEATURE_ID_TIMESTAMP_QUERY))
     {
       info->gpu_time_before_buffer_swap_ns =
