@@ -7,7 +7,7 @@
 #
 # Updated in mutter:
 # Changwoo Ryu <cwryu@debian.org>, 2011-2017.
-# Gwan-gyeong Mun <elongbug@gmail.com>, 2018-2023.
+# Gwan-gyeong Mun <elongbug@gmail.com>, 2018-2024.
 #
 #
 # 주의:
@@ -17,8 +17,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
-"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2023-08-23 16:49+0000\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
+"POT-Creation-Date: 2024-03-11 11:31+0000\n"
 "PO-Revision-Date: 2023-03-15 18:43+0200\n"
 "Last-Translator: Gwan-gyeong Mun <elongbug@gmail.com>\n"
 "Language-Team: GNOME Korea <gnome-kr@googlegroups.com>\n"
@@ -257,11 +257,11 @@ msgstr "창을 세로 방향으로 최대화"
 msgid "Maximize window horizontally"
 msgstr "창을 가로 방향으로 최대화"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:164
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:167
 msgid "View split on left"
 msgstr "왼쪽 나눔창 보기"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:169
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:172
 msgid "View split on right"
 msgstr "오른쪽 나눔창 보기"
 
@@ -394,10 +394,11 @@ msgid ""
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
 "mutter always allocate scanout buffers with explicit modifiers, if supported "
-"by the driver. Requires a restart. • “rt-scheduler” — makes mutter request a "
-"low priority real-time scheduling. Requires a restart. • “autoclose-"
-"xwayland” — automatically terminates Xwayland if all relevant X11 clients "
-"are gone. Requires a restart."
+"by the driver. Requires a restart. • “autoclose-xwayland” — automatically "
+"terminates Xwayland if all relevant X11 clients are gone. Requires a "
+"restart. • “variable-refresh-rate” — makes mutter dynamically adjust the "
+"refresh rate of the monitor when applicable if supported by the monitor, GPU "
+"and DRM driver. Configurable in Settings. Requires a restart."
 msgstr ""
 "실험적인 기능을 사용하려면, 해당 기능 키워드를 목록에 추가하십시오. 기능에 따"
 "라 컴포지터를 다시 시작해야 할 수도 있습니다. 실험적인 기능은 사용할 수 없을 "
@@ -407,24 +408,25 @@ msgstr ""
 "를 배치하고, HiDPI 모니터를 관리하기 위해 창 내용 대신 모니터 프레임 버퍼를 "
 "스케일링합니다. 재시작은 필요하지 않습니다. • “kms-modifiers” — 드라이버에서 "
 "지원하는 경우 머터가 항상 명시적 한정자를 사용하여 스캔아웃 버퍼를 할당 합니"
-"다. 재시작이 필요합니다. • “rt-scheduler” — 머터 요청을 우선순위가 낮은 실시"
-"간 스케줄링으로 만듭니다. 재시작이 필요합니다. • “autoclose-xwayland” — 모든 "
-"X11 관련 클라이언트가 종료되면 X웨일랜드를 자동으로 종료합니다. 재시작이 필요"
-"하지 않습니다."
+"다. 재시작이 필요합니다. • “autoclose-xwayland” — 모든 X11 관련 클라이언트가 "
+"종료되면 X웨일랜드를 자동으로 종료합니다. 재시작이 필요하지 않습니다. • "
+"“variable-refresh-rate” — 모니터, GPU 및 DRM 드라이버에서 지원하는 경우 모니"
+"터의 새로 고침 빈도를 동적으로 조정합니다. 설정에서 구성 가능하며, 재시작이 "
+"필요합니다."
 
-#: data/org.gnome.mutter.gschema.xml.in:141
+#: data/org.gnome.mutter.gschema.xml.in:144
 msgid "Modifier to use to locate the pointer"
 msgstr "포인터 위치 찾기에 사용할 키"
 
-#: data/org.gnome.mutter.gschema.xml.in:142
+#: data/org.gnome.mutter.gschema.xml.in:145
 msgid "This key will initiate the “locate pointer” action."
 msgstr "이 키는 “포인터 위치 찾기” 동작을 합니다."
 
-#: data/org.gnome.mutter.gschema.xml.in:149
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid "Timeout for check-alive ping"
 msgstr "활성 확인 핑 시간 초과"
 
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:153
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -432,15 +434,15 @@ msgstr ""
 "중지된 것으로 감지되지 않도록 클라이언트가 핑 요청에 응답해야 하는 시간 (밀리"
 "초). 0을 사용하면 활성 확인이 완전히 비활성화됩니다."
 
-#: data/org.gnome.mutter.gschema.xml.in:174
+#: data/org.gnome.mutter.gschema.xml.in:177
 msgid "Switch monitor configurations"
 msgstr "모니터 설정 전환"
 
-#: data/org.gnome.mutter.gschema.xml.in:179
+#: data/org.gnome.mutter.gschema.xml.in:182
 msgid "Rotates the built-in monitor configuration"
 msgstr "내장된 모니터 설정을 돌아가면서 전환합니다"
 
-#: data/org.gnome.mutter.gschema.xml.in:184
+#: data/org.gnome.mutter.gschema.xml.in:187
 msgid "Cancel any active input capture session"
 msgstr "활성화된 입력 캡처 세션 취소"
 
@@ -587,26 +589,26 @@ msgstr ""
 "byteswappedclients을 지원하지 않는 경우 효과가 없습니다. 이 설정을 적용하려"
 "면 X웨일랜드를 다시 시작해야 합니다."
 
-#: src/backends/meta-monitor.c:253
+#: src/backends/meta-monitor.c:251
 msgid "Built-in display"
 msgstr "내장 디스플레이"
 
-#: src/backends/meta-monitor.c:280
+#: src/backends/meta-monitor.c:278
 msgid "Unknown"
 msgstr "알 수 없음"
 
-#: src/backends/meta-monitor.c:282
+#: src/backends/meta-monitor.c:280
 msgid "Unknown Display"
 msgstr "알 수 없는 디스플레이"
 
-#: src/backends/meta-monitor.c:290
+#: src/backends/meta-monitor.c:288
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:298
+#: src/backends/meta-monitor.c:296
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -618,78 +620,82 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "삑소리 이벤트"
 
-#: src/core/display.c:723
+#: src/core/display.c:734
 msgid "Privacy Screen Enabled"
 msgstr "사생활 보호 화면 사용"
 
-#: src/core/display.c:724
+#: src/core/display.c:735
 msgid "Privacy Screen Disabled"
 msgstr "사생활 보호 화면 해제"
 
-#: src/core/meta-context-main.c:581
+#: src/core/meta-context-main.c:601
 msgid "Replace the running window manager"
 msgstr "실행 중인 창 관리자를 바꿉니다"
 
-#: src/core/meta-context-main.c:587
+#: src/core/meta-context-main.c:607
 msgid "X Display to use"
 msgstr "사용할 X 디스플레이"
 
-#: src/core/meta-context-main.c:593
+#: src/core/meta-context-main.c:613
 msgid "Disable connection to session manager"
 msgstr "세션 관리자와 연결 하지 않습니다"
 
-#: src/core/meta-context-main.c:599
+#: src/core/meta-context-main.c:619
 msgid "Specify session management ID"
 msgstr "세션 관리 ID를 지정합니다"
 
-#: src/core/meta-context-main.c:605
+#: src/core/meta-context-main.c:625
 msgid "Initialize session from savefile"
 msgstr "저장 파일에서 세션을 초기화 합니다"
 
-#: src/core/meta-context-main.c:611
+#: src/core/meta-context-main.c:631
 msgid "Make X calls synchronous"
 msgstr "동기 X 호출을 합니다"
 
-#: src/core/meta-context-main.c:619
+#: src/core/meta-context-main.c:639
 msgid "Run as a wayland compositor"
 msgstr "웨일랜드 컴포지터로 실행합니다"
 
-#: src/core/meta-context-main.c:625
+#: src/core/meta-context-main.c:645
 msgid "Run as a nested compositor"
 msgstr "중첩 컴포지터로 실행합니다"
 
-#: src/core/meta-context-main.c:631
+#: src/core/meta-context-main.c:651
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "웨일랜드 컴포지터를 X웨일랜드 시작없이 실행합니다"
 
-#: src/core/meta-context-main.c:637
+#: src/core/meta-context-main.c:657
 msgid "Specify Wayland display name to use"
 msgstr "사용할 웨일랜드 디스플레이 이름 지정"
 
-#: src/core/meta-context-main.c:645
+#: src/core/meta-context-main.c:665
 msgid "Run as a full display server, rather than nested"
 msgstr "전체 디스플레이 서버로 실행, 중첩 컴포지터가 아님"
 
-#: src/core/meta-context-main.c:650
+#: src/core/meta-context-main.c:670
 msgid "Run as a headless display server"
 msgstr "헤드리스 디스플레이 서버로 실행"
 
-#: src/core/meta-context-main.c:655
+#: src/core/meta-context-main.c:675
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "영구적인 가상 모니터 추가 (WxH or WxH@R)"
 
-#: src/core/meta-context-main.c:667
+#: src/core/meta-context-main.c:687
 msgid "Run with X11 backend"
 msgstr "X11 백 엔드로 실행 합니다"
 
-#: src/core/meta-context-main.c:673
+#: src/core/meta-context-main.c:693
 msgid "Profile performance using trace instrumentation"
 msgstr "추적 계측을 사용한 성능 프로파일"
+
+#: src/core/meta-context-main.c:699
+msgid "Enable debug control D-Bus interface"
+msgstr "디버깅 제어 D-Bus 인터페이스 사용"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:807
+#: src/core/meta-pad-action-mapper.c:826
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "모드 전환 (그룹 %d)"
@@ -697,16 +703,16 @@ msgstr "모드 전환 (그룹 %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:829
+#: src/core/meta-pad-action-mapper.c:848
 msgid "Switch monitor"
 msgstr "모니터 전환"
 
-#: src/core/meta-pad-action-mapper.c:831
+#: src/core/meta-pad-action-mapper.c:850
 msgid "Show on-screen help"
 msgstr "화면 도움말 표시"
 
 #. Translators: this string will appear in Sysprof
-#: src/core/meta-profiler.c:111 src/core/meta-profiler.c:301
+#: src/core/meta-profiler.c:109 src/core/meta-profiler.c:299
 msgid "Compositor"
 msgstr "컴포지터"
 
@@ -718,7 +724,7 @@ msgstr "버전을 출력합니다"
 msgid "Mutter plugin to use"
 msgstr "사용할 머터 플러그인"
 
-#: src/core/prefs.c:1843
+#: src/core/prefs.c:1842
 #, c-format
 msgid "Workspace %d"
 msgstr "작업 공간 %d"
@@ -727,16 +733,16 @@ msgstr "작업 공간 %d"
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "머터가 자세한 정보 표시 모드를 지원하지 않게 컴파일되었습니다"
 
-#: src/core/workspace.c:535
+#: src/core/workspace.c:510
 msgid "Workspace switched"
 msgstr "작업 공간 전환"
 
-#: src/wayland/meta-wayland-tablet-pad.c:534
+#: src/wayland/meta-wayland-tablet-pad.c:532
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "모드 전환: 모드 %d"
 
-#: src/x11/meta-x11-display.c:708
+#: src/x11/meta-x11-display.c:723
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -745,19 +751,19 @@ msgstr ""
 "디스플레이  “%s”에 이미 창 관리자가 있습니다. 현재 창 관리자를 바꾸려면 --"
 "replace 옵션을 써보십시오."
 
-#: src/x11/meta-x11-display.c:1073
+#: src/x11/meta-x11-display.c:1088
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "X 윈도 시스템 디스플레이 “%s”을(를) 여는데 실패하였습니다"
 
-#: src/x11/meta-x11-display.c:1219
+#: src/x11/meta-x11-display.c:1268
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "디스플레이 “%2$s”의 화면 %1$d은(는) 잘못되었습니다"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2540
+#: src/x11/meta-x11-display.c:2547
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -771,7 +777,7 @@ msgid "Format %s not supported"
 msgstr "%s 형식은 지원하지 않습니다"
 
 # <창제목> (on <기계>)
-#: src/x11/window-props.c:548
+#: src/x11/window-props.c:528
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s에서)"
