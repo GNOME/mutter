@@ -2227,7 +2227,7 @@ meta_window_show (MetaWindow *window)
           window->has_maximize_func)
         {
           MtkRectangle work_area;
-          meta_window_get_work_area_for_monitor (window, window->monitor->number, &work_area);
+          meta_window_get_work_area_current_monitor (window, &work_area);
           /* Automaximize windows that map with a size > MAX_UNMAXIMIZED_WINDOW_AREA of the work area */
           if (window->rect.width * window->rect.height > work_area.width * work_area.height * MAX_UNMAXIMIZED_WINDOW_AREA)
             {
@@ -3101,7 +3101,7 @@ meta_window_unmaximize (MetaWindow        *window,
       MtkRectangle old_frame_rect, old_buffer_rect;
       gboolean has_target_size;
 
-      meta_window_get_work_area_for_monitor (window, window->monitor->number, &work_area);
+      meta_window_get_work_area_current_monitor (window, &work_area);
       meta_window_get_frame_rect (window, &old_frame_rect);
       meta_window_get_buffer_rect (window, &old_buffer_rect);
 
@@ -5837,9 +5837,7 @@ void
 meta_window_get_work_area_current_monitor (MetaWindow   *window,
                                            MtkRectangle *area)
 {
-  meta_window_get_work_area_for_monitor (window,
-                                         window->monitor->number,
-                                         area);
+  meta_window_get_work_area_for_logical_monitor (window, window->monitor, area);
 }
 
 /**
