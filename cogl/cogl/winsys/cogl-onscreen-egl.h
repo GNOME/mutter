@@ -41,6 +41,10 @@ struct _CoglOnscreenEglClass
 };
 
 COGL_EXPORT void
+cogl_onscreen_egl_maybe_create_timestamp_query (CoglOnscreen  *onscreen,
+                                                CoglFrameInfo *info);
+
+COGL_EXPORT void
 cogl_onscreen_egl_set_egl_surface (CoglOnscreenEgl *onscreen_egl,
                                    EGLSurface       egl_surface);
 

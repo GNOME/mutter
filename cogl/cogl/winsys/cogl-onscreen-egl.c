@@ -281,6 +281,27 @@ cogl_onscreen_egl_queue_damage_region (CoglOnscreen *onscreen,
     g_warning ("Error reported by eglSetDamageRegion");
 }
 
+void
+cogl_onscreen_egl_maybe_create_timestamp_query (CoglOnscreen  *onscreen,
+                                                CoglFrameInfo *info)
+{
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
+
+  if (!cogl_has_feature (context, COGL_FEATURE_ID_TIMESTAMP_QUERY))
+    return;
+
+  info->gpu_time_before_buffer_swap_ns =
+    cogl_context_get_gpu_time_ns (context);
+  info->cpu_time_before_buffer_swap_us = g_get_monotonic_time ();
+
+  /* Set up a timestamp query for when all rendering will be finished. */
+  info->timestamp_query =
+    cogl_framebuffer_create_timestamp_query (framebuffer);
+
+  info->has_valid_gpu_rendering_duration = TRUE;
+}
+
 static void
 cogl_onscreen_egl_swap_buffers_with_damage (CoglOnscreen  *onscreen,
                                             const int     *rectangles,
@@ -308,19 +329,6 @@ cogl_onscreen_egl_swap_buffers_with_damage (CoglOnscreen  *onscreen,
                                         COGL_FRAMEBUFFER (onscreen),
                                         COGL_FRAMEBUFFER (onscreen),
                                         COGL_FRAMEBUFFER_STATE_BIND);
-
-  if (cogl_has_feature (context, COGL_FEATURE_ID_TIMESTAMP_QUERY))
-    {
-      info->gpu_time_before_buffer_swap_ns =
-        cogl_context_get_gpu_time_ns (context);
-      info->cpu_time_before_buffer_swap_us = g_get_monotonic_time ();
-
-      /* Set up a timestamp query for when all rendering will be finished. */
-      info->timestamp_query =
-        cogl_framebuffer_create_timestamp_query (COGL_FRAMEBUFFER (onscreen));
-
-      info->has_valid_gpu_rendering_duration = TRUE;
-    }
 
   if (n_rectangles && priv->pf_eglSwapBuffersWithDamage)
     {

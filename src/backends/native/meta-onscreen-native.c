@@ -1305,6 +1305,8 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
                                                  rectangles,
                                                  n_rectangles);
 
+  cogl_onscreen_egl_maybe_create_timestamp_query (onscreen, frame_info);
+
   parent_class = COGL_ONSCREEN_CLASS (meta_onscreen_native_parent_class);
   parent_class->swap_buffers_with_damage (onscreen,
                                           rectangles,
