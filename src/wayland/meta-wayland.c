@@ -819,6 +819,9 @@ meta_wayland_compositor_new (MetaContext *context)
   compositor = g_object_new (META_TYPE_WAYLAND_COMPOSITOR, NULL);
   compositor->context = context;
 
+  wl_display_set_default_max_buffer_size (compositor->wayland_display,
+                                          1024 * 1024);
+
   wayland_event_source = wayland_event_source_new (compositor->wayland_display);
 
   /* XXX: Here we are setting the wayland event source to have a

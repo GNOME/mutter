@@ -45,7 +45,7 @@ udev_req = '>= 228'
 gudev_req = '>= 232'
 
 # wayland version requirements
-wayland_server_req = '>= 1.22'
+wayland_server_req = '>= 1.23'
 wayland_protocols_req = '>= 1.36'
 
 # native backend version requirements
