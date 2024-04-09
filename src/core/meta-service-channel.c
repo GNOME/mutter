@@ -98,6 +98,7 @@ verify_service_client_type (uint32_t service_client_type)
     case META_SERVICE_CLIENT_TYPE_NONE:
       return FALSE;
     case META_SERVICE_CLIENT_TYPE_PORTAL_BACKEND:
+    case META_SERVICE_CLIENT_TYPE_FILECHOOSER_PORTAL_BACKEND:
       return TRUE;
     }
 

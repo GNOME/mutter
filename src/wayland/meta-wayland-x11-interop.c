@@ -101,13 +101,17 @@ x11_interop_filter (const struct wl_client *client,
   service_client =
     meta_service_channel_get_service_client (service_channel,
                                              META_SERVICE_CLIENT_TYPE_PORTAL_BACKEND);
-  if (!service_client)
-    return META_WAYLAND_ACCESS_DENIED;
 
-  if (meta_wayland_client_matches (service_client, client))
+  if (service_client && meta_wayland_client_matches (service_client, client))
     return META_WAYLAND_ACCESS_ALLOWED;
-  else
-    return META_WAYLAND_ACCESS_DENIED;
+
+  service_client =
+    meta_service_channel_get_service_client (service_channel,
+                                             META_SERVICE_CLIENT_TYPE_FILECHOOSER_PORTAL_BACKEND);
+  if (service_client && meta_wayland_client_matches (service_client, client))
+    return META_WAYLAND_ACCESS_ALLOWED;
+
+  return META_WAYLAND_ACCESS_DENIED;
 }
 
 void

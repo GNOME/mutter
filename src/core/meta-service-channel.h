@@ -30,6 +30,7 @@ typedef enum _MetaServiceClientType
 {
   META_SERVICE_CLIENT_TYPE_NONE,
   META_SERVICE_CLIENT_TYPE_PORTAL_BACKEND,
+  META_SERVICE_CLIENT_TYPE_FILECHOOSER_PORTAL_BACKEND,
 } MetaServiceClientType;
 
 #define META_TYPE_SERVICE_CHANNEL (meta_service_channel_get_type ())
