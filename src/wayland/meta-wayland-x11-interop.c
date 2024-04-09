@@ -97,17 +97,26 @@ x11_interop_filter (const struct wl_client *client,
   MetaServiceChannel *service_channel =
     meta_context_get_service_channel (context);
   MetaWaylandClient *service_client;
+  MetaServiceClientType allowed_clients[] = {
+    META_SERVICE_CLIENT_TYPE_PORTAL_BACKEND,
+    META_SERVICE_CLIENT_TYPE_FILECHOOSER_PORTAL_BACKEND,
+    META_SERVICE_CLIENT_TYPE_NONE
+  };
 
-  service_client =
-    meta_service_channel_get_service_client (service_channel,
-                                             META_SERVICE_CLIENT_TYPE_PORTAL_BACKEND);
-  if (!service_client)
-    return META_WAYLAND_ACCESS_DENIED;
+  for (int i = 0; allowed_clients[i] != META_SERVICE_CLIENT_TYPE_NONE; i++)
+    {
+      service_client =
+        meta_service_channel_get_service_client (service_channel,
+                                                 allowed_clients[i]);
 
-  if (meta_wayland_client_matches (service_client, client))
-    return META_WAYLAND_ACCESS_ALLOWED;
-  else
-    return META_WAYLAND_ACCESS_DENIED;
+      if (!service_client)
+        continue;
+
+      if (meta_wayland_client_matches (service_client, client))
+        return META_WAYLAND_ACCESS_ALLOWED;
+    }
+
+  return META_WAYLAND_ACCESS_DENIED;
 }
 
 void

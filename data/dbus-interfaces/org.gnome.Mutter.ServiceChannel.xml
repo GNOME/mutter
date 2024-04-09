@@ -8,6 +8,7 @@
     <!--
         ServiceClientTypes:
            PORTAL_BACKEND: 1
+           FILECHOOSER_PORTAL_BACKEND: 2
     -->
     <method name="OpenWaylandServiceConnection">
       <arg name="service_client_type" type="u" direction="in" />
