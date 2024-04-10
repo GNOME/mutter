@@ -1623,7 +1623,21 @@ static void
 on_seat_unfocus_inhibited_changed (ClutterStage *stage,
                                    ClutterSeat  *seat)
 {
-  clutter_stage_repick_device (stage, clutter_seat_get_pointer (seat));
+  ClutterInputDevice *device;
+  graphene_point_t point = GRAPHENE_POINT_INIT_ZERO;
+
+  device = clutter_seat_get_pointer (seat);
+
+  if (!clutter_stage_get_device_coords (stage, device, NULL, &point))
+    return;
+
+  clutter_stage_pick_and_update_device (stage,
+                                        device,
+                                        NULL, NULL,
+                                        CLUTTER_DEVICE_UPDATE_IGNORE_CACHE |
+                                        CLUTTER_DEVICE_UPDATE_EMIT_CROSSING,
+                                        point,
+                                        CLUTTER_CURRENT_TIME);
 }
 
 static void
@@ -3522,24 +3536,6 @@ clutter_stage_update_device (ClutterStage         *stage,
           clutter_event_free (event);
         }
     }
-}
-
-void
-clutter_stage_repick_device (ClutterStage       *stage,
-                             ClutterInputDevice *device)
-{
-  graphene_point_t point = GRAPHENE_POINT_INIT_ZERO;
-
-  if (!clutter_stage_get_device_coords (stage, device, NULL, &point))
-    return;
-
-  clutter_stage_pick_and_update_device (stage,
-                                        device,
-                                        NULL, NULL,
-                                        CLUTTER_DEVICE_UPDATE_IGNORE_CACHE |
-                                        CLUTTER_DEVICE_UPDATE_EMIT_CROSSING,
-                                        point,
-                                        CLUTTER_CURRENT_TIME);
 }
 
 static gboolean
