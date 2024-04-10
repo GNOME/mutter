@@ -107,13 +107,6 @@ void clutter_stage_set_actor_needs_immediate_relayout (ClutterStage *stage);
 void clutter_stage_remove_device_entry (ClutterStage         *self,
                                         ClutterInputDevice   *device,
                                         ClutterEventSequence *sequence);
-ClutterActor * clutter_stage_pick_and_update_device (ClutterStage             *stage,
-                                                     ClutterInputDevice       *device,
-                                                     ClutterEventSequence     *sequence,
-                                                     ClutterInputDevice       *source_device,
-                                                     ClutterDeviceUpdateFlags  flags,
-                                                     graphene_point_t          point,
-                                                     uint32_t                  time_ms);
 
 void clutter_stage_unlink_grab (ClutterStage *self,
                                 ClutterGrab  *grab);

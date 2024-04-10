@@ -182,6 +182,14 @@ static void clutter_stage_set_viewport (ClutterStage *stage,
                                         float         width,
                                         float         height);
 
+static ClutterActor * clutter_stage_pick_and_update_device (ClutterStage             *stage,
+                                                            ClutterInputDevice       *device,
+                                                            ClutterEventSequence     *sequence,
+                                                            ClutterInputDevice       *source_device,
+                                                            ClutterDeviceUpdateFlags  flags,
+                                                            graphene_point_t          point,
+                                                            uint32_t                  time_ms);
+
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterStage, clutter_stage, CLUTTER_TYPE_ACTOR)
 
 static void
@@ -3508,7 +3516,7 @@ clutter_stage_check_in_clear_area (ClutterStage         *stage,
                                     point.x, point.y);
 }
 
-ClutterActor *
+static ClutterActor *
 clutter_stage_pick_and_update_device (ClutterStage             *stage,
                                       ClutterInputDevice       *device,
                                       ClutterEventSequence     *sequence,
