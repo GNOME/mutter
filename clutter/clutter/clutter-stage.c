@@ -4601,3 +4601,28 @@ clutter_stage_get_active_gestures_array (ClutterStage *self)
 
   return priv->all_active_gestures;
 }
+
+ClutterActor *
+clutter_stage_update_device_for_event (ClutterStage *stage,
+                                       ClutterEvent *event)
+{
+  ClutterInputDevice *device = clutter_event_get_device (event);
+  ClutterInputDevice *source_device = clutter_event_get_source_device (event);
+  ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
+  ClutterDeviceUpdateFlags flags;
+  graphene_point_t point;
+  uint32_t time_ms;
+
+  clutter_event_get_coords (event, &point.x, &point.y);
+  time_ms = clutter_event_get_time (event);
+
+  flags = CLUTTER_DEVICE_UPDATE_EMIT_CROSSING;
+
+  return clutter_stage_pick_and_update_device (stage,
+                                               device,
+                                               sequence,
+                                               source_device,
+                                               flags,
+                                               point,
+                                               time_ms);
+}

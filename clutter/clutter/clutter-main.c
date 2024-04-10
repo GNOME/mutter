@@ -430,33 +430,6 @@ emit_event (ClutterStage *stage,
   clutter_stage_emit_event (stage, event);
 }
 
-static ClutterActor *
-update_device_for_event (ClutterStage *stage,
-                         ClutterEvent *event,
-                         gboolean      emit_crossing)
-{
-  ClutterInputDevice *device = clutter_event_get_device (event);
-  ClutterInputDevice *source_device = clutter_event_get_source_device (event);
-  ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
-  ClutterDeviceUpdateFlags flags = CLUTTER_DEVICE_UPDATE_NONE;
-  graphene_point_t point;
-  uint32_t time_ms;
-
-  clutter_event_get_coords (event, &point.x, &point.y);
-  time_ms = clutter_event_get_time (event);
-
-  if (emit_crossing)
-    flags |= CLUTTER_DEVICE_UPDATE_EMIT_CROSSING;
-
-  return clutter_stage_pick_and_update_device (stage,
-                                               device,
-                                               sequence,
-                                               source_device,
-                                               flags,
-                                               point,
-                                               time_ms);
-}
-
 static void
 maybe_remove_device_for_event (ClutterStage *stage,
                                ClutterEvent *event,
@@ -538,7 +511,7 @@ clutter_stage_handle_event (ClutterStage *stage,
     case CLUTTER_TOUCHPAD_HOLD:
     case CLUTTER_PROXIMITY_IN:
     case CLUTTER_SCROLL:
-      update_device_for_event (stage, event, TRUE);
+      clutter_stage_update_device_for_event (stage, event);
       break;
     default:
       break;
