@@ -1154,6 +1154,9 @@ constrain_modal_dialog (MetaWindow         *window,
       meta_window_get_placement_rule (window))
     return TRUE;
 
+  if (window->fullscreen)
+    return TRUE;
+
   /* We want to center the dialog on the parent, including the decorations
      for both of them. info->current is in client X window coordinates, so we need
      to convert them to frame coordinates, apply the centering and then
