@@ -81,10 +81,6 @@ CLUTTER_EXPORT
 void                _clutter_stage_maybe_setup_viewport  (ClutterStage          *stage,
                                                           ClutterStageView      *view);
 void                clutter_stage_maybe_relayout         (ClutterActor          *stage);
-GSList *            clutter_stage_find_updated_devices   (ClutterStage          *stage,
-                                                          ClutterStageView      *view);
-void                clutter_stage_update_devices         (ClutterStage          *stage,
-                                                          GSList                *devices);
 void                clutter_stage_finish_layout          (ClutterStage          *stage);
 
 CLUTTER_EXPORT
@@ -158,5 +154,8 @@ GPtrArray * clutter_stage_get_active_gestures_array (ClutterStage *self);
 
 ClutterActor * clutter_stage_update_device_for_event (ClutterStage *stage,
                                                       ClutterEvent *event);
+
+void clutter_stage_update_devices_in_view (ClutterStage     *stage,
+                                           ClutterStageView *view);
 
 G_END_DECLS

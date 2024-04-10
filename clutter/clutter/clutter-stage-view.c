@@ -869,7 +869,6 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
     clutter_stage_view_get_instance_private (view);
   ClutterStage *stage = priv->stage;
   ClutterStageWindow *stage_window = _clutter_stage_get_window (stage);
-  g_autoptr (GSList) devices = NULL;
 
   if (CLUTTER_ACTOR_IN_DESTRUCTION (stage))
     return CLUTTER_FRAME_RESULT_IDLE;
@@ -889,9 +888,6 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
   clutter_stage_maybe_relayout (CLUTTER_ACTOR (stage));
 
   clutter_stage_finish_layout (stage);
-
-  if (priv->needs_update_devices)
-    devices = clutter_stage_find_updated_devices (stage, view);
 
   _clutter_stage_window_prepare_frame (stage_window, view, frame);
   clutter_stage_emit_prepare_frame (stage, view, frame);
@@ -913,8 +909,11 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
 
   _clutter_stage_window_finish_frame (stage_window, view, frame);
 
-  clutter_stage_update_devices (stage, devices);
-  priv->needs_update_devices = FALSE;
+  if (priv->needs_update_devices)
+    {
+      clutter_stage_update_devices_in_view (stage, view);
+      priv->needs_update_devices = FALSE;
+    }
 
   _clutter_run_repaint_functions (CLUTTER_REPAINT_FLAGS_POST_PAINT);
   clutter_stage_after_update (stage, view, frame);
