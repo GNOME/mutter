@@ -27,6 +27,7 @@
 #include <glib.h>
 
 #include "clutter/clutter.h"
+#include "meta/meta-base.h"
 #include "meta/meta-enums.h"
 
 /**
@@ -41,8 +42,6 @@
 
 /* Replacement for X11 CurrentTime */
 #define META_CURRENT_TIME 0L
-
-#define META_EXPORT __attribute__((visibility("default"))) extern
 
 #define MAX_BUTTONS_PER_CORNER META_BUTTON_FUNCTION_LAST
 

@@ -9,6 +9,7 @@ mutter_public_headers = [
   'keybindings.h',
   'main.h',
   'meta-backend.h',
+  'meta-base.h',
   'meta-background.h',
   'meta-background-actor.h',
   'meta-background-content.h',
