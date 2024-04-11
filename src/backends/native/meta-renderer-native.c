@@ -67,6 +67,7 @@
 #include "backends/native/meta-renderer-view-native.h"
 #include "cogl/cogl.h"
 #include "common/meta-cogl-drm-formats.h"
+#include "common/meta-drm-format-helpers.h"
 #include "core/boxes-private.h"
 
 #ifdef HAVE_EGL_DEVICE

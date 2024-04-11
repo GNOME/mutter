@@ -29,14 +29,6 @@
 
 G_BEGIN_DECLS
 
-typedef struct _MetaDrmFormatBuf
-{
-  char s[5];
-} MetaDrmFormatBuf;
-
-const char * meta_drm_format_to_string (MetaDrmFormatBuf *tmp,
-                                        uint32_t          drm_format);
-
 typedef struct _MetaFormatInfo
 {
   uint32_t drm_format;

@@ -28,7 +28,7 @@
 
 #include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-kms-utils.h"
-#include "common/meta-cogl-drm-formats.h"
+#include "common/meta-drm-format-helpers.h"
 
 #include "meta-private-enum-types.h"
 

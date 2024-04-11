@@ -51,6 +51,7 @@
 #include "cogl/cogl-egl.h"
 #include "cogl/cogl.h"
 #include "common/meta-cogl-drm-formats.h"
+#include "common/meta-drm-format-helpers.h"
 #include "compositor/meta-multi-texture-format-private.h"
 #include "meta/meta-backend.h"
 #include "wayland/meta-wayland-buffer.h"

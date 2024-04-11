@@ -1,5 +1,4 @@
-/* meta-cogl-drm-formats.c
- *
+/*
  * Copyright (C) 2020 Georges Basile Stavracas Neto <georges.stavracas@gmail.com>
  * Copyright (C) 2023 Collabora Ltd.
  *
@@ -16,40 +15,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
- *
  */
 
-#include "config.h"
+#pragma once
 
-#include "common/meta-cogl-drm-formats.h"
+#include <stdint.h>
 
-const MetaFormatInfo *
-meta_format_info_from_drm_format (uint32_t drm_format)
+typedef struct _MetaDrmFormatBuf
 {
-  const size_t n = G_N_ELEMENTS (meta_format_info);
-  size_t i;
+  char s[5];
+} MetaDrmFormatBuf;
 
-  for (i = 0; i < n; i++)
-    {
-      if (meta_format_info[i].drm_format == drm_format)
-        return &meta_format_info[i];
-    }
-
-  return NULL;
-}
-
-const MetaFormatInfo *
-meta_format_info_from_cogl_format (CoglPixelFormat cogl_format)
-{
-  const size_t n = G_N_ELEMENTS (meta_format_info);
-  size_t i;
-
-  for (i = 0; i < n; i++)
-    {
-      if (meta_format_info[i].cogl_format == cogl_format)
-        return &meta_format_info[i];
-    }
-
-  return NULL;
-}
+const char * meta_drm_format_to_string (MetaDrmFormatBuf *tmp,
+                                        uint32_t          drm_format);

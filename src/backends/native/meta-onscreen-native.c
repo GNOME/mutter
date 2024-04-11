@@ -51,6 +51,7 @@
 #include "backends/native/meta-renderer-native-private.h"
 #include "cogl/cogl.h"
 #include "common/meta-cogl-drm-formats.h"
+#include "common/meta-drm-format-helpers.h"
 
 typedef enum _MetaSharedFramebufferImportStatus
 {

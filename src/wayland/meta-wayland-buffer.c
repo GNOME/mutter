@@ -58,6 +58,7 @@
 #include "wayland/meta-wayland-dma-buf.h"
 #include "wayland/meta-wayland-private.h"
 #include "common/meta-cogl-drm-formats.h"
+#include "common/meta-drm-format-helpers.h"
 #include "compositor/meta-multi-texture-format-private.h"
 #include "wayland/meta-drm-timeline.h"
 #include "wayland/meta-wayland-linux-drm-syncobj.h"

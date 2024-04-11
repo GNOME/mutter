@@ -873,6 +873,8 @@ if have_wayland or have_native_backend
   mutter_sources += [
     'common/meta-cogl-drm-formats.c',
     'common/meta-cogl-drm-formats.h',
+    'common/meta-drm-format-helpers.c',
+    'common/meta-drm-format-helpers.h',
   ]
 endif
 
