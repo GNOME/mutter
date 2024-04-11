@@ -274,7 +274,7 @@ meta_frame_query_borders (MetaFrame        *frame,
   int format, res;
   Atom type;
   unsigned long nitems, bytes_after;
-  unsigned char *data;
+  unsigned char *data = NULL;
 
   if (!frame->xwindow)
     return;
@@ -290,10 +290,8 @@ meta_frame_query_borders (MetaFrame        *frame,
                             &nitems, &bytes_after,
                             (unsigned char **) &data);
 
-  if (mtk_x11_error_trap_pop_with_return (x11_display->xdisplay) != Success)
-    return;
-
-  if (res == Success && nitems == 4)
+  if (mtk_x11_error_trap_pop_with_return (x11_display->xdisplay) == Success &&
+      res == Success && nitems == 4)
     {
       borders->invisible = (MetaFrameBorder) {
         ((long *) data)[0],
@@ -301,6 +299,10 @@ meta_frame_query_borders (MetaFrame        *frame,
         ((long *) data)[2],
         ((long *) data)[3],
       };
+    }
+  else
+    {
+      borders->invisible = (MetaFrameBorder) { 0, 0, 0, 0 };
     }
 
   g_clear_pointer (&data, XFree);
@@ -316,10 +318,8 @@ meta_frame_query_borders (MetaFrame        *frame,
                             &nitems, &bytes_after,
                             (unsigned char **) &data);
 
-  if (mtk_x11_error_trap_pop_with_return (x11_display->xdisplay) != Success)
-    return;
-
-  if (res == Success && nitems == 4)
+  if (mtk_x11_error_trap_pop_with_return (x11_display->xdisplay) == Success &&
+      res == Success && nitems == 4)
     {
       borders->visible = (MetaFrameBorder) {
         ((long *) data)[0],
@@ -327,6 +327,10 @@ meta_frame_query_borders (MetaFrame        *frame,
         ((long *) data)[2],
         ((long *) data)[3],
       };
+    }
+  else
+    {
+      borders->visible = (MetaFrameBorder) { 0, 0, 0, 0 };
     }
 
   g_clear_pointer (&data, XFree);
