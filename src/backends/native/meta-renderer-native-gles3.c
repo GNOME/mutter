@@ -34,6 +34,7 @@
 #include "backends/meta-egl-ext.h"
 #include "backends/meta-gles3.h"
 #include "backends/meta-gles3-table.h"
+#include "meta/meta-debug.h"
 
 /*
  * GL/gl.h being included may conflict with gl3.h on some architectures.

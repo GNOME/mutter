@@ -18,6 +18,7 @@ mutter_public_headers = [
   'meta-close-dialog.h',
   'meta-cursor-tracker.h',
   'meta-context.h',
+  'meta-debug.h',
   'meta-dnd.h',
   'meta-enums.h',
   'meta-idle-monitor.h',
