@@ -100,14 +100,15 @@ meta_wayland_window_configuration_new_relative (MetaWindow *window,
 
 MetaWaylandWindowConfiguration *
 meta_wayland_window_configuration_new_empty (int bounds_width,
-                                             int bounds_height)
+                                             int bounds_height,
+                                             int scale)
 {
   MetaWaylandWindowConfiguration *configuration;
 
   configuration = g_new0 (MetaWaylandWindowConfiguration, 1);
   *configuration = (MetaWaylandWindowConfiguration) {
     .serial = ++global_serial_counter,
-    .scale = 1,
+    .scale = scale,
     .bounds_width = bounds_width,
     .bounds_height = bounds_height,
   };

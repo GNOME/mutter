@@ -869,6 +869,9 @@ meta_wayland_xdg_toplevel_apply_state (MetaWaylandSurfaceRole  *surface_role,
       MetaWaylandWindowConfiguration *configuration;
       int bounds_width;
       int bounds_height;
+      int geometry_scale;
+
+      geometry_scale = meta_window_wayland_get_geometry_scale (window);
 
       if (!meta_window_calculate_bounds (window, &bounds_width, &bounds_height))
         {
@@ -878,7 +881,8 @@ meta_wayland_xdg_toplevel_apply_state (MetaWaylandSurfaceRole  *surface_role,
 
       configuration =
         meta_wayland_window_configuration_new_empty (bounds_width,
-                                                     bounds_height);
+                                                     bounds_height,
+                                                     geometry_scale);
       meta_wayland_xdg_toplevel_send_configure (xdg_toplevel, configuration);
       meta_wayland_window_configuration_free (configuration);
       return;
