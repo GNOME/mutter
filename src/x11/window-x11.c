@@ -2476,21 +2476,20 @@ meta_window_x11_update_input_region (MetaWindow *window)
 
   if (region != NULL)
     {
-      MtkRectangle client_area;
+      MtkRectangle bounding_rect;
 
-      client_area.x = 0;
-      client_area.y = 0;
-      client_area.width = window->buffer_rect.width;
-      client_area.height = window->buffer_rect.height;
+      bounding_rect.x = 0;
+      bounding_rect.y = 0;
+      bounding_rect.width = window->buffer_rect.width;
+      bounding_rect.height = window->buffer_rect.height;
 
       /* The shape we get back from the client may have coordinates
        * outside of the frame. The X SHAPE Extension requires that
        * the overall shape the client provides never exceeds the
        * "bounding rectangle" of the window -- the shape that the
-       * window would have gotten if it was unshaped. In our case,
-       * this is simply the client area.
+       * window would have gotten if it was unshaped.
        */
-      mtk_region_intersect_rectangle (region, &client_area);
+      mtk_region_intersect_rectangle (region, &bounding_rect);
     }
 
   meta_window_set_input_region (window, region);
