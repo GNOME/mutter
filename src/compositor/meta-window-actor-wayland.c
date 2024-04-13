@@ -350,7 +350,7 @@ meta_window_actor_wayland_get_scanout_candidate (MetaWindowActor *actor)
   ClutterActor *child_actor;
   ClutterActorIter iter;
   MetaSurfaceActor *topmost_surface_actor = NULL;
-  int n_mapped_surfaces = 0;
+  int n_visible_surface_actors = 0;
   MetaWindow *window;
   ClutterActorBox window_box;
   ClutterActorBox surface_box;
@@ -365,11 +365,17 @@ meta_window_actor_wayland_get_scanout_candidate (MetaWindowActor *actor)
   clutter_actor_iter_init (&iter, surface_container);
   while (clutter_actor_iter_next (&iter, &child_actor))
     {
+      MetaSurfaceActor *surface_actor;
+
       if (!clutter_actor_is_mapped (child_actor))
         continue;
 
-      topmost_surface_actor = META_SURFACE_ACTOR (child_actor);
-      n_mapped_surfaces++;
+      surface_actor = META_SURFACE_ACTOR (child_actor);
+      if (meta_surface_actor_is_obscured (surface_actor))
+        continue;
+
+      topmost_surface_actor = surface_actor;
+      n_visible_surface_actors++;
     }
 
   if (!topmost_surface_actor)
@@ -380,10 +386,10 @@ meta_window_actor_wayland_get_scanout_candidate (MetaWindowActor *actor)
     }
 
   window = meta_window_actor_get_meta_window (actor);
-  if (meta_window_is_fullscreen (window) && n_mapped_surfaces == 1)
+  if (meta_window_is_fullscreen (window) && n_visible_surface_actors == 1)
     return topmost_surface_actor;
 
-  if (meta_window_is_fullscreen (window) && n_mapped_surfaces == 2)
+  if (meta_window_is_fullscreen (window) && n_visible_surface_actors == 2)
     {
       MetaSurfaceActorWayland *bg_surface_actor = NULL;
       MetaWaylandSurface *bg_surface;
@@ -393,10 +399,16 @@ meta_window_actor_wayland_get_scanout_candidate (MetaWindowActor *actor)
       clutter_actor_iter_init (&iter, surface_container);
       while (clutter_actor_iter_next (&iter, &child_actor))
         {
+          MetaSurfaceActor *surface_actor;
+
           if (!clutter_actor_is_mapped (child_actor))
             continue;
 
-          bg_surface_actor = META_SURFACE_ACTOR_WAYLAND (child_actor);
+          surface_actor = META_SURFACE_ACTOR (child_actor);
+          if (meta_surface_actor_is_obscured (surface_actor))
+            continue;
+
+          bg_surface_actor = META_SURFACE_ACTOR_WAYLAND (surface_actor);
           break;
         }
       g_assert (bg_surface_actor);
