@@ -8,19 +8,19 @@ move x/1 100 100
 assert_position x/1 100 100
 
 maximize x/1
-wait_reconfigure
+wait_reconfigure x/1
 assert_position x/1 0 0
 
 unmaximize x/1
-wait_reconfigure
+wait_reconfigure x/1
 assert_position x/1 100 100
 
 tile x/1 left
-wait_reconfigure
+wait_reconfigure x/1
 assert_position x/1 0 0
 
 untile x/1
-wait_reconfigure
+wait_reconfigure x/1
 assert_position x/1 100 100
 
 tile x/1 left
@@ -28,11 +28,11 @@ wait
 assert_position x/1 0 0
 
 maximize x/1
-wait_reconfigure
+wait_reconfigure x/1
 assert_position x/1 0 0
 
 unmaximize x/1
-wait_reconfigure
+wait_reconfigure x/1
 assert_position x/1 100 100
 
 # Wayland
@@ -45,29 +45,29 @@ move w/1 100 100
 assert_position w/1 100 100
 
 maximize w/1
-wait_reconfigure
+wait_reconfigure w/1
 assert_position w/1 0 0
 
 unmaximize w/1
-wait_reconfigure
+wait_reconfigure w/1
 assert_position w/1 100 100
 
 tile w/1 left
-wait_reconfigure
+wait_reconfigure w/1
 assert_position w/1 0 0
 
 untile w/1
-wait_reconfigure
+wait_reconfigure w/1
 assert_position w/1 100 100
 
 tile w/1 left
-wait_reconfigure
+wait_reconfigure w/1
 assert_position w/1 0 0
 
 maximize w/1
-wait_reconfigure
+wait_reconfigure w/1
 assert_position w/1 0 0
 
 unmaximize w/1
-wait_reconfigure
+wait_reconfigure w/1
 assert_position w/1 100 100

@@ -15,12 +15,12 @@ create w/1 csd
 resize w/1 100 100
 show w/1
 
-wait_reconfigure
+wait_reconfigure w/0 w/1
 
 move w/0 0 0
 move w/1 100 0
 
-wait_reconfigure
+wait
 
 assert_stacking w/0 w/1
 assert_focused w/1

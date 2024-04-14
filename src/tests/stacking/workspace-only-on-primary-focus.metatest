@@ -17,13 +17,13 @@ create w/2 csd
 resize w/2 100 100
 show w/2
 
-wait_reconfigure
+wait_reconfigure w/1 w/2
 
 # make sure the windows are on the secondary monitor
 move w/1 800 0
 move w/2 900 0
 
-wait_reconfigure
+wait_reconfigure w/1 w/2
 
 assert_stacking w/1 w/2
 assert_focused w/2

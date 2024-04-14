@@ -20,30 +20,30 @@ assert_size x/1 500 400
 resize x/1 300 200
 wait_size x/1 300 200
 maximize x/1
-wait_reconfigure
+wait_reconfigure x/1
 unmaximize x/1
-wait_reconfigure
+wait_reconfigure x/1
 
 assert_size x/1 300 200
 
 tile x/1 right
-wait_reconfigure
+wait_reconfigure x/1
 assert_size x/1 MONITOR_WIDTH/2 MONITOR_HEIGHT
 
 untile x/1
-wait_reconfigure
+wait_reconfigure x/1
 assert_size x/1 300 200
 
 tile x/1 left
-wait_reconfigure
+wait_reconfigure x/1
 assert_size x/1 MONITOR_WIDTH/2 MONITOR_HEIGHT
 
 maximize x/1
-wait_reconfigure
+wait_reconfigure x/1
 assert_size x/1 MONITOR_WIDTH MONITOR_HEIGHT
 
 unmaximize x/1
-wait_reconfigure
+wait_reconfigure x/1
 assert_size x/1 300 200
 
 # Check that Wayland clients restore to their right size after unmaximize
@@ -61,35 +61,35 @@ wait
 assert_size w/1 MONITOR_WIDTH MONITOR_HEIGHT
 
 unmaximize w/1
-wait_reconfigure
+wait_reconfigure w/1
 
 assert_size w/1 150 300
 
 resize w/1 300 200
 wait
 maximize w/1
-wait_reconfigure
+wait_reconfigure w/1
 unmaximize w/1
-wait_reconfigure
+wait_reconfigure w/1
 
 assert_size w/1 300 200
 
 tile w/1 right
-wait_reconfigure
+wait_reconfigure w/1
 assert_size w/1 MONITOR_WIDTH/2 MONITOR_HEIGHT
 
 untile w/1
-wait_reconfigure
+wait_reconfigure w/1
 assert_size w/1 300 200
 
 tile w/1 left
-wait_reconfigure
+wait_reconfigure w/1
 assert_size w/1 MONITOR_WIDTH/2 MONITOR_HEIGHT
 
 maximize w/1
-wait_reconfigure
+wait_reconfigure w/1
 assert_size w/1 MONITOR_WIDTH MONITOR_HEIGHT
 
 unmaximize w/1
-wait_reconfigure
+wait_reconfigure w/1
 assert_size w/1 300 200

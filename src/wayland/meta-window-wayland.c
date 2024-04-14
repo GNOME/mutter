@@ -1450,3 +1450,19 @@ meta_window_wayland_is_acked_fullscreen (MetaWindowWayland *wl_window)
   return (wl_window->last_acked_configuration &&
           wl_window->last_acked_configuration->is_fullscreen);
 }
+
+gboolean
+meta_window_wayland_get_pending_serial (MetaWindowWayland *wl_window,
+                                        uint32_t          *serial)
+{
+  if (wl_window->pending_configurations)
+    {
+      MetaWaylandWindowConfiguration *configuration =
+        wl_window->pending_configurations->data;
+
+      *serial = configuration->serial;
+      return TRUE;
+    }
+
+  return FALSE;
+}

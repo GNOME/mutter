@@ -19,13 +19,13 @@ create w/2 csd
 resize w/2 100 100
 show w/2
 
-wait_reconfigure
+wait_reconfigure w/0 w/1 w/2
 
 move w/0 0 0
 move w/1 100 0
 move w/2 200 0
 
-wait_reconfigure
+wait
 
 assert_stacking w/0 w/1 w/2
 assert_focused w/2

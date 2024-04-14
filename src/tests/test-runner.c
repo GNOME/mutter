@@ -33,6 +33,7 @@
 #include "meta/window.h"
 #include "tests/meta-test-utils.h"
 #include "wayland/meta-wayland.h"
+#include "wayland/meta-window-wayland.h"
 #include "x11/meta-x11-display-private.h"
 
 typedef struct {
@@ -824,21 +825,90 @@ test_case_do (TestCase    *test,
     }
   else if (strcmp (argv[0], "wait_reconfigure") == 0)
     {
-      if (argc != 1)
-        BAD_COMMAND("usage: %s", argv[0]);
+      MetaTestClient *client;
+      const char *window_id;
+      g_autoptr (GPtrArray) windows = NULL;
+      g_autoptr (GArray) serials = NULL;
+      int i;
+      gboolean has_x11_window = FALSE;
+      gboolean has_unfinished_configurations;
+
+      if (argc < 2)
+        BAD_COMMAND("usage: %s [<client-id>/<window-id>..]", argv[0]);
+
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
 
       /*
-       * Wait twice, so that we
-       *  1) First wait for any requests to configure being made
-       *  2) Then wait until the new configuration has been applied
+       * 1. Wait once to reconfigure
+       * 2. Wait for window to receive back any pending configuration
        */
 
       if (!test_case_wait (test, error))
         return FALSE;
-      if (!test_case_dispatch (test, error))
-        return FALSE;
-      if (!test_case_wait (test, error))
-        return FALSE;
+
+      windows = g_ptr_array_new ();
+      serials = g_array_new (FALSE, FALSE, sizeof (uint32_t));
+
+      for (i = 1; i < argc; i++)
+        {
+          MetaWindow *window;
+
+          window = meta_test_client_find_window (client, window_id, error);
+          if (!window)
+            return FALSE;
+
+          if (META_IS_WINDOW_WAYLAND (window))
+            {
+              MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
+              uint32_t serial;
+
+              if (meta_window_wayland_get_pending_serial (wl_window, &serial))
+                {
+                  g_ptr_array_add (windows, window);
+                  g_array_append_val (serials, serial);
+                }
+            }
+          else
+            {
+              has_x11_window = TRUE;
+            }
+        }
+
+      if (has_x11_window)
+        {
+          /* There is no reliable configure tracking on X11, just make a
+           * genuien attempt, by first making sure pending operations have
+           * reached us, that we have flushed any outgoing data, and that any
+           * new pending operation from that has reached us. */
+          if (!test_case_wait (test, error))
+            return FALSE;
+          if (!test_case_dispatch (test, error))
+            return FALSE;
+          if (!test_case_wait (test, error))
+            return FALSE;
+        }
+
+      while (TRUE)
+        {
+          has_unfinished_configurations = FALSE;
+          for (i = 0; i < windows->len; i++)
+            {
+              MetaWindowWayland *wl_window = g_ptr_array_index (windows, i);
+              uint32_t serial = g_array_index (serials, uint32_t, i);
+
+              if (meta_window_wayland_peek_configuration (wl_window, serial))
+                {
+                  has_unfinished_configurations = TRUE;
+                  break;
+                }
+            }
+
+          if (has_unfinished_configurations)
+            g_main_context_iteration (NULL, TRUE);
+          else
+            break;
+        }
     }
   else if (strcmp (argv[0], "wait_size") == 0)
     {
