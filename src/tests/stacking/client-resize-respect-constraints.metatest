@@ -19,7 +19,7 @@ move w/1 300 200
 assert_position w/1 300 200
 
 resize w/1 600 500
-wait_reconfigure
+wait_size w/1 600 500
 assert_position w/1 200 100
 
 destroy w/1
@@ -38,7 +38,7 @@ move x/1 300 200
 assert_position x/1 300 200
 
 resize x/1 600 500
-wait_reconfigure
+wait_size x/1 600 500
 assert_position x/1 200 100
 
 destroy x/1

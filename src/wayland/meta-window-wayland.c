@@ -1253,8 +1253,12 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
   if (rect.width != window->rect.width || rect.height != window->rect.height)
     {
       flags |= META_MOVE_RESIZE_RESIZE_ACTION;
+
       if (is_client_resize)
-        flags |= META_MOVE_RESIZE_WAYLAND_CLIENT_RESIZE;
+        {
+          flags |= META_MOVE_RESIZE_WAYLAND_CLIENT_RESIZE;
+          flags |= META_MOVE_RESIZE_CONSTRAIN;
+        }
     }
 
   g_clear_pointer (&wl_window->last_acked_configuration,
