@@ -264,5 +264,41 @@ main (int    argc,
 
   wait_for_buffer_released (display);
 
+  /* Test reuse */
+
+  buffer =
+    wp_single_pixel_buffer_manager_v1_create_u32_rgba_buffer (display->single_pixel_mgr,
+                                                              0x70707070,
+                                                              0x00000000,
+                                                              0x70707070,
+                                                              0x70707070);
+  wl_surface_attach (subsurface_surface, buffer, 0, 0);
+  wl_surface_commit (subsurface_surface);
+  wait_for_view_verified (display, 7);
+
+  wl_subsurface_destroy (subsurface);
+  wl_surface_destroy (subsurface_surface);
+
+  subsurface_surface = wl_compositor_create_surface (display->compositor);
+  subsurface = wl_subcompositor_get_subsurface (display->subcompositor,
+                                                subsurface_surface,
+                                                surface);
+  wl_subsurface_set_desync (subsurface);
+  wl_subsurface_set_position (subsurface, 30, 30);
+  wl_surface_commit (surface);
+
+  subsurface_viewport = wp_viewporter_get_viewport (display->viewporter,
+                                                    subsurface_surface);
+  wp_viewport_set_destination (subsurface_viewport,
+                               window_width - 60,
+                               window_height - 60);
+
+  wl_buffer_add_listener (buffer, &buffer_listener, NULL);
+  wl_surface_attach (subsurface_surface, buffer, 0, 0);
+  wl_surface_commit (subsurface_surface);
+  wait_for_view_verified (display, 8);
+
+  wait_for_buffer_released (display);
+
   return EXIT_SUCCESS;
 }
