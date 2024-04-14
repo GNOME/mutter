@@ -18,8 +18,7 @@ wait
 assert_size x/1 500 400
 
 resize x/1 300 200
-wait_reconfigure
-assert_size x/1 300 200
+wait_size x/1 300 200
 maximize x/1
 wait_reconfigure
 unmaximize x/1

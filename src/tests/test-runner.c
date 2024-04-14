@@ -840,6 +840,35 @@ test_case_do (TestCase    *test,
       if (!test_case_wait (test, error))
         return FALSE;
     }
+  else if (strcmp (argv[0], "wait_size") == 0)
+    {
+      MetaTestClient *client;
+      const char *window_id;
+      MetaWindow *window;
+      int width, height;
+
+      if (argc != 4)
+        BAD_COMMAND("usage: %s <client-id>/<window-id> <width> <height>", argv[0]);
+
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
+
+      window = meta_test_client_find_window (client, window_id, error);
+
+      width = atoi (argv[2]);
+      height = atoi (argv[3]);
+
+      while (TRUE)
+        {
+          MtkRectangle rect;
+
+          meta_window_get_frame_rect (window, &rect);
+          if (rect.width == width && rect.height == height)
+            break;
+
+          g_main_context_iteration (NULL, TRUE);
+        }
+    }
   else if (strcmp (argv[0], "dispatch") == 0)
     {
       if (argc != 1)
