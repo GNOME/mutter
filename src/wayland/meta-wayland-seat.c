@@ -531,6 +531,8 @@ void
 meta_wayland_seat_set_input_focus (MetaWaylandSeat    *seat,
                                    MetaWaylandSurface *surface)
 {
+  ClutterSeat *clutter_seat;
+
   if (seat->input_focus == surface)
     return;
 
@@ -551,16 +553,10 @@ meta_wayland_seat_set_input_focus (MetaWaylandSeat    *seat,
                           seat);
     }
 
-  if (meta_wayland_seat_has_keyboard (seat))
-    {
-      meta_wayland_keyboard_set_focus (seat->keyboard, surface);
-      meta_wayland_data_device_set_keyboard_focus (&seat->data_device);
-      meta_wayland_data_device_primary_set_keyboard_focus (&seat->primary_data_device);
-    }
-
-  meta_wayland_tablet_seat_set_pad_focus (seat->tablet_seat, surface);
-
-  meta_wayland_text_input_set_focus (seat->text_input, surface);
+  clutter_seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  meta_wayland_input_invalidate_focus (seat->input_handler,
+                                       clutter_seat_get_keyboard (clutter_seat),
+                                       NULL);
 }
 
 MetaWaylandSurface *
