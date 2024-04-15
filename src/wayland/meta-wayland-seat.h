@@ -98,3 +98,5 @@ MetaWaylandInput * meta_wayland_seat_get_input (MetaWaylandSeat *seat);
 MetaWaylandSurface * meta_wayland_seat_get_current_surface (MetaWaylandSeat      *seat,
                                                             ClutterInputDevice   *device,
                                                             ClutterEventSequence *sequence);
+
+struct wl_client * meta_wayland_seat_get_input_focus_client (MetaWaylandSeat *seat);

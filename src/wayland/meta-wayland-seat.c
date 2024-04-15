@@ -720,3 +720,12 @@ meta_wayland_seat_get_current_surface (MetaWaylandSeat      *seat,
 
   return NULL;
 }
+
+struct wl_client *
+meta_wayland_seat_get_input_focus_client (MetaWaylandSeat *seat)
+{
+  if (seat->input_focus)
+    return wl_resource_get_client (seat->input_focus->resource);
+  else
+    return NULL;
+}
