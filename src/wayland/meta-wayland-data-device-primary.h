@@ -52,4 +52,4 @@ void meta_wayland_data_device_primary_manager_init (MetaWaylandCompositor *compo
 void meta_wayland_data_device_primary_init (MetaWaylandDataDevicePrimary *data_device,
                                             MetaWaylandSeat              *seat);
 
-void meta_wayland_data_device_primary_set_keyboard_focus (MetaWaylandDataDevicePrimary *data_device);
+void meta_wayland_data_device_primary_sync_focus (MetaWaylandDataDevicePrimary *data_device);
