@@ -224,7 +224,7 @@ default_focus (MetaWaylandEventHandler *handler,
       if (meta_wayland_seat_has_keyboard (seat))
         meta_wayland_keyboard_set_focus (seat->keyboard, surface);
 
-      meta_wayland_data_device_set_keyboard_focus (&seat->data_device);
+      meta_wayland_data_device_sync_focus (&seat->data_device);
       meta_wayland_data_device_primary_set_keyboard_focus (&seat->primary_data_device);
       meta_wayland_tablet_seat_set_pad_focus (seat->tablet_seat, surface);
       meta_wayland_text_input_set_focus (seat->text_input, surface);

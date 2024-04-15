@@ -1062,7 +1062,7 @@ data_device_set_selection (struct wl_client   *client,
     }
 
   if (wl_resource_get_client (resource) !=
-      meta_wayland_keyboard_get_focus_client (seat->keyboard))
+      meta_wayland_seat_get_input_focus_client (seat))
     {
       if (source)
         meta_wayland_data_source_cancel (source);
@@ -1106,7 +1106,7 @@ owner_changed_cb (MetaSelection         *selection,
   struct wl_resource *data_device_resource;
   struct wl_client *focus_client;
 
-  focus_client = meta_wayland_keyboard_get_focus_client (seat->keyboard);
+  focus_client = meta_wayland_seat_get_input_focus_client (seat);
   if (!focus_client)
     return;
 
@@ -1249,13 +1249,13 @@ create_and_send_clipboard_offer (MetaWaylandDataDevice *data_device,
 }
 
 void
-meta_wayland_data_device_set_keyboard_focus (MetaWaylandDataDevice *data_device)
+meta_wayland_data_device_sync_focus (MetaWaylandDataDevice *data_device)
 {
   MetaWaylandSeat *seat = wl_container_of (data_device, seat, data_device);
   struct wl_client *focus_client;
   struct wl_resource *data_device_resource;
 
-  focus_client = meta_wayland_keyboard_get_focus_client (seat->keyboard);
+  focus_client = meta_wayland_seat_get_input_focus_client (seat);
 
   if (focus_client == data_device->focus_client)
     return;
