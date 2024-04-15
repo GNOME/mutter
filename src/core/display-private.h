@@ -154,6 +154,7 @@ struct _MetaDisplay
   GBytes *saved_clipboard;
   gchar *saved_clipboard_mimetype;
   MetaSelection *selection;
+  GCancellable *saved_clipboard_cancellable;
 };
 
 struct _MetaDisplayClass

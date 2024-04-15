@@ -65,23 +65,23 @@ mimetype_match (const char *mimetype,
 static void
 transfer_cb (MetaSelection *selection,
              GAsyncResult  *result,
-             GOutputStream *output)
+             GOutputStream *output_stream)
 {
   MetaDisplay *display = meta_selection_get_display (selection);
-  GError *error = NULL;
+  g_autoptr (GOutputStream) output = output_stream;
+  g_autoptr (GError) error = NULL;
 
   if (!meta_selection_transfer_finish (selection, result, &error))
     {
-      g_warning ("Failed to store clipboard: %s", error->message);
-      g_error_free (error);
-      g_object_unref (output);
+      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+        g_warning ("Failed to store clipboard: %s", error->message);
+
       return;
     }
 
   g_output_stream_close (output, NULL, NULL);
   display->saved_clipboard =
     g_memory_output_stream_steal_as_bytes (G_MEMORY_OUTPUT_STREAM (output));
-  g_object_unref (output);
 }
 
 static void
@@ -104,6 +104,8 @@ owner_changed_cb (MetaSelection       *selection,
       /* New selection source, find the best mimetype in order to
        * keep a copy of it.
        */
+      g_cancellable_cancel (display->saved_clipboard_cancellable);
+      g_clear_object (&display->saved_clipboard_cancellable);
       g_clear_object (&display->selection_source);
       g_clear_pointer (&display->saved_clipboard_mimetype, g_free);
       g_clear_pointer (&display->saved_clipboard, g_bytes_unref);
@@ -135,12 +137,13 @@ owner_changed_cb (MetaSelection       *selection,
       display->saved_clipboard_mimetype = g_strdup (best);
       g_list_free_full (mimetypes, g_free);
       output = g_memory_output_stream_new_resizable ();
+      display->saved_clipboard_cancellable = g_cancellable_new ();
       meta_selection_transfer_async (selection,
                                      META_SELECTION_CLIPBOARD,
                                      display->saved_clipboard_mimetype,
                                      transfer_size,
                                      output,
-                                     NULL,
+                                     display->saved_clipboard_cancellable,
                                      (GAsyncReadyCallback) transfer_cb,
                                      output);
     }
@@ -182,6 +185,8 @@ meta_clipboard_manager_shutdown (MetaDisplay *display)
 {
   MetaSelection *selection;
 
+  g_cancellable_cancel (display->saved_clipboard_cancellable);
+  g_clear_object (&display->saved_clipboard_cancellable);
   g_clear_object (&display->selection_source);
   g_clear_pointer (&display->saved_clipboard, g_bytes_unref);
   g_clear_pointer (&display->saved_clipboard_mimetype, g_free);
