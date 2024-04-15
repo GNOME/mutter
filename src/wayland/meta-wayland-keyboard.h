@@ -71,8 +71,6 @@ void meta_wayland_keyboard_update_key_state (MetaWaylandKeyboard *compositor,
 void meta_wayland_keyboard_set_focus (MetaWaylandKeyboard *keyboard,
                                       MetaWaylandSurface *surface);
 
-struct wl_client * meta_wayland_keyboard_get_focus_client (MetaWaylandKeyboard *keyboard);
-
 void meta_wayland_keyboard_create_new_resource (MetaWaylandKeyboard *keyboard,
                                                 struct wl_client    *client,
                                                 struct wl_resource  *seat_resource,

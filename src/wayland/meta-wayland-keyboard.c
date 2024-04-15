@@ -830,15 +830,6 @@ meta_wayland_keyboard_set_focus (MetaWaylandKeyboard *keyboard,
     }
 }
 
-struct wl_client *
-meta_wayland_keyboard_get_focus_client (MetaWaylandKeyboard *keyboard)
-{
-  if (keyboard->focus_surface)
-    return wl_resource_get_client (keyboard->focus_surface->resource);
-  else
-    return NULL;
-}
-
 static void
 keyboard_release (struct wl_client *client,
                   struct wl_resource *resource)
