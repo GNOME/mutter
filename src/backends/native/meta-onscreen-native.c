@@ -1384,6 +1384,17 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
         g_set_object (&onscreen_native->gbm.next_fb, secondary_gpu_fb);
       else
         g_set_object (&onscreen_native->gbm.next_fb, primary_gpu_fb);
+
+      if (!meta_drm_buffer_ensure_fb_id (onscreen_native->gbm.next_fb, &error))
+        {
+          g_warning ("Failed to ensure KMS FB ID on %s: %s",
+                     meta_device_file_get_path (render_device_file),
+                     error->message);
+
+          frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
+          meta_onscreen_native_notify_frame_complete (onscreen);
+          return;
+        }
       break;
     case META_RENDERER_NATIVE_MODE_SURFACELESS:
       break;
@@ -1391,17 +1402,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
       break;
 #endif
-    }
-
-  if (!meta_drm_buffer_ensure_fb_id (onscreen_native->gbm.next_fb, &error))
-    {
-      g_warning ("Failed to ensure KMS FB ID on %s: %s",
-                 meta_device_file_get_path (render_device_file),
-                 error->message);
-
-      frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
-      meta_onscreen_native_notify_frame_complete (onscreen);
-      return;
     }
 
   /*
