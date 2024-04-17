@@ -868,6 +868,73 @@ toplevel_show_states (void)
   meta_wayland_test_client_finish (wayland_test_client);
 }
 
+enum
+{
+  XDG_TOPLEVEL_SUSPENDED_COMMAND_NEXT_WORKSPACE = 0,
+  XDG_TOPLEVEL_SUSPENDED_COMMAND_PREV_WORKSPACE = 1,
+  XDG_TOPLEVEL_SUSPENDED_COMMAND_ACTIVATE_WINDOW = 2,
+};
+
+static void
+on_toplevel_suspended_sync_point (MetaWaylandTestDriver *test_driver,
+                                  unsigned int           sequence,
+                                  struct wl_resource    *surface_resource,
+                                  struct wl_client      *wl_client)
+{
+  MetaDisplay *display = meta_context_get_display (test_context);
+  MetaWorkspaceManager *workspace_manager =
+    meta_display_get_workspace_manager (display);
+  MetaWorkspace *current_workspace;
+  int index;
+  MetaWorkspace *workspace;
+  MetaWaylandSurface *surface;
+  uint32_t now_ms;
+
+  current_workspace =
+    meta_workspace_manager_get_active_workspace (workspace_manager);
+  index = meta_workspace_index (current_workspace);
+  switch (sequence)
+    {
+    case XDG_TOPLEVEL_SUSPENDED_COMMAND_NEXT_WORKSPACE:
+      workspace =
+        meta_workspace_manager_get_workspace_by_index (workspace_manager,
+                                                       index + 1);
+      now_ms = meta_display_get_current_time_roundtrip (display);
+      meta_workspace_activate (workspace, now_ms);
+      break;
+    case XDG_TOPLEVEL_SUSPENDED_COMMAND_PREV_WORKSPACE:
+      workspace =
+        meta_workspace_manager_get_workspace_by_index (workspace_manager,
+                                                       index - 1);
+      now_ms = meta_display_get_current_time_roundtrip (display);
+      meta_workspace_activate (workspace, now_ms);
+      break;
+    case XDG_TOPLEVEL_SUSPENDED_COMMAND_ACTIVATE_WINDOW:
+      surface = wl_resource_get_user_data (surface_resource);
+      now_ms = meta_display_get_current_time_roundtrip (display);
+      meta_window_activate (meta_wayland_surface_get_window (surface), now_ms);
+      break;
+    }
+}
+
+static void
+toplevel_suspended (void)
+{
+  MetaWaylandTestClient *wayland_test_client;
+  gulong sync_point_id;
+
+  sync_point_id =
+    g_signal_connect (test_driver, "sync-point",
+                      G_CALLBACK (on_toplevel_suspended_sync_point),
+                      NULL);
+
+  wayland_test_client =
+    meta_wayland_test_client_new (test_context, "xdg-toplevel-suspended");
+  meta_wayland_test_client_finish (wayland_test_client);
+
+  g_signal_handler_disconnect (test_driver, sync_point_id);
+}
+
 static void
 on_before_tests (void)
 {
@@ -947,6 +1014,8 @@ init_tests (void)
                    xdg_foreign_set_parent_of);
   g_test_add_func ("/wayland/toplevel/show-states",
                    toplevel_show_states);
+  g_test_add_func ("/wayland/toplevel/suspended",
+                   toplevel_suspended);
 }
 
 int

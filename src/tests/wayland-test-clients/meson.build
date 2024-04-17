@@ -82,6 +82,9 @@ wayland_test_clients = [
     'name': 'xdg-toplevel-bounds',
   },
   {
+    'name': 'xdg-toplevel-suspended',
+  },
+  {
     'name': 'ycbcr',
   },
 ]

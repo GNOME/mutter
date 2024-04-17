@@ -168,6 +168,8 @@ static MetaWindow * meta_window_find_tile_match (MetaWindow   *window,
                                                  MetaTileMode  mode);
 static void update_edge_constraints (MetaWindow *window);
 
+static void set_hidden_suspended_state (MetaWindow *window);
+
 static void initable_iface_init (GInitableIface *initable_iface);
 
 typedef struct _MetaWindowPrivate
@@ -713,9 +715,6 @@ meta_window_class_init (MetaWindowClass *klass)
 static void
 meta_window_init (MetaWindow *window)
 {
-  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
-
-  priv->suspend_state = META_WINDOW_SUSPEND_STATE_SUSPENDED;
   window->stamp = next_window_stamp++;
   meta_prefs_add_listener (prefs_changed_callback, window);
   window->is_alive = TRUE;
@@ -991,6 +990,7 @@ static void
 meta_window_constructed (GObject *object)
 {
   MetaWindow *window = META_WINDOW (object);
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
   MetaDisplay *display = window->display;
   MetaContext *context = meta_display_get_context (display);
   MetaBackend *backend = meta_context_get_backend (context);
@@ -1342,6 +1342,11 @@ meta_window_constructed (GObject *object)
       !display->display_opening &&
       !window->initially_iconic)
     unminimize_window_and_all_transient_parents (window);
+
+  /* There is a slim chance we'll hit time out before a extremely slow client
+   * managed to become active, but unlikely enough. */
+  priv->suspend_state = META_WINDOW_SUSPEND_STATE_HIDDEN;
+  set_hidden_suspended_state (window);
 
   window->constructing = FALSE;
 }
@@ -2165,6 +2170,19 @@ enter_suspend_state_cb (gpointer user_data)
 }
 
 static void
+set_hidden_suspended_state (MetaWindow *window)
+{
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
+
+  priv->suspend_state = META_WINDOW_SUSPEND_STATE_HIDDEN;
+  g_return_if_fail (!priv->suspend_timoeut_id);
+  priv->suspend_timoeut_id =
+    g_timeout_add_seconds (SUSPEND_HIDDEN_TIMEOUT_S,
+                           enter_suspend_state_cb,
+                           window);
+}
+
+static void
 update_suspend_state (MetaWindow *window)
 {
   MetaWindowPrivate *priv = meta_window_get_instance_private (window);
@@ -2181,13 +2199,8 @@ update_suspend_state (MetaWindow *window)
     }
   else if (priv->suspend_state == META_WINDOW_SUSPEND_STATE_ACTIVE)
     {
-      priv->suspend_state = META_WINDOW_SUSPEND_STATE_HIDDEN;
+      set_hidden_suspended_state (window);
       g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_SUSPEND_STATE]);
-      g_return_if_fail (!priv->suspend_timoeut_id);
-      priv->suspend_timoeut_id =
-        g_timeout_add_seconds (SUSPEND_HIDDEN_TIMEOUT_S,
-                               enter_suspend_state_cb,
-                               window);
     }
 }
 
