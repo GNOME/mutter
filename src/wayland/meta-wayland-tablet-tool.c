@@ -64,8 +64,13 @@ struct _MetaWaylandTabletTool
 
   float grab_x, grab_y;
 
+  gulong current_surface_destroyed_handler_id;
+
   MetaWaylandTablet *current_tablet;
 };
+
+static void meta_wayland_tablet_tool_set_current_surface (MetaWaylandTabletTool *tool,
+							  MetaWaylandSurface    *surface);
 
 static MetaBackend *
 backend_from_tool (MetaWaylandTabletTool *tool)
@@ -453,6 +458,7 @@ meta_wayland_tablet_tool_free (MetaWaylandTabletTool *tool)
 {
   struct wl_resource *resource, *next;
 
+  meta_wayland_tablet_tool_set_current_surface (tool, NULL);
   meta_wayland_tablet_tool_set_focus (tool, NULL, NULL);
   meta_wayland_tablet_tool_set_cursor_surface (tool, NULL);
   g_clear_object (&tool->cursor_renderer);
@@ -595,10 +601,41 @@ meta_wayland_tablet_tool_account_button (MetaWaylandTabletTool *tool,
 }
 
 static void
-sync_focus_surface (MetaWaylandTabletTool *tool,
-                    const ClutterEvent    *event)
+current_surface_destroyed (MetaWaylandSurface    *surface,
+                           MetaWaylandTabletTool *tool)
 {
-  meta_wayland_tablet_tool_set_focus (tool, tool->current, event);
+  meta_wayland_tablet_tool_set_current_surface (tool, NULL);
+}
+
+static void
+meta_wayland_tablet_tool_set_current_surface (MetaWaylandTabletTool *tool,
+					      MetaWaylandSurface    *surface)
+{
+  MetaWaylandTabletSeat *tablet_seat;
+  MetaWaylandInput *input;
+
+  if (tool->current == surface)
+    return;
+
+  if (tool->current)
+    {
+      g_clear_signal_handler (&tool->current_surface_destroyed_handler_id,
+                              tool->current);
+      tool->current = NULL;
+    }
+
+  if (surface)
+    {
+      tool->current = surface;
+      tool->current_surface_destroyed_handler_id =
+        g_signal_connect (surface, "destroy",
+                          G_CALLBACK (current_surface_destroyed),
+                          tool);
+    }
+
+  tablet_seat = tool->seat;
+  input = meta_wayland_seat_get_input (tablet_seat->seat);
+  meta_wayland_input_invalidate_focus (input, tool->device, NULL);
 }
 
 static void
@@ -607,6 +644,7 @@ repick_for_event (MetaWaylandTabletTool *tool,
 {
   MetaBackend *backend = backend_from_tool (tool);
   ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+  MetaWaylandSurface *surface;
   ClutterActor *actor;
 
   actor = clutter_stage_get_device_actor (stage,
@@ -614,11 +652,11 @@ repick_for_event (MetaWaylandTabletTool *tool,
                                           clutter_event_get_event_sequence (for_event));
 
   if (META_IS_SURFACE_ACTOR_WAYLAND (actor))
-    tool->current = meta_surface_actor_wayland_get_surface (META_SURFACE_ACTOR_WAYLAND (actor));
+    surface = meta_surface_actor_wayland_get_surface (META_SURFACE_ACTOR_WAYLAND (actor));
   else
-    tool->current = NULL;
+    surface = NULL;
 
-  sync_focus_surface (tool, for_event);
+  meta_wayland_tablet_tool_set_current_surface (tool, surface);
   meta_wayland_tablet_tool_update_cursor_surface (tool);
 }
 
