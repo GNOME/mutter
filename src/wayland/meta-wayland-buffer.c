@@ -1034,7 +1034,7 @@ meta_wayland_buffer_finalize (GObject *object)
 static void
 meta_wayland_buffer_init (MetaWaylandBuffer *buffer)
 {
-  buffer->release_points = g_ptr_array_new_with_free_func (g_free);
+  buffer->release_points = g_ptr_array_new_with_free_func (g_object_unref);
 }
 
 static void
