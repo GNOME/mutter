@@ -1,3 +1,33 @@
+46.1
+====
+* Implement linux-drm-syncobj-v1 [Austin; !3300]
+* Fix input lag on X11 nvidia [Daniel; !3685]
+* Fix scanout on secondary GPUs [Michel; !3674]
+* Don't apply max-render-time to secondary GPUs [Michel; !3689]
+* Fix reusing single-pixel buffers [Jonas Å.; !3702]
+* Improve scanout candidate check [Robert; !3699]
+* Always use logical pixels for bounds [Sophie; !3698]
+* Fix modifiers getting stuck during grabs [Carlos; !3704]
+* Fix night-light on displays without EDID [Sebastian W.; !3673]
+* Fix secondary GPU acceleration with nvidia driver [Jonas Å., Daniel; !3304]
+* Fix some XWayland clients being partially click-through [Sebastian K.; !3697]
+* Fix initial suspended state [Jonas Å.; !3475]
+* Fixed crashes [Bilal, Jonas Å., Sebastian W., Daniel;
+  !3683, !3666, !3691, !3708, !3678]
+* Misc. bug fixes and cleanups [Ray, Carlos, Bilal, Ivan, Barnabás, Jonas Å.,
+  Jonas D., Michel; !3672, !3681, !3686, !3687, !3671, !3679, !3690, !3703,
+  !3695, !2946, !3696, !3710, !3644, !3707]
+
+Contributors:
+  Jonas Ådahl, Michel Dänzer, Jonas Dreßler, Bilal Elmoussaoui, Carlos Garnacho,
+  Sophie Herold, Sebastian Keller, Robert Mader, Athmane MOKRAOUI,
+  Ivan Molodetskikh, Barnabás Pőcze, Austin Shafer, Ray Strode, Daniel van Vugt,
+  Sebastian Wick
+
+Translators:
+  A S Alam [pa], Athmane MOKRAOUI [kab], Rachida SACI [kab],
+  Nathan Follens [nl], Gwan-gyeong Mun [ko], Fabio Tomat [fur]
+
 46.0
 ====
 * Fix duplicate scroll events over libei [Peter; !3637]
