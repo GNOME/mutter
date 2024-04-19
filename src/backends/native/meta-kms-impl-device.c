@@ -20,6 +20,7 @@
 #include "backends/native/meta-kms-impl-device.h"
 
 #include <errno.h>
+#include <fcntl.h>
 #include <glib/gstdio.h>
 #include <linux/dma-buf.h>
 #include <sys/ioctl.h>
@@ -1191,6 +1192,52 @@ meta_kms_impl_device_get_fd (MetaKmsImplDevice *impl_device)
   meta_assert_in_kms_impl (meta_kms_impl_get_kms (priv->impl));
 
   return meta_device_file_get_fd (priv->device_file);
+}
+
+/**
+ * meta_kms_impl_device_open_non_privileged_fd:
+ * @impl_device: a #MetaKmsImplDevice object
+ *
+ * Returns a non-master file descriptor for the given impl_device. The caller is
+ * responsable of closing the file descriptor.
+ *
+ * On error, returns a negative value.
+ */
+int
+meta_kms_impl_device_open_non_privileged_fd (MetaKmsImplDevice *impl_device)
+{
+  int fd;
+  const char *path;
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+
+  if (!priv->device_file)
+    return -1;
+
+  path = meta_device_file_get_path (priv->device_file);
+
+  fd = open (path, O_RDWR | O_CLOEXEC);
+  if (fd < 0)
+    {
+      meta_topic (META_DEBUG_KMS,
+                  "Error getting non-master fd for device at '%s': %s",
+                  path,
+                  g_strerror (errno));
+      return -1;
+    }
+
+  if (drmIsMaster (fd))
+    {
+      if (drmDropMaster (fd) < 0)
+        {
+          meta_topic (META_DEBUG_KMS,
+                      "Error dropping master for device at '%s'",
+                      path);
+          return -1;
+        }
+    }
+
+  return fd;
 }
 
 /**
