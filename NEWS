@@ -1,3 +1,13 @@
+45.6
+====
+* Always use logical pixels for bounds [Sophie; !3698]
+* Fix reusing single-pixel buffers [Jonas Å.; !3702]
+* Dynamically assign hardware planes during configuration [Jonas Å.; !3428]
+* Fixed crash [Sebastian; !3539]
+
+Contributors:
+  Jonas Ådahl, Sophie Herold, Sebastian Wick
+
 45.5
 ====
 * Remove experimental rt-scheduler feature [Dallas; !3657]
