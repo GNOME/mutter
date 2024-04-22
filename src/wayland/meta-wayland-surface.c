@@ -2463,7 +2463,7 @@ committed_state_handle_highest_scale_monitor (MetaWaylandSurface *surface)
       transform = meta_wayland_surface_get_output_transform (surface);
       if (transform != surface->preferred_transform)
         {
-          wl_surface_send_preferred_buffer_transform (surface->resource, ceiled_scale);
+          wl_surface_send_preferred_buffer_transform (surface->resource, transform);
           surface->preferred_transform = transform;
         }
     }
