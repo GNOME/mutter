@@ -160,7 +160,6 @@ if have_x11_client
   xkbfile_dep = dependency('xkbfile')
   xkeyboard_config_dep = dependency('xkeyboard-config')
   xkbcommon_x11_dep = dependency('xkbcommon-x11')
-  xrender_dep = dependency('xrender')
   x11_xcb_dep = dependency('x11-xcb')
   xrandr_dep = dependency('xrandr', version: xrandr_req)
   xcb_randr_dep = dependency('xcb-randr')
