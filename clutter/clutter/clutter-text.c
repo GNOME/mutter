@@ -336,8 +336,8 @@ clutter_text_input_focus_request_surrounding (ClutterInputFocus *focus)
     anchor_pos = cursor_pos;
 
   clutter_input_focus_set_surrounding (focus, text,
-                                       g_utf8_offset_to_pointer (text, cursor_pos) - text,
-                                       g_utf8_offset_to_pointer (text, anchor_pos) - text);
+                                       cursor_pos,
+                                       anchor_pos);
 }
 
 static void
