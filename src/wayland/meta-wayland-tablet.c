@@ -93,8 +93,17 @@ meta_wayland_tablet_notify (MetaWaylandTablet  *tablet,
 
   vid = clutter_input_device_get_vendor_id (device);
   pid = clutter_input_device_get_product_id (device);
+  pid = clutter_input_device_get_product_id (device);
 
   zwp_tablet_v2_send_id (resource, vid, pid);
+
+  if (wl_resource_get_version (resource) >= ZWP_TABLET_V2_BUSTYPE_SINCE_VERSION)
+    {
+      guint bustype = clutter_input_device_get_bus_type (device);
+      if (bustype)
+        zwp_tablet_v2_send_bustype (resource, bustype);
+    }
+
   zwp_tablet_v2_send_done (resource);
 }
 
