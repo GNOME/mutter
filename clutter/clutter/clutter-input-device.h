@@ -82,6 +82,8 @@ CLUTTER_EXPORT
 guint                   clutter_input_device_get_vendor_id      (ClutterInputDevice *device);
 CLUTTER_EXPORT
 guint                   clutter_input_device_get_product_id     (ClutterInputDevice *device);
+CLUTTER_EXPORT
+guint                   clutter_input_device_get_bus_type       (ClutterInputDevice *device);
 
 CLUTTER_EXPORT
 gint                    clutter_input_device_get_n_rings        (ClutterInputDevice *device);

@@ -63,6 +63,7 @@ enum
 
   PROP_VENDOR_ID,
   PROP_PRODUCT_ID,
+  PROP_BUS_TYPE,
 
   PROP_N_STRIPS,
   PROP_N_RINGS,
@@ -89,6 +90,7 @@ struct _ClutterInputDevicePrivate
 
   guint vendor_id;
   guint product_id;
+  guint bus_type;
   char *node_path;
 
   int n_rings;
@@ -208,6 +210,10 @@ clutter_input_device_set_property (GObject      *gobject,
       priv->product_id = g_value_get_uint (value);
       break;
 
+    case PROP_BUS_TYPE:
+      priv->bus_type = g_value_get_uint (value);
+      break;
+
     case PROP_N_RINGS:
       priv->n_rings = g_value_get_int (value);
       break;
@@ -276,6 +282,10 @@ clutter_input_device_get_property (GObject    *gobject,
 
     case PROP_PRODUCT_ID:
       g_value_set_uint (value, priv->product_id);
+      break;
+
+    case PROP_BUS_TYPE:
+      g_value_set_uint (value, priv->bus_type);
       break;
 
     case PROP_N_RINGS:
@@ -402,6 +412,17 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
   obj_props[PROP_PRODUCT_ID] =
     g_param_spec_uint ("product-id", NULL, NULL,
                        0, 0xffff, 0,
+                       G_PARAM_READWRITE |
+                       G_PARAM_CONSTRUCT_ONLY);
+
+  /**
+   * ClutterInputDevice:bus-type:
+   *
+   * Bus type of this device.
+   */
+  obj_props[PROP_BUS_TYPE] =
+    g_param_spec_uint ("bus-type", NULL, NULL,
+                       0, 0xff, 0,
                        G_PARAM_READWRITE |
                        G_PARAM_CONSTRUCT_ONLY);
 
@@ -594,6 +615,28 @@ clutter_input_device_get_product_id (ClutterInputDevice *device)
   g_return_val_if_fail (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_LOGICAL, 0);
 
   return priv->product_id;
+}
+
+/**
+ * clutter_input_device_get_bus_type:
+ * @device: a physical #ClutterInputDevice
+ *
+ * Gets the bus type of this device. The returned
+ * value is one of the BUS_* constants defined in
+ * linux/input.h.
+ *
+ * Returns: the bus type
+ */
+guint
+clutter_input_device_get_bus_type (ClutterInputDevice *device)
+{
+  ClutterInputDevicePrivate *priv =
+    clutter_input_device_get_instance_private (device);
+
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), 0);
+  g_return_val_if_fail (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_LOGICAL, 0);
+
+  return priv->bus_type;
 }
 
 gint
