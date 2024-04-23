@@ -71,10 +71,16 @@ static Cursor
 create_x_cursor (Display    *xdisplay,
                  MetaCursor  cursor)
 {
+  Cursor result;
+
   if (cursor == META_CURSOR_BLANK)
     return create_blank_cursor (xdisplay);
 
-  return XcursorLibraryLoadCursor (xdisplay, meta_cursor_get_name (cursor));
+  result = XcursorLibraryLoadCursor (xdisplay, meta_cursor_get_name (cursor));
+  if (!result)
+    result = XcursorLibraryLoadCursor (xdisplay, meta_cursor_get_legacy_name (cursor));
+
+  return result;
 }
 
 static gboolean
