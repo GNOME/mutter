@@ -31,7 +31,7 @@
 #include "wayland/meta-wayland-tablet-pad.h"
 #include "wayland/meta-wayland-tablet-pad-group.h"
 
-#include "tablet-unstable-v2-server-protocol.h"
+#include "tablet-v2-server-protocol.h"
 
 static void
 unbind_resource (struct wl_resource *resource)

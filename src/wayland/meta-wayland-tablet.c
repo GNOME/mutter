@@ -29,7 +29,7 @@
 #include "compositor/meta-surface-actor-wayland.h"
 #include "wayland/meta-wayland-private.h"
 
-#include "tablet-unstable-v2-server-protocol.h"
+#include "tablet-v2-server-protocol.h"
 
 static void
 unbind_resource (struct wl_resource *resource)

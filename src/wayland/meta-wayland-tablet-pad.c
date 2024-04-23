@@ -36,7 +36,7 @@
 #include "wayland/meta-wayland-tablet-seat.h"
 #include "wayland/meta-wayland-tablet.h"
 
-#include "tablet-unstable-v2-server-protocol.h"
+#include "tablet-v2-server-protocol.h"
 
 static MetaDisplay *
 display_from_pad (MetaWaylandTabletPad *pad)
