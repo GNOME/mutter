@@ -117,7 +117,8 @@ meta_cursor_sprite_xcursor_get_cursor (MetaCursorSpriteXcursor *sprite_xcursor)
 }
 
 static XcursorImages *
-load_cursor_on_client (MetaCursor cursor, int scale)
+load_cursor_on_client (MetaCursor cursor,
+                       int        scale)
 {
   XcursorImages *xcursor_images;
   int fallback_size, i;
