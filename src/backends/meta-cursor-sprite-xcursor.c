@@ -173,16 +173,18 @@ load_cursor_on_client (MetaCursor cursor,
 {
   XcursorImages *xcursor_images;
   int fallback_size, i;
-  /* Set a 'default' fallback */
-  MetaCursor cursors[] = { cursor, META_CURSOR_DEFAULT };
+  const char *cursor_names[2];
 
   if (cursor == META_CURSOR_BLANK)
     return create_blank_cursor_images ();
 
-  for (i = 0; i < G_N_ELEMENTS (cursors); i++)
+  cursor_names[0] = meta_cursor_get_name (cursor);
+  cursor_names[1] = meta_cursor_get_legacy_name (cursor);
+
+  for (i = 0; i < G_N_ELEMENTS (cursor_names); i++)
     {
       xcursor_images =
-        xcursor_library_load_images (meta_cursor_get_name (cursors[i]),
+        xcursor_library_load_images (cursor_names[i],
                                      meta_prefs_get_cursor_theme (),
                                      meta_prefs_get_cursor_size () * scale);
       if (xcursor_images)
