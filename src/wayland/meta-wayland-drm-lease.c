@@ -25,6 +25,7 @@
 #include "wayland/meta-wayland-drm-lease.h"
 
 #include <glib.h>
+#include <glib/gstdio.h>
 
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-drm-lease.h"
@@ -95,6 +96,26 @@ static const struct wp_drm_lease_device_v1_interface drm_lease_device_implementa
 };
 
 static void
+send_drm_fd (struct wl_client          *client,
+             MetaWaylandDrmLeaseDevice *lease_device,
+             struct wl_resource        *device_resource)
+{
+  g_autofd int fd = -1;
+  MetaKmsImplDevice *impl_device;
+
+  impl_device = meta_kms_device_get_impl_device (lease_device->kms_device);
+  fd = meta_kms_impl_device_open_non_privileged_fd (impl_device);
+  if (fd < 0)
+    {
+      wl_client_post_implementation_error (client,
+                                           "Error getting DRM lease device fd");
+      return;
+    }
+
+  wp_drm_lease_device_v1_send_drm_fd (device_resource, fd);
+}
+
+static void
 wp_drm_lease_device_destructor (struct wl_resource *resource)
 {
   MetaWaylandDrmLeaseDevice *lease_device =
@@ -119,6 +140,9 @@ lease_device_bind (struct wl_client *client,
                                   &drm_lease_device_implementation,
                                   g_rc_box_acquire (lease_device),
                                   wp_drm_lease_device_destructor);
+
+  send_drm_fd (client, lease_device, resource);
+  wp_drm_lease_device_v1_send_done (resource);
 
   lease_device->resources = g_list_prepend (lease_device->resources, resource);
 }
