@@ -185,6 +185,20 @@ meta_wayland_drm_lease_connector_new (MetaWaylandDrmLeaseDevice *lease_device,
 }
 
 static void
+meta_wayland_drm_lease_connector_send_withdrawn (MetaWaylandDrmLeaseConnector *lease_connector)
+{
+  GList *l;
+
+  for (l = lease_connector->resources; l; l = l->next)
+    {
+      struct wl_resource *resource = l->data;
+
+      if (wl_resource_get_user_data (resource) == lease_connector)
+        wp_drm_lease_connector_v1_send_withdrawn (resource);
+    }
+}
+
+static void
 drm_lease_connector_destroy (struct wl_client   *client,
                              struct wl_resource *resource)
 {
@@ -364,6 +378,71 @@ meta_wayland_drm_lease_manager_add_device (MetaKmsDevice              *kms_devic
                        g_steal_pointer (&lease_device));
 }
 
+static void
+on_connector_added (MetaDrmLeaseManager        *drm_lease_manager,
+                    MetaKmsConnector           *kms_connector,
+                    gboolean                    is_last_connector_update,
+                    MetaWaylandDrmLeaseManager *lease_manager)
+{
+  MetaWaylandDrmLeaseConnector *lease_connector;
+  MetaWaylandDrmLeaseDevice *lease_device;
+  MetaKmsDevice *kms_device;
+  GList *l;
+
+  kms_device = meta_kms_connector_get_device (kms_connector);
+  lease_device = g_hash_table_lookup (lease_manager->devices, kms_device);
+  g_return_if_fail (lease_device != NULL);
+
+  meta_wayland_drm_lease_device_add_connector (kms_connector, lease_device);
+  lease_connector = g_hash_table_lookup (lease_device->connectors,
+                                         kms_connector);
+  g_return_if_fail (lease_connector != NULL);
+
+  for (l = lease_device->resources; l; l = l->next)
+    {
+      struct wl_resource *resource = l->data;
+
+      if (wl_resource_get_user_data (resource) == lease_device)
+        send_new_connector_resource (lease_device, resource, lease_connector);
+    }
+
+  if (is_last_connector_update)
+    {
+      g_list_foreach (lease_device->resources,
+                      (GFunc) wp_drm_lease_device_v1_send_done,
+                      NULL);
+    }
+}
+
+static void
+on_connector_removed (MetaDrmLeaseManager        *drm_lease_manager,
+                      MetaKmsConnector           *kms_connector,
+                      gboolean                    is_last_connector_update,
+                      MetaWaylandDrmLeaseManager *lease_manager)
+{
+  MetaWaylandDrmLeaseConnector *lease_connector;
+  MetaWaylandDrmLeaseDevice *lease_device;
+  MetaKmsDevice *kms_device;
+
+  kms_device = meta_kms_connector_get_device (kms_connector);
+  lease_device = g_hash_table_lookup (lease_manager->devices, kms_device);
+  g_return_if_fail (lease_device != NULL);
+
+  lease_connector = g_hash_table_lookup (lease_device->connectors,
+                                         kms_connector);
+  g_return_if_fail (lease_connector != NULL);
+
+  meta_wayland_drm_lease_connector_send_withdrawn (lease_connector);
+  g_hash_table_remove (lease_device->connectors, kms_connector);
+
+  if (is_last_connector_update)
+    {
+      g_list_foreach (lease_device->resources,
+                      (GFunc) wp_drm_lease_device_v1_send_done,
+                      NULL);
+    }
+}
+
 static MetaWaylandDrmLeaseManager *
 meta_wayland_drm_lease_manager_new (MetaWaylandCompositor *compositor)
 {
@@ -394,6 +473,13 @@ meta_wayland_drm_lease_manager_new (MetaWaylandCompositor *compositor)
   g_list_foreach (meta_drm_lease_manager_get_devices (drm_lease_manager),
                   (GFunc) meta_wayland_drm_lease_manager_add_device,
                   lease_manager);
+
+  g_signal_connect (lease_manager->drm_lease_manager, "connector-added",
+                    G_CALLBACK (on_connector_added),
+                    lease_manager);
+  g_signal_connect (lease_manager->drm_lease_manager, "connector-removed",
+                    G_CALLBACK (on_connector_removed),
+                    lease_manager);
 
   return lease_manager;
 }
