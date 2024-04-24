@@ -41,6 +41,7 @@
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-color-management.h"
 #include "wayland/meta-wayland-commit-timing.h"
+#include "wayland/meta-wayland-fifo.h"
 #include "wayland/meta-wayland-data-device.h"
 #include "wayland/meta-wayland-dma-buf.h"
 #include "wayland/meta-wayland-egl-stream.h"
@@ -375,6 +376,36 @@ clear_time_constraints_for_stage_view_transactions (MetaWaylandCompositor *compo
 }
 
 static void
+clear_barrier_for_stage_view_surfaces (MetaWaylandCompositor *compositor,
+                                       ClutterStageView      *stage_view)
+{
+  GList *l;
+
+  l = compositor->barrier_surfaces;
+  while (l)
+    {
+      GList *l_cur = l;
+      MetaWaylandSurface *surface = l->data;
+      MetaSurfaceActor *actor;
+
+      l = l->next;
+
+      /* If the surface is not visible, the fifo condition should be
+       * unblocked, even if it wasn't on this stage view */
+      actor = meta_wayland_surface_get_actor (surface);
+      if (actor && !meta_surface_actor_is_effectively_obscured (actor) &&
+          clutter_actor_is_mapped (CLUTTER_ACTOR (actor)) &&
+          !meta_surface_actor_wayland_is_view_primary (actor, stage_view))
+        continue;
+
+      compositor->barrier_surfaces =
+        g_list_delete_link (compositor->barrier_surfaces, l_cur);
+
+      meta_wayland_transaction_unblock_surface (surface);
+    }
+}
+
+static void
 on_before_update (ClutterStage          *stage,
                   ClutterStageView      *stage_view,
                   ClutterFrame          *frame,
@@ -399,6 +430,8 @@ on_after_update (ClutterStage          *stage,
   MetaBackend *backend = meta_context_get_backend (context);
   GSource *source;
   int64_t frame_deadline_us;
+
+  clear_barrier_for_stage_view_surfaces (compositor, stage_view);
 
   if (!META_IS_BACKEND_NATIVE (backend))
     {
@@ -430,6 +463,7 @@ on_after_update (ClutterStage          *stage,
 
   g_source_set_ready_time (source, frame_deadline_us);
 #else
+  clear_barrier_for_stage_view_surfaces (compositor, stage_view);
   emit_frame_callbacks_for_stage_view (compositor, stage_view);
 #endif
 }
@@ -669,6 +703,25 @@ meta_wayland_compositor_remove_timed_transaction (MetaWaylandCompositor  *compos
                                                   MetaWaylandTransaction *transaction)
 {
   g_queue_remove (compositor->timed_transactions, transaction);
+}
+
+void
+meta_wayland_compositor_add_barrier_surface (MetaWaylandCompositor *compositor,
+                                             MetaWaylandSurface    *surface)
+{
+  if (g_list_find (compositor->barrier_surfaces, surface))
+    return;
+
+  compositor->barrier_surfaces =
+    g_list_prepend (compositor->barrier_surfaces, surface);
+}
+
+void
+meta_wayland_compositor_remove_barrier_surface (MetaWaylandCompositor *compositor,
+                                                MetaWaylandSurface    *surface)
+{
+  compositor->barrier_surfaces =
+    g_list_remove (compositor->barrier_surfaces, surface);
 }
 
 GQueue *
@@ -973,6 +1026,7 @@ meta_wayland_compositor_new (MetaContext *context)
   meta_wayland_drm_lease_manager_init (compositor);
 #endif
   meta_wayland_commit_timing_init (compositor);
+  meta_wayland_fifo_init (compositor);
 
 #ifdef HAVE_WAYLAND_EGLSTREAM
   {

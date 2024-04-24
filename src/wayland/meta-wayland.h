@@ -68,6 +68,11 @@ void                    meta_wayland_compositor_add_timed_transaction (MetaWayla
 
 void                    meta_wayland_compositor_remove_timed_transaction (MetaWaylandCompositor  *compositor,
                                                                           MetaWaylandTransaction *transaction);
+void                    meta_wayland_compositor_add_barrier_surface (MetaWaylandCompositor *compositor,
+                                                                     MetaWaylandSurface    *surface);
+
+void                    meta_wayland_compositor_remove_barrier_surface (MetaWaylandCompositor *compositor,
+                                                                        MetaWaylandSurface    *surface);
 
 GQueue                 *meta_wayland_compositor_get_committed_transactions (MetaWaylandCompositor *compositor);
 

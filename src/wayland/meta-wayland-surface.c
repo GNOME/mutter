@@ -28,6 +28,7 @@
 #include "backends/meta-cursor-tracker-private.h"
 #include "clutter/clutter.h"
 #include "cogl/cogl.h"
+#include "fifo-v1-server-protocol.h"
 #include "compositor/meta-surface-actor-wayland.h"
 #include "compositor/meta-surface-actor.h"
 #include "compositor/meta-window-actor-private.h"
@@ -456,6 +457,9 @@ meta_wayland_surface_state_set_default (MetaWaylandSurfaceState *state)
 
   state->has_new_color_state = FALSE;
   state->color_state = NULL;
+
+  state->fifo_wait = FALSE;
+  state->fifo_barrier = FALSE;
 }
 
 static void
@@ -629,6 +633,12 @@ meta_wayland_surface_state_merge_into (MetaWaylandSurfaceState *from,
       from->subsurface_placement_ops = NULL;
     }
 
+  if (from->fifo_wait)
+    to->fifo_wait = TRUE;
+
+  if (from->fifo_barrier)
+    to->fifo_barrier = TRUE;
+
   /*
    * A new commit indicates a new content update, so any previous
    * content update did not go on screen and needs to be discarded.
@@ -800,6 +810,13 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
         (state->buffer &&
          (state->buffer->type != META_WAYLAND_BUFFER_TYPE_SHM &&
           state->buffer->type != META_WAYLAND_BUFFER_TYPE_SINGLE_PIXEL));
+    }
+
+  if (state->fifo_barrier)
+    {
+      surface->fifo_barrier = TRUE;
+      meta_wayland_compositor_add_barrier_surface (surface->compositor,
+                                                   surface);
     }
 
   if (state->has_new_buffer_transform)
@@ -1056,7 +1073,10 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
     }
 
   if (meta_wayland_surface_is_synchronized (surface))
-    transaction = meta_wayland_surface_ensure_transaction (surface);
+    {
+      pending->fifo_wait = FALSE;
+      transaction = meta_wayland_surface_ensure_transaction (surface);
+    }
   else
     transaction = meta_wayland_transaction_new (surface->compositor);
 
@@ -1605,6 +1625,7 @@ meta_wayland_surface_dispose (GObject *object)
   meta_wayland_compositor_remove_frame_callback_surface (compositor, surface);
   meta_wayland_compositor_remove_presentation_feedback_surface (compositor,
                                                                 surface);
+  meta_wayland_compositor_remove_barrier_surface (compositor, surface);
 
   if (surface->outputs)
     {

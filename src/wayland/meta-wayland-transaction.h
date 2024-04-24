@@ -57,3 +57,7 @@ int64_t meta_wayland_transaction_get_target_presentation_time_us (const MetaWayl
 
 gboolean meta_wayland_transaction_unblock_timed (MetaWaylandTransaction *transaction,
                                                  int64_t                 target_time_us);
+
+void meta_wayland_transaction_unblock_surface (MetaWaylandSurface *surface);
+
+void meta_wayland_transaction_consider_surface (MetaWaylandSurface *surface);
