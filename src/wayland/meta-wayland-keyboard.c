@@ -77,6 +77,7 @@ struct _MetaWaylandKeyboard
   struct wl_array pressed_keys;
   GHashTable *key_down_serials;
   uint32_t last_key_up_serial;
+  uint32_t last_key_up;
 
   MetaWaylandXkbInfo xkb_info;
   enum xkb_state_component mods_changed;
@@ -279,6 +280,13 @@ meta_wayland_keyboard_broadcast_key (MetaWaylandKeyboard *keyboard,
 
       serial = meta_wayland_input_device_next_serial (input_device);
 
+      if (keyboard->last_key_up)
+        {
+          g_hash_table_remove (keyboard->key_down_serials,
+                               GUINT_TO_POINTER (keyboard->last_key_up));
+          keyboard->last_key_up = 0;
+        }
+
       if (state)
         {
           g_hash_table_insert (keyboard->key_down_serials,
@@ -288,9 +296,8 @@ meta_wayland_keyboard_broadcast_key (MetaWaylandKeyboard *keyboard,
         }
       else
         {
-          g_hash_table_remove (keyboard->key_down_serials,
-                               GUINT_TO_POINTER (key));
           keyboard->last_key_up_serial = serial;
+          keyboard->last_key_up = key;
         }
 
       wl_resource_for_each (resource, &keyboard->focus_resource_list)
