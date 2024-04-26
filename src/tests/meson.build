@@ -116,6 +116,10 @@ pkg.generate(libmutter_test,
   install_dir: pcdir,
 )
 
+gnome.compile_schemas(
+  depend_files: 'org.gnome.mutter.test.gschema.xml',
+)
+
 if have_cogl_tests
   subdir('cogl')
 endif
@@ -140,6 +144,7 @@ test_env_variables = {
   'G_TEST_BUILDDIR': mutter_builddir,
   'XDG_CONFIG_HOME': mutter_builddir / '.config',
   'MUTTER_TEST_PLUGIN_PATH': '@0@'.format(default_plugin.full_path()),
+  'GSETTINGS_SCHEMA_DIR': mutter_builddir / 'src' / 'tests',
 }
 
 foreach name, value: test_env_variables
@@ -291,6 +296,11 @@ test_cases += [
     'name': 'color-management-profile-conflict',
     'suite': 'unit',
     'sources': [ 'color-management-profile-conflict-test.c', ],
+  },
+  {
+    'name': 'keybindings',
+    'suite': 'input',
+    'sources': [ 'keybindings.c' ],
   },
 ]
 
