@@ -1,0 +1,14 @@
+<schemalist>
+
+  <schema id="org.gnome.mutter.test" path="/org/gnome/mutter/test/">
+
+  <key name="test-binding" type="as">
+    <default>['&lt;Super&gt;t']</default>
+      <summary>Test</summary>
+      <description>
+	Test.
+      </description>
+    </key>
+
+  </schema>
+</schemalist>
