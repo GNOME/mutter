@@ -1428,7 +1428,7 @@ clutter_gesture_init (ClutterGesture *self)
 }
 
 /**
- * clutter_gesture_set_state: (skip)
+ * clutter_gesture_set_state:
  *
  * Sets the state of the gesture. This method is private to gesture
  * implementations.
@@ -1487,7 +1487,7 @@ clutter_gesture_cancel (ClutterGesture *self)
 }
 
 /**
- * clutter_gesture_reset_state_machine: (skip)
+ * clutter_gesture_reset_state_machine:
  */
 void
 clutter_gesture_reset_state_machine (ClutterGesture *self)
@@ -1625,7 +1625,10 @@ clutter_gesture_get_point_coords (ClutterGesture   *self,
 }
 
 /**
- * clutter_gesture_get_point_coords_abs: (skip)
+ * clutter_gesture_get_point_coords_abs:
+ * @self: a #ClutterGesture
+ * @point_index: index of the point
+ * @coords_out: (out): a #graphene_point_t
  */
 void
 clutter_gesture_get_point_coords_abs (ClutterGesture   *self,
@@ -1683,7 +1686,10 @@ clutter_gesture_get_point_begin_coords (ClutterGesture   *self,
 }
 
 /**
- * clutter_gesture_get_point_begin_coords_abs: (skip)
+ * clutter_gesture_get_point_begin_coords_abs:
+ * @self: a #ClutterGesture
+ * @point_index: index of the point
+ * @coords_out: (out): a #graphene_point_t
  */
 void
 clutter_gesture_get_point_begin_coords_abs (ClutterGesture   *self,
@@ -1741,7 +1747,10 @@ clutter_gesture_get_point_previous_coords (ClutterGesture   *self,
 }
 
 /**
- * clutter_gesture_get_point_previous_coords_abs: (skip)
+ * clutter_gesture_get_point_previous_coords_abs:
+ * @self: a #ClutterGesture
+ * @point_index: index of the point
+ * @coords_out: (out): a #graphene_point_t
  */
 void
 clutter_gesture_get_point_previous_coords_abs (ClutterGesture   *self,

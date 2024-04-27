@@ -35,47 +35,26 @@ struct _ClutterGestureClass
 {
   ClutterActionClass parent_class;
 
-  /**
-   * ClutterGestureClass::should_handle_sequence: (skip)
-   */
   gboolean (* should_handle_sequence) (ClutterGesture     *self,
                                        const ClutterEvent *sequence_begin_event);
 
-  /**
-   * ClutterGestureClass::point_began: (skip)
-   */
   void (* point_began) (ClutterGesture *self,
                         unsigned int    sequence_index);
 
-  /**
-   * ClutterGestureClass::point_moved: (skip)
-   */
   void (* point_moved) (ClutterGesture *self,
                         unsigned int    sequence_index);
 
-  /**
-   * ClutterGestureClass::point_ended: (skip)
-   */
   void (* point_ended) (ClutterGesture *self,
                         unsigned int    sequence_index);
 
-  /**
-   * ClutterGestureClass::sequences_cancelled: (skip)
-   */
   void (* sequences_cancelled) (ClutterGesture *self,
                                 unsigned int   *sequences,
                                 unsigned int    n_sequences);
 
-  /**
-   * ClutterGestureClass::state_changed: (skip)
-   */
   void (* state_changed) (ClutterGesture      *self,
                           ClutterGestureState  old_state,
                           ClutterGestureState  new_state);
 
-  /**
-   * ClutterGestureClass::crossing_event: (skip)
-   */
   void (* crossing_event) (ClutterGesture    *self,
                            unsigned int       sequence_index,
                            ClutterEventType   type,
@@ -84,21 +63,12 @@ struct _ClutterGestureClass
                            ClutterActor      *source_actor,
                            ClutterActor      *related_actor);
 
-  /**
-   * ClutterGestureClass::may_recognize: (skip)
-   */
   gboolean (* may_recognize) (ClutterGesture *self);
 
-  /**
-   * ClutterGestureClass::should_influence: (skip)
-   */
   void (* should_influence) (ClutterGesture *self,
                              ClutterGesture *other_gesture,
                              gboolean       *cancel_on_recognizing);
 
-  /**
-   * ClutterGestureClass::should_be_influenced_by: (skip)
-   */
   void (* should_be_influenced_by) (ClutterGesture *self,
                                     ClutterGesture *other_gesture,
                                     gboolean       *cancelled_on_recognizing);
