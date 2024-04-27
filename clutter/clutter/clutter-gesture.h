@@ -206,10 +206,23 @@ void clutter_gesture_require_failure_of (ClutterGesture *self,
                                          ClutterGesture *other_gesture);
 
 CLUTTER_EXPORT
+void clutter_gesture_require_recognize_of (ClutterGesture *self,
+                                      ClutterGesture *other_gesture);
+
+CLUTTER_EXPORT
 void clutter_gesture_relationships_changed (ClutterGesture *self);
 
 CLUTTER_EXPORT
 void clutter_gesture_recognize_independently_from (ClutterGesture *self,
                                                    ClutterGesture *other_gesture);
+
+CLUTTER_EXPORT
+void clutter_gesture_add_default_inhibited (ClutterGesture *self);
+
+CLUTTER_EXPORT
+void clutter_gesture_del_default_inhibited (ClutterGesture *self);
+
+CLUTTER_EXPORT
+void clutter_gesture_uninhibit (ClutterGesture *self);
 
 G_END_DECLS

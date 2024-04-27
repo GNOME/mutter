@@ -140,6 +140,7 @@ struct _ClutterGesturePrivate
   ClutterGestureState state;
   ClutterGestureState pending_state;
 
+  unsigned int default_inhibited_count;
   unsigned int inhibited_count;
 
   GHashTable *in_relationship_with;
@@ -150,6 +151,7 @@ struct _ClutterGesturePrivate
 
   GHashTable *can_not_cancel;
   GHashTable *require_failure_of;
+  GHashTable *require_recognize_of;
   GHashTable *recognize_independently_from;
 };
 
@@ -933,7 +935,7 @@ set_state (ClutterGesture      *self,
       g_ptr_array_set_size (priv->inhibit_until_cancelled, 0);
       g_ptr_array_set_size (priv->inhibit_until_recognize, 0);
 
-      priv->inhibited_count = 0;
+      priv->inhibited_count = priv->default_inhibited_count;
     }
 
   g_assert (priv->state == old_state);
@@ -1407,6 +1409,10 @@ setup_influence_on_other_gesture (ClutterGesture *self,
       g_hash_table_contains (other_priv->require_failure_of, self))
     inhibit_until_cancelled = TRUE;
 
+  if (other_priv->require_recognize_of &&
+      g_hash_table_contains (other_priv->require_recognize_of, self))
+    inhibit_until_recognize = TRUE;
+
   *cancel_other_gesture_on_recognizing = cancel;
   *inhibit_other_gesture_until_cancelled = inhibit_until_cancelled;
   *inhibit_other_gesture_until_recognize = inhibit_until_recognize;
@@ -1671,6 +1677,8 @@ clutter_gesture_finalize (GObject *gobject)
     destroy_weak_ref_hashtable (priv->can_not_cancel);
   if (priv->require_failure_of)
     destroy_weak_ref_hashtable (priv->require_failure_of);
+  if (priv->require_recognize_of)
+    destroy_weak_ref_hashtable (priv->require_recognize_of);
   if (priv->recognize_independently_from)
     destroy_weak_ref_hashtable (priv->recognize_independently_from);
 
@@ -1845,6 +1853,7 @@ clutter_gesture_init (ClutterGesture *self)
   priv->state = CLUTTER_GESTURE_STATE_WAITING;
   priv->pending_state = 0;
 
+  priv->default_inhibited_count = 0;
   priv->inhibited_count = 0;
 
   priv->in_relationship_with = g_hash_table_new_full (NULL, NULL, (GDestroyNotify) g_object_unref, NULL);
@@ -1855,6 +1864,7 @@ clutter_gesture_init (ClutterGesture *self)
 
   priv->can_not_cancel = NULL;
   priv->require_failure_of = NULL;
+  priv->require_recognize_of = NULL;
   priv->recognize_independently_from = NULL;
 }
 
@@ -2300,6 +2310,30 @@ clutter_gesture_require_failure_of (ClutterGesture *self,
                      priv->require_failure_of);
 }
 
+/**
+ * clutter_gesture_require_recognize_of:
+ * @self: a #ClutterGesture
+ * @other_gesture: the other #ClutterGesture
+ */
+void
+clutter_gesture_require_recognize_of (ClutterGesture *self,
+                                      ClutterGesture *other_gesture)
+{
+  ClutterGesturePrivate *priv;
+
+  priv = clutter_gesture_get_instance_private (self);
+
+  if (!priv->require_recognize_of)
+    priv->require_recognize_of = g_hash_table_new (NULL, NULL);
+
+  if (!g_hash_table_add (priv->require_recognize_of, other_gesture))
+    return;
+
+  g_object_weak_ref (G_OBJECT (other_gesture),
+                     (GWeakNotify) other_gesture_disposed,
+                     priv->require_recognize_of);
+}
+
 void
 clutter_gesture_relationships_changed (ClutterGesture *self)
 {
@@ -2382,4 +2416,65 @@ clutter_gesture_recognize_independently_from (ClutterGesture *self,
   g_object_weak_ref (G_OBJECT (other_gesture),
                      (GWeakNotify) other_gesture_disposed,
                      priv->recognize_independently_from);
+}
+
+/**
+ * clutter_gesture_add_default_inhibited:
+ * @self: a #ClutterGesture
+ */
+void
+clutter_gesture_add_default_inhibited (ClutterGesture *self)
+{
+  ClutterGesturePrivate *priv;
+
+  g_return_if_fail (CLUTTER_IS_GESTURE (self));
+
+  priv = clutter_gesture_get_instance_private (self);
+
+  priv->default_inhibited_count++;
+}
+
+/**
+ * clutter_gesture_del_default_inhibited:
+ * @self: a #ClutterGesture
+ */
+void
+clutter_gesture_del_default_inhibited (ClutterGesture *self)
+{
+  ClutterGesturePrivate *priv;
+
+  g_return_if_fail (CLUTTER_IS_GESTURE (self));
+
+  priv = clutter_gesture_get_instance_private (self);
+
+  priv->default_inhibited_count++;
+}
+
+/**
+ * clutter_gesture_uninhibit:
+ * @self: a #ClutterGesture
+ */
+void
+clutter_gesture_uninhibit (ClutterGesture *self)
+{
+  ClutterGesturePrivate *priv;
+
+  g_return_if_fail (CLUTTER_IS_GESTURE (self));
+
+  priv = clutter_gesture_get_instance_private (self);
+
+  if (uninhibit_gesture (self))
+    {
+      if (priv->pending_state)
+        {
+          ClutterGestureState pending_state = priv->pending_state;
+
+          set_state (self, pending_state, TRUE, 0);
+        }
+    }
+  else
+    {
+      debug_message_recursion (self, 0,
+                               "Still inhibited");
+    }
 }
