@@ -136,4 +136,11 @@ void meta_window_x11_set_frame_xwindow (MetaWindow *window,
 
 gboolean meta_window_x11_is_ssd (MetaWindow *window);
 
+void meta_window_x11_get_session_geometry (MetaWindow  *window,
+                                           int         *x,
+                                           int         *y,
+                                           int         *width,
+                                           int         *height);
+
+
 G_END_DECLS

@@ -1042,7 +1042,7 @@ save_state (MetaContext *context)
           /* Gravity */
           {
             int x, y, w, h;
-            meta_window_get_session_geometry (window, &x, &y, &w, &h);
+            meta_window_x11_get_session_geometry (window, &x, &y, &w, &h);
 
             fprintf (outfile,
                      "    <geometry x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" gravity=\"%s\"/>\n",

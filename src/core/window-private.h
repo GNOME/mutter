@@ -691,24 +691,6 @@ gboolean    meta_window_should_show (MetaWindow  *window);
 
 void        meta_window_update_struts      (MetaWindow  *window);
 
-/* gets position we need to set to stay in current position,
- * assuming position will be gravity-compensated. i.e.
- * this is the position a client would send in a configure
- * request.
- */
-void        meta_window_get_gravity_position (MetaWindow  *window,
-                                              MetaGravity  gravity,
-                                              int         *x,
-                                              int         *y);
-/* Get geometry for saving in the session; x/y are gravity
- * position, and w/h are in resize inc above the base size.
- */
-void        meta_window_get_session_geometry (MetaWindow  *window,
-                                              int         *x,
-                                              int         *y,
-                                              int         *width,
-                                              int         *height);
-
 gboolean    meta_window_geometry_contains_rect (MetaWindow   *window,
                                                 MtkRectangle *rect);
 

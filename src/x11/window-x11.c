@@ -2605,6 +2605,116 @@ meta_window_same_client (MetaWindow *window,
           (meta_window_x11_get_xwindow (other_window) & ~resource_mask));
 }
 
+
+/* gets position we need to set to stay in current position,
+ * assuming position will be gravity-compensated. i.e.
+ * this is the position a client would send in a configure
+ * request.
+ */
+static void
+meta_window_x11_get_gravity_position (MetaWindow  *window,
+                                      MetaGravity  gravity,
+                                      int         *root_x,
+                                      int         *root_y)
+{
+  MtkRectangle frame_extents;
+  int w, h;
+  int x, y;
+
+  w = window->rect.width;
+  h = window->rect.height;
+
+  if (gravity == META_GRAVITY_STATIC)
+    {
+      frame_extents = window->rect;
+      if (window->frame)
+        {
+          frame_extents.x = window->frame->rect.x + window->frame->child_x;
+          frame_extents.y = window->frame->rect.y + window->frame->child_y;
+        }
+    }
+  else
+    {
+      if (window->frame == NULL)
+        frame_extents = window->rect;
+      else
+        frame_extents = window->frame->rect;
+    }
+
+  x = frame_extents.x;
+  y = frame_extents.y;
+
+  switch (gravity)
+    {
+    case META_GRAVITY_NORTH:
+    case META_GRAVITY_CENTER:
+    case META_GRAVITY_SOUTH:
+      /* Find center of frame. */
+      x += frame_extents.width / 2;
+      /* Center client window on that point. */
+      x -= w / 2;
+      break;
+
+    case META_GRAVITY_SOUTH_EAST:
+    case META_GRAVITY_EAST:
+    case META_GRAVITY_NORTH_EAST:
+      /* Find right edge of frame */
+      x += frame_extents.width;
+      /* Align left edge of client at that point. */
+      x -= w;
+      break;
+    default:
+      break;
+    }
+
+  switch (gravity)
+    {
+    case META_GRAVITY_WEST:
+    case META_GRAVITY_CENTER:
+    case META_GRAVITY_EAST:
+      /* Find center of frame. */
+      y += frame_extents.height / 2;
+      /* Center client window there. */
+      y -= h / 2;
+      break;
+    case META_GRAVITY_SOUTH_WEST:
+    case META_GRAVITY_SOUTH:
+    case META_GRAVITY_SOUTH_EAST:
+      /* Find south edge of frame */
+      y += frame_extents.height;
+      /* Place bottom edge of client there */
+      y -= h;
+      break;
+    default:
+      break;
+    }
+
+  if (root_x)
+    *root_x = x;
+  if (root_y)
+    *root_y = y;
+}
+
+/* Get geometry for saving in the session; x/y are gravity
+ * position, and w/h are in resize inc above the base size.
+ */
+void
+meta_window_x11_get_session_geometry (MetaWindow  *window,
+                                      int         *x,
+                                      int         *y,
+                                      int         *width,
+                                      int         *height)
+{
+  meta_window_x11_get_gravity_position (window,
+                                        window->size_hints.win_gravity,
+                                        x, y);
+
+  *width = (window->rect.width - window->size_hints.base_width) /
+    window->size_hints.width_inc;
+  *height = (window->rect.height - window->size_hints.base_height) /
+    window->size_hints.height_inc;
+}
+
 static void
 meta_window_move_resize_request (MetaWindow  *window,
                                  guint        value_mask,
@@ -2645,9 +2755,9 @@ meta_window_move_resize_request (MetaWindow  *window,
    * server-side position in effect when the configure request was
    * generated.
    */
-  meta_window_get_gravity_position (window,
-                                    gravity,
-                                    &x, &y);
+  meta_window_x11_get_gravity_position (window,
+                                        gravity,
+                                        &x, &y);
 
   allow_position_change = FALSE;
 
