@@ -1690,6 +1690,30 @@ notify_pad_ring (ClutterInputDevice *input_device,
   queue_event (seat_impl, event);
 }
 
+static void
+notify_pad_dial (ClutterInputDevice *input_device,
+                 uint64_t            time_us,
+                 uint32_t            dial_number,
+                 uint32_t            mode_group,
+                 uint32_t            mode,
+                 double              value)
+{
+  MetaSeatImpl *seat_impl;
+  ClutterEvent *event;
+
+  seat_impl = seat_impl_from_device (input_device);
+
+  event = clutter_event_pad_dial_new (CLUTTER_EVENT_NONE,
+                                      time_us,
+                                      input_device,
+                                      dial_number,
+                                      mode_group,
+                                      value,
+                                      mode);
+
+  queue_event (seat_impl, event);
+}
+
 static gboolean
 has_touchscreen (MetaSeatImpl *seat_impl)
 {
@@ -2744,6 +2768,27 @@ process_device_event (MetaSeatImpl          *seat_impl,
         mode = libinput_event_tablet_pad_get_mode (pad_event);
 
         notify_pad_ring (device, time, number, source, group, mode, angle);
+        break;
+      }
+    case LIBINPUT_EVENT_TABLET_PAD_DIAL:
+      {
+        uint64_t time;
+        uint32_t number, group, mode;
+        struct libinput_tablet_pad_mode_group *mode_group;
+        struct libinput_event_tablet_pad *pad_event =
+          libinput_event_get_tablet_pad_event (event);
+        double delta;
+
+        device = libinput_device_get_user_data (libinput_device);
+        time = libinput_event_tablet_pad_get_time_usec (pad_event);
+        number = libinput_event_tablet_pad_get_dial_number (pad_event);
+        delta = libinput_event_tablet_pad_get_dial_delta_v120 (pad_event);
+
+        mode_group = libinput_event_tablet_pad_get_mode_group (pad_event);
+        group = libinput_tablet_pad_mode_group_get_index (mode_group);
+        mode = libinput_event_tablet_pad_get_mode (pad_event);
+
+        notify_pad_dial (device, time, number, group, mode, delta);
         break;
       }
     case LIBINPUT_EVENT_SWITCH_TOGGLE:
