@@ -40,6 +40,7 @@ struct _MetaWaylandTabletPadGroup
 
   GList *strips;
   GList *rings;
+  GList *dials;
 };
 
 MetaWaylandTabletPadGroup * meta_wayland_tablet_pad_group_new  (MetaWaylandTabletPad      *pad);

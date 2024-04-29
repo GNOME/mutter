@@ -40,6 +40,7 @@ typedef struct _MetaWaylandTabletPad MetaWaylandTabletPad;
 typedef struct _MetaWaylandTabletPadGroup MetaWaylandTabletPadGroup;
 typedef struct _MetaWaylandTabletPadStrip MetaWaylandTabletPadStrip;
 typedef struct _MetaWaylandTabletPadRing MetaWaylandTabletPadRing;
+typedef struct _MetaWaylandTabletPadDial MetaWaylandTabletPadDial;
 
 typedef struct _MetaWaylandBuffer MetaWaylandBuffer;
 typedef struct _MetaWaylandRegion MetaWaylandRegion;

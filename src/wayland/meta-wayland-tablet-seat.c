@@ -409,6 +409,7 @@ meta_wayland_tablet_seat_update (MetaWaylandTabletSeat *tablet_seat,
     case CLUTTER_PAD_BUTTON_RELEASE:
     case CLUTTER_PAD_RING:
     case CLUTTER_PAD_STRIP:
+    case CLUTTER_PAD_DIAL:
       pad = g_hash_table_lookup (tablet_seat->pads, device);
       if (!pad)
         return;
@@ -447,6 +448,7 @@ meta_wayland_tablet_seat_handle_event (MetaWaylandTabletSeat *tablet_seat,
     case CLUTTER_PAD_BUTTON_RELEASE:
     case CLUTTER_PAD_RING:
     case CLUTTER_PAD_STRIP:
+    case CLUTTER_PAD_DIAL:
       pad = g_hash_table_lookup (tablet_seat->pads,
                                  clutter_event_get_source_device (event));
       if (!pad)

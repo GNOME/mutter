@@ -27,6 +27,7 @@
 #include "wayland/meta-wayland-tablet-pad-group.h"
 #include "wayland/meta-wayland-tablet-pad-ring.h"
 #include "wayland/meta-wayland-tablet-pad-strip.h"
+#include "wayland/meta-wayland-tablet-pad-dial.h"
 #include "wayland/meta-wayland-tablet-pad.h"
 #include "wayland/meta-wayland-tablet-seat.h"
 
@@ -64,6 +65,7 @@ meta_wayland_tablet_pad_group_free (MetaWaylandTabletPadGroup *group)
 
   g_list_free (group->rings);
   g_list_free (group->strips);
+  g_list_free (group->dials);
 
   g_free (group);
 }
@@ -175,6 +177,22 @@ meta_wayland_tablet_pad_group_notify (MetaWaylandTabletPadGroup *group,
       zwp_tablet_pad_group_v2_send_strip (resource, strip_resource);
     }
 
+  if (wl_resource_get_version (resource) >= ZWP_TABLET_PAD_GROUP_V2_DIAL_SINCE_VERSION)
+    {
+      /* Dials */
+      for (l = group->dials; l; l = l->next)
+        {
+          MetaWaylandTabletPadDial *dial = l->data;
+          struct wl_resource *dial_resource;
+
+          dial_resource = meta_wayland_tablet_pad_dial_create_new_resource (dial,
+                                                                            client,
+                                                                            resource,
+                                                                            0);
+          zwp_tablet_pad_group_v2_send_dial (resource, dial_resource);
+        }
+    }
+
   n_group = g_list_index (group->pad->groups, group);
   n_modes = clutter_input_device_get_group_n_modes (group->pad->device,
                                                     n_group);
@@ -242,6 +260,25 @@ handle_pad_strip_event (MetaWaylandTabletPadGroup *group,
   return meta_wayland_tablet_pad_strip_handle_event (strip, event);
 }
 
+static gboolean
+handle_pad_dial_event (MetaWaylandTabletPadGroup *group,
+                       const ClutterEvent        *event)
+{
+  MetaWaylandTabletPadDial *dial;
+  uint32_t number;
+
+  if (clutter_event_type (event) != CLUTTER_PAD_DIAL)
+    return FALSE;
+
+  clutter_event_get_pad_details (event, &number, NULL, NULL, NULL);
+  dial = g_list_nth_data (group->dials, number);
+
+  if (!dial)
+    return FALSE;
+
+  return meta_wayland_tablet_pad_dial_handle_event (dial, event);
+}
+
 static void
 broadcast_group_mode (MetaWaylandTabletPadGroup *group,
                       uint32_t                   time)
@@ -294,6 +331,8 @@ meta_wayland_tablet_pad_group_handle_event (MetaWaylandTabletPadGroup *group,
       return handle_pad_ring_event (group, event);
     case CLUTTER_PAD_STRIP:
       return handle_pad_strip_event (group, event);
+    case CLUTTER_PAD_DIAL:
+      return handle_pad_dial_event (group, event);
     default:
       return FALSE;
     }
@@ -315,6 +354,15 @@ meta_wayland_tablet_pad_group_update_strips_focus (MetaWaylandTabletPadGroup *gr
 
   for (l = group->strips; l; l = l->next)
     meta_wayland_tablet_pad_strip_sync_focus (l->data);
+}
+
+static void
+meta_wayland_tablet_pad_group_update_dials_focus (MetaWaylandTabletPadGroup *group)
+{
+  GList *l;
+
+  for (l = group->dials; l; l = l->next)
+    meta_wayland_tablet_pad_dial_sync_focus (l->data);
 }
 
 static void
@@ -358,6 +406,7 @@ meta_wayland_tablet_pad_group_sync_focus (MetaWaylandTabletPadGroup *group)
 
   meta_wayland_tablet_pad_group_update_rings_focus (group);
   meta_wayland_tablet_pad_group_update_strips_focus (group);
+  meta_wayland_tablet_pad_group_update_dials_focus (group);
 
   if (!wl_list_empty (&group->focus_resource_list))
     {

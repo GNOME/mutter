@@ -693,6 +693,8 @@ if have_wayland
     'wayland/meta-wayland-tablet-pad-group.c',
     'wayland/meta-wayland-tablet-pad-group.h',
     'wayland/meta-wayland-tablet-pad.h',
+    'wayland/meta-wayland-tablet-pad-dial.c',
+    'wayland/meta-wayland-tablet-pad-dial.h',
     'wayland/meta-wayland-tablet-pad-ring.c',
     'wayland/meta-wayland-tablet-pad-ring.h',
     'wayland/meta-wayland-tablet-pad-strip.c',
