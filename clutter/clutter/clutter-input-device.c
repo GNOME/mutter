@@ -23,7 +23,7 @@
 
 /**
  * ClutterInputDevice:
- * 
+ *
  * An input device managed by Clutter
  *
  * #ClutterInputDevice represents an input device known to Clutter.
