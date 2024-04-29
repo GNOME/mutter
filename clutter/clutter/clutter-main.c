@@ -284,6 +284,7 @@ _clutter_process_event_details (ClutterActor    *stage,
       case CLUTTER_PAD_BUTTON_RELEASE:
       case CLUTTER_PAD_STRIP:
       case CLUTTER_PAD_RING:
+      case CLUTTER_PAD_DIAL:
       case CLUTTER_IM_COMMIT:
       case CLUTTER_IM_DELETE:
       case CLUTTER_IM_PREEDIT:

@@ -362,6 +362,9 @@ input_cb (ClutterActor *actor,
     case CLUTTER_PAD_RING:
       g_print ("[%s] PAD RING", clutter_actor_get_name (source_actor));
       break;
+    case CLUTTER_PAD_DIAL:
+      g_print ("[%s] PAD DIAL", clutter_actor_get_name (source_actor));
+      break;
     case CLUTTER_NOTHING:
     default:
       return FALSE;

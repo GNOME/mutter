@@ -106,6 +106,7 @@ typedef struct _ClutterProximityEvent   ClutterProximityEvent;
 typedef struct _ClutterPadButtonEvent   ClutterPadButtonEvent;
 typedef struct _ClutterPadStripEvent    ClutterPadStripEvent;
 typedef struct _ClutterPadRingEvent     ClutterPadRingEvent;
+typedef struct _ClutterPadDialEvent     ClutterPadDialEvent;
 typedef struct _ClutterDeviceEvent      ClutterDeviceEvent;
 typedef struct _ClutterIMEvent          ClutterIMEvent;
 

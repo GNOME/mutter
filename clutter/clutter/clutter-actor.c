@@ -11868,6 +11868,7 @@ clutter_actor_event (ClutterActor       *actor,
     case CLUTTER_PAD_BUTTON_RELEASE:
     case CLUTTER_PAD_STRIP:
     case CLUTTER_PAD_RING:
+    case CLUTTER_PAD_DIAL:
       signal_num = -1;
       detail = quark_pad;
       break;

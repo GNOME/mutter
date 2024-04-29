@@ -92,6 +92,9 @@ debug_event_cb (ClutterActor *actor,
     case CLUTTER_PAD_RING:
       g_print ("[%s] PAD RING", source);
       break;
+    case CLUTTER_PAD_DIAL:
+      g_print ("[%s] PAD DIAL", source);
+      break;
     case CLUTTER_NOTHING:
     default:
       return FALSE;

@@ -148,6 +148,14 @@ ClutterEvent * clutter_event_pad_ring_new (ClutterEventFlags            flags,
                                            double                       angle,
                                            uint32_t                     mode);
 CLUTTER_EXPORT
+ClutterEvent * clutter_event_pad_dial_new (ClutterEventFlags            flags,
+                                           int64_t                      timestamp_us,
+                                           ClutterInputDevice          *source_device,
+                                           uint32_t                     dial,
+                                           uint32_t                     group,
+                                           double                       v120,
+                                           uint32_t                     mode);
+CLUTTER_EXPORT
 ClutterEvent * clutter_event_device_notify_new (ClutterEventType    type,
                                                 ClutterEventFlags   flags,
                                                 int64_t             timestamp_us,

@@ -249,7 +249,8 @@ meta_display_handle_event (MetaDisplay        *display,
   if (event_type == CLUTTER_PAD_BUTTON_PRESS ||
       event_type == CLUTTER_PAD_BUTTON_RELEASE ||
       event_type == CLUTTER_PAD_RING ||
-      event_type == CLUTTER_PAD_STRIP)
+      event_type == CLUTTER_PAD_STRIP ||
+      event_type == CLUTTER_PAD_DIAL)
     {
       gboolean handle_pad_event;
       gboolean is_mode_switch = FALSE;

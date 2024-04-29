@@ -208,6 +208,12 @@ lookup_pad_feature_settings (ClutterInputDevice *device,
       feature_type = "strip";
       detail_type = (direction == META_PAD_DIRECTION_UP) ? "up" : "down";
       break;
+    case META_PAD_FEATURE_DIAL:
+      g_assert (direction == META_PAD_DIRECTION_CW ||
+                direction == META_PAD_DIRECTION_CCW);
+      feature_type = "dial";
+      detail_type = (direction == META_PAD_DIRECTION_CW) ? "cw" : "ccw";
+      break;
     default:
       return NULL;
     }
@@ -339,6 +345,8 @@ meta_pad_action_mapper_get_action_direction (MetaPadActionMapper *mapper,
   uint32_t number;
   double value;
   gboolean detect_wraparound = FALSE;
+  gboolean value_in_range = FALSE;
+  gboolean is_relative = FALSE;
 
   switch (clutter_event_type (event))
     {
@@ -348,12 +356,22 @@ meta_pad_action_mapper_get_action_direction (MetaPadActionMapper *mapper,
       inc_dir = META_PAD_DIRECTION_CW;
       dec_dir = META_PAD_DIRECTION_CCW;
       detect_wraparound = TRUE;
+      value_in_range = value >= 0.0 && mapper->last_pad_action_info.value >= 0;
       break;
     case CLUTTER_PAD_STRIP:
       pad_feature = META_PAD_FEATURE_STRIP;
       clutter_event_get_pad_details (event, &number, NULL, NULL, &value);
       inc_dir = META_PAD_DIRECTION_DOWN;
       dec_dir = META_PAD_DIRECTION_UP;
+      value_in_range = value >= 0.0 && mapper->last_pad_action_info.value >= 0;
+      break;
+    case CLUTTER_PAD_DIAL:
+      pad_feature = META_PAD_FEATURE_DIAL;
+      clutter_event_get_pad_details (event, &number, NULL, NULL, &value);
+      inc_dir = META_PAD_DIRECTION_CW;
+      dec_dir = META_PAD_DIRECTION_CCW;
+      is_relative = TRUE;
+      value_in_range = value != 0.0;
       break;
     default:
       return FALSE;
@@ -362,18 +380,26 @@ meta_pad_action_mapper_get_action_direction (MetaPadActionMapper *mapper,
   if (mapper->last_pad_action_info.pad == pad &&
       mapper->last_pad_action_info.feature == pad_feature &&
       mapper->last_pad_action_info.number == number &&
-      value >= 0 && mapper->last_pad_action_info.value >= 0)
+      value_in_range)
     {
-      double delta = value - mapper->last_pad_action_info.value;
+      double delta;
 
-      if (detect_wraparound)
+      if (is_relative)
         {
-          if (delta < -180.0)
-            delta += 360;
-          else if (delta > 180.0)
-            delta -= 360;
+          delta = value;
         }
+      else
+        {
+          delta = value - mapper->last_pad_action_info.value;
 
+          if (detect_wraparound)
+            {
+              if (delta < -180.0)
+                delta += 360;
+              else if (delta > 180.0)
+                delta -= 360;
+            }
+        }
       *direction = delta > 0 ?  inc_dir : dec_dir;
       has_direction = TRUE;
     }
@@ -411,6 +437,13 @@ meta_pad_action_mapper_handle_action (MetaPadActionMapper *mapper,
                                                META_PAD_DIRECTION_UP, mode);
       settings2 = lookup_pad_feature_settings (pad, feature, number,
                                                META_PAD_DIRECTION_DOWN, mode);
+    }
+  else if (feature == META_PAD_FEATURE_DIAL)
+    {
+      settings1 = lookup_pad_feature_settings (pad, feature, number,
+                                               META_PAD_DIRECTION_CW, mode);
+      settings2 = lookup_pad_feature_settings (pad, feature, number,
+                                               META_PAD_DIRECTION_CCW, mode);
     }
   else
     {
@@ -469,6 +502,11 @@ meta_pad_action_mapper_handle_event (MetaTabletActionMapper *tablet_mapper,
       return meta_pad_action_mapper_handle_action (mapper, pad, event,
                                                    META_PAD_FEATURE_STRIP,
                                                    number, mode);
+    case CLUTTER_PAD_DIAL:
+      clutter_event_get_pad_details (event, &number, &mode, NULL, NULL);
+      return meta_pad_action_mapper_handle_action (mapper, pad, event,
+                                                   META_PAD_FEATURE_DIAL,
+                                                   number, mode);
     default:
       break;
     }
@@ -516,6 +554,31 @@ meta_pad_action_mapper_get_strip_label (MetaPadActionMapper *mapper,
     return NULL;
 
   settings = lookup_pad_feature_settings (pad, META_PAD_FEATURE_STRIP,
+                                          number, direction, mode);
+
+  /* We only allow keybinding actions with those */
+  action = g_settings_get_string (settings, "keybinding");
+  if (action && *action)
+    return g_steal_pointer (&action);
+
+  return NULL;
+}
+
+static char *
+meta_pad_action_mapper_get_dial_label (MetaPadActionMapper *mapper,
+                                       ClutterInputDevice  *pad,
+                                       int                  number,
+                                       unsigned int         mode,
+                                       MetaPadDirection     direction)
+{
+  g_autoptr (GSettings) settings = NULL;
+  g_autofree char *action = NULL;
+
+  if (direction != META_PAD_DIRECTION_CW &&
+      direction != META_PAD_DIRECTION_CCW)
+    return NULL;
+
+  settings = lookup_pad_feature_settings (pad, META_PAD_FEATURE_DIAL,
                                           number, direction, mode);
 
   /* We only allow keybinding actions with those */
@@ -604,7 +667,8 @@ get_current_pad_mode (MetaPadActionMapper *mapper,
     return 0;
 
   if (feature == META_PAD_FEATURE_RING ||
-      feature == META_PAD_FEATURE_STRIP)
+      feature == META_PAD_FEATURE_STRIP ||
+      feature == META_PAD_FEATURE_DIAL)
     {
       /* Assume features are evenly distributed in groups */
       group = number % n_groups;
@@ -630,6 +694,9 @@ meta_pad_action_mapper_get_feature_label (MetaPadActionMapper *mapper,
     case META_PAD_FEATURE_STRIP:
       mode = get_current_pad_mode (mapper, pad, feature, number);
       return meta_pad_action_mapper_get_strip_label (mapper, pad, number, mode, direction);
+    case META_PAD_FEATURE_DIAL:
+      mode = get_current_pad_mode (mapper, pad, feature, number);
+      return meta_pad_action_mapper_get_dial_label (mapper, pad, number, mode, direction);
     }
 
   return NULL;

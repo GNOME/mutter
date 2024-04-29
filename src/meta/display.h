@@ -58,6 +58,7 @@ typedef enum
 {
   META_PAD_FEATURE_RING,
   META_PAD_FEATURE_STRIP,
+  META_PAD_FEATURE_DIAL,
 } MetaPadFeatureType;
 
 typedef enum

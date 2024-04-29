@@ -67,6 +67,7 @@ enum
 
   PROP_N_STRIPS,
   PROP_N_RINGS,
+  PROP_N_DIALS,
   PROP_N_MODE_GROUPS,
   PROP_N_BUTTONS,
   PROP_DEVICE_NODE,
@@ -95,6 +96,7 @@ struct _ClutterInputDevicePrivate
 
   int n_rings;
   int n_strips;
+  int n_dials;
   int n_mode_groups;
   int n_buttons;
 
@@ -222,6 +224,10 @@ clutter_input_device_set_property (GObject      *gobject,
       priv->n_strips = g_value_get_int (value);
       break;
 
+    case PROP_N_DIALS:
+      priv->n_dials = g_value_get_int (value);
+      break;
+
     case PROP_N_MODE_GROUPS:
       priv->n_mode_groups = g_value_get_int (value);
       break;
@@ -294,6 +300,10 @@ clutter_input_device_get_property (GObject    *gobject,
 
     case PROP_N_STRIPS:
       g_value_set_int (value, priv->n_strips);
+      break;
+
+    case PROP_N_DIALS:
+      g_value_set_int (value, priv->n_dials);
       break;
 
     case PROP_N_MODE_GROUPS:
@@ -435,6 +445,13 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
 
   obj_props[PROP_N_STRIPS] =
     g_param_spec_int ("n-strips", NULL, NULL,
+                      0, G_MAXINT, 0,
+                      G_PARAM_READWRITE |
+                      G_PARAM_STATIC_STRINGS |
+                      G_PARAM_CONSTRUCT_ONLY);
+
+  obj_props[PROP_N_DIALS] =
+    g_param_spec_int ("n-dials", NULL, NULL,
                       0, G_MAXINT, 0,
                       G_PARAM_READWRITE |
                       G_PARAM_STATIC_STRINGS |
@@ -659,6 +676,17 @@ clutter_input_device_get_n_strips (ClutterInputDevice *device)
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), 0);
 
   return priv->n_strips;
+}
+
+gint
+clutter_input_device_get_n_dials (ClutterInputDevice *device)
+{
+  ClutterInputDevicePrivate *priv =
+    clutter_input_device_get_instance_private (device);
+
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), 0);
+
+  return priv->n_dials;
 }
 
 gint

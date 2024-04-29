@@ -90,6 +90,8 @@ gint                    clutter_input_device_get_n_rings        (ClutterInputDev
 CLUTTER_EXPORT
 gint                    clutter_input_device_get_n_strips       (ClutterInputDevice *device);
 CLUTTER_EXPORT
+gint                    clutter_input_device_get_n_dials        (ClutterInputDevice *device);
+CLUTTER_EXPORT
 gint                    clutter_input_device_get_n_mode_groups  (ClutterInputDevice *device);
 CLUTTER_EXPORT
 int                     clutter_input_device_get_n_buttons (ClutterInputDevice *device);
