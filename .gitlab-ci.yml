@@ -85,7 +85,7 @@ variables:
     - .skip-git-clone
   variables:
     FDO_DISTRIBUTION_VERSION: 40
-    BASE_TAG: '2024-02-23.0'
+    BASE_TAG: '2024-04-29.0'
     MUTTER_USER: 'meta-user'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
