@@ -493,7 +493,8 @@ meta_wayland_surface_state_clear (MetaWaylandSurfaceState *state)
     wl_resource_destroy (cb->resource);
 
   if (state->subsurface_placement_ops)
-    g_slist_free_full (state->subsurface_placement_ops, g_free);
+    g_slist_free_full (state->subsurface_placement_ops,
+                       (GDestroyNotify) meta_wayland_subsurface_destroy_placement_op);
 
   meta_wayland_surface_state_discard_presentation_feedback (state);
 }
