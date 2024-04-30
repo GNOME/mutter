@@ -35,6 +35,7 @@
 typedef struct _MetaKeyHandler MetaKeyHandler;
 struct _MetaKeyHandler
 {
+  grefcount ref_count;
   char *name;
   MetaKeyHandlerFunc func;
   MetaKeyHandlerFunc default_func;
@@ -42,6 +43,7 @@ struct _MetaKeyHandler
   MetaKeyBindingFlags flags;
   gpointer user_data;
   GDestroyNotify user_data_free_func;
+  gboolean removed;
 };
 
 typedef struct _MetaResolvedKeyCombo {
@@ -65,7 +67,7 @@ struct _MetaKeyCombo
 
 struct _MetaKeyBinding
 {
-  const char *name;
+  char *name;
   MetaKeyCombo combo;
   MetaResolvedKeyCombo resolved_combo;
   gint flags;

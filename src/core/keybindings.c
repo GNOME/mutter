@@ -74,6 +74,9 @@
                            CLUTTER_BUTTON4_MASK |       \
                            CLUTTER_BUTTON5_MASK)
 
+static MetaKeyHandler * meta_key_handler_ref (MetaKeyHandler *handler);
+static void meta_key_handler_unref (MetaKeyHandler *handler);
+
 static void
 resolved_key_combo_reset (MetaResolvedKeyCombo *resolved_combo)
 {
@@ -120,7 +123,9 @@ resolved_key_combo_intersect (MetaResolvedKeyCombo *a,
 static void
 meta_key_binding_free (MetaKeyBinding *binding)
 {
+  g_free (binding->name);
   resolved_key_combo_reset (&binding->resolved_combo);
+  meta_key_handler_unref (binding->handler);
   g_free (binding);
 }
 
@@ -130,6 +135,8 @@ meta_key_binding_copy (MetaKeyBinding *binding)
   MetaKeyBinding *clone = g_memdup2 (binding, sizeof (MetaKeyBinding));
   resolved_key_combo_copy (&binding->resolved_combo,
                            &clone->resolved_combo);
+  clone->name = g_strdup (binding->name);
+  clone->handler = meta_key_handler_ref (binding->handler);
   return clone;
 }
 
@@ -181,13 +188,30 @@ static GHashTable *external_grabs;
 
 #define HANDLER(name) g_hash_table_lookup (key_handlers, (name))
 
-static void
-key_handler_free (MetaKeyHandler *handler)
+static MetaKeyHandler *
+meta_key_handler_ref (MetaKeyHandler *handler)
 {
-  g_free (handler->name);
-  if (handler->user_data_free_func && handler->user_data)
-    handler->user_data_free_func (handler->user_data);
-  g_free (handler);
+  g_ref_count_inc (&handler->ref_count);
+  return handler;
+}
+
+static void
+meta_key_handler_unref (MetaKeyHandler *handler)
+{
+  if (g_ref_count_dec (&handler->ref_count))
+    {
+      g_free (handler->name);
+      if (handler->user_data_free_func && handler->user_data)
+        handler->user_data_free_func (handler->user_data);
+      g_free (handler);
+    }
+}
+
+static void
+meta_key_handler_destroy (MetaKeyHandler *handler)
+{
+  handler->removed = TRUE;
+  meta_key_handler_unref (handler);
 }
 
 typedef struct _MetaKeyGrab MetaKeyGrab;
@@ -782,7 +806,7 @@ reload_combos (MetaKeyBindingManager *keys)
 }
 
 static void
-rebuild_binding_table (MetaKeyBindingManager *keys,
+rebuild_binding_table (MetaKeyBindingManager  *keys,
                        GList                  *prefs,
                        GList                  *grabs)
 {
@@ -806,8 +830,8 @@ rebuild_binding_table (MetaKeyBindingManager *keys,
               MetaKeyHandler *handler = HANDLER (pref->name);
 
               b = g_new0 (MetaKeyBinding, 1);
-              b->name = pref->name;
-              b->handler = handler;
+              b->name = g_strdup (pref->name);
+              b->handler = meta_key_handler_ref (handler);
               b->flags = handler->flags;
               b->combo = *combo;
 
@@ -829,8 +853,8 @@ rebuild_binding_table (MetaKeyBindingManager *keys,
           MetaKeyHandler *handler = HANDLER ("external-grab");
 
           b = g_new0 (MetaKeyBinding, 1);
-          b->name = grab->name;
-          b->handler = handler;
+          b->name = g_strdup (grab->name);
+          b->handler = meta_key_handler_ref (handler);
           b->flags = grab->flags;
           b->combo = grab->combo;
 
@@ -923,6 +947,9 @@ get_keybinding (MetaKeyBindingManager *keys,
       binding = g_hash_table_lookup (keys->key_bindings_index,
                                      GINT_TO_POINTER (key));
 
+      if (binding && binding->handler->removed)
+        binding = NULL;
+
       if (binding != NULL)
         break;
     }
@@ -961,6 +988,7 @@ add_keybinding_internal (MetaDisplay          *display,
   handler->flags = flags;
   handler->user_data = user_data;
   handler->user_data_free_func = free_data;
+  g_ref_count_init (&handler->ref_count);
 
   g_hash_table_insert (key_handlers, g_strdup (name), handler);
 
@@ -1719,8 +1747,8 @@ meta_display_grab_accelerator (MetaDisplay         *display,
   g_hash_table_insert (external_grabs, grab->name, grab);
 
   binding = g_new0 (MetaKeyBinding, 1);
-  binding->name = grab->name;
-  binding->handler = HANDLER ("external-grab");
+  binding->name = g_strdup (grab->name);
+  binding->handler = meta_key_handler_ref (HANDLER ("external-grab"));
   binding->combo = combo;
   binding->resolved_combo = resolved_combo;
   binding->flags = flags;
@@ -3206,23 +3234,26 @@ meta_display_init_keys (MetaDisplay *display)
   reload_modmap (keys);
 
   key_handlers = g_hash_table_new_full (g_str_hash, g_str_equal, g_free,
-                                        (GDestroyNotify) key_handler_free);
+                                        (GDestroyNotify) meta_key_handler_destroy);
 
   handler = g_new0 (MetaKeyHandler, 1);
   handler->name = g_strdup ("overlay-key");
   handler->flags = META_KEY_BINDING_BUILTIN | META_KEY_BINDING_NO_AUTO_GRAB;
+  g_ref_count_init (&handler->ref_count);
 
   g_hash_table_insert (key_handlers, g_strdup (handler->name), handler);
 
   handler = g_new0 (MetaKeyHandler, 1);
   handler->name = g_strdup ("locate-pointer-key");
   handler->flags = META_KEY_BINDING_BUILTIN | META_KEY_BINDING_NO_AUTO_GRAB;
+  g_ref_count_init (&handler->ref_count);
 
   g_hash_table_insert (key_handlers, g_strdup (handler->name), handler);
 
   handler = g_new0 (MetaKeyHandler, 1);
   handler->name = g_strdup ("iso-next-group");
   handler->flags = META_KEY_BINDING_BUILTIN;
+  g_ref_count_init (&handler->ref_count);
 
   g_hash_table_insert (key_handlers, g_strdup (handler->name), handler);
 
@@ -3230,6 +3261,7 @@ meta_display_init_keys (MetaDisplay *display)
   handler->name = g_strdup ("external-grab");
   handler->func = handle_external_grab;
   handler->default_func = handle_external_grab;
+  g_ref_count_init (&handler->ref_count);
 
   g_hash_table_insert (key_handlers, g_strdup (handler->name), handler);
 
