@@ -900,3 +900,6 @@ MetaGravity meta_window_get_gravity (MetaWindow *window);
 
 void meta_window_set_tag (MetaWindow *window,
                           const char *tag);
+
+META_EXPORT_TEST
+GPtrArray * meta_window_get_transient_children (MetaWindow *window);

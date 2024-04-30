@@ -2344,6 +2344,68 @@ test_case_destroy (TestCase *test,
   return TRUE;
 }
 
+static void
+check_window_has_transient_child (MetaWindow *window,
+                                  MetaWindow *transient_child)
+{
+  GPtrArray *transient_children;
+
+  transient_children = meta_window_get_transient_children (window);
+  g_assert_nonnull (transient_children);
+  g_assert_true (g_ptr_array_find (transient_children, transient_child, NULL));
+}
+
+static void
+sanity_check_transient_for (MetaWindow *window,
+                            GList      *windows)
+{
+  if (window->transient_for)
+    {
+      g_assert_nonnull (g_list_find (windows, window->transient_for));
+
+      check_window_has_transient_child (window->transient_for, window);
+    }
+}
+
+static void
+sanity_check_transient_children (MetaWindow *window,
+                                 GList      *windows)
+{
+  GPtrArray *transient_children;
+
+  transient_children = meta_window_get_transient_children (window);
+  if (transient_children &&
+      transient_children->len > 0)
+    {
+      int i;
+
+      for (i = 0; i < transient_children->len; i++)
+        {
+          MetaWindow *transient_child =
+            g_ptr_array_index (transient_children, i);
+
+          g_assert_nonnull (g_list_find (windows, transient_child));
+        }
+    }
+}
+
+static void
+sanity_check (MetaContext *context)
+{
+  MetaDisplay *display = meta_context_get_display (context);
+  g_autoptr (GList) windows = NULL;
+  GList *l;
+
+  windows = meta_display_list_all_windows (display);
+  for (l = windows; l; l = l->next)
+    {
+      MetaWindow *window = l->data;
+
+      sanity_check_transient_for (window, windows);
+      sanity_check_transient_children (window, windows);
+    }
+}
+
 /**********************************************************************/
 
 static gboolean
@@ -2398,6 +2460,8 @@ run_test (MetaContext *context,
     next:
       if (error)
         g_prefix_error (&error, "%d: ", line_no);
+      else
+        sanity_check (context);
     }
 
   {

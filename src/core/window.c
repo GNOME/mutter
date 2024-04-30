@@ -184,6 +184,8 @@ typedef struct _MetaWindowPrivate
   MetaWindowSuspendState suspend_state;
   int suspend_state_inhibitors;
   guint suspend_timoeut_id;
+
+  GPtrArray *transient_children;
 } MetaWindowPrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaWindow, meta_window, G_TYPE_OBJECT,
@@ -341,12 +343,39 @@ meta_window_real_get_gravity (MetaWindow *window)
 }
 
 static void
+meta_window_add_transient_child (MetaWindow *window,
+                                 MetaWindow *transient_child)
+{
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
+
+  if (!priv->transient_children)
+    priv->transient_children = g_ptr_array_new ();
+
+  g_ptr_array_add (priv->transient_children, transient_child);
+}
+
+static void
+meta_window_remove_transient_child (MetaWindow *window,
+                                    MetaWindow *transient_child)
+{
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
+
+  g_ptr_array_remove (priv->transient_children, transient_child);
+}
+
+GPtrArray *
+meta_window_get_transient_children (MetaWindow *window)
+{
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
+
+  return priv->transient_children;
+}
+
+static void
 meta_window_finalize (GObject *object)
 {
   MetaWindow *window = META_WINDOW (object);
-
-  if (window->transient_for)
-    g_object_unref (window->transient_for);
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
 
   if (window->cgroup_path)
     g_object_unref (window->cgroup_path);
@@ -355,6 +384,12 @@ meta_window_finalize (GObject *object)
                    meta_logical_monitor_id_free);
 
   g_clear_object (&window->config);
+
+  if (priv->transient_children)
+    {
+      g_warn_if_fail (priv->transient_children->len == 0);
+      g_ptr_array_unref (priv->transient_children);
+    }
 
   g_free (window->startup_id);
   g_free (window->role);
@@ -1633,6 +1668,12 @@ meta_window_unmanage (MetaWindow  *window,
   meta_display_queue_check_fullscreen (window->display);
 
   g_signal_emit (window, window_signals[UNMANAGED], 0);
+
+  if (window->transient_for)
+    {
+      meta_window_remove_transient_child (window->transient_for, window);
+      g_clear_object (&window->transient_for);
+    }
 
   g_object_unref (window);
 }
@@ -7473,7 +7514,13 @@ meta_window_set_transient_for (MetaWindow *window,
       return;
     }
 
+  if (window->transient_for)
+    meta_window_remove_transient_child (window->transient_for, window);
+
   g_set_object (&window->transient_for, parent);
+
+  if (window->transient_for)
+    meta_window_add_transient_child (window->transient_for, window);
 
   /* update stacking constraints */
   if (!window->override_redirect)
