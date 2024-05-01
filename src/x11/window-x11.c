@@ -4439,7 +4439,7 @@ meta_window_x11_get_xwindow (MetaWindow *window)
   MetaWindowX11 *window_x11;
   MetaWindowX11Private *priv;
 
-  g_return_val_if_fail (META_IS_WINDOW (window), None);
+  g_return_val_if_fail (META_IS_WINDOW_X11 (window), None);
 
   window_x11 = META_WINDOW_X11 (window);
   priv = meta_window_x11_get_instance_private (window_x11);
@@ -4453,7 +4453,7 @@ meta_window_x11_get_xgroup_leader (MetaWindow *window)
   MetaWindowX11 *window_x11;
   MetaWindowX11Private *priv;
 
-  g_return_val_if_fail (META_IS_WINDOW (window), None);
+  g_return_val_if_fail (META_IS_WINDOW_X11 (window), None);
 
   window_x11 = META_WINDOW_X11 (window);
   priv = meta_window_x11_get_instance_private (window_x11);
@@ -4467,7 +4467,7 @@ meta_window_x11_get_user_time_window (MetaWindow *window)
   MetaWindowX11 *window_x11;
   MetaWindowX11Private *priv;
 
-  g_return_val_if_fail (META_IS_WINDOW (window), None);
+  g_return_val_if_fail (META_IS_WINDOW_X11 (window), None);
 
   window_x11 = META_WINDOW_X11 (window);
   priv = meta_window_x11_get_instance_private (window_x11);
@@ -4480,7 +4480,7 @@ meta_window_x11_get_xtransient_for (MetaWindow *window)
 {
   MetaWindow *transient_for;
 
-  g_return_val_if_fail (META_IS_WINDOW (window), None);
+  g_return_val_if_fail (META_IS_WINDOW_X11 (window), None);
 
   transient_for = meta_window_get_transient_for (window);
   if (transient_for)
