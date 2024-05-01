@@ -4536,6 +4536,8 @@ meta_window_x11_get_group (MetaWindow *window)
   MetaWindowX11 *window_x11;
   MetaWindowX11Private *priv;
 
+  g_return_val_if_fail (META_IS_WINDOW_X11 (window), NULL);
+
   if (window->unmanaging)
     return NULL;
 
