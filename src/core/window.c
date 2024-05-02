@@ -599,7 +599,7 @@ meta_window_class_init (MetaWindowClass *klass)
   obj_props[PROP_SUSPEND_STATE] =
     g_param_spec_enum ("suspend-state", NULL, NULL,
                        META_TYPE_WINDOW_SUSPEND_STATE,
-                       META_WINDOW_SUSPEND_STATE_SUSPENDED,
+                       META_WINDOW_SUSPEND_STATE_ACTIVE,
                        G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
@@ -715,6 +715,9 @@ meta_window_class_init (MetaWindowClass *klass)
 static void
 meta_window_init (MetaWindow *window)
 {
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
+
+  priv->suspend_state = META_WINDOW_SUSPEND_STATE_ACTIVE;
   window->stamp = next_window_stamp++;
   meta_prefs_add_listener (prefs_changed_callback, window);
   window->is_alive = TRUE;
@@ -990,7 +993,6 @@ static void
 meta_window_constructed (GObject *object)
 {
   MetaWindow *window = META_WINDOW (object);
-  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
   MetaDisplay *display = window->display;
   MetaContext *context = meta_display_get_context (display);
   MetaBackend *backend = meta_context_get_backend (context);
@@ -1342,11 +1344,6 @@ meta_window_constructed (GObject *object)
       !display->display_opening &&
       !window->initially_iconic)
     unminimize_window_and_all_transient_parents (window);
-
-  /* There is a slim chance we'll hit time out before a extremely slow client
-   * managed to become active, but unlikely enough. */
-  priv->suspend_state = META_WINDOW_SUSPEND_STATE_HIDDEN;
-  set_hidden_suspended_state (window);
 
   window->constructing = FALSE;
 }
@@ -2235,6 +2232,8 @@ implement_showing (MetaWindow *window,
 
       meta_window_show (window);
     }
+
+  update_suspend_state (window);
 }
 
 void
