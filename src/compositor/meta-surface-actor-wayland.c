@@ -261,6 +261,18 @@ out:
 }
 
 static void
+on_surface_disposed (gpointer user_data,
+                     GObject *destroyed_object)
+{
+  MetaSurfaceActorWayland *self = user_data;
+
+  g_assert (destroyed_object == (GObject *) self->surface);
+
+  clutter_actor_set_reactive (CLUTTER_ACTOR (self), FALSE);
+  self->surface = NULL;
+}
+
+static void
 meta_surface_actor_wayland_dispose (GObject *object)
 {
   MetaSurfaceActorWayland *self = META_SURFACE_ACTOR_WAYLAND (object);
@@ -272,8 +284,9 @@ meta_surface_actor_wayland_dispose (GObject *object)
 
   if (self->surface)
     {
-      g_object_remove_weak_pointer (G_OBJECT (self->surface),
-                                    (gpointer *) &self->surface);
+      g_object_weak_unref (G_OBJECT (self->surface),
+                           on_surface_disposed,
+                           self);
       self->surface = NULL;
     }
 
@@ -308,8 +321,9 @@ meta_surface_actor_wayland_new (MetaWaylandSurface *surface)
   g_assert (meta_is_wayland_compositor ());
 
   self->surface = surface;
-  g_object_add_weak_pointer (G_OBJECT (self->surface),
-                             (gpointer *) &self->surface);
+  g_object_weak_ref (G_OBJECT (self->surface),
+                     on_surface_disposed,
+                     self);
 
   return META_SURFACE_ACTOR (self);
 }
