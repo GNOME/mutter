@@ -736,6 +736,7 @@ void meta_window_compute_tile_match (MetaWindow *window);
 
 gboolean meta_window_updates_are_frozen (MetaWindow *window);
 
+META_EXPORT_TEST
 void meta_window_set_title                (MetaWindow *window,
                                            const char *title);
 void meta_window_set_wm_class             (MetaWindow *window,

@@ -1119,6 +1119,7 @@ stacking_tests = [
   'tiling',
   'interactive-move',
   'map-on-monitor',
+  'popups',
 ]
 
 foreach stacking_test: stacking_tests

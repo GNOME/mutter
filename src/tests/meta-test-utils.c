@@ -242,6 +242,12 @@ meta_test_client_get_id (MetaTestClient *client)
   return client->id;
 }
 
+MetaWindowClientType
+meta_test_client_get_client_type (MetaTestClient *client)
+{
+  return client->type;
+}
+
 static void
 test_client_line_read (GObject      *source,
                        GAsyncResult *result,

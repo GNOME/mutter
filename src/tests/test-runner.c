@@ -59,6 +59,7 @@ typedef struct {
   GHashTable *virtual_monitors;
   ClutterVirtualInputDevice *pointer;
   GHashTable *cloned_windows;
+  GHashTable *popups;
 } TestCase;
 
 #define META_SIDE_TEST_CASE_NONE G_MAXINT32
@@ -919,6 +920,40 @@ grab_op_from_edge (const char *edge)
     op |= META_GRAB_OP_WINDOW_DIR_EAST;
 
   return op;
+}
+
+static gboolean
+is_popup (gconstpointer a,
+          gconstpointer b)
+{
+  MetaWindow *window = META_WINDOW (a);
+
+  switch (meta_window_get_window_type (window))
+    {
+    case META_WINDOW_DROPDOWN_MENU:
+    case META_WINDOW_POPUP_MENU:
+      return TRUE;
+    default:
+      return FALSE;
+    }
+}
+
+static MetaWindow *
+find_popup (MetaWindow *window)
+{
+  GPtrArray *transient_children;
+  unsigned int i;
+
+  transient_children = meta_window_get_transient_children (window);
+  if (!transient_children)
+    return NULL;
+
+  if (!g_ptr_array_find_with_equal_func (transient_children, NULL,
+                                         is_popup, &i))
+    return NULL;
+
+  window = g_ptr_array_index (transient_children, i);
+  return window;
 }
 
 static gboolean
@@ -2282,6 +2317,95 @@ test_case_do (TestCase    *test,
                                   G_CALLBACK (test_case_signal_cb),
                                   test_case_args);
     }
+  else if (strcmp (argv[0], "popup") == 0)
+    {
+      MetaTestClient *client;
+      const char *window_id;
+      const char *parent_id;
+      MetaWindow *parent;
+      MetaWindow *popup;
+
+      if (argc != 3)
+        BAD_COMMAND("usage: %s <client-id>/<popup-id> <parent-id>", argv[0]);
+
+      if (!test_case_parse_window_id (test, argv[1],
+                                      &client, &window_id, error))
+        return FALSE;
+
+      parent_id = argv[2];
+
+      if (!meta_test_client_do (client, error,
+                                argv[0], window_id,
+                                parent_id,
+                                NULL))
+        return FALSE;
+
+      if (!test->popups)
+        {
+          test->popups = g_hash_table_new_full (g_str_hash, g_str_equal,
+                                                g_free, g_free);
+        }
+
+      g_hash_table_insert (test->popups,
+                           g_strdup (window_id), g_strdup (parent_id));
+
+      parent = meta_test_client_find_window (client, parent_id, error);
+      if (!parent)
+        return FALSE;
+
+      if (meta_test_client_get_client_type (client) ==
+          META_WINDOW_CLIENT_TYPE_WAYLAND)
+        {
+          g_autofree char *popup_title = NULL;
+
+          while (TRUE)
+            {
+              popup = find_popup (parent);
+              if (popup)
+                break;
+
+              g_main_context_iteration (NULL, TRUE);
+            }
+
+          popup_title = g_strdup_printf ("test/%s/%s",
+                                         meta_test_client_get_id (client),
+                                         window_id);
+          meta_window_set_title (popup, popup_title);
+        }
+      else
+        {
+          if (!test_case_wait (test, error))
+            return FALSE;
+
+          popup = meta_test_client_find_window (client, window_id, error);
+          if (!popup)
+            return FALSE;
+        }
+
+      meta_wait_for_window_shown (popup);
+
+      if (!test_case_wait (test, error))
+        return FALSE;
+    }
+  else if (strcmp (argv[0], "dismiss") == 0)
+    {
+      MetaTestClient *client;
+      const char *window_id;
+
+      if (argc != 2)
+        BAD_COMMAND("usage: %s <client-id>/<popup-id>", argv[0]);
+
+      if (!test_case_parse_window_id (test, argv[1],
+                                      &client, &window_id, error))
+        return FALSE;
+
+      if (!meta_test_client_do (client, error,
+                                argv[0], window_id,
+                                NULL))
+        return FALSE;
+
+      g_hash_table_remove (test->popups, argv[1]);
+    }
   else
     {
       BAD_COMMAND("Unknown command %s", argv[0]);
@@ -2339,6 +2463,7 @@ test_case_destroy (TestCase *test,
   g_hash_table_destroy (test->clients);
   g_hash_table_unref (test->virtual_monitors);
   g_object_unref (test->pointer);
+  g_clear_pointer (&test->popups, g_hash_table_unref);
   g_free (test);
 
   return TRUE;

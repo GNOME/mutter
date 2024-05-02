@@ -1,0 +1,53 @@
+# Wayland
+
+new_client w wayland
+create w/1 csd
+show w/1
+wait
+
+popup w/p1 1
+assert_stacking w/1 w/p1
+
+popup w/p2 p1
+assert_stacking w/1 w/p1 w/p2
+
+create w/2 csd
+show w/2
+assert_stacking w/1 w/p1 w/p2 w/2
+
+local_activate w/1
+assert_stacking w/2 w/1 w/p1 w/p2
+
+dismiss w/p2
+wait
+assert_stacking w/2 w/1 w/p1
+
+dismiss w/p1
+wait
+assert_stacking w/2 w/1
+
+destroy w/1
+destroy w/2
+
+# X11
+
+new_client x x11
+create x/1 csd
+show x/1
+wait
+
+popup x/p1 1
+assert_stacking x/1 x/p1
+
+popup x/p2 p1
+assert_stacking x/1 x/p1 x/p2
+
+dismiss x/p2
+wait
+assert_stacking x/1 x/p1
+
+dismiss x/p1
+wait
+assert_stacking x/1
+
+destroy x/1

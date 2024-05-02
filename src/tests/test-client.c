@@ -1016,6 +1016,54 @@ process_line (const char *line)
                                    g_strdup (argv[2]));
       gtk_target_table_free (targets, n_targets);
     }
+  else if (strcmp (argv[0], "popup") == 0)
+    {
+      GtkWidget *parent;
+      GtkWidget *popup;
+      g_autofree char *title;
+
+      if (argc != 3)
+        {
+          g_print ("usage: popup <popup-id> <parent-id>\n");
+          goto out;
+        }
+
+      parent = lookup_window (argv[2]);
+      if (!parent)
+        {
+          g_print ("Parent not found\n");
+          goto out;
+        }
+
+      popup = g_object_new (GTK_TYPE_WINDOW,
+                            "type", GTK_WINDOW_POPUP,
+                            "type-hint", GDK_WINDOW_TYPE_HINT_POPUP_MENU,
+                            NULL);
+
+      title = g_strdup_printf ("test/%s/%s", client_id, argv[1]);
+      gtk_window_set_transient_for (GTK_WINDOW (popup), GTK_WINDOW (parent));
+      gtk_window_set_title (GTK_WINDOW (popup), title);
+      g_hash_table_insert (windows, g_strdup (argv[1]), popup);
+
+      gtk_widget_show (popup);
+    }
+  else if (strcmp (argv[0], "dismiss") == 0)
+    {
+      GtkWidget *popup;
+
+      if (argc != 2)
+        {
+          g_print ("usage: popup <popup-id>\n");
+          goto out;
+        }
+
+      popup = lookup_window (argv[1]);
+      if (!popup)
+        goto out;
+
+      g_hash_table_remove (windows, argv[1]);
+      gtk_widget_destroy (popup);
+    }
   else
     {
       g_print ("Unknown command %s\n", argv[0]);

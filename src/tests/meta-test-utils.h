@@ -71,6 +71,9 @@ META_EXPORT
 char * meta_test_client_get_id (MetaTestClient *client);
 
 META_EXPORT
+MetaWindowClientType meta_test_client_get_client_type (MetaTestClient *client);
+
+META_EXPORT
 gboolean meta_test_client_wait (MetaTestClient  *client,
                                 GError         **error);
 
