@@ -25,6 +25,7 @@
 #include "backends/native/meta-kms-device.h"
 #include "compositor/meta-window-actor-private.h"
 #include "core/display-private.h"
+#include "core/meta-workspace-manager-private.h"
 #include "core/window-private.h"
 #include "meta-test/meta-context-test.h"
 #include "meta/meta-later.h"
@@ -944,11 +945,17 @@ toplevel_suspended (void)
 {
   MetaWaylandTestClient *wayland_test_client;
   gulong sync_point_id;
+  MetaDisplay *display = meta_context_get_display (test_context);
+  uint32_t now_ms = meta_display_get_current_time_roundtrip (display);
+  MetaWorkspaceManager *workspace_manager =
+    meta_display_get_workspace_manager (display);
 
   sync_point_id =
     g_signal_connect (test_driver, "sync-point",
                       G_CALLBACK (on_toplevel_suspended_sync_point),
                       NULL);
+
+  meta_workspace_manager_update_num_workspaces (workspace_manager, now_ms, 2);
 
   wayland_test_client =
     meta_wayland_test_client_new (test_context, "xdg-toplevel-suspended");
