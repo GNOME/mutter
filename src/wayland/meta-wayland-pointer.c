@@ -600,10 +600,13 @@ repick_for_event (MetaWaylandPointer *pointer,
     {
       MetaSurfaceActorWayland *actor_wayland =
         META_SURFACE_ACTOR_WAYLAND (actor);
+      MetaWindow *window = NULL;
 
       surface = meta_surface_actor_wayland_get_surface (actor_wayland);
+      if (surface)
+        window = meta_wayland_surface_get_window (surface);
 
-      if (surface && meta_window_has_modals (meta_wayland_surface_get_window (surface)))
+      if (window && meta_window_has_modals (window))
         surface = NULL;
     }
   else
