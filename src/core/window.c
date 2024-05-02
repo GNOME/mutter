@@ -1783,51 +1783,6 @@ meta_window_should_be_showing (MetaWindow *window)
   return meta_window_should_be_showing_on_workspace (window, active_workspace);
 }
 
-static void
-implement_showing (MetaWindow *window,
-                   gboolean    showing)
-{
-  /* Actually show/hide the window */
-  meta_verbose ("Implement showing = %d for window %s",
-                showing, window->desc);
-
-  /* Some windows are not stackable until being showed, so add those now. */
-  if (meta_window_is_stackable (window) && !meta_window_is_in_stack (window))
-    meta_stack_add (window->display->stack, window);
-
-  if (!showing)
-    {
-      /* When we manage a new window, we normally delay placing it
-       * until it is is first shown, but if we're previewing hidden
-       * windows we might want to know where they are on the screen,
-       * so we should place the window even if we're hiding it rather
-       * than showing it.
-       * Force placing windows only when they should be already mapped,
-       * see #751887
-       */
-      if (!window->placed && window_has_buffer (window))
-        meta_window_force_placement (window, FALSE);
-
-      meta_window_hide (window);
-
-      if (!window->override_redirect)
-        sync_client_window_mapped (window);
-    }
-  else
-    {
-      if (!window->override_redirect)
-        sync_client_window_mapped (window);
-
-      meta_window_show (window);
-    }
-}
-
-void
-meta_window_update_visibility (MetaWindow  *window)
-{
-  implement_showing (window, meta_window_should_be_showing (window));
-}
-
 void
 meta_window_clear_queued (MetaWindow *window)
 {
@@ -2241,6 +2196,51 @@ meta_window_is_suspended (MetaWindow *window)
     }
 
   g_assert_not_reached ();
+}
+
+static void
+implement_showing (MetaWindow *window,
+                   gboolean    showing)
+{
+  /* Actually show/hide the window */
+  meta_verbose ("Implement showing = %d for window %s",
+                showing, window->desc);
+
+  /* Some windows are not stackable until being showed, so add those now. */
+  if (meta_window_is_stackable (window) && !meta_window_is_in_stack (window))
+    meta_stack_add (window->display->stack, window);
+
+  if (!showing)
+    {
+      /* When we manage a new window, we normally delay placing it
+       * until it is is first shown, but if we're previewing hidden
+       * windows we might want to know where they are on the screen,
+       * so we should place the window even if we're hiding it rather
+       * than showing it.
+       * Force placing windows only when they should be already mapped,
+       * see #751887
+       */
+      if (!window->placed && window_has_buffer (window))
+        meta_window_force_placement (window, FALSE);
+
+      meta_window_hide (window);
+
+      if (!window->override_redirect)
+        sync_client_window_mapped (window);
+    }
+  else
+    {
+      if (!window->override_redirect)
+        sync_client_window_mapped (window);
+
+      meta_window_show (window);
+    }
+}
+
+void
+meta_window_update_visibility (MetaWindow  *window)
+{
+  implement_showing (window, meta_window_should_be_showing (window));
 }
 
 static void
