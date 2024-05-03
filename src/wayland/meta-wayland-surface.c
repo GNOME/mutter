@@ -701,8 +701,6 @@ meta_wayland_surface_apply_placement_ops (MetaWaylandSurface      *parent,
       MetaWaylandSurface *surface = op->surface;
       GNode *sibling_node;
 
-      g_node_unlink (surface->applied_state.subsurface_branch_node);
-
       if (!op->sibling)
         {
           surface->applied_state.parent = NULL;
@@ -710,6 +708,8 @@ meta_wayland_surface_apply_placement_ops (MetaWaylandSurface      *parent,
         }
 
       surface->applied_state.parent = parent;
+
+      g_node_unlink (surface->applied_state.subsurface_branch_node);
 
       if (op->sibling == parent)
         sibling_node = parent->applied_state.subsurface_leaf_node;
@@ -1520,6 +1520,7 @@ meta_wayland_surface_finalize (GObject *object)
 {
   MetaWaylandSurface *surface = META_WAYLAND_SURFACE (object);
   MetaWaylandCompositor *compositor = surface->compositor;
+  MetaWaylandSurface *subsurface_surface;
   MetaWaylandFrameCallback *cb, *next;
 
   g_clear_object (&surface->scanout_candidate);
@@ -1554,6 +1555,10 @@ meta_wayland_surface_finalize (GObject *object)
     wl_resource_destroy (cb->resource);
 
   meta_wayland_surface_discard_presentation_feedback (surface);
+
+  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (&surface->applied_state,
+                                           subsurface_surface)
+    g_node_unlink (subsurface_surface->applied_state.subsurface_branch_node);
 
   g_clear_pointer (&surface->applied_state.subsurface_branch_node, g_node_destroy);
 
