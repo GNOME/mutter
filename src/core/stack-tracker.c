@@ -1060,9 +1060,10 @@ meta_stack_tracker_sync_stack (MetaStackTracker *tracker)
         {
           MetaX11Display *x11_display = tracker->display->x11_display;
           MetaWindow *meta_window = NULL;
+          Window xwindow = (Window) window;
 
           if (x11_display)
-            meta_window = meta_x11_display_lookup_x_window (x11_display, (Window) window);
+            meta_window = meta_x11_display_lookup_x_window (x11_display, xwindow);
 
           /* When mapping back from xwindow to MetaWindow we have to be a bit careful;
            * children of the root could include unmapped windows created by toolkits
@@ -1072,8 +1073,8 @@ meta_stack_tracker_sync_stack (MetaStackTracker *tracker)
            */
           frame = meta_window ? meta_window_x11_get_frame (meta_window) : NULL;
           if (meta_window &&
-              ((Window)window == meta_window_x11_get_xwindow (meta_window) ||
-               (frame && (Window)window == frame->xwindow)))
+              (xwindow == meta_window_x11_get_xwindow (meta_window) ||
+               (frame && xwindow == frame->xwindow)))
             meta_windows = g_list_prepend (meta_windows, meta_window);
         }
       else
