@@ -265,6 +265,7 @@ def wrap_call(args, wrapper):
     env['NO_AT_BRIDGE'] = '1'
     env['GTK_A11Y'] = 'none'
     env['GSETTINGS_BACKEND'] = 'memory'
+    env['XDG_CURRENT_DESKTOP'] = ''
     env['META_DBUS_RUNNER_ACTIVE'] = '1'
 
     if wrapper == 'gdb':

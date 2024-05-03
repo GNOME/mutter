@@ -66,6 +66,9 @@ ensure_gsettings_memory_backend (void)
   g_autoptr (GSettingsBackend) memory_backend = NULL;
   GSettingsBackend *default_backend;
 
+  g_assert_cmpstr (getenv ("GSETTINGS_BACKEND"), ==, "memory");
+  g_assert_cmpstr (getenv ("XDG_CURRENT_DESKTOP"), ==, "");
+
   memory_backend = g_memory_settings_backend_new ();
   default_backend = g_settings_backend_get_default ();
   g_assert_true (G_TYPE_FROM_INSTANCE (memory_backend) ==

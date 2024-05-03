@@ -597,8 +597,6 @@ main (int    argc,
   g_autoptr (MetaContext) context = NULL;
   g_autoptr (GError) error = NULL;
 
-  g_assert_cmpstr (getenv ("GSETTINGS_BACKEND"), ==, "memory");
-
   context = test_context =
     meta_create_test_context (META_CONTEXT_TEST_TYPE_HEADLESS,
                               META_CONTEXT_TEST_FLAG_NO_X11);
