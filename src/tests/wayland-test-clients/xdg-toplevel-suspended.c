@@ -27,6 +27,7 @@ enum
   XDG_TOPLEVEL_SUSPENDED_COMMAND_NEXT_WORKSPACE = 0,
   XDG_TOPLEVEL_SUSPENDED_COMMAND_PREV_WORKSPACE = 1,
   XDG_TOPLEVEL_SUSPENDED_COMMAND_ACTIVATE_WINDOW = 2,
+  XDG_TOPLEVEL_SUSPENDED_COMMAND_CLONE = 3,
 };
 
 static void
@@ -155,6 +156,40 @@ test_obstructed (WaylandDisplay *display)
   wait_for_no_state (surface, XDG_TOPLEVEL_STATE_SUSPENDED);
 }
 
+static void
+test_obstructed_clone (WaylandDisplay *display)
+{
+  g_autoptr (WaylandSurface) surface = NULL;
+  g_autoptr (WaylandSurface) cover_surface = NULL;
+
+  g_debug ("Testing suspended state when mapping a clone of an obstructed "
+           "window");
+
+  surface = wayland_surface_new (display, __func__, 100, 100, 0xffffffff);
+  wl_surface_commit (surface->wl_surface);
+
+  wait_for_window_shown (display, surface->wl_surface);
+  g_assert_false (wayland_surface_has_state (surface,
+                                             XDG_TOPLEVEL_STATE_SUSPENDED));
+
+  cover_surface = wayland_surface_new (display, "obstruction",
+                                       100, 100, 0xffffffff);
+  xdg_toplevel_set_maximized (cover_surface->xdg_toplevel);
+  wl_surface_commit (cover_surface->wl_surface);
+
+  wait_for_window_shown (display, cover_surface->wl_surface);
+  test_driver_sync_point (display->test_driver,
+                          XDG_TOPLEVEL_SUSPENDED_COMMAND_ACTIVATE_WINDOW,
+                          cover_surface->wl_surface);
+
+  wait_for_state (surface, XDG_TOPLEVEL_STATE_SUSPENDED);
+
+  test_driver_sync_point (display->test_driver,
+                          XDG_TOPLEVEL_SUSPENDED_COMMAND_CLONE,
+                          surface->wl_surface);
+  wait_for_no_state (surface, XDG_TOPLEVEL_STATE_SUSPENDED);
+}
+
 int
 main (int    argc,
       char **argv)
@@ -170,6 +205,7 @@ main (int    argc,
   test_minimized (display);
   test_workspace_changes (display);
   test_obstructed (display);
+  test_obstructed_clone (display);
 
   return EXIT_SUCCESS;
 }
