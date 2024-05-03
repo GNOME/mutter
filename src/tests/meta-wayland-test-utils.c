@@ -83,6 +83,9 @@ meta_wayland_test_client_new (MetaContext *context,
   g_subprocess_launcher_setenv (launcher,
                                 "WAYLAND_DISPLAY", wayland_display_name,
                                 TRUE);
+  g_subprocess_launcher_setenv (launcher,
+                                "G_MESSAGES_DEBUG", "all",
+                                TRUE);
 
   subprocess = g_subprocess_launcher_spawn (launcher,
                                             &error,
