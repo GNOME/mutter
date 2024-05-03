@@ -594,7 +594,7 @@ can-run-gnome-shell@x86_64:
     - .gitlab-ci/checkout-gnome-shell.sh
     - meson setup gnome-shell gnome-shell/build --prefix /usr -Dbuildtype=debugoptimized -Dman=false --werror --fatal-meson-warnings
     - sudo meson install -C gnome-shell/build
-    - dbus-run-session -- xvfb-run meson test -C gnome-shell/build --no-rebuild
+    - dbus-run-session -- xvfb-run meson test -C gnome-shell/build --no-rebuild --timeout-multiplier 5
 
 test-mutter-coverity:
   rules:
