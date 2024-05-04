@@ -41,6 +41,16 @@
                     StructureNotifyMask | SubstructureNotifyMask | \
                     PropertyChangeMask | FocusChangeMask)
 
+static void
+meta_frame_free (MetaFrame *frame)
+{
+  g_clear_pointer (&frame->opaque_region, mtk_region_unref);
+  meta_sync_counter_clear (&frame->sync_counter);
+  g_free (frame);
+}
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaFrame, meta_frame_free);
+
 void
 meta_window_ensure_frame (MetaWindow *window)
 {
@@ -65,7 +75,7 @@ meta_window_x11_set_frame_xwindow (MetaWindow *window,
   MetaX11Display *x11_display = window->display->x11_display;
   XSetWindowAttributes attrs;
   gulong create_serial = 0;
-  MetaFrame *frame;
+  g_autoptr (MetaFrame) frame = NULL;
 
   if (window->frame)
     return;
@@ -84,8 +94,6 @@ meta_window_x11_set_frame_xwindow (MetaWindow *window,
   frame->borders_cached = FALSE;
 
   meta_sync_counter_init (&frame->sync_counter, window, frame->xwindow);
-
-  window->frame = frame;
 
   meta_verbose ("Frame geometry %d,%d  %dx%d",
                 frame->rect.x, frame->rect.y,
@@ -127,11 +135,16 @@ meta_window_x11_set_frame_xwindow (MetaWindow *window,
   meta_stack_tracker_record_remove (window->display->stack_tracker,
                                     meta_window_x11_get_xwindow (window),
                                     XNextRequest (x11_display->xdisplay));
+
+  /* stick frame to the window */
+  window->frame = g_steal_pointer (&frame);
+
   XReparentWindow (x11_display->xdisplay,
                    meta_window_x11_get_xwindow (window),
-                   frame->xwindow,
-                   frame->child_x,
-                   frame->child_y);
+                   window->frame->xwindow,
+                   window->frame->child_x,
+                   window->frame->child_y);
+
   window->reparents_pending += 1;
   /* FIXME handle this error */
   mtk_x11_error_trap_pop (x11_display->xdisplay);
@@ -142,18 +155,15 @@ meta_window_x11_set_frame_xwindow (MetaWindow *window,
   if (meta_window_has_focus (window))
     window->restore_focus_on_map = TRUE;
 
-  /* stick frame to the window */
-  window->frame = frame;
-
-  meta_window_reload_property_from_xwindow (window, frame->xwindow,
+  meta_window_reload_property_from_xwindow (window, window->frame->xwindow,
                                             x11_display->atom__NET_WM_SYNC_REQUEST_COUNTER,
                                             TRUE);
-  meta_window_reload_property_from_xwindow (window, frame->xwindow,
+  meta_window_reload_property_from_xwindow (window, window->frame->xwindow,
                                             x11_display->atom__NET_WM_OPAQUE_REGION,
                                             TRUE);
 
   mtk_x11_error_trap_push (x11_display->xdisplay);
-  XMapWindow (x11_display->xdisplay, frame->xwindow);
+  XMapWindow (x11_display->xdisplay, window->frame->xwindow);
   mtk_x11_error_trap_pop (x11_display->xdisplay);
 
   /* Move keybindings to frame instead of window */
@@ -169,7 +179,7 @@ meta_window_x11_set_frame_xwindow (MetaWindow *window,
 void
 meta_window_destroy_frame (MetaWindow *window)
 {
-  MetaFrame *frame;
+  g_autoptr (MetaFrame) frame = NULL;
   MetaFrameBorders borders;
   MetaX11Display *x11_display;
 
@@ -180,7 +190,7 @@ meta_window_destroy_frame (MetaWindow *window)
 
   meta_verbose ("Unframing window %s", window->desc);
 
-  frame = window->frame;
+  frame = g_steal_pointer (&window->frame);
 
   meta_frame_calc_borders (frame, &borders);
 
@@ -215,8 +225,8 @@ meta_window_destroy_frame (MetaWindow *window)
                         * coordinates here means we'll need to ensure a configure
                         * notify event is sent; see bug 399552.
                         */
-                       window->frame->rect.x + borders.invisible.left,
-                       window->frame->rect.y + borders.invisible.top);
+                       frame->rect.x + borders.invisible.left,
+                       frame->rect.y + borders.invisible.top);
       window->reparents_pending += 1;
     }
 
@@ -236,17 +246,10 @@ meta_window_destroy_frame (MetaWindow *window)
     window->restore_focus_on_map = TRUE;
 
   meta_x11_display_unregister_x_window (x11_display, frame->xwindow);
-
-  window->frame = NULL;
   g_clear_pointer (&window->frame_bounds, mtk_region_unref);
-  g_clear_pointer (&frame->opaque_region, mtk_region_unref);
 
   /* Move keybindings to window instead of frame */
   meta_window_grab_keys (window);
-
-  meta_sync_counter_clear (&frame->sync_counter);
-
-  g_free (frame);
 
   /* Put our state back where it should be */
   if (!window->unmanaging)
