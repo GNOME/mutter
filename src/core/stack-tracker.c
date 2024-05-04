@@ -377,7 +377,12 @@ meta_stack_op_apply (MetaStackTracker *tracker,
 
         if (META_STACK_ID_IS_X11 (op->add.window) &&
             (apply_flags & NO_RESTACK_X_WINDOWS) != 0)
-          return FALSE;
+          {
+            meta_topic (META_DEBUG_STACK, "STACK_OP_ADD: Ignoring addition "
+                        "of %s as per NO_RESTACK_X_WINDOWS",
+                        get_window_desc (tracker, op->remove.window));
+            return FALSE;
+          }
 
         old_pos = find_window (stack, op->add.window);
         if (old_pos >= 0)
@@ -397,7 +402,12 @@ meta_stack_op_apply (MetaStackTracker *tracker,
 
         if (META_STACK_ID_IS_X11 (op->remove.window) &&
             (apply_flags & NO_RESTACK_X_WINDOWS) != 0)
-          return FALSE;
+          {
+            meta_topic (META_DEBUG_STACK, "STACK_OP_REMOVE: Ignoring removal "
+                        "of %s as per NO_RESTACK_X_WINDOWS",
+                        get_window_desc (tracker, op->remove.window));
+            return FALSE;
+          }
 
         old_pos = find_window (stack, op->remove.window);
         if (old_pos < 0)
