@@ -1078,7 +1078,14 @@ meta_stack_tracker_sync_stack (MetaStackTracker *tracker)
           /* When mapping back from xwindow to MetaWindow we have to be a bit careful;
            * children of the root could include unmapped windows created by toolkits
            * for internal purposes, including ones that we have registered in our
-           * XID => window table. (Wine uses a toplevel for _NET_WM_USER_TIME_WINDOW;
+           * XID => window table (such as user time or frame windows) and we
+           * don't want to duplicate them not to break the compositor assumption
+           * that the list we pass contains unique IDs (leading to crashes due
+           * to wrong removals on destruction).
+           * Only include the unframed windows whose XID matches the one we're
+           * handling or we'd end up including all the internal windows we've
+           * associated to the same meta window, such as the user time windows.
+           * (Wine uses a toplevel for _NET_WM_USER_TIME_WINDOW;
            * see window-prop.c:reload_net_wm_user_time_window() for registration.)
            */
           frame = meta_window ? meta_window_x11_get_frame (meta_window) : NULL;
