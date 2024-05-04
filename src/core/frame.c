@@ -35,6 +35,7 @@
 #include "x11/window-props.h"
 
 #include <X11/Xatom.h>
+#include <X11/Xlib.h>
 #include <X11/extensions/shape.h>
 
 #define EVENT_MASK (SubstructureRedirectMask |                     \
@@ -132,6 +133,22 @@ meta_window_x11_set_frame_xwindow (MetaWindow *window,
                    frame->child_x,
                    frame->child_y);
 
+  if (mtk_x11_error_trap_pop_with_return (x11_display->xdisplay))
+    {
+      /* Reparent failed, so we need to restore the window state and
+       * remove the association of the frame xwindow with the window
+       * otherwise the we'll associate the events for this frame to the
+       * logical window and we may end up duplicating it when the stack
+       * will be synchronized with the compositor leading to the same logical
+       * window appearing multiple times in the stack, which is not expected.
+       */
+      meta_topic (META_DEBUG_WINDOW_STATE, "Failed to set %lu as %s frame",
+                  frame->xwindow, window->desc);
+
+      meta_x11_display_unregister_x_window (x11_display, frame->xwindow);
+      return;
+    }
+
   if (window->mapped)
     {
       window->mapped = FALSE; /* the reparent will unmap the window,
@@ -146,8 +163,6 @@ meta_window_x11_set_frame_xwindow (MetaWindow *window,
   window->frame = g_steal_pointer (&frame);
 
   window->reparents_pending += 1;
-  /* FIXME handle this error */
-  mtk_x11_error_trap_pop (x11_display->xdisplay);
 
   /* Ensure focus is restored after the unmap/map events triggered
    * by XReparentWindow().
