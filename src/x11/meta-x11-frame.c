@@ -122,6 +122,15 @@ meta_window_x11_set_frame_xwindow (MetaWindow *window,
   if (META_X11_DISPLAY_HAS_SHAPE (x11_display))
     XShapeSelectInput (x11_display->xdisplay, frame->xwindow, ShapeNotifyMask);
 
+  if (mtk_x11_error_trap_pop_with_return (x11_display->xdisplay))
+    {
+      meta_topic (META_DEBUG_WINDOW_STATE,
+                  "Setting up frame for window %s failed", window->desc);
+      return;
+    }
+
+  mtk_x11_error_trap_push (x11_display->xdisplay);
+
   meta_x11_display_register_x_window (x11_display, &frame->xwindow, window);
 
   meta_stack_tracker_record_remove (window->display->stack_tracker,
