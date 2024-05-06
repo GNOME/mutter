@@ -817,16 +817,6 @@ meta_window_wayland_calculate_layer (MetaWindow *window)
 }
 
 static void
-meta_window_wayland_map (MetaWindow *window)
-{
-}
-
-static void
-meta_window_wayland_unmap (MetaWindow *window)
-{
-}
-
-static void
 meta_window_wayland_constructed (GObject *object)
 {
   MetaWindow *window = META_WINDOW (object);
@@ -935,8 +925,6 @@ meta_window_wayland_class_init (MetaWindowWaylandClass *klass)
   window_class->can_ping = meta_window_wayland_can_ping;
   window_class->are_updates_frozen = meta_window_wayland_are_updates_frozen;
   window_class->calculate_layer = meta_window_wayland_calculate_layer;
-  window_class->map = meta_window_wayland_map;
-  window_class->unmap = meta_window_wayland_unmap;
   window_class->is_focus_async = meta_window_wayland_is_focus_async;
   window_class->get_wayland_surface = meta_window_wayland_get_wayland_surface;
   window_class->set_transient_for = meta_window_wayland_set_transient_for;

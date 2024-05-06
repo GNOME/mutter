@@ -221,6 +221,7 @@ enum
   PROP_DISPLAY,
   PROP_EFFECT,
   PROP_SUSPEND_STATE,
+  PROP_MAPPED,
 
   PROP_LAST,
 };
@@ -439,6 +440,9 @@ meta_window_get_property(GObject         *object,
     case PROP_SUSPEND_STATE:
       g_value_set_enum (value, priv->suspend_state);
       break;
+    case PROP_MAPPED:
+      g_value_set_boolean (value, win->mapped);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -598,14 +602,16 @@ meta_window_class_init (MetaWindowClass *klass)
                       META_COMP_EFFECT_NONE,
                       G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
 
-  /**
-   * MetaWindow::suspend-state: (skip)
-   */
   obj_props[PROP_SUSPEND_STATE] =
     g_param_spec_enum ("suspend-state", NULL, NULL,
                        META_TYPE_WINDOW_SUSPEND_STATE,
                        META_WINDOW_SUSPEND_STATE_ACTIVE,
                        G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+
+  obj_props[PROP_MAPPED] =
+    g_param_spec_boolean ("mapped", NULL, NULL,
+                          FALSE,
+                          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
 
@@ -833,11 +839,7 @@ sync_client_window_mapped (MetaWindow *window)
     return;
 
   window->mapped = should_be_mapped;
-
-  if (window->mapped)
-    META_WINDOW_GET_CLASS (window)->map (window);
-  else
-    META_WINDOW_GET_CLASS (window)->unmap (window);
+  g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_MAPPED]);
 }
 
 static gboolean

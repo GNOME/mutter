@@ -612,9 +612,6 @@ struct _MetaWindowClass
 
   gboolean (*set_transient_for) (MetaWindow *window,
                                  MetaWindow *parent);
-
-  void (* map)   (MetaWindow *window);
-  void (* unmap) (MetaWindow *window);
 };
 
 /* These differ from window->has_foo_func in that they consider

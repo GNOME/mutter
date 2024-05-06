@@ -1956,26 +1956,25 @@ meta_window_x11_impl_thaw_commits (MetaWindow *window)
 }
 
 static void
-meta_window_x11_map (MetaWindow *window)
+on_mapped_changed (MetaWindow *window)
 {
   MetaX11Display *x11_display = window->display->x11_display;
 
-  mtk_x11_error_trap_push (x11_display->xdisplay);
-  XMapWindow (x11_display->xdisplay,
-              meta_window_x11_get_xwindow (window));
-  mtk_x11_error_trap_pop (x11_display->xdisplay);
-}
-
-static void
-meta_window_x11_unmap (MetaWindow *window)
-{
-  MetaX11Display *x11_display = window->display->x11_display;
-
-  mtk_x11_error_trap_push (x11_display->xdisplay);
-  XUnmapWindow (x11_display->xdisplay,
-                meta_window_x11_get_xwindow (window));
-  mtk_x11_error_trap_pop (x11_display->xdisplay);
-  window->unmaps_pending ++;
+  if (window->mapped)
+    {
+      mtk_x11_error_trap_push (x11_display->xdisplay);
+      XMapWindow (x11_display->xdisplay,
+                  meta_window_x11_get_xwindow (window));
+      mtk_x11_error_trap_pop (x11_display->xdisplay);
+    }
+  else
+    {
+      mtk_x11_error_trap_push (x11_display->xdisplay);
+      XUnmapWindow (x11_display->xdisplay,
+                    meta_window_x11_get_xwindow (window));
+      mtk_x11_error_trap_pop (x11_display->xdisplay);
+      window->unmaps_pending ++;
+    }
 }
 
 static gboolean
@@ -2097,6 +2096,10 @@ meta_window_x11_constructed (GObject *object)
                     G_CALLBACK (meta_window_x11_update_input_region),
                     window);
 
+  g_signal_connect (window, "notify::mapped",
+                    G_CALLBACK (on_mapped_changed),
+                    NULL);
+
   G_OBJECT_CLASS (meta_window_x11_parent_class)->constructed (object);
 }
 
@@ -2194,8 +2197,6 @@ meta_window_x11_class_init (MetaWindowX11Class *klass)
   window_class->can_ping = meta_window_x11_can_ping;
   window_class->are_updates_frozen = meta_window_x11_are_updates_frozen;
   window_class->calculate_layer = meta_window_x11_calculate_layer;
-  window_class->map = meta_window_x11_map;
-  window_class->unmap = meta_window_x11_unmap;
   window_class->is_focus_async = meta_window_x11_is_focus_async;
   window_class->set_transient_for = meta_window_x11_set_transient_for;
 
