@@ -48,6 +48,11 @@ documentation and API references below first.
 - CoglPango: <https://mutter.gnome.org/cogl-pango/>
 - Mtk: <https://mutter.gnome.org/mtk/>
 
+## Meetings
+
+There are [recurring meetings](https://hedgedoc.gnome.org/s/ymP_L5MUs) to
+discuss development of GNOME Shell, mutter and related components.
+
 ## License
 
 Mutter is distributed under the terms of the GNU General Public License,
