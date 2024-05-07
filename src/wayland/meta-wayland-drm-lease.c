@@ -48,6 +48,8 @@ struct _MetaWaylandDrmLeaseManager
    * Value: MetaWaylandDrmLeaseDevice *lease_device
    */
   GHashTable *devices;
+
+  GList *leases;
 };
 
 typedef struct _MetaWaylandDrmLeaseDevice
@@ -74,6 +76,21 @@ typedef struct _MetaWaylandDrmLeaseConnector
 
   GList *resources;
 } MetaWaylandDrmLeaseConnector;
+
+typedef struct _MetaWaylandDrmLeaseRequest
+{
+  MetaWaylandDrmLeaseDevice *lease_device;
+  GList *lease_connectors;
+  struct wl_resource *resource;
+} MetaWaylandDrmLeaseRequest;
+
+typedef struct _MetaWaylandDrmLease
+{
+  MetaWaylandDrmLeaseManager *lease_manager;
+  MetaWaylandDrmLeaseDevice *lease_device;
+  uint32_t lessee_id;
+  struct wl_resource *resource;
+} MetaWaylandDrmLease;
 
 static void
 meta_wayland_drm_lease_device_free (MetaWaylandDrmLeaseDevice *lease_device)
@@ -111,10 +128,215 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaWaylandDrmLeaseConnector,
                                meta_wayland_drm_lease_connector_release);
 
 static void
+meta_wayland_drm_lease_free (MetaWaylandDrmLease *lease)
+{
+  meta_wayland_drm_lease_device_release (lease->lease_device);
+}
+
+static void
+meta_wayland_drm_lease_release (MetaWaylandDrmLease *lease)
+{
+  g_rc_box_release_full (lease, (GDestroyNotify) meta_wayland_drm_lease_free);
+}
+
+static void
+meta_wayland_drm_lease_revoke (MetaWaylandDrmLease *lease)
+{
+  MetaDrmLease *drm_lease =
+    meta_drm_lease_manager_get_lease_from_id (lease->lease_manager->drm_lease_manager,
+                                              lease->lessee_id);
+
+  if (drm_lease)
+    meta_drm_lease_revoke (drm_lease);
+}
+
+static void
+on_lease_revoked (MetaDrmLease        *drm_lease,
+                  struct wl_resource  *resource)
+{
+  wp_drm_lease_v1_send_finished (resource);
+}
+
+static void
+wp_drm_lease_destroy (struct wl_client   *client,
+                      struct wl_resource *resource)
+{
+  MetaWaylandDrmLease *lease = wl_resource_get_user_data (resource);
+
+  meta_wayland_drm_lease_revoke (lease);
+
+  wl_resource_destroy (resource);
+}
+
+static const struct wp_drm_lease_v1_interface drm_lease_implementation = {
+  wp_drm_lease_destroy,
+};
+
+static void
+wp_drm_lease_destructor (struct wl_resource *resource)
+{
+  MetaWaylandDrmLease *lease = wl_resource_get_user_data (resource);
+  MetaDrmLease *drm_lease;
+
+  meta_wayland_drm_lease_revoke (lease);
+
+  drm_lease =
+    meta_drm_lease_manager_get_lease_from_id (lease->lease_manager->drm_lease_manager,
+                                              lease->lessee_id);
+  if (drm_lease)
+    {
+      g_signal_handlers_disconnect_by_func (drm_lease,
+                                            (gpointer) on_lease_revoked,
+                                            lease->resource);
+    }
+
+  lease->lease_manager->leases = g_list_remove (lease->lease_manager->leases,
+                                                lease);
+  meta_wayland_drm_lease_release (lease);
+}
+
+static void
+wp_drm_lease_request_request_connector (struct wl_client   *client,
+                                        struct wl_resource *resource,
+                                        struct wl_resource *connector)
+{
+  MetaWaylandDrmLeaseRequest *lease_request =
+    wl_resource_get_user_data (resource);
+  MetaWaylandDrmLeaseConnector *lease_connector =
+    wl_resource_get_user_data (connector);
+
+  if (lease_request->lease_device != lease_connector->lease_device)
+    {
+      wl_resource_post_error (resource,
+                              WP_DRM_LEASE_REQUEST_V1_ERROR_WRONG_DEVICE,
+                              "Wrong lease device");
+      return;
+    }
+
+  if (g_list_find (lease_request->lease_connectors, lease_connector))
+    {
+      wl_resource_post_error (resource,
+                              WP_DRM_LEASE_REQUEST_V1_ERROR_DUPLICATE_CONNECTOR,
+                              "Connector requested twice");
+      return;
+    }
+
+  lease_request->lease_connectors =
+    g_list_append (lease_request->lease_connectors,
+                   g_rc_box_acquire (lease_connector));
+}
+
+static void
+wp_drm_lease_request_submit (struct wl_client   *client,
+                             struct wl_resource *resource,
+                             uint32_t            id)
+{
+  MetaWaylandDrmLeaseRequest *lease_request =
+    wl_resource_get_user_data (resource);
+  MetaWaylandDrmLeaseDevice *lease_device = lease_request->lease_device;
+  MetaWaylandDrmLeaseManager *lease_manager = lease_device->lease_manager;
+  MetaKmsDevice *kms_device = lease_device->kms_device;
+  MetaDrmLeaseManager *drm_lease_manager = lease_manager->drm_lease_manager;
+  MetaWaylandDrmLease *lease;
+  g_autoptr (GList) connectors = NULL;
+  g_autoptr (MetaDrmLease) drm_lease = NULL;
+  g_autoptr (GError) error = NULL;
+  g_autofd int fd = -1;
+  GList *l;
+
+  if (!lease_request->lease_connectors)
+    {
+      wl_resource_post_error (resource,
+                              WP_DRM_LEASE_REQUEST_V1_ERROR_EMPTY_LEASE,
+                              "Empty DRM lease request");
+      wl_resource_destroy (resource);
+      return;
+    }
+
+  lease = g_rc_box_new0 (MetaWaylandDrmLease);
+  lease->lease_manager = lease_manager;
+  lease->lease_device = g_rc_box_acquire (lease_device);
+  lease->resource =
+    wl_resource_create (client, &wp_drm_lease_v1_interface,
+                        wl_resource_get_version (resource), id);
+
+  wl_resource_set_implementation (lease->resource,
+                                  &drm_lease_implementation,
+                                  lease,
+                                  wp_drm_lease_destructor);
+
+  lease_manager->leases = g_list_append (lease_manager->leases, lease);
+
+  for (l = lease_request->lease_connectors; l; l = l->next)
+    {
+      MetaWaylandDrmLeaseConnector *lease_connector = l->data;
+      MetaKmsConnector *kms_connector = lease_connector->kms_connector;
+
+      connectors = g_list_append (connectors, kms_connector);
+    }
+
+  drm_lease = meta_drm_lease_manager_lease_connectors (drm_lease_manager,
+                                                       kms_device,
+                                                       connectors,
+                                                       &error);
+  if (!drm_lease)
+    {
+      g_warning ("Failed to create lease from connector list: %s",
+                 error->message);
+      wp_drm_lease_v1_send_finished (lease->resource);
+      wl_resource_destroy (resource);
+      return;
+    }
+
+  g_signal_connect (drm_lease, "revoked",
+                    G_CALLBACK (on_lease_revoked),
+                    lease->resource);
+
+  fd = meta_drm_lease_steal_fd (drm_lease);
+  wp_drm_lease_v1_send_lease_fd (lease->resource, fd);
+
+  lease->lessee_id = meta_drm_lease_get_id (drm_lease);
+
+  wl_resource_destroy (resource);
+}
+
+static const struct wp_drm_lease_request_v1_interface drm_lease_request_implementation = {
+  wp_drm_lease_request_request_connector,
+  wp_drm_lease_request_submit,
+};
+
+static void
+wp_drm_lease_request_destructor (struct wl_resource *resource)
+{
+  MetaWaylandDrmLeaseRequest *lease_request =
+    wl_resource_get_user_data (resource);
+
+  meta_wayland_drm_lease_device_release (lease_request->lease_device);
+  g_list_foreach (lease_request->lease_connectors,
+                  (GFunc) meta_wayland_drm_lease_connector_release,
+                  NULL);
+  g_free (lease_request);
+}
+
+static void
 wp_drm_lease_device_create_lease_request (struct wl_client   *client,
                                           struct wl_resource *resource,
                                           uint32_t            id)
 {
+  MetaWaylandDrmLeaseDevice *lease_device =
+    wl_resource_get_user_data (resource);
+  MetaWaylandDrmLeaseRequest *lease_request;
+
+  lease_request = g_new0 (MetaWaylandDrmLeaseRequest, 1);
+  lease_request->lease_device = g_rc_box_acquire (lease_device);
+  lease_request->resource =
+    wl_resource_create (client, &wp_drm_lease_request_v1_interface,
+                        wl_resource_get_version (resource), id);
+
+  wl_resource_set_implementation (lease_request->resource,
+                                  &drm_lease_request_implementation,
+                                  lease_request,
+                                  wp_drm_lease_request_destructor);
 }
 
 static void
@@ -520,6 +742,9 @@ meta_wayland_drm_lease_manager_free (gpointer data)
 
   g_clear_pointer (&lease_manager->devices, g_hash_table_unref);
   g_clear_pointer (&lease_manager->drm_lease_manager, g_object_unref);
+  g_list_foreach (lease_manager->leases,
+                  (GFunc) meta_wayland_drm_lease_release,
+                  NULL);
   g_free (lease_manager);
 }
 
