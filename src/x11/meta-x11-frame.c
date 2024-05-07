@@ -123,6 +123,16 @@ meta_window_x11_set_frame_xwindow (MetaWindow *window,
 
   meta_x11_display_register_x_window (x11_display, &frame->xwindow, window);
 
+  meta_stack_tracker_record_remove (window->display->stack_tracker,
+                                    meta_window_x11_get_xwindow (window),
+                                    XNextRequest (x11_display->xdisplay));
+
+  XReparentWindow (x11_display->xdisplay,
+                   meta_window_x11_get_xwindow (window),
+                   frame->xwindow,
+                   frame->child_x,
+                   frame->child_y);
+
   if (window->mapped)
     {
       window->mapped = FALSE; /* the reparent will unmap the window,
@@ -133,18 +143,8 @@ meta_window_x11_set_frame_xwindow (MetaWindow *window,
       window->unmaps_pending += 1;
     }
 
-  meta_stack_tracker_record_remove (window->display->stack_tracker,
-                                    meta_window_x11_get_xwindow (window),
-                                    XNextRequest (x11_display->xdisplay));
-
   /* stick frame to the window */
   priv->frame = g_steal_pointer (&frame);
-
-  XReparentWindow (x11_display->xdisplay,
-                   meta_window_x11_get_xwindow (window),
-                   priv->frame->xwindow,
-                   priv->frame->child_x,
-                   priv->frame->child_y);
 
   window->reparents_pending += 1;
   /* FIXME handle this error */
