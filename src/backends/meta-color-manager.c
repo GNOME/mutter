@@ -270,6 +270,7 @@ on_monitors_changed (MetaMonitorManager *monitor_manager,
                      MetaColorManager   *color_manager)
 {
   update_devices (color_manager);
+  update_all_gamma (color_manager);
 }
 
 static void
