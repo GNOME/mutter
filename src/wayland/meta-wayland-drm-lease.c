@@ -121,6 +121,7 @@ static void
 wp_drm_lease_device_release (struct wl_client   *client,
                              struct wl_resource *resource)
 {
+  wp_drm_lease_device_v1_send_released (resource);
   wl_resource_destroy (resource);
 }
 
@@ -379,6 +380,28 @@ meta_wayland_drm_lease_manager_add_device (MetaKmsDevice              *kms_devic
 }
 
 static void
+on_device_added (MetaDrmLeaseManager        *drm_lease_manager,
+                 MetaKmsDevice              *kms_device,
+                 MetaWaylandDrmLeaseManager *lease_manager)
+{
+  meta_wayland_drm_lease_manager_add_device (kms_device, lease_manager);
+}
+
+static void
+on_device_removed (MetaDrmLeaseManager        *drm_lease_manager,
+                   MetaKmsDevice              *kms_device,
+                   MetaWaylandDrmLeaseManager *lease_manager)
+{
+  MetaWaylandDrmLeaseDevice *lease_device;
+
+  lease_device = g_hash_table_lookup (lease_manager->devices, kms_device);
+  g_return_if_fail (lease_device != NULL);
+
+  wl_global_remove (lease_device->global);
+  g_hash_table_remove (lease_manager->devices, kms_device);
+}
+
+static void
 on_connector_added (MetaDrmLeaseManager        *drm_lease_manager,
                     MetaKmsConnector           *kms_connector,
                     gboolean                    is_last_connector_update,
@@ -474,6 +497,12 @@ meta_wayland_drm_lease_manager_new (MetaWaylandCompositor *compositor)
                   (GFunc) meta_wayland_drm_lease_manager_add_device,
                   lease_manager);
 
+  g_signal_connect (lease_manager->drm_lease_manager, "device-added",
+                    G_CALLBACK (on_device_added),
+                    lease_manager);
+  g_signal_connect (lease_manager->drm_lease_manager, "device-removed",
+                    G_CALLBACK (on_device_removed),
+                    lease_manager);
   g_signal_connect (lease_manager->drm_lease_manager, "connector-added",
                     G_CALLBACK (on_connector_added),
                     lease_manager);
