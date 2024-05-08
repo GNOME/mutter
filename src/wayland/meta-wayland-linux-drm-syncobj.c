@@ -465,6 +465,15 @@ meta_wayland_drm_syncobj_manager_new (MetaWaylandCompositor *compositor,
 
   g_assert (backend && egl && clutter_backend && cogl_context && egl_display);
 
+  if (!meta_egl_has_extensions (egl, egl_display, NULL,
+                                "EGL_ANDROID_native_fence_sync",
+                                NULL))
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                   "Missing 'EGL_ANDROID_native_fence_sync'");
+      return NULL;
+    }
+
   if (!meta_egl_query_display_attrib (egl, egl_display,
                                       EGL_DEVICE_EXT, &attrib,
                                       error))
