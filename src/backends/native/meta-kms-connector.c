@@ -167,7 +167,26 @@ meta_kms_connector_get_current_state (MetaKmsConnector *connector)
 gboolean
 meta_kms_connector_is_for_lease (MetaKmsConnector *connector)
 {
-  return connector->current_state && connector->current_state->non_desktop;
+  const char *lease_connectors_str;
+
+  if (!connector->current_state)
+    return FALSE;
+
+  lease_connectors_str = getenv ("MUTTER_DEBUG_LEASE_CONNECTORS");
+  if (lease_connectors_str && *lease_connectors_str != '\0')
+    {
+      int n;
+      g_auto (GStrv) names;
+
+      names = g_strsplit (lease_connectors_str, ":", -1);
+      for (n = 0; n < g_strv_length (names); n++)
+        {
+          if (g_str_equal (meta_kms_connector_get_name (connector), names[n]))
+            return TRUE;
+        }
+    }
+
+  return connector->current_state->non_desktop;
 }
 
 static gboolean
