@@ -725,6 +725,13 @@ if have_wayland
       'wayland/meta-xwayland-surface.h',
     ]
   endif
+
+  if have_native_backend
+    mutter_sources += [
+      'wayland/meta-wayland-drm-lease.c',
+      'wayland/meta-wayland-drm-lease.h',
+    ]
+  endif
 endif
 
 if have_native_backend
@@ -1066,6 +1073,7 @@ if have_wayland
   #  - protocol stability ('private', 'stable' or 'unstable')
   #  - protocol version (if stability is 'unstable')
   wayland_protocols = [
+    ['drm-lease', 'staging', 'v1', ],
     ['fractional-scale', 'staging', 'v1', ],
     ['gtk-shell', 'private', ],
     ['idle-inhibit', 'unstable', 'v1', ],
