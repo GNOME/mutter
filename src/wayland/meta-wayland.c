@@ -70,6 +70,7 @@
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-frame-native.h"
 #include "backends/native/meta-renderer-native.h"
+#include "wayland/meta-wayland-drm-lease.h"
 #endif
 
 enum
@@ -875,6 +876,10 @@ meta_wayland_compositor_new (MetaContext *context)
   meta_wayland_idle_inhibit_init (compositor);
   meta_wayland_drm_syncobj_init (compositor);
   meta_wayland_init_xdg_wm_dialog (compositor);
+
+#ifdef HAVE_NATIVE_BACKEND
+  meta_wayland_drm_lease_manager_init (compositor);
+#endif
 
 #ifdef HAVE_WAYLAND_EGLSTREAM
   {
