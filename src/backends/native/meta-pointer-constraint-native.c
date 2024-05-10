@@ -496,12 +496,12 @@ meta_pointer_constraint_impl_native_constraint (MetaPointerConstraintImpl *const
 
   motion = (MetaLine2) {
     .a = (MetaVector2) {
-      .x = prev_x,
-      .y = prev_y,
+      .x = prev_x - constraint_impl_native->origin.x,
+      .y = prev_y - constraint_impl_native->origin.y,
     },
     .b = (MetaVector2) {
-      .x = x,
-      .y = y,
+      .x = x - constraint_impl_native->origin.x,
+      .y = y - constraint_impl_native->origin.y,
     },
   };
   directions = get_motion_directions (&motion);
@@ -522,8 +522,8 @@ meta_pointer_constraint_impl_native_constraint (MetaPointerConstraintImpl *const
         }
     }
 
-  *x_inout = motion.b.x;
-  *y_inout = motion.b.y;
+  *x_inout = motion.b.x + constraint_impl_native->origin.x;
+  *y_inout = motion.b.y + constraint_impl_native->origin.y;
 }
 
 static float
@@ -602,6 +602,8 @@ meta_pointer_constraint_impl_native_ensure_constrained (MetaPointerConstraintImp
   g_autoptr (MtkRegion) region = NULL;
   float x;
   float y;
+  float rel_x;
+  float rel_y;
 
   constraint_impl_native = META_POINTER_CONSTRAINT_IMPL_NATIVE (constraint_impl);
   region = mtk_region_ref (constraint_impl_native->region);
@@ -610,6 +612,8 @@ meta_pointer_constraint_impl_native_ensure_constrained (MetaPointerConstraintImp
   clutter_seat_query_state (seat, device, NULL, &point, NULL);
   x = point.x;
   y = point.y;
+  rel_x = x - constraint_impl_native->origin.x;
+  rel_y = y - constraint_impl_native->origin.y;
 
   if (mtk_region_is_empty (region))
     {
@@ -617,9 +621,7 @@ meta_pointer_constraint_impl_native_ensure_constrained (MetaPointerConstraintImp
           y != constraint_impl_native->origin.y)
         clutter_seat_warp_pointer (seat, x, y);
     }
-  else if (!mtk_region_contains_point (region,
-                                       (int) x - constraint_impl_native->origin.x,
-                                       (int) y - constraint_impl_native->origin.y))
+  else if (!mtk_region_contains_point (region, (int) rel_x, (int) rel_y))
     {
       g_autoptr (GArray) borders = NULL;
       float closest_distance_2 = FLT_MAX;
@@ -635,7 +637,7 @@ meta_pointer_constraint_impl_native_ensure_constrained (MetaPointerConstraintImp
           MetaBorder *border = &g_array_index (borders, MetaBorder, i);
           float distance_2;
 
-          distance_2 = point_to_border_distance_2 (border, x, y);
+          distance_2 = point_to_border_distance_2 (border, rel_x, rel_y);
           if (distance_2 < closest_distance_2)
             {
               closest_border = border;
@@ -643,9 +645,11 @@ meta_pointer_constraint_impl_native_ensure_constrained (MetaPointerConstraintImp
             }
         }
 
-      closest_point_behind_border (closest_border, &x, &y);
+      closest_point_behind_border (closest_border, &rel_x, &rel_y);
 
-      clutter_seat_warp_pointer (seat, x, y);
+      clutter_seat_warp_pointer (seat,
+                                 rel_x + constraint_impl_native->origin.x,
+                                 rel_y + constraint_impl_native->origin.y);
     }
 }
 
