@@ -1025,6 +1025,7 @@ meta_background_content_init (MetaBackgroundContent *self)
 
 /**
  * meta_background_content_new:
+ * @display: a #MetaDisplay
  * @monitor: Index of the monitor for which to draw the background
  *
  * Creates a new actor to draw the background for the given monitor.
