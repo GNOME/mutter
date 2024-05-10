@@ -81,9 +81,87 @@ struct _ClutterColorStatePrivate
   ClutterTransferFunction transfer_function;
 };
 
+typedef struct _SnippetCacheKey
+{
+  struct {
+    ClutterColorspace colorspace;
+    ClutterTransferFunction transfer_function;
+  } source;
+  struct {
+    ClutterColorspace colorspace;
+    ClutterTransferFunction transfer_function;
+  } target;
+} SnippetCacheKey;
+
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterColorState,
                             clutter_color_state,
                             G_TYPE_OBJECT)
+
+static GQuark snippet_cache_quark;
+
+static guint
+snippet_cache_key_hash (gconstpointer key)
+{
+  const SnippetCacheKey *cache_key = key;
+
+  return (cache_key->source.colorspace ^
+          cache_key->source.transfer_function ^
+          cache_key->target.colorspace ^
+          cache_key->target.transfer_function);
+}
+
+static gboolean
+snippet_cache_key_equal (gconstpointer key1,
+                         gconstpointer key2)
+{
+  const SnippetCacheKey *cache_key1 = key1;
+  const SnippetCacheKey *cache_key2 = key2;
+
+  return (cache_key1->source.colorspace == cache_key2->source.colorspace &&
+          cache_key1->source.transfer_function == cache_key2->source.transfer_function &&
+          cache_key1->target.colorspace == cache_key2->target.colorspace &&
+          cache_key1->target.transfer_function == cache_key2->target.transfer_function);
+}
+
+static void
+init_snippet_cache_key (SnippetCacheKey   *cache_key,
+                        ClutterColorState *color_state,
+                        ClutterColorState *target_color_state)
+{
+  ClutterColorStatePrivate *priv =
+    clutter_color_state_get_instance_private (color_state);
+  ClutterColorStatePrivate *target_priv =
+    clutter_color_state_get_instance_private (target_color_state);
+
+  cache_key->source.colorspace = priv->colorspace;
+  cache_key->source.transfer_function = priv->transfer_function;
+  cache_key->target.colorspace = target_priv->colorspace;
+  cache_key->target.transfer_function = target_priv->transfer_function;
+}
+
+static GHashTable *
+ensure_snippet_cache (ClutterColorState *color_state)
+{
+  ClutterColorStatePrivate *priv =
+    clutter_color_state_get_instance_private (color_state);
+  GHashTable *snippet_cache;
+
+  snippet_cache = g_object_get_qdata (G_OBJECT (priv->context),
+                                      snippet_cache_quark);
+  if (snippet_cache)
+    return snippet_cache;
+
+  snippet_cache = g_hash_table_new_full (snippet_cache_key_hash,
+                                         snippet_cache_key_equal,
+                                         g_free,
+                                         g_object_unref);
+  g_object_set_qdata_full (G_OBJECT (priv->context),
+                           snippet_cache_quark,
+                           snippet_cache,
+                           (GDestroyNotify) g_hash_table_unref);
+
+  return snippet_cache;
+}
 
 static const char *
 clutter_colorspace_to_string (ClutterColorspace colorspace)
@@ -267,6 +345,9 @@ clutter_color_state_class_init (ClutterColorStateClass *klass)
                        G_PARAM_CONSTRUCT_ONLY);
 
   g_object_class_install_properties (gobject_class, N_PROPS, obj_props);
+
+  snippet_cache_quark =
+    g_quark_from_static_string ("clutter-color-state-snippet-cache");
 }
 
 static void
@@ -656,6 +737,9 @@ CoglSnippet *
 clutter_color_state_get_transform_snippet (ClutterColorState *color_state,
                                            ClutterColorState *target_color_state)
 {
+  GHashTable *snippet_cache;
+  SnippetCacheKey cache_key;
+  CoglSnippet *snippet;
   const MatrixMultiplication *color_space_mapping = NULL;
   const TransferFunction *pre_transfer_function = NULL;
   const TransferFunction *denormalize_function = NULL;
@@ -664,6 +748,12 @@ clutter_color_state_get_transform_snippet (ClutterColorState *color_state,
   g_autoptr (GString) snippet_source = NULL;
 
   g_return_val_if_fail (CLUTTER_IS_COLOR_STATE (target_color_state), NULL);
+
+  init_snippet_cache_key (&cache_key, color_state, target_color_state);
+  snippet_cache = ensure_snippet_cache (color_state);
+  snippet = g_hash_table_lookup (snippet_cache, &cache_key);
+  if (snippet)
+    return g_object_ref (snippet);
 
   color_space_mapping = get_color_space_mapping_matrix (color_state,
                                                         target_color_state);
@@ -742,7 +832,11 @@ clutter_color_state_get_transform_snippet (ClutterColorState *color_state,
   g_string_append (snippet_source,
                    "  cogl_color_out = vec4 (color_state_color, cogl_color_out.a);\n");
 
-  return cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT,
-                           globals_source->str,
-                           snippet_source->str);
+  snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT,
+                              globals_source->str,
+                              snippet_source->str);
+  g_hash_table_insert (snippet_cache,
+                       g_memdup2 (&cache_key, sizeof (cache_key)),
+                       g_object_ref (snippet));
+  return snippet;
 }
