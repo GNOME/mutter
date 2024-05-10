@@ -358,7 +358,9 @@ meta_stage_new (MetaBackend *backend)
   MetaStage *stage;
   MetaMonitorManager *monitor_manager;
 
-  stage = g_object_new (META_TYPE_STAGE, NULL);
+  stage = g_object_new (META_TYPE_STAGE,
+                        "context", meta_backend_get_clutter_context (backend),
+                        NULL);
   stage->backend = backend;
 
   monitor_manager = meta_backend_get_monitor_manager (backend);

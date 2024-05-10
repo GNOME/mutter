@@ -57,6 +57,7 @@ enum
 {
   PROP_0,
 
+  PROP_CONTEXT,
   PROP_COLORSPACE,
   PROP_TRANSFER_FUNCTION,
 
@@ -74,6 +75,8 @@ struct _ClutterColorState
 
 struct _ClutterColorStatePrivate
 {
+  ClutterContext *context;
+
   ClutterColorspace colorspace;
   ClutterTransferFunction transfer_function;
 };
@@ -143,6 +146,16 @@ clutter_color_state_get_transfer_function (ClutterColorState *color_state)
 }
 
 static void
+clutter_color_state_constructed (GObject *object)
+{
+  ClutterColorState *color_state = CLUTTER_COLOR_STATE (object);
+  ClutterColorStatePrivate *priv =
+    clutter_color_state_get_instance_private (color_state);
+
+  g_warn_if_fail (priv->context);
+}
+
+static void
 clutter_color_state_set_property (GObject      *object,
                                   guint         prop_id,
                                   const GValue *value,
@@ -155,6 +168,10 @@ clutter_color_state_set_property (GObject      *object,
 
   switch (prop_id)
     {
+    case PROP_CONTEXT:
+      priv->context = g_value_get_object (value);
+      break;
+
     case PROP_COLORSPACE:
       priv->colorspace = g_value_get_enum (value);
       break;
@@ -176,9 +193,15 @@ clutter_color_state_get_property (GObject    *object,
                                   GParamSpec *pspec)
 {
   ClutterColorState *color_state = CLUTTER_COLOR_STATE (object);
+  ClutterColorStatePrivate *priv =
+    clutter_color_state_get_instance_private (color_state);
 
   switch (prop_id)
     {
+    case PROP_CONTEXT:
+      g_value_set_object (value, priv->context);
+      break;
+
     case PROP_COLORSPACE:
       g_value_set_enum (value,
                         clutter_color_state_get_colorspace (color_state));
@@ -200,8 +223,21 @@ clutter_color_state_class_init (ClutterColorStateClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
+  gobject_class->constructed = clutter_color_state_constructed;
   gobject_class->set_property = clutter_color_state_set_property;
   gobject_class->get_property = clutter_color_state_get_property;
+
+  /**
+   * ClutterColorState:context:
+   *
+   * The associated ClutterContext.
+   */
+  obj_props[PROP_CONTEXT] =
+    g_param_spec_object ("context", NULL, NULL,
+                         CLUTTER_TYPE_CONTEXT,
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS |
+                         G_PARAM_CONSTRUCT_ONLY);
 
   /**
    * ClutterColorState:colorspace:
@@ -246,10 +282,12 @@ clutter_color_state_init (ClutterColorState *color_state)
  * Return value: A new ClutterColorState object.
  **/
 ClutterColorState *
-clutter_color_state_new (ClutterColorspace       colorspace,
-                         ClutterTransferFunction transfer_function)
+clutter_color_state_new (ClutterContext          *context,
+                         ClutterColorspace        colorspace,
+                         ClutterTransferFunction  transfer_function)
 {
   return g_object_new (CLUTTER_TYPE_COLOR_STATE,
+                       "context", context,
                        "colorspace", colorspace,
                        "transfer-function", transfer_function,
                        NULL);

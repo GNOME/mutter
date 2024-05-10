@@ -17844,7 +17844,8 @@ create_default_color_state (ClutterActor *self)
 {
   ClutterColorState *color_state;
 
-  color_state = clutter_color_state_new (CLUTTER_COLORSPACE_DEFAULT,
+  color_state = clutter_color_state_new (clutter_actor_get_context (self),
+                                         CLUTTER_COLORSPACE_DEFAULT,
                                          CLUTTER_TRANSFER_FUNCTION_DEFAULT);
 
   return color_state;

@@ -46,12 +46,14 @@ actor_color_state_default (void)
 static void
 actor_color_state_passed (void)
 {
+  ClutterContext *context = clutter_test_get_context ();
   ClutterActor *actor;
   ClutterColorState *color_state;
   ClutterColorspace colorspace;
   ClutterTransferFunction transfer_function;
 
-  color_state = clutter_color_state_new (CLUTTER_COLORSPACE_BT2020,
+  color_state = clutter_color_state_new (context,
+                                         CLUTTER_COLORSPACE_BT2020,
                                          CLUTTER_TRANSFER_FUNCTION_PQ);
 
   if (!color_state)
@@ -81,6 +83,7 @@ actor_color_state_passed (void)
 static void
 actor_change_color_state (void)
 {
+  ClutterContext *context = clutter_test_get_context ();
   ClutterActor *actor;
   ClutterColorState *color_state;
   ClutterColorspace colorspace;
@@ -88,7 +91,8 @@ actor_change_color_state (void)
 
   actor = clutter_actor_new ();
 
-  color_state = clutter_color_state_new (CLUTTER_COLORSPACE_BT2020,
+  color_state = clutter_color_state_new (context,
+                                         CLUTTER_COLORSPACE_BT2020,
                                          CLUTTER_TRANSFER_FUNCTION_PQ);
 
   if (!color_state)
