@@ -566,6 +566,9 @@ void                            clutter_actor_set_color_state                   
                                                                                  ClutterColorState          *color_state);
 
 CLUTTER_EXPORT
+void                            clutter_actor_unset_color_state                 (ClutterActor               *self);
+
+CLUTTER_EXPORT
 ClutterColorState *             clutter_actor_get_color_state                   (ClutterActor               *self);
 
 CLUTTER_EXPORT

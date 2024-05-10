@@ -106,10 +106,8 @@ actor_change_color_state (void)
   clutter_actor_destroy (actor);
 }
 
-/* changing an actor's color state to NULL ends up with it being changed back
- * to a color state with the sRGB color space */
 static void
-actor_change_color_state_to_null (void)
+actor_unset_color_state (void)
 {
   ClutterActor *actor;
   ClutterColorState *color_state;
@@ -118,7 +116,7 @@ actor_change_color_state_to_null (void)
 
   actor = clutter_actor_new ();
 
-  clutter_actor_set_color_state (actor, NULL);
+  clutter_actor_unset_color_state (actor);
 
   color_state = clutter_actor_get_color_state (actor);
   colorspace = clutter_color_state_get_colorspace (color_state);
@@ -134,6 +132,5 @@ CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/actor/color-state-default", actor_color_state_default)
   CLUTTER_TEST_UNIT ("/actor/color-state-passed", actor_color_state_passed)
   CLUTTER_TEST_UNIT ("/actor/change-color-state", actor_change_color_state)
-  CLUTTER_TEST_UNIT ("/actor/change-color-state-to-null",
-                     actor_change_color_state_to_null)
+  CLUTTER_TEST_UNIT ("/actor/unset-color-state", actor_unset_color_state)
 )

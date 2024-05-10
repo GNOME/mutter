@@ -965,6 +965,9 @@ static void pop_in_paint_unmapped_branch (ClutterActor *self,
 
 static void clutter_actor_update_devices (ClutterActor *self);
 
+static void clutter_actor_set_color_state_internal (ClutterActor      *self,
+                                                    ClutterColorState *color_state);
+
 static GQuark quark_actor_layout_info = 0;
 static GQuark quark_actor_transform_info = 0;
 static GQuark quark_actor_animation_info = 0;
@@ -4800,7 +4803,7 @@ clutter_actor_set_property (GObject      *object,
       break;
 
     case PROP_COLOR_STATE:
-      clutter_actor_set_color_state (actor, g_value_get_object (value));
+      clutter_actor_set_color_state_internal (actor, g_value_get_object (value));
       break;
 
     default:
@@ -5560,6 +5563,9 @@ clutter_actor_constructor (GType gtype,
 
   if (!self->priv->context)
     self->priv->context = _clutter_context_get_default ();
+
+  if (!self->priv->color_state)
+    clutter_actor_unset_color_state (self);
 
   return retval;
 }
@@ -17844,29 +17850,48 @@ create_default_color_state (ClutterActor *self)
   return color_state;
 }
 
+static void
+clutter_actor_set_color_state_internal (ClutterActor      *self,
+                                        ClutterColorState *color_state)
+{
+  ClutterActorPrivate *priv = clutter_actor_get_instance_private (self);
+
+  if (g_set_object (&priv->color_state, color_state))
+    g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_COLOR_STATE]);
+}
+
+/**
+ * clutter_actor_unset_color_state:
+ * @self: a #ClutterActor
+ *
+ * Set @self's color state to the default.
+ */
+void
+clutter_actor_unset_color_state (ClutterActor *self)
+{
+  g_autoptr (ClutterColorState) default_color_state = NULL;
+
+  g_return_if_fail (CLUTTER_IS_ACTOR (self));
+
+  default_color_state = create_default_color_state (self);
+  clutter_actor_set_color_state_internal (self, default_color_state);
+}
+
 /**
  * clutter_actor_set_color_state:
  * @self: a #ClutterActor
- * @color_state: (nullable): a #ClutterColorState
+ * @color_state: a #ClutterColorState
  *
- * Set @self's color state to @color_state, or a default one if %NULL.
+ * Set @self's color state to @color_state.
  */
 void
 clutter_actor_set_color_state (ClutterActor      *self,
                                ClutterColorState *color_state)
 {
-  ClutterActorPrivate *priv;
-  g_autoptr (ClutterColorState) default_color_state = NULL;
-
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
+  g_return_if_fail (CLUTTER_IS_COLOR_STATE (color_state));
 
-  priv = clutter_actor_get_instance_private (self);
-
-  if (!color_state)
-    color_state = default_color_state = create_default_color_state (self);
-
-  if (g_set_object (&priv->color_state, color_state))
-    g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_COLOR_STATE]);
+  clutter_actor_set_color_state_internal (self, color_state);
 }
 
 /**
