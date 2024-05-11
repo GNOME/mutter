@@ -628,6 +628,7 @@ grab_input_only (void)
   grab = clutter_stage_grab_input_only (CLUTTER_STAGE (data.stage),
                                         handle_input_only_event,
                                         data.events, NULL);
+  clutter_grab_activate (grab);
   event_log_compare ((EventLog *) &grab1_log, data.events);
 
   clutter_virtual_input_device_notify_button (pointer,
