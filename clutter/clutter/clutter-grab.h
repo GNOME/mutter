@@ -37,6 +37,9 @@ CLUTTER_EXPORT
 G_DECLARE_FINAL_TYPE (ClutterGrab, clutter_grab, CLUTTER, GRAB, GObject)
 
 CLUTTER_EXPORT
+void clutter_grab_activate (ClutterGrab *grab);
+
+CLUTTER_EXPORT
 void clutter_grab_dismiss (ClutterGrab *grab);
 
 CLUTTER_EXPORT

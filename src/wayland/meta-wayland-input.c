@@ -303,6 +303,8 @@ meta_wayland_input_attach_event_handler (MetaWaylandInput                *input,
                                                    grab_handle_event,
                                                    input,
                                                    NULL);
+      clutter_grab_activate (input->grab);
+
       g_signal_connect_swapped (input->grab, "notify::revoked",
                                 G_CALLBACK (on_grab_revocation_change),
                                 input);

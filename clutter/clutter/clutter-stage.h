@@ -224,6 +224,10 @@ ClutterGrab * clutter_stage_grab (ClutterStage *stage,
                                   ClutterActor *actor);
 
 CLUTTER_EXPORT
+ClutterGrab * clutter_stage_grab_inactive (ClutterStage *stage,
+                                           ClutterActor *actor);
+
+CLUTTER_EXPORT
 ClutterActor * clutter_stage_get_grab_actor (ClutterStage *stage);
 
 /**

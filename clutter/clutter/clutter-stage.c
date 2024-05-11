@@ -3834,17 +3834,44 @@ clutter_stage_grab_full (ClutterStage *stage,
                          ClutterActor *actor,
                          gboolean      owns_actor)
 {
-  ClutterStagePrivate *priv;
-  ClutterGrab *grab;
-  gboolean was_grabbed;
-
   g_return_val_if_fail (CLUTTER_IS_STAGE (stage), NULL);
   g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), NULL);
   g_return_val_if_fail (stage ==
                         (ClutterStage *) _clutter_actor_get_stage_internal (actor),
                         NULL);
 
+  return clutter_grab_new (stage, actor, owns_actor);
+}
+
+/**
+ * clutter_grab_activate:
+ * @grab: a `ClutterGrab`
+ *
+ * Activates a grab onto its assigned actor. Events will be propagated as
+ * usual inside its hierarchy. Activating an already active grab will have
+ * no side effects.
+ *
+ * This method is necessary for grabs obtained through
+ * [method@Stage.grab_inactive]. Grabs obtained through [method@Stage.grab]
+ * will be activated implicitly.
+ *
+ * to undo the effects of this function, call [method@Grab.dismiss].
+ **/
+void
+clutter_grab_activate (ClutterGrab *grab)
+{
+  ClutterStage *stage;
+  ClutterStagePrivate *priv;
+  gboolean was_grabbed;
+
+  g_return_if_fail (CLUTTER_IS_GRAB (grab));
+
+  stage = grab->stage;
   priv = clutter_stage_get_instance_private (stage);
+
+  /* This grab is already active */
+  if (grab->prev || grab->next || priv->topmost_grab == grab)
+    return;
 
   if (!priv->topmost_grab)
     {
@@ -3857,8 +3884,6 @@ clutter_stage_grab_full (ClutterStage *stage,
       priv->grab_state =
         clutter_seat_grab (seat, clutter_get_current_event_time ());
     }
-
-  grab = clutter_grab_new (stage, actor, owns_actor);
 
   grab->prev = NULL;
   grab->next = priv->topmost_grab;
@@ -3880,10 +3905,10 @@ clutter_stage_grab_full (ClutterStage *stage,
 
       CLUTTER_NOTE (GRABS,
                     "[grab=%p] Attached seat grab (n_grabs: %u) on actor: %s",
-                    grab, n_grabs, _clutter_actor_get_debug_name (actor));
+                    grab, n_grabs, _clutter_actor_get_debug_name (grab->actor));
     }
 
-  clutter_actor_attach_grab (actor, grab);
+  clutter_actor_attach_grab (grab->actor, grab);
   clutter_stage_notify_grab (stage, grab, grab->next);
 
   if (was_grabbed != !!priv->topmost_grab)
@@ -3891,8 +3916,6 @@ clutter_stage_grab_full (ClutterStage *stage,
 
   if (grab->next)
     clutter_grab_notify (grab->next);
-
-  return grab;
 }
 
 /**
@@ -3910,14 +3933,36 @@ ClutterGrab *
 clutter_stage_grab (ClutterStage *stage,
                     ClutterActor *actor)
 {
+  ClutterGrab *grab;
+
+  grab = clutter_stage_grab_full (stage, actor, FALSE);
+  clutter_grab_activate (grab);
+
+  return grab;
+}
+
+/**
+ * clutter_stage_grab_inactive:
+ * @stage: The #ClutterStage
+ * @actor: The actor that will grab input
+ *
+ * Creates an inactive grab. The grab will become effective
+ * after [method@Grab.activate].
+ *
+ * Returns: (transfer full): an opaque #ClutterGrab handle
+ **/
+ClutterGrab *
+clutter_stage_grab_inactive (ClutterStage *stage,
+                             ClutterActor *actor)
+{
   return clutter_stage_grab_full (stage, actor, FALSE);
 }
 
 ClutterGrab *
-clutter_stage_grab_input_only (ClutterStage        *stage,
-                               ClutterEventHandler  handler,
-                               gpointer             user_data,
-                               GDestroyNotify       user_data_destroy)
+clutter_stage_grab_input_only (ClutterStage         *stage,
+                               ClutterEventHandler   handler,
+                               gpointer              user_data,
+                               GDestroyNotify        user_data_destroy)
 {
   ClutterInputOnlyActor *input_only_actor;
   ClutterActor *actor;
