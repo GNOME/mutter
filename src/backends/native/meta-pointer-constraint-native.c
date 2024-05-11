@@ -619,7 +619,11 @@ meta_pointer_constraint_impl_native_ensure_constrained (MetaPointerConstraintImp
     {
       if (x != constraint_impl_native->origin.x ||
           y != constraint_impl_native->origin.y)
-        clutter_seat_warp_pointer (seat, x, y);
+        {
+          clutter_seat_warp_pointer (seat,
+                                     constraint_impl_native->origin.x,
+                                     constraint_impl_native->origin.y);
+        }
     }
   else if (!mtk_region_contains_point (region, (int) rel_x, (int) rel_y))
     {
