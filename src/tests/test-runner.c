@@ -609,17 +609,19 @@ static gboolean
 str_to_bool (const char *str,
              gboolean   *val)
 {
-  if (g_ascii_strcasecmp (str, "true") == 0) {
-    if (val != NULL)
-      *val = true;
-    return TRUE;
-  }
+  if (g_ascii_strcasecmp (str, "true") == 0)
+    {
+      if (val != NULL)
+        *val = TRUE;
+      return TRUE;
+    }
 
-  if (g_ascii_strcasecmp (str, "false") == 0) {
-    if (val != NULL)
-      *val = false;
-    return TRUE;
-  }
+  if (g_ascii_strcasecmp (str, "false") == 0)
+    {
+      if (val != NULL)
+        *val = FALSE;
+      return TRUE;
+    }
 
   return FALSE;
 }

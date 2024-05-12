@@ -286,7 +286,7 @@ gesture_relationship_two_points_two_actors (void)
   now_us = g_get_monotonic_time ();
 
   clutter_actor_set_size (second_actor, 20, 20);
-  clutter_actor_set_reactive (second_actor, true);
+  clutter_actor_set_reactive (second_actor, TRUE);
   clutter_actor_add_child (stage, second_actor);
 
   clutter_actor_add_action (stage, CLUTTER_ACTION (gesture_1));
@@ -455,7 +455,7 @@ gesture_relationship_claim_new_sequence_while_already_recognizing_2 (void)
   clutter_actor_add_action (stage, CLUTTER_ACTION (gesture_1));
 
   clutter_actor_set_size (second_actor, 20, 20);
-  clutter_actor_set_reactive (second_actor, true);
+  clutter_actor_set_reactive (second_actor, TRUE);
   clutter_actor_add_child (stage, second_actor);
   clutter_actor_add_action (second_actor, CLUTTER_ACTION (gesture_2));
 
