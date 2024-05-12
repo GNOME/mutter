@@ -86,7 +86,7 @@ meta_unix_input_stream_new (int fd)
 {
   return G_INPUT_STREAM (g_object_new (META_TYPE_UNIX_INPUT_STREAM,
                                        "fd", fd,
-                                       "close-fd", true,
+                                       "close-fd", TRUE,
                                        NULL));
 }
 

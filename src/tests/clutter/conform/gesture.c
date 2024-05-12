@@ -91,7 +91,7 @@ gesture_disposed_while_active (void)
 
   clutter_actor_set_size (second_actor, 20, 20);
   clutter_actor_set_x (second_actor, 15);
-  clutter_actor_set_reactive (second_actor, true);
+  clutter_actor_set_reactive (second_actor, TRUE);
   clutter_actor_add_child (stage, second_actor);
   clutter_actor_add_action (second_actor, CLUTTER_ACTION (gesture));
 
@@ -250,7 +250,7 @@ gesture_state_machine_move_to_cancelled_on_sequence_cancel (void)
   clutter_actor_add_action (stage, CLUTTER_ACTION (gesture));
 
   clutter_actor_set_size (second_actor, 20, 20);
-  clutter_actor_set_reactive (second_actor, true);
+  clutter_actor_set_reactive (second_actor, TRUE);
   clutter_actor_add_child (stage, second_actor);
 
   g_signal_connect (stage, "after-update", G_CALLBACK (on_after_update),
