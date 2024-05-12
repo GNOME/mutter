@@ -433,6 +433,9 @@ meta_wayland_pointer_constraint_disable (MetaWaylandPointerConstraint *constrain
 void
 meta_wayland_pointer_constraint_destroy (MetaWaylandPointerConstraint *constraint)
 {
+  g_clear_signal_handler (&constraint->pointer_focus_surface_handler_id,
+                          constraint->seat->pointer);
+
   if (meta_wayland_pointer_constraint_is_enabled (constraint))
     meta_wayland_pointer_constraint_disable (constraint);
 
@@ -1133,18 +1136,6 @@ bind_pointer_constraints (struct wl_client *client,
                                   NULL);
 }
 
-static void
-meta_wayland_pointer_constraint_finalize (GObject *object)
-{
-  MetaWaylandPointerConstraint *constraint =
-    META_WAYLAND_POINTER_CONSTRAINT (object);
-
-  g_clear_signal_handler (&constraint->pointer_focus_surface_handler_id,
-                          constraint->seat->pointer);
-
-  G_OBJECT_CLASS (meta_wayland_pointer_constraint_parent_class)->finalize (object);
-}
-
 void
 meta_wayland_pointer_constraints_init (MetaWaylandCompositor *compositor)
 {
@@ -1162,11 +1153,6 @@ meta_wayland_pointer_constraint_init (MetaWaylandPointerConstraint *constraint)
 static void
 meta_wayland_pointer_constraint_class_init (MetaWaylandPointerConstraintClass *klass)
 {
-  GObjectClass *object_class;
-
-  object_class = G_OBJECT_CLASS (klass);
-  object_class->finalize = meta_wayland_pointer_constraint_finalize;
-
   quark_pending_constraint_state =
     g_quark_from_static_string ("-meta-wayland-pointer-constraint-pending_state");
   quark_surface_pointer_constraints_data =
