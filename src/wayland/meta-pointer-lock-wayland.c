@@ -77,7 +77,7 @@ meta_pointer_lock_wayland_create_constraint (MetaPointerConfinementWayland *conf
   rect = (MtkRectangle) { .x = 0, .y = 0, .width = 0, .height = 0 };
   region = mtk_region_create_rectangle (&rect);
 
-  constraint = meta_pointer_constraint_new (g_steal_pointer (&region),
+  constraint = meta_pointer_constraint_new (region,
                                             GRAPHENE_POINT_INIT (x, y),
                                             0.0);
 
