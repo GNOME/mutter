@@ -443,13 +443,13 @@ get_motion_directions (MetaLine2 *motion)
 }
 
 static void
-meta_pointer_constraint_impl_native_constraint (MetaPointerConstraintImpl *constraint_impl,
-                                                ClutterInputDevice        *device,
-                                                uint32_t                   time,
-                                                float                      prev_x,
-                                                float                      prev_y,
-                                                float                     *x_inout,
-                                                float                     *y_inout)
+meta_pointer_constraint_impl_native_constrain (MetaPointerConstraintImpl *constraint_impl,
+                                               ClutterInputDevice        *device,
+                                               uint32_t                   time,
+                                               float                      prev_x,
+                                               float                      prev_y,
+                                               float                     *x_inout,
+                                               float                     *y_inout)
 {
   MetaPointerConstraintImplNative *constraint_impl_native;
   g_autoptr (MtkRegion) region = NULL;
@@ -682,7 +682,7 @@ meta_pointer_constraint_impl_native_class_init (MetaPointerConstraintImplNativeC
   object_class->finalize = meta_pointer_constraint_impl_native_finalize;
 
   constraint_impl_class = META_POINTER_CONSTRAINT_IMPL_CLASS (klass);
-  constraint_impl_class->constrain = meta_pointer_constraint_impl_native_constraint;
+  constraint_impl_class->constrain = meta_pointer_constraint_impl_native_constrain;
   constraint_impl_class->ensure_constrained =
     meta_pointer_constraint_impl_native_ensure_constrained;
 }
