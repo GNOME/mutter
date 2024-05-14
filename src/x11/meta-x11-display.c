@@ -39,7 +39,6 @@
 #include <X11/Xatom.h>
 #include <X11/XKBlib.h>
 #include <X11/extensions/shape.h>
-#include <X11/Xcursor/Xcursor.h>
 #include <X11/extensions/Xcomposite.h>
 #include <X11/extensions/Xdamage.h>
 #include <X11/extensions/Xfixes.h>
@@ -59,6 +58,7 @@
 #include "core/workspace-private.h"
 #include "meta/main.h"
 #include "mtk/mtk-x11.h"
+#include "third_party/xcursor/xcursor.h"
 #include "x11/events.h"
 #include "x11/group-props.h"
 #include "x11/meta-x11-selection-private.h"

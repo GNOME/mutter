@@ -100,8 +100,8 @@ create_blank_cursor_images (void)
 {
   XcursorImages *images;
 
-  images = XcursorImagesCreate (1);
-  images->images[0] = XcursorImageCreate (1, 1);
+  images = xcursor_images_create (1);
+  images->images[0] = xcursor_image_create (1, 1);
 
   images->images[0]->xhot = 0;
   images->images[0]->yhot = 0;
@@ -130,9 +130,9 @@ load_cursor_on_client (MetaCursor cursor, int scale)
   for (i = 0; i < G_N_ELEMENTS (cursors); i++)
     {
       xcursor_images =
-        XcursorLibraryLoadImages (meta_cursor_get_name (cursors[i]),
-                                  meta_prefs_get_cursor_theme (),
-                                  meta_prefs_get_cursor_size () * scale);
+        xcursor_library_load_images (meta_cursor_get_name (cursors[i]),
+                                     meta_prefs_get_cursor_theme (),
+                                     meta_prefs_get_cursor_size () * scale);
       if (xcursor_images)
         return xcursor_images;
     }
@@ -140,8 +140,8 @@ load_cursor_on_client (MetaCursor cursor, int scale)
   g_warning_once ("No cursor theme available, please install a cursor theme");
 
   fallback_size = 24 * scale;
-  xcursor_images = XcursorImagesCreate (1);
-  xcursor_images->images[0] = XcursorImageCreate (fallback_size, fallback_size);
+  xcursor_images = xcursor_images_create (1);
+  xcursor_images->images[0] = xcursor_image_create (fallback_size, fallback_size);
   xcursor_images->images[0]->xhot = 0;
   xcursor_images->images[0]->yhot = 0;
   memset (xcursor_images->images[0]->pixels, 0xc0,
@@ -274,7 +274,7 @@ load_cursor_from_theme (MetaCursorSprite *sprite)
   if (sprite_xcursor->xcursor_images)
     {
       meta_cursor_sprite_clear_texture (sprite);
-      XcursorImagesDestroy (sprite_xcursor->xcursor_images);
+      xcursor_images_destroy (sprite_xcursor->xcursor_images);
     }
 
   sprite_xcursor->current_frame = 0;
@@ -330,7 +330,7 @@ meta_cursor_sprite_xcursor_finalize (GObject *object)
   MetaCursorSpriteXcursor *sprite_xcursor = META_CURSOR_SPRITE_XCURSOR (object);
 
   g_clear_pointer (&sprite_xcursor->xcursor_images,
-                   XcursorImagesDestroy);
+                   xcursor_images_destroy);
 
   G_OBJECT_CLASS (meta_cursor_sprite_xcursor_parent_class)->finalize (object);
 }

@@ -504,8 +504,8 @@ finish:
 }
 
 XcursorImage *
-XcursorImageCreate (int width,
-                    int height)
+xcursor_image_create (int width,
+                      int height)
 {
   XcursorImage *image;
 
@@ -533,7 +533,7 @@ XcursorImageDestroy (XcursorImage *image)
 }
 
 XcursorImages *
-XcursorImagesCreate (int size)
+xcursor_images_create (int size)
 {
   XcursorImages *images;
 
@@ -547,7 +547,7 @@ XcursorImagesCreate (int size)
 }
 
 void
-XcursorImagesDestroy (XcursorImages *images)
+xcursor_images_destroy (XcursorImages *images)
 {
   int n;
 
@@ -781,7 +781,7 @@ _XcursorReadImage (XcursorFile       *file,
     return NULL;
 
   /* Create the image and initialize it */
-  image = XcursorImageCreate (head.width, head.height);
+  image = xcursor_image_create (head.width, head.height);
   if (image == NULL)
     return NULL;
   if (chunkHeader.version < image->version)
@@ -826,7 +826,7 @@ XcursorXcFileLoadImages (XcursorFile *file,
       _XcursorFileHeaderDestroy (fileHeader);
       return NULL;
     }
-  images = XcursorImagesCreate (nsize);
+  images = xcursor_images_create (nsize);
   if (!images)
     {
       _XcursorFileHeaderDestroy (fileHeader);
@@ -846,7 +846,7 @@ XcursorXcFileLoadImages (XcursorFile *file,
   _XcursorFileHeaderDestroy (fileHeader);
   if (images->nimage != nsize)
     {
-      XcursorImagesDestroy (images);
+      xcursor_images_destroy (images);
       images = NULL;
     }
   return images;
@@ -893,9 +893,9 @@ XcursorFileLoadImages (FILE *file,
 }
 
 XcursorImages *
-XcursorLibraryLoadImages (const char *file,
-                          const char *theme,
-                          int         size)
+xcursor_library_load_images (const char *file,
+                             const char *theme,
+                             int         size)
 {
   FILE *f = NULL;
   XcursorImages *images = NULL;

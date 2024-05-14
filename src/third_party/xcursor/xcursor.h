@@ -26,6 +26,9 @@
  */
 #pragma once
 
+#ifdef HAVE_X11_CLIENT
+#include <X11/Xcursor/Xcursor.h>
+#else
 typedef unsigned int XcursorPixel;
 
 typedef struct _XcursorImage {
@@ -44,14 +47,16 @@ typedef struct _XcursorImages {
   XcursorImage **images; /* array of XcursorImage pointers */
   char *name; /* name used to load images */
 } XcursorImages;
+#endif
 
-void XcursorImagesDestroy (XcursorImages *images);
 
-XcursorImages * XcursorImagesCreate (int size);
+void xcursor_images_destroy (XcursorImages *images);
 
-XcursorImages * XcursorLibraryLoadImages (const char *library,
-                                          const char *theme,
-                                          int         size);
+XcursorImages * xcursor_images_create (int size);
 
-XcursorImage * XcursorImageCreate (int width,
-                                   int height);
+XcursorImages * xcursor_library_load_images (const char *library,
+                                             const char *theme,
+                                             int         size);
+
+XcursorImage * xcursor_image_create (int width,
+                                     int height);

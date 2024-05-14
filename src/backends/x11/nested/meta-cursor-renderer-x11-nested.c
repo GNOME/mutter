@@ -24,9 +24,8 @@
 
 #include "backends/x11/nested/meta-cursor-renderer-x11-nested.h"
 
-#include <X11/Xcursor/Xcursor.h>
-
 #include "backends/x11/meta-backend-x11.h"
+#include "third_party/xcursor/xcursor.h"
 
 struct _MetaCursorRendererX11Nested
 {
@@ -52,7 +51,7 @@ create_empty_cursor (Display *xdisplay)
   XcursorPixel *pixels;
   Cursor xcursor;
 
-  image = XcursorImageCreate (1, 1);
+  image = xcursor_image_create (1, 1);
   if (image == NULL)
     return None;
 

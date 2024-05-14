@@ -19,14 +19,10 @@
 #pragma once
 
 #include <glib-object.h>
-#ifdef HAVE_X11_CLIENT
-#include <X11/Xcursor/Xcursor.h>
-#else
-#include "third_party/xcursor/xcursor.h"
-#endif
 
 #include "backends/meta-cursor.h"
 #include "meta/types.h"
+#include "third_party/xcursor/xcursor.h"
 
 #define META_TYPE_CURSOR_SPRITE_XCURSOR meta_cursor_sprite_xcursor_get_type ()
 G_DECLARE_FINAL_TYPE (MetaCursorSpriteXcursor, meta_cursor_sprite_xcursor,
