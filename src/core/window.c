@@ -325,6 +325,9 @@ meta_window_finalize (GObject *object)
   if (window->cgroup_path)
     g_object_unref (window->cgroup_path);
 
+  g_clear_pointer (&window->preferred_logical_monitor,
+                   meta_logical_monitor_id_free);
+
   g_free (window->startup_id);
   g_free (window->role);
   g_free (window->res_class);
@@ -1129,9 +1132,10 @@ meta_window_constructed (GObject *object)
     }
 
   if (window->monitor)
-    window->preferred_output_winsys_id = window->monitor->winsys_id;
-  else
-    window->preferred_output_winsys_id = UINT_MAX;
+    {
+      window->preferred_logical_monitor =
+        meta_logical_monitor_dup_id (window->monitor);
+    }
 
   window->tile_match = NULL;
 
@@ -3662,13 +3666,16 @@ meta_window_get_highest_scale_monitor (MetaWindow *window)
 }
 
 static MetaLogicalMonitor *
-find_monitor_by_winsys_id (MetaWindow *window,
-                           uint64_t    winsys_id)
+find_monitor_by_id (MetaWindow                 *window,
+                    const MetaLogicalMonitorId *id)
 {
   MetaBackend *backend = backend_from_window (window);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   GList *logical_monitors, *l;
+
+  if (!id)
+    return NULL;
 
   logical_monitors =
     meta_monitor_manager_get_logical_monitors (monitor_manager);
@@ -3676,8 +3683,10 @@ find_monitor_by_winsys_id (MetaWindow *window,
   for (l = logical_monitors; l; l = l->next)
     {
       MetaLogicalMonitor *logical_monitor = l->data;
+      const MetaLogicalMonitorId *other_id =
+        meta_logical_monitor_get_id (logical_monitor);
 
-      if (logical_monitor->winsys_id == winsys_id)
+      if (meta_logical_monitor_id_equal (id, other_id))
         return logical_monitor;
     }
 
@@ -3694,11 +3703,13 @@ meta_window_find_monitor_from_id (MetaWindow *window)
   MetaLogicalMonitor *old_monitor = window->monitor;
   MetaLogicalMonitor *new_monitor;
 
-  new_monitor = find_monitor_by_winsys_id (window,
-                                           window->preferred_output_winsys_id);
+  new_monitor = find_monitor_by_id (window, window->preferred_logical_monitor);
 
   if (old_monitor && !new_monitor)
-    new_monitor = find_monitor_by_winsys_id (window, old_monitor->winsys_id);
+    {
+      new_monitor = find_monitor_by_id (window,
+                                        meta_logical_monitor_get_id (old_monitor));
+    }
 
   if (!new_monitor)
     {
@@ -3979,15 +3990,21 @@ meta_window_move_resize_internal (MetaWindow          *window,
 
   if (window->monitor)
     {
-      uint64_t old_output_winsys_id;
+      const MetaLogicalMonitorId *old_id;
+      const MetaLogicalMonitorId *new_id;
 
-      old_output_winsys_id = window->monitor->winsys_id;
-
+      old_id = meta_logical_monitor_get_id (window->monitor);
       meta_window_update_monitor (window, update_monitor_flags);
+      new_id = meta_logical_monitor_get_id (window->monitor);
 
-      if (old_output_winsys_id != window->monitor->winsys_id &&
+      if (!meta_logical_monitor_id_equal (old_id, new_id) &&
           flags & META_MOVE_RESIZE_MOVE_ACTION && flags & META_MOVE_RESIZE_USER_ACTION)
-        window->preferred_output_winsys_id = window->monitor->winsys_id;
+        {
+          g_clear_pointer (&window->preferred_logical_monitor,
+                           meta_logical_monitor_id_free);
+          window->preferred_logical_monitor =
+            meta_logical_monitor_id_dup (new_id);
+        }
     }
   else
     {
@@ -4179,7 +4196,10 @@ meta_window_move_to_monitor (MetaWindow  *window,
       meta_window_move_between_rects (window, 0, &old_area, &new_area);
     }
 
-  window->preferred_output_winsys_id = window->monitor->winsys_id;
+  g_clear_pointer (&window->preferred_logical_monitor,
+                   meta_logical_monitor_id_free);
+  window->preferred_logical_monitor =
+    meta_logical_monitor_dup_id (window->monitor);
 
   if (window->fullscreen || window->override_redirect)
     meta_display_queue_check_fullscreen (window->display);

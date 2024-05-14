@@ -41,18 +41,10 @@ struct _MetaLogicalMonitor
   float scale;
   MetaMonitorTransform transform;
 
-  /* The primary or first output for this monitor, 0 if we can't figure out.
-     It can be matched to a winsys_id of a MetaOutput.
-
-     This is used as an opaque token on reconfiguration when switching from
-     clone to extended, to decide on what output the windows should go next
-     (it's an attempt to keep windows on the same monitor, and preferably on
-     the primary one).
-  */
-  uint64_t winsys_id;
-
   GList *monitors;
 };
+
+typedef struct _MetaLogicalMonitorId MetaLogicalMonitorId;
 
 #define META_TYPE_LOGICAL_MONITOR (meta_logical_monitor_get_type ())
 G_DECLARE_FINAL_TYPE (MetaLogicalMonitor, meta_logical_monitor,
@@ -100,3 +92,14 @@ gboolean meta_logical_monitor_has_neighbor (MetaLogicalMonitor   *logical_monito
 void meta_logical_monitor_foreach_crtc (MetaLogicalMonitor        *logical_monitor,
                                         MetaLogicalMonitorCrtcFunc func,
                                         gpointer                   user_data);
+
+void meta_logical_monitor_id_free (MetaLogicalMonitorId *id);
+
+MetaLogicalMonitorId * meta_logical_monitor_id_dup (const MetaLogicalMonitorId *id);
+
+gboolean meta_logical_monitor_id_equal (const MetaLogicalMonitorId *id,
+                                        const MetaLogicalMonitorId *other_id);
+
+const MetaLogicalMonitorId * meta_logical_monitor_get_id (MetaLogicalMonitor *logical_monitor);
+
+MetaLogicalMonitorId * meta_logical_monitor_dup_id (MetaLogicalMonitor *logical_monitor);

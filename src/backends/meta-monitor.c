@@ -66,17 +66,6 @@ typedef struct _MetaMonitorPrivate
 
   MetaLogicalMonitor *logical_monitor;
 
-  /*
-   * The primary or first output for this monitor, 0 if we can't figure out.
-   * It can be matched to a winsys_id of a MetaOutput.
-   *
-   * This is used as an opaque token on reconfiguration when switching from
-   * clone to extended, to decide on what output the windows should go next
-   * (it's an attempt to keep windows on the same monitor, and preferably on
-   * the primary one).
-   */
-  uint64_t winsys_id;
-
   char *display_name;
 } MetaMonitorPrivate;
 
@@ -424,20 +413,23 @@ meta_monitor_is_same_as (MetaMonitor *monitor,
 {
   const MetaMonitorSpec *spec = meta_monitor_get_spec (monitor);
   const MetaMonitorSpec *other_spec = meta_monitor_get_spec (other_monitor);
+  gboolean spec_is_unknown;
+  gboolean other_spec_is_unknown;
 
-  if ((g_strcmp0 (spec->vendor, "unknown") == 0 ||
-       g_strcmp0 (spec->product, "unknown") == 0 ||
-       g_strcmp0 (spec->serial, "unknown") == 0) &&
-      (g_strcmp0 (other_spec->vendor, "unknown") == 0 ||
-       g_strcmp0 (other_spec->product, "unknown") == 0 ||
-       g_strcmp0 (other_spec->serial, "unknown") == 0))
-    {
-      MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
-      MetaMonitorPrivate *other_priv =
-        meta_monitor_get_instance_private (other_monitor);
+  spec_is_unknown =
+    g_strcmp0 (spec->vendor, "unknown") == 0 ||
+    g_strcmp0 (spec->product, "unknown") == 0 ||
+    g_strcmp0 (spec->serial, "unknown") == 0;
+  other_spec_is_unknown =
+    g_strcmp0 (other_spec->vendor, "unknown") == 0 ||
+    g_strcmp0 (other_spec->product, "unknown") == 0 ||
+    g_strcmp0 (other_spec->serial, "unknown") == 0;
 
-      return priv->winsys_id == other_priv->winsys_id;
-    }
+  if (spec_is_unknown && other_spec_is_unknown)
+    return g_strcmp0 (spec->connector, other_spec->connector) == 0;
+
+  if (spec_is_unknown || other_spec_is_unknown)
+    return FALSE;
 
   if (g_strcmp0 (spec->vendor, other_spec->vendor) != 0)
     return FALSE;
@@ -840,7 +832,6 @@ meta_monitor_normal_new (MetaMonitorManager *monitor_manager,
   monitor_priv->outputs = g_list_append (NULL, g_object_ref (output));
   meta_output_set_monitor (output, monitor);
 
-  monitor_priv->winsys_id = meta_output_get_id (output);
   meta_monitor_generate_spec (monitor);
 
   meta_monitor_normal_generate_modes (monitor_normal);
@@ -1553,7 +1544,6 @@ meta_monitor_tiled_new (MetaMonitorManager *monitor_manager,
   monitor_priv->backend = meta_monitor_manager_get_backend (monitor_manager);
 
   monitor_tiled->tile_group_id = output_info->tile_info.group_id;
-  monitor_priv->winsys_id = meta_output_get_id (output);
 
   monitor_tiled->origin_output = output;
   add_tiled_monitor_outputs (meta_output_get_gpu (output), monitor_tiled);

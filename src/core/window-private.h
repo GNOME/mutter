@@ -262,7 +262,7 @@ struct _MetaWindow
 
   double tile_hfraction;
 
-  uint64_t preferred_output_winsys_id;
+  MetaLogicalMonitorId *preferred_logical_monitor;
 
   /* Area to cover when in fullscreen mode.  If _NET_WM_FULLSCREEN_MONITORS has
    * been overridden (via a client message), the window will cover the union of
