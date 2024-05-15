@@ -106,6 +106,13 @@ struct _MetaWaylandXdgToplevel
   MetaWaylandXdgSurface parent;
 
   struct wl_resource *resource;
+
+  gboolean has_min_size;
+  int min_width;
+  int min_height;
+  gboolean has_max_size;
+  int max_width;
+  int max_height;
 };
 
 G_DEFINE_TYPE (MetaWaylandXdgToplevel,
@@ -893,6 +900,8 @@ static void
 meta_wayland_xdg_toplevel_post_apply_state (MetaWaylandSurfaceRole  *surface_role,
                                             MetaWaylandSurfaceState *pending)
 {
+  MetaWaylandXdgToplevel *xdg_toplevel =
+    META_WAYLAND_XDG_TOPLEVEL (surface_role);
   MetaWaylandXdgSurface *xdg_surface = META_WAYLAND_XDG_SURFACE (surface_role);
   MetaWaylandXdgSurfacePrivate *xdg_surface_priv =
     meta_wayland_xdg_surface_get_instance_private (xdg_surface);
@@ -902,7 +911,8 @@ meta_wayland_xdg_toplevel_post_apply_state (MetaWaylandSurfaceRole  *surface_rol
   MetaWindow *window;
   MtkRectangle old_geometry;
   MtkRectangle window_geometry;
-
+  gboolean update_min_size = FALSE;
+  gboolean update_max_size = FALSE;
   gboolean geometry_changed;
 
   window = meta_wayland_surface_get_window (surface);
@@ -936,16 +946,20 @@ meta_wayland_xdg_toplevel_post_apply_state (MetaWaylandSurfaceRole  *surface_rol
       if (is_new_size_hints_valid (window, pending))
         {
           if (pending->has_new_min_size)
-            meta_window_wayland_set_min_size (window,
-                                              pending->new_min_width,
-                                              pending->new_min_height);
+            {
+              xdg_toplevel->has_min_size = TRUE;
+              xdg_toplevel->min_width = pending->new_min_width;
+              xdg_toplevel->min_height = pending->new_min_height;
+              update_min_size = TRUE;
+            }
 
           if (pending->has_new_max_size)
-            meta_window_wayland_set_max_size (window,
-                                              pending->new_max_width,
-                                              pending->new_max_height);
-
-          meta_window_recalc_features (window);
+            {
+              xdg_toplevel->has_max_size = TRUE;
+              xdg_toplevel->max_width = pending->new_max_width;
+              xdg_toplevel->max_height = pending->new_max_height;
+              update_max_size = TRUE;
+            }
         }
       else
         {
@@ -957,6 +971,30 @@ meta_wayland_xdg_toplevel_post_apply_state (MetaWaylandSurfaceRole  *surface_rol
             }
         }
     }
+
+  if (pending->has_new_geometry)
+    {
+      if (xdg_toplevel->has_min_size)
+        update_min_size = TRUE;
+      if (xdg_toplevel->has_max_size)
+        update_max_size = TRUE;
+    }
+
+  if (update_min_size)
+    {
+      meta_window_wayland_set_min_size (window,
+                                        xdg_toplevel->min_width,
+                                        xdg_toplevel->min_height);
+    }
+  if (update_max_size)
+    {
+      meta_window_wayland_set_max_size (window,
+                                        xdg_toplevel->max_width,
+                                        xdg_toplevel->max_height);
+    }
+
+  if (update_min_size || update_max_size)
+    meta_window_recalc_features (window);
 }
 
 static MetaWaylandSurface *
