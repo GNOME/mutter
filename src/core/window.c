@@ -1970,13 +1970,17 @@ window_state_on_map (MetaWindow *window,
   if (*takes_focus &&
       meta_prefs_get_focus_new_windows () == G_DESKTOP_FOCUS_NEW_WINDOWS_STRICT &&
       !meta_window_is_ancestor_of_transient (window->display->focus_window,
-                                             window))
+                                             window) &&
+      !window->activate_on_map)
     {
       meta_topic (META_DEBUG_FOCUS,
                   "new window is not an ancestor to transient; not taking focus.");
       *takes_focus = FALSE;
       *places_on_top = FALSE;
     }
+
+  /* This is a oneshot so reset it */
+  window->activate_on_map = FALSE;
 
   switch (window->type)
     {

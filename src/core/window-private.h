@@ -249,6 +249,9 @@ struct _MetaWindow
   /* Initial timestamp property */
   guint32 initial_timestamp;
 
+  /* Was the window activated before mapped? */
+  gboolean activate_on_map;
+
   /* The current tile mode */
   MetaTileMode tile_mode;
 

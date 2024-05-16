@@ -365,8 +365,15 @@ activation_activate (struct wl_client   *client,
       if (workspace_idx >= 0)
         meta_window_change_workspace_by_index (window, workspace_idx, TRUE);
 
-      meta_window_activate_full (window, timestamp,
-                                 META_CLIENT_TYPE_APPLICATION, NULL);
+      if (window->mapped)
+        {
+          meta_window_activate_full (window, timestamp,
+                                     META_CLIENT_TYPE_APPLICATION, NULL);
+        }
+      else
+        {
+          window->activate_on_map = TRUE;
+        }
     }
   else
     {
