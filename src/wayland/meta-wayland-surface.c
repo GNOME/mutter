@@ -981,7 +981,7 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
       if ((meta_multi_texture_get_width (committed_texture) % committed_scale != 0) ||
           (meta_multi_texture_get_height (committed_texture) % committed_scale != 0))
         {
-          if (!surface->role || !META_IS_WAYLAND_CURSOR_SURFACE (surface->role))
+          if (surface->role && !META_IS_WAYLAND_CURSOR_SURFACE (surface->role))
             {
               wl_resource_post_error (surface->resource, WL_SURFACE_ERROR_INVALID_SIZE,
                                       "Buffer size (%dx%d) must be an integer multiple "
