@@ -41,9 +41,7 @@ def StartFromTemplate(self, template):
     if template in self.mocks.keys():
         raise KeyError('Template {} already started'.format(template))
 
-    mock_server, mock_obj = self.dbus_mock.spawn_server_template(template, {},
-        stdout=subprocess.PIPE)
-    set_nonblock(mock_server.stdout)
+    mock_server, mock_obj = self.dbus_mock.spawn_server_template(template, {})
 
     self.mocks[template] = (mock_server, mock_obj)
 
