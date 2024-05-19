@@ -827,7 +827,7 @@ meta_egl_query_device_string (MetaEgl       *egl,
       check_egl_error (&local_error);
       if (local_error)
         {
-          g_propagate_error (error, local_error);
+          g_propagate_error (error, g_steal_pointer (&local_error));
           return FALSE;
         }
     }
