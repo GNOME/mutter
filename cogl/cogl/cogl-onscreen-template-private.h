@@ -30,7 +30,6 @@
 
 #pragma once
 
-#include "cogl/cogl-swap-chain.h"
 #include "cogl/cogl-framebuffer-private.h"
 
 struct _CoglOnscreenTemplate

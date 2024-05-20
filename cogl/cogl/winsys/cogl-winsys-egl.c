@@ -38,7 +38,6 @@
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-framebuffer.h"
 #include "cogl/cogl-onscreen-private.h"
-#include "cogl/cogl-swap-chain-private.h"
 #include "cogl/cogl-renderer-private.h"
 #include "cogl/cogl-onscreen-template-private.h"
 #include "cogl/cogl-egl.h"

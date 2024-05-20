@@ -110,14 +110,13 @@ check_onscreen_template (CoglRenderer         *renderer,
 static CoglDisplay *
 meta_clutter_backend_x11_get_display (ClutterBackend  *clutter_backend,
                                       CoglRenderer    *renderer,
-                                      CoglSwapChain   *swap_chain,
                                       GError         **error)
 {
   CoglOnscreenTemplate *onscreen_template;
   CoglDisplay *display = NULL;
   gboolean res = FALSE;
 
-  onscreen_template = cogl_onscreen_template_new (swap_chain);
+  onscreen_template = cogl_onscreen_template_new ();
 
   /* It's possible that the current renderer doesn't support transparency
    * or doesn't support stereo, so we try the different combinations.

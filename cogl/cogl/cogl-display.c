@@ -129,7 +129,7 @@ cogl_display_set_onscreen_template (CoglDisplay *display,
   /* NB: we want to maintain the invariable that there is always an
    * onscreen template associated with a CoglDisplay... */
   if (!onscreen_template)
-    display->onscreen_template = cogl_onscreen_template_new (NULL);
+    display->onscreen_template = cogl_onscreen_template_new ();
 }
 
 gboolean

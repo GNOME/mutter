@@ -36,8 +36,6 @@
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
 
-#include "cogl/cogl-swap-chain.h"
-
 #include <glib-object.h>
 
 G_BEGIN_DECLS
@@ -51,7 +49,7 @@ G_DECLARE_FINAL_TYPE (CoglOnscreenTemplate, cogl_onscreen_template,
                       COGL, ONSCREEN_TEMPLATE, GObject)
 
 COGL_EXPORT CoglOnscreenTemplate *
-cogl_onscreen_template_new (CoglSwapChain *swap_chain);
+cogl_onscreen_template_new (void);
 
 /**
  * cogl_onscreen_template_set_samples_per_pixel:
