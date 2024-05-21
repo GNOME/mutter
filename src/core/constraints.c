@@ -91,7 +91,7 @@ constrain_whatever (MetaWindow         *window,
   // we know we can return TRUE here because we exited early
   // if the constraint could not be satisfied; not that the
   // return value is heeded in this case...
-  return TRUE; 
+  return TRUE;
 }
 ```
 */
@@ -709,9 +709,14 @@ update_onscreen_requirements (MetaWindow     *window,
   /* Update whether we want future constraint runs to require the
    * titlebar to be visible.
    */
-  if (window->frame && window->decorated)
+#ifdef HAVE_X11_CLIENT
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 && window->decorated)
     {
       MtkRectangle titlebar_rect, frame_rect;
+      MetaFrame *frame = meta_window_x11_get_frame (window);
+
+      if (!frame)
+        return;
 
       meta_window_get_titlebar_rect (window, &titlebar_rect);
       meta_window_get_frame_rect (window, &frame_rect);
@@ -730,6 +735,7 @@ update_onscreen_requirements (MetaWindow     *window,
                     window->desc,
                     window->require_titlebar_visible ? "TRUE" : "FALSE");
     }
+#endif
 }
 
 static inline void
@@ -1703,11 +1709,20 @@ constrain_to_single_monitor (MetaWindow         *window,
                              ConstraintPriority  priority,
                              gboolean            check_only)
 {
+  /* a quirk for x11 clients that tries to move their windows
+   * by themselves when doing interactive moves.
+   */
+  gboolean client_driven_interactive_move = TRUE;
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (info->backend);
 
   if (priority > PRIORITY_ENTIRELY_VISIBLE_ON_SINGLE_MONITOR)
     return TRUE;
+
+#ifdef HAVE_X11_CLIENT
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
+    client_driven_interactive_move = meta_window_x11_get_frame (window) == NULL;
+#endif
 
   /* Exit early if we know the constraint won't apply--note that this constraint
    * is only meant for normal windows (e.g. we don't want docks to be shoved
@@ -1718,7 +1733,7 @@ constrain_to_single_monitor (MetaWindow         *window,
       window->type == META_WINDOW_DOCK ||
       meta_monitor_manager_get_num_logical_monitors (monitor_manager) == 1 ||
       !window->require_on_single_monitor ||
-      !window->frame ||
+      client_driven_interactive_move ||
       info->is_user_action ||
       meta_window_get_placement_rule (window))
     return TRUE;

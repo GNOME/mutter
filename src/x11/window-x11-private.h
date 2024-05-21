@@ -133,4 +133,7 @@ void meta_window_x11_group_leader_changed (MetaWindow *window);
 
 void meta_window_x11_set_frame_xwindow (MetaWindow *window,
                                         Window      xframe);
+
+gboolean meta_window_x11_is_ssd (MetaWindow *window);
+
 G_END_DECLS

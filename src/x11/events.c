@@ -1483,7 +1483,7 @@ handle_other_xevent (MetaX11Display *x11_display,
               window = meta_x11_display_lookup_x_window (x11_display,
                                                          client_window);
 
-              if (window != NULL && window->decorated && !window->frame)
+              if (window != NULL && window->decorated && !meta_window_x11_is_ssd (window))
                 {
                   meta_window_x11_set_frame_xwindow (window,
                                                      event->xmaprequest.window);

@@ -2035,6 +2035,13 @@ meta_window_x11_set_transient_for (MetaWindow *window,
   return TRUE;
 }
 
+gboolean
+meta_window_x11_is_ssd (MetaWindow *window)
+{
+  /* Will be updated in the next commits once frame field is moved to WindowX11 */
+  return window->frame != NULL;
+}
+
 static void
 meta_window_x11_constructed (GObject *object)
 {
@@ -2404,7 +2411,7 @@ meta_window_x11_update_input_region (MetaWindow *window)
 
   if (window->decorated)
     {
-      if (!window->frame)
+      if (!meta_window_x11_is_ssd (window))
         {
           if (priv->input_region)
             meta_window_set_input_region (window, NULL);
@@ -2689,7 +2696,7 @@ meta_window_move_resize_request (MetaWindow  *window,
 		  window->type);
     }
 
-  if (window->decorated && !window->frame)
+  if (window->decorated && !meta_window_x11_is_ssd (window))
     {
       width = new_width;
       height = new_height;
@@ -3921,7 +3928,7 @@ meta_window_x11_new (MetaDisplay       *display,
                                "effect", effect,
                                "attributes", &attrs,
                                "xwindow", xwindow,
-                               NULL);    
+                               NULL);
     }
   else
 #endif

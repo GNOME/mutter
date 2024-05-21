@@ -808,9 +808,11 @@ client_window_should_be_mapped (MetaWindow *window)
     }
 #endif
 
+#ifdef HAVE_X11_CLIENT
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
-      window->decorated && !window->frame)
+      window->decorated && !meta_window_x11_is_ssd (window))
     return FALSE;
+#endif
 
   return TRUE;
 }
@@ -1701,9 +1703,11 @@ meta_window_is_showable (MetaWindow *window)
     return FALSE;
 #endif
 
+#ifdef HAVE_X11_CLIENT
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
-      window->decorated && !window->frame)
+      window->decorated && !meta_window_x11_is_ssd (window))
     return FALSE;
+#endif
 
   return TRUE;
 }
