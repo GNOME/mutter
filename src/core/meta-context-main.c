@@ -216,7 +216,7 @@ find_session_type (GError **error)
     }
 
   /* Legacy support for starting through xinit */
-  if (is_tty && (g_getenv ("MUTTER_DISPLAY") || g_getenv ("DISPLAY")))
+  if (is_tty && g_getenv ("DISPLAY"))
     {
       session_type = strdup ("x11");
       goto out;

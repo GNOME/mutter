@@ -507,15 +507,9 @@ static void
 meta_backend_x11_cm_constructed (GObject *object)
 {
   MetaBackendX11Cm *x11_cm = META_BACKEND_X11_CM (object);
-  const char *display_name;
 
   if (x11_cm->display_name)
-    display_name = (const char *) x11_cm->display_name;
-  else
-    display_name = g_getenv ("MUTTER_DISPLAY");
-
-  if (display_name)
-    g_setenv ("DISPLAY", display_name, TRUE);
+    g_setenv ("DISPLAY", x11_cm->display_name, TRUE);
 
   G_OBJECT_CLASS (meta_backend_x11_cm_parent_class)->constructed (object);
 }
