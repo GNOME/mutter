@@ -1764,6 +1764,7 @@ constrain_titlebar_visible (MetaWindow         *window,
                             gboolean            check_only)
 {
   gboolean unconstrained_user_action;
+  gboolean user_nonnorthern_resize;
   gboolean retval;
   int bottom_amount;
   int horiz_amount_offscreen, vert_amount_offscreen;
@@ -1784,6 +1785,19 @@ constrain_titlebar_visible (MetaWindow         *window,
      (meta_window_drag_get_grab_op (window_drag) &
       META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED) != 0);
 
+  /* If the user is resizing anything other than the top, then don't check if
+   * the titlebar is beyond the top of the screen.  This resize might be
+   * immediately following an unconstrained move that placed the titlebar above
+   * the top of the screen, in which case we don't want the titlebar
+   * immediately popping back below the top of the screen or other glitching
+   * (https://gitlab.gnome.org/GNOME/mutter/-/issues/1206).
+   */
+  user_nonnorthern_resize =
+    info->is_user_action &&
+    window_drag &&
+    meta_grab_op_is_resizing (meta_window_drag_get_grab_op (window_drag)) &&
+    info->orig.y == info->current.y;
+
   /* Exit early if we know the constraint won't apply--note that this constraint
    * is only meant for normal windows (e.g. we don't want docks to be shoved
    * "onscreen" by their own strut).
@@ -1793,6 +1807,7 @@ constrain_titlebar_visible (MetaWindow         *window,
       window->fullscreen                  ||
       !window->require_titlebar_visible   ||
       unconstrained_user_action           ||
+      user_nonnorthern_resize             ||
       meta_window_get_placement_rule (window))
     return TRUE;
 
