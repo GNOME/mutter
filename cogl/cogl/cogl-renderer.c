@@ -555,13 +555,6 @@ cogl_renderer_connect (CoglRenderer *renderer, GError **error)
           if (renderer->winsys_id_override != winsys->id)
             continue;
         }
-      else
-        {
-          char *user_choice = getenv ("COGL_RENDERER");
-          if (user_choice &&
-              g_ascii_strcasecmp (winsys->name, user_choice) != 0)
-            continue;
-        }
 
       for (l = renderer->constraints; l; l = l->next)
         {
