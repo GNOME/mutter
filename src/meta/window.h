@@ -424,12 +424,6 @@ META_EXPORT
 gboolean meta_window_allows_resize (MetaWindow *window);
 
 META_EXPORT
-gboolean meta_window_titlebar_is_onscreen    (MetaWindow *window);
-
-META_EXPORT
-void     meta_window_shove_titlebar_onscreen (MetaWindow *window);
-
-META_EXPORT
 uint64_t meta_window_get_id (MetaWindow *window);
 
 META_EXPORT

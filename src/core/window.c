@@ -181,7 +181,7 @@ typedef struct _MetaWindowPrivate
   guint suspend_timoeut_id;
 } MetaWindowPrivate;
 
-G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaWindow, meta_window, G_TYPE_OBJECT, 
+G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaWindow, meta_window, G_TYPE_OBJECT,
                                   G_ADD_PRIVATE (MetaWindow)
                                   G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                          initable_iface_init))
@@ -3950,7 +3950,7 @@ meta_window_move_resize_internal (MetaWindow          *window,
 
   /* Only update the stored size when requested but not when a
    * (potentially outdated) request completes */
-  if (!(flags & META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE) || 
+  if (!(flags & META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE) ||
       flags & META_MOVE_RESIZE_WAYLAND_CLIENT_RESIZE)
     {
       window->unconstrained_rect = unconstrained_rect;
@@ -5771,96 +5771,6 @@ meta_window_show_menu (MetaWindow         *window,
 {
   g_return_if_fail (!window->override_redirect);
   meta_compositor_show_window_menu (window->display->compositor, window, menu, x, y);
-}
-
-void
-meta_window_shove_titlebar_onscreen (MetaWindow *window)
-{
-  MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
-  MtkRectangle  frame_rect;
-  GList         *onscreen_region;
-  int            horiz_amount, vert_amount;
-
-  g_return_if_fail (!window->override_redirect);
-
-  /* If there's no titlebar, don't bother */
-  if (!window->frame)
-    return;
-
-  /* Get the basic info we need */
-  meta_window_get_frame_rect (window, &frame_rect);
-  onscreen_region = workspace_manager->active_workspace->screen_region;
-
-  /* Extend the region (just in case the window is too big to fit on the
-   * screen), then shove the window on screen, then return the region to
-   * normal.
-   */
-  horiz_amount = frame_rect.width;
-  vert_amount  = frame_rect.height;
-  meta_rectangle_expand_region (onscreen_region,
-                                horiz_amount,
-                                horiz_amount,
-                                0,
-                                vert_amount);
-  meta_rectangle_shove_into_region(onscreen_region,
-                                   FIXED_DIRECTION_X,
-                                   &frame_rect);
-  meta_rectangle_expand_region (onscreen_region,
-                                -horiz_amount,
-                                -horiz_amount,
-                                0,
-                                -vert_amount);
-
-  meta_window_move_frame (window, FALSE, frame_rect.x, frame_rect.y);
-}
-
-gboolean
-meta_window_titlebar_is_onscreen (MetaWindow *window)
-{
-  MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
-  MtkRectangle  titlebar_rect, frame_rect;
-  GList         *onscreen_region;
-  gboolean       is_onscreen;
-
-  const int min_height_needed  = 8;
-  const float min_width_percent  = 0.5;
-  const int min_width_absolute = 50;
-
-  /* Titlebar can't be offscreen if there is no titlebar... */
-  if (!window->frame)
-    return TRUE;
-
-  /* Get the rectangle corresponding to the titlebar */
-  meta_window_get_titlebar_rect (window, &titlebar_rect);
-
-  /* Translate into screen coordinates */
-  meta_window_get_frame_rect (window, &frame_rect);
-  titlebar_rect.x = frame_rect.x;
-  titlebar_rect.y = frame_rect.y;
-
-  /* Run through the spanning rectangles for the screen and see if one of
-   * them overlaps with the titlebar sufficiently to consider it onscreen.
-   */
-  is_onscreen = FALSE;
-  onscreen_region = workspace_manager->active_workspace->screen_region;
-  while (onscreen_region)
-    {
-      MtkRectangle *spanning_rect = onscreen_region->data;
-      MtkRectangle overlap;
-
-      mtk_rectangle_intersect (&titlebar_rect, spanning_rect, &overlap);
-      if (overlap.height > MIN (titlebar_rect.height, min_height_needed) &&
-          overlap.width  > MIN (titlebar_rect.width * min_width_percent,
-                                min_width_absolute))
-        {
-          is_onscreen = TRUE;
-          break;
-        }
-
-      onscreen_region = onscreen_region->next;
-    }
-
-  return is_onscreen;
 }
 
 void
