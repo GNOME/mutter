@@ -966,6 +966,9 @@ meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device,
 {
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
+  MetaKmsImpl *kms_impl = meta_kms_impl_device_get_impl (impl_device);
+  MetaThreadImpl *thread_impl = META_THREAD_IMPL (kms_impl);
+  MetaThread *thread = meta_thread_impl_get_thread (thread_impl);
   g_autoptr (GError) error = NULL;
   int fd;
   drmModeRes *drm_resources;
@@ -985,11 +988,13 @@ meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device,
   ensure_latched_fd_hold (impl_device);
 
   fd = meta_device_file_get_fd (priv->device_file);
+  meta_thread_inhibit_realtime_in_impl (thread);
   drm_resources = drmModeGetResources (fd);
   if (!drm_resources)
     {
       meta_topic (META_DEBUG_KMS, "Device '%s' didn't return any resources",
                   priv->path);
+      meta_thread_uninhibit_realtime_in_impl (thread);
       goto err;
     }
 
@@ -1005,6 +1010,8 @@ meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device,
 
       changes |= meta_kms_crtc_update_state_in_impl (crtc);
     }
+
+  meta_thread_uninhibit_realtime_in_impl (thread);
 
   drmModeFreeResources (drm_resources);
 
