@@ -485,8 +485,12 @@ meta_wayland_transaction_ensure_entry (MetaWaylandTransaction *transaction,
   if (entry)
     return entry;
 
+  g_return_val_if_fail (surface, NULL);
+  surface = g_object_ref (surface);
+  g_return_val_if_fail (surface, NULL);
+
   entry = g_new0 (MetaWaylandTransactionEntry, 1);
-  g_hash_table_insert (transaction->entries, g_object_ref (surface), entry);
+  g_hash_table_insert (transaction->entries, surface, entry);
 
   return entry;
 }
