@@ -104,6 +104,7 @@ is_sibling (MetaWaylandSurface *surface,
             MetaWaylandSurface *sibling)
 {
   return surface != sibling &&
+         surface->committed_state.parent &&
          surface->committed_state.parent == sibling->committed_state.parent;
 }
 
