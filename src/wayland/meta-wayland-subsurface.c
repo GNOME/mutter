@@ -318,7 +318,7 @@ get_subsurface_placement_op (MetaWaylandSurface             *surface,
   GNode *sibling_node;
 
   op->placement = placement;
-  op->surface = surface;
+  op->surface = g_object_ref (surface);
 
   g_node_unlink (surface->committed_state.subsurface_branch_node);
 
@@ -352,6 +352,7 @@ get_subsurface_placement_op (MetaWaylandSurface             *surface,
 void
 meta_wayland_subsurface_destroy_placement_op (MetaWaylandSubsurfacePlacementOp *op)
 {
+  g_clear_object (&op->surface);
   g_clear_object (&op->sibling);
   g_free (op);
 }
