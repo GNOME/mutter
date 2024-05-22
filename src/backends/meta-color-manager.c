@@ -240,6 +240,32 @@ update_devices (MetaColorManager *color_manager)
 }
 
 static void
+update_all_gamma (MetaColorManager *color_manager)
+{
+  MetaColorManagerPrivate *priv =
+    meta_color_manager_get_instance_private (color_manager);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (priv->backend);
+  GList *l;
+
+  for (l = meta_monitor_manager_get_monitors (monitor_manager); l; l = l->next)
+    {
+      MetaMonitor *monitor = META_MONITOR (l->data);
+      MetaColorDevice *color_device;
+
+      color_device = meta_color_manager_get_color_device (color_manager,
+                                                          monitor);
+      if (!color_device)
+        continue;
+
+      if (!meta_color_device_is_ready (color_device))
+          continue;
+
+      meta_color_device_update (color_device, priv->temperature);
+    }
+}
+
+static void
 on_monitors_changed (MetaMonitorManager *monitor_manager,
                      MetaColorManager   *color_manager)
 {
@@ -280,32 +306,6 @@ cd_client_connect_cb (GObject      *source_object,
                     color_manager);
 
   priv->is_ready = TRUE;
-}
-
-static void
-update_all_gamma (MetaColorManager *color_manager)
-{
-  MetaColorManagerPrivate *priv =
-    meta_color_manager_get_instance_private (color_manager);
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (priv->backend);
-  GList *l;
-
-  for (l = meta_monitor_manager_get_monitors (monitor_manager); l; l = l->next)
-    {
-      MetaMonitor *monitor = META_MONITOR (l->data);
-      MetaColorDevice *color_device;
-
-      color_device = meta_color_manager_get_color_device (color_manager,
-                                                          monitor);
-      if (!color_device)
-        continue;
-
-      if (!meta_color_device_is_ready (color_device))
-          continue;
-
-      meta_color_device_update (color_device, priv->temperature);
-    }
 }
 
 static void
