@@ -284,7 +284,7 @@ if have_wayland_eglstream
   endif
 endif
 
-have_sm = get_option('sm')
+have_sm = get_option('sm') and have_x11
 if have_sm
   sm_dep = dependency('sm')
 endif
