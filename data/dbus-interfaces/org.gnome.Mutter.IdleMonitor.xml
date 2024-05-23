@@ -15,11 +15,39 @@
       <arg name="idletime" direction="out" type="t"/>
     </method>
 
+    <!--
+        AddIdleWatch:
+        @interval: Interval, in milliseconds
+        @id: Watch ID, guaranteed to be greater than zero
+
+        Add a new idle watch for a specific idle time. When the user has been
+        idle for @interval milliseconds in a row, #org.gnome.Mutter.IdleMonitor.WatchFired
+        will be emitted with the returned watch @id.
+
+        The watch will continue emitting the signal every time the
+        idle time condition is reached until it is removed.
+
+        The returned @id can be used to remove the watch by calling
+        #org.gnome.Mutter.IdleMonitor.RemoveWatch.
+    -->
     <method name="AddIdleWatch">
       <arg name="interval" direction="in" type="t" />
       <arg name="id" direction="out" type="u" />
     </method>
 
+    <!--
+        AddUserActiveWatch:
+        @id: Watch ID, guaranteed to be greater than zero
+
+        Add a new active watch. When the user has been idle and becomes
+        active again, #org.gnome.Mutter.IdleMonitor.WatchFired will be
+        emitted with the returned watch @id, and the watch will be removed.
+
+        Unlike idle watches, an active watch is fired only once.
+
+        The returned @id can be used to remove the watch (before it’s fired)
+        by calling #org.gnome.Mutter.IdleMonitor.RemoveWatch.
+    -->
     <method name="AddUserActiveWatch">
       <arg name="id" direction="out" type="u" />
     </method>
