@@ -463,6 +463,7 @@ build-wayland-only@x86_64:
         -Dbuildtype=debugoptimized
         -Dwayland=true
         -Dxwayland=false
+        -Dx11=false
         -Dtests=disabled
         -Dintrospection=false
     - meson compile -C build
