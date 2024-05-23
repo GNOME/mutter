@@ -45,6 +45,12 @@ option('xwayland',
   description: 'Enable Xwayland support'
 )
 
+option('x11',
+  type: 'boolean',
+  value: true,
+  description: 'Enable X11 support'
+)
+
 option('systemd',
   type: 'boolean',
   value: true,
