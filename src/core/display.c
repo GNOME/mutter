@@ -2712,8 +2712,8 @@ meta_display_request_pad_osd (MetaDisplay        *display,
   MetaInputMapper *input_mapper;
   const gchar *layout_path = NULL;
   ClutterActor *osd;
-  MetaLogicalMonitor *logical_monitor;
-  GSettings *settings;
+  MetaLogicalMonitor *logical_monitor = NULL;
+  GSettings *settings = NULL;
 #ifdef HAVE_LIBWACOM
   WacomDevice *wacom_device;
 #endif
