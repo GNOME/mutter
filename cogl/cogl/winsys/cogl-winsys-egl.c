@@ -511,6 +511,9 @@ _cogl_winsys_context_init (CoglContext *context, GError **error)
       _cogl_has_private_feature (context, COGL_PRIVATE_FEATURE_OES_EGL_SYNC))
     COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_FENCE, TRUE);
 
+  if (egl_renderer->private_features & COGL_EGL_WINSYS_FEATURE_NATIVE_FENCE_SYNC)
+    COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_SYNC_FD, TRUE);
+
   if (egl_renderer->private_features & COGL_EGL_WINSYS_FEATURE_BUFFER_AGE)
     {
       COGL_FLAGS_SET (context->winsys_features,
