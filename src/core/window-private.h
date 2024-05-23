@@ -42,6 +42,8 @@
 
 typedef struct _MetaWindowQueue MetaWindowQueue;
 
+#define META_WINDOW_TITLEBAR_HEIGHT 50
+
 typedef enum
 {
   META_CLIENT_TYPE_UNKNOWN = 0,
@@ -786,8 +788,6 @@ gboolean meta_window_handle_ungrabbed_event (MetaWindow         *window,
 
 void meta_window_get_client_area_rect (const MetaWindow *window,
                                        MtkRectangle     *rect);
-void meta_window_get_titlebar_rect (MetaWindow   *window,
-                                    MtkRectangle *titlebar_rect);
 
 void meta_window_activate_full (MetaWindow     *window,
                                 guint32         timestamp,

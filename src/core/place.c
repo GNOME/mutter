@@ -127,7 +127,6 @@ find_next_cascade (MetaWindow *window,
   GList *tmp;
   GList *sorted;
   int cascade_origin_x, cascade_x, cascade_y;
-  MtkRectangle titlebar_rect;
   int x_threshold, y_threshold;
   MtkRectangle frame_rect;
   int window_width, window_height;
@@ -146,9 +145,8 @@ find_next_cascade (MetaWindow *window,
    * manually cascade.
    */
 #define CASCADE_FUZZ 15
-  meta_window_get_titlebar_rect (window, &titlebar_rect);
-  x_threshold = MAX (titlebar_rect.x, CASCADE_FUZZ);
-  y_threshold = MAX (titlebar_rect.y, CASCADE_FUZZ);
+  x_threshold = CASCADE_FUZZ;
+  y_threshold = CASCADE_FUZZ;
 
   /* Find furthest-SE origin of all workspaces.
    * cascade_x, cascade_y are the target position
@@ -202,13 +200,11 @@ find_next_cascade (MetaWindow *window,
 
       if (nearby)
         {
-          meta_window_get_titlebar_rect (w, &titlebar_rect);
-
           /* Cascade the window evenly by the titlebar height; this isn't a typo. */
           cascade_x = ltr
-            ? wx + titlebar_rect.height
-            : wx + ww - titlebar_rect.height - window_width;
-          cascade_y = wy + titlebar_rect.height;
+            ? wx + META_WINDOW_TITLEBAR_HEIGHT
+            : wx + ww - META_WINDOW_TITLEBAR_HEIGHT - window_width;
+          cascade_y = wy + META_WINDOW_TITLEBAR_HEIGHT;
 
           /* If we go off the screen, start over with a new cascade */
           if (((cascade_x + window_width) >

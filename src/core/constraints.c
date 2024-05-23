@@ -712,23 +712,20 @@ update_onscreen_requirements (MetaWindow     *window,
 #ifdef HAVE_X11_CLIENT
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 && window->decorated)
     {
-      MtkRectangle titlebar_rect, frame_rect;
+      MtkRectangle frame_rect;
       MetaFrame *frame = meta_window_x11_get_frame (window);
 
       if (!frame)
         return;
 
-      meta_window_get_titlebar_rect (window, &titlebar_rect);
       meta_window_get_frame_rect (window, &frame_rect);
-
       /* translate into screen coordinates */
-      titlebar_rect.x = frame_rect.x;
-      titlebar_rect.y = frame_rect.y;
+      frame_rect.height = META_WINDOW_TITLEBAR_HEIGHT;
 
       old = window->require_titlebar_visible;
       window->require_titlebar_visible =
         meta_rectangle_overlaps_with_region (info->usable_screen_region,
-                                             &titlebar_rect);
+                                             &frame_rect);
       if (old != window->require_titlebar_visible)
         meta_topic (META_DEBUG_GEOMETRY,
                     "require_titlebar_visible for %s toggled to %s",

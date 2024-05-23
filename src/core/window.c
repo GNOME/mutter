@@ -4415,28 +4415,6 @@ meta_window_get_client_area_rect (const MetaWindow *window,
   rect->height = window->buffer_rect.height - borders.total.top - borders.total.bottom;
 }
 
-void
-meta_window_get_titlebar_rect (MetaWindow   *window,
-                               MtkRectangle *rect)
-{
-  meta_window_get_frame_rect (window, rect);
-
-  /* The returned rectangle is relative to the frame rect. */
-  rect->x = 0;
-  rect->y = 0;
-
-  if (window->frame)
-    {
-      rect->height = window->frame->child_y;
-    }
-  else
-    {
-      /* Pick an arbitrary height for a titlebar. We might want to
-       * eventually have CSD windows expose their borders to us. */
-      rect->height = 50;
-    }
-}
-
 /**
  * meta_window_get_startup_id:
  * @window: a #MetaWindow
