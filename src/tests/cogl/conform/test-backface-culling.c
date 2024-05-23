@@ -201,6 +201,9 @@ validate_result (CoglFramebuffer *framebuffer, int y_offset)
           cull_front = TRUE;
           cull_back = TRUE;
           break;
+
+        default:
+          g_assert_not_reached ();
         }
 
       if (FRONT_WINDING (draw_num) == COGL_WINDING_CLOCKWISE)
