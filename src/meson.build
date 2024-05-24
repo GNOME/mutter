@@ -1276,6 +1276,21 @@ if have_introspection
     endif
   endforeach
 
+  libmutter_gir_includes = [
+    'Gio-2.0',
+    'GObject-2.0',
+    'GDesktopEnums-3.0',
+    libmutter_cogl_gir[0],
+    libmutter_cogl_pango_gir[0],
+    libmutter_clutter_gir[0],
+    libmutter_mtk_gir[0],
+  ]
+  if have_x11_client
+    libmutter_gir_includes += [
+      'xlib-2.0',
+      'xfixes-4.0',
+    ]
+  endif
   libmutter_gir = gnome.generate_gir(libmutter,
     sources: [
       mutter_enum_types[1],
@@ -1285,17 +1300,7 @@ if have_introspection
     nsversion: libmutter_api_version,
     namespace: 'Meta',
     symbol_prefix: 'meta',
-    includes: [
-      'Gio-2.0',
-      'GObject-2.0',
-      'GDesktopEnums-3.0',
-      'xlib-2.0',
-      'xfixes-4.0',
-      libmutter_cogl_gir[0],
-      libmutter_cogl_pango_gir[0],
-      libmutter_clutter_gir[0],
-      libmutter_mtk_gir[0],
-    ],
+    includes: libmutter_gir_includes,
     dependencies: [
       libmutter_dep,
       mutter_deps,
