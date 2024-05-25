@@ -42,6 +42,10 @@
 #include "x11/window-x11-private.h"
 #endif
 
+#ifdef HAVE_XWAYLAND
+#include "wayland/meta-window-xwayland.h"
+#endif
+
 /*
 This is the short and sweet version of how to hack on this file; see
 doc/how-constraints-works.txt for the gory details.  The basics of
@@ -458,36 +462,39 @@ setup_constraint_info (MetaBackend         *backend,
                                                  logical_monitor,
                                                  &info->work_area_monitor);
 
-#ifdef HAVE_X11_CLIENT
-  if (window->fullscreen && window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
-      meta_window_x11_has_fullscreen_monitors (window))
+#ifdef HAVE_XWAYLAND
+  if (meta_is_wayland_compositor () && window->client_type == META_WINDOW_CLIENT_TYPE_X11)
     {
-      MetaWindowX11Private *priv =
-        meta_window_x11_get_private (META_WINDOW_X11 (window));
+      if (window->fullscreen &&
+          meta_window_x11_has_fullscreen_monitors (window))
+        {
+          MetaWindowX11Private *priv =
+            meta_window_x11_get_private (META_WINDOW_X11 (window));
 
-      info->entire_monitor = priv->fullscreen_monitors.top->rect;
-      mtk_rectangle_union (&info->entire_monitor,
-                           &priv->fullscreen_monitors.bottom->rect,
-                           &info->entire_monitor);
-      mtk_rectangle_union (&info->entire_monitor,
-                           &priv->fullscreen_monitors.left->rect,
-                           &info->entire_monitor);
-      mtk_rectangle_union (&info->entire_monitor,
-                           &priv->fullscreen_monitors.right->rect,
-                           &info->entire_monitor);
-      if (priv->fullscreen_monitors.top == logical_monitor &&
-          priv->fullscreen_monitors.bottom == logical_monitor &&
-          priv->fullscreen_monitors.left == logical_monitor &&
-          priv->fullscreen_monitors.right == logical_monitor)
-        meta_window_adjust_fullscreen_monitor_rect (window, &info->entire_monitor);
+          info->entire_monitor = priv->fullscreen_monitors.top->rect;
+          mtk_rectangle_union (&info->entire_monitor,
+                              &priv->fullscreen_monitors.bottom->rect,
+                              &info->entire_monitor);
+          mtk_rectangle_union (&info->entire_monitor,
+                              &priv->fullscreen_monitors.left->rect,
+                              &info->entire_monitor);
+          mtk_rectangle_union (&info->entire_monitor,
+                              &priv->fullscreen_monitors.right->rect,
+                              &info->entire_monitor);
+          if (priv->fullscreen_monitors.top == logical_monitor &&
+              priv->fullscreen_monitors.bottom == logical_monitor &&
+              priv->fullscreen_monitors.left == logical_monitor &&
+              priv->fullscreen_monitors.right == logical_monitor)
+            meta_window_xwayland_adjust_fullscreen_monitor_rect (window, &info->entire_monitor);
+        }
+      else
+        {
+          info->entire_monitor = logical_monitor->rect;
+          if (window->fullscreen)
+            meta_window_xwayland_adjust_fullscreen_monitor_rect (window, &info->entire_monitor);
+        }
     }
-  else
 #endif
-    {
-      info->entire_monitor = logical_monitor->rect;
-      if (window->fullscreen)
-        meta_window_adjust_fullscreen_monitor_rect (window, &info->entire_monitor);
-    }
 
   cur_workspace = window->display->workspace_manager->active_workspace;
   info->usable_screen_region   =

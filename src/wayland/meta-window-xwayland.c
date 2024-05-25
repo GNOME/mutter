@@ -104,7 +104,7 @@ meta_window_xwayland_init (MetaWindowXwayland *window_xwayland)
  *    monitor resolution. Xwayland sets a viewport making the emulated
  *    resolution sized window cover the full actual monitor resolution.
  */
-static void
+void
 meta_window_xwayland_adjust_fullscreen_monitor_rect (MetaWindow   *window,
                                                      MtkRectangle *fs_monitor_rect)
 {
@@ -322,7 +322,6 @@ meta_window_xwayland_class_init (MetaWindowXwaylandClass *klass)
   MetaWindowX11Class *window_x11_class = META_WINDOW_X11_CLASS (klass);
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
-  window_class->adjust_fullscreen_monitor_rect = meta_window_xwayland_adjust_fullscreen_monitor_rect;
   window_class->force_restore_shortcuts = meta_window_xwayland_force_restore_shortcuts;
   window_class->shortcuts_inhibited = meta_window_xwayland_shortcuts_inhibited;
   window_class->get_wayland_surface = meta_window_xwayland_get_wayland_surface;

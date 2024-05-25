@@ -586,8 +586,6 @@ struct _MetaWindowClass
                                   MetaWindowUpdateMonitorFlags  flags);
   void (*main_monitor_changed)   (MetaWindow *window,
                                   const MetaLogicalMonitor *old);
-  void (*adjust_fullscreen_monitor_rect) (MetaWindow    *window,
-                                          MtkRectangle  *monitor_rect);
   void (*force_restore_shortcuts) (MetaWindow         *window,
                                    ClutterInputDevice *source);
   gboolean (*shortcuts_inhibited) (MetaWindow         *window,
@@ -653,9 +651,6 @@ void        meta_window_maximize_internal  (MetaWindow        *window,
                                             MtkRectangle      *saved_rect);
 
 void        meta_window_make_fullscreen_internal (MetaWindow    *window);
-
-void        meta_window_adjust_fullscreen_monitor_rect (MetaWindow    *window,
-                                                        MtkRectangle  *monitor_rect);
 
 void        meta_window_resize_frame_with_gravity (MetaWindow  *window,
                                                    gboolean     user_op,

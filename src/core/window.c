@@ -3411,16 +3411,6 @@ meta_window_unmake_fullscreen (MetaWindow  *window)
     }
 }
 
-void
-meta_window_adjust_fullscreen_monitor_rect (MetaWindow   *window,
-                                            MtkRectangle *monitor_rect)
-{
-  MetaWindowClass *window_class = META_WINDOW_GET_CLASS (window);
-
-  if (window_class->adjust_fullscreen_monitor_rect)
-    window_class->adjust_fullscreen_monitor_rect (window, monitor_rect);
-}
-
 static gboolean
 unminimize_func (MetaWindow *window,
                  void       *data)

@@ -32,4 +32,7 @@ G_DECLARE_FINAL_TYPE (MetaWindowXwayland, meta_window_xwayland,
 void meta_window_xwayland_set_surface (MetaWindowXwayland *window,
                                        MetaWaylandSurface *surface);
 
+void meta_window_xwayland_adjust_fullscreen_monitor_rect (MetaWindow   *window,
+                                                          MtkRectangle *fs_monitor_rect);
+
 G_END_DECLS
