@@ -1714,7 +1714,7 @@ meta_window_x11_update_struts (MetaWindow *window)
   return changed;
 }
 
-static void
+void
 meta_window_x11_get_default_skip_hints (MetaWindow *window,
                                         gboolean   *skip_taskbar_out,
                                         gboolean   *skip_pager_out)
@@ -2171,7 +2171,6 @@ meta_window_x11_class_init (MetaWindowX11Class *klass)
   window_class->current_workspace_changed = meta_window_x11_current_workspace_changed;
   window_class->move_resize_internal = meta_window_x11_move_resize_internal;
   window_class->update_struts = meta_window_x11_update_struts;
-  window_class->get_default_skip_hints = meta_window_x11_get_default_skip_hints;
   window_class->update_main_monitor = meta_window_x11_update_main_monitor;
   window_class->main_monitor_changed = meta_window_x11_main_monitor_changed;
   window_class->get_client_pid = meta_window_x11_get_client_pid;

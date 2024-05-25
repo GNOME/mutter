@@ -577,9 +577,6 @@ struct _MetaWindowClass
                                   MetaMoveResizeFlags        flags,
                                   MetaMoveResizeResultFlags *result);
   gboolean (*update_struts)      (MetaWindow *window);
-  void (*get_default_skip_hints) (MetaWindow *window,
-                                  gboolean   *skip_taskbar_out,
-                                  gboolean   *skip_pager_out);
 
   pid_t (*get_client_pid)        (MetaWindow *window);
   void (*update_main_monitor)    (MetaWindow                   *window,

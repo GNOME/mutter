@@ -148,4 +148,7 @@ void meta_window_x11_clear_fullscreen_monitors (MetaWindow *window);
 
 gboolean meta_window_x11_has_fullscreen_monitors (MetaWindow *window);
 
+void meta_window_x11_get_default_skip_hints (MetaWindow *window,
+                                             gboolean   *skip_taskbar_out,
+                                             gboolean   *skip_pager_out);
 G_END_DECLS

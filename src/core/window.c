@@ -295,15 +295,6 @@ meta_window_real_update_struts (MetaWindow *window)
   return FALSE;
 }
 
-static void
-meta_window_real_get_default_skip_hints (MetaWindow *window,
-                                         gboolean   *skip_taskbar_out,
-                                         gboolean   *skip_pager_out)
-{
-  *skip_taskbar_out = FALSE;
-  *skip_pager_out = FALSE;
-}
-
 static pid_t
 meta_window_real_get_client_pid (MetaWindow *window)
 {
@@ -477,7 +468,6 @@ meta_window_class_init (MetaWindowClass *klass)
   klass->grab_op_ended = meta_window_real_grab_op_ended;
   klass->current_workspace_changed = meta_window_real_current_workspace_changed;
   klass->update_struts = meta_window_real_update_struts;
-  klass->get_default_skip_hints = meta_window_real_get_default_skip_hints;
   klass->get_client_pid = meta_window_real_get_client_pid;
 
   obj_props[PROP_TITLE] =
@@ -5475,14 +5465,6 @@ meta_window_frame_size_changed (MetaWindow *window)
 }
 
 static void
-meta_window_get_default_skip_hints (MetaWindow *window,
-                                    gboolean   *skip_taskbar_out,
-                                    gboolean   *skip_pager_out)
-{
-  META_WINDOW_GET_CLASS (window)->get_default_skip_hints (window, skip_taskbar_out, skip_pager_out);
-}
-
-static void
 meta_window_recalc_skip_features (MetaWindow *window)
 {
   switch (window->type)
@@ -5517,8 +5499,11 @@ meta_window_recalc_skip_features (MetaWindow *window)
 
     case META_WINDOW_NORMAL:
       {
-        gboolean skip_taskbar_hint, skip_pager_hint;
-        meta_window_get_default_skip_hints (window, &skip_taskbar_hint, &skip_pager_hint);
+        gboolean skip_taskbar_hint = FALSE, skip_pager_hint = FALSE;
+#ifdef HAVE_X11_CLIENT
+        if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
+          meta_window_x11_get_default_skip_hints (window, &skip_taskbar_hint, &skip_pager_hint);
+#endif
         window->skip_taskbar = skip_taskbar_hint | window->skip_from_window_list;
         window->skip_pager = skip_pager_hint | window->skip_from_window_list;
       }
