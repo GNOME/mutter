@@ -2296,20 +2296,20 @@ meta_window_x11_set_net_wm_state (MetaWindow *window)
 
   if (window->fullscreen)
     {
-      if (meta_window_has_fullscreen_monitors (window))
+      if (meta_window_x11_has_fullscreen_monitors (window))
         {
           data[0] =
             meta_x11_display_logical_monitor_to_xinerama_index (window->display->x11_display,
-                                                                window->fullscreen_monitors.top);
+                                                                priv->fullscreen_monitors.top);
           data[1] =
             meta_x11_display_logical_monitor_to_xinerama_index (window->display->x11_display,
-                                                                window->fullscreen_monitors.bottom);
+                                                                priv->fullscreen_monitors.bottom);
           data[2] =
             meta_x11_display_logical_monitor_to_xinerama_index (window->display->x11_display,
-                                                                window->fullscreen_monitors.left);
+                                                                priv->fullscreen_monitors.left);
           data[3] =
             meta_x11_display_logical_monitor_to_xinerama_index (window->display->x11_display,
-                                                                window->fullscreen_monitors.right);
+                                                                priv->fullscreen_monitors.right);
 
           meta_verbose ("Setting _NET_WM_FULLSCREEN_MONITORS");
           mtk_x11_error_trap_push (x11_display->xdisplay);
@@ -3082,6 +3082,55 @@ guess_nearest_device (MetaWindow            *window,
 #endif /* HAVE_XWAYLAND */
 
 gboolean
+meta_window_x11_has_fullscreen_monitors (MetaWindow *window)
+{
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (META_WINDOW_X11 (window));
+
+  return priv->fullscreen_monitors.top != NULL;
+}
+
+void
+meta_window_x11_clear_fullscreen_monitors (MetaWindow *window)
+{
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (META_WINDOW_X11 (window));
+
+  priv->fullscreen_monitors.top = NULL;
+  priv->fullscreen_monitors.bottom = NULL;
+  priv->fullscreen_monitors.left = NULL;
+  priv->fullscreen_monitors.right = NULL;
+}
+
+static void
+meta_window_x11_update_fullscreen_monitors (MetaWindow         *window,
+                                            MetaLogicalMonitor *top,
+                                            MetaLogicalMonitor *bottom,
+                                            MetaLogicalMonitor *left,
+                                            MetaLogicalMonitor *right)
+{
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (META_WINDOW_X11 (window));
+
+  if (top && bottom && left && right)
+    {
+      priv->fullscreen_monitors.top = top;
+      priv->fullscreen_monitors.bottom = bottom;
+      priv->fullscreen_monitors.left = left;
+      priv->fullscreen_monitors.right = right;
+    }
+  else
+    {
+      meta_window_x11_clear_fullscreen_monitors (window);
+    }
+
+  if (window->fullscreen)
+    {
+      meta_window_queue (window, META_QUEUE_MOVE_RESIZE);
+    }
+}
+
+gboolean
 meta_window_x11_client_message (MetaWindow *window,
                                 XEvent     *event)
 {
@@ -3560,7 +3609,7 @@ meta_window_x11_client_message (MetaWindow *window,
                                                             event->xclient.data.l[3]);
       /* source_indication = event->xclient.data.l[4]; */
 
-      meta_window_update_fullscreen_monitors (window, top, bottom, left, right);
+      meta_window_x11_update_fullscreen_monitors (window, top, bottom, left, right);
     }
   else if (event->xclient.message_type ==
            x11_display->atom__GTK_SHOW_WINDOW_MENU)
@@ -3919,7 +3968,7 @@ meta_window_x11_new (MetaDisplay       *display,
                                "effect", effect,
                                "attributes", &attrs,
                                "xwindow", xwindow,
-                               NULL);    
+                               NULL);
     }
   else
 #endif

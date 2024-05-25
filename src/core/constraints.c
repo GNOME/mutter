@@ -38,6 +38,10 @@
 #include "core/workspace-private.h"
 #include "meta/prefs.h"
 
+#ifdef HAVE_X11_CLIENT
+#include "x11/window-x11-private.h"
+#endif
+
 /*
 This is the short and sweet version of how to hack on this file; see
 doc/how-constraints-works.txt for the gory details.  The basics of
@@ -90,7 +94,7 @@ constrain_whatever (MetaWindow         *window,
   // we know we can return TRUE here because we exited early
   // if the constraint could not be satisfied; not that the
   // return value is heeded in this case...
-  return TRUE; 
+  return TRUE;
 }
 ```
 */
@@ -454,25 +458,31 @@ setup_constraint_info (MetaBackend         *backend,
                                                  logical_monitor,
                                                  &info->work_area_monitor);
 
-  if (window->fullscreen && meta_window_has_fullscreen_monitors (window))
+#ifdef HAVE_X11_CLIENT
+  if (window->fullscreen && window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
+      meta_window_x11_has_fullscreen_monitors (window))
     {
-      info->entire_monitor = window->fullscreen_monitors.top->rect;
+      MetaWindowX11Private *priv =
+        meta_window_x11_get_private (META_WINDOW_X11 (window));
+
+      info->entire_monitor = priv->fullscreen_monitors.top->rect;
       mtk_rectangle_union (&info->entire_monitor,
-                           &window->fullscreen_monitors.bottom->rect,
+                           &priv->fullscreen_monitors.bottom->rect,
                            &info->entire_monitor);
       mtk_rectangle_union (&info->entire_monitor,
-                           &window->fullscreen_monitors.left->rect,
+                           &priv->fullscreen_monitors.left->rect,
                            &info->entire_monitor);
       mtk_rectangle_union (&info->entire_monitor,
-                           &window->fullscreen_monitors.right->rect,
+                           &priv->fullscreen_monitors.right->rect,
                            &info->entire_monitor);
-      if (window->fullscreen_monitors.top == logical_monitor &&
-          window->fullscreen_monitors.bottom == logical_monitor &&
-          window->fullscreen_monitors.left == logical_monitor &&
-          window->fullscreen_monitors.right == logical_monitor)
+      if (priv->fullscreen_monitors.top == logical_monitor &&
+          priv->fullscreen_monitors.bottom == logical_monitor &&
+          priv->fullscreen_monitors.left == logical_monitor &&
+          priv->fullscreen_monitors.right == logical_monitor)
         meta_window_adjust_fullscreen_monitor_rect (window, &info->entire_monitor);
     }
   else
+#endif
     {
       info->entire_monitor = logical_monitor->rect;
       if (window->fullscreen)

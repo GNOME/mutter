@@ -108,6 +108,17 @@ struct _MetaWindowX11Private
 
   char *wm_client_machine;
   char *sm_client_id;
+
+  /* Area to cover when in fullscreen mode.  If _NET_WM_FULLSCREEN_MONITORS has
+   * been overridden (via a client message), the window will cover the union of
+   * these monitors.  If not, this is the single monitor which the window's
+   * origin is on. */
+  struct {
+    MetaLogicalMonitor *top;
+    MetaLogicalMonitor *bottom;
+    MetaLogicalMonitor *left;
+    MetaLogicalMonitor *right;
+  } fullscreen_monitors;
 };
 
 MetaWindowX11Private * meta_window_x11_get_private (MetaWindowX11 *window_x11);
@@ -132,4 +143,9 @@ void meta_window_x11_group_leader_changed (MetaWindow *window);
 
 void meta_window_x11_set_frame_xwindow (MetaWindow *window,
                                         Window      xframe);
+
+void meta_window_x11_clear_fullscreen_monitors (MetaWindow *window);
+
+gboolean meta_window_x11_has_fullscreen_monitors (MetaWindow *window);
+
 G_END_DECLS

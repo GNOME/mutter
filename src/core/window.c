@@ -181,7 +181,7 @@ typedef struct _MetaWindowPrivate
   guint suspend_timoeut_id;
 } MetaWindowPrivate;
 
-G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaWindow, meta_window, G_TYPE_OBJECT, 
+G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaWindow, meta_window, G_TYPE_OBJECT,
                                   G_ADD_PRIVATE (MetaWindow)
                                   G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                          initable_iface_init))
@@ -3411,46 +3411,6 @@ meta_window_unmake_fullscreen (MetaWindow  *window)
     }
 }
 
-static void
-meta_window_clear_fullscreen_monitors (MetaWindow *window)
-{
-  window->fullscreen_monitors.top = NULL;
-  window->fullscreen_monitors.bottom = NULL;
-  window->fullscreen_monitors.left = NULL;
-  window->fullscreen_monitors.right = NULL;
-}
-
-void
-meta_window_update_fullscreen_monitors (MetaWindow         *window,
-                                        MetaLogicalMonitor *top,
-                                        MetaLogicalMonitor *bottom,
-                                        MetaLogicalMonitor *left,
-                                        MetaLogicalMonitor *right)
-{
-  if (top && bottom && left && right)
-    {
-      window->fullscreen_monitors.top = top;
-      window->fullscreen_monitors.bottom = bottom;
-      window->fullscreen_monitors.left = left;
-      window->fullscreen_monitors.right = right;
-    }
-  else
-    {
-      meta_window_clear_fullscreen_monitors (window);
-    }
-
-  if (window->fullscreen)
-    {
-      meta_window_queue(window, META_QUEUE_MOVE_RESIZE);
-    }
-}
-
-gboolean
-meta_window_has_fullscreen_monitors (MetaWindow *window)
-{
-  return window->fullscreen_monitors.top != NULL;
-}
-
 void
 meta_window_adjust_fullscreen_monitor_rect (MetaWindow   *window,
                                             MtkRectangle *monitor_rect)
@@ -3715,8 +3675,11 @@ meta_window_update_for_monitors_changed (MetaWindow *window)
     meta_backend_get_monitor_manager (backend);
   const MetaLogicalMonitor *old, *new;
 
-  if (meta_window_has_fullscreen_monitors (window))
-    meta_window_clear_fullscreen_monitors (window);
+#ifdef HAVE_X11_CLIENT
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
+      meta_window_x11_has_fullscreen_monitors (window))
+    meta_window_x11_clear_fullscreen_monitors (window);
+#endif
 
   if (window->override_redirect || window->type == META_WINDOW_DESKTOP)
     {
@@ -3950,7 +3913,7 @@ meta_window_move_resize_internal (MetaWindow          *window,
 
   /* Only update the stored size when requested but not when a
    * (potentially outdated) request completes */
-  if (!(flags & META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE) || 
+  if (!(flags & META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE) ||
       flags & META_MOVE_RESIZE_WAYLAND_CLIENT_RESIZE)
     {
       window->unconstrained_rect = unconstrained_rect;

@@ -265,17 +265,6 @@ struct _MetaWindow
 
   uint64_t preferred_output_winsys_id;
 
-  /* Area to cover when in fullscreen mode.  If _NET_WM_FULLSCREEN_MONITORS has
-   * been overridden (via a client message), the window will cover the union of
-   * these monitors.  If not, this is the single monitor which the window's
-   * origin is on. */
-  struct {
-    MetaLogicalMonitor *top;
-    MetaLogicalMonitor *bottom;
-    MetaLogicalMonitor *left;
-    MetaLogicalMonitor *right;
-  } fullscreen_monitors;
-
   /* if non-NULL, the bounds of the window frame */
   MtkRegion *frame_bounds;
 
@@ -664,13 +653,6 @@ void        meta_window_maximize_internal  (MetaWindow        *window,
                                             MtkRectangle      *saved_rect);
 
 void        meta_window_make_fullscreen_internal (MetaWindow    *window);
-void        meta_window_update_fullscreen_monitors (MetaWindow         *window,
-                                                    MetaLogicalMonitor *top,
-                                                    MetaLogicalMonitor *bottom,
-                                                    MetaLogicalMonitor *left,
-                                                    MetaLogicalMonitor *right);
-
-gboolean    meta_window_has_fullscreen_monitors (MetaWindow *window);
 
 void        meta_window_adjust_fullscreen_monitor_rect (MetaWindow    *window,
                                                         MtkRectangle  *monitor_rect);
