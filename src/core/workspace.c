@@ -47,6 +47,10 @@
 #include "core/workspace-private.h"
 #include "meta/prefs.h"
 
+#ifdef HAVE_X11_CLIENT
+#include "x11/window-x11-private.h"
+#endif
+
 void meta_workspace_queue_calc_showing   (MetaWorkspace *workspace);
 static void focus_ancestor_or_mru_window (MetaWorkspace *workspace,
                                           MetaWindow    *not_this_one,
@@ -713,12 +717,15 @@ meta_workspace_index (MetaWorkspace *workspace)
 void
 meta_workspace_index_changed (MetaWorkspace *workspace)
 {
+#ifdef HAVE_X11_CLIENT
   GList *l;
   for (l = workspace->windows; l != NULL; l = l->next)
     {
       MetaWindow *win = l->data;
-      meta_window_current_workspace_changed (win);
+      if (win->client_type == META_WINDOW_CLIENT_TYPE_X11)
+        meta_window_x11_current_workspace_changed (win);
     }
+#endif
 
   g_object_notify_by_pspec (G_OBJECT (workspace), obj_props[PROP_WORKSPACE_INDEX]);
 }

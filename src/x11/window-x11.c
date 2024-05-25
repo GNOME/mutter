@@ -1253,7 +1253,7 @@ meta_window_get_net_wm_desktop (MetaWindow *window)
     return meta_workspace_index (window->workspace);
 }
 
-static void
+void
 meta_window_x11_current_workspace_changed (MetaWindow *window)
 {
   MetaX11Display *x11_display = window->display->x11_display;
@@ -2168,7 +2168,6 @@ meta_window_x11_class_init (MetaWindowX11Class *klass)
   window_class->focus = meta_window_x11_focus;
   window_class->grab_op_began = meta_window_x11_grab_op_began;
   window_class->grab_op_ended = meta_window_x11_grab_op_ended;
-  window_class->current_workspace_changed = meta_window_x11_current_workspace_changed;
   window_class->move_resize_internal = meta_window_x11_move_resize_internal;
   window_class->update_struts = meta_window_x11_update_struts;
   window_class->update_main_monitor = meta_window_x11_update_main_monitor;

@@ -284,11 +284,6 @@ meta_window_real_grab_op_ended (MetaWindow *window,
 {
 }
 
-static void
-meta_window_real_current_workspace_changed (MetaWindow *window)
-{
-}
-
 static gboolean
 meta_window_real_update_struts (MetaWindow *window)
 {
@@ -466,7 +461,6 @@ meta_window_class_init (MetaWindowClass *klass)
 
   klass->grab_op_began = meta_window_real_grab_op_began;
   klass->grab_op_ended = meta_window_real_grab_op_ended;
-  klass->current_workspace_changed = meta_window_real_current_workspace_changed;
   klass->update_struts = meta_window_real_update_struts;
   klass->get_client_pid = meta_window_real_get_client_pid;
 
@@ -4785,7 +4779,12 @@ set_workspace_state (MetaWindow    *window,
   if (!window->override_redirect)
     meta_window_queue (window, META_QUEUE_MOVE_RESIZE);
   meta_window_queue (window, META_QUEUE_CALC_SHOWING);
-  meta_window_current_workspace_changed (window);
+
+#ifdef HAVE_X11_CLIENT
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
+    meta_window_x11_current_workspace_changed (window);
+#endif
+
   g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_ON_ALL_WORKSPACES]);
   g_signal_emit (window, window_signals[WORKSPACE_CHANGED], 0);
 }
@@ -4948,12 +4947,6 @@ meta_window_unstick (MetaWindow  *window)
   meta_window_foreach_transient (window,
                                  stick_foreach_func,
                                  &stick);
-}
-
-void
-meta_window_current_workspace_changed (MetaWindow *window)
-{
-  META_WINDOW_GET_CLASS (window)->current_workspace_changed (window);
 }
 
 static gboolean

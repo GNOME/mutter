@@ -566,7 +566,6 @@ struct _MetaWindowClass
                                   MetaGrabOp  op);
   void (*grab_op_ended)          (MetaWindow *window,
                                   MetaGrabOp  op);
-  void (*current_workspace_changed) (MetaWindow *window);
   void (*move_resize_internal)   (MetaWindow                *window,
                                   MetaGravity                gravity,
                                   MtkRectangle               unconstrained_rect,
@@ -702,8 +701,6 @@ MetaStackLayer meta_window_calculate_layer (MetaWindow *window);
 META_EXPORT_TEST
 MetaWaylandSurface * meta_window_get_wayland_surface (MetaWindow *window);
 #endif
-
-void     meta_window_current_workspace_changed (MetaWindow *window);
 
 void meta_window_show_menu (MetaWindow         *window,
                             MetaWindowMenuType  menu,
