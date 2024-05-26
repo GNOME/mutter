@@ -1,3 +1,10 @@
+45.7
+====
+* Misc. bug fixes and cleanups [Jonas, Florian; !3757, !3775]
+
+Contributors:
+  Jonas Ådahl, Florian Müllner
+
 45.6
 ====
 * Always use logical pixels for bounds [Sophie; !3698]
