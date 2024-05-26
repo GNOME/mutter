@@ -521,28 +521,11 @@ cogl_renderer_connect (CoglRenderer *renderer, GError **error)
     {
       const CoglWinsysVtable *winsys = _cogl_winsys_vtable_getters[i]();
       GError *tmp_error = NULL;
-      GList *l;
-      gboolean skip_due_to_constraints = FALSE;
 
       if (renderer->winsys_id_override != COGL_WINSYS_ID_ANY)
         {
           if (renderer->winsys_id_override != winsys->id)
             continue;
-        }
-
-      for (l = renderer->constraints; l; l = l->next)
-        {
-          CoglRendererConstraint constraint = GPOINTER_TO_UINT (l->data);
-          if (!(winsys->constraints & constraint))
-            {
-              skip_due_to_constraints = TRUE;
-              break;
-            }
-        }
-      if (skip_due_to_constraints)
-        {
-          constraints_failed |= TRUE;
-          continue;
         }
 
       /* At least temporarily we will associate this winsys with
@@ -670,24 +653,6 @@ _cogl_renderer_get_proc_address (CoglRenderer *renderer,
   const CoglWinsysVtable *winsys = _cogl_renderer_get_winsys (renderer);
 
   return winsys->renderer_get_proc_address (renderer, name);
-}
-
-void
-cogl_renderer_add_constraint (CoglRenderer *renderer,
-                              CoglRendererConstraint constraint)
-{
-  g_return_if_fail (!renderer->connected);
-  renderer->constraints = g_list_prepend (renderer->constraints,
-                                          GUINT_TO_POINTER (constraint));
-}
-
-void
-cogl_renderer_remove_constraint (CoglRenderer *renderer,
-                                 CoglRendererConstraint constraint)
-{
-  g_return_if_fail (!renderer->connected);
-  renderer->constraints = g_list_remove (renderer->constraints,
-                                         GUINT_TO_POINTER (constraint));
 }
 
 void

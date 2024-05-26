@@ -98,10 +98,6 @@ G_DECLARE_FINAL_TYPE (CoglRenderer,
  * selection of an underlying driver, such as OpenGL or OpenGL-ES and
  * a selection of a window system binding API such as GLX or EGL.
  *
- * While the renderer is unconnected it can be configured so that
- * applications may specify backend constraints, such as "must use
- * x11" for example via cogl_renderer_add_constraint().
- *
  * There are also some platform specific configuration apis such
  * as cogl_xlib_renderer_set_foreign_display() that may also be
  * used while the renderer is unconnected.
@@ -238,35 +234,6 @@ typedef enum
   COGL_RENDERER_CONSTRAINT_USES_XLIB = (1 << 1),
   COGL_RENDERER_CONSTRAINT_USES_EGL = (1 << 2),
 } CoglRendererConstraint;
-
-
-/**
- * cogl_renderer_add_constraint:
- * @renderer: An unconnected #CoglRenderer
- * @constraint: A #CoglRendererConstraint to add
- *
- * This adds a renderer selection @constraint.
- *
- * Applications should ideally minimize how many of these constraints they
- * depend on to ensure maximum portability.
- */
-COGL_EXPORT void
-cogl_renderer_add_constraint (CoglRenderer *renderer,
-                              CoglRendererConstraint constraint);
-
-/**
- * cogl_renderer_remove_constraint:
- * @renderer: An unconnected #CoglRenderer
- * @constraint: A #CoglRendererConstraint to remove
- *
- * This removes a renderer selection @constraint.
- *
- * Applications should ideally minimize how many of these constraints they
- * depend on to ensure maximum portability.
- */
-COGL_EXPORT void
-cogl_renderer_remove_constraint (CoglRenderer *renderer,
-                                 CoglRendererConstraint constraint);
 
 /**
  * CoglDriver:
