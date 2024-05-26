@@ -656,20 +656,6 @@ cogl_renderer_get_driver (CoglRenderer *renderer)
   return renderer->driver;
 }
 
-void
-cogl_renderer_foreach_output (CoglRenderer *renderer,
-                              CoglOutputCallback callback,
-                              void *user_data)
-{
-  GList *l;
-
-  g_return_if_fail (renderer->connected);
-  g_return_if_fail (callback != NULL);
-
-  for (l = renderer->outputs; l; l = l->next)
-    callback (l->data, user_data);
-}
-
 CoglDmaBufHandle *
 cogl_renderer_create_dma_buf (CoglRenderer     *renderer,
                               CoglPixelFormat   format,

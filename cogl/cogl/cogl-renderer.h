@@ -265,33 +265,6 @@ cogl_renderer_set_driver (CoglRenderer *renderer,
 COGL_EXPORT CoglDriver
 cogl_renderer_get_driver (CoglRenderer *renderer);
 
-/**
- * CoglOutputCallback:
- * @output: The current display output being iterated
- * @user_data: The user pointer passed to
- *             cogl_renderer_foreach_output()
- *
- * A callback type that can be passed to
- * cogl_renderer_foreach_output() for iterating display outputs for a
- * given renderer.
- */
-typedef void (*CoglOutputCallback) (CoglOutput *output, void *user_data);
-
-/**
- * cogl_renderer_foreach_output:
- * @renderer: A connected #CoglRenderer
- * @callback: (scope call): A #CoglOutputCallback to be called for
- *            each display output
- * @user_data: A user pointer to be passed to @callback
- *
- * Iterates all known display outputs for the given @renderer and
- * passes a corresponding #CoglOutput pointer to the given @callback
- * for each one, along with the given @user_data.
- */
-COGL_EXPORT void
-cogl_renderer_foreach_output (CoglRenderer *renderer,
-                              CoglOutputCallback callback,
-                              void *user_data);
 
 /**
  * cogl_renderer_create_dma_buf: (skip)
