@@ -50,7 +50,6 @@ struct _CoglRenderer
   const CoglWinsysVtable *winsys_vtable;
   void *custom_winsys_user_data;
   CoglCustomWinsysVtableGetter custom_winsys_vtable_getter;
-  CoglWinsysID winsys_id_override;
 
   GArray *poll_fds;
   int poll_fds_age;

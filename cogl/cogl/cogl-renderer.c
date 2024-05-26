@@ -522,12 +522,6 @@ cogl_renderer_connect (CoglRenderer *renderer, GError **error)
       const CoglWinsysVtable *winsys = _cogl_winsys_vtable_getters[i]();
       GError *tmp_error = NULL;
 
-      if (renderer->winsys_id_override != COGL_WINSYS_ID_ANY)
-        {
-          if (renderer->winsys_id_override != winsys->id)
-            continue;
-        }
-
       /* At least temporarily we will associate this winsys with
        * the renderer in-case ->renderer_connect calls API that
        * wants to query the current winsys... */
@@ -627,15 +621,6 @@ _cogl_renderer_remove_native_filter (CoglRenderer *renderer,
           break;
         }
     }
-}
-
-void
-cogl_renderer_set_winsys_id (CoglRenderer *renderer,
-                             CoglWinsysID winsys_id)
-{
-  g_return_if_fail (!renderer->connected);
-
-  renderer->winsys_id_override = winsys_id;
 }
 
 CoglWinsysID

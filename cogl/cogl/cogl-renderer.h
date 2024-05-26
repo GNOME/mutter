@@ -144,23 +144,6 @@ typedef enum
 } CoglWinsysID;
 
 /**
- * cogl_renderer_set_winsys_id:
- * @renderer: A #CoglRenderer
- * @winsys_id: An ID of the winsys you explicitly want to use.
- *
- * This allows you to explicitly select a winsys backend to use instead
- * of letting Cogl automatically select a backend.
- *
- * if you select an unsupported backend then cogl_renderer_connect()
- * will fail and report an error.
- *
- * This may only be called on an un-connected #CoglRenderer.
- */
-COGL_EXPORT void
-cogl_renderer_set_winsys_id (CoglRenderer *renderer,
-                             CoglWinsysID winsys_id);
-
-/**
  * cogl_renderer_get_winsys_id:
  * @renderer: A #CoglRenderer
  *
