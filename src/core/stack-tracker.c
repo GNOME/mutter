@@ -41,6 +41,8 @@
 
 #include "compositor/compositor-private.h"
 #include "core/display-private.h"
+#include "core/stack.h"
+#include "core/window-private.h"
 #include "meta/util.h"
 
 #ifdef HAVE_X11_CLIENT
