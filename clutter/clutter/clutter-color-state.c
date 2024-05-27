@@ -835,6 +835,9 @@ clutter_color_state_get_transform_snippet (ClutterColorState *color_state,
   snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT,
                               globals_source->str,
                               snippet_source->str);
+  cogl_snippet_set_capability (snippet,
+                               CLUTTER_PIPELINE_CAPABILITY,
+                               CLUTTER_PIPELINE_CAPABILITY_COLOR_STATE);
   g_hash_table_insert (snippet_cache,
                        g_memdup2 (&cache_key, sizeof (cache_key)),
                        g_object_ref (snippet));

@@ -53,6 +53,8 @@ typedef struct
   GDestroyNotify notify;
 } ClutterThreadsDispatch;
 
+G_DEFINE_QUARK (clutter_pipeline_capability, clutter_pipeline_capability)
+
 /* main context */
 static ClutterContext *ClutterCntx       = NULL;
 

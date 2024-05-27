@@ -90,6 +90,15 @@ typedef enum
  */
 #define CLUTTER_PRIORITY_REDRAW         (G_PRIORITY_HIGH_IDLE + 50)
 
+typedef enum _ClutterPipelineCapability
+{
+  CLUTTER_PIPELINE_CAPABILITY_COLOR_STATE,
+} ClutterPipelineCapability;
+
+#define CLUTTER_PIPELINE_CAPABILITY (clutter_pipeline_capability_quark ())
+CLUTTER_EXPORT
+GQuark clutter_pipeline_capability_quark (void);
+
 CLUTTER_EXPORT
 void                    clutter_stage_handle_event              (ClutterStage *stage,
                                                                  ClutterEvent *event);
