@@ -1501,7 +1501,7 @@ update_surface_output_state (gpointer key, gpointer value, gpointer user_data)
 void
 meta_wayland_surface_update_outputs (MetaWaylandSurface *surface)
 {
-  if (!surface->compositor)
+  if (!surface->compositor || !surface->role)
     return;
 
   g_hash_table_foreach (surface->compositor->outputs,

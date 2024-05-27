@@ -122,7 +122,7 @@ popup_grab_get_focus_surface (MetaWaylandEventHandler *handler,
                                                                        device,
                                                                        sequence);
 
-      if (surface &&
+      if (surface && surface->resource &&
           wl_resource_get_client (surface->resource) == popup_grab->grab_client)
         return surface;
     }
