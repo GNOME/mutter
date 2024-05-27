@@ -314,13 +314,13 @@ meta_wayland_shell_surface_destroy_window (MetaWaylandShellSurface *shell_surfac
 }
 
 static void
-meta_wayland_shell_surface_finalize (GObject *object)
+meta_wayland_shell_surface_dispose (GObject *object)
 {
   MetaWaylandShellSurface *shell_surface = META_WAYLAND_SHELL_SURFACE (object);
 
   meta_wayland_shell_surface_destroy_window (shell_surface);
 
-  G_OBJECT_CLASS (meta_wayland_shell_surface_parent_class)->finalize (object);
+  G_OBJECT_CLASS (meta_wayland_shell_surface_parent_class)->dispose (object);
 }
 
 static void
@@ -337,7 +337,7 @@ meta_wayland_shell_surface_class_init (MetaWaylandShellSurfaceClass *klass)
   MetaWaylandActorSurfaceClass *actor_surface_class =
     META_WAYLAND_ACTOR_SURFACE_CLASS (klass);
 
-  object_class->finalize = meta_wayland_shell_surface_finalize;
+  object_class->dispose = meta_wayland_shell_surface_dispose;
 
   surface_role_class->assigned = meta_wayland_shell_surface_assigned;
   surface_role_class->pre_apply_state =

@@ -1516,7 +1516,7 @@ meta_wayland_surface_notify_unmapped (MetaWaylandSurface *surface)
 }
 
 static void
-meta_wayland_surface_finalize (GObject *object)
+meta_wayland_surface_dispose (GObject *object)
 {
   MetaWaylandSurface *surface = META_WAYLAND_SURFACE (object);
   MetaWaylandCompositor *compositor = surface->compositor;
@@ -1533,7 +1533,11 @@ meta_wayland_surface_finalize (GObject *object)
     }
 
   if (surface->buffer_held)
-    meta_wayland_buffer_dec_use_count (surface->buffer);
+    {
+      meta_wayland_buffer_dec_use_count (surface->buffer);
+      surface->buffer_held = FALSE;
+    }
+
   g_clear_object (&surface->applied_state.texture);
   g_clear_object (&surface->buffer);
 
@@ -1544,10 +1548,13 @@ meta_wayland_surface_finalize (GObject *object)
   meta_wayland_compositor_remove_presentation_feedback_surface (compositor,
                                                                 surface);
 
-  g_hash_table_foreach (surface->outputs,
-                        surface_output_disconnect_signals,
-                        surface);
-  g_hash_table_destroy (surface->outputs);
+  if (surface->outputs)
+    {
+      g_hash_table_foreach (surface->outputs,
+                            surface_output_disconnect_signals,
+                            surface);
+    }
+  g_clear_pointer (&surface->outputs, g_hash_table_destroy);
 
   wl_list_for_each_safe (cb, next,
                          &surface->unassigned.pending_frame_callback_list,
@@ -1562,9 +1569,9 @@ meta_wayland_surface_finalize (GObject *object)
 
   g_clear_pointer (&surface->applied_state.subsurface_branch_node, g_node_destroy);
 
-  g_hash_table_destroy (surface->shortcut_inhibited_seats);
+  g_clear_pointer (&surface->shortcut_inhibited_seats, g_hash_table_destroy);
 
-  G_OBJECT_CLASS (meta_wayland_surface_parent_class)->finalize (object);
+  G_OBJECT_CLASS (meta_wayland_surface_parent_class)->dispose (object);
 }
 
 static void
@@ -1866,7 +1873,7 @@ meta_wayland_surface_class_init (MetaWaylandSurfaceClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  object_class->finalize = meta_wayland_surface_finalize;
+  object_class->dispose = meta_wayland_surface_dispose;
   object_class->get_property = meta_wayland_surface_get_property;
 
   obj_props[PROP_SCANOUT_CANDIDATE] =
