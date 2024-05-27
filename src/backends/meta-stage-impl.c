@@ -323,10 +323,12 @@ static MtkRegion *
 offset_scale_and_clamp_region (const MtkRegion *region,
                                int              offset_x,
                                int              offset_y,
-                               float            scale)
+                               float            scale,
+                               graphene_size_t *max_size)
 {
   int n_rects, i;
   MtkRectangle *rects;
+  graphene_rect_t fb_rect;
   g_autofree MtkRectangle *freeme = NULL;
 
   n_rects = mtk_region_num_rectangles (region);
@@ -339,6 +341,8 @@ offset_scale_and_clamp_region (const MtkRegion *region,
   else
     rects = freeme = g_new (MtkRectangle, n_rects);
 
+  fb_rect = GRAPHENE_RECT_INIT (0, 0, max_size->width, max_size->height);
+
   for (i = 0; i < n_rects; i++)
     {
       MtkRectangle *rect = &rects[i];
@@ -349,6 +353,7 @@ offset_scale_and_clamp_region (const MtkRegion *region,
       tmp = mtk_rectangle_to_graphene_rect (rect);
       graphene_rect_offset (&tmp, offset_x, offset_y);
       graphene_rect_scale (&tmp, scale, scale, &tmp);
+      graphene_rect_intersection (&tmp, &fb_rect, &tmp);
       mtk_rectangle_from_graphene_rect (&tmp, MTK_ROUNDING_STRATEGY_GROW,
                                         rect);
     }
@@ -360,10 +365,12 @@ static MtkRegion *
 scale_offset_and_clamp_region (const MtkRegion *region,
                                float            scale,
                                int              offset_x,
-                               int              offset_y)
+                               int              offset_y,
+                               graphene_size_t *max_size)
 {
   int n_rects, i;
   MtkRectangle *rects;
+  graphene_rect_t fb_rect;
   g_autofree MtkRectangle *freeme = NULL;
 
   n_rects = mtk_region_num_rectangles (region);
@@ -376,6 +383,10 @@ scale_offset_and_clamp_region (const MtkRegion *region,
   else
     rects = freeme = g_new (MtkRectangle, n_rects);
 
+  fb_rect = GRAPHENE_RECT_INIT (0, 0, max_size->width, max_size->height);
+  graphene_rect_scale (&fb_rect, scale, scale, &fb_rect);
+  graphene_rect_offset (&fb_rect, offset_x, offset_y);
+
   for (i = 0; i < n_rects; i++)
     {
       MtkRectangle *rect = &rects[i];
@@ -386,6 +397,7 @@ scale_offset_and_clamp_region (const MtkRegion *region,
       tmp = mtk_rectangle_to_graphene_rect (rect);
       graphene_rect_scale (&tmp, scale, scale, &tmp);
       graphene_rect_offset (&tmp, offset_x, offset_y);
+      graphene_rect_intersection (&tmp, &fb_rect, &tmp);
       mtk_rectangle_from_graphene_rect (&tmp,
                                         MTK_ROUNDING_STRATEGY_GROW,
                                         rect);
@@ -552,7 +564,11 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
       fb_clip_region = offset_scale_and_clamp_region (redraw_clip,
                                                       -view_rect.x,
                                                       -view_rect.y,
-                                                      fb_scale);
+                                                      fb_scale,
+                                                      &(graphene_size_t) {
+                                                        .width = fb_width,
+                                                        .height = fb_height,
+                                                      });
 
       if (G_UNLIKELY (paint_debug_flags & CLUTTER_DEBUG_PAINT_DAMAGE_REGION))
         {
@@ -560,7 +576,11 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
             scale_offset_and_clamp_region (fb_clip_region,
                                            1.0f / fb_scale,
                                            view_rect.x,
-                                           view_rect.y);
+                                           view_rect.y,
+                                           &(graphene_size_t) {
+                                            .width = fb_width,
+                                            .height = fb_height,
+                                           });
         }
     }
   else
@@ -641,7 +661,11 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
       redraw_clip = scale_offset_and_clamp_region (fb_clip_region,
                                                    1.0f / fb_scale,
                                                    view_rect.x,
-                                                   view_rect.y);
+                                                   view_rect.y,
+                                                   &(graphene_size_t) {
+                                                    .width = fb_width,
+                                                    .height = fb_height,
+                                                   });
     }
 
   if (paint_debug_flags & CLUTTER_DEBUG_PAINT_DAMAGE_REGION)
@@ -708,7 +732,11 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
         scale_offset_and_clamp_region (swap_region,
                                        1.0f / fb_scale,
                                        view_rect.x,
-                                       view_rect.y);
+                                       view_rect.y,
+                                       &(graphene_size_t) {
+                                        .width = fb_width,
+                                        .height = fb_height,
+                                       });
 
       mtk_region_subtract (swap_region_in_stage_space, queued_redraw_clip);
 
