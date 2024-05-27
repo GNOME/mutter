@@ -45,6 +45,7 @@
 #include "cogl/cogl-util.h"
 #include "cogl/cogl-profile.h"
 #include "cogl/cogl-depth-state-private.h"
+#include "cogl/cogl-snippet-private.h"
 #include "cogl/cogl1-context.h"
 
 #include <glib.h>
@@ -153,6 +154,8 @@ cogl_pipeline_dispose (GObject *object)
     g_free (pipeline->big_state);
 
   recursively_free_layer_caches (pipeline);
+
+  g_clear_pointer (&pipeline->capabilities, g_array_unref);
 
   G_OBJECT_CLASS (cogl_pipeline_parent_class)->dispose (object);
 }
@@ -328,6 +331,9 @@ _cogl_pipeline_copy (CoglPipeline *src, gboolean is_weak)
   pipeline->real_blend_enable = src->real_blend_enable;
   pipeline->dirty_real_blend_enable = src->dirty_real_blend_enable;
   pipeline->unknown_color_alpha = src->unknown_color_alpha;
+
+  if (src->capabilities)
+    pipeline->capabilities = g_array_copy (src->capabilities);
 
   /* XXX:
    * consider generalizing the idea of "cached" properties. These
@@ -2791,4 +2797,61 @@ cogl_pipeline_get_uniform_location (CoglPipeline *pipeline,
                        GINT_TO_POINTER (ctx->n_uniform_names));
 
   return ctx->n_uniform_names++;
+}
+
+typedef struct
+{
+  GQuark domain;
+  unsigned int capability;
+} CapabilityEntry;
+
+static void
+cogl_pipeline_add_capability (CoglPipeline *pipeline,
+                              GQuark        domain,
+                              unsigned int  capability)
+{
+  CapabilityEntry entry = {
+    .domain = domain,
+    .capability = capability,
+  };
+
+  if (!pipeline->capabilities)
+    pipeline->capabilities = g_array_new (FALSE, FALSE, sizeof (entry));
+
+  g_array_append_val (pipeline->capabilities, entry);
+}
+
+void
+cogl_pipeline_add_capability_from_snippet (CoglPipeline *pipeline,
+                                           CoglSnippet  *snippet)
+{
+  GQuark capability_domain;
+  unsigned int capability;
+
+  if (cogl_snippet_get_capability (snippet, &capability_domain, &capability))
+    cogl_pipeline_add_capability (pipeline, capability_domain, capability);
+}
+
+gboolean
+cogl_pipeline_has_capability (CoglPipeline *pipeline,
+                              GQuark        domain,
+                              unsigned int  capability)
+{
+  int i;
+
+  if (!pipeline->capabilities)
+    return FALSE;
+
+  for (i = 0; i < pipeline->capabilities->len; i++)
+    {
+      CapabilityEntry *entry = &g_array_index (pipeline->capabilities,
+                                               CapabilityEntry,
+                                               i);
+
+      if (entry->domain == domain &&
+          entry->capability == capability)
+        return TRUE;
+    }
+
+  return FALSE;
 }

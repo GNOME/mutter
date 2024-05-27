@@ -623,6 +623,8 @@ _cogl_pipeline_layer_add_vertex_snippet (CoglPipeline *pipeline,
   _cogl_pipeline_snippet_list_add (&layer->big_state->vertex_snippets,
                                    snippet);
 
+  cogl_pipeline_add_capability_from_snippet (pipeline, snippet);
+
   /* If we weren't previously the authority on this state then we need
    * to extended our differences mask and so it's possible that some
    * of our ancestry will now become redundant, so we aim to reparent
@@ -658,6 +660,8 @@ _cogl_pipeline_layer_add_fragment_snippet (CoglPipeline *pipeline,
 
   _cogl_pipeline_snippet_list_add (&layer->big_state->fragment_snippets,
                                    snippet);
+
+  cogl_pipeline_add_capability_from_snippet (pipeline, snippet);
 
   /* If we weren't previously the authority on this state then we need
    * to extended our differences mask and so it's possible that some

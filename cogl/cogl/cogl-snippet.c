@@ -194,3 +194,31 @@ _cogl_snippet_make_immutable (CoglSnippet *snippet)
 {
   snippet->immutable = TRUE;
 }
+
+void
+cogl_snippet_set_capability (CoglSnippet  *snippet,
+                             GQuark        domain,
+                             unsigned int  capability)
+{
+  g_return_if_fail (!snippet->capability_domain);
+
+  snippet->capability_domain = domain;
+  snippet->capability = capability;
+}
+
+gboolean
+cogl_snippet_get_capability (CoglSnippet  *snippet,
+                             GQuark       *domain,
+                             unsigned int *capability)
+{
+  if (snippet->capability_domain)
+    {
+      *domain = snippet->capability_domain;
+      *capability = snippet->capability;
+      return TRUE;
+    }
+  else
+    {
+      return FALSE;
+    }
+}

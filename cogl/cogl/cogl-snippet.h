@@ -622,4 +622,9 @@ cogl_snippet_set_post (CoglSnippet *snippet,
 COGL_EXPORT const char *
 cogl_snippet_get_post (CoglSnippet *snippet);
 
+COGL_EXPORT void
+cogl_snippet_set_capability (CoglSnippet  *snippet,
+                             GQuark        domain,
+                             unsigned int  capability);
+
 G_END_DECLS

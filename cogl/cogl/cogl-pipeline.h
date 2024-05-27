@@ -155,4 +155,9 @@ COGL_EXPORT int
 cogl_pipeline_get_uniform_location (CoglPipeline *pipeline,
                                     const char *uniform_name);
 
+COGL_EXPORT gboolean
+cogl_pipeline_has_capability (CoglPipeline *pipeline,
+                              GQuark        domain,
+                              unsigned int  capability);
+
 G_END_DECLS

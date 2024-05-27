@@ -323,6 +323,10 @@ struct _CoglPipeline
    * and corresponding authorities_cache_dirty:1 bitfield
    */
 
+  /* Array of opaque capabilities tagged by owners of pipelines.
+   */
+  GArray *capabilities;
+
   /* bitfields */
 
   /* Weak pipelines don't count as dependants on their parents which
@@ -783,3 +787,7 @@ _cogl_pipeline_get_layer_state_for_fragment_codegen (CoglContext *context);
 
 CoglPipelineState
 _cogl_pipeline_get_state_for_fragment_codegen (CoglContext *context);
+
+void
+cogl_pipeline_add_capability_from_snippet (CoglPipeline *pipeline,
+                                           CoglSnippet  *snippet);
