@@ -502,7 +502,6 @@ cogl_renderer_connect (CoglRenderer *renderer, GError **error)
 {
   int i;
   g_autoptr (GString) error_message = NULL;
-  gboolean constraints_failed = FALSE;
 
   if (renderer->connected)
     return TRUE;
@@ -542,14 +541,6 @@ cogl_renderer_connect (CoglRenderer *renderer, GError **error)
 
   if (!renderer->connected)
     {
-      if (constraints_failed)
-        {
-          g_set_error (error, COGL_RENDERER_ERROR,
-                       COGL_RENDERER_ERROR_BAD_CONSTRAINT,
-                       "Failed to connected to any renderer due to constraints");
-          return FALSE;
-        }
-
       renderer->winsys_vtable = NULL;
       g_set_error (error, COGL_WINSYS_ERROR, COGL_WINSYS_ERROR_INIT,
                    "Failed to connected to any renderer: %s",
