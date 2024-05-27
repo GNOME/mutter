@@ -216,8 +216,6 @@ struct _MetaWindow
   MetaLogicalMonitor *highest_scale_monitor;
   MetaWorkspace *workspace;
   MetaWindowClientType client_type;
-  /* may be NULL! not all windows get decorated */
-  MetaFrame *frame;
   int depth;
   char *desc; /* used in debug spew */
   char *title;
