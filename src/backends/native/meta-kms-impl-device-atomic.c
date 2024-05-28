@@ -741,6 +741,21 @@ process_plane_assignment (MetaKmsImplDevice  *impl_device,
                   fb_damage->n_rects,
                   meta_kms_plane_get_id (plane));
 
+      if (meta_is_topic_enabled (META_DEBUG_KMS))
+        {
+          for (int i = 0; i < fb_damage->n_rects; i++)
+            {
+              int rect_width = fb_damage->rects[i].x2 - fb_damage->rects[i].x1;
+              int rect_height = fb_damage->rects[i].y2 - fb_damage->rects[i].y1;
+
+              meta_topic (META_DEBUG_KMS,
+                          "[atomic] Adding damage clip %hdx%hd+%hd+%hd on %u",
+                          rect_width, rect_height,
+                          fb_damage->rects[i].x1, fb_damage->rects[i].y1,
+                          meta_kms_plane_get_id (plane));
+            }
+        }
+
       prop_id = store_new_blob (impl_device,
                                 blob_ids,
                                 fb_damage->rects,
