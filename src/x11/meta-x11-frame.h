@@ -25,7 +25,7 @@
 
 #include "x11/meta-sync-counter.h"
 
-struct _MetaFrame
+typedef struct _MetaFrame
 {
   /* window we frame */
   MetaWindow *window;
@@ -51,7 +51,7 @@ struct _MetaFrame
   int bottom_height;
 
   guint borders_cached : 1;
-};
+} MetaFrame;
 
 void     meta_window_ensure_frame           (MetaWindow *window);
 void     meta_window_destroy_frame          (MetaWindow *window);

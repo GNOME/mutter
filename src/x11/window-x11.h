@@ -28,6 +28,7 @@
 #include "meta/compositor.h"
 #include "meta/window.h"
 #include "x11/meta-sync-counter.h"
+#include "x11/meta-x11-frame.h"
 
 G_BEGIN_DECLS
 
