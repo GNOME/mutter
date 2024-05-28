@@ -1,10 +1,5 @@
-/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
-
 /*
- * Copyright (C) 2001 Havoc Pennington
- * Copyright (C) 2002, 2003, 2004 Red Hat, Inc.
- * Copyright (C) 2003, 2004 Rob Adams
- * Copyright (C) 2004-2006 Elijah Newren
+ * Copyright (C) 2024 Bilal Elmoussaoui
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +17,5 @@
 
 #pragma once
 
-#include "meta/meta-x11-display.h"
-
-void meta_x11_display_init_events (MetaX11Display *x11_display);
-void meta_x11_display_free_events (MetaX11Display *x11_display);
+typedef struct _MetaX11Display MetaX11Display;
+typedef struct _MetaGroup MetaGroup;

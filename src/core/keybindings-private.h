@@ -31,6 +31,9 @@
 
 #include "core/meta-accel-parse.h"
 #include "meta/keybindings.h"
+#ifdef HAVE_X11
+#include "meta/meta-x11-types.h"
+#endif
 
 typedef struct _MetaKeyHandler MetaKeyHandler;
 struct _MetaKeyHandler

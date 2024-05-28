@@ -927,6 +927,7 @@ on_x11_initialized (MetaDisplay  *display,
 }
 #endif /* HAVE_XWAYLAND */
 
+#ifdef HAVE_X11_CLIENT
 void
 meta_display_shutdown_x11 (MetaDisplay *display)
 {
@@ -939,6 +940,7 @@ meta_display_shutdown_x11 (MetaDisplay *display)
   g_clear_object (&display->x11_display);
   meta_stack_thaw (display->stack);
 }
+#endif
 
 MetaDisplay *
 meta_display_new (MetaContext  *context,
@@ -969,7 +971,9 @@ meta_display_new (MetaContext  *context,
   display->autoraise_window = NULL;
   display->focus_window = NULL;
   display->workspace_manager = NULL;
+#ifdef HAVE_X11_CLIENT
   display->x11_display = NULL;
+#endif
 
   display->current_cursor = -1; /* invalid/unset */
   display->check_fullscreen_later = 0;
@@ -1282,7 +1286,9 @@ meta_display_close (MetaDisplay *display,
                    meta_stack_tracker_free);
 
   g_clear_pointer (&display->compositor, meta_compositor_destroy);
+#ifdef HAVE_X11_CLIENT
   meta_display_shutdown_x11 (display);
+#endif
   g_clear_object (&display->stack);
 
   /* Must be after all calls to meta_window_unmanage() since they
@@ -2582,17 +2588,6 @@ MetaCompositor *
 meta_display_get_compositor (MetaDisplay *display)
 {
   return display->compositor;
-}
-
-/**
- * meta_display_get_x11_display: (skip)
- * @display: a #MetaDisplay
- *
- */
-MetaX11Display *
-meta_display_get_x11_display (MetaDisplay *display)
-{
-  return display->x11_display;
 }
 
 /**

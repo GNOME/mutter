@@ -80,8 +80,6 @@ typedef struct _MetaDisplayClass MetaDisplayClass;
 META_EXPORT
 GType meta_display_get_type (void) G_GNUC_CONST;
 
-#define meta_XFree(p) do { if ((p)) XFree ((p)); } while (0)
-
 META_EXPORT
 void meta_display_close (MetaDisplay *display,
                          guint32      timestamp);
@@ -91,9 +89,6 @@ MetaContext * meta_display_get_context (MetaDisplay *display);
 
 META_EXPORT
 MetaCompositor *meta_display_get_compositor  (MetaDisplay *display);
-
-META_EXPORT
-MetaX11Display *meta_display_get_x11_display (MetaDisplay *display);
 
 META_EXPORT
 MetaWindow *meta_display_get_focus_window (MetaDisplay *display);

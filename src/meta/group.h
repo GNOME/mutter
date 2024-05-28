@@ -28,6 +28,7 @@
 
 #include "meta/common.h"
 #include "meta/types.h"
+#include "meta/meta-x11-types.h"
 
 /* note, can return NULL */
 META_EXPORT

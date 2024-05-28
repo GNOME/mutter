@@ -26,6 +26,7 @@
 #include <gio/gsettingsbackend.h>
 
 #include "core/meta-context-private.h"
+#include "meta/meta-x11-display.h"
 #include "tests/meta-backend-test.h"
 #include "tests/meta-test-shell.h"
 #include "tests/meta-test-utils-private.h"

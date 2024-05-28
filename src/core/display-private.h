@@ -65,6 +65,12 @@ typedef enum
 typedef void (* MetaDisplayWindowFunc) (MetaWindow *window,
                                         gpointer    user_data);
 
+
+/* To avoid ifdefing MetaX11Display usage when built without X11 support */
+#ifndef HAVE_X11_CLIENT
+typedef struct MetaX11Display MetaX11Display;
+#endif
+
 struct _MetaDisplay
 {
   GObject parent_instance;

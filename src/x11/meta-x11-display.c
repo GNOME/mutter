@@ -2572,3 +2572,14 @@ meta_x11_display_lookup_xwindow (MetaX11Display *x11_display,
 
   return None;
 }
+
+/**
+ * meta_display_get_x11_display: (skip)
+ * @display: a #MetaDisplay
+ *
+ */
+MetaX11Display *
+meta_display_get_x11_display (MetaDisplay *display)
+{
+  return display->x11_display;
+}

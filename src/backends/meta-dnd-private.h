@@ -24,6 +24,7 @@
 #ifdef HAVE_X11
 #include <X11/Xlib.h>
 #include "compositor/meta-compositor-x11.h"
+#include "meta/meta-x11-types.h"
 #endif
 
 #include "backends/meta-backend-private.h"

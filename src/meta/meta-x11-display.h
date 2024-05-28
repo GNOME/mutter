@@ -26,6 +26,9 @@
 #include "meta/common.h"
 #include "meta/prefs.h"
 #include "meta/types.h"
+#include "meta/meta-x11-types.h"
+
+#define meta_XFree(p) do { if ((p)) XFree ((p)); } while (0)
 
 typedef void (* MetaX11DisplayEventFunc) (MetaX11Display *x11_display,
                                           XEvent         *xev,
@@ -63,3 +66,6 @@ void     meta_x11_display_redirect_windows (MetaX11Display *x11_display,
 META_EXPORT
 Window meta_x11_display_lookup_xwindow (MetaX11Display *x11_display,
                                         MetaWindow     *window);
+
+META_EXPORT
+MetaX11Display * meta_display_get_x11_display (MetaDisplay *display);

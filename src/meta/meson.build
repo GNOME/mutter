@@ -58,9 +58,10 @@ if have_wayland
   ]
 endif
 
-if have_x11
+if have_x11_client
   mutter_public_headers += [
     'meta-x11-display.h',
+    'meta-x11-types.h',
   ]
 endif
 
