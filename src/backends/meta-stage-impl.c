@@ -672,7 +672,7 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
                                                    });
     }
 
-  if (paint_debug_flags & CLUTTER_DEBUG_PAINT_DAMAGE_REGION)
+  if (G_UNLIKELY (paint_debug_flags & CLUTTER_DEBUG_PAINT_DAMAGE_REGION))
     {
       g_autoptr (MtkRegion) debug_redraw_clip = NULL;
 
@@ -728,7 +728,7 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
   g_clear_pointer (&redraw_clip, mtk_region_unref);
   g_clear_pointer (&fb_clip_region, mtk_region_unref);
 
-  if (queued_redraw_clip)
+  if (G_UNLIKELY (queued_redraw_clip))
     {
       g_autoptr (MtkRegion) swap_region_in_stage_space = NULL;
 
