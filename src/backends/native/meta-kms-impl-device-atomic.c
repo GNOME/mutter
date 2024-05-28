@@ -743,6 +743,11 @@ process_plane_assignment (MetaKmsImplDevice  *impl_device,
 
       if (meta_is_topic_enabled (META_DEBUG_KMS))
         {
+          int buffer_width, buffer_height;
+
+          buffer_width = meta_drm_buffer_get_width (buffer);
+          buffer_height = meta_drm_buffer_get_height (buffer);
+
           for (int i = 0; i < fb_damage->n_rects; i++)
             {
               int rect_width = fb_damage->rects[i].x2 - fb_damage->rects[i].x1;
@@ -753,6 +758,13 @@ process_plane_assignment (MetaKmsImplDevice  *impl_device,
                           rect_width, rect_height,
                           fb_damage->rects[i].x1, fb_damage->rects[i].y1,
                           meta_kms_plane_get_id (plane));
+
+              g_warn_if_fail (fb_damage->rects[i].x1 >= 0);
+              g_warn_if_fail (fb_damage->rects[i].y1 >= 0);
+              g_warn_if_fail (rect_width > 0);
+              g_warn_if_fail (rect_height > 0);
+              g_warn_if_fail (fb_damage->rects[i].x2 <= buffer_width);
+              g_warn_if_fail (fb_damage->rects[i].y2 <= buffer_height);
             }
         }
 
