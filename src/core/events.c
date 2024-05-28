@@ -288,7 +288,6 @@ meta_display_handle_event (MetaDisplay        *display,
 
 #ifdef HAVE_WAYLAND
   if (wayland_text_input &&
-      !has_grab &&
       !meta_compositor_get_current_window_drag (compositor) &&
       meta_wayland_text_input_update (wayland_text_input, event))
     return CLUTTER_EVENT_STOP;
