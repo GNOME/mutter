@@ -194,7 +194,7 @@ meta_remote_access_controller_add (MetaRemoteAccessController *controller,
                                    MetaDbusSessionManager     *session_manager)
 {
   controller->session_managers = g_list_append (controller->session_managers,
-                                                session_manager);
+                                                g_object_ref (session_manager));
 }
 
 static void
@@ -275,8 +275,22 @@ meta_remote_access_controller_init (MetaRemoteAccessController *controller)
 }
 
 static void
+meta_remote_access_handle_finalize (GObject *object)
+{
+  MetaRemoteAccessController *controller = META_REMOTE_ACCESS_CONTROLLER (object);
+
+  g_clear_list (&controller->session_managers, g_object_unref);
+
+  G_OBJECT_CLASS (meta_remote_access_controller_parent_class)->finalize (object);
+}
+
+static void
 meta_remote_access_controller_class_init (MetaRemoteAccessControllerClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->finalize = meta_remote_access_handle_finalize;
+
   controller_signals[CONTROLLER_NEW_HANDLE] =
     g_signal_new ("new-handle",
                   G_TYPE_FROM_CLASS (klass),
