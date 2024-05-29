@@ -974,10 +974,11 @@ meta_backend_native_take_render_device (MetaBackendNative  *backend_native,
                                         GError            **error)
 {
   MetaRenderDevice *render_device;
+  g_autofree char *stolen_device_path = NULL;
 
   if (g_hash_table_steal_extended (backend_native->startup_render_devices,
                                    device_path,
-                                   NULL,
+                                   (gpointer *) &stolen_device_path,
                                    (gpointer *) &render_device))
     {
       return render_device;
