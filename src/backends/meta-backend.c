@@ -218,6 +218,7 @@ meta_backend_dispose (GObject *object)
   g_clear_object (&priv->input_capture);
   g_clear_object (&priv->dbus_session_watcher);
   g_clear_object (&priv->remote_access_controller);
+  g_clear_object (&priv->dnd);
 
 #ifdef HAVE_LIBWACOM
   g_clear_pointer (&priv->wacom_db, libwacom_database_destroy);
