@@ -692,6 +692,7 @@ meta_thread_finalize (GObject *object)
   g_clear_pointer (&priv->name, g_free);
 
   g_warn_if_fail (g_hash_table_size (priv->callback_sources) == 0);
+  g_clear_pointer (&priv->callback_sources, g_hash_table_unref);
   g_mutex_clear (&priv->callbacks_mutex);
 
   G_OBJECT_CLASS (meta_thread_parent_class)->finalize (object);
