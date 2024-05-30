@@ -183,6 +183,7 @@ meta_input_settings_dispose (GObject *object)
   g_clear_object (&priv->keyboard_a11y_settings);
   g_clear_pointer (&priv->mappable_devices, g_hash_table_unref);
   g_clear_pointer (&priv->current_tools, g_hash_table_unref);
+  g_clear_list (&priv->devices, NULL);
 
   g_clear_pointer (&priv->two_finger_devices, g_hash_table_destroy);
 
