@@ -181,8 +181,7 @@ primary_device_set_selection (struct wl_client   *client,
   if (source_resource)
     source = wl_resource_get_user_data (source_resource);
 
-  if (wl_resource_get_client (resource) !=
-      meta_wayland_seat_get_input_focus_client (seat))
+  if (wl_resource_get_client (resource) != data_device->focus_client)
     {
       if (source)
         meta_wayland_data_source_cancel (source);
@@ -203,16 +202,9 @@ owner_changed_cb (MetaSelection                *selection,
                   MetaSelectionSource          *new_owner,
                   MetaWaylandDataDevicePrimary *data_device)
 {
-  MetaDisplay *display = meta_selection_get_display (selection);
-  MetaContext *context = meta_display_get_context (display);
-  MetaWaylandCompositor *compositor =
-    meta_context_get_wayland_compositor (context);
-  MetaWaylandSeat *seat = compositor->seat;
   struct wl_resource *data_device_resource;
-  struct wl_client *focus_client;
 
-  focus_client = meta_wayland_seat_get_input_focus_client (seat);
-  if (!focus_client)
+  if (!data_device->focus_client)
     return;
 
   if (selection_type == META_SELECTION_PRIMARY)
@@ -348,13 +340,15 @@ create_and_send_primary_offer (MetaWaylandDataDevicePrimary *data_device,
 }
 
 void
-meta_wayland_data_device_primary_sync_focus (MetaWaylandDataDevicePrimary *data_device)
+meta_wayland_data_device_primary_set_focus (MetaWaylandDataDevicePrimary *data_device,
+                                            MetaWaylandSurface           *surface)
 {
   MetaWaylandSeat *seat = wl_container_of (data_device, seat, primary_data_device);
-  struct wl_client *focus_client;
+  struct wl_client *focus_client = NULL;
   struct wl_resource *data_device_resource;
 
-  focus_client = meta_wayland_seat_get_input_focus_client (seat);
+  if (surface)
+    focus_client = wl_resource_get_client (surface->resource);
 
   if (focus_client == data_device->focus_client)
     return;
