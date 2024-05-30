@@ -55,9 +55,6 @@ static GList *_cogl_xlib_renderers = NULL;
 static void
 _xlib_renderer_data_free (CoglXlibRenderer *data)
 {
-  if (data->xvisinfo)
-    XFree (data->xvisinfo);
-
   g_free (data);
 }
 
