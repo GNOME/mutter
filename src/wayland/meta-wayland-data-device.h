@@ -59,7 +59,8 @@ void meta_wayland_data_device_init (MetaWaylandDataDevice *data_device,
 
 MetaWaylandSeat * meta_wayland_data_device_get_seat (MetaWaylandDataDevice *data_device);
 
-void meta_wayland_data_device_sync_focus (MetaWaylandDataDevice *data_device);
+void meta_wayland_data_device_set_focus (MetaWaylandDataDevice *data_device,
+                                         MetaWaylandSurface    *surface);
 
 MetaWaylandDragGrab *
      meta_wayland_data_device_get_current_grab   (MetaWaylandDataDevice *data_device);
