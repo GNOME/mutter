@@ -222,7 +222,8 @@ struct _ClutterActorClass
   gboolean (* has_overlaps)         (ClutterActor         *self);
 
   void     (* paint_node)           (ClutterActor         *self,
-                                     ClutterPaintNode     *root);
+                                     ClutterPaintNode     *root,
+                                     ClutterPaintContext  *paint_context);
 
   gboolean (* touch_event)          (ClutterActor         *self,
                                      ClutterEvent         *event);

@@ -3386,7 +3386,7 @@ clutter_actor_paint_node (ClutterActor        *actor,
     _clutter_content_paint_content (priv->content, actor, root, paint_context);
 
   if (CLUTTER_ACTOR_GET_CLASS (actor)->paint_node != NULL)
-    CLUTTER_ACTOR_GET_CLASS (actor)->paint_node (actor, root);
+    CLUTTER_ACTOR_GET_CLASS (actor)->paint_node (actor, root, paint_context);
 
   if (clutter_paint_node_get_n_children (root) == 0)
     return FALSE;
