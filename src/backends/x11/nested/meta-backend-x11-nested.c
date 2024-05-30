@@ -301,6 +301,7 @@ meta_backend_x11_nested_dispose (GObject *object)
     meta_backend_x11_nested_get_instance_private (backend_x11_nested);
 
   g_clear_object (&priv->input_settings);
+  g_clear_object (&priv->cursor_renderer);
 
   G_OBJECT_CLASS (meta_backend_x11_nested_parent_class)->dispose (object);
 }
