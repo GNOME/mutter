@@ -43,8 +43,6 @@ typedef struct _CoglXlibRenderer
   Display *xdpy;
 
   unsigned long outputs_update_serial;
-
-  XVisualInfo *xvisinfo;
 } CoglXlibRenderer;
 
 gboolean

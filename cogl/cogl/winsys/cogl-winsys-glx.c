@@ -781,7 +781,7 @@ create_context (CoglDisplay *display, GError **error)
                                        dummy_drawable,
                                        glx_display->glx_context);
 
-  xlib_renderer->xvisinfo = xvisinfo;
+  g_clear_pointer (&xvisinfo, XFree);
 
   if (mtk_x11_error_trap_pop_with_return (xlib_renderer->xdpy))
     {
