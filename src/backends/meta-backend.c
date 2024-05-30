@@ -252,6 +252,9 @@ meta_backend_dispose (GObject *object)
   g_clear_pointer (&priv->stage, clutter_actor_destroy);
   g_clear_pointer (&priv->idle_manager, meta_idle_manager_free);
   g_clear_object (&priv->renderer);
+#ifdef HAVE_EGL
+  g_clear_object (&priv->egl);
+#endif
   g_clear_pointer (&priv->clutter_context, clutter_context_destroy);
   g_clear_list (&priv->gpus, g_object_unref);
 
