@@ -224,6 +224,8 @@ struct _MetaPluginClass
    *
    * Virtual function called to create a "force quit" dialog
    * on non-responsive clients.
+   *
+   * Returns: (transfer full) (nullable): a #MetaCloseDialog
    */
   MetaCloseDialog * (* create_close_dialog) (MetaPlugin *plugin,
                                              MetaWindow *window);
@@ -235,6 +237,8 @@ struct _MetaPluginClass
    *
    * Virtual function called to create a "inhibit shortcuts" dialog
    * when a client requests compositor shortcuts to be inhibited.
+   *
+   * Returns: (transfer full): a #MetaInhibitShortcutsDialog
    */
   MetaInhibitShortcutsDialog * (* create_inhibit_shortcuts_dialog) (MetaPlugin *plugin,
                                                                     MetaWindow *window);
