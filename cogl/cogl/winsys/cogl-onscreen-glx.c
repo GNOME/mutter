@@ -821,22 +821,22 @@ cogl_onscreen_glx_swap_region (CoglOnscreen  *onscreen,
     onscreen_glx->last_swap_vsync_counter = end_frame_vsync_counter;
 
   {
-    CoglOutput *output;
+    float refresh_rate;
 
     x_min = CLAMP (x_min, 0, framebuffer_width);
     x_max = CLAMP (x_max, 0, framebuffer_width);
     y_min = CLAMP (y_min, 0, framebuffer_height);
     y_max = CLAMP (y_max, 0, framebuffer_height);
 
-    output =
-      _cogl_xlib_renderer_output_for_rectangle (context->display->renderer,
-                                                onscreen_glx->x + x_min,
-                                                onscreen_glx->y + y_min,
-                                                x_max - x_min,
-                                                y_max - y_min);
+    refresh_rate =
+      _cogl_xlib_renderer_refresh_rate_for_rectangle (context->display->renderer,
+                                                      onscreen_glx->x + x_min,
+                                                      onscreen_glx->y + y_min,
+                                                      x_max - x_min,
+                                                      y_max - y_min);
 
-    if (output)
-      info->refresh_rate = output->refresh_rate;
+    if (refresh_rate != 0.0)
+      info->refresh_rate = refresh_rate;
   }
 
   /* XXX: we don't get SwapComplete events based on how we implement
@@ -982,20 +982,16 @@ cogl_onscreen_glx_update_output (CoglOnscreen *onscreen)
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglDisplay *display = context->display;
-  CoglOutput *output;
   int width, height;
 
   width = cogl_framebuffer_get_width (framebuffer);
   height = cogl_framebuffer_get_height (framebuffer);
-  output = _cogl_xlib_renderer_output_for_rectangle (display->renderer,
-                                                     onscreen_glx->x,
-                                                     onscreen_glx->y,
-                                                     width, height);
 
-  if (output)
-    onscreen_glx->refresh_rate = output->refresh_rate;
-  else
-    onscreen_glx->refresh_rate = 0.0;
+  onscreen_glx->refresh_rate =
+    _cogl_xlib_renderer_refresh_rate_for_rectangle (display->renderer,
+                                                    onscreen_glx->x,
+                                                    onscreen_glx->y,
+                                                    width, height);
 }
 
 void

@@ -56,9 +56,9 @@ _cogl_xlib_renderer_disconnect (CoglRenderer *renderer);
 CoglXlibRenderer *
 _cogl_xlib_renderer_get_data (CoglRenderer *renderer);
 
-CoglOutput *
-_cogl_xlib_renderer_output_for_rectangle (CoglRenderer *renderer,
-                                          int x,
-                                          int y,
-                                          int width,
-                                          int height);
+float
+_cogl_xlib_renderer_refresh_rate_for_rectangle (CoglRenderer *renderer,
+                                                int           x,
+                                                int           y,
+                                                int           width,
+                                                int           height);

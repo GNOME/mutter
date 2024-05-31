@@ -529,12 +529,12 @@ cogl_xlib_renderer_remove_filter (CoglRenderer *renderer,
                                        (CoglNativeFilterFunc)func, data);
 }
 
-CoglOutput *
-_cogl_xlib_renderer_output_for_rectangle (CoglRenderer *renderer,
-                                          int x,
-                                          int y,
-                                          int width,
-                                          int height)
+float
+_cogl_xlib_renderer_refresh_rate_for_rectangle (CoglRenderer *renderer,
+                                                int           x,
+                                                int           y,
+                                                int           width,
+                                                int           height)
 {
   CoglXlibRenderer *xlib_renderer = _cogl_xlib_renderer_get_data (renderer);
   int max_overlap = 0;
@@ -563,5 +563,8 @@ _cogl_xlib_renderer_output_for_rectangle (CoglRenderer *renderer,
         }
     }
 
-  return max_overlapped;
+  if (max_overlapped)
+    return max_overlapped->refresh_rate;
+  else
+    return 0.0;
 }
