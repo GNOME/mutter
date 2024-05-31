@@ -42,6 +42,8 @@ typedef struct _CoglXlibRenderer
 
   Display *xdpy;
 
+  GList *outputs;
+
   unsigned long outputs_update_serial;
 } CoglXlibRenderer;
 

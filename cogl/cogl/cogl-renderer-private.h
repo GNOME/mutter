@@ -57,8 +57,6 @@ struct _CoglRenderer
 
   CoglList idle_closures;
 
-  GList *outputs;
-
 #ifdef HAVE_X11
   Display *foreign_xdpy;
   gboolean xlib_enable_event_retrieval;
