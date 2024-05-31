@@ -553,9 +553,8 @@ set_frame_info_output (CoglOnscreen *onscreen,
 
   if (output)
     {
-      float refresh_rate = cogl_output_get_refresh_rate (output);
-      if (refresh_rate != 0.0)
-        info->refresh_rate = refresh_rate;
+      if (output->refresh_rate != 0.0)
+        info->refresh_rate = output->refresh_rate;
     }
 }
 

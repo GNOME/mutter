@@ -34,7 +34,7 @@
 
 #include "cogl/cogl-x11-renderer-private.h"
 #include "cogl/cogl-context.h"
-#include "cogl/cogl-output.h"
+#include "cogl/cogl-output-private.h"
 
 typedef struct _CoglXlibRenderer
 {

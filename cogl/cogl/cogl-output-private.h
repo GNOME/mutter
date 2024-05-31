@@ -30,7 +30,28 @@
 
 #pragma once
 
-#include "cogl/cogl-output.h"
+#include "cogl/cogl-types.h"
+
+#include <glib-object.h>
+
+#define COGL_TYPE_OUTPUT (cogl_output_get_type ())
+
+COGL_EXPORT
+G_DECLARE_FINAL_TYPE (CoglOutput,
+                      cogl_output,
+                      COGL,
+                      OUTPUT,
+                      GObject)
+
+typedef enum
+{
+  COGL_SUBPIXEL_ORDER_UNKNOWN,
+  COGL_SUBPIXEL_ORDER_NONE,
+  COGL_SUBPIXEL_ORDER_HORIZONTAL_RGB,
+  COGL_SUBPIXEL_ORDER_HORIZONTAL_BGR,
+  COGL_SUBPIXEL_ORDER_VERTICAL_RGB,
+  COGL_SUBPIXEL_ORDER_VERTICAL_BGR
+} CoglSubpixelOrder;
 
 struct _CoglOutput
 {

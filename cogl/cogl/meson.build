@@ -44,7 +44,6 @@ cogl_headers = [
   'cogl-offscreen.h',
   'cogl-onscreen.h',
   'cogl-onscreen-template.h',
-  'cogl-output.h',
   'cogl-pipeline.h',
   'cogl-pipeline-layer-state.h',
   'cogl-pipeline-state.h',

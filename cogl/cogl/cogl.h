@@ -63,7 +63,6 @@
 #endif
 
 #include "cogl/cogl-renderer.h"
-#include "cogl/cogl-output.h"
 #include "cogl/cogl-display.h"
 #include "cogl/cogl-context.h"
 #include "cogl/cogl-buffer.h"
