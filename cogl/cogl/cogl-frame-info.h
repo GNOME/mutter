@@ -38,7 +38,6 @@
 #endif
 
 #include "cogl/cogl-types.h"
-#include "cogl/cogl-output.h"
 
 #include <glib-object.h>
 #include <glib.h>

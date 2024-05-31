@@ -34,7 +34,6 @@
 
 #include "cogl/cogl-types.h"
 #include "cogl/cogl-onscreen-template.h"
-#include "cogl/cogl-output.h"
 #include "cogl/cogl-pixel-format.h"
 
 #include <glib-object.h>
