@@ -29,6 +29,7 @@
 #include "core/meta-service-channel.h"
 #include "core/prefs-private.h"
 #include "core/util-private.h"
+#include "meta/meta-enums.h"
 
 #ifdef HAVE_PROFILER
 #include "core/meta-profiler.h"
@@ -124,6 +125,8 @@ meta_context_add_option_entries (MetaContext        *context,
 {
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
 
+  g_return_if_fail (META_IS_CONTEXT (context));
+
   g_warn_if_fail (priv->state == META_CONTEXT_STATE_INIT);
 
   g_option_context_add_main_entries (priv->option_context,
@@ -144,6 +147,8 @@ meta_context_add_option_group (MetaContext  *context,
 {
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
 
+  g_return_if_fail (META_IS_CONTEXT (context));
+
   g_warn_if_fail (priv->state == META_CONTEXT_STATE_INIT);
   g_return_if_fail (priv->option_context);
 
@@ -155,6 +160,8 @@ meta_context_set_plugin_gtype (MetaContext *context,
                                GType        plugin_gtype)
 {
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  g_return_if_fail (META_IS_CONTEXT (context));
 
   g_return_if_fail (priv->state <= META_CONTEXT_STATE_CONFIGURED);
   g_return_if_fail (!priv->plugin_name);
@@ -168,6 +175,8 @@ meta_context_set_plugin_name (MetaContext *context,
 {
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
 
+  g_return_if_fail (META_IS_CONTEXT (context));
+
   g_return_if_fail (priv->state <= META_CONTEXT_STATE_CONFIGURED);
   g_return_if_fail (priv->plugin_gtype == G_TYPE_NONE);
 
@@ -179,6 +188,8 @@ meta_context_set_gnome_wm_keybindings (MetaContext *context,
                                        const char  *wm_keybindings)
 {
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  g_return_if_fail (META_IS_CONTEXT (context));
 
   g_return_if_fail (priv->state <= META_CONTEXT_STATE_CONFIGURED);
 
@@ -199,6 +210,8 @@ meta_context_notify_ready (MetaContext *context)
 {
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
 
+  g_return_if_fail (META_IS_CONTEXT (context));
+
   g_return_if_fail (priv->state == META_CONTEXT_STATE_STARTED ||
                     priv->state == META_CONTEXT_STATE_RUNNING);
 
@@ -210,6 +223,8 @@ const char *
 meta_context_get_name (MetaContext *context)
 {
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  g_return_val_if_fail (META_IS_CONTEXT (context), NULL);
 
   return priv->name;
 }
@@ -225,6 +240,8 @@ meta_context_get_backend (MetaContext *context)
 {
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
 
+  g_return_val_if_fail (META_IS_CONTEXT (context), NULL);
+
   return priv->backend;
 }
 
@@ -238,6 +255,8 @@ MetaDisplay *
 meta_context_get_display (MetaContext *context)
 {
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  g_return_val_if_fail (META_IS_CONTEXT (context), FALSE);
 
   return priv->display;
 }
@@ -273,12 +292,16 @@ meta_context_get_service_channel (MetaContext *context)
 MetaCompositorType
 meta_context_get_compositor_type (MetaContext *context)
 {
+  g_return_val_if_fail (META_IS_CONTEXT (context), META_COMPOSITOR_TYPE_WAYLAND);
+
   return META_CONTEXT_GET_CLASS (context)->get_compositor_type (context);
 }
 
 gboolean
 meta_context_is_replacing (MetaContext *context)
 {
+  g_return_val_if_fail (META_IS_CONTEXT (context), FALSE);
+
   return META_CONTEXT_GET_CLASS (context)->is_replacing (context);
 }
 
@@ -362,6 +385,8 @@ meta_context_configure (MetaContext   *context,
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
   MetaCompositorType compositor_type;
 
+  g_return_val_if_fail (META_IS_CONTEXT (context), FALSE);
+
   g_warn_if_fail (priv->state == META_CONTEXT_STATE_INIT);
 
   if (!META_CONTEXT_GET_CLASS (context)->configure (context, argc, argv, error))
@@ -434,6 +459,8 @@ meta_context_setup (MetaContext  *context,
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
   MetaCompositorType compositor_type;
 
+  g_return_val_if_fail (META_IS_CONTEXT (context), FALSE);
+
   g_warn_if_fail (priv->state == META_CONTEXT_STATE_CONFIGURED);
 
   if (!priv->plugin_name && priv->plugin_gtype == G_TYPE_NONE)
@@ -474,6 +501,8 @@ meta_context_start (MetaContext  *context,
 {
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
 
+  g_return_val_if_fail (META_IS_CONTEXT (context), FALSE);
+
   g_warn_if_fail (priv->state == META_CONTEXT_STATE_SETUP);
 
   meta_prefs_init ();
@@ -510,6 +539,8 @@ meta_context_run_main_loop (MetaContext  *context,
 {
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
 
+  g_return_val_if_fail (META_IS_CONTEXT (context), FALSE);
+
   g_warn_if_fail (priv->state == META_CONTEXT_STATE_STARTED);
   if (!priv->main_loop)
     {
@@ -538,6 +569,8 @@ meta_context_terminate (MetaContext *context)
 {
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
 
+  g_return_if_fail (META_IS_CONTEXT (context));
+
   g_warn_if_fail (priv->state == META_CONTEXT_STATE_RUNNING);
   g_warn_if_fail (g_main_loop_is_running (priv->main_loop));
 
@@ -550,6 +583,8 @@ meta_context_terminate_with_error (MetaContext *context,
 {
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
 
+  g_return_if_fail (META_IS_CONTEXT (context));
+
   priv->termination_error = g_steal_pointer (&error);
   meta_context_terminate (context);
 }
@@ -557,6 +592,8 @@ meta_context_terminate_with_error (MetaContext *context,
 void
 meta_context_destroy (MetaContext *context)
 {
+  g_return_if_fail (META_IS_CONTEXT (context));
+
   g_object_run_dispose (G_OBJECT (context));
   g_object_unref (context);
 }
@@ -610,6 +647,8 @@ gboolean
 meta_context_raise_rlimit_nofile (MetaContext  *context,
                                   GError      **error)
 {
+  g_return_val_if_fail (META_IS_CONTEXT (context), FALSE);
+
 #ifdef RLIMIT_NOFILE
   struct rlimit new_rlimit;
 
@@ -650,6 +689,8 @@ gboolean
 meta_context_restore_rlimit_nofile (MetaContext  *context,
                                     GError      **error)
 {
+  g_return_val_if_fail (META_IS_CONTEXT (context), FALSE);
+
 #ifdef RLIMIT_NOFILE
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
 
