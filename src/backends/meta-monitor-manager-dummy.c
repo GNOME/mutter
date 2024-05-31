@@ -221,7 +221,7 @@ append_monitor (MetaMonitorManager *manager,
   output_info->serial = g_strdup_printf ("0xC0FFEE-%d", number);
   output_info->width_mm = 222;
   output_info->height_mm = 125;
-  output_info->subpixel_order = COGL_SUBPIXEL_ORDER_UNKNOWN;
+  output_info->subpixel_order = META_SUBPIXEL_ORDER_UNKNOWN;
   output_info->preferred_mode = g_list_last (*modes)->data;
   output_info->n_possible_clones = 0;
   output_info->connector_type = META_CONNECTOR_TYPE_LVDS;
@@ -328,7 +328,7 @@ append_tiled_monitor (MetaMonitorManager *manager,
       output_info->suggested_y = -1;
       output_info->width_mm = 222;
       output_info->height_mm = 125;
-      output_info->subpixel_order = COGL_SUBPIXEL_ORDER_UNKNOWN;
+      output_info->subpixel_order = META_SUBPIXEL_ORDER_UNKNOWN;
       output_info->preferred_mode = preferred_mode;
       output_info->n_possible_clones = 0;
       output_info->connector_type = META_CONNECTOR_TYPE_LVDS;

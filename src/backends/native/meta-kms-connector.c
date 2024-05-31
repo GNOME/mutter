@@ -403,30 +403,30 @@ state_set_properties (MetaKmsConnectorState *state,
     state->vrr_capable = !!prop->value;
 }
 
-static CoglSubpixelOrder
-drm_subpixel_order_to_cogl_subpixel_order (drmModeSubPixel subpixel)
+static MetaSubpixelOrder
+drm_subpixel_order_to_meta_subpixel_order (drmModeSubPixel subpixel)
 {
   switch (subpixel)
     {
     case DRM_MODE_SUBPIXEL_NONE:
-      return COGL_SUBPIXEL_ORDER_NONE;
+      return META_SUBPIXEL_ORDER_NONE;
       break;
     case DRM_MODE_SUBPIXEL_HORIZONTAL_RGB:
-      return COGL_SUBPIXEL_ORDER_HORIZONTAL_RGB;
+      return META_SUBPIXEL_ORDER_HORIZONTAL_RGB;
       break;
     case DRM_MODE_SUBPIXEL_HORIZONTAL_BGR:
-      return COGL_SUBPIXEL_ORDER_HORIZONTAL_BGR;
+      return META_SUBPIXEL_ORDER_HORIZONTAL_BGR;
       break;
     case DRM_MODE_SUBPIXEL_VERTICAL_RGB:
-      return COGL_SUBPIXEL_ORDER_VERTICAL_RGB;
+      return META_SUBPIXEL_ORDER_VERTICAL_RGB;
       break;
     case DRM_MODE_SUBPIXEL_VERTICAL_BGR:
-      return COGL_SUBPIXEL_ORDER_VERTICAL_BGR;
+      return META_SUBPIXEL_ORDER_VERTICAL_BGR;
       break;
     case DRM_MODE_SUBPIXEL_UNKNOWN:
-      return COGL_SUBPIXEL_ORDER_UNKNOWN;
+      return META_SUBPIXEL_ORDER_UNKNOWN;
     }
-  return COGL_SUBPIXEL_ORDER_UNKNOWN;
+  return META_SUBPIXEL_ORDER_UNKNOWN;
 }
 
 static void
@@ -1080,7 +1080,7 @@ meta_kms_connector_read_state (MetaKmsConnector  *connector,
   state_set_properties (state, impl_device, connector, drm_connector);
 
   state->subpixel_order =
-    drm_subpixel_order_to_cogl_subpixel_order (drm_connector->subpixel);
+    drm_subpixel_order_to_meta_subpixel_order (drm_connector->subpixel);
 
   state_set_physical_dimensions (state, drm_connector);
 

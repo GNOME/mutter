@@ -146,7 +146,7 @@ void meta_monitor_get_physical_dimensions (MetaMonitor *monitor,
                                            int         *width_mm,
                                            int         *height_mm);
 
-CoglSubpixelOrder meta_monitor_get_subpixel_order (MetaMonitor *monitor);
+MetaSubpixelOrder meta_monitor_get_subpixel_order (MetaMonitor *monitor);
 
 META_EXPORT_TEST
 const char * meta_monitor_get_connector (MetaMonitor *monitor);

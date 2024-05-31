@@ -49,7 +49,7 @@ typedef struct _MetaKmsConnectorState
   gboolean non_desktop;
   MetaPrivacyScreenState privacy_screen_state;
 
-  CoglSubpixelOrder subpixel_order;
+  MetaSubpixelOrder subpixel_order;
 
   int suggested_x;
   int suggested_y;

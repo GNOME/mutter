@@ -48,6 +48,16 @@ typedef enum _MetaOutputRGBRange
   META_OUTPUT_RGB_RANGE_LIMITED,
 } MetaOutputRGBRange;
 
+typedef enum
+{
+  META_SUBPIXEL_ORDER_UNKNOWN,
+  META_SUBPIXEL_ORDER_NONE,
+  META_SUBPIXEL_ORDER_HORIZONTAL_RGB,
+  META_SUBPIXEL_ORDER_HORIZONTAL_BGR,
+  META_SUBPIXEL_ORDER_VERTICAL_RGB,
+  META_SUBPIXEL_ORDER_VERTICAL_BGR,
+} MetaSubpixelOrder;
+
 typedef struct _MetaOutputHdrMetadata
 {
   gboolean active;
@@ -131,7 +141,7 @@ typedef struct _MetaOutputInfo
 
   int width_mm;
   int height_mm;
-  CoglSubpixelOrder subpixel_order;
+  MetaSubpixelOrder subpixel_order;
 
   MetaConnectorType connector_type;
   MetaMonitorTransform panel_orientation_transform;

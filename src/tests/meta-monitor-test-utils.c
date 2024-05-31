@@ -772,7 +772,7 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
         }
       output_info->width_mm = setup->outputs[i].width_mm;
       output_info->height_mm = setup->outputs[i].height_mm;
-      output_info->subpixel_order = COGL_SUBPIXEL_ORDER_UNKNOWN;
+      output_info->subpixel_order = META_SUBPIXEL_ORDER_UNKNOWN;
       output_info->preferred_mode = preferred_mode;
       output_info->n_modes = n_modes;
       output_info->modes = modes;

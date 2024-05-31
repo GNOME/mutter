@@ -985,7 +985,7 @@ meta_output_xrandr_new (MetaGpuXrandr *gpu_xrandr,
       g_bytes_unref (edid);
     }
 
-  output_info->subpixel_order = COGL_SUBPIXEL_ORDER_UNKNOWN;
+  output_info->subpixel_order = META_SUBPIXEL_ORDER_UNKNOWN;
   output_info->hotplug_mode_update = output_get_hotplug_mode_update (xdisplay,
                                                                      output_id);
   output_info->suggested_x = output_get_suggested_x (xdisplay, output_id);

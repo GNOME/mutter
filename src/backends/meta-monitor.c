@@ -481,7 +481,7 @@ meta_monitor_get_physical_dimensions (MetaMonitor *monitor,
   *height_mm = output_info->height_mm;
 }
 
-CoglSubpixelOrder
+MetaSubpixelOrder
 meta_monitor_get_subpixel_order (MetaMonitor *monitor)
 {
   const MetaOutputInfo *output_info =
