@@ -46,7 +46,7 @@ struct _CoglOnscreenGlx
 
   Window xwin;
   int x, y;
-  CoglOutput *output;
+  float refresh_rate;
 
   GLXDrawable glxwin;
   uint32_t last_swap_vsync_counter;
@@ -223,8 +223,6 @@ cogl_onscreen_glx_dispose (GObject *object)
   GLXDrawable drawable;
 
   G_OBJECT_CLASS (cogl_onscreen_glx_parent_class)->dispose (object);
-
-  g_clear_object (&onscreen_glx->output);
 
   if (onscreen_glx->glxwin != None ||
       onscreen_glx->xwin != None)
@@ -546,19 +544,6 @@ cogl_onscreen_glx_get_buffer_age (CoglOnscreen *onscreen)
 }
 
 static void
-set_frame_info_output (CoglOnscreen *onscreen,
-                       CoglOutput   *output)
-{
-  CoglFrameInfo *info = cogl_onscreen_peek_tail_frame_info (onscreen);
-
-  if (output)
-    {
-      if (output->refresh_rate != 0.0)
-        info->refresh_rate = output->refresh_rate;
-    }
-}
-
-static void
 cogl_onscreen_glx_flush_notification (CoglOnscreen *onscreen)
 {
   CoglOnscreenGlx *onscreen_glx = COGL_ONSCREEN_GLX (onscreen);
@@ -850,7 +835,8 @@ cogl_onscreen_glx_swap_region (CoglOnscreen  *onscreen,
                                                 x_max - x_min,
                                                 y_max - y_min);
 
-    set_frame_info_output (onscreen, output);
+    if (output)
+      info->refresh_rate = output->refresh_rate;
   }
 
   /* XXX: we don't get SwapComplete events based on how we implement
@@ -941,7 +927,8 @@ cogl_onscreen_glx_swap_buffers_with_damage (CoglOnscreen  *onscreen,
     onscreen_glx->last_swap_vsync_counter =
       _cogl_winsys_get_vsync_counter (context);
 
-  set_frame_info_output (onscreen, onscreen_glx->output);
+  if (onscreen_glx->refresh_rate != 0.0)
+    info->refresh_rate = onscreen_glx->refresh_rate;
 }
 
 static Window
@@ -1004,16 +991,11 @@ cogl_onscreen_glx_update_output (CoglOnscreen *onscreen)
                                                      onscreen_glx->x,
                                                      onscreen_glx->y,
                                                      width, height);
-  if (onscreen_glx->output != output)
-    {
-      if (onscreen_glx->output)
-        g_object_unref (onscreen_glx->output);
 
-      onscreen_glx->output = output;
-
-      if (output)
-        g_object_ref (onscreen_glx->output);
-    }
+  if (output)
+    onscreen_glx->refresh_rate = output->refresh_rate;
+  else
+    onscreen_glx->refresh_rate = 0.0;
 }
 
 void
