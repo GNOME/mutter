@@ -36,6 +36,19 @@
 #include "cogl/cogl-context.h"
 #include "cogl/cogl-output-private.h"
 
+typedef struct _CoglXlibOutput
+{
+  char *name;
+  int x;
+  int y;
+  int width;
+  int height;
+  int mm_width;
+  int mm_height;
+  float refresh_rate;
+  CoglSubpixelOrder subpixel_order;
+} CoglXlibOutput;
+
 typedef struct _CoglXlibRenderer
 {
   CoglX11Renderer _parent;
