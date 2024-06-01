@@ -273,11 +273,8 @@ update_outputs (CoglRenderer *renderer,
       new_outputs = g_list_prepend (new_outputs, output);
 
     next:
-      if (crtc_info != NULL)
-        XFree (crtc_info);
-
-      if (output_info != NULL)
-        XFree (output_info);
+      g_clear_pointer (&crtc_info, XRRFreeCrtcInfo);
+      g_clear_pointer (&output_info, XRRFreeOutputInfo);
     }
 
   XFree (resources);
@@ -316,6 +313,8 @@ update_outputs (CoglRenderer *renderer,
                                           m_next,
                                           g_steal_pointer (&l->data));
 
+                  g_clear_pointer (&output_m, free_xlib_output);
+
                   changed = TRUE;
                 }
 
@@ -336,6 +335,7 @@ update_outputs (CoglRenderer *renderer,
               GList *m_next = m->next;
               xlib_renderer->outputs =
                 g_list_remove_link (xlib_renderer->outputs, m);
+              g_clear_pointer (&output_m, free_xlib_output);
               changed = TRUE;
               m = m_next;
             }
