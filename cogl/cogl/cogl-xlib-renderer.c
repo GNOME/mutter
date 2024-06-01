@@ -146,20 +146,20 @@ compare_outputs (CoglXlibOutput *a,
   return strcmp (a->name, b->name);
 }
 
-#define CSO(X) COGL_SUBPIXEL_ORDER_ ## X
-static CoglSubpixelOrder subpixel_map[6][6] = {
-  { CSO(UNKNOWN), CSO(NONE), CSO(HORIZONTAL_RGB), CSO(HORIZONTAL_BGR),
-    CSO(VERTICAL_RGB),   CSO(VERTICAL_BGR) },   /* 0 */
-  { CSO(UNKNOWN), CSO(NONE), CSO(VERTICAL_RGB),   CSO(VERTICAL_BGR),
-    CSO(HORIZONTAL_BGR), CSO(HORIZONTAL_RGB) }, /* 90 */
-  { CSO(UNKNOWN), CSO(NONE), CSO(HORIZONTAL_BGR), CSO(HORIZONTAL_RGB),
-    CSO(VERTICAL_BGR),   CSO(VERTICAL_RGB) },   /* 180 */
-  { CSO(UNKNOWN), CSO(NONE), CSO(VERTICAL_BGR),   CSO(VERTICAL_RGB),
-    CSO(HORIZONTAL_RGB), CSO(HORIZONTAL_BGR) }, /* 270 */
-  { CSO(UNKNOWN), CSO(NONE), CSO(HORIZONTAL_BGR), CSO(HORIZONTAL_RGB),
-    CSO(VERTICAL_RGB),   CSO(VERTICAL_BGR) },   /* Reflect_X */
-  { CSO(UNKNOWN), CSO(NONE), CSO(HORIZONTAL_RGB), CSO(HORIZONTAL_BGR),
-    CSO(VERTICAL_BGR),   CSO(VERTICAL_RGB) },   /* Reflect_Y */
+#define CSO(X) SubPixel ## X
+static SubpixelOrder subpixel_map[6][6] = {
+  { CSO(Unknown), CSO(None), CSO(HorizontalRGB), CSO(HorizontalBGR),
+    CSO(VerticalRGB),   CSO(VerticalBGR) },   /* 0 */
+  { CSO(Unknown), CSO(None), CSO(VerticalRGB),   CSO(VerticalBGR),
+    CSO(HorizontalBGR), CSO(HorizontalRGB) }, /* 90 */
+  { CSO(Unknown), CSO(None), CSO(HorizontalBGR), CSO(HorizontalRGB),
+    CSO(VerticalBGR),   CSO(VerticalRGB) },   /* 180 */
+  { CSO(Unknown), CSO(None), CSO(VerticalBGR),   CSO(VerticalRGB),
+    CSO(HorizontalRGB), CSO(HorizontalBGR) }, /* 270 */
+  { CSO(Unknown), CSO(None), CSO(HorizontalBGR), CSO(HorizontalRGB),
+    CSO(VerticalRGB),   CSO(VerticalBGR) },   /* Reflect_X */
+  { CSO(Unknown), CSO(None), CSO(HorizontalRGB), CSO(HorizontalBGR),
+    CSO(VerticalBGR),   CSO(VerticalRGB) },   /* Reflect_Y */
 };
 #undef CSO
 
@@ -237,29 +237,7 @@ update_outputs (CoglRenderer *renderer,
         }
 
       output->refresh_rate = refresh_rate;
-
-      switch (output_info->subpixel_order)
-        {
-        case SubPixelUnknown:
-        default:
-          output->subpixel_order = COGL_SUBPIXEL_ORDER_UNKNOWN;
-          break;
-        case SubPixelNone:
-          output->subpixel_order = COGL_SUBPIXEL_ORDER_NONE;
-          break;
-        case SubPixelHorizontalRGB:
-          output->subpixel_order = COGL_SUBPIXEL_ORDER_HORIZONTAL_RGB;
-          break;
-        case SubPixelHorizontalBGR:
-          output->subpixel_order = COGL_SUBPIXEL_ORDER_HORIZONTAL_BGR;
-          break;
-        case SubPixelVerticalRGB:
-          output->subpixel_order = COGL_SUBPIXEL_ORDER_VERTICAL_RGB;
-          break;
-        case SubPixelVerticalBGR:
-          output->subpixel_order = COGL_SUBPIXEL_ORDER_VERTICAL_BGR;
-          break;
-        }
+      output->subpixel_order = output_info->subpixel_order;
 
       /* Handle the effect of rotation and reflection on subpixel order (ugh) */
       for (j = 0; j < 6; j++)
@@ -359,23 +337,23 @@ update_outputs (CoglRenderer *renderer,
 
           switch (output->subpixel_order)
             {
-            case COGL_SUBPIXEL_ORDER_UNKNOWN:
+            case SubPixelUnknown:
             default:
               subpixel_string = "unknown";
               break;
-            case COGL_SUBPIXEL_ORDER_NONE:
+            case SubPixelNone:
               subpixel_string = "none";
               break;
-            case COGL_SUBPIXEL_ORDER_HORIZONTAL_RGB:
+            case SubPixelHorizontalRGB:
               subpixel_string = "horizontal_rgb";
               break;
-            case COGL_SUBPIXEL_ORDER_HORIZONTAL_BGR:
+            case SubPixelHorizontalBGR:
               subpixel_string = "horizontal_bgr";
               break;
-            case COGL_SUBPIXEL_ORDER_VERTICAL_RGB:
+            case SubPixelVerticalRGB:
               subpixel_string = "vertical_rgb";
               break;
-            case COGL_SUBPIXEL_ORDER_VERTICAL_BGR:
+            case SubPixelVerticalBGR:
               subpixel_string = "vertical_bgr";
               break;
             }

@@ -31,10 +31,10 @@
 #pragma once
 
 #include <X11/Xutil.h>
+#include <X11/extensions/Xrandr.h>
 
 #include "cogl/cogl-x11-renderer-private.h"
 #include "cogl/cogl-context.h"
-#include "cogl/cogl-output-private.h"
 
 typedef struct _CoglXlibOutput
 {
@@ -46,7 +46,7 @@ typedef struct _CoglXlibOutput
   int mm_width;
   int mm_height;
   float refresh_rate;
-  CoglSubpixelOrder subpixel_order;
+  SubpixelOrder subpixel_order;
 } CoglXlibOutput;
 
 typedef struct _CoglXlibRenderer
