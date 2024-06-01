@@ -261,8 +261,6 @@ update_outputs (CoglRenderer *renderer,
           break;
         }
 
-      output->subpixel_order = COGL_SUBPIXEL_ORDER_HORIZONTAL_RGB;
-
       /* Handle the effect of rotation and reflection on subpixel order (ugh) */
       for (j = 0; j < 6; j++)
         {
