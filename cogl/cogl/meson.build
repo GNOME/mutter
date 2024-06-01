@@ -229,8 +229,6 @@ cogl_sources = [
   'cogl-onscreen-template.c',
   'cogl-onscreen-template.h',
   'cogl-onscreen.c',
-  'cogl-output-private.h',
-  'cogl-output.c',
   'cogl-pipeline-cache-private.h',
   'cogl-pipeline-cache.c',
   'cogl-pipeline-cache.h',
