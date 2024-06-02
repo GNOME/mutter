@@ -44,6 +44,7 @@ foreach unit_test: cogl_unit_tests
       variant_test_env = test_env
       variant_test_env.set('COGL_DRIVER', variant)
     endif
+    variant_test_env.set('COGL_DEBUG', 'winsys')
 
     test('@0@-@1@'.format(test_name, variant), test_executable,
       suite: ['cogl', 'cogl/unit'],

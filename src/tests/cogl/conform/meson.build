@@ -88,6 +88,7 @@ foreach cogl_test: cogl_tests
   foreach variant: cogl_test_variants
     variant_test_env = test_env
     variant_test_env.set('COGL_DRIVER', variant)
+    variant_test_env.set('COGL_DEBUG', 'winsys')
 
     test(test_name + '-' + variant, test_executable,
       suite: ['cogl', 'cogl/conform'],
