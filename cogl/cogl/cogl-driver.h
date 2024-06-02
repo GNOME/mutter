@@ -47,6 +47,9 @@ struct _CoglDriverVtable
   void
   (* context_deinit) (CoglContext *context);
 
+  const char *
+  (* get_vendor) (CoglContext *context);
+
   gboolean
   (* is_hardware_accelerated) (CoglContext *context);
 

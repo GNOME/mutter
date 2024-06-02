@@ -132,6 +132,9 @@ _cogl_context_get_gl_extensions (CoglContext *context);
 const char *
 _cogl_context_get_gl_version (CoglContext *context);
 
+const char *
+_cogl_context_get_gl_vendor (CoglContext *context);
+
 /* Parses a GL version number stored in a string. @version_string must
  * point to the beginning of the version number (ie, it can't point to
  * the "OpenGL ES" part on GLES). The version number can be followed

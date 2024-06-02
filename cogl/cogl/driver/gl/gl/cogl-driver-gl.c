@@ -563,6 +563,7 @@ _cogl_driver_gl =
   {
     _cogl_driver_gl_real_context_init,
     _cogl_driver_gl_context_deinit,
+    _cogl_context_get_gl_vendor,
     _cogl_driver_gl_is_hardware_accelerated,
     _cogl_gl_get_graphics_reset_status,
     _cogl_driver_pixel_format_to_gl,

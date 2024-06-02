@@ -415,6 +415,12 @@ _cogl_context_get_gl_version (CoglContext *context)
 
 }
 
+const char *
+_cogl_context_get_gl_vendor (CoglContext *context)
+{
+  return (const char *) context->glGetString (GL_VENDOR);
+}
+
 gboolean
 _cogl_gl_util_parse_gl_version (const char *version_string,
                                 int *major_out,

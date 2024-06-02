@@ -35,6 +35,7 @@
 #include "cogl/cogl-profile.h"
 #include "cogl/cogl-util.h"
 #include "cogl/cogl-context-private.h"
+#include "cogl/cogl-context-test-utils.h"
 #include "cogl/cogl-display-private.h"
 #include "cogl/cogl-renderer-private.h"
 #include "cogl/cogl-journal-private.h"
@@ -434,6 +435,12 @@ CoglRenderer *
 cogl_context_get_renderer (CoglContext *context)
 {
   return context->display->renderer;
+}
+
+const char *
+_cogl_context_get_driver_vendor (CoglContext *context)
+{
+  return context->driver_vtable->get_vendor (context);
 }
 
 gboolean

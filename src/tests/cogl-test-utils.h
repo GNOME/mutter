@@ -295,3 +295,12 @@ test_utils_is_pot (unsigned int number)
   /* Make sure there is only one bit set */
   return (number & (number - 1)) == 0;
 }
+
+/*
+ * test_utils_get_cogl_gl3_vendor:
+ * @context: A #CoglContext
+ *
+ * Gets the GL driver vendor name or %NULL if gl driver is not in use.
+ */
+const char *
+test_utils_get_cogl_driver_vendor (CoglContext *context);

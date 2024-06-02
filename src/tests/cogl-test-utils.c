@@ -21,6 +21,7 @@
 #include "tests/cogl-test-utils.h"
 
 #include "backends/meta-backend-private.h"
+#include "cogl/cogl-context-test-utils.h"
 
 static gboolean cogl_test_is_verbose;
 CoglContext *test_ctx;
@@ -368,6 +369,12 @@ on_before_tests (MetaContext *context)
                             COGL_BUFFER_BIT_DEPTH |
                             COGL_BUFFER_BIT_STENCIL,
                             0, 0, 0, 1);
+}
+
+const char *
+test_utils_get_cogl_driver_vendor (CoglContext *context)
+{
+  return _cogl_context_get_driver_vendor (context);
 }
 
 static void

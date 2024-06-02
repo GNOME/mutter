@@ -67,6 +67,12 @@ _cogl_driver_nop_is_hardware_accelerated (CoglContext *context)
   return FALSE;
 }
 
+static const char *
+_cogl_driver_nop_get_renderer (CoglContext *context)
+{
+  return "NOP";
+}
+
 static CoglFramebufferDriver *
 _cogl_driver_nop_create_framebuffer_driver (CoglContext                        *context,
                                             CoglFramebuffer                    *framebuffer,
@@ -91,6 +97,7 @@ _cogl_driver_nop =
   {
     _cogl_driver_nop_context_init,
     _cogl_driver_nop_context_deinit,
+    _cogl_driver_nop_get_renderer,
     _cogl_driver_nop_is_hardware_accelerated,
     NULL, /* get_graphics_reset_status */
     NULL, /* pixel_format_to_gl */
