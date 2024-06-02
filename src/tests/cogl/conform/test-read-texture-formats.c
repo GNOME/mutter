@@ -200,12 +200,25 @@ test_read_int_case (gconstpointer data)
   received_value_str = g_strdup_printf ("0x%08x", received_value);
   expected_value_str = g_strdup_printf ("0x%08x", args->expected_value);
 
-  if (!g_test_undefined ())
+  /* The test is currently failing using sw rendering or intel hardware, but
+   * it does pass under AMD, so at least keep checking if this case works.
+   */
+  if (!g_test_undefined () &&
+      !g_str_equal (test_utils_get_cogl_driver_vendor (test_ctx), "AMD"))
     {
       /* This test case is always considered failing */
       g_test_skip_printf ("This test is a well known failure, "
                           "expected: '%s', actual: '%s'",
                           expected_value_str, received_value_str);
+      return;
+    }
+  else if (g_test_undefined () &&
+           g_str_equal (test_utils_get_cogl_driver_vendor (test_ctx), "AMD") &&
+           cogl_renderer_get_driver (cogl_context_get_renderer (test_ctx)) ==
+                                     COGL_DRIVER_GL3)
+    {
+      g_test_fail_printf ("This test is not failing on AMD, but we mark it "
+                          "to make meson happy.");
       return;
     }
 
