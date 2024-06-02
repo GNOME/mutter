@@ -95,7 +95,15 @@ foreach cogl_test: cogl_tests
       suite: ['cogl', 'cogl/conform'],
       env: variant_test_env,
       is_parallel: false,
-      should_fail: variant in known_failures,
     )
+
+    if variant in known_failures
+      test('-'.join([test_name, 'should-fail', variant]), test_executable,
+        suite: ['cogl', 'cogl/conform', 'failing'],
+        env: variant_test_env,
+        is_parallel: false,
+        should_fail: true,
+      )
+    endif
   endforeach
 endforeach

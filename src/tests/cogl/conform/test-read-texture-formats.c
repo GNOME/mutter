@@ -187,8 +187,8 @@ test_read_int_case (gconstpointer data)
   const TestFormatArgs *args = data;
   g_autoptr (CoglTexture) tex_2d = NULL;
   uint32_t received_value;
-  char *received_value_str;
-  char *expected_value_str;
+  g_autofree char *received_value_str = NULL;
+  g_autofree char *expected_value_str = NULL;
 
   tex_2d = g_steal_pointer ((CoglTexture **) &args->tex_2d);
 
@@ -199,10 +199,17 @@ test_read_int_case (gconstpointer data)
 
   received_value_str = g_strdup_printf ("0x%08x", received_value);
   expected_value_str = g_strdup_printf ("0x%08x", args->expected_value);
-  g_assert_cmpstr (received_value_str, ==, expected_value_str);
 
-  g_free (received_value_str);
-  g_free (expected_value_str);
+  if (!g_test_undefined ())
+    {
+      /* This test case is always considered failing */
+      g_test_skip_printf ("This test is a well known failure, "
+                          "expected: '%s', actual: '%s'",
+                          expected_value_str, received_value_str);
+      return;
+    }
+
+  g_assert_cmpstr (received_value_str, ==, expected_value_str);
 }
 
 static void
