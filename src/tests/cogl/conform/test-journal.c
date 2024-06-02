@@ -1,5 +1,6 @@
 #include <cogl/cogl.h>
 
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -13,14 +14,27 @@ test_journal_unref_flush (void)
   CoglPipeline *pipeline;
   CoglColor color;
   const int width = 1;
-  const int height = 1;
+  int height = 1;
   const int stride = width * 4;
-  uint8_t reference_data[] = {
-    0x33, 0x33, 0x33, 0x33,
-  };
-  uint8_t data[G_N_ELEMENTS (reference_data)];
+  g_autofree uint8_t *reference_data = NULL;
+  g_autofree uint8_t *data = NULL;
+  size_t data_size;
 
-  G_STATIC_ASSERT (sizeof data == sizeof reference_data);
+  if (g_str_equal (test_utils_get_cogl_driver_vendor (test_ctx), "AMD"))
+    {
+      /* AMD is buggy, but this doesn't change the purpose of the test, so
+       * keep running it in different conditions, so we mark it as incomplete.
+       */
+      g_test_incomplete ("AMD driver is not generating the proper texture when "
+                         "using 1px height buffer: "
+                         "https://gitlab.freedesktop.org/mesa/mesa/-/issues/11269");
+      height += 1;
+    }
+
+  data_size = stride * height;
+  data = g_new (uint8_t, data_size);
+  reference_data = g_new (uint8_t, data_size);
+  memset (reference_data, 0x33, data_size);
 
   texture = cogl_texture_2d_new_with_size (test_ctx, width, height);
   offscreen = cogl_offscreen_new_with_texture (texture);
@@ -40,8 +54,20 @@ test_journal_unref_flush (void)
   cogl_texture_get_data (texture,
                          COGL_PIXEL_FORMAT_RGBA_8888_PRE,
                          stride, data);
-  g_assert_cmpmem (data, sizeof (data),
-                   reference_data, sizeof (reference_data));
+
+  if (g_test_verbose () || cogl_test_verbose ())
+    {
+      g_printerr ("Texture data is ");
+      for (int i = 0; i < data_size; ++i)
+        {
+          g_printerr ("0x%x, ", data[i]);
+          if ((i + 1) % 4 == 0)
+            g_printerr ("\n");
+        }
+      g_printerr ("\n");
+    }
+
+  g_assert_cmpmem (data, data_size, reference_data, data_size);
 
   g_object_unref (texture);
 }
