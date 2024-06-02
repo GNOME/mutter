@@ -1,5 +1,6 @@
 #include <cogl/cogl.h>
 #include <stdarg.h>
+#include <stdint.h>
 
 #include "tests/cogl-test-utils.h"
 
@@ -10,19 +11,78 @@
 
 static const uint8_t tex_data[4] = { 0x12, 0x34, 0x56, 0x78 };
 
+typedef struct {
+  CoglTexture    *tex_2d;
+  CoglPixelFormat format;
+  uint32_t expected_value;
+} TestFormatArgs;
+
 static void
-test_read_byte (CoglTexture    *tex_2d,
-                CoglPixelFormat format,
-                uint8_t         expected_byte)
+add_format_test_case (CoglTexture    *tex_2d,
+                      CoglPixelFormat format,
+                      uint32_t        expected_value,
+                      GTestDataFunc   test_func)
 {
+  g_autofree char *test_name = NULL;
+  TestFormatArgs *args;
+
+  test_name = g_strdup_printf ("/read-texture-formats/%s/0x%08x",
+                               cogl_pixel_format_to_string (format),
+                               expected_value);
+  args = g_memdup2 (&(TestFormatArgs) {
+    .tex_2d = g_object_ref (tex_2d),
+    .format = format,
+    .expected_value = expected_value,
+  }, sizeof (TestFormatArgs));
+  g_test_add_data_func_full (test_name, args, test_func, g_free);
+}
+
+#define test_read(what, text_2d, format, expected_pixel) \
+  add_format_test_case (tex_2d, format, expected_pixel, test_read_##what##_case)
+
+#define test_read_byte(...) \
+  test_read (byte, __VA_ARGS__)
+
+static void
+test_read_byte_case (gconstpointer data)
+{
+  const TestFormatArgs *args = data;
+  g_autoptr (CoglTexture) tex_2d = NULL;
   uint8_t received_byte;
 
+  tex_2d = g_steal_pointer ((CoglTexture **) &args->tex_2d);
+
   cogl_texture_get_data (tex_2d,
-                         format,
+                         args->format,
                          1, /* rowstride */
                          &received_byte);
 
-  g_assert_cmpint (expected_byte, ==, received_byte);
+  g_assert_cmpint (args->expected_value, ==, received_byte);
+}
+
+static void
+test_read_short_case (gconstpointer data)
+{
+  const TestFormatArgs *args = data;
+  g_autoptr (CoglTexture) tex_2d = NULL;
+  uint16_t expected_value = args->expected_value;
+  uint16_t received_value;
+
+  tex_2d = g_steal_pointer ((CoglTexture **) &args->tex_2d);
+
+  char *received_value_str;
+  char *expected_value_str;
+
+  cogl_texture_get_data (tex_2d,
+                         args->format,
+                         2, /* rowstride */
+                         (uint8_t *) &received_value);
+
+  received_value_str = g_strdup_printf ("0x%04x", received_value);
+  expected_value_str = g_strdup_printf ("0x%04x", expected_value);
+  g_assert_cmpstr (received_value_str, ==, expected_value_str);
+  g_free (received_value_str);
+  g_free (expected_value_str);
 }
 
 static void
@@ -32,16 +92,8 @@ test_read_short (CoglTexture    *tex_2d,
 {
   va_list ap;
   int bits;
-  uint16_t received_value;
-  uint16_t expected_value = 0;
-  char *received_value_str;
-  char *expected_value_str;
   int bits_sum = 0;
-
-  cogl_texture_get_data (tex_2d,
-                         format,
-                         2, /* rowstride */
-                         (uint8_t *) &received_value);
+  uint16_t expected_value = 0;
 
   va_start (ap, format);
 
@@ -57,64 +109,98 @@ test_read_short (CoglTexture    *tex_2d,
 
   va_end (ap);
 
-  received_value_str = g_strdup_printf ("0x%04x", received_value);
-  expected_value_str = g_strdup_printf ("0x%04x", expected_value);
-  g_assert_cmpstr (received_value_str, ==, expected_value_str);
-  g_free (received_value_str);
-  g_free (expected_value_str);
+  add_format_test_case (tex_2d, format, expected_value, test_read_short_case);
 }
 
 static void
-test_read_888 (CoglTexture    *tex_2d,
-               CoglPixelFormat format,
-               uint32_t        expected_pixel)
+test_read_888_case (gconstpointer data)
 {
+  const TestFormatArgs *args = data;
+  g_autoptr (CoglTexture) tex_2d = NULL;
   uint8_t pixel[4];
 
+  tex_2d = g_steal_pointer ((CoglTexture **) &args->tex_2d);
+
   cogl_texture_get_data (tex_2d,
-                         format,
+                         args->format,
                          4, /* rowstride */
                          pixel);
 
-  test_utils_compare_pixel (pixel, expected_pixel);
+  test_utils_compare_pixel (pixel, args->expected_value);
 }
 
+#define test_read_888(...) \
+  test_read (888, __VA_ARGS__)
+
 static void
-test_read_88 (CoglTexture    *tex_2d,
-              CoglPixelFormat format,
-              uint32_t        expected_pixel)
+test_read_88_case (gconstpointer data)
 {
+  const TestFormatArgs *args = data;
+  g_autoptr (CoglTexture) tex_2d = NULL;
   uint8_t pixel[4];
 
   pixel[2] = 0x00;
+  tex_2d = g_steal_pointer ((CoglTexture **) &args->tex_2d);
 
   cogl_texture_get_data (tex_2d,
-                         format,
+                         args->format,
                          2, /* rowstride */
                          pixel);
 
-  test_utils_compare_pixel (pixel, expected_pixel);
+  test_utils_compare_pixel (pixel, args->expected_value);
 }
 
+#define test_read_88(...) \
+  test_read (88, __VA_ARGS__)
+
 static void
-test_read_8888 (CoglTexture    *tex_2d,
-                CoglPixelFormat format,
-                uint32_t        expected_pixel)
+test_read_8888_case (gconstpointer data)
 {
+  const TestFormatArgs *args = data;
+  g_autoptr (CoglTexture) tex_2d = NULL;
   uint32_t received_pixel;
   char *received_value_str;
   char *expected_value_str;
 
+  tex_2d = g_steal_pointer ((CoglTexture **) &args->tex_2d);
+
   cogl_texture_get_data (tex_2d,
-                         format,
+                         args->format,
                          4, /* rowstride */
                          (uint8_t *) &received_pixel);
 
   received_pixel = GUINT32_FROM_BE (received_pixel);
 
   received_value_str = g_strdup_printf ("0x%08x", received_pixel);
-  expected_value_str = g_strdup_printf ("0x%08x", expected_pixel);
+  expected_value_str = g_strdup_printf ("0x%08x", args->expected_value);
   g_assert_cmpstr (received_value_str, ==, expected_value_str);
+  g_free (received_value_str);
+  g_free (expected_value_str);
+}
+
+#define test_read_8888(...) \
+  test_read (8888, __VA_ARGS__)
+
+static void
+test_read_int_case (gconstpointer data)
+{
+  const TestFormatArgs *args = data;
+  g_autoptr (CoglTexture) tex_2d = NULL;
+  uint32_t received_value;
+  char *received_value_str;
+  char *expected_value_str;
+
+  tex_2d = g_steal_pointer ((CoglTexture **) &args->tex_2d);
+
+  cogl_texture_get_data (tex_2d,
+                         args->format,
+                         4, /* rowstride */
+                         (uint8_t *) &received_value);
+
+  received_value_str = g_strdup_printf ("0x%08x", received_value);
+  expected_value_str = g_strdup_printf ("0x%08x", args->expected_value);
+  g_assert_cmpstr (received_value_str, ==, expected_value_str);
+
   g_free (received_value_str);
   g_free (expected_value_str);
 }
@@ -125,17 +211,9 @@ test_read_int (CoglTexture    *tex_2d,
                ...)
 {
   va_list ap;
-  int bits;
-  uint32_t received_value;
   uint32_t expected_value = 0;
-  char *received_value_str;
-  char *expected_value_str;
+  int bits;
   int bits_sum = 0;
-
-  cogl_texture_get_data (tex_2d,
-                         format,
-                         4, /* rowstride */
-                         (uint8_t *) &received_value);
 
   va_start (ap, format);
 
@@ -151,11 +229,7 @@ test_read_int (CoglTexture    *tex_2d,
 
   va_end (ap);
 
-  received_value_str = g_strdup_printf ("0x%08x", received_value);
-  expected_value_str = g_strdup_printf ("0x%08x", expected_value);
-  g_assert_cmpstr (received_value_str, ==, expected_value_str);
-  g_free (received_value_str);
-  g_free (expected_value_str);
+  add_format_test_case (tex_2d, format, expected_value, test_read_int_case);
 }
 
 static void
