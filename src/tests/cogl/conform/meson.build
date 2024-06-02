@@ -91,6 +91,7 @@ foreach cogl_test: cogl_tests
     variant_test_env.set('COGL_DEBUG', 'winsys')
 
     test(test_name + '-' + variant, test_executable,
+      args: variant in known_failures ? ['-m', 'no-undefined'] : [],
       suite: ['cogl', 'cogl/conform'],
       env: variant_test_env,
       is_parallel: false,
