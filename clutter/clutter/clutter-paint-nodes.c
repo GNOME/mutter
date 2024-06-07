@@ -500,7 +500,7 @@ clutter_pipeline_node_new (CoglPipeline *pipeline)
   res = _clutter_paint_node_create (CLUTTER_TYPE_PIPELINE_NODE);
 
   if (pipeline != NULL)
-    res->pipeline = g_object_ref (pipeline);
+    res->pipeline = cogl_pipeline_copy (pipeline);
 
   return (ClutterPaintNode *) res;
 }
