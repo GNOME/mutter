@@ -39,7 +39,7 @@
 #include "meta/workspace.h"
 
 #ifdef HAVE_X11_CLIENT
-#include "meta/group.h"
+#include "meta/meta-x11-group.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/window-x11.h"
 #endif

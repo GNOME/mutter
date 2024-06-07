@@ -46,7 +46,7 @@
 #include "compositor/compositor-private.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/util-private.h"
-#include "meta/group.h"
+#include "meta/meta-x11-group.h"
 #include "mtk/mtk-x11.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/meta-x11-frame.h"

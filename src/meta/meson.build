@@ -5,7 +5,6 @@ mutter_public_headers = [
   'compositor.h',
   'compositor-mutter.h',
   'display.h',
-  'group.h',
   'keybindings.h',
   'main.h',
   'meta-backend.h',
@@ -62,6 +61,7 @@ if have_x11_client
   mutter_public_headers += [
     'meta-x11-display.h',
     'meta-x11-types.h',
+    'meta-x11-group.h',
   ]
 endif
 

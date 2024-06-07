@@ -51,10 +51,10 @@
 #include "wayland/meta-window-xwayland.h"
 #endif
 
-#include "x11/group-private.h"
 #include "x11/meta-sync-counter.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/meta-x11-frame.h"
+#include "x11/meta-x11-group-private.h"
 #include "x11/session.h"
 #include "x11/window-props.h"
 #include "x11/xprops.h"

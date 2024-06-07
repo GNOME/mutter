@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "meta/group.h"
+#include "meta/meta-x11-group.h"
 
 #include <X11/Xlib.h>
 

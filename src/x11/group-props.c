@@ -25,8 +25,8 @@
 
 #include <X11/Xatom.h>
 
-#include "x11/group-private.h"
 #include "x11/meta-x11-display-private.h"
+#include "x11/meta-x11-group-private.h"
 #include "x11/xprops.h"
 
 typedef void (* InitValueFunc)   (MetaX11Display *x11_display,

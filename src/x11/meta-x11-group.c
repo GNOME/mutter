@@ -26,7 +26,7 @@
 
 #include "config.h"
 
-#include "x11/group-private.h"
+#include "x11/meta-x11-group-private.h"
 
 #include <X11/Xlib-xcb.h>
 
