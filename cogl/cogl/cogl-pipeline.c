@@ -335,6 +335,8 @@ _cogl_pipeline_copy (CoglPipeline *src, gboolean is_weak)
   if (src->capabilities)
     pipeline->capabilities = g_array_copy (src->capabilities);
 
+  pipeline->name = src->name;
+
   /* XXX:
    * consider generalizing the idea of "cached" properties. These
    * would still have an authority like other sparse properties but
@@ -2854,4 +2856,17 @@ cogl_pipeline_has_capability (CoglPipeline *pipeline,
     }
 
   return FALSE;
+}
+
+void
+cogl_pipeline_set_static_name (CoglPipeline *pipeline,
+                               const char   *name)
+{
+  pipeline->name = name;
+}
+
+const char *
+cogl_pipeline_get_name (CoglPipeline *pipeline)
+{
+  return pipeline->name;
 }

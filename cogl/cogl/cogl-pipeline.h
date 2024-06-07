@@ -160,4 +160,25 @@ cogl_pipeline_has_capability (CoglPipeline *pipeline,
                               GQuark        domain,
                               unsigned int  capability);
 
+/**
+ * cogl_pipeline_set_static_name:
+ * @pipeline: A #CoglPipeline object
+ * @name: A descriptive name
+ *
+ * Set a pipeline name. It may be used for debugging or logging purposes. The
+ * string must be a static string, and string. It will not be copied.
+ */
+COGL_EXPORT void
+cogl_pipeline_set_static_name  (CoglPipeline *pipeline,
+                                const char   *name);
+
+/**
+ * cogl_pipeline_get_name:
+ * @pipeline: A #CoglPipeline object
+ *
+ * Returns: (transfer none): The pipeline name, or %NULL
+ */
+COGL_EXPORT const char *
+cogl_pipeline_get_name (CoglPipeline *pipeline);
+
 G_END_DECLS

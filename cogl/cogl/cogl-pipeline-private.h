@@ -368,6 +368,9 @@ struct _CoglPipeline
    * string with a pipeline which can be an aid when trying to trace
    * where the pipeline originates from */
   const char      *static_breadcrumb;
+
+  /* Pointer to a static string with a descriptive name, or NULL. */
+  const char *name;
 };
 
 struct _CoglPipelineClass
