@@ -2094,7 +2094,7 @@ meta_window_x11_constructed (GObject *object)
 
   g_signal_connect (window, "notify::decorated",
                     G_CALLBACK (meta_window_x11_update_input_region),
-                    window);
+                    NULL);
 
   g_signal_connect (window, "notify::mapped",
                     G_CALLBACK (on_mapped_changed),
