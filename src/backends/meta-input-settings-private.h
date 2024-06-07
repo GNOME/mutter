@@ -139,7 +139,8 @@ struct _MetaInputSettingsClass
   void (* set_stylus_pressure) (MetaInputSettings            *settings,
                                 ClutterInputDevice           *device,
                                 ClutterInputDeviceTool       *tool,
-                                const gint32                  curve[4]);
+                                const gint32                  curve[4],
+                                const gdouble                 range[2]);
   void (* set_stylus_button_map) (MetaInputSettings          *settings,
                                   ClutterInputDevice         *device,
                                   ClutterInputDeviceTool     *tool,

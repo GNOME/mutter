@@ -49,7 +49,7 @@ wayland_server_req = '>= 1.23'
 wayland_protocols_req = '>= 1.36'
 
 # native backend version requirements
-libinput_req = '>= 1.19.0'
+libinput_req = '>= 1.26.0'
 gbm_req = '>= 21.3'
 libdrm_req = '>= 2.4.118'
 

@@ -892,12 +892,19 @@ static void
 meta_input_settings_x11_set_stylus_pressure (MetaInputSettings      *settings,
                                              ClutterInputDevice     *device,
                                              ClutterInputDeviceTool *tool,
-                                             const gint32            pressure[4])
+                                             const gint32            pressure[4],
+                                             const gdouble           range[2])
 {
   guint32 values[4] = { pressure[0], pressure[1], pressure[2], pressure[3] };
+  guint32 threshold = (guint32) MAX (2048 * range[0], 1.0);
 
   change_property (settings, device, "Wacom Pressurecurve", XA_INTEGER, 32,
                    &values, G_N_ELEMENTS (values));
+
+  /* The wacom driver doesn't have a full equivalent to the pressure range.
+   * Threshold only applies to the tip down event but that's better than nothing */
+  change_property (settings, device, "Wacom Pressure Threshold", XA_INTEGER, 32,
+                   &threshold, 1);
 }
 
 static void

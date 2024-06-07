@@ -1562,6 +1562,8 @@ update_stylus_pressure (MetaInputSettings      *input_settings,
   MetaInputSettingsClass *input_settings_class;
   GSettings *tool_settings;
   const gint32 *curve;
+  const guint32 *percent;
+  gdouble range[2];
   GVariant *variant;
   gsize n_elems;
 
@@ -1584,8 +1586,24 @@ update_stylus_pressure (MetaInputSettings      *input_settings,
   if (n_elems != 4)
     return;
 
+  if (clutter_input_device_tool_get_tool_type (tool) ==
+      CLUTTER_INPUT_DEVICE_TOOL_ERASER)
+    variant = g_settings_get_value (tool_settings, "eraser-pressure-range");
+  else
+    variant = g_settings_get_value (tool_settings, "pressure-range");
+
+  percent = g_variant_get_fixed_array (variant, &n_elems, sizeof (guint32));
+  if (n_elems != 2)
+    return;
+
+  range[0] = CLAMP (percent[0] / 100.0, 0.0, 1.0);
+  range[1] = CLAMP (percent[1] / 100.0, 0.0, 1.0);
+
+  if (range[0] >= range[1])
+    return;
+
   input_settings_class = META_INPUT_SETTINGS_GET_CLASS (input_settings);
-  input_settings_class->set_stylus_pressure (input_settings, device, tool, curve);
+  input_settings_class->set_stylus_pressure (input_settings, device, tool, curve, range);
 }
 
 static void

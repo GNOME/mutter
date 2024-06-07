@@ -696,16 +696,21 @@ static void
 meta_input_settings_native_set_stylus_pressure (MetaInputSettings      *settings,
                                                 ClutterInputDevice     *device,
                                                 ClutterInputDeviceTool *tool,
-                                                const gint              curve[4])
+                                                const gint              curve[4],
+                                                const gdouble           range[2])
 {
   gdouble pressure_curve[4];
+  gdouble pressure_range[2];
 
   pressure_curve[0] = (gdouble) curve[0] / 100;
   pressure_curve[1] = (gdouble) curve[1] / 100;
   pressure_curve[2] = (gdouble) curve[2] / 100;
   pressure_curve[3] = (gdouble) curve[3] / 100;
 
-  meta_input_device_tool_native_set_pressure_curve_in_impl (tool, pressure_curve);
+  pressure_range[0] = (gdouble) range[0];
+  pressure_range[1] = (gdouble) range[1];
+
+  meta_input_device_tool_native_set_pressure_curve_in_impl (tool, pressure_curve, pressure_range);
 }
 
 static void

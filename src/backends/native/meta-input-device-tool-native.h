@@ -53,7 +53,8 @@ GDesktopStylusButtonAction meta_input_device_tool_native_get_button_code_in_impl
                                                                                   uint32_t                button);
 
 void                     meta_input_device_tool_native_set_pressure_curve_in_impl (ClutterInputDeviceTool *tool,
-                                                                                   double                  curve[4]);
+                                                                                   double                  curve[4],
+                                                                                   double                  range[2]);
 void                     meta_input_device_tool_native_set_button_code_in_impl (ClutterInputDeviceTool     *tool,
                                                                                 uint32_t                    button,
                                                                                 GDesktopStylusButtonAction  evcode);

@@ -117,7 +117,8 @@ meta_input_device_tool_native_new (struct libinput_tablet_tool *tool,
 
 void
 meta_input_device_tool_native_set_pressure_curve_in_impl (ClutterInputDeviceTool *tool,
-                                                          double                  curve[4])
+                                                          double                  curve[4],
+                                                          double                  range[2])
 {
   MetaInputDeviceToolNative *evdev_tool;
   graphene_point_t p1, p2;
@@ -141,6 +142,8 @@ meta_input_device_tool_native_set_pressure_curve_in_impl (ClutterInputDeviceTool
       evdev_tool->pressure_curve[1] = p2;
       init_pressurecurve (evdev_tool);
     }
+
+  libinput_tablet_tool_config_pressure_range_set (evdev_tool->tool, range[0], range[1]);
 }
 
 void
