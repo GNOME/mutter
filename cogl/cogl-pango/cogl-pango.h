@@ -152,10 +152,11 @@ cogl_pango_font_map_get_renderer (CoglPangoFontMap *font_map);
  */
 COGL_EXPORT void
 cogl_pango_show_layout (CoglFramebuffer *framebuffer,
-                        PangoLayout *layout,
-                        float x,
-                        float y,
-                        const CoglColor *color);
+                        PangoLayout     *layout,
+                        float            x,
+                        float            y,
+                        const CoglColor *color,
+                        CoglSnippet     *extra_snippet);
 
 /**
  * cogl_pango_show_layout_line: (skip)
@@ -171,9 +172,10 @@ cogl_pango_show_layout (CoglFramebuffer *framebuffer,
 COGL_EXPORT void
 cogl_pango_show_layout_line (CoglFramebuffer *framebuffer,
                              PangoLayoutLine *line,
-                             float x,
-                             float y,
-                             const CoglColor *color);
+                             float            x,
+                             float            y,
+                             const CoglColor *color,
+                             CoglSnippet     *extra_snippet);
 
 
 #define COGL_PANGO_TYPE_RENDERER                (cogl_pango_renderer_get_type ())

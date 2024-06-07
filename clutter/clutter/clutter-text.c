@@ -1951,7 +1951,7 @@ paint_selection_rectangle (ClutterText           *self,
                            color->blue / 255.0f,
                            paint_opacity / 255.0f * color->alpha / 255.0f);
 
-  cogl_pango_show_layout (fb, layout, priv->text_x, 0, &cogl_color);
+  cogl_pango_show_layout (fb, layout, priv->text_x, 0, &cogl_color, NULL);
 
   cogl_framebuffer_pop_clip (fb);
   g_object_unref (color_pipeline);
@@ -2758,7 +2758,7 @@ clutter_text_paint (ClutterActor        *self,
                            priv->text_color.green / 255.0f,
                            priv->text_color.blue / 255.0f,
                            real_opacity / 255.0f);
-  cogl_pango_show_layout (fb, layout, priv->text_x, priv->text_y, &color);
+  cogl_pango_show_layout (fb, layout, priv->text_x, priv->text_y, &color, NULL);
 
   selection_paint (text, fb);
 

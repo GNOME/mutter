@@ -69,9 +69,10 @@ _cogl_pango_display_list_add_trapezoid (CoglPangoDisplayList *dl,
                                         float x_22);
 
 void
-_cogl_pango_display_list_render (CoglFramebuffer *framebuffer,
-                                 CoglPangoDisplayList *dl,
-                                 const CoglColor *color);
+cogl_pango_display_list_render (CoglFramebuffer      *framebuffer,
+                                CoglPangoDisplayList *dl,
+                                CoglSnippet          *extra_snippet,
+                                const CoglColor      *color);
 
 void
 _cogl_pango_display_list_free (CoglPangoDisplayList *dl);

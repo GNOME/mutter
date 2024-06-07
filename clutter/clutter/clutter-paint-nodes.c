@@ -771,7 +771,8 @@ clutter_text_node_draw (ClutterPaintNode    *node,
                                   tnode->layout,
                                   op->op.texrect[0],
                                   op->op.texrect[1],
-                                  &tnode->color);
+                                  &tnode->color,
+                                  NULL);
 
           if (clipped)
             cogl_framebuffer_pop_clip (fb);

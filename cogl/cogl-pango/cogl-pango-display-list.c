@@ -391,9 +391,10 @@ _cogl_framebuffer_draw_display_list_texture (CoglFramebuffer *fb,
 }
 
 void
-_cogl_pango_display_list_render (CoglFramebuffer *fb,
-                                 CoglPangoDisplayList *dl,
-                                 const CoglColor *color)
+cogl_pango_display_list_render (CoglFramebuffer      *fb,
+                                CoglPangoDisplayList *dl,
+                                CoglSnippet          *extra_snippet,
+                                const CoglColor      *color)
 {
   GSList *l;
 
@@ -401,6 +402,7 @@ _cogl_pango_display_list_render (CoglFramebuffer *fb,
     {
       CoglPangoDisplayListNode *node = l->data;
       CoglColor draw_color;
+      g_autoptr (CoglPipeline) pipeline = NULL;
 
       if (node->pipeline == NULL)
         {
@@ -413,6 +415,8 @@ _cogl_pango_display_list_render (CoglFramebuffer *fb,
               _cogl_pango_pipeline_cache_get (dl->pipeline_cache,
                                               NULL);
         }
+
+      pipeline = cogl_pipeline_copy (node->pipeline);
 
       if (node->color_override)
         /* Use the override color but preserve the alpha from the
@@ -427,17 +431,20 @@ _cogl_pango_display_list_render (CoglFramebuffer *fb,
         draw_color = *color;
       cogl_color_premultiply (&draw_color);
 
-      cogl_pipeline_set_color (node->pipeline, &draw_color);
+      cogl_pipeline_set_color (pipeline, &draw_color);
+
+      if (extra_snippet)
+        cogl_pipeline_add_snippet (pipeline, extra_snippet);
 
       switch (node->type)
         {
         case COGL_PANGO_DISPLAY_LIST_TEXTURE:
-          _cogl_framebuffer_draw_display_list_texture (fb, node->pipeline, node);
+          _cogl_framebuffer_draw_display_list_texture (fb, pipeline, node);
           break;
 
         case COGL_PANGO_DISPLAY_LIST_RECTANGLE:
           cogl_framebuffer_draw_rectangle (fb,
-                                           node->pipeline,
+                                           pipeline,
                                            node->d.rectangle.x_1,
                                            node->d.rectangle.y_1,
                                            node->d.rectangle.x_2,
@@ -445,9 +452,9 @@ _cogl_pango_display_list_render (CoglFramebuffer *fb,
           break;
 
         case COGL_PANGO_DISPLAY_LIST_TRAPEZOID:
-          cogl_primitive_draw (node->d.trapezoid.primitive, 
+          cogl_primitive_draw (node->d.trapezoid.primitive,
                                fb,
-                               node->pipeline);
+                               pipeline);
           break;
         }
     }

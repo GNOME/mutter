@@ -358,10 +358,11 @@ cogl_pango_render_qdata_destroy (CoglPangoLayoutQdata *qdata)
 
 void
 cogl_pango_show_layout (CoglFramebuffer *fb,
-                        PangoLayout *layout,
-                        float x,
-                        float y,
-                        const CoglColor *color)
+                        PangoLayout     *layout,
+                        float            x,
+                        float            y,
+                        const CoglColor *color,
+                        CoglSnippet     *extra_snippet)
 {
   PangoContext *context;
   CoglPangoRenderer *priv;
@@ -423,9 +424,10 @@ cogl_pango_show_layout (CoglFramebuffer *fb,
   cogl_framebuffer_push_matrix (fb);
   cogl_framebuffer_translate (fb, x, y, 0);
 
-  _cogl_pango_display_list_render (fb,
-                                   qdata->display_list,
-                                   color);
+  cogl_pango_display_list_render (fb,
+                                  qdata->display_list,
+                                  extra_snippet,
+                                  color);
 
   cogl_framebuffer_pop_matrix (fb);
 
@@ -446,9 +448,10 @@ cogl_pango_show_layout (CoglFramebuffer *fb,
 void
 cogl_pango_show_layout_line (CoglFramebuffer *fb,
                              PangoLayoutLine *line,
-                             float x,
-                             float y,
-                             const CoglColor *color)
+                             float            x,
+                             float            y,
+                             const CoglColor *color,
+                             CoglSnippet     *extra_snippet)
 {
   PangoContext *context;
   CoglPangoRenderer *priv;
@@ -472,9 +475,10 @@ cogl_pango_show_layout_line (CoglFramebuffer *fb,
   pango_renderer_draw_layout_line (PANGO_RENDERER (priv), line,
                                    pango_x, pango_y);
 
-  _cogl_pango_display_list_render (fb,
-                                   priv->display_list,
-                                   color);
+  cogl_pango_display_list_render (fb,
+                                  priv->display_list,
+                                  extra_snippet,
+                                  color);
 
   _cogl_pango_display_list_free (priv->display_list);
   priv->display_list = NULL;
