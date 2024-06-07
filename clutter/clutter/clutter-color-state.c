@@ -843,3 +843,20 @@ clutter_color_state_get_transform_snippet (ClutterColorState *color_state,
                        g_object_ref (snippet));
   return snippet;
 }
+
+gboolean
+clutter_color_state_equals (ClutterColorState *color_state,
+                            ClutterColorState *other_color_state)
+{
+  ClutterColorStatePrivate *priv;
+  ClutterColorStatePrivate *other_priv;
+
+  g_return_val_if_fail (CLUTTER_IS_COLOR_STATE (color_state), FALSE);
+  g_return_val_if_fail (CLUTTER_IS_COLOR_STATE (other_color_state), FALSE);
+
+  priv = clutter_color_state_get_instance_private (color_state);
+  other_priv = clutter_color_state_get_instance_private (other_color_state);
+
+  return (priv->colorspace == other_priv->colorspace &&
+          priv->transfer_function == other_priv->transfer_function);
+}
