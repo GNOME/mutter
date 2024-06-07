@@ -398,6 +398,23 @@ clutter_pipeline_node_draw (ClutterPaintNode    *node,
   if (node->operations == NULL)
     return;
 
+  if (!cogl_pipeline_has_capability (pnode->pipeline,
+                                     CLUTTER_PIPELINE_CAPABILITY,
+                                     CLUTTER_PIPELINE_CAPABILITY_COLOR_STATE))
+    {
+      ClutterColorState *color_state =
+        clutter_paint_context_get_color_state (paint_context);
+      ClutterColorState *target_color_state =
+        clutter_paint_context_get_target_color_state (paint_context);
+      g_autoptr (CoglSnippet) color_snippet = NULL;
+
+      color_snippet =
+        clutter_color_state_get_transform_snippet (color_state,
+                                                   target_color_state);
+      if (color_snippet)
+        cogl_pipeline_add_snippet (pnode->pipeline, color_snippet);
+    }
+
   if (!cogl_pipeline_get_name (pnode->pipeline))
     cogl_pipeline_set_static_name (pnode->pipeline, node->name);
 
@@ -727,12 +744,21 @@ clutter_text_node_draw (ClutterPaintNode    *node,
                         ClutterPaintContext *paint_context)
 {
   ClutterTextNode *tnode = CLUTTER_TEXT_NODE (node);
+  ClutterColorState *color_state =
+    clutter_paint_context_get_color_state (paint_context);
+  ClutterColorState *target_color_state =
+    clutter_paint_context_get_target_color_state (paint_context);
+  g_autoptr (CoglSnippet) color_snippet = NULL;
   PangoRectangle extents;
   CoglFramebuffer *fb;
   guint i;
 
   if (node->operations == NULL)
     return;
+
+  color_snippet =
+    clutter_color_state_get_transform_snippet (color_state,
+                                               target_color_state);
 
   fb = get_target_framebuffer (node, paint_context);
 
@@ -772,7 +798,7 @@ clutter_text_node_draw (ClutterPaintNode    *node,
                                   op->op.texrect[0],
                                   op->op.texrect[1],
                                   &tnode->color,
-                                  NULL);
+                                  color_snippet);
 
           if (clipped)
             cogl_framebuffer_pop_clip (fb);
@@ -1150,6 +1176,7 @@ clutter_layer_node_pre_draw (ClutterPaintNode *node,
                              ClutterPaintContext *paint_context)
 {
   ClutterLayerNode *lnode = (ClutterLayerNode *) node;
+  ClutterColorState *color_state;
 
   /* if we were unable to create an offscreen buffer for this node, then
    * we simply ignore it
@@ -1158,6 +1185,8 @@ clutter_layer_node_pre_draw (ClutterPaintNode *node,
     return FALSE;
 
   clutter_paint_context_push_framebuffer (paint_context, lnode->offscreen);
+  color_state = clutter_paint_context_get_color_state (paint_context);
+  clutter_paint_context_push_target_color_state (paint_context, color_state);
 
   /* clear out the target framebuffer */
   cogl_framebuffer_clear4f (lnode->offscreen,
@@ -1179,16 +1208,38 @@ clutter_layer_node_post_draw (ClutterPaintNode    *node,
 {
   ClutterLayerNode *lnode = CLUTTER_LAYER_NODE (node);
   CoglFramebuffer *fb;
+  g_autoptr (CoglPipeline) pipeline = NULL;
   guint i;
 
   /* switch to the previous framebuffer */
   cogl_framebuffer_pop_matrix (lnode->offscreen);
   clutter_paint_context_pop_framebuffer (paint_context);
+  clutter_paint_context_pop_target_color_state (paint_context);
 
   if (!node->operations)
     return;
 
   fb = clutter_paint_context_get_framebuffer (paint_context);
+  pipeline = cogl_pipeline_copy (lnode->pipeline);
+
+  if (!cogl_pipeline_has_capability (pipeline,
+                                     CLUTTER_PIPELINE_CAPABILITY,
+                                     CLUTTER_PIPELINE_CAPABILITY_COLOR_STATE))
+    {
+      ClutterColorState *color_state;
+      ClutterColorState *target_color_state;
+      g_autoptr (CoglSnippet) color_snippet = NULL;
+
+      color_state =
+        clutter_paint_context_get_color_state (paint_context);
+      target_color_state =
+        clutter_paint_context_get_target_color_state (paint_context);
+      color_snippet =
+        clutter_color_state_get_transform_snippet (color_state,
+                                                   target_color_state);
+      if (color_snippet)
+        cogl_pipeline_add_snippet (pipeline, color_snippet);
+    }
 
   for (i = 0; i < node->operations->len; i++)
     {
