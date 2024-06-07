@@ -298,9 +298,11 @@ _cogl_glsl_shader_set_source_with_boilerplate (CoglContext *ctx,
       for (i = 0; lines[i]; i++)
         g_string_append_printf (buf, "%4d: %s\n", i + 1, lines[i]);
 
-      g_message ("%s shader:\n%s",
+      g_message ("%s shader (%s; %u):\n%s",
                  shader_gl_type == GL_VERTEX_SHADER ?
                  "vertex" : "fragment",
+                 pipeline->name ? pipeline->name : "unknown",
+                 shader_gl_handle,
                  buf->str);
       g_string_free (buf, TRUE);
     }

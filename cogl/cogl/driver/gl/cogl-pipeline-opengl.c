@@ -1020,6 +1020,15 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
 
       progend = _cogl_pipeline_progend;
 
+      if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_SHOW_SOURCE)))
+        {
+          g_message ("Drawing to the %d x %d sized %s using pipeline %s",
+                     cogl_framebuffer_get_width (framebuffer),
+                     cogl_framebuffer_get_height (framebuffer),
+                     G_OBJECT_TYPE_NAME (G_OBJECT (framebuffer)),
+                     pipeline->name ? pipeline->name : "N\\A");
+        }
+
       if (G_UNLIKELY (!progend->start (pipeline)))
         continue;
 
