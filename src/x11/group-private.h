@@ -39,3 +39,14 @@ MetaGroup * meta_group_new (MetaX11Display *x11_display,
                             Window          group_leader);
 
 void meta_group_unref (MetaGroup *group);
+
+/* note, can return NULL */
+MetaGroup * meta_x11_display_lookup_group (MetaX11Display *x11_display,
+                                           Window          group_leader);
+
+void meta_group_update_layers (MetaGroup *group);
+
+const char* meta_group_get_startup_id (MetaGroup *group);
+
+gboolean meta_group_property_notify (MetaGroup  *group,
+                                     XEvent     *event);

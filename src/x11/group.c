@@ -220,12 +220,4 @@ meta_group_property_notify (MetaGroup  *group,
 
 }
 
-int
-meta_group_get_size (MetaGroup *group)
-{
-  if (!group)
-    return 0;
-
-  return group->refcount;
-}
 
