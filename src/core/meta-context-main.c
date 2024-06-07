@@ -639,6 +639,7 @@ meta_context_main_add_option_entries (MetaContextMain *context_main)
       N_("Run as a wayland compositor"),
       NULL
     },
+#ifdef HAVE_X11
     {
       "nested", 0, 0, G_OPTION_ARG_NONE,
       &context_main->options.nested,
@@ -651,6 +652,7 @@ meta_context_main_add_option_entries (MetaContextMain *context_main)
       N_("Run wayland compositor without starting Xwayland"),
       NULL
     },
+#endif
     {
       "wayland-display", 0, 0, G_OPTION_ARG_STRING,
       &context_main->options.wayland_display,
