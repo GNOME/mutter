@@ -108,6 +108,7 @@ get_base_texture_rgba_pipeline (CoglPangoPipelineCache *cache)
 
       pipeline = cache->base_texture_rgba_pipeline =
         cogl_pipeline_new (cache->ctx);
+      cogl_pipeline_set_static_name (pipeline, "CoglPango (texture rgba)");
 
       cogl_pipeline_set_layer_wrap_mode (pipeline, 0,
                                          COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
@@ -130,6 +131,7 @@ get_base_texture_alpha_pipeline (CoglPangoPipelineCache *cache)
       CoglPipeline *pipeline;
 
       pipeline = cogl_pipeline_copy (get_base_texture_rgba_pipeline (cache));
+      cogl_pipeline_set_static_name (pipeline, "CoglPango (texture alpha)");
       cache->base_texture_alpha_pipeline = pipeline;
 
       /* The default combine mode of materials is to modulate (A x B)
@@ -205,6 +207,7 @@ _cogl_pango_pipeline_cache_get (CoglPangoPipelineCache *cache,
     {
       entry->texture = NULL;
       entry->pipeline = cogl_pipeline_new (cache->ctx);
+      cogl_pipeline_set_static_name (entry->pipeline, "CoglPango (list entry)");
     }
 
   /* Add a weak reference to the pipeline so we can remove it from the

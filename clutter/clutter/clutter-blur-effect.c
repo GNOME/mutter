@@ -171,6 +171,8 @@ clutter_blur_effect_init (ClutterBlurEffect *self)
         clutter_backend_get_cogl_context (clutter_get_default_backend ());
 
       klass->base_pipeline = cogl_pipeline_new (ctx);
+      cogl_pipeline_set_static_name (klass->base_pipeline,
+                                     "ClutterBlurEffect (base pipeline)");
 
       snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_TEXTURE_LOOKUP,
                                   box_blur_glsl_declarations,

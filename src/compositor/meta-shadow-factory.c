@@ -954,6 +954,7 @@ make_shadow (MetaShadow *shadow,
   g_free (buffer);
 
   shadow->pipeline = meta_create_texture_pipeline (shadow->texture);
+  cogl_pipeline_set_static_name (shadow->pipeline, "MetaShadowFactory");
 }
 
 static MetaShadowParams *

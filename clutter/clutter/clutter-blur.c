@@ -150,6 +150,7 @@ create_blur_pipeline (void)
       CoglSnippet *snippet;
 
       blur_pipeline = cogl_pipeline_new (ctx);
+      cogl_pipeline_set_static_name (blur_pipeline, "ClutterBlur");
       cogl_pipeline_set_layer_null_texture (blur_pipeline, 0);
       cogl_pipeline_set_layer_filters (blur_pipeline,
                                        0,

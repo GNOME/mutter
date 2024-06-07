@@ -348,7 +348,10 @@ _cogl_journal_flush_modelview_and_entries (CoglJournalEntry *batch_start,
       CoglColor color;
 
       if (outline == NULL)
-        outline = cogl_pipeline_new (ctx);
+        {
+          outline = cogl_pipeline_new (ctx);
+          cogl_pipeline_set_static_name (outline, "CoglJournal (outline)");
+        }
 
       /* The least significant three bits represent the three
          components so that the order of colours goes red, green,

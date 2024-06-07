@@ -170,6 +170,7 @@ clutter_stage_view_create_offscreen_pipeline (CoglOffscreen *offscreen)
   CoglPipeline *pipeline;
 
   pipeline = cogl_pipeline_new (cogl_framebuffer_get_context (framebuffer));
+  cogl_pipeline_set_static_name (pipeline, "ClutterStageView (offscreen)");
 
   cogl_pipeline_set_layer_filters (pipeline, 0,
                                    COGL_PIPELINE_FILTER_NEAREST,

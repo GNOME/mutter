@@ -1886,6 +1886,7 @@ create_color_pipeline (void)
   if (G_UNLIKELY (color_pipeline == NULL))
     {
       color_pipeline = cogl_pipeline_new (ctx);
+      cogl_pipeline_set_static_name (color_pipeline, "ClutterText (color)");
       cogl_context_set_named_pipeline (ctx,
                                        &color_pipeline_key,
                                        color_pipeline);

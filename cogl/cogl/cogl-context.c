@@ -312,6 +312,8 @@ cogl_context_new (CoglDisplay *display,
   graphene_matrix_scale (&context->y_flip_matrix, 1, -1, 1);
 
   context->opaque_color_pipeline = cogl_pipeline_new (context);
+  cogl_pipeline_set_static_name (context->opaque_color_pipeline,
+                                 "CoglContext (opaque color)");
 
   context->codegen_header_buffer = g_string_new ("");
   context->codegen_source_buffer = g_string_new ("");
@@ -364,6 +366,8 @@ cogl_context_new (CoglDisplay *display,
     context->current_buffer[i] = NULL;
 
   context->stencil_pipeline = cogl_pipeline_new (context);
+  cogl_pipeline_set_static_name (context->stencil_pipeline,
+                                 "Cogl (stencil)");
 
   context->rectangle_byte_indices = NULL;
   context->rectangle_short_indices = NULL;

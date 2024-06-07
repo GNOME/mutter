@@ -218,6 +218,7 @@ clutter_desaturate_effect_init (ClutterDesaturateEffect *self)
       CoglSnippet *snippet;
 
       klass->base_pipeline = cogl_pipeline_new (ctx);
+      cogl_pipeline_set_static_name (klass->base_pipeline, "ClutterDesaturate");
 
       snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT,
                                   desaturate_glsl_declarations,

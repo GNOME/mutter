@@ -374,6 +374,8 @@ clutter_brightness_contrast_effect_init (ClutterBrightnessContrastEffect *self)
         clutter_backend_get_cogl_context (clutter_get_default_backend ());
 
       klass->base_pipeline = cogl_pipeline_new (ctx);
+      cogl_pipeline_set_static_name (klass->base_pipeline,
+                                     "ClutterBrightnessContrast");
 
       snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT,
                                   brightness_contrast_decls,

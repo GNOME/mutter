@@ -398,6 +398,9 @@ clutter_pipeline_node_draw (ClutterPaintNode    *node,
   if (node->operations == NULL)
     return;
 
+  if (!cogl_pipeline_get_name (pnode->pipeline))
+    cogl_pipeline_set_static_name (pnode->pipeline, node->name);
+
   fb = clutter_paint_context_get_framebuffer (paint_context);
 
   for (i = 0; i < node->operations->len; i++)
