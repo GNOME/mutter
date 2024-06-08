@@ -146,6 +146,7 @@ gesture_state_machine_move_to_waiting (void)
                     &was_updated);
 
   clutter_actor_show (stage);
+  wait_stage_updated (&was_updated);
 
   clutter_virtual_input_device_notify_absolute_motion (virtual_pointer, now_us, 15, 15);
   clutter_virtual_input_device_notify_button (virtual_pointer, now_us,
@@ -205,6 +206,7 @@ gesture_state_machine_move_to_cancelled_while_possible (void)
                     &was_updated);
 
   clutter_actor_show (stage);
+  wait_stage_updated (&was_updated);
 
   clutter_virtual_input_device_notify_absolute_motion (virtual_pointer, now_us, 15, 15);
   clutter_virtual_input_device_notify_button (virtual_pointer, now_us,
@@ -257,6 +259,7 @@ gesture_state_machine_move_to_cancelled_on_sequence_cancel (void)
                     &was_updated);
 
   clutter_actor_show (stage);
+  wait_stage_updated (&was_updated);
 
   clutter_virtual_input_device_notify_absolute_motion (virtual_pointer, now_us, 15, 15);
   clutter_virtual_input_device_notify_button (virtual_pointer, now_us,
@@ -311,6 +314,7 @@ gesture_multiple_mouse_buttons (void)
                     &was_updated);
 
   clutter_actor_show (stage);
+  wait_stage_updated (&was_updated);
 
   clutter_virtual_input_device_notify_absolute_motion (virtual_pointer, now_us, 15, 15);
   clutter_virtual_input_device_notify_button (virtual_pointer, now_us,
