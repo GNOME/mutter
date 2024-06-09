@@ -25,8 +25,6 @@
 
 #include <math.h>
 
-#include <pango/pango-attributes.h>
-
 #include "clutter/clutter-interval.h"
 #include "clutter/clutter-main.h"
 #include "clutter/clutter-color.h"
@@ -54,7 +52,7 @@ clutter_color_to_hls (const ClutterColor *color,
   float red, green, blue;
   float min, max, delta;
   float h, l, s;
-  
+
   g_return_if_fail (color != NULL);
 
   red   = color->red / 255.0;
@@ -199,7 +197,7 @@ guint32
 clutter_color_to_pixel (const ClutterColor *color)
 {
   g_return_val_if_fail (color != NULL, 0);
-  
+
   return (color->alpha       |
           color->blue  << 8  |
           color->green << 16 |
@@ -410,14 +408,13 @@ parse_hsla (ClutterColor *color,
  * @str: a string specifying a color
  *
  * Parses a string definition of a color, filling the #ClutterColor.red,
- * #ClutterColor.green, #ClutterColor.blue and #ClutterColor.alpha fields 
+ * #ClutterColor.green, #ClutterColor.blue and #ClutterColor.alpha fields
  * of @color.
  *
  * The @color is not allocated.
  *
  * The format of @str can be either one of:
  *
- *   - a standard name (as taken from the X11 rgb.txt file)
  *   - an hexadecimal value in the form: `#rgb`, `#rrggbb`, `#rgba`, or `#rrggbbaa`
  *   - a RGB color in the form: `rgb(r, g, b)`
  *   - a RGB color in the form: `rgba(r, g, b, a)`
@@ -450,8 +447,6 @@ gboolean
 clutter_color_from_string (ClutterColor *color,
                            const gchar  *str)
 {
-  PangoColor pango_color = { 0, };
-
   g_return_val_if_fail (color != NULL, FALSE);
   g_return_val_if_fail (str != NULL, FALSE);
 
@@ -483,8 +478,7 @@ clutter_color_from_string (ClutterColor *color,
 
   /* if the string contains a color encoded using the hexadecimal
    * notations (#rrggbbaa or #rgba) we attempt a rough pass at
-   * parsing the color ourselves, as we need the alpha channel that
-   * Pango can't retrieve.
+   * parsing the color ourselves, as we need the alpha channel
    */
   if (str[0] == '#' && str[1] != '\0')
     {
@@ -543,24 +537,6 @@ clutter_color_from_string (ClutterColor *color,
               return FALSE;
             }
         }
-    }
-
-  /* fall back to pango for X11-style named colors; see:
-   *
-   *   http://en.wikipedia.org/wiki/X11_color_names
-   *
-   * for a list. at some point we might even ship with our own list generated
-   * from X11/rgb.txt, like we generate the key symbols.
-   */
-  if (pango_color_parse (&pango_color, str))
-    {
-      color->red   = pango_color.red;
-      color->green = pango_color.green;
-      color->blue  = pango_color.blue;
-
-      color->alpha = 0xff;
-
-      return TRUE;
     }
 
   return FALSE;
