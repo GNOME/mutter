@@ -87,6 +87,7 @@
 #include "x11/meta-x11-display-private.h"
 #include "x11/meta-x11-frame.h"
 #include "x11/meta-x11-group-private.h"
+#include "x11/meta-x11-keybindings-private.h"
 #include "x11/window-props.h"
 #include "x11/window-x11-private.h"
 #include "x11/window-x11.h"
@@ -5274,10 +5275,12 @@ meta_window_set_focused_internal (MetaWindow *window,
       if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK ||
           !meta_prefs_get_raise_on_click())
         {
-          meta_display_ungrab_focus_window_button (window->display, window);
+          meta_x11_keybindings_ungrab_focus_window_button (&window->display->key_binding_manager,
+                                                           window);
           /* Since we ungrab with XIAnyModifier above, all button
              grabs go way so we need to re-grab the window buttons. */
-          meta_display_grab_window_buttons (window->display, window);
+          meta_x11_keybindings_grab_window_buttons (&window->display->key_binding_manager,
+                                                    window);
         }
 #endif
 
@@ -5303,7 +5306,7 @@ meta_window_set_focused_internal (MetaWindow *window,
 #ifdef HAVE_X11
       if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK ||
           !meta_prefs_get_raise_on_click ())
-        meta_display_grab_focus_window_button (window->display, window);
+        meta_x11_keybindings_grab_focus_window_button (&window->display->key_binding_manager, window);
 #endif
     }
 }

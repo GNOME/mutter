@@ -55,6 +55,7 @@
 #include "x11/meta-x11-display-private.h"
 #include "x11/meta-x11-frame.h"
 #include "x11/meta-x11-group-private.h"
+#include "x11/meta-x11-keybindings-private.h"
 #include "x11/session.h"
 #include "x11/window-props.h"
 #include "x11/xprops.h"
@@ -714,8 +715,10 @@ meta_window_x11_unmanage (MetaWindow *window)
     XShapeSelectInput (x11_display->xdisplay, priv->xwindow, NoEventMask);
 
   meta_window_ungrab_keys (window);
-  meta_display_ungrab_window_buttons (window->display, window);
-  meta_display_ungrab_focus_window_button (window->display, window);
+  meta_x11_keybindings_ungrab_window_buttons (&window->display->key_binding_manager,
+                                              window);
+  meta_x11_keybindings_ungrab_focus_window_button (&window->display->key_binding_manager,
+                                                   window);
 
   mtk_x11_error_trap_pop (x11_display->xdisplay);
 
@@ -4075,8 +4078,8 @@ meta_window_x11_new (MetaDisplay       *display,
   meta_window_grab_keys (window);
   if (window->type != META_WINDOW_DOCK && !window->override_redirect)
     {
-      meta_display_grab_window_buttons (window->display, window);
-      meta_display_grab_focus_window_button (window->display, window);
+      meta_x11_keybindings_grab_window_buttons (&window->display->key_binding_manager, window);
+      meta_x11_keybindings_grab_focus_window_button (&window->display->key_binding_manager, window);
     }
 
   mtk_x11_error_trap_pop (x11_display->xdisplay); /* pop the XSync()-reducing trap */

@@ -61,6 +61,7 @@
 #include "x11/events.h"
 #include "x11/group-props.h"
 #include "x11/meta-x11-frame.h"
+#include "x11/meta-x11-keybindings-private.h"
 #include "x11/meta-x11-selection-private.h"
 #include "x11/window-props.h"
 #include "x11/window-x11.h"

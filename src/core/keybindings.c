@@ -43,12 +43,9 @@
 
 #ifdef HAVE_X11
 #include "backends/x11/meta-backend-x11.h"
-#include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-input-device-x11.h"
-#include "mtk/mtk-x11.h"
 #include "x11/meta-x11-display-private.h"
-#include "x11/meta-x11-frame.h"
-#include "x11/window-x11-private.h"
+#include "x11/meta-x11-keybindings-private.h"
 #endif
 
 #ifdef HAVE_NATIVE_BACKEND
@@ -182,11 +179,6 @@ meta_key_binding_is_builtin (MetaKeyBinding *binding)
  * various other events.  TODO: Possibly we should include them as event
  * handler functions and have some kind of flag to say they're unbindable.
  */
-
-#ifdef HAVE_X11
-static void maybe_update_locate_pointer_keygrab (MetaDisplay *display,
-                                                 gboolean     grab);
-#endif
 
 static GHashTable *key_handlers;
 static GHashTable *external_grabs;
@@ -901,44 +893,6 @@ rebuild_special_bindings (MetaKeyBindingManager *keys)
   keys->locate_pointer_key_combo = combo;
 }
 
-#ifdef HAVE_X11
-static void
-ungrab_key_bindings (MetaDisplay *display)
-{
-  GSList *windows, *l;
-
-  if (display->x11_display)
-    meta_x11_display_ungrab_keys (display->x11_display);
-
-  windows = meta_display_list_windows (display, META_LIST_DEFAULT);
-  for (l = windows; l; l = l->next)
-    {
-      MetaWindow *w = l->data;
-      meta_window_ungrab_keys (w);
-    }
-
-  g_slist_free (windows);
-}
-
-static void
-grab_key_bindings (MetaDisplay *display)
-{
-  GSList *windows, *l;
-
-  if (display->x11_display)
-    meta_x11_display_grab_keys (display->x11_display);
-
-  windows = meta_display_list_windows (display, META_LIST_DEFAULT);
-  for (l = windows; l; l = l->next)
-    {
-      MetaWindow *w = l->data;
-      meta_window_grab_keys (w);
-    }
-
-  g_slist_free (windows);
-}
-#endif
-
 static MetaKeyBinding *
 get_keybinding (MetaKeyBindingManager *keys,
                 MetaResolvedKeyCombo  *resolved_combo)
@@ -1167,7 +1121,7 @@ reload_keybindings (MetaDisplay *display)
   MetaKeyBindingManager *keys = &display->key_binding_manager;
 
 #ifdef HAVE_X11
-  ungrab_key_bindings (display);
+  meta_x11_keybindings_ungrab_key_bindings (display);
 #endif
 
   /* Deciphering the modmap depends on the loaded keysyms to find out
@@ -1178,103 +1132,9 @@ reload_keybindings (MetaDisplay *display)
   reload_combos (keys);
 
 #ifdef HAVE_X11
-  grab_key_bindings (display);
+  meta_x11_keybindings_grab_key_bindings (display);
 #endif
 }
-
-#ifdef HAVE_X11
-static GArray *
-calc_grab_modifiers (MetaKeyBindingManager *keys,
-                     unsigned int modmask)
-{
-  unsigned int ignored_mask;
-  XIGrabModifiers mods;
-  GArray *mods_array = g_array_new (FALSE, TRUE, sizeof (XIGrabModifiers));
-
-  /* The X server crashes if XIAnyModifier gets passed in with any
-     other bits. It doesn't make sense to ask for a grab of
-     XIAnyModifier plus other bits anyway so we avoid that. */
-  if (modmask & XIAnyModifier)
-    {
-      mods = (XIGrabModifiers) { XIAnyModifier, 0 };
-      g_array_append_val (mods_array, mods);
-      return mods_array;
-    }
-
-  mods = (XIGrabModifiers) { modmask, 0 };
-  g_array_append_val (mods_array, mods);
-
-  for (ignored_mask = 1;
-       ignored_mask <= keys->ignored_modifier_mask;
-       ++ignored_mask)
-    {
-      if (ignored_mask & keys->ignored_modifier_mask)
-        {
-          mods = (XIGrabModifiers) { modmask | ignored_mask, 0 };
-          g_array_append_val (mods_array, mods);
-        }
-    }
-
-  return mods_array;
-}
-
-static void
-meta_change_button_grab (MetaKeyBindingManager *keys,
-                         MetaWindow            *window,
-                         gboolean               grab,
-                         gboolean               sync,
-                         int                    button,
-                         int                    modmask)
-{
-  MetaBackendX11 *backend;
-  Display *xdisplay;
-  unsigned char mask_bits[XIMaskLen (XI_LASTEVENT)] = { 0 };
-  XIEventMask mask = { XIAllMasterDevices, sizeof (mask_bits), mask_bits };
-  Window xwindow;
-  GArray *mods;
-  MetaFrame *frame;
-
-  if (meta_is_wayland_compositor ())
-    return;
-  if (window->client_type != META_WINDOW_CLIENT_TYPE_X11)
-    return;
-
-  backend = META_BACKEND_X11 (keys->backend);
-  xdisplay = meta_backend_x11_get_xdisplay (backend);
-
-  XISetMask (mask.mask, XI_ButtonPress);
-  XISetMask (mask.mask, XI_ButtonRelease);
-  XISetMask (mask.mask, XI_Motion);
-
-  mods = calc_grab_modifiers (keys, modmask);
-
-  mtk_x11_error_trap_push (xdisplay);
-  frame = meta_window_x11_get_frame (window);
-  if (frame)
-    xwindow = frame->xwindow;
-  else
-    xwindow = meta_window_x11_get_xwindow (window);
-
-  /* GrabModeSync means freeze until XAllowEvents */
-  if (grab)
-    XIGrabButton (xdisplay,
-                  META_VIRTUAL_CORE_POINTER_ID,
-                  button, xwindow, None,
-                  sync ? XIGrabModeSync : XIGrabModeAsync,
-                  XIGrabModeAsync, False,
-                  &mask, mods->len, (XIGrabModifiers *)mods->data);
-  else
-    XIUngrabButton (xdisplay,
-                    META_VIRTUAL_CORE_POINTER_ID,
-                    button, xwindow, mods->len, (XIGrabModifiers *)mods->data);
-
-  XSync (xdisplay, False);
-
-  mtk_x11_error_trap_pop (xdisplay);
-
-  g_array_free (mods, TRUE);
-}
-#endif
 
 ClutterModifierType
 meta_display_get_compositor_modifiers (MetaDisplay *display)
@@ -1282,71 +1142,6 @@ meta_display_get_compositor_modifiers (MetaDisplay *display)
   MetaKeyBindingManager *keys = &display->key_binding_manager;
   return keys->window_grab_modifiers;
 }
-
-#ifdef HAVE_X11
-static void
-meta_change_buttons_grab (MetaKeyBindingManager *keys,
-                          MetaWindow            *window,
-                          gboolean               grab,
-                          gboolean               sync,
-                          int                    modmask)
-{
-#define MAX_BUTTON 3
-
-  int i;
-  for (i = 1; i <= MAX_BUTTON; i++)
-    meta_change_button_grab (keys, window, grab, sync, i, modmask);
-}
-
-void
-meta_display_grab_window_buttons (MetaDisplay *display,
-                                  MetaWindow  *window)
-{
-  MetaKeyBindingManager *keys = &display->key_binding_manager;
-
-  /* Grab Alt + button1 for moving window.
-   * Grab Alt + button2 for resizing window.
-   * Grab Alt + button3 for popping up window menu.
-   * Grab Alt + Shift + button1 for snap-moving window.
-   */
-  meta_verbose ("Grabbing window buttons for %s", window->desc);
-
-  /* FIXME If we ignored errors here instead of spewing, we could
-   * put one big error trap around the loop and avoid a bunch of
-   * XSync()
-   */
-
-  if (keys->window_grab_modifiers != 0)
-    {
-      meta_change_buttons_grab (keys, window, TRUE, FALSE,
-                                keys->window_grab_modifiers);
-
-      /* In addition to grabbing Alt+Button1 for moving the window,
-       * grab Alt+Shift+Button1 for snap-moving the window.  See bug
-       * 112478.  Unfortunately, this doesn't work with
-       * Shift+Alt+Button1 for some reason; so at least part of the
-       * order still matters, which sucks (please FIXME).
-       */
-      meta_change_button_grab (keys, window,
-                               TRUE,
-                               FALSE,
-                               1, keys->window_grab_modifiers | CLUTTER_SHIFT_MASK);
-    }
-}
-
-void
-meta_display_ungrab_window_buttons (MetaDisplay *display,
-                                    MetaWindow  *window)
-{
-  MetaKeyBindingManager *keys = &display->key_binding_manager;
-
-  if (keys->window_grab_modifiers == 0)
-    return;
-
-  meta_change_buttons_grab (keys, window, FALSE, FALSE,
-                            keys->window_grab_modifiers);
-}
-#endif
 
 static void
 update_window_grab_modifiers (MetaDisplay *display)
@@ -1365,47 +1160,6 @@ update_window_grab_modifiers (MetaDisplay *display)
     }
 }
 
-#ifdef HAVE_X11
-void
-meta_display_grab_focus_window_button (MetaDisplay *display,
-                                       MetaWindow  *window)
-{
-  MetaKeyBindingManager *keys = &display->key_binding_manager;
-
-  /* Grab button 1 for activating unfocused windows */
-  meta_verbose ("Grabbing unfocused window buttons for %s", window->desc);
-
-  if (window->have_focus_click_grab)
-    {
-      meta_verbose (" (well, not grabbing since we already have the grab)");
-      return;
-    }
-
-  /* FIXME If we ignored errors here instead of spewing, we could
-   * put one big error trap around the loop and avoid a bunch of
-   * XSync()
-   */
-
-  meta_change_buttons_grab (keys, window, TRUE, TRUE, XIAnyModifier);
-  window->have_focus_click_grab = TRUE;
-}
-
-void
-meta_display_ungrab_focus_window_button (MetaDisplay *display,
-                                         MetaWindow  *window)
-{
-  MetaKeyBindingManager *keys = &display->key_binding_manager;
-
-  meta_verbose ("Ungrabbing unfocused window buttons for %s", window->desc);
-
-  if (!window->have_focus_click_grab)
-    return;
-
-  meta_change_buttons_grab (keys, window, FALSE, FALSE, XIAnyModifier);
-  window->have_focus_click_grab = FALSE;
-}
-#endif
-
 static void
 prefs_changed_callback (MetaPreference pref,
                         void          *data)
@@ -1417,19 +1171,19 @@ prefs_changed_callback (MetaPreference pref,
     {
     case META_PREF_LOCATE_POINTER:
 #ifdef HAVE_X11
-      maybe_update_locate_pointer_keygrab (display,
-                                           meta_prefs_is_locate_pointer_enabled());
+      meta_x11_keybindings_maybe_update_locate_pointer_keygrab (display,
+                                                                meta_prefs_is_locate_pointer_enabled ());
 #endif
       break;
     case META_PREF_KEYBINDINGS:
 #ifdef HAVE_X11
-      ungrab_key_bindings (display);
+      meta_x11_keybindings_ungrab_key_bindings (display);
 #endif
       rebuild_key_binding_table (keys);
       rebuild_special_bindings (keys);
       reload_combos (keys);
 #ifdef HAVE_X11
-      grab_key_bindings (display);
+      meta_x11_keybindings_grab_key_bindings (display);
 #endif
       break;
     case META_PREF_MOUSE_BUTTON_MODS:
@@ -1441,7 +1195,7 @@ prefs_changed_callback (MetaPreference pref,
         for (l = windows; l; l = l->next)
           {
             MetaWindow *w = l->data;
-            meta_display_ungrab_window_buttons (display, w);
+            meta_x11_keybindings_ungrab_window_buttons (&display->key_binding_manager, w);
           }
 #endif
 
@@ -1452,7 +1206,7 @@ prefs_changed_callback (MetaPreference pref,
           {
             MetaWindow *w = l->data;
             if (w->type != META_WINDOW_DOCK)
-              meta_display_grab_window_buttons (display, w);
+              meta_x11_keybindings_grab_window_buttons (&display->key_binding_manager, w);
           }
 
         g_slist_free (windows);
@@ -1462,7 +1216,6 @@ prefs_changed_callback (MetaPreference pref,
       break;
     }
 }
-
 
 void
 meta_display_shutdown_keys (MetaDisplay *display)
@@ -1476,247 +1229,6 @@ meta_display_shutdown_keys (MetaDisplay *display)
 
   clear_active_keyboard_layouts (keys);
 }
-
-/* Grab/ungrab, ignoring all annoying modifiers like NumLock etc. */
-#ifdef HAVE_X11
-static void
-meta_change_keygrab (MetaKeyBindingManager *keys,
-                     Window                 xwindow,
-                     gboolean               grab,
-                     MetaResolvedKeyCombo  *resolved_combo)
-{
-  MetaBackendX11 *backend_x11;
-  Display *xdisplay;
-  GArray *mods;
-  int i;
-  unsigned char mask_bits[XIMaskLen (XI_LASTEVENT)] = { 0 };
-  XIEventMask mask = { XIAllMasterDevices, sizeof (mask_bits), mask_bits };
-
-  XISetMask (mask.mask, XI_KeyPress);
-  XISetMask (mask.mask, XI_KeyRelease);
-
-  if (meta_is_wayland_compositor ())
-    return;
-
-  backend_x11 = META_BACKEND_X11 (keys->backend);
-  xdisplay = meta_backend_x11_get_xdisplay (backend_x11);
-
-  /* Grab keycode/modmask, together with
-   * all combinations of ignored modifiers.
-   * X provides no better way to do this.
-   */
-
-  mods = calc_grab_modifiers (keys, resolved_combo->mask);
-
-  mtk_x11_error_trap_push (xdisplay);
-
-  for (i = 0; i < resolved_combo->len; i++)
-    {
-      xkb_keycode_t keycode = resolved_combo->keycodes[i];
-
-      meta_topic (META_DEBUG_KEYBINDINGS,
-                  "%s keybinding keycode %d mask 0x%x on 0x%lx",
-                  grab ? "Grabbing" : "Ungrabbing",
-                  keycode, resolved_combo->mask, xwindow);
-
-      if (grab)
-        XIGrabKeycode (xdisplay,
-                       META_VIRTUAL_CORE_KEYBOARD_ID,
-                       keycode, xwindow,
-                       XIGrabModeSync, XIGrabModeAsync,
-                       False, &mask, mods->len, (XIGrabModifiers *)mods->data);
-      else
-        XIUngrabKeycode (xdisplay,
-                         META_VIRTUAL_CORE_KEYBOARD_ID,
-                         keycode, xwindow,
-                         mods->len, (XIGrabModifiers *)mods->data);
-    }
-
-  XSync (xdisplay, False);
-
-  mtk_x11_error_trap_pop (xdisplay);
-
-  g_array_free (mods, TRUE);
-}
-
-typedef struct
-{
-  MetaKeyBindingManager *keys;
-  Window xwindow;
-  gboolean only_per_window;
-  gboolean grab;
-} ChangeKeygrabData;
-
-static void
-change_keygrab_foreach (gpointer key,
-                        gpointer value,
-                        gpointer user_data)
-{
-  ChangeKeygrabData *data = user_data;
-  MetaKeyBinding *binding = value;
-  gboolean binding_is_per_window = (binding->flags & META_KEY_BINDING_PER_WINDOW) != 0;
-
-  if (data->only_per_window != binding_is_per_window)
-    return;
-
-  /* Ignore the key bindings marked as META_KEY_BINDING_NO_AUTO_GRAB,
-   * those are handled separately
-   */
-  if (binding->flags & META_KEY_BINDING_NO_AUTO_GRAB)
-    return;
-
-  if (binding->resolved_combo.len == 0)
-    return;
-
-  meta_change_keygrab (data->keys, data->xwindow, data->grab, &binding->resolved_combo);
-}
-
-static void
-change_binding_keygrabs (MetaKeyBindingManager *keys,
-                         Window                 xwindow,
-                         gboolean               only_per_window,
-                         gboolean               grab)
-{
-  ChangeKeygrabData data;
-
-  data.keys = keys;
-  data.xwindow = xwindow;
-  data.only_per_window = only_per_window;
-  data.grab = grab;
-
-  g_hash_table_foreach (keys->key_bindings, change_keygrab_foreach, &data);
-}
-
-static void
-maybe_update_locate_pointer_keygrab (MetaDisplay *display,
-                                     gboolean     grab)
-{
-  MetaKeyBindingManager *keys = &display->key_binding_manager;
-
-  if (!display->x11_display)
-    return;
-
-  if (keys->locate_pointer_resolved_key_combo.len != 0)
-    meta_change_keygrab (keys, display->x11_display->xroot,
-                         (!!grab & !!meta_prefs_is_locate_pointer_enabled()),
-                         &keys->locate_pointer_resolved_key_combo);
-}
-
-static void
-meta_x11_display_change_keygrabs (MetaX11Display *x11_display,
-                                  gboolean        grab)
-{
-  MetaKeyBindingManager *keys = &x11_display->display->key_binding_manager;
-  int i;
-
-  if (keys->overlay_resolved_key_combo.len != 0)
-    meta_change_keygrab (keys, x11_display->xroot,
-                         grab, &keys->overlay_resolved_key_combo);
-
-  maybe_update_locate_pointer_keygrab (x11_display->display, grab);
-
-  for (i = 0; i < keys->n_iso_next_group_combos; i++)
-    meta_change_keygrab (keys, x11_display->xroot,
-                         grab, &keys->iso_next_group_combo[i]);
-
-  change_binding_keygrabs (keys, x11_display->xroot,
-                           FALSE, grab);
-}
-
-void
-meta_x11_display_grab_keys (MetaX11Display *x11_display)
-{
-  if (x11_display->keys_grabbed)
-    return;
-
-  meta_x11_display_change_keygrabs (x11_display, TRUE);
-
-  x11_display->keys_grabbed = TRUE;
-}
-
-void
-meta_x11_display_ungrab_keys (MetaX11Display *x11_display)
-{
-  if (!x11_display->keys_grabbed)
-    return;
-
-  meta_x11_display_change_keygrabs (x11_display, FALSE);
-
-  x11_display->keys_grabbed = FALSE;
-}
-
-static void
-change_window_keygrabs (MetaKeyBindingManager *keys,
-                        Window                 xwindow,
-                        gboolean               grab)
-{
-  change_binding_keygrabs (keys, xwindow, TRUE, grab);
-}
-
-void
-meta_window_grab_keys (MetaWindow  *window)
-{
-  MetaDisplay *display = window->display;
-  MetaKeyBindingManager *keys = &display->key_binding_manager;
-  MetaWindowX11Private *priv;
-
-  if (meta_is_wayland_compositor ())
-    return;
-
-  priv = meta_window_x11_get_private (META_WINDOW_X11 (window));
-  if (window->type == META_WINDOW_DOCK
-      || window->override_redirect)
-    {
-      if (priv->keys_grabbed)
-        change_window_keygrabs (keys, meta_window_x11_get_xwindow (window), FALSE);
-      priv->keys_grabbed = FALSE;
-      return;
-    }
-
-  if (priv->keys_grabbed)
-    {
-      if (priv->frame && !priv->grab_on_frame)
-        change_window_keygrabs (keys, meta_window_x11_get_xwindow (window), FALSE);
-      else if (priv->frame == NULL &&
-               priv->grab_on_frame)
-        ; /* continue to regrab on client window */
-      else
-        return; /* already all good */
-    }
-
-  change_window_keygrabs (keys,
-                          meta_window_x11_get_toplevel_xwindow (window),
-                          TRUE);
-
-  priv->keys_grabbed = TRUE;
-  priv->grab_on_frame = priv->frame != NULL;
-}
-
-void
-meta_window_ungrab_keys (MetaWindow  *window)
-{
-  MetaWindowX11Private *priv;
-
-  if (meta_is_wayland_compositor ())
-    return;
-
-  priv = meta_window_x11_get_private (META_WINDOW_X11 (window));
-
-  if (priv->keys_grabbed)
-    {
-      MetaDisplay *display = window->display;
-      MetaKeyBindingManager *keys = &display->key_binding_manager;
-      MetaFrame *frame = meta_window_x11_get_frame (window);
-
-      if (priv->grab_on_frame && frame != NULL)
-        change_window_keygrabs (keys, frame->xwindow, FALSE);
-      else if (!priv->grab_on_frame)
-        change_window_keygrabs (keys, meta_window_x11_get_xwindow (window), FALSE);
-
-      priv->keys_grabbed = FALSE;
-    }
-}
-#endif
 
 static void
 handle_external_grab (MetaDisplay           *display,
@@ -1768,8 +1280,8 @@ meta_display_grab_accelerator (MetaDisplay         *display,
 #ifdef HAVE_X11
   if (!meta_is_wayland_compositor ())
     {
-      meta_change_keygrab (keys, display->x11_display->xroot,
-                           TRUE, &resolved_combo);
+      meta_x11_keybindings_change_keygrab (keys, display->x11_display->xroot,
+                                           TRUE, &resolved_combo);
     }
 #endif
 
@@ -1820,8 +1332,8 @@ meta_display_ungrab_accelerator (MetaDisplay *display,
 #ifdef HAVE_X11
       if (!meta_is_wayland_compositor ())
         {
-          meta_change_keygrab (keys, display->x11_display->xroot,
-                               FALSE, &binding->resolved_combo);
+          meta_x11_keybindings_change_keygrab (keys, display->x11_display->xroot,
+                                               FALSE, &binding->resolved_combo);
         }
 #endif
 

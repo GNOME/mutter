@@ -28,6 +28,7 @@
 
 #ifdef HAVE_X11_CLIENT
 #include "x11/meta-x11-frame.h"
+#include "x11/meta-x11-keybindings-private.h"
 #include "x11/window-x11.h"
 #endif
 
