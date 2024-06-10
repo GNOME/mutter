@@ -200,6 +200,16 @@ test_adjacent_to (void)
     g_assert (!mtk_rectangle_is_adjacent_to (&base, &not_adjacent[i]));
 }
 
+static void
+test_contains_point (void)
+{
+  MtkRectangle base = { .x = 0, .y = 0, .width = 10, .height = 10 };
+
+  g_assert (mtk_rectangle_contains_point (&base, 5, 5));
+  g_assert (!mtk_rectangle_contains_point (&base, -5, 5));
+  g_assert (!mtk_rectangle_contains_point (&base, 15, 2));
+}
+
 int
 main (int    argc,
       char **argv)
@@ -215,6 +225,7 @@ main (int    argc,
   g_test_add_func ("/mtk/rectangle/overlap", test_overlap_funcs);
   g_test_add_func ("/mtk/rectangle/basic-fitting", test_basic_fitting);
   g_test_add_func ("/mtk/rectangle/adjacent-to", test_adjacent_to);
+  g_test_add_func ("/mtk/rectangle/contains-point", test_contains_point);
 
   return g_test_run ();
 }

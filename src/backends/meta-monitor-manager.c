@@ -3403,7 +3403,7 @@ meta_monitor_manager_get_logical_monitor_at (MetaMonitorManager *manager,
     {
       MetaLogicalMonitor *logical_monitor = l->data;
 
-      if (META_POINT_IN_RECT (x, y, logical_monitor->rect))
+      if (mtk_rectangle_contains_point (&logical_monitor->rect, x, y))
         return logical_monitor;
     }
 
@@ -3441,7 +3441,7 @@ meta_monitor_manager_get_logical_monitor_from_rect (MetaMonitorManager *manager,
       MtkRectangle intersection;
       int intersection_area;
 
-      if (META_POINT_IN_RECT (center_x, center_y, logical_monitor->rect))
+      if (mtk_rectangle_contains_point (&logical_monitor->rect, center_x, center_y))
         return logical_monitor;
 
       if (!mtk_rectangle_intersect (&logical_monitor->rect,

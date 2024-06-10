@@ -152,7 +152,7 @@ mtk_rectangle_union (const MtkRectangle *rect1,
  * @src2: another #MtkRectangle
  * @dest: (out caller-allocates): an empty #MtkRectangle, to be filled
  *   with the coordinates of the intersection.
- * 
+ *
  * Find the intersection between the two rectangles
  *
  * Returns: TRUE is some intersection exists and is not degenerate, FALSE
@@ -283,6 +283,25 @@ mtk_rectangle_contains_rect (const MtkRectangle *outer_rect,
     inner_rect->y                      >= outer_rect->y &&
     inner_rect->x + inner_rect->width  <= outer_rect->x + outer_rect->width &&
     inner_rect->y + inner_rect->height <= outer_rect->y + outer_rect->height;
+}
+
+/**
+ * mtk_rectangle_contains_point:
+ * @rect: A rectangle
+ * @x: X coordinate of the point
+ * @y: Y coordinate of the point
+ *
+ * Returns: Whether the rectangle contains the point
+ */
+gboolean
+mtk_rectangle_contains_point (const MtkRectangle *rect,
+                              int                 x,
+                              int                 y)
+{
+  return (x >= rect->x &&
+          x <  (rect->x + rect->width) &&
+          y >= rect->y &&
+          y <  (rect->y + rect->height));
 }
 
 /**
