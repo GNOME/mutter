@@ -192,3 +192,9 @@ void meta_input_settings_notify_kbd_a11y_change (MetaInputSettings     *input_se
                                                  MetaKeyboardA11yFlags  what_changed);
 
 MetaBackend * meta_input_settings_get_backend (MetaInputSettings *input_settings);
+
+GDesktopStylusButtonAction meta_input_settings_get_tool_button_action (MetaInputSettings       *input_settings,
+                                                                       ClutterInputDevice      *device,
+                                                                       ClutterInputDeviceTool  *tool,
+                                                                       uint32_t                 clutter_button,
+                                                                       char                   **keybinding);

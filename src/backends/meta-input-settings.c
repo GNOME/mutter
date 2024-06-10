@@ -1970,3 +1970,47 @@ meta_input_settings_get_backend (MetaInputSettings *settings)
 
   return priv->backend;
 }
+
+GDesktopStylusButtonAction
+meta_input_settings_get_tool_button_action (MetaInputSettings       *input_settings,
+                                            ClutterInputDevice      *device,
+                                            ClutterInputDeviceTool  *tool,
+                                            uint32_t                 clutter_button,
+                                            char                   **keybinding)
+{
+  GDesktopStylusButtonAction action;
+  GSettings *settings;
+  const char *prefix = NULL;
+  g_autofree char *key = NULL;
+
+  g_return_val_if_fail (META_IS_INPUT_SETTINGS (input_settings), G_DESKTOP_STYLUS_BUTTON_ACTION_DEFAULT);
+
+  switch (clutter_button)
+    {
+    case CLUTTER_BUTTON_MIDDLE:     /* BTN_STYLUS */
+      prefix = "button";
+      break;
+    case CLUTTER_BUTTON_SECONDARY:  /* BTN_STYLUS2 */
+      prefix = "secondary-button";
+      break;
+    case 8:                         /* BTN_STYLUS3 */
+      prefix = "tertiary-button";
+      break;
+
+    /* BUTTON_PRIMARY is tip down and has no mapping */
+    case CLUTTER_BUTTON_PRIMARY:
+    default:
+      return G_DESKTOP_STYLUS_BUTTON_ACTION_DEFAULT;
+    }
+
+  key = g_strdup_printf ("%s-action", prefix);
+  settings = lookup_tool_settings (tool, device);
+  action = g_settings_get_enum (settings, key);
+  if (keybinding && action == G_DESKTOP_STYLUS_BUTTON_ACTION_KEYBINDING)
+    {
+      g_autofree char *binding_key = g_strdup_printf ("%s-keybinding", prefix);
+      *keybinding = g_settings_get_string (settings, binding_key);
+    }
+
+  return action;
+}
