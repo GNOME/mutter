@@ -384,10 +384,17 @@ complete_pending_activate (MetaWindow            *window,
 {
   g_autofree char *token_str = NULL;
 
+  if (!window)
+    return;
+
   g_signal_handlers_disconnect_by_func (window, complete_pending_activate,
                                         activation);
-  g_hash_table_steal_extended (activation->pending_activations, window,
-                               NULL, (gpointer *) &token_str);
+
+  if (!g_hash_table_steal_extended (activation->pending_activations,
+                                    window,
+                                    NULL,
+                                    (gpointer *) &token_str))
+    return;
 
   maybe_activate (activation, window, token_str);
 }
