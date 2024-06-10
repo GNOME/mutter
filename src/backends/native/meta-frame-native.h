@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include "backends/native/meta-backend-native-types.h"
 #include "backends/native/meta-kms-types.h"
 #include "clutter/clutter.h"
 #include "core/util-private.h"
@@ -36,3 +37,13 @@ MetaKmsUpdate * meta_frame_native_steal_kms_update (MetaFrameNative *frame_nativ
 
 META_EXPORT_TEST
 gboolean meta_frame_native_has_kms_update (MetaFrameNative *frame_native);
+
+void meta_frame_native_set_buffer (MetaFrameNative *frame_native,
+                                   MetaDrmBuffer   *buffer);
+
+MetaDrmBuffer * meta_frame_native_get_buffer (MetaFrameNative *frame_native);
+
+void meta_frame_native_set_scanout (MetaFrameNative *frame_native,
+                                    CoglScanout     *scanout);
+
+CoglScanout * meta_frame_native_get_scanout (MetaFrameNative *frame_native);

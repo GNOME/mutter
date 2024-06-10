@@ -95,12 +95,11 @@ struct _MetaOnscreenNative
 
   MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
 
+  ClutterFrame *presented_frame;
+  ClutterFrame *next_frame;
+
   struct {
     struct gbm_surface *surface;
-    MetaDrmBuffer *current_fb;
-    MetaDrmBuffer *next_fb;
-    CoglScanout *current_scanout;
-    CoglScanout *next_scanout;
   } gbm;
 
 #ifdef HAVE_EGL_DEVICE
@@ -138,29 +137,16 @@ init_secondary_gpu_state (MetaRendererNative  *renderer_native,
                           GError             **error);
 
 static void
-free_current_bo (CoglOnscreen *onscreen)
-{
-  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
-
-  g_clear_object (&onscreen_native->gbm.current_fb);
-  g_clear_object (&onscreen_native->gbm.current_scanout);
-}
-
-static void
 meta_onscreen_native_swap_drm_fb (CoglOnscreen *onscreen)
 {
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
 
-  if (!onscreen_native->gbm.next_fb)
+  if (!onscreen_native->next_frame)
     return;
 
-  free_current_bo (onscreen);
-
-  g_set_object (&onscreen_native->gbm.current_fb, onscreen_native->gbm.next_fb);
-  g_clear_object (&onscreen_native->gbm.next_fb);
-  g_set_object (&onscreen_native->gbm.current_scanout,
-                onscreen_native->gbm.next_scanout);
-  g_clear_object (&onscreen_native->gbm.next_scanout);
+  g_clear_pointer (&onscreen_native->presented_frame, clutter_frame_unref);
+  onscreen_native->presented_frame =
+    g_steal_pointer (&onscreen_native->next_frame);
 }
 
 static void
@@ -168,8 +154,7 @@ meta_onscreen_native_clear_next_fb (CoglOnscreen *onscreen)
 {
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
 
-  g_clear_object (&onscreen_native->gbm.next_fb);
-  g_clear_object (&onscreen_native->gbm.next_scanout);
+  g_clear_pointer (&onscreen_native->next_frame, clutter_frame_unref);
 }
 
 static void
@@ -298,7 +283,7 @@ page_flip_feedback_ready (MetaKmsCrtc *kms_crtc,
   frame_info = cogl_onscreen_peek_head_frame_info (onscreen);
   frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
 
-  g_warn_if_fail (!onscreen_native->gbm.next_fb);
+  g_warn_if_fail (!onscreen_native->next_frame);
 
   meta_onscreen_native_notify_frame_complete (onscreen);
 }
@@ -495,16 +480,19 @@ meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
                                 MetaKmsUpdate          *kms_update,
                                 MetaKmsAssignPlaneFlag  flags,
                                 const int              *rectangles,
-                                int                     n_rectangles)
+                                int                     n_rectangles,
+                                ClutterFrame           *frame)
 {
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
+  MetaFrameNative *frame_native = meta_frame_native_from_frame (frame);
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
   MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
   MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
   MetaRendererNativeGpuData *renderer_gpu_data;
   MetaGpuKms *gpu_kms;
   MetaDrmBuffer *buffer;
+  CoglScanout *scanout;
   MetaKmsPlaneAssignment *plane_assignment;
   graphene_rect_t src_rect;
   MtkRectangle dst_rect;
@@ -521,14 +509,13 @@ meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
   switch (renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
-      buffer = onscreen_native->gbm.next_fb;
+      buffer = meta_frame_native_get_buffer (frame_native);
+      scanout = meta_frame_native_get_scanout (frame_native);
 
-      if (onscreen_native->gbm.next_scanout)
+      if (scanout)
         {
-          cogl_scanout_get_src_rect (onscreen_native->gbm.next_scanout,
-                                     &src_rect);
-          cogl_scanout_get_dst_rect (onscreen_native->gbm.next_scanout,
-                                     &dst_rect);
+          cogl_scanout_get_src_rect (scanout, &src_rect);
+          cogl_scanout_get_dst_rect (scanout, &dst_rect);
         }
       else
         {
@@ -1299,6 +1286,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
   MetaDrmBufferGbm *buffer_gbm;
   g_autoptr (MetaDrmBuffer) primary_gpu_fb = NULL;
   g_autoptr (MetaDrmBuffer) secondary_gpu_fb = NULL;
+  MetaDrmBuffer *buffer;
   MetaKmsCrtc *kms_crtc;
   MetaKmsDevice *kms_device;
 
@@ -1376,16 +1364,20 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
                                                 primary_gpu_fb,
                                                 &secondary_gpu_fb);
 
+  g_warn_if_fail (!onscreen_native->next_frame);
+  onscreen_native->next_frame = clutter_frame_ref (frame);
+
   switch (renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
-      g_warn_if_fail (onscreen_native->gbm.next_fb == NULL);
       if (onscreen_native->secondary_gpu_state)
-        g_set_object (&onscreen_native->gbm.next_fb, secondary_gpu_fb);
+        buffer = secondary_gpu_fb;
       else
-        g_set_object (&onscreen_native->gbm.next_fb, primary_gpu_fb);
+        buffer = primary_gpu_fb;
 
-      if (!meta_drm_buffer_ensure_fb_id (onscreen_native->gbm.next_fb, &error))
+      meta_frame_native_set_buffer (frame_native, buffer);
+
+      if (!meta_drm_buffer_ensure_fb_id (buffer, &error))
         {
           g_warning ("Failed to ensure KMS FB ID on %s: %s",
                      meta_device_file_get_path (render_device_file),
@@ -1434,7 +1426,8 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
                                       kms_update,
                                       META_KMS_ASSIGN_PLANE_FLAG_NONE,
                                       rectangles,
-                                      n_rectangles);
+                                      n_rectangles,
+                                      frame);
     }
   else
     {
@@ -1577,11 +1570,15 @@ scanout_result_feedback (const MetaKmsFeedback *kms_feedback,
                         G_IO_ERROR_PERMISSION_DENIED))
     {
       ClutterStageView *view = CLUTTER_STAGE_VIEW (onscreen_native->view);
+      ClutterFrame *next_frame = onscreen_native->next_frame;
+      MetaFrameNative *next_frame_native =
+        meta_frame_native_from_frame (next_frame);
+      CoglScanout *scanout =
+        meta_frame_native_get_scanout (next_frame_native);
 
       g_warning ("Direct scanout page flip failed: %s", error->message);
 
-      cogl_scanout_notify_failed (onscreen_native->gbm.next_scanout,
-                                  onscreen);
+      cogl_scanout_notify_failed (scanout, onscreen);
       clutter_stage_view_add_redraw_clip (view, NULL);
       clutter_stage_view_schedule_update_now (view);
     }
@@ -1646,12 +1643,13 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
                                                          render_gpu);
 
   g_warn_if_fail (renderer_gpu_data->mode == META_RENDERER_NATIVE_MODE_GBM);
-  g_warn_if_fail (!onscreen_native->gbm.next_fb);
-  g_warn_if_fail (!onscreen_native->gbm.next_scanout);
 
-  g_set_object (&onscreen_native->gbm.next_scanout, scanout);
-  g_set_object (&onscreen_native->gbm.next_fb,
-                META_DRM_BUFFER (cogl_scanout_get_buffer (scanout)));
+  g_warn_if_fail (!onscreen_native->next_frame);
+  onscreen_native->next_frame = clutter_frame_ref (frame);
+
+  meta_frame_native_set_scanout (frame_native, scanout);
+  meta_frame_native_set_buffer (frame_native,
+                                META_DRM_BUFFER (cogl_scanout_get_buffer (scanout)));
 
   frame_info->cpu_time_before_buffer_swap_us = g_get_monotonic_time ();
 
@@ -1674,7 +1672,8 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
                                   kms_update,
                                   META_KMS_ASSIGN_PLANE_FLAG_DIRECT_SCANOUT,
                                   NULL,
-                                  0);
+                                  0,
+                                  frame);
 
   meta_topic (META_DEBUG_KMS,
               "Posting direct scanout update for CRTC %u (%s)",
@@ -2823,15 +2822,15 @@ meta_onscreen_native_dispose (GObject *object)
 
   meta_onscreen_native_detach (onscreen_native);
 
+  g_clear_pointer (&onscreen_native->next_frame, clutter_frame_unref);
+  g_clear_pointer (&onscreen_native->presented_frame, clutter_frame_unref);
+
   renderer_gpu_data =
     meta_renderer_native_get_gpu_data (renderer_native,
                                        onscreen_native->render_gpu);
   switch (renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
-      g_clear_object (&onscreen_native->gbm.next_fb);
-      g_clear_object (&onscreen_native->gbm.next_scanout);
-      free_current_bo (onscreen);
       break;
     case META_RENDERER_NATIVE_MODE_SURFACELESS:
       g_assert_not_reached ();
