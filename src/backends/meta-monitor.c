@@ -2276,6 +2276,14 @@ meta_monitor_get_min_refresh_rate (MetaMonitor *monitor,
                                                 min_refresh_rate);
 }
 
+MetaOutputColorspace
+meta_monitor_get_color_space (MetaMonitor *monitor)
+{
+  MetaOutput *output = meta_monitor_get_main_output (monitor);
+
+  return meta_output_peek_color_space (output);
+}
+
 gboolean
 meta_monitor_set_color_space (MetaMonitor           *monitor,
                               MetaOutputColorspace   color_space,
@@ -2305,6 +2313,14 @@ meta_monitor_set_color_space (MetaMonitor           *monitor,
     }
 
   return TRUE;
+}
+
+MetaOutputHdrMetadata *
+meta_monitor_get_hdr_metadata (MetaMonitor *monitor)
+{
+  MetaOutput *output = meta_monitor_get_main_output (monitor);
+
+  return meta_output_peek_hdr_metadata (output);
 }
 
 gboolean

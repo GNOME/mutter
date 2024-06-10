@@ -312,9 +312,13 @@ size_t meta_monitor_get_gamma_lut_size (MetaMonitor *monitor);
 void meta_monitor_set_gamma_lut (MetaMonitor        *monitor,
                                  const MetaGammaLut *lut);
 
+MetaOutputColorspace meta_monitor_get_color_space (MetaMonitor *monitor);
+
 gboolean meta_monitor_set_color_space (MetaMonitor           *monitor,
                                        MetaOutputColorspace   color_space,
                                        GError               **error);
+
+MetaOutputHdrMetadata * meta_monitor_get_hdr_metadata (MetaMonitor *monitor);
 
 gboolean meta_monitor_set_hdr_metadata (MetaMonitor            *monitor,
                                         MetaOutputHdrMetadata  *metadata,

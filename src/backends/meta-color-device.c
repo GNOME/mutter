@@ -623,19 +623,64 @@ on_manager_ready (MetaColorManager *color_manager,
   create_cd_device (color_device);
 }
 
+static ClutterColorspace
+get_color_space_from_monitor (MetaMonitor *monitor)
+{
+  switch (meta_monitor_get_color_space (monitor))
+    {
+    case META_OUTPUT_COLORSPACE_DEFAULT:
+    case META_OUTPUT_COLORSPACE_UNKNOWN:
+      return CLUTTER_COLORSPACE_DEFAULT;
+    case META_OUTPUT_COLORSPACE_BT2020:
+      return CLUTTER_COLORSPACE_BT2020;
+    }
+  g_assert_not_reached ();
+}
+
+static ClutterTransferFunction
+get_transfer_function_from_monitor (MetaMonitor *monitor)
+{
+  const MetaOutputHdrMetadata *hdr_metadata =
+    meta_monitor_get_hdr_metadata (monitor);
+
+  if (!hdr_metadata->active)
+    return CLUTTER_TRANSFER_FUNCTION_DEFAULT;
+
+  switch (hdr_metadata->eotf)
+    {
+    case META_OUTPUT_HDR_METADATA_EOTF_PQ:
+      return CLUTTER_TRANSFER_FUNCTION_PQ;
+    case META_OUTPUT_HDR_METADATA_EOTF_TRADITIONAL_GAMMA_SDR:
+      return CLUTTER_TRANSFER_FUNCTION_DEFAULT;
+    case META_OUTPUT_HDR_METADATA_EOTF_TRADITIONAL_GAMMA_HDR:
+      g_warning ("Unhandled HDR EOTF (traditional gamma hdr)");
+      return CLUTTER_TRANSFER_FUNCTION_DEFAULT;
+    case META_OUTPUT_HDR_METADATA_EOTF_HLG:
+      g_warning ("Unhandled HDR EOTF (HLG)");
+      return CLUTTER_TRANSFER_FUNCTION_DEFAULT;
+    }
+
+  g_assert_not_reached ();
+}
+
 static UpdateResult
 update_color_state (MetaColorDevice *color_device)
 {
+  MetaMonitor *monitor = color_device->monitor;
   MetaBackend *backend =
     meta_color_manager_get_backend (color_device->color_manager);
   ClutterContext *clutter_context = meta_backend_get_clutter_context (backend);
-  ClutterColorManager *clutter_color_manager =
-    clutter_context_get_color_manager (clutter_context);
-  ClutterColorState *color_state;
+  g_autoptr (ClutterColorState) color_state = NULL;
+  ClutterColorspace colorspace;
+  ClutterTransferFunction transfer_function;
   UpdateResult result = 0;
 
-  color_state =
-    clutter_color_manager_get_default_color_state (clutter_color_manager);
+  colorspace = get_color_space_from_monitor (monitor);
+  transfer_function = get_transfer_function_from_monitor (monitor);
+
+  color_state = clutter_color_state_new (clutter_context,
+                                         colorspace,
+                                         transfer_function);
 
   if (!color_device->color_state ||
       !clutter_color_state_equals (color_device->color_state, color_state))
