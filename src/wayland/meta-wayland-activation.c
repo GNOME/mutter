@@ -378,8 +378,9 @@ maybe_activate (MetaWaylandActivation *activation,
 }
 
 static void
-complete_pending_activate (MetaWaylandActivation *activation,
-                           MetaWindow            *window)
+complete_pending_activate (MetaWindow            *window,
+                           GParamSpec            *pspec,
+                           MetaWaylandActivation *activation)
 {
   g_autofree char *token_str = NULL;
 
@@ -409,12 +410,12 @@ activation_activate (struct wl_client   *client,
   g_signal_handlers_disconnect_by_func (window,
                                         complete_pending_activate,
                                         activation);
-  g_signal_connect_swapped (window, "notify::mapped",
-                            G_CALLBACK (complete_pending_activate),
-                            activation);
-  g_signal_connect_swapped (window, "unmanaged",
-                            G_CALLBACK (complete_pending_activate),
-                            activation);
+  g_signal_connect (window, "notify::mapped",
+                    G_CALLBACK (complete_pending_activate),
+                    activation);
+  g_signal_connect (window, "unmanaged",
+                    G_CALLBACK (complete_pending_activate),
+                    activation);
   g_hash_table_insert (activation->pending_activations,
                        window, g_strdup (token_str));
 }
