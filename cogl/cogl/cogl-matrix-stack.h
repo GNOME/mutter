@@ -307,71 +307,6 @@ cogl_matrix_stack_frustum (CoglMatrixStack *stack,
                            float z_far);
 
 /**
- * cogl_matrix_stack_perspective:
- * @stack: A #CoglMatrixStack
- * @fov_y: Vertical field of view angle in degrees.
- * @aspect: The (width over height) aspect ratio for display
- * @z_near: The distance to the near clipping plane (Must be positive,
- *   and must not be 0)
- * @z_far: The distance to the far clipping plane (Must be positive)
- *
- * Replaces the current matrix with a perspective matrix based on the
- * provided values.
- *
- * You should be careful not to have too great a @z_far / @z_near
- * ratio since that will reduce the effectiveness of depth testing
- * since there won't be enough precision to identify the depth of
- * objects near to each other.
- */
-COGL_EXPORT void
-cogl_matrix_stack_perspective (CoglMatrixStack *stack,
-                               float fov_y,
-                               float aspect,
-                               float z_near,
-                               float z_far);
-
-/**
- * cogl_matrix_stack_orthographic:
- * @stack: A #CoglMatrixStack
- * @x_1: The x coordinate for the first vertical clipping plane
- * @y_1: The y coordinate for the first horizontal clipping plane
- * @x_2: The x coordinate for the second vertical clipping plane
- * @y_2: The y coordinate for the second horizontal clipping plane
- * @near: The *distance* to the near clipping
- *   plane (will be *negative* if the plane is
- *   behind the viewer)
- * @far: The *distance* to the far clipping
- *   plane (will be *negative* if the plane is
- *   behind the viewer)
- *
- * Replaces the current matrix with an orthographic projection matrix.
- */
-COGL_EXPORT void
-cogl_matrix_stack_orthographic (CoglMatrixStack *stack,
-                                float x_1,
-                                float y_1,
-                                float x_2,
-                                float y_2,
-                                float near,
-                                float far);
-
-/**
- * cogl_matrix_stack_get_inverse:
- * @stack: A #CoglMatrixStack
- * @inverse: (out): The destination for a 4x4 inverse transformation matrix
- *
- * Gets the inverse transform of the current matrix and uses it to
- * initialize a new #graphene_matrix_t.
- *
- * Return value: %TRUE if the inverse was successfully calculated or %FALSE
- *   for degenerate transformations that can't be inverted (in this case the
- *   @inverse matrix will simply be initialized with the identity matrix)
- */
-COGL_EXPORT gboolean
-cogl_matrix_stack_get_inverse (CoglMatrixStack   *stack,
-                               graphene_matrix_t *inverse);
-
-/**
  * cogl_matrix_stack_get_entry:
  * @stack: A #CoglMatrixStack
  *
@@ -509,35 +444,6 @@ cogl_matrix_entry_calculate_translation (CoglMatrixEntry *entry0,
  */
 COGL_EXPORT gboolean
 cogl_matrix_entry_is_identity (CoglMatrixEntry *entry);
-
-/**
- * cogl_matrix_entry_equal:
- * @entry0: The first #CoglMatrixEntry to compare
- * @entry1: A second #CoglMatrixEntry to compare
- *
- * Compares two arbitrary #CoglMatrixEntry transforms for equality
- * returning %TRUE if they are equal or %FALSE otherwise.
- *
- * In many cases it is unnecessary to use this api and instead
- * direct pointer comparisons of entries are good enough and much
- * cheaper too.
- *
- * Return value: %TRUE if @entry0 represents the same transform as
- *               @entry1, otherwise %FALSE.
- */
-COGL_EXPORT gboolean
-cogl_matrix_entry_equal (CoglMatrixEntry *entry0,
-                         CoglMatrixEntry *entry1);
-
-/**
- * cogl_debug_matrix_entry_print:
- * @entry: A #CoglMatrixEntry
- *
- * Allows visualizing the operations that build up the given @entry
- * for debugging purposes by printing to stdout.
- */
-COGL_EXPORT void
-cogl_debug_matrix_entry_print (CoglMatrixEntry *entry);
 
 /**
  * cogl_matrix_entry_ref:
