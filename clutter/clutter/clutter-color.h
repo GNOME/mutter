@@ -116,9 +116,6 @@ void          clutter_color_from_hls    (ClutterColor       *color,
 
 CLUTTER_EXPORT
 guint32       clutter_color_to_pixel    (const ClutterColor *color);
-CLUTTER_EXPORT
-void          clutter_color_from_pixel  (ClutterColor       *color,
-                                         guint32             pixel);
 
 CLUTTER_EXPORT
 guint         clutter_color_hash        (gconstpointer       v);

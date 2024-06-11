@@ -256,28 +256,10 @@ color_to_string (void)
   g_free (str);
 }
 
-static void
-color_operators (void)
-{
-  ClutterColor op1, op2;
-
-  clutter_color_from_pixel (&op1, 0xff0000ff);
-  g_assert_cmpuint (op1.red, ==, 0xff);
-  g_assert_cmpuint (op1.green, ==, 0);
-  g_assert_cmpuint (op1.blue, ==, 0);
-  g_assert_cmpuint (op1.alpha, ==, 0xff);
-
-  clutter_color_from_pixel (&op2, 0x00ff00ff);
-  g_assert_cmpuint (op2.red, ==, 0);
-  g_assert_cmpuint (op2.green, ==, 0xff);
-  g_assert_cmpuint (op2.blue, ==, 0);
-  g_assert_cmpuint (op2.alpha, ==, 0xff);
-}
 
 CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/color/hls-roundtrip", color_hls_roundtrip)
   CLUTTER_TEST_UNIT ("/color/from-string/invalid", color_from_string_invalid)
   CLUTTER_TEST_UNIT ("/color/from-string/valid", color_from_string_valid)
   CLUTTER_TEST_UNIT ("/color/to-string", color_to_string)
-  CLUTTER_TEST_UNIT ("/color/operators", color_operators)
 )

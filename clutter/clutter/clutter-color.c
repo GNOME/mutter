@@ -204,26 +204,6 @@ clutter_color_to_pixel (const ClutterColor *color)
           color->red   << 24);
 }
 
-/**
- * clutter_color_from_pixel:
- * @color: (out caller-allocates): return location for a #ClutterColor
- * @pixel: a 32 bit packed integer containing a color
- *
- * Converts @pixel from the packed representation of a four 8 bit channel
- * color to a #ClutterColor.
- */
-void
-clutter_color_from_pixel (ClutterColor *color,
-			  guint32       pixel)
-{
-  g_return_if_fail (color != NULL);
-
-  color->red   =  pixel >> 24;
-  color->green = (pixel >> 16) & 0xff;
-  color->blue  = (pixel >> 8)  & 0xff;
-  color->alpha =  pixel        & 0xff;
-}
-
 static inline void
 skip_whitespace (gchar **str)
 {
