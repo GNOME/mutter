@@ -116,53 +116,6 @@ cogl_atlas_texture_new_with_size (CoglContext *ctx,
                                   int height);
 
 /**
- * cogl_atlas_texture_new_from_data:
- * @ctx: A #CoglContext
- * @width: width of texture in pixels
- * @height: height of texture in pixels
- * @format: the #CoglPixelFormat the buffer is stored in in RAM
- * @rowstride: the memory offset in bytes between the start of each
- *    row in @data. A value of 0 will make Cogl automatically
- *    calculate @rowstride from @width and @format.
- * @data: pointer to the memory region where the source buffer resides
- * @error: A #GError to catch exceptional errors or %NULL
- *
- * Creates a new #CoglAtlasTexture texture based on data residing in
- * memory. A #CoglAtlasTexture represents a sub-region within one of
- * Cogl's shared texture atlases.
- *
- * This api will always immediately allocate GPU memory for the
- * texture and upload the given data so that the @data pointer does
- * not need to remain valid once this function returns. This means it
- * is not possible to configure the texture before it is allocated. If
- * you do need to configure the texture before allocation (to specify
- * constraints on the internal format for example) then you can
- * instead create a #CoglBitmap for your data and use
- * cogl_atlas_texture_new_from_bitmap() or use
- * cogl_atlas_texture_new_with_size() and then upload data using
- * cogl_texture_set_data()
- *
- * Allocate call can fail if Cogl considers the internal
- * format to be incompatible with the format of its internal
- * atlases.
- *
- * The returned #CoglAtlasTexture is a high-level
- * meta-texture with some limitations. See the documentation for
- * #CoglMetaTexture for more details.
- *
- * Return value: (transfer full): A new #CoglAtlasTexture object or
- *          %NULL on failure and @error will be updated.
- */
-COGL_EXPORT CoglTexture *
-cogl_atlas_texture_new_from_data (CoglContext *ctx,
-                                  int width,
-                                  int height,
-                                  CoglPixelFormat format,
-                                  int rowstride,
-                                  const uint8_t *data,
-                                  GError **error);
-
-/**
  * cogl_atlas_texture_new_from_bitmap:
  * @bmp: A #CoglBitmap
  *

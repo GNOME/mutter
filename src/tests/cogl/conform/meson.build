@@ -36,7 +36,6 @@ cogl_tests = [
   [ 'test-primitive-and-journal', [] ],
   [ 'test-copy-replace-texture', [] ],
   [ 'test-pipeline-cache-unrefs-texture', [] ],
-  [ 'test-texture-no-allocate', [] ],
   [ 'test-pipeline-shader-state', [] ],
   [ 'test-texture-rg', [] ],
   [ 'test-fence', [] ],

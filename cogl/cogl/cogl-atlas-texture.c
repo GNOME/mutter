@@ -928,47 +928,6 @@ cogl_atlas_texture_new_from_bitmap (CoglBitmap *bmp)
                                           loader);
 }
 
-CoglTexture *
-cogl_atlas_texture_new_from_data (CoglContext *ctx,
-                                  int width,
-                                  int height,
-                                  CoglPixelFormat format,
-                                  int rowstride,
-                                  const uint8_t *data,
-                                  GError **error)
-{
-  CoglBitmap *bmp;
-  CoglTexture *atlas_tex;
-
-  g_return_val_if_fail (format != COGL_PIXEL_FORMAT_ANY, NULL);
-  g_return_val_if_fail (cogl_pixel_format_get_n_planes (format) == 1, NULL);
-  g_return_val_if_fail (data != NULL, NULL);
-
-  /* Rowstride from width if not given */
-  if (rowstride == 0)
-    rowstride = width * cogl_pixel_format_get_bytes_per_pixel (format, 0);
-
-  /* Wrap the data into a bitmap */
-  bmp = cogl_bitmap_new_for_data (ctx,
-                                  width, height,
-                                  format,
-                                  rowstride,
-                                  (uint8_t *) data);
-
-  atlas_tex = cogl_atlas_texture_new_from_bitmap (bmp);
-
-  g_object_unref (bmp);
-
-  if (atlas_tex &&
-      !cogl_texture_allocate (COGL_TEXTURE (atlas_tex), error))
-    {
-      g_object_unref (atlas_tex);
-      return NULL;
-    }
-
-  return atlas_tex;
-}
-
 void
 _cogl_atlas_texture_add_reorganize_callback (CoglContext *ctx,
                                              GHookFunc callback,
