@@ -382,7 +382,8 @@ complete_pending_activate (MetaWindow            *window,
                            GParamSpec            *pspec,
                            MetaWaylandActivation *activation)
 {
-  g_autofree char *token_str = NULL;
+  g_autoptr (GPtrArray) requests = NULL;
+  size_t i;
 
   if (!window)
     return;
@@ -393,10 +394,44 @@ complete_pending_activate (MetaWindow            *window,
   if (!g_hash_table_steal_extended (activation->pending_activations,
                                     window,
                                     NULL,
-                                    (gpointer *) &token_str))
+                                    (gpointer *) &requests))
     return;
 
-  maybe_activate (activation, window, token_str);
+  for (i = 0; i < requests->len; i++)
+    maybe_activate (activation, window, requests->pdata[i]);
+}
+
+static void
+add_pending_activate (MetaWaylandActivation *activation,
+                      MetaWindow            *window,
+                      const char            *token_str)
+{
+  g_autoptr (GPtrArray) requests = NULL;
+
+  if (window->unmanaging)
+    return;
+
+  if (!g_hash_table_steal_extended (activation->pending_activations,
+                                    window,
+                                    NULL,
+                                    (gpointer *) &requests))
+    {
+      requests = g_ptr_array_new_null_terminated (0, g_free, TRUE);
+
+      g_signal_connect (window, "notify::mapped",
+                        G_CALLBACK (complete_pending_activate),
+                        activation);
+      g_signal_connect (window, "unmanaged",
+                        G_CALLBACK (complete_pending_activate),
+                        activation);
+    }
+
+  g_assert (requests != NULL);
+
+  g_ptr_array_add (requests, g_strdup (token_str));
+
+  g_hash_table_insert (activation->pending_activations,
+                       window, g_steal_pointer (&requests));
 }
 
 static void
@@ -414,17 +449,7 @@ activation_activate (struct wl_client   *client,
 
   g_assert (window != NULL);
 
-  g_signal_handlers_disconnect_by_func (window,
-                                        complete_pending_activate,
-                                        activation);
-  g_signal_connect (window, "notify::mapped",
-                    G_CALLBACK (complete_pending_activate),
-                    activation);
-  g_signal_connect (window, "unmanaged",
-                    G_CALLBACK (complete_pending_activate),
-                    activation);
-  g_hash_table_insert (activation->pending_activations,
-                       window, g_strdup (token_str));
+  add_pending_activate (activation, window, token_str);
 }
 
 static const struct xdg_activation_v1_interface activation_interface = {
@@ -477,7 +502,7 @@ meta_wayland_activation_init (MetaWaylandCompositor *compositor)
                            (GDestroyNotify) meta_xdg_activation_token_free);
 
   activation->pending_activations =
-    g_hash_table_new_full (NULL, NULL, NULL, g_free);
+    g_hash_table_new_full (NULL, NULL, NULL, (GDestroyNotify) g_ptr_array_unref);
 
   wl_global_create (compositor->wayland_display,
                     &xdg_activation_v1_interface,
