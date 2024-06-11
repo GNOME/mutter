@@ -40,7 +40,7 @@ G_BEGIN_DECLS
 
 /**
  * CoglDepthState:
- * 
+ *
  * Functions for describing the depth testing state of your GPU.
  */
 typedef struct {
@@ -93,18 +93,6 @@ cogl_depth_state_set_test_enabled (CoglDepthState *state,
                                    gboolean enable);
 
 /**
- * cogl_depth_state_get_test_enabled:
- * @state: A #CoglDepthState struct
- *
- * Gets the current depth test enabled state as previously set by
- * cogl_depth_state_set_test_enabled().
- *
- * Returns: The pipeline's current depth test enabled state.
- */
-COGL_EXPORT gboolean
-cogl_depth_state_get_test_enabled (CoglDepthState *state);
-
-/**
  * cogl_depth_state_set_write_enabled:
  * @state: A #CoglDepthState struct
  * @enable: The enable state you want
@@ -125,17 +113,6 @@ COGL_EXPORT void
 cogl_depth_state_set_write_enabled (CoglDepthState *state,
                                     gboolean enable);
 
-/**
- * cogl_depth_state_get_write_enabled:
- * @state: A #CoglDepthState struct
- *
- * Gets the depth writing enable state as set by the corresponding
- * cogl_depth_state_set_write_enabled().
- *
- * Returns: The current depth writing enable state
- */
-COGL_EXPORT gboolean
-cogl_depth_state_get_write_enabled (CoglDepthState *state);
 
 /**
  * cogl_depth_state_set_test_function:
@@ -155,18 +132,6 @@ cogl_depth_state_get_write_enabled (CoglDepthState *state);
 COGL_EXPORT void
 cogl_depth_state_set_test_function (CoglDepthState *state,
                                     CoglDepthTestFunction function);
-
-/**
- * cogl_depth_state_get_test_function:
- * @state: A #CoglDepthState struct
- *
- * Gets the current depth test enable state as previously set via
- * cogl_depth_state_set_test_enabled().
- *
- * Returns: The current depth test enable state.
- */
-COGL_EXPORT CoglDepthTestFunction
-cogl_depth_state_get_test_function (CoglDepthState *state);
 
 /**
  * cogl_depth_state_set_range:
@@ -200,20 +165,5 @@ COGL_EXPORT void
 cogl_depth_state_set_range (CoglDepthState *state,
                             float near_val,
                             float far_val);
-
-/**
- * cogl_depth_state_get_range:
- * @state: A #CoglDepthState object
- * @near_val: A pointer to store the near component of the depth range
- * @far_val: A pointer to store the far component of the depth range
- *
- * Gets the current range to which normalized depth values are mapped
- * before writing to the depth buffer. This corresponds to the range
- * set with cogl_depth_state_set_range().
- */
-COGL_EXPORT void
-cogl_depth_state_get_range (CoglDepthState *state,
-                            float *near_val,
-                            float *far_val);
 
 G_END_DECLS
