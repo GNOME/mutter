@@ -96,6 +96,8 @@ struct _ClutterFrameClock
   int64_t last_presentation_time_us;
   int64_t next_update_time_us;
 
+  ClutterFrameInfoFlag last_presentation_flags;
+
   gboolean is_next_presentation_time_valid;
   int64_t next_presentation_time_us;
 
@@ -357,7 +359,10 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
 #endif
 
   if (frame_info->presentation_time > 0)
-    frame_clock->last_presentation_time_us = frame_info->presentation_time;
+    {
+      frame_clock->last_presentation_time_us = frame_info->presentation_time;
+      frame_clock->last_presentation_flags = frame_info->flags;
+    }
 
   frame_clock->got_measurements_last_frame = FALSE;
 
@@ -601,7 +606,8 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
         }
     }
 
-  if (next_presentation_time_us != last_presentation_time_us + refresh_interval_us)
+  if (frame_clock->last_presentation_flags & CLUTTER_FRAME_INFO_FLAG_VSYNC &&
+      next_presentation_time_us != last_presentation_time_us + refresh_interval_us)
     {
       /* There was an idle period since the last presentation, so there seems
        * be no constantly updating actor. In this case it's best to start
