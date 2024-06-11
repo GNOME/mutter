@@ -47,7 +47,7 @@ on_clicked (ClutterClickAction *action,
       new_height = old_height + 200;
       new_angle = 360.0;
 
-      clutter_color_init (&new_color, 164, 0, 0, 255);
+      new_color = CLUTTER_COLOR_INIT (164, 0, 0, 255);
       new_opacity = 255;
     }
   else
@@ -58,7 +58,7 @@ on_clicked (ClutterClickAction *action,
       new_height = old_height - 200;
       new_angle = 0.0;
 
-      clutter_color_init (&new_color, 206, 92, 0, 255);
+      new_color = CLUTTER_COLOR_INIT (206, 92, 0, 255);
 
       new_opacity = 128;
     }

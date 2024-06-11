@@ -1254,7 +1254,6 @@ clutter_stage_paint (ClutterActor        *actor,
       g_autoptr (GString) string = NULL;
       PangoLayout *layout;
       PangoRectangle logical;
-      ClutterColor color;
       g_autoptr (ClutterPaintNode) node = NULL;
       ClutterActorBox box;
 
@@ -1267,8 +1266,8 @@ clutter_stage_paint (ClutterActor        *actor,
       pango_layout_set_alignment (layout, PANGO_ALIGN_RIGHT);
       pango_layout_get_pixel_extents (layout, NULL, &logical);
 
-      clutter_color_init (&color, 255, 255, 255, 255);
-      node = clutter_text_node_new (layout, &color);
+      node = clutter_text_node_new (layout,
+                                    &CLUTTER_COLOR_INIT (255, 255, 255, 255));
 
       box.x1 = view_layout.x;
       box.y1 = view_layout.y + 30;

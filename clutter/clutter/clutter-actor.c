@@ -3077,7 +3077,6 @@ _clutter_actor_draw_paint_volume (ClutterActor     *self,
                                   ClutterPaintNode *node)
 {
   ClutterPaintVolume *pv;
-  ClutterColor color;
 
   pv = _clutter_actor_get_paint_volume_mutable (self);
   if (!pv)
@@ -3092,18 +3091,16 @@ _clutter_actor_draw_paint_volume (ClutterActor     *self,
       clutter_paint_volume_set_width (&fake_pv, width);
       clutter_paint_volume_set_height (&fake_pv, height);
 
-      clutter_color_init (&color, 0, 0, 255, 255);
       _clutter_actor_draw_paint_volume_full (self, &fake_pv,
-                                             &color,
+                                             &CLUTTER_COLOR_INIT (0, 0, 255, 255),
                                              node);
 
       clutter_paint_volume_free (&fake_pv);
     }
   else
     {
-      clutter_color_init (&color, 0, 255, 0, 255);
       _clutter_actor_draw_paint_volume_full (self, pv,
-                                             &color,
+                                             &CLUTTER_COLOR_INIT (0, 255, 0, 255),
                                              node);
     }
 }
@@ -3122,18 +3119,18 @@ _clutter_actor_paint_cull_result (ClutterActor      *self,
       switch (result)
         {
         case CLUTTER_CULL_RESULT_IN:
-          clutter_color_init (&color, 0, 255, 0, 255);
+          color = CLUTTER_COLOR_INIT (0, 255, 0, 255);
           break;
         case CLUTTER_CULL_RESULT_OUT:
-          clutter_color_init (&color, 0, 0, 255, 255);
+          color = CLUTTER_COLOR_INIT (0, 0, 255, 255);
           break;
         default:
-          clutter_color_init (&color, 0, 255, 255, 255);
+          color = CLUTTER_COLOR_INIT (0, 255, 255, 255);
           break;
         }
     }
   else
-    clutter_color_init (&color, 255, 255, 255, 255);
+    color = CLUTTER_COLOR_INIT (255, 255, 255, 255);
 
   if (success && (pv = _clutter_actor_get_paint_volume_mutable (self)))
     _clutter_actor_draw_paint_volume_full (self, pv,

@@ -80,19 +80,6 @@ CLUTTER_EXPORT
 GType clutter_color_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
-ClutterColor *clutter_color_new         (guint8              red,
-                                         guint8              green,
-                                         guint8              blue,
-                                         guint8              alpha);
-CLUTTER_EXPORT
-ClutterColor *clutter_color_alloc       (void);
-CLUTTER_EXPORT
-ClutterColor *clutter_color_init        (ClutterColor       *color,
-                                         guint8              red,
-                                         guint8              green,
-                                         guint8              blue,
-                                         guint8              alpha);
-CLUTTER_EXPORT
 ClutterColor *clutter_color_copy        (const ClutterColor *color);
 CLUTTER_EXPORT
 void          clutter_color_free        (ClutterColor       *color);
