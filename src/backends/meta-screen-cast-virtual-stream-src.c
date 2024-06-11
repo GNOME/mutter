@@ -39,6 +39,12 @@ struct _MetaScreenCastVirtualStreamSrc
   gboolean cursor_bitmap_invalid;
   gboolean hw_cursor_inhibited;
 
+  struct {
+    gboolean set;
+    int x;
+    int y;
+  } last_cursor_matadata;
+
   MetaStageWatch *watch;
 
   gulong position_invalidated_handler_id;
@@ -491,6 +497,75 @@ is_cursor_in_stream (MetaScreenCastVirtualStreamSrc *virtual_src)
     }
 }
 
+static gboolean
+should_cursor_metadata_be_set (MetaScreenCastVirtualStreamSrc *virtual_src)
+{
+  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (virtual_src);
+  MetaBackend *backend = backend_from_src (src);
+  MetaCursorTracker *cursor_tracker =
+    meta_backend_get_cursor_tracker (backend);
+
+  return (meta_cursor_tracker_get_pointer_visible (cursor_tracker) &&
+          is_cursor_in_stream (virtual_src));
+}
+
+static void
+get_cursor_position (MetaScreenCastVirtualStreamSrc *virtual_src,
+                     int                            *out_x,
+                     int                            *out_y)
+{
+  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (virtual_src);
+  MetaBackend *backend = backend_from_src (src);
+  MetaCursorTracker *cursor_tracker =
+    meta_backend_get_cursor_tracker (backend);
+  ClutterStageView *stage_view;
+  MtkRectangle view_layout;
+  graphene_rect_t view_rect;
+  float view_scale;
+  graphene_point_t cursor_position;
+
+  stage_view = view_from_src (src);
+  view_scale = clutter_stage_view_get_scale (stage_view);
+  clutter_stage_view_get_layout (stage_view, &view_layout);
+  view_rect = mtk_rectangle_to_graphene_rect (&view_layout);
+
+  meta_cursor_tracker_get_pointer (cursor_tracker, &cursor_position, NULL);
+  cursor_position.x -= view_rect.origin.x;
+  cursor_position.y -= view_rect.origin.y;
+  cursor_position.x *= view_scale;
+  cursor_position.y *= view_scale;
+
+  *out_x = (int) roundf (cursor_position.x);
+  *out_y = (int) roundf (cursor_position.y);
+}
+
+static gboolean
+meta_screen_cast_virtual_stream_src_is_cursor_metadata_valid (MetaScreenCastStreamSrc *src)
+{
+  MetaScreenCastVirtualStreamSrc *virtual_src =
+    META_SCREEN_CAST_VIRTUAL_STREAM_SRC (src);
+
+  if (should_cursor_metadata_be_set (virtual_src))
+    {
+      int x, y;
+
+      if (!virtual_src->last_cursor_matadata.set)
+        return FALSE;
+
+      if (virtual_src->cursor_bitmap_invalid)
+        return FALSE;
+
+      get_cursor_position (virtual_src, &x, &y);
+
+      return (virtual_src->last_cursor_matadata.x == x &&
+              virtual_src->last_cursor_matadata.y == y);
+    }
+  else
+    {
+      return !virtual_src->last_cursor_matadata.set;
+    }
+}
+
 static void
 meta_screen_cast_virtual_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc *src,
                                                          struct spa_meta_cursor  *spa_meta_cursor)
@@ -500,47 +575,38 @@ meta_screen_cast_virtual_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc
   MetaBackend *backend = backend_from_src (src);
   MetaCursorRenderer *cursor_renderer =
     meta_backend_get_cursor_renderer (backend);
-  MetaCursorTracker *cursor_tracker =
-    meta_backend_get_cursor_tracker (backend);
   MetaCursorSprite *cursor_sprite;
-  ClutterStageView *stage_view;
-  MtkRectangle view_layout;
-  float view_scale;
-  graphene_rect_t view_rect;
-  graphene_point_t cursor_position;
   int x, y;
 
   cursor_sprite = meta_cursor_renderer_get_cursor (cursor_renderer);
 
-  if (!meta_cursor_tracker_get_pointer_visible (cursor_tracker) ||
-      !is_cursor_in_stream (virtual_src))
+  if (!should_cursor_metadata_be_set (virtual_src))
     {
+      virtual_src->last_cursor_matadata.set = FALSE;
       meta_screen_cast_stream_src_unset_cursor_metadata (src,
                                                          spa_meta_cursor);
       return;
     }
 
-  stage_view = view_from_src (src);
-  clutter_stage_view_get_layout (stage_view, &view_layout);
-  view_rect = mtk_rectangle_to_graphene_rect (&view_layout);
-  view_scale = clutter_stage_view_get_scale (stage_view);
+  get_cursor_position (virtual_src, &x, &y);
 
-  meta_cursor_tracker_get_pointer (cursor_tracker, &cursor_position, NULL);
-  cursor_position.x -= view_rect.origin.x;
-  cursor_position.y -= view_rect.origin.y;
-  cursor_position.x *= view_scale;
-  cursor_position.y *= view_scale;
-
-  x = (int) roundf (cursor_position.x);
-  y = (int) roundf (cursor_position.y);
+  virtual_src->last_cursor_matadata.set = TRUE;
+  virtual_src->last_cursor_matadata.x = x;
+  virtual_src->last_cursor_matadata.y = y;
 
   if (virtual_src->cursor_bitmap_invalid)
     {
+
       if (cursor_sprite)
         {
+          ClutterStageView *stage_view;
+          float view_scale;
           float cursor_scale;
           float scale;
           MetaMonitorTransform transform;
+
+          stage_view = view_from_src (src);
+          view_scale = clutter_stage_view_get_scale (stage_view);
 
           cursor_scale = meta_cursor_sprite_get_texture_scale (cursor_sprite);
           scale = view_scale * cursor_scale;
@@ -719,6 +785,8 @@ meta_screen_cast_virtual_stream_src_class_init (MetaScreenCastVirtualStreamSrcCl
     meta_screen_cast_virtual_stream_src_record_to_framebuffer;
   src_class->record_follow_up =
     meta_screen_cast_virtual_stream_record_follow_up;
+  src_class->is_cursor_metadata_valid =
+    meta_screen_cast_virtual_stream_src_is_cursor_metadata_valid;
   src_class->set_cursor_metadata =
     meta_screen_cast_virtual_stream_src_set_cursor_metadata;
   src_class->notify_params_updated =
