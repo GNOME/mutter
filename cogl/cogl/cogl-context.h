@@ -220,48 +220,6 @@ COGL_EXPORT gboolean
 cogl_has_feature (CoglContext *context, CoglFeatureID feature);
 
 /**
- * cogl_has_features:
- * @context: A #CoglContext pointer
- * @...: A 0 terminated list of `CoglFeatureID`s
- *
- * Checks if a list of features are all currently available.
- *
- * This checks all of the listed features using cogl_has_feature() and
- * returns %TRUE if all the features are available or %FALSE
- * otherwise.
- *
- * Return value: %TRUE if all the features are available, %FALSE
- * otherwise.
- */
-COGL_EXPORT gboolean
-cogl_has_features (CoglContext *context, ...);
-
-/**
- * CoglFeatureCallback:
- * @feature: A single feature currently supported by Cogl
- * @user_data: A private pointer passed to cogl_foreach_feature().
- *
- * A callback used with cogl_foreach_feature() for enumerating all
- * context level features supported by Cogl.
- */
-typedef void (*CoglFeatureCallback) (CoglFeatureID feature, void *user_data);
-
-/**
- * cogl_foreach_feature:
- * @context: A #CoglContext pointer
- * @callback: (scope call): A #CoglFeatureCallback called for each
- *            supported feature
- * @user_data: (closure): Private data to pass to the callback
- *
- * Iterates through all the context level features currently supported
- * for a given @context and for each feature @callback is called.
- */
-COGL_EXPORT void
-cogl_foreach_feature (CoglContext *context,
-                      CoglFeatureCallback callback,
-                      void *user_data);
-
-/**
  * CoglGraphicsResetStatus:
  * @COGL_GRAPHICS_RESET_STATUS_NO_ERROR:
  * @COGL_GRAPHICS_RESET_STATUS_GUILTY_CONTEXT_RESET:
