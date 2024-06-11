@@ -776,6 +776,8 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
 {
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
+  MetaScreenCastStreamSrcClass *klass =
+    META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
   MetaScreenCastRecordResult record_result =
     META_SCREEN_CAST_RECORD_RESULT_RECORDED_NOTHING;
   MtkRectangle crop_rect;
@@ -786,6 +788,15 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
 
   COGL_TRACE_BEGIN_SCOPED (MaybeRecordFrame,
                            "Meta::ScreenCastStreamSrc::maybe_record_frame_with_timestamp()");
+
+  if ((flags & META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY) &&
+      klass->is_cursor_metadata_valid &&
+      klass->is_cursor_metadata_valid (src))
+    {
+      meta_topic (META_DEBUG_SCREEN_CAST,
+                  "Dropping cursor-only frame as the cursor didn't change");
+      return record_result;
+    }
 
   /* Accumulate the damaged region since we might not schedule a frame capture
    * eventually but once we do, we should report all the previous damaged areas.

@@ -85,6 +85,7 @@ struct _MetaScreenCastStreamSrcClass
 
   gboolean (* get_videocrop) (MetaScreenCastStreamSrc *src,
                               MtkRectangle            *crop_rect);
+  gboolean (* is_cursor_metadata_valid) (MetaScreenCastStreamSrc *src);
   void (* set_cursor_metadata) (MetaScreenCastStreamSrc *src,
                                 struct spa_meta_cursor  *spa_meta_cursor);
 
