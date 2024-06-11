@@ -102,9 +102,6 @@ void          clutter_color_from_hls    (ClutterColor       *color,
                                          gfloat              saturation);
 
 CLUTTER_EXPORT
-guint32       clutter_color_to_pixel    (const ClutterColor *color);
-
-CLUTTER_EXPORT
 guint         clutter_color_hash        (gconstpointer       v);
 CLUTTER_EXPORT
 gboolean      clutter_color_equal       (gconstpointer       v1,

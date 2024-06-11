@@ -184,26 +184,6 @@ clutter_color_from_hls (ClutterColor *color,
   color->blue  = floorf (clr[2] * 255.0 + 0.5);
 }
 
-/**
- * clutter_color_to_pixel:
- * @color: a #ClutterColor
- *
- * Converts @color into a packed 32 bit integer, containing
- * all the four 8 bit channels used by #ClutterColor.
- *
- * Return value: a packed color
- */
-guint32
-clutter_color_to_pixel (const ClutterColor *color)
-{
-  g_return_val_if_fail (color != NULL, 0);
-
-  return (color->alpha       |
-          color->blue  << 8  |
-          color->green << 16 |
-          color->red   << 24);
-}
-
 static inline void
 skip_whitespace (gchar **str)
 {
@@ -592,7 +572,12 @@ clutter_color_equal (gconstpointer v1,
 guint
 clutter_color_hash (gconstpointer v)
 {
-  return clutter_color_to_pixel ((const ClutterColor *) v);
+  const ClutterColor *color = v;
+
+  return (color->alpha       |
+          color->blue  << 8  |
+          color->green << 16 |
+          color->red   << 24);
 }
 
 /**
@@ -778,8 +763,8 @@ param_color_values_cmp (GParamSpec   *pspec,
   if (color1 == NULL)
     return color2 == NULL ? 0 : -1;
 
-  pixel1 = clutter_color_to_pixel (color1);
-  pixel2 = clutter_color_to_pixel (color2);
+  pixel1 = clutter_color_hash (color1);
+  pixel2 = clutter_color_hash (color2);
 
   if (pixel1 < pixel2)
     return -1;
