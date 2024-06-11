@@ -39,6 +39,12 @@ struct _MetaScreenCastAreaStreamSrc
   gboolean cursor_bitmap_invalid;
   gboolean hw_cursor_inhibited;
 
+  struct {
+    gboolean set;
+    int x;
+    int y;
+  } last_cursor_matadata;
+
   GList *watches;
 
   gulong position_invalidated_handler_id;
@@ -559,6 +565,72 @@ meta_screen_cast_area_stream_record_follow_up (MetaScreenCastStreamSrc *src)
                                                   NULL);
 }
 
+static gboolean
+should_cursor_metadata_be_set (MetaScreenCastAreaStreamSrc *area_src)
+{
+  MetaBackend *backend = get_backend (area_src);
+  MetaCursorTracker *cursor_tracker =
+    meta_backend_get_cursor_tracker (backend);
+
+  return (meta_cursor_tracker_get_pointer_visible (cursor_tracker) &&
+          is_cursor_in_stream (area_src));
+}
+
+static void
+get_cursor_position (MetaScreenCastAreaStreamSrc *area_src,
+                     int                         *out_x,
+                     int                         *out_y)
+{
+  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (area_src);
+  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
+  MetaScreenCastAreaStream *area_stream = META_SCREEN_CAST_AREA_STREAM (stream);
+  MetaBackend *backend = get_backend (area_src);
+  MetaCursorTracker *cursor_tracker =
+    meta_backend_get_cursor_tracker (backend);
+  MtkRectangle *area;
+  float scale;
+  graphene_point_t cursor_position;
+
+  area = meta_screen_cast_area_stream_get_area (area_stream);
+  scale = meta_screen_cast_area_stream_get_scale (area_stream);
+
+  meta_cursor_tracker_get_pointer (cursor_tracker, &cursor_position, NULL);
+  cursor_position.x -= area->x;
+  cursor_position.y -= area->y;
+  cursor_position.x *= scale;
+  cursor_position.y *= scale;
+
+  *out_x = (int) roundf (cursor_position.x);
+  *out_y = (int) roundf (cursor_position.y);
+}
+
+static gboolean
+meta_screen_cast_area_stream_src_is_cursor_metadata_valid (MetaScreenCastStreamSrc *src)
+{
+  MetaScreenCastAreaStreamSrc *area_src =
+    META_SCREEN_CAST_AREA_STREAM_SRC (src);
+
+  if (should_cursor_metadata_be_set (area_src))
+    {
+      int x, y;
+
+      if (!area_src->last_cursor_matadata.set)
+        return FALSE;
+
+      if (area_src->cursor_bitmap_invalid)
+        return FALSE;
+
+      get_cursor_position (area_src, &x, &y);
+
+      return (area_src->last_cursor_matadata.x == x &&
+              area_src->last_cursor_matadata.y == y);
+    }
+  else
+    {
+      return !area_src->last_cursor_matadata.set;
+    }
+}
+
 static void
 meta_screen_cast_area_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc *src,
                                                       struct spa_meta_cursor  *spa_meta_cursor)
@@ -570,44 +642,35 @@ meta_screen_cast_area_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc *s
   MetaBackend *backend = get_backend (area_src);
   MetaCursorRenderer *cursor_renderer =
     meta_backend_get_cursor_renderer (backend);
-  MetaCursorTracker *cursor_tracker =
-    meta_backend_get_cursor_tracker (backend);
   MetaCursorSprite *cursor_sprite;
-  MtkRectangle *area;
-  float scale;
-  graphene_point_t cursor_position;
   int x, y;
 
   cursor_sprite = meta_cursor_renderer_get_cursor (cursor_renderer);
 
-  if (!meta_cursor_tracker_get_pointer_visible (cursor_tracker) ||
-      !is_cursor_in_stream (area_src))
+  if (!should_cursor_metadata_be_set (area_src))
     {
+      area_src->last_cursor_matadata.set = FALSE;
       meta_screen_cast_stream_src_unset_cursor_metadata (src,
                                                          spa_meta_cursor);
       return;
     }
 
-  area = meta_screen_cast_area_stream_get_area (area_stream);
-  scale = meta_screen_cast_area_stream_get_scale (area_stream);
+  get_cursor_position (area_src, &x, &y);
 
-  meta_cursor_tracker_get_pointer (cursor_tracker, &cursor_position, NULL);
-  cursor_position.x -= area->x;
-  cursor_position.y -= area->y;
-  cursor_position.x *= scale;
-  cursor_position.y *= scale;
-
-  x = (int) roundf (cursor_position.x);
-  y = (int) roundf (cursor_position.y);
+  area_src->last_cursor_matadata.set = TRUE;
+  area_src->last_cursor_matadata.x = x;
+  area_src->last_cursor_matadata.y = y;
 
   if (area_src->cursor_bitmap_invalid)
     {
       if (cursor_sprite)
         {
+          float scale;
           float cursor_scale;
           float metadata_scale;
           MetaMonitorTransform transform;
 
+          scale = meta_screen_cast_area_stream_get_scale (area_stream);
           cursor_scale = meta_cursor_sprite_get_texture_scale (cursor_sprite);
           metadata_scale = scale * cursor_scale;
           transform = meta_cursor_sprite_get_texture_transform (cursor_sprite);
@@ -682,6 +745,8 @@ meta_screen_cast_area_stream_src_class_init (MetaScreenCastAreaStreamSrcClass *k
     meta_screen_cast_area_stream_src_record_to_framebuffer;
   src_class->record_follow_up =
     meta_screen_cast_area_stream_record_follow_up;
+  src_class->is_cursor_metadata_valid =
+    meta_screen_cast_area_stream_src_is_cursor_metadata_valid;
   src_class->set_cursor_metadata =
     meta_screen_cast_area_stream_src_set_cursor_metadata;
 }
