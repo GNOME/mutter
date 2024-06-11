@@ -42,6 +42,12 @@ struct _MetaScreenCastMonitorStreamSrc
   gboolean cursor_bitmap_invalid;
   gboolean hw_cursor_inhibited;
 
+  struct {
+    gboolean set;
+    int x;
+    int y;
+  } last_cursor_matadata;
+
   GList *watches;
 
   gulong position_invalidated_handler_id;
@@ -755,6 +761,66 @@ meta_screen_cast_monitor_stream_record_follow_up (MetaScreenCastStreamSrc *src)
     }
 }
 
+static gboolean
+should_cursor_metadata_be_set (MetaScreenCastMonitorStreamSrc *monitor_src)
+{
+  MetaBackend *backend = get_backend (monitor_src);
+  MetaCursorTracker *cursor_tracker =
+    meta_backend_get_cursor_tracker (backend);
+
+  return (meta_cursor_tracker_get_pointer_visible (cursor_tracker) &&
+          is_cursor_in_stream (monitor_src));
+}
+
+static float
+get_view_scale (MetaScreenCastMonitorStreamSrc *monitor_src)
+{
+  MetaBackend *backend = get_backend (monitor_src);
+  MetaMonitor *monitor;
+  MetaLogicalMonitor *logical_monitor;
+
+  monitor = get_monitor (monitor_src);
+  logical_monitor = meta_monitor_get_logical_monitor (monitor);
+
+  if (meta_backend_is_stage_views_scaled (backend))
+    return meta_logical_monitor_get_scale (logical_monitor);
+  else
+    return 1.0;
+}
+
+static void
+get_cursor_position (MetaScreenCastMonitorStreamSrc *monitor_src,
+                     int                            *out_x,
+                     int                            *out_y)
+{
+  MetaBackend *backend = get_backend (monitor_src);
+  MetaCursorTracker *cursor_tracker =
+    meta_backend_get_cursor_tracker (backend);
+  MetaMonitor *monitor;
+  MetaLogicalMonitor *logical_monitor;
+  MtkRectangle logical_monitor_layout;
+  graphene_rect_t logical_monitor_rect;
+  float view_scale;
+  graphene_point_t cursor_position;
+
+  monitor = get_monitor (monitor_src);
+  logical_monitor = meta_monitor_get_logical_monitor (monitor);
+  logical_monitor_layout = meta_logical_monitor_get_layout (logical_monitor);
+  logical_monitor_rect =
+    mtk_rectangle_to_graphene_rect (&logical_monitor_layout);
+
+  view_scale = get_view_scale (monitor_src);
+
+  meta_cursor_tracker_get_pointer (cursor_tracker, &cursor_position, NULL);
+  cursor_position.x -= logical_monitor_rect.origin.x;
+  cursor_position.y -= logical_monitor_rect.origin.y;
+  cursor_position.x *= view_scale;
+  cursor_position.y *= view_scale;
+
+  *out_x = (int) roundf (cursor_position.x);
+  *out_y = (int) roundf (cursor_position.y);
+}
+
 static void
 meta_screen_cast_monitor_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc *src,
                                                          struct spa_meta_cursor  *spa_meta_cursor)
@@ -764,55 +830,35 @@ meta_screen_cast_monitor_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc
   MetaBackend *backend = get_backend (monitor_src);
   MetaCursorRenderer *cursor_renderer =
     meta_backend_get_cursor_renderer (backend);
-  MetaCursorTracker *cursor_tracker =
-    meta_backend_get_cursor_tracker (backend);
   MetaCursorSprite *cursor_sprite;
-  MetaMonitor *monitor;
-  MetaLogicalMonitor *logical_monitor;
-  MtkRectangle logical_monitor_layout;
-  graphene_rect_t logical_monitor_rect;
-  float view_scale;
-  graphene_point_t cursor_position;
   int x, y;
 
   cursor_sprite = meta_cursor_renderer_get_cursor (cursor_renderer);
 
-  if (!meta_cursor_tracker_get_pointer_visible (cursor_tracker) ||
-      !is_cursor_in_stream (monitor_src))
+  if (!should_cursor_metadata_be_set (monitor_src))
     {
+      monitor_src->last_cursor_matadata.set = FALSE;
       meta_screen_cast_stream_src_unset_cursor_metadata (src,
                                                          spa_meta_cursor);
       return;
     }
 
-  monitor = get_monitor (monitor_src);
-  logical_monitor = meta_monitor_get_logical_monitor (monitor);
-  logical_monitor_layout = meta_logical_monitor_get_layout (logical_monitor);
-  logical_monitor_rect =
-    mtk_rectangle_to_graphene_rect (&logical_monitor_layout);
+  get_cursor_position (monitor_src, &x, &y);
 
-  if (meta_backend_is_stage_views_scaled (backend))
-    view_scale = meta_logical_monitor_get_scale (logical_monitor);
-  else
-    view_scale = 1.0;
-
-  meta_cursor_tracker_get_pointer (cursor_tracker, &cursor_position, NULL);
-  cursor_position.x -= logical_monitor_rect.origin.x;
-  cursor_position.y -= logical_monitor_rect.origin.y;
-  cursor_position.x *= view_scale;
-  cursor_position.y *= view_scale;
-
-  x = (int) roundf (cursor_position.x);
-  y = (int) roundf (cursor_position.y);
+  monitor_src->last_cursor_matadata.set = TRUE;
+  monitor_src->last_cursor_matadata.x = x;
+  monitor_src->last_cursor_matadata.y = y;
 
   if (monitor_src->cursor_bitmap_invalid)
     {
       if (cursor_sprite)
         {
+          float view_scale;
           float cursor_scale;
           float scale;
           MetaMonitorTransform transform;
 
+          view_scale = get_view_scale (monitor_src);
           cursor_scale = meta_cursor_sprite_get_texture_scale (cursor_sprite);
           scale = view_scale * cursor_scale;
           transform = meta_cursor_sprite_get_texture_transform (cursor_sprite);
