@@ -40,6 +40,12 @@ struct _MetaScreenCastWindowStreamSrc
   gulong prepare_frame_handler_id;
 
   gboolean cursor_bitmap_invalid;
+
+  struct {
+    gboolean set;
+    int x;
+    int y;
+  } last_cursor_matadata;
 };
 
 G_DEFINE_TYPE (MetaScreenCastWindowStreamSrc,
@@ -570,6 +576,51 @@ meta_screen_cast_window_stream_record_follow_up (MetaScreenCastStreamSrc *src)
                                                   NULL);
 }
 
+static gboolean
+meta_screen_cast_window_stream_src_is_cursor_metadata_valid (MetaScreenCastStreamSrc *src)
+{
+  MetaScreenCastWindowStreamSrc *window_src =
+    META_SCREEN_CAST_WINDOW_STREAM_SRC (src);
+  MetaScreenCastWindow *screen_cast_window = window_src->screen_cast_window;
+  MetaBackend *backend = get_backend (window_src);
+  MetaCursorRenderer *cursor_renderer =
+    meta_backend_get_cursor_renderer (backend);
+  MetaCursorTracker *cursor_tracker =
+    meta_backend_get_cursor_tracker (backend);
+  MetaCursorSprite *cursor_sprite;
+  graphene_point_t cursor_position;
+  graphene_point_t relative_cursor_position;
+
+  cursor_sprite = meta_cursor_renderer_get_cursor (cursor_renderer);
+  meta_cursor_tracker_get_pointer (cursor_tracker, &cursor_position, NULL);
+
+  if (meta_cursor_tracker_get_pointer_visible (cursor_tracker) &&
+      meta_screen_cast_window_transform_cursor_position (screen_cast_window,
+                                                         cursor_sprite,
+                                                         &cursor_position,
+                                                         NULL, NULL,
+                                                         &relative_cursor_position))
+    {
+      int x, y;
+
+      if (!window_src->last_cursor_matadata.set)
+        return FALSE;
+
+      if (window_src->cursor_bitmap_invalid)
+        return FALSE;
+
+      x = (int) roundf (relative_cursor_position.x);
+      y = (int) roundf (relative_cursor_position.y);
+
+      return (window_src->last_cursor_matadata.x == x &&
+              window_src->last_cursor_matadata.y == y);
+    }
+  else
+    {
+      return !window_src->last_cursor_matadata.set;
+    }
+}
+
 static void
 meta_screen_cast_window_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc *src,
                                                         struct spa_meta_cursor  *spa_meta_cursor)
@@ -600,6 +651,7 @@ meta_screen_cast_window_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc 
                                                           &transform,
                                                           &relative_cursor_position))
     {
+      window_src->last_cursor_matadata.set = FALSE;
       meta_screen_cast_stream_src_unset_cursor_metadata (src,
                                                          spa_meta_cursor);
       return;
@@ -607,6 +659,10 @@ meta_screen_cast_window_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc 
 
   x = (int) roundf (relative_cursor_position.x);
   y = (int) roundf (relative_cursor_position.y);
+
+  window_src->last_cursor_matadata.set = TRUE;
+  window_src->last_cursor_matadata.x = x;
+  window_src->last_cursor_matadata.y = y;
 
   if (window_src->cursor_bitmap_invalid)
     {
@@ -672,6 +728,8 @@ meta_screen_cast_window_stream_src_class_init (MetaScreenCastWindowStreamSrcClas
   src_class->record_follow_up =
     meta_screen_cast_window_stream_record_follow_up;
   src_class->get_videocrop = meta_screen_cast_window_stream_src_get_videocrop;
+  src_class->is_cursor_metadata_valid =
+    meta_screen_cast_window_stream_src_is_cursor_metadata_valid;
   src_class->set_cursor_metadata = meta_screen_cast_window_stream_src_set_cursor_metadata;
   src_class->get_preferred_format =
     meta_screen_cast_window_stream_src_get_preferred_format;
