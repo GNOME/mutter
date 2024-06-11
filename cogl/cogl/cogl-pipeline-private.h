@@ -637,7 +637,7 @@ _cogl_get_n_args_for_combine_func (CoglPipelineCombineFunc func);
  *   if (G_UNLIKELY (cache == NULL))
  *     {
  *       cache = g_new0 (MyValidatedMaterialCache, 1);
- * 
+ *
  *       g_object_set_qdata_full (G_OBJECT (source),
  *                                _cogl_my_cache_key,
  *                                cache, destroy_cache_cb);
@@ -668,9 +668,6 @@ CoglPipeline *
 _cogl_pipeline_weak_copy (CoglPipeline *pipeline,
                           CoglPipelineDestroyCallback callback,
                           void *user_data);
-
-void
-_cogl_pipeline_set_progend (CoglPipeline *pipeline, int progend);
 
 void
 _cogl_pipeline_get_colorubv (CoglPipeline *pipeline,
@@ -718,9 +715,6 @@ _cogl_pipeline_get_layer_matrix (CoglPipeline *pipeline,
 
 void
 _cogl_pipeline_texture_storage_change_notify (CoglTexture *texture);
-
-void
-_cogl_pipeline_apply_legacy_state (CoglPipeline *pipeline);
 
 void
 _cogl_pipeline_apply_overrides (CoglPipeline *pipeline,
@@ -778,10 +772,6 @@ _cogl_pipeline_layer_numbers_equal (CoglPipeline *pipeline0,
 gboolean
 _cogl_pipeline_layer_and_unit_numbers_equal (CoglPipeline *pipeline0,
                                              CoglPipeline *pipeline1);
-
-gboolean
-_cogl_pipeline_need_texture_combine_separate
-                                    (CoglPipelineLayer *combine_authority);
 
 void
 _cogl_pipeline_init_state_hash_functions (void);
