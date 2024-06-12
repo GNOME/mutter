@@ -877,19 +877,16 @@ meta_create_test_monitor (MetaContext *context,
 }
 
 #ifdef HAVE_NATIVE_BACKEND
-static gboolean
-callback_idle (gpointer user_data)
-{
-  GMainLoop *loop = user_data;
-
-  g_main_loop_quit (loop);
-  return G_SOURCE_REMOVE;
-}
+static GMutex mutex;
+static GCond cond;
 
 static gboolean
 queue_callback (GTask *task)
 {
-  g_idle_add (callback_idle, g_task_get_task_data (task));
+  g_mutex_lock (&mutex);
+  g_cond_signal (&cond);
+  g_mutex_unlock (&mutex);
+
   return G_SOURCE_REMOVE;
 }
 #endif
@@ -902,7 +899,6 @@ meta_flush_input (MetaContext *context)
   ClutterSeat *seat;
   MetaSeatNative *seat_native;
   g_autoptr (GTask) task = NULL;
-  g_autoptr (GMainLoop) loop = NULL;
 
   g_assert_true (META_IS_BACKEND_NATIVE (backend));
 
@@ -910,12 +906,13 @@ meta_flush_input (MetaContext *context)
   seat_native = META_SEAT_NATIVE (seat);
 
   task = g_task_new (backend, NULL, NULL, NULL);
-  loop = g_main_loop_new (NULL, FALSE);
-  g_task_set_task_data (task, loop, NULL);
+
+  g_mutex_lock (&mutex);
 
   meta_seat_impl_run_input_task (seat_native->impl, task,
                                  (GSourceFunc) queue_callback);
 
-  g_main_loop_run (loop);
+  g_cond_wait (&cond, &mutex);
+  g_mutex_unlock (&mutex);
 #endif
 }

@@ -1714,6 +1714,8 @@ test_case_do (TestCase    *test,
                                                            CLUTTER_CURRENT_TIME,
                                                            x, y);
       meta_flush_input (test->context);
+      if (!test_case_dispatch (test, error))
+        return FALSE;
     }
   else if (strcmp (argv[0], "click") == 0)
     {
