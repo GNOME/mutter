@@ -25,6 +25,11 @@
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-barrier-native.h"
 
+struct _MetaBackendNativeClass
+{
+  MetaBackendClass parent_class;
+};
+
 META_EXPORT_TEST
 MetaDevicePool * meta_backend_native_get_device_pool (MetaBackendNative *native);
 

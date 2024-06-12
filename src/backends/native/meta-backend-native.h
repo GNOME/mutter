@@ -32,8 +32,8 @@
 
 #define META_TYPE_BACKEND_NATIVE (meta_backend_native_get_type ())
 META_EXPORT_TEST
-G_DECLARE_FINAL_TYPE (MetaBackendNative, meta_backend_native,
-                      META, BACKEND_NATIVE, MetaBackend)
+G_DECLARE_DERIVABLE_TYPE (MetaBackendNative, meta_backend_native,
+                          META, BACKEND_NATIVE, MetaBackend)
 
 gboolean meta_backend_native_activate_vt (MetaBackendNative  *backend_native,
                                           int                 vt,
