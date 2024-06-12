@@ -147,7 +147,9 @@ meta_test_disconnect_connect (void)
   g_autoptr (GError) error = NULL;
   State state;
 
-  udev_devices = meta_udev_list_drm_devices (udev, &error);
+  udev_devices = meta_udev_list_drm_devices (udev,
+                                             META_UDEV_DEVICE_TYPE_CARD,
+                                             &error);
   g_assert_cmpuint (g_list_length (udev_devices), ==, 1);
   udev_device = g_list_first (udev_devices)->data;
 
@@ -374,7 +376,9 @@ emulate_hotplug (void)
   g_autolist (GObject) udev_devices = NULL;
   GUdevDevice *udev_device;
 
-  udev_devices = meta_udev_list_drm_devices (udev, &error);
+  udev_devices = meta_udev_list_drm_devices (udev,
+                                             META_UDEV_DEVICE_TYPE_CARD,
+                                             &error);
   g_assert_cmpuint (g_list_length (udev_devices), ==, 1);
   udev_device = g_list_first (udev_devices)->data;
   g_signal_emit_by_name (udev, "hotplug", udev_device);

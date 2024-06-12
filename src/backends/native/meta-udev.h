@@ -23,6 +23,12 @@
 #include "backends/native/meta-backend-native-types.h"
 #include "core/util-private.h"
 
+typedef enum _MetaUdevDeviceType
+{
+  META_UDEV_DEVICE_TYPE_CARD,
+  META_UDEV_DEVICE_TYPE_RENDER_NODE,
+} MetaUdevDeviceType;
+
 #define META_TYPE_UDEV (meta_udev_get_type ())
 G_DECLARE_FINAL_TYPE (MetaUdev, meta_udev, META, UDEV, GObject)
 
@@ -44,8 +50,9 @@ gboolean meta_udev_is_drm_device (MetaUdev    *udev,
                                   GUdevDevice *device);
 
 META_EXPORT_TEST
-GList * meta_udev_list_drm_devices (MetaUdev  *udev,
-                                    GError   **error);
+GList * meta_udev_list_drm_devices (MetaUdev            *udev,
+                                    MetaUdevDeviceType   device_type,
+                                    GError             **error);
 
 void meta_udev_pause (MetaUdev *udev);
 

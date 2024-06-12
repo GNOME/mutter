@@ -84,7 +84,9 @@ meta_test_headless_monitor_connect (void)
 
   drm_mock_unset_resource_filter (DRM_MOCK_CALL_FILTER_GET_CONNECTOR);
 
-  udev_devices = meta_udev_list_drm_devices (udev, &error);
+  udev_devices = meta_udev_list_drm_devices (udev,
+                                             META_UDEV_DEVICE_TYPE_CARD,
+                                             &error);
   g_assert_cmpuint (g_list_length (udev_devices), ==, 1);
   g_signal_emit_by_name (udev, "hotplug", g_list_first (udev_devices)->data);
 

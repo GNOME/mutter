@@ -164,8 +164,9 @@ meta_udev_is_drm_device (MetaUdev    *udev,
 }
 
 GList *
-meta_udev_list_drm_devices (MetaUdev  *udev,
-                            GError   **error)
+meta_udev_list_drm_devices (MetaUdev            *udev,
+                            MetaUdevDeviceType   device_type,
+                            GError             **error)
 {
   g_autoptr (GUdevEnumerator) enumerator = NULL;
   GList *devices;
@@ -173,8 +174,16 @@ meta_udev_list_drm_devices (MetaUdev  *udev,
 
   enumerator = g_udev_enumerator_new (udev->gudev_client);
 
-  g_udev_enumerator_add_match_name (enumerator, "card*");
-  g_udev_enumerator_add_match_tag (enumerator, "seat");
+  switch (device_type)
+    {
+    case META_UDEV_DEVICE_TYPE_CARD:
+      g_udev_enumerator_add_match_name (enumerator, "card*");
+      g_udev_enumerator_add_match_tag (enumerator, "seat");
+      break;
+    case META_UDEV_DEVICE_TYPE_RENDER_NODE:
+      g_udev_enumerator_add_match_name (enumerator, "render*");
+      break;
+    }
 
   /*
    * We need to explicitly match the subsystem for now.
