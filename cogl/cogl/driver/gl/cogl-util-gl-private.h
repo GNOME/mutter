@@ -42,7 +42,7 @@
 #define GL_CONTEXT_LOST GL_CONTEXT_LOST_KHR
 #endif
 
-#ifdef COGL_GL_DEBUG
+#ifdef COGL_ENABLE_DEBUG
 
 const char *
 _cogl_gl_error_to_string (GLenum error_code);
@@ -69,12 +69,12 @@ _cogl_gl_error_to_string (GLenum error_code);
                  _cogl_gl_error_to_string (__err));     \
     }                                   } G_STMT_END
 
-#else /* !COGL_GL_DEBUG */
+#else /* !COGL_ENABLE_DEBUG */
 
 #define GE(ctx, x) ((ctx)->x)
 #define GE_RET(ret, ctx, x) (ret = ((ctx)->x))
 
-#endif /* COGL_GL_DEBUG */
+#endif /* COGL_ENABLE_DEBUG */
 
 typedef struct _CoglGLContext {
   GArray           *texture_units;

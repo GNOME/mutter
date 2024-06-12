@@ -86,8 +86,6 @@ cogl_debug_c_args = []
 if buildtype != 'plain'
   if get_option('debug')
     cogl_debug_c_args += [
-      '-DCOGL_GL_DEBUG',
-      '-DCOGL_OBJECT_DEBUG',
       '-DCOGL_ENABLE_DEBUG',
     ]
   else

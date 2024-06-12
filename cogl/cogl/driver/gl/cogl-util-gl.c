@@ -58,7 +58,7 @@
 #define GL_UNKNOWN_CONTEXT_RESET_ARB 0x8255
 #endif
 
-#ifdef COGL_GL_DEBUG
+#ifdef COGL_ENABLE_DEBUG
 /* GL error to string conversion */
 static const struct {
   GLuint error_code;
@@ -94,7 +94,7 @@ _cogl_gl_error_to_string (GLenum error_code)
 
   return "Unknown GL error";
 }
-#endif /* COGL_GL_DEBUG */
+#endif /* COGL_ENABLE_DEBUG */
 
 CoglGLContext *
 _cogl_driver_gl_context (CoglContext *context)
@@ -301,7 +301,7 @@ _cogl_gl_util_catch_out_of_memory (CoglContext *ctx, GError **error)
     {
       if (gl_error == GL_OUT_OF_MEMORY)
         out_of_memory = TRUE;
-#ifdef COGL_GL_DEBUG
+#ifdef COGL_ENABLE_DEBUG
       else
         {
           g_warning ("%s: GL error (%d): %s\n",
