@@ -50,6 +50,23 @@
 
 G_BEGIN_DECLS
 
+/**
+ * COGL_COLOR_INIT:
+ * @r: value for the red channel, between 0 and 255
+ * @g: value for the green channel, between 0 and 255
+ * @b: value for the blue channel, between 0 and 255
+ * @a: value for the alpha channel, between 0 and 255
+ *
+ * A macro that initializes a #CoglColor, to be used when declaring it.
+ */
+#define COGL_COLOR_INIT(_r, _g, _b, _a) \
+        (CoglColor) { \
+          .red = (_r), \
+          .green = (_g), \
+          .blue = (_b), \
+          .alpha = (_a) \
+        }
+
 #define COGL_TYPE_COLOR (cogl_color_get_type ())
 
 /**
@@ -80,6 +97,66 @@ cogl_color_copy (const CoglColor *color);
  */
 COGL_EXPORT void
 cogl_color_free (CoglColor *color);
+
+
+/**
+ * cogl_color_to_string:
+ * @color: a #CoglColor
+ *
+ * Returns a textual specification of @color in the hexadecimal form
+ * `&num;rrggbbaa`, where `r`, `g`, `b` and `a` are
+ * hexadecimal digits representing the red, green, blue and alpha components
+ * respectively.
+ *
+ * Return value: (transfer full): a newly-allocated text string
+ */
+COGL_EXPORT
+gchar * cogl_color_to_string (const CoglColor *color);
+
+/**
+ * cogl_color_from_string:
+ * @color: (out caller-allocates): return location for a #CoglColor
+ * @str: a string specifying a color
+ *
+ * Parses a string definition of a color, filling the #CoglColor.red,
+ * #CoglColor.green, #CoglColor.blue and #CoglColor.alpha fields
+ * of @color.
+ *
+ * The @color is not allocated.
+ *
+ * The format of @str can be either one of:
+ *
+ *   - an hexadecimal value in the form: `#rgb`, `#rrggbb`, `#rgba`, or `#rrggbbaa`
+ *   - a RGB color in the form: `rgb(r, g, b)`
+ *   - a RGB color in the form: `rgba(r, g, b, a)`
+ *   - a HSL color in the form: `hsl(h, s, l)`
+ *    -a HSL color in the form: `hsla(h, s, l, a)`
+ *
+ * where 'r', 'g', 'b' and 'a' are (respectively) the red, green, blue color
+ * intensities and the opacity. The 'h', 's' and 'l' are (respectively) the
+ * hue, saturation and luminance values.
+ *
+ * In the rgb() and rgba() formats, the 'r', 'g', and 'b' values are either
+ * integers between 0 and 255, or percentage values in the range between 0%
+ * and 100%; the percentages require the '%' character. The 'a' value, if
+ * specified, can only be a floating point value between 0.0 and 1.0.
+ *
+ * In the hls() and hlsa() formats, the 'h' value (hue) is an angle between
+ * 0 and 360.0 degrees; the 'l' and 's' values (luminance and saturation) are
+ * percentage values in the range between 0% and 100%. The 'a' value, if specified,
+ * can only be a floating point value between 0.0 and 1.0.
+ *
+ * Whitespace inside the definitions is ignored; no leading whitespace
+ * is allowed.
+ *
+ * If the alpha component is not specified then it is assumed to be set to
+ * be fully opaque.
+ *
+ * Return value: %TRUE if parsing succeeded, and %FALSE otherwise
+ */
+COGL_EXPORT
+gboolean cogl_color_from_string (CoglColor   *color,
+                                 const gchar *str);
 
 /**
  * cogl_color_init_from_4f:
@@ -170,7 +247,22 @@ cogl_color_premultiply (CoglColor *color);
  * Return value: %TRUE if the two colors are the same.
  */
 COGL_EXPORT gboolean
-cogl_color_equal (const void *v1, const void *v2);
+cogl_color_equal (const void *v1,
+                  const void *v2);
+
+/**
+ * cogl_color_hash:
+ * @v: (type Cogl.Color): a #CoglColor
+ *
+ * Converts a #CoglColor to a hash value.
+ *
+ * This function can be passed to g_hash_table_new() as the @hash_func
+ * parameter, when using `CoglColor`s as keys in a #GHashTable.
+ *
+ * Return value: a hash value corresponding to the color
+ */
+COGL_EXPORT
+guint cogl_color_hash (gconstpointer v);
 
 /**
  * cogl_color_to_hsl:
