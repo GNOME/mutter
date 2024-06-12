@@ -414,7 +414,7 @@ typedef enum /*< prefix=COGL_READ_PIXELS >*/
  * @COGL_STEREO_RIGHT: draw only to the left stereo buffer
  *
  * Represents how draw should affect the two buffers
- * of a stereo framebuffer. See cogl_framebuffer_set_stereo_mode().
+ * of a stereo framebuffer.
  */
 typedef enum
 {

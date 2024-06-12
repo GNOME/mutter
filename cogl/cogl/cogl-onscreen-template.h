@@ -64,12 +64,6 @@ cogl_onscreen_template_new (void);
  * By default this value is usually set to 0 and that is referred to
  * as "single-sample" rendering. A value of 1 or greater is referred
  * to as "multisample" rendering.
- *
- * There are some semantic differences between single-sample
- * rendering and multisampling with just 1 point sample such as it
- * being redundant to use the cogl_framebuffer_resolve_samples() and
- * cogl_framebuffer_resolve_samples_region() apis with single-sample
- * rendering.
  */
 COGL_EXPORT void
 cogl_onscreen_template_set_samples_per_pixel (
