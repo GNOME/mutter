@@ -418,38 +418,6 @@ create_render_device (MetaBackendNative  *backend_native,
   if (!device_file)
     return NULL;
 
-  if (meta_backend_is_headless (backend))
-    {
-      int fd;
-      g_autofree char *render_node_path = NULL;
-      g_autoptr (MetaDeviceFile) render_node_device_file = NULL;
-
-      fd = meta_device_file_get_fd (device_file);
-      render_node_path = drmGetRenderDeviceNameFromFd (fd);
-
-      if (!render_node_path)
-        {
-          g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                       "Couldn't find render node device for '%s'",
-                       meta_device_file_get_path (device_file));
-          return NULL;
-        }
-
-      meta_topic (META_DEBUG_KMS, "Found render node '%s' from '%s'",
-                  render_node_path,
-                  meta_device_file_get_path (device_file));
-
-      render_node_device_file =
-        meta_device_pool_open (device_pool, render_node_path,
-                               META_DEVICE_FILE_FLAG_NONE,
-                               error);
-      if (!render_node_device_file)
-        return NULL;
-
-      g_clear_pointer (&device_file, meta_device_file_release);
-      device_file = g_steal_pointer (&render_node_device_file);
-    }
-
 #ifdef HAVE_EGL_DEVICE
   if (g_strcmp0 (getenv ("MUTTER_DEBUG_FORCE_EGL_STREAM"), "1") != 0)
 #endif
@@ -642,10 +610,22 @@ init_gpus (MetaBackendNative  *native,
   MetaBackend *backend = META_BACKEND (native);
   MetaUdev *udev = meta_backend_native_get_udev (native);
   g_autoptr (GError) local_error = NULL;
+  MetaUdevDeviceType device_type = 0;
   GList *devices;
   GList *l;
 
-  devices = meta_udev_list_drm_devices (udev, &local_error);
+  switch (native->mode)
+    {
+    case META_BACKEND_NATIVE_MODE_DEFAULT:
+    case META_BACKEND_NATIVE_MODE_TEST:
+      device_type = META_UDEV_DEVICE_TYPE_CARD;
+      break;
+    case META_BACKEND_NATIVE_MODE_HEADLESS:
+      device_type = META_UDEV_DEVICE_TYPE_RENDER_NODE;
+      break;
+    }
+
+  devices = meta_udev_list_drm_devices (udev, device_type, &local_error);
   if (local_error)
     {
       g_propagate_error (error, g_steal_pointer (&local_error));
