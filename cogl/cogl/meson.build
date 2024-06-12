@@ -170,7 +170,6 @@ cogl_sources = [
   'cogl-clip-stack.h',
   'cogl-closure-list-private.h',
   'cogl-closure-list.c',
-  'cogl-color-private.h',
   'cogl-color.c',
   'cogl-context-private.h',
   'cogl-context.c',

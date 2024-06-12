@@ -34,7 +34,7 @@
 #include "config.h"
 
 #include "cogl/cogl-context-private.h"
-#include "cogl/cogl-color-private.h"
+#include "cogl/cogl-color.h"
 #include "cogl/cogl-blend-string.h"
 #include "cogl/cogl-util.h"
 #include "cogl/cogl-depth-state-private.h"
@@ -326,17 +326,6 @@ cogl_pipeline_get_color (CoglPipeline *pipeline,
     _cogl_pipeline_get_authority (pipeline, COGL_PIPELINE_STATE_COLOR);
 
   *color = authority->color;
-}
-
-/* This is used heavily by the cogl journal when logging quads */
-void
-_cogl_pipeline_get_colorubv (CoglPipeline *pipeline,
-                             uint8_t *color)
-{
-  CoglPipeline *authority =
-    _cogl_pipeline_get_authority (pipeline, COGL_PIPELINE_STATE_COLOR);
-
-  _cogl_color_get_rgba_4ubv (&authority->color, color);
 }
 
 void
@@ -1248,7 +1237,7 @@ _cogl_pipeline_hash_color_state (CoglPipeline *authority,
                                  CoglPipelineHashState *state)
 {
   state->hash = _cogl_util_one_at_a_time_hash (state->hash, &authority->color,
-                                               _COGL_COLOR_DATA_SIZE);
+                                               sizeof (CoglColor));
 }
 
 void

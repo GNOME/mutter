@@ -34,7 +34,6 @@
 
 #include "cogl/cogl-util.h"
 #include "cogl/cogl-color.h"
-#include "cogl/cogl-color-private.h"
 
 static void
 cogl_value_transform_color_string (const GValue *src,
@@ -428,13 +427,6 @@ cogl_color_hash (gconstpointer v)
           color->blue << 8 |
           color->green << 16 |
           color->red << 24);
-}
-
-void
-_cogl_color_get_rgba_4ubv (const CoglColor *color,
-                           uint8_t *dest)
-{
-  memcpy (dest, color, 4);
 }
 
 void

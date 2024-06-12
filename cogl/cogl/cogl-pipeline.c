@@ -41,7 +41,7 @@
 #include "cogl/cogl-texture-private.h"
 #include "cogl/cogl-blend-string.h"
 #include "cogl/cogl-journal-private.h"
-#include "cogl/cogl-color-private.h"
+#include "cogl/cogl-color.h"
 #include "cogl/cogl-util.h"
 #include "cogl/cogl-profile.h"
 #include "cogl/cogl-depth-state-private.h"

@@ -1526,7 +1526,7 @@ _cogl_journal_log_quad (CoglJournal  *journal,
   int next_entry;
   uint32_t disable_layers;
   CoglJournalEntry *entry;
-  CoglPipeline *final_pipeline;
+  CoglPipeline *final_pipeline, *color_authority;
   CoglClipStack *clip_stack;
   CoglPipelineFlushOptions flush_options;
   CoglMatrixStack *modelview_stack;
@@ -1561,7 +1561,9 @@ _cogl_journal_log_quad (CoglJournal  *journal,
 
   /* FIXME: This is a hacky optimization, since it will break if we
    * change the definition of CoglColor: */
-  _cogl_pipeline_get_colorubv (pipeline, (uint8_t *) v);
+  color_authority = _cogl_pipeline_get_authority (pipeline,
+                                                  COGL_PIPELINE_STATE_COLOR);
+  memcpy ((uint8_t *) v, &color_authority->color, sizeof (CoglColor));
   v++;
 
   memcpy (v, position, sizeof (float) * 2);
