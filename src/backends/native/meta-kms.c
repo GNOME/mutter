@@ -370,6 +370,7 @@ meta_kms_new (MetaBackend   *backend,
   MetaKms *kms;
   const char *thread_type_string;
   MetaThreadType thread_type = META_THREAD_TYPE_KERNEL;
+  gboolean wants_realtime_scheduling;
 
   thread_type_string = g_getenv ("MUTTER_DEBUG_KMS_THREAD_TYPE");
   if (thread_type_string)
@@ -382,12 +383,16 @@ meta_kms_new (MetaBackend   *backend,
         g_assert_not_reached ();
     }
 
+  wants_realtime_scheduling = !(flags & META_KMS_FLAG_NO_MODE_SETTING);
+  if (flags & META_KMS_FLAG_NO_MODE_SETTING)
+    thread_type = META_THREAD_TYPE_USER;
+
   kms = g_initable_new (META_TYPE_KMS,
                         NULL, error,
                         "backend", backend,
                         "name", "KMS thread",
                         "thread-type", thread_type,
-                        "wants-realtime", TRUE,
+                        "wants-realtime", wants_realtime_scheduling,
                         NULL);
   kms->flags = flags;
 
