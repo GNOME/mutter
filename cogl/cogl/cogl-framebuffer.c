@@ -109,7 +109,6 @@ typedef struct _CoglFramebufferPrivate
 
   gboolean dither_enabled;
   gboolean depth_writing_enabled;
-  CoglStereoMode stereo_mode;
 
   /* We journal the textured rectangles we want to submit to OpenGL so
    * we have an opportunity to batch them together into less draw
@@ -1023,17 +1022,6 @@ _cogl_framebuffer_compare_depth_write_state (CoglFramebuffer *a,
     COGL_FRAMEBUFFER_STATE_DEPTH_WRITE : 0;
 }
 
-static unsigned long
-_cogl_framebuffer_compare_stereo_mode (CoglFramebuffer *a,
-				       CoglFramebuffer *b)
-{
-  CoglFramebufferPrivate *priv_a = cogl_framebuffer_get_instance_private (a);
-  CoglFramebufferPrivate *priv_b = cogl_framebuffer_get_instance_private (b);
-
-  return priv_a->stereo_mode != priv_b->stereo_mode ?
-    COGL_FRAMEBUFFER_STATE_STEREO_MODE : 0;
-}
-
 unsigned long
 _cogl_framebuffer_compare (CoglFramebuffer *a,
                            CoglFramebuffer *b,
@@ -1081,10 +1069,6 @@ _cogl_framebuffer_compare (CoglFramebuffer *a,
         case COGL_FRAMEBUFFER_STATE_INDEX_DEPTH_WRITE:
           differences |=
             _cogl_framebuffer_compare_depth_write_state (a, b);
-          break;
-        case COGL_FRAMEBUFFER_STATE_INDEX_STEREO_MODE:
-          differences |=
-            _cogl_framebuffer_compare_stereo_mode (a, b);
           break;
         default:
           g_warn_if_reached ();
@@ -1157,15 +1141,6 @@ cogl_framebuffer_get_alpha_bits (CoglFramebuffer *framebuffer)
   cogl_framebuffer_query_bits (framebuffer, &bits);
 
   return bits.alpha;
-}
-
-CoglStereoMode
-cogl_framebuffer_get_stereo_mode (CoglFramebuffer *framebuffer)
-{
-  CoglFramebufferPrivate *priv =
-    cogl_framebuffer_get_instance_private (framebuffer);
-
-  return priv->stereo_mode;
 }
 
 gboolean

@@ -604,18 +604,6 @@ cogl_framebuffer_set_depth_write_enabled (CoglFramebuffer *framebuffer,
                                           gboolean depth_write_enabled);
 
 /**
- * cogl_framebuffer_get_stereo_mode:
- * @framebuffer: a pointer to a #CoglFramebuffer
- *
- * Gets the current #CoglStereoMode, which defines which stereo buffers
- * should be drawn to.
- *
- * Returns: A #CoglStereoMode
- */
-COGL_EXPORT CoglStereoMode
-cogl_framebuffer_get_stereo_mode (CoglFramebuffer *framebuffer);
-
-/**
  * cogl_framebuffer_get_context:
  * @framebuffer: A #CoglFramebuffer
  *

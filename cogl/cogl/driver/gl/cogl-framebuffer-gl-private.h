@@ -48,8 +48,6 @@ struct _CoglGlFramebufferClass
 
   void (* bind) (CoglGlFramebuffer *gl_framebuffer,
                  GLenum             target);
-
-  void (* flush_stereo_mode_state) (CoglGlFramebuffer *gl_framebuffer);
 };
 
 void
