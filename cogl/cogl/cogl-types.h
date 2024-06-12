@@ -92,19 +92,6 @@ typedef struct _CoglDmaBufHandle CoglDmaBufHandle;
 #define COGL_DEPTH_BIT          (1 << 8)
 #define COGL_STENCIL_BIT        (1 << 9)
 
-/**
- * CoglBufferTarget:
- * @COGL_WINDOW_BUFFER: FIXME
- * @COGL_OFFSCREEN_BUFFER: FIXME
- *
- * Target flags for FBOs.
- */
-typedef enum
-{
-  COGL_WINDOW_BUFFER      = (1 << 1),
-  COGL_OFFSCREEN_BUFFER   = (1 << 2)
-} CoglBufferTarget;
-
 struct _CoglColor
 {
   uint8_t red;
