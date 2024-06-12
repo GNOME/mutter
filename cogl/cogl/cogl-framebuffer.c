@@ -153,12 +153,6 @@ cogl_framebuffer_error_quark (void)
   return g_quark_from_static_string ("cogl-framebuffer-error-quark");
 }
 
-gboolean
-cogl_is_framebuffer (void *object)
-{
-  return COGL_IS_FRAMEBUFFER (object);
-}
-
 static void
 cogl_framebuffer_get_property (GObject    *object,
                                guint       prop_id,
@@ -1462,7 +1456,7 @@ _cogl_framebuffer_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
   int height;
 
   g_return_val_if_fail (source & COGL_READ_PIXELS_COLOR_BUFFER, FALSE);
-  g_return_val_if_fail (cogl_is_framebuffer (framebuffer), FALSE);
+  g_return_val_if_fail (COGL_IS_FRAMEBUFFER (framebuffer), FALSE);
 
   if (!cogl_framebuffer_allocate (framebuffer, error))
     return FALSE;

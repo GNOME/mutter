@@ -968,7 +968,7 @@ cogl_framebuffer_draw_rectangle (CoglFramebuffer *framebuffer,
  * The given texture coordinates will only be used for the first
  * texture layer of the pipeline and if your pipeline has more than
  * one layer then all other layers will have default texture
- * coordinates of @s_1=0.0 @t_1=0.0 @s_2=1.0 @t_2=1.0 
+ * coordinates of @s_1=0.0 @t_1=0.0 @s_2=1.0 @t_2=1.0
  *
  * The given texture coordinates should always be normalized such that
  * (0, 0) corresponds to the top left and (1, 1) corresponds to the
@@ -1280,18 +1280,6 @@ typedef enum /*< prefix=COGL_FRAMEBUFFER_ERROR >*/
 {
   COGL_FRAMEBUFFER_ERROR_ALLOCATE
 } CoglFramebufferError;
-
-/**
- * cogl_is_framebuffer:
- * @object: A #CoglObject pointer
- *
- * Gets whether the given object references a #CoglFramebuffer.
- *
- * Return value: %TRUE if the object references a #CoglFramebuffer
- *   and %FALSE otherwise.
- */
-COGL_EXPORT gboolean
-cogl_is_framebuffer (void *object);
 
 /**
  * cogl_blit_framebuffer:
