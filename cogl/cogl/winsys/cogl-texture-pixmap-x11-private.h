@@ -42,16 +42,7 @@
 
 #include "cogl/cogl-texture-private.h"
 #include "cogl/winsys/cogl-texture-pixmap-x11.h"
-
-typedef struct _CoglDamageRectangle CoglDamageRectangle;
-
-struct _CoglDamageRectangle
-{
-  unsigned int x1;
-  unsigned int y1;
-  unsigned int x2;
-  unsigned int y2;
-};
+#include "mtk/mtk-rectangle.h"
 
 /* For stereo, there are a pair of textures, but we want to share most
  * other state (the GLXPixmap, visual, etc.) The way we do this is that
@@ -87,7 +78,7 @@ struct _CoglTexturePixmapX11
   Damage damage;
   CoglTexturePixmapX11ReportLevel damage_report_level;
   gboolean damage_owned;
-  CoglDamageRectangle damage_rect;
+  MtkRectangle damage_rect;
 
   void *winsys;
 

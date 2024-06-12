@@ -85,45 +85,6 @@ _cogl_xlib_get_damage_base (CoglContext *ctx)
   return x11_renderer->damage_base;
 }
 
-static gboolean
-cogl_damage_rectangle_is_whole (const CoglDamageRectangle *damage_rect,
-                                unsigned int width,
-                                unsigned int height)
-{
-  return (damage_rect->x1 == 0 && damage_rect->y1 == 0
-          && damage_rect->x2 == width && damage_rect->y2 == height);
-}
-
-static void
-cogl_damage_rectangle_union (CoglDamageRectangle *damage_rect,
-                             int x,
-                             int y,
-                             int width,
-                             int height)
-{
-  /* If the damage region is empty then we'll just copy the new
-     rectangle directly */
-  if (damage_rect->x1 == damage_rect->x2 ||
-      damage_rect->y1 == damage_rect->y2)
-    {
-      damage_rect->x1 = x;
-      damage_rect->y1 = y;
-      damage_rect->x2 = x + width;
-      damage_rect->y2 = y + height;
-    }
-  else
-    {
-      if (damage_rect->x1 > x)
-        damage_rect->x1 = x;
-      if (damage_rect->y1 > y)
-        damage_rect->y1 = y;
-      if (damage_rect->x2 < x + width)
-        damage_rect->x2 = x + width;
-      if (damage_rect->y2 < y + height)
-        damage_rect->y2 = y + height;
-    }
-}
-
 static void
 process_damage_event (CoglTexturePixmapX11 *tex_pixmap,
                       XDamageNotifyEvent *damage_event)
@@ -134,7 +95,8 @@ process_damage_event (CoglTexturePixmapX11 *tex_pixmap,
 { DO_NOTHING, NEEDS_SUBTRACT, NEED_BOUNDING_BOX } handle_mode;
   const CoglWinsysVtable *winsys;
   CoglContext *ctx;
-  
+  MtkRectangle damage_rect;
+
   ctx = cogl_texture_get_context (COGL_TEXTURE (tex_pixmap));
   display = cogl_xlib_renderer_get_display (ctx->display->renderer);
 
@@ -171,9 +133,10 @@ process_damage_event (CoglTexturePixmapX11 *tex_pixmap,
   /* If the damage already covers the whole rectangle then we don't
      need to request the bounding box of the region because we're
      going to update the whole texture anyway. */
-  if (cogl_damage_rectangle_is_whole (&tex_pixmap->damage_rect,
-                                      cogl_texture_get_width (tex),
-                                      cogl_texture_get_height (tex)))
+  damage_rect = MTK_RECTANGLE_INIT (0, 0,
+                                    cogl_texture_get_width (tex),
+                                    cogl_texture_get_height (tex));
+  if (mtk_rectangle_equal (&tex_pixmap->damage_rect, &damage_rect))
     {
       if (handle_mode != DO_NOTHING)
         XDamageSubtract (display, tex_pixmap->damage, None, None);
@@ -194,11 +157,11 @@ process_damage_event (CoglTexturePixmapX11 *tex_pixmap,
                                              parts,
                                              &r_count,
                                              &r_bounds);
-      cogl_damage_rectangle_union (&tex_pixmap->damage_rect,
-                                   r_bounds.x,
-                                   r_bounds.y,
-                                   r_bounds.width,
-                                   r_bounds.height);
+      damage_rect = MTK_RECTANGLE_INIT (r_bounds.x, r_bounds.y,
+                                        r_bounds.width, r_bounds.height);
+      mtk_rectangle_union (&tex_pixmap->damage_rect,
+                           &damage_rect,
+                           &tex_pixmap->damage_rect);
       if (r_damage)
         XFree (r_damage);
 
@@ -211,11 +174,13 @@ process_damage_event (CoglTexturePixmapX11 *tex_pixmap,
            don't care what the region actually was */
         XDamageSubtract (display, tex_pixmap->damage, None, None);
 
-      cogl_damage_rectangle_union (&tex_pixmap->damage_rect,
-                                   damage_event->area.x,
-                                   damage_event->area.y,
-                                   damage_event->area.width,
-                                   damage_event->area.height);
+      damage_rect = MTK_RECTANGLE_INIT (damage_event->area.x,
+                                        damage_event->area.y,
+                                        damage_event->area.width,
+                                        damage_event->area.height);
+      mtk_rectangle_union (&tex_pixmap->damage_rect,
+                           &damage_rect,
+                           &tex_pixmap->damage_rect);
     }
 
   if (tex_pixmap->winsys)
@@ -468,13 +433,13 @@ _cogl_texture_pixmap_x11_update_image_texture (CoglTexturePixmapX11 *tex_pixmap)
   visual = tex_pixmap->visual;
 
   /* If the damage region is empty then there's nothing to do */
-  if (tex_pixmap->damage_rect.x2 == tex_pixmap->damage_rect.x1)
+  if (tex_pixmap->damage_rect.x == tex_pixmap->damage_rect.width)
     return;
 
-  x = tex_pixmap->damage_rect.x1;
-  y = tex_pixmap->damage_rect.y1;
-  width = tex_pixmap->damage_rect.x2 - x;
-  height = tex_pixmap->damage_rect.y2 - y;
+  x = tex_pixmap->damage_rect.x;
+  y = tex_pixmap->damage_rect.y;
+  width = tex_pixmap->damage_rect.width;
+  height = tex_pixmap->damage_rect.height;
 
   /* We lazily create the texture the first time it is needed in case
      this texture can be entirely handled using the GLX texture
@@ -587,7 +552,7 @@ _cogl_texture_pixmap_x11_update_image_texture (CoglTexturePixmapX11 *tex_pixmap)
   if (tex_pixmap->shm_info.shmid != -1)
     XFree (image);
 
-  memset (&tex_pixmap->damage_rect, 0, sizeof (CoglDamageRectangle));
+  memset (&tex_pixmap->damage_rect, 0, sizeof (MtkRectangle));
 }
 
 static void
@@ -986,10 +951,10 @@ _cogl_texture_pixmap_x11_new (CoglContext *ctx,
     }
 
   /* Assume the entire pixmap is damaged to begin with */
-  tex_pixmap->damage_rect.x1 = 0;
-  tex_pixmap->damage_rect.x2 = pixmap_width;
-  tex_pixmap->damage_rect.y1 = 0;
-  tex_pixmap->damage_rect.y2 = pixmap_height;
+  tex_pixmap->damage_rect.x = 0;
+  tex_pixmap->damage_rect.width = pixmap_width;
+  tex_pixmap->damage_rect.y = 0;
+  tex_pixmap->damage_rect.height = pixmap_height;
 
   winsys = _cogl_texture_pixmap_x11_get_winsys (tex_pixmap);
   if (winsys->texture_pixmap_x11_create)
@@ -1081,9 +1046,9 @@ cogl_texture_pixmap_x11_update_area (CoglTexturePixmapX11 *tex_pixmap,
       winsys = _cogl_texture_pixmap_x11_get_winsys (tex_pixmap);
       winsys->texture_pixmap_x11_damage_notify (tex_pixmap);
     }
-
-  cogl_damage_rectangle_union (&tex_pixmap->damage_rect,
-                               x, y, width, height);
+  mtk_rectangle_union (&tex_pixmap->damage_rect,
+                       &MTK_RECTANGLE_INIT (x, y, width, height),
+                       &tex_pixmap->damage_rect);
 }
 
 gboolean
