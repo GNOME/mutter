@@ -353,7 +353,6 @@ have_tty_tests = false
 have_installed_tests = false
 
 if have_tests
-  gtk3_dep = dependency('gtk+-3.0', version: gtk3_req)
   dbusmock_dep = python.find_installation('python3', modules: ['dbusmock'], required: false)
 
   have_core_tests = get_option('core_tests')
