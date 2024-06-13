@@ -313,7 +313,7 @@ test_cogl_shader_glsl_main (int argc, char *argv[])
   ClutterActor *actor;
   char *file;
   GError *error;
-  ClutterColor stage_color = { 0x61, 0x64, 0x8c, 0xff };
+  CoglColor stage_color = { 0x61, 0x64, 0x8c, 0xff };
   CoglPipeline *shader_pipeline;
   CoglContext *ctx =
     clutter_backend_get_cogl_context (clutter_get_default_backend ());

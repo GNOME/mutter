@@ -8,8 +8,8 @@ opacity_label (void)
 {
   ClutterActor *stage;
   ClutterActor *label;
-  ClutterColor label_color = { 255, 0, 0, 128 };
-  ClutterColor color_check = { 0, };
+  CoglColor label_color = { 255, 0, 0, 128 };
+  CoglColor color_check = { 0, };
 
   stage = clutter_test_get_stage ();
 
@@ -47,8 +47,8 @@ opacity_rectangle (void)
 {
   ClutterActor *stage;
   ClutterActor *rect;
-  ClutterColor rect_color = { 0, 0, 255, 255 };
-  ClutterColor color_check = { 0, };
+  CoglColor rect_color = { 0, 0, 255, 255 };
+  CoglColor color_check = { 0, };
 
   stage = clutter_test_get_stage ();
 
@@ -83,9 +83,9 @@ opacity_paint (void)
 {
   ClutterActor *stage, *group1, *group2;
   ClutterActor *label, *rect;
-  ClutterColor label_color = { 255, 0, 0, 128 };
-  ClutterColor rect_color = { 0, 0, 255, 255 };
-  ClutterColor color_check = { 0, };
+  CoglColor label_color = { 255, 0, 0, 128 };
+  CoglColor rect_color = { 0, 0, 255, 255 };
+  CoglColor color_check = { 0, };
 
   stage = clutter_test_get_stage ();
 

@@ -44,7 +44,7 @@ CLUTTER_EXPORT
 GType clutter_color_node_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
-ClutterPaintNode *      clutter_color_node_new          (const ClutterColor    *color);
+ClutterPaintNode *      clutter_color_node_new          (const CoglColor    *color);
 
 #define CLUTTER_TYPE_TEXTURE_NODE               (clutter_texture_node_get_type ())
 #define CLUTTER_TEXTURE_NODE(obj)               (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_TEXTURE_NODE, ClutterTextureNode))
@@ -58,7 +58,7 @@ GType clutter_texture_node_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
 ClutterPaintNode *      clutter_texture_node_new        (CoglTexture           *texture,
-                                                         const ClutterColor    *color,
+                                                         const CoglColor       *color,
                                                          ClutterScalingFilter   min_filter,
                                                          ClutterScalingFilter   mag_filter);
 
@@ -100,7 +100,7 @@ GType clutter_text_node_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
 ClutterPaintNode *      clutter_text_node_new           (PangoLayout           *layout,
-                                                         const ClutterColor    *color);
+                                                         const CoglColor       *color);
 
 #define CLUTTER_TYPE_ACTOR_NODE                 (clutter_actor_node_get_type ())
 #define CLUTTER_ACTOR_NODE(obj)                 (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_ACTOR_NODE, ClutterActorNode))
@@ -128,7 +128,7 @@ GType clutter_root_node_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
 ClutterPaintNode *      clutter_root_node_new           (CoglFramebuffer       *framebuffer,
-                                                         const ClutterColor    *clear_color,
+                                                         const CoglColor       *clear_color,
                                                          CoglBufferBit          clear_flags);
 
 #define CLUTTER_TYPE_LAYER_NODE                 (clutter_layer_node_get_type ())

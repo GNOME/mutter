@@ -42,7 +42,7 @@ solid_content_paint_content (ClutterContent      *content,
 {
   SolidContent *self = (SolidContent *) content;
   ClutterActorBox box, content_box;
-  ClutterColor color;
+  CoglColor color;
   PangoLayout *layout;
   PangoRectangle logical;
   ClutterPaintNode *node;
@@ -227,7 +227,7 @@ test_image_main (int argc, char *argv[])
   for (i = 0; i < n_rects; i++)
     {
       ClutterActor *box = clutter_actor_new ();
-      ClutterColor bg_color = {
+      CoglColor bg_color = {
         g_random_int_range (0, 255),
         g_random_int_range (0, 255),
         g_random_int_range (0, 255),
@@ -235,7 +235,7 @@ test_image_main (int argc, char *argv[])
       };
       char *name, *str;
 
-      str = clutter_color_to_string (&bg_color);
+      str = cogl_color_to_string (&bg_color);
       name = g_strconcat ("Box <", color, ">", NULL);
       clutter_actor_set_name (box, name);
 

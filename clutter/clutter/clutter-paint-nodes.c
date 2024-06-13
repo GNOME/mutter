@@ -151,9 +151,9 @@ clutter_root_node_init (ClutterRootNode *self)
 }
 
 ClutterPaintNode *
-clutter_root_node_new (CoglFramebuffer    *framebuffer,
-                       const ClutterColor *clear_color,
-                       CoglBufferBit       clear_flags)
+clutter_root_node_new (CoglFramebuffer *framebuffer,
+                       const CoglColor *clear_color,
+                       CoglBufferBit    clear_flags)
 {
   ClutterRootNode *res;
 
@@ -161,11 +161,7 @@ clutter_root_node_new (CoglFramebuffer    *framebuffer,
 
   res = _clutter_paint_node_create (CLUTTER_TYPE_ROOT_NODE);
 
-  cogl_color_init_from_4f (&res->clear_color,
-                           clear_color->red / 255.0,
-                           clear_color->green / 255.0,
-                           clear_color->blue / 255.0,
-                           clear_color->alpha / 255.0);
+  res->clear_color = *cogl_color_copy (clear_color);
   cogl_color_premultiply (&res->clear_color);
 
   res->framebuffer = g_object_ref (framebuffer);
@@ -555,7 +551,7 @@ clutter_color_node_init (ClutterColorNode *cnode)
  *   clutter_paint_node_unref() when done
  */
 ClutterPaintNode *
-clutter_color_node_new (const ClutterColor *color)
+clutter_color_node_new (const CoglColor *color)
 {
   ClutterPipelineNode *cnode;
 
@@ -563,16 +559,11 @@ clutter_color_node_new (const ClutterColor *color)
 
   if (color != NULL)
     {
-      CoglColor cogl_color;
+      CoglColor pipeline_color;
 
-      cogl_color_init_from_4f (&cogl_color,
-                               color->red / 255.0,
-                               color->green / 255.0,
-                               color->blue / 255.0,
-                               color->alpha / 255.0);
-      cogl_color_premultiply (&cogl_color);
-
-      cogl_pipeline_set_color (cnode->pipeline, &cogl_color);
+      pipeline_color = *cogl_color_copy (color);
+      cogl_color_premultiply (&pipeline_color);
+      cogl_pipeline_set_color (cnode->pipeline, &pipeline_color);
     }
 
   return (ClutterPaintNode *) cnode;
@@ -636,7 +627,7 @@ clutter_scaling_filter_to_cogl_pipeline_filter (ClutterScalingFilter filter)
 /**
  * clutter_texture_node_new:
  * @texture: a #CoglTexture
- * @color: (allow-none): a #ClutterColor used for blending, or %NULL
+ * @color: (allow-none): a #CoglColor used for blending, or %NULL
  * @min_filter: the minification filter for the texture
  * @mag_filter: the magnification filter for the texture
  *
@@ -645,7 +636,7 @@ clutter_scaling_filter_to_cogl_pipeline_filter (ClutterScalingFilter filter)
  * This function will take a reference on @texture, so it is safe to
  * call g_object_unref() on @texture when it returns.
  *
- * The @color must not be pre-multiplied with its #ClutterColor.alpha
+ * The @color must not be pre-multiplied with its #CoglColor.alpha
  * channel value; if @color is %NULL, a fully opaque white color will
  * be used for blending.
  *
@@ -654,12 +645,12 @@ clutter_scaling_filter_to_cogl_pipeline_filter (ClutterScalingFilter filter)
  */
 ClutterPaintNode *
 clutter_texture_node_new (CoglTexture          *texture,
-                          const ClutterColor   *color,
+                          const CoglColor      *color,
                           ClutterScalingFilter  min_filter,
                           ClutterScalingFilter  mag_filter)
 {
   ClutterPipelineNode *tnode;
-  CoglColor cogl_color;
+  CoglColor pipeline_color;
   CoglPipelineFilter min_f, mag_f;
 
   g_return_val_if_fail (COGL_IS_TEXTURE (texture), NULL);
@@ -674,17 +665,13 @@ clutter_texture_node_new (CoglTexture          *texture,
 
   if (color != NULL)
     {
-      cogl_color_init_from_4f (&cogl_color,
-                               color->red / 255.0,
-                               color->green / 255.0,
-                               color->blue / 255.0,
-                               color->alpha / 255.0);
-      cogl_color_premultiply (&cogl_color);
+      pipeline_color = *cogl_color_copy (color);
+      cogl_color_premultiply (&pipeline_color);
     }
   else
-    cogl_color_init_from_4f (&cogl_color, 1.0, 1.0, 1.0, 1.0);
+    cogl_color_init_from_4f (&pipeline_color, 1.0, 1.0, 1.0, 1.0);
 
-  cogl_pipeline_set_color (tnode->pipeline, &cogl_color);
+  cogl_pipeline_set_color (tnode->pipeline, &pipeline_color);
 
   return (ClutterPaintNode *) tnode;
 }
@@ -829,8 +816,8 @@ clutter_text_node_init (ClutterTextNode *self)
  *   Use clutter_paint_node_unref() when done
  */
 ClutterPaintNode *
-clutter_text_node_new (PangoLayout        *layout,
-                       const ClutterColor *color)
+clutter_text_node_new (PangoLayout     *layout,
+                       const CoglColor *color)
 {
   ClutterTextNode *res;
 
@@ -842,13 +829,7 @@ clutter_text_node_new (PangoLayout        *layout,
     res->layout = g_object_ref (layout);
 
   if (color != NULL)
-    {
-      cogl_color_init_from_4f (&res->color,
-                               color->red / 255.0,
-                               color->green / 255.0,
-                               color->blue / 255.0,
-                               color->alpha / 255.0);
-    }
+    res->color = *cogl_color_copy (color);
 
   return (ClutterPaintNode *) res;
 }

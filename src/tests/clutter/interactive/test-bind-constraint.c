@@ -174,7 +174,7 @@ test_bind_constraint_main (int argc, char *argv[])
   ClutterActor *stage, *rect;
   ClutterConstraint *constraint;
   ClutterEffect *effect;
-  ClutterColor rect_color;
+  CoglColor rect_color;
   gint i;
 
   clutter_test_init (&argc, &argv);
@@ -185,7 +185,7 @@ test_bind_constraint_main (int argc, char *argv[])
   clutter_actor_set_size (stage, 800, 600);
 
   /* main rectangle */
-  clutter_color_from_string (&rect_color, "#3465a4");
+  cogl_color_from_string (&rect_color, "#3465a4");
   rect = clutter_actor_new ();
   g_signal_connect (rect, "button-release-event",
                     G_CALLBACK (on_button_release),
@@ -226,7 +226,7 @@ test_bind_constraint_main (int argc, char *argv[])
       if (i == Center)
         continue;
 
-      clutter_color_from_string (&rect_color, colors[i]);
+      cogl_color_from_string (&rect_color, colors[i]);
 
       rect = clutter_actor_new ();
       clutter_actor_set_background_color (rect, &rect_color);

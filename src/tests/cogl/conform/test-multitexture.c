@@ -4,7 +4,7 @@
 
 #include "test-conform-common.h"
 
-static const ClutterColor stage_color = { 0x0, 0x0, 0x0, 0xff };
+static const CoglColor stage_color = { 0x0, 0x0, 0x0, 0xff };
 
 #define QUAD_WIDTH 20
 

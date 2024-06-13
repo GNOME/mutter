@@ -114,7 +114,7 @@ test_cogl_multitexture_main (int argc, char *argv[])
 {
   GError            *error = NULL;
   ClutterActor      *stage;
-  ClutterColor       stage_color = { 0x61, 0x56, 0x56, 0xff };
+  CoglColor stage_color = { 0x61, 0x56, 0x56, 0xff };
   g_autofree TestMultiLayerPipelineState *state = g_new0 (TestMultiLayerPipelineState, 1);
   gfloat             stage_w, stage_h;
   gchar            **files;

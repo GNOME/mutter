@@ -200,10 +200,10 @@ G_MODULE_EXPORT int
 test_grab_main (int argc, char *argv[])
 {
   ClutterActor   *stage, *actor;
-  ClutterColor    rcol = { 0xff, 0, 0, 0xff},
-                  bcol = { 0, 0, 0xff, 0xff },
-                  ccol = { 0, 0xff, 0xff, 0xff },
-                  ycol = { 0xff, 0xff, 0, 0xff };
+  CoglColor rcol = { 0xff, 0, 0, 0xff},
+            bcol = { 0, 0, 0xff, 0xff },
+            ccol = { 0, 0xff, 0xff, 0xff },
+            ycol = { 0xff, 0xff, 0, 0xff };
 
   clutter_test_init (&argc, &argv);
 

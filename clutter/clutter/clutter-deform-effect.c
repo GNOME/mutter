@@ -324,7 +324,7 @@ clutter_deform_effect_paint_target (ClutterOffscreenEffect *effect,
 
   if (G_UNLIKELY (priv->lines_primitive != NULL))
     {
-      static ClutterColor red = CLUTTER_COLOR_INIT (255, 0, 0, 255);
+      static CoglColor red = COGL_COLOR_INIT (255, 0, 0, 255);
       ClutterPaintNode *lines_node;
 
       lines_node = clutter_color_node_new (&red);

@@ -9,7 +9,7 @@
 #define DIVISION_WIDTH     (SOURCE_SIZE / SOURCE_DIVISIONS_X)
 #define DIVISION_HEIGHT    (SOURCE_SIZE / SOURCE_DIVISIONS_Y)
 
-static const ClutterColor
+static const CoglColor
 corner_colors[SOURCE_DIVISIONS_X * SOURCE_DIVISIONS_Y] =
   {
     { 0xff, 0x00, 0x00, 0xff }, /* red top left */
@@ -18,7 +18,7 @@ corner_colors[SOURCE_DIVISIONS_X * SOURCE_DIVISIONS_Y] =
     { 0xff, 0x00, 0xff, 0xff }  /* purple bottom right */
   };
 
-static const ClutterColor stage_color = { 0x0, 0x0, 0x0, 0xff };
+static const CoglColor stage_color = { 0x0, 0x0, 0x0, 0xff };
 
 typedef struct _TestState
 {
@@ -84,7 +84,7 @@ validate_part (TestState *state,
     for (x = 0; x < SOURCE_DIVISIONS_X; x++)
       {
         guchar *pixels;
-        const ClutterColor *correct_color;
+        const CoglColor *correct_color;
 
         /* Read the center pixels of this division */
         pixels = clutter_stage_read_pixels (CLUTTER_STAGE (state->stage),

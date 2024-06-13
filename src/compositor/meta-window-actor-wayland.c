@@ -599,7 +599,7 @@ do_sync_geometry (MetaWindowActorWayland *self)
         {
           self->background = clutter_actor_new ();
           clutter_actor_set_background_color (self->background,
-                                               &CLUTTER_COLOR_INIT (0, 0, 0, 255));
+                                              &COGL_COLOR_INIT (0, 0, 0, 255));
           clutter_actor_set_reactive (self->background, TRUE);
           clutter_actor_insert_child_below (CLUTTER_ACTOR (self),
                                             self->background,

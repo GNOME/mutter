@@ -198,8 +198,8 @@ on_captured_event (ClutterText *text,
 }
 
 static ClutterActor *
-create_label (const ClutterColor *color,
-              const gchar        *text)
+create_label (const CoglColor *color,
+              const gchar     *text)
 {
   ClutterActor *retval = clutter_text_new ();
 
@@ -214,15 +214,15 @@ create_label (const ClutterColor *color,
 }
 
 static ClutterActor *
-create_entry (const ClutterColor *color,
-              const gchar        *text,
-              PangoAttrList      *attrs,
-              gunichar            password_char,
-              gint                max_length)
+create_entry (const CoglColor *color,
+              const gchar     *text,
+              PangoAttrList   *attrs,
+              gunichar         password_char,
+              gint             max_length)
 {
   ClutterActor *retval = clutter_text_new_full (NULL, text, color);
-  ClutterColor selection = { 0, };
-  ClutterColor selected_text = { 0x00, 0x00, 0xff, 0xff };
+  CoglColor selection = { 0, };
+  CoglColor selected_text = { 0x00, 0x00, 0xff, 0xff };
 
   clutter_actor_set_reactive (retval, TRUE);
 
@@ -234,7 +234,7 @@ create_entry (const ClutterColor *color,
   clutter_text_set_cursor_color (CLUTTER_TEXT (retval), &selection);
   clutter_text_set_max_length (CLUTTER_TEXT (retval), max_length);
   clutter_text_set_selected_text_color (CLUTTER_TEXT (retval), &selected_text);
-  clutter_actor_set_background_color (retval, &CLUTTER_COLOR_INIT (192, 192, 192, 255));
+  clutter_actor_set_background_color (retval, &COGL_COLOR_INIT (192, 192, 192, 255));
   if (attrs)
     clutter_text_set_attributes (CLUTTER_TEXT (retval), attrs);
 
@@ -261,7 +261,7 @@ test_text_field_main (gint    argc,
 
   stage = clutter_test_get_stage ();
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Text Fields");
-  clutter_actor_set_background_color (stage, &CLUTTER_COLOR_INIT (0, 0, 0, 255));
+  clutter_actor_set_background_color (stage, &COGL_COLOR_INIT (0, 0, 0, 255));
   g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
 
   grid = clutter_grid_layout_new ();
@@ -275,7 +275,7 @@ test_text_field_main (gint    argc,
   clutter_actor_set_position (box, 12, 12);
   clutter_actor_add_child (stage, box);
 
-  label = create_label (&CLUTTER_COLOR_INIT (255, 255, 255, 255), "<b>Input field:</b>");
+  label = create_label (&COGL_COLOR_INIT (255, 255, 255, 255), "<b>Input field:</b>");
   g_object_set (label, "min-width", 150.0, NULL);
   clutter_actor_add_child (box, label);
   clutter_layout_manager_child_set (grid, box, label,
@@ -288,7 +288,7 @@ test_text_field_main (gint    argc,
   entry_attrs = pango_attr_list_new ();
   pango_attr_list_insert (entry_attrs, pango_attr_underline_new (PANGO_UNDERLINE_ERROR));
   pango_attr_list_insert (entry_attrs, pango_attr_underline_color_new (65535, 0, 0));
-  entry = create_entry (&CLUTTER_COLOR_INIT (0, 0, 0, 255), "somme misspeeled textt", entry_attrs, 0, 0);
+  entry = create_entry (&COGL_COLOR_INIT (0, 0, 0, 255), "somme misspeeled textt", entry_attrs, 0, 0);
   clutter_actor_add_child (box, entry);
   clutter_layout_manager_child_set (grid, box, entry,
                                     "row", 0,
@@ -299,7 +299,7 @@ test_text_field_main (gint    argc,
                                     NULL);
   clutter_actor_grab_key_focus (entry);
 
-  label = create_label (&CLUTTER_COLOR_INIT (255, 255, 255, 255), "<b>A very long password field:</b>");
+  label = create_label (&COGL_COLOR_INIT (255, 255, 255, 255), "<b>A very long password field:</b>");
   clutter_actor_add_child (box, label);
   clutter_layout_manager_child_set (grid, box, label,
                                     "row", 1,
@@ -308,7 +308,7 @@ test_text_field_main (gint    argc,
                                     "y-expand", FALSE,
                                     NULL);
 
-  entry = create_entry (&CLUTTER_COLOR_INIT (0, 0, 0, 255), "password", NULL, '*', 8);
+  entry = create_entry (&COGL_COLOR_INIT (0, 0, 0, 255), "password", NULL, '*', 8);
   clutter_actor_add_child (box, entry);
   clutter_layout_manager_child_set (grid, box, entry,
                                     "row", 1,

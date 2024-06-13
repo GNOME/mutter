@@ -28,9 +28,9 @@
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
 
-#include "clutter/clutter-color.h"
 #include "clutter/clutter-effect.h"
 #include "clutter/clutter-offscreen-effect.h"
+#include "cogl/cogl-color.h"
 
 G_BEGIN_DECLS
 
@@ -50,13 +50,13 @@ struct _ClutterColorizeEffectClass
 };
 
 CLUTTER_EXPORT
-ClutterEffect *clutter_colorize_effect_new      (const ClutterColor *tint);
+ClutterEffect *clutter_colorize_effect_new      (const CoglColor *tint);
 
 CLUTTER_EXPORT
 void           clutter_colorize_effect_set_tint (ClutterColorizeEffect *effect,
-                                                 const ClutterColor    *tint);
+                                                 const CoglColor       *tint);
 CLUTTER_EXPORT
 void           clutter_colorize_effect_get_tint (ClutterColorizeEffect *effect,
-                                                 ClutterColor          *tint);
+                                                 CoglColor             *tint);
 
 G_END_DECLS

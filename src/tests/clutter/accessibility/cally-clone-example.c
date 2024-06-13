@@ -34,11 +34,11 @@ make_ui (ClutterActor *stage)
   ClutterActor    *editable      = NULL;
   ClutterActor    *rectangle     = NULL;
   ClutterActor    *label         = NULL;
-  ClutterColor     color_stage   = { 0x00, 0x00, 0x00, 0xff };
-  ClutterColor     color_text    = { 0xff, 0x00, 0x00, 0xff };
-  ClutterColor     color_sel     = { 0x00, 0xff, 0x00, 0x55 };
-  ClutterColor     color_label   = { 0x00, 0xff, 0x55, 0xff };
-  ClutterColor     color_rect    = { 0x00, 0xff, 0xff, 0x55 };
+  CoglColor color_stage = { 0x00, 0x00, 0x00, 0xff };
+  CoglColor color_text = { 0xff, 0x00, 0x00, 0xff };
+  CoglColor color_sel = { 0x00, 0xff, 0x00, 0x55 };
+  CoglColor color_label = { 0x00, 0xff, 0x55, 0xff };
+  CoglColor color_rect = { 0x00, 0xff, 0xff, 0x55 };
   ClutterActor    *full_entry    = NULL;
   ClutterActor    *cloned_entry  = NULL;
 

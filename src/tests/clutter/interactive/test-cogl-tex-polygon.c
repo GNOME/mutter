@@ -340,7 +340,7 @@ test_cogl_tex_polygon_main (int argc, char *argv[])
   ClutterActor     *slicing_toggle;
   ClutterActor     *note;
   ClutterTimeline  *timeline;
-  ClutterColor      blue = { 0x30, 0x30, 0xff, 0xff };
+  CoglColor blue = { 0x30, 0x30, 0xff, 0xff };
 
   clutter_test_init (&argc, &argv);
 

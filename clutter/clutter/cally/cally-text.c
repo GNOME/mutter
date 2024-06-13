@@ -2024,7 +2024,7 @@ static AtkAttributeSet*
 _cally_misc_add_actor_color_to_attribute_set (AtkAttributeSet *attrib_set,
                                               ClutterText *clutter_text)
 {
-  ClutterColor color;
+  CoglColor color;
   gchar *value;
 
   clutter_text_get_color (clutter_text, &color);

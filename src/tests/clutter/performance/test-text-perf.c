@@ -56,7 +56,7 @@ get_character (int ch)
 static ClutterActor *
 create_label (void)
 {
-  ClutterColor label_color = { 0xff, 0xff, 0xff, 0xff };
+  CoglColor label_color = { 0xff, 0xff, 0xff, 0xff };
   ClutterActor *label;
   char         *font_name;
   GString      *str;
@@ -81,7 +81,7 @@ int
 main (int argc, char *argv[])
 {
   ClutterActor    *stage;
-  ClutterColor     stage_color = { 0x00, 0x00, 0x00, 0xff };
+  CoglColor stage_color = { 0x00, 0x00, 0x00, 0xff };
   ClutterActor    *label;
   int              w, h;
   int              row, col;

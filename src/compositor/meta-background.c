@@ -58,8 +58,8 @@ struct _MetaBackground
 
   GDesktopBackgroundStyle   style;
   GDesktopBackgroundShading shading_direction;
-  ClutterColor              color;
-  ClutterColor              second_color;
+  CoglColor                 color;
+  CoglColor                 second_color;
 
   GFile *file1;
   MetaBackgroundImage *background_image1;
@@ -945,9 +945,9 @@ meta_background_new (MetaDisplay *display)
 
 void
 meta_background_set_color (MetaBackground *self,
-                           ClutterColor   *color)
+                           CoglColor      *color)
 {
-  ClutterColor dummy = { 0 };
+  CoglColor dummy = { 0 };
 
   g_return_if_fail (META_IS_BACKGROUND (self));
   g_return_if_fail (color != NULL);
@@ -960,8 +960,8 @@ meta_background_set_color (MetaBackground *self,
 void
 meta_background_set_gradient (MetaBackground            *self,
                               GDesktopBackgroundShading  shading_direction,
-                              ClutterColor              *color,
-                              ClutterColor              *second_color)
+                              CoglColor                 *color,
+                              CoglColor                 *second_color)
 {
   g_return_if_fail (META_IS_BACKGROUND (self));
   g_return_if_fail (color != NULL);

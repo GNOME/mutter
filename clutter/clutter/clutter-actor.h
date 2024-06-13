@@ -572,10 +572,10 @@ void                            clutter_actor_get_content_box                   
                                                                                  ClutterActorBox            *box);
 CLUTTER_EXPORT
 void                            clutter_actor_set_background_color              (ClutterActor               *self,
-                                                                                 const ClutterColor         *color);
+                                                                                 const CoglColor            *color);
 CLUTTER_EXPORT
 void                            clutter_actor_get_background_color              (ClutterActor               *self,
-                                                                                 ClutterColor               *color);
+                                                                                 CoglColor                  *color);
 CLUTTER_EXPORT
 const ClutterPaintVolume *      clutter_actor_get_paint_volume                  (ClutterActor               *self);
 CLUTTER_EXPORT

@@ -4,7 +4,7 @@
 
 #include "tests/clutter-test-utils.h"
 
-static const ClutterColor colors[] = {
+static const CoglColor colors[] = {
   { 255,   0,   0, 255 },
   {   0, 255,   0, 255 },
   {   0,   0, 255, 255 },

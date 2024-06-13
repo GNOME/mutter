@@ -201,7 +201,7 @@ static ClutterActor *
 make_actor (GType shader_type)
 {
   ClutterActor *rect;
-  const ClutterColor white = { 0xff, 0xff, 0xff, 0xff };
+  const CoglColor white = { 0xff, 0xff, 0xff, 0xff };
 
   rect = clutter_actor_new ();
   clutter_actor_set_background_color (rect, &white);

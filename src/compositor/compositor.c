@@ -1331,7 +1331,7 @@ meta_compositor_flash_display (MetaCompositor *compositor,
   clutter_actor_get_size (stage, &width, &height);
 
   flash = clutter_actor_new ();
-  clutter_actor_set_background_color (flash, &CLUTTER_COLOR_INIT (0, 0, 0, 255));
+  clutter_actor_set_background_color (flash, &COGL_COLOR_INIT (0, 0, 0, 255));
   clutter_actor_set_size (flash, width, height);
   clutter_actor_set_opacity (flash, 0);
   clutter_actor_add_child (stage, flash);
@@ -1370,7 +1370,7 @@ meta_compositor_flash_window (MetaCompositor *compositor,
   ClutterTransition *transition;
 
   flash = clutter_actor_new ();
-  clutter_actor_set_background_color (flash, &CLUTTER_COLOR_INIT (0, 0, 0, 255));
+  clutter_actor_set_background_color (flash, &COGL_COLOR_INIT (0, 0, 0, 255));
   clutter_actor_set_size (flash, window->rect.width, window->rect.height);
   clutter_actor_set_position (flash,
                               window->custom_frame_extents.left,

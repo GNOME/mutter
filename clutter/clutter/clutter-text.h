@@ -67,7 +67,7 @@ ClutterActor *        clutter_text_new                  (void);
 CLUTTER_EXPORT
 ClutterActor *        clutter_text_new_full             (const gchar          *font_name,
                                                          const gchar          *text,
-                                                         const ClutterColor   *color);
+                                                         const CoglColor      *color);
 CLUTTER_EXPORT
 ClutterActor *        clutter_text_new_with_text        (const gchar          *font_name,
                                                          const gchar          *text);
@@ -88,10 +88,10 @@ void                  clutter_text_set_markup           (ClutterText          *s
                                                          const gchar          *markup);
 CLUTTER_EXPORT
 void                  clutter_text_set_color            (ClutterText          *self,
-                                                         const ClutterColor   *color);
+                                                         const CoglColor      *color);
 CLUTTER_EXPORT
 void                  clutter_text_get_color            (ClutterText          *self,
-                                                         ClutterColor         *color);
+                                                         CoglColor            *color);
 CLUTTER_EXPORT
 void                  clutter_text_set_font_name        (ClutterText          *self,
                                                          const gchar          *font_name);
@@ -182,10 +182,10 @@ CLUTTER_EXPORT
 gboolean              clutter_text_get_cursor_visible   (ClutterText          *self);
 CLUTTER_EXPORT
 void                  clutter_text_set_cursor_color     (ClutterText          *self,
-                                                         const ClutterColor   *color);
+                                                         const CoglColor      *color);
 CLUTTER_EXPORT
 void                  clutter_text_get_cursor_color     (ClutterText          *self,
-                                                         ClutterColor         *color);
+                                                         CoglColor            *color);
 CLUTTER_EXPORT
 void                  clutter_text_set_cursor_size      (ClutterText          *self,
                                                          gint                  size);
@@ -212,10 +212,10 @@ CLUTTER_EXPORT
 gchar *               clutter_text_get_selection        (ClutterText          *self);
 CLUTTER_EXPORT
 void                  clutter_text_set_selection_color  (ClutterText          *self,
-                                                         const ClutterColor   *color);
+                                                         const CoglColor      *color);
 CLUTTER_EXPORT
 void                  clutter_text_get_selection_color  (ClutterText          *self,
-                                                         ClutterColor         *color);
+                                                         CoglColor            *color);
 CLUTTER_EXPORT
 gboolean              clutter_text_delete_selection     (ClutterText          *self);
 CLUTTER_EXPORT
@@ -236,10 +236,10 @@ gboolean              clutter_text_get_single_line_mode (ClutterText          *s
 
 CLUTTER_EXPORT
 void                  clutter_text_set_selected_text_color  (ClutterText          *self,
-                                                             const ClutterColor   *color);
+                                                             const CoglColor      *color);
 CLUTTER_EXPORT
 void                  clutter_text_get_selected_text_color  (ClutterText          *self,
-                                                             ClutterColor         *color);
+                                                             CoglColor            *color);
 
 CLUTTER_EXPORT
 gboolean              clutter_text_activate             (ClutterText          *self);

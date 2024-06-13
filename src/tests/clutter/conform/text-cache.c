@@ -133,7 +133,7 @@ static gboolean
 do_tests (CallbackData *data)
 {
   PangoFontDescription *fd;
-  static const ClutterColor red = { 0xff, 0x00, 0x00, 0xff };
+  static const CoglColor red = { 0xff, 0x00, 0x00, 0xff };
   PangoAttrList *attr_list, *attr_list_copy;
   PangoAttribute *attr;
 

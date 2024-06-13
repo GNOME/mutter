@@ -4,7 +4,7 @@
 
 #include "test-conform-common.h"
 
-static const ClutterColor stage_color = { 0x00, 0x00, 0x00, 0xff };
+static const CoglColor stage_color = { 0x00, 0x00, 0x00, 0xff };
 
 #define TEX_SIZE 64
 

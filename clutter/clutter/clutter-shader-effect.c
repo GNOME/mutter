@@ -93,7 +93,7 @@
  *    //   uniform vec3 component;
  *    //
  *    // and it's defined to contain the normalized components
- *    // of a #ClutterColor
+ *    // of a #CoglColor
  *    component_r = self->color.red   / 255.0f;
  *    component_g = self->color.green / 255.0f;
  *    component_b = self->color.blue  / 255.0f;

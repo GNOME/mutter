@@ -12,7 +12,7 @@
 #define FRAMEBUFFER_WIDTH  640
 #define FRAMEBUFFER_HEIGHT 480
 
-static const ClutterColor stage_color = { 0x0, 0x0, 0x0, 0xff };
+static const CoglColor stage_color = { 0x0, 0x0, 0x0, 0xff };
 
 static void
 assert_region_color (int x,
