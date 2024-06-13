@@ -181,7 +181,7 @@ parse_hsla (CoglColor *color,
             gboolean   has_alpha)
 {
   gdouble number;
-  gdouble h, l, s;
+  gdouble h, l, s, alpha;
 
   skip_whitespace (&str);
 
@@ -246,16 +246,17 @@ parse_hsla (CoglColor *color,
       skip_whitespace (&str);
       number = g_ascii_strtod (str, &str);
 
-      color->alpha = CLAMP (number * 255.0, 0, 255);
+      alpha = CLAMP (number * 255.0, 0, 255);
     }
   else
-    color->alpha = 255;
+    alpha = 255;
 
   skip_whitespace (&str);
   if (*str != ')')
     return FALSE;
 
   cogl_color_init_from_hsl (color, h, s, l);
+  color->alpha = alpha;
 
   return TRUE;
 }
