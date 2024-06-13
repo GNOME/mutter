@@ -502,9 +502,17 @@ text_input_set_surrounding_text (struct wl_client   *client,
                                  int32_t             anchor)
 {
   MetaWaylandTextInput *text_input = wl_resource_get_user_data (resource);
+  size_t text_len = strlen (text);
 
   if (!client_matches_focus (text_input, client))
     return;
+
+  if (cursor < 0 || anchor < 0 || cursor > text_len || anchor > text_len)
+    {
+      g_warning ("Client sent invalid surrounding text (text_len=%lu, cursor=%d, "
+                 "anchor=%d), ignoring", text_len, cursor, anchor);
+      return;
+    }
 
   g_free (text_input->pending_surrounding.text);
   text_input->pending_surrounding.text = g_strdup (text);
