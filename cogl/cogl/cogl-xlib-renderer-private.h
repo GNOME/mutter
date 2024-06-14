@@ -75,3 +75,6 @@ _cogl_xlib_renderer_refresh_rate_for_rectangle (CoglRenderer *renderer,
                                                 int           y,
                                                 int           width,
                                                 int           height);
+
+Display *
+cogl_xlib_renderer_get_display (CoglRenderer *renderer);

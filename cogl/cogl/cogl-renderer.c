@@ -227,14 +227,6 @@ cogl_xlib_renderer_set_foreign_display (CoglRenderer *renderer,
   renderer->xlib_enable_event_retrieval = FALSE;
 }
 
-Display *
-cogl_xlib_renderer_get_foreign_display (CoglRenderer *renderer)
-{
-  g_return_val_if_fail (COGL_IS_RENDERER (renderer), NULL);
-
-  return renderer->foreign_xdpy;
-}
-
 void
 cogl_xlib_renderer_request_reset_on_video_memory_purge (CoglRenderer *renderer,
                                                         gboolean enable)

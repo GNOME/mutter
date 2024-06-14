@@ -97,17 +97,6 @@ cogl_xlib_renderer_remove_filter (CoglRenderer *renderer,
                                   void *data);
 
 /**
- * cogl_xlib_renderer_get_foreign_display: (skip)
- * @renderer: a #CoglRenderer
- *
- * Return value: the foreign Xlib display that will be used by any Xlib based
- * winsys backend. The display needs to be set with
- * cogl_xlib_renderer_set_foreign_display() before this function is called.
- */
-COGL_EXPORT Display *
-cogl_xlib_renderer_get_foreign_display (CoglRenderer *renderer);
-
-/**
  * cogl_xlib_renderer_set_foreign_display: (skip)
  * @renderer: a #CoglRenderer
  *
@@ -122,12 +111,6 @@ cogl_xlib_renderer_get_foreign_display (CoglRenderer *renderer);
 COGL_EXPORT void
 cogl_xlib_renderer_set_foreign_display (CoglRenderer *renderer,
                                         Display *display);
-
-/**
- * cogl_xlib_renderer_get_display: (skip)
- */
-COGL_EXPORT Display *
-cogl_xlib_renderer_get_display (CoglRenderer *renderer);
 
 /**
  * cogl_xlib_renderer_request_reset_on_video_memory_purge: (skip)
