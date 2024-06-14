@@ -237,7 +237,7 @@ meta_backend_x11_nested_translate_device_event (MetaBackendX11 *x11,
 }
 
 static void
-meta_backend_x11_nested_real_init_gpus (MetaBackendX11Nested *backend_x11_nested)
+init_gpus (MetaBackendX11Nested *backend_x11_nested)
 {
   MetaBackendX11NestedPrivate *priv =
     meta_backend_x11_nested_get_instance_private (backend_x11_nested);
@@ -283,14 +283,12 @@ static void
 meta_backend_x11_nested_constructed (GObject *object)
 {
   MetaBackendX11Nested *backend_x11_nested = META_BACKEND_X11_NESTED (object);
-  MetaBackendX11NestedClass *backend_x11_nested_class =
-    META_BACKEND_X11_NESTED_GET_CLASS (backend_x11_nested);
   GObjectClass *parent_class =
     G_OBJECT_CLASS (meta_backend_x11_nested_parent_class);
 
   parent_class->constructed (object);
 
-  backend_x11_nested_class->init_gpus (backend_x11_nested);
+  init_gpus (backend_x11_nested);
 }
 
 static void
@@ -336,6 +334,4 @@ meta_backend_x11_nested_class_init (MetaBackendX11NestedClass *klass)
 
   backend_x11_class->handle_host_xevent = meta_backend_x11_nested_handle_host_xevent;
   backend_x11_class->translate_device_event = meta_backend_x11_nested_translate_device_event;
-
-  klass->init_gpus = meta_backend_x11_nested_real_init_gpus;
 }
