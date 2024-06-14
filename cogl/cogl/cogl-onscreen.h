@@ -84,56 +84,6 @@ struct _CoglOnscreenClass
 };
 
 /**
- * cogl_onscreen_show:
- * @onscreen: The onscreen framebuffer to make visible
- *
- * This requests to make @onscreen visible to the user.
- *
- * Actually the precise semantics of this function depend on the
- * window system currently in use, and if you don't have a
- * multi-windowining system this function may in-fact do nothing.
- *
- * This function will implicitly allocate the given @onscreen
- * framebuffer before showing it if it hasn't already been allocated.
- *
- * When using the Wayland winsys calling this will set the surface to
- * a toplevel type which will make it appear. If the application wants
- * to set a different type for the surface, it can avoid calling
- * cogl_onscreen_show() and set its own type directly with the Wayland
- * client API via cogl_wayland_onscreen_get_surface().
- *
- * Since Cogl doesn't explicitly track the visibility status of
- * onscreen framebuffers it won't try to avoid redundant window system
- * requests e.g. to show an already visible window. This also means
- * that it's acceptable to alternatively use native APIs to show and
- * hide windows without confusing Cogl.
- */
-COGL_EXPORT void
-cogl_onscreen_show (CoglOnscreen *onscreen);
-
-/**
- * cogl_onscreen_hide:
- * @onscreen: The onscreen framebuffer to make invisible
- *
- * This requests to make @onscreen invisible to the user.
- *
- * Actually the precise semantics of this function depend on the
- * window system currently in use, and if you don't have a
- * multi-windowining system this function may in-fact do nothing.
- *
- * This function does not implicitly allocate the given @onscreen
- * framebuffer before hiding it.
- *
- * Since Cogl doesn't explicitly track the visibility status of
- * onscreen framebuffers it won't try to avoid redundant window system
- * requests e.g. to show an already visible window. This also means
- * that it's acceptable to alternatively use native APIs to show and
- * hide windows without confusing Cogl.
- */
-COGL_EXPORT void
-cogl_onscreen_hide (CoglOnscreen *onscreen);
-
-/**
  * cogl_onscreen_swap_buffers:
  * @onscreen: A #CoglOnscreen framebuffer
  *

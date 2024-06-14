@@ -232,13 +232,6 @@ cogl_texture_2d_new_from_egl_image_external (CoglContext *ctx,
                                              GDestroyNotify destroy,
                                              GError **error);
 
-COGL_EXPORT void
-cogl_texture_2d_egl_image_external_bind (CoglTexture2D *tex_2d);
-
-COGL_EXPORT void
-cogl_texture_2d_egl_image_external_alloc_finish (CoglTexture2D *tex_2d,
-						 void *user_data,
-						 GDestroyNotify destroy);
 #endif
 
 G_END_DECLS
