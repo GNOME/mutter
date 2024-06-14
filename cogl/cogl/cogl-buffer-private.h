@@ -68,8 +68,6 @@ struct _CoglBuffer
    * ... or points to allocated memory in the fallback paths */
   uint8_t *data;
 
-  int immutable_ref;
-
   unsigned int store_created : 1;
 
   void * (* map_range) (CoglBuffer       *buffer,
@@ -91,12 +89,6 @@ struct _CoglBufferClass
 {
   GObjectClass parent_class;
 };
-
-CoglBuffer *
-_cogl_buffer_immutable_ref (CoglBuffer *buffer);
-
-void
-_cogl_buffer_immutable_unref (CoglBuffer *buffer);
 
 gboolean
 _cogl_buffer_set_data (CoglBuffer *buffer,

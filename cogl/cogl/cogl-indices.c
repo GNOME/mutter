@@ -94,8 +94,6 @@ cogl_indices_new_for_buffer (CoglIndicesType type,
 
   indices->type = type;
 
-  indices->immutable_ref = 0;
-
   return indices;
 }
 
@@ -151,48 +149,13 @@ cogl_indices_get_offset (CoglIndices *indices)
   return indices->offset;
 }
 
-static void
-warn_about_midscene_changes (void)
-{
-  static gboolean seen = FALSE;
-  if (!seen)
-    {
-      g_warning ("Mid-scene modification of indices has "
-                 "undefined results\n");
-      seen = TRUE;
-    }
-}
-
 void
 cogl_indices_set_offset (CoglIndices *indices,
                          size_t offset)
 {
   g_return_if_fail (COGL_IS_INDICES (indices));
 
-  if (G_UNLIKELY (indices->immutable_ref))
-    warn_about_midscene_changes ();
-
   indices->offset = offset;
-}
-
-CoglIndices *
-_cogl_indices_immutable_ref (CoglIndices *indices)
-{
-  g_return_val_if_fail (COGL_IS_INDICES (indices), NULL);
-
-  indices->immutable_ref++;
-  _cogl_buffer_immutable_ref (COGL_BUFFER (indices->buffer));
-  return indices;
-}
-
-void
-_cogl_indices_immutable_unref (CoglIndices *indices)
-{
-  g_return_if_fail (COGL_IS_INDICES (indices));
-  g_return_if_fail (indices->immutable_ref > 0);
-
-  indices->immutable_ref--;
-  _cogl_buffer_immutable_unref (COGL_BUFFER (indices->buffer));
 }
 
 CoglIndices *

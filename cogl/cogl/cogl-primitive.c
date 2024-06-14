@@ -69,7 +69,6 @@ static void
 cogl_primitive_init (CoglPrimitive *primitive)
 {
   primitive->first_vertex = 0;
-  primitive->immutable_ref = 0;
   primitive->indices = NULL;
   primitive->attributes = g_ptr_array_new_with_free_func (g_object_unref);
 }
@@ -394,18 +393,6 @@ cogl_primitive_new_p3t2c4 (CoglContext *ctx,
                                                     3);
 }
 
-static void
-warn_about_midscene_changes (void)
-{
-  static gboolean seen = FALSE;
-  if (!seen)
-    {
-      g_warning ("Mid-scene modification of primitives has "
-                 "undefined results\n");
-      seen = TRUE;
-    }
-}
-
 int
 cogl_primitive_get_first_vertex (CoglPrimitive *primitive)
 {
@@ -419,12 +406,6 @@ cogl_primitive_set_first_vertex (CoglPrimitive *primitive,
                                  int first_vertex)
 {
   g_return_if_fail (COGL_IS_PRIMITIVE (primitive));
-
-  if (G_UNLIKELY (primitive->immutable_ref))
-    {
-      warn_about_midscene_changes ();
-      return;
-    }
 
   primitive->first_vertex = first_vertex;
 }
@@ -460,12 +441,6 @@ cogl_primitive_set_mode (CoglPrimitive *primitive,
 {
   g_return_if_fail (COGL_IS_PRIMITIVE (primitive));
 
-  if (G_UNLIKELY (primitive->immutable_ref))
-    {
-      warn_about_midscene_changes ();
-      return;
-    }
-
   primitive->mode = mode;
 }
 
@@ -475,12 +450,6 @@ cogl_primitive_set_indices (CoglPrimitive *primitive,
                             int n_indices)
 {
   g_return_if_fail (COGL_IS_PRIMITIVE (primitive));
-
-  if (G_UNLIKELY (primitive->immutable_ref))
-    {
-      warn_about_midscene_changes ();
-      return;
-    }
 
   if (indices)
     g_object_ref (indices);
@@ -510,35 +479,6 @@ cogl_primitive_copy (CoglPrimitive *primitive)
   cogl_primitive_set_first_vertex (copy, primitive->first_vertex);
 
   return copy;
-}
-
-CoglPrimitive *
-_cogl_primitive_immutable_ref (CoglPrimitive *primitive)
-{
-  int i;
-
-  g_return_val_if_fail (COGL_IS_PRIMITIVE (primitive), NULL);
-
-  primitive->immutable_ref++;
-
-  for (i = 0; i < primitive->n_attributes; i++)
-    _cogl_attribute_immutable_ref (primitive->attributes->pdata[i]);
-
-  return primitive;
-}
-
-void
-_cogl_primitive_immutable_unref (CoglPrimitive *primitive)
-{
-  int i;
-
-  g_return_if_fail (COGL_IS_PRIMITIVE (primitive));
-  g_return_if_fail (primitive->immutable_ref > 0);
-
-  primitive->immutable_ref--;
-
-  for (i = 0; i < primitive->n_attributes; i++)
-    _cogl_attribute_immutable_unref (primitive->attributes->pdata[i]);
 }
 
 void

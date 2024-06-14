@@ -78,8 +78,6 @@ struct _CoglAttribute
       CoglBoxedValue boxed;
     } constant;
   } d;
-
-  int immutable_ref;
 };
 
 typedef enum
@@ -108,12 +106,6 @@ typedef enum
 CoglAttributeNameState *
 _cogl_attribute_register_attribute_name (CoglContext *context,
                                          const char *name);
-
-CoglAttribute *
-_cogl_attribute_immutable_ref (CoglAttribute *attribute);
-
-void
-_cogl_attribute_immutable_unref (CoglAttribute *attribute);
 
 typedef struct
 {

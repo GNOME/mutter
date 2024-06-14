@@ -235,8 +235,6 @@ cogl_attribute_new (CoglAttributeBuffer *attribute_buffer,
   attribute->d.buffered.n_components = n_components;
   attribute->d.buffered.type = type;
 
-  attribute->immutable_ref = 0;
-
   if (attribute->name_state->name_id != COGL_ATTRIBUTE_NAME_ID_CUSTOM_ARRAY)
     {
       if (!validate_n_components (attribute->name_state, n_components))
@@ -254,26 +252,11 @@ error:
   return NULL;
 }
 
-static void
-warn_about_midscene_changes (void)
-{
-  static gboolean seen = FALSE;
-  if (!seen)
-    {
-      g_warning ("Mid-scene modification of attributes has "
-                 "undefined results\n");
-      seen = TRUE;
-    }
-}
-
 void
 cogl_attribute_set_normalized (CoglAttribute *attribute,
                                       gboolean normalized)
 {
   g_return_if_fail (COGL_IS_ATTRIBUTE (attribute));
-
-  if (G_UNLIKELY (attribute->immutable_ref))
-    warn_about_midscene_changes ();
 
   attribute->normalized = normalized;
 }
@@ -285,30 +268,6 @@ cogl_attribute_get_buffer (CoglAttribute *attribute)
   g_return_val_if_fail (attribute->is_buffered, NULL);
 
   return attribute->d.buffered.attribute_buffer;
-}
-
-CoglAttribute *
-_cogl_attribute_immutable_ref (CoglAttribute *attribute)
-{
-  CoglBuffer *buffer = COGL_BUFFER (attribute->d.buffered.attribute_buffer);
-
-  g_return_val_if_fail (COGL_IS_ATTRIBUTE (attribute), NULL);
-
-  attribute->immutable_ref++;
-  _cogl_buffer_immutable_ref (buffer);
-  return attribute;
-}
-
-void
-_cogl_attribute_immutable_unref (CoglAttribute *attribute)
-{
-  CoglBuffer *buffer = COGL_BUFFER (attribute->d.buffered.attribute_buffer);
-
-  g_return_if_fail (COGL_IS_ATTRIBUTE (attribute));
-  g_return_if_fail (attribute->immutable_ref > 0);
-
-  attribute->immutable_ref--;
-  _cogl_buffer_immutable_unref (buffer);
 }
 
 static gboolean

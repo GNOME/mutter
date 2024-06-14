@@ -46,17 +46,9 @@ struct _CoglPrimitive
   int first_vertex;
   int n_vertices;
 
-  int immutable_ref;
-
   GPtrArray *attributes;
   int n_attributes;
 };
-
-CoglPrimitive *
-_cogl_primitive_immutable_ref (CoglPrimitive *primitive);
-
-void
-_cogl_primitive_immutable_unref (CoglPrimitive *primitive);
 
 void
 _cogl_primitive_draw (CoglPrimitive *primitive,
