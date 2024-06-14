@@ -4721,6 +4721,7 @@ meta_test_monitor_orientation_initial_stored_rotated (void)
   /* When no touch device is available, the orientation change is ignored */
   g_test_message ("Removing touch device");
   meta_backend_test_remove_device (META_BACKEND_TEST (backend), touch_device);
+  g_clear_object (&touch_device);
 
   g_test_message ("Rotating to right-up");
   orientation = META_ORIENTATION_RIGHT_UP;
@@ -5030,6 +5031,7 @@ meta_test_monitor_orientation_changes (void)
   /* When no touch device is available, the orientation changes are ignored */
   g_test_message ("Removing touch device");
   meta_backend_test_remove_device (META_BACKEND_TEST (backend), touch_device);
+  g_clear_object (&touch_device);
 
   for (i = META_N_ORIENTATIONS - 1; i > META_ORIENTATION_UNDEFINED; i--)
     {
@@ -5230,6 +5232,7 @@ meta_test_monitor_orientation_changes_for_transformed_panel (void)
   /* When no touch device is available, the orientation changes are ignored */
   g_test_message ("Removing touch device");
   meta_backend_test_remove_device (META_BACKEND_TEST (backend), touch_device);
+  g_clear_object (&touch_device);
 
   for (i = META_N_ORIENTATIONS - 1; i > META_ORIENTATION_UNDEFINED; i--)
     {
