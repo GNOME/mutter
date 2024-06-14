@@ -46,8 +46,6 @@ typedef struct _CoglOnscreenPrivate
 {
   CoglList frame_closures;
 
-  CoglList dirty_closures;
-
   int64_t frame_counter;
   int64_t swap_frame_counter; /* frame counter at last all to
                                * cogl_onscreen_swap_region() or
@@ -73,11 +71,6 @@ cogl_dummy_free (gpointer data)
 
 G_DEFINE_BOXED_TYPE (CoglFrameClosure,
                      cogl_frame_closure,
-                     cogl_dummy_copy,
-                     cogl_dummy_free)
-
-G_DEFINE_BOXED_TYPE (CoglOnscreenDirtyClosure,
-                     cogl_onscreen_dirty_closure,
                      cogl_dummy_copy,
                      cogl_dummy_free)
 
@@ -114,7 +107,6 @@ cogl_onscreen_init_from_template (CoglOnscreen *onscreen,
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
 
   _cogl_list_init (&priv->frame_closures);
-  _cogl_list_init (&priv->dirty_closures);
 
   cogl_framebuffer_init_config (framebuffer, &onscreen_template->config);
 }
@@ -141,7 +133,6 @@ cogl_onscreen_dispose (GObject *object)
   CoglFrameInfo *frame_info;
 
   _cogl_closure_list_disconnect_all (&priv->frame_closures);
-  _cogl_closure_list_disconnect_all (&priv->dirty_closures);
 
   while ((frame_info = g_queue_pop_tail (&priv->pending_frame_infos)))
     g_object_unref (frame_info);
@@ -216,16 +207,8 @@ _cogl_dispatch_onscreen_cb (CoglContext *context)
         _cogl_container_of (context->onscreen_dirty_queue.next,
                             CoglOnscreenQueuedDirty,
                             link);
-      CoglOnscreen *onscreen = qe->onscreen;
-      CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
 
       _cogl_list_remove (&qe->link);
-
-      _cogl_closure_list_invoke (&priv->dirty_closures,
-                                 CoglOnscreenDirtyCallback,
-                                 qe->onscreen,
-                                 &qe->info);
-
       g_object_unref (qe->onscreen);
 
       g_free (qe);
@@ -559,29 +542,6 @@ _cogl_framebuffer_winsys_update_size (CoglFramebuffer *framebuffer,
   if (!_cogl_has_private_feature (cogl_framebuffer_get_context (framebuffer),
                                   COGL_PRIVATE_FEATURE_DIRTY_EVENTS))
     _cogl_onscreen_queue_full_dirty (COGL_ONSCREEN (framebuffer));
-}
-
-CoglOnscreenDirtyClosure *
-cogl_onscreen_add_dirty_callback (CoglOnscreen *onscreen,
-                                  CoglOnscreenDirtyCallback callback,
-                                  void *user_data,
-                                  GDestroyNotify destroy)
-{
-  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
-
-  return _cogl_closure_list_add (&priv->dirty_closures,
-                                 callback,
-                                 user_data,
-                                 destroy);
-}
-
-void
-cogl_onscreen_remove_dirty_callback (CoglOnscreen *onscreen,
-                                     CoglOnscreenDirtyClosure *closure)
-{
-  g_return_if_fail (closure);
-
-  _cogl_closure_disconnect (closure);
 }
 
 int64_t
