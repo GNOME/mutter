@@ -1471,12 +1471,7 @@ clutter_blit_node_add_blit_rectangle (ClutterBlitNode *blit_node,
   g_return_if_fail (CLUTTER_IS_BLIT_NODE (blit_node));
 
   clutter_paint_node_add_texture_rectangle (CLUTTER_PAINT_NODE (blit_node),
-                                            &(ClutterActorBox) {
-                                              .x1 = src_x,
-                                              .y1 = src_y,
-                                              .x2 = src_x + width,
-                                              .y2 = src_y + height,
-                                            },
+                                            &GRAPHENE_RECT_INIT (src_x, src_y, width, height),
                                             dst_x,
                                             dst_y,
                                             dst_x + width,

@@ -27,6 +27,6 @@ G_BEGIN_DECLS
 
 gboolean clutter_constraint_update_allocation (ClutterConstraint *constraint,
                                                ClutterActor      *actor,
-                                               ClutterActorBox   *allocation);
+                                               graphene_rect_t   *allocation);
 
 G_END_DECLS

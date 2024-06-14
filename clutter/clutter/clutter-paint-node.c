@@ -24,7 +24,7 @@
 
 /**
  * ClutterPaintNode:(ref-func clutter_paint_node_ref) (unref-func clutter_paint_node_unref) (set-value-func clutter_value_set_paint_node) (get-value-func clutter_value_get_paint_node)
- * 
+ *
  * Paint objects
  *
  * #ClutterPaintNode is an element in the render graph.
@@ -582,7 +582,7 @@ clutter_paint_operation_clear (ClutterPaintOperation *op)
 
 static inline void
 clutter_paint_op_init_tex_rect (ClutterPaintOperation *op,
-                                const ClutterActorBox *rect,
+                                const graphene_rect_t *rect,
                                 float                  x_1,
                                 float                  y_1,
                                 float                  x_2,
@@ -591,10 +591,10 @@ clutter_paint_op_init_tex_rect (ClutterPaintOperation *op,
   clutter_paint_operation_clear (op);
 
   op->opcode = PAINT_OP_TEX_RECT;
-  op->op.texrect[0] = rect->x1;
-  op->op.texrect[1] = rect->y1;
-  op->op.texrect[2] = rect->x2;
-  op->op.texrect[3] = rect->y2;
+  op->op.texrect[0] = rect->origin.x;
+  op->op.texrect[1] = rect->origin.y;
+  op->op.texrect[2] = rect->size.width - rect->origin.x;
+  op->op.texrect[3] = rect->size.height - rect->origin.y;
   op->op.texrect[4] = x_1;
   op->op.texrect[5] = y_1;
   op->op.texrect[6] = x_2;
@@ -633,7 +633,7 @@ clutter_paint_op_init_tex_rects (ClutterPaintOperation *op,
 
 static inline void
 clutter_paint_op_init_multitex_rect (ClutterPaintOperation *op,
-                                     const ClutterActorBox *rect,
+                                     const graphene_rect_t *rect,
                                      const float           *tex_coords,
                                      unsigned int           tex_coords_len)
 {
@@ -646,10 +646,10 @@ clutter_paint_op_init_multitex_rect (ClutterPaintOperation *op,
 
   g_array_append_vals (op->coords, tex_coords, tex_coords_len);
 
-  op->op.texrect[0] = rect->x1;
-  op->op.texrect[1] = rect->y1;
-  op->op.texrect[2] = rect->x2;
-  op->op.texrect[3] = rect->y2;
+  op->op.texrect[0] = rect->origin.x;
+  op->op.texrect[1] = rect->origin.y;
+  op->op.texrect[2] = rect->size.width - rect->origin.x;
+  op->op.texrect[3] = rect->size.height - rect->origin.y;
 }
 
 static inline void
@@ -675,14 +675,14 @@ clutter_paint_node_maybe_init_operations (ClutterPaintNode *node)
 /**
  * clutter_paint_node_add_rectangle:
  * @node: a #ClutterPaintNode
- * @rect: a #ClutterActorBox
+ * @rect: a #graphene_rect_t
  *
  * Adds a rectangle region to the @node, as described by the
  * passed @rect.
  */
 void
 clutter_paint_node_add_rectangle (ClutterPaintNode      *node,
-                                  const ClutterActorBox *rect)
+                                  const graphene_rect_t *rect)
 {
   ClutterPaintOperation operation = PAINT_OP_INIT;
 
@@ -698,7 +698,7 @@ clutter_paint_node_add_rectangle (ClutterPaintNode      *node,
 /**
  * clutter_paint_node_add_texture_rectangle:
  * @node: a #ClutterPaintNode
- * @rect: a #ClutterActorBox
+ * @rect: a #graphene_rect_t
  * @x_1: the left X coordinate of the texture
  * @y_1: the top Y coordinate of the texture
  * @x_2: the right X coordinate of the texture
@@ -708,7 +708,7 @@ clutter_paint_node_add_rectangle (ClutterPaintNode      *node,
  */
 void
 clutter_paint_node_add_texture_rectangle (ClutterPaintNode      *node,
-                                          const ClutterActorBox *rect,
+                                          const graphene_rect_t *rect,
                                           float                  x_1,
                                           float                  y_1,
                                           float                  x_2,
@@ -729,7 +729,7 @@ clutter_paint_node_add_texture_rectangle (ClutterPaintNode      *node,
 /**
  * clutter_paint_node_add_multitexture_rectangle:
  * @node: a #ClutterPaintNode
- * @rect: a #ClutterActorBox
+ * @rect: a #graphene_rect_t
  * @text_coords: array of multitexture values
  * @text_coords_len: number of items of @text_coords
  *
@@ -737,7 +737,7 @@ clutter_paint_node_add_texture_rectangle (ClutterPaintNode      *node,
  */
 void
 clutter_paint_node_add_multitexture_rectangle (ClutterPaintNode      *node,
-                                               const ClutterActorBox *rect,
+                                               const graphene_rect_t *rect,
                                                const float           *text_coords,
                                                unsigned int           text_coords_len)
 {

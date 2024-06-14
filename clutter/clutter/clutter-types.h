@@ -35,7 +35,6 @@
 
 G_BEGIN_DECLS
 
-#define CLUTTER_TYPE_ACTOR_BOX          (clutter_actor_box_get_type ())
 #define CLUTTER_TYPE_MARGIN             (clutter_margin_get_type ())
 #define CLUTTER_TYPE_PAINT_VOLUME       (clutter_paint_volume_get_type ())
 #define CLUTTER_TYPE_PERSPECTIVE        (clutter_perspective_get_type ())
@@ -69,7 +68,6 @@ typedef struct _ClutterAction                   ClutterAction;
 typedef struct _ClutterConstraint               ClutterConstraint;
 typedef struct _ClutterEffect                   ClutterEffect;
 
-typedef struct _ClutterActorBox                 ClutterActorBox;
 typedef struct _ClutterColor                    ClutterColor;
 typedef struct _ClutterColorState               ClutterColorState;
 typedef struct _ClutterMargin                   ClutterMargin;
@@ -109,153 +107,6 @@ typedef struct _ClutterEventSequence            ClutterEventSequence;
  */
 typedef struct _ClutterPaintVolume      ClutterPaintVolume;
 
-/**
- * ClutterActorBox:
- * @x1: X coordinate of the top left corner
- * @y1: Y coordinate of the top left corner
- * @x2: X coordinate of the bottom right corner
- * @y2: Y coordinate of the bottom right corner
- *
- * Bounding box of an actor.
- *
- * The coordinates of the top left and right bottom corners
- * of an actor. The coordinates of the two points are expressed in
- * pixels with sub-pixel precision
- */
-struct _ClutterActorBox
-{
-  gfloat x1;
-  gfloat y1;
-
-  gfloat x2;
-  gfloat y2;
-};
-
-/**
- * CLUTTER_ACTOR_BOX_INIT:
- * @x_1: the X coordinate of the top left corner
- * @y_1: the Y coordinate of the top left corner
- * @x_2: the X coordinate of the bottom right corner
- * @y_2: the Y coordinate of the bottom right corner
- *
- * A simple macro for initializing a #ClutterActorBox when declaring
- * it, e.g.:
- *
- * ```c
- *   ClutterActorBox box = CLUTTER_ACTOR_BOX_INIT (0, 0, 400, 600);
- * ```
- */
-#define CLUTTER_ACTOR_BOX_INIT(x_1,y_1,x_2,y_2)         { (x_1), (y_1), (x_2), (y_2) }
-
-/**
- * CLUTTER_ACTOR_BOX_INIT_ZERO:
- *
- * A simple macro for initializing a #ClutterActorBox to 0 when
- * declaring it, e.g.:
- *
- * ```c
- *   ClutterActorBox box = CLUTTER_ACTOR_BOX_INIT_ZERO;
- * ```
- */
-#define CLUTTER_ACTOR_BOX_INIT_ZERO                     CLUTTER_ACTOR_BOX_INIT (0.f, 0.f, 0.f, 0.f)
-
-/**
- * CLUTTER_ACTOR_BOX_UNINITIALIZED:
- *
- * A simple macro for creating a #ClutterActorBox with a size of -1 when
- * declaring it, e.g.:
- *
- * ```c
- *   ClutterActorBox box = CLUTTER_ACTOR_BOX_UNINITIALIZED;
- * ```
- */
-
-
-#define CLUTTER_ACTOR_BOX_UNINITIALIZED { .x1 = INFINITY, .y1 = INFINITY, .x2 = -INFINITY, .y2 = -INFINITY }
-
-CLUTTER_EXPORT
-GType            clutter_actor_box_get_type      (void) G_GNUC_CONST;
-CLUTTER_EXPORT
-ClutterActorBox *clutter_actor_box_new           (gfloat                 x_1,
-                                                  gfloat                 y_1,
-                                                  gfloat                 x_2,
-                                                  gfloat                 y_2);
-CLUTTER_EXPORT
-ClutterActorBox *clutter_actor_box_alloc         (void);
-CLUTTER_EXPORT
-ClutterActorBox *clutter_actor_box_init          (ClutterActorBox       *box,
-                                                  gfloat                 x_1,
-                                                  gfloat                 y_1,
-                                                  gfloat                 x_2,
-                                                  gfloat                 y_2);
-CLUTTER_EXPORT
-void             clutter_actor_box_init_rect     (ClutterActorBox       *box,
-                                                  gfloat                 x,
-                                                  gfloat                 y,
-                                                  gfloat                 width,
-                                                  gfloat                 height);
-CLUTTER_EXPORT
-ClutterActorBox *clutter_actor_box_copy          (const ClutterActorBox *box);
-CLUTTER_EXPORT
-void             clutter_actor_box_free          (ClutterActorBox       *box);
-CLUTTER_EXPORT
-gboolean         clutter_actor_box_equal         (const ClutterActorBox *box_a,
-                                                  const ClutterActorBox *box_b);
-CLUTTER_EXPORT
-gfloat           clutter_actor_box_get_x         (const ClutterActorBox *box);
-CLUTTER_EXPORT
-gfloat           clutter_actor_box_get_y         (const ClutterActorBox *box);
-CLUTTER_EXPORT
-gfloat           clutter_actor_box_get_width     (const ClutterActorBox *box);
-CLUTTER_EXPORT
-gfloat           clutter_actor_box_get_height    (const ClutterActorBox *box);
-CLUTTER_EXPORT
-void             clutter_actor_box_get_origin    (const ClutterActorBox *box,
-                                                  gfloat                *x,
-                                                  gfloat                *y);
-CLUTTER_EXPORT
-void             clutter_actor_box_get_size      (const ClutterActorBox *box,
-                                                  gfloat                *width,
-                                                  gfloat                *height);
-CLUTTER_EXPORT
-gfloat           clutter_actor_box_get_area      (const ClutterActorBox *box);
-CLUTTER_EXPORT
-gboolean         clutter_actor_box_contains      (const ClutterActorBox *box,
-                                                  gfloat                 x,
-                                                  gfloat                 y);
-CLUTTER_EXPORT
-void             clutter_actor_box_from_vertices (ClutterActorBox          *box,
-                                                  const graphene_point3d_t  verts[]);
-CLUTTER_EXPORT
-void             clutter_actor_box_interpolate   (const ClutterActorBox *initial,
-                                                  const ClutterActorBox *final,
-                                                  gdouble                progress,
-                                                  ClutterActorBox       *result);
-CLUTTER_EXPORT
-void             clutter_actor_box_clamp_to_pixel (ClutterActorBox       *box);
-CLUTTER_EXPORT
-void             clutter_actor_box_union          (const ClutterActorBox *a,
-                                                   const ClutterActorBox *b,
-                                                   ClutterActorBox       *result);
-
-CLUTTER_EXPORT
-void             clutter_actor_box_set_origin     (ClutterActorBox       *box,
-                                                   gfloat                 x,
-                                                   gfloat                 y);
-CLUTTER_EXPORT
-void             clutter_actor_box_set_size       (ClutterActorBox       *box,
-                                                   gfloat                 width,
-                                                   gfloat                 height);
-
-CLUTTER_EXPORT
-void             clutter_actor_box_scale          (ClutterActorBox       *box,
-                                                   gfloat                 scale);
-
-CLUTTER_EXPORT
-gboolean         clutter_actor_box_is_initialized (ClutterActorBox       *box);
-
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterActorBox, clutter_actor_box_free)
-
 /*
  * ClutterPaintVolume
  */
@@ -294,7 +145,7 @@ void                clutter_paint_volume_union               (ClutterPaintVolume
                                                               const ClutterPaintVolume *another_pv);
 CLUTTER_EXPORT
 void                clutter_paint_volume_union_box           (ClutterPaintVolume       *pv,
-                                                              const ClutterActorBox    *box);
+                                                              const graphene_rect_t    *box);
 
 CLUTTER_EXPORT
 gboolean            clutter_paint_volume_set_from_allocation (ClutterPaintVolume       *pv,

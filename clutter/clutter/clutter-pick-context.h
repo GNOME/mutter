@@ -47,7 +47,7 @@ ClutterPickMode clutter_pick_context_get_mode (ClutterPickContext *pick_context)
 
 CLUTTER_EXPORT
 void clutter_pick_context_log_pick (ClutterPickContext    *pick_context,
-                                    const ClutterActorBox *box,
+                                    const graphene_rect_t *box,
                                     ClutterActor          *actor);
 CLUTTER_EXPORT
 void clutter_pick_context_log_overlap (ClutterPickContext *pick_context,
@@ -55,7 +55,7 @@ void clutter_pick_context_log_overlap (ClutterPickContext *pick_context,
 
 CLUTTER_EXPORT
 void clutter_pick_context_push_clip (ClutterPickContext    *pick_context,
-                                     const ClutterActorBox *box);
+                                     const graphene_rect_t *box);
 
 CLUTTER_EXPORT
 void clutter_pick_context_pop_clip (ClutterPickContext *pick_context);

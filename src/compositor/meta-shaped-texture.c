@@ -533,7 +533,7 @@ paint_clipped_rectangle_node (MetaShapedTexture *stex,
                               ClutterPaintNode  *root_node,
                               CoglPipeline      *pipeline,
                               MtkRectangle      *rect,
-                              ClutterActorBox   *alloc)
+                              graphene_rect_t   *alloc)
 {
   g_autoptr (ClutterPaintNode) node = NULL;
   float ratio_h, ratio_v;
@@ -542,16 +542,16 @@ paint_clipped_rectangle_node (MetaShapedTexture *stex,
   float alloc_width;
   float alloc_height;
 
-  ratio_h = clutter_actor_box_get_width (alloc) / (float) stex->dst_width;
-  ratio_v = clutter_actor_box_get_height (alloc) / (float) stex->dst_height;
+  ratio_h = graphene_rect_get_width (alloc) / (float) stex->dst_width;
+  ratio_v = graphene_rect_get_height (alloc) / (float) stex->dst_height;
 
-  x1 = alloc->x1 + rect->x * ratio_h;
-  y1 = alloc->y1 + rect->y * ratio_v;
-  x2 = alloc->x1 + (rect->x + rect->width) * ratio_h;
-  y2 = alloc->y1 + (rect->y + rect->height) * ratio_v;
+  x1 = alloc->origin.x + rect->x * ratio_h;
+  y1 = alloc->origin.y + rect->y * ratio_v;
+  x2 = alloc->origin.x + (rect->x + rect->width) * ratio_h;
+  y2 = alloc->origin.y + (rect->y + rect->height) * ratio_v;
 
-  alloc_width = alloc->x2 - alloc->x1;
-  alloc_height = alloc->y2 - alloc->y1;
+  alloc_width = alloc->size.width;
+  alloc_height = alloc->size.height;
 
   coords[0] = rect->x / alloc_width * ratio_h;
   coords[1] = rect->y / alloc_height * ratio_v;
@@ -568,12 +568,7 @@ paint_clipped_rectangle_node (MetaShapedTexture *stex,
   clutter_paint_node_add_child (root_node, node);
 
   clutter_paint_node_add_multitexture_rectangle (node,
-                                                 &(ClutterActorBox) {
-                                                   .x1 = x1,
-                                                   .y1 = y1,
-                                                   .x2 = x2,
-                                                   .y2 = y2,
-                                                 },
+                                                 &GRAPHENE_RECT_INIT (x1, y1, x2 - x1, y2 - y1),
                                                  coords, 8);
 }
 
@@ -630,7 +625,7 @@ static void
 do_paint_content (MetaShapedTexture   *stex,
                   ClutterPaintNode    *root_node,
                   ClutterPaintContext *paint_context,
-                  ClutterActorBox     *alloc,
+                  graphene_rect_t     *alloc,
                   uint8_t              opacity)
 {
   int dst_width, dst_height;
@@ -915,7 +910,7 @@ meta_shaped_texture_paint_content (ClutterContent      *content,
                                    ClutterPaintContext *paint_context)
 {
   MetaShapedTexture *stex = META_SHAPED_TEXTURE (content);
-  ClutterActorBox alloc;
+  graphene_rect_t alloc;
   uint8_t opacity;
 
   if (stex->clip_region && mtk_region_is_empty (stex->clip_region))
@@ -1269,7 +1264,7 @@ meta_shaped_texture_is_opaque (MetaShapedTexture *stex)
   meta_shaped_texture_ensure_size_valid (stex);
 
   return mtk_rectangle_equal (&opaque_rect,
-                              &MTK_RECTANGLE_INIT (0, 0, 
+                              &MTK_RECTANGLE_INIT (0, 0,
                                                    stex->dst_width, stex->dst_height));
 }
 

@@ -119,12 +119,11 @@ warn_vertical_edge (const gchar  *edge,
 static void
 clutter_snap_constraint_update_allocation (ClutterConstraint *constraint,
                                            ClutterActor      *actor,
-                                           ClutterActorBox   *allocation)
+                                           graphene_rect_t   *allocation)
 {
   ClutterSnapConstraint *self = CLUTTER_SNAP_CONSTRAINT (constraint);
   gfloat source_width, source_height;
   gfloat source_x, source_y;
-  gfloat actor_width, actor_height;
 
   if (self->source == NULL)
     return;
@@ -132,24 +131,22 @@ clutter_snap_constraint_update_allocation (ClutterConstraint *constraint,
   clutter_actor_get_position (self->source, &source_x, &source_y);
   clutter_actor_get_size (self->source, &source_width, &source_height);
 
-  clutter_actor_box_get_size (allocation, &actor_width, &actor_height);
-
   switch (self->to_edge)
     {
     case CLUTTER_SNAP_EDGE_LEFT:
       if (self->from_edge == CLUTTER_SNAP_EDGE_LEFT)
-        allocation->x1 = source_x + self->offset;
+        allocation->origin.x = source_x + self->offset;
       else if (self->from_edge == CLUTTER_SNAP_EDGE_RIGHT)
-        allocation->x2 = source_x + self->offset;
+        allocation->size.width = source_x + self->offset;
       else
         warn_horizontal_edge ("left", self->actor, self->source);
       break;
 
     case CLUTTER_SNAP_EDGE_RIGHT:
       if (self->from_edge == CLUTTER_SNAP_EDGE_RIGHT)
-        allocation->x2 = source_x + source_width + self->offset;
+        allocation->size.width = source_x + source_width + self->offset;
       else if (self->from_edge == CLUTTER_SNAP_EDGE_LEFT)
-        allocation->x1 = source_x + source_width + self->offset;
+        allocation->origin.x = source_x + source_width + self->offset;
       else
         warn_horizontal_edge ("right", self->actor, self->source);
       break;
@@ -158,18 +155,18 @@ clutter_snap_constraint_update_allocation (ClutterConstraint *constraint,
 
     case CLUTTER_SNAP_EDGE_TOP:
       if (self->from_edge == CLUTTER_SNAP_EDGE_TOP)
-        allocation->y1 = source_y + self->offset;
+        allocation->origin.y = source_y + self->offset;
       else if (self->from_edge == CLUTTER_SNAP_EDGE_BOTTOM)
-        allocation->y2 = source_y + self->offset;
+        allocation->size.height = source_y + self->offset;
       else
         warn_vertical_edge ("top", self->actor, self->source);
       break;
 
     case CLUTTER_SNAP_EDGE_BOTTOM:
       if (self->from_edge == CLUTTER_SNAP_EDGE_BOTTOM)
-        allocation->y2 = source_y + source_height + self->offset;
+        allocation->size.height = source_y + source_height + self->offset;
       else if (self->from_edge == CLUTTER_SNAP_EDGE_TOP)
-        allocation->y1 = source_y + source_height + self->offset;
+        allocation->origin.y = source_y + source_height + self->offset;
       else
         warn_vertical_edge ("bottom", self->actor, self->source);
       break;
@@ -179,11 +176,11 @@ clutter_snap_constraint_update_allocation (ClutterConstraint *constraint,
       break;
     }
 
-  if (allocation->x2 - allocation->x1 < 0)
-    allocation->x2 = allocation->x1;
+  if (allocation->size.width < 0)
+    allocation->size.width = allocation->origin.x;
 
-  if (allocation->y2 - allocation->y1 < 0)
-    allocation->y2 = allocation->y1;
+  if (allocation->size.height < 0)
+    allocation->size.height = allocation->origin.y;
 }
 
 static void

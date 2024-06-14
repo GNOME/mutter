@@ -67,10 +67,10 @@ void                    clutter_paint_node_add_child                    (Clutter
                                                                          ClutterPaintNode      *child);
 CLUTTER_EXPORT
 void                    clutter_paint_node_add_rectangle                (ClutterPaintNode      *node,
-                                                                         const ClutterActorBox *rect);
+                                                                         const graphene_rect_t *rect);
 CLUTTER_EXPORT
 void                    clutter_paint_node_add_texture_rectangle        (ClutterPaintNode      *node,
-                                                                         const ClutterActorBox *rect,
+                                                                         const graphene_rect_t *rect,
                                                                          float                  x_1,
                                                                          float                  y_1,
                                                                          float                  x_2,
@@ -78,7 +78,7 @@ void                    clutter_paint_node_add_texture_rectangle        (Clutter
 
 CLUTTER_EXPORT
 void                   clutter_paint_node_add_multitexture_rectangle   (ClutterPaintNode       *node,
-                                                                        const ClutterActorBox  *rect,
+                                                                        const graphene_rect_t  *rect,
                                                                         const float            *text_coords,
                                                                         unsigned int            text_coords_len);
 

@@ -69,17 +69,20 @@ on_timeout (gpointer data)
         }
       else if (test_num == 2)
         {
-          ClutterActorBox over_actor_box =
-            CLUTTER_ACTOR_BOX_INIT (0, 0, STAGE_WIDTH, STAGE_HEIGHT);
+          graphene_rect_t over_actor_box =
+            GRAPHENE_RECT_INIT (0, 0, STAGE_WIDTH, STAGE_HEIGHT);
 
           /* Make the actor visible but set a clip so that only some
              of the actors are accessible */
           clutter_actor_show (over_actor);
           clutter_actor_set_clip (over_actor,
-                                  state->actor_width * 2,
-                                  state->actor_height * 2,
-                                  state->actor_width * (ACTORS_X - 4),
-                                  state->actor_height * (ACTORS_Y - 4));
+                                  &GRAPHENE_RECT_INIT (
+                                    state->actor_width * 2,
+                                    state->actor_height * 2,
+                                    state->actor_width * (ACTORS_X - 4 - 2),
+                                    state->actor_height * (ACTORS_Y - 4 - 2)
+                                  )
+                                 );
 
           /* Only allocated actors can be picked, so force an allocation
            * of the overlay actor here.
@@ -171,7 +174,7 @@ actor_pick (void)
 {
   int y, x;
   State state = { 0 };
-  
+
   state.pass = TRUE;
 
   state.stage = clutter_test_get_stage ();

@@ -970,16 +970,16 @@ meta_window_actor_sync_actor_geometry (MetaWindowActor *self,
 
   if (clutter_actor_has_allocation (actor))
     {
-      ClutterActorBox box;
+      graphene_rect_t box;
       float old_x, old_y;
       float old_width, old_height;
 
       clutter_actor_get_allocation_box (actor, &box);
 
-      old_x = box.x1;
-      old_y = box.y1;
-      old_width = box.x2 - box.x1;
-      old_height = box.y2 - box.y1;
+      old_x = box.origin.x;
+      old_y = box.origin.y;
+      old_width = box.size.width;
+      old_height = box.size.height;
 
       if (old_x != actor_rect.x || old_y != actor_rect.y)
         changes |= META_WINDOW_ACTOR_CHANGE_POSITION;

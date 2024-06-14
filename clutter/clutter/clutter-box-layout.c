@@ -421,13 +421,13 @@ static void
 allocate_box_child (ClutterBoxLayout       *self,
                     ClutterActor           *container,
                     ClutterActor           *child,
-                    ClutterActorBox        *child_box)
+                    graphene_rect_t        *child_box)
 {
   CLUTTER_NOTE (LAYOUT, "Allocation for %s { %.2f, %.2f, %.2f, %.2f }",
                 _clutter_actor_get_debug_name (child),
-                child_box->x1, child_box->y1,
-                child_box->x2 - child_box->x1,
-                child_box->y2 - child_box->y1);
+                child_box->origin.x, child_box->origin.y,
+                child_box->size.width,
+                child_box->size.height);
 
   clutter_actor_allocate (child, child_box);
 }
@@ -620,7 +620,7 @@ distribute_natural_allocation (float          extra_space,
 static void
 clutter_box_layout_allocate (ClutterLayoutManager   *layout,
                              ClutterActor           *container,
-                             const ClutterActorBox  *box)
+                             const graphene_rect_t  *box)
 {
   ClutterBoxLayout *self = CLUTTER_BOX_LAYOUT (layout);
   ClutterBoxLayoutPrivate *priv =
@@ -631,7 +631,7 @@ clutter_box_layout_allocate (ClutterLayoutManager   *layout,
   gboolean is_rtl;
   ClutterActorIter iter;
 
-  ClutterActorBox child_allocation;
+  graphene_rect_t child_allocation;
   RequestedSize *sizes;
 
   gint size;
@@ -654,9 +654,9 @@ clutter_box_layout_allocate (ClutterLayoutManager   *layout,
   sizes = g_newa (RequestedSize, nvis_children);
 
   if (priv->orientation == CLUTTER_ORIENTATION_VERTICAL)
-    size = box->y2 - box->y1 - (nvis_children - 1) * priv->spacing;
+    size = box->size.height - (nvis_children - 1) * priv->spacing;
   else
-    size = box->x2 - box->x1 - (nvis_children - 1) * priv->spacing;
+    size = box->size.width - (nvis_children - 1) * priv->spacing;
 
   actor = CLUTTER_ACTOR (container);
 
@@ -670,12 +670,12 @@ clutter_box_layout_allocate (ClutterLayoutManager   *layout,
 
       if (priv->orientation == CLUTTER_ORIENTATION_VERTICAL)
         clutter_actor_get_preferred_height (child,
-                                            box->x2 - box->x1,
+                                            box->size.width,
                                             &sizes[i].minimum_size,
                                             &sizes[i].natural_size);
       else
         clutter_actor_get_preferred_width (child,
-                                           box->y2 - box->y1,
+                                           box->size.height,
                                            &sizes[i].minimum_size,
                                            &sizes[i].natural_size);
 
@@ -692,8 +692,8 @@ clutter_box_layout_allocate (ClutterLayoutManager   *layout,
                    ? "width"
                    : "height",
                  priv->orientation == CLUTTER_ORIENTATION_VERTICAL
-                   ? box->x2 - box->x1
-                   : box->y2 - box->y1);
+                   ? box->size.width
+                   : box->size.height);
 
       if (sizes[i].natural_size < sizes[i].minimum_size)
         g_error ("ClutterBoxLayout child %s natural %s: %f < minimum %f for %s %f",
@@ -707,8 +707,8 @@ clutter_box_layout_allocate (ClutterLayoutManager   *layout,
                    ? "width"
                    : "height",
                  priv->orientation == CLUTTER_ORIENTATION_VERTICAL
-                   ? box->x2 - box->x1
-                   : box->y2 - box->y1);
+                   ? box->size.width
+                   : box->size.height);
 
       size -= sizes[i].minimum_size;
 
@@ -723,9 +723,9 @@ clutter_box_layout_allocate (ClutterLayoutManager   *layout,
        * minimum sizes for children that are not going to fill
        */
       if (priv->orientation == CLUTTER_ORIENTATION_VERTICAL)
-        size = box->y2 - box->y1 - (nvis_children - 1) * priv->spacing;
+        size = box->size.height - (nvis_children - 1) * priv->spacing;
       else
-        size = box->x2 - box->x1 - (nvis_children - 1) * priv->spacing;
+        size = box->size.width - (nvis_children - 1) * priv->spacing;
 
       extra = size / nvis_children;
       n_extra_widgets = size % nvis_children;
@@ -762,15 +762,15 @@ clutter_box_layout_allocate (ClutterLayoutManager   *layout,
   /* Allocate child positions. */
   if (priv->orientation == CLUTTER_ORIENTATION_VERTICAL)
     {
-      child_allocation.x1 = box->x1;
-      child_allocation.x2 = MAX (1.0, box->x2);
-      y = box->y1;
+      child_allocation.origin.x = box->origin.x;
+      child_allocation.size.width = MAX (1.0, box->size.width);
+      y = box->origin.y;
     }
   else
     {
-      child_allocation.y1 = box->y1;
-      child_allocation.y2 = MAX (1.0, box->y2);
-      x = box->x1;
+      child_allocation.origin.y = box->origin.y;
+      child_allocation.size.height = MAX (1.0, box->size.height);
+      x = box->origin.x;
     }
 
   i = 0;
@@ -813,13 +813,13 @@ clutter_box_layout_allocate (ClutterLayoutManager   *layout,
         {
           if (clutter_actor_needs_expand (child, priv->orientation))
             {
-              child_allocation.y1 = y;
-              child_allocation.y2 = child_allocation.y1 + MAX (1.0, child_size);
+              child_allocation.origin.y = y;
+              child_allocation.size.height = MAX (1.0, child_size);
             }
           else
             {
-              child_allocation.y1 = y + (child_size - sizes[i].minimum_size) / 2;
-              child_allocation.y2 = child_allocation.y1 + sizes[i].minimum_size;
+              child_allocation.origin.y = y + (child_size - sizes[i].minimum_size) / 2;
+              child_allocation.size.height = sizes[i].minimum_size;
             }
 
           y += child_size + priv->spacing;
@@ -828,23 +828,23 @@ clutter_box_layout_allocate (ClutterLayoutManager   *layout,
         {
           if (clutter_actor_needs_expand (child, priv->orientation))
             {
-              child_allocation.x1 = x;
-              child_allocation.x2 = child_allocation.x1 + MAX (1.0, child_size);
+              child_allocation.origin.x = x;
+              child_allocation.size.width = MAX (1.0, child_size);
             }
           else
             {
-              child_allocation.x1 = x + (child_size - sizes[i].minimum_size) / 2;
-              child_allocation.x2 = child_allocation.x1 + sizes[i].minimum_size;
+              child_allocation.origin.x = x + (child_size - sizes[i].minimum_size) / 2;
+              child_allocation.size.width = sizes[i].minimum_size;
             }
 
           x += child_size + priv->spacing;
 
           if (is_rtl)
             {
-              gfloat width = child_allocation.x2 - child_allocation.x1;
+              gfloat width = child_allocation.size.width;
 
-              child_allocation.x2 = box->x1 + (box->x2 - child_allocation.x1);
-              child_allocation.x1 = child_allocation.x2 - width;
+              child_allocation.size.width = box->origin.x + (box->size.width - child_allocation.origin.x);
+              child_allocation.origin.x = child_allocation.size.width - width;
             }
 
         }

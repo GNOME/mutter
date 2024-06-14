@@ -277,7 +277,7 @@ my_thing_get_preferred_height (ClutterActor *self,
 
 static void
 my_thing_allocate (ClutterActor           *self,
-                   const ClutterActorBox  *box)
+                   const graphene_rect_t  *box)
 {
   MyThingPrivate *priv;
   gfloat current_x, current_y, max_row_height;
@@ -300,7 +300,7 @@ my_thing_allocate (ClutterActor           *self,
   while (clutter_actor_iter_next (&iter, &child))
     {
       gfloat natural_width, natural_height;
-      ClutterActorBox child_box;
+      graphene_rect_t child_box;
 
       clutter_actor_get_preferred_size (child,
                                         NULL, NULL,
@@ -310,17 +310,17 @@ my_thing_allocate (ClutterActor           *self,
       /* if it fits in the current row, keep it there; otherwise
        * reflow into another row
        */
-      if (current_x + natural_width > box->x2 - box->x1 - priv->padding)
+      if (current_x + natural_width > box->size.width - priv->padding)
         {
           current_x = priv->padding;
           current_y += max_row_height + priv->spacing;
           max_row_height = 0;
         }
 
-      child_box.x1 = current_x;
-      child_box.y1 = current_y;
-      child_box.x2 = child_box.x1 + natural_width;
-      child_box.y2 = child_box.y1 + natural_height;
+      child_box.origin.x = current_x;
+      child_box.origin.y = current_y;
+      child_box.size.width = natural_width;
+      child_box.size.height = natural_height;
 
       clutter_actor_allocate (child, &child_box);
 
@@ -336,7 +336,7 @@ my_thing_allocate (ClutterActor           *self,
               clutter_actor_is_rotated (child))
             {
               graphene_point3d_t v1 = { 0, }, v2 = { 0, };
-              ClutterActorBox transformed_box = { 0, };
+              graphene_rect_t transformed_box = { 0, };
 
               v1.x = box->x1;
               v1.y = box->y1;

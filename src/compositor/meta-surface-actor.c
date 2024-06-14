@@ -201,15 +201,10 @@ meta_surface_actor_pick (ClutterActor       *actor,
       for (i = 0; i < n_rects; i++)
         {
           MtkRectangle rect;
-          ClutterActorBox box;
 
           rect = mtk_region_get_rectangle (priv->input_region, i);
-
-          box.x1 = rect.x;
-          box.y1 = rect.y;
-          box.x2 = rect.x + rect.width;
-          box.y2 = rect.y + rect.height;
-          clutter_actor_pick_box (actor, pick_context, &box);
+          clutter_actor_pick_box (actor, pick_context,
+                                  &GRAPHENE_RECT_INIT (rect.y, rect.y, rect.width, rect.height));
         }
     }
 

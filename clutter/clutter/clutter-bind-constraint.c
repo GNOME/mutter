@@ -191,7 +191,7 @@ clutter_bind_constraint_update_preferred_size (ClutterConstraint  *constraint,
 static void
 clutter_bind_constraint_update_allocation (ClutterConstraint *constraint,
                                            ClutterActor      *actor,
-                                           ClutterActorBox   *allocation)
+                                           graphene_rect_t   *allocation)
 {
   ClutterBindConstraint *bind = CLUTTER_BIND_CONSTRAINT (constraint);
   gfloat source_width, source_height;
@@ -207,45 +207,46 @@ clutter_bind_constraint_update_allocation (ClutterConstraint *constraint,
   source_position.y = clutter_actor_get_y (bind->source);
   clutter_actor_get_size (bind->source, &source_width, &source_height);
 
-  clutter_actor_box_get_size (allocation, &actor_width, &actor_height);
+  actor_width = graphene_rect_get_width (allocation);
+  actor_height = graphene_rect_get_height (allocation);
 
   switch (bind->coordinate)
     {
     case CLUTTER_BIND_X:
-      allocation->x1 = source_position.x + bind->offset;
-      allocation->x2 = allocation->x1 + actor_width;
+      allocation->origin.x = source_position.x + bind->offset;
+      allocation->size.width = actor_width;
       break;
 
     case CLUTTER_BIND_Y:
-      allocation->y1 = source_position.y + bind->offset;
-      allocation->y2 = allocation->y1 + actor_height;
+      allocation->origin.y = source_position.y + bind->offset;
+      allocation->size.height = actor_height;
       break;
 
     case CLUTTER_BIND_POSITION:
-      allocation->x1 = source_position.x + bind->offset;
-      allocation->y1 = source_position.y + bind->offset;
-      allocation->x2 = allocation->x1 + actor_width;
-      allocation->y2 = allocation->y1 + actor_height;
+      allocation->origin.x = source_position.x + bind->offset;
+      allocation->origin.y = source_position.y + bind->offset;
+      allocation->size.width = actor_width;
+      allocation->size.height = actor_height;
       break;
 
     case CLUTTER_BIND_WIDTH:
-      allocation->x2 = allocation->x1 + source_width + bind->offset;
+      allocation->size.width = source_width + bind->offset;
       break;
 
     case CLUTTER_BIND_HEIGHT:
-      allocation->y2 = allocation->y1 + source_height + bind->offset;
+      allocation->size.height = source_height + bind->offset;
       break;
 
     case CLUTTER_BIND_SIZE:
-      allocation->x2 = allocation->x1 + source_width + bind->offset;
-      allocation->y2 = allocation->y1 + source_height + bind->offset;
+      allocation->size.width = source_width + bind->offset;
+      allocation->size.height = source_height + bind->offset;
       break;
 
     case CLUTTER_BIND_ALL:
-      allocation->x1 = source_position.x + bind->offset;
-      allocation->y1 = source_position.y + bind->offset;
-      allocation->x2 = allocation->x1 + source_width + bind->offset;
-      allocation->y2 = allocation->y1 + source_height + bind->offset;
+      allocation->origin.x = source_position.x + bind->offset;
+      allocation->origin.y = source_position.y + bind->offset;
+      allocation->size.width = source_width + bind->offset;
+      allocation->size.height = source_height + bind->offset;
       break;
 
     default:
@@ -253,7 +254,8 @@ clutter_bind_constraint_update_allocation (ClutterConstraint *constraint,
       break;
     }
 
-  clutter_actor_box_clamp_to_pixel (allocation);
+  graphene_rect_normalize_r (allocation, allocation);
+  graphene_rect_round_extents (allocation, allocation);
 }
 
 static void

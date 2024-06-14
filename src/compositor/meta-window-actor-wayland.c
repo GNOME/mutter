@@ -352,8 +352,8 @@ meta_window_actor_wayland_get_scanout_candidate (MetaWindowActor *actor)
   MetaSurfaceActor *topmost_surface_actor = NULL;
   int n_visible_surface_actors = 0;
   MetaWindow *window;
-  ClutterActorBox window_box;
-  ClutterActorBox surface_box;
+  graphene_rect_t window_box;
+  graphene_rect_t surface_box;
 
   if (clutter_actor_get_last_child (CLUTTER_ACTOR (self)) != surface_container)
     {
@@ -426,10 +426,10 @@ meta_window_actor_wayland_get_scanout_candidate (MetaWindowActor *actor)
       clutter_actor_get_paint_box (CLUTTER_ACTOR (actor), &window_box) &&
       clutter_actor_get_paint_box (CLUTTER_ACTOR (topmost_surface_actor),
                                    &surface_box) &&
-      G_APPROX_VALUE (window_box.x1, surface_box.x1, CLUTTER_COORDINATE_EPSILON) &&
-      G_APPROX_VALUE (window_box.y1, surface_box.y1, CLUTTER_COORDINATE_EPSILON) &&
-      G_APPROX_VALUE (window_box.x2, surface_box.x2, CLUTTER_COORDINATE_EPSILON) &&
-      G_APPROX_VALUE (window_box.y2, surface_box.y2, CLUTTER_COORDINATE_EPSILON))
+      G_APPROX_VALUE (window_box.origin.x, surface_box.origin.x, CLUTTER_COORDINATE_EPSILON) &&
+      G_APPROX_VALUE (window_box.origin.y, surface_box.origin.y, CLUTTER_COORDINATE_EPSILON) &&
+      G_APPROX_VALUE (window_box.size.width, surface_box.size.width, CLUTTER_COORDINATE_EPSILON) &&
+      G_APPROX_VALUE (window_box.size.height, surface_box.size.height, CLUTTER_COORDINATE_EPSILON))
     return topmost_surface_actor;
 
   meta_topic (META_DEBUG_RENDER,
@@ -546,23 +546,23 @@ maybe_configure_black_background (MetaWindowActorWayland *self,
   clutter_actor_iter_init (&iter, CLUTTER_ACTOR (self->surface_container));
   while (clutter_actor_iter_next (&iter, &child))
     {
-      ClutterActorBox actor_box;
+      graphene_rect_t actor_box;
 
       if (!clutter_actor_is_mapped (child))
         continue;
 
       clutter_actor_get_allocation_box (child, &actor_box);
       if (meta_surface_actor_is_opaque (META_SURFACE_ACTOR (child)) &&
-          G_APPROX_VALUE (actor_box.x1, 0, CLUTTER_COORDINATE_EPSILON) &&
-          G_APPROX_VALUE (actor_box.y1, 0, CLUTTER_COORDINATE_EPSILON) &&
-          G_APPROX_VALUE (actor_box.x2, fullscreen_layout.width,
+          G_APPROX_VALUE (actor_box.origin.x, 0, CLUTTER_COORDINATE_EPSILON) &&
+          G_APPROX_VALUE (actor_box.origin.y, 0, CLUTTER_COORDINATE_EPSILON) &&
+          G_APPROX_VALUE (actor_box.size.width, fullscreen_layout.width,
                           CLUTTER_COORDINATE_EPSILON) &&
-          G_APPROX_VALUE (actor_box.y2, fullscreen_layout.height,
+          G_APPROX_VALUE (actor_box.size.height, fullscreen_layout.height,
                           CLUTTER_COORDINATE_EPSILON))
         return FALSE;
 
-      max_width = MAX (max_width, actor_box.x2 - actor_box.x1);
-      max_height = MAX (max_height, actor_box.y2 - actor_box.y1);
+      max_width = MAX (max_width, actor_box.size.width);
+      max_height = MAX (max_height, actor_box.size.height);
     }
 
   *surfaces_width = max_width;

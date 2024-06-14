@@ -112,7 +112,7 @@ void                _clutter_paint_volume_complete             (ClutterPaintVolu
 void                _clutter_paint_volume_transform            (ClutterPaintVolume      *pv,
                                                                 const graphene_matrix_t *matrix);
 void                _clutter_paint_volume_get_bounding_box     (ClutterPaintVolume *pv,
-                                                                ClutterActorBox    *box);
+                                                                graphene_rect_t    *box);
 void                _clutter_paint_volume_set_reference_actor  (ClutterPaintVolume *pv,
                                                                 ClutterActor *actor);
 
@@ -121,7 +121,7 @@ ClutterCullResult   _clutter_paint_volume_cull                 (ClutterPaintVolu
 
 void                _clutter_paint_volume_get_stage_paint_box  (const ClutterPaintVolume *pv,
                                                                 ClutterStage             *stage,
-                                                                ClutterActorBox          *box);
+                                                                graphene_rect_t          *box);
 
 void                _clutter_paint_volume_transform_relative   (ClutterPaintVolume *pv,
                                                                 ClutterActor *relative_to_ancestor);

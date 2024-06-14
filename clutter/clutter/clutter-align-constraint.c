@@ -119,7 +119,7 @@ clutter_align_constraint_set_actor (ClutterActorMeta *meta,
 static void
 clutter_align_constraint_update_allocation (ClutterConstraint *constraint,
                                             ClutterActor      *actor,
-                                            ClutterActorBox   *allocation)
+                                            graphene_rect_t   *allocation)
 {
   ClutterAlignConstraint *align = CLUTTER_ALIGN_CONSTRAINT (constraint);
   gfloat source_width, source_height;
@@ -130,7 +130,8 @@ clutter_align_constraint_update_allocation (ClutterConstraint *constraint,
   if (align->source == NULL)
     return;
 
-  clutter_actor_box_get_size (allocation, &actor_width, &actor_height);
+  actor_width = graphene_rect_get_width (allocation);
+  actor_height = graphene_rect_get_height (allocation);
 
   clutter_actor_get_size (align->source, &source_width, &source_height);
 
@@ -147,20 +148,22 @@ clutter_align_constraint_update_allocation (ClutterConstraint *constraint,
   switch (align->align_axis)
     {
     case CLUTTER_ALIGN_X_AXIS:
-      allocation->x1 += offset_x_start + (source_width * align->factor);
-      allocation->x2 = allocation->x1 + actor_width;
+      graphene_rect_inset_r (allocation,
+                             offset_x_start + (source_width * align->factor),
+                             0.0, allocation);
       break;
 
     case CLUTTER_ALIGN_Y_AXIS:
-      allocation->y1 += offset_y_start + (source_height * align->factor);
-      allocation->y2 = allocation->y1 + actor_height;
+      graphene_rect_inset_r (allocation,
+                             0.0, offset_y_start + (source_height * align->factor),
+                             allocation);
       break;
 
     case CLUTTER_ALIGN_BOTH:
-      allocation->x1 += offset_x_start + (source_width * align->factor);
-      allocation->y1 += offset_y_start + (source_height * align->factor);
-      allocation->x2 = allocation->x1 + actor_width;
-      allocation->y2 = allocation->y1 + actor_height;
+      graphene_rect_inset_r (allocation,
+                             offset_x_start + (source_width * align->factor),
+                             offset_y_start + (source_height * align->factor),
+                             allocation);
       break;
 
     default:
@@ -168,7 +171,7 @@ clutter_align_constraint_update_allocation (ClutterConstraint *constraint,
       break;
     }
 
-  clutter_actor_box_clamp_to_pixel (allocation);
+  graphene_rect_round_extents (allocation, allocation);
 }
 
 static void

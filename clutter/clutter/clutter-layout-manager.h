@@ -86,7 +86,7 @@ struct _ClutterLayoutManagerClass
                                                  gfloat                 *nat_height_p);
   void               (* allocate)               (ClutterLayoutManager   *manager,
                                                  ClutterActor           *container,
-                                                 const ClutterActorBox  *allocation);
+                                                 const graphene_rect_t  *allocation);
 
   void               (* set_container)          (ClutterLayoutManager   *manager,
                                                  ClutterActor           *container);
@@ -114,7 +114,7 @@ void               clutter_layout_manager_get_preferred_height  (ClutterLayoutMa
 CLUTTER_EXPORT
 void               clutter_layout_manager_allocate              (ClutterLayoutManager   *manager,
                                                                  ClutterActor           *container,
-                                                                 const ClutterActorBox  *allocation);
+                                                                 const graphene_rect_t  *allocation);
 
 CLUTTER_EXPORT
 void               clutter_layout_manager_set_container         (ClutterLayoutManager   *manager,

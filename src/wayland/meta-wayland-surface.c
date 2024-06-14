@@ -2305,7 +2305,7 @@ meta_wayland_surface_try_acquire_scanout (MetaWaylandSurface *surface,
   MetaRendererView *renderer_view;
   MetaSurfaceActor *surface_actor;
   MetaMonitorTransform view_transform;
-  ClutterActorBox actor_box;
+  graphene_rect_t actor_box;
   MtkRectangle *dst_rect_ptr = NULL;
   MtkRectangle dst_rect;
   graphene_rect_t *src_rect_ptr = NULL;
@@ -2340,10 +2340,10 @@ meta_wayland_surface_try_acquire_scanout (MetaWaylandSurface *surface,
   view_scale = clutter_stage_view_get_scale (stage_view);
 
   dst_rect = (MtkRectangle) {
-    .x = roundf ((actor_box.x1 - view_rect.x) * view_scale),
-    .y = roundf ((actor_box.y1 - view_rect.y) * view_scale),
-    .width = roundf ((actor_box.x2 - actor_box.x1) * view_scale),
-    .height = roundf ((actor_box.y2 - actor_box.y1) * view_scale),
+    .x = roundf ((actor_box.origin.x - view_rect.x) * view_scale),
+    .y = roundf ((actor_box.origin.y - view_rect.y) * view_scale),
+    .width = roundf (actor_box.size.width * view_scale),
+    .height = roundf (actor_box.size.height * view_scale),
   };
 
   if (meta_monitor_transform_is_rotated (view_transform))

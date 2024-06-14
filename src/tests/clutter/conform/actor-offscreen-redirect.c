@@ -42,7 +42,7 @@ foo_actor_paint (ClutterActor        *actor,
   CoglContext *ctx =
     clutter_backend_get_cogl_context (clutter_get_default_backend ());
   FooActor *foo_actor = (FooActor *) actor;
-  ClutterActorBox allocation;
+  graphene_rect_t allocation;
   CoglPipeline *pipeline;
   CoglFramebuffer *framebuffer;
   CoglColor color;
@@ -61,10 +61,10 @@ foo_actor_paint (ClutterActor        *actor,
   framebuffer = clutter_paint_context_get_framebuffer (paint_context);
   cogl_framebuffer_draw_rectangle (framebuffer,
                                    pipeline,
-                                   allocation.x1,
-                                   allocation.y1,
-                                   allocation.x2,
-                                   allocation.y2);
+                                   allocation.origin.x,
+                                   allocation.origin.y,
+                                   allocation.size.width - allocation.origin.x,
+                                   allocation.size.height - allocation.origin.y);
   g_object_unref (pipeline);
 }
 

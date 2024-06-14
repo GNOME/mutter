@@ -617,7 +617,7 @@ set_glsl_parameters (MetaBackgroundContent *self,
 static void
 paint_clipped_rectangle (MetaBackgroundContent *self,
                          ClutterPaintNode      *node,
-                         ClutterActorBox       *actor_box,
+                         graphene_rect_t       *actor_box,
                          MtkRectangle          *rect)
 {
   g_autoptr (ClutterPaintNode) pipeline_node = NULL;
@@ -625,8 +625,8 @@ paint_clipped_rectangle (MetaBackgroundContent *self,
   float x1, y1, x2, y2;
   float tx1, ty1, tx2, ty2;
 
-  h_scale = self->texture_area.width / clutter_actor_box_get_width (actor_box);
-  v_scale = self->texture_area.height / clutter_actor_box_get_height (actor_box);
+  h_scale = self->texture_area.width / graphene_rect_get_width (actor_box);
+  v_scale = self->texture_area.height / graphene_rect_get_height (actor_box);
 
   x1 = rect->x;
   y1 = rect->y;
@@ -641,12 +641,7 @@ paint_clipped_rectangle (MetaBackgroundContent *self,
   pipeline_node = clutter_pipeline_node_new (self->pipeline);
   clutter_paint_node_set_name (pipeline_node, "MetaBackgroundContent (Slice)");
   clutter_paint_node_add_texture_rectangle (pipeline_node,
-                                            &(ClutterActorBox) {
-                                              .x1 = x1,
-                                              .y1 = y1,
-                                              .x2 = x2,
-                                              .y2 = y2,
-                                            },
+                                            &GRAPHENE_RECT_INIT (x1, y1, x2 - x1, y2 - y1),
                                             tx1, ty1,
                                             tx2, ty2);
 
@@ -660,7 +655,7 @@ meta_background_content_paint_content (ClutterContent      *content,
                                        ClutterPaintContext *paint_context)
 {
   MetaBackgroundContent *self = META_BACKGROUND_CONTENT (content);
-  ClutterActorBox actor_box;
+  graphene_rect_t actor_box;
   MtkRectangle rect_within_actor;
   MtkRectangle rect_within_stage;
   g_autoptr (MtkRegion) region = NULL;
@@ -672,10 +667,10 @@ meta_background_content_paint_content (ClutterContent      *content,
     return;
 
   clutter_actor_get_content_box (actor, &actor_box);
-  rect_within_actor.x = actor_box.x1;
-  rect_within_actor.y = actor_box.y1;
-  rect_within_actor.width = actor_box.x2 - actor_box.x1;
-  rect_within_actor.height = actor_box.y2 - actor_box.y1;
+  rect_within_actor.x = actor_box.origin.x;
+  rect_within_actor.y = actor_box.origin.y;
+  rect_within_actor.width = actor_box.size.width;
+  rect_within_actor.height = actor_box.size.height;
 
   if (clutter_actor_is_in_clone_paint (actor))
     {

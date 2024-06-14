@@ -209,7 +209,7 @@ layout_manager_real_get_preferred_height (ClutterLayoutManager *manager,
 static void
 layout_manager_real_allocate (ClutterLayoutManager   *manager,
                               ClutterActor           *container,
-                              const ClutterActorBox  *allocation)
+                              const graphene_rect_t  *allocation)
 {
   LAYOUT_MANAGER_WARN_NOT_IMPLEMENTED (manager, "allocate");
 }
@@ -382,7 +382,7 @@ clutter_layout_manager_get_preferred_height (ClutterLayoutManager *manager,
  * clutter_layout_manager_allocate:
  * @manager: a #ClutterLayoutManager
  * @container: the #ClutterActor using @manager
- * @allocation: the #ClutterActorBox containing the allocated area
+ * @allocation: the #graphene_rect_t containing the allocated area
  *   of @container
  *
  * Allocates the children of @container given an area
@@ -392,7 +392,7 @@ clutter_layout_manager_get_preferred_height (ClutterLayoutManager *manager,
 void
 clutter_layout_manager_allocate (ClutterLayoutManager   *manager,
                                  ClutterActor           *container,
-                                 const ClutterActorBox  *allocation)
+                                 const graphene_rect_t  *allocation)
 {
   ClutterLayoutManagerClass *klass;
 

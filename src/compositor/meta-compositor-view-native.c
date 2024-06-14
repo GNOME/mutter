@@ -156,7 +156,7 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
   CoglFramebuffer *framebuffer;
   MetaWindowActor *window_actor;
   MtkRectangle view_rect;
-  ClutterActorBox actor_box;
+  graphene_rect_t actor_box;
   MetaSurfaceActor *surface_actor;
   MetaSurfaceActorWayland *surface_actor_wayland;
   MetaWaylandSurface *surface;
@@ -258,20 +258,20 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
       return FALSE;
     }
 
-  if (!G_APPROX_VALUE (actor_box.x1, view_rect.x,
+  if (!G_APPROX_VALUE (actor_box.origin.x, view_rect.x,
                        CLUTTER_COORDINATE_EPSILON) ||
-      !G_APPROX_VALUE (actor_box.y1, view_rect.y,
+      !G_APPROX_VALUE (actor_box.origin.y, view_rect.y,
                        CLUTTER_COORDINATE_EPSILON) ||
-      !G_APPROX_VALUE (actor_box.x2, view_rect.x + view_rect.width,
+      !G_APPROX_VALUE (actor_box.size.width, view_rect.width,
                        CLUTTER_COORDINATE_EPSILON) ||
-      !G_APPROX_VALUE (actor_box.y2, view_rect.y + view_rect.height,
+      !G_APPROX_VALUE (actor_box.size.height, view_rect.height,
                        CLUTTER_COORDINATE_EPSILON))
     {
       meta_topic (META_DEBUG_RENDER,
                   "No direct scanout candidate: paint-box (%f,%f,%f,%f) does "
                   "not match stage-view layout (%d,%d,%d,%d)",
-                  actor_box.x1, actor_box.y1,
-                  actor_box.x2 - actor_box.x1, actor_box.y2 - actor_box.y1,
+                  actor_box.origin.x, actor_box.origin.y,
+                  actor_box.size.width, actor_box.size.height,
                   view_rect.x, view_rect.y, view_rect.width, view_rect.height);
       return FALSE;
     }

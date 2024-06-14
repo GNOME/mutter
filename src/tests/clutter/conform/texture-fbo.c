@@ -193,7 +193,8 @@ texture_fbo (TestConformSimpleFixture *fixture,
   actor = create_source ();
   clutter_actor_add_child (state.stage, actor);
   clutter_actor_set_position (actor, 0, ypos * SOURCE_SIZE);
-  clutter_actor_set_clip (actor, 0, 0, DIVISION_WIDTH, DIVISION_HEIGHT);
+  clutter_actor_set_clip (actor, GRAPHENE_RECT_INIT (0, 0,
+                                                     DIVISION_WIDTH, DIVISION_HEIGHT));
   actor = clutter_texture_new_from_actor (actor);
   clutter_actor_set_position (actor, SOURCE_SIZE, ypos * SOURCE_SIZE);
   clutter_actor_add_child (state.stage, actor);

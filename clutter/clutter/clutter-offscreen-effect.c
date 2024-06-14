@@ -25,7 +25,7 @@
 
 /**
  * ClutterOffscreenEffect:
- * 
+ *
  * Base class for effects using offscreen buffers
  *
  * #ClutterOffscreenEffect is an abstract class that can be used by
@@ -307,7 +307,7 @@ clutter_offscreen_effect_pre_paint (ClutterEffect       *effect,
   ClutterOffscreenEffectPrivate *priv =
     clutter_offscreen_effect_get_instance_private (self);
   CoglFramebuffer *offscreen;
-  ClutterActorBox raw_box, box;
+  graphene_rect_t raw_box, box;
   ClutterActor *stage;
   graphene_matrix_t projection, modelview, transform;
   const ClutterPaintVolume *volume;
@@ -349,8 +349,8 @@ clutter_offscreen_effect_pre_paint (ClutterEffect       *effect,
       box = raw_box;
       _clutter_actor_box_enlarge_for_effects (&box);
 
-      priv->fbo_offset_x = box.x1;
-      priv->fbo_offset_y = box.y1;
+      priv->fbo_offset_x = box.origin.x;
+      priv->fbo_offset_y = box.origin.y;
     }
   else
     {
@@ -359,12 +359,13 @@ clutter_offscreen_effect_pre_paint (ClutterEffect       *effect,
       box = raw_box;
       _clutter_actor_box_enlarge_for_effects (&box);
 
-      priv->fbo_offset_x = box.x1 - raw_box.x1;
-      priv->fbo_offset_y = box.y1 - raw_box.y1;
+      priv->fbo_offset_x = box.origin.x - raw_box.origin.x;
+      priv->fbo_offset_y = box.origin.y - raw_box.origin.y;
     }
 
-  clutter_actor_box_scale (&box, ceiled_resource_scale);
-  clutter_actor_box_get_size (&box, &target_width, &target_height);
+  graphene_rect_scale (&box, ceiled_resource_scale, ceiled_resource_scale, &box);
+  target_width = graphene_rect_get_width (&box);
+  target_height = graphene_rect_get_height (&box);
 
   target_width = ceilf (target_width);
   target_height = ceilf (target_height);
@@ -445,11 +446,11 @@ clutter_offscreen_effect_real_paint_target (ClutterOffscreenEffect *effect,
    * hadn't been redirected offscreen.
    */
   clutter_paint_node_add_rectangle (pipeline_node,
-                                    &(ClutterActorBox) {
+                                    &GRAPHENE_RECT_INIT(
                                         0.f, 0.f,
                                         cogl_texture_get_width (priv->texture),
-                                        cogl_texture_get_height (priv->texture),
-                                    });
+                                        cogl_texture_get_height (priv->texture)
+                                    ));
 
   clutter_paint_node_unref (pipeline_node);
 }

@@ -39,13 +39,13 @@ void clutter_pick_stack_unref (ClutterPickStack *pick_stack);
 void clutter_pick_stack_seal (ClutterPickStack *pick_stack);
 
 void clutter_pick_stack_log_pick (ClutterPickStack      *pick_stack,
-                                  const ClutterActorBox *box,
+                                  const graphene_rect_t *box,
                                   ClutterActor          *actor);
 void clutter_pick_stack_log_overlap (ClutterPickStack *pick_stack,
                                      ClutterActor     *actor);
 
 void clutter_pick_stack_push_clip (ClutterPickStack      *pick_stack,
-                                   const ClutterActorBox *box);
+                                   const graphene_rect_t *box);
 
 void clutter_pick_stack_pop_clip (ClutterPickStack *pick_stack);
 

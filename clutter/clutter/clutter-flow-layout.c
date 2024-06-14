@@ -556,7 +556,7 @@ clutter_flow_layout_get_preferred_height (ClutterLayoutManager *manager,
 static void
 clutter_flow_layout_allocate (ClutterLayoutManager   *manager,
                               ClutterActor           *container,
-                              const ClutterActorBox  *allocation)
+                              const graphene_rect_t  *allocation)
 {
   ClutterFlowLayout *self = CLUTTER_FLOW_LAYOUT (manager);
   ClutterActor *actor, *child;
@@ -572,8 +572,10 @@ clutter_flow_layout_allocate (ClutterLayoutManager   *manager,
   if (clutter_actor_get_n_children (actor) == 0)
     return;
 
-  clutter_actor_box_get_origin (allocation, &x_off, &y_off);
-  clutter_actor_box_get_size (allocation, &avail_width, &avail_height);
+  x_off = graphene_rect_get_x (allocation);
+  y_off = graphene_rect_get_y (allocation);
+  avail_width = graphene_rect_get_width (allocation);
+  avail_height = graphene_rect_get_height (allocation);
 
   /* blow the cached preferred size and re-compute with the given
    * available size in case the FlowLayout wasn't given the exact
@@ -602,7 +604,7 @@ clutter_flow_layout_allocate (ClutterLayoutManager   *manager,
   clutter_actor_iter_init (&iter, actor);
   while (clutter_actor_iter_next (&iter, &child))
     {
-      ClutterActorBox child_alloc;
+      graphene_rect_t child_alloc;
       gfloat item_width, item_height;
       gfloat new_x, new_y;
       gfloat child_min, child_natural;
@@ -714,10 +716,11 @@ clutter_flow_layout_allocate (ClutterLayoutManager   *manager,
                     line_index, line_item_count + 1, items_per_line,
                     item_x, item_y, item_width, item_height);
 
-      child_alloc.x1 = ceil (item_x);
-      child_alloc.y1 = ceil (item_y);
-      child_alloc.x2 = ceil (child_alloc.x1 + item_width);
-      child_alloc.y2 = ceil (child_alloc.y1 + item_height);
+      child_alloc.origin.x = ceil (item_x);
+      child_alloc.origin.y = ceil (item_y);
+      child_alloc.size.width = ceil (item_width);
+      child_alloc.size.height = ceil (item_height);
+
       clutter_actor_allocate (child, &child_alloc);
 
       if (self->orientation == CLUTTER_ORIENTATION_HORIZONTAL)

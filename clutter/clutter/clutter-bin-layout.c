@@ -153,22 +153,24 @@ get_actor_align_factor (ClutterActorAlign alignment)
 static void
 clutter_bin_layout_allocate (ClutterLayoutManager   *manager,
                              ClutterActor           *container,
-                             const ClutterActorBox  *allocation)
+                             const graphene_rect_t  *allocation)
 {
   gfloat allocation_x, allocation_y;
   gfloat available_w, available_h;
   ClutterActor *actor, *child;
   ClutterActorIter iter;
 
-  clutter_actor_box_get_origin (allocation, &allocation_x, &allocation_y);
-  clutter_actor_box_get_size (allocation, &available_w, &available_h);
+  allocation_x = graphene_rect_get_x (allocation);
+  allocation_y = graphene_rect_get_y (allocation);
+  available_w = graphene_rect_get_width (allocation);
+  available_h = graphene_rect_get_height (allocation);
 
   actor = CLUTTER_ACTOR (container);
 
   clutter_actor_iter_init (&iter, actor);
   while (clutter_actor_iter_next (&iter, &child))
     {
-      ClutterActorBox child_alloc = { 0, };
+      graphene_rect_t child_alloc = { 0, };
       gdouble x_align, y_align;
       gboolean x_fill, y_fill, is_fixed_position_set;
       float fixed_x, fixed_y;
@@ -186,25 +188,26 @@ clutter_bin_layout_allocate (ClutterLayoutManager   *manager,
       if (is_fixed_position_set)
 	{
           if (is_fixed_position_set)
-            child_alloc.x1 = fixed_x;
+            child_alloc.origin.x = fixed_x;
           else
-            child_alloc.x1 = clutter_actor_get_x (child);
+            child_alloc.origin.x = clutter_actor_get_x (child);
 	}
       else
-        child_alloc.x1 = allocation_x;
+        child_alloc.origin.x = allocation_x;
 
       if (is_fixed_position_set)
 	{
 	  if (is_fixed_position_set)
-            child_alloc.y1 = fixed_y;
+            child_alloc.origin.y = fixed_y;
           else
-	    child_alloc.y1 = clutter_actor_get_y (child);
+	    child_alloc.origin.y = clutter_actor_get_y (child);
 	}
       else
-        child_alloc.y1 = allocation_y;
+        child_alloc.origin.y = allocation_y;
 
-      child_alloc.x2 = allocation_x + available_w;
-      child_alloc.y2 = allocation_y + available_h;
+      child_alloc.size.width = available_w;
+      child_alloc.size.height = available_h;
+      graphene_rect_normalize_r (&child_alloc, &child_alloc);
 
       if (clutter_actor_needs_expand (child, CLUTTER_ORIENTATION_HORIZONTAL))
         {

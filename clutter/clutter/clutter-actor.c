@@ -148,7 +148,7 @@
  *                      ClutterPaintNode *root)
  * {
  *   ClutterPaintNode *node;
- *   ClutterActorBox box;
+ *   graphene_rect_t box;
  *
  *   // where the content of the actor should be painted
  *   clutter_actor_get_allocation_box (actor, &box);
@@ -558,7 +558,8 @@ struct _ClutterActorPrivate
   /* the bounding box of the actor, relative to the parent's
    * allocation
    */
-  ClutterActorBox allocation;
+  graphene_rect_t allocation;
+  gboolean allocation_initialized;
 
   /* clip, in actor coordinates */
   graphene_rect_t clip;
@@ -620,7 +621,7 @@ struct _ClutterActorPrivate
   /* delegate object used to paint the contents of this actor */
   ClutterContent *content;
 
-  ClutterActorBox content_box;
+  graphene_rect_t content_box;
   ClutterContentGravity content_gravity;
   ClutterScalingFilter min_filter;
   ClutterScalingFilter mag_filter;
@@ -1134,12 +1135,13 @@ clutter_actor_verify_map_state (ClutterActor *self)
 void
 clutter_actor_pick_box (ClutterActor          *self,
                         ClutterPickContext    *pick_context,
-                        const ClutterActorBox *box)
+                        const graphene_rect_t *box)
 {
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
   g_return_if_fail (box != NULL);
 
-  if (box->x1 >= box->x2 || box->y1 >= box->y2)
+  if (graphene_rect_get_width (box) < 0.0 ||
+      graphene_rect_get_height (box) < 0.0)
     return;
 
   clutter_pick_context_log_pick (pick_context, box, self);
@@ -2046,7 +2048,7 @@ unrealize_actor_after_children_cb (ClutterActor *self,
     clutter_stage_dequeue_actor_relayout (CLUTTER_STAGE (stage), self);
 
   if (priv->unmapped_paint_branch_counter == 0)
-    priv->allocation = (ClutterActorBox) CLUTTER_ACTOR_BOX_UNINITIALIZED;
+    priv->allocation_initialized = FALSE;
 
   return CLUTTER_ACTOR_TRAVERSE_VISIT_CONTINUE;
 }
@@ -2095,12 +2097,9 @@ clutter_actor_real_pick (ClutterActor       *self,
 
   if (clutter_actor_should_pick (self, pick_context))
     {
-      ClutterActorBox box = {
-        .x1 = 0,
-        .y1 = 0,
-        .x2 = priv->allocation.x2 - priv->allocation.x1,
-        .y2 = priv->allocation.y2 - priv->allocation.y1,
-      };
+      graphene_rect_t box = GRAPHENE_RECT_INIT (0, 0,
+                                                priv->allocation.size.width,
+                                                priv->allocation.size.height);
 
       clutter_actor_pick_box (self, pick_context, &box);
     }
@@ -2143,7 +2142,7 @@ clutter_actor_should_pick (ClutterActor       *self,
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
 
   if (clutter_actor_is_mapped (self) &&
-      clutter_actor_box_is_initialized (&self->priv->allocation) &&
+      self->priv->allocation_initialized &&
       (clutter_pick_context_get_mode (pick_context) == CLUTTER_PICK_ALL ||
        clutter_actor_get_reactive (self)))
     return TRUE;
@@ -2226,14 +2225,14 @@ clutter_actor_real_get_preferred_height (ClutterActor *self,
 
 static void
 clutter_actor_store_old_geometry (ClutterActor    *self,
-                                  ClutterActorBox *box)
+                                  graphene_rect_t *box)
 {
   *box = self->priv->allocation;
 }
 
 static inline void
 clutter_actor_notify_if_geometry_changed (ClutterActor          *self,
-                                          const ClutterActorBox *old)
+                                          const graphene_rect_t *old)
 {
   ClutterActorPrivate *priv = self->priv;
   GObject *obj = G_OBJECT (self);
@@ -2271,30 +2270,30 @@ clutter_actor_notify_if_geometry_changed (ClutterActor          *self,
       gfloat x, y;
       gfloat width, height;
 
-      x = priv->allocation.x1;
-      y = priv->allocation.y1;
-      width = priv->allocation.x2 - priv->allocation.x1;
-      height = priv->allocation.y2 - priv->allocation.y1;
+      x = priv->allocation.origin.x;
+      y = priv->allocation.origin.y;
+      width = priv->allocation.size.width;
+      height = priv->allocation.size.height;
 
-      if (x != old->x1)
+      if (x != old->origin.x)
         {
           g_object_notify_by_pspec (obj, obj_props[PROP_X]);
           g_object_notify_by_pspec (obj, obj_props[PROP_POSITION]);
         }
 
-      if (y != old->y1)
+      if (y != old->origin.y)
         {
           g_object_notify_by_pspec (obj, obj_props[PROP_Y]);
           g_object_notify_by_pspec (obj, obj_props[PROP_POSITION]);
         }
 
-      if (width != (old->x2 - old->x1))
+      if (width != old->size.width)
         {
           g_object_notify_by_pspec (obj, obj_props[PROP_WIDTH]);
           g_object_notify_by_pspec (obj, obj_props[PROP_SIZE]);
         }
 
-      if (height != (old->y2 - old->y1))
+      if (height != old->size.height)
         {
           g_object_notify_by_pspec (obj, obj_props[PROP_HEIGHT]);
           g_object_notify_by_pspec (obj, obj_props[PROP_SIZE]);
@@ -2349,7 +2348,7 @@ transform_changed (ClutterActor *actor)
 /*< private >
  * clutter_actor_set_allocation_internal:
  * @self: a #ClutterActor
- * @box: a #ClutterActorBox
+ * @box: a #graphene_rect_t
  * @flags: allocation flags
  *
  * Stores the allocation of @self.
@@ -2364,15 +2363,15 @@ transform_changed (ClutterActor *actor)
  */
 static inline void
 clutter_actor_set_allocation_internal (ClutterActor           *self,
-                                       const ClutterActorBox  *box)
+                                       const graphene_rect_t  *box)
 {
   ClutterActorPrivate *priv = self->priv;
   GObject *obj;
   gboolean origin_changed, size_changed;
-  ClutterActorBox old_alloc = { 0, };
+  graphene_rect_t old_alloc = { 0, };
 
-  g_return_if_fail (!isnan (box->x1) && !isnan (box->x2) &&
-                    !isnan (box->y1) && !isnan (box->y2));
+  g_return_if_fail (!isnan (box->origin.x) && !isnan (box->size.width) &&
+                    !isnan (box->origin.y) && !isnan (box->size.height));
 
   obj = G_OBJECT (self);
 
@@ -2381,13 +2380,14 @@ clutter_actor_set_allocation_internal (ClutterActor           *self,
   clutter_actor_store_old_geometry (self, &old_alloc);
 
   origin_changed =
-    priv->allocation.x1 != box->x1 || priv->allocation.y1 != box->y1;
+    priv->allocation.origin.x != box->origin.x || priv->allocation.origin.y != box->origin.y;
   size_changed =
-    priv->allocation.x2 - priv->allocation.x1 != box->x2 - box->x1 ||
-    priv->allocation.y2 - priv->allocation.y1 != box->y2 - box->y1;
+    priv->allocation.size.width != box->size.width ||
+    priv->allocation.size.height != box->size.height;
 
   priv->allocation = *box;
 
+  priv->allocation_initialized = TRUE;
   /* allocation is authoritative */
   priv->needs_width_request = FALSE;
   priv->needs_height_request = FALSE;
@@ -2421,7 +2421,7 @@ clutter_actor_set_allocation_internal (ClutterActor           *self,
 
 static void
 clutter_actor_real_allocate (ClutterActor           *self,
-                             const ClutterActorBox  *box)
+                             const graphene_rect_t  *box)
 {
   ClutterActorPrivate *priv = self->priv;
 
@@ -2437,12 +2437,10 @@ clutter_actor_real_allocate (ClutterActor           *self,
   if (priv->n_children != 0 &&
       priv->layout_manager != NULL)
     {
-      ClutterActorBox children_box;
+      graphene_rect_t children_box;
 
       /* normalize the box passed to the layout manager */
-      children_box.x1 = children_box.y1 = 0.f;
-      children_box.x2 = box->x2 - box->x1;
-      children_box.y2 = box->y2 - box->y1;
+      children_box = GRAPHENE_RECT_INIT (0.0, 0.0, box->size.width, box->size.height);
 
       CLUTTER_NOTE (LAYOUT,
                     "Allocating %d children of %s "
@@ -2450,10 +2448,10 @@ clutter_actor_real_allocate (ClutterActor           *self,
                     "using %s",
                     priv->n_children,
                     _clutter_actor_get_debug_name (self),
-                    box->x1,
-                    box->y1,
-                    (box->x2 - box->x1),
-                    (box->y2 - box->y1),
+                    box->origin.x,
+                    box->origin.y,
+                    box->size.width,
+                    box->size.height,
                     G_OBJECT_TYPE_NAME (priv->layout_manager));
 
       clutter_layout_manager_allocate (priv->layout_manager,
@@ -2712,22 +2710,22 @@ clutter_actor_get_relative_transformation_matrix (ClutterActor      *self,
  * transformed vertices to @verts[]. */
 static gboolean
 _clutter_actor_transform_and_project_box (ClutterActor          *self,
-                                          const ClutterActorBox *box,
+                                          const graphene_rect_t *box,
                                           graphene_point3d_t    *verts)
 {
   graphene_point3d_t box_vertices[4];
 
-  box_vertices[0].x = box->x1;
-  box_vertices[0].y = box->y1;
+  box_vertices[0].x = box->origin.x;
+  box_vertices[0].y = box->origin.y;
   box_vertices[0].z = 0;
-  box_vertices[1].x = box->x2;
-  box_vertices[1].y = box->y1;
+  box_vertices[1].x = box->size.width - box->origin.x;
+  box_vertices[1].y = box->origin.y;
   box_vertices[1].z = 0;
-  box_vertices[2].x = box->x1;
-  box_vertices[2].y = box->y2;
+  box_vertices[2].x = box->origin.x;
+  box_vertices[2].y = box->size.height - box->origin.y;
   box_vertices[2].z = 0;
-  box_vertices[3].x = box->x2;
-  box_vertices[3].y = box->y2;
+  box_vertices[3].x = box->size.width - box->origin.x;
+  box_vertices[3].y = box->size.height - box->origin.y;
   box_vertices[3].z = 0;
 
   return
@@ -2741,7 +2739,7 @@ _clutter_actor_transform_and_project_box (ClutterActor          *self,
  *   of 4 #graphene_point3d_t where to store the result.
  *
  * Calculates the transformed screen coordinates of the four corners of
- * the actor; the returned vertices relate to the #ClutterActorBox
+ * the actor; the returned vertices relate to the #graphene_rect_t
  * coordinates  as follows:
  *
  *  - v[0] contains (x1, y1)
@@ -2754,7 +2752,7 @@ clutter_actor_get_abs_allocation_vertices (ClutterActor       *self,
                                            graphene_point3d_t *verts)
 {
   ClutterActorPrivate *priv;
-  ClutterActorBox actor_space_allocation;
+  graphene_rect_t actor_space_allocation;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
@@ -2776,10 +2774,9 @@ clutter_actor_get_abs_allocation_vertices (ClutterActor       *self,
 
   /* NB: _clutter_actor_transform_and_project_box expects a box in the actor's
    * own coordinate space... */
-  actor_space_allocation.x1 = 0;
-  actor_space_allocation.y1 = 0;
-  actor_space_allocation.x2 = priv->allocation.x2 - priv->allocation.x1;
-  actor_space_allocation.y2 = priv->allocation.y2 - priv->allocation.y1;
+  actor_space_allocation = GRAPHENE_RECT_INIT (0.0, 0.0,
+                                               priv->allocation.size.width,
+                                               priv->allocation.size.height);
   _clutter_actor_transform_and_project_box (self,
 					    &actor_space_allocation,
 					    verts);
@@ -2797,21 +2794,19 @@ clutter_actor_real_apply_transform (ClutterActor      *self,
   info = _clutter_actor_get_transform_info_or_defaults (self);
 
   /* compute the pivot point given the allocated size */
-  pivot_x = (priv->allocation.x2 - priv->allocation.x1)
-          * info->pivot.x;
-  pivot_y = (priv->allocation.y2 - priv->allocation.y1)
-          * info->pivot.y;
+  pivot_x = priv->allocation.size.width * info->pivot.x;
+  pivot_y = priv->allocation.size.height * info->pivot.y;
 
   CLUTTER_NOTE (PAINT,
                 "Allocation: (%.2f, %2.f), "
                 "pivot: (%.2f, %.2f), "
                 "translation: (%.2f, %.2f) -> "
                 "new origin: (%.2f, %.2f)",
-                priv->allocation.x1, priv->allocation.y1,
+                priv->allocation.origin.x, priv->allocation.origin.y,
                 info->pivot.x, info->pivot.y,
                 info->translation.x, info->translation.y,
-                priv->allocation.x1 + pivot_x + info->translation.x,
-                priv->allocation.y1 + pivot_y + info->translation.y);
+                priv->allocation.origin.x + pivot_x + info->translation.x,
+                priv->allocation.origin.y + pivot_y + info->translation.y);
 
   /* roll back the pivot translation */
   if (pivot_x != 0.f || pivot_y != 0.f || info->pivot_z != 0.f)
@@ -2830,8 +2825,8 @@ clutter_actor_real_apply_transform (ClutterActor      *self,
        * space, and to the pivot point
        */
       graphene_point3d_init (&p,
-                             priv->allocation.x1 + pivot_x,
-                             priv->allocation.y1 + pivot_y,
+                             priv->allocation.origin.x + pivot_x,
+                             priv->allocation.origin.y + pivot_y,
                              info->pivot_z);
       graphene_matrix_translate (matrix, &p);
       goto roll_back;
@@ -2854,8 +2849,8 @@ clutter_actor_real_apply_transform (ClutterActor      *self,
    * we just compose everything into a single translation
    */
   graphene_point3d_init (&p,
-                         priv->allocation.x1 + pivot_x + info->translation.x,
-                         priv->allocation.y1 + pivot_y + info->translation.y,
+                         priv->allocation.origin.x + pivot_x + info->translation.x,
+                         priv->allocation.origin.y + pivot_y + info->translation.y,
                          info->z_position + info->pivot_z + info->translation.z);
   graphene_matrix_translate (matrix, &p);
 
@@ -3333,10 +3328,10 @@ clutter_actor_real_paint (ClutterActor        *actor,
       CLUTTER_NOTE (PAINT, "Painting %s, child of %s, at { %.2f, %.2f - %.2f x %.2f }",
                     _clutter_actor_get_debug_name (iter),
                     _clutter_actor_get_debug_name (actor),
-                    iter->priv->allocation.x1,
-                    iter->priv->allocation.y1,
-                    iter->priv->allocation.x2 - iter->priv->allocation.x1,
-                    iter->priv->allocation.y2 - iter->priv->allocation.y1);
+                    iter->priv->allocation.origin.x,
+                    iter->priv->allocation.origin.y,
+                    iter->priv->allocation.size.width,
+                    iter->priv->allocation.size.height);
 
       clutter_actor_paint (iter, paint_context);
     }
@@ -3348,13 +3343,13 @@ clutter_actor_paint_node (ClutterActor        *actor,
                           ClutterPaintContext *paint_context)
 {
   ClutterActorPrivate *priv = actor->priv;
-  ClutterActorBox box;
+  graphene_rect_t box;
   ClutterColor bg_color;
 
-  box.x1 = 0.f;
-  box.y1 = 0.f;
-  box.x2 = clutter_actor_box_get_width (&priv->allocation);
-  box.y2 = clutter_actor_box_get_height (&priv->allocation);
+  box.origin.x = 0.f;
+  box.origin.y = 0.f;
+  box.size.width = graphene_rect_get_width (&priv->allocation);
+  box.size.height = graphene_rect_get_height (&priv->allocation);
 
   bg_color = priv->bg_color;
 
@@ -3414,7 +3409,7 @@ clutter_actor_paint (ClutterActor        *self,
   g_autoptr (ClutterPaintNode) actor_node = NULL;
   g_autoptr (ClutterPaintNode) root_node = NULL;
   ClutterActorPrivate *priv;
-  ClutterActorBox clip;
+  graphene_rect_t clip;
   gboolean culling_inhibited;
   gboolean clip_set = FALSE;
 
@@ -3458,18 +3453,14 @@ clutter_actor_paint (ClutterActor        *self,
 
   if (priv->has_clip)
     {
-      clip.x1 = priv->clip.origin.x;
-      clip.y1 = priv->clip.origin.y;
-      clip.x2 = priv->clip.origin.x + priv->clip.size.width;
-      clip.y2 = priv->clip.origin.y + priv->clip.size.height;
+      clip = priv->clip;
       clip_set = TRUE;
     }
   else if (priv->clip_to_allocation)
     {
-      clip.x1 = 0.f;
-      clip.y1 = 0.f;
-      clip.x2 = priv->allocation.x2 - priv->allocation.x1;
-      clip.y2 = priv->allocation.y2 - priv->allocation.y1;
+      clip = GRAPHENE_RECT_INIT (0.0, 0.0,
+                                 priv->allocation.size.width,
+                                 priv->allocation.size.height);
       clip_set = TRUE;
     }
 
@@ -3695,7 +3686,7 @@ clutter_actor_pick (ClutterActor       *actor,
                     ClutterPickContext *pick_context)
 {
   ClutterActorPrivate *priv;
-  ClutterActorBox clip;
+  graphene_rect_t clip;
   gboolean transform_pushed = FALSE;
   gboolean clip_set = FALSE;
   gboolean should_cull = (clutter_paint_debug_flags &
@@ -3745,18 +3736,14 @@ clutter_actor_pick (ClutterActor       *actor,
 
   if (priv->has_clip)
     {
-      clip.x1 = priv->clip.origin.x;
-      clip.y1 = priv->clip.origin.y;
-      clip.x2 = priv->clip.origin.x + priv->clip.size.width;
-      clip.y2 = priv->clip.origin.y + priv->clip.size.height;
+      clip = priv->clip;
       clip_set = TRUE;
     }
   else if (priv->clip_to_allocation)
     {
-      clip.x1 = 0.f;
-      clip.y1 = 0.f;
-      clip.x2 = priv->allocation.x2 - priv->allocation.x1;
-      clip.y2 = priv->allocation.y2 - priv->allocation.y1;
+      clip = GRAPHENE_RECT_INIT (0.0, 0.0,
+                                 priv->allocation.size.width,
+                                 priv->allocation.size.height);
       clip_set = TRUE;
     }
 
@@ -4482,9 +4469,9 @@ clutter_actor_set_scale_factor (ClutterActor      *self,
     _clutter_actor_create_transition (self, pspec, *scale_p, factor);
 }
 
-static void
-clutter_actor_set_clip_rect (ClutterActor          *self,
-                             const graphene_rect_t *clip)
+void
+clutter_actor_set_clip (ClutterActor          *self,
+                        const graphene_rect_t *clip)
 {
   ClutterActorPrivate *priv = self->priv;
   GObject *obj = G_OBJECT (self);
@@ -4670,7 +4657,7 @@ clutter_actor_set_property (GObject      *object,
       break;
 
     case PROP_CLIP_RECT:
-      clutter_actor_set_clip_rect (actor, g_value_get_boxed (value));
+      clutter_actor_set_clip (actor, g_value_get_boxed (value));
       break;
 
     case PROP_CLIP_TO_ALLOCATION:
@@ -5225,7 +5212,7 @@ clutter_actor_get_property (GObject    *object,
 
     case PROP_CONTENT_BOX:
       {
-        ClutterActorBox box = { 0, };
+        graphene_rect_t box = { 0, };
 
         clutter_actor_get_content_box (actor, &box);
         g_value_set_boxed (value, &box);
@@ -5436,9 +5423,9 @@ clutter_actor_real_get_paint_volume (ClutterActor       *self,
 
   /* we start from the allocation */
   clutter_paint_volume_set_width (volume,
-                                  priv->allocation.x2 - priv->allocation.x1);
+                                  priv->allocation.size.width);
   clutter_paint_volume_set_height (volume,
-                                   priv->allocation.y2 - priv->allocation.y1);
+                                   priv->allocation.size.height);
 
   /* if the actor has a clip set then we have a pretty definite
    * size for the paint volume: the actor cannot possibly paint
@@ -5883,7 +5870,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    */
   obj_props[PROP_ALLOCATION] =
     g_param_spec_boxed ("allocation", NULL, NULL,
-                        CLUTTER_TYPE_ACTOR_BOX,
+                        GRAPHENE_TYPE_RECT,
                         G_PARAM_READABLE |
                         G_PARAM_STATIC_STRINGS |
                         G_PARAM_EXPLICIT_NOTIFY |
@@ -6701,7 +6688,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    */
   obj_props[PROP_CONTENT_BOX] =
     g_param_spec_boxed ("content-box", NULL, NULL,
-                        CLUTTER_TYPE_ACTOR_BOX,
+                        GRAPHENE_TYPE_RECT,
                         G_PARAM_READABLE |
                         G_PARAM_STATIC_STRINGS |
                         G_PARAM_EXPLICIT_NOTIFY |
@@ -7338,7 +7325,7 @@ clutter_actor_init (ClutterActor *self)
 
   self->priv = priv = clutter_actor_get_instance_private (self);
 
-  priv->allocation = (ClutterActorBox) CLUTTER_ACTOR_BOX_UNINITIALIZED;
+  priv->allocation_initialized = FALSE;
 
   priv->opacity = 0xff;
   priv->show_on_set_parent = TRUE;
@@ -8393,7 +8380,7 @@ clutter_actor_get_preferred_height (ClutterActor *self,
  */
 void
 clutter_actor_get_allocation_box (ClutterActor    *self,
-                                  ClutterActorBox *box)
+                                  graphene_rect_t *box)
 {
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
@@ -8427,7 +8414,7 @@ clutter_actor_get_allocation_box (ClutterActor    *self,
 
 static void
 clutter_actor_update_constraints (ClutterActor    *self,
-                                  ClutterActorBox *allocation)
+                                  graphene_rect_t *allocation)
 {
   ClutterActorPrivate *priv = self->priv;
   const GList *constraints, *l;
@@ -8454,10 +8441,10 @@ clutter_actor_update_constraints (ClutterActor    *self,
                         "{ %.2f, %.2f, %.2f, %.2f } (changed:%s)",
                         _clutter_actor_get_debug_name (self),
                         _clutter_actor_meta_get_debug_name (meta),
-                        allocation->x1,
-                        allocation->y1,
-                        allocation->x2,
-                        allocation->y2,
+                        allocation->origin.x,
+                        allocation->origin.y,
+                        allocation->size.width,
+                        allocation->size.height,
                         changed ? "yes" : "no");
         }
     }
@@ -8473,9 +8460,9 @@ clutter_actor_update_constraints (ClutterActor    *self,
  */
 static void
 clutter_actor_adjust_allocation (ClutterActor    *self,
-                                 ClutterActorBox *allocation)
+                                 graphene_rect_t *allocation)
 {
-  ClutterActorBox adj_allocation;
+  graphene_rect_t adj_allocation;
   float alloc_width, alloc_height;
   float min_width, min_height;
   float nat_width, nat_height;
@@ -8483,7 +8470,8 @@ clutter_actor_adjust_allocation (ClutterActor    *self,
 
   adj_allocation = *allocation;
 
-  clutter_actor_box_get_size (allocation, &alloc_width, &alloc_height);
+  alloc_width = graphene_rect_get_width (allocation);
+  alloc_height = graphene_rect_get_height (allocation);
 
   /* There's no point in trying to adjust a zero-sized actor */
   if (alloc_width == 0.f && alloc_height == 0.f)
@@ -8549,33 +8537,33 @@ clutter_actor_adjust_allocation (ClutterActor    *self,
   clutter_actor_adjust_width (self,
                               &min_width,
                               &nat_width,
-                              &adj_allocation.x1,
-                              &adj_allocation.x2);
+                              &adj_allocation.origin.x,
+                              &adj_allocation.size.width);
 
   clutter_actor_adjust_height (self,
                                &min_height,
                                &nat_height,
-                               &adj_allocation.y1,
-                               &adj_allocation.y2);
+                               &adj_allocation.origin.y,
+                               &adj_allocation.size.height);
 
   /* we maintain the invariant that an allocation cannot be adjusted
    * to be outside the parent-given box
    */
-  if (adj_allocation.x1 < allocation->x1 ||
-      adj_allocation.y1 < allocation->y1 ||
-      adj_allocation.x2 > allocation->x2 ||
-      adj_allocation.y2 > allocation->y2)
+  if (adj_allocation.origin.x < allocation->origin.x ||
+      adj_allocation.origin.y < allocation->origin.y ||
+      adj_allocation.size.width > allocation->size.width ||
+      adj_allocation.size.height > allocation->size.height)
     {
       g_warning (G_STRLOC ": The actor '%s' tried to adjust its allocation "
                  "to { %.2f, %.2f, %.2f, %.2f }, which is outside of its "
                  "original allocation of { %.2f, %.2f, %.2f, %.2f }",
                  _clutter_actor_get_debug_name (self),
-                 adj_allocation.x1, adj_allocation.y1,
-                 adj_allocation.x2 - adj_allocation.x1,
-                 adj_allocation.y2 - adj_allocation.y1,
-                 allocation->x1, allocation->y1,
-                 allocation->x2 - allocation->x1,
-                 allocation->y2 - allocation->y1);
+                 adj_allocation.origin.x, adj_allocation.origin.y,
+                 adj_allocation.size.width,
+                 adj_allocation.size.height,
+                 allocation->origin.x, allocation->origin.y,
+                 allocation->size.width,
+                 allocation->size.height);
       return;
     }
 
@@ -8584,7 +8572,7 @@ clutter_actor_adjust_allocation (ClutterActor    *self,
 
 static void
 clutter_actor_allocate_internal (ClutterActor           *self,
-                                 const ClutterActorBox  *allocation)
+                                 const graphene_rect_t  *allocation)
 {
   ClutterActorClass *klass;
 
@@ -8632,9 +8620,9 @@ clutter_actor_allocate_internal (ClutterActor           *self,
  */
 void
 clutter_actor_allocate (ClutterActor          *self,
-                        const ClutterActorBox *box)
+                        const graphene_rect_t *box)
 {
-  ClutterActorBox old_allocation, real_allocation;
+  graphene_rect_t old_allocation, real_allocation;
   gboolean origin_changed, size_changed;
   ClutterActorPrivate *priv;
 
@@ -8669,10 +8657,10 @@ clutter_actor_allocate (ClutterActor          *self,
   old_allocation = priv->allocation;
   real_allocation = *box;
 
-  g_return_if_fail (!isnan (real_allocation.x1) &&
-                    !isnan (real_allocation.x2) &&
-                    !isnan (real_allocation.y1) &&
-                    !isnan (real_allocation.y2));
+  g_return_if_fail (!isnan (real_allocation.origin.x) &&
+                    !isnan (real_allocation.origin.y) &&
+                    !isnan (real_allocation.size.width) &&
+                    !isnan (real_allocation.size.height));
 
   /* constraints are allowed to modify the allocation only here; we do
    * this prior to all the other checks so that we can bail out if the
@@ -8683,24 +8671,23 @@ clutter_actor_allocate (ClutterActor          *self,
   /* adjust the allocation depending on the align/margin properties */
   clutter_actor_adjust_allocation (self, &real_allocation);
 
-  if (real_allocation.x2 < real_allocation.x1 ||
-      real_allocation.y2 < real_allocation.y1)
+  if (real_allocation.size.width < 0.0 ||
+      real_allocation.size.height < 0.0)
     {
       g_warning (G_STRLOC ": Actor '%s' tried to allocate a size of %.2f x %.2f",
                  _clutter_actor_get_debug_name (self),
-                 real_allocation.x2 - real_allocation.x1,
-                 real_allocation.y2 - real_allocation.y1);
+                 real_allocation.size.width,
+                 real_allocation.size.height);
     }
 
   /* we allow 0-sized actors, but not negative-sized ones */
-  real_allocation.x2 = MAX (real_allocation.x2, real_allocation.x1);
-  real_allocation.y2 = MAX (real_allocation.y2, real_allocation.y1);
+  graphene_rect_normalize (&real_allocation);
 
-  origin_changed = (real_allocation.x1 != old_allocation.x1 ||
-                    real_allocation.y1 != old_allocation.y1);
+  origin_changed = (real_allocation.origin.x != old_allocation.origin.x ||
+                    real_allocation.origin.y != old_allocation.origin.y);
 
-  size_changed = (real_allocation.x2 != old_allocation.x2 ||
-                  real_allocation.y2 != old_allocation.y2);
+  size_changed = (real_allocation.size.width != old_allocation.size.width ||
+                  real_allocation.size.height != old_allocation.size.height);
 
   /* When needs_allocation is set but we didn't move nor resize, we still
    * want to call the allocate() vfunc because a child probably called
@@ -8732,7 +8719,7 @@ clutter_actor_allocate (ClutterActor          *self,
 /**
  * clutter_actor_set_allocation:
  * @self: a #ClutterActor
- * @box: a #ClutterActorBox
+ * @box: a #graphene_rect_t
  *
  * Stores the allocation of @self as defined by @box.
  *
@@ -8749,8 +8736,8 @@ clutter_actor_allocate (ClutterActor          *self,
  * function.
  */
 void
-clutter_actor_set_allocation (ClutterActor           *self,
-                              const ClutterActorBox  *box)
+clutter_actor_set_allocation (ClutterActor          *self,
+                              const graphene_rect_t *box)
 {
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
   g_return_if_fail (box != NULL);
@@ -8892,7 +8879,7 @@ clutter_actor_set_min_width (ClutterActor *self,
                              gfloat        min_width)
 {
   ClutterActorPrivate *priv = self->priv;
-  ClutterActorBox old = { 0, };
+  graphene_rect_t old = { 0, };
   ClutterLayoutInfo *info;
 
   if (CLUTTER_ACTOR_IS_TOPLEVEL (self))
@@ -8927,7 +8914,7 @@ clutter_actor_set_min_height (ClutterActor *self,
 
 {
   ClutterActorPrivate *priv = self->priv;
-  ClutterActorBox old = { 0, };
+  graphene_rect_t old = { 0, };
   ClutterLayoutInfo *info;
 
   if (CLUTTER_ACTOR_IS_TOPLEVEL (self))
@@ -8961,7 +8948,7 @@ clutter_actor_set_natural_width (ClutterActor *self,
                                  gfloat        natural_width)
 {
   ClutterActorPrivate *priv = self->priv;
-  ClutterActorBox old = { 0, };
+  graphene_rect_t old = { 0, };
   ClutterLayoutInfo *info;
 
   info = _clutter_actor_get_layout_info (self);
@@ -8989,7 +8976,7 @@ clutter_actor_set_natural_height (ClutterActor *self,
                                   gfloat        natural_height)
 {
   ClutterActorPrivate *priv = self->priv;
-  ClutterActorBox old = { 0, };
+  graphene_rect_t old = { 0, };
   ClutterLayoutInfo *info;
 
   info = _clutter_actor_get_layout_info (self);
@@ -9017,7 +9004,7 @@ clutter_actor_set_min_width_set (ClutterActor *self,
                                  gboolean      use_min_width)
 {
   ClutterActorPrivate *priv = self->priv;
-  ClutterActorBox old = { 0, };
+  graphene_rect_t old = { 0, };
 
   if (priv->min_width_set == (use_min_width != FALSE))
     return;
@@ -9037,7 +9024,7 @@ clutter_actor_set_min_height_set (ClutterActor *self,
                                   gboolean      use_min_height)
 {
   ClutterActorPrivate *priv = self->priv;
-  ClutterActorBox old = { 0, };
+  graphene_rect_t old = { 0, };
 
   if (priv->min_height_set == (use_min_height != FALSE))
     return;
@@ -9057,7 +9044,7 @@ clutter_actor_set_natural_width_set (ClutterActor *self,
                                      gboolean      use_natural_width)
 {
   ClutterActorPrivate *priv = self->priv;
-  ClutterActorBox old = { 0, };
+  graphene_rect_t old = { 0, };
 
   if (priv->natural_width_set == (use_natural_width != FALSE))
     return;
@@ -9077,7 +9064,7 @@ clutter_actor_set_natural_height_set (ClutterActor *self,
                                       gboolean      use_natural_height)
 {
   ClutterActorPrivate *priv = self->priv;
-  ClutterActorBox old = { 0, };
+  graphene_rect_t old = { 0, };
 
   if (priv->natural_height_set == (use_natural_height != FALSE))
     return;
@@ -9378,12 +9365,12 @@ clutter_actor_get_transformed_extents (ClutterActor    *self,
 {
   graphene_quad_t quad;
   graphene_point3d_t v[4];
-  ClutterActorBox box;
+  graphene_rect_t box;
 
-  box.x1 = 0;
-  box.y1 = 0;
-  box.x2 = clutter_actor_box_get_width (&self->priv->allocation);
-  box.y2 = clutter_actor_box_get_height (&self->priv->allocation);
+  box.origin.x = 0;
+  box.origin.y = 0;
+  box.size.width = graphene_rect_get_width (&self->priv->allocation);
+  box.size.height = graphene_rect_get_height (&self->priv->allocation);
   if (_clutter_actor_transform_and_project_box (self, &box, v))
     {
       graphene_quad_init (&quad,
@@ -9471,23 +9458,23 @@ clutter_actor_get_transformed_size (ClutterActor *self,
   if (priv->needs_allocation)
     {
       gfloat natural_width, natural_height;
-      ClutterActorBox box;
+      graphene_rect_t box;
 
       /* Make a fake allocation to transform.
        *
        * NB: _clutter_actor_transform_and_project_box expects a box in
        * the actor's coordinate space... */
 
-      box.x1 = 0;
-      box.y1 = 0;
+      box.origin.x = 0;
+      box.origin.y = 0;
 
       natural_width = natural_height = 0;
       clutter_actor_get_preferred_size (self, NULL, NULL,
                                         &natural_width,
                                         &natural_height);
 
-      box.x2 = natural_width;
-      box.y2 = natural_height;
+      box.size.width = natural_width;
+      box.size.height = natural_height;
 
       _clutter_actor_transform_and_project_box (self, &box, v);
     }
@@ -9578,7 +9565,7 @@ clutter_actor_get_width (ClutterActor *self)
       return natural_width;
     }
   else
-    return priv->allocation.x2 - priv->allocation.x1;
+    return priv->allocation.size.width;
 }
 
 /**
@@ -9639,7 +9626,7 @@ clutter_actor_get_height (ClutterActor *self)
       return natural_height;
     }
   else
-    return priv->allocation.y2 - priv->allocation.y1;
+    return priv->allocation.size.height;
 }
 
 /**
@@ -9734,7 +9721,7 @@ clutter_actor_set_x_internal (ClutterActor *self,
 {
   ClutterActorPrivate *priv = self->priv;
   ClutterLayoutInfo *linfo;
-  ClutterActorBox old = { 0, };
+  graphene_rect_t old = { 0, };
 
   linfo = _clutter_actor_get_layout_info (self);
 
@@ -9757,7 +9744,7 @@ clutter_actor_set_y_internal (ClutterActor *self,
 {
   ClutterActorPrivate *priv = self->priv;
   ClutterLayoutInfo *linfo;
-  ClutterActorBox old = { 0, };
+  graphene_rect_t old = { 0, };
 
   linfo = _clutter_actor_get_layout_info (self);
 
@@ -9780,7 +9767,7 @@ clutter_actor_set_position_internal (ClutterActor           *self,
 {
   ClutterActorPrivate *priv = self->priv;
   ClutterLayoutInfo *linfo;
-  ClutterActorBox old = { 0, };
+  graphene_rect_t old = { 0, };
 
   linfo = _clutter_actor_get_layout_info (self);
 
@@ -9897,7 +9884,7 @@ clutter_actor_get_x (ClutterActor *self)
         return 0;
     }
   else
-    return priv->allocation.x1;
+    return priv->allocation.origin.x;
 }
 
 /**
@@ -9944,7 +9931,7 @@ clutter_actor_get_y (ClutterActor *self)
         return 0;
     }
   else
-    return priv->allocation.y1;
+    return priv->allocation.origin.y;
 }
 
 /**
@@ -10466,54 +10453,6 @@ clutter_actor_get_pivot_point_z (ClutterActor *self)
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), 0.f);
 
   return _clutter_actor_get_transform_info_or_defaults (self)->pivot_z;
-}
-
-/**
- * clutter_actor_set_clip:
- * @self: A #ClutterActor
- * @xoff: X offset of the clip rectangle
- * @yoff: Y offset of the clip rectangle
- * @width: Width of the clip rectangle
- * @height: Height of the clip rectangle
- *
- * Sets clip area for @self. The clip area is always computed from the
- * upper left corner of the actor.
- */
-void
-clutter_actor_set_clip (ClutterActor *self,
-                        gfloat        xoff,
-                        gfloat        yoff,
-                        gfloat        width,
-                        gfloat        height)
-{
-  ClutterActorPrivate *priv;
-  GObject *obj;
-
-  g_return_if_fail (CLUTTER_IS_ACTOR (self));
-
-  priv = self->priv;
-
-  if (priv->has_clip &&
-      priv->clip.origin.x == xoff &&
-      priv->clip.origin.y == yoff &&
-      priv->clip.size.width == width &&
-      priv->clip.size.height == height)
-    return;
-
-  obj = G_OBJECT (self);
-
-  priv->clip.origin.x = xoff;
-  priv->clip.origin.y = yoff;
-  priv->clip.size.width = width;
-  priv->clip.size.height = height;
-
-  priv->has_clip = TRUE;
-
-  queue_update_paint_volume (self);
-  clutter_actor_queue_redraw (self);
-
-  g_object_notify_by_pspec (obj, obj_props[PROP_CLIP_RECT]);
-  g_object_notify_by_pspec (obj, obj_props[PROP_HAS_CLIP]);
 }
 
 /**
@@ -11807,8 +11746,8 @@ clutter_actor_get_reactive (ClutterActor *actor)
 }
 
 static void
-clutter_actor_store_content_box (ClutterActor *self,
-                                 const ClutterActorBox *box)
+clutter_actor_store_content_box (ClutterActor          *self,
+                                 const graphene_rect_t *box)
 {
   if (box != NULL)
     {
@@ -12305,8 +12244,8 @@ clutter_actor_transform_stage_point (ClutterActor *self,
   /* Keeping these as ints simplifies the multiplication (no significant
    * loss of precision here).
    */
-  du = ceilf (priv->allocation.x2 - priv->allocation.x1);
-  dv = ceilf (priv->allocation.y2 - priv->allocation.y1);
+  du = ceilf (priv->allocation.size.width);
+  dv = ceilf (priv->allocation.size.height);
 
   if (du == 0 || dv == 0)
     return FALSE;
@@ -12557,7 +12496,7 @@ clutter_actor_allocate_available_size (ClutterActor           *self,
   gfloat width, height;
   gfloat min_width, min_height;
   gfloat natural_width, natural_height;
-  ClutterActorBox box;
+  graphene_rect_t box;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
@@ -12602,12 +12541,7 @@ clutter_actor_allocate_available_size (ClutterActor           *self,
       break;
     }
 
-
-  box.x1 = x;
-  box.y1 = y;
-  box.x2 = box.x1 + width;
-  box.y2 = box.y1 + height;
-  clutter_actor_allocate (self, &box);
+  clutter_actor_allocate (self, &GRAPHENE_RECT_INIT (x, y, width, height));
 }
 
 /**
@@ -12635,7 +12569,6 @@ clutter_actor_allocate_preferred_size (ClutterActor *self,
                                        float         y)
 {
   gfloat natural_width, natural_height;
-  ClutterActorBox actor_box;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
@@ -12644,18 +12577,14 @@ clutter_actor_allocate_preferred_size (ClutterActor *self,
                                     &natural_width,
                                     &natural_height);
 
-  actor_box.x1 = x;
-  actor_box.y1 = y;
-  actor_box.x2 = actor_box.x1 + natural_width;
-  actor_box.y2 = actor_box.y1 + natural_height;
-
-  clutter_actor_allocate (self, &actor_box);
+  clutter_actor_allocate (self,
+                          &GRAPHENE_RECT_INIT (x, y, natural_width, natural_height));
 }
 
 /**
  * clutter_actor_allocate_align_fill:
  * @self: a #ClutterActor
- * @box: a #ClutterActorBox, containing the available width and height
+ * @box: a #graphene_rect_t, containing the available width and height
  * @x_align: the horizontal alignment, between 0 and 1
  * @y_align: the vertical alignment, between 0 and 1
  * @x_fill: whether the actor should fill horizontally
@@ -12666,7 +12595,7 @@ clutter_actor_allocate_preferred_size (ClutterActor *self,
  * fill the allocation on either axis.
  *
  * The @box should contain the available allocation width and height;
- * if the x1 and y1 members of #ClutterActorBox are not set to 0, the
+ * if the x1 and y1 members of #graphene_rect_t are not set to 0, the
  * allocation will be offset by their value.
  *
  * This function takes into consideration the geometry request specified by
@@ -12680,14 +12609,14 @@ clutter_actor_allocate_preferred_size (ClutterActor *self,
  */
 void
 clutter_actor_allocate_align_fill (ClutterActor           *self,
-                                   const ClutterActorBox  *box,
+                                   const graphene_rect_t  *box,
                                    gdouble                 x_align,
                                    gdouble                 y_align,
                                    gboolean                x_fill,
                                    gboolean                y_fill)
 {
   ClutterActorPrivate *priv;
-  ClutterActorBox allocation = CLUTTER_ACTOR_BOX_INIT_ZERO;
+  graphene_rect_t allocation;
   gfloat x_offset, y_offset;
   gfloat available_width, available_height;
   gfloat child_width = 0.f, child_height = 0.f;
@@ -12699,8 +12628,10 @@ clutter_actor_allocate_align_fill (ClutterActor           *self,
 
   priv = self->priv;
 
-  clutter_actor_box_get_origin (box, &x_offset, &y_offset);
-  clutter_actor_box_get_size (box, &available_width, &available_height);
+  available_width = graphene_rect_get_width (box);
+  available_height = graphene_rect_get_height (box);
+  x_offset = graphene_rect_get_x (box);
+  y_offset = graphene_rect_get_y (box);
 
   if (available_width <= 0)
     available_width = 0.f;
@@ -12708,8 +12639,8 @@ clutter_actor_allocate_align_fill (ClutterActor           *self,
   if (available_height <= 0)
     available_height = 0.f;
 
-  allocation.x1 = x_offset;
-  allocation.y1 = y_offset;
+  allocation.origin.x = x_offset;
+  allocation.origin.y = y_offset;
 
   if (available_width == 0.f && available_height == 0.f)
     goto out;
@@ -12788,17 +12719,17 @@ clutter_actor_allocate_align_fill (ClutterActor           *self,
     x_align = 1.0 - x_align;
 
   if (!x_fill)
-    allocation.x1 += ((available_width - child_width) * x_align);
+    allocation.origin.x += ((available_width - child_width) * x_align);
 
   if (!y_fill)
-    allocation.y1 += ((available_height - child_height) * y_align);
+    allocation.origin.x += ((available_height - child_height) * y_align);
 
 out:
 
-  allocation.x1 = floorf (allocation.x1);
-  allocation.y1 = floorf (allocation.y1);
-  allocation.x2 = ceilf (allocation.x1 + MAX (child_width, 0));
-  allocation.y2 = ceilf (allocation.y1 + MAX (child_height, 0));
+  allocation.origin.x = floorf (allocation.origin.x);
+  allocation.origin.y = floorf (allocation.origin.y);
+  allocation.size.width = ceilf (allocation.origin.x + MAX (child_width, 0));
+  allocation.size.height = ceilf (allocation.origin.y + MAX (child_height, 0));
 
   clutter_actor_allocate (self, &allocation);
 }
@@ -14479,7 +14410,7 @@ clutter_actor_get_transformed_paint_volume (ClutterActor *self,
 /**
  * clutter_actor_get_paint_box:
  * @self: a #ClutterActor
- * @box: (out): return location for a #ClutterActorBox
+ * @box: (out): return location for a #graphene_rect_t
  *
  * Retrieves the paint volume of the passed #ClutterActor, and
  * transforms it into a 2D bounding box in stage coordinates.
@@ -14499,7 +14430,7 @@ clutter_actor_get_transformed_paint_volume (ClutterActor *self,
  */
 gboolean
 clutter_actor_get_paint_box (ClutterActor    *self,
-                             ClutterActorBox *box)
+                             graphene_rect_t *box)
 {
   ClutterActor *stage;
   ClutterPaintVolume *pv;
@@ -16455,7 +16386,7 @@ should_skip_implicit_transition (ClutterActor *self,
    * into their new position and size
    */
   if (pspec == obj_props[PROP_ALLOCATION] &&
-      !clutter_actor_box_is_initialized (&priv->allocation))
+      !priv->allocation_initialized)
     return TRUE;
 
   /* if the actor is not mapped and is not part of a branch of the scene
@@ -17118,7 +17049,7 @@ clutter_actor_set_content (ClutterActor   *self,
     {
       if (priv->content_box_valid)
         {
-          ClutterActorBox from_box, to_box;
+          graphene_rect_t from_box, to_box;
 
           clutter_actor_get_content_box (self, &from_box);
 
@@ -17126,7 +17057,7 @@ clutter_actor_set_content (ClutterActor   *self,
           priv->content_box_valid = FALSE;
           clutter_actor_get_content_box (self, &to_box);
 
-          if (!clutter_actor_box_equal (&from_box, &to_box))
+          if (!graphene_rect_equal (&from_box, &to_box))
             _clutter_actor_create_transition (self, obj_props[PROP_CONTENT_BOX],
                                               &from_box,
                                               &to_box);
@@ -17170,7 +17101,7 @@ clutter_actor_set_content_gravity (ClutterActor *self,
                                    ClutterContentGravity  gravity)
 {
   ClutterActorPrivate *priv;
-  ClutterActorBox from_box, to_box;
+  graphene_rect_t from_box, to_box;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
@@ -17234,7 +17165,7 @@ clutter_actor_get_content_gravity (ClutterActor *self)
  */
 void
 clutter_actor_get_content_box (ClutterActor    *self,
-                               ClutterActorBox *box)
+                               graphene_rect_t *box)
 {
   ClutterActorPrivate *priv;
   gfloat content_w, content_h;
@@ -17245,10 +17176,10 @@ clutter_actor_get_content_box (ClutterActor    *self,
 
   priv = self->priv;
 
-  box->x1 = 0.f;
-  box->y1 = 0.f;
-  box->x2 = priv->allocation.x2 - priv->allocation.x1;
-  box->y2 = priv->allocation.y2 - priv->allocation.y1;
+  box->origin.x = 0.f;
+  box->origin.y = 0.f;
+  box->size.width = priv->allocation.size.width;
+  box->size.height = priv->allocation.size.height;
 
   if (priv->content_box_valid)
     {
@@ -17271,101 +17202,101 @@ clutter_actor_get_content_box (ClutterActor    *self,
                                            &content_h))
     return;
 
-  alloc_w = box->x2;
-  alloc_h = box->y2;
+  alloc_w = box->size.width;
+  alloc_h = box->size.height;
 
   switch (priv->content_gravity)
     {
     case CLUTTER_CONTENT_GRAVITY_TOP_LEFT:
-      box->x2 = box->x1 + MIN (content_w, alloc_w);
-      box->y2 = box->y1 + MIN (content_h, alloc_h);
+      box->size.width = MIN (content_w, alloc_w);
+      box->size.height = MIN (content_h, alloc_h);
       break;
 
     case CLUTTER_CONTENT_GRAVITY_TOP:
       if (alloc_w > content_w)
         {
-          box->x1 += ceilf ((alloc_w - content_w) / 2.0);
-          box->x2 = box->x1 + content_w;
+          box->origin.x += ceilf ((alloc_w - content_w) / 2.0);
+          box->size.width = content_w;
         }
-      box->y2 = box->y1 + MIN (content_h, alloc_h);
+      box->size.height = MIN (content_h, alloc_h);
       break;
 
     case CLUTTER_CONTENT_GRAVITY_TOP_RIGHT:
       if (alloc_w > content_w)
         {
-          box->x1 += (alloc_w - content_w);
-          box->x2 = box->x1 + content_w;
+          box->origin.x += (alloc_w - content_w);
+          box->size.width = content_w;
         }
-      box->y2 = box->y1 + MIN (content_h, alloc_h);
+      box->size.height = MIN (content_h, alloc_h);
       break;
 
     case CLUTTER_CONTENT_GRAVITY_LEFT:
-      box->x2 = box->x1 + MIN (content_w, alloc_w);
+      box->size.width = MIN (content_w, alloc_w);
       if (alloc_h > content_h)
         {
-          box->y1 += ceilf ((alloc_h - content_h) / 2.0);
-          box->y2 = box->y1 + content_h;
+          box->origin.y += ceilf ((alloc_h - content_h) / 2.0);
+          box->size.height = content_h;
         }
       break;
 
     case CLUTTER_CONTENT_GRAVITY_CENTER:
       if (alloc_w > content_w)
         {
-          box->x1 += ceilf ((alloc_w - content_w) / 2.0);
-          box->x2 = box->x1 + content_w;
+          box->origin.x += ceilf ((alloc_w - content_w) / 2.0);
+          box->size.width = content_w;
         }
       if (alloc_h > content_h)
         {
-          box->y1 += ceilf ((alloc_h - content_h) / 2.0);
-          box->y2 = box->y1 + content_h;
+          box->origin.x += ceilf ((alloc_h - content_h) / 2.0);
+          box->size.height = content_h;
         }
       break;
 
     case CLUTTER_CONTENT_GRAVITY_RIGHT:
       if (alloc_w > content_w)
         {
-          box->x1 += (alloc_w - content_w);
-          box->x2 = box->x1 + content_w;
+          box->origin.x += (alloc_w - content_w);
+          box->size.width = content_w;
         }
       if (alloc_h > content_h)
         {
-          box->y1 += ceilf ((alloc_h - content_h) / 2.0);
-          box->y2 = box->y1 + content_h;
+          box->origin.x += ceilf ((alloc_h - content_h) / 2.0);
+          box->size.height = content_h;
         }
       break;
 
     case CLUTTER_CONTENT_GRAVITY_BOTTOM_LEFT:
-      box->x2 = box->x1 + MIN (content_w, alloc_w);
+      box->size.width = MIN (content_w, alloc_w);
       if (alloc_h > content_h)
         {
-          box->y1 += (alloc_h - content_h);
-          box->y2 = box->y1 + content_h;
+          box->origin.x += (alloc_h - content_h);
+          box->size.height = content_h;
         }
       break;
 
     case CLUTTER_CONTENT_GRAVITY_BOTTOM:
       if (alloc_w > content_w)
         {
-          box->x1 += ceilf ((alloc_w - content_w) / 2.0);
-          box->x2 = box->x1 + content_w;
+          box->origin.x += ceilf ((alloc_w - content_w) / 2.0);
+          box->size.width = content_w;
         }
       if (alloc_h > content_h)
         {
-          box->y1 += (alloc_h - content_h);
-          box->y2 = box->y1 + content_h;
+          box->origin.x += (alloc_h - content_h);
+          box->size.height = content_h;
         }
       break;
 
     case CLUTTER_CONTENT_GRAVITY_BOTTOM_RIGHT:
       if (alloc_w > content_w)
         {
-          box->x1 += (alloc_w - content_w);
-          box->x2 = box->x1 + content_w;
+          box->origin.x += (alloc_w - content_w);
+          box->size.width = content_w;
         }
       if (alloc_h > content_h)
         {
-          box->y1 += (alloc_h - content_h);
-          box->y2 = box->y1 + content_h;
+          box->origin.x += (alloc_h - content_h);
+          box->size.height = content_h;
         }
       break;
 
@@ -17379,19 +17310,19 @@ clutter_actor_get_content_box (ClutterActor    *self,
 
         if ((alloc_w / r_c) > alloc_h)
           {
-            box->y1 = 0.f;
-            box->y2 = alloc_h;
+            box->origin.y = 0.f;
+            box->size.height = alloc_h;
 
-            box->x1 = (alloc_w - (alloc_h * r_c)) / 2.0f;
-            box->x2 = box->x1 + (alloc_h * r_c);
+            box->origin.x = (alloc_w - (alloc_h * r_c)) / 2.0f;
+            box->size.width = alloc_h * r_c;
           }
         else
           {
-            box->x1 = 0.f;
-            box->x2 = alloc_w;
+            box->origin.x = 0.f;
+            box->size.width = alloc_w;
 
-            box->y1 = (alloc_h - (alloc_w / r_c)) / 2.0f;
-            box->y2 = box->y1 + (alloc_w / r_c);
+            box->origin.y = (alloc_h - (alloc_w / r_c)) / 2.0f;
+            box->size.height = (alloc_w / r_c);
           }
 
         CLUTTER_NOTE (LAYOUT,
@@ -17401,7 +17332,7 @@ clutter_actor_get_content_box (ClutterActor    *self,
                       r_c, alloc_w / alloc_h,
                       alloc_w, alloc_h,
                       content_w, content_h,
-                      box->x1, box->y1, box->x2, box->y2);
+                      box->origin.x, box->origin.y, box->size.width, box->size.height);
       }
       break;
     }
@@ -18348,7 +18279,7 @@ clutter_actor_create_texture_paint_node (ClutterActor *self,
 {
   ClutterActorPrivate *priv = clutter_actor_get_instance_private (self);
   ClutterPaintNode *node;
-  ClutterActorBox box;
+  graphene_rect_t box;
   ClutterColor color;
 
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), NULL);
@@ -18374,10 +18305,10 @@ clutter_actor_create_texture_paint_node (ClutterActor *self,
       float t_w = 1.f, t_h = 1.f;
 
       if ((priv->content_repeat & CLUTTER_REPEAT_X_AXIS) != FALSE)
-        t_w = (box.x2 - box.x1) / cogl_texture_get_width (texture);
+        t_w = box.size.width / cogl_texture_get_width (texture);
 
       if ((priv->content_repeat & CLUTTER_REPEAT_Y_AXIS) != FALSE)
-        t_h = (box.y2 - box.y1) / cogl_texture_get_height (texture);
+        t_h = box.size.height / cogl_texture_get_height (texture);
 
       clutter_paint_node_add_texture_rectangle (node, &box,
                                                 0.f, 0.f,

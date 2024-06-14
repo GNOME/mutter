@@ -24,7 +24,7 @@
 
 /**
  * ClutterText:
- * 
+ *
  * An actor for displaying and editing text
  *
  * #ClutterText is an actor that displays custom text using Pango
@@ -1782,7 +1782,7 @@ clutter_text_finalize (GObject *gobject)
 }
 
 typedef void (* ClutterTextSelectionFunc) (ClutterText           *text,
-                                           const ClutterActorBox *box,
+                                           const graphene_rect_t *box,
                                            gpointer               user_data);
 
 static void
@@ -1826,7 +1826,7 @@ clutter_text_foreach_selection_rectangle (ClutterText              *self,
       gint i;
       gint index_;
       gint maxindex;
-      ClutterActorBox box;
+      graphene_rect_t box;
       gfloat y, height;
 
       line = pango_layout_get_line_readonly (layout, line_no);
@@ -1843,8 +1843,8 @@ clutter_text_foreach_selection_rectangle (ClutterText              *self,
                                                 bytes_to_offset (utf8, index_),
                                                 NULL, &y, &height);
 
-      box.y1 = y;
-      box.y2 = y + height;
+      box.origin.y = y;
+      box.size.height = height;
 
       for (i = 0; i < n_ranges; i++)
         {
@@ -1859,10 +1859,10 @@ clutter_text_foreach_selection_rectangle (ClutterText              *self,
 
 
           range_width = pango_to_pixels (ranges[i * 2 + 1] - ranges[i * 2]);
-          box.x1 = range_x;
-          box.x2 = ceilf (range_x + range_width);
+          box.origin.x = range_x;
+          box.size.width = range_width;
 
-          clutter_actor_box_scale (&box, scale);
+          graphene_rect_scale (&box, scale, scale, &box);
 
           func (self, &box, user_data);
         }
@@ -1905,7 +1905,7 @@ clutter_text_foreach_selection_rectangle_prescaled (ClutterText              *se
 
 static void
 paint_selection_rectangle (ClutterText           *self,
-                           const ClutterActorBox *box,
+                           const graphene_rect_t *box,
                            gpointer               user_data)
 {
   CoglFramebuffer *fb = user_data;
@@ -1934,11 +1934,13 @@ paint_selection_rectangle (ClutterText           *self,
   cogl_pipeline_set_color (color_pipeline, &cogl_color);
 
   cogl_framebuffer_push_rectangle_clip (fb,
-                                        box->x1, box->y1,
-                                        box->x2, box->y2);
+                                        box->origin.x, box->origin.y,
+                                        box->size.width - box->origin.x,
+                                        box->size.height - box->origin.y);
   cogl_framebuffer_draw_rectangle (fb, color_pipeline,
-                                   box->x1, box->y1,
-                                   box->x2, box->y2);
+                                   box->origin.x, box->origin.y,
+                                   box->size.width - box->origin.x,
+                                   box->size.height - box->origin.y);
 
   if (priv->selected_text_color_set)
     color = &priv->selected_text_color;
@@ -2521,7 +2523,7 @@ clutter_text_key_release (ClutterActor *actor,
 static void
 clutter_text_compute_layout_offsets (ClutterText           *self,
                                      PangoLayout           *layout,
-                                     const ClutterActorBox *alloc,
+                                     const graphene_rect_t *alloc,
                                      int                   *text_x,
                                      int                   *text_y)
 {
@@ -2531,7 +2533,9 @@ clutter_text_compute_layout_offsets (ClutterText           *self,
   float alloc_width, alloc_height;
   float x, y;
 
-  clutter_actor_box_get_size (alloc, &alloc_width, &alloc_height);
+  alloc_width = graphene_rect_get_width (alloc);
+  alloc_height = graphene_rect_get_height (alloc);
+
   pango_layout_get_pixel_extents (layout, NULL, &logical_rect);
 
   if (clutter_actor_needs_expand (actor, CLUTTER_ORIENTATION_HORIZONTAL))
@@ -2597,7 +2601,7 @@ clutter_text_paint (ClutterActor        *self,
   ClutterTextPrivate *priv = clutter_text_get_instance_private (text);
   CoglFramebuffer *fb;
   PangoLayout *layout;
-  ClutterActorBox alloc = { 0, };
+  graphene_rect_t alloc = { 0, };
   CoglColor color = { 0, };
   guint8 real_opacity;
   gint text_x = priv->text_x;
@@ -2627,8 +2631,9 @@ clutter_text_paint (ClutterActor        *self,
 
   resource_scale = clutter_actor_get_resource_scale (CLUTTER_ACTOR (self));
 
-  clutter_actor_box_scale (&alloc, resource_scale);
-  clutter_actor_box_get_size (&alloc, &alloc_width, &alloc_height);
+  graphene_rect_scale (&alloc, resource_scale, resource_scale, &alloc);
+  alloc_width = graphene_rect_get_width (&alloc);
+  alloc_height = graphene_rect_get_height (&alloc);
 
   if (priv->editable && priv->single_line_mode)
     layout = clutter_text_create_layout (text, -1, -1);
@@ -2771,7 +2776,7 @@ clutter_text_paint (ClutterActor        *self,
 
 static void
 add_selection_to_paint_volume (ClutterText           *text,
-                               const ClutterActorBox *box,
+                               const graphene_rect_t *box,
                                gpointer               user_data)
 {
   ClutterPaintVolume *total_volume = user_data;
@@ -2780,12 +2785,12 @@ add_selection_to_paint_volume (ClutterText           *text,
 
   _clutter_paint_volume_init_static (&rect_volume, CLUTTER_ACTOR (text));
 
-  vertex.x = box->x1;
-  vertex.y = box->y1;
+  vertex.x = box->origin.x;
+  vertex.y = box->origin.y;
   vertex.z = 0.0f;
   clutter_paint_volume_set_origin (&rect_volume, &vertex);
-  clutter_paint_volume_set_width (&rect_volume, box->x2 - box->x1);
-  clutter_paint_volume_set_height (&rect_volume, box->y2 - box->y1);
+  clutter_paint_volume_set_width (&rect_volume, box->size.width);
+  clutter_paint_volume_set_height (&rect_volume, box->size.height);
 
   clutter_paint_volume_union (total_volume, &rect_volume);
 
@@ -3011,7 +3016,7 @@ clutter_text_get_preferred_height (ClutterActor *self,
 
 static void
 clutter_text_allocate (ClutterActor           *self,
-                       const ClutterActorBox  *box)
+                       const graphene_rect_t  *box)
 {
   ClutterText *text = CLUTTER_TEXT (self);
   ClutterTextPrivate *priv = clutter_text_get_instance_private (text);
@@ -3028,8 +3033,8 @@ clutter_text_allocate (ClutterActor           *self,
     clutter_text_create_layout (text, -1, -1);
   else
     maybe_create_text_layout_with_resource_scale (text,
-                                                  box->x2 - box->x1,
-                                                  box->y2 - box->y1);
+                                                  box->size.width,
+                                                  box->size.height);
 
   parent_class = CLUTTER_ACTOR_CLASS (clutter_text_parent_class);
   parent_class->allocate (self, box);

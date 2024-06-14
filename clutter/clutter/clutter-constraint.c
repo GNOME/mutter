@@ -24,7 +24,7 @@
 
 /**
  * ClutterConstraint:
- * 
+ *
  * Abstract class for constraints on position or size
  *
  * #ClutterConstraint is a base abstract class for modifiers of a #ClutterActor
@@ -81,7 +81,7 @@
  * attached to that actor to modify the allocation before it is passed to
  * the actor's #ClutterActorClass.allocate() implementation.
  *
- * The #ClutterActorBox passed to the `update_allocation()` implementation
+ * The #graphene_rect_t passed to the `update_allocation()` implementation
  * contains the original allocation of the #ClutterActor, plus the eventual
  * modifications applied by the other #ClutterConstraints, in the same order
  * the constraints have been applied to the actor.
@@ -113,7 +113,7 @@ G_DEFINE_ABSTRACT_TYPE (ClutterConstraint,
 static void
 constraint_update_allocation (ClutterConstraint *constraint,
                               ClutterActor      *actor,
-                              ClutterActorBox   *allocation)
+                              graphene_rect_t   *allocation)
 {
 }
 
@@ -171,9 +171,9 @@ clutter_constraint_init (ClutterConstraint *self)
 gboolean
 clutter_constraint_update_allocation (ClutterConstraint *constraint,
                                       ClutterActor      *actor,
-                                      ClutterActorBox   *allocation)
+                                      graphene_rect_t   *allocation)
 {
-  ClutterActorBox old_alloc;
+  graphene_rect_t old_alloc;
 
   g_return_val_if_fail (CLUTTER_IS_CONSTRAINT (constraint), FALSE);
   g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), FALSE);
@@ -185,7 +185,7 @@ clutter_constraint_update_allocation (ClutterConstraint *constraint,
                                                                 actor,
                                                                 allocation);
 
-  return !clutter_actor_box_equal (allocation, &old_alloc);
+  return !graphene_rect_equal (allocation, &old_alloc);
 }
 
 /**

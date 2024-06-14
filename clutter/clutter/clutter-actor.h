@@ -181,7 +181,7 @@ struct _ClutterActorClass
                                  gfloat                 *min_height_p,
                                  gfloat                 *natural_height_p);
   void (* allocate)             (ClutterActor           *self,
-                                 const ClutterActorBox  *box);
+                                 const graphene_rect_t  *box);
 
   /* transformations */
   void (* apply_transform)      (ClutterActor           *actor,
@@ -348,7 +348,7 @@ void                            clutter_actor_get_preferred_size                
                                                                                  gfloat                      *natural_height_p);
 CLUTTER_EXPORT
 void                            clutter_actor_allocate                          (ClutterActor                *self,
-                                                                                 const ClutterActorBox       *box);
+                                                                                 const graphene_rect_t       *box);
 CLUTTER_EXPORT
 void                            clutter_actor_allocate_preferred_size           (ClutterActor                *self,
                                                                                  float                        x,
@@ -361,17 +361,17 @@ void                            clutter_actor_allocate_available_size           
                                                                                  gfloat                       available_height);
 CLUTTER_EXPORT
 void                            clutter_actor_allocate_align_fill               (ClutterActor                *self,
-                                                                                 const ClutterActorBox       *box,
+                                                                                 const graphene_rect_t       *box,
                                                                                  gdouble                      x_align,
                                                                                  gdouble                      y_align,
                                                                                  gboolean                     x_fill,
                                                                                  gboolean                     y_fill);
 CLUTTER_EXPORT
 void                            clutter_actor_set_allocation                    (ClutterActor                *self,
-                                                                                 const ClutterActorBox       *box);
+                                                                                 const graphene_rect_t       *box);
 CLUTTER_EXPORT
 void                            clutter_actor_get_allocation_box                (ClutterActor                *self,
-                                                                                 ClutterActorBox             *box);
+                                                                                 graphene_rect_t             *box);
 CLUTTER_EXPORT
 gboolean                        clutter_actor_has_allocation                    (ClutterActor                *self);
 CLUTTER_EXPORT
@@ -488,10 +488,7 @@ gboolean                        clutter_actor_needs_expand                      
 /* Paint */
 CLUTTER_EXPORT
 void                            clutter_actor_set_clip                          (ClutterActor                *self,
-                                                                                 gfloat                       xoff,
-                                                                                 gfloat                       yoff,
-                                                                                 gfloat                       width,
-                                                                                 gfloat                       height);
+                                                                                 const graphene_rect_t       *rect);
 CLUTTER_EXPORT
 void                            clutter_actor_remove_clip                       (ClutterActor               *self);
 CLUTTER_EXPORT
@@ -528,7 +525,7 @@ CLUTTER_EXPORT
 gboolean                        clutter_actor_is_in_clone_paint                 (ClutterActor               *self);
 CLUTTER_EXPORT
 gboolean                        clutter_actor_get_paint_box                     (ClutterActor               *self,
-                                                                                 ClutterActorBox            *box);
+                                                                                 graphene_rect_t            *box);
 
 CLUTTER_EXPORT
 float                           clutter_actor_get_resource_scale                (ClutterActor *self);
@@ -569,7 +566,7 @@ ClutterColorState *clutter_actor_get_color_state (ClutterActor *self);
 
 CLUTTER_EXPORT
 void                            clutter_actor_get_content_box                   (ClutterActor               *self,
-                                                                                 ClutterActorBox            *box);
+                                                                                 graphene_rect_t            *box);
 CLUTTER_EXPORT
 void                            clutter_actor_set_background_color              (ClutterActor               *self,
                                                                                  const ClutterColor         *color);
@@ -862,7 +859,7 @@ void                            clutter_actor_bind_model_with_properties        
 CLUTTER_EXPORT
 void clutter_actor_pick_box (ClutterActor          *self,
                              ClutterPickContext    *pick_context,
-                             const ClutterActorBox *box);
+                             const graphene_rect_t *box);
 
 CLUTTER_EXPORT
 GList * clutter_actor_peek_stage_views (ClutterActor *self);

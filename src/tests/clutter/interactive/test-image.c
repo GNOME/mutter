@@ -41,7 +41,7 @@ solid_content_paint_content (ClutterContent      *content,
                              ClutterPaintContext *paint_context)
 {
   SolidContent *self = (SolidContent *) content;
-  ClutterActorBox box, content_box;
+  graphene_rect_t box, content_box;
   ClutterColor color;
   PangoLayout *layout;
   PangoRectangle logical;
@@ -62,10 +62,10 @@ solid_content_paint_content (ClutterContent      *content,
   clutter_actor_get_content_box (actor, &content_box);
 
   box = content_box;
-  box.x1 += self->padding;
-  box.y1 += self->padding;
-  box.x2 -= self->padding;
-  box.y2 -= self->padding;
+  box.origin.x += self->padding;
+  box.origin.y += self->padding;
+  box.size.width -= self->padding;
+  box.size.height -= self->padding;
 
   color.alpha = self->alpha * 255;
 
@@ -88,48 +88,48 @@ solid_content_paint_content (ClutterContent      *content,
   node = clutter_text_node_new (layout, &color);
 
   /* top-left */
-  box.x1 = clutter_actor_box_get_x (&content_box);
-  box.y1 = clutter_actor_box_get_y (&content_box);
-  box.x2 = box.x1 + logical.width;
-  box.y2 = box.y1 + logical.height;
+  box.origin.x = graphene_rect_get_x (&content_box);
+  box.origin.y = graphene_rect_get_y (&content_box);
+  box.size.width = logical.width;
+  box.size.height = logical.height;
   clutter_paint_node_add_rectangle (node, &box);
 
   /* top-right */
-  box.x1 = clutter_actor_box_get_x (&content_box)
-         + clutter_actor_box_get_width (&content_box)
+  box.origin.x = graphene_rect_get_x (&content_box)
+         + graphene_rect_get_width (&content_box)
          - logical.width;
-  box.y1 = clutter_actor_box_get_y (&content_box);
-  box.x2 = box.x1 + logical.width;
-  box.y2 = box.y1 + logical.height;
+  box.origin.y = graphene_rect_get_y (&content_box);
+  box.size.width = logical.width;
+  box.size.height = logical.height;
   clutter_paint_node_add_rectangle (node, &box);
 
   /* bottom-right */
-  box.x1 = clutter_actor_box_get_x (&content_box)
-         + clutter_actor_box_get_width (&content_box)
+  box.origin.x = graphene_rect_get_x (&content_box)
+         + graphene_rect_get_width (&content_box)
          - logical.width;
-  box.y1 = clutter_actor_box_get_y (&content_box)
-         + clutter_actor_box_get_height (&content_box)
+  box.origin.y = graphene_rect_get_y (&content_box)
+         + graphene_rect_get_height (&content_box)
          - logical.height;
-  box.x2 = box.x1 + logical.width;
-  box.y2 = box.y1 + logical.height;
+  box.size.width = logical.width;
+  box.size.height = logical.height;
   clutter_paint_node_add_rectangle (node, &box);
 
   /* bottom-left */
-  box.x1 = clutter_actor_box_get_x (&content_box);
-  box.y1 = clutter_actor_box_get_y (&content_box)
-         + clutter_actor_box_get_height (&content_box)
+  box.origin.x = graphene_rect_get_x (&content_box);
+  box.origin.y = graphene_rect_get_y (&content_box)
+         + graphene_rect_get_height (&content_box)
          - logical.height;
-  box.x2 = box.x1 + logical.width;
-  box.y2 = box.y1 + logical.height;
+  box.size.width = logical.width;
+  box.size.height = logical.height;
   clutter_paint_node_add_rectangle (node, &box);
 
   /* center */
-  box.x1 = clutter_actor_box_get_x (&content_box)
-         + (clutter_actor_box_get_width (&content_box) - logical.width) / 2.0;
-  box.y1 = clutter_actor_box_get_y (&content_box)
-         + (clutter_actor_box_get_height (&content_box) - logical.height) / 2.0;
-  box.x2 = box.x1 + logical.width;
-  box.y2 = box.y1 + logical.height;
+  box.origin.x = graphene_rect_get_x (&content_box)
+         + (graphene_rect_get_width (&content_box) - logical.width) / 2.0;
+  box.origin.y = graphene_rect_get_y (&content_box)
+         + (graphene_rect_get_height (&content_box) - logical.height) / 2.0;
+  box.size.width = logical.width;
+  box.size.height = logical.height;
   clutter_paint_node_add_rectangle (node, &box);
 
   clutter_paint_node_add_child (root, node);

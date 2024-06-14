@@ -157,17 +157,19 @@ key_group_paint (ClutterActor        *actor,
       /* paint the selection rectangle */
       if (i == self->selected_index)
         {
-          ClutterActorBox box = { 0, };
+          graphene_rect_t box = { 0, };
 
           clutter_actor_get_allocation_box (child, &box);
 
-          box.x1 -= 2;
-          box.y1 -= 2;
-          box.x2 += 2;
-          box.y2 += 2;
+          box.origin.x -= 2;
+          box.origin.y -= 2;
+          box.size.width += 2;
+          box.size.height += 2;
 
           cogl_framebuffer_draw_rectangle (framebuffer, pipeline,
-                                           box.x1, box.y1, box.x2, box.y2);
+                                           box.origin.x, box.origin.y,
+                                           box.size.width - box.origin.x,
+                                           box.size.height - box.origin.y);
         }
 
       clutter_actor_paint (child, paint_context);

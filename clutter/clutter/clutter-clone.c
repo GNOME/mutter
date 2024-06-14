@@ -23,7 +23,7 @@
 
 /**
  * ClutterClone:
- * 
+ *
  * An actor that displays a clone of a source actor
  *
  * #ClutterClone is a [class@Clutter.Actor] which draws with the paint
@@ -222,13 +222,13 @@ clutter_clone_has_overlaps (ClutterActor *actor)
 }
 
 static void
-clutter_clone_allocate (ClutterActor           *self,
-                        const ClutterActorBox  *box)
+clutter_clone_allocate (ClutterActor          *self,
+                        const graphene_rect_t *box)
 {
   ClutterClonePrivate *priv =
     clutter_clone_get_instance_private (CLUTTER_CLONE (self));
   ClutterActorClass *parent_class;
-  ClutterActorBox source_box;
+  graphene_rect_t source_box;
   float x_scale, y_scale;
 
   /* chain up */
@@ -256,10 +256,10 @@ clutter_clone_allocate (ClutterActor           *self,
   /* We need to scale what the clone-source actor paints to fill our own
    * allocation...
    */
-  x_scale = clutter_actor_box_get_width (box)
-          / clutter_actor_box_get_width (&source_box);
-  y_scale = clutter_actor_box_get_height (box)
-          / clutter_actor_box_get_height (&source_box);
+  x_scale = graphene_rect_get_width (box)
+          / graphene_rect_get_width (&source_box);
+  y_scale = graphene_rect_get_height (box)
+          / graphene_rect_get_height (&source_box);
 
   if (!G_APPROX_VALUE (priv->x_scale, x_scale, FLT_EPSILON) ||
       !G_APPROX_VALUE (priv->y_scale, y_scale, FLT_EPSILON))

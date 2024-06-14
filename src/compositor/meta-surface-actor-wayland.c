@@ -171,7 +171,7 @@ meta_surface_actor_wayland_apply_transform (ClutterActor      *actor,
   MetaWaylandSurface *root_surface;
   MetaWindow *window;
   MetaLogicalMonitor *logical_monitor;
-  g_autoptr (ClutterActorBox) allocation = NULL;
+  graphene_rect_t allocation;
   float scale;
   float actor_width, actor_height;
   float adj_actor_width, adj_actor_height;
@@ -201,8 +201,8 @@ meta_surface_actor_wayland_apply_transform (ClutterActor      *actor,
 
   g_object_get (actor, "allocation", &allocation, NULL);
 
-  actor_width = clutter_actor_box_get_width (allocation);
-  actor_height = clutter_actor_box_get_height (allocation);
+  actor_width = graphene_rect_get_width (&allocation);
+  actor_height = graphene_rect_get_height (&allocation);
 
   if (actor_width == 0.0 || actor_height == 0.0)
     goto out;
@@ -234,8 +234,8 @@ meta_surface_actor_wayland_apply_transform (ClutterActor      *actor,
     {
       adj_actor_width = roundf (actor_width * scale) / scale;
       adj_actor_height = roundf (actor_height * scale) / scale;
-      adj_actor_x = allocation->x1;
-      adj_actor_y = allocation->y1;
+      adj_actor_x = allocation.origin.x;
+      adj_actor_y = allocation.origin.y;
     }
 
   width_scale = adj_actor_width / actor_width;
@@ -247,8 +247,8 @@ meta_surface_actor_wayland_apply_transform (ClutterActor      *actor,
 
   parent_class->apply_transform (actor, matrix);
 
-  x_off = adj_actor_x - allocation->x1;
-  y_off = adj_actor_y - allocation->y1;
+  x_off = adj_actor_x - allocation.origin.x;
+  y_off = adj_actor_y - allocation.origin.y;
 
   if (!G_APPROX_VALUE (x_off, 0.0, FLT_EPSILON) ||
       !G_APPROX_VALUE (y_off, 0.0, FLT_EPSILON))

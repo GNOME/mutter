@@ -286,29 +286,28 @@ queue_full_redraw (ClutterStage *stage)
 
 static void
 clutter_stage_allocate (ClutterActor           *self,
-                        const ClutterActorBox  *box)
+                        const graphene_rect_t  *box)
 {
   ClutterStagePrivate *priv =
     clutter_stage_get_instance_private (CLUTTER_STAGE (self));
-  ClutterActorBox alloc = CLUTTER_ACTOR_BOX_INIT_ZERO;
+  graphene_rect_t alloc = GRAPHENE_RECT_INIT_ZERO;
   float new_width, new_height;
   float width, height;
   MtkRectangle window_size;
-  ClutterActorBox children_box;
+  graphene_rect_t children_box;
   ClutterLayoutManager *layout_manager = clutter_actor_get_layout_manager (self);
 
   if (priv->impl == NULL)
     return;
 
   /* the current allocation */
-  clutter_actor_box_get_size (box, &width, &height);
+  width = graphene_rect_get_width (box);
+  height = graphene_rect_get_height (box);
 
   /* the current Stage implementation size */
   _clutter_stage_window_get_geometry (priv->impl, &window_size);
 
-  children_box.x1 = children_box.y1 = 0.f;
-  children_box.x2 = box->x2 - box->x1;
-  children_box.y2 = box->y2 - box->y1;
+  children_box = GRAPHENE_RECT_INIT (0.0, 0.0, width, height);
 
   CLUTTER_NOTE (LAYOUT,
                 "Following allocation to %.2fx%.2f",
@@ -330,7 +329,8 @@ clutter_stage_allocate (ClutterActor           *self,
 
   /* set the viewport to the new allocation */
   clutter_actor_get_allocation_box (self, &alloc);
-  clutter_actor_box_get_size (&alloc, &new_width, &new_height);
+  new_width = graphene_rect_get_width (&alloc);
+  new_height = graphene_rect_get_height (&alloc);
 
   clutter_stage_set_viewport (CLUTTER_STAGE (self), new_width, new_height);
 }
@@ -1255,7 +1255,7 @@ clutter_stage_paint (ClutterActor        *actor,
       PangoLayout *layout;
       PangoRectangle logical;
       g_autoptr (ClutterPaintNode) node = NULL;
-      ClutterActorBox box;
+      graphene_rect_t box;
 
       clutter_stage_view_get_layout (view, &view_layout);
       frame_clock = clutter_stage_view_get_frame_clock (view);
@@ -1269,10 +1269,10 @@ clutter_stage_paint (ClutterActor        *actor,
       node = clutter_text_node_new (layout,
                                     &CLUTTER_COLOR_INIT (255, 255, 255, 255));
 
-      box.x1 = view_layout.x;
-      box.y1 = view_layout.y + 30;
-      box.x2 = box.x1 + logical.width;
-      box.y2 = box.y1 + logical.height;
+      box.origin.x = view_layout.x;
+      box.origin.y = view_layout.y + 30;
+      box.size.width = logical.width;
+      box.size.height = logical.height;
       clutter_paint_node_add_rectangle (node, &box);
 
       clutter_paint_node_paint (node, paint_context);
@@ -1907,7 +1907,7 @@ clutter_stage_read_pixels (ClutterStage *stage,
                            gint          height)
 {
   ClutterStagePrivate *priv;
-  ClutterActorBox box;
+  graphene_rect_t box;
   GList *l;
   ClutterStageView *view;
   g_autoptr (MtkRegion) clip = NULL;
@@ -1927,10 +1927,10 @@ clutter_stage_read_pixels (ClutterStage *stage,
   clutter_actor_get_allocation_box (CLUTTER_ACTOR (stage), &box);
 
   if (width < 0)
-    width = ceilf (box.x2 - box.x1);
+    width = ceilf (box.size.width);
 
   if (height < 0)
-    height = ceilf (box.y2 - box.y1);
+    height = ceilf (box.size.height);
 
   l = _clutter_stage_window_get_views (priv->impl);
 
@@ -2517,8 +2517,8 @@ clutter_stage_add_to_redraw_clip (ClutterStage       *stage,
                                   ClutterPaintVolume *redraw_clip)
 {
   ClutterStageWindow *stage_window;
-  ClutterActorBox bounding_box;
-  ClutterActorBox intersection_box;
+  graphene_rect_t bounding_box;
+  graphene_rect_t intersection_box;
   MtkRectangle geom, stage_clip;
 
   if (CLUTTER_ACTOR_IN_DESTRUCTION (CLUTTER_ACTOR (stage)))
@@ -2549,20 +2549,20 @@ clutter_stage_add_to_redraw_clip (ClutterStage       *stage,
 
   _clutter_stage_window_get_geometry (stage_window, &geom);
 
-  intersection_box.x1 = MAX (bounding_box.x1, 0);
-  intersection_box.y1 = MAX (bounding_box.y1, 0);
-  intersection_box.x2 = MIN (bounding_box.x2, geom.width);
-  intersection_box.y2 = MIN (bounding_box.y2, geom.height);
+  intersection_box.origin.x = MAX (bounding_box.origin.x, 0);
+  intersection_box.origin.y = MAX (bounding_box.origin.y, 0);
+  intersection_box.size.width = MIN (bounding_box.size.width, geom.width);
+  intersection_box.size.height = MIN (bounding_box.size.height, geom.height);
 
   /* There is no need to track degenerate/empty redraw clips */
-  if (intersection_box.x2 <= intersection_box.x1 ||
-      intersection_box.y2 <= intersection_box.y1)
+  if (intersection_box.size.width <= 0.0 ||
+      intersection_box.size.height <= 0.0)
     return;
 
-  stage_clip.x = intersection_box.x1;
-  stage_clip.y = intersection_box.y1;
-  stage_clip.width = intersection_box.x2 - stage_clip.x;
-  stage_clip.height = intersection_box.y2 - stage_clip.y;
+  stage_clip.x = intersection_box.origin.x;
+  stage_clip.y = intersection_box.origin.y;
+  stage_clip.width = intersection_box.size.width - stage_clip.x;
+  stage_clip.height = intersection_box.size.height - stage_clip.y;
 
   clutter_stage_add_redraw_clip (stage, &stage_clip);
 }
@@ -2636,11 +2636,12 @@ clutter_stage_get_capture_final_size (ClutterStage *stage,
     }
   else
     {
-      ClutterActorBox alloc;
+      graphene_rect_t alloc;
       float stage_width, stage_height;
 
       clutter_actor_get_allocation_box (CLUTTER_ACTOR (stage), &alloc);
-      clutter_actor_box_get_size (&alloc, &stage_width, &stage_height);
+      stage_width = graphene_rect_get_width (&alloc);
+      stage_height = graphene_rect_get_height (&alloc);
       max_scale = clutter_actor_get_real_resource_scale (CLUTTER_ACTOR (stage));
 
       if (out_width)

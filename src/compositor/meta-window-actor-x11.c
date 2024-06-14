@@ -1351,7 +1351,6 @@ meta_window_actor_x11_get_paint_volume (ClutterActor       *actor,
   if (appears_focused ? actor_x11->focused_shadow : actor_x11->unfocused_shadow)
     {
       MtkRectangle shadow_bounds;
-      ClutterActorBox shadow_box;
 
       /* We could compute an full clip region as we do for the window
        * texture, but the shadow is relatively cheap to draw, and
@@ -1361,12 +1360,11 @@ meta_window_actor_x11_get_paint_volume (ClutterActor       *actor,
        */
 
       get_shadow_bounds (actor_x11, appears_focused, &shadow_bounds);
-      shadow_box.x1 = shadow_bounds.x;
-      shadow_box.x2 = shadow_bounds.x + shadow_bounds.width;
-      shadow_box.y1 = shadow_bounds.y;
-      shadow_box.y2 = shadow_bounds.y + shadow_bounds.height;
-
-      clutter_paint_volume_union_box (volume, &shadow_box);
+      clutter_paint_volume_union_box (volume,
+                                      &GRAPHENE_RECT_INIT (shadow_bounds.x,
+                                                           shadow_bounds.y,
+                                                           shadow_bounds.width,
+                                                           shadow_bounds.height));
     }
 
   surface = meta_window_actor_get_surface (META_WINDOW_ACTOR (actor_x11));

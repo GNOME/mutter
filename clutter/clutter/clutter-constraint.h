@@ -60,7 +60,7 @@ struct _ClutterConstraintClass
   /*< public >*/
   void (* update_allocation) (ClutterConstraint *constraint,
                               ClutterActor      *actor,
-                              ClutterActorBox   *allocation);
+                              graphene_rect_t   *allocation);
 
   void (* update_preferred_size) (ClutterConstraint  *constraint,
                                   ClutterActor       *actor,

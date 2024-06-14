@@ -253,7 +253,7 @@ clutter_paint_volume_set_width (ClutterPaintVolume *pv,
  * high and 0px deep into container coordinates then the width might
  * not simply be 100px if the child actor has a 3D rotation applied to
  * it.
- * 
+ *
  * Remember: if [method@Actor.get_transformed_paint_volume] is
  * used then a transformed child volume will be defined relative to the
  * ancestor container actor and so a 2D child actor can have a 3D
@@ -550,7 +550,7 @@ done:
 /**
  * clutter_paint_volume_union_box:
  * @pv: a #ClutterPaintVolume
- * @box: a #ClutterActorBox to union to @pv
+ * @box: a #graphene_rect_t to union to @pv
  *
  * Unions the 2D region represented by @box to a #ClutterPaintVolume.
  *
@@ -559,7 +559,7 @@ done:
  */
 void
 clutter_paint_volume_union_box (ClutterPaintVolume    *pv,
-                                const ClutterActorBox *box)
+                                const graphene_rect_t *box)
 {
   ClutterPaintVolume volume;
   graphene_point3d_t origin;
@@ -569,12 +569,12 @@ clutter_paint_volume_union_box (ClutterPaintVolume    *pv,
 
   _clutter_paint_volume_init_static (&volume, pv->actor);
 
-  origin.x = box->x1;
-  origin.y = box->y1;
+  origin.x = box->origin.x;
+  origin.y = box->origin.y;
   origin.z = 0.f;
   clutter_paint_volume_set_origin (&volume, &origin);
-  clutter_paint_volume_set_width (&volume, box->x2 - box->x1);
-  clutter_paint_volume_set_height (&volume, box->y2 - box->y1);
+  clutter_paint_volume_set_width (&volume, box->size.width);
+  clutter_paint_volume_set_height (&volume, box->size.height);
 
   clutter_paint_volume_union (pv, &volume);
 
@@ -639,7 +639,7 @@ _clutter_paint_volume_complete (ClutterPaintVolume *pv)
 /*<private>
  * _clutter_paint_volume_get_box:
  * @pv: a #ClutterPaintVolume
- * @box: a pixel aligned #ClutterActorBox
+ * @box: a pixel aligned #graphene_rect_t
  *
  * Transforms a 3D paint volume into a 2D bounding box in the
  * same coordinate space as the 3D paint volume.
@@ -651,11 +651,11 @@ _clutter_paint_volume_complete (ClutterPaintVolume *pv)
  * The coordinates of the returned box are not clamped to
  * integer pixel values; if you need them to be rounded to the
  * nearest integer pixel values, you can use the
- * clutter_actor_box_clamp_to_pixel() function.
+ * graphene_rect_round_extents() function.
  */
 void
 _clutter_paint_volume_get_bounding_box (ClutterPaintVolume *pv,
-                                        ClutterActorBox *box)
+                                        graphene_rect_t    *box)
 {
   gfloat x_min, y_min, x_max, y_max;
   graphene_point3d_t *vertices;
@@ -667,8 +667,8 @@ _clutter_paint_volume_get_bounding_box (ClutterPaintVolume *pv,
 
   if (pv->is_empty)
     {
-      box->x1 = box->x2 = pv->vertices[0].x;
-      box->y1 = box->y2 = pv->vertices[0].y;
+      box->origin.x = box->size.width = pv->vertices[0].x;
+      box->origin.y = box->size.height = pv->vertices[0].y;
       return;
     }
 
@@ -701,10 +701,10 @@ _clutter_paint_volume_get_bounding_box (ClutterPaintVolume *pv,
         y_max = vertices[i].y;
     }
 
-  box->x1 = x_min;
-  box->y1 = y_min;
-  box->x2 = x_max;
-  box->y2 = y_max;
+  box->origin.x = x_min;
+  box->origin.y = y_min;
+  box->size.width = x_max - x_min;
+  box->size.height = y_max - y_min;
 }
 
 static void
@@ -893,7 +893,7 @@ _clutter_actor_set_default_paint_volume (ClutterActor       *self,
                                          GType               check_gtype,
                                          ClutterPaintVolume *volume)
 {
-  ClutterActorBox box;
+  graphene_rect_t box;
 
   if (check_gtype != G_TYPE_INVALID)
     {
@@ -914,8 +914,8 @@ _clutter_actor_set_default_paint_volume (ClutterActor       *self,
    * to be relative to the actor's modelview, which means that the
    * allocation's origin has already been applied
    */
-  clutter_paint_volume_set_width (volume, box.x2 - box.x1);
-  clutter_paint_volume_set_height (volume, box.y2 - box.y1);
+  clutter_paint_volume_set_width (volume, graphene_rect_get_width (&box));
+  clutter_paint_volume_set_height (volume, graphene_rect_get_height (&box));
 
   return TRUE;
 }
@@ -1002,7 +1002,7 @@ _clutter_paint_volume_cull (ClutterPaintVolume       *pv,
 void
 _clutter_paint_volume_get_stage_paint_box (const ClutterPaintVolume *pv,
                                            ClutterStage             *stage,
-                                           ClutterActorBox          *box)
+                                           graphene_rect_t          *box)
 {
   ClutterPaintVolume projected_pv;
   graphene_matrix_t modelview;
@@ -1040,14 +1040,7 @@ _clutter_paint_volume_get_stage_paint_box (const ClutterPaintVolume *pv,
        * in this case.
        */
       clutter_paint_volume_free (&projected_pv);
-      clutter_round_to_256ths (&box->x1);
-      clutter_round_to_256ths (&box->y1);
-      clutter_round_to_256ths (&box->x2);
-      clutter_round_to_256ths (&box->y2);
-      box->x1 = floorf (box->x1);
-      box->y1 = floorf (box->y1);
-      box->x2 = ceilf (box->x2);
-      box->y2 = ceilf (box->y2);
+      graphene_rect_round_extents (box, box);
       return;
     }
 

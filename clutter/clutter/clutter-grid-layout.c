@@ -1371,13 +1371,13 @@ allocate_child (ClutterGridRequest *request,
 
 #define GET_SIZE(allocation, orientation) \
   (orientation == CLUTTER_ORIENTATION_HORIZONTAL \
-   ? clutter_actor_box_get_width ((allocation)) \
-   : clutter_actor_box_get_height ((allocation)))
+   ? graphene_rect_get_width ((allocation)) \
+   : graphene_rect_get_height ((allocation)))
 
 static void
 clutter_grid_layout_allocate (ClutterLayoutManager   *layout,
                               ClutterActor           *container,
-                              const ClutterActorBox  *allocation)
+                              const graphene_rect_t  *allocation)
 {
   ClutterGridLayout *self = CLUTTER_GRID_LAYOUT (layout);
   ClutterOrientation orientation;
@@ -1414,7 +1414,6 @@ clutter_grid_layout_allocate (ClutterLayoutManager   *layout,
   clutter_actor_iter_init (&iter, CLUTTER_ACTOR (container));
   while (clutter_actor_iter_next (&iter, &child))
     {
-      ClutterActorBox child_allocation;
       gfloat x, y, width, height;
       ClutterGridChild *grid_child;
 
@@ -1426,19 +1425,15 @@ clutter_grid_layout_allocate (ClutterLayoutManager   *layout,
                       &x, &width);
       allocate_child (&request, CLUTTER_ORIENTATION_VERTICAL, grid_child,
                       &y, &height);
-      x += allocation->x1;
-      y += allocation->y1;
+      x += allocation->origin.x;
+      y += allocation->origin.y;
 
       CLUTTER_NOTE (LAYOUT, "Allocation for %s { %.2f, %.2f - %.2f x %.2f }",
                     _clutter_actor_get_debug_name (child),
                     x, y, width, height);
 
-      child_allocation.x1 = x;
-      child_allocation.y1 = y;
-      child_allocation.x2 = child_allocation.x1 + width;
-      child_allocation.y2 = child_allocation.y1 + height;
-
-      clutter_actor_allocate (child, &child_allocation);
+      clutter_actor_allocate (child,
+                              &GRAPHENE_RECT_INIT (x, y, width, height));
     }
 }
 

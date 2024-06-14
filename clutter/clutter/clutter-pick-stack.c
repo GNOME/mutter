@@ -25,7 +25,7 @@ typedef struct
 {
   graphene_point3d_t vertices[4];
   CoglMatrixEntry *matrix_entry;
-  ClutterActorBox rect;
+  graphene_rect_t rect;
   gboolean projected;
 } Record;
 
@@ -60,7 +60,7 @@ G_DEFINE_BOXED_TYPE (ClutterPickStack, clutter_pick_stack,
 
 static void
 project_vertices (CoglMatrixEntry       *matrix_entry,
-                  const ClutterActorBox *box,
+                  const graphene_rect_t *box,
                   graphene_point3d_t     vertices[4])
 {
   graphene_matrix_t m;
@@ -68,10 +68,10 @@ project_vertices (CoglMatrixEntry       *matrix_entry,
 
   cogl_matrix_entry_get (matrix_entry, &m);
 
-  graphene_point3d_init (&vertices[0], box->x1, box->y1, 0.f);
-  graphene_point3d_init (&vertices[1], box->x2, box->y1, 0.f);
-  graphene_point3d_init (&vertices[2], box->x2, box->y2, 0.f);
-  graphene_point3d_init (&vertices[3], box->x1, box->y2, 0.f);
+  graphene_point3d_init (&vertices[0], box->origin.x, box->origin.y, 0.f);
+  graphene_point3d_init (&vertices[1], box->size.width - box->origin.x, box->origin.y, 0.f);
+  graphene_point3d_init (&vertices[2], box->size.width - box->origin.x, box->size.height - box->origin.y, 0.f);
+  graphene_point3d_init (&vertices[3], box->origin.x, box->size.height - box->origin.y, 0.f);
 
   for (i = 0; i < 4; i++)
     {
@@ -336,7 +336,7 @@ clutter_pick_stack_seal (ClutterPickStack *pick_stack)
 
 void
 clutter_pick_stack_log_pick (ClutterPickStack       *pick_stack,
-                             const ClutterActorBox  *box,
+                             const graphene_rect_t  *box,
                              ClutterActor           *actor)
 {
   PickRecord rec;
@@ -373,7 +373,7 @@ clutter_pick_stack_log_overlap (ClutterPickStack *pick_stack,
 
 void
 clutter_pick_stack_push_clip (ClutterPickStack      *pick_stack,
-                              const ClutterActorBox *box)
+                              const graphene_rect_t *box)
 {
   PickClipRecord clip;
 
@@ -480,12 +480,12 @@ calculate_clear_area (ClutterPickStack  *pick_stack,
       return;
     }
 
-  rect.x += ceil (pick_rec->base.rect.x1);
-  rect.y += ceil (pick_rec->base.rect.y1);
+  rect.x += ceil (pick_rec->base.rect.origin.x);
+  rect.y += ceil (pick_rec->base.rect.origin.y);
   rect.width =
-    MIN (rect.width, floor (pick_rec->base.rect.x2 - pick_rec->base.rect.x1));
+    MIN (rect.width, floor (pick_rec->base.rect.size.width));
   rect.height =
-    MIN (rect.height, floor (pick_rec->base.rect.y2 - pick_rec->base.rect.y1));
+    MIN (rect.height, floor (pick_rec->base.rect.size.height));
 
   area = mtk_region_create_rectangle (&rect);
 
@@ -493,20 +493,20 @@ calculate_clear_area (ClutterPickStack  *pick_stack,
     {
       PickRecord *rec =
         &g_array_index (pick_stack->vertices_stack, PickRecord, i);
-      ClutterActorBox paint_box;
+      graphene_rect_t paint_box;
 
       if (!rec->is_overlap &&
-          (rec->base.rect.x1 == rec->base.rect.x2 ||
-           rec->base.rect.y1 == rec->base.rect.y2))
+          (rec->base.rect.size.width == 0.0 ||
+           rec->base.rect.size.height == 0.0))
         continue;
 
       if (!clutter_actor_get_paint_box (rec->actor, &paint_box))
         continue;
 
       mtk_region_subtract_rectangle (area,
-                                     &MTK_RECTANGLE_INIT (paint_box.x1, paint_box.y1,
-                                                          paint_box.x2 - paint_box.x1,
-                                                          paint_box.y2 - paint_box.y1)
+                                     &MTK_RECTANGLE_INIT (paint_box.origin.x, paint_box.origin.y,
+                                                          paint_box.size.width,
+                                                          paint_box.size.height)
       );
     }
 

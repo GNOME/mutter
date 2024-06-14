@@ -105,14 +105,14 @@ clutter_pick_context_steal_stack (ClutterPickContext *pick_context)
 /**
  * clutter_pick_context_log_pick:
  * @pick_context: a #ClutterPickContext
- * @box: a #ClutterActorBox
+ * @box: a #graphene_rect_t
  * @actor: a #ClutterActor
  *
  * Logs a pick rectangle into the pick stack.
  */
 void
 clutter_pick_context_log_pick (ClutterPickContext    *pick_context,
-                               const ClutterActorBox *box,
+                               const graphene_rect_t *box,
                                ClutterActor          *actor)
 {
   clutter_pick_stack_log_pick (pick_context->pick_stack, box, actor);
@@ -135,14 +135,14 @@ clutter_pick_context_log_overlap (ClutterPickContext *pick_context,
 /**
  * clutter_pick_context_push_clip:
  * @pick_context: a #ClutterPickContext
- * @box: a #ClutterActorBox
+ * @box: a #graphene_rect_t
  *
  * Pushes a clip rectangle defined by @box into the pick stack. Pop with
  * [method@PickContext.pop_clip] when done.
  */
 void
 clutter_pick_context_push_clip (ClutterPickContext    *pick_context,
-                                const ClutterActorBox *box)
+                                const graphene_rect_t *box)
 {
   clutter_pick_stack_push_clip (pick_context->pick_stack, box);
 }

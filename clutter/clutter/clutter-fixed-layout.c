@@ -136,7 +136,7 @@ clutter_fixed_layout_get_preferred_height (ClutterLayoutManager *manager,
 static void
 clutter_fixed_layout_allocate (ClutterLayoutManager   *manager,
                                ClutterActor           *container,
-                               const ClutterActorBox  *allocation)
+                               const graphene_rect_t  *allocation)
 {
   ClutterActor *child;
 
