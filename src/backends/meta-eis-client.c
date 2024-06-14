@@ -153,7 +153,7 @@ drop_device (gpointer htkey,
 
   for (button = 0; button < MAX_BUTTON; button++)
     {
-      if (bit_is_set (device->button_state, key))
+      if (bit_is_set (device->button_state, button))
         notify_button (device, button, FALSE);
     }
 
