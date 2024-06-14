@@ -231,6 +231,7 @@ main (int   argc,
       char *argv[])
 {
   g_autoptr (MetaContext) context = NULL;
+  MetaTestRunFlags test_run_flags;
 
 #ifdef MUTTER_PRIVILEGED_TEST
   context = meta_create_test_context (META_CONTEXT_TEST_TYPE_VKMS,
@@ -250,6 +251,11 @@ main (int   argc,
   g_signal_connect (context, "after-tests",
                     G_CALLBACK (on_after_tests), NULL);
 
+#ifdef MUTTER_PRIVILEGED_TEST
+  test_run_flags = META_TEST_RUN_FLAG_CAN_SKIP;
+#else
+  test_run_flags = META_TEST_RUN_FLAG_NONE;
+#endif
   return meta_context_test_run_tests (META_CONTEXT_TEST (context),
-                                      META_TEST_RUN_FLAG_NONE);
+                                      test_run_flags);
 }
