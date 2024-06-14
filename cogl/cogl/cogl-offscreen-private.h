@@ -27,7 +27,6 @@
 
 #pragma once
 
-#include "cogl/cogl-gl-header.h"
 #include "cogl/cogl-offscreen.h"
 
 /* Flags to pass to _cogl_offscreen_new_with_texture_full */

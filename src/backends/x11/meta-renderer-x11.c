@@ -31,7 +31,7 @@
 #include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-renderer-x11.h"
-#include "cogl/cogl-xlib.h"
+#include "cogl/cogl-xlib-renderer.h"
 #include "cogl/cogl.h"
 #include "core/boxes-private.h"
 #include "meta/meta-backend.h"

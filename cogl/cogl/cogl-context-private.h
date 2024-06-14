@@ -45,7 +45,6 @@
 #include "cogl/cogl-pipeline-cache.h"
 #include "cogl/cogl-texture-2d.h"
 #include "cogl/cogl-sampler-cache-private.h"
-#include "cogl/cogl-gl-header.h"
 #include "cogl/cogl-framebuffer-private.h"
 #include "cogl/cogl-offscreen-private.h"
 #include "cogl/cogl-onscreen-private.h"

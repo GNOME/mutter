@@ -34,7 +34,7 @@
 #include "backends/x11/nested/meta-stage-x11-nested.h"
 #include "clutter/clutter-mutter.h"
 #include "clutter/clutter.h"
-#include "cogl/cogl-xlib.h"
+#include "cogl/cogl-xlib-renderer.h"
 #include "core/bell.h"
 #include "meta/meta-backend.h"
 

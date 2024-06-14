@@ -34,7 +34,6 @@
 
 #include "cogl/cogl-types.h"
 #include "cogl/cogl-context.h"
-#include "cogl/cogl-gl-header.h"
 #include "cogl/cogl-texture.h"
 
 /* In OpenGL ES context, GL_CONTEXT_LOST has a _KHR prefix */

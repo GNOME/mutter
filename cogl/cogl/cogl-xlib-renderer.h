@@ -28,29 +28,8 @@
 
 #pragma once
 
-#if !defined(__COGL_XLIB_H_INSIDE__) && !defined(COGL_COMPILATION)
-#error "Only <cogl/cogl-xlib.h> can be included directly."
-#endif
-
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-
-/* NB: this is a top-level header that can be included directly but we
- * want to be careful not to define __COGL_H_INSIDE__ when this is
- * included internally while building Cogl itself since
- * __COGL_H_INSIDE__ is used in headers to guard public vs private api
- * definitions
- */
-#ifndef COGL_COMPILATION
-
-/* Note: When building Cogl .gir we explicitly define
- * __COGL_H_INSIDE__ */
-#ifndef __COGL_H_INSIDE__
-#define __COGL_H_INSIDE__
-#define __COGL_XLIB_RENDERER_H_MUST_UNDEF_COGL_H_INSIDE_COGL_XLIB_RENDERER_
-#endif
-
-#endif /* COGL_COMPILATION */
 
 #include "cogl/cogl-renderer.h"
 
@@ -192,16 +171,3 @@ COGL_EXPORT void
 cogl_xlib_renderer_request_reset_on_video_memory_purge (CoglRenderer *renderer,
                                                         gboolean enable);
 G_END_DECLS
-
-/* The gobject introspection scanner seems to parse public headers in
- * isolation which means we need to be extra careful about how we
- * define and undefine __COGL_H_INSIDE__ used to detect when internal
- * headers are incorrectly included by developers. In the gobject
- * introspection case we have to manually define __COGL_H_INSIDE__ as
- * a commandline argument for the scanner which means we must be
- * careful not to undefine it in a header...
- */
-#ifdef __COGL_XLIB_RENDERER_H_MUST_UNDEF_COGL_H_INSIDE_COGL_XLIB_RENDERER_
-#undef __COGL_H_INSIDE__
-#undef __COGL_XLIB_RENDERER_H_MUST_UNDEF_COGL_H_INSIDE_COGL_XLIB_RENDERER_
-#endif

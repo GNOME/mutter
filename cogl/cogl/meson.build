@@ -296,7 +296,6 @@ cogl_sources = [
 if have_x11
   cogl_gir_includes += ['xlib-2.0']
   cogl_nonintrospected_headers += [
-    'cogl-xlib.h',
     'winsys/cogl-texture-pixmap-x11.h',
   ]
   cogl_sources += [
@@ -314,9 +313,6 @@ if have_x11
 endif
 
 if have_glx
-  cogl_nonintrospected_headers += [
-    'winsys/cogl-glx.h',
-  ]
   cogl_sources += [
     'winsys/cogl-glx-display-private.h',
     'winsys/cogl-glx-renderer-private.h',
@@ -333,7 +329,6 @@ if have_egl
     'cogl-egl.h',
   ]
   cogl_sources += [
-    'cogl-egl-private.h',
     'winsys/cogl-onscreen-egl.c',
     'winsys/cogl-onscreen-egl.h',
     'winsys/cogl-winsys-egl-feature-functions.h',
@@ -412,9 +407,7 @@ if have_introspection
     extra_args: introspection_args + [
       '-UCOGL_COMPILATION',
       '-D__COGL_H_INSIDE__',
-      '-D__COGL_XLIB_H_INSIDE__',
       '-D__COGL_EGL_H_INSIDE__',
-      '-D__COGL_GLX_H_INSIDE__',
       '-DCOGL_GIR_SCANNING',
     ],
     header: 'cogl/cogl.h',

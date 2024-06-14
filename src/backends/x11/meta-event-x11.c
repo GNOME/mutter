@@ -31,7 +31,7 @@
 #include "backends/x11/meta-seat-x11.h"
 #include "backends/x11/meta-stage-x11.h"
 #include "clutter/clutter-mutter.h"
-#include "cogl/cogl-xlib.h"
+#include "cogl/cogl-xlib-renderer.h"
 
 /**
  * meta_backend_x11_handle_event:

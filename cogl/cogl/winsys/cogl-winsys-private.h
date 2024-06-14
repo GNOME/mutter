@@ -38,10 +38,6 @@
 #include "cogl/winsys/cogl-texture-pixmap-x11-private.h"
 #endif
 
-#ifdef HAVE_EGL
-#include "cogl/cogl-egl-private.h"
-#endif
-
 #include "cogl/cogl-poll.h"
 
 COGL_EXPORT uint32_t

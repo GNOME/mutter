@@ -31,7 +31,6 @@
 #pragma once
 
 #include "cogl/deprecated/cogl-shader.h"
-#include "cogl/cogl-gl-header.h"
 #include "cogl/cogl-pipeline.h"
 
 typedef struct _CoglShader CoglShader;
