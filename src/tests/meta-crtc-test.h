@@ -29,6 +29,8 @@ struct _MetaCrtcTest
     uint16_t *green;
     uint16_t *blue;
   } gamma;
+
+  gboolean handles_transforms;
 };
 
 #define META_TYPE_CRTC_TEST (meta_crtc_test_get_type ())
@@ -39,3 +41,6 @@ G_DECLARE_FINAL_TYPE (MetaCrtcTest, meta_crtc_test,
 
 META_EXPORT
 void meta_crtc_test_disable_gamma_lut (MetaCrtcTest *crtc_test);
+
+void meta_crtc_test_set_is_transform_handled (MetaCrtcTest *crtc_test,
+                                              gboolean      handles_transforms);

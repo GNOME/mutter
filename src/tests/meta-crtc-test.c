@@ -74,7 +74,9 @@ static gboolean
 meta_crtc_test_is_transform_handled (MetaCrtcNative       *crtc_native,
                                      MetaMonitorTransform  monitor_transform)
 {
-  return TRUE;
+  MetaCrtcTest *crtc_test = META_CRTC_TEST (crtc_native);
+
+  return crtc_test->handles_transforms;
 }
 
 static gboolean
@@ -133,6 +135,8 @@ meta_crtc_test_init (MetaCrtcTest *crtc_test)
       crtc_test->gamma.green[i] = gamma;
       crtc_test->gamma.blue[i] = gamma;
     }
+
+  crtc_test->handles_transforms = TRUE;
 }
 
 void
@@ -142,4 +146,11 @@ meta_crtc_test_disable_gamma_lut (MetaCrtcTest *crtc_test)
   g_clear_pointer (&crtc_test->gamma.red, g_free);
   g_clear_pointer (&crtc_test->gamma.green, g_free);
   g_clear_pointer (&crtc_test->gamma.blue, g_free);
+}
+
+void
+meta_crtc_test_set_is_transform_handled (MetaCrtcTest *crtc_test,
+                                         gboolean      handles_transforms)
+{
+  crtc_test->handles_transforms = handles_transforms;
 }

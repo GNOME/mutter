@@ -35,8 +35,6 @@ struct _MetaMonitorManagerTest
 {
   MetaMonitorManagerNative parent;
 
-  gboolean handles_transforms;
-
   int tiled_monitor_count;
 
   MetaLogicalMonitorLayoutMode layout_mode;
@@ -113,7 +111,18 @@ void
 meta_monitor_manager_test_set_handles_transforms (MetaMonitorManagerTest *manager_test,
                                                   gboolean                handles_transforms)
 {
-  manager_test->handles_transforms = handles_transforms;
+  MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_test);
+  MetaBackend *backend = meta_monitor_manager_get_backend (manager);
+  MetaBackendTest *backend_test = META_BACKEND_TEST (backend);
+  MetaGpu *gpu = meta_backend_test_get_gpu (backend_test);
+  GList *l;
+
+  for (l = meta_gpu_get_crtcs (gpu); l; l = l->next)
+    {
+      MetaCrtcTest *crtc_test = META_CRTC_TEST (l->data);
+
+      meta_crtc_test_set_is_transform_handled (crtc_test, handles_transforms);
+    }
 }
 
 int
@@ -221,7 +230,6 @@ meta_monitor_manager_test_dispose (GObject *object)
 static void
 meta_monitor_manager_test_init (MetaMonitorManagerTest *manager_test)
 {
-  manager_test->handles_transforms = TRUE;
   manager_test->layout_mode = META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL;
 }
 
