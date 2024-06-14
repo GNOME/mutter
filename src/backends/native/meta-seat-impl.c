@@ -1639,6 +1639,9 @@ has_pointer (MetaSeatImpl *seat_impl)
 static gboolean
 device_is_tablet_switch (MetaInputDeviceNative *device_native)
 {
+  if (!device_native->libinput_device)
+    return FALSE;
+
   if (libinput_device_has_capability (device_native->libinput_device,
                                       LIBINPUT_DEVICE_CAP_SWITCH) &&
       libinput_device_switch_has_switch (device_native->libinput_device,
@@ -1696,15 +1699,12 @@ update_touch_mode (MetaSeatImpl *seat_impl)
     }
 }
 
-static ClutterInputDevice *
-evdev_add_device (MetaSeatImpl           *seat_impl,
-                  struct libinput_device *libinput_device)
+static void
+meta_seat_impl_take_device (MetaSeatImpl       *seat_impl,
+                            ClutterInputDevice *device)
 {
   ClutterInputDeviceType type;
-  ClutterInputDevice *device;
   gboolean is_touchscreen, is_tablet_switch, is_pointer;
-
-  device = meta_input_device_native_new_in_impl (seat_impl, libinput_device);
 
   seat_impl->devices = g_slist_prepend (seat_impl->devices, device);
   meta_seat_impl_sync_leds_in_impl (seat_impl);
@@ -1736,19 +1736,17 @@ evdev_add_device (MetaSeatImpl           *seat_impl,
       meta_input_device_native_apply_kbd_a11y_settings_in_impl (keyboard_native,
                                                                 &kbd_a11y_settings);
     }
-
-  return device;
 }
 
 static void
-evdev_remove_device (MetaSeatImpl          *seat_impl,
-                     MetaInputDeviceNative *device_native)
+meta_seat_impl_remove_device (MetaSeatImpl       *seat_impl,
+                              ClutterInputDevice *device)
 {
-  ClutterInputDevice *device;
+  MetaInputDeviceNative *device_native;
   ClutterInputDeviceType device_type;
   gboolean is_touchscreen, is_tablet_switch, is_pointer;
 
-  device = CLUTTER_INPUT_DEVICE (device_native);
+  device_native = META_INPUT_DEVICE_NATIVE (device);
   seat_impl->devices = g_slist_remove (seat_impl->devices, device);
 
   device_type = clutter_input_device_get_device_type (device);
@@ -1791,7 +1789,9 @@ process_base_event (MetaSeatImpl          *seat_impl,
     case LIBINPUT_EVENT_DEVICE_ADDED:
       libinput_device = libinput_event_get_device (event);
 
-      device = evdev_add_device (seat_impl, libinput_device);
+      device = meta_input_device_native_new_in_impl (seat_impl,
+                                                     libinput_device);
+      meta_seat_impl_take_device (seat_impl, device);
       device_event =
         clutter_event_device_notify_new (CLUTTER_DEVICE_ADDED,
                                          CLUTTER_EVENT_NONE,
@@ -1811,8 +1811,7 @@ process_base_event (MetaSeatImpl          *seat_impl,
                                          CLUTTER_CURRENT_TIME,
                                          device);
       meta_input_settings_remove_device (input_settings, device);
-      evdev_remove_device (seat_impl,
-                           META_INPUT_DEVICE_NATIVE (device));
+      meta_seat_impl_remove_device (seat_impl, device);
       break;
 
     default:
@@ -2877,6 +2876,29 @@ init_libinput_source (MetaSeatImpl *seat_impl)
   g_source_unref (source);
 }
 
+static void
+init_core_devices (MetaSeatImpl *seat_impl)
+{
+  ClutterInputDevice *device;
+
+  device =
+    meta_input_device_native_new_virtual_in_impl (seat_impl,
+                                                  CLUTTER_POINTER_DEVICE,
+                                                  CLUTTER_INPUT_MODE_LOGICAL);
+  seat_impl->pointer_x = INITIAL_POINTER_X;
+  seat_impl->pointer_y = INITIAL_POINTER_Y;
+  meta_input_device_native_set_coords_in_impl (META_INPUT_DEVICE_NATIVE (device),
+                                               seat_impl->pointer_x,
+                                               seat_impl->pointer_y);
+  seat_impl->core_pointer = device;
+
+  device =
+    meta_input_device_native_new_virtual_in_impl (seat_impl,
+                                                  CLUTTER_KEYBOARD_DEVICE,
+                                                  CLUTTER_INPUT_MODE_LOGICAL);
+  seat_impl->core_keyboard = device;
+}
+
 static gpointer
 input_thread (MetaSeatImpl *seat_impl)
 {
@@ -2895,6 +2917,8 @@ input_thread (MetaSeatImpl *seat_impl)
                                  seat_impl->input_context,
                                  "Mutter Input Thread");
 #endif
+
+  init_core_devices (seat_impl);
 
   priv->device_files =
     g_hash_table_new_full (NULL, NULL,
@@ -2984,31 +3008,6 @@ meta_seat_impl_initable_init (GInitable     *initable,
   g_mutex_unlock (&seat_impl->init_mutex);
 
   return TRUE;
-}
-
-static void
-meta_seat_impl_constructed (GObject *object)
-{
-  MetaSeatImpl *seat_impl = META_SEAT_IMPL (object);
-  ClutterInputDevice *device;
-
-  device = meta_input_device_native_new_virtual (
-    CLUTTER_SEAT (seat_impl->seat_native), CLUTTER_POINTER_DEVICE,
-    CLUTTER_INPUT_MODE_LOGICAL);
-  seat_impl->pointer_x = INITIAL_POINTER_X;
-  seat_impl->pointer_y = INITIAL_POINTER_Y;
-  meta_input_device_native_set_coords_in_impl (META_INPUT_DEVICE_NATIVE (device),
-                                               seat_impl->pointer_x,
-                                               seat_impl->pointer_y);
-  seat_impl->core_pointer = device;
-
-  device = meta_input_device_native_new_virtual (
-    CLUTTER_SEAT (seat_impl->seat_native), CLUTTER_KEYBOARD_DEVICE,
-    CLUTTER_INPUT_MODE_LOGICAL);
-  seat_impl->core_keyboard = device;
-
-  if (G_OBJECT_CLASS (meta_seat_impl_parent_class)->constructed)
-    G_OBJECT_CLASS (meta_seat_impl_parent_class)->constructed (object);
 }
 
 static void
@@ -3307,7 +3306,6 @@ meta_seat_impl_class_init (MetaSeatImplClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  object_class->constructed = meta_seat_impl_constructed;
   object_class->set_property = meta_seat_impl_set_property;
   object_class->get_property = meta_seat_impl_get_property;
   object_class->finalize = meta_seat_impl_finalize;
@@ -3900,4 +3898,35 @@ MetaBackend *
 meta_seat_impl_get_backend (MetaSeatImpl *seat_impl)
 {
   return meta_seat_native_get_backend (seat_impl->seat_native);
+}
+
+void
+meta_seat_impl_add_virtual_input_device (MetaSeatImpl       *seat_impl,
+                                         ClutterInputDevice *device)
+{
+  ClutterEvent *device_event;
+
+  meta_seat_impl_take_device (seat_impl, g_object_ref (device));
+
+  device_event =
+    clutter_event_device_notify_new (CLUTTER_DEVICE_ADDED,
+                                     CLUTTER_EVENT_NONE,
+                                     CLUTTER_CURRENT_TIME,
+                                     device);
+  queue_event (seat_impl, device_event);
+}
+
+void
+meta_seat_impl_remove_virtual_input_device (MetaSeatImpl       *seat_impl,
+                                            ClutterInputDevice *device)
+{
+  ClutterEvent *device_event;
+
+  meta_seat_impl_remove_device (seat_impl, device);
+
+  device_event = clutter_event_device_notify_new (CLUTTER_DEVICE_REMOVED,
+                                                  CLUTTER_EVENT_NONE,
+                                                  CLUTTER_CURRENT_TIME,
+                                                  device);
+  queue_event (seat_impl, device_event);
 }

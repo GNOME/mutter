@@ -1575,20 +1575,18 @@ meta_input_device_native_new_in_impl (MetaSeatImpl           *seat_impl,
 }
 
 /*
- * meta_input_device_native_new_virtual:
+ * meta_input_device_native_new_virtual_in_impl:
  * @seat: the seat the device will belong to
  * @type: the input device type
  *
  * Create a new virtual ClutterInputDevice of the given type.
  */
 ClutterInputDevice *
-meta_input_device_native_new_virtual (ClutterSeat            *seat,
-                                      ClutterInputDeviceType  type,
-                                      ClutterInputMode        mode)
+meta_input_device_native_new_virtual_in_impl (MetaSeatImpl           *seat_impl,
+                                              ClutterInputDeviceType  type,
+                                              ClutterInputMode        mode)
 {
   MetaInputDeviceNative *device;
-  MetaBackend *backend =
-    meta_seat_native_get_backend (META_SEAT_NATIVE (seat));
   const char *name;
 
   switch (type)
@@ -1608,11 +1606,11 @@ meta_input_device_native_new_virtual (ClutterSeat            *seat,
     };
 
   device = g_object_new (META_TYPE_INPUT_DEVICE_NATIVE,
-                         "backend", backend,
+                         "backend", meta_seat_impl_get_backend (seat_impl),
                          "name", name,
                          "device-type", type,
                          "device-mode", mode,
-                         "seat", seat,
+                         "seat", seat_impl->seat_native,
                          NULL);
 
   return CLUTTER_INPUT_DEVICE (device);

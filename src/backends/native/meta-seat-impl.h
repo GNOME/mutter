@@ -257,3 +257,9 @@ void meta_seat_impl_queue_main_thread_idle (MetaSeatImpl   *seat_impl,
                                             GDestroyNotify  destroy_notify);
 
 MetaBackend * meta_seat_impl_get_backend (MetaSeatImpl *seat_impl);
+
+void meta_seat_impl_add_virtual_input_device (MetaSeatImpl       *seat_impl,
+                                              ClutterInputDevice *device);
+
+void meta_seat_impl_remove_virtual_input_device (MetaSeatImpl       *seat_impl,
+                                                 ClutterInputDevice *device);

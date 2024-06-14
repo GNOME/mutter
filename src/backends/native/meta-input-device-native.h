@@ -135,9 +135,9 @@ GType                     meta_input_device_native_get_type        (void) G_GNUC
 ClutterInputDevice *      meta_input_device_native_new_in_impl     (MetaSeatImpl            *seat_impl,
                                                                     struct libinput_device  *libinput_device);
 
-ClutterInputDevice *      meta_input_device_native_new_virtual (ClutterSeat            *seat,
-                                                                ClutterInputDeviceType  type,
-                                                                ClutterInputMode        mode);
+ClutterInputDevice *      meta_input_device_native_new_virtual_in_impl (MetaSeatImpl           *seat_impl,
+                                                                        ClutterInputDeviceType  type,
+                                                                        ClutterInputMode        mode);
 
 void                      meta_input_device_native_update_leds_in_impl (MetaInputDeviceNative   *device,
                                                                         enum libinput_led        leds);

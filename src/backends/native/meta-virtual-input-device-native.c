@@ -45,6 +45,7 @@ typedef struct _ImplState ImplState;
 
 struct _ImplState
 {
+  MetaSeatImpl *seat_impl;
   ClutterInputDevice *device;
   int button_count[KEY_CNT];
 };
@@ -159,14 +160,10 @@ static gboolean
 release_device_in_impl (GTask *task)
 {
   ImplState *impl_state = g_task_get_task_data (task);
-  ClutterSeat *seat;
-  MetaSeatImpl *seat_impl;
+  MetaSeatImpl *seat_impl = impl_state->seat_impl;
   int code;
   uint64_t time_us;
-  ClutterEvent *device_event;
 
-  seat = clutter_input_device_get_seat (impl_state->device);
-  seat_impl = META_SEAT_NATIVE (seat)->impl;
   time_us = g_get_monotonic_time ();
 
   meta_topic (META_DEBUG_INPUT,
@@ -200,11 +197,7 @@ release_device_in_impl (GTask *task)
         }
     }
 
-  device_event = clutter_event_device_notify_new (CLUTTER_DEVICE_REMOVED,
-                                                  CLUTTER_EVENT_NONE,
-                                                  time_us,
-                                                  impl_state->device);
-  _clutter_event_push (device_event, FALSE);
+  meta_seat_impl_remove_virtual_input_device (seat_impl, impl_state->device);
 
   g_clear_object (&impl_state->device);
   g_task_return_boolean (task, TRUE);
@@ -243,7 +236,7 @@ meta_virtual_input_device_native_notify_relative_motion (ClutterVirtualInputDevi
     META_VIRTUAL_INPUT_DEVICE_NATIVE (virtual_device);
   GTask *task;
 
-  g_return_if_fail (virtual_evdev->impl_state->device != NULL);
+  g_return_if_fail (virtual_evdev->impl_state != NULL);
 
   event = g_new0 (MetaVirtualEventMotion, 1);
   event->time_us = time_us;
@@ -288,7 +281,7 @@ meta_virtual_input_device_native_notify_absolute_motion (ClutterVirtualInputDevi
     META_VIRTUAL_INPUT_DEVICE_NATIVE (virtual_device);
   GTask *task;
 
-  g_return_if_fail (virtual_evdev->impl_state->device != NULL);
+  g_return_if_fail (virtual_evdev->impl_state != NULL);
 
   event = g_new0 (MetaVirtualEventMotion, 1);
   event->time_us = time_us;
@@ -362,7 +355,7 @@ meta_virtual_input_device_native_notify_button (ClutterVirtualInputDevice *virtu
     META_VIRTUAL_INPUT_DEVICE_NATIVE (virtual_device);
   GTask *task;
 
-  g_return_if_fail (virtual_evdev->impl_state->device != NULL);
+  g_return_if_fail (virtual_evdev->impl_state != NULL);
 
   event = g_new0 (MetaVirtualEventButton, 1);
   event->time_us = time_us;
@@ -432,7 +425,7 @@ meta_virtual_input_device_native_notify_key (ClutterVirtualInputDevice *virtual_
     META_VIRTUAL_INPUT_DEVICE_NATIVE (virtual_device);
   GTask *task;
 
-  g_return_if_fail (virtual_evdev->impl_state->device != NULL);
+  g_return_if_fail (virtual_evdev->impl_state != NULL);
 
   event = g_new0 (MetaVirtualEventKey, 1);
   event->time_us = time_us;
@@ -622,7 +615,7 @@ meta_virtual_input_device_native_notify_keyval (ClutterVirtualInputDevice *virtu
     META_VIRTUAL_INPUT_DEVICE_NATIVE (virtual_device);
   GTask *task;
 
-  g_return_if_fail (virtual_evdev->impl_state->device != NULL);
+  g_return_if_fail (virtual_evdev->impl_state != NULL);
 
   event = g_new0 (MetaVirtualEventKey, 1);
   event->time_us = time_us;
@@ -701,7 +694,7 @@ meta_virtual_input_device_native_notify_discrete_scroll (ClutterVirtualInputDevi
     META_VIRTUAL_INPUT_DEVICE_NATIVE (virtual_device);
   GTask *task;
 
-  g_return_if_fail (virtual_evdev->impl_state->device != NULL);
+  g_return_if_fail (virtual_evdev->impl_state != NULL);
 
   event = g_new0 (MetaVirtualEventScroll, 1);
   event->time_us = time_us;
@@ -762,7 +755,7 @@ meta_virtual_input_device_native_notify_scroll_continuous (ClutterVirtualInputDe
     META_VIRTUAL_INPUT_DEVICE_NATIVE (virtual_device);
   GTask *task;
 
-  g_return_if_fail (virtual_evdev->impl_state->device != NULL);
+  g_return_if_fail (virtual_evdev->impl_state != NULL);
 
   event = g_new0 (MetaVirtualEventScroll, 1);
   event->time_us = time_us;
@@ -823,7 +816,7 @@ meta_virtual_input_device_native_notify_touch_down (ClutterVirtualInputDevice *v
     META_VIRTUAL_INPUT_DEVICE_NATIVE (virtual_device);
   GTask *task;
 
-  g_return_if_fail (virtual_evdev->impl_state->device != NULL);
+  g_return_if_fail (virtual_evdev->impl_state != NULL);
 
   event = g_new0 (MetaVirtualEventTouch, 1);
   event->time_us = time_us;
@@ -883,7 +876,7 @@ meta_virtual_input_device_native_notify_touch_motion (ClutterVirtualInputDevice 
     META_VIRTUAL_INPUT_DEVICE_NATIVE (virtual_device);
   GTask *task;
 
-  g_return_if_fail (virtual_evdev->impl_state->device != NULL);
+  g_return_if_fail (virtual_evdev->impl_state != NULL);
 
   event = g_new0 (MetaVirtualEventTouch, 1);
   event->time_us = time_us;
@@ -941,7 +934,7 @@ meta_virtual_input_device_native_notify_touch_up (ClutterVirtualInputDevice *vir
     META_VIRTUAL_INPUT_DEVICE_NATIVE (virtual_device);
   GTask *task;
 
-  g_return_if_fail (virtual_evdev->impl_state->device != NULL);
+  g_return_if_fail (virtual_evdev->impl_state != NULL);
 
   event = g_new0 (MetaVirtualEventTouch, 1);
   event->time_us = time_us;
@@ -1000,6 +993,29 @@ meta_virtual_input_device_native_set_property (GObject      *object,
     }
 }
 
+static gboolean
+create_device_in_impl (GTask *task)
+{
+  ImplState *impl_state = g_task_get_task_data (task);
+  MetaVirtualInputDeviceNative *virtual_evdev =
+    g_task_get_source_object (task);
+  MetaSeatImpl *seat_impl = virtual_evdev->seat->impl;
+  ClutterVirtualInputDevice *virtual_device =
+    CLUTTER_VIRTUAL_INPUT_DEVICE (virtual_evdev);
+  ClutterInputDeviceType device_type =
+    clutter_virtual_input_device_get_device_type (virtual_device);
+
+  impl_state->seat_impl = seat_impl;
+  impl_state->device =
+    meta_input_device_native_new_virtual_in_impl (seat_impl,
+                                                  device_type,
+                                                  CLUTTER_INPUT_MODE_PHYSICAL);
+  meta_seat_impl_add_virtual_input_device (seat_impl, impl_state->device);
+
+  g_task_return_boolean (task, TRUE);
+  return G_SOURCE_REMOVE;
+}
+
 static void
 meta_virtual_input_device_native_constructed (GObject *object)
 {
@@ -1008,7 +1024,7 @@ meta_virtual_input_device_native_constructed (GObject *object)
   MetaVirtualInputDeviceNative *virtual_evdev =
     META_VIRTUAL_INPUT_DEVICE_NATIVE (object);
   ClutterInputDeviceType device_type;
-  ClutterEvent *device_event = NULL;
+  g_autoptr (GTask) task = NULL;
 
   device_type = clutter_virtual_input_device_get_device_type (virtual_device);
 
@@ -1017,17 +1033,11 @@ meta_virtual_input_device_native_constructed (GObject *object)
               device_type, virtual_device);
 
   virtual_evdev->impl_state = g_new0 (ImplState, 1);
-  virtual_evdev->impl_state->device =
-    meta_input_device_native_new_virtual (CLUTTER_SEAT (virtual_evdev->seat),
-                                          device_type,
-                                          CLUTTER_INPUT_MODE_PHYSICAL);
 
-  device_event =
-    clutter_event_device_notify_new (CLUTTER_DEVICE_ADDED,
-                                     CLUTTER_EVENT_NONE,
-                                     CLUTTER_CURRENT_TIME,
-                                     virtual_evdev->impl_state->device);
-  _clutter_event_push (device_event, FALSE);
+  task = g_task_new (virtual_device, NULL, NULL, NULL);
+  g_task_set_task_data (task, virtual_evdev->impl_state, NULL);
+  meta_seat_impl_run_input_task (virtual_evdev->seat->impl, task,
+                                 (GSourceFunc) create_device_in_impl);
 }
 
 static void
