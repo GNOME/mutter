@@ -28,7 +28,8 @@
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor-config-manager.h"
 #include "backends/meta-monitor-config-store.h"
-#include "backends/meta-output.h"
+#include "tests/meta-crtc-test.h"
+#include "tests/meta-output-test.h"
 #include "tests/meta-test-utils.h"
 #include "meta-backend-test.h"
 

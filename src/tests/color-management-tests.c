@@ -24,6 +24,7 @@
 #include "backends/meta-color-manager-private.h"
 #include "backends/meta-color-profile.h"
 #include "meta-test/meta-context-test.h"
+#include "tests/meta-crtc-test.h"
 #include "tests/meta-monitor-test-utils.h"
 
 static MetaContext *test_context;

@@ -19,9 +19,7 @@
 
 #pragma once
 
-#include "backends/meta-crtc.h"
 #include "backends/meta-monitor-manager-private.h"
-#include "backends/meta-output.h"
 #include "core/util-private.h"
 
 typedef struct _MetaMonitorTestSetup
@@ -31,38 +29,7 @@ typedef struct _MetaMonitorTestSetup
   GList *crtcs;
 } MetaMonitorTestSetup;
 
-struct _MetaCrtcTest
-{
-  MetaCrtc parent;
-
-  struct {
-    size_t size;
-    uint16_t *red;
-    uint16_t *green;
-    uint16_t *blue;
-  } gamma;
-};
-
-struct _MetaOutputTest
-{
-  MetaOutput parent;
-
-  float scale;
-};
-
 typedef MetaMonitorTestSetup * (* MetaCreateTestSetupFunc) (MetaBackend *backend);
-
-#define META_TYPE_CRTC_TEST (meta_crtc_test_get_type ())
-META_EXPORT
-G_DECLARE_FINAL_TYPE (MetaCrtcTest, meta_crtc_test,
-                      META, CRTC_TEST,
-                      MetaCrtc)
-
-#define META_TYPE_OUTPUT_TEST (meta_output_test_get_type ())
-META_EXPORT
-G_DECLARE_FINAL_TYPE (MetaOutputTest, meta_output_test,
-                      META, OUTPUT_TEST,
-                      MetaOutput)
 
 #define META_TYPE_MONITOR_MANAGER_TEST (meta_monitor_manager_test_get_type ())
 META_EXPORT
@@ -85,9 +52,6 @@ void meta_monitor_manager_test_set_handles_transforms (MetaMonitorManagerTest *m
 
 META_EXPORT
 int meta_monitor_manager_test_get_tiled_monitor_count (MetaMonitorManagerTest *manager_test);
-
-META_EXPORT
-void meta_crtc_test_disable_gamma_lut (MetaCrtcTest *crtc_test);
 
 META_EXPORT
 void meta_monitor_manager_test_set_layout_mode (MetaMonitorManagerTest       *manager_test,

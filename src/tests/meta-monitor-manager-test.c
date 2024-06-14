@@ -27,10 +27,9 @@
 #include "backends/meta-monitor-config-manager.h"
 #include "backends/meta-output.h"
 #include "tests/meta-backend-test.h"
+#include "tests/meta-crtc-test.h"
 #include "tests/meta-monitor-test-utils.h"
-
-G_DEFINE_TYPE (MetaCrtcTest, meta_crtc_test, META_TYPE_CRTC)
-G_DEFINE_TYPE (MetaOutputTest, meta_output_test, META_TYPE_OUTPUT)
+#include "tests/meta-output-test.h"
 
 struct _MetaMonitorManagerTest
 {
@@ -455,119 +454,4 @@ meta_monitor_manager_test_class_init (MetaMonitorManagerTestClass *klass)
   manager_class->get_capabilities = meta_monitor_manager_test_get_capabilities;
   manager_class->get_max_screen_size = meta_monitor_manager_test_get_max_screen_size;
   manager_class->get_default_layout_mode = meta_monitor_manager_test_get_default_layout_mode;
-}
-
-static void
-meta_output_test_init (MetaOutputTest *output_test)
-{
-  output_test->scale = 1;
-}
-
-static void
-meta_output_test_class_init (MetaOutputTestClass *klass)
-{
-}
-
-#define GAMMA_SIZE 256
-
-static size_t
-meta_crtc_test_get_gamma_lut_size (MetaCrtc *crtc)
-{
-  MetaCrtcTest *crtc_test = META_CRTC_TEST (crtc);
-
-  return crtc_test->gamma.size;
-}
-
-static MetaGammaLut *
-meta_crtc_test_get_gamma_lut (MetaCrtc *crtc)
-{
-  MetaCrtcTest *crtc_test = META_CRTC_TEST (crtc);
-  MetaGammaLut *lut;
-
-  g_assert_cmpint (crtc_test->gamma.size, >, 0);
-
-  lut = g_new0 (MetaGammaLut, 1);
-  lut->size = crtc_test->gamma.size;
-  lut->red = g_memdup2 (crtc_test->gamma.red,
-                        lut->size * sizeof (uint16_t));
-  lut->green = g_memdup2 (crtc_test->gamma.green,
-                          lut->size * sizeof (uint16_t));
-  lut->blue = g_memdup2 (crtc_test->gamma.blue,
-                         lut->size * sizeof (uint16_t));
-  return lut;
-}
-
-static void
-meta_crtc_test_set_gamma_lut (MetaCrtc           *crtc,
-                              const MetaGammaLut *lut)
-{
-  MetaCrtcTest *crtc_test = META_CRTC_TEST (crtc);
-
-  g_assert_cmpint (crtc_test->gamma.size, ==, lut->size);
-
-  g_free (crtc_test->gamma.red);
-  g_free (crtc_test->gamma.green);
-  g_free (crtc_test->gamma.blue);
-
-  crtc_test->gamma.red = g_memdup2 (lut->red,
-                                    sizeof (uint16_t) * lut->size);
-  crtc_test->gamma.green = g_memdup2 (lut->green,
-                                      sizeof (uint16_t) * lut->size);
-  crtc_test->gamma.blue = g_memdup2 (lut->blue,
-                                     sizeof (uint16_t) * lut->size);
-}
-
-static void
-meta_crtc_test_finalize (GObject *object)
-{
-  MetaCrtcTest *crtc_test = META_CRTC_TEST (object);
-
-  g_free (crtc_test->gamma.red);
-  g_free (crtc_test->gamma.green);
-  g_free (crtc_test->gamma.blue);
-
-  G_OBJECT_CLASS (meta_crtc_test_parent_class)->finalize (object);
-}
-
-static void
-meta_crtc_test_class_init (MetaCrtcTestClass *klass)
-{
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
-  MetaCrtcClass *crtc_class = META_CRTC_CLASS (klass);
-
-  object_class->finalize = meta_crtc_test_finalize;
-
-  crtc_class->get_gamma_lut_size = meta_crtc_test_get_gamma_lut_size;
-  crtc_class->get_gamma_lut = meta_crtc_test_get_gamma_lut;
-  crtc_class->set_gamma_lut = meta_crtc_test_set_gamma_lut;
-}
-
-static void
-meta_crtc_test_init (MetaCrtcTest *crtc_test)
-{
-  int i;
-
-  crtc_test->gamma.size = GAMMA_SIZE;
-  crtc_test->gamma.red = g_new0 (uint16_t, GAMMA_SIZE);
-  crtc_test->gamma.green = g_new0 (uint16_t, GAMMA_SIZE);
-  crtc_test->gamma.blue = g_new0 (uint16_t, GAMMA_SIZE);
-
-  for (i = 0; i < GAMMA_SIZE; i++)
-    {
-      uint16_t gamma;
-
-      gamma = ((float) i / GAMMA_SIZE) * UINT16_MAX;
-      crtc_test->gamma.red[i] = gamma;
-      crtc_test->gamma.green[i] = gamma;
-      crtc_test->gamma.blue[i] = gamma;
-    }
-}
-
-void
-meta_crtc_test_disable_gamma_lut (MetaCrtcTest *crtc_test)
-{
-  crtc_test->gamma.size = 0;
-  g_clear_pointer (&crtc_test->gamma.red, g_free);
-  g_clear_pointer (&crtc_test->gamma.green, g_free);
-  g_clear_pointer (&crtc_test->gamma.blue, g_free);
 }
