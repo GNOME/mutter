@@ -1432,7 +1432,7 @@ main (int argc, char **argv)
   g_autoptr (MetaContext) context = NULL;
   char *path;
 
-  context = meta_create_test_context (META_CONTEXT_TEST_TYPE_NESTED,
+  context = meta_create_test_context (META_CONTEXT_TEST_TYPE_TEST,
                                       META_CONTEXT_TEST_FLAG_NONE);
 
   g_assert (meta_context_configure (context, &argc, &argv, NULL));

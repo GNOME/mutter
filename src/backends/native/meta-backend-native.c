@@ -143,6 +143,7 @@ meta_backend_native_create_default_seat (MetaBackend  *backend,
     {
     case META_BACKEND_NATIVE_MODE_DEFAULT:
     case META_BACKEND_NATIVE_MODE_HEADLESS:
+    case META_BACKEND_NATIVE_MODE_TEST_HEADLESS:
       seat_id = meta_backend_native_get_seat_id (backend_native);
       break;
     case META_BACKEND_NATIVE_MODE_TEST_VKMS:
@@ -346,6 +347,7 @@ meta_backend_native_get_seat_id (MetaBackendNative *backend_native)
     case META_BACKEND_NATIVE_MODE_TEST_VKMS:
       return meta_launcher_get_seat_id (priv->launcher);
     case META_BACKEND_NATIVE_MODE_HEADLESS:
+    case META_BACKEND_NATIVE_MODE_TEST_HEADLESS:
       return "seat0";
     }
   g_assert_not_reached ();
@@ -358,7 +360,8 @@ meta_backend_native_is_headless (MetaBackend *backend)
   MetaBackendNativePrivate *priv =
     meta_backend_native_get_instance_private (backend_native);
 
-  return priv->mode == META_BACKEND_NATIVE_MODE_HEADLESS;
+  return (priv->mode == META_BACKEND_NATIVE_MODE_HEADLESS ||
+          priv->mode == META_BACKEND_NATIVE_MODE_TEST_HEADLESS);
 }
 
 static void
@@ -567,6 +570,8 @@ should_ignore_device (MetaBackendNative *backend_native,
     case META_BACKEND_NATIVE_MODE_DEFAULT:
     case META_BACKEND_NATIVE_MODE_HEADLESS:
       return meta_is_udev_device_ignore (device);
+    case META_BACKEND_NATIVE_MODE_TEST_HEADLESS:
+      return TRUE;
     case META_BACKEND_NATIVE_MODE_TEST_VKMS:
       return !meta_is_udev_test_device (device);
     }
@@ -645,6 +650,7 @@ init_gpus (MetaBackendNative  *native,
       device_type = META_UDEV_DEVICE_TYPE_CARD;
       break;
     case META_BACKEND_NATIVE_MODE_HEADLESS:
+    case META_BACKEND_NATIVE_MODE_TEST_HEADLESS:
       device_type = META_UDEV_DEVICE_TYPE_RENDER_NODE;
       break;
     }
@@ -740,6 +746,7 @@ meta_backend_native_initable_init (GInitable     *initable,
     case META_BACKEND_NATIVE_MODE_DEFAULT:
       break;
     case META_BACKEND_NATIVE_MODE_HEADLESS:
+    case META_BACKEND_NATIVE_MODE_TEST_HEADLESS:
       break;
     case META_BACKEND_NATIVE_MODE_TEST_VKMS:
       session_id = "dummy";
@@ -747,7 +754,8 @@ meta_backend_native_initable_init (GInitable     *initable,
       break;
     }
 
-  if (priv->mode != META_BACKEND_NATIVE_MODE_HEADLESS)
+  if (priv->mode != META_BACKEND_NATIVE_MODE_HEADLESS &&
+      priv->mode != META_BACKEND_NATIVE_MODE_TEST_HEADLESS)
     {
       priv->launcher = meta_launcher_new (backend,
                                           session_id, seat_id,
@@ -918,6 +926,7 @@ meta_backend_native_activate_vt (MetaBackendNative  *backend_native,
     case META_BACKEND_NATIVE_MODE_DEFAULT:
       return meta_launcher_activate_vt (launcher, vt, error);
     case META_BACKEND_NATIVE_MODE_HEADLESS:
+    case META_BACKEND_NATIVE_MODE_TEST_HEADLESS:
     case META_BACKEND_NATIVE_MODE_TEST_VKMS:
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "Can't switch VT while headless");

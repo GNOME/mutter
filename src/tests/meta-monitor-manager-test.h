@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "backends/meta-monitor-manager-private.h"
+#include "backends/native/meta-monitor-manager-native.h"
 #include "core/util-private.h"
 
 typedef struct _MetaMonitorTestSetup
@@ -34,7 +34,7 @@ typedef MetaMonitorTestSetup * (* MetaCreateTestSetupFunc) (MetaBackend *backend
 #define META_TYPE_MONITOR_MANAGER_TEST (meta_monitor_manager_test_get_type ())
 META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaMonitorManagerTest, meta_monitor_manager_test,
-                      META, MONITOR_MANAGER_TEST, MetaMonitorManager)
+                      META, MONITOR_MANAGER_TEST, MetaMonitorManagerNative)
 
 META_EXPORT
 void meta_init_monitor_test_setup (MetaCreateTestSetupFunc func);

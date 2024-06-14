@@ -148,9 +148,10 @@ meta_stage_native_redraw_view (ClutterStageWindow *stage_window,
   clutter_stage_window_parent_iface->redraw_view (stage_window, view, frame);
 
   crtc = meta_renderer_view_get_crtc (META_RENDERER_VIEW (view));
-  if (META_IS_CRTC_VIRTUAL (crtc))
+
+  if (!clutter_frame_has_result (frame))
     {
-      g_warn_if_fail (!clutter_frame_has_result (frame));
+      g_warn_if_fail (!META_IS_CRTC_KMS (crtc));
 
       clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
     }

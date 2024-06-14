@@ -21,7 +21,7 @@
 
 #define GAMMA_SIZE 256
 
-G_DEFINE_TYPE (MetaCrtcTest, meta_crtc_test, META_TYPE_CRTC)
+G_DEFINE_TYPE (MetaCrtcTest, meta_crtc_test, META_TYPE_CRTC_NATIVE)
 
 static size_t
 meta_crtc_test_get_gamma_lut_size (MetaCrtc *crtc)
@@ -70,6 +70,19 @@ meta_crtc_test_set_gamma_lut (MetaCrtc           *crtc,
                                      sizeof (uint16_t) * lut->size);
 }
 
+static gboolean
+meta_crtc_test_is_transform_handled (MetaCrtcNative       *crtc_native,
+                                     MetaMonitorTransform  monitor_transform)
+{
+  return TRUE;
+}
+
+static gboolean
+meta_crtc_test_is_hw_cursor_supported (MetaCrtcNative *crtc_native)
+{
+  return FALSE;
+}
+
 static void
 meta_crtc_test_finalize (GObject *object)
 {
@@ -87,12 +100,18 @@ meta_crtc_test_class_init (MetaCrtcTestClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   MetaCrtcClass *crtc_class = META_CRTC_CLASS (klass);
+  MetaCrtcNativeClass *crtc_native_class = META_CRTC_NATIVE_CLASS (klass);
 
   object_class->finalize = meta_crtc_test_finalize;
 
   crtc_class->get_gamma_lut_size = meta_crtc_test_get_gamma_lut_size;
   crtc_class->get_gamma_lut = meta_crtc_test_get_gamma_lut;
   crtc_class->set_gamma_lut = meta_crtc_test_set_gamma_lut;
+
+  crtc_native_class->is_transform_handled =
+    meta_crtc_test_is_transform_handled;
+  crtc_native_class->is_hw_cursor_supported =
+    meta_crtc_test_is_hw_cursor_supported;
 }
 
 static void

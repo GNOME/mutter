@@ -17,11 +17,11 @@
 
 #pragma once
 
-#include "backends/meta-crtc.h"
+#include "backends/native/meta-crtc-native.h"
 
 struct _MetaCrtcTest
 {
-  MetaCrtc parent;
+  MetaCrtcNative parent;
 
   struct {
     size_t size;
@@ -35,7 +35,7 @@ struct _MetaCrtcTest
 META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaCrtcTest, meta_crtc_test,
                       META, CRTC_TEST,
-                      MetaCrtc)
+                      MetaCrtcNative)
 
 META_EXPORT
 void meta_crtc_test_disable_gamma_lut (MetaCrtcTest *crtc_test);

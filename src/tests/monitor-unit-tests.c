@@ -4148,14 +4148,14 @@ meta_sensors_proxy_reset (MetaSensorsProxyMock *proxy)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaSensorsProxyAutoResetMock,
                                meta_sensors_proxy_reset)
 
-typedef ClutterInputDevice ClutterAutoRemoveInputDevice;
+typedef ClutterVirtualInputDevice ClutterAutoRemoveInputDevice;
 static void
-input_device_test_remove (ClutterAutoRemoveInputDevice *device)
+input_device_test_remove (ClutterAutoRemoveInputDevice *virtual_device)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
 
-  meta_backend_test_remove_device (META_BACKEND_TEST (backend), device);
-  g_object_unref (device);
+  meta_backend_test_remove_device (META_BACKEND_TEST (backend), virtual_device);
+  g_object_unref (virtual_device);
 }
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterAutoRemoveInputDevice,
                                input_device_test_remove)
@@ -4279,7 +4279,6 @@ meta_test_monitor_orientation_is_managed (void)
   g_assert_false (clutter_seat_get_touch_mode (seat));
   touch_device =
     meta_backend_test_add_test_device (META_BACKEND_TEST (backend),
-                                       "test-touchscreen",
                                        CLUTTER_TOUCHSCREEN_DEVICE, 1);
 
   g_assert_true (clutter_seat_get_touch_mode (seat));
@@ -4348,7 +4347,6 @@ meta_test_monitor_orientation_is_managed (void)
 
   touch_device =
     meta_backend_test_add_test_device (META_BACKEND_TEST (backend),
-                                       "test-touchscreen",
                                        CLUTTER_TOUCHSCREEN_DEVICE, 1);
 
   g_assert_true (clutter_seat_get_touch_mode (seat));
@@ -4451,7 +4449,6 @@ meta_test_monitor_orientation_initial_rotated (void)
   orientation_mock = meta_sensors_proxy_mock_get ();
   touch_device =
     meta_backend_test_add_test_device (META_BACKEND_TEST (backend),
-                                       "test-touchscreen",
                                        CLUTTER_TOUCHSCREEN_DEVICE, 1);
   orientation = META_ORIENTATION_LEFT_UP;
   meta_sensors_proxy_mock_set_orientation (orientation_mock, orientation);
@@ -4675,7 +4672,6 @@ meta_test_monitor_orientation_initial_stored_rotated (void)
   orientation_mock = meta_sensors_proxy_mock_get ();
   touch_device =
     meta_backend_test_add_test_device (META_BACKEND_TEST (backend),
-                                       "test-touchscreen",
                                        CLUTTER_TOUCHSCREEN_DEVICE, 1);
   orientation = META_ORIENTATION_RIGHT_UP;
   meta_sensors_proxy_mock_set_orientation (orientation_mock, orientation);
@@ -4960,7 +4956,6 @@ meta_test_monitor_orientation_changes (void)
   orientation_mock = meta_sensors_proxy_mock_get ();
   touch_device =
     meta_backend_test_add_test_device (META_BACKEND_TEST (backend),
-                                       "test-touchscreen",
                                        CLUTTER_TOUCHSCREEN_DEVICE, 1);
   test_setup = meta_create_monitor_test_setup (test_backend,
                                                &test_case.setup,
@@ -5161,7 +5156,6 @@ meta_test_monitor_orientation_changes_for_transformed_panel (void)
   orientation_mock = meta_sensors_proxy_mock_get ();
   touch_device =
     meta_backend_test_add_test_device (META_BACKEND_TEST (backend),
-                                       "test-touchscreen",
                                        CLUTTER_TOUCHSCREEN_DEVICE, 1);
   test_setup = meta_create_monitor_test_setup (test_backend,
                                                &test_case.setup,
@@ -5264,7 +5258,6 @@ meta_test_monitor_orientation_changes_for_transformed_panel (void)
 
   touch_device =
     meta_backend_test_add_test_device (META_BACKEND_TEST (backend),
-                                       "test-touchscreen",
                                        CLUTTER_TOUCHSCREEN_DEVICE, 1);
   got_monitors_changed = FALSE;
   meta_sensors_proxy_mock_set_orientation (orientation_mock,
@@ -5422,7 +5415,6 @@ meta_test_monitor_orientation_changes_with_hotplugging (void)
   orientation_mock = meta_sensors_proxy_mock_get ();
   touch_device =
     meta_backend_test_add_test_device (META_BACKEND_TEST (backend),
-                                       "test-touchscreen",
                                        CLUTTER_TOUCHSCREEN_DEVICE, 1);
 
   /*
@@ -10126,7 +10118,7 @@ main (int   argc,
   g_autoptr (MetaContext) context = NULL;
   char *path;
 
-  context = meta_create_test_context (META_CONTEXT_TEST_TYPE_NESTED,
+  context = meta_create_test_context (META_CONTEXT_TEST_TYPE_TEST,
                                       META_CONTEXT_TEST_FLAG_TEST_CLIENT);
   g_assert (meta_context_configure (context, &argc, &argv, NULL));
 

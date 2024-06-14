@@ -1213,9 +1213,10 @@ init_hw_cursor_support_for_gpu (MetaGpuKms *gpu_kms)
 
 static void
 on_gpu_added_for_cursor (MetaBackend *backend,
-                         MetaGpuKms  *gpu_kms)
+                         MetaGpu     *gpu)
 {
-  init_hw_cursor_support_for_gpu (gpu_kms);
+  if (META_IS_GPU_KMS (gpu))
+    init_hw_cursor_support_for_gpu (META_GPU_KMS (gpu));
 }
 
 typedef struct _CursorKmsImplState
@@ -1323,9 +1324,12 @@ init_hw_cursor_support (MetaCursorRendererNative *cursor_renderer_native)
   gpus = meta_backend_get_gpus (priv->backend);
   for (l = gpus; l; l = l->next)
     {
-      MetaGpuKms *gpu_kms = l->data;
+      MetaGpu *gpu = l->data;
 
-      init_hw_cursor_support_for_gpu (gpu_kms);
+      if (!META_IS_GPU_KMS (gpu))
+        continue;
+
+      init_hw_cursor_support_for_gpu (META_GPU_KMS (gpu));
     }
 
   seat = meta_backend_get_default_seat (priv->backend);

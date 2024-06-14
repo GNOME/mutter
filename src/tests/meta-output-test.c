@@ -19,7 +19,7 @@
 
 #include "tests/meta-output-test.h"
 
-G_DEFINE_TYPE (MetaOutputTest, meta_output_test, META_TYPE_OUTPUT)
+G_DEFINE_TYPE (MetaOutputTest, meta_output_test, META_TYPE_OUTPUT_NATIVE)
 
 static void
 meta_output_test_class_init (MetaOutputTestClass *klass)

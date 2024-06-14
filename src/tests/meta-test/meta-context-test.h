@@ -25,7 +25,7 @@ typedef enum _MetaContextTestType
 {
   META_CONTEXT_TEST_TYPE_HEADLESS,
   META_CONTEXT_TEST_TYPE_VKMS,
-  META_CONTEXT_TEST_TYPE_NESTED,
+  META_CONTEXT_TEST_TYPE_TEST,
 } MetaContextTestType;
 
 typedef enum _MetaContextTestFlag

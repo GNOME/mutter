@@ -1399,8 +1399,6 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
     {
       CoglOffscreen *virtual_onscreen;
 
-      g_assert (META_IS_CRTC_VIRTUAL (crtc));
-
       virtual_onscreen = meta_renderer_native_create_offscreen (renderer_native,
                                                                 onscreen_width,
                                                                 onscreen_height,
@@ -2092,14 +2090,20 @@ meta_renderer_native_ensure_gpu_data (MetaRendererNative  *renderer_native,
 
 static void
 on_gpu_added (MetaBackendNative  *backend_native,
-              MetaGpuKms         *gpu_kms,
+              MetaGpu            *gpu,
               MetaRendererNative *renderer_native)
 {
   MetaBackend *backend = META_BACKEND (backend_native);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
+  MetaGpuKms *gpu_kms;
   GError *error = NULL;
+
+  if (!META_IS_GPU_KMS (gpu))
+    return;
+
+  gpu_kms = META_GPU_KMS (gpu);
 
   if (!create_renderer_gpu_data (renderer_native, gpu_kms, &error))
     {
@@ -2144,12 +2148,15 @@ meta_renderer_native_unset_modes (MetaRendererNative *renderer_native)
   for (l = meta_backend_get_gpus (backend); l; l = l->next)
     {
       MetaGpu *gpu = l->data;
-      MetaKmsDevice *kms_device =
-        meta_gpu_kms_get_kms_device (META_GPU_KMS (gpu));
+      MetaKmsDevice *kms_device;
       GList *k;
       g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
       MetaKmsUpdate *kms_update = NULL;
 
+      if (!META_IS_GPU_KMS (gpu))
+        continue;
+
+      kms_device = meta_gpu_kms_get_kms_device (META_GPU_KMS (gpu));
       for (k = meta_gpu_get_crtcs (gpu); k; k = k->next)
         {
           MetaCrtc *crtc = k->data;
@@ -2276,21 +2283,28 @@ meta_renderer_native_initable_init (GInitable     *initable,
   MetaBackend *backend = meta_renderer_get_backend (renderer);
   GList *gpus;
   GList *l;
+  gboolean has_gpu_kms = FALSE;
 
   gpus = meta_backend_get_gpus (backend);
-  if (gpus)
+  for (l = gpus; l; l = l->next)
+    {
+      MetaGpu *gpu = META_GPU (l->data);
+      MetaGpuKms *gpu_kms;
+
+      if (!META_IS_GPU_KMS (gpu))
+        continue;
+
+      has_gpu_kms = TRUE;
+      gpu_kms = META_GPU_KMS (l->data);
+      if (!create_renderer_gpu_data (renderer_native, gpu_kms, error))
+        return FALSE;
+    }
+
+  if (has_gpu_kms)
     {
       MetaKmsDevice *kms_device;
       MetaKmsDeviceFlag flags;
       const char *kms_modifiers_debug_env;
-
-      for (l = gpus; l; l = l->next)
-        {
-          MetaGpuKms *gpu_kms = META_GPU_KMS (l->data);
-
-          if (!create_renderer_gpu_data (renderer_native, gpu_kms, error))
-            return FALSE;
-        }
 
       renderer_native->primary_gpu_kms = choose_primary_gpu (backend,
                                                              renderer_native,

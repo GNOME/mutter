@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include "backends/meta-output.h"
+#include "backends/native/meta-output-native.h"
 
 struct _MetaOutputTest
 {
@@ -30,4 +30,4 @@ struct _MetaOutputTest
 META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaOutputTest, meta_output_test,
                       META, OUTPUT_TEST,
-                      MetaOutput)
+                      MetaOutputNative)
