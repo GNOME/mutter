@@ -307,16 +307,6 @@ meta_monitor_manager_test_tiled_monitor_removed (MetaMonitorManager *manager,
   manager_test->tiled_monitor_count--;
 }
 
-static gboolean
-meta_monitor_manager_test_is_transform_handled (MetaMonitorManager  *manager,
-                                                MetaCrtc            *crtc,
-                                                MetaMonitorTransform transform)
-{
-  MetaMonitorManagerTest *manager_test = META_MONITOR_MANAGER_TEST (manager);
-
-  return manager_test->handles_transforms;
-}
-
 static MetaMonitorScalesConstraint
 get_monitor_scale_constraints_from_layout_mode (MetaLogicalMonitorLayoutMode layout_mode)
 {
@@ -448,7 +438,6 @@ meta_monitor_manager_test_class_init (MetaMonitorManagerTestClass *klass)
   manager_class->apply_monitors_config = meta_monitor_manager_test_apply_monitors_config;
   manager_class->tiled_monitor_added = meta_monitor_manager_test_tiled_monitor_added;
   manager_class->tiled_monitor_removed = meta_monitor_manager_test_tiled_monitor_removed;
-  manager_class->is_transform_handled = meta_monitor_manager_test_is_transform_handled;
   manager_class->calculate_monitor_mode_scale = meta_monitor_manager_test_calculate_monitor_mode_scale;
   manager_class->calculate_supported_scales = meta_monitor_manager_test_calculate_supported_scales;
   manager_class->get_capabilities = meta_monitor_manager_test_get_capabilities;

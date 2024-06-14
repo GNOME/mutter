@@ -233,10 +233,6 @@ struct _MetaMonitorManagerClass
   void (* tiled_monitor_removed) (MetaMonitorManager *manager,
                                   MetaMonitor        *monitor);
 
-  gboolean (* is_transform_handled) (MetaMonitorManager   *manager,
-                                     MetaCrtc             *crtc,
-                                     MetaMonitorTransform  transform);
-
   float (* calculate_monitor_mode_scale) (MetaMonitorManager           *manager,
                                           MetaLogicalMonitorLayoutMode  layout_mode,
                                           MetaMonitor                  *monitor,

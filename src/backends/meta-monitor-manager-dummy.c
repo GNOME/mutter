@@ -626,16 +626,6 @@ meta_monitor_manager_dummy_apply_monitors_config (MetaMonitorManager      *manag
   return TRUE;
 }
 
-static gboolean
-meta_monitor_manager_dummy_is_transform_handled (MetaMonitorManager  *manager,
-                                                 MetaCrtc            *crtc,
-                                                 MetaMonitorTransform transform)
-{
-  MetaMonitorManagerDummy *manager_dummy = META_MONITOR_MANAGER_DUMMY (manager);
-
-  return manager_dummy->is_transform_handled;
-}
-
 static float
 meta_monitor_manager_dummy_calculate_monitor_mode_scale (MetaMonitorManager           *manager,
                                                          MetaLogicalMonitorLayoutMode  layout_mode,
@@ -747,7 +737,6 @@ meta_monitor_manager_dummy_class_init (MetaMonitorManagerDummyClass *klass)
 
   manager_class->ensure_initial_config = meta_monitor_manager_dummy_ensure_initial_config;
   manager_class->apply_monitors_config = meta_monitor_manager_dummy_apply_monitors_config;
-  manager_class->is_transform_handled = meta_monitor_manager_dummy_is_transform_handled;
   manager_class->calculate_monitor_mode_scale = meta_monitor_manager_dummy_calculate_monitor_mode_scale;
   manager_class->calculate_supported_scales = meta_monitor_manager_dummy_calculate_supported_scales;
   manager_class->get_capabilities = meta_monitor_manager_dummy_get_capabilities;
