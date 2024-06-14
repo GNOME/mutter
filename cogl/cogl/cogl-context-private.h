@@ -49,7 +49,6 @@
 #include "cogl/cogl-framebuffer-private.h"
 #include "cogl/cogl-offscreen-private.h"
 #include "cogl/cogl-onscreen-private.h"
-#include "cogl/cogl-fence-private.h"
 #include "cogl/cogl-poll-private.h"
 #include "cogl/cogl-private.h"
 #include "cogl/winsys/cogl-winsys-private.h"
@@ -253,9 +252,6 @@ struct _CoglContext
      the uniform location cast to a pointer. */
   GHashTable *uniform_name_hash;
   int n_uniform_names;
-
-  CoglPollSource *fences_poll_source;
-  CoglList fences;
 
   GHashTable *named_pipelines;
 

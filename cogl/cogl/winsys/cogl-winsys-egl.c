@@ -542,42 +542,6 @@ _cogl_winsys_context_deinit (CoglContext *context)
 }
 
 #if defined(EGL_KHR_fence_sync) || defined(EGL_KHR_reusable_sync)
-static void *
-_cogl_winsys_fence_add (CoglContext *context)
-{
-  CoglRendererEGL *renderer = context->display->renderer->winsys;
-  void *ret;
-
-  if (renderer->pf_eglCreateSync)
-    ret = renderer->pf_eglCreateSync (renderer->edpy,
-                                      EGL_SYNC_FENCE_KHR,
-                                      NULL);
-  else
-    ret = NULL;
-
-  return ret;
-}
-
-static gboolean
-_cogl_winsys_fence_is_complete (CoglContext *context, void *fence)
-{
-  CoglRendererEGL *renderer = context->display->renderer->winsys;
-  EGLint ret;
-
-  ret = renderer->pf_eglClientWaitSync (renderer->edpy,
-                                        fence,
-                                        EGL_SYNC_FLUSH_COMMANDS_BIT_KHR,
-                                        0);
-  return (ret == EGL_CONDITION_SATISFIED_KHR);
-}
-
-static void
-_cogl_winsys_fence_destroy (CoglContext *context, void *fence)
-{
-  CoglRendererEGL *renderer = context->display->renderer->winsys;
-
-  renderer->pf_eglDestroySync (renderer->edpy, fence);
-}
 
 static int
 _cogl_winsys_get_sync_fd (CoglContext *context)
@@ -628,9 +592,6 @@ static CoglWinsysVtable _cogl_winsys_vtable =
     .context_deinit = _cogl_winsys_context_deinit,
 
 #if defined(EGL_KHR_fence_sync) || defined(EGL_KHR_reusable_sync)
-    .fence_add = _cogl_winsys_fence_add,
-    .fence_is_complete = _cogl_winsys_fence_is_complete,
-    .fence_destroy = _cogl_winsys_fence_destroy,
     .get_sync_fd = _cogl_winsys_get_sync_fd,
     .update_sync = _cogl_winsys_update_sync,
 #endif

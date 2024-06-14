@@ -38,7 +38,6 @@ cogl_tests = [
   [ 'test-pipeline-cache-unrefs-texture', [] ],
   [ 'test-pipeline-shader-state', [] ],
   [ 'test-texture-rg', [] ],
-  [ 'test-fence', [] ],
 ]
 
 #unported = [

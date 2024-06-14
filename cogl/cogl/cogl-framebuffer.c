@@ -330,8 +330,6 @@ cogl_framebuffer_dispose (GObject *object)
       _cogl_journal_flush (priv->journal);
 
       g_signal_emit (framebuffer, signals[DESTROY], 0);
-
-      _cogl_fence_cancel_fences_for_framebuffer (framebuffer);
     }
 
   g_clear_pointer (&priv->clip_stack, _cogl_clip_stack_unref);

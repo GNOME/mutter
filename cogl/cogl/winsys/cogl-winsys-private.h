@@ -130,17 +130,6 @@ typedef struct _CoglWinsysVtable
                                      CoglTexturePixmapStereoMode stereo_mode);
 #endif
 
-  void *
-  (*fence_add) (CoglContext *ctx);
-
-  gboolean
-  (*fence_is_complete) (CoglContext *ctx,
-                        void        *fence);
-
-  void
-  (*fence_destroy) (CoglContext *ctx,
-                    void        *fence);
-
   void
   (*update_sync) (CoglContext *ctx);
 

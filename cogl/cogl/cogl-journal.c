@@ -165,8 +165,6 @@ _cogl_journal_new (CoglFramebuffer *framebuffer)
   journal->entries = g_array_new (FALSE, FALSE, sizeof (CoglJournalEntry));
   journal->vertices = g_array_new (FALSE, FALSE, sizeof (float));
 
-  _cogl_list_init (&journal->pending_fences);
-
   return journal;
 }
 
@@ -1349,18 +1347,6 @@ _cogl_journal_all_entries_within_bounds (CoglJournal *journal,
   return TRUE;
 }
 
-static void
-post_fences (CoglJournal *journal)
-{
-  CoglFenceClosure *fence, *tmp;
-
-  _cogl_list_for_each_safe (fence, tmp, &journal->pending_fences, link)
-    {
-      _cogl_list_remove (&fence->link);
-      _cogl_fence_submit (fence);
-    }
-}
-
 /* XXX NB: When _cogl_journal_flush() returns all state relating
  * to pipelines, all glEnable flags and current matrix state
  * is undefined.
@@ -1387,7 +1373,6 @@ _cogl_journal_flush (CoglJournal *journal)
 
   if (journal->entries->len == 0)
     {
-      post_fences (journal);
       return;
     }
 
@@ -1487,8 +1472,6 @@ _cogl_journal_flush (CoglJournal *journal)
   COGL_TIMER_START (_cogl_uprof_context, discard_timer);
   _cogl_journal_discard (journal);
   COGL_TIMER_STOP (_cogl_uprof_context, discard_timer);
-
-  post_fences (journal);
 
   COGL_TIMER_STOP (_cogl_uprof_context, flush_timer);
 }

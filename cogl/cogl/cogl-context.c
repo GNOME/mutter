@@ -398,8 +398,6 @@ cogl_context_new (CoglDisplay *display,
   context->buffer_map_fallback_array = g_byte_array_new ();
   context->buffer_map_fallback_in_use = FALSE;
 
-  _cogl_list_init (&context->fences);
-
   context->named_pipelines =
     g_hash_table_new_full (NULL, NULL, NULL, g_object_unref);
 
