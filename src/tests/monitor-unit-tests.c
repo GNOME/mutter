@@ -3646,7 +3646,7 @@ meta_test_monitor_non_upright_panel (void)
     .height = 1024,
     .refresh_rate = 60.0,
   };
-  test_case.setup.n_modes = 2;  
+  test_case.setup.n_modes = 2;
   test_case.setup.outputs[0].modes[0] = 1;
   test_case.setup.outputs[0].preferred_mode = 1;
   test_case.setup.outputs[0].panel_orientation_transform =
