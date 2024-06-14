@@ -184,7 +184,7 @@ create_native_backend (MetaContext  *context,
   return g_initable_new (META_TYPE_BACKEND_NATIVE,
                          NULL, error,
                          "context", context,
-                         "mode", META_BACKEND_NATIVE_MODE_TEST,
+                         "mode", META_BACKEND_NATIVE_MODE_TEST_VKMS,
                          NULL);
 }
 #endif /* HAVE_NATIVE_BACKEND */

@@ -145,7 +145,7 @@ meta_backend_native_create_default_seat (MetaBackend  *backend,
     case META_BACKEND_NATIVE_MODE_HEADLESS:
       seat_id = meta_backend_native_get_seat_id (backend_native);
       break;
-    case META_BACKEND_NATIVE_MODE_TEST:
+    case META_BACKEND_NATIVE_MODE_TEST_VKMS:
       seat_id = META_BACKEND_TEST_INPUT_SEAT;
       break;
     }
@@ -342,7 +342,7 @@ meta_backend_native_get_seat_id (MetaBackendNative *backend_native)
   switch (priv->mode)
     {
     case META_BACKEND_NATIVE_MODE_DEFAULT:
-    case META_BACKEND_NATIVE_MODE_TEST:
+    case META_BACKEND_NATIVE_MODE_TEST_VKMS:
       return meta_launcher_get_seat_id (priv->launcher);
     case META_BACKEND_NATIVE_MODE_HEADLESS:
       return "seat0";
@@ -566,7 +566,7 @@ should_ignore_device (MetaBackendNative *backend_native,
     case META_BACKEND_NATIVE_MODE_DEFAULT:
     case META_BACKEND_NATIVE_MODE_HEADLESS:
       return meta_is_udev_device_ignore (device);
-    case META_BACKEND_NATIVE_MODE_TEST:
+    case META_BACKEND_NATIVE_MODE_TEST_VKMS:
       return !meta_is_udev_test_device (device);
     }
   g_assert_not_reached ();
@@ -640,7 +640,7 @@ init_gpus (MetaBackendNative  *native,
   switch (priv->mode)
     {
     case META_BACKEND_NATIVE_MODE_DEFAULT:
-    case META_BACKEND_NATIVE_MODE_TEST:
+    case META_BACKEND_NATIVE_MODE_TEST_VKMS:
       device_type = META_UDEV_DEVICE_TYPE_CARD;
       break;
     case META_BACKEND_NATIVE_MODE_HEADLESS:
@@ -740,7 +740,7 @@ meta_backend_native_initable_init (GInitable     *initable,
       break;
     case META_BACKEND_NATIVE_MODE_HEADLESS:
       break;
-    case META_BACKEND_NATIVE_MODE_TEST:
+    case META_BACKEND_NATIVE_MODE_TEST_VKMS:
       session_id = "dummy";
       seat_id = "seat0";
       break;
@@ -917,7 +917,7 @@ meta_backend_native_activate_vt (MetaBackendNative  *backend_native,
     case META_BACKEND_NATIVE_MODE_DEFAULT:
       return meta_launcher_activate_vt (launcher, vt, error);
     case META_BACKEND_NATIVE_MODE_HEADLESS:
-    case META_BACKEND_NATIVE_MODE_TEST:
+    case META_BACKEND_NATIVE_MODE_TEST_VKMS:
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "Can't switch VT while headless");
       return FALSE;
