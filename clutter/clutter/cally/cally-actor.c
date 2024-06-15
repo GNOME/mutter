@@ -92,18 +92,12 @@ static AtkObject*            cally_actor_ref_child           (AtkObject *obj,
 static AtkAttributeSet *     cally_actor_get_attributes      (AtkObject *obj);
 
 /* ClutterContainer */
-static gint cally_actor_add_actor          (ClutterActor *container,
-                                           ClutterActor *actor,
-                                           gpointer      data);
-static gint cally_actor_remove_actor      (ClutterActor *container,
-                                          ClutterActor *actor,
-                                          gpointer      data);
-static gint cally_actor_real_add_actor    (ClutterActor *container,
-                                          ClutterActor *actor,
-                                          gpointer      data);
-static gint cally_actor_real_remove_actor (ClutterActor *container,
-                                          ClutterActor *actor,
-                                          gpointer      data);
+static gint cally_actor_add_actor    (ClutterActor *container,
+                                      ClutterActor *actor,
+                                      gpointer      data);
+static gint cally_actor_remove_actor (ClutterActor *container,
+                                      ClutterActor *actor,
+                                      gpointer      data);
 
 /* AtkComponent.h */
 static void     cally_actor_component_interface_init (AtkComponentIface *iface);
@@ -211,8 +205,6 @@ cally_actor_class_init (CallyActorClass *klass)
   GObjectClass   *gobject_class = G_OBJECT_CLASS (klass);
 
   klass->notify_clutter = cally_actor_real_notify_clutter;
-  klass->add_actor      = cally_actor_real_add_actor;
-  klass->remove_actor   = cally_actor_real_remove_actor;
 
   /* GObject */
   gobject_class->finalize = cally_actor_finalize;
@@ -453,47 +445,13 @@ cally_actor_get_attributes (AtkObject *obj)
 /* ClutterContainer */
 static gint
 cally_actor_add_actor (ClutterActor *container,
-                      ClutterActor *actor,
-                      gpointer      data)
+                       ClutterActor *actor,
+                       gpointer      data)
 {
-  CallyActor *cally_actor = CALLY_ACTOR (data);
-  CallyActorClass *klass = NULL;
-
-  klass = CALLY_ACTOR_GET_CLASS (cally_actor);
-
-  if (klass->add_actor)
-    return klass->add_actor (container, actor, data);
-  else
-    return 1;
-}
-
-static gint
-cally_actor_remove_actor (ClutterActor *container,
-                         ClutterActor *actor,
-                         gpointer      data)
-{
-  CallyActor      *cally_actor = CALLY_ACTOR (data);
-  CallyActorClass *klass      = NULL;
-
-  klass = CALLY_ACTOR_GET_CLASS (cally_actor);
-
-  if (klass->remove_actor)
-    return klass->remove_actor (container, actor, data);
-  else
-    return 1;
-}
-
-
-static gint
-cally_actor_real_add_actor (ClutterActor *container,
-                            ClutterActor *actor,
-                            gpointer      data)
-{
-  AtkObject        *atk_parent = ATK_OBJECT (data);
-  AtkObject        *atk_child  = clutter_actor_get_accessible (actor);
-  CallyActor        *cally_actor = CALLY_ACTOR (atk_parent);
-  CallyActorPrivate *priv = cally_actor_get_instance_private (cally_actor);
-  gint              index;
+  AtkObject *atk_parent = clutter_actor_get_accessible (container);
+  AtkObject *atk_child  = clutter_actor_get_accessible (actor);
+  CallyActorPrivate *priv = cally_actor_get_instance_private (CALLY_ACTOR (atk_parent));
+  gint index;
 
   g_return_val_if_fail (CLUTTER_IS_ACTOR (container), 0);
   g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), 0);
@@ -512,20 +470,20 @@ cally_actor_real_add_actor (ClutterActor *container,
 }
 
 static gint
-cally_actor_real_remove_actor (ClutterActor *container,
-                               ClutterActor *actor,
-                               gpointer      data)
+cally_actor_remove_actor (ClutterActor *container,
+                          ClutterActor *actor,
+                          gpointer      data)
 {
-  AtkPropertyValues  values      = { NULL };
-  AtkObject*         atk_parent  = NULL;
-  AtkObject         *atk_child   = NULL;
-  CallyActorPrivate  *priv        = NULL;
-  gint               index;
+  AtkPropertyValues values = { NULL };
+  AtkObject *atk_parent = NULL;
+  AtkObject *atk_child = NULL;
+  CallyActorPrivate *priv = NULL;
+  gint index;
 
   g_return_val_if_fail (CLUTTER_IS_ACTOR (container), 0);
   g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), 0);
 
-  atk_parent = ATK_OBJECT (data);
+  atk_parent = clutter_actor_get_accessible (container);
 
   if (clutter_actor_has_accessible (actor))
     {

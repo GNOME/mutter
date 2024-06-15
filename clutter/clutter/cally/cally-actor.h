@@ -51,8 +51,6 @@ typedef struct _CallyActorPrivate    CallyActorPrivate;
 /**
  * CallyActorClass:
  * @notify_clutter: Signal handler for notify signal on Clutter actor
- * @add_actor: Signal handler for child-added signal on Clutter actor
- * @remove_actor: Signal handler for child-removed signal on Clutter actor
  */
 struct _CallyActorClass
 {
@@ -62,14 +60,6 @@ struct _CallyActorClass
   /*< public >*/
   void     (*notify_clutter) (GObject    *object,
                               GParamSpec *pspec);
-
-  gint     (*add_actor)      (ClutterActor *container,
-                              ClutterActor *actor,
-                              gpointer      data);
-
-  gint     (*remove_actor)   (ClutterActor *container,
-                              ClutterActor *actor,
-                              gpointer      data);
 };
 
 CLUTTER_EXPORT
