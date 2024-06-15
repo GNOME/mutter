@@ -370,6 +370,7 @@ check-code-style:
         --warnlevel 2
         -Dbuildtype=debugoptimized
         -Db_coverage=true
+        -Ddocs=true
         $BASE_MESON_OPTIONS
         $EXTRA_MESON_OPTIONS
     - meson compile -C build
@@ -732,11 +733,8 @@ reference:
     - .mutter.fedora@x86_64
   stage: docs
   needs:
-    - job: build-fedora-container@x86_64
-      artifacts: false
+    - build-mutter@x86_64
   script:
-    - meson setup . build --werror -Ddocs=true -Dtests=false
-    - ninja -C build
     - mkdir references
     - cp -r doc/website/* ./references
     - mv build/doc/reference/{cally/cally,clutter/clutter,cogl/cogl,cogl-pango/cogl-pango,meta/meta,mtk/mtk} references/
