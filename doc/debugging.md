@@ -92,10 +92,8 @@ Renderdoc is usually the better tool to debug something with, but it's also hard
     ```sh
     export XDG_RUNTIME_DIR=$PWD/runtime-dir
     mkdir -p $XDG_RUNTIME_DIR
-    ./src/tests/meta-dbus-runner.py xvfb-run meson test -C build --setup plain --gdb failing-test-case
+    ./src/tests/meta-dbus-runner.py meson test -C build --setup plain --gdb failing-test-case
     ```
-
-    The need for `xvfb-run` depends on whether the test case uses the nested backend or the headless backend.
 
     If it involves screen casting, it becomes a bit more complicated:
 

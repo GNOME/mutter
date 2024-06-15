@@ -351,6 +351,7 @@ have_native_tests = false
 have_kvm_tests = false
 have_tty_tests = false
 have_installed_tests = false
+have_x11_tests = false
 
 if have_tests
   gtk3_dep = dependency('gtk+-3.0', version: gtk3_req)
@@ -417,13 +418,12 @@ if have_tests
 
   add_test_setup('plain')
 
-  xvfb = find_program('xvfb-run')
-  xvfb_args = [
-    '-a',
-    '-s',
-    '+iglx -noreset',
-  ]
-  xvfb_command = [xvfb] + xvfb_args
+  if have_x11
+    xvfb = find_program('xvfb-run', required: false)
+    if xvfb.found()
+      have_x11_tests = true
+    endif
+  endif
 
   add_test_setup('CI',
     env: [
@@ -431,7 +431,6 @@ if have_tests
     ],
     exe_wrapper: [
       default_test_wrappers,
-      xvfb_command,
     ],
     timeout_multiplier: 10,
   )
@@ -759,5 +758,6 @@ summary('Core tests', have_core_tests, section: 'Tests')
 summary('Cogl tests', have_cogl_tests, section: 'Tests')
 summary('Clutter tests', have_clutter_tests, section: 'Tests')
 summary('KVM tests', get_option('kvm_tests'), section: 'Tests')
+summary('X11 backend', have_x11_tests, section: 'Tests')
 summary('Installed tests', have_installed_tests, section: 'Tests')
 summary('Coverage', get_option('b_coverage'), section: 'Tests')

@@ -828,7 +828,13 @@ if have_kvm_tests or have_tty_tests
   endif
 endif
 
-if have_x11
+if have_x11_tests
+  xvfb_args = [
+    '-a',
+    '-s',
+    '+iglx -noreset',
+  ]
+
   foreach mode: ['', 'sync']
     x11_env = test_env
     if mode == 'sync'
