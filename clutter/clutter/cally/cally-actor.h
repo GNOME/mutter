@@ -47,28 +47,6 @@ typedef struct _CallyActor           CallyActor;
 typedef struct _CallyActorClass      CallyActorClass;
 typedef struct _CallyActorPrivate    CallyActorPrivate;
 
-/**
- * CallyActionFunc:
- * @cally_actor: a #CallyActor
- *
- * Action function, to be used on #AtkAction implementations as a individual
- * action
- */
-typedef void (* CallyActionFunc) (CallyActor *cally_actor);
-
-/**
- * CallyActionCallback:
- * @cally_actor: a #CallyActor
- * @user_data: user data passed to the function
- *
- * Action function, to be used on #AtkAction implementations as
- * an individual action.
- *
- * Unlike #CallyActionFunc, this function uses the @user_data
- * argument passed to [method@Actor.add_action_full].
- */
-typedef void (* CallyActionCallback) (CallyActor *cally_actor,
-                                      gpointer    user_data);
 
 /**
  * CallyActorClass:
@@ -97,27 +75,5 @@ struct _CallyActorClass
 CLUTTER_EXPORT
 AtkObject* cally_actor_new                   (ClutterActor        *actor);
 
-CLUTTER_EXPORT
-guint      cally_actor_add_action            (CallyActor          *cally_actor,
-                                              const gchar         *action_name,
-                                              const gchar         *action_description,
-                                              const gchar         *action_keybinding,
-                                              CallyActionFunc      action_func);
-CLUTTER_EXPORT
-guint      cally_actor_add_action_full       (CallyActor          *cally_actor,
-                                              const gchar         *action_name,
-                                              const gchar         *action_description,
-                                              const gchar         *action_keybinding,
-                                              CallyActionCallback  callback,
-                                              gpointer             user_data,
-                                              GDestroyNotify       notify);
-
-CLUTTER_EXPORT
-gboolean   cally_actor_remove_action         (CallyActor          *cally_actor,
-                                              gint                 action_id);
-
-CLUTTER_EXPORT
-gboolean   cally_actor_remove_action_by_name (CallyActor          *cally_actor,
-                                              const gchar         *action_name);
 
 G_END_DECLS

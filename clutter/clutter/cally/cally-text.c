@@ -28,7 +28,7 @@
 
 /**
  * CallyText:
- * 
+ *
  * Implementation of the ATK interfaces for a [class@Clutter.Text]
  *
  * #CallyText implements the required ATK interfaces of
@@ -167,6 +167,42 @@ static int                  _cally_misc_get_index_at_point (ClutterText *clutter
                                                             gint         y,
                                                             AtkCoordType coords);
 
+/* AtkAction.h */
+static void cally_text_action_interface_init  (AtkActionIface *iface);
+
+static gboolean cally_text_action_do_action (AtkAction *action,
+                                             gint       i);
+
+static gint cally_text_action_get_n_actions (AtkAction *action);
+
+static const gchar * cally_text_action_get_name (AtkAction *action,
+                                                 gint       i);
+
+/**
+ * CallyActionFunc:
+ * @cally_actor: a #CallyActor
+ *
+ * Action function, to be used on #AtkAction implementations as a individual
+ * action
+ */
+typedef void (* CallyActionFunc) (CallyActor *cally_actor);
+
+/*< private >
+ * CallyTextActionInfo:
+ * @name: name of the action
+ * @do_action_func: callback
+ *
+ * Utility structure to maintain the different actions added to the
+ * #CallyActor
+ */
+typedef struct _CallyTextActionInfo
+{
+  gchar *name;
+
+  CallyActionFunc do_action_func;
+} CallyTextActionInfo;
+
+
 typedef struct _CallyTextPrivate
 {
   /* Cached ClutterText values*/
@@ -185,7 +221,9 @@ typedef struct _CallyTextPrivate
   gint length_delete;
 
   /* action */
-  guint activate_action_id;
+  CallyTextActionInfo *activate_action;
+  GQueue *action_queue;
+  guint action_idle_handler;
 } CallyTextPrivate;
 
 G_DEFINE_TYPE_WITH_CODE (CallyText,
@@ -194,6 +232,8 @@ G_DEFINE_TYPE_WITH_CODE (CallyText,
                          G_ADD_PRIVATE (CallyText)
                          G_IMPLEMENT_INTERFACE (ATK_TYPE_TEXT,
                                                 cally_text_text_interface_init)
+                         G_IMPLEMENT_INTERFACE (ATK_TYPE_ACTION,
+                                                cally_text_action_interface_init)
                          G_IMPLEMENT_INTERFACE (ATK_TYPE_EDITABLE_TEXT,
                                                 cally_text_editable_text_interface_init));
 
@@ -228,8 +268,7 @@ cally_text_init (CallyText *cally_text)
   priv->signal_name_delete = NULL;
   priv->position_delete = -1;
   priv->length_delete = -1;
-
-  priv->activate_action_id = 0;
+  priv->action_queue = g_queue_new ();
 }
 
 static void
@@ -239,10 +278,9 @@ cally_text_finalize   (GObject *obj)
   CallyTextPrivate *priv =
     cally_text_get_instance_private (cally_text);
 
-/*   g_object_unref (priv->textutil); */
-/*   priv->textutil = NULL; */
-
   g_clear_handle_id (&priv->insert_idle_handler, g_source_remove);
+  g_clear_handle_id (&priv->action_idle_handler, g_source_remove);
+  g_clear_pointer (&priv->action_queue, g_queue_free);
 
   G_OBJECT_CLASS (cally_text_parent_class)->finalize (obj);
 }
@@ -1826,24 +1864,119 @@ _check_activate_action (CallyText   *cally_text,
     cally_text_get_instance_private (cally_text);
   if (clutter_text_get_activatable (clutter_text))
     {
-      if (priv->activate_action_id != 0)
+      if (priv->activate_action != NULL)
         return;
 
-      priv->activate_action_id = cally_actor_add_action (CALLY_ACTOR (cally_text),
-                                                         "activate", NULL, NULL,
-                                                         _cally_text_activate_action);
+      priv->activate_action = g_new0 (CallyTextActionInfo, 1);
+      priv->activate_action->name = g_strdup ("activate");
+      priv->activate_action->do_action_func = _cally_text_activate_action;
     }
   else
     {
-      if (priv->activate_action_id == 0)
+      if (priv->activate_action == NULL)
         return;
 
-      if (cally_actor_remove_action (CALLY_ACTOR (cally_text),
-                                     priv->activate_action_id))
-        {
-          priv->activate_action_id = 0;
-        }
+      g_clear_pointer (&priv->activate_action->name, g_free);
+      g_clear_pointer (&priv->activate_action, g_free);
+
     }
+}
+
+/* AtkAction implementation */
+static void
+cally_text_action_interface_init (AtkActionIface *iface)
+{
+  iface->do_action = cally_text_action_do_action;
+  iface->get_n_actions = cally_text_action_get_n_actions;
+  iface->get_name = cally_text_action_get_name;
+}
+
+static gboolean
+idle_do_action (gpointer data)
+{
+  CallyActor *cally_actor = NULL;
+  CallyTextPrivate *priv = NULL;
+
+  cally_actor = CALLY_ACTOR (data);
+  priv = cally_text_get_instance_private (CALLY_TEXT (cally_actor));
+  priv->action_idle_handler = 0;
+
+  /* state is defunct*/
+  g_assert (CALLY_GET_CLUTTER_ACTOR (cally_actor) != NULL);
+
+  while (!g_queue_is_empty (priv->action_queue))
+    {
+      CallyTextActionInfo *info = NULL;
+
+      info = (CallyTextActionInfo *) g_queue_pop_head (priv->action_queue);
+
+      info->do_action_func (cally_actor);
+    }
+
+  return FALSE;
+}
+
+static gboolean
+cally_text_action_do_action (AtkAction *action,
+                             gint       index)
+{
+  g_autoptr (AtkStateSet) set = NULL;
+  CallyText *cally_actor;
+  CallyTextPrivate *priv;
+
+  /* Only activate action is supported*/
+  g_return_val_if_fail (index != 0, FALSE);
+  g_return_val_if_fail (CALLY_IS_TEXT (action), FALSE);
+
+  cally_actor = CALLY_TEXT (action);
+  priv = cally_text_get_instance_private (cally_actor);
+
+  set = atk_object_ref_state_set (ATK_OBJECT (cally_actor));
+
+  if (atk_state_set_contains_state (set, ATK_STATE_DEFUNCT))
+    return FALSE;
+
+  if (!atk_state_set_contains_state (set, ATK_STATE_SENSITIVE) ||
+      !atk_state_set_contains_state (set, ATK_STATE_SHOWING))
+    return FALSE;
+
+  if (priv->activate_action == NULL)
+    return FALSE;
+
+  if (priv->activate_action->do_action_func == NULL)
+    return FALSE;
+
+  g_queue_push_head (priv->action_queue, priv->activate_action);
+
+  if (!priv->action_idle_handler)
+    priv->action_idle_handler = g_idle_add (idle_do_action, cally_actor);
+
+  return TRUE;
+}
+
+static gint
+cally_text_action_get_n_actions (AtkAction *action)
+{
+  g_return_val_if_fail (CALLY_IS_ACTOR (action), 0);
+
+  /* We only support activate action*/
+  return 1;
+}
+
+static const gchar*
+cally_text_action_get_name (AtkAction *action,
+                            gint       i)
+{
+  CallyTextPrivate *priv;
+
+  g_return_val_if_fail (CALLY_IS_ACTOR (action), NULL);
+
+  priv = cally_text_get_instance_private (CALLY_TEXT (action));
+
+  if (priv->activate_action == NULL)
+    return NULL;
+
+  return priv->activate_action->name;
 }
 
 /* GailTextUtil/GailMisc reimplementation methods */
