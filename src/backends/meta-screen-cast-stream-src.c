@@ -887,8 +887,6 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
           struct spa_meta_region *spa_meta_video_crop;
 
           spa_data->chunk->size = spa_data->maxsize;
-          spa_data->chunk->stride =
-            meta_screen_cast_stream_src_calculate_stride (src, spa_data);
           spa_data->chunk->flags = SPA_CHUNK_FLAG_NONE;
 
           /* Update VideoCrop if needed */
@@ -1444,6 +1442,7 @@ on_stream_add_buffer (void             *data,
           return;
         }
     }
+  spa_data->chunk->stride = stride;
 
   if (priv->buffer_count == 1 && priv->needs_follow_up_with_buffers)
     {
