@@ -721,9 +721,6 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
     }
 #endif
 
-  g_clear_pointer (&redraw_clip, mtk_region_unref);
-  g_clear_pointer (&fb_clip_region, mtk_region_unref);
-
   if (G_UNLIKELY (queued_redraw_clip))
     {
       g_autoptr (MtkRegion) swap_region_in_stage_space = NULL;
