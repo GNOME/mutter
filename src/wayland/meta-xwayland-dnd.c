@@ -842,16 +842,17 @@ drag_xgrab_get_focus_surface (MetaWaylandEventHandler *handler,
                               ClutterEventSequence    *sequence,
                               gpointer                 user_data)
 {
-  ClutterSeat *clutter_seat;
+  MetaWaylandDragGrab *drag_grab = user_data;
+  ClutterInputDevice *drag_device;
+  ClutterEventSequence *drag_sequence;
 
-  clutter_seat = clutter_input_device_get_seat (device);
-  if (sequence ||
-      device != clutter_seat_get_pointer (clutter_seat))
+  drag_device = meta_wayland_drag_grab_get_device (drag_grab, &drag_sequence);
+
+  if (drag_sequence != sequence ||
+      drag_device != device)
     return NULL;
 
-  return meta_wayland_event_handler_chain_up_get_focus_surface (handler,
-                                                                device,
-                                                                sequence);
+  return meta_wayland_drag_grab_get_origin (drag_grab);
 }
 
 static void
