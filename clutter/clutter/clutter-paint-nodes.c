@@ -1472,7 +1472,6 @@ struct _ClutterBlurNode
   ClutterLayerNode parent_instance;
 
   ClutterBlur *blur;
-  unsigned int radius;
 };
 
 G_DEFINE_TYPE (ClutterBlurNode, clutter_blur_node, CLUTTER_TYPE_LAYER_NODE)
@@ -1545,7 +1544,6 @@ clutter_blur_node_new (unsigned int width,
   g_return_val_if_fail (radius >= 0.0, NULL);
 
   blur_node = _clutter_paint_node_create (CLUTTER_TYPE_BLUR_NODE);
-  blur_node->radius = radius;
   context = clutter_backend_get_cogl_context (clutter_get_default_backend ());
   texture = cogl_texture_2d_new_with_size (context, width, height);
 
