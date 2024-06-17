@@ -58,7 +58,6 @@ struct _CoglTexture2D
   GLenum gl_legacy_texobj_mag_filter;
   GLint gl_legacy_texobj_wrap_mode_s;
   GLint gl_legacy_texobj_wrap_mode_t;
-  CoglTexturePixel first_pixel;
 
   struct {
     void *user_data;
