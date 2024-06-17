@@ -217,18 +217,7 @@ gboolean
 _cogl_texture_can_hardware_repeat (CoglTexture *texture);
 
 void
-_cogl_texture_transform_coords_to_gl (CoglTexture *texture,
-                                      float *s,
-                                      float *t);
-CoglTransformResult
-_cogl_texture_transform_quad_coords_to_gl (CoglTexture *texture,
-                                           float *coords);
-
-void
 _cogl_texture_pre_paint (CoglTexture *texture, CoglTexturePrePaintFlags flags);
-
-void
-_cogl_texture_ensure_non_quad_rendering (CoglTexture *texture);
 
 /*
  * This determines a CoglPixelFormat according to texture::components

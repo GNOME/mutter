@@ -328,8 +328,8 @@ validate_tex_coords_cb (CoglPipeline *pipeline,
   /* Convert the texture coordinates to GL.
    */
   transform_result =
-    _cogl_texture_transform_quad_coords_to_gl (texture,
-                                               out_tex_coords);
+    COGL_TEXTURE_GET_CLASS (texture)->transform_quad_coords_to_gl (texture,
+                                                                   out_tex_coords);
   /* If the texture has waste or we are using GL_TEXTURE_RECT we
    * can't handle texture repeating so we can't use the layer if
    * repeating is required.

@@ -267,14 +267,6 @@ _cogl_texture_get_format (CoglTexture *texture)
 }
 
 int
-cogl_texture_get_max_waste (CoglTexture *texture)
-{
-  g_return_val_if_fail (COGL_IS_TEXTURE (texture), 0);
-
-  return COGL_TEXTURE_GET_CLASS (texture)->get_max_waste (texture);
-}
-
-int
 _cogl_texture_get_n_levels (CoglTexture *texture)
 {
   int width = cogl_texture_get_width (texture);
@@ -346,24 +338,6 @@ _cogl_texture_can_hardware_repeat (CoglTexture *texture)
   return COGL_TEXTURE_GET_CLASS (texture)->can_hardware_repeat (texture);
 }
 
-/* NB: You can't use this with textures comprised of multiple sub textures (use
- * cogl_texture_is_sliced() to check) since coordinate transformation for such
- * textures will be different for each slice. */
-void
-_cogl_texture_transform_coords_to_gl (CoglTexture *texture,
-                                      float *s,
-                                      float *t)
-{
-  COGL_TEXTURE_GET_CLASS (texture)->transform_coords_to_gl (texture, s, t);
-}
-
-CoglTransformResult
-_cogl_texture_transform_quad_coords_to_gl (CoglTexture *texture,
-                                           float *coords)
-{
-  return COGL_TEXTURE_GET_CLASS (texture)->transform_quad_coords_to_gl (texture, coords);
-}
-
 gboolean
 cogl_texture_get_gl_texture (CoglTexture *texture,
 			     GLuint *out_gl_handle,
@@ -398,12 +372,6 @@ _cogl_texture_pre_paint (CoglTexture *texture, CoglTexturePrePaintFlags flags)
 
   COGL_TEXTURE_GET_CLASS (texture)->pre_paint (texture,
                                                flags);
-}
-
-void
-_cogl_texture_ensure_non_quad_rendering (CoglTexture *texture)
-{
-  COGL_TEXTURE_GET_CLASS (texture)->ensure_non_quad_rendering (texture);
 }
 
 gboolean

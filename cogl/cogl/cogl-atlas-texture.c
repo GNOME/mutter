@@ -286,9 +286,10 @@ static int
 _cogl_atlas_texture_get_max_waste (CoglTexture *tex)
 {
   CoglAtlasTexture *atlas_tex = COGL_ATLAS_TEXTURE (tex);
+  CoglTextureClass *klass = COGL_TEXTURE_GET_CLASS (atlas_tex->sub_texture);
 
   /* Forward on to the sub texture */
-  return cogl_texture_get_max_waste (atlas_tex->sub_texture);
+  return klass->get_max_waste (COGL_TEXTURE (atlas_tex->sub_texture));
 }
 
 static gboolean
@@ -315,9 +316,10 @@ _cogl_atlas_texture_transform_coords_to_gl (CoglTexture *tex,
                                             float *t)
 {
   CoglAtlasTexture *atlas_tex = COGL_ATLAS_TEXTURE (tex);
+  CoglTextureClass *klass = COGL_TEXTURE_GET_CLASS (atlas_tex->sub_texture);
 
   /* Forward on to the sub texture */
-  _cogl_texture_transform_coords_to_gl (atlas_tex->sub_texture, s, t);
+  klass->transform_coords_to_gl (atlas_tex->sub_texture, s, t);
 }
 
 static CoglTransformResult
@@ -325,10 +327,10 @@ _cogl_atlas_texture_transform_quad_coords_to_gl (CoglTexture *tex,
                                                  float *coords)
 {
   CoglAtlasTexture *atlas_tex = COGL_ATLAS_TEXTURE (tex);
+  CoglTextureClass *klass = COGL_TEXTURE_GET_CLASS (atlas_tex->sub_texture);
 
   /* Forward on to the sub texture */
-  return _cogl_texture_transform_quad_coords_to_gl (atlas_tex->sub_texture,
-                                                    coords);
+  return klass->transform_quad_coords_to_gl (atlas_tex->sub_texture, coords);
 }
 
 static gboolean
@@ -427,13 +429,14 @@ static void
 _cogl_atlas_texture_ensure_non_quad_rendering (CoglTexture *tex)
 {
   CoglAtlasTexture *atlas_tex = COGL_ATLAS_TEXTURE (tex);
+  CoglTextureClass *klass = COGL_TEXTURE_GET_CLASS (atlas_tex->sub_texture);
 
   /* Sub textures can't support non-quad rendering so we'll just
      migrate the texture out */
   _cogl_atlas_texture_migrate_out_of_atlas (atlas_tex);
 
   /* Forward on to the sub texture */
-  _cogl_texture_ensure_non_quad_rendering (atlas_tex->sub_texture);
+  klass->ensure_non_quad_rendering (atlas_tex->sub_texture);
 }
 
 static gboolean

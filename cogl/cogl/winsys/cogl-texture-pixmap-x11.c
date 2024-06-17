@@ -672,7 +672,7 @@ _cogl_texture_pixmap_x11_get_max_waste (CoglTexture *tex)
   CoglTexturePixmapX11 *tex_pixmap = COGL_TEXTURE_PIXMAP_X11 (tex);
   CoglTexture *child_tex = _cogl_texture_pixmap_x11_get_texture (tex_pixmap);
 
-  return cogl_texture_get_max_waste (child_tex);
+  return COGL_TEXTURE_GET_CLASS (child_tex)->get_max_waste (child_tex);
 }
 
 static void
@@ -727,7 +727,7 @@ _cogl_texture_pixmap_x11_transform_coords_to_gl (CoglTexture *tex,
   CoglTexture *child_tex = _cogl_texture_pixmap_x11_get_texture (tex_pixmap);
 
   /* Forward on to the child texture */
-  _cogl_texture_transform_coords_to_gl (child_tex, s, t);
+  COGL_TEXTURE_GET_CLASS (child_tex)->transform_coords_to_gl (child_tex, s, t);
 }
 
 static CoglTransformResult
@@ -738,7 +738,8 @@ _cogl_texture_pixmap_x11_transform_quad_coords_to_gl (CoglTexture *tex,
   CoglTexture *child_tex = _cogl_texture_pixmap_x11_get_texture (tex_pixmap);
 
   /* Forward on to the child texture */
-  return _cogl_texture_transform_quad_coords_to_gl (child_tex, coords);
+  return COGL_TEXTURE_GET_CLASS (child_tex)->transform_quad_coords_to_gl (child_tex,
+                                                                          coords);
 }
 
 static gboolean
@@ -790,7 +791,7 @@ _cogl_texture_pixmap_x11_ensure_non_quad_rendering (CoglTexture *tex)
   CoglTexture *child_tex = _cogl_texture_pixmap_x11_get_texture (tex_pixmap);
 
   /* Forward on to the child texture */
-  _cogl_texture_ensure_non_quad_rendering (child_tex);
+    COGL_TEXTURE_GET_CLASS (child_tex)->ensure_non_quad_rendering (child_tex);
 }
 
 static void

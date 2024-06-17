@@ -192,8 +192,9 @@ static int
 _cogl_sub_texture_get_max_waste (CoglTexture *tex)
 {
   CoglSubTexture *sub_tex = COGL_SUB_TEXTURE (tex);
+  CoglTextureClass *klass = COGL_TEXTURE_GET_CLASS (sub_tex->full_texture);
 
-  return cogl_texture_get_max_waste (sub_tex->full_texture);
+  return klass->get_max_waste (sub_tex->full_texture);
 }
 
 static gboolean
@@ -224,6 +225,7 @@ _cogl_sub_texture_transform_coords_to_gl (CoglTexture *tex,
                                           float *t)
 {
   CoglSubTexture *sub_tex = COGL_SUB_TEXTURE (tex);
+  CoglTextureClass *klass = COGL_TEXTURE_GET_CLASS (sub_tex->full_texture);
 
   /* This won't work if the sub texture is not the size of the full
      texture and the coordinates are outside the range [0,1] */
@@ -232,7 +234,7 @@ _cogl_sub_texture_transform_coords_to_gl (CoglTexture *tex,
   *t = ((*t * cogl_texture_get_height (tex) + sub_tex->sub_y) /
         cogl_texture_get_height (sub_tex->full_texture));
 
-  _cogl_texture_transform_coords_to_gl (sub_tex->full_texture, s, t);
+  klass->transform_coords_to_gl (sub_tex->full_texture, s, t);
 }
 
 static CoglTransformResult
@@ -240,6 +242,7 @@ _cogl_sub_texture_transform_quad_coords_to_gl (CoglTexture *tex,
                                                float *coords)
 {
   CoglSubTexture *sub_tex = COGL_SUB_TEXTURE (tex);
+  CoglTextureClass *klass = COGL_TEXTURE_GET_CLASS (sub_tex->full_texture);
   int i;
 
   /* We can't support repeating with this method. In this case
@@ -250,8 +253,7 @@ _cogl_sub_texture_transform_quad_coords_to_gl (CoglTexture *tex,
 
   _cogl_sub_texture_map_quad (sub_tex, coords);
 
-  return _cogl_texture_transform_quad_coords_to_gl (sub_tex->full_texture,
-                                                    coords);
+  return klass->transform_quad_coords_to_gl (sub_tex->full_texture, coords);
 }
 
 static gboolean

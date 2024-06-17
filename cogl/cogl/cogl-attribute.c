@@ -290,7 +290,7 @@ validate_layer_cb (CoglPipeline *pipeline,
   /* Give the texture a chance to know that we're rendering
      non-quad shaped primitives. If the texture is in an atlas it
      will be migrated */
-  _cogl_texture_ensure_non_quad_rendering (texture);
+  COGL_TEXTURE_GET_CLASS (texture)->ensure_non_quad_rendering (texture);
 
   /* We need to ensure the mipmaps are ready before deciding
    * anything else about the texture because the texture storate

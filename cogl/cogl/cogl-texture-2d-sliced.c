@@ -800,7 +800,8 @@ _cogl_texture_2d_sliced_transform_coords_to_gl (CoglTexture *tex,
 
   /* Let the child texture further transform the coords */
   slice_tex = g_array_index (tex_2ds->slice_textures, CoglTexture2D *, 0);
-  _cogl_texture_transform_coords_to_gl (COGL_TEXTURE (slice_tex), s, t);
+
+  COGL_TEXTURE_GET_CLASS (slice_tex)->transform_coords_to_gl (COGL_TEXTURE (slice_tex), s, t);
 }
 
 static CoglTransformResult
@@ -905,7 +906,7 @@ _cogl_texture_2d_sliced_ensure_non_quad_rendering (CoglTexture *tex)
     {
       CoglTexture2D *slice_tex = g_array_index (tex_2ds->slice_textures,
                                                 CoglTexture2D *, i);
-      _cogl_texture_ensure_non_quad_rendering (COGL_TEXTURE (slice_tex));
+      COGL_TEXTURE_GET_CLASS (slice_tex)->ensure_non_quad_rendering (COGL_TEXTURE (slice_tex));
     }
 }
 

@@ -235,17 +235,6 @@ cogl_texture_get_width (CoglTexture *texture);
 COGL_EXPORT unsigned int
 cogl_texture_get_height (CoglTexture *texture);
 
-/**
- * cogl_texture_get_max_waste:
- * @texture: a #CoglTexture pointer.
- *
- * Queries the maximum wasted (unused) pixels in one dimension of a GPU side
- * texture.
- *
- * Return value: the maximum waste
- */
-COGL_EXPORT int
-cogl_texture_get_max_waste (CoglTexture *texture);
 
 /**
  * cogl_texture_is_sliced:
