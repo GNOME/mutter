@@ -299,10 +299,10 @@ meta_wayland_input_attach_event_handler (MetaWaylandInput                *input,
       MetaBackend *backend = meta_context_get_backend (context);
       ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
 
-      input->grab = clutter_stage_grab_input_only (stage,
-                                                   grab_handle_event,
-                                                   input,
-                                                   NULL);
+      input->grab = clutter_stage_grab_input_only_inactive (stage,
+                                                            grab_handle_event,
+                                                            input,
+                                                            NULL);
       clutter_grab_activate (input->grab);
 
       g_signal_connect_swapped (input->grab, "notify::revoked",

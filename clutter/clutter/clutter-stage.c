@@ -3931,10 +3931,10 @@ clutter_stage_grab_inactive (ClutterStage *stage,
 }
 
 ClutterGrab *
-clutter_stage_grab_input_only (ClutterStage         *stage,
-                               ClutterEventHandler   handler,
-                               gpointer              user_data,
-                               GDestroyNotify        user_data_destroy)
+clutter_stage_grab_input_only_inactive (ClutterStage         *stage,
+                                        ClutterEventHandler   handler,
+                                        gpointer              user_data,
+                                        GDestroyNotify        user_data_destroy)
 {
   ClutterInputOnlyActor *input_only_actor;
   ClutterActor *actor;
