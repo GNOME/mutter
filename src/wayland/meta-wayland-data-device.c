@@ -345,6 +345,12 @@ meta_wayland_drag_grab_get_device (MetaWaylandDragGrab    *drag_grab,
   return drag_grab->device;
 }
 
+MetaWaylandSurface *
+meta_wayland_drag_grab_get_origin (MetaWaylandDragGrab *drag_grab)
+{
+  return drag_grab->drag_origin;
+}
+
 static void
 data_source_update_user_dnd_action (MetaWaylandDataSource *source,
                                     ClutterModifierType    modifiers)
