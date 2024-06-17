@@ -1108,10 +1108,10 @@ find_dnd_candidate_device (ClutterStage         *stage,
 
   if (!sequence)
     {
-      if (modifiers &
-          (CLUTTER_BUTTON1_MASK | CLUTTER_BUTTON2_MASK |
-           CLUTTER_BUTTON3_MASK | CLUTTER_BUTTON4_MASK |
-           CLUTTER_BUTTON5_MASK))
+      if ((modifiers &
+           (CLUTTER_BUTTON1_MASK | CLUTTER_BUTTON2_MASK |
+            CLUTTER_BUTTON3_MASK | CLUTTER_BUTTON4_MASK |
+            CLUTTER_BUTTON5_MASK)) == 0)
         return TRUE;
     }
 
