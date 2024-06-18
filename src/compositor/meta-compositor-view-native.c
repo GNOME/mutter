@@ -159,6 +159,8 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
   ClutterActorBox actor_box;
   MetaSurfaceActor *surface_actor;
   MetaSurfaceActorWayland *surface_actor_wayland;
+  ClutterColorState *view_color_state;
+  ClutterColorState *surface_color_state;
   MetaWaylandSurface *surface;
 
   if (meta_compositor_is_unredirect_inhibited (compositor))
@@ -282,6 +284,18 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
       meta_topic (META_DEBUG_RENDER,
                   "No direct scanout candidate: window-actor has no scanout "
                   "candidate");
+      return FALSE;
+    }
+
+  view_color_state =
+    clutter_stage_view_get_color_state (CLUTTER_STAGE_VIEW (view));
+  surface_color_state =
+    clutter_actor_get_color_state (CLUTTER_ACTOR (surface_actor));
+  if (!clutter_color_state_equals (view_color_state, surface_color_state))
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "No direct scanout candidate: "
+                  "surface color state doesn't match the outputs");
       return FALSE;
     }
 

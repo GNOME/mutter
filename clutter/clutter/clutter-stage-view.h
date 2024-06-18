@@ -94,3 +94,6 @@ void clutter_stage_view_schedule_update_now (ClutterStageView *view);
 
 CLUTTER_EXPORT
 ClutterPaintFlag clutter_stage_view_get_default_paint_flags (ClutterStageView *view);
+
+CLUTTER_EXPORT
+ClutterColorState * clutter_stage_view_get_color_state (ClutterStageView *view);

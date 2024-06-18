@@ -1322,6 +1322,9 @@ clutter_stage_view_get_default_paint_flags (ClutterStageView *view)
     return CLUTTER_PAINT_FLAG_NONE;
 }
 
+/**
+ * clutter_stage_view_get_color_state: (skip)
+ */
 ClutterColorState *
 clutter_stage_view_get_color_state (ClutterStageView *view)
 {
