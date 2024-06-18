@@ -50,6 +50,7 @@
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-renderer-native.h"
 #include "backends/native/meta-seat-native.h"
+#include "common/meta-cogl-drm-formats.h"
 #include "core/boxes-private.h"
 #include "meta/boxes.h"
 #include "meta/meta-backend.h"
@@ -756,92 +757,70 @@ load_cursor_sprite_gbm_buffer_for_crtc (MetaCursorRendererNative *native,
   return TRUE;
 }
 
-static cairo_surface_t *
-scale_and_transform_cursor_sprite_cpu (uint8_t              *pixels,
-                                       cairo_format_t        pixel_format,
-                                       int                   width,
-                                       int                   height,
-                                       int                   rowstride,
-                                       float                 scale,
-                                       MetaMonitorTransform  transform)
+static CoglTexture *
+scale_and_transform_cursor_sprite_cpu (MetaCursorRendererNative *cursor_renderer_native,
+                                       uint8_t                  *pixels,
+                                       CoglPixelFormat           pixel_format,
+                                       int                       width,
+                                       int                       height,
+                                       int                       rowstride,
+                                       float                     scale,
+                                       MetaMonitorTransform      transform,
+                                       GError                  **error)
 {
-  cairo_t *cr;
-  cairo_surface_t *source_surface;
-  cairo_surface_t *target_surface;
-  int image_width;
-  int image_height;
+  MetaCursorRendererNativePrivate *priv =
+    meta_cursor_renderer_native_get_instance_private (cursor_renderer_native);
+  ClutterBackend *clutter_backend =
+    meta_backend_get_clutter_backend (priv->backend);
+  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
+  g_autoptr (CoglTexture) src_texture = NULL;
+  g_autoptr (CoglTexture) dst_texture = NULL;
+  g_autoptr (CoglOffscreen) offscreen = NULL;
+  g_autoptr (CoglPipeline) pipeline = NULL;
+  graphene_matrix_t matrix;
+  MetaMonitorTransform pipeline_transform;
+  int dst_width;
+  int dst_height;
 
-  image_width = (int) ceilf (width * scale);
-  image_height = (int) ceilf (height * scale);
+  dst_width = (int) ceilf (width * scale);
+  dst_height = (int) ceilf (height * scale);
 
-  target_surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
-                                               image_width,
-                                               image_height);
+  src_texture = cogl_texture_2d_new_from_data (cogl_context,
+                                               width, height,
+                                               pixel_format,
+                                               rowstride,
+                                               pixels,
+                                               error);
+  if (!src_texture)
+    return NULL;
 
-  cr = cairo_create (target_surface);
-  if (transform != META_MONITOR_TRANSFORM_NORMAL)
-    {
-      cairo_translate (cr, 0.5 * image_width, 0.5 * image_height);
-      switch (transform)
-        {
-        case META_MONITOR_TRANSFORM_90:
-          cairo_rotate (cr, M_PI * 1.5);
-          break;
-        case META_MONITOR_TRANSFORM_180:
-          cairo_rotate (cr, M_PI);
-          break;
-        case META_MONITOR_TRANSFORM_270:
-          cairo_rotate (cr, M_PI * 0.5);
-          break;
-        case META_MONITOR_TRANSFORM_FLIPPED:
-          cairo_scale (cr, -1, 1);
-          break;
-        case META_MONITOR_TRANSFORM_FLIPPED_90:
-          cairo_scale (cr, -1, 1);
-          cairo_rotate (cr, M_PI * 0.5);
-          break;
-        case META_MONITOR_TRANSFORM_FLIPPED_180:
-          cairo_scale (cr, -1, 1);
-          cairo_rotate (cr, M_PI);
-          break;
-        case META_MONITOR_TRANSFORM_FLIPPED_270:
-          cairo_scale (cr, -1, 1);
-          cairo_rotate (cr, M_PI * 1.5);
-          break;
-        case META_MONITOR_TRANSFORM_NORMAL:
-          g_assert_not_reached ();
-        }
-      cairo_translate (cr, -0.5 * image_width, -0.5 * image_height);
-    }
-  cairo_scale (cr, scale, scale);
+  dst_texture = cogl_texture_2d_new_with_format (cogl_context,
+                                                 dst_width,
+                                                 dst_height,
+                                                 COGL_PIXEL_FORMAT_BGRA_8888_PRE);
+  offscreen = cogl_offscreen_new_with_texture (dst_texture);
+  if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (offscreen), error))
+    return NULL;
 
-  source_surface = cairo_image_surface_create_for_data (pixels,
-                                                        pixel_format,
-                                                        width,
-                                                        height,
-                                                        rowstride);
+  pipeline = cogl_pipeline_new (cogl_context);
 
-  cairo_set_source_surface (cr, source_surface, 0, 0);
-  cairo_paint (cr);
-  cairo_destroy (cr);
-  cairo_surface_destroy (source_surface);
+  graphene_matrix_init_identity (&matrix);
+  pipeline_transform = meta_monitor_transform_invert (transform);
+  meta_monitor_transform_transform_matrix (pipeline_transform, &matrix);
+  cogl_pipeline_set_layer_texture (pipeline, 0, src_texture);
+  cogl_pipeline_set_layer_matrix (pipeline, 0, &matrix);
 
-  return target_surface;
-}
+  cogl_framebuffer_clear4f (COGL_FRAMEBUFFER (offscreen),
+                            COGL_BUFFER_BIT_COLOR,
+                            0.0f, 0.0f, 0.0f, 0.0f);
+  cogl_framebuffer_draw_textured_rectangle (COGL_FRAMEBUFFER (offscreen),
+                                            pipeline,
+                                            -1.0f, -1.0f,
+                                            1.0f, 1.0f,
+                                            0.0f, 1.0f,
+                                            1.0f, 0.0f);
 
-static cairo_format_t
-gbm_format_to_cairo_format (uint32_t gbm_format)
-{
-  switch (gbm_format)
-    {
-    case GBM_FORMAT_XRGB8888:
-      return CAIRO_FORMAT_RGB24;
-    default:
-      g_warn_if_reached ();
-      G_GNUC_FALLTHROUGH;
-    case GBM_FORMAT_ARGB8888:
-      return CAIRO_FORMAT_ARGB32;
-    }
+  return COGL_TEXTURE (g_steal_pointer (&dst_texture));
 }
 
 static gboolean
@@ -862,31 +841,55 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
       relative_transform != META_MONITOR_TRANSFORM_NORMAL ||
       gbm_format != GBM_FORMAT_ARGB8888)
     {
-      cairo_surface_t *surface;
-      cairo_format_t cairo_format;
+      const MetaFormatInfo *format_info;
+      g_autoptr (GError) error = NULL;
+      g_autoptr (CoglTexture) texture = NULL;
+      g_autofree uint8_t *cursor_data = NULL;
+      int bpp;
+      int cursor_width, cursor_height, cursor_rowstride;
 
-      cairo_format = gbm_format_to_cairo_format (gbm_format);
-      surface = scale_and_transform_cursor_sprite_cpu (data,
-                                                       cairo_format,
+      format_info = meta_format_info_from_drm_format (gbm_format);
+      if (!format_info)
+        return FALSE;
+
+      texture = scale_and_transform_cursor_sprite_cpu (native,
+                                                       data,
+                                                       format_info->cogl_format,
                                                        width,
                                                        height,
                                                        rowstride,
                                                        relative_scale,
-                                                       relative_transform);
+                                                       relative_transform,
+                                                       &error);
+      if (!texture)
+        {
+          g_warning ("Failed to preprocess cursor sprite: %s",
+                     error->message);
+          return FALSE;
+        }
+
+      bpp =
+        cogl_pixel_format_get_bytes_per_pixel (COGL_PIXEL_FORMAT_BGRA_8888_PRE,
+                                               0);
+      cursor_width = cogl_texture_get_width (texture);
+      cursor_height = cogl_texture_get_height (texture);
+      cursor_rowstride = cursor_width * bpp;
+      cursor_data = g_malloc (cursor_height * cursor_rowstride);
+      cogl_texture_get_data (texture, COGL_PIXEL_FORMAT_BGRA_8888_PRE,
+                             cursor_rowstride,
+                             cursor_data);
 
       retval =
         load_cursor_sprite_gbm_buffer_for_crtc (native,
                                                 crtc_kms,
                                                 cursor_sprite,
-                                                cairo_image_surface_get_data (surface),
-                                                cairo_image_surface_get_width (surface),
-                                                cairo_image_surface_get_width (surface),
-                                                cairo_image_surface_get_stride (surface),
+                                                cursor_data,
+                                                cursor_width,
+                                                cursor_height,
+                                                cursor_rowstride,
                                                 relative_scale,
                                                 relative_transform,
                                                 GBM_FORMAT_ARGB8888);
-
-      cairo_surface_destroy (surface);
     }
   else
     {
