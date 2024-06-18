@@ -50,7 +50,12 @@ style][gnome-coding-style], with some additions described below.
  * Use `g_new0 ()` etc. instead of `g_slice_new0 ()`.
 
  * Initialize and assign floating point variables (i.e. `float` or
-   `double`) using the form `floating_point = 3.14159` or `ratio = 2.0`.
+   `double`) using the the correct precision format, and don't omit zeros. For example
+    ```c
+    float ratio = 2.0f;
+    double pi = 3.14159;
+    float fraction = 0.2f;
+    ```
 
 ## Naming conventions
 
