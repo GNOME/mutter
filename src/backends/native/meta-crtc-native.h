@@ -20,6 +20,7 @@
 #include "backends/meta-crtc.h"
 
 #define META_TYPE_CRTC_NATIVE (meta_crtc_native_get_type ())
+META_EXPORT_TEST
 G_DECLARE_DERIVABLE_TYPE (MetaCrtcNative, meta_crtc_native,
                           META, CRTC_NATIVE,
                           MetaCrtc)

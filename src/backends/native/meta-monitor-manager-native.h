@@ -32,6 +32,7 @@
 typedef struct _MetaGpuKms MetaGpuKms;
 
 #define META_TYPE_MONITOR_MANAGER_NATIVE (meta_monitor_manager_native_get_type ())
+META_EXPORT_TEST
 G_DECLARE_DERIVABLE_TYPE (MetaMonitorManagerNative, meta_monitor_manager_native,
                           META, MONITOR_MANAGER_NATIVE,
                           MetaMonitorManager)

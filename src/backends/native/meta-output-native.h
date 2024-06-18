@@ -20,6 +20,7 @@
 #include "backends/meta-output.h"
 
 #define META_TYPE_OUTPUT_NATIVE (meta_output_native_get_type ())
+META_EXPORT_TEST
 G_DECLARE_DERIVABLE_TYPE (MetaOutputNative, meta_output_native,
                           META, OUTPUT_NATIVE,
                           MetaOutput)
