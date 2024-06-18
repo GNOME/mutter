@@ -134,22 +134,10 @@ meta_backend_native_create_default_seat (MetaBackend  *backend,
                                          GError      **error)
 {
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
-  MetaBackendNativePrivate *priv =
-    meta_backend_native_get_instance_private (backend_native);
-  const char *seat_id = NULL;
+  const char *seat_id;
   MetaSeatNativeFlag flags;
 
-  switch (priv->mode)
-    {
-    case META_BACKEND_NATIVE_MODE_DEFAULT:
-    case META_BACKEND_NATIVE_MODE_HEADLESS:
-    case META_BACKEND_NATIVE_MODE_TEST_HEADLESS:
-      seat_id = meta_backend_native_get_seat_id (backend_native);
-      break;
-    case META_BACKEND_NATIVE_MODE_TEST_VKMS:
-      seat_id = META_BACKEND_TEST_INPUT_SEAT;
-      break;
-    }
+  seat_id = meta_backend_native_get_seat_id (backend_native);
 
   if (meta_backend_is_headless (backend))
     flags = META_SEAT_NATIVE_FLAG_NO_LIBINPUT;
@@ -344,8 +332,9 @@ meta_backend_native_get_seat_id (MetaBackendNative *backend_native)
   switch (priv->mode)
     {
     case META_BACKEND_NATIVE_MODE_DEFAULT:
-    case META_BACKEND_NATIVE_MODE_TEST_VKMS:
       return meta_launcher_get_seat_id (priv->launcher);
+    case META_BACKEND_NATIVE_MODE_TEST_VKMS:
+      return META_BACKEND_TEST_INPUT_SEAT;
     case META_BACKEND_NATIVE_MODE_HEADLESS:
     case META_BACKEND_NATIVE_MODE_TEST_HEADLESS:
       return "seat0";
