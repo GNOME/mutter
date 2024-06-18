@@ -128,10 +128,10 @@ meta_input_device_tool_native_set_pressure_curve_in_impl (ClutterInputDeviceTool
                     curve[2] >= 0 && curve[2] <= 1 &&
                     curve[3] >= 0 && curve[3] <= 1);
 
-  p1.x = curve[0];
-  p1.y = curve[1];
-  p2.x = curve[2];
-  p2.y = curve[3];
+  p1.x = (float) curve[0];
+  p1.y = (float) curve[1];
+  p2.x = (float) curve[2];
+  p2.y = (float) curve[3];
   evdev_tool = META_INPUT_DEVICE_TOOL_NATIVE (tool);
 
   if (!graphene_point_equal (&p1, &evdev_tool->pressure_curve[0]) ||

@@ -111,7 +111,7 @@ frame_cb (ClutterTimeline *timeline,
 {
   SuperOH *oh = data;
   gint i;
-  float rotation = clutter_timeline_get_progress (timeline) * 360.0f;
+  float rotation = (float) (clutter_timeline_get_progress (timeline) * 360.0);
 
   /* Rotate everything clockwise about stage center*/
   if (oh->group != NULL)
@@ -186,8 +186,8 @@ test_actors_main (int argc, char *argv[])
 
   oh->hand = g_new (ClutterActor *, NHANDS);
 
-  oh->stage_width = clutter_actor_get_width (oh->stage);
-  oh->stage_height = clutter_actor_get_height (oh->stage);
+  oh->stage_width = (int) clutter_actor_get_width (oh->stage);
+  oh->stage_height = (int) clutter_actor_get_height (oh->stage);
   oh->radius = (oh->stage_width + oh->stage_height) / NHANDS;
 
   for (i = 0; i < NHANDS; i++)
@@ -210,18 +210,18 @@ test_actors_main (int argc, char *argv[])
       clutter_actor_set_size (oh->hand[i], 200, 213);
 
       /* Place around a circle */
-      w = clutter_actor_get_width (oh->hand[i]);
-      h = clutter_actor_get_height (oh->hand[i]);
+      w = (int) clutter_actor_get_width (oh->hand[i]);
+      h = (int) clutter_actor_get_height (oh->hand[i]);
 
-      x = oh->stage_width / 2
-        + oh->radius
-        * cos (i * G_PI / (NHANDS / 2))
-        - w / 2;
+      x = (int) (oh->stage_width / 2
+                 + oh->radius
+                 * cos (i * G_PI / (NHANDS / 2))
+                 - w / 2);
 
-      y = oh->stage_height / 2
-        + oh->radius
-        * sin (i * G_PI / (NHANDS / 2))
-        - h / 2;
+      y = (int) (oh->stage_height / 2
+                 + oh->radius
+                 * sin (i * G_PI / (NHANDS / 2))
+                 - h / 2);
 
       clutter_actor_set_position (oh->hand[i], x, y);
       clutter_actor_set_translation (oh->hand[i], -100.f, -106.5, 0);

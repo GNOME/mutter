@@ -268,12 +268,12 @@ calculate_cursor_rect (CrtcStateImpl          *crtc_state_impl,
   int buffer_width, buffer_height;
   graphene_rect_t cursor_rect;
 
-  crtc_x = (x - crtc_state_impl->layout.origin.x) * crtc_state_impl->scale;
-  crtc_y = (y - crtc_state_impl->layout.origin.y) * crtc_state_impl->scale;
-  crtc_width = roundf (crtc_state_impl->layout.size.width *
-                       crtc_state_impl->scale);
-  crtc_height = roundf (crtc_state_impl->layout.size.height *
-                        crtc_state_impl->scale);
+  crtc_x = (int) ((x - crtc_state_impl->layout.origin.x) * crtc_state_impl->scale);
+  crtc_y = (int) ((y - crtc_state_impl->layout.origin.y) * crtc_state_impl->scale);
+  crtc_width = (int) roundf (crtc_state_impl->layout.size.width *
+                             crtc_state_impl->scale);
+  crtc_height = (int) roundf (crtc_state_impl->layout.size.height *
+                              crtc_state_impl->scale);
 
   meta_monitor_transform_transform_point (crtc_state_impl->transform,
                                           &crtc_width, &crtc_height,
@@ -401,10 +401,10 @@ maybe_update_cursor_plane (MetaKmsCursorManagerImpl  *cursor_manager_impl,
         .height = meta_fixed_16_from_int (height),
       };
       dst_rect = (MtkRectangle) {
-        .x = round (cursor_rect.origin.x),
-        .y = round (cursor_rect.origin.y),
-        .width = round (cursor_rect.size.width),
-        .height = round (cursor_rect.size.height),
+        .x = (int) round (cursor_rect.origin.x),
+        .y = (int) round (cursor_rect.origin.y),
+        .width = (int) round (cursor_rect.size.width),
+        .height = (int) round (cursor_rect.size.height),
       };
 
       plane_assignment = meta_kms_update_assign_plane (update,

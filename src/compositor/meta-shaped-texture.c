@@ -161,8 +161,8 @@ update_size (MetaShapedTexture *stex)
     }
   else if (stex->has_viewport_src_rect)
     {
-      dst_width = stex->viewport_src_rect.size.width;
-      dst_height = stex->viewport_src_rect.size.height;
+      dst_width = (int) stex->viewport_src_rect.size.width;
+      dst_height = (int) stex->viewport_src_rect.size.height;
     }
   else
     {
@@ -495,7 +495,7 @@ get_opaque_overlay_pipeline (CoglContext *ctx)
   if (!pipeline)
     {
       pipeline = cogl_pipeline_new (ctx);
-      cogl_color_init_from_4f (&color,  0.0, 0.2, 0.0, 0.2);
+      cogl_color_init_from_4f (&color,  0.0f, 0.2f, 0.0f, 0.2f);
       cogl_pipeline_set_color (pipeline, &color);
 
       cogl_context_set_named_pipeline (ctx,
@@ -517,7 +517,7 @@ get_blended_overlay_pipeline (CoglContext *ctx)
   if (!pipeline)
     {
       pipeline = cogl_pipeline_new (ctx);
-      cogl_color_init_from_4f (&color,  0.2, 0.0, 0.2,  0.2);
+      cogl_color_init_from_4f (&color,  0.2f, 0.0f, 0.2f, 0.2f);
       cogl_pipeline_set_color (pipeline, &color);
 
       cogl_context_set_named_pipeline (ctx,
@@ -678,8 +678,10 @@ do_paint_content (MetaShapedTexture   *stex,
 
   if (stex->has_viewport_src_rect)
     {
-      sample_width = stex->viewport_src_rect.size.width * stex->buffer_scale;
-      sample_height = stex->viewport_src_rect.size.height * stex->buffer_scale;
+      sample_width = (int) (stex->viewport_src_rect.size.width *
+                            stex->buffer_scale);
+      sample_height = (int) (stex->viewport_src_rect.size.height *
+                             stex->buffer_scale);
     }
   else
     {
@@ -846,8 +848,8 @@ do_paint_content (MetaShapedTexture   *stex,
           cogl_pipeline_set_layer_filters (blended_pipeline, i, min_filter, mag_filter);
         }
 
-      cogl_color_init_from_4f (&color, opacity / 255.0, opacity / 255.0,
-                               opacity / 255.0, opacity / 255.0);
+      cogl_color_init_from_4f (&color, opacity / 255.0f, opacity / 255.0f,
+                               opacity / 255.0f, opacity / 255.0f);
       cogl_pipeline_set_color (blended_pipeline, &color);
 
       if (blended_tex_region)
@@ -1113,8 +1115,8 @@ meta_shaped_texture_update_area (MetaShapedTexture *stex,
         .size.width = dst_width,
         .size.height = dst_height
       };
-      inverted_dst_width = ceilf (viewport.size.width);
-      inverted_dst_height = ceilf (viewport.size.height);
+      inverted_dst_width = (int) ceilf (viewport.size.width);
+      inverted_dst_height = (int) ceilf (viewport.size.height);
 
       mtk_rectangle_crop_and_scale (clip,
                                     &inverted_viewport,
@@ -1269,7 +1271,7 @@ meta_shaped_texture_is_opaque (MetaShapedTexture *stex)
   meta_shaped_texture_ensure_size_valid (stex);
 
   return mtk_rectangle_equal (&opaque_rect,
-                              &MTK_RECTANGLE_INIT (0, 0, 
+                              &MTK_RECTANGLE_INIT (0, 0,
                                                    stex->dst_width, stex->dst_height));
 }
 

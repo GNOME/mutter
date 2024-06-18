@@ -415,9 +415,9 @@ tool_cursor_prepare_at (MetaCursorSpriteXcursor *sprite_xcursor,
 
       if (meta_backend_is_stage_views_scaled (backend))
         meta_cursor_sprite_set_texture_scale (cursor_sprite,
-                                              1.0 / ceiled_scale);
+                                              1.0f / ceiled_scale);
       else
-        meta_cursor_sprite_set_texture_scale (cursor_sprite, 1.0);
+        meta_cursor_sprite_set_texture_scale (cursor_sprite, 1.0f);
     }
 }
 
@@ -748,7 +748,7 @@ broadcast_axis (MetaWaylandTabletTool *tool,
 
   axes = clutter_event_get_axes (event, NULL);
   val = axes[axis];
-  value = val * TABLET_AXIS_MAX;
+  value = (uint32_t) (val * TABLET_AXIS_MAX);
 
   wl_resource_for_each (resource, &tool->focus_resource_list)
     {

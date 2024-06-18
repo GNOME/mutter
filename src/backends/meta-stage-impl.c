@@ -157,7 +157,7 @@ paint_damage_region (ClutterStageWindow *stage_window,
   if (G_UNLIKELY (overlay_blue == NULL))
     {
       overlay_blue = cogl_pipeline_new (ctx);
-      cogl_color_init_from_4f (&blue_color, 0.0, 0.0, 0.2, 0.2);
+      cogl_color_init_from_4f (&blue_color, 0.0f, 0.0f, 0.2f, 0.2f);
       cogl_pipeline_set_color (overlay_blue, &blue_color);
     }
 
@@ -184,7 +184,7 @@ paint_damage_region (ClutterStageWindow *stage_window,
       if (G_UNLIKELY (overlay_red == NULL))
         {
           overlay_red = cogl_pipeline_new (ctx);
-          cogl_color_init_from_4f (&red_color, 0.2, 0.0, 0.0, 0.2);
+          cogl_color_init_from_4f (&red_color, 0.2f, 0.0f, 0.0f, 0.2f);
           cogl_pipeline_set_color (overlay_red, &red_color);
         }
 
@@ -577,7 +577,7 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
         {
           queued_redraw_clip =
             scale_offset_and_clamp_region (fb_clip_region,
-                                           1.0 / fb_scale,
+                                           1.0f / fb_scale,
                                            view_rect.x,
                                            view_rect.y);
         }
@@ -658,7 +658,7 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
        */
       g_clear_pointer (&redraw_clip, mtk_region_unref);
       redraw_clip = scale_offset_and_clamp_region (fb_clip_region,
-                                                   1.0 / fb_scale,
+                                                   1.0f / fb_scale,
                                                    view_rect.x,
                                                    view_rect.y);
     }

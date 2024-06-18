@@ -244,15 +244,16 @@ capture_view_into (ClutterStageView *view,
   backend = clutter_get_default_backend ();
   context = clutter_backend_get_cogl_context (backend);
   bitmap = cogl_bitmap_new_for_data (context,
-                                     texture_width, texture_height,
+                                     (int) texture_width,
+                                     (int) texture_height,
                                      COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
                                      stride,
                                      buffer);
 
   clutter_stage_view_get_layout (view, &view_layout);
 
-  x = roundf ((rect->x - view_layout.x) * view_scale);
-  y = roundf ((rect->y - view_layout.y) * view_scale);
+  x = (int) roundf ((rect->x - view_layout.x) * view_scale);
+  y = (int) roundf ((rect->y - view_layout.y) * view_scale);
   cogl_framebuffer_read_pixels_into_bitmap (framebuffer,
                                             x, y,
                                             COGL_READ_PIXELS_COLOR_BUFFER,
@@ -289,8 +290,8 @@ on_after_paint (MetaStage        *stage,
 
   clutter_stage_view_get_layout (view, &rect);
   view_scale = clutter_stage_view_get_scale (view);
-  texture_width = roundf (rect.width * view_scale);
-  texture_height = roundf (rect.height * view_scale);
+  texture_width = (int) roundf (rect.width * view_scale);
+  texture_height = (int) roundf (rect.height * view_scale);
   image = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
                                       texture_width, texture_height);
   cairo_surface_set_device_scale (image, view_scale, view_scale);

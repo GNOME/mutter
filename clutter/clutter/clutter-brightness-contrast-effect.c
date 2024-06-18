@@ -204,9 +204,9 @@ clutter_brightness_contrast_effect_get_property (GObject    *gobject,
     {
     case PROP_BRIGHTNESS:
       {
-        color.red = (priv->brightness_red + 1.0f) * 127.0f;
-        color.green = (priv->brightness_green + 1.0f) * 127.0f;
-        color.blue = (priv->brightness_blue + 1.0f) * 127.0f;
+        color.red = (uint8_t) ((priv->brightness_red + 1.0f) * 127.0f);
+        color.green = (uint8_t) ((priv->brightness_green + 1.0f) * 127.0f);
+        color.blue = (uint8_t) ((priv->brightness_blue + 1.0f) * 127.0f);
         color.alpha = 0xff;
 
         cogl_value_set_color (value, &color);
@@ -215,9 +215,9 @@ clutter_brightness_contrast_effect_get_property (GObject    *gobject,
 
     case PROP_CONTRAST:
       {
-        color.red = (priv->contrast_red + 1.0f) * 127.0f;
-        color.green = (priv->contrast_green + 1.0f) * 127.0f;
-        color.blue = (priv->contrast_blue + 1.0f) * 127.0f;
+        color.red = (uint8_t) ((priv->contrast_red + 1.0f) * 127.0f);
+        color.green = (uint8_t) ((priv->contrast_green + 1.0f) * 127.0f);
+        color.blue = (uint8_t) ((priv->contrast_blue + 1.0f) * 127.0f);
         color.alpha = 0xff;
 
         cogl_value_set_color (value, &color);
@@ -337,9 +337,9 @@ update_uniforms (ClutterBrightnessContrastEffect *self)
   if (priv->contrast_uniform > -1)
     {
       float contrast[3] = {
-        tan ((priv->contrast_red + 1) * G_PI_4),
-        tan ((priv->contrast_green + 1) * G_PI_4),
-        tan ((priv->contrast_blue + 1) * G_PI_4)
+        (float) tan ((priv->contrast_red + 1) * G_PI_4),
+        (float) tan ((priv->contrast_green + 1) * G_PI_4),
+        (float) tan ((priv->contrast_blue + 1) * G_PI_4)
       };
 
       cogl_pipeline_set_uniform_float (priv->pipeline,

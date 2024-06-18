@@ -172,7 +172,7 @@ update_factor_uniform (ClutterDesaturateEffect *self)
   if (priv->factor_uniform > -1)
     cogl_pipeline_set_uniform_1f (priv->pipeline,
                                   priv->factor_uniform,
-                                  priv->factor);
+                                  (float) priv->factor);
 }
 
 static void

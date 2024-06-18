@@ -92,10 +92,10 @@ cogl_gl_framebuffer_flush_viewport_state (CoglGlFramebuffer *gl_framebuffer)
              viewport_height);
 
   GE (cogl_framebuffer_get_context (framebuffer),
-      glViewport (viewport_x,
-                  gl_viewport_y,
-                  viewport_width,
-                  viewport_height));
+      glViewport ((GLint) viewport_x,
+                  (GLint) gl_viewport_y,
+                  (GLsizei) viewport_width,
+                  (GLsizei) viewport_height));
 }
 
 static void

@@ -591,7 +591,7 @@ ensure_effective_pango_scale_attribute (ClutterText *self)
       scale_attrib = pango_attr_iterator_get (iter, PANGO_ATTR_SCALE);
 
       if (scale_attrib != NULL)
-        resource_scale *= ((PangoAttrFloat *) scale_attrib)->value;
+        resource_scale *= (float) ((PangoAttrFloat *) scale_attrib)->value;
 
       pango_attr_iterator_destroy (iter);
     }
@@ -963,7 +963,7 @@ clutter_text_create_layout (ClutterText *text,
        !((priv->editable && priv->single_line_mode) ||
          (priv->ellipsize == PANGO_ELLIPSIZE_NONE && !priv->wrap))))
     {
-      width = pixels_to_pango (allocation_width);
+      width = (int) pixels_to_pango (allocation_width);
     }
 
   /* Pango only uses height if ellipsization is enabled, so don't set
@@ -980,7 +980,7 @@ clutter_text_create_layout (ClutterText *text,
       priv->ellipsize != PANGO_ELLIPSIZE_NONE &&
       !priv->single_line_mode)
     {
-      height = pixels_to_pango (allocation_height);
+      height = (int) pixels_to_pango (allocation_height);
     }
 
   /* Search for a cached layout with the same width and keep
@@ -1136,8 +1136,8 @@ clutter_text_coords_to_position (ClutterText *self,
   /* Take any offset due to scrolling into account, and normalize
    * the coordinates to PangoScale units
    */
-  px = logical_pixels_to_pango (x - priv->text_logical_x, resource_scale);
-  py = logical_pixels_to_pango (y - priv->text_logical_y, resource_scale);
+  px = (int) logical_pixels_to_pango (x - priv->text_logical_x, resource_scale);
+  py = (int) logical_pixels_to_pango (y - priv->text_logical_y, resource_scale);
 
   pango_layout_xy_to_index (clutter_text_get_layout (self),
                             px, py,
@@ -1925,10 +1925,10 @@ paint_selection_rectangle (ClutterText           *self,
     color = &priv->text_color;
 
   cogl_color_init_from_4f (&cogl_color,
-                           color->red / 255.0,
-                           color->green / 255.0,
-                           color->blue / 255.0,
-                           paint_opacity / 255.0 * color->alpha / 255.0);
+                           color->red / 255.0f,
+                           color->green / 255.0f,
+                           color->blue / 255.0f,
+                           paint_opacity / 255.0f * color->alpha / 255.0f);
   cogl_color_premultiply (&cogl_color);
   cogl_pipeline_set_color (color_pipeline, &cogl_color);
 
@@ -1945,10 +1945,10 @@ paint_selection_rectangle (ClutterText           *self,
     color = &priv->text_color;
 
   cogl_color_init_from_4f (&cogl_color,
-                           color->red / 255.0,
-                           color->green / 255.0,
-                           color->blue / 255.0,
-                           paint_opacity / 255.0 * color->alpha / 255.0);
+                           color->red / 255.0f,
+                           color->green / 255.0f,
+                           color->blue / 255.0f,
+                           paint_opacity / 255.0f * color->alpha / 255.0f);
 
   cogl_pango_show_layout (fb, layout, priv->text_x, 0, &cogl_color);
 
@@ -1982,10 +1982,10 @@ selection_paint (ClutterText     *self,
 
 
       cogl_color_init_from_4f (&cogl_color,
-                               color->red / 255.0,
-                               color->green / 255.0,
-                               color->blue / 255.0,
-                               paint_opacity / 255.0 * color->alpha / 255.0);
+                               color->red / 255.0f,
+                               color->green / 255.0f,
+                               color->blue / 255.0f,
+                               paint_opacity / 255.0f * color->alpha / 255.0f);
       cogl_color_premultiply (&cogl_color);
       cogl_pipeline_set_color (color_pipeline, &cogl_color);
 
@@ -2580,10 +2580,10 @@ clutter_text_compute_layout_offsets (ClutterText           *self,
     }
 
   if (text_x != NULL)
-    *text_x = floorf (x);
+    *text_x = (int) floorf (x);
 
   if (text_y != NULL)
-    *text_y = floorf (y);
+    *text_y = (int) floorf (y);
 }
 
 #define TEXT_PADDING    2
@@ -2681,14 +2681,14 @@ clutter_text_paint (ClutterActor        *self,
       cogl_framebuffer_push_rectangle_clip (fb, 0, 0, alloc_width, alloc_height);
       clip_set = TRUE;
 
-      actor_width = alloc_width - 2 * TEXT_PADDING;
-      text_width  = pango_to_pixels (logical_rect.width);
+      actor_width = (int) (alloc_width - 2 * TEXT_PADDING);
+      text_width = (int) pango_to_pixels (logical_rect.width);
 
       rtl = priv->resolved_direction == CLUTTER_TEXT_DIRECTION_RTL;
 
       if (actor_width < text_width)
         {
-          gint cursor_x = graphene_rect_get_x (&priv->cursor_rect);
+          gint cursor_x = (int) graphene_rect_get_x (&priv->cursor_rect);
 
           if (priv->position == -1)
             {
@@ -2739,8 +2739,8 @@ clutter_text_paint (ClutterActor        *self,
     {
       priv->text_x = text_x;
       priv->text_y = text_y;
-      priv->text_logical_x = roundf ((float) text_x / resource_scale);
-      priv->text_logical_y = roundf ((float) text_y / resource_scale);
+      priv->text_logical_x = (int) roundf ((float) text_x / resource_scale);
+      priv->text_logical_y = (int) roundf ((float) text_y / resource_scale);
 
       clutter_text_ensure_cursor_position (text, resource_scale);
     }
@@ -2753,10 +2753,10 @@ clutter_text_paint (ClutterActor        *self,
                 clutter_text_buffer_get_text (get_buffer (text)));
 
   cogl_color_init_from_4f (&color,
-                           priv->text_color.red / 255.0,
-                           priv->text_color.green / 255.0,
-                           priv->text_color.blue / 255.0,
-                           real_opacity / 255.0);
+                           priv->text_color.red / 255.0f,
+                           priv->text_color.green / 255.0f,
+                           priv->text_color.blue / 255.0f,
+                           real_opacity / 255.0f);
   cogl_pango_show_layout (fb, layout, priv->text_x, priv->text_y, &color);
 
   selection_paint (text, fb);

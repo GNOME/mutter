@@ -21,7 +21,7 @@ clutter_perf_fps_init (void)
   g_setenv ("CLUTTER_DEFAULT_FPS", "1000", FALSE);
 
   if (g_getenv ("CLUTTER_PERFORMANCE_TEST_DURATION"))
-    testmaxtime = atof(g_getenv("CLUTTER_PERFORMANCE_TEST_DURATION"));
+    testmaxtime = (float) atof (g_getenv("CLUTTER_PERFORMANCE_TEST_DURATION"));
   else
     testmaxtime = 10.0;
 
@@ -136,14 +136,14 @@ static gboolean perf_fake_mouse_cb (gpointer stage)
 
       x += xd;
       y += yd;
-      xd += g_random_double_range (-0.1, 0.1);
-      yd += g_random_double_range (-0.1, 0.1);
+      xd += (float) g_random_double_range (-0.1, 0.1);
+      yd += (float) g_random_double_range (-0.1, 0.1);
 
       wrap (&x, 0, w);
       wrap (&y, 0, h);
 
-      xd = CLAMP(xd, -1.3, 1.3);
-      yd = CLAMP(yd, -1.3, 1.3);
+      xd = CLAMP(xd, -1.3f, 1.3f);
+      yd = CLAMP(yd, -1.3f, 1.3f);
     }
   return G_SOURCE_CONTINUE;
 }

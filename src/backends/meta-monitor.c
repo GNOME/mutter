@@ -30,11 +30,11 @@
 #include "core/boxes-private.h"
 
 #define SCALE_FACTORS_PER_INTEGER 4
-#define SCALE_FACTORS_STEPS (1.0 / (float) SCALE_FACTORS_PER_INTEGER)
+#define SCALE_FACTORS_STEPS (1.0f / (float) SCALE_FACTORS_PER_INTEGER)
 #define MINIMUM_SCALE_FACTOR 1.0f
 #define MAXIMUM_SCALE_FACTOR 4.0f
 #define MINIMUM_LOGICAL_AREA (800 * 480)
-#define MAXIMUM_REFRESH_RATE_DIFF 0.001
+#define MAXIMUM_REFRESH_RATE_DIFF 0.001f
 
 typedef struct _MetaMonitorMode
 {
@@ -1607,10 +1607,10 @@ meta_monitor_tiled_derive_layout (MetaMonitor  *monitor,
     }
 
   *layout = (MtkRectangle) {
-    .x = roundf (min_x),
-    .y = roundf (min_y),
-    .width = roundf (max_x - min_x),
-    .height = roundf (max_y - min_y)
+    .x = (int) roundf (min_x),
+    .y = (int) roundf (min_y),
+    .width = (int) roundf (max_x - min_x),
+    .height = (int) roundf (max_y - min_y)
   };
 }
 
@@ -1711,12 +1711,12 @@ gboolean
 meta_monitor_mode_spec_has_similar_size (MetaMonitorModeSpec *monitor_mode_spec,
                                          MetaMonitorModeSpec *other_monitor_mode_spec)
 {
-  const float target_ratio = 1.0;
+  const float target_ratio = 1.0f;
   /* The a size difference of 15% means e.g. 4K modes matches other 4K modes,
    * FHD (2K) modes other FHD modes, and HD modes other HD modes, but not each
    * other.
    */
-  const float epsilon = 0.15;
+  const float epsilon = 0.15f;
 
   return G_APPROX_VALUE (((float) monitor_mode_spec->width /
                           other_monitor_mode_spec->width) *
@@ -1877,7 +1877,7 @@ calculate_scale (MetaMonitor                *monitor,
   int n_scales;
   float best_scale, best_dpi;
   int target_dpi;
-  const float scale_epsilon = 0.2;
+  const float scale_epsilon = 0.2f;
 
   /*
    * Somebody encoded the aspect ratio (16/9 or 16/10) instead of the physical
@@ -1890,7 +1890,7 @@ calculate_scale (MetaMonitor                *monitor,
   meta_monitor_get_physical_dimensions (monitor, &width_mm, &height_mm);
   if (width_mm == 0 || height_mm == 0)
     return 1.0;
-  diag_inches = sqrtf (width_mm * width_mm + height_mm * height_mm) / 25.4;
+  diag_inches = sqrtf (width_mm * width_mm + height_mm * height_mm) / 25.4f;
 
   /* Pick the appropriate target DPI based on screen size */
   if (diag_inches < UI_SCALE_LARGE_MIN_SIZE_INCHES)
@@ -1937,7 +1937,7 @@ calculate_scale (MetaMonitor                *monitor,
   if (constraints & META_MONITOR_SCALES_CONSTRAINT_NO_FRAC)
     {
       best_scale = floorf (MIN (scales[n_scales - 1],
-                                best_scale + 0.25 + scale_epsilon));
+                                best_scale + 0.25f + scale_epsilon));
     }
 
   return best_scale;
@@ -1974,8 +1974,8 @@ is_scale_valid_for_size (float width,
   if (scale < MINIMUM_SCALE_FACTOR || scale > MAXIMUM_SCALE_FACTOR)
     return FALSE;
 
-  return is_logical_size_large_enough (floorf (width / scale),
-                                       floorf (height / scale));
+  return is_logical_size_large_enough ((int) floorf (width / scale),
+                                       (int) floorf (height / scale));
 }
 
 gboolean
@@ -2017,7 +2017,7 @@ get_closest_scale_factor_for_resolution (float width,
 
   i = 0;
   found_one = FALSE;
-  base_scaled_w = floorf (width / scale);
+  base_scaled_w = (int) floorf (width / scale);
 
   do
     {
@@ -2371,8 +2371,8 @@ meta_parse_monitor_mode (const char *string,
     return FALSE;
   ptr++;
 
-  refresh_rate = g_ascii_strtod (ptr, &ptr);
-  if (refresh_rate == 0.0)
+  refresh_rate = (float) g_ascii_strtod (ptr, &ptr);
+  if (G_APPROX_VALUE (refresh_rate, 0.0f, FLT_EPSILON))
     return FALSE;
 
   if (ptr[0] != '\0')

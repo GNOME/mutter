@@ -54,8 +54,8 @@ foo_actor_paint (ClutterActor        *actor,
 
   /* Paint a red rectangle with the right opacity */
   pipeline = cogl_pipeline_new (ctx);
-  cogl_color_init_from_4f (&color, 1.0, 0.0, 0.0,
-                           foo_actor->last_paint_opacity / 255.);
+  cogl_color_init_from_4f (&color, 1.0f, 0.0f, 0.0f,
+                           foo_actor->last_paint_opacity / 255.0f);
   cogl_pipeline_set_color (pipeline, &color);
 
   framebuffer = clutter_paint_context_get_framebuffer (paint_context);

@@ -287,8 +287,8 @@ calculate_background_cull_region (MetaWindowActorWayland *self)
   rect = (MtkRectangle) {
     .x = 0,
     .y = 0,
-    .width = clutter_actor_get_width (self->background) * geometry_scale,
-    .height = clutter_actor_get_height (self->background) * geometry_scale,
+    .width = (int) (clutter_actor_get_width (self->background) * geometry_scale),
+    .height = (int) (clutter_actor_get_height (self->background) * geometry_scale),
   };
 
   return mtk_region_create_rectangle (&rect);

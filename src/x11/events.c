@@ -976,8 +976,8 @@ handle_input_xevent (MetaX11Display *x11_display,
           meta_display_handle_window_enter (display,
                                             window,
                                             enter_event->time,
-                                            enter_event->root_x,
-                                            enter_event->root_y);
+                                            (int) enter_event->root_x,
+                                            (int) enter_event->root_y);
         }
       break;
     case XI_Leave:

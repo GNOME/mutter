@@ -393,10 +393,10 @@ clutter_actor_box_interpolate (const ClutterActorBox *initial,
   g_return_if_fail (final != NULL);
   g_return_if_fail (result != NULL);
 
-  result->x1 = initial->x1 + (final->x1 - initial->x1) * progress;
-  result->y1 = initial->y1 + (final->y1 - initial->y1) * progress;
-  result->x2 = initial->x2 + (final->x2 - initial->x2) * progress;
-  result->y2 = initial->y2 + (final->y2 - initial->y2) * progress;
+  result->x1 = (float) (initial->x1 + (final->x1 - initial->x1) * progress);
+  result->y1 = (float) (initial->y1 + (final->y1 - initial->y1) * progress);
+  result->x2 = (float) (initial->x2 + (final->x2 - initial->x2) * progress);
+  result->y2 = (float) (initial->y2 + (final->y2 - initial->y2) * progress);
 }
 
 /**
@@ -539,8 +539,8 @@ _clutter_actor_box_enlarge_for_effects (ClutterActorBox *box)
    * here is 1.75px in total if you consider that the 0.75 padding could
    * just cross an integer boundary and so ceil will effectively add 1.
    */
-  box->x2 = ceilf (box->x2 + 0.75);
-  box->y2 = ceilf (box->y2 + 0.75);
+  box->x2 = ceilf (box->x2 + 0.75f);
+  box->y2 = ceilf (box->y2 + 0.75f);
 
   /* Now we redefine the top-left relative to the bottom right based on the
    * rounded width/height determined above + a constant so that the overall

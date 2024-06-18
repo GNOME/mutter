@@ -658,7 +658,8 @@ meta_wayland_pointer_update (MetaWaylandPointer *pointer,
               meta_display_handle_window_enter (display,
                                                 focus_window,
                                                 clutter_event_get_time (event),
-                                                pos.x, pos.y);
+                                                (int) pos.x,
+                                                (int) pos.y);
             }
         }
     }
@@ -803,8 +804,8 @@ handle_scroll_event (MetaWaylandPointer *pointer,
          * in pointer motion event space, multiply the vector with the 10. */
         const double factor = 10.0;
         clutter_event_get_scroll_delta (event, &dx, &dy);
-        x_value = wl_fixed_from_double (dx) * factor;
-        y_value = wl_fixed_from_double (dy) * factor;
+        x_value = wl_fixed_from_double (dx * factor);
+        y_value = wl_fixed_from_double (dy * factor);
 
         if (source == WL_POINTER_AXIS_SOURCE_WHEEL)
           {

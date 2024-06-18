@@ -1565,8 +1565,8 @@ meta_input_device_native_new_in_impl (MetaSeatImpl           *seat_impl,
   if (libinput_device_get_size (libinput_device, &width, &height) == 0)
     {
       device->device_aspect_ratio = width / height;
-      device->width = width;
-      device->height = height;
+      device->width = (int) width;
+      device->height = (int) height;
     }
 
   device->group = (intptr_t) libinput_device_get_device_group (libinput_device);
@@ -1678,20 +1678,32 @@ meta_input_device_native_translate_coordinates_in_impl (ClutterInputDevice *devi
     }
 
   graphene_matrix_transform_point (&device_evdev->device_matrix,
-                                   &GRAPHENE_POINT_INIT (min_x, min_y), &min_point);
+                                   &GRAPHENE_POINT_INIT ((float) min_x,
+                                                         (float) min_y),
+                                   &min_point);
   min_x = min_point.x;
   min_y = min_point.y;
   graphene_matrix_transform_point (&device_evdev->device_matrix,
-                                   &GRAPHENE_POINT_INIT (max_x, max_y), &max_point);
+                                   &GRAPHENE_POINT_INIT ((float) max_x,
+                                                         (float) max_y),
+                                   &max_point);
   max_x = max_point.x;
   max_y = max_point.y;
   graphene_matrix_transform_point (&device_evdev->device_matrix,
-                                   &GRAPHENE_POINT_INIT (x_d, y_d), &pos_point);
+                                   &GRAPHENE_POINT_INIT ((float) x_d,
+                                                         (float) y_d),
+                                   &pos_point);
   x_d = pos_point.x;
   y_d = pos_point.y;
 
-  *x = CLAMP (x_d, MIN (min_x, max_x), MAX (min_x, max_x)) * stage_width;
-  *y = CLAMP (y_d, MIN (min_y, max_y), MAX (min_y, max_y)) * stage_height;
+  *x = (float) (CLAMP (x_d,
+                       MIN (min_x, max_x),
+                       MAX (min_x, max_x)) *
+                stage_width);
+  *y = (float) (CLAMP (y_d,
+                       MIN (min_y, max_y),
+                       MAX (min_y, max_y)) *
+                stage_height);
 }
 
 MetaInputDeviceMapping

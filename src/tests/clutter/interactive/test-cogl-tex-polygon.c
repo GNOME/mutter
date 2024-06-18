@@ -84,15 +84,15 @@ test_coglbox_fade_texture (CoglFramebuffer *framebuffer,
       CoglColor cogl_color;
 
       cogl_color_init_from_4f (&cogl_color,
-                               1.0,
-                               1.0,
-                               1.0,
-                               ((i ^ (i >> 1)) & 1) ? 0.0 : 128.0 / 255.0);
+                               1.0f,
+                               1.0f,
+                               1.0f,
+                               ((i ^ (i >> 1)) & 1) ? 0.0 : 128.0f / 255.0f);
       cogl_color_premultiply (&cogl_color);
-      vertices[i].r = cogl_color_get_red (&cogl_color) * 255.0;
-      vertices[i].g = cogl_color_get_green (&cogl_color) * 255.0;
-      vertices[i].b = cogl_color_get_blue (&cogl_color) * 255.0;
-      vertices[i].a = cogl_color_get_alpha (&cogl_color) * 255.0;
+      vertices[i].r = (uint8_t) (cogl_color_get_red (&cogl_color) * 255.0);
+      vertices[i].g = (uint8_t) (cogl_color_get_green (&cogl_color) * 255.0);
+      vertices[i].b = (uint8_t) (cogl_color_get_blue (&cogl_color) * 255.0);
+      vertices[i].a = (uint8_t) (cogl_color_get_alpha (&cogl_color) * 255.0);
     }
 
   primitive =
@@ -291,7 +291,7 @@ frame_cb (ClutterTimeline *timeline,
   TestCoglbox *coglbox = TEST_COGLBOX (data);
   gdouble progress = clutter_timeline_get_progress (timeline);
 
-  coglbox->frame = 360.0 * progress;
+  coglbox->frame = (int) (360.0 * progress);
   clutter_actor_queue_redraw (CLUTTER_ACTOR (data));
 }
 

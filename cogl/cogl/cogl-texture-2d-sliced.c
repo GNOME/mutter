@@ -132,8 +132,8 @@ _cogl_rect_slices_for_size (int     size_to_fill,
       /* Add another slice span of same size */
       if (out_spans)
         g_array_append_val (out_spans, span);
-      span.start   += span.size;
-      size_to_fill -= span.size;
+      span.start   += (int) span.size;
+      size_to_fill -= (int) span.size;
       n_spans++;
     }
 
@@ -322,7 +322,8 @@ allocate_slices (CoglTexture2DSliced *tex_2ds,
 
           slice =
             cogl_texture_2d_new_with_size (ctx,
-                                           x_span->size, y_span->size);
+                                           (int) x_span->size,
+                                           (int) y_span->size);
 
           _cogl_texture_copy_internal_format (tex, slice);
 
@@ -392,8 +393,8 @@ _cogl_texture_2d_sliced_allocate_waste_buffer (CoglTexture2DSliced *tex_2ds,
         = &g_array_index (tex_2ds->slice_x_spans, CoglSpan, 0);
       CoglSpan  *first_y_span
         = &g_array_index (tex_2ds->slice_y_spans, CoglSpan, 0);
-      unsigned int right_size = first_y_span->size * last_x_span->waste;
-      unsigned int bottom_size = first_x_span->size * last_y_span->waste;
+      unsigned int right_size = (unsigned int) (first_y_span->size * last_x_span->waste);
+      unsigned int bottom_size = (unsigned int) (first_x_span->size * last_y_span->waste);
 
       waste_buf = g_malloc (MAX (right_size, bottom_size) * bpp);
     }
@@ -472,25 +473,25 @@ _cogl_texture_2d_sliced_set_waste (CoglTexture2DSliced *tex_2ds,
             }
 
           waste_bmp = cogl_bitmap_new_for_data (ctx,
-                                                x_span->waste,
-                                                y_iter->intersect_end -
-                                                y_iter->intersect_start,
+                                                (int) x_span->waste,
+                                                (int) (y_iter->intersect_end -
+                                                       y_iter->intersect_start),
                                                 source_format,
-                                                x_span->waste * bpp,
+                                                (int) (x_span->waste * bpp),
                                                 waste_buf);
 
           if (!_cogl_texture_set_region_from_bitmap (COGL_TEXTURE (slice_tex),
                                                      0, /* src_x */
                                                      0, /* src_y */
-                                                     x_span->waste, /* width */
+                                                     (int) x_span->waste, /* width */
                                                      /* height */
-                                                     y_iter->intersect_end -
-                                                     y_iter->intersect_start,
+                                                     (int) (y_iter->intersect_end -
+                                                            y_iter->intersect_start),
                                                      waste_bmp,
                                                      /* dst_x */
-                                                     x_span->size - x_span->waste,
-                                                     y_iter->intersect_start -
-                                                     y_span->start, /* dst_y */
+                                                     (int) (x_span->size - x_span->waste),
+                                                     (int) (y_iter->intersect_start -
+                                                            y_span->start), /* dst_y */
                                                      0, /* level */
                                                      error))
             {
@@ -515,11 +516,11 @@ _cogl_texture_2d_sliced_set_waste (CoglTexture2DSliced *tex_2ds,
 
           if (x_iter->intersect_end - x_iter->pos
               >= x_span->size - x_span->waste)
-            copy_width = x_span->size + x_iter->pos - x_iter->intersect_start;
+            copy_width = (unsigned int) (x_span->size + x_iter->pos - x_iter->intersect_start);
           else
-            copy_width = x_iter->intersect_end - x_iter->intersect_start;
+            copy_width = (unsigned int) (x_iter->intersect_end - x_iter->intersect_start);
 
-          intersect_width = x_iter->intersect_end - x_iter->intersect_start;
+          intersect_width = (unsigned int) (x_iter->intersect_end - x_iter->intersect_start);
 
           for (wy = 0; wy < y_span->waste; wy++)
             {
@@ -535,7 +536,7 @@ _cogl_texture_2d_sliced_set_waste (CoglTexture2DSliced *tex_2ds,
 
           waste_bmp = cogl_bitmap_new_for_data (ctx,
                                                 copy_width,
-                                                y_span->waste,
+                                                (int) y_span->waste,
                                                 source_format,
                                                 copy_width * bpp,
                                                 waste_buf);
@@ -544,13 +545,13 @@ _cogl_texture_2d_sliced_set_waste (CoglTexture2DSliced *tex_2ds,
                                                      0, /* src_x */
                                                      0, /* src_y */
                                                      copy_width, /* width */
-                                                     y_span->waste, /* height */
+                                                     (int) y_span->waste, /* height */
                                                      waste_bmp,
                                                      /* dst_x */
-                                                     x_iter->intersect_start -
-                                                     x_iter->pos,
+                                                     (int) (x_iter->intersect_start -
+                                                            x_iter->pos),
                                                      /* dst_y */
-                                                     y_span->size - y_span->waste,
+                                                     (int) (y_span->size - y_span->waste),
                                                      0, /* level */
                                                      error))
             {
@@ -603,12 +604,12 @@ _cogl_texture_2d_sliced_upload_bitmap (CoglTexture2DSliced *tex_2ds,
                                      CoglTexture2D *, slice_num);
 
           if (!_cogl_texture_set_region_from_bitmap (COGL_TEXTURE (slice_tex),
-                                                     x_span->start, /* src x */
-                                                     y_span->start, /* src y */
-                                                     x_span->size -
-                                                     x_span->waste, /* width */
-                                                     y_span->size -
-                                                     y_span->waste, /* height */
+                                                     (int) x_span->start, /* src x */
+                                                     (int) y_span->start, /* src y */
+                                                     (int) (x_span->size -
+                                                            x_span->waste), /* width */
+                                                     (int) (y_span->size -
+                                                            y_span->waste), /* height */
                                                      bmp,
                                                      0, /* dst x */
                                                      0, /* dst y */
@@ -1012,12 +1013,12 @@ _cogl_texture_2d_sliced_upload_subregion (CoglTexture2DSliced *tex_2ds,
                                    x_iter.index);
 
           /* Pick intersection width and height */
-          inter_w =  (x_iter.intersect_end - x_iter.intersect_start);
-          inter_h =  (y_iter.intersect_end - y_iter.intersect_start);
+          inter_w = (int) (x_iter.intersect_end - x_iter.intersect_start);
+          inter_h = (int) (y_iter.intersect_end - y_iter.intersect_start);
 
           /* Localize intersection top-left corner to slice*/
-          local_x =  (x_iter.intersect_start - x_iter.pos);
-          local_y =  (y_iter.intersect_start - y_iter.pos);
+          local_x = (int) (x_iter.intersect_start - x_iter.pos);
+          local_y = (int) (y_iter.intersect_start - y_iter.pos);
 
           slice_num = y_iter.index * tex_2ds->slice_x_spans->len + x_iter.index;
 

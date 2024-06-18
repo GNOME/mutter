@@ -24,7 +24,7 @@
 
 /**
  * ClutterRotateAction:
- * 
+ *
  * Action to rotate an actor
  *
  * #ClutterRotateAction is a sub-class of [class@GestureAction] that implements
@@ -116,9 +116,9 @@ clutter_rotate_action_gesture_progress (ClutterGestureAction *action,
 
       /* Computes angle between the 2 initial touch points and the
          current position of the 2 touch points. */
-      norm = sqrt (vector[0] * vector[0] + vector[1] * vector[1]);
-      norm = (priv->initial_vector[0] * vector[0] +
-              priv->initial_vector[1] * vector[1]) / (priv->initial_vector_norm * norm);
+      norm = sqrtf (vector[0] * vector[0] + vector[1] * vector[1]);
+      norm = (float) ((priv->initial_vector[0] * vector[0] +
+                       priv->initial_vector[1] * vector[1]) / (priv->initial_vector_norm * norm));
 
       if ((norm >= -1.0) && (norm <= 1.0))
         angle = acos (norm);

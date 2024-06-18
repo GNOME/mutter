@@ -450,7 +450,7 @@ setup_pipeline (MetaBackgroundContent *self,
       cogl_pipeline_set_uniform_1f (self->pipeline,
                                     cogl_pipeline_get_uniform_location (self->pipeline,
                                                                         "vignette_sharpness"),
-                                    self->vignette_sharpness);
+                                    (float) self->vignette_sharpness);
 
       self->changed &= ~CHANGED_VIGNETTE_PARAMETERS;
     }
@@ -462,7 +462,8 @@ setup_pipeline (MetaBackgroundContent *self,
 
       meta_display_get_monitor_geometry (self->display,
                                          self->monitor, &monitor_geometry);
-      gradient_height_perc = MAX (0.0001, self->gradient_height / (float)monitor_geometry.height);
+      gradient_height_perc = MAX (0.0001f,
+                                  self->gradient_height / (float) monitor_geometry.height);
       cogl_pipeline_set_uniform_1f (self->pipeline,
                                     cogl_pipeline_get_uniform_location (self->pipeline,
                                                                         "gradient_height_perc"),
@@ -470,7 +471,7 @@ setup_pipeline (MetaBackgroundContent *self,
       cogl_pipeline_set_uniform_1f (self->pipeline,
                                     cogl_pipeline_get_uniform_location (self->pipeline,
                                                                         "gradient_max_darkness"),
-                                    self->gradient_max_darkness);
+                                    (float) self->gradient_max_darkness);
 
       self->changed &= ~CHANGED_GRADIENT_PARAMETERS;
     }
@@ -483,7 +484,7 @@ setup_pipeline (MetaBackgroundContent *self,
 
       monitor_scale = meta_backend_is_stage_views_scaled (backend)
         ? meta_display_get_monitor_scale (self->display, self->monitor)
-        : 1.0;
+        : 1.0f;
 
       if (self->rounded_clip_bounds_set)
         {
@@ -535,15 +536,15 @@ setup_pipeline (MetaBackgroundContent *self,
     }
 
   if (self->vignette)
-    color_component = self->vignette_brightness * opacity / 255.;
+    color_component = (float) (self->vignette_brightness * opacity / 255.0);
   else
-    color_component = opacity / 255.;
+    color_component = opacity / 255.0f;
 
   cogl_color_init_from_4f (&color,
                            color_component,
                            color_component,
                            color_component,
-                           opacity / 255.);
+                           opacity / 255.0f);
   cogl_pipeline_set_color (self->pipeline, &color);
 
   fb = clutter_paint_context_get_framebuffer (paint_context);
@@ -579,11 +580,11 @@ set_glsl_parameters (MetaBackgroundContent *self,
 
   monitor_scale = meta_backend_is_stage_views_scaled (backend)
     ? meta_display_get_monitor_scale (self->display, self->monitor)
-    : 1.0;
+    : 1.0f;
 
   float pixel_step[] = {
-    1.f / (self->texture_area.width * monitor_scale),
-    1.f / (self->texture_area.height * monitor_scale),
+    1.0f / (self->texture_area.width * monitor_scale),
+    1.0f / (self->texture_area.height * monitor_scale),
   };
 
   pixel_step_uniform_location =
@@ -595,8 +596,8 @@ set_glsl_parameters (MetaBackgroundContent *self,
    */
   scale[0] = self->texture_area.width / (float)actor_pixel_rect->width;
   scale[1] = self->texture_area.height / (float)actor_pixel_rect->height;
-  offset[0] = self->texture_area.x / (float)actor_pixel_rect->width - 0.5;
-  offset[1] = self->texture_area.y / (float)actor_pixel_rect->height - 0.5;
+  offset[0] = self->texture_area.x / (float)actor_pixel_rect->width - 0.5f;
+  offset[1] = self->texture_area.y / (float)actor_pixel_rect->height - 0.5f;
 
   cogl_pipeline_set_uniform_float (self->pipeline,
                                    cogl_pipeline_get_uniform_location (self->pipeline,
@@ -672,10 +673,10 @@ meta_background_content_paint_content (ClutterContent      *content,
     return;
 
   clutter_actor_get_content_box (actor, &actor_box);
-  rect_within_actor.x = actor_box.x1;
-  rect_within_actor.y = actor_box.y1;
-  rect_within_actor.width = actor_box.x2 - actor_box.x1;
-  rect_within_actor.height = actor_box.y2 - actor_box.y1;
+  rect_within_actor.x = (int) actor_box.x1;
+  rect_within_actor.y = (int) actor_box.y1;
+  rect_within_actor.width = (int) (actor_box.x2 - actor_box.x1);
+  rect_within_actor.height = (int) (actor_box.y2 - actor_box.y1);
 
   if (clutter_actor_is_in_clone_paint (actor))
     {
@@ -686,14 +687,14 @@ meta_background_content_paint_content (ClutterContent      *content,
       clutter_actor_get_transformed_position (actor,
                                               &transformed_x,
                                               &transformed_y);
-      rect_within_stage.x = floorf (transformed_x);
-      rect_within_stage.y = floorf (transformed_y);
+      rect_within_stage.x = (int) floorf (transformed_x);
+      rect_within_stage.y = (int) floorf (transformed_y);
 
       clutter_actor_get_transformed_size (actor,
                                           &transformed_width,
                                           &transformed_height);
-      rect_within_stage.width = ceilf (transformed_width);
-      rect_within_stage.height = ceilf (transformed_height);
+      rect_within_stage.width = (int) ceilf (transformed_width);
+      rect_within_stage.height = (int) ceilf (transformed_height);
 
       untransformed =
         rect_within_actor.x == rect_within_stage.x &&

@@ -686,7 +686,7 @@ meta_seat_impl_notify_relative_motion_in_impl (MetaSeatImpl       *seat_impl,
   ClutterEvent *event;
   ClutterModifierType modifiers;
   float x, y, cur_x, cur_y;
-  double dx_constrained, dy_constrained;
+  float dx_constrained, dy_constrained;
 
   if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)
     {
@@ -950,8 +950,8 @@ notify_scroll (ClutterInputDevice       *input_device,
                                      NULL,
                                      modifiers,
                                      GRAPHENE_POINT_INIT (x, y),
-                                     GRAPHENE_POINT_INIT (scroll_factor * dx,
-                                                          scroll_factor * dy),
+                                     GRAPHENE_POINT_INIT ((float) (scroll_factor * dx),
+                                                          (float) (scroll_factor * dy)),
                                      scroll_source,
                                      flags);
 
@@ -1004,10 +1004,10 @@ check_notify_discrete_scroll (MetaSeatImpl       *seat_impl,
 {
   int i, n_xscrolls, n_yscrolls;
 
-  n_xscrolls = floor ((fabs (seat_impl->accum_scroll_dx) + DBL_EPSILON) /
-                      DISCRETE_SCROLL_STEP);
-  n_yscrolls = floor ((fabs (seat_impl->accum_scroll_dy) + DBL_EPSILON) /
-                      DISCRETE_SCROLL_STEP);
+  n_xscrolls = (int) floor ((fabs (seat_impl->accum_scroll_dx) + DBL_EPSILON) /
+                            DISCRETE_SCROLL_STEP);
+  n_yscrolls = (int) floor ((fabs (seat_impl->accum_scroll_dy) + DBL_EPSILON) /
+                            DISCRETE_SCROLL_STEP);
 
   for (i = 0; i < n_xscrolls; i++)
     {
@@ -1043,12 +1043,12 @@ meta_seat_impl_notify_scroll_continuous_in_impl (MetaSeatImpl             *seat_
   if (finish_flags & CLUTTER_SCROLL_FINISHED_HORIZONTAL)
     seat_impl->accum_scroll_dx = 0;
   else
-    seat_impl->accum_scroll_dx += dx;
+    seat_impl->accum_scroll_dx += (float) dx;
 
   if (finish_flags & CLUTTER_SCROLL_FINISHED_VERTICAL)
     seat_impl->accum_scroll_dy = 0;
   else
-    seat_impl->accum_scroll_dy += dy;
+    seat_impl->accum_scroll_dy += (float) dy;
 
   notify_scroll (input_device, time_us, dx, dy, scroll_source,
                  finish_flags, FALSE);
@@ -1113,7 +1113,7 @@ meta_seat_impl_notify_discrete_scroll_in_impl (MetaSeatImpl        *seat_impl,
       if (should_reset_discrete_acc (dx_value120, evdev_device->value120.last_dx))
         evdev_device->value120.acc_dx = 0;
 
-      evdev_device->value120.last_dx = dx_value120;
+      evdev_device->value120.last_dx = (int32_t) dx_value120;
     }
 
   if (dy_value120 != 0)
@@ -1121,11 +1121,11 @@ meta_seat_impl_notify_discrete_scroll_in_impl (MetaSeatImpl        *seat_impl,
       if (should_reset_discrete_acc (dy_value120, evdev_device->value120.last_dy))
         evdev_device->value120.acc_dy = 0;
 
-      evdev_device->value120.last_dy = dy_value120;
+      evdev_device->value120.last_dy = (int32_t) dy_value120;
     }
 
-  evdev_device->value120.acc_dx += dx_value120;
-  evdev_device->value120.acc_dy += dy_value120;
+  evdev_device->value120.acc_dx += (int32_t) dx_value120;
+  evdev_device->value120.acc_dy += (int32_t) dy_value120;
 
   if (abs (evdev_device->value120.acc_dx) >= 60)
     {
@@ -1192,7 +1192,7 @@ meta_seat_impl_notify_touch_event_in_impl (MetaSeatImpl       *seat_impl,
                                  input_device,
                                  sequence,
                                  modifiers,
-                                 GRAPHENE_POINT_INIT (x, y));
+                                 GRAPHENE_POINT_INIT ((float) x, (float) y));
     }
 
   queue_event (seat_impl, event);
@@ -1415,11 +1415,14 @@ notify_pinch_gesture_event (ClutterInputDevice          *input_device,
                                       input_device,
                                       phase,
                                       n_fingers,
-                                      GRAPHENE_POINT_INIT (x, y),
-                                      GRAPHENE_POINT_INIT (dx, dy),
-                                      GRAPHENE_POINT_INIT (dx_unaccel,
-                                                           dy_unaccel),
-                                      angle_delta, scale);
+                                      GRAPHENE_POINT_INIT ((float) x,
+                                                           (float) y),
+                                      GRAPHENE_POINT_INIT ((float) dx,
+                                                           (float) dy),
+                                      GRAPHENE_POINT_INIT ((float) dx_unaccel,
+                                                           (float) dy_unaccel),
+                                      (float) angle_delta,
+                                      (float) scale);
 
   queue_event (seat_impl, event);
 }
@@ -1448,10 +1451,12 @@ notify_swipe_gesture_event (ClutterInputDevice          *input_device,
                                       input_device,
                                       phase,
                                       n_fingers,
-                                      GRAPHENE_POINT_INIT (x, y),
-                                      GRAPHENE_POINT_INIT (dx, dy),
-                                      GRAPHENE_POINT_INIT (dx_unaccel,
-                                                           dy_unaccel));
+                                      GRAPHENE_POINT_INIT ((float) x,
+                                                           (float) y),
+                                      GRAPHENE_POINT_INIT ((float) dx,
+                                                           (float) dy),
+                                      GRAPHENE_POINT_INIT ((float) dx_unaccel,
+                                                           (float) dy_unaccel));
 
   queue_event (seat_impl, event);
 }
@@ -2080,13 +2085,20 @@ process_tablet_axis (MetaSeatImpl          *seat_impl,
     {
       dx = libinput_event_tablet_tool_get_dx (tablet_event);
       dy = libinput_event_tablet_tool_get_dy (tablet_event);
-      notify_relative_tool_motion_in_impl (device, time, dx, dy, axes);
+      notify_relative_tool_motion_in_impl (device, time,
+                                           (float) dx, (float) dy,
+                                           axes);
     }
   else
     {
-      x = libinput_event_tablet_tool_get_x_transformed (tablet_event, stage_width);
-      y = libinput_event_tablet_tool_get_y_transformed (tablet_event, stage_height);
-      notify_absolute_motion_in_impl (device, time, x, y, axes);
+      x = libinput_event_tablet_tool_get_x_transformed (tablet_event,
+                                                        (uint32_t) stage_width);
+      y = libinput_event_tablet_tool_get_y_transformed (tablet_event,
+                                                        (uint32_t) stage_height);
+      notify_absolute_motion_in_impl (device, time,
+                                      (float) x,
+                                      (float) y,
+                                      axes);
     }
 }
 
@@ -2157,8 +2169,10 @@ process_device_event (MetaSeatImpl          *seat_impl,
         meta_seat_impl_notify_relative_motion_in_impl (seat_impl,
                                                        device,
                                                        time_us,
-                                                       dx, dy,
-                                                       dx_unaccel, dy_unaccel,
+                                                       (float) dx,
+                                                       (float) dy,
+                                                       (float) dx_unaccel,
+                                                       (float) dy_unaccel,
                                                        NULL);
 
         break;
@@ -2178,14 +2192,15 @@ process_device_event (MetaSeatImpl          *seat_impl,
 
         time_us = libinput_event_pointer_get_time_usec (motion_event);
         x = libinput_event_pointer_get_absolute_x_transformed (motion_event,
-                                                               stage_width);
+                                                               (int) stage_width);
         y = libinput_event_pointer_get_absolute_y_transformed (motion_event,
-                                                               stage_height);
+                                                               (int) stage_height);
 
         meta_seat_impl_notify_absolute_motion_in_impl (seat_impl,
                                                        device,
                                                        time_us,
-                                                       x, y,
+                                                       (float) x,
+                                                       (float) y,
                                                        NULL);
 
         break;
@@ -2262,15 +2277,15 @@ process_device_event (MetaSeatImpl          *seat_impl,
         seat_slot = libinput_event_touch_get_seat_slot (touch_event);
         time_us = libinput_event_touch_get_time_usec (touch_event);
         x = libinput_event_touch_get_x_transformed (touch_event,
-                                                    stage_width);
+                                                    (int) stage_width);
         y = libinput_event_touch_get_y_transformed (touch_event,
-                                                    stage_height);
+                                                    (int) stage_height);
 
         g_rw_lock_writer_lock (&seat_impl->state_lock);
 
         touch_state = meta_seat_impl_acquire_touch_state_in_impl (seat_impl, seat_slot);
-        touch_state->coords.x = x;
-        touch_state->coords.y = y;
+        touch_state->coords.x = (float) x;
+        touch_state->coords.y = (float) y;
         meta_input_device_native_translate_coordinates_in_impl (device,
                                                                 seat_impl->viewports,
                                                                 &touch_state->coords.x,
@@ -2335,16 +2350,16 @@ process_device_event (MetaSeatImpl          *seat_impl,
         seat_slot = libinput_event_touch_get_seat_slot (touch_event);
         time_us = libinput_event_touch_get_time_usec (touch_event);
         x = libinput_event_touch_get_x_transformed (touch_event,
-                                                    stage_width);
+                                                    (int) stage_width);
         y = libinput_event_touch_get_y_transformed (touch_event,
-                                                    stage_height);
+                                                    (int) stage_height);
 
         g_rw_lock_writer_lock (&seat_impl->state_lock);
         touch_state = meta_seat_impl_lookup_touch_state_in_impl (seat_impl, seat_slot);
         if (touch_state)
           {
-            touch_state->coords.x = x;
-            touch_state->coords.y = y;
+            touch_state->coords.x = (float) x;
+            touch_state->coords.y = (float) y;
             meta_input_device_native_translate_coordinates_in_impl (device,
                                                                     seat_impl->viewports,
                                                                     &touch_state->coords.x,
@@ -3721,12 +3736,12 @@ ensure_pointer_onscreen (MetaSeatImpl *seat_impl)
     {
       meta_viewport_info_get_view_info (seat_impl->viewports, i,
                                         &monitor_rect, NULL);
-      nearest_monitor_x = MIN (ABS (coords.x - monitor_rect.x),
-                               ABS (coords.x -
-                                    monitor_rect.x + monitor_rect.width));
-      nearest_monitor_y = MIN (ABS (coords.y - monitor_rect.y),
-                               ABS (coords.y -
-                                    monitor_rect.y + monitor_rect.height));
+      nearest_monitor_x = (int) MIN (ABS (coords.x - monitor_rect.x),
+                                     ABS (coords.x -
+                                          monitor_rect.x + monitor_rect.width));
+      nearest_monitor_y = (int) MIN (ABS (coords.y - monitor_rect.y),
+                                     ABS (coords.y -
+                                          monitor_rect.y + monitor_rect.height));
       if (nearest_monitor_x < min_distance ||
           nearest_monitor_y < min_distance)
         {

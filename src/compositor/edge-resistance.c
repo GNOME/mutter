@@ -527,11 +527,11 @@ apply_edge_resistance_to_each_side (MetaEdgeResistanceData  *edge_data,
 
       const gfloat tile_edges[] =
         {
-          1./4.,
-          1./3.,
-          1./2.,
-          2./3.,
-          3./4.,
+          1.0f / 4.0f,
+          1.0f / 3.0f,
+          1.0f / 2.0f,
+          2.0f / 3.0f,
+          3.0f / 4.0f,
         };
 
       meta_window_get_work_area_current_monitor (window, &workarea);
@@ -550,7 +550,7 @@ apply_edge_resistance_to_each_side (MetaEdgeResistanceData  *edge_data,
        */
       for (i = 0; i < G_N_ELEMENTS (tile_edges); i++)
         {
-          guint horizontal_point = workarea.x + floor (workarea.width * tile_edges[i]);
+          guint horizontal_point = workarea.x + (int) floorf (workarea.width * tile_edges[i]);
 
           if (ABS (horizontal_point - new_left) < 16)
             {

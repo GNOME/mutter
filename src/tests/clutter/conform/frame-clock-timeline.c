@@ -2,7 +2,7 @@
 #include "tests/clutter-test-utils.h"
 
 static const float refresh_rate = 60.0;
-static const int64_t refresh_interval_us = G_USEC_PER_SEC / refresh_rate;
+static const int64_t refresh_interval_us = (int64_t) (G_USEC_PER_SEC / refresh_rate);
 
 static ClutterFrameResult
 timeline_frame_clock_frame (ClutterFrameClock *frame_clock,

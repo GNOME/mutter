@@ -21,8 +21,6 @@
 #pragma once
 
 #include <glib-object.h>
-#include <spa/param/video/format-utils.h>
-#include <spa/buffer/meta.h>
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-cursor-renderer.h"
@@ -53,6 +51,10 @@ typedef enum _MetaScreenCastPaintPhase
   META_SCREEN_CAST_PAINT_PHASE_PRE_PAINT,
   META_SCREEN_CAST_PAINT_PHASE_PRE_SWAP_BUFFER,
 } MetaScreenCastPaintPhase;
+
+/* Declare some SPA types to avoid including the headers in too many places. */
+struct spa_meta_cursor;
+struct spa_video_info_raw;
 
 #define META_TYPE_SCREEN_CAST_STREAM_SRC (meta_screen_cast_stream_src_get_type ())
 G_DECLARE_DERIVABLE_TYPE (MetaScreenCastStreamSrc,

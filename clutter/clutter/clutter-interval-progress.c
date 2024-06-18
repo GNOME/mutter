@@ -122,10 +122,14 @@ cogl_color_interpolate (const CoglColor *initial,
   g_return_if_fail (final != NULL);
   g_return_if_fail (result != NULL);
 
-  result->red = initial->red + (final->red - initial->red) * progress;
-  result->green = initial->green + (final->green - initial->green) * progress;
-  result->blue = initial->blue + (final->blue - initial->blue) * progress;
-  result->alpha = initial->alpha + (final->alpha - initial->alpha) * progress;
+  result->red = (uint8_t) (initial->red +
+                           (final->red - initial->red) * progress);
+  result->green = (uint8_t) (initial->green +
+                             (final->green - initial->green) * progress);
+  result->blue = (uint8_t) (initial->blue +
+                            (final->blue - initial->blue) * progress);
+  result->alpha = (uint8_t) (initial->alpha +
+                             (final->alpha - initial->alpha) * progress);
 }
 
 static gboolean

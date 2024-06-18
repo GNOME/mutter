@@ -125,7 +125,7 @@ output_set_underscanning_xrandr (MetaOutput *output,
       crtc_mode_info = meta_crtc_mode_get_info (crtc_config->mode);
 
       prop = XInternAtom (xdisplay, "underscan hborder", False);
-      border_value = crtc_mode_info->width * 0.05;
+      border_value = (uint32_t) (crtc_mode_info->width * 0.05);
 
       xcb_randr_change_output_property (XGetXCBConnection (xdisplay),
                                         (XID) meta_output_get_id (output),
@@ -134,7 +134,7 @@ output_set_underscanning_xrandr (MetaOutput *output,
                                         1, &border_value);
 
       prop = XInternAtom (xdisplay, "underscan vborder", False);
-      border_value = crtc_mode_info->height * 0.05;
+      border_value = (uint32_t) (crtc_mode_info->height * 0.05);
 
       xcb_randr_change_output_property (XGetXCBConnection (xdisplay),
                                         (XID) meta_output_get_id (output),
@@ -195,8 +195,8 @@ normalize_backlight (MetaOutput *output,
 {
   const MetaOutputInfo *output_info = meta_output_get_info (output);
 
-  return round ((double) (hw_value - output_info->backlight_min) /
-                (output_info->backlight_max - output_info->backlight_min) * 100.0);
+  return (int) round ((double) (hw_value - output_info->backlight_min) /
+                      (output_info->backlight_max - output_info->backlight_min) * 100.0);
 }
 
 void
@@ -209,8 +209,8 @@ meta_output_xrandr_change_backlight (MetaOutputXrandr *output_xrandr,
   Atom atom;
   int hw_value;
 
-  hw_value = round ((double) value / 100.0 * output_info->backlight_max +
-                    output_info->backlight_min);
+  hw_value = (int) round ((double) value / 100.0 * output_info->backlight_max +
+                          output_info->backlight_min);
 
   atom = XInternAtom (xdisplay, "Backlight", False);
 

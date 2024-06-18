@@ -113,8 +113,8 @@ main (int argc, char *argv[])
   g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
 
   label = create_label ();
-  w = clutter_actor_get_width (label);
-  h = clutter_actor_get_height (label);
+  w = (int) clutter_actor_get_width (label);
+  h = (int) clutter_actor_get_height (label);
 
   /* If the label is too big to fit on the stage then scale it so that
      it will fit */
@@ -127,12 +127,12 @@ main (int argc, char *argv[])
         {
           scale = x_scale;
           cols = 1;
-          rows = STAGE_HEIGHT / (h * scale);
+          rows = (int) (STAGE_HEIGHT / (h * scale));
         }
       else
         {
           scale = y_scale;
-          cols = STAGE_WIDTH / (w * scale);
+          cols = (int) (STAGE_WIDTH / (w * scale));
           rows = 1;
         }
 

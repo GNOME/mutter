@@ -336,7 +336,9 @@ meta_input_device_x11_get_dimensions (ClutterInputDevice *device,
       else
         continue;
 
-      *value = (valuator_info->max - valuator_info->min) * 1000 / valuator_info->resolution;
+      *value = (unsigned int) ((valuator_info->max - valuator_info->min) *
+                               1000 /
+                               valuator_info->resolution);
     }
 
   *width = w;

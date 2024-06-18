@@ -82,10 +82,10 @@ clutter_fixed_layout_get_preferred_width (ClutterLayoutManager *manager,
     }
 
   if (min_width_p)
-    *min_width_p = min_right;
+    *min_width_p = (float) min_right;
 
   if (nat_width_p)
-    *nat_width_p = natural_right;
+    *nat_width_p = (float) natural_right;
 }
 
 static void
@@ -127,10 +127,10 @@ clutter_fixed_layout_get_preferred_height (ClutterLayoutManager *manager,
     }
 
   if (min_height_p)
-    *min_height_p = min_bottom;
+    *min_height_p = (float) min_bottom;
 
   if (nat_height_p)
-    *nat_height_p = natural_bottom;
+    *nat_height_p = (float) natural_bottom;
 }
 
 static void

@@ -497,7 +497,12 @@ meta_frame_size_allocate (GtkWidget *widget,
 
   scale = gdk_surface_get_scale_factor (gtk_native_get_surface (GTK_NATIVE (widget)));
   /* FIXME: right/bottom are broken, if they are ever other than 0. */
-  extents = (GtkBorder) { point.x * scale, 0, point.y * scale, 0 };
+  extents = (GtkBorder) {
+    (int16_t) (point.x * scale),
+    0,
+    (int16_t) (point.y * scale),
+    0
+  };
 
   if (frame->extents.left == extents.left &&
       frame->extents.right == extents.right &&
@@ -561,7 +566,7 @@ meta_frame_new (Window window)
   scale = gdk_surface_get_scale_factor (gtk_native_get_surface (GTK_NATIVE (frame)));
 
   update_extents (META_FRAME (frame),
-                  (GtkBorder) { 0, 0, frame_height * scale, 0 });
+                  (GtkBorder) { 0, 0, (int16_t) (frame_height * scale), 0 });
 
   frame_sync_net_wm_visible_name (GTK_WINDOW (frame), window);
   frame_sync_net_wm_name (GTK_WINDOW (frame), window);

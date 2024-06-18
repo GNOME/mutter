@@ -163,7 +163,7 @@ unpack_flt (uint32_t b)
 #define PACK_10(b) ((uint32_t) ((b) * 1023.5f))
 #define PACK_16(b) ((uint32_t) ((b) * 65535.0f))
 #define PACK_SHORT(b) cogl_float_to_half (b)
-#define PACK_FLOAT(b) pack_flt((b) / 1.0)
+#define PACK_FLOAT(b) pack_flt((b) / 1.0f)
 
 #define component_type float
 #define component_size float

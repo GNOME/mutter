@@ -217,7 +217,7 @@ meta_fixed_16_to_int (MetaFixed16 fixed)
 static inline MetaFixed16
 meta_fixed_16_from_double (double d)
 {
-  return d * (1 << 16);
+  return (MetaFixed16) (d * (1 << 16));
 }
 
 static inline double

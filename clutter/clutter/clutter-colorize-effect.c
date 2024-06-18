@@ -188,9 +188,9 @@ update_tint_uniform (ClutterColorizeEffect *self)
   if (priv->tint_uniform > -1)
     {
       float tint[3] = {
-        priv->tint.red / 255.0,
-        priv->tint.green / 255.0,
-        priv->tint.blue / 255.0
+        priv->tint.red / 255.0f,
+        priv->tint.green / 255.0f,
+        priv->tint.blue / 255.0f,
       };
 
       cogl_pipeline_set_uniform_float (priv->pipeline,

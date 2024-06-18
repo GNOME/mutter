@@ -42,7 +42,7 @@ enum
 
 static guint signals[N_SIGNALS];
 
-#define SYNC_DELAY_FALLBACK_FRACTION 0.875
+#define SYNC_DELAY_FALLBACK_FRACTION 0.875f
 
 #define MINIMUM_REFRESH_RATE 30.f
 
@@ -459,7 +459,7 @@ clutter_frame_clock_compute_max_render_time_us (ClutterFrameClock *frame_clock)
   if (!frame_clock->ever_got_measurements ||
       G_UNLIKELY (clutter_paint_debug_flags &
                   CLUTTER_DEBUG_DISABLE_DYNAMIC_MAX_RENDER_TIME))
-    return refresh_interval_us * SYNC_DELAY_FALLBACK_FRACTION;
+    return (int64_t) (refresh_interval_us * SYNC_DELAY_FALLBACK_FRACTION);
 
   /* Max render time shows how early the frame clock needs to be dispatched
    * to make it to the predicted next presentation time. It is an estimate of

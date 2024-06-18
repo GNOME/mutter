@@ -122,10 +122,10 @@ _cogl_clip_stack_entry_set_bounds (CoglClipStack *entry,
         min_y = v[1];
     }
 
-  entry->bounds_x0 = floorf (min_x);
-  entry->bounds_x1 = ceilf (max_x);
-  entry->bounds_y0 = floorf (min_y);
-  entry->bounds_y1 = ceilf (max_y);
+  entry->bounds_x0 = (int) floorf (min_x);
+  entry->bounds_x1 = (int) ceilf (max_x);
+  entry->bounds_y0 = (int) floorf (min_y);
+  entry->bounds_y1 = (int) ceilf (max_y);
 }
 
 CoglClipStack *

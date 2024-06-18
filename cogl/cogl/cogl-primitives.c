@@ -246,16 +246,16 @@ _cogl_texture_quad_multiple_primitives (CoglFramebuffer *framebuffer,
   /* We use the _len_AXIS naming here instead of _width and _height because
    * log_quad_slice_cb uses a macro with symbol concatenation to handle both
    * axis, so this is more convenient... */
-  state.quad_len_x = fabs (position[X1] - position[X0]);
-  state.quad_len_y = fabs (position[Y1] - position[Y0]);
+  state.quad_len_x = fabsf (position[X1] - position[X0]);
+  state.quad_len_y = fabsf (position[Y1] - position[Y0]);
 
 #undef X0
 #undef Y0
 #undef X1
 #undef Y1
 
-  state.v_to_q_scale_x = fabs (state.quad_len_x / (tx_2 - tx_1));
-  state.v_to_q_scale_y = fabs (state.quad_len_y / (ty_2 - ty_1));
+  state.v_to_q_scale_x = fabsf (state.quad_len_x / (tx_2 - tx_1));
+  state.v_to_q_scale_y = fabsf (state.quad_len_y / (ty_2 - ty_1));
 
   /* For backwards compatibility the default wrap mode for cogl_rectangle() is
    * _REPEAT... */

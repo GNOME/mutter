@@ -136,8 +136,8 @@ set_unobscured_region (MetaSurfaceActor *surface_actor,
                                               &width,
                                               &height);
           bounds = (MtkRectangle) {
-            .width = width,
-            .height = height,
+            .width = (int) width,
+            .height = (int) height,
           };
 
           priv->unobscured_region = mtk_region_copy (unobscured_region);

@@ -1497,8 +1497,8 @@ static void cally_text_get_character_extents (AtkText *text,
     }
 
   clutter_actor_get_abs_allocation_vertices (actor, verts);
-  x_window = verts[0].x;
-  y_window = verts[0].y;
+  x_window = (int) verts[0].x;
+  y_window = (int) verts[0].y;
 
   clutter_text_get_layout_offsets (clutter_text, &x_layout, &y_layout);
 
@@ -2438,8 +2438,8 @@ _cally_misc_get_index_at_point (ClutterText *clutter_text,
   clutter_text_get_layout_offsets (clutter_text, &x_layout, &y_layout);
 
   clutter_actor_get_abs_allocation_vertices (CLUTTER_ACTOR (clutter_text), verts);
-  x_window = verts[0].x;
-  y_window = verts[0].y;
+  x_window = (int) verts[0].x;
+  y_window = (int) verts[0].y;
 
   x_temp =  x - x_layout - x_window;
   y_temp =  y - y_layout - y_window;

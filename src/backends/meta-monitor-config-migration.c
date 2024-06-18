@@ -463,7 +463,7 @@ read_float (const char  *text,
   strncpy (buf, text, text_len);
   buf[MIN (63, text_len)] = 0;
 
-  v = g_ascii_strtod (buf, &end);
+  v = (float) g_ascii_strtod (buf, &end);
 
   /* Limit reasonable values (actual limits are a lot smaller that these) */
   if (*end)

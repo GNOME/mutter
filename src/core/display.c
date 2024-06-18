@@ -417,7 +417,7 @@ meta_display_class_init (MetaDisplayClass *klass)
    * @message: (allow-none): The message to display, or %NULL
    *  to clear a previous restart message.
    *
-   * The signal will be emitted to indicate that the compositor 
+   * The signal will be emitted to indicate that the compositor
    * should show a message during restart.
    *
    * This is emitted when [func@Meta.restart] is called, either by Mutter
@@ -1734,7 +1734,7 @@ root_cursor_prepare_at (MetaCursorSpriteXcursor *sprite_xcursor,
           meta_cursor_sprite_xcursor_set_theme_scale (sprite_xcursor,
                                                       (int) ceiled_scale);
           meta_cursor_sprite_set_texture_scale (cursor_sprite,
-                                                1.0 / ceiled_scale);
+                                                1.0f / ceiled_scale);
         }
     }
   else
@@ -1750,8 +1750,8 @@ root_cursor_prepare_at (MetaCursorSpriteXcursor *sprite_xcursor,
       if (logical_monitor)
         {
           meta_cursor_sprite_xcursor_set_theme_scale (sprite_xcursor,
-                                                      logical_monitor->scale);
-          meta_cursor_sprite_set_texture_scale (cursor_sprite, 1.0);
+                                                      (int) logical_monitor->scale);
+          meta_cursor_sprite_set_texture_scale (cursor_sprite, 1.0f);
         }
     }
 }
@@ -3878,8 +3878,8 @@ focus_on_pointer_rest_callback (gpointer data)
   if ((int) point.x != focus_data->pointer_x ||
       (int) point.y != focus_data->pointer_y)
     {
-      focus_data->pointer_x = point.x;
-      focus_data->pointer_y = point.y;
+      focus_data->pointer_x = (int) point.x;
+      focus_data->pointer_y = (int) point.y;
       return G_SOURCE_CONTINUE;
     }
 

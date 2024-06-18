@@ -19,8 +19,8 @@ on_idle (gpointer data)
 {
   ClutterActor *stage = CLUTTER_ACTOR (data);
   int line_height = 0, xpos = 0, ypos = 0;
-  int stage_width = clutter_actor_get_width (stage);
-  int stage_height = clutter_actor_get_height (stage);
+  int stage_width = (int) clutter_actor_get_width (stage);
+  int stage_height = (int) clutter_actor_get_height (stage);
   char text[MAX_TEXT_LEN + 1];
   char font_name[64];
   int i;
@@ -51,7 +51,7 @@ on_idle (gpointer data)
       label = clutter_text_new_with_text (font_name, text);
 
       if (clutter_actor_get_height (label) > line_height)
-        line_height = clutter_actor_get_height (label);
+        line_height = (int) clutter_actor_get_height (label);
 
       if (xpos + clutter_actor_get_width (label) > stage_width)
         {
@@ -64,7 +64,7 @@ on_idle (gpointer data)
 
       clutter_actor_add_child (stage, label);
 
-      xpos += clutter_actor_get_width (label);
+      xpos += (int) clutter_actor_get_width (label);
     }
 
   if (timer == NULL)

@@ -60,7 +60,8 @@ test_keyframe_transition_main (int argc, char *argv[])
       cur_y = PADDING + ((SIZE + PADDING) * i);
 
       new_x = clutter_actor_get_width (stage) - PADDING - SIZE;
-      new_y = g_random_double_range (PADDING, clutter_actor_get_height (stage) - PADDING - SIZE);
+      new_y = (float) g_random_double_range (PADDING,
+                                             clutter_actor_get_height (stage) - PADDING - SIZE);
 
       name = g_strdup_printf ("rect%02d", i);
 

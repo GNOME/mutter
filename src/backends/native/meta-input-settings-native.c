@@ -676,10 +676,10 @@ meta_input_settings_native_set_tablet_area (MetaInputSettings  *settings,
   gfloat offset_x;
   gfloat offset_y;
 
-  scale_x = 1. / (1. - (padding_left + padding_right));
-  scale_y = 1. / (1. - (padding_top + padding_bottom));
-  offset_x = -padding_left * scale_x;
-  offset_y = -padding_top * scale_y;
+  scale_x = (float) (1.0 / (1.0 - (padding_left + padding_right)));
+  scale_y = (float) (1.0 / (1.0 - (padding_top + padding_bottom)));
+  offset_x = (float) (-padding_left * scale_x);
+  offset_y = (float) (-padding_top * scale_y);
 
   gfloat matrix[6] = { scale_x, 0., offset_x,
                        0., scale_y, offset_y };

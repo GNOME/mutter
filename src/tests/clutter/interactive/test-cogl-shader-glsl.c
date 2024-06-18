@@ -215,11 +215,11 @@ set_shader_num (int new_no)
   uniform_no = cogl_program_get_uniform_location (program, "tex");
   cogl_program_set_uniform_1i (program, uniform_no, 0);
   uniform_no = cogl_program_get_uniform_location (program, "radius");
-  cogl_program_set_uniform_1f (program, uniform_no, 3.0);
+  cogl_program_set_uniform_1f (program, uniform_no, 3.0f);
   uniform_no = cogl_program_get_uniform_location (program, "brightness");
-  cogl_program_set_uniform_1f (program, uniform_no, 0.4);
+  cogl_program_set_uniform_1f (program, uniform_no, 0.4f);
   uniform_no = cogl_program_get_uniform_location (program, "contrast");
-  cogl_program_set_uniform_1f (program, uniform_no, -1.9);
+  cogl_program_set_uniform_1f (program, uniform_no, -1.9f);
 
   uniform_no = cogl_program_get_uniform_location (program, "x_step");
   cogl_program_set_uniform_1f (program, uniform_no, 1.0f / image_width);

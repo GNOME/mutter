@@ -314,7 +314,7 @@ meta_stage_x11_realize (ClutterStageWindow *stage_window)
   clutter_actor_get_size (CLUTTER_ACTOR (stage_impl->wrapper), &width, &height);
 
   stage_x11->onscreen = create_onscreen (clutter_backend->cogl_context,
-                                         width, height);
+                                         (int) width, (int) height);
 
   if (META_IS_BACKEND_X11_CM (backend))
     {
@@ -329,8 +329,8 @@ meta_stage_x11_realize (ClutterStageWindow *stage_window)
 
   /* We just created a window of the size of the actor. No need to fix
      the size of the stage, just update it. */
-  stage_x11->xwin_width = width;
-  stage_x11->xwin_height = height;
+  stage_x11->xwin_width = (int) width;
+  stage_x11->xwin_height = (int) height;
 
   if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (stage_x11->onscreen), &error))
     {

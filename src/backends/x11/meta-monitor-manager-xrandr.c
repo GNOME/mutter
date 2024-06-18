@@ -483,8 +483,8 @@ apply_crtc_assignments (MetaMonitorManager    *manager,
    *
    * Firefox and Evince apparently believe what X tells them.
    */
-  width_mm = (width / DPI_FALLBACK) * 25.4 + 0.5;
-  height_mm = (height / DPI_FALLBACK) * 25.4 + 0.5;
+  width_mm = (int) ((width / DPI_FALLBACK) * 25.4 + 0.5);
+  height_mm = (int) ((height / DPI_FALLBACK) * 25.4 + 0.5);
   XRRSetScreenSize (manager_xrandr->xdisplay, DefaultRootWindow (manager_xrandr->xdisplay),
                     width, height, width_mm, height_mm);
 

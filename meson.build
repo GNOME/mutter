@@ -516,6 +516,7 @@ if buildtype != 'plain'
     '-Wno-missing-field-initializers',
     '-Wno-type-limits',
     '-Wshadow',
+    '-Wfloat-conversion',
   ]
 
   if get_option('debug')

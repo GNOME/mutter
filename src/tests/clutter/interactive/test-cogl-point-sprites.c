@@ -75,14 +75,14 @@ generate_round_texture (CoglContext *ctx)
       {
         int dx = x - TEXTURE_SIZE / 2;
         int dy = y - TEXTURE_SIZE / 2;
-        float value = sqrtf (dx * dx + dy * dy) * 255.0 / (TEXTURE_SIZE / 2);
+        float value = sqrtf (dx * dx + dy * dy) * 255.0f / (TEXTURE_SIZE / 2);
         if (value > 255.0f)
           value = 255.0f;
         value = 255.0f - value;
-        *(p++) = value;
-        *(p++) = value;
-        *(p++) = value;
-        *(p++) = value;
+        *(p++) = (uint8_t) value;
+        *(p++) = (uint8_t) value;
+        *(p++) = (uint8_t) value;
+        *(p++) = (uint8_t) value;
       }
 
   tex = cogl_texture_2d_new_from_data (ctx,
@@ -127,11 +127,11 @@ on_after_paint (ClutterActor        *stage,
       if ((fabsf (firework->x - firework->start_x) > 2.0f) ||
           firework->y < -1.0f)
         {
-          firework->size = g_random_double_range (0.001f, 0.1f);
+          firework->size = (float) g_random_double_range (0.001f, 0.1f);
           firework->start_x = 1.0f + firework->size;
           firework->start_y = -1.0f;
-          firework->initial_x_velocity = g_random_double_range (-0.1f, -2.0f);
-          firework->initial_y_velocity = g_random_double_range (0.1f, 4.0f);
+          firework->initial_x_velocity = (float) g_random_double_range (-0.1f, -2.0f);
+          firework->initial_y_velocity = (float) g_random_double_range (0.1f, 4.0f);
           g_timer_reset (firework->timer);
 
           /* Pick a random color out of six */
@@ -155,7 +155,7 @@ on_after_paint (ClutterActor        *stage,
             }
         }
 
-      diff_time = g_timer_elapsed (firework->timer, NULL);
+      diff_time = (float) g_timer_elapsed (firework->timer, NULL);
 
       firework->x = (firework->start_x +
                      firework->initial_x_velocity * diff_time);
@@ -165,7 +165,7 @@ on_after_paint (ClutterActor        *stage,
                      firework->start_y);
     }
 
-  diff_time = g_timer_elapsed (data->last_spark_time, NULL);
+  diff_time = (float) g_timer_elapsed (data->last_spark_time, NULL);
   if (diff_time < 0.0f || diff_time >= TIME_PER_SPARK)
     {
       /* Add a new spark for each firework, overwriting the oldest ones */
@@ -175,11 +175,11 @@ on_after_paint (ClutterActor        *stage,
           Firework *firework = data->fireworks + i;
 
           spark->x = (firework->x +
-                      g_random_double_range (-firework->size / 2.0f,
-                                             firework->size / 2.0f));
+                      (float) g_random_double_range (-firework->size / 2.0f,
+                                                     firework->size / 2.0f));
           spark->y = (firework->y +
-                      g_random_double_range (-firework->size / 2.0f,
-                                             firework->size / 2.0f));
+                      (float) g_random_double_range (-firework->size / 2.0f,
+                                                     firework->size / 2.0f));
           spark->base_color = firework->color;
 
           data->next_spark_num = (data->next_spark_num + 1) & (N_SPARKS - 1);
@@ -195,10 +195,10 @@ on_after_paint (ClutterActor        *stage,
                                          & (N_SPARKS - 1));
 
           color_value = i / (N_SPARKS - 1.0f);
-          spark->color.red = spark->base_color.red * color_value;
-          spark->color.green = spark->base_color.green * color_value;
-          spark->color.blue = spark->base_color.blue * color_value;
-          spark->color.alpha = 255.0f * color_value;
+          spark->color.red = (uint8_t) (spark->base_color.red * color_value);
+          spark->color.green = (uint8_t) (spark->base_color.green * color_value);
+          spark->color.blue = (uint8_t) (spark->base_color.blue * color_value);
+          spark->color.alpha = (uint8_t) (255.0f * color_value);
         }
 
       g_timer_reset (data->last_spark_time);

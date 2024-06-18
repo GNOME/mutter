@@ -453,8 +453,8 @@ cogl_pango_show_layout_line (CoglFramebuffer *fb,
   PangoContext *context;
   CoglPangoRenderer *priv;
   CoglPangoRendererCaches *caches;
-  int pango_x = x * PANGO_SCALE;
-  int pango_y = y * PANGO_SCALE;
+  int pango_x = (int) (x * PANGO_SCALE);
+  int pango_y = (int) (y * PANGO_SCALE);
 
   context = pango_layout_get_context (line->layout);
   priv = cogl_pango_get_renderer_from_context (context);
@@ -702,10 +702,10 @@ cogl_pango_renderer_set_color_for_part (PangoRenderer   *renderer,
       CoglColor color;
 
       cogl_color_init_from_4f (&color,
-                               pango_color->red / 65535.0,
-                               pango_color->green / 65535.0,
-                               pango_color->blue / 65535.0,
-                               alpha ? alpha / 65535.0 : 1.0);
+                               pango_color->red / 65535.0f,
+                               pango_color->green / 65535.0f,
+                               pango_color->blue / 65535.0f,
+                               alpha ? alpha / 65535.0f : 1.0f);
 
       _cogl_pango_display_list_set_color_override (priv->display_list, &color);
     }
@@ -743,10 +743,10 @@ cogl_pango_renderer_get_device_units (PangoRenderer *renderer,
   if ((matrix = pango_renderer_get_matrix (renderer)))
     {
       /* Convert user-space coords to device coords */
-      *xout =  ((xin * matrix->xx + yin * matrix->xy)
-				     / PANGO_SCALE + matrix->x0);
-      *yout =  ((yin * matrix->yy + xin * matrix->yx)
-				     / PANGO_SCALE + matrix->y0);
+      *xout = (float) ((xin * matrix->xx + yin * matrix->xy) /
+                       PANGO_SCALE + matrix->x0);
+      *yout = (float) ((yin * matrix->yy + xin * matrix->yx) /
+                       PANGO_SCALE + matrix->y0);
     }
   else
     {
@@ -798,12 +798,12 @@ cogl_pango_renderer_draw_trapezoid (PangoRenderer   *renderer,
   cogl_pango_renderer_set_color_for_part (renderer, part);
 
   _cogl_pango_display_list_add_trapezoid (priv->display_list,
-                                          y1,
-                                          x11,
-                                          x21,
-                                          y2,
-                                          x12,
-                                          x22);
+                                          (float) y1,
+                                          (float) x11,
+                                          (float) x21,
+                                          (float) y2,
+                                          (float) x12,
+                                          (float) x22);
 }
 
 static void
@@ -834,8 +834,8 @@ cogl_pango_renderer_draw_glyphs (PangoRenderer    *renderer,
 	  if (font == NULL)
             {
 	      cogl_pango_renderer_draw_box (renderer,
-                                            x,
-                                            y,
+                                            (int) x,
+                                            (int) y,
                                             PANGO_UNKNOWN_GLYPH_WIDTH,
                                             PANGO_UNKNOWN_GLYPH_HEIGHT);
             }
@@ -847,8 +847,8 @@ cogl_pango_renderer_draw_glyphs (PangoRenderer    *renderer,
               pango_extents_to_pixels (&ink_rect, NULL);
 
               cogl_pango_renderer_draw_box (renderer,
-                                            x + ink_rect.x,
-                                            y + ink_rect.y + ink_rect.height,
+                                            (int) (x + ink_rect.x),
+                                            (int) (y + ink_rect.y + ink_rect.height),
                                             ink_rect.width,
                                             ink_rect.height);
 	    }
@@ -870,8 +870,8 @@ cogl_pango_renderer_draw_glyphs (PangoRenderer    *renderer,
 	  if (cache_value == NULL)
             {
               cogl_pango_renderer_draw_box (renderer,
-                                            x,
-                                            y,
+                                            (int) x,
+                                            (int) y,
                                             PANGO_UNKNOWN_GLYPH_WIDTH,
                                             PANGO_UNKNOWN_GLYPH_HEIGHT);
             }
@@ -888,8 +888,8 @@ cogl_pango_renderer_draw_glyphs (PangoRenderer    *renderer,
 
                   alpha = pango_renderer_get_alpha (renderer,
                                                     PANGO_RENDER_PART_FOREGROUND);
-                  cogl_color_init_from_4f (&color, 1.0, 1.0, 1.0,
-                                           alpha ? (alpha >> 8) / 255.0 : 1.0);
+                  cogl_color_init_from_4f (&color, 1.0f, 1.0f, 1.0f,
+                                           alpha ? (alpha >> 8) / 255.0f : 1.0f);
                   _cogl_pango_display_list_set_color_override (priv->display_list, &color);
                 }
 

@@ -614,15 +614,15 @@ place_window_if_needed(MetaWindow     *window,
            */
           if (info->current.width >= info->work_area_monitor.width)
             {
-              info->current.width = .75 * info->work_area_monitor.width;
-              info->current.x = info->work_area_monitor.x +
-                       .125 * info->work_area_monitor.width;
+              info->current.width = (int) (0.75f * info->work_area_monitor.width);
+              info->current.x = (int) (info->work_area_monitor.x +
+                                       0.125f * info->work_area_monitor.width);
             }
           if (info->current.height >= info->work_area_monitor.height)
             {
-              info->current.height = .75 * info->work_area_monitor.height;
-              info->current.y = info->work_area_monitor.y +
-                       .083 * info->work_area_monitor.height;
+              info->current.height = (int) (0.75f * info->work_area_monitor.height);
+              info->current.y = (int) (info->work_area_monitor.y +
+                                       0.083f * info->work_area_monitor.height);
             }
 
           /* idle_move_resize() uses the unconstrained_rect, so make sure it
@@ -1576,13 +1576,13 @@ constrain_aspect_ratio (MetaWindow         *window,
     case META_GRAVITY_WEST:
     case META_GRAVITY_EAST:
       /* Yeah, I suck for doing implicit rounding -- sue me */
-      new_height = CLAMP (new_height, new_width / maxr,  new_width / minr);
+      new_height = (int) CLAMP (new_height, new_width / maxr,  new_width / minr);
       break;
 
     case META_GRAVITY_NORTH:
     case META_GRAVITY_SOUTH:
       /* Yeah, I suck for doing implicit rounding -- sue me */
-      new_width  = CLAMP (new_width,  new_height * minr, new_height * maxr);
+      new_width = (int) CLAMP (new_width,  new_height * minr, new_height * maxr);
       break;
 
     case META_GRAVITY_NORTH_WEST:
@@ -1609,9 +1609,8 @@ constrain_aspect_ratio (MetaWindow         *window,
                                                       new_width, new_height,
                                                       &best_width, &best_height);
 
-      /* Yeah, I suck for doing implicit rounding -- sue me */
-      new_width  = best_width;
-      new_height = best_height;
+      new_width = (int) best_width;
+      new_height = (int) best_height;
 
       break;
     }

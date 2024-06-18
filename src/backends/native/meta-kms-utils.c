@@ -36,7 +36,7 @@ meta_calculate_drm_mode_refresh_rate (const drmModeModeInfo *drm_mode)
   if (drm_mode->vscan > 1)
     denominator *= drm_mode->vscan;
 
-  return numerator / denominator;
+  return (float) (numerator / denominator);
 }
 
 int64_t

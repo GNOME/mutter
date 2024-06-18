@@ -100,8 +100,8 @@ meta_test_headless_monitor_connect (void)
   g_assert_cmpint (monitor_manager->screen_height, ==, monitor_layout.height);
 
   stage = meta_backend_get_stage (backend);
-  g_assert_cmpint (clutter_actor_get_width (stage), ==, monitor_layout.width);
-  g_assert_cmpint (clutter_actor_get_height (stage), ==, monitor_layout.height);
+  g_assert_cmpint ((int) clutter_actor_get_width (stage), ==, monitor_layout.width);
+  g_assert_cmpint ((int) clutter_actor_get_height (stage), ==, monitor_layout.height);
 }
 
 static MetaMonitorTestSetup *

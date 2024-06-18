@@ -598,14 +598,14 @@ encode_u16_chromaticity (double value)
 {
   /* CTA-861.3 HDR Static Metadata Extension, 3.2.1 Static Metadata Type 1 */
   value = MAX (MIN (value, 1.0), 0.0);
-  return round (value / 0.00002);
+  return (uint16_t) round (value / 0.00002);
 }
 
 static uint16_t
 encode_u16_max_luminance (double value)
 {
   /* CTA-861.3 HDR Static Metadata Extension, 3.2.1 Static Metadata Type 1 */
-  return round (MAX (MIN (value, 65535.0), 0.0));
+  return (uint16_t) round (MAX (MIN (value, 65535.0), 0.0));
 }
 
 static uint16_t
@@ -613,21 +613,21 @@ encode_u16_min_luminance (double value)
 {
   /* CTA-861.3 HDR Static Metadata Extension, 3.2.1 Static Metadata Type 1 */
   value = MAX (MIN (value, 6.5535), 0.0);
-  return round (value / 0.0001);
+  return (uint16_t) round (value / 0.0001);
 }
 
 static uint16_t
 encode_u16_max_cll (double value)
 {
   /* CTA-861.3 HDR Static Metadata Extension, 3.2.1 Static Metadata Type 1 */
-  return round (MAX (MIN (value, 65535.0), 0.0));
+  return (uint16_t) round (MAX (MIN (value, 65535.0), 0.0));
 }
 
 static uint16_t
 encode_u16_max_fall (double value)
 {
   /* CTA-861.3 HDR Static Metadata Extension, 3.2.1 Static Metadata Type 1 */
-  return round (MAX (MIN (value, 65535.0), 0.0));
+  return (uint16_t) round (MAX (MIN (value, 65535.0), 0.0));
 }
 
 void

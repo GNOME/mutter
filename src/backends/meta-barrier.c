@@ -94,16 +94,16 @@ meta_barrier_get_property (GObject    *object,
       g_value_set_object (value, priv->backend);
       break;
     case PROP_X1:
-      g_value_set_int (value, priv->border.line.a.x);
+      g_value_set_int (value, (int) priv->border.line.a.x);
       break;
     case PROP_Y1:
-      g_value_set_int (value, priv->border.line.a.y);
+      g_value_set_int (value, (int) priv->border.line.a.y);
       break;
     case PROP_X2:
-      g_value_set_int (value, priv->border.line.b.x);
+      g_value_set_int (value, (int) priv->border.line.b.x);
       break;
     case PROP_Y2:
-      g_value_set_int (value, priv->border.line.b.y);
+      g_value_set_int (value, (int) priv->border.line.b.y);
       break;
     case PROP_DIRECTIONS:
       g_value_set_flags (value,

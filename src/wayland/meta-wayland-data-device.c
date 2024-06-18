@@ -710,8 +710,8 @@ meta_wayland_data_device_start_drag (MetaWaylandDataDevice           *data_devic
                                        drag_start.x,
                                        drag_start.y,
                                        &surface_pos.x, &surface_pos.y);
-  drag_grab->drag_start_x = surface_pos.x;
-  drag_grab->drag_start_y = surface_pos.y;
+  drag_grab->drag_start_x = (int) surface_pos.x;
+  drag_grab->drag_start_y = (int) surface_pos.y;
 
   drag_grab->need_initial_focus = TRUE;
 

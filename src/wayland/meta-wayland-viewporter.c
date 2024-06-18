@@ -90,10 +90,10 @@ wp_viewport_set_source (struct wl_client   *client,
       return;
     }
 
-  new_x = wl_fixed_to_double (src_x);
-  new_y = wl_fixed_to_double (src_y);
-  new_width = wl_fixed_to_double (src_width);
-  new_height = wl_fixed_to_double (src_height);
+  new_x = (float) wl_fixed_to_double (src_x);
+  new_y = (float) wl_fixed_to_double (src_y);
+  new_width = (float) wl_fixed_to_double (src_width);
+  new_height = (float) wl_fixed_to_double (src_height);
 
   if ((new_x >= 0 && new_y >= 0 &&
        new_width > 0 && new_height > 0) ||

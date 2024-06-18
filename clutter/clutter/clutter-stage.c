@@ -686,11 +686,12 @@ clutter_stage_compress_motion (ClutterStage       *stage,
                                    clutter_event_get_device_tool (event),
                                    clutter_event_get_state (event),
                                    coords,
-                                   GRAPHENE_POINT_INIT (dx + dst_dx, dy + dst_dy),
-                                   GRAPHENE_POINT_INIT (dx_unaccel + dst_dx_unaccel,
-                                                        dy_unaccel + dst_dy_unaccel),
-                                   GRAPHENE_POINT_INIT (dx_constrained + dst_dx_constrained,
-                                                        dy_constrained + dst_dy_constrained),
+                                   GRAPHENE_POINT_INIT ((float) (dx + dst_dx),
+                                                        (float) (dy + dst_dy)),
+                                   GRAPHENE_POINT_INIT ((float) (dx_unaccel + dst_dx_unaccel),
+                                                        (float) (dy_unaccel + dst_dy_unaccel)),
+                                   GRAPHENE_POINT_INIT ((float) (dx_constrained + dst_dx_constrained),
+                                                        (float) (dy_constrained + dst_dy_constrained)),
                                    NULL);
 }
 
@@ -1927,10 +1928,10 @@ clutter_stage_read_pixels (ClutterStage *stage,
   clutter_actor_get_allocation_box (CLUTTER_ACTOR (stage), &box);
 
   if (width < 0)
-    width = ceilf (box.x2 - box.x1);
+    width = (int) ceilf (box.x2 - box.x1);
 
   if (height < 0)
-    height = ceilf (box.y2 - box.y1);
+    height = (int) ceilf (box.y2 - box.y1);
 
   l = _clutter_stage_window_get_views (priv->impl);
 
@@ -1957,11 +1958,12 @@ clutter_stage_read_pixels (ClutterStage *stage,
   pixel_width = roundf (clip_rect.width * view_scale);
   pixel_height = roundf (clip_rect.height * view_scale);
 
-  pixels = g_malloc0 (pixel_width * pixel_height * 4);
+  pixels = g_malloc0 ((int) (pixel_width * pixel_height * 4));
   cogl_framebuffer_read_pixels (framebuffer,
-                                clip_rect.x * view_scale,
-                                clip_rect.y * view_scale,
-                                pixel_width, pixel_height,
+                                (int) (clip_rect.x * view_scale),
+                                (int) (clip_rect.y * view_scale),
+                                (int) pixel_width,
+                                (int) pixel_height,
                                 COGL_PIXEL_FORMAT_RGBA_8888,
                                 pixels);
 
@@ -2332,7 +2334,7 @@ view_2d_in_perspective (graphene_matrix_t *matrix,
                         float              width_2d,
                         float              height_2d)
 {
-  float top = z_near * tan (fov_y * G_PI / 360.0);
+  float top = z_near * tanf ((float) (fov_y * G_PI / 360.0f));
   float left = -top * aspect;
   float right = top * aspect;
   float bottom = -top;
@@ -2559,10 +2561,10 @@ clutter_stage_add_to_redraw_clip (ClutterStage       *stage,
       intersection_box.y2 <= intersection_box.y1)
     return;
 
-  stage_clip.x = intersection_box.x1;
-  stage_clip.y = intersection_box.y1;
-  stage_clip.width = intersection_box.x2 - stage_clip.x;
-  stage_clip.height = intersection_box.y2 - stage_clip.y;
+  stage_clip.x = (int) intersection_box.x1;
+  stage_clip.y = (int) intersection_box.y1;
+  stage_clip.width = (int) (intersection_box.x2 - stage_clip.x);
+  stage_clip.height = (int) (intersection_box.y2 - stage_clip.y);
 
   clutter_stage_add_redraw_clip (stage, &stage_clip);
 }
@@ -2859,14 +2861,17 @@ clutter_stage_capture_view_into (ClutterStage     *stage,
   backend = clutter_get_default_backend ();
   context = clutter_backend_get_cogl_context (backend);
   bitmap = cogl_bitmap_new_for_data (context,
-                                     texture_width, texture_height,
+                                     (int) texture_width,
+                                     (int) texture_height,
                                      COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
                                      stride,
                                      data);
 
   cogl_framebuffer_read_pixels_into_bitmap (framebuffer,
-                                            roundf ((rect->x - view_layout.x) * view_scale),
-                                            roundf ((rect->y - view_layout.y) * view_scale),
+                                            (int) roundf ((rect->x -
+                                                           view_layout.x) * view_scale),
+                                            (int) roundf ((rect->y -
+                                                           view_layout.y) * view_scale),
                                             COGL_READ_PIXELS_COLOR_BUFFER,
                                             bitmap);
 
@@ -3512,7 +3517,7 @@ clutter_stage_check_in_clear_area (ClutterStage         *stage,
     return FALSE;
 
   return mtk_region_contains_point (entry->clear_area,
-                                    point.x, point.y);
+                                    (int) point.x, (int) point.y);
 }
 
 static ClutterActor *

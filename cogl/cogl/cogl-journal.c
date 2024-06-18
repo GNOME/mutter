@@ -357,15 +357,15 @@ _cogl_journal_flush_modelview_and_entries (CoglJournalEntry *batch_start,
          in the order 0xff, 0xcc, 0x99, and 0x66. This gives a total
          of 24 colours. If there are more than 24 batches on the stage
          then it will wrap around */
-      color_intensity = (0xff - 0x33 * (ctx->journal_rectangles_color >> 3) ) / 255.0;
+      color_intensity = (0xff - 0x33 * (ctx->journal_rectangles_color >> 3) ) / 255.0f;
       cogl_color_init_from_4f (&color,
                                (ctx->journal_rectangles_color & 1) ?
-                               color_intensity : 0.0,
+                               color_intensity : 0.0f,
                                (ctx->journal_rectangles_color & 2) ?
-                               color_intensity : 0.0,
+                               color_intensity : 0.0f,
                                (ctx->journal_rectangles_color & 4) ?
-                               color_intensity : 0.0,
-                               1.0);
+                               color_intensity : 0.0f,
+                               1.0f);
       cogl_pipeline_set_color (outline, &color);
 
       loop_attributes[0] = attributes[0]; /* we just want the position */
@@ -1703,11 +1703,11 @@ entry_to_screen_polygon (CoglFramebuffer *framebuffer,
  * to Cogl window/framebuffer coordinates (ranging from 0 to buffer-size) with
  * (0,0) being top left. */
 #define VIEWPORT_TRANSFORM_X(x, vp_origin_x, vp_width) \
-    (  ( ((x) + 1.0) * ((vp_width) / 2.0) ) + (vp_origin_x)  )
+    (  ( ((x) + 1.0f) * ((vp_width) / 2.0f) ) + (vp_origin_x)  )
 /* Note: for Y we first flip all coordinates around the X axis while in
  * normalized device coordinates */
 #define VIEWPORT_TRANSFORM_Y(y, vp_origin_y, vp_height) \
-    (  ( ((-(y)) + 1.0) * ((vp_height) / 2.0) ) + (vp_origin_y)  )
+    (  ( ((-(y)) + 1.0f) * ((vp_height) / 2.0f) ) + (vp_origin_y)  )
 
   /* Scale from normalized device coordinates (in range [-1,1]) to
    * window coordinates ranging [0,window-size] ... */

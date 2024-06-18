@@ -63,8 +63,8 @@ draw_rectangle (TestState *state,
     }
 
   cogl_color_init_from_4f (&color,
-                           Cr / 255.0, Cg / 255.0,
-                           Cb / 255.0, Ca / 255.0);
+                           Cr / 255.0f, Cg / 255.0f,
+                           Cb / 255.0f, Ca / 255.0f);
   cogl_pipeline_set_color (pipeline, &color);
 
   cogl_framebuffer_set_depth_write_enabled (test_fb,

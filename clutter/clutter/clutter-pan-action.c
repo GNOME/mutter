@@ -32,7 +32,7 @@
 
 /**
  * ClutterPanAction:
- * 
+ *
  * Action for pan gestures
  *
  * #ClutterPanAction is a sub-class of [class@GestureAction] that implements
@@ -153,7 +153,7 @@ emit_pan (ClutterPanAction *self,
         {
           gfloat delta_x;
           gfloat delta_y;
-          gfloat scroll_threshold = G_PI_4/2;
+          gfloat scroll_threshold = (float) G_PI_4 / 2;
           gfloat drag_angle;
 
           clutter_gesture_action_get_motion_delta (CLUTTER_GESTURE_ACTION (self),
@@ -164,7 +164,7 @@ emit_pan (ClutterPanAction *self,
           if (delta_x != 0.0f)
             drag_angle = atanf (delta_y / delta_x);
           else
-            drag_angle = G_PI_2;
+            drag_angle = (float) G_PI_2;
 
           if ((drag_angle > -scroll_threshold) &&
               (drag_angle < scroll_threshold))
@@ -218,8 +218,8 @@ on_deceleration_new_frame (ClutterTimeline     *timeline,
 
   progress = clutter_timeline_get_progress (timeline);
 
-  interpolated_x = priv->target_x * progress;
-  interpolated_y = priv->target_y * progress;
+  interpolated_x = (float) (priv->target_x * progress);
+  interpolated_y = (float) (priv->target_y * progress);
   priv->dx = interpolated_x - priv->interpolated_x;
   priv->dy = interpolated_y - priv->interpolated_y;
   priv->interpolated_x = interpolated_x;
@@ -315,19 +315,19 @@ gesture_end (ClutterGestureAction *gesture,
    * tau = 1000ms / (frame_per_second * - ln(decay_per_frame))
    * with frame_per_second = 60 and decay_per_frame = 0.95, tau ~= 325ms
    * see http://ariya.ofilabs.com/2011/10/flick-list-with-its-momentum-scrolling-and-deceleration.html */
-  tau = 1000.0f / (reference_fps * - logf (priv->deceleration_rate));
+  tau = 1000.0f / (reference_fps * - logf ((float) priv->deceleration_rate));
 
   /* See where the decreasing velocity reaches $min_velocity px/ms
    * v(t) = v(0) * exp(-t/tau) = min_velocity
    * t = - tau * ln( min_velocity / |v(0)|) */
-  duration = - tau * logf (min_velocity / (ABS (velocity) *
-                                           priv->acceleration_factor));
+  duration = (int) (- tau * logf ((float) (min_velocity / (ABS (velocity) *
+                                                           priv->acceleration_factor))));
 
   /* Target point: x(t) = v(0) * tau * [1 - exp(-t/tau)] */
-  priv->target_x = (velocity_x * priv->acceleration_factor * tau *
-                    (1 - exp ((float)-duration / tau)));
-  priv->target_y = (velocity_y * priv->acceleration_factor * tau *
-                    (1 - exp ((float)-duration / tau)));
+  priv->target_x = (float) (velocity_x * priv->acceleration_factor * tau *
+                            (1 - exp ((float)-duration / tau)));
+  priv->target_y = (float) (velocity_y * priv->acceleration_factor * tau *
+                            (1 - exp ((float)-duration / tau)));
 
   if (ABS (velocity) * priv->acceleration_factor > min_velocity &&
       duration > FLOAT_EPSILON)
@@ -847,7 +847,7 @@ clutter_pan_action_get_interpolated_delta (ClutterPanAction *self,
   if (delta_y)
     *delta_y = priv->dy;
 
-  return sqrt ((priv->dx * priv->dx) + (priv->dy * priv->dy));
+  return sqrtf ((priv->dx * priv->dx) + (priv->dy * priv->dy));
 }
 
 /**

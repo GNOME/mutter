@@ -741,7 +741,7 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
                                                possible_crtc_index);
         }
 
-      scale = setup->outputs[i].scale;
+      scale = (int) setup->outputs[i].scale;
       if (scale < 1 && scale != -1)
         scale = 1;
 

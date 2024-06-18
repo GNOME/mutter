@@ -76,10 +76,10 @@ cogl_color_init_from_4f (CoglColor *color,
 {
   g_return_if_fail (color != NULL);
 
-  color->red   =  (red * 255);
-  color->green =  (green * 255);
-  color->blue  =  (blue * 255);
-  color->alpha =  (alpha * 255);
+  color->red   = (int) (red * 255);
+  color->green = (int) (green * 255);
+  color->blue  = (int) (blue * 255);
+  color->alpha = (int) (alpha * 255);
 }
 
 static inline void
@@ -109,10 +109,10 @@ parse_rgb_value (gchar   *str,
     {
       *endp = (gchar *) (p + 1);
 
-      *color = CLAMP (number / 100.0, 0.0, 1.0) * 255;
+      *color = (uint8_t) (CLAMP (number / 100.0, 0.0, 1.0) * 255);
     }
   else
-    *color = CLAMP (number, 0, 255);
+    *color = (uint8_t) CLAMP (number, 0, 255);
 }
 
 static gboolean
@@ -163,7 +163,7 @@ parse_rgba (CoglColor *color,
       skip_whitespace (&str);
       number = g_ascii_strtod (str, &str);
 
-      color->alpha = CLAMP (number * 255.0, 0, 255);
+      color->alpha = (uint8_t) CLAMP (number * 255.0, 0, 255);
     }
   else
     color->alpha = 255;
@@ -255,8 +255,8 @@ parse_hsla (CoglColor *color,
   if (*str != ')')
     return FALSE;
 
-  cogl_color_init_from_hsl (color, h, s, l);
-  color->alpha = alpha;
+  cogl_color_init_from_hsl (color, (float) h, (float) s, (float) l);
+  color->alpha = (uint8_t) alpha;
 
   return TRUE;
 }
@@ -376,25 +376,25 @@ cogl_color_to_string (const CoglColor *color)
 float
 cogl_color_get_red (const CoglColor *color)
 {
-  return  ((float) color->red / 255.0);
+  return  ((float) color->red / 255.0f);
 }
 
 float
 cogl_color_get_green (const CoglColor *color)
 {
-  return  ((float) color->green / 255.0);
+  return  ((float) color->green / 255.0f);
 }
 
 float
 cogl_color_get_blue (const CoglColor *color)
 {
-  return  ((float) color->blue / 255.0);
+  return  ((float) color->blue / 255.0f);
 }
 
 float
 cogl_color_get_alpha (const CoglColor *color)
 {
-  return  ((float) color->alpha / 255.0);
+  return  ((float) color->alpha / 255.0f);
 }
 
 void
@@ -440,9 +440,9 @@ cogl_color_to_hsl (const CoglColor *color,
   float min, max, delta;
   float h, l, s;
 
-  red   = color->red / 255.0;
-  green = color->green / 255.0;
-  blue  = color->blue / 255.0;
+  red   = color->red / 255.0f;
+  green = color->green / 255.0f;
+  blue  = color->blue / 255.0f;
 
   if (red > green)
     {
@@ -478,21 +478,21 @@ cogl_color_to_hsl (const CoglColor *color,
       if (l <= 0.5)
 	s = (max - min) / (max + min);
       else
-	s = (max - min) / (2.0 - max - min);
+	s = (max - min) / (2.0f - max - min);
 
       delta = max - min;
 
       if (red == max)
 	h = (green - blue) / delta;
       else if (green == max)
-	h = 2.0 + (blue - red) / delta;
+	h = 2.0f + (blue - red) / delta;
       else if (blue == max)
-	h = 4.0 + (red - green) / delta;
+	h = 4.0f + (red - green) / delta;
 
       h *= 60;
 
       if (h < 0)
-	h += 360.0;
+	h += 360.0f;
     }
 
   if (hue)
@@ -516,7 +516,7 @@ cogl_color_init_from_hsl (CoglColor *color,
   float clr[3];
   int   i;
 
-  hue /= 360.0;
+  hue /= 360.0f;
 
   if (saturation == 0)
     {
@@ -524,31 +524,31 @@ cogl_color_init_from_hsl (CoglColor *color,
       return;
     }
 
-  if (luminance <= 0.5)
-    tmp2 = luminance * (1.0 + saturation);
+  if (luminance <= 0.5f)
+    tmp2 = luminance * (1.0f + saturation);
   else
     tmp2 = luminance + saturation - (luminance * saturation);
 
-  tmp1 = 2.0 * luminance - tmp2;
+  tmp1 = 2.0f * luminance - tmp2;
 
-  tmp3[0] = hue + 1.0 / 3.0;
+  tmp3[0] = hue + 1.0f / 3.0f;
   tmp3[1] = hue;
-  tmp3[2] = hue - 1.0 / 3.0;
+  tmp3[2] = hue - 1.0f / 3.0f;
 
   for (i = 0; i < 3; i++)
     {
       if (tmp3[i] < 0)
-        tmp3[i] += 1.0;
+        tmp3[i] += 1.0f;
 
       if (tmp3[i] > 1)
-        tmp3[i] -= 1.0;
+        tmp3[i] -= 1.0f;
 
-      if (6.0 * tmp3[i] < 1.0)
-        clr[i] = tmp1 + (tmp2 - tmp1) * tmp3[i] * 6.0;
-      else if (2.0 * tmp3[i] < 1.0)
+      if (6.0f * tmp3[i] < 1.0f)
+        clr[i] = tmp1 + (tmp2 - tmp1) * tmp3[i] * 6.0f;
+      else if (2.0f * tmp3[i] < 1.0f)
         clr[i] = tmp2;
-      else if (3.0 * tmp3[i] < 2.0)
-        clr[i] = (tmp1 + (tmp2 - tmp1) * ((2.0 / 3.0) - tmp3[i]) * 6.0);
+      else if (3.0f * tmp3[i] < 2.0f)
+        clr[i] = (tmp1 + (tmp2 - tmp1) * ((2.0f / 3.0f) - tmp3[i]) * 6.0f);
       else
         clr[i] = tmp1;
     }

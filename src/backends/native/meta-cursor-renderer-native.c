@@ -771,8 +771,8 @@ scale_and_transform_cursor_sprite_cpu (uint8_t              *pixels,
   int image_width;
   int image_height;
 
-  image_width = ceilf (width * scale);
-  image_height = ceilf (height * scale);
+  image_width = (int) ceilf (width * scale);
+  image_height = (int) ceilf (height * scale);
 
   target_surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
                                                image_width,

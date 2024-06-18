@@ -657,7 +657,7 @@ meta_x11_drag_dest_motion (MetaWaylandDataDevice *data_device,
   MetaWaylandCompositor *compositor = meta_wayland_seat_get_compositor (seat);
   MetaXWaylandDnd *dnd = compositor->xwayland_manager.dnd;
 
-  xdnd_send_position (dnd, dnd->dnd_dest, time_ms, x, y);
+  xdnd_send_position (dnd, dnd->dnd_dest, time_ms, (int) x, (int) y);
 }
 
 static void
@@ -691,7 +691,7 @@ meta_x11_drag_dest_update (MetaWaylandDataDevice *data_device,
                             device, sequence, &pos, NULL);
   xdnd_send_position (dnd, dnd->dnd_dest,
                       clutter_get_current_event_time (),
-                      pos.x, pos.y);
+                      (int) pos.x, (int) pos.y);
 }
 
 static const MetaWaylandDragDestFuncs meta_x11_drag_dest_funcs = {
@@ -789,7 +789,8 @@ pick_drop_surface (MetaWaylandCompositor *compositor,
   clutter_event_get_coords (event, &pos.x, &pos.y);
   focus_window = meta_workspace_get_default_focus_window_at_point (workspace,
                                                                    NULL,
-                                                                   pos.x, pos.y);
+                                                                   (int) pos.x,
+                                                                   (int) pos.y);
   return focus_window ? meta_window_get_wayland_surface (focus_window) : NULL;
 }
 

@@ -1021,7 +1021,7 @@ handle_release (MetaDBusInputCaptureSession *object,
   meta_input_capture_session_deactivate (session);
 
   if (g_variant_lookup (arg_options, "cursor_position", "(dd)", &x, &y))
-    clutter_seat_warp_pointer (seat, x, y);
+    clutter_seat_warp_pointer (seat, (int) x, (int) y);
 
   if (session->handle)
     release_remote_access_handle (session);

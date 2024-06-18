@@ -23,7 +23,7 @@
 
 /**
  * ClutterTimeline:
- * 
+ *
  * A class for time-based events
  *
  * #ClutterTimeline is a base class for managing time-based event that cause
@@ -270,7 +270,7 @@ clutter_timeline_add_marker_internal (ClutterTimeline *timeline,
       guint msecs;
 
       if (old_marker->is_relative)
-        msecs = old_marker->data.progress * priv->duration;
+        msecs = (unsigned int) (old_marker->data.progress * priv->duration);
       else
         msecs = old_marker->data.msecs;
 
@@ -836,9 +836,9 @@ clutter_timeline_class_init (ClutterTimelineClass *klass)
    *
    * The signal is emitted each time a timeline
    * reaches a marker set with [method@Timeline.add_marker_at_time].
-   * 
+   *
    * This signal is detailed with the name of the marker as well,
-   * so it is possible to connect a callback to the [signal@Timeline::marker-reached] 
+   * so it is possible to connect a callback to the [signal@Timeline::marker-reached]
    * signal for a specific marker with:
    *
    * ```c
@@ -966,7 +966,7 @@ check_if_marker_hit (const gchar *name,
   gint msecs;
 
   if (marker->is_relative)
-    msecs = (gdouble) data->duration * marker->data.progress;
+    msecs = (int) ((double) data->duration * marker->data.progress);
   else
     msecs = marker->data.msecs;
 
@@ -1875,7 +1875,7 @@ collect_markers (const gchar *key,
   guint msecs;
 
   if (marker->is_relative)
-    msecs = marker->data.progress * data->duration;
+    msecs = (unsigned int) (marker->data.progress * data->duration);
   else
     msecs = marker->data.msecs;
 
@@ -1994,7 +1994,7 @@ clutter_timeline_advance_to_marker (ClutterTimeline *timeline,
     }
 
   if (marker->is_relative)
-    msecs = marker->data.progress * priv->duration;
+    msecs = (unsigned int) (marker->data.progress * priv->duration);
   else
     msecs = marker->data.msecs;
 

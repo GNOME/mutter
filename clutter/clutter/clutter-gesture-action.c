@@ -26,7 +26,7 @@
 
 /**
  * ClutterGestureAction:
- * 
+ *
  * Action for gesture gestures
  *
  * #ClutterGestureAction is a sub-class of [class@Action] that implements
@@ -960,7 +960,7 @@ clutter_gesture_action_get_motion_delta (ClutterGestureAction *action,
   if (delta_y)
     *delta_y = d_y;
 
-  return sqrt ((d_x * d_x) + (d_y * d_y));
+  return sqrtf ((d_x * d_x) + (d_y * d_y));
 }
 
 /**

@@ -145,10 +145,12 @@ meta_virtual_input_device_x11_notify_scroll_continuous (ClutterVirtualInputDevic
 
   virtual_device_x11->accum_scroll_dx += dx;
   virtual_device_x11->accum_scroll_dy += dy;
-  n_xscrolls = floor ((fabs (virtual_device_x11->accum_scroll_dx) + DBL_EPSILON) /
-                      DISCRETE_SCROLL_STEP);
-  n_yscrolls = floor ((fabs (virtual_device_x11->accum_scroll_dy) + DBL_EPSILON) /
-                      DISCRETE_SCROLL_STEP);
+  n_xscrolls = (int) floor ((fabs (virtual_device_x11->accum_scroll_dx) +
+                             DBL_EPSILON) /
+                            DISCRETE_SCROLL_STEP);
+  n_yscrolls = (int) floor ((fabs (virtual_device_x11->accum_scroll_dy) +
+                             DBL_EPSILON) /
+                            DISCRETE_SCROLL_STEP);
 
   direction = virtual_device_x11->accum_scroll_dx > 0 ? CLUTTER_SCROLL_RIGHT
                                                       : CLUTTER_SCROLL_LEFT;

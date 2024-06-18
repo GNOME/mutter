@@ -84,8 +84,8 @@ meta_test_stage_views_exist (void)
   GList *stage_views;
 
   stage = meta_backend_get_stage (backend);
-  g_assert_cmpint (clutter_actor_get_width (stage), ==, 1024 * 2);
-  g_assert_cmpint (clutter_actor_get_height (stage), ==, 768);
+  g_assert_cmpint ((int) clutter_actor_get_width (stage), ==, 1024 * 2);
+  g_assert_cmpint ((int) clutter_actor_get_height (stage), ==, 768);
 
   stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
   g_assert_cmpint (g_list_length (stage_views), ==, 2);

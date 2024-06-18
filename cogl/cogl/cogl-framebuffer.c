@@ -1290,10 +1290,10 @@ _cogl_framebuffer_try_fast_read_pixel (CoglFramebuffer *framebuffer,
           return FALSE;
         }
 
-      pixel[0] = priv->clear_color_red * 255.0;
-      pixel[1] = priv->clear_color_green * 255.0;
-      pixel[2] = priv->clear_color_blue * 255.0;
-      pixel[3] = priv->clear_color_alpha * 255.0;
+      pixel[0] = (uint8_t) (priv->clear_color_red * 255.0f);
+      pixel[1] = (uint8_t) (priv->clear_color_green * 255.0f);
+      pixel[2] = (uint8_t) (priv->clear_color_blue * 255.0f);
+      pixel[3] = (uint8_t) (priv->clear_color_alpha * 255.0f);
 
       _cogl_bitmap_unmap (bitmap);
 
@@ -1669,7 +1669,7 @@ cogl_framebuffer_perspective (CoglFramebuffer *framebuffer,
 {
   CoglFramebufferPrivate *priv =
     cogl_framebuffer_get_instance_private (framebuffer);
-  float ymax = z_near * tanf (fov_y * G_PI / 360.0);
+  float ymax = z_near * tanf (fov_y * (float) G_PI / 360.0f);
 
   cogl_framebuffer_frustum (framebuffer,
                             -ymax * aspect,  /* left */

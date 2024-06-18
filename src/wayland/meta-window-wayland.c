@@ -108,7 +108,7 @@ get_window_geometry_scale_for_logical_monitor (MetaLogicalMonitor *logical_monit
   if (meta_backend_is_stage_views_scaled (backend))
     return 1;
   else
-    return meta_logical_monitor_get_scale (logical_monitor);
+    return (int) meta_logical_monitor_get_scale (logical_monitor);
 }
 
 static void
@@ -482,14 +482,24 @@ scale_size (int  *width,
 {
   if (*width < G_MAXINT)
     {
-      float new_width = (*width * scale);
-      *width = (int) MIN (new_width, G_MAXINT);
+      float new_width;
+
+      new_width = (*width * scale);
+      if (new_width > G_MAXINT)
+        *width = G_MAXINT;
+      else
+        *width = (int) new_width;
     }
 
   if (*height < G_MAXINT)
     {
-      float new_height = (*height * scale);
-      *height = (int) MIN (new_height, G_MAXINT);
+      float new_height;
+
+      new_height = (*height * scale);
+      if (new_height > G_MAXINT)
+        *height = G_MAXINT;
+      else
+        *height = (int) new_height;
     }
 }
 
@@ -1391,7 +1401,7 @@ meta_window_wayland_get_min_size (MetaWindow *window,
   *width = MAX (current_width, 0);
   *height = MAX (current_height, 0);
 
-  scale = 1.0 / (float) meta_window_wayland_get_geometry_scale (window);
+  scale = 1.0f / meta_window_wayland_get_geometry_scale (window);
   scale_size (width, height, scale);
 }
 
@@ -1426,7 +1436,7 @@ meta_window_wayland_get_max_size (MetaWindow *window,
   *width = CLAMP (current_width, 0, G_MAXINT);
   *height = CLAMP (current_height, 0, G_MAXINT);
 
-  scale = 1.0 / (float) meta_window_wayland_get_geometry_scale (window);
+  scale = 1.0f / meta_window_wayland_get_geometry_scale (window);
   scale_size (width, height, scale);
 }
 

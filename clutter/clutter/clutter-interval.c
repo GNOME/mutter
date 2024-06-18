@@ -24,7 +24,7 @@
 
 /**
  * ClutterInterval:
- * 
+ *
  * An object holding an interval of two values
  *
  * #ClutterInterval is a simple object that can hold two values
@@ -262,7 +262,7 @@ clutter_interval_real_compute_value (ClutterInterval *interval,
         ia = g_value_get_int (initial);
         ib = g_value_get_int (final);
 
-        res = (factor * (ib - ia)) + ia;
+        res = (int) ((factor * (ib - ia)) + ia);
 
         g_value_set_int (value, res);
 
@@ -277,7 +277,7 @@ clutter_interval_real_compute_value (ClutterInterval *interval,
         ia = g_value_get_schar (initial);
         ib = g_value_get_schar (final);
 
-        res = (factor * (ib - (gdouble) ia)) + ia;
+        res = (int) ((factor * (ib - (gdouble) ia)) + ia);
 
         g_value_set_schar (value, res);
 
@@ -292,7 +292,7 @@ clutter_interval_real_compute_value (ClutterInterval *interval,
         ia = g_value_get_uint (initial);
         ib = g_value_get_uint (final);
 
-        res = (factor * (ib - (gdouble) ia)) + ia;
+        res = (unsigned int) ((factor * (ib - (gdouble) ia)) + ia);
 
         g_value_set_uint (value, res);
 
@@ -307,7 +307,7 @@ clutter_interval_real_compute_value (ClutterInterval *interval,
         ia = g_value_get_uchar (initial);
         ib = g_value_get_uchar (final);
 
-        res = (factor * (ib - (gdouble) ia)) + ia;
+        res = (unsigned int) ((factor * (ib - (gdouble) ia)) + ia);
 
         g_value_set_uchar (value, res);
 
@@ -336,7 +336,7 @@ clutter_interval_real_compute_value (ClutterInterval *interval,
         if (value_type == G_TYPE_DOUBLE)
           g_value_set_double (value, res);
         else
-          g_value_set_float (value, res);
+          g_value_set_float (value, (float) res);
 
         retval = TRUE;
       }

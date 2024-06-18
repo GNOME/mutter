@@ -444,10 +444,10 @@ get_verts_rectangle (graphene_point3d_t  verts[4],
     return FALSE;
 
   *rect = (MtkRectangle) {
-    .x = ceilf (verts[0].x),
-    .y = ceilf (verts[0].y),
-    .width = floor (verts[1].x - ceilf (verts[0].x)),
-    .height = floor (verts[2].y - ceilf (verts[0].y)),
+    .x = (int) ceilf (verts[0].x),
+    .y = (int) ceilf (verts[0].y),
+    .width = (int) floor (verts[1].x - ceilf (verts[0].x)),
+    .height = (int) floor (verts[2].y - ceilf (verts[0].y)),
   };
 
   return TRUE;
@@ -480,12 +480,14 @@ calculate_clear_area (ClutterPickStack  *pick_stack,
       return;
     }
 
-  rect.x += ceil (pick_rec->base.rect.x1);
-  rect.y += ceil (pick_rec->base.rect.y1);
+  rect.x += (int) ceil (pick_rec->base.rect.x1);
+  rect.y += (int) ceil (pick_rec->base.rect.y1);
   rect.width =
-    MIN (rect.width, floor (pick_rec->base.rect.x2 - pick_rec->base.rect.x1));
+    MIN (rect.width, (int) floor (pick_rec->base.rect.x2 -
+                                  pick_rec->base.rect.x1));
   rect.height =
-    MIN (rect.height, floor (pick_rec->base.rect.y2 - pick_rec->base.rect.y1));
+    MIN (rect.height, (int) floor (pick_rec->base.rect.y2 -
+                                   pick_rec->base.rect.y1));
 
   area = mtk_region_create_rectangle (&rect);
 
@@ -494,6 +496,7 @@ calculate_clear_area (ClutterPickStack  *pick_stack,
       PickRecord *rec =
         &g_array_index (pick_stack->vertices_stack, PickRecord, i);
       ClutterActorBox paint_box;
+      MtkRectangle paint_box_rect;
 
       if (!rec->is_overlap &&
           (rec->base.rect.x1 == rec->base.rect.x2 ||
@@ -503,11 +506,11 @@ calculate_clear_area (ClutterPickStack  *pick_stack,
       if (!clutter_actor_get_paint_box (rec->actor, &paint_box))
         continue;
 
-      mtk_region_subtract_rectangle (area,
-                                     &MTK_RECTANGLE_INIT (paint_box.x1, paint_box.y1,
-                                                          paint_box.x2 - paint_box.x1,
-                                                          paint_box.y2 - paint_box.y1)
-      );
+      paint_box_rect = MTK_RECTANGLE_INIT ((int) paint_box.x1,
+                                           (int) paint_box.y1,
+                                           (int) (paint_box.x2 - paint_box.x1),
+                                           (int) (paint_box.y2 - paint_box.y1));
+      mtk_region_subtract_rectangle (area, &paint_box_rect);
     }
 
   if (clear_area)

@@ -408,10 +408,10 @@ get_texture_area (MetaBackground *self,
       /* Start off by centering a tile in the middle of the
        * total screen area taking care of the monitor scaling.
        */
-      image_area.x = (screen_width - texture_width) / 2.0;
-      image_area.y = (screen_height - texture_height) / 2.0;
-      image_area.width = texture_width;
-      image_area.height = texture_height;
+      image_area.x = (int) ((screen_width - texture_width) / 2.0);
+      image_area.y = (int) ((screen_height - texture_height) / 2.0);
+      image_area.width = (int) texture_width;
+      image_area.height = (int) texture_height;
 
       /* Translate into the coordinate system of the particular monitor */
       image_area.x -= monitor_rect->x;
@@ -422,8 +422,8 @@ get_texture_area (MetaBackground *self,
     case G_DESKTOP_BACKGROUND_STYLE_CENTERED:
       /* paint region is the original image size centered in the actor,
        * and the texture is scaled to the original image size */
-      image_area.width = texture_width;
-      image_area.height = texture_height;
+      image_area.width = (int) texture_width;
+      image_area.height = (int) texture_height;
       image_area.x = monitor_rect->width / 2 - image_area.width / 2;
       image_area.y = monitor_rect->height / 2 - image_area.height / 2;
 
@@ -447,7 +447,7 @@ get_texture_area (MetaBackground *self,
         {
           /* Fill image to exactly fit actor horizontally */
           image_area.width = monitor_rect->width;
-          image_area.height = texture_height * monitor_x_scale;
+          image_area.height = (int) (texture_height * monitor_x_scale);
 
           /* Position image centered vertically in actor */
           image_area.x = 0;
@@ -456,7 +456,7 @@ get_texture_area (MetaBackground *self,
       else
         {
           /* Scale image to exactly fit actor vertically */
-          image_area.width = texture_width * monitor_y_scale;
+          image_area.width = (int) (texture_width * monitor_y_scale);
           image_area.height = monitor_rect->height;
 
           /* Position image centered horizontally in actor */
@@ -475,8 +475,8 @@ get_texture_area (MetaBackground *self,
         meta_display_get_size (self->display, &screen_width, &screen_height);
 
         /* unclipped texture area is whole screen, scaled depending on monitor */
-        image_area.width = screen_width * monitor_scale;
-        image_area.height = screen_height * monitor_scale;
+        image_area.width = (int) (screen_width * monitor_scale);
+        image_area.height = (int) (screen_height * monitor_scale);
 
         /* But make (0,0) line up with the appropriate monitor */
         image_area.x = -monitor_rect->x;
@@ -808,8 +808,8 @@ meta_background_get_texture (MetaBackground       *self,
 
       if (meta_backend_is_stage_views_scaled (backend))
         {
-          texture_width = monitor_area.width * monitor_scale;
-          texture_height = monitor_area.height * monitor_scale;
+          texture_width = (int) (monitor_area.width * monitor_scale);
+          texture_height = (int) (monitor_area.height * monitor_scale);
         }
       else
         {
@@ -831,10 +831,10 @@ meta_background_get_texture (MetaBackground       *self,
 
       if (self->style != G_DESKTOP_BACKGROUND_STYLE_WALLPAPER)
         {
-          monitor_area.x *= monitor_scale;
-          monitor_area.y *= monitor_scale;
-          monitor_area.width *= monitor_scale;
-          monitor_area.height *= monitor_scale;
+          monitor_area.x = (int) (monitor_area.x * monitor_scale);
+          monitor_area.y = (int) (monitor_area.y * monitor_scale);
+          monitor_area.width = (int) (monitor_area.width * monitor_scale);
+          monitor_area.height = (int) (monitor_area.height * monitor_scale);
         }
 
       if (!cogl_framebuffer_allocate (monitor->fbo, &catch_error))
@@ -851,9 +851,12 @@ meta_background_get_texture (MetaBackground       *self,
         }
 
       cogl_framebuffer_orthographic (monitor->fbo, 0, 0,
-                                     monitor_area.width, monitor_area.height, -1., 1.);
+                                     monitor_area.width,
+                                     monitor_area.height,
+                                     -1.0f,
+                                     1.0f);
 
-      if (texture2 != NULL && self->blend_factor != 0.0)
+      if (texture2 != NULL && self->blend_factor != 0.0f)
         {
           CoglPipeline *pipeline = create_pipeline (PIPELINE_REPLACE);
           int mipmap_level;
@@ -1007,7 +1010,7 @@ meta_background_set_blend (MetaBackground          *self,
   set_file (self, &self->file1, &self->background_image1, file1, FALSE);
   set_file (self, &self->file2, &self->background_image2, file2, FALSE);
 
-  self->blend_factor = blend_factor;
+  self->blend_factor = (float) blend_factor;
   self->style = style;
 
   free_wallpaper_texture (self);

@@ -289,8 +289,8 @@ init_pointer_position (MetaBackend *backend)
   /* Move the pointer out of the way to avoid hovering over reactive
    * elements (e.g. users list at login) causing undesired behaviour. */
   clutter_seat_init_pointer_position (seat,
-                                      primary->rect.x + primary->rect.width * 0.9,
-                                      primary->rect.y + primary->rect.height * 0.9);
+                                      primary->rect.x + primary->rect.width * 0.9f,
+                                      primary->rect.y + primary->rect.height * 0.9f);
 
   cursor_renderer = meta_backend_get_cursor_renderer (backend);
   meta_cursor_renderer_update_position (cursor_renderer);

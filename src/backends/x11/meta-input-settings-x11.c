@@ -242,7 +242,7 @@ meta_input_settings_x11_set_speed (MetaInputSettings  *settings,
 {
   MetaBackend *backend = get_backend (settings);
   Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
-  gfloat value = speed;
+  gfloat value = (float) speed;
 
   change_property (settings, device, "libinput Accel Speed",
                    XInternAtom (xdisplay, "FLOAT", False),
@@ -711,13 +711,13 @@ device_query_area (MetaInputSettings  *settings,
         continue;
       if (valuator->label == abs_x)
         {
-          *x = valuator->min;
-          *width = valuator->max - valuator->min;
+          *x = (int) valuator->min;
+          *width = (int) (valuator->max - valuator->min);
         }
       else if (valuator->label == abs_y)
         {
-          *y = valuator->min;
-          *height = valuator->max - valuator->min;
+          *y = (int) valuator->min;
+          *height = (int) (valuator->max - valuator->min);
         }
     }
 
@@ -747,10 +747,10 @@ meta_input_settings_x11_set_tablet_area (MetaInputSettings  *settings,
   if (!device_query_area (settings, device, &x, &y, &width, &height))
     return;
 
-  area[0] = (width * padding_left) + x;
-  area[1] = (height * padding_top) + y;
-  area[2] = width - (width * padding_right) + x;
-  area[3] = height - (height * padding_bottom) + y;
+  area[0] = (int32_t) ((width * padding_left) + x);
+  area[1] = (int32_t) ((height * padding_top) + y);
+  area[2] = (int32_t) (width - (width * padding_right) + x);
+  area[3] = (int32_t) (height - (height * padding_bottom) + y);
   update_tablet_area (settings, device, area);
 }
 
@@ -772,9 +772,9 @@ meta_input_settings_x11_set_tablet_aspect_ratio (MetaInputSettings  *settings,
       dev_aspect = (double) dev_width / dev_height;
 
       if (dev_aspect > aspect_ratio)
-        dev_width = dev_height * aspect_ratio;
+        dev_width = (int) (dev_height * aspect_ratio);
       else if (dev_aspect < aspect_ratio)
-        dev_height = dev_width / aspect_ratio;
+        dev_height = (int) (dev_width / aspect_ratio);
     }
 
   area[0] = dev_x;

@@ -41,7 +41,7 @@ test_journal_unref_flush (void)
   g_object_add_weak_pointer (G_OBJECT (offscreen), (gpointer *) &offscreen);
 
   pipeline = cogl_pipeline_new (test_ctx);
-  cogl_color_init_from_4f (&color, 0.2, 0.2, 0.2, 0.2);
+  cogl_color_init_from_4f (&color, 0.2f, 0.2f, 0.2f, 0.2f);
   cogl_pipeline_set_color (pipeline, &color);
   cogl_framebuffer_draw_rectangle (COGL_FRAMEBUFFER (offscreen),
                                    pipeline,

@@ -558,10 +558,10 @@ cally_actor_get_extents (AtkComponent *component,
   clutter_actor_get_abs_allocation_vertices (actor, verts);
   clutter_actor_get_transformed_size (actor, &f_width, &f_height);
 
-  *x = verts[0].x;
-  *y = verts[0].y;
-  *width = ceilf (f_width);
-  *height = ceilf (f_height);
+  *x = (int) verts[0].x;
+  *y = (int) verts[0].y;
+  *width = (int) ceilf (f_width);
+  *height = (int) ceilf (f_height);
 }
 
 static gint
@@ -575,7 +575,7 @@ cally_actor_get_mdi_zorder (AtkComponent *component)
   cally_actor = CALLY_ACTOR(component);
   actor = CALLY_GET_CLUTTER_ACTOR (cally_actor);
 
-  return clutter_actor_get_z_position (actor);
+  return (int) clutter_actor_get_z_position (actor);
 }
 
 static gboolean

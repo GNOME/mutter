@@ -309,10 +309,10 @@ test_offscreen_texture_formats_store_rgb10 (void)
 
   /* The extra fraction is there to avoid rounding inconsistencies in OpenGL
    * implementations. */
-  red = (rgb10_red / (float) ((1 << 10) - 1)) + 0.00001;
-  green = (rgb10_green / (float) ((1 << 10) - 1)) + 0.00001;
-  blue = (rgb10_blue / (float) ((1 << 10) - 1)) + 0.00001;
-  alpha = (rgb10_alpha / (float) ((1 << 2) - 1)) + 0.00001;
+  red = (rgb10_red / (float) ((1 << 10) - 1)) + 0.00001f;
+  green = (rgb10_green / (float) ((1 << 10) - 1)) + 0.00001f;
+  blue = (rgb10_blue / (float) ((1 << 10) - 1)) + 0.00001f;
+  alpha = (rgb10_alpha / (float) ((1 << 2) - 1)) + 0.00001f;
 
   /* Make sure that that the color value can't be represented using rgb8. */
   g_assert_cmpint (rgb8_to_rgb10 (rgb10_to_rgb8 (rgb10_red)), !=, rgb10_red);
@@ -440,8 +440,8 @@ test_offscreen_texture_formats_store_rgb8 (void)
   int i;
 
   cogl_color_init_from_4f (&color,
-                           red / 255.0, green / 255.0,
-                           blue / 255.0, alpha / 255.0);
+                           red / 255.0f, green / 255.0f,
+                           blue / 255.0f, alpha / 255.0f);
 
   for (i = 0; i < G_N_ELEMENTS (formats); i++)
     {
@@ -678,10 +678,10 @@ test_offscreen_texture_formats_paint_rgb10 (void)
 
   /* The extra fraction is there to avoid rounding inconsistencies in OpenGL
    * implementations. */
-  red = (rgb10_red / (float) ((1 << 10 ) - 1)) + 0.00001;
-  green = (rgb10_green / (float) ((1 << 10) - 1)) + 0.00001;
-  blue = (rgb10_blue / (float) ((1 << 10) - 1)) + 0.00001;
-  alpha = (rgb10_alpha / (float) ((1 << 2) - 1)) + 0.00001;
+  red = (rgb10_red / (float) ((1 << 10 ) - 1)) + 0.00001f;
+  green = (rgb10_green / (float) ((1 << 10) - 1)) + 0.00001f;
+  blue = (rgb10_blue / (float) ((1 << 10) - 1)) + 0.00001f;
+  alpha = (rgb10_alpha / (float) ((1 << 2) - 1)) + 0.00001f;
 
   /* Make sure that that the color value can't be represented using rgb8. */
   g_assert_cmpint (rgb8_to_rgb10 (rgb10_to_rgb8 (rgb10_red)), !=, rgb10_red);
@@ -813,8 +813,8 @@ test_offscreen_texture_formats_paint_rgb8 (void)
   int i;
 
   cogl_color_init_from_4f (&color,
-                           red / 255.0, green / 255.0,
-                           blue / 255.0, alpha / 255.0);
+                           red / 255.0f, green / 255.0f,
+                           blue / 255.0f, alpha / 255.0f);
 
   for (i = 0; i < G_N_ELEMENTS (formats); i++)
     {

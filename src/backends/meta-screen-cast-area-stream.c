@@ -172,8 +172,8 @@ transform_position (MetaScreenCastAreaStream *area_stream,
                     double                   *out_x,
                     double                   *out_y)
 {
-  *out_x = area_stream->area.x + (int) roundf (x / area_stream->scale);
-  *out_y = area_stream->area.y + (int) roundf (y / area_stream->scale);
+  *out_x = area_stream->area.x + (int) round (x / area_stream->scale);
+  *out_y = area_stream->area.y + (int) round (y / area_stream->scale);
 }
 
 static gboolean

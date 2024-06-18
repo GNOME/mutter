@@ -130,7 +130,7 @@ meta_crtc_test_init (MetaCrtcTest *crtc_test)
     {
       uint16_t gamma;
 
-      gamma = ((float) i / GAMMA_SIZE) * UINT16_MAX;
+      gamma = (uint16_t) (((float) i / GAMMA_SIZE) * UINT16_MAX);
       crtc_test->gamma.red[i] = gamma;
       crtc_test->gamma.green[i] = gamma;
       crtc_test->gamma.blue[i] = gamma;

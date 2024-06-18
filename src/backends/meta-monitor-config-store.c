@@ -717,8 +717,8 @@ derive_logical_monitor_layout (MetaLogicalMonitorConfig    *logical_monitor_conf
   switch (layout_mode)
     {
     case META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL:
-      width = roundf (width / scale);
-      height = roundf (height / scale);
+      width = (int) roundf (width / scale);
+      height = (int) roundf (height / scale);
       break;
     case META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL:
       if (!G_APPROX_VALUE (scale, roundf (scale), FLT_EPSILON))
@@ -1144,7 +1144,7 @@ read_float (const char  *text,
   strncpy (buf, text, text_len);
   buf[MIN (63, text_len)] = 0;
 
-  value = g_ascii_strtod (buf, &end);
+  value = (float) g_ascii_strtod (buf, &end);
 
   if (*end)
     {

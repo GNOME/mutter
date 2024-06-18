@@ -1100,7 +1100,7 @@ emulate_motion (MetaSeatX11 *seat_x11,
                                     CLUTTER_CURRENT_TIME,
                                     pointer,
                                     NULL, 0,
-                                    GRAPHENE_POINT_INIT (x, y),
+                                    GRAPHENE_POINT_INIT ((float) x, (float) y),
                                     GRAPHENE_POINT_INIT (0, 0),
                                     GRAPHENE_POINT_INIT (0, 0),
                                     GRAPHENE_POINT_INIT (0, 0),
@@ -1480,8 +1480,8 @@ translate_coords (MetaStageX11 *stage_x11,
 
   clutter_actor_get_size (stage, &stage_width, &stage_height);
 
-  *x_out = CLAMP (event_x, 0, stage_width);
-  *y_out = CLAMP (event_y, 0, stage_height);
+  *x_out = (float) CLAMP (event_x, 0, stage_width);
+  *y_out = (float) CLAMP (event_y, 0, stage_height);
 }
 
 static void
@@ -1858,16 +1858,16 @@ meta_seat_x11_query_state (ClutterSeat          *seat,
 
       if (coords)
         {
-          coords->x = touch_info->x;
-          coords->y = touch_info->y;
+          coords->x = (float) touch_info->x;
+          coords->y = (float) touch_info->y;
         }
     }
   else
     {
       if (coords)
         {
-          coords->x = win_x;
-          coords->y = win_y;
+          coords->x = (float) win_x;
+          coords->y = (float) win_y;
         }
     }
 
@@ -2498,7 +2498,8 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
                                                      tool,
                                                      state,
                                                      GRAPHENE_POINT_INIT (x, y),
-                                                     GRAPHENE_POINT_INIT (delta_x, delta_y),
+                                                     GRAPHENE_POINT_INIT ((float) delta_x,
+                                                                          (float) delta_y),
                                                      CLUTTER_SCROLL_SOURCE_UNKNOWN,
                                                      CLUTTER_SCROLL_FINISHED_NONE);
 

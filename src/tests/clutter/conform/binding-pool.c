@@ -146,7 +146,7 @@ key_group_paint (ClutterActor        *actor,
   gint i = 0;
 
   pipeline = cogl_pipeline_new (ctx);
-  cogl_color_init_from_4f (&color, 1.0, 1.0, 0.0, 224. / 255. );
+  cogl_color_init_from_4f (&color, 1.0f, 1.0f, 0.0f, 224.0f / 255.0f );
   cogl_pipeline_set_color (pipeline, &color);
 
   framebuffer = clutter_paint_context_get_framebuffer (paint_context);

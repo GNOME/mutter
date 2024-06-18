@@ -82,19 +82,19 @@ clutter_page_turn_effect_deform_vertex (ClutterDeformEffect *effect,
   if (self->period == 0.0)
     return;
 
-  radians = self->angle / (180.0f / G_PI);
+  radians = (float) (self->angle / (180.0f / G_PI));
 
   /* Rotate the point around the centre of the page-curl ray to align it with
    * the y-axis.
    */
-  cx = (1.f - self->period) * width;
-  cy = (1.f - self->period) * height;
+  cx = (float) (1.0f - self->period) * width;
+  cy = (float) (1.0f - self->period) * height;
 
-  rx = ((vertex->x - cx) * cos (- radians))
-     - ((vertex->y - cy) * sin (- radians))
+  rx = ((vertex->x - cx) * cosf (- radians))
+     - ((vertex->y - cy) * sinf (- radians))
      - self->radius;
-  ry = ((vertex->x - cx) * sin (- radians))
-     + ((vertex->y - cy) * cos (- radians));
+  ry = ((vertex->x - cx) * sinf (- radians))
+     + ((vertex->y - cy) * cosf (- radians));
 
   turn_angle = 0.f;
   if (rx > self->radius * -2.0f)
@@ -102,13 +102,13 @@ clutter_page_turn_effect_deform_vertex (ClutterDeformEffect *effect,
       /* Calculate the curl angle as a function from the distance of the curl
        * ray (i.e. the page crease)
        */
-      turn_angle = (rx / self->radius * G_PI_2) - G_PI_2;
-      shade = ((sin (turn_angle) * 96.0f) + 159.0f) / 255.0;
+      turn_angle = (float) ((rx / self->radius * G_PI_2) - G_PI_2);
+      shade = ((sinf (turn_angle) * 96.0f) + 159.0f) / 255.0f;
 
       /* Add a gradient that makes it look like lighting and hides the switch
        * between textures.
        */
-      cogl_color_init_from_4f (&vertex->color, shade, shade, shade, 1.0);
+      cogl_color_init_from_4f (&vertex->color, shade, shade, shade, 1.0f);
     }
 
   if (rx > 0)
@@ -119,18 +119,18 @@ clutter_page_turn_effect_deform_vertex (ClutterDeformEffect *effect,
        * between curled layers of the texture, in pixels.
        */
       gfloat small_radius;
-      
-      small_radius = self->radius
-                   - MIN (self->radius, (turn_angle * 10) / G_PI);
+
+      small_radius = (float) (self->radius -
+                              MIN (self->radius, (turn_angle * 10) / G_PI));
 
       /* Calculate a point on a cylinder (maybe make this a cone at some
        * point) and rotate it by the specified angle.
        */
-      rx = (small_radius * cos (turn_angle)) + self->radius;
+      rx = (small_radius * cosf (turn_angle)) + self->radius;
 
-      vertex->x = (rx * cos (radians)) - (ry * sin (radians)) + cx;
-      vertex->y = (rx * sin (radians)) + (ry * cos (radians)) + cy;
-      vertex->z = (small_radius * sin (turn_angle)) + self->radius;
+      vertex->x = (rx * cosf (radians)) - (ry * sinf (radians)) + cx;
+      vertex->y = (rx * sinf (radians)) + (ry * cosf (radians)) + cy;
+      vertex->z = (small_radius * sinf (turn_angle)) + self->radius;
     }
 }
 

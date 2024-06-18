@@ -205,11 +205,13 @@ send_output_events (struct wl_resource *resource,
   if (old_mode == old_preferred_mode)
     old_mode_flags |= WL_OUTPUT_MODE_PREFERRED;
 
-  refresh_rate_khz = meta_monitor_mode_get_refresh_rate (mode) * 1000;
-  old_refresh_rate_khz = meta_monitor_mode_get_refresh_rate (old_mode) * 1000;
+  refresh_rate_khz =
+    (int32_t) (meta_monitor_mode_get_refresh_rate (mode) * 1000);
+  old_refresh_rate_khz =
+    (int32_t) (meta_monitor_mode_get_refresh_rate (old_mode) * 1000);
 
-  scale_int = ceilf (meta_logical_monitor_get_scale (logical_monitor));
-  old_scale_int = ceilf (wayland_output->scale);
+  scale_int = (int) ceilf (meta_logical_monitor_get_scale (logical_monitor));
+  old_scale_int = (int) ceilf (wayland_output->scale);
 
   meta_monitor_mode_get_resolution (mode, &mode_width, &mode_height);
   meta_monitor_mode_get_resolution (old_mode,

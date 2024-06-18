@@ -227,7 +227,7 @@ meta_bezier_sample (MetaBezier *b)
 
       while (t < 1.0)
         {
-          meta_bezier_advance (b, t * META_BEZIER_MAX_LENGTH, &pos);
+          meta_bezier_advance (b, (int) (t * META_BEZIER_MAX_LENGTH), &pos);
           if (pos.x < N)
             {
               if (points[MAX (pos.x - 1, 0)] == -1)
@@ -256,7 +256,7 @@ meta_bezier_sample (MetaBezier *b)
   while (i < N - 1)
     {
       double *current = &points[++i];
-      int prev = points[i - 1];
+      int prev = (int) points[i - 1];
 
       if (*current == -1.0)
         {
@@ -266,7 +266,7 @@ meta_bezier_sample (MetaBezier *b)
 
           do
             {
-              next = points[++next_idx];
+              next = (int) points[++next_idx];
             } while (next == -1.0 && next_idx < N); /* N-1 is guaranteed valid */
 
           delta = (next - prev) / (next_idx - i + 1);
@@ -274,7 +274,7 @@ meta_bezier_sample (MetaBezier *b)
           while (i < next_idx)
             {
               *current = prev + delta;
-              prev = *current;
+              prev = (int) *current;
               current++;
               i++;
             }
@@ -292,7 +292,7 @@ sqrti (int number)
   /* The GCC built-in with SSE2 (sqrtsd) is up to twice as fast as
    * the pure integer code below. It is also more accurate.
    */
-  return __builtin_sqrt (number);
+  return (int) __builtin_sqrt (number);
 #else
   /* This is a fixed point implementation of the Quake III sqrt algorithm,
    * described, for example, at
@@ -338,7 +338,7 @@ sqrti (int number)
    * addition out, and it all goes pear shape, since without it, the bits
    * in the float will not be correctly aligned.
    */
-  flt2.f = flt.f + 2.0;
+  flt2.f = flt.f + 2.0f;
   flt2.i &= 0x7FFFFF;
 
   /* Now we correct the estimate */
@@ -382,8 +382,8 @@ meta_bezier_init (MetaBezier *b,
          y_3 = 1.0;
   _FixedT t;
   int i;
-  int xp = x_0;
-  int yp = y_0;
+  int xp = (int) x_0;
+  int yp = (int) y_0;
   _FixedT length[CBZ_T_SAMPLES + 1];
 
   g_warn_if_fail (x_1 >= 0.0 && x_1 <= 1.0);
@@ -403,17 +403,17 @@ meta_bezier_init (MetaBezier *b,
            x0, y0, x1, y1, x2, y2, x3, y3);
 #endif
 
-  b->dx = x_0;
-  b->dy = y_0;
+  b->dx = (int) x_0;
+  b->dy = (int) y_0;
 
-  b->cx = 3 * (x_1 - x_0);
-  b->cy = 3 * (y_1 - y_0);
+  b->cx = (int) (3 * (x_1 - x_0));
+  b->cy = (int) (3 * (y_1 - y_0));
 
-  b->bx = 3 * (x_2 - x_1) - b->cx;
-  b->by = 3 * (y_2 - y_1) - b->cy;
+  b->bx = (int) (3 * (x_2 - x_1) - b->cx);
+  b->by = (int) (3 * (y_2 - y_1) - b->cy);
 
-  b->ax = x_3 - 3 * x_2 + 3 * x_1 - x_0;
-  b->ay = y_3 - 3 * y_2 + 3 * y_1 - y_0;
+  b->ax = (int) (x_3 - 3 * x_2 + 3 * x_1 - x_0);
+  b->ay = (int) (y_3 - 3 * y_2 + 3 * y_1 - y_0);
 
 #if 0
   g_debug ("Cooeficients {{%d,%d},{%d,%d},{%d,%d},{%d,%d}}",

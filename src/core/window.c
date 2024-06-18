@@ -3227,15 +3227,27 @@ meta_window_unmaximize (MetaWindow        *window,
         {
           if (desired_rect->width > desired_rect->height)
             {
-              float aspect = (float)desired_rect->height / (float)desired_rect->width;
-              desired_rect->width = MAX (work_area.width * sqrt (MAX_UNMAXIMIZED_WINDOW_AREA), window->size_hints.min_width);
-              desired_rect->height = MAX (desired_rect->width * aspect, window->size_hints.min_height);
+              float aspect;
+
+              aspect = (float) desired_rect->height / (float) desired_rect->width;
+              desired_rect->width =
+                (int) MAX (work_area.width * sqrt (MAX_UNMAXIMIZED_WINDOW_AREA),
+                           window->size_hints.min_width);
+              desired_rect->height =
+                (int) MAX (desired_rect->width * aspect,
+                           window->size_hints.min_height);
             }
           else
             {
-              float aspect = (float)desired_rect->width / (float)desired_rect->height;
-              desired_rect->height = MAX (work_area.height * sqrt (MAX_UNMAXIMIZED_WINDOW_AREA), window->size_hints.min_height);
-              desired_rect->width = MAX (desired_rect->height * aspect, window->size_hints.min_width);
+              float aspect;
+
+              aspect = (float) desired_rect->width / (float) desired_rect->height;
+              desired_rect->height =
+                (int) MAX (work_area.height * sqrt (MAX_UNMAXIMIZED_WINDOW_AREA),
+                           window->size_hints.min_height);
+              desired_rect->width =
+                (int) MAX (desired_rect->height * aspect,
+                           window->size_hints.min_width);
             }
         }
 
@@ -4085,10 +4097,10 @@ meta_window_move_between_rects (MetaWindow          *window,
       g_warn_if_fail (rel_x >= 0.0 && rel_x <= 1.0 &&
                       rel_y >= 0.0 && rel_y <= 1.0);
 
-      new_x = new_area->x +
-              rel_x * (new_area->width - window->unconstrained_rect.width);
-      new_y = new_area->y +
-              rel_y * (new_area->height - window->unconstrained_rect.height);
+      new_x = (int) (new_area->x +
+                     rel_x * (new_area->width - window->unconstrained_rect.width));
+      new_y = (int) (new_area->y +
+                     rel_y * (new_area->height - window->unconstrained_rect.height));
     }
   else
     {
@@ -4100,10 +4112,10 @@ meta_window_move_between_rects (MetaWindow          *window,
       rel_x = CLAMP (rel_x, FLT_EPSILON, 1.0 - FLT_EPSILON);
       rel_y = CLAMP (rel_y, FLT_EPSILON, 1.0 - FLT_EPSILON);
 
-      new_x = new_area->x - (window->unconstrained_rect.width / 2) +
-              (rel_x * new_area->width);
-      new_y = new_area->y - (window->unconstrained_rect.height / 2) +
-              (rel_y * new_area->height);
+      new_x = (int) (new_area->x - (window->unconstrained_rect.width / 2) +
+                     (rel_x * new_area->width));
+      new_y = (int) (new_area->y - (window->unconstrained_rect.height / 2) +
+                     (rel_y * new_area->height));
     }
 
   window->unconstrained_rect.x = new_x;
@@ -5840,7 +5852,7 @@ meta_window_get_tile_area (MetaWindow   *window,
   meta_window_get_tile_fraction (window, tile_mode, &fraction);
 
   *tile_area = work_area;
-  tile_area->width = round (tile_area->width * fraction);
+  tile_area->width = (int) round (tile_area->width * fraction);
 
   if (tile_mode == META_TILE_RIGHT)
     tile_area->x += work_area.width - tile_area->width;
@@ -7326,7 +7338,7 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
 
       meta_window_show_menu (window,
                              META_WINDOW_MENU_WM,
-                             x, y);
+                             (int) x, (int) y);
 
       return CLUTTER_EVENT_STOP;
     }

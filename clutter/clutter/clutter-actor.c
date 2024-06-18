@@ -2827,16 +2827,33 @@ clutter_actor_real_apply_transform (ClutterActor      *self,
     }
 
   if (info->rx_angle)
-    graphene_matrix_rotate (matrix, info->rx_angle, graphene_vec3_x_axis ());
+    {
+      graphene_matrix_rotate (matrix,
+                              (float) info->rx_angle,
+                              graphene_vec3_x_axis ());
+    }
 
   if (info->ry_angle)
-    graphene_matrix_rotate (matrix, info->ry_angle, graphene_vec3_y_axis ());
+    {
+      graphene_matrix_rotate (matrix,
+                              (float) info->ry_angle,
+                              graphene_vec3_y_axis ());
+    }
 
   if (info->rz_angle)
-    graphene_matrix_rotate (matrix, info->rz_angle, graphene_vec3_z_axis ());
+    {
+      graphene_matrix_rotate (matrix,
+                              (float) info->rz_angle,
+                              graphene_vec3_z_axis ());
+    }
 
   if (info->scale_x != 1.0 || info->scale_y != 1.0 || info->scale_z != 1.0)
-    graphene_matrix_scale (matrix, info->scale_x, info->scale_y, info->scale_z);
+    {
+      graphene_matrix_scale (matrix,
+                             (float) info->scale_x,
+                             (float) info->scale_y,
+                             (float) info->scale_z);
+    }
 
   /* basic translation: :allocation's origin and :z-position; instead
    * of decomposing the pivot and translation info separate operations,
@@ -12288,8 +12305,8 @@ clutter_actor_transform_stage_point (ClutterActor *self,
   /* Keeping these as ints simplifies the multiplication (no significant
    * loss of precision here).
    */
-  du = ceilf (priv->allocation.x2 - priv->allocation.x1);
-  dv = ceilf (priv->allocation.y2 - priv->allocation.y1);
+  du = (int) ceilf (priv->allocation.x2 - priv->allocation.x1);
+  dv = (int) ceilf (priv->allocation.y2 - priv->allocation.y1);
 
   if (du == 0 || dv == 0)
     return FALSE;
@@ -12380,9 +12397,9 @@ clutter_actor_transform_stage_point (ClutterActor *self,
    * Now transform our point with the ST matrix; the notional w
    * coordinate is 1, hence the last part is simply added.
    */
-  xf = x * ST[0][0] + y * ST[1][0] + ST[2][0];
-  yf = x * ST[0][1] + y * ST[1][1] + ST[2][1];
-  wf = x * ST[0][2] + y * ST[1][2] + ST[2][2];
+  xf = (float) (x * ST[0][0] + y * ST[1][0] + ST[2][0]);
+  yf = (float) (x * ST[0][1] + y * ST[1][1] + ST[2][1]);
+  wf = (float) (x * ST[0][2] + y * ST[1][2] + ST[2][2]);
 
   if (x_out)
     *x_out = xf / wf;
@@ -12771,10 +12788,10 @@ clutter_actor_allocate_align_fill (ClutterActor           *self,
     x_align = 1.0 - x_align;
 
   if (!x_fill)
-    allocation.x1 += ((available_width - child_width) * x_align);
+    allocation.x1 += (float) ((available_width - child_width) * x_align);
 
   if (!y_fill)
-    allocation.y1 += ((available_height - child_height) * y_align);
+    allocation.y1 += (float) ((available_height - child_height) * y_align);
 
 out:
 
@@ -17267,7 +17284,7 @@ clutter_actor_get_content_box (ClutterActor    *self,
     case CLUTTER_CONTENT_GRAVITY_TOP:
       if (alloc_w > content_w)
         {
-          box->x1 += ceilf ((alloc_w - content_w) / 2.0);
+          box->x1 += ceilf ((alloc_w - content_w) / 2.0f);
           box->x2 = box->x1 + content_w;
         }
       box->y2 = box->y1 + MIN (content_h, alloc_h);
@@ -17286,7 +17303,7 @@ clutter_actor_get_content_box (ClutterActor    *self,
       box->x2 = box->x1 + MIN (content_w, alloc_w);
       if (alloc_h > content_h)
         {
-          box->y1 += ceilf ((alloc_h - content_h) / 2.0);
+          box->y1 += ceilf ((alloc_h - content_h) / 2.0f);
           box->y2 = box->y1 + content_h;
         }
       break;
@@ -17294,12 +17311,12 @@ clutter_actor_get_content_box (ClutterActor    *self,
     case CLUTTER_CONTENT_GRAVITY_CENTER:
       if (alloc_w > content_w)
         {
-          box->x1 += ceilf ((alloc_w - content_w) / 2.0);
+          box->x1 += ceilf ((alloc_w - content_w) / 2.0f);
           box->x2 = box->x1 + content_w;
         }
       if (alloc_h > content_h)
         {
-          box->y1 += ceilf ((alloc_h - content_h) / 2.0);
+          box->y1 += ceilf ((alloc_h - content_h) / 2.0f);
           box->y2 = box->y1 + content_h;
         }
       break;
@@ -17312,7 +17329,7 @@ clutter_actor_get_content_box (ClutterActor    *self,
         }
       if (alloc_h > content_h)
         {
-          box->y1 += ceilf ((alloc_h - content_h) / 2.0);
+          box->y1 += ceilf ((alloc_h - content_h) / 2.0f);
           box->y2 = box->y1 + content_h;
         }
       break;
@@ -17329,7 +17346,7 @@ clutter_actor_get_content_box (ClutterActor    *self,
     case CLUTTER_CONTENT_GRAVITY_BOTTOM:
       if (alloc_w > content_w)
         {
-          box->x1 += ceilf ((alloc_w - content_w) / 2.0);
+          box->x1 += ceilf ((alloc_w - content_w) / 2.0f);
           box->x2 = box->x1 + content_w;
         }
       if (alloc_h > content_h)
@@ -17365,16 +17382,16 @@ clutter_actor_get_content_box (ClutterActor    *self,
             box->y1 = 0.f;
             box->y2 = alloc_h;
 
-            box->x1 = (alloc_w - (alloc_h * r_c)) / 2.0f;
-            box->x2 = box->x1 + (alloc_h * r_c);
+            box->x1 = (float) ((alloc_w - (alloc_h * r_c)) / 2.0);
+            box->x2 = (float) (box->x1 + (alloc_h * r_c));
           }
         else
           {
             box->x1 = 0.f;
             box->x2 = alloc_w;
 
-            box->y1 = (alloc_h - (alloc_w / r_c)) / 2.0f;
-            box->y2 = box->y1 + (alloc_w / r_c);
+            box->y1 = (float) ((alloc_h - (alloc_w / r_c)) / 2.0);
+            box->y2 = (float) (box->y1 + (alloc_w / r_c));
           }
 
         CLUTTER_NOTE (LAYOUT,

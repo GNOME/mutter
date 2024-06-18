@@ -1547,7 +1547,8 @@ get_pointer_window (MetaWorkspace *workspace,
 
   return meta_workspace_get_default_focus_window_at_point (workspace,
                                                            not_this_one,
-                                                           point.x, point.y);
+                                                           (int) point.x,
+                                                           (int) point.y);
 }
 
 static gboolean

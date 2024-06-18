@@ -950,8 +950,8 @@ meta_compositor_real_before_paint (MetaCompositor     *compositor,
 
   stage_rect = (MtkRectangle) {
     0, 0,
-    clutter_actor_get_width (stage),
-    clutter_actor_get_height (stage),
+    (int) clutter_actor_get_width (stage),
+    (int) clutter_actor_get_height (stage),
   };
 
   unobscured_region = mtk_region_create_rectangle (&stage_rect);

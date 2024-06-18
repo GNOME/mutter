@@ -52,7 +52,7 @@ test_coglbox_paint (ClutterActor        *self,
   CoglColor color;
 
   pipeline = cogl_pipeline_new (ctx);
-  cogl_color_init_from_4f (&color, 0.4, 0.4, 221.0 / 255.0, 1.0);
+  cogl_color_init_from_4f (&color, 0.4f, 0.4f, 221.0f / 255.0f, 1.0f);
   cogl_pipeline_set_color (pipeline, &color);
   cogl_framebuffer_draw_rectangle (framebuffer, pipeline, 0, 0, 400, 400);
   g_object_unref (pipeline);
@@ -68,12 +68,12 @@ test_coglbox_paint (ClutterActor        *self,
 
   pipeline = cogl_pipeline_new (ctx);
 
-  cogl_color_init_from_4f (&color, 1.0, 0.0, 0.0, 1.0);
+  cogl_color_init_from_4f (&color, 1.0f, 0.0f, 0.0f, 1.0f);
   cogl_pipeline_set_color (pipeline, &color);
   cogl_framebuffer_draw_rectangle (coglbox->framebuffer, pipeline,
                                    20, 20, 20 + 100, 20 + 100);
 
-  cogl_color_init_from_4f (&color, 0.0, 1.0, 0.0, 1.0);
+  cogl_color_init_from_4f (&color, 0.0f, 1.0f, 0.0f, 1.0f);
   cogl_pipeline_set_color (pipeline, &color);
   cogl_framebuffer_draw_rectangle (coglbox->framebuffer, pipeline,
                                    80, 80, 80 + 100, 80 + 100);
@@ -81,8 +81,8 @@ test_coglbox_paint (ClutterActor        *self,
 
   pipeline = cogl_pipeline_new (ctx);
   cogl_color_init_from_4f (&color,
-                           136.0 / 255.0, 136.0 / 255.0,
-                           136.0 / 255.0, 136.0 / 255.0);
+                           136.0f / 255.0f, 136.0f / 255.0f,
+                           136.0f / 255.0f, 136.0f / 255.0f);
   cogl_pipeline_set_color (pipeline, &color);
   cogl_pipeline_set_layer_texture (pipeline, 0, coglbox->texture_id);
   cogl_framebuffer_draw_textured_rectangle (framebuffer, pipeline,
@@ -187,11 +187,11 @@ setup_viewport (CoglFramebuffer *framebuffer,
    */
 
   cogl_framebuffer_get_projection_matrix (framebuffer, &projection_matrix);
-  z_camera = 0.5 * graphene_matrix_get_value (&projection_matrix, 0, 0);
+  z_camera = 0.5f * graphene_matrix_get_value (&projection_matrix, 0, 0);
 
   graphene_matrix_init_translate (&mv_matrix,
                                   &GRAPHENE_POINT3D_INIT (0.0f,
-                                                          -1.0 * height,
+                                                          -1.0f * height,
                                                           0.0f));
   graphene_matrix_scale (&mv_matrix, 1.0f / width, -1.0f / height, 1.0f / width);
   graphene_matrix_translate (&mv_matrix,
@@ -222,7 +222,8 @@ test_coglbox_map (ClutterActor *actor)
   clutter_actor_get_size (stage, &stage_width, &stage_height);
 
   setup_viewport (coglbox->framebuffer,
-                  stage_width, stage_height,
+                  (int) stage_width,
+                  (int) stage_height,
                   perspective.fovy,
                   perspective.aspect,
                   perspective.z_near,

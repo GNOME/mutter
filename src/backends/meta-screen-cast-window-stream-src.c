@@ -158,8 +158,8 @@ maybe_draw_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
 
   meta_cursor_sprite_get_hotspot (cursor_sprite, &hotspot_x, &hotspot_y);
 
-  width = cogl_texture_get_width (cursor_texture) * scale;
-  height = cogl_texture_get_height (cursor_texture) * scale;
+  width = (int) (cogl_texture_get_width (cursor_texture) * scale);
+  height = (int) (cogl_texture_get_height (cursor_texture) * scale);
   cursor_surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
                                                width, height);
 

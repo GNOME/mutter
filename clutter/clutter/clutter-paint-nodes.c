@@ -1352,12 +1352,12 @@ clutter_blit_node_draw (ClutterPaintNode    *node,
 
           cogl_blit_framebuffer (blit_node->src,
                                  framebuffer,
-                                 op->op.texrect[0],
-                                 op->op.texrect[1],
-                                 op->op.texrect[4],
-                                 op->op.texrect[5],
-                                 op_width,
-                                 op_height,
+                                 (int) op->op.texrect[0],
+                                 (int) op->op.texrect[1],
+                                 (int) op->op.texrect[4],
+                                 (int) op->op.texrect[5],
+                                 (int) op_width,
+                                 (int) op_height,
                                  &error);
 
           if (error)

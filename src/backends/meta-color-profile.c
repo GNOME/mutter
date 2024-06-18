@@ -451,16 +451,16 @@ generate_gamma_lut_from_vcgt (MetaColorProfile  *color_profile,
     {
       cmsFloat32Number in;
 
-      in = (double) i / (double) (lut_size - 1);
+      in = (cmsFloat32Number) ((double) i / (double) (lut_size - 1));
       lut->red[i] =
-        cmsEvalToneCurveFloat (vcgt[0], in) *
-        blackbody_color.R * (double) 0xffff;
+        (uint16_t) (cmsEvalToneCurveFloat (vcgt[0], in) *
+                    blackbody_color.R * (double) 0xffff);
       lut->green[i] =
-        cmsEvalToneCurveFloat (vcgt[1], in) *
-        blackbody_color.G * (double) 0xffff;
+        (uint16_t) (cmsEvalToneCurveFloat (vcgt[1], in) *
+                    blackbody_color.G * (double) 0xffff);
       lut->blue[i] =
-        cmsEvalToneCurveFloat (vcgt[2], in) *
-        blackbody_color.B * (gdouble) 0xffff;
+        (uint16_t) (cmsEvalToneCurveFloat (vcgt[2], in) *
+                    blackbody_color.B * (gdouble) 0xffff);
     }
 
   return lut;
@@ -492,9 +492,9 @@ generate_gamma_lut (MetaColorProfile *color_profile,
       uint16_t in;
 
       in = (i * 0xffff) / (lut->size - 1);
-      lut->red[i] = in * blackbody_color.R;
-      lut->green[i] = in * blackbody_color.G;
-      lut->blue[i] = in * blackbody_color.B;
+      lut->red[i] = (uint16_t) (in * blackbody_color.R);
+      lut->green[i] = (uint16_t) (in * blackbody_color.G);
+      lut->blue[i] = (uint16_t) (in * blackbody_color.B);
     }
 
   return lut;

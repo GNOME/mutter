@@ -124,10 +124,10 @@ meta_barrier_impl_x11_new (MetaBarrier *barrier)
   border = meta_barrier_get_border (barrier);
   allowed_motion_dirs = meta_border_get_allows_directions (border);
   self->xbarrier = XFixesCreatePointerBarrier (xdisplay, root,
-                                               border->line.a.x,
-                                               border->line.a.y,
-                                               border->line.b.x,
-                                               border->line.b.y,
+                                               (int) border->line.a.x,
+                                               (int) border->line.a.y,
+                                               (int) border->line.b.x,
+                                               (int) border->line.b.y,
                                                allowed_motion_dirs,
                                                0, NULL);
 

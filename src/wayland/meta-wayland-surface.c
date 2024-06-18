@@ -2243,7 +2243,7 @@ meta_wayland_surface_get_width (MetaWaylandSurface *surface)
     }
   else if (surface->viewport.has_src_rect)
     {
-      return ceilf (surface->viewport.src_rect.size.width);
+      return (int) ceilf (surface->viewport.src_rect.size.width);
     }
   else
     {
@@ -2267,7 +2267,7 @@ meta_wayland_surface_get_height (MetaWaylandSurface *surface)
     }
   else if (surface->viewport.has_src_rect)
     {
-      return ceilf (surface->viewport.src_rect.size.height);
+      return (int) ceilf (surface->viewport.src_rect.size.height);
     }
   else
     {
@@ -2347,10 +2347,10 @@ meta_wayland_surface_try_acquire_scanout (MetaWaylandSurface *surface,
   view_scale = clutter_stage_view_get_scale (stage_view);
 
   dst_rect = (MtkRectangle) {
-    .x = roundf ((actor_box.x1 - view_rect.x) * view_scale),
-    .y = roundf ((actor_box.y1 - view_rect.y) * view_scale),
-    .width = roundf ((actor_box.x2 - actor_box.x1) * view_scale),
-    .height = roundf ((actor_box.y2 - actor_box.y1) * view_scale),
+    .x = (int) roundf ((actor_box.x1 - view_rect.x) * view_scale),
+    .y = (int) roundf ((actor_box.y1 - view_rect.y) * view_scale),
+    .width = (int) roundf ((actor_box.x2 - actor_box.x1) * view_scale),
+    .height = (int) roundf ((actor_box.y2 - actor_box.y1) * view_scale),
   };
 
   if (meta_monitor_transform_is_rotated (view_transform))
@@ -2460,7 +2460,7 @@ committed_state_handle_highest_scale_monitor (MetaWaylandSurface *surface)
       int ceiled_scale;
       MetaMonitorTransform transform;
 
-      ceiled_scale = ceil (scale);
+      ceiled_scale = (int) ceil (scale);
       if (ceiled_scale > 0 && ceiled_scale != surface->preferred_scale)
         {
           wl_surface_send_preferred_buffer_scale (surface->resource, ceiled_scale);

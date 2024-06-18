@@ -367,7 +367,7 @@ validate_result (void)
 
   for (i = 0; i <= 8; i++)
     {
-      int green_value = i / 8.0f * 255.0f + 0.5f;
+      int green_value = (int) (i / 8.0f * 255.0f + 0.5f);
       check_pos (i + 3, 0xff0000ff + (green_value << 16));
     }
 

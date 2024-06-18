@@ -172,9 +172,10 @@ test_swipe_action_main (int argc, char *argv[])
     clutter_actor_add_child (box,
                              create_label ("<b>Green</b>: both"));
 
-    offset = clutter_actor_get_height (stage)
-           - clutter_actor_get_height (box)
-           - 12.0;
+    offset =
+      clutter_actor_get_height (stage) -
+      clutter_actor_get_height (box) -
+      12.0f;
 
     clutter_actor_add_child (stage, box);
     clutter_actor_add_constraint (box, clutter_bind_constraint_new (stage,

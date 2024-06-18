@@ -90,7 +90,7 @@ test_pipeline_shader_state (void)
   g_object_unref (draw_pipeline);
 
 
-  test_utils_check_region (test_fb, 0, 0, width, height,
+  test_utils_check_region (test_fb, 0, 0, (int) width, (int) height,
                            0x0000ffff);
 }
 

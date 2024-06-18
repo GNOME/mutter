@@ -153,9 +153,9 @@ add_stencil_clip_region (CoglFramebuffer *framebuffer,
 
   graphene_matrix_init_translate (&matrix, &p);
   graphene_matrix_scale (&matrix,
-                         2.0 / cogl_framebuffer_get_viewport_width (framebuffer),
-                         - 2.0 / cogl_framebuffer_get_viewport_height (framebuffer),
-                         1);
+                         2.0f / cogl_framebuffer_get_viewport_width (framebuffer),
+                         - 2.0f / cogl_framebuffer_get_viewport_height (framebuffer),
+                         1.0);
   graphene_matrix_translate (&matrix, &GRAPHENE_POINT3D_INIT (-1.f, 1.f, 0.f));
 
   GE( ctx, glColorMask (FALSE, FALSE, FALSE, FALSE) );

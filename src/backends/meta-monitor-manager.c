@@ -2630,8 +2630,8 @@ derive_logical_monitor_size (MetaMonitorConfig           *monitor_config,
   switch (layout_mode)
     {
     case META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL:
-      width = roundf (width / scale);
-      height = roundf (height / scale);
+      width = (int) roundf (width / scale);
+      height = (int) roundf (height / scale);
       break;
     case META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL:
       break;
@@ -3403,7 +3403,7 @@ meta_monitor_manager_get_logical_monitor_at (MetaMonitorManager *manager,
     {
       MetaLogicalMonitor *logical_monitor = l->data;
 
-      if (mtk_rectangle_contains_point (&logical_monitor->rect, x, y))
+      if (mtk_rectangle_contains_pointf (&logical_monitor->rect, x, y))
         return logical_monitor;
     }
 

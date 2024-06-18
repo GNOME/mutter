@@ -155,7 +155,7 @@ meta_wayland_fractional_scale_maybe_send_preferred_scale (MetaWaylandSurface *su
       G_APPROX_VALUE (scale, surface->fractional_scale.scale, FLT_EPSILON))
     return;
 
-  wire_scale = round (scale * 120);
+  wire_scale = (int) round (scale * 120);
   wp_fractional_scale_v1_send_preferred_scale (surface->fractional_scale.resource,
                                                wire_scale);
   surface->fractional_scale.scale = scale;

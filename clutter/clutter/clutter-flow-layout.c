@@ -130,8 +130,8 @@ get_columns (ClutterFlowLayout *self,
   if (self->col_width == 0)
     return 1;
 
-  n_columns = (gint) (for_width + self->col_spacing)
-            / (self->col_width + self->col_spacing);
+  n_columns = (int) ((int) (for_width + self->col_spacing) /
+                     (self->col_width + self->col_spacing));
 
   if (n_columns == 0)
     return 1;
@@ -151,8 +151,8 @@ get_rows (ClutterFlowLayout *self,
   if (self->row_height == 0)
     return 1;
 
-  n_rows = (gint) (for_height + self->row_spacing)
-         / (self->row_height + self->row_spacing);
+  n_rows = (int) ((int) (for_height + self->row_spacing) /
+                  (self->row_height + self->row_spacing));
 
   if (n_rows == 0)
     return 1;
@@ -714,10 +714,10 @@ clutter_flow_layout_allocate (ClutterLayoutManager   *manager,
                     line_index, line_item_count + 1, items_per_line,
                     item_x, item_y, item_width, item_height);
 
-      child_alloc.x1 = ceil (item_x);
-      child_alloc.y1 = ceil (item_y);
-      child_alloc.x2 = ceil (child_alloc.x1 + item_width);
-      child_alloc.y2 = ceil (child_alloc.y1 + item_height);
+      child_alloc.x1 = ceilf (item_x);
+      child_alloc.y1 = ceilf (item_y);
+      child_alloc.x2 = ceilf (child_alloc.x1 + item_width);
+      child_alloc.y2 = ceilf (child_alloc.y1 + item_height);
       clutter_actor_allocate (child, &child_alloc);
 
       if (self->orientation == CLUTTER_ORIENTATION_HORIZONTAL)

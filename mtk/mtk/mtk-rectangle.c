@@ -358,10 +358,10 @@ mtk_rectangle_from_graphene_rect (const graphene_rect_t *rect,
     case MTK_ROUNDING_STRATEGY_SHRINK:
       {
         *dest = (MtkRectangle) {
-          .x = ceilf (rect->origin.x),
-          .y = ceilf (rect->origin.y),
-          .width = floorf (rect->size.width),
-          .height = floorf (rect->size.height),
+          .x = (int) ceilf (rect->origin.x),
+          .y = (int) ceilf (rect->origin.y),
+          .width = (int) floorf (rect->size.width),
+          .height = (int) floorf (rect->size.height),
         };
       }
       break;
@@ -372,20 +372,20 @@ mtk_rectangle_from_graphene_rect (const graphene_rect_t *rect,
         graphene_rect_round_extents (&clamped, &clamped);
 
         *dest = (MtkRectangle) {
-          .x = clamped.origin.x,
-          .y = clamped.origin.y,
-          .width = clamped.size.width,
-          .height = clamped.size.height,
+          .x = (int) clamped.origin.x,
+          .y = (int) clamped.origin.y,
+          .width = (int) clamped.size.width,
+          .height = (int) clamped.size.height,
         };
       }
       break;
     case MTK_ROUNDING_STRATEGY_ROUND:
       {
         *dest = (MtkRectangle) {
-          .x = roundf (rect->origin.x),
-          .y = roundf (rect->origin.y),
-          .width = roundf (rect->size.width),
-          .height = roundf (rect->size.height),
+          .x = (int) roundf (rect->origin.x),
+          .y = (int) roundf (rect->origin.y),
+          .width = (int) roundf (rect->size.width),
+          .height = (int) roundf (rect->size.height),
         };
       }
     }
@@ -419,7 +419,7 @@ mtk_rectangle_scale_double (const MtkRectangle  *rect,
   graphene_rect_t tmp = GRAPHENE_RECT_INIT (rect->x, rect->y,
                                             rect->width, rect->height);
 
-  graphene_rect_scale (&tmp, scale, scale, &tmp);
+  graphene_rect_scale (&tmp, (float) scale, (float) scale, &tmp);
   mtk_rectangle_from_graphene_rect (&tmp, rounding_strategy, dest);
 }
 

@@ -23,7 +23,7 @@ struct _TestCoglbox
   ClutterActor           parent;
 
   CoglTexture *cogl_tex_id;
-  gdouble    animation_progress;
+  float animation_progress;
 };
 
 G_DEFINE_TYPE (TestCoglbox, test_coglbox, CLUTTER_TYPE_ACTOR);
@@ -54,7 +54,7 @@ test_coglbox_paint (ClutterActor        *self,
   gfloat frac;
   gint t;
 
-  angle = coglbox->animation_progress * 2 * G_PI;
+  angle = (float) (coglbox->animation_progress * 2 * G_PI);
 
   frac = ((coglbox->animation_progress <= 0.5f
            ? coglbox->animation_progress
@@ -62,8 +62,8 @@ test_coglbox_paint (ClutterActor        *self,
 
   for (t=0; t<4; t+=2)
     {
-      texcoords[t]   += cos (angle);
-      texcoords[t+1] += sin (angle);
+      texcoords[t]   += cosf (angle);
+      texcoords[t+1] += sinf (angle);
 
       texcoords[t]   *= frac;
       texcoords[t+1] *= frac;
@@ -72,7 +72,7 @@ test_coglbox_paint (ClutterActor        *self,
   cogl_framebuffer_push_matrix (framebuffer);
 
   pipeline = cogl_pipeline_new (ctx);
-  cogl_color_init_from_4f (&color, 0.4, 0.4, 221.0 / 255.0, 1.0);
+  cogl_color_init_from_4f (&color, 0.4f, 0.4f, 221.0f / 255.0f, 1.0f);
   cogl_pipeline_set_color (pipeline, &color);
   cogl_framebuffer_draw_rectangle (framebuffer, pipeline, 0, 0, 400, 400);
   g_object_unref (pipeline);
@@ -138,7 +138,7 @@ frame_cb (ClutterTimeline *timeline,
 {
   TestCoglbox *coglbox = TEST_COGLBOX (data);
 
-  coglbox->animation_progress = clutter_timeline_get_progress (timeline);
+  coglbox->animation_progress = (float) clutter_timeline_get_progress (timeline);
   clutter_actor_queue_redraw (CLUTTER_ACTOR (data));
 }
 

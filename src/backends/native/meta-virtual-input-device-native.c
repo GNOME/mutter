@@ -216,11 +216,13 @@ notify_relative_motion_in_impl (GTask *task)
     event->time_us = g_get_monotonic_time ();
 
   meta_seat_impl_notify_relative_motion_in_impl (seat,
-						 virtual_evdev->impl_state->device,
-						 event->time_us,
-						 event->x, event->y,
-						 event->x, event->y,
-						 NULL);
+                                                 virtual_evdev->impl_state->device,
+                                                 event->time_us,
+                                                 (float) event->x,
+                                                 (float) event->y,
+                                                 (float) event->x,
+                                                 (float) event->y,
+                                                 NULL);
   g_task_return_boolean (task, TRUE);
   return G_SOURCE_REMOVE;
 }
@@ -262,10 +264,11 @@ notify_absolute_motion_in_impl (GTask *task)
     event->time_us = g_get_monotonic_time ();
 
   meta_seat_impl_notify_absolute_motion_in_impl (seat,
-						 virtual_evdev->impl_state->device,
-						 event->time_us,
-						 event->x, event->y,
-						 NULL);
+                                                 virtual_evdev->impl_state->device,
+                                                 event->time_us,
+                                                 (float) event->x,
+                                                 (float) event->y,
+                                                 NULL);
   g_task_return_boolean (task, TRUE);
   return G_SOURCE_REMOVE;
 }
@@ -788,8 +791,8 @@ notify_touch_down_in_impl (GTask *task)
   if (!touch_state)
     goto out;
 
-  touch_state->coords.x = event->x;
-  touch_state->coords.y = event->y;
+  touch_state->coords.x = (float) event->x;
+  touch_state->coords.y = (float) event->y;
 
   meta_seat_impl_notify_touch_event_in_impl (seat,
                                              virtual_evdev->impl_state->device,
@@ -848,8 +851,8 @@ notify_touch_motion_in_impl (GTask *task)
   if (!touch_state)
     goto out;
 
-  touch_state->coords.x = event->x;
-  touch_state->coords.y = event->y;
+  touch_state->coords.x = (float) event->x;
+  touch_state->coords.y = (float) event->y;
 
   meta_seat_impl_notify_touch_event_in_impl (seat,
                                              virtual_evdev->impl_state->device,

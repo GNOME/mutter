@@ -252,12 +252,12 @@ paint_transformed_framebuffer (ClutterStageView *view,
   cogl_framebuffer_push_matrix (dst_framebuffer);
 
   graphene_matrix_init_translate (&matrix,
-                                  &GRAPHENE_POINT3D_INIT (-dst_width / 2.0,
-                                                          -dst_height / 2.0,
+                                  &GRAPHENE_POINT3D_INIT (-dst_width / 2.0f,
+                                                          -dst_height / 2.0f,
                                                           0.f));
   graphene_matrix_scale (&matrix,
-                         1.0 / (dst_width / 2.0),
-                         -1.0 / (dst_height / 2.0),
+                         1.0f / (dst_width / 2.0f),
+                         -1.0f / (dst_height / 2.0f),
                          0.f);
   cogl_framebuffer_set_projection_matrix (dst_framebuffer, &matrix);
   cogl_framebuffer_set_viewport (dst_framebuffer,
@@ -827,17 +827,17 @@ end_frame_timing_measurement (ClutterStageView *view)
         (now_us - priv->frame_timings.last_print_time_us) /
         (float) G_USEC_PER_SEC;
 
-      if (time_since_last_print_s >= 1.0)
+      if (time_since_last_print_s >= 1.0f)
         {
           float avg_fps, avg_draw_time_ms, worst_draw_time_ms;
 
           avg_fps = priv->frame_timings.frame_count / time_since_last_print_s;
 
           avg_draw_time_ms =
-            (priv->frame_timings.cumulative_draw_time_us / 1000.0) /
+            (priv->frame_timings.cumulative_draw_time_us / 1000.0f) /
             priv->frame_timings.frame_count;
 
-          worst_draw_time_ms = priv->frame_timings.worst_draw_time_us / 1000.0;
+          worst_draw_time_ms = priv->frame_timings.worst_draw_time_us / 1000.0f;
 
           g_print ("*** %s frame timings over %.01fs: "
                    "%.02f FPS, average: %.01fms, peak: %.01fms\n",

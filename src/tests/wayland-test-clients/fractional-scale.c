@@ -63,8 +63,8 @@ maybe_redraw (WaylandDisplay *display)
   g_assert_cmpint (logical_height, >, 0);
   g_assert_cmpfloat (fractional_buffer_scale, >, 0.0);
 
-  buffer_width = ceilf (logical_width * fractional_buffer_scale);
-  buffer_height = ceilf (logical_height * fractional_buffer_scale);
+  buffer_width = (int) ceilf (logical_width * fractional_buffer_scale);
+  buffer_height = (int) ceilf (logical_height * fractional_buffer_scale);
 
   draw_surface (display, surface, buffer_width, buffer_height, 0x1f109f20);
   wp_viewport_set_destination (viewport, logical_width, logical_height);
@@ -128,7 +128,7 @@ static void handle_preferred_scale (void                          *data,
   WaylandDisplay *display = data;
   float new_fractional_buffer_scale;
 
-  new_fractional_buffer_scale = wire_scale / 120.0;
+  new_fractional_buffer_scale = wire_scale / 120.0f;
   if (G_APPROX_VALUE (new_fractional_buffer_scale,
                       fractional_buffer_scale,
                       FLT_EPSILON))

@@ -474,7 +474,7 @@ maybe_multiply (const char  *str,
       str += 1;
       multiplier = g_strtod (str, (char **) out_str);
 
-      value = round (multiplier * value);
+      value = (int) round (multiplier * value);
     }
 
   return value;
@@ -494,7 +494,7 @@ maybe_divide (const char  *str,
       str += 1;
       divider = g_strtod (str, (char **) out_str);
 
-      value = round (value / divider);
+      value = (int) round (value / divider);
     }
 
   return value;
@@ -1707,8 +1707,8 @@ test_case_do (TestCase    *test,
       if (argc != 3)
         BAD_COMMAND("usage: %s <x> <y>", argv[0]);
 
-      float x = atof (argv[1]);
-      float y = atof (argv[2]);
+      float x = (float) atof (argv[1]);
+      float y = (float) atof (argv[2]);
 
       clutter_virtual_input_device_notify_absolute_motion (test->pointer,
                                                            CLUTTER_CURRENT_TIME,

@@ -254,7 +254,7 @@ append_tiled_monitor (MetaMonitorManager *manager,
                       GList             **modes,
                       GList             **crtcs,
                       GList             **outputs,
-                      int                 scale)
+                      float               scale)
 {
   MetaGpu *gpu = get_gpu (manager);
   CrtcModeSpec mode_specs[] = {
@@ -451,7 +451,7 @@ meta_monitor_manager_dummy_read_current (MetaMonitorManager *manager)
                       "of monitors (defaults to 1).");
       for (i = 0; i < num_monitors && scales_str_list[i]; i++)
         {
-          float scale = g_ascii_strtod (scales_str_list[i], NULL);
+          float scale = (float) g_ascii_strtod (scales_str_list[i], NULL);
 
           monitor_scales[i] = scale;
         }

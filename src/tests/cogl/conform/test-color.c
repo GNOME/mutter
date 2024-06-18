@@ -5,7 +5,7 @@
 
 #include "tests/cogl-test-utils.h"
 
-#define TEST_CASE_EPSILON 0.01
+#define TEST_CASE_EPSILON 0.01f
 
 static void
 test_color_hsl (void)
@@ -13,7 +13,7 @@ test_color_hsl (void)
   CoglColor color;
   float hue, saturation, luminance;
 
-  cogl_color_init_from_4f (&color, 108.0 / 255.0, 198 / 255.0, 78.0 / 255.0, 1.0);
+  cogl_color_init_from_4f (&color, 108.0f / 255.0f, 198 / 255.0f, 78.0f / 255.0f, 1.0f);
   cogl_color_to_hsl (&color, &hue, &saturation, &luminance);
 
   g_assert_cmpfloat_with_epsilon (hue, 105.f, TEST_CASE_EPSILON);
@@ -23,13 +23,13 @@ test_color_hsl (void)
   memset (&color, 0, sizeof (CoglColor));
   cogl_color_init_from_hsl (&color, hue, saturation, luminance);
 
-  g_assert_cmpfloat_with_epsilon (cogl_color_get_red (&color), 108.0 / 255.0,
+  g_assert_cmpfloat_with_epsilon (cogl_color_get_red (&color), 108.0f / 255.0f,
                                   TEST_CASE_EPSILON);
-  g_assert_cmpfloat_with_epsilon (cogl_color_get_green (&color), 198.0 / 255.0,
+  g_assert_cmpfloat_with_epsilon (cogl_color_get_green (&color), 198.0f / 255.0f,
                                   TEST_CASE_EPSILON);
-  g_assert_cmpfloat_with_epsilon (cogl_color_get_blue (&color), 78.0 / 255.0,
+  g_assert_cmpfloat_with_epsilon (cogl_color_get_blue (&color), 78.0f / 255.0f,
                                   TEST_CASE_EPSILON);
-  g_assert_cmpfloat_with_epsilon (cogl_color_get_alpha (&color), 1.0,
+  g_assert_cmpfloat_with_epsilon (cogl_color_get_alpha (&color), 1.0f,
                                   TEST_CASE_EPSILON);
 
   memset (&color, 0, sizeof (CoglColor));
@@ -41,7 +41,7 @@ test_color_hsl (void)
                                   TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_blue (&color), luminance,
                                   TEST_CASE_EPSILON);
-  g_assert_cmpfloat_with_epsilon (cogl_color_get_alpha (&color), 1.0,
+  g_assert_cmpfloat_with_epsilon (cogl_color_get_alpha (&color), 1.0f,
                                   TEST_CASE_EPSILON);
 
   if (cogl_test_verbose ())
@@ -57,16 +57,16 @@ color_hls_roundtrip (void)
   /* test luminance only */
   cogl_color_from_string (&color, "#7f7f7f");
   g_assert_cmpfloat_with_epsilon (cogl_color_get_red (&color),
-                                  (float)0x7f / 255.0, TEST_CASE_EPSILON);
+                                  (float)0x7f / 255.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_green (&color),
-                                  (float)0x7f / 255.0, TEST_CASE_EPSILON);
+                                  (float)0x7f / 255.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_blue (&color),
-                                  (float)0x7f / 255.0, TEST_CASE_EPSILON);
+                                  (float)0x7f / 255.0f, TEST_CASE_EPSILON);
 
   cogl_color_to_hsl (&color, &hue, &saturation, &luminance);
-  g_assert_cmpfloat (hue, ==, 0.0);
-  g_assert (luminance >= 0.0 && luminance <= 1.0);
-  g_assert_cmpfloat (saturation, ==, 0.0);
+  g_assert_cmpfloat (hue, ==, 0.0f);
+  g_assert (luminance >= 0.0f && luminance <= 1.0f);
+  g_assert_cmpfloat (saturation, ==, 0.0f);
   if (!g_test_quiet ())
     {
       g_print ("RGB = { %x, %x, %x }, HLS = { %.2f, %.2f, %.2f }\n",
@@ -82,27 +82,27 @@ color_hls_roundtrip (void)
   cogl_color_init_from_hsl (&color, hue, saturation, luminance);
 
   g_assert_cmpfloat_with_epsilon (cogl_color_get_red (&color),
-                                  (float)0x7f / 255.0, TEST_CASE_EPSILON);
+                                  (float)0x7f / 255.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_green (&color),
-                                  (float)0x7f / 255.0, TEST_CASE_EPSILON);
+                                  (float)0x7f / 255.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_blue (&color),
-                                  (float)0x7f / 255.0, TEST_CASE_EPSILON);
+                                  (float)0x7f / 255.0f, TEST_CASE_EPSILON);
 
   /* full conversion */
   cogl_color_from_string (&color, "#7f8f7f");
   color.alpha = 255;
 
   g_assert_cmpfloat_with_epsilon (cogl_color_get_red (&color),
-                                  (float)0x7f / 255.0, TEST_CASE_EPSILON);
+                                  (float)0x7f / 255.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_green (&color),
-                                  (float)0x8f / 255.0, TEST_CASE_EPSILON);
+                                  (float)0x8f / 255.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_blue (&color),
-                                  (float)0x7f / 255.0, TEST_CASE_EPSILON);
+                                  (float)0x7f / 255.0f, TEST_CASE_EPSILON);
 
   cogl_color_to_hsl (&color, &hue, &saturation, &luminance);
-  g_assert (hue >= 0.0 && hue < 360.0);
-  g_assert (luminance >= 0.0 && luminance <= 1.0);
-  g_assert (saturation >= 0.0 && saturation <= 1.0);
+  g_assert (hue >= 0.0f && hue < 360.0f);
+  g_assert (luminance >= 0.0f && luminance <= 1.0f);
+  g_assert (saturation >= 0.0f && saturation <= 1.0f);
   if (!g_test_quiet ())
     {
       g_print ("RGB = { %x, %x, %x }, HLS = { %.2f, %.2f, %.2f }\n",
@@ -118,11 +118,11 @@ color_hls_roundtrip (void)
   cogl_color_init_from_hsl (&color, hue, saturation, luminance);
 
   g_assert_cmpfloat_with_epsilon (cogl_color_get_red (&color),
-                                  (float)0x7f / 255.0, TEST_CASE_EPSILON);
+                                  (float)0x7f / 255.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_green (&color),
-                                  (float)0x8f / 255.0, TEST_CASE_EPSILON);
+                                  (float)0x8f / 255.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_blue (&color),
-                                  (float)0x7f / 255.0, TEST_CASE_EPSILON);
+                                  (float)0x7f / 255.0f, TEST_CASE_EPSILON);
 
   /* the alpha channel should be untouched */
   g_assert_cmpuint (color.alpha, ==, 255);
@@ -159,13 +159,13 @@ color_from_string_valid (void)
                color.alpha);
     }
   g_assert_cmpfloat_with_epsilon (cogl_color_get_red (&color),
-                                  1.0, TEST_CASE_EPSILON);
+                                  1.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_green (&color),
-                                  0.0, TEST_CASE_EPSILON);
+                                  0.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_blue (&color),
-                                  0.0, TEST_CASE_EPSILON);
+                                  0.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_alpha (&color),
-                                  1.0, TEST_CASE_EPSILON);
+                                  1.0f, TEST_CASE_EPSILON);
 
   g_assert (cogl_color_from_string (&color, "#0f0f"));
   if (!g_test_quiet ())
@@ -177,13 +177,13 @@ color_from_string_valid (void)
                color.alpha);
     }
   g_assert_cmpfloat_with_epsilon (cogl_color_get_red (&color),
-                                  0.0, TEST_CASE_EPSILON);
+                                  0.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_green (&color),
-                                  1.0, TEST_CASE_EPSILON);
+                                  1.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_blue (&color),
-                                  0.0, TEST_CASE_EPSILON);
+                                  0.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_alpha (&color),
-                                  1.0, TEST_CASE_EPSILON);
+                                  1.0f, TEST_CASE_EPSILON);
 
   g_assert (cogl_color_from_string (&color, "#0000ff"));
   if (!g_test_quiet ())
@@ -195,13 +195,13 @@ color_from_string_valid (void)
                color.alpha);
     }
   g_assert_cmpfloat_with_epsilon (cogl_color_get_red (&color),
-                                  0.0, TEST_CASE_EPSILON);
+                                  0.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_green (&color),
-                                  0.0, TEST_CASE_EPSILON);
+                                  0.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_blue (&color),
-                                  1.0, TEST_CASE_EPSILON);
+                                  1.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_alpha (&color),
-                                  1.0, TEST_CASE_EPSILON);
+                                  1.0f, TEST_CASE_EPSILON);
 
   g_assert (cogl_color_from_string (&color, "#abc"));
   if (!g_test_quiet ())
@@ -213,13 +213,13 @@ color_from_string_valid (void)
                color.alpha);
     }
   g_assert_cmpfloat_with_epsilon (cogl_color_get_red (&color),
-                                  (float)0xaa / 255.0, TEST_CASE_EPSILON);
+                                  (float)0xaa / 255.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_green (&color),
-                                  (float)0xbb / 255.0, TEST_CASE_EPSILON);
+                                  (float)0xbb / 255.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_blue (&color),
-                                  (float)0xcc / 255.0, TEST_CASE_EPSILON);
+                                  (float)0xcc / 255.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_alpha (&color),
-                                  1.0, TEST_CASE_EPSILON);
+                                  1.0f, TEST_CASE_EPSILON);
 
   g_assert (cogl_color_from_string (&color, "#123abc"));
   if (!g_test_quiet ())
@@ -231,13 +231,13 @@ color_from_string_valid (void)
                color.alpha);
     }
   g_assert_cmpfloat_with_epsilon (cogl_color_get_red (&color),
-                                  (float)0x12 / 255.0, TEST_CASE_EPSILON);
+                                  (float)0x12 / 255.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_green (&color),
-                                  (float)0x3a / 255.0, TEST_CASE_EPSILON);
+                                  (float)0x3a / 255.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_blue (&color),
-                                  (float)0xbc / 255.0, TEST_CASE_EPSILON);
+                                  (float)0xbc / 255.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_alpha (&color),
-                                  1.0, TEST_CASE_EPSILON);
+                                  1.0f, TEST_CASE_EPSILON);
 
   g_assert (cogl_color_from_string (&color, "rgb(255, 128, 64)"));
   if (!g_test_quiet ())
@@ -249,13 +249,13 @@ color_from_string_valid (void)
                color.alpha);
     }
   g_assert_cmpfloat_with_epsilon (cogl_color_get_red (&color),
-                                  1.0, TEST_CASE_EPSILON);
+                                  1.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_green (&color),
-                                  128.0 / 255.0, TEST_CASE_EPSILON);
+                                  128.0f / 255.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_blue (&color),
-                                  64.0 / 255.0, TEST_CASE_EPSILON);
+                                  64.0f / 255.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_alpha (&color),
-                                  1.0, TEST_CASE_EPSILON);
+                                  1.0f, TEST_CASE_EPSILON);
 
   g_assert (cogl_color_from_string (&color, "rgba ( 30%, 0,    25%,  0.5 )   "));
   if (!g_test_quiet ())
@@ -265,15 +265,15 @@ color_from_string_valid (void)
                color.green,
                color.blue,
                color.alpha,
-               CLAMP (255.0 / 100.0 * 30.0, 0, 255),
-               CLAMP (255.0 / 100.0 * 25.0, 0, 255));
+               CLAMP (255.0f / 100.0f * 30.0f, 0, 255),
+               CLAMP (255.0f / 100.0f * 25.0f, 0, 255));
     }
   g_assert_cmpfloat_with_epsilon (cogl_color_get_red (&color),
-                                  (255.0 / 100.0 * 30.0) / 255.0, TEST_CASE_EPSILON);
+                                  (255.0f / 100.0f * 30.0f) / 255.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_green (&color),
-                                  0.0, TEST_CASE_EPSILON);
+                                  0.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_blue (&color),
-                                  (255.0 / 100.0 * 25.0) / 255.0, TEST_CASE_EPSILON);
+                                  (255.0f / 100.0f * 25.0f) / 255.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_alpha (&color),
                                   0.5, TEST_CASE_EPSILON);
 
@@ -289,11 +289,11 @@ color_from_string_valid (void)
   g_assert_cmpfloat_with_epsilon (cogl_color_get_red (&color),
                                   0.5, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_green (&color),
-                                  0.0, TEST_CASE_EPSILON);
+                                  0.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_blue (&color),
-                                  1.0, TEST_CASE_EPSILON);
+                                  1.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_alpha (&color),
-                                  1.0, TEST_CASE_EPSILON);
+                                  1.0f, TEST_CASE_EPSILON);
 
   g_assert (cogl_color_from_string (&color, "hsl( 0, 100%, 50% )"));
   if (!g_test_quiet ())
@@ -305,13 +305,13 @@ color_from_string_valid (void)
                color.alpha);
     }
   g_assert_cmpfloat_with_epsilon (cogl_color_get_red (&color),
-                                  1.0, TEST_CASE_EPSILON);
+                                  1.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_green (&color),
-                                  0.0, TEST_CASE_EPSILON);
+                                  0.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_blue (&color),
-                                  0.0, TEST_CASE_EPSILON);
+                                  0.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_alpha (&color),
-                                  1.0, TEST_CASE_EPSILON);
+                                  1.0f, TEST_CASE_EPSILON);
 
   g_assert (cogl_color_from_string (&color, "hsl( 0, 100%, 50%     )"));
 
@@ -325,11 +325,11 @@ color_from_string_valid (void)
                color.alpha);
     }
   g_assert_cmpfloat_with_epsilon (cogl_color_get_red (&color),
-                                  1.0, TEST_CASE_EPSILON);
+                                  1.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_green (&color),
-                                  0.0, TEST_CASE_EPSILON);
+                                  0.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_blue (&color),
-                                  0.0, TEST_CASE_EPSILON);
+                                  0.0f, TEST_CASE_EPSILON);
   g_assert_cmpfloat_with_epsilon (cogl_color_get_alpha (&color),
                                   0.5, TEST_CASE_EPSILON);
 

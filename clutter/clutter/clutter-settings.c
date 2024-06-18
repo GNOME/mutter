@@ -475,11 +475,12 @@ sync_pointer_a11y_settings (ClutterSettings *self,
 
   /* "secondary-click-time" is expressed in seconds */
   pointer_a11y_settings.secondary_click_delay =
-    (1000 * g_settings_get_double (self->mouse_a11y_settings,
-                                   "secondary-click-time"));
+    (int) (1000 * g_settings_get_double (self->mouse_a11y_settings,
+                                         "secondary-click-time"));
   /* "dwell-time" is expressed in seconds */
   pointer_a11y_settings.dwell_delay =
-    (1000 * g_settings_get_double (self->mouse_a11y_settings, "dwell-time"));
+    (int) (1000 * g_settings_get_double (self->mouse_a11y_settings,
+                                         "dwell-time"));
   pointer_a11y_settings.dwell_threshold =
     g_settings_get_int (self->mouse_a11y_settings, "dwell-threshold");
 
@@ -697,7 +698,7 @@ clutter_settings_get_property (GObject    *gobject,
       break;
 
     case PROP_FONT_DPI:
-      g_value_set_int (value, self->resolution * 1024);
+      g_value_set_int (value, (int) (self->resolution * 1024));
       break;
 
     case PROP_FONT_HINTING:

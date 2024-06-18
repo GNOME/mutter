@@ -104,8 +104,8 @@ main (int argc, char *argv[])
           label = clutter_text_new_with_text (font_name, text);
           clutter_text_set_color (CLUTTER_TEXT (label),
                                   &COGL_COLOR_INIT (255, 255, 255, 255));
-          clutter_actor_set_position (label, (1.0*STAGE_WIDTH/COLS)*col,
-                                             (1.0*STAGE_HEIGHT/ROWS)*row);
+          clutter_actor_set_position (label, (1.0f * STAGE_WIDTH / COLS) * col,
+                                             (1.0f * STAGE_HEIGHT / ROWS) * row);
           /*clutter_actor_set_clip (label, 0,0, (1.0*STAGE_WIDTH/COLS),
                                               (1.0*STAGE_HEIGHT/ROWS));*/
           clutter_actor_set_scale (label, scale, scale);

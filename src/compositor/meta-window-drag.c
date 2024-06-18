@@ -1207,8 +1207,8 @@ update_move (MetaWindowDrag          *window_drag,
   dy = y - window_drag->anchor_root_y;
 
   meta_window_get_frame_rect (window, &frame_rect);
-  new_x = x - (frame_rect.width * window_drag->anchor_rel_x);
-  new_y = y - (frame_rect.height * window_drag->anchor_rel_y);
+  new_x = (int) (x - (frame_rect.width * window_drag->anchor_rel_x));
+  new_y = (int) (y - (frame_rect.height * window_drag->anchor_rel_y));
 
   meta_verbose ("x,y = %d,%d anchor ptr %d,%d rel anchor pos %f,%f dx,dy %d,%d",
                 x, y,
@@ -1269,7 +1269,8 @@ update_move (MetaWindowDrag          *window_drag,
         ((double) (x - window_drag->initial_window_pos.x)) /
         ((double) window_drag->initial_window_pos.width);
 
-      window_drag->initial_window_pos.x = x - window->saved_rect.width * prop;
+      window_drag->initial_window_pos.x =
+        (int) (x - window->saved_rect.width * prop);
 
       /* If we started dragging the window from above the top of the window,
        * pretend like we started dragging from the middle of the titlebar
@@ -1634,7 +1635,7 @@ end_grab_op (MetaWindowDrag     *window_drag,
 
   clutter_event_get_coords (event, &x, &y);
   modifiers = clutter_event_get_state (event);
-  check_threshold_reached (window_drag, x, y);
+  check_threshold_reached (window_drag, (int) x, (int) y);
 
   /* If the user was snap moving then ignore the button
    * release because they may have let go of shift before
@@ -1658,14 +1659,14 @@ end_grab_op (MetaWindowDrag     *window_drag,
           if (window_drag->preview_tile_mode != META_TILE_NONE)
             meta_window_tile (window, window_drag->preview_tile_mode);
           else
-            update_move (window_drag, flags, x, y);
+            update_move (window_drag, flags, (int) x, (int) y);
         }
       else if (meta_grab_op_is_resizing (window_drag->grab_op))
         {
           if (window->tile_match != NULL)
             flags |= (META_EDGE_RESISTANCE_SNAP | META_EDGE_RESISTANCE_WINDOWS);
 
-          update_resize (window_drag, flags, x, y);
+          update_resize (window_drag, flags, (int) x, (int) y);
           maybe_maximize_tiled_window (window);
         }
     }
@@ -1730,17 +1731,17 @@ process_pointer_event (MetaWindowDrag     *window_drag,
       if (modifier_state & CLUTTER_CONTROL_MASK)
         flags |= META_EDGE_RESISTANCE_WINDOWS;
 
-      check_threshold_reached (window_drag, x, y);
+      check_threshold_reached (window_drag, (int) x, (int) y);
       if (meta_grab_op_is_moving (window_drag->grab_op))
         {
-          queue_update_move (window_drag, flags, x, y);
+          queue_update_move (window_drag, flags, (int) x, (int) y);
         }
       else if (meta_grab_op_is_resizing (window_drag->grab_op))
         {
           if (window->tile_match != NULL)
             flags |= (META_EDGE_RESISTANCE_SNAP | META_EDGE_RESISTANCE_WINDOWS);
 
-          queue_update_resize (window_drag, flags, x, y);
+          queue_update_resize (window_drag, flags, (int) x, (int) y);
         }
       break;
     case CLUTTER_TOUCH_CANCEL:
@@ -1789,8 +1790,8 @@ meta_window_drag_begin (MetaWindowDrag       *window_drag,
     }
   else if (window_drag->pos_hint_set)
     {
-      root_x = window_drag->pos_hint.x;
-      root_y = window_drag->pos_hint.y;
+      root_x = (int) window_drag->pos_hint.x;
+      root_y = (int) window_drag->pos_hint.y;
     }
   else
     {
@@ -1799,8 +1800,8 @@ meta_window_drag_begin (MetaWindowDrag       *window_drag,
       graphene_point_t pos;
 
       clutter_seat_query_state (seat, device, sequence, &pos, NULL);
-      root_x = pos.x;
-      root_y = pos.y;
+      root_x = (int) pos.x;
+      root_y = (int) pos.y;
     }
 
   meta_topic (META_DEBUG_WINDOW_OPS,

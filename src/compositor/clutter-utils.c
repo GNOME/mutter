@@ -54,7 +54,7 @@
 static inline int
 round_to_fixed (float x)
 {
-  return roundf (x * FIXED_ONE);
+  return (int) roundf (x * FIXED_ONE);
 }
 
 /* Help macros to scale from OpenGL <-1,1> coordinates system to
