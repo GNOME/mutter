@@ -309,7 +309,7 @@ cogl_pango_get_renderer_from_context (PangoContext *context)
 
   cogl_font_map = COGL_PANGO_FONT_MAP (font_map);
 
-  renderer = _cogl_pango_font_map_get_renderer (cogl_font_map);
+  renderer = cogl_pango_font_map_get_renderer (cogl_font_map);
 
   g_return_val_if_fail (COGL_PANGO_IS_RENDERER (renderer), NULL);
 
@@ -481,23 +481,10 @@ cogl_pango_show_layout_line (CoglFramebuffer *fb,
 }
 
 void
-_cogl_pango_renderer_clear_glyph_cache (CoglPangoRenderer *renderer)
-{
-  cogl_pango_glyph_cache_clear (renderer->mipmap_caches.glyph_cache);
-  cogl_pango_glyph_cache_clear (renderer->no_mipmap_caches.glyph_cache);
-}
-
-void
 _cogl_pango_renderer_set_use_mipmapping (CoglPangoRenderer *renderer,
                                          gboolean value)
 {
   renderer->use_mipmapping = value;
-}
-
-gboolean
-_cogl_pango_renderer_get_use_mipmapping (CoglPangoRenderer *renderer)
-{
-  return renderer->use_mipmapping;
 }
 
 static CoglPangoGlyphCacheValue *

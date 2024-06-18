@@ -74,9 +74,6 @@ _cogl_pango_display_list_render (CoglFramebuffer *framebuffer,
                                  const CoglColor *color);
 
 void
-_cogl_pango_display_list_clear (CoglPangoDisplayList *dl);
-
-void
 _cogl_pango_display_list_free (CoglPangoDisplayList *dl);
 
 G_END_DECLS

@@ -104,15 +104,6 @@ cogl_pango_font_map_set_resolution (CoglPangoFontMap *font_map,
                                     double dpi);
 
 /**
- * cogl_pango_font_map_clear_glyph_cache:
- * @font_map: a #CoglPangoFontMap
- *
- * Clears the glyph cache for @font_map.
- */
-COGL_EXPORT void
-cogl_pango_font_map_clear_glyph_cache (CoglPangoFontMap *font_map);
-
-/**
  * cogl_pango_ensure_glyph_cache_for_layout:
  * @layout: A #PangoLayout
  *
@@ -136,18 +127,6 @@ cogl_pango_ensure_glyph_cache_for_layout (PangoLayout *layout);
 COGL_EXPORT void
 cogl_pango_font_map_set_use_mipmapping (CoglPangoFontMap *font_map,
                                         gboolean value);
-
-/**
- * cogl_pango_font_map_get_use_mipmapping:
- * @font_map: a #CoglPangoFontMap
- *
- * Retrieves whether the [class@CoglPango.Renderer] used by @font_map will use
- * mipmapping when rendering the glyphs.
- *
- * Return value: %TRUE if mipmapping is used, %FALSE otherwise.
- */
-COGL_EXPORT gboolean
-cogl_pango_font_map_get_use_mipmapping (CoglPangoFontMap *font_map);
 
 /**
  * cogl_pango_font_map_get_renderer:

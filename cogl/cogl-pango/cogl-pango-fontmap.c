@@ -85,33 +85,14 @@ cogl_pango_font_map_create_context (CoglPangoFontMap *fm)
   return pango_font_map_create_context (PANGO_FONT_MAP (fm));
 }
 
-static CoglPangoFontMapPriv *
-_cogl_pango_font_map_get_priv (CoglPangoFontMap *fm)
-{
-  return g_object_get_qdata (G_OBJECT (fm),
-			     cogl_pango_font_map_get_priv_key ());
-}
-
-PangoRenderer *
-_cogl_pango_font_map_get_renderer (CoglPangoFontMap *fm)
-{
-  CoglPangoFontMapPriv *priv = _cogl_pango_font_map_get_priv (fm);
-  if (G_UNLIKELY (!priv->renderer))
-    priv->renderer = _cogl_pango_renderer_new (priv->ctx);
-  return priv->renderer;
-}
-
 PangoRenderer *
 cogl_pango_font_map_get_renderer (CoglPangoFontMap *fm)
 {
-  return _cogl_pango_font_map_get_renderer (fm);
-}
-
-CoglContext *
-_cogl_pango_font_map_get_cogl_context (CoglPangoFontMap *fm)
-{
-  CoglPangoFontMapPriv *priv = _cogl_pango_font_map_get_priv (fm);
-  return priv->ctx;
+  CoglPangoFontMapPriv *priv = g_object_get_qdata (G_OBJECT (fm),
+                                                   cogl_pango_font_map_get_priv_key ());
+  if (G_UNLIKELY (!priv->renderer))
+    priv->renderer = _cogl_pango_renderer_new (priv->ctx);
+  return priv->renderer;
 }
 
 void
@@ -124,30 +105,13 @@ cogl_pango_font_map_set_resolution (CoglPangoFontMap *font_map,
 }
 
 void
-cogl_pango_font_map_clear_glyph_cache (CoglPangoFontMap *fm)
-{
-  PangoRenderer *renderer = _cogl_pango_font_map_get_renderer (fm);
-
-  _cogl_pango_renderer_clear_glyph_cache (COGL_PANGO_RENDERER (renderer));
-}
-
-void
 cogl_pango_font_map_set_use_mipmapping (CoglPangoFontMap *fm,
                                         gboolean          value)
 {
-  PangoRenderer *renderer = _cogl_pango_font_map_get_renderer (fm);
+  PangoRenderer *renderer = cogl_pango_font_map_get_renderer (fm);
 
   _cogl_pango_renderer_set_use_mipmapping (COGL_PANGO_RENDERER (renderer),
                                            value);
-}
-
-gboolean
-cogl_pango_font_map_get_use_mipmapping (CoglPangoFontMap *fm)
-{
-  PangoRenderer *renderer = _cogl_pango_font_map_get_renderer (fm);
-
-  return
-    _cogl_pango_renderer_get_use_mipmapping (COGL_PANGO_RENDERER (renderer));
 }
 
 static GQuark
