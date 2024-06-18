@@ -1326,6 +1326,6 @@ if have_x11_client
   subdir('frames')
 endif
 
-if have_core_tests
+if have_tests
   subdir('tests')
 endif

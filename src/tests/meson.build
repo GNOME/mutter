@@ -310,389 +310,387 @@ test_cases += [
   },
 ]
 
-if have_native_tests
-  screen_cast_client = executable('mutter-screen-cast-client',
-    sources: [
-      'screen-cast-client.c',
-      built_dbus_sources['meta-dbus-remote-desktop'],
-      built_dbus_sources['meta-dbus-screen-cast'],
+screen_cast_client = executable('mutter-screen-cast-client',
+  sources: [
+    'screen-cast-client.c',
+    built_dbus_sources['meta-dbus-remote-desktop'],
+    built_dbus_sources['meta-dbus-screen-cast'],
+  ],
+  include_directories: tests_includes,
+  c_args: [
+    tests_c_args,
+    '-DG_LOG_DOMAIN="mutter-screen-cast-client"',
+  ],
+  dependencies: [
+    gio_dep,
+    libpipewire_dep,
+  ],
+  install: have_installed_tests,
+  install_dir: mutter_installed_tests_libexecdir,
+  install_rpath: pkglibdir,
+)
+
+input_capture_client = executable('mutter-input-capture-test-client',
+  sources: [
+    'input-capture-test-client.c',
+    '../backends/meta-fd-source.c',
+    '../backends/meta-fd-source.h',
+    built_dbus_sources['meta-dbus-input-capture'],
+  ],
+  include_directories: tests_includes,
+  c_args: [
+    tests_c_args,
+    '-DG_LOG_DOMAIN="mutter-input-capture-test-client"',
+  ],
+  dependencies: [
+    gio_unix_dep,
+    libei_dep,
+  ],
+  install: have_installed_tests,
+  install_dir: mutter_installed_tests_libexecdir,
+)
+
+# Native backend tests
+test_cases += [
+  {
+    'name': 'kms-utils',
+    'suite': 'backends/native',
+    'sources': [ 'kms-utils-unit-tests.c', ],
+  },
+  {
+    'name': 'native-unit',
+    'suite': 'backends/native',
+    'sources': [
+      'native-headless.c',
+      'native-screen-cast.c',
+      'native-screen-cast.h',
+      'native-virtual-monitor.c',
+      'native-virtual-monitor.h',
+      'native-bezier-tests.c',
     ],
+    'depends': [
+      screen_cast_client,
+    ],
+  },
+  {
+    'name': 'pointer-constraints',
+    'suite': 'backends/native',
+    'sources': [ 'native-pointer-constraints.c' ],
+    'depends': [ test_client ],
+  },
+  {
+    'name': 'ref-test-sanity',
+    'suite': 'backends/native',
+    'sources': [ 'ref-test-sanity.c' ],
+  },
+  {
+    'name': 'persistent-virtual-monitor',
+    'suite': 'backends/native',
+    'sources': [ 'native-persistent-virtual-monitor.c' ],
+  },
+  {
+    'name': 'input-capture',
+    'suite': 'backends/native',
+    'sources': [ 'input-capture-tests.c' ],
+  },
+  {
+    'name': 'thread',
+    'suite': 'backends/native',
+    'sources': [
+      'native-thread.c',
+      'meta-thread-test.c',
+      'meta-thread-test.h',
+      'meta-thread-impl-test.c',
+      'meta-thread-impl-test.h',
+    ],
+  },
+]
+
+# KMS tests
+kms_test_variants = []
+kms_mode_atomic_variables = {'MUTTER_DEBUG_FORCE_KMS_MODE': 'atomic'}
+kms_mode_simple_variables = {'MUTTER_DEBUG_FORCE_KMS_MODE': 'simple'}
+kms_thread_kernel_variables = {'MUTTER_DEBUG_KMS_THREAD_TYPE': 'kernel'}
+kms_thread_user_variables = {'MUTTER_DEBUG_KMS_THREAD_TYPE': 'user'}
+kms_mode_variants = [
+  ['atomic', kms_mode_atomic_variables],
+  ['simple', kms_mode_simple_variables],
+]
+kms_thread_variants = [
+  ['kernel-thread', kms_thread_kernel_variables],
+  ['user-thread', kms_thread_user_variables],
+]
+
+foreach kms_mode_variant: kms_mode_variants
+  kms_mode_name = kms_mode_variant[0]
+  kms_mode_variables = kms_mode_variant[1]
+
+  foreach kms_thread_variant: kms_thread_variants
+    kms_thread_name = kms_thread_variant[0]
+    kms_thread_variables = kms_thread_variant[1]
+    suffix = '-@0@-@1@'.format(kms_thread_name, kms_mode_name)
+
+    kms_test_env_variables = \
+      test_env_variables + \
+      kms_mode_variables + \
+      kms_thread_variables
+    kms_test_variants += [[suffix, kms_test_env_variables]]
+  endforeach
+endforeach
+
+kms_test_cases = [
+  {
+    'name': 'kms-force-atomic-sanity',
+    'suite': 'backends/native/kms',
+    'sources': [
+      'native-kms-force-atomic-sanity.c',
+    ],
+    'variants': [['', test_env_variables + kms_mode_atomic_variables]],
+  },
+  {
+    'name': 'kms-force-simple-sanity',
+    'suite': 'backends/native/kms',
+    'sources': [
+      'native-kms-force-simple-sanity.c',
+    ],
+    'variants': [['', test_env_variables + kms_mode_simple_variables]],
+  },
+  {
+    'name': 'kms-force-kernel-thread-sanity',
+    'suite': 'backends/native/kms',
+    'sources': [
+      'native-kms-force-kernel-thread-sanity.c',
+    ],
+    'variants': [['', test_env_variables + kms_thread_kernel_variables]],
+  },
+  {
+    'name': 'kms-force-user-thread-sanity',
+    'suite': 'backends/native/kms',
+    'sources': [
+      'native-kms-force-user-thread-sanity.c',
+    ],
+    'variants': [['', test_env_variables + kms_thread_user_variables]],
+  },
+  {
+    'name': 'kms',
+    'suite': 'backends/native/kms',
+    'sources': [
+      #'meta-kms-test-utils.c',
+      #'meta-kms-test-utils.h',
+      'native-kms.c',
+    ],
+    'variants': [['', test_env_variables ]],
+  },
+  {
+    'name': 'kms-render',
+    'suite': 'backends/native/kms',
+    'sources': [
+      'native-kms-render.c',
+      wayland_test_utils,
+    ],
+    'variants': kms_test_variants,
+  },
+  {
+    'name': 'kms-device',
+    'suite': 'backends/native/kms',
+    'sources': [
+      'meta-kms-test-utils.c',
+      'meta-kms-test-utils.h',
+      'native-kms-device.c',
+    ],
+    'variants': kms_test_variants,
+  },
+  {
+    'name': 'kms-update',
+    'suite': 'backends/native/kms',
+    'sources': [
+      'meta-kms-test-utils.c',
+      'meta-kms-test-utils.h',
+      'native-kms-updates.c',
+    ],
+    'variants': kms_test_variants,
+  },
+  {
+    'name': 'kms-headless-start',
+    'suite': 'backend/native/kms',
+    'sources': [ 'native-kms-headless-start.c', ],
+  },
+  {
+    'name': 'kms-hotplug',
+    'suite': 'backends/native/kms',
+    'sources': [
+      'meta-kms-test-utils.c',
+      'meta-kms-test-utils.h',
+      'native-kms-hotplug.c',
+    ],
+    'variants': kms_test_variants,
+  },
+  {
+    'name': 'kms-cursor-hotplug',
+    'suite': 'backends/native',
+    'sources': [
+      'native-kms-cursor-hotplug.c',
+      wayland_test_utils,
+    ],
+  },
+]
+
+privileged_test_cases += kms_test_cases
+
+# Wayland tests
+wayland_test_cases = [
+  {
+    'name': 'wayland-client-tests',
+    'suite': 'wayland',
+    'sources': [
+      'wayland-client-tests.c',
+    ],
+  },
+  {
+    'name': 'wayland-fullscreen',
+    'suite': 'wayland',
+    'sources': [
+      'wayland-fullscreen-test.c',
+      wayland_test_utils,
+    ],
+    'depends': [
+      test_client_executables.get('fullscreen'),
+    ],
+  },
+  {
+    'name': 'wayland-fractional-scale',
+    'suite': 'wayland',
+    'sources': [
+      'wayland-fractional-scale-test.c',
+      wayland_test_utils,
+    ],
+    'depends': [
+      test_client_executables.get('fractional-scale'),
+    ],
+  },
+  {
+    'name': 'wayland-unit',
+    'suite': 'wayland',
+    'sources': [
+      'wayland-unit-tests.c',
+      dummy_client_header,
+      dummy_server_header,
+      dummy_protocol_code,
+      wayland_test_utils,
+    ],
+    'depends': [
+      test_client,
+      test_client_executables.get('buffer-transform'),
+      test_client_executables.get('dma-buf-scanout'),
+      test_client_executables.get('fractional-scale'),
+      test_client_executables.get('fullscreen'),
+      test_client_executables.get('idle-inhibit'),
+      test_client_executables.get('invalid-subsurfaces'),
+      test_client_executables.get('invalid-xdg-shell-actions'),
+      test_client_executables.get('kms-cursor-hotplug-helper'),
+      test_client_executables.get('service-client'),
+      test_client_executables.get('single-pixel-buffer'),
+      test_client_executables.get('subsurface-corner-cases'),
+      test_client_executables.get('subsurface-parent-unmapped'),
+      test_client_executables.get('subsurface-remap-toplevel'),
+      test_client_executables.get('subsurface-reparenting'),
+      test_client_executables.get('xdg-activation'),
+      test_client_executables.get('xdg-apply-limits'),
+      test_client_executables.get('xdg-foreign'),
+      test_client_executables.get('xdg-toplevel-bounds'),
+      test_client_executables.get('ycbcr'),
+    ],
+  },
+]
+
+test_cases += wayland_test_cases
+privileged_test_cases += wayland_test_cases
+
+if have_xwayland
+  x11_compositor_checker = executable('x11-compositor-checker',
+    sources: ['x11-compositor-checker.c'],
     include_directories: tests_includes,
     c_args: [
       tests_c_args,
-      '-DG_LOG_DOMAIN="mutter-screen-cast-client"',
     ],
     dependencies: [
-      gio_dep,
-      libpipewire_dep,
+      x11_dep,
     ],
     install: have_installed_tests,
     install_dir: mutter_installed_tests_libexecdir,
     install_rpath: pkglibdir,
   )
 
-  input_capture_client = executable('mutter-input-capture-test-client',
-    sources: [
-      'input-capture-test-client.c',
-      '../backends/meta-fd-source.c',
-      '../backends/meta-fd-source.h',
-      built_dbus_sources['meta-dbus-input-capture'],
-    ],
-    include_directories: tests_includes,
-    c_args: [
-      tests_c_args,
-      '-DG_LOG_DOMAIN="mutter-input-capture-test-client"',
-    ],
-    dependencies: [
-      gio_unix_dep,
-      libei_dep,
-    ],
-    install: have_installed_tests,
-    install_dir: mutter_installed_tests_libexecdir,
-  )
-
-  # Native backend tests
   test_cases += [
     {
-      'name': 'kms-utils',
-      'suite': 'backends/native',
-      'sources': [ 'kms-utils-unit-tests.c', ],
-    },
-    {
-      'name': 'native-unit',
-      'suite': 'backends/native',
-      'sources': [
-        'native-headless.c',
-        'native-screen-cast.c',
-        'native-screen-cast.h',
-        'native-virtual-monitor.c',
-        'native-virtual-monitor.h',
-        'native-bezier-tests.c',
-      ],
-      'depends': [
-        screen_cast_client,
-      ],
-    },
-    {
-      'name': 'pointer-constraints',
-      'suite': 'backends/native',
-      'sources': [ 'native-pointer-constraints.c' ],
-      'depends': [ test_client ],
-    },
-    {
-      'name': 'ref-test-sanity',
-      'suite': 'backends/native',
-      'sources': [ 'ref-test-sanity.c' ],
-    },
-    {
-      'name': 'persistent-virtual-monitor',
-      'suite': 'backends/native',
-      'sources': [ 'native-persistent-virtual-monitor.c' ],
-    },
-    {
-      'name': 'input-capture',
-      'suite': 'backends/native',
-      'sources': [ 'input-capture-tests.c' ],
-    },
-    {
-      'name': 'thread',
-      'suite': 'backends/native',
-      'sources': [
-        'native-thread.c',
-        'meta-thread-test.c',
-        'meta-thread-test.h',
-        'meta-thread-impl-test.c',
-        'meta-thread-impl-test.h',
-      ],
-    },
-  ]
-
-  # KMS tests
-  kms_test_variants = []
-  kms_mode_atomic_variables = {'MUTTER_DEBUG_FORCE_KMS_MODE': 'atomic'}
-  kms_mode_simple_variables = {'MUTTER_DEBUG_FORCE_KMS_MODE': 'simple'}
-  kms_thread_kernel_variables = {'MUTTER_DEBUG_KMS_THREAD_TYPE': 'kernel'}
-  kms_thread_user_variables = {'MUTTER_DEBUG_KMS_THREAD_TYPE': 'user'}
-  kms_mode_variants = [
-    ['atomic', kms_mode_atomic_variables],
-    ['simple', kms_mode_simple_variables],
-  ]
-  kms_thread_variants = [
-    ['kernel-thread', kms_thread_kernel_variables],
-    ['user-thread', kms_thread_user_variables],
-  ]
-
-  foreach kms_mode_variant: kms_mode_variants
-    kms_mode_name = kms_mode_variant[0]
-    kms_mode_variables = kms_mode_variant[1]
-
-    foreach kms_thread_variant: kms_thread_variants
-      kms_thread_name = kms_thread_variant[0]
-      kms_thread_variables = kms_thread_variant[1]
-      suffix = '-@0@-@1@'.format(kms_thread_name, kms_mode_name)
-
-      kms_test_env_variables = \
-        test_env_variables + \
-        kms_mode_variables + \
-        kms_thread_variables
-      kms_test_variants += [[suffix, kms_test_env_variables]]
-    endforeach
-  endforeach
-
-  kms_test_cases = [
-    {
-      'name': 'kms-force-atomic-sanity',
-      'suite': 'backends/native/kms',
-      'sources': [
-        'native-kms-force-atomic-sanity.c',
-      ],
-      'variants': [['', test_env_variables + kms_mode_atomic_variables]],
-    },
-    {
-      'name': 'kms-force-simple-sanity',
-      'suite': 'backends/native/kms',
-      'sources': [
-        'native-kms-force-simple-sanity.c',
-      ],
-      'variants': [['', test_env_variables + kms_mode_simple_variables]],
-    },
-    {
-      'name': 'kms-force-kernel-thread-sanity',
-      'suite': 'backends/native/kms',
-      'sources': [
-        'native-kms-force-kernel-thread-sanity.c',
-      ],
-      'variants': [['', test_env_variables + kms_thread_kernel_variables]],
-    },
-    {
-      'name': 'kms-force-user-thread-sanity',
-      'suite': 'backends/native/kms',
-      'sources': [
-        'native-kms-force-user-thread-sanity.c',
-      ],
-      'variants': [['', test_env_variables + kms_thread_user_variables]],
-    },
-    {
-      'name': 'kms',
-      'suite': 'backends/native/kms',
-      'sources': [
-        #'meta-kms-test-utils.c',
-        #'meta-kms-test-utils.h',
-        'native-kms.c',
-      ],
-      'variants': [['', test_env_variables ]],
-    },
-    {
-      'name': 'kms-render',
-      'suite': 'backends/native/kms',
-      'sources': [
-        'native-kms-render.c',
-        wayland_test_utils,
-      ],
-      'variants': kms_test_variants,
-    },
-    {
-      'name': 'kms-device',
-      'suite': 'backends/native/kms',
-      'sources': [
-        'meta-kms-test-utils.c',
-        'meta-kms-test-utils.h',
-        'native-kms-device.c',
-      ],
-      'variants': kms_test_variants,
-    },
-    {
-      'name': 'kms-update',
-      'suite': 'backends/native/kms',
-      'sources': [
-        'meta-kms-test-utils.c',
-        'meta-kms-test-utils.h',
-        'native-kms-updates.c',
-      ],
-      'variants': kms_test_variants,
-    },
-    {
-      'name': 'kms-headless-start',
-      'suite': 'backend/native/kms',
-      'sources': [ 'native-kms-headless-start.c', ],
-    },
-    {
-      'name': 'kms-hotplug',
-      'suite': 'backends/native/kms',
-      'sources': [
-        'meta-kms-test-utils.c',
-        'meta-kms-test-utils.h',
-        'native-kms-hotplug.c',
-      ],
-      'variants': kms_test_variants,
-    },
-    {
-      'name': 'kms-cursor-hotplug',
-      'suite': 'backends/native',
-      'sources': [
-        'native-kms-cursor-hotplug.c',
-        wayland_test_utils,
-      ],
-    },
-  ]
-
-  privileged_test_cases += kms_test_cases
-
-  # Wayland tests
-  wayland_test_cases = [
-    {
-      'name': 'wayland-client-tests',
+      'name': 'wayland-x11-interop',
       'suite': 'wayland',
       'sources': [
-        'wayland-client-tests.c',
-      ],
-    },
-    {
-      'name': 'wayland-fullscreen',
-      'suite': 'wayland',
-      'sources': [
-        'wayland-fullscreen-test.c',
+        'wayland-x11-interop-tests.c',
+        wayland_test_client_utils,
         wayland_test_utils,
-      ],
-      'depends': [
-        test_client_executables.get('fullscreen'),
-      ],
-    },
-    {
-      'name': 'wayland-fractional-scale',
-      'suite': 'wayland',
-      'sources': [
-        'wayland-fractional-scale-test.c',
-        wayland_test_utils,
-      ],
-      'depends': [
-        test_client_executables.get('fractional-scale'),
-      ],
-    },
-    {
-      'name': 'wayland-unit',
-      'suite': 'wayland',
-      'sources': [
-        'wayland-unit-tests.c',
-        dummy_client_header,
-        dummy_server_header,
-        dummy_protocol_code,
-        wayland_test_utils,
+        wayland_protocol_files['mutter-x11-interop']['protocol-code'],
+        built_dbus_sources['meta-dbus-service-channel'],
       ],
       'depends': [
         test_client,
-        test_client_executables.get('buffer-transform'),
-        test_client_executables.get('dma-buf-scanout'),
-        test_client_executables.get('fractional-scale'),
-        test_client_executables.get('fullscreen'),
-        test_client_executables.get('idle-inhibit'),
-        test_client_executables.get('invalid-subsurfaces'),
-        test_client_executables.get('invalid-xdg-shell-actions'),
-        test_client_executables.get('kms-cursor-hotplug-helper'),
-        test_client_executables.get('service-client'),
-        test_client_executables.get('single-pixel-buffer'),
-        test_client_executables.get('subsurface-corner-cases'),
-        test_client_executables.get('subsurface-parent-unmapped'),
-        test_client_executables.get('subsurface-remap-toplevel'),
-        test_client_executables.get('subsurface-reparenting'),
-        test_client_executables.get('xdg-activation'),
-        test_client_executables.get('xdg-apply-limits'),
-        test_client_executables.get('xdg-foreign'),
-        test_client_executables.get('xdg-toplevel-bounds'),
-        test_client_executables.get('ycbcr'),
+        x11_frames,
       ],
     },
-  ]
-
-  test_cases += wayland_test_cases
-  privileged_test_cases += wayland_test_cases
-
-  if have_xwayland
-    x11_compositor_checker = executable('x11-compositor-checker',
-      sources: ['x11-compositor-checker.c'],
-      include_directories: tests_includes,
-      c_args: [
-        tests_c_args,
-      ],
-      dependencies: [
-        x11_dep,
-      ],
-      install: have_installed_tests,
-      install_dir: mutter_installed_tests_libexecdir,
-      install_rpath: pkglibdir,
-    )
-
-    test_cases += [
-      {
-        'name': 'wayland-x11-interop',
-        'suite': 'wayland',
-        'sources': [
-          'wayland-x11-interop-tests.c',
-          wayland_test_client_utils,
-          wayland_test_utils,
-          wayland_protocol_files['mutter-x11-interop']['protocol-code'],
-          built_dbus_sources['meta-dbus-service-channel'],
-        ],
-        'depends': [
-          test_client,
-          x11_frames,
-        ],
-      },
-      {
-        'name': 'xwayland',
-        'suite': 'wayland',
-        'depends': [
-          test_client,
-          x11_compositor_checker,
-          x11_frames,
-        ],
-        'sources': [
-          'xwayland-tests.c',
-        ],
-      },
-    ]
-  endif
-
-  # Miscellaneous tests
-  test_cases += [
     {
-      'name': 'service-channel',
+      'name': 'xwayland',
       'suite': 'wayland',
-      'sources': [
-        'service-channel-tests.c',
-        wayland_test_utils,
-      ],
       'depends': [
-        test_client_executables.get('service-client'),
+        test_client,
+        x11_compositor_checker,
+        x11_frames,
+      ],
+      'sources': [
+        'xwayland-tests.c',
       ],
     },
   ]
-
-  foreach test_case: test_cases
-    test_executable = executable('mutter-' + test_case['name'],
-      sources: test_case['sources'],
-      include_directories: tests_includes,
-      c_args: [
-        tests_c_args,
-        '-DG_LOG_DOMAIN="mutter-@0@-test"'.format(test_case['name']),
-      ],
-      dependencies: libmutter_test_dep,
-      install: have_installed_tests,
-      install_dir: mutter_installed_tests_libexecdir,
-      install_rpath: pkglibdir,
-    )
-
-    test_depends = [ default_plugin ] + test_case.get('depends', [])
-
-    test(test_case['name'], test_executable,
-      suite: ['core', 'mutter/' + test_case['suite']],
-      env: test_env,
-      depends: test_depends,
-      is_parallel: false,
-      timeout: 60,
-    )
-  endforeach
 endif
+
+# Miscellaneous tests
+test_cases += [
+  {
+    'name': 'service-channel',
+    'suite': 'wayland',
+    'sources': [
+      'service-channel-tests.c',
+      wayland_test_utils,
+    ],
+    'depends': [
+      test_client_executables.get('service-client'),
+    ],
+  },
+]
+
+foreach test_case: test_cases
+  test_executable = executable('mutter-' + test_case['name'],
+    sources: test_case['sources'],
+    include_directories: tests_includes,
+    c_args: [
+      tests_c_args,
+      '-DG_LOG_DOMAIN="mutter-@0@-test"'.format(test_case['name']),
+    ],
+    dependencies: libmutter_test_dep,
+    install: have_installed_tests,
+    install_dir: mutter_installed_tests_libexecdir,
+    install_rpath: pkglibdir,
+  )
+
+  test_depends = [ default_plugin ] + test_case.get('depends', [])
+
+  test(test_case['name'], test_executable,
+    suite: ['core', 'mutter/' + test_case['suite']],
+    env: test_env,
+    depends: test_depends,
+    is_parallel: false,
+    timeout: 60,
+  )
+endforeach
 
 stacking_tests = [
   'basic-x11',

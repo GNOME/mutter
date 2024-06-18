@@ -147,22 +147,16 @@ option('clutter_tests',
   description: 'Enable clutter tests'
 )
 
-option('core_tests',
+option('mutter_tests',
   type: 'boolean',
   value: true,
   description: 'Enable mutter core tests'
 )
 
-option('native_tests',
-  type: 'boolean',
-  value: true,
-  description: 'Enable mutter native backend tests'
-)
-
 option('tests',
-  type: 'boolean',
-  value: true,
-  description: 'Enable tests globally. Specific test suites can be controlled with core_tests, clutter_tests, and cogl_tests'
+  type: 'feature',
+  value: 'auto',
+  description: 'Enable tests globally. Specific test suites can be controlled with mutter_tests, clutter_tests, and cogl_tests'
 )
 
 option('kvm_tests',

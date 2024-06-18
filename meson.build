@@ -1,6 +1,6 @@
 project('mutter', 'c',
   version: '46.1',
-  meson_version: '>= 0.60.0',
+  meson_version: '>= 1.1.0',
   license: 'GPLv2+'
 )
 
@@ -343,11 +343,10 @@ int main (int argc, char ** argv) {
 have_malloc_trim = meson.get_compiler('c').has_function('malloc_trim')
 
 have_documentation = get_option('docs')
-have_tests = get_option('tests')
-have_core_tests = false
+have_tests = get_option('tests').enable_auto_if(have_native_backend).enabled()
+have_mutter_tests = false
 have_cogl_tests = false
 have_clutter_tests = false
-have_native_tests = false
 have_kvm_tests = false
 have_tty_tests = false
 have_installed_tests = false
@@ -357,8 +356,12 @@ if have_tests
   gtk3_dep = dependency('gtk+-3.0', version: gtk3_req)
   dbusmock_dep = python.find_installation('python3', modules: ['dbusmock'], required: false)
 
-  have_core_tests = get_option('core_tests')
-  if have_core_tests
+  if not have_native_backend
+    error('Tests require the native backend to be enabled')
+  endif
+
+  have_mutter_tests = get_option('mutter_tests')
+  if have_mutter_tests
     if not have_wayland
       error('Tests require Wayland to be enabled')
     endif
@@ -367,15 +370,6 @@ if have_tests
     endif
     if not dbusmock_dep.found()
       error('Tests require python-dbusmock')
-    endif
-  endif
-  have_native_tests = get_option('native_tests')
-  if have_native_tests
-    if not have_native_backend
-      error('Native tests require the native backend')
-    endif
-    if not have_remote_desktop
-      error('Native tests require remote desktop')
     endif
   endif
   have_kvm_tests = get_option('kvm_tests')
@@ -754,7 +748,7 @@ summary('Xwayland byte-swapped clients', have_xwayland_byte_swapped_clients, sec
 summary('Xwayland enable EI portal', have_xwayland_enable_ei_portal, section: 'Options')
 
 summary('Enabled', have_tests, section: 'Tests')
-summary('Core tests', have_core_tests, section: 'Tests')
+summary('Mutter tests', have_mutter_tests, section: 'Tests')
 summary('Cogl tests', have_cogl_tests, section: 'Tests')
 summary('Clutter tests', have_clutter_tests, section: 'Tests')
 summary('KVM tests', have_kvm_tests, section: 'Tests')
