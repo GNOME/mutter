@@ -39,5 +39,5 @@ ClutterVirtualInputDevice * meta_backend_test_add_test_device (MetaBackendTest  
                                                                int                     n_buttons);
 
 META_EXPORT_TEST
-void meta_backend_test_remove_device (MetaBackendTest           *backend,
-                                      ClutterVirtualInputDevice *device);
+void meta_backend_test_remove_test_device (MetaBackendTest           *backend,
+                                           ClutterVirtualInputDevice *device);

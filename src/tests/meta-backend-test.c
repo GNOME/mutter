@@ -112,8 +112,8 @@ meta_backend_test_add_test_device (MetaBackendTest        *backend_test,
 }
 
 void
-meta_backend_test_remove_device (MetaBackendTest           *backend_test,
-                                 ClutterVirtualInputDevice *virtual_device)
+meta_backend_test_remove_test_device (MetaBackendTest           *backend_test,
+                                      ClutterVirtualInputDevice *virtual_device)
 {
   MetaBackend *backend = META_BACKEND (backend_test);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);

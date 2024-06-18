@@ -4154,7 +4154,8 @@ input_device_test_remove (ClutterAutoRemoveInputDevice *virtual_device)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
 
-  meta_backend_test_remove_device (META_BACKEND_TEST (backend), virtual_device);
+  meta_backend_test_remove_test_device (META_BACKEND_TEST (backend),
+                                        virtual_device);
   g_object_unref (virtual_device);
 }
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterAutoRemoveInputDevice,
@@ -4338,7 +4339,8 @@ meta_test_monitor_orientation_is_managed (void)
   g_assert_true (
     meta_monitor_manager_get_panel_orientation_managed (monitor_manager));
 
-  meta_backend_test_remove_device (META_BACKEND_TEST (backend), touch_device);
+  meta_backend_test_remove_test_device (META_BACKEND_TEST (backend),
+                                        touch_device);
   g_clear_object (&touch_device);
 
   g_assert_false (clutter_seat_get_touch_mode (seat));
@@ -4716,7 +4718,8 @@ meta_test_monitor_orientation_initial_stored_rotated (void)
 
   /* When no touch device is available, the orientation change is ignored */
   g_test_message ("Removing touch device");
-  meta_backend_test_remove_device (META_BACKEND_TEST (backend), touch_device);
+  meta_backend_test_remove_test_device (META_BACKEND_TEST (backend),
+                                        touch_device);
   g_clear_object (&touch_device);
 
   g_test_message ("Rotating to right-up");
@@ -5025,7 +5028,8 @@ meta_test_monitor_orientation_changes (void)
 
   /* When no touch device is available, the orientation changes are ignored */
   g_test_message ("Removing touch device");
-  meta_backend_test_remove_device (META_BACKEND_TEST (backend), touch_device);
+  meta_backend_test_remove_test_device (META_BACKEND_TEST (backend),
+                                        touch_device);
   g_clear_object (&touch_device);
 
   for (i = META_N_ORIENTATIONS - 1; i > META_ORIENTATION_UNDEFINED; i--)
@@ -5225,7 +5229,8 @@ meta_test_monitor_orientation_changes_for_transformed_panel (void)
 
   /* When no touch device is available, the orientation changes are ignored */
   g_test_message ("Removing touch device");
-  meta_backend_test_remove_device (META_BACKEND_TEST (backend), touch_device);
+  meta_backend_test_remove_test_device (META_BACKEND_TEST (backend),
+                                        touch_device);
   g_clear_object (&touch_device);
 
   for (i = META_N_ORIENTATIONS - 1; i > META_ORIENTATION_UNDEFINED; i--)
