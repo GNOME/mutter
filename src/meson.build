@@ -709,6 +709,8 @@ if have_wayland
     'wayland/meta-wayland-xdg-foreign.c',
     'wayland/meta-wayland-xdg-foreign.h',
     'wayland/meta-wayland-xdg-foreign-private.h',
+    'wayland/meta-wayland-xdg-session-state.c',
+    'wayland/meta-wayland-xdg-session-state.h',
     'wayland/meta-wayland-xdg-shell.c',
     'wayland/meta-wayland-xdg-shell.h',
     'wayland/meta-wayland-xdg-dialog.c',

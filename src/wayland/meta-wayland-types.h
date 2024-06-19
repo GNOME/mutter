@@ -73,3 +73,5 @@ typedef struct _MetaWaylandFilterManager MetaWaylandFilterManager;
 typedef struct _MetaWaylandClient MetaWaylandClient;
 
 typedef struct _MetaWaylandDrmLeaseManager MetaWaylandDrmLeaseManager;
+
+typedef struct _MetaWaylandXdgSessionManager MetaWaylandXdgSessionManager;
