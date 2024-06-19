@@ -48,6 +48,7 @@
 #include "wayland/meta-wayland-inhibit-shortcuts-dialog.h"
 #include "wayland/meta-wayland-inhibit-shortcuts.h"
 #include "wayland/meta-wayland-legacy-xdg-foreign.h"
+#include "wayland/meta-wayland-linux-drm-syncobj.h"
 #include "wayland/meta-wayland-outputs.h"
 #include "wayland/meta-wayland-presentation-time-private.h"
 #include "wayland/meta-wayland-private.h"
@@ -58,7 +59,7 @@
 #include "wayland/meta-wayland-transaction.h"
 #include "wayland/meta-wayland-xdg-dialog.h"
 #include "wayland/meta-wayland-xdg-foreign.h"
-#include "wayland/meta-wayland-linux-drm-syncobj.h"
+#include "wayland/meta-wayland-xdg-session-manager.h"
 
 #ifdef HAVE_XWAYLAND
 #include "wayland/meta-wayland-x11-interop.h"
@@ -690,6 +691,7 @@ meta_wayland_compositor_finalize (GObject *object)
   MetaBackend *backend = meta_context_get_backend (compositor->context);
   ClutterActor *stage = meta_backend_get_stage (backend);
 
+  meta_wayland_xdg_session_management_finalize (compositor);
   meta_wayland_activation_finalize (compositor);
   meta_wayland_outputs_finalize (compositor);
   meta_wayland_presentation_time_finalize (compositor);
@@ -892,6 +894,7 @@ meta_wayland_compositor_new (MetaContext *context)
   meta_wayland_drm_syncobj_init (compositor);
   meta_wayland_init_xdg_wm_dialog (compositor);
   meta_wayland_init_color_management (compositor);
+  meta_wayland_xdg_session_management_init (compositor);
 
 #ifdef HAVE_NATIVE_BACKEND
   meta_wayland_drm_lease_manager_init (compositor);
