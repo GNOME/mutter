@@ -48,6 +48,7 @@ tests_deps = [
   mutter_deps,
   locally_compiled_schemas_dep,
   wayland_client_dep,
+  gvdb_dep,
 ]
 
 libmutter_test = shared_library(libmutter_test_name,

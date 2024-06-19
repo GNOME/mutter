@@ -530,9 +530,11 @@ build-wayland-only@x86_64:
     - pushd build
     - gcovr --root=..
         --filter='\.\./src/'
+        --filter='\.\./subprojects/'
         --filter='\.\./clutter/'
         --filter='\.\./cogl/'
         --filter='\.\./mtk/'
+        --gcov-ignore-errors=no_working_dir_found
         --exclude='\.\./build/.*\.[ch]$' --exclude='.*/tests/.*\.[ch]$'
         --json --output=../coverage-${CI_JOB_NAME}.json
     - popd
@@ -557,6 +559,7 @@ build-wayland-only@x86_64:
           -C build
           --setup plain
           --no-suite 'mutter/kvm'
+          --no-suite 'gvdb'
           --no-rebuild
           --timeout-multiplier 10
           --print-errorlogs
@@ -721,7 +724,7 @@ dist-mutter:
     - mkdir -m 1777 /tmp/.X11-unix
     - ./src/tests/meta-dbus-runner.py
         --
-        meson dist -C build
+        meson dist -C build --include-subprojects
   artifacts:
     expire_in: 7 day
     name: "mutter-${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}"
