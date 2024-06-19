@@ -1115,6 +1115,7 @@ if have_wayland
     ['xwayland-keyboard-grab', 'unstable', 'v1', ],
     ['linux-drm-syncobj-v1', 'private', ],
     ['color-management-v1', 'private', ],
+    ['session-management-v1', 'private', ],
   ]
   if have_wayland_eglstream
     wayland_eglstream_protocols_dir = wayland_eglstream_protocols_dep.get_variable('pkgdatadir')
