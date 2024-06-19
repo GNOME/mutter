@@ -572,6 +572,26 @@ toplevel_reuse_surface (void)
   meta_wayland_test_client_finish (wayland_test_client);
 }
 
+static void
+toplevel_sessions (void)
+{
+  MetaWaylandTestClient *wayland_test_client;
+
+  wayland_test_client =
+    meta_wayland_test_client_new (test_context, "xdg-session-management");
+  meta_wayland_test_client_finish (wayland_test_client);
+}
+
+static void
+toplevel_sessions_replace (void)
+{
+  MetaWaylandTestClient *wayland_test_client;
+
+  wayland_test_client =
+    meta_wayland_test_client_new (test_context, "xdg-session-management-replace");
+  meta_wayland_test_client_finish (wayland_test_client);
+}
+
 static gboolean
 mark_later_as_done (gpointer user_data)
 {
@@ -1040,6 +1060,10 @@ init_tests (void)
                    toplevel_apply_limits);
   g_test_add_func ("/wayland/toplevel/activation",
                    toplevel_activation);
+  g_test_add_func ("/wayland/toplevel/sessions",
+                   toplevel_sessions);
+  g_test_add_func ("/wayland/toplevel/sessions-replace",
+                   toplevel_sessions_replace);
 #ifdef MUTTER_PRIVILEGED_TEST
   (void)(toplevel_bounds_struts);
   (void)(toplevel_bounds_monitors);
@@ -1065,6 +1089,8 @@ main (int   argc,
 {
   g_autoptr (MetaContext) context = NULL;
   MetaTestRunFlags test_run_flags;
+
+  g_setenv ("MUTTER_DEBUG_SESSION_MANAGEMENT_PROTOCOL", "1", TRUE);
 
 #ifdef MUTTER_PRIVILEGED_TEST
   context = meta_create_test_context (META_CONTEXT_TEST_TYPE_VKMS,

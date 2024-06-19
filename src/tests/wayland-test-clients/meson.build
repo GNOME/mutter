@@ -82,6 +82,12 @@ wayland_test_clients = [
     'name': 'xdg-foreign',
   },
   {
+    'name': 'xdg-session-management',
+  },
+  {
+    'name': 'xdg-session-management-replace',
+  },
+  {
     'name': 'xdg-toplevel-bounds',
   },
   {
