@@ -113,6 +113,7 @@ struct _MetaWaylandXdgToplevel
   gboolean has_max_size;
   int max_width;
   int max_height;
+  gboolean restored_from_session;
 };
 
 G_DEFINE_TYPE (MetaWaylandXdgToplevel,
@@ -876,9 +877,7 @@ meta_wayland_xdg_toplevel_apply_state (MetaWaylandSurfaceRole  *surface_role,
   if (!xdg_surface_priv->configure_sent)
     {
       MetaWaylandWindowConfiguration *configuration;
-      int bounds_width;
-      int bounds_height;
-      int geometry_scale;
+      int bounds_width, bounds_height, geometry_scale;
 
       geometry_scale = meta_window_wayland_get_geometry_scale (window);
 
@@ -888,10 +887,25 @@ meta_wayland_xdg_toplevel_apply_state (MetaWaylandSurfaceRole  *surface_role,
           bounds_height = 0;
         }
 
-      configuration =
-        meta_wayland_window_configuration_new_empty (bounds_width,
-                                                     bounds_height,
-                                                     geometry_scale);
+      if (xdg_toplevel->restored_from_session)
+        {
+          configuration =
+            meta_wayland_window_configuration_new (window,
+                                                   window->rect,
+                                                   bounds_width,
+                                                   bounds_height,
+                                                   geometry_scale,
+                                                   META_MOVE_RESIZE_STATE_CHANGED,
+                                                   META_GRAVITY_NONE);
+        }
+      else
+        {
+          configuration =
+            meta_wayland_window_configuration_new_empty (bounds_width,
+                                                         bounds_height,
+                                                         geometry_scale);
+        }
+
       meta_wayland_xdg_toplevel_send_configure (xdg_toplevel, configuration);
       meta_wayland_window_configuration_free (configuration);
       return;
@@ -927,7 +941,14 @@ meta_wayland_xdg_toplevel_post_apply_state (MetaWaylandSurfaceRole  *surface_rol
     META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_xdg_toplevel_parent_class);
   surface_role_class->post_apply_state (surface_role, pending);
 
+  if (xdg_toplevel->restored_from_session)
+    {
+      xdg_toplevel->restored_from_session = FALSE;
+      return;
+    }
+
   window_geometry = meta_wayland_xdg_surface_get_window_geometry (xdg_surface);
+
   geometry_changed = !mtk_rectangle_equal (&old_geometry, &window_geometry);
 
   if (geometry_changed ||
@@ -1124,6 +1145,18 @@ meta_wayland_xdg_toplevel_class_init (MetaWaylandXdgToplevelClass *klass)
   xdg_surface_class->shell_client_destroyed =
     meta_wayland_xdg_toplevel_shell_client_destroyed;
   xdg_surface_class->reset = meta_wayland_xdg_toplevel_reset;
+}
+
+struct wl_resource *
+meta_wayland_xdg_toplevel_get_resource (MetaWaylandXdgToplevel *xdg_toplevel)
+{
+  return xdg_toplevel->resource;
+}
+
+void
+meta_wayland_xdg_toplevel_set_hint_restored (MetaWaylandXdgToplevel *xdg_toplevel)
+{
+  xdg_toplevel->restored_from_session = TRUE;
 }
 
 static void
