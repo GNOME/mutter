@@ -372,6 +372,7 @@ mutter_sources = [
   'core/meta-selection.c',
   'core/meta-selection-source.c',
   'core/meta-selection-source-memory.c',
+  'core/meta-session-state.c',
   'core/meta-sound-player.c',
   'core/meta-tablet-action-mapper.c',
   'core/meta-tool-action-mapper.c',
