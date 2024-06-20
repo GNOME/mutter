@@ -1333,3 +1333,15 @@ clutter_stage_view_get_color_state (ClutterStageView *view)
 
   return priv->color_state;
 }
+
+/**
+ * clutter_stage_view_get_output_color_state: (skip)
+ */
+ClutterColorState *
+clutter_stage_view_get_output_color_state (ClutterStageView *view)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  return priv->output_color_state;
+}
