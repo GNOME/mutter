@@ -474,9 +474,9 @@ cally_actor_remove_actor (ClutterActor *container,
                           ClutterActor *actor,
                           gpointer      data)
 {
+  g_autoptr (AtkObject) atk_child = NULL;
   AtkPropertyValues values = { NULL };
   AtkObject *atk_parent = NULL;
-  AtkObject *atk_child = NULL;
   CallyActorPrivate *priv = NULL;
   gint index;
 
@@ -489,15 +489,16 @@ cally_actor_remove_actor (ClutterActor *container,
     {
       atk_child = clutter_actor_get_accessible (actor);
 
+      g_assert (ATK_IS_OBJECT (atk_child));
+      g_object_ref (atk_child);
+
       g_value_init (&values.old_value, G_TYPE_POINTER);
       g_value_set_pointer (&values.old_value, atk_parent);
 
       values.property_name = "accessible-parent";
 
-      g_object_ref (atk_child);
       g_signal_emit_by_name (atk_child,
                              "property_change::accessible-parent", &values, NULL);
-      g_object_unref (atk_child);
     }
 
   priv = cally_actor_get_instance_private (CALLY_ACTOR (atk_parent));
