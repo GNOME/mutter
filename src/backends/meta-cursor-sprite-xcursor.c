@@ -20,8 +20,10 @@
 
 #include "backends/meta-cursor-sprite-xcursor.h"
 
+#include "backends/meta-backend-private.h"
 #include "backends/meta-cursor.h"
 #include "backends/meta-cursor-renderer.h"
+#include "backends/meta-cursor-tracker-private.h"
 #include "clutter/clutter.h"
 #include "cogl/cogl.h"
 #include "meta/prefs.h"
@@ -364,14 +366,47 @@ meta_cursor_sprite_xcursor_invalidate (MetaCursorSprite *sprite)
   sprite_xcursor->invalidated = TRUE;
 }
 
+static ClutterColorState *
+ensure_xcursor_color_state (MetaCursorTracker *cursor_tracker)
+{
+  ClutterColorState *color_state;
+  static GOnce quark_once = G_ONCE_INIT;
+
+  g_once (&quark_once, (GThreadFunc) g_quark_from_static_string,
+          (gpointer) "-meta-cursor-sprite-xcursor-color-state");
+
+  color_state = g_object_get_qdata (G_OBJECT (cursor_tracker),
+                                    GPOINTER_TO_INT (quark_once.retval));
+  if (!color_state)
+    {
+      MetaBackend *backend =
+        meta_cursor_tracker_get_backend (cursor_tracker);
+      ClutterContext *clutter_context =
+        meta_backend_get_clutter_context (backend);
+
+      color_state = clutter_color_state_new (clutter_context,
+                                             CLUTTER_COLORSPACE_DEFAULT,
+                                             CLUTTER_TRANSFER_FUNCTION_DEFAULT);
+      g_object_set_qdata_full (G_OBJECT (cursor_tracker),
+                               GPOINTER_TO_INT (quark_once.retval),
+                               color_state, g_object_unref);
+    }
+
+  return color_state;
+}
+
 MetaCursorSpriteXcursor *
 meta_cursor_sprite_xcursor_new (MetaCursor         cursor,
                                 MetaCursorTracker *cursor_tracker)
 {
   MetaCursorSpriteXcursor *sprite_xcursor;
+  ClutterColorState *color_state;
+
+  color_state = ensure_xcursor_color_state (cursor_tracker);
 
   sprite_xcursor = g_object_new (META_TYPE_CURSOR_SPRITE_XCURSOR,
                                  "cursor-tracker", cursor_tracker,
+                                 "color-state", color_state,
                                  NULL);
   sprite_xcursor->cursor = cursor;
 

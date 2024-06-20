@@ -20,6 +20,8 @@
 
 #include "wayland/meta-cursor-sprite-wayland.h"
 
+#include "backends/meta-cursor-tracker-private.h"
+
 struct _MetaCursorSpriteWayland
 {
   MetaCursorSprite parent;
@@ -63,14 +65,47 @@ meta_cursor_sprite_wayland_invalidate (MetaCursorSprite *sprite)
   sprite_wayland->invalidated = TRUE;
 }
 
+static ClutterColorState *
+ensure_default_color_state (MetaCursorTracker *cursor_tracker)
+{
+  ClutterColorState *color_state;
+  static GOnce quark_once = G_ONCE_INIT;
+
+  g_once (&quark_once, (GThreadFunc) g_quark_from_static_string,
+          (gpointer) "-meta-cursor-sprite-wayland-default-color-state");
+
+  color_state = g_object_get_qdata (G_OBJECT (cursor_tracker),
+                                    GPOINTER_TO_INT (quark_once.retval));
+  if (!color_state)
+    {
+      MetaBackend *backend =
+        meta_cursor_tracker_get_backend (cursor_tracker);
+      ClutterContext *clutter_context =
+        meta_backend_get_clutter_context (backend);
+
+      color_state = clutter_color_state_new (clutter_context,
+                                             CLUTTER_COLORSPACE_DEFAULT,
+                                             CLUTTER_TRANSFER_FUNCTION_DEFAULT);
+      g_object_set_qdata_full (G_OBJECT (cursor_tracker),
+                               GPOINTER_TO_INT (quark_once.retval),
+                               color_state, g_object_unref);
+    }
+
+  return color_state;
+}
+
 MetaCursorSpriteWayland *
 meta_cursor_sprite_wayland_new (MetaWaylandSurface *surface,
                                 MetaCursorTracker  *cursor_tracker)
 {
   MetaCursorSpriteWayland *sprite_wayland;
+  ClutterColorState *color_state;
+
+  color_state = ensure_default_color_state (cursor_tracker);
 
   sprite_wayland = g_object_new (META_TYPE_CURSOR_SPRITE_WAYLAND,
                                  "cursor-tracker", cursor_tracker,
+                                 "color-state", color_state,
                                  NULL);
   sprite_wayland->surface = surface;
 

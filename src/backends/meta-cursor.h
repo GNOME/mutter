@@ -92,3 +92,5 @@ gboolean meta_cursor_sprite_is_animated (MetaCursorSprite *sprite);
 void meta_cursor_sprite_tick_frame (MetaCursorSprite *sprite);
 
 unsigned int meta_cursor_sprite_get_current_frame_time (MetaCursorSprite *sprite);
+
+ClutterColorState * meta_cursor_sprite_get_color_state (MetaCursorSprite *sprite);

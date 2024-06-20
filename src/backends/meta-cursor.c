@@ -33,6 +33,7 @@ enum
   PROP_0,
 
   PROP_CURSOR_TRACKER,
+  PROP_COLOR_STATE,
 
   N_PROPS
 };
@@ -56,6 +57,8 @@ typedef struct _MetaCursorSpritePrivate
   float texture_scale;
   MetaMonitorTransform texture_transform;
   int hot_x, hot_y;
+
+  ClutterColorState *color_state;
 
   MetaCursorPrepareFunc prepare_func;
   gpointer prepare_func_data;
@@ -277,6 +280,7 @@ meta_cursor_sprite_finalize (GObject *object)
     meta_cursor_sprite_get_instance_private (sprite);
 
   g_clear_object (&priv->texture);
+  g_clear_object (&priv->color_state);
 
   meta_cursor_tracker_unregister_cursor_sprite (priv->cursor_tracker, sprite);
   g_clear_object (&priv->cursor_tracker);
@@ -299,6 +303,9 @@ meta_cursor_tracker_set_property (GObject      *object,
     case PROP_CURSOR_TRACKER:
       g_set_object (&priv->cursor_tracker, g_value_get_object (value));
       break;
+    case PROP_COLOR_STATE:
+      g_set_object (&priv->color_state, g_value_get_object (value));
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -320,6 +327,12 @@ meta_cursor_sprite_class_init (MetaCursorSpriteClass *klass)
                          G_PARAM_WRITABLE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_COLOR_STATE] =
+    g_param_spec_object ("color-state", NULL, NULL,
+                         CLUTTER_TYPE_COLOR_STATE,
+                         G_PARAM_WRITABLE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
 
   signals[TEXTURE_CHANGED] = g_signal_new ("texture-changed",
@@ -328,4 +341,13 @@ meta_cursor_sprite_class_init (MetaCursorSpriteClass *klass)
                                            0,
                                            NULL, NULL, NULL,
                                            G_TYPE_NONE, 0);
+}
+
+ClutterColorState *
+meta_cursor_sprite_get_color_state (MetaCursorSprite *sprite)
+{
+  MetaCursorSpritePrivate *priv =
+    meta_cursor_sprite_get_instance_private (sprite);
+
+  return priv->color_state;
 }
