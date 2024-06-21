@@ -480,12 +480,12 @@ meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
                                 MetaKmsUpdate          *kms_update,
                                 MetaKmsAssignPlaneFlag  flags,
                                 const int              *rectangles,
-                                int                     n_rectangles,
-                                ClutterFrame           *frame)
+                                int                     n_rectangles)
 {
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
-  MetaFrameNative *frame_native = meta_frame_native_from_frame (frame);
+  ClutterFrame *frame = onscreen_native->next_frame;
+  MetaFrameNative *frame_native;
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
   MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
   MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
@@ -500,6 +500,8 @@ meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
   COGL_TRACE_BEGIN_SCOPED (MetaOnscreenNativeFlipCrtcs,
                            "Meta::OnscreenNative::flip_crtc()");
 
+  g_return_if_fail (frame);
+
   gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
 
   g_assert (meta_gpu_kms_is_crtc_active (gpu_kms, crtc));
@@ -509,6 +511,7 @@ meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
   switch (renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
+      frame_native = meta_frame_native_from_frame (frame);
       buffer = meta_frame_native_get_buffer (frame_native);
       scanout = meta_frame_native_get_scanout (frame_native);
 
@@ -1426,8 +1429,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
                                       kms_update,
                                       META_KMS_ASSIGN_PLANE_FLAG_NONE,
                                       rectangles,
-                                      n_rectangles,
-                                      frame);
+                                      n_rectangles);
     }
   else
     {
@@ -1672,8 +1674,7 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
                                   kms_update,
                                   META_KMS_ASSIGN_PLANE_FLAG_DIRECT_SCANOUT,
                                   NULL,
-                                  0,
-                                  frame);
+                                  0);
 
   meta_topic (META_DEBUG_KMS,
               "Posting direct scanout update for CRTC %u (%s)",
