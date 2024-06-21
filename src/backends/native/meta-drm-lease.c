@@ -361,7 +361,7 @@ mark_revoked (MetaDrmLease *lease)
 void
 meta_drm_lease_revoke (MetaDrmLease *lease)
 {
-  g_autoptr (GError) error;
+  g_autoptr (GError) error = NULL;
 
   if (!lease->lessee_id)
     return;
