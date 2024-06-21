@@ -1211,10 +1211,7 @@ meta_kms_impl_device_open_non_privileged_fd (MetaKmsImplDevice *impl_device)
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
 
-  if (!priv->device_file)
-    return -1;
-
-  path = meta_device_file_get_path (priv->device_file);
+  path = priv->path;
 
   fd = open (path, O_RDWR | O_CLOEXEC);
   if (fd < 0)
