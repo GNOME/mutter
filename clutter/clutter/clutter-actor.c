@@ -2517,16 +2517,6 @@ _clutter_actor_propagate_queue_redraw (ClutterActor *self)
     }
 }
 
-static inline gboolean
-clutter_actor_needs_relayout (ClutterActor *self)
-{
-  ClutterActorPrivate *priv = self->priv;
-
-  return (priv->needs_width_request ||
-          priv->needs_height_request ||
-          priv->needs_allocation);
-}
-
 static void
 clutter_actor_real_queue_relayout (ClutterActor *self)
 {
