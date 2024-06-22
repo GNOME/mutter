@@ -32,7 +32,7 @@ print <<EOT;
  *
  *  Date: $date
  *
- * Do not edit.   
+ * Do not edit.
  */
 static const char keynames[] =
 EOT
@@ -76,25 +76,3 @@ for $key (@keys) {
 print "\n};\n\n";
 
 @keys = sort { $a->[1] cmp $b->[1] } @keys;
-
-
-print <<EOT;
-static const clutter_key clutter_keys_by_name[] = {
-EOT
-
-$i = 0;
-for $key (@keys) {
-    $keyval = $key->[0];
-    $name = $key->[1];
-    $offset = $key->[3];
-
-    if ($i != 0) {
-	print ",\n";
-    }
-    print "  { $keyval, $offset }";
-    $i++;
-}
-
-print <<EOT;
-};
-EOT
