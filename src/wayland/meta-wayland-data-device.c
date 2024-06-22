@@ -1048,7 +1048,6 @@ data_device_set_selection (struct wl_client   *client,
                            uint32_t            serial)
 {
   MetaWaylandDataDevice *data_device = wl_resource_get_user_data (resource);
-  MetaWaylandSeat *seat = wl_container_of (data_device, seat, data_device);
   MetaWaylandDataSource *source;
 
   if (source_resource)
@@ -1250,7 +1249,6 @@ void
 meta_wayland_data_device_set_focus (MetaWaylandDataDevice *data_device,
                                     MetaWaylandSurface    *surface)
 {
-  MetaWaylandSeat *seat = wl_container_of (data_device, seat, data_device);
   struct wl_client *focus_client = NULL;
   struct wl_resource *data_device_resource;
 

@@ -100,7 +100,6 @@ meta_backend_test_add_test_device (MetaBackendTest        *backend_test,
                                    ClutterInputDeviceType  device_type,
                                    int                     n_buttons)
 {
-  g_autoptr (GList) devices = NULL;
   MetaBackend *backend = META_BACKEND (backend_test);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);

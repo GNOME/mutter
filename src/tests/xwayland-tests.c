@@ -320,7 +320,6 @@ main (int    argc,
       char **argv)
 {
   g_autoptr (MetaContext) context = NULL;
-  g_autoptr (GError) error = NULL;
 
   context = test_context =
     meta_create_test_context (META_CONTEXT_TEST_TYPE_HEADLESS,

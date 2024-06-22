@@ -765,7 +765,6 @@ meta_thread_reset_thread_type (MetaThread     *thread,
                                MetaThreadType  thread_type)
 {
   MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
-  g_autoptr (GMainContext) thread_context = NULL;
 
   if (priv->thread_type == thread_type)
     return;

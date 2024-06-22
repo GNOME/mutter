@@ -2127,7 +2127,6 @@ choose_onscreen_egl_config (CoglOnscreen  *onscreen,
   MetaCrtcKms *crtc_kms = META_CRTC_KMS (onscreen_native->crtc);
   MetaKmsPlane *kms_plane = meta_crtc_kms_get_assigned_primary_plane (crtc_kms);
   EGLint attrs[MAX_EGL_CONFIG_ATTRIBS];
-  g_autoptr (GError) local_error = NULL;
   static const uint32_t alphaless_10bpc_formats[] = {
     GBM_FORMAT_XRGB2101010,
     GBM_FORMAT_XBGR2101010,

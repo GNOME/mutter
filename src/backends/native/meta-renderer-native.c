@@ -2172,7 +2172,6 @@ meta_renderer_native_unset_modes (MetaRendererNative *renderer_native)
       MetaKmsDevice *kms_device =
         meta_gpu_kms_get_kms_device (META_GPU_KMS (gpu));
       GList *k;
-      g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
       MetaKmsUpdate *kms_update = NULL;
 
       for (k = meta_gpu_get_crtcs (gpu); k; k = k->next)

@@ -318,7 +318,6 @@ meta_test_input_capture_clear_barriers (void)
   MetaBackend *backend = meta_context_get_backend (test_context);
   ClutterSeat *seat = meta_backend_get_default_seat (backend);
   g_autoptr (MetaVirtualMonitor) virtual_monitor1 = NULL;
-  g_autoptr (MetaVirtualMonitor) virtual_monitor2 = NULL;
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   InputCaptureTestClient *test_client;
 
@@ -436,7 +435,6 @@ meta_test_input_capture_events (void)
   MetaBackend *backend = meta_context_get_backend (test_context);
   ClutterSeat *seat = meta_backend_get_default_seat (backend);
   g_autoptr (MetaVirtualMonitor) virtual_monitor1 = NULL;
-  g_autoptr (MetaVirtualMonitor) virtual_monitor2 = NULL;
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   g_autoptr (ClutterVirtualInputDevice) virtual_keyboard = NULL;
   InputCaptureTestClient *test_client;
@@ -595,7 +593,6 @@ main (int    argc,
       char **argv)
 {
   g_autoptr (MetaContext) context = NULL;
-  g_autoptr (GError) error = NULL;
 
   g_assert_cmpstr (getenv ("GSETTINGS_BACKEND"), ==, "memory");
 

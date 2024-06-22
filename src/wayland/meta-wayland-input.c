@@ -337,13 +337,7 @@ meta_wayland_input_detach_event_handler (MetaWaylandInput        *input,
   wl_list_remove (&handler->link);
 
   if (handler_change && !wl_list_empty (&input->event_handler_list))
-    {
-      MetaWaylandEventHandler *head =
-        wl_container_of (input->event_handler_list.next,
-                         head, link);
-
-      meta_wayland_input_invalidate_all_focus (input);
-    }
+    meta_wayland_input_invalidate_all_focus (input);
 
   if (input->grab && !should_be_grabbed (input))
     {

@@ -35,7 +35,6 @@ get_colord_mock_proxy (void)
 {
   GDBusProxy *proxy;
   g_autoptr (GError) error = NULL;
-  g_autoptr (GVariant) ret = NULL;
 
   proxy =
     g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
