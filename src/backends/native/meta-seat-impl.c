@@ -3920,7 +3920,12 @@ void
 meta_seat_impl_remove_virtual_input_device (MetaSeatImpl       *seat_impl,
                                             ClutterInputDevice *device)
 {
+  g_autoptr (ClutterInputDevice) owned_device = NULL;
   ClutterEvent *device_event;
+
+  g_assert (CLUTTER_IS_INPUT_DEVICE (device));
+
+  owned_device = g_object_ref (device);
 
   meta_seat_impl_remove_device (seat_impl, device);
 
