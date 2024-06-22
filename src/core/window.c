@@ -6647,7 +6647,6 @@ meta_window_get_unit_cgroup (MetaWindow *window)
   g_autofree char *contents = NULL;
   g_autofree char *complete_path = NULL;
   g_autofree char *unit_name = NULL;
-  g_autofree char *unit_path = NULL;
   char *unit_end;
   pid_t pid;
 

@@ -1147,7 +1147,6 @@ assert_realtime (MetaThreadImpl  *thread_impl,
                  GError         **error)
 {
   g_autoptr (GVariant) ret = NULL;
-  g_autoptr (GVariant) priority_variant = NULL;
   uint32_t priority = 0;
 
   g_assert_true (meta_thread_impl_is_realtime (thread_impl));
@@ -1196,7 +1195,6 @@ assert_no_realtime (MetaThreadImpl  *thread_impl,
                     GError         **error)
 {
   g_autoptr (GVariant) ret = NULL;
-  g_autoptr (GVariant) priority_variant = NULL;
   uint32_t priority = UINT32_MAX;
 
   g_assert_false (meta_thread_impl_is_realtime (thread_impl));

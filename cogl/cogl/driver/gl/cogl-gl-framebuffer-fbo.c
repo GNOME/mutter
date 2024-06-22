@@ -65,7 +65,6 @@ ensure_bits_initialized (CoglGlFramebufferFbo *gl_framebuffer_fbo)
     cogl_framebuffer_driver_get_framebuffer (driver);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   CoglFramebufferBits *bits = &gl_framebuffer_fbo->bits;
-  g_autoptr (GError) error = NULL;
 
   if (!gl_framebuffer_fbo->dirty_bitmasks)
     return TRUE;
