@@ -298,6 +298,22 @@ mtk_rectangle_contains_point (const MtkRectangle *rect,
                               int                 x,
                               int                 y)
 {
+  return mtk_rectangle_contains_pointf (rect, x, y);
+}
+
+/**
+ * mtk_rectangle_contains_pointf:
+ * @rect: A rectangle
+ * @x: X coordinate of the point
+ * @y: Y coordinate of the point
+ *
+ * Returns: Whether the rectangle contains the point
+ */
+gboolean
+mtk_rectangle_contains_pointf (const MtkRectangle *rect,
+                               float               x,
+                               float               y)
+{
   return (x >= rect->x &&
           x <  (rect->x + rect->width) &&
           y >= rect->y &&
