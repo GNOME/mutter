@@ -16,8 +16,8 @@ wait_reconfigure w/1 w/2
 
 move w/1 0 0
 move w/2 100 0
-
-wait_reconfigure w/1 w/2
+assert_position w/1 0 0
+assert_position w/2 100 0
 
 assert_stacking w/1 w/2
 assert_focused w/2
