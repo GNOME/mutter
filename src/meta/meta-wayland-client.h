@@ -23,6 +23,7 @@
 #include <gio/gio.h>
 
 #include "meta/display.h"
+#include "meta/window.h"
 
 G_BEGIN_DECLS
 
@@ -34,6 +35,10 @@ META_EXPORT
 MetaWaylandClient *meta_wayland_client_new (MetaContext          *context,
                                             GSubprocessLauncher  *launcher,
                                             GError              **error);
+
+META_EXPORT
+MetaWaylandClient *meta_wayland_client_new_from_window (MetaWindow   *window,
+                                                        GError      **error);
 
 META_EXPORT
 GSubprocess *meta_wayland_client_spawn (MetaWaylandClient  *client,

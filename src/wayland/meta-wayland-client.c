@@ -68,6 +68,7 @@ struct _MetaWaylandClient
     int fd;
   } indirect;
 
+  gboolean unowned_wayland_client;
   struct wl_client *wayland_client;
   struct wl_listener client_destroy_listener;
   MetaServiceClientType service_client_type;
@@ -80,7 +81,9 @@ meta_wayland_client_dispose (GObject *object)
 {
   MetaWaylandClient *client = META_WAYLAND_CLIENT (object);
 
-  g_clear_pointer (&client->wayland_client, wl_client_destroy);
+  if (!client->unowned_wayland_client)
+    g_clear_pointer (&client->wayland_client, wl_client_destroy);
+
   g_cancellable_cancel (client->subprocess.died_cancellable);
   g_clear_object (&client->subprocess.died_cancellable);
   g_clear_object (&client->subprocess.launcher);
@@ -108,6 +111,7 @@ static void
 meta_wayland_client_init (MetaWaylandClient *client)
 {
   client->service_client_type = META_SERVICE_CLIENT_TYPE_NONE;
+  client->unowned_wayland_client = FALSE;
 }
 
 static void
@@ -127,6 +131,28 @@ child_setup (gpointer user_data)
   MetaContext *context = meta_display_get_context (display);
 
   meta_context_restore_rlimit_nofile (context, NULL);
+}
+
+static void
+client_destroyed_cb (struct wl_listener *listener,
+                     void               *user_data)
+{
+  MetaWaylandClient *client = wl_container_of (listener, client,
+                                               client_destroy_listener);
+
+  client->wayland_client = NULL;
+  g_signal_emit (client, signals[CLIENT_DESTROYED], 0);
+}
+
+static void
+set_wayland_client (MetaWaylandClient *client,
+                    struct wl_client  *wayland_client)
+{
+  client->wayland_client = wayland_client;
+
+  client->client_destroy_listener.notify = client_destroyed_cb;
+  wl_client_add_destroy_listener (wayland_client,
+                                  &client->client_destroy_listener);
 }
 
 /**
@@ -196,6 +222,48 @@ meta_wayland_client_new (MetaContext          *context,
   return client;
 }
 
+/**
+ * meta_wayland_client_new_from_window:
+ * @window: (not nullable): a #MetaWindow
+ * @error: (nullable): Error
+ *
+ * Creates a new #MetaWaylandClient from an existing #MetaWindow.
+ *
+ * Returns: A #MetaWaylandClient or %NULL if %error is set. Free with
+ * g_object_unref().
+ */
+MetaWaylandClient *
+meta_wayland_client_new_from_window (MetaWindow   *window,
+                                     GError      **error)
+{
+  MetaDisplay *display;
+  MetaWaylandClient *client;
+  MetaWaylandSurface *surface;
+  struct wl_resource *resource;
+
+  g_return_val_if_fail (error == NULL || *error == NULL, NULL);
+  g_return_val_if_fail (META_IS_WINDOW (window), NULL);
+
+  if (meta_window_get_client_type (window) != META_WINDOW_CLIENT_TYPE_WAYLAND)
+    {
+      g_set_error (error,
+                   G_IO_ERROR,
+                   G_IO_ERROR_NOT_SUPPORTED,
+                   "MetaWaylandClient can be used only with a Wayland window.");
+      return NULL;
+    }
+
+  display = meta_window_get_display (window);
+  surface = meta_window_get_wayland_surface (window);
+  resource = meta_wayland_surface_get_resource (surface);
+
+  client = g_object_new (META_TYPE_WAYLAND_CLIENT, NULL);
+  client->context = meta_display_get_context (display);
+  set_wayland_client (client, wl_resource_get_client (resource));
+  client->unowned_wayland_client = TRUE;
+  return client;
+}
+
 static gboolean
 init_wayland_client (MetaWaylandClient  *client,
                      struct wl_client  **wayland_client,
@@ -218,28 +286,6 @@ init_wayland_client (MetaWaylandClient  *client,
   *fd = client_fd[1];
 
   return TRUE;
-}
-
-static void
-client_destroyed_cb (struct wl_listener *listener,
-                     void               *user_data)
-{
-  MetaWaylandClient *client = wl_container_of (listener, client,
-                                               client_destroy_listener);
-
-  client->wayland_client = NULL;
-  g_signal_emit (client, signals[CLIENT_DESTROYED], 0);
-}
-
-static void
-set_wayland_client (MetaWaylandClient *client,
-                    struct wl_client  *wayland_client)
-{
-  client->wayland_client = wayland_client;
-
-  client->client_destroy_listener.notify = client_destroyed_cb;
-  wl_client_add_destroy_listener (wayland_client,
-                                  &client->client_destroy_listener);
 }
 
 /**
