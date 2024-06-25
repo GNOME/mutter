@@ -7,23 +7,20 @@ create x/1 csd
 resize x/1 500 400
 maximize x/1
 show x/1
-
-wait
-
+wait_reconfigure x/1
 assert_size x/1 MONITOR_WIDTH MONITOR_HEIGHT
 
 unmaximize x/1
-wait
-
+wait_reconfigure x/1
 assert_size x/1 500 400
 
 resize x/1 300 200
 wait_size x/1 300 200
+
 maximize x/1
 wait_reconfigure x/1
 unmaximize x/1
 wait_reconfigure x/1
-
 assert_size x/1 300 200
 
 tile x/1 right
@@ -55,23 +52,20 @@ create w/1 csd
 resize w/1 150 300
 maximize w/1
 show w/1
-
-wait
-
+wait_reconfigure w/1
 assert_size w/1 MONITOR_WIDTH MONITOR_HEIGHT
 
 unmaximize w/1
 wait_reconfigure w/1
-
 assert_size w/1 150 300
 
 resize w/1 300 200
-wait
+wait_size w/1 300 200
+
 maximize w/1
 wait_reconfigure w/1
 unmaximize w/1
 wait_reconfigure w/1
-
 assert_size w/1 300 200
 
 tile w/1 right

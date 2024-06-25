@@ -106,10 +106,10 @@ assert_position w/1 MONITOR_WIDTH/4 MONITOR_HEIGHT/4
 assert_size w/1 MONITOR_WIDTH/2 MONITOR_HEIGHT/2
 
 unmaximize w/1
-resize w/1 100 100
-move w/1 0 0
 wait_reconfigure w/1
-assert_size w/1 100 100
+move w/1 0 0
+resize w/1 100 100
+wait_size w/1 100 100
 
 maximize w/1
 wait_reconfigure w/1

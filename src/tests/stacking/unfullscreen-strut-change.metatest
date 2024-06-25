@@ -8,8 +8,7 @@ create w/1 csd
 
 resize w/1 500 400
 show w/1
-wait
-
+wait_reconfigure w/1
 assert_size w/1 500 400
 
 fullscreen w/1
@@ -32,8 +31,7 @@ create x/1 csd
 
 resize x/1 500 400
 show x/1
-wait
-
+wait_reconfigure x/1
 assert_size x/1 500 400
 
 fullscreen x/1
