@@ -97,12 +97,16 @@ dnd_surface_assigned (MetaWaylandSurfaceRole *surface_role)
 {
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
+  MetaWaylandSurfaceRoleClass *surface_role_class =
+    META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_surface_role_dnd_parent_class);
 
-  if (wl_list_empty (&surface->unassigned.pending_frame_callback_list))
-    return;
+  if (!wl_list_empty (&surface->unassigned.pending_frame_callback_list))
+    {
+      meta_wayland_compositor_add_frame_callback_surface (surface->compositor,
+                                                          surface);
+    }
 
-  meta_wayland_compositor_add_frame_callback_surface (surface->compositor,
-                                                      surface);
+  surface_role_class->assigned (surface_role);
 }
 
 static void
