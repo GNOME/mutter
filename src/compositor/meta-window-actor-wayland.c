@@ -25,6 +25,7 @@
 #include "compositor/meta-surface-actor-wayland.h"
 #include "compositor/meta-window-actor-wayland.h"
 #include "meta/meta-window-actor.h"
+#include "wayland/meta-wayland-actor-surface.h"
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-single-pixel-buffer.h"
 #include "wayland/meta-wayland-surface-private.h"
@@ -492,6 +493,21 @@ meta_window_actor_wayland_set_frozen (MetaWindowActor *actor,
   clutter_actor_iter_init (&iter, CLUTTER_ACTOR (self->surface_container));
   while (clutter_actor_iter_next (&iter, &child))
     meta_surface_actor_set_frozen (META_SURFACE_ACTOR (child), frozen);
+
+  if (!frozen)
+    {
+      MetaSurfaceActor *surface_actor = meta_window_actor_get_surface (actor);
+      MetaWaylandSurface *surface =
+        meta_surface_actor_wayland_get_surface (META_SURFACE_ACTOR_WAYLAND (surface_actor));
+
+      if (surface && surface->role)
+        {
+          MetaWaylandActorSurface *actor_surface =
+            META_WAYLAND_ACTOR_SURFACE (surface->role);
+
+          meta_wayland_actor_surface_sync_actor_state (actor_surface);
+        }
+    }
 }
 
 static void
