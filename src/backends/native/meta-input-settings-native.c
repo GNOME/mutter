@@ -671,25 +671,31 @@ meta_input_settings_native_set_tablet_area (MetaInputSettings  *settings,
                                             gdouble             padding_bottom)
 {
   struct libinput_device *libinput_device;
-  gfloat scale_x;
-  gfloat scale_y;
-  gfloat offset_x;
-  gfloat offset_y;
-
-  scale_x = (float) (1.0 / (1.0 - (padding_left + padding_right)));
-  scale_y = (float) (1.0 / (1.0 - (padding_top + padding_bottom)));
-  offset_x = (float) (-padding_left * scale_x);
-  offset_y = (float) (-padding_top * scale_y);
-
-  gfloat matrix[6] = { scale_x, 0., offset_x,
-                       0., scale_y, offset_y };
 
   libinput_device = meta_input_device_native_get_libinput_device (device);
   if (!libinput_device ||
       !libinput_device_config_calibration_has_matrix (libinput_device))
     return;
 
-  libinput_device_config_calibration_set_matrix (libinput_device, matrix);
+  if (padding_left == 0.0 && padding_right == 0.0 &&
+      padding_top == 0.0 && padding_bottom == 0.0)
+    {
+      float matrix[6];
+      libinput_device_config_calibration_get_default_matrix (libinput_device, matrix);
+      libinput_device_config_calibration_set_matrix (libinput_device, matrix);
+    }
+  else
+    {
+      float scale_x = (float) (1.0 / (1.0 - (padding_left + padding_right)));
+      float scale_y = (float) (1.0 / (1.0 - (padding_top + padding_bottom)));
+      float offset_x = (float) (-padding_left * scale_x);
+      float offset_y = (float) (-padding_top * scale_y);
+
+      float matrix[6] = { scale_x, 0., offset_x,
+                          0., scale_y, offset_y };
+
+      libinput_device_config_calibration_set_matrix (libinput_device, matrix);
+    }
 }
 
 static void
