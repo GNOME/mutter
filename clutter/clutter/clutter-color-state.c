@@ -84,7 +84,7 @@ clutter_color_state_get_colorspace (ClutterColorState *color_state)
   ClutterColorStatePrivate *priv;
 
   g_return_val_if_fail (CLUTTER_IS_COLOR_STATE (color_state),
-                        CLUTTER_COLORSPACE_UNKNOWN);
+                        CLUTTER_COLORSPACE_DEFAULT);
 
   priv = clutter_color_state_get_instance_private (color_state);
 

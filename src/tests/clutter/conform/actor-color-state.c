@@ -36,7 +36,7 @@ actor_color_state_default (void)
   color_state = clutter_actor_get_color_state (actor);
   colorspace = clutter_color_state_get_colorspace (color_state);
 
-  g_assert_cmpuint (colorspace, ==, CLUTTER_COLORSPACE_SRGB);
+  g_assert_cmpuint (colorspace, ==, CLUTTER_COLORSPACE_DEFAULT);
 
   clutter_actor_destroy (actor);
 }
@@ -114,7 +114,7 @@ actor_change_color_state_to_null (void)
   color_state = clutter_actor_get_color_state (actor);
   colorspace = clutter_color_state_get_colorspace (color_state);
 
-  g_assert_cmpuint (colorspace, ==, CLUTTER_COLORSPACE_SRGB);
+  g_assert_cmpuint (colorspace, ==, CLUTTER_COLORSPACE_DEFAULT);
 
   clutter_actor_destroy (actor);
 }
