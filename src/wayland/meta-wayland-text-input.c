@@ -298,21 +298,21 @@ meta_wayland_text_input_focus_set_preedit_text (ClutterInputFocus *focus,
                                                 unsigned int       anchor)
 {
   MetaWaylandTextInput *text_input;
-  gsize pos = 0;
+  gsize cursor_pos = 0, anchor_pos = 0;
 
   text_input = META_WAYLAND_TEXT_INPUT_FOCUS (focus)->text_input;
-
-  if (text)
-    pos = g_utf8_offset_to_pointer (text, cursor) - text;
 
   g_clear_pointer (&text_input->preedit.string, g_free);
   text_input->preedit.string = g_strdup (text);
 
   if (text)
-    pos = g_utf8_offset_to_pointer (text, cursor) - text;
+    {
+      cursor_pos = g_utf8_offset_to_pointer (text, cursor) - text;
+      anchor_pos = g_utf8_offset_to_pointer (text, anchor) - text;
+    }
 
-  text_input->preedit.cursor = pos;
-  text_input->preedit.anchor = anchor;
+  text_input->preedit.cursor = cursor_pos;
+  text_input->preedit.anchor = anchor_pos;
   text_input->preedit.changed = TRUE;
 
   meta_wayland_text_input_focus_defer_done (focus);
