@@ -133,8 +133,8 @@ typedef enum /*< prefix=CLUTTER_REQUEST >*/
  * @CLUTTER_ANIMATION_LAST: last animation mode, used as a guard for
  *   registered global alpha functions
  *
- * The animation modes used by [iface@Animatable]. 
- * 
+ * The animation modes used by [iface@Animatable].
+ *
  * This enumeration can be expanded in later versions of Clutter.
  *
  * <figure id="easing-modes">
@@ -1065,9 +1065,9 @@ typedef enum
  * @CLUTTER_TOUCHPAD_GESTURE_PHASE_CANCEL: The gesture was cancelled, all
  *   changes should be undone.
  *
- * The phase of a touchpad gesture event. 
- * 
- * All gestures are guaranteed to begin with an event of type 
+ * The phase of a touchpad gesture event.
+ *
+ * All gestures are guaranteed to begin with an event of type
  * %CLUTTER_TOUCHPAD_GESTURE_PHASE_BEGIN, followed by a number
  * of %CLUTTER_TOUCHPAD_GESTURE_PHASE_UPDATE (possibly 0).
  *
@@ -1103,8 +1103,8 @@ typedef enum
  * @CLUTTER_SCROLL_SOURCE_CONTINUOUS: The scroll event is originated by the
  *   motion of some device (eg. a scroll button is set).
  *
- * The scroll source determines the source of the scroll event. 
- * 
+ * The scroll source determines the source of the scroll event.
+ *
  * Keep in mind that the source device #ClutterInputDeviceType is not enough
  * to infer the scroll source.6
  */
@@ -1123,7 +1123,7 @@ typedef enum
  * @CLUTTER_SCROLL_FINISHED_VERTICAL: The vertical axis stopped.
  *
  * Flags used to notify the axes that were stopped in a #ClutterScrollEvent.
- * 
+ *
  * These can be used to trigger post-scroll effects like kinetic scrolling.6
  */
 typedef enum
