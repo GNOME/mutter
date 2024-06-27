@@ -178,11 +178,11 @@ meta_x11_display_dispose (GObject *object)
       g_clear_object (&x11_display->frames_client);
     }
 
-  if (x11_display->empty_region != None)
+  if (x11_display->stage_input_region != None)
     {
       XFixesDestroyRegion (x11_display->xdisplay,
-                           x11_display->empty_region);
-      x11_display->empty_region = None;
+                           x11_display->stage_input_region);
+      x11_display->stage_input_region = None;
     }
 
   meta_x11_startup_notification_release (x11_display);
@@ -2421,9 +2421,13 @@ prefs_changed_callback (MetaPreference pref,
     }
 }
 
+/**
+ * meta_x11_display_set_stage_input_region: (skip)
+ */
 void
 meta_x11_display_set_stage_input_region (MetaX11Display *x11_display,
-                                         XserverRegion   region)
+                                         XRectangle     *rects,
+                                         int             n_rects)
 {
   Display *xdisplay = x11_display->xdisplay;
   MetaBackend *backend = backend_from_x11_display (x11_display);
@@ -2432,25 +2436,17 @@ meta_x11_display_set_stage_input_region (MetaX11Display *x11_display,
 
   g_return_if_fail (!meta_is_wayland_compositor ());
 
+  if (x11_display->stage_input_region)
+    XFixesDestroyRegion (xdisplay, x11_display->stage_input_region);
+
+  x11_display->stage_input_region = XFixesCreateRegion (xdisplay, rects, n_rects);
+
   stage_xwindow = meta_x11_get_stage_window (stage);
   XFixesSetWindowShapeRegion (xdisplay, stage_xwindow,
-                              ShapeInput, 0, 0, region);
+                              ShapeInput, 0, 0, x11_display->stage_input_region);
   XFixesSetWindowShapeRegion (xdisplay,
                               x11_display->composite_overlay_window,
-                              ShapeInput, 0, 0, region);
-}
-
-void
-meta_x11_display_clear_stage_input_region (MetaX11Display *x11_display)
-{
-  if (x11_display->empty_region == None)
-    {
-      x11_display->empty_region = XFixesCreateRegion (x11_display->xdisplay,
-                                                      NULL, 0);
-    }
-
-  meta_x11_display_set_stage_input_region (x11_display,
-                                           x11_display->empty_region);
+                              ShapeInput, 0, 0, x11_display->stage_input_region);
 }
 
 /**

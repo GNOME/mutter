@@ -167,7 +167,7 @@ meta_compositor_x11_manage (MetaCompositor  *compositor,
 
   XReparentWindow (xdisplay, xwindow, compositor_x11->output, 0, 0);
 
-  meta_x11_display_clear_stage_input_region (display->x11_display);
+  meta_x11_display_set_stage_input_region (display->x11_display, NULL, 0);
 
   /*
    * Make sure there isn't any left-over output shape on the overlay window by

@@ -185,7 +185,7 @@ struct _MetaX11Display
   MetaX11StartupNotification *startup_notification;
   MetaX11Stack *x11_stack;
 
-  XserverRegion empty_region;
+  XserverRegion stage_input_region;
 
   unsigned int reload_x11_cursor_later;
 };
@@ -250,5 +250,3 @@ int meta_x11_display_get_damage_event_base (MetaX11Display *x11_display);
 
 gboolean meta_x11_display_xwindow_is_a_no_focus_window (MetaX11Display *x11_display,
                                                         Window xwindow);
-
-void meta_x11_display_clear_stage_input_region (MetaX11Display *x11_display);
