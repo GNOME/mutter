@@ -17834,12 +17834,11 @@ clutter_actor_get_content_repeat (ClutterActor *self)
 }
 
 static ClutterColorState *
-create_srgb_color_state (ClutterActor *self)
+create_default_color_state (ClutterActor *self)
 {
   ClutterColorState *color_state;
 
-  /* create default sRGB color state */
-  color_state = clutter_color_state_new (CLUTTER_COLORSPACE_SRGB);
+  color_state = clutter_color_state_new (CLUTTER_COLORSPACE_DEFAULT);
 
   return color_state;
 }
@@ -17849,21 +17848,21 @@ create_srgb_color_state (ClutterActor *self)
  * @self: a #ClutterActor
  * @color_state: (nullable): a #ClutterColorState
  *
- * Set @self's color state to @color_state, or a default sRGB one if %NULL.
+ * Set @self's color state to @color_state, or a default one if %NULL.
  */
 void
 clutter_actor_set_color_state (ClutterActor      *self,
                                ClutterColorState *color_state)
 {
   ClutterActorPrivate *priv;
-  g_autoptr (ClutterColorState) srgb = NULL;
+  g_autoptr (ClutterColorState) default_color_state = NULL;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
   priv = clutter_actor_get_instance_private (self);
 
   if (!color_state)
-    color_state = srgb = create_srgb_color_state (self);
+    color_state = default_color_state = create_default_color_state (self);
 
   if (g_set_object (&priv->color_state, color_state))
     g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_COLOR_STATE]);
