@@ -141,6 +141,37 @@ initable_iface_init (GInitableIface *initable_iface)
   initable_iface->init = meta_drm_timeline_initable_init;
 }
 
+int
+meta_drm_timeline_create_syncobj (int      drm_fd,
+                                  GError **error)
+{
+  uint32_t syncobj_handle;
+  int syncobj_fd;
+
+  if (drmSyncobjCreate (drm_fd, 0, &syncobj_handle))
+    {
+      g_set_error (error,
+                   G_IO_ERROR,
+                   G_IO_ERROR_FAILED,
+                   "drmSyncobjCreate failed: %s",
+                   g_strerror (errno));
+      return -1;
+    }
+
+  if (drmSyncobjHandleToFD (drm_fd, syncobj_handle, &syncobj_fd) < 0)
+    {
+      syncobj_fd = -1;
+      g_set_error (error,
+                   G_IO_ERROR,
+                   G_IO_ERROR_FAILED,
+                   "drmSyncobjHandleToFD failed: %s",
+                   g_strerror (errno));
+    }
+
+  drmSyncobjDestroy (drm_fd, syncobj_handle);
+  return syncobj_fd;
+}
+
 MetaDrmTimeline *
 meta_drm_timeline_import_syncobj (int       fd,
                                   int       drm_syncobj,

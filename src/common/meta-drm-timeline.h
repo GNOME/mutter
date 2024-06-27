@@ -30,6 +30,9 @@ G_DECLARE_FINAL_TYPE (MetaDrmTimeline, meta_drm_timeline,
 
 typedef struct _MetaDrmTimeline MetaDrmTimeline;
 
+int meta_drm_timeline_create_syncobj (int      fd,
+                                      GError **error);
+
 MetaDrmTimeline * meta_drm_timeline_import_syncobj (int       fd,
                                                     int       drm_syncobj,
                                                     GError  **error);
