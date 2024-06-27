@@ -2450,6 +2450,10 @@ committed_state_handle_highest_scale_monitor (MetaWaylandSurface *surface)
   MetaWaylandSurface *subsurface_surface;
   double scale;
 
+  /* Nothing to do if the client already destroyed the wl_surface */
+  if (!surface->resource)
+    return;
+
   scale = meta_wayland_surface_get_highest_output_scale (surface);
 
   meta_wayland_fractional_scale_maybe_send_preferred_scale (surface, scale);
