@@ -30,6 +30,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <glib/gstdio.h>
 #include <pipewire/pipewire.h>
 #include <spa/param/props.h>
 #include <spa/param/format-utils.h>
@@ -46,6 +47,14 @@
 #include "backends/meta-screen-cast-session.h"
 #include "backends/meta-screen-cast-stream.h"
 #include "core/meta-fraction.h"
+
+#ifdef HAVE_NATIVE_BACKEND
+#include "backends/native/meta-device-pool.h"
+#include "backends/native/meta-drm-buffer.h"
+#include "backends/native/meta-render-device.h"
+#include "backends/native/meta-renderer-native-private.h"
+#include "common/meta-drm-timeline.h"
+#endif
 
 #define PRIVATE_OWNER_FROM_FIELD(TypeName, field_ptr, field_name) \
         (TypeName *)((guint8 *)(field_ptr) - G_PRIVATE_OFFSET (TypeName, field_name))
@@ -125,6 +134,10 @@ typedef struct _MetaScreenCastStreamSrcPrivate
    * hash table is destroyed.
    */
   GHashTable *timelines;
+  /* pw_buffers returned by pw_stream_dequeue_buffer with an unsignaled timeline
+   * release point
+   */
+  GList *dequeued_buffers;
 
   MtkRegion *redraw_clip;
 
@@ -138,6 +151,28 @@ static const struct {
   { COGL_PIXEL_FORMAT_BGRX_8888, SPA_VIDEO_FORMAT_BGRx },
   { COGL_PIXEL_FORMAT_BGRA_8888_PRE, SPA_VIDEO_FORMAT_BGRA },
 };
+
+
+#ifdef HAVE_NATIVE_BACKEND
+
+enum {
+  DATA_OFFSET_RELEASE = 1,
+  DATA_OFFSET_ACQUIRE,
+  SYNCOBJ_MINIMUM_N_DATAS
+};
+
+static struct spa_data*
+syncobj_data_from_buffer (struct spa_buffer *spa_buffer,
+                          int                offset)
+{
+  struct spa_data *spa_data;
+
+  spa_data = &spa_buffer->datas[spa_buffer->n_datas - offset];
+  return spa_data;
+}
+
+#endif /* HAVE_NATIVE_BACKEND */
+
 
 static gboolean
 spa_video_format_from_cogl_pixel_format (CoglPixelFormat        cogl_format,
@@ -607,6 +642,58 @@ meta_screen_cast_stream_src_calculate_stride (MetaScreenCastStreamSrc *src,
   return SPA_ROUND_UP_N (priv->video_format.size.width * bpp, 4);
 }
 
+static void
+maybe_set_sync_points (MetaScreenCastStreamSrc *src,
+                       struct spa_buffer       *spa_buffer)
+{
+#ifdef HAVE_NATIVE_BACKEND
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+  struct spa_meta_sync_timeline *sync_timeline;
+  int acquire_fd;
+  MetaDrmTimeline *timeline;
+  MetaScreenCastStream *stream =
+    meta_screen_cast_stream_src_get_stream (src);
+  MetaScreenCastSession *session =
+    meta_screen_cast_stream_get_session (stream);
+  MetaScreenCast *screen_cast =
+    meta_screen_cast_session_get_screen_cast (session);
+  MetaBackend *backend = meta_screen_cast_get_backend (screen_cast);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
+  int sync_fd;
+  g_autoptr (GError) local_error = NULL;
+
+  sync_timeline = spa_buffer_find_meta_data (spa_buffer,
+                                             SPA_META_SyncTimeline,
+                                             sizeof (*sync_timeline));
+
+  if (!sync_timeline)
+    return;
+
+  g_return_if_fail (spa_buffer->n_datas >= SYNCOBJ_MINIMUM_N_DATAS);
+
+  acquire_fd = syncobj_data_from_buffer (spa_buffer, DATA_OFFSET_ACQUIRE)->fd;
+  timeline = g_hash_table_lookup (priv->timelines,
+                                  GINT_TO_POINTER (acquire_fd));
+  g_assert (timeline != NULL);
+
+  sync_timeline->acquire_point = sync_timeline->release_point + 1;
+  sync_timeline->release_point = sync_timeline->acquire_point + 1;
+
+  sync_fd = cogl_context_get_latest_sync_fd (cogl_context);
+  if (!meta_drm_timeline_set_sync_point (timeline,
+                                         sync_timeline->acquire_point,
+                                         sync_fd,
+                                         &local_error))
+    {
+      g_warning_once ("meta_drm_timeline_set_sync_point failed: %s",
+                      local_error->message);
+    }
+#endif /* HAVE_NATIVE_BACKEND */
+}
+
 static gboolean
 do_record_frame (MetaScreenCastStreamSrc   *src,
                  MetaScreenCastRecordFlag   flags,
@@ -642,14 +729,20 @@ do_record_frame (MetaScreenCastStreamSrc   *src,
                              GINT_TO_POINTER (spa_data->fd));
       CoglFramebuffer *dmabuf_fbo =
         cogl_dma_buf_handle_get_framebuffer (dmabuf_handle);
+      gboolean result;
 
       COGL_TRACE_BEGIN_SCOPED (RecordToFramebuffer,
                                "Meta::ScreenCastStreamSrc::record_to_framebuffer()");
 
-      return meta_screen_cast_stream_src_record_to_framebuffer (src,
-                                                                paint_phase,
-                                                                dmabuf_fbo,
-                                                                error);
+      result = meta_screen_cast_stream_src_record_to_framebuffer (src,
+                                                                  paint_phase,
+                                                                  dmabuf_fbo,
+                                                                  error);
+
+      if (result)
+        maybe_set_sync_points (src, spa_buffer);
+
+      return result;
     }
 
   g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
@@ -779,6 +872,111 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
                                                                         now_us);
 }
 
+#ifdef HAVE_NATIVE_BACKEND
+
+static gboolean
+can_reuse_pw_buffer (MetaScreenCastStreamSrcPrivate  *priv,
+                     struct pw_buffer                *buffer,
+                     GError                         **error)
+{
+  struct spa_buffer *spa_buffer;
+  struct spa_data *spa_data;
+  struct spa_meta_sync_timeline *sync_timeline;
+  int release_fd;
+  MetaDrmTimeline *drm_timeline;
+  gboolean is_signaled;
+
+  spa_buffer = buffer->buffer;
+  spa_data = &spa_buffer->datas[0];
+
+  /* Buffers without SPA_META_SyncTimeline can be used immediately */
+  if (spa_data->type != SPA_DATA_DmaBuf)
+    return TRUE;
+
+  sync_timeline = spa_buffer_find_meta_data (spa_buffer,
+                                             SPA_META_SyncTimeline,
+                                             sizeof (*sync_timeline));
+
+  if (!sync_timeline)
+    return TRUE;
+
+  g_return_val_if_fail (spa_buffer->n_datas >= SYNCOBJ_MINIMUM_N_DATAS, TRUE);
+
+  release_fd = syncobj_data_from_buffer (spa_buffer, DATA_OFFSET_RELEASE)->fd;
+  drm_timeline = g_hash_table_lookup (priv->timelines,
+                                      GINT_TO_POINTER (release_fd));
+  g_assert (drm_timeline != NULL);
+
+  if (!meta_drm_timeline_is_signaled (drm_timeline,
+                                      sync_timeline->release_point,
+                                      &is_signaled,
+                                      error))
+    return FALSE;
+
+  return is_signaled;
+}
+
+#endif /* HAVE_NATIVE_BACKEND */
+
+static struct pw_buffer *
+dequeue_pw_buffer (MetaScreenCastStreamSrc  *src,
+                   GError                  **error)
+{
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+  struct pw_buffer *buffer = NULL;
+
+#ifdef HAVE_NATIVE_BACKEND
+  GError *local_error = NULL;
+
+  for (GList *l = priv->dequeued_buffers; l; l = g_list_next (l))
+    {
+      g_clear_error (&local_error);
+
+      if (can_reuse_pw_buffer (priv, l->data, &local_error))
+        {
+          buffer = l->data;
+          priv->dequeued_buffers = g_list_remove (priv->dequeued_buffers, buffer);
+          break;
+        }
+    }
+
+  while (!buffer)
+    {
+      g_clear_error (&local_error);
+
+      buffer = pw_stream_dequeue_buffer (priv->pipewire_stream);
+      if (!buffer ||
+          can_reuse_pw_buffer (priv, buffer, &local_error))
+        break;
+
+      priv->dequeued_buffers = g_list_append (priv->dequeued_buffers,
+                                              g_steal_pointer (&buffer));
+    }
+
+  if (!buffer && local_error)
+    {
+      g_propagate_error (error, g_steal_pointer (&local_error));
+      return NULL;
+    }
+#else /* !HAVE_NATIVE_BACKEND */
+
+  buffer = pw_stream_dequeue_buffer (priv->pipewire_stream);
+#endif
+
+  if (!buffer)
+    {
+      g_set_error (error,
+                   G_IO_ERROR,
+                   G_IO_ERROR_FAILED,
+                   "Couldn't dequeue a buffer from pipewire stream (node id %u), "
+                   "maybe your encoding is too slow?",
+                   pw_stream_get_node_id (priv->pipewire_stream));
+    }
+
+  return buffer;
+}
+
 MetaScreenCastRecordResult
 meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStreamSrc  *src,
                                                                MetaScreenCastRecordFlag  flags,
@@ -797,6 +995,7 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
   struct spa_buffer *spa_buffer;
   struct spa_meta_header *header;
   struct spa_data *spa_data;
+  g_autoptr (GError) error = NULL;
 
   COGL_TRACE_BEGIN_SCOPED (MaybeRecordFrame,
                            "Meta::ScreenCastStreamSrc::maybe_record_frame_with_timestamp()");
@@ -864,13 +1063,12 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
               "cursor" : "full",
               priv->node_id);
 
-  buffer = pw_stream_dequeue_buffer (priv->pipewire_stream);
+  buffer = dequeue_pw_buffer (src, &error);
   if (!buffer)
     {
       meta_topic (META_DEBUG_SCREEN_CAST,
-                  "Couldn't dequeue a buffer from pipewire stream (node id %u), "
-                  "maybe your encoding is too slow?",
-                  pw_stream_get_node_id (priv->pipewire_stream));
+                  "Couldn't dequeue a buffer from pipewire stream: %s",
+                  error->message);
       return record_result;
     }
 
@@ -893,8 +1091,6 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
 
   if (!(flags & META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY))
     {
-      g_autoptr (GError) error = NULL;
-
       g_clear_handle_id (&priv->follow_up_frame_source_id, g_source_remove);
       if (do_record_frame (src, flags, paint_phase, spa_buffer, &error))
         {
@@ -1194,6 +1390,7 @@ on_stream_param_changed (void                 *data,
     META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
   struct spa_pod_dynamic_builder pod_builder;
   struct spa_pod *pod;
+  struct spa_pod_frame pod_frame;
   g_autoptr (GPtrArray) params = NULL;
   int buffer_types;
   const struct spa_pod_prop *prop_modifier;
@@ -1282,6 +1479,26 @@ on_stream_param_changed (void                 *data,
       return;
     }
 
+  /* Buffers param when using explicit sync with extra data blocks for acquire_fd
+   * and release_fd */
+  spa_pod_dynamic_builder_init (&pod_builder, NULL, 0, 1024);
+  spa_pod_builder_push_object (
+    &pod_builder.b,
+    &pod_frame,
+    SPA_TYPE_OBJECT_ParamBuffers, SPA_PARAM_Buffers);
+  spa_pod_builder_add (
+    &pod_builder.b,
+    SPA_PARAM_BUFFERS_buffers, SPA_POD_CHOICE_RANGE_Int (16, 2, 16),
+    SPA_PARAM_BUFFERS_blocks, SPA_POD_Int (3),
+    SPA_PARAM_BUFFERS_align, SPA_POD_Int (16),
+    SPA_PARAM_BUFFERS_dataType, SPA_POD_CHOICE_FLAGS_Int (buffer_types),
+    0);
+  spa_pod_builder_prop (&pod_builder.b, SPA_PARAM_BUFFERS_metaType, SPA_POD_PROP_FLAG_MANDATORY);
+  spa_pod_builder_int (&pod_builder.b, 1 << SPA_META_SyncTimeline);
+  pod = spa_pod_builder_pop (&pod_builder.b, &pod_frame);
+  g_ptr_array_add (params, g_steal_pointer (&pod));
+
+  /* Fallback Buffers param */
   spa_pod_dynamic_builder_init (&pod_builder, NULL, 0, 1024);
   pod = spa_pod_builder_add_object (
     &pod_builder.b,
@@ -1316,6 +1533,15 @@ on_stream_param_changed (void                 *data,
     SPA_PARAM_META_size, SPA_POD_Int (sizeof (struct spa_meta_header)));
   g_ptr_array_add (params, g_steal_pointer (&pod));
 
+  /* we support Explicit sync */
+  spa_pod_dynamic_builder_init (&pod_builder, NULL, 0, 1024);
+  pod = spa_pod_builder_add_object (
+    &pod_builder.b,
+    SPA_TYPE_OBJECT_ParamMeta, SPA_PARAM_Meta,
+    SPA_PARAM_META_type, SPA_POD_Id (SPA_META_SyncTimeline),
+    SPA_PARAM_META_size, SPA_POD_Int (sizeof (struct spa_meta_sync_timeline)));
+  g_ptr_array_add (params, g_steal_pointer (&pod));
+
   add_video_damage_meta_param (params);
 
   pw_stream_update_params (priv->pipewire_stream,
@@ -1324,6 +1550,76 @@ on_stream_param_changed (void                 *data,
 
   if (klass->notify_params_updated)
     klass->notify_params_updated (src, &priv->video_format);
+}
+
+static void
+maybe_create_syncobj (MetaScreenCastStreamSrc *src,
+                      struct spa_buffer       *spa_buffer)
+{
+#ifdef HAVE_NATIVE_BACKEND
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
+  MetaScreenCastSession *session = meta_screen_cast_stream_get_session (stream);
+  MetaScreenCast *screen_cast =
+    meta_screen_cast_session_get_screen_cast (session);
+  MetaBackend *backend = meta_screen_cast_get_backend (screen_cast);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
+  CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
+  CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
+  MetaRendererNativeGpuData *renderer_gpu_data = cogl_renderer_egl->platform;
+  MetaRenderDevice *render_device = renderer_gpu_data->render_device;
+  MetaDeviceFile *device_file =
+    meta_render_device_get_device_file (render_device);
+  int drm_fd = meta_device_file_get_fd (device_file);
+  g_autoptr (GError) local_error = NULL;
+  g_autofd int syncobj_fd = -1;
+  struct spa_meta_sync_timeline *sync_timeline;
+  g_autoptr (MetaDrmTimeline) timeline = NULL;
+  struct spa_data *acquire_data;
+  struct spa_data *release_data;
+
+  sync_timeline = spa_buffer_find_meta_data (spa_buffer,
+                                             SPA_META_SyncTimeline,
+                                             sizeof (*sync_timeline));
+  if (!sync_timeline)
+    return;
+
+  g_return_if_fail (spa_buffer->n_datas >= SYNCOBJ_MINIMUM_N_DATAS);
+
+  syncobj_fd = meta_drm_timeline_create_syncobj (drm_fd, &local_error);
+  if (syncobj_fd < 0)
+    {
+      g_warning_once ("meta_drm_timeline_create_syncobj failed: %s",
+                      local_error->message);
+      return;
+    }
+
+  timeline = meta_drm_timeline_import_syncobj (drm_fd, syncobj_fd, &local_error);
+  if (!timeline)
+    {
+      g_warning_once ("meta_drm_timeline_import_syncobj failed: %s",
+                      local_error->message);
+      return;
+    }
+
+  acquire_data = syncobj_data_from_buffer (spa_buffer, DATA_OFFSET_ACQUIRE);
+  release_data = syncobj_data_from_buffer (spa_buffer, DATA_OFFSET_RELEASE);
+
+  acquire_data->type = SPA_DATA_SyncObj;
+  acquire_data->flags = SPA_DATA_FLAG_READABLE;
+  acquire_data->fd = syncobj_fd;
+
+  release_data->type = SPA_DATA_SyncObj;
+  release_data->flags = SPA_DATA_FLAG_READABLE;
+  release_data->fd = syncobj_fd;
+
+  g_hash_table_insert (priv->timelines,
+                       GINT_TO_POINTER (g_steal_fd (&syncobj_fd)),
+                       g_steal_pointer (&timeline));
+#endif /* HAVE_NATIVE_BACKEND */
 }
 
 static void
@@ -1399,6 +1695,8 @@ on_stream_add_buffer (void             *data,
 
       stride = meta_screen_cast_stream_src_calculate_stride (src, spa_data);
       spa_data->maxsize = stride * priv->video_format.size.height;
+
+      maybe_create_syncobj (src, spa_buffer);
     }
   else
     {
@@ -1467,6 +1765,34 @@ on_stream_add_buffer (void             *data,
 }
 
 static void
+maybe_remove_syncobj (MetaScreenCastStreamSrc *src,
+                      struct pw_buffer        *buffer)
+{
+#ifdef HAVE_NATIVE_BACKEND
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+  struct spa_buffer *spa_buffer = buffer->buffer;
+  struct spa_meta_sync_timeline *sync_timeline;
+  int acquire_fd;
+
+  sync_timeline = spa_buffer_find_meta_data (spa_buffer,
+                                             SPA_META_SyncTimeline,
+                                             sizeof (*sync_timeline));
+
+  if (!sync_timeline)
+    return;
+
+  priv->dequeued_buffers = g_list_remove (priv->dequeued_buffers, buffer);
+
+  g_return_if_fail (spa_buffer->n_datas >= SYNCOBJ_MINIMUM_N_DATAS);
+
+  acquire_fd = syncobj_data_from_buffer (spa_buffer, DATA_OFFSET_ACQUIRE)->fd;
+  if (!g_hash_table_remove (priv->timelines, GINT_TO_POINTER (acquire_fd)))
+    g_critical ("Failed to remove DRM timeline syncobj");
+#endif
+}
+
+static void
 on_stream_remove_buffer (void             *data,
                          struct pw_buffer *buffer)
 {
@@ -1480,6 +1806,8 @@ on_stream_remove_buffer (void             *data,
 
   if (spa_data->type == SPA_DATA_DmaBuf)
     {
+      maybe_remove_syncobj (src, buffer);
+
       if (!g_hash_table_remove (priv->dmabuf_handles, GINT_TO_POINTER (spa_data->fd)))
         g_critical ("Failed to remove non-exported DMA buffer");
     }
@@ -1737,12 +2065,14 @@ meta_screen_cast_stream_src_dispose (GObject *object)
     g_array_free (value, TRUE);
 
   g_clear_pointer (&priv->modifiers, g_hash_table_destroy);
-  g_clear_pointer (&priv->timelines, g_hash_table_destroy);
   g_clear_pointer (&priv->pipewire_stream, pw_stream_destroy);
+  g_clear_pointer (&priv->timelines, g_hash_table_destroy);
   g_clear_pointer (&priv->dmabuf_handles, g_hash_table_destroy);
   g_clear_pointer (&priv->pipewire_core, pw_core_disconnect);
   g_clear_pointer (&priv->pipewire_context, pw_context_destroy);
   g_clear_pointer (&priv->pipewire_source, g_source_destroy);
+
+  g_warn_if_fail (!priv->dequeued_buffers);
 
   G_OBJECT_CLASS (meta_screen_cast_stream_src_parent_class)->dispose (object);
 }
