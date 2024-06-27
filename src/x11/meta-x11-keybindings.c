@@ -17,6 +17,8 @@
 
 /* Grab/ungrab, ignoring all annoying modifiers like NumLock etc. */
 
+#include "config.h"
+
 #include "meta-x11-keybindings-private.h"
 
 static GArray *
