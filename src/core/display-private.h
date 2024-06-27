@@ -71,7 +71,7 @@ typedef void (* MetaDisplayWindowFunc) (MetaWindow *window,
 
 /* To avoid ifdefing MetaX11Display usage when built without X11 support */
 #ifndef HAVE_X11_CLIENT
-typedef struct MetaX11Display MetaX11Display;
+typedef struct _MetaX11Display MetaX11Display;
 #endif
 
 struct _MetaDisplay
