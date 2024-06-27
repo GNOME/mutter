@@ -562,10 +562,11 @@ CLUTTER_EXPORT
 ClutterContentRepeat            clutter_actor_get_content_repeat                (ClutterActor               *self);
 
 CLUTTER_EXPORT
-void clutter_actor_set_color_state (ClutterActor      *self,
-                                    ClutterColorState *color_state);
+void                            clutter_actor_set_color_state                   (ClutterActor               *self,
+                                                                                 ClutterColorState          *color_state);
+
 CLUTTER_EXPORT
-ClutterColorState *clutter_actor_get_color_state (ClutterActor *self);
+ClutterColorState *             clutter_actor_get_color_state                   (ClutterActor               *self);
 
 CLUTTER_EXPORT
 void                            clutter_actor_get_content_box                   (ClutterActor               *self,
