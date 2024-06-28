@@ -117,6 +117,15 @@ typedef struct _MetaScreenCastStreamSrcPrivate
   gboolean uses_dma_bufs;
   GHashTable *dmabuf_handles;
 
+  /* Keys: File descriptors
+   * Values: MetaDrmTimeline object pointers
+   *
+   * Both keys and values are owned by the hash table and destroyed /
+   * unreferenced when a key/value pair is removed from the hash table or the
+   * hash table is destroyed.
+   */
+  GHashTable *timelines;
+
   MtkRegion *redraw_clip;
 
   GHashTable *modifiers;
@@ -1728,6 +1737,7 @@ meta_screen_cast_stream_src_dispose (GObject *object)
     g_array_free (value, TRUE);
 
   g_clear_pointer (&priv->modifiers, g_hash_table_destroy);
+  g_clear_pointer (&priv->timelines, g_hash_table_destroy);
   g_clear_pointer (&priv->pipewire_stream, pw_stream_destroy);
   g_clear_pointer (&priv->dmabuf_handles, g_hash_table_destroy);
   g_clear_pointer (&priv->pipewire_core, pw_core_disconnect);
@@ -1778,6 +1788,14 @@ meta_screen_cast_stream_src_get_property (GObject    *object,
 }
 
 static void
+close_fd (gpointer key)
+{
+  int fd = GPOINTER_TO_INT (key);
+
+  close (fd);
+}
+
+static void
 meta_screen_cast_stream_src_init (MetaScreenCastStreamSrc *src)
 {
   MetaScreenCastStreamSrcPrivate *priv =
@@ -1786,6 +1804,9 @@ meta_screen_cast_stream_src_init (MetaScreenCastStreamSrc *src)
   priv->dmabuf_handles =
     g_hash_table_new_full (NULL, NULL, NULL,
                            (GDestroyNotify) cogl_dma_buf_handle_free);
+
+  priv->timelines =
+    g_hash_table_new_full (NULL, NULL, close_fd, g_object_unref);
 
   priv->modifiers = g_hash_table_new (NULL, NULL);
 }
