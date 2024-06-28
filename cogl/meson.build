@@ -40,9 +40,7 @@ if have_x11
   ]
   cogl_pkg_private_deps += [
     xext_dep,
-    xfixes_dep,
     xdamage_dep,
-    xcomposite_dep,
     xrandr_dep,
   ]
 endif

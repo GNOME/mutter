@@ -108,17 +108,21 @@ if have_x11_client
     xrandr_dep,
     xinerama_dep,
     xext_dep,
-    ice_dep,
     xcomposite_dep,
     xcursor_dep,
     xdamage_dep,
-    xkbfile_dep,
-    xkeyboard_config_dep,
-    xkbcommon_x11_dep,
     x11_xcb_dep,
-    xcb_randr_dep,
     xcb_res_dep,
     xau_dep,
+  ]
+endif
+
+if have_x11
+  mutter_pkg_private_deps += [
+    ice_dep,
+    xcb_randr_dep,
+    xkbfile_dep,
+    xkbcommon_x11_dep,
     xtst_dep,
   ]
 

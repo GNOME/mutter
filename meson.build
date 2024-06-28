@@ -123,7 +123,6 @@ gthread_dep = dependency('gobject-2.0', version: glib_req)
 gmodule_no_export_dep = dependency('gmodule-no-export-2.0', version: glib_req)
 gnome_settings_daemon_dep = dependency('gnome-settings-daemon', required: false)
 xkbcommon_dep = dependency('xkbcommon', version: xkbcommon_req)
-ice_dep = dependency('ice')
 atk_dep = dependency('atk', version: atk_req)
 dbus_dep = dependency('dbus-1')
 colord_dep = dependency('colord', version: colord_req)
@@ -155,16 +154,20 @@ if have_x11_client
   xext_dep = dependency('xext')
   xfixes_dep = dependency('xfixes', version: xfixes_req)
   xi_dep = dependency('xi', version: xi_req)
-  xtst_dep = dependency('xtst')
   xkbfile_dep = dependency('xkbfile')
   xkeyboard_config_dep = dependency('xkeyboard-config')
-  xkbcommon_x11_dep = dependency('xkbcommon-x11')
   x11_xcb_dep = dependency('x11-xcb')
   xrandr_dep = dependency('xrandr', version: xrandr_req)
-  xcb_randr_dep = dependency('xcb-randr')
   xcb_res_dep = dependency('xcb-res')
   xinerama_dep = dependency('xinerama')
   xau_dep = dependency('xau')
+
+  if have_x11
+    ice_dep = dependency('ice')
+    xcb_randr_dep = dependency('xcb-randr')
+    xkbcommon_x11_dep = dependency('xkbcommon-x11')
+    xtst_dep = dependency('xtst')
+  endif
 endif
 
 use_libdisplay_info = get_option('libdisplay_info')
