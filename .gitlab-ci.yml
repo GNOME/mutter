@@ -450,6 +450,28 @@ build-without-native-backend-and-wayland@x86_64:
     paths:
       - build/meson-logs
 
+build-wayland-xwayland@x86_64:
+  extends:
+    - .mutter.distribution-image
+    - .mutter.fedora@x86_64
+  stage: build
+  needs:
+    - job: build-fedora-container@x86_64
+      artifacts: false
+  script:
+    - meson setup . build --werror --prefix /usr
+        -Dbuildtype=debugoptimized
+        -Dwayland=true
+        -Dxwayland=true
+        -Dx11=false
+        -Dtests=disabled
+        -Dintrospection=false
+    - meson compile -C build
+    - sudo meson install --no-rebuild -C build
+  artifacts:
+    paths:
+      - build/meson-logs
+
 build-wayland-only@x86_64:
   extends:
     - .mutter.distribution-image
