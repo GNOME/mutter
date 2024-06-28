@@ -50,32 +50,6 @@ if have_pango_ft2
   ]
 endif
 
-if have_wayland
-  clutter_pkg_private_deps += [
-    wayland_egl_dep,
-    wayland_server_dep,
-  ]
-endif
-
-if have_x11_client
-  clutter_pkg_deps += [
-    x11_dep,
-  ]
-  clutter_pkg_private_deps += [
-    xext_dep,
-    xdamage_dep,
-    xcomposite_dep,
-    xtst_dep,
-    xi_dep,
-  ]
-endif
-
-if have_libwacom
-  clutter_pkg_private_deps += [
-    libwacom_dep,
-  ]
-endif
-
 clutter_deps = [
   clutter_pkg_deps,
   clutter_pkg_private_deps,
