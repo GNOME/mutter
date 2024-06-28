@@ -22,8 +22,8 @@
 
 #include <glib.h>
 
+#include "common/meta-drm-timeline.h"
 #include "wayland/meta-wayland-types.h"
-#include "wayland/meta-drm-timeline.h"
 
 #include "linux-drm-syncobj-v1-server-protocol.h"
 

@@ -585,8 +585,6 @@ if have_wayland
     'core/meta-service-channel.h',
     'wayland/meta-cursor-sprite-wayland.c',
     'wayland/meta-cursor-sprite-wayland.h',
-    'wayland/meta-drm-timeline.c',
-    'wayland/meta-drm-timeline.h',
     'wayland/meta-pointer-confinement-wayland.c',
     'wayland/meta-pointer-confinement-wayland.h',
     'wayland/meta-pointer-lock-wayland.c',
@@ -894,6 +892,8 @@ if have_wayland or have_native_backend
     'common/meta-cogl-drm-formats.h',
     'common/meta-drm-format-helpers.c',
     'common/meta-drm-format-helpers.h',
+    'common/meta-drm-timeline.c',
+    'common/meta-drm-timeline.h',
   ]
 endif
 

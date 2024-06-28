@@ -37,8 +37,8 @@
 #include <sys/eventfd.h>
 #endif
 
+#include "common/meta-drm-timeline.h"
 #include "meta/util.h"
-#include "wayland/meta-drm-timeline.h"
 
 enum
 {
