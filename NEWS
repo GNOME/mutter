@@ -1,3 +1,56 @@
+47.alpha
+========
+* Fix sending preferred buffer transform [Robert; !3717]
+* Fix key press events with immediate release being ignored [Carlos; !3721]
+* Fix hardware cursor with non-atomic KMS drivers [Daniel; !3676]
+* Fix night light state getting stuck on monitor changes [Michel; !3742]
+* Fix unsetting clipboard on screen lock [Florian; !3752]
+* Fix wrong input region of undecorated X11 windows [Sebastian K.; !3720]
+* Fix windows potentially shrinking unexpectedly on configure [Jonas Å.; !3755]
+* Implement XDG dialog protocol [Carlos; !3557]
+* Fix popup menus sometimes closing immediately [Jonas D.; !3631]
+* Allow building without X11 support [Bilal; !3607, !3765, !3254, !3776, !3853]
+* Emit signal when accelerator is deactivated [dcz; !3680]
+* Fix wrong pointer cursor during compositor grabs [Carlos; !3736]
+* Fix possible out of sync primary selections and clipboard [Carlos; !3789]
+* Improve monitor matching when restoring windows on hotplug [Jonas Å.; !3753]
+* Add support for SIZE_HINTS cursor plane property [adarshgm; !3165]
+* Fix ibus support in popups [Sebastian K.; !3787]
+* Delay xdg-activation requests until window is mapped [Sebastian W.; !3728]
+* Fix hardware accelerated rendering when headless [Jonas Å.; !3805]
+* Merge ClutterColor and CoglColor [Bilal; !3796, !3802, !3544]
+* Fix performance issues with second virtual monitor [Jonas Å.; !3803]
+* Add back support for legacy X11 cursor themes [Daniel; !3718]
+* Add support for DRM lease protocol [Sebastian W., Jonas Å., José; !3746]
+* Base test backend on native backend instead of X11 [Jonas Å.; !3812]
+* Fix missing unmap animation of some windows [Michel; !3840]
+* Fix preedit offsets [Orko; !3845]
+* Use character offsets to specify surrounding text [Shiki; !3719]
+* Don't force titlebar on screen on all interactive resizes [Jeffrey; !3764]
+* Fixed crashes [Carlos, Michel, Keyu, Jonas Å., Sebastian K., Marco, Georges,
+  Sebastian W.; !3715, !3725, !3711, !3758, !3763, !3749, !3732, !3729, !3828,
+  !3783, !3849]
+* Misc. bug fixes and cleanups [Mart, Florian, Marco, Jonas Å., Sebastian W.,
+  Bilal, Michel, Corentin, Georges, Philip, Daniel, Jonas D., José, Pascal,
+  Carlos; !3716, !3723, !3727, !3735, !3731, !3378, !3700, !3743, !3750, !3701,
+  !3757, !3754, !3748, !3759, !3761, !3762, !3730, !3737, !3771, !3775, !3770,
+  !3768, !3781, !3782, !3784, !3788, !3791, !2959, !3792, !3265, !3801, !3804,
+  !3795, !3693, !3793, !3800, !3115, !3806, !3809, !3810, !3816, !3811, !3667,
+  !3799, !3823, !3818, !3813, !3814, !3807, !3827, !3826, !3831, !3829, !3830,
+  !3798, !3833, !3836, !3837, !3835, !3820, !3822, #3540, !3842, !3851, !3747,
+  !3790]
+
+Contributors:
+  Jonas Ådahl, adarshgm, Michel Dänzer, dcz, Jonas Dreßler, Bilal Elmoussaoui,
+  José Expósito, Orko Garai, Carlos Garnacho, Sebastian Keller, Jeffrey Knockel,
+  Robert Mader, Florian Müllner, Georges Basile Stavracas Neto, Corentin Noël,
+  Pascal Nowack, Shiki Okasaka, Mart Raudsepp, Keyu Tao,
+  Marco Trevisan (Treviño), Daniel van Vugt, Sebastian Wick, Philip Withnall
+
+Translators:
+  Hugo Carvalho [pt], Leônidas Araújo [pt_BR], Scrambled 777 [hi],
+  Jose Riha [sk], Милош Поповић [sr]
+
 46.1
 ====
 * Implement linux-drm-syncobj-v1 [Austin; !3300]
