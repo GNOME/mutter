@@ -108,8 +108,7 @@ destroy_shader_state (void *user_data)
 {
   CoglPipelineVertendShaderStateCache *cache = user_data;
   CoglPipelineVertendShaderState *shader_state = cache->shader_state;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
+  CoglContext *ctx = cache->instance->context;
 
   if (shader_state->cache_entry &&
       shader_state->cache_entry->pipeline != cache->instance)
@@ -388,8 +387,7 @@ _cogl_pipeline_vertend_glsl_start (CoglPipeline *pipeline,
   CoglPipelineVertendShaderState *shader_state;
   CoglPipelineCacheEntry *cache_entry = NULL;
   CoglProgram *user_program = cogl_pipeline_get_user_program (pipeline);
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
+  CoglContext *ctx = pipeline->context;
 
   /* Now lookup our glsl backend private state (allocating if
    * necessary) */
@@ -511,8 +509,6 @@ _cogl_pipeline_vertend_glsl_add_layer (CoglPipeline *pipeline,
   CoglPipelineSnippetData snippet_data;
   int layer_index = layer->index;
 
-  _COGL_GET_CONTEXT (ctx, FALSE);
-
   shader_state = get_shader_state (pipeline);
 
   if (shader_state->source == NULL)
@@ -579,8 +575,7 @@ _cogl_pipeline_vertend_glsl_end (CoglPipeline *pipeline,
                                  unsigned long pipelines_difference)
 {
   CoglPipelineVertendShaderState *shader_state;
-
-  _COGL_GET_CONTEXT (ctx, FALSE);
+  CoglContext *ctx = pipeline->context;
 
   shader_state = get_shader_state (pipeline);
 
@@ -726,7 +721,7 @@ _cogl_pipeline_vertend_glsl_pre_change_notify (CoglPipeline *pipeline,
                                                CoglPipelineState change,
                                                const CoglColor *new_color)
 {
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
+  CoglContext *ctx = pipeline->context;
 
   if ((change & _cogl_pipeline_get_state_for_vertex_codegen (ctx)))
     dirty_shader_state (pipeline);

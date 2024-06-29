@@ -89,9 +89,9 @@ texture_unit_free (CoglTextureUnit *unit)
 }
 
 CoglTextureUnit *
-_cogl_get_texture_unit (int index_)
+_cogl_get_texture_unit (CoglContext *ctx,
+                        int          index_)
 {
-  _COGL_GET_CONTEXT (ctx, NULL);
   CoglGLContext *glctx = _cogl_driver_gl_context(ctx);
 
   if (glctx->texture_units->len < (index_ + 1))
@@ -128,9 +128,9 @@ _cogl_destroy_texture_units (CoglContext *ctx)
 }
 
 void
-_cogl_set_active_texture_unit (int unit_index)
+_cogl_set_active_texture_unit (CoglContext *ctx,
+                               int          unit_index)
 {
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
   CoglGLContext *glctx = _cogl_driver_gl_context(ctx);
 
   if (glctx->active_texture_unit != unit_index)
@@ -161,12 +161,11 @@ _cogl_set_active_texture_unit (int unit_index)
  * CoglTextureUnit.
  */
 void
-_cogl_bind_gl_texture_transient (GLenum gl_target,
-                                 GLuint gl_texture)
+_cogl_bind_gl_texture_transient (CoglContext *ctx,
+                                 GLenum       gl_target,
+                                 GLuint       gl_texture)
 {
   CoglTextureUnit *unit;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
   /* We choose to always make texture unit 1 active for transient
    * binds so that in the common case where multitexturing isn't used
@@ -175,8 +174,8 @@ _cogl_bind_gl_texture_transient (GLenum gl_target,
    * in case the driver doesn't have a sparse data structure for
    * texture units.
    */
-  _cogl_set_active_texture_unit (1);
-  unit = _cogl_get_texture_unit (1);
+  _cogl_set_active_texture_unit (ctx, 1);
+  unit = _cogl_get_texture_unit (ctx, 1);
 
   if (unit->gl_texture == gl_texture && !unit->dirty_gl_texture)
     return;
@@ -187,11 +186,11 @@ _cogl_bind_gl_texture_transient (GLenum gl_target,
 }
 
 void
-_cogl_delete_gl_texture (GLuint gl_texture)
+_cogl_delete_gl_texture (CoglContext *ctx,
+                         GLuint       gl_texture)
 {
   int i;
 
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
   CoglGLContext *glctx = _cogl_driver_gl_context(ctx);
 
   for (i = 0; i < glctx->texture_units->len; i++)
@@ -220,7 +219,7 @@ _cogl_pipeline_texture_storage_change_notify (CoglTexture *texture)
 {
   int i;
 
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
+  CoglContext *ctx = cogl_texture_get_context (texture);
   CoglGLContext *glctx = _cogl_driver_gl_context(ctx);
 
   for (i = 0; i < glctx->texture_units->len; i++)
@@ -306,7 +305,7 @@ _cogl_pipeline_flush_color_blend_alpha_depth_state (
                                             unsigned long pipelines_difference,
                                             gboolean      with_color_attrib)
 {
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
+  CoglContext *ctx = pipeline->context;
 
   if (pipelines_difference & COGL_PIPELINE_STATE_BLEND)
     {
@@ -410,10 +409,8 @@ _cogl_pipeline_flush_color_blend_alpha_depth_state (
 }
 
 static int
-get_max_activateable_texture_units (void)
+get_max_activateable_texture_units (CoglContext *ctx)
 {
-  _COGL_GET_CONTEXT (ctx, 0);
-
   if (G_UNLIKELY (ctx->max_activateable_texture_units == -1))
     {
       GLint values[3];
@@ -469,17 +466,16 @@ static gboolean
 flush_layers_common_gl_state_cb (CoglPipelineLayer *layer, void *user_data)
 {
   CoglPipelineFlushLayerState *flush_state = user_data;
-  int                          unit_index = flush_state->i;
-  CoglTextureUnit             *unit = _cogl_get_texture_unit (unit_index);
-  unsigned long                layers_difference =
+  CoglContext *ctx = layer->owner->context;
+  int unit_index = flush_state->i;
+  CoglTextureUnit *unit = _cogl_get_texture_unit (ctx, unit_index);
+  unsigned long layers_difference =
     flush_state->layer_differences[unit_index];
-
-  _COGL_GET_CONTEXT (ctx, FALSE);
 
   /* There may not be enough texture units so we can bail out if
    * that's the case...
    */
-  if (G_UNLIKELY (unit_index >= get_max_activateable_texture_units ()))
+  if (G_UNLIKELY (unit_index >= get_max_activateable_texture_units (ctx)))
     {
       static gboolean shown_warning = FALSE;
 
@@ -505,7 +501,7 @@ flush_layers_common_gl_state_cb (CoglPipelineLayer *layer, void *user_data)
                                    &gl_texture,
                                    &gl_target);
 
-      _cogl_set_active_texture_unit (unit_index);
+      _cogl_set_active_texture_unit (ctx, unit_index);
 
       /* NB: There are several Cogl components and some code in
        * Clutter that will temporarily bind arbitrary GL textures to
@@ -578,8 +574,6 @@ _cogl_pipeline_flush_common_gl_state (CoglPipeline  *pipeline,
                                       gboolean       with_color_attrib)
 {
   CoglPipelineFlushLayerState state;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
   _cogl_pipeline_flush_color_blend_alpha_depth_state (pipeline,
                                                       pipelines_difference,
@@ -706,11 +700,10 @@ _cogl_sampler_gl_free (CoglContext *context, CoglSamplerCacheEntry *entry)
  * state.
  */
 static void
-foreach_texture_unit_update_filter_and_wrap_modes (void)
+foreach_texture_unit_update_filter_and_wrap_modes (CoglContext *ctx)
 {
   int i;
 
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
   CoglGLContext *glctx = _cogl_driver_gl_context(ctx);
 
   for (i = 0; i < glctx->texture_units->len; i++)
@@ -746,7 +739,8 @@ static gboolean
 compare_layer_differences_cb (CoglPipelineLayer *layer, void *user_data)
 {
   CoglPipelineCompareLayersState *state = user_data;
-  CoglTextureUnit *unit = _cogl_get_texture_unit (state->i);
+  CoglContext *ctx = layer->owner->context;
+  CoglTextureUnit *unit = _cogl_get_texture_unit (ctx, state->i);
 
   if (unit->layer == layer)
     state->layer_differences[state->i] = unit->layer_changes_since_flush;
@@ -1128,7 +1122,7 @@ done:
   /* Handle the fact that OpenGL associates texture filter and wrap
    * modes with the texture objects not the texture units... */
   if (!_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_SAMPLER_OBJECTS))
-    foreach_texture_unit_update_filter_and_wrap_modes ();
+    foreach_texture_unit_update_filter_and_wrap_modes (ctx);
 
   /* If this pipeline has more than one layer then we always need
    * to make sure we rebind the texture for unit 1.
@@ -1138,10 +1132,10 @@ done:
    * object parameters. cogl-pipeline.c (See
    * _cogl_bind_gl_texture_transient)
    */
-  unit1 = _cogl_get_texture_unit (1);
+  unit1 = _cogl_get_texture_unit (ctx, 1);
   if (cogl_pipeline_get_n_layers (pipeline) > 1 && unit1->dirty_gl_texture)
     {
-      _cogl_set_active_texture_unit (1);
+      _cogl_set_active_texture_unit (ctx, 1);
       GE (ctx, glBindTexture (unit1->gl_target, unit1->gl_texture));
       unit1->dirty_gl_texture = FALSE;
     }

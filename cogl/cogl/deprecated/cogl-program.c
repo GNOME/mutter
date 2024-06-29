@@ -247,14 +247,13 @@ cogl_program_set_uniform_matrix (CoglProgram *program,
 }
 
 void
-_cogl_program_flush_uniforms (CoglProgram *program,
+_cogl_program_flush_uniforms (CoglContext *ctx,
+                              CoglProgram *program,
                               GLuint       gl_program,
                               gboolean     gl_program_changed)
 {
   CoglProgramUniform *uniform;
   int i;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
   for (i = 0; i < program->custom_uniforms->len; i++)
     {

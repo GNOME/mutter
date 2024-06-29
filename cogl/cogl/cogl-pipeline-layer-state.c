@@ -303,8 +303,7 @@ cogl_pipeline_set_layer_wrap_mode_s (CoglPipeline *pipeline,
   CoglSamplerCacheWrapMode     internal_mode =
     public_to_internal_wrap_mode (mode);
   const CoglSamplerCacheEntry *sampler_state;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
+  CoglContext *ctx = pipeline->context;
 
   g_return_if_fail (COGL_IS_PIPELINE (pipeline));
 
@@ -343,10 +342,11 @@ cogl_pipeline_set_layer_wrap_mode_t (CoglPipeline *pipeline,
   CoglSamplerCacheWrapMode     internal_mode =
     public_to_internal_wrap_mode (mode);
   const CoglSamplerCacheEntry *sampler_state;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
+  CoglContext *ctx;
 
   g_return_if_fail (COGL_IS_PIPELINE (pipeline));
+
+  ctx = pipeline->context;
 
   /* Note: this will ensure that the layer exists, creating one if it
    * doesn't already.
@@ -383,11 +383,11 @@ cogl_pipeline_set_layer_wrap_mode (CoglPipeline *pipeline,
   CoglSamplerCacheWrapMode     internal_mode =
     public_to_internal_wrap_mode (mode);
   const CoglSamplerCacheEntry *sampler_state;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
+  CoglContext *ctx;
 
   g_return_if_fail (COGL_IS_PIPELINE (pipeline));
 
+  ctx = pipeline->context;
   /* Note: this will ensure that the layer exists, creating one if it
    * doesn't already.
    *
@@ -509,8 +509,6 @@ cogl_pipeline_set_layer_point_sprite_coords_enabled (CoglPipeline *pipeline,
   CoglPipelineLayer           *layer;
   CoglPipelineLayer           *new;
   CoglPipelineLayer           *authority;
-
-  _COGL_GET_CONTEXT (ctx, FALSE);
 
   g_return_val_if_fail (COGL_IS_PIPELINE (pipeline), FALSE);
 
@@ -1264,14 +1262,14 @@ cogl_pipeline_set_layer_filters (CoglPipeline      *pipeline,
   CoglPipelineLayer *layer;
   CoglPipelineLayer *authority;
   const CoglSamplerCacheEntry *sampler_state;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
+  CoglContext *ctx;
 
   g_return_if_fail (COGL_IS_PIPELINE (pipeline));
 
   g_return_if_fail (mag_filter == COGL_PIPELINE_FILTER_NEAREST ||
                     mag_filter == COGL_PIPELINE_FILTER_LINEAR);
 
+  ctx = pipeline->context;
   /* Note: this will ensure that the layer exists, creating one if it
    * doesn't already.
    *

@@ -45,10 +45,10 @@ static void
 cogl_shader_dispose (GObject *object)
 {
   CoglShader *shader = COGL_SHADER (object);
+  CoglContext *ctx = shader->compilation_pipeline->context;
 
   /* Frees shader resources but its handle is not
      released! Do that separately before this! */
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
   if (shader->gl_handle)
     GE (ctx, glDeleteShader (shader->gl_handle));

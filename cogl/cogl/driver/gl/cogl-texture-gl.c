@@ -122,7 +122,7 @@ cogl_texture_gl_set_max_level (CoglTexture *texture,
 
       cogl_texture_set_max_level_set (texture, max_level);
 
-      _cogl_bind_gl_texture_transient (gl_target,
+      _cogl_bind_gl_texture_transient (ctx, gl_target,
                                        gl_handle);
 
       GE( ctx, glTexParameteri (gl_target,
@@ -143,7 +143,7 @@ _cogl_texture_gl_generate_mipmaps (CoglTexture *texture)
 
   cogl_texture_get_gl_texture (texture, &gl_handle, &gl_target);
 
-  _cogl_bind_gl_texture_transient (gl_target,
+  _cogl_bind_gl_texture_transient (ctx, gl_target,
                                    gl_handle);
   GE( ctx, glGenerateMipmap (gl_target) );
 }

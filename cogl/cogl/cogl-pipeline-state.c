@@ -86,8 +86,6 @@ _cogl_pipeline_blend_state_equal (CoglPipeline *authority0,
   CoglPipelineBlendState *blend_state0 = &authority0->big_state->blend_state;
   CoglPipelineBlendState *blend_state1 = &authority1->big_state->blend_state;
 
-  _COGL_GET_CONTEXT (ctx, FALSE);
-
   if (blend_state0->blend_equation_rgb != blend_state1->blend_equation_rgb)
     return FALSE;
 
@@ -217,8 +215,7 @@ _cogl_pipeline_get_all_uniform_values (CoglPipeline *pipeline,
                                        const CoglBoxedValue **values)
 {
   GetUniformsClosure data;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
+  CoglContext *ctx = pipeline->context;
 
   memset (values, 0,
           sizeof (const CoglBoxedValue *) * ctx->n_uniform_names);
@@ -252,8 +249,7 @@ _cogl_pipeline_uniforms_state_equal (CoglPipeline *authority0,
   const CoglBoxedValue **values0, **values1;
   int n_longs;
   int i;
-
-  _COGL_GET_CONTEXT (ctx, FALSE);
+  CoglContext *ctx = authority0->context;
 
   if (authority0 == authority1)
     return TRUE;
@@ -556,8 +552,6 @@ cogl_pipeline_set_blend (CoglPipeline *pipeline,
   int count;
   CoglPipelineBlendState *blend_state;
 
-  _COGL_GET_CONTEXT (ctx, FALSE);
-
   g_return_val_if_fail (COGL_IS_PIPELINE (pipeline), FALSE);
 
   count =
@@ -632,8 +626,6 @@ cogl_pipeline_set_blend_constant (CoglPipeline *pipeline,
   CoglPipelineState state = COGL_PIPELINE_STATE_BLEND;
   CoglPipeline *authority;
   CoglPipelineBlendState *blend_state;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
   g_return_if_fail (COGL_IS_PIPELINE (pipeline));
 
@@ -739,8 +731,6 @@ cogl_pipeline_set_depth_state (CoglPipeline *pipeline,
   CoglPipelineState state = COGL_PIPELINE_STATE_DEPTH;
   CoglPipeline *authority;
   CoglDepthState *orig_state;
-
-  _COGL_GET_CONTEXT (ctx, FALSE);
 
   g_return_val_if_fail (COGL_IS_PIPELINE (pipeline), FALSE);
   g_return_val_if_fail (depth_state->magic == COGL_DEPTH_STATE_MAGIC, FALSE);
@@ -949,7 +939,6 @@ cogl_pipeline_set_per_vertex_point_size (CoglPipeline *pipeline,
   CoglPipelineState state = COGL_PIPELINE_STATE_PER_VERTEX_POINT_SIZE;
   CoglPipeline *authority;
 
-  _COGL_GET_CONTEXT (ctx, FALSE);
   g_return_val_if_fail (COGL_IS_PIPELINE (pipeline), FALSE);
 
   authority = _cogl_pipeline_get_authority (pipeline, state);
@@ -996,11 +985,9 @@ _cogl_pipeline_override_uniform (CoglPipeline *pipeline,
   CoglPipelineUniformsState *uniforms_state;
   int override_index;
 
-  _COGL_GET_CONTEXT (ctx, NULL);
-
   g_return_val_if_fail (COGL_IS_PIPELINE (pipeline), NULL);
   g_return_val_if_fail (location >= 0, NULL);
-  g_return_val_if_fail (location < ctx->n_uniform_names, NULL);
+  g_return_val_if_fail (location < pipeline->context->n_uniform_names, NULL);
 
   /* - Flush journal primitives referencing the current state.
    * - Make sure the pipeline has no dependants so it may be modified.
@@ -1266,8 +1253,6 @@ _cogl_pipeline_hash_blend_state (CoglPipeline *authority,
 {
   CoglPipelineBlendState *blend_state = &authority->big_state->blend_state;
   unsigned int hash;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
   if (!authority->real_blend_enable)
     return;

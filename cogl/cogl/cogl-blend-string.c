@@ -214,8 +214,6 @@ validate_blend_statements (CoglBlendStringStatement *statements,
   const char *error_string;
   CoglBlendStringError detail = COGL_BLEND_STRING_ERROR_INVALID_ERROR;
 
-  _COGL_GET_CONTEXT (ctx, 0);
-
   for (i = 0; i < n_statements; i++)
     for (j = 0; j < statements[i].function->argc; j++)
       {

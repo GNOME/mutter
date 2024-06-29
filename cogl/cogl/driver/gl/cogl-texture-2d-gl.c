@@ -63,7 +63,8 @@ void
 _cogl_texture_2d_gl_free (CoglTexture2D *tex_2d)
 {
   if (tex_2d->gl_texture)
-    _cogl_delete_gl_texture (tex_2d->gl_texture);
+    _cogl_delete_gl_texture (cogl_texture_get_context (COGL_TEXTURE (tex_2d)),
+                             tex_2d->gl_texture);
 
 #if defined (HAVE_EGL)
   g_clear_pointer (&tex_2d->egl_image_external.user_data,
@@ -161,7 +162,7 @@ allocate_with_size (CoglTexture2D *tex_2d,
 
   tex_2d->gl_internal_format = gl_intformat;
 
-  _cogl_bind_gl_texture_transient (GL_TEXTURE_2D,
+  _cogl_bind_gl_texture_transient (ctx, GL_TEXTURE_2D,
                                    gl_texture);
 
   /* Clear any GL errors */
@@ -358,7 +359,7 @@ cogl_texture_2d_gl_bind_egl_image (CoglTexture2D *tex_2d,
 {
   CoglContext *ctx = cogl_texture_get_context (COGL_TEXTURE (tex_2d));
 
-  _cogl_bind_gl_texture_transient (GL_TEXTURE_2D,
+  _cogl_bind_gl_texture_transient (ctx, GL_TEXTURE_2D,
                                    tex_2d->gl_texture);
   _cogl_gl_util_clear_gl_errors (ctx);
 
@@ -464,7 +465,7 @@ _cogl_texture_2d_gl_flush_legacy_texobj_filters (CoglTexture *tex,
   tex_2d->gl_legacy_texobj_mag_filter = mag_filter;
 
   /* Apply new filters to the texture */
-  _cogl_bind_gl_texture_transient (GL_TEXTURE_2D,
+  _cogl_bind_gl_texture_transient (ctx, GL_TEXTURE_2D,
                                    tex_2d->gl_texture);
   GE( ctx, glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter) );
   GE( ctx, glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter) );
@@ -493,7 +494,7 @@ _cogl_texture_2d_gl_flush_legacy_texobj_wrap_modes (CoglTexture *tex,
   if (tex_2d->gl_legacy_texobj_wrap_mode_s != wrap_mode_s ||
       tex_2d->gl_legacy_texobj_wrap_mode_t != wrap_mode_t)
     {
-      _cogl_bind_gl_texture_transient (GL_TEXTURE_2D,
+      _cogl_bind_gl_texture_transient (ctx, GL_TEXTURE_2D,
                                        tex_2d->gl_texture);
       GE( ctx, glTexParameteri (GL_TEXTURE_2D,
                                 GL_TEXTURE_WRAP_S,
@@ -530,7 +531,7 @@ _cogl_texture_2d_gl_copy_from_framebuffer (CoglTexture2D *tex_2d,
                                         (COGL_FRAMEBUFFER_STATE_ALL &
                                          ~COGL_FRAMEBUFFER_STATE_CLIP));
 
-  _cogl_bind_gl_texture_transient (GL_TEXTURE_2D,
+  _cogl_bind_gl_texture_transient (ctx, GL_TEXTURE_2D,
                                    tex_2d->gl_texture);
 
   ctx->glCopyTexSubImage2D (GL_TEXTURE_2D,
@@ -645,7 +646,7 @@ _cogl_texture_2d_gl_get_data (CoglTexture2D *tex_2d,
                                                     width,
                                                     bpp);
 
-  _cogl_bind_gl_texture_transient (tex_2d->gl_target,
+  _cogl_bind_gl_texture_transient (ctx, tex_2d->gl_target,
                                    tex_2d->gl_texture);
 
   ctx->texture_driver->gl_get_tex_image (ctx,

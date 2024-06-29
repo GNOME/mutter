@@ -75,6 +75,7 @@ cogl_pango_glyph_cache_free (CoglPangoGlyphCache *cache);
 
 COGL_EXPORT CoglPangoGlyphCacheValue *
 cogl_pango_glyph_cache_lookup (CoglPangoGlyphCache *cache,
+                               CoglContext         *context,
                                gboolean             create,
                                PangoFont           *font,
                                PangoGlyph           glyph);
