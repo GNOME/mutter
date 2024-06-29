@@ -60,7 +60,8 @@ G_BEGIN_DECLS
  *   function is not available.
  */
 COGL_EXPORT GCallback
-cogl_get_proc_address (const char *name);
+cogl_get_proc_address (CoglContext *ctx,
+                       const char  *name);
 
 /**
  * cogl_flush:

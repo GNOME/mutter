@@ -132,10 +132,11 @@ meta_sync_ring_get (void)
 }
 
 static gboolean
-load_gl_symbol (const char  *name,
+load_gl_symbol (CoglContext *ctx,
+                const char  *name,
                 void       **func)
 {
-  *func = cogl_get_proc_address (name);
+  *func = cogl_get_proc_address (ctx, name);
   if (!*func)
     {
       meta_verbose ("MetaSyncRing: failed to resolve required GL symbol \"%s\"", name);
@@ -187,7 +188,7 @@ check_gl_extensions (void)
 }
 
 static gboolean
-load_required_symbols (void)
+load_required_symbols (CoglContext *ctx)
 {
   static gboolean success = FALSE;
 
@@ -199,11 +200,11 @@ load_required_symbols (void)
    * and dynamically loaded libGL at this point.
    */
 
-  if (!load_gl_symbol ("glGetString", (void **) &meta_gl_get_string))
+  if (!load_gl_symbol (ctx, "glGetString", (void **) &meta_gl_get_string))
     goto out;
-  if (!load_gl_symbol ("glGetIntegerv", (void **) &meta_gl_get_integerv))
+  if (!load_gl_symbol (ctx, "glGetIntegerv", (void **) &meta_gl_get_integerv))
     goto out;
-  if (!load_gl_symbol ("glGetStringi", (void **) &meta_gl_get_stringi))
+  if (!load_gl_symbol (ctx, "glGetStringi", (void **) &meta_gl_get_stringi))
     goto out;
 
   if (!check_gl_extensions ())
@@ -212,15 +213,15 @@ load_required_symbols (void)
       goto out;
     }
 
-  if (!load_gl_symbol ("glDeleteSync", (void **) &meta_gl_delete_sync))
+  if (!load_gl_symbol (ctx, "glDeleteSync", (void **) &meta_gl_delete_sync))
     goto out;
-  if (!load_gl_symbol ("glClientWaitSync", (void **) &meta_gl_client_wait_sync))
+  if (!load_gl_symbol (ctx, "glClientWaitSync", (void **) &meta_gl_client_wait_sync))
     goto out;
-  if (!load_gl_symbol ("glWaitSync", (void **) &meta_gl_wait_sync))
+  if (!load_gl_symbol (ctx, "glWaitSync", (void **) &meta_gl_wait_sync))
     goto out;
-  if (!load_gl_symbol ("glImportSyncEXT", (void **) &meta_gl_import_sync))
+  if (!load_gl_symbol (ctx, "glImportSyncEXT", (void **) &meta_gl_import_sync))
     goto out;
-  if (!load_gl_symbol ("glFenceSync", (void **) &meta_gl_fence_sync))
+  if (!load_gl_symbol (ctx, "glFenceSync", (void **) &meta_gl_fence_sync))
     goto out;
 
   success = TRUE;
@@ -405,7 +406,8 @@ meta_sync_free (MetaSync *self)
 }
 
 gboolean
-meta_sync_ring_init (Display *xdisplay)
+meta_sync_ring_init (CoglContext *ctx,
+                     Display     *xdisplay)
 {
   gint major, minor;
   guint i;
@@ -417,7 +419,7 @@ meta_sync_ring_init (Display *xdisplay)
   g_return_val_if_fail (xdisplay != NULL, FALSE);
   g_return_val_if_fail (ring->xdisplay == NULL, FALSE);
 
-  if (!load_required_symbols ())
+  if (!load_required_symbols (ctx))
     return FALSE;
 
   if (!XSyncQueryExtension (xdisplay, &ring->xsync_event_base, &ring->xsync_error_base) ||
@@ -477,7 +479,8 @@ meta_sync_ring_destroy (void)
 }
 
 static gboolean
-meta_sync_ring_reboot (Display *xdisplay)
+meta_sync_ring_reboot (CoglContext *ctx,
+                       Display *xdisplay)
 {
   MetaSyncRing *ring = meta_sync_ring_get ();
 
@@ -494,11 +497,11 @@ meta_sync_ring_reboot (Display *xdisplay)
       return FALSE;
     }
 
-  return meta_sync_ring_init (xdisplay);
+  return meta_sync_ring_init (ctx, xdisplay);
 }
 
 gboolean
-meta_sync_ring_after_frame (void)
+meta_sync_ring_after_frame (CoglContext *ctx)
 {
   MetaSyncRing *ring = meta_sync_ring_get ();
 
@@ -522,7 +525,7 @@ meta_sync_ring_after_frame (void)
       if (status != GL_ALREADY_SIGNALED && status != GL_CONDITION_SATISFIED)
         {
           meta_warning ("MetaSyncRing: Timed out waiting for sync object.");
-          return meta_sync_ring_reboot (ring->xdisplay);
+          return meta_sync_ring_reboot (ctx, ring->xdisplay);
         }
 
       meta_sync_reset (sync_to_reset);
@@ -541,7 +544,7 @@ meta_sync_ring_after_frame (void)
 }
 
 gboolean
-meta_sync_ring_insert_wait (void)
+meta_sync_ring_insert_wait (CoglContext *ctx)
 {
   MetaSyncRing *ring = meta_sync_ring_get ();
   MetaSync *sync;
@@ -562,7 +565,7 @@ meta_sync_ring_insert_wait (void)
   else if (sync->state != META_SYNC_STATE_READY)
     {
       meta_warning ("MetaSyncRing: Sync object is not ready -- were events handled properly?");
-      if (!meta_sync_ring_reboot (ring->xdisplay))
+      if (!meta_sync_ring_reboot (ctx, ring->xdisplay))
         return FALSE;
     }
 

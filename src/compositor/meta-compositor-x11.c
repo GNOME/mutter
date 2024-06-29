@@ -133,6 +133,8 @@ meta_compositor_x11_manage (MetaCompositor  *compositor,
   MetaDisplay *display = meta_compositor_get_display (compositor);
   MetaContext *context = meta_display_get_context (display);
   MetaBackend *backend = meta_context_get_backend (context);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
   MetaX11Display *x11_display = display->x11_display;
   Display *xdisplay = meta_x11_display_get_xdisplay (x11_display);
   int composite_version;
@@ -186,7 +188,7 @@ meta_compositor_x11_manage (MetaCompositor  *compositor,
    */
   XMapWindow (xdisplay, compositor_x11->output);
 
-  compositor_x11->have_x11_sync_object = meta_sync_ring_init (xdisplay);
+  compositor_x11->have_x11_sync_object = meta_sync_ring_init (cogl_context, xdisplay);
 
   return TRUE;
 }
@@ -332,6 +334,9 @@ maybe_do_sync (MetaCompositor *compositor)
   if (compositor_x11->frame_has_updated_xsurfaces)
     {
       MetaDisplay *display = meta_compositor_get_display (compositor);
+      MetaBackend *backend = meta_compositor_get_backend (compositor);
+      ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+      CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
 
       /*
        * We need to make sure that any X drawing that happens before the
@@ -354,7 +359,7 @@ maybe_do_sync (MetaCompositor *compositor)
        * at this point is sufficient to flush the GLX buffers.
        */
       if (compositor_x11->have_x11_sync_object)
-        compositor_x11->have_x11_sync_object = meta_sync_ring_insert_wait ();
+        compositor_x11->have_x11_sync_object = meta_sync_ring_insert_wait (cogl_context);
       else
         XSync (display->x11_display->xdisplay, False);
     }
@@ -379,8 +384,12 @@ on_after_update (ClutterStage     *stage,
 
   if (compositor_x11->frame_has_updated_xsurfaces)
     {
+      MetaBackend *backend = meta_compositor_get_backend (compositor);
+      ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+      CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
+
       if (compositor_x11->have_x11_sync_object)
-        compositor_x11->have_x11_sync_object = meta_sync_ring_after_frame ();
+        compositor_x11->have_x11_sync_object = meta_sync_ring_after_frame (cogl_context);
 
       compositor_x11->frame_has_updated_xsurfaces = FALSE;
     }
