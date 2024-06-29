@@ -575,3 +575,12 @@ cogl_context_has_winsys_feature (CoglContext       *context,
 {
   return COGL_FLAGS_GET (context->winsys_features, feature);
 }
+
+void
+cogl_context_flush (CoglContext *context)
+{
+  GList *l;
+
+  for (l = context->framebuffers; l; l = l->next)
+    _cogl_framebuffer_flush_journal (l->data);
+}

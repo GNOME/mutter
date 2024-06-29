@@ -80,17 +80,6 @@ cogl_has_feature (CoglContext *ctx, CoglFeatureID feature)
   return COGL_FLAGS_GET (ctx->features, feature);
 }
 
-void
-cogl_flush (void)
-{
-  GList *l;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
-  for (l = ctx->framebuffers; l; l = l->next)
-    _cogl_framebuffer_flush_journal (l->data);
-}
-
 uint32_t
 _cogl_driver_error_quark (void)
 {
