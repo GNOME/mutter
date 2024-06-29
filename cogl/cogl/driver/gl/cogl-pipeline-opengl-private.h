@@ -123,20 +123,24 @@ typedef struct _CoglTextureUnit
 } CoglTextureUnit;
 
 CoglTextureUnit *
-_cogl_get_texture_unit (int index_);
+_cogl_get_texture_unit (CoglContext *ctx,
+                        int          index_);
 
 void
 _cogl_destroy_texture_units (CoglContext *ctx);
 
 void
-_cogl_set_active_texture_unit (int unit_index);
+_cogl_set_active_texture_unit (CoglContext *ctx,
+                               int          unit_index);
 
 void
-_cogl_bind_gl_texture_transient (GLenum gl_target,
-                                 GLuint gl_texture);
+_cogl_bind_gl_texture_transient (CoglContext *ctx,
+                                 GLenum       gl_target,
+                                 GLuint       gl_texture);
 
 void
-_cogl_delete_gl_texture (GLuint gl_texture);
+_cogl_delete_gl_texture (CoglContext *ctx,
+                         GLuint       gl_texture);
 
 void
 _cogl_pipeline_flush_gl_state (CoglContext *context,

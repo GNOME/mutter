@@ -50,8 +50,6 @@
 
 #include <stdlib.h>
 
-static GQuark atlas_private_key = 0;
-
 G_DEFINE_FINAL_TYPE (CoglAtlasTexture, cogl_atlas_texture, COGL_TYPE_TEXTURE)
 
 static void
@@ -171,8 +169,6 @@ _cogl_atlas_texture_post_reorganize_cb (void *user_data)
 {
   CoglAtlas *atlas = user_data;
 
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
   if (atlas->map)
     {
       CoglAtlasTextureGetRectanglesData data;
@@ -204,24 +200,13 @@ _cogl_atlas_texture_post_reorganize_cb (void *user_data)
     }
 
   /* Notify any listeners that an atlas has changed */
-  g_hook_list_invoke (&ctx->atlas_reorganize_callbacks, FALSE);
-}
-
-static void
-_cogl_atlas_texture_atlas_destroyed_cb (void *user_data)
-{
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
-  /* Remove the atlas from the global list */
-  ctx->atlases = g_slist_remove (ctx->atlases, user_data);
+  g_hook_list_invoke (&atlas->context->atlas_reorganize_callbacks, FALSE);
 }
 
 static CoglAtlas *
 _cogl_atlas_texture_create_atlas (CoglContext *ctx)
 {
-  atlas_private_key = g_quark_from_static_string ("-cogl-atlas-texture-create-key");
-
-  CoglAtlas *atlas = _cogl_atlas_new (COGL_PIXEL_FORMAT_RGBA_8888,
+  CoglAtlas *atlas = _cogl_atlas_new (ctx, COGL_PIXEL_FORMAT_RGBA_8888,
                                       0,
                                       _cogl_atlas_texture_update_position_cb);
 
@@ -231,17 +216,6 @@ _cogl_atlas_texture_create_atlas (CoglContext *ctx)
                                        atlas);
 
   ctx->atlases = g_slist_prepend (ctx->atlases, atlas);
-
-  /* Set some data on the atlas so we can get notification when it is
-     destroyed in order to remove it from the list. ctx->atlases
-     effectively holds a weak reference. We don't need a strong
-     reference because the atlas textures take a reference on the
-     atlas so it will stay alive */
-  g_object_set_qdata_full (G_OBJECT (atlas),
-                           atlas_private_key,
-                           atlas,
-                           _cogl_atlas_texture_atlas_destroyed_cb);
-
   return atlas;
 }
 

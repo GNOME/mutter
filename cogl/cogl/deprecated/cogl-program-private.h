@@ -71,9 +71,10 @@ struct _CoglProgramUniform
    the last time it was flushed. This will cause it to requery all of
    the locations and assume that all uniforms are dirty */
 void
-_cogl_program_flush_uniforms (CoglProgram *program,
-                              GLuint gl_program,
-                              gboolean gl_program_changed);
+_cogl_program_flush_uniforms (CoglContext *ctx,
+                              CoglProgram *program,
+                              GLuint       gl_program,
+                              gboolean     gl_program_changed);
 
 gboolean
 _cogl_program_has_fragment_shader (CoglProgram *self);

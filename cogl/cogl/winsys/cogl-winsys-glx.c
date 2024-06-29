@@ -1329,7 +1329,7 @@ _cogl_winsys_texture_pixmap_x11_update (CoglTexturePixmapX11 *tex_pixmap,
 
       COGL_NOTE (TEXTURE_PIXMAP, "Rebinding GLXPixmap for %p", tex_pixmap);
 
-      _cogl_bind_gl_texture_transient (gl_target, gl_handle);
+      _cogl_bind_gl_texture_transient (ctx, gl_target, gl_handle);
 
       if (texture_info->pixmap_bound)
         glx_renderer->glXReleaseTexImage (xlib_renderer->xdpy,

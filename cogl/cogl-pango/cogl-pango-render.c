@@ -503,6 +503,7 @@ cogl_pango_renderer_get_cached_glyph (PangoRenderer *renderer,
                                      &priv->no_mipmap_caches);
 
   return cogl_pango_glyph_cache_lookup (caches->glyph_cache,
+                                        priv->ctx,
                                         create, font, glyph);
 }
 

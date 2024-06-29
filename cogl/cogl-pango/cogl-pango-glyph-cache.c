@@ -261,6 +261,7 @@ cogl_pango_glyph_cache_add_to_global_atlas (CoglPangoGlyphCache *cache,
 
 static gboolean
 cogl_pango_glyph_cache_add_to_local_atlas (CoglPangoGlyphCache *cache,
+                                           CoglContext         *context,
                                            PangoFont *font,
                                            PangoGlyph glyph,
                                            CoglPangoGlyphCacheValue *value)
@@ -282,7 +283,8 @@ cogl_pango_glyph_cache_add_to_local_atlas (CoglPangoGlyphCache *cache,
   /* If we couldn't find one then start a new atlas */
   if (atlas == NULL)
     {
-      atlas = _cogl_atlas_new (COGL_PIXEL_FORMAT_A_8,
+      atlas = _cogl_atlas_new (context,
+                               COGL_PIXEL_FORMAT_A_8,
                                COGL_ATLAS_CLEAR_TEXTURE |
                                COGL_ATLAS_DISABLE_MIGRATION,
                                cogl_pango_glyph_cache_update_position_cb);
@@ -309,6 +311,7 @@ cogl_pango_glyph_cache_add_to_local_atlas (CoglPangoGlyphCache *cache,
 
 CoglPangoGlyphCacheValue *
 cogl_pango_glyph_cache_lookup (CoglPangoGlyphCache *cache,
+                               CoglContext         *context,
                                gboolean             create,
                                PangoFont           *font,
                                PangoGlyph           glyph)
@@ -350,6 +353,7 @@ cogl_pango_glyph_cache_lookup (CoglPangoGlyphCache *cache,
                                                            value) &&
               /* If it fails try the local atlas */
               !cogl_pango_glyph_cache_add_to_local_atlas (cache,
+                                                          context,
                                                           font,
                                                           glyph,
                                                           value))

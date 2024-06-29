@@ -54,8 +54,11 @@ cogl_atlas_dispose (GObject *object)
 
   COGL_NOTE (ATLAS, "%p: Atlas destroyed", atlas);
 
-  if (atlas->texture)
-    g_object_unref (atlas->texture);
+  /* Remove the atlas from the global list */
+  atlas->context->atlases = g_slist_remove (atlas->context->atlases, atlas);
+
+  g_clear_object (&atlas->texture);
+  g_clear_object (&atlas->context);
   if (atlas->map)
     _cogl_rectangle_map_free (atlas->map);
 
@@ -79,7 +82,8 @@ cogl_atlas_class_init (CoglAtlasClass *class)
 }
 
 CoglAtlas *
-_cogl_atlas_new (CoglPixelFormat                 texture_format,
+_cogl_atlas_new (CoglContext                    *context,
+                 CoglPixelFormat                 texture_format,
                  CoglAtlasFlags                  flags,
                  CoglAtlasUpdatePositionCallback update_position_cb)
 {
@@ -88,6 +92,7 @@ _cogl_atlas_new (CoglPixelFormat                 texture_format,
   atlas->update_position_cb = update_position_cb;
   atlas->map = NULL;
   atlas->texture = NULL;
+  atlas->context = g_object_ref (context);
   atlas->flags = flags;
   atlas->texture_format = texture_format;
   g_hook_list_init (&atlas->pre_reorganize_callbacks, sizeof (GHook));
@@ -183,7 +188,8 @@ _cogl_atlas_get_next_size (unsigned int *map_width,
 }
 
 static void
-_cogl_atlas_get_initial_size (CoglPixelFormat format,
+_cogl_atlas_get_initial_size (CoglContext *ctx,
+                              CoglPixelFormat format,
                               unsigned int *map_width,
                               unsigned int *map_height)
 {
@@ -191,8 +197,6 @@ _cogl_atlas_get_initial_size (CoglPixelFormat format,
   GLenum gl_intformat;
   GLenum gl_format;
   GLenum gl_type;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
   g_return_if_fail (cogl_pixel_format_get_n_planes (format) == 1);
 
@@ -228,7 +232,8 @@ _cogl_atlas_get_initial_size (CoglPixelFormat format,
 }
 
 static CoglRectangleMap *
-_cogl_atlas_create_map (CoglPixelFormat          format,
+_cogl_atlas_create_map (CoglContext             *ctx,
+                        CoglPixelFormat          format,
                         unsigned int             map_width,
                         unsigned int             map_height,
                         unsigned int             n_textures,
@@ -237,8 +242,6 @@ _cogl_atlas_create_map (CoglPixelFormat          format,
   GLenum gl_intformat;
   GLenum gl_format;
   GLenum gl_type;
-
-  _COGL_GET_CONTEXT (ctx, NULL);
 
   ctx->driver_vtable->pixel_format_to_gl (ctx,
                                           format,
@@ -299,8 +302,6 @@ _cogl_atlas_create_texture (CoglAtlas *atlas,
   CoglTexture *tex;
   GError *ignore_error = NULL;
 
-  _COGL_GET_CONTEXT (ctx, NULL);
-
   g_return_val_if_fail (
     cogl_pixel_format_get_n_planes (atlas->texture_format) == 1,
     NULL);
@@ -314,7 +315,7 @@ _cogl_atlas_create_texture (CoglAtlas *atlas,
 
       /* Create a buffer of zeroes to initially clear the texture */
       clear_data = g_malloc0 (width * height * bpp);
-      clear_bmp = cogl_bitmap_new_for_data (ctx,
+      clear_bmp = cogl_bitmap_new_for_data (atlas->context,
                                             width,
                                             height,
                                             atlas->texture_format,
@@ -339,7 +340,7 @@ _cogl_atlas_create_texture (CoglAtlas *atlas,
     }
   else
     {
-      tex = cogl_texture_2d_new_with_size (ctx, width, height);
+      tex = cogl_texture_2d_new_with_size (atlas->context, width, height);
 
       _cogl_texture_set_internal_format (tex,
                                          atlas->texture_format);
@@ -469,10 +470,12 @@ _cogl_atlas_reserve_space (CoglAtlas             *atlas,
         _cogl_atlas_get_next_size (&map_width, &map_height);
     }
   else
-    _cogl_atlas_get_initial_size (atlas->texture_format,
+    _cogl_atlas_get_initial_size (atlas->context,
+                                  atlas->texture_format,
                                   &map_width, &map_height);
 
-  new_map = _cogl_atlas_create_map (atlas->texture_format,
+  new_map = _cogl_atlas_create_map (atlas->context,
+                                    atlas->texture_format,
                                     map_width, map_height,
                                     data.n_textures, data.textures);
 
@@ -623,10 +626,8 @@ _cogl_atlas_copy_rectangle (CoglAtlas *atlas,
   CoglBlitData blit_data;
   GError *ignore_error = NULL;
 
-  _COGL_GET_CONTEXT (ctx, NULL);
-
   /* Create a new texture at the right size */
-  tex = create_migration_texture (ctx, width, height, internal_format);
+  tex = create_migration_texture (atlas->context, width, height, internal_format);
   if (!cogl_texture_allocate (tex, &ignore_error))
     {
       g_error_free (ignore_error);

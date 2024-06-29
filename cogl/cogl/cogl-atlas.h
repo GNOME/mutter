@@ -58,6 +58,7 @@ struct _CoglAtlas
   GObject parent_instance;
 
   CoglRectangleMap *map;
+  CoglContext *context;
 
   CoglTexture *texture;
   CoglPixelFormat texture_format;
@@ -70,8 +71,9 @@ struct _CoglAtlas
 };
 
 COGL_EXPORT CoglAtlas *
-_cogl_atlas_new (CoglPixelFormat texture_format,
-                 CoglAtlasFlags flags,
+_cogl_atlas_new (CoglContext                    *context,
+                 CoglPixelFormat                 texture_format,
+                 CoglAtlasFlags                  flags,
                  CoglAtlasUpdatePositionCallback update_position_cb);
 
 COGL_EXPORT gboolean

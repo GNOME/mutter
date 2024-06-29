@@ -46,8 +46,6 @@ cogl_program_dispose (GObject *object)
   CoglProgram *program = COGL_PROGRAM (object);
   int i;
 
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
   /* Unref all of the attached shaders and destroy the list */
   g_slist_free_full (program->attached_shaders, g_object_unref);
 
@@ -105,8 +103,6 @@ void
 cogl_program_attach_shader (CoglProgram *program,
                             CoglShader  *shader)
 {
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
   if (!COGL_IS_PROGRAM (program) || !COGL_IS_SHADER (shader))
     return;
 
@@ -247,14 +243,13 @@ cogl_program_set_uniform_matrix (CoglProgram *program,
 }
 
 void
-_cogl_program_flush_uniforms (CoglProgram *program,
+_cogl_program_flush_uniforms (CoglContext *ctx,
+                              CoglProgram *program,
                               GLuint       gl_program,
                               gboolean     gl_program_changed)
 {
   CoglProgramUniform *uniform;
   int i;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
   for (i = 0; i < program->custom_uniforms->len; i++)
     {

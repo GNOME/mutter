@@ -64,7 +64,7 @@ _cogl_texture_driver_gen (CoglContext *ctx,
 
   GE (ctx, glGenTextures (1, &tex));
 
-  _cogl_bind_gl_texture_transient (gl_target, tex);
+  _cogl_bind_gl_texture_transient (ctx, gl_target, tex);
 
   switch (gl_target)
     {
@@ -213,7 +213,7 @@ _cogl_texture_driver_upload_subregion_to_gl (CoglContext *ctx,
                                   src_y,
                                   bpp);
 
-  _cogl_bind_gl_texture_transient (gl_target, gl_handle);
+  _cogl_bind_gl_texture_transient (ctx, gl_target, gl_handle);
 
   /* Clear any GL errors */
   _cogl_gl_util_clear_gl_errors (ctx);
@@ -320,7 +320,7 @@ _cogl_texture_driver_upload_to_gl (CoglContext *ctx,
                                   cogl_bitmap_get_rowstride (source_bmp),
                                   0, 0, 0, bpp);
 
-  _cogl_bind_gl_texture_transient (gl_target, gl_handle);
+  _cogl_bind_gl_texture_transient (ctx, gl_target, gl_handle);
 
   /* Clear any GL errors */
   _cogl_gl_util_clear_gl_errors (ctx);

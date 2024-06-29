@@ -149,8 +149,7 @@ destroy_shader_state (void *user_data)
 {
   CoglPipelineFragendShaderStateCache *cache = user_data;
   CoglPipelineFragendShaderState *shader_state = cache->shader_state;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
+  CoglContext *ctx = cache->instance->context;
 
   if (shader_state->cache_entry &&
       shader_state->cache_entry->pipeline != cache->instance)
@@ -297,9 +296,8 @@ _cogl_pipeline_fragend_glsl_start (CoglPipeline *pipeline,
   CoglPipeline *authority;
   CoglPipelineCacheEntry *cache_entry = NULL;
   CoglProgram *user_program = cogl_pipeline_get_user_program (pipeline);
+  CoglContext *ctx = pipeline->context;
   int i;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
   /* Now lookup our glsl backend private state */
   shader_state = get_shader_state (pipeline);
@@ -425,8 +423,6 @@ ensure_texture_lookup_generated (CoglPipelineFragendShaderState *shader_state,
 {
   int unit_index = _cogl_pipeline_layer_get_unit_index (layer);
   CoglPipelineSnippetData snippet_data;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
   if (shader_state->unit_state[unit_index].sampled)
     return;
@@ -990,8 +986,7 @@ _cogl_pipeline_fragend_glsl_end (CoglPipeline *pipeline,
                                  unsigned long pipelines_difference)
 {
   CoglPipelineFragendShaderState *shader_state = get_shader_state (pipeline);
-
-  _COGL_GET_CONTEXT (ctx, FALSE);
+  CoglContext *ctx = pipeline->context;
 
   if (shader_state->source)
     {
@@ -1092,7 +1087,7 @@ _cogl_pipeline_fragend_glsl_pre_change_notify (CoglPipeline *pipeline,
                                                CoglPipelineState change,
                                                const CoglColor *new_color)
 {
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
+  CoglContext *ctx = pipeline->context;
 
   if ((change & _cogl_pipeline_get_state_for_fragment_codegen (ctx)))
     dirty_shader_state (pipeline);
@@ -1112,7 +1107,7 @@ _cogl_pipeline_fragend_glsl_layer_pre_change_notify (
                                                 CoglPipelineLayer *layer,
                                                 CoglPipelineLayerState change)
 {
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
+  CoglContext *ctx = owner->context;
 
   if ((change & _cogl_pipeline_get_layer_state_for_fragment_codegen (ctx)))
     {
