@@ -473,12 +473,12 @@ update_winsys_features (CoglContext *context, GError **error)
   /* Note: glXCopySubBuffer and glBlitFramebuffer won't be throttled
    * by the SwapInterval so we have to throttle swap_region requests
    * manually... */
-  if (_cogl_winsys_has_feature (COGL_WINSYS_FEATURE_SWAP_REGION) &&
+  if (_cogl_winsys_has_feature (context, COGL_WINSYS_FEATURE_SWAP_REGION) &&
       (glx_display->have_vblank_counter || glx_display->can_vblank_wait))
     COGL_FLAGS_SET (context->winsys_features,
                     COGL_WINSYS_FEATURE_SWAP_REGION_THROTTLE, TRUE);
 
-  if (_cogl_winsys_has_feature (COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT))
+  if (_cogl_winsys_has_feature (context, COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT))
     {
       COGL_FLAGS_SET (context->winsys_features,
                       COGL_WINSYS_FEATURE_SWAP_BUFFERS_EVENT, TRUE);
@@ -490,7 +490,7 @@ update_winsys_features (CoglContext *context, GError **error)
                   COGL_PRIVATE_FEATURE_DIRTY_EVENTS,
                   TRUE);
 
-  if (_cogl_winsys_has_feature (COGL_WINSYS_FEATURE_BUFFER_AGE))
+  if (_cogl_winsys_has_feature (context, COGL_WINSYS_FEATURE_BUFFER_AGE))
     COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_BUFFER_AGE, TRUE);
 
   return TRUE;
@@ -1123,7 +1123,7 @@ _cogl_winsys_texture_pixmap_x11_create (CoglTexturePixmapX11 *tex_pixmap)
   CoglTexturePixmapGLX *glx_tex_pixmap;
   CoglContext *ctx = cogl_texture_get_context (COGL_TEXTURE (tex_pixmap));
 
-  if (!_cogl_winsys_has_feature (COGL_WINSYS_FEATURE_TEXTURE_FROM_PIXMAP))
+  if (!_cogl_winsys_has_feature (ctx, COGL_WINSYS_FEATURE_TEXTURE_FROM_PIXMAP))
     {
       tex_pixmap->winsys = NULL;
       return FALSE;

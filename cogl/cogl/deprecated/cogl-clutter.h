@@ -36,6 +36,7 @@ G_BEGIN_DECLS
 
 COGL_DEPRECATED_FOR (cogl_has_feature)
 COGL_EXPORT gboolean
-cogl_clutter_winsys_has_feature (CoglWinsysFeature feature);
+cogl_clutter_winsys_has_feature (CoglContext       *context,
+                                 CoglWinsysFeature  feature);
 
 G_END_DECLS

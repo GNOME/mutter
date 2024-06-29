@@ -47,7 +47,8 @@
 #include "cogl/deprecated/cogl-clutter.h"
 
 gboolean
-cogl_clutter_winsys_has_feature (CoglWinsysFeature feature)
+cogl_clutter_winsys_has_feature (CoglContext       *context,
+                                 CoglWinsysFeature  feature)
 {
-  return _cogl_winsys_has_feature (feature);
+  return _cogl_winsys_has_feature (context, feature);
 }

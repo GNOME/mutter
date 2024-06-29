@@ -334,7 +334,7 @@ cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
                                    info,
                                    user_data);
 
-  if (!_cogl_winsys_has_feature (COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT))
+  if (!_cogl_winsys_has_feature (context, COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT))
     {
       g_autoptr (CoglFrameInfo) pending_info = NULL;
 
@@ -367,6 +367,7 @@ cogl_onscreen_swap_region (CoglOnscreen *onscreen,
   CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglOnscreenClass *klass = COGL_ONSCREEN_GET_CLASS (onscreen);
+  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
 
   g_return_if_fail  (COGL_IS_ONSCREEN (framebuffer));
 
@@ -392,7 +393,7 @@ cogl_onscreen_swap_region (CoglOnscreen *onscreen,
                       info,
                       user_data);
 
-  if (!_cogl_winsys_has_feature (COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT))
+  if (!_cogl_winsys_has_feature (context, COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT))
     {
       g_autoptr (CoglFrameInfo) pending_info = NULL;
 
@@ -431,9 +432,10 @@ cogl_onscreen_direct_scanout (CoglOnscreen   *onscreen,
   CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglOnscreenClass *klass = COGL_ONSCREEN_GET_CLASS (onscreen);
+  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
 
   g_warn_if_fail (COGL_IS_ONSCREEN (framebuffer));
-  g_warn_if_fail (_cogl_winsys_has_feature (COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT));
+  g_warn_if_fail (_cogl_winsys_has_feature (context, COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT));
 
   if (!klass->direct_scanout)
     {

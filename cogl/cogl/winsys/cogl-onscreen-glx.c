@@ -192,7 +192,7 @@ cogl_onscreen_glx_allocate (CoglFramebuffer  *framebuffer,
     }
 
 #ifdef GLX_INTEL_swap_event
-  if (_cogl_winsys_has_feature (COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT))
+  if (_cogl_winsys_has_feature (context, COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT))
     {
       GLXDrawable drawable =
         onscreen_glx->glxwin ? onscreen_glx->glxwin : onscreen_glx->xwin;
@@ -530,7 +530,7 @@ cogl_onscreen_glx_get_buffer_age (CoglOnscreen *onscreen)
   GLXDrawable drawable;
   unsigned int age = 0;
 
-  if (!_cogl_winsys_has_feature (COGL_WINSYS_FEATURE_BUFFER_AGE))
+  if (!_cogl_winsys_has_feature (context, COGL_WINSYS_FEATURE_BUFFER_AGE))
     return 0;
 
   cogl_onscreen_bind (onscreen);
@@ -677,7 +677,7 @@ cogl_onscreen_glx_swap_region (CoglOnscreen  *onscreen,
    * we only need it to throttle redraws.
    */
   gboolean blit_sub_buffer_is_synchronized =
-    _cogl_winsys_has_feature (COGL_WINSYS_FEATURE_SWAP_REGION_SYNCHRONIZED);
+    _cogl_winsys_has_feature (context, COGL_WINSYS_FEATURE_SWAP_REGION_SYNCHRONIZED);
 
   int framebuffer_width = cogl_framebuffer_get_width (framebuffer);
   int framebuffer_height = cogl_framebuffer_get_height (framebuffer);
@@ -844,7 +844,7 @@ cogl_onscreen_glx_swap_region (CoglOnscreen  *onscreen,
    * handling _SYNC and _COMPLETE events in the winsys then we need to
    * send fake events in this case.
    */
-  if (_cogl_winsys_has_feature (COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT))
+  if (_cogl_winsys_has_feature (context, COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT))
     {
       set_sync_pending (onscreen);
       set_complete_pending (onscreen);

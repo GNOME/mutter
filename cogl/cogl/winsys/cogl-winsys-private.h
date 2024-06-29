@@ -137,4 +137,5 @@ typedef struct _CoglWinsysVtable
 typedef const CoglWinsysVtable *(*CoglWinsysVtableGetter) (void);
 
 gboolean
-_cogl_winsys_has_feature (CoglWinsysFeature feature);
+_cogl_winsys_has_feature (CoglContext       *context,
+                          CoglWinsysFeature  feature);
