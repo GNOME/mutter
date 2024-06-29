@@ -16,7 +16,6 @@ endif
 cogl_deprecated_headers = [
   'deprecated/cogl-program.h',
   'deprecated/cogl-shader.h',
-  'deprecated/cogl-clutter.h',
 ]
 
 cogl_headers = [
@@ -283,7 +282,6 @@ cogl_sources = [
   'cogl-util.c',
   'cogl-util.h',
   'cogl.c',
-  'deprecated/cogl-clutter.c',
   'deprecated/cogl-program-private.h',
   'deprecated/cogl-program.c',
   'deprecated/cogl-shader-private.h',

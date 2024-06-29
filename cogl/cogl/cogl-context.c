@@ -567,3 +567,11 @@ cogl_context_get_gpu_time_ns (CoglContext *context)
 
   return context->driver_vtable->get_gpu_time_ns (context);
 }
+
+/* FIXME: we should distinguish renderer and context features */
+gboolean
+cogl_context_has_winsys_feature (CoglContext       *context,
+                                 CoglWinsysFeature  feature)
+{
+  return COGL_FLAGS_GET (context->winsys_features, feature);
+}

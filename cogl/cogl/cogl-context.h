@@ -342,4 +342,8 @@ cogl_context_get_gpu_time_ns (CoglContext *context);
 COGL_EXPORT int
 cogl_context_get_latest_sync_fd (CoglContext *context);
 
+COGL_EXPORT gboolean
+cogl_context_has_winsys_feature (CoglContext       *context,
+                                 CoglWinsysFeature  feature);
+
 G_END_DECLS

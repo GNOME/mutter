@@ -92,9 +92,6 @@
 #include "cogl/cogl-trace.h"
 #include "cogl/cogl-scanout.h"
 #include "cogl/cogl-graphene.h"
-/* XXX: This will definitely go away once all the Clutter winsys
- * code has been migrated down into Cogl! */
-#include "cogl/deprecated/cogl-clutter.h"
 
 /* The gobject introspection scanner seems to parse public headers in
  * isolation which means we need to be extra careful about how we
