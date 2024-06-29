@@ -57,12 +57,10 @@ free_priv (gpointer data)
 }
 
 PangoFontMap *
-cogl_pango_font_map_new (void)
+cogl_pango_font_map_new (CoglContext *context)
 {
   PangoFontMap *fm = pango_cairo_font_map_new ();
   g_autofree CoglPangoFontMapPriv *priv = g_new0 (CoglPangoFontMapPriv, 1);
-
-  _COGL_GET_CONTEXT (context, NULL);
 
   priv->ctx = g_object_ref (context);
 

@@ -73,7 +73,7 @@ typedef PangoCairoFontMap CoglPangoFontMap;
  * Return value: (transfer full): the newly created #PangoFontMap
  */
 COGL_EXPORT PangoFontMap *
-cogl_pango_font_map_new (void);
+cogl_pango_font_map_new (CoglContext *context);
 
 /**
  * cogl_pango_font_map_create_context:
@@ -92,9 +92,9 @@ cogl_pango_font_map_create_context (CoglPangoFontMap *font_map);
  * @dpi: The resolution in "dots per inch". (Physical inches aren't
  *       actually involved; the terminology is conventional.)
  *
- * Sets the resolution for the @font_map. 
- * 
- * This is a scale factor between points specified in a 
+ * Sets the resolution for the @font_map.
+ *
+ * This is a scale factor between points specified in a
  * [struct@Pango.FontDescription] and Cogl units.
  * The default value is %96, meaning that a 10 point font will be 13
  * units high. (10 * 96. / 72. = 13.3).
