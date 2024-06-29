@@ -88,6 +88,10 @@ detach_pixmap (MetaSurfaceActorX11 *self)
 {
   MetaDisplay *display = self->display;
   MetaShapedTexture *stex = meta_surface_actor_get_texture (META_SURFACE_ACTOR (self));
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
   Display *xdisplay;
 
   if (self->pixmap == None)
@@ -100,7 +104,7 @@ detach_pixmap (MetaSurfaceActorX11 *self)
    * pixmap, but it certainly doesn't work with current DRI/Mesa
    */
   meta_shaped_texture_set_texture (stex, NULL);
-  cogl_flush ();
+  cogl_flush (cogl_context);
 
   mtk_x11_error_trap_push (xdisplay);
   XFreePixmap (xdisplay, self->pixmap);

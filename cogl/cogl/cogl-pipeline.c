@@ -1076,7 +1076,7 @@ _cogl_pipeline_pre_change_notify (CoglPipeline     *pipeline,
           /* XXX: note we use cogl_flush() not _cogl_flush_journal() so
            * we will flush *all* known journals that might reference the
            * current pipeline. */
-          cogl_flush ();
+          cogl_flush (pipeline->context);
         }
     }
 

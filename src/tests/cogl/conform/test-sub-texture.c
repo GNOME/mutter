@@ -211,7 +211,7 @@ validate_result (TestState *state)
 
   /* Sub sub texture */
   p = texture_data = g_malloc (10 * 10 * 4);
-  cogl_flush ();
+  cogl_flush (cogl_framebuffer_get_context (test_fb));
   cogl_framebuffer_read_pixels (test_fb,
                                 0, SOURCE_SIZE * 2, 10, 10,
                                 COGL_PIXEL_FORMAT_RGBA_8888,

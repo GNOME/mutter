@@ -87,6 +87,6 @@ cogl_get_proc_address (const char *name);
  * starts to use ARBfb programs itself for the material API.
  */
 COGL_EXPORT void
-cogl_flush (void);
+cogl_flush (CoglContext *ctx);
 
 G_END_DECLS

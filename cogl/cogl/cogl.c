@@ -81,11 +81,9 @@ cogl_has_feature (CoglContext *ctx, CoglFeatureID feature)
 }
 
 void
-cogl_flush (void)
+cogl_flush (CoglContext *ctx)
 {
   GList *l;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
   for (l = ctx->framebuffers; l; l = l->next)
     _cogl_framebuffer_flush_journal (l->data);
