@@ -1,3 +1,28 @@
+46.3
+====
+* Fix performance issues with second virtual monitor [Jonas; !3803]
+* Fix missing unmap animation of some windows [Michel; !3840]
+* Fix placement/resizing regression [Jonas; #2616]
+* Fix possible out of sync primary selections and clipboard [Carlos; !3789]
+* Fix ibus support in popups [Sebastian K.; !3787]
+* Fix hardware accelerated rendering when headless [Jonas; !3805]
+* Add back support for legacy X11 cursor themes [Daniel; !3718]
+* Fix preedit offsets [Orko; !3845]
+* Use character offsets to specify surrounding text [Shiki; !3719]
+* Don't force titlebar on screen on all interactive resizes [Jeffrey; !3764]
+* Fixed crashes [Carlos, Sebastian W., Michel; !3729, !3783, !3849]
+* Misc. bug fixes and cleanups [Daniel, Philip, Marco, José, Jonas, Pascal,
+  Corentin; #3368, !3770, !3788, !3791, !3809, !3811, !3827, !3790]
+
+Contributors:
+  Jonas Ådahl, Michel Dänzer, José Expósito, Orko Garai, Carlos Garnacho,
+  Sebastian Keller, Jeffrey Knockel, Corentin Noël, Pascal Nowack,
+  Shiki Okasaka, Marco Trevisan (Treviño), Daniel van Vugt, Sebastian Wick,
+  Philip Withnall
+
+Translators:
+  Scrambled 777 [hi], Jose Riha [sk], Pawan Chitrakar [ne], Милош Поповић [sr]
+
 46.2
 ====
 * Fix hardware cursor with non-atomic KMS drivers [Daniel; !3676]
