@@ -46,7 +46,6 @@
 #include "cogl/cogl-pipeline-state-private.h"
 #include "cogl/cogl-primitive-private.h"
 #include "cogl/cogl-offscreen.h"
-#include "cogl/cogl1-context.h"
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-primitives-private.h"
 #include "cogl/cogl-trace.h"

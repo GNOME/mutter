@@ -25,7 +25,6 @@ cogl_headers = [
   'cogl-attribute.h',
   'cogl-bitmap.h',
   'cogl-color.h',
-  'cogl1-context.h',
   'cogl-context.h',
   'cogl-depth-state.h',
   'cogl-display.h',

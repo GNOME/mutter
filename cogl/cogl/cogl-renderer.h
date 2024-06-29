@@ -311,4 +311,24 @@ cogl_renderer_is_dma_buf_supported (CoglRenderer *renderer);
 COGL_EXPORT void
 cogl_renderer_bind_api (CoglRenderer *renderer);
 
+/**
+ * cogl_renderer_get_proc_address:
+ * @renderer: A #CoglRenderer.
+ * @name: the name of the function.
+ *
+ * Gets a pointer to a given GL or GL ES extension function. This acts
+ * as a wrapper around glXGetProcAddress() or whatever is the
+ * appropriate function for the current backend.
+ *
+ * This function should not be used to query core opengl API
+ * symbols since eglGetProcAddress for example doesn't allow this and
+ * and may return a junk pointer if you do.
+ *
+ * Return value: a pointer to the requested function or %NULL if the
+ *   function is not available.
+ */
+COGL_EXPORT void *
+cogl_renderer_get_proc_address (CoglRenderer *renderer,
+                                const char   *name);
+
 G_END_DECLS

@@ -429,14 +429,14 @@ _cogl_driver_update_features (CoglContext *ctx,
      functions because we need to use them to determine what functions
      we can expect */
   ctx->glGetString =
-    (void *) _cogl_renderer_get_proc_address (ctx->display->renderer,
-                                              "glGetString");
+    (void *) cogl_renderer_get_proc_address (ctx->display->renderer,
+                                             "glGetString");
   ctx->glGetStringi =
-    (void *) _cogl_renderer_get_proc_address (ctx->display->renderer,
-                                              "glGetStringi");
+    (void *) cogl_renderer_get_proc_address (ctx->display->renderer,
+                                             "glGetStringi");
   ctx->glGetIntegerv =
-    (void *) _cogl_renderer_get_proc_address (ctx->display->renderer,
-                                              "glGetIntegerv");
+    (void *) cogl_renderer_get_proc_address (ctx->display->renderer,
+                                             "glGetIntegerv");
 
   gl_extensions = _cogl_context_get_gl_extensions (ctx);
 

@@ -53,7 +53,6 @@
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-offscreen-private.h"
 #include "cogl/cogl-framebuffer-private.h"
-#include "cogl/cogl1-context.h"
 #include "cogl/cogl-sub-texture.h"
 #include "cogl/cogl-primitive-texture.h"
 

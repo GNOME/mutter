@@ -44,7 +44,6 @@
 #include "cogl/cogl-rectangle-map.h"
 #include "cogl/cogl-journal-private.h"
 #include "cogl/cogl-atlas.h"
-#include "cogl/cogl1-context.h"
 #include "cogl/cogl-sub-texture.h"
 #include "cogl/driver/gl/cogl-texture-gl-private.h"
 

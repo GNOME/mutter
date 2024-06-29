@@ -50,17 +50,8 @@
 #include "cogl/cogl-framebuffer-private.h"
 #include "cogl/cogl-renderer-private.h"
 #include "cogl/cogl-private.h"
-#include "cogl/cogl1-context.h"
 #include "cogl/cogl-offscreen.h"
 #include "cogl/winsys/cogl-winsys-private.h"
-
-GCallback
-cogl_get_proc_address (const char* name)
-{
-  _COGL_GET_CONTEXT (ctx, NULL);
-
-  return _cogl_renderer_get_proc_address (ctx->display->renderer, name);
-}
 
 gboolean
 _cogl_check_extension (const char *name, char * const *ext)

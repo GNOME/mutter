@@ -45,7 +45,6 @@
 
 #include "cogl/cogl-macros.h"
 
-#include "cogl/cogl1-context.h"
 #include "cogl/cogl-bitmap.h"
 #include "cogl/cogl-color.h"
 #include "cogl/cogl-dma-buf-handle.h"

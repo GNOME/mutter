@@ -46,7 +46,6 @@
 #include "cogl/cogl-profile.h"
 #include "cogl/cogl-depth-state-private.h"
 #include "cogl/cogl-snippet-private.h"
-#include "cogl/cogl1-context.h"
 
 #include <glib.h>
 #include <glib/gprintf.h>

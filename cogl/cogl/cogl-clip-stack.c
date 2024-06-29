@@ -44,7 +44,6 @@
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-attribute-private.h"
 #include "cogl/cogl-primitive-private.h"
-#include "cogl/cogl1-context.h"
 #include "cogl/cogl-offscreen.h"
 #include "cogl/cogl-matrix-stack.h"
 #include "mtk/mtk.h"

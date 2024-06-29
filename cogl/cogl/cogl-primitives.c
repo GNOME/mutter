@@ -40,7 +40,6 @@
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-meta-texture.h"
 #include "cogl/cogl-framebuffer-private.h"
-#include "cogl/cogl1-context.h"
 #include "cogl/cogl-primitives-private.h"
 
 #include <string.h>

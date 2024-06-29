@@ -35,7 +35,6 @@
 #include "cogl/cogl-i18n-private.h"
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-debug.h"
-#include "cogl/cogl1-context.h"
 
 /* XXX: If you add a debug option, please also add an option
  * definition to cogl-debug-options.h. This will enable us - for

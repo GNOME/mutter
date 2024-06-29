@@ -578,11 +578,11 @@ _cogl_driver_update_features (CoglContext *context,
      function because we need to use it to determine what functions we
      can expect */
   context->glGetString =
-    (void *) _cogl_renderer_get_proc_address (context->display->renderer,
-                                              "glGetString");
+    (void *) cogl_renderer_get_proc_address (context->display->renderer,
+                                             "glGetString");
   context->glGetStringi =
-    (void *) _cogl_renderer_get_proc_address (context->display->renderer,
-                                              "glGetStringi");
+    (void *) cogl_renderer_get_proc_address (context->display->renderer,
+                                             "glGetStringi");
 
   gl_extensions = _cogl_context_get_gl_extensions (context);
 

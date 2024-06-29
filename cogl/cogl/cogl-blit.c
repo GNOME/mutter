@@ -41,7 +41,6 @@
 #include "cogl/cogl-texture-private.h"
 #include "cogl/cogl-texture-2d-private.h"
 #include "cogl/cogl-private.h"
-#include "cogl/cogl1-context.h"
 
 static const CoglBlitMode *_cogl_blit_default_mode = NULL;
 

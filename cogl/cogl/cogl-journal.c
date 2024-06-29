@@ -43,7 +43,6 @@
 #include "cogl/cogl-point-in-poly-private.h"
 #include "cogl/cogl-trace.h"
 #include "cogl/cogl-private.h"
-#include "cogl/cogl1-context.h"
 
 #include <string.h>
 #include <gmodule.h>
