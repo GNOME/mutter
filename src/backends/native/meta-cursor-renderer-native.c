@@ -840,16 +840,35 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
                                            MetaCrtcKms              *crtc_kms,
                                            ClutterColorState        *target_color_state,
                                            MetaCursorSprite         *cursor_sprite,
-                                           float                     relative_scale,
-                                           MtkMonitorTransform       relative_transform,
                                            uint8_t                  *data,
                                            int                       width,
                                            int                       height,
                                            int                       rowstride,
                                            uint32_t                  gbm_format)
 {
+  MetaCursorRendererNativePrivate *priv =
+    meta_cursor_renderer_native_get_instance_private (native);
+  MetaCrtc *crtc = META_CRTC (crtc_kms);
+  MetaLogicalMonitor *logical_monitor;
+  MetaMonitor *monitor;
+  MtkMonitorTransform logical_transform;
+  float relative_scale;
+  MtkMonitorTransform relative_transform;
   ClutterColorState *cursor_color_state;
   gboolean retval = FALSE;
+
+  monitor = meta_output_get_monitor (meta_crtc_get_outputs (crtc)->data);
+  logical_monitor = meta_monitor_get_logical_monitor (monitor);
+
+  relative_scale = calculate_cursor_crtc_sprite_scale (priv->backend,
+                                                       cursor_sprite,
+                                                       logical_monitor);
+
+  logical_transform = meta_logical_monitor_get_transform (logical_monitor);
+  relative_transform = mtk_monitor_transform_transform (
+    mtk_monitor_transform_invert (
+      meta_cursor_sprite_get_texture_transform (cursor_sprite)),
+    meta_monitor_logical_to_crtc_transform (monitor, logical_transform));
 
   cursor_color_state = meta_cursor_sprite_get_color_state (cursor_sprite);
 
@@ -965,28 +984,8 @@ realize_cursor_sprite_from_wl_buffer_for_crtc (MetaCursorRenderer      *renderer
     {
       int rowstride = wl_shm_buffer_get_stride (shm_buffer);
       uint8_t *buffer_data;
-      float relative_scale;
-      MtkMonitorTransform relative_transform;
       uint32_t gbm_format;
-
-      MetaCrtc *crtc = META_CRTC (crtc_kms);
-      MetaLogicalMonitor *logical_monitor;
-      MetaMonitor *monitor;
-      MtkMonitorTransform logical_transform;
       gboolean retval;
-
-      monitor = meta_output_get_monitor (meta_crtc_get_outputs (crtc)->data);
-      logical_monitor = meta_monitor_get_logical_monitor (monitor);
-
-      relative_scale = calculate_cursor_crtc_sprite_scale (priv->backend,
-                                                           cursor_sprite,
-                                                           logical_monitor);
-
-      logical_transform = meta_logical_monitor_get_transform (logical_monitor);
-      relative_transform = mtk_monitor_transform_transform (
-          mtk_monitor_transform_invert (
-            meta_cursor_sprite_get_texture_transform (cursor_sprite)),
-          meta_monitor_logical_to_crtc_transform (monitor, logical_transform));
 
       wl_shm_buffer_begin_access (shm_buffer);
       buffer_data = wl_shm_buffer_get_data (shm_buffer);
@@ -1011,8 +1010,6 @@ realize_cursor_sprite_from_wl_buffer_for_crtc (MetaCursorRenderer      *renderer
                                                           crtc_kms,
                                                           target_color_state,
                                                           cursor_sprite,
-                                                          relative_scale,
-                                                          relative_transform,
                                                           buffer_data,
                                                           width,
                                                           height,
@@ -1112,29 +1109,8 @@ realize_cursor_sprite_from_xcursor_for_crtc (MetaCursorRenderer      *renderer,
                                              MetaCursorSpriteXcursor *sprite_xcursor)
 {
   MetaCursorRendererNative *native = META_CURSOR_RENDERER_NATIVE (renderer);
-  MetaCursorRendererNativePrivate *priv =
-    meta_cursor_renderer_native_get_instance_private (native);
   MetaCursorSprite *cursor_sprite = META_CURSOR_SPRITE (sprite_xcursor);
-  MetaCrtc *crtc = META_CRTC (crtc_kms);
-  MetaLogicalMonitor *logical_monitor;
-  MetaMonitor *monitor;
-  MtkMonitorTransform logical_transform;
   XcursorImage *xc_image;
-  float relative_scale;
-  MtkMonitorTransform relative_transform;
-
-  monitor = meta_output_get_monitor (meta_crtc_get_outputs (crtc)->data);
-  logical_monitor = meta_monitor_get_logical_monitor (monitor);
-
-  relative_scale = calculate_cursor_crtc_sprite_scale (priv->backend,
-                                                       cursor_sprite,
-                                                       logical_monitor);
-
-  logical_transform = meta_logical_monitor_get_transform (logical_monitor);
-  relative_transform = mtk_monitor_transform_transform (
-      mtk_monitor_transform_invert (
-        meta_cursor_sprite_get_texture_transform (cursor_sprite)),
-      meta_monitor_logical_to_crtc_transform (monitor, logical_transform));
 
   xc_image = meta_cursor_sprite_xcursor_get_current_image (sprite_xcursor);
 
@@ -1142,8 +1118,6 @@ realize_cursor_sprite_from_xcursor_for_crtc (MetaCursorRenderer      *renderer,
                                                     crtc_kms,
                                                     target_color_state,
                                                     cursor_sprite,
-                                                    relative_scale,
-                                                    relative_transform,
                                                     (uint8_t *) xc_image->pixels,
                                                     xc_image->width,
                                                     xc_image->height,
