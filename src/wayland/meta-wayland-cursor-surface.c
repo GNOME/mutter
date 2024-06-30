@@ -68,12 +68,33 @@ update_cursor_sprite_texture (MetaWaylandCursorSurface *cursor_surface)
 
   if (texture && meta_multi_texture_is_simple (texture))
     {
-      int surface_scale = surface->applied_state.scale;
+      float hotspot_scale_x;
+      float hotspot_scale_y;
+
+      if (surface->viewport.has_dst_size)
+        {
+          int dst_width;
+          int dst_height;
+          int tex_width;
+          int tex_height;
+
+          tex_width = meta_multi_texture_get_width (texture);
+          tex_height = meta_multi_texture_get_height (texture);
+          dst_width = surface->viewport.dst_width;
+          dst_height = surface->viewport.dst_height;
+          hotspot_scale_x = (float) tex_width / dst_width;
+          hotspot_scale_y = (float) tex_height / dst_height;
+        }
+      else
+        {
+          hotspot_scale_x = surface->applied_state.scale;
+          hotspot_scale_y = surface->applied_state.scale;
+        }
 
       meta_cursor_sprite_set_texture (cursor_sprite,
                                       meta_multi_texture_get_plane (texture, 0),
-                                      priv->hot_x * surface_scale,
-                                      priv->hot_y * surface_scale);
+                                      (int) roundf (priv->hot_x * hotspot_scale_x),
+                                      (int) roundf (priv->hot_y * hotspot_scale_y));
     }
   else
     {
@@ -117,7 +138,9 @@ cursor_sprite_prepare_at (MetaCursorSprite         *cursor_sprite,
 #endif /* HAVE_XWAYLAND */
         surface_scale = surface->applied_state.scale;
 
-      if (meta_backend_is_stage_views_scaled (backend))
+      if (surface->viewport.has_dst_size)
+        texture_scale = 1.0f;
+      else if (meta_backend_is_stage_views_scaled (backend))
         texture_scale = 1.0f / surface_scale;
       else
         texture_scale = (meta_logical_monitor_get_scale (logical_monitor) /
@@ -126,6 +149,44 @@ cursor_sprite_prepare_at (MetaCursorSprite         *cursor_sprite,
       meta_cursor_sprite_set_texture_scale (cursor_sprite, texture_scale);
       meta_cursor_sprite_set_texture_transform (cursor_sprite,
                                                 surface->buffer_transform);
+
+      if (surface->viewport.has_src_rect)
+        {
+          meta_cursor_sprite_set_viewport_src_rect (cursor_sprite,
+                                                    &surface->viewport.src_rect);
+        }
+      else
+        {
+          meta_cursor_sprite_reset_viewport_src_rect (cursor_sprite);
+        }
+
+      if (surface->viewport.has_dst_size)
+        {
+          int dst_width;
+          int dst_height;
+
+          if (meta_backend_is_stage_views_scaled (backend))
+            {
+              dst_width = surface->viewport.dst_width;
+              dst_height = surface->viewport.dst_height;
+            }
+          else
+            {
+              float monitor_scale =
+                meta_logical_monitor_get_scale (logical_monitor);
+
+              dst_width = (int) (surface->viewport.dst_width * monitor_scale);
+              dst_height = (int) (surface->viewport.dst_height * monitor_scale);
+            }
+
+          meta_cursor_sprite_set_viewport_dst_size (cursor_sprite,
+                                                    dst_width,
+                                                    dst_height);
+        }
+      else
+        {
+          meta_cursor_sprite_reset_viewport_dst_size (cursor_sprite);
+        }
     }
 
   meta_wayland_surface_set_main_monitor (surface, logical_monitor);
