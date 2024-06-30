@@ -75,6 +75,17 @@ void meta_cursor_sprite_set_texture_scale (MetaCursorSprite *sprite,
 void meta_cursor_sprite_set_texture_transform (MetaCursorSprite    *sprite,
                                                MtkMonitorTransform  transform);
 
+void meta_cursor_sprite_set_viewport_src_rect (MetaCursorSprite      *sprite,
+                                               const graphene_rect_t *src_rect);
+
+void meta_cursor_sprite_reset_viewport_src_rect (MetaCursorSprite *sprite);
+
+void meta_cursor_sprite_set_viewport_dst_size (MetaCursorSprite *sprite,
+                                               int               dst_width,
+                                               int               dst_height);
+
+void meta_cursor_sprite_reset_viewport_dst_size (MetaCursorSprite *sprite);
+
 CoglTexture *meta_cursor_sprite_get_cogl_texture (MetaCursorSprite *sprite);
 
 void meta_cursor_sprite_get_hotspot (MetaCursorSprite *sprite,
@@ -88,6 +99,12 @@ int meta_cursor_sprite_get_height (MetaCursorSprite *sprite);
 float meta_cursor_sprite_get_texture_scale (MetaCursorSprite *sprite);
 
 MtkMonitorTransform meta_cursor_sprite_get_texture_transform (MetaCursorSprite *sprite);
+
+const graphene_rect_t * meta_cursor_sprite_get_viewport_src_rect (MetaCursorSprite *sprite);
+
+gboolean meta_cursor_sprite_get_viewport_dst_size (MetaCursorSprite *sprite,
+                                                   int              *dst_width,
+                                                   int              *dst_height);
 
 gboolean meta_cursor_sprite_is_animated (MetaCursorSprite *sprite);
 

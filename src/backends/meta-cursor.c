@@ -56,6 +56,11 @@ typedef struct _MetaCursorSpritePrivate
   CoglTexture2D *texture;
   float texture_scale;
   MtkMonitorTransform texture_transform;
+  gboolean has_viewport_src_rect;
+  graphene_rect_t viewport_src_rect;
+  gboolean has_viewport_dst_size;
+  int viewport_dst_width;
+  int viewport_dst_height;
   int hot_x, hot_y;
 
   ClutterColorState *color_state;
@@ -151,6 +156,74 @@ meta_cursor_sprite_set_texture_transform (MetaCursorSprite    *sprite,
   meta_cursor_sprite_invalidate (sprite);
 }
 
+void
+meta_cursor_sprite_set_viewport_src_rect (MetaCursorSprite      *sprite,
+                                          const graphene_rect_t *src_rect)
+{
+  MetaCursorSpritePrivate *priv =
+    meta_cursor_sprite_get_instance_private (sprite);
+
+  if (priv->has_viewport_src_rect &&
+      G_APPROX_VALUE (priv->viewport_src_rect.origin.x,
+                      src_rect->origin.x, FLT_EPSILON) &&
+      G_APPROX_VALUE (priv->viewport_src_rect.origin.y,
+                      src_rect->origin.y, FLT_EPSILON) &&
+      G_APPROX_VALUE (priv->viewport_src_rect.size.width,
+                      src_rect->size.width, FLT_EPSILON) &&
+      G_APPROX_VALUE (priv->viewport_src_rect.size.height,
+                      src_rect->size.height, FLT_EPSILON))
+    return;
+
+  priv->has_viewport_src_rect = TRUE;
+  priv->viewport_src_rect = *src_rect;
+  meta_cursor_sprite_invalidate (sprite);
+}
+
+void
+meta_cursor_sprite_reset_viewport_src_rect (MetaCursorSprite *sprite)
+{
+  MetaCursorSpritePrivate *priv =
+    meta_cursor_sprite_get_instance_private (sprite);
+
+  if (!priv->has_viewport_src_rect)
+    return;
+
+  priv->has_viewport_src_rect = FALSE;
+  meta_cursor_sprite_invalidate (sprite);
+}
+
+void
+meta_cursor_sprite_set_viewport_dst_size (MetaCursorSprite *sprite,
+                                          int               dst_width,
+                                          int               dst_height)
+{
+  MetaCursorSpritePrivate *priv =
+    meta_cursor_sprite_get_instance_private (sprite);
+
+  if (priv->has_viewport_dst_size &&
+      priv->viewport_dst_width == dst_width &&
+      priv->viewport_dst_height == dst_height)
+    return;
+
+  priv->has_viewport_dst_size = TRUE;
+  priv->viewport_dst_width = dst_width;
+  priv->viewport_dst_height = dst_height;
+  meta_cursor_sprite_invalidate (sprite);
+}
+
+void
+meta_cursor_sprite_reset_viewport_dst_size (MetaCursorSprite *sprite)
+{
+  MetaCursorSpritePrivate *priv =
+    meta_cursor_sprite_get_instance_private (sprite);
+
+  if (!priv->has_viewport_dst_size)
+    return;
+
+  priv->has_viewport_dst_size = FALSE;
+  meta_cursor_sprite_invalidate (sprite);
+}
+
 CoglTexture *
 meta_cursor_sprite_get_cogl_texture (MetaCursorSprite *sprite)
 {
@@ -206,6 +279,34 @@ meta_cursor_sprite_get_texture_transform (MetaCursorSprite *sprite)
     meta_cursor_sprite_get_instance_private (sprite);
 
   return priv->texture_transform;
+}
+
+const graphene_rect_t *
+meta_cursor_sprite_get_viewport_src_rect (MetaCursorSprite *sprite)
+{
+  MetaCursorSpritePrivate *priv =
+    meta_cursor_sprite_get_instance_private (sprite);
+
+  if (!priv->has_viewport_src_rect)
+    return NULL;
+
+  return &priv->viewport_src_rect;
+}
+
+gboolean
+meta_cursor_sprite_get_viewport_dst_size (MetaCursorSprite *sprite,
+                                          int              *dst_width,
+                                          int              *dst_height)
+{
+  MetaCursorSpritePrivate *priv =
+    meta_cursor_sprite_get_instance_private (sprite);
+
+  if (!priv->has_viewport_dst_size)
+    return FALSE;
+
+  *dst_width = priv->viewport_dst_width;
+  *dst_height = priv->viewport_dst_height;
+  return TRUE;
 }
 
 void
