@@ -1850,11 +1850,12 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
 {
   MetaDisplay *display = x11_display->display;
   MetaContext *context = meta_display_get_context (display);
-  MetaBackend *backend = meta_context_get_backend (context);
-  Window modified;
-  gboolean bypass_compositor = FALSE;
-  XIEvent *input_event;
+#ifdef HAVE_X11
   MetaCursorTracker *cursor_tracker;
+  MetaBackend *backend = meta_context_get_backend (context);
+#endif
+  gboolean bypass_compositor G_GNUC_UNUSED = FALSE;
+  XIEvent *input_event;
 #ifdef HAVE_XWAYLAND
   MetaWaylandCompositor *wayland_compositor;
 #endif
@@ -1897,8 +1898,10 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
 
   display->current_time = event_get_time (x11_display, event);
 
+#ifdef HAVE_X11
   if (META_IS_BACKEND_X11 (backend))
     meta_backend_x11_reset_cached_logical_monitor (META_BACKEND_X11 (backend));
+#endif
 
   if (x11_display->focused_by_us &&
       event->xany.serial > x11_display->focus_serial &&
@@ -1915,6 +1918,7 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
       x11_display->is_server_focus = FALSE;
     }
 
+#ifdef HAVE_X11
   if (event->xany.window == x11_display->xroot)
     {
       cursor_tracker = meta_backend_get_cursor_tracker (backend);
@@ -1930,8 +1934,7 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
             }
         }
     }
-
-  modified = event_get_modified_window (x11_display, event);
+#endif
 
   input_event = get_input_event (x11_display, event);
 
@@ -1950,11 +1953,15 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
     }
 
  out:
+#ifdef HAVE_X11
   if (!bypass_compositor && META_IS_COMPOSITOR_X11 (display->compositor))
     {
       MetaCompositorX11 *compositor_x11 =
         META_COMPOSITOR_X11 (display->compositor);
       MetaWindow *window;
+      Window modified;
+
+      modified = event_get_modified_window (x11_display, event);
 
       if (modified != None)
         window = meta_x11_display_lookup_x_window (x11_display, modified);
@@ -1963,6 +1970,7 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
 
       meta_compositor_x11_process_xevent (compositor_x11, event, window);
     }
+#endif /* HAVE_X11 */
 
   display->current_time = META_CURRENT_TIME;
 

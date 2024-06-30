@@ -33,6 +33,10 @@
 
 #pragma once
 
+#ifdef HAVE_X11_CLIENT
+#include <X11/Xlib.h>
+#endif
+
 #include "core/util-private.h"
 #include "meta/display.h"
 #include "meta/window.h"

@@ -33,7 +33,7 @@ mtk_pkg_deps = [
   pixman_dep,
 ]
 
-if have_x11
+if have_x11_client
   mtk_pkg_deps += x11_dep
 endif
 

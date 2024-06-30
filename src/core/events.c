@@ -178,7 +178,7 @@ sequence_is_pointer_emulated (MetaDisplay        *display,
   return FALSE;
 }
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_X11
 static void
 maybe_unfreeze_pointer_events (MetaBackend          *backend,
                                const ClutterEvent   *event,
@@ -424,7 +424,7 @@ meta_display_handle_event (MetaDisplay        *display,
       if (meta_window_handle_ungrabbed_event (window, event))
         return CLUTTER_EVENT_STOP;
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_X11
       /* Now replay the button press event to release our own sync grab. */
       maybe_unfreeze_pointer_events (backend, event, EVENTS_UNFREEZE_REPLAY);
 #endif
@@ -441,7 +441,7 @@ meta_display_handle_event (MetaDisplay        *display,
       /* We could not match the event with a window, make sure we sync
        * the pointer to discard the sequence and don't keep events frozen.
        */
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_X11
       maybe_unfreeze_pointer_events (backend, event, EVENTS_UNFREEZE_SYNC);
 #endif
     }

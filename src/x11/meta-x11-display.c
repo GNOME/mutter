@@ -1242,7 +1242,9 @@ meta_x11_display_new (MetaDisplay  *display,
   if (!xdisplay)
     return NULL;
 
+#ifdef HAVE_X11
   XSynchronize (xdisplay, meta_context_is_x11_sync (context));
+#endif
 
 #ifdef HAVE_XWAYLAND
   if (meta_is_wayland_compositor ())
@@ -1340,9 +1342,8 @@ meta_x11_display_new (MetaDisplay  *display,
                            x11_display,
                            G_CONNECT_SWAPPED);
 
-#ifdef HAVE_XWAYLAND
+#ifdef HAVE_X11
   if (!meta_is_wayland_compositor ())
-#endif
     {
       ClutterStage *stage =
         CLUTTER_STAGE (meta_get_stage_for_display (display));
@@ -1353,6 +1354,7 @@ meta_x11_display_new (MetaDisplay  *display,
                                x11_display,
                                G_CONNECT_SWAPPED);
     }
+#endif
 
   x11_display->xids = g_hash_table_new (meta_unsigned_long_hash,
                                         meta_unsigned_long_equal);
@@ -1754,6 +1756,7 @@ update_cursor_theme (MetaX11Display *x11_display)
   set_cursor_theme (x11_display->xdisplay, backend);
   schedule_reload_x11_cursor (x11_display);
 
+#ifdef HAVE_X11
   if (META_IS_BACKEND_X11 (backend))
     {
       MetaBackendX11 *backend_x11 = META_BACKEND_X11 (backend);
@@ -1762,6 +1765,7 @@ update_cursor_theme (MetaX11Display *x11_display)
       set_cursor_theme (xdisplay, backend);
       meta_backend_x11_reload_cursor (backend_x11);
     }
+#endif
 }
 
 MetaWindow *
@@ -1883,27 +1887,27 @@ create_guard_window (MetaX11Display *x11_display)
   /* https://bugzilla.gnome.org/show_bug.cgi?id=710346 */
   XStoreName (x11_display->xdisplay, guard_window, "mutter guard window");
 
-  {
-    if (!meta_is_wayland_compositor ())
-      {
-        MetaBackendX11 *backend =
-          META_BACKEND_X11 (backend_from_x11_display (x11_display));
-        Display *backend_xdisplay = meta_backend_x11_get_xdisplay (backend);
-        unsigned char mask_bits[XIMaskLen (XI_LASTEVENT)] = { 0 };
-        XIEventMask mask = { XIAllMasterDevices, sizeof (mask_bits), mask_bits };
+#ifdef HAVE_X11
+  if (!meta_is_wayland_compositor ())
+    {
+      MetaBackendX11 *backend =
+        META_BACKEND_X11 (backend_from_x11_display (x11_display));
+      Display *backend_xdisplay = meta_backend_x11_get_xdisplay (backend);
+      unsigned char mask_bits[XIMaskLen (XI_LASTEVENT)] = { 0 };
+      XIEventMask mask = { XIAllMasterDevices, sizeof (mask_bits), mask_bits };
 
-        XISetMask (mask.mask, XI_ButtonPress);
-        XISetMask (mask.mask, XI_ButtonRelease);
-        XISetMask (mask.mask, XI_Motion);
+      XISetMask (mask.mask, XI_ButtonPress);
+      XISetMask (mask.mask, XI_ButtonRelease);
+      XISetMask (mask.mask, XI_Motion);
 
-        /* Sync on the connection we created the window on to
-         * make sure it's created before we select on it on the
-         * backend connection. */
-        XSync (x11_display->xdisplay, False);
+      /* Sync on the connection we created the window on to
+        * make sure it's created before we select on it on the
+        * backend connection. */
+      XSync (x11_display->xdisplay, False);
 
-        XISelectEvents (backend_xdisplay, guard_window, &mask, 1);
-      }
-  }
+      XISelectEvents (backend_xdisplay, guard_window, &mask, 1);
+    }
+#endif
 
   meta_stack_tracker_record_add (x11_display->display->stack_tracker,
                                  guard_window,
@@ -2429,6 +2433,7 @@ meta_x11_display_set_stage_input_region (MetaX11Display *x11_display,
                                          XRectangle     *rects,
                                          int             n_rects)
 {
+#ifdef HAVE_X11
   Display *xdisplay = x11_display->xdisplay;
   MetaBackend *backend = backend_from_x11_display (x11_display);
   ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
@@ -2447,6 +2452,7 @@ meta_x11_display_set_stage_input_region (MetaX11Display *x11_display,
   XFixesSetWindowShapeRegion (xdisplay,
                               x11_display->composite_overlay_window,
                               ShapeInput, 0, 0, x11_display->stage_input_region);
+#endif
 }
 
 /**

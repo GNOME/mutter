@@ -192,14 +192,14 @@ if have_egl
   egl_dep = dependency('egl')
 endif
 
-have_glx = get_option('glx') and have_x11_client
+have_glx = get_option('glx') and have_x11
 if have_glx
   if not have_gl
     error('GLX support requires OpenGL to be enabled')
   endif
 endif
 
-have_egl_xlib = have_egl and have_x11_client
+have_egl_xlib = have_egl and have_x11
 
 have_gles2 = get_option('gles2')
 if have_gles2

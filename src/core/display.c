@@ -664,7 +664,7 @@ create_compositor (MetaDisplay *display)
   if (META_IS_BACKEND_NATIVE (backend))
     return META_COMPOSITOR (meta_compositor_native_new (display, backend));
 #endif
-#ifdef HAVE_XWAYLAND
+#if defined(HAVE_XWAYLAND) && defined(HAVE_X11)
   if (META_IS_BACKEND_X11_NESTED (backend))
     return META_COMPOSITOR (meta_compositor_server_new (display, backend));
 #endif
@@ -801,7 +801,7 @@ disable_input_capture (MetaInputCapture *input_capture,
   priv->enable_input_capture = FALSE;
 }
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_X11
 static gboolean
 meta_display_init_x11_display (MetaDisplay  *display,
                                GError      **error)
@@ -860,7 +860,6 @@ meta_display_init_x11_finish (MetaDisplay   *display,
   return TRUE;
 }
 
-#ifdef HAVE_XWAYLAND
 static void
 on_xserver_started (MetaXWaylandManager *manager,
                     GAsyncResult        *result,
@@ -889,7 +888,6 @@ on_xserver_started (MetaXWaylandManager *manager,
       g_task_return_boolean (task, TRUE);
     }
 }
-#endif /* HAVE_XWAYLAND */
 
 void
 meta_display_init_x11 (MetaDisplay         *display,
@@ -898,21 +896,17 @@ meta_display_init_x11 (MetaDisplay         *display,
                        gpointer             user_data)
 {
   g_autoptr (GTask) task = NULL;
-#ifdef HAVE_XWAYLAND
   MetaWaylandCompositor *compositor;
-#endif
 
   task = g_task_new (display, cancellable, callback, user_data);
   g_task_set_source_tag (task, meta_display_init_x11);
 
-#ifdef HAVE_XWAYLAND
   compositor = wayland_compositor_from_display (display);
 
   meta_xwayland_start_xserver (&compositor->xwayland_manager,
                                cancellable,
                                (GAsyncReadyCallback) on_xserver_started,
                                g_steal_pointer (&task));
-#endif
 }
 
 static void

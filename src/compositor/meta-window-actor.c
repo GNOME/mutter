@@ -495,7 +495,7 @@ init_surface_actor (MetaWindowActor *self)
   MetaWindow *window = priv->window;
   MetaSurfaceActor *surface_actor = NULL;
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_X11
   if (!meta_is_wayland_compositor ())
     {
       surface_actor = meta_surface_actor_x11_new (window);
@@ -953,7 +953,7 @@ meta_window_actor_sync_actor_geometry (MetaWindowActor *self,
 
   /* When running as a Wayland compositor we catch size changes when new
    * buffers are attached */
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_X11
   if (META_IS_SURFACE_ACTOR_X11 (priv->surface))
     meta_surface_actor_x11_set_size (META_SURFACE_ACTOR_X11 (priv->surface),
                                      actor_rect.width, actor_rect.height);

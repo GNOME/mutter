@@ -21,6 +21,7 @@
 
 #include "meta-x11-keybindings-private.h"
 
+#ifdef HAVE_X11
 static GArray *
 calc_grab_modifiers (MetaKeyBindingManager *keys,
                      unsigned int           modmask)
@@ -55,6 +56,7 @@ calc_grab_modifiers (MetaKeyBindingManager *keys,
 
   return mods_array;
 }
+#endif
 
 static void
 meta_change_button_grab (MetaKeyBindingManager *keys,
@@ -64,6 +66,7 @@ meta_change_button_grab (MetaKeyBindingManager *keys,
                          int                    button,
                          int                    modmask)
 {
+#ifdef HAVE_X11
   MetaBackendX11 *backend;
   Display *xdisplay;
   unsigned char mask_bits[XIMaskLen (XI_LASTEVENT)] = { 0 };
@@ -111,6 +114,7 @@ meta_change_button_grab (MetaKeyBindingManager *keys,
   mtk_x11_error_trap_pop (xdisplay);
 
   g_array_free (mods, TRUE);
+#endif
 }
 
 static void
@@ -133,6 +137,7 @@ meta_x11_keybindings_change_keygrab (MetaKeyBindingManager *keys,
                                      gboolean               grab,
                                      MetaResolvedKeyCombo  *resolved_combo)
 {
+#ifdef HAVE_X11
   MetaBackendX11 *backend_x11;
   Display *xdisplay;
   GArray *mods;
@@ -185,6 +190,7 @@ meta_x11_keybindings_change_keygrab (MetaKeyBindingManager *keys,
   mtk_x11_error_trap_pop (xdisplay);
 
   g_array_free (mods, TRUE);
+#endif
 }
 
 typedef struct

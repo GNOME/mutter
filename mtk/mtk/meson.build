@@ -12,7 +12,7 @@ mtk_sources = [
   'mtk-region.c',
 ]
 
-if have_x11
+if have_x11_client
   mtk_sources += 'mtk-x11-errors.c'
   mtk_headers += [
     'mtk-x11-errors.h',

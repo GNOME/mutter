@@ -97,7 +97,7 @@ if have_introspection
   ]
 endif
 
-if have_x11
+if have_x11_client
   mutter_pkg_deps += [
     xfixes_dep,
     xi_dep,
@@ -451,17 +451,17 @@ if have_x11
     'backends/x11/nested/meta-stage-x11-nested.h',
     'backends/x11/nested/meta-renderer-x11-nested.c',
     'backends/x11/nested/meta-renderer-x11-nested.h',
-  ]
-endif
-
-if have_x11_client
-  mutter_sources += [
     'compositor/meta-compositor-x11.c',
     'compositor/meta-compositor-x11.h',
     'compositor/meta-surface-actor-x11.c',
     'compositor/meta-surface-actor-x11.h',
     'compositor/meta-sync-ring.c',
     'compositor/meta-sync-ring.h',
+  ]
+endif
+
+if have_x11_client
+  mutter_sources += [
     'compositor/meta-window-actor-x11.c',
     'compositor/meta-window-actor-x11.h',
     'x11/atomnames.h',

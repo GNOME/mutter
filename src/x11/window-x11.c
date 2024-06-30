@@ -3840,9 +3840,11 @@ is_our_xwindow (MetaX11Display    *x11_display,
                 Window             xwindow,
                 XWindowAttributes *attrs)
 {
+#ifdef HAVE_X11
   MetaDisplay *display;
   MetaContext *context;
   MetaBackend *backend;
+#endif
 
   if (xwindow == x11_display->no_focus_window)
     return TRUE;
@@ -3859,6 +3861,7 @@ is_our_xwindow (MetaX11Display    *x11_display,
   if (xwindow == x11_display->composite_overlay_window)
     return TRUE;
 
+#ifdef HAVE_X11
   display = meta_x11_display_get_display (x11_display);
   context = meta_display_get_context (display);
   backend = meta_context_get_backend (context);
@@ -3866,6 +3869,7 @@ is_our_xwindow (MetaX11Display    *x11_display,
   if (META_IS_BACKEND_X11 (backend) &&
       xwindow == meta_backend_x11_get_xwindow (META_BACKEND_X11 (backend)))
     return TRUE;
+#endif
 
   /* Any windows created via meta_create_offscreen_window */
   if (attrs->override_redirect &&

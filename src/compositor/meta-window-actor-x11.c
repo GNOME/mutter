@@ -437,6 +437,7 @@ has_shadow (MetaWindowActorX11 *actor_x11)
   return TRUE;
 }
 
+#ifdef HAVE_X11
 gboolean
 meta_window_actor_x11_should_unredirect (MetaWindowActorX11 *actor_x11)
 {
@@ -478,6 +479,7 @@ meta_window_actor_x11_set_unredirected (MetaWindowActorX11 *actor_x11,
   surface_x11 = META_SURFACE_ACTOR_X11 (surface);
   meta_surface_actor_x11_set_unredirected (surface_x11, unredirected);
 }
+#endif /* HAVE_X11 */
 
 static const char *
 get_shadow_class (MetaWindowActorX11 *actor_x11)
@@ -1013,9 +1015,11 @@ is_actor_maybe_transparent (MetaWindowActorX11 *actor_x11)
   if (!surface)
     return TRUE;
 
+#ifdef HAVE_X11
   if (META_IS_SURFACE_ACTOR_X11 (surface) &&
       meta_surface_actor_x11_is_unredirected (META_SURFACE_ACTOR_X11 (surface)))
     return FALSE;
+#endif
 
   stex = meta_surface_actor_get_texture (surface);
   if (!meta_shaped_texture_has_alpha (stex))
@@ -1148,9 +1152,11 @@ handle_updates (MetaWindowActorX11 *actor_x11)
     meta_window_actor_get_surface (META_WINDOW_ACTOR (actor_x11));
   MetaWindow *window;
 
+#ifdef HAVE_X11
   if (META_IS_SURFACE_ACTOR_X11 (surface) &&
       meta_surface_actor_x11_is_unredirected (META_SURFACE_ACTOR_X11 (surface)))
     return;
+#endif
 
   window = meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
   if (meta_window_actor_is_frozen (META_WINDOW_ACTOR (actor_x11)))
@@ -1168,6 +1174,7 @@ handle_updates (MetaWindowActorX11 *actor_x11)
       return;
     }
 
+#ifdef HAVE_X11
   if (META_IS_SURFACE_ACTOR_X11 (surface))
     {
       MetaSurfaceActorX11 *surface_x11 = META_SURFACE_ACTOR_X11 (surface);
@@ -1178,6 +1185,7 @@ handle_updates (MetaWindowActorX11 *actor_x11)
   if (META_IS_SURFACE_ACTOR_X11 (surface) &&
       !meta_surface_actor_x11_is_visible (META_SURFACE_ACTOR_X11 (surface)))
     return;
+#endif /* HAVE_X11 */
 
   update_frame_bounds (actor_x11);
   check_needs_reshape (actor_x11);
