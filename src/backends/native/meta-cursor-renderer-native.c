@@ -188,22 +188,6 @@ meta_cursor_renderer_native_finalize (GObject *object)
   G_OBJECT_CLASS (meta_cursor_renderer_native_parent_class)->finalize (object);
 }
 
-static float
-calculate_cursor_crtc_sprite_scale (MetaBackend        *backend,
-                                    MetaCursorSprite   *cursor_sprite,
-                                    MetaLogicalMonitor *logical_monitor)
-{
-  if (meta_backend_is_stage_views_scaled (backend))
-    {
-      return (meta_logical_monitor_get_scale (logical_monitor) *
-              meta_cursor_sprite_get_texture_scale (cursor_sprite));
-    }
-  else
-    {
-      return meta_cursor_sprite_get_texture_scale (cursor_sprite);
-    }
-}
-
 static void
 disable_hw_cursor_for_gpu (MetaGpuKms   *gpu_kms,
                            const GError *error)
@@ -575,24 +559,6 @@ create_cursor_drm_buffer (MetaGpuKms      *gpu_kms,
     }
 }
 
-static void
-calculate_crtc_cursor_hotspot (MetaCursorSprite    *cursor_sprite,
-                               float                scale,
-                               MtkMonitorTransform  transform,
-                               graphene_point_t    *hotspot)
-{
-  int hot_x, hot_y;
-  int width, height;
-
-  meta_cursor_sprite_get_hotspot (cursor_sprite, &hot_x, &hot_y);
-  width = meta_cursor_sprite_get_width (cursor_sprite);
-  height = meta_cursor_sprite_get_height (cursor_sprite);
-  mtk_monitor_transform_transform_point (transform,
-                                         &width, &height,
-                                         &hot_x, &hot_y);
-  *hotspot = GRAPHENE_POINT_INIT (hot_x * scale, hot_y * scale);
-}
-
 static gboolean
 get_optimal_cursor_size (MetaCrtcKms *crtc_kms,
                          int          required_width,
@@ -693,7 +659,7 @@ load_cursor_sprite_gbm_buffer_for_crtc (MetaCursorRendererNative *native,
                                         uint                      width,
                                         uint                      height,
                                         int                       rowstride,
-                                        float                     scale,
+                                        graphene_point_t         *hotspot,
                                         MtkMonitorTransform       transform,
                                         uint32_t                  gbm_format)
 {
@@ -711,7 +677,6 @@ load_cursor_sprite_gbm_buffer_for_crtc (MetaCursorRendererNative *native,
   g_autoptr (MetaDrmBuffer) buffer = NULL;
   g_autoptr (MetaDeviceFile) device_file = NULL;
   g_autoptr (GError) error = NULL;
-  graphene_point_t hotspot;
 
   if (!get_optimal_cursor_size (crtc_kms,
                                 width, height,
@@ -748,29 +713,28 @@ load_cursor_sprite_gbm_buffer_for_crtc (MetaCursorRendererNative *native,
       return FALSE;
     }
 
-  calculate_crtc_cursor_hotspot (cursor_sprite, scale, transform, &hotspot);
-
   kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
   meta_kms_cursor_manager_update_sprite (kms_cursor_manager,
                                          kms_crtc,
                                          buffer,
                                          transform,
-                                         &hotspot);
+                                         hotspot);
   return TRUE;
 }
 
 static CoglTexture *
-scale_and_transform_cursor_sprite_cpu (MetaCursorRendererNative  *cursor_renderer_native,
-                                       ClutterColorState         *target_color_state,
-                                       MetaCursorSprite          *cursor_sprite,
-                                       uint8_t                   *pixels,
-                                       CoglPixelFormat            pixel_format,
-                                       int                        width,
-                                       int                        height,
-                                       int                        rowstride,
-                                       float                      scale,
-                                       MtkMonitorTransform        transform,
-                                       GError                   **error)
+scale_and_transform_cursor_sprite_cpu (MetaCursorRendererNative *cursor_renderer_native,
+                                       ClutterColorState        *target_color_state,
+                                       MetaCursorSprite         *cursor_sprite,
+                                       uint8_t                  *pixels,
+                                       CoglPixelFormat           pixel_format,
+                                       int                       width,
+                                       int                       height,
+                                       int                       rowstride,
+                                       const graphene_matrix_t  *matrix,
+                                       int                       dst_width,
+                                       int                       dst_height,
+                                       GError                  **error)
 {
   MetaCursorRendererNativePrivate *priv =
     meta_cursor_renderer_native_get_instance_private (cursor_renderer_native);
@@ -781,14 +745,7 @@ scale_and_transform_cursor_sprite_cpu (MetaCursorRendererNative  *cursor_rendere
   g_autoptr (CoglTexture) dst_texture = NULL;
   g_autoptr (CoglOffscreen) offscreen = NULL;
   g_autoptr (CoglPipeline) pipeline = NULL;
-  graphene_matrix_t matrix;
-  MtkMonitorTransform pipeline_transform;
   ClutterColorState *color_state;
-  int dst_width;
-  int dst_height;
-
-  dst_width = (int) ceilf (width * scale);
-  dst_height = (int) ceilf (height * scale);
 
   src_texture = cogl_texture_2d_new_from_data (cogl_context,
                                                width, height,
@@ -809,11 +766,8 @@ scale_and_transform_cursor_sprite_cpu (MetaCursorRendererNative  *cursor_rendere
 
   pipeline = cogl_pipeline_new (cogl_context);
 
-  graphene_matrix_init_identity (&matrix);
-  pipeline_transform = mtk_monitor_transform_invert (transform);
-  mtk_monitor_transform_transform_matrix (pipeline_transform, &matrix);
   cogl_pipeline_set_layer_texture (pipeline, 0, src_texture);
-  cogl_pipeline_set_layer_matrix (pipeline, 0, &matrix);
+  cogl_pipeline_set_layer_matrix (pipeline, 0, matrix);
 
   color_state = meta_cursor_sprite_get_color_state (cursor_sprite);
   clutter_color_state_add_pipeline_transform (color_state,
@@ -849,29 +803,108 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
   MetaCrtc *crtc = META_CRTC (crtc_kms);
   MetaLogicalMonitor *logical_monitor;
   MetaMonitor *monitor;
+  float monitor_scale;
   MtkMonitorTransform logical_transform;
-  float relative_scale;
+  float relative_scale_x;
+  float relative_scale_y;
+  float cursor_scale;
+  MtkMonitorTransform cursor_transform;
   MtkMonitorTransform relative_transform;
+  MtkMonitorTransform pipeline_transform;
+  const graphene_rect_t *src_rect;
+  graphene_matrix_t matrix;
+  CoglTexture *sprite_texture;
+  int tex_width, tex_height;
+  int dst_width;
+  int dst_height;
+  int crtc_dst_width;
+  int crtc_dst_height;
   ClutterColorState *cursor_color_state;
   gboolean retval = FALSE;
+  graphene_point_t hotspot;
+  int hot_x, hot_y;
 
   monitor = meta_output_get_monitor (meta_crtc_get_outputs (crtc)->data);
   logical_monitor = meta_monitor_get_logical_monitor (monitor);
 
-  relative_scale = calculate_cursor_crtc_sprite_scale (priv->backend,
-                                                       cursor_sprite,
-                                                       logical_monitor);
-
   logical_transform = meta_logical_monitor_get_transform (logical_monitor);
+  cursor_transform = meta_cursor_sprite_get_texture_transform (cursor_sprite);
   relative_transform = mtk_monitor_transform_transform (
-    mtk_monitor_transform_invert (
-      meta_cursor_sprite_get_texture_transform (cursor_sprite)),
+    mtk_monitor_transform_invert (cursor_transform),
     meta_monitor_logical_to_crtc_transform (monitor, logical_transform));
+  src_rect = meta_cursor_sprite_get_viewport_src_rect (cursor_sprite);
+  sprite_texture = meta_cursor_sprite_get_cogl_texture (cursor_sprite);
+  tex_width = cogl_texture_get_width (sprite_texture);
+  tex_height = cogl_texture_get_height (sprite_texture);
+
+  if (meta_backend_is_stage_views_scaled (priv->backend))
+    monitor_scale = meta_logical_monitor_get_scale (logical_monitor);
+  else
+    monitor_scale = 1.0f;
+
+  if (meta_cursor_sprite_get_viewport_dst_size (cursor_sprite,
+                                                &dst_width,
+                                                &dst_height))
+    {
+      float scale_x;
+      float scale_y;
+
+      scale_x = (float) dst_width / tex_width;
+      scale_y = (float) dst_height / tex_height;
+
+      relative_scale_x = scale_x * monitor_scale;
+      relative_scale_y = scale_y * monitor_scale;
+
+      crtc_dst_width = (int) ceilf (dst_width * monitor_scale);
+      crtc_dst_height = (int) ceilf (dst_height * monitor_scale);
+    }
+  else if (src_rect)
+    {
+      relative_scale_x = monitor_scale;
+      relative_scale_y = monitor_scale;
+
+      crtc_dst_width = (int) ceilf (src_rect->size.width * relative_scale_x);
+      crtc_dst_height = (int) ceilf (src_rect->size.height * relative_scale_y);
+    }
+  else
+    {
+      relative_scale_x = relative_scale_y =
+        monitor_scale * meta_cursor_sprite_get_texture_scale (cursor_sprite);
+
+      if (mtk_monitor_transform_is_rotated (cursor_transform))
+        {
+          crtc_dst_width = (int) ceilf (height * relative_scale_x);
+          crtc_dst_height = (int) ceilf (width * relative_scale_y);
+        }
+      else
+        {
+          crtc_dst_width = (int) ceilf (width * relative_scale_x);
+          crtc_dst_height = (int) ceilf (height * relative_scale_y);
+        }
+    }
+
+  graphene_matrix_init_identity (&matrix);
+  pipeline_transform = mtk_monitor_transform_invert (relative_transform);
+  cursor_scale = meta_cursor_sprite_get_texture_scale (cursor_sprite);
+  mtk_compute_viewport_matrix (&matrix,
+                               width,
+                               height,
+                               cursor_scale,
+                               pipeline_transform,
+                               src_rect);
 
   cursor_color_state = meta_cursor_sprite_get_color_state (cursor_sprite);
 
-  if (!G_APPROX_VALUE (relative_scale, 1.f, FLT_EPSILON) ||
-      relative_transform != MTK_MONITOR_TRANSFORM_NORMAL ||
+  meta_cursor_sprite_get_hotspot (cursor_sprite, &hot_x, &hot_y);
+  hot_x = (int) roundf (hot_x * relative_scale_x);
+  hot_y = (int) roundf (hot_y * relative_scale_y);
+  mtk_monitor_transform_transform_point (relative_transform,
+                                         &crtc_dst_width, &crtc_dst_height,
+                                         &hot_x, &hot_y);
+  hotspot = GRAPHENE_POINT_INIT (hot_x, hot_y);
+
+  if (width != crtc_dst_width || height != crtc_dst_height ||
+      !graphene_matrix_is_identity (&matrix) ||
       gbm_format != GBM_FORMAT_ARGB8888 ||
       !clutter_color_state_equals (cursor_color_state, target_color_state))
     {
@@ -880,7 +913,7 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
       g_autoptr (CoglTexture) texture = NULL;
       g_autofree uint8_t *cursor_data = NULL;
       int bpp;
-      int cursor_width, cursor_height, cursor_rowstride;
+      int cursor_rowstride;
 
       format_info = meta_format_info_from_drm_format (gbm_format);
       if (!format_info)
@@ -894,8 +927,9 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
                                                        width,
                                                        height,
                                                        rowstride,
-                                                       relative_scale,
-                                                       relative_transform,
+                                                       &matrix,
+                                                       crtc_dst_width,
+                                                       crtc_dst_height,
                                                        &error);
       if (!texture)
         {
@@ -907,10 +941,8 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
       bpp =
         cogl_pixel_format_get_bytes_per_pixel (COGL_PIXEL_FORMAT_BGRA_8888_PRE,
                                                0);
-      cursor_width = cogl_texture_get_width (texture);
-      cursor_height = cogl_texture_get_height (texture);
-      cursor_rowstride = cursor_width * bpp;
-      cursor_data = g_malloc (cursor_height * cursor_rowstride);
+      cursor_rowstride = crtc_dst_width * bpp;
+      cursor_data = g_malloc (crtc_dst_height * cursor_rowstride);
       cogl_texture_get_data (texture, COGL_PIXEL_FORMAT_BGRA_8888_PRE,
                              cursor_rowstride,
                              cursor_data);
@@ -920,10 +952,10 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
                                                 crtc_kms,
                                                 cursor_sprite,
                                                 cursor_data,
-                                                cursor_width,
-                                                cursor_height,
+                                                crtc_dst_width,
+                                                crtc_dst_height,
                                                 cursor_rowstride,
-                                                relative_scale,
+                                                &hotspot,
                                                 relative_transform,
                                                 GBM_FORMAT_ARGB8888);
     }
@@ -936,9 +968,9 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
                                                        width,
                                                        height,
                                                        rowstride,
-                                                       relative_scale,
-                                                       relative_transform,
-                                                       gbm_format);
+                                                       &hotspot,
+                                                       MTK_MONITOR_TRANSFORM_NORMAL,
+                                                       GBM_FORMAT_ARGB8888);
     }
 
   return retval;
