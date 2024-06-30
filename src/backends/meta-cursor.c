@@ -130,10 +130,11 @@ meta_cursor_sprite_set_texture_scale (MetaCursorSprite *sprite,
   MetaCursorSpritePrivate *priv =
     meta_cursor_sprite_get_instance_private (sprite);
 
-  if (priv->texture_scale != scale)
-    meta_cursor_sprite_invalidate (sprite);
+  if (G_APPROX_VALUE (priv->texture_scale, scale, FLT_EPSILON))
+    return;
 
   priv->texture_scale = scale;
+  meta_cursor_sprite_invalidate (sprite);
 }
 
 void
@@ -143,10 +144,11 @@ meta_cursor_sprite_set_texture_transform (MetaCursorSprite    *sprite,
   MetaCursorSpritePrivate *priv =
     meta_cursor_sprite_get_instance_private (sprite);
 
-  if (priv->texture_transform != transform)
-    meta_cursor_sprite_invalidate (sprite);
+  if (priv->texture_transform == transform)
+    return;
 
   priv->texture_transform = transform;
+  meta_cursor_sprite_invalidate (sprite);
 }
 
 CoglTexture *
