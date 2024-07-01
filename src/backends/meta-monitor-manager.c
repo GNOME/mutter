@@ -1206,10 +1206,35 @@ update_night_light_supported (MetaMonitorManager *manager)
 }
 
 static void
+update_has_external_monitor (MetaMonitorManager *monitor_manager)
+{
+  GList *l;
+  gboolean has_external_monitor = FALSE;
+
+  for (l = meta_monitor_manager_get_monitors (monitor_manager); l; l = l->next)
+    {
+      MetaMonitor *monitor = l->data;
+
+      if (meta_monitor_is_laptop_panel (monitor))
+        continue;
+
+      if (!meta_monitor_is_active (monitor))
+        continue;
+
+      has_external_monitor = TRUE;
+      break;
+    }
+
+  meta_dbus_display_config_set_has_external_monitor (monitor_manager->display_config,
+                                                     has_external_monitor);
+}
+
+static void
 meta_monitor_manager_notify_monitors_changed (MetaMonitorManager *manager)
 {
   meta_backend_monitors_changed (manager->backend);
 
+  update_has_external_monitor (manager);
   update_backlight (manager, TRUE);
 
   g_signal_emit (manager, signals[MONITORS_CHANGED_INTERNAL], 0);
@@ -1247,6 +1272,7 @@ meta_monitor_manager_setup (MetaMonitorManager *manager)
 
   meta_monitor_manager_notify_monitors_changed (manager);
 
+  update_has_external_monitor (manager);
   update_backlight (manager, TRUE);
 
   manager->in_init = FALSE;
