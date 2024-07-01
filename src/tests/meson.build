@@ -335,6 +335,23 @@ screen_cast_client = executable('mutter-screen-cast-client',
   install_rpath: pkglibdir,
 )
 
+backlight_client = executable('monitor-backlight-client',
+  sources: [
+    'monitor-backlight-client.c',
+    built_dbus_sources['meta-dbus-display-config'],
+  ],
+  include_directories: tests_includes,
+  c_args: [
+    tests_c_args,
+    '-DG_LOG_DOMAIN="mutter-monitor-backlight-test-client"',
+  ],
+  dependencies: [
+    gio_dep,
+  ],
+  install: have_installed_tests,
+  install_dir: mutter_installed_tests_libexecdir,
+)
+
 input_capture_client = executable('mutter-input-capture-test-client',
   sources: [
     'input-capture-test-client.c',

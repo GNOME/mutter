@@ -22,6 +22,8 @@
 #include "tests/meta-test/meta-context-test.h"
 #include "tests/meta-monitor-test-utils.h"
 
+#include "meta-dbus-display-config.h"
+
 static MonitorTestCaseSetup initial_test_case_setup = {
   .modes = {
     {
@@ -129,6 +131,62 @@ meta_test_backlight_sanity (void)
   g_assert_cmpint (output_info->backlight_max, ==, 0);
 }
 
+static char *
+get_test_client_path (const char *test_client_name)
+{
+  return g_test_build_filename (G_TEST_BUILT,
+                                test_client_name,
+                                NULL);
+}
+
+static void
+subprocess_wait_check_cb (GObject      *source_object,
+                          GAsyncResult *res,
+                          gpointer      user_data)
+{
+  g_autoptr (GError) error = NULL;
+  gboolean *exited = user_data;
+
+  g_assert_true (g_subprocess_wait_check_finish (G_SUBPROCESS (source_object),
+                                                 res,
+                                                 &error));
+  g_assert_no_error (error);
+
+  *exited = TRUE;
+}
+
+static void
+meta_test_backlight_api (void)
+{
+  g_autoptr (GSubprocessLauncher) launcher = NULL;
+  g_autoptr (GSubprocess) subprocess = NULL;
+  g_autoptr (GError) error = NULL;
+  g_autofree char *test_client_path = NULL;
+  gboolean exited = FALSE;
+
+  launcher = g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_NONE);
+  g_subprocess_launcher_setenv (launcher,
+                                "G_MESSAGES_DEBUG", "all",
+                                TRUE);
+  g_subprocess_launcher_setenv (launcher,
+                                "G_DEBUG", "fatal-warnings",
+                                TRUE);
+  test_client_path = get_test_client_path ("monitor-backlight-client");
+  subprocess =
+    g_subprocess_launcher_spawn (launcher,
+                                 &error,
+                                 test_client_path,
+                                 NULL);
+  g_assert_no_error (error);
+  g_assert_nonnull (subprocess);
+
+  g_subprocess_wait_check_async (subprocess, NULL,
+                                 subprocess_wait_check_cb,
+                                 &exited);
+  while (!exited)
+    g_main_context_iteration (NULL, TRUE);
+}
+
 int
 main (int   argc,
       char *argv[])
@@ -143,6 +201,7 @@ main (int   argc,
 
   meta_init_monitor_test_setup (create_test_setup);
   g_test_add_func ("/backends/backlight/sanity", meta_test_backlight_sanity);
+  g_test_add_func ("/backends/backlight/api", meta_test_backlight_api);
 
   return meta_context_test_run_tests (META_CONTEXT_TEST (context),
                                       META_TEST_RUN_FLAG_NONE);

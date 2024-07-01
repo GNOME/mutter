@@ -120,6 +120,8 @@ typedef struct _MetaMonitorManagerPrivate
 
   guint reload_monitor_manager_id;
   guint switch_config_handle_id;
+
+  uint32_t backlight_serial;
 } MetaMonitorManagerPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaMonitorManager, meta_monitor_manager,
@@ -138,6 +140,9 @@ meta_monitor_manager_real_read_current_state (MetaMonitorManager *manager);
 static gboolean
 is_global_scale_matching_in_config (MetaMonitorsConfig *config,
                                     float               scale);
+
+static void update_backlight (MetaMonitorManager *manager,
+                              gboolean            bump_serial);
 
 MetaBackend *
 meta_monitor_manager_get_backend (MetaMonitorManager *manager)
@@ -1205,6 +1210,8 @@ meta_monitor_manager_notify_monitors_changed (MetaMonitorManager *manager)
 {
   meta_backend_monitors_changed (manager->backend);
 
+  update_backlight (manager, TRUE);
+
   g_signal_emit (manager, signals[MONITORS_CHANGED_INTERNAL], 0);
   g_signal_emit (manager, signals[MONITORS_CHANGED], 0);
 
@@ -1239,6 +1246,8 @@ meta_monitor_manager_setup (MetaMonitorManager *manager)
     manager->privacy_screen_change_state = META_PRIVACY_SCREEN_CHANGE_STATE_INIT;
 
   meta_monitor_manager_notify_monitors_changed (manager);
+
+  update_backlight (manager, TRUE);
 
   manager->in_init = FALSE;
 }
@@ -2365,7 +2374,7 @@ meta_monitor_manager_is_config_complete (MetaMonitorManager *manager,
 
 static MetaMonitor *
 find_monitor_from_connector (MetaMonitorManager *manager,
-                             char               *connector)
+                             const char         *connector)
 {
   GList *monitors;
   GList *l;
@@ -2910,9 +2919,72 @@ meta_monitor_manager_handle_change_backlight  (MetaDBusDisplayConfig *skeleton,
   meta_output_set_backlight (output, value);
   renormalized_value = normalize_backlight (output, value);
 
+  G_GNUC_BEGIN_IGNORE_DEPRECATIONS
   meta_dbus_display_config_complete_change_backlight (skeleton,
                                                       invocation,
                                                       renormalized_value);
+  G_GNUC_END_IGNORE_DEPRECATIONS
+
+
+  update_backlight (manager, FALSE);
+
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
+}
+
+static gboolean
+meta_monitor_manager_handle_set_backlight (MetaDBusDisplayConfig *skeleton,
+                                           GDBusMethodInvocation *invocation,
+                                           uint32_t               serial,
+                                           const char *           connector,
+                                           int                    value,
+                                           MetaMonitorManager    *monitor_manager)
+{
+  MetaMonitorManagerPrivate *priv =
+    meta_monitor_manager_get_instance_private (monitor_manager);
+  MetaMonitor *monitor;
+  int backlight_min;
+  int backlight_max;
+
+  if (serial != priv->backlight_serial)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_INVALID_ARGS,
+                                             "Invalid backlight serial");
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+
+  monitor = find_monitor_from_connector (monitor_manager, connector);
+  if (!monitor)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_INVALID_ARGS,
+                                             "Unknown monitor");
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+
+  if (!meta_monitor_get_backlight_info (monitor,
+                                        &backlight_min,
+                                        &backlight_max))
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_INVALID_ARGS,
+                                             "Monitor doesn't support changing backlight");
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+
+  if (value < backlight_min || value > backlight_max)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_INVALID_ARGS,
+                                             "Invalid backlight value");
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+
+  meta_monitor_set_backlight (monitor, value);
+
+  meta_dbus_display_config_complete_set_backlight (skeleton, invocation);
+
+  update_backlight (monitor_manager, FALSE);
 
   return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
@@ -3098,6 +3170,9 @@ monitor_manager_setup_dbus_config_handlers (MetaMonitorManager *manager)
                            manager, 0);
   g_signal_connect_object (manager->display_config, "handle-change-backlight",
                            G_CALLBACK (meta_monitor_manager_handle_change_backlight),
+                           manager, 0);
+  g_signal_connect_object (manager->display_config, "handle-set-backlight",
+                           G_CALLBACK (meta_monitor_manager_handle_set_backlight),
                            manager, 0);
   g_signal_connect_object (manager->display_config, "handle-get-crtc-gamma",
                            G_CALLBACK (meta_monitor_manager_handle_get_crtc_gamma),
@@ -3592,6 +3667,68 @@ meta_monitor_manager_read_current_state (MetaMonitorManager *manager)
     META_MONITOR_MANAGER_GET_CLASS (manager);
 
   manager_class->read_current_state (manager);
+}
+
+static void
+update_backlight (MetaMonitorManager *manager,
+                  gboolean            bump_serial)
+{
+  MetaMonitorManagerPrivate *priv =
+    meta_monitor_manager_get_instance_private (manager);
+  GList *l;
+  GVariantBuilder backlight_builder;
+  g_autoptr (GVariant) backlight = NULL;
+
+  if (bump_serial)
+    priv->backlight_serial++;
+
+  g_variant_builder_init (&backlight_builder, G_VARIANT_TYPE ("(uaa{sv})"));
+  g_variant_builder_add (&backlight_builder, "u", priv->backlight_serial);
+
+  g_variant_builder_open (&backlight_builder, G_VARIANT_TYPE ("aa{sv}"));
+
+  for (l = manager->monitors; l; l = l->next)
+    {
+      MetaMonitor *monitor = META_MONITOR (l->data);
+      const char *connector;
+      gboolean active;
+      int value;
+
+      if (!meta_monitor_is_laptop_panel (monitor))
+        continue;
+
+      g_variant_builder_open (&backlight_builder,
+                              G_VARIANT_TYPE_VARDICT);
+
+      connector = meta_monitor_get_connector (monitor);
+      active = meta_monitor_is_active (monitor);
+      g_variant_builder_add (&backlight_builder, "{sv}",
+                             "connector", g_variant_new_string (connector));
+      g_variant_builder_add (&backlight_builder, "{sv}",
+                             "active", g_variant_new_boolean (active));
+
+      if (meta_monitor_get_backlight (monitor, &value))
+        {
+          int min, max;
+
+          meta_monitor_get_backlight_info (monitor, &min, &max);
+          g_variant_builder_add (&backlight_builder, "{sv}",
+                                 "min", g_variant_new_int32 (min));
+          g_variant_builder_add (&backlight_builder, "{sv}",
+                                 "max", g_variant_new_int32 (max));
+          g_variant_builder_add (&backlight_builder, "{sv}",
+                                 "value", g_variant_new_int32 (value));
+        }
+
+      g_variant_builder_close (&backlight_builder);
+    }
+
+  g_variant_builder_close (&backlight_builder);
+
+  backlight = g_variant_builder_end (&backlight_builder);
+
+  meta_dbus_display_config_set_backlight (manager->display_config,
+                                          g_steal_pointer (&backlight));
 }
 
 static void

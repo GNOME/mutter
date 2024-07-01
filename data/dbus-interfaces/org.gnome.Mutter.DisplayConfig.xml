@@ -210,11 +210,41 @@
         Returns the new value after rounding.
     -->
     <method name="ChangeBacklight">
+      <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
       <arg name="serial" direction="in" type="u" />
       <arg name="output" direction="in" type="u" />
       <arg name="value" direction="in" type="i" />
       <arg name="new_value" direction="out" type="i" />
     </method>
+
+    <!--
+	SetBacklight:
+	@serial: configuration serial
+	@connector: the connector name
+	@value: the new backlight value
+
+	Changes the backlight of @output to @value.
+    -->
+    <method name="SetBacklight">
+      <arg name="serial" direction="in" type="u" />
+      <arg name="connector" direction="in" type="s" />
+      <arg name="value" direction="in" type="i" />
+    </method>
+
+    <!--
+	Backlight:
+
+	A set of backlights. Each backlight is a dictionary with the following
+	entries. If an entry is only a connector, it means there is no way to
+	control it via this D-Bus interface.
+
+	  * 'connector' (s) - An associated monitor connector
+	  * 'active' (s) - True if the monitor is active
+	  * 'value' (i) - Current value (optional)
+
+	The initial 'u' is a serial number used when setting the backlight.
+    -->
+    <property name="Backlight" type="(uaa{sv})" access="read" />
 
     <!--
         GetCrtcGamma:
