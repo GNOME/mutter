@@ -2401,3 +2401,61 @@ out:
   *out_refresh_rate = refresh_rate;
   return TRUE;
 }
+
+gboolean
+meta_monitor_get_backlight_info (MetaMonitor *monitor,
+                                 int         *backlight_min,
+                                 int         *backlight_max)
+{
+  MetaOutput *main_output;
+  int value;
+
+  main_output = meta_monitor_get_main_output (monitor);
+  value = meta_output_get_backlight (main_output);
+  if (value >= 0)
+    {
+      const MetaOutputInfo *output_info = meta_output_get_info (main_output);
+      if (backlight_min)
+        *backlight_min = output_info->backlight_min;
+      if (backlight_max)
+        *backlight_max = output_info->backlight_max;
+      return TRUE;
+    }
+  else
+    {
+      return FALSE;
+    }
+}
+
+void
+meta_monitor_set_backlight (MetaMonitor *monitor,
+                            int          value)
+{
+  MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
+  GList *l;
+
+  for (l = priv->outputs; l; l = l->next)
+    {
+      MetaOutput *output = l->data;
+
+      meta_output_set_backlight (output, value);
+    }
+}
+
+gboolean
+meta_monitor_get_backlight (MetaMonitor *monitor,
+                            int         *value)
+{
+  if (meta_monitor_get_backlight_info (monitor, NULL, NULL))
+    {
+      MetaOutput *main_output;
+
+      main_output = meta_monitor_get_main_output (monitor);
+      *value = meta_output_get_backlight (main_output);
+      return TRUE;
+    }
+  else
+    {
+      return FALSE;
+    }
+}

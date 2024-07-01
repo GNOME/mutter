@@ -335,3 +335,13 @@ gboolean meta_parse_monitor_mode (const char *string,
                                   int        *out_height,
                                   float      *out_refresh_rate,
                                   float       fallback_refresh_rate);
+
+gboolean meta_monitor_get_backlight_info (MetaMonitor *monitor,
+                                          int         *backlight_min,
+                                          int         *backlight_max);
+
+void meta_monitor_set_backlight (MetaMonitor *monitor,
+                                 int          value);
+
+gboolean meta_monitor_get_backlight (MetaMonitor *monitor,
+                                     int         *value);
