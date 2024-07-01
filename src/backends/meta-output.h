@@ -258,9 +258,11 @@ META_EXPORT_TEST
 gboolean meta_output_get_max_bpc (MetaOutput   *output,
                                   unsigned int *max_bpc);
 
+META_EXPORT_TEST
 void meta_output_set_backlight (MetaOutput *output,
                                 int         backlight);
 
+META_EXPORT_TEST
 int meta_output_get_backlight (MetaOutput *output);
 
 MetaPrivacyScreenState meta_output_get_privacy_screen_state (MetaOutput *output);

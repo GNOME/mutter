@@ -771,6 +771,8 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
           output_info->suggested_x = -1;
           output_info->suggested_y = -1;
         }
+      output_info->backlight_min = setup->outputs[i].backlight_min;
+      output_info->backlight_max = setup->outputs[i].backlight_max;
       output_info->width_mm = setup->outputs[i].width_mm;
       output_info->height_mm = setup->outputs[i].height_mm;
       output_info->subpixel_order = META_SUBPIXEL_ORDER_UNKNOWN;

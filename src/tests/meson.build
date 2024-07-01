@@ -272,6 +272,11 @@ test_cases += [
     'sources': [ 'monitor-util-tests.c', ],
   },
   {
+    'name': 'monitor-backlight',
+    'suite': 'backend',
+    'sources': [ 'monitor-backlight-tests.c', ]
+  },
+  {
     'name': 'stage-views',
     'suite': 'compositor',
     'sources': [ 'stage-view-tests.c', ],

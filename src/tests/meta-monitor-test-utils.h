@@ -113,6 +113,8 @@ typedef struct _MonitorTestCaseOutput
   gboolean hotplug_mode;
   int suggested_x;
   int suggested_y;
+  int backlight_min;
+  int backlight_max;
   gboolean has_edid_info;
   MetaEdidInfo edid_info;
 } MonitorTestCaseOutput;
