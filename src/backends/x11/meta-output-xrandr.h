@@ -33,9 +33,6 @@ G_DECLARE_FINAL_TYPE (MetaOutputXrandr, meta_output_xrandr,
 
 void meta_output_xrandr_apply_mode (MetaOutputXrandr *output_xrandr);
 
-void meta_output_xrandr_change_backlight (MetaOutputXrandr *output_xrandr,
-                                          int         value);
-
 void meta_output_xrandr_set_ctm (MetaOutputXrandr    *output_xrandr,
                                  const MetaOutputCtm *ctm);
 

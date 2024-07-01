@@ -189,41 +189,6 @@ meta_output_xrandr_apply_mode (MetaOutputXrandr *output_xrandr)
     }
 }
 
-static int
-normalize_backlight (MetaOutput *output,
-                     int         hw_value)
-{
-  const MetaOutputInfo *output_info = meta_output_get_info (output);
-
-  return (int) round ((double) (hw_value - output_info->backlight_min) /
-                      (output_info->backlight_max - output_info->backlight_min) * 100.0);
-}
-
-void
-meta_output_xrandr_change_backlight (MetaOutputXrandr *output_xrandr,
-                                     int               value)
-{
-  MetaOutput *output = META_OUTPUT (output_xrandr);
-  const MetaOutputInfo *output_info = meta_output_get_info (output);
-  Display *xdisplay = xdisplay_from_output (output);
-  Atom atom;
-  int hw_value;
-
-  hw_value = (int) round ((double) value / 100.0 * output_info->backlight_max +
-                          output_info->backlight_min);
-
-  atom = XInternAtom (xdisplay, "Backlight", False);
-
-  xcb_randr_change_output_property (XGetXCBConnection (xdisplay),
-                                    (XID) meta_output_get_id (output),
-                                    atom, XCB_ATOM_INTEGER, 32,
-                                    XCB_PROP_MODE_REPLACE,
-                                    1, &hw_value);
-
-  /* We're not selecting for property notifies, so update the value immediately */
-  meta_output_set_backlight (output, normalize_backlight (output, hw_value));
-}
-
 static gboolean
 ctm_is_equal (const MetaOutputCtm *ctm1,
               const MetaOutputCtm *ctm2)
@@ -510,7 +475,6 @@ static int
 output_get_backlight_xrandr (MetaOutput *output)
 {
   Display *xdisplay = xdisplay_from_output (output);
-  int value = -1;
   Atom atom, actual_type;
   int actual_format;
   unsigned long nitems, bytes_after;
@@ -527,11 +491,7 @@ output_get_backlight_xrandr (MetaOutput *output)
   if (actual_type != XA_INTEGER || actual_format != 32 || nitems < 1)
     return -1;
 
-  value = ((int*)buffer)[0];
-  if (value >= 0)
-    return normalize_backlight (output, value);
-  else
-    return -1;
+  return ((int *) buffer)[0];
 }
 
 static void
@@ -954,6 +914,22 @@ find_assigned_crtc (MetaGpu       *gpu,
   return NULL;
 }
 
+static void
+on_backlight_changed (MetaOutput *output)
+{
+  Display *xdisplay = xdisplay_from_output (output);
+  int value = meta_output_get_backlight (output);
+  Atom atom;
+
+  atom = XInternAtom (xdisplay, "Backlight", False);
+
+  xcb_randr_change_output_property (XGetXCBConnection (xdisplay),
+                                    (XID) meta_output_get_id (output),
+                                    atom, XCB_ATOM_INTEGER, 32,
+                                    XCB_PROP_MODE_REPLACE,
+                                    1, &value);
+}
+
 MetaOutputXrandr *
 meta_output_xrandr_new (MetaGpuXrandr *gpu_xrandr,
                         XRROutputInfo *xrandr_output,
@@ -1062,7 +1038,11 @@ meta_output_xrandr_new (MetaGpuXrandr *gpu_xrandr,
     }
 
   if (!(output_info->backlight_min == 0 && output_info->backlight_max == 0))
-    meta_output_set_backlight (output, output_get_backlight_xrandr (output));
+    {
+      meta_output_set_backlight (output, output_get_backlight_xrandr (output));
+      g_signal_connect (output, "backlight-changed",
+                        G_CALLBACK (on_backlight_changed), NULL);
+    }
 
   if (output_info->n_modes == 0 || output_info->n_possible_crtcs == 0)
     {

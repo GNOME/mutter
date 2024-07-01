@@ -40,6 +40,7 @@ enum
 {
   COLOR_SPACE_CHANGED,
   HDR_METADATA_CHANGED,
+  BACKLIGHT_CHANGED,
 
   N_SIGNALS
 };
@@ -216,7 +217,12 @@ meta_output_set_backlight (MetaOutput *output,
 {
   MetaOutputPrivate *priv = meta_output_get_instance_private (output);
 
+  g_return_if_fail (backlight >= priv->info->backlight_min);
+  g_return_if_fail (backlight <= priv->info->backlight_max);
+
   priv->backlight = backlight;
+
+  g_signal_emit (output, signals[BACKLIGHT_CHANGED], 0);
 }
 
 int
@@ -671,6 +677,13 @@ meta_output_class_init (MetaOutputClass *klass)
                   G_TYPE_NONE, 0);
   signals[HDR_METADATA_CHANGED] =
     g_signal_new ("hdr-metadata-changed",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
+  signals[BACKLIGHT_CHANGED] =
+    g_signal_new ("backlight-changed",
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST,
                   0,

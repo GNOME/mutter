@@ -661,14 +661,6 @@ meta_monitor_manager_xrandr_apply_monitors_config (MetaMonitorManager      *mana
   return TRUE;
 }
 
-static void
-meta_monitor_manager_xrandr_change_backlight (MetaMonitorManager *manager,
-					      MetaOutput         *output,
-					      gint                value)
-{
-  meta_output_xrandr_change_backlight (META_OUTPUT_XRANDR (output), value);
-}
-
 static MetaMonitorXrandrData *
 meta_monitor_xrandr_data_from_monitor (MetaMonitor *monitor)
 {
@@ -966,7 +958,6 @@ meta_monitor_manager_xrandr_class_init (MetaMonitorManagerXrandrClass *klass)
   manager_class->ensure_initial_config = meta_monitor_manager_xrandr_ensure_initial_config;
   manager_class->apply_monitors_config = meta_monitor_manager_xrandr_apply_monitors_config;
   manager_class->set_power_save_mode = meta_monitor_manager_xrandr_set_power_save_mode;
-  manager_class->change_backlight = meta_monitor_manager_xrandr_change_backlight;
   manager_class->tiled_monitor_added = meta_monitor_manager_xrandr_tiled_monitor_added;
   manager_class->tiled_monitor_removed = meta_monitor_manager_xrandr_tiled_monitor_removed;
   manager_class->calculate_monitor_mode_scale = meta_monitor_manager_xrandr_calculate_monitor_mode_scale;
