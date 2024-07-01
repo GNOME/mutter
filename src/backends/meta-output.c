@@ -712,6 +712,70 @@ meta_tile_info_equal (MetaTileInfo *a,
   return TRUE;
 }
 
+static gboolean
+hdr_primaries_equal (double x1, double x2)
+{
+  return fabs (x1 - x2) < (0.00002 - DBL_EPSILON);
+}
+
+static gboolean
+hdr_nits_equal (double x1, double x2)
+{
+  return fabs (x1 - x2) < (1.0 - DBL_EPSILON);
+}
+
+static gboolean
+hdr_min_luminance_equal (double x1, double x2)
+{
+  return fabs (x1 - x2) < (0.0001 - DBL_EPSILON);
+}
+
+gboolean
+meta_output_hdr_metadata_equal (MetaOutputHdrMetadata *metadata,
+                                MetaOutputHdrMetadata *other_metadata)
+{
+  if (!metadata->active && !other_metadata->active)
+    return TRUE;
+
+  if (metadata->active != other_metadata->active)
+    return FALSE;
+
+  if (metadata->eotf != other_metadata->eotf)
+      return FALSE;
+
+  if (!hdr_primaries_equal (metadata->mastering_display_primaries[0].x,
+                            other_metadata->mastering_display_primaries[0].x) ||
+      !hdr_primaries_equal (metadata->mastering_display_primaries[0].y,
+                            other_metadata->mastering_display_primaries[0].y) ||
+      !hdr_primaries_equal (metadata->mastering_display_primaries[1].x,
+                            other_metadata->mastering_display_primaries[1].x) ||
+      !hdr_primaries_equal (metadata->mastering_display_primaries[1].y,
+                            other_metadata->mastering_display_primaries[1].y) ||
+      !hdr_primaries_equal (metadata->mastering_display_primaries[2].x,
+                            other_metadata->mastering_display_primaries[2].x) ||
+      !hdr_primaries_equal (metadata->mastering_display_primaries[2].y,
+                            other_metadata->mastering_display_primaries[2].y) ||
+      !hdr_primaries_equal (metadata->mastering_display_white_point.x,
+                            other_metadata->mastering_display_white_point.x) ||
+      !hdr_primaries_equal (metadata->mastering_display_white_point.y,
+                            other_metadata->mastering_display_white_point.y))
+    return FALSE;
+
+  if (!hdr_nits_equal (metadata->mastering_display_max_luminance,
+                       other_metadata->mastering_display_max_luminance))
+    return FALSE;
+
+  if (!hdr_min_luminance_equal (metadata->mastering_display_min_luminance,
+                                other_metadata->mastering_display_min_luminance))
+    return FALSE;
+
+  if (!hdr_nits_equal (metadata->max_cll, other_metadata->max_cll) ||
+      !hdr_nits_equal (metadata->max_fall, other_metadata->max_fall))
+    return FALSE;
+
+  return TRUE;
+}
+
 void
 meta_output_update_modes (MetaOutput    *output,
                           MetaCrtcMode  *preferred_mode,

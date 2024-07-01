@@ -96,7 +96,7 @@ meta_test_hdr_metadata_equality2 (void)
                            &metadata_out,
                            sizeof (MetaOutputHdrMetadata)), !=, 0);
 
-  g_assert_true (hdr_metadata_equal (&metadata_in, &metadata_out));
+  g_assert_true (meta_output_hdr_metadata_equal (&metadata_in, &metadata_out));
 }
 
 void

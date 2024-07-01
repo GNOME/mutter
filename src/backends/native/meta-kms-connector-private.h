@@ -161,7 +161,3 @@ void meta_set_drm_hdr_metadata (MetaOutputHdrMetadata      *metadata,
 META_EXPORT_TEST
 gboolean set_output_hdr_metadata (struct hdr_output_metadata *drm_metadata,
                                   MetaOutputHdrMetadata      *metadata);
-
-META_EXPORT_TEST
-gboolean hdr_metadata_equal (MetaOutputHdrMetadata *metadata,
-                             MetaOutputHdrMetadata *other_metadata);
