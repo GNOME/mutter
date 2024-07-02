@@ -1,6 +1,6 @@
 project('mutter', 'c',
   version: '47.alpha',
-  meson_version: '>= 1.1.0',
+  meson_version: '>= 1.3.0',
   license: 'GPLv2+'
 )
 
@@ -271,6 +271,11 @@ endif
 
 if have_wayland or have_native_backend
   libdrm_dep = dependency('libdrm', version: libdrm_req)
+  have_drm_plane_size_hint = cc.has_type('struct drm_plane_size_hint',
+                                         dependencies: libdrm_dep,
+                                         prefix: '#include <drm_mode.h>')
+else
+  have_drm_plane_size_hint = false
 endif
 
 have_egl_device = get_option('egl_device')
@@ -567,6 +572,7 @@ cdata.set('HAVE_PANGO_FT2', have_pango_ft2)
 cdata.set('HAVE_TIMERFD', have_timerfd)
 cdata.set('HAVE_MALLOC_TRIM', have_malloc_trim)
 cdata.set('HAVE_EVENTFD', have_eventfd)
+cdata.set('HAVE_DRM_PLANE_SIZE_HINT', have_drm_plane_size_hint)
 
 if have_x11_client
   xkb_base = xkeyboard_config_dep.get_variable('xkb_base')

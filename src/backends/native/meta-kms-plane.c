@@ -63,11 +63,15 @@ struct _MetaKmsPlane
   MetaKmsDevice *device;
 };
 
+#ifndef HAVE_DRM_PLANE_SIZE_HINT
+
 /* Shall be removed once available on libdrm.*/
 struct drm_plane_size_hint {
   __u16 width;
   __u16 height;
 };
+
+#endif
 
 G_DEFINE_TYPE (MetaKmsPlane, meta_kms_plane, G_TYPE_OBJECT)
 

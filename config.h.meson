@@ -138,3 +138,6 @@
 
 /* Supports eventfd */
 #mesondefine HAVE_EVENTFD
+
+/* libdrm defines struct drm_plane_size_hint */
+#mesondefine HAVE_DRM_PLANE_SIZE_HINT
