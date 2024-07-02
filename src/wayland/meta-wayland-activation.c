@@ -378,9 +378,8 @@ maybe_activate (MetaWaylandActivation *activation,
 }
 
 static void
-complete_pending_activate (MetaWindow            *window,
-                           GParamSpec            *pspec,
-                           MetaWaylandActivation *activation)
+complete_pending_activate (MetaWaylandActivation *activation,
+                           MetaWindow            *window)
 {
   g_autoptr (GPtrArray) requests = NULL;
   size_t i;
@@ -388,8 +387,7 @@ complete_pending_activate (MetaWindow            *window,
   if (!window)
     return;
 
-  g_signal_handlers_disconnect_by_func (window, complete_pending_activate,
-                                        activation);
+  g_signal_handlers_disconnect_by_data (window, activation);
 
   if (!g_hash_table_steal_extended (activation->pending_activations,
                                     window,
@@ -399,6 +397,21 @@ complete_pending_activate (MetaWindow            *window,
 
   for (i = 0; i < requests->len; i++)
     maybe_activate (activation, window, requests->pdata[i]);
+}
+
+static void
+on_window_mapped_notify (MetaWindow            *window,
+                         GParamSpec            *pspec,
+                         MetaWaylandActivation *activation)
+{
+  complete_pending_activate (activation, window);
+}
+
+static void
+on_window_unmanaged (MetaWindow            *window,
+                     MetaWaylandActivation *activation)
+{
+  complete_pending_activate (activation, window);
 }
 
 static void
@@ -419,10 +432,10 @@ add_pending_activate (MetaWaylandActivation *activation,
       requests = g_ptr_array_new_null_terminated (0, g_free, TRUE);
 
       g_signal_connect (window, "notify::mapped",
-                        G_CALLBACK (complete_pending_activate),
+                        G_CALLBACK (on_window_mapped_notify),
                         activation);
       g_signal_connect (window, "unmanaged",
-                        G_CALLBACK (complete_pending_activate),
+                        G_CALLBACK (on_window_unmanaged),
                         activation);
     }
 
