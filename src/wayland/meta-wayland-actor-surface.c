@@ -292,8 +292,13 @@ meta_wayland_actor_surface_sync_actor_state (MetaWaylandActorSurface *actor_surf
   MetaWaylandActorSurfacePrivate *priv =
     meta_wayland_actor_surface_get_instance_private (actor_surface);
 
-  if (priv->actor && meta_surface_actor_is_frozen (priv->actor))
-    return;
+#ifdef HAVE_XWAYLAND
+  if (!META_IS_XWAYLAND_SURFACE (actor_surface))
+#endif
+    {
+      if (priv->actor && meta_surface_actor_is_frozen (priv->actor))
+        return;
+    }
 
   actor_surface_class->sync_actor_state (actor_surface);
 }
