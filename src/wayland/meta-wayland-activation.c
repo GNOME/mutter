@@ -384,8 +384,7 @@ complete_pending_activate (MetaWaylandActivation *activation,
   g_autoptr (GPtrArray) requests = NULL;
   size_t i;
 
-  if (!window)
-    return;
+  g_assert (window != NULL);
 
   g_signal_handlers_disconnect_by_data (window, activation);
 
