@@ -1,3 +1,11 @@
+46.3.1
+======
+* Fix visibility of Xwayland windows [Michel; !3862]
+* Misc. bug fixes [Marco; !2959]
+
+Contributors:
+  Michel Dänzer, Marco Trevisan (Treviño)
+
 46.3
 ====
 * Fix performance issues with second virtual monitor [Jonas; !3803]

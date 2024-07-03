@@ -1,5 +1,5 @@
 project('mutter', 'c',
-  version: '46.3',
+  version: '46.3.1',
   meson_version: '>= 0.60.0',
   license: 'GPLv2+'
 )
