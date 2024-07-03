@@ -241,18 +241,18 @@ dump_pipeline_cb (CoglNode *node, void *user_data)
    want to put a declaration in a header and we just add it here to
    avoid a warning */
 void
-_cogl_debug_dump_pipelines_dot_file (const char *filename);
+_cogl_debug_dump_pipelines_dot_file (const char  *filename,
+                                     CoglContext *ctx);
 
 void
-_cogl_debug_dump_pipelines_dot_file (const char *filename)
+_cogl_debug_dump_pipelines_dot_file (const char  *filename,
+                                     CoglContext *ctx)
 {
   GString *graph;
   PrintDebugState layer_state;
   PrintDebugState pipeline_state;
   int layer_id = 0;
   int pipeline_id = 0;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
   if (!ctx->default_pipeline)
     return;
