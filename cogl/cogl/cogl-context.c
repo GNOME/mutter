@@ -160,8 +160,6 @@ cogl_context_class_init (CoglContextClass *class)
 extern void
 _cogl_create_context_driver (CoglContext *context);
 
-static CoglContext *_cogl_context = NULL;
-
 static void
 _cogl_init_feature_overrides (CoglContext *ctx)
 {
@@ -208,15 +206,6 @@ cogl_context_new (CoglDisplay *display,
 
   /* Allocate context memory */
   context = g_object_new (COGL_TYPE_CONTEXT, NULL);
-
-  /* XXX: Gross hack!
-   * Currently everything in Cogl just assumes there is a default
-   * context which it can access via _COGL_GET_CONTEXT() including
-   * code used to construct a CoglContext. Until all of that code
-   * has been updated to take an explicit context argument we have
-   * to immediately make our pointer the default context.
-   */
-  _cogl_context = context;
 
   /* Init default values */
   memset (context->features, 0, sizeof (context->features));
@@ -384,25 +373,6 @@ cogl_context_new (CoglDisplay *display,
     g_hash_table_new_full (NULL, NULL, NULL, g_object_unref);
 
   return context;
-}
-
-CoglContext *
-_cogl_context_get_default (void)
-{
-  GError *error = NULL;
-  /* Create if doesn't exist yet */
-  if (_cogl_context == NULL)
-    {
-      _cogl_context = cogl_context_new (NULL, &error);
-      if (!_cogl_context)
-        {
-          g_warning ("Failed to create default context: %s",
-                     error->message);
-          g_error_free (error);
-        }
-    }
-
-  return _cogl_context;
 }
 
 CoglDisplay *

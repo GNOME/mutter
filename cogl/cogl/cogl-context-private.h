@@ -276,9 +276,6 @@ struct _CoglContext
 #undef COGL_EXT_END
 };
 
-COGL_EXPORT CoglContext *
-_cogl_context_get_default (void);
-
 const CoglWinsysVtable *
 _cogl_context_get_winsys (CoglContext *context);
 
@@ -291,13 +288,6 @@ _cogl_context_get_winsys (CoglContext *context);
 gboolean
 _cogl_context_update_features (CoglContext *context,
                                GError **error);
-
-/* Obtains the context and returns retval if NULL */
-#define _COGL_GET_CONTEXT(ctxvar, retval) \
-CoglContext *ctxvar = _cogl_context_get_default (); \
-if (ctxvar == NULL) return retval;
-
-#define NO_RETVAL
 
 void
 _cogl_context_set_current_projection_entry (CoglContext *context,
