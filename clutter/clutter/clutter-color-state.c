@@ -67,20 +67,19 @@ enum
 
 static GParamSpec *obj_props[N_PROPS];
 
-typedef struct _ClutterColorStatePrivate ClutterColorStatePrivate;
-
 struct _ClutterColorState
 {
   GObject parent_instance;
 };
 
-struct _ClutterColorStatePrivate
+typedef struct _ClutterColorStatePrivate
 {
   ClutterContext *context;
 
+  unsigned int id;
   ClutterColorspace colorspace;
   ClutterTransferFunction transfer_function;
-};
+} ClutterColorStatePrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterColorState,
                             clutter_color_state,
@@ -160,6 +159,18 @@ clutter_transfer_function_to_string (ClutterTransferFunction transfer_function)
   g_assert_not_reached ();
 }
 
+unsigned int
+clutter_color_state_get_id (ClutterColorState *color_state)
+{
+  ClutterColorStatePrivate *priv;
+
+  g_return_val_if_fail (CLUTTER_IS_COLOR_STATE (color_state), 0);
+
+  priv = clutter_color_state_get_instance_private (color_state);
+
+  return priv->id;
+}
+
 ClutterColorspace
 clutter_color_state_get_colorspace (ClutterColorState *color_state)
 {
@@ -192,8 +203,13 @@ clutter_color_state_constructed (GObject *object)
   ClutterColorState *color_state = CLUTTER_COLOR_STATE (object);
   ClutterColorStatePrivate *priv =
     clutter_color_state_get_instance_private (color_state);
+  ClutterColorManager *color_manager;
 
   g_warn_if_fail (priv->context);
+
+  color_manager = clutter_context_get_color_manager (priv->context);
+
+  priv->id = clutter_color_manager_get_next_id (color_manager);
 }
 
 static void

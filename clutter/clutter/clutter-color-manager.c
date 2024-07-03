@@ -45,6 +45,7 @@ struct _ClutterColorManager
   ClutterContext *context;
 
   GHashTable *snippet_cache;
+  unsigned int id_counter;
 };
 
 G_DEFINE_FINAL_TYPE (ClutterColorManager, clutter_color_manager, G_TYPE_OBJECT)
@@ -131,6 +132,12 @@ clutter_color_manager_init (ClutterColorManager *color_manager)
                            clutter_color_transform_key_equal,
                            g_free,
                            g_object_unref);
+}
+
+unsigned int
+clutter_color_manager_get_next_id (ClutterColorManager *color_manager)
+{
+  return ++color_manager->id_counter;
 }
 
 CoglSnippet *
