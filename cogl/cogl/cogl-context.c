@@ -182,6 +182,8 @@ CoglContext *
 cogl_context_new (CoglDisplay *display,
                   GError **error)
 {
+  g_return_val_if_fail (display != NULL, NULL);
+
   CoglContext *context;
   uint8_t white_pixel[] = { 0xff, 0xff, 0xff, 0xff };
   const CoglWinsysVtable *winsys;
@@ -221,30 +223,7 @@ cogl_context_new (CoglDisplay *display,
   memset (context->private_features, 0, sizeof (context->private_features));
   memset (context->winsys_features, 0, sizeof (context->winsys_features));
 
-  if (!display)
-    {
-      CoglRenderer *renderer = cogl_renderer_new ();
-      if (!cogl_renderer_connect (renderer, error))
-        {
-          g_object_unref (renderer);
-          g_object_unref (context);
-          return NULL;
-        }
-
-      display = cogl_display_new (renderer, NULL);
-      g_object_unref (renderer);
-    }
-  else
-    g_object_ref (display);
-
-  if (!cogl_display_setup (display, error))
-    {
-      g_object_unref (display);
-      g_object_unref (context);
-      return NULL;
-    }
-
-  context->display = display;
+  context->display = g_object_ref (display);
 
   /* This is duplicated data, but it's much more convenient to have
      the driver attached to the context and the value is accessed a
