@@ -635,6 +635,8 @@ if have_wayland
     'wayland/meta-wayland-dnd-surface.h',
     'wayland/meta-wayland-filter-manager.c',
     'wayland/meta-wayland-filter-manager.h',
+    'wayland/meta-wayland-fixes.c',
+    'wayland/meta-wayland-fixes.h',
     'wayland/meta-wayland-fractional-scale.c',
     'wayland/meta-wayland-fractional-scale.h',
     'wayland/meta-wayland-gtk-shell.c',
