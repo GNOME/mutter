@@ -9,7 +9,7 @@ WRAPPER_ARGS="$3"
 TEST_BUILD_DIR="$4"
 VM_ENV="$5"
 
-TEST_RESULT_FILE=$(mktemp -p "$TEST_BUILD_DIR" -t test-result-XXXXXX)
+TEST_RESULT_FILE=$(mktemp -p "$TEST_BUILD_DIR" test-result-XXXXXX)
 echo 1 > "$TEST_RESULT_FILE"
 
 VIRTME_ENV="\
