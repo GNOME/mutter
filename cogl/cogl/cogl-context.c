@@ -224,6 +224,8 @@ cogl_context_new (CoglDisplay *display,
   memset (context->winsys_features, 0, sizeof (context->winsys_features));
 
   context->display = g_object_ref (display);
+  /* Keep a backpointer to the context */
+  display->context = context;
 
   /* This is duplicated data, but it's much more convenient to have
      the driver attached to the context and the value is accessed a

@@ -90,6 +90,7 @@ cogl_display_new (CoglRenderer         *renderer,
   CoglDisplay *display = g_object_new (COGL_TYPE_DISPLAY, NULL);
 
   display->renderer = g_object_ref (renderer);
+  renderer->display = display;
   display->setup = FALSE;
 
   cogl_display_set_onscreen_template (display, onscreen_template);

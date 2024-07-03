@@ -43,6 +43,9 @@ typedef const CoglWinsysVtable *(*CoglCustomWinsysVtableGetter) (CoglRenderer *r
 struct _CoglRenderer
 {
   GObject parent_instance;
+
+  CoglDisplay *display;
+
   gboolean connected;
   CoglDriver driver_override;
   const CoglDriverVtable *driver_vtable;

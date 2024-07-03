@@ -261,8 +261,7 @@ static gboolean
 update_all_outputs (CoglRenderer *renderer)
 {
   GList *l;
-
-  _COGL_GET_CONTEXT (context, FALSE);
+  CoglContext *context = renderer->display->context;
 
   if (context->display == NULL) /* during connection */
     return FALSE;

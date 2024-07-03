@@ -38,6 +38,8 @@ struct _CoglDisplay
 {
   GObjectClass parnet_class;
 
+  CoglContext *context;
+
   gboolean setup;
   CoglRenderer *renderer;
   CoglOnscreenTemplate *onscreen_template;
