@@ -3555,7 +3555,7 @@ meta_window_activate_full (MetaWindow     *window,
       /* We've marked it as demanding, don't need to do anything else. */
       return;
     }
-  else if (window->transient_for != NULL)
+  else if (window->transient_for != NULL && !window->on_all_workspaces)
     {
       /* Move transients to current workspace - preference dialogs should appear over
          the source window.  */
