@@ -7166,6 +7166,9 @@ meta_window_set_transient_for (MetaWindow *window,
 
   if (window->appears_focused && window->transient_for != NULL)
     meta_window_propagate_focus_appearance (window, TRUE);
+
+  if (parent && parent->on_all_workspaces)
+    meta_window_stick (window);
 }
 
 void
