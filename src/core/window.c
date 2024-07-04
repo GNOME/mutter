@@ -940,13 +940,16 @@ meta_window_update_desc (MetaWindow *window)
 
 #ifdef HAVE_X11_CLIENT
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
-    window->desc = g_strdup_printf ("0x%lx", meta_window_x11_get_xwindow (window));
+    window->desc = g_strdup_printf ("0x%lx (%s)",
+                                    meta_window_x11_get_xwindow (window),
+                                    window->title ? window->title : "[untitled]");
   else
 #endif
     {
       guint64 small_stamp = window->stamp - G_GUINT64_CONSTANT (0x100000000);
 
-      window->desc = g_strdup_printf ("W%" G_GUINT64_FORMAT, small_stamp);
+      window->desc = g_strdup_printf ("W%" G_GUINT64_FORMAT " (%s)", small_stamp,
+                                      window->title ? window->title : "[untitled]");
     }
 }
 
