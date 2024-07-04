@@ -1719,6 +1719,61 @@ test_case_do (TestCase    *test,
       else
         meta_window_unmake_above (window);
     }
+  else if (strcmp (argv[0], "stick") == 0 ||
+           strcmp (argv[0], "unstick") == 0)
+    {
+      MetaTestClient *client;
+      const char *window_id;
+      MetaWindow *window;
+
+      if (argc != 2)
+        BAD_COMMAND("usage: %s <client-id>/<window-id>", argv[0]);
+
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
+
+      window = meta_test_client_find_window (client, window_id, error);
+      if (!window)
+        return FALSE;
+
+      if (g_strcmp0 (argv[0], "stick") == 0)
+        meta_window_stick (window);
+      else if (g_strcmp0 (argv[0], "unstick") == 0)
+        meta_window_unstick (window);
+    }
+  else if (strcmp (argv[0], "assert_sticky") == 0)
+    {
+      MetaTestClient *client;
+      const char *window_id;
+      MetaWindow *window;
+      gboolean should_be_sticky;
+      gboolean is_sticky;
+
+      if (argc != 3 || !str_to_bool (argv[2], &should_be_sticky))
+        {
+          BAD_COMMAND("usage: %s <client-id>/<window-id> [true|false]",
+                      argv[0]);
+        }
+
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
+
+      window = meta_test_client_find_window (client, window_id, error);
+      if (!window)
+        return FALSE;
+
+      is_sticky = meta_window_is_on_all_workspaces (window);
+      if (should_be_sticky != is_sticky)
+        {
+          g_set_error (error,
+                       META_TEST_CLIENT_ERROR,
+                       META_TEST_CLIENT_ERROR_ASSERTION_FAILED,
+                       "stickyness: expected %s, actually %s",
+                       should_be_sticky ? "sticky" : "not sticky",
+                       is_sticky ? "sticky" : "not sticky");
+          return FALSE;
+        }
+    }
   else if (strcmp (argv[0], "focus_default_window") == 0)
     {
       if (argc != 1)
