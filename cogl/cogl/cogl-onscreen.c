@@ -335,11 +335,10 @@ cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
 
   _cogl_framebuffer_flush_journal (framebuffer);
 
-  /* Update our "latest" sync fd to contain all previous work */
-  _cogl_context_update_sync (context);
-
   if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_SYNC_FRAME)))
     cogl_framebuffer_finish (framebuffer);
+  else
+    _cogl_context_update_sync (context);
 
   cogl_framebuffer_discard_buffers (framebuffer,
                                     COGL_BUFFER_BIT_DEPTH |
