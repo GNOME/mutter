@@ -294,6 +294,9 @@ cogl_gl_framebuffer_finish (CoglFramebufferDriver *driver)
 {
   CoglContext *ctx = context_from_driver (driver);
 
+  /* Update our "latest" sync fd to contain all previous work */
+  _cogl_context_update_sync (ctx);
+
   ctx->glFinish ();
 }
 
@@ -301,6 +304,9 @@ static void
 cogl_gl_framebuffer_flush (CoglFramebufferDriver *driver)
 {
   CoglContext *ctx = context_from_driver (driver);
+
+  /* Update our "latest" sync fd to contain all previous work */
+  _cogl_context_update_sync (ctx);
 
   ctx->glFlush ();
 }
