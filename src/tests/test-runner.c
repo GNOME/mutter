@@ -39,6 +39,12 @@
 #include "x11/meta-x11-display-private.h"
 #include "x11/window-x11.h"
 
+typedef enum _StackFilter
+{
+  STACK_FILTER_ALL,
+  STACK_FILTER_SHOWING,
+} StackFilter;
+
 typedef struct {
   MetaContext *context;
   GHashTable *clients;
@@ -271,6 +277,7 @@ static gboolean
 test_case_assert_stacking (TestCase       *test,
                            char          **expected_windows,
                            int             n_expected_windows,
+                           StackFilter     filter,
                            MetaWorkspace  *workspace,
                            GError        **error)
 {
@@ -285,6 +292,9 @@ test_case_assert_stacking (TestCase       *test,
   for (i = 0; i < n_windows; i++)
     {
       MetaWindow *window = meta_display_lookup_stack_id (display, windows[i]);
+
+      if ((filter & STACK_FILTER_SHOWING) && window && window->hidden)
+        continue;
 
       if (workspace && !meta_window_located_on_workspace (window, workspace))
         continue;
@@ -1363,7 +1373,21 @@ test_case_do (TestCase    *test,
     }
   else if (strcmp (argv[0], "assert_stacking") == 0)
     {
-      if (!test_case_assert_stacking (test, argv + 1, argc - 1, NULL, error))
+      if (!test_case_assert_stacking (test, argv + 1, argc - 1,
+                                      STACK_FILTER_ALL,
+                                      NULL,
+                                      error))
+        return FALSE;
+
+      if (!test_case_check_xserver_stacking (test, error))
+        return FALSE;
+    }
+  else if (strcmp (argv[0], "assert_stacking_showing") == 0)
+    {
+      if (!test_case_assert_stacking (test, argv + 1, argc - 1,
+                                      STACK_FILTER_SHOWING,
+                                      NULL,
+                                      error))
         return FALSE;
 
       if (!test_case_check_xserver_stacking (test, error))
@@ -1634,7 +1658,10 @@ test_case_do (TestCase    *test,
         meta_workspace_manager_get_workspace_by_index (workspace_manager,
                                                        index);
 
-      if (!test_case_assert_stacking (test, argv + 2, argc - 2, workspace, error))
+      if (!test_case_assert_stacking (test, argv + 2, argc - 2,
+                                      STACK_FILTER_ALL,
+                                      workspace,
+                                      error))
         return FALSE;
 
       if (!test_case_check_xserver_stacking (test, error))
@@ -1977,7 +2004,7 @@ test_case_destroy (TestCase *test,
   if (!test_case_wait (test, error))
     return FALSE;
 
-  if (!test_case_assert_stacking (test, NULL, 0, NULL, error))
+  if (!test_case_assert_stacking (test, NULL, 0, STACK_FILTER_ALL, NULL, error))
     return FALSE;
 
   g_hash_table_iter_init (&iter, test->clients);
