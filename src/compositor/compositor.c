@@ -1382,15 +1382,21 @@ meta_compositor_flash_window (MetaCompositor *compositor,
   clutter_actor_set_easing_mode (flash, CLUTTER_EASE_IN_QUAD);
   clutter_actor_set_easing_duration (flash, FLASH_TIME_MS);
   clutter_actor_set_opacity (flash, 192);
+  clutter_actor_restore_easing_state (flash);
 
   transition = clutter_actor_get_transition (flash, "opacity");
-  clutter_timeline_set_auto_reverse (CLUTTER_TIMELINE (transition), TRUE);
-  clutter_timeline_set_repeat_count (CLUTTER_TIMELINE (transition), 2);
+  if (transition)
+    {
+      clutter_timeline_set_auto_reverse (CLUTTER_TIMELINE (transition), TRUE);
+      clutter_timeline_set_repeat_count (CLUTTER_TIMELINE (transition), 2);
 
-  g_signal_connect (transition, "stopped",
-                    G_CALLBACK (window_flash_out_completed), flash);
-
-  clutter_actor_restore_easing_state (flash);
+      g_signal_connect (transition, "stopped",
+                        G_CALLBACK (window_flash_out_completed), flash);
+    }
+  else /* implicit transition was skipped, likely because the window is hidden */
+    {
+      clutter_actor_destroy (flash);
+    }
 }
 
 /**
