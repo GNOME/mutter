@@ -731,6 +731,35 @@ meta_window_process_placement (MetaWindow        *window,
   *rel_y = y;
 }
 
+static GList *
+find_windows_relevant_for_placement (MetaWindow *window)
+{
+  GList *windows = NULL;
+  g_autoptr (GSList) all_windows = NULL;
+  GSList *l;
+
+  all_windows = meta_display_list_windows (window->display, META_LIST_DEFAULT);
+
+  for (l = all_windows; l; l = l->next)
+    {
+      MetaWindow *other_window = l->data;
+
+      if (other_window == window)
+        continue;
+
+      if (!meta_window_showing_on_its_workspace (other_window))
+        continue;
+
+      if (!window->on_all_workspaces &&
+          !meta_window_located_on_workspace (other_window, window->workspace))
+        continue;
+
+      windows = g_list_prepend (windows, other_window);
+    }
+
+  return windows;
+}
+
 void
 meta_window_place (MetaWindow        *window,
                    int                x,
@@ -741,7 +770,7 @@ meta_window_place (MetaWindow        *window,
   MetaDisplay *display = meta_window_get_display (window);
   MetaContext *context = meta_display_get_context (display);
   MetaBackend *backend = meta_context_get_backend (context);
-  GList *windows = NULL;
+  g_autoptr (GList) windows = NULL;
   MetaLogicalMonitor *logical_monitor;
 
   meta_topic (META_DEBUG_PLACEMENT, "Placing window %s", window->desc);
@@ -901,31 +930,7 @@ meta_window_place (MetaWindow        *window,
       goto done_check_denied_focus;
     }
 
-  /* Find windows that matter (not minimized, on same workspace
-   * as placed window)
-   */
-  {
-    GSList *all_windows;
-    GSList *tmp;
-
-    all_windows = meta_display_list_windows (window->display, META_LIST_DEFAULT);
-
-    tmp = all_windows;
-    while (tmp != NULL)
-      {
-        MetaWindow *w = tmp->data;
-
-        if (w != window &&
-            meta_window_showing_on_its_workspace (w) &&
-            (window->on_all_workspaces ||
-             meta_window_located_on_workspace (w, window->workspace)))
-          windows = g_list_prepend (windows, w);
-
-        tmp = tmp->next;
-      }
-
-    g_slist_free (all_windows);
-  }
+  windows = find_windows_relevant_for_placement (window);
 
   /* Warning, on X11 this might be a round trip! */
   logical_monitor = meta_backend_get_current_logical_monitor (backend);
@@ -1010,9 +1015,6 @@ meta_window_place (MetaWindow        *window,
     }
 
  done:
-  if (windows)
-    g_list_free (windows);
-
   *new_x = x;
   *new_y = y;
 }
