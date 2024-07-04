@@ -913,7 +913,6 @@ meta_window_place (MetaWindow        *window,
       MtkRectangle work_area;
       MtkRectangle frame_rect;
 
-      /* Warning, this function is a round trip! */
       logical_monitor = meta_backend_get_current_logical_monitor (backend);
 
       meta_window_get_work_area_for_logical_monitor (window,
@@ -932,7 +931,6 @@ meta_window_place (MetaWindow        *window,
 
   windows = find_windows_relevant_for_placement (window);
 
-  /* Warning, on X11 this might be a round trip! */
   logical_monitor = meta_backend_get_current_logical_monitor (backend);
 
   /* Maximize windows if they are too big for their work area (bit of
