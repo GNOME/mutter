@@ -1,0 +1,48 @@
+num_workspaces 2
+activate_workspace 0
+
+new_client w wayland
+create w/1
+show w/1
+stick w/1
+create w/2
+set_parent w/2 1
+show w/2
+wait
+assert_stacking_showing w/1 w/2
+
+activate_workspace 1
+assert_stacking_showing w/1 w/2
+
+unstick w/1
+assert_sticky w/1 false
+assert_sticky w/2 false
+wait
+
+activate_workspace 0
+dispatch
+assert_stacking_showing
+
+quit_client w
+
+new_client x x11
+
+create x/1
+show x/1
+stick x/1
+create x/2
+set_parent x/2 1
+show x/2
+wait
+assert_stacking_showing x/1 x/2
+
+activate_workspace 1
+assert_stacking_showing x/1 x/2
+
+unstick x/1
+
+activate_workspace 0
+dispatch
+assert_stacking_showing
+
+quit_client x
