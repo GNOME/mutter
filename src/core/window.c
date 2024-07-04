@@ -2047,33 +2047,25 @@ windows_overlap (const MetaWindow *w1, const MetaWindow *w2)
  * (say) ninety per cent and almost indistinguishable from total.
  */
 static gboolean
-window_would_be_covered (const MetaWindow *newbie)
+window_would_be_covered_by_always_above_window (MetaWindow *window)
 {
-  MetaWorkspace *workspace = meta_window_get_workspace ((MetaWindow *)newbie);
-  GList *tmp, *windows;
+  MetaWorkspace *workspace = meta_window_get_workspace (window);
+  g_autoptr (GList) windows = NULL;
+  GList *l;
 
   windows = meta_workspace_list_windows (workspace);
-
-  tmp = windows;
-  while (tmp != NULL)
+  for (l = windows; l; l = l->next)
     {
-      MetaWindow *w = tmp->data;
+      MetaWindow *other_window = l->data;
 
-      if (w->wm_state_above && w != newbie)
+      if (other_window->wm_state_above && other_window != window)
         {
-          /* We have found a window that is "above". Perhaps it overlaps. */
-          if (windows_overlap (w, newbie))
-            {
-              g_list_free (windows); /* clean up... */
-              return TRUE; /* yes, it does */
-            }
+          if (windows_overlap (other_window, window))
+            return TRUE;
         }
-
-      tmp = tmp->next;
     }
 
-  g_list_free (windows);
-  return FALSE; /* none found */
+  return FALSE;
 }
 
 void
@@ -2293,10 +2285,11 @@ meta_window_show (MetaWindow *window)
    * probably rather be a term in the "if" condition below.
    */
 
-  if ( focus_window != NULL && window->showing_for_first_time &&
-      ( (!place_on_top_on_map && !takes_focus_on_map) ||
-      window_would_be_covered (window) )
-    ) {
+  if (focus_window &&
+      window->showing_for_first_time &&
+      ((!place_on_top_on_map && !takes_focus_on_map) ||
+       window_would_be_covered_by_always_above_window (window)))
+    {
       if (!meta_window_is_ancestor_of_transient (focus_window, window))
         {
           needs_stacking_adjustment = TRUE;
