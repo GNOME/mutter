@@ -1605,6 +1605,8 @@ handle_selection_write (MetaDBusRemoteDesktopSession *skeleton,
   MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (skeleton);
   g_autoptr (GError) error = NULL;
   int pipe_fds[2];
+  g_autofd int pipe_in = -1;
+  g_autofd int pipe_out = -1;
   g_autoptr (GUnixFDList) fd_list = NULL;
   int fd_idx;
   GVariant *fd_variant;
@@ -1651,12 +1653,11 @@ handle_selection_write (MetaDBusRemoteDesktopSession *skeleton,
                                              error->message);
       return TRUE;
     }
+  pipe_in = pipe_fds[0];
+  pipe_out = pipe_fds[1];
 
-  if (!g_unix_set_fd_nonblocking (pipe_fds[0], TRUE, &error))
+  if (!g_unix_set_fd_nonblocking (pipe_in, TRUE, &error))
     {
-      close (pipe_fds[0]);
-      close (pipe_fds[1]);
-
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
                                              "Failed to make pipe non-blocking: %s",
@@ -1666,12 +1667,19 @@ handle_selection_write (MetaDBusRemoteDesktopSession *skeleton,
 
   fd_list = g_unix_fd_list_new ();
 
-  fd_idx = g_unix_fd_list_append (fd_list, pipe_fds[1], NULL);
-  close (pipe_fds[1]);
+  fd_idx = g_unix_fd_list_append (fd_list, pipe_out, &error);
+  if (fd_idx < 0)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Failed to append fd to fd list: %s",
+                                             error->message);
+      return TRUE;
+    }
   fd_variant = g_variant_new_handle (fd_idx);
 
   meta_selection_source_remote_complete_transfer (session->current_source,
-                                                  pipe_fds[0],
+                                                  g_steal_fd (&pipe_in),
                                                   task);
 
   meta_dbus_remote_desktop_session_complete_selection_write (skeleton,
@@ -1791,6 +1799,8 @@ handle_selection_read (MetaDBusRemoteDesktopSession *skeleton,
   MetaSelectionSource *source;
   g_autoptr (GError) error = NULL;
   int pipe_fds[2];
+  g_autofd int pipe_in = -1;
+  g_autofd int pipe_out = -1;
   g_autoptr (GUnixFDList) fd_list = NULL;
   int fd_idx;
   GVariant *fd_variant;
@@ -1842,12 +1852,11 @@ handle_selection_read (MetaDBusRemoteDesktopSession *skeleton,
                                              error->message);
       return TRUE;
     }
+  pipe_in = pipe_fds[0];
+  pipe_out = pipe_fds[1];
 
-  if (!g_unix_set_fd_nonblocking (pipe_fds[0], TRUE, &error))
+  if (!g_unix_set_fd_nonblocking (pipe_in, TRUE, &error))
     {
-      close (pipe_fds[0]);
-      close (pipe_fds[1]);
-
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
                                              "Failed to make pipe non-blocking: %s",
@@ -1857,13 +1866,20 @@ handle_selection_read (MetaDBusRemoteDesktopSession *skeleton,
 
   fd_list = g_unix_fd_list_new ();
 
-  fd_idx = g_unix_fd_list_append (fd_list, pipe_fds[0], NULL);
-  close (pipe_fds[0]);
+  fd_idx = g_unix_fd_list_append (fd_list, pipe_in, &error);
+  if (fd_idx < 0)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Failed to append fd to fd list: %s",
+                                             error->message);
+      return TRUE;
+    }
   fd_variant = g_variant_new_handle (fd_idx);
 
   session->read_data = read_data = g_new0 (SelectionReadData, 1);
   read_data->session = session;
-  read_data->stream = g_unix_output_stream_new (pipe_fds[1], TRUE);
+  read_data->stream = g_unix_output_stream_new (g_steal_fd (&pipe_out), TRUE);
   read_data->cancellable = g_cancellable_new ();
   meta_selection_transfer_async (selection,
                                  META_SELECTION_CLIPBOARD,
@@ -1907,9 +1923,10 @@ handle_connect_to_eis (MetaDBusRemoteDesktopSession *skeleton,
   MetaBackend *backend =
     meta_dbus_session_manager_get_backend (session->session_manager);
   g_autoptr (GUnixFDList) fd_list = NULL;
+  g_autoptr (GError) error = NULL;
   int fd_idx;
   GVariant *fd_variant;
-  int fd;
+  g_autofd int fd = -1;
 
   if (!session->eis)
     {
@@ -1943,12 +1960,21 @@ handle_connect_to_eis (MetaDBusRemoteDesktopSession *skeleton,
                                              G_DBUS_ERROR_FAILED,
                                              "Failed to create socket: %s",
                                              g_strerror (-fd));
+      fd = -1;
       return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   fd_list = g_unix_fd_list_new ();
-  fd_idx = g_unix_fd_list_append (fd_list, fd, NULL);
-  close (fd);
+  fd_idx = g_unix_fd_list_append (fd_list, fd, &error);
+  if (fd_idx < 0)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Failed to append socket fd to "
+                                             "fd list: %s",
+                                             error->message);
+      return TRUE;
+    }
   fd_variant = g_variant_new_handle (fd_idx);
 
   meta_dbus_remote_desktop_session_complete_connect_to_eis (skeleton,
