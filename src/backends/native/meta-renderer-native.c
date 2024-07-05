@@ -1402,6 +1402,7 @@ get_transfer_function_from_output (MetaOutput *output)
 static MetaRendererView *
 meta_renderer_native_create_view (MetaRenderer        *renderer,
                                   MetaLogicalMonitor  *logical_monitor,
+                                  MetaMonitor         *monitor,
                                   MetaOutput          *output,
                                   MetaCrtc            *crtc,
                                   GError             **error)

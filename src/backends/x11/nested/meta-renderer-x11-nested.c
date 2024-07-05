@@ -63,6 +63,7 @@ create_offscreen (CoglContext *cogl_context,
 static MetaRendererView *
 meta_renderer_x11_nested_create_view (MetaRenderer        *renderer,
                                       MetaLogicalMonitor  *logical_monitor,
+                                      MetaMonitor         *monitor,
                                       MetaOutput          *output,
                                       MetaCrtc            *crtc,
                                       GError             **error)

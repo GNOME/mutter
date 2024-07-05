@@ -94,6 +94,7 @@ meta_renderer_create_cogl_renderer (MetaRenderer *renderer)
 static MetaRendererView *
 meta_renderer_create_view (MetaRenderer        *renderer,
                            MetaLogicalMonitor  *logical_monitor,
+                           MetaMonitor         *monitor,
                            MetaOutput          *output,
                            MetaCrtc            *crtc,
                            GError             **error)
@@ -102,6 +103,7 @@ meta_renderer_create_view (MetaRenderer        *renderer,
 
   view = META_RENDERER_GET_CLASS (renderer)->create_view (renderer,
                                                           logical_monitor,
+                                                          monitor,
                                                           output,
                                                           crtc,
                                                           error);
@@ -138,7 +140,12 @@ create_crtc_view (MetaLogicalMonitor *logical_monitor,
   MetaRendererView *view;
   g_autoptr (GError) error = NULL;
 
-  view = meta_renderer_create_view (renderer, logical_monitor, output, crtc, &error);
+  view = meta_renderer_create_view (renderer,
+                                    logical_monitor,
+                                    monitor,
+                                    output,
+                                    crtc,
+                                    &error);
   if (!view)
     {
       g_warning ("Failed to create view for %s on %s: %s",
