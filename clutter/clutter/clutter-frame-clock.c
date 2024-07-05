@@ -746,7 +746,7 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
 
   *out_next_update_time_us = next_update_time_us;
   *out_next_presentation_time_us = next_presentation_time_us;
-  *out_next_frame_deadline_us = next_presentation_time_us - min_render_time_allowed_us;
+  *out_next_frame_deadline_us = next_presentation_time_us - frame_clock->vblank_duration_us;
 }
 
 static void
