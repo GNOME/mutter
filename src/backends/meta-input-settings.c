@@ -495,6 +495,8 @@ update_device_speed (MetaInputSettings      *input_settings,
 
       if (capabilities & CLUTTER_INPUT_CAPABILITY_TOUCHPAD)
         settings = priv->touchpad_settings;
+      else if (capabilities & CLUTTER_INPUT_CAPABILITY_TRACKPOINT)
+        settings = priv->pointing_stick_settings;
       else if (capabilities & CLUTTER_INPUT_CAPABILITY_POINTER)
         settings = priv->mouse_settings;
 
@@ -508,7 +510,8 @@ update_device_speed (MetaInputSettings      *input_settings,
     {
       settings_set_double_setting (input_settings,
                                    CLUTTER_INPUT_CAPABILITY_POINTER,
-                                   CLUTTER_INPUT_CAPABILITY_TOUCHPAD,
+                                   (CLUTTER_INPUT_CAPABILITY_TOUCHPAD |
+                                    CLUTTER_INPUT_CAPABILITY_TRACKPOINT),
                                    func,
                                    g_settings_get_double (priv->mouse_settings, key));
 
@@ -517,6 +520,12 @@ update_device_speed (MetaInputSettings      *input_settings,
                                    CLUTTER_INPUT_CAPABILITY_NONE,
                                    func,
                                    g_settings_get_double (priv->touchpad_settings, key));
+
+      settings_set_double_setting (input_settings,
+                                   CLUTTER_INPUT_CAPABILITY_TRACKPOINT,
+                                   CLUTTER_INPUT_CAPABILITY_NONE,
+                                   func,
+                                   g_settings_get_double (priv->pointing_stick_settings, key));
     }
 }
 
