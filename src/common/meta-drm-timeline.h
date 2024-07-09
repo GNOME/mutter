@@ -45,3 +45,8 @@ gboolean meta_drm_timeline_set_sync_point (MetaDrmTimeline *timeline,
                                            uint64_t         sync_point,
                                            int              sync_fd,
                                            GError         **error);
+
+gboolean meta_drm_timeline_is_signaled (MetaDrmTimeline  *timeline,
+                                        uint64_t          sync_point,
+                                        gboolean         *is_signaled,
+                                        GError          **error);

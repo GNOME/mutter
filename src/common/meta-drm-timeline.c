@@ -249,6 +249,30 @@ end:
   return FALSE;
 }
 
+gboolean
+meta_drm_timeline_is_signaled (MetaDrmTimeline  *timeline,
+                               uint64_t          sync_point,
+                               gboolean         *is_signaled,
+                               GError          **error)
+{
+  uint64_t latest_signaled_point;
+  int ret;
+
+  ret = drmSyncobjQuery (timeline->drm, &timeline->drm_syncobj,
+                         &latest_signaled_point, 1);
+  if (ret < 0)
+    {
+      g_set_error (error,
+                   G_IO_ERROR,
+                   G_IO_ERROR_FAILED,
+                   "drmSyncobjQuery failed: %s", g_strerror (errno));
+      return FALSE;
+    }
+
+  *is_signaled = latest_signaled_point >= sync_point;
+  return TRUE;
+}
+
 static void
 meta_drm_timeline_finalize (GObject *object)
 {
