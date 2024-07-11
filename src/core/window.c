@@ -3932,8 +3932,8 @@ meta_window_move_resize_internal (MetaWindow          *window,
   if (flags & META_MOVE_RESIZE_CONSTRAIN && window->monitor)
     {
       MtkRectangle old_rect;
-      meta_window_get_frame_rect (window, &old_rect);
 
+      meta_window_get_frame_rect (window, &old_rect);
       meta_window_constrain (window,
                              flags,
                              place_flags,
