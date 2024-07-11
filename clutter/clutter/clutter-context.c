@@ -24,6 +24,7 @@
 
 #include "cally/cally.h"
 #include "clutter/clutter-backend-private.h"
+#include "clutter/clutter-color-manager.h"
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-main.h"
 #include "clutter/clutter-private.h"
@@ -80,6 +81,7 @@ typedef struct _ClutterContextPrivate
 {
   ClutterTextDirection text_direction;
 
+  ClutterColorManager *color_manager;
   ClutterPipelineCache *pipeline_cache;
 } ClutterContextPrivate;
 
@@ -92,6 +94,7 @@ clutter_context_dispose (GObject *object)
   ClutterContextPrivate *priv = clutter_context_get_instance_private (context);
 
   g_clear_object (&priv->pipeline_cache);
+  g_clear_object (&priv->color_manager);
   g_clear_pointer (&context->events_queue, g_async_queue_unref);
   g_clear_pointer (&context->backend, clutter_backend_destroy);
 
@@ -274,6 +277,9 @@ clutter_context_new (ClutterContextFlags         flags,
     g_async_queue_new_full ((GDestroyNotify) clutter_event_free);
   context->last_repaint_id = 1;
 
+  priv->color_manager = g_object_new (CLUTTER_TYPE_COLOR_MANAGER,
+                                      "context", context,
+                                      NULL);
   priv->pipeline_cache = g_object_new (CLUTTER_TYPE_PIPELINE_CACHE, NULL);
 
   if (!clutter_context_init_real (context, flags, error))
