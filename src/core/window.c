@@ -2284,8 +2284,8 @@ meta_window_show (MetaWindow *window)
   if (focus_window &&
       window->showing_for_first_time &&
       !meta_window_is_ancestor_of_transient (focus_window, window) &&
-      ((!place_on_top_on_map && !takes_focus_on_map) ||
-       window_would_be_covered_by_always_above_window (window)))
+      !place_on_top_on_map &&
+      !takes_focus_on_map)
     {
       needs_stacking_adjustment = TRUE;
       if (!window->placed)
@@ -2315,6 +2315,12 @@ meta_window_show (MetaWindow *window)
         }
       meta_window_force_placement (window, place_flags);
     }
+
+  if (focus_window &&
+      window->showing_for_first_time &&
+      !meta_window_is_ancestor_of_transient (focus_window, window) &&
+      window_would_be_covered_by_always_above_window (window))
+    needs_stacking_adjustment = TRUE;
 
   if (needs_stacking_adjustment)
     {

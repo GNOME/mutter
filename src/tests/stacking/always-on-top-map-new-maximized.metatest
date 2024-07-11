@@ -1,0 +1,20 @@
+resize_monitor default 400 400
+
+new_client w wayland
+create w/1 csd
+resize w/1 350 350
+show w/1
+move w/1 25 25
+make_above w/1 true
+
+assert_focused w/1
+assert_stacking w/1
+
+# Map a maximized window; it should not gain focus due to being mostly covered.
+
+create w/2 csd
+maximize w/2
+show w/2
+
+assert_focused w/1
+assert_stacking w/2 w/1

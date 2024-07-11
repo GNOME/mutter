@@ -726,6 +726,7 @@ stacking_tests = [
   'workspace-basic',
   'workspace-test',
   'always-on-top',
+  'always-on-top-map-new-maximized',
   'focus-default-window-globally-active-input',
   'workspace-unmanaging-window',
   'click-to-focus-and-raise',
@@ -739,7 +740,8 @@ stacking_tests = [
   'sticky',
   'sticky-modals',
   'sticky-transients',
-  'strut-monitor-changes'
+  'strut-monitor-changes',
+  'window-placement',
 ]
 
 foreach stacking_test: stacking_tests

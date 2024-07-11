@@ -1,0 +1,84 @@
+new_client w wayland
+resize_monitor default 250 250
+set_pref center-new-windows false
+
+# Show 4 windows in a row and assert that they are placed in a grid and focused
+# correctly.
+
+create w/1 csd
+resize w/1 100 100
+show w/1
+
+assert_focused w/1
+assert_position w/1 24 16
+assert_size w/1 100 100
+
+create w/2 csd
+resize w/2 100 100
+show w/2
+
+assert_focused w/2
+assert_position w/2 24 116
+assert_size w/2 100 100
+
+create w/3 csd
+resize w/3 100 100
+show w/3
+
+assert_focused w/3
+assert_position w/3 124 16
+assert_size w/3 100 100
+
+create w/4 csd
+resize w/4 100 100
+show w/4
+
+assert_focused w/4
+assert_position w/4 124 116
+assert_size w/4 100 100
+
+destroy w/1
+destroy w/2
+destroy w/3
+destroy w/4
+wait
+
+assert_stacking
+
+
+# Show 1 window, make it 'always-on-top' and make sure the following windows
+# still get placed and focused correctly.
+
+create w/1 csd
+resize w/1 100 100
+show w/1
+
+assert_focused w/1
+assert_position w/1 24 16
+assert_size w/1 100 100
+
+make_above w/1 true
+
+create w/2 csd
+resize w/2 100 100
+show w/2
+
+assert_focused w/2
+assert_position w/2 24 116
+assert_size w/2 100 100
+
+create w/3 csd
+resize w/3 100 100
+show w/3
+
+assert_focused w/3
+assert_position w/3 124 16
+assert_size w/3 100 100
+
+create w/4 csd
+resize w/4 100 100
+show w/4
+
+assert_focused w/4
+assert_position w/4 124 116
+assert_size w/4 100 100

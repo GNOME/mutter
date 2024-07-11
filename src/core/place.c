@@ -353,7 +353,9 @@ find_most_freespace (MetaWindow *window,
 }
 
 static gboolean
-window_overlaps_focus_window (MetaWindow *window)
+window_overlaps_focus_window (MetaWindow *window,
+                              int         new_x,
+                              int         new_y)
 {
   MetaWindow *focus_window;
   MtkRectangle window_frame, focus_frame, overlap;
@@ -363,6 +365,9 @@ window_overlaps_focus_window (MetaWindow *window)
     return FALSE;
 
   meta_window_get_frame_rect (window, &window_frame);
+  window_frame.x = new_x;
+  window_frame.y = new_y;
+
   meta_window_get_frame_rect (focus_window, &focus_frame);
 
   return mtk_rectangle_intersect (&window_frame,
@@ -414,7 +419,7 @@ avoid_being_obscured_as_second_modal_dialog (MetaWindow    *window,
 #ifdef HAVE_X11_CLIENT
       meta_window_x11_same_application (window, focus_window) &&
 #endif
-      window_overlaps_focus_window (window))
+      window_overlaps_focus_window (window, *x, *y))
     {
       find_most_freespace (window, focus_window, *x, *y, x, y);
       meta_topic (META_DEBUG_PLACEMENT,
@@ -987,7 +992,7 @@ meta_window_place (MetaWindow        *window,
       g_assert (focus_window != NULL);
 
       /* No need to do anything if the window doesn't overlap at all */
-      found_fit = !window_overlaps_focus_window (window);
+      found_fit = !window_overlaps_focus_window (window, x, y);
 
       /* Try to do a first fit again, this time only taking into account the
        * focus window.
