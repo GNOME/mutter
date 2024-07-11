@@ -2300,9 +2300,14 @@ meta_window_show (MetaWindow *window)
           window->has_maximize_func)
         {
           MtkRectangle work_area;
+          int window_area;
+          int work_area_area;
+
+          window_area = window->rect.width * window->rect.height;
           meta_window_get_work_area_current_monitor (window, &work_area);
-          /* Automaximize windows that map with a size > MAX_UNMAXIMIZED_WINDOW_AREA of the work area */
-          if (window->rect.width * window->rect.height > work_area.width * work_area.height * MAX_UNMAXIMIZED_WINDOW_AREA)
+          work_area_area = work_area.width * work_area.height;
+
+          if (window_area > work_area_area * MAX_UNMAXIMIZED_WINDOW_AREA)
             {
               window->maximize_horizontally_after_placement = TRUE;
               window->maximize_vertically_after_placement = TRUE;
