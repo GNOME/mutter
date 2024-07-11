@@ -28,6 +28,7 @@
 #include "meta/meta-dnd.h"
 #include "meta/meta-idle-monitor.h"
 #include "meta/meta-monitor-manager.h"
+#include "meta/meta-orientation-manager.h"
 #include "meta/meta-remote-access-controller.h"
 
 typedef enum _MetaBackendCapabilities
@@ -68,6 +69,9 @@ MetaIdleMonitor * meta_backend_get_core_idle_monitor (MetaBackend *backend);
 
 META_EXPORT
 MetaMonitorManager * meta_backend_get_monitor_manager (MetaBackend *backend);
+
+META_EXPORT
+MetaOrientationManager * meta_backend_get_orientation_manager (MetaBackend *backend);
 
 META_EXPORT
 MetaRemoteAccessController * meta_backend_get_remote_access_controller (MetaBackend *backend);

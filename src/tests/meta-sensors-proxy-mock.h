@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "backends/meta-orientation-manager.h"
+#include "meta/meta-orientation-manager.h"
 
 typedef GDBusProxy MetaSensorsProxyMock;
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaSensorsProxyMock, g_object_unref)

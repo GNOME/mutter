@@ -20,6 +20,6 @@
 
 #pragma once
 
-#include "backends/meta-orientation-manager.h"
+#include "meta/meta-orientation-manager.h"
 
 void init_orientation_manager_tests (void);

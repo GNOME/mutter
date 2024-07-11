@@ -1372,7 +1372,9 @@ meta_backend_get_color_manager (MetaBackend *backend)
 }
 
 /**
- * meta_backend_get_orientation_manager: (skip)
+ * meta_backend_get_orientation_manager:
+ *
+ * Returns: (transfer none): A #MetaOrientationManager
  */
 MetaOrientationManager *
 meta_backend_get_orientation_manager (MetaBackend *backend)

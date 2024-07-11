@@ -27,6 +27,7 @@ mutter_public_headers = [
   'meta-monitor-manager.h',
   'meta-multi-texture.h',
   'meta-multi-texture-format.h',
+  'meta-orientation-manager.h',
   'meta-plugin.h',
   'meta-remote-access-controller.h',
   'meta-selection.h',

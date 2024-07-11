@@ -27,13 +27,13 @@
 
 #include "meta/meta-backend.h"
 #include "meta/meta-idle-monitor.h"
+#include "meta/meta-orientation-manager.h"
 #include "backends/meta-backend-types.h"
 #include "backends/meta-cursor-renderer.h"
 #include "backends/meta-egl.h"
 #include "backends/meta-input-mapper-private.h"
 #include "backends/meta-input-settings-private.h"
 #include "backends/meta-monitor-manager-private.h"
-#include "backends/meta-orientation-manager.h"
 #include "backends/meta-pointer-constraint.h"
 #include "backends/meta-renderer.h"
 #include "backends/meta-settings-private.h"
@@ -138,8 +138,6 @@ MetaIdleManager * meta_backend_get_idle_manager (MetaBackend *backend);
 META_EXPORT_TEST
 MetaColorManager * meta_backend_get_color_manager (MetaBackend *backend);
 
-META_EXPORT_TEST
-MetaOrientationManager * meta_backend_get_orientation_manager (MetaBackend *backend);
 META_EXPORT_TEST
 MetaCursorTracker * meta_backend_get_cursor_tracker (MetaBackend *backend);
 MetaCursorRenderer * meta_backend_get_cursor_renderer_for_device (MetaBackend        *backend,

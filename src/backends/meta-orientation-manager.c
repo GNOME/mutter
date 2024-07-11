@@ -17,9 +17,19 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * MetaOrientationManager:
+ *
+ * A screen orientation manager
+ *
+ * #MetaOrientationManager is a final class which contains methods to
+ * read the current screen orientation, as well as a signal that is
+ * triggered whenever a screen changes its orientation.
+ */
+
 #include "config.h"
 
-#include "backends/meta-orientation-manager.h"
+#include "meta/meta-orientation-manager.h"
 
 #include <gio/gio.h>
 

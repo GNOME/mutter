@@ -21,7 +21,7 @@
 #include <glib-object.h>
 
 #include "backends/meta-backend-types.h"
-#include "backends/meta-orientation-manager.h"
+#include "meta/meta-orientation-manager.h"
 #include "core/util-private.h"
 
 enum _MetaMonitorTransform

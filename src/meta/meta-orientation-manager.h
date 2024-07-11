@@ -1,7 +1,7 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
 
 /*
- * Copyright (C) 2017 Red Hat
+ * Copyright (C) 2024 Red Hat
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,7 +21,7 @@
 
 #include <glib-object.h>
 
-#include "core/util-private.h"
+#include "meta/common.h"
 
 typedef enum
 {
@@ -35,12 +35,15 @@ typedef enum
 
 #define META_TYPE_ORIENTATION_MANAGER (meta_orientation_manager_get_type ())
 
-META_EXPORT_TEST
-G_DECLARE_FINAL_TYPE (MetaOrientationManager, meta_orientation_manager,
-                      META, ORIENTATION_MANAGER, GObject)
+META_EXPORT
+G_DECLARE_FINAL_TYPE (MetaOrientationManager,
+                      meta_orientation_manager,
+                      META,
+                      ORIENTATION_MANAGER,
+                      GObject)
 
-META_EXPORT_TEST
+META_EXPORT
 MetaOrientation meta_orientation_manager_get_orientation (MetaOrientationManager *self);
 
-META_EXPORT_TEST
+META_EXPORT
 gboolean meta_orientation_manager_has_accelerometer (MetaOrientationManager *self);
