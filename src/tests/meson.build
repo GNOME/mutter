@@ -727,6 +727,7 @@ stacking_tests = [
   'workspace-test',
   'always-on-top',
   'always-on-top-map-new-maximized',
+  'always-on-top-map-new-partial',
   'focus-default-window-globally-active-input',
   'workspace-unmanaging-window',
   'click-to-focus-and-raise',

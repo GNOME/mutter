@@ -1,0 +1,59 @@
+resize_monitor default 400 400
+set_pref center-new-windows true
+
+new_client w wayland
+create w/1 csd
+resize w/1 100 100
+show w/1
+
+assert_focused w/1
+assert_stacking w/1
+
+create w/2 csd
+resize w/2 100 100
+show w/2
+
+assert_focused w/2
+assert_stacking w/1 w/2
+
+create w/3 csd
+resize w/3 100 100
+show w/3
+
+assert_focused w/3
+assert_stacking w/1 w/2 w/3
+
+# Mark two windows as always-above
+
+make_above w/1 true
+move w/1 201 150
+assert_stacking w/2 w/3 w/1
+
+make_above w/3 true
+move w/3 0 0
+assert_stacking w/2 w/1 w/3
+
+# Map another window while the other non-aways-on-top window has focus.
+# It will be mostly visible, so will take focus.
+
+local_activate w/2
+assert_focused w/2
+
+create w/4 csd
+resize w/4 100 100
+show w/4
+
+assert_focused w/4
+assert_stacking w/2 w/4 w/1 w/3
+
+# Move one of the always-on-top window so that the next mapped one will be
+# mostly non-visible, thus not take focus.
+
+move w/1 180 150
+
+create w/5 csd
+resize w/5 100 100
+show w/5
+
+assert_focused w/4
+assert_stacking w/2 w/5 w/4 w/1 w/3

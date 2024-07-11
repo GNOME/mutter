@@ -2034,6 +2034,20 @@ windows_overlap (const MetaWindow *w1, const MetaWindow *w2)
   return mtk_rectangle_overlap (&w1rect, &w2rect);
 }
 
+static int
+calculate_region_area (MtkRegion *region)
+{
+  MtkRegionIterator iter;
+  int area = 0;
+
+  for (mtk_region_iterator_init (&iter, region);
+       !mtk_region_iterator_at_end (&iter);
+       mtk_region_iterator_next (&iter))
+    area += iter.rectangle.width * iter.rectangle.height;
+
+  return area;
+}
+
 /* Returns whether a new window would be covered by any
  * existing window on the same workspace that is set
  * to be "above" ("always on top").  A window that is not
@@ -2046,25 +2060,35 @@ windows_overlap (const MetaWindow *w1, const MetaWindow *w2)
  * (say) ninety per cent and almost indistinguishable from total.
  */
 static gboolean
-window_would_be_covered_by_always_above_window (MetaWindow *window)
+window_would_mostly_be_covered_by_always_above_window (MetaWindow *window)
 {
   MetaWorkspace *workspace = meta_window_get_workspace (window);
   g_autoptr (GList) windows = NULL;
   GList *l;
+  g_autoptr (MtkRegion) region = NULL;
+  int window_area, intersection_area, visible_area;
 
+  region = mtk_region_create ();
   windows = meta_workspace_list_windows (workspace);
   for (l = windows; l; l = l->next)
     {
       MetaWindow *other_window = l->data;
 
       if (other_window->wm_state_above && other_window != window)
-        {
-          if (windows_overlap (other_window, window))
-            return TRUE;
-        }
+        mtk_region_union_rectangle (region, &other_window->rect);
     }
 
-  return FALSE;
+  window_area = window->rect.width * window->rect.height;
+
+  mtk_region_intersect_rectangle (region, &window->rect);
+  intersection_area = calculate_region_area (region);
+  visible_area = window_area - intersection_area;
+
+#define REQUIRED_VISIBLE_AREA_PERCENT 40
+  if ((100 * visible_area) / window_area > REQUIRED_VISIBLE_AREA_PERCENT)
+    return FALSE;
+  else
+    return TRUE;
 }
 
 void
@@ -2319,7 +2343,7 @@ meta_window_show (MetaWindow *window)
   if (focus_window &&
       window->showing_for_first_time &&
       !meta_window_is_ancestor_of_transient (focus_window, window) &&
-      window_would_be_covered_by_always_above_window (window))
+      window_would_mostly_be_covered_by_always_above_window (window))
     needs_stacking_adjustment = TRUE;
 
   if (needs_stacking_adjustment)
