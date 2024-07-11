@@ -68,3 +68,11 @@ ClutterTextDirection clutter_context_get_text_direction (ClutterContext *context
 
 CLUTTER_EXPORT
 ClutterPipelineCache * clutter_context_get_pipeline_cache (ClutterContext *clutter_context);
+
+/**
+ * clutter_context_get_color_manager:
+ *
+ * Returns: (transfer none): The %ClutterColorManager
+ */
+CLUTTER_EXPORT
+ClutterColorManager * clutter_context_get_color_manager (ClutterContext *context);

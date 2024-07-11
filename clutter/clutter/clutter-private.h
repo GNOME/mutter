@@ -72,6 +72,8 @@ typedef struct _ClutterContext      ClutterContext;
  * because it will break for negative numbers. */
 #define CLUTTER_NEARBYINT(x) ((int) ((x) < 0.0f ? (x) - 0.5f : (x) + 0.5f))
 
+typedef struct _ClutterColorTransformKey ClutterColorTransformKey;
+
 typedef enum
 {
   CLUTTER_ACTOR_UNUSED_FLAG = 0,

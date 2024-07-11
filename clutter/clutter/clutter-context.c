@@ -346,3 +346,11 @@ clutter_context_get_pipeline_cache (ClutterContext *context)
 
   return priv->pipeline_cache;
 }
+
+ClutterColorManager *
+clutter_context_get_color_manager (ClutterContext *context)
+{
+  ClutterContextPrivate *priv = clutter_context_get_instance_private (context);
+
+  return priv->color_manager;
+}
