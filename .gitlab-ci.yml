@@ -129,20 +129,10 @@ variables:
         main
 
       ./.gitlab-ci/install-meson-project.sh \
-        https://gitlab.freedesktop.org/wayland/wayland.git \
-        1.23.0
-
-      ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/GNOME/gi-docgen.git \
         main
 
-      ./.gitlab-ci/install-meson-project.sh \
-        https://gitlab.freedesktop.org/wayland/wayland-protocols.git \
-        1.36
-
-      ./.gitlab-ci/install-meson-project.sh \
-        https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas.git \
-        master
+      ./.gitlab-ci/install-common-dependencies.sh
 
       rpm -e --nodeps gnome-bluetooth-libs-devel \
                       mutter mutter-devel \
