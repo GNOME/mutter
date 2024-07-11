@@ -27,6 +27,7 @@
 
 void meta_window_constrain (MetaWindow          *window,
                             MetaMoveResizeFlags  flags,
+                            MetaPlaceFlag        place_flags,
                             MetaGravity          resize_gravity,
                             const MtkRectangle  *orig,
                             MtkRectangle        *new,

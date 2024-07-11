@@ -72,6 +72,13 @@ typedef enum
   META_MOVE_RESIZE_CONSTRAIN = 1 << 13,
 } MetaMoveResizeFlags;
 
+typedef enum _MetaPlaceFlag
+{
+  META_PLACE_FLAG_NONE = 0,
+  META_PLACE_FLAG_FORCE_MOVE = 1 << 0,
+  META_PLACE_FLAG_DENIED_FOCUS_AND_NOT_TRANSIENT = 1 << 1,
+} MetaPlaceFlag;
+
 typedef enum
 {
   META_MOVE_RESIZE_RESULT_MOVED               = 1 << 0,
@@ -515,9 +522,6 @@ struct _MetaWindow
   /* Have we placed this window? */
   guint placed : 1;
 
-  /* Is this not a transient of the focus window which is being denied focus? */
-  guint denied_focus_and_not_transient : 1;
-
   /* Has this window not ever been shown yet? */
   guint showing_for_first_time : 1;
 
@@ -801,6 +805,7 @@ void meta_window_set_urgent (MetaWindow *window,
 
 void meta_window_move_resize_internal (MetaWindow          *window,
                                        MetaMoveResizeFlags  flags,
+                                       MetaPlaceFlag        place_flags,
                                        MetaGravity          gravity,
                                        MtkRectangle         frame_rect);
 
@@ -818,8 +823,8 @@ void meta_window_emit_size_changed (MetaWindow *window);
 
 MetaPlacementRule *meta_window_get_placement_rule (MetaWindow *window);
 
-void meta_window_force_placement (MetaWindow *window,
-                                  gboolean    force_move);
+void meta_window_force_placement (MetaWindow    *window,
+                                  MetaPlaceFlag  flags);
 
 void meta_window_force_restore_shortcuts (MetaWindow         *window,
                                           ClutterInputDevice *source);

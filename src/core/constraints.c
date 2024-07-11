@@ -220,6 +220,7 @@ static void setup_constraint_info        (MetaBackend         *backend,
                                           const MtkRectangle  *orig,
                                           MtkRectangle        *new);
 static void place_window_if_needed       (MetaWindow     *window,
+                                          MetaPlaceFlag   place_flags,
                                           ConstraintInfo *info);
 static void update_onscreen_requirements (MetaWindow     *window,
                                           ConstraintInfo *info);
@@ -292,6 +293,7 @@ do_all_constraints (MetaWindow         *window,
 void
 meta_window_constrain (MetaWindow          *window,
                        MetaMoveResizeFlags  flags,
+                       MetaPlaceFlag        place_flags,
                        MetaGravity          resize_gravity,
                        const MtkRectangle  *orig,
                        MtkRectangle        *new,
@@ -319,7 +321,7 @@ meta_window_constrain (MetaWindow          *window,
                          resize_gravity,
                          orig,
                          new);
-  place_window_if_needed (window, &info);
+  place_window_if_needed (window, place_flags, &info);
 
   while (!satisfied && priority <= PRIORITY_MAXIMUM) {
     gboolean check_only = TRUE;
@@ -532,8 +534,9 @@ get_start_rect_for_resize (MetaWindow     *window,
 }
 
 static void
-place_window_if_needed(MetaWindow     *window,
-                       ConstraintInfo *info)
+place_window_if_needed (MetaWindow     *window,
+                        MetaPlaceFlag   place_flags,
+                        ConstraintInfo *info)
 {
   gboolean did_placement;
 
@@ -576,7 +579,8 @@ place_window_if_needed(MetaWindow     *window,
         }
       else
         {
-          meta_window_place (window, orig_rect.x, orig_rect.y,
+          meta_window_place (window, place_flags,
+                             orig_rect.x, orig_rect.y,
                              &placed_rect.x, &placed_rect.y);
 
           /* placing the window may have changed the monitor.  Find the

@@ -544,7 +544,11 @@ meta_window_apply_session_info (MetaWindow *window,
 
       adjust_for_gravity (window, FALSE, gravity, &rect);
       meta_window_client_rect_to_frame_rect (window, &rect, &rect);
-      meta_window_move_resize_internal (window, flags, gravity, rect);
+      meta_window_move_resize_internal (window,
+                                        flags,
+                                        META_PLACE_FLAG_NONE,
+                                        gravity,
+                                        rect);
     }
 }
 
@@ -624,7 +628,11 @@ meta_window_x11_initialize_state (MetaWindow *window)
 
       adjust_for_gravity (window, TRUE, gravity, &rect);
       meta_window_client_rect_to_frame_rect (window, &rect, &rect);
-      meta_window_move_resize_internal (window, flags, gravity, rect);
+      meta_window_move_resize_internal (window,
+                                        flags,
+                                        META_PLACE_FLAG_NONE,
+                                        gravity,
+                                        rect);
     }
 
   meta_window_x11_update_shape_region (window);
@@ -2911,7 +2919,11 @@ meta_window_move_resize_request (MetaWindow  *window,
 
       adjust_for_gravity (window, TRUE, gravity, &rect);
       meta_window_client_rect_to_frame_rect (window, &rect, &rect);
-      meta_window_move_resize_internal (window, flags, gravity, rect);
+      meta_window_move_resize_internal (window,
+                                        flags,
+                                        META_PLACE_FLAG_NONE,
+                                        gravity,
+                                        rect);
     }
 }
 

@@ -384,9 +384,10 @@ window_place_centered (MetaWindow *window)
 }
 
 static void
-avoid_being_obscured_as_second_modal_dialog (MetaWindow *window,
-                                             int        *x,
-                                             int        *y)
+avoid_being_obscured_as_second_modal_dialog (MetaWindow    *window,
+                                             MetaPlaceFlag  flags,
+                                             int           *x,
+                                             int           *y)
 {
   /* We can't center this dialog if it was denied focus and it
    * overlaps with the focus window and this dialog is modal and this
@@ -408,7 +409,7 @@ avoid_being_obscured_as_second_modal_dialog (MetaWindow *window,
 
   /* denied_focus_and_not_transient is only set when focus_window != NULL */
 
-  if (window->denied_focus_and_not_transient &&
+  if (flags & META_PLACE_FLAG_DENIED_FOCUS_AND_NOT_TRANSIENT &&
       window->type == META_WINDOW_MODAL_DIALOG &&
 #ifdef HAVE_X11_CLIENT
       meta_window_x11_same_application (window, focus_window) &&
@@ -762,6 +763,7 @@ find_windows_relevant_for_placement (MetaWindow *window)
 
 void
 meta_window_place (MetaWindow        *window,
+                   MetaPlaceFlag      flags,
                    int                x,
                    int                y,
                    int               *new_x,
@@ -862,7 +864,7 @@ meta_window_place (MetaWindow        *window,
         {
           meta_topic (META_DEBUG_PLACEMENT,
                       "Not placing window with PROGRAM_POSITION or USER_POSITION set");
-          avoid_being_obscured_as_second_modal_dialog (window, &x, &y);
+          avoid_being_obscured_as_second_modal_dialog (window, flags, &x, &y);
           goto done;
         }
     }
@@ -897,7 +899,7 @@ meta_window_place (MetaWindow        *window,
                       "Centered window %s over transient parent",
                       window->desc);
 
-          avoid_being_obscured_as_second_modal_dialog (window, &x, &y);
+          avoid_being_obscured_as_second_modal_dialog (window, flags, &x, &y);
 
           goto done;
         }
@@ -976,7 +978,7 @@ meta_window_place (MetaWindow        *window,
    * if at all possible.  This is guaranteed to only be called if the
    * focus_window is non-NULL, and we try to avoid that window.
    */
-  if (window->denied_focus_and_not_transient)
+  if (flags & META_PLACE_FLAG_DENIED_FOCUS_AND_NOT_TRANSIENT)
     {
       MetaWindow    *focus_window;
       gboolean       found_fit;

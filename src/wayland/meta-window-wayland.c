@@ -1266,7 +1266,11 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
     gravity = meta_resize_gravity_from_grab_op (meta_window_drag_get_grab_op (window_drag));
   else
     gravity = META_GRAVITY_STATIC;
-  meta_window_move_resize_internal (window, flags, gravity, rect);
+  meta_window_move_resize_internal (window,
+                                    flags,
+                                    META_PLACE_FLAG_NONE,
+                                    gravity,
+                                    rect);
 }
 
 void
@@ -1292,6 +1296,7 @@ meta_window_place_with_placement_rule (MetaWindow        *window,
                                      META_MOVE_RESIZE_RESIZE_ACTION |
                                      META_MOVE_RESIZE_PLACEMENT_CHANGED |
                                      META_MOVE_RESIZE_CONSTRAIN),
+                                    META_PLACE_FLAG_NONE,
                                     META_GRAVITY_NORTH_WEST,
                                     window->unconstrained_rect);
   window->calc_placement = FALSE;
