@@ -807,7 +807,8 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
 
   if (!last_presentation ||
       !have_max_update_time_estimate ||
-      last_presentation->presentation_time_us == 0)
+      last_presentation->presentation_time_us == 0 ||
+      !(last_presentation->presentation_flags & CLUTTER_FRAME_INFO_FLAG_VSYNC))
     {
       const Frame *last_dispatch = frame_clock->prev_dispatch;
 
@@ -881,34 +882,6 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
   next_presentation_time_us =
     mtk_extrapolate_next_interval_boundary (next_smooth_presentation_time_us,
                                             refresh_interval_us);
-
-  if (last_presentation->target_presentation_time_us > 0)
-    {
-      int64_t time_since_last_target_presentation_time_us;
-
-      /*
-       * Skip one interval if we got an early presented event.
-       *
-       *        last frame this was last_presentation_time
-       *       /       frame_clock->next_presentation_time_us
-       *      /       /
-       * |---|-o-----|-x----->
-       *       |       \
-       *       \        next_presentation_time_us is thus right after the last one
-       *        but got an unexpected early presentation
-       *             \_/
-       *             time_since_last_target_presentation_time_us
-       *
-       */
-      time_since_last_target_presentation_time_us =
-        next_presentation_time_us - last_presentation->target_presentation_time_us;
-      if (time_since_last_target_presentation_time_us > 0 &&
-          time_since_last_target_presentation_time_us < (refresh_interval_us / 2))
-        {
-          next_presentation_time_us =
-            frame_clock->next_presentation_time_us + refresh_interval_us;
-        }
-    }
 
   if (last_presentation->presentation_flags & CLUTTER_FRAME_INFO_FLAG_VSYNC &&
       next_presentation_time_us != next_smooth_presentation_time_us)
