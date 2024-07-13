@@ -96,8 +96,8 @@ meson setup --prefix=/usr _build "${MESON_OPTIONS[@]}"
 
 # Install it to an additional directory e.g., system extension directory
 if [ -n "${DESTDIR}" ]; then
-    meson install -C _build --destdir=$DESTDIR
+    sudo meson install -C _build --destdir=$DESTDIR
 fi
 
-meson install -C _build
+sudo meson install -C _build
 popd
