@@ -160,7 +160,7 @@ clutter_root_node_new (CoglFramebuffer *framebuffer,
 
   res = _clutter_paint_node_create (CLUTTER_TYPE_ROOT_NODE);
 
-  res->clear_color = *cogl_color_copy (clear_color);
+  res->clear_color = *clear_color;
   cogl_color_premultiply (&res->clear_color);
 
   res->framebuffer = g_object_ref (framebuffer);
@@ -580,7 +580,7 @@ clutter_color_node_new (const CoglColor *color)
     {
       CoglColor pipeline_color;
 
-      pipeline_color = *cogl_color_copy (color);
+      pipeline_color = *color;
       cogl_color_premultiply (&pipeline_color);
       cogl_pipeline_set_color (cnode->pipeline, &pipeline_color);
     }
@@ -684,7 +684,7 @@ clutter_texture_node_new (CoglTexture          *texture,
 
   if (color != NULL)
     {
-      pipeline_color = *cogl_color_copy (color);
+      pipeline_color = *color;
       cogl_color_premultiply (&pipeline_color);
     }
   else
@@ -858,7 +858,7 @@ clutter_text_node_new (PangoLayout     *layout,
     res->layout = g_object_ref (layout);
 
   if (color != NULL)
-    res->color = *cogl_color_copy (color);
+    res->color = *color;
 
   return (ClutterPaintNode *) res;
 }
