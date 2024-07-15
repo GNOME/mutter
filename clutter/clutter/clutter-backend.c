@@ -26,7 +26,7 @@
 
 /**
  * ClutterBackend:
- * 
+ *
  * Backend abstraction
  *
  * Clutter can be compiled against different backends. Each backend
@@ -117,8 +117,9 @@ clutter_backend_do_real_create_context (ClutterBackend  *backend,
 {
   ClutterBackendClass *klass;
 
-  klass = CLUTTER_BACKEND_GET_CLASS (backend);
+  cogl_init ();
 
+  klass = CLUTTER_BACKEND_GET_CLASS (backend);
   CLUTTER_NOTE (BACKEND, "Creating Cogl renderer");
   backend->cogl_renderer = klass->get_renderer (backend, error);
 

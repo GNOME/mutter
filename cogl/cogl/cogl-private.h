@@ -82,9 +82,6 @@ _cogl_transform_point (const graphene_matrix_t *matrix_mv,
 gboolean
 _cogl_check_extension (const char *name, char * const *ext);
 
-void
-_cogl_init (void);
-
 #define _cogl_has_private_feature(ctx, feature) \
   COGL_FLAGS_GET ((ctx)->private_features, (feature))
 

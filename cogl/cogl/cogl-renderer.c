@@ -194,8 +194,6 @@ cogl_renderer_new (void)
 {
   CoglRenderer *renderer = g_object_new (COGL_TYPE_RENDERER, NULL);
 
-  _cogl_init ();
-
   renderer->connected = FALSE;
   renderer->event_filters = NULL;
 

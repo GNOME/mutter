@@ -52,6 +52,7 @@
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-offscreen.h"
 #include "cogl/winsys/cogl-winsys-private.h"
+#include "cogl/cogl-mutter.h"
 
 gboolean
 _cogl_check_extension (const char *name, char * const *ext)
@@ -124,7 +125,7 @@ _cogl_system_error_quark (void)
 }
 
 void
-_cogl_init (void)
+cogl_init (void)
 {
   static gboolean initialized = FALSE;
 

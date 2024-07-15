@@ -88,8 +88,6 @@ cogl_display_new (CoglRenderer         *renderer,
   CoglDisplay *display = g_object_new (COGL_TYPE_DISPLAY, NULL);
   GError *error = NULL;
 
-  _cogl_init ();
-
   display->renderer = renderer;
   if (renderer)
     g_object_ref (renderer);
