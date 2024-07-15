@@ -357,7 +357,7 @@ get_connector_description (MetaKmsConnector *kms_connector)
 {
   const MetaKmsConnectorState *connector_state;
   gconstpointer edid_data;
-  g_autofree MetaEdidInfo *edid_info = NULL;
+  g_autoptr (MetaEdidInfo) edid_info = NULL;
   size_t edid_size;
   g_autofree char *vendor = NULL;
   g_autofree char *product = NULL;

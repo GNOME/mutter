@@ -111,7 +111,7 @@ meta_output_info_unref (MetaOutputInfo *output_info)
       g_free (output_info->product);
       g_free (output_info->serial);
       g_free (output_info->edid_checksum_md5);
-      g_free (output_info->edid_info);
+      g_clear_pointer (&output_info->edid_info, meta_edid_info_free);
       g_free (output_info->modes);
       g_free (output_info->possible_crtcs);
       g_free (output_info->possible_clones);

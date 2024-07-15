@@ -65,7 +65,7 @@ int
 main (int    argc,
       char **argv)
 {
-  MetaEdidInfo *edid_info;
+  g_autoptr (MetaEdidInfo) edid_info = NULL;
   edid_info = meta_edid_info_new_parse (edid_blob,edid_blob_len);
 
   g_assert_nonnull (edid_info);

@@ -96,3 +96,8 @@ struct _MetaEdidInfo
 META_EXPORT_TEST
 MetaEdidInfo *meta_edid_info_new_parse (const uint8_t *edid,
                                         size_t size);
+
+META_EXPORT_TEST
+void meta_edid_info_free (MetaEdidInfo *info);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaEdidInfo, meta_edid_info_free)
