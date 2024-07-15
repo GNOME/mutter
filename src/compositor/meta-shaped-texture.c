@@ -961,7 +961,7 @@ do_paint_content (MetaShapedTexture   *stex,
 
       if (!mtk_region_is_empty (region))
         {
-          CoglPipeline *opaque_pipeline;
+          g_autoptr (CoglPipeline) opaque_pipeline = NULL;
 
           opaque_pipeline = get_unblended_pipeline (stex, paint_context, paint_tex);
 
@@ -1008,7 +1008,7 @@ do_paint_content (MetaShapedTexture   *stex,
    */
   if (!blended_tex_region || !mtk_region_is_empty (blended_tex_region))
     {
-      CoglPipeline *blended_pipeline;
+      g_autoptr (CoglPipeline) blended_pipeline = NULL;
       CoglColor color;
       int i;
 

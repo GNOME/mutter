@@ -1,5 +1,6 @@
 clutter_tests_conform_c_args = [
   '-DG_LOG_DOMAIN="Clutter-Conform"',
+  '-DCOGL_ENABLE_MUTTER_API',
   '-DGETTEXT_PACKAGE="@0@"'.format(meson.project_name()),
 ]
 clutter_tests_conform_c_args += clutter_debug_c_args

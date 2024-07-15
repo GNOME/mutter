@@ -122,6 +122,7 @@ clutter_pipeline_cache_get_pipeline (ClutterPipelineCache *pipeline_cache,
 {
   PipelineGroupEntry *group_entry;
   uint64_t key;
+  CoglPipeline *pipeline;
 
   group_entry = g_hash_table_lookup (pipeline_cache->groups, group);
   if (!group_entry)
@@ -134,7 +135,12 @@ clutter_pipeline_cache_get_pipeline (ClutterPipelineCache *pipeline_cache,
     return NULL;
 
   key = calculate_key (source_color_state, target_color_state);
-  return g_hash_table_lookup (group_entry->slots[slot], &key);
+  pipeline = g_hash_table_lookup (group_entry->slots[slot], &key);
+
+  if (pipeline)
+    return cogl_pipeline_copy (pipeline);
+  else
+    return NULL;
 }
 
 /**
