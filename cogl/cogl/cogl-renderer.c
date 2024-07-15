@@ -224,16 +224,6 @@ cogl_xlib_renderer_set_foreign_display (CoglRenderer *renderer,
      it will also do its own event retrieval */
   renderer->xlib_enable_event_retrieval = FALSE;
 }
-
-void
-cogl_xlib_renderer_request_reset_on_video_memory_purge (CoglRenderer *renderer,
-                                                        gboolean enable)
-{
-  g_return_if_fail (COGL_IS_RENDERER (renderer));
-  g_return_if_fail (!renderer->connected);
-
-  renderer->xlib_want_reset_on_video_memory_purge = enable;
-}
 #endif /* HAVE_X11 */
 
 gboolean

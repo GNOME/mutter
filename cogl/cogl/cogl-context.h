@@ -253,10 +253,6 @@ typedef enum _CoglGraphicsResetStatus
  * extension in which case this will only ever return
  * #COGL_GRAPHICS_RESET_STATUS_NO_ERROR.
  *
- * Applications must explicitly use a backend specific method to
- * request that errors get reported such as X11's
- * cogl_xlib_renderer_request_reset_on_video_memory_purge().
- *
  * Return value: a #CoglGraphicsResetStatus
  */
 COGL_EXPORT CoglGraphicsResetStatus

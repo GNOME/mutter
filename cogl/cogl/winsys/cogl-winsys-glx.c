@@ -628,8 +628,7 @@ create_gl3_context (CoglDisplay *display,
   /* We can't check the presence of this extension with the usual
      COGL_WINSYS_FEATURE machinery because that only gets initialized
      later when the CoglContext is created. */
-  if (display->renderer->xlib_want_reset_on_video_memory_purge &&
-      strstr (glx_renderer->glXQueryExtensionsString (xlib_renderer->xdpy,
+  if (strstr (glx_renderer->glXQueryExtensionsString (xlib_renderer->xdpy,
                                                       DefaultScreen (xlib_renderer->xdpy)),
               "GLX_NV_robustness_video_memory_purge"))
     {

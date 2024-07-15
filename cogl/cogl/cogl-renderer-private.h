@@ -63,7 +63,6 @@ struct _CoglRenderer
 #ifdef HAVE_X11
   Display *foreign_xdpy;
   gboolean xlib_enable_event_retrieval;
-  gboolean xlib_want_reset_on_video_memory_purge;
 #endif
 
   CoglDriver driver;
