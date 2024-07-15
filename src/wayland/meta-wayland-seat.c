@@ -215,6 +215,9 @@ default_focus (MetaWaylandEventHandler *handler,
   MetaWaylandSeat *seat = user_data;
   ClutterInputCapabilities caps;
 
+  if (sequence)
+    return;
+
   caps = clutter_input_device_get_capabilities (device);
 
   if (caps &
