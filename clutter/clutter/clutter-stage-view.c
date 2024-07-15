@@ -190,7 +190,6 @@ clutter_stage_view_ensure_offscreen_blit_pipeline (ClutterStageView *view)
     clutter_stage_view_get_instance_private (view);
   ClutterStageViewClass *view_class =
     CLUTTER_STAGE_VIEW_GET_CLASS (view);
-  g_autoptr (CoglSnippet) snippet = NULL;
 
   g_assert (priv->offscreen != NULL);
 
@@ -203,10 +202,9 @@ clutter_stage_view_ensure_offscreen_blit_pipeline (ClutterStageView *view)
   if (view_class->setup_offscreen_transform)
     view_class->setup_offscreen_transform (view, priv->offscreen_pipeline);
 
-  snippet = clutter_color_state_get_transform_snippet (priv->color_state,
-                                                       priv->output_color_state);
-  if (snippet)
-    cogl_pipeline_add_snippet (priv->offscreen_pipeline, snippet);
+  clutter_color_state_add_pipeline_transform (priv->color_state,
+                                              priv->output_color_state,
+                                              priv->offscreen_pipeline);
 }
 
 void

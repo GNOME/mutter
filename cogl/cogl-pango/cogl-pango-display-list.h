@@ -32,6 +32,8 @@
 
 #include "cogl-pango/cogl-pango-pipeline-cache.h"
 
+#include "cogl-pango/cogl-pango.h"
+
 G_BEGIN_DECLS
 
 typedef struct _CoglPangoDisplayList CoglPangoDisplayList;
@@ -69,10 +71,11 @@ _cogl_pango_display_list_add_trapezoid (CoglPangoDisplayList *dl,
                                         float x_22);
 
 void
-cogl_pango_display_list_render (CoglFramebuffer      *framebuffer,
-                                CoglPangoDisplayList *dl,
-                                CoglSnippet          *extra_snippet,
-                                const CoglColor      *color);
+cogl_pango_display_list_render (CoglFramebuffer        *framebuffer,
+                                CoglPangoDisplayList   *dl,
+                                CoglPangoPipelineSetup  pipeline_setup,
+                                gpointer                pipeline_setup_user_data,
+                                const CoglColor        *color);
 
 void
 _cogl_pango_display_list_free (CoglPangoDisplayList *dl);

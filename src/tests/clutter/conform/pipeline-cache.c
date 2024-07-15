@@ -6,14 +6,6 @@
 #include "tests/clutter-test-utils.h"
 
 static void
-take_snippet (CoglPipeline *pipeline,
-              CoglSnippet  *snippet)
-{
-  cogl_pipeline_add_snippet (pipeline, snippet);
-  g_object_unref (snippet);
-}
-
-static void
 pipeline_cache_group_pipelines (void)
 {
   ClutterContext *context = clutter_test_get_context ();
@@ -53,18 +45,18 @@ pipeline_cache_group_pipelines (void)
   bt2020_pq_to_bt2020_linear = cogl_pipeline_new (cogl_context);
   srgb_linear_to_srgb_srgb = cogl_pipeline_new (cogl_context);
 
-  take_snippet (srgb_srgb_to_bt2020_linear,
-                clutter_color_state_get_transform_snippet (srgb_srgb,
-                                                           bt2020_linear));
-  take_snippet (bt2020_linear_to_bt2020_pq,
-                clutter_color_state_get_transform_snippet (bt2020_linear,
-                                                           bt2020_pq));
-  take_snippet (bt2020_pq_to_bt2020_linear,
-                clutter_color_state_get_transform_snippet (bt2020_pq,
-                                                           bt2020_linear));
-  take_snippet (srgb_linear_to_srgb_srgb,
-                clutter_color_state_get_transform_snippet (srgb_linear,
-                                                           srgb_srgb));
+  clutter_color_state_add_pipeline_transform (srgb_srgb,
+                                              bt2020_linear,
+                                              srgb_srgb_to_bt2020_linear);
+  clutter_color_state_add_pipeline_transform (bt2020_linear,
+                                              bt2020_pq,
+                                              bt2020_linear_to_bt2020_pq);
+  clutter_color_state_add_pipeline_transform (bt2020_pq,
+                                              bt2020_linear,
+                                              bt2020_pq_to_bt2020_linear);
+  clutter_color_state_add_pipeline_transform (srgb_linear,
+                                              srgb_srgb,
+                                              srgb_linear_to_srgb_srgb);
 
   /* Check that it's all empty. */
   g_assert_null (clutter_pipeline_cache_get_pipeline (pipeline_cache, group1, 0,
@@ -138,9 +130,9 @@ pipeline_cache_replace_pipeline (void)
   g_object_add_weak_pointer (G_OBJECT (srgb_srgb_to_bt2020_linear),
                              (gpointer *) &srgb_srgb_to_bt2020_linear);
 
-  take_snippet (srgb_srgb_to_bt2020_linear,
-                clutter_color_state_get_transform_snippet (srgb_srgb,
-                                                           bt2020_linear));
+  clutter_color_state_add_pipeline_transform (srgb_srgb,
+                                              bt2020_linear,
+                                              srgb_srgb_to_bt2020_linear);
 
   clutter_pipeline_cache_set_pipeline (pipeline_cache, group, 0,
                                        srgb_srgb, bt2020_linear,
@@ -149,9 +141,9 @@ pipeline_cache_replace_pipeline (void)
   g_object_unref (srgb_srgb_to_bt2020_linear);
   g_assert_nonnull (srgb_srgb_to_bt2020_linear);
 
-  take_snippet (srgb_srgb_to_bt2020_linear_copy,
-                clutter_color_state_get_transform_snippet (srgb_srgb,
-                                                           bt2020_linear));
+  clutter_color_state_add_pipeline_transform (srgb_srgb,
+                                              bt2020_linear,
+                                              srgb_srgb_to_bt2020_linear_copy);
   clutter_pipeline_cache_set_pipeline (pipeline_cache, group, 0,
                                        srgb_srgb, bt2020_linear,
                                        srgb_srgb_to_bt2020_linear_copy);

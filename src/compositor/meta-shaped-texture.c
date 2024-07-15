@@ -467,12 +467,10 @@ attach_and_save_color_snippet (MetaShapedTexture *stex,
 {
   ClutterPipelineCache *pipeline_cache =
     clutter_context_get_pipeline_cache (stex->clutter_context);
-  g_autoptr (CoglSnippet) color_snippet = NULL;
 
-  color_snippet =
-    clutter_color_state_get_transform_snippet (color_state, target_color_state);
-  if (color_snippet)
-    cogl_pipeline_add_snippet (pipeline, color_snippet);
+  clutter_color_state_add_pipeline_transform (color_state,
+                                              target_color_state,
+                                              pipeline);
 
   clutter_pipeline_cache_set_pipeline (pipeline_cache,
                                        stex,

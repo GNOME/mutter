@@ -357,12 +357,13 @@ cogl_pango_render_qdata_destroy (CoglPangoLayoutQdata *qdata)
 }
 
 void
-cogl_pango_show_layout (CoglFramebuffer *fb,
-                        PangoLayout     *layout,
-                        float            x,
-                        float            y,
-                        const CoglColor *color,
-                        CoglSnippet     *extra_snippet)
+cogl_pango_show_layout (CoglFramebuffer        *fb,
+                        PangoLayout            *layout,
+                        float                   x,
+                        float                   y,
+                        const CoglColor        *color,
+                        CoglPangoPipelineSetup  pipeline_setup,
+                        gpointer                pipeline_setup_userdata)
 {
   PangoContext *context;
   CoglPangoRenderer *priv;
@@ -426,7 +427,7 @@ cogl_pango_show_layout (CoglFramebuffer *fb,
 
   cogl_pango_display_list_render (fb,
                                   qdata->display_list,
-                                  extra_snippet,
+                                  pipeline_setup, pipeline_setup_userdata,
                                   color);
 
   cogl_framebuffer_pop_matrix (fb);
@@ -446,12 +447,13 @@ cogl_pango_show_layout (CoglFramebuffer *fb,
 }
 
 void
-cogl_pango_show_layout_line (CoglFramebuffer *fb,
-                             PangoLayoutLine *line,
-                             float            x,
-                             float            y,
-                             const CoglColor *color,
-                             CoglSnippet     *extra_snippet)
+cogl_pango_show_layout_line (CoglFramebuffer        *fb,
+                             PangoLayoutLine        *line,
+                             float                   x,
+                             float                   y,
+                             const CoglColor        *color,
+                             CoglPangoPipelineSetup  pipeline_setup,
+                             gpointer                pipeline_setup_userdata)
 {
   PangoContext *context;
   CoglPangoRenderer *priv;
@@ -477,7 +479,8 @@ cogl_pango_show_layout_line (CoglFramebuffer *fb,
 
   cogl_pango_display_list_render (fb,
                                   priv->display_list,
-                                  extra_snippet,
+                                  pipeline_setup,
+                                  pipeline_setup_userdata,
                                   color);
 
   _cogl_pango_display_list_free (priv->display_list);

@@ -1906,6 +1906,27 @@ clutter_text_foreach_selection_rectangle_prescaled (ClutterText              *se
   clutter_text_foreach_selection_rectangle (self, 1.0f, func, paint_context, user_data);
 }
 
+typedef struct
+{
+  ClutterColorState *color_state;
+  ClutterColorState *target_color_state;
+} PangoPipelineData;
+
+static void
+setup_pango_pipeline (CoglPipeline *pipeline,
+                      gpointer      user_data)
+{
+  PangoPipelineData *pango_pipeline_data = user_data;
+  ClutterColorState *color_state =
+    pango_pipeline_data->color_state;
+  ClutterColorState *target_color_state =
+    pango_pipeline_data->target_color_state;
+
+  clutter_color_state_add_pipeline_transform (color_state,
+                                              target_color_state,
+                                              pipeline);
+}
+
 static void
 paint_selection_rectangle (ClutterText           *self,
                            const ClutterActorBox *box,
@@ -1924,7 +1945,7 @@ paint_selection_rectangle (ClutterText           *self,
     clutter_paint_context_get_target_color_state (paint_context);
   CoglColor cogl_color = { 0, };
   const CoglColor *color;
-  g_autoptr (CoglSnippet) color_snippet = NULL;
+  PangoPipelineData pango_pipeline_data = {};
 
   /* Paint selection background */
   if (priv->selection_color_set)
@@ -1942,11 +1963,13 @@ paint_selection_rectangle (ClutterText           *self,
   cogl_color_premultiply (&cogl_color);
   cogl_pipeline_set_color (color_pipeline, &cogl_color);
 
-  color_snippet =
-    clutter_color_state_get_transform_snippet (color_state,
-                                               target_color_state);
-  if (color_snippet)
-    cogl_pipeline_add_snippet (color_pipeline, color_snippet);
+  pango_pipeline_data = (PangoPipelineData) {
+    .color_state = color_state,
+    .target_color_state = target_color_state,
+  };
+  clutter_color_state_add_pipeline_transform (color_state,
+                                              target_color_state,
+                                              color_pipeline);
 
   cogl_framebuffer_push_rectangle_clip (fb,
                                         box->x1, box->y1,
@@ -1967,7 +1990,8 @@ paint_selection_rectangle (ClutterText           *self,
                            paint_opacity / 255.0f * color->alpha / 255.0f);
 
   cogl_pango_show_layout (fb, layout, priv->text_x, 0, &cogl_color,
-                          color_snippet);
+                          setup_pango_pipeline,
+                          &pango_pipeline_data);
 
   cogl_framebuffer_pop_clip (fb);
   g_object_unref (color_pipeline);
@@ -1995,7 +2019,6 @@ selection_paint (ClutterText         *self,
         clutter_paint_context_get_target_color_state (paint_context);
       CoglPipeline *color_pipeline = create_color_pipeline ();
       CoglColor cogl_color;
-      g_autoptr (CoglSnippet) color_snippet = NULL;
 
       /* No selection, just draw the cursor */
       if (priv->cursor_color_set)
@@ -2012,11 +2035,9 @@ selection_paint (ClutterText         *self,
       cogl_color_premultiply (&cogl_color);
       cogl_pipeline_set_color (color_pipeline, &cogl_color);
 
-      color_snippet =
-        clutter_color_state_get_transform_snippet (color_state,
-                                                   target_color_state);
-      if (color_snippet)
-        cogl_pipeline_add_snippet (color_pipeline, color_snippet);
+      clutter_color_state_add_pipeline_transform (color_state,
+                                                  target_color_state,
+                                                  color_pipeline);
 
       cogl_framebuffer_draw_rectangle (fb,
                                        color_pipeline,
@@ -2641,6 +2662,7 @@ clutter_text_paint (ClutterActor        *self,
   float alloc_width;
   float alloc_height;
   float resource_scale;
+  PangoPipelineData pango_pipeline_data = {};
 
   fb = clutter_paint_context_get_framebuffer (paint_context);
 
@@ -2793,12 +2815,13 @@ clutter_text_paint (ClutterActor        *self,
                            priv->text_color.blue / 255.0f,
                            real_opacity / 255.0f);
 
-  color_snippet =
-    clutter_color_state_get_transform_snippet (color_state,
-                                               target_color_state);
-
+  pango_pipeline_data = (PangoPipelineData) {
+    .color_state = color_state,
+    .target_color_state = target_color_state,
+  };
   cogl_pango_show_layout (fb, layout, priv->text_x, priv->text_y, &color,
-                          color_snippet);
+                          setup_pango_pipeline,
+                          &pango_pipeline_data);
 
   selection_paint (text, fb, paint_context);
 

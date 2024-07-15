@@ -65,6 +65,9 @@ G_BEGIN_DECLS
 
 typedef PangoCairoFontMap CoglPangoFontMap;
 
+typedef void (* CoglPangoPipelineSetup) (CoglPipeline *pipeline,
+                                         gpointer      user_data);
+
 /**
  * cogl_pango_font_map_new:
  *
@@ -151,12 +154,13 @@ cogl_pango_font_map_get_renderer (CoglPangoFontMap *font_map);
  * @y) within the `framebuffer`'s current model-view coordinate space.
  */
 COGL_EXPORT void
-cogl_pango_show_layout (CoglFramebuffer *framebuffer,
-                        PangoLayout     *layout,
-                        float            x,
-                        float            y,
-                        const CoglColor *color,
-                        CoglSnippet     *extra_snippet);
+cogl_pango_show_layout (CoglFramebuffer        *framebuffer,
+                        PangoLayout            *layout,
+                        float                   x,
+                        float                   y,
+                        const CoglColor        *color,
+                        CoglPangoPipelineSetup  pipeline_setup,
+                        gpointer                pipeline_setup_userdata);
 
 /**
  * cogl_pango_show_layout_line: (skip)
@@ -170,12 +174,13 @@ cogl_pango_show_layout (CoglFramebuffer *framebuffer,
  * @y) within the `framebuffer`'s current model-view coordinate space.
  */
 COGL_EXPORT void
-cogl_pango_show_layout_line (CoglFramebuffer *framebuffer,
-                             PangoLayoutLine *line,
-                             float            x,
-                             float            y,
-                             const CoglColor *color,
-                             CoglSnippet     *extra_snippet);
+cogl_pango_show_layout_line (CoglFramebuffer        *framebuffer,
+                             PangoLayoutLine        *line,
+                             float                   x,
+                             float                   y,
+                             const CoglColor        *color,
+                             CoglPangoPipelineSetup  pipeline_setup,
+                             gpointer                pipeline_setup_userdata);
 
 
 #define COGL_PANGO_TYPE_RENDERER                (cogl_pango_renderer_get_type ())

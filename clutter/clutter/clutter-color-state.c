@@ -690,10 +690,7 @@ get_color_space_mapping_matrix (ClutterColorState *color_state,
   g_assert_not_reached ();
 }
 
-/**
- * clutter_color_state_get_transform_snippet: (skip)
- */
-CoglSnippet *
+static CoglSnippet *
 clutter_color_state_get_transform_snippet (ClutterColorState *color_state,
                                            ClutterColorState *target_color_state)
 {
@@ -707,8 +704,6 @@ clutter_color_state_get_transform_snippet (ClutterColorState *color_state,
   const TransferFunction *post_transfer_function = NULL;
   g_autoptr (GString) globals_source = NULL;
   g_autoptr (GString) snippet_source = NULL;
-
-  g_return_val_if_fail (CLUTTER_IS_COLOR_STATE (target_color_state), NULL);
 
   priv = clutter_color_state_get_instance_private (color_state);
   color_manager = clutter_context_get_color_manager (priv->context);
@@ -808,6 +803,21 @@ clutter_color_state_get_transform_snippet (ClutterColorState *color_state,
                                      &transform_key,
                                      g_object_ref (snippet));
   return snippet;
+}
+
+void
+clutter_color_state_add_pipeline_transform (ClutterColorState *color_state,
+                                            ClutterColorState *target_color_state,
+                                            CoglPipeline      *pipeline)
+{
+  g_autoptr (CoglSnippet) snippet = NULL;
+
+  g_return_if_fail (CLUTTER_IS_COLOR_STATE (color_state));
+  g_return_if_fail (CLUTTER_IS_COLOR_STATE (target_color_state));
+
+  snippet = clutter_color_state_get_transform_snippet (color_state,
+                                                       target_color_state);
+  cogl_pipeline_add_snippet (pipeline, snippet);
 }
 
 gboolean

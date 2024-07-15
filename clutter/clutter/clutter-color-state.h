@@ -50,8 +50,9 @@ CLUTTER_EXPORT
 ClutterTransferFunction clutter_color_state_get_transfer_function (ClutterColorState *color_state);
 
 CLUTTER_EXPORT
-CoglSnippet * clutter_color_state_get_transform_snippet (ClutterColorState *color_state,
-                                                         ClutterColorState *target_color_state);
+void clutter_color_state_add_pipeline_transform (ClutterColorState *color_state,
+                                                 ClutterColorState *target_color_state,
+                                                 CoglPipeline      *pipeline);
 
 CLUTTER_EXPORT
 gboolean clutter_color_state_equals (ClutterColorState *color_state,

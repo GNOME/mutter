@@ -391,10 +391,11 @@ _cogl_framebuffer_draw_display_list_texture (CoglFramebuffer *fb,
 }
 
 void
-cogl_pango_display_list_render (CoglFramebuffer      *fb,
-                                CoglPangoDisplayList *dl,
-                                CoglSnippet          *extra_snippet,
-                                const CoglColor      *color)
+cogl_pango_display_list_render (CoglFramebuffer        *fb,
+                                CoglPangoDisplayList   *dl,
+                                CoglPangoPipelineSetup  pipeline_setup,
+                                gpointer                pipeline_setup_user_data,
+                                const CoglColor        *color)
 {
   GSList *l;
 
@@ -433,8 +434,7 @@ cogl_pango_display_list_render (CoglFramebuffer      *fb,
 
       cogl_pipeline_set_color (pipeline, &draw_color);
 
-      if (extra_snippet)
-        cogl_pipeline_add_snippet (pipeline, extra_snippet);
+      pipeline_setup (pipeline, pipeline_setup_user_data);
 
       switch (node->type)
         {

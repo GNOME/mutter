@@ -786,7 +786,6 @@ scale_and_transform_cursor_sprite_cpu (MetaCursorRendererNative *cursor_renderer
   graphene_matrix_t matrix;
   MetaMonitorTransform pipeline_transform;
   ClutterColorState *color_state;
-  g_autoptr (CoglSnippet) color_snippet = NULL;
   int dst_width;
   int dst_height;
 
@@ -819,11 +818,9 @@ scale_and_transform_cursor_sprite_cpu (MetaCursorRendererNative *cursor_renderer
   cogl_pipeline_set_layer_matrix (pipeline, 0, &matrix);
 
   color_state = meta_cursor_sprite_get_color_state (cursor_sprite);
-  color_snippet =
-    clutter_color_state_get_transform_snippet (color_state,
-                                               target_color_state);
-  if (color_snippet)
-    cogl_pipeline_add_snippet (pipeline, color_snippet);
+  clutter_color_state_add_pipeline_transform (color_state,
+                                              target_color_state,
+                                              pipeline);
 
   cogl_framebuffer_clear4f (COGL_FRAMEBUFFER (offscreen),
                             COGL_BUFFER_BIT_COLOR,
