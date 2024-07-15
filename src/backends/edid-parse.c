@@ -244,6 +244,8 @@ decode_edid_info (const uint8_t *edid,
       decode_edid_extensions (extensions[ext_index], info);
     }
 
+  di_info_destroy (edid_info);
+
   return TRUE;
 }
 
