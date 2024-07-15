@@ -62,7 +62,6 @@ struct _CoglRenderer
 
 #ifdef HAVE_X11
   Display *foreign_xdpy;
-  gboolean xlib_enable_event_retrieval;
 #endif
 
   CoglDriver driver;

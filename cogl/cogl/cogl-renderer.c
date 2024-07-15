@@ -201,10 +201,6 @@ cogl_renderer_new (void)
 
   _cogl_list_init (&renderer->idle_closures);
 
-#ifdef HAVE_X11
-  renderer->xlib_enable_event_retrieval = TRUE;
-#endif
-
   return renderer;
 }
 
@@ -220,9 +216,6 @@ cogl_xlib_renderer_set_foreign_display (CoglRenderer *renderer,
 
   renderer->foreign_xdpy = xdisplay;
 
-  /* If the application is using a foreign display then we can assume
-     it will also do its own event retrieval */
-  renderer->xlib_enable_event_retrieval = FALSE;
 }
 #endif /* HAVE_X11 */
 

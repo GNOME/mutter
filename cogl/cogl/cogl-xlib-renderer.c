@@ -394,32 +394,6 @@ randr_filter (XEvent *event,
   return COGL_FILTER_CONTINUE;
 }
 
-static int64_t
-prepare_xlib_events_timeout (void *user_data)
-{
-  CoglRenderer *renderer = user_data;
-  CoglXlibRenderer *xlib_renderer = _cogl_xlib_renderer_get_data (renderer);
-
-  return XPending (xlib_renderer->xdpy) ? 0 : -1;
-}
-
-static void
-dispatch_xlib_events (void *user_data, int revents)
-{
-  CoglRenderer *renderer = user_data;
-  CoglXlibRenderer *xlib_renderer = _cogl_xlib_renderer_get_data (renderer);
-
-  if (renderer->xlib_enable_event_retrieval)
-    while (XPending (xlib_renderer->xdpy))
-      {
-        XEvent xevent;
-
-        XNextEvent (xlib_renderer->xdpy, &xevent);
-
-        cogl_xlib_renderer_handle_event (renderer, &xevent);
-      }
-}
-
 gboolean
 _cogl_xlib_renderer_connect (CoglRenderer *renderer, GError **error)
 {
@@ -447,16 +421,6 @@ _cogl_xlib_renderer_connect (CoglRenderer *renderer, GError **error)
                           &x11_renderer->randr_base,
                           &randr_error))
     x11_renderer->randr_base = -1;
-
-  if (renderer->xlib_enable_event_retrieval)
-    {
-      _cogl_poll_renderer_add_fd (renderer,
-                                  ConnectionNumber (xlib_renderer->xdpy),
-                                  COGL_POLL_FD_EVENT_IN,
-                                  prepare_xlib_events_timeout,
-                                  dispatch_xlib_events,
-                                  renderer);
-    }
 
   XRRSelectInput(xlib_renderer->xdpy,
                  DefaultRootWindow (xlib_renderer->xdpy),
