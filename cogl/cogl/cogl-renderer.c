@@ -165,8 +165,6 @@ cogl_renderer_dispose (GObject *object)
   g_slist_free_full (renderer->event_filters,
                      (GDestroyNotify) native_filter_closure_free);
 
-  g_array_free (renderer->poll_fds, TRUE);
-
   G_OBJECT_CLASS (cogl_renderer_parent_class)->dispose (object);
 }
 
@@ -196,8 +194,6 @@ cogl_renderer_new (void)
 
   renderer->connected = FALSE;
   renderer->event_filters = NULL;
-
-  renderer->poll_fds = g_array_new (FALSE, TRUE, sizeof (CoglPollFD));
 
   _cogl_list_init (&renderer->idle_closures);
 

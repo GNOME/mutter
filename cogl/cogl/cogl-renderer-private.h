@@ -54,10 +54,6 @@ struct _CoglRenderer
   void *custom_winsys_user_data;
   CoglCustomWinsysVtableGetter custom_winsys_vtable_getter;
 
-  GArray *poll_fds;
-  int poll_fds_age;
-  GList *poll_sources;
-
   CoglList idle_closures;
 
 #ifdef HAVE_X11

@@ -37,182 +37,25 @@
 #include "cogl/cogl-renderer-private.h"
 #include "cogl/winsys/cogl-winsys-private.h"
 
-struct _CoglPollSource
-{
-  int fd;
-  CoglPollPrepareCallback prepare;
-  CoglPollDispatchCallback dispatch;
-  void *user_data;
-};
-
-int
+void
 cogl_poll_renderer_get_info (CoglRenderer *renderer,
-                             CoglPollFD **poll_fds,
-                             int *n_poll_fds,
                              int64_t *timeout)
 {
-  GList *l, *next;
-
-  g_return_val_if_fail (COGL_IS_RENDERER (renderer), 0);
-  g_return_val_if_fail (poll_fds != NULL, 0);
-  g_return_val_if_fail (n_poll_fds != NULL, 0);
-  g_return_val_if_fail (timeout != NULL, 0);
+  g_return_if_fail (COGL_IS_RENDERER (renderer));
+  g_return_if_fail (timeout != NULL);
 
   *timeout = -1;
 
   if (!_cogl_list_empty (&renderer->idle_closures))
     *timeout = 0;
-
-  /* This loop needs to cope with the prepare callback removing its
-   * own fd */
-  for (l = renderer->poll_sources; l; l = next)
-    {
-      CoglPollSource *source = l->data;
-
-      next = l->next;
-
-      if (source->prepare)
-        {
-          int64_t source_timeout = source->prepare (source->user_data);
-          if (source_timeout >= 0 &&
-              (*timeout == -1 || *timeout > source_timeout))
-            *timeout = source_timeout;
-        }
-    }
-
-  /* This is deliberately set after calling the prepare callbacks in
-   * case one of them removes its fd */
-  *poll_fds = (void *)renderer->poll_fds->data;
-  *n_poll_fds = renderer->poll_fds->len;
-
-  return renderer->poll_fds_age;
 }
 
 void
-cogl_poll_renderer_dispatch (CoglRenderer *renderer,
-                             const CoglPollFD *poll_fds,
-                             int n_poll_fds)
+cogl_poll_renderer_dispatch (CoglRenderer *renderer)
 {
-  GList *l, *next;
-
   g_return_if_fail (COGL_IS_RENDERER (renderer));
 
   _cogl_closure_list_invoke_no_args (&renderer->idle_closures);
-
-  /* This loop needs to cope with the dispatch callback removing its
-   * own fd */
-  for (l = renderer->poll_sources; l; l = next)
-    {
-      CoglPollSource *source = l->data;
-      int i;
-
-      next = l->next;
-
-      if (source->fd == -1)
-        {
-          source->dispatch (source->user_data, 0);
-          continue;
-        }
-
-      for (i = 0; i < n_poll_fds; i++)
-        {
-          const CoglPollFD *pollfd = &poll_fds[i];
-
-          if (pollfd->fd == source->fd)
-            {
-              source->dispatch (source->user_data, pollfd->revents);
-              break;
-            }
-        }
-    }
-}
-
-static int
-find_pollfd (CoglRenderer *renderer, int fd)
-{
-  int i;
-
-  for (i = 0; i < renderer->poll_fds->len; i++)
-    {
-      CoglPollFD *pollfd = &g_array_index (renderer->poll_fds, CoglPollFD, i);
-
-      if (pollfd->fd == fd)
-        return i;
-    }
-
-  return -1;
-}
-
-static void
-_cogl_poll_renderer_remove_fd (CoglRenderer *renderer, int fd)
-{
-  int i = find_pollfd (renderer, fd);
-  GList *l;
-
-  if (i < 0)
-    return;
-
-  g_array_remove_index_fast (renderer->poll_fds, i);
-  renderer->poll_fds_age++;
-
-  for (l = renderer->poll_sources; l; l = l->next)
-    {
-      CoglPollSource *source = l->data;
-      if (source->fd == fd)
-        {
-          renderer->poll_sources =
-            g_list_delete_link (renderer->poll_sources, l);
-          g_free (source);
-          break;
-        }
-    }
-}
-
-void
-_cogl_poll_renderer_add_fd (CoglRenderer *renderer,
-                            int fd,
-                            CoglPollFDEvent events,
-                            CoglPollPrepareCallback prepare,
-                            CoglPollDispatchCallback dispatch,
-                            void *user_data)
-{
-  CoglPollFD pollfd = {
-    fd,
-    events
-  };
-  CoglPollSource *source;
-
-  _cogl_poll_renderer_remove_fd (renderer, fd);
-
-  source = g_new0 (CoglPollSource, 1);
-  source->fd = fd;
-  source->prepare = prepare;
-  source->dispatch = dispatch;
-  source->user_data = user_data;
-
-  renderer->poll_sources = g_list_prepend (renderer->poll_sources, source);
-
-  g_array_append_val (renderer->poll_fds, pollfd);
-  renderer->poll_fds_age++;
-}
-
-CoglPollSource *
-_cogl_poll_renderer_add_source (CoglRenderer *renderer,
-                                CoglPollPrepareCallback prepare,
-                                CoglPollDispatchCallback dispatch,
-                                void *user_data)
-{
-  CoglPollSource *source;
-
-  source = g_new0 (CoglPollSource, 1);
-  source->fd = -1;
-  source->prepare = prepare;
-  source->dispatch = dispatch;
-  source->user_data = user_data;
-
-  renderer->poll_sources = g_list_prepend (renderer->poll_sources, source);
-
-  return source;
 }
 
 CoglClosure *
