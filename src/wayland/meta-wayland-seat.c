@@ -435,12 +435,24 @@ meta_wayland_seat_update (MetaWaylandSeat    *seat,
 
   switch (clutter_event_type (event))
     {
+    case CLUTTER_ENTER:
+    case CLUTTER_LEAVE:
+      if (clutter_event_get_event_sequence (event))
+        {
+          if (meta_wayland_seat_has_touch (seat))
+            meta_wayland_touch_update (seat->touch, event);
+        }
+      else
+        {
+          if (meta_wayland_seat_has_pointer (seat))
+            meta_wayland_pointer_update (seat->pointer, event);
+        }
+      break;
+
     case CLUTTER_MOTION:
     case CLUTTER_BUTTON_PRESS:
     case CLUTTER_BUTTON_RELEASE:
     case CLUTTER_SCROLL:
-    case CLUTTER_ENTER:
-    case CLUTTER_LEAVE:
       if (meta_wayland_seat_has_pointer (seat))
         meta_wayland_pointer_update (seat->pointer, event);
       break;
