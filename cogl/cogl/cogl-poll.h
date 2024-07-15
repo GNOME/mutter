@@ -65,29 +65,11 @@ G_BEGIN_DECLS
 
 
 /**
- * cogl_poll_renderer_get_info:
+ * cogl_poll_renderer_has_idle_closures:
  * @renderer: A #CoglRenderer
- * @timeout: A return location for the maximum length of time to wait
- *           in microseconds, or -1 to wait indefinitely.
- *
- * Is used to integrate Cogl with an application mainloop that is based
- * on the unix poll(2) api (or select() or something equivalent). This
- * api should be called whenever an application is about to go idle so
- * that Cogl has a chance to describe what file descriptor events it
- * needs to be woken up for.
- *
- * If your application is using the Glib mainloop then you
- * should jump to the cogl_glib_source_new() api as a more convenient
- * way of integrating Cogl with the mainloop.
- *
- * @timeout will contain a maximum amount of time to wait in
- * microseconds before the application should wake up or -1 if the
- * application should wait indefinitely. This can also be 0 if
- * Cogl needs to be woken up immediately.
  */
-COGL_EXPORT void
-cogl_poll_renderer_get_info (CoglRenderer *renderer,
-                             int64_t *timeout);
+COGL_EXPORT gboolean
+cogl_poll_renderer_has_idle_closures (CoglRenderer *renderer);
 
 /**
  * cogl_poll_renderer_dispatch:

@@ -46,12 +46,8 @@ static gboolean
 cogl_glib_source_prepare (GSource *source, int *timeout)
 {
   CoglGLibSource *cogl_source = (CoglGLibSource *) source;
-  int64_t cogl_timeout;
 
-  cogl_poll_renderer_get_info (cogl_source->renderer,
-                               &cogl_timeout);
-
-  if (cogl_timeout == -1)
+  if (!cogl_poll_renderer_has_idle_closures (cogl_source->renderer))
     {
       *timeout = -1;
       cogl_source->expiration_time = -1;
@@ -59,9 +55,8 @@ cogl_glib_source_prepare (GSource *source, int *timeout)
   else
     {
       /* Round up to ensure that we don't try again too early */
-      *timeout = (cogl_timeout + 999) / 1000;
-      cogl_source->expiration_time = (g_source_get_time (source) +
-                                      cogl_timeout);
+      *timeout = 999 / 1000;
+      cogl_source->expiration_time = g_source_get_time (source);
     }
 
   return *timeout == 0;

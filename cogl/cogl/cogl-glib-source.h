@@ -46,11 +46,7 @@ G_BEGIN_DECLS
  * @priority: The priority of the #GSource
  *
  * Creates a #GSource which handles Cogl's internal system event
- * processing. This can be used as a convenience instead of
- * cogl_poll_renderer_get_info() and cogl_poll_renderer_dispatch() in
- * applications that are already using the GLib main loop. After this
- * is called the #GSource should be attached to the main loop using
- * g_source_attach().
+ * processing.
  *
  * Applications that manually connect to a #CoglRenderer before they
  * create a #CoglContext should instead use
@@ -74,11 +70,7 @@ cogl_glib_source_new (CoglContext *context,
  * @priority: The priority of the #GSource
  *
  * Creates a #GSource which handles Cogl's internal system event
- * processing. This can be used as a convenience instead of
- * cogl_poll_renderer_get_info() and cogl_poll_renderer_dispatch() in
- * applications that are already using the GLib main loop. After this
- * is called the #GSource should be attached to the main loop using
- * g_source_attach().
+ * processing
  *
  * Return value: a new #GSource
  */

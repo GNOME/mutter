@@ -37,17 +37,12 @@
 #include "cogl/cogl-renderer-private.h"
 #include "cogl/winsys/cogl-winsys-private.h"
 
-void
-cogl_poll_renderer_get_info (CoglRenderer *renderer,
-                             int64_t *timeout)
+gboolean
+cogl_poll_renderer_has_idle_closures (CoglRenderer *renderer)
 {
-  g_return_if_fail (COGL_IS_RENDERER (renderer));
-  g_return_if_fail (timeout != NULL);
+  g_return_val_if_fail (COGL_IS_RENDERER (renderer), FALSE);
 
-  *timeout = -1;
-
-  if (!_cogl_list_empty (&renderer->idle_closures))
-    *timeout = 0;
+  return !_cogl_list_empty (&renderer->idle_closures);
 }
 
 void
