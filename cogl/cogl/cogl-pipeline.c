@@ -98,7 +98,7 @@ destroy_weak_children_cb (CoglNode *node,
                                          NULL);
 
       pipeline->destroy_callback (pipeline, pipeline->destroy_data);
-      _cogl_pipeline_node_unparent_real (COGL_NODE (pipeline));
+      _cogl_pipeline_node_unparent (COGL_NODE (pipeline));
     }
 
   return TRUE;
@@ -119,7 +119,7 @@ cogl_pipeline_dispose (GObject *object)
 
   g_assert (_cogl_list_empty (&COGL_NODE (pipeline)->children));
 
-  _cogl_pipeline_node_unparent_real (COGL_NODE (pipeline));
+  _cogl_pipeline_node_unparent (COGL_NODE (pipeline));
 
   if (pipeline->differences & COGL_PIPELINE_STATE_USER_SHADER &&
       pipeline->big_state->user_program)
@@ -284,9 +284,9 @@ _cogl_pipeline_set_parent (CoglPipeline *pipeline,
                            gboolean take_strong_reference)
 {
   /* Chain up */
-  _cogl_pipeline_node_set_parent_real (COGL_NODE (pipeline),
-                                       COGL_NODE (parent),
-                                       take_strong_reference);
+  _cogl_pipeline_node_set_parent (COGL_NODE (pipeline),
+                                  COGL_NODE (parent),
+                                  take_strong_reference);
 
   /* Since we just changed the ancestry of the pipeline its cache of
    * layers could now be invalid so free it... */

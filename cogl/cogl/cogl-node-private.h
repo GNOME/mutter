@@ -78,12 +78,12 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglNode, g_object_unref)
 GType       cogl_node_get_type (void) G_GNUC_CONST;
 
 void
-_cogl_pipeline_node_set_parent_real (CoglNode *node,
-                                     CoglNode *parent,
-                                     gboolean take_strong_reference);
+_cogl_pipeline_node_set_parent (CoglNode *node,
+                                CoglNode *parent,
+                                gboolean take_strong_reference);
 
 void
-_cogl_pipeline_node_unparent_real (CoglNode *node);
+_cogl_pipeline_node_unparent (CoglNode *node);
 
 typedef gboolean (*CoglNodeChildCallback) (CoglNode *child, void *user_data);
 

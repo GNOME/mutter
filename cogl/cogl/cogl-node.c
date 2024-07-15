@@ -51,9 +51,9 @@ cogl_node_init (CoglNode *node)
 }
 
 void
-_cogl_pipeline_node_set_parent_real (CoglNode *node,
-                                     CoglNode *parent,
-                                     gboolean take_strong_reference)
+_cogl_pipeline_node_set_parent (CoglNode *node,
+                                CoglNode *parent,
+                                gboolean take_strong_reference)
 {
   /* NB: the old parent may indirectly be keeping the new parent alive
    * so we have to ref the new parent before unrefing the old.
@@ -67,7 +67,7 @@ _cogl_pipeline_node_set_parent_real (CoglNode *node,
   g_object_ref (parent);
 
   if (node->parent)
-    _cogl_pipeline_node_unparent_real (node);
+    _cogl_pipeline_node_unparent (node);
 
   _cogl_list_insert (&parent->children, &node->link);
 
@@ -83,7 +83,7 @@ _cogl_pipeline_node_set_parent_real (CoglNode *node,
 }
 
 void
-_cogl_pipeline_node_unparent_real (CoglNode *node)
+_cogl_pipeline_node_unparent (CoglNode *node)
 {
   CoglNode *parent = node->parent;
 
