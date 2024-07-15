@@ -333,7 +333,7 @@ create_offscreen_framebuffer (ClutterStageView  *view,
   format = cogl_framebuffer_get_internal_format (priv->framebuffer);
   cogl_context = cogl_framebuffer_get_context (priv->framebuffer);
   texture = cogl_texture_2d_new_with_format (cogl_context, width, height, format);
-  cogl_primitive_texture_set_auto_mipmap (texture, FALSE);
+  cogl_texture_set_auto_mipmap (texture, FALSE);
 
   if (!cogl_texture_allocate (texture, error))
     {

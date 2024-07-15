@@ -71,7 +71,6 @@
 #include "cogl/cogl-sub-texture.h"
 #include "cogl/cogl-atlas-texture.h"
 #include "cogl/cogl-meta-texture.h"
-#include "cogl/cogl-primitive-texture.h"
 #include "cogl/cogl-enum-types.h"
 #include "cogl/cogl-index-buffer.h"
 #include "cogl/cogl-attribute-buffer.h"

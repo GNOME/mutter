@@ -47,7 +47,6 @@
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-spans.h"
 #include "cogl/cogl-journal-private.h"
-#include "cogl/cogl-primitive-texture.h"
 #include "cogl/driver/gl/cogl-texture-gl-private.h"
 
 #include <string.h>

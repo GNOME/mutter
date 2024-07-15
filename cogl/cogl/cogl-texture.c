@@ -54,7 +54,6 @@
 #include "cogl/cogl-offscreen-private.h"
 #include "cogl/cogl-framebuffer-private.h"
 #include "cogl/cogl-sub-texture.h"
-#include "cogl/cogl-primitive-texture.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -1285,4 +1284,16 @@ cogl_texture_set_max_level_set (CoglTexture *texture,
                                 int          max_level_set)
 {
   texture->max_level_set = max_level_set;
+}
+
+void
+cogl_texture_set_auto_mipmap (CoglTexture *texture,
+                              gboolean     value)
+{
+  g_return_if_fail (COGL_IS_TEXTURE (texture) &&
+                    texture->is_primitive);
+
+  g_assert (COGL_TEXTURE_GET_CLASS (texture)->set_auto_mipmap != NULL);
+
+  COGL_TEXTURE_GET_CLASS (texture)->set_auto_mipmap (texture, value);
 }
