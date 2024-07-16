@@ -737,6 +737,8 @@ stacking_tests = [
   'sloppy-focus-pointer-rest',
   'sloppy-focus-auto-raise',
   'sticky',
+  'sticky-modals',
+  'sticky-transients',
   'strut-monitor-changes'
 ]
 

@@ -4907,6 +4907,27 @@ stick_foreach_func (MetaWindow *window,
   return TRUE;
 }
 
+static void
+foreach_modal_ancestor (MetaWindow  *window,
+                        void       (*func) (MetaWindow *window))
+{
+  MetaWindow *parent;
+
+  if (window->type != META_WINDOW_MODAL_DIALOG)
+    return;
+
+  parent = window->transient_for;
+  while (parent)
+    {
+      func (parent);
+
+      if (parent->type != META_WINDOW_MODAL_DIALOG)
+        break;
+
+      parent = parent->transient_for;
+    }
+}
+
 void
 meta_window_stick (MetaWindow  *window)
 {
@@ -4918,6 +4939,7 @@ meta_window_stick (MetaWindow  *window)
   meta_window_foreach_transient (window,
                                  stick_foreach_func,
                                  &stick);
+  foreach_modal_ancestor (window, window_stick_impl);
 }
 
 void
@@ -4931,6 +4953,7 @@ meta_window_unstick (MetaWindow  *window)
   meta_window_foreach_transient (window,
                                  stick_foreach_func,
                                  &stick);
+  foreach_modal_ancestor (window, window_unstick_impl);
 }
 
 void

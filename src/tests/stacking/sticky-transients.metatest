@@ -1,0 +1,34 @@
+new_client w wayland
+create w/1
+create w/2
+create w/3
+
+set_parent w/2 1
+set_parent w/3 2
+show w/1
+show w/2
+show w/3
+assert_stacking w/1 w/2 w/3
+
+assert_sticky w/1 false
+assert_sticky w/2 false
+assert_sticky w/3 false
+
+stick w/1
+assert_sticky w/1 true
+assert_sticky w/2 true
+assert_sticky w/3 true
+
+unstick w/2
+assert_sticky w/1 true
+assert_sticky w/2 false
+assert_sticky w/3 false
+
+stick w/3
+assert_sticky w/1 true
+assert_sticky w/2 false
+assert_sticky w/3 true
+
+destroy w/3
+destroy w/2
+destroy w/1

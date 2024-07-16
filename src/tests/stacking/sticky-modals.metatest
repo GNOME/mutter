@@ -1,0 +1,63 @@
+new_client w wayland
+create w/1
+create w/2
+create w/3
+create w/4
+create w/5
+
+set_parent w/2 1
+set_parent w/3 2
+set_modal w/3
+set_parent w/4 3
+set_modal w/4
+set_parent w/5 3
+show w/1
+show w/2
+show w/3
+show w/4
+show w/5
+assert_stacking w/1 w/2 w/3 w/4 w/5
+
+assert_sticky w/1 false
+assert_sticky w/2 false
+assert_sticky w/3 false
+assert_sticky w/4 false
+assert_sticky w/5 false
+
+# Marking root as sticky propagates to all children
+stick w/1
+assert_sticky w/1 true
+assert_sticky w/2 true
+assert_sticky w/3 true
+assert_sticky w/4 true
+assert_sticky w/5 true
+
+# Marking a non-modal child as sticky does not propaget
+unstick w/5
+assert_sticky w/1 true
+assert_sticky w/2 true
+assert_sticky w/3 true
+assert_sticky w/4 true
+assert_sticky w/5 false
+
+# Marking a modal as sticky propagates to all modal ancestors
+unstick w/4
+assert_sticky w/1 true
+assert_sticky w/2 false
+assert_sticky w/3 false
+assert_sticky w/4 false
+assert_sticky w/5 false
+
+# Marking a modal as sticky propagates to modal ancestors, and all children
+stick w/3
+assert_sticky w/1 true
+assert_sticky w/2 true
+assert_sticky w/3 true
+assert_sticky w/4 true
+assert_sticky w/5 true
+
+destroy w/5
+destroy w/4
+destroy w/3
+destroy w/2
+destroy w/1
