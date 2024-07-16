@@ -627,6 +627,8 @@ struct _MetaWindowClass
                              int                 *stage_x,
                              int                 *stage_y,
                              MtkRoundingStrategy  rounding_strategy);
+
+  MetaGravity (* get_gravity) (MetaWindow *window);
 };
 
 void        meta_window_unmanage           (MetaWindow  *window,
@@ -898,3 +900,5 @@ gboolean meta_window_is_tiled_left (MetaWindow *window);
 gboolean meta_window_is_tiled_right (MetaWindow *window);
 
 MetaWindowConfig * meta_window_new_window_config (MetaWindow *window);
+
+MetaGravity meta_window_get_gravity (MetaWindow *window);
