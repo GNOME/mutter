@@ -1291,14 +1291,12 @@ meta_window_place_with_placement_rule (MetaWindow        *window,
   window->unconstrained_rect.height = placement_rule->height;
 
   window->calc_placement = first_placement;
-  meta_window_move_resize_internal (window,
-                                    (META_MOVE_RESIZE_MOVE_ACTION |
-                                     META_MOVE_RESIZE_RESIZE_ACTION |
-                                     META_MOVE_RESIZE_PLACEMENT_CHANGED |
-                                     META_MOVE_RESIZE_CONSTRAIN),
-                                    META_PLACE_FLAG_NONE,
-                                    META_GRAVITY_NORTH_WEST,
-                                    window->unconstrained_rect);
+  meta_window_move_resize (window,
+                           (META_MOVE_RESIZE_MOVE_ACTION |
+                            META_MOVE_RESIZE_RESIZE_ACTION |
+                            META_MOVE_RESIZE_PLACEMENT_CHANGED |
+                            META_MOVE_RESIZE_CONSTRAIN),
+                           window->unconstrained_rect);
   window->calc_placement = FALSE;
 }
 
