@@ -30,4 +30,6 @@ G_DECLARE_FINAL_TYPE (MetaDebugControl,
 
 gboolean meta_debug_control_is_linear_blending_forced (MetaDebugControl *debug_control);
 
+gboolean meta_debug_control_is_hdr_enabled (MetaDebugControl *debug_control);
+
 void meta_debug_control_export (MetaDebugControl *debug_control);

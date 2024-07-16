@@ -85,72 +85,6 @@ on_bus_acquired (GDBusConnection *connection,
 }
 
 static void
-on_enable_hdr_changed (MetaDebugControl *debug_control,
-                       GParamSpec       *pspec)
-{
-  MetaDBusDebugControl *dbus_debug_control =
-    META_DBUS_DEBUG_CONTROL (debug_control);
-  MetaBackend *backend = meta_context_get_backend (debug_control->context);
-  MetaMonitorManager *monitor_manager = meta_backend_get_monitor_manager (backend);
-  gboolean enable;
-
-  enable = meta_dbus_debug_control_get_enable_hdr (dbus_debug_control);
-  g_object_set (G_OBJECT (monitor_manager),
-                "experimental-hdr", enable ? "on" : "off",
-                NULL);
-}
-
-static void
-on_experimental_hdr_changed (MetaMonitorManager *monitor_manager,
-                             GParamSpec         *pspec,
-                             MetaDebugControl   *debug_control)
-{
-  MetaDBusDebugControl *dbus_debug_control =
-    META_DBUS_DEBUG_CONTROL (debug_control);
-  g_autofree char *experimental_hdr = NULL;
-  gboolean enable;
-
-  g_object_get (G_OBJECT (monitor_manager),
-                "experimental-hdr", &experimental_hdr,
-                NULL);
-
-  enable = g_strcmp0 (experimental_hdr, "on") == 0;
-  if (enable == meta_dbus_debug_control_get_enable_hdr (dbus_debug_control))
-    return;
-
-  meta_dbus_debug_control_set_enable_hdr (META_DBUS_DEBUG_CONTROL (debug_control),
-                                          g_strcmp0 (experimental_hdr, "on") == 0);
-}
-
-static void
-on_context_started (MetaContext      *context,
-                    MetaDebugControl *debug_control)
-{
-  MetaBackend *backend = meta_context_get_backend (context);
-  MetaMonitorManager *monitor_manager = meta_backend_get_monitor_manager (backend);
-
-  g_signal_connect (monitor_manager, "notify::experimental-hdr",
-                    G_CALLBACK (on_experimental_hdr_changed),
-                    debug_control);
-}
-
-static void
-meta_debug_control_constructed (GObject *object)
-{
-  MetaDebugControl *debug_control = META_DEBUG_CONTROL (object);
-
-  g_signal_connect_object (debug_control->context, "started",
-                           G_CALLBACK (on_context_started), debug_control,
-                           G_CONNECT_DEFAULT);
-
-  g_signal_connect_object (debug_control, "notify::enable-hdr",
-                           G_CALLBACK (on_enable_hdr_changed), debug_control,
-                           G_CONNECT_DEFAULT);
-
-  G_OBJECT_CLASS (meta_debug_control_parent_class)->constructed (object);
-}
-
-static void
 meta_debug_control_dispose (GObject *object)
 {
   MetaDebugControl *debug_control = META_DEBUG_CONTROL (object);
@@ -203,7 +137,6 @@ meta_debug_control_class_init (MetaDebugControlClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  object_class->constructed = meta_debug_control_constructed;
   object_class->dispose = meta_debug_control_dispose;
   object_class->set_property = meta_debug_control_set_property;
   object_class->get_property = meta_debug_control_get_property;
@@ -221,8 +154,15 @@ meta_debug_control_init (MetaDebugControl *debug_control)
 {
   MetaDBusDebugControl *dbus_debug_control =
     META_DBUS_DEBUG_CONTROL (debug_control);
+  gboolean enable_hdr, force_linear_blending;
 
-  meta_dbus_debug_control_set_force_linear_blending (dbus_debug_control, FALSE);
+  enable_hdr = g_strcmp0 (getenv ("MUTTER_DEBUG_ENABLE_HDR"), "1") == 0;
+  meta_dbus_debug_control_set_enable_hdr (dbus_debug_control, enable_hdr);
+
+  force_linear_blending =
+    g_strcmp0 (getenv ("MUTTER_DEBUG_FORCE_LINEAR_BLENDING"), "1") == 0;
+  meta_dbus_debug_control_set_force_linear_blending (dbus_debug_control,
+                                                     force_linear_blending);
 }
 
 gboolean
@@ -232,6 +172,15 @@ meta_debug_control_is_linear_blending_forced (MetaDebugControl *debug_control)
     META_DBUS_DEBUG_CONTROL (debug_control);
 
   return meta_dbus_debug_control_get_force_linear_blending (dbus_debug_control);
+}
+
+gboolean
+meta_debug_control_is_hdr_enabled (MetaDebugControl *debug_control)
+{
+  MetaDBusDebugControl *dbus_debug_control =
+    META_DBUS_DEBUG_CONTROL (debug_control);
+
+  return meta_dbus_debug_control_get_enable_hdr (dbus_debug_control);
 }
 
 void
