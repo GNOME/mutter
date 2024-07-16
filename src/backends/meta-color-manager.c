@@ -108,9 +108,6 @@ on_device_ready (MetaColorDevice  *color_device,
                  gboolean          success,
                  MetaColorManager *color_manager)
 {
-  MetaColorManagerPrivate *priv =
-    meta_color_manager_get_instance_private (color_manager);
-
   if (!success)
     {
       meta_topic (META_DEBUG_COLOR, "Color device '%s' failed to become ready",
@@ -118,17 +115,14 @@ on_device_ready (MetaColorDevice  *color_device,
       return;
     }
 
-  meta_color_device_update (color_device, priv->temperature);
+  meta_color_device_update (color_device);
 }
 
 static void
 on_device_changed (MetaColorDevice  *color_device,
                    MetaColorManager *color_manager)
 {
-  MetaColorManagerPrivate *priv =
-    meta_color_manager_get_instance_private (color_manager);
-
-  meta_color_device_update (color_device, priv->temperature);
+  meta_color_device_update (color_device);
 }
 
 static void
@@ -261,7 +255,7 @@ update_device_properties (MetaColorManager *color_manager)
       if (!meta_color_device_is_ready (color_device))
           continue;
 
-      meta_color_device_update (color_device, priv->temperature);
+      meta_color_device_update (color_device);
     }
 }
 
@@ -596,6 +590,15 @@ meta_color_manager_get_lcms_context (MetaColorManager *color_manager)
     meta_color_manager_get_instance_private (color_manager);
 
   return priv->lcms_context;
+}
+
+unsigned int
+meta_color_manager_get_temperature (MetaColorManager *color_manager)
+{
+  MetaColorManagerPrivate *priv =
+    meta_color_manager_get_instance_private (color_manager);
+
+  return priv->temperature;
 }
 
 void

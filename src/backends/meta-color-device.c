@@ -1226,12 +1226,13 @@ meta_color_device_get_assigned_profile (MetaColorDevice *color_device)
 }
 
 void
-meta_color_device_update (MetaColorDevice *color_device,
-                          unsigned int     temperature)
+meta_color_device_update (MetaColorDevice *color_device)
 {
+  MetaColorManager *color_manager = color_device->color_manager;
   MetaColorProfile *color_profile;
   MetaMonitor *monitor;
   size_t lut_size;
+  unsigned int temperature;
 
   color_profile = meta_color_device_get_assigned_profile (color_device);
   if (!color_profile)
@@ -1240,6 +1241,8 @@ meta_color_device_update (MetaColorDevice *color_device,
   monitor = color_device->monitor;
   if (!meta_monitor_is_active (monitor))
     return;
+
+  temperature = meta_color_manager_get_temperature (color_manager);
 
   meta_topic (META_DEBUG_COLOR,
               "Updating device '%s' (%s) using color profile '%s' "
@@ -1260,7 +1263,7 @@ meta_color_device_update (MetaColorDevice *color_device,
           meta_topic (META_DEBUG_COLOR,
                       "Setting brightness to %s%% from brightness profile",
                       brightness_profile);
-          meta_color_manager_set_brightness (color_device->color_manager,
+          meta_color_manager_set_brightness (color_manager,
                                              atoi (brightness_profile));
         }
     }

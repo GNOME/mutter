@@ -61,8 +61,7 @@ MetaColorProfile * meta_color_device_generate_profile_finish (MetaColorDevice  *
 META_EXPORT_TEST
 gboolean meta_color_device_is_ready (MetaColorDevice *color_device);
 
-void meta_color_device_update (MetaColorDevice *color_device,
-                               unsigned int     temperature);
+void meta_color_device_update (MetaColorDevice *color_device);
 
 META_EXPORT_TEST
 void meta_set_color_efivar_test_path (const char *path);

@@ -40,3 +40,5 @@ META_EXPORT_TEST
 int meta_color_manager_get_num_color_devices (MetaColorManager *color_manager);
 
 cmsContext meta_color_manager_get_lcms_context (MetaColorManager *color_manager);
+
+unsigned int meta_color_manager_get_temperature (MetaColorManager *color_manager);
