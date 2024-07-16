@@ -258,9 +258,8 @@ update_device_properties (MetaColorManager *color_manager)
     }
 }
 
-static void
-on_monitors_changed (MetaMonitorManager *monitor_manager,
-                     MetaColorManager   *color_manager)
+void
+meta_color_manager_monitors_changed (MetaColorManager *color_manager)
 {
   update_devices (color_manager);
   update_device_properties (color_manager);
@@ -275,8 +274,6 @@ cd_client_connect_cb (GObject      *source_object,
   MetaColorManager *color_manager = META_COLOR_MANAGER (user_data);
   MetaColorManagerPrivate *priv =
     meta_color_manager_get_instance_private (color_manager);
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (priv->backend);
   g_autoptr (GError) error = NULL;
 
   if (!cd_client_connect_finish (client, res, &error))
@@ -295,9 +292,6 @@ cd_client_connect_cb (GObject      *source_object,
   priv->color_store = meta_color_store_new (color_manager);
 
   update_devices (color_manager);
-  g_signal_connect (monitor_manager, "monitors-changed-internal",
-                    G_CALLBACK (on_monitors_changed),
-                    color_manager);
 
   priv->is_ready = TRUE;
   g_signal_emit (color_manager, signals[READY], 0);

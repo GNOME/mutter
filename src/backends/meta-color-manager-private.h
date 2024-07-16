@@ -28,6 +28,8 @@ struct _MetaColorManagerClass
   GObjectClass parent_class;
 };
 
+void meta_color_manager_monitors_changed (MetaColorManager *color_manager);
+
 CdClient * meta_color_manager_get_cd_client (MetaColorManager *color_manager);
 
 META_EXPORT_TEST
