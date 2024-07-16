@@ -453,6 +453,9 @@ meta_wayland_surface_state_set_default (MetaWaylandSurfaceState *state)
 
   state->drm_syncobj.acquire = NULL;
   state->drm_syncobj.release = NULL;
+
+  state->has_new_color_state = FALSE;
+  state->color_state = NULL;
 }
 
 static void
@@ -475,6 +478,7 @@ meta_wayland_surface_state_clear (MetaWaylandSurfaceState *state)
   g_clear_object (&state->texture);
   g_clear_object (&state->drm_syncobj.acquire);
   g_clear_object (&state->drm_syncobj.release);
+  g_clear_object (&state->color_state);
 
   g_clear_pointer (&state->surface_damage, mtk_region_unref);
   g_clear_pointer (&state->buffer_damage, mtk_region_unref);
@@ -645,6 +649,14 @@ meta_wayland_surface_state_merge_into (MetaWaylandSurfaceState *from,
   g_clear_object (&from->drm_syncobj.acquire);
   g_set_object (&to->drm_syncobj.release, from->drm_syncobj.release);
   g_clear_object (&from->drm_syncobj.release);
+
+  if (from->has_new_color_state)
+    {
+      g_set_object (&to->color_state, from->color_state);
+      g_clear_object (&from->color_state);
+
+      to->has_new_color_state = TRUE;
+    }
 }
 
 static void
@@ -839,6 +851,9 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
       if (state->input_region)
         surface->input_region = mtk_region_ref (state->input_region);
     }
+
+  if (state->has_new_color_state)
+    g_set_object (&surface->color_state, state->color_state);
 
   /*
    * A new commit indicates a new content update, so any previous

@@ -191,6 +191,11 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
 
       color_state =
         clutter_actor_get_color_state (CLUTTER_ACTOR (surface_actor));
+      if (surface->color_state)
+        color_state = surface->color_state;
+
+      clutter_actor_set_color_state (CLUTTER_ACTOR (surface_actor),
+                                     color_state);
 
       texture = meta_wayland_surface_get_texture (surface);
       meta_shaped_texture_set_texture (stex, texture);
