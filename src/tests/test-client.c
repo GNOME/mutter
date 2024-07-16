@@ -757,6 +757,38 @@ process_line (const char *line)
 
       gtk_window_unmaximize (GTK_WINDOW (window));
     }
+  else if (strcmp (argv[0], "set_modal") == 0)
+    {
+      GtkWidget *window;
+
+      if (argc != 2)
+        {
+          g_print ("usage: set_modal <id>\n");
+          goto out;
+        }
+
+      window = lookup_window (argv[1]);
+      if (!window)
+        goto out;
+
+      gtk_window_set_modal (GTK_WINDOW (window), TRUE);
+    }
+  else if (strcmp (argv[0], "unset_modal") == 0)
+    {
+      GtkWidget *window;
+
+      if (argc != 2)
+        {
+          g_print ("usage: unset_modal <id>\n");
+          goto out;
+        }
+
+      window = lookup_window (argv[1]);
+      if (!window)
+        goto out;
+
+      gtk_window_set_modal (GTK_WINDOW (window), FALSE);
+    }
   else if (strcmp (argv[0], "fullscreen") == 0)
     {
       if (argc != 2)

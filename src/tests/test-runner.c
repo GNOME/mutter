@@ -1140,6 +1140,8 @@ test_case_do (TestCase    *test,
            strcmp (argv[0], "unmaximize") == 0 ||
            strcmp (argv[0], "fullscreen") == 0 ||
            strcmp (argv[0], "unfullscreen") == 0 ||
+           strcmp (argv[0], "set_modal") == 0 ||
+           strcmp (argv[0], "unset_modal") == 0 ||
            strcmp (argv[0], "freeze") == 0 ||
            strcmp (argv[0], "thaw") == 0 ||
            strcmp (argv[0], "destroy") == 0)
