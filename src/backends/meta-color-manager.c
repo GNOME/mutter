@@ -240,7 +240,7 @@ update_devices (MetaColorManager *color_manager)
 }
 
 static void
-update_all_gamma (MetaColorManager *color_manager)
+update_device_properties (MetaColorManager *color_manager)
 {
   MetaColorManagerPrivate *priv =
     meta_color_manager_get_instance_private (color_manager);
@@ -270,7 +270,7 @@ on_monitors_changed (MetaMonitorManager *monitor_manager,
                      MetaColorManager   *color_manager)
 {
   update_devices (color_manager);
-  update_all_gamma (color_manager);
+  update_device_properties (color_manager);
 }
 
 static void
@@ -328,7 +328,7 @@ update_temperature (MetaColorManager *color_manager)
 
   priv->temperature = temperature;
 
-  update_all_gamma (color_manager);
+  update_device_properties (color_manager);
 }
 
 static void
@@ -399,7 +399,7 @@ on_gsd_power_screen_ready (GObject      *source_object,
               "Connection to org.gnome.SettingsDaemon.PowerScreen established");
   priv->gsd_power_screen = gsd_power_screen;
 
-  update_all_gamma (color_manager);
+  update_device_properties (color_manager);
 }
 
 static void
@@ -437,7 +437,7 @@ meta_color_manager_constructed (GObject *object)
     color_manager);
 
   update_devices (color_manager);
-  update_all_gamma (color_manager);
+  update_device_properties (color_manager);
 }
 
 static void
