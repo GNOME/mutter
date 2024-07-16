@@ -2176,7 +2176,6 @@ meta_window_force_placement (MetaWindow    *window,
   meta_window_move_resize_internal (window,
                                     flags,
                                     place_flags,
-                                    META_GRAVITY_NORTH_WEST,
                                     window->unconstrained_rect);
   window->calc_placement = FALSE;
 
@@ -3977,7 +3976,6 @@ void
 meta_window_move_resize_internal (MetaWindow          *window,
                                   MetaMoveResizeFlags  flags,
                                   MetaPlaceFlag        place_flags,
-                                  MetaGravity          gravity,
                                   MtkRectangle         frame_rect)
 {
   /* The rectangle here that's passed in *always* in "frame rect"
@@ -4010,6 +4008,7 @@ meta_window_move_resize_internal (MetaWindow          *window,
   MetaMoveResizeResultFlags result = 0;
   gboolean moved_or_resized = FALSE;
   MetaWindowUpdateMonitorFlags update_monitor_flags;
+  MetaGravity gravity;
 
   g_return_if_fail (!window->override_redirect);
 
@@ -4021,6 +4020,8 @@ meta_window_move_resize_internal (MetaWindow          *window,
                      META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE));
 
   did_placement = !window->placed && window->calc_placement;
+
+  gravity = meta_window_get_gravity (window);
 
   /* We don't need it in the idle queue anymore. */
   meta_window_unqueue (window, META_QUEUE_MOVE_RESIZE);
@@ -4187,7 +4188,6 @@ meta_window_move_resize (MetaWindow          *window,
   meta_window_move_resize_internal (window,
                                     flags,
                                     META_PLACE_FLAG_NONE,
-                                    META_GRAVITY_NORTH_WEST,
                                     rect);
 }
 
@@ -4433,7 +4433,6 @@ meta_window_resize_frame_with_gravity (MetaWindow  *window,
   meta_window_move_resize_internal (window,
                                     flags,
                                     META_PLACE_FLAG_NONE,
-                                    gravity,
                                     rect);
 }
 

@@ -1207,7 +1207,6 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
   MetaWaylandSurface *surface = wl_window->surface;
   int dx, dy;
   int geometry_scale;
-  MetaGravity gravity;
   MtkRectangle rect;
   MetaMoveResizeFlags flags;
   MetaWaylandWindowConfiguration *acked_configuration;
@@ -1336,16 +1335,9 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
                    meta_wayland_window_configuration_free);
   wl_window->last_acked_configuration = g_steal_pointer (&acked_configuration);
 
-  if (window_drag &&
-      meta_window_drag_get_window (window_drag) == window)
-    gravity = meta_resize_gravity_from_grab_op (meta_window_drag_get_grab_op (window_drag));
-  else
-    gravity = META_GRAVITY_STATIC;
-
-  /* Force unconstrained move + northwest gravity when running toplevel drags */
+  /* Force unconstrained move when running toplevel drags */
   if (toplevel_drag && surface == toplevel_drag->dragged_surface)
     {
-      gravity = META_GRAVITY_NORTH_WEST;
       window_actor = meta_window_actor_from_window (window);
       meta_window_actor_set_tied_to_drag (window_actor, TRUE);
     }
@@ -1353,7 +1345,6 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
   meta_window_move_resize_internal (window,
                                     flags,
                                     META_PLACE_FLAG_NONE,
-                                    gravity,
                                     rect);
 }
 

@@ -795,7 +795,6 @@ void meta_window_set_urgent (MetaWindow *window,
 void meta_window_move_resize_internal (MetaWindow          *window,
                                        MetaMoveResizeFlags  flags,
                                        MetaPlaceFlag        place_flags,
-                                       MetaGravity          gravity,
                                        MtkRectangle         frame_rect);
 
 void meta_window_move_resize (MetaWindow          *window,

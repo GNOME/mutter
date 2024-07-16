@@ -431,7 +431,6 @@ meta_wayland_xdg_session_state_restore_window (MetaSessionState *state,
                                          META_MOVE_RESIZE_MOVE_ACTION |
                                          META_MOVE_RESIZE_RESIZE_ACTION),
                                         META_PLACE_FLAG_NONE,
-                                        META_GRAVITY_NORTH_WEST,
                                         *rect);
     }
 
