@@ -322,6 +322,21 @@ meta_window_real_get_client_pid (MetaWindow *window)
 static MetaGravity
 meta_window_real_get_gravity (MetaWindow *window)
 {
+  MetaWindowDrag *window_drag = NULL;
+
+  if (window->display && window->display->compositor)
+    window_drag = meta_compositor_get_current_window_drag (window->display->compositor);
+
+  if (window_drag &&
+      meta_window_drag_get_window (window_drag) == window)
+    {
+      MetaGrabOp grab_op;
+
+      grab_op = meta_window_drag_get_grab_op (window_drag);
+
+      return meta_resize_gravity_from_grab_op (grab_op);
+    }
+
   return META_GRAVITY_NONE;
 }
 
