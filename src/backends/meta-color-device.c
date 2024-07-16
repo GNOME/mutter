@@ -1234,6 +1234,9 @@ meta_color_device_update (MetaColorDevice *color_device)
   size_t lut_size;
   unsigned int temperature;
 
+  if (!meta_color_device_is_ready (color_device))
+    return;
+
   color_profile = meta_color_device_get_assigned_profile (color_device);
   if (!color_profile)
     return;

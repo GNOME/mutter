@@ -252,9 +252,6 @@ update_device_properties (MetaColorManager *color_manager)
       if (!color_device)
         continue;
 
-      if (!meta_color_device_is_ready (color_device))
-          continue;
-
       meta_color_device_update (color_device);
     }
 }
