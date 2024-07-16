@@ -30,8 +30,8 @@
 
 #include "config.h"
 
+#include "cogl/cogl-renderer-private.h"
 #include "cogl/cogl-glib-source.h"
-#include "cogl/cogl-poll.h"
 
 typedef struct _CoglGLibSource
 {
@@ -47,7 +47,7 @@ cogl_glib_source_prepare (GSource *source, int *timeout)
 {
   CoglGLibSource *cogl_source = (CoglGLibSource *) source;
 
-  if (!cogl_poll_renderer_has_idle_closures (cogl_source->renderer))
+  if (_cogl_list_empty (&cogl_source->renderer->idle_closures))
     {
       *timeout = -1;
       cogl_source->expiration_time = -1;
@@ -81,7 +81,7 @@ cogl_glib_source_dispatch (GSource *source,
 {
   CoglGLibSource *cogl_source = (CoglGLibSource *) source;
 
-  cogl_poll_renderer_dispatch (cogl_source->renderer);
+  _cogl_closure_list_invoke_no_args (&cogl_source->renderer->idle_closures);
 
   return TRUE;
 }
@@ -122,5 +122,3 @@ cogl_glib_source_new (CoglContext *context,
   return cogl_glib_renderer_source_new (cogl_context_get_renderer (context),
                                         priority);
 }
-
-

@@ -45,7 +45,6 @@
 #include "cogl/cogl-texture-2d-private.h"
 #include "cogl/driver/gl/cogl-texture-2d-gl-private.h"
 #include "cogl/cogl-texture-2d.h"
-#include "cogl/cogl-poll-private.h"
 #include "cogl/winsys/cogl-onscreen-egl.h"
 #include "cogl/winsys/cogl-onscreen-xlib.h"
 #include "cogl/winsys/cogl-winsys-egl-x11-private.h"

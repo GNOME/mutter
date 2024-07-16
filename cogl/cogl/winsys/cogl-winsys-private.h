@@ -38,8 +38,6 @@
 #include "cogl/winsys/cogl-texture-pixmap-x11-private.h"
 #endif
 
-#include "cogl/cogl-poll.h"
-
 COGL_EXPORT uint32_t
 _cogl_winsys_error_quark (void);
 

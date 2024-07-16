@@ -45,7 +45,6 @@
 #include "cogl/cogl-onscreen-private.h"
 #include "cogl/cogl-xlib-renderer.h"
 #include "cogl/cogl-util.h"
-#include "cogl/cogl-poll-private.h"
 #include "cogl/driver/gl/cogl-pipeline-opengl-private.h"
 #include "cogl/winsys/cogl-glx-renderer-private.h"
 #include "cogl/winsys/cogl-glx-display-private.h"

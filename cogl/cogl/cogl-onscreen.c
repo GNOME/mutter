@@ -39,7 +39,7 @@
 #include "cogl/cogl-onscreen-template-private.h"
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-closure-list-private.h"
-#include "cogl/cogl-poll-private.h"
+#include "cogl/cogl-renderer-private.h"
 
 typedef struct _CoglOnscreenPrivate
 {
@@ -223,11 +223,10 @@ _cogl_onscreen_queue_dispatch_idle (CoglOnscreen *onscreen)
   if (!ctx->onscreen_dispatch_idle)
     {
       ctx->onscreen_dispatch_idle =
-        _cogl_poll_renderer_add_idle (ctx->display->renderer,
-                                      (CoglIdleCallback)
-                                      _cogl_dispatch_onscreen_cb,
-                                      ctx,
-                                      NULL);
+        _cogl_closure_list_add (&ctx->display->renderer->idle_closures,
+                                _cogl_dispatch_onscreen_cb,
+                                ctx,
+                                NULL);
     }
 }
 

@@ -23,6 +23,7 @@
 #include <fcntl.h>
 #include <glib/gstdio.h>
 #include <linux/dma-buf.h>
+#include <poll.h>
 #include <sys/ioctl.h>
 #include <sys/timerfd.h>
 #include <xf86drm.h>
