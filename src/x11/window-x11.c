@@ -2159,6 +2159,18 @@ meta_window_x11_set_transient_for (MetaWindow *window,
   return TRUE;
 }
 
+static MetaGravity
+meta_window_x11_get_gravity (MetaWindow *window)
+{
+  MetaGravity gravity;
+
+  gravity = META_WINDOW_CLASS (meta_window_x11_parent_class)->get_gravity (window);
+  if (gravity == META_GRAVITY_NONE)
+    gravity = window->size_hints.win_gravity;
+
+  return gravity;
+}
+
 gboolean
 meta_window_x11_is_ssd (MetaWindow *window)
 {
@@ -2329,6 +2341,7 @@ meta_window_x11_class_init (MetaWindowX11Class *klass)
   window_class->set_transient_for = meta_window_x11_set_transient_for;
   window_class->stage_to_protocol = meta_window_x11_stage_to_protocol;
   window_class->protocol_to_stage = meta_window_x11_protocol_to_stage;
+  window_class->get_gravity = meta_window_x11_get_gravity;
 
   klass->freeze_commits = meta_window_x11_impl_freeze_commits;
   klass->thaw_commits = meta_window_x11_impl_thaw_commits;
