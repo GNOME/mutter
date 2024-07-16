@@ -4946,7 +4946,8 @@ find_root_ancestor (MetaWindow *window,
   MetaWindow **ancestor = data;
 
   /* Overwrite the previously "most-root" ancestor with the new one found */
-  *ancestor = window;
+  if (!window->unmanaging)
+    *ancestor = window;
 
   /* We want this to continue until meta_window_foreach_ancestor quits because
    * there are no more valid ancestors.
