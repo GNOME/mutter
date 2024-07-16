@@ -276,6 +276,8 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
   if (window->unmanaging)
     return;
 
+  gravity = meta_window_get_gravity (window);
+
   configured_rect.x = constrained_rect.x;
   configured_rect.y = constrained_rect.y;
 
