@@ -577,7 +577,6 @@ struct _MetaWindowClass
                                   MetaGrabOp  op);
   void (*current_workspace_changed) (MetaWindow *window);
   void (*move_resize_internal)   (MetaWindow                *window,
-                                  MetaGravity                gravity,
                                   MtkRectangle               unconstrained_rect,
                                   MtkRectangle               constrained_rect,
                                   MtkRectangle               temporary_rect,

@@ -253,7 +253,6 @@ meta_window_wayland_grab_op_ended (MetaWindow *window,
 
 static void
 meta_window_wayland_move_resize_internal (MetaWindow                *window,
-                                          MetaGravity                gravity,
                                           MtkRectangle               unconstrained_rect,
                                           MtkRectangle               constrained_rect,
                                           MtkRectangle               temporary_rect,
@@ -266,6 +265,7 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
   gboolean can_move_now = FALSE;
   MtkRectangle configured_rect;
   MtkRectangle frame_rect;
+  MetaGravity gravity;
   int geometry_scale;
   int new_x;
   int new_y;

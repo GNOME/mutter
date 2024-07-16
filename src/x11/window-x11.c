@@ -1394,7 +1394,6 @@ meta_window_x11_can_freeze_commits (MetaWindow *window)
 
 static void
 meta_window_x11_move_resize_internal (MetaWindow                *window,
-                                      MetaGravity                gravity,
                                       MtkRectangle               unconstrained_rect,
                                       MtkRectangle               constrained_rect,
                                       MtkRectangle               intermediate_rect,
