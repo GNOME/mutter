@@ -36,7 +36,6 @@
 enum
 {
   READY,
-  CHANGED,
   UPDATED,
 
   N_SIGNALS
@@ -157,7 +156,7 @@ ensure_default_profile_cb (GObject      *source_object,
 
   g_set_object (&color_device->assigned_profile, color_profile);
 
-  g_signal_emit (color_device, signals[CHANGED], 0);
+  meta_color_device_update (color_device);
 }
 
 static void
@@ -319,12 +318,6 @@ meta_color_device_class_init (MetaColorDeviceClass *klass)
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 1,
                   G_TYPE_BOOLEAN);
-  signals[CHANGED] =
-    g_signal_new ("changed",
-                  G_TYPE_FROM_CLASS (klass),
-                  G_SIGNAL_RUN_LAST, 0,
-                  NULL, NULL, NULL,
-                  G_TYPE_NONE, 0);
   signals[UPDATED] =
     g_signal_new ("updated",
                   G_TYPE_FROM_CLASS (klass),

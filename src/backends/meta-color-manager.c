@@ -119,13 +119,6 @@ on_device_ready (MetaColorDevice  *color_device,
 }
 
 static void
-on_device_changed (MetaColorDevice  *color_device,
-                   MetaColorManager *color_manager)
-{
-  meta_color_device_update (color_device);
-}
-
-static void
 on_device_updated (MetaColorDevice  *color_device,
                    MetaColorManager *color_manager)
 {
@@ -211,9 +204,6 @@ update_devices (MetaColorManager *color_manager)
 
           g_signal_connect_object (color_device, "ready",
                                    G_CALLBACK (on_device_ready),
-                                   color_manager, 0);
-          g_signal_connect_object (color_device, "changed",
-                                   G_CALLBACK (on_device_changed),
                                    color_manager, 0);
           g_signal_connect_object (color_device, "updated",
                                    G_CALLBACK (on_device_updated),
