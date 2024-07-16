@@ -1480,12 +1480,14 @@ update_surface_output_state (gpointer key, gpointer value, gpointer user_data)
 {
   MetaWaylandOutput *wayland_output = value;
   MetaWaylandSurface *surface = user_data;
+  MetaMonitor *monitor;
   MetaLogicalMonitor *logical_monitor;
   gboolean is_on_logical_monitor;
 
   g_assert (surface->role);
 
-  logical_monitor = meta_wayland_output_get_logical_monitor (wayland_output);
+  monitor = meta_wayland_output_get_monitor (wayland_output);
+  logical_monitor = meta_monitor_get_logical_monitor (monitor);
   if (!logical_monitor)
     {
       set_surface_is_on_output (surface, wayland_output, FALSE);
