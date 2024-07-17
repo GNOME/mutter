@@ -110,7 +110,7 @@ clutter_color_transform_key_equal (gconstpointer data1,
           key1->target.transfer_function == key2->target.transfer_function);
 }
 
-static void
+void
 clutter_color_transform_key_init (ClutterColorTransformKey *key,
                                   ClutterColorState        *color_state,
                                   ClutterColorState        *target_color_state)

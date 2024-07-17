@@ -18,6 +18,8 @@
 
 #include "config.h"
 
+#include "clutter/clutter-color-state-private.h"
+
 #include "clutter-pipeline-cache.h"
 
 typedef struct _PipelineGroupEntry
@@ -84,32 +86,6 @@ clutter_pipeline_cache_init (ClutterPipelineCache *pipeline_cache)
                            (GDestroyNotify) pipeline_group_entry_free);
 }
 
-static uint32_t
-calculate_color_state_key (ClutterColorState *color_state)
-{
-  ClutterColorspace colorspace =
-    clutter_color_state_get_colorspace (color_state);
-  ClutterTransferFunction transfer_function =
-    clutter_color_state_get_transfer_function (color_state);
-
-  return (colorspace |
-          transfer_function << 8);
-}
-
-static uint64_t
-calculate_key (ClutterColorState *source_color_state,
-               ClutterColorState *target_color_state)
-{
-  uint64_t source_key;
-  uint64_t target_key;
-
-  source_key = calculate_color_state_key (source_color_state);
-  target_key = calculate_color_state_key (target_color_state);
-
-  return (source_key |
-          target_key << 32);
-}
-
 /**
  * clutter_pipeline_cache_get_pipeline: (skip)
  */
@@ -121,7 +97,7 @@ clutter_pipeline_cache_get_pipeline (ClutterPipelineCache *pipeline_cache,
                                      ClutterColorState    *target_color_state)
 {
   PipelineGroupEntry *group_entry;
-  uint64_t key;
+  ClutterColorTransformKey key;
   CoglPipeline *pipeline;
 
   group_entry = g_hash_table_lookup (pipeline_cache->groups, group);
@@ -134,7 +110,9 @@ clutter_pipeline_cache_get_pipeline (ClutterPipelineCache *pipeline_cache,
   if (!group_entry->slots[slot])
     return NULL;
 
-  key = calculate_key (source_color_state, target_color_state);
+  clutter_color_transform_key_init (&key,
+                                    source_color_state,
+                                    target_color_state);
   pipeline = g_hash_table_lookup (group_entry->slots[slot], &key);
 
   if (pipeline)
@@ -155,7 +133,7 @@ clutter_pipeline_cache_set_pipeline (ClutterPipelineCache *pipeline_cache,
                                      CoglPipeline         *pipeline)
 {
   PipelineGroupEntry *group_entry;
-  uint64_t key;
+  ClutterColorTransformKey key;
 
   group_entry = g_hash_table_lookup (pipeline_cache->groups, group);
   if (!group_entry)
@@ -180,13 +158,16 @@ clutter_pipeline_cache_set_pipeline (ClutterPipelineCache *pipeline_cache,
 
   if (!group_entry->slots[slot])
     {
-      group_entry->slots[slot] = g_hash_table_new_full (g_int64_hash,
-                                                        g_int64_equal,
-                                                        g_free,
-                                                        g_object_unref);
+      group_entry->slots[slot] =
+        g_hash_table_new_full (clutter_color_transform_key_hash,
+                               clutter_color_transform_key_equal,
+                               g_free,
+                               g_object_unref);
     }
 
-  key = calculate_key (source_color_state, target_color_state);
+  clutter_color_transform_key_init (&key,
+                                    source_color_state,
+                                    target_color_state);
   g_hash_table_replace (group_entry->slots[slot],
                         g_memdup2 (&key, sizeof (key)),
                         g_object_ref (pipeline));
@@ -204,7 +185,7 @@ clutter_pipeline_cache_unset_pipeline (ClutterPipelineCache *pipeline_cache,
 
 {
   PipelineGroupEntry *group_entry;
-  uint64_t key;
+  ClutterColorTransformKey key;
 
   group_entry = g_hash_table_lookup (pipeline_cache->groups, group);
 
@@ -217,7 +198,9 @@ clutter_pipeline_cache_unset_pipeline (ClutterPipelineCache *pipeline_cache,
   if (!group_entry->slots[slot])
     return;
 
-  key = calculate_key (source_color_state, target_color_state);
+  clutter_color_transform_key_init (&key,
+                                    source_color_state,
+                                    target_color_state);
   g_hash_table_remove (group_entry->slots[slot], &key);
 }
 

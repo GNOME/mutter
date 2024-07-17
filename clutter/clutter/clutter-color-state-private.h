@@ -36,6 +36,10 @@ typedef struct _ClutterColorTransformKey
   } target;
 } ClutterColorTransformKey;
 
+void clutter_color_transform_key_init (ClutterColorTransformKey *key,
+                                       ClutterColorState        *color_state,
+                                       ClutterColorState        *target_color_state);
+
 guint clutter_color_transform_key_hash (gconstpointer data);
 
 gboolean clutter_color_transform_key_equal (gconstpointer data1,
