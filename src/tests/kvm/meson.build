@@ -16,7 +16,7 @@ else
     console: true,
     command: [
       build_linux,
-      'https://anongit.freedesktop.org/git/drm/drm.git',
+      'git@gitlab.freedesktop.org:drm/kernel.git',
       '@INPUT@',
       '@OUTPUT@',
       '--enable', 'CONFIG_DRM_VKMS',
