@@ -852,3 +852,44 @@ clutter_color_state_equals (ClutterColorState *color_state,
   return (priv->colorspace == other_priv->colorspace &&
           priv->transfer_function == other_priv->transfer_function);
 }
+
+static char *
+enum_to_string (GType        type,
+                unsigned int enum_value)
+{
+  GEnumClass *enum_class;
+  GEnumValue *value;
+  char *retval = NULL;
+
+  enum_class = g_type_class_ref (type);
+
+  value = g_enum_get_value (enum_class, enum_value);
+  if (value)
+    retval = g_strdup (value->value_nick);
+
+  g_type_class_unref (enum_class);
+
+  return retval;
+}
+
+char *
+clutter_color_state_to_string (ClutterColorState *color_state)
+{
+  ClutterColorStatePrivate *priv;
+  g_autofree char *colorspace_name = NULL;
+  g_autofree char *transfer_function_name = NULL;
+
+  g_return_val_if_fail (CLUTTER_IS_COLOR_STATE (color_state), FALSE);
+
+  priv = clutter_color_state_get_instance_private (color_state);
+
+  colorspace_name = enum_to_string (CLUTTER_TYPE_COLORSPACE, priv->colorspace);
+  transfer_function_name = enum_to_string (CLUTTER_TYPE_TRANSFER_FUNCTION,
+                                           priv->transfer_function);
+
+  return g_strdup_printf ("ClutterColorState %d "
+                          "(colorspace: %s, transfer function: %s)",
+                          priv->id,
+                          colorspace_name,
+                          transfer_function_name);
+}

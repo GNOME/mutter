@@ -44,6 +44,9 @@ ClutterColorState * clutter_color_state_new (ClutterContext          *context,
                                              ClutterTransferFunction  transfer_function);
 
 CLUTTER_EXPORT
+char * clutter_color_state_to_string (ClutterColorState *color_state);
+
+CLUTTER_EXPORT
 unsigned int clutter_color_state_get_id (ClutterColorState *color_state);
 
 CLUTTER_EXPORT

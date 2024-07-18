@@ -125,25 +125,6 @@ meta_renderer_native_ensure_gpu_data (MetaRendererNative  *renderer_native,
 static void
 meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native);
 
-static char *
-enum_to_string (GType        type,
-                unsigned int enum_value)
-{
-  GEnumClass *enum_class;
-  GEnumValue *value;
-  char *retval = NULL;
-
-  enum_class = g_type_class_ref (type);
-
-  value = g_enum_get_value (enum_class, enum_value);
-  if (value)
-    retval = g_strdup (value->value_nick);
-
-  g_type_class_unref (enum_class);
-
-  return retval;
-}
-
 static void
 meta_renderer_native_gpu_data_free (MetaRendererNativeGpuData *renderer_gpu_data)
 {
@@ -1539,37 +1520,30 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
   if (meta_debug_control_is_linear_blending_forced (debug_control))
     view_transfer_function = CLUTTER_TRANSFER_FUNCTION_LINEAR;
 
-  if (meta_is_topic_enabled (META_DEBUG_RENDER))
-    {
-      g_autofree char *colorspace_name = NULL;
-      g_autofree char *view_transfer_function_name = NULL;
-      g_autofree char *output_transfer_function_name = NULL;
-
-      colorspace_name = enum_to_string (CLUTTER_TYPE_COLORSPACE,
-                                        colorspace);
-      view_transfer_function_name =
-        enum_to_string (CLUTTER_TYPE_TRANSFER_FUNCTION,
-                        view_transfer_function);
-      output_transfer_function_name =
-        enum_to_string (CLUTTER_TYPE_TRANSFER_FUNCTION,
-                        output_transfer_function);
-
-      meta_topic (META_DEBUG_RENDER,
-                  "Using colorspace %s "
-                  "and transfer functions %s (view) and %s (output) "
-                  "for view %s",
-                  colorspace_name,
-                  view_transfer_function_name,
-                  output_transfer_function_name,
-                  meta_output_get_name (output));
-    }
-
   view_color_state = clutter_color_state_new (clutter_context,
                                               colorspace,
                                               view_transfer_function);
   output_color_state = clutter_color_state_new (clutter_context,
                                                 colorspace,
                                                 output_transfer_function);
+
+  if (meta_is_topic_enabled (META_DEBUG_RENDER))
+    {
+      g_autofree char *view_cs_str =
+        clutter_color_state_to_string (view_color_state);
+      g_autofree char *output_cs_str =
+        clutter_color_state_to_string (view_color_state);
+
+      meta_topic (META_DEBUG_RENDER,
+                  "ColorState for view %s:\n  %s",
+                  meta_output_get_name (output),
+                  view_cs_str);
+
+      meta_topic (META_DEBUG_RENDER,
+                  "ColorState for output %s:\n  %s",
+                  meta_output_get_name (output),
+                  output_cs_str);
+    }
 
   view_transform = calculate_view_transform (monitor_manager,
                                              logical_monitor,
