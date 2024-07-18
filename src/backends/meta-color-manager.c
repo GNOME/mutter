@@ -424,7 +424,7 @@ meta_color_manager_constructed (GObject *object)
 }
 
 static void
-meta_color_manager_finalize (GObject *object)
+meta_color_manager_dispose (GObject *object)
 {
   MetaColorManager *color_manager = META_COLOR_MANAGER (object);
   MetaColorManagerPrivate *priv =
@@ -438,7 +438,7 @@ meta_color_manager_finalize (GObject *object)
   g_clear_object (&priv->color_store);
   g_clear_pointer (&priv->lcms_context, cmsDeleteContext);
 
-  G_OBJECT_CLASS (meta_color_manager_parent_class)->finalize (object);
+  G_OBJECT_CLASS (meta_color_manager_parent_class)->dispose (object);
 }
 
 static void
@@ -489,7 +489,7 @@ meta_color_manager_class_init (MetaColorManagerClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->constructed = meta_color_manager_constructed;
-  object_class->finalize = meta_color_manager_finalize;
+  object_class->dispose = meta_color_manager_dispose;
   object_class->set_property = meta_color_manager_set_property;
   object_class->get_property = meta_color_manager_get_property;
 
