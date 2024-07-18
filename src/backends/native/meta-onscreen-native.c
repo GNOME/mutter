@@ -1350,24 +1350,10 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
         }
 
       primary_gpu_fb = META_DRM_BUFFER (g_steal_pointer (&buffer_gbm));
-      break;
-    case META_RENDERER_NATIVE_MODE_SURFACELESS:
-      g_assert_not_reached ();
-      break;
-#ifdef HAVE_EGL_DEVICE
-    case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-      break;
-#endif
-    }
-
-  buffer = acquire_front_buffer (onscreen,
-                                 &egl_context_changed,
-                                 primary_gpu_fb,
-                                 secondary_gpu_fb);
-
-  switch (renderer_gpu_data->mode)
-    {
-    case META_RENDERER_NATIVE_MODE_GBM:
+      buffer = acquire_front_buffer (onscreen,
+                                     &egl_context_changed,
+                                     primary_gpu_fb,
+                                     secondary_gpu_fb);
       meta_frame_native_set_buffer (frame_native, buffer);
 
       if (!meta_drm_buffer_ensure_fb_id (buffer, &error))
