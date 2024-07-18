@@ -116,9 +116,20 @@ clutter_pipeline_cache_get_pipeline (ClutterPipelineCache *pipeline_cache,
   pipeline = g_hash_table_lookup (group_entry->slots[slot], &key);
 
   if (pipeline)
-    return cogl_pipeline_copy (pipeline);
+    {
+      CoglPipeline *new_pipeline;
+
+      new_pipeline = cogl_pipeline_copy (pipeline);
+      clutter_color_state_update_uniforms (source_color_state,
+                                           target_color_state,
+                                           new_pipeline);
+      return new_pipeline;
+    }
   else
-    return NULL;
+    {
+      return NULL;
+    }
+
 }
 
 /**
