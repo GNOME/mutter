@@ -61,6 +61,9 @@ enum
   PROP_CONTEXT,
   PROP_COLORSPACE,
   PROP_TRANSFER_FUNCTION,
+  PROP_MIN_LUMINANCE,
+  PROP_MAX_LUMINANCE,
+  PROP_REF_LUMINANCE,
 
   N_PROPS
 };
@@ -79,6 +82,9 @@ typedef struct _ClutterColorStatePrivate
   unsigned int id;
   ClutterColorspace colorspace;
   ClutterTransferFunction transfer_function;
+  float min_lum;
+  float max_lum;
+  float ref_lum;
 } ClutterColorStatePrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterColorState,
@@ -197,6 +203,71 @@ clutter_color_state_get_transfer_function (ClutterColorState *color_state)
   return priv->transfer_function;
 }
 
+void
+clutter_transfer_function_get_default_luminances (ClutterTransferFunction  transfer_function,
+                                                  float                   *min_lum_out,
+                                                  float                   *max_lum_out,
+                                                  float                   *ref_lum_out)
+{
+  float min_lum = -1.0f, max_lum = -1.0f, ref_lum = -1.0f;
+
+  switch (transfer_function)
+    {
+    case CLUTTER_TRANSFER_FUNCTION_DEFAULT:
+    case CLUTTER_TRANSFER_FUNCTION_SRGB:
+    case CLUTTER_TRANSFER_FUNCTION_LINEAR:
+      min_lum = 0.2f;
+      max_lum = 80.0f;
+      ref_lum = 80.0f;
+      break;
+    case CLUTTER_TRANSFER_FUNCTION_PQ:
+      min_lum = 0.005f;
+      max_lum = 10000.0f;
+      ref_lum = 203.0f;
+      break;
+    }
+
+  if (min_lum_out)
+    *min_lum_out = min_lum;
+  if (max_lum_out)
+    *max_lum_out = max_lum;
+  if (ref_lum_out)
+    *ref_lum_out = ref_lum;
+}
+
+void
+clutter_color_state_get_luminances (ClutterColorState *color_state,
+                                    float             *min_lum_out,
+                                    float             *max_lum_out,
+                                    float             *ref_lum_out)
+{
+  ClutterColorStatePrivate *priv;
+  float min_lum, max_lum, ref_lum;
+
+  g_return_if_fail (CLUTTER_IS_COLOR_STATE (color_state));
+
+  priv = clutter_color_state_get_instance_private (color_state);
+
+  clutter_transfer_function_get_default_luminances (priv->transfer_function,
+                                                    &min_lum,
+                                                    &max_lum,
+                                                    &ref_lum);
+
+  if (priv->min_lum >= 0.0f)
+    min_lum = priv->min_lum;
+  if (priv->max_lum >= 0.0f)
+    max_lum = priv->max_lum;
+  if (priv->ref_lum >= 0.0f)
+    ref_lum = priv->ref_lum;
+
+  if (min_lum_out)
+    *min_lum_out = min_lum;
+  if (max_lum_out)
+    *max_lum_out = max_lum;
+  if (ref_lum_out)
+    *ref_lum_out = ref_lum;
+}
+
 static void
 clutter_color_state_constructed (GObject *object)
 {
@@ -237,6 +308,18 @@ clutter_color_state_set_property (GObject      *object,
       priv->transfer_function = g_value_get_enum (value);
       break;
 
+    case PROP_MIN_LUMINANCE:
+      priv->min_lum = g_value_get_float (value);
+      break;
+
+    case PROP_MAX_LUMINANCE:
+      priv->max_lum = g_value_get_float (value);
+      break;
+
+    case PROP_REF_LUMINANCE:
+      priv->ref_lum = g_value_get_float (value);
+      break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -260,13 +343,23 @@ clutter_color_state_get_property (GObject    *object,
       break;
 
     case PROP_COLORSPACE:
-      g_value_set_enum (value,
-                        clutter_color_state_get_colorspace (color_state));
+      g_value_set_enum (value, priv->colorspace);
       break;
 
     case PROP_TRANSFER_FUNCTION:
-      g_value_set_enum (value,
-                        clutter_color_state_get_transfer_function (color_state));
+      g_value_set_enum (value, priv->transfer_function);
+      break;
+
+    case PROP_MIN_LUMINANCE:
+      g_value_set_float (value, priv->min_lum);
+      break;
+
+    case PROP_MAX_LUMINANCE:
+      g_value_set_float (value, priv->max_lum);
+      break;
+
+    case PROP_REF_LUMINANCE:
+      g_value_set_float (value, priv->ref_lum);
       break;
 
     default:
@@ -323,6 +416,42 @@ clutter_color_state_class_init (ClutterColorStateClass *klass)
                        G_PARAM_STATIC_STRINGS |
                        G_PARAM_CONSTRUCT_ONLY);
 
+  /**
+   * ClutterColorState:min-luminance:
+   *
+   * Minimum luminance.
+   */
+  obj_props[PROP_MIN_LUMINANCE] =
+    g_param_spec_float ("min-luminance", NULL, NULL,
+                        -1.0f, 10000.0f, 0.0f,
+                        G_PARAM_READWRITE |
+                        G_PARAM_STATIC_STRINGS |
+                        G_PARAM_CONSTRUCT_ONLY);
+
+  /**
+   * ClutterColorState:max-luminance:
+   *
+   * Maximum luminance.
+   */
+  obj_props[PROP_MAX_LUMINANCE] =
+    g_param_spec_float ("max-luminance", NULL, NULL,
+                        -1.0f, 10000.0f, 0.0f,
+                        G_PARAM_READWRITE |
+                        G_PARAM_STATIC_STRINGS |
+                        G_PARAM_CONSTRUCT_ONLY);
+
+  /**
+   * ClutterColorState:ref-luminance:
+   *
+   * Reference luminance.
+   */
+  obj_props[PROP_REF_LUMINANCE] =
+    g_param_spec_float ("ref-luminance", NULL, NULL,
+                        -1.0f, 10000.0f, 0.0f,
+                        G_PARAM_READWRITE |
+                        G_PARAM_STATIC_STRINGS |
+                        G_PARAM_CONSTRUCT_ONLY);
+
   g_object_class_install_properties (gobject_class, N_PROPS, obj_props);
 }
 
@@ -343,10 +472,34 @@ clutter_color_state_new (ClutterContext          *context,
                          ClutterColorspace        colorspace,
                          ClutterTransferFunction  transfer_function)
 {
+  return clutter_color_state_new_full (context,
+                                       colorspace, transfer_function,
+                                       -1.0f, -1.0f, -1.0f);
+}
+
+/**
+ * clutter_color_state_new_full:
+ *
+ * Create a new ClutterColorState object with all possible parameters. Some
+ * arguments might not be valid to set with other arguments.
+ *
+ * Return value: A new ClutterColorState object.
+ **/
+ClutterColorState *
+clutter_color_state_new_full (ClutterContext          *context,
+                              ClutterColorspace        colorspace,
+                              ClutterTransferFunction  transfer_function,
+                              float                    min_lum,
+                              float                    max_lum,
+                              float                    ref_lum)
+{
   return g_object_new (CLUTTER_TYPE_COLOR_STATE,
                        "context", context,
                        "colorspace", colorspace,
                        "transfer-function", transfer_function,
+                       "min-luminance", min_lum,
+                       "max-luminance", max_lum,
+                       "ref-luminance", ref_lum,
                        NULL);
 }
 
@@ -836,6 +989,37 @@ clutter_color_state_add_pipeline_transform (ClutterColorState *color_state,
   cogl_pipeline_add_snippet (pipeline, snippet);
 }
 
+static gboolean
+luminance_value_approx_equal (float lum,
+                              float other_lum,
+                              float epsilon)
+{
+  if (lum == 0.0f || other_lum == 0.0f)
+    return lum == other_lum;
+
+  return G_APPROX_VALUE (lum / other_lum, 1.0f, epsilon);
+}
+
+static gboolean
+luminances_equal (ClutterColorState *color_state,
+                  ClutterColorState *other_color_state)
+{
+  float min_lum, max_lum, ref_lum;
+  float other_min_lum, other_max_lum, other_ref_lum;
+
+  clutter_color_state_get_luminances (color_state,
+                                      &min_lum, &max_lum, &ref_lum);
+
+  clutter_color_state_get_luminances (other_color_state,
+                                      &other_min_lum,
+                                      &other_max_lum,
+                                      &other_ref_lum);
+
+  return luminance_value_approx_equal (min_lum, other_min_lum, 0.1f) &&
+         luminance_value_approx_equal (max_lum, other_max_lum, 0.1f) &&
+         luminance_value_approx_equal (ref_lum, other_ref_lum, 0.1f);
+}
+
 gboolean
 clutter_color_state_equals (ClutterColorState *color_state,
                             ClutterColorState *other_color_state)
@@ -855,8 +1039,9 @@ clutter_color_state_equals (ClutterColorState *color_state,
   priv = clutter_color_state_get_instance_private (color_state);
   other_priv = clutter_color_state_get_instance_private (other_color_state);
 
-  return (priv->colorspace == other_priv->colorspace &&
-          priv->transfer_function == other_priv->transfer_function);
+  return priv->colorspace == other_priv->colorspace &&
+         priv->transfer_function == other_priv->transfer_function &&
+         luminances_equal (color_state, other_color_state);
 }
 
 static char *
@@ -884,6 +1069,7 @@ clutter_color_state_to_string (ClutterColorState *color_state)
   ClutterColorStatePrivate *priv;
   g_autofree char *colorspace_name = NULL;
   g_autofree char *transfer_function_name = NULL;
+  float min_lum, max_lum, ref_lum;
 
   g_return_val_if_fail (CLUTTER_IS_COLOR_STATE (color_state), FALSE);
 
@@ -893,11 +1079,17 @@ clutter_color_state_to_string (ClutterColorState *color_state)
   transfer_function_name = enum_to_string (CLUTTER_TYPE_TRANSFER_FUNCTION,
                                            priv->transfer_function);
 
+  clutter_color_state_get_luminances (color_state, &min_lum, &max_lum, &ref_lum);
+
   return g_strdup_printf ("ClutterColorState %d "
-                          "(colorspace: %s, transfer function: %s)",
+                          "(colorspace: %s, transfer function: %s, "
+                          "min lum: %f, max lum: %f, ref lum: %f)",
                           priv->id,
                           colorspace_name,
-                          transfer_function_name);
+                          transfer_function_name,
+                          min_lum,
+                          max_lum,
+                          ref_lum);
 }
 
 ClutterEncodingRequiredFormat
@@ -972,7 +1164,10 @@ clutter_color_state_get_blending (ClutterColorState *color_state,
   if (blending_tf == priv->transfer_function)
     return g_object_ref (color_state);
 
-  return clutter_color_state_new (priv->context,
-                                  priv->colorspace,
-                                  blending_tf);
+  return clutter_color_state_new_full (priv->context,
+                                       priv->colorspace,
+                                       blending_tf,
+                                       priv->min_lum,
+                                       priv->max_lum,
+                                       priv->ref_lum);
 }

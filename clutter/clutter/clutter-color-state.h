@@ -44,6 +44,14 @@ ClutterColorState * clutter_color_state_new (ClutterContext          *context,
                                              ClutterTransferFunction  transfer_function);
 
 CLUTTER_EXPORT
+ClutterColorState * clutter_color_state_new_full (ClutterContext          *context,
+                                                  ClutterColorspace        colorspace,
+                                                  ClutterTransferFunction  transfer_function,
+                                                  float                    min_lum,
+                                                  float                    max_lum,
+                                                  float                    ref_lum);
+
+CLUTTER_EXPORT
 char * clutter_color_state_to_string (ClutterColorState *color_state);
 
 CLUTTER_EXPORT
@@ -54,6 +62,12 @@ ClutterColorspace clutter_color_state_get_colorspace (ClutterColorState *color_s
 
 CLUTTER_EXPORT
 ClutterTransferFunction clutter_color_state_get_transfer_function (ClutterColorState *color_state);
+
+CLUTTER_EXPORT
+void clutter_color_state_get_luminances (ClutterColorState *color_state,
+                                         float             *min_lum_out,
+                                         float             *max_lum_out,
+                                         float             *ref_lum_out);
 
 CLUTTER_EXPORT
 void clutter_color_state_add_pipeline_transform (ClutterColorState *color_state,
@@ -70,5 +84,11 @@ ClutterEncodingRequiredFormat clutter_color_state_required_format (ClutterColorS
 CLUTTER_EXPORT
 ClutterColorState * clutter_color_state_get_blending (ClutterColorState *color_state,
                                                       gboolean           force);
+
+CLUTTER_EXPORT
+void clutter_transfer_function_get_default_luminances (ClutterTransferFunction  transfer_function,
+                                                       float                   *min_lum_out,
+                                                       float                   *max_lum_out,
+                                                       float                   *ref_lum_out);
 
 G_END_DECLS
