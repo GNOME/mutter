@@ -5,6 +5,7 @@
 
   <interface name="org.gnome.Mutter.DebugControl">
 
+    <property name="ColorManagementProtocol" type="b" access="readwrite" />
     <property name="EnableHDR" type="b" access="readwrite" />
     <property name="ForceLinearBlending" type="b" access="readwrite" />
 
