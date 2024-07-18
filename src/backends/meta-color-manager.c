@@ -174,9 +174,6 @@ update_devices (MetaColorManager *color_manager)
       g_autofree char *stolen_monitor_id = NULL;
       MetaColorDevice *color_device;
 
-      if (meta_monitor_is_virtual (monitor))
-        continue;
-
       monitor_id = generate_monitor_id (monitor);
 
       if (priv->devices &&
