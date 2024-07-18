@@ -55,6 +55,7 @@ struct _MetaColorDevice
   GObject parent;
 
   MetaColorManager *color_manager;
+  gulong manager_ready_handler_id;
 
   char *cd_device_id;
   MetaMonitor *monitor;
@@ -273,13 +274,16 @@ meta_color_device_dispose (GObject *object)
   g_clear_object (&color_device->cancellable);
   g_clear_signal_handler (&color_device->device_profile_ready_handler_id,
                           color_device->device_profile);
+  g_clear_signal_handler (&color_device->manager_ready_handler_id,
+                          color_manager);
+
 
   g_clear_object (&color_device->assigned_profile);
   g_clear_object (&color_device->device_profile);
 
   cd_device = color_device->cd_device;
   cd_device_id = color_device->cd_device_id;
-  if (!cd_device && cd_device_id)
+  if (!cd_device && cd_device_id && meta_color_manager_is_ready (color_manager))
     {
       g_autoptr (GError) error = NULL;
 
@@ -565,19 +569,14 @@ generate_color_device_props (MetaMonitor *monitor)
   return device_props;
 }
 
-MetaColorDevice *
-meta_color_device_new (MetaColorManager *color_manager,
-                       MetaMonitor      *monitor)
+static void
+create_cd_device (MetaColorDevice *color_device)
 {
-  MetaColorDevice *color_device;
+  MetaColorManager *color_manager = color_device->color_manager;
+  MetaMonitor *monitor = color_device->monitor;
   g_autoptr (GHashTable) device_props = NULL;
 
   device_props = generate_color_device_props (monitor);
-  color_device = g_object_new (META_TYPE_COLOR_DEVICE, NULL);
-  color_device->cd_device_id = generate_cd_device_id (monitor);
-  color_device->monitor = g_object_ref (monitor);
-  color_device->cancellable = g_cancellable_new ();
-  color_device->color_manager = color_manager;
 
   cd_client_create_device (meta_color_manager_get_cd_client (color_manager),
                            color_device->cd_device_id,
@@ -586,6 +585,38 @@ meta_color_device_new (MetaColorManager *color_manager,
                            color_device->cancellable,
                            on_cd_device_created,
                            color_device);
+}
+
+static void
+on_manager_ready (MetaColorManager *color_manager,
+                  MetaColorDevice  *color_device)
+{
+  create_cd_device (color_device);
+}
+
+MetaColorDevice *
+meta_color_device_new (MetaColorManager *color_manager,
+                       MetaMonitor      *monitor)
+{
+  MetaColorDevice *color_device;
+
+  color_device = g_object_new (META_TYPE_COLOR_DEVICE, NULL);
+  color_device->cd_device_id = generate_cd_device_id (monitor);
+  color_device->monitor = g_object_ref (monitor);
+  color_device->cancellable = g_cancellable_new ();
+  color_device->color_manager = color_manager;
+
+  if (meta_color_manager_is_ready (color_manager))
+    {
+      create_cd_device (color_device);
+    }
+  else
+    {
+      color_device->manager_ready_handler_id =
+        g_signal_connect (color_manager, "ready",
+                          G_CALLBACK (on_manager_ready),
+                          color_device);
+    }
 
   return color_device;
 }
