@@ -31,8 +31,6 @@ G_DECLARE_FINAL_TYPE (MetaColorDevice, meta_color_device,
 MetaColorDevice * meta_color_device_new (MetaColorManager *color_manager,
                                          MetaMonitor      *monitor);
 
-void meta_color_device_destroy (MetaColorDevice *color_device);
-
 void meta_color_device_update_monitor (MetaColorDevice *color_device,
                                        MetaMonitor     *monitor);
 

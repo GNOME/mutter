@@ -165,7 +165,8 @@ update_devices (MetaColorManager *color_manager)
   devices = g_hash_table_new_full (g_str_hash,
                                    g_str_equal,
                                    g_free,
-                                   (GDestroyNotify) meta_color_device_destroy);
+                                   (GDestroyNotify) g_object_unref);
+
   for (l = meta_monitor_manager_get_monitors (monitor_manager); l; l = l->next)
     {
       MetaMonitor *monitor = META_MONITOR (l->data);

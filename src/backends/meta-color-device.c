@@ -622,13 +622,6 @@ meta_color_device_new (MetaColorManager *color_manager,
 }
 
 void
-meta_color_device_destroy (MetaColorDevice *color_device)
-{
-  g_object_run_dispose (G_OBJECT (color_device));
-  g_object_unref (color_device);
-}
-
-void
 meta_color_device_update_monitor (MetaColorDevice *color_device,
                                   MetaMonitor     *monitor)
 {
