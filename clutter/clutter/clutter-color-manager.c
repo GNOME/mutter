@@ -46,6 +46,7 @@ struct _ClutterColorManager
 
   GHashTable *snippet_cache;
   unsigned int id_counter;
+  ClutterColorState *default_color_state;
 };
 
 G_DEFINE_FINAL_TYPE (ClutterColorManager, clutter_color_manager, G_TYPE_OBJECT)
@@ -138,6 +139,20 @@ unsigned int
 clutter_color_manager_get_next_id (ClutterColorManager *color_manager)
 {
   return ++color_manager->id_counter;
+}
+
+ClutterColorState *
+clutter_color_manager_get_default_color_state (ClutterColorManager *color_manager)
+{
+  if (!color_manager->default_color_state)
+    {
+      color_manager->default_color_state =
+        clutter_color_state_new (color_manager->context,
+                                 CLUTTER_COLORSPACE_DEFAULT,
+                                 CLUTTER_TRANSFER_FUNCTION_DEFAULT);
+    }
+
+  return color_manager->default_color_state;
 }
 
 CoglSnippet *

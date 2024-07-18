@@ -383,13 +383,15 @@ ensure_xcursor_color_state (MetaCursorTracker *cursor_tracker)
         meta_cursor_tracker_get_backend (cursor_tracker);
       ClutterContext *clutter_context =
         meta_backend_get_clutter_context (backend);
+      ClutterColorManager *color_manager =
+        clutter_context_get_color_manager (clutter_context);
 
-      color_state = clutter_color_state_new (clutter_context,
-                                             CLUTTER_COLORSPACE_DEFAULT,
-                                             CLUTTER_TRANSFER_FUNCTION_DEFAULT);
+      color_state = clutter_color_manager_get_default_color_state (color_manager);
+
       g_object_set_qdata_full (G_OBJECT (cursor_tracker),
                                GPOINTER_TO_INT (quark_once.retval),
-                               color_state, g_object_unref);
+                               g_object_ref (color_state),
+                               g_object_unref);
     }
 
   return color_state;

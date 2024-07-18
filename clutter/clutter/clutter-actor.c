@@ -17845,13 +17845,13 @@ clutter_actor_get_content_repeat (ClutterActor *self)
 }
 
 static ClutterColorState *
-create_default_color_state (ClutterActor *self)
+get_default_color_state (ClutterActor *self)
 {
-  ClutterColorState *color_state;
-
-  color_state = clutter_color_state_new (clutter_actor_get_context (self),
-                                         CLUTTER_COLORSPACE_DEFAULT,
-                                         CLUTTER_TRANSFER_FUNCTION_DEFAULT);
+  ClutterContext *context = clutter_actor_get_context (self);
+  ClutterColorManager *color_manager =
+    clutter_context_get_color_manager (context);
+  ClutterColorState *color_state =
+    clutter_color_manager_get_default_color_state (color_manager);
 
   return color_state;
 }
@@ -17875,11 +17875,11 @@ clutter_actor_set_color_state_internal (ClutterActor      *self,
 void
 clutter_actor_unset_color_state (ClutterActor *self)
 {
-  g_autoptr (ClutterColorState) default_color_state = NULL;
+  ClutterColorState *default_color_state;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
-  default_color_state = create_default_color_state (self);
+  default_color_state = get_default_color_state (self);
   clutter_actor_set_color_state_internal (self, default_color_state);
 }
 

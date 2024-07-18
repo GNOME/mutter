@@ -32,3 +32,9 @@
 CLUTTER_EXPORT
 G_DECLARE_FINAL_TYPE (ClutterColorManager, clutter_color_manager,
                       CLUTTER, COLOR_MANAGER, GObject)
+
+/**
+ * clutter_color_manager_get_default_color_state: (skip)
+ */
+CLUTTER_EXPORT
+ClutterColorState * clutter_color_manager_get_default_color_state (ClutterColorManager *color_manager);
