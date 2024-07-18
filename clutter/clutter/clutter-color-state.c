@@ -893,3 +893,26 @@ clutter_color_state_to_string (ClutterColorState *color_state)
                           colorspace_name,
                           transfer_function_name);
 }
+
+ClutterEncodingRequiredFormat
+clutter_color_state_required_format (ClutterColorState *color_state)
+{
+  ClutterColorStatePrivate *priv;
+
+  g_return_val_if_fail (CLUTTER_IS_COLOR_STATE (color_state), FALSE);
+
+  priv = clutter_color_state_get_instance_private (color_state);
+
+  switch (priv->transfer_function)
+    {
+    case CLUTTER_TRANSFER_FUNCTION_LINEAR:
+      return CLUTTER_ENCODING_REQUIRED_FORMAT_FP16;
+    case CLUTTER_TRANSFER_FUNCTION_PQ:
+      return CLUTTER_ENCODING_REQUIRED_FORMAT_UINT10;
+    case CLUTTER_TRANSFER_FUNCTION_SRGB:
+    case CLUTTER_TRANSFER_FUNCTION_DEFAULT:
+      return CLUTTER_ENCODING_REQUIRED_FORMAT_UINT8;
+    }
+
+  g_assert_not_reached ();
+}

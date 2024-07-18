@@ -1033,6 +1033,21 @@ typedef enum
 } ClutterTransferFunction;
 
 /**
+ * ClutterEncodingRequiredFormat:
+ * @CLUTTER_ENCODING_REQUIRED_FORMAT_UINT8: 8bpc uint
+ * @CLUTTER_ENCODING_REQUIRED_FORMAT_UINT10: 10bpc uint
+ * @CLUTTER_ENCODING_REQUIRED_FORMAT_FP16: 16bpc floating point
+ *
+ * The texture format required to store a specific encoding.
+ */
+typedef enum
+{
+  CLUTTER_ENCODING_REQUIRED_FORMAT_UINT8 = 0,
+  CLUTTER_ENCODING_REQUIRED_FORMAT_UINT10 = 1,
+  CLUTTER_ENCODING_REQUIRED_FORMAT_FP16 = 2,
+} ClutterEncodingRequiredFormat;
+
+/**
  * ClutterStepMode:
  * @CLUTTER_STEP_MODE_START: The change in the value of a
  *   %CLUTTER_STEP progress mode should occur at the start of

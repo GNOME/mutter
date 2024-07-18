@@ -1558,8 +1558,14 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
       CoglPixelFormat formats[10];
       size_t n_formats = 0;
       CoglPixelFormat format;
+      ClutterEncodingRequiredFormat required_format =
+        clutter_color_state_required_format (view_color_state);
 
-      if (view_transfer_function == CLUTTER_TRANSFER_FUNCTION_LINEAR)
+      if (required_format <= CLUTTER_ENCODING_REQUIRED_FORMAT_UINT8)
+        {
+          formats[n_formats++] = cogl_framebuffer_get_internal_format (framebuffer);
+        }
+      else
         {
           formats[n_formats++] = COGL_PIXEL_FORMAT_XRGB_FP_16161616;
           formats[n_formats++] = COGL_PIXEL_FORMAT_XBGR_FP_16161616;
@@ -1567,10 +1573,6 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
           formats[n_formats++] = COGL_PIXEL_FORMAT_BGRA_FP_16161616_PRE;
           formats[n_formats++] = COGL_PIXEL_FORMAT_ARGB_FP_16161616_PRE;
           formats[n_formats++] = COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE;
-        }
-      else
-        {
-          formats[n_formats++] = cogl_framebuffer_get_internal_format (framebuffer);
         }
 
       if (meta_monitor_transform_is_rotated (view_transform))
