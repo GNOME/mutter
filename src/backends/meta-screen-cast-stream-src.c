@@ -368,7 +368,7 @@ draw_cursor_sprite_via_offscreen (MetaScreenCastStreamSrc  *src,
                                   CoglTexture              *cursor_texture,
                                   int                       bitmap_width,
                                   int                       bitmap_height,
-                                  MtkMonitorTransform       transform,
+                                  const graphene_matrix_t  *matrix,
                                   uint8_t                  *bitmap_data,
                                   GError                  **error)
 {
@@ -385,7 +385,6 @@ draw_cursor_sprite_via_offscreen (MetaScreenCastStreamSrc  *src,
   CoglFramebuffer *fb;
   CoglPipeline *pipeline;
   CoglColor clear_color;
-  graphene_matrix_t matrix;
 
   bitmap_texture = cogl_texture_2d_new_with_size (cogl_context,
                                                   bitmap_width, bitmap_height);
@@ -411,10 +410,7 @@ draw_cursor_sprite_via_offscreen (MetaScreenCastStreamSrc  *src,
                                    COGL_PIPELINE_FILTER_LINEAR,
                                    COGL_PIPELINE_FILTER_LINEAR);
 
-  graphene_matrix_init_identity (&matrix);
-  mtk_monitor_transform_transform_matrix (transform,
-                                          &matrix);
-  cogl_pipeline_set_layer_matrix (pipeline, 0, &matrix);
+  cogl_pipeline_set_layer_matrix (pipeline, 0, matrix);
 
   cogl_color_init_from_4f (&clear_color, 0.0, 0.0, 0.0, 0.0);
   cogl_framebuffer_clear (fb, COGL_BUFFER_BIT_COLOR, &clear_color);
@@ -435,22 +431,20 @@ draw_cursor_sprite_via_offscreen (MetaScreenCastStreamSrc  *src,
 gboolean
 meta_screen_cast_stream_src_draw_cursor_into (MetaScreenCastStreamSrc  *src,
                                               CoglTexture              *cursor_texture,
-                                              float                     scale,
-                                              MtkMonitorTransform       transform,
+                                              int                       width,
+                                              int                       height,
+                                              const graphene_matrix_t  *matrix,
                                               uint8_t                  *data,
                                               GError                  **error)
 {
   int texture_width, texture_height;
-  int width, height;
 
   texture_width = cogl_texture_get_width (cursor_texture);
   texture_height = cogl_texture_get_height (cursor_texture);
-  width = (int) ceilf (texture_width * scale);
-  height = (int) ceilf (texture_height * scale);
 
   if (texture_width == width &&
       texture_height == height &&
-      transform == MTK_MONITOR_TRANSFORM_NORMAL)
+      graphene_matrix_is_identity (matrix))
     {
       cogl_texture_get_data (cursor_texture,
                              COGL_PIXEL_FORMAT_RGBA_8888_PRE,
@@ -463,7 +457,7 @@ meta_screen_cast_stream_src_draw_cursor_into (MetaScreenCastStreamSrc  *src,
                                              cursor_texture,
                                              width,
                                              height,
-                                             transform,
+                                             matrix,
                                              data,
                                              error))
         return FALSE;
@@ -525,15 +519,19 @@ meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStreamSrc 
                                                         MetaCursorSprite        *cursor_sprite,
                                                         int                      x,
                                                         int                      y,
-                                                        float                    scale,
-                                                        MtkMonitorTransform      transform)
+                                                        float                    view_scale)
 {
   CoglTexture *cursor_texture;
   struct spa_meta_bitmap *spa_meta_bitmap;
   int hotspot_x, hotspot_y;
   int texture_width, texture_height;
   int bitmap_width, bitmap_height;
+  int dst_width, dst_height;
   uint8_t *bitmap_data;
+  float cursor_scale;
+  MtkMonitorTransform cursor_transform;
+  const graphene_rect_t *src_rect;
+  graphene_matrix_t matrix;
   GError *error = NULL;
 
   cursor_texture = meta_cursor_sprite_get_cogl_texture (cursor_sprite);
@@ -557,14 +555,72 @@ meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStreamSrc 
   spa_meta_bitmap->format = SPA_VIDEO_FORMAT_RGBA;
   spa_meta_bitmap->offset = sizeof (struct spa_meta_bitmap);
 
-  meta_cursor_sprite_get_hotspot (cursor_sprite, &hotspot_x, &hotspot_y);
-  spa_meta_cursor->hotspot.x = (int32_t) roundf (hotspot_x * scale);
-  spa_meta_cursor->hotspot.y = (int32_t) roundf (hotspot_y * scale);
-
   texture_width = cogl_texture_get_width (cursor_texture);
   texture_height = cogl_texture_get_height (cursor_texture);
-  bitmap_width = (int) ceilf (texture_width * scale);
-  bitmap_height = (int) ceilf (texture_height * scale);
+
+  meta_cursor_sprite_get_hotspot (cursor_sprite, &hotspot_x, &hotspot_y);
+  cursor_scale = meta_cursor_sprite_get_texture_scale (cursor_sprite);
+  cursor_transform = meta_cursor_sprite_get_texture_transform (cursor_sprite);
+  src_rect = meta_cursor_sprite_get_viewport_src_rect (cursor_sprite);
+
+  if (meta_cursor_sprite_get_viewport_dst_size (cursor_sprite,
+                                                &dst_width,
+                                                &dst_height))
+    {
+      float cursor_scale_x, cursor_scale_y;
+      float scaled_hotspot_x, scaled_hotspot_y;
+
+      cursor_scale_x = (float) dst_width / texture_width;
+      cursor_scale_y = (float) dst_height / texture_height;
+
+      scaled_hotspot_x = roundf (hotspot_x * cursor_scale_x);
+      scaled_hotspot_y = roundf (hotspot_y * cursor_scale_y);
+
+      bitmap_width = (int) ceilf (dst_width * view_scale);
+      bitmap_height = (int) ceilf (dst_height * view_scale);
+      spa_meta_cursor->hotspot.x = (int32_t) ceilf (scaled_hotspot_x * view_scale);
+      spa_meta_cursor->hotspot.y = (int32_t) ceilf (scaled_hotspot_y * view_scale);
+    }
+  else if (src_rect)
+    {
+      float scale_x, scale_y;
+
+      scale_x = (float) src_rect->size.width / texture_width * view_scale;
+      scale_y = (float) src_rect->size.height / texture_height * view_scale;
+
+      bitmap_width = (int) ceilf (src_rect->size.width * view_scale);
+      bitmap_height = (int) ceilf (src_rect->size.height * view_scale);
+      spa_meta_cursor->hotspot.x = (int32_t) roundf (hotspot_x * scale_x);
+      spa_meta_cursor->hotspot.y = (int32_t) roundf (hotspot_y * scale_y);
+    }
+  else
+    {
+      float scale;
+
+      scale = cursor_scale * view_scale;
+
+      if (mtk_monitor_transform_is_rotated (cursor_transform))
+        {
+          bitmap_width = (int) ceilf (texture_height * scale);
+          bitmap_height = (int) ceilf (texture_width * scale);
+        }
+      else
+        {
+          bitmap_width = (int) ceilf (texture_width * scale);
+          bitmap_height = (int) ceilf (texture_height * scale);
+        }
+
+      spa_meta_cursor->hotspot.x = (int32_t) ceilf (hotspot_x * scale);
+      spa_meta_cursor->hotspot.y = (int32_t) ceilf (hotspot_y * scale);
+    }
+
+  graphene_matrix_init_identity (&matrix);
+  mtk_compute_viewport_matrix (&matrix,
+                               texture_width,
+                               texture_height,
+                               cursor_scale,
+                               cursor_transform,
+                               src_rect);
 
   spa_meta_bitmap->size.width = bitmap_width;
   spa_meta_bitmap->size.height = bitmap_height;
@@ -576,8 +632,9 @@ meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStreamSrc 
 
   if (!meta_screen_cast_stream_src_draw_cursor_into (src,
                                                      cursor_texture,
-                                                     scale,
-                                                     transform,
+                                                     bitmap_width,
+                                                     bitmap_height,
+                                                     &matrix,
                                                      bitmap_data,
                                                      &error))
     {

@@ -563,23 +563,15 @@ meta_screen_cast_virtual_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc
         {
           ClutterStageView *stage_view;
           float view_scale;
-          float cursor_scale;
-          float scale;
-          MtkMonitorTransform transform;
 
           stage_view = view_from_src (src);
           view_scale = clutter_stage_view_get_scale (stage_view);
-
-          cursor_scale = meta_cursor_sprite_get_texture_scale (cursor_sprite);
-          scale = view_scale * cursor_scale;
-          transform = meta_cursor_sprite_get_texture_transform (cursor_sprite);
 
           meta_screen_cast_stream_src_set_cursor_sprite_metadata (src,
                                                                   spa_meta_cursor,
                                                                   cursor_sprite,
                                                                   x, y,
-                                                                  scale,
-                                                                  transform);
+                                                                  view_scale);
         }
       else
         {
