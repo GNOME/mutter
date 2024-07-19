@@ -669,22 +669,15 @@ meta_screen_cast_area_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc *s
     {
       if (cursor_sprite)
         {
-          float scale;
-          float cursor_scale;
-          float metadata_scale;
-          MtkMonitorTransform transform;
+          float view_scale;
 
-          scale = meta_screen_cast_area_stream_get_scale (area_stream);
-          cursor_scale = meta_cursor_sprite_get_texture_scale (cursor_sprite);
-          metadata_scale = scale * cursor_scale;
-          transform = meta_cursor_sprite_get_texture_transform (cursor_sprite);
+          view_scale = meta_screen_cast_area_stream_get_scale (area_stream);
 
           meta_screen_cast_stream_src_set_cursor_sprite_metadata (src,
                                                                   spa_meta_cursor,
                                                                   cursor_sprite,
                                                                   x, y,
-                                                                  transform,
-                                                                  metadata_scale);
+                                                                  view_scale);
         }
       else
         {

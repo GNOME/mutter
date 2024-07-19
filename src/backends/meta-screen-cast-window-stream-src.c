@@ -133,8 +133,11 @@ maybe_draw_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
   GError *error = NULL;
   cairo_surface_t *stream_surface;
   int width, height;
-  float scale;
-  MtkMonitorTransform transform;
+  int texture_width, texture_height;
+  float scale, view_scale, cursor_scale;
+  MtkMonitorTransform cursor_transform;
+  const graphene_rect_t *src_rect;
+  graphene_matrix_t matrix;
   int hotspot_x, hotspot_y;
   cairo_t *cr;
 
@@ -151,23 +154,63 @@ maybe_draw_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
   if (!meta_screen_cast_window_transform_cursor_position (screen_cast_window,
                                                           cursor_sprite,
                                                           &cursor_position,
-                                                          &scale,
-                                                          &transform,
-                                                          &relative_cursor_position))
+                                                          &relative_cursor_position,
+                                                          &view_scale))
     return;
 
   meta_cursor_sprite_get_hotspot (cursor_sprite, &hotspot_x, &hotspot_y);
+  cursor_scale = meta_cursor_sprite_get_texture_scale (cursor_sprite);
+  scale = cursor_scale * view_scale;
+  cursor_transform = meta_cursor_sprite_get_texture_transform (cursor_sprite);
+  src_rect = meta_cursor_sprite_get_viewport_src_rect (cursor_sprite);
 
-  width = (int) (cogl_texture_get_width (cursor_texture) * scale);
-  height = (int) (cogl_texture_get_height (cursor_texture) * scale);
+  texture_width = cogl_texture_get_width (cursor_texture);
+  texture_height = cogl_texture_get_height (cursor_texture);
+
+  if (meta_cursor_sprite_get_viewport_dst_size (cursor_sprite,
+                                                &width,
+                                                &height))
+    {
+      width = (int) ceilf (width * view_scale);
+      height = (int) ceilf (height * view_scale);
+    }
+  else if (src_rect)
+    {
+      width = (int) ceilf (src_rect->size.width * view_scale);
+      height = (int) ceilf (src_rect->size.height * view_scale);
+    }
+  else
+    {
+      if (mtk_monitor_transform_is_rotated (cursor_transform))
+        {
+          width = (int) ceilf (texture_height * scale);
+          height = (int) ceilf (texture_width * scale);
+        }
+      else
+        {
+          width = (int) ceilf (texture_width * scale);
+          height = (int) ceilf (texture_height * scale);
+        }
+    }
+
+  graphene_matrix_init_identity (&matrix);
+  mtk_compute_viewport_matrix (&matrix,
+                               texture_width,
+                               texture_height,
+                               cursor_scale,
+                               cursor_transform,
+                               src_rect);
+
+
   cursor_surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
                                                width, height);
 
   cursor_surface_data = cairo_image_surface_get_data (cursor_surface);
   if (!meta_screen_cast_stream_src_draw_cursor_into (src,
                                                      cursor_texture,
-                                                     scale,
-                                                     transform,
+                                                     width,
+                                                     height,
+                                                     &matrix,
                                                      cursor_surface_data,
                                                      &error))
     {
@@ -216,11 +259,12 @@ maybe_blit_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
   CoglTexture *cursor_texture;
   CoglPipeline *pipeline;
   int width, height;
-  float scale;
-  MtkMonitorTransform transform;
+  float scale, view_scale, cursor_scale;
+  MtkMonitorTransform cursor_transform;
+  const graphene_rect_t *src_rect;
+  graphene_matrix_t matrix;
   int hotspot_x, hotspot_y;
   float x, y;
-  graphene_matrix_t matrix;
 
   cursor_sprite = meta_cursor_renderer_get_cursor (cursor_renderer);
   if (!cursor_sprite)
@@ -235,12 +279,15 @@ maybe_blit_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
   if (!meta_screen_cast_window_transform_cursor_position (screen_cast_window,
                                                           cursor_sprite,
                                                           &cursor_position,
-                                                          &scale,
-                                                          &transform,
-                                                          &relative_cursor_position))
+                                                          &relative_cursor_position,
+                                                          &view_scale))
     return;
 
   meta_cursor_sprite_get_hotspot (cursor_sprite, &hotspot_x, &hotspot_y);
+  cursor_scale = meta_cursor_sprite_get_texture_scale (cursor_sprite);
+  scale = cursor_scale * view_scale;
+  cursor_transform = meta_cursor_sprite_get_texture_transform (cursor_sprite);
+  src_rect = meta_cursor_sprite_get_viewport_src_rect (cursor_sprite);
 
   x = (relative_cursor_position.x - hotspot_x) * scale;
   y = (relative_cursor_position.y - hotspot_y) * scale;
@@ -254,8 +301,12 @@ maybe_blit_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
                                    COGL_PIPELINE_FILTER_LINEAR);
 
   graphene_matrix_init_identity (&matrix);
-  mtk_monitor_transform_transform_matrix (transform,
-                                          &matrix);
+  mtk_compute_viewport_matrix (&matrix,
+                               width,
+                               height,
+                               cursor_scale,
+                               cursor_transform,
+                               src_rect);
   cogl_pipeline_set_layer_matrix (pipeline, 0, &matrix);
 
   cogl_framebuffer_draw_rectangle (framebuffer,
@@ -600,8 +651,8 @@ meta_screen_cast_window_stream_src_is_cursor_metadata_valid (MetaScreenCastStrea
       meta_screen_cast_window_transform_cursor_position (screen_cast_window,
                                                          cursor_sprite,
                                                          &cursor_position,
-                                                         NULL, NULL,
-                                                         &relative_cursor_position))
+                                                         &relative_cursor_position,
+                                                         NULL))
     {
       int x, y;
 
@@ -637,8 +688,7 @@ meta_screen_cast_window_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc 
   MetaScreenCastWindow *screen_cast_window = window_src->screen_cast_window;
   MetaCursorSprite *cursor_sprite;
   graphene_point_t cursor_position;
-  float scale;
-  MtkMonitorTransform transform;
+  float view_scale;
   graphene_point_t relative_cursor_position;
   int x, y;
 
@@ -649,9 +699,8 @@ meta_screen_cast_window_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc 
       !meta_screen_cast_window_transform_cursor_position (screen_cast_window,
                                                           cursor_sprite,
                                                           &cursor_position,
-                                                          &scale,
-                                                          &transform,
-                                                          &relative_cursor_position))
+                                                          &relative_cursor_position,
+                                                          &view_scale))
     {
       window_src->last_cursor_matadata.set = FALSE;
       meta_screen_cast_stream_src_unset_cursor_metadata (src,
@@ -674,8 +723,7 @@ meta_screen_cast_window_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc 
                                                                   spa_meta_cursor,
                                                                   cursor_sprite,
                                                                   x, y,
-                                                                  scale,
-                                                                  transform);
+                                                                  view_scale);
         }
       else
         {

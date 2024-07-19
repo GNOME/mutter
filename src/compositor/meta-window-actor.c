@@ -1281,9 +1281,8 @@ static gboolean
 meta_window_actor_transform_cursor_position (MetaScreenCastWindow *screen_cast_window,
                                              MetaCursorSprite     *cursor_sprite,
                                              graphene_point_t     *cursor_position,
-                                             float                *out_cursor_scale,
-                                             MtkMonitorTransform  *out_cursor_transform,
-                                             graphene_point_t     *out_relative_cursor_position)
+                                             graphene_point_t     *out_relative_cursor_position,
+                                             float                *out_view_scale)
 {
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (screen_cast_window);
   MetaWindowActorPrivate *priv =
@@ -1293,37 +1292,6 @@ meta_window_actor_transform_cursor_position (MetaScreenCastWindow *screen_cast_w
   window = priv->window;
   if (!meta_window_has_pointer (window))
     return FALSE;
-
-  if (cursor_sprite &&
-      meta_cursor_sprite_get_cogl_texture (cursor_sprite) &&
-      out_cursor_scale)
-    {
-      MetaDisplay *display = meta_compositor_get_display (priv->compositor);
-      MetaContext *context = meta_display_get_context (display);
-      MetaBackend *backend = meta_context_get_backend (context);
-      MetaLogicalMonitor *logical_monitor;
-      float view_scale;
-      float cursor_texture_scale;
-
-      logical_monitor = meta_window_get_main_logical_monitor (window);
-
-      if (meta_backend_is_stage_views_scaled (backend))
-        view_scale = meta_logical_monitor_get_scale (logical_monitor);
-      else
-        view_scale = 1.0;
-
-      cursor_texture_scale = meta_cursor_sprite_get_texture_scale (cursor_sprite);
-
-      *out_cursor_scale = view_scale * cursor_texture_scale;
-    }
-
-  if (cursor_sprite &&
-      meta_cursor_sprite_get_cogl_texture (cursor_sprite) &&
-      out_cursor_transform)
-    {
-      *out_cursor_transform =
-        meta_cursor_sprite_get_texture_transform (cursor_sprite);
-    }
 
   if (out_relative_cursor_position)
     {
@@ -1345,6 +1313,25 @@ meta_window_actor_transform_cursor_position (MetaScreenCastWindow *screen_cast_w
         out_relative_cursor_position->x *= unscaled_width / width;
       if (height != 0)
         out_relative_cursor_position->y *= unscaled_height / height;
+    }
+
+  if (out_view_scale)
+    {
+      MetaDisplay *display = meta_compositor_get_display (priv->compositor);
+      MetaContext *context = meta_display_get_context (display);
+      MetaBackend *backend = meta_context_get_backend (context);
+
+      if (meta_backend_is_stage_views_scaled (backend))
+        {
+          MetaLogicalMonitor *logical_monitor;
+
+          logical_monitor = meta_window_get_main_logical_monitor (window);
+          *out_view_scale = meta_logical_monitor_get_scale (logical_monitor);
+        }
+      else
+        {
+          *out_view_scale = 1.0;
+        }
     }
 
   return TRUE;

@@ -854,21 +854,14 @@ meta_screen_cast_monitor_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc
       if (cursor_sprite)
         {
           float view_scale;
-          float cursor_scale;
-          float scale;
-          MtkMonitorTransform transform;
 
           view_scale = get_view_scale (monitor_src);
-          cursor_scale = meta_cursor_sprite_get_texture_scale (cursor_sprite);
-          scale = view_scale * cursor_scale;
-          transform = meta_cursor_sprite_get_texture_transform (cursor_sprite);
 
           meta_screen_cast_stream_src_set_cursor_sprite_metadata (src,
                                                                   spa_meta_cursor,
                                                                   cursor_sprite,
                                                                   x, y,
-                                                                  scale,
-                                                                  transform);
+                                                                  view_scale);
         }
       else
         {
