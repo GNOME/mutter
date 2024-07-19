@@ -671,18 +671,32 @@ update_color_state (MetaColorDevice *color_device)
   MetaMonitor *monitor = color_device->monitor;
   MetaBackend *backend =
     meta_color_manager_get_backend (color_device->color_manager);
+  MetaContext *context = meta_backend_get_context (backend);
+  MetaDebugControl *debug_control = meta_context_get_debug_control (context);
   ClutterContext *clutter_context = meta_backend_get_clutter_context (backend);
   g_autoptr (ClutterColorState) color_state = NULL;
   ClutterColorspace colorspace;
   ClutterTransferFunction transfer_function;
+  float min_lum, max_lum, ref_lum;
+  float reference_luminance_factor;
   UpdateResult result = 0;
 
   colorspace = get_color_space_from_monitor (monitor);
   transfer_function = get_transfer_function_from_monitor (monitor);
 
-  color_state = clutter_color_state_new (clutter_context,
-                                         colorspace,
-                                         transfer_function);
+  clutter_transfer_function_get_default_luminances (transfer_function,
+                                                    &min_lum,
+                                                    &max_lum,
+                                                    &ref_lum);
+
+  reference_luminance_factor =
+    meta_debug_control_get_luminance_percentage (debug_control) / 100.0f;
+  ref_lum = ref_lum * reference_luminance_factor;
+
+  color_state = clutter_color_state_new_full (clutter_context,
+                                              colorspace,
+                                              transfer_function,
+                                              min_lum, max_lum, ref_lum);
 
   if (!color_device->color_state ||
       !clutter_color_state_equals (color_device->color_state, color_state))
@@ -698,6 +712,9 @@ MetaColorDevice *
 meta_color_device_new (MetaColorManager *color_manager,
                        MetaMonitor      *monitor)
 {
+  MetaBackend *backend = meta_color_manager_get_backend (color_manager);
+  MetaContext *context = meta_backend_get_context (backend);
+  MetaDebugControl *debug_control = meta_context_get_debug_control (context);
   MetaColorDevice *color_device;
 
   color_device = g_object_new (META_TYPE_COLOR_DEVICE, NULL);
@@ -723,6 +740,11 @@ meta_color_device_new (MetaColorManager *color_manager,
                           G_CALLBACK (on_manager_ready),
                           color_device);
     }
+
+  g_signal_connect_object (debug_control, "notify::luminance-percentage",
+                           G_CALLBACK (meta_color_device_update),
+                           color_device,
+                           G_CONNECT_SWAPPED | G_CONNECT_AFTER);
 
   return color_device;
 }

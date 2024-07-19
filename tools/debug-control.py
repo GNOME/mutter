@@ -15,6 +15,25 @@ def bool_to_string(value):
     else:
         return "false"
 
+def string_to_bool(value):
+    if value == "true":
+        return True
+    if value == "false":
+        return False
+    raise BaseException(f"bad boolean value: {value}")
+
+def value_to_string(value):
+    if isinstance(value, dbus.Boolean):
+        return bool_to_string(value)
+    return f"{value}"
+
+def string_to_value(current, value):
+    if isinstance(current, dbus.Boolean):
+        return dbus.Boolean(string_to_bool(value), variant_level=1)
+    if isinstance(current, dbus.UInt32):
+        return dbus.UInt32(int(value), variant_level=1)
+    return value
+
 def get_debug_control():
     bus = dbus.SessionBus()
     try:
@@ -28,8 +47,9 @@ def get_debug_control():
 def status():
     debug_control = get_debug_control()
     props = debug_control.GetAll(INTERFACE, dbus_interface=PROPS_IFACE)
-    for prop in props:
-        print(f"{prop}: {bool_to_string(props[prop])}")
+    for prop, value in props.items():
+        value = value_to_string (value)
+        print(f"{prop}: {value}")
 
 def enable(prop):
     debug_control = get_debug_control()
@@ -48,6 +68,14 @@ def toggle(prop):
     debug_control.Set(INTERFACE, prop, dbus.Boolean(not value, variant_level=1),
                       dbus_interface=PROPS_IFACE)
 
+def set_value(kv):
+    debug_control = get_debug_control()
+    [prop, value] = kv
+
+    current = debug_control.Get(INTERFACE, prop, dbus_interface=PROPS_IFACE)
+    value = string_to_value (current, value)
+
+    debug_control.Set(INTERFACE, prop, value, dbus_interface=PROPS_IFACE)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Get and set debug state')
@@ -56,6 +84,7 @@ if __name__ == '__main__':
     parser.add_argument('--enable', metavar='PROPERTY', type=str, nargs='?')
     parser.add_argument('--disable', metavar='PROPERTY', type=str, nargs='?')
     parser.add_argument('--toggle', metavar='PROPERTY', type=str, nargs='?')
+    parser.add_argument('--set', metavar='PROPERTY', type=str, nargs=2)
 
     args = parser.parse_args()
     if args.status:
@@ -66,5 +95,7 @@ if __name__ == '__main__':
         disable(args.disable)
     elif args.toggle:
         toggle(args.toggle)
+    elif args.set:
+        set_value(args.set)
     else:
         parser.print_usage()
