@@ -67,3 +67,5 @@ META_EXPORT_TEST
 gboolean meta_kms_crtc_is_active (MetaKmsCrtc *crtc);
 
 gboolean meta_kms_crtc_is_leased (MetaKmsCrtc *crtc);
+
+int64_t meta_kms_crtc_get_deadline_evasion (MetaKmsCrtc *crtc);

@@ -85,6 +85,12 @@ meta_crtc_test_is_hw_cursor_supported (MetaCrtcNative *crtc_native)
   return FALSE;
 }
 
+static int64_t
+meta_crtc_test_get_deadline_evasion (MetaCrtcNative *crtc_native)
+{
+  return 0;
+}
+
 static void
 meta_crtc_test_finalize (GObject *object)
 {
@@ -114,6 +120,8 @@ meta_crtc_test_class_init (MetaCrtcTestClass *klass)
     meta_crtc_test_is_transform_handled;
   crtc_native_class->is_hw_cursor_supported =
     meta_crtc_test_is_hw_cursor_supported;
+  crtc_native_class->get_deadline_evasion =
+    meta_crtc_test_get_deadline_evasion;
 }
 
 static void

@@ -400,6 +400,15 @@ meta_crtc_kms_is_hw_cursor_supported (MetaCrtcNative *crtc_native)
   return meta_kms_device_has_cursor_plane_for (kms_device, kms_crtc);
 }
 
+static int64_t
+meta_crtc_kms_get_deadline_evasion (MetaCrtcNative *crtc_native)
+{
+  MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc_native);
+  MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
+
+  return meta_kms_crtc_get_deadline_evasion (kms_crtc);
+}
+
 MetaKmsPlane *
 meta_crtc_kms_get_assigned_cursor_plane (MetaCrtcKms *crtc_kms)
 {
@@ -533,6 +542,7 @@ meta_crtc_kms_class_init (MetaCrtcKmsClass *klass)
 
   crtc_native_class->is_transform_handled = meta_crtc_kms_is_transform_handled;
   crtc_native_class->is_hw_cursor_supported = meta_crtc_kms_is_hw_cursor_supported;
+  crtc_native_class->get_deadline_evasion = meta_crtc_kms_get_deadline_evasion;
 
   signals[GAMMA_LUT_CHANGED] =
     g_signal_new ("gamma-lut-changed",

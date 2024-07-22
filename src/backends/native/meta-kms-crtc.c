@@ -625,10 +625,7 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
        *
        */
 
-      if (meta_is_topic_enabled (META_DEBUG_KMS))
-        deadline_evasion_us = DEADLINE_EVASION_WITH_KMS_TOPIC_US;
-      else
-        deadline_evasion_us = DEADLINE_EVASION_US;
+      deadline_evasion_us = meta_kms_crtc_get_deadline_evasion (crtc);
 
       vblank_duration_us = meta_calculate_drm_mode_vblank_duration_us (drm_mode);
       next_deadline_us = next_presentation_us - (vblank_duration_us +
@@ -639,4 +636,13 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
   *out_next_deadline_us = next_deadline_us;
 
   return TRUE;
+}
+
+int64_t
+meta_kms_crtc_get_deadline_evasion (MetaKmsCrtc *crtc)
+{
+  if (meta_is_topic_enabled (META_DEBUG_KMS))
+    return DEADLINE_EVASION_WITH_KMS_TOPIC_US;
+  else
+    return DEADLINE_EVASION_US;
 }

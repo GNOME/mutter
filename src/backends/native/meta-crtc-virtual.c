@@ -70,6 +70,12 @@ meta_crtc_virtual_is_hw_cursor_supported (MetaCrtcNative *crtc_native)
   return TRUE;
 }
 
+static int64_t
+meta_crtc_virtual_get_deadline_evasion (MetaCrtcNative *crtc_native)
+{
+  return 0;
+}
+
 static void
 meta_crtc_virtual_init (MetaCrtcVirtual *crtc_virtual)
 {
@@ -89,4 +95,6 @@ meta_crtc_virtual_class_init (MetaCrtcVirtualClass *klass)
     meta_crtc_virtual_is_transform_handled;
   crtc_native_class->is_hw_cursor_supported =
     meta_crtc_virtual_is_hw_cursor_supported;
+  crtc_native_class->get_deadline_evasion =
+    meta_crtc_virtual_get_deadline_evasion;
 }

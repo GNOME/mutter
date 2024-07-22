@@ -912,6 +912,10 @@ clutter_stage_view_schedule_update (ClutterStageView *view)
 {
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
+  ClutterStageViewClass *view_class = CLUTTER_STAGE_VIEW_GET_CLASS (view);
+
+  if (view_class->schedule_update)
+    view_class->schedule_update (view);
 
   clutter_frame_clock_schedule_update (priv->frame_clock);
 }

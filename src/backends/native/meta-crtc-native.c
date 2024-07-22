@@ -39,6 +39,14 @@ meta_crtc_native_is_hw_cursor_supported (MetaCrtcNative *crtc_native)
   return klass->is_hw_cursor_supported (crtc_native);
 }
 
+int64_t
+meta_crtc_native_get_deadline_evasion (MetaCrtcNative *crtc_native)
+{
+  MetaCrtcNativeClass *klass = META_CRTC_NATIVE_GET_CLASS (crtc_native);
+
+  return klass->get_deadline_evasion (crtc_native);
+}
+
 static void
 meta_crtc_native_init (MetaCrtcNative *crtc_native)
 {

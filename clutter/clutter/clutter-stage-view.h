@@ -42,6 +42,8 @@ struct _ClutterStageViewClass
   ClutterFrame * (* new_frame) (ClutterStageView *view);
 
   ClutterPaintFlag (* get_default_paint_flags) (ClutterStageView *view);
+
+  void (* schedule_update) (ClutterStageView *view);
 };
 
 CLUTTER_EXPORT

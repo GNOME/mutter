@@ -32,9 +32,12 @@ struct _MetaCrtcNativeClass
   gboolean (* is_transform_handled) (MetaCrtcNative      *crtc_native,
                                      MtkMonitorTransform  monitor_transform);
   gboolean (* is_hw_cursor_supported) (MetaCrtcNative *crtc_native);
+  int64_t (* get_deadline_evasion) (MetaCrtcNative *crtc_native);
 };
 
 gboolean meta_crtc_native_is_transform_handled (MetaCrtcNative      *crtc_native,
                                                 MtkMonitorTransform  transform);
 
 gboolean meta_crtc_native_is_hw_cursor_supported (MetaCrtcNative *crtc_native);
+
+int64_t meta_crtc_native_get_deadline_evasion (MetaCrtcNative *crtc_native);
