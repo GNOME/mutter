@@ -56,9 +56,8 @@ G_BEGIN_DECLS
 #define COGL_PRIVATE(x) private_member_ ## x
 #endif
 
+typedef struct _CoglColor CoglColor;
 typedef struct _CoglFramebuffer CoglFramebuffer;
-
-typedef struct _CoglColor               CoglColor;
 
 /**
  * CoglDmaBufHandle: (free-func cogl_dma_buf_handle_free)
@@ -67,15 +66,6 @@ typedef struct _CoglColor               CoglColor;
  * with cogl_dma_buf_handle_free().
  */
 typedef struct _CoglDmaBufHandle CoglDmaBufHandle;
-
-struct _CoglColor
-{
-  uint8_t red;
-  uint8_t green;
-  uint8_t blue;
-
-  uint8_t alpha;
-};
 
 /**
  * COGL_BLEND_STRING_ERROR:

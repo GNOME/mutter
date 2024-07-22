@@ -34,6 +34,13 @@
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
 
+#include "cogl/cogl-types.h"
+#include "cogl/cogl-macros.h"
+
+#include <glib-object.h>
+
+G_BEGIN_DECLS
+
 /**
  * CoglColor:
  *
@@ -42,14 +49,14 @@
  * #CoglColor is a simple structure holding the definition of a color such
  * that it can be efficiently used by GL
  */
+struct _CoglColor
+{
+  uint8_t red;
+  uint8_t green;
+  uint8_t blue;
 
-#include "cogl/cogl-types.h"
-#include "cogl/cogl-macros.h"
-
-#include <glib-object.h>
-
-G_BEGIN_DECLS
-
+  uint8_t alpha;
+};
 /**
  * COGL_COLOR_INIT:
  * @r: value for the red channel, between 0 and 255
