@@ -639,7 +639,7 @@ _cogl_journal_flush_vbo_offsets_and_entries (CoglJournalEntry *batch_start,
   state->current_vertex = 0;
 
   if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_JOURNAL)) &&
-      cogl_has_feature (ctx, COGL_FEATURE_ID_MAP_BUFFER_FOR_READ))
+      cogl_context_has_feature (ctx, COGL_FEATURE_ID_MAP_BUFFER_FOR_READ))
     {
       uint8_t *verts;
 

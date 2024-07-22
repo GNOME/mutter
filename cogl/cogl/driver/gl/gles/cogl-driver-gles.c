@@ -163,7 +163,7 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       break;
 
     case COGL_PIXEL_FORMAT_RG_88:
-      if (cogl_has_feature (context, COGL_FEATURE_ID_TEXTURE_RG))
+      if (cogl_context_has_feature (context, COGL_FEATURE_ID_TEXTURE_RG))
         {
           glintformat = GL_RG8_EXT;
           glformat = GL_RG;
@@ -196,7 +196,7 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       break;
 
     case COGL_PIXEL_FORMAT_R_16:
-      if (cogl_has_feature (context, COGL_FEATURE_ID_TEXTURE_NORM16))
+      if (cogl_context_has_feature (context, COGL_FEATURE_ID_TEXTURE_NORM16))
         {
           glintformat = GL_R16;
           glformat = GL_RED;
@@ -210,10 +210,10 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       break;
 
     case COGL_PIXEL_FORMAT_RG_1616:
-      if (cogl_has_feature (context, COGL_FEATURE_ID_TEXTURE_NORM16))
+      if (cogl_context_has_feature (context, COGL_FEATURE_ID_TEXTURE_NORM16))
         {
           /* NORM16 implies RG for GLES */
-          g_assert (cogl_has_feature (context, COGL_FEATURE_ID_TEXTURE_RG));
+          g_assert (cogl_context_has_feature (context, COGL_FEATURE_ID_TEXTURE_RG));
           glintformat = GL_RG16;
           glformat = GL_RG;
           gltype = GL_UNSIGNED_SHORT;
@@ -227,7 +227,7 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
 
     case COGL_PIXEL_FORMAT_RGBA_16161616:
     case COGL_PIXEL_FORMAT_RGBA_16161616_PRE:
-      if (cogl_has_feature (context, COGL_FEATURE_ID_TEXTURE_NORM16))
+      if (cogl_context_has_feature (context, COGL_FEATURE_ID_TEXTURE_NORM16))
         {
           glintformat = GL_RGBA16;
           glformat = GL_RGBA;
@@ -318,7 +318,7 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
     case COGL_PIXEL_FORMAT_ABGR_2101010:
     case COGL_PIXEL_FORMAT_ABGR_2101010_PRE:
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
-      if (cogl_has_feature (context, COGL_FEATURE_ID_TEXTURE_RGBA1010102))
+      if (cogl_context_has_feature (context, COGL_FEATURE_ID_TEXTURE_RGBA1010102))
         {
           glintformat = GL_RGB10_A2;
           glformat = GL_RGBA;
@@ -352,7 +352,7 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
     case COGL_PIXEL_FORMAT_RGBX_FP_16161616:
     case COGL_PIXEL_FORMAT_RGBA_FP_16161616:
     case COGL_PIXEL_FORMAT_RGBA_FP_16161616_PRE:
-      if (cogl_has_feature (context, COGL_FEATURE_ID_TEXTURE_HALF_FLOAT))
+      if (cogl_context_has_feature (context, COGL_FEATURE_ID_TEXTURE_HALF_FLOAT))
         {
           glintformat = GL_RGBA16F;
           glformat = GL_RGBA;
@@ -384,7 +384,7 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
 
     case COGL_PIXEL_FORMAT_RGBA_FP_32323232:
     case COGL_PIXEL_FORMAT_RGBA_FP_32323232_PRE:
-      if (cogl_has_feature (context, COGL_FEATURE_ID_TEXTURE_HALF_FLOAT))
+      if (cogl_context_has_feature (context, COGL_FEATURE_ID_TEXTURE_HALF_FLOAT))
         {
           glintformat = GL_RGBA32F;
           glformat = GL_RGBA;

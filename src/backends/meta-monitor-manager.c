@@ -501,7 +501,7 @@ set_color_space_and_hdr_metadata (MetaMonitorManager    *manager,
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
 
   if (enable &&
-      !cogl_has_feature (cogl_context, COGL_FEATURE_ID_TEXTURE_HALF_FLOAT))
+      !cogl_context_has_feature (cogl_context, COGL_FEATURE_ID_TEXTURE_HALF_FLOAT))
     {
       g_warning ("Tried to enable HDR without half float rendering support, ignoring");
       enable = FALSE;

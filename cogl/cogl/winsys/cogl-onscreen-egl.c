@@ -288,7 +288,7 @@ cogl_onscreen_egl_maybe_create_timestamp_query (CoglOnscreen  *onscreen,
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
 
-  if (!cogl_has_feature (context, COGL_FEATURE_ID_TIMESTAMP_QUERY))
+  if (!cogl_context_has_feature (context, COGL_FEATURE_ID_TIMESTAMP_QUERY))
     return;
 
   info->gpu_time_before_buffer_swap_ns =

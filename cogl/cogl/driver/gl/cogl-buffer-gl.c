@@ -207,9 +207,9 @@ _cogl_buffer_gl_map_range (CoglBuffer *buffer,
   CoglContext *ctx = buffer->context;
 
   if (((access & COGL_BUFFER_ACCESS_READ) &&
-       !cogl_has_feature (ctx, COGL_FEATURE_ID_MAP_BUFFER_FOR_READ)) ||
+       !cogl_context_has_feature (ctx, COGL_FEATURE_ID_MAP_BUFFER_FOR_READ)) ||
       ((access & COGL_BUFFER_ACCESS_WRITE) &&
-       !cogl_has_feature (ctx, COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE)))
+       !cogl_context_has_feature (ctx, COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE)))
     {
       g_set_error_literal (error,
                            COGL_SYSTEM_ERROR,

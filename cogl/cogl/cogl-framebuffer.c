@@ -1431,7 +1431,7 @@ cogl_blit_framebuffer (CoglFramebuffer *framebuffer,
   int src_x1, src_y1, src_x2, src_y2;
   int dst_x1, dst_y1, dst_x2, dst_y2;
 
-  if (!cogl_has_feature (ctx, COGL_FEATURE_ID_BLIT_FRAMEBUFFER))
+  if (!cogl_context_has_feature (ctx, COGL_FEATURE_ID_BLIT_FRAMEBUFFER))
     {
       g_set_error_literal (error, COGL_SYSTEM_ERROR,
                            COGL_SYSTEM_ERROR_UNSUPPORTED,
@@ -2393,8 +2393,8 @@ cogl_framebuffer_create_timestamp_query (CoglFramebuffer *framebuffer)
     cogl_framebuffer_get_instance_private (framebuffer);
   const CoglDriverVtable *driver_vtable = priv->context->driver_vtable;
 
-  g_return_val_if_fail (cogl_has_feature (priv->context,
-                                          COGL_FEATURE_ID_TIMESTAMP_QUERY),
+  g_return_val_if_fail (cogl_context_has_feature (priv->context,
+                                                  COGL_FEATURE_ID_TIMESTAMP_QUERY),
                         NULL);
 
   /* The timestamp query completes upon completion of all previously submitted

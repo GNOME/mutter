@@ -178,7 +178,7 @@ cogl_context_get_renderer (CoglContext *context);
  *
  * All the capabilities that can vary between different GPUs supported
  * by Cogl. Applications that depend on any of these features should explicitly
- * check for them using cogl_has_feature() or cogl_has_features().
+ * check for them using [method@Cogl.Context.has_feature].
  */
 typedef enum _CoglFeatureID
 {
@@ -202,7 +202,7 @@ typedef enum _CoglFeatureID
 
 
 /**
- * cogl_has_feature:
+ * cogl_context_has_feature:
  * @context: A #CoglContext pointer
  * @feature: A #CoglFeatureID
  *
@@ -217,7 +217,8 @@ typedef enum _CoglFeatureID
  * not.
  */
 COGL_EXPORT gboolean
-cogl_has_feature (CoglContext *context, CoglFeatureID feature);
+cogl_context_has_feature (CoglContext   *context,
+                          CoglFeatureID  feature);
 
 /**
  * CoglGraphicsResetStatus:

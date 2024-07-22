@@ -1634,7 +1634,7 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
 
   frame_info->cpu_time_before_buffer_swap_us = g_get_monotonic_time ();
 
-  if (cogl_has_feature (cogl_context, COGL_FEATURE_ID_TIMESTAMP_QUERY))
+  if (cogl_context_has_feature (cogl_context, COGL_FEATURE_ID_TIMESTAMP_QUERY))
     frame_info->has_valid_gpu_rendering_duration = TRUE;
 
   kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (onscreen_native->crtc));

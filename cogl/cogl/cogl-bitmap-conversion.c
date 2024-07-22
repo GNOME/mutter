@@ -766,7 +766,7 @@ driver_can_convert (CoglContext *ctx,
   /* Same for red-green textures. If red-green textures aren't
    * supported then the internal format should never be RG_88 but we
    * should still be able to convert from an RG source image */
-  if (!cogl_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_RG) &&
+  if (!cogl_context_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_RG) &&
       src_format == COGL_PIXEL_FORMAT_RG_88)
     return FALSE;
 

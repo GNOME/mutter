@@ -394,8 +394,8 @@ cogl_texture_2d_new_from_egl_image_external (CoglContext *ctx,
                         COGL_RENDERER_CONSTRAINT_USES_EGL,
                         NULL);
 
-  g_return_val_if_fail (cogl_has_feature (ctx,
-                                          COGL_FEATURE_ID_TEXTURE_EGL_IMAGE_EXTERNAL),
+  g_return_val_if_fail (cogl_context_has_feature (ctx,
+                                                  COGL_FEATURE_ID_TEXTURE_EGL_IMAGE_EXTERNAL),
                         NULL);
 
   loader = _cogl_texture_create_loader ();

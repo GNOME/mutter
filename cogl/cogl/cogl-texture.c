@@ -1104,7 +1104,7 @@ cogl_texture_allocate (CoglTexture *texture,
     return TRUE;
 
   if (texture->components == COGL_TEXTURE_COMPONENTS_RG &&
-      !cogl_has_feature (texture->context, COGL_FEATURE_ID_TEXTURE_RG))
+      !cogl_context_has_feature (texture->context, COGL_FEATURE_ID_TEXTURE_RG))
     g_set_error (error,
                  COGL_TEXTURE_ERROR,
                  COGL_TEXTURE_ERROR_FORMAT,

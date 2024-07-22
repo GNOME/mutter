@@ -254,7 +254,7 @@ _cogl_driver_gl_flush_framebuffer_state (CoglContext          *ctx,
         {
           /* NB: Currently we only take advantage of binding separate
            * read/write buffers for framebuffer blit purposes. */
-          g_return_if_fail (cogl_has_feature
+          g_return_if_fail (cogl_context_has_feature
                             (ctx, COGL_FEATURE_ID_BLIT_FRAMEBUFFER));
 
           cogl_gl_framebuffer_bind (draw_gl_framebuffer, GL_DRAW_FRAMEBUFFER);
@@ -516,8 +516,8 @@ cogl_gl_create_timestamp_query (CoglContext *context)
 {
   CoglTimestampQuery *query;
 
-  g_return_val_if_fail (cogl_has_feature (context,
-                                          COGL_FEATURE_ID_TIMESTAMP_QUERY),
+  g_return_val_if_fail (cogl_context_has_feature (context,
+                                                  COGL_FEATURE_ID_TIMESTAMP_QUERY),
                         NULL);
 
   query = g_new0 (CoglTimestampQuery, 1);
@@ -563,8 +563,8 @@ cogl_gl_get_gpu_time_ns (CoglContext *context)
 {
   int64_t gpu_time_ns;
 
-  g_return_val_if_fail (cogl_has_feature (context,
-                                          COGL_FEATURE_ID_TIMESTAMP_QUERY),
+  g_return_val_if_fail (cogl_context_has_feature (context,
+                                                  COGL_FEATURE_ID_TIMESTAMP_QUERY),
                         0);
 
   GE (context, glGetInteger64v (GL_TIMESTAMP, &gpu_time_ns));

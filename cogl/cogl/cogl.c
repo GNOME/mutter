@@ -66,12 +66,6 @@ _cogl_check_extension (const char *name, char * const *ext)
   return FALSE;
 }
 
-gboolean
-cogl_has_feature (CoglContext *ctx, CoglFeatureID feature)
-{
-  return COGL_FLAGS_GET (ctx->features, feature);
-}
-
 uint32_t
 _cogl_driver_error_quark (void)
 {

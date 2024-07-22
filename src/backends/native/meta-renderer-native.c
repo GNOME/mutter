@@ -1373,7 +1373,7 @@ should_force_shadow_fb (MetaRendererNative *renderer_native,
   if (meta_renderer_is_hardware_accelerated (renderer))
     return FALSE;
 
-  if (!cogl_has_feature (cogl_context, COGL_FEATURE_ID_BLIT_FRAMEBUFFER))
+  if (!cogl_context_has_feature (cogl_context, COGL_FEATURE_ID_BLIT_FRAMEBUFFER))
     return FALSE;
 
   return meta_kms_device_prefers_shadow_buffer (kms_device);

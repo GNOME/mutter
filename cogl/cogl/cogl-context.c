@@ -509,8 +509,8 @@ cogl_context_timestamp_query_get_time_ns (CoglContext        *context,
 int64_t
 cogl_context_get_gpu_time_ns (CoglContext *context)
 {
-  g_return_val_if_fail (cogl_has_feature (context,
-                                          COGL_FEATURE_ID_TIMESTAMP_QUERY),
+  g_return_val_if_fail (cogl_context_has_feature (context,
+                                                  COGL_FEATURE_ID_TIMESTAMP_QUERY),
                         0);
 
   return context->driver_vtable->get_gpu_time_ns (context);
@@ -522,6 +522,13 @@ cogl_context_has_winsys_feature (CoglContext       *context,
                                  CoglWinsysFeature  feature)
 {
   return COGL_FLAGS_GET (context->winsys_features, feature);
+}
+
+gboolean
+cogl_context_has_feature (CoglContext   *context,
+                          CoglFeatureID  feature)
+{
+  return COGL_FLAGS_GET (context->features, feature);
 }
 
 void
