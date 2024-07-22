@@ -4,7 +4,6 @@
 
 #include "cogl/cogl-profile.h"
 #include "cogl/cogl-debug.h"
-#include "cogl/cogl-i18n-private.h"
 
 #include <stdlib.h>
 

@@ -32,7 +32,6 @@
 
 #include "config.h"
 
-#include "cogl/cogl-i18n-private.h"
 #include "cogl/cogl-util.h"
 #include "cogl/cogl-feature-private.h"
 #include "cogl/cogl-context-private.h"

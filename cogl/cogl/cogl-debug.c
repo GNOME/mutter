@@ -32,7 +32,6 @@
 
 #include <stdlib.h>
 
-#include "cogl/cogl-i18n-private.h"
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-debug.h"
 
@@ -174,26 +173,23 @@ _cogl_parse_debug_string (const char *value,
     }
   else if (g_ascii_strcasecmp (value, "help") == 0)
     {
-      g_printerr ("\n\n%28s\n", _("Supported debug values:"));
+      g_printerr ("\n\n%28s\n", "Supported debug values:");
 #define OPT(MASK_NAME, GROUP, NAME, NAME_FORMATTED, DESCRIPTION) \
       g_printerr ("%28s %s\n", NAME ":", DESCRIPTION);
-#include "cogl/cogl-debug-options.h"
-      g_printerr ("\n%28s\n", _("Special debug values:"));
+      g_printerr ("\n%28s\n", "Special debug values:");
       OPT (IGNORED, "ignored", "all", "ignored", \
-           N_("Enables all non-behavioural debug options"));
+           "Enables all non-behavioural debug options");
       OPT (IGNORED, "ignored", "verbose", "ignored", \
-           N_("Enables all non-behavioural debug options"));
+           "Enables all non-behavioural debug options");
 #undef OPT
 
       g_printerr ("\n"
                   "%28s\n"
                   " COGL_DISABLE_GL_EXTENSIONS: %s\n"
                   "   COGL_OVERRIDE_GL_VERSION: %s\n",
-                  _("Additional environment variables:"),
-                  _("Comma-separated list of GL extensions to pretend are "
-                    "disabled"),
-                  _("Override the GL version that Cogl will assume the driver "
-                    "supports"));
+                  "Additional environment variables:",
+                  "Comma-separated list of GL extensions to pretend are disabled",
+                  "Override the GL version that Cogl will assume the driver supports");
       exit (1);
     }
   else

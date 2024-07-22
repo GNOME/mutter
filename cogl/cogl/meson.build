@@ -196,7 +196,6 @@ cogl_sources = [
   'cogl-graphene.c',
   'cogl-half-float.c',
   'cogl-half-float.h',
-  'cogl-i18n-private.h',
   'cogl-index-buffer-private.h',
   'cogl-index-buffer.c',
   'cogl-indices-private.h',

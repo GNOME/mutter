@@ -34,7 +34,6 @@
 #include <math.h>
 #include <stdlib.h>
 
-#include "cogl/cogl-i18n-private.h"
 #include "cogl/cogl-cpu-caps.h"
 #include "cogl/cogl-debug.h"
 #include "cogl/cogl-graphene.h"
