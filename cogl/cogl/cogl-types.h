@@ -68,15 +68,6 @@ typedef struct _CoglColor               CoglColor;
  */
 typedef struct _CoglDmaBufHandle CoglDmaBufHandle;
 
-/* Enum declarations */
-
-#define COGL_A_BIT              (1 << 4)
-#define COGL_BGR_BIT            (1 << 5)
-#define COGL_AFIRST_BIT         (1 << 6)
-#define COGL_PREMULT_BIT        (1 << 7)
-#define COGL_DEPTH_BIT          (1 << 8)
-#define COGL_STENCIL_BIT        (1 << 9)
-
 struct _CoglColor
 {
   uint8_t red;
