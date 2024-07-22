@@ -99,19 +99,6 @@ _cogl_util_pixel_format_from_masks (unsigned long r_mask,
                                     int depth, int bpp,
                                     int byte_order);
 
-/* _COGL_STATIC_ASSERT:
- * @expression: An expression to assert evaluates to true at compile
- *              time.
- * @message: A message to print to the console if the assertion fails
- *           at compile time.
- *
- * Allows you to assert that an expression evaluates to true at
- * compile time and aborts compilation if not. If possible message
- * will also be printed if the assertion fails.
- */
-#define _COGL_STATIC_ASSERT(EXPRESSION, MESSAGE) \
-  _Static_assert (EXPRESSION, MESSAGE);
-
 static inline void
 _cogl_util_scissor_intersect (int rect_x0,
                               int rect_y0,
