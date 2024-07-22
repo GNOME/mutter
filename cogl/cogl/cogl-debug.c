@@ -150,12 +150,8 @@ _cogl_parse_debug_string_for_keys (const char *value,
 
 void
 _cogl_parse_debug_string (const char *value,
-                          gboolean enable,
-                          gboolean ignore_help)
+                          gboolean    enable)
 {
-  if (ignore_help && strcmp (value, "help") == 0)
-    return;
-
   /* We don't want to let g_parse_debug_string handle "all" because
    * literally enabling all the debug options wouldn't be useful to
    * anyone; instead the all option enables all non behavioural
@@ -214,8 +210,7 @@ _cogl_debug_check_environment (void)
   if (env_string != NULL)
     {
       _cogl_parse_debug_string (env_string,
-                                TRUE /* enable the flags */,
-                                FALSE /* don't ignore help */);
+                                TRUE /* enable the flags */);
       env_string = NULL;
     }
 
@@ -223,8 +218,7 @@ _cogl_debug_check_environment (void)
   if (env_string != NULL)
     {
       _cogl_parse_debug_string (env_string,
-                                FALSE /* disable the flags */,
-                                FALSE /* don't ignore help */);
+                                FALSE /* disable the flags */);
       env_string = NULL;
     }
 }
