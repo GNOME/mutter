@@ -137,6 +137,8 @@ struct _ClutterFrameClock
 
   int64_t last_dispatch_interval_us;
 
+  int64_t deadline_evasion_us;
+
   char *output_name;
 };
 
@@ -389,7 +391,8 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
 
       frame_clock->shortterm_max_update_duration_us =
         CLAMP (frame_clock->last_dispatch_lateness_us + dispatch_to_swap_us +
-               MAX (swap_to_rendering_done_us, swap_to_flip_us),
+               MAX (swap_to_rendering_done_us,
+                    swap_to_flip_us + frame_clock->deadline_evasion_us),
                frame_clock->shortterm_max_update_duration_us,
                frame_clock->refresh_interval_us);
 
@@ -1252,4 +1255,11 @@ clutter_frame_clock_class_init (ClutterFrameClockClass *klass)
                   NULL, NULL, NULL,
                   G_TYPE_NONE,
                   0);
+}
+
+void
+clutter_frame_clock_set_deadline_evasion (ClutterFrameClock *frame_clock,
+                                          int64_t            deadline_evasion_us)
+{
+  frame_clock->deadline_evasion_us = deadline_evasion_us;
 }
