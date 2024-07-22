@@ -100,10 +100,10 @@ G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (ClutterDeformEffect,
                                      CLUTTER_TYPE_OFFSCREEN_EFFECT)
 
 static void
-clutter_deform_effect_real_deform_vertex (ClutterDeformEffect *effect,
-                                          gfloat               width,
-                                          gfloat               height,
-                                          CoglTextureVertex   *vertex)
+clutter_deform_effect_real_deform_vertex (ClutterDeformEffect  *effect,
+                                          gfloat                width,
+                                          gfloat                height,
+                                          ClutterTextureVertex *vertex)
 {
   g_warning ("%s: Deformation effect of type '%s' does not implement "
              "the required ClutterDeformEffect::deform_vertex virtual "
@@ -113,10 +113,10 @@ clutter_deform_effect_real_deform_vertex (ClutterDeformEffect *effect,
 }
 
 static void
-clutter_deform_effect_deform_vertex (ClutterDeformEffect *effect,
-                                     gfloat               width,
-                                     gfloat               height,
-                                     CoglTextureVertex   *vertex)
+clutter_deform_effect_deform_vertex (ClutterDeformEffect  *effect,
+                                     gfloat                width,
+                                     gfloat                height,
+                                     ClutterTextureVertex *vertex)
 {
   CLUTTER_DEFORM_EFFECT_GET_CLASS (effect)->deform_vertex (effect,
                                                            width, height,
@@ -218,7 +218,7 @@ clutter_deform_effect_paint_target (ClutterOffscreenEffect *effect,
           for (j = 0; j < priv->x_tiles + 1; j++)
             {
               CoglVertexP3T2C4 *vertex_out;
-              CoglTextureVertex vertex;
+              ClutterTextureVertex vertex;
 
               /* CoglTextureVertex isn't an ideal structure to use for
                  this because it contains a CoglColor. The internal

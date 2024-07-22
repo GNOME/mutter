@@ -70,10 +70,10 @@ G_DEFINE_TYPE (ClutterPageTurnEffect,
                CLUTTER_TYPE_DEFORM_EFFECT);
 
 static void
-clutter_page_turn_effect_deform_vertex (ClutterDeformEffect *effect,
-                                        gfloat               width,
-                                        gfloat               height,
-                                        CoglTextureVertex   *vertex)
+clutter_page_turn_effect_deform_vertex (ClutterDeformEffect  *effect,
+                                        gfloat                width,
+                                        gfloat                height,
+                                        ClutterTextureVertex *vertex)
 {
   ClutterPageTurnEffect *self = CLUTTER_PAGE_TURN_EFFECT (effect);
   gfloat cx, cy, rx, ry, radians, turn_angle;

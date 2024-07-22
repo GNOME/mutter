@@ -56,24 +56,9 @@ G_BEGIN_DECLS
 #define COGL_PRIVATE(x) private_member_ ## x
 #endif
 
-#ifndef __GI_SCANNER__
-/* To help catch accidental changes to public structs that should
- * be stack allocated we use this macro to compile time assert that
- * a struct size is as expected.
- */
-#define COGL_STRUCT_SIZE_ASSERT(TYPE, SIZE) \
-typedef struct { \
-          char compile_time_assert_ ## TYPE ## _size[ \
-              (sizeof (TYPE) == (SIZE)) ? 1 : -1]; \
-        } _ ## TYPE ## SizeCheck
-#else
-#define COGL_STRUCT_SIZE_ASSERT(TYPE, SIZE)
-#endif
-
 typedef struct _CoglFramebuffer CoglFramebuffer;
 
 typedef struct _CoglColor               CoglColor;
-typedef struct _CoglTextureVertex       CoglTextureVertex;
 
 /**
  * CoglDmaBufHandle: (free-func cogl_dma_buf_handle_free)
@@ -100,27 +85,6 @@ struct _CoglColor
 
   uint8_t alpha;
 };
-
-/**
- * CoglTextureVertex:
- * @x: Model x-coordinate
- * @y: Model y-coordinate
- * @z: Model z-coordinate
- * @tx: Texture x-coordinate
- * @ty: Texture y-coordinate
- * @color: The color to use at this vertex. This is ignored if
- *   use_color is %FALSE when calling cogl_polygon()
- *
- * Used to specify vertex information when calling cogl_polygon()
- */
-struct _CoglTextureVertex
-{
-  float x, y, z;
-  float tx, ty;
-
-  CoglColor color;
-};
-COGL_STRUCT_SIZE_ASSERT (CoglTextureVertex, 24);
 
 /**
  * COGL_BLEND_STRING_ERROR:
