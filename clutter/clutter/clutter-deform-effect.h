@@ -55,7 +55,10 @@ typedef struct _ClutterTextureVertex
 
   CoglColor color;
 } ClutterTextureVertex;
+
+#ifndef __GI_SCANNER__
 G_STATIC_ASSERT (sizeof (ClutterTextureVertex) == 24);
+#endif
 
 CLUTTER_EXPORT
 G_DECLARE_DERIVABLE_TYPE (ClutterDeformEffect,
