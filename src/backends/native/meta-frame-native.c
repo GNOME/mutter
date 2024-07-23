@@ -31,6 +31,8 @@ struct _MetaFrameNative
   CoglScanout *scanout;
 
   MetaKmsUpdate *kms_update;
+
+  MtkRegion *damage;
 };
 
 static void
@@ -38,6 +40,7 @@ meta_frame_native_release (ClutterFrame *frame)
 {
   MetaFrameNative *frame_native = meta_frame_native_from_frame (frame);
 
+  g_clear_pointer (&frame_native->damage, mtk_region_unref);
   g_clear_object (&frame_native->buffer);
   g_clear_object (&frame_native->scanout);
 
@@ -107,4 +110,18 @@ CoglScanout *
 meta_frame_native_get_scanout (MetaFrameNative *frame_native)
 {
   return frame_native->scanout;
+}
+
+void
+meta_frame_native_set_damage (MetaFrameNative *frame_native,
+                              const MtkRegion *damage)
+{
+  g_clear_pointer (&frame_native->damage, mtk_region_unref);
+  frame_native->damage = mtk_region_copy (damage);
+}
+
+MtkRegion *
+meta_frame_native_get_damage (MetaFrameNative *frame_native)
+{
+  return frame_native->damage;
 }

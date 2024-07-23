@@ -47,3 +47,10 @@ void meta_frame_native_set_scanout (MetaFrameNative *frame_native,
                                     CoglScanout     *scanout);
 
 CoglScanout * meta_frame_native_get_scanout (MetaFrameNative *frame_native);
+
+void
+meta_frame_native_set_damage (MetaFrameNative *frame_native,
+                              const MtkRegion *damage);
+
+MtkRegion *
+meta_frame_native_get_damage (MetaFrameNative *frame_native);
