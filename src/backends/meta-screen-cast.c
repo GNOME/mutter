@@ -220,7 +220,6 @@ meta_screen_cast_create_dma_buf_handle (MetaScreenCast  *screen_cast,
                                         int              width,
                                         int              height)
 {
-#ifdef HAVE_NATIVE_BACKEND
   MetaBackend *backend =
     meta_screen_cast_get_backend (screen_cast);
   ClutterBackend *clutter_backend =
@@ -232,8 +231,12 @@ meta_screen_cast_create_dma_buf_handle (MetaScreenCast  *screen_cast,
   CoglDmaBufHandle *dmabuf_handle;
   int n_modifiers;
 
-  n_modifiers = (modifier == DRM_FORMAT_MOD_INVALID) ? 0
-                                                     : 1;
+  g_return_val_if_fail (cogl_renderer_is_dma_buf_supported (cogl_renderer), NULL);
+
+  if (cogl_renderer_is_implicit_drm_modifier (cogl_renderer, modifier))
+    n_modifiers = 0;
+  else
+    n_modifiers = 1;
 
   dmabuf_handle = cogl_renderer_create_dma_buf (cogl_renderer,
                                                 format,
@@ -241,9 +244,6 @@ meta_screen_cast_create_dma_buf_handle (MetaScreenCast  *screen_cast,
                                                 width, height,
                                                 &error);
   return dmabuf_handle;
-#else
-  return NULL;
-#endif
 }
 
 static MetaRemoteDesktopSession *
