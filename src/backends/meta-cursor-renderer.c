@@ -140,17 +140,14 @@ meta_cursor_renderer_update_stage_overlay (MetaCursorRenderer *renderer,
 
   g_set_object (&priv->overlay_cursor, cursor_sprite);
 
-  if (cursor_sprite)
-    {
-      rect = meta_cursor_renderer_calculate_rect (renderer, cursor_sprite);
-      align_cursor_position (renderer, &rect);
-    }
-
   if (!priv->stage_overlay)
     priv->stage_overlay = meta_stage_create_cursor_overlay (META_STAGE (stage));
 
   if (cursor_sprite)
     {
+      rect = meta_cursor_renderer_calculate_rect (renderer, cursor_sprite);
+      align_cursor_position (renderer, &rect);
+
       texture = meta_cursor_sprite_get_cogl_texture (cursor_sprite);
       buffer_transform =
         meta_cursor_sprite_get_texture_transform (cursor_sprite);
