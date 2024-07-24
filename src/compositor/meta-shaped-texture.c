@@ -362,6 +362,7 @@ get_base_pipeline (MetaShapedTexture   *stex,
   CoglContext *cogl_context = cogl_context_from_paint_context (paint_context);
   CoglPipeline *pipeline;
   graphene_matrix_t matrix;
+  graphene_rect_t *src_rect;
   int i, n_planes;
 
   if (stex->base_pipeline)
@@ -382,42 +383,13 @@ get_base_pipeline (MetaShapedTexture   *stex,
 
   graphene_matrix_init_identity (&matrix);
 
-  if (stex->has_viewport_src_rect)
-    {
-      float scaled_tex_width = stex->tex_width / (float) stex->buffer_scale;
-      float scaled_tex_height = stex->tex_height / (float) stex->buffer_scale;
-      graphene_point3d_t p;
-
-      graphene_point3d_init (&p,
-                             stex->viewport_src_rect.origin.x /
-                             stex->viewport_src_rect.size.width,
-                             stex->viewport_src_rect.origin.y /
-                             stex->viewport_src_rect.size.height,
-                             0);
-      graphene_matrix_translate (&matrix, &p);
-
-      if (mtk_monitor_transform_is_rotated (stex->transform))
-        {
-          graphene_matrix_scale (&matrix,
-                                 stex->viewport_src_rect.size.width /
-                                 scaled_tex_height,
-                                 stex->viewport_src_rect.size.height /
-                                 scaled_tex_width,
-                                 1);
-        }
-      else
-        {
-          graphene_matrix_scale (&matrix,
-                                 stex->viewport_src_rect.size.width /
-                                 scaled_tex_width,
-                                 stex->viewport_src_rect.size.height /
-                                 scaled_tex_height,
-                                 1);
-        }
-    }
-
-  mtk_monitor_transform_transform_matrix (stex->transform,
-                                          &matrix);
+  src_rect = stex->has_viewport_src_rect ? &stex->viewport_src_rect : NULL;
+  mtk_compute_viewport_matrix (&matrix,
+                               stex->tex_width,
+                               stex->tex_height,
+                               stex->buffer_scale,
+                               stex->transform,
+                               src_rect);
 
   cogl_pipeline_set_layer_matrix (pipeline, 1, &matrix);
 
