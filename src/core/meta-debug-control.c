@@ -18,7 +18,7 @@
 
 #include "config.h"
 
-#include "core/meta-debug-control.h"
+#include "core/meta-debug-control-private.h"
 
 #include "core/util-private.h"
 #include "meta/meta-backend.h"
@@ -29,6 +29,7 @@ enum
   PROP_0,
 
   PROP_CONTEXT,
+  PROP_EXPORTED,
 
   N_PROPS
 };
@@ -43,6 +44,7 @@ struct _MetaDebugControl
   MetaDBusDebugControlSkeleton parent;
 
   MetaContext *context;
+  gboolean exported;
 
   guint dbus_name_id;
 };
@@ -107,6 +109,10 @@ meta_debug_control_set_property (GObject      *object,
     case PROP_CONTEXT:
       debug_control->context = g_value_get_object (value);
       break;
+    case PROP_EXPORTED:
+      meta_debug_control_set_exported (debug_control,
+                                       g_value_get_boolean (value));
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -125,6 +131,9 @@ meta_debug_control_get_property (GObject    *object,
     {
     case PROP_CONTEXT:
       g_value_set_object (value, debug_control->context);
+      break;
+    case PROP_EXPORTED:
+      g_value_set_boolean (value, debug_control->exported);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -146,6 +155,11 @@ meta_debug_control_class_init (MetaDebugControlClass *klass)
                                                  G_PARAM_CONSTRUCT_ONLY |
                                                  G_PARAM_READWRITE |
                                                  G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_EXPORTED] = g_param_spec_boolean ("exported", NULL, NULL,
+                                                   FALSE,
+                                                   G_PARAM_READWRITE |
+                                                   G_PARAM_EXPLICIT_NOTIFY |
+                                                   G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }
 
@@ -184,15 +198,29 @@ meta_debug_control_is_hdr_enabled (MetaDebugControl *debug_control)
 }
 
 void
-meta_debug_control_export (MetaDebugControl *debug_control)
+meta_debug_control_set_exported (MetaDebugControl *debug_control,
+                                 gboolean          exported)
 {
-  debug_control->dbus_name_id =
-    g_bus_own_name (G_BUS_TYPE_SESSION,
-                    META_DEBUG_CONTROL_DBUS_SERVICE,
-                    G_BUS_NAME_OWNER_FLAGS_NONE,
-                    on_bus_acquired,
-                    NULL,
-                    NULL,
-                    debug_control,
-                    NULL);
+  if (debug_control->exported == exported)
+    return;
+
+  if (exported)
+    {
+      debug_control->dbus_name_id =
+        g_bus_own_name (G_BUS_TYPE_SESSION,
+                        META_DEBUG_CONTROL_DBUS_SERVICE,
+                        G_BUS_NAME_OWNER_FLAGS_NONE,
+                        on_bus_acquired,
+                        NULL,
+                        NULL,
+                        debug_control,
+                        NULL);
+    }
+  else
+    {
+      g_clear_handle_id (&debug_control->dbus_name_id, g_bus_unown_name);
+    }
+
+  debug_control->exported = exported;
+  g_object_notify_by_pspec (G_OBJECT (debug_control), obj_props[PROP_EXPORTED]);
 }

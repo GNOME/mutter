@@ -70,6 +70,7 @@
 #include "common/meta-cogl-drm-formats.h"
 #include "common/meta-drm-format-helpers.h"
 #include "core/boxes-private.h"
+#include "core/meta-debug-control-private.h"
 
 #ifdef HAVE_EGL_DEVICE
 #include "backends/native/meta-render-device-egl-stream.h"

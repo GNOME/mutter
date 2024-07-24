@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Red Hat
+ * Copyright (C) 2024 Red Hat
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,18 +18,19 @@
 
 #pragma once
 
+#include <glib-object.h>
+
 #include "meta-dbus-debug-control.h"
 
-#include "clutter/clutter.h"
+#include "meta/meta-base.h"
 
 #define META_TYPE_DEBUG_CONTROL (meta_debug_control_get_type ())
+META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaDebugControl,
                       meta_debug_control,
                       META, DEBUG_CONTROL,
                       MetaDBusDebugControlSkeleton)
 
-gboolean meta_debug_control_is_linear_blending_forced (MetaDebugControl *debug_control);
-
-gboolean meta_debug_control_is_hdr_enabled (MetaDebugControl *debug_control);
-
-void meta_debug_control_export (MetaDebugControl *debug_control);
+META_EXPORT
+void meta_debug_control_set_exported (MetaDebugControl *debug_control,
+                                      gboolean          exported);

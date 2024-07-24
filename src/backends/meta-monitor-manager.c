@@ -55,6 +55,7 @@
 #include "backends/meta-output.h"
 #include "backends/meta-virtual-monitor.h"
 #include "clutter/clutter.h"
+#include "core/meta-debug-control-private.h"
 #include "core/util-private.h"
 #include "meta/main.h"
 #include "meta/meta-enum-types.h"

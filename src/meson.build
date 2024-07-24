@@ -362,7 +362,7 @@ mutter_sources = [
   'core/meta-context-private.h',
   'core/meta-context.c',
   'core/meta-debug-control.c',
-  'core/meta-debug-control.h',
+  'core/meta-debug-control-private.h',
   'core/meta-fraction.c',
   'core/meta-fraction.h',
   'core/meta-gesture-tracker.c',

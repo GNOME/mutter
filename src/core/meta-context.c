@@ -884,6 +884,12 @@ meta_context_init (MetaContext *context)
     }
 }
 
+/**
+ * meta_context_get_debug_control:
+ * @context: The #MetaContext
+ *
+ * Returns: (transfer none): the #MetaDebugControl
+ */
 MetaDebugControl *
 meta_context_get_debug_control (MetaContext *context)
 {

@@ -313,7 +313,7 @@ meta_context_main_configure (MetaContext   *context,
     {
       MetaDebugControl *debug_control = meta_context_get_debug_control (context);
 
-      meta_debug_control_export (debug_control);
+      meta_debug_control_set_exported (debug_control, TRUE);
     }
 
   g_unsetenv ("DESKTOP_AUTOSTART_ID");

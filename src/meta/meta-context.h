@@ -101,3 +101,6 @@ gboolean meta_context_raise_rlimit_nofile (MetaContext  *context,
 META_EXPORT
 gboolean meta_context_restore_rlimit_nofile (MetaContext  *context,
                                              GError      **error);
+
+META_EXPORT
+MetaDebugControl * meta_context_get_debug_control (MetaContext *context);
