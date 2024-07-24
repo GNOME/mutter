@@ -154,7 +154,7 @@ meta_render_device_gbm_query_drm_modifiers (MetaRenderDevice       *render_devic
 
   g_array_set_size (modifiers, n_modifiers);
 
-  if (filter & COGL_DRM_MODIFIER_FILTER_SINGLE_PLANE)
+  if (filter != COGL_DRM_MODIFIER_FILTER_NONE)
     {
       g_autoptr (GArray) filtered_modifiers = NULL;
       struct gbm_device *gbm_device = render_device_gbm->gbm_device;
@@ -166,10 +166,15 @@ meta_render_device_gbm_query_drm_modifiers (MetaRenderDevice       *render_devic
         {
           uint64_t modifier = g_array_index (modifiers, uint64_t, i);
 
-          if (gbm_device_get_format_modifier_plane_count (gbm_device,
-                                                          drm_format,
-                                                          modifier) == 1)
-            g_array_append_val (filtered_modifiers, modifier);
+          if (filter & COGL_DRM_MODIFIER_FILTER_SINGLE_PLANE)
+            {
+              if (gbm_device_get_format_modifier_plane_count (gbm_device,
+                                                              drm_format,
+                                                              modifier) != 1)
+                continue;
+            }
+
+          g_array_append_val (filtered_modifiers, modifier);
         }
 
       if (filtered_modifiers->len == 0)
