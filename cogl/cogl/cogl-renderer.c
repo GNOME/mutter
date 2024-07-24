@@ -616,6 +616,29 @@ cogl_renderer_query_drm_modifiers (CoglRenderer           *renderer,
   return NULL;
 }
 
+uint64_t
+cogl_renderer_get_implicit_drm_modifier (CoglRenderer *renderer)
+{
+  const CoglWinsysVtable *winsys = _cogl_renderer_get_winsys (renderer);
+
+  g_return_val_if_fail (winsys->renderer_get_implicit_drm_modifier, 0);
+
+  return winsys->renderer_get_implicit_drm_modifier (renderer);
+}
+
+gboolean
+cogl_renderer_is_implicit_drm_modifier (CoglRenderer *renderer,
+                                        uint64_t      modifier)
+{
+  const CoglWinsysVtable *winsys = _cogl_renderer_get_winsys (renderer);
+  uint64_t implicit_modifier;
+
+  g_return_val_if_fail (winsys->renderer_get_implicit_drm_modifier, FALSE);
+
+  implicit_modifier = winsys->renderer_get_implicit_drm_modifier (renderer);
+  return modifier == implicit_modifier;
+}
+
 CoglDmaBufHandle *
 cogl_renderer_create_dma_buf (CoglRenderer     *renderer,
                               CoglPixelFormat   format,

@@ -113,6 +113,9 @@ typedef struct _CoglWinsysVtable
                                     CoglDrmModifierFilter   filter,
                                     GError                **error);
 
+  uint64_t
+  (* renderer_get_implicit_drm_modifier) (CoglRenderer *renderer);
+
   CoglDmaBufHandle *
   (*renderer_create_dma_buf) (CoglRenderer     *renderer,
                               CoglPixelFormat   format,

@@ -238,6 +238,13 @@ cogl_renderer_query_drm_modifiers (CoglRenderer           *renderer,
                                    CoglDrmModifierFilter   filter,
                                    GError                **error);
 
+COGL_EXPORT uint64_t
+cogl_renderer_get_implicit_drm_modifier (CoglRenderer *renderer);
+
+COGL_EXPORT gboolean
+cogl_renderer_is_implicit_drm_modifier (CoglRenderer *renderer,
+                                        uint64_t      modifier);
+
 /**
  * cogl_renderer_create_dma_buf: (skip)
  * @renderer: A #CoglRenderer
