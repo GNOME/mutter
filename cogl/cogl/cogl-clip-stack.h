@@ -45,13 +45,11 @@
 typedef struct _CoglClipStack CoglClipStack;
 typedef struct _CoglClipStackRect CoglClipStackRect;
 typedef struct _CoglClipStackWindowRect CoglClipStackWindowRect;
-typedef struct _CoglClipStackPrimitive CoglClipStackPrimitive;
 typedef struct _CoglClipStackRegion CoglClipStackRegion;
 
 typedef enum
   {
     COGL_CLIP_STACK_RECT,
-    COGL_CLIP_STACK_PRIMITIVE,
     COGL_CLIP_STACK_REGION,
   } CoglClipStackType;
 
@@ -136,21 +134,6 @@ struct _CoglClipStackRect
      journal. In that case we can use the original clip coordinates
      and modify the rectangle instead. */
   gboolean can_be_scissor;
-};
-
-struct _CoglClipStackPrimitive
-{
-  CoglClipStack _parent_data;
-
-  /* The matrix that was current when the clip was set */
-  CoglMatrixEntry *matrix_entry;
-
-  CoglPrimitive *primitive;
-
-  float bounds_x1;
-  float bounds_y1;
-  float bounds_x2;
-  float bounds_y2;
 };
 
 struct _CoglClipStackRegion

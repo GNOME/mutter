@@ -67,36 +67,6 @@ _cogl_clip_stack_push_entry (CoglClipStack *clip_stack,
   return entry;
 }
 
-static void
-get_transformed_corners (float              x_1,
-                         float              y_1,
-                         float              x_2,
-                         float              y_2,
-                         graphene_matrix_t *modelview,
-                         graphene_matrix_t *projection,
-                         const float       *viewport,
-                         float             *transformed_corners)
-{
-  int i;
-
-  transformed_corners[0] = x_1;
-  transformed_corners[1] = y_1;
-  transformed_corners[2] = x_2;
-  transformed_corners[3] = y_1;
-  transformed_corners[4] = x_2;
-  transformed_corners[5] = y_2;
-  transformed_corners[6] = x_1;
-  transformed_corners[7] = y_2;
-
-
-  /* Project the coordinates to window space coordinates */
-  for (i = 0; i < 4; i++)
-    {
-      float *v = transformed_corners + i * 2;
-      _cogl_transform_point (modelview, projection, viewport, v, v + 1);
-    }
-}
-
 /* Sets the window-space bounds of the entry based on the projected
    coordinates of the given rectangle */
 static void
@@ -225,52 +195,6 @@ _cogl_clip_stack_push_rectangle (CoglClipStack *stack,
 }
 
 CoglClipStack *
-_cogl_clip_stack_push_primitive (CoglClipStack *stack,
-                                 CoglPrimitive *primitive,
-                                 float bounds_x1,
-                                 float bounds_y1,
-                                 float bounds_x2,
-                                 float bounds_y2,
-                                 CoglMatrixEntry *modelview_entry,
-                                 CoglMatrixEntry *projection_entry,
-                                 const float *viewport)
-{
-  CoglClipStackPrimitive *entry;
-  graphene_matrix_t modelview;
-  graphene_matrix_t projection;
-  float transformed_corners[8];
-
-  entry = _cogl_clip_stack_push_entry (stack,
-                                       sizeof (CoglClipStackPrimitive),
-                                       COGL_CLIP_STACK_PRIMITIVE);
-
-  entry->primitive = g_object_ref (primitive);
-
-  entry->matrix_entry = cogl_matrix_entry_ref (modelview_entry);
-
-  entry->bounds_x1 = bounds_x1;
-  entry->bounds_y1 = bounds_y1;
-  entry->bounds_x2 = bounds_x2;
-  entry->bounds_y2 = bounds_y2;
-
-  cogl_matrix_entry_get (modelview_entry, &modelview);
-  cogl_matrix_entry_get (projection_entry, &projection);
-
-  get_transformed_corners (bounds_x1, bounds_y1, bounds_x2, bounds_y2,
-                           &modelview,
-                           &projection,
-                           viewport,
-                           transformed_corners);
-
-  /* NB: this is referring to the bounds in window coordinates as opposed
-   * to the bounds above in primitive local coordinates. */
-  _cogl_clip_stack_entry_set_bounds ((CoglClipStack *) entry,
-                                     transformed_corners);
-
-  return (CoglClipStack *) entry;
-}
-
-CoglClipStack *
 cogl_clip_stack_push_region (CoglClipStack *stack,
                              MtkRegion     *region)
 {
@@ -320,15 +244,6 @@ _cogl_clip_stack_unref (CoglClipStack *entry)
           {
             CoglClipStackRect *rect = (CoglClipStackRect *) entry;
             cogl_matrix_entry_unref (rect->matrix_entry);
-            g_free (entry);
-            break;
-          }
-        case COGL_CLIP_STACK_PRIMITIVE:
-          {
-            CoglClipStackPrimitive *primitive_entry =
-              (CoglClipStackPrimitive *) entry;
-            cogl_matrix_entry_unref (primitive_entry->matrix_entry);
-            g_object_unref (primitive_entry->primitive);
             g_free (entry);
             break;
           }
