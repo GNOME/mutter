@@ -112,15 +112,3 @@ _cogl_list_insert_list (CoglList *list,
        &pos->member != (head);                                          \
        pos = tmp,                                                       \
          _cogl_list_set_iterator (pos->member.next, tmp, member))
-
-#define _cogl_list_for_each_reverse(pos, head, member)                  \
-  for (_cogl_list_set_iterator ((head)->prev, pos, member);             \
-       &pos->member != (head);                                          \
-       _cogl_list_set_iterator (pos->member.prev, pos, member))
-
-#define _cogl_list_for_each_reverse_safe(pos, tmp, head, member)        \
-  for (_cogl_list_set_iterator ((head)->prev, pos, member),             \
-         _cogl_list_set_iterator ((pos)->member.prev, tmp, member);     \
-       &pos->member != (head);                                          \
-       pos = tmp,                                                       \
-         _cogl_list_set_iterator (pos->member.prev, tmp, member))
