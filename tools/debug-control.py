@@ -17,7 +17,13 @@ def bool_to_string(value):
 
 def get_debug_control():
     bus = dbus.SessionBus()
-    return bus.get_object(NAME, OBJECT_PATH)
+    try:
+        debug_control = bus.get_object(NAME, OBJECT_PATH)
+    except dbus.exceptions.DBusException:
+        print("The DebugControl service is not available.")
+        print("You may have to enable the `debug-control` flag in looking glass.")
+        exit(-1)
+    return debug_control
 
 def status():
     debug_control = get_debug_control()
