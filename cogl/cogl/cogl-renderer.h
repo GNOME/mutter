@@ -43,6 +43,7 @@ typedef enum _CoglDrmModifierFilter
 {
   COGL_DRM_MODIFIER_FILTER_NONE = 0,
   COGL_DRM_MODIFIER_FILTER_SINGLE_PLANE = 1 << 0,
+  COGL_DRM_MODIFIER_FILTER_NOT_EXTERNAL_ONLY = 1 << 1,
 } CoglDrmModifierFilter;
 
 /**

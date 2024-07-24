@@ -119,6 +119,7 @@ meta_render_device_gbm_query_drm_modifiers (MetaRenderDevice       *render_devic
   EGLDisplay egl_display;
   EGLint n_modifiers;
   g_autoptr (GArray) modifiers = NULL;
+  g_autoptr (GArray) external_onlys = NULL;
 
   egl_display = meta_render_device_get_egl_display (render_device);
 
@@ -146,13 +147,17 @@ meta_render_device_gbm_query_drm_modifiers (MetaRenderDevice       *render_devic
 
   modifiers = g_array_sized_new (FALSE, FALSE, sizeof (uint64_t),
                                  n_modifiers);
+  external_onlys = g_array_sized_new (FALSE, FALSE, sizeof (EGLBoolean),
+                                      n_modifiers);
   if (!meta_egl_query_dma_buf_modifiers (egl, egl_display,
                                          drm_format, n_modifiers,
-                                         (EGLuint64KHR *) modifiers->data, NULL,
+                                         (EGLuint64KHR *) modifiers->data,
+                                         (EGLBoolean *) external_onlys->data,
                                          &n_modifiers, error))
     return NULL;
 
   g_array_set_size (modifiers, n_modifiers);
+  g_array_set_size (external_onlys, n_modifiers);
 
   if (filter != COGL_DRM_MODIFIER_FILTER_NONE)
     {
@@ -171,6 +176,15 @@ meta_render_device_gbm_query_drm_modifiers (MetaRenderDevice       *render_devic
               if (gbm_device_get_format_modifier_plane_count (gbm_device,
                                                               drm_format,
                                                               modifier) != 1)
+                continue;
+            }
+
+          if (filter & COGL_DRM_MODIFIER_FILTER_NOT_EXTERNAL_ONLY)
+            {
+              EGLBoolean external_only = g_array_index (external_onlys,
+                                                        EGLBoolean, i);
+
+              if (external_only)
                 continue;
             }
 
