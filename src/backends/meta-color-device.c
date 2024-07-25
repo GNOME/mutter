@@ -37,11 +37,18 @@ enum
 {
   READY,
   CALIBRATION_CHANGED,
+  COLOR_STATE_CHANGED,
 
   N_SIGNALS
 };
 
 static guint signals[N_SIGNALS];
+
+typedef enum
+{
+  UPDATE_RESULT_CALIBRATION = 1 << 0,
+  UPDATE_RESULT_COLOR_STATE = 1 << 1,
+} UpdateResult;
 
 typedef enum
 {
@@ -69,6 +76,8 @@ struct _MetaColorDevice
   GCancellable *assigned_profile_cancellable;
 
   GCancellable *cancellable;
+
+  ClutterColorState *color_state;
 
   PendingState pending_state;
   gboolean is_ready;
@@ -304,6 +313,7 @@ meta_color_device_dispose (GObject *object)
   g_clear_pointer (&color_device->cd_device_id, g_free);
   g_clear_object (&color_device->cd_device);
   g_clear_object (&color_device->monitor);
+  g_clear_object (&color_device->color_state);
 
   G_OBJECT_CLASS (meta_color_device_parent_class)->dispose (object);
 }
@@ -337,6 +347,12 @@ meta_color_device_class_init (MetaColorDeviceClass *klass)
    */
   signals[CALIBRATION_CHANGED] =
     g_signal_new ("calibration-changed",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST, 0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
+  signals[COLOR_STATE_CHANGED] =
+    g_signal_new ("color-state-changed",
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST, 0,
                   NULL, NULL, NULL,
@@ -607,6 +623,30 @@ on_manager_ready (MetaColorManager *color_manager,
   create_cd_device (color_device);
 }
 
+static UpdateResult
+update_color_state (MetaColorDevice *color_device)
+{
+  MetaBackend *backend =
+    meta_color_manager_get_backend (color_device->color_manager);
+  ClutterContext *clutter_context = meta_backend_get_clutter_context (backend);
+  ClutterColorManager *clutter_color_manager =
+    clutter_context_get_color_manager (clutter_context);
+  ClutterColorState *color_state;
+  UpdateResult result = 0;
+
+  color_state =
+    clutter_color_manager_get_default_color_state (clutter_color_manager);
+
+  if (!color_device->color_state ||
+      !clutter_color_state_equals (color_device->color_state, color_state))
+    {
+      g_set_object (&color_device->color_state, color_state);
+      result |= UPDATE_RESULT_COLOR_STATE;
+    }
+
+  return result;
+}
+
 MetaColorDevice *
 meta_color_device_new (MetaColorManager *color_manager,
                        MetaMonitor      *monitor)
@@ -618,6 +658,8 @@ meta_color_device_new (MetaColorManager *color_manager,
   color_device->monitor = g_object_ref (monitor);
   color_device->cancellable = g_cancellable_new ();
   color_device->color_manager = color_manager;
+
+  update_color_state (color_device);
 
   if (meta_color_manager_is_ready (color_manager))
     {
@@ -1237,6 +1279,12 @@ meta_color_device_get_monitor (MetaColorDevice *color_device)
   return color_device->monitor;
 }
 
+ClutterColorState *
+meta_color_device_get_color_state (MetaColorDevice *color_device)
+{
+  return color_device->color_state;
+}
+
 MetaColorProfile *
 meta_color_device_get_device_profile (MetaColorDevice *color_device)
 {
@@ -1255,31 +1303,27 @@ meta_color_device_get_assigned_profile (MetaColorDevice *color_device)
   return color_device->assigned_profile;
 }
 
-void
-meta_color_device_update (MetaColorDevice *color_device)
+static UpdateResult
+update_white_point (MetaColorDevice *color_device)
 {
   MetaColorManager *color_manager = color_device->color_manager;
+  MetaMonitor *monitor = color_device->monitor;
   MetaColorProfile *color_profile;
-  MetaMonitor *monitor;
   size_t lut_size;
   unsigned int temperature;
 
   if (!meta_color_device_is_ready (color_device))
-    return;
+    return 0;
 
   color_profile = meta_color_device_get_assigned_profile (color_device);
   if (!color_profile)
-    return;
-
-  monitor = color_device->monitor;
-  if (!meta_monitor_is_active (monitor))
-    return;
+    return 0;
 
   temperature = meta_color_manager_get_temperature (color_manager);
 
   meta_topic (META_DEBUG_COLOR,
-              "Updating device '%s' (%s) using color profile '%s' "
-              "and temperature %uK",
+              "Updating white point of device '%s' (%s) "
+              "using color profile '%s' and temperature %uK",
               meta_color_device_get_id (color_device),
               meta_monitor_get_connector (monitor),
               meta_color_profile_get_id (color_profile),
@@ -1313,5 +1357,24 @@ meta_color_device_update (MetaColorDevice *color_device)
       meta_monitor_set_gamma_lut (monitor, lut);
     }
 
-  g_signal_emit (color_device, signals[CALIBRATION_CHANGED], 0);
+  return UPDATE_RESULT_CALIBRATION;
+}
+
+void
+meta_color_device_update (MetaColorDevice *color_device)
+{
+  MetaMonitor *monitor = color_device->monitor;
+  UpdateResult result = 0;
+
+  if (!meta_monitor_is_active (monitor))
+    return;
+
+  result |= update_white_point (color_device);
+  result |= update_color_state (color_device);
+
+  if (result & UPDATE_RESULT_CALIBRATION)
+    g_signal_emit (color_device, signals[CALIBRATION_CHANGED], 0);
+
+  if (result & UPDATE_RESULT_COLOR_STATE)
+    g_signal_emit (color_device, signals[COLOR_STATE_CHANGED], 0);
 }

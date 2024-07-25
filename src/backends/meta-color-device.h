@@ -40,6 +40,8 @@ const char * meta_color_device_get_id (MetaColorDevice *color_device);
 META_EXPORT_TEST
 MetaMonitor * meta_color_device_get_monitor (MetaColorDevice *color_device);
 
+ClutterColorState * meta_color_device_get_color_state (MetaColorDevice *color_device);
+
 META_EXPORT_TEST
 MetaColorProfile * meta_color_device_get_device_profile (MetaColorDevice *color_device);
 
