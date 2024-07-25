@@ -1375,41 +1375,29 @@ get_color_space_from_output (MetaOutput *output)
   g_assert_not_reached ();
 }
 
-static void
-get_transfer_function_from_output (MetaOutput              *output,
-                                   ClutterTransferFunction *view_transfer_function,
-                                   ClutterTransferFunction *output_transfer_function)
+static ClutterTransferFunction
+get_transfer_function_from_output (MetaOutput *output)
 {
   const MetaOutputHdrMetadata *hdr_metadata =
     meta_output_peek_hdr_metadata (output);
 
-  if (hdr_metadata->active)
-    {
-      switch (meta_output_peek_hdr_metadata (output)->eotf)
-        {
-        case META_OUTPUT_HDR_METADATA_EOTF_PQ:
-          *view_transfer_function = CLUTTER_TRANSFER_FUNCTION_LINEAR;
-          *output_transfer_function = CLUTTER_TRANSFER_FUNCTION_PQ;
-          return;
-        case META_OUTPUT_HDR_METADATA_EOTF_TRADITIONAL_GAMMA_SDR:
-          *view_transfer_function = CLUTTER_TRANSFER_FUNCTION_DEFAULT;
-          *output_transfer_function = CLUTTER_TRANSFER_FUNCTION_DEFAULT;
-          return;
-        case META_OUTPUT_HDR_METADATA_EOTF_TRADITIONAL_GAMMA_HDR:
-          g_warning ("Unhandled HDR EOTF (traditional gamma hdr)");
-          return;
-        case META_OUTPUT_HDR_METADATA_EOTF_HLG:
-          g_warning ("Unhandled HDR EOTF (HLG)");
-          return;
-        }
+  if (!hdr_metadata->active)
+    return CLUTTER_TRANSFER_FUNCTION_DEFAULT;
 
-      g_assert_not_reached ();
-    }
-  else
+  switch (meta_output_peek_hdr_metadata (output)->eotf)
     {
-      *view_transfer_function = CLUTTER_TRANSFER_FUNCTION_DEFAULT;
-      *output_transfer_function = CLUTTER_TRANSFER_FUNCTION_DEFAULT;
+    case META_OUTPUT_HDR_METADATA_EOTF_PQ:
+      return CLUTTER_TRANSFER_FUNCTION_PQ;
+    case META_OUTPUT_HDR_METADATA_EOTF_TRADITIONAL_GAMMA_SDR:
+      return CLUTTER_TRANSFER_FUNCTION_DEFAULT;
+    case META_OUTPUT_HDR_METADATA_EOTF_TRADITIONAL_GAMMA_HDR:
+    case META_OUTPUT_HDR_METADATA_EOTF_HLG:
+    default:
+      g_warning ("Unhandled HDR EOTF");
+      return CLUTTER_TRANSFER_FUNCTION_DEFAULT;
     }
+
+  g_assert_not_reached ();
 }
 
 static MetaRendererView *
@@ -1432,12 +1420,10 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
   const MetaCrtcConfig *crtc_config;
   const MetaCrtcModeInfo *crtc_mode_info;
   ClutterColorspace colorspace;
-  ClutterTransferFunction view_transfer_function =
-    CLUTTER_TRANSFER_FUNCTION_DEFAULT;
-  ClutterTransferFunction output_transfer_function =
-    CLUTTER_TRANSFER_FUNCTION_DEFAULT;
-  ClutterColorState *view_color_state;
-  ClutterColorState *output_color_state;
+  ClutterTransferFunction transfer_function;
+  gboolean force_linear;
+  g_autoptr (ClutterColorState) color_state = NULL;
+  g_autoptr (ClutterColorState) blending_color_state = NULL;
   MetaMonitorTransform view_transform;
   g_autoptr (CoglFramebuffer) framebuffer = NULL;
   g_autoptr (CoglOffscreen) offscreen = NULL;
@@ -1514,36 +1500,32 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
     }
 
   colorspace = get_color_space_from_output (output);
-  get_transfer_function_from_output (output,
-                                     &view_transfer_function,
-                                     &output_transfer_function);
+  transfer_function = get_transfer_function_from_output (output);
 
-  if (meta_debug_control_is_linear_blending_forced (debug_control))
-    view_transfer_function = CLUTTER_TRANSFER_FUNCTION_LINEAR;
+  color_state = clutter_color_state_new (clutter_context,
+                                         colorspace,
+                                         transfer_function);
 
-  view_color_state = clutter_color_state_new (clutter_context,
-                                              colorspace,
-                                              view_transfer_function);
-  output_color_state = clutter_color_state_new (clutter_context,
-                                                colorspace,
-                                                output_transfer_function);
+  force_linear = meta_debug_control_is_linear_blending_forced (debug_control);
+  blending_color_state = clutter_color_state_get_blending (color_state,
+                                                           force_linear);
 
   if (meta_is_topic_enabled (META_DEBUG_RENDER))
     {
-      g_autofree char *view_cs_str =
-        clutter_color_state_to_string (view_color_state);
-      g_autofree char *output_cs_str =
-        clutter_color_state_to_string (view_color_state);
+      g_autofree char *cs_str =
+        clutter_color_state_to_string (color_state);
+      g_autofree char *blending_cs_str =
+        clutter_color_state_to_string (blending_color_state);
 
       meta_topic (META_DEBUG_RENDER,
                   "ColorState for view %s:\n  %s",
                   meta_output_get_name (output),
-                  view_cs_str);
+                  blending_cs_str);
 
       meta_topic (META_DEBUG_RENDER,
                   "ColorState for output %s:\n  %s",
                   meta_output_get_name (output),
-                  output_cs_str);
+                  cs_str);
     }
 
   view_transform = calculate_view_transform (monitor_manager,
@@ -1552,7 +1534,7 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
                                              crtc);
 
   if (view_transform != META_MONITOR_TRANSFORM_NORMAL ||
-      view_transfer_function != output_transfer_function)
+      !clutter_color_state_equals (color_state, blending_color_state))
     {
       int offscreen_width;
       int offscreen_height;
@@ -1560,7 +1542,7 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
       size_t n_formats = 0;
       CoglPixelFormat format;
       ClutterEncodingRequiredFormat required_format =
-        clutter_color_state_required_format (view_color_state);
+        clutter_color_state_required_format (blending_color_state);
 
       if (required_format <= CLUTTER_ENCODING_REQUIRED_FORMAT_UINT8)
         {
@@ -1621,8 +1603,8 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
                               "scale", scale,
                               "framebuffer", framebuffer,
                               "offscreen", offscreen,
-                              "color-state", view_color_state,
-                              "output-color-state", output_color_state,
+                              "color-state", blending_color_state,
+                              "output-color-state", color_state,
                               "use-shadowfb", use_shadowfb,
                               "transform", view_transform,
                               "refresh-rate", crtc_mode_info->refresh_rate,

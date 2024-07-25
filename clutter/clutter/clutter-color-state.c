@@ -919,3 +919,57 @@ clutter_color_state_required_format (ClutterColorState *color_state)
 
   g_assert_not_reached ();
 }
+
+/**
+ * clutter_color_state_get_blending:
+ * @color_state: a #ClutterColorState
+ * @force: if a linear variant should be forced
+ *
+ * Retrieves a variant of @color_state that is suitable for blending. This
+ * usually is a variant with linear transfer characteristics. If @color_state
+ * already is a #ClutterColorState suitable for blending, then @color_state is
+ * returned.
+ *
+ * Currently sRGB content is blended with sRGB and not with linear transfer
+ * characteristics.
+ *
+ * If @force is TRUE then linear transfer characteristics are used always.
+ *
+ * Returns: (transfer full): the #ClutterColorState suitable for blending
+ */
+ClutterColorState *
+clutter_color_state_get_blending (ClutterColorState *color_state,
+                                  gboolean           force)
+{
+  ClutterColorStatePrivate *priv;
+  ClutterTransferFunction blending_tf;
+
+  g_return_val_if_fail (CLUTTER_IS_COLOR_STATE (color_state), FALSE);
+
+  priv = clutter_color_state_get_instance_private (color_state);
+
+  switch (priv->transfer_function)
+    {
+    case CLUTTER_TRANSFER_FUNCTION_PQ:
+    case CLUTTER_TRANSFER_FUNCTION_LINEAR:
+      blending_tf = CLUTTER_TRANSFER_FUNCTION_LINEAR;
+      break;
+    /* effectively this means we will blend sRGB content in sRGB, not linear */
+    case CLUTTER_TRANSFER_FUNCTION_SRGB:
+    case CLUTTER_TRANSFER_FUNCTION_DEFAULT:
+      blending_tf = priv->transfer_function;
+      break;
+    default:
+      g_assert_not_reached ();
+    }
+
+  if (force)
+    blending_tf = CLUTTER_TRANSFER_FUNCTION_LINEAR;
+
+  if (blending_tf == priv->transfer_function)
+    return g_object_ref (color_state);
+
+  return clutter_color_state_new (priv->context,
+                                  priv->colorspace,
+                                  blending_tf);
+}

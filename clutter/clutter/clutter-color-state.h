@@ -67,4 +67,8 @@ gboolean clutter_color_state_equals (ClutterColorState *color_state,
 CLUTTER_EXPORT
 ClutterEncodingRequiredFormat clutter_color_state_required_format (ClutterColorState *color_state);
 
+CLUTTER_EXPORT
+ClutterColorState * clutter_color_state_get_blending (ClutterColorState *color_state,
+                                                      gboolean           force);
+
 G_END_DECLS
