@@ -846,6 +846,9 @@ clutter_color_state_equals (ClutterColorState *color_state,
   g_return_val_if_fail (CLUTTER_IS_COLOR_STATE (color_state), FALSE);
   g_return_val_if_fail (CLUTTER_IS_COLOR_STATE (other_color_state), FALSE);
 
+  if (color_state == other_color_state)
+    return TRUE;
+
   priv = clutter_color_state_get_instance_private (color_state);
   other_priv = clutter_color_state_get_instance_private (other_color_state);
 
