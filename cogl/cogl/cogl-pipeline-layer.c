@@ -141,7 +141,7 @@ _cogl_pipeline_layer_has_alpha (CoglPipelineLayer *layer)
     _cogl_pipeline_layer_get_authority (layer,
                                         COGL_PIPELINE_LAYER_STATE_TEXTURE_DATA);
   if (tex_authority->texture &&
-      _cogl_texture_get_format (tex_authority->texture) & COGL_A_BIT)
+      cogl_texture_get_format (tex_authority->texture) & COGL_A_BIT)
     {
       return TRUE;
     }
@@ -895,5 +895,3 @@ _cogl_pipeline_layer_needs_combine_separate
 
   return FALSE;
 }
-
-

@@ -446,7 +446,7 @@ shm_buffer_attach (MetaWaylandBuffer  *buffer,
       CoglTexture *cogl_texture = meta_multi_texture_get_plane (*texture, 0);
 
       if (!meta_multi_texture_is_simple (*texture) ||
-          _cogl_texture_get_format (cogl_texture) == cogl_format)
+          cogl_texture_get_format (cogl_texture) == cogl_format)
         {
           buffer->is_y_inverted = TRUE;
           return TRUE;
@@ -811,7 +811,7 @@ process_shm_buffer_damage (MetaWaylandBuffer *buffer,
       plane_stride = shm_stride[plane_index];
 
       cogl_texture = meta_multi_texture_get_plane (texture, i);
-      subformat = _cogl_texture_get_format (cogl_texture);
+      subformat = cogl_texture_get_format (cogl_texture);
       bpp = cogl_pixel_format_get_bytes_per_pixel (subformat, 0);
 
       for (j = 0; j < n_rectangles; j++)

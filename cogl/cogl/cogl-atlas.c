@@ -82,10 +82,10 @@ cogl_atlas_class_init (CoglAtlasClass *class)
 }
 
 CoglAtlas *
-_cogl_atlas_new (CoglContext                    *context,
-                 CoglPixelFormat                 texture_format,
-                 CoglAtlasFlags                  flags,
-                 CoglAtlasUpdatePositionCallback update_position_cb)
+cogl_atlas_new (CoglContext                     *context,
+                CoglPixelFormat                  texture_format,
+                CoglAtlasFlags                   flags,
+                CoglAtlasUpdatePositionCallback  update_position_cb)
 {
   CoglAtlas *atlas = g_object_new (COGL_TYPE_ATLAS, NULL);
 
@@ -383,10 +383,10 @@ _cogl_atlas_notify_post_reorganize (CoglAtlas *atlas)
 }
 
 gboolean
-_cogl_atlas_reserve_space (CoglAtlas             *atlas,
-                           unsigned int           width,
-                           unsigned int           height,
-                           void                  *user_data)
+cogl_atlas_reserve_space (CoglAtlas             *atlas,
+                          unsigned int           width,
+                          unsigned int           height,
+                          void                  *user_data)
 {
   CoglAtlasGetRectanglesData data;
   CoglRectangleMap *new_map;
@@ -649,10 +649,10 @@ _cogl_atlas_copy_rectangle (CoglAtlas *atlas,
 }
 
 void
-_cogl_atlas_add_reorganize_callback (CoglAtlas            *atlas,
-                                     GHookFunc             pre_callback,
-                                     GHookFunc             post_callback,
-                                     void                 *user_data)
+cogl_atlas_add_reorganize_callback (CoglAtlas            *atlas,
+                                    GHookFunc             pre_callback,
+                                    GHookFunc             post_callback,
+                                    void                 *user_data)
 {
   if (pre_callback)
     {

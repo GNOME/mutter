@@ -575,7 +575,7 @@ _cogl_texture_2d_gl_copy_from_bitmap (CoglTexture2D *tex_2d,
 
   upload_bmp =
     _cogl_bitmap_convert_for_upload (bmp,
-                                     _cogl_texture_get_format (tex),
+                                     cogl_texture_get_format (tex),
                                      error);
   if (upload_bmp == NULL)
     return FALSE;

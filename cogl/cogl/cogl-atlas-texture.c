@@ -205,14 +205,14 @@ _cogl_atlas_texture_post_reorganize_cb (void *user_data)
 static CoglAtlas *
 _cogl_atlas_texture_create_atlas (CoglContext *ctx)
 {
-  CoglAtlas *atlas = _cogl_atlas_new (ctx, COGL_PIXEL_FORMAT_RGBA_8888,
-                                      0,
-                                      _cogl_atlas_texture_update_position_cb);
+  CoglAtlas *atlas = cogl_atlas_new (ctx, COGL_PIXEL_FORMAT_RGBA_8888,
+                                     0,
+                                     _cogl_atlas_texture_update_position_cb);
 
-  _cogl_atlas_add_reorganize_callback (atlas,
-                                       _cogl_atlas_texture_pre_reorganize_cb,
-                                       _cogl_atlas_texture_post_reorganize_cb,
-                                       atlas);
+  cogl_atlas_add_reorganize_callback (atlas,
+                                      _cogl_atlas_texture_pre_reorganize_cb,
+                                      _cogl_atlas_texture_post_reorganize_cb,
+                                      atlas);
 
   ctx->atlases = g_slist_prepend (ctx->atlases, atlas);
   return atlas;
@@ -500,7 +500,7 @@ _cogl_atlas_texture_convert_bitmap_for_upload (CoglAtlasTexture *atlas_tex,
 
   /* We'll prepare to upload using the format of the actual texture of
      the atlas texture instead of the format reported by
-     _cogl_texture_get_format which would be the original internal
+     cogl_texture_get_format which would be the original internal
      format specified when the texture was created. However we'll
      preserve the premult status of the internal format because the
      images are all stored in the original premult format of the
@@ -651,10 +651,10 @@ allocate_space (CoglAtlasTexture *atlas_tex,
        * can cause the atlas to be freed */
       atlas = g_object_ref (l->data);
       /* Try to make some space in the atlas for the texture */
-      if (_cogl_atlas_reserve_space (atlas,
-                                     /* Add two pixels for the border */
-                                     width + 2, height + 2,
-                                     atlas_tex))
+      if (cogl_atlas_reserve_space (atlas,
+                                    /* Add two pixels for the border */
+                                    width + 2, height + 2,
+                                    atlas_tex))
         {
           /* keep the atlas reference */
           break;
@@ -670,10 +670,10 @@ allocate_space (CoglAtlasTexture *atlas_tex,
     {
       atlas = _cogl_atlas_texture_create_atlas (ctx);
       COGL_NOTE (ATLAS, "Created new atlas for textures: %p", atlas);
-      if (!_cogl_atlas_reserve_space (atlas,
-                                      /* Add two pixels for the border */
-                                      width + 2, height + 2,
-                                      atlas_tex))
+      if (!cogl_atlas_reserve_space (atlas,
+                                     /* Add two pixels for the border */
+                                     width + 2, height + 2,
+                                     atlas_tex))
         {
           /* Ok, this means we really can't add it to the atlas */
           g_object_unref (atlas);
@@ -907,9 +907,9 @@ cogl_atlas_texture_new_from_bitmap (CoglBitmap *bmp)
 }
 
 void
-_cogl_atlas_texture_add_reorganize_callback (CoglContext *ctx,
-                                             GHookFunc callback,
-                                             void *user_data)
+cogl_atlas_texture_add_reorganize_callback (CoglContext *ctx,
+                                            GHookFunc callback,
+                                            void *user_data)
 {
   GHook *hook = g_hook_alloc (&ctx->atlas_reorganize_callbacks);
   hook->func = callback;
@@ -918,7 +918,7 @@ _cogl_atlas_texture_add_reorganize_callback (CoglContext *ctx,
 }
 
 void
-_cogl_atlas_texture_remove_reorganize_callback (CoglContext *ctx,
+cogl_atlas_texture_remove_reorganize_callback (CoglContext *ctx,
                                                 GHookFunc callback,
                                                 void *user_data)
 {

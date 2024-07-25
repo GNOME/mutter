@@ -1081,7 +1081,7 @@ _cogl_texture_2d_sliced_set_region (CoglTexture *tex,
   gboolean status;
 
   upload_bmp = _cogl_bitmap_convert_for_upload (bmp,
-                                                _cogl_texture_get_format (tex),
+                                                cogl_texture_get_format (tex),
                                                 error);
   if (!upload_bmp)
     return FALSE;
@@ -1270,4 +1270,3 @@ cogl_texture_2d_sliced_new_from_bitmap (CoglBitmap *bmp,
                                               cogl_bitmap_get_format (bmp),
                                               loader);
 }
-

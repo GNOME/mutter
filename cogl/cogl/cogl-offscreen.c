@@ -122,7 +122,7 @@ cogl_offscreen_allocate (CoglFramebuffer  *framebuffer,
   height = cogl_texture_get_height (offscreen->texture);
   cogl_framebuffer_update_size (framebuffer, width, height);
 
-  texture_format = _cogl_texture_get_format (offscreen->texture);
+  texture_format = cogl_texture_get_format (offscreen->texture);
   _cogl_framebuffer_set_internal_format (framebuffer, texture_format);
 
   return TRUE;

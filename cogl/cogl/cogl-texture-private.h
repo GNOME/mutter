@@ -324,9 +324,6 @@ _cogl_texture_set_allocated (CoglTexture *texture,
                              int width,
                              int height);
 
-COGL_EXPORT CoglPixelFormat
-_cogl_texture_get_format (CoglTexture *texture);
-
 CoglTextureLoader *
 _cogl_texture_create_loader (void);
 

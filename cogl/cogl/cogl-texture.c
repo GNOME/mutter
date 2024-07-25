@@ -256,7 +256,7 @@ cogl_texture_get_height (CoglTexture *texture)
 }
 
 CoglPixelFormat
-_cogl_texture_get_format (CoglTexture *texture)
+cogl_texture_get_format (CoglTexture *texture)
 {
   if (!texture->allocated)
     cogl_texture_allocate (texture, NULL);
@@ -396,7 +396,7 @@ _cogl_texture_set_region_from_bitmap (CoglTexture *texture,
   /* Note that we don't prepare the bitmap for upload here because
      some backends may be internally using a different format for the
      actual GL texture than that reported by
-     _cogl_texture_get_format. For example the atlas textures are
+     cogl_texture_get_format. For example the atlas textures are
      always stored in an RGBA texture even if the texture format is
      advertised as RGB. */
 
@@ -595,7 +595,7 @@ get_texture_bits_via_offscreen (CoglTexture *meta_texture,
    * framebuffer's internal format matches the internal format of the
    * parent meta_texture instead.
    */
-  real_format = _cogl_texture_get_format (meta_texture);
+  real_format = cogl_texture_get_format (meta_texture);
   _cogl_framebuffer_set_internal_format (framebuffer, real_format);
 
   bitmap = cogl_bitmap_new_for_data (ctx,
@@ -771,7 +771,7 @@ cogl_texture_get_data (CoglTexture *texture,
 
   g_return_val_if_fail (COGL_IS_TEXTURE (texture), 0);
 
-  texture_format = _cogl_texture_get_format (texture);
+  texture_format = cogl_texture_get_format (texture);
 
   /* Default to internal format if none specified */
   if (format == COGL_PIXEL_FORMAT_ANY)

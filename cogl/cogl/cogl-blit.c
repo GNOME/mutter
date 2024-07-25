@@ -156,8 +156,8 @@ _cogl_blit_framebuffer_begin (CoglBlitData *data)
   /* We can only blit between FBOs if both textures have the same
      premult convention and the blit framebuffer extension is
      supported. */
-  if ((_cogl_texture_get_format (data->src_tex) & COGL_PREMULT_BIT) !=
-      (_cogl_texture_get_format (data->dst_tex) & COGL_PREMULT_BIT) ||
+  if ((cogl_texture_get_format (data->src_tex) & COGL_PREMULT_BIT) !=
+      (cogl_texture_get_format (data->dst_tex) & COGL_PREMULT_BIT) ||
       !cogl_context_has_feature (ctx, COGL_FEATURE_ID_BLIT_FRAMEBUFFER))
     return FALSE;
 
@@ -273,7 +273,7 @@ _cogl_blit_copy_tex_sub_image_end (CoglBlitData *data)
 static gboolean
 _cogl_blit_get_tex_data_begin (CoglBlitData *data)
 {
-  data->format = _cogl_texture_get_format (data->src_tex);
+  data->format = cogl_texture_get_format (data->src_tex);
 
   g_return_val_if_fail (cogl_pixel_format_get_n_planes (data->format) == 1,
                         FALSE);

@@ -181,7 +181,7 @@ _cogl_sub_texture_allocate (CoglTexture *tex,
   gboolean status = cogl_texture_allocate (sub_tex->full_texture, error);
 
   _cogl_texture_set_allocated (tex,
-                               _cogl_texture_get_format (sub_tex->full_texture),
+                               cogl_texture_get_format (sub_tex->full_texture),
                                cogl_texture_get_width (tex),
                                cogl_texture_get_height (tex));
 
@@ -343,7 +343,7 @@ _cogl_sub_texture_get_format (CoglTexture *tex)
 {
   CoglSubTexture *sub_tex = COGL_SUB_TEXTURE (tex);
 
-  return _cogl_texture_get_format (sub_tex->full_texture);
+  return cogl_texture_get_format (sub_tex->full_texture);
 }
 
 static GLenum
@@ -411,7 +411,7 @@ cogl_sub_texture_new (CoglContext *ctx,
                           "context", ctx,
                           "width", sub_width,
                           "height", sub_height,
-                          "format", _cogl_texture_get_format (next_texture),
+                          "format", cogl_texture_get_format (next_texture),
                           NULL);
 
   /* If the next texture is also a sub texture we can avoid one level

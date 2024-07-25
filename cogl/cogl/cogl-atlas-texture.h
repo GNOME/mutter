@@ -147,4 +147,20 @@ cogl_atlas_texture_new_with_size (CoglContext *ctx,
 COGL_EXPORT CoglTexture *
 cogl_atlas_texture_new_from_bitmap (CoglBitmap *bmp);
 
+/**
+ * cogl_atlas_texture_add_reorganize_callback: (skip)
+ */
+COGL_EXPORT void
+cogl_atlas_texture_add_reorganize_callback (CoglContext *ctx,
+                                            GHookFunc callback,
+                                            void *user_data);
+
+/**
+ * cogl_atlas_texture_remove_reorganize_callback: (skip)
+ */
+COGL_EXPORT void
+cogl_atlas_texture_remove_reorganize_callback (CoglContext *ctx,
+                                               GHookFunc callback,
+                                               void *user_data);
+
 G_END_DECLS

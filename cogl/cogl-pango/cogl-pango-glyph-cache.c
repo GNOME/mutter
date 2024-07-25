@@ -169,7 +169,7 @@ cogl_pango_glyph_cache_free (CoglPangoGlyphCache *cache)
 {
   if (cache->using_global_atlas)
     {
-      _cogl_atlas_texture_remove_reorganize_callback (
+      cogl_atlas_texture_remove_reorganize_callback (
                                   cache->ctx,
                                   cogl_pango_glyph_cache_reorganize_cb, cache);
     }
@@ -250,7 +250,7 @@ cogl_pango_glyph_cache_add_to_global_atlas (CoglPangoGlyphCache *cache,
      reorganization */
   if (!cache->using_global_atlas)
     {
-      _cogl_atlas_texture_add_reorganize_callback
+      cogl_atlas_texture_add_reorganize_callback
         (cache->ctx,
          cogl_pango_glyph_cache_reorganize_cb, cache);
       cache->using_global_atlas = TRUE;
@@ -271,10 +271,10 @@ cogl_pango_glyph_cache_add_to_local_atlas (CoglPangoGlyphCache *cache,
 
   /* Look for an atlas that can reserve the space */
   for (l = cache->atlases; l; l = l->next)
-    if (_cogl_atlas_reserve_space (l->data,
-                                   value->draw_width + 1,
-                                   value->draw_height + 1,
-                                   value))
+    if (cogl_atlas_reserve_space (l->data,
+                                  value->draw_width + 1,
+                                  value->draw_height + 1,
+                                  value))
       {
         atlas = l->data;
         break;
@@ -283,24 +283,24 @@ cogl_pango_glyph_cache_add_to_local_atlas (CoglPangoGlyphCache *cache,
   /* If we couldn't find one then start a new atlas */
   if (atlas == NULL)
     {
-      atlas = _cogl_atlas_new (context,
-                               COGL_PIXEL_FORMAT_A_8,
-                               COGL_ATLAS_CLEAR_TEXTURE |
-                               COGL_ATLAS_DISABLE_MIGRATION,
-                               cogl_pango_glyph_cache_update_position_cb);
+      atlas = cogl_atlas_new (context,
+                              COGL_PIXEL_FORMAT_A_8,
+                              COGL_ATLAS_CLEAR_TEXTURE |
+                              COGL_ATLAS_DISABLE_MIGRATION,
+                              cogl_pango_glyph_cache_update_position_cb);
       COGL_NOTE (ATLAS, "Created new atlas for glyphs: %p", atlas);
       /* If we still can't reserve space then something has gone
          seriously wrong so we'll just give up */
-      if (!_cogl_atlas_reserve_space (atlas,
-                                      value->draw_width + 1,
-                                      value->draw_height + 1,
-                                      value))
+      if (!cogl_atlas_reserve_space (atlas,
+                                     value->draw_width + 1,
+                                     value->draw_height + 1,
+                                     value))
         {
           g_object_unref (atlas);
           return FALSE;
         }
 
-      _cogl_atlas_add_reorganize_callback
+      cogl_atlas_add_reorganize_callback
         (atlas, cogl_pango_glyph_cache_reorganize_cb, NULL, cache);
 
       cache->atlases = g_slist_prepend (cache->atlases, atlas);

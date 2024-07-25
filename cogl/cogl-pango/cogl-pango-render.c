@@ -547,7 +547,7 @@ cogl_pango_renderer_set_dirty_glyph (PangoFont *font,
      here */
   g_return_if_fail (value->texture != NULL);
 
-  if (_cogl_texture_get_format (value->texture) == COGL_PIXEL_FORMAT_A_8)
+  if (cogl_texture_get_format (value->texture) == COGL_PIXEL_FORMAT_A_8)
     {
       format_cairo = CAIRO_FORMAT_A8;
       format_cogl = COGL_PIXEL_FORMAT_A_8;

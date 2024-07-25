@@ -275,7 +275,7 @@ meta_multi_texture_to_string (MetaMultiTexture *multi_texture)
   for (i = 0; i < multi_texture->n_planes; i++)
     {
       CoglTexture *plane = multi_texture->planes[i];
-      CoglPixelFormat plane_format = _cogl_texture_get_format (plane);
+      CoglPixelFormat plane_format = cogl_texture_get_format (plane);
 
       g_string_append_printf (str, "    (%p) { .format = %s },\n",
                               plane,

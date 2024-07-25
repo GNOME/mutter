@@ -470,4 +470,8 @@ cogl_texture_is_get_data_supported (CoglTexture *texture);
 COGL_EXPORT void
 cogl_texture_set_auto_mipmap (CoglTexture *texture,
                               gboolean     value);
+
+COGL_EXPORT CoglPixelFormat
+cogl_texture_get_format (CoglTexture *texture);
+
 G_END_DECLS
