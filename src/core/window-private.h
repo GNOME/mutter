@@ -869,3 +869,18 @@ int meta_get_window_suspend_timeout_s (void);
 
 gboolean
 meta_window_should_attach_to_parent (MetaWindow *window);
+
+/**
+ * meta_window_set_normal_hints:
+ * @window:   The window to set the size hints on.
+ * @hints:    Either some size hints, or NULL for default.
+ *
+ * Sets the size hints for a window.  This happens when a
+ * WM_NORMAL_HINTS property is set on a window, but it is public
+ * because the size hints are set to defaults when a window is
+ * created.  See
+ * http://tronche.com/gui/x/icccm/sec-4.html#WM_NORMAL_HINTS
+ * for the X details.
+ */
+void meta_window_set_normal_hints (MetaWindow    *window,
+                                   MetaSizeHints *hints);
