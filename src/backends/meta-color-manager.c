@@ -59,7 +59,7 @@
 
 enum
 {
-  DEVICE_UPDATED,
+  DEVICE_CALIBRATION_CHANGED,
   READY,
 
   N_SIGNALS
@@ -120,10 +120,11 @@ on_device_ready (MetaColorDevice  *color_device,
 }
 
 static void
-on_device_updated (MetaColorDevice  *color_device,
-                   MetaColorManager *color_manager)
+on_device_calibration_changed (MetaColorDevice  *color_device,
+                               MetaColorManager *color_manager)
 {
-  g_signal_emit (color_manager, signals[DEVICE_UPDATED], 0, color_device);
+  g_signal_emit (color_manager, signals[DEVICE_CALIBRATION_CHANGED], 0,
+                 color_device);
 }
 
 static char *
@@ -204,8 +205,8 @@ update_devices (MetaColorManager *color_manager)
           g_signal_connect_object (color_device, "ready",
                                    G_CALLBACK (on_device_ready),
                                    color_manager, 0);
-          g_signal_connect_object (color_device, "updated",
-                                   G_CALLBACK (on_device_updated),
+          g_signal_connect_object (color_device, "calibration-changed",
+                                   G_CALLBACK (on_device_calibration_changed),
                                    color_manager, 0);
         }
     }
@@ -499,8 +500,8 @@ meta_color_manager_class_init (MetaColorManagerClass *klass)
                          G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
 
-  signals[DEVICE_UPDATED] =
-    g_signal_new ("device-updated",
+  signals[DEVICE_CALIBRATION_CHANGED] =
+    g_signal_new ("device-calibration-changed",
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST, 0,
                   NULL, NULL, NULL,

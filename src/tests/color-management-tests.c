@@ -165,20 +165,20 @@ wait_for_profile_assigned (MetaColorDevice *color_device,
 }
 
 static void
-on_device_updated (MetaColorDevice *color_device,
-                   gboolean        *run)
+on_device_calibration_changed (MetaColorDevice *color_device,
+                               gboolean        *run)
 {
   *run = FALSE;
 }
 
 static void
-wait_for_device_updated (MetaColorDevice *color_device)
+wait_for_device_calibration_changed (MetaColorDevice *color_device)
 {
   gulong handler_id;
   gboolean run = TRUE;
 
-  handler_id = g_signal_connect (color_device, "updated",
-                                 G_CALLBACK (on_device_updated),
+  handler_id = g_signal_connect (color_device, "calibration-changed",
+                                 G_CALLBACK (on_device_calibration_changed),
                                  &run);
   while (run)
     g_main_context_iteration (NULL, TRUE);
@@ -1101,7 +1101,7 @@ meta_test_color_management_night_light_calibrated (void)
 
   set_night_light_temperature (temperature);
   set_night_light_active (TRUE);
-  wait_for_device_updated (color_device);
+  wait_for_device_calibration_changed (color_device);
 
   assert_gamma_array (night_light_on_red, crtc_test->gamma.red,
                       crtc_test->gamma.size);
@@ -1352,7 +1352,7 @@ meta_test_color_management_night_light_uncalibrated (void)
 
   set_night_light_temperature (temperature);
   set_night_light_active (TRUE);
-  wait_for_device_updated (color_device);
+  wait_for_device_calibration_changed (color_device);
 
   assert_gamma_array (night_light_on_red, crtc_test->gamma.red,
                       crtc_test->gamma.size);

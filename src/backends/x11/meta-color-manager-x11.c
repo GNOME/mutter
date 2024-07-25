@@ -169,8 +169,8 @@ update_device_ctm (MetaColorDevice *color_device)
 }
 
 static void
-on_color_device_updated (MetaColorManager *color_manager,
-                         MetaColorDevice  *color_device)
+on_color_device_calibration_changed (MetaColorManager *color_manager,
+                                     MetaColorDevice  *color_device)
 {
   update_root_window_atom (color_manager, color_device);
   update_device_ctm (color_device);
@@ -181,8 +181,8 @@ meta_color_manager_x11_constructed (GObject *object)
 {
   MetaColorManager *color_manager = META_COLOR_MANAGER (object);
 
-  g_signal_connect (color_manager, "device-updated",
-                    G_CALLBACK (on_color_device_updated), NULL);
+  g_signal_connect (color_manager, "device-calibration-changed",
+                    G_CALLBACK (on_color_device_calibration_changed), NULL);
 
   G_OBJECT_CLASS (meta_color_manager_x11_parent_class)->constructed (object);
 }

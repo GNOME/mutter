@@ -36,7 +36,7 @@
 enum
 {
   READY,
-  UPDATED,
+  CALIBRATION_CHANGED,
 
   N_SIGNALS
 };
@@ -315,6 +315,10 @@ meta_color_device_class_init (MetaColorDeviceClass *klass)
 
   object_class->dispose = meta_color_device_dispose;
 
+  /**
+   * MetaColorDevice::ready:
+   * @device: the #MetaColorDevice which became ready
+   */
   signals[READY] =
     g_signal_new ("ready",
                   G_TYPE_FROM_CLASS (klass),
@@ -322,8 +326,17 @@ meta_color_device_class_init (MetaColorDeviceClass *klass)
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 1,
                   G_TYPE_BOOLEAN);
-  signals[UPDATED] =
-    g_signal_new ("updated",
+  /**
+   * MetaColorDevice::calibration-changed:
+   * @device: the #MetaColorDevice which emitted the signal
+   *
+   * The signal notifies that the color calibration of the device has changed.
+   * Calibration is anything that changes the monitors behavior when given
+   * a signal. Changes to the white point from the source are also considered
+   * calibration even though they are technically not on the monitor.
+   */
+  signals[CALIBRATION_CHANGED] =
+    g_signal_new ("calibration-changed",
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST, 0,
                   NULL, NULL, NULL,
@@ -1300,5 +1313,5 @@ meta_color_device_update (MetaColorDevice *color_device)
       meta_monitor_set_gamma_lut (monitor, lut);
     }
 
-  g_signal_emit (color_device, signals[UPDATED], 0);
+  g_signal_emit (color_device, signals[CALIBRATION_CHANGED], 0);
 }
