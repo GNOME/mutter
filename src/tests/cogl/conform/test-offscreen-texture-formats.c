@@ -35,19 +35,13 @@ get_bits (uint32_t in,
 static int
 rgb16_to_rgb8 (int rgb16)
 {
-  float r;
-
-  r = rgb16 / (float) ((1 << 16) - 1);
-  return (int) (r * (float) ((1 << 8) - 1));
+  return (int) ((int32_t) rgb16 * 0xff / 0xffff);
 }
 
 static int
 rgb8_to_rgb16 (int rgb8)
 {
-  float r;
-
-  r = rgb8 / (float) ((1 << 8) - 1);
-  return (int) (r * (float) ((1 << 16) - 1));
+  return (int) ((int32_t) rgb8 * 0xffff / 0xff);
 }
 
 static void
