@@ -61,6 +61,24 @@
 
 #define DEFAULT_N_TILES         32
 
+/**
+ * ClutterVertexP3T2C4:
+ * @x: The x component of a position attribute
+ * @y: The y component of a position attribute
+ * @z: The z component of a position attribute
+ * @s: The s component of a texture coordinate attribute
+ * @t: The t component of a texture coordinate attribute
+ * @r: The red component of a color attribute
+ * @b: The green component of a color attribute
+ * @g: The blue component of a color attribute
+ * @a: The alpha component of a color attribute
+ */
+typedef struct {
+   float x, y, z;
+   float s, t;
+   uint8_t r, g, b, a;
+} ClutterVertexP3T2C4;
+
 typedef struct _ClutterDeformEffectPrivate
 {
   CoglPipeline *back_pipeline;
@@ -179,7 +197,7 @@ clutter_deform_effect_paint_target (ClutterOffscreenEffect *effect,
   if (priv->is_dirty)
     {
       gboolean mapped_buffer;
-      CoglVertexP3T2C4 *verts;
+      ClutterVertexP3T2C4 *verts;
       ClutterActor *actor;
       gfloat width, height;
       guint opacity;
@@ -217,7 +235,7 @@ clutter_deform_effect_paint_target (ClutterOffscreenEffect *effect,
         {
           for (j = 0; j < priv->x_tiles + 1; j++)
             {
-              CoglVertexP3T2C4 *vertex_out;
+              ClutterVertexP3T2C4 *vertex_out;
               ClutterTextureVertex vertex;
 
               /* CoglTextureVertex isn't an ideal structure to use for
@@ -431,7 +449,7 @@ clutter_deform_effect_init_arrays (ClutterDeformEffect *self)
 
   priv->buffer =
     cogl_attribute_buffer_new (ctx,
-                               sizeof (CoglVertexP3T2C4) *
+                               sizeof (ClutterVertexP3T2C4) *
                                priv->n_vertices,
                                NULL);
 
@@ -442,20 +460,20 @@ clutter_deform_effect_init_arrays (ClutterDeformEffect *self)
 
   attributes[0] = cogl_attribute_new (priv->buffer,
                                       "cogl_position_in",
-                                      sizeof (CoglVertexP3T2C4),
-                                      G_STRUCT_OFFSET (CoglVertexP3T2C4, x),
+                                      sizeof (ClutterVertexP3T2C4),
+                                      G_STRUCT_OFFSET (ClutterVertexP3T2C4, x),
                                       3, /* n_components */
                                       COGL_ATTRIBUTE_TYPE_FLOAT);
   attributes[1] = cogl_attribute_new (priv->buffer,
                                       "cogl_tex_coord0_in",
-                                      sizeof (CoglVertexP3T2C4),
-                                      G_STRUCT_OFFSET (CoglVertexP3T2C4, s),
+                                      sizeof (ClutterVertexP3T2C4),
+                                      G_STRUCT_OFFSET (ClutterVertexP3T2C4, s),
                                       2, /* n_components */
                                       COGL_ATTRIBUTE_TYPE_FLOAT);
   attributes[2] = cogl_attribute_new (priv->buffer,
                                       "cogl_color_in",
-                                      sizeof (CoglVertexP3T2C4),
-                                      G_STRUCT_OFFSET (CoglVertexP3T2C4, r),
+                                      sizeof (ClutterVertexP3T2C4),
+                                      G_STRUCT_OFFSET (ClutterVertexP3T2C4, r),
                                       4, /* n_components */
                                       COGL_ATTRIBUTE_TYPE_UNSIGNED_BYTE);
 
