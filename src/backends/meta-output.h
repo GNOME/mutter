@@ -184,9 +184,8 @@ typedef struct _MetaOutputInfo
   gboolean supports_vrr;
 } MetaOutputInfo;
 
-gboolean
-meta_tile_info_equal (MetaTileInfo *a,
-                      MetaTileInfo *b);
+gboolean meta_tile_info_equal (MetaTileInfo *a,
+                               MetaTileInfo *b);
 
 META_EXPORT_TEST
 gboolean meta_output_hdr_metadata_equal (MetaOutputHdrMetadata *metadata,
