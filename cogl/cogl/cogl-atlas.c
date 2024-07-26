@@ -31,7 +31,7 @@
 
 #include "config.h"
 
-#include "cogl/cogl-atlas.h"
+#include "cogl/cogl-atlas-private.h"
 #include "cogl/cogl-rectangle-map.h"
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-texture-private.h"

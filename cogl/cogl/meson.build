@@ -20,6 +20,7 @@ cogl_deprecated_headers = [
 
 cogl_headers = [
   'cogl.h',
+  'cogl-atlas.h',
   'cogl-atlas-texture.h',
   'cogl-attribute-buffer.h',
   'cogl-attribute.h',
@@ -142,7 +143,7 @@ cogl_sources = [
   'cogl-atlas-texture-private.h',
   'cogl-atlas-texture.c',
   'cogl-atlas.c',
-  'cogl-atlas.h',
+  'cogl-atlas-private.h',
   'cogl-attribute-buffer-private.h',
   'cogl-attribute-buffer.c',
   'cogl-attribute-private.h',

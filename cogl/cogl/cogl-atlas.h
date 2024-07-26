@@ -28,7 +28,6 @@
 
 #pragma once
 
-#include "cogl/cogl-rectangle-map.h"
 #include "cogl/cogl-texture.h"
 
 typedef void
@@ -53,23 +52,10 @@ G_DECLARE_FINAL_TYPE (CoglAtlas,
                       ATLAS,
                       GObject)
 
-struct _CoglAtlas
-{
-  GObject parent_instance;
 
-  CoglRectangleMap *map;
-  CoglContext *context;
-
-  CoglTexture *texture;
-  CoglPixelFormat texture_format;
-  CoglAtlasFlags flags;
-
-  CoglAtlasUpdatePositionCallback update_position_cb;
-
-  GHookList pre_reorganize_callbacks;
-  GHookList post_reorganize_callbacks;
-};
-
+/**
+ * cogl_atlas_new: (skip)
+ */
 COGL_EXPORT CoglAtlas *
 cogl_atlas_new (CoglContext                    *context,
                 CoglPixelFormat                 texture_format,
@@ -82,26 +68,11 @@ cogl_atlas_reserve_space (CoglAtlas             *atlas,
                           unsigned int           height,
                           void                  *user_data);
 
-void
-_cogl_atlas_remove (CoglAtlas          *atlas,
-                    const MtkRectangle *rectangle);
-
-CoglTexture *
-_cogl_atlas_copy_rectangle (CoglAtlas *atlas,
-                            int x,
-                            int y,
-                            int width,
-                            int height,
-                            CoglPixelFormat format);
-
+/**
+ * cogl_atlas_add_reorganize_callback: (skip)
+ */
 COGL_EXPORT void
 cogl_atlas_add_reorganize_callback (CoglAtlas            *atlas,
                                     GHookFunc             pre_callback,
                                     GHookFunc             post_callback,
                                     void                 *user_data);
-
-void
-_cogl_atlas_remove_reorganize_callback (CoglAtlas            *atlas,
-                                        GHookFunc             pre_callback,
-                                        GHookFunc             post_callback,
-                                        void                 *user_data);
