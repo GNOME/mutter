@@ -111,7 +111,7 @@ G_BEGIN_DECLS
                                                         \
       while (_mask)                                     \
         {                                               \
-          int _next_bit = _cogl_util_ffsl (_mask);      \
+          int _next_bit = __builtin_ffsl (_mask);      \
           (bit) += _next_bit;                           \
           /* This odd two-part shift is to avoid */     \
           /* shifting by sizeof (long)*8 which has */   \

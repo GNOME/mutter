@@ -1067,9 +1067,9 @@ try_create_glx_pixmap (CoglContext *context,
    * number of 1-bits in color masks against the color depth requested
    * by the client.
    */
-  if (_cogl_util_popcountl (visual->red_mask |
-                            visual->green_mask |
-                            visual->blue_mask) == depth)
+  if (__builtin_popcountl (visual->red_mask |
+                           visual->green_mask |
+                           visual->blue_mask) == depth)
     attribs[i++] = GLX_TEXTURE_FORMAT_RGB_EXT;
   else
     attribs[i++] = GLX_TEXTURE_FORMAT_RGBA_EXT;

@@ -281,7 +281,7 @@ _cogl_bitmask_popcount (const CoglBitmask *bitmask)
 {
   return (_cogl_bitmask_has_array (bitmask) ?
           _cogl_bitmask_popcount_in_array (bitmask) :
-          _cogl_util_popcountl (_cogl_bitmask_to_bits (bitmask)));
+          __builtin_popcountl (_cogl_bitmask_to_bits (bitmask)));
 }
 
 /*
@@ -301,10 +301,10 @@ _cogl_bitmask_popcount_upto (const CoglBitmask *bitmask,
   if (_cogl_bitmask_has_array (bitmask))
     return _cogl_bitmask_popcount_upto_in_array (bitmask, upto);
   else if (upto >= (int) COGL_BITMASK_MAX_DIRECT_BITS)
-    return _cogl_util_popcountl (_cogl_bitmask_to_bits (bitmask));
+    return __builtin_popcountl (_cogl_bitmask_to_bits (bitmask));
   else
-    return _cogl_util_popcountl (_cogl_bitmask_to_bits (bitmask) &
-                                 ((1UL << upto) - 1));
+    return __builtin_popcountl (_cogl_bitmask_to_bits (bitmask) &
+                                ((1UL << upto) - 1));
 }
 
 G_END_DECLS

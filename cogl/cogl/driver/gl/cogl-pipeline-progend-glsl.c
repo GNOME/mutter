@@ -621,7 +621,7 @@ _cogl_pipeline_progend_glsl_flush_uniforms (CoglPipeline *pipeline,
 
       for (i = 0; i < n_uniform_longs; i++)
         data.n_differences +=
-          _cogl_util_popcountl (data.uniform_differences[i]);
+          __builtin_popcountl (data.uniform_differences[i]);
     }
 
   while (pipeline && data.n_differences > 0)

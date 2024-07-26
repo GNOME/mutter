@@ -80,7 +80,3 @@ _cogl_util_one_at_a_time_mix (unsigned int hash)
 
     return hash;
 }
-
-#define _cogl_util_ffsl __builtin_ffsl
-
-#define _cogl_util_popcountl __builtin_popcountl
