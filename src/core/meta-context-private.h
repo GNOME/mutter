@@ -20,6 +20,7 @@
 
 #include "core/meta-private-enums.h"
 #include "core/meta-service-channel.h"
+#include "core/meta-session-manager.h"
 #include "core/util-private.h"
 #include "meta/meta-backend.h"
 #include "meta/meta-context.h"
@@ -56,6 +57,8 @@ struct _MetaContextClass
 #ifdef HAVE_X11
   gboolean (* is_x11_sync) (MetaContext *context);
 #endif
+
+  MetaSessionManager * (* get_session_manager) (MetaContext *context);
 };
 
 const char * meta_context_get_name (MetaContext *context);
@@ -86,3 +89,5 @@ meta_context_get_profiler (MetaContext *context);
 void meta_context_set_trace_file (MetaContext *context,
                                   const char  *trace_file);
 #endif
+
+MetaSessionManager * meta_context_get_session_manager (MetaContext *context);

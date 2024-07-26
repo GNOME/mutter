@@ -979,3 +979,9 @@ meta_context_get_debug_control (MetaContext *context)
 
   return priv->debug_control;
 }
+
+MetaSessionManager *
+meta_context_get_session_manager (MetaContext *context)
+{
+  return META_CONTEXT_GET_CLASS (context)->get_session_manager (context);
+}

@@ -32,6 +32,7 @@
 #include "backends/meta-monitor.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-virtual-monitor.h"
+#include "core/meta-session-manager.h"
 #include "meta/meta-backend.h"
 
 #ifdef HAVE_X11
@@ -87,6 +88,8 @@ struct _MetaContextMain
   GObject parent;
 
   MetaContextMainOptions options;
+
+  MetaSessionManager *session_manager;
 
   MetaCompositorType compositor_type;
 
@@ -524,12 +527,13 @@ meta_context_main_create_backend (MetaContext  *context,
   g_assert_not_reached ();
 }
 
-#ifdef HAVE_X11
 static void
 meta_context_main_notify_ready (MetaContext *context)
 {
   MetaContextMain *context_main = META_CONTEXT_MAIN (context);
+  g_autoptr (GError) error = NULL;
 
+#ifdef HAVE_X11
   if (!context_main->options.sm.disable)
     {
       meta_session_init (context,
@@ -538,8 +542,16 @@ meta_context_main_notify_ready (MetaContext *context)
     }
   g_clear_pointer (&context_main->options.sm.client_id, g_free);
   g_clear_pointer (&context_main->options.sm.save_file, g_free);
+#endif
+
+  context_main->session_manager =
+    meta_session_manager_new (meta_context_get_nick (context), &error);
+
+  if (!context_main->session_manager)
+    g_critical ("Could not create session manager: %s", error->message);
 }
 
+#ifdef HAVE_X11
 static gboolean
 meta_context_main_is_x11_sync (MetaContext *context)
 {
@@ -548,6 +560,14 @@ meta_context_main_is_x11_sync (MetaContext *context)
   return context_main->options.x11.sync || g_getenv ("MUTTER_SYNC");
 }
 #endif
+
+static MetaSessionManager *
+meta_context_main_get_session_manager (MetaContext *context)
+{
+  MetaContextMain *context_main = META_CONTEXT_MAIN (context);
+
+  return context_main->session_manager;
+}
 
 #ifdef HAVE_NATIVE_BACKEND
 static gboolean
@@ -730,6 +750,10 @@ meta_context_main_finalize (GObject *object)
 
   g_list_free_full (context_main->persistent_virtual_monitors, g_object_unref);
   context_main->persistent_virtual_monitors = NULL;
+
+  if (context_main->session_manager)
+    meta_session_manager_save_sync (context_main->session_manager, NULL);
+  g_clear_object (&context_main->session_manager);
 #endif
 
   G_OBJECT_CLASS (meta_context_main_parent_class)->finalize (object);
@@ -761,10 +785,11 @@ meta_context_main_class_init (MetaContextMainClass *klass)
   context_class->is_replacing = meta_context_main_is_replacing;
   context_class->setup = meta_context_main_setup;
   context_class->create_backend = meta_context_main_create_backend;
-#ifdef HAVE_X11
   context_class->notify_ready = meta_context_main_notify_ready;
+#ifdef HAVE_X11
   context_class->is_x11_sync = meta_context_main_is_x11_sync;
 #endif
+  context_class->get_session_manager = meta_context_main_get_session_manager;
 }
 
 static void
