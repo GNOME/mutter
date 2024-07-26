@@ -134,7 +134,7 @@ get_base_texture_alpha_pipeline (CoglPangoPipelineCache *cache)
       cogl_pipeline_set_static_name (pipeline, "CoglPango (texture alpha)");
       cache->base_texture_alpha_pipeline = pipeline;
 
-      /* The default combine mode of materials is to modulate (A x B)
+      /* The default combine mode of pipelines is to modulate (A x B)
        * the texture RGBA channels with the RGBA channels of the
        * previous layer (which in our case is just the font color)
        *

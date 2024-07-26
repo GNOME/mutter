@@ -896,8 +896,8 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
 
   COGL_STATIC_TIMER (pipeline_flush_timer,
                      "Mainloop", /* parent */
-                     "Material Flush",
-                     "The time spent flushing material state",
+                     "Pipeline Flush",
+                     "The time spent flushing pipeline state",
                      0 /* no application private data */);
 
   COGL_TIMER_START (_cogl_uprof_context, pipeline_flush_timer);
@@ -1123,7 +1123,7 @@ done:
     }
 
   /* Give the progend a chance to update any uniforms that might not
-   * depend on the material state. This is used on GLES2 to update the
+   * depend on the pipeline state. This is used on GLES2 to update the
    * matrices */
   if (progend->pre_paint)
     progend->pre_paint (pipeline, framebuffer);

@@ -365,7 +365,7 @@ cogl_context_has_winsys_feature (CoglContext       *context,
  * primitives you are 100% on your own since you stand a good chance of
  * conflicting with Cogl internals. For example clutter-gst which currently
  * uses direct GL calls to bind ARBfp programs will very likely break when Cogl
- * starts to use ARBfb programs itself for the material API.
+ * starts to use ARBfb programs itself for the pipeline API.
  */
 COGL_EXPORT void
 cogl_context_flush (CoglContext *context);

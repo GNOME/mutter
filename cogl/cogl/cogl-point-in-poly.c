@@ -96,4 +96,3 @@ _cogl_util_point_in_screen_poly (float point_x,
 
   return c;
 }
-

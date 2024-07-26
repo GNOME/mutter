@@ -198,9 +198,9 @@ typedef enum
 /* NB: The above definitions are taken from gl.h equivalents */
 
 
-/* XXX: should this be CoglMaterialDepthTestFunction?
+/* XXX: should this be CoglPipelineDepthTestFunction?
  * It makes it very verbose but would be consistent with
- * CoglMaterialWrapMode */
+ * CoglPipelineWrapMode */
 
 /**
  * CoglDepthTestFunction:

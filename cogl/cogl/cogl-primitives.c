@@ -344,7 +344,7 @@ validate_tex_coords_cb (CoglPipeline *pipeline,
             {
               static gboolean warning_seen = FALSE;
               if (!warning_seen)
-                g_warning ("Skipping layers 1..n of your material since "
+                g_warning ("Skipping layers 1..n of your pipeline since "
                            "the first layer doesn't support hardware "
                            "repeat (e.g. because of waste or use of "
                            "GL_TEXTURE_RECTANGLE_ARB) and you supplied "
@@ -363,7 +363,7 @@ validate_tex_coords_cb (CoglPipeline *pipeline,
         {
           static gboolean warning_seen = FALSE;
           if (!warning_seen)
-            g_warning ("Skipping layer %d of your material "
+            g_warning ("Skipping layer %d of your pipeline "
                        "since you have supplied texture coords "
                        "outside the range [0,1] but the texture "
                        "doesn't support hardware repeat (e.g. "

@@ -301,7 +301,7 @@ validate_layer_cb (CoglPipeline *pipeline,
 
   if (!_cogl_texture_can_hardware_repeat (texture))
     {
-      g_warning ("Disabling layer %d of the current source material, "
+      g_warning ("Disabling layer %d of the current source pipeline, "
                  "because texturing with the vertex buffer API is not "
                  "currently supported using sliced textures, or textures "
                  "with waste\n", layer_index);

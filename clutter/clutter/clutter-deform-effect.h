@@ -88,10 +88,10 @@ struct _ClutterDeformEffectClass
 };
 
 CLUTTER_EXPORT
-void            clutter_deform_effect_set_back_material (ClutterDeformEffect *effect,
-                                                         CoglPipeline        *material);
+void            clutter_deform_effect_set_back_pipeline (ClutterDeformEffect *effect,
+                                                         CoglPipeline        *pipeline);
 CLUTTER_EXPORT
-CoglPipeline*   clutter_deform_effect_get_back_material (ClutterDeformEffect *effect);
+CoglPipeline*   clutter_deform_effect_get_back_pipeline (ClutterDeformEffect *effect);
 CLUTTER_EXPORT
 void            clutter_deform_effect_set_n_tiles       (ClutterDeformEffect *effect,
                                                          guint                x_tiles,

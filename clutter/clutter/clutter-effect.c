@@ -24,7 +24,7 @@
 
 /**
  * ClutterEffect:
- * 
+ *
  * Base class for actor effects
  *
  * The #ClutterEffect class provides a default type and API for creating
@@ -75,10 +75,10 @@
  * The example below creates two rectangles: one will be painted "behind" the actor,
  * while another will be painted "on top" of the actor.
  *
- * The #ClutterActorMetaClass.set_actor() implementation will create the two materials
+ * The #ClutterActorMetaClass.set_actor() implementation will create the two pipelines
  * used for the two different rectangles; the #ClutterEffectClass.paint() implementation
- * will paint the first material using cogl_rectangle(), before continuing and then it
- * will paint paint the second material after.
+ * will paint the first pipeline using cogl_rectangle(), before continuing and then it
+ * will paint paint the second pipeline after.
  *
  * ```c
  *  typedef struct {
@@ -119,12 +119,12 @@
  *    if (self->actor == NULL)
  *      return;
  *
- *    // Create a red material
+ *    // Create a red pipeline
  *    self->rect_1 = cogl_pipeline_new ();
  *    cogl_color_init_from_4f (&color, 1.0, 1.0, 1.0, 1.0);
  *    cogl_pipeline_set_color (self->rect_1, &color);
  *
- *    // Create a green material
+ *    // Create a green pipeline
  *    self->rect_2 = cogl_pipeline_new ();
  *    cogl_color_init_from_4f (&color, 0.0, 1.0, 0.0, 1.0);
  *    cogl_pipeline_set_color (self->rect_2, &color);

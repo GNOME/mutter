@@ -52,7 +52,7 @@
  * function, which encapsulates the effective painting of the texture that
  * contains the result of the offscreen redirection.
  *
- * The size of the target material is defined to be as big as the
+ * The size of the target pipeline is defined to be as big as the
  * transformed size of the [class@Actor] using the offscreen effect.
  * Sub-classes of #ClutterOffscreenEffect can change the texture creation
  * code to provide bigger textures by overriding the
@@ -486,7 +486,7 @@ clutter_offscreen_effect_paint_texture (ClutterOffscreenEffect *effect,
       node = transform_node;
     }
 
-  /* paint the target material; this is virtualized for
+  /* paint the target pipeline; this is virtualized for
    * sub-classes that require special hand-holding
    */
   clutter_offscreen_effect_paint_target (effect, node, paint_context);
@@ -640,7 +640,7 @@ clutter_offscreen_effect_init (ClutterOffscreenEffect *self)
  * implementation should update any references to the texture after
  * chaining-up to the parent's pre_paint implementation. This can be
  * used instead of [method@OffscreenEffect.get_texture] when the
- * effect subclass wants to paint using its own material.
+ * effect subclass wants to paint using its own pipeline.
  *
  * Return value: (transfer none): a #CoglTexture or %NULL. The
  *   returned texture is owned by Clutter and it should not be

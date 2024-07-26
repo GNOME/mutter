@@ -794,7 +794,7 @@ cogl_framebuffer_draw_textured_rectangle (CoglFramebuffer *framebuffer,
  *
  * The first pair of coordinates are for the first layer (with the
  * smallest layer index) and if you supply less texture coordinates
- * than there are layers in the current source material then default
+ * than there are layers in the current source pipeline then default
  * texture coordinates (0.0, 0.0, 1.0, 1.0) are generated.
  */
 COGL_EXPORT void

@@ -618,7 +618,7 @@ _cogl_get_n_args_for_combine_func (CoglPipelineCombineFunc func);
  *
  * typedef struct {
  *   CoglPipeline *validated_source;
- * } MyValidatedMaterialCache;
+ * } MyValidatedPipelineCache;
  *
  * static void
  * destroy_cache_cb (CoglObject *object, void *user_data)
@@ -629,7 +629,7 @@ _cogl_get_n_args_for_combine_func (CoglPipelineCombineFunc func);
  * static void
  * invalidate_cache_cb (CoglPipeline *destroyed, void *user_data)
  * {
- *   MyValidatedMaterialCache *cache = user_data;
+ *   MyValidatedPipelineCache *cache = user_data;
  *   g_object_unref (cache->validated_source);
  *   cache->validated_source = NULL;
  * }
@@ -638,12 +638,12 @@ _cogl_get_n_args_for_combine_func (CoglPipelineCombineFunc func);
  * get_validated_pipeline (CoglPipeline *source)
  * {
  *   _cogl_my_cache_key = g_quark_from_static_string ("my-cache-key");
- *   MyValidatedMaterialCache *cache =
+ *   MyValidatedPipelineCache *cache =
  *     g_object_get_qdata (G_OBJECT (source),
  *                         _cogl_my_cache_key);
  *   if (G_UNLIKELY (cache == NULL))
  *     {
- *       cache = g_new0 (MyValidatedMaterialCache, 1);
+ *       cache = g_new0 (MyValidatedPipelineCache, 1);
  *
  *       g_object_set_qdata_full (G_OBJECT (source),
  *                                _cogl_my_cache_key,

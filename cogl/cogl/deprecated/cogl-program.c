@@ -81,8 +81,8 @@ cogl_program_class_init (CoglProgramClass *class)
 /* A CoglProgram is effectively just a list of shaders that will be
    used together and a set of values for the custom uniforms. No
    actual GL program is created - instead this is the responsibility
-   of the GLSL material backend. The uniform values are collected in
-   an array and then flushed whenever the material backend requests
+   of the GLSL pipeline backend. The uniform values are collected in
+   an array and then flushed whenever the pipeline backend requests
    it. */
 
 CoglProgram*

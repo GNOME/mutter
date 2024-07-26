@@ -106,7 +106,7 @@ enum
   PROP_X_TILES,
   PROP_Y_TILES,
 
-  PROP_BACK_MATERIAL,
+  PROP_BACK_PIPELINE,
 
   PROP_LAST
 };
@@ -298,7 +298,7 @@ clutter_deform_effect_paint_target (ClutterOffscreenEffect *effect,
   cogl_depth_state_set_test_function (&depth_state, COGL_DEPTH_TEST_FUNCTION_LEQUAL);
   cogl_pipeline_set_depth_state (pipeline, &depth_state, NULL);
 
-  /* enable backface culling if we have a back material */
+  /* enable backface culling if we have a back pipeline */
   if (priv->back_pipeline != NULL)
     cogl_pipeline_set_cull_face_mode (pipeline,
                                       COGL_PIPELINE_CULL_FACE_MODE_BACK);
@@ -322,7 +322,7 @@ clutter_deform_effect_paint_target (ClutterOffscreenEffect *effect,
       ClutterPaintNode *back_node;
       CoglPipeline *back_pipeline;
 
-      /* We probably shouldn't be modifying the user's material so
+      /* We probably shouldn't be modifying the user's pipeline so
          instead we make a temporary copy */
       back_pipeline = cogl_pipeline_copy (priv->back_pipeline);
       cogl_pipeline_set_depth_state (back_pipeline, &depth_state, NULL);
@@ -548,8 +548,8 @@ clutter_deform_effect_set_property (GObject      *gobject,
                                          g_value_get_uint (value));
       break;
 
-    case PROP_BACK_MATERIAL:
-      clutter_deform_effect_set_back_material (self, g_value_get_object (value));
+    case PROP_BACK_PIPELINE:
+      clutter_deform_effect_set_back_pipeline (self, g_value_get_object (value));
       break;
 
     default:
@@ -578,7 +578,7 @@ clutter_deform_effect_get_property (GObject    *gobject,
       g_value_set_uint (value, priv->y_tiles);
       break;
 
-    case PROP_BACK_MATERIAL:
+    case PROP_BACK_PIPELINE:
       g_value_set_object (value, priv->back_pipeline);
       break;
 
@@ -624,15 +624,15 @@ clutter_deform_effect_class_init (ClutterDeformEffectClass *klass)
                        G_PARAM_STATIC_STRINGS);
 
   /**
-   * ClutterDeformEffect:back-material:
+   * ClutterDeformEffect:back-pipeline:
    *
-   * A material to be used when painting the back of the actor
+   * A pipeline to be used when painting the back of the actor
    * to which this effect has been applied
    *
-   * By default, no material will be used
+   * By default, no pipeline will be used
    */
-  obj_props[PROP_BACK_MATERIAL] =
-    g_param_spec_object ("back-material", NULL, NULL,
+  obj_props[PROP_BACK_PIPELINE] =
+    g_param_spec_object ("back-pipeline", NULL, NULL,
                          COGL_TYPE_PIPELINE,
                          G_PARAM_READWRITE |
                          G_PARAM_STATIC_STRINGS);
@@ -662,18 +662,18 @@ clutter_deform_effect_init (ClutterDeformEffect *self)
 }
 
 /**
- * clutter_deform_effect_set_back_material:
+ * clutter_deform_effect_set_back_pipeline:
  * @effect: a #ClutterDeformEffect
- * @material: (allow-none): a handle to a Cogl material
+ * @pipeline: (allow-none): A #CoglPipeline
  *
- * Sets the material that should be used when drawing the back face
+ * Sets the pipeline that should be used when drawing the back face
  * of the actor during a deformation
  *
- * The #ClutterDeformEffect will take a reference on the material's
+ * The #ClutterDeformEffect will take a reference on the pipeline's
  * handle
  */
 void
-clutter_deform_effect_set_back_material (ClutterDeformEffect *effect,
+clutter_deform_effect_set_back_pipeline (ClutterDeformEffect *effect,
                                          CoglPipeline        *pipeline)
 {
   ClutterDeformEffectPrivate *priv;
@@ -693,17 +693,15 @@ clutter_deform_effect_set_back_material (ClutterDeformEffect *effect,
 }
 
 /**
- * clutter_deform_effect_get_back_material:
+ * clutter_deform_effect_get_back_pipeline:
  * @effect: a #ClutterDeformEffect
  *
- * Retrieves the handle to the back face material used by @effect
+ * Retrieves the back pipeline used by @effect
  *
- * Return value: (transfer none): a handle for the material, or %NULL.
- *   The returned material is owned by the #ClutterDeformEffect and it
- *   should not be freed directly
+ * Return value: (transfer none) (nullable): A #CoglPipeline.
  */
 CoglPipeline*
-clutter_deform_effect_get_back_material (ClutterDeformEffect *effect)
+clutter_deform_effect_get_back_pipeline (ClutterDeformEffect *effect)
 {
   ClutterDeformEffectPrivate *priv;
 
