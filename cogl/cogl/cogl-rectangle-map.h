@@ -31,19 +31,13 @@
 #include <glib.h>
 
 #include "cogl/cogl-types.h"
+#include "mtk/mtk.h"
 
 typedef struct _CoglRectangleMap      CoglRectangleMap;
-typedef struct _CoglRectangleMapEntry CoglRectangleMapEntry;
 
-typedef void (* CoglRectangleMapCallback) (const CoglRectangleMapEntry *entry,
-                                           void *rectangle_data,
-                                           void *user_data);
-
-struct _CoglRectangleMapEntry
-{
-  unsigned int x, y;
-  unsigned int width, height;
-};
+typedef void (* CoglRectangleMapCallback) (const MtkRectangle *entry,
+                                           void               *rectangle_data,
+                                           void               *user_data);
 
 CoglRectangleMap *
 _cogl_rectangle_map_new (unsigned int width,
@@ -52,14 +46,14 @@ _cogl_rectangle_map_new (unsigned int width,
 
 gboolean
 _cogl_rectangle_map_add (CoglRectangleMap *map,
-                         unsigned int width,
-                         unsigned int height,
-                         void *data,
-                         CoglRectangleMapEntry *rectangle);
+                         unsigned int     width,
+                         unsigned int     height,
+                         void            *data,
+                         MtkRectangle    *rectangle);
 
 void
-_cogl_rectangle_map_remove (CoglRectangleMap *map,
-                            const CoglRectangleMapEntry *rectangle);
+_cogl_rectangle_map_remove (CoglRectangleMap   *map,
+                            const MtkRectangle *rectangle);
 
 unsigned int
 _cogl_rectangle_map_get_width (CoglRectangleMap *map);

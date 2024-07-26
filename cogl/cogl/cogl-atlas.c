@@ -106,8 +106,8 @@ typedef struct _CoglAtlasRepositionData
   /* The current user data for this texture */
   void *user_data;
   /* The old and new positions of the texture */
-  CoglRectangleMapEntry old_position;
-  CoglRectangleMapEntry new_position;
+  MtkRectangle old_position;
+  MtkRectangle new_position;
 } CoglAtlasRepositionData;
 
 static void
@@ -165,9 +165,9 @@ typedef struct _CoglAtlasGetRectanglesData
 } CoglAtlasGetRectanglesData;
 
 static void
-_cogl_atlas_get_rectangles_cb (const CoglRectangleMapEntry *rectangle,
-                               void                        *rect_data,
-                               void                        *user_data)
+_cogl_atlas_get_rectangles_cb (const MtkRectangle *rectangle,
+                               void               *rect_data,
+                               void               *user_data)
 {
   CoglAtlasGetRectanglesData *data = user_data;
 
@@ -393,7 +393,7 @@ cogl_atlas_reserve_space (CoglAtlas             *atlas,
   CoglTexture *new_tex;
   unsigned int map_width = 0, map_height = 0;
   gboolean ret;
-  CoglRectangleMapEntry new_position;
+  MtkRectangle new_position;
 
   /* Check if we can fit the rectangle into the existing map */
   if (atlas->map &&
@@ -556,8 +556,8 @@ cogl_atlas_reserve_space (CoglAtlas             *atlas,
 }
 
 void
-_cogl_atlas_remove (CoglAtlas *atlas,
-                    const CoglRectangleMapEntry *rectangle)
+_cogl_atlas_remove (CoglAtlas          *atlas,
+                    const MtkRectangle *rectangle)
 {
   _cogl_rectangle_map_remove (atlas->map, rectangle);
 

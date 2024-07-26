@@ -32,9 +32,9 @@
 #include "cogl/cogl-texture.h"
 
 typedef void
-(* CoglAtlasUpdatePositionCallback) (void *user_data,
-                                     CoglTexture *new_texture,
-                                     const CoglRectangleMapEntry *rect);
+(* CoglAtlasUpdatePositionCallback) (void               *user_data,
+                                     CoglTexture        *new_texture,
+                                     const MtkRectangle *rect);
 
 typedef enum
 {
@@ -83,8 +83,8 @@ cogl_atlas_reserve_space (CoglAtlas             *atlas,
                           void                  *user_data);
 
 void
-_cogl_atlas_remove (CoglAtlas *atlas,
-                    const CoglRectangleMapEntry *rectangle);
+_cogl_atlas_remove (CoglAtlas          *atlas,
+                    const MtkRectangle *rectangle);
 
 CoglTexture *
 _cogl_atlas_copy_rectangle (CoglAtlas *atlas,

@@ -79,7 +79,7 @@ struct _CoglRectangleMapNode
 {
   CoglRectangleMapNodeType type;
 
-  CoglRectangleMapEntry rectangle;
+  MtkRectangle rectangle;
 
   unsigned int largest_gap;
 
@@ -261,10 +261,10 @@ _cogl_rectangle_map_node_split_vertically (CoglRectangleMapNode *node,
 
 gboolean
 _cogl_rectangle_map_add (CoglRectangleMap *map,
-                         unsigned int width,
-                         unsigned int height,
-                         void *data,
-                         CoglRectangleMapEntry *rectangle)
+                         unsigned int      width,
+                         unsigned int      height,
+                         void             *data,
+                         MtkRectangle     *rectangle)
 {
   unsigned int rectangle_size = width * height;
   /* Stack of nodes to search in */
@@ -379,8 +379,8 @@ _cogl_rectangle_map_add (CoglRectangleMap *map,
 }
 
 void
-_cogl_rectangle_map_remove (CoglRectangleMap *map,
-                            const CoglRectangleMapEntry *rectangle)
+_cogl_rectangle_map_remove (CoglRectangleMap   *map,
+                            const MtkRectangle *rectangle)
 {
   CoglRectangleMapNode *node = map->root;
   unsigned int rectangle_size = rectangle->width * rectangle->height;

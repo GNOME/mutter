@@ -184,9 +184,9 @@ cogl_pango_glyph_cache_free (CoglPangoGlyphCache *cache)
 }
 
 static void
-cogl_pango_glyph_cache_update_position_cb (void                        *user_data,
-                                           CoglTexture                 *new_texture,
-                                           const CoglRectangleMapEntry *rect)
+cogl_pango_glyph_cache_update_position_cb (void               *user_data,
+                                           CoglTexture        *new_texture,
+                                           const MtkRectangle *rect)
 {
   CoglPangoGlyphCacheValue *value = user_data;
   float tex_width, tex_height;

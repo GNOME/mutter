@@ -77,8 +77,8 @@ cogl_atlas_texture_dispose (GObject *object)
 }
 
 static CoglTexture *
-_cogl_atlas_texture_create_sub_texture (CoglTexture *full_texture,
-                                        const CoglRectangleMapEntry *rectangle)
+_cogl_atlas_texture_create_sub_texture (CoglTexture        *full_texture,
+                                        const MtkRectangle *rectangle)
 {
   CoglContext *ctx = cogl_texture_get_context (full_texture);
   /* Create a subtexture for the given rectangle not including the
@@ -92,9 +92,9 @@ _cogl_atlas_texture_create_sub_texture (CoglTexture *full_texture,
 }
 
 static void
-_cogl_atlas_texture_update_position_cb (void *user_data,
-                                        CoglTexture *new_texture,
-                                        const CoglRectangleMapEntry *rectangle)
+_cogl_atlas_texture_update_position_cb (void               *user_data,
+                                        CoglTexture        *new_texture,
+                                        const MtkRectangle *rectangle)
 {
   CoglAtlasTexture *atlas_tex = user_data;
 
@@ -110,7 +110,7 @@ _cogl_atlas_texture_update_position_cb (void *user_data,
 
 static void
 _cogl_atlas_texture_pre_reorganize_foreach_cb
-                                         (const CoglRectangleMapEntry *entry,
+                                         (const MtkRectangle *entry,
                                           void *rectangle_data,
                                           void *user_data)
 {
@@ -154,7 +154,7 @@ typedef struct
 } CoglAtlasTextureGetRectanglesData;
 
 static void
-_cogl_atlas_texture_get_rectangles_cb (const CoglRectangleMapEntry *entry,
+_cogl_atlas_texture_get_rectangles_cb (const MtkRectangle *entry,
                                        void *rectangle_data,
                                        void *user_data)
 {
