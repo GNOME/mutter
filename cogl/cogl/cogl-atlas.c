@@ -669,29 +669,3 @@ cogl_atlas_add_reorganize_callback (CoglAtlas            *atlas,
       g_hook_prepend (&atlas->post_reorganize_callbacks, hook);
     }
 }
-
-void
-_cogl_atlas_remove_reorganize_callback (CoglAtlas            *atlas,
-                                        GHookFunc             pre_callback,
-                                        GHookFunc             post_callback,
-                                        void                 *user_data)
-{
-  if (pre_callback)
-    {
-      GHook *hook = g_hook_find_func_data (&atlas->pre_reorganize_callbacks,
-                                           FALSE,
-                                           pre_callback,
-                                           user_data);
-      if (hook)
-        g_hook_destroy_link (&atlas->pre_reorganize_callbacks, hook);
-    }
-  if (post_callback)
-    {
-      GHook *hook = g_hook_find_func_data (&atlas->post_reorganize_callbacks,
-                                           FALSE,
-                                           post_callback,
-                                           user_data);
-      if (hook)
-        g_hook_destroy_link (&atlas->post_reorganize_callbacks, hook);
-    }
-}

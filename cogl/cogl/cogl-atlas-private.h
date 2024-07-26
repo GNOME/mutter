@@ -59,10 +59,3 @@ _cogl_atlas_copy_rectangle (CoglAtlas       *atlas,
                             int              width,
                             int              height,
                             CoglPixelFormat  format);
-
-
-void
-_cogl_atlas_remove_reorganize_callback (CoglAtlas *atlas,
-                                        GHookFunc  pre_callback,
-                                        GHookFunc  post_callback,
-                                        void      *user_data);
