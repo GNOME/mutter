@@ -273,7 +273,6 @@ cogl_sources = [
   'cogl-texture-private.h',
   'cogl-texture.c',
   'cogl-trace.c',
-  'cogl-util.c',
   'cogl-util.h',
   'cogl.c',
   'deprecated/cogl-program-private.h',

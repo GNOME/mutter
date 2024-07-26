@@ -38,6 +38,7 @@
 #include "cogl/cogl-clip-stack.h"
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-framebuffer-private.h"
+#include "cogl/cogl-graphene.h"
 #include "cogl/cogl-journal-private.h"
 #include "cogl/cogl-util.h"
 #include "cogl/cogl-primitives-private.h"
@@ -96,6 +97,46 @@ _cogl_clip_stack_entry_set_bounds (CoglClipStack *entry,
   entry->bounds_y0 = (int) floorf (min_y);
   entry->bounds_y1 = (int) ceilf (max_y);
 }
+
+/* Scale from OpenGL normalized device coordinates (ranging from -1 to 1)
+ * to Cogl window/framebuffer coordinates (ranging from 0 to buffer-size) with
+ * (0,0) being top left. */
+#define VIEWPORT_TRANSFORM_X(x, vp_origin_x, vp_width) \
+    (  ( ((x) + 1.0f) * ((vp_width) / 2.0f) ) + (vp_origin_x)  )
+/* Note: for Y we first flip all coordinates around the X axis while in
+ * normalized device coordinates */
+#define VIEWPORT_TRANSFORM_Y(y, vp_origin_y, vp_height) \
+    (  ( ((-(y)) + 1.0f) * ((vp_height) / 2.0f) ) + (vp_origin_y)  )
+
+/* Transform a homogeneous vertex position from model space to Cogl
+ * window coordinates (with 0,0 being top left) */
+void
+_cogl_transform_point (const graphene_matrix_t *matrix_mv,
+                       const graphene_matrix_t *matrix_p,
+                       const float             *viewport,
+                       float                   *x,
+                       float                   *y)
+{
+  float z = 0;
+  float w = 1;
+
+  /* Apply the modelview matrix transform */
+  cogl_graphene_matrix_project_point (matrix_mv, x, y, &z, &w);
+
+  /* Apply the projection matrix transform */
+  cogl_graphene_matrix_project_point (matrix_p, x, y, &z, &w);
+
+  /* Perform perspective division */
+  *x /= w;
+  *y /= w;
+
+  /* Apply viewport transform */
+  *x = VIEWPORT_TRANSFORM_X (*x, viewport[0], viewport[2]);
+  *y = VIEWPORT_TRANSFORM_Y (*y, viewport[1], viewport[3]);
+}
+
+#undef VIEWPORT_TRANSFORM_X
+#undef VIEWPORT_TRANSFORM_Y
 
 CoglClipStack *
 _cogl_clip_stack_push_rectangle (CoglClipStack *stack,
@@ -304,14 +345,10 @@ _cogl_clip_stack_get_bounds (CoglClipStack *stack,
     {
       /* Get the intersection of the current scissor and the bounding
          box of this clip */
-      _cogl_util_scissor_intersect (entry->bounds_x0,
-                                    entry->bounds_y0,
-                                    entry->bounds_x1,
-                                    entry->bounds_y1,
-                                    scissor_x0,
-                                    scissor_y0,
-                                    scissor_x1,
-                                    scissor_y1);
+        *scissor_x0 = MAX (*scissor_x0, entry->bounds_x0);
+        *scissor_y0 = MAX (*scissor_y0, entry->bounds_y0);
+        *scissor_x1 = MIN (*scissor_x1, entry->bounds_x1);
+        *scissor_y1 = MIN (*scissor_y1, entry->bounds_y1);
     }
 }
 

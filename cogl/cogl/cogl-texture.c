@@ -264,6 +264,12 @@ cogl_texture_get_format (CoglTexture *texture)
   return COGL_TEXTURE_GET_CLASS (texture)->get_format (texture);
 }
 
+static inline unsigned int
+_cogl_util_fls (unsigned int n)
+{
+   return n == 0 ? 0 : sizeof (unsigned int) * 8 - __builtin_clz (n);
+}
+
 int
 _cogl_texture_get_n_levels (CoglTexture *texture)
 {

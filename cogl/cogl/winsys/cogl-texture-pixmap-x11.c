@@ -413,6 +413,135 @@ try_alloc_shm (CoglTexturePixmapX11 *tex_pixmap)
   tex_pixmap->shm_info.shmid = -1;
 }
 
+/* Given a set of red, green and blue component masks, a depth and
+ * bits per pixel this function tries to determine a corresponding
+ * CoglPixelFormat.
+ *
+ * The depth is measured in bits not including padding for un-used
+ * alpha. The bits per pixel (bpp) does include padding for un-used
+ * alpha.
+ *
+ * This function firstly aims to match formats with RGB ordered
+ * components and only considers alpha coming first, in the most
+ * significant bits. If the function fails to match then it recurses
+ * by either switching the r and b masks around to check for BGR
+ * ordered formats or it recurses with the masks shifted to check for
+ * formats where the alpha component is the least significant bits.
+ */
+static CoglPixelFormat
+_cogl_util_pixel_format_from_masks_real (unsigned long r_mask,
+                                         unsigned long g_mask,
+                                         unsigned long b_mask,
+                                         int depth, int bpp,
+                                         gboolean check_bgr,
+                                         gboolean check_afirst,
+                                         int recursion_depth)
+{
+  CoglPixelFormat image_format;
+
+  if (depth == 24 && bpp == 24 &&
+      r_mask == 0xff0000 && g_mask == 0xff00 && b_mask == 0xff)
+    {
+      return COGL_PIXEL_FORMAT_RGB_888;
+    }
+  else if ((depth == 24 || depth == 32) && bpp == 32 &&
+           r_mask == 0xff0000 && g_mask == 0xff00 && b_mask == 0xff)
+    {
+      return COGL_PIXEL_FORMAT_ARGB_8888_PRE;
+    }
+  else if ((depth == 30 || depth == 32) &&
+           r_mask == 0x3ff00000 && g_mask == 0xffc00 && b_mask == 0x3ff)
+    {
+      return COGL_PIXEL_FORMAT_ARGB_2101010_PRE;
+    }
+  else if (depth == 16 && bpp == 16 &&
+           r_mask == 0xf800 && g_mask == 0x7e0 && b_mask == 0x1f)
+    {
+      return COGL_PIXEL_FORMAT_RGB_565;
+    }
+
+  if (recursion_depth == 2)
+    return 0;
+
+  /* Check for BGR ordering if we didn't find a match */
+  if (check_bgr)
+    {
+      image_format =
+        _cogl_util_pixel_format_from_masks_real (b_mask, g_mask, r_mask,
+                                                 depth, bpp,
+                                                 FALSE,
+                                                 TRUE,
+                                                 recursion_depth + 1);
+      if (image_format)
+        return image_format ^ COGL_BGR_BIT;
+    }
+
+  /* Check for alpha in the least significant bits if we still
+   * haven't found a match... */
+  if (check_afirst && depth != bpp)
+    {
+      int shift = bpp - depth;
+
+      image_format =
+        _cogl_util_pixel_format_from_masks_real (r_mask >> shift,
+                                                 g_mask >> shift,
+                                                 b_mask >> shift,
+                                                 depth, bpp,
+                                                 TRUE,
+                                                 FALSE,
+                                                 recursion_depth + 1);
+      if (image_format)
+        return image_format ^ COGL_AFIRST_BIT;
+    }
+
+  return 0;
+}
+
+
+/* Match a CoglPixelFormat according to channel masks, color depth,
+ * bits per pixel and byte order. These information are provided by
+ * the Visual and XImage structures.
+ *
+ * If no specific pixel format could be found, COGL_PIXEL_FORMAT_ANY
+ * is returned.
+ */
+static CoglPixelFormat
+_cogl_util_pixel_format_from_masks (unsigned long r_mask,
+                                    unsigned long g_mask,
+                                    unsigned long b_mask,
+                                    int depth, int bpp,
+                                    gboolean byte_order_is_lsb_first)
+{
+  CoglPixelFormat image_format =
+    _cogl_util_pixel_format_from_masks_real (r_mask, g_mask, b_mask,
+                                             depth, bpp,
+                                             TRUE,
+                                             TRUE,
+                                             0);
+
+  if (!image_format)
+    {
+      const char *byte_order[] = { "MSB first", "LSB first" };
+      g_warning ("Could not find a matching pixel format for red mask=0x%lx,"
+                 "green mask=0x%lx, blue mask=0x%lx at depth=%d, bpp=%d "
+                 "and byte order=%s\n", r_mask, g_mask, b_mask, depth, bpp,
+                 byte_order[!!byte_order_is_lsb_first]);
+      return 0;
+    }
+
+  /* If the image is in little-endian then the order in memory is
+     reversed */
+  if (byte_order_is_lsb_first &&
+      _cogl_pixel_format_is_endian_dependant (image_format))
+    {
+      image_format ^= COGL_BGR_BIT;
+      if (image_format & COGL_A_BIT)
+        image_format ^= COGL_AFIRST_BIT;
+    }
+
+  return image_format;
+}
+
 static void
 _cogl_texture_pixmap_x11_update_image_texture (CoglTexturePixmapX11 *tex_pixmap)
 {
