@@ -37,9 +37,6 @@
 #include "cogl/cogl-framebuffer.h"
 #include "cogl/cogl-texture-2d.h"
 
-#ifdef HAVE_EGL
-#include "cogl/cogl-egl.h"
-#endif
 
 /* Encodes three possibiloities result of transforming a quad */
 typedef enum

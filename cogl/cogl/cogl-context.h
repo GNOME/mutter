@@ -46,6 +46,12 @@ typedef struct _CoglTimestampQuery CoglTimestampQuery;
 #include "cogl/cogl-pipeline.h"
 #include "cogl/cogl-primitive.h"
 
+#ifdef HAVE_EGL
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
+#include <EGL/eglmesaext.h>
+#endif
+
 #include <glib-object.h>
 
 G_BEGIN_DECLS
@@ -369,5 +375,24 @@ cogl_context_has_winsys_feature (CoglContext       *context,
  */
 COGL_EXPORT void
 cogl_context_flush (CoglContext *context);
+
+#ifdef HAVE_EGL
+/**
+ * cogl_context_get_egl_display:
+ * @context: A #CoglContext pointer
+ *
+ * If you have done a runtime check to determine that Cogl is using
+ * EGL internally then this API can be used to retrieve the EGLDisplay
+ * handle that was setup internally. The result is undefined if Cogl
+ * is not using EGL.
+ *
+ * Note: The current window system backend can be checked using
+ * cogl_renderer_get_winsys_id().
+ *
+ * Return value: The internally setup EGLDisplay handle.
+ */
+COGL_EXPORT EGLDisplay
+cogl_context_get_egl_display (CoglContext *context);
+#endif /* HAVE_EGL */
 
 G_END_DECLS

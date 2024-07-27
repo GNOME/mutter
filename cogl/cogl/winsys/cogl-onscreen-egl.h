@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <EGL/egl.h>
+
 #include "cogl/cogl-onscreen.h"
 #include "cogl/winsys/cogl-winsys-egl-private.h"
 

@@ -34,7 +34,6 @@
 #endif
 
 #include "clutter/clutter.h"
-#include "cogl/cogl-egl.h"
 #include "compositor/meta-surface-actor-wayland.h"
 #include "core/events.h"
 #include "core/meta-context-private.h"
@@ -759,7 +758,7 @@ meta_wayland_init_egl (MetaWaylandCompositor *compositor)
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
-  EGLDisplay egl_display = cogl_egl_context_get_egl_display (cogl_context);
+  EGLDisplay egl_display = cogl_context_get_egl_display (cogl_context);
   g_autoptr (GError) error = NULL;
 
   if (!meta_egl_has_extensions (egl, egl_display, NULL,

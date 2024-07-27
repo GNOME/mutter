@@ -33,8 +33,6 @@
 #include "backends/native/meta-render-device.h"
 #include "backends/native/meta-renderer-native-private.h"
 
-#include "cogl/cogl-egl.h"
-
 #include "common/meta-cogl-drm-formats.h"
 #endif
 
@@ -189,7 +187,7 @@ meta_screen_cast_query_modifiers (MetaScreenCast  *screen_cast,
   CoglRenderer *cogl_renderer =
     cogl_context_get_renderer (cogl_context);
   EGLDisplay egl_display =
-    cogl_egl_context_get_egl_display (cogl_context);
+    cogl_context_get_egl_display (cogl_context);
   MetaEgl *egl =
     meta_backend_get_egl (backend);
   EGLint num_modifiers;

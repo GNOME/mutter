@@ -53,7 +53,6 @@
 
 #include "backends/meta-backend-private.h"
 #include "clutter/clutter.h"
-#include "cogl/cogl-egl.h"
 #include "meta/util.h"
 #include "wayland/meta-wayland-dma-buf.h"
 #include "wayland/meta-wayland-private.h"
@@ -184,7 +183,7 @@ meta_wayland_buffer_realize (MetaWaylandBuffer *buffer)
         meta_backend_get_clutter_backend (backend);
       CoglContext *cogl_context =
         clutter_backend_get_cogl_context (clutter_backend);
-      EGLDisplay egl_display = cogl_egl_context_get_egl_display (cogl_context);
+      EGLDisplay egl_display = cogl_context_get_egl_display (cogl_context);
 
       if (meta_egl_query_wayland_buffer (egl, egl_display, buffer->resource,
                                          EGL_TEXTURE_FORMAT, &format,
@@ -481,7 +480,7 @@ egl_image_buffer_attach (MetaWaylandBuffer  *buffer,
   MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
-  EGLDisplay egl_display = cogl_egl_context_get_egl_display (cogl_context);
+  EGLDisplay egl_display = cogl_context_get_egl_display (cogl_context);
   int format, width, height, y_inverted;
   CoglPixelFormat cogl_format;
   EGLImageKHR egl_image;

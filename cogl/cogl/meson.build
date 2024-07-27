@@ -315,9 +315,6 @@ if have_glx
 endif
 
 if have_egl
-  cogl_nonintrospected_headers += [
-    'cogl-egl.h',
-  ]
   cogl_sources += [
     'winsys/cogl-onscreen-egl.c',
     'winsys/cogl-onscreen-egl.h',
@@ -397,7 +394,6 @@ if have_introspection
     extra_args: introspection_args + [
       '-UCOGL_COMPILATION',
       '-D__COGL_H_INSIDE__',
-      '-D__COGL_EGL_H_INSIDE__',
       '-DCOGL_GIR_SCANNING',
     ],
     header: 'cogl/cogl.h',

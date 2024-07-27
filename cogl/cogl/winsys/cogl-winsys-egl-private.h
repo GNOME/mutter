@@ -30,6 +30,8 @@
 
 #pragma once
 
+#include <EGL/eglext.h>
+
 #include "cogl/cogl-context.h"
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-framebuffer-private.h"

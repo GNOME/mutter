@@ -455,7 +455,7 @@ meta_wayland_drm_syncobj_manager_new (MetaWaylandCompositor *compositor,
   MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
-  EGLDisplay egl_display = cogl_egl_context_get_egl_display (cogl_context);
+  EGLDisplay egl_display = cogl_context_get_egl_display (cogl_context);
   MetaWaylandDrmSyncobjManager *drm_syncobj_manager;
   EGLDeviceEXT egl_device;
   g_autofd int drm_fd = -1;

@@ -39,10 +39,6 @@
 #include "cogl/cogl-context.h"
 #include "cogl/cogl-bitmap.h"
 
-#ifdef HAVE_EGL
-#include "cogl/cogl-egl.h"
-#endif
-
 G_BEGIN_DECLS
 
 /**
@@ -200,6 +196,12 @@ cogl_texture_2d_new_from_data (CoglContext *ctx,
 COGL_EXPORT CoglTexture *
 cogl_texture_2d_new_from_bitmap (CoglBitmap *bitmap);
 
+#ifdef HAVE_EGL
+typedef gboolean (*CoglTexture2DEGLImageExternalAlloc) (CoglTexture2D *tex_2d,
+                                                        gpointer user_data,
+                                                        GError **error);
+#endif
+
 /**
  * cogl_egl_texture_2d_new_from_image: (skip)
  */
@@ -215,10 +217,6 @@ cogl_egl_texture_2d_new_from_image (CoglContext *ctx,
                                     EGLImageKHR image,
                                     CoglEglImageFlags flags,
                                     GError **error);
-
-typedef gboolean (*CoglTexture2DEGLImageExternalAlloc) (CoglTexture2D *tex_2d,
-                                                        gpointer user_data,
-                                                        GError **error);
 
 /**
  * cogl_texture_2d_new_from_egl_image_external: (skip)

@@ -34,12 +34,12 @@
 
 #include "cogl/cogl-util.h"
 #include "cogl/cogl-feature-private.h"
+#include "cogl/cogl-context.h"
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-framebuffer.h"
 #include "cogl/cogl-onscreen-private.h"
 #include "cogl/cogl-renderer-private.h"
 #include "cogl/cogl-onscreen-template-private.h"
-#include "cogl/cogl-egl.h"
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-trace.h"
 #include "cogl/winsys/cogl-winsys-egl-private.h"
@@ -678,7 +678,7 @@ _cogl_egl_query_wayland_buffer (CoglContext *ctx,
 #endif
 
 EGLDisplay
-cogl_egl_context_get_egl_display (CoglContext *context)
+cogl_context_get_egl_display (CoglContext *context)
 {
   CoglRendererEGL *egl_renderer = context->display->renderer->winsys;
 
