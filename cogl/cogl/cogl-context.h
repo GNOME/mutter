@@ -235,7 +235,7 @@ cogl_context_has_feature (CoglContext   *context,
  * @COGL_GRAPHICS_RESET_STATUS_PURGED_CONTEXT_RESET:
  *
  * All the error values that might be returned by
- * cogl_get_graphics_reset_status(). Each value's meaning corresponds
+ * cogl_context_get_graphics_reset_status(). Each value's meaning corresponds
  * to the similarly named value defined in the ARB_robustness and
  * NV_robustness_video_memory_purge extensions.
  */
@@ -249,7 +249,7 @@ typedef enum _CoglGraphicsResetStatus
 } CoglGraphicsResetStatus;
 
 /**
- * cogl_get_graphics_reset_status:
+ * cogl_context_get_graphics_reset_status:
  * @context: a #CoglContext pointer
  *
  * Returns the graphics reset status as reported by
@@ -262,7 +262,7 @@ typedef enum _CoglGraphicsResetStatus
  * Return value: a #CoglGraphicsResetStatus
  */
 COGL_EXPORT CoglGraphicsResetStatus
-cogl_get_graphics_reset_status (CoglContext *context);
+cogl_context_get_graphics_reset_status (CoglContext *context);
 
 /**
  * cogl_context_is_hardware_accelerated:

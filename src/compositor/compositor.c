@@ -1000,7 +1000,7 @@ meta_compositor_real_after_paint (MetaCompositor     *compositor,
   ClutterStageView *stage_view;
   GList *l;
 
-  status = cogl_get_graphics_reset_status (priv->context);
+  status = cogl_context_get_graphics_reset_status (priv->context);
   switch (status)
     {
     case COGL_GRAPHICS_RESET_STATUS_NO_ERROR:

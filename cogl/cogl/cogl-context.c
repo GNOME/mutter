@@ -443,7 +443,7 @@ cogl_context_get_latest_sync_fd (CoglContext *context)
 }
 
 CoglGraphicsResetStatus
-cogl_get_graphics_reset_status (CoglContext *context)
+cogl_context_get_graphics_reset_status (CoglContext *context)
 {
   return context->driver_vtable->get_graphics_reset_status (context);
 }
