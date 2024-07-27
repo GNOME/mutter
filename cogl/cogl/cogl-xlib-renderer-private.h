@@ -33,7 +33,6 @@
 #include <X11/Xutil.h>
 #include <X11/extensions/Xrandr.h>
 
-#include "cogl/cogl-x11-renderer-private.h"
 #include "cogl/cogl-context.h"
 
 typedef struct _CoglXlibOutput
@@ -48,6 +47,12 @@ typedef struct _CoglXlibOutput
   float refresh_rate;
   SubpixelOrder subpixel_order;
 } CoglXlibOutput;
+
+typedef struct _CoglX11Renderer
+{
+  int damage_base;
+  int randr_base;
+} CoglX11Renderer;
 
 typedef struct _CoglXlibRenderer
 {

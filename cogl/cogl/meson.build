@@ -292,7 +292,6 @@ if have_x11
   cogl_sources += [
     'cogl-x11-onscreen.c',
     'cogl-x11-onscreen.h',
-    'cogl-x11-renderer-private.h',
     'cogl-xlib-renderer-private.h',
     'cogl-xlib-renderer.c',
     'winsys/cogl-texture-pixmap-x11-private.h',
