@@ -34,6 +34,7 @@
 #include "cogl/cogl-framebuffer-private.h"
 #include "cogl/cogl-closure-list-private.h"
 #include "cogl/cogl-list.h"
+#include "mtk/mtk-rectangle.h"
 
 #include <glib.h>
 
@@ -51,7 +52,7 @@ typedef struct _CoglOnscreenQueuedDirty
   CoglList link;
 
   CoglOnscreen *onscreen;
-  CoglOnscreenDirtyInfo info;
+  MtkRectangle info;
 } CoglOnscreenQueuedDirty;
 
 void
@@ -65,8 +66,8 @@ COGL_EXPORT void
 _cogl_onscreen_notify_complete (CoglOnscreen *onscreen, CoglFrameInfo *info);
 
 void
-_cogl_onscreen_queue_dirty (CoglOnscreen *onscreen,
-                            const CoglOnscreenDirtyInfo *info);
+_cogl_onscreen_queue_dirty (CoglOnscreen       *onscreen,
+                            const MtkRectangle *info);
 
 void
 cogl_onscreen_bind (CoglOnscreen *onscreen);

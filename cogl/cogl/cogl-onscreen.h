@@ -404,25 +404,6 @@ cogl_onscreen_remove_frame_callback (CoglOnscreen *onscreen,
                                      CoglFrameClosure *closure);
 
 /**
- * CoglOnscreenDirtyInfo:
- * @x: Left edge of the dirty rectangle
- * @y: Top edge of the dirty rectangle, measured from the top of the window
- * @width: Width of the dirty rectangle
- * @height: Height of the dirty rectangle
- *
- * A structure passed to callbacks registered using
- * cogl_onscreen_add_dirty_callback(). The members describe a
- * rectangle within the onscreen buffer that should be redrawn.
- */
-typedef struct _CoglOnscreenDirtyInfo CoglOnscreenDirtyInfo;
-
-struct _CoglOnscreenDirtyInfo
-{
-  int x, y;
-  int width, height;
-};
-
-/**
  * cogl_onscreen_get_frame_counter:
  *
  * Gets the value of the framebuffers frame counter. This is

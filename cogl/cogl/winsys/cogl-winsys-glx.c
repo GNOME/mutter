@@ -226,7 +226,7 @@ glx_event_filter_cb (XEvent *xevent, void *data)
 
       if (onscreen)
         {
-          CoglOnscreenDirtyInfo info;
+          MtkRectangle info;
 
           info.x = xevent->xexpose.x;
           info.y = xevent->xexpose.y;

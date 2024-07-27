@@ -231,8 +231,8 @@ _cogl_onscreen_queue_dispatch_idle (CoglOnscreen *onscreen)
 }
 
 void
-_cogl_onscreen_queue_dirty (CoglOnscreen *onscreen,
-                            const CoglOnscreenDirtyInfo *info)
+_cogl_onscreen_queue_dirty (CoglOnscreen       *onscreen,
+                            const MtkRectangle *info)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
@@ -249,7 +249,7 @@ void
 _cogl_onscreen_queue_full_dirty (CoglOnscreen *onscreen)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  CoglOnscreenDirtyInfo info;
+  MtkRectangle info;
 
   info.x = 0;
   info.y = 0;
