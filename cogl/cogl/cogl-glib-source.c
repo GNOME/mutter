@@ -96,8 +96,8 @@ cogl_glib_source_funcs =
   };
 
 GSource *
-cogl_glib_renderer_source_new (CoglRenderer *renderer,
-                               int priority)
+cogl_glib_source_new (CoglRenderer *renderer,
+                      int           priority)
 {
   GSource *source;
   CoglGLibSource *cogl_source;
@@ -113,12 +113,4 @@ cogl_glib_renderer_source_new (CoglRenderer *renderer,
     g_source_set_priority (source, priority);
 
   return source;
-}
-
-GSource *
-cogl_glib_source_new (CoglContext *context,
-                      int priority)
-{
-  return cogl_glib_renderer_source_new (cogl_context_get_renderer (context),
-                                        priority);
 }
