@@ -40,8 +40,7 @@
  * from the Berkeley SoftFloat 3e Library.
  */
 
-#ifndef COGL_SOFT_FLOAT_H
-#define COGL_SOFT_FLOAT_H
+ #pragma once
 
 #include <glib.h>
 #include <stdint.h>
@@ -67,5 +66,3 @@ float cogl_double_to_f32 (double   x,
                           gboolean rtz);
 
 uint16_t cogl_float_to_half_rtz_slow (float x);
-
-#endif  /* COGL_SOFT_FLOAT_H */

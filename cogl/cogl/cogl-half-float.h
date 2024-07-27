@@ -23,8 +23,7 @@
 
 /* This source file is originally from Mesa (src/util/half_float.h). */
 
-#ifndef COGL_HALF_FLOAT_H
-#define COGL_HALF_FLOAT_H
+#pragma once
 
 #include "cogl/cogl-types.h"
 
@@ -117,5 +116,3 @@ cogl_half_is_negative (uint16_t h)
 {
    return !!(h & 0x8000);
 }
-
-#endif /* COGL_HALF_FLOAT_H */
