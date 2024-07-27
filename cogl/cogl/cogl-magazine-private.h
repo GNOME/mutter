@@ -73,6 +73,3 @@ _cogl_magazine_chunk_free (CoglMagazine *magazine, void *data)
   chunk->next = magazine->head;
   magazine->head = chunk;
 }
-
-void
-_cogl_magazine_free (CoglMagazine *magazine);
