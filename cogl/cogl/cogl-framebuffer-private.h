@@ -44,12 +44,12 @@ typedef enum
   COGL_FRAMEBUFFER_DRIVER_TYPE_BACK,
 } CoglFramebufferDriverType;
 
-struct _CoglFramebufferDriverConfig
+typedef struct _CoglFramebufferDriverConfig
 {
   CoglFramebufferDriverType type;
 
   gboolean disable_depth_and_stencil;
-};
+} CoglFramebufferDriverConfig;
 
 typedef struct
 {
