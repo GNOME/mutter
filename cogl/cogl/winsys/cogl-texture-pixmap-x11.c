@@ -223,9 +223,9 @@ set_damage_object_internal (CoglContext *ctx,
 
   if (tex_pixmap->damage)
     {
-      cogl_xlib_renderer_remove_filter (ctx->display->renderer,
-                                        _cogl_texture_pixmap_x11_filter,
-                                        tex_pixmap);
+      _cogl_renderer_remove_native_filter (ctx->display->renderer,
+                                           (CoglNativeFilterFunc)_cogl_texture_pixmap_x11_filter,
+                                           tex_pixmap);
 
       if (tex_pixmap->damage_owned)
         {
@@ -238,9 +238,9 @@ set_damage_object_internal (CoglContext *ctx,
   tex_pixmap->damage_report_level = report_level;
 
   if (damage)
-    cogl_xlib_renderer_add_filter (ctx->display->renderer,
-                                   _cogl_texture_pixmap_x11_filter,
-                                   tex_pixmap);
+    _cogl_renderer_add_native_filter (ctx->display->renderer,
+                                      (CoglNativeFilterFunc)_cogl_texture_pixmap_x11_filter,
+                                      tex_pixmap);
 }
 
 static void

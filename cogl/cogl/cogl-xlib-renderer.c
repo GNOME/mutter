@@ -430,9 +430,9 @@ _cogl_xlib_renderer_connect (CoglRenderer *renderer, GError **error)
 
   register_xlib_renderer (renderer);
 
-  cogl_xlib_renderer_add_filter (renderer,
-                                 randr_filter,
-                                 renderer);
+  _cogl_renderer_add_native_filter (renderer,
+                                    (CoglNativeFilterFunc)randr_filter,
+                                    renderer);
 
   return TRUE;
 }
@@ -471,24 +471,6 @@ cogl_xlib_renderer_handle_event (CoglRenderer *renderer,
                                  XEvent *event)
 {
   return _cogl_renderer_handle_native_event (renderer, event);
-}
-
-void
-cogl_xlib_renderer_add_filter (CoglRenderer *renderer,
-                               CoglXlibFilterFunc func,
-                               void *data)
-{
-  _cogl_renderer_add_native_filter (renderer,
-                                    (CoglNativeFilterFunc)func, data);
-}
-
-void
-cogl_xlib_renderer_remove_filter (CoglRenderer *renderer,
-                                  CoglXlibFilterFunc func,
-                                  void *data)
-{
-  _cogl_renderer_remove_native_filter (renderer,
-                                       (CoglNativeFilterFunc)func, data);
 }
 
 float

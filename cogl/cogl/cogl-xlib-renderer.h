@@ -54,48 +54,6 @@ COGL_EXPORT CoglFilterReturn
 cogl_xlib_renderer_handle_event (CoglRenderer *renderer,
                                  XEvent *event);
 
-/*
- * CoglXlibFilterFunc:
- * @event: pointer to an XEvent structure
- * @data: the data that was given when the filter was added
- *
- * A callback function that can be registered with
- * cogl_xlib_renderer_add_filter(). The function should return
- * %COGL_FILTER_REMOVE if it wants to prevent further processing or
- * %COGL_FILTER_CONTINUE otherwise.
- */
-typedef CoglFilterReturn (* CoglXlibFilterFunc) (XEvent *event,
-                                                 void *data);
-
-/**
- * cogl_xlib_renderer_add_filter: (skip)
- * @renderer: a #CoglRenderer
- * @func: the callback function
- * @data: user data passed to @func when called
- *
- * Adds a callback function that will receive all native events. The
- * function can stop further processing of the event by return
- * %COGL_FILTER_REMOVE.
- */
-COGL_EXPORT void
-cogl_xlib_renderer_add_filter (CoglRenderer *renderer,
-                               CoglXlibFilterFunc func,
-                               void *data);
-
-/**
- * cogl_xlib_renderer_remove_filter: (skip)
- * @renderer: a #CoglRenderer
- * @func: the callback function
- * @data: user data given when the callback was installed
- *
- * Removes a callback that was previously added with
- * cogl_xlib_renderer_add_filter().
- */
-COGL_EXPORT void
-cogl_xlib_renderer_remove_filter (CoglRenderer *renderer,
-                                  CoglXlibFilterFunc func,
-                                  void *data);
-
 /**
  * cogl_xlib_renderer_set_foreign_display: (skip)
  * @renderer: a #CoglRenderer

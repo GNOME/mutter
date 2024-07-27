@@ -853,18 +853,18 @@ _cogl_winsys_context_init (CoglContext *context, GError **error)
 {
   context->winsys = g_new0 (CoglContextGLX, 1);
 
-  cogl_xlib_renderer_add_filter (context->display->renderer,
-                                 glx_event_filter_cb,
-                                 context);
+  _cogl_renderer_add_native_filter (context->display->renderer,
+                                    (CoglNativeFilterFunc)glx_event_filter_cb,
+                                    context);
   return update_winsys_features (context, error);
 }
 
 static void
 _cogl_winsys_context_deinit (CoglContext *context)
 {
-  cogl_xlib_renderer_remove_filter (context->display->renderer,
-                                    glx_event_filter_cb,
-                                    context);
+  _cogl_renderer_remove_native_filter (context->display->renderer,
+                                       (CoglNativeFilterFunc)glx_event_filter_cb,
+                                       context);
   g_free (context->winsys);
 }
 

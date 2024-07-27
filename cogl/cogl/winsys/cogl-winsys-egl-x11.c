@@ -323,9 +323,9 @@ static gboolean
 _cogl_winsys_egl_context_init (CoglContext *context,
                                GError **error)
 {
-  cogl_xlib_renderer_add_filter (context->display->renderer,
-                                 event_filter_cb,
-                                 context);
+  _cogl_renderer_add_native_filter (context->display->renderer,
+                                    (CoglNativeFilterFunc)event_filter_cb,
+                                    context);
 
   /* We'll manually handle queueing dirty events in response to
    * Expose events from X */
@@ -339,9 +339,9 @@ _cogl_winsys_egl_context_init (CoglContext *context,
 static void
 _cogl_winsys_egl_context_deinit (CoglContext *context)
 {
-  cogl_xlib_renderer_remove_filter (context->display->renderer,
-                                    event_filter_cb,
-                                    context);
+  _cogl_renderer_remove_native_filter (context->display->renderer,
+                                       (CoglNativeFilterFunc)event_filter_cb,
+                                       context);
 }
 
 static gboolean
