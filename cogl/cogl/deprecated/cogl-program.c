@@ -86,7 +86,7 @@ cogl_program_class_init (CoglProgramClass *class)
    it. */
 
 CoglProgram*
-cogl_create_program (void)
+cogl_program_new (void)
 {
   CoglProgram *program;
 

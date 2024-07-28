@@ -58,7 +58,7 @@ paint (TestState *state)
 
   /* Set up a dummy vertex shader that does nothing but the usual
      fixed function transform */
-  shader = cogl_create_shader (COGL_SHADER_TYPE_VERTEX);
+  shader = cogl_shader_new (COGL_SHADER_TYPE_VERTEX);
   cogl_shader_source (shader,
                       "void\n"
                       "main ()\n"
@@ -70,7 +70,7 @@ paint (TestState *state)
                       "  cogl_tex_coord_out[0] = cogl_tex_coord_in;\n"
                       "}\n");
 
-  program = cogl_create_program ();
+  program = cogl_program_new ();
   cogl_program_attach_shader (program, shader);
   cogl_program_link (program);
 

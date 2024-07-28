@@ -94,10 +94,10 @@ create_pipeline_for_shader (TestState *state, const char *shader_source)
 
   pipeline = cogl_pipeline_new (test_ctx);
 
-  shader = cogl_create_shader (COGL_SHADER_TYPE_FRAGMENT);
+  shader = cogl_shader_new (COGL_SHADER_TYPE_FRAGMENT);
   cogl_shader_source (shader, shader_source);
 
-  program = cogl_create_program ();
+  program = cogl_program_new ();
   cogl_program_attach_shader (program, shader);
 
   cogl_pipeline_set_user_program (pipeline, program);

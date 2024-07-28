@@ -145,7 +145,7 @@ typedef enum
 } CoglShaderType;
 
 /**
- * cogl_create_shader:
+ * cogl_shader_new:
  * @shader_type: COGL_SHADER_TYPE_VERTEX or COGL_SHADER_TYPE_FRAGMENT.
  *
  * Create a new shader handle, use cogl_shader_source() to set the
@@ -156,7 +156,7 @@ typedef enum
  */
 COGL_DEPRECATED_FOR (cogl_snippet_)
 COGL_EXPORT CoglShader*
-cogl_create_shader (CoglShaderType shader_type);
+cogl_shader_new (CoglShaderType shader_type);
 
 /**
  * cogl_shader_source:
@@ -165,7 +165,7 @@ cogl_create_shader (CoglShaderType shader_type);
  *
  * Replaces the current source associated with a shader with a new
  * one.
- * 
+ *
  * Deprecated: 1.16: Use #CoglSnippet api
  */
 COGL_DEPRECATED_FOR (cogl_snippet_)
@@ -188,7 +188,7 @@ COGL_EXPORT CoglShaderType
 cogl_shader_get_shader_type (CoglShader *self);
 
 /**
- * cogl_create_program:
+ * cogl_program_new:
  *
  * Create a new cogl program object that can be used to replace parts of the GL
  * rendering pipeline with custom code.
@@ -198,7 +198,7 @@ cogl_shader_get_shader_type (CoglShader *self);
  */
 COGL_DEPRECATED_FOR (cogl_snippet_)
 COGL_EXPORT CoglProgram*
-cogl_create_program (void);
+cogl_program_new (void);
 
 /**
  * cogl_program_attach_shader:

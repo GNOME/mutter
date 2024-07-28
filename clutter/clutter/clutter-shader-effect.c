@@ -24,9 +24,9 @@
 
 /**
  * ClutterShaderEffect:
- * 
+ *
  * Base class for shader effects
- * 
+ *
  * #ClutterShaderEffect is a class that implements all the plumbing for
  * creating [class@Effect]s using GLSL shaders.
  *
@@ -305,11 +305,11 @@ clutter_shader_effect_create_shader (ClutterShaderEffect *self)
   switch (priv->shader_type)
     {
     case CLUTTER_FRAGMENT_SHADER:
-      return cogl_create_shader (COGL_SHADER_TYPE_FRAGMENT);
+      return cogl_shader_new (COGL_SHADER_TYPE_FRAGMENT);
       break;
 
     case CLUTTER_VERTEX_SHADER:
-      return cogl_create_shader (COGL_SHADER_TYPE_VERTEX);
+      return cogl_shader_new (COGL_SHADER_TYPE_VERTEX);
       break;
 
     default:
@@ -349,7 +349,7 @@ clutter_shader_effect_try_static_source (ClutterShaderEffect *self)
 
           CLUTTER_NOTE (SHADER, "Compiling shader effect");
 
-          class_priv->program = cogl_create_program ();
+          class_priv->program = cogl_program_new ();
 
           cogl_program_attach_shader (class_priv->program,
                                       class_priv->shader);
@@ -873,7 +873,7 @@ clutter_shader_effect_set_shader_source (ClutterShaderEffect *effect,
 
   CLUTTER_NOTE (SHADER, "Compiling shader effect");
 
-  priv->program = cogl_create_program ();
+  priv->program = cogl_program_new ();
 
   cogl_program_attach_shader (priv->program, priv->shader);
 

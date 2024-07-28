@@ -204,10 +204,10 @@ set_shader_num (int new_no)
 
   shader_pipeline = cogl_pipeline_new (ctx);
 
-  shader = cogl_create_shader (COGL_SHADER_TYPE_FRAGMENT);
+  shader = cogl_shader_new (COGL_SHADER_TYPE_FRAGMENT);
   cogl_shader_source (shader, shaders[new_no].source);
 
-  program = cogl_create_program ();
+  program = cogl_program_new ();
   cogl_program_attach_shader (program, shader);
   g_object_unref (shader);
   cogl_program_link (program);
@@ -358,4 +358,3 @@ test_cogl_shader_glsl_main (int argc, char *argv[])
 
   return EXIT_SUCCESS;
 }
-

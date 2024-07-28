@@ -70,7 +70,7 @@ cogl_shader_class_init (CoglShaderClass *class)
 }
 
 CoglShader*
-cogl_create_shader (CoglShaderType type)
+cogl_shader_new (CoglShaderType type)
 {
   CoglShader *shader;
 
@@ -81,7 +81,7 @@ cogl_create_shader (CoglShaderType type)
       break;
     default:
       g_warning ("Unexpected shader type (0x%08lX) given to "
-                 "cogl_create_shader", (unsigned long) type);
+                 "cogl_shader_new", (unsigned long) type);
       return NULL;
     }
 

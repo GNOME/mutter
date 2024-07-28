@@ -166,13 +166,13 @@ cogl_pipeline_get_alpha_test_reference (CoglPipeline *pipeline);
  * ```
  *
  * This is the list of source-names usable as blend factors:
- * 
+ *
  * - `SRC_COLOR`: The color of the incoming fragment
  * - `DST_COLOR`: The color of the framebuffer
  * - `CONSTANT`: The constant set via cogl_pipeline_set_blend_constant()
  *
  * These can also be used as factors:
- * 
+ *
  * - `0`: (0, 0, 0, 0)
  * - `1`: (1, 1, 1, 1)
  * - `SRC_ALPHA_SATURATE_FACTOR`: (f,f,f,1) where `f = MIN(SRC_COLOR[A],1-DST_COLOR[A])`
@@ -319,13 +319,13 @@ cogl_pipeline_get_user_program (CoglPipeline *pipeline);
  * CoglProgram *program;
  * CoglPipeline *pipeline;
  *
- * shader = cogl_create_shader (COGL_SHADER_TYPE_FRAGMENT);
+ * shader = cogl_shader_new (COGL_SHADER_TYPE_FRAGMENT);
  * cogl_shader_source (shader,
  *                     "!!ARBfp1.0\n"
  *                     "MOV result.color,fragment.color;\n"
  *                     "END\n");
  *
- * program = cogl_create_program ();
+ * program = cogl_program_new ();
  * cogl_program_attach_shader (program, shader);
  * cogl_program_link (program);
  *
