@@ -192,32 +192,6 @@ COGL_EXPORT gboolean
 cogl_renderer_connect (CoglRenderer *renderer, GError **error);
 
 /**
- * CoglRendererConstraint:
- * @COGL_RENDERER_CONSTRAINT_USES_X11: Require the renderer to be X11 based
- * @COGL_RENDERER_CONSTRAINT_USES_XLIB: Require the renderer to be X11
- *                                      based and use Xlib
- * @COGL_RENDERER_CONSTRAINT_USES_EGL: Require the renderer to be EGL based
- *
- * These constraint flags are hard-coded features of the different renderer
- * backends. Sometimes a platform may support multiple rendering options which
- * Cogl will usually choose from automatically. Some of these features are
- * important to higher level applications and frameworks though, such as
- * whether a renderer is X11 based because an application might only support
- * X11 based input handling. An application might also need to ensure EGL is
- * used internally too if they depend on access to an EGLDisplay for some
- * purpose.
- *
- * Applications should ideally minimize how many of these constraints
- * they depend on to ensure maximum portability.
- */
-typedef enum
-{
-  COGL_RENDERER_CONSTRAINT_USES_X11 = (1 << 0),
-  COGL_RENDERER_CONSTRAINT_USES_XLIB = (1 << 1),
-  COGL_RENDERER_CONSTRAINT_USES_EGL = (1 << 2),
-} CoglRendererConstraint;
-
-/**
  * CoglDriver:
  * @COGL_DRIVER_ANY: Implies no preference for which driver is used
  * @COGL_DRIVER_NOP: A No-Op driver.
