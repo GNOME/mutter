@@ -42,7 +42,6 @@
 
 #define COGL_DEPRECATED
 #define COGL_DEPRECATED_FOR(f)
-#define COGL_UNAVAILABLE(maj,min)
 
 #else /* COGL_DISABLE_DEPRECATION_WARNINGS */
 
@@ -60,14 +59,6 @@
 #define COGL_DEPRECATED_FOR(f) __declspec(deprecated("is deprecated. Use '" #f "' instead"))
 #else
 #define COGL_DEPRECATED_FOR(f) G_DEPRECATED
-#endif
-
-#if    __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5)
-#define COGL_UNAVAILABLE(maj,min) __attribute__((deprecated("Not available before " #maj "." #min)))
-#elif defined(_MSC_FULL_VER) && (_MSC_FULL_VER > 140050320)
-#define COGL_UNAVAILABLE(maj,min) __declspec(deprecated("is not available before " #maj "." #min))
-#else
-#define COGL_UNAVAILABLE(maj,min)
 #endif
 
 #endif /* COGL_DISABLE_DEPRECATION_WARNINGS */
