@@ -73,10 +73,6 @@ struct _CoglRenderer
 typedef CoglFilterReturn (* CoglNativeFilterFunc) (void *native_event,
                                                    void *data);
 
-CoglFilterReturn
-_cogl_renderer_handle_native_event (CoglRenderer *renderer,
-                                    void *event);
-
 void
 _cogl_renderer_add_native_filter (CoglRenderer *renderer,
                                   CoglNativeFilterFunc func,

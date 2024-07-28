@@ -465,13 +465,6 @@ cogl_xlib_renderer_get_display (CoglRenderer *renderer)
   return xlib_renderer->xdpy;
 }
 
-CoglFilterReturn
-cogl_xlib_renderer_handle_event (CoglRenderer *renderer,
-                                 XEvent *event)
-{
-  return _cogl_renderer_handle_native_event (renderer, event);
-}
-
 float
 _cogl_xlib_renderer_refresh_rate_for_rectangle (CoglRenderer *renderer,
                                                 int           x,

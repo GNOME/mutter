@@ -59,8 +59,8 @@ meta_backend_x11_handle_event (MetaBackend *backend,
 
   allocated_event = XGetEventData (xdisplay, &xevent->xcookie);
 
-  if (cogl_xlib_renderer_handle_event (clutter_backend->cogl_renderer,
-                                       xevent) == COGL_FILTER_REMOVE)
+  if (cogl_renderer_handle_event (clutter_backend->cogl_renderer,
+                                  xevent) == COGL_FILTER_REMOVE)
     goto out;
 
   stage_x11 =

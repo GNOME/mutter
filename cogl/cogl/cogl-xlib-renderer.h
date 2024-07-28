@@ -36,25 +36,6 @@
 G_BEGIN_DECLS
 
 /**
- * cogl_xlib_renderer_handle_event: (skip)
- * @renderer: a #CoglRenderer
- * @event: pointer to an XEvent structure
- *
- * This function processes a single event; it can be used to hook into
- * external event retrieval (for example that done by Clutter or
- * GDK).
- *
- * Return value: #CoglFilterReturn. %COGL_FILTER_REMOVE indicates that
- * Cogl has internally handled the event and the caller should do no
- * further processing. %COGL_FILTER_CONTINUE indicates that Cogl is
- * either not interested in the event, or has used the event to update
- * internal state without taking any exclusive action.
- */
-COGL_EXPORT CoglFilterReturn
-cogl_xlib_renderer_handle_event (CoglRenderer *renderer,
-                                 XEvent *event);
-
-/**
  * cogl_xlib_renderer_set_foreign_display: (skip)
  * @renderer: a #CoglRenderer
  *
@@ -63,7 +44,7 @@ cogl_xlib_renderer_handle_event (CoglRenderer *renderer,
  *
  * Note that calling this function will automatically disable Cogl's
  * event retrieval. Cogl still needs to see all of the X events so the
- * application should also use cogl_xlib_renderer_handle_event() if it
+ * application should also use cogl_renderer_handle_event() if it
  * uses this function.
  */
 COGL_EXPORT void

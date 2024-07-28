@@ -521,8 +521,8 @@ cogl_renderer_connect (CoglRenderer *renderer, GError **error)
 }
 
 CoglFilterReturn
-_cogl_renderer_handle_native_event (CoglRenderer *renderer,
-                                    void *event)
+cogl_renderer_handle_event (CoglRenderer *renderer,
+                            void         *event)
 {
   GSList *l, *next;
 
