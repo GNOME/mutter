@@ -67,34 +67,6 @@ typedef struct _CoglFramebuffer CoglFramebuffer;
  */
 typedef struct _CoglDmaBufHandle CoglDmaBufHandle;
 
-/**
- * COGL_BLEND_STRING_ERROR:
- *
- * #GError domain for blend string parser errors
- */
-#define COGL_BLEND_STRING_ERROR (cogl_blend_string_error_quark ())
-
-/**
- * CoglBlendStringError:
- * @COGL_BLEND_STRING_ERROR_PARSE_ERROR: Generic parse error
- * @COGL_BLEND_STRING_ERROR_ARGUMENT_PARSE_ERROR: Argument parse error
- * @COGL_BLEND_STRING_ERROR_INVALID_ERROR: Internal parser error
- * @COGL_BLEND_STRING_ERROR_GPU_UNSUPPORTED_ERROR: Blend string not
- *   supported by the GPU
- *
- * Error enumeration for the blend strings parser
- */
-typedef enum /*< prefix=COGL_BLEND_STRING_ERROR >*/
-{
-  COGL_BLEND_STRING_ERROR_PARSE_ERROR,
-  COGL_BLEND_STRING_ERROR_ARGUMENT_PARSE_ERROR,
-  COGL_BLEND_STRING_ERROR_INVALID_ERROR,
-  COGL_BLEND_STRING_ERROR_GPU_UNSUPPORTED_ERROR
-} CoglBlendStringError;
-
-COGL_EXPORT uint32_t
-cogl_blend_string_error_quark (void);
-
 #define COGL_SYSTEM_ERROR (_cogl_system_error_quark ())
 
 /**
