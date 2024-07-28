@@ -426,7 +426,7 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
         return FALSE;
 
       flags = COGL_EGL_IMAGE_FLAG_NO_GET_DATA;
-      cogl_texture = cogl_egl_texture_2d_new_from_image (cogl_context,
+      cogl_texture = cogl_texture_2d_new_from_egl_image (cogl_context,
                                                          dma_buf->width,
                                                          dma_buf->height,
                                                          cogl_format,
@@ -488,7 +488,7 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
             return FALSE;
 
           flags = COGL_EGL_IMAGE_FLAG_NO_GET_DATA;
-          cogl_texture = cogl_egl_texture_2d_new_from_image (cogl_context,
+          cogl_texture = cogl_texture_2d_new_from_egl_image (cogl_context,
                                                              dma_buf->width,
                                                              dma_buf->height,
                                                              subformat,

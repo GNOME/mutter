@@ -455,7 +455,7 @@ cogl_texture_2d_new_from_data (CoglContext *ctx,
  * even though they may seem redundant is because GLES 1/2 don't
  * provide a way to query these properties. */
 CoglTexture *
-cogl_egl_texture_2d_new_from_image (CoglContext *ctx,
+cogl_texture_2d_new_from_egl_image (CoglContext *ctx,
                                     int width,
                                     int height,
                                     CoglPixelFormat format,

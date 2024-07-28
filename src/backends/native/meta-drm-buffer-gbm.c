@@ -318,7 +318,7 @@ meta_drm_buffer_gbm_blit_to_framebuffer (CoglScanout      *scanout,
     }
 
   flags = COGL_EGL_IMAGE_FLAG_NO_GET_DATA;
-  cogl_tex = cogl_egl_texture_2d_new_from_image (cogl_context,
+  cogl_tex = cogl_texture_2d_new_from_egl_image (cogl_context,
                                                  width,
                                                  height,
                                                  cogl_format,

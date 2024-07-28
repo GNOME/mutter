@@ -539,7 +539,7 @@ egl_image_buffer_attach (MetaWaylandBuffer  *buffer,
     return FALSE;
 
   flags = COGL_EGL_IMAGE_FLAG_NONE;
-  texture_2d = cogl_egl_texture_2d_new_from_image (cogl_context,
+  texture_2d = cogl_texture_2d_new_from_egl_image (cogl_context,
                                                    width, height,
                                                    cogl_format,
                                                    egl_image,

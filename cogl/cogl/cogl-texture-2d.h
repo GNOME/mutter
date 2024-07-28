@@ -202,15 +202,15 @@ typedef gboolean (*CoglTexture2DEGLImageExternalAlloc) (CoglTexture2D *tex_2d,
                                                         GError **error);
 #endif
 
-/**
- * cogl_egl_texture_2d_new_from_image: (skip)
- */
 #if defined (HAVE_EGL) && defined (EGL_KHR_image_base)
 /* NB: The reason we require the width, height and format to be passed
  * even though they may seem redundant is because GLES 1/2 don't
  * provide a way to query these properties. */
+/**
+ * cogl_texture_2d_new_from_egl_image: (skip)
+ */
 COGL_EXPORT CoglTexture *
-cogl_egl_texture_2d_new_from_image (CoglContext *ctx,
+cogl_texture_2d_new_from_egl_image (CoglContext *ctx,
                                     int width,
                                     int height,
                                     CoglPixelFormat format,

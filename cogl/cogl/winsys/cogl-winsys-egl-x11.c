@@ -490,7 +490,7 @@ _cogl_winsys_texture_pixmap_x11_create (CoglTexturePixmapX11 *tex_pixmap)
                     COGL_PIXEL_FORMAT_RGB_888);
 
   egl_tex_pixmap->texture =
-    cogl_egl_texture_2d_new_from_image (ctx,
+    cogl_texture_2d_new_from_egl_image (ctx,
                                         cogl_texture_get_width (tex),
                                         cogl_texture_get_height (tex),
                                         texture_format,
