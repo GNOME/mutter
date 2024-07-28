@@ -61,11 +61,10 @@ cogl_pixel_buffer_init (CoglPixelBuffer *buffer)
 {
 }
 
-static CoglPixelBuffer *
-_cogl_pixel_buffer_new (CoglContext *context,
-                        size_t       size,
-                        const void  *data,
-                        GError     **error)
+CoglPixelBuffer *
+cogl_pixel_buffer_new (CoglContext *context,
+                       size_t       size,
+                       const void  *data)
 {
   CoglPixelBuffer *pixel_buffer;
 
@@ -78,11 +77,10 @@ _cogl_pixel_buffer_new (CoglContext *context,
 
   if (data)
     {
-      if (!_cogl_buffer_set_data (COGL_BUFFER (pixel_buffer),
-                                  0,
-                                  data,
-                                  size,
-                                  error))
+      if (!cogl_buffer_set_data (COGL_BUFFER (pixel_buffer),
+                                 0,
+                                 data,
+                                 size))
         {
           g_object_unref (pixel_buffer);
           return NULL;
@@ -90,17 +88,4 @@ _cogl_pixel_buffer_new (CoglContext *context,
     }
 
   return pixel_buffer;
-}
-
-CoglPixelBuffer *
-cogl_pixel_buffer_new (CoglContext *context,
-                       size_t       size,
-                       const void  *data)
-{
-  GError *ignore_error = NULL;
-  CoglPixelBuffer *buffer =
-    _cogl_pixel_buffer_new (context, size, data, &ignore_error);
-
-  g_clear_error (&ignore_error);
-  return buffer;
 }

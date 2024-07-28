@@ -365,11 +365,10 @@ _cogl_buffer_unmap_for_fill_or_fallback (CoglBuffer *buffer)
        * smaller buffers, though that would probably not help for
        * deferred renderers.
        */
-      _cogl_buffer_set_data (buffer,
-                             ctx->buffer_map_fallback_offset,
-                             ctx->buffer_map_fallback_array->data,
-                             ctx->buffer_map_fallback_array->len,
-                             NULL);
+      cogl_buffer_set_data (buffer,
+                            ctx->buffer_map_fallback_offset,
+                            ctx->buffer_map_fallback_array->data,
+                            ctx->buffer_map_fallback_array->len);
       buffer->flags &= ~COGL_BUFFER_FLAG_MAPPED_FALLBACK;
     }
   else
@@ -377,27 +376,19 @@ _cogl_buffer_unmap_for_fill_or_fallback (CoglBuffer *buffer)
 }
 
 gboolean
-_cogl_buffer_set_data (CoglBuffer *buffer,
-                       size_t offset,
-                       const void *data,
-                       size_t size,
-                       GError **error)
+cogl_buffer_set_data (CoglBuffer *buffer,
+                      size_t      offset,
+                      const void *data,
+                      size_t      size)
 {
+  GError *ignore_error = NULL;
+  gboolean status;
+
   g_return_val_if_fail (COGL_IS_BUFFER (buffer), FALSE);
   g_return_val_if_fail ((offset + size) <= buffer->size, FALSE);
 
-  return buffer->set_data (buffer, offset, data, size, error);
-}
+  status = buffer->set_data (buffer, offset, data, size, &ignore_error);
 
-gboolean
-cogl_buffer_set_data (CoglBuffer *buffer,
-                      size_t offset,
-                      const void *data,
-                      size_t size)
-{
-  GError *ignore_error = NULL;
-  gboolean status =
-    _cogl_buffer_set_data (buffer, offset, data, size, &ignore_error);
   g_clear_error (&ignore_error);
   return status;
 }

@@ -86,11 +86,10 @@ cogl_attribute_buffer_new (CoglContext *context,
   /* XXX: NB: for Cogl 2.0 we don't allow NULL data here but we can't
    * break the api for 1.x and so we keep the check for now. */
   if (data)
-    _cogl_buffer_set_data (COGL_BUFFER (buffer),
-                           0,
-                           data,
-                           bytes,
-                           NULL);
+    cogl_buffer_set_data (COGL_BUFFER (buffer),
+                          0,
+                          data,
+                          bytes);
 
   return buffer;
 }

@@ -90,13 +90,6 @@ struct _CoglBufferClass
   GObjectClass parent_class;
 };
 
-gboolean
-_cogl_buffer_set_data (CoglBuffer *buffer,
-                       size_t offset,
-                       const void *data,
-                       size_t size,
-                       GError **error);
-
 void *
 _cogl_buffer_map (CoglBuffer *buffer,
                   CoglBufferAccess access,
