@@ -97,8 +97,6 @@ typedef enum _CoglEglImageFlags
  * cogl_texture_set_premultiplied().
  *
  * Returns: (transfer full): A new #CoglTexture2D object with no storage yet allocated.
- *
- * Since: 2.0
  */
 COGL_EXPORT CoglTexture *
 cogl_texture_2d_new_with_format (CoglContext *ctx,
