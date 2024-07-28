@@ -265,7 +265,7 @@ typedef enum /*< prefix=COGL_PIXEL_FORMAT >*/
 
 /**
  * COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT:
- * 
+ *
  * Architecture dependant format, similar to CAIRO_ARGB32.
 */
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
@@ -324,7 +324,7 @@ gboolean
 _cogl_pixel_format_is_endian_dependant (CoglPixelFormat format);
 
 /*
- * COGL_PIXEL_FORMAT_CAN_HAVE_PREMULT(format):
+ * _cogl_pixel_format_can_have_premult:
  * @format: a #CoglPixelFormat
  *
  * Returns TRUE if the pixel format can take a premult bit. This is
@@ -332,8 +332,11 @@ _cogl_pixel_format_is_endian_dependant (CoglPixelFormat format);
  * COGL_PIXEL_FORMAT_A_8 (because that doesn't have any other
  * components to multiply by the alpha).
  */
-#define COGL_PIXEL_FORMAT_CAN_HAVE_PREMULT(format) \
-  (((format) & COGL_A_BIT) && (format) != COGL_PIXEL_FORMAT_A_8)
+static inline gboolean
+_cogl_pixel_format_can_have_premult (CoglPixelFormat format)
+{
+    return (((format) & COGL_A_BIT) && (format) != COGL_PIXEL_FORMAT_A_8);
+}
 
 /**
  * cogl_pixel_format_get_n_planes:

@@ -472,7 +472,7 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
       uint8_t *tmp_data;
       gboolean succeeded;
 
-      if (COGL_PIXEL_FORMAT_CAN_HAVE_PREMULT (read_format))
+      if (_cogl_pixel_format_can_have_premult (read_format))
         {
           read_format = ((read_format & ~COGL_PREMULT_BIT) |
                          (internal_format & COGL_PREMULT_BIT));
@@ -536,7 +536,7 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
       /* We match the premultiplied state of the target buffer to the
        * premultiplied state of the framebuffer so that it will get
        * converted to the right format below */
-      if (COGL_PIXEL_FORMAT_CAN_HAVE_PREMULT (format))
+      if (_cogl_pixel_format_can_have_premult (format))
         bmp_format = ((format & ~COGL_PREMULT_BIT) |
                       (internal_format & COGL_PREMULT_BIT));
       else
