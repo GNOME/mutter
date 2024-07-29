@@ -30,6 +30,8 @@
 
 #include "session-management-v1-server-protocol.h"
 
+#define TIMEOUT_DELAY_SECONDS 3
+
 typedef struct _MetaWaylandXdgSessionManager
 {
   MetaWaylandCompositor *compositor;
@@ -37,6 +39,7 @@ typedef struct _MetaWaylandXdgSessionManager
 
   GHashTable *sessions;
   GHashTable *session_states;
+  guint save_timeout_id;
 } MetaWaylandXdgSessionManager;
 
 static void xdg_session_manager_remove_session (MetaWaylandXdgSessionManager *session_manager,
@@ -86,6 +89,31 @@ on_restore_toplevel (MetaWaylandXdgSession        *session,
 }
 
 static void
+save_async_cb (GObject      *source,
+               GAsyncResult *res,
+               gpointer      user_data)
+{
+  MetaSessionManager *manager = META_SESSION_MANAGER (source);
+  g_autoptr (GError) error = NULL;
+
+  if (!meta_session_manager_save_finish (manager, res, &error))
+    g_message ("Could not save session data: %s", error->message);
+}
+
+static void
+on_save_idle_cb (gpointer user_data)
+{
+  MetaWaylandXdgSessionManager *xdg_session_manager = user_data;
+  MetaContext *context =
+    meta_wayland_compositor_get_context (xdg_session_manager->compositor);
+  MetaSessionManager *session_manager =
+    meta_context_get_session_manager (context);
+
+  meta_session_manager_save (session_manager, save_async_cb, xdg_session_manager);
+  xdg_session_manager->save_timeout_id = 0;
+}
+
+static void
 on_save_toplevel (MetaWaylandXdgSession        *session,
                   MetaWaylandXdgToplevel       *xdg_toplevel,
                   const char                   *name,
@@ -104,6 +132,13 @@ on_save_toplevel (MetaWaylandXdgSession        *session,
                                       meta_wayland_xdg_session_get_id (session));
 
   meta_session_state_save_window (session_state, name, window);
+
+  if (xdg_session_manager->save_timeout_id == 0)
+    {
+      xdg_session_manager->save_timeout_id =
+        g_timeout_add_seconds_once (TIMEOUT_DELAY_SECONDS, on_save_idle_cb,
+                                    xdg_session_manager);
+    }
 }
 
 static void
@@ -354,6 +389,7 @@ meta_wayland_session_manager_free (MetaWaylandXdgSessionManager *session_manager
 {
   g_clear_pointer (&session_manager->sessions, g_hash_table_unref);
   g_clear_pointer (&session_manager->session_states, g_hash_table_unref);
+  g_clear_handle_id (&session_manager->save_timeout_id, g_source_remove);
   g_free (session_manager);
 }
 
