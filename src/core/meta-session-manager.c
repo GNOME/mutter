@@ -31,9 +31,20 @@
 
 #define SESSION_FILE_NAME "session.gvdb"
 
+typedef struct _MetaSessionData MetaSessionData;
+
+struct _MetaSessionData
+{
+  const char *name;
+  GHashTable *new_table; /* Gvdb table */
+  GHashTable *deleted_sessions; /* Set of session names */
+  GvdbTable *gvdb_table;
+};
+
 struct _MetaSessionManager
 {
   GObject parent_instance;
+  GMutex mutex;
   GHashTable *sessions; /* Session name -> MetaSessionState */
   GHashTable *deleted_sessions; /* Set of session names */
   GvdbTable *gvdb_table;
@@ -116,6 +127,7 @@ meta_session_manager_finalize (GObject *object)
   g_clear_pointer (&session_manager->gvdb_table, gvdb_table_free);
   g_clear_pointer (&session_manager->name, g_free);
   g_clear_fd (&session_manager->fd, NULL);
+  g_mutex_clear (&session_manager->mutex);
 
   G_OBJECT_CLASS (meta_session_manager_parent_class)->finalize (object);
 }
@@ -151,6 +163,7 @@ meta_session_manager_init (MetaSessionManager *session_manager)
     g_hash_table_new_full (g_str_hash, g_str_equal, NULL, g_object_unref);
   session_manager->deleted_sessions =
     g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+  g_mutex_init (&session_manager->mutex);
 }
 
 static gboolean
@@ -350,16 +363,21 @@ snapshot_gvdb_recursively (GvdbTable   *table,
     }
 }
 
-gboolean
-meta_session_manager_save_sync (MetaSessionManager  *manager,
-                                GError             **error)
+static void
+meta_session_data_free (MetaSessionData *session_data)
 {
-  GHashTableIter iter;
-  GHashTable *table;
-  MetaSessionState *session_state;
+  g_clear_pointer (&session_data->new_table, g_hash_table_unref);
+  g_clear_pointer (&session_data->deleted_sessions, g_hash_table_unref);
+  g_free (session_data);
+}
+
+static gboolean
+meta_session_data_save (MetaSessionData  *session_data,
+                        GError          **error)
+{
   g_autofree char *session_dir = NULL, *session_file = NULL;
 
-  if (!manager->name)
+  if (!session_data->name)
     {
       g_set_error (error,
                    G_IO_ERROR,
@@ -369,8 +387,7 @@ meta_session_manager_save_sync (MetaSessionManager  *manager,
     }
 
   session_dir = g_build_filename (g_get_user_data_dir (),
-                                  manager->name,
-                                  NULL);
+                                  session_data->name, NULL);
 
   if (g_mkdir_with_parents (session_dir, 0700) < 0)
     {
@@ -381,39 +398,132 @@ meta_session_manager_save_sync (MetaSessionManager  *manager,
       return FALSE;
     }
 
-  session_file = g_build_filename (session_dir, SESSION_FILE_NAME, NULL);
+  session_file = g_build_filename (session_dir,
+                                   SESSION_FILE_NAME,
+                                   NULL);
+
+  if (session_data->gvdb_table)
+    {
+      g_auto (GStrv) names;
+      gsize len, i;
+
+      names = gvdb_table_get_names (session_data->gvdb_table, &len);
+
+      for (i = 0; i < len; i++)
+        {
+          if (g_hash_table_contains (session_data->new_table, names[i]))
+            continue;
+          if (g_hash_table_contains (session_data->deleted_sessions, names[i]))
+            continue;
+
+          snapshot_gvdb_recursively (session_data->gvdb_table,
+                                     session_data->new_table, names[i]);
+        }
+    }
+
+  return gvdb_table_write_contents (session_data->new_table, session_file,
+                                    FALSE, error);
+}
+
+static void
+save_session_async (GTask        *task,
+                    gpointer      source_object,
+                    gpointer      task_data,
+                    GCancellable *cancellable)
+{
+  MetaSessionManager *session_manager = source_object;
+  g_autoptr (GError) error = NULL;
+
+  g_mutex_lock (&session_manager->mutex);
+
+  if (meta_session_data_save (task_data, &error))
+    g_task_return_boolean (task, TRUE);
+  else
+    g_task_return_error (task, g_steal_pointer (&error));
+
+  g_mutex_unlock (&session_manager->mutex);
+}
+
+static MetaSessionData *
+meta_session_manager_snapshot (MetaSessionManager *manager)
+{
+  MetaSessionState *session_state;
+  MetaSessionData *session_data;
+  GHashTableIter iter;
+  const gchar *name;
+
+  session_data = g_new0 (MetaSessionData, 1);
+  session_data->gvdb_table = manager->gvdb_table;
+  session_data->new_table = gvdb_hash_table_new (NULL, NULL);
+  session_data->name = manager->name;
+
+  session_data->deleted_sessions =
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+  g_hash_table_iter_init (&iter, manager->deleted_sessions);
+  while (g_hash_table_iter_next (&iter, (gpointer *) &name, NULL))
+    g_hash_table_add (session_data->deleted_sessions, g_strdup (name));
 
   g_hash_table_iter_init (&iter, manager->sessions);
-  table = gvdb_hash_table_new (NULL, NULL);
-
   while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &session_state))
     {
       GHashTable *session_table;
 
       session_table =
-        gvdb_hash_table_new (table, meta_session_state_get_name (session_state));
+        gvdb_hash_table_new (session_data->new_table,
+                             meta_session_state_get_name (session_state));
       meta_session_state_serialize (session_state, session_table);
     }
 
-  if (manager->gvdb_table)
+  return session_data;
+}
+
+void
+meta_session_manager_save (MetaSessionManager  *manager,
+                           GAsyncReadyCallback  cb,
+                           gpointer             user_data)
+{
+  MetaSessionData *session_data;
+  g_autoptr (GTask) task = NULL;
+
+  task = g_task_new (manager, NULL, cb, user_data);
+  session_data = meta_session_manager_snapshot (manager);
+  if (session_data)
     {
-      g_auto (GStrv) names;
-      gsize len, i;
+      g_task_set_task_data (task, session_data,
+                            (GDestroyNotify) meta_session_data_free);
+      g_task_run_in_thread (task, save_session_async);
+    }
+  else
+    {
+      g_task_return_boolean (task, TRUE);
+    }
+}
 
-      names = gvdb_table_get_names (manager->gvdb_table, &len);
+gboolean
+meta_session_manager_save_finish (MetaSessionManager  *manager,
+                                  GAsyncResult        *res,
+                                  GError             **error)
+{
+  return g_task_propagate_boolean (G_TASK (res), error);
+}
 
-      for (i = 0; i < len; i++)
-        {
-          if (g_hash_table_contains (manager->sessions, names[i]))
-            continue;
-          if (g_hash_table_contains (manager->deleted_sessions, names[i]))
-            continue;
+gboolean
+meta_session_manager_save_sync (MetaSessionManager  *manager,
+                                GError             **error)
+{
+  MetaSessionData *session_data;
+  gboolean retval = TRUE;
 
-          snapshot_gvdb_recursively (manager->gvdb_table, table, names[i]);
-        }
+  g_mutex_lock (&manager->mutex);
+
+  session_data = meta_session_manager_snapshot (manager);
+  if (session_data)
+    {
+      retval = meta_session_data_save (session_data, error);
+      meta_session_data_free (session_data);
     }
 
-  return gvdb_table_write_contents (table,
-                                    session_file,
-                                    FALSE, error);
+  g_mutex_unlock (&manager->mutex);
+
+  return retval;
 }

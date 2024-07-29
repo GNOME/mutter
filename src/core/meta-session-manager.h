@@ -48,6 +48,14 @@ MetaSessionState * meta_session_manager_get_session (MetaSessionManager  *manage
                                                      GType                type,
                                                      const char          *name);
 
+void meta_session_manager_save (MetaSessionManager  *manager,
+                                GAsyncReadyCallback  cb,
+                                gpointer             user_data);
+
+gboolean meta_session_manager_save_finish (MetaSessionManager  *manager,
+                                           GAsyncResult        *res,
+                                           GError             **error);
+
 gboolean meta_session_manager_save_sync (MetaSessionManager  *manager,
                                          GError             **error);
 
