@@ -21,6 +21,7 @@
 #include "wayland/meta-wayland-single-pixel-buffer.h"
 
 #include "backends/meta-backend-private.h"
+#include "cogl/cogl-half-float.h"
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-private.h"
 
@@ -104,6 +105,77 @@ single_pixel_buffer_manager_bind (struct wl_client *client,
                                   compositor, NULL);
 }
 
+static void
+get_data_in_half_float_format (MetaWaylandSinglePixelBuffer  *single_pixel_buffer,
+                               CoglPixelFormat               *pixel_format,
+                               int                           *rowstride,
+                               uint8_t                      **data)
+{
+  uint16_t *d;
+
+  if (single_pixel_buffer->a == UINT32_MAX)
+    *pixel_format = COGL_PIXEL_FORMAT_BGRX_FP_16161616;
+  else
+    *pixel_format = COGL_PIXEL_FORMAT_BGRA_FP_16161616_PRE;
+
+  *rowstride = 4 * sizeof (uint16_t);
+
+  d = g_malloc0 (*rowstride);
+  d[0] = cogl_float_to_half ((float) single_pixel_buffer->b / (float) UINT32_MAX);
+  d[1] = cogl_float_to_half ((float) single_pixel_buffer->g / (float) UINT32_MAX);
+  d[2] = cogl_float_to_half ((float) single_pixel_buffer->r / (float) UINT32_MAX);
+  d[3] = cogl_float_to_half ((float) single_pixel_buffer->a / (float) UINT32_MAX);
+
+  *data = (uint8_t *) d;
+}
+
+static void
+get_data_in_ABGR_2101010_format (MetaWaylandSinglePixelBuffer  *single_pixel_buffer,
+                                 CoglPixelFormat               *pixel_format,
+                                 int                           *rowstride,
+                                 uint8_t                      **data)
+{
+  uint32_t a, b, g, r;
+  uint32_t *d;
+
+  if (single_pixel_buffer->a == UINT32_MAX)
+    *pixel_format = COGL_PIXEL_FORMAT_XBGR_2101010;
+  else
+    *pixel_format = COGL_PIXEL_FORMAT_ABGR_2101010_PRE;
+
+  *rowstride = sizeof (uint32_t);
+
+  a = 3;
+  b = single_pixel_buffer->b / (UINT32_MAX / 0x3ff);
+  g = single_pixel_buffer->g / (UINT32_MAX / 0x3ff);
+  r = single_pixel_buffer->r / (UINT32_MAX / 0x3ff);
+
+  d = g_malloc0 (*rowstride);
+  *d = (a << 30) | (b << 20) | (g << 10) | r;
+
+  *data = (uint8_t *) d;
+}
+
+static void
+get_data_in_BGRA_8888_format (MetaWaylandSinglePixelBuffer  *single_pixel_buffer,
+                              CoglPixelFormat               *pixel_format,
+                              int                           *rowstride,
+                              uint8_t                      **data)
+{
+  if (single_pixel_buffer->a == UINT32_MAX)
+    *pixel_format = COGL_PIXEL_FORMAT_BGR_888;
+  else
+    *pixel_format = COGL_PIXEL_FORMAT_BGRA_8888_PRE;
+
+  *rowstride = 4 * sizeof (uint8_t);
+
+  *data = g_malloc0 (*rowstride);
+  (*data)[0] = single_pixel_buffer->b / (UINT32_MAX / 0xff);
+  (*data)[1] = single_pixel_buffer->g / (UINT32_MAX / 0xff);
+  (*data)[2] = single_pixel_buffer->r / (UINT32_MAX / 0xff);
+  (*data)[3] = single_pixel_buffer->a / (UINT32_MAX / 0xff);
+}
+
 gboolean
 meta_wayland_single_pixel_buffer_attach (MetaWaylandBuffer  *buffer,
                                          MetaMultiTexture  **texture,
@@ -117,9 +189,10 @@ meta_wayland_single_pixel_buffer_attach (MetaWaylandBuffer  *buffer,
     clutter_backend_get_cogl_context (clutter_backend);
   MetaWaylandSinglePixelBuffer *single_pixel_buffer =
     wl_resource_get_user_data (buffer->resource);
-  uint8_t data[4];
+  g_autofree uint8_t *data = NULL;
   CoglPixelFormat pixel_format;
   CoglTexture *tex_2d;
+  int rowstride;
 
   if (buffer->single_pixel.texture)
     {
@@ -127,20 +200,33 @@ meta_wayland_single_pixel_buffer_attach (MetaWaylandBuffer  *buffer,
       return TRUE;
     }
 
-  data[0] = single_pixel_buffer->b / (UINT32_MAX / 0xff);
-  data[1] = single_pixel_buffer->g / (UINT32_MAX / 0xff);
-  data[2] = single_pixel_buffer->r / (UINT32_MAX / 0xff);
-  data[3] = single_pixel_buffer->a / (UINT32_MAX / 0xff);
-
-  if (data[3] == UINT8_MAX)
-    pixel_format = COGL_PIXEL_FORMAT_BGR_888;
+  if (cogl_context_has_feature (cogl_context, COGL_FEATURE_ID_TEXTURE_HALF_FLOAT))
+    {
+      get_data_in_half_float_format (single_pixel_buffer,
+                                     &pixel_format,
+                                     &rowstride,
+                                     &data);
+    }
+  else if (cogl_context_has_feature (cogl_context, COGL_FEATURE_ID_TEXTURE_RGBA1010102) &&
+           single_pixel_buffer->a == UINT32_MAX)
+    {
+      get_data_in_ABGR_2101010_format (single_pixel_buffer,
+                                       &pixel_format,
+                                       &rowstride,
+                                       &data);
+    }
   else
-    pixel_format = COGL_PIXEL_FORMAT_BGRA_8888_PRE;
+    {
+      get_data_in_BGRA_8888_format (single_pixel_buffer,
+                                    &pixel_format,
+                                    &rowstride,
+                                    &data);
+    }
 
   tex_2d = cogl_texture_2d_new_from_data (cogl_context,
                                           1, 1,
                                           pixel_format,
-                                          4, data,
+                                          rowstride, data,
                                           error);
   if (!tex_2d)
     return FALSE;
