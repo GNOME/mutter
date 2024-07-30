@@ -119,7 +119,6 @@ struct _CoglContext
 
   GString          *codegen_header_buffer;
   GString          *codegen_source_buffer;
-  GString          *codegen_boilerplate_buffer;
 
   CoglPipelineCache *pipeline_cache;
 

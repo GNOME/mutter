@@ -217,6 +217,7 @@ _cogl_glsl_shader_set_source_with_boilerplate (CoglContext *ctx,
   g_autofree char *version_string = NULL;
   int count = 0;
   int n_layers;
+  g_autoptr (GString) layer_declarations = NULL;
 
   vertex_boilerplate = _COGL_VERTEX_SHADER_BOILERPLATE;
   fragment_boilerplate = _COGL_FRAGMENT_SHADER_BOILERPLATE;
@@ -249,8 +250,7 @@ _cogl_glsl_shader_set_source_with_boilerplate (CoglContext *ctx,
   n_layers = cogl_pipeline_get_n_layers (pipeline);
   if (n_layers)
     {
-      GString *layer_declarations = ctx->codegen_boilerplate_buffer;
-      g_string_set_size (layer_declarations, 0);
+      layer_declarations = g_string_new ("");
 
       g_string_append_printf (layer_declarations,
                               "varying vec4 _cogl_tex_coord[%d];\n",

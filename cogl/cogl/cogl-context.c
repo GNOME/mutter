@@ -284,7 +284,6 @@ cogl_context_new (CoglDisplay *display,
 
   context->codegen_header_buffer = g_string_new ("");
   context->codegen_source_buffer = g_string_new ("");
-  context->codegen_boilerplate_buffer = g_string_new ("");
 
   context->default_gl_texture_2d_tex = NULL;
 
