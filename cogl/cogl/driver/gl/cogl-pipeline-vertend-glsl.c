@@ -36,6 +36,7 @@
 #include <string.h>
 
 #include "cogl/cogl-context-private.h"
+#include "cogl/cogl-feature-private.h"
 #include "cogl/cogl-pipeline-private.h"
 #include "cogl/driver/gl/cogl-util-gl-private.h"
 #include "cogl/driver/gl/cogl-pipeline-opengl-private.h"
@@ -199,6 +200,15 @@ glsl_version_string (CoglContext *ctx)
                           needs_es_annotation ? " es" : "");
 }
 
+static gboolean
+is_glsl140_syntax (CoglContext *ctx)
+{
+  if (ctx->glsl_es)
+    return COGL_CHECK_GL_VERSION (ctx->glsl_major, ctx->glsl_minor, 3, 0);
+
+  return COGL_CHECK_GL_VERSION (ctx->glsl_major, ctx->glsl_minor, 1, 40);
+}
+
 void
 _cogl_glsl_shader_set_source_with_boilerplate (CoglContext *ctx,
                                                GLuint shader_gl_handle,
@@ -208,19 +218,13 @@ _cogl_glsl_shader_set_source_with_boilerplate (CoglContext *ctx,
                                                const char **strings_in,
                                                const GLint *lengths_in)
 {
-  const char *vertex_boilerplate;
-  const char *fragment_boilerplate;
-
-  const char **strings = g_alloca (sizeof (char *) * (count_in + 4));
-  GLint *lengths = g_alloca (sizeof (GLint) * (count_in + 4));
+  const char **strings = g_alloca (sizeof (char *) * (count_in + 5));
+  GLint *lengths = g_alloca (sizeof (GLint) * (count_in + 5));
   g_autofree char *glsl_version = NULL;
   g_autofree char *version_string = NULL;
   int count = 0;
   int n_layers;
   g_autoptr (GString) layer_declarations = NULL;
-
-  vertex_boilerplate = _COGL_VERTEX_SHADER_BOILERPLATE;
-  fragment_boilerplate = _COGL_FRAGMENT_SHADER_BOILERPLATE;
 
   glsl_version = glsl_version_string (ctx);
   version_string = g_strdup_printf ("#version %s\n\n", glsl_version);
@@ -238,13 +242,25 @@ _cogl_glsl_shader_set_source_with_boilerplate (CoglContext *ctx,
 
   if (shader_gl_type == GL_VERTEX_SHADER)
     {
-      strings[count] = vertex_boilerplate;
-      lengths[count++] = strlen (vertex_boilerplate);
+      if (is_glsl140_syntax (ctx))
+        {
+          strings[count] = _COGL_VERTEX_SHADER_FALLBACK_BOILERPLATE;
+          lengths[count++] = strlen (_COGL_VERTEX_SHADER_FALLBACK_BOILERPLATE);
+        }
+
+      strings[count] = _COGL_VERTEX_SHADER_BOILERPLATE;
+      lengths[count++] = strlen (_COGL_VERTEX_SHADER_BOILERPLATE);
     }
   else if (shader_gl_type == GL_FRAGMENT_SHADER)
     {
-      strings[count] = fragment_boilerplate;
-      lengths[count++] = strlen (fragment_boilerplate);
+      if (is_glsl140_syntax (ctx))
+        {
+          strings[count] = _COGL_FRAGMENT_SHADER_FALLBACK_BOILERPLATE;
+          lengths[count++] = strlen (_COGL_FRAGMENT_SHADER_FALLBACK_BOILERPLATE);
+        }
+
+      strings[count] = _COGL_FRAGMENT_SHADER_BOILERPLATE;
+      lengths[count++] = strlen (_COGL_FRAGMENT_SHADER_BOILERPLATE);
     }
 
   n_layers = cogl_pipeline_get_n_layers (pipeline);

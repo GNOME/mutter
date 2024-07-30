@@ -80,3 +80,12 @@
    * more appropriate for Cogl. */
   "#define coglFragCoord   gl_FragCoord\n"
 #endif
+
+#define _COGL_VERTEX_SHADER_FALLBACK_BOILERPLATE \
+  "#define attribute in\n" \
+  "#define varying out\n\n"
+
+#define _COGL_FRAGMENT_SHADER_FALLBACK_BOILERPLATE \
+  "#define varying in\n" \
+  "out vec4 _gl_FragColor;\n" \
+  "#define gl_FragColor _gl_FragColor\n\n"
