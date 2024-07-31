@@ -482,7 +482,7 @@ _cogl_driver_update_features (CoglContext  *ctx,
 
   ctx->glsl_major = 1;
   ctx->glsl_minor = 40;
-  ctx->glsl_version_to_use = 140;
+  ctx->glsl_es = FALSE;
 
   if (!check_glsl_version (ctx, error))
     return FALSE;

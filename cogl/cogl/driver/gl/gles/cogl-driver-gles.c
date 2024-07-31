@@ -663,7 +663,7 @@ _cogl_driver_update_features (CoglContext  *context,
 
   context->glsl_major = 1;
   context->glsl_minor = 0;
-  context->glsl_version_to_use = 100;
+  context->glsl_es = TRUE;
 
   if (!check_glsl_version (context, error))
     return FALSE;

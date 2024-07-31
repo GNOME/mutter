@@ -188,6 +188,17 @@ add_layer_fragment_boilerplate_cb (CoglPipelineLayer *layer,
   return TRUE;
 }
 
+static char *
+glsl_version_string (CoglContext *ctx)
+{
+  gboolean needs_es_annotation = ctx->glsl_es && ctx->glsl_major > 1;
+
+  return g_strdup_printf ("%d%02d%s",
+                          ctx->glsl_major,
+                          ctx->glsl_minor,
+                          needs_es_annotation ? " es" : "");
+}
+
 void
 _cogl_glsl_shader_set_source_with_boilerplate (CoglContext *ctx,
                                                GLuint shader_gl_handle,
@@ -202,16 +213,17 @@ _cogl_glsl_shader_set_source_with_boilerplate (CoglContext *ctx,
 
   const char **strings = g_alloca (sizeof (char *) * (count_in + 4));
   GLint *lengths = g_alloca (sizeof (GLint) * (count_in + 4));
-  char *version_string;
+  g_autofree char *glsl_version = NULL;
+  g_autofree char *version_string = NULL;
   int count = 0;
-
   int n_layers;
 
   vertex_boilerplate = _COGL_VERTEX_SHADER_BOILERPLATE;
   fragment_boilerplate = _COGL_FRAGMENT_SHADER_BOILERPLATE;
 
-  version_string = g_strdup_printf ("#version %i\n\n",
-                                    ctx->glsl_version_to_use);
+  glsl_version = glsl_version_string (ctx);
+  version_string = g_strdup_printf ("#version %s\n\n", glsl_version);
+
   strings[count] = version_string;
   lengths[count++] = -1;
 
@@ -308,8 +320,6 @@ _cogl_glsl_shader_set_source_with_boilerplate (CoglContext *ctx,
 
   GE( ctx, glShaderSource (shader_gl_handle, count,
                            (const char **) strings, lengths) );
-
-  g_free (version_string);
 }
 GLuint
 _cogl_pipeline_vertend_glsl_get_shader (CoglPipeline *pipeline)
