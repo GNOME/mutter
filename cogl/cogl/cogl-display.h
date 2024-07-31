@@ -37,7 +37,6 @@
 #endif
 
 #include "cogl/cogl-renderer.h"
-#include "cogl/cogl-onscreen-template.h"
 
 #include <glib-object.h>
 
@@ -80,7 +79,6 @@ G_DECLARE_FINAL_TYPE (CoglDisplay,
 /**
  * cogl_display_new:
  * @renderer: A #CoglRenderer
- * @onscreen_template: A #CoglOnscreenTemplate
  *
  * Explicitly allocates a new #CoglDisplay object to encapsulate the
  * common state of the display pipeline that applies to the whole
@@ -88,11 +86,6 @@ G_DECLARE_FINAL_TYPE (CoglDisplay,
  *
  * A @display can only be made for a specific choice of renderer which
  * is why this takes the @renderer argument.
- *
- * A common use for explicitly allocating a display object is to
- * define a template for allocating onscreen framebuffers which is
- * what the @onscreen_template argument is for, or alternatively
- * you can use cogl_display_set_onscreen_template().
  *
  * When a display is first allocated via cogl_display_new() it is in a
  * mutable configuration mode. It's designed this way so we can
@@ -111,8 +104,7 @@ G_DECLARE_FINAL_TYPE (CoglDisplay,
  *               object in a mutable configuration mode.
  */
 COGL_EXPORT CoglDisplay *
-cogl_display_new (CoglRenderer *renderer,
-                  CoglOnscreenTemplate *onscreen_template);
+cogl_display_new (CoglRenderer *renderer);
 
 /**
  * cogl_display_get_renderer:
@@ -125,23 +117,6 @@ cogl_display_new (CoglRenderer *renderer,
  */
 COGL_EXPORT CoglRenderer *
 cogl_display_get_renderer (CoglDisplay *display);
-
-/**
- * cogl_display_set_onscreen_template:
- * @display: a #CoglDisplay
- * @onscreen_template: A template for creating #CoglOnscreen framebuffers
- *
- * Specifies a template for creating #CoglOnscreen framebuffers.
- *
- * Depending on the system, the constraints for creating #CoglOnscreen
- * framebuffers need to be known before setting up a #CoglDisplay because the
- * final setup of the display may constrain how onscreen framebuffers may be
- * allocated. If Cogl knows how an application wants to allocate onscreen
- * framebuffers then it can try to make sure to setup the display accordingly.
- */
-COGL_EXPORT void
-cogl_display_set_onscreen_template (CoglDisplay *display,
-                                    CoglOnscreenTemplate *onscreen_template);
 
 /**
  * cogl_display_setup:

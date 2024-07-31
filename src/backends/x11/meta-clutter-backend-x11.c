@@ -71,19 +71,7 @@ meta_clutter_backend_x11_get_display (ClutterBackend  *clutter_backend,
                                       CoglRenderer    *renderer,
                                       GError         **error)
 {
-  g_autoptr (CoglOnscreenTemplate) onscreen_template = NULL;
-  CoglDisplay *display = NULL;
-  gboolean res = FALSE;
-
-  onscreen_template = cogl_onscreen_template_new ();
-  res = cogl_renderer_check_onscreen_template (renderer,
-                                               onscreen_template,
-                                               error);
-
-  if (res)
-    display = cogl_display_new (renderer, onscreen_template);
-
-  return display;
+  return cogl_display_new (renderer);
 }
 
 static CoglRenderer *

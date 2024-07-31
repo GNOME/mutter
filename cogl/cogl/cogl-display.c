@@ -63,7 +63,6 @@ cogl_display_dispose (GObject *object)
     }
 
   g_clear_object (&display->renderer);
-  g_clear_object (&display->onscreen_template);
 
   G_OBJECT_CLASS (cogl_display_parent_class)->dispose (object);
 }
@@ -82,8 +81,7 @@ cogl_display_class_init (CoglDisplayClass *class)
 }
 
 CoglDisplay *
-cogl_display_new (CoglRenderer         *renderer,
-                  CoglOnscreenTemplate *onscreen_template)
+cogl_display_new (CoglRenderer         *renderer)
 {
   g_return_val_if_fail (renderer != NULL, NULL);
 
@@ -93,8 +91,6 @@ cogl_display_new (CoglRenderer         *renderer,
   renderer->display = display;
   display->setup = FALSE;
 
-  cogl_display_set_onscreen_template (display, onscreen_template);
-
   return display;
 }
 
@@ -102,26 +98,6 @@ CoglRenderer *
 cogl_display_get_renderer (CoglDisplay *display)
 {
   return display->renderer;
-}
-
-void
-cogl_display_set_onscreen_template (CoglDisplay *display,
-                                    CoglOnscreenTemplate *onscreen_template)
-{
-  g_return_if_fail (display->setup == FALSE);
-
-  if (onscreen_template)
-    g_object_ref (onscreen_template);
-
-  if (display->onscreen_template)
-    g_object_unref (display->onscreen_template);
-
-  display->onscreen_template = onscreen_template;
-
-  /* NB: we want to maintain the invariable that there is always an
-   * onscreen template associated with a CoglDisplay... */
-  if (!onscreen_template)
-    display->onscreen_template = cogl_onscreen_template_new ();
 }
 
 gboolean

@@ -215,28 +215,6 @@ cogl_xlib_renderer_set_foreign_display (CoglRenderer *renderer,
 }
 #endif /* HAVE_X11 */
 
-gboolean
-cogl_renderer_check_onscreen_template (CoglRenderer *renderer,
-                                       CoglOnscreenTemplate *onscreen_template,
-                                       GError **error)
-{
-  CoglDisplay *display;
-
-  if (!cogl_renderer_connect (renderer, error))
-    return FALSE;
-
-  display = cogl_display_new (renderer, onscreen_template);
-  if (!cogl_display_setup (display, error))
-    {
-      g_object_unref (display);
-      return FALSE;
-    }
-
-  g_object_unref (display);
-
-  return TRUE;
-}
-
 typedef gboolean (*CoglDriverCallback) (CoglDriverDescription *description,
                                         void *user_data);
 

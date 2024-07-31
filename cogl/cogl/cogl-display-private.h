@@ -41,7 +41,6 @@ struct _CoglDisplay
 
   gboolean setup;
   CoglRenderer *renderer;
-  CoglOnscreenTemplate *onscreen_template;
 
   void *winsys;
 };

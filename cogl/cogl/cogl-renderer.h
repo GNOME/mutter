@@ -33,7 +33,6 @@
 #endif
 
 #include "cogl/cogl-types.h"
-#include "cogl/cogl-onscreen-template.h"
 #include "cogl/cogl-pixel-format.h"
 
 #include <glib-object.h>
@@ -155,23 +154,6 @@ typedef enum
  */
 COGL_EXPORT CoglWinsysID
 cogl_renderer_get_winsys_id (CoglRenderer *renderer);
-
-/**
- * cogl_renderer_check_onscreen_template:
- * @renderer: A #CoglRenderer
- * @onscreen_template: A #CoglOnscreenTemplate
- * @error: A pointer to a #GError for reporting exceptions
- *
- * Tests if a given @onscreen_template can be supported with the given
- * @renderer.
- *
- * Return value: %TRUE if the @onscreen_template can be supported,
- *               else %FALSE.
- */
-COGL_EXPORT gboolean
-cogl_renderer_check_onscreen_template (CoglRenderer *renderer,
-                                       CoglOnscreenTemplate *onscreen_template,
-                                       GError **error);
 
 /* Final connection API */
 

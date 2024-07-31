@@ -140,27 +140,7 @@ clutter_backend_do_real_create_context (ClutterBackend  *backend,
     }
   else
     {
-      CoglOnscreenTemplate *tmpl;
-      gboolean res;
-
-      tmpl = cogl_onscreen_template_new ();
-
-      /* XXX: I have some doubts that this is a good design.
-       *
-       * Conceptually should we be able to check an onscreen_template
-       * without more details about the CoglDisplay configuration?
-       */
-      res = cogl_renderer_check_onscreen_template (backend->cogl_renderer,
-                                                   tmpl,
-                                                   error);
-
-      if (!res)
-        goto error;
-
-      backend->cogl_display = cogl_display_new (backend->cogl_renderer, tmpl);
-
-      /* the display owns the template */
-      g_object_unref (tmpl);
+      backend->cogl_display = cogl_display_new (backend->cogl_renderer);
     }
 
   if (backend->cogl_display == NULL)
