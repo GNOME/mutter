@@ -34,6 +34,7 @@
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-framebuffer-private.h"
 #include "cogl/cogl-framebuffer.h"
+#include "cogl/cogl-indices-private.h"
 #include "cogl/cogl-offscreen-private.h"
 #include "cogl/cogl-texture-private.h"
 #include "cogl/driver/gl/cogl-util-gl-private.h"
@@ -324,21 +325,6 @@ cogl_gl_framebuffer_draw_attributes (CoglFramebufferDriver  *driver,
       glDrawArrays ((GLenum)mode, first_vertex, n_vertices));
 }
 
-static size_t
-sizeof_index_type (CoglIndicesType type)
-{
-  switch (type)
-    {
-    case COGL_INDICES_TYPE_UNSIGNED_BYTE:
-      return 1;
-    case COGL_INDICES_TYPE_UNSIGNED_SHORT:
-      return 2;
-    case COGL_INDICES_TYPE_UNSIGNED_INT:
-      return 4;
-    }
-  g_return_val_if_reached (0);
-}
-
 static void
 cogl_gl_framebuffer_draw_indexed_attributes (CoglFramebufferDriver  *driver,
                                              CoglPipeline           *pipeline,
@@ -371,7 +357,7 @@ cogl_gl_framebuffer_draw_indexed_attributes (CoglFramebufferDriver  *driver,
   base = _cogl_buffer_gl_bind (buffer,
                                COGL_BUFFER_BIND_TARGET_INDEX_BUFFER, NULL);
   buffer_offset = cogl_indices_get_offset (indices);
-  index_size = sizeof_index_type (cogl_indices_get_indices_type (indices));
+  index_size = cogl_indices_type_get_size (cogl_indices_get_indices_type (indices));
 
   switch (cogl_indices_get_indices_type (indices))
     {

@@ -46,3 +46,6 @@ struct _CoglIndices
   CoglIndicesType type;
 
 };
+
+size_t
+cogl_indices_type_get_size (CoglIndicesType type);

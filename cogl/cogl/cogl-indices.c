@@ -67,8 +67,8 @@ cogl_indices_class_init (CoglIndicesClass *class)
   object_class->dispose = cogl_indices_dispose;
 }
 
-static size_t
-sizeof_indices_type (CoglIndicesType type)
+size_t
+cogl_indices_type_get_size (CoglIndicesType type)
 {
   switch (type)
     {
@@ -103,7 +103,7 @@ cogl_indices_new (CoglContext *context,
                   const void *indices_data,
                   int n_indices)
 {
-  size_t buffer_bytes = sizeof_indices_type (type) * n_indices;
+  size_t buffer_bytes = cogl_indices_type_get_size (type) * n_indices;
   CoglIndexBuffer *index_buffer = cogl_index_buffer_new (context, buffer_bytes);
   CoglBuffer *buffer = COGL_BUFFER (index_buffer);
   CoglIndices *indices;
