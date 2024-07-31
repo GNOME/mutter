@@ -338,7 +338,6 @@ fail:
 
 static int
 meta_renderer_native_add_egl_config_attributes (CoglDisplay                 *cogl_display,
-                                                const CoglFramebufferConfig *config,
                                                 EGLint                      *attributes)
 {
   CoglRendererEGL *cogl_renderer_egl = cogl_display->renderer->winsys;

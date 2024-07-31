@@ -32,11 +32,14 @@
 #include "config.h"
 
 #include "cogl/cogl-framebuffer-private.h"
-#include "cogl/cogl-onscreen-template-private.h"
 
 #include <stdlib.h>
 
-G_DEFINE_TYPE (CoglOnscreenTemplate, cogl_onscreen_template, G_TYPE_OBJECT);
+struct _CoglOnscreenTemplate {
+  GObject parent_class;
+};
+
+G_DEFINE_FINAL_TYPE (CoglOnscreenTemplate, cogl_onscreen_template, G_TYPE_OBJECT);
 
 static void
 cogl_onscreen_template_init (CoglOnscreenTemplate *onscreen_template)

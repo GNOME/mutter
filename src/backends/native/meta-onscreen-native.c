@@ -2074,7 +2074,6 @@ choose_onscreen_egl_config (CoglOnscreen  *onscreen,
   g_return_val_if_fail (META_IS_KMS_PLANE (kms_plane), FALSE);
 
   cogl_display_egl_determine_attributes (cogl_display,
-                                         &cogl_display->onscreen_template->config,
                                          attrs);
 
   /* Secondary GPU contexts use GLES3, which doesn't guarantee that 10 bpc

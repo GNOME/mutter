@@ -36,7 +36,6 @@
 #include "cogl/cogl-onscreen-private.h"
 #include "cogl/cogl-frame-info-private.h"
 #include "cogl/cogl-framebuffer-private.h"
-#include "cogl/cogl-onscreen-template-private.h"
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-closure-list-private.h"
 #include "cogl/cogl-renderer-private.h"
@@ -99,32 +98,6 @@ cogl_onscreen_is_y_flipped (CoglFramebuffer *framebuffer)
 }
 
 static void
-cogl_onscreen_init_from_template (CoglOnscreen *onscreen,
-                                   CoglOnscreenTemplate *onscreen_template)
-{
-  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-
-  _cogl_list_init (&priv->frame_closures);
-
-  cogl_framebuffer_init_config (framebuffer, &onscreen_template->config);
-}
-
-static void
-cogl_onscreen_constructed (GObject *object)
-{
-  CoglOnscreen *onscreen = COGL_ONSCREEN (object);
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
-  CoglOnscreenTemplate *onscreen_template;
-
-  onscreen_template = ctx->display->onscreen_template;
-  cogl_onscreen_init_from_template (onscreen, onscreen_template);
-
-  G_OBJECT_CLASS (cogl_onscreen_parent_class)->constructed (object);
-}
-
-static void
 cogl_onscreen_dispose (GObject *object)
 {
   CoglOnscreen *onscreen = COGL_ONSCREEN (object);
@@ -143,6 +116,9 @@ cogl_onscreen_dispose (GObject *object)
 static void
 cogl_onscreen_init (CoglOnscreen *onscreen)
 {
+  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
+
+  _cogl_list_init (&priv->frame_closures);
 }
 
 static void
@@ -151,7 +127,6 @@ cogl_onscreen_class_init (CoglOnscreenClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   CoglFramebufferClass *framebuffer_class = COGL_FRAMEBUFFER_CLASS (klass);
 
-  object_class->constructed = cogl_onscreen_constructed;
   object_class->dispose = cogl_onscreen_dispose;
 
   framebuffer_class->allocate = cogl_onscreen_allocate;

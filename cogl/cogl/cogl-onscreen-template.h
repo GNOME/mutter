@@ -40,7 +40,6 @@
 
 G_BEGIN_DECLS
 
-typedef struct _CoglOnscreenTemplate CoglOnscreenTemplate;
 
 #define COGL_TYPE_ONSCREEN_TEMPLATE (cogl_onscreen_template_get_type ())
 

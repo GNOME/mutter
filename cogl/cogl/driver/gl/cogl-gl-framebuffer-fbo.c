@@ -322,7 +322,6 @@ try_creating_fbo (CoglContext                 *ctx,
                   int                          texture_level,
                   int                          texture_level_width,
                   int                          texture_level_height,
-                  const CoglFramebufferConfig *config,
                   CoglOffscreenAllocateFlags   flags,
                   CoglGlFbo                   *gl_fbo)
 {
@@ -390,7 +389,6 @@ cogl_gl_framebuffer_fbo_new (CoglFramebuffer                    *framebuffer,
   int texture_level;
   int level_width;
   int level_height;
-  const CoglFramebufferConfig *config;
   CoglGlFbo *gl_fbo;
   CoglGlFramebufferFbo *gl_framebuffer_fbo;
   CoglOffscreenAllocateFlags allocate_flags;
@@ -428,8 +426,6 @@ cogl_gl_framebuffer_fbo_new (CoglFramebuffer                    *framebuffer,
   _cogl_texture_gl_flush_legacy_texobj_filters (texture,
                                                 GL_NEAREST, GL_NEAREST);
 
-  config = cogl_framebuffer_get_config (framebuffer);
-
   gl_framebuffer_fbo = g_object_new (COGL_TYPE_GL_FRAMEBUFFER_FBO,
                                      "framebuffer", framebuffer,
                                      NULL);
@@ -441,7 +437,6 @@ cogl_gl_framebuffer_fbo_new (CoglFramebuffer                    *framebuffer,
                          texture_level,
                          level_width,
                          level_height,
-                         config,
                          allocate_flags = 0,
                          gl_fbo)) ||
 
@@ -451,7 +446,6 @@ cogl_gl_framebuffer_fbo_new (CoglFramebuffer                    *framebuffer,
                          texture_level,
                          level_width,
                          level_height,
-                         config,
                          allocate_flags = context->last_offscreen_allocate_flags,
                          gl_fbo)) ||
 
@@ -467,7 +461,6 @@ cogl_gl_framebuffer_fbo_new (CoglFramebuffer                    *framebuffer,
                          texture_level,
                          level_width,
                          level_height,
-                         config,
                          allocate_flags = COGL_OFFSCREEN_ALLOCATE_FLAG_DEPTH_STENCIL,
                          gl_fbo)) ||
 
@@ -476,7 +469,6 @@ cogl_gl_framebuffer_fbo_new (CoglFramebuffer                    *framebuffer,
                         texture_level,
                         level_width,
                         level_height,
-                        config,
                         allocate_flags = COGL_OFFSCREEN_ALLOCATE_FLAG_DEPTH |
                         COGL_OFFSCREEN_ALLOCATE_FLAG_STENCIL,
                         gl_fbo) ||
@@ -486,7 +478,6 @@ cogl_gl_framebuffer_fbo_new (CoglFramebuffer                    *framebuffer,
                         texture_level,
                         level_width,
                         level_height,
-                        config,
                         allocate_flags = COGL_OFFSCREEN_ALLOCATE_FLAG_STENCIL,
                         gl_fbo) ||
 
@@ -495,7 +486,6 @@ cogl_gl_framebuffer_fbo_new (CoglFramebuffer                    *framebuffer,
                         texture_level,
                         level_width,
                         level_height,
-                        config,
                         allocate_flags = COGL_OFFSCREEN_ALLOCATE_FLAG_DEPTH,
                         gl_fbo) ||
 
@@ -504,7 +494,6 @@ cogl_gl_framebuffer_fbo_new (CoglFramebuffer                    *framebuffer,
                         texture_level,
                         level_width,
                         level_height,
-                        config,
                         allocate_flags = 0,
                         gl_fbo))
     {

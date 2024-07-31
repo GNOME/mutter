@@ -76,14 +76,12 @@ cogl_onscreen_glx_allocate (CoglFramebuffer  *framebuffer,
     _cogl_xlib_renderer_get_data (display->renderer);
   CoglGLXRenderer *glx_renderer = display->renderer->winsys;
   Window xwin;
-  const CoglFramebufferConfig *config;
   GLXFBConfig fbconfig;
   GError *fbconfig_error = NULL;
 
   g_return_val_if_fail (glx_display->glx_context, FALSE);
 
-  config = cogl_framebuffer_get_config (framebuffer);
-  if (!cogl_display_glx_find_fbconfig (display, config,
+  if (!cogl_display_glx_find_fbconfig (display,
                                        &fbconfig,
                                        &fbconfig_error))
     {

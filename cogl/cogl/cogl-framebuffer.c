@@ -40,7 +40,6 @@
 #include "cogl/cogl-util.h"
 #include "cogl/cogl-texture-private.h"
 #include "cogl/cogl-framebuffer-private.h"
-#include "cogl/cogl-onscreen-template-private.h"
 #include "cogl/cogl-clip-stack.h"
 #include "cogl/cogl-journal-private.h"
 #include "cogl/cogl-pipeline-state-private.h"
@@ -81,9 +80,6 @@ static GQuark wire_pipeline_key = 0;
 typedef struct _CoglFramebufferPrivate
 {
   CoglContext *context;
-
-  /* The user configuration before allocation... */
-  CoglFramebufferConfig config;
 
   CoglFramebufferDriverConfig driver_config;
   CoglFramebufferDriver *driver;
@@ -291,25 +287,6 @@ cogl_framebuffer_get_internal_format (CoglFramebuffer *framebuffer)
     cogl_framebuffer_get_instance_private (framebuffer);
 
   return priv->internal_format;
-}
-
-const CoglFramebufferConfig *
-cogl_framebuffer_get_config (CoglFramebuffer *framebuffer)
-{
-  CoglFramebufferPrivate *priv =
-    cogl_framebuffer_get_instance_private (framebuffer);
-
-  return &priv->config;
-}
-
-void
-cogl_framebuffer_init_config (CoglFramebuffer             *framebuffer,
-                              const CoglFramebufferConfig *config)
-{
-  CoglFramebufferPrivate *priv =
-    cogl_framebuffer_get_instance_private (framebuffer);
-
-  priv->config = *config;
 }
 
 static void

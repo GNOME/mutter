@@ -54,14 +54,12 @@ cogl_onscreen_egl_choose_config (CoglOnscreenEgl  *onscreen_egl,
   CoglDisplay *display = context->display;
   CoglRenderer *renderer = display->renderer;
   CoglRendererEGL *egl_renderer = renderer->winsys;
-  const CoglFramebufferConfig *config;
   EGLint attributes[MAX_EGL_CONFIG_ATTRIBS];
   EGLConfig egl_config;
   EGLint config_count = 0;
   EGLBoolean status;
 
-  config = cogl_framebuffer_get_config (framebuffer);
-  cogl_display_egl_determine_attributes (display, config, attributes);
+  cogl_display_egl_determine_attributes (display, attributes);
 
   status = eglChooseConfig (egl_renderer->edpy,
                             attributes,

@@ -261,7 +261,6 @@ error:
 
 static int
 _cogl_winsys_egl_add_config_attributes (CoglDisplay                 *display,
-                                        const CoglFramebufferConfig *config,
                                         EGLint                      *attributes)
 {
   int i = 0;

@@ -37,7 +37,6 @@
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-framebuffer.h"
 #include "cogl/cogl-renderer-private.h"
-#include "cogl/cogl-onscreen-template-private.h"
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-texture-2d-private.h"
 #include "cogl/cogl-frame-info-private.h"
@@ -495,7 +494,6 @@ update_winsys_features (CoglContext *context, GError **error)
 
 static void
 glx_attributes_from_framebuffer_config (CoglDisplay                 *display,
-                                        const CoglFramebufferConfig *config,
                                         int                         *attributes)
 {
   int i = 0;
@@ -532,7 +530,6 @@ glx_attributes_from_framebuffer_config (CoglDisplay                 *display,
  * an explicit boolean status. */
 gboolean
 cogl_display_glx_find_fbconfig (CoglDisplay                  *display,
-                                const CoglFramebufferConfig  *config,
                                 GLXFBConfig                  *config_ret,
                                 GError                      **error)
 {
@@ -545,7 +542,7 @@ cogl_display_glx_find_fbconfig (CoglDisplay                  *display,
   gboolean ret = TRUE;
   int xscreen_num = DefaultScreen (xlib_renderer->xdpy);
 
-  glx_attributes_from_framebuffer_config (display, config, attributes);
+  glx_attributes_from_framebuffer_config (display, attributes);
 
   configs = glx_renderer->glXChooseFBConfig (xlib_renderer->xdpy,
                                              xscreen_num,
@@ -652,7 +649,6 @@ create_context (CoglDisplay *display, GError **error)
 
   glx_display->found_fbconfig =
     cogl_display_glx_find_fbconfig (display,
-                                    &display->onscreen_template->config,
                                     &config,
                                     &fbconfig_error);
   if (!glx_display->found_fbconfig)

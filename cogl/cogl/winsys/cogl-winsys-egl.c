@@ -39,7 +39,6 @@
 #include "cogl/cogl-framebuffer.h"
 #include "cogl/cogl-onscreen-private.h"
 #include "cogl/cogl-renderer-private.h"
-#include "cogl/cogl-onscreen-template-private.h"
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-trace.h"
 #include "cogl/winsys/cogl-winsys-egl-private.h"
@@ -191,7 +190,6 @@ _cogl_winsys_renderer_connect (CoglRenderer *renderer,
 
 void
 cogl_display_egl_determine_attributes (CoglDisplay                 *display,
-                                       const CoglFramebufferConfig *config,
                                        EGLint                      *attributes)
 {
   CoglRenderer *renderer = display->renderer;
@@ -201,7 +199,6 @@ cogl_display_egl_determine_attributes (CoglDisplay                 *display,
   /* Let the platform add attributes first, including setting the
    * EGL_SURFACE_TYPE */
   i = egl_renderer->platform_vtable->add_config_attributes (display,
-                                                            config,
                                                             attributes);
 
   attributes[i++] = EGL_STENCIL_SIZE;
@@ -312,7 +309,6 @@ try_create_context (CoglDisplay *display,
   cogl_renderer_bind_api (renderer);
 
   cogl_display_egl_determine_attributes (display,
-                                         &display->onscreen_template->config,
                                          cfg_attribs);
 
   edpy = egl_renderer->edpy;

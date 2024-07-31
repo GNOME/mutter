@@ -32,7 +32,6 @@
 
 #include "cogl/cogl-display.h"
 #include "cogl/cogl-renderer.h"
-#include "cogl/cogl-onscreen-template-private.h"
 
 struct _CoglDisplay
 {

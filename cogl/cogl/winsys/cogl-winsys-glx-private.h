@@ -35,7 +35,6 @@ _cogl_winsys_glx_get_vtable (void);
 
 gboolean
 cogl_display_glx_find_fbconfig (CoglDisplay                  *display,
-                                const CoglFramebufferConfig  *config,
                                 GLXFBConfig                  *config_ret,
                                 GError                      **error);
 

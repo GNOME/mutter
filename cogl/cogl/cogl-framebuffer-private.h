@@ -51,10 +51,6 @@ typedef struct _CoglFramebufferDriverConfig
   gboolean disable_depth_and_stencil;
 } CoglFramebufferDriverConfig;
 
-typedef struct
-{
-} CoglFramebufferConfig;
-
 /* XXX: The order of these indices determines the order they are
  * flushed.
  *
@@ -110,13 +106,6 @@ typedef struct _CoglFramebufferBits
 
 gboolean
 cogl_framebuffer_is_allocated (CoglFramebuffer *framebuffer);
-
-void
-cogl_framebuffer_init_config (CoglFramebuffer             *framebuffer,
-                              const CoglFramebufferConfig *config);
-
-const CoglFramebufferConfig *
-cogl_framebuffer_get_config (CoglFramebuffer *framebuffer);
 
 void
 cogl_framebuffer_update_size (CoglFramebuffer *framebuffer,

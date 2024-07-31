@@ -217,7 +217,6 @@ cogl_sources = [
   'cogl-offscreen-private.h',
   'cogl-offscreen.c',
   'cogl-onscreen-private.h',
-  'cogl-onscreen-template-private.h',
   'cogl-onscreen-template.c',
   'cogl-onscreen-template.h',
   'cogl-onscreen.c',
