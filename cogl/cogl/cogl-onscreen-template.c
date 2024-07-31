@@ -53,7 +53,5 @@ cogl_onscreen_template_new (void)
 {
   CoglOnscreenTemplate *onscreen_template = g_object_new (COGL_TYPE_ONSCREEN_TEMPLATE, NULL);
 
-  onscreen_template->config.need_stencil = TRUE;
-
   return onscreen_template;
 }

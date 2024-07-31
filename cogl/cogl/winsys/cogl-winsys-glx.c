@@ -520,7 +520,7 @@ glx_attributes_from_framebuffer_config (CoglDisplay                 *display,
   attributes[i++] = GLX_DEPTH_SIZE;
   attributes[i++] = 1;
   attributes[i++] = GLX_STENCIL_SIZE;
-  attributes[i++] = config->need_stencil ? 2 : 0;
+  attributes[i++] = 2;
 
   attributes[i++] = None;
 

@@ -204,11 +204,8 @@ cogl_display_egl_determine_attributes (CoglDisplay                 *display,
                                                             config,
                                                             attributes);
 
-  if (config->need_stencil)
-    {
-      attributes[i++] = EGL_STENCIL_SIZE;
-      attributes[i++] = 2;
-    }
+  attributes[i++] = EGL_STENCIL_SIZE;
+  attributes[i++] = 2;
 
   attributes[i++] = EGL_RED_SIZE;
   attributes[i++] = 1;

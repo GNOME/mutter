@@ -53,7 +53,6 @@ typedef struct _CoglFramebufferDriverConfig
 
 typedef struct
 {
-  gboolean need_stencil;
 } CoglFramebufferConfig;
 
 /* XXX: The order of these indices determines the order they are
