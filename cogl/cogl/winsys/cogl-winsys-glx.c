@@ -498,7 +498,6 @@ glx_attributes_from_framebuffer_config (CoglDisplay                 *display,
                                         const CoglFramebufferConfig *config,
                                         int                         *attributes)
 {
-  CoglGLXRenderer *glx_renderer = display->renderer->winsys;
   int i = 0;
 
   attributes[i++] = GLX_DRAWABLE_TYPE;
@@ -526,15 +525,6 @@ glx_attributes_from_framebuffer_config (CoglDisplay                 *display,
     {
       attributes[i++] = GLX_STEREO;
       attributes[i++] = TRUE;
-    }
-
-  if (glx_renderer->glx_major == 1 && glx_renderer->glx_minor >= 4 &&
-      config->samples_per_pixel)
-    {
-      attributes[i++] = GLX_SAMPLE_BUFFERS;
-      attributes[i++] = 1;
-      attributes[i++] = GLX_SAMPLES;
-      attributes[i++] = config->samples_per_pixel;
     }
 
   attributes[i++] = None;

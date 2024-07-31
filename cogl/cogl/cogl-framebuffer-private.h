@@ -54,7 +54,6 @@ typedef struct _CoglFramebufferDriverConfig
 typedef struct
 {
   gboolean need_stencil;
-  int samples_per_pixel;
   gboolean stereo_enabled;
 } CoglFramebufferConfig;
 
@@ -120,10 +119,6 @@ cogl_framebuffer_init_config (CoglFramebuffer             *framebuffer,
 
 const CoglFramebufferConfig *
 cogl_framebuffer_get_config (CoglFramebuffer *framebuffer);
-
-void
-cogl_framebuffer_update_samples_per_pixel (CoglFramebuffer *framebuffer,
-                                           int              samples_per_pixel);
 
 void
 cogl_framebuffer_update_size (CoglFramebuffer *framebuffer,

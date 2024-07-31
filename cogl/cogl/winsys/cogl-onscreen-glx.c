@@ -95,19 +95,6 @@ cogl_onscreen_glx_allocate (CoglFramebuffer  *framebuffer,
       return FALSE;
     }
 
-  /* Update the real number of samples_per_pixel now that we have
-   * found an fbconfig... */
-  if (config->samples_per_pixel)
-    {
-      int samples;
-      int status = glx_renderer->glXGetFBConfigAttrib (xlib_renderer->xdpy,
-                                                       fbconfig,
-                                                       GLX_SAMPLES,
-                                                       &samples);
-      g_return_val_if_fail (status == Success, TRUE);
-      cogl_framebuffer_update_samples_per_pixel (framebuffer, samples);
-    }
-
   /* FIXME: We need to explicitly Select for ConfigureNotify events.
    * We need to document that for windows we create then toolkits
    * must be careful not to clear event mask bits that we select.

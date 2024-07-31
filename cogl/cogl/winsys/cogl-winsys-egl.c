@@ -231,14 +231,6 @@ cogl_display_egl_determine_attributes (CoglDisplay                 *display,
                      EGL_OPENGL_BIT :
                      EGL_OPENGL_ES2_BIT);
 
-  if (config->samples_per_pixel)
-    {
-       attributes[i++] = EGL_SAMPLE_BUFFERS;
-       attributes[i++] = 1;
-       attributes[i++] = EGL_SAMPLES;
-       attributes[i++] = config->samples_per_pixel;
-    }
-
   attributes[i++] = EGL_NONE;
 
   g_assert (i < MAX_EGL_CONFIG_ATTRIBS);

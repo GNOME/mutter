@@ -52,19 +52,8 @@ CoglOnscreenTemplate *
 cogl_onscreen_template_new (void)
 {
   CoglOnscreenTemplate *onscreen_template = g_object_new (COGL_TYPE_ONSCREEN_TEMPLATE, NULL);
-  char *user_config;
 
   onscreen_template->config.need_stencil = TRUE;
-  onscreen_template->config.samples_per_pixel = 0;
-
-  user_config = getenv ("COGL_POINT_SAMPLES_PER_PIXEL");
-  if (user_config)
-    {
-      unsigned long samples_per_pixel = strtoul (user_config, NULL, 10);
-      if (samples_per_pixel != ULONG_MAX)
-        onscreen_template->config.samples_per_pixel =
-          samples_per_pixel;
-    }
 
   return onscreen_template;
 }

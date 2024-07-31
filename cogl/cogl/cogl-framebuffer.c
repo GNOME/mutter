@@ -134,8 +134,6 @@ typedef struct _CoglFramebufferPrivate
   int clear_clip_y1;
   gboolean clear_clip_dirty;
 
-  int samples_per_pixel;
-
   /* Whether the depth buffer was enabled for this framebuffer,
  * usually means it needs to be cleared before being reused next.
  */
@@ -234,8 +232,6 @@ cogl_framebuffer_constructed (GObject *object)
 
   priv->modelview_stack = cogl_matrix_stack_new (priv->context);
   priv->projection_stack = cogl_matrix_stack_new (priv->context);
-
-  priv->samples_per_pixel = 0;
 
   priv->clip_stack = NULL;
 
@@ -1191,15 +1187,6 @@ cogl_framebuffer_set_dither_enabled (CoglFramebuffer *framebuffer,
   priv->dither_enabled = dither_enabled;
 }
 
-void
-cogl_framebuffer_update_samples_per_pixel (CoglFramebuffer *framebuffer,
-                                           int              samples_per_pixel)
-{
-  CoglFramebufferPrivate *priv =
-    cogl_framebuffer_get_instance_private (framebuffer);
-
-  priv->samples_per_pixel = samples_per_pixel;
-}
 
 CoglContext *
 cogl_framebuffer_get_context (CoglFramebuffer *framebuffer)

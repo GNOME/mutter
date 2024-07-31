@@ -75,16 +75,6 @@ cogl_onscreen_egl_choose_config (CoglOnscreenEgl  *onscreen_egl,
       return FALSE;
     }
 
-  if (config->samples_per_pixel)
-    {
-      EGLint samples;
-      status = eglGetConfigAttrib (egl_renderer->edpy,
-                                   egl_config,
-                                   EGL_SAMPLES, &samples);
-      g_return_val_if_fail (status == EGL_TRUE, TRUE);
-      cogl_framebuffer_update_samples_per_pixel (framebuffer, samples);
-    }
-
   *out_egl_config = egl_config;
   return TRUE;
 }

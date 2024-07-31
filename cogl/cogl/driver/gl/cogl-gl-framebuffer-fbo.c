@@ -41,7 +41,6 @@ typedef struct _CoglGlFbo
 {
   GLuint fbo_handle;
   GList *renderbuffers;
-  int samples_per_pixel;
 } CoglGlFbo;
 
 struct _CoglGlFramebufferFbo
@@ -210,8 +209,7 @@ static GList *
 try_creating_renderbuffers (CoglContext                *ctx,
                             int                         width,
                             int                         height,
-                            CoglOffscreenAllocateFlags  flags,
-                            int                         n_samples)
+                            CoglOffscreenAllocateFlags  flags)
 {
   GList *renderbuffers = NULL;
   GLuint gl_depth_stencil_handle;
@@ -242,14 +240,8 @@ try_creating_renderbuffers (CoglContext                *ctx,
       /* Create a renderbuffer for depth and stenciling */
       GE (ctx, glGenRenderbuffers (1, &gl_depth_stencil_handle));
       GE (ctx, glBindRenderbuffer (GL_RENDERBUFFER, gl_depth_stencil_handle));
-      if (n_samples)
-        GE (ctx, glRenderbufferStorageMultisampleIMG (GL_RENDERBUFFER,
-                                                      n_samples,
-                                                      format,
-                                                      width, height));
-      else
-        GE (ctx, glRenderbufferStorage (GL_RENDERBUFFER, format,
-                                        width, height));
+      GE (ctx, glRenderbufferStorage (GL_RENDERBUFFER, format,
+                                      width, height));
       GE (ctx, glBindRenderbuffer (GL_RENDERBUFFER, 0));
 
 
@@ -274,14 +266,8 @@ try_creating_renderbuffers (CoglContext                *ctx,
       GE (ctx, glBindRenderbuffer (GL_RENDERBUFFER, gl_depth_handle));
       /* For now we just ask for GL_DEPTH_COMPONENT16 since this is all that's
        * available under GLES */
-      if (n_samples)
-        GE (ctx, glRenderbufferStorageMultisampleIMG (GL_RENDERBUFFER,
-                                                      n_samples,
-                                                      GL_DEPTH_COMPONENT16,
-                                                      width, height));
-      else
-        GE (ctx, glRenderbufferStorage (GL_RENDERBUFFER, GL_DEPTH_COMPONENT16,
-                                        width, height));
+      GE (ctx, glRenderbufferStorage (GL_RENDERBUFFER, GL_DEPTH_COMPONENT16,
+                                      width, height));
       GE (ctx, glBindRenderbuffer (GL_RENDERBUFFER, 0));
       GE (ctx, glFramebufferRenderbuffer (GL_FRAMEBUFFER,
                                           GL_DEPTH_ATTACHMENT,
@@ -296,14 +282,8 @@ try_creating_renderbuffers (CoglContext                *ctx,
 
       GE (ctx, glGenRenderbuffers (1, &gl_stencil_handle));
       GE (ctx, glBindRenderbuffer (GL_RENDERBUFFER, gl_stencil_handle));
-      if (n_samples)
-        GE (ctx, glRenderbufferStorageMultisampleIMG (GL_RENDERBUFFER,
-                                                      n_samples,
-                                                      GL_STENCIL_INDEX8,
-                                                      width, height));
-      else
-        GE (ctx, glRenderbufferStorage (GL_RENDERBUFFER, GL_STENCIL_INDEX8,
-                                        width, height));
+      GE (ctx, glRenderbufferStorage (GL_RENDERBUFFER, GL_STENCIL_INDEX8,
+                                      width, height));
       GE (ctx, glBindRenderbuffer (GL_RENDERBUFFER, 0));
       GE (ctx, glFramebufferRenderbuffer (GL_FRAMEBUFFER,
                                           GL_STENCIL_ATTACHMENT,
@@ -349,7 +329,6 @@ try_creating_fbo (CoglContext                 *ctx,
   GLuint tex_gl_handle;
   GLenum tex_gl_target;
   GLenum status;
-  int n_samples;
 
   if (!cogl_texture_get_gl_texture (texture, &tex_gl_handle, &tex_gl_target))
     return FALSE;
@@ -361,15 +340,6 @@ try_creating_fbo (CoglContext                 *ctx,
       )
     return FALSE;
 
-  if (config->samples_per_pixel)
-    {
-      if (!ctx->glFramebufferTexture2DMultisampleIMG)
-        return FALSE;
-      n_samples = config->samples_per_pixel;
-    }
-  else
-    n_samples = 0;
-
   /* We are about to generate and bind a new fbo, so we pretend to
    * change framebuffer state so that the old framebuffer will be
    * rebound again before drawing. */
@@ -379,18 +349,10 @@ try_creating_fbo (CoglContext                 *ctx,
   ctx->glGenFramebuffers (1, &gl_fbo->fbo_handle);
   GE (ctx, glBindFramebuffer (GL_FRAMEBUFFER, gl_fbo->fbo_handle));
 
-  if (n_samples)
-    {
-      GE (ctx, glFramebufferTexture2DMultisampleIMG (GL_FRAMEBUFFER,
-                                                     GL_COLOR_ATTACHMENT0,
-                                                     tex_gl_target, tex_gl_handle,
-                                                     n_samples,
-                                                     texture_level));
-    }
-  else
-    GE (ctx, glFramebufferTexture2D (GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                                     tex_gl_target, tex_gl_handle,
-                                     texture_level));
+
+  GE (ctx, glFramebufferTexture2D (GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                                   tex_gl_target, tex_gl_handle,
+                                   texture_level));
 
   if (flags)
     {
@@ -398,8 +360,7 @@ try_creating_fbo (CoglContext                 *ctx,
         try_creating_renderbuffers (ctx,
                                     texture_level_width,
                                     texture_level_height,
-                                    flags,
-                                    n_samples);
+                                    flags);
     }
 
   /* Make sure it's complete */
@@ -413,21 +374,6 @@ try_creating_fbo (CoglContext                 *ctx,
       gl_fbo->renderbuffers = NULL;
 
       return FALSE;
-    }
-
-  /* Update the real number of samples_per_pixel now that we have a
-   * complete framebuffer */
-  if (n_samples)
-    {
-      GLenum attachment = GL_COLOR_ATTACHMENT0;
-      GLenum pname = GL_TEXTURE_SAMPLES_IMG;
-      int texture_samples;
-
-      GE( ctx, glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER,
-                                                      attachment,
-                                                      pname,
-                                                      &texture_samples) );
-      gl_fbo->samples_per_pixel = texture_samples;
     }
 
   return TRUE;
@@ -562,9 +508,6 @@ cogl_gl_framebuffer_fbo_new (CoglFramebuffer                    *framebuffer,
                         allocate_flags = 0,
                         gl_fbo))
     {
-      cogl_framebuffer_update_samples_per_pixel (framebuffer,
-                                                 gl_fbo->samples_per_pixel);
-
       if (!driver_config->disable_depth_and_stencil)
         {
           /* Record that the last set of flags succeeded so that we can
