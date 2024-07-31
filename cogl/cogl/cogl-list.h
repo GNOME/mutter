@@ -76,9 +76,6 @@ void
 _cogl_list_remove (CoglList *elm);
 
 int
-_cogl_list_length (CoglList *list);
-
-int
 _cogl_list_empty (CoglList *list);
 
 void
