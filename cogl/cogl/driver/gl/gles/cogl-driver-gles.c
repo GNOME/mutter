@@ -570,7 +570,7 @@ _cogl_driver_update_features (CoglContext *context,
 {
   unsigned long private_features
     [COGL_FLAGS_N_LONGS_FOR_SIZE (COGL_N_PRIVATE_FEATURES)] = { 0 };
-  char **gl_extensions;
+  g_auto (GStrv) gl_extensions = 0;
   int gl_major, gl_minor;
   int i;
 
@@ -588,7 +588,7 @@ _cogl_driver_update_features (CoglContext *context,
 
   if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_WINSYS)))
     {
-      char *all_extensions = g_strjoinv (" ", gl_extensions);
+      g_autofree char *all_extensions = g_strjoinv (" ", gl_extensions);
 
       COGL_NOTE (WINSYS,
                  "Checking features\n"
@@ -600,8 +600,6 @@ _cogl_driver_update_features (CoglContext *context,
                  context->glGetString (GL_RENDERER),
                  _cogl_context_get_gl_version (context),
                  all_extensions);
-
-      g_free (all_extensions);
     }
 
   context->glsl_major = 1;
@@ -620,7 +618,6 @@ _cogl_driver_update_features (CoglContext *context,
                    COGL_DRIVER_ERROR,
                    COGL_DRIVER_ERROR_INVALID_VERSION,
                    "OpenGL ES 2.0 or better is required");
-      g_strfreev (gl_extensions);
       return FALSE;
     }
 
@@ -636,7 +633,6 @@ _cogl_driver_update_features (CoglContext *context,
                    COGL_DRIVER_ERROR,
                    COGL_DRIVER_ERROR_INVALID_VERSION,
                    "GL_OES_rgb8_rgba8 is required for GLES 2");
-      g_strfreev (gl_extensions);
       return FALSE;
     }
 
@@ -751,8 +747,6 @@ _cogl_driver_update_features (CoglContext *context,
   /* Cache features */
   for (i = 0; i < G_N_ELEMENTS (private_features); i++)
     context->private_features[i] |= private_features[i];
-
-  g_strfreev (gl_extensions);
 
   return TRUE;
 }

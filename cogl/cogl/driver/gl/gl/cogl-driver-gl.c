@@ -420,7 +420,7 @@ _cogl_driver_update_features (CoglContext *ctx,
 {
   unsigned long private_features
     [COGL_FLAGS_N_LONGS_FOR_SIZE (COGL_N_PRIVATE_FEATURES)] = { 0 };
-  char **gl_extensions;
+  g_auto (GStrv) gl_extensions = 0;
   const char *glsl_version;
   int gl_major = 0, gl_minor = 0;
   int i;
@@ -445,7 +445,7 @@ _cogl_driver_update_features (CoglContext *ctx,
 
   if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_WINSYS)))
     {
-      char *all_extensions = g_strjoinv (" ", gl_extensions);
+      g_autofree char *all_extensions = g_strjoinv (" ", gl_extensions);
 
       COGL_NOTE (WINSYS,
                  "Checking features\n"
@@ -457,8 +457,6 @@ _cogl_driver_update_features (CoglContext *ctx,
                  ctx->glGetString (GL_RENDERER),
                  _cogl_context_get_gl_version (ctx),
                  all_extensions);
-
-      g_free (all_extensions);
     }
 
   _cogl_get_gl_version (ctx, &gl_major, &gl_minor);
@@ -542,8 +540,6 @@ _cogl_driver_update_features (CoglContext *ctx,
   /* Cache features */
   for (i = 0; i < G_N_ELEMENTS (private_features); i++)
     ctx->private_features[i] |= private_features[i];
-
-  g_strfreev (gl_extensions);
 
   if (!COGL_FLAGS_GET (private_features, COGL_PRIVATE_FEATURE_TEXTURE_SWIZZLE))
     {
