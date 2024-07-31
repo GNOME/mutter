@@ -21,7 +21,7 @@
 #include "config.h"
 
 #include <glib/gi18n-lib.h>
-#include <gsettings-desktop-schemas/gdesktop-enums.h>
+#include <gdesktop-enums.h>
 
 #ifdef HAVE_LIBWACOM
 #include <libwacom/libwacom.h>
