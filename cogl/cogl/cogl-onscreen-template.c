@@ -57,11 +57,3 @@ cogl_onscreen_template_new (void)
 
   return onscreen_template;
 }
-
-void
-cogl_onscreen_template_set_stereo_enabled (
-					   CoglOnscreenTemplate *onscreen_template,
-					   gboolean enabled)
-{
-  onscreen_template->config.stereo_enabled = enabled;
-}

@@ -521,11 +521,6 @@ glx_attributes_from_framebuffer_config (CoglDisplay                 *display,
   attributes[i++] = 1;
   attributes[i++] = GLX_STENCIL_SIZE;
   attributes[i++] = config->need_stencil ? 2 : 0;
-  if (config->stereo_enabled)
-    {
-      attributes[i++] = GLX_STEREO;
-      attributes[i++] = TRUE;
-    }
 
   attributes[i++] = None;
 
