@@ -70,14 +70,6 @@ cogl_onscreen_template_new (void)
 }
 
 void
-cogl_onscreen_template_set_samples_per_pixel (
-                                        CoglOnscreenTemplate *onscreen_template,
-                                        int samples_per_pixel)
-{
-  onscreen_template->config.samples_per_pixel = samples_per_pixel;
-}
-
-void
 cogl_onscreen_template_set_stereo_enabled (
 					   CoglOnscreenTemplate *onscreen_template,
 					   gboolean enabled)
