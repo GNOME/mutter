@@ -89,6 +89,15 @@
 #ifndef GL_RGBA16
 #define GL_RGBA16 0x805B
 #endif
+#ifndef GL_BGRA
+#define GL_BGRA 0x80E1
+#endif
+#ifndef GL_BGRA8
+#define GL_BGRA8 0x93A1
+#endif
+#ifndef GL_RG8
+#define GL_RG8 0x822B
+#endif
 
 static CoglPixelFormat
 _cogl_driver_pixel_format_to_gl (CoglContext     *context,
@@ -165,7 +174,7 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
     case COGL_PIXEL_FORMAT_RG_88:
       if (cogl_has_feature (context, COGL_FEATURE_ID_TEXTURE_RG))
         {
-          glintformat = GL_RG8_EXT;
+          glintformat = GL_RG8;
           glformat = GL_RG;
           gltype = GL_UNSIGNED_BYTE;
         }
@@ -245,8 +254,8 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       if (_cogl_has_private_feature
           (context, COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_BGRA8888))
         {
-          glintformat = GL_BGRA_EXT;
-          glformat = GL_BGRA_EXT;
+          glintformat = GL_BGRA8;
+          glformat = GL_BGRA;
           gltype = GL_UNSIGNED_BYTE;
         }
       else
