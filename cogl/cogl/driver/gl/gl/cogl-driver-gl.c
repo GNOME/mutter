@@ -374,8 +374,8 @@ _cogl_driver_get_read_pixels_format (CoglContext     *context,
 
 static gboolean
 _cogl_get_gl_version (CoglContext *ctx,
-                      int *major_out,
-                      int *minor_out)
+                      int         *major_out,
+                      int         *minor_out)
 {
   const char *version_string;
 
@@ -387,9 +387,8 @@ _cogl_get_gl_version (CoglContext *ctx,
 }
 
 static gboolean
-check_gl_version (CoglContext *ctx,
-                  char **gl_extensions,
-                  GError **error)
+check_gl_version (CoglContext  *ctx,
+                  GError      **error)
 {
   int major, minor;
 
@@ -415,13 +414,51 @@ check_gl_version (CoglContext *ctx,
 }
 
 static gboolean
-_cogl_driver_update_features (CoglContext *ctx,
-                              GError **error)
+_cogl_get_glsl_version (CoglContext *ctx,
+                        int         *major_out,
+                        int         *minor_out)
+{
+  const char *version_string;
+
+  version_string = (char *)ctx->glGetString (GL_SHADING_LANGUAGE_VERSION);
+  return _cogl_gl_util_parse_gl_version (version_string, major_out, minor_out);
+}
+
+static gboolean
+check_glsl_version (CoglContext  *ctx,
+                    GError      **error)
+{
+  int major, minor;
+
+  if (!_cogl_get_glsl_version (ctx, &major, &minor))
+    {
+      g_set_error (error,
+                   COGL_DRIVER_ERROR,
+                   COGL_DRIVER_ERROR_UNKNOWN_VERSION,
+                   "The supported GLSL version could not be determined");
+      return FALSE;
+    }
+
+  if (!COGL_CHECK_GL_VERSION (major, minor, ctx->glsl_major, ctx->glsl_minor))
+    {
+      g_set_error (error,
+                   COGL_DRIVER_ERROR,
+                   COGL_DRIVER_ERROR_INVALID_VERSION,
+                   "GLSL %d%d0 or better is required",
+                   ctx->glsl_major, ctx->glsl_minor);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+static gboolean
+_cogl_driver_update_features (CoglContext  *ctx,
+                              GError      **error)
 {
   unsigned long private_features
     [COGL_FLAGS_N_LONGS_FOR_SIZE (COGL_N_PRIVATE_FEATURES)] = { 0 };
   g_auto (GStrv) gl_extensions = 0;
-  const char *glsl_version;
   int gl_major = 0, gl_minor = 0;
   int i;
 
@@ -440,7 +477,14 @@ _cogl_driver_update_features (CoglContext *ctx,
 
   gl_extensions = _cogl_context_get_gl_extensions (ctx);
 
-  if (!check_gl_version (ctx, gl_extensions, error))
+  if (!check_gl_version (ctx, error))
+    return FALSE;
+
+  ctx->glsl_major = 1;
+  ctx->glsl_minor = 40;
+  ctx->glsl_version_to_use = 140;
+
+  if (!check_glsl_version (ctx, error))
     return FALSE;
 
   if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_WINSYS)))
@@ -460,15 +504,6 @@ _cogl_driver_update_features (CoglContext *ctx,
     }
 
   _cogl_get_gl_version (ctx, &gl_major, &gl_minor);
-
-  ctx->glsl_major = 1;
-  ctx->glsl_minor = 2;
-  ctx->glsl_version_to_use = 140;
-
-  glsl_version = (char *)ctx->glGetString (GL_SHADING_LANGUAGE_VERSION);
-  _cogl_gl_util_parse_gl_version (glsl_version,
-                                  &ctx->glsl_major,
-                                  &ctx->glsl_minor);
 
   COGL_FLAGS_SET (ctx->features,
                   COGL_FEATURE_ID_UNSIGNED_INT_INDICES, TRUE);
