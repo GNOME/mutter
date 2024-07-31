@@ -150,6 +150,20 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
    *      RGB8, RGBA8, RGBA4, RGB5_A1, RGB565
    */
 
+  /* For GLES 2 (not GLES 3) the glintformat and glformat have to match:
+   *
+   * internalformat must match format. No conversion between formats is
+   * supported during texture image processing.
+   *
+   *  GL_INVALID_OPERATION is generated if format does not match internalformat.
+   *
+   * This means for e.g. COGL_PIXEL_FORMAT_RGBX_8888 we cannot use
+   * glintformat=GL_RGB8 with glformat=GL_RGBA. Using glintformat=GL_RGBA8 with
+   * glformat=GL_RGBA means the alpha channel won't be ignored and using
+   * glintformat=GL_RGB8 with glformat=GL_RGB means the uploading is only
+   * expecting 3 channels and not 4.
+   */
+
   /* We try to use the exact matching GL format but if that's not possible
    * because the driver doesn't support it, we fall back to the next best match
    * by calling this function again. This works for all formats which are
