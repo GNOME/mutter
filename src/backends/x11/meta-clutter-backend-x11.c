@@ -66,14 +66,6 @@ static const gchar *atom_names[] = {
 
 #define N_ATOM_NAMES G_N_ELEMENTS (atom_names)
 
-static CoglDisplay *
-meta_clutter_backend_x11_get_display (ClutterBackend  *clutter_backend,
-                                      CoglRenderer    *renderer,
-                                      GError         **error)
-{
-  return cogl_display_new (renderer);
-}
-
 static CoglRenderer *
 meta_clutter_backend_x11_get_renderer (ClutterBackend  *clutter_backend,
                                        GError         **error)
@@ -138,7 +130,6 @@ meta_clutter_backend_x11_class_init (MetaClutterBackendX11Class *klass)
 {
   ClutterBackendClass *clutter_backend_class = CLUTTER_BACKEND_CLASS (klass);
 
-  clutter_backend_class->get_display = meta_clutter_backend_x11_get_display;
   clutter_backend_class->get_renderer = meta_clutter_backend_x11_get_renderer;
   clutter_backend_class->create_stage = meta_clutter_backend_x11_create_stage;
   clutter_backend_class->get_default_seat = meta_clutter_backend_x11_get_default_seat;

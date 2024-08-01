@@ -132,16 +132,9 @@ clutter_backend_do_real_create_context (ClutterBackend  *backend,
     goto error;
 
   CLUTTER_NOTE (BACKEND, "Creating Cogl display");
-  if (klass->get_display != NULL)
-    {
-      backend->cogl_display = klass->get_display (backend,
-                                                  backend->cogl_renderer,
-                                                  error);
-    }
-  else
-    {
-      backend->cogl_display = cogl_display_new (backend->cogl_renderer);
-    }
+  backend->cogl_display = klass->get_display (backend,
+                                              backend->cogl_renderer,
+                                              error);
 
   if (backend->cogl_display == NULL)
     goto error;
@@ -241,6 +234,14 @@ clutter_backend_real_create_context (ClutterBackend  *backend,
   return TRUE;
 }
 
+static CoglDisplay *
+clutter_backend_real_get_display (ClutterBackend  *backend,
+                                  CoglRenderer    *renderer,
+                                  GError         **error)
+{
+    return cogl_display_new (renderer);
+}
+
 static void
 clutter_backend_class_init (ClutterBackendClass *klass)
 {
@@ -296,6 +297,7 @@ clutter_backend_class_init (ClutterBackendClass *klass)
   klass->resolution_changed = clutter_backend_real_resolution_changed;
 
   klass->create_context = clutter_backend_real_create_context;
+  klass->get_display = clutter_backend_real_get_display;
 }
 
 static void
