@@ -79,24 +79,6 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglBuffer, g_object_unref)
 COGL_EXPORT
 GType       cogl_buffer_get_type (void) G_GNUC_CONST;
 
-#define COGL_BUFFER_ERROR (_cogl_buffer_error_domain ())
-
-/**
- * CoglBufferError:
- * @COGL_BUFFER_ERROR_MAP: A buffer could not be mapped either
- *    because the feature isn't supported or because a system
- *    limitation was hit.
- *
- * Error enumeration for #CoglBuffer
- */
-typedef enum /*< prefix=COGL_BUFFER_ERROR >*/
-{
-  COGL_BUFFER_ERROR_MAP
-} CoglBufferError;
-
-uint32_t
-_cogl_buffer_error_domain (void);
-
 /**
  * cogl_buffer_get_size:
  * @buffer: a buffer object

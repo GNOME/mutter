@@ -197,31 +197,4 @@ cogl_bitmap_get_rowstride (CoglBitmap *bitmap);
 COGL_EXPORT CoglPixelBuffer *
 cogl_bitmap_get_buffer (CoglBitmap *bitmap);
 
-/**
- * COGL_BITMAP_ERROR:
- *
- * #GError domain for bitmap errors.
- */
-#define COGL_BITMAP_ERROR (cogl_bitmap_error_quark ())
-
-/**
- * CoglBitmapError:
- * @COGL_BITMAP_ERROR_FAILED: Generic failure code, something went
- *   wrong.
- * @COGL_BITMAP_ERROR_UNKNOWN_TYPE: Unknown image type.
- * @COGL_BITMAP_ERROR_CORRUPT_IMAGE: An image file was broken somehow.
- *
- * Error codes that can be thrown when performing bitmap
- * operations.
- */
-typedef enum
-{
-  COGL_BITMAP_ERROR_FAILED,
-  COGL_BITMAP_ERROR_UNKNOWN_TYPE,
-  COGL_BITMAP_ERROR_CORRUPT_IMAGE
-} CoglBitmapError;
-
-COGL_EXPORT
-uint32_t cogl_bitmap_error_quark (void);
-
 G_END_DECLS

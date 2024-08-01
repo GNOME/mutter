@@ -372,12 +372,6 @@ cogl_bitmap_get_buffer (CoglBitmap *bitmap)
   return COGL_PIXEL_BUFFER (bitmap->buffer);
 }
 
-uint32_t
-cogl_bitmap_error_quark (void)
-{
-  return g_quark_from_static_string ("cogl-bitmap-error-quark");
-}
-
 uint8_t *
 _cogl_bitmap_map (CoglBitmap *bitmap,
                   CoglBufferAccess access,
