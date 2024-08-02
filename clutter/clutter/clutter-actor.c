@@ -11845,6 +11845,42 @@ clutter_actor_get_reactive (ClutterActor *actor)
   return (actor->flags & CLUTTER_ACTOR_REACTIVE) != FALSE;
 }
 
+void
+clutter_actor_set_no_layout (ClutterActor *actor,
+                             gboolean      no_layout)
+{
+ g_return_if_fail (CLUTTER_IS_ACTOR (actor));
+
+ if (no_layout == clutter_actor_is_no_layout (actor))
+   return;
+
+ if (no_layout)
+   actor->flags |= CLUTTER_ACTOR_NO_LAYOUT;
+ else
+   actor->flags &= ~CLUTTER_ACTOR_NO_LAYOUT;
+}
+
+/**
+* clutter_actor_is_no_layout:
+* @actor: a #ClutterActor
+*
+* Checks whether @actor is marked as no layout.
+*
+* That means the @actor provides an explicit layout management
+* policy for its children; this will prevent Clutter from automatic
+* queueing of relayout and will defer all layouting to the actor itself
+*
+* Return value: %TRUE if the actor is marked as no layout
+*/
+gboolean
+clutter_actor_is_no_layout (ClutterActor *actor)
+{
+ g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), FALSE);
+
+ return (actor->flags & CLUTTER_ACTOR_NO_LAYOUT) != FALSE;
+}
+
+
 static void
 clutter_actor_store_content_box (ClutterActor *self,
                                  const ClutterActorBox *box)
@@ -13175,138 +13211,6 @@ _clutter_actor_set_enable_paint_unmapped (ClutterActor *self,
       clutter_actor_update_map_state (self, MAP_STATE_CHECK);
       pop_in_paint_unmapped_branch (self, 1);
     }
-}
-
-/**
- * clutter_actor_get_flags:
- * @self: a #ClutterActor
- *
- * Retrieves the flags set on @self
- *
- * Return value: a bitwise or of #ClutterActorFlags or 0
- */
-ClutterActorFlags
-clutter_actor_get_flags (ClutterActor *self)
-{
-  g_return_val_if_fail (CLUTTER_IS_ACTOR (self), 0);
-
-  return self->flags;
-}
-
-/**
- * clutter_actor_set_flags:
- * @self: a #ClutterActor
- * @flags: the flags to set
- *
- * Sets @flags on @self
- *
- * This function will emit notifications for the changed properties
- */
-void
-clutter_actor_set_flags (ClutterActor      *self,
-                         ClutterActorFlags  flags)
-{
-  ClutterActorFlags old_flags;
-  GObject *obj;
-  gboolean was_reactive_set, reactive_set;
-  gboolean was_realized_set, realized_set;
-  gboolean was_mapped_set, mapped_set;
-  gboolean was_visible_set, visible_set;
-
-  g_return_if_fail (CLUTTER_IS_ACTOR (self));
-
-  if (self->flags == flags)
-    return;
-
-  obj = G_OBJECT (self);
-  g_object_ref (obj);
-  g_object_freeze_notify (obj);
-
-  old_flags = self->flags;
-
-  was_reactive_set = ((old_flags & CLUTTER_ACTOR_REACTIVE) != 0);
-  was_realized_set = ((old_flags & CLUTTER_ACTOR_REALIZED) != 0);
-  was_mapped_set   = ((old_flags & CLUTTER_ACTOR_MAPPED)   != 0);
-  was_visible_set  = ((old_flags & CLUTTER_ACTOR_VISIBLE)  != 0);
-
-  self->flags |= flags;
-
-  reactive_set = ((self->flags & CLUTTER_ACTOR_REACTIVE) != 0);
-  realized_set = ((self->flags & CLUTTER_ACTOR_REALIZED) != 0);
-  mapped_set   = ((self->flags & CLUTTER_ACTOR_MAPPED)   != 0);
-  visible_set  = ((self->flags & CLUTTER_ACTOR_VISIBLE)  != 0);
-
-  if (reactive_set != was_reactive_set)
-    g_object_notify_by_pspec (obj, obj_props[PROP_REACTIVE]);
-
-  if (realized_set != was_realized_set)
-    g_object_notify_by_pspec (obj, obj_props[PROP_REALIZED]);
-
-  if (mapped_set != was_mapped_set)
-    g_object_notify_by_pspec (obj, obj_props[PROP_MAPPED]);
-
-  if (visible_set != was_visible_set)
-    g_object_notify_by_pspec (obj, obj_props[PROP_VISIBLE]);
-
-  g_object_thaw_notify (obj);
-  g_object_unref (obj);
-}
-
-/**
- * clutter_actor_unset_flags:
- * @self: a #ClutterActor
- * @flags: the flags to unset
- *
- * Unsets @flags on @self
- *
- * This function will emit notifications for the changed properties
- */
-void
-clutter_actor_unset_flags (ClutterActor      *self,
-                           ClutterActorFlags  flags)
-{
-  ClutterActorFlags old_flags;
-  GObject *obj;
-  gboolean was_reactive_set, reactive_set;
-  gboolean was_realized_set, realized_set;
-  gboolean was_mapped_set, mapped_set;
-  gboolean was_visible_set, visible_set;
-
-  g_return_if_fail (CLUTTER_IS_ACTOR (self));
-
-  obj = G_OBJECT (self);
-  g_object_freeze_notify (obj);
-
-  old_flags = self->flags;
-
-  was_reactive_set = ((old_flags & CLUTTER_ACTOR_REACTIVE) != 0);
-  was_realized_set = ((old_flags & CLUTTER_ACTOR_REALIZED) != 0);
-  was_mapped_set   = ((old_flags & CLUTTER_ACTOR_MAPPED)   != 0);
-  was_visible_set  = ((old_flags & CLUTTER_ACTOR_VISIBLE)  != 0);
-
-  self->flags &= ~flags;
-
-  if (self->flags == old_flags)
-    return;
-
-  reactive_set = ((self->flags & CLUTTER_ACTOR_REACTIVE) != 0);
-  realized_set = ((self->flags & CLUTTER_ACTOR_REALIZED) != 0);
-  mapped_set   = ((self->flags & CLUTTER_ACTOR_MAPPED)   != 0);
-  visible_set  = ((self->flags & CLUTTER_ACTOR_VISIBLE)  != 0);
-
-  if (reactive_set != was_reactive_set)
-    g_object_notify_by_pspec (obj, obj_props[PROP_REACTIVE]);
-
-  if (realized_set != was_realized_set)
-    g_object_notify_by_pspec (obj, obj_props[PROP_REALIZED]);
-
-  if (mapped_set != was_mapped_set)
-    g_object_notify_by_pspec (obj, obj_props[PROP_MAPPED]);
-
-  if (visible_set != was_visible_set)
-    g_object_notify_by_pspec (obj, obj_props[PROP_VISIBLE]);
-
-  g_object_thaw_notify (obj);
 }
 
 static void

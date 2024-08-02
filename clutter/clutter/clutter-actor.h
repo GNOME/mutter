@@ -265,14 +265,6 @@ CLUTTER_EXPORT
 ClutterActor *                  clutter_actor_new                               (void);
 
 CLUTTER_EXPORT
-void                            clutter_actor_set_flags                         (ClutterActor                *self,
-                                                                                 ClutterActorFlags            flags);
-CLUTTER_EXPORT
-void                            clutter_actor_unset_flags                       (ClutterActor                *self,
-                                                                                 ClutterActorFlags            flags);
-CLUTTER_EXPORT
-ClutterActorFlags               clutter_actor_get_flags                         (ClutterActor                *self);
-CLUTTER_EXPORT
 void                            clutter_actor_show                              (ClutterActor                *self);
 CLUTTER_EXPORT
 void                            clutter_actor_hide                              (ClutterActor                *self);
@@ -326,6 +318,11 @@ CLUTTER_EXPORT
 gboolean                        clutter_actor_is_realized                       (ClutterActor                *self);
 
 /* Size negotiation */
+CLUTTER_EXPORT
+void                            clutter_actor_set_no_layout                     (ClutterActor               *actor,
+                                                                                 gboolean                    no_layout);
+CLUTTER_EXPORT
+gboolean                        clutter_actor_is_no_layout                      (ClutterActor               *actor);
 CLUTTER_EXPORT
 void                            clutter_actor_set_request_mode                  (ClutterActor                *self,
                                                                                  ClutterRequestMode           mode);
