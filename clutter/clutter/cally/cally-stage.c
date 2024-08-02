@@ -44,16 +44,10 @@ static AtkStateSet*          cally_stage_ref_state_set   (AtkObject *obj);
 /* AtkWindow */
 static void                  cally_stage_window_interface_init (AtkWindowIface *iface);
 
-typedef struct _CallyStagePrivate
-{
-  /* NULL means that the stage will receive the focus */
-  ClutterActor *key_focus;
-} CallyStagePrivate;
 
 G_DEFINE_TYPE_WITH_CODE (CallyStage,
                          cally_stage,
                          CALLY_TYPE_ACTOR,
-                         G_ADD_PRIVATE (CallyStage)
                          G_IMPLEMENT_INTERFACE (ATK_TYPE_WINDOW,
                                                 cally_stage_window_interface_init));
 
@@ -98,84 +92,12 @@ cally_stage_new (ClutterActor *actor)
 }
 
 static void
-cally_stage_notify_key_focus_cb (ClutterStage *stage,
-                                 GParamSpec   *pspec,
-                                 CallyStage   *self)
-{
-  ClutterActor *key_focus = NULL;
-  AtkObject *new = NULL;
-  CallyStagePrivate *priv = cally_stage_get_instance_private (self);
-
-  if (!clutter_stage_is_active (stage))
-    return;
-
-  key_focus = clutter_stage_get_key_focus (stage);
-
-  if (key_focus != priv->key_focus)
-    {
-      AtkObject *old = NULL;
-
-      if (priv->key_focus != NULL)
-        {
-          if (priv->key_focus != CLUTTER_ACTOR (stage))
-            {
-              g_object_remove_weak_pointer (G_OBJECT (priv->key_focus),
-                                            (gpointer *) &priv->key_focus);
-            }
-          old = clutter_actor_get_accessible (priv->key_focus);
-        }
-      else
-        old = clutter_actor_get_accessible (CLUTTER_ACTOR (stage));
-
-      atk_object_notify_state_change (old,
-                                      ATK_STATE_FOCUSED,
-                                      FALSE);
-    }
-
-  /* we keep notifying the focus gain without checking previous
-   * key-focus to avoid some missing events due timing
-   */
-  priv->key_focus = key_focus;
-
-  if (key_focus != NULL)
-    {
-      /* ensure that if the key focus goes away, the field inside
-       * CallyStage is reset. see bug:
-       *
-       * https://bugzilla.gnome.org/show_bug.cgi?id=692706
-       *
-       * we remove the weak pointer above.
-       */
-      if (key_focus != CLUTTER_ACTOR (stage))
-        {
-          g_object_add_weak_pointer (G_OBJECT (priv->key_focus),
-                                     (gpointer *) &priv->key_focus);
-        }
-
-      new = clutter_actor_get_accessible (key_focus);
-    }
-  else
-    new = clutter_actor_get_accessible (CLUTTER_ACTOR (stage));
-
-  atk_object_notify_state_change (new,
-                                  ATK_STATE_FOCUSED,
-                                  TRUE);
-}
-
-static void
 cally_stage_real_initialize (AtkObject *obj,
                              gpointer  data)
 {
-  ClutterStage *stage = NULL;
-
   g_return_if_fail (CALLY_IS_STAGE (obj));
 
   ATK_OBJECT_CLASS (cally_stage_parent_class)->initialize (obj, data);
-
-  stage = CLUTTER_STAGE (CALLY_GET_CLUTTER_ACTOR (obj));
-
-  g_signal_connect (stage, "notify::key-focus",
-                    G_CALLBACK (cally_stage_notify_key_focus_cb), obj);
 
   atk_object_set_role (obj, ATK_ROLE_WINDOW);
 }
