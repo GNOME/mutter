@@ -31,7 +31,6 @@
 
 #include "clutter/clutter-actor-accessible.h"
 #include "clutter/cally-root.h"
-#include "clutter/cally-stage.h"
 #include "clutter/cally-text.h"
 #include "clutter/cally-root.h"
 

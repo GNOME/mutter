@@ -39,7 +39,6 @@
 
 #include "clutter/clutter-accessibility-private.h"
 #include "clutter/cally-root.h"
-#include "clutter/cally-stage.h"
 #include "clutter/clutter.h"
 
 #define DEFAULT_PASSWORD_CHAR '*'

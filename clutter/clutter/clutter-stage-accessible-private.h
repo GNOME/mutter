@@ -1,4 +1,4 @@
-/* CALLY - The Clutter Accessibility Implementation Library
+/* Clutter.
  *
  * Copyright (C) 2008 Igalia, S.L.
  *
@@ -20,31 +20,17 @@
 
 #pragma once
 
-#if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
-#error "Only <clutter/clutter.h> can be included directly."
-#endif
-
 #include "clutter/clutter-actor-accessible.h"
 #include "clutter/clutter-macros.h"
 
 G_BEGIN_DECLS
 
-#define CALLY_TYPE_STAGE            (cally_stage_get_type ())
+#define CLUTTER_TYPE_STAGE_ACCESSIBLE (clutter_stage_accessible_get_type ())
 
-CLUTTER_EXPORT
-G_DECLARE_DERIVABLE_TYPE (CallyStage,
-                          cally_stage,
-                          CALLY,
-                          STAGE,
-                          ClutterActorAccessible)
-
-typedef struct _CallyStage CallyStage;
-typedef struct _CallyStageClass CallyStageClass;
-
-struct _CallyStageClass
-{
-  /*< private >*/
-  ClutterActorAccessibleClass parent_class;
-};
+G_DECLARE_FINAL_TYPE (ClutterStageAccessible,
+                      clutter_stage_accessible,
+                      CLUTTER,
+                      STAGE_ACCESSIBLE,
+                      ClutterActorAccessible)
 
 G_END_DECLS

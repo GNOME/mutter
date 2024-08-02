@@ -161,6 +161,7 @@ clutter_sources = [
   'clutter-shader-types.c',
   'clutter-swipe-action.c',
   'clutter-snap-constraint.c',
+  'clutter-stage-accessible.c',
   'clutter-stage.c',
   'clutter-stage-manager.c',
   'clutter-stage-view.c',
@@ -206,6 +207,7 @@ clutter_private_headers = [
   'clutter-paint-volume-private.h',
   'clutter-private.h',
   'clutter-settings-private.h',
+  'clutter-stage-accessible-private.h',
   'clutter-stage-manager-private.h',
   'clutter-stage-private.h',
   'clutter-stage-view-private.h',
@@ -221,13 +223,11 @@ clutter_backend_private_headers = []
 
 clutter_headers += [
     'cally-root.h',
-    'cally-stage.h',
     'cally-text.h',
 ]
 
 clutter_sources += [
     'cally-root.c',
-    'cally-stage.c',
     'cally-text.c',
 ]
 
