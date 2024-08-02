@@ -23,7 +23,7 @@
 
 /**
  * ClutterStageManager:
- * 
+ *
  * Maintains the list of stages
  *
  * #ClutterStageManager is a singleton object, owned by Clutter, which
@@ -239,6 +239,11 @@ _clutter_stage_manager_add_stage (ClutterStageManager *stage_manager,
 {
   ClutterStageManagerPrivate *priv =
     clutter_stage_manager_get_instance_private (stage_manager);
+  AtkObject *stage_accessible = clutter_actor_get_accessible (CLUTTER_ACTOR (stage));
+  AtkObject *stage_manager_accessible =
+    atk_gobject_accessible_for_object (G_OBJECT (stage_manager));
+  int index = -1;
+
   if (g_slist_find (priv->stages, stage))
     {
       g_warning ("Trying to add a stage to the list of managed stages, "
@@ -249,6 +254,15 @@ _clutter_stage_manager_add_stage (ClutterStageManager *stage_manager,
   g_object_ref_sink (stage);
 
   priv->stages = g_slist_append (priv->stages, stage);
+  index = g_slist_index (priv->stages, stage);
+
+  if (stage_accessible && stage_manager_accessible)
+    {
+      atk_object_set_parent (stage_accessible, stage_manager_accessible);
+      g_signal_emit_by_name (stage_manager_accessible, "children_changed::add",
+                             index, stage_accessible, NULL);
+      g_signal_emit_by_name (stage_manager_accessible, "create", 0);
+    }
 
   g_signal_emit (stage_manager, manager_signals[STAGE_ADDED], 0, stage);
 }
@@ -259,12 +273,17 @@ _clutter_stage_manager_remove_stage (ClutterStageManager *stage_manager,
 {
   ClutterStageManagerPrivate *priv =
     clutter_stage_manager_get_instance_private (stage_manager);
+  AtkObject *stage_accessible = clutter_actor_get_accessible (CLUTTER_ACTOR (stage));
+  AtkObject *stage_manager_accessible =
+    atk_gobject_accessible_for_object (G_OBJECT (stage_manager));
+  int index = -1;
   /* this might be called multiple times from a ::dispose, so it
    * needs to just return without warning
    */
   if (!g_slist_find (priv->stages, stage))
     return;
 
+  index = g_slist_index (priv->stages, stage);
   priv->stages = g_slist_remove (priv->stages, stage);
 
   /* if the default stage is being destroyed then we unset the pointer */
@@ -272,6 +291,14 @@ _clutter_stage_manager_remove_stage (ClutterStageManager *stage_manager,
     default_stage = NULL;
 
   g_signal_emit (stage_manager, manager_signals[STAGE_REMOVED], 0, stage);
+
+  if (stage_manager_accessible && stage_accessible)
+    {
+      atk_object_set_parent (stage_accessible, NULL);
+      g_signal_emit_by_name (stage_manager_accessible, "children_changed::remove",
+                             index, stage_accessible, NULL);
+      g_signal_emit_by_name (stage_accessible, "destroy", 0);
+    }
 
   g_object_unref (stage);
 }

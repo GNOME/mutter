@@ -20,7 +20,7 @@
 
 /**
  * CallyRoot:
- * 
+ *
  * Root object for the Cally toolkit
  *
  * #CallyRoot is the root object of the accessibility tree-like
@@ -41,10 +41,6 @@
 #include "clutter/clutter-stage-private.h"
 #include "clutter/clutter-stage-manager.h"
 
-
-/* GObject */
-static void cally_root_finalize   (GObject *object);
-
 /* AtkObject.h */
 static void             cally_root_initialize           (AtkObject *accessible,
                                                          gpointer   data);
@@ -54,38 +50,12 @@ static AtkObject *      cally_root_ref_child            (AtkObject *obj,
 static AtkObject *      cally_root_get_parent           (AtkObject *obj);
 static const char *     cally_root_get_name             (AtkObject *obj);
 
-/* Private */
-static void             cally_util_stage_added_cb       (ClutterStageManager *stage_manager,
-                                                         ClutterStage *stage,
-                                                         gpointer data);
-static void             cally_util_stage_removed_cb     (ClutterStageManager *stage_manager,
-                                                         ClutterStage *stage,
-                                                         gpointer data);
-
-typedef struct _CallyRootPrivate
-{
-/* We save the CallyStage objects. Other option could save the stage
- * list, and then just get the a11y object on the ref_child, etc. But
- * the ref_child is more common that the init and the stage-add,
- * stage-remove, so we avoid getting the accessible object
- * constantly
- */
-  GSList *stage_list;
-
-  /* signals id */
-  gulong stage_added_id;
-  gulong stage_removed_id;
-} CallyRootPrivate;
-
-G_DEFINE_TYPE_WITH_PRIVATE (CallyRoot, cally_root,  ATK_TYPE_GOBJECT_ACCESSIBLE)
+G_DEFINE_TYPE (CallyRoot, cally_root,  ATK_TYPE_GOBJECT_ACCESSIBLE)
 
 static void
 cally_root_class_init (CallyRootClass *klass)
 {
-  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   AtkObjectClass *class = ATK_OBJECT_CLASS (klass);
-
-  gobject_class->finalize = cally_root_finalize;
 
   /* AtkObject */
   class->get_n_children = cally_root_get_n_children;
@@ -98,11 +68,6 @@ cally_root_class_init (CallyRootClass *klass)
 static void
 cally_root_init (CallyRoot *root)
 {
-  CallyRootPrivate *priv = cally_root_get_instance_private (root);
-
-  priv->stage_list = NULL;
-  priv->stage_added_id = 0;
-  priv->stage_removed_id = 0;
 }
 
 /**
@@ -129,31 +94,6 @@ cally_root_new (void)
   return accessible;
 }
 
-static void
-cally_root_finalize (GObject *object)
-{
-  CallyRoot *root = CALLY_ROOT (object);
-  GObject *stage_manager = NULL;
-  CallyRootPrivate *priv;
-
-  g_return_if_fail (CALLY_IS_ROOT (object));
-
-  priv = cally_root_get_instance_private (root);
-  if (priv->stage_list)
-    {
-      g_slist_free (priv->stage_list);
-      priv->stage_list = NULL;
-    }
-
-  stage_manager = atk_gobject_accessible_get_object (ATK_GOBJECT_ACCESSIBLE (root));
-
-  g_clear_signal_handler (&priv->stage_added_id, stage_manager);
-
-  g_clear_signal_handler (&priv->stage_removed_id, stage_manager);
-
-  G_OBJECT_CLASS (cally_root_parent_class)->finalize (object);
-}
-
 /* AtkObject.h */
 static void
 cally_root_initialize (AtkObject              *accessible,
@@ -165,8 +105,6 @@ cally_root_initialize (AtkObject              *accessible,
   ClutterStage        *clutter_stage = NULL;
   AtkObject           *cally_stage   = NULL;
   CallyRoot *root = CALLY_ROOT (accessible);
-  CallyRootPrivate *priv = cally_root_get_instance_private (root);
-
 
   accessible->role = ATK_ROLE_APPLICATION;
   accessible->accessible_parent = NULL;
@@ -181,17 +119,7 @@ cally_root_initialize (AtkObject              *accessible,
       cally_stage = clutter_actor_get_accessible (CLUTTER_ACTOR (clutter_stage));
 
       atk_object_set_parent (cally_stage, ATK_OBJECT (root));
-
-      priv->stage_list = g_slist_append (priv->stage_list, cally_stage);
     }
-
-  priv->stage_added_id =
-    g_signal_connect (G_OBJECT (stage_manager), "stage-added",
-                      G_CALLBACK (cally_util_stage_added_cb), root);
-
-  priv->stage_removed_id =
-    g_signal_connect (G_OBJECT (stage_manager), "stage-removed",
-                      G_CALLBACK (cally_util_stage_removed_cb), root);
 
   ATK_OBJECT_CLASS (cally_root_parent_class)->initialize (accessible, data);
 }
@@ -201,9 +129,12 @@ static gint
 cally_root_get_n_children (AtkObject *obj)
 {
   CallyRoot *root = CALLY_ROOT (obj);
-  CallyRootPrivate *priv = cally_root_get_instance_private (root);
+  GObject *stage_manager =
+    atk_gobject_accessible_get_object (ATK_GOBJECT_ACCESSIBLE (root));
+  const GSList *stages =
+    clutter_stage_manager_peek_stages (CLUTTER_STAGE_MANAGER (stage_manager));
 
-  return g_slist_length (priv->stage_list);
+  return g_slist_length ((GSList *)stages);
 }
 
 static AtkObject*
@@ -211,25 +142,26 @@ cally_root_ref_child (AtkObject *obj,
                       gint       i)
 {
   CallyRoot *cally_root = CALLY_ROOT (obj);
-  CallyRootPrivate *priv = cally_root_get_instance_private (cally_root);
-  GSList *stage_list = NULL;
-  gint num = 0;
-  AtkObject *item = NULL;
+  GObject *stage_manager =
+      atk_gobject_accessible_get_object (ATK_GOBJECT_ACCESSIBLE (cally_root));
+  const GSList *stages =
+    clutter_stage_manager_peek_stages (CLUTTER_STAGE_MANAGER (stage_manager));
+  gint n_stages = g_slist_length ((GSList *)stages);
+  ClutterStage *item = NULL;
+  AtkObject *accessible_item = NULL;
 
-  stage_list = priv->stage_list;
-  num = g_slist_length (stage_list);
+  g_return_val_if_fail ((i < n_stages)&&(i >= 0), NULL);
 
-  g_return_val_if_fail ((i < num)&&(i >= 0), NULL);
-
-  item = g_slist_nth_data (stage_list, i);
+  item = g_slist_nth_data ((GSList *)stages, i);
   if (!item)
-    {
-      return NULL;
-    }
+    return NULL;
 
-  g_object_ref (item);
+  accessible_item = clutter_actor_get_accessible (CLUTTER_ACTOR (item));
+  if (accessible_item)
+    g_object_ref (accessible_item);
 
-  return item;
+  /* TODO: cache the accessible object */
+  return accessible_item;
 }
 
 static AtkObject*
@@ -242,53 +174,4 @@ static const char *
 cally_root_get_name (AtkObject *obj)
 {
   return g_get_prgname ();
-}
-
-/* -------------------------------- PRIVATE --------------------------------- */
-
-static void
-cally_util_stage_added_cb (ClutterStageManager *stage_manager,
-                           ClutterStage        *stage,
-                           gpointer             data)
-{
-  CallyRoot *root = CALLY_ROOT (data);
-  AtkObject *cally_stage = NULL;
-  CallyRootPrivate *priv = cally_root_get_instance_private (root);
-
-  gint index = -1;
-
-  cally_stage = clutter_actor_get_accessible (CLUTTER_ACTOR (stage));
-
-  atk_object_set_parent (cally_stage, ATK_OBJECT (root));
-
-  priv->stage_list = g_slist_append (priv->stage_list, cally_stage);
-
-  index = g_slist_index (priv->stage_list, cally_stage);
-  g_signal_emit_by_name (root, "children_changed::add",
-                         index, cally_stage, NULL);
-  g_signal_emit_by_name (cally_stage, "create", 0);
-}
-
-static void
-cally_util_stage_removed_cb (ClutterStageManager *stage_manager,
-                             ClutterStage        *stage,
-                             gpointer             data)
-{
-  CallyRoot *root = CALLY_ROOT (data);
-  AtkObject *cally_stage = NULL;
-  CallyRootPrivate *priv
-    = cally_root_get_instance_private (root);
-  gint index = -1;
-
-  cally_stage = clutter_actor_get_accessible (CLUTTER_ACTOR (stage));
-
-  index = g_slist_index (priv->stage_list, cally_stage);
-
-  priv->stage_list = g_slist_remove (priv->stage_list,
-                                     cally_stage);
-
-  index = g_slist_index (priv->stage_list, cally_stage);
-  g_signal_emit_by_name (root, "children_changed::remove",
-                         index, cally_stage, NULL);
-  g_signal_emit_by_name (cally_stage, "destroy", 0);
 }
