@@ -110,10 +110,6 @@ static void     cally_actor_get_extents              (AtkComponent *component,
 static gint     cally_actor_get_mdi_zorder           (AtkComponent *component);
 static gboolean cally_actor_grab_focus               (AtkComponent *component);
 
-/* Misc functions */
-static void cally_actor_notify_clutter          (GObject    *obj,
-                                                GParamSpec *pspec);
-
 struct _CallyActorPrivate
 {
   GList *children;
@@ -164,11 +160,6 @@ cally_actor_initialize (AtkObject *obj,
   self = CALLY_ACTOR(obj);
   priv = cally_actor_get_instance_private (self);
   actor = CLUTTER_ACTOR (data);
-
-  g_signal_connect (actor,
-                    "notify",
-                    G_CALLBACK (cally_actor_notify_clutter),
-                    NULL);
 
   g_object_set_data (G_OBJECT (obj), "atk-component-layer",
                      GINT_TO_POINTER (ATK_LAYER_MDI));
@@ -592,26 +583,4 @@ cally_actor_grab_focus (AtkComponent    *component)
                                actor);
 
   return TRUE;
-}
-
-/* Misc functions */
-
-/*
- * This function is a signal handler for notify signal which gets emitted
- * when a property changes value on the ClutterActor associated with the object.
- *
- * It calls a function for the CallyActor type
- */
-static void
-cally_actor_notify_clutter (GObject    *obj,
-                            GParamSpec *pspec)
-{
-  CallyActor      *cally_actor = NULL;
-  CallyActorClass *klass      = NULL;
-
-  cally_actor = CALLY_ACTOR (clutter_actor_get_accessible (CLUTTER_ACTOR (obj)));
-  klass = CALLY_ACTOR_GET_CLASS (cally_actor);
-
-  if (klass->notify_clutter)
-    klass->notify_clutter (obj, pspec);
 }

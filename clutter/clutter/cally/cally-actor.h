@@ -47,19 +47,10 @@ typedef struct _CallyActor           CallyActor;
 typedef struct _CallyActorClass      CallyActorClass;
 typedef struct _CallyActorPrivate    CallyActorPrivate;
 
-
-/**
- * CallyActorClass:
- * @notify_clutter: Signal handler for notify signal on Clutter actor
- */
 struct _CallyActorClass
 {
   /*< private >*/
   AtkGObjectAccessibleClass parent_class;
-
-  /*< public >*/
-  void     (*notify_clutter) (GObject    *object,
-                              GParamSpec *pspec);
 };
 
 CLUTTER_EXPORT

@@ -141,7 +141,6 @@ static void                 cally_text_delete_text                  (AtkEditable
                                                                      gint start_pos,
                                                                      gint end_pos);
 
-/* CallyActor */
 static void                 cally_text_notify_clutter               (GObject    *obj,
                                                                      GParamSpec *pspec);
 
@@ -242,14 +241,11 @@ cally_text_class_init (CallyTextClass *klass)
 {
   GObjectClass   *gobject_class = G_OBJECT_CLASS (klass);
   AtkObjectClass *class         = ATK_OBJECT_CLASS (klass);
-  CallyActorClass *cally_class  = CALLY_ACTOR_CLASS (klass);
 
   gobject_class->finalize = cally_text_finalize;
 
   class->initialize = cally_text_real_initialize;
   class->ref_state_set = cally_text_ref_state_set;
-
-  cally_class->notify_clutter = cally_text_notify_clutter;
 }
 
 static void
@@ -330,6 +326,11 @@ cally_text_real_initialize(AtkObject *obj,
 
   priv->cursor_position = clutter_text_get_cursor_position (clutter_text);
   priv->selection_bound = clutter_text_get_selection_bound (clutter_text);
+
+  g_signal_connect (clutter_text,
+                    "notify",
+                    G_CALLBACK (cally_text_notify_clutter),
+                    NULL);
 
   g_signal_connect (clutter_text, "insert-text",
                     G_CALLBACK (_cally_text_insert_text_cb),
@@ -1714,7 +1715,6 @@ static void cally_text_delete_text (AtkEditableText *text,
                             start_pos, end_pos);
 }
 
-/* CallyActor */
 static void
 cally_text_notify_clutter (GObject    *obj,
                            GParamSpec *pspec)
@@ -1744,10 +1744,6 @@ cally_text_notify_clutter (GObject    *obj,
   else if (g_strcmp0 (pspec->name, "activatable") == 0)
     {
       _check_activate_action (cally_text, clutter_text);
-    }
-  else
-    {
-      CALLY_ACTOR_CLASS (cally_text_parent_class)->notify_clutter (obj, pspec);
     }
 }
 
