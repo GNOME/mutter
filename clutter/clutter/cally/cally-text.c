@@ -1741,21 +1741,9 @@ cally_text_notify_clutter (GObject    *obj,
       if (_check_for_selection_change (cally_text, clutter_text))
         g_signal_emit_by_name (atk_obj, "text_selection_changed");
     }
-  else if (g_strcmp0 (pspec->name, "editable") == 0)
-    {
-      atk_object_notify_state_change (atk_obj, ATK_STATE_EDITABLE,
-                                      clutter_text_get_editable (clutter_text));
-    }
   else if (g_strcmp0 (pspec->name, "activatable") == 0)
     {
       _check_activate_action (cally_text, clutter_text);
-    }
-  else if (g_strcmp0 (pspec->name, "password-char") == 0)
-    {
-      if (clutter_text_get_password_char (clutter_text) != 0)
-        atk_object_set_role (atk_obj, ATK_ROLE_PASSWORD_TEXT);
-      else
-        atk_object_set_role (atk_obj, ATK_ROLE_TEXT);
     }
   else
     {

@@ -39,6 +39,8 @@
 
 #include "config.h"
 
+#include <atk/atk.h>
+
 #include <string.h>
 #include <math.h>
 
@@ -4830,6 +4832,7 @@ clutter_text_set_editable (ClutterText *self,
   ClutterBackend *backend = clutter_get_default_backend ();
   ClutterInputMethod *method = clutter_backend_get_input_method (backend);
   ClutterTextPrivate *priv;
+  AtkObject *accessible;
 
   g_return_if_fail (CLUTTER_IS_TEXT (self));
 
@@ -4837,6 +4840,7 @@ clutter_text_set_editable (ClutterText *self,
 
   if (priv->editable != editable)
     {
+      accessible = clutter_actor_get_accessible (CLUTTER_ACTOR (self));
       priv->editable = editable;
 
       if (method)
@@ -4850,6 +4854,10 @@ clutter_text_set_editable (ClutterText *self,
       clutter_text_queue_redraw (CLUTTER_ACTOR (self));
 
       g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_EDITABLE]);
+      if (accessible)
+        atk_object_notify_state_change (accessible,
+                                        ATK_STATE_EDITABLE,
+                                        priv->editable);
     }
 }
 
@@ -6162,6 +6170,7 @@ clutter_text_set_password_char (ClutterText *self,
                                 gunichar     wc)
 {
   ClutterTextPrivate *priv;
+  AtkObject *accessible;
 
   g_return_if_fail (CLUTTER_IS_TEXT (self));
 
@@ -6169,12 +6178,17 @@ clutter_text_set_password_char (ClutterText *self,
 
   if (priv->password_char != wc)
     {
+      accessible = clutter_actor_get_accessible (CLUTTER_ACTOR (self));
       priv->password_char = wc;
 
       clutter_text_dirty_cache (self);
       clutter_actor_queue_relayout (CLUTTER_ACTOR (self));
 
       g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_PASSWORD_CHAR]);
+
+      if (accessible)
+        atk_object_set_role (accessible,
+                             priv->password_char != 0 ? ATK_ROLE_PASSWORD_TEXT : ATK_ROLE_TEXT);
     }
 }
 
