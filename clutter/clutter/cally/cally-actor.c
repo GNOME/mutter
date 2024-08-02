@@ -113,8 +113,6 @@ static gboolean cally_actor_grab_focus               (AtkComponent *component);
 /* Misc functions */
 static void cally_actor_notify_clutter          (GObject    *obj,
                                                 GParamSpec *pspec);
-static void cally_actor_real_notify_clutter     (GObject    *obj,
-                                                 GParamSpec *pspec);
 
 struct _CallyActorPrivate
 {
@@ -203,8 +201,6 @@ cally_actor_class_init (CallyActorClass *klass)
 {
   AtkObjectClass *class         = ATK_OBJECT_CLASS (klass);
   GObjectClass   *gobject_class = G_OBJECT_CLASS (klass);
-
-  klass->notify_clutter = cally_actor_real_notify_clutter;
 
   /* GObject */
   gobject_class->finalize = cally_actor_finalize;
@@ -618,49 +614,4 @@ cally_actor_notify_clutter (GObject    *obj,
 
   if (klass->notify_clutter)
     klass->notify_clutter (obj, pspec);
-}
-
-/*
- * This function is a signal handler for notify signal which gets emitted
- * when a property changes value on the ClutterActor associated with a CallyActor
- *
- * It constructs an AtkPropertyValues structure and emits a "property_changed"
- * signal which causes the user specified AtkPropertyChangeHandler
- * to be called.
- */
-static void
-cally_actor_real_notify_clutter (GObject    *obj,
-                                GParamSpec *pspec)
-{
-  ClutterActor* actor   = CLUTTER_ACTOR (obj);
-  AtkObject*    atk_obj = clutter_actor_get_accessible (CLUTTER_ACTOR(obj));
-  AtkState      state;
-  gboolean      value;
-
-  if (g_strcmp0 (pspec->name, "visible") == 0)
-    {
-      state = ATK_STATE_VISIBLE;
-      value = clutter_actor_is_visible (actor);
-    }
-  else if (g_strcmp0 (pspec->name, "mapped") == 0)
-    {
-      /* Clones may temporarily map an actor in order to
-       * paint it; we don't want this to generate an ATK
-       * state change
-       */
-      if (clutter_actor_is_painting_unmapped (actor))
-        return;
-
-      state = ATK_STATE_SHOWING;
-      value = clutter_actor_is_mapped (actor);
-    }
-  else if (g_strcmp0 (pspec->name, "reactive") == 0)
-    {
-      state = ATK_STATE_SENSITIVE;
-      value = clutter_actor_get_reactive (actor);
-    }
-  else
-    return;
-
-  atk_object_notify_state_change (atk_obj, state, value);
 }

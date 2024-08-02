@@ -1412,6 +1412,7 @@ clutter_actor_real_map (ClutterActor *self)
 {
   ClutterActorPrivate *priv = self->priv;
   ClutterActor *iter;
+  AtkObject *accessible;
 
   g_assert (!clutter_actor_is_mapped (self));
 
@@ -1447,6 +1448,12 @@ clutter_actor_real_map (ClutterActor *self)
    * children, so apps see a top-down notification.
    */
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_MAPPED]);
+
+  accessible = clutter_actor_get_accessible (self);
+  if (accessible && !clutter_actor_is_painting_unmapped (self))
+    atk_object_notify_state_change (accessible,
+                                    ATK_STATE_SHOWING,
+                                    TRUE);
 
   for (iter = priv->first_child;
        iter != NULL;
@@ -1547,6 +1554,7 @@ clutter_actor_real_unmap (ClutterActor *self)
 {
   ClutterActorPrivate *priv = self->priv;
   ClutterActor *iter;
+  AtkObject *accessible;
 
   g_assert (clutter_actor_is_mapped (self));
 
@@ -1577,6 +1585,12 @@ clutter_actor_real_unmap (ClutterActor *self)
    * children, so apps see a bottom-up notification.
    */
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_MAPPED]);
+
+  accessible = clutter_actor_get_accessible (self);
+  if (accessible && !clutter_actor_is_painting_unmapped (self))
+    atk_object_notify_state_change (accessible,
+                                    ATK_STATE_SHOWING,
+                                    FALSE);
 
   if (priv->n_pointers > 0)
     {
@@ -1711,6 +1725,7 @@ void
 clutter_actor_show (ClutterActor *self)
 {
   ClutterActorPrivate *priv;
+  AtkObject *accessible;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
@@ -1747,6 +1762,12 @@ clutter_actor_show (ClutterActor *self)
 
   g_signal_emit (self, actor_signals[SHOW], 0);
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_VISIBLE]);
+
+  accessible = clutter_actor_get_accessible (self);
+  if (accessible)
+    atk_object_notify_state_change (accessible,
+                                    ATK_STATE_VISIBLE,
+                                    TRUE);
 
   if (priv->parent != NULL)
     clutter_actor_queue_redraw (self);
@@ -1802,6 +1823,7 @@ void
 clutter_actor_hide (ClutterActor *self)
 {
   ClutterActorPrivate *priv;
+  AtkObject *accessible;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
@@ -1838,6 +1860,13 @@ clutter_actor_hide (ClutterActor *self)
 
   g_signal_emit (self, actor_signals[HIDE], 0);
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_VISIBLE]);
+
+  accessible = clutter_actor_get_accessible (self);
+  if (accessible)
+    atk_object_notify_state_change (accessible,
+                                    ATK_STATE_VISIBLE,
+                                    FALSE);
+
 
   if (priv->parent != NULL && priv->needs_allocation)
     clutter_actor_queue_redraw (priv->parent);
@@ -11782,6 +11811,7 @@ clutter_actor_set_reactive (ClutterActor *actor,
                             gboolean      reactive)
 {
   ClutterActorPrivate *priv;
+  AtkObject *accessible;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (actor));
 
@@ -11796,6 +11826,12 @@ clutter_actor_set_reactive (ClutterActor *actor,
     actor->flags &= ~CLUTTER_ACTOR_REACTIVE;
 
   g_object_notify_by_pspec (G_OBJECT (actor), obj_props[PROP_REACTIVE]);
+
+  accessible = clutter_actor_get_accessible (actor);
+  if (accessible)
+    atk_object_notify_state_change (accessible,
+                                    ATK_STATE_SENSITIVE,
+                                    reactive);
 
   if (!clutter_actor_get_reactive (actor) && priv->n_pointers > 0)
     {
