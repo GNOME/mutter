@@ -20,7 +20,7 @@
 
 /**
  * CallyClone:
- * 
+ *
  * Implementation of the ATK interfaces for a #ClutterClone
  *
  * #CallyClone implements the required ATK interfaces of [class@Clutter.Clone]
@@ -53,7 +53,7 @@
  *
  * Taking into account that:
  *
- * - ClutterClone doesn't re-emit mirrored signals from the source 
+ * - ClutterClone doesn't re-emit mirrored signals from the source
  *   I think that likely the answer would be "yes, it is just a
  *   mirrored image, not a real full clone".
  *
@@ -90,31 +90,6 @@ static void
 cally_clone_init (CallyClone *clone)
 {
   /* nothing to do yet */
-}
-
-/**
- * cally_clone_new:
- * @actor: a #ClutterActor
- *
- * Creates a new #CallyClone for the given @actor. @actor must be a
- * [class@Clutter.Clone].
- *
- * Return value: the newly created #AtkObject
- */
-AtkObject*
-cally_clone_new (ClutterActor *actor)
-{
-  GObject   *object     = NULL;
-  AtkObject *accessible = NULL;
-
-  g_return_val_if_fail (CLUTTER_IS_CLONE (actor), NULL);
-
-  object = g_object_new (CALLY_TYPE_CLONE, NULL);
-
-  accessible = ATK_OBJECT (object);
-  atk_object_initialize (accessible, actor);
-
-  return accessible;
 }
 
 static void

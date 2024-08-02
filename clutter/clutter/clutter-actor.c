@@ -485,6 +485,7 @@
 
 #include "cogl/cogl.h"
 
+#include "cally/cally-actor.h"
 #include "clutter/clutter-actor-private.h"
 
 #include "clutter/clutter-action.h"
@@ -5437,10 +5438,28 @@ clutter_actor_get_accessible (ClutterActor *self)
 static AtkObject *
 clutter_actor_real_get_accessible (ClutterActor *actor)
 {
-  if (actor->priv->accessible == NULL)
-    actor->priv->accessible = atk_gobject_accessible_for_object (G_OBJECT (actor));
+  ClutterActorPrivate *priv = actor->priv;
+  if (priv->accessible == NULL)
+    {
+        priv->accessible =
+          g_object_new (CLUTTER_ACTOR_GET_CLASS (actor)->get_accessible_type (),
+                        NULL);
 
-  return actor->priv->accessible;
+        atk_object_initialize (priv->accessible, actor);
+        /* AtkGObjectAccessible, which ClutterActorAccessible derives from, clears
+         * the back reference to the object in a weak notify for the object;
+         * weak-ref notification, which occurs during g_object_real_dispose(),
+         * is then the optimal time to clear the forward reference. We
+         * can't clear the reference in dispose() before chaining up, since
+         * clutter_actor_dispose() causes notifications to be sent out, which
+         * will result in a new accessible object being created.
+         */
+        g_object_add_weak_pointer (G_OBJECT (actor),
+                                   (gpointer *)&priv->accessible);
+
+    }
+
+  return priv->accessible;
 }
 
 static AtkObject *
@@ -5650,6 +5669,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
   klass->queue_relayout = clutter_actor_real_queue_relayout;
   klass->apply_transform = clutter_actor_real_apply_transform;
   klass->get_accessible = clutter_actor_real_get_accessible;
+  klass->get_accessible_type = cally_actor_get_type;
   klass->get_paint_volume = clutter_actor_real_get_paint_volume;
   klass->has_overlaps = clutter_actor_real_has_overlaps;
   klass->calculate_resource_scale = clutter_actor_real_calculate_resource_scale;
@@ -18413,6 +18433,56 @@ clutter_actor_has_accessible (ClutterActor *actor)
     return CLUTTER_ACTOR_GET_CLASS (actor)->has_accessible (actor);
 
   return TRUE;
+}
+
+/**
+ * clutter_actor_set_accessible:
+ * @self: A #ClutterActor
+ * @accessible: an accessible
+ *
+ * This method allows to set a customly created accessible object to
+ * this widget. For example if you define a new subclass of
+ * #StWidgetAccessible at the javascript code.
+ *
+ * NULL is a valid value for @accessible. That contemplates the
+ * hypothetical case of not needing anymore a custom accessible object
+ * for the widget. Next call of [method@Clutter.Actor.get_accessible] would
+ * create and return a default accessible.
+ *
+ * It assumes that the call to atk_object_initialize that bound the
+ * gobject with the custom accessible object was already called, so
+ * not a responsibility of this method.
+ */
+void
+clutter_actor_set_accessible (ClutterActor *self,
+                              AtkObject    *accessible)
+{
+  ClutterActorPrivate *priv;
+
+  g_return_if_fail (CLUTTER_IS_ACTOR (self));
+  g_return_if_fail (accessible == NULL || ATK_IS_GOBJECT_ACCESSIBLE (accessible));
+
+  priv = self->priv;
+  if (priv->accessible != accessible)
+    {
+      if (priv->accessible)
+        {
+          g_object_remove_weak_pointer (G_OBJECT (self),
+                                        (gpointer *)&priv->accessible);
+          g_object_unref (priv->accessible);
+          priv->accessible = NULL;
+        }
+
+      if (accessible)
+        {
+          priv->accessible = g_object_ref (accessible);
+          /* See note in clutter_actor_get_accessible() */
+          g_object_add_weak_pointer (G_OBJECT (self),
+                                     (gpointer *)&priv->accessible);
+        }
+      else
+        priv->accessible = NULL;
+    }
 }
 
 void

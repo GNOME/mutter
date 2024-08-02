@@ -122,30 +122,6 @@ G_DEFINE_TYPE_WITH_CODE (CallyActor,
                          G_IMPLEMENT_INTERFACE (ATK_TYPE_COMPONENT,
                                                 cally_actor_component_interface_init));
 
-/**
- * cally_actor_new:
- * @actor: a #ClutterActor
- *
- * Creates a new #CallyActor for the given @actor
- *
- * Return value: the newly created #AtkObject
- */
-AtkObject *
-cally_actor_new (ClutterActor *actor)
-{
-  gpointer   object;
-  AtkObject *atk_object;
-
-  g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), NULL);
-
-  object = g_object_new (CALLY_TYPE_ACTOR, NULL);
-
-  atk_object = ATK_OBJECT (object);
-  atk_object_initialize (atk_object, actor);
-
-  return atk_object;
-}
-
 static void
 cally_actor_initialize (AtkObject *obj,
                         gpointer   data)

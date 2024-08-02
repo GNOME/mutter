@@ -26,19 +26,12 @@
 #include "cally/cally-text.h"
 #include "cally/cally-clone.h"
 
-#include "cally/cally-factory.h"
 #include "cally/cally-util.h"
 
 #include "clutter/clutter.h"
 
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-private.h"
-
-/* factories initialization*/
-CALLY_ACCESSIBLE_FACTORY (CALLY_TYPE_ACTOR, cally_actor, cally_actor_new)
-CALLY_ACCESSIBLE_FACTORY (CALLY_TYPE_STAGE, cally_stage, cally_stage_new)
-CALLY_ACCESSIBLE_FACTORY (CALLY_TYPE_TEXT, cally_text, cally_text_new)
-CALLY_ACCESSIBLE_FACTORY (CALLY_TYPE_CLONE, cally_clone, cally_clone_new)
 
 /**
  * cally_accessibility_init:
@@ -51,12 +44,6 @@ CALLY_ACCESSIBLE_FACTORY (CALLY_TYPE_CLONE, cally_clone, cally_clone_new)
 gboolean
 cally_accessibility_init (void)
 {
-  /* setting the factories */
-  CALLY_ACTOR_SET_FACTORY (CLUTTER_TYPE_ACTOR, cally_actor);
-  CALLY_ACTOR_SET_FACTORY (CLUTTER_TYPE_STAGE, cally_stage);
-  CALLY_ACTOR_SET_FACTORY (CLUTTER_TYPE_TEXT, cally_text);
-  CALLY_ACTOR_SET_FACTORY (CLUTTER_TYPE_CLONE, cally_clone);
-
   /* Initialize the CallyUtility class */
   _cally_util_override_atk_util ();
 

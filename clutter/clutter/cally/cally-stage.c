@@ -66,31 +66,6 @@ cally_stage_init (CallyStage *cally_stage)
 {
 }
 
-/**
- * cally_stage_new:
- * @actor: a #ClutterActor
- *
- * Creates a new #CallyStage for the given @actor. @actor should be a
- * [class@Clutter.Stage].
- *
- * Return value: the newly created #AtkObject
- */
-AtkObject*
-cally_stage_new (ClutterActor *actor)
-{
-  GObject   *object     = NULL;
-  AtkObject *accessible = NULL;
-
-  g_return_val_if_fail (CLUTTER_IS_STAGE (actor), NULL);
-
-  object = g_object_new (CALLY_TYPE_STAGE, NULL);
-
-  accessible = ATK_OBJECT (object);
-  atk_object_initialize (accessible, actor);
-
-  return accessible;
-}
-
 static void
 cally_stage_real_initialize (AtkObject *obj,
                              gpointer  data)

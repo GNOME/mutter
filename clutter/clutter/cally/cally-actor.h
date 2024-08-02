@@ -53,8 +53,4 @@ struct _CallyActorClass
   AtkGObjectAccessibleClass parent_class;
 };
 
-CLUTTER_EXPORT
-AtkObject* cally_actor_new                   (ClutterActor        *actor);
-
-
 G_END_DECLS

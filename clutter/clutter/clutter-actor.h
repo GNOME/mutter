@@ -137,6 +137,8 @@ struct _ClutterActor
  * @queue_relayout: class handler for [signal@Clutter.Actor::queue-relayout]
  * @get_accessible: virtual function, returns the accessible object that
  *   describes the actor to an assistive technology.
+ * @get_accessible_type: returns the type of the accessible object that
+ *   describes the actor to an assistive technology.
  * @get_paint_volume: virtual function, for sub-classes to define their
  *   #ClutterPaintVolume
  * @has_overlaps: virtual function for
@@ -215,6 +217,7 @@ struct _ClutterActorClass
 
   /* accessibility support */
   AtkObject * (* get_accessible)    (ClutterActor         *self);
+  GType    (* get_accessible_type) (void);
 
   gboolean (* get_paint_volume)     (ClutterActor         *actor,
                                      ClutterPaintVolume   *volume);
@@ -309,7 +312,9 @@ CLUTTER_EXPORT
 AtkObject *                     clutter_actor_get_accessible                    (ClutterActor                *self);
 CLUTTER_EXPORT
 gboolean                        clutter_actor_has_accessible                    (ClutterActor                *self);
-
+CLUTTER_EXPORT
+void                            clutter_actor_set_accessible                    (ClutterActor                *self,
+                                                                                 AtkObject                   *accessible);
 CLUTTER_EXPORT
 gboolean                        clutter_actor_is_visible                        (ClutterActor                *self);
 CLUTTER_EXPORT

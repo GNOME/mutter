@@ -24,7 +24,6 @@
 
 #include "cally/cally-actor.h"
 #include "cally/cally-clone.h"
-#include "cally/cally-factory.h"
 #include "cally/cally-main.h"
 #include "cally/cally-root.h"
 #include "cally/cally-stage.h"

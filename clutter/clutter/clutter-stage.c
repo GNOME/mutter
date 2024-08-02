@@ -41,6 +41,7 @@
 
 #include "clutter/clutter-stage.h"
 
+#include "cally/cally-stage.h"
 #include "clutter/clutter-action-private.h"
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-backend-private.h"
@@ -1342,6 +1343,7 @@ clutter_stage_class_init (ClutterStageClass *klass)
   gobject_class->finalize = clutter_stage_finalize;
 
   actor_class->allocate = clutter_stage_allocate;
+  actor_class->get_accessible_type = cally_stage_get_type;
   actor_class->get_preferred_width = clutter_stage_get_preferred_width;
   actor_class->get_preferred_height = clutter_stage_get_preferred_height;
   actor_class->get_paint_volume = clutter_stage_get_paint_volume;

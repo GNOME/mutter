@@ -216,7 +216,6 @@ clutter_backend_private_headers = []
 cally_headers = [
     'cally/cally-actor.h',
     'cally/cally-clone.h',
-    'cally/cally-factory.h',
     'cally/cally.h',
     'cally/cally-main.h',
     'cally/cally-root.h',

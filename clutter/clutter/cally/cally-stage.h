@@ -47,7 +47,4 @@ struct _CallyStageClass
   CallyActorClass parent_class;
 };
 
-CLUTTER_EXPORT
-AtkObject *cally_stage_new      (ClutterActor *actor);
-
 G_END_DECLS

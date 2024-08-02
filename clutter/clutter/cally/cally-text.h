@@ -47,7 +47,4 @@ struct _CallyTextClass
   CallyActorClass parent_class;
 };
 
-CLUTTER_EXPORT
-AtkObject* cally_text_new      (ClutterActor *actor);
-
 G_END_DECLS

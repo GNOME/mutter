@@ -23,7 +23,7 @@
 
 /**
  * ClutterClone:
- * 
+ *
  * An actor that displays a clone of a source actor
  *
  * #ClutterClone is a [class@Clutter.Actor] which draws with the paint
@@ -37,6 +37,7 @@
 
 #include "config.h"
 
+#include "cally/cally-clone.h"
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-clone.h"
 #include "clutter/clutter-debug.h"
@@ -342,6 +343,7 @@ clutter_clone_class_init (ClutterCloneClass *klass)
   ClutterActorClass *actor_class = CLUTTER_ACTOR_CLASS (klass);
 
   actor_class->paint = clutter_clone_paint;
+  actor_class->get_accessible_type = cally_clone_get_type;
   actor_class->get_paint_volume = clutter_clone_get_paint_volume;
   actor_class->get_preferred_width = clutter_clone_get_preferred_width;
   actor_class->get_preferred_height = clutter_clone_get_preferred_height;

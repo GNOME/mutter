@@ -281,31 +281,6 @@ cally_text_finalize   (GObject *obj)
   G_OBJECT_CLASS (cally_text_parent_class)->finalize (obj);
 }
 
-/**
- * cally_text_new:
- * @actor: a #ClutterActor
- *
- * Creates a new #CallyText for the given @actor. @actor must be a
- * [class@Clutter.Text].
- *
- * Return value: the newly created #AtkObject
- */
-AtkObject*
-cally_text_new (ClutterActor *actor)
-{
-  GObject   *object     = NULL;
-  AtkObject *accessible = NULL;
-
-  g_return_val_if_fail (CLUTTER_IS_TEXT (actor), NULL);
-
-  object = g_object_new (CALLY_TYPE_TEXT, NULL);
-
-  accessible = ATK_OBJECT (object);
-  atk_object_initialize (accessible, actor);
-
-  return accessible;
-}
-
 /* atkobject.h */
 
 static void

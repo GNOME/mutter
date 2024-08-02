@@ -46,6 +46,7 @@
 
 #include "clutter/clutter-text.h"
 
+#include "cally/cally-text.h"
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-animatable.h"
 #include "clutter/clutter-backend-private.h"
@@ -3846,6 +3847,7 @@ clutter_text_class_init (ClutterTextClass *klass)
   gobject_class->finalize = clutter_text_finalize;
 
   actor_class->paint = clutter_text_paint;
+  actor_class->get_accessible_type = cally_text_get_type;
   actor_class->get_paint_volume = clutter_text_get_paint_volume;
   actor_class->get_preferred_width = clutter_text_get_preferred_width;
   actor_class->get_preferred_height = clutter_text_get_preferred_height;
