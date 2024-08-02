@@ -217,7 +217,6 @@ cally_headers = [
     'cally/cally-actor.h',
     'cally/cally-clone.h',
     'cally/cally.h',
-    'cally/cally-main.h',
     'cally/cally-root.h',
     'cally/cally-stage.h',
     'cally/cally-text.h',
@@ -226,7 +225,6 @@ cally_headers = [
 
 cally_sources = [
     'cally/cally-actor.c',
-    'cally/cally.c',
     'cally/cally-clone.c',
     'cally/cally-root.c',
     'cally/cally-stage.c',

@@ -198,7 +198,10 @@ clutter_context_init_real (ClutterContext       *context,
 
   /* Initialize a11y */
   if (!(flags & CLUTTER_CONTEXT_FLAG_NO_A11Y))
-    cally_accessibility_init ();
+    {
+      _cally_util_override_atk_util ();
+      CLUTTER_NOTE (MISC, "Clutter Accessibility initialized");
+    }
 
   /* Initialize types required for paint nodes */
   clutter_paint_node_init_types (context->backend);

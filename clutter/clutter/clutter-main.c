@@ -92,7 +92,7 @@ _clutter_context_get_show_fps (void)
 gboolean
 clutter_get_accessibility_enabled (void)
 {
-  return cally_get_cally_initialized ();
+  return !g_strcmp0 (atk_get_toolkit_name (), "clutter");
 }
 
 /**
