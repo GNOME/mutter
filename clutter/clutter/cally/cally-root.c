@@ -160,7 +160,6 @@ cally_root_ref_child (AtkObject *obj,
   if (accessible_item)
     g_object_ref (accessible_item);
 
-  /* TODO: cache the accessible object */
   return accessible_item;
 }
 

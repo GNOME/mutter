@@ -545,6 +545,9 @@ struct _ClutterActorPrivate
 {
   ClutterContext *context;
 
+  /* Accessibility */
+  AtkObject *accessible;
+
   /* request mode */
   ClutterRequestMode request_mode;
 
@@ -5434,7 +5437,10 @@ clutter_actor_get_accessible (ClutterActor *self)
 static AtkObject *
 clutter_actor_real_get_accessible (ClutterActor *actor)
 {
-  return atk_gobject_accessible_for_object (G_OBJECT (actor));
+  if (actor->priv->accessible == NULL)
+    actor->priv->accessible = atk_gobject_accessible_for_object (G_OBJECT (actor));
+
+  return actor->priv->accessible;
 }
 
 static AtkObject *
