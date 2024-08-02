@@ -72,7 +72,7 @@ then
       1.36
 fi
 
-if ! gsettings get org.gnome.desktop.interface accent-color >/dev/null 2>&1
+if ! pkgconf --atleast-version 47.beta gsettings-desktop-schemas
 then
     ./$SCRIPTS_DIR/install-meson-project.sh \
       "${OPTIONS[@]}" \
