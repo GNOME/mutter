@@ -1,6 +1,6 @@
 /* CALLY - The Clutter Accessibility Implementation Library
  *
- * Copyright (C) 2008 Igalia, S.L.
+ * Copyright (C) 2010 Igalia, S.L.
  *
  * Author: Alejandro Piñeiro Iglesias <apinheiro@igalia.com>
  *
@@ -20,13 +20,31 @@
 
 #pragma once
 
-#define __CALLY_H_INSIDE__
 
-#include "cally/cally-actor.h"
-#include "cally/cally-clone.h"
-#include "cally/cally-root.h"
-#include "cally/cally-stage.h"
-#include "cally/cally-text.h"
-#include "cally/cally-util.h"
+#if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
+#error "Only <clutter/clutter.h> can be included directly."
+#endif
 
-#undef __CALLY_H_INSIDE__
+#include "clutter/cally-actor.h"
+
+G_BEGIN_DECLS
+
+#define CALLY_TYPE_CLONE            (cally_clone_get_type ())
+
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (CallyClone,
+                          cally_clone,
+                          CALLY,
+                          CLONE,
+                          CallyActor)
+
+typedef struct _CallyClone CallyClone;
+typedef struct _CallyCloneClass CallyCloneClass;
+
+struct _CallyCloneClass
+{
+  /*< private >*/
+  CallyActorClass parent_class;
+};
+
+G_END_DECLS

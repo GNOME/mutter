@@ -37,7 +37,7 @@
 
 #include "config.h"
 
-#include "cally/cally-clone.h"
+#include "clutter/cally-clone.h"
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-clone.h"
 #include "clutter/clutter-debug.h"

@@ -41,7 +41,7 @@
 
 #include "clutter/clutter-stage.h"
 
-#include "cally/cally-stage.h"
+#include "clutter/cally-stage.h"
 #include "clutter/clutter-action-private.h"
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-backend-private.h"

@@ -46,7 +46,7 @@
 
 #include "clutter/clutter-text.h"
 
-#include "cally/cally-text.h"
+#include "clutter/cally-text.h"
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-animatable.h"
 #include "clutter/clutter-backend-private.h"

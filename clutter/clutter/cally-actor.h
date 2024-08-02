@@ -4,6 +4,10 @@
  *
  * Author: Alejandro Piñeiro Iglesias <apinheiro@igalia.com>
  *
+ * Some parts are based on GailWidget from GAIL
+ * GAIL - The GNOME Accessibility Implementation Library
+ * Copyright 2001, 2002, 2003 Sun Microsystems Inc.
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -20,31 +24,33 @@
 
 #pragma once
 
-#if !defined(__CALLY_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
-#error "Only <cally/cally.h> can be included directly."
+#if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
+#error "Only <clutter/clutter.h> can be included directly."
 #endif
 
-#include "cally/cally-actor.h"
-#include "clutter/clutter.h"
+#include <atk/atk.h>
+
+#include "clutter/clutter-macros.h"
 
 G_BEGIN_DECLS
 
-#define CALLY_TYPE_STAGE            (cally_stage_get_type ())
+#define CALLY_TYPE_ACTOR            (cally_actor_get_type ())
 
 CLUTTER_EXPORT
-G_DECLARE_DERIVABLE_TYPE (CallyStage,
-                          cally_stage,
+G_DECLARE_DERIVABLE_TYPE (CallyActor,
+                          cally_actor,
                           CALLY,
-                          STAGE,
-                          CallyActor)
+                          ACTOR,
+                          AtkGObjectAccessible)
 
-typedef struct _CallyStage CallyStage;
-typedef struct _CallyStageClass CallyStageClass;
+typedef struct _CallyActor           CallyActor;
+typedef struct _CallyActorClass      CallyActorClass;
+typedef struct _CallyActorPrivate    CallyActorPrivate;
 
-struct _CallyStageClass
+struct _CallyActorClass
 {
   /*< private >*/
-  CallyActorClass parent_class;
+  AtkGObjectAccessibleClass parent_class;
 };
 
 G_END_DECLS

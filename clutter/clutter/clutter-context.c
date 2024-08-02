@@ -22,7 +22,7 @@
 
 #include <hb-glib.h>
 
-#include "cally/cally.h"
+#include "clutter/cally-util.h"
 #include "clutter/clutter-backend-private.h"
 #include "clutter/clutter-color-manager.h"
 #include "clutter/clutter-debug.h"

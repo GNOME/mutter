@@ -24,33 +24,12 @@
 
 #pragma once
 
-#if !defined(__CALLY_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
-#error "Only <cally/cally.h> can be included directly."
-#endif
+#include "clutter/cally-actor.h"
 
-#include <atk/atk.h>
-
-#include "clutter/clutter.h"
-
-G_BEGIN_DECLS
-
-#define CALLY_TYPE_ACTOR            (cally_actor_get_type ())
-
-CLUTTER_EXPORT
-G_DECLARE_DERIVABLE_TYPE (CallyActor,
-                          cally_actor,
-                          CALLY,
-                          ACTOR,
-                          AtkGObjectAccessible)
-
-typedef struct _CallyActor           CallyActor;
-typedef struct _CallyActorClass      CallyActorClass;
-typedef struct _CallyActorPrivate    CallyActorPrivate;
-
-struct _CallyActorClass
-{
-  /*< private >*/
-  AtkGObjectAccessibleClass parent_class;
-};
-
-G_END_DECLS
+/*
+ * Auxiliary define, in order to get the clutter actor from the AtkObject using
+ * AtkGObject methods
+ *
+ */
+#define CALLY_GET_CLUTTER_ACTOR(cally_object) \
+  (CLUTTER_ACTOR (atk_gobject_accessible_get_object (ATK_GOBJECT_ACCESSIBLE (cally_object))))

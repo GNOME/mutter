@@ -68,8 +68,8 @@
  */
 #include "config.h"
 
-#include "cally/cally-clone.h"
-#include "cally/cally-actor-private.h"
+#include "clutter/cally-clone.h"
+#include "clutter/cally-actor-private.h"
 
 /* AtkObject */
 static void                  cally_clone_real_initialize (AtkObject *obj,

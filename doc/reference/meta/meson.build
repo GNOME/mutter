@@ -26,7 +26,6 @@ custom_target('meta-doc',
   depends: [
     libmutter_mtk_gir[0],
     libmutter_clutter_gir[0],
-    libmutter_cally_gir[0],
     libmutter_cogl_pango_gir[0],
     libmutter_cogl_gir[0],
   ],

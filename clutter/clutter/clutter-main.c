@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <glib/gi18n-lib.h>
 
+#include "clutter/cally-util.h"
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-backend-private.h"
 #include "clutter/clutter-context-private.h"
@@ -44,7 +45,6 @@
 #include "cogl/cogl.h"
 #include "cogl-pango/cogl-pango.h"
 
-#include "cally/cally.h" /* For accessibility support */
 
 typedef struct
 {

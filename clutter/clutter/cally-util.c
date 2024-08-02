@@ -23,7 +23,7 @@
 
 /**
  * CallyUtil:
- * 
+ *
  * #AtkUtil implementation
  *
  * #CallyUtil implements #AtkUtil abstract methods. Although it
@@ -40,9 +40,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "cally/cally-util.h"
-#include "cally/cally-root.h"
-#include "cally/cally-stage.h"
+#include "clutter/cally-util.h"
+#include "clutter/cally-root.h"
+#include "clutter/cally-stage.h"
 #include "clutter/clutter.h"
 
 #define DEFAULT_PASSWORD_CHAR '*'

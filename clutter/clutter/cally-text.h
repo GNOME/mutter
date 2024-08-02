@@ -1,12 +1,8 @@
 /* CALLY - The Clutter Accessibility Implementation Library
  *
- * Copyright (C) 2008 Igalia, S.L.
+ * Copyright (C) 2009 Igalia, S.L.
  *
  * Author: Alejandro Piñeiro Iglesias <apinheiro@igalia.com>
- *
- * Some parts are based on GailWidget from GAIL
- * GAIL - The GNOME Accessibility Implementation Library
- * Copyright 2001, 2002, 2003 Sun Microsystems Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,12 +20,30 @@
 
 #pragma once
 
-#include "cally/cally-actor.h"
+#if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
+#error "Only <clutter/clutter.h> can be included directly."
+#endif
 
-/*
- * Auxiliary define, in order to get the clutter actor from the AtkObject using
- * AtkGObject methods
- *
- */
-#define CALLY_GET_CLUTTER_ACTOR(cally_object) \
-  (CLUTTER_ACTOR (atk_gobject_accessible_get_object (ATK_GOBJECT_ACCESSIBLE (cally_object))))
+#include "clutter/cally-actor.h"
+
+G_BEGIN_DECLS
+
+#define CALLY_TYPE_TEXT                 (cally_text_get_type ())
+
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (CallyText,
+                          cally_text,
+                          CALLY,
+                          TEXT,
+                          CallyActor)
+
+typedef struct _CallyText CallyText;
+typedef struct _CallyTextClass CallyTextClass;
+
+struct _CallyTextClass
+{
+  /*< private >*/
+  CallyActorClass parent_class;
+};
+
+G_END_DECLS

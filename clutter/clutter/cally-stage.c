@@ -33,8 +33,9 @@
  */
 #include "config.h"
 
-#include "cally/cally-stage.h"
-#include "cally/cally-actor-private.h"
+#include "clutter/cally-stage.h"
+#include "clutter/cally-actor-private.h"
+#include "clutter/clutter-stage.h"
 
 /* AtkObject.h */
 static void                  cally_stage_real_initialize (AtkObject *obj,

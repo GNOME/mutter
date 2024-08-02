@@ -37,8 +37,8 @@
 
 #include "config.h"
 
-#include "cally/cally-text.h"
-#include "cally/cally-actor-private.h"
+#include "clutter/cally-text.h"
+#include "clutter/cally-actor-private.h"
 
 #include "clutter/clutter-main.h"
 #include "clutter/clutter-text.h"

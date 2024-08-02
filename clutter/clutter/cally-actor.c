@@ -75,8 +75,8 @@
 
 #include <math.h>
 
-#include "cally/cally-actor.h"
-#include "cally/cally-actor-private.h"
+#include "clutter/cally-actor.h"
+#include "clutter/cally-actor-private.h"
 
 static void cally_actor_initialize (AtkObject *obj,
                                    gpointer   data);

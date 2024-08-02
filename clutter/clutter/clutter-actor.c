@@ -485,7 +485,7 @@
 
 #include "cogl/cogl.h"
 
-#include "cally/cally-actor.h"
+#include "clutter/cally-actor.h"
 #include "clutter/clutter-actor-private.h"
 
 #include "clutter/clutter-action.h"

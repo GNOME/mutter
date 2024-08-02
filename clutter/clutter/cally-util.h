@@ -1,6 +1,6 @@
 /* CALLY - The Clutter Accessibility Implementation Library
  *
- * Copyright (C) 2009 Igalia, S.L.
+ * Copyright (C) 2008 Igalia, S.L.
  *
  * Author: Alejandro Piñeiro Iglesias <apinheiro@igalia.com>
  *
@@ -20,35 +20,38 @@
 
 #pragma once
 
-#if !defined(__CALLY_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
-#error "Only <cally/cally.h> can be included directly."
+#if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
+#error "Only <clutter/clutter.h> can be included directly."
 #endif
 
 #include <atk/atk.h>
 
-#include "clutter/clutter.h"
+#include "clutter/clutter-macros.h"
+#include "clutter/clutter-stage.h"
 
 G_BEGIN_DECLS
 
-#define CALLY_TYPE_ROOT            (cally_root_get_type ())
+#define CALLY_TYPE_UTIL            (cally_util_get_type ())
+
+typedef struct _CallyUtil        CallyUtil;
+typedef struct _CallyUtilClass   CallyUtilClass;
 
 CLUTTER_EXPORT
-G_DECLARE_DERIVABLE_TYPE (CallyRoot,
-                          cally_root,
+G_DECLARE_DERIVABLE_TYPE (CallyUtil,
+                          cally_util,
                           CALLY,
-                          ROOT,
-                          AtkGObjectAccessible)
+                          UTIL,
+                          AtkUtil)
 
-typedef struct _CallyRoot CallyRoot;
-typedef struct _CallyRootClass CallyRootClass;
-
-struct _CallyRootClass
+struct _CallyUtilClass
 {
   /*< private >*/
-  AtkGObjectAccessibleClass parent_class;
+  AtkUtilClass parent_class;
 };
 
-CLUTTER_EXPORT
-AtkObject *cally_root_new      (void);
+void _cally_util_override_atk_util (void);
+
+gboolean cally_snoop_key_event (ClutterStage    *stage,
+                                ClutterKeyEvent *key);
 
 G_END_DECLS

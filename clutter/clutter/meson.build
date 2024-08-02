@@ -213,27 +213,26 @@ clutter_nonintrospected_sources = [
 
 clutter_backend_private_headers = []
 
-cally_headers = [
-    'cally/cally-actor.h',
-    'cally/cally-clone.h',
-    'cally/cally.h',
-    'cally/cally-root.h',
-    'cally/cally-stage.h',
-    'cally/cally-text.h',
-    'cally/cally-util.h',
+clutter_headers += [
+    'cally-actor.h',
+    'cally-clone.h',
+    'cally-root.h',
+    'cally-stage.h',
+    'cally-text.h',
+    'cally-util.h',
 ]
 
-cally_sources = [
-    'cally/cally-actor.c',
-    'cally/cally-clone.c',
-    'cally/cally-root.c',
-    'cally/cally-stage.c',
-    'cally/cally-text.c',
-    'cally/cally-util.c',
+clutter_sources += [
+    'cally-actor.c',
+    'cally-clone.c',
+    'cally-root.c',
+    'cally-stage.c',
+    'cally-text.c',
+    'cally-util.c',
 ]
 
-cally_private_headers = [
-  'cally/cally-actor-private.h',
+clutter_private_headers += [
+  'cally-actor-private.h',
 ]
 
 clutter_built_sources = []
@@ -269,9 +268,6 @@ libmutter_clutter = shared_library(libmutter_clutter_name,
     clutter_nonintrospected_sources,
     clutter_built_sources,
     clutter_built_headers,
-    cally_sources,
-    cally_headers,
-    cally_private_headers,
   ],
   version: '0.0.0',
   soversion: 0,
@@ -324,33 +320,10 @@ if have_introspection
     extra_args: clutter_introspection_args + ['--c-include=clutter/clutter.h'],
     kwargs: introspection_common,
   )
-
-  libmutter_cally_gir = gnome.generate_gir(libmutter_clutter,
-    sources: [
-      cally_sources,
-      cally_headers,
-    ],
-    nsversion: libmutter_api_version,
-    header: 'cally/cally.h',
-    namespace: 'Cally',
-    export_packages: [libmutter_clutter_name],
-    includes: [
-      libmutter_mtk_gir[0],
-      libmutter_cogl_gir[0],
-      libmutter_cogl_pango_gir[0],
-      libmutter_clutter_gir[0],
-    ],
-    dependencies: [cogl_deps],
-    extra_args: clutter_introspection_args,
-    kwargs: introspection_common,
-  )
 endif
 
 install_headers(clutter_headers,
   subdir: clutter_clutter_includesubdir)
-
-install_headers(cally_headers,
-  subdir: clutter_includesubdir / 'cally')
 
 pkg.generate(libmutter_clutter,
   name: 'Mutters Clutter',

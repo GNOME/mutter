@@ -35,7 +35,7 @@
 
 #include "config.h"
 
-#include "cally/cally-root.h"
+#include "clutter/cally-root.h"
 
 #include "clutter/clutter-actor.h"
 #include "clutter/clutter-stage-private.h"

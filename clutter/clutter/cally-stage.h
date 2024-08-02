@@ -20,36 +20,31 @@
 
 #pragma once
 
-#if !defined(__CALLY_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
-#error "Only <cally/cally.h> can be included directly."
+#if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
+#error "Only <clutter/clutter.h> can be included directly."
 #endif
 
-#include "clutter/clutter.h"
-#include <atk/atk.h>
+#include "clutter/cally-actor.h"
+#include "clutter/clutter-macros.h"
 
 G_BEGIN_DECLS
 
-#define CALLY_TYPE_UTIL            (cally_util_get_type ())
-
-typedef struct _CallyUtil        CallyUtil;
-typedef struct _CallyUtilClass   CallyUtilClass;
+#define CALLY_TYPE_STAGE            (cally_stage_get_type ())
 
 CLUTTER_EXPORT
-G_DECLARE_DERIVABLE_TYPE (CallyUtil,
-                          cally_util,
+G_DECLARE_DERIVABLE_TYPE (CallyStage,
+                          cally_stage,
                           CALLY,
-                          UTIL,
-                          AtkUtil)
+                          STAGE,
+                          CallyActor)
 
-struct _CallyUtilClass
+typedef struct _CallyStage CallyStage;
+typedef struct _CallyStageClass CallyStageClass;
+
+struct _CallyStageClass
 {
   /*< private >*/
-  AtkUtilClass parent_class;
+  CallyActorClass parent_class;
 };
-
-void _cally_util_override_atk_util (void);
-
-gboolean cally_snoop_key_event (ClutterStage    *stage,
-                                ClutterKeyEvent *key);
 
 G_END_DECLS
