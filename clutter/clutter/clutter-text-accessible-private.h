@@ -1,4 +1,4 @@
-/* CALLY - The Clutter Accessibility Implementation Library
+/* Clutter.
  *
  * Copyright (C) 2009 Igalia, S.L.
  *
@@ -20,30 +20,16 @@
 
 #pragma once
 
-#if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
-#error "Only <clutter/clutter.h> can be included directly."
-#endif
-
 #include "clutter/clutter-actor-accessible.h"
 
 G_BEGIN_DECLS
 
-#define CALLY_TYPE_TEXT                 (cally_text_get_type ())
+#define CLUTTER_TYPE_TEXT_ACCESSIBLE (clutter_text_accessible_get_type ())
 
-CLUTTER_EXPORT
-G_DECLARE_DERIVABLE_TYPE (CallyText,
-                          cally_text,
-                          CALLY,
-                          TEXT,
-                          ClutterActorAccessible)
-
-typedef struct _CallyText CallyText;
-typedef struct _CallyTextClass CallyTextClass;
-
-struct _CallyTextClass
-{
-  /*< private >*/
-  ClutterActorAccessibleClass parent_class;
-};
+G_DECLARE_FINAL_TYPE (ClutterTextAccessible,
+                      clutter_text_accessible,
+                      CLUTTER,
+                      TEXT_ACCESSIBLE,
+                      ClutterActorAccessible)
 
 G_END_DECLS

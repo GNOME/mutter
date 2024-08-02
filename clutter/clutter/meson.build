@@ -168,6 +168,7 @@ clutter_sources = [
   'clutter-stage-view.c',
   'clutter-stage-window.c',
   'clutter-tap-action.c',
+  'clutter-text-accessible.c',
   'clutter-text.c',
   'clutter-text-buffer.c',
   'clutter-texture-content.c',
@@ -214,6 +215,7 @@ clutter_private_headers = [
   'clutter-stage-private.h',
   'clutter-stage-view-private.h',
   'clutter-stage-window.h',
+  'clutter-text-accessible-private.h',
   'clutter-timeline-private.h',
 ]
 
@@ -222,14 +224,6 @@ clutter_nonintrospected_sources = [
 ]
 
 clutter_backend_private_headers = []
-
-clutter_headers += [
-    'cally-text.h',
-]
-
-clutter_sources += [
-    'cally-text.c',
-]
 
 clutter_built_sources = []
 clutter_built_headers = []

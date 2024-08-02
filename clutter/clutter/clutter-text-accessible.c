@@ -1,4 +1,4 @@
-/* CALLY - The Clutter Accessibility Implementation Library
+/* Clutter.
  *
  * Copyright (C) 2009 Igalia, S.L.
  *
@@ -27,18 +27,17 @@
  */
 
 /**
- * CallyText:
+ * ClutterTextAccessible:
  *
  * Implementation of the ATK interfaces for a [class@Clutter.Text]
  *
- * #CallyText implements the required ATK interfaces of
+ * #ClutterTextAccessible implements the required ATK interfaces of
  * [class@Clutter.Text], #AtkText and #AtkEditableText
  */
 
-#include "clutter.h"
 #include "config.h"
 
-#include "clutter/cally-text.h"
+#include "clutter/clutter-text-accessible-private.h"
 
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-main.h"
@@ -54,8 +53,8 @@ static AtkStateSet*           cally_text_ref_state_set   (AtkObject *obj);
 /* atkaction */
 
 static void                   _cally_text_activate_action (ClutterActorAccessible *accessible_actor);
-static void                   _check_activate_action      (CallyText   *cally_text,
-                                                           ClutterText *clutter_text);
+static void                   _check_activate_action      (ClutterTextAccessible  *self,
+                                                           ClutterText            *clutter_text);
 
 /* AtkText */
 static void                   cally_text_text_interface_init     (AtkTextIface *iface);
@@ -127,8 +126,8 @@ static void                 _cally_text_delete_text_cb           (ClutterText *c
                                                                   gint         end_pos,
                                                                   gpointer     data);
 static gboolean             _idle_notify_insert                  (gpointer data);
-static void                 _notify_insert                       (CallyText *cally_text);
-static void                 _notify_delete                       (CallyText *cally_text);
+static void                 _notify_insert                       (ClutterTextAccessible *cally_text);
+static void                 _notify_delete                       (ClutterTextAccessible *cally_text);
 
 /* AtkEditableText */
 static void                 cally_text_editable_text_interface_init (AtkEditableTextIface *iface);
@@ -145,8 +144,8 @@ static void                 cally_text_delete_text                  (AtkEditable
 static void                 cally_text_notify_clutter               (GObject    *obj,
                                                                      GParamSpec *pspec);
 
-static gboolean             _check_for_selection_change             (CallyText *cally_text,
-                                                                     ClutterText *clutter_text);
+static gboolean             _check_for_selection_change             (ClutterTextAccessible *cally_text,
+                                                                     ClutterText           *clutter_text);
 
 /* Misc functions */
 static AtkAttributeSet*     _cally_misc_add_attribute (AtkAttributeSet *attrib_set,
@@ -188,23 +187,25 @@ static const gchar * cally_text_action_get_name (AtkAction *action,
 typedef void (* ClutterActorActionFunc) (ClutterActorAccessible *accessible_actor);
 
 /*< private >
- * CallyTextActionInfo:
+ * ClutterTextAccessibleActionInfo:
  * @name: name of the action
  * @do_action_func: callback
  *
  * Utility structure to maintain the different actions added to the
- * #CallyActor
+ * #ClutterActorAcessible
  */
-typedef struct _CallyTextActionInfo
+typedef struct _ClutterTextAccessibleActionInfo
 {
   gchar *name;
 
   ClutterActorActionFunc do_action_func;
-} CallyTextActionInfo;
+} ClutterTextAccessibleActionInfo;
 
 
-typedef struct _CallyTextPrivate
+struct _ClutterTextAccessible
 {
+  ClutterActorAccessible parent;
+
   /* Cached ClutterText values*/
   gint cursor_position;
   gint selection_bound;
@@ -221,27 +222,26 @@ typedef struct _CallyTextPrivate
   gint length_delete;
 
   /* action */
-  CallyTextActionInfo *activate_action;
+  ClutterTextAccessibleActionInfo *activate_action;
   GQueue *action_queue;
   guint action_idle_handler;
-} CallyTextPrivate;
+};
 
-G_DEFINE_TYPE_WITH_CODE (CallyText,
-                         cally_text,
-                         CLUTTER_TYPE_ACTOR_ACCESSIBLE,
-                         G_ADD_PRIVATE (CallyText)
-                         G_IMPLEMENT_INTERFACE (ATK_TYPE_TEXT,
-                                                cally_text_text_interface_init)
-                         G_IMPLEMENT_INTERFACE (ATK_TYPE_ACTION,
-                                                cally_text_action_interface_init)
-                         G_IMPLEMENT_INTERFACE (ATK_TYPE_EDITABLE_TEXT,
-                                                cally_text_editable_text_interface_init));
+G_DEFINE_FINAL_TYPE_WITH_CODE (ClutterTextAccessible,
+                               clutter_text_accessible,
+                               CLUTTER_TYPE_ACTOR_ACCESSIBLE,
+                               G_IMPLEMENT_INTERFACE (ATK_TYPE_TEXT,
+                                                      cally_text_text_interface_init)
+                               G_IMPLEMENT_INTERFACE (ATK_TYPE_ACTION,
+                                                      cally_text_action_interface_init)
+                               G_IMPLEMENT_INTERFACE (ATK_TYPE_EDITABLE_TEXT,
+                                                      cally_text_editable_text_interface_init));
 
 static void
-cally_text_class_init (CallyTextClass *klass)
+clutter_text_accessible_class_init (ClutterTextAccessibleClass *klass)
 {
   GObjectClass   *gobject_class = G_OBJECT_CLASS (klass);
-  AtkObjectClass *class         = ATK_OBJECT_CLASS (klass);
+  AtkObjectClass *class = ATK_OBJECT_CLASS (klass);
 
   gobject_class->finalize = cally_text_finalize;
 
@@ -250,36 +250,32 @@ cally_text_class_init (CallyTextClass *klass)
 }
 
 static void
-cally_text_init (CallyText *cally_text)
+clutter_text_accessible_init (ClutterTextAccessible *self)
 {
-  CallyTextPrivate *priv = cally_text_get_instance_private (cally_text);
+  self->cursor_position = 0;
+  self->selection_bound = 0;
 
-  priv->cursor_position = 0;
-  priv->selection_bound = 0;
+  self->signal_name_insert = NULL;
+  self->position_insert = -1;
+  self->length_insert = -1;
+  self->insert_idle_handler = 0;
 
-  priv->signal_name_insert = NULL;
-  priv->position_insert = -1;
-  priv->length_insert = -1;
-  priv->insert_idle_handler = 0;
-
-  priv->signal_name_delete = NULL;
-  priv->position_delete = -1;
-  priv->length_delete = -1;
-  priv->action_queue = g_queue_new ();
+  self->signal_name_delete = NULL;
+  self->position_delete = -1;
+  self->length_delete = -1;
+  self->action_queue = g_queue_new ();
 }
 
 static void
 cally_text_finalize   (GObject *obj)
 {
-  CallyText *cally_text = CALLY_TEXT (obj);
-  CallyTextPrivate *priv =
-    cally_text_get_instance_private (cally_text);
+  ClutterTextAccessible *self = CLUTTER_TEXT_ACCESSIBLE (obj);
 
-  g_clear_handle_id (&priv->insert_idle_handler, g_source_remove);
-  g_clear_handle_id (&priv->action_idle_handler, g_source_remove);
-  g_clear_pointer (&priv->action_queue, g_queue_free);
+  g_clear_handle_id (&self->insert_idle_handler, g_source_remove);
+  g_clear_handle_id (&self->action_idle_handler, g_source_remove);
+  g_clear_pointer (&self->action_queue, g_queue_free);
 
-  G_OBJECT_CLASS (cally_text_parent_class)->finalize (obj);
+  G_OBJECT_CLASS (clutter_text_accessible_parent_class)->finalize (obj);
 }
 
 /* atkobject.h */
@@ -289,19 +285,17 @@ cally_text_real_initialize(AtkObject *obj,
                            gpointer   data)
 {
   ClutterText *clutter_text = NULL;
-  CallyText *cally_text = NULL;
-  CallyTextPrivate *priv;
+  ClutterTextAccessible *self = NULL;
 
-  ATK_OBJECT_CLASS (cally_text_parent_class)->initialize (obj, data);
+  ATK_OBJECT_CLASS (clutter_text_accessible_parent_class)->initialize (obj, data);
 
   g_return_if_fail (CLUTTER_TEXT (data));
 
-  cally_text = CALLY_TEXT (obj);
-  priv = cally_text_get_instance_private (cally_text);
+  self = CLUTTER_TEXT_ACCESSIBLE (obj);
   clutter_text = CLUTTER_TEXT (data);
 
-  priv->cursor_position = clutter_text_get_cursor_position (clutter_text);
-  priv->selection_bound = clutter_text_get_selection_bound (clutter_text);
+  self->cursor_position = clutter_text_get_cursor_position (clutter_text);
+  self->selection_bound = clutter_text_get_selection_bound (clutter_text);
 
   g_signal_connect (clutter_text,
                     "notify",
@@ -310,12 +304,12 @@ cally_text_real_initialize(AtkObject *obj,
 
   g_signal_connect (clutter_text, "insert-text",
                     G_CALLBACK (_cally_text_insert_text_cb),
-                    cally_text);
+                    self);
   g_signal_connect (clutter_text, "delete-text",
                     G_CALLBACK (_cally_text_delete_text_cb),
-                    cally_text);
+                    self);
 
-  _check_activate_action (cally_text, clutter_text);
+  _check_activate_action (self, clutter_text);
 
   if (clutter_text_get_password_char (clutter_text) != 0)
     atk_object_set_role (obj, ATK_ROLE_PASSWORD_TEXT);
@@ -329,7 +323,7 @@ cally_text_ref_state_set   (AtkObject *obj)
   AtkStateSet *result = NULL;
   ClutterActor *actor = NULL;
 
-  result = ATK_OBJECT_CLASS (cally_text_parent_class)->ref_state_set (obj);
+  result = ATK_OBJECT_CLASS (clutter_text_accessible_parent_class)->ref_state_set (obj);
 
   actor = CLUTTER_ACTOR_FROM_ACCESSIBLE (obj);
 
@@ -1559,26 +1553,24 @@ _cally_text_delete_text_cb (ClutterText *clutter_text,
                             gint         end_pos,
                             gpointer     data)
 {
-  CallyText *cally_text = NULL;
-  CallyTextPrivate *priv;
+  ClutterTextAccessible *self = NULL;
 
-  g_return_if_fail (CALLY_IS_TEXT (data));
+  g_return_if_fail (CLUTTER_IS_TEXT_ACCESSIBLE (data));
 
   /* Ignore zero length deletions */
   if (end_pos - start_pos == 0)
     return;
 
-  cally_text = CALLY_TEXT (data);
-  priv = cally_text_get_instance_private (cally_text);
+  self = CLUTTER_TEXT_ACCESSIBLE (data);
 
-  if (!priv->signal_name_delete)
+  if (!self->signal_name_delete)
     {
-      priv->signal_name_delete = "text_changed::delete";
-      priv->position_delete = start_pos;
-      priv->length_delete = end_pos - start_pos;
+      self->signal_name_delete = "text_changed::delete";
+      self->position_delete = start_pos;
+      self->length_delete = end_pos - start_pos;
     }
 
-  _notify_delete (cally_text);
+  _notify_delete (self);
 }
 
 static void
@@ -1588,28 +1580,26 @@ _cally_text_insert_text_cb (ClutterText *clutter_text,
                             gint        *position,
                             gpointer     data)
 {
-  CallyText *cally_text = NULL;
-  CallyTextPrivate *priv;
+  ClutterTextAccessible *self = NULL;
 
-  g_return_if_fail (CALLY_IS_TEXT (data));
+  g_return_if_fail (CLUTTER_IS_TEXT_ACCESSIBLE (data));
 
-  cally_text = CALLY_TEXT (data);
-  priv = cally_text_get_instance_private (cally_text);
+  self = CLUTTER_TEXT_ACCESSIBLE (data);
 
-  if (!priv->signal_name_insert)
+  if (!self->signal_name_insert)
     {
-      priv->signal_name_insert = "text_changed::insert";
-      priv->position_insert = *position;
-      priv->length_insert = g_utf8_strlen (new_text, new_text_length);
+      self->signal_name_insert = "text_changed::insert";
+      self->position_insert = *position;
+      self->length_insert = g_utf8_strlen (new_text, new_text_length);
     }
 
   /*
    * The signal will be emitted when the cursor position is updated,
    * or in an idle handler if it not updated.
    */
-  if (priv->insert_idle_handler == 0)
-    priv->insert_idle_handler = clutter_threads_add_idle (_idle_notify_insert,
-                                                          cally_text);
+  if (self->insert_idle_handler == 0)
+    self->insert_idle_handler = clutter_threads_add_idle (_idle_notify_insert,
+                                                          self);
 }
 
 /***** atkeditabletext.h ******/
@@ -1696,17 +1686,17 @@ cally_text_notify_clutter (GObject    *obj,
                            GParamSpec *pspec)
 {
   ClutterText *clutter_text = NULL;
-  CallyText *cally_text = NULL;
+  ClutterTextAccessible *self = NULL;
   AtkObject *atk_obj = NULL;
 
   clutter_text = CLUTTER_TEXT (obj);
   atk_obj = clutter_actor_get_accessible (CLUTTER_ACTOR (obj));
-  cally_text = CALLY_TEXT (atk_obj);
+  self = CLUTTER_TEXT_ACCESSIBLE (atk_obj);
 
   if (g_strcmp0 (pspec->name, "cursor-position") == 0)
     {
       /* the selection can change also for the cursor position */
-      if (_check_for_selection_change (cally_text, clutter_text))
+      if (_check_for_selection_change (self, clutter_text))
         g_signal_emit_by_name (atk_obj, "text_selection_changed");
 
       g_signal_emit_by_name (atk_obj, "text_caret_moved",
@@ -1714,32 +1704,30 @@ cally_text_notify_clutter (GObject    *obj,
     }
   else if (g_strcmp0 (pspec->name, "selection-bound") == 0)
     {
-      if (_check_for_selection_change (cally_text, clutter_text))
+      if (_check_for_selection_change (self, clutter_text))
         g_signal_emit_by_name (atk_obj, "text_selection_changed");
     }
   else if (g_strcmp0 (pspec->name, "activatable") == 0)
     {
-      _check_activate_action (cally_text, clutter_text);
+      _check_activate_action (self, clutter_text);
     }
 }
 
 static gboolean
-_check_for_selection_change (CallyText   *cally_text,
-                             ClutterText *clutter_text)
+_check_for_selection_change (ClutterTextAccessible *self,
+                             ClutterText           *clutter_text)
 {
   gboolean ret_val = FALSE;
   gint clutter_pos = -1;
   gint clutter_bound = -1;
-  CallyTextPrivate *priv =
-    cally_text_get_instance_private (cally_text);
 
   clutter_pos = clutter_text_get_cursor_position (clutter_text);
   clutter_bound = clutter_text_get_selection_bound (clutter_text);
 
   if (clutter_pos != clutter_bound)
     {
-      if (clutter_pos != priv->cursor_position ||
-          clutter_bound != priv->selection_bound)
+      if (clutter_pos != self->cursor_position ||
+          clutter_bound != self->selection_bound)
         /*
          * This check is here as this function can be called for
          * notification of selection_bound and current_pos.  The
@@ -1752,11 +1740,11 @@ _check_for_selection_change (CallyText   *cally_text,
   else
     {
       /* We had a selection */
-      ret_val = (priv->cursor_position != priv->selection_bound);
+      ret_val = (self->cursor_position != self->selection_bound);
     }
 
-  priv->cursor_position = clutter_pos;
-  priv->selection_bound = clutter_bound;
+  self->cursor_position = clutter_pos;
+  self->selection_bound = clutter_bound;
 
   return ret_val;
 }
@@ -1764,44 +1752,37 @@ _check_for_selection_change (CallyText   *cally_text,
 static gboolean
 _idle_notify_insert (gpointer data)
 {
-  CallyText *cally_text = CALLY_TEXT (data);
-  CallyTextPrivate *priv =
-    cally_text_get_instance_private (cally_text);
+  ClutterTextAccessible *self = CLUTTER_TEXT_ACCESSIBLE (data);
+  self->insert_idle_handler = 0;
 
-  priv->insert_idle_handler = 0;
-
-  _notify_insert (cally_text);
+  _notify_insert (self);
 
   return FALSE;
 }
 
 static void
-_notify_insert (CallyText *cally_text)
+_notify_insert (ClutterTextAccessible *self)
 {
-  CallyTextPrivate *priv =
-    cally_text_get_instance_private (cally_text);
-  if (priv->signal_name_insert)
+  if (self->signal_name_insert)
     {
-      g_signal_emit_by_name (cally_text,
-                             priv->signal_name_insert,
-                             priv->position_insert,
-                             priv->length_insert);
-      priv->signal_name_insert = NULL;
+      g_signal_emit_by_name (self,
+                             self->signal_name_insert,
+                             self->position_insert,
+                             self->length_insert);
+      self->signal_name_insert = NULL;
     }
 }
 
 static void
-_notify_delete (CallyText *cally_text)
+_notify_delete (ClutterTextAccessible *self)
 {
-  CallyTextPrivate *priv =
-    cally_text_get_instance_private (cally_text);
-  if (priv->signal_name_delete)
+  if (self->signal_name_delete)
     {
-      g_signal_emit_by_name (cally_text,
-                             priv->signal_name_delete,
-                             priv->position_delete,
-                             priv->length_delete);
-      priv->signal_name_delete = NULL;
+      g_signal_emit_by_name (self,
+                             self->signal_name_delete,
+                             self->position_delete,
+                             self->length_delete);
+      self->signal_name_delete = NULL;
     }
 }
 /* atkaction */
@@ -1817,27 +1798,25 @@ _cally_text_activate_action (ClutterActorAccessible *accessible_actor)
 }
 
 static void
-_check_activate_action (CallyText   *cally_text,
-                        ClutterText *clutter_text)
+_check_activate_action (ClutterTextAccessible   *self,
+                        ClutterText             *clutter_text)
 {
-  CallyTextPrivate *priv =
-    cally_text_get_instance_private (cally_text);
   if (clutter_text_get_activatable (clutter_text))
     {
-      if (priv->activate_action != NULL)
+      if (self->activate_action != NULL)
         return;
 
-      priv->activate_action = g_new0 (CallyTextActionInfo, 1);
-      priv->activate_action->name = g_strdup ("activate");
-      priv->activate_action->do_action_func = _cally_text_activate_action;
+      self->activate_action = g_new0 (ClutterTextAccessibleActionInfo, 1);
+      self->activate_action->name = g_strdup ("activate");
+      self->activate_action->do_action_func = _cally_text_activate_action;
     }
   else
     {
-      if (priv->activate_action == NULL)
+      if (self->activate_action == NULL)
         return;
 
-      g_clear_pointer (&priv->activate_action->name, g_free);
-      g_clear_pointer (&priv->activate_action, g_free);
+      g_clear_pointer (&self->activate_action->name, g_free);
+      g_clear_pointer (&self->activate_action, g_free);
 
     }
 }
@@ -1854,22 +1833,20 @@ cally_text_action_interface_init (AtkActionIface *iface)
 static gboolean
 idle_do_action (gpointer data)
 {
-  ClutterActorAccessible *actor_accessible =
-    CLUTTER_ACTOR_ACCESSIBLE (data);
-  CallyTextPrivate *priv =
-    cally_text_get_instance_private (CALLY_TEXT (actor_accessible));
-  priv->action_idle_handler = 0;
+  ClutterTextAccessible *self =
+    CLUTTER_TEXT_ACCESSIBLE (data);
+  self->action_idle_handler = 0;
 
   /* state is defunct*/
-  g_assert (CLUTTER_ACTOR_FROM_ACCESSIBLE (actor_accessible) != NULL);
+  g_assert (CLUTTER_ACTOR_FROM_ACCESSIBLE (self) != NULL);
 
-  while (!g_queue_is_empty (priv->action_queue))
+  while (!g_queue_is_empty (self->action_queue))
     {
-      CallyTextActionInfo *info = NULL;
+      ClutterTextAccessibleActionInfo *info = NULL;
 
-      info = (CallyTextActionInfo *) g_queue_pop_head (priv->action_queue);
+      info = (ClutterTextAccessibleActionInfo *) g_queue_pop_head (self->action_queue);
 
-      info->do_action_func (actor_accessible);
+      info->do_action_func (CLUTTER_ACTOR_ACCESSIBLE (self));
     }
 
   return FALSE;
@@ -1880,17 +1857,15 @@ cally_text_action_do_action (AtkAction *action,
                              gint       index)
 {
   g_autoptr (AtkStateSet) set = NULL;
-  CallyText *cally_actor;
-  CallyTextPrivate *priv;
+  ClutterTextAccessible *self;
 
   /* Only activate action is supported*/
   g_return_val_if_fail (index != 0, FALSE);
-  g_return_val_if_fail (CALLY_IS_TEXT (action), FALSE);
+  g_return_val_if_fail (CLUTTER_IS_TEXT_ACCESSIBLE (action), FALSE);
 
-  cally_actor = CALLY_TEXT (action);
-  priv = cally_text_get_instance_private (cally_actor);
+  self = CLUTTER_TEXT_ACCESSIBLE (action);
 
-  set = atk_object_ref_state_set (ATK_OBJECT (cally_actor));
+  set = atk_object_ref_state_set (ATK_OBJECT (self));
 
   if (atk_state_set_contains_state (set, ATK_STATE_DEFUNCT))
     return FALSE;
@@ -1899,16 +1874,16 @@ cally_text_action_do_action (AtkAction *action,
       !atk_state_set_contains_state (set, ATK_STATE_SHOWING))
     return FALSE;
 
-  if (priv->activate_action == NULL)
+  if (self->activate_action == NULL)
     return FALSE;
 
-  if (priv->activate_action->do_action_func == NULL)
+  if (self->activate_action->do_action_func == NULL)
     return FALSE;
 
-  g_queue_push_head (priv->action_queue, priv->activate_action);
+  g_queue_push_head (self->action_queue, self->activate_action);
 
-  if (!priv->action_idle_handler)
-    priv->action_idle_handler = g_idle_add (idle_do_action, cally_actor);
+  if (!self->action_idle_handler)
+    self->action_idle_handler = g_idle_add (idle_do_action, self);
 
   return TRUE;
 }
@@ -1926,16 +1901,16 @@ static const gchar*
 cally_text_action_get_name (AtkAction *action,
                             gint       i)
 {
-  CallyTextPrivate *priv;
+  ClutterTextAccessible *self;
 
   g_return_val_if_fail (CLUTTER_IS_ACTOR_ACCESSIBLE (action), NULL);
 
-  priv = cally_text_get_instance_private (CALLY_TEXT (action));
+  self = CLUTTER_TEXT_ACCESSIBLE (action);
 
-  if (priv->activate_action == NULL)
+  if (self->activate_action == NULL)
     return NULL;
 
-  return priv->activate_action->name;
+  return self->activate_action->name;
 }
 
 /* GailTextUtil/GailMisc reimplementation methods */

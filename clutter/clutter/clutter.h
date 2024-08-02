@@ -30,7 +30,6 @@
 #include "clutter/clutter-types.h"
 
 #include "clutter/clutter-actor-accessible.h"
-#include "clutter/cally-text.h"
 
 #include "clutter/clutter-action.h"
 #include "clutter/clutter-actor.h"
