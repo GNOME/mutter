@@ -18431,7 +18431,7 @@ clutter_actor_has_accessible (ClutterActor *actor)
   if (CLUTTER_ACTOR_GET_CLASS (actor)->has_accessible)
     return CLUTTER_ACTOR_GET_CLASS (actor)->has_accessible (actor);
 
-  return TRUE;
+  return actor->priv->accessible != NULL;
 }
 
 /**
