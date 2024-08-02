@@ -1,4 +1,4 @@
-/* CALLY - The Clutter Accessibility Implementation Library
+/* Clutter.
  *
  * Copyright (C) 2008 Igalia, S.L.
  *
@@ -19,11 +19,9 @@
  */
 
 /**
- * CallyRoot:
+ * ClutterStageManagerAccessible:
  *
- * Root object for the Cally toolkit
- *
- * #CallyRoot is the root object of the accessibility tree-like
+ * The root object of the accessibility tree-like
  * hierarchy, exposing the application level.
  *
  * Somewhat equivalent to #GailTopLevel. We consider that this class
@@ -33,58 +31,41 @@
  * [class@Clutter.StageManager]).
  */
 
+#include "atk/atk.h"
 #include "config.h"
 
-#include "clutter/cally-root.h"
+#include "clutter/clutter-stage-manager-accessible-private.h"
 
 #include "clutter/clutter-actor.h"
 #include "clutter/clutter-stage-private.h"
 #include "clutter/clutter-stage-manager.h"
 
-/* AtkObject.h */
-static void             cally_root_initialize           (AtkObject *accessible,
-                                                         gpointer   data);
-static gint             cally_root_get_n_children       (AtkObject *obj);
-static AtkObject *      cally_root_ref_child            (AtkObject *obj,
-                                                         gint i);
-static AtkObject *      cally_root_get_parent           (AtkObject *obj);
-static const char *     cally_root_get_name             (AtkObject *obj);
+struct _ClutterStageManagerAccessible {
+  AtkGObjectAccessible parent;
+};
 
-G_DEFINE_TYPE (CallyRoot, cally_root,  ATK_TYPE_GOBJECT_ACCESSIBLE)
+G_DEFINE_FINAL_TYPE (ClutterStageManagerAccessible, clutter_stage_manager_accessible,  ATK_TYPE_GOBJECT_ACCESSIBLE)
 
 static void
-cally_root_class_init (CallyRootClass *klass)
-{
-  AtkObjectClass *class = ATK_OBJECT_CLASS (klass);
-
-  /* AtkObject */
-  class->get_n_children = cally_root_get_n_children;
-  class->ref_child = cally_root_ref_child;
-  class->get_parent = cally_root_get_parent;
-  class->initialize = cally_root_initialize;
-  class->get_name = cally_root_get_name;
-}
-
-static void
-cally_root_init (CallyRoot *root)
+clutter_stage_manager_accessible_init (ClutterStageManagerAccessible *manager_accessible)
 {
 }
 
 /**
- * cally_root_new:
+ * clutter_stage_manager_accessible_new:
  *
- * Creates a new #CallyRoot object.
+ * Creates a new #ClutterStageManagerAccessible object.
  *
  * Return value: the newly created #AtkObject
  */
 AtkObject*
-cally_root_new (void)
+clutter_stage_manager_accessible_new (void)
 {
   GObject *object = NULL;
   AtkObject *accessible = NULL;
   ClutterStageManager *stage_manager = NULL;
 
-  object = g_object_new (CALLY_TYPE_ROOT, NULL);
+  object = g_object_new (CLUTTER_TYPE_STAGE_MANAGER_ACCESSIBLE, NULL);
 
   accessible = ATK_OBJECT (object);
   stage_manager = clutter_stage_manager_get_default ();
@@ -96,15 +77,16 @@ cally_root_new (void)
 
 /* AtkObject.h */
 static void
-cally_root_initialize (AtkObject              *accessible,
-                       gpointer                data)
+clutter_stage_manager_accessible_initialize (AtkObject *accessible,
+                                             gpointer   data)
 {
   ClutterStageManager *stage_manager = NULL;
-  const GSList        *iter          = NULL;
-  const GSList        *stage_list    = NULL;
-  ClutterStage        *clutter_stage = NULL;
-  AtkObject           *cally_stage   = NULL;
-  CallyRoot *root = CALLY_ROOT (accessible);
+  const GSList *iter = NULL;
+  const GSList *stage_list = NULL;
+  ClutterStage *stage = NULL;
+  AtkObject *stage_accessible = NULL;
+  ClutterStageManagerAccessible *manager_accessible =
+    CLUTTER_STAGE_MANAGER_ACCESSIBLE (accessible);
 
   accessible->role = ATK_ROLE_APPLICATION;
   accessible->accessible_parent = NULL;
@@ -115,22 +97,23 @@ cally_root_initialize (AtkObject              *accessible,
 
   for (iter = stage_list; iter != NULL; iter = g_slist_next (iter))
     {
-      clutter_stage = CLUTTER_STAGE (iter->data);
-      cally_stage = clutter_actor_get_accessible (CLUTTER_ACTOR (clutter_stage));
+      stage = CLUTTER_STAGE (iter->data);
+      stage_accessible = clutter_actor_get_accessible (CLUTTER_ACTOR (stage));
 
-      atk_object_set_parent (cally_stage, ATK_OBJECT (root));
+      atk_object_set_parent (stage_accessible, ATK_OBJECT (manager_accessible));
     }
 
-  ATK_OBJECT_CLASS (cally_root_parent_class)->initialize (accessible, data);
+  ATK_OBJECT_CLASS (clutter_stage_manager_accessible_parent_class)->initialize (accessible, data);
 }
 
 
 static gint
-cally_root_get_n_children (AtkObject *obj)
+clutter_stage_manager_accessible_get_n_children (AtkObject *obj)
 {
-  CallyRoot *root = CALLY_ROOT (obj);
+  ClutterStageManagerAccessible *manager_accessible =
+    CLUTTER_STAGE_MANAGER_ACCESSIBLE (obj);
   GObject *stage_manager =
-    atk_gobject_accessible_get_object (ATK_GOBJECT_ACCESSIBLE (root));
+    atk_gobject_accessible_get_object (ATK_GOBJECT_ACCESSIBLE (manager_accessible));
   const GSList *stages =
     clutter_stage_manager_peek_stages (CLUTTER_STAGE_MANAGER (stage_manager));
 
@@ -138,12 +121,13 @@ cally_root_get_n_children (AtkObject *obj)
 }
 
 static AtkObject*
-cally_root_ref_child (AtkObject *obj,
-                      gint       i)
+clutter_stage_manager_accessible_ref_child (AtkObject *obj,
+                                            gint       i)
 {
-  CallyRoot *cally_root = CALLY_ROOT (obj);
+  ClutterStageManagerAccessible *manager_accessible =
+    CLUTTER_STAGE_MANAGER_ACCESSIBLE (obj);
   GObject *stage_manager =
-      atk_gobject_accessible_get_object (ATK_GOBJECT_ACCESSIBLE (cally_root));
+    atk_gobject_accessible_get_object (ATK_GOBJECT_ACCESSIBLE (manager_accessible));
   const GSList *stages =
     clutter_stage_manager_peek_stages (CLUTTER_STAGE_MANAGER (stage_manager));
   gint n_stages = g_slist_length ((GSList *)stages);
@@ -164,13 +148,26 @@ cally_root_ref_child (AtkObject *obj,
 }
 
 static AtkObject*
-cally_root_get_parent (AtkObject *obj)
+clutter_stage_manager_accessible_get_parent (AtkObject *obj)
 {
   return NULL;
 }
 
 static const char *
-cally_root_get_name (AtkObject *obj)
+clutter_stage_manager_accessible_get_name (AtkObject *obj)
 {
   return g_get_prgname ();
+}
+
+static void
+clutter_stage_manager_accessible_class_init (ClutterStageManagerAccessibleClass *klass)
+{
+  AtkObjectClass *class = ATK_OBJECT_CLASS (klass);
+
+  /* AtkObject */
+  class->get_n_children = clutter_stage_manager_accessible_get_n_children;
+  class->ref_child = clutter_stage_manager_accessible_ref_child;
+  class->get_parent = clutter_stage_manager_accessible_get_parent;
+  class->initialize = clutter_stage_manager_accessible_initialize;
+  class->get_name = clutter_stage_manager_accessible_get_name;
 }

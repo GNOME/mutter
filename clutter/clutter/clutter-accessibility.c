@@ -38,7 +38,7 @@
 #include <string.h>
 
 #include "clutter/clutter-accessibility-private.h"
-#include "clutter/cally-root.h"
+#include "clutter/clutter-stage-manager-accessible-private.h"
 #include "clutter/clutter.h"
 
 #define DEFAULT_PASSWORD_CHAR '*'
@@ -77,7 +77,7 @@ static AtkObject*
 clutter_accessibility_get_root (void)
 {
   if (!root)
-    root = cally_root_new ();
+    root = clutter_stage_manager_accessible_new ();
 
   return root;
 }
