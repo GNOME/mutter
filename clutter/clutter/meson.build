@@ -86,6 +86,7 @@ clutter_headers = [
 ]
 
 clutter_sources = [
+  'clutter-accessibility.c',
   'clutter-action.c',
   'clutter-actor-box.c',
   'clutter-actor-accessible.c',
@@ -176,6 +177,7 @@ clutter_sources = [
 ]
 
 clutter_private_headers = [
+  'clutter-accessibility-private.h',
   'clutter-actor-meta-private.h',
   'clutter-actor-private.h',
   'clutter-backend-private.h',
@@ -220,7 +222,6 @@ clutter_headers += [
     'cally-root.h',
     'cally-stage.h',
     'cally-text.h',
-    'cally-util.h',
 ]
 
 clutter_sources += [
@@ -228,7 +229,6 @@ clutter_sources += [
     'cally-root.c',
     'cally-stage.c',
     'cally-text.c',
-    'cally-util.c',
 ]
 
 clutter_built_sources = []

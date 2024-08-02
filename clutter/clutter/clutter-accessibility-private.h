@@ -1,4 +1,4 @@
-/* CALLY - The Clutter Accessibility Implementation Library
+/* Clutter.
  *
  * Copyright (C) 2008 Igalia, S.L.
  *
@@ -20,10 +20,6 @@
 
 #pragma once
 
-#if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
-#error "Only <clutter/clutter.h> can be included directly."
-#endif
-
 #include <atk/atk.h>
 
 #include "clutter/clutter-macros.h"
@@ -31,27 +27,9 @@
 
 G_BEGIN_DECLS
 
-#define CALLY_TYPE_UTIL            (cally_util_get_type ())
+void _clutter_accessibility_override_atk_util (void);
 
-typedef struct _CallyUtil        CallyUtil;
-typedef struct _CallyUtilClass   CallyUtilClass;
-
-CLUTTER_EXPORT
-G_DECLARE_DERIVABLE_TYPE (CallyUtil,
-                          cally_util,
-                          CALLY,
-                          UTIL,
-                          AtkUtil)
-
-struct _CallyUtilClass
-{
-  /*< private >*/
-  AtkUtilClass parent_class;
-};
-
-void _cally_util_override_atk_util (void);
-
-gboolean cally_snoop_key_event (ClutterStage    *stage,
-                                ClutterKeyEvent *key);
+gboolean clutter_accessibility_snoop_key_event (ClutterStage    *stage,
+                                                ClutterKeyEvent *key);
 
 G_END_DECLS

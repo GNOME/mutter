@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #include <glib/gi18n-lib.h>
 
-#include "clutter/cally-util.h"
+#include "clutter/clutter-accessibility-private.h"
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-backend-private.h"
 #include "clutter/clutter-context-private.h"
@@ -426,7 +426,7 @@ emit_event (ClutterStage *stage,
 
   if (event_type == CLUTTER_KEY_PRESS ||
       event_type == CLUTTER_KEY_RELEASE)
-    cally_snoop_key_event (stage, (ClutterKeyEvent *) event);
+    clutter_accessibility_snoop_key_event (stage, (ClutterKeyEvent *) event);
 
   clutter_stage_emit_event (stage, event);
 }

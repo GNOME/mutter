@@ -1,4 +1,4 @@
-/* CALLY - The Clutter Accessibility Implementation Library
+/* Clutter.
  *
  * Copyright (C) 2008 Igalia, S.L.
  *
@@ -22,14 +22,11 @@
  */
 
 /**
- * CallyUtil:
+ * ClutterAccessibility:
  *
- * #AtkUtil implementation
  *
- * #CallyUtil implements #AtkUtil abstract methods. Although it
- * includes the name "Util" it is in fact one of the most important
- * interfaces to be implemented in any ATK toolkit implementation.
-
+ * A #AtkUtil implementation.
+ *
  * For instance, it defines [func@Atk.get_root], the method that returns
  * the root object in the hierarchy. Without it, you don't have
  * available any accessible object.
@@ -40,78 +37,45 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "clutter/cally-util.h"
+#include "clutter/clutter-accessibility-private.h"
 #include "clutter/cally-root.h"
 #include "clutter/cally-stage.h"
 #include "clutter/clutter.h"
 
 #define DEFAULT_PASSWORD_CHAR '*'
 
-/* atkutil.h */
-
-static guint                 cally_util_add_key_event_listener	    (AtkKeySnoopFunc listener,
-                                                                     gpointer        data);
-static void                  cally_util_remove_key_event_listener    (guint remove_listener);
-static AtkObject*            cally_util_get_root			    (void);
-static const gchar *         cally_util_get_toolkit_name		    (void);
-static const gchar *         cally_util_get_toolkit_version          (void);
-
-/* private */
-static gboolean              notify_hf                               (gpointer key,
-                                                                      gpointer value,
-                                                                      gpointer data);
-static void                  insert_hf                               (gpointer key,
-                                                                      gpointer value,
-                                                                      gpointer data);
-
 /* This is just a copy of the Gail one, a shared library or place to
    define it could be a good idea. */
-typedef struct _CallyKeyEventInfo CallyKeyEventInfo;
-
-struct _CallyKeyEventInfo
+typedef struct _KeyEventInfo
 {
   AtkKeySnoopFunc listener;
   gpointer func_data;
-};
+} KeyEventInfo;
 
-static AtkObject* root = NULL;
+static AtkObject*root = NULL;
 static GHashTable *key_listener_list = NULL;
 
+G_DECLARE_FINAL_TYPE (ClutterAccessibility,
+                      clutter_accessibility,
+                      CLUTTER,
+                      ACCESSIBILITY,
+                      AtkUtil)
 
-G_DEFINE_TYPE (CallyUtil, cally_util, ATK_TYPE_UTIL);
+struct _ClutterAccessibility {
+  AtkUtil parent;
+};
 
-static void
-cally_util_class_init (CallyUtilClass *klass)
-{
-  AtkUtilClass *atk_class;
-  gpointer data;
-
-  data = g_type_class_peek (ATK_TYPE_UTIL);
-  atk_class = ATK_UTIL_CLASS (data);
-
-  atk_class->add_key_event_listener       = cally_util_add_key_event_listener;
-  atk_class->remove_key_event_listener    = cally_util_remove_key_event_listener;
-  atk_class->get_root                     = cally_util_get_root;
-  atk_class->get_toolkit_name             = cally_util_get_toolkit_name;
-  atk_class->get_toolkit_version          = cally_util_get_toolkit_version;
-
-  /* FIXME: Instead of create this on the class, I think that would
-     worth to implement CallyUtil as a singleton instance, so the
-     class methods will access this instance. This will be a good
-     future enhancement, meanwhile, just using the same *working*
-     implementation used on GailUtil */
-}
+G_DEFINE_FINAL_TYPE (ClutterAccessibility, clutter_accessibility, ATK_TYPE_UTIL);
 
 static void
-cally_util_init (CallyUtil *cally_util)
+clutter_accessibility_init (ClutterAccessibility *accessibility)
 {
-  /* instance init: usually not required */
 }
 
 /* ------------------------------ ATK UTIL METHODS -------------------------- */
 
 static AtkObject*
-cally_util_get_root (void)
+clutter_accessibility_get_root (void)
 {
   if (!root)
     root = cally_root_new ();
@@ -120,28 +84,28 @@ cally_util_get_root (void)
 }
 
 static const gchar *
-cally_util_get_toolkit_name (void)
+clutter_accessibility_get_toolkit_name (void)
 {
   return "clutter";
 }
 
 static const gchar *
-cally_util_get_toolkit_version (void)
+clutter_accessibility_get_toolkit_version (void)
 {
   return VERSION;
 }
 
 static guint
-cally_util_add_key_event_listener (AtkKeySnoopFunc  listener,
-                                   gpointer         data)
+clutter_accessibility_add_key_event_listener (AtkKeySnoopFunc listener,
+                                              gpointer        data)
 {
   static guint key = 1;
-  CallyKeyEventInfo *event_info = NULL;
+  KeyEventInfo *event_info = NULL;
 
   if (!key_listener_list)
     key_listener_list = g_hash_table_new_full (NULL, NULL, NULL, g_free);
 
-  event_info = g_new (CallyKeyEventInfo, 1);
+  event_info = g_new (KeyEventInfo, 1);
   event_info->listener = listener;
   event_info->func_data = data;
 
@@ -151,11 +115,11 @@ cally_util_add_key_event_listener (AtkKeySnoopFunc  listener,
 }
 
 static void
-cally_util_remove_key_event_listener (guint remove_listener)
+clutter_accessibility_remove_key_event_listener (guint remove_listener)
 {
   if (!g_hash_table_remove (key_listener_list, GUINT_TO_POINTER (remove_listener))) {
-    g_warning ("Not able to remove listener with id %i", remove_listener);
-  }
+      g_warning ("Not able to remove listener with id %i", remove_listener);
+    }
 
   if (g_hash_table_size (key_listener_list) == 0)
     {
@@ -240,13 +204,13 @@ atk_key_event_from_clutter_event_key (ClutterKeyEvent *clutter_event,
 
   atk_event->timestamp = clutter_event_get_time ((ClutterEvent *) clutter_event);
 
-#ifdef CALLY_DEBUG
+#ifdef CLUTTER_ENABLE_DEBUG
 
-  g_debug ("CallyKeyEvent:\tsym 0x%x\n\t\tmods %x\n\t\tcode %u\n\t\ttime %lx \n\t\tstring %s\n",
-	   (unsigned int) atk_event->keyval,
-	   (unsigned int) atk_event->state,
-	   (unsigned int) atk_event->keycode,
-	   (unsigned long int) atk_event->timestamp,
+  g_debug ("KeyEvent:\tsym 0x%x\n\t\tmods %x\n\t\tcode %u\n\t\ttime %lx \n\t\tstring %s\n",
+           (unsigned int) atk_event->keyval,
+           (unsigned int) atk_event->state,
+           (unsigned int) atk_event->keycode,
+           (unsigned long int) atk_event->timestamp,
            atk_event->string);
 #endif
 
@@ -255,16 +219,20 @@ atk_key_event_from_clutter_event_key (ClutterKeyEvent *clutter_event,
 
 
 static gboolean
-notify_hf (gpointer key, gpointer value, gpointer data)
+notify_hf (gpointer key,
+           gpointer value,
+           gpointer data)
 {
-  CallyKeyEventInfo *info = (CallyKeyEventInfo *) value;
+  KeyEventInfo *info = (KeyEventInfo *) value;
   AtkKeyEventStruct *key_event = (AtkKeyEventStruct *)data;
 
   return (*(AtkKeySnoopFunc) info->listener) (key_event, info->func_data) ? TRUE : FALSE;
 }
 
 static void
-insert_hf (gpointer key, gpointer value, gpointer data)
+insert_hf (gpointer key,
+           gpointer value,
+           gpointer data)
 {
   GHashTable *new_table = (GHashTable *) data;
   g_hash_table_insert (new_table, key, value);
@@ -305,8 +273,8 @@ check_key_visibility (ClutterStage *stage)
 }
 
 gboolean
-cally_snoop_key_event (ClutterStage    *stage,
-                       ClutterKeyEvent *key)
+clutter_accessibility_snoop_key_event (ClutterStage    *stage,
+                                       ClutterKeyEvent *key)
 {
   ClutterEvent *event = (ClutterEvent *) key;
   AtkKeyEventStruct *key_event = NULL;
@@ -338,14 +306,33 @@ cally_snoop_key_event (ClutterStage    *stage,
   return consumed;
 }
 
+static void
+clutter_accessibility_class_init (ClutterAccessibilityClass *klass)
+{
+  gpointer data = g_type_class_peek (ATK_TYPE_UTIL);
+  AtkUtilClass *atk_class = ATK_UTIL_CLASS (data);
+
+  atk_class->add_key_event_listener = clutter_accessibility_add_key_event_listener;
+  atk_class->remove_key_event_listener = clutter_accessibility_remove_key_event_listener;
+  atk_class->get_root = clutter_accessibility_get_root;
+  atk_class->get_toolkit_name = clutter_accessibility_get_toolkit_name;
+  atk_class->get_toolkit_version = clutter_accessibility_get_toolkit_version;
+
+  /* FIXME: Instead of create this on the class, I think that would
+     worth to implement ClutterAccessibility as a singleton instance, so the
+     class methods will access this instance. This will be a good
+     future enhancement, meanwhile, just using the same *working*
+     implementation used on GailUtil */
+}
+
 void
-_cally_util_override_atk_util (void)
+_clutter_accessibility_override_atk_util (void)
 {
   AtkUtilClass *atk_class = ATK_UTIL_CLASS (g_type_class_ref (ATK_TYPE_UTIL));
 
-  atk_class->add_key_event_listener = cally_util_add_key_event_listener;
-  atk_class->remove_key_event_listener = cally_util_remove_key_event_listener;
-  atk_class->get_root = cally_util_get_root;
-  atk_class->get_toolkit_name = cally_util_get_toolkit_name;
-  atk_class->get_toolkit_version = cally_util_get_toolkit_version;
+  atk_class->add_key_event_listener = clutter_accessibility_add_key_event_listener;
+  atk_class->remove_key_event_listener = clutter_accessibility_remove_key_event_listener;
+  atk_class->get_root = clutter_accessibility_get_root;
+  atk_class->get_toolkit_name = clutter_accessibility_get_toolkit_name;
+  atk_class->get_toolkit_version = clutter_accessibility_get_toolkit_version;
 }

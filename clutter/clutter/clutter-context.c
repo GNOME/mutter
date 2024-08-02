@@ -22,7 +22,7 @@
 
 #include <hb-glib.h>
 
-#include "clutter/cally-util.h"
+#include "clutter/clutter-accessibility-private.h"
 #include "clutter/clutter-backend-private.h"
 #include "clutter/clutter-color-manager.h"
 #include "clutter/clutter-debug.h"
@@ -199,7 +199,7 @@ clutter_context_init_real (ClutterContext       *context,
   /* Initialize a11y */
   if (!(flags & CLUTTER_CONTEXT_FLAG_NO_A11Y))
     {
-      _cally_util_override_atk_util ();
+      _clutter_accessibility_override_atk_util ();
       CLUTTER_NOTE (MISC, "Clutter Accessibility initialized");
     }
 
