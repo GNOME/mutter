@@ -515,6 +515,7 @@
 #include "clutter/clutter-stage-view-private.h"
 #include "clutter/clutter-timeline.h"
 #include "clutter/clutter-transition.h"
+#include "glib-object.h"
 
 
 static const CoglColor transparent = { 0x00, 0x00, 0x00, 0x00 };
@@ -547,6 +548,7 @@ struct _ClutterActorPrivate
 
   /* Accessibility */
   AtkObject *accessible;
+  gchar *accessible_name;
 
   /* request mode */
   ClutterRequestMode request_mode;
@@ -852,6 +854,10 @@ enum
   PROP_CONTENT_REPEAT,
 
   PROP_COLOR_STATE,
+
+  /* Accessible */
+  PROP_ACCESSIBLE_ROLE,
+  PROP_ACCESSIBLE_NAME,
 
   PROP_LAST
 };
@@ -4843,6 +4849,14 @@ clutter_actor_set_property (GObject      *object,
       clutter_actor_set_color_state_internal (actor, g_value_get_object (value));
       break;
 
+    case PROP_ACCESSIBLE_ROLE:
+      clutter_actor_set_accessible_role (actor, g_value_get_enum (value));
+      break;
+
+    case PROP_ACCESSIBLE_NAME:
+      clutter_actor_set_accessible_name (actor, g_value_get_string (value));
+      break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -5300,6 +5314,14 @@ clutter_actor_get_property (GObject    *object,
       g_value_set_object (value, priv->color_state);
       break;
 
+    case PROP_ACCESSIBLE_ROLE:
+      g_value_set_enum (value, clutter_actor_get_accessible_role (actor));
+      break;
+
+    case PROP_ACCESSIBLE_NAME:
+      g_value_set_string (value, priv->accessible_name);
+      break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -5344,6 +5366,8 @@ clutter_actor_dispose (GObject *object)
 
   g_clear_signal_handler (&priv->resolution_changed_id, backend);
   g_clear_signal_handler (&priv->font_changed_id, backend);
+
+  g_clear_pointer (&priv->accessible_name, g_free);
 
   g_clear_object (&priv->pango_context);
   g_clear_object (&priv->actions);
@@ -6842,6 +6866,27 @@ clutter_actor_class_init (ClutterActorClass *klass)
                          G_PARAM_CONSTRUCT |
                          G_PARAM_STATIC_STRINGS |
                          G_PARAM_EXPLICIT_NOTIFY);
+
+  /**
+   * ClutterActor:accessible-role:
+   *
+   * The accessible role of this object
+   */
+  obj_props[PROP_ACCESSIBLE_ROLE] =
+    g_param_spec_enum ("accessible-role", NULL, NULL,
+                       ATK_TYPE_ROLE,
+                       ATK_ROLE_INVALID,
+                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_EXPLICIT_NOTIFY);
+
+  /**
+   * ClutterActor:accessible-name:
+   *
+   * Object instance's name for assistive technology access.
+   */
+  obj_props[PROP_ACCESSIBLE_NAME] =
+    g_param_spec_string ("accessible-name", NULL, NULL,
+                         NULL,
+                         G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_EXPLICIT_NOTIFY);
 
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
 
@@ -18440,8 +18485,7 @@ clutter_actor_has_accessible (ClutterActor *actor)
  * @accessible: an accessible
  *
  * This method allows to set a customly created accessible object to
- * this widget. For example if you define a new subclass of
- * #StWidgetAccessible at the javascript code.
+ * this widget
  *
  * NULL is a valid value for @accessible. That contemplates the
  * hypothetical case of not needing anymore a custom accessible object
@@ -18686,4 +18730,128 @@ clutter_actor_class_get_layout_manager_type (ClutterActorClass *actor_class)
   g_return_val_if_fail (CLUTTER_IS_ACTOR_CLASS (actor_class), G_TYPE_INVALID);
 
   return actor_class->layout_manager_type;
+}
+
+/**
+ * clutter_actor_set_accessible_name:
+ * @self: widget to set the accessible name for
+ * @name: (nullable): a character string to be set as the accessible name
+ *
+ * This method sets @name as the accessible name for @self.
+ *
+ * Usually you will have no need to set the accessible name for an
+ * object, as usually there is a label for most of the interface
+ * elements.
+ */
+void
+clutter_actor_set_accessible_name (ClutterActor *self,
+                                   const gchar  *name)
+{
+  ClutterActorPrivate *priv;
+  AtkObject *accessible;
+
+  g_return_if_fail (CLUTTER_IS_ACTOR (self));
+
+  priv = self->priv;
+  if (g_strcmp0 (name, priv->accessible_name) == 0)
+    return;
+
+  if (priv->accessible_name != NULL)
+    g_free (priv->accessible_name);
+
+  accessible = clutter_actor_get_accessible (self);
+  priv->accessible_name = g_strdup (name);
+
+  if (accessible)
+    g_object_notify (G_OBJECT (accessible), "accessible-name");
+
+  g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_ACCESSIBLE_NAME]);
+}
+
+/**
+ * clutter_actor_get_accessible_name:
+ * @self: widget to get the accessible name for
+ *
+ * Gets the accessible name for this widget. See
+ * clutter_actor_set_accessible_name() for more information.
+ *
+ * Returns: a character string representing the accessible name
+ * of the widget.
+ */
+const gchar *
+clutter_actor_get_accessible_name (ClutterActor *actor)
+{
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), NULL);
+
+  return actor->priv->accessible_name;
+}
+
+/**
+ * clutter_actor_set_accessible_role:
+ * @self: widget to set the accessible role for
+ * @role: The role to use
+ *
+ * This method sets @role as the accessible role for @self. This
+ * role describes what kind of user interface element @self is and
+ * is provided so that assistive technologies know how to present
+ * @self to the user.
+ *
+ * Usually you will have no need to set the accessible role for an
+ * object, as this information is extracted from the context of the
+ * object (ie: a #StButton has by default a push button role). This
+ * method is only required when you need to redefine the role
+ * currently associated with the widget, for instance if it is being
+ * used in an unusual way (ie: a #StButton used as a togglebutton), or
+ * if a generic object is used directly (ie: a container as a menu
+ * item).
+ *
+ * If @role is #ATK_ROLE_INVALID, the role will not be changed
+ * and the accessible's default role will be used instead.
+ */
+void
+clutter_actor_set_accessible_role (ClutterActor *self,
+                                   AtkRole       role)
+{
+  AtkObject *accessible;
+
+  g_return_if_fail (CLUTTER_IS_ACTOR (self));
+
+  if (self->accessible_role == role)
+    return;
+
+  accessible = clutter_actor_get_accessible (self);
+  self->accessible_role = role;
+
+  if (accessible)
+    g_object_notify (G_OBJECT (accessible), "accessible-role");
+
+  g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_ACCESSIBLE_ROLE]);
+}
+
+
+/**
+ * clutter_actor_get_accessible_role:
+ * @self: widget to get the accessible role for
+ *
+ * Gets the #AtkRole for this widget. See
+ * clutter_actor_set_accessible_role() for more information.
+ *
+ * Returns: accessible #AtkRole for this widget
+ */
+AtkRole
+clutter_actor_get_accessible_role (ClutterActor *self)
+{
+  AtkRole role = ATK_ROLE_INVALID;
+  AtkObject *accessible;
+
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (self), role);
+
+  accessible = clutter_actor_get_accessible (self);
+
+  if (self->accessible_role != ATK_ROLE_INVALID)
+    role = self->accessible_role;
+  else if (accessible != NULL)
+    role = atk_object_get_role (accessible);
+
+  return role;
 }

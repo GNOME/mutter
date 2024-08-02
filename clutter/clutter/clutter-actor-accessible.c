@@ -27,7 +27,7 @@
  *
  * Implementation of the ATK interfaces for [class@Clutter.Actor]
  *
- * #ClutterAccessible implements the required ATK interfaces of [class@Clutter.Actor]
+ * #ClutterActorAccessible implements the required ATK interfaces of [class@Clutter.Actor]
  * exposing the common elements on each actor (position, extents, etc).
  */
 
@@ -57,7 +57,7 @@
  * buttons. So in this environment, it doesn't make sense to keep
  * adding them as default.
  *
- * Anyway, current implementation of AtkAction is done at ClutterAccessible
+ * Anyway, current implementation of AtkAction is done at ClutterActorAccessible
  * providing methods to add and remove actions. This is based on the
  * one used at gailcell, and proposed as a change on #AtkAction
  * interface:
@@ -70,6 +70,7 @@
 
 #include <math.h>
 
+#include <atk/atk.h>
 #include <glib.h>
 
 #include "clutter/clutter-actor-private.h"
@@ -161,6 +162,45 @@ clutter_actor_accessible_initialize (AtkObject *obj,
                                  interface would be a panel */
 }
 
+/* AtkObject */
+static const gchar *
+clutter_actor_accessible_get_name (AtkObject *obj)
+{
+  const gchar* name = NULL;
+  ClutterActor *actor;
+
+  g_return_val_if_fail (CLUTTER_IS_ACTOR_ACCESSIBLE (obj), NULL);
+
+  actor = CLUTTER_ACTOR_FROM_ACCESSIBLE (obj);
+  if (actor)
+    name = clutter_actor_get_accessible_name (actor);
+
+  if (!name)
+    name = ATK_OBJECT_CLASS (clutter_actor_accessible_parent_class)->get_name (obj);
+
+  return name;
+}
+
+static AtkRole
+clutter_actor_accessible_get_role (AtkObject *obj)
+{
+  ClutterActor *actor = NULL;
+  AtkRole role = ATK_ROLE_INVALID;
+
+  g_return_val_if_fail (CLUTTER_IS_ACTOR_ACCESSIBLE (obj), role);
+
+  actor = CLUTTER_ACTOR_FROM_ACCESSIBLE (obj);
+
+  if (actor == NULL)
+    return role;
+
+  role = actor->accessible_role;
+  if (role == ATK_ROLE_INVALID)
+    role = ATK_OBJECT_CLASS (clutter_actor_accessible_parent_class)->get_role (obj);
+
+  return role;
+}
+
 static void
 clutter_actor_accessible_class_init (ClutterActorAccessibleClass *klass)
 {
@@ -171,6 +211,8 @@ clutter_actor_accessible_class_init (ClutterActorAccessibleClass *klass)
   gobject_class->finalize = clutter_actor_accessible_finalize;
 
   /* AtkObject */
+  class->get_role = clutter_actor_accessible_get_role;
+  class->get_name = clutter_actor_accessible_get_name;
   class->get_parent          = clutter_actor_accessible_get_parent;
   class->get_index_in_parent = clutter_actor_accessible_get_index_in_parent;
   class->ref_state_set       = clutter_actor_accessible_ref_state_set;
@@ -203,8 +245,6 @@ clutter_actor_accessible_finalize (GObject *obj)
 
   G_OBJECT_CLASS (clutter_actor_accessible_parent_class)->finalize (obj);
 }
-
-/* AtkObject */
 
 static AtkObject *
 clutter_actor_accessible_get_parent (AtkObject *obj)

@@ -64,6 +64,7 @@ struct _ClutterActor
 
   /*< public >*/
   guint32 flags;
+  AtkRole accessible_role;
 
   /*< private >*/
   guint32 private_flags;
@@ -308,6 +309,16 @@ void                            clutter_actor_set_name                          
                                                                                  const gchar                 *name);
 CLUTTER_EXPORT
 const gchar *                   clutter_actor_get_name                          (ClutterActor                *self);
+CLUTTER_EXPORT
+void                            clutter_actor_set_accessible_role               (ClutterActor                *self,
+                                                                                 AtkRole                      role);
+CLUTTER_EXPORT
+AtkRole                         clutter_actor_get_accessible_role               (ClutterActor                *self);
+CLUTTER_EXPORT
+void                            clutter_actor_set_accessible_name               (ClutterActor                *self,
+                                                                                 const gchar                 *name);
+CLUTTER_EXPORT
+const gchar *                   clutter_actor_get_accessible_name               (ClutterActor                *self);
 CLUTTER_EXPORT
 AtkObject *                     clutter_actor_get_accessible                    (ClutterActor                *self);
 CLUTTER_EXPORT
