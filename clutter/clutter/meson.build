@@ -104,6 +104,7 @@ clutter_sources = [
   'clutter-box-layout.c',
   'clutter-brightness-contrast-effect.c',
   'clutter-click-action.c',
+  'clutter-clone-accessible.c',
   'clutter-clone.c',
   'clutter-color-manager.c',
   'clutter-color-state.c',
@@ -182,6 +183,7 @@ clutter_private_headers = [
   'clutter-actor-private.h',
   'clutter-backend-private.h',
   'clutter-blur-private.h',
+  'clutter-clone-accessible-private.h',
   'clutter-constraint-private.h',
   'clutter-content-private.h',
   'clutter-context-private.h',
@@ -218,14 +220,12 @@ clutter_nonintrospected_sources = [
 clutter_backend_private_headers = []
 
 clutter_headers += [
-    'cally-clone.h',
     'cally-root.h',
     'cally-stage.h',
     'cally-text.h',
 ]
 
 clutter_sources += [
-    'cally-clone.c',
     'cally-root.c',
     'cally-stage.c',
     'cally-text.c',

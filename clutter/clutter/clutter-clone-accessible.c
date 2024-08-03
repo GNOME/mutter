@@ -19,21 +19,21 @@
  */
 
 /**
- * CallyClone:
+ * ClutterCloneAccessible:
  *
  * Implementation of the ATK interfaces for a #ClutterClone
  *
- * #CallyClone implements the required ATK interfaces of [class@Clutter.Clone]
+ * #ClutterCloneAccessible implements the required ATK interfaces of [class@Clutter.Clone]
  *
  * In particular it sets a proper role for the clone, as just a image,
  * as it is the sanest and simplest approach.
  */
 
-/* Design rationale for CallyClone:
+/* Design rationale for ClutterCloneAccessible:
  *
  * In the old times, it was just ClutterCloneTexture. So, from a a11y POV
- * CallyCloneTexture was just another image, like ClutterTexture, and if
- * it was a clone was irrelevant. So on cally-0.8, CallyCloneTexture
+ * ClutterCloneAccessibleTexture was just another image, like ClutterTexture, and if
+ * it was a clone was irrelevant. So on cally-0.8, ClutterCloneAccessibleTexture
  * expose a object with role ATK_ROLE_IMAGE. But now, ClutterClone is more
  * general. You can clone any object, including groups, and made things
  * like have one text entry, and a clone with different properties in the
@@ -68,34 +68,33 @@
  */
 #include "config.h"
 
-#include "clutter/cally-clone.h"
+#include "clutter/clutter-clone-accessible-private.h"
 
-/* AtkObject */
-static void                  cally_clone_real_initialize (AtkObject *obj,
-                                                          gpointer   data);
+struct _ClutterCloneAccessible
+{
+  ClutterActorAccessible parent;
+};
 
-G_DEFINE_TYPE (CallyClone, cally_clone, CLUTTER_TYPE_ACTOR_ACCESSIBLE)
+G_DEFINE_FINAL_TYPE (ClutterCloneAccessible, clutter_clone_accessible, CLUTTER_TYPE_ACTOR_ACCESSIBLE)
 
 static void
-cally_clone_class_init (CallyCloneClass *klass)
+clutter_clone_accessible_real_initialize (AtkObject *obj,
+                                          gpointer   data)
 {
-/*   GObjectClass   *gobject_class = G_OBJECT_CLASS (klass); */
-  AtkObjectClass *class         = ATK_OBJECT_CLASS (klass);
-
-  class->initialize      = cally_clone_real_initialize;
-}
-
-static void
-cally_clone_init (CallyClone *clone)
-{
-  /* nothing to do yet */
-}
-
-static void
-cally_clone_real_initialize (AtkObject *obj,
-                              gpointer   data)
-{
-  ATK_OBJECT_CLASS (cally_clone_parent_class)->initialize (obj, data);
+  ATK_OBJECT_CLASS (clutter_clone_accessible_parent_class)->initialize (obj, data);
 
   obj->role = ATK_ROLE_IMAGE;
+}
+
+static void
+clutter_clone_accessible_class_init (ClutterCloneAccessibleClass *klass)
+{
+  AtkObjectClass *class = ATK_OBJECT_CLASS (klass);
+
+  class->initialize = clutter_clone_accessible_real_initialize;
+}
+
+static void
+clutter_clone_accessible_init (ClutterCloneAccessible *clone)
+{
 }

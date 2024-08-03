@@ -30,11 +30,11 @@
 #include "clutter/clutter-types.h"
 
 #include "clutter/clutter-actor-accessible.h"
-#include "clutter/cally-clone.h"
 #include "clutter/cally-root.h"
 #include "clutter/cally-stage.h"
 #include "clutter/cally-text.h"
 #include "clutter/cally-root.h"
+
 #include "clutter/clutter-action.h"
 #include "clutter/clutter-actor.h"
 #include "clutter/clutter-actor-meta.h"

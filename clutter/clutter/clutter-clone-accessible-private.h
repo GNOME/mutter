@@ -20,31 +20,16 @@
 
 #pragma once
 
-
-#if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
-#error "Only <clutter/clutter.h> can be included directly."
-#endif
-
 #include "clutter/clutter-actor-accessible.h"
 
 G_BEGIN_DECLS
 
-#define CALLY_TYPE_CLONE            (cally_clone_get_type ())
+#define CLUTTER_TYPE_CLONE_ACCESSIBLE (clutter_clone_accessible_get_type ())
 
-CLUTTER_EXPORT
-G_DECLARE_DERIVABLE_TYPE (CallyClone,
-                          cally_clone,
-                          CALLY,
-                          CLONE,
-                          ClutterActorAccessible)
-
-typedef struct _CallyClone CallyClone;
-typedef struct _CallyCloneClass CallyCloneClass;
-
-struct _CallyCloneClass
-{
-  /*< private >*/
-  ClutterActorAccessibleClass parent_class;
-};
+G_DECLARE_FINAL_TYPE (ClutterCloneAccessible,
+                      clutter_clone_accessible,
+                      CLUTTER,
+                      CLONE_ACCESSIBLE,
+                      ClutterActorAccessible)
 
 G_END_DECLS
