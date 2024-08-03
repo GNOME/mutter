@@ -69,13 +69,12 @@
 #include "config.h"
 
 #include "clutter/cally-clone.h"
-#include "clutter/cally-actor-private.h"
 
 /* AtkObject */
 static void                  cally_clone_real_initialize (AtkObject *obj,
                                                           gpointer   data);
 
-G_DEFINE_TYPE (CallyClone, cally_clone, CALLY_TYPE_ACTOR)
+G_DEFINE_TYPE (CallyClone, cally_clone, CLUTTER_TYPE_ACTOR_ACCESSIBLE)
 
 static void
 cally_clone_class_init (CallyCloneClass *klass)

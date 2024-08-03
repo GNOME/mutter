@@ -24,7 +24,7 @@
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
 
-#include "clutter/cally-actor.h"
+#include "clutter/clutter-actor-accessible.h"
 #include "clutter/clutter-macros.h"
 
 G_BEGIN_DECLS
@@ -36,7 +36,7 @@ G_DECLARE_DERIVABLE_TYPE (CallyStage,
                           cally_stage,
                           CALLY,
                           STAGE,
-                          CallyActor)
+                          ClutterActorAccessible)
 
 typedef struct _CallyStage CallyStage;
 typedef struct _CallyStageClass CallyStageClass;
@@ -44,7 +44,7 @@ typedef struct _CallyStageClass CallyStageClass;
 struct _CallyStageClass
 {
   /*< private >*/
-  CallyActorClass parent_class;
+  ClutterActorAccessibleClass parent_class;
 };
 
 G_END_DECLS

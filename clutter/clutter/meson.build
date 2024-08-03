@@ -4,6 +4,7 @@ clutter_clutter_includedir = clutter_includedir / 'clutter'
 clutter_headers = [
   'clutter.h',
   'clutter-action.h',
+  'clutter-actor-accessible.h',
   'clutter-actor-meta.h',
   'clutter-actor.h',
   'clutter-align-constraint.h',
@@ -87,6 +88,7 @@ clutter_headers = [
 clutter_sources = [
   'clutter-action.c',
   'clutter-actor-box.c',
+  'clutter-actor-accessible.c',
   'clutter-actor-meta.c',
   'clutter-actor.c',
   'clutter-align-constraint.c',
@@ -214,7 +216,6 @@ clutter_nonintrospected_sources = [
 clutter_backend_private_headers = []
 
 clutter_headers += [
-    'cally-actor.h',
     'cally-clone.h',
     'cally-root.h',
     'cally-stage.h',
@@ -223,16 +224,11 @@ clutter_headers += [
 ]
 
 clutter_sources += [
-    'cally-actor.c',
     'cally-clone.c',
     'cally-root.c',
     'cally-stage.c',
     'cally-text.c',
     'cally-util.c',
-]
-
-clutter_private_headers += [
-  'cally-actor-private.h',
 ]
 
 clutter_built_sources = []

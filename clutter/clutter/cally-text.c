@@ -35,11 +35,12 @@
  * [class@Clutter.Text], #AtkText and #AtkEditableText
  */
 
+#include "clutter.h"
 #include "config.h"
 
 #include "clutter/cally-text.h"
-#include "clutter/cally-actor-private.h"
 
+#include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-main.h"
 #include "clutter/clutter-text.h"
 
@@ -52,7 +53,7 @@ static AtkStateSet*           cally_text_ref_state_set   (AtkObject *obj);
 
 /* atkaction */
 
-static void                   _cally_text_activate_action (CallyActor *cally_actor);
+static void                   _cally_text_activate_action (ClutterActorAccessible *accessible_actor);
 static void                   _check_activate_action      (CallyText   *cally_text,
                                                            ClutterText *clutter_text);
 
@@ -178,13 +179,13 @@ static const gchar * cally_text_action_get_name (AtkAction *action,
                                                  gint       i);
 
 /**
- * CallyActionFunc:
- * @cally_actor: a #CallyActor
+ * ClutterActorActionFunc:
+ * @accessible_actor: a #ClutterActorAccessible
  *
  * Action function, to be used on #AtkAction implementations as a individual
  * action
  */
-typedef void (* CallyActionFunc) (CallyActor *cally_actor);
+typedef void (* ClutterActorActionFunc) (ClutterActorAccessible *accessible_actor);
 
 /*< private >
  * CallyTextActionInfo:
@@ -198,7 +199,7 @@ typedef struct _CallyTextActionInfo
 {
   gchar *name;
 
-  CallyActionFunc do_action_func;
+  ClutterActorActionFunc do_action_func;
 } CallyTextActionInfo;
 
 
@@ -227,7 +228,7 @@ typedef struct _CallyTextPrivate
 
 G_DEFINE_TYPE_WITH_CODE (CallyText,
                          cally_text,
-                         CALLY_TYPE_ACTOR,
+                         CLUTTER_TYPE_ACTOR_ACCESSIBLE,
                          G_ADD_PRIVATE (CallyText)
                          G_IMPLEMENT_INTERFACE (ATK_TYPE_TEXT,
                                                 cally_text_text_interface_init)
@@ -330,7 +331,7 @@ cally_text_ref_state_set   (AtkObject *obj)
 
   result = ATK_OBJECT_CLASS (cally_text_parent_class)->ref_state_set (obj);
 
-  actor = CALLY_GET_CLUTTER_ACTOR (obj);
+  actor = CLUTTER_ACTOR_FROM_ACCESSIBLE (obj);
 
   if (actor == NULL)
     return result;
@@ -1082,7 +1083,7 @@ cally_text_get_text (AtkText *text,
   const gchar *string = NULL;
   gint character_count = 0;
 
-  actor = CALLY_GET_CLUTTER_ACTOR (text);
+  actor = CLUTTER_ACTOR_FROM_ACCESSIBLE (text);
   if (actor == NULL) /* Object is defunct */
     return NULL;
 
@@ -1112,7 +1113,7 @@ cally_text_get_character_at_offset (AtkText *text,
   gunichar      unichar;
   PangoLayout  *layout = NULL;
 
-  actor = CALLY_GET_CLUTTER_ACTOR (text);
+  actor = CLUTTER_ACTOR_FROM_ACCESSIBLE (text);
   if (actor == NULL) /* State is defunct */
     return '\0';
 
@@ -1145,7 +1146,7 @@ cally_text_get_text_before_offset (AtkText	    *text,
 {
   ClutterActor *actor        = NULL;
 
-  actor = CALLY_GET_CLUTTER_ACTOR (text);
+  actor = CLUTTER_ACTOR_FROM_ACCESSIBLE (text);
   if (actor == NULL) /* State is defunct */
     return NULL;
 
@@ -1163,7 +1164,7 @@ cally_text_get_text_at_offset (AtkText         *text,
 {
   ClutterActor *actor        = NULL;
 
-  actor = CALLY_GET_CLUTTER_ACTOR (text);
+  actor = CLUTTER_ACTOR_FROM_ACCESSIBLE (text);
   if (actor == NULL) /* State is defunct */
     return NULL;
 
@@ -1181,7 +1182,7 @@ cally_text_get_text_after_offset (AtkText         *text,
 {
   ClutterActor *actor        = NULL;
 
-  actor = CALLY_GET_CLUTTER_ACTOR (text);
+  actor = CLUTTER_ACTOR_FROM_ACCESSIBLE (text);
   if (actor == NULL) /* State is defunct */
     return NULL;
 
@@ -1197,7 +1198,7 @@ cally_text_get_caret_offset (AtkText *text)
   ClutterTextBuffer *buffer;
   int cursor_pos;
 
-  actor = CALLY_GET_CLUTTER_ACTOR (text);
+  actor = CLUTTER_ACTOR_FROM_ACCESSIBLE (text);
   if (actor == NULL) /* State is defunct */
     return -1;
 
@@ -1216,7 +1217,7 @@ cally_text_set_caret_offset (AtkText *text,
 {
   ClutterActor *actor        = NULL;
 
-  actor = CALLY_GET_CLUTTER_ACTOR (text);
+  actor = CLUTTER_ACTOR_FROM_ACCESSIBLE (text);
   if (actor == NULL) /* State is defunct */
     return FALSE;
 
@@ -1233,7 +1234,7 @@ cally_text_get_character_count (AtkText *text)
   ClutterActor *actor = NULL;
   ClutterText *clutter_text = NULL;
 
-  actor = CALLY_GET_CLUTTER_ACTOR (text);
+  actor = CLUTTER_ACTOR_FROM_ACCESSIBLE (text);
   if (actor == NULL) /* State is defunct */
     return 0;
 
@@ -1248,7 +1249,7 @@ cally_text_get_n_selections (AtkText *text)
   gint          selection_bound = -1;
   gint          cursor_position = -1;
 
-  actor = CALLY_GET_CLUTTER_ACTOR (text);
+  actor = CLUTTER_ACTOR_FROM_ACCESSIBLE (text);
   if (actor == NULL) /* State is defunct */
     return 0;
 
@@ -1272,7 +1273,7 @@ cally_text_get_selection (AtkText *text,
 {
   ClutterActor *actor = NULL;
 
-  actor = CALLY_GET_CLUTTER_ACTOR (text);
+  actor = CLUTTER_ACTOR_FROM_ACCESSIBLE (text);
   if (actor == NULL) /* State is defunct */
     return NULL;
 
@@ -1301,7 +1302,7 @@ cally_text_add_selection (AtkText *text,
   ClutterActor *actor;
   gint select_start, select_end;
 
-  actor = CALLY_GET_CLUTTER_ACTOR (text);
+  actor = CLUTTER_ACTOR_FROM_ACCESSIBLE (text);
   if (actor == NULL) /* State is defunct */
     return FALSE;
 
@@ -1332,7 +1333,7 @@ cally_text_remove_selection (AtkText *text,
   gint          select_start = -1;
   gint          select_end   = -1;
 
-  actor = CALLY_GET_CLUTTER_ACTOR (text);
+  actor = CLUTTER_ACTOR_FROM_ACCESSIBLE (text);
   if (actor == NULL) /* State is defunct */
     return FALSE;
 
@@ -1367,7 +1368,7 @@ cally_text_set_selection (AtkText *text,
   gint          select_start = -1;
   gint          select_end   = -1;
 
-  actor = CALLY_GET_CLUTTER_ACTOR (text);
+  actor = CLUTTER_ACTOR_FROM_ACCESSIBLE (text);
   if (actor == NULL) /* State is defunct */
     return FALSE;
 
@@ -1400,7 +1401,7 @@ cally_text_get_run_attributes (AtkText *text,
   ClutterText     *clutter_text = NULL;
   AtkAttributeSet *at_set       = NULL;
 
-  actor = CALLY_GET_CLUTTER_ACTOR (text);
+  actor = CLUTTER_ACTOR_FROM_ACCESSIBLE (text);
   if (actor == NULL) /* State is defunct */
     return NULL;
 
@@ -1424,7 +1425,7 @@ cally_text_get_default_attributes (AtkText *text)
   ClutterText     *clutter_text = NULL;
   AtkAttributeSet *at_set       = NULL;
 
-  actor = CALLY_GET_CLUTTER_ACTOR (text);
+  actor = CLUTTER_ACTOR_FROM_ACCESSIBLE (text);
   if (actor == NULL) /* State is defunct */
     return NULL;
 
@@ -1453,7 +1454,7 @@ static void cally_text_get_character_extents (AtkText *text,
   const gchar *text_value;
   graphene_point3d_t verts[4];
 
-  actor = CALLY_GET_CLUTTER_ACTOR (text);
+  actor = CLUTTER_ACTOR_FROM_ACCESSIBLE (text);
   if (actor == NULL) /* State is defunct */
     goto done;
 
@@ -1508,7 +1509,7 @@ cally_text_get_offset_at_point (AtkText *text,
   const gchar *text_value;
   gint index;
 
-  actor = CALLY_GET_CLUTTER_ACTOR (text);
+  actor = CLUTTER_ACTOR_FROM_ACCESSIBLE (text);
   if (actor == NULL) /* State is defunct */
     return -1;
 
@@ -1634,7 +1635,7 @@ cally_text_set_text_contents (AtkEditableText *text,
 {
   ClutterActor *actor = NULL;
 
-  actor = CALLY_GET_CLUTTER_ACTOR (text);
+  actor = CLUTTER_ACTOR_FROM_ACCESSIBLE (text);
   if (actor == NULL)
     return;
 
@@ -1654,7 +1655,7 @@ cally_text_insert_text (AtkEditableText *text,
 {
   ClutterActor *actor = NULL;
 
-  actor = CALLY_GET_CLUTTER_ACTOR (text);
+  actor = CLUTTER_ACTOR_FROM_ACCESSIBLE (text);
   if (actor == NULL)
     return;
 
@@ -1679,7 +1680,7 @@ static void cally_text_delete_text (AtkEditableText *text,
 {
   ClutterActor *actor = NULL;
 
-  actor = CALLY_GET_CLUTTER_ACTOR (text);
+  actor = CLUTTER_ACTOR_FROM_ACCESSIBLE (text);
   if (actor == NULL)
     return;
 
@@ -1806,11 +1807,11 @@ _notify_delete (CallyText *cally_text)
 /* atkaction */
 
 static void
-_cally_text_activate_action (CallyActor *cally_actor)
+_cally_text_activate_action (ClutterActorAccessible *accessible_actor)
 {
   ClutterActor *actor = NULL;
 
-  actor = CALLY_GET_CLUTTER_ACTOR (cally_actor);
+  actor = CLUTTER_ACTOR_FROM_ACCESSIBLE (accessible_actor);
 
   clutter_text_activate (CLUTTER_TEXT (actor));
 }
@@ -1853,15 +1854,14 @@ cally_text_action_interface_init (AtkActionIface *iface)
 static gboolean
 idle_do_action (gpointer data)
 {
-  CallyActor *cally_actor = NULL;
-  CallyTextPrivate *priv = NULL;
-
-  cally_actor = CALLY_ACTOR (data);
-  priv = cally_text_get_instance_private (CALLY_TEXT (cally_actor));
+  ClutterActorAccessible *actor_accessible =
+    CLUTTER_ACTOR_ACCESSIBLE (data);
+  CallyTextPrivate *priv =
+    cally_text_get_instance_private (CALLY_TEXT (actor_accessible));
   priv->action_idle_handler = 0;
 
   /* state is defunct*/
-  g_assert (CALLY_GET_CLUTTER_ACTOR (cally_actor) != NULL);
+  g_assert (CLUTTER_ACTOR_FROM_ACCESSIBLE (actor_accessible) != NULL);
 
   while (!g_queue_is_empty (priv->action_queue))
     {
@@ -1869,7 +1869,7 @@ idle_do_action (gpointer data)
 
       info = (CallyTextActionInfo *) g_queue_pop_head (priv->action_queue);
 
-      info->do_action_func (cally_actor);
+      info->do_action_func (actor_accessible);
     }
 
   return FALSE;
@@ -1916,7 +1916,7 @@ cally_text_action_do_action (AtkAction *action,
 static gint
 cally_text_action_get_n_actions (AtkAction *action)
 {
-  g_return_val_if_fail (CALLY_IS_ACTOR (action), 0);
+  g_return_val_if_fail (CLUTTER_IS_ACTOR_ACCESSIBLE (action), 0);
 
   /* We only support activate action*/
   return 1;
@@ -1928,7 +1928,7 @@ cally_text_action_get_name (AtkAction *action,
 {
   CallyTextPrivate *priv;
 
-  g_return_val_if_fail (CALLY_IS_ACTOR (action), NULL);
+  g_return_val_if_fail (CLUTTER_IS_ACTOR_ACCESSIBLE (action), NULL);
 
   priv = cally_text_get_instance_private (CALLY_TEXT (action));
 

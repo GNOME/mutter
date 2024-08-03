@@ -485,7 +485,6 @@
 
 #include "cogl/cogl.h"
 
-#include "clutter/cally-actor.h"
 #include "clutter/clutter-actor-private.h"
 
 #include "clutter/clutter-action.h"
@@ -5669,7 +5668,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
   klass->queue_relayout = clutter_actor_real_queue_relayout;
   klass->apply_transform = clutter_actor_real_apply_transform;
   klass->get_accessible = clutter_actor_real_get_accessible;
-  klass->get_accessible_type = cally_actor_get_type;
+  klass->get_accessible_type = clutter_actor_accessible_get_type;
   klass->get_paint_volume = clutter_actor_real_get_paint_volume;
   klass->has_overlaps = clutter_actor_real_has_overlaps;
   klass->calculate_resource_scale = clutter_actor_real_calculate_resource_scale;

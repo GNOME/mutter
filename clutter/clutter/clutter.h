@@ -29,7 +29,7 @@
 
 #include "clutter/clutter-types.h"
 
-#include "clutter/cally-actor.h"
+#include "clutter/clutter-actor-accessible.h"
 #include "clutter/cally-clone.h"
 #include "clutter/cally-root.h"
 #include "clutter/cally-stage.h"

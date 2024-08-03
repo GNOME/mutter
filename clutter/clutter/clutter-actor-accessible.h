@@ -1,4 +1,4 @@
-/* CALLY - The Clutter Accessibility Implementation Library
+/* Clutter.
  *
  * Copyright (C) 2008 Igalia, S.L.
  *
@@ -34,20 +34,20 @@
 
 G_BEGIN_DECLS
 
-#define CALLY_TYPE_ACTOR            (cally_actor_get_type ())
+#define CLUTTER_TYPE_ACTOR_ACCESSIBLE            (clutter_actor_accessible_get_type ())
 
 CLUTTER_EXPORT
-G_DECLARE_DERIVABLE_TYPE (CallyActor,
-                          cally_actor,
-                          CALLY,
-                          ACTOR,
+G_DECLARE_DERIVABLE_TYPE (ClutterActorAccessible,
+                          clutter_actor_accessible,
+                          CLUTTER,
+                          ACTOR_ACCESSIBLE,
                           AtkGObjectAccessible)
 
-typedef struct _CallyActor           CallyActor;
-typedef struct _CallyActorClass      CallyActorClass;
-typedef struct _CallyActorPrivate    CallyActorPrivate;
+typedef struct _ClutterActorAccessible ClutterActorAccessible;
+typedef struct _ClutterActorAccessibleClass ClutterActorAccessibleClass;
+typedef struct _ClutterActorAccessiblePrivate ClutterActorAccessiblePrivate;
 
-struct _CallyActorClass
+struct _ClutterActorAccessibleClass
 {
   /*< private >*/
   AtkGObjectAccessibleClass parent_class;

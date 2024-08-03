@@ -26,6 +26,14 @@
 
 G_BEGIN_DECLS
 
+/*
+ * Auxiliary define, in order to get the clutter actor from the AtkObject using
+ * AtkGObject methods
+ *
+ */
+#define CLUTTER_ACTOR_FROM_ACCESSIBLE(accessible) \
+(CLUTTER_ACTOR (atk_gobject_accessible_get_object (ATK_GOBJECT_ACCESSIBLE (accessible))))
+
 /**
  * ClutterActorFlags:
  * @CLUTTER_ACTOR_MAPPED: the actor will be painted (is visible, and inside

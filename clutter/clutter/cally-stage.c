@@ -33,8 +33,8 @@
  */
 #include "config.h"
 
+#include "clutter/clutter-actor-private.h"
 #include "clutter/cally-stage.h"
-#include "clutter/cally-actor-private.h"
 #include "clutter/clutter-stage.h"
 
 /* AtkObject.h */
@@ -48,7 +48,7 @@ static void                  cally_stage_window_interface_init (AtkWindowIface *
 
 G_DEFINE_TYPE_WITH_CODE (CallyStage,
                          cally_stage,
-                         CALLY_TYPE_ACTOR,
+                         CLUTTER_TYPE_ACTOR_ACCESSIBLE,
                          G_IMPLEMENT_INTERFACE (ATK_TYPE_WINDOW,
                                                 cally_stage_window_interface_init));
 
@@ -89,7 +89,7 @@ cally_stage_ref_state_set   (AtkObject *obj)
   cally_stage = CALLY_STAGE (obj);
 
   state_set = ATK_OBJECT_CLASS (cally_stage_parent_class)->ref_state_set (obj);
-  stage = CLUTTER_STAGE (CALLY_GET_CLUTTER_ACTOR (cally_stage));
+  stage = CLUTTER_STAGE (CLUTTER_ACTOR_FROM_ACCESSIBLE (cally_stage));
 
   if (stage == NULL)
     return state_set;
