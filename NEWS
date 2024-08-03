@@ -1,3 +1,28 @@
+47.beta
+=======
+* Fix visibility of Xwayland windows [Michel; !3862]
+* Add plumbing for transforming color state [Jonas; !3433]
+* Build and publish GNOME OS systemd-sysext extensions [Martin; !3843]
+* Implement support for tablet tool keybindings and actions [Peter; !3649]
+* Add support for tablet tool pressure ranges [Peter; !3794]
+* Improve sticky behavior with transient dialogs [Jonas; !3870]
+* Improve placement and focus logic with always-on-top windows [Jonas; !3879]
+* Expose Orientationmanager to introspection [Ivan; !3880]
+* Recover from secondary GPU update failures [Daniel; !3817]
+* Plugged leaks [Sebastian K.; !3884, !3888]
+* Misc. bug fixes and cleanups [Carlos, Michel, Sebastian W., Pascal, Florian,
+  Martin, Bilal, Daniel, Jonas, Robert; !3860, !3848, !3867, !3869, !3871,
+  !3740, !3872, !3883, !3857, !3885, !3891, !3895, !3898, !3896, !3887, !3901,
+  !3897, !3902, !3329, !3894, !3903, !3906, !3909, !3905, !3910]
+
+Contributors:
+  Jonas Ådahl, Michel Dänzer, Bilal Elmoussaoui, Carlos Garnacho,
+  Peter Hutterer, Sebastian Keller, Ivan Kuzmenko, Martin Abente Lahaye,
+  Robert Mader, Florian Müllner, Pascal Nowack, Daniel van Vugt, Sebastian Wick
+
+Translators:
+  Chao-Hsiung Liao [zh_TW]
+
 47.alpha
 ========
 * Fix sending preferred buffer transform [Robert; !3717]
