@@ -1153,6 +1153,7 @@ clutter_stage_constructed (GObject *gobject)
 
   /* this will take care to sinking the floating reference */
   _clutter_stage_manager_add_stage (stage_manager, self);
+  clutter_actor_set_accessible_role (CLUTTER_ACTOR (self), ATK_ROLE_WINDOW);
 
   G_OBJECT_CLASS (clutter_stage_parent_class)->constructed (gobject);
 }
