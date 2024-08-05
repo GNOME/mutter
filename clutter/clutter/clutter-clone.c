@@ -37,7 +37,6 @@
 
 #include "config.h"
 
-#include "clutter/clutter-clone-accessible-private.h"
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-clone.h"
 #include "clutter/clutter-debug.h"
@@ -343,7 +342,6 @@ clutter_clone_class_init (ClutterCloneClass *klass)
   ClutterActorClass *actor_class = CLUTTER_ACTOR_CLASS (klass);
 
   actor_class->paint = clutter_clone_paint;
-  actor_class->get_accessible_type = clutter_clone_accessible_get_type;
   actor_class->get_paint_volume = clutter_clone_get_paint_volume;
   actor_class->get_preferred_width = clutter_clone_get_preferred_width;
   actor_class->get_preferred_height = clutter_clone_get_preferred_height;
@@ -389,7 +387,10 @@ clutter_clone_init (ClutterClone *self)
 ClutterActor *
 clutter_clone_new (ClutterActor *source)
 {
-  return g_object_new (CLUTTER_TYPE_CLONE, "source", source,  NULL);
+  return g_object_new (CLUTTER_TYPE_CLONE,
+                       "source", source,
+                       "accessible-role", ATK_ROLE_IMAGE,
+                       NULL);
 }
 
 static void
