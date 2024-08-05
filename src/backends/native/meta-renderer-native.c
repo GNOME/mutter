@@ -337,8 +337,8 @@ fail:
 }
 
 static int
-meta_renderer_native_add_egl_config_attributes (CoglDisplay                 *cogl_display,
-                                                EGLint                      *attributes)
+meta_renderer_native_add_egl_config_attributes (CoglDisplay *cogl_display,
+                                                EGLint      *attributes)
 {
   CoglRendererEGL *cogl_renderer_egl = cogl_display->renderer->winsys;
   MetaRendererNativeGpuData *renderer_gpu_data = cogl_renderer_egl->platform;

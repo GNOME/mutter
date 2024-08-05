@@ -493,8 +493,8 @@ update_winsys_features (CoglContext *context, GError **error)
 }
 
 static void
-glx_attributes_from_framebuffer_config (CoglDisplay                 *display,
-                                        int                         *attributes)
+glx_attributes_from_framebuffer_config (CoglDisplay *display,
+                                        int         *attributes)
 {
   int i = 0;
 
@@ -529,9 +529,9 @@ glx_attributes_from_framebuffer_config (CoglDisplay                 *display,
  * we could overload as an indication of error, so we have to return
  * an explicit boolean status. */
 gboolean
-cogl_display_glx_find_fbconfig (CoglDisplay                  *display,
-                                GLXFBConfig                  *config_ret,
-                                GError                      **error)
+cogl_display_glx_find_fbconfig (CoglDisplay  *display,
+                                GLXFBConfig  *config_ret,
+                                GError      **error)
 {
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (display->renderer);

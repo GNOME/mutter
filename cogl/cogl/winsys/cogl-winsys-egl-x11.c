@@ -260,8 +260,8 @@ error:
 }
 
 static int
-_cogl_winsys_egl_add_config_attributes (CoglDisplay                 *display,
-                                        EGLint                      *attributes)
+_cogl_winsys_egl_add_config_attributes (CoglDisplay *display,
+                                        EGLint      *attributes)
 {
   int i = 0;
 

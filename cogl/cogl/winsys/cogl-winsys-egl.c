@@ -189,8 +189,8 @@ _cogl_winsys_renderer_connect (CoglRenderer *renderer,
 }
 
 void
-cogl_display_egl_determine_attributes (CoglDisplay                 *display,
-                                       EGLint                      *attributes)
+cogl_display_egl_determine_attributes (CoglDisplay *display,
+                                       EGLint      *attributes)
 {
   CoglRenderer *renderer = display->renderer;
   CoglRendererEGL *egl_renderer = renderer->winsys;

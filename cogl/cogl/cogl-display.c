@@ -81,7 +81,7 @@ cogl_display_class_init (CoglDisplayClass *class)
 }
 
 CoglDisplay *
-cogl_display_new (CoglRenderer         *renderer)
+cogl_display_new (CoglRenderer *renderer)
 {
   g_return_val_if_fail (renderer != NULL, NULL);
 

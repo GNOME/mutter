@@ -34,9 +34,9 @@ COGL_EXPORT const CoglWinsysVtable *
 _cogl_winsys_glx_get_vtable (void);
 
 gboolean
-cogl_display_glx_find_fbconfig (CoglDisplay                  *display,
-                                GLXFBConfig                  *config_ret,
-                                GError                      **error);
+cogl_display_glx_find_fbconfig (CoglDisplay  *display,
+                                GLXFBConfig  *config_ret,
+                                GError      **error);
 
 void
 cogl_context_glx_set_current_drawable (CoglContext *context,
