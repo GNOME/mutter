@@ -77,37 +77,8 @@
 #include "clutter/clutter-actor-accessible.h"
 #include "clutter/clutter-stage.h"
 
-static void clutter_actor_accessible_initialize (AtkObject *obj,
-                                                 gpointer   data);
-static void clutter_actor_accessible_finalize   (GObject *obj);
-
-/* AtkObject.h */
-static AtkObject*            clutter_actor_accessible_get_parent          (AtkObject *obj);
-static gint                  clutter_actor_accessible_get_index_in_parent (AtkObject *obj);
-static AtkStateSet*          clutter_actor_accessible_ref_state_set       (AtkObject *obj);
-static gint                  clutter_actor_accessible_get_n_children      (AtkObject *obj);
-static AtkObject*            clutter_actor_accessible_ref_child           (AtkObject *obj,
-                                                                           gint       i);
-static AtkAttributeSet *     clutter_actor_accessible_get_attributes      (AtkObject *obj);
-
-/* ClutterContainer */
-static gint clutter_actor_accessible_add_actor    (ClutterActor *container,
-                                                   ClutterActor *actor,
-                                                   gpointer      data);
-static gint clutter_actor_accessible_remove_actor (ClutterActor *container,
-                                                   ClutterActor *actor,
-                                                   gpointer      data);
-
 /* AtkComponent.h */
-static void     clutter_actor_accessible_component_interface_init (AtkComponentIface *iface);
-static void     clutter_actor_accessible_get_extents              (AtkComponent *component,
-                                                                   gint         *x,
-                                                                   gint         *y,
-                                                                   gint         *width,
-                                                                   gint         *height,
-                                                                   AtkCoordType  coord_type);
-static gint     clutter_actor_accessible_get_mdi_zorder           (AtkComponent *component);
-static gboolean clutter_actor_accessible_grab_focus               (AtkComponent *component);
+static void clutter_actor_accessible_component_interface_init (AtkComponentIface *iface);
 
 struct _ClutterActorAccessiblePrivate
 {
@@ -120,6 +91,78 @@ G_DEFINE_TYPE_WITH_CODE (ClutterActorAccessible,
                          G_ADD_PRIVATE (ClutterActorAccessible)
                          G_IMPLEMENT_INTERFACE (ATK_TYPE_COMPONENT,
                                                 clutter_actor_accessible_component_interface_init));
+
+/* ClutterContainer */
+static gint
+clutter_actor_accessible_add_actor (ClutterActor *container,
+                                    ClutterActor *actor,
+                                    gpointer      data)
+{
+  AtkObject *atk_parent = clutter_actor_get_accessible (container);
+  AtkObject *atk_child  = clutter_actor_get_accessible (actor);
+  ClutterActorAccessiblePrivate *priv = clutter_actor_accessible_get_instance_private (CLUTTER_ACTOR_ACCESSIBLE  (atk_parent));
+  gint index;
+
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (container), 0);
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), 0);
+
+  g_object_notify (G_OBJECT (atk_child), "accessible_parent");
+
+  g_list_free (priv->children);
+
+  priv->children = clutter_actor_get_children (CLUTTER_ACTOR (container));
+
+  index = g_list_index (priv->children, actor);
+  g_signal_emit_by_name (atk_parent, "children_changed::add",
+                         index, atk_child, NULL);
+
+  return 1;
+}
+
+static gint
+clutter_actor_accessible_remove_actor (ClutterActor *container,
+                                       ClutterActor *actor,
+                                       gpointer      data)
+{
+  g_autoptr (AtkObject) atk_child = NULL;
+  AtkPropertyValues values = { NULL };
+  AtkObject *atk_parent = NULL;
+  ClutterActorAccessiblePrivate *priv = NULL;
+  gint index;
+
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (container), 0);
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), 0);
+
+  atk_parent = clutter_actor_get_accessible (container);
+
+  if (clutter_actor_has_accessible (actor))
+    {
+      atk_child = clutter_actor_get_accessible (actor);
+
+      g_assert (ATK_IS_OBJECT (atk_child));
+      g_object_ref (atk_child);
+
+      g_value_init (&values.old_value, G_TYPE_POINTER);
+      g_value_set_pointer (&values.old_value, atk_parent);
+
+      values.property_name = "accessible-parent";
+
+      g_signal_emit_by_name (atk_child,
+                             "property_change::accessible-parent", &values, NULL);
+    }
+
+  priv = clutter_actor_accessible_get_instance_private (CLUTTER_ACTOR_ACCESSIBLE  (atk_parent));
+  index = g_list_index (priv->children, actor);
+  g_list_free (priv->children);
+
+  priv->children = clutter_actor_get_children (CLUTTER_ACTOR (container));
+
+  if (index >= 0 && index <= g_list_length (priv->children))
+    g_signal_emit_by_name (atk_parent, "children_changed::remove",
+                           index, atk_child, NULL);
+
+  return 1;
+}
 
 static void
 clutter_actor_accessible_initialize (AtkObject *obj,
@@ -199,27 +242,6 @@ clutter_actor_accessible_get_role (AtkObject *obj)
     role = ATK_OBJECT_CLASS (clutter_actor_accessible_parent_class)->get_role (obj);
 
   return role;
-}
-
-static void
-clutter_actor_accessible_class_init (ClutterActorAccessibleClass *klass)
-{
-  AtkObjectClass *class         = ATK_OBJECT_CLASS (klass);
-  GObjectClass   *gobject_class = G_OBJECT_CLASS (klass);
-
-  /* GObject */
-  gobject_class->finalize = clutter_actor_accessible_finalize;
-
-  /* AtkObject */
-  class->get_role = clutter_actor_accessible_get_role;
-  class->get_name = clutter_actor_accessible_get_name;
-  class->get_parent          = clutter_actor_accessible_get_parent;
-  class->get_index_in_parent = clutter_actor_accessible_get_index_in_parent;
-  class->ref_state_set       = clutter_actor_accessible_ref_state_set;
-  class->initialize          = clutter_actor_accessible_initialize;
-  class->get_n_children      = clutter_actor_accessible_get_n_children;
-  class->ref_child           = clutter_actor_accessible_ref_child;
-  class->get_attributes      = clutter_actor_accessible_get_attributes;
 }
 
 static void
@@ -442,91 +464,28 @@ clutter_actor_accessible_get_attributes (AtkObject *obj)
   return attributes;
 }
 
-/* ClutterContainer */
-static gint
-clutter_actor_accessible_add_actor (ClutterActor *container,
-                                    ClutterActor *actor,
-                                    gpointer      data)
+static void
+clutter_actor_accessible_class_init (ClutterActorAccessibleClass *klass)
 {
-  AtkObject *atk_parent = clutter_actor_get_accessible (container);
-  AtkObject *atk_child  = clutter_actor_get_accessible (actor);
-  ClutterActorAccessiblePrivate *priv = clutter_actor_accessible_get_instance_private (CLUTTER_ACTOR_ACCESSIBLE  (atk_parent));
-  gint index;
+  AtkObjectClass *class         = ATK_OBJECT_CLASS (klass);
+  GObjectClass   *gobject_class = G_OBJECT_CLASS (klass);
 
-  g_return_val_if_fail (CLUTTER_IS_ACTOR (container), 0);
-  g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), 0);
+  /* GObject */
+  gobject_class->finalize = clutter_actor_accessible_finalize;
 
-  g_object_notify (G_OBJECT (atk_child), "accessible_parent");
-
-  g_list_free (priv->children);
-
-  priv->children = clutter_actor_get_children (CLUTTER_ACTOR (container));
-
-  index = g_list_index (priv->children, actor);
-  g_signal_emit_by_name (atk_parent, "children_changed::add",
-                         index, atk_child, NULL);
-
-  return 1;
-}
-
-static gint
-clutter_actor_accessible_remove_actor (ClutterActor *container,
-                                       ClutterActor *actor,
-                                       gpointer      data)
-{
-  g_autoptr (AtkObject) atk_child = NULL;
-  AtkPropertyValues values = { NULL };
-  AtkObject *atk_parent = NULL;
-  ClutterActorAccessiblePrivate *priv = NULL;
-  gint index;
-
-  g_return_val_if_fail (CLUTTER_IS_ACTOR (container), 0);
-  g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), 0);
-
-  atk_parent = clutter_actor_get_accessible (container);
-
-  if (clutter_actor_has_accessible (actor))
-    {
-      atk_child = clutter_actor_get_accessible (actor);
-
-      g_assert (ATK_IS_OBJECT (atk_child));
-      g_object_ref (atk_child);
-
-      g_value_init (&values.old_value, G_TYPE_POINTER);
-      g_value_set_pointer (&values.old_value, atk_parent);
-
-      values.property_name = "accessible-parent";
-
-      g_signal_emit_by_name (atk_child,
-                             "property_change::accessible-parent", &values, NULL);
-    }
-
-  priv = clutter_actor_accessible_get_instance_private (CLUTTER_ACTOR_ACCESSIBLE  (atk_parent));
-  index = g_list_index (priv->children, actor);
-  g_list_free (priv->children);
-
-  priv->children = clutter_actor_get_children (CLUTTER_ACTOR (container));
-
-  if (index >= 0 && index <= g_list_length (priv->children))
-    g_signal_emit_by_name (atk_parent, "children_changed::remove",
-                           index, atk_child, NULL);
-
-  return 1;
+  /* AtkObject */
+  class->get_role = clutter_actor_accessible_get_role;
+  class->get_name = clutter_actor_accessible_get_name;
+  class->get_parent = clutter_actor_accessible_get_parent;
+  class->get_index_in_parent = clutter_actor_accessible_get_index_in_parent;
+  class->ref_state_set = clutter_actor_accessible_ref_state_set;
+  class->initialize = clutter_actor_accessible_initialize;
+  class->get_n_children = clutter_actor_accessible_get_n_children;
+  class->ref_child = clutter_actor_accessible_ref_child;
+  class->get_attributes = clutter_actor_accessible_get_attributes;
 }
 
 /* AtkComponent implementation */
-static void
-clutter_actor_accessible_component_interface_init (AtkComponentIface *iface)
-{
-  g_return_if_fail (iface != NULL);
-
-  iface->get_extents    = clutter_actor_accessible_get_extents;
-  iface->get_mdi_zorder = clutter_actor_accessible_get_mdi_zorder;
-
-  /* focus management */
-  iface->grab_focus           = clutter_actor_accessible_grab_focus;
-}
-
 static void
 clutter_actor_accessible_get_extents (AtkComponent *component,
                                       gint         *x,
@@ -596,4 +555,32 @@ clutter_actor_accessible_grab_focus (AtkComponent *component)
                                actor);
 
   return TRUE;
+}
+
+static double
+clutter_actor_accessible_get_alpha (AtkComponent *component)
+{
+  ClutterActor *actor;
+
+  g_return_val_if_fail (CLUTTER_IS_ACTOR_ACCESSIBLE (component), 1.0);
+
+  actor = CLUTTER_ACTOR_FROM_ACCESSIBLE (component);
+
+  if (!actor)
+    return 1.0;
+
+  return clutter_actor_get_opacity (actor) / 255.0;
+}
+
+static void
+clutter_actor_accessible_component_interface_init (AtkComponentIface *iface)
+{
+  g_return_if_fail (iface != NULL);
+
+  iface->get_extents = clutter_actor_accessible_get_extents;
+  iface->get_mdi_zorder = clutter_actor_accessible_get_mdi_zorder;
+  iface->get_alpha = clutter_actor_accessible_get_alpha;
+
+  /* focus management */
+  iface->grab_focus = clutter_actor_accessible_grab_focus;
 }
