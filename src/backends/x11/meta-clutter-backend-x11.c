@@ -23,6 +23,7 @@
 #include "config.h"
 
 #include <glib-object.h>
+#include <glib.h>
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-renderer.h"
@@ -36,7 +37,6 @@
 #include "clutter/clutter.h"
 #include "cogl/cogl-xlib-renderer.h"
 #include "core/bell.h"
-#include "glib.h"
 #include "meta/meta-backend.h"
 
 typedef struct _MetaClutterBackendX11Private
