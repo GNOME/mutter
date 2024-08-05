@@ -449,21 +449,6 @@ clutter_actor_accessible_ref_child (AtkObject *obj,
   return g_object_ref (clutter_actor_get_accessible (child));
 }
 
-static AtkAttributeSet *
-clutter_actor_accessible_get_attributes (AtkObject *obj)
-{
-  AtkAttributeSet *attributes;
-  AtkAttribute *toolkit;
-
-  toolkit = g_new (AtkAttribute, 1);
-  toolkit->name = g_strdup ("toolkit");
-  toolkit->value = g_strdup ("clutter");
-
-  attributes = g_slist_append (NULL, toolkit);
-
-  return attributes;
-}
-
 static void
 clutter_actor_accessible_class_init (ClutterActorAccessibleClass *klass)
 {
@@ -482,7 +467,6 @@ clutter_actor_accessible_class_init (ClutterActorAccessibleClass *klass)
   class->initialize = clutter_actor_accessible_initialize;
   class->get_n_children = clutter_actor_accessible_get_n_children;
   class->ref_child = clutter_actor_accessible_ref_child;
-  class->get_attributes = clutter_actor_accessible_get_attributes;
 }
 
 /* AtkComponent implementation */
