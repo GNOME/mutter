@@ -334,8 +334,11 @@ meta_compositor_manage (MetaCompositor  *compositor,
                       compositor);
 
   priv->window_group = meta_window_group_new (display);
+  clutter_actor_set_accessible_name (priv->window_group, "Window group");
   priv->top_window_group = meta_window_group_new (display);
+  clutter_actor_set_accessible_name (priv->top_window_group, "Top window group");
   priv->feedback_group = meta_window_group_new (display);
+  clutter_actor_set_accessible_name (priv->feedback_group, "Feedback group");
 
   clutter_actor_add_child (stage, priv->window_group);
   clutter_actor_add_child (stage, priv->top_window_group);
@@ -379,18 +382,21 @@ meta_compositor_add_window (MetaCompositor    *compositor,
   MetaWindowActor *window_actor;
   ClutterActor *window_group;
   GType window_actor_type = G_TYPE_INVALID;
+  const char *accessible_name = NULL;
 
   switch (window->client_type)
     {
 #ifdef HAVE_X11_CLIENT
     case META_WINDOW_CLIENT_TYPE_X11:
       window_actor_type = META_TYPE_WINDOW_ACTOR_X11;
+      accessible_name = "X11 window";
       break;
 #endif
 
 #ifdef HAVE_WAYLAND
     case META_WINDOW_CLIENT_TYPE_WAYLAND:
       window_actor_type = META_TYPE_WINDOW_ACTOR_WAYLAND;
+      accessible_name = "Wayland window";
       break;
 #endif
 
@@ -400,6 +406,7 @@ meta_compositor_add_window (MetaCompositor    *compositor,
 
   window_actor = g_object_new (window_actor_type,
                                "meta-window", window,
+                               "accessible-name", accessible_name,
                                "show-on-set-parent", FALSE,
                                NULL);
 
@@ -1331,6 +1338,7 @@ meta_compositor_flash_display (MetaCompositor *compositor,
   clutter_actor_get_size (stage, &width, &height);
 
   flash = clutter_actor_new ();
+  clutter_actor_set_accessible_name (flash, "Flash actor");
   clutter_actor_set_background_color (flash, &COGL_COLOR_INIT (0, 0, 0, 255));
   clutter_actor_set_size (flash, width, height);
   clutter_actor_set_opacity (flash, 0);
@@ -1370,6 +1378,7 @@ meta_compositor_flash_window (MetaCompositor *compositor,
   ClutterTransition *transition;
 
   flash = clutter_actor_new ();
+  clutter_actor_set_accessible_name (flash, "Flash actor");
   clutter_actor_set_background_color (flash, &COGL_COLOR_INIT (0, 0, 0, 255));
   clutter_actor_set_size (flash, window->rect.width, window->rect.height);
   clutter_actor_set_position (flash,

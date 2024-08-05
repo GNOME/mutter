@@ -60,7 +60,9 @@ meta_background_group_new (void)
 {
   MetaBackgroundGroup *background_group;
 
-  background_group = g_object_new (META_TYPE_BACKGROUND_GROUP, NULL);
+  background_group = g_object_new (META_TYPE_BACKGROUND_GROUP,
+                                   "accessible-name", "Background group",
+                                   NULL);
 
   return CLUTTER_ACTOR (background_group);
 }

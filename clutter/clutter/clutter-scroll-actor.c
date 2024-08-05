@@ -21,7 +21,7 @@
 
 /**
  * ClutterScrollActor:
- * 
+ *
  * An actor for displaying a portion of its children
  *
  * #ClutterScrollActor is an actor that can be used to display a portion
@@ -266,7 +266,10 @@ clutter_animatable_iface_init (ClutterAnimatableInterface *iface)
 ClutterActor *
 clutter_scroll_actor_new (void)
 {
-  return g_object_new (CLUTTER_TYPE_SCROLL_ACTOR, NULL);
+  return g_object_new (CLUTTER_TYPE_SCROLL_ACTOR,
+                       "accessible-name", "Scroll actor",
+                       "accessible-role", ATK_ROLE_SCROLL_PANE,
+                       NULL);
 }
 
 /**

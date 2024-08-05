@@ -337,6 +337,7 @@ meta_stage_new (MetaBackend *backend)
 
   stage = g_object_new (META_TYPE_STAGE,
                         "context", meta_backend_get_clutter_context (backend),
+                        "accessible-name", "Main stage",
                         NULL);
   stage->backend = backend;
 

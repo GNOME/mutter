@@ -1845,6 +1845,8 @@ meta_window_drag_begin (MetaWindowDrag       *window_drag,
   window_drag->handler = clutter_actor_new ();
   clutter_actor_set_name (window_drag->handler,
                           "Window drag helper");
+  clutter_actor_set_accessible_name (window_drag->handler,
+                                     "Window drag helper");
   g_signal_connect_swapped (window_drag->handler, "event",
                             G_CALLBACK (on_window_drag_event), window_drag);
   clutter_actor_add_child (stage, window_drag->handler);

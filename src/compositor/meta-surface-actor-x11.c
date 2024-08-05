@@ -419,6 +419,7 @@ meta_surface_actor_x11_new (MetaWindow *window)
   sync_unredirected (self);
 
   clutter_actor_set_reactive (CLUTTER_ACTOR (self), TRUE);
+  clutter_actor_set_accessible_name (CLUTTER_ACTOR (self), "X11 surface");
   return META_SURFACE_ACTOR (self);
 }
 

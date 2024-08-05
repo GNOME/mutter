@@ -74,6 +74,7 @@ surface_container_new (MetaWindowActor *window_actor)
   MetaSurfaceContainerActorWayland *surface_container;
 
   surface_container = g_object_new (META_TYPE_SURFACE_CONTAINER_ACTOR_WAYLAND,
+                                    "accessible-name", "Wayland surface container",
                                     NULL);
   surface_container->window_actor = window_actor;
 

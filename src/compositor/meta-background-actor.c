@@ -157,6 +157,7 @@ meta_background_actor_new (MetaDisplay *display,
   self = g_object_new (META_TYPE_BACKGROUND_ACTOR,
                        "meta-display", display,
                        "monitor", monitor,
+                       "accessible-name", "Background actor",
                        NULL);
 
   return CLUTTER_ACTOR (self);

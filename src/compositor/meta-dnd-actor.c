@@ -161,6 +161,7 @@ meta_dnd_actor_new (MetaCompositor *compositor,
                        "drag-origin", drag_origin,
                        "drag-start-x", drag_start_x,
                        "drag-start-y", drag_start_y,
+                       "accessible-name", "Drag and drop actor",
                        NULL);
 
   return CLUTTER_ACTOR (self);

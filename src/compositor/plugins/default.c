@@ -493,7 +493,9 @@ switch_workspace (MetaPlugin *plugin,
                          &screen_height);
 
   workspace1 = clutter_actor_new ();
+  clutter_actor_set_accessible_name (workspace1, "Workspace 1");
   workspace2 = clutter_actor_new ();
+  clutter_actor_set_accessible_name (workspace2, "Workspace 2");
 
   clutter_actor_set_pivot_point (workspace1, 1.0, 1.0);
   clutter_actor_set_size (workspace1,
