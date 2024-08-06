@@ -122,7 +122,11 @@ meta_drm_buffer_do_ensure_fb_id (MetaDrmBuffer        *buffer,
                           &fb_id,
                           0))
     {
-      if (fb_args->format != DRM_FORMAT_XRGB8888)
+      uint8_t depth;
+      uint8_t bpp;
+
+      if (fb_args->format != DRM_FORMAT_XRGB8888 &&
+          fb_args->format != DRM_FORMAT_ARGB8888)
         {
           g_set_error (error,
                        G_IO_ERROR,
@@ -135,11 +139,23 @@ meta_drm_buffer_do_ensure_fb_id (MetaDrmBuffer        *buffer,
           return FALSE;
         }
 
+      switch (fb_args->format)
+        {
+        case DRM_FORMAT_XRGB8888:
+          depth = 24;
+          bpp = 32;
+          break;
+        case DRM_FORMAT_ARGB8888:
+          depth = 32;
+          bpp = 32;
+          break;
+        }
+
       if (drmModeAddFB (fd,
                         fb_args->width,
                         fb_args->height,
-                        24,
-                        32,
+                        depth,
+                        bpp,
                         fb_args->strides[0],
                         fb_args->handles[0],
                         &fb_id))
