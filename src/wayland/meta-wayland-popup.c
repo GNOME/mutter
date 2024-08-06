@@ -56,8 +56,6 @@ struct _MetaWaylandPopupGrab
   MetaWaylandSeat *seat;
   MetaWaylandEventHandler *handler;
 
-  int press_count;
-
   struct wl_client       *grab_client;
   struct wl_list          all_popups;
 };
@@ -141,18 +139,6 @@ popup_grab_focus (MetaWaylandEventHandler *handler,
 }
 
 static gboolean
-popup_grab_press (MetaWaylandEventHandler *handler,
-                  const ClutterEvent      *event,
-                  gpointer                 user_data)
-{
-  MetaWaylandPopupGrab *popup_grab = user_data;
-
-  popup_grab->press_count++;
-
-  return CLUTTER_EVENT_PROPAGATE;
-}
-
-static gboolean
 popup_grab_release (MetaWaylandEventHandler *handler,
                     const ClutterEvent      *event,
                     gpointer                 user_data)
@@ -162,9 +148,12 @@ popup_grab_release (MetaWaylandEventHandler *handler,
   ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
   gboolean close_popup;
 
-  close_popup = popup_grab->press_count == 1;
-
-  popup_grab->press_count = MAX (0, popup_grab->press_count - 1);
+  close_popup = __builtin_popcount (clutter_event_get_state (event) &
+				    (CLUTTER_BUTTON1_MASK |
+				     CLUTTER_BUTTON2_MASK |
+				     CLUTTER_BUTTON3_MASK |
+				     CLUTTER_BUTTON4_MASK |
+				     CLUTTER_BUTTON5_MASK)) <= 1;
 
   if (close_popup)
     {
@@ -188,7 +177,7 @@ static MetaWaylandEventInterface popup_event_interface = {
   popup_grab_get_focus_surface,
   popup_grab_focus,
   NULL, /* motion */
-  popup_grab_press,
+  NULL, /* press */
   popup_grab_release,
 };
 
