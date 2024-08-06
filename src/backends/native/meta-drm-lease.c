@@ -71,14 +71,12 @@ struct _MetaDrmLeaseManager
 
   /* MetaKmsDevice *kms_device */
   GList *devices;
+  /* MetaKmsConnector *kms_connector */
+  GList *connectors;
   /* Key:   uint32_t lessee_id
    * Value: MetaDrmLease *lease
    */
   GHashTable *leases;
-  /* Key:   MetaKmsConnector *kms_connector
-   * Value: MetaDrmLease *lease
-   */
-  GHashTable *connectors;
   /* Key:   MetaKmsConnector *kms_connector
    * Value: MetaDrmLease *lease
    */
@@ -454,8 +452,10 @@ set_connectors_as_leased (MetaDrmLeaseManager *lease_manager,
       LeasingKmsAssignment *assignment = l->data;
       MetaKmsConnector *kms_connector = assignment->connector;
 
-      if (g_hash_table_steal (lease_manager->connectors, kms_connector))
+      if (g_list_find (lease_manager->connectors, kms_connector))
         {
+          lease_manager->connectors = g_list_remove (lease_manager->connectors,
+                                                     kms_connector);
           g_hash_table_insert (lease_manager->leased_connectors, kms_connector,
                                lease);
           connectors = g_list_append (connectors, kms_connector);
@@ -486,7 +486,8 @@ set_connectors_as_available (MetaDrmLeaseManager *lease_manager,
 
       if (g_hash_table_steal (lease_manager->leased_connectors, kms_connector))
         {
-          g_hash_table_insert (lease_manager->connectors, kms_connector, NULL);
+          lease_manager->connectors = g_list_append (lease_manager->connectors,
+                                                     kms_connector);
           connectors = g_list_append (connectors, kms_connector);
         }
     }
@@ -569,18 +570,7 @@ GList *
 meta_drm_lease_manager_get_connectors (MetaDrmLeaseManager *lease_manager,
                                        MetaKmsDevice       *kms_device)
 {
-  GHashTableIter iter;
-  MetaKmsConnector *connector;
-  GList *connectors = NULL;
-
-  g_hash_table_iter_init (&iter, lease_manager->connectors);
-  while (g_hash_table_iter_next (&iter, (gpointer *)&connector, NULL))
-    {
-      if (meta_kms_connector_get_device (connector) == kms_device)
-        connectors = g_list_append (connectors, connector);
-    }
-
-  return connectors;
+  return g_list_copy (lease_manager->connectors);
 }
 
 MetaDrmLease *
@@ -638,7 +628,7 @@ update_connectors (MetaDrmLeaseManager  *lease_manager,
                    GList               **leases_to_revoke_out)
 {
   MetaKms *kms = lease_manager->kms;
-  GHashTable *new_connectors;
+  GList *new_connectors;
   GHashTable *new_leased_connectors;
   MetaDrmLease *lease = NULL;
   GList *l;
@@ -649,7 +639,7 @@ update_connectors (MetaDrmLeaseManager  *lease_manager,
   MetaKmsConnector *kms_connector;
   GHashTableIter iter;
 
-  new_connectors = g_hash_table_new_similar (lease_manager->connectors);
+  new_connectors = g_list_copy (lease_manager->connectors);
   new_leased_connectors =
     g_hash_table_new_similar (lease_manager->leased_connectors);
 
@@ -665,11 +655,11 @@ update_connectors (MetaDrmLeaseManager  *lease_manager,
           if (!meta_kms_connector_is_for_lease (kms_connector))
             continue;
 
-          if (g_hash_table_steal_extended (lease_manager->connectors,
-                                           kms_connector,
-                                           NULL, (gpointer *) &lease))
+          if (g_list_find (lease_manager->connectors, kms_connector))
             {
-              g_hash_table_insert (new_connectors, kms_connector, lease);
+              lease_manager->connectors =
+                g_list_remove (lease_manager->connectors, kms_connector);
+              new_connectors = g_list_append (new_connectors, kms_connector);
             }
           else if (g_hash_table_steal_extended (lease_manager->leased_connectors,
                                                 kms_connector,
@@ -680,14 +670,17 @@ update_connectors (MetaDrmLeaseManager  *lease_manager,
           else
             {
               added_connectors = g_list_append (added_connectors, kms_connector);
-              g_hash_table_insert (new_connectors, kms_connector, lease);
+              new_connectors = g_list_append (new_connectors, kms_connector);
             }
         }
     }
 
-  g_hash_table_iter_init (&iter, lease_manager->connectors);
-  while (g_hash_table_iter_next (&iter, (gpointer *)&kms_connector, NULL))
-    removed_connectors = g_list_append (removed_connectors, kms_connector);
+  for (l = lease_manager->connectors; l; l = l->next)
+    {
+      kms_connector = l->data;
+
+      removed_connectors = g_list_append (removed_connectors, kms_connector);
+    }
 
   g_hash_table_iter_init (&iter, lease_manager->leased_connectors);
   while (g_hash_table_iter_next (&iter, (gpointer *)&kms_connector, NULL))
@@ -698,7 +691,7 @@ update_connectors (MetaDrmLeaseManager  *lease_manager,
         leases_to_revoke = g_list_append (leases_to_revoke, lease);
     }
 
-  g_clear_pointer (&lease_manager->connectors, g_hash_table_unref);
+  g_list_free (g_steal_pointer (&lease_manager->connectors));
   lease_manager->connectors = new_connectors;
 
   g_clear_pointer (&lease_manager->leased_connectors, g_hash_table_unref);
@@ -881,10 +874,6 @@ meta_drm_lease_manager_constructed (GObject *object)
     g_hash_table_new_full (NULL, NULL,
                            NULL,
                            (GDestroyNotify) g_object_unref);
-
-  lease_manager->connectors =
-    g_hash_table_new_full (NULL, NULL,
-                           NULL, NULL);
   lease_manager->leased_connectors = g_hash_table_new (NULL, NULL);
 
   update_resources (lease_manager);
@@ -936,8 +925,9 @@ meta_drm_lease_manager_dispose (GObject *object)
   g_clear_signal_handler (&lease_manager->lease_changed_handler_id, kms);
 
   g_list_free_full (g_steal_pointer (&lease_manager->devices), g_object_unref);
+  g_list_free_full (g_steal_pointer (&lease_manager->connectors),
+                    g_object_unref);
   g_clear_pointer (&lease_manager->leases, g_hash_table_unref);
-  g_clear_pointer (&lease_manager->connectors, g_hash_table_unref);
   g_clear_pointer (&lease_manager->leased_connectors, g_hash_table_unref);
 
   G_OBJECT_CLASS (meta_drm_lease_manager_parent_class)->dispose (object);
