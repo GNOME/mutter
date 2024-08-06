@@ -719,7 +719,7 @@ load_cursor_sprite_gbm_buffer_for_crtc (MetaCursorRendererNative *native,
                                 width, height,
                                 &cursor_width, &cursor_height))
     {
-      meta_warning ("Can't handle cursor size %ux%u)", width, height);
+      g_warning_once ("Can't handle cursor size %ux%u", width, height);
       return FALSE;
     }
 
