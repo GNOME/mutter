@@ -243,8 +243,8 @@ cogl_color_premultiply (CoglColor *color);
 
 /**
  * cogl_color_equal:
- * @v1: a #CoglColor
- * @v2: a #CoglColor
+ * @v1: (type Cogl.Color): a #CoglColor
+ * @v2: (type Cogl.Color): a #CoglColor
  *
  * Compares two `CoglColor`s and checks if they are the same.
  *
