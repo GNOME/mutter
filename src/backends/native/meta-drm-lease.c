@@ -531,23 +531,6 @@ meta_drm_lease_manager_get_connectors (MetaDrmLeaseManager *lease_manager,
   return connectors;
 }
 
-MetaKmsConnector *
-meta_drm_lease_manager_get_connector_from_id (MetaDrmLeaseManager *lease_manager,
-                                              uint32_t             connector_id)
-{
-  GHashTableIter iter;
-  MetaKmsConnector *connector;
-
-  g_hash_table_iter_init (&iter, lease_manager->connectors);
-  while (g_hash_table_iter_next (&iter, (gpointer *)&connector, NULL))
-    {
-      if (meta_kms_connector_get_id (connector) == connector_id)
-        return connector;
-    }
-
-  return NULL;
-}
-
 MetaDrmLease *
 meta_drm_lease_manager_get_lease_from_connector (MetaDrmLeaseManager *lease_manager,
                                                  MetaKmsConnector    *kms_connector)

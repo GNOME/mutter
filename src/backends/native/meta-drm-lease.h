@@ -47,9 +47,6 @@ GList * meta_drm_lease_manager_get_devices (MetaDrmLeaseManager *lease_manager);
 GList * meta_drm_lease_manager_get_connectors (MetaDrmLeaseManager *lease_manager,
                                                MetaKmsDevice       *kms_device);
 
-MetaKmsConnector * meta_drm_lease_manager_get_connector_from_id (MetaDrmLeaseManager *lease_manager,
-                                                                 uint32_t             connector_id);
-
 MetaDrmLease * meta_drm_lease_manager_get_lease_from_connector (MetaDrmLeaseManager *lease_manager,
                                                                 MetaKmsConnector    *kms_connector);
 
