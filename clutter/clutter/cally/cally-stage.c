@@ -20,7 +20,7 @@
 
 /**
  * CallyStage:
- * 
+ *
  * Implementation of the ATK interfaces for a #ClutterStage
  *
  * #CallyStage implements the required ATK interfaces for [class@Clutter.Stage]
@@ -44,18 +44,10 @@ static AtkStateSet*          cally_stage_ref_state_set   (AtkObject *obj);
 /* AtkWindow */
 static void                  cally_stage_window_interface_init (AtkWindowIface *iface);
 
-/* Auxiliary */
-static void                  cally_stage_activate_cb     (ClutterStage *stage,
-                                                          gpointer      data);
-static void                  cally_stage_deactivate_cb   (ClutterStage *stage,
-                                                          gpointer      data);
-
 typedef struct _CallyStagePrivate
 {
   /* NULL means that the stage will receive the focus */
   ClutterActor *key_focus;
-
-  gboolean active;
 } CallyStagePrivate;
 
 G_DEFINE_TYPE_WITH_CODE (CallyStage,
@@ -78,9 +70,6 @@ cally_stage_class_init (CallyStageClass *klass)
 static void
 cally_stage_init (CallyStage *cally_stage)
 {
-  CallyStagePrivate *priv = cally_stage_get_instance_private (cally_stage);
-
-  priv->active = FALSE;
 }
 
 /**
@@ -117,7 +106,7 @@ cally_stage_notify_key_focus_cb (ClutterStage *stage,
   AtkObject *new = NULL;
   CallyStagePrivate *priv = cally_stage_get_instance_private (self);
 
-  if (priv->active == FALSE)
+  if (!clutter_stage_is_active (stage))
     return;
 
   key_focus = clutter_stage_get_key_focus (stage);
@@ -185,8 +174,6 @@ cally_stage_real_initialize (AtkObject *obj,
 
   stage = CLUTTER_STAGE (CALLY_GET_CLUTTER_ACTOR (obj));
 
-  g_signal_connect (stage, "activate", G_CALLBACK (cally_stage_activate_cb), obj);
-  g_signal_connect (stage, "deactivate", G_CALLBACK (cally_stage_deactivate_cb), obj);
   g_signal_connect (stage, "notify::key-focus",
                     G_CALLBACK (cally_stage_notify_key_focus_cb), obj);
 
@@ -199,11 +186,9 @@ cally_stage_ref_state_set   (AtkObject *obj)
   CallyStage   *cally_stage = NULL;
   AtkStateSet  *state_set   = NULL;
   ClutterStage *stage       = NULL;
-  CallyStagePrivate *priv;
 
   g_return_val_if_fail (CALLY_IS_STAGE (obj), NULL);
   cally_stage = CALLY_STAGE (obj);
-  priv = cally_stage_get_instance_private (cally_stage);
 
   state_set = ATK_OBJECT_CLASS (cally_stage_parent_class)->ref_state_set (obj);
   stage = CLUTTER_STAGE (CALLY_GET_CLUTTER_ACTOR (cally_stage));
@@ -211,7 +196,7 @@ cally_stage_ref_state_set   (AtkObject *obj)
   if (stage == NULL)
     return state_set;
 
-  if (priv->active)
+  if (clutter_stage_is_active (stage))
     atk_state_set_add_state (state_set, ATK_STATE_ACTIVE);
 
   return state_set;
@@ -222,45 +207,4 @@ static void
 cally_stage_window_interface_init (AtkWindowIface *iface)
 {
   /* At this moment AtkWindow is just about signals */
-}
-
-/* Auxiliary */
-static void
-cally_stage_activate_cb     (ClutterStage *stage,
-                             gpointer      data)
-{
-  CallyStage *cally_stage = NULL;
-  CallyStagePrivate *priv;
-
-  g_return_if_fail (CALLY_IS_STAGE (data));
-
-  cally_stage = CALLY_STAGE (data);
-  priv = cally_stage_get_instance_private (cally_stage);
-
-  priv->active = TRUE;
-
-  atk_object_notify_state_change (ATK_OBJECT (cally_stage),
-                                  ATK_STATE_ACTIVE, TRUE);
-
-  g_signal_emit_by_name (cally_stage, "activate", 0);
-}
-
-static void
-cally_stage_deactivate_cb   (ClutterStage *stage,
-                             gpointer      data)
-{
-  CallyStage *cally_stage = NULL;
-  CallyStagePrivate *priv;
-
-  g_return_if_fail (CALLY_IS_STAGE (data));
-
-  cally_stage = CALLY_STAGE (data);
-  priv = cally_stage_get_instance_private (cally_stage);
-
-  priv->active = FALSE;
-
-  atk_object_notify_state_change (ATK_OBJECT (cally_stage),
-                                  ATK_STATE_ACTIVE, FALSE);
-
-  g_signal_emit_by_name (cally_stage, "deactivate", 0);
 }

@@ -57,9 +57,6 @@ void              meta_stage_update_cursor_overlay   (MetaStage            *stag
 void meta_overlay_set_visible (MetaOverlay *overlay,
                                gboolean     is_visible);
 
-void meta_stage_set_active (MetaStage *stage,
-                            gboolean   is_active);
-
 META_EXPORT_TEST
 MetaStageWatch * meta_stage_watch_view (MetaStage           *stage,
                                         ClutterStageView    *view,

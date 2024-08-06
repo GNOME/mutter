@@ -138,6 +138,7 @@ typedef struct _ClutterStagePrivate
   GPtrArray *all_active_gestures;
 
   guint actor_needs_immediate_relayout : 1;
+  gboolean is_active;
 } ClutterStagePrivate;
 
 enum
@@ -156,8 +157,6 @@ static GParamSpec *obj_props[PROP_LAST] = { NULL, };
 
 enum
 {
-  ACTIVATE,
-  DEACTIVATE,
   DELETE_EVENT,
   BEFORE_UPDATE,
   PREPARE_FRAME,
@@ -630,16 +629,47 @@ clutter_stage_emit_key_focus_event (ClutterStage *stage,
   g_object_notify_by_pspec (G_OBJECT (stage), obj_props[PROP_KEY_FOCUS]);
 }
 
-static void
-clutter_stage_real_activate (ClutterStage *stage)
+gboolean
+clutter_stage_is_active (ClutterStage *stage)
 {
-  clutter_stage_emit_key_focus_event (stage, TRUE);
+  ClutterStagePrivate *priv;
+
+  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), FALSE);
+
+  priv = clutter_stage_get_instance_private (stage);
+
+  return priv->is_active;
 }
 
-static void
-clutter_stage_real_deactivate (ClutterStage *stage)
+void
+clutter_stage_set_active (ClutterStage *stage,
+                          gboolean      is_active)
 {
-  clutter_stage_emit_key_focus_event (stage, FALSE);
+  ClutterStagePrivate *priv;
+  AtkObject *accessible;
+
+  g_return_if_fail (CLUTTER_IS_STAGE (stage));
+
+  priv = clutter_stage_get_instance_private (stage);
+
+  if (priv->is_active == is_active)
+    return;
+
+  priv->is_active = is_active;
+  accessible = clutter_actor_get_accessible (CLUTTER_ACTOR (stage));
+  if (accessible)
+    {
+      atk_object_notify_state_change (accessible,
+                                      ATK_STATE_ACTIVE,
+                                      priv->is_active);
+      /* Emit AtkWindow signals */
+      if (priv->is_active)
+        g_signal_emit_by_name (accessible, "activate", 0);
+      else
+        g_signal_emit_by_name (accessible, "deactivate", 0);
+    }
+
+  clutter_stage_emit_key_focus_event (stage, is_active);
 }
 
 void
@@ -1369,35 +1399,6 @@ clutter_stage_class_init (ClutterStageClass *klass)
   g_object_class_install_properties (gobject_class, PROP_LAST, obj_props);
 
   /**
-   * ClutterStage::activate:
-   * @stage: the stage which was activated
-   *
-   * The signal is emitted when the stage receives key focus
-   * from the underlying window system.
-   */
-  stage_signals[ACTIVATE] =
-    g_signal_new (I_("activate"),
-		  G_TYPE_FROM_CLASS (gobject_class),
-		  G_SIGNAL_RUN_LAST,
-		  G_STRUCT_OFFSET (ClutterStageClass, activate),
-		  NULL, NULL, NULL,
-		  G_TYPE_NONE, 0);
-  /**
-   * ClutterStage::deactivate:
-   * @stage: the stage which was deactivated
-   *
-   * The signal is emitted when the stage loses key focus
-   * from the underlying window system.
-   */
-  stage_signals[DEACTIVATE] =
-    g_signal_new (I_("deactivate"),
-		  G_TYPE_FROM_CLASS (gobject_class),
-		  G_SIGNAL_RUN_LAST,
-		  G_STRUCT_OFFSET (ClutterStageClass, deactivate),
-		  NULL, NULL, NULL,
-		  G_TYPE_NONE, 0);
-
-  /**
    * ClutterStage::before-update:
    * @stage: the #ClutterStage
    * @view: a #ClutterStageView
@@ -1571,9 +1572,6 @@ clutter_stage_class_init (ClutterStageClass *klass)
                   0,
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
-
-  klass->activate = clutter_stage_real_activate;
-  klass->deactivate = clutter_stage_real_deactivate;
 }
 
 static void

@@ -754,11 +754,11 @@ meta_stage_x11_handle_event (MetaStageX11 *stage_x11,
       break;
 
     case FocusIn:
-      meta_stage_set_active ((MetaStage *) stage_impl->wrapper, TRUE);
+      clutter_stage_set_active (stage_impl->wrapper, TRUE);
       break;
 
     case FocusOut:
-      meta_stage_set_active ((MetaStage *) stage_impl->wrapper, FALSE);
+      clutter_stage_set_active (stage_impl->wrapper, FALSE);
       break;
 
     case Expose:
