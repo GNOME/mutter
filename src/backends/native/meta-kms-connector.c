@@ -1577,6 +1577,12 @@ meta_kms_connector_new (MetaKmsImplDevice *impl_device,
   connector->type_id = drm_connector->connector_type_id;
   connector->name = make_connector_name (drm_connector);
 
+  meta_topic (META_DEBUG_KMS,
+              "Adding connector %s (%u, %s)",
+              connector->name,
+              connector->id,
+              meta_kms_impl_device_get_path (impl_device));
+
   init_properties (connector, impl_device, drm_connector);
 
   meta_kms_connector_read_state (connector, impl_device,
