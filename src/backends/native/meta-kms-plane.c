@@ -28,6 +28,7 @@
 #include "backends/native/meta-kms-impl-device-atomic.h"
 #include "backends/native/meta-kms-device-private.h"
 #include "backends/native/meta-kms-update-private.h"
+#include "common/meta-drm-format-helpers.h"
 
 typedef struct _MetaKmsPlanePropTable
 {
@@ -312,15 +313,23 @@ update_formats (MetaKmsPlane      *plane,
   in_formats = &plane->prop_table.props[META_KMS_PLANE_PROP_IN_FORMATS];
   blob_id = in_formats->value;
   if (blob_id == 0)
-    return;
+    {
+      meta_topic (META_DEBUG_KMS, "  Plane has no advertised formats");
+      return;
+    }
 
   fd = meta_kms_impl_device_get_fd (impl_device);
   blob = drmModeGetPropertyBlob (fd, blob_id);
   if (!blob)
-    return;
+    {
+      g_warning ("Failed to rertieve IN_FORMATS property blob: %s",
+                 g_strerror (errno));
+      return;
+    }
 
   if (blob->length < sizeof (struct drm_format_modifier_blob))
     {
+      g_warning ("IN_FORMATS property blob size invalid");
       drmModeFreePropertyBlob (blob);
       return;
     }
@@ -333,6 +342,16 @@ update_formats (MetaKmsPlane      *plane,
   for (fmt_i = 0; fmt_i < blob_fmt->count_formats; fmt_i++)
     {
       GArray *modifiers = g_array_new (FALSE, FALSE, sizeof (uint64_t));
+
+      if (meta_is_topic_enabled (META_DEBUG_KMS))
+        {
+          MetaDrmFormatBuf tmp;
+
+          meta_topic (META_DEBUG_KMS,
+                      "  Adding format %s (0x%x)",
+                      meta_drm_format_to_string (&tmp, formats[fmt_i]),
+                      formats[fmt_i]);
+        }
 
       for (mod_i = 0; mod_i < blob_fmt->count_modifiers; mod_i++)
         {
@@ -649,6 +668,11 @@ meta_kms_plane_new (MetaKmsPlaneType         type,
   plane->possible_crtcs = drm_plane->possible_crtcs;
   plane->device = meta_kms_impl_device_get_device (impl_device);
 
+  meta_topic (META_DEBUG_KMS,
+              "Adding %s plane %u (%s)",
+              meta_kms_plane_type_to_string (type),
+              plane->id,
+              meta_kms_impl_device_get_path (impl_device));
   init_properties (plane, impl_device, drm_plane, drm_plane_props);
 
   meta_kms_plane_read_state (plane, impl_device, drm_plane, drm_plane_props);
@@ -714,4 +738,20 @@ meta_kms_plane_class_init (MetaKmsPlaneClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->finalize = meta_kms_plane_finalize;
+}
+
+const char *
+meta_kms_plane_type_to_string (MetaKmsPlaneType plane_type)
+{
+  switch (plane_type)
+    {
+    case META_KMS_PLANE_TYPE_PRIMARY:
+      return "primary";
+    case META_KMS_PLANE_TYPE_CURSOR:
+      return "cursor";
+    case META_KMS_PLANE_TYPE_OVERLAY:
+      return "overlay";
+    }
+
+  g_assert_not_reached ();
 }

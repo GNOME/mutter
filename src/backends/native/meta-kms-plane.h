@@ -76,3 +76,5 @@ gboolean meta_kms_plane_is_usable_with (MetaKmsPlane *plane,
 void meta_kms_plane_update_set_rotation (MetaKmsPlane           *plane,
                                          MetaKmsPlaneAssignment *plane_assignment,
                                          MtkMonitorTransform     transform);
+
+const char * meta_kms_plane_type_to_string (MetaKmsPlaneType plane_type);
