@@ -622,6 +622,7 @@ update_connectors (MetaDrmLeaseManager  *lease_manager,
       for (o = meta_kms_device_get_connectors (kms_device); o; o = o->next)
         {
           kms_connector = o->data;
+          lease = NULL;
 
           if (!meta_kms_connector_is_for_lease (kms_connector))
             continue;
