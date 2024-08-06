@@ -535,17 +535,7 @@ add_plane_property (MetaKmsImplDevice  *impl_device,
 static const char *
 get_plane_type_string (MetaKmsPlane *plane)
 {
-  switch (meta_kms_plane_get_plane_type (plane))
-    {
-    case META_KMS_PLANE_TYPE_PRIMARY:
-      return "primary";
-    case META_KMS_PLANE_TYPE_CURSOR:
-      return "cursor";
-    case META_KMS_PLANE_TYPE_OVERLAY:
-      return "overlay";
-    }
-
-  g_assert_not_reached ();
+  return meta_kms_plane_type_to_string (meta_kms_plane_get_plane_type (plane));
 }
 
 static gboolean
