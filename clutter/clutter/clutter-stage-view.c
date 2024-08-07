@@ -385,6 +385,26 @@ set_color_state (ClutterStageView   *view,
   clutter_stage_view_invalidate_offscreen (view);
 }
 
+void
+clutter_stage_view_set_color_state (ClutterStageView  *view,
+                                    ClutterColorState *color_state)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  set_color_state (view, &priv->color_state, color_state);
+}
+
+void
+clutter_stage_view_set_output_color_state (ClutterStageView  *view,
+                                           ClutterColorState *color_state)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  set_color_state (view, &priv->output_color_state, color_state);
+}
+
 static void
 clutter_stage_view_ensure_color_states (ClutterStageView *view)
 {
@@ -1485,4 +1505,13 @@ clutter_stage_view_get_output_color_state (ClutterStageView *view)
     clutter_stage_view_get_instance_private (view);
 
   return priv->output_color_state;
+}
+
+const char *
+clutter_stage_view_get_name (ClutterStageView *view)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  return priv->name;
 }

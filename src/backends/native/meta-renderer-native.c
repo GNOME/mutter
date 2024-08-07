@@ -72,7 +72,6 @@
 #include "common/meta-cogl-drm-formats.h"
 #include "common/meta-drm-format-helpers.h"
 #include "core/boxes-private.h"
-#include "core/meta-debug-control-private.h"
 
 #ifdef HAVE_EGL_DEVICE
 #include "backends/native/meta-render-device-egl-stream.h"
@@ -1342,21 +1341,16 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
 {
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
   MetaBackend *backend = meta_renderer_get_backend (renderer);
-  MetaContext *context = meta_backend_get_context (backend);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaColorManager *color_manager = meta_backend_get_color_manager (backend);
   MetaColorDevice *color_device =
     meta_color_manager_get_color_device (color_manager, monitor);
-  MetaDebugControl *debug_control = meta_context_get_debug_control (context);
   CoglContext *cogl_context =
     cogl_context_from_renderer_native (renderer_native);
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
   const MetaCrtcConfig *crtc_config;
   const MetaCrtcModeInfo *crtc_mode_info;
-  gboolean force_linear;
-  ClutterColorState *color_state;
-  g_autoptr (ClutterColorState) blending_color_state = NULL;
   MtkMonitorTransform view_transform;
   g_autoptr (CoglFramebuffer) framebuffer = NULL;
   gboolean use_shadowfb;
@@ -1431,30 +1425,6 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
       framebuffer = COGL_FRAMEBUFFER (virtual_onscreen);
     }
 
-  color_state = meta_color_device_get_color_state (color_device);
-
-  force_linear = meta_debug_control_is_linear_blending_forced (debug_control);
-  blending_color_state = clutter_color_state_get_blending (color_state,
-                                                           force_linear);
-
-  if (meta_is_topic_enabled (META_DEBUG_RENDER))
-    {
-      g_autofree char *cs_str =
-        clutter_color_state_to_string (color_state);
-      g_autofree char *blending_cs_str =
-        clutter_color_state_to_string (blending_color_state);
-
-      meta_topic (META_DEBUG_RENDER,
-                  "ColorState for view %s:\n  %s",
-                  meta_output_get_name (output),
-                  blending_cs_str);
-
-      meta_topic (META_DEBUG_RENDER,
-                  "ColorState for output %s:\n  %s",
-                  meta_output_get_name (output),
-                  cs_str);
-    }
-
   view_transform = calculate_view_transform (monitor_manager,
                                              logical_monitor,
                                              output,
@@ -1471,13 +1441,13 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
 
   view_native = g_object_new (META_TYPE_RENDERER_VIEW_NATIVE,
                               "name", meta_output_get_name (output),
+                              "backend", backend,
+                              "color-device", color_device,
                               "stage", meta_backend_get_stage (backend),
                               "layout", &view_layout,
                               "crtc", crtc,
                               "scale", scale,
                               "framebuffer", framebuffer,
-                              "color-state", blending_color_state,
-                              "output-color-state", color_state,
                               "use-shadowfb", use_shadowfb,
                               "transform", view_transform,
                               "refresh-rate", crtc_mode_info->refresh_rate,

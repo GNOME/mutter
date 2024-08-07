@@ -53,6 +53,7 @@ meta_renderer_x11_cm_init_screen_view (MetaRendererX11Cm *renderer_x11_cm,
   };
   renderer_x11_cm->screen_view = g_object_new (META_TYPE_RENDERER_VIEW,
                                                "name", "X11 screen",
+                                               "backend", backend,
                                                "stage", stage,
                                                "layout", &view_layout,
                                                "framebuffer", onscreen,

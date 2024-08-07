@@ -74,3 +74,14 @@ CLUTTER_EXPORT
 void clutter_stage_view_notify_ready (ClutterStageView *view);
 
 void clutter_stage_view_invalidate_input_devices (ClutterStageView *view);
+
+CLUTTER_EXPORT
+void clutter_stage_view_set_color_state (ClutterStageView  *view,
+                                         ClutterColorState *color_state);
+
+CLUTTER_EXPORT
+void clutter_stage_view_set_output_color_state (ClutterStageView  *view,
+                                                ClutterColorState *color_state);
+
+CLUTTER_EXPORT
+const char * clutter_stage_view_get_name (ClutterStageView *view);
