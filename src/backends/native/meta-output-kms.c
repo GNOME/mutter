@@ -379,7 +379,7 @@ meta_output_kms_new (MetaGpuKms        *gpu_kms,
 
   output_info->panel_orientation_transform =
     connector_state->panel_orientation_transform;
-  if (meta_monitor_transform_is_rotated (output_info->panel_orientation_transform))
+  if (mtk_monitor_transform_is_rotated (output_info->panel_orientation_transform))
     {
       output_info->width_mm = connector_state->height_mm;
       output_info->height_mm = connector_state->width_mm;

@@ -136,7 +136,7 @@ meta_cursor_renderer_update_stage_overlay (MetaCursorRenderer *renderer,
   ClutterActor *stage = meta_backend_get_stage (priv->backend);
   CoglTexture *texture = NULL;
   graphene_rect_t rect = GRAPHENE_RECT_INIT_ZERO;
-  MetaMonitorTransform buffer_transform = META_MONITOR_TRANSFORM_NORMAL;
+  MtkMonitorTransform buffer_transform = MTK_MONITOR_TRANSFORM_NORMAL;
 
   g_set_object (&priv->overlay_cursor, cursor_sprite);
 

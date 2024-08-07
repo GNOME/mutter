@@ -44,7 +44,7 @@ MtkRegion * meta_shaped_texture_get_opaque_region (MetaShapedTexture *stex);
 gboolean meta_shaped_texture_is_opaque (MetaShapedTexture *stex);
 gboolean meta_shaped_texture_has_alpha (MetaShapedTexture *stex);
 void meta_shaped_texture_set_transform (MetaShapedTexture    *stex,
-                                        MetaMonitorTransform  transform);
+                                        MtkMonitorTransform  transform);
 void meta_shaped_texture_set_viewport_src_rect (MetaShapedTexture *stex,
                                                 graphene_rect_t   *src_rect);
 void meta_shaped_texture_reset_viewport_src_rect (MetaShapedTexture *stex);

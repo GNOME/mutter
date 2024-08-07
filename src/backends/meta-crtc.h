@@ -21,14 +21,14 @@
 
 #include "backends/meta-backend-types.h"
 #include "backends/meta-crtc-mode.h"
-#include "backends/meta-monitor-transform.h"
 #include "core/util-private.h"
 #include "meta/boxes.h"
+#include "mtk/mtk.h"
 
 typedef struct _MetaCrtcConfig
 {
   graphene_rect_t layout;
-  MetaMonitorTransform transform;
+  MtkMonitorTransform transform;
   MetaCrtcMode *mode;
 } MetaCrtcConfig;
 
@@ -80,7 +80,7 @@ META_EXPORT_TEST
 void meta_crtc_unassign_output (MetaCrtc   *crtc,
                                 MetaOutput *output);
 
-MetaMonitorTransform meta_crtc_get_all_transforms (MetaCrtc *crtc);
+MtkMonitorTransform meta_crtc_get_all_transforms (MetaCrtc *crtc);
 
 META_EXPORT_TEST
 void meta_crtc_set_config (MetaCrtc       *crtc,
@@ -132,9 +132,9 @@ gboolean meta_gamma_lut_equal (const MetaGammaLut *gamma,
                                const MetaGammaLut *other_gamma);
 
 META_EXPORT_TEST
-MetaCrtcConfig * meta_crtc_config_new (graphene_rect_t      *layout,
-                                       MetaCrtcMode         *mode,
-                                       MetaMonitorTransform  transform);
+MetaCrtcConfig * meta_crtc_config_new (graphene_rect_t     *layout,
+                                       MetaCrtcMode        *mode,
+                                       MtkMonitorTransform  transform);
 
 gboolean meta_crtc_is_leased (MetaCrtc *crtc);
 

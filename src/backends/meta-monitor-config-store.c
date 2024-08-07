@@ -189,7 +189,7 @@ typedef struct
   GList *current_logical_monitor_configs;
   MetaMonitorSpec *current_monitor_spec;
   gboolean current_transform_flipped;
-  MetaMonitorTransform current_transform;
+  MtkMonitorTransform current_transform;
   MetaMonitorModeSpec *current_monitor_mode_spec;
   MetaMonitorConfig *current_monitor_config;
   MetaLogicalMonitorConfig *current_logical_monitor_config;
@@ -701,7 +701,7 @@ derive_logical_monitor_layout (MetaLogicalMonitorConfig    *logical_monitor_conf
         }
     }
 
-  if (meta_monitor_transform_is_rotated (logical_monitor_config->transform))
+  if (mtk_monitor_transform_is_rotated (logical_monitor_config->transform))
     {
       width = mode_height;
       height = mode_width;
@@ -793,10 +793,10 @@ handle_end_element (GMarkupParseContext  *context,
         if (parser->current_transform_flipped)
           {
             parser->current_logical_monitor_config->transform +=
-              META_MONITOR_TRANSFORM_FLIPPED;
+              MTK_MONITOR_TRANSFORM_FLIPPED;
           }
 
-        parser->current_transform = META_MONITOR_TRANSFORM_NORMAL;
+        parser->current_transform = MTK_MONITOR_TRANSFORM_NORMAL;
         parser->current_transform_flipped = FALSE;
 
         parser->state = STATE_LOGICAL_MONITOR;
@@ -1303,13 +1303,13 @@ handle_text (GMarkupParseContext *context,
     case STATE_TRANSFORM_ROTATION:
       {
         if (text_equals (text, text_len, "normal"))
-          parser->current_transform = META_MONITOR_TRANSFORM_NORMAL;
+          parser->current_transform = MTK_MONITOR_TRANSFORM_NORMAL;
         else if (text_equals (text, text_len, "left"))
-          parser->current_transform = META_MONITOR_TRANSFORM_90;
+          parser->current_transform = MTK_MONITOR_TRANSFORM_90;
         else if (text_equals (text, text_len, "upside_down"))
-          parser->current_transform = META_MONITOR_TRANSFORM_180;
+          parser->current_transform = MTK_MONITOR_TRANSFORM_180;
         else if (text_equals (text, text_len, "right"))
-          parser->current_transform = META_MONITOR_TRANSFORM_270;
+          parser->current_transform = MTK_MONITOR_TRANSFORM_270;
         else
           g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
                        "Invalid rotation type %.*s", (int)text_len, text);
@@ -1653,37 +1653,37 @@ bool_to_string (gboolean value)
 
 static void
 append_transform (GString             *buffer,
-                  MetaMonitorTransform transform)
+                  MtkMonitorTransform  transform)
 {
   const char *rotation = NULL;
   gboolean flipped = FALSE;
 
   switch (transform)
     {
-    case META_MONITOR_TRANSFORM_NORMAL:
+    case MTK_MONITOR_TRANSFORM_NORMAL:
       return;
-    case META_MONITOR_TRANSFORM_90:
+    case MTK_MONITOR_TRANSFORM_90:
       rotation = "left";
       break;
-    case META_MONITOR_TRANSFORM_180:
+    case MTK_MONITOR_TRANSFORM_180:
       rotation = "upside_down";
       break;
-    case META_MONITOR_TRANSFORM_270:
+    case MTK_MONITOR_TRANSFORM_270:
       rotation = "right";
       break;
-    case META_MONITOR_TRANSFORM_FLIPPED:
+    case MTK_MONITOR_TRANSFORM_FLIPPED:
       rotation = "normal";
       flipped = TRUE;
       break;
-    case META_MONITOR_TRANSFORM_FLIPPED_90:
+    case MTK_MONITOR_TRANSFORM_FLIPPED_90:
       rotation = "left";
       flipped = TRUE;
       break;
-    case META_MONITOR_TRANSFORM_FLIPPED_180:
+    case MTK_MONITOR_TRANSFORM_FLIPPED_180:
       rotation = "upside_down";
       flipped = TRUE;
       break;
-    case META_MONITOR_TRANSFORM_FLIPPED_270:
+    case MTK_MONITOR_TRANSFORM_FLIPPED_270:
       rotation = "right";
       flipped = TRUE;
       break;

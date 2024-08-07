@@ -75,21 +75,21 @@ G_DEFINE_TYPE (MetaOrientationManager, meta_orientation_manager, G_TYPE_OBJECT)
 #define CONF_SCHEMA "org.gnome.settings-daemon.peripherals.touchscreen"
 #define ORIENTATION_LOCK_KEY "orientation-lock"
 
-MetaMonitorTransform
+MtkMonitorTransform
 meta_orientation_to_transform (MetaOrientation orientation)
 {
   switch (orientation)
     {
     case META_ORIENTATION_BOTTOM_UP:
-      return META_MONITOR_TRANSFORM_180;
+      return MTK_MONITOR_TRANSFORM_180;
     case META_ORIENTATION_LEFT_UP:
-      return META_MONITOR_TRANSFORM_90;
+      return MTK_MONITOR_TRANSFORM_90;
     case META_ORIENTATION_RIGHT_UP:
-      return META_MONITOR_TRANSFORM_270;
+      return MTK_MONITOR_TRANSFORM_270;
     case META_ORIENTATION_UNDEFINED:
     case META_ORIENTATION_NORMAL:
     default:
-      return META_MONITOR_TRANSFORM_NORMAL;
+      return MTK_MONITOR_TRANSFORM_NORMAL;
     }
 }
 

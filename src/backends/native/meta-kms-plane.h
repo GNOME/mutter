@@ -22,7 +22,8 @@
 #include <xf86drmMode.h>
 
 #include "backends/native/meta-kms-types.h"
-#include "backends/meta-monitor-transform.h"
+#include "core/util-private.h"
+#include "mtk/mtk-monitor-transform.h"
 
 enum _MetaKmsPlaneType
 {
@@ -55,8 +56,8 @@ MetaKmsPlaneType meta_kms_plane_get_plane_type (MetaKmsPlane *plane);
 const MetaKmsPlaneCursorSizeHints *
 meta_kms_plane_get_cursor_size_hints (MetaKmsPlane *plane);
 
-gboolean meta_kms_plane_is_transform_handled (MetaKmsPlane         *plane,
-                                              MetaMonitorTransform  transform);
+gboolean meta_kms_plane_is_transform_handled (MetaKmsPlane        *plane,
+                                              MtkMonitorTransform  transform);
 
 gboolean meta_kms_plane_supports_cursor_hotspot (MetaKmsPlane *plane);
 
@@ -74,4 +75,4 @@ gboolean meta_kms_plane_is_usable_with (MetaKmsPlane *plane,
 
 void meta_kms_plane_update_set_rotation (MetaKmsPlane           *plane,
                                          MetaKmsPlaneAssignment *plane_assignment,
-                                         MetaMonitorTransform    transform);
+                                         MtkMonitorTransform     transform);

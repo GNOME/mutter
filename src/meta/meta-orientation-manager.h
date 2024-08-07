@@ -21,9 +21,8 @@
 
 #include <glib-object.h>
 
-#include "backends/meta-monitor-transform.h"
-#include "core/util-private.h"
 #include "meta/common.h"
+#include "mtk/mtk.h"
 
 typedef enum
 {
@@ -50,5 +49,5 @@ MetaOrientation meta_orientation_manager_get_orientation (MetaOrientationManager
 META_EXPORT
 gboolean meta_orientation_manager_has_accelerometer (MetaOrientationManager *self);
 
-META_EXPORT_TEST
-MetaMonitorTransform meta_orientation_to_transform (MetaOrientation orientation);
+META_EXPORT
+MtkMonitorTransform meta_orientation_to_transform (MetaOrientation orientation);

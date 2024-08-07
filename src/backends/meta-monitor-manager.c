@@ -92,7 +92,7 @@ enum
   SIGNALS_LAST
 };
 
-/* Array index matches MetaMonitorTransform */
+/* Array index matches MtkMonitorTransform */
 static gfloat transform_matrices[][6] = {
   {  1,  0,  0,  0,  1,  0 }, /* normal */
   {  0, -1,  1,  1,  0,  0 }, /* 90° */
@@ -887,8 +887,8 @@ handle_orientation_change (MetaOrientationManager *orientation_manager,
                            MetaMonitorManager     *manager)
 {
   MetaOrientation orientation;
-  MetaMonitorTransform transform;
-  MetaMonitorTransform panel_transform;
+  MtkMonitorTransform transform;
+  MtkMonitorTransform panel_transform;
   GError *error = NULL;
   MetaMonitorsConfig *config;
   MetaMonitor *laptop_panel;
@@ -1643,7 +1643,7 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
       const MetaCrtcConfig *crtc_config;
 
       g_variant_builder_init (&transforms, G_VARIANT_TYPE ("au"));
-      for (j = 0; j <= META_MONITOR_TRANSFORM_FLIPPED_270; j++)
+      for (j = 0; j <= MTK_MONITOR_TRANSFORM_FLIPPED_270; j++)
         {
           if (meta_crtc_get_all_transforms (crtc) & (1 << j))
             g_variant_builder_add (&transforms, "u", j);
@@ -1677,7 +1677,7 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
                                  0,
                                  0,
                                  -1,
-                                 (uint32_t) META_MONITOR_TRANSFORM_NORMAL,
+                                 (uint32_t) MTK_MONITOR_TRANSFORM_NORMAL,
                                  &transforms,
                                  NULL /* properties */);
         }
@@ -2506,17 +2506,17 @@ find_monitor_mode_scale (MetaMonitorManager          *manager,
 }
 
 static gboolean
-derive_logical_monitor_size (MetaMonitorConfig           *monitor_config,
-                             int                         *out_width,
-                             int                         *out_height,
-                             float                        scale,
-                             MetaMonitorTransform         transform,
-                             MetaLogicalMonitorLayoutMode layout_mode,
-                             GError                     **error)
+derive_logical_monitor_size (MetaMonitorConfig             *monitor_config,
+                             int                           *out_width,
+                             int                           *out_height,
+                             float                          scale,
+                             MtkMonitorTransform            transform,
+                             MetaLogicalMonitorLayoutMode   layout_mode,
+                             GError                       **error)
 {
   int width, height;
 
-  if (meta_monitor_transform_is_rotated (transform))
+  if (mtk_monitor_transform_is_rotated (transform))
     {
       width = monitor_config->mode_spec->height;
       height = monitor_config->mode_spec->width;
@@ -2553,7 +2553,7 @@ create_logical_monitor_config_from_variant (MetaMonitorManager          *manager
   int x, y, width, height;
   double scale_d;
   float scale;
-  MetaMonitorTransform transform;
+  MtkMonitorTransform transform;
   gboolean is_primary;
   GVariantIter *monitor_configs_iter;
   GList *monitor_configs = NULL;
@@ -3773,7 +3773,7 @@ meta_monitor_manager_get_monitor_matrix (MetaMonitorManager *manager,
                                          MetaLogicalMonitor *logical_monitor,
                                          gfloat              matrix[6])
 {
-  MetaMonitorTransform transform;
+  MtkMonitorTransform transform;
   gfloat viewport[9];
 
   if (!calculate_viewport_matrix (manager, logical_monitor, viewport))

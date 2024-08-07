@@ -40,7 +40,7 @@ typedef struct _MetaLogicalMonitorConfig
 {
   MtkRectangle layout;
   GList *monitor_configs;
-  MetaMonitorTransform transform;
+  MtkMonitorTransform transform;
   float scale;
   gboolean is_primary;
   gboolean is_presentation;
@@ -107,7 +107,7 @@ MetaMonitorsConfig * meta_monitor_config_manager_create_suggested (MetaMonitorCo
 META_EXPORT_TEST
 MetaMonitorsConfig * meta_monitor_config_manager_create_for_orientation (MetaMonitorConfigManager *config_manager,
                                                                          MetaMonitorsConfig       *base_config,
-                                                                         MetaMonitorTransform      transform);
+                                                                         MtkMonitorTransform       transform);
 
 META_EXPORT_TEST
 MetaMonitorsConfig * meta_monitor_config_manager_create_for_builtin_orientation (MetaMonitorConfigManager *config_manager,

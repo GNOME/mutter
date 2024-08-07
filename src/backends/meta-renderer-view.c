@@ -24,7 +24,7 @@
  * global stage, or more precisely: the part that matches what can be seen on a
  * #MetaLogicalMonitor. By splitting up the rendering into different parts and
  * attaching it to a #MetaLogicalMonitor, we can do the rendering so that each
- * renderer view is responsible for applying the right #MetaMonitorTransform
+ * renderer view is responsible for applying the right #MtkMonitorTransform
  * and the right scaling.
  */
 
@@ -51,15 +51,14 @@ static GParamSpec *obj_props[PROP_LAST];
 
 typedef struct _MetaRendererViewPrivate
 {
-  MetaMonitorTransform transform;
-
+  MtkMonitorTransform transform;
   MetaCrtc *crtc;
 } MetaRendererViewPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaRendererView, meta_renderer_view,
                             META_TYPE_STAGE_VIEW)
 
-MetaMonitorTransform
+MtkMonitorTransform
 meta_renderer_view_get_transform (MetaRendererView *view)
 {
   MetaRendererViewPrivate *priv =
@@ -87,8 +86,8 @@ meta_renderer_view_get_offscreen_transformation_matrix (ClutterStageView  *view,
 
   graphene_matrix_init_identity (matrix);
 
-  meta_monitor_transform_transform_matrix (
-    meta_monitor_transform_invert (priv->transform), matrix);
+  mtk_monitor_transform_transform_matrix (
+    mtk_monitor_transform_invert (priv->transform), matrix);
 }
 
 static void
@@ -120,8 +119,8 @@ meta_renderer_view_transform_rect_to_onscreen (ClutterStageView   *view,
 }
 
 static void
-meta_renderer_view_set_transform (MetaRendererView     *view,
-                                  MetaMonitorTransform  transform)
+meta_renderer_view_set_transform (MetaRendererView    *view,
+                                  MtkMonitorTransform  transform)
 {
   MetaRendererViewPrivate *priv =
     meta_renderer_view_get_instance_private (view);
@@ -204,9 +203,9 @@ meta_renderer_view_class_init (MetaRendererViewClass *klass)
 
   obj_props[PROP_TRANSFORM] =
     g_param_spec_uint ("transform", NULL, NULL,
-                       META_MONITOR_TRANSFORM_NORMAL,
-                       META_MONITOR_TRANSFORM_FLIPPED_270,
-                       META_MONITOR_TRANSFORM_NORMAL,
+                       MTK_MONITOR_TRANSFORM_NORMAL,
+                       MTK_MONITOR_TRANSFORM_FLIPPED_270,
+                       MTK_MONITOR_TRANSFORM_NORMAL,
                        G_PARAM_READWRITE |
                        G_PARAM_CONSTRUCT_ONLY |
                        G_PARAM_STATIC_STRINGS);

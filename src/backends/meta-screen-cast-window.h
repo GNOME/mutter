@@ -47,7 +47,7 @@ struct _MetaScreenCastWindowInterface
                                          MetaCursorSprite     *cursor_sprite,
                                          graphene_point_t     *cursor_position,
                                          float                *out_cursor_scale,
-                                         MetaMonitorTransform *out_cursor_transform,
+                                         MtkMonitorTransform *out_cursor_transform,
                                          graphene_point_t     *out_relative_cursor_position);
 
   void (*capture_into) (MetaScreenCastWindow *screen_cast_window,
@@ -77,7 +77,7 @@ gboolean meta_screen_cast_window_transform_cursor_position (MetaScreenCastWindow
                                                             MetaCursorSprite     *cursor_sprite,
                                                             graphene_point_t     *cursor_position,
                                                             float                *out_cursor_scale,
-                                                            MetaMonitorTransform *out_cursor_transform,
+                                                            MtkMonitorTransform  *out_cursor_transform,
                                                             graphene_point_t     *out_relative_cursor_position);
 
 void meta_screen_cast_window_capture_into (MetaScreenCastWindow *screen_cast_window,

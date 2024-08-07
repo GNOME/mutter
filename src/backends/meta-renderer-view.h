@@ -32,7 +32,7 @@ struct _MetaRendererViewClass
   MetaStageViewClass parent_class;
 };
 
-MetaMonitorTransform meta_renderer_view_get_transform (MetaRendererView *view);
+MtkMonitorTransform meta_renderer_view_get_transform (MetaRendererView *view);
 
 META_EXPORT_TEST
 MetaCrtc *meta_renderer_view_get_crtc (MetaRendererView *view);

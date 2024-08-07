@@ -320,7 +320,7 @@ draw_cursor_sprite_via_offscreen (MetaScreenCastStreamSrc  *src,
                                   CoglTexture              *cursor_texture,
                                   int                       bitmap_width,
                                   int                       bitmap_height,
-                                  MetaMonitorTransform      transform,
+                                  MtkMonitorTransform       transform,
                                   uint8_t                  *bitmap_data,
                                   GError                  **error)
 {
@@ -364,8 +364,8 @@ draw_cursor_sprite_via_offscreen (MetaScreenCastStreamSrc  *src,
                                    COGL_PIPELINE_FILTER_LINEAR);
 
   graphene_matrix_init_identity (&matrix);
-  meta_monitor_transform_transform_matrix (transform,
-                                           &matrix);
+  mtk_monitor_transform_transform_matrix (transform,
+                                          &matrix);
   cogl_pipeline_set_layer_matrix (pipeline, 0, &matrix);
 
   cogl_color_init_from_4f (&clear_color, 0.0, 0.0, 0.0, 0.0);
@@ -388,7 +388,7 @@ gboolean
 meta_screen_cast_stream_src_draw_cursor_into (MetaScreenCastStreamSrc  *src,
                                               CoglTexture              *cursor_texture,
                                               float                     scale,
-                                              MetaMonitorTransform      transform,
+                                              MtkMonitorTransform       transform,
                                               uint8_t                  *data,
                                               GError                  **error)
 {
@@ -402,7 +402,7 @@ meta_screen_cast_stream_src_draw_cursor_into (MetaScreenCastStreamSrc  *src,
 
   if (texture_width == width &&
       texture_height == height &&
-      transform == META_MONITOR_TRANSFORM_NORMAL)
+      transform == MTK_MONITOR_TRANSFORM_NORMAL)
     {
       cogl_texture_get_data (cursor_texture,
                              COGL_PIXEL_FORMAT_RGBA_8888_PRE,
@@ -478,7 +478,7 @@ meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStreamSrc 
                                                         int                      x,
                                                         int                      y,
                                                         float                    scale,
-                                                        MetaMonitorTransform     transform)
+                                                        MtkMonitorTransform      transform)
 {
   CoglTexture *cursor_texture;
   struct spa_meta_bitmap *spa_meta_bitmap;

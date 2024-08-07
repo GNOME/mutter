@@ -57,7 +57,7 @@ typedef struct _MonitorStoreTestCaseLogicalMonitor
 {
   MtkRectangle layout;
   float scale;
-  MetaMonitorTransform transform;
+  MtkMonitorTransform transform;
   gboolean is_primary;
   gboolean is_presentation;
   MonitorStoreTestCaseMonitor monitors[MAX_N_MONITORS];
@@ -856,7 +856,7 @@ meta_test_monitor_store_first_rotated (void)
               .height = 1024
             },
             .scale = 1,
-            .transform = META_MONITOR_TRANSFORM_270,
+            .transform = MTK_MONITOR_TRANSFORM_270,
             .is_primary = TRUE,
             .is_presentation = FALSE,
             .monitors = {
@@ -883,7 +883,7 @@ meta_test_monitor_store_first_rotated (void)
               .height = 768
             },
             .scale = 1,
-            .transform = META_MONITOR_TRANSFORM_NORMAL,
+            .transform = MTK_MONITOR_TRANSFORM_NORMAL,
             .is_primary = FALSE,
             .is_presentation = FALSE,
             .monitors = {
@@ -929,7 +929,7 @@ meta_test_monitor_store_second_rotated (void)
               .height = 768
             },
             .scale = 1,
-            .transform = META_MONITOR_TRANSFORM_NORMAL,
+            .transform = MTK_MONITOR_TRANSFORM_NORMAL,
             .is_primary = TRUE,
             .is_presentation = FALSE,
             .monitors = {
@@ -956,7 +956,7 @@ meta_test_monitor_store_second_rotated (void)
               .height = 1024
             },
             .scale = 1,
-            .transform = META_MONITOR_TRANSFORM_90,
+            .transform = MTK_MONITOR_TRANSFORM_90,
             .is_primary = FALSE,
             .is_presentation = FALSE,
             .monitors = {

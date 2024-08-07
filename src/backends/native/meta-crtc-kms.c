@@ -379,8 +379,8 @@ meta_crtc_kms_unset_config (MetaCrtc *crtc)
 }
 
 static gboolean
-meta_crtc_kms_is_transform_handled (MetaCrtcNative       *crtc_native,
-                                    MetaMonitorTransform  transform)
+meta_crtc_kms_is_transform_handled (MetaCrtcNative      *crtc_native,
+                                    MtkMonitorTransform  transform)
 {
   MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc_native);
 

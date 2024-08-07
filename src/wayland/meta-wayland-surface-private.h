@@ -110,7 +110,7 @@ struct _MetaWaylandSurfaceState
   int new_max_height;
 
   gboolean has_new_buffer_transform;
-  MetaMonitorTransform buffer_transform;
+  MtkMonitorTransform buffer_transform;
   gboolean has_new_viewport_src_rect;
   graphene_rect_t viewport_src_rect;
   gboolean has_new_viewport_dst_size;
@@ -167,10 +167,10 @@ struct _MetaWaylandSurface
   MtkRegion *opaque_region;
   int32_t offset_x, offset_y;
   GHashTable *outputs;
-  MetaMonitorTransform buffer_transform;
+  MtkMonitorTransform buffer_transform;
 
   int preferred_scale;
-  MetaMonitorTransform preferred_transform;
+  MtkMonitorTransform preferred_transform;
 
   /* Buffer reference state. */
   MetaWaylandBuffer *buffer;

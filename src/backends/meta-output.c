@@ -300,29 +300,29 @@ meta_output_get_assigned_crtc (MetaOutput *output)
   return priv->crtc;
 }
 
-MetaMonitorTransform
-meta_output_logical_to_crtc_transform (MetaOutput           *output,
-                                       MetaMonitorTransform  transform)
+MtkMonitorTransform
+meta_output_logical_to_crtc_transform (MetaOutput          *output,
+                                       MtkMonitorTransform  transform)
 {
   MetaOutputPrivate *priv = meta_output_get_instance_private (output);
-  MetaMonitorTransform panel_orientation_transform;
+  MtkMonitorTransform panel_orientation_transform;
 
   panel_orientation_transform = priv->info->panel_orientation_transform;
-  return meta_monitor_transform_transform (transform,
-                                           panel_orientation_transform);
+  return mtk_monitor_transform_transform (transform,
+                                          panel_orientation_transform);
 }
 
-MetaMonitorTransform
-meta_output_crtc_to_logical_transform (MetaOutput           *output,
-                                       MetaMonitorTransform  transform)
+MtkMonitorTransform
+meta_output_crtc_to_logical_transform (MetaOutput          *output,
+                                       MtkMonitorTransform  transform)
 {
   MetaOutputPrivate *priv = meta_output_get_instance_private (output);
-  MetaMonitorTransform inverted_panel_orientation_transform;
+  MtkMonitorTransform inverted_panel_orientation_transform;
 
   inverted_panel_orientation_transform =
-    meta_monitor_transform_invert (priv->info->panel_orientation_transform);
-  return meta_monitor_transform_transform (transform,
-                                           inverted_panel_orientation_transform);
+    mtk_monitor_transform_invert (priv->info->panel_orientation_transform);
+  return mtk_monitor_transform_transform (transform,
+                                          inverted_panel_orientation_transform);
 }
 
 static void

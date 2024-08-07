@@ -1323,13 +1323,13 @@ meta_renderer_native_create_cogl_renderer (MetaRenderer *renderer)
   return cogl_renderer;
 }
 
-static MetaMonitorTransform
+static MtkMonitorTransform
 calculate_view_transform (MetaMonitorManager *monitor_manager,
                           MetaLogicalMonitor *logical_monitor,
                           MetaOutput         *output,
                           MetaCrtc           *crtc)
 {
-  MetaMonitorTransform crtc_transform;
+  MtkMonitorTransform crtc_transform;
 
   crtc = meta_output_get_assigned_crtc (output);
   crtc_transform =
@@ -1337,7 +1337,7 @@ calculate_view_transform (MetaMonitorManager *monitor_manager,
 
   if (meta_crtc_native_is_transform_handled (META_CRTC_NATIVE (crtc),
                                              crtc_transform))
-    return META_MONITOR_TRANSFORM_NORMAL;
+    return MTK_MONITOR_TRANSFORM_NORMAL;
   else
     return crtc_transform;
 }
@@ -1423,7 +1423,7 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
   gboolean force_linear;
   g_autoptr (ClutterColorState) color_state = NULL;
   g_autoptr (ClutterColorState) blending_color_state = NULL;
-  MetaMonitorTransform view_transform;
+  MtkMonitorTransform view_transform;
   g_autoptr (CoglFramebuffer) framebuffer = NULL;
   g_autoptr (CoglOffscreen) offscreen = NULL;
   gboolean use_shadowfb;
@@ -1532,7 +1532,7 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
                                              output,
                                              crtc);
 
-  if (view_transform != META_MONITOR_TRANSFORM_NORMAL ||
+  if (view_transform != MTK_MONITOR_TRANSFORM_NORMAL ||
       !clutter_color_state_equals (color_state, blending_color_state))
     {
       int offscreen_width;
@@ -1557,7 +1557,7 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
           formats[n_formats++] = COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE;
         }
 
-      if (meta_monitor_transform_is_rotated (view_transform))
+      if (mtk_monitor_transform_is_rotated (view_transform))
         {
           offscreen_width = onscreen_height;
           offscreen_height = onscreen_width;

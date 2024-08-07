@@ -221,22 +221,22 @@ static void
 set_panel_orientation (MetaKmsConnectorState *state,
                        MetaKmsProp           *panel_orientation)
 {
-  MetaMonitorTransform transform;
+  MtkMonitorTransform transform;
   MetaKmsConnectorPanelOrientation orientation = panel_orientation->value;
 
   switch (orientation)
     {
     case META_KMS_CONNECTOR_PANEL_ORIENTATION_UPSIDE_DOWN:
-      transform = META_MONITOR_TRANSFORM_180;
+      transform = MTK_MONITOR_TRANSFORM_180;
       break;
     case META_KMS_CONNECTOR_PANEL_ORIENTATION_LEFT_SIDE_UP:
-      transform = META_MONITOR_TRANSFORM_90;
+      transform = MTK_MONITOR_TRANSFORM_90;
       break;
     case META_KMS_CONNECTOR_PANEL_ORIENTATION_RIGHT_SIDE_UP:
-      transform = META_MONITOR_TRANSFORM_270;
+      transform = MTK_MONITOR_TRANSFORM_270;
       break;
     default:
-      transform = META_MONITOR_TRANSFORM_NORMAL;
+      transform = MTK_MONITOR_TRANSFORM_NORMAL;
       break;
     }
 

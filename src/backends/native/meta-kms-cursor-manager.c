@@ -48,7 +48,7 @@ typedef struct _CrtcStateImpl
   MetaKmsPlane *cursor_plane;
   graphene_rect_t layout;
   float scale;
-  MetaMonitorTransform transform;
+  MtkMonitorTransform transform;
   MetaDrmBuffer *buffer;
   graphene_point_t hotspot;
 
@@ -275,9 +275,9 @@ calculate_cursor_rect (CrtcStateImpl          *crtc_state_impl,
   crtc_height = (int) roundf (crtc_state_impl->layout.size.height *
                               crtc_state_impl->scale);
 
-  meta_monitor_transform_transform_point (crtc_state_impl->transform,
-                                          &crtc_width, &crtc_height,
-                                          &crtc_x, &crtc_y);
+  mtk_monitor_transform_transform_point (crtc_state_impl->transform,
+                                         &crtc_width, &crtc_height,
+                                         &crtc_x, &crtc_y);
 
   buffer_width = meta_drm_buffer_get_width (buffer);
   buffer_height = meta_drm_buffer_get_height (buffer);
@@ -732,7 +732,7 @@ typedef struct
 {
   MetaKmsCrtc *crtc;
   MetaDrmBuffer *buffer;
-  MetaMonitorTransform transform;
+  MtkMonitorTransform transform;
   graphene_point_t hotspot;
 } UpdateSpriteData;
 
@@ -779,7 +779,7 @@ void
 meta_kms_cursor_manager_update_sprite (MetaKmsCursorManager   *cursor_manager,
                                        MetaKmsCrtc            *crtc,
                                        MetaDrmBuffer          *buffer,
-                                       MetaMonitorTransform    transform,
+                                       MtkMonitorTransform     transform,
                                        const graphene_point_t *hotspot)
 {
   UpdateSpriteData *data;

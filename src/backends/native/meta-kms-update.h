@@ -22,11 +22,11 @@
 #include <stdint.h>
 #include <xf86drmMode.h>
 
-#include "backends/meta-monitor-transform.h"
 #include "backends/meta-output.h"
 #include "backends/native/meta-drm-buffer.h"
 #include "backends/native/meta-kms-types.h"
 #include "meta/boxes.h"
+#include "mtk/mtk.h"
 
 typedef enum _MetaKmsFeedbackResult
 {

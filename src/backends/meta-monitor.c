@@ -545,18 +545,18 @@ meta_monitor_get_connector_type (MetaMonitor *monitor)
   return output_info->connector_type;
 }
 
-MetaMonitorTransform
+MtkMonitorTransform
 meta_monitor_logical_to_crtc_transform (MetaMonitor          *monitor,
-                                        MetaMonitorTransform  transform)
+                                        MtkMonitorTransform  transform)
 {
   MetaOutput *output = meta_monitor_get_main_output (monitor);
 
   return meta_output_logical_to_crtc_transform (output, transform);
 }
 
-MetaMonitorTransform
-meta_monitor_crtc_to_logical_transform (MetaMonitor          *monitor,
-                                        MetaMonitorTransform  transform)
+MtkMonitorTransform
+meta_monitor_crtc_to_logical_transform (MetaMonitor         *monitor,
+                                        MtkMonitorTransform  transform)
 {
   MetaOutput *output = meta_monitor_get_main_output (monitor);
 
@@ -665,7 +665,7 @@ meta_monitor_create_spec (MetaMonitor  *monitor,
   const MetaCrtcModeInfo *crtc_mode_info =
     meta_crtc_mode_get_info (crtc_mode);
 
-  if (meta_monitor_transform_is_rotated (output_info->panel_orientation_transform))
+  if (mtk_monitor_transform_is_rotated (output_info->panel_orientation_transform))
     {
       int temp = width;
       width = height;
@@ -893,12 +893,12 @@ meta_monitor_normal_get_suggested_position (MetaMonitor *monitor,
 }
 
 static void
-meta_monitor_normal_calculate_crtc_pos (MetaMonitor          *monitor,
-                                        MetaMonitorMode      *monitor_mode,
-                                        MetaOutput           *output,
-                                        MetaMonitorTransform  crtc_transform,
-                                        int                  *out_x,
-                                        int                  *out_y)
+meta_monitor_normal_calculate_crtc_pos (MetaMonitor         *monitor,
+                                        MetaMonitorMode     *monitor_mode,
+                                        MetaOutput          *output,
+                                        MtkMonitorTransform  crtc_transform,
+                                        int                 *out_x,
+                                        int                 *out_y)
 {
   *out_x = 0;
   *out_y = 0;
@@ -968,7 +968,7 @@ add_tiled_monitor_outputs (MetaGpu          *gpu,
 static void
 calculate_tile_coordinate (MetaMonitor         *monitor,
                            MetaOutput          *output,
-                           MetaMonitorTransform crtc_transform,
+                           MtkMonitorTransform  crtc_transform,
                            int                 *out_x,
                            int                 *out_y)
 {
@@ -985,8 +985,8 @@ calculate_tile_coordinate (MetaMonitor         *monitor,
 
       switch (crtc_transform)
         {
-        case META_MONITOR_TRANSFORM_NORMAL:
-        case META_MONITOR_TRANSFORM_FLIPPED:
+        case MTK_MONITOR_TRANSFORM_NORMAL:
+        case MTK_MONITOR_TRANSFORM_FLIPPED:
           if ((other_output_info->tile_info.loc_v_tile ==
                output_info->tile_info.loc_v_tile) &&
               (other_output_info->tile_info.loc_h_tile <
@@ -998,8 +998,8 @@ calculate_tile_coordinate (MetaMonitor         *monitor,
                output_info->tile_info.loc_v_tile))
             y += other_output_info->tile_info.tile_h;
           break;
-        case META_MONITOR_TRANSFORM_180:
-        case META_MONITOR_TRANSFORM_FLIPPED_180:
+        case MTK_MONITOR_TRANSFORM_180:
+        case MTK_MONITOR_TRANSFORM_FLIPPED_180:
           if ((other_output_info->tile_info.loc_v_tile ==
                output_info->tile_info.loc_v_tile) &&
               (other_output_info->tile_info.loc_h_tile >
@@ -1011,8 +1011,8 @@ calculate_tile_coordinate (MetaMonitor         *monitor,
                output_info->tile_info.loc_v_tile))
             y += other_output_info->tile_info.tile_h;
           break;
-        case META_MONITOR_TRANSFORM_270:
-        case META_MONITOR_TRANSFORM_FLIPPED_270:
+        case MTK_MONITOR_TRANSFORM_270:
+        case MTK_MONITOR_TRANSFORM_FLIPPED_270:
           if ((other_output_info->tile_info.loc_v_tile ==
                output_info->tile_info.loc_v_tile) &&
               (other_output_info->tile_info.loc_h_tile >
@@ -1024,8 +1024,8 @@ calculate_tile_coordinate (MetaMonitor         *monitor,
                output_info->tile_info.loc_v_tile))
             x += other_output_info->tile_info.tile_h;
           break;
-        case META_MONITOR_TRANSFORM_90:
-        case META_MONITOR_TRANSFORM_FLIPPED_90:
+        case MTK_MONITOR_TRANSFORM_90:
+        case MTK_MONITOR_TRANSFORM_FLIPPED_90:
           if ((other_output_info->tile_info.loc_v_tile ==
                output_info->tile_info.loc_v_tile) &&
               (other_output_info->tile_info.loc_h_tile <
@@ -1623,12 +1623,12 @@ meta_monitor_tiled_get_suggested_position (MetaMonitor *monitor,
 }
 
 static void
-meta_monitor_tiled_calculate_crtc_pos (MetaMonitor          *monitor,
-                                       MetaMonitorMode      *monitor_mode,
-                                       MetaOutput           *output,
-                                       MetaMonitorTransform  crtc_transform,
-                                       int                  *out_x,
-                                       int                  *out_y)
+meta_monitor_tiled_calculate_crtc_pos (MetaMonitor         *monitor,
+                                       MetaMonitorMode     *monitor_mode,
+                                       MetaOutput          *output,
+                                       MtkMonitorTransform  crtc_transform,
+                                       int                 *out_x,
+                                       int                 *out_y)
 {
   MetaMonitorModeTiled *mode_tiled = (MetaMonitorModeTiled *) monitor_mode;
 
@@ -1827,12 +1827,12 @@ meta_monitor_get_modes (MetaMonitor *monitor)
 }
 
 void
-meta_monitor_calculate_crtc_pos (MetaMonitor          *monitor,
-                                 MetaMonitorMode      *monitor_mode,
-                                 MetaOutput           *output,
-                                 MetaMonitorTransform  crtc_transform,
-                                 int                  *out_x,
-                                 int                  *out_y)
+meta_monitor_calculate_crtc_pos (MetaMonitor         *monitor,
+                                 MetaMonitorMode     *monitor_mode,
+                                 MetaOutput          *output,
+                                 MtkMonitorTransform  crtc_transform,
+                                 int                 *out_x,
+                                 int                 *out_y)
 {
   META_MONITOR_GET_CLASS (monitor)->calculate_crtc_pos (monitor,
                                                         monitor_mode,

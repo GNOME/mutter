@@ -444,13 +444,13 @@ apply_transform (MetaCrtcKms            *crtc_kms,
 {
   MetaCrtc *crtc = META_CRTC (crtc_kms);
   const MetaCrtcConfig *crtc_config;
-  MetaMonitorTransform hw_transform;
+  MtkMonitorTransform hw_transform;
 
   crtc_config = meta_crtc_get_config (crtc);
 
   hw_transform = crtc_config->transform;
   if (!meta_kms_plane_is_transform_handled (kms_plane, hw_transform))
-    hw_transform = META_MONITOR_TRANSFORM_NORMAL;
+    hw_transform = MTK_MONITOR_TRANSFORM_NORMAL;
   if (!meta_kms_plane_is_transform_handled (kms_plane, hw_transform))
     return;
 

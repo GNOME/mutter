@@ -109,7 +109,7 @@ typedef struct _MonitorTestCaseOutput
   unsigned int max_bpc;
   MetaOutputRGBRange rgb_range;
   const char *serial;
-  MetaMonitorTransform panel_orientation_transform;
+  MtkMonitorTransform panel_orientation_transform;
   gboolean hotplug_mode;
   int suggested_x;
   int suggested_y;
@@ -173,12 +173,12 @@ typedef struct _MonitorTestCaseLogicalMonitor
   float scale;
   int monitors[MAX_N_MONITORS];
   int n_monitors;
-  MetaMonitorTransform transform;
+  MtkMonitorTransform transform;
 } MonitorTestCaseLogicalMonitor;
 
 typedef struct _MonitorTestCaseCrtcExpect
 {
-  MetaMonitorTransform transform;
+  MtkMonitorTransform transform;
   int current_mode;
   float x;
   float y;

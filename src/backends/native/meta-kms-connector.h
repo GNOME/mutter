@@ -55,7 +55,7 @@ typedef struct _MetaKmsConnectorState
   int suggested_y;
   gboolean hotplug_mode_update;
 
-  MetaMonitorTransform panel_orientation_transform;
+  MtkMonitorTransform panel_orientation_transform;
 
   struct {
     uint64_t value;

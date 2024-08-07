@@ -825,19 +825,19 @@ output_get_panel_orientation_transform (Display  *xdisplay,
                         &nitems, &bytes_after, &buffer);
 
   if (actual_type != XA_ATOM || actual_format != 32 || nitems < 1)
-    return META_MONITOR_TRANSFORM_NORMAL;
+    return MTK_MONITOR_TRANSFORM_NORMAL;
 
   str = XGetAtomName (xdisplay, *(Atom *)buffer);
   if (strcmp (str, "Upside Down") == 0)
-    return META_MONITOR_TRANSFORM_180;
+    return MTK_MONITOR_TRANSFORM_180;
 
   if (strcmp (str, "Left Side Up") == 0)
-    return META_MONITOR_TRANSFORM_90;
+    return MTK_MONITOR_TRANSFORM_90;
 
   if (strcmp (str, "Right Side Up") == 0)
-    return META_MONITOR_TRANSFORM_270;
+    return MTK_MONITOR_TRANSFORM_270;
 
-  return META_MONITOR_TRANSFORM_NORMAL;
+  return MTK_MONITOR_TRANSFORM_NORMAL;
 }
 
 static void
@@ -996,7 +996,7 @@ meta_output_xrandr_new (MetaGpuXrandr *gpu_xrandr,
   output_info->panel_orientation_transform =
     output_get_panel_orientation_transform (xdisplay, output_id);
 
-  if (meta_monitor_transform_is_rotated (output_info->panel_orientation_transform))
+  if (mtk_monitor_transform_is_rotated (output_info->panel_orientation_transform))
     {
       output_info->width_mm = xrandr_output->mm_height;
       output_info->height_mm = xrandr_output->mm_width;

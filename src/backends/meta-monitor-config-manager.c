@@ -178,8 +178,8 @@ assign_monitor_crtc (MetaMonitor         *monitor,
   MonitorAssignmentData *data = user_data;
   MetaOutput *output;
   MetaCrtc *crtc;
-  MetaMonitorTransform transform;
-  MetaMonitorTransform crtc_transform;
+  MtkMonitorTransform transform;
+  MtkMonitorTransform crtc_transform;
   int crtc_x, crtc_y;
   float x_offset, y_offset;
   float scale = 0.0;
@@ -231,7 +231,7 @@ assign_monitor_crtc (MetaMonitor         *monitor,
   crtc_mode = monitor_crtc_mode->crtc_mode;
   crtc_mode_info = meta_crtc_mode_get_info (monitor_crtc_mode->crtc_mode);
 
-  if (meta_monitor_transform_is_rotated (crtc_transform))
+  if (mtk_monitor_transform_is_rotated (crtc_transform))
     {
       width = crtc_mode_info->height / scale;
       height = crtc_mode_info->width / scale;
@@ -697,7 +697,7 @@ create_monitor_config (MetaMonitor     *monitor,
   return monitor_config;
 }
 
-static MetaMonitorTransform
+static MtkMonitorTransform
 get_monitor_transform (MetaMonitorManager *monitor_manager,
                        MetaMonitor        *monitor)
 {
@@ -707,7 +707,7 @@ get_monitor_transform (MetaMonitorManager *monitor_manager,
 
   if (!meta_monitor_is_laptop_panel (monitor) ||
       !meta_monitor_manager_get_panel_orientation_managed (monitor_manager))
-    return META_MONITOR_TRANSFORM_NORMAL;
+    return MTK_MONITOR_TRANSFORM_NORMAL;
 
   backend = meta_monitor_manager_get_backend (monitor_manager);
   orientation_manager = meta_backend_get_orientation_manager (backend);
@@ -749,7 +749,7 @@ create_preferred_logical_monitor_config (MetaMonitorManager          *monitor_ma
 {
   MetaMonitorMode *mode;
   int width, height;
-  MetaMonitorTransform transform;
+  MtkMonitorTransform transform;
   MetaMonitorConfig *monitor_config;
   MetaLogicalMonitorConfig *logical_monitor_config;
 
@@ -761,7 +761,7 @@ create_preferred_logical_monitor_config (MetaMonitorManager          *monitor_ma
   monitor_config = create_monitor_config (monitor, mode);
 
   transform = get_monitor_transform (monitor_manager, monitor);
-  if (meta_monitor_transform_is_rotated (transform))
+  if (mtk_monitor_transform_is_rotated (transform))
     {
       int temp = width;
       width = height;
@@ -1120,7 +1120,7 @@ static MetaMonitorsConfig *
 create_for_builtin_display_rotation (MetaMonitorConfigManager *config_manager,
                                      MetaMonitorsConfig       *base_config,
                                      gboolean                  rotate,
-                                     MetaMonitorTransform      transform)
+                                     MtkMonitorTransform       transform)
 {
   MetaMonitorManager *monitor_manager = config_manager->monitor_manager;
   MetaLogicalMonitorConfig *logical_monitor_config;
@@ -1138,7 +1138,7 @@ create_for_builtin_display_rotation (MetaMonitorConfigManager *config_manager,
     return NULL;
 
   if (rotate)
-    transform = (current_logical_monitor_config->transform + 1) % META_MONITOR_TRANSFORM_FLIPPED;
+    transform = (current_logical_monitor_config->transform + 1) % MTK_MONITOR_TRANSFORM_FLIPPED;
   else
     {
       /*
@@ -1164,8 +1164,8 @@ create_for_builtin_display_rotation (MetaMonitorConfigManager *config_manager,
                                              logical_monitor_configs);
   logical_monitor_config->transform = transform;
 
-  if (meta_monitor_transform_is_rotated (current_logical_monitor_config->transform) !=
-      meta_monitor_transform_is_rotated (logical_monitor_config->transform))
+  if (mtk_monitor_transform_is_rotated (current_logical_monitor_config->transform) !=
+      mtk_monitor_transform_is_rotated (logical_monitor_config->transform))
     {
       int temp = logical_monitor_config->layout.width;
       logical_monitor_config->layout.width = logical_monitor_config->layout.height;
@@ -1185,7 +1185,7 @@ create_for_builtin_display_rotation (MetaMonitorConfigManager *config_manager,
 MetaMonitorsConfig *
 meta_monitor_config_manager_create_for_orientation (MetaMonitorConfigManager *config_manager,
                                                     MetaMonitorsConfig       *base_config,
-                                                    MetaMonitorTransform      transform)
+                                                    MtkMonitorTransform       transform)
 {
   return create_for_builtin_display_rotation (config_manager, base_config,
                                               FALSE, transform);
@@ -1196,7 +1196,7 @@ meta_monitor_config_manager_create_for_builtin_orientation (MetaMonitorConfigMan
                                                             MetaMonitorsConfig       *base_config)
 {
   MetaMonitorManager *monitor_manager = config_manager->monitor_manager;
-  MetaMonitorTransform current_transform;
+  MtkMonitorTransform current_transform;
   MetaMonitor *laptop_panel;
 
   g_return_val_if_fail (
@@ -1218,7 +1218,7 @@ meta_monitor_config_manager_create_for_rotate_monitor (MetaMonitorConfigManager 
   return create_for_builtin_display_rotation (config_manager,
                                               config_manager->current_config,
                                               TRUE,
-                                              META_MONITOR_TRANSFORM_NORMAL);
+                                              MTK_MONITOR_TRANSFORM_NORMAL);
 }
 
 static MetaMonitorsConfig *
@@ -1837,7 +1837,7 @@ meta_verify_logical_monitor_config (MetaLogicalMonitorConfig    *logical_monitor
       return FALSE;
     }
 
-  if (meta_monitor_transform_is_rotated (logical_monitor_config->transform))
+  if (mtk_monitor_transform_is_rotated (logical_monitor_config->transform))
     {
       expected_mode_width = logical_monitor_config->layout.height;
       expected_mode_height = logical_monitor_config->layout.width;

@@ -34,11 +34,11 @@
 #include "backends/meta-crtc.h"
 #include "backends/meta-cursor.h"
 #include "backends/meta-display-config-shared.h"
-#include "backends/meta-monitor-transform.h"
 #include "backends/meta-viewport-info.h"
 #include "core/util-private.h"
 #include "meta/display.h"
 #include "meta/meta-monitor-manager.h"
+#include "mtk/mtk.h"
 
 #define META_MONITOR_MANAGER_MIN_SCREEN_WIDTH 640
 #define META_MONITOR_MANAGER_MIN_SCREEN_HEIGHT 480
@@ -85,7 +85,7 @@ struct _MetaCrtcAssignment
   MetaCrtc *crtc;
   MetaCrtcMode *mode;
   graphene_rect_t layout;
-  MetaMonitorTransform transform;
+  MtkMonitorTransform transform;
   GPtrArray *outputs;
 
   gpointer backend_private;

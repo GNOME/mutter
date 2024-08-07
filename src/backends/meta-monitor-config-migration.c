@@ -69,7 +69,7 @@ typedef struct
   gboolean enabled;
   MtkRectangle rect;
   float refresh_rate;
-  MetaMonitorTransform transform;
+  MtkMonitorTransform transform;
 
   gboolean is_primary;
   gboolean is_presentation;
@@ -579,20 +579,20 @@ handle_text (GMarkupParseContext *context,
         else if (strcmp (parser->output_field, "rotation") == 0)
           {
             if (strncmp (text, "normal", text_len) == 0)
-              parser->output.transform = META_MONITOR_TRANSFORM_NORMAL;
+              parser->output.transform = MTK_MONITOR_TRANSFORM_NORMAL;
             else if (strncmp (text, "left", text_len) == 0)
-              parser->output.transform = META_MONITOR_TRANSFORM_90;
+              parser->output.transform = MTK_MONITOR_TRANSFORM_90;
             else if (strncmp (text, "upside_down", text_len) == 0)
-              parser->output.transform = META_MONITOR_TRANSFORM_180;
+              parser->output.transform = MTK_MONITOR_TRANSFORM_180;
             else if (strncmp (text, "right", text_len) == 0)
-              parser->output.transform = META_MONITOR_TRANSFORM_270;
+              parser->output.transform = MTK_MONITOR_TRANSFORM_270;
             else
               g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
                            "Invalid rotation type %.*s", (int)text_len, text);
           }
         else if (strcmp (parser->output_field, "reflect_x") == 0)
           parser->output.transform += read_bool (text, text_len, error) ?
-            META_MONITOR_TRANSFORM_FLIPPED : 0;
+            MTK_MONITOR_TRANSFORM_FLIPPED : 0;
         else if (strcmp (parser->output_field, "reflect_y") == 0)
           {
             if (read_bool (text, text_len, error))
@@ -728,7 +728,7 @@ try_derive_tiled_monitor_config (MetaLegacyMonitorsConfig *config,
   MonitorTile bottom_left_tile = { 0 };
   MonitorTile bottom_right_tile = { 0 };
   MonitorTile origin_tile = { 0 };
-  MetaMonitorTransform transform = output_config->transform;
+  MtkMonitorTransform transform = output_config->transform;
   unsigned int i;
   int max_x = 0;
   int min_x = INT_MAX;
@@ -810,42 +810,42 @@ try_derive_tiled_monitor_config (MetaLegacyMonitorsConfig *config,
 
   switch (transform)
     {
-    case META_MONITOR_TRANSFORM_NORMAL:
+    case MTK_MONITOR_TRANSFORM_NORMAL:
       origin_tile = top_left_tile;
       mode_width = max_x - min_x;
       mode_height = max_y - min_y;
       break;
-    case META_MONITOR_TRANSFORM_90:
+    case MTK_MONITOR_TRANSFORM_90:
       origin_tile = bottom_left_tile;
       mode_width = max_y - min_y;
       mode_height = max_x - min_x;
       break;
-    case META_MONITOR_TRANSFORM_180:
+    case MTK_MONITOR_TRANSFORM_180:
       origin_tile = bottom_right_tile;
       mode_width = max_x - min_x;
       mode_height = max_y - min_y;
       break;
-    case META_MONITOR_TRANSFORM_270:
+    case MTK_MONITOR_TRANSFORM_270:
       origin_tile = top_right_tile;
       mode_width = max_y - min_y;
       mode_height = max_x - min_x;
       break;
-    case META_MONITOR_TRANSFORM_FLIPPED:
+    case MTK_MONITOR_TRANSFORM_FLIPPED:
       origin_tile = bottom_left_tile;
       mode_width = max_x - min_x;
       mode_height = max_y - min_y;
       break;
-    case META_MONITOR_TRANSFORM_FLIPPED_90:
+    case MTK_MONITOR_TRANSFORM_FLIPPED_90:
       origin_tile = bottom_right_tile;
       mode_width = max_y - min_y;
       mode_height = max_x - min_x;
       break;
-    case META_MONITOR_TRANSFORM_FLIPPED_180:
+    case MTK_MONITOR_TRANSFORM_FLIPPED_180:
       origin_tile = top_right_tile;
       mode_width = max_x - min_x;
       mode_height = max_y - min_y;
       break;
-    case META_MONITOR_TRANSFORM_FLIPPED_270:
+    case MTK_MONITOR_TRANSFORM_FLIPPED_270:
       origin_tile = top_left_tile;
       mode_width = max_y - min_y;
       mode_height = max_x - min_x;
@@ -891,7 +891,7 @@ derive_monitor_config (MetaOutputKey    *output_key,
   int mode_height;
   MetaMonitorConfig *monitor_config;
 
-  if (meta_monitor_transform_is_rotated (output_config->transform))
+  if (mtk_monitor_transform_is_rotated (output_config->transform))
     {
       mode_width = output_config->rect.height;
       mode_height = output_config->rect.width;

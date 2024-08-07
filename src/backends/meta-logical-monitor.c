@@ -101,13 +101,13 @@ meta_logical_monitor_new (MetaMonitorManager       *monitor_manager,
   return logical_monitor;
 }
 
-static MetaMonitorTransform
+static MtkMonitorTransform
 derive_monitor_transform (MetaMonitor *monitor)
 {
   MetaOutput *main_output;
   MetaCrtc *crtc;
   const MetaCrtcConfig *crtc_config;
-  MetaMonitorTransform transform;
+  MtkMonitorTransform transform;
 
   main_output = meta_monitor_get_main_output (monitor);
   crtc = meta_output_get_assigned_crtc (main_output);
@@ -125,7 +125,7 @@ meta_logical_monitor_new_derived (MetaMonitorManager *monitor_manager,
                                   int                 monitor_number)
 {
   MetaLogicalMonitor *logical_monitor;
-  MetaMonitorTransform transform;
+  MtkMonitorTransform transform;
 
   logical_monitor = g_object_new (META_TYPE_LOGICAL_MONITOR, NULL);
 
@@ -220,7 +220,7 @@ meta_logical_monitor_get_scale (MetaLogicalMonitor *logical_monitor)
   return logical_monitor->scale;
 }
 
-MetaMonitorTransform
+MtkMonitorTransform
 meta_logical_monitor_get_transform (MetaLogicalMonitor *logical_monitor)
 {
   return logical_monitor->transform;

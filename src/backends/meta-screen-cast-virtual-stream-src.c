@@ -610,7 +610,7 @@ meta_screen_cast_virtual_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc
           float view_scale;
           float cursor_scale;
           float scale;
-          MetaMonitorTransform transform;
+          MtkMonitorTransform transform;
 
           stage_view = view_from_src (src);
           view_scale = clutter_stage_view_get_scale (stage_view);

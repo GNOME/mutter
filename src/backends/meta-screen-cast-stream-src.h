@@ -119,7 +119,7 @@ MetaScreenCastStream * meta_screen_cast_stream_src_get_stream (MetaScreenCastStr
 gboolean meta_screen_cast_stream_src_draw_cursor_into (MetaScreenCastStreamSrc  *src,
                                                        CoglTexture              *cursor_texture,
                                                        float                     scale,
-                                                       MetaMonitorTransform      transform,
+                                                       MtkMonitorTransform       transform,
                                                        uint8_t                  *data,
                                                        GError                  **error);
 
@@ -142,7 +142,7 @@ void meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStrea
                                                              int                      x,
                                                              int                      y,
                                                              float                    scale,
-                                                             MetaMonitorTransform     transform);
+                                                             MtkMonitorTransform      transform);
 
 gboolean meta_screen_cast_stream_src_uses_dma_bufs (MetaScreenCastStreamSrc *src);
 

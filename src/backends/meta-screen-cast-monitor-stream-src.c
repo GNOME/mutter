@@ -856,7 +856,7 @@ meta_screen_cast_monitor_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc
           float view_scale;
           float cursor_scale;
           float scale;
-          MetaMonitorTransform transform;
+          MtkMonitorTransform transform;
 
           view_scale = get_view_scale (monitor_src);
           cursor_scale = meta_cursor_sprite_get_texture_scale (cursor_sprite);

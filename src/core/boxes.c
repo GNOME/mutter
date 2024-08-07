@@ -24,8 +24,8 @@
 
 #include "config.h"
 
-#include "backends/meta-monitor-transform.h"
 #include "core/boxes-private.h"
+#include "mtk/mtk.h"
 
 #include <math.h>
 
@@ -1829,7 +1829,7 @@ meta_rectangle_find_nonintersected_monitor_edges (
 /**
  * meta_rectangle_transform:
  * @rect: the #MtkRectangle to be transformed
- * @transform: the #MetaMonitorTransform
+ * @transform: the #MtkMonitorTransform
  * @width: the width of the target space
  * @height: the height of the target space
  * @dest: the transformed #MtkRectangle
@@ -1840,18 +1840,18 @@ meta_rectangle_find_nonintersected_monitor_edges (
  * an anti-clockwise rotation has to be applied to @rect.
  */
 void
-meta_rectangle_transform (const MtkRectangle   *rect,
-                          MetaMonitorTransform  transform,
-                          int                   width,
-                          int                   height,
-                          MtkRectangle         *dest)
+meta_rectangle_transform (const MtkRectangle  *rect,
+                          MtkMonitorTransform  transform,
+                          int                  width,
+                          int                  height,
+                          MtkRectangle        *dest)
 {
   switch (transform)
     {
-    case META_MONITOR_TRANSFORM_NORMAL:
+    case MTK_MONITOR_TRANSFORM_NORMAL:
       *dest = *rect;
       break;
-    case META_MONITOR_TRANSFORM_90:
+    case MTK_MONITOR_TRANSFORM_90:
       *dest = (MtkRectangle) {
         .x = rect->y,
         .y = height - (rect->x + rect->width),
@@ -1859,7 +1859,7 @@ meta_rectangle_transform (const MtkRectangle   *rect,
         .height = rect->width,
       };
       break;
-    case META_MONITOR_TRANSFORM_180:
+    case MTK_MONITOR_TRANSFORM_180:
       *dest = (MtkRectangle) {
         .x = width - (rect->x + rect->width),
         .y = height - (rect->y + rect->height),
@@ -1867,7 +1867,7 @@ meta_rectangle_transform (const MtkRectangle   *rect,
         .height = rect->height,
       };
       break;
-    case META_MONITOR_TRANSFORM_270:
+    case MTK_MONITOR_TRANSFORM_270:
       *dest = (MtkRectangle) {
         .x = width - (rect->y + rect->height),
         .y = rect->x,
@@ -1875,7 +1875,7 @@ meta_rectangle_transform (const MtkRectangle   *rect,
         .height = rect->width,
       };
       break;
-    case META_MONITOR_TRANSFORM_FLIPPED:
+    case MTK_MONITOR_TRANSFORM_FLIPPED:
       *dest = (MtkRectangle) {
         .x = width - (rect->x + rect->width),
         .y = rect->y,
@@ -1883,7 +1883,7 @@ meta_rectangle_transform (const MtkRectangle   *rect,
         .height = rect->height,
       };
       break;
-    case META_MONITOR_TRANSFORM_FLIPPED_90:
+    case MTK_MONITOR_TRANSFORM_FLIPPED_90:
       *dest = (MtkRectangle) {
         .x = rect->y,
         .y = rect->x,
@@ -1891,7 +1891,7 @@ meta_rectangle_transform (const MtkRectangle   *rect,
         .height = rect->width,
       };
       break;
-    case META_MONITOR_TRANSFORM_FLIPPED_180:
+    case MTK_MONITOR_TRANSFORM_FLIPPED_180:
       *dest = (MtkRectangle) {
         .x = rect->x,
         .y = height - (rect->y + rect->height),
@@ -1899,7 +1899,7 @@ meta_rectangle_transform (const MtkRectangle   *rect,
         .height = rect->height,
       };
       break;
-    case META_MONITOR_TRANSFORM_FLIPPED_270:
+    case MTK_MONITOR_TRANSFORM_FLIPPED_270:
       *dest = (MtkRectangle) {
         .x = width - (rect->y + rect->height),
         .y = height - (rect->x + rect->width),

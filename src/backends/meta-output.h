@@ -144,7 +144,7 @@ typedef struct _MetaOutputInfo
   MetaSubpixelOrder subpixel_order;
 
   MetaConnectorType connector_type;
-  MetaMonitorTransform panel_orientation_transform;
+  MtkMonitorTransform panel_orientation_transform;
 
   MetaCrtcMode *preferred_mode;
   MetaCrtcMode **modes;
@@ -303,11 +303,11 @@ void meta_output_unassign_crtc (MetaOutput *output);
 META_EXPORT_TEST
 MetaCrtc * meta_output_get_assigned_crtc (MetaOutput *output);
 
-MetaMonitorTransform meta_output_logical_to_crtc_transform (MetaOutput           *output,
-                                                            MetaMonitorTransform  transform);
+MtkMonitorTransform meta_output_logical_to_crtc_transform (MetaOutput          *output,
+                                                           MtkMonitorTransform  transform);
 
-MetaMonitorTransform meta_output_crtc_to_logical_transform (MetaOutput           *output,
-                                                            MetaMonitorTransform  transform);
+MtkMonitorTransform meta_output_crtc_to_logical_transform (MetaOutput          *output,
+                                                           MtkMonitorTransform  transform);
 
 void meta_output_update_modes (MetaOutput    *output,
                                MetaCrtcMode  *preferred_mode,

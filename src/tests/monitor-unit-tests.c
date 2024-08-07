@@ -3650,7 +3650,7 @@ meta_test_monitor_non_upright_panel (void)
   test_case.setup.outputs[0].modes[0] = 1;
   test_case.setup.outputs[0].preferred_mode = 1;
   test_case.setup.outputs[0].panel_orientation_transform =
-    META_MONITOR_TRANSFORM_90;
+    MTK_MONITOR_TRANSFORM_90;
   /*
    * Note we do not swap outputs[0].width_mm and height_mm, because these get
    * swapped for rotated panels inside the xrandr / kms code and we directly
@@ -3660,7 +3660,7 @@ meta_test_monitor_non_upright_panel (void)
 
   test_case.expect.monitors[0].modes[0].crtc_modes[0].crtc_mode = 1;
   test_case.expect.crtcs[0].current_mode = 1;
-  test_case.expect.crtcs[0].transform = META_MONITOR_TRANSFORM_90;
+  test_case.expect.crtcs[0].transform = MTK_MONITOR_TRANSFORM_90;
 
   test_setup = meta_create_monitor_test_setup (test_backend,
                                                &test_case.setup,
@@ -4080,8 +4080,8 @@ check_monitor_configuration_per_orientation (MonitorTestCase *test_case,
                                              int              width,
                                              int              height)
 {
-  MetaMonitorTransform transform;
-  MetaMonitorTransform output_transform;
+  MtkMonitorTransform transform;
+  MtkMonitorTransform output_transform;
   MonitorTestCaseExpect expect = test_case->expect;
   MonitorTestCaseSetup *setup = &test_case->setup;
   int i = 0;
@@ -4089,11 +4089,11 @@ check_monitor_configuration_per_orientation (MonitorTestCase *test_case,
   transform = meta_orientation_to_transform (orientation);
   output_transform = setup->outputs[monitor_index].panel_orientation_transform;
   expect.logical_monitors[monitor_index].transform =
-    meta_monitor_transform_transform (transform,
-      meta_monitor_transform_invert (output_transform));
+    mtk_monitor_transform_transform (transform,
+      mtk_monitor_transform_invert (output_transform));
   expect.crtcs[monitor_index].transform = transform;
 
-  if (meta_monitor_transform_is_rotated (transform))
+  if (mtk_monitor_transform_is_rotated (transform))
     {
       expect.logical_monitors[monitor_index].layout.width = height;
       expect.logical_monitors[monitor_index].layout.height = width;
@@ -5082,7 +5082,7 @@ meta_test_monitor_orientation_changes_for_transformed_panel (void)
           .width_mm = 222,
           .height_mm = 125,
           .is_laptop_panel = TRUE,
-          .panel_orientation_transform = META_MONITOR_TRANSFORM_90,
+          .panel_orientation_transform = MTK_MONITOR_TRANSFORM_90,
         },
       },
       .n_outputs = 1,
@@ -5386,7 +5386,7 @@ meta_test_monitor_orientation_changes_with_hotplugging (void)
           .n_monitors = 1,
           .layout = { .x = 1024, .y = 0, .width = 1024, .height = 768 },
           .scale = 1,
-          .transform = META_MONITOR_TRANSFORM_NORMAL,
+          .transform = MTK_MONITOR_TRANSFORM_NORMAL,
         }
       },
       .n_logical_monitors = 1, /* Second is hotplugged later */
@@ -5398,7 +5398,7 @@ meta_test_monitor_orientation_changes_with_hotplugging (void)
         },
         {
           .current_mode = -1,
-          .transform = META_MONITOR_TRANSFORM_NORMAL,
+          .transform = MTK_MONITOR_TRANSFORM_NORMAL,
         }
       },
       .n_crtcs = 2,
@@ -7223,7 +7223,7 @@ meta_test_monitor_custom_first_rotated_config (void)
           .n_monitors = 1,
           .layout = { .x = 0, .y = 0, .width = 768, .height = 1024 },
           .scale = 1,
-          .transform = META_MONITOR_TRANSFORM_270
+          .transform = MTK_MONITOR_TRANSFORM_270
         },
         {
           .monitors = { 1 },
@@ -7238,7 +7238,7 @@ meta_test_monitor_custom_first_rotated_config (void)
       .crtcs = {
         {
           .current_mode = 0,
-          .transform = META_MONITOR_TRANSFORM_270
+          .transform = MTK_MONITOR_TRANSFORM_270
         },
         {
           .current_mode = 0,
@@ -7370,7 +7370,7 @@ meta_test_monitor_custom_second_rotated_config (void)
           .n_monitors = 1,
           .layout = { .x = 1024, .y = 0, .width = 768, .height = 1024 },
           .scale = 1,
-          .transform = META_MONITOR_TRANSFORM_90
+          .transform = MTK_MONITOR_TRANSFORM_90
         }
       },
       .n_logical_monitors = 2,
@@ -7383,7 +7383,7 @@ meta_test_monitor_custom_second_rotated_config (void)
         },
         {
           .current_mode = 0,
-          .transform = META_MONITOR_TRANSFORM_90,
+          .transform = MTK_MONITOR_TRANSFORM_90,
           .x = 1024,
         }
       },
@@ -7553,7 +7553,7 @@ meta_test_monitor_custom_second_rotated_tiled_config (void)
           .n_monitors = 1,
           .layout = { .x = 1024, .y = 0, .width = 600, .height = 800 },
           .scale = 1,
-          .transform = META_MONITOR_TRANSFORM_90
+          .transform = MTK_MONITOR_TRANSFORM_90
         }
       },
       .n_logical_monitors = 2,
@@ -7566,13 +7566,13 @@ meta_test_monitor_custom_second_rotated_tiled_config (void)
         },
         {
           .current_mode = 1,
-          .transform = META_MONITOR_TRANSFORM_90,
+          .transform = MTK_MONITOR_TRANSFORM_90,
           .x = 1024,
           .y = 0,
         },
         {
           .current_mode = 1,
-          .transform = META_MONITOR_TRANSFORM_90,
+          .transform = MTK_MONITOR_TRANSFORM_90,
           .x = 1024,
           .y = 400,
         }
@@ -7752,7 +7752,7 @@ meta_test_monitor_custom_second_rotated_nonnative_tiled_config (void)
           .n_monitors = 1,
           .layout = { .x = 1024, .y = 0, .width = 600, .height = 800 },
           .scale = 1,
-          .transform = META_MONITOR_TRANSFORM_90
+          .transform = MTK_MONITOR_TRANSFORM_90
         }
       },
       .n_logical_monitors = 2,
@@ -7765,13 +7765,13 @@ meta_test_monitor_custom_second_rotated_nonnative_tiled_config (void)
         },
         {
           .current_mode = 1,
-          .transform = META_MONITOR_TRANSFORM_90,
+          .transform = MTK_MONITOR_TRANSFORM_90,
           .x = 1024,
           .y = 0,
         },
         {
           .current_mode = 1,
-          .transform = META_MONITOR_TRANSFORM_90,
+          .transform = MTK_MONITOR_TRANSFORM_90,
           .x = 1024,
           .y = 400,
         }
@@ -7910,7 +7910,7 @@ meta_test_monitor_custom_second_rotated_nonnative_config (void)
           .n_monitors = 1,
           .layout = { .x = 1024, .y = 0, .width = 768, .height = 1024 },
           .scale = 1,
-          .transform = META_MONITOR_TRANSFORM_90
+          .transform = MTK_MONITOR_TRANSFORM_90
         }
       },
       .n_logical_monitors = 2,
@@ -7923,7 +7923,7 @@ meta_test_monitor_custom_second_rotated_nonnative_config (void)
         },
         {
           .current_mode = 0,
-          .transform = META_MONITOR_TRANSFORM_90,
+          .transform = MTK_MONITOR_TRANSFORM_90,
           .x = 1024,
         }
       },
@@ -8169,7 +8169,7 @@ meta_test_monitor_custom_oneoff (void)
           .n_monitors = 1,
           .layout = { .x = 0, .y = 0, .width = 800, .height = 600 },
           .scale = 1,
-          .transform = META_MONITOR_TRANSFORM_NORMAL
+          .transform = MTK_MONITOR_TRANSFORM_NORMAL
         },
       },
       .n_logical_monitors = 1,
@@ -8304,7 +8304,7 @@ meta_test_monitor_custom_lid_switch_config (void)
           .n_monitors = 1,
           .layout = { .x = 0, .y = 0, .width = 768, .height = 1024 },
           .scale = 1,
-          .transform = META_MONITOR_TRANSFORM_270
+          .transform = MTK_MONITOR_TRANSFORM_270
         },
         {
           .monitors = { 1 },
@@ -8319,7 +8319,7 @@ meta_test_monitor_custom_lid_switch_config (void)
       .crtcs = {
         {
           .current_mode = 0,
-          .transform = META_MONITOR_TRANSFORM_270
+          .transform = MTK_MONITOR_TRANSFORM_270
         },
         {
           .current_mode = -1,
@@ -8348,14 +8348,14 @@ meta_test_monitor_custom_lid_switch_config (void)
   test_case.setup.n_outputs = 2;
   test_case.expect.n_monitors = 2;
   test_case.expect.n_outputs = 2;
-  test_case.expect.crtcs[0].transform = META_MONITOR_TRANSFORM_NORMAL;
+  test_case.expect.crtcs[0].transform = MTK_MONITOR_TRANSFORM_NORMAL;
   test_case.expect.crtcs[1].current_mode = 0;
   test_case.expect.crtcs[1].x = 1024;
-  test_case.expect.crtcs[1].transform = META_MONITOR_TRANSFORM_270;
+  test_case.expect.crtcs[1].transform = MTK_MONITOR_TRANSFORM_270;
   test_case.expect.logical_monitors[0].layout =
     (MtkRectangle) { .width = 1024, .height = 768 };
-  test_case.expect.logical_monitors[0].transform = META_MONITOR_TRANSFORM_NORMAL;
-  test_case.expect.logical_monitors[1].transform = META_MONITOR_TRANSFORM_270;
+  test_case.expect.logical_monitors[0].transform = MTK_MONITOR_TRANSFORM_NORMAL;
+  test_case.expect.logical_monitors[1].transform = MTK_MONITOR_TRANSFORM_270;
   test_case.expect.n_logical_monitors = 2;
   test_case.expect.screen_width = 1024 + 768;
 
@@ -8371,13 +8371,13 @@ meta_test_monitor_custom_lid_switch_config (void)
   /* Lid was closed */
 
   test_case.expect.crtcs[0].current_mode = -1;
-  test_case.expect.crtcs[1].transform = META_MONITOR_TRANSFORM_90;
+  test_case.expect.crtcs[1].transform = MTK_MONITOR_TRANSFORM_90;
   test_case.expect.crtcs[1].x = 0;
   test_case.expect.monitors[0].current_mode = -1;
   test_case.expect.logical_monitors[0].layout =
     (MtkRectangle) { .width = 768, .height = 1024 };
   test_case.expect.logical_monitors[0].monitors[0] = 1;
-  test_case.expect.logical_monitors[0].transform = META_MONITOR_TRANSFORM_90;
+  test_case.expect.logical_monitors[0].transform = MTK_MONITOR_TRANSFORM_90;
   test_case.expect.n_logical_monitors = 1;
   test_case.expect.screen_width = 768;
   meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), TRUE);
@@ -8394,16 +8394,16 @@ meta_test_monitor_custom_lid_switch_config (void)
   /* Lid was opened */
 
   test_case.expect.crtcs[0].current_mode = 0;
-  test_case.expect.crtcs[0].transform = META_MONITOR_TRANSFORM_NORMAL;
+  test_case.expect.crtcs[0].transform = MTK_MONITOR_TRANSFORM_NORMAL;
   test_case.expect.crtcs[1].current_mode = 0;
-  test_case.expect.crtcs[1].transform = META_MONITOR_TRANSFORM_270;
+  test_case.expect.crtcs[1].transform = MTK_MONITOR_TRANSFORM_270;
   test_case.expect.crtcs[1].x = 1024;
   test_case.expect.monitors[0].current_mode = 0;
   test_case.expect.logical_monitors[0].layout =
     (MtkRectangle) { .width = 1024, .height = 768 };
   test_case.expect.logical_monitors[0].monitors[0] = 0;
-  test_case.expect.logical_monitors[0].transform = META_MONITOR_TRANSFORM_NORMAL;
-  test_case.expect.logical_monitors[1].transform = META_MONITOR_TRANSFORM_270;
+  test_case.expect.logical_monitors[0].transform = MTK_MONITOR_TRANSFORM_NORMAL;
+  test_case.expect.logical_monitors[1].transform = MTK_MONITOR_TRANSFORM_270;
   test_case.expect.n_logical_monitors = 2;
   test_case.expect.screen_width = 1024 + 768;
   meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), FALSE);
@@ -8484,7 +8484,7 @@ meta_test_monitor_migrated_rotated (void)
           .n_monitors = 1,
           .layout = { .x = 0, .y = 0, .width = 600, .height = 800 },
           .scale = 1,
-          .transform = META_MONITOR_TRANSFORM_270
+          .transform = MTK_MONITOR_TRANSFORM_270
         },
       },
       .n_logical_monitors = 1,
@@ -8493,7 +8493,7 @@ meta_test_monitor_migrated_rotated (void)
       .crtcs = {
         {
           .current_mode = 0,
-          .transform = META_MONITOR_TRANSFORM_270
+          .transform = MTK_MONITOR_TRANSFORM_270
         }
       },
       .n_crtcs = 1,
@@ -8631,7 +8631,7 @@ meta_test_monitor_migrated_wiggle_discard (void)
           .n_monitors = 1,
           .layout = { .x = 0, .y = 0, .width = 800, .height = 600 },
           .scale = 1,
-          .transform = META_MONITOR_TRANSFORM_NORMAL
+          .transform = MTK_MONITOR_TRANSFORM_NORMAL
         },
       },
       .n_logical_monitors = 1,
@@ -8913,7 +8913,7 @@ meta_test_monitor_migrated_wiggle (void)
           .n_monitors = 1,
           .layout = { .x = 0, .y = 0, .width = 600, .height = 800 },
           .scale = 1,
-          .transform = META_MONITOR_TRANSFORM_90
+          .transform = MTK_MONITOR_TRANSFORM_90
         },
       },
       .n_logical_monitors = 1,
@@ -8922,7 +8922,7 @@ meta_test_monitor_migrated_wiggle (void)
       .crtcs = {
         {
           .current_mode = 0,
-          .transform = META_MONITOR_TRANSFORM_90
+          .transform = MTK_MONITOR_TRANSFORM_90
         }
       },
       .n_crtcs = 1,

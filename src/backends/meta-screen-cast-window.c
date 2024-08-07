@@ -54,7 +54,7 @@ meta_screen_cast_window_transform_cursor_position (MetaScreenCastWindow *screen_
                                                    MetaCursorSprite     *cursor_sprite,
                                                    graphene_point_t     *cursor_position,
                                                    float                *out_cursor_scale,
-                                                   MetaMonitorTransform *out_cursor_transform,
+                                                   MtkMonitorTransform  *out_cursor_transform,
                                                    graphene_point_t     *out_relative_cursor_position)
 {
   MetaScreenCastWindowInterface *iface =

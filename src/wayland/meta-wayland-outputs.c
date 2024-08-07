@@ -57,7 +57,7 @@ struct _MetaWaylandOutput
   /* Protocol state */
   MtkRectangle layout;
   MetaSubpixelOrder subpixel_order;
-  MetaMonitorTransform transform;
+  MtkMonitorTransform transform;
   MetaMonitorMode *mode;
   MetaMonitorMode *preferred_mode;
   float scale;
@@ -133,25 +133,25 @@ meta_subpixel_order_to_wl_output_subpixel (MetaSubpixelOrder subpixel_order)
 }
 
 static enum wl_output_transform
-wl_output_transform_from_transform (MetaMonitorTransform transform)
+wl_output_transform_from_transform (MtkMonitorTransform transform)
 {
   switch (transform)
     {
-    case META_MONITOR_TRANSFORM_NORMAL:
+    case MTK_MONITOR_TRANSFORM_NORMAL:
       return WL_OUTPUT_TRANSFORM_NORMAL;
-    case META_MONITOR_TRANSFORM_90:
+    case MTK_MONITOR_TRANSFORM_90:
       return WL_OUTPUT_TRANSFORM_90;
-    case META_MONITOR_TRANSFORM_180:
+    case MTK_MONITOR_TRANSFORM_180:
       return WL_OUTPUT_TRANSFORM_180;
-    case META_MONITOR_TRANSFORM_270:
+    case MTK_MONITOR_TRANSFORM_270:
       return WL_OUTPUT_TRANSFORM_270;
-    case META_MONITOR_TRANSFORM_FLIPPED:
+    case MTK_MONITOR_TRANSFORM_FLIPPED:
       return WL_OUTPUT_TRANSFORM_FLIPPED;
-    case META_MONITOR_TRANSFORM_FLIPPED_90:
+    case MTK_MONITOR_TRANSFORM_FLIPPED_90:
       return WL_OUTPUT_TRANSFORM_FLIPPED_90;
-    case META_MONITOR_TRANSFORM_FLIPPED_180:
+    case MTK_MONITOR_TRANSFORM_FLIPPED_180:
       return WL_OUTPUT_TRANSFORM_FLIPPED_180;
-    case META_MONITOR_TRANSFORM_FLIPPED_270:
+    case MTK_MONITOR_TRANSFORM_FLIPPED_270:
       return WL_OUTPUT_TRANSFORM_FLIPPED_270;
     }
   g_assert_not_reached ();
@@ -169,8 +169,8 @@ send_output_events (struct wl_resource *resource,
   int version = wl_resource_get_version (resource);
   MtkRectangle layout;
   MtkRectangle old_layout;
-  MetaMonitorTransform transform;
-  MetaMonitorTransform old_transform;
+  MtkMonitorTransform transform;
+  MtkMonitorTransform old_transform;
   MetaMonitorMode *mode;
   MetaMonitorMode *old_mode;
   MetaMonitorMode *preferred_mode;

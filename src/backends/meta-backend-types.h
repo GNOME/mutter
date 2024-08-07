@@ -44,8 +44,6 @@ typedef struct _MetaMonitorTiled MetaMonitorTiled;
 typedef struct _MetaMonitorSpec MetaMonitorSpec;
 typedef struct _MetaLogicalMonitor MetaLogicalMonitor;
 
-typedef enum _MetaMonitorTransform MetaMonitorTransform;
-
 typedef struct _MetaMonitorMode MetaMonitorMode;
 
 typedef struct _MetaGpu MetaGpu;

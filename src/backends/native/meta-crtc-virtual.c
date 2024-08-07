@@ -58,10 +58,10 @@ meta_crtc_virtual_set_gamma_lut (MetaCrtc           *crtc,
 }
 
 static gboolean
-meta_crtc_virtual_is_transform_handled (MetaCrtcNative       *crtc_native,
-                                        MetaMonitorTransform  transform)
+meta_crtc_virtual_is_transform_handled (MetaCrtcNative      *crtc_native,
+                                        MtkMonitorTransform  transform)
 {
-  return transform == META_MONITOR_TRANSFORM_NORMAL;
+  return transform == MTK_MONITOR_TRANSFORM_NORMAL;
 }
 
 static gboolean

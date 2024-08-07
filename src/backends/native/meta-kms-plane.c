@@ -23,7 +23,6 @@
 #include <drm_fourcc.h>
 #include <stdio.h>
 
-#include "backends/meta-monitor-transform.h"
 #include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-impl-device.h"
 #include "backends/native/meta-kms-impl-device-atomic.h"
@@ -134,7 +133,7 @@ meta_kms_plane_get_prop_drm_value (MetaKmsPlane     *plane,
 void
 meta_kms_plane_update_set_rotation (MetaKmsPlane           *plane,
                                     MetaKmsPlaneAssignment *plane_assignment,
-                                    MetaMonitorTransform    transform)
+                                    MtkMonitorTransform     transform)
 {
   MetaKmsPlaneRotation kms_rotation = 0;
 
@@ -142,31 +141,31 @@ meta_kms_plane_update_set_rotation (MetaKmsPlane           *plane,
 
   switch (transform)
     {
-    case META_MONITOR_TRANSFORM_NORMAL:
+    case MTK_MONITOR_TRANSFORM_NORMAL:
       kms_rotation = META_KMS_PLANE_ROTATION_ROTATE_0;
       break;
-    case META_MONITOR_TRANSFORM_90:
+    case MTK_MONITOR_TRANSFORM_90:
       kms_rotation = META_KMS_PLANE_ROTATION_ROTATE_90;
       break;
-    case META_MONITOR_TRANSFORM_180:
+    case MTK_MONITOR_TRANSFORM_180:
       kms_rotation = META_KMS_PLANE_ROTATION_ROTATE_180;
       break;
-    case META_MONITOR_TRANSFORM_270:
+    case MTK_MONITOR_TRANSFORM_270:
       kms_rotation = META_KMS_PLANE_ROTATION_ROTATE_270;
       break;
-    case META_MONITOR_TRANSFORM_FLIPPED:
+    case MTK_MONITOR_TRANSFORM_FLIPPED:
       kms_rotation = META_KMS_PLANE_ROTATION_ROTATE_0 |
                      META_KMS_PLANE_ROTATION_REFLECT_X;
       break;
-    case META_MONITOR_TRANSFORM_FLIPPED_90:
+    case MTK_MONITOR_TRANSFORM_FLIPPED_90:
       kms_rotation = META_KMS_PLANE_ROTATION_ROTATE_90 |
                      META_KMS_PLANE_ROTATION_REFLECT_X;
       break;
-    case META_MONITOR_TRANSFORM_FLIPPED_180:
+    case MTK_MONITOR_TRANSFORM_FLIPPED_180:
       kms_rotation = META_KMS_PLANE_ROTATION_ROTATE_0 |
                      META_KMS_PLANE_ROTATION_REFLECT_Y;
       break;
-    case META_MONITOR_TRANSFORM_FLIPPED_270:
+    case MTK_MONITOR_TRANSFORM_FLIPPED_270:
       kms_rotation = META_KMS_PLANE_ROTATION_ROTATE_270 |
                      META_KMS_PLANE_ROTATION_REFLECT_X;
       break;
@@ -178,19 +177,19 @@ meta_kms_plane_update_set_rotation (MetaKmsPlane           *plane,
 }
 
 gboolean
-meta_kms_plane_is_transform_handled (MetaKmsPlane         *plane,
-                                     MetaMonitorTransform  transform)
+meta_kms_plane_is_transform_handled (MetaKmsPlane        *plane,
+                                     MtkMonitorTransform  transform)
 {
   switch (transform)
     {
-    case META_MONITOR_TRANSFORM_NORMAL:
+    case MTK_MONITOR_TRANSFORM_NORMAL:
       return plane->rotations & META_KMS_PLANE_ROTATION_ROTATE_0;
-    case META_MONITOR_TRANSFORM_180:
+    case MTK_MONITOR_TRANSFORM_180:
       return plane->rotations & META_KMS_PLANE_ROTATION_ROTATE_180;
-    case META_MONITOR_TRANSFORM_FLIPPED:
+    case MTK_MONITOR_TRANSFORM_FLIPPED:
       return (plane->rotations & META_KMS_PLANE_ROTATION_ROTATE_0) &&
              (plane->rotations & META_KMS_PLANE_ROTATION_REFLECT_X);
-    case META_MONITOR_TRANSFORM_FLIPPED_180:
+    case MTK_MONITOR_TRANSFORM_FLIPPED_180:
       return (plane->rotations & META_KMS_PLANE_ROTATION_ROTATE_0) &&
              (plane->rotations & META_KMS_PLANE_ROTATION_REFLECT_Y);
     /*
@@ -199,10 +198,10 @@ meta_kms_plane_is_transform_handled (MetaKmsPlane         *plane,
      * less optimal due to the complexity dealing with rotation at scan-out,
      * potentially resulting in higher power consumption.
      */
-    case META_MONITOR_TRANSFORM_90:
-    case META_MONITOR_TRANSFORM_270:
-    case META_MONITOR_TRANSFORM_FLIPPED_90:
-    case META_MONITOR_TRANSFORM_FLIPPED_270:
+    case MTK_MONITOR_TRANSFORM_90:
+    case MTK_MONITOR_TRANSFORM_270:
+    case MTK_MONITOR_TRANSFORM_FLIPPED_90:
+    case MTK_MONITOR_TRANSFORM_FLIPPED_270:
       return FALSE;
     }
 

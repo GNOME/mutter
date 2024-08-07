@@ -5,11 +5,13 @@ mtk_headers = [
   'mtk-macros.h',
   'mtk-rectangle.h',
   'mtk-region.h',
+  'mtk-monitor-transform.h',
 ]
 
 mtk_sources = [
   'mtk-rectangle.c',
   'mtk-region.c',
+  'mtk-monitor-transform.c',
 ]
 
 if have_x11_client

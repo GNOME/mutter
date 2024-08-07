@@ -28,16 +28,16 @@
  *
  * A MetaShapedTexture draws a #CoglTexture (often provided from a client
  * surface) in such a way that it matches any required transformations that
- * give its final shape, such as a #MetaMonitorTransform, y-invertedness, or a
+ * give its final shape, such as a #MtkMonitorTransform, y-invertedness, or a
  * crop-and-scale operation.
  */
 
 #include "config.h"
 
-#include "backends/meta-monitor-transform.h"
 #include "compositor/meta-multi-texture-format-private.h"
 #include "compositor/meta-shaped-texture-private.h"
 #include "core/boxes-private.h"
+#include "mtk/mtk.h"
 
 #include <math.h>
 
@@ -112,7 +112,7 @@ struct _MetaShapedTexture
   MtkRegion *clip_region;
 
   gboolean size_invalid;
-  MetaMonitorTransform transform;
+  MtkMonitorTransform transform;
   gboolean has_viewport_src_rect;
   graphene_rect_t viewport_src_rect;
   gboolean has_viewport_dst_size;
@@ -221,7 +221,7 @@ meta_shaped_texture_init (MetaShapedTexture *stex)
   stex->mask_texture = NULL;
   stex->create_mipmaps = TRUE;
   stex->is_y_inverted = TRUE;
-  stex->transform = META_MONITOR_TRANSFORM_NORMAL;
+  stex->transform = MTK_MONITOR_TRANSFORM_NORMAL;
 }
 
 static void
@@ -243,7 +243,7 @@ update_size (MetaShapedTexture *stex)
     }
   else
     {
-      if (meta_monitor_transform_is_rotated (stex->transform))
+      if (mtk_monitor_transform_is_rotated (stex->transform))
         {
           if (stex->texture)
             {
@@ -382,7 +382,7 @@ get_base_pipeline (MetaShapedTexture   *stex,
                              0);
       graphene_matrix_translate (&matrix, &p);
 
-      if (meta_monitor_transform_is_rotated (stex->transform))
+      if (mtk_monitor_transform_is_rotated (stex->transform))
         {
           graphene_matrix_scale (&matrix,
                                  stex->viewport_src_rect.size.width /
@@ -402,8 +402,8 @@ get_base_pipeline (MetaShapedTexture   *stex,
         }
     }
 
-  meta_monitor_transform_transform_matrix (stex->transform,
-                                           &matrix);
+  mtk_monitor_transform_transform_matrix (stex->transform,
+                                          &matrix);
 
   cogl_pipeline_set_layer_matrix (pipeline, 1, &matrix);
 
@@ -873,7 +873,7 @@ do_paint_content (MetaShapedTexture   *stex,
       sample_width = texture_width;
       sample_height = texture_height;
     }
-  if (meta_monitor_transform_is_rotated (stex->transform))
+  if (mtk_monitor_transform_is_rotated (stex->transform))
     flip_ints (&sample_width, &sample_height);
 
   if (meta_actor_painting_untransformed (framebuffer,
@@ -1211,7 +1211,7 @@ meta_shaped_texture_update_area (MetaShapedTexture *stex,
                                  int                height,
                                  MtkRectangle      *clip)
 {
-  MetaMonitorTransform inverted_transform;
+  MtkMonitorTransform inverted_transform;
   MtkRectangle buffer_rect;
   int scaled_and_transformed_width;
   int scaled_and_transformed_height;
@@ -1241,7 +1241,7 @@ meta_shaped_texture_update_area (MetaShapedTexture *stex,
                               MTK_ROUNDING_STRATEGY_GROW,
                               clip);
 
-  if (meta_monitor_transform_is_rotated (stex->transform))
+  if (mtk_monitor_transform_is_rotated (stex->transform))
     {
       scaled_and_transformed_width = stex->tex_height / stex->buffer_scale;
       scaled_and_transformed_height = stex->tex_width / stex->buffer_scale;
@@ -1251,7 +1251,7 @@ meta_shaped_texture_update_area (MetaShapedTexture *stex,
       scaled_and_transformed_width = stex->tex_width / stex->buffer_scale;
       scaled_and_transformed_height = stex->tex_height / stex->buffer_scale;
     }
-  inverted_transform = meta_monitor_transform_invert (stex->transform);
+  inverted_transform = mtk_monitor_transform_invert (stex->transform);
   meta_rectangle_transform (clip,
                             inverted_transform,
                             scaled_and_transformed_width,
@@ -1475,7 +1475,7 @@ meta_shaped_texture_is_opaque (MetaShapedTexture *stex)
 
 void
 meta_shaped_texture_set_transform (MetaShapedTexture    *stex,
-                                   MetaMonitorTransform  transform)
+                                   MtkMonitorTransform  transform)
 {
   if (stex->transform == transform)
     return;
@@ -1597,15 +1597,15 @@ meta_shaped_texture_should_get_via_offscreen (MetaShapedTexture *stex)
 
   switch (stex->transform)
     {
-    case META_MONITOR_TRANSFORM_90:
-    case META_MONITOR_TRANSFORM_180:
-    case META_MONITOR_TRANSFORM_270:
-    case META_MONITOR_TRANSFORM_FLIPPED:
-    case META_MONITOR_TRANSFORM_FLIPPED_90:
-    case META_MONITOR_TRANSFORM_FLIPPED_180:
-    case META_MONITOR_TRANSFORM_FLIPPED_270:
+    case MTK_MONITOR_TRANSFORM_90:
+    case MTK_MONITOR_TRANSFORM_180:
+    case MTK_MONITOR_TRANSFORM_270:
+    case MTK_MONITOR_TRANSFORM_FLIPPED:
+    case MTK_MONITOR_TRANSFORM_FLIPPED_90:
+    case MTK_MONITOR_TRANSFORM_FLIPPED_180:
+    case MTK_MONITOR_TRANSFORM_FLIPPED_270:
       return TRUE;
-    case META_MONITOR_TRANSFORM_NORMAL:
+    case MTK_MONITOR_TRANSFORM_NORMAL:
       break;
     }
 
@@ -1793,7 +1793,7 @@ get_unscaled_size (MetaShapedTexture *stex)
       };
     }
 
-  if (meta_monitor_transform_is_rotated (stex->transform))
+  if (mtk_monitor_transform_is_rotated (stex->transform))
     {
       return (graphene_size_t) {
         .width = buffer_size.height,

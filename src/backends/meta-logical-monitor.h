@@ -39,7 +39,7 @@ struct _MetaLogicalMonitor
   gboolean is_presentation; /* XXX: not yet used */
   gboolean in_fullscreen;
   float scale;
-  MetaMonitorTransform transform;
+  MtkMonitorTransform transform;
 
   GList *monitors;
 };
@@ -77,7 +77,7 @@ void meta_logical_monitor_make_primary (MetaLogicalMonitor *logical_monitor);
 
 float meta_logical_monitor_get_scale (MetaLogicalMonitor *logical_monitor);
 
-MetaMonitorTransform meta_logical_monitor_get_transform (MetaLogicalMonitor *logical_monitor);
+MtkMonitorTransform meta_logical_monitor_get_transform (MetaLogicalMonitor *logical_monitor);
 
 META_EXPORT_TEST
 MtkRectangle meta_logical_monitor_get_layout (MetaLogicalMonitor *logical_monitor);

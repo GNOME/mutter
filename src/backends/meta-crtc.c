@@ -42,7 +42,7 @@ typedef struct _MetaCrtcPrivate
   MetaBackend *backend;
   MetaGpu *gpu;
 
-  MetaMonitorTransform all_transforms;
+  MtkMonitorTransform all_transforms;
 
   GList *outputs;
   MetaCrtcConfig *config;
@@ -102,7 +102,7 @@ meta_crtc_unassign_output (MetaCrtc   *crtc,
   priv->outputs = g_list_remove (priv->outputs, output);
 }
 
-MetaMonitorTransform
+MtkMonitorTransform
 meta_crtc_get_all_transforms (MetaCrtc *crtc)
 {
   MetaCrtcPrivate *priv = meta_crtc_get_instance_private (crtc);
@@ -419,7 +419,7 @@ meta_crtc_init (MetaCrtc *crtc)
 {
   MetaCrtcPrivate *priv = meta_crtc_get_instance_private (crtc);
 
-  priv->all_transforms = META_MONITOR_ALL_TRANSFORMS;
+  priv->all_transforms = MTK_MONITOR_ALL_TRANSFORMS;
 }
 
 static void
@@ -452,8 +452,8 @@ meta_crtc_class_init (MetaCrtcClass *klass)
   obj_props[PROP_ALL_TRANSFORMS] =
     g_param_spec_uint ("all-transforms", NULL, NULL,
                        0,
-                       META_MONITOR_ALL_TRANSFORMS,
-                       META_MONITOR_ALL_TRANSFORMS,
+                       MTK_MONITOR_ALL_TRANSFORMS,
+                       MTK_MONITOR_ALL_TRANSFORMS,
                        G_PARAM_READWRITE |
                        G_PARAM_CONSTRUCT_ONLY |
                        G_PARAM_STATIC_STRINGS);
@@ -461,9 +461,9 @@ meta_crtc_class_init (MetaCrtcClass *klass)
 }
 
 MetaCrtcConfig *
-meta_crtc_config_new (graphene_rect_t      *layout,
-                      MetaCrtcMode         *mode,
-                      MetaMonitorTransform  transform)
+meta_crtc_config_new (graphene_rect_t     *layout,
+                      MetaCrtcMode        *mode,
+                      MtkMonitorTransform  transform)
 {
   MetaCrtcConfig *config;
 
