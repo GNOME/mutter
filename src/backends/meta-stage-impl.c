@@ -243,11 +243,11 @@ queue_damage_region (ClutterStageWindow *stage_window,
 
       rect = mtk_region_get_rectangle (damage_region, i);
 
-      clutter_stage_view_transform_rect_to_onscreen (stage_view,
-                                                     &rect,
-                                                     fb_width,
-                                                     fb_height,
-                                                     &rect);
+      mtk_rectangle_transform (&rect,
+                               clutter_stage_view_get_transform (stage_view),
+                               fb_width,
+                               fb_height,
+                               &rect);
 
       damage[i * 4] = rect.x;
       /* y coordinate needs to be flipped for OpenGL */
@@ -450,11 +450,11 @@ transform_swap_region_to_onscreen (ClutterStageView *stage_view,
   for (i = 0; i < n_rects; i++)
     {
       rects[i] = mtk_region_get_rectangle (swap_region, i);
-      clutter_stage_view_transform_rect_to_onscreen (stage_view,
-                                                     &rects[i],
-                                                     width,
-                                                     height,
-                                                     &rects[i]);
+      mtk_rectangle_transform (&rects[i],
+                               clutter_stage_view_get_transform (stage_view),
+                               width,
+                               height,
+                               &rects[i]);
     }
   transformed_region = mtk_region_create_rectangles (rects, n_rects);
 

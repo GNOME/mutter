@@ -47,6 +47,7 @@ enum
   PROP_SCALE,
   PROP_REFRESH_RATE,
   PROP_VBLANK_DURATION_US,
+  PROP_TRANSFORM,
 
   PROP_LAST
 };
@@ -69,6 +70,7 @@ typedef struct _ClutterStageViewPrivate
 
   MtkRectangle layout;
   float scale;
+  MtkMonitorTransform transform;
   CoglFramebuffer *framebuffer;
   ClutterColorState *color_state;
   ClutterColorState *output_color_state;
@@ -184,12 +186,25 @@ clutter_stage_view_create_offscreen_pipeline (CoglOffscreen *offscreen)
 }
 
 static void
+setup_offscreen_transform (ClutterStageView *view,
+                           CoglPipeline     *pipeline)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+  graphene_matrix_t matrix;
+
+  if (priv->transform == MTK_MONITOR_TRANSFORM_NORMAL)
+    return;
+
+  clutter_stage_view_get_offscreen_transformation_matrix (view, &matrix);
+  cogl_pipeline_set_layer_matrix (pipeline, 0, &matrix);
+}
+
+static void
 clutter_stage_view_ensure_offscreen_blit_pipeline (ClutterStageView *view)
 {
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
-  ClutterStageViewClass *view_class =
-    CLUTTER_STAGE_VIEW_GET_CLASS (view);
 
   g_assert (priv->offscreen != NULL);
 
@@ -199,8 +214,7 @@ clutter_stage_view_ensure_offscreen_blit_pipeline (ClutterStageView *view)
   priv->offscreen_pipeline =
     clutter_stage_view_create_offscreen_pipeline (priv->offscreen);
 
-  if (view_class->setup_offscreen_transform)
-    view_class->setup_offscreen_transform (view, priv->offscreen_pipeline);
+  setup_offscreen_transform (view, priv->offscreen_pipeline);
 
   clutter_color_state_add_pipeline_transform (priv->color_state,
                                               priv->output_color_state,
@@ -216,22 +230,6 @@ clutter_stage_view_invalidate_offscreen_blit_pipeline (ClutterStageView *view)
   g_clear_object (&priv->offscreen_pipeline);
 }
 
-void
-clutter_stage_view_transform_rect_to_onscreen (ClutterStageView   *view,
-                                               const MtkRectangle *src_rect,
-                                               int                 dst_width,
-                                               int                 dst_height,
-                                               MtkRectangle       *dst_rect)
-{
-  ClutterStageViewClass *view_class = CLUTTER_STAGE_VIEW_GET_CLASS (view);
-
-  view_class->transform_rect_to_onscreen (view,
-                                          src_rect,
-                                          dst_width,
-                                          dst_height,
-                                          dst_rect);
-}
-
 static void
 paint_transformed_framebuffer (ClutterStageView *view,
                                CoglPipeline     *pipeline,
@@ -239,6 +237,8 @@ paint_transformed_framebuffer (ClutterStageView *view,
                                CoglFramebuffer  *dst_framebuffer,
                                const MtkRegion  *redraw_clip)
 {
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
   graphene_matrix_t matrix;
   unsigned int n_rectangles, i;
   int dst_width, dst_height;
@@ -250,12 +250,13 @@ paint_transformed_framebuffer (ClutterStageView *view,
   dst_width = cogl_framebuffer_get_width (dst_framebuffer);
   dst_height = cogl_framebuffer_get_height (dst_framebuffer);
   clutter_stage_view_get_layout (view, &view_layout);
-  clutter_stage_view_transform_rect_to_onscreen (view,
-                                                 &MTK_RECTANGLE_INIT (0, 0,
-                                                                      view_layout.width, view_layout.height),
-                                                 view_layout.width,
-                                                 view_layout.height,
-                                                 &onscreen_layout);
+
+  mtk_rectangle_transform (&MTK_RECTANGLE_INIT (0, 0,
+                                                view_layout.width, view_layout.height),
+                           priv->transform,
+                           view_layout.width,
+                           view_layout.height,
+                           &onscreen_layout);
   view_scale = clutter_stage_view_get_scale (view);
 
   cogl_framebuffer_push_matrix (dst_framebuffer);
@@ -284,11 +285,11 @@ paint_transformed_framebuffer (ClutterStageView *view,
       src_rect.x -= view_layout.x;
       src_rect.y -= view_layout.y;
 
-      clutter_stage_view_transform_rect_to_onscreen (view,
-                                                     &src_rect,
-                                                     onscreen_layout.width,
-                                                     onscreen_layout.height,
-                                                     &dst_rect);
+      mtk_rectangle_transform (&src_rect,
+                               priv->transform,
+                               onscreen_layout.width,
+                               onscreen_layout.height,
+                               &dst_rect);
 
       coordinates[i * 8 + 0] = (float) dst_rect.x * view_scale;
       coordinates[i * 8 + 1] = (float) dst_rect.y * view_scale;
@@ -593,9 +594,13 @@ void
 clutter_stage_view_get_offscreen_transformation_matrix (ClutterStageView  *view,
                                                         graphene_matrix_t *matrix)
 {
-  ClutterStageViewClass *view_class = CLUTTER_STAGE_VIEW_GET_CLASS (view);
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
 
-  view_class->get_offscreen_transformation_matrix (view, matrix);
+  graphene_matrix_init_identity (matrix);
+
+  mtk_monitor_transform_transform_matrix (
+    mtk_monitor_transform_invert (priv->transform), matrix);
 }
 
 static void
@@ -706,13 +711,6 @@ clutter_stage_view_accumulate_redraw_clip (ClutterStageView *view)
   g_clear_pointer (&priv->redraw_clip, mtk_region_unref);
   priv->has_accumulated_redraw_clip = TRUE;
   priv->has_redraw_clip = FALSE;
-}
-
-static void
-clutter_stage_default_get_offscreen_transformation_matrix (ClutterStageView  *view,
-                                                           graphene_matrix_t *matrix)
-{
-  graphene_matrix_init_identity (matrix);
 }
 
 void
@@ -1018,6 +1016,30 @@ clutter_stage_view_set_color_state (ClutterStageView  *view,
 }
 
 static void
+clutter_stage_view_set_transform (ClutterStageView    *view,
+                                  MtkMonitorTransform  transform)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  if (priv->transform == transform)
+    return;
+
+  priv->transform = transform;
+
+  clutter_stage_view_invalidate_offscreen_blit_pipeline (CLUTTER_STAGE_VIEW (view));
+}
+
+MtkMonitorTransform
+clutter_stage_view_get_transform (ClutterStageView *view)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  return priv->transform;
+}
+
+static void
 clutter_stage_view_get_property (GObject    *object,
                                  guint       prop_id,
                                  GValue     *value,
@@ -1061,6 +1083,9 @@ clutter_stage_view_get_property (GObject    *object,
       break;
     case PROP_VBLANK_DURATION_US:
       g_value_set_int64 (value, priv->vblank_duration_us);
+      break;
+    case PROP_TRANSFORM:
+      g_value_set_uint (value, priv->transform);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -1112,6 +1137,9 @@ clutter_stage_view_set_property (GObject      *object,
       break;
     case PROP_VBLANK_DURATION_US:
       priv->vblank_duration_us = g_value_get_int64 (value);
+      break;
+    case PROP_TRANSFORM:
+      clutter_stage_view_set_transform (view, g_value_get_uint (value));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -1202,9 +1230,6 @@ clutter_stage_view_class_init (ClutterStageViewClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  klass->get_offscreen_transformation_matrix =
-    clutter_stage_default_get_offscreen_transformation_matrix;
-
   object_class->get_property = clutter_stage_view_get_property;
   object_class->set_property = clutter_stage_view_set_property;
   object_class->constructed = clutter_stage_view_constructed;
@@ -1287,6 +1312,15 @@ clutter_stage_view_class_init (ClutterStageViewClass *klass)
                         G_PARAM_READWRITE |
                         G_PARAM_CONSTRUCT_ONLY |
                         G_PARAM_STATIC_STRINGS);
+
+  obj_props[PROP_TRANSFORM] =
+    g_param_spec_uint ("transform", NULL, NULL,
+                       MTK_MONITOR_TRANSFORM_NORMAL,
+                       MTK_MONITOR_TRANSFORM_FLIPPED_270,
+                       MTK_MONITOR_TRANSFORM_NORMAL,
+                       G_PARAM_READWRITE |
+                       G_PARAM_CONSTRUCT_ONLY |
+                       G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
 

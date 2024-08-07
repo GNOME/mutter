@@ -2311,7 +2311,6 @@ meta_wayland_surface_try_acquire_scanout (MetaWaylandSurface *surface,
                                           CoglOnscreen       *onscreen,
                                           ClutterStageView   *stage_view)
 {
-  MetaRendererView *renderer_view;
   MetaSurfaceActor *surface_actor;
   MtkMonitorTransform view_transform;
   ClutterActorBox actor_box;
@@ -2330,8 +2329,7 @@ meta_wayland_surface_try_acquire_scanout (MetaWaylandSurface *surface,
   if (surface->buffer->use_count == 0)
     return NULL;
 
-  renderer_view = META_RENDERER_VIEW (stage_view);
-  view_transform = meta_renderer_view_get_transform (renderer_view);
+  view_transform = clutter_stage_view_get_transform (stage_view);
   if (view_transform != surface->buffer_transform)
     {
       meta_topic (META_DEBUG_RENDER,
