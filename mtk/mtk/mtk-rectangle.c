@@ -23,7 +23,6 @@
 
 #include "mtk/mtk-rectangle.h"
 
-
 MtkRectangle *
 mtk_rectangle_copy (const MtkRectangle *rect)
 {
@@ -444,4 +443,88 @@ mtk_rectangle_is_adjacent_to (const MtkRectangle *rect,
     return TRUE;
   else
     return FALSE;
+}
+
+/**
+ * mtk_rectangle_transform:
+ * @rect: the #MtkRectangle to be transformed
+ * @transform: the #MtkMonitorTransform
+ * @width: the width of the target space
+ * @height: the height of the target space
+ * @dest: the transformed #MtkRectangle
+ *
+ * This function transforms the values in @rect in order to compensate for
+ * @transform applied to a #MetaMonitor, making them match the viewport. Note
+ * that compensating implies that for a clockwise rotation of the #MetaMonitor
+ * an anti-clockwise rotation has to be applied to @rect.
+ */
+void
+mtk_rectangle_transform (const MtkRectangle  *rect,
+                         MtkMonitorTransform  transform,
+                         int                  width,
+                         int                  height,
+                         MtkRectangle        *dest)
+{
+  switch (transform)
+    {
+    case MTK_MONITOR_TRANSFORM_NORMAL:
+      *dest = *rect;
+      break;
+    case MTK_MONITOR_TRANSFORM_90:
+      *dest = (MtkRectangle) {
+        .x = rect->y,
+        .y = height - (rect->x + rect->width),
+        .width = rect->height,
+        .height = rect->width,
+      };
+      break;
+    case MTK_MONITOR_TRANSFORM_180:
+      *dest = (MtkRectangle) {
+        .x = width - (rect->x + rect->width),
+        .y = height - (rect->y + rect->height),
+        .width = rect->width,
+        .height = rect->height,
+      };
+      break;
+    case MTK_MONITOR_TRANSFORM_270:
+      *dest = (MtkRectangle) {
+        .x = width - (rect->y + rect->height),
+        .y = rect->x,
+        .width = rect->height,
+        .height = rect->width,
+      };
+      break;
+    case MTK_MONITOR_TRANSFORM_FLIPPED:
+      *dest = (MtkRectangle) {
+        .x = width - (rect->x + rect->width),
+        .y = rect->y,
+        .width = rect->width,
+        .height = rect->height,
+      };
+      break;
+    case MTK_MONITOR_TRANSFORM_FLIPPED_90:
+      *dest = (MtkRectangle) {
+        .x = rect->y,
+        .y = rect->x,
+        .width = rect->height,
+        .height = rect->width,
+      };
+      break;
+    case MTK_MONITOR_TRANSFORM_FLIPPED_180:
+      *dest = (MtkRectangle) {
+        .x = rect->x,
+        .y = height - (rect->y + rect->height),
+        .width = rect->width,
+        .height = rect->height,
+      };
+      break;
+    case MTK_MONITOR_TRANSFORM_FLIPPED_270:
+      *dest = (MtkRectangle) {
+        .x = width - (rect->y + rect->height),
+        .y = height - (rect->x + rect->width),
+        .width = rect->height,
+        .height = rect->width,
+      };
+      break;
+    }
 }

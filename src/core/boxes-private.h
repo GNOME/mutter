@@ -237,10 +237,3 @@ META_EXPORT_TEST
 GList* meta_rectangle_find_nonintersected_monitor_edges (
                                            const GList         *monitor_rects,
                                            const GSList        *all_struts);
-
-META_EXPORT_TEST
-void meta_rectangle_transform (const MtkRectangle  *rect,
-                               MtkMonitorTransform  transform,
-                               int                  width,
-                               int                  height,
-                               MtkRectangle        *dest);

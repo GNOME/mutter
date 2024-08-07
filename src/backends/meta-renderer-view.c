@@ -111,11 +111,11 @@ meta_renderer_view_transform_rect_to_onscreen (ClutterStageView   *view,
   MetaRendererViewPrivate *priv =
     meta_renderer_view_get_instance_private (renderer_view);
 
-  meta_rectangle_transform (src_rect,
-                            priv->transform,
-                            dst_width,
-                            dst_height,
-                            dst_rect);
+  mtk_rectangle_transform (src_rect,
+                           priv->transform,
+                           dst_width,
+                           dst_height,
+                           dst_rect);
 }
 
 static void

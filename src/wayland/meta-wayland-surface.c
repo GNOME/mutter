@@ -278,11 +278,11 @@ region_transform (const MtkRegion     *region,
     {
       rects[i] = mtk_region_get_rectangle (region, i);
 
-      meta_rectangle_transform (&rects[i],
-                                transform,
-                                width,
-                                height,
-                                &rects[i]);
+      mtk_rectangle_transform (&rects[i],
+                               transform,
+                               width,
+                               height,
+                               &rects[i]);
     }
 
   transformed_region = mtk_region_create_rectangles (rects, n_rects);
@@ -2364,11 +2364,11 @@ meta_wayland_surface_try_acquire_scanout (MetaWaylandSurface *surface,
       untransformed_view_height = view_rect.height;
     }
 
-  meta_rectangle_transform (&dst_rect,
-                            view_transform,
-                            untransformed_view_width,
-                            untransformed_view_height,
-                            &dst_rect);
+  mtk_rectangle_transform (&dst_rect,
+                           view_transform,
+                           untransformed_view_width,
+                           untransformed_view_height,
+                           &dst_rect);
 
   /* Use an implicit destination rect when possible */
   if (surface->viewport.has_dst_size ||

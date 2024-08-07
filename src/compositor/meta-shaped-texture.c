@@ -1252,11 +1252,11 @@ meta_shaped_texture_update_area (MetaShapedTexture *stex,
       scaled_and_transformed_height = stex->tex_height / stex->buffer_scale;
     }
   inverted_transform = mtk_monitor_transform_invert (stex->transform);
-  meta_rectangle_transform (clip,
-                            inverted_transform,
-                            scaled_and_transformed_width,
-                            scaled_and_transformed_height,
-                            clip);
+  mtk_rectangle_transform (clip,
+                           inverted_transform,
+                           scaled_and_transformed_width,
+                           scaled_and_transformed_height,
+                           clip);
 
   if (stex->has_viewport_src_rect || stex->has_viewport_dst_size)
     {
