@@ -58,10 +58,6 @@ G_DEFINE_QUARK (clutter_pipeline_capability, clutter_pipeline_capability)
 /* main context */
 static ClutterContext *ClutterCntx       = NULL;
 
-/* command line options */
-static gboolean clutter_is_initialized       = FALSE;
-static gboolean clutter_enable_accessibility = TRUE;
-
 /* debug flags */
 guint clutter_debug_flags       = 0;
 guint clutter_paint_debug_flags = 0;
@@ -78,42 +74,6 @@ _clutter_context_get_show_fps (void)
   ClutterContext *context = _clutter_context_get_default ();
 
   return context->show_fps;
-}
-
-/**
- * clutter_get_accessibility_enabled:
- *
- * Returns whether Clutter has accessibility support enabled.  As
- * least, a value of TRUE means that there are a proper AtkUtil
- * implementation available
- *
- * Return value: %TRUE if Clutter has accessibility support enabled
- */
-gboolean
-clutter_get_accessibility_enabled (void)
-{
-  return !g_strcmp0 (atk_get_toolkit_name (), "clutter");
-}
-
-/**
- * clutter_disable_accessibility:
- *
- * Disable loading the accessibility support. It has the same effect
- * as setting the environment variable
- * CLUTTER_DISABLE_ACCESSIBILITY. For the same reason, this method
- * should be called before clutter_init().
- */
-void
-clutter_disable_accessibility (void)
-{
-  if (clutter_is_initialized)
-    {
-      g_warning ("clutter_disable_accessibility() can only be called before "
-                 "initializing Clutter.");
-      return;
-    }
-
-  clutter_enable_accessibility = FALSE;
 }
 
 static gboolean
@@ -358,8 +318,7 @@ _clutter_context_get_default (void)
 }
 
 ClutterContext *
-clutter_create_context (ClutterContextFlags         flags,
-                        ClutterBackendConstructor   backend_constructor,
+clutter_create_context (ClutterBackendConstructor   backend_constructor,
                         gpointer                    user_data,
                         GError                    **error)
 {
@@ -370,13 +329,11 @@ clutter_create_context (ClutterContextFlags         flags,
       return NULL;
     }
 
-  ClutterCntx = clutter_context_new (flags,
-                                     backend_constructor, user_data,
+  ClutterCntx = clutter_context_new (backend_constructor, user_data,
                                      error);
   if (!ClutterCntx)
     return NULL;
 
-  clutter_is_initialized = TRUE;
   g_object_add_weak_pointer (G_OBJECT (ClutterCntx), (gpointer *) &ClutterCntx);
   return ClutterCntx;
 }

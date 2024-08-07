@@ -33,6 +33,7 @@
 
 static gboolean clutter_disable_mipmap_text = FALSE;
 static gboolean clutter_show_fps = FALSE;
+static gboolean clutter_enable_accessibility = TRUE;
 
 #ifdef CLUTTER_ENABLE_DEBUG
 static const GDebugKey clutter_debug_keys[] = {
@@ -167,7 +168,6 @@ clutter_get_text_direction (void)
 
 static gboolean
 clutter_context_init_real (ClutterContext       *context,
-                           ClutterContextFlags   flags,
                            GError              **error)
 {
   ClutterContextPrivate *priv = clutter_context_get_instance_private (context);
@@ -197,7 +197,7 @@ clutter_context_init_real (ClutterContext       *context,
   context->is_initialized = TRUE;
 
   /* Initialize a11y */
-  if (!(flags & CLUTTER_CONTEXT_FLAG_NO_A11Y))
+  if (clutter_enable_accessibility)
     {
       _clutter_accessibility_override_atk_util ();
       CLUTTER_NOTE (MISC, "Clutter Accessibility initialized");
@@ -250,14 +250,17 @@ init_clutter_debug (ClutterContext *context)
   if (env_string)
     clutter_show_fps = TRUE;
 
+  env_string = g_getenv ("CLUTTER_DISABLE_ACCESSIBILITY");
+  if (env_string)
+    clutter_enable_accessibility = FALSE;
+
   env_string = g_getenv ("CLUTTER_DISABLE_MIPMAPPED_TEXT");
   if (env_string)
     clutter_disable_mipmap_text = TRUE;
 }
 
 ClutterContext *
-clutter_context_new (ClutterContextFlags         flags,
-                     ClutterBackendConstructor   backend_constructor,
+clutter_context_new (ClutterBackendConstructor   backend_constructor,
                      gpointer                    user_data,
                      GError                    **error)
 {
@@ -285,7 +288,7 @@ clutter_context_new (ClutterContextFlags         flags,
                                       NULL);
   priv->pipeline_cache = g_object_new (CLUTTER_TYPE_PIPELINE_CACHE, NULL);
 
-  if (!clutter_context_init_real (context, flags, error))
+  if (!clutter_context_init_real (context, error))
     return NULL;
 
   return context;
@@ -356,4 +359,17 @@ clutter_context_get_color_manager (ClutterContext *context)
   ClutterContextPrivate *priv = clutter_context_get_instance_private (context);
 
   return priv->color_manager;
+}
+
+/**
+ * clutter_get_accessibility_enabled:
+ *
+ * Returns whether Clutter has accessibility support enabled.
+ *
+ * Return value: %TRUE if Clutter has accessibility support enabled
+ */
+gboolean
+clutter_get_accessibility_enabled (void)
+{
+  return clutter_enable_accessibility;
 }

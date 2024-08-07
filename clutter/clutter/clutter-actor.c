@@ -5462,8 +5462,12 @@ static AtkObject *
 clutter_actor_real_get_accessible (ClutterActor *actor)
 {
   ClutterActorPrivate *priv = actor->priv;
+
   if (priv->accessible == NULL)
     {
+        if (!clutter_get_accessibility_enabled ())
+          return NULL;
+
         priv->accessible =
           g_object_new (CLUTTER_ACTOR_GET_CLASS (actor)->get_accessible_type (),
                         NULL);

@@ -48,8 +48,7 @@
  * clutter_create_context: (skip)
  */
 CLUTTER_EXPORT
-ClutterContext * clutter_create_context (ClutterContextFlags         flags,
-                                         ClutterBackendConstructor   backend_constructor,
+ClutterContext * clutter_create_context (ClutterBackendConstructor   backend_constructor,
                                          gpointer                    user_data,
                                          GError                    **error);
 

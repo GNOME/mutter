@@ -1223,8 +1223,7 @@ init_clutter (MetaBackend  *backend,
   MetaBackendSource *backend_source;
   GSource *source;
 
-  priv->clutter_context = clutter_create_context (CLUTTER_CONTEXT_FLAG_NONE,
-                                                  meta_clutter_backend_constructor,
+  priv->clutter_context = clutter_create_context (meta_clutter_backend_constructor,
                                                   backend,
                                                   error);
   if (!priv->clutter_context)

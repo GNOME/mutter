@@ -24,11 +24,6 @@
 #include "clutter-settings.h"
 #include "cogl-pango/cogl-pango.h"
 
-typedef enum _ClutterContextFlags
-{
-  CLUTTER_CONTEXT_FLAG_NONE = 0,
-  CLUTTER_CONTEXT_FLAG_NO_A11Y = 1 << 0,
-} ClutterContextFlags;
 
 typedef ClutterBackend * (* ClutterBackendConstructor) (gpointer user_data);
 
@@ -40,8 +35,7 @@ G_DECLARE_FINAL_TYPE (ClutterContext, clutter_context,
 /**
  * clutter_context_new: (skip)
  */
-ClutterContext * clutter_context_new (ClutterContextFlags         flags,
-                                      ClutterBackendConstructor   backend_constructor,
+ClutterContext * clutter_context_new (ClutterBackendConstructor   backend_constructor,
                                       gpointer                    user_data,
                                       GError                    **error);
 

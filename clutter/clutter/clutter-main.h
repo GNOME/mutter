@@ -107,9 +107,6 @@ void                    clutter_stage_handle_event              (ClutterStage *s
 CLUTTER_EXPORT
 gboolean                clutter_get_accessibility_enabled       (void);
 
-CLUTTER_EXPORT
-void                    clutter_disable_accessibility           (void);
-
 /* Threading functions */
 CLUTTER_EXPORT
 guint                   clutter_threads_add_idle                (GSourceFunc    func,
