@@ -629,8 +629,7 @@ load_cursor_sprite_gbm_buffer_for_crtc (MetaCursorRendererNative *native,
 
   if (width > cursor_width || height > cursor_height)
     {
-      meta_warning ("Invalid theme cursor size (must be at most %ux%u)",
-                    (unsigned int)cursor_width, (unsigned int)cursor_height);
+      g_warning_once ("Can't handle cursor size %ux%u", width, height);
       return FALSE;
     }
 
