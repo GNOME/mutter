@@ -1217,6 +1217,12 @@ acquire_front_buffer (CoglOnscreen   *onscreen,
         META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY;
       G_GNUC_FALLTHROUGH;
     case META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY:
+      if (secondary_gpu_fb == NULL)
+        {
+          g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                       "Missing secondary GPU framebuffer");
+          return NULL;
+        }
       return g_object_ref (secondary_gpu_fb);
     case META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU:
       return copy_shared_framebuffer_gpu (onscreen,
