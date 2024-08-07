@@ -806,14 +806,9 @@ import_shared_framebuffer (CoglOnscreen                        *onscreen,
                                        &error);
   if (!imported_buffer)
     {
-      meta_topic (META_DEBUG_KMS,
-                  "Zero-copy disabled for %s, "
-                  "meta_drm_buffer_import_new failed: %s",
-                  meta_render_device_get_name (render_device),
-                  error->message);
-
-      g_warn_if_fail (secondary_gpu_state->import_status ==
-                      META_SHARED_FRAMEBUFFER_IMPORT_STATUS_NONE);
+      g_warning ("Zero-copy disabled for %s, import failed: %s",
+                 meta_render_device_get_name (render_device),
+                 error->message);
       secondary_gpu_state->import_status =
         META_SHARED_FRAMEBUFFER_IMPORT_STATUS_FAILED;
       return NULL;
