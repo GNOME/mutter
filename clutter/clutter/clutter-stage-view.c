@@ -349,38 +349,41 @@ paint_transformed_framebuffer (ClutterStageView *view,
 }
 
 static CoglOffscreen *
-create_offscreen_framebuffer (ClutterStageView  *view,
-                              int                width,
-                              int                height,
-                              GError           **error)
+create_offscreen (ClutterStageView  *view,
+                  CoglPixelFormat    format,
+                  int                width,
+                  int                height,
+                  GError           **error)
 {
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
-  CoglPixelFormat format;
   CoglContext *cogl_context;
-  CoglOffscreen *framebuffer;
-  CoglTexture *texture;
+  g_autoptr (CoglOffscreen) framebuffer = NULL;
+  g_autoptr (CoglTexture) texture = NULL;
 
-  format = cogl_framebuffer_get_internal_format (priv->framebuffer);
   cogl_context = cogl_framebuffer_get_context (priv->framebuffer);
-  texture = cogl_texture_2d_new_with_format (cogl_context, width, height, format);
+
+  if (format == COGL_PIXEL_FORMAT_ANY)
+    {
+      texture = cogl_texture_2d_new_with_size (cogl_context, width, height);
+    }
+  else
+    {
+      texture = cogl_texture_2d_new_with_format (cogl_context,
+                                                 width, height, format);
+    }
+
   cogl_texture_set_auto_mipmap (texture, FALSE);
 
   if (!cogl_texture_allocate (texture, error))
-    {
-      g_object_unref (texture);
-      return FALSE;
-    }
+    return FALSE;
 
   framebuffer = cogl_offscreen_new_with_texture (texture);
-  g_object_unref (texture);
-  if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (framebuffer), error))
-    {
-      g_object_unref (framebuffer);
-      return FALSE;
-    }
 
-  return framebuffer;
+  if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (framebuffer), error))
+    return FALSE;
+
+  return g_steal_pointer (&framebuffer);
 }
 
 static void
@@ -389,14 +392,16 @@ init_shadowfb (ClutterStageView *view)
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
   g_autoptr (GError) error = NULL;
+  CoglPixelFormat format;
   int width;
   int height;
   CoglOffscreen *offscreen;
 
+  format = cogl_framebuffer_get_internal_format (priv->framebuffer);
   width = cogl_framebuffer_get_width (priv->framebuffer);
   height = cogl_framebuffer_get_height (priv->framebuffer);
 
-  offscreen = create_offscreen_framebuffer (view, width, height, &error);
+  offscreen = create_offscreen (view, format, width, height, &error);
   if (!offscreen)
     {
       g_warning ("Failed to create shadow framebuffer: %s", error->message);
