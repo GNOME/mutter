@@ -86,7 +86,6 @@
 #include "clutter/clutter-pipeline-cache.h"
 #include "clutter/clutter-property-transition.h"
 #include "clutter/clutter-rotate-action.h"
-#include "clutter/clutter-scroll-actor.h"
 #include "clutter/clutter-settings.h"
 #include "clutter/clutter-shader-effect.h"
 #include "clutter/clutter-shader-types.h"

@@ -924,25 +924,6 @@ typedef enum
 } ClutterOrientation;
 
 /**
- * ClutterScrollMode:
- * @CLUTTER_SCROLL_NONE: Ignore scrolling
- * @CLUTTER_SCROLL_HORIZONTALLY: Scroll only horizontally
- * @CLUTTER_SCROLL_VERTICALLY: Scroll only vertically
- * @CLUTTER_SCROLL_BOTH: Scroll in both directions
- *
- * Scroll modes.
- */
-typedef enum /*< prefix=CLUTTER_SCROLL >*/
-{
-  CLUTTER_SCROLL_NONE         = 0,
-
-  CLUTTER_SCROLL_HORIZONTALLY = 1 << 0,
-  CLUTTER_SCROLL_VERTICALLY   = 1 << 1,
-
-  CLUTTER_SCROLL_BOTH         = CLUTTER_SCROLL_HORIZONTALLY | CLUTTER_SCROLL_VERTICALLY
-} ClutterScrollMode;
-
-/**
  * ClutterGridPosition:
  * @CLUTTER_GRID_POSITION_LEFT: left position
  * @CLUTTER_GRID_POSITION_RIGHT: right position
