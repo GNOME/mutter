@@ -822,12 +822,6 @@ import_shared_framebuffer (CoglOnscreen                        *onscreen,
   if (secondary_gpu_state->import_status ==
       META_SHARED_FRAMEBUFFER_IMPORT_STATUS_NONE)
     {
-      /*
-       * Clean up the cpu-copy part of
-       * init_secondary_gpu_state_cpu_copy_mode ()
-       */
-      secondary_gpu_release_dumb (secondary_gpu_state);
-
       meta_topic (META_DEBUG_KMS,
                   "Using zero-copy for %s succeeded once.",
                   meta_render_device_get_name (render_device));
