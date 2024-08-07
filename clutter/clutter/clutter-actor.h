@@ -231,7 +231,6 @@ struct _ClutterActorClass
 
   gboolean (* touch_event)          (ClutterActor         *self,
                                      ClutterEvent         *event);
-  gboolean (* has_accessible)       (ClutterActor         *self);
   void     (* resource_scale_changed) (ClutterActor *self);
   float    (* calculate_resource_scale) (ClutterActor *self,
                                          int           phase);
@@ -321,8 +320,6 @@ CLUTTER_EXPORT
 const gchar *                   clutter_actor_get_accessible_name               (ClutterActor                *self);
 CLUTTER_EXPORT
 AtkObject *                     clutter_actor_get_accessible                    (ClutterActor                *self);
-CLUTTER_EXPORT
-gboolean                        clutter_actor_has_accessible                    (ClutterActor                *self);
 CLUTTER_EXPORT
 void                            clutter_actor_set_accessible                    (ClutterActor                *self,
                                                                                  AtkObject                   *accessible);

@@ -18468,17 +18468,6 @@ clutter_actor_create_texture_paint_node (ClutterActor *self,
   return node;
 }
 
-gboolean
-clutter_actor_has_accessible (ClutterActor *actor)
-{
-  g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), FALSE);
-
-  if (CLUTTER_ACTOR_GET_CLASS (actor)->has_accessible)
-    return CLUTTER_ACTOR_GET_CLASS (actor)->has_accessible (actor);
-
-  return actor->priv->accessible != NULL;
-}
-
 /**
  * clutter_actor_set_accessible:
  * @self: A #ClutterActor

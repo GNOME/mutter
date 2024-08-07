@@ -134,11 +134,10 @@ clutter_actor_accessible_remove_actor (ClutterActor *container,
   g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), 0);
 
   atk_parent = clutter_actor_get_accessible (container);
+  atk_child = clutter_actor_get_accessible (actor);
 
-  if (clutter_actor_has_accessible (actor))
+  if (atk_child)
     {
-      atk_child = clutter_actor_get_accessible (actor);
-
       g_assert (ATK_IS_OBJECT (atk_child));
       g_object_ref (atk_child);
 
