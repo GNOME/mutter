@@ -46,6 +46,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "backends/meta-color-device.h"
+#include "backends/meta-color-manager.h"
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-gles3.h"
 #include "backends/meta-logical-monitor.h"
@@ -1360,45 +1362,6 @@ should_force_shadow_fb (MetaRendererNative *renderer_native,
   return meta_kms_device_prefers_shadow_buffer (kms_device);
 }
 
-static ClutterColorspace
-get_color_space_from_output (MetaOutput *output)
-{
-  switch (meta_output_peek_color_space (output))
-    {
-    case META_OUTPUT_COLORSPACE_DEFAULT:
-    case META_OUTPUT_COLORSPACE_UNKNOWN:
-      return CLUTTER_COLORSPACE_DEFAULT;
-    case META_OUTPUT_COLORSPACE_BT2020:
-      return CLUTTER_COLORSPACE_BT2020;
-    }
-  g_assert_not_reached ();
-}
-
-static ClutterTransferFunction
-get_transfer_function_from_output (MetaOutput *output)
-{
-  const MetaOutputHdrMetadata *hdr_metadata =
-    meta_output_peek_hdr_metadata (output);
-
-  if (!hdr_metadata->active)
-    return CLUTTER_TRANSFER_FUNCTION_DEFAULT;
-
-  switch (meta_output_peek_hdr_metadata (output)->eotf)
-    {
-    case META_OUTPUT_HDR_METADATA_EOTF_PQ:
-      return CLUTTER_TRANSFER_FUNCTION_PQ;
-    case META_OUTPUT_HDR_METADATA_EOTF_TRADITIONAL_GAMMA_SDR:
-      return CLUTTER_TRANSFER_FUNCTION_DEFAULT;
-    case META_OUTPUT_HDR_METADATA_EOTF_TRADITIONAL_GAMMA_HDR:
-    case META_OUTPUT_HDR_METADATA_EOTF_HLG:
-    default:
-      g_warning ("Unhandled HDR EOTF");
-      return CLUTTER_TRANSFER_FUNCTION_DEFAULT;
-    }
-
-  g_assert_not_reached ();
-}
-
 static MetaRendererView *
 meta_renderer_native_create_view (MetaRenderer        *renderer,
                                   MetaLogicalMonitor  *logical_monitor,
@@ -1412,17 +1375,17 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
   MetaContext *context = meta_backend_get_context (backend);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
+  MetaColorManager *color_manager = meta_backend_get_color_manager (backend);
+  MetaColorDevice *color_device =
+    meta_color_manager_get_color_device (color_manager, monitor);
   MetaDebugControl *debug_control = meta_context_get_debug_control (context);
   CoglContext *cogl_context =
     cogl_context_from_renderer_native (renderer_native);
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
-  ClutterContext *clutter_context = meta_backend_get_clutter_context (backend);
   const MetaCrtcConfig *crtc_config;
   const MetaCrtcModeInfo *crtc_mode_info;
-  ClutterColorspace colorspace;
-  ClutterTransferFunction transfer_function;
   gboolean force_linear;
-  g_autoptr (ClutterColorState) color_state = NULL;
+  ClutterColorState *color_state;
   g_autoptr (ClutterColorState) blending_color_state = NULL;
   MtkMonitorTransform view_transform;
   g_autoptr (CoglFramebuffer) framebuffer = NULL;
@@ -1499,12 +1462,7 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
       framebuffer = COGL_FRAMEBUFFER (virtual_onscreen);
     }
 
-  colorspace = get_color_space_from_output (output);
-  transfer_function = get_transfer_function_from_output (output);
-
-  color_state = clutter_color_state_new (clutter_context,
-                                         colorspace,
-                                         transfer_function);
+  color_state = meta_color_device_get_color_state (color_device);
 
   force_linear = meta_debug_control_is_linear_blending_forced (debug_control);
   blending_color_state = clutter_color_state_get_blending (color_state,
