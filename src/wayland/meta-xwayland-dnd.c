@@ -915,9 +915,10 @@ drag_xgrab_release (MetaWaylandEventHandler *handler,
                            CLUTTER_BUTTON3_MASK |
                            CLUTTER_BUTTON4_MASK |
                            CLUTTER_BUTTON5_MASK)) <= 1 &&
-      (!meta_wayland_drag_grab_get_focus (drag_grab) ||
-       meta_wayland_data_source_get_current_action (data_source) ==
-       WL_DATA_DEVICE_MANAGER_DND_ACTION_NONE))
+      ((!meta_wayland_drag_grab_get_focus (drag_grab) ||
+        meta_wayland_data_source_get_current_action (data_source) ==
+        WL_DATA_DEVICE_MANAGER_DND_ACTION_NONE) ||
+       !meta_wayland_data_source_has_target (data_source)))
     meta_xwayland_end_dnd_grab (&seat->data_device, FALSE);
 
   return CLUTTER_EVENT_PROPAGATE;
