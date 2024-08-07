@@ -1255,36 +1255,6 @@ meta_renderer_native_create_offscreen (MetaRendererNative    *renderer_native,
   return fb;
 }
 
-static CoglOffscreen *
-create_offscreen_with_formats (MetaRendererNative  *renderer_native,
-                               CoglPixelFormat     *formats,
-                               size_t               n_formats,
-                               int                  width,
-                               int                  height,
-                               GError             **error)
-{
-  g_autoptr (GError) local_error = NULL;
-  size_t i;
-
-  for (i = 0; i < n_formats; i++)
-    {
-      CoglOffscreen *offscreen;
-
-      g_clear_error (&local_error);
-
-      offscreen = meta_renderer_native_create_offscreen (renderer_native,
-                                                         formats[i],
-                                                         width,
-                                                         height,
-                                                         &local_error);
-      if (offscreen)
-        return offscreen;
-    }
-
-  g_propagate_error (error, g_steal_pointer (&local_error));
-  return NULL;
-}
-
 static const CoglWinsysVtable *
 get_native_cogl_winsys_vtable (CoglRenderer *cogl_renderer)
 {
@@ -1389,7 +1359,6 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
   g_autoptr (ClutterColorState) blending_color_state = NULL;
   MtkMonitorTransform view_transform;
   g_autoptr (CoglFramebuffer) framebuffer = NULL;
-  g_autoptr (CoglOffscreen) offscreen = NULL;
   gboolean use_shadowfb;
   float scale;
   int onscreen_width;
@@ -1491,60 +1460,6 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
                                              output,
                                              crtc);
 
-  if (view_transform != MTK_MONITOR_TRANSFORM_NORMAL ||
-      !clutter_color_state_equals (color_state, blending_color_state))
-    {
-      int offscreen_width;
-      int offscreen_height;
-      CoglPixelFormat formats[10];
-      size_t n_formats = 0;
-      CoglPixelFormat format;
-      ClutterEncodingRequiredFormat required_format =
-        clutter_color_state_required_format (blending_color_state);
-
-      if (required_format <= CLUTTER_ENCODING_REQUIRED_FORMAT_UINT8)
-        {
-          formats[n_formats++] = cogl_framebuffer_get_internal_format (framebuffer);
-        }
-      else
-        {
-          formats[n_formats++] = COGL_PIXEL_FORMAT_XRGB_FP_16161616;
-          formats[n_formats++] = COGL_PIXEL_FORMAT_XBGR_FP_16161616;
-          formats[n_formats++] = COGL_PIXEL_FORMAT_RGBA_FP_16161616_PRE;
-          formats[n_formats++] = COGL_PIXEL_FORMAT_BGRA_FP_16161616_PRE;
-          formats[n_formats++] = COGL_PIXEL_FORMAT_ARGB_FP_16161616_PRE;
-          formats[n_formats++] = COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE;
-        }
-
-      if (mtk_monitor_transform_is_rotated (view_transform))
-        {
-          offscreen_width = onscreen_height;
-          offscreen_height = onscreen_width;
-        }
-      else
-        {
-          offscreen_width = onscreen_width;
-          offscreen_height = onscreen_height;
-        }
-
-      offscreen = create_offscreen_with_formats (renderer_native,
-                                                 formats,
-                                                 n_formats,
-                                                 offscreen_width,
-                                                 offscreen_height,
-                                                 &local_error);
-      if (!offscreen)
-        g_error ("Failed to allocate back buffer texture: %s", local_error->message);
-
-      format =
-        cogl_framebuffer_get_internal_format (COGL_FRAMEBUFFER (offscreen));
-      meta_topic (META_DEBUG_RENDER,
-                  "Using an additional intermediate %s offscreen (%dx%d) for %s",
-                  cogl_pixel_format_to_string (format),
-                  offscreen_width, offscreen_height,
-                  meta_output_get_name (output));
-    }
-
   if (meta_backend_is_stage_views_scaled (backend))
     scale = meta_logical_monitor_get_scale (logical_monitor);
   else
@@ -1553,6 +1468,7 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
   mtk_rectangle_from_graphene_rect (&crtc_config->layout,
                                     MTK_ROUNDING_STRATEGY_ROUND,
                                     &view_layout);
+
   view_native = g_object_new (META_TYPE_RENDERER_VIEW_NATIVE,
                               "name", meta_output_get_name (output),
                               "stage", meta_backend_get_stage (backend),
@@ -1560,7 +1476,6 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
                               "crtc", crtc,
                               "scale", scale,
                               "framebuffer", framebuffer,
-                              "offscreen", offscreen,
                               "color-state", blending_color_state,
                               "output-color-state", color_state,
                               "use-shadowfb", use_shadowfb,

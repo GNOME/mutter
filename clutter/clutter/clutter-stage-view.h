@@ -55,8 +55,6 @@ CLUTTER_EXPORT
 CoglFramebuffer *clutter_stage_view_get_framebuffer (ClutterStageView *view);
 CLUTTER_EXPORT
 CoglFramebuffer *clutter_stage_view_get_onscreen (ClutterStageView *view);
-CLUTTER_EXPORT
-void             clutter_stage_view_invalidate_offscreen_blit_pipeline (ClutterStageView *view);
 
 CLUTTER_EXPORT
 float clutter_stage_view_get_scale (ClutterStageView *view);
