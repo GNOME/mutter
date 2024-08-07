@@ -902,7 +902,7 @@ handle_orientation_change (MetaOrientationManager *orientation_manager,
     return;
 
   orientation = meta_orientation_manager_get_orientation (orientation_manager);
-  transform = meta_monitor_transform_from_orientation (orientation);
+  transform = meta_orientation_to_transform (orientation);
 
   laptop_logical_monitor = meta_monitor_get_logical_monitor (laptop_panel);
   panel_transform =

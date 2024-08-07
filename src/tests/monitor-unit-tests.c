@@ -4086,7 +4086,7 @@ check_monitor_configuration_per_orientation (MonitorTestCase *test_case,
   MonitorTestCaseSetup *setup = &test_case->setup;
   int i = 0;
 
-  transform = meta_monitor_transform_from_orientation (orientation);
+  transform = meta_orientation_to_transform (orientation);
   output_transform = setup->outputs[monitor_index].panel_orientation_transform;
   expect.logical_monitors[monitor_index].transform =
     meta_monitor_transform_transform (transform,

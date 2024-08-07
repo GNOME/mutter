@@ -713,7 +713,7 @@ get_monitor_transform (MetaMonitorManager *monitor_manager,
   orientation_manager = meta_backend_get_orientation_manager (backend);
   orientation = meta_orientation_manager_get_orientation (orientation_manager);
 
-  return meta_monitor_transform_from_orientation (orientation);
+  return meta_orientation_to_transform (orientation);
 }
 
 static void

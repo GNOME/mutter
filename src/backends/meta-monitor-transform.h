@@ -54,9 +54,6 @@ meta_monitor_transform_is_flipped (MetaMonitorTransform transform)
 }
 
 META_EXPORT_TEST
-MetaMonitorTransform meta_monitor_transform_from_orientation (MetaOrientation orientation);
-
-META_EXPORT_TEST
 MetaMonitorTransform meta_monitor_transform_invert (MetaMonitorTransform transform);
 
 META_EXPORT_TEST
