@@ -1445,7 +1445,7 @@ process_event (MetaDisplay          *display,
       meta_topic (META_DEBUG_KEYBINDINGS,
                   "Ignore autorepeat for handler %s",
                   binding->name);
-      return TRUE;
+      return CLUTTER_EVENT_STOP;
     }
 
   if (clutter_event_type ((ClutterEvent *) event) == CLUTTER_KEY_RELEASE)
@@ -1458,14 +1458,14 @@ process_event (MetaDisplay          *display,
 
           invoke_handler (display, binding->handler, window, event, binding);
           binding->release_pending = FALSE;
-          return TRUE;
+          return CLUTTER_EVENT_STOP;
         }
       else
         {
           meta_topic (META_DEBUG_KEYBINDINGS,
                       "Ignore release for handler %s",
                       binding->name);
-          return FALSE;
+          return CLUTTER_EVENT_PROPAGATE;
         }
     }
   else
@@ -1484,7 +1484,7 @@ process_event (MetaDisplay          *display,
           binding->release_pending = TRUE;
         }
 
-      return TRUE;
+      return CLUTTER_EVENT_STOP;
     }
 
  not_found:
