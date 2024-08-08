@@ -1458,12 +1458,14 @@ process_event (MetaDisplay          *display,
 
           invoke_handler (display, binding->handler, window, event, binding);
           binding->release_pending = FALSE;
+          return TRUE;
         }
       else
         {
           meta_topic (META_DEBUG_KEYBINDINGS,
                       "Ignore release for handler %s",
                       binding->name);
+          return FALSE;
         }
     }
   else
@@ -1481,9 +1483,9 @@ process_event (MetaDisplay          *display,
                       binding->name);
           binding->release_pending = TRUE;
         }
-    }
 
-  return TRUE;
+      return TRUE;
+    }
 
  not_found:
   meta_topic (META_DEBUG_KEYBINDINGS,
