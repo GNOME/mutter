@@ -68,4 +68,7 @@ gboolean meta_kms_crtc_is_active (MetaKmsCrtc *crtc);
 
 gboolean meta_kms_crtc_is_leased (MetaKmsCrtc *crtc);
 
+void meta_kms_crtc_update_shortterm_max_dispatch_duration (MetaKmsCrtc *crtc,
+                                                           int64_t      duration_us);
+
 int64_t meta_kms_crtc_get_deadline_evasion (MetaKmsCrtc *crtc);

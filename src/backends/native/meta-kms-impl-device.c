@@ -41,6 +41,7 @@
 #include "backends/native/meta-kms-plane-private.h"
 #include "backends/native/meta-kms-plane.h"
 #include "backends/native/meta-kms-private.h"
+#include "backends/native/meta-kms-utils.h"
 #include "backends/native/meta-thread-private.h"
 
 #include "meta-default-modes.h"
@@ -1563,12 +1564,13 @@ crtc_frame_deadline_dispatch (MetaThreadImpl  *thread_impl,
                               GError         **error)
 {
   CrtcFrame *crtc_frame = user_data;
-  MetaKmsDevice *device = meta_kms_crtc_get_device (crtc_frame->crtc);
+  MetaKmsCrtc *crtc = crtc_frame->crtc;
+  MetaKmsDevice *device = meta_kms_crtc_get_device (crtc);
   MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
   g_autoptr (MetaKmsFeedback) feedback = NULL;
   uint64_t timer_value;
   ssize_t ret;
-  int64_t dispatch_time_us = 0;
+  int64_t dispatch_time_us = 0, update_done_time_us, interval_us;
 
   if (meta_is_topic_enabled (META_DEBUG_KMS_DEADLINE))
     dispatch_time_us = g_get_monotonic_time ();
@@ -1594,21 +1596,48 @@ crtc_frame_deadline_dispatch (MetaThreadImpl  *thread_impl,
                          g_steal_pointer (&crtc_frame->pending_update),
                          META_KMS_UPDATE_FLAG_NONE);
 
+  update_done_time_us = g_get_monotonic_time ();
+  /* Calculate how long after the planned start of deadline dispatch it finished */
+  interval_us = update_done_time_us - crtc_frame->deadline.expected_deadline_time_us;
+
   if (meta_is_topic_enabled (META_DEBUG_KMS_DEADLINE))
     {
       int64_t lateness_us, duration_us;
 
-      lateness_us = dispatch_time_us -
-                    crtc_frame->deadline.expected_deadline_time_us;
-      duration_us = g_get_monotonic_time () - dispatch_time_us;
+      lateness_us = dispatch_time_us - crtc_frame->deadline.expected_deadline_time_us;
+      duration_us = update_done_time_us - dispatch_time_us;
 
-      meta_topic (META_DEBUG_KMS_DEADLINE,
-                  "Deadline dispatch started %3"G_GINT64_FORMAT "µs %s and "
-                  "completed %3"G_GINT64_FORMAT "µs after that.",
-                  ABS (lateness_us),
-                  lateness_us >= 0 ? "late" : "early",
-                  duration_us);
+      if (meta_kms_crtc_get_current_state (crtc)->vrr.enabled)
+        {
+          meta_topic (META_DEBUG_KMS_DEADLINE,
+                      "VRR deadline dispatch started %3"G_GINT64_FORMAT "µs %s and "
+                      "completed %3"G_GINT64_FORMAT "µs after that.",
+                      ABS (lateness_us),
+                      lateness_us >= 0 ? "late" : "early",
+                      duration_us);
+        }
+      else
+        {
+          int64_t deadline_evasion_us, vblank_delta_us;
+
+          deadline_evasion_us = meta_kms_crtc_get_deadline_evasion (crtc);
+          vblank_delta_us = deadline_evasion_us - lateness_us - duration_us;
+
+          meta_topic (META_DEBUG_KMS_DEADLINE,
+                      "Deadline evasion %3"G_GINT64_FORMAT "µs, "
+                      "dispatch started %3"G_GINT64_FORMAT "µs %s and "
+                      "completed %3"G_GINT64_FORMAT "µs after that, "
+                      "%3"G_GINT64_FORMAT "µs %s start of vblank.",
+                      deadline_evasion_us,
+                      ABS (lateness_us),
+                      lateness_us >= 0 ? "late" : "early",
+                      duration_us,
+                      ABS (vblank_delta_us),
+                      vblank_delta_us >= 0 ? "before" : "after");
+        }
     }
+
+  meta_kms_crtc_update_shortterm_max_dispatch_duration (crtc, interval_us);
 
   if (meta_kms_feedback_did_pass (feedback))
     crtc_frame->deadline.is_deadline_page_flip = TRUE;
