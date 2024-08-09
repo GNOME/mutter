@@ -620,33 +620,6 @@ static const char srgb_inv_eotf_source[] =
   "  return vec4 (srgb_inv_eotf (color.rgb), color.a);\n"
   "}\n";
 
-/* Calculated using:
- *   numpy.dot(colour.models.RGB_COLOURSPACE_BT2020.matrix_XYZ_to_RGB,
- *             colour.models.RGB_COLOURSPACE_BT709.matrix_RGB_to_XYZ)
- */
-static const float bt709_to_bt2020_matrix[9] = {
-  0.6274039f,  0.06909729f, 0.01639144f,
-  0.32928304f, 0.9195404f,  0.08801331f,
-  0.04331307f, 0.01136232f, 0.89559525f,
-};
-
-/*
- * Calculated using:
- *  numpy.dot(colour.models.RGB_COLOURSPACE_BT709.matrix_XYZ_to_RGB,
- *            colour.models.RGB_COLOURSPACE_BT2020.matrix_RGB_to_XYZ)
- */
-static const float bt2020_to_bt709_matrix[9] = {
-  1.660491f,    -0.12455047f, -0.01815076f,
-  -0.58764114f,  1.1328999f,  -0.1005789f,
-  -0.07284986f, -0.00834942f,  1.11872966f,
-};
-
-static const float identity_matrix[9] = {
-  1.f, 0.f, 0.f,
-  0.f, 1.f, 0.f,
-  0.f, 0.f, 1.f,
-};
-
 typedef struct _TransferFunction
 {
   const char *source;
@@ -804,59 +777,253 @@ chromaticity_equal (float x1,
          G_APPROX_VALUE (y1, y2, 0.000001f);
 }
 
+static gboolean
+primaries_white_point_equal (ClutterColorState *color_state,
+                             ClutterColorState *other_color_state)
+{
+  const ClutterPrimaries *primaries;
+  const ClutterPrimaries *other_primaries;
+
+  primaries = clutter_color_state_get_primaries (color_state);
+  other_primaries = clutter_color_state_get_primaries (other_color_state);
+
+  return chromaticity_equal (primaries->w_x, primaries->w_y,
+                             other_primaries->w_x, other_primaries->w_y);
+}
+
+static void
+get_white_chromaticity_in_XYZ (float            x,
+                               float            y,
+                               graphene_vec3_t *chromaticity_XYZ)
+{
+  if (y == 0.0f)
+    {
+      /* Avoid a division by 0 */
+      y = FLT_EPSILON;
+      g_warning ("White point y coordinate is 0, something is probably wrong");
+    }
+
+  graphene_vec3_init (chromaticity_XYZ,
+                      x / y,
+                      1,
+                      (1 - x - y) / y);
+}
+
+/*
+ * Get the matrix rgb_to_xyz that makes:
+ *
+ *   color_XYZ = rgb_to_xyz * color_RGB
+ *
+ * Steps:
+ *
+ *   (1) white_point_XYZ = rgb_to_xyz * white_point_RGB
+ *
+ * Breaking down rgb_to_xyz: rgb_to_xyz = primaries_mat * coefficients_mat
+ *
+ *   (2) white_point_XYZ = primaries_mat * coefficients_mat * white_point_RGB
+ *
+ * white_point_RGB is (1, 1, 1) and coefficients_mat is a diagonal matrix:
+ * coefficients_vec = coefficients_mat * white_point_RGB
+ *
+ *   (3) white_point_XYZ = primaries_mat * coefficients_vec
+ *
+ *   (4) primaries_mat^-1 * white_point_XYZ = coefficients_vec
+ *
+ * When coefficients_vec is calculated, coefficients_mat can be composed to
+ * finally solve:
+ *
+ *  (5) rgb_to_xyz = primaries_mat * coefficients_mat
+ *
+ * Notes:
+ *
+ *   white_point_XYZ: xy white point coordinates transformed to XYZ space
+ *                    using the maximum luminance: Y = 1
+ *
+ *   primaries_mat: matrix made from xy chromaticities transformed to xyz
+ *                  considering x + y + z = 1
+ *
+ *   xyz_to_rgb = rgb_to_xyz^-1
+ *
+ * Reference:
+ *   https://www.ryanjuckett.com/rgb-color-space-conversion/
+ */
+static gboolean
+get_color_space_trans_matrices (ClutterColorState *color_state,
+                                graphene_matrix_t *rgb_to_xyz,
+                                graphene_matrix_t *xyz_to_rgb)
+{
+  const ClutterPrimaries *primaries =
+    clutter_color_state_get_primaries (color_state);
+  graphene_matrix_t coefficients_mat;
+  graphene_matrix_t inv_primaries_mat;
+  graphene_matrix_t primaries_mat;
+  graphene_vec3_t white_point_XYZ;
+  graphene_vec3_t coefficients;
+
+  graphene_matrix_init_from_float (
+    &primaries_mat,
+    (float [16]) {
+    primaries->r_x, primaries->r_y, 1 - primaries->r_x - primaries->r_y, 0,
+    primaries->g_x, primaries->g_y, 1 - primaries->g_x - primaries->g_y, 0,
+    primaries->b_x, primaries->b_y, 1 - primaries->b_x - primaries->b_y, 0,
+    0, 0, 0, 1,
+  });
+
+  if (!graphene_matrix_inverse (&primaries_mat, &inv_primaries_mat))
+    return FALSE;
+
+  get_white_chromaticity_in_XYZ (primaries->w_x, primaries->w_y, &white_point_XYZ);
+
+  graphene_matrix_transform_vec3 (&inv_primaries_mat, &white_point_XYZ, &coefficients);
+
+  graphene_matrix_init_from_float (
+    &coefficients_mat,
+    (float [16]) {
+    graphene_vec3_get_x (&coefficients), 0, 0, 0,
+    0, graphene_vec3_get_y (&coefficients), 0, 0,
+    0, 0, graphene_vec3_get_z (&coefficients), 0,
+    0, 0, 0, 1,
+  });
+
+  graphene_matrix_multiply (&coefficients_mat, &primaries_mat, rgb_to_xyz);
+
+  if (!graphene_matrix_inverse (rgb_to_xyz, xyz_to_rgb))
+    return FALSE;
+
+  return TRUE;
+}
+
+/*
+ * Get the matrix that converts XYZ chromaticity relative to src_white_point
+ * to XYZ chromaticity relative to dst_white_point:
+ *
+ *   dst_XYZ = chromatic_adaptation * src_XYZ
+ *
+ * Steps:
+ *
+ *   chromatic_adaptation = bradford_mat^-1 * coefficients_mat * bradford_mat
+ *
+ *   coefficients_mat = diag (coefficients)
+ *
+ *   coefficients = dst_white_LMS / src_white_LMS
+ *
+ *   dst_white_LMS = bradford_mat * dst_white_XYZ
+ *   src_white_LMS = bradford_mat * src_white_XYZ
+ *
+ * Notes:
+ *
+ *   *_white_XYZ: xy white point coordinates transformed to XYZ space
+ *                using the maximum luminance: Y = 1
+ *
+ * Bradford matrix and reference:
+ *   http://www.brucelindbloom.com/index.html?Eqn_ChromAdapt.html
+ */
+static void
+get_chromatic_adaptation (ClutterColorState *color_state,
+                          ClutterColorState *target_color_state,
+                          graphene_matrix_t *chromatic_adaptation)
+{
+  const ClutterPrimaries *source_primaries =
+    clutter_color_state_get_primaries (color_state);
+  const ClutterPrimaries *target_primaries =
+    clutter_color_state_get_primaries (target_color_state);
+  graphene_matrix_t coefficients_mat;
+  graphene_matrix_t bradford_mat, inv_bradford_mat;
+  graphene_vec3_t src_white_point_XYZ, dst_white_point_XYZ;
+  graphene_vec3_t src_white_point_LMS, dst_white_point_LMS;
+  graphene_vec3_t coefficients;
+
+  graphene_matrix_init_from_float (
+    &bradford_mat,
+    (float [16]) {
+    0.8951f, -0.7502f, 0.0389f, 0,
+    0.2664f, 1.7135f, -0.0685f, 0,
+    -0.1614f, 0.0367f, 1.0296f, 0,
+    0, 0, 0, 1,
+  });
+
+  graphene_matrix_init_from_float (
+    &inv_bradford_mat,
+    (float [16]) {
+    0.9869929f, 0.4323053f, -0.0085287f, 0,
+    -0.1470543f, 0.5183603f, 0.0400428f, 0,
+    0.1599627f, 0.0492912f, 0.9684867f, 0,
+    0, 0, 0, 1,
+  });
+
+  get_white_chromaticity_in_XYZ (source_primaries->w_x, source_primaries->w_y,
+                                 &src_white_point_XYZ);
+  get_white_chromaticity_in_XYZ (target_primaries->w_x, target_primaries->w_y,
+                                 &dst_white_point_XYZ);
+
+  graphene_matrix_transform_vec3 (&bradford_mat, &src_white_point_XYZ,
+                                  &src_white_point_LMS);
+  graphene_matrix_transform_vec3 (&bradford_mat, &dst_white_point_XYZ,
+                                  &dst_white_point_LMS);
+
+  graphene_vec3_divide (&dst_white_point_LMS, &src_white_point_LMS,
+                        &coefficients);
+
+  graphene_matrix_init_from_float (
+    &coefficients_mat,
+    (float [16]) {
+    graphene_vec3_get_x (&coefficients), 0, 0, 0,
+    0, graphene_vec3_get_y (&coefficients), 0, 0,
+    0, 0, graphene_vec3_get_z (&coefficients), 0,
+    0, 0, 0, 1,
+  });
+
+  graphene_matrix_multiply (&bradford_mat, &coefficients_mat,
+                            chromatic_adaptation);
+  graphene_matrix_multiply (chromatic_adaptation, &inv_bradford_mat,
+                            chromatic_adaptation);
+}
+
 static void
 get_color_space_mapping_matrix (ClutterColorState *color_state,
                                 ClutterColorState *target_color_state,
                                 float              out_color_space_mapping[9])
 {
-  ClutterColorStatePrivate *priv =
-    clutter_color_state_get_instance_private (color_state);
-  ClutterColorStatePrivate *target_priv =
-    clutter_color_state_get_instance_private (target_color_state);
+  graphene_matrix_t matrix;
+  graphene_matrix_t src_rgb_to_xyz, src_xyz_to_rgb;
+  graphene_matrix_t target_rgb_to_xyz, target_xyz_to_rgb;
+  graphene_matrix_t chromatic_adaptation;
 
-  switch (priv->colorspace)
+  if (!get_color_space_trans_matrices (color_state,
+                                       &src_rgb_to_xyz,
+                                       &src_xyz_to_rgb) ||
+      !get_color_space_trans_matrices (target_color_state,
+                                       &target_rgb_to_xyz,
+                                       &target_xyz_to_rgb))
     {
-    case CLUTTER_COLORSPACE_SRGB:
-    case CLUTTER_COLORSPACE_DEFAULT:
-      switch (target_priv->colorspace)
+      graphene_matrix_init_identity (&matrix);
+    }
+  else
+    {
+      if (!primaries_white_point_equal (color_state, target_color_state))
         {
-        case CLUTTER_COLORSPACE_BT2020:
-          memcpy (out_color_space_mapping,
-                  bt709_to_bt2020_matrix,
-                  sizeof (bt709_to_bt2020_matrix));
-          return;
-        case CLUTTER_COLORSPACE_SRGB:
-        case CLUTTER_COLORSPACE_DEFAULT:
-          memcpy (out_color_space_mapping,
-                  identity_matrix,
-                  sizeof (identity_matrix));
-          return;
+          get_chromatic_adaptation (color_state, target_color_state,
+                                    &chromatic_adaptation);
+          graphene_matrix_multiply (&src_rgb_to_xyz, &chromatic_adaptation,
+                                    &matrix);
+          graphene_matrix_multiply (&matrix, &target_xyz_to_rgb,
+                                    &matrix);
         }
-      break;
-    case CLUTTER_COLORSPACE_BT2020:
-      switch (target_priv->colorspace)
+      else
         {
-        case CLUTTER_COLORSPACE_BT2020:
-          memcpy (out_color_space_mapping,
-                  identity_matrix,
-                  sizeof (identity_matrix));
-          return;
-        case CLUTTER_COLORSPACE_SRGB:
-        case CLUTTER_COLORSPACE_DEFAULT:
-          memcpy (out_color_space_mapping,
-                  bt2020_to_bt709_matrix,
-                  sizeof (bt2020_to_bt709_matrix));
-          return;
+          graphene_matrix_multiply (&src_rgb_to_xyz, &target_xyz_to_rgb, &matrix);
         }
-      break;
     }
 
-  g_warning ("Unhandled colorspace %s",
-             clutter_colorspace_to_string (priv->colorspace));
-
-  memcpy (out_color_space_mapping,
-          identity_matrix,
-          sizeof (identity_matrix));
+  out_color_space_mapping[0] = graphene_matrix_get_value (&matrix, 0, 0);
+  out_color_space_mapping[1] = graphene_matrix_get_value (&matrix, 0, 1);
+  out_color_space_mapping[2] = graphene_matrix_get_value (&matrix, 0, 2);
+  out_color_space_mapping[3] = graphene_matrix_get_value (&matrix, 1, 0);
+  out_color_space_mapping[4] = graphene_matrix_get_value (&matrix, 1, 1);
+  out_color_space_mapping[5] = graphene_matrix_get_value (&matrix, 1, 2);
+  out_color_space_mapping[6] = graphene_matrix_get_value (&matrix, 2, 0);
+  out_color_space_mapping[7] = graphene_matrix_get_value (&matrix, 2, 1);
+  out_color_space_mapping[8] = graphene_matrix_get_value (&matrix, 2, 2);
 }
 
 static CoglSnippet *
