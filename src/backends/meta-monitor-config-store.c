@@ -1210,7 +1210,7 @@ attempt_layout_mode_conversion (MetaMonitorManager     *monitor_manager,
                                 MetaMonitorsConfigFlag  config_flags)
 {
   GList *logical_monitor_configs_copy;
-  MetaMonitorsConfig *new_logical_config;
+  g_autoptr (MetaMonitorsConfig) new_logical_config = NULL;
   g_autoptr (GError) local_error = NULL;
 
   logical_monitor_configs_copy =
@@ -1261,11 +1261,10 @@ create_full_config:
        */
       g_warning ("Verification of converted monitor config failed: %s",
                  local_error->message);
-      g_object_unref (new_logical_config);
       return NULL;
     }
 
-  return new_logical_config;
+  return g_steal_pointer (&new_logical_config);
 }
 
 static void
@@ -1442,7 +1441,8 @@ handle_end_element (GMarkupParseContext  *context,
     case STATE_CONFIGURATION:
       {
         MetaMonitorConfigStore *store = parser->config_store;
-        MetaMonitorsConfig *config;
+        g_autoptr (MetaMonitorsConfig) config = NULL;
+        MetaMonitorsConfigKey *config_key;
         MetaLogicalMonitorLayoutMode layout_mode = parser->current_layout_mode;
         MetaMonitorsConfigFlag config_flags = META_MONITORS_CONFIG_FLAG_NONE;
 
@@ -1516,13 +1516,11 @@ handle_end_element (GMarkupParseContext  *context,
 
             if (!meta_verify_monitors_config (config, store->monitor_manager,
                                               error))
-              {
-                g_object_unref (config);
-                return;
-              }
+              return;
 
+            config_key = config->key;
             g_hash_table_replace (parser->pending_configs,
-                                  config->key, config);
+                                  config_key, g_steal_pointer (&config));
           }
 
         parser->state = STATE_MONITORS;
