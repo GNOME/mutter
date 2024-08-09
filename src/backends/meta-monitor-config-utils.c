@@ -26,56 +26,52 @@
 #include "core/boxes-private.h"
 #include "meta/meta-monitor-manager.h"
 
-static GList *
-meta_clone_monitor_config_list (GList *monitor_configs_in)
+static MetaMonitorConfig *
+meta_monitor_config_copy (MetaMonitorConfig *monitor_config)
 {
-  MetaMonitorConfig *monitor_config_in;
-  MetaMonitorConfig *monitor_config_out;
-  GList *monitor_configs_out = NULL;
-  GList *l;
+  MetaMonitorConfig *new_monitor_config;
 
-  for (l = monitor_configs_in; l; l = l->next)
-    {
-      monitor_config_in = l->data;
-      monitor_config_out = g_new0 (MetaMonitorConfig, 1);
-      *monitor_config_out = (MetaMonitorConfig) {
-        .monitor_spec = meta_monitor_spec_clone (monitor_config_in->monitor_spec),
-        .mode_spec = g_memdup2 (monitor_config_in->mode_spec,
-                                sizeof (MetaMonitorModeSpec)),
-        .enable_underscanning = monitor_config_in->enable_underscanning,
-        .has_max_bpc = monitor_config_in->has_max_bpc,
-        .max_bpc = monitor_config_in->max_bpc
-      };
-      monitor_configs_out =
-        g_list_append (monitor_configs_out, monitor_config_out);
-    }
+  new_monitor_config = g_new0 (MetaMonitorConfig, 1);
+  *new_monitor_config = (MetaMonitorConfig) {
+    .monitor_spec = meta_monitor_spec_clone (monitor_config->monitor_spec),
+    .mode_spec = g_memdup2 (monitor_config->mode_spec,
+                            sizeof (MetaMonitorModeSpec)),
+    .enable_underscanning = monitor_config->enable_underscanning,
+    .has_max_bpc = monitor_config->has_max_bpc,
+    .max_bpc = monitor_config->max_bpc
+  };
 
-  return monitor_configs_out;
+  return new_monitor_config;
+}
+
+static GList *
+meta_clone_monitor_config_list (GList *monitor_configs)
+{
+  return g_list_copy_deep (monitor_configs,
+                           (GCopyFunc) meta_monitor_config_copy,
+                           NULL);
+}
+
+static MetaLogicalMonitorConfig *
+meta_logical_monitor_config_copy (MetaLogicalMonitorConfig *logical_monitor_config)
+{
+  MetaLogicalMonitorConfig *new_logical_monitor_config;
+
+  new_logical_monitor_config =
+    g_memdup2 (logical_monitor_config,
+               sizeof (MetaLogicalMonitorConfig));
+  new_logical_monitor_config->monitor_configs =
+    meta_clone_monitor_config_list (logical_monitor_config->monitor_configs);
+
+  return new_logical_monitor_config;
 }
 
 GList *
-meta_clone_logical_monitor_config_list (GList *logical_monitor_configs_in)
+meta_clone_logical_monitor_config_list (GList *logical_monitor_configs)
 {
-  MetaLogicalMonitorConfig *logical_monitor_config_in;
-  MetaLogicalMonitorConfig *logical_monitor_config_out;
-  GList *logical_monitor_configs_out = NULL;
-  GList *l;
-
-  for (l = logical_monitor_configs_in; l; l = l->next)
-    {
-      logical_monitor_config_in = l->data;
-
-      logical_monitor_config_out =
-        g_memdup2 (logical_monitor_config_in,
-                   sizeof (MetaLogicalMonitorConfig));
-      logical_monitor_config_out->monitor_configs =
-        meta_clone_monitor_config_list (logical_monitor_config_in->monitor_configs);
-
-      logical_monitor_configs_out =
-        g_list_append (logical_monitor_configs_out, logical_monitor_config_out);
-    }
-
-  return logical_monitor_configs_out;
+  return g_list_copy_deep (logical_monitor_configs,
+                           (GCopyFunc) meta_logical_monitor_config_copy,
+                           NULL);
 }
 
 static GList *
