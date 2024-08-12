@@ -293,7 +293,8 @@ meta_color_device_dispose (GObject *object)
 
   cd_device = color_device->cd_device;
   cd_device_id = color_device->cd_device_id;
-  if (!cd_device && cd_device_id && meta_color_manager_is_ready (color_manager))
+  if (!cd_device && !color_device->is_ready &&
+      cd_device_id && meta_color_manager_is_ready (color_manager))
     {
       g_autoptr (GError) error = NULL;
 
@@ -707,7 +708,11 @@ meta_color_device_new (MetaColorManager *color_manager,
 
   update_color_state (color_device);
 
-  if (meta_color_manager_is_ready (color_manager))
+  if (meta_monitor_is_virtual (monitor))
+    {
+      meta_color_device_notify_ready (color_device, FALSE);
+    }
+  else if (meta_color_manager_is_ready (color_manager))
     {
       create_cd_device (color_device);
     }
