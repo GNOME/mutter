@@ -81,6 +81,7 @@ enum
 
   PROP_SCANOUT_CANDIDATE,
   PROP_WINDOW,
+  PROP_MAIN_MONITOR,
 
   N_PROPS
 };
@@ -143,6 +144,10 @@ static void
 set_surface_is_on_output (MetaWaylandSurface *surface,
                           MetaWaylandOutput  *wayland_output,
                           gboolean            is_on_output);
+
+static void
+on_main_monitor_destroyed (gpointer  user_data,
+                           GObject  *where_the_monitor_was);
 
 static void
 role_assignment_valist_to_properties (GType       role_type,
@@ -1571,6 +1576,14 @@ meta_wayland_surface_dispose (GObject *object)
 
   g_clear_pointer (&surface->shortcut_inhibited_seats, g_hash_table_destroy);
 
+  if (surface->main_monitor)
+    {
+      g_object_weak_unref (G_OBJECT (surface->main_monitor),
+                           on_main_monitor_destroyed,
+                           surface);
+      surface->main_monitor = NULL;
+    }
+
   G_OBJECT_CLASS (meta_wayland_surface_parent_class)->dispose (object);
 }
 
@@ -1862,6 +1875,29 @@ meta_wayland_surface_get_property (GObject    *object,
     case PROP_WINDOW:
       g_value_set_object (value, meta_wayland_surface_get_window (surface));
       break;
+    case PROP_MAIN_MONITOR:
+      g_value_set_object (value, surface->main_monitor);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
+meta_wayland_surface_set_property (GObject      *object,
+                                   guint         prop_id,
+                                   const GValue *value,
+                                   GParamSpec   *pspec)
+{
+  MetaWaylandSurface *surface = META_WAYLAND_SURFACE (object);
+
+  switch (prop_id)
+    {
+    case PROP_MAIN_MONITOR:
+      meta_wayland_surface_set_main_monitor (surface,
+                                             g_value_get_object (value));
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -1875,6 +1911,7 @@ meta_wayland_surface_class_init (MetaWaylandSurfaceClass *klass)
 
   object_class->dispose = meta_wayland_surface_dispose;
   object_class->get_property = meta_wayland_surface_get_property;
+  object_class->set_property = meta_wayland_surface_set_property;
 
   obj_props[PROP_SCANOUT_CANDIDATE] =
     g_param_spec_object ("scanout-candidate", NULL, NULL,
@@ -1887,6 +1924,14 @@ meta_wayland_surface_class_init (MetaWaylandSurfaceClass *klass)
                          META_TYPE_WINDOW,
                          G_PARAM_READABLE |
                          G_PARAM_STATIC_STRINGS);
+
+  obj_props[PROP_MAIN_MONITOR] =
+    g_param_spec_object ("main-monitor", NULL, NULL,
+                         META_TYPE_LOGICAL_MONITOR,
+                         G_PARAM_READWRITE |
+                         G_PARAM_EXPLICIT_NOTIFY |
+                         G_PARAM_STATIC_STRINGS);
+
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
 
   surface_signals[SURFACE_DESTROY] =
@@ -2507,4 +2552,54 @@ void
 meta_wayland_surface_notify_actor_changed (MetaWaylandSurface *surface)
 {
   g_signal_emit (surface, surface_signals[SURFACE_ACTOR_CHANGED], 0);
+}
+
+static void
+meta_wayland_surface_set_main_monitor_internal (MetaWaylandSurface *surface,
+                                                MetaLogicalMonitor *logical_monitor,
+                                                gconstpointer       not_this_monitor)
+{
+  if (surface->main_monitor == logical_monitor)
+    return;
+
+  if (surface->main_monitor && surface->main_monitor != not_this_monitor)
+    {
+      g_object_weak_unref (G_OBJECT (surface->main_monitor),
+                           on_main_monitor_destroyed,
+                           surface);
+    }
+
+  if (logical_monitor)
+    {
+      g_object_weak_ref (G_OBJECT (logical_monitor),
+                         on_main_monitor_destroyed,
+                         surface);
+    }
+
+  surface->main_monitor = logical_monitor;
+
+  g_object_notify_by_pspec (G_OBJECT (surface), obj_props[PROP_MAIN_MONITOR]);
+}
+
+static void
+on_main_monitor_destroyed (gpointer  user_data,
+                           GObject  *where_the_monitor_was)
+{
+  MetaWaylandSurface *surface = META_WAYLAND_SURFACE (user_data);
+
+  meta_wayland_surface_set_main_monitor_internal (surface, NULL,
+                                                  where_the_monitor_was);
+}
+
+void
+meta_wayland_surface_set_main_monitor (MetaWaylandSurface *surface,
+                                       MetaLogicalMonitor *logical_monitor)
+{
+  meta_wayland_surface_set_main_monitor_internal (surface, logical_monitor, NULL);
+}
+
+MetaLogicalMonitor *
+meta_wayland_surface_get_main_monitor (MetaWaylandSurface *surface)
+{
+  return surface->main_monitor;
 }

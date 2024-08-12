@@ -272,6 +272,8 @@ struct _MetaWaylandSurface
     MetaWaylandTransaction *first_committed;
     MetaWaylandTransaction *last_committed;
   } transaction;
+
+  MetaLogicalMonitor *main_monitor;
 };
 
 void                meta_wayland_shell_init     (MetaWaylandCompositor *compositor);
@@ -412,6 +414,11 @@ MetaWaylandCompositor * meta_wayland_surface_get_compositor (MetaWaylandSurface 
 void meta_wayland_surface_notify_highest_scale_monitor (MetaWaylandSurface *surface);
 
 void meta_wayland_surface_notify_actor_changed (MetaWaylandSurface *surface);
+
+void meta_wayland_surface_set_main_monitor (MetaWaylandSurface *surface,
+                                            MetaLogicalMonitor *logical_monitor);
+
+MetaLogicalMonitor * meta_wayland_surface_get_main_monitor (MetaWaylandSurface *surface);
 
 static inline MetaWaylandSurfaceState *
 meta_wayland_surface_state_new (void)
