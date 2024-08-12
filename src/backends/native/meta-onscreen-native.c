@@ -593,6 +593,7 @@ meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
       break;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
+      meta_kms_update_set_flushing (kms_update, kms_crtc);
       meta_kms_update_set_custom_page_flip (kms_update,
                                             custom_egl_stream_page_flip,
                                             onscreen_native);
