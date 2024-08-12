@@ -479,6 +479,19 @@ drag_grab_focus (MetaWaylandEventHandler *handler,
     meta_wayland_drag_grab_set_focus (drag_grab, surface);
 }
 
+static void
+data_device_update_position (MetaWaylandDragGrab *drag_grab,
+                             graphene_point_t    *point)
+{
+  MetaFeedbackActor *feedback_actor =
+    META_FEEDBACK_ACTOR (drag_grab->feedback_actor);
+
+  if (!drag_grab->drag_surface)
+    return;
+
+  meta_feedback_actor_set_position (feedback_actor, point->x, point->y);
+}
+
 static gboolean
 drag_grab_motion (MetaWaylandEventHandler *handler,
 		  const ClutterEvent      *event,
@@ -496,19 +509,16 @@ drag_grab_motion (MetaWaylandEventHandler *handler,
       drag_grab->sequence != clutter_event_get_event_sequence (event))
     return CLUTTER_EVENT_STOP;
 
+  clutter_event_get_position (event, &point);
+
   if (drag_grab->drag_focus)
     {
-      clutter_event_get_coords (event, &point.x, &point.y);
       time_ms = clutter_event_get_time (event);
       meta_wayland_surface_drag_dest_motion (drag_grab->drag_focus,
                                              point.x, point.y, time_ms);
     }
 
-  if (drag_grab->drag_surface)
-    {
-      meta_feedback_actor_update (META_FEEDBACK_ACTOR (drag_grab->feedback_actor),
-                                  event);
-    }
+  data_device_update_position (drag_grab, &point);
 
   meta_dnd_wayland_on_motion_event (meta_backend_get_dnd (backend), event);
 
@@ -746,8 +756,7 @@ meta_wayland_data_device_start_drag (MetaWaylandDataDevice           *data_devic
                                       0, 0);
       clutter_actor_add_child (drag_grab->feedback_actor, drag_surface_actor);
 
-      meta_feedback_actor_set_position (META_FEEDBACK_ACTOR (drag_grab->feedback_actor),
-                                        pos.x, pos.y);
+      data_device_update_position (drag_grab, &pos);
     }
 
   input = meta_wayland_seat_get_input (seat);
