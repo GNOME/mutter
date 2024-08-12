@@ -259,19 +259,6 @@ meta_feedback_actor_set_position (MetaFeedbackActor  *self,
 }
 
 void
-meta_feedback_actor_update (MetaFeedbackActor  *self,
-                            const ClutterEvent *event)
-{
-  graphene_point_t point;
-
-  g_return_if_fail (META_IS_FEEDBACK_ACTOR (self));
-  g_return_if_fail (event != NULL);
-
-  clutter_event_get_position (event, &point);
-  meta_feedback_actor_set_position (self, point.x, point.y);
-}
-
-void
 meta_feedback_actor_set_geometry_scale (MetaFeedbackActor *self,
                                         int                geometry_scale)
 {
