@@ -55,6 +55,7 @@
 #include "clutter/clutter-private.h"
 
 #define UNIFORM_NAME_LUMINANCE_MAPPING "luminance_mapping"
+#define UNIFORM_NAME_COLOR_SPACE_MAPPING "color_space_mapping"
 
 enum
 {
@@ -98,9 +99,7 @@ clutter_color_transform_key_hash (gconstpointer data)
 {
   const ClutterColorTransformKey *key = data;
 
-  return (key->source.colorspace ^
-          key->source.transfer_function ^
-          key->target.colorspace ^
+  return (key->source.transfer_function ^
           key->target.transfer_function);
 }
 
@@ -111,10 +110,8 @@ clutter_color_transform_key_equal (gconstpointer data1,
   const ClutterColorTransformKey *key1 = data1;
   const ClutterColorTransformKey *key2 = data2;
 
-  return (key1->source.colorspace == key2->source.colorspace &&
-          key1->source.transfer_function == key2->source.transfer_function &&
-          key1->target.colorspace == key2->target.colorspace &&
-          key1->target.transfer_function == key2->target.transfer_function);
+  return (key1->source.transfer_function == key2->source.transfer_function &&
+           key1->target.transfer_function == key2->target.transfer_function);
 }
 
 void
@@ -127,9 +124,7 @@ clutter_color_transform_key_init (ClutterColorTransformKey *key,
   ClutterColorStatePrivate *target_priv =
     clutter_color_state_get_instance_private (target_color_state);
 
-  key->source.colorspace = priv->colorspace;
   key->source.transfer_function = priv->transfer_function;
-  key->target.colorspace = target_priv->colorspace;
   key->target.transfer_function = target_priv->transfer_function;
 }
 
@@ -590,34 +585,34 @@ static const char srgb_inv_eotf_source[] =
  *   numpy.dot(colour.models.RGB_COLOURSPACE_BT2020.matrix_XYZ_to_RGB,
  *             colour.models.RGB_COLOURSPACE_BT709.matrix_RGB_to_XYZ)
  */
-static const char bt709_to_bt2020_matrix_source[] =
-  "mat3 bt709_to_bt2020 =\n"
-  "  mat3 (vec3 (0.6274039,  0.06909729, 0.01639144),\n"
-  "        vec3 (0.32928304, 0.9195404,  0.08801331),\n"
-  "        vec3 (0.04331307, 0.01136232, 0.89559525));\n";
+static const float bt709_to_bt2020_matrix[9] = {
+  0.6274039f,  0.06909729f, 0.01639144f,
+  0.32928304f, 0.9195404f,  0.08801331f,
+  0.04331307f, 0.01136232f, 0.89559525f,
+};
 
 /*
  * Calculated using:
  *  numpy.dot(colour.models.RGB_COLOURSPACE_BT709.matrix_XYZ_to_RGB,
  *            colour.models.RGB_COLOURSPACE_BT2020.matrix_RGB_to_XYZ)
  */
-static const char bt2020_to_bt709_matrix_source[] =
-  "mat3 bt2020_to_bt709 =\n"
-  "  mat3 (vec3 (1.660491,    -0.12455047, -0.01815076),\n"
-  "        vec3 (-0.58764114,  1.1328999,  -0.1005789),\n"
-  "        vec3 (-0.07284986, -0.00834942,  1.11872966));\n";
+static const float bt2020_to_bt709_matrix[9] = {
+  1.660491f,    -0.12455047f, -0.01815076f,
+  -0.58764114f,  1.1328999f,  -0.1005789f,
+  -0.07284986f, -0.00834942f,  1.11872966f,
+};
+
+static const float identity_matrix[9] = {
+  1.f, 0.f, 0.f,
+  0.f, 1.f, 0.f,
+  0.f, 0.f, 1.f,
+};
 
 typedef struct _TransferFunction
 {
   const char *source;
   const char *name;
 } TransferFunction;
-
-typedef struct _MatrixMultiplication
-{
-  const char *source;
-  const char *name;
-} MatrixMultiplication;
 
 static const TransferFunction pq_eotf = {
   .source = pq_eotf_source,
@@ -639,16 +634,6 @@ static const TransferFunction srgb_inv_eotf = {
   .name = "srgb_inv_eotf",
 };
 
-static const MatrixMultiplication bt709_to_bt2020 = {
-  .source = bt709_to_bt2020_matrix_source,
-  .name = "bt709_to_bt2020",
-};
-
-static const MatrixMultiplication bt2020_to_bt709 = {
-  .source = bt2020_to_bt709_matrix_source,
-  .name = "bt2020_to_bt709",
-};
-
 static void
 append_shader_description (GString           *snippet_source,
                            ClutterColorState *color_state,
@@ -658,20 +643,14 @@ append_shader_description (GString           *snippet_source,
     clutter_color_state_get_instance_private (color_state);
   ClutterColorStatePrivate *target_priv =
     clutter_color_state_get_instance_private (target_color_state);
-  const char *colorspace =
-    clutter_colorspace_to_string (priv->colorspace);
   const char *transfer_function =
     clutter_transfer_function_to_string (priv->transfer_function);
-  const char *target_colorspace =
-    clutter_colorspace_to_string (target_priv->colorspace);
   const char *target_transfer_function =
     clutter_transfer_function_to_string (target_priv->transfer_function);
 
   g_string_append_printf (snippet_source,
-                          "  // %s (%s) to %s (%s)\n",
-                          colorspace,
+                          "  // %s to %s\n",
                           transfer_function,
-                          target_colorspace,
                           target_transfer_function);
 }
 
@@ -731,9 +710,10 @@ get_transfer_functions (ClutterColorState       *color_state,
   *post_transfer_function = get_inv_eotf (target_color_state);
 }
 
-static const MatrixMultiplication *
+static void
 get_color_space_mapping_matrix (ClutterColorState *color_state,
-                                ClutterColorState *target_color_state)
+                                ClutterColorState *target_color_state,
+                                float              out_color_space_mapping[9])
 {
   ClutterColorStatePrivate *priv =
     clutter_color_state_get_instance_private (color_state);
@@ -747,25 +727,42 @@ get_color_space_mapping_matrix (ClutterColorState *color_state,
       switch (target_priv->colorspace)
         {
         case CLUTTER_COLORSPACE_BT2020:
-          return &bt709_to_bt2020;
+          memcpy (out_color_space_mapping,
+                  bt709_to_bt2020_matrix,
+                  sizeof (bt709_to_bt2020_matrix));
+          return;
         case CLUTTER_COLORSPACE_SRGB:
         case CLUTTER_COLORSPACE_DEFAULT:
-          return NULL;
+          memcpy (out_color_space_mapping,
+                  identity_matrix,
+                  sizeof (identity_matrix));
+          return;
         }
       break;
     case CLUTTER_COLORSPACE_BT2020:
       switch (target_priv->colorspace)
         {
         case CLUTTER_COLORSPACE_BT2020:
-          return NULL;
+          memcpy (out_color_space_mapping,
+                  identity_matrix,
+                  sizeof (identity_matrix));
+          return;
         case CLUTTER_COLORSPACE_SRGB:
         case CLUTTER_COLORSPACE_DEFAULT:
-          return &bt2020_to_bt709;
+          memcpy (out_color_space_mapping,
+                  bt2020_to_bt709_matrix,
+                  sizeof (bt2020_to_bt709_matrix));
+          return;
         }
       break;
     }
 
-  g_assert_not_reached ();
+  g_warning ("Unhandled colorspace %s",
+             clutter_colorspace_to_string (priv->colorspace));
+
+  memcpy (out_color_space_mapping,
+          identity_matrix,
+          sizeof (identity_matrix));
 }
 
 static CoglSnippet *
@@ -776,7 +773,6 @@ clutter_color_state_get_transform_snippet (ClutterColorState *color_state,
   ClutterColorManager *color_manager;
   ClutterColorTransformKey transform_key;
   CoglSnippet *snippet;
-  const MatrixMultiplication *color_space_mapping = NULL;
   const TransferFunction *pre_transfer_function = NULL;
   const TransferFunction *post_transfer_function = NULL;
   g_autoptr (GString) globals_source = NULL;
@@ -793,9 +789,6 @@ clutter_color_state_get_transform_snippet (ClutterColorState *color_state,
   if (snippet)
     return g_object_ref (snippet);
 
-  color_space_mapping = get_color_space_mapping_matrix (color_state,
-                                                        target_color_state);
-
   get_transfer_functions (color_state, target_color_state,
                           &pre_transfer_function,
                           &post_transfer_function);
@@ -805,11 +798,11 @@ clutter_color_state_get_transform_snippet (ClutterColorState *color_state,
     g_string_append_printf (globals_source, "%s\n", pre_transfer_function->source);
   if (post_transfer_function)
     g_string_append_printf (globals_source, "%s\n", post_transfer_function->source);
-  if (color_space_mapping)
-    g_string_append_printf (globals_source, "%s\n", color_space_mapping->source);
 
   g_string_append (globals_source,
                    "uniform float " UNIFORM_NAME_LUMINANCE_MAPPING ";\n");
+  g_string_append (globals_source,
+                   "uniform mat3 " UNIFORM_NAME_COLOR_SPACE_MAPPING ";\n");
 
   /*
    * The following statements generate a shader snippet that transforms colors
@@ -850,12 +843,9 @@ clutter_color_state_get_transform_snippet (ClutterColorState *color_state,
                    "  color_state_color = "
                    UNIFORM_NAME_LUMINANCE_MAPPING " * color_state_color;\n");
 
-  if (color_space_mapping)
-    {
-      g_string_append_printf (snippet_source,
-                              "  color_state_color = %s * color_state_color;\n",
-                              color_space_mapping->name);
-    }
+  g_string_append (snippet_source,
+                   "  color_state_color = "
+                   UNIFORM_NAME_COLOR_SPACE_MAPPING " * color_state_color;\n");
 
   if (post_transfer_function)
     {
@@ -906,7 +896,9 @@ clutter_color_state_update_uniforms (ClutterColorState *color_state,
                                      CoglPipeline      *pipeline)
 {
   float luminance_mapping;
+  float color_space_mapping[9] = { 0 };
   int uniform_location_luminance_mapping;
+  int uniform_location_color_space_mapping;
 
   luminance_mapping = get_luminance_mapping (color_state, target_color_state);
 
@@ -917,6 +909,20 @@ clutter_color_state_update_uniforms (ClutterColorState *color_state,
   cogl_pipeline_set_uniform_1f (pipeline,
                                 uniform_location_luminance_mapping,
                                 luminance_mapping);
+
+  get_color_space_mapping_matrix (color_state, target_color_state,
+                                  color_space_mapping);
+
+  uniform_location_color_space_mapping =
+    cogl_pipeline_get_uniform_location (pipeline,
+                                        UNIFORM_NAME_COLOR_SPACE_MAPPING);
+
+  cogl_pipeline_set_uniform_matrix (pipeline,
+                                    uniform_location_color_space_mapping,
+                                    3,
+                                    1,
+                                    FALSE,
+                                    color_space_mapping);
 }
 
 void

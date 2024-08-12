@@ -27,11 +27,9 @@
 typedef struct _ClutterColorTransformKey
 {
   struct {
-    ClutterColorspace colorspace;
     ClutterTransferFunction transfer_function;
   } source;
   struct {
-    ClutterColorspace colorspace;
     ClutterTransferFunction transfer_function;
   } target;
 } ClutterColorTransformKey;
