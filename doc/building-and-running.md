@@ -155,16 +155,23 @@ This will create a D-Bus session, and attach to it. To attach to the same sessio
 
 There are limitations to the nested instance, such as keyboard shortcuts usually not getting to the nested compositor. The remote-desktop feature can help working around this.
 
-First create a [nested D-Bus session](#d-bus-session). In this, run gnome-shell in headless mode with a virtual monitor. E.g.
+First create a [nested D-Bus session](#d-bus-session). In this, run gnome-shell in headless mode. E.g.
 ```sh
 ⬢ dbus-session.sh new
-⬢ gnome-shell --headless --virtual-monitor 1280x720
+⬢ gnome-shell --headless
 ```
 
+Build `gnome-remote-desktop` and run:
 ```sh
 ⬢ dbus-session.sh attach
-⬢ ./build/src/gnome-remote-desktop-daemon
+⬢ ./build/src/grdctl rdp set-credentials test test
+⬢ ./build/src/grdctl rdp enable
+⬢ ./build/src/gnome-remote-desktop-daemon --headless --rdp-port 12345
 ```
+
+Warning: This turns on rdp access for the entire system with weak credentials! For quick testing, `GNOME_REMOTE_DESKTOP_TEST_RDP_USERNAME` and `GNOME_REMOTE_DESKTOP_TEST_RDP_PASSWORD` might be useful.
+
+Finally, connect to `localhost:12345` with username and password `test` using an RDP client, like xfreerdp or Remmina.
 
 ## Native
 
