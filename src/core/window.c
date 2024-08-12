@@ -223,6 +223,7 @@ enum
   PROP_EFFECT,
   PROP_SUSPEND_STATE,
   PROP_MAPPED,
+  PROP_MAIN_MONITOR,
 
   PROP_LAST,
 };
@@ -444,6 +445,9 @@ meta_window_get_property(GObject         *object,
     case PROP_MAPPED:
       g_value_set_boolean (value, win->mapped);
       break;
+    case PROP_MAIN_MONITOR:
+      g_value_set_object (value, win->monitor);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -613,6 +617,11 @@ meta_window_class_init (MetaWindowClass *klass)
     g_param_spec_boolean ("mapped", NULL, NULL,
                           FALSE,
                           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+
+  obj_props[PROP_MAIN_MONITOR] =
+    g_param_spec_object ("main-monitor", NULL, NULL,
+                         META_TYPE_LOGICAL_MONITOR,
+                         G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
 
@@ -965,6 +974,8 @@ meta_window_main_monitor_changed (MetaWindow               *window,
   if (window->monitor)
     g_signal_emit_by_name (window->display, "window-entered-monitor",
                            window->monitor->number, window);
+
+  g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_MAIN_MONITOR]);
 }
 
 MetaLogicalMonitor *

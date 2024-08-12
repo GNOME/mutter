@@ -483,13 +483,24 @@ static void
 data_device_update_position (MetaWaylandDragGrab *drag_grab,
                              graphene_point_t    *point)
 {
+  MetaWaylandCompositor *compositor =
+    meta_wayland_seat_get_compositor (drag_grab->seat);
+  MetaContext *context = meta_wayland_compositor_get_context (compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
   MetaFeedbackActor *feedback_actor =
     META_FEEDBACK_ACTOR (drag_grab->feedback_actor);
+  MetaLogicalMonitor *monitor;
 
   if (!drag_grab->drag_surface)
     return;
 
   meta_feedback_actor_set_position (feedback_actor, point->x, point->y);
+
+  monitor = meta_monitor_manager_get_logical_monitor_at (monitor_manager,
+                                                         point->x, point->y);
+  meta_wayland_surface_set_main_monitor (drag_grab->drag_surface, monitor);
 }
 
 static gboolean

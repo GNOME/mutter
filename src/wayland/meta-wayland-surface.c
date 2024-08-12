@@ -707,6 +707,7 @@ meta_wayland_surface_apply_placement_ops (MetaWaylandSurface      *parent,
       if (!op->sibling)
         {
           surface->applied_state.parent = NULL;
+          meta_wayland_surface_set_main_monitor (surface, NULL);
           continue;
         }
 
@@ -732,6 +733,8 @@ meta_wayland_surface_apply_placement_ops (MetaWaylandSurface      *parent,
                                 surface->applied_state.subsurface_branch_node);
           break;
         }
+
+      meta_wayland_surface_set_main_monitor (surface, parent->main_monitor);
     }
 }
 
@@ -2559,6 +2562,8 @@ meta_wayland_surface_set_main_monitor_internal (MetaWaylandSurface *surface,
                                                 MetaLogicalMonitor *logical_monitor,
                                                 gconstpointer       not_this_monitor)
 {
+  MetaWaylandSurface *subsurface_surface;
+
   if (surface->main_monitor == logical_monitor)
     return;
 
@@ -2579,6 +2584,10 @@ meta_wayland_surface_set_main_monitor_internal (MetaWaylandSurface *surface,
   surface->main_monitor = logical_monitor;
 
   g_object_notify_by_pspec (G_OBJECT (surface), obj_props[PROP_MAIN_MONITOR]);
+
+  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (&surface->committed_state,
+                                           subsurface_surface)
+    meta_wayland_surface_set_main_monitor (subsurface_surface, logical_monitor);
 }
 
 static void

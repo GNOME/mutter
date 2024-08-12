@@ -36,6 +36,7 @@ typedef struct _MetaWaylandShellSurfacePrivate
 
   gulong unmanaging_handler_id;
   gulong highest_scale_monitor_handler_id;
+  GBinding *main_monitor_binding;
 } MetaWaylandShellSurfacePrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaWaylandShellSurface,
@@ -114,6 +115,9 @@ clear_window (MetaWaylandShellSurface *shell_surface)
     clutter_actor_set_reactive (CLUTTER_ACTOR (surface_actor), FALSE);
 
   meta_wayland_surface_notify_unmapped (surface);
+
+  meta_wayland_surface_set_main_monitor (surface, NULL);
+  g_clear_object (&priv->main_monitor_binding);
 }
 
 static void
@@ -150,6 +154,11 @@ meta_wayland_shell_surface_set_window (MetaWaylandShellSurface *shell_surface,
                       shell_surface);
 
   meta_window_update_monitor (window, META_WINDOW_UPDATE_MONITOR_FLAGS_NONE);
+
+  priv->main_monitor_binding =
+    g_object_bind_property (G_OBJECT (window), "main-monitor",
+                            G_OBJECT (surface), "main-monitor",
+                            G_BINDING_DEFAULT | G_BINDING_SYNC_CREATE);
 
   priv->highest_scale_monitor_handler_id =
     g_signal_connect_swapped (window, "highest-scale-monitor-changed",
