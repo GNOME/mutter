@@ -1370,7 +1370,7 @@ crtc_page_flip_feedback_flipped (MetaKmsCrtc  *crtc,
   CrtcFrame *crtc_frame = user_data;
 
   if (crtc_frame->deadline.is_deadline_page_flip &&
-      meta_is_topic_enabled (META_DEBUG_KMS))
+      meta_is_topic_enabled (META_DEBUG_KMS_DEADLINE))
     {
       struct timeval page_flip_timeval;
       int64_t presentation_time_us;
@@ -1383,7 +1383,7 @@ crtc_page_flip_feedback_flipped (MetaKmsCrtc  *crtc,
 
       if (crtc_frame->deadline.has_expected_presentation_time)
         {
-          meta_topic (META_DEBUG_KMS,
+          meta_topic (META_DEBUG_KMS_DEADLINE,
                       "Deadline page flip presentation time: %" G_GINT64_FORMAT " us, "
                       "expected %" G_GINT64_FORMAT " us "
                       "(diff: %" G_GINT64_FORMAT ")",
@@ -1394,7 +1394,7 @@ crtc_page_flip_feedback_flipped (MetaKmsCrtc  *crtc,
         }
       else
         {
-          meta_topic (META_DEBUG_KMS,
+          meta_topic (META_DEBUG_KMS_DEADLINE,
                       "Deadline page flip presentation time: %" G_GINT64_FORMAT " us",
                       presentation_time_us);
         }
