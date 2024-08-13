@@ -48,13 +48,10 @@ G_DEFINE_TYPE (MetaSurfaceActorWayland,
                META_TYPE_SURFACE_ACTOR)
 
 static void
-meta_surface_actor_wayland_process_damage (MetaSurfaceActor *actor,
-                                           int               x,
-                                           int               y,
-                                           int               width,
-                                           int               height)
+meta_surface_actor_wayland_process_damage (MetaSurfaceActor   *actor,
+                                           const MtkRectangle *area)
 {
-  meta_surface_actor_update_area (actor, x, y, width, height);
+  meta_surface_actor_update_area (actor, area);
 }
 
 static gboolean

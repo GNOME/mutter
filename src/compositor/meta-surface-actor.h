@@ -19,18 +19,15 @@ struct _MetaSurfaceActorClass
   /*< private >*/
   ClutterActorClass parent_class;
 
-  void     (* process_damage)    (MetaSurfaceActor *actor,
-                                  int x, int y, int width, int height);
-  gboolean (* is_opaque)         (MetaSurfaceActor *actor);
+  void (* process_damage) (MetaSurfaceActor   *actor,
+                           const MtkRectangle *area);
+  gboolean (* is_opaque) (MetaSurfaceActor *actor);
 };
 
 MetaShapedTexture *meta_surface_actor_get_texture (MetaSurfaceActor *self);
 
-void meta_surface_actor_update_area (MetaSurfaceActor *self,
-                                     int               x,
-                                     int               y,
-                                     int               width,
-                                     int               height);
+void meta_surface_actor_update_area (MetaSurfaceActor   *self,
+                                     const MtkRectangle *area);
 
 gboolean meta_surface_actor_is_obscured (MetaSurfaceActor *self);
 
@@ -51,8 +48,8 @@ MtkRegion * meta_surface_actor_get_opaque_region (MetaSurfaceActor *self);
 
 void meta_surface_actor_schedule_update (MetaSurfaceActor *self);
 
-void meta_surface_actor_process_damage (MetaSurfaceActor *actor,
-                                        int x, int y, int width, int height);
+void meta_surface_actor_process_damage (MetaSurfaceActor   *actor,
+                                        const MtkRectangle *area);
 
 gboolean meta_surface_actor_is_opaque (MetaSurfaceActor *actor);
 

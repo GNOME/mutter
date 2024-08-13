@@ -1204,12 +1204,9 @@ meta_shaped_texture_set_mask_texture (MetaShapedTexture *stex,
  * Return value: Whether a redraw have been queued or not
  */
 gboolean
-meta_shaped_texture_update_area (MetaShapedTexture *stex,
-                                 int                x,
-                                 int                y,
-                                 int                width,
-                                 int                height,
-                                 MtkRectangle      *clip)
+meta_shaped_texture_update_area (MetaShapedTexture  *stex,
+                                 const MtkRectangle *area,
+                                 MtkRectangle       *clip)
 {
   MtkMonitorTransform inverted_transform;
   MtkRectangle buffer_rect;
@@ -1221,10 +1218,10 @@ meta_shaped_texture_update_area (MetaShapedTexture *stex,
 
   /* Pad the actor clip to ensure that pixels affected by linear scaling are accounted for */
   *clip = (MtkRectangle) {
-    .x = x - 1,
-    .y = y - 1,
-    .width = width + 2,
-    .height = height + 2
+    .x = area->x - 1,
+    .y = area->y - 1,
+    .width = area->width + 2,
+    .height = area->height + 2
   };
 
   buffer_rect = (MtkRectangle) {

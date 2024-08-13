@@ -430,18 +430,15 @@ meta_surface_actor_schedule_update (MetaSurfaceActor *self)
 }
 
 void
-meta_surface_actor_update_area (MetaSurfaceActor *self,
-                                int               x,
-                                int               y,
-                                int               width,
-                                int               height)
+meta_surface_actor_update_area (MetaSurfaceActor   *self,
+                                const MtkRectangle *area)
 {
   MetaSurfaceActorPrivate *priv =
     meta_surface_actor_get_instance_private (self);
   gboolean repaint_scheduled = FALSE;
   MtkRectangle clip;
 
-  if (meta_shaped_texture_update_area (priv->texture, x, y, width, height, &clip))
+  if (meta_shaped_texture_update_area (priv->texture, area, &clip))
     {
       MtkRegion *unobscured_region;
 
@@ -624,11 +621,8 @@ meta_surface_actor_get_opaque_region (MetaSurfaceActor *self)
 }
 
 void
-meta_surface_actor_process_damage (MetaSurfaceActor *self,
-                                   int               x,
-                                   int               y,
-                                   int               width,
-                                   int               height)
+meta_surface_actor_process_damage (MetaSurfaceActor   *self,
+                                   const MtkRectangle *area)
 {
   MetaSurfaceActorPrivate *priv =
     meta_surface_actor_get_instance_private (self);
@@ -648,16 +642,15 @@ meta_surface_actor_process_damage (MetaSurfaceActor *self,
        * any drawing done to the window is always immediately reflected in the
        * texture regardless of damage event handling.
        */
-      MtkRectangle rect = { .x = x, .y = y, .width = width, .height = height };
 
       if (!priv->pending_damage)
-        priv->pending_damage = mtk_region_create_rectangle (&rect);
+        priv->pending_damage = mtk_region_create_rectangle (area);
       else
-        mtk_region_union_rectangle (priv->pending_damage, &rect);
+        mtk_region_union_rectangle (priv->pending_damage, area);
       return;
     }
 
-  META_SURFACE_ACTOR_GET_CLASS (self)->process_damage (self, x, y, width, height);
+  META_SURFACE_ACTOR_GET_CLASS (self)->process_damage (self, area);
 }
 
 void
@@ -685,8 +678,7 @@ meta_surface_actor_set_frozen (MetaSurfaceActor *self,
       for (i = 0; i < n_rects; i++)
         {
           rect = mtk_region_get_rectangle (priv->pending_damage, i);
-          meta_surface_actor_process_damage (self, rect.x, rect.y,
-                                             rect.width, rect.height);
+          meta_surface_actor_process_damage (self, &rect);
         }
       g_clear_pointer (&priv->pending_damage, mtk_region_unref);
     }

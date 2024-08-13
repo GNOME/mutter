@@ -190,11 +190,8 @@ meta_surface_actor_x11_is_visible (MetaSurfaceActorX11 *self)
 }
 
 static void
-meta_surface_actor_x11_process_damage (MetaSurfaceActor *actor,
-                                       int               x,
-                                       int               y,
-                                       int               width,
-                                       int               height)
+meta_surface_actor_x11_process_damage (MetaSurfaceActor   *actor,
+                                       const MtkRectangle *area)
 {
   MetaSurfaceActorX11 *self = META_SURFACE_ACTOR_X11 (actor);
   CoglTexturePixmapX11 *pixmap;
@@ -206,10 +203,10 @@ meta_surface_actor_x11_process_damage (MetaSurfaceActor *actor,
       MtkRectangle window_rect;
       meta_window_get_frame_rect (self->window, &window_rect);
 
-      if (x == 0 &&
-          y == 0 &&
-          window_rect.width == width &&
-          window_rect.height == height)
+      if (area->x == 0 &&
+          area->y == 0 &&
+          window_rect.width == area->width &&
+          window_rect.height == area->height)
         self->full_damage_frames_count++;
       else
         self->full_damage_frames_count = 0;
@@ -226,8 +223,8 @@ meta_surface_actor_x11_process_damage (MetaSurfaceActor *actor,
     return;
 
   pixmap = COGL_TEXTURE_PIXMAP_X11 (meta_multi_texture_get_plane (self->texture, 0));
-  cogl_texture_pixmap_x11_update_area (pixmap, x, y, width, height);
-  meta_surface_actor_update_area (actor, x, y, width, height);
+  cogl_texture_pixmap_x11_update_area (pixmap, area);
+  meta_surface_actor_update_area (actor, area);
 }
 
 void

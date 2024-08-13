@@ -183,10 +183,7 @@ cogl_texture_pixmap_x11_new_right (CoglTexturePixmapX11 *left_texture);
 /**
  * cogl_texture_pixmap_x11_update_area:
  * @texture: A #CoglTexturePixmapX11 instance
- * @x: x coordinate of the area to update
- * @y: y coordinate of the area to update
- * @width: width of the area to update
- * @height: height of the area to update
+ * @area: The area to update
  *
  * Forces an update of the given @texture so that it is refreshed with
  * the contents of the pixmap that was given to
@@ -194,10 +191,7 @@ cogl_texture_pixmap_x11_new_right (CoglTexturePixmapX11 *left_texture);
  */
 COGL_EXPORT void
 cogl_texture_pixmap_x11_update_area (CoglTexturePixmapX11 *texture,
-                                     int x,
-                                     int y,
-                                     int width,
-                                     int height);
+                                     const MtkRectangle   *area);
 
 /**
  * cogl_texture_pixmap_x11_is_using_tfp_extension:

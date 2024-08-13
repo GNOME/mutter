@@ -392,9 +392,7 @@ surface_process_damage (MetaWaylandSurface *surface,
           MtkRectangle rect;
           rect = mtk_region_get_rectangle (buffer_region, i);
 
-          meta_surface_actor_process_damage (actor,
-                                             rect.x, rect.y,
-                                             rect.width, rect.height);
+          meta_surface_actor_process_damage (actor, &rect);
         }
     }
 }

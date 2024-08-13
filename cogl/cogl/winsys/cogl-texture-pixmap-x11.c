@@ -1157,10 +1157,7 @@ cogl_texture_pixmap_x11_new_right (CoglTexturePixmapX11 *tfp_left)
 
 void
 cogl_texture_pixmap_x11_update_area (CoglTexturePixmapX11 *tex_pixmap,
-                                     int x,
-                                     int y,
-                                     int width,
-                                     int height)
+                                     const MtkRectangle   *area)
 {
   /* We'll queue the update for both the GLX texture and the regular
      texture because we can't determine which will be needed until we
@@ -1176,7 +1173,7 @@ cogl_texture_pixmap_x11_update_area (CoglTexturePixmapX11 *tex_pixmap,
       winsys->texture_pixmap_x11_damage_notify (tex_pixmap);
     }
   mtk_rectangle_union (&tex_pixmap->damage_rect,
-                       &MTK_RECTANGLE_INIT (x, y, width, height),
+                       area,
                        &tex_pixmap->damage_rect);
 }
 
