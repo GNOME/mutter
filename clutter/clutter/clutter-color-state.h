@@ -109,4 +109,7 @@ void clutter_transfer_function_get_default_luminances (ClutterTransferFunction  
                                                        float                   *max_lum_out,
                                                        float                   *ref_lum_out);
 
+CLUTTER_EXPORT
+void clutter_primaries_ensure_normalized_range (ClutterPrimaries *primaries);
+
 G_END_DECLS

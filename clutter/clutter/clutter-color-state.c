@@ -267,6 +267,22 @@ clutter_color_state_get_luminances (ClutterColorState *color_state,
     *ref_lum_out = ref_lum;
 }
 
+void
+clutter_primaries_ensure_normalized_range (ClutterPrimaries *primaries)
+{
+  if (!primaries)
+    return;
+
+  primaries->r_x = CLAMP (primaries->r_x, 0.0f, 1.0f);
+  primaries->r_y = CLAMP (primaries->r_y, 0.0f, 1.0f);
+  primaries->g_x = CLAMP (primaries->g_x, 0.0f, 1.0f);
+  primaries->g_y = CLAMP (primaries->g_y, 0.0f, 1.0f);
+  primaries->b_x = CLAMP (primaries->b_x, 0.0f, 1.0f);
+  primaries->b_y = CLAMP (primaries->b_y, 0.0f, 1.0f);
+  primaries->w_x = CLAMP (primaries->w_x, 0.0f, 1.0f);
+  primaries->w_y = CLAMP (primaries->w_y, 0.0f, 1.0f);
+}
+
 static void
 clutter_color_state_constructed (GObject *object)
 {

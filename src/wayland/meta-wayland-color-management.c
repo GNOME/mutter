@@ -120,6 +120,7 @@ typedef struct _MetaWaylandCreatorParams
 
   ClutterColorspace colorspace;
   ClutterTransferFunction transfer_function;
+  ClutterPrimaries *primaries;
   float min_lum, max_lum, ref_lum;
 } MetaWaylandCreatorParams;
 
@@ -340,14 +341,35 @@ send_information (struct wl_resource *info_resource,
                   ClutterColorState  *color_state)
 {
   ClutterColorspace clutter_colorspace;
-  enum xx_color_manager_v4_primaries primaries;
+  const ClutterPrimaries *clutter_primaries;
   ClutterTransferFunction clutter_tf;
   enum xx_color_manager_v4_transfer_function tf;
   float min_lum, max_lum, ref_lum;
 
   clutter_colorspace = clutter_color_state_get_colorspace (color_state);
-  primaries = clutter_primaries_to_wayland (clutter_colorspace);
-  xx_image_description_info_v4_send_primaries_named (info_resource, primaries);
+  if (clutter_colorspace != CLUTTER_COLORSPACE_DEFAULT)
+    {
+      enum xx_color_manager_v4_primaries primaries;
+
+      primaries = clutter_primaries_to_wayland (clutter_colorspace);
+      xx_image_description_info_v4_send_primaries_named (info_resource,
+                                                         primaries);
+    }
+
+  clutter_primaries = clutter_color_state_get_primaries (color_state);
+  if (clutter_primaries)
+    {
+      xx_image_description_info_v4_send_primaries (
+        info_resource,
+        float_to_scaled_uint32 (clutter_primaries->r_x),
+        float_to_scaled_uint32 (clutter_primaries->r_y),
+        float_to_scaled_uint32 (clutter_primaries->g_x),
+        float_to_scaled_uint32 (clutter_primaries->g_y),
+        float_to_scaled_uint32 (clutter_primaries->b_x),
+        float_to_scaled_uint32 (clutter_primaries->b_y),
+        float_to_scaled_uint32 (clutter_primaries->w_x),
+        float_to_scaled_uint32 (clutter_primaries->w_y));
+    }
 
   clutter_tf = clutter_color_state_get_transfer_function (color_state);
   tf = clutter_tf_to_wayland (clutter_tf);
@@ -816,7 +838,8 @@ meta_wayland_creator_params_new (MetaWaylandColorManager *color_manager,
 static void
 meta_wayland_creator_params_free (MetaWaylandCreatorParams *creator_params)
 {
-  free (creator_params);
+  g_clear_pointer (&creator_params->primaries, g_free);
+  g_free (creator_params);
 }
 
 static void
@@ -840,7 +863,8 @@ creator_params_create (struct wl_client   *client,
   g_autoptr (ClutterColorState) color_state = NULL;
   MetaWaylandImageDescription *image_desc;
 
-  if (creator_params->colorspace == CLUTTER_COLORSPACE_DEFAULT ||
+  if ((creator_params->colorspace == CLUTTER_COLORSPACE_DEFAULT &&
+       !creator_params->primaries) ||
       creator_params->transfer_function == CLUTTER_TRANSFER_FUNCTION_DEFAULT)
     {
       wl_resource_post_error (resource,
@@ -859,7 +883,7 @@ creator_params_create (struct wl_client   *client,
     clutter_color_state_new_full (clutter_context,
                                   creator_params->colorspace,
                                   creator_params->transfer_function,
-                                  NULL,
+                                  creator_params->primaries,
                                   creator_params->min_lum,
                                   creator_params->max_lum,
                                   creator_params->ref_lum);
@@ -925,7 +949,8 @@ creator_params_set_primaries_named (struct wl_client   *client,
     wl_resource_get_user_data (resource);
   ClutterColorspace colorspace;
 
-  if (creator_params->colorspace != CLUTTER_COLORSPACE_DEFAULT)
+  if (creator_params->colorspace != CLUTTER_COLORSPACE_DEFAULT ||
+      creator_params->primaries)
     {
       wl_resource_post_error (resource,
                               XX_IMAGE_DESCRIPTION_CREATOR_PARAMS_V4_ERROR_ALREADY_SET,
@@ -956,9 +981,43 @@ creator_params_set_primaries (struct wl_client   *client,
                               int32_t             w_x,
                               int32_t             w_y)
 {
-  wl_resource_post_error (resource,
-                          XX_IMAGE_DESCRIPTION_CREATOR_PARAMS_V4_ERROR_INVALID_PRIMARIES,
-                          "Setting arbitrary primaries is not supported");
+  MetaWaylandCreatorParams *creator_params =
+    wl_resource_get_user_data (resource);
+  ClutterPrimaries *primaries;
+
+  if (creator_params->colorspace != CLUTTER_COLORSPACE_DEFAULT ||
+      creator_params->primaries)
+    {
+      wl_resource_post_error (resource,
+                              XX_IMAGE_DESCRIPTION_CREATOR_PARAMS_V4_ERROR_ALREADY_SET,
+                              "The primaries were already set");
+      return;
+    }
+
+  primaries = g_new0 (ClutterPrimaries, 1);
+  primaries->r_x = scaled_uint32_to_float (r_x);
+  primaries->r_y = scaled_uint32_to_float (r_y);
+  primaries->g_x = scaled_uint32_to_float (g_x);
+  primaries->g_y = scaled_uint32_to_float (g_y);
+  primaries->b_x = scaled_uint32_to_float (b_x);
+  primaries->b_y = scaled_uint32_to_float (b_y);
+  primaries->w_x = scaled_uint32_to_float (w_x);
+  primaries->w_y = scaled_uint32_to_float (w_y);
+
+  if (primaries->r_x < 0.0f || primaries->r_x > 1.0f ||
+      primaries->r_y < 0.0f || primaries->r_y > 1.0f ||
+      primaries->g_x < 0.0f || primaries->g_x > 1.0f ||
+      primaries->g_y < 0.0f || primaries->g_y > 1.0f ||
+      primaries->b_x < 0.0f || primaries->b_x > 1.0f ||
+      primaries->b_y < 0.0f || primaries->b_y > 1.0f ||
+      primaries->w_x < 0.0f || primaries->w_x > 1.0f ||
+      primaries->w_y < 0.0f || primaries->w_y > 1.0f)
+    {
+      g_warning ("Primaries out of expected normalized range");
+      clutter_primaries_ensure_normalized_range (primaries);
+    }
+
+  creator_params->primaries = primaries;
 }
 
 static void
@@ -1284,6 +1343,8 @@ color_manager_send_supported_events (struct wl_resource *resource)
                                              XX_COLOR_MANAGER_V4_RENDER_INTENT_PERCEPTUAL);
   xx_color_manager_v4_send_supported_feature (resource,
                                               XX_COLOR_MANAGER_V4_FEATURE_PARAMETRIC);
+  xx_color_manager_v4_send_supported_feature (resource,
+                                              XX_COLOR_MANAGER_V4_FEATURE_SET_PRIMARIES);
   xx_color_manager_v4_send_supported_feature (resource,
                                               XX_COLOR_MANAGER_V4_FEATURE_SET_LUMINANCES);
   xx_color_manager_v4_send_supported_tf_named (resource,
