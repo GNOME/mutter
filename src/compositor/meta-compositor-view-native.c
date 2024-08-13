@@ -163,6 +163,9 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
   ClutterColorState *surface_color_state;
   MetaWaylandSurface *surface;
 
+  if (meta_get_debug_paint_flags () & META_DEBUG_PAINT_DISABLE_DIRECT_SCANOUT)
+    return FALSE;
+
   if (meta_compositor_is_unredirect_inhibited (compositor))
     {
       meta_topic (META_DEBUG_RENDER,
