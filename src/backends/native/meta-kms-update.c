@@ -1207,5 +1207,6 @@ meta_kms_update_is_empty (MetaKmsUpdate *update)
           !update->plane_assignments &&
           !update->connector_updates &&
           !update->crtc_updates &&
-          !update->crtc_color_updates);
+          !update->crtc_color_updates &&
+          !update->custom_page_flip);
 }
