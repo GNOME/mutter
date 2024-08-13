@@ -859,6 +859,7 @@ creator_params_create (struct wl_client   *client,
     clutter_color_state_new_full (clutter_context,
                                   creator_params->colorspace,
                                   creator_params->transfer_function,
+                                  NULL,
                                   creator_params->min_lum,
                                   creator_params->max_lum,
                                   creator_params->ref_lum);

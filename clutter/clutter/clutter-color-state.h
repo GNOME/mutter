@@ -32,6 +32,14 @@
 
 G_BEGIN_DECLS
 
+typedef struct _ClutterPrimaries
+{
+  float r_x, r_y;
+  float g_x, g_y;
+  float b_x, b_y;
+  float w_x, w_y;
+} ClutterPrimaries;
+
 #define CLUTTER_TYPE_COLOR_STATE (clutter_color_state_get_type ())
 CLUTTER_EXPORT
 G_DECLARE_FINAL_TYPE (ClutterColorState, clutter_color_state,
@@ -47,6 +55,7 @@ CLUTTER_EXPORT
 ClutterColorState * clutter_color_state_new_full (ClutterContext          *context,
                                                   ClutterColorspace        colorspace,
                                                   ClutterTransferFunction  transfer_function,
+                                                  ClutterPrimaries        *primaries,
                                                   float                    min_lum,
                                                   float                    max_lum,
                                                   float                    ref_lum);
@@ -62,6 +71,9 @@ ClutterColorspace clutter_color_state_get_colorspace (ClutterColorState *color_s
 
 CLUTTER_EXPORT
 ClutterTransferFunction clutter_color_state_get_transfer_function (ClutterColorState *color_state);
+
+CLUTTER_EXPORT
+const ClutterPrimaries * clutter_color_state_get_primaries (ClutterColorState *color_state);
 
 CLUTTER_EXPORT
 void clutter_color_state_get_luminances (ClutterColorState *color_state,

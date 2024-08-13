@@ -696,6 +696,7 @@ update_color_state (MetaColorDevice *color_device)
   color_state = clutter_color_state_new_full (clutter_context,
                                               colorspace,
                                               transfer_function,
+                                              NULL,
                                               min_lum, max_lum, ref_lum);
 
   if (!color_device->color_state ||

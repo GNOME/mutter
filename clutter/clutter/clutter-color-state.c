@@ -63,6 +63,7 @@ enum
 
   PROP_CONTEXT,
   PROP_COLORSPACE,
+  PROP_PRIMARIES,
   PROP_TRANSFER_FUNCTION,
   PROP_MIN_LUMINANCE,
   PROP_MAX_LUMINANCE,
@@ -84,6 +85,7 @@ typedef struct _ClutterColorStatePrivate
 
   unsigned int id;
   ClutterColorspace colorspace;
+  ClutterPrimaries *primaries;
   ClutterTransferFunction transfer_function;
   float min_lum;
   float max_lum;
@@ -281,6 +283,18 @@ clutter_color_state_constructed (GObject *object)
 }
 
 static void
+clutter_color_state_finalize (GObject *object)
+{
+  ClutterColorState *color_state = CLUTTER_COLOR_STATE (object);
+  ClutterColorStatePrivate *priv =
+    clutter_color_state_get_instance_private (color_state);
+
+  g_clear_pointer (&priv->primaries, g_free);
+
+  G_OBJECT_CLASS (clutter_color_state_parent_class)->finalize (object);
+}
+
+static void
 clutter_color_state_set_property (GObject      *object,
                                   guint         prop_id,
                                   const GValue *value,
@@ -288,6 +302,7 @@ clutter_color_state_set_property (GObject      *object,
 {
   ClutterColorState *color_state = CLUTTER_COLOR_STATE (object);
   ClutterColorStatePrivate *priv;
+  ClutterPrimaries *primaries;
 
   priv = clutter_color_state_get_instance_private (color_state);
 
@@ -299,6 +314,12 @@ clutter_color_state_set_property (GObject      *object,
 
     case PROP_COLORSPACE:
       priv->colorspace = g_value_get_enum (value);
+      break;
+
+    case PROP_PRIMARIES:
+      primaries = g_value_get_pointer (value);
+      g_clear_pointer (&priv->primaries, g_free);
+      priv->primaries = g_memdup2 (primaries, sizeof (ClutterPrimaries));
       break;
 
     case PROP_TRANSFER_FUNCTION:
@@ -359,6 +380,10 @@ clutter_color_state_get_property (GObject    *object,
       g_value_set_float (value, priv->ref_lum);
       break;
 
+    case PROP_PRIMARIES:
+      g_value_set_pointer (value, priv->primaries);
+      break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -371,6 +396,7 @@ clutter_color_state_class_init (ClutterColorStateClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
   gobject_class->constructed = clutter_color_state_constructed;
+  gobject_class->finalize = clutter_color_state_finalize;
   gobject_class->set_property = clutter_color_state_set_property;
   gobject_class->get_property = clutter_color_state_get_property;
 
@@ -399,6 +425,17 @@ clutter_color_state_class_init (ClutterColorStateClass *klass)
                        G_PARAM_READWRITE |
                        G_PARAM_STATIC_STRINGS |
                        G_PARAM_CONSTRUCT_ONLY);
+
+  /**
+   * ClutterColorState:primaries:
+   *
+   * Explicit set of primaries defined as chromaticity coordinates
+   */
+  obj_props[PROP_PRIMARIES] =
+    g_param_spec_pointer ("primaries", NULL, NULL,
+                          G_PARAM_READWRITE |
+                          G_PARAM_STATIC_STRINGS |
+                          G_PARAM_CONSTRUCT_ONLY);
 
   /**
    * ClutterColorState:transfer-function:
@@ -470,7 +507,7 @@ clutter_color_state_new (ClutterContext          *context,
                          ClutterTransferFunction  transfer_function)
 {
   return clutter_color_state_new_full (context,
-                                       colorspace, transfer_function,
+                                       colorspace, transfer_function, NULL,
                                        -1.0f, -1.0f, -1.0f);
 }
 
@@ -486,6 +523,7 @@ ClutterColorState *
 clutter_color_state_new_full (ClutterContext          *context,
                               ClutterColorspace        colorspace,
                               ClutterTransferFunction  transfer_function,
+                              ClutterPrimaries        *primaries,
                               float                    min_lum,
                               float                    max_lum,
                               float                    ref_lum)
@@ -494,6 +532,7 @@ clutter_color_state_new_full (ClutterContext          *context,
                        "context", context,
                        "colorspace", colorspace,
                        "transfer-function", transfer_function,
+                       "primaries", primaries,
                        "min-luminance", min_lum,
                        "max-luminance", max_lum,
                        "ref-luminance", ref_lum,
@@ -708,6 +747,61 @@ get_transfer_functions (ClutterColorState       *color_state,
 
   *pre_transfer_function = get_eotf (color_state);
   *post_transfer_function = get_inv_eotf (target_color_state);
+}
+
+/* Primaries and white point retrieved from:
+ * https://www.color.org */
+static const ClutterPrimaries srgb_primaries = {
+  .r_x = 0.64f, .r_y = 0.33f,
+  .g_x = 0.30f, .g_y = 0.60f,
+  .b_x = 0.15f, .b_y = 0.06f,
+  .w_x = 0.3127f, .w_y = 0.3290f,
+};
+
+static const ClutterPrimaries bt2020_primaries = {
+  .r_x = 0.708f, .r_y = 0.292f,
+  .g_x = 0.170f, .g_y = 0.797f,
+  .b_x = 0.131f, .b_y = 0.046f,
+  .w_x = 0.3127f, .w_y = 0.3290f,
+};
+
+const ClutterPrimaries *
+clutter_color_state_get_primaries (ClutterColorState *color_state)
+{
+  ClutterColorStatePrivate *priv;
+
+  g_return_val_if_fail (CLUTTER_IS_COLOR_STATE (color_state),
+                        NULL);
+
+  priv = clutter_color_state_get_instance_private (color_state);
+
+  if (priv->primaries)
+    return priv->primaries;
+
+  switch (priv->colorspace)
+    {
+    case CLUTTER_COLORSPACE_DEFAULT:
+    case CLUTTER_COLORSPACE_SRGB:
+      return &srgb_primaries;
+    case CLUTTER_COLORSPACE_BT2020:
+      return &bt2020_primaries;
+    }
+
+  g_warning ("Unhandled colorspace %s",
+             clutter_colorspace_to_string (priv->colorspace));
+
+  return &srgb_primaries;
+}
+
+static gboolean
+chromaticity_equal (float x1,
+                    float y1,
+                    float x2,
+                    float y2)
+
+{
+  return G_APPROX_VALUE (x1, x2, 0.000001f) &&
+         G_APPROX_VALUE (y1, y2, 0.000001f);
 }
 
 static void
@@ -975,6 +1069,35 @@ luminances_equal (ClutterColorState *color_state,
          luminance_value_approx_equal (ref_lum, other_ref_lum, 0.1f);
 }
 
+static gboolean
+primaries_equal (ClutterColorState *color_state,
+                 ClutterColorState *other_color_state)
+{
+  ClutterColorStatePrivate *priv;
+  ClutterColorStatePrivate *other_priv;
+  const ClutterPrimaries *primaries;
+  const ClutterPrimaries *other_primaries;
+
+  priv = clutter_color_state_get_instance_private (color_state);
+  other_priv = clutter_color_state_get_instance_private (other_color_state);
+
+  if (priv->colorspace != CLUTTER_COLORSPACE_DEFAULT &&
+      other_priv->colorspace != CLUTTER_COLORSPACE_DEFAULT)
+    return priv->colorspace == other_priv->colorspace;
+
+  primaries = clutter_color_state_get_primaries (color_state);
+  other_primaries = clutter_color_state_get_primaries (other_color_state);
+
+  return chromaticity_equal (primaries->r_x, primaries->r_y,
+                             other_primaries->r_x, other_primaries->r_y) &&
+         chromaticity_equal (primaries->g_x, primaries->g_y,
+                             other_primaries->g_x, other_primaries->g_y) &&
+         chromaticity_equal (primaries->b_x, primaries->b_y,
+                             other_primaries->b_x, other_primaries->b_y) &&
+         chromaticity_equal (primaries->w_x, primaries->w_y,
+                             other_primaries->w_x, other_primaries->w_y);
+}
+
 gboolean
 clutter_color_state_equals (ClutterColorState *color_state,
                             ClutterColorState *other_color_state)
@@ -994,8 +1117,8 @@ clutter_color_state_equals (ClutterColorState *color_state,
   priv = clutter_color_state_get_instance_private (color_state);
   other_priv = clutter_color_state_get_instance_private (other_color_state);
 
-  return priv->colorspace == other_priv->colorspace &&
-         priv->transfer_function == other_priv->transfer_function &&
+  return priv->transfer_function == other_priv->transfer_function &&
+         primaries_equal (color_state, other_color_state) &&
          luminances_equal (color_state, other_color_state);
 }
 
@@ -1018,11 +1141,30 @@ enum_to_string (GType        type,
   return retval;
 }
 
+static char *
+primaries_to_string (ClutterColorState *color_state)
+{
+  ClutterColorStatePrivate *priv;
+  const ClutterPrimaries *primaries;
+
+  priv = clutter_color_state_get_instance_private (color_state);
+
+  if (priv->colorspace != CLUTTER_COLORSPACE_DEFAULT)
+    return enum_to_string (CLUTTER_TYPE_COLORSPACE, priv->colorspace);
+
+  primaries = clutter_color_state_get_primaries (color_state);
+  return g_strdup_printf ("[R: %f, %f G: %f, %f B: %f, %f W: %f, %f]",
+                          primaries->r_x, primaries->r_y,
+                          primaries->g_x, primaries->g_y,
+                          primaries->b_x, primaries->b_y,
+                          primaries->w_x, primaries->w_y);
+}
+
 char *
 clutter_color_state_to_string (ClutterColorState *color_state)
 {
   ClutterColorStatePrivate *priv;
-  g_autofree char *colorspace_name = NULL;
+  g_autofree char *primaries_name = NULL;
   g_autofree char *transfer_function_name = NULL;
   float min_lum, max_lum, ref_lum;
 
@@ -1030,17 +1172,18 @@ clutter_color_state_to_string (ClutterColorState *color_state)
 
   priv = clutter_color_state_get_instance_private (color_state);
 
-  colorspace_name = enum_to_string (CLUTTER_TYPE_COLORSPACE, priv->colorspace);
+  primaries_name = primaries_to_string (color_state);
+
   transfer_function_name = enum_to_string (CLUTTER_TYPE_TRANSFER_FUNCTION,
                                            priv->transfer_function);
 
   clutter_color_state_get_luminances (color_state, &min_lum, &max_lum, &ref_lum);
 
   return g_strdup_printf ("ClutterColorState %d "
-                          "(colorspace: %s, transfer function: %s, "
+                          "(primaries: %s, transfer function: %s, "
                           "min lum: %f, max lum: %f, ref lum: %f)",
                           priv->id,
-                          colorspace_name,
+                          primaries_name,
                           transfer_function_name,
                           min_lum,
                           max_lum,
@@ -1122,6 +1265,7 @@ clutter_color_state_get_blending (ClutterColorState *color_state,
   return clutter_color_state_new_full (priv->context,
                                        priv->colorspace,
                                        blending_tf,
+                                       priv->primaries,
                                        priv->min_lum,
                                        priv->max_lum,
                                        priv->ref_lum);
