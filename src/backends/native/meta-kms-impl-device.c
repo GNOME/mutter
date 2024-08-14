@@ -1470,18 +1470,22 @@ ensure_crtc_frame (MetaKmsImplDevice *impl_device,
   MetaKmsImpl *impl = meta_kms_impl_device_get_impl (impl_device);
   MetaThreadImpl *thread_impl = META_THREAD_IMPL (impl);
   CrtcFrame *crtc_frame;
+  gboolean want_deadline_timer, have_deadline_timer;
 
   crtc_frame = get_crtc_frame (impl_device, latch_crtc);
-  if (crtc_frame)
-    return crtc_frame;
+  if (!crtc_frame)
+    {
+      crtc_frame = g_new0 (CrtcFrame, 1);
+      crtc_frame->impl_device = impl_device;
+      crtc_frame->crtc = latch_crtc;
+      crtc_frame->deadline.timer_fd = -1;
+      crtc_frame->await_flush = TRUE;
+      g_hash_table_insert (priv->crtc_frames, latch_crtc, crtc_frame);
+    }
 
-  crtc_frame = g_new0 (CrtcFrame, 1);
-  crtc_frame->impl_device = impl_device;
-  crtc_frame->crtc = latch_crtc;
-  crtc_frame->deadline.timer_fd = -1;
-  crtc_frame->await_flush = TRUE;
-
-  if (is_using_deadline_timer (impl_device))
+  want_deadline_timer = is_using_deadline_timer (impl_device);
+  have_deadline_timer = crtc_frame->deadline.timer_fd >= 0;
+  if (want_deadline_timer && !have_deadline_timer)
     {
       int timer_fd;
       GSource *source;
@@ -1506,8 +1510,11 @@ ensure_crtc_frame (MetaKmsImplDevice *impl_device,
 
       g_source_unref (source);
     }
-
-  g_hash_table_insert (priv->crtc_frames, latch_crtc, crtc_frame);
+  else if (!want_deadline_timer && have_deadline_timer)
+    {
+      g_clear_fd (&crtc_frame->deadline.timer_fd, NULL);
+      g_clear_pointer (&crtc_frame->deadline.source, g_source_destroy);
+    }
 
   return crtc_frame;
 }
