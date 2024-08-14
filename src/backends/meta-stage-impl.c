@@ -679,6 +679,32 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
       paint_stage (stage_impl, stage_view, redraw_clip, frame);
     }
 
+  if (G_UNLIKELY (cogl_is_tracing_enabled ()))
+    {
+      g_autoptr (GString) rects_str = NULL;
+      g_autofree char *area_str = NULL;
+      int n_rectangles, i;
+      int area = 0;
+
+      rects_str = g_string_new ("");
+      n_rectangles = mtk_region_num_rectangles (redraw_clip);
+
+      for (i = 0; i < n_rectangles; i++)
+        {
+          MtkRectangle rect = mtk_region_get_rectangle (redraw_clip, i);
+
+          area += mtk_rectangle_area (&rect);
+
+          g_string_append_printf (rects_str, " %d,%d,%d,%d",
+                                  rect.x, rect.y, rect.width, rect.height);
+        }
+
+      area_str = g_strdup_printf ("%d", area);
+      g_string_prepend (rects_str, area_str);
+
+      COGL_TRACE_DESCRIBE (RedrawViewPrimary, rects_str->str);
+    }
+
   g_clear_pointer (&redraw_clip, mtk_region_unref);
   g_clear_pointer (&fb_clip_region, mtk_region_unref);
 
