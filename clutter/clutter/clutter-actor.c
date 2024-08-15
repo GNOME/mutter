@@ -3072,8 +3072,9 @@ _clutter_actor_draw_paint_volume_full (ClutterActor       *self,
   CoglPrimitive *prim;
   graphene_point3d_t line_ends[12 * 2];
   int n_vertices;
-  CoglContext *ctx =
-    clutter_backend_get_cogl_context (clutter_get_default_backend ());
+  ClutterContext *context = clutter_actor_get_context (self);
+  ClutterBackend *backend = clutter_context_get_backend (context);
+  CoglContext *ctx = clutter_backend_get_cogl_context (backend);
 
   if (outline == NULL)
     outline = cogl_pipeline_new (ctx);
@@ -5333,7 +5334,8 @@ clutter_actor_dispose (GObject *object)
 {
   ClutterActor *self = CLUTTER_ACTOR (object);
   ClutterActorPrivate *priv = self->priv;
-  ClutterBackend *backend = clutter_get_default_backend ();
+  ClutterContext *context = clutter_actor_get_context (self);
+  ClutterBackend *backend = clutter_context_get_backend (context);
 
   CLUTTER_NOTE (MISC, "Dispose actor (name='%s', ref_count:%d) of type '%s'",
                 _clutter_actor_get_debug_name (self),
@@ -13085,7 +13087,8 @@ PangoContext *
 clutter_actor_get_pango_context (ClutterActor *self)
 {
   ClutterActorPrivate *priv;
-  ClutterBackend *backend = clutter_get_default_backend ();
+  ClutterContext *context = clutter_actor_get_context (self);
+  ClutterBackend *backend = clutter_context_get_backend (context);
 
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), NULL);
 
@@ -13133,7 +13136,7 @@ clutter_actor_create_pango_context (ClutterActor *self)
   font_map = clutter_context_get_pango_fontmap (clutter_context);
 
   context = cogl_pango_font_map_create_context (font_map);
-  update_pango_context (clutter_get_default_backend (), context);
+  update_pango_context (clutter_context_get_backend (clutter_context), context);
   pango_context_set_language (context, pango_language_get_default ());
 
   return context;
@@ -14681,7 +14684,8 @@ clutter_actor_get_real_resource_scale (ClutterActor *self)
     }
   else
     {
-      ClutterBackend *backend = clutter_get_default_backend ();
+      ClutterContext *context = clutter_actor_get_context (self);
+      ClutterBackend *backend = clutter_context_get_backend (context);
 
       guessed_scale = clutter_backend_get_fallback_resource_scale (backend);
     }

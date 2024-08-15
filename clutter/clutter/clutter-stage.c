@@ -1621,6 +1621,7 @@ clutter_stage_init (ClutterStage *self)
   ClutterStagePrivate *priv;
   ClutterStageWindow *impl;
   ClutterBackend *backend;
+  ClutterContext *context;
   ClutterSeat *seat;
   GError *error;
 
@@ -1630,7 +1631,9 @@ clutter_stage_init (ClutterStage *self)
   priv = clutter_stage_get_instance_private (self);
 
   CLUTTER_NOTE (BACKEND, "Creating stage from the default backend");
-  backend = clutter_get_default_backend ();
+
+  context = _clutter_context_get_default ();
+  backend = clutter_context_get_backend (context);
 
   error = NULL;
   impl = _clutter_backend_create_stage (backend, self, &error);
@@ -2770,7 +2773,10 @@ clutter_stage_paint_to_buffer (ClutterStage        *stage,
                                ClutterPaintFlag     paint_flags,
                                GError             **error)
 {
-  ClutterBackend *clutter_backend = clutter_get_default_backend ();
+  ClutterContext *context =
+    clutter_actor_get_context (CLUTTER_ACTOR (stage));
+  ClutterBackend *clutter_backend =
+    clutter_context_get_backend (context);
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
   int texture_width, texture_height;
@@ -2839,9 +2845,10 @@ clutter_stage_paint_to_content (ClutterStage        *stage,
                                 ClutterPaintFlag     paint_flags,
                                 GError             **error)
 {
-  ClutterBackend *clutter_backend = clutter_get_default_backend ();
-  CoglContext *cogl_context =
-    clutter_backend_get_cogl_context (clutter_backend);
+  ClutterContext *context =
+    clutter_actor_get_context (CLUTTER_ACTOR (stage));
+  ClutterBackend *backend = clutter_context_get_backend (context);
+  CoglContext *cogl_context = clutter_backend_get_cogl_context (backend);
   int texture_width, texture_height;
   CoglTexture *texture;
   CoglOffscreen *offscreen;
@@ -2884,7 +2891,8 @@ clutter_stage_capture_view_into (ClutterStage     *stage,
 {
   CoglFramebuffer *framebuffer;
   ClutterBackend *backend;
-  CoglContext *context;
+  ClutterContext *context;
+  CoglContext *cogl_context;
   CoglBitmap *bitmap;
   MtkRectangle view_layout;
   float view_scale;
@@ -2904,9 +2912,10 @@ clutter_stage_capture_view_into (ClutterStage     *stage,
   texture_width = roundf (rect->width * view_scale);
   texture_height = roundf (rect->height * view_scale);
 
-  backend = clutter_get_default_backend ();
-  context = clutter_backend_get_cogl_context (backend);
-  bitmap = cogl_bitmap_new_for_data (context,
+  context = clutter_actor_get_context (CLUTTER_ACTOR (stage));
+  backend = clutter_context_get_backend (context);
+  cogl_context = clutter_backend_get_cogl_context (backend);
+  bitmap = cogl_bitmap_new_for_data (cogl_context,
                                      (int) texture_width,
                                      (int) texture_height,
                                      COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,

@@ -745,7 +745,9 @@ clutter_text_create_layout_no_cache (ClutterText       *text,
 
       if (dir == CLUTTER_TEXT_DIRECTION_DEFAULT)
         {
-          ClutterBackend *backend = clutter_get_default_backend ();
+          ClutterContext *clutter_context =
+            clutter_actor_get_context (CLUTTER_ACTOR (text));
+          ClutterBackend *backend = clutter_context_get_backend (clutter_context);
 
           if (clutter_actor_has_key_focus (CLUTTER_ACTOR (text)))
             {
@@ -1742,13 +1744,15 @@ clutter_text_dispose (GObject *gobject)
 {
   ClutterText *self = CLUTTER_TEXT (gobject);
   ClutterTextPrivate *priv = clutter_text_get_instance_private (self);
+  ClutterContext *context = clutter_actor_get_context (CLUTTER_ACTOR (self));
+  ClutterBackend *backend = clutter_context_get_backend (context);
 
   /* get rid of the entire cache */
   clutter_text_dirty_cache (self);
 
   g_clear_signal_handler (&priv->direction_changed_id, self);
   g_clear_signal_handler (&priv->settings_changed_id,
-                          clutter_get_default_backend ());
+                          backend);
 
   g_clear_handle_id (&priv->password_hint_id, g_source_remove);
 
@@ -1877,11 +1881,12 @@ clutter_text_foreach_selection_rectangle (ClutterText              *self,
 }
 
 static CoglPipeline *
-create_color_pipeline (void)
+create_color_pipeline (ClutterText *self)
 {
   static CoglPipelineKey color_pipeline_key = "clutter-text-color-pipeline-private";
-  CoglContext *ctx =
-    clutter_backend_get_cogl_context (clutter_get_default_backend ());
+  ClutterContext *context = clutter_actor_get_context (CLUTTER_ACTOR (self));
+  ClutterBackend *backend = clutter_context_get_backend (context);
+  CoglContext *ctx = clutter_backend_get_cogl_context (backend);
   CoglPipeline *color_pipeline;
 
   color_pipeline =
@@ -1939,7 +1944,7 @@ paint_selection_rectangle (ClutterText           *self,
   ClutterTextPrivate *priv = clutter_text_get_instance_private (self);
   ClutterActor *actor = CLUTTER_ACTOR (self);
   guint8 paint_opacity = clutter_actor_get_paint_opacity (actor);
-  CoglPipeline *color_pipeline = create_color_pipeline ();
+  CoglPipeline *color_pipeline = create_color_pipeline (self);
   PangoLayout *layout = clutter_text_get_layout (self);
   ClutterColorState *color_state =
     clutter_paint_context_get_color_state (paint_context);
@@ -2019,7 +2024,7 @@ selection_paint (ClutterText         *self,
         clutter_paint_context_get_color_state (paint_context);
       ClutterColorState *target_color_state =
         clutter_paint_context_get_target_color_state (paint_context);
-      CoglPipeline *color_pipeline = create_color_pipeline ();
+      CoglPipeline *color_pipeline = create_color_pipeline (self);
       CoglColor cogl_color;
 
       /* No selection, just draw the cursor */
@@ -3160,7 +3165,8 @@ static void
 clutter_text_im_focus (ClutterText *text)
 {
   ClutterTextPrivate *priv = clutter_text_get_instance_private (text);
-  ClutterBackend *backend = clutter_get_default_backend ();
+  ClutterContext *context = clutter_actor_get_context (CLUTTER_ACTOR (text));
+  ClutterBackend *backend = clutter_context_get_backend (context);
   ClutterInputMethod *method = clutter_backend_get_input_method (backend);
 
   if (!method)
@@ -3194,7 +3200,8 @@ clutter_text_key_focus_out (ClutterActor *actor)
 {
   ClutterTextPrivate *priv =
     clutter_text_get_instance_private (CLUTTER_TEXT (actor));
-  ClutterBackend *backend = clutter_get_default_backend ();
+  ClutterContext *context = clutter_actor_get_context (actor);
+  ClutterBackend *backend = clutter_context_get_backend (context);
   ClutterInputMethod *method = clutter_backend_get_input_method (backend);
 
   priv->has_focus = FALSE;
@@ -4455,6 +4462,7 @@ static void
 clutter_text_init (ClutterText *self)
 {
   ClutterContext *context = clutter_actor_get_context (CLUTTER_ACTOR (self));
+  ClutterBackend *backend = clutter_context_get_backend (context);
   ClutterSettings *settings = clutter_context_get_settings (context);
   ClutterTextPrivate *priv;
   gchar *font_name;
@@ -4519,7 +4527,7 @@ clutter_text_init (ClutterText *self)
   priv->cursor_size = DEFAULT_CURSOR_SIZE;
 
   priv->settings_changed_id =
-    g_signal_connect_swapped (clutter_get_default_backend (),
+    g_signal_connect_swapped (backend,
                               "settings-changed",
                               G_CALLBACK (clutter_text_settings_changed_cb),
                               self);
@@ -4830,7 +4838,8 @@ void
 clutter_text_set_editable (ClutterText *self,
                            gboolean     editable)
 {
-  ClutterBackend *backend = clutter_get_default_backend ();
+  ClutterContext *context = clutter_actor_get_context (CLUTTER_ACTOR (self));
+  ClutterBackend *backend = clutter_context_get_backend (context);
   ClutterInputMethod *method = clutter_backend_get_input_method (backend);
   ClutterTextPrivate *priv;
   AtkObject *accessible;
