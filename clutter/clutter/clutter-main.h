@@ -142,9 +142,6 @@ CLUTTER_EXPORT
 PangoFontMap *          clutter_get_font_map                    (void);
 
 CLUTTER_EXPORT
-ClutterTextDirection    clutter_get_default_text_direction      (void);
-
-CLUTTER_EXPORT
 void                    clutter_add_debug_flags                 (ClutterDebugFlag     debug_flags,
                                                                  ClutterDrawDebugFlag draw_flags,
                                                                  ClutterPickDebugFlag pick_flags);
