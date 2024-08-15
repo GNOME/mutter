@@ -373,3 +373,9 @@ clutter_get_accessibility_enabled (void)
 {
   return clutter_enable_accessibility;
 }
+
+gboolean
+_clutter_context_get_show_fps (ClutterContext *context)
+{
+  return context->show_fps;
+}

@@ -46,3 +46,5 @@ struct _ClutterContext
   gboolean is_initialized;
   gboolean show_fps;
 };
+
+gboolean _clutter_context_get_show_fps (ClutterContext *context);

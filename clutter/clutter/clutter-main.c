@@ -68,14 +68,6 @@ guint clutter_pick_debug_flags  = 0;
  */
 int clutter_max_render_time_constant_us = 1000;
 
-gboolean
-_clutter_context_get_show_fps (void)
-{
-  ClutterContext *context = _clutter_context_get_default ();
-
-  return context->show_fps;
-}
-
 static gboolean
 _clutter_threads_dispatch (gpointer data)
 {

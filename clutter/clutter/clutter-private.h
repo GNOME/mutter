@@ -97,7 +97,6 @@ ClutterContext *        _clutter_context_get_default                    (void);
 
 CLUTTER_EXPORT
 gboolean                _clutter_context_is_initialized                 (void);
-gboolean                _clutter_context_get_show_fps                   (void);
 
 /* Diagnostic mode */
 gboolean        _clutter_diagnostic_enabled     (void);
