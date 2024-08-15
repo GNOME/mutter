@@ -95,9 +95,6 @@ typedef enum
 
 ClutterContext *        _clutter_context_get_default                    (void);
 
-CLUTTER_EXPORT
-gboolean                _clutter_context_is_initialized                 (void);
-
 /* Diagnostic mode */
 gboolean        _clutter_diagnostic_enabled     (void);
 
