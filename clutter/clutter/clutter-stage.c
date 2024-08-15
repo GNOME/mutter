@@ -3921,7 +3921,7 @@ clutter_grab_activate (ClutterGrab *grab)
       ClutterSeat *seat;
 
       /* First grab in the chain, trigger a backend grab too */
-      context = _clutter_context_get_default ();
+      context = clutter_actor_get_context (CLUTTER_ACTOR (stage));
       seat = clutter_backend_get_default_seat (context->backend);
       priv->grab_state =
         clutter_seat_grab (seat, clutter_get_current_event_time ());
@@ -4057,7 +4057,7 @@ clutter_stage_unlink_grab (ClutterStage *stage,
       ClutterSeat *seat;
 
       /* This was the last remaining grab, trigger a backend ungrab */
-      context = _clutter_context_get_default ();
+      context = clutter_actor_get_context (CLUTTER_ACTOR (stage));
       seat = clutter_backend_get_default_seat (context->backend);
       clutter_seat_ungrab (seat, clutter_get_current_event_time ());
       priv->grab_state = CLUTTER_GRAB_STATE_NONE;
