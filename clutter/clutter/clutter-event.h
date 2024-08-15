@@ -228,8 +228,6 @@ guint                   clutter_unicode_to_keysym               (guint32        
 
 CLUTTER_EXPORT
 guint32                 clutter_get_current_event_time          (void);
-CLUTTER_EXPORT
-const ClutterEvent *    clutter_get_current_event               (void);
 
 CLUTTER_EXPORT
 guint                   clutter_event_get_touchpad_gesture_finger_count (const ClutterEvent  *event);

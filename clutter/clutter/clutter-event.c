@@ -1048,35 +1048,12 @@ clutter_events_pending (void)
 guint32
 clutter_get_current_event_time (void)
 {
-  const ClutterEvent* event;
+  const ClutterContext *context = _clutter_context_get_default ();
 
-  event = clutter_get_current_event ();
-
-  if (event != NULL)
-    return clutter_event_get_time (event);
+  if (context->current_event != NULL)
+    return clutter_event_get_time (context->current_event->data);
 
   return CLUTTER_CURRENT_TIME;
-}
-
-/**
- * clutter_get_current_event:
- *
- * If an event is currently being processed, return that event.
- * This function is intended to be used to access event state
- * that might not be exposed by higher-level widgets.  For
- * example, to get the key modifier state from a Button 'clicked'
- * event.
- *
- * Return value: (transfer none): The current ClutterEvent, or %NULL if none
- */
-const ClutterEvent *
-clutter_get_current_event (void)
-{
-  ClutterContext *context = _clutter_context_get_default ();
-
-  g_return_val_if_fail (context != NULL, NULL);
-
-  return context->current_event != NULL ? context->current_event->data : NULL;
 }
 
 /**

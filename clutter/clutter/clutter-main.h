@@ -135,8 +135,6 @@ guint                   clutter_threads_add_repaint_func_full   (ClutterRepaintF
                                                                  GSourceFunc    func,
                                                                  gpointer       data,
                                                                  GDestroyNotify notify);
-CLUTTER_EXPORT
-void                    clutter_threads_remove_repaint_func     (guint          handle_id);
 
 CLUTTER_EXPORT
 void                    clutter_add_debug_flags                 (ClutterDebugFlag     debug_flags,

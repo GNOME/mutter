@@ -586,46 +586,6 @@ typedef struct _ClutterRepaintFunction
 } ClutterRepaintFunction;
 
 /**
- * clutter_threads_remove_repaint_func:
- * @handle_id: an unsigned integer greater than zero
- *
- * Removes the repaint function with @handle_id as its id
- */
-void
-clutter_threads_remove_repaint_func (guint handle_id)
-{
-  ClutterRepaintFunction *repaint_func;
-  ClutterContext *context;
-  GList *l;
-
-  g_return_if_fail (handle_id > 0);
-
-  context = _clutter_context_get_default ();
-  l = context->repaint_funcs;
-  while (l != NULL)
-    {
-      repaint_func = l->data;
-
-      if (repaint_func->id == handle_id)
-        {
-          context->repaint_funcs =
-            g_list_remove_link (context->repaint_funcs, l);
-
-          g_list_free (l);
-
-          if (repaint_func->notify)
-            repaint_func->notify (repaint_func->data);
-
-          g_free (repaint_func);
-
-          break;
-        }
-
-      l = l->next;
-    }
-}
-
-/**
  * clutter_threads_add_repaint_func:
  * @func: the function to be called within the paint cycle
  * @data: data to be passed to the function, or %NULL
