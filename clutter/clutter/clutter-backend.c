@@ -71,7 +71,7 @@ clutter_backend_dispose (GObject *gobject)
   ClutterBackend *backend = CLUTTER_BACKEND (gobject);
 
   /* clear the events still in the queue of the main context */
-  _clutter_clear_events_queue ();
+  _clutter_clear_events_queue (backend->context);
 
   g_clear_object (&backend->dummy_onscreen);
   if (backend->stage_window)

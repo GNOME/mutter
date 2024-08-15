@@ -1060,7 +1060,7 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
   if (_clutter_context_get_show_fps (context))
     begin_frame_timing_measurement (view);
 
-  _clutter_run_repaint_functions (CLUTTER_REPAINT_FLAGS_PRE_PAINT);
+  _clutter_run_repaint_functions (context, CLUTTER_REPAINT_FLAGS_PRE_PAINT);
   clutter_stage_emit_before_update (stage, view, frame);
 
   clutter_stage_maybe_relayout (CLUTTER_ACTOR (stage));
@@ -1093,7 +1093,7 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
       priv->needs_update_devices = FALSE;
     }
 
-  _clutter_run_repaint_functions (CLUTTER_REPAINT_FLAGS_POST_PAINT);
+  _clutter_run_repaint_functions (context, CLUTTER_REPAINT_FLAGS_POST_PAINT);
   clutter_stage_after_update (stage, view, frame);
 
   return clutter_frame_get_result (frame);

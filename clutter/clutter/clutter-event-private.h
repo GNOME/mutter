@@ -173,7 +173,7 @@ gboolean        _clutter_event_process_filters          (ClutterEvent *event,
                                                          ClutterActor *event_actor);
 
 /* clears the event queue inside the main context */
-void            _clutter_clear_events_queue             (void);
+void            _clutter_clear_events_queue             (ClutterContext *context);
 
 CLUTTER_EXPORT
 void            _clutter_event_push                     (const ClutterEvent *event,

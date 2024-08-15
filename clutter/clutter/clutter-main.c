@@ -426,7 +426,7 @@ void
 clutter_stage_handle_event (ClutterStage *stage,
                             ClutterEvent *event)
 {
-  ClutterContext *context = _clutter_context_get_default();
+  ClutterContext *context = clutter_actor_get_context (CLUTTER_ACTOR (stage));
   ClutterActor *event_actor = NULL;
   ClutterEventType event_type;
   gboolean filtered;
@@ -561,7 +561,7 @@ clutter_stage_process_event (ClutterStage *stage,
 
   COGL_TRACE_BEGIN_SCOPED (ProcessEvent, "Clutter::Stage::process_event()");
 
-  context = _clutter_context_get_default ();
+  context = clutter_actor_get_context (CLUTTER_ACTOR (stage));
   seat = clutter_backend_get_default_seat (context->backend);
 
   /* push events on a stack, so that we don't need to
@@ -737,6 +737,7 @@ clutter_threads_add_repaint_func_full (ClutterRepaintFlags flags,
 /*
  * _clutter_run_repaint_functions:
  * @flags: only run the repaint functions matching the passed flags
+ * @context: A #ClutterContext
  *
  * Executes the repaint functions added using the
  * clutter_threads_add_repaint_func() function.
@@ -744,9 +745,9 @@ clutter_threads_add_repaint_func_full (ClutterRepaintFlags flags,
  * Must be called with the Clutter thread lock held.
  */
 void
-_clutter_run_repaint_functions (ClutterRepaintFlags flags)
+_clutter_run_repaint_functions (ClutterContext      *context,
+                                ClutterRepaintFlags flags)
 {
-  ClutterContext *context = _clutter_context_get_default ();
   ClutterRepaintFunction *repaint_func;
   GList *invoke_list, *reinvoke_list, *l;
 
@@ -802,9 +803,8 @@ _clutter_run_repaint_functions (ClutterRepaintFlags flags)
  * Clears the events queue stored in the main context.
  */
 void
-_clutter_clear_events_queue (void)
+_clutter_clear_events_queue (ClutterContext *context)
 {
-  ClutterContext *context = _clutter_context_get_default ();
   ClutterEvent *event;
   GAsyncQueue *events_queue;
 

@@ -1226,7 +1226,9 @@ clutter_stage_dispose (GObject *object)
 
   clutter_actor_hide (CLUTTER_ACTOR (object));
 
-  _clutter_clear_events_queue ();
+  context = clutter_actor_get_context (CLUTTER_ACTOR (stage));
+
+  _clutter_clear_events_queue (context);
 
   if (priv->impl != NULL)
     {
@@ -1246,7 +1248,6 @@ clutter_stage_dispose (GObject *object)
   priv->pending_relayouts = NULL;
 
   /* this will release the reference on the stage */
-  context = clutter_actor_get_context (CLUTTER_ACTOR (stage));
   stage_manager = clutter_context_get_stage_manager (context);
   _clutter_stage_manager_remove_stage (stage_manager, stage);
 
