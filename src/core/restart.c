@@ -120,11 +120,11 @@ child_setup (gpointer user_data)
  * Starts the process of restarting the compositor.
  *
  * Note that Mutter's involvement here is to make the restart
- * visually smooth for the user - it cannot itself safely 
+ * visually smooth for the user - it cannot itself safely
  * reexec a program that embeds libmuttter.
  *
  * So in order for this to work, the compositor must handle two
- * signals 
+ * signals
  *
  * - [signal@Meta.Display::show-restart-message], to display the
  * message passed here on the Clutter stage
@@ -150,8 +150,10 @@ meta_restart (const char  *message,
 
   if (message && meta_display_show_restart_message (display, message))
     {
+      ClutterActor *stage = meta_backend_get_stage (meta_context_get_backend (context));
       /* Wait until the stage was painted */
-      clutter_threads_add_repaint_func_full (CLUTTER_REPAINT_FLAGS_POST_PAINT,
+      clutter_threads_add_repaint_func_full (clutter_actor_get_context (stage),
+                                             CLUTTER_REPAINT_FLAGS_POST_PAINT,
                                              restart_message_painted,
                                              context, NULL);
     }

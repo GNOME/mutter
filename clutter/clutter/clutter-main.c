@@ -586,52 +586,6 @@ typedef struct _ClutterRepaintFunction
 } ClutterRepaintFunction;
 
 /**
- * clutter_threads_add_repaint_func:
- * @func: the function to be called within the paint cycle
- * @data: data to be passed to the function, or %NULL
- * @notify: function to be called when removing the repaint
- *    function, or %NULL
- *
- * Adds a function to be called whenever Clutter is processing a new
- * frame.
- *
- * If the function returns %FALSE it is automatically removed from the
- * list of repaint functions and will not be called again.
- *
- * This function is guaranteed to be called from within the same thread
- * that called clutter_main(), and while the Clutter lock is being held;
- * the function will be called within the main loop, so it is imperative
- * that it does not block, otherwise the frame time budget may be lost.
- *
- * A repaint function is useful to ensure that an update of the scenegraph
- * is performed before the scenegraph is repainted. By default, a repaint
- * function added using this function will be invoked prior to the frame
- * being processed.
- *
- * Adding a repaint function does not automatically ensure that a new
- * frame will be queued.
- *
- * When the repaint function is removed (either because it returned %FALSE
- * or because clutter_threads_remove_repaint_func() has been called) the
- * @notify function will be called, if any is set.
- *
- * See also: clutter_threads_add_repaint_func_full()
- *
- * Return value: the ID (greater than 0) of the repaint function. You
- *   can use the returned integer to remove the repaint function by
- *   calling clutter_threads_remove_repaint_func().
- */
-guint
-clutter_threads_add_repaint_func (GSourceFunc    func,
-                                  gpointer       data,
-                                  GDestroyNotify notify)
-{
-  return clutter_threads_add_repaint_func_full (CLUTTER_REPAINT_FLAGS_PRE_PAINT,
-                                                func,
-                                                data, notify);
-}
-
-/**
  * clutter_threads_add_repaint_func_full:
  * @flags: flags for the repaint function
  * @func: the function to be called within the paint cycle
@@ -667,17 +621,15 @@ clutter_threads_add_repaint_func (GSourceFunc    func,
  *   calling clutter_threads_remove_repaint_func().
  */
 guint
-clutter_threads_add_repaint_func_full (ClutterRepaintFlags flags,
-                                       GSourceFunc         func,
-                                       gpointer            data,
-                                       GDestroyNotify      notify)
+clutter_threads_add_repaint_func_full (ClutterContext      *context,
+                                       ClutterRepaintFlags  flags,
+                                       GSourceFunc          func,
+                                       gpointer             data,
+                                       GDestroyNotify       notify)
 {
-  ClutterContext *context;
   ClutterRepaintFunction *repaint_func;
 
   g_return_val_if_fail (func != NULL, 0);
-
-  context = _clutter_context_get_default ();
 
   repaint_func = g_new0 (ClutterRepaintFunction, 1);
 

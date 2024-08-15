@@ -435,7 +435,8 @@ actor_offscreen_redirect (void)
 
   clutter_actor_show (data.stage);
 
-  clutter_threads_add_repaint_func_full (CLUTTER_REPAINT_FLAGS_POST_PAINT,
+  clutter_threads_add_repaint_func_full (clutter_actor_get_context (data.stage),
+                                         CLUTTER_REPAINT_FLAGS_POST_PAINT,
                                          run_verify,
                                          &data,
                                          NULL);
