@@ -268,7 +268,12 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       if (_cogl_has_private_feature
           (context, COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_BGRA8888))
         {
-          glintformat = GL_BGRA8;
+          /* Using the sized internal format GL_BGRA8 only become possible on
+           * 23/06/2024 (https://registry.khronos.org/OpenGL/extensions/EXT/EXT_texture_format_BGRA8888.txt).
+           * When support has propagated to more drivers, we should start
+           * using GL_BGRA8 again.
+           */
+          glintformat = GL_BGRA;
           glformat = GL_BGRA;
           gltype = GL_UNSIGNED_BYTE;
         }
