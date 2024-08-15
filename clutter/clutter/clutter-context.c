@@ -266,6 +266,7 @@ clutter_context_new (ClutterBackendConstructor   backend_constructor,
 {
   ClutterContext *context;
   ClutterContextPrivate *priv;
+  ClutterBackend *backend;
 
   context = g_object_new (CLUTTER_TYPE_CONTEXT, NULL);
   priv = clutter_context_get_instance_private (context);
@@ -274,7 +275,10 @@ clutter_context_new (ClutterBackendConstructor   backend_constructor,
   context->show_fps = clutter_show_fps;
   context->is_initialized = FALSE;
 
-  context->backend = backend_constructor (user_data);
+  backend = backend_constructor (user_data);
+  backend->context = context; /* Keep a back pointer */
+
+  context->backend = backend;
   context->settings = clutter_settings_get_default ();
   _clutter_settings_set_backend (context->settings,
                                  context->backend);
