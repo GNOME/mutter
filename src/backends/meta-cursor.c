@@ -289,10 +289,10 @@ meta_cursor_sprite_finalize (GObject *object)
 }
 
 static void
-meta_cursor_tracker_set_property (GObject      *object,
-                                  guint         prop_id,
-                                  const GValue *value,
-                                  GParamSpec   *pspec)
+meta_cursor_sprite_set_property (GObject      *object,
+                                 guint         prop_id,
+                                 const GValue *value,
+                                 GParamSpec   *pspec)
 {
   MetaCursorSprite *sprite = META_CURSOR_SPRITE (object);
   MetaCursorSpritePrivate *priv =
@@ -319,7 +319,7 @@ meta_cursor_sprite_class_init (MetaCursorSpriteClass *klass)
 
   object_class->constructed = meta_cursor_sprite_constructed;
   object_class->finalize = meta_cursor_sprite_finalize;
-  object_class->set_property = meta_cursor_tracker_set_property;
+  object_class->set_property = meta_cursor_sprite_set_property;
 
   obj_props[PROP_CURSOR_TRACKER] =
     g_param_spec_object ("cursor-tracker", NULL, NULL,
