@@ -859,9 +859,8 @@ clutter_text_settings_changed_cb (ClutterText *text)
 {
   ClutterTextPrivate *priv = clutter_text_get_instance_private (text);
   guint password_hint_time = 0;
-  ClutterSettings *settings;
-
-  settings = clutter_settings_get_default ();
+  ClutterContext *context = clutter_actor_get_context (CLUTTER_ACTOR (text));
+  ClutterSettings *settings = clutter_context_get_settings (context);
 
   g_object_get (settings, "password-hint-time", &password_hint_time, NULL);
 
@@ -2220,12 +2219,12 @@ clutter_text_update_click_count (ClutterText        *self,
                                  const ClutterEvent *event)
 {
   ClutterTextPrivate *priv = clutter_text_get_instance_private (self);
-  ClutterSettings *settings;
+  ClutterContext *context = clutter_actor_get_context (CLUTTER_ACTOR (self));
+  ClutterSettings *settings = clutter_context_get_settings (context);
   int double_click_time, double_click_distance;
   uint32_t evtime;
   float x, y;
 
-  settings = clutter_settings_get_default ();
   clutter_event_get_coords (event, &x, &y);
   evtime = clutter_event_get_time (event);
 
@@ -4455,7 +4454,8 @@ clutter_text_class_init (ClutterTextClass *klass)
 static void
 clutter_text_init (ClutterText *self)
 {
-  ClutterSettings *settings;
+  ClutterContext *context = clutter_actor_get_context (CLUTTER_ACTOR (self));
+  ClutterSettings *settings = clutter_context_get_settings (context);
   ClutterTextPrivate *priv;
   gchar *font_name;
   int i, password_hint_time;
@@ -4488,7 +4488,6 @@ clutter_text_init (ClutterText *self)
    * set_font_description() here because we are initializing
    * the Text and we don't need notifications and sanity checks
    */
-  settings = clutter_settings_get_default ();
   g_object_get (settings,
                 "font-name", &font_name,
                 "password-hint-time", &password_hint_time,
@@ -5428,7 +5427,8 @@ clutter_text_set_font_name (ClutterText *self,
   /* get the default font name from the backend */
   if (font_name == NULL || font_name[0] == '\0')
     {
-      ClutterSettings *settings = clutter_settings_get_default ();
+      ClutterContext *context = clutter_actor_get_context (CLUTTER_ACTOR (self));
+      ClutterSettings *settings = clutter_context_get_settings (context);
       gchar *default_font_name = NULL;
 
       g_object_get (settings, "font-name", &default_font_name, NULL);

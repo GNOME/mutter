@@ -952,26 +952,6 @@ clutter_settings_init (ClutterSettings *self)
   self->long_press_duration = 500;
 }
 
-/**
- * clutter_settings_get_default:
- *
- * Retrieves the singleton instance of #ClutterSettings
- *
- * Return value: (transfer none): the instance of #ClutterSettings. The
- *   returned object is owned by Clutter and it should not be unreferenced
- *   directly
- */
-ClutterSettings *
-clutter_settings_get_default (void)
-{
-  static ClutterSettings *settings = NULL;
-
-  if (G_UNLIKELY (settings == NULL))
-    settings = g_object_new (CLUTTER_TYPE_SETTINGS, NULL);
-
-  return settings;
-}
-
 void
 _clutter_settings_set_backend (ClutterSettings *settings,
                                ClutterBackend  *backend)

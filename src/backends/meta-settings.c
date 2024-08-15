@@ -180,9 +180,14 @@ update_font_dpi (MetaSettings *settings)
 
   if (font_dpi != settings->font_dpi)
     {
+      ClutterActor *stage;
+      ClutterContext *clutter_context;
       settings->font_dpi = font_dpi;
 
-      g_object_set (clutter_settings_get_default (),
+      stage = meta_backend_get_stage (settings->backend);
+      clutter_context = clutter_actor_get_context (stage);
+
+      g_object_set (clutter_context_get_settings (clutter_context),
                     "font-dpi", font_dpi,
                     NULL);
 

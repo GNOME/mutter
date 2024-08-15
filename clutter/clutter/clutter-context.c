@@ -279,7 +279,7 @@ clutter_context_new (ClutterBackendConstructor   backend_constructor,
   backend->context = context; /* Keep a back pointer */
 
   context->backend = backend;
-  context->settings = clutter_settings_get_default ();
+  context->settings = g_object_new (CLUTTER_TYPE_SETTINGS, NULL);
   _clutter_settings_set_backend (context->settings,
                                  context->backend);
 
@@ -382,4 +382,12 @@ gboolean
 _clutter_context_get_show_fps (ClutterContext *context)
 {
   return context->show_fps;
+}
+
+ClutterSettings *
+clutter_context_get_settings (ClutterContext *context)
+{
+  g_return_val_if_fail(CLUTTER_IS_CONTEXT (context), NULL);
+
+  return context->settings;
 }

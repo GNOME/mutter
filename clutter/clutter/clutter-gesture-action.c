@@ -271,7 +271,8 @@ static gint
 gesture_get_default_threshold (void)
 {
   gint threshold;
-  ClutterSettings *settings = clutter_settings_get_default ();
+  ClutterContext *context = _clutter_context_get_default ();
+  ClutterSettings *settings = clutter_context_get_settings (context);
   g_object_get (settings, "dnd-drag-threshold", &threshold, NULL);
   return threshold;
 }
