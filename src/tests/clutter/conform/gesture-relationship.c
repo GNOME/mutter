@@ -104,7 +104,7 @@ gesture_relationship_cancel_on_recognize (void)
 {
   ClutterActor *stage = clutter_test_get_stage ();
   ClutterSeat *seat =
-    clutter_backend_get_default_seat (clutter_get_default_backend ());
+    clutter_backend_get_default_seat (clutter_test_get_backend ());
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   int64_t now_us;
   ClutterGesture *gesture_1 = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, "name", "gesture-1", NULL));
@@ -163,7 +163,7 @@ gesture_relationship_simple (void)
 {
   ClutterActor *stage = clutter_test_get_stage ();
   ClutterSeat *seat =
-    clutter_backend_get_default_seat (clutter_get_default_backend ());
+    clutter_backend_get_default_seat (clutter_test_get_backend ());
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   int64_t now_us;
   ClutterGesture *gesture_1 = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, "name", "gesture-1", NULL));
@@ -225,7 +225,7 @@ gesture_relationship_two_points (void)
 {
   ClutterActor *stage = clutter_test_get_stage ();
   ClutterSeat *seat =
-    clutter_backend_get_default_seat (clutter_get_default_backend ());
+    clutter_backend_get_default_seat (clutter_test_get_backend ());
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   int64_t now_us;
   ClutterGesture *gesture_1 = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, "name", "gesture-1", NULL));
@@ -274,7 +274,7 @@ gesture_relationship_two_points_two_actors (void)
 {
   ClutterActor *stage = clutter_test_get_stage ();
   ClutterSeat *seat =
-    clutter_backend_get_default_seat (clutter_get_default_backend ());
+    clutter_backend_get_default_seat (clutter_test_get_backend ());
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   int64_t now_us;
   ClutterActor *second_actor = clutter_actor_new ();
@@ -343,7 +343,7 @@ gesture_relationship_claim_new_sequence_while_already_recognizing (void)
 {
   ClutterActor *stage = clutter_test_get_stage ();
   ClutterSeat *seat =
-    clutter_backend_get_default_seat (clutter_get_default_backend ());
+    clutter_backend_get_default_seat (clutter_test_get_backend ());
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   int64_t now_us;
   ClutterGesture *gesture_1 = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, "name", "gesture-1", NULL));
@@ -441,7 +441,7 @@ gesture_relationship_claim_new_sequence_while_already_recognizing_2 (void)
 {
   ClutterActor *stage = clutter_test_get_stage ();
   ClutterSeat *seat =
-    clutter_backend_get_default_seat (clutter_get_default_backend ());
+    clutter_backend_get_default_seat (clutter_test_get_backend ());
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   int64_t now_us;
   ClutterActor *second_actor = clutter_actor_new ();

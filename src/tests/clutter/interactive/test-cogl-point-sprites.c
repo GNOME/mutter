@@ -222,7 +222,7 @@ test_cogl_point_sprites_main (int argc, char *argv[])
   ClutterActor *stage;
   CoglTexture *tex;
   CoglContext *ctx =
-    clutter_backend_get_cogl_context (clutter_get_default_backend ());
+    clutter_backend_get_cogl_context (clutter_test_get_backend ());
   Data data;
   GError *error = NULL;
   int i;

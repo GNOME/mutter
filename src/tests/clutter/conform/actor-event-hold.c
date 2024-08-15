@@ -81,7 +81,7 @@ actor_event_hold (void)
   clutter_actor_show (stage);
 
   /* Get the input device*/
-  backend = clutter_get_default_backend ();
+  backend = clutter_test_get_backend ();
   seat = clutter_backend_get_default_seat (backend);
 
   virtual_pointer =

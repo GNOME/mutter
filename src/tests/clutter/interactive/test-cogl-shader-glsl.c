@@ -193,7 +193,7 @@ set_shader_num (int new_no)
   CoglProgram *program;
   CoglPipeline *shader_pipeline;
   CoglContext *ctx =
-    clutter_backend_get_cogl_context (clutter_get_default_backend ());
+    clutter_backend_get_cogl_context (clutter_test_get_backend ());
   int image_width = cogl_texture_get_width (redhand);
   int image_height = cogl_texture_get_height (redhand);
   int uniform_no;
@@ -316,7 +316,7 @@ test_cogl_shader_glsl_main (int argc, char *argv[])
   CoglColor stage_color = { 0x61, 0x64, 0x8c, 0xff };
   CoglPipeline *shader_pipeline;
   CoglContext *ctx =
-    clutter_backend_get_cogl_context (clutter_get_default_backend ());
+    clutter_backend_get_cogl_context (clutter_test_get_backend ());
 
   clutter_test_init (&argc, &argv);
 

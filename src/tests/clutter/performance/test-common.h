@@ -99,7 +99,7 @@ static gboolean perf_fake_mouse_cb (gpointer stage)
                 */
     {
       ClutterEvent *event;
-      ClutterBackend *backend = clutter_get_default_backend ();
+      ClutterBackend *backend = clutter_test_get_backend ();
       ClutterSeat *seat = clutter_backend_get_default_seat (backend);
 
       device = clutter_seat_get_pointer (seat);

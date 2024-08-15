@@ -185,7 +185,7 @@ test_devices_main (int argc, char **argv)
 
   clutter_actor_show (stage);
 
-  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  seat = clutter_backend_get_default_seat (clutter_test_get_backend ());
   g_signal_connect (seat,
                     "device-added", G_CALLBACK (seat_device_added_cb),
                     app);

@@ -79,7 +79,7 @@ gesture_disposed_while_active (void)
 {
   ClutterActor *stage = clutter_test_get_stage ();
   ClutterSeat *seat =
-    clutter_backend_get_default_seat (clutter_get_default_backend ());
+    clutter_backend_get_default_seat (clutter_test_get_backend ());
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   int64_t now_us;
   ClutterActor *second_actor = clutter_actor_new ();
@@ -129,7 +129,7 @@ gesture_state_machine_move_to_waiting (void)
 {
   ClutterActor *stage = clutter_test_get_stage ();
   ClutterSeat *seat =
-    clutter_backend_get_default_seat (clutter_get_default_backend ());
+    clutter_backend_get_default_seat (clutter_test_get_backend ());
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   int64_t now_us;
   ClutterGesture *gesture = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, NULL));
@@ -189,7 +189,7 @@ gesture_state_machine_move_to_cancelled_while_possible (void)
 {
   ClutterActor *stage = clutter_test_get_stage ();
   ClutterSeat *seat =
-    clutter_backend_get_default_seat (clutter_get_default_backend ());
+    clutter_backend_get_default_seat (clutter_test_get_backend ());
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   int64_t now_us;
   ClutterGesture *gesture = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, NULL));
@@ -236,7 +236,7 @@ gesture_state_machine_move_to_cancelled_on_sequence_cancel (void)
 {
   ClutterActor *stage = clutter_test_get_stage ();
   ClutterSeat *seat =
-    clutter_backend_get_default_seat (clutter_get_default_backend ());
+    clutter_backend_get_default_seat (clutter_test_get_backend ());
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   int64_t now_us;
   ClutterActor *second_actor = clutter_actor_new ();
@@ -296,7 +296,7 @@ gesture_multiple_mouse_buttons (void)
 {
   ClutterActor *stage = clutter_test_get_stage ();
   ClutterSeat *seat =
-    clutter_backend_get_default_seat (clutter_get_default_backend ());
+    clutter_backend_get_default_seat (clutter_test_get_backend ());
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   int64_t now_us;
   ClutterGesture *gesture = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, NULL));
