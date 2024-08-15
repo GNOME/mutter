@@ -585,22 +585,6 @@ clutter_stage_process_event (ClutterStage *stage,
   context->current_event = g_slist_delete_link (context->current_event, context->current_event);
 }
 
-/**
- * clutter_get_font_map:
- *
- * Retrieves the #PangoFontMap instance used by Clutter.
- * You can use the global font map object with the COGL
- * Pango API.
- *
- * Return value: (transfer none): the #PangoFontMap instance. The returned
- *   value is owned by Clutter and it should never be unreferenced.
- */
-PangoFontMap *
-clutter_get_font_map (void)
-{
-  return PANGO_FONT_MAP (clutter_context_get_pango_fontmap (ClutterCntx));
-}
-
 typedef struct _ClutterRepaintFunction
 {
   guint id;

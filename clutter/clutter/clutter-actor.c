@@ -13127,8 +13127,10 @@ clutter_actor_create_pango_context (ClutterActor *self)
 {
   CoglPangoFontMap *font_map;
   PangoContext *context;
+  ClutterContext *clutter_context;
 
-  font_map = COGL_PANGO_FONT_MAP (clutter_get_font_map ());
+  clutter_context = clutter_actor_get_context (self);
+  font_map = clutter_context_get_pango_fontmap (clutter_context);
 
   context = cogl_pango_font_map_create_context (font_map);
   update_pango_context (clutter_get_default_backend (), context);
