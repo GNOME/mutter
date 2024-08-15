@@ -47,7 +47,6 @@
 enum
 {
   PROP_0,
-  PROP_DEFAULT_STAGE
 };
 
 enum
@@ -59,7 +58,6 @@ enum
 };
 
 static guint manager_signals[LAST_SIGNAL] = { 0, };
-static ClutterStage *default_stage = NULL;
 
 typedef struct _ClutterStageManagerPrivate
 {
@@ -69,23 +67,6 @@ typedef struct _ClutterStageManagerPrivate
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterStageManager,
                             clutter_stage_manager,
                             G_TYPE_OBJECT);
-
-static void
-clutter_stage_manager_get_property (GObject    *gobject,
-                                    guint       prop_id,
-                                    GValue     *value,
-                                    GParamSpec *pspec)
-{
-  switch (prop_id)
-    {
-    case PROP_DEFAULT_STAGE:
-      g_value_set_object (value, default_stage);
-      break;
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
-      break;
-    }
-}
 
 static void
 clutter_stage_manager_dispose (GObject *gobject)
@@ -107,19 +88,6 @@ clutter_stage_manager_class_init (ClutterStageManagerClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
   gobject_class->dispose      = clutter_stage_manager_dispose;
-  gobject_class->get_property = clutter_stage_manager_get_property;
-
-  /**
-   * ClutterStageManager:default-stage:
-   *
-   * The default stage used by Clutter.
-   */
-  g_object_class_install_property (gobject_class,
-                                   PROP_DEFAULT_STAGE,
-                                   g_param_spec_object ("default-stage", NULL, NULL,
-                                                        CLUTTER_TYPE_STAGE,
-                                                        G_PARAM_READABLE |
-                                                        G_PARAM_STATIC_STRINGS));
 
   /**
    * ClutterStageManager::stage-added:
@@ -177,21 +145,6 @@ clutter_stage_manager_get_default (void)
     context->stage_manager = g_object_new (CLUTTER_TYPE_STAGE_MANAGER, NULL);
 
   return context->stage_manager;
-}
-
-/**
- * clutter_stage_manager_get_default_stage:
- * @stage_manager: a #ClutterStageManager
- *
- * Returns the default #ClutterStage.
- *
- * Return value: (transfer none): the default stage. The returned object
- *   is owned by Clutter and you should never reference or unreference it
- */
-ClutterStage *
-clutter_stage_manager_get_default_stage (ClutterStageManager *stage_manager)
-{
-  return default_stage;
 }
 
 /**
@@ -285,10 +238,6 @@ _clutter_stage_manager_remove_stage (ClutterStageManager *stage_manager,
 
   index = g_slist_index (priv->stages, stage);
   priv->stages = g_slist_remove (priv->stages, stage);
-
-  /* if the default stage is being destroyed then we unset the pointer */
-  if (default_stage == stage)
-    default_stage = NULL;
 
   g_signal_emit (stage_manager, manager_signals[STAGE_REMOVED], 0, stage);
 
