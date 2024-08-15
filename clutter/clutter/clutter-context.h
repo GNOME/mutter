@@ -78,3 +78,11 @@ ClutterColorManager * clutter_context_get_color_manager (ClutterContext *context
  */
 CLUTTER_EXPORT
 ClutterSettings * clutter_context_get_settings (ClutterContext *context);
+
+/**
+ * clutter_context_get_stage_manager:
+ *
+ * Returns: (transfer none): The %ClutterStageManager
+ */
+CLUTTER_EXPORT
+ClutterStageManager * clutter_context_get_stage_manager (ClutterContext *context);

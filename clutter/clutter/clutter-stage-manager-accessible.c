@@ -53,22 +53,21 @@ clutter_stage_manager_accessible_init (ClutterStageManagerAccessible *manager_ac
 
 /**
  * clutter_stage_manager_accessible_new:
+ * @stage_manager: The associated #ClutterStageManager
  *
  * Creates a new #ClutterStageManagerAccessible object.
  *
  * Return value: the newly created #AtkObject
  */
 AtkObject*
-clutter_stage_manager_accessible_new (void)
+clutter_stage_manager_accessible_new (ClutterStageManager *stage_manager)
 {
   GObject *object = NULL;
   AtkObject *accessible = NULL;
-  ClutterStageManager *stage_manager = NULL;
 
   object = g_object_new (CLUTTER_TYPE_STAGE_MANAGER_ACCESSIBLE, NULL);
 
   accessible = ATK_OBJECT (object);
-  stage_manager = clutter_stage_manager_get_default ();
 
   atk_object_initialize (accessible, stage_manager);
 
