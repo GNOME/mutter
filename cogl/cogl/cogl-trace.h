@@ -45,6 +45,12 @@ typedef struct _CoglTraceHead
   char *description;
 } CoglTraceHead;
 
+typedef struct _CoglTraceCounterData
+{
+  const char *name;
+  const char *description;
+} CoglTraceCounterData;
+
 COGL_EXPORT
 GPrivate cogl_trace_thread_data;
 COGL_EXPORT
@@ -102,6 +108,46 @@ cogl_is_tracing_enabled (void)
   return !!g_private_get (&cogl_trace_thread_data);
 }
 
+COGL_EXPORT
+void cogl_trace_set_counter_int (unsigned int counter,
+                                 int64_t      value);
+
+COGL_EXPORT
+void cogl_trace_set_counter_double (unsigned int counter,
+                                    double       value);
+
+COGL_EXPORT
+unsigned int cogl_trace_define_counter_int (const char *name,
+                                            const char *description);
+
+COGL_EXPORT
+unsigned int cogl_trace_define_counter_double (const char *name,
+                                               const char *description);
+
+static inline gpointer
+cogl_trace_counter_data_int (gpointer user_data)
+{
+  CoglTraceCounterData *counter_data = user_data;
+  int counter;
+
+  counter = cogl_trace_define_counter_int (counter_data->name,
+                                           counter_data->description);
+
+  return GUINT_TO_POINTER (counter);
+}
+
+static inline gpointer
+cogl_trace_counter_data_double (gpointer user_data)
+{
+  CoglTraceCounterData *counter_data = user_data;
+  int counter;
+
+  counter = cogl_trace_define_counter_double (counter_data->name,
+                                              counter_data->description);
+
+  return GUINT_TO_POINTER (counter);
+}
+
 #define COGL_TRACE_BEGIN_SCOPED(Name, name) \
   CoglTraceHead CoglTrace##Name = { 0 }; \
   __attribute__((cleanup (cogl_auto_trace_end_helper))) \
@@ -145,6 +191,44 @@ cogl_is_tracing_enabled (void)
         } \
     } \
   G_STMT_END
+
+#define COGL_TRACE_INTERNAL_DEFINE_COUNTER(Name, name, description, func) \
+  static GOnce CoglTraceCounter##Name = G_ONCE_INIT; \
+  if (cogl_is_tracing_enabled ()) \
+    { \
+      static CoglTraceCounterData CoglTraceCounterData##Name = { \
+        name, description, \
+      }; \
+      g_once (&CoglTraceCounter##Name, \
+              func, \
+              &CoglTraceCounterData##Name); \
+    }
+
+#define COGL_TRACE_DEFINE_COUNTER_INT(Name, name, description) \
+  COGL_TRACE_INTERNAL_DEFINE_COUNTER(Name, name, description, \
+                                     cogl_trace_counter_data_int)
+
+#define COGL_TRACE_DEFINE_COUNTER_DOUBLE(Name, name, description) \
+  COGL_TRACE_INTERNAL_DEFINE_COUNTER(Name, name, description, \
+                                     cogl_trace_counter_data_double)
+
+#define COGL_TRACE_INTERNAL_SET_COUNTER(Name, value, func) \
+  G_STMT_START \
+    { \
+      if (cogl_is_tracing_enabled ()) \
+        { \
+          func (GPOINTER_TO_UINT (CoglTraceCounter##Name.retval), value); \
+        } \
+    } \
+  G_STMT_END
+
+#define COGL_TRACE_SET_COUNTER_INT(Name, value) \
+  COGL_TRACE_INTERNAL_SET_COUNTER(Name, value, \
+                                  cogl_trace_set_counter_int)
+
+#define COGL_TRACE_SET_COUNTER_DOUBLE(Name, value) \
+  COGL_TRACE_INTERNAL_SET_COUNTER(Name, value, \
+                                  cogl_trace_set_counter_double)
 
 #else /* HAVE_PROFILER */
 

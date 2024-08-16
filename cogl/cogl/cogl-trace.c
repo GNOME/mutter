@@ -41,6 +41,8 @@
 #define COGL_TRACE_OUTPUT_FILE "cogl-trace-sp-capture.syscap"
 #define BUFFER_LENGTH (4096 * 4)
 
+#define CATEGORY "mutter"
+
 struct _CoglTraceContext
 {
   gatomicrefcount ref_count;
@@ -383,6 +385,122 @@ cogl_trace_describe (CoglTraceHead *head,
     }
   else
     head->description = g_strdup (description);
+}
+
+static void
+cogl_trace_set_counter (unsigned int                counter,
+                        SysprofCaptureCounterValue *value)
+{
+  SysprofTimeStamp time;
+  CoglTraceContext *trace_context;
+  CoglTraceThreadContext *trace_thread_context;
+
+  time = g_get_monotonic_time () * 1000;
+  trace_thread_context = g_private_get (&cogl_trace_thread_data);
+  trace_context = trace_thread_context->trace_context;
+
+  g_mutex_lock (&cogl_trace_mutex);
+
+  if (!sysprof_capture_writer_set_counters (trace_context->writer,
+                                            time,
+                                            trace_thread_context->cpu_id,
+                                            trace_thread_context->pid,
+                                            &counter,
+                                            value,
+                                            1))
+    {
+      /* XXX: g_main_context_get_thread_default() might be wrong, it probably
+       * needs to store the GMainContext in CoglTraceThreadContext when creating
+       * and use it here.
+       */
+      if (errno == EPIPE)
+        cogl_set_tracing_disabled_on_thread (g_main_context_get_thread_default ());
+    }
+  g_mutex_unlock (&cogl_trace_mutex);
+}
+
+void
+cogl_trace_set_counter_int (unsigned int counter,
+                            int64_t      value)
+{
+  SysprofCaptureCounterValue v;
+
+  v.v64 = value;
+
+  cogl_trace_set_counter (counter, &v);
+}
+
+void
+cogl_trace_set_counter_double (unsigned int counter,
+                               double       value)
+{
+  SysprofCaptureCounterValue v;
+
+  v.vdbl = value;
+
+  cogl_trace_set_counter (counter, &v);
+}
+
+static unsigned int
+cogl_trace_define_counter (const char *name,
+                           const char *description,
+                           uint32_t    type)
+{
+  SysprofTimeStamp time;
+  CoglTraceContext *trace_context;
+  CoglTraceThreadContext *trace_thread_context;
+  SysprofCaptureCounter counter;
+
+  time = g_get_monotonic_time () * 1000;
+  trace_thread_context = g_private_get (&cogl_trace_thread_data);
+  trace_context = trace_thread_context->trace_context;
+
+  counter.id = sysprof_capture_writer_request_counter (trace_context->writer, 1);
+  counter.type = type;
+
+  if (type == SYSPROF_CAPTURE_COUNTER_DOUBLE)
+    counter.value.vdbl = 0.0;
+  else
+    counter.value.v64 = 0;
+
+  g_strlcpy (counter.category, CATEGORY, sizeof counter.category);
+  g_strlcpy (counter.name, name, sizeof counter.name);
+  g_strlcpy (counter.description, description, sizeof counter.name);
+
+  g_mutex_lock (&cogl_trace_mutex);
+  if (!sysprof_capture_writer_define_counters (trace_context->writer,
+                                               time,
+                                               trace_thread_context->cpu_id,
+                                               trace_thread_context->pid,
+                                               &counter,
+                                               1))
+    {
+      /* XXX: g_main_context_get_thread_default() might be wrong, it probably
+       * needs to store the GMainContext in CoglTraceThreadContext when creating
+       * and use it here.
+       */
+      if (errno == EPIPE)
+        cogl_set_tracing_disabled_on_thread (g_main_context_get_thread_default ());
+    }
+  g_mutex_unlock (&cogl_trace_mutex);
+
+  return counter.id;
+}
+
+unsigned int
+cogl_trace_define_counter_int (const char *name,
+                               const char *description)
+{
+  return cogl_trace_define_counter (name, description,
+                                    SYSPROF_CAPTURE_COUNTER_INT64);
+}
+
+unsigned int
+cogl_trace_define_counter_double (const char *name,
+                                  const char *description)
+{
+  return cogl_trace_define_counter (name, description,
+                                    SYSPROF_CAPTURE_COUNTER_DOUBLE);
 }
 
 #else
