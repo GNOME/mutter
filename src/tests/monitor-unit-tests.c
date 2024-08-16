@@ -227,10 +227,51 @@ check_test_client_state (MetaTestClient *test_client)
 }
 
 static void
+check_test_client_x11_state (MetaTestClient *test_client)
+{
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (test_backend);
+  MetaLogicalMonitor *primary_logical_monitor;
+  MetaMonitor *primary_monitor = NULL;
+  GError *error = NULL;
+
+  primary_logical_monitor =
+    meta_monitor_manager_get_primary_logical_monitor (monitor_manager);
+
+  if (primary_logical_monitor)
+    {
+      GList *monitors;
+
+      monitors = meta_logical_monitor_get_monitors (primary_logical_monitor);
+      primary_monitor = g_list_first (monitors)->data;
+    }
+
+  if (!meta_test_client_do (test_client, &error,
+                            "sync",
+                            NULL))
+    {
+      g_error ("Failed to sync test client '%s': %s",
+               meta_test_client_get_id (test_client), error->message);
+    }
+
+  if (!meta_test_client_do (test_client, &error,
+                            "assert_primary_monitor",
+                            primary_monitor
+                              ? meta_monitor_get_connector (primary_monitor)
+                              : "(none)",
+                              NULL))
+    {
+      g_error ("Failed to assert primary monitor in X11 test client '%s': %s",
+               meta_test_client_get_id (test_client), error->message);
+    }
+}
+
+static void
 check_monitor_test_clients_state (void)
 {
   check_test_client_state (wayland_monitor_test_client);
   check_test_client_state (x11_monitor_test_client);
+  check_test_client_x11_state (x11_monitor_test_client);
 }
 
 static void

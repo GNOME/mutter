@@ -1216,14 +1216,18 @@ meta_xwayland_set_primary_output (MetaX11Display *x11_display)
   MetaMonitorManager *monitor_manager =
     monitor_manager_from_x11_display (x11_display);
   XRRScreenResources *resources;
-  MetaLogicalMonitor *primary_monitor;
+  MetaLogicalMonitor *primary_logical_monitor;
+  GList *monitors;
+  MetaMonitor *primary_monitor;
   int i;
 
-  primary_monitor =
+  primary_logical_monitor =
     meta_monitor_manager_get_primary_logical_monitor (monitor_manager);
-
-  if (!primary_monitor)
+  if (!primary_logical_monitor)
     return;
+
+  monitors = meta_logical_monitor_get_monitors (primary_logical_monitor);
+  primary_monitor = g_list_first (monitors)->data;
 
   resources = XRRGetScreenResourcesCurrent (xdisplay,
                                             DefaultRootWindow (xdisplay));
@@ -1235,29 +1239,13 @@ meta_xwayland_set_primary_output (MetaX11Display *x11_display)
     {
       RROutput output_id = resources->outputs[i];
       XRROutputInfo *xrandr_output;
-      XRRCrtcInfo *crtc_info = NULL;
-      MtkRectangle crtc_geometry;
 
       xrandr_output = XRRGetOutputInfo (xdisplay, resources, output_id);
       if (!xrandr_output)
         continue;
 
-      if (xrandr_output->crtc)
-        crtc_info = XRRGetCrtcInfo (xdisplay, resources, xrandr_output->crtc);
-
-      XRRFreeOutputInfo (xrandr_output);
-
-      if (!crtc_info)
-        continue;
-
-      crtc_geometry.x = crtc_info->x;
-      crtc_geometry.y = crtc_info->y;
-      crtc_geometry.width = crtc_info->width;
-      crtc_geometry.height = crtc_info->height;
-
-      XRRFreeCrtcInfo (crtc_info);
-
-      if (mtk_rectangle_equal (&crtc_geometry, &primary_monitor->rect))
+      if (g_strcmp0 (xrandr_output->name,
+                     meta_monitor_get_connector (primary_monitor)) == 0)
         {
           XRRSetOutputPrimary (xdisplay, DefaultRootWindow (xdisplay),
                                output_id);
