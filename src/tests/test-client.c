@@ -281,6 +281,7 @@ text_clear_func (GtkClipboard *clipboard,
 static void
 process_line (const char *line)
 {
+  GdkDisplay *display = gdk_display_get_default ();
   GError *error = NULL;
   int argc;
   char **argv;
@@ -474,7 +475,6 @@ process_line (const char *line)
           goto out;
         }
 
-      GdkDisplay *display = gdk_display_get_default ();
       GdkWindow *gdkwindow = gtk_widget_get_window (window);
       Display *xdisplay = gdk_x11_display_get_xdisplay (display);
       Window xwindow = GDK_WINDOW_XID (gdkwindow);
@@ -897,7 +897,6 @@ process_line (const char *line)
     }
   else if (strcmp (argv[0], "clipboard-set") == 0)
     {
-      GdkDisplay *display = gdk_display_get_default ();
       GtkClipboard *clipboard;
       GdkAtom atom;
       GtkTargetList *target_list;
