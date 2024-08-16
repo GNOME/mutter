@@ -448,6 +448,8 @@ meta_wayland_tablet_seat_handle_event (MetaWaylandTabletSeat *tablet_seat,
         return CLUTTER_EVENT_PROPAGATE;
 
       return meta_wayland_tablet_pad_handle_event (pad, event);
+    case CLUTTER_DEVICE_REMOVED:
+      return CLUTTER_EVENT_PROPAGATE;
     default:
       return CLUTTER_EVENT_STOP;
     }
