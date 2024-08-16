@@ -1114,7 +1114,7 @@ meta_xwayland_init (MetaXWaylandManager    *manager,
 
   if (policy != META_X11_DISPLAY_POLICY_DISABLED)
     manager->prepare_shutdown_id = g_signal_connect (compositor, "prepare-shutdown",
-                                                     G_CALLBACK (meta_xwayland_shutdown), 
+                                                     G_CALLBACK (meta_xwayland_shutdown),
                                                      NULL);
 
   /* Xwayland specific protocol, needs to be filtered out for all other clients */
