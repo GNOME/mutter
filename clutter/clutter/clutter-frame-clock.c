@@ -391,8 +391,8 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
 
       frame_clock->shortterm_max_update_duration_us =
         CLAMP (frame_clock->last_dispatch_lateness_us + dispatch_to_swap_us +
-               MAX (swap_to_rendering_done_us,
-                    swap_to_flip_us + frame_clock->deadline_evasion_us),
+               MAX (swap_to_rendering_done_us, swap_to_flip_us) +
+               frame_clock->deadline_evasion_us,
                frame_clock->shortterm_max_update_duration_us,
                frame_clock->refresh_interval_us);
 
