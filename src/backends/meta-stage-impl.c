@@ -520,6 +520,9 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
 
   COGL_TRACE_BEGIN_SCOPED (RedrawViewPrimary,
                            "Meta::StageImpl::redraw_view_primary()");
+  COGL_TRACE_DEFINE_COUNTER_INT (RedrawViewPrimaryDamageArea,
+                                 "RedrawDamageArea",
+                                 "the damaged area of the redraw");
 
   clutter_stage_view_get_layout (stage_view, &view_rect);
   fb_scale = clutter_stage_view_get_scale (stage_view);
@@ -703,6 +706,7 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
       g_string_prepend (rects_str, area_str);
 
       COGL_TRACE_DESCRIBE (RedrawViewPrimary, rects_str->str);
+      COGL_TRACE_SET_COUNTER_INT (RedrawViewPrimaryDamageArea, area);
     }
 
   g_clear_pointer (&redraw_clip, mtk_region_unref);
