@@ -1539,7 +1539,7 @@ meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen *onscreen,
   assign_primary_plane (crtc_kms,
                         buffer,
                         test_update,
-                        META_KMS_ASSIGN_PLANE_FLAG_DIRECT_SCANOUT,
+                        META_KMS_ASSIGN_PLANE_FLAG_DISABLE_IMPLICIT_SYNC,
                         &src_rect,
                         &dst_rect);
 
@@ -1674,7 +1674,7 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
                                   onscreen_native->view,
                                   onscreen_native->crtc,
                                   kms_update,
-                                  META_KMS_ASSIGN_PLANE_FLAG_DIRECT_SCANOUT,
+                                  META_KMS_ASSIGN_PLANE_FLAG_DISABLE_IMPLICIT_SYNC,
                                   NULL,
                                   0);
 
