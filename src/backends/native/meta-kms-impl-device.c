@@ -1359,6 +1359,30 @@ arm_crtc_frame_deadline_timer (CrtcFrame *crtc_frame,
   crtc_frame->deadline.armed = TRUE;
 }
 
+static gboolean
+ensure_deadline_timer_armed (MetaKmsImplDevice  *impl_device,
+                             CrtcFrame          *crtc_frame,
+                             GError            **error)
+{
+  int64_t next_deadline_us;
+  int64_t next_presentation_us;
+
+  if (crtc_frame->deadline.armed)
+    return TRUE;
+
+  if (!meta_kms_crtc_determine_deadline (crtc_frame->crtc,
+                                         &next_deadline_us,
+                                         &next_presentation_us,
+                                         error))
+    return FALSE;
+
+  arm_crtc_frame_deadline_timer (crtc_frame,
+                                 next_deadline_us,
+                                 next_presentation_us);
+
+  return TRUE;
+}
+
 static void
 notify_crtc_frame_ready (CrtcFrame *crtc_frame)
 {
@@ -1973,30 +1997,6 @@ meta_kms_impl_device_await_flush (MetaKmsImplDevice *impl_device,
 
   if (crtc_frame->deadline.armed)
     disarm_crtc_frame_deadline_timer (crtc_frame);
-}
-
-static gboolean
-ensure_deadline_timer_armed (MetaKmsImplDevice  *impl_device,
-                             CrtcFrame          *crtc_frame,
-                             GError            **error)
-{
-  int64_t next_deadline_us;
-  int64_t next_presentation_us;
-
-  if (crtc_frame->deadline.armed)
-    return TRUE;
-
-  if (!meta_kms_crtc_determine_deadline (crtc_frame->crtc,
-                                         &next_deadline_us,
-                                         &next_presentation_us,
-                                         error))
-    return FALSE;
-
-  arm_crtc_frame_deadline_timer (crtc_frame,
-                                 next_deadline_us,
-                                 next_presentation_us);
-
-  return TRUE;
 }
 
 void
