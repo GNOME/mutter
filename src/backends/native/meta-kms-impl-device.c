@@ -1840,6 +1840,7 @@ meta_kms_impl_device_update_ready (MetaThreadImpl  *impl,
   MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
+  gboolean want_deadline_timer;
   MetaKmsUpdate *update;
   MetaKmsCrtc *latch_crtc;
   MetaKmsFeedback *feedback;
@@ -1853,24 +1854,39 @@ meta_kms_impl_device_update_ready (MetaThreadImpl  *impl,
 
   latch_crtc = g_steal_pointer (&crtc_frame->submitted_update.latch_crtc);
 
-  if (crtc_frame->pending_page_flip &&
+  want_deadline_timer =
+    !crtc_frame->await_flush &&
+    is_using_deadline_timer (impl_device) &&
+    !meta_kms_crtc_get_current_state (crtc_frame->crtc)->vrr.enabled;
+
+  if ((want_deadline_timer || crtc_frame->pending_page_flip) &&
       !meta_kms_update_get_mode_sets (update))
     {
-      g_assert (latch_crtc);
+      if (crtc_frame->pending_page_flip)
+        {
+          g_assert (latch_crtc);
 
-      meta_topic (META_DEBUG_KMS,
-                  "Queuing update on CRTC %u (%s): pending page flip",
-                  meta_kms_crtc_get_id (latch_crtc),
-                  priv->path);
+          meta_topic (META_DEBUG_KMS,
+                      "Queuing update on CRTC %u (%s): pending page flip",
+                      meta_kms_crtc_get_id (latch_crtc),
+                      priv->path);
+        }
 
       queue_update (impl_device, crtc_frame, update);
-      return GINT_TO_POINTER (TRUE);
+
+      if (crtc_frame->pending_page_flip ||
+          ensure_deadline_timer_armed (impl_device, crtc_frame))
+        return GINT_TO_POINTER (TRUE);
     }
 
   if (crtc_frame->pending_update)
     {
-      meta_kms_update_merge_from (crtc_frame->pending_update, update);
-      meta_kms_update_free (update);
+      if (update != crtc_frame->pending_update)
+        {
+          meta_kms_update_merge_from (crtc_frame->pending_update, update);
+          meta_kms_update_free (update);
+        }
+
       update = g_steal_pointer (&crtc_frame->pending_update);
       disarm_crtc_frame_deadline_timer (crtc_frame);
     }
