@@ -745,15 +745,16 @@ clutter_text_create_layout_no_cache (ClutterText       *text,
 
       if (dir == CLUTTER_TEXT_DIRECTION_DEFAULT)
         {
-          ClutterBackend *backend = clutter_get_default_backend ();
-
           if (clutter_actor_has_key_focus (CLUTTER_ACTOR (text)))
             {
-              ClutterSeat *seat;
-              ClutterKeymap *keymap;
+              ClutterContext *clutter_context =
+                clutter_actor_get_context (CLUTTER_ACTOR (text));
+              ClutterBackend *backend =
+                clutter_context_get_backend (clutter_context);
+              ClutterSeat *seat =
+                clutter_backend_get_default_seat (backend);
+              ClutterKeymap *keymap = clutter_seat_get_keymap (seat);
 
-              seat = clutter_backend_get_default_seat (backend);
-              keymap = clutter_seat_get_keymap (seat);
               dir = clutter_keymap_get_direction (keymap);
             }
           else
@@ -1744,6 +1745,7 @@ clutter_text_constructed (GObject *gobject)
   ClutterTextPrivate *priv = clutter_text_get_instance_private (self);
   ClutterContext *context = clutter_actor_get_context (CLUTTER_ACTOR (self));
   ClutterSettings *settings = clutter_context_get_settings (context);
+  ClutterBackend *backend = clutter_context_get_backend (context);
   gchar *font_name;
   int password_hint_time;
 
@@ -1761,6 +1763,12 @@ clutter_text_constructed (GObject *gobject)
   priv->show_password_hint = password_hint_time > 0;
   priv->password_hint_timeout = password_hint_time;
 
+  priv->settings_changed_id =
+    g_signal_connect_swapped (backend,
+                              "settings-changed",
+                              G_CALLBACK (clutter_text_settings_changed_cb),
+                              self);
+
   G_OBJECT_CLASS (clutter_text_parent_class)->constructed (gobject);
 }
 
@@ -1769,13 +1777,16 @@ clutter_text_dispose (GObject *gobject)
 {
   ClutterText *self = CLUTTER_TEXT (gobject);
   ClutterTextPrivate *priv = clutter_text_get_instance_private (self);
+  ClutterContext *context =
+    clutter_actor_get_context (CLUTTER_ACTOR (self));
+  ClutterBackend *backend = clutter_context_get_backend (context);
 
   /* get rid of the entire cache */
   clutter_text_dirty_cache (self);
 
   g_clear_signal_handler (&priv->direction_changed_id, self);
   g_clear_signal_handler (&priv->settings_changed_id,
-                          clutter_get_default_backend ());
+                          backend);
 
   g_clear_handle_id (&priv->password_hint_id, g_source_remove);
 
@@ -3191,7 +3202,9 @@ static void
 clutter_text_im_focus (ClutterText *text)
 {
   ClutterTextPrivate *priv = clutter_text_get_instance_private (text);
-  ClutterBackend *backend = clutter_get_default_backend ();
+  ClutterContext *context =
+    clutter_actor_get_context (CLUTTER_ACTOR (text));
+  ClutterBackend *backend = clutter_context_get_backend (context);
   ClutterInputMethod *method = clutter_backend_get_input_method (backend);
 
   if (!method)
@@ -3225,7 +3238,8 @@ clutter_text_key_focus_out (ClutterActor *actor)
 {
   ClutterTextPrivate *priv =
     clutter_text_get_instance_private (CLUTTER_TEXT (actor));
-  ClutterBackend *backend = clutter_get_default_backend ();
+  ClutterContext *context = clutter_actor_get_context (actor);
+  ClutterBackend *backend = clutter_context_get_backend (context);
   ClutterInputMethod *method = clutter_backend_get_input_method (backend);
 
   priv->has_focus = FALSE;
@@ -4534,12 +4548,6 @@ clutter_text_init (ClutterText *self)
 
   priv->cursor_size = DEFAULT_CURSOR_SIZE;
 
-  priv->settings_changed_id =
-    g_signal_connect_swapped (clutter_get_default_backend (),
-                              "settings-changed",
-                              G_CALLBACK (clutter_text_settings_changed_cb),
-                              self);
-
   priv->direction_changed_id =
     g_signal_connect (self, "notify::text-direction",
                       G_CALLBACK (clutter_text_direction_changed_cb),
@@ -4846,7 +4854,9 @@ void
 clutter_text_set_editable (ClutterText *self,
                            gboolean     editable)
 {
-  ClutterBackend *backend = clutter_get_default_backend ();
+  ClutterContext *context =
+    clutter_actor_get_context (CLUTTER_ACTOR (self));
+  ClutterBackend *backend = clutter_context_get_backend (context);
   ClutterInputMethod *method = clutter_backend_get_input_method (backend);
   ClutterTextPrivate *priv;
   AtkObject *accessible;
