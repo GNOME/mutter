@@ -36,8 +36,6 @@ G_DECLARE_FINAL_TYPE (ClutterStageManager,
                       STAGE_MANAGER,
                       GObject)
 
-ClutterStageManager * clutter_stage_manager_get_default (void);
-
 const GSList * clutter_stage_manager_peek_stages (ClutterStageManager *stage_manager);
 
 void _clutter_stage_manager_add_stage (ClutterStageManager *stage_manager,

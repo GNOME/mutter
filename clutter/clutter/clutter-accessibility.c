@@ -38,8 +38,10 @@
 #include <string.h>
 
 #include "clutter/clutter-accessibility-private.h"
+#include "clutter/clutter-context-private.h"
 #include "clutter/clutter-stage-manager-accessible-private.h"
 #include "clutter/clutter.h"
+#include "clutter/clutter-private.h"
 
 #define DEFAULT_PASSWORD_CHAR '*'
 
@@ -76,8 +78,12 @@ clutter_accessibility_init (ClutterAccessibility *accessibility)
 static AtkObject*
 clutter_accessibility_get_root (void)
 {
+  ClutterContext *context = _clutter_context_get_default ();
+  ClutterStageManager *stage_manager =
+    clutter_context_get_stage_manager (context);
+
   if (!root)
-    root = clutter_stage_manager_accessible_new ();
+    root = clutter_stage_manager_accessible_new (stage_manager);
 
   return root;
 }

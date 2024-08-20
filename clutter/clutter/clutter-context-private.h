@@ -20,6 +20,7 @@
 #pragma once
 
 #include "clutter/clutter-context.h"
+#include "clutter-stage-manager-private.h"
 
 struct _ClutterContext
 {
@@ -45,3 +46,5 @@ struct _ClutterContext
 
   gboolean show_fps;
 };
+
+ClutterStageManager * clutter_context_get_stage_manager (ClutterContext *context);

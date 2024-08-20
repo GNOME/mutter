@@ -20,7 +20,6 @@
 #pragma once
 
 #include "clutter-backend.h"
-#include "clutter-stage-manager-private.h"
 #include "clutter-settings.h"
 #include "cogl-pango/cogl-pango.h"
 

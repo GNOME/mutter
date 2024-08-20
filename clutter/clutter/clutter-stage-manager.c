@@ -81,25 +81,6 @@ clutter_stage_manager_init (ClutterStageManager *stage_manager)
 }
 
 /**
- * clutter_stage_manager_get_default:
- *
- * Returns the default #ClutterStageManager.
- *
- * Return value: (transfer none): the default stage manager instance. The returned
- *   object is owned by Clutter and you should not reference or unreference it.
- */
-ClutterStageManager *
-clutter_stage_manager_get_default (void)
-{
-  ClutterContext *context = _clutter_context_get_default ();
-
-  if (G_UNLIKELY (context->stage_manager == NULL))
-    context->stage_manager = g_object_new (CLUTTER_TYPE_STAGE_MANAGER, NULL);
-
-  return context->stage_manager;
-}
-
-/**
  * clutter_stage_manager_peek_stages:
  * @stage_manager: a #ClutterStageManager
  *

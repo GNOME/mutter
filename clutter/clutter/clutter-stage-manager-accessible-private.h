@@ -23,6 +23,7 @@
 #include <atk/atk.h>
 
 #include "clutter/clutter-macros.h"
+#include "clutter/clutter-stage-manager-private.h"
 
 G_BEGIN_DECLS
 
@@ -34,6 +35,6 @@ G_DECLARE_FINAL_TYPE (ClutterStageManagerAccessible,
                       STAGE_MANAGER_ACCESSIBLE,
                       AtkGObjectAccessible)
 
-AtkObject * clutter_stage_manager_accessible_new (void);
+AtkObject * clutter_stage_manager_accessible_new (ClutterStageManager *stage_manager);
 
 G_END_DECLS

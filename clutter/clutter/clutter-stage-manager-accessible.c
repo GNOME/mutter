@@ -38,7 +38,6 @@
 
 #include "clutter/clutter-actor.h"
 #include "clutter/clutter-stage-private.h"
-#include "clutter/clutter-stage-manager-private.h"
 
 struct _ClutterStageManagerAccessible {
   AtkGObjectAccessible parent;
@@ -59,16 +58,14 @@ clutter_stage_manager_accessible_init (ClutterStageManagerAccessible *manager_ac
  * Return value: the newly created #AtkObject
  */
 AtkObject*
-clutter_stage_manager_accessible_new (void)
+clutter_stage_manager_accessible_new (ClutterStageManager *stage_manager)
 {
   GObject *object = NULL;
   AtkObject *accessible = NULL;
-  ClutterStageManager *stage_manager = NULL;
 
   object = g_object_new (CLUTTER_TYPE_STAGE_MANAGER_ACCESSIBLE, NULL);
 
   accessible = ATK_OBJECT (object);
-  stage_manager = clutter_stage_manager_get_default ();
 
   atk_object_initialize (accessible, stage_manager);
 

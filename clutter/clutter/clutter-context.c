@@ -276,6 +276,8 @@ clutter_context_new (ClutterBackendConstructor   backend_constructor,
   _clutter_settings_set_backend (context->settings,
                                  context->backend);
 
+  context->stage_manager = g_object_new (CLUTTER_TYPE_STAGE_MANAGER, NULL);
+
   context->events_queue =
     g_async_queue_new_full ((GDestroyNotify) clutter_event_free);
   context->last_repaint_id = 1;
@@ -369,4 +371,10 @@ gboolean
 clutter_get_accessibility_enabled (void)
 {
   return clutter_enable_accessibility;
+}
+
+ClutterStageManager *
+clutter_context_get_stage_manager (ClutterContext *context)
+{
+  return context->stage_manager;
 }

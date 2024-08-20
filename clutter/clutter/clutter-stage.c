@@ -1147,9 +1147,9 @@ static void
 clutter_stage_constructed (GObject *gobject)
 {
   ClutterStage *self = CLUTTER_STAGE (gobject);
-  ClutterStageManager *stage_manager;
-
-  stage_manager = clutter_stage_manager_get_default ();
+  ClutterContext *context = _clutter_context_get_default ();
+  ClutterStageManager *stage_manager =
+    clutter_context_get_stage_manager (context);
 
   /* this will take care to sinking the floating reference */
   _clutter_stage_manager_add_stage (stage_manager, self);
@@ -1220,6 +1220,7 @@ clutter_stage_dispose (GObject *object)
 {
   ClutterStage        *stage = CLUTTER_STAGE (object);
   ClutterStagePrivate *priv = clutter_stage_get_instance_private (stage);
+  ClutterContext *context;
   ClutterStageManager *stage_manager;
 
   clutter_actor_hide (CLUTTER_ACTOR (object));
@@ -1244,7 +1245,8 @@ clutter_stage_dispose (GObject *object)
   priv->pending_relayouts = NULL;
 
   /* this will release the reference on the stage */
-  stage_manager = clutter_stage_manager_get_default ();
+  context = _clutter_context_get_default ();
+  stage_manager = clutter_context_get_stage_manager (context);
   _clutter_stage_manager_remove_stage (stage_manager, stage);
 
   g_hash_table_remove_all (priv->pointer_devices);
