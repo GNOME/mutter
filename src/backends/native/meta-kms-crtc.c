@@ -712,6 +712,13 @@ meta_kms_crtc_update_shortterm_max_dispatch_duration (MetaKmsCrtc *crtc,
 int64_t
 meta_kms_crtc_get_deadline_evasion (MetaKmsCrtc *crtc)
 {
-  return MAX (crtc->shortterm_max_dispatch_duration_us,
-              crtc->deadline_evasion_us) + DEADLINE_EVASION_CONSTANT_US;
+  int64_t deadline_evasion_us;
+
+  deadline_evasion_us =
+    MAX (crtc->shortterm_max_dispatch_duration_us, crtc->deadline_evasion_us);
+
+  if (!deadline_evasion_us)
+    return 0;
+
+  return deadline_evasion_us + DEADLINE_EVASION_CONSTANT_US;
 }
