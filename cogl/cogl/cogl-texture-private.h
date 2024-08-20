@@ -328,9 +328,6 @@ void
 _cogl_texture_copy_internal_format (CoglTexture *src,
                                     CoglTexture *dest);
 
-CoglContext *
-cogl_texture_get_context (CoglTexture *texture);
-
 CoglTextureLoader *
 cogl_texture_get_loader (CoglTexture *texture);
 

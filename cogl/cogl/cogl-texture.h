@@ -474,4 +474,12 @@ cogl_texture_set_auto_mipmap (CoglTexture *texture,
 COGL_EXPORT CoglPixelFormat
 cogl_texture_get_format (CoglTexture *texture);
 
+/**
+ * cogl_texture_get_context:
+ *
+ * Returns: (transfer none): The associated %CoglContext
+ */
+COGL_EXPORT CoglContext *
+cogl_texture_get_context (CoglTexture *texture);
+
 G_END_DECLS
