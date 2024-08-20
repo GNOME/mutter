@@ -164,6 +164,8 @@ meta_settings_get_global_scaling_factor (MetaSettings *settings,
 static gboolean
 update_font_dpi (MetaSettings *settings)
 {
+  ClutterContext *clutter_context;
+  ClutterSettings *clutter_settings;
   double text_scaling_factor;
   /* Number of logical pixels on an inch when unscaled */
   const double dots_per_inch = 96;
@@ -181,8 +183,10 @@ update_font_dpi (MetaSettings *settings)
   if (font_dpi != settings->font_dpi)
     {
       settings->font_dpi = font_dpi;
+      clutter_context = meta_backend_get_clutter_context (settings->backend);
+      clutter_settings = clutter_context_get_settings (clutter_context);
 
-      g_object_set (clutter_settings_get_default (),
+      g_object_set (clutter_settings,
                     "font-dpi", font_dpi,
                     NULL);
 

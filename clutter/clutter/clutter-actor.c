@@ -13034,7 +13034,7 @@ update_pango_context (ClutterBackend *backend,
   gchar *font_name;
   gdouble resolution;
 
-  settings = clutter_settings_get_default ();
+  settings = clutter_context_get_settings (backend->context);
 
   /* update the text direction */
   dir = clutter_get_default_text_direction ();

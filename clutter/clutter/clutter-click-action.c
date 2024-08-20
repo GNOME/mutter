@@ -24,7 +24,7 @@
 
 /**
  * ClutterClickAction:
- * 
+ *
  * Action for clickable actors
  *
  * #ClutterClickAction is a sub-class of [class@Action] that implements
@@ -204,13 +204,15 @@ click_action_query_long_press (ClutterClickAction *action)
 {
   ClutterClickActionPrivate *priv =
     clutter_click_action_get_instance_private (action);
-  ClutterActor *actor;
+  ClutterActor *actor =
+    clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (action));
+  ClutterContext *context = clutter_actor_get_context (actor);
   gboolean result = FALSE;
   gint timeout;
 
   if (priv->long_press_duration < 0)
     {
-      ClutterSettings *settings = clutter_settings_get_default ();
+      ClutterSettings *settings = clutter_context_get_settings (context);
 
       g_object_get (settings,
                     "long-press-duration", &timeout,
@@ -219,7 +221,6 @@ click_action_query_long_press (ClutterClickAction *action)
   else
     timeout = priv->long_press_duration;
 
-  actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (action));
 
   g_signal_emit (action, click_signals[LONG_PRESS], 0,
                  actor,
@@ -284,6 +285,7 @@ clutter_click_action_handle_event (ClutterAction      *action,
     clutter_click_action_get_instance_private (click_action);
   ClutterActor *actor =
     clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (action));
+  ClutterContext *context = clutter_actor_get_context (actor);
   gboolean has_button = TRUE;
   ClutterModifierType modifier_state;
   ClutterActor *target;
@@ -324,7 +326,7 @@ clutter_click_action_handle_event (ClutterAction      *action,
 
       if (priv->long_press_threshold < 0)
         {
-          ClutterSettings *settings = clutter_settings_get_default ();
+          ClutterSettings *settings = clutter_context_get_settings (context);
 
           g_object_get (settings,
                         "dnd-drag-threshold", &priv->drag_threshold,

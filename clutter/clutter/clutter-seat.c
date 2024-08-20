@@ -119,7 +119,8 @@ clutter_seat_get_property (GObject    *object,
 static void
 clutter_seat_constructed (GObject *object)
 {
-  ClutterSettings *settings = clutter_settings_get_default ();
+  ClutterContext *context = _clutter_context_get_default ();
+  ClutterSettings *settings = clutter_context_get_settings (context);
 
   G_OBJECT_CLASS (clutter_seat_parent_class)->constructed (object);
   clutter_settings_ensure_pointer_a11y_settings (settings,
@@ -280,7 +281,7 @@ clutter_seat_class_init (ClutterSeatClass *klass)
    *
    * The signal is emitted when the property to inhibit the unsetting
    * of the focus-surface of the #ClutterSeat changed.
-   *  
+   *
    * To get the current state of this property, use [method@Seat.is_unfocus_inhibited].
    */
   signals[IS_UNFOCUS_INHIBITED_CHANGED] =

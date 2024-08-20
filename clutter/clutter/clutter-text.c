@@ -859,9 +859,8 @@ clutter_text_settings_changed_cb (ClutterText *text)
 {
   ClutterTextPrivate *priv = clutter_text_get_instance_private (text);
   guint password_hint_time = 0;
-  ClutterSettings *settings;
-
-  settings = clutter_settings_get_default ();
+  ClutterContext *context = clutter_actor_get_context (CLUTTER_ACTOR (text));
+  ClutterSettings *settings = clutter_context_get_settings (context);
 
   g_object_get (settings, "password-hint-time", &password_hint_time, NULL);
 
@@ -1739,6 +1738,33 @@ clutter_text_get_property (GObject    *gobject,
 }
 
 static void
+clutter_text_constructed (GObject *gobject)
+{
+  ClutterText *self = CLUTTER_TEXT (gobject);
+  ClutterTextPrivate *priv = clutter_text_get_instance_private (self);
+  ClutterContext *context = clutter_actor_get_context (CLUTTER_ACTOR (self));
+  ClutterSettings *settings = clutter_context_get_settings (context);
+  gchar *font_name;
+  int password_hint_time;
+
+  /* get the default font name from the context; we don't use
+   * set_font_description() here because we are initializing
+   * the Text and we don't need notifications and sanity checks
+   */
+  g_object_get (settings,
+                "font-name", &font_name,
+                "password-hint-time", &password_hint_time,
+                NULL);
+
+  priv->font_name = font_name; /* font_name is allocated */
+  priv->font_desc = pango_font_description_from_string (font_name);
+  priv->show_password_hint = password_hint_time > 0;
+  priv->password_hint_timeout = password_hint_time;
+
+  G_OBJECT_CLASS (clutter_text_parent_class)->constructed (gobject);
+}
+
+static void
 clutter_text_dispose (GObject *gobject)
 {
   ClutterText *self = CLUTTER_TEXT (gobject);
@@ -2220,12 +2246,12 @@ clutter_text_update_click_count (ClutterText        *self,
                                  const ClutterEvent *event)
 {
   ClutterTextPrivate *priv = clutter_text_get_instance_private (self);
-  ClutterSettings *settings;
+  ClutterContext *context = clutter_actor_get_context (CLUTTER_ACTOR (self));
+  ClutterSettings *settings = clutter_context_get_settings (context);
   int double_click_time, double_click_distance;
   uint32_t evtime;
   float x, y;
 
-  settings = clutter_settings_get_default ();
   clutter_event_get_coords (event, &x, &y);
   evtime = clutter_event_get_time (event);
 
@@ -3843,6 +3869,7 @@ clutter_text_class_init (ClutterTextClass *klass)
 
   gobject_class->set_property = clutter_text_set_property;
   gobject_class->get_property = clutter_text_get_property;
+  gobject_class->constructed = clutter_text_constructed;
   gobject_class->dispose = clutter_text_dispose;
   gobject_class->finalize = clutter_text_finalize;
 
@@ -4455,10 +4482,8 @@ clutter_text_class_init (ClutterTextClass *klass)
 static void
 clutter_text_init (ClutterText *self)
 {
-  ClutterSettings *settings;
   ClutterTextPrivate *priv;
-  gchar *font_name;
-  int i, password_hint_time;
+  int i;
 
   priv = clutter_text_get_instance_private (self);
 
@@ -4484,18 +4509,6 @@ clutter_text_init (ClutterText *self)
   priv->selection_color = default_selection_color;
   priv->selected_text_color = default_selected_text_color;
 
-  /* get the default font name from the context; we don't use
-   * set_font_description() here because we are initializing
-   * the Text and we don't need notifications and sanity checks
-   */
-  settings = clutter_settings_get_default ();
-  g_object_get (settings,
-                "font-name", &font_name,
-                "password-hint-time", &password_hint_time,
-                NULL);
-
-  priv->font_name = font_name; /* font_name is allocated */
-  priv->font_desc = pango_font_description_from_string (font_name);
   priv->is_default_font = TRUE;
 
   priv->position = -1;
@@ -4512,8 +4525,6 @@ clutter_text_init (ClutterText *self)
   priv->preedit_set = FALSE;
 
   priv->password_char = 0;
-  priv->show_password_hint = password_hint_time > 0;
-  priv->password_hint_timeout = password_hint_time;
 
   priv->text_y = 0;
 
@@ -5428,7 +5439,10 @@ clutter_text_set_font_name (ClutterText *self,
   /* get the default font name from the backend */
   if (font_name == NULL || font_name[0] == '\0')
     {
-      ClutterSettings *settings = clutter_settings_get_default ();
+      ClutterContext *context =
+        clutter_actor_get_context (CLUTTER_ACTOR (self));
+      ClutterSettings *settings =
+        clutter_context_get_settings (context);
       gchar *default_font_name = NULL;
 
       g_object_get (settings, "font-name", &default_font_name, NULL);
