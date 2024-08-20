@@ -487,10 +487,11 @@ meta_wayland_pointer_enable (MetaWaylandPointer *pointer)
   MetaBackend *backend = backend_from_pointer (pointer);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
   ClutterSeat *clutter_seat;
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
 
   pointer->cursor_surface = NULL;
 
-  clutter_seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  clutter_seat = clutter_backend_get_default_seat (clutter_backend);
   pointer->device = clutter_seat_get_pointer (clutter_seat);
 
   g_signal_connect (cursor_tracker,
@@ -1009,7 +1010,7 @@ meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
   MetaWaylandInputDevice *input_device = META_WAYLAND_INPUT_DEVICE (pointer);
   MetaBackend *backend = backend_from_pointer (pointer);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
-  ClutterBackend *clutter_backend = clutter_get_default_backend ();
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   ClutterSeat *clutter_seat = clutter_backend_get_default_seat (clutter_backend);
   MetaWindow *toplevel_window;
 
@@ -1235,7 +1236,8 @@ pointer_set_cursor (struct wl_client *client,
 
   if (surface)
     {
-      ClutterBackend *clutter_backend = clutter_get_default_backend ();
+      MetaBackend *backend = backend_from_pointer (pointer);
+      ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
       ClutterSeat *clutter_seat =
         clutter_backend_get_default_seat (clutter_backend);
       ClutterInputDevice *device = clutter_seat_get_pointer (clutter_seat);
