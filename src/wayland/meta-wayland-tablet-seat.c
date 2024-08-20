@@ -254,11 +254,17 @@ meta_wayland_tablet_seat_new (MetaWaylandTabletManager *manager,
 {
   MetaWaylandTabletSeat *tablet_seat;
   GList *devices, *l;
+  MetaWaylandCompositor *compositor = seat->compositor;
+  MetaContext *context =
+    meta_wayland_compositor_get_context (compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
+  ClutterBackend *clutter_backend =
+    meta_backend_get_clutter_backend (backend);
 
   tablet_seat = g_new0 (MetaWaylandTabletSeat, 1);
   tablet_seat->manager = manager;
   tablet_seat->seat = seat;
-  tablet_seat->clutter_seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  tablet_seat->clutter_seat = clutter_backend_get_default_seat (clutter_backend);
   tablet_seat->tablets = g_hash_table_new_full (NULL, NULL, NULL,
                                                 (GDestroyNotify) meta_wayland_tablet_free);
   tablet_seat->tools = g_hash_table_new_full (NULL, NULL, NULL,
