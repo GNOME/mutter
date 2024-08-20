@@ -901,16 +901,15 @@ clutter_settings_init (ClutterSettings *self)
  * Return value: (transfer none): the instance of #ClutterSettings. The
  *   returned object is owned by Clutter and it should not be unreferenced
  *   directly
+ *
+ * Deprecated: Use [method@Clutter.Context.get_settings] instead
  */
 ClutterSettings *
 clutter_settings_get_default (void)
 {
-  static ClutterSettings *settings = NULL;
+  ClutterContext *context = _clutter_context_get_default ();
 
-  if (G_UNLIKELY (settings == NULL))
-    settings = g_object_new (CLUTTER_TYPE_SETTINGS, NULL);
-
-  return settings;
+  return clutter_context_get_settings (context);
 }
 
 void
