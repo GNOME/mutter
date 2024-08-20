@@ -105,7 +105,7 @@ meta_backend_x11_cm_post_init (MetaBackend *backend)
   MetaBackendX11Cm *x11_cm = META_BACKEND_X11_CM (backend);
   ClutterSeat *seat;
 
-  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  seat = clutter_backend_get_default_seat (meta_backend_get_clutter_backend (backend));
   g_signal_connect_object (seat, "device-added",
                            G_CALLBACK (on_device_added), backend, 0);
 
