@@ -93,15 +93,6 @@ char* meta_external_binding_name_for_action (guint keybinding_action);
 META_EXPORT
 char* meta_g_utf8_strndup (const gchar *src, gsize n);
 
-typedef enum
-{
-  META_LOCALE_DIRECTION_LTR,
-  META_LOCALE_DIRECTION_RTL,
-} MetaLocaleDirection;
-
-META_EXPORT
-MetaLocaleDirection meta_get_locale_direction (void);
-
 META_EXPORT
 void meta_add_clutter_debug_flags (ClutterDebugFlag     debug_flags,
                                    ClutterDrawDebugFlag draw_flags,

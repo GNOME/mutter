@@ -512,21 +512,6 @@ meta_external_binding_name_for_action (guint keybinding_action)
   return g_strdup_printf ("external-grab-%u", keybinding_action);
 }
 
-MetaLocaleDirection
-meta_get_locale_direction (void)
-{
-  switch (clutter_get_text_direction ())
-    {
-    case CLUTTER_TEXT_DIRECTION_LTR:
-      return META_LOCALE_DIRECTION_LTR;
-    case CLUTTER_TEXT_DIRECTION_RTL:
-      return META_LOCALE_DIRECTION_RTL;
-    default:
-      g_assert_not_reached ();
-      return 0;
-    }
-}
-
 char *
 meta_generate_random_id (GRand *rand,
                          int    length)

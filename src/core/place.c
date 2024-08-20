@@ -133,7 +133,7 @@ find_next_cascade (MetaWindow *window,
   int cascade_stage;
   MtkRectangle work_area;
   MetaLogicalMonitor *current;
-  gboolean ltr = meta_get_locale_direction () == META_LOCALE_DIRECTION_LTR;
+  gboolean ltr = clutter_get_text_direction () == CLUTTER_TEXT_DIRECTION_LTR;
 
   /* This is a "fuzzy" cascade algorithm.
    * For each window in the list, we find where we'd cascade a
@@ -541,7 +541,7 @@ center_tile_rect_in_area (MtkRectangle *rect,
    */
 
   fluff = (work_area->width % (rect->width + 1)) / 2;
-  if (meta_get_locale_direction () == META_LOCALE_DIRECTION_LTR)
+  if (clutter_get_text_direction () == CLUTTER_TEXT_DIRECTION_LTR)
     rect->x = work_area->x + fluff;
   else
     rect->x = work_area->x + work_area->width - rect->width - fluff;
@@ -580,7 +580,7 @@ find_first_fit (MetaWindow         *window,
   GList *tmp;
   MtkRectangle rect;
   MtkRectangle work_area;
-  gboolean ltr = meta_get_locale_direction () == META_LOCALE_DIRECTION_LTR;
+  gboolean ltr = clutter_get_text_direction () == CLUTTER_TEXT_DIRECTION_LTR;
 
   retval = FALSE;
 
