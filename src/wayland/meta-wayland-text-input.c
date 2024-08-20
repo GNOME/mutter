@@ -392,12 +392,15 @@ meta_wayland_text_input_set_focus (MetaWaylandTextInput *text_input,
       if (!wl_list_empty (&text_input->focus_resource_list))
         {
           ClutterInputFocus *focus = text_input->input_focus;
+          MetaBackend *backend = backend_from_text_input (text_input);
+          ClutterBackend *clutter_backend =
+            meta_backend_get_clutter_backend (backend);
           ClutterInputMethod *input_method;
           struct wl_resource *resource;
 
           if (clutter_input_focus_is_focused (focus))
             {
-              input_method = clutter_backend_get_input_method (clutter_get_default_backend ());
+              input_method = clutter_backend_get_input_method (clutter_backend);
               clutter_input_focus_reset (focus);
               meta_wayland_text_input_focus_flush_done (focus);
               clutter_input_method_focus_out (input_method);
@@ -644,6 +647,9 @@ text_input_commit_state (struct wl_client   *client,
   MetaWaylandTextInput *text_input = wl_resource_get_user_data (resource);
   ClutterInputFocus *focus = text_input->input_focus;
   gboolean enable_panel = FALSE;
+  MetaBackend *backend = backend_from_text_input (text_input);
+  ClutterBackend *clutter_backend =
+    meta_backend_get_clutter_backend (backend);
   ClutterInputMethod *input_method;
 
   increment_serial (text_input, resource);
@@ -651,7 +657,7 @@ text_input_commit_state (struct wl_client   *client,
   if (!client_matches_focus (text_input, client))
     return;
 
-  input_method = clutter_backend_get_input_method (clutter_get_default_backend ());
+  input_method = clutter_backend_get_input_method (clutter_backend);
 
   if (input_method &&
       text_input->pending_state & META_WAYLAND_PENDING_STATE_ENABLED)
