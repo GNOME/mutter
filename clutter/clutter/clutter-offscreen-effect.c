@@ -193,8 +193,7 @@ clutter_offscreen_effect_real_create_pipeline (ClutterOffscreenEffect *effect,
 {
   ClutterOffscreenEffectPrivate *priv =
     clutter_offscreen_effect_get_instance_private (effect);
-  CoglContext *ctx =
-    clutter_backend_get_cogl_context (clutter_get_default_backend ());
+  CoglContext *ctx = cogl_texture_get_context (texture);
   CoglPipeline *pipeline;
   float resource_scale;
 

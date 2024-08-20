@@ -135,11 +135,9 @@ struct _ClutterBlur
 };
 
 static CoglPipeline*
-create_blur_pipeline (void)
+create_blur_pipeline (CoglContext *ctx)
 {
   static CoglPipelineKey blur_pipeline_key = "clutter-blur-pipeline-private";
-  CoglContext *ctx =
-    clutter_backend_get_cogl_context (clutter_get_default_backend ());
   CoglPipeline *blur_pipeline;
 
   blur_pipeline =
@@ -225,10 +223,9 @@ update_blur_uniforms (ClutterBlur *blur,
 
 static gboolean
 create_fbo (ClutterBlur *blur,
+            CoglContext *ctx,
             BlurPass    *pass)
 {
-  CoglContext *ctx =
-    clutter_backend_get_cogl_context (clutter_get_default_backend ());
   float scaled_height;
   float scaled_width;
   float height;
@@ -270,11 +267,12 @@ setup_blur_pass (ClutterBlur *blur,
                  int          orientation,
                  CoglTexture *texture)
 {
+  CoglContext *context = cogl_texture_get_context (texture);
   pass->orientation = orientation;
-  pass->pipeline = create_blur_pipeline ();
+  pass->pipeline = create_blur_pipeline (context);
   cogl_pipeline_set_layer_texture (pass->pipeline, 0, texture);
 
-  if (!create_fbo (blur, pass))
+  if (!create_fbo (blur, context, pass))
     return FALSE;
 
   update_blur_uniforms (blur, pass);
