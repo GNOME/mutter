@@ -426,7 +426,7 @@ void
 clutter_stage_handle_event (ClutterStage *stage,
                             ClutterEvent *event)
 {
-  ClutterContext *context = _clutter_context_get_default();
+  ClutterContext *context;
   ClutterActor *event_actor = NULL;
   ClutterEventType event_type;
   gboolean filtered;
@@ -438,6 +438,7 @@ clutter_stage_handle_event (ClutterStage *stage,
   if (CLUTTER_ACTOR_IN_DESTRUCTION (stage))
     return;
 
+  context = clutter_actor_get_context (CLUTTER_ACTOR (stage));
   event_type = clutter_event_type (event);
 
   switch (event_type)
@@ -561,7 +562,7 @@ clutter_stage_process_event (ClutterStage *stage,
 
   COGL_TRACE_BEGIN_SCOPED (ProcessEvent, "Clutter::Stage::process_event()");
 
-  context = _clutter_context_get_default ();
+  context = clutter_actor_get_context (CLUTTER_ACTOR (stage));
   seat = clutter_backend_get_default_seat (context->backend);
 
   /* push events on a stack, so that we don't need to
