@@ -223,7 +223,7 @@ _cogl_pango_renderer_constructed (GObject *gobject)
   renderer->mipmap_caches.glyph_cache =
     cogl_pango_glyph_cache_new (ctx, TRUE);
 
-  _cogl_pango_renderer_set_use_mipmapping (renderer, FALSE);
+  renderer->use_mipmapping = FALSE;
 
   if (G_OBJECT_CLASS (cogl_pango_renderer_parent_class)->constructed)
     G_OBJECT_CLASS (cogl_pango_renderer_parent_class)->constructed (gobject);
@@ -485,13 +485,6 @@ cogl_pango_show_layout_line (CoglFramebuffer        *fb,
 
   _cogl_pango_display_list_free (priv->display_list);
   priv->display_list = NULL;
-}
-
-void
-_cogl_pango_renderer_set_use_mipmapping (CoglPangoRenderer *renderer,
-                                         gboolean value)
-{
-  renderer->use_mipmapping = value;
 }
 
 static CoglPangoGlyphCacheValue *

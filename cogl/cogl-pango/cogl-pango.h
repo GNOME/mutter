@@ -120,18 +120,6 @@ COGL_EXPORT void
 cogl_pango_ensure_glyph_cache_for_layout (PangoLayout *layout);
 
 /**
- * cogl_pango_font_map_set_use_mipmapping:
- * @font_map: a #CoglPangoFontMap
- * @value: %TRUE to enable the use of mipmapping
- *
- * Sets whether the renderer for the passed font map should use
- * mipmapping when rendering a [class@Pango.Layout].
- */
-COGL_EXPORT void
-cogl_pango_font_map_set_use_mipmapping (CoglPangoFontMap *font_map,
-                                        gboolean value);
-
-/**
  * cogl_pango_font_map_get_renderer:
  * @font_map: a #CoglPangoFontMap
  *

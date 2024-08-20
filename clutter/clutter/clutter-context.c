@@ -31,7 +31,6 @@
 #include "clutter/clutter-paint-node-private.h"
 #include "clutter/clutter-settings-private.h"
 
-static gboolean clutter_disable_mipmap_text = FALSE;
 static gboolean clutter_show_fps = FALSE;
 static gboolean clutter_enable_accessibility = TRUE;
 
@@ -252,10 +251,6 @@ init_clutter_debug (ClutterContext *context)
   env_string = g_getenv ("CLUTTER_DISABLE_ACCESSIBILITY");
   if (env_string)
     clutter_enable_accessibility = FALSE;
-
-  env_string = g_getenv ("CLUTTER_DISABLE_MIPMAPPED_TEXT");
-  if (env_string)
-    clutter_disable_mipmap_text = TRUE;
 }
 
 ClutterContext *
@@ -312,7 +307,6 @@ clutter_context_get_pango_fontmap (ClutterContext *context)
 {
   CoglPangoFontMap *font_map;
   gdouble resolution;
-  gboolean use_mipmapping;
   ClutterBackend *backend;
   CoglContext *cogl_context;
 
@@ -325,9 +319,6 @@ clutter_context_get_pango_fontmap (ClutterContext *context)
 
   resolution = clutter_backend_get_resolution (context->backend);
   cogl_pango_font_map_set_resolution (font_map, resolution);
-
-  use_mipmapping = !clutter_disable_mipmap_text;
-  cogl_pango_font_map_set_use_mipmapping (font_map, use_mipmapping);
 
   context->font_map = font_map;
 

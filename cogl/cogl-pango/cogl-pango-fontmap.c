@@ -102,16 +102,6 @@ cogl_pango_font_map_set_resolution (CoglPangoFontMap *font_map,
   pango_cairo_font_map_set_resolution (PANGO_CAIRO_FONT_MAP (font_map), dpi);
 }
 
-void
-cogl_pango_font_map_set_use_mipmapping (CoglPangoFontMap *fm,
-                                        gboolean          value)
-{
-  PangoRenderer *renderer = cogl_pango_font_map_get_renderer (fm);
-
-  _cogl_pango_renderer_set_use_mipmapping (COGL_PANGO_RENDERER (renderer),
-                                           value);
-}
-
 static GQuark
 cogl_pango_font_map_get_priv_key (void)
 {

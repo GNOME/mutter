@@ -42,8 +42,4 @@ G_BEGIN_DECLS
 PangoRenderer *
 _cogl_pango_renderer_new (CoglContext *context);
 
-void
-_cogl_pango_renderer_set_use_mipmapping (CoglPangoRenderer *renderer,
-                                         gboolean value);
-
 G_END_DECLS
