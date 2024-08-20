@@ -22,6 +22,7 @@
 
 ClutterPickContext *
 clutter_pick_context_new_for_view (ClutterStageView         *view,
+                                   CoglContext              *cogl_context,
                                    ClutterPickMode           mode,
                                    const graphene_point3d_t *point,
                                    const graphene_ray_t     *ray);

@@ -1051,7 +1051,10 @@ _clutter_stage_do_pick_on_view (ClutterStage      *stage,
                                 MtkRegion        **clear_area)
 {
   g_autoptr (ClutterPickStack) pick_stack = NULL;
+  ClutterContext *context;
+  ClutterBackend *backend;
   ClutterPickContext *pick_context;
+  CoglContext *cogl_context;
   graphene_point3d_t p;
   graphene_ray_t ray;
   ClutterActor *actor;
@@ -1060,7 +1063,10 @@ _clutter_stage_do_pick_on_view (ClutterStage      *stage,
 
   setup_ray_for_coordinates (stage, x, y, &p, &ray);
 
-  pick_context = clutter_pick_context_new_for_view (view, mode, &p, &ray);
+  context = clutter_actor_get_context (CLUTTER_ACTOR (stage));
+  backend = clutter_context_get_backend (context);
+  cogl_context = clutter_backend_get_cogl_context (backend);
+  pick_context = clutter_pick_context_new_for_view (view, cogl_context, mode, &p, &ray);
 
   clutter_actor_pick (CLUTTER_ACTOR (stage), pick_context);
   pick_stack = clutter_pick_context_steal_stack (pick_context);
