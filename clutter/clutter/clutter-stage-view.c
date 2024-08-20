@@ -24,10 +24,10 @@
 
 #include <math.h>
 
+#include "clutter/clutter-context-private.h"
 #include "clutter/clutter-damage-history.h"
 #include "clutter/clutter-frame-clock.h"
 #include "clutter/clutter-frame-private.h"
-#include "clutter/clutter-private.h"
 #include "clutter/clutter-mutter.h"
 #include "clutter/clutter-stage-private.h"
 #include "cogl/cogl.h"
@@ -1045,6 +1045,7 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
     clutter_stage_view_get_instance_private (view);
   ClutterStage *stage = priv->stage;
   ClutterStageWindow *stage_window = _clutter_stage_get_window (stage);
+  ClutterContext *context = clutter_actor_get_context (CLUTTER_ACTOR (stage));
 
   if (CLUTTER_ACTOR_IN_DESTRUCTION (stage))
     return CLUTTER_FRAME_RESULT_IDLE;
@@ -1055,7 +1056,7 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
   if (!clutter_actor_is_mapped (CLUTTER_ACTOR (stage)))
     return CLUTTER_FRAME_RESULT_IDLE;
 
-  if (_clutter_context_get_show_fps ())
+  if (clutter_context_get_show_fps (context))
     begin_frame_timing_measurement (view);
 
   _clutter_run_repaint_functions (CLUTTER_REPAINT_FLAGS_PRE_PAINT);
@@ -1079,7 +1080,7 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
 
       clutter_stage_emit_after_paint (stage, view, frame);
 
-      if (_clutter_context_get_show_fps ())
+      if (clutter_context_get_show_fps (context))
         end_frame_timing_measurement (view);
     }
 

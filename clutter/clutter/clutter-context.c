@@ -379,3 +379,9 @@ clutter_context_get_stage_manager (ClutterContext *context)
 {
   return context->stage_manager;
 }
+
+gboolean
+clutter_context_get_show_fps (ClutterContext *context)
+{
+  return context->show_fps;
+}

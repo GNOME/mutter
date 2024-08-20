@@ -94,8 +94,6 @@ typedef enum
 
 ClutterContext *        _clutter_context_get_default                    (void);
 
-gboolean                _clutter_context_get_show_fps                   (void);
-
 /* Diagnostic mode */
 gboolean        _clutter_diagnostic_enabled     (void);
 

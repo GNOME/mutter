@@ -48,3 +48,5 @@ struct _ClutterContext
 };
 
 ClutterStageManager * clutter_context_get_stage_manager (ClutterContext *context);
+
+gboolean clutter_context_get_show_fps (ClutterContext *context);
