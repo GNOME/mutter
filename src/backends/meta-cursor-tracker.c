@@ -473,11 +473,11 @@ meta_cursor_tracker_get_pointer (MetaCursorTracker   *tracker,
                                  graphene_point_t    *coords,
                                  ClutterModifierType *mods)
 {
-  ClutterSeat *seat;
-  ClutterInputDevice *cdevice;
-
-  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
-  cdevice = clutter_seat_get_pointer (seat);
+  MetaBackend *backend = meta_cursor_tracker_get_backend (tracker);
+  ClutterBackend *clutter_backend =
+    meta_backend_get_clutter_backend (backend);
+  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
+  ClutterInputDevice *cdevice = clutter_seat_get_pointer (seat);
 
   clutter_seat_query_state (seat, cdevice, NULL, coords, mods);
 }
@@ -531,15 +531,16 @@ meta_cursor_tracker_set_pointer_visible (MetaCursorTracker *tracker,
 {
   MetaCursorTrackerPrivate *priv =
     meta_cursor_tracker_get_instance_private (tracker);
-  ClutterSeat *seat;
+  MetaBackend *backend = meta_cursor_tracker_get_backend (tracker);
+  ClutterBackend *clutter_backend =
+    meta_backend_get_clutter_backend (backend);
+  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
 
   if (visible == priv->is_showing)
     return;
   priv->is_showing = visible;
 
   sync_cursor (tracker);
-
-  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
 
   if (priv->is_showing)
     clutter_seat_inhibit_unfocus (seat);
