@@ -69,3 +69,11 @@ ClutterPipelineCache * clutter_context_get_pipeline_cache (ClutterContext *clutt
  */
 CLUTTER_EXPORT
 ClutterColorManager * clutter_context_get_color_manager (ClutterContext *context);
+
+/**
+ * clutter_context_get_settings:
+ *
+ * Returns: (transfer none): The %ClutterSettings
+ */
+CLUTTER_EXPORT
+ClutterSettings * clutter_context_get_settings (ClutterContext *context);

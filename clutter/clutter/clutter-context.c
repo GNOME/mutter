@@ -376,3 +376,11 @@ clutter_context_get_show_fps (ClutterContext *context)
 {
   return context->show_fps;
 }
+
+ClutterSettings *
+clutter_context_get_settings (ClutterContext *context)
+{
+  g_return_val_if_fail (CLUTTER_IS_CONTEXT (context), NULL);
+
+  return context->settings;
+}
