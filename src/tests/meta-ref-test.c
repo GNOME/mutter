@@ -221,13 +221,12 @@ assert_software_rendered (ClutterStageView *stage_view)
 
 static void
 capture_view_into (ClutterStageView *view,
+                   CoglContext      *context,
                    MtkRectangle     *rect,
                    uint8_t          *buffer,
                    int               stride)
 {
   CoglFramebuffer *framebuffer;
-  ClutterBackend *backend;
-  CoglContext *context;
   CoglBitmap *bitmap;
   MtkRectangle view_layout;
   float view_scale;
@@ -241,8 +240,6 @@ capture_view_into (ClutterStageView *view,
   texture_width = roundf (rect->width * view_scale);
   texture_height = roundf (rect->height * view_scale);
 
-  backend = clutter_get_default_backend ();
-  context = clutter_backend_get_cogl_context (backend);
   bitmap = cogl_bitmap_new_for_data (context,
                                      (int) texture_width,
                                      (int) texture_height,
@@ -284,6 +281,10 @@ on_after_paint (MetaStage        *stage,
   cairo_surface_t *image;
   uint8_t *buffer;
   int stride;
+  ClutterContext *context =
+    clutter_actor_get_context (CLUTTER_ACTOR (stage));
+  ClutterBackend *backend = clutter_context_get_backend (context);
+  CoglContext *cogl_context = clutter_backend_get_cogl_context (backend);
 
   meta_stage_remove_watch (stage, data->watch);
   data->watch = NULL;
@@ -299,7 +300,7 @@ on_after_paint (MetaStage        *stage,
   buffer = cairo_image_surface_get_data (image);
   stride = cairo_image_surface_get_stride (image);
 
-  capture_view_into (view, &rect, buffer, stride);
+  capture_view_into (view, cogl_context, &rect, buffer, stride);
 
   data->out_image = image;
 
