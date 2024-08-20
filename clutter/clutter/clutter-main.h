@@ -139,9 +139,6 @@ CLUTTER_EXPORT
 void                    clutter_threads_remove_repaint_func     (guint          handle_id);
 
 CLUTTER_EXPORT
-PangoFontMap *          clutter_get_font_map                    (void);
-
-CLUTTER_EXPORT
 ClutterTextDirection    clutter_get_default_text_direction      (void);
 
 CLUTTER_EXPORT
