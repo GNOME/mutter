@@ -38,6 +38,8 @@ G_DECLARE_DERIVABLE_TYPE (MetaThreadImpl, meta_thread_impl,
 struct _MetaThreadImplClass
 {
   GObjectClass parent_class;
+
+  void (* setup) (MetaThreadImpl *thread_impl);
 };
 
 typedef enum _MetaThreadTaskFeedbackType
@@ -69,6 +71,8 @@ void meta_thread_impl_queue_task (MetaThreadImpl *thread_impl,
                                   MetaThreadTask *task);
 
 void meta_thread_impl_terminate (MetaThreadImpl *thread_impl);
+
+void meta_thread_impl_setup (MetaThreadImpl *thread_impl);
 
 void meta_thread_impl_run (MetaThreadImpl         *thread_impl,
                            MetaThreadImplRunFlags  flags);

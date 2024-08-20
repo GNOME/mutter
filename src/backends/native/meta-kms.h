@@ -64,6 +64,8 @@ MetaKms * meta_kms_new (MetaBackend   *backend,
                         MetaKmsFlags   flags,
                         GError       **error);
 
+void meta_kms_notify_probed (MetaKms *kms);
+
 META_EXPORT_TEST
 void meta_kms_inhibit_kernel_thread (MetaKms *kms);
 

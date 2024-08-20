@@ -428,6 +428,23 @@ meta_kms_new (MetaBackend   *backend,
   return kms;
 }
 
+static gpointer
+notify_probed_in_impl (MetaThreadImpl  *thread_impl,
+                       gpointer         user_data,
+                       GError         **error)
+{
+  meta_kms_impl_notify_probed (META_KMS_IMPL (thread_impl));
+  return NULL;
+}
+
+void
+meta_kms_notify_probed (MetaKms *kms)
+{
+  meta_thread_post_impl_task (META_THREAD (kms),
+                              notify_probed_in_impl,
+                              NULL, NULL, NULL, NULL);
+}
+
 static void
 meta_kms_finalize (GObject *object)
 {
