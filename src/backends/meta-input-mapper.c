@@ -793,10 +793,12 @@ static void
 meta_input_mapper_constructed (GObject *object)
 {
   MetaInputMapper *mapper = META_INPUT_MAPPER (object);
+  ClutterBackend *clutter_backend;
 
   G_OBJECT_CLASS (meta_input_mapper_parent_class)->constructed (object);
 
-  mapper->seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  clutter_backend = meta_backend_get_clutter_backend (mapper->backend);
+  mapper->seat = clutter_backend_get_default_seat (clutter_backend);
   g_signal_connect (mapper->seat, "device-removed",
                     G_CALLBACK (input_mapper_device_removed_cb), mapper);
 

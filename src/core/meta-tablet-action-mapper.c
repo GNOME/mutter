@@ -287,10 +287,14 @@ meta_tablet_action_mapper_constructed (GObject *object)
   MetaTabletActionMapper *mapper = META_TABLET_ACTION_MAPPER (object);
   MetaTabletActionMapperPrivate *priv =
     meta_tablet_action_mapper_get_instance_private (mapper);
+  MetaBackend *backend =
+    meta_monitor_manager_get_backend (priv->monitor_manager);
+  ClutterBackend *clutter_backend =
+    meta_backend_get_clutter_backend (backend);
   g_autoptr (GList) devices = NULL;
   GList *l;
 
-  priv->seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  priv->seat = clutter_backend_get_default_seat (clutter_backend);
   devices = clutter_seat_list_devices (priv->seat);
 
   /* FIXME: is this call correct?? */
@@ -515,6 +519,8 @@ meta_tablet_action_mapper_emulate_keybinding (MetaTabletActionMapper *mapper,
 {
   MetaTabletActionMapperPrivate *priv =
     meta_tablet_action_mapper_get_instance_private (mapper);
+  MetaBackend *backend =
+    meta_monitor_manager_get_backend (priv->monitor_manager);
   ClutterKeyState state;
   MetaKeyCombo combo = { 0 };
 
@@ -529,11 +535,11 @@ meta_tablet_action_mapper_emulate_keybinding (MetaTabletActionMapper *mapper,
 
   if (!priv->virtual_tablet_keyboard)
     {
-      ClutterBackend *backend;
+      ClutterBackend *clutter_backend;
       ClutterSeat *seat;
 
-      backend = clutter_get_default_backend ();
-      seat = clutter_backend_get_default_seat (backend);
+      clutter_backend = meta_backend_get_clutter_backend (backend);
+      seat = clutter_backend_get_default_seat (clutter_backend);
 
       priv->virtual_tablet_keyboard =
         clutter_seat_create_virtual_device (seat,
