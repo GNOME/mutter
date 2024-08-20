@@ -41,7 +41,6 @@
 struct _MetaWaylandTabletTool
 {
   MetaWaylandTabletSeat *seat;
-  ClutterInputDevice *device;
   ClutterInputDeviceTool *device_tool;
   struct wl_list resource_list;
   struct wl_list focus_resource_list;
@@ -423,7 +422,6 @@ tool_cursor_prepare_at (MetaCursorSpriteXcursor *sprite_xcursor,
 
 MetaWaylandTabletTool *
 meta_wayland_tablet_tool_new (MetaWaylandTabletSeat  *seat,
-                              ClutterInputDevice     *device,
                               ClutterInputDeviceTool *device_tool)
 {
   MetaWaylandCompositor *compositor =
@@ -435,7 +433,6 @@ meta_wayland_tablet_tool_new (MetaWaylandTabletSeat  *seat,
 
   tool = g_new0 (MetaWaylandTabletTool, 1);
   tool->seat = seat;
-  tool->device = device;
   tool->device_tool = device_tool;
   wl_list_init (&tool->resource_list);
   wl_list_init (&tool->focus_resource_list);
@@ -634,7 +631,8 @@ meta_wayland_tablet_tool_set_current_surface (MetaWaylandTabletTool *tool,
 
   tablet_seat = tool->seat;
   input = meta_wayland_seat_get_input (tablet_seat->seat);
-  meta_wayland_input_invalidate_focus (input, tool->device, NULL);
+  if (tool->current_tablet)
+    meta_wayland_input_invalidate_focus (input, tool->current_tablet->device, NULL);
 }
 
 static void
@@ -1002,7 +1000,7 @@ meta_wayland_tablet_tool_get_grab_info (MetaWaylandTabletTool *tool,
       meta_wayland_tablet_tool_can_grab_surface (tool, surface, serial))
     {
       if (device_out)
-        *device_out = tool->device;
+        *device_out = tool->current_tablet ? NULL : tool->current_tablet->device;
 
       if (x)
         *x = tool->grab_x;
