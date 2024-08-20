@@ -43,6 +43,5 @@ struct _ClutterContext
 
   ClutterSettings *settings;
 
-  gboolean is_initialized;
   gboolean show_fps;
 };

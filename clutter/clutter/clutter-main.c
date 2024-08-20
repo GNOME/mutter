@@ -301,14 +301,6 @@ clutter_threads_add_timeout (guint       interval,
                                            NULL);
 }
 
-gboolean
-_clutter_context_is_initialized (void)
-{
-  if (ClutterCntx == NULL)
-    return FALSE;
-
-  return ClutterCntx->is_initialized;
-}
 
 ClutterContext *
 _clutter_context_get_default (void)
