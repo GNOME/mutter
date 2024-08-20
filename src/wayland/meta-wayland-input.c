@@ -148,8 +148,14 @@ meta_wayland_input_invalidate_all_focus (MetaWaylandInput    *input,
 {
   MetaWaylandEventHandler *handler;
   MetaWaylandSeat *seat = input->seat;
+  MetaWaylandCompositor *compositor = seat->compositor;
+  MetaContext *context =
+    meta_wayland_compositor_get_context (compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
+  ClutterBackend *clutter_backend =
+    meta_backend_get_clutter_backend (backend);
   ClutterSeat *clutter_seat =
-    clutter_backend_get_default_seat (clutter_get_default_backend ());
+    clutter_backend_get_default_seat (clutter_backend);
   ClutterInputDevice *device;
   GHashTableIter iter;
 
