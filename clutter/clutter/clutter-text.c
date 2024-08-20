@@ -1904,11 +1904,9 @@ clutter_text_foreach_selection_rectangle (ClutterText              *self,
 }
 
 static CoglPipeline *
-create_color_pipeline (void)
+create_color_pipeline (CoglContext *ctx)
 {
   static CoglPipelineKey color_pipeline_key = "clutter-text-color-pipeline-private";
-  CoglContext *ctx =
-    clutter_backend_get_cogl_context (clutter_get_default_backend ());
   CoglPipeline *color_pipeline;
 
   color_pipeline =
@@ -1966,7 +1964,10 @@ paint_selection_rectangle (ClutterText           *self,
   ClutterTextPrivate *priv = clutter_text_get_instance_private (self);
   ClutterActor *actor = CLUTTER_ACTOR (self);
   guint8 paint_opacity = clutter_actor_get_paint_opacity (actor);
-  CoglPipeline *color_pipeline = create_color_pipeline ();
+  ClutterContext *context = clutter_actor_get_context (actor);
+  ClutterBackend *backend = clutter_context_get_backend (context);
+  CoglContext *cogl_context = clutter_backend_get_cogl_context (backend);
+  CoglPipeline *color_pipeline = create_color_pipeline (cogl_context);
   PangoLayout *layout = clutter_text_get_layout (self);
   ClutterColorState *color_state =
     clutter_paint_context_get_color_state (paint_context);
@@ -2046,7 +2047,10 @@ selection_paint (ClutterText         *self,
         clutter_paint_context_get_color_state (paint_context);
       ClutterColorState *target_color_state =
         clutter_paint_context_get_target_color_state (paint_context);
-      CoglPipeline *color_pipeline = create_color_pipeline ();
+      ClutterContext *context = clutter_actor_get_context (actor);
+      ClutterBackend *backend = clutter_context_get_backend (context);
+      CoglContext *cogl_context = clutter_backend_get_cogl_context (backend);
+      CoglPipeline *color_pipeline = create_color_pipeline (cogl_context);
       CoglColor cogl_color;
 
       /* No selection, just draw the cursor */
