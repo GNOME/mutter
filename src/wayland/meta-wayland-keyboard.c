@@ -420,6 +420,7 @@ meta_wayland_keyboard_update_xkb_state (MetaWaylandKeyboard *keyboard)
   MetaWaylandXkbInfo *xkb_info = &keyboard->xkb_info;
   xkb_mod_mask_t latched, locked, numlock;
   MetaBackend *backend = backend_from_keyboard (keyboard);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   xkb_layout_index_t layout_idx;
   ClutterKeymap *keymap;
   ClutterSeat *seat;
@@ -436,7 +437,7 @@ meta_wayland_keyboard_update_xkb_state (MetaWaylandKeyboard *keyboard)
       latched = locked = 0;
     }
 
-  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  seat = clutter_backend_get_default_seat (clutter_backend);
   keymap = clutter_seat_get_keymap (seat);
   numlock = (1 <<  xkb_keymap_mod_get_index (xkb_info->keymap, "Mod2"));
 
@@ -548,7 +549,7 @@ meta_wayland_keyboard_enable (MetaWaylandKeyboard *keyboard)
   MetaWaylandInputDevice *input_device = META_WAYLAND_INPUT_DEVICE (keyboard);
   MetaWaylandSeat *seat = meta_wayland_input_device_get_seat (input_device);
   MetaBackend *backend = backend_from_keyboard (keyboard);
-  ClutterBackend *clutter_backend = clutter_get_default_backend ();
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
 
   keyboard->settings = g_settings_new ("org.gnome.desktop.peripherals.keyboard");
 
