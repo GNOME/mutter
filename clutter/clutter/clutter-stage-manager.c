@@ -28,11 +28,6 @@
  *
  * #ClutterStageManager is a singleton object, owned by Clutter, which
  * maintains the list of currently active stages
- *
- * Every newly-created [class@Stage] will cause the emission of the
- * [signal@StageManager::stage-added] signal; once a [class@Stage] has
- * been destroyed, the [signal@StageManager::stage-removed] signal will
- * be emitted
  */
 
 #include "config.h"
@@ -49,35 +44,25 @@ enum
   PROP_0,
 };
 
-enum
+struct _ClutterStageManager
 {
-  STAGE_ADDED,
-  STAGE_REMOVED,
+  GObject parent;
 
-  LAST_SIGNAL
+  GSList *stages;
 };
 
-static guint manager_signals[LAST_SIGNAL] = { 0, };
-
-typedef struct _ClutterStageManagerPrivate
-{
-  GSList *stages;
-} ClutterStageManagerPrivate;
-
-G_DEFINE_TYPE_WITH_PRIVATE (ClutterStageManager,
-                            clutter_stage_manager,
-                            G_TYPE_OBJECT);
+G_DEFINE_FINAL_TYPE (ClutterStageManager,
+                     clutter_stage_manager,
+                     G_TYPE_OBJECT);
 
 static void
 clutter_stage_manager_dispose (GObject *gobject)
 {
   ClutterStageManager *stage_manager = CLUTTER_STAGE_MANAGER (gobject);
-  ClutterStageManagerPrivate *priv =
-    clutter_stage_manager_get_instance_private (stage_manager);
 
-  g_slist_free_full (priv->stages,
+  g_slist_free_full (stage_manager->stages,
                      (GDestroyNotify) clutter_actor_destroy);
-  priv->stages = NULL;
+  stage_manager->stages = NULL;
 
   G_OBJECT_CLASS (clutter_stage_manager_parent_class)->dispose (gobject);
 }
@@ -88,39 +73,6 @@ clutter_stage_manager_class_init (ClutterStageManagerClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
   gobject_class->dispose      = clutter_stage_manager_dispose;
-
-  /**
-   * ClutterStageManager::stage-added:
-   * @stage_manager: the object which received the signal
-   * @stage: the added stage
-   *
-   * The signal is emitted each time a new #ClutterStage
-   * has been added to the stage manager.
-   */
-  manager_signals[STAGE_ADDED] =
-    g_signal_new ("stage-added",
-                  G_OBJECT_CLASS_TYPE (gobject_class),
-                  G_SIGNAL_RUN_LAST,
-                  G_STRUCT_OFFSET (ClutterStageManagerClass, stage_added),
-                  NULL, NULL, NULL,
-                  G_TYPE_NONE, 1,
-                  CLUTTER_TYPE_STAGE);
-  /**
-   * ClutterStageManager::stage-removed:
-   * @stage_manager: the object which received the signal
-   * @stage: the removed stage
-   *
-   * The signal is emitted each time a #ClutterStage
-   * has been removed from the stage manager.
-   */
-  manager_signals[STAGE_REMOVED] =
-    g_signal_new ("stage-removed",
-                  G_OBJECT_CLASS_TYPE (gobject_class),
-                  G_SIGNAL_RUN_LAST,
-                  G_STRUCT_OFFSET (ClutterStageManagerClass, stage_removed),
-                  NULL, NULL, NULL,
-                  G_TYPE_NONE, 1,
-                  CLUTTER_TYPE_STAGE);
 }
 
 static void
@@ -160,10 +112,7 @@ clutter_stage_manager_get_default (void)
 GSList *
 clutter_stage_manager_list_stages (ClutterStageManager *stage_manager)
 {
-  ClutterStageManagerPrivate *priv =
-    clutter_stage_manager_get_instance_private (stage_manager);
-
-  return g_slist_copy (priv->stages);
+  return g_slist_copy (stage_manager->stages);
 }
 
 /**
@@ -180,24 +129,19 @@ clutter_stage_manager_list_stages (ClutterStageManager *stage_manager)
 const GSList *
 clutter_stage_manager_peek_stages (ClutterStageManager *stage_manager)
 {
-  ClutterStageManagerPrivate *priv =
-    clutter_stage_manager_get_instance_private (stage_manager);
-
-  return priv->stages;
+  return stage_manager->stages;
 }
 
 void
 _clutter_stage_manager_add_stage (ClutterStageManager *stage_manager,
                                   ClutterStage        *stage)
 {
-  ClutterStageManagerPrivate *priv =
-    clutter_stage_manager_get_instance_private (stage_manager);
   AtkObject *stage_accessible = clutter_actor_get_accessible (CLUTTER_ACTOR (stage));
   AtkObject *stage_manager_accessible =
     atk_gobject_accessible_for_object (G_OBJECT (stage_manager));
   int index = -1;
 
-  if (g_slist_find (priv->stages, stage))
+  if (g_slist_find (stage_manager->stages, stage))
     {
       g_warning ("Trying to add a stage to the list of managed stages, "
                  "but it is already in it, aborting.");
@@ -206,8 +150,8 @@ _clutter_stage_manager_add_stage (ClutterStageManager *stage_manager,
 
   g_object_ref_sink (stage);
 
-  priv->stages = g_slist_append (priv->stages, stage);
-  index = g_slist_index (priv->stages, stage);
+  stage_manager->stages = g_slist_append (stage_manager->stages, stage);
+  index = g_slist_index (stage_manager->stages, stage);
 
   if (stage_accessible && stage_manager_accessible)
     {
@@ -216,16 +160,12 @@ _clutter_stage_manager_add_stage (ClutterStageManager *stage_manager,
                              index, stage_accessible, NULL);
       g_signal_emit_by_name (stage_manager_accessible, "create", 0);
     }
-
-  g_signal_emit (stage_manager, manager_signals[STAGE_ADDED], 0, stage);
 }
 
 void
 _clutter_stage_manager_remove_stage (ClutterStageManager *stage_manager,
                                      ClutterStage        *stage)
 {
-  ClutterStageManagerPrivate *priv =
-    clutter_stage_manager_get_instance_private (stage_manager);
   AtkObject *stage_accessible = clutter_actor_get_accessible (CLUTTER_ACTOR (stage));
   AtkObject *stage_manager_accessible =
     atk_gobject_accessible_for_object (G_OBJECT (stage_manager));
@@ -233,13 +173,11 @@ _clutter_stage_manager_remove_stage (ClutterStageManager *stage_manager,
   /* this might be called multiple times from a ::dispose, so it
    * needs to just return without warning
    */
-  if (!g_slist_find (priv->stages, stage))
+  if (!g_slist_find (stage_manager->stages, stage))
     return;
 
-  index = g_slist_index (priv->stages, stage);
-  priv->stages = g_slist_remove (priv->stages, stage);
-
-  g_signal_emit (stage_manager, manager_signals[STAGE_REMOVED], 0, stage);
+  index = g_slist_index (stage_manager->stages, stage);
+  stage_manager->stages = g_slist_remove (stage_manager->stages, stage);
 
   if (stage_manager_accessible && stage_accessible)
     {

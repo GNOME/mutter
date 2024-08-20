@@ -34,28 +34,11 @@ G_BEGIN_DECLS
 #define CLUTTER_TYPE_STAGE_MANAGER              (clutter_stage_manager_get_type ())
 
 CLUTTER_EXPORT
-G_DECLARE_DERIVABLE_TYPE (ClutterStageManager,
-                          clutter_stage_manager,
-                          CLUTTER,
-                          STAGE_MANAGER,
-                          GObject)
-
-/**
- * ClutterStageManagerClass:
- *
- * The #ClutterStageManagerClass structure contains only private data
- * and should be accessed using the provided API
- */
-struct _ClutterStageManagerClass
-{
-  /*< private >*/
-  GObjectClass parent_class;
-
-  void (* stage_added)   (ClutterStageManager *stage_manager,
-                          ClutterStage        *stage);
-  void (* stage_removed) (ClutterStageManager *stage_manager,
-                          ClutterStage        *stage);
-};
+G_DECLARE_FINAL_TYPE (ClutterStageManager,
+                      clutter_stage_manager,
+                      CLUTTER,
+                      STAGE_MANAGER,
+                      GObject)
 
 CLUTTER_EXPORT
 ClutterStageManager *clutter_stage_manager_get_default       (void);
