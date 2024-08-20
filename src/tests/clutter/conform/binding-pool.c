@@ -232,7 +232,7 @@ send_keyval (KeyGroup *group, int keyval)
   ClutterSeat *seat;
   ClutterEvent *event;
 
-  seat = clutter_backend_get_default_seat (clutter_test_get_backend ());
+  seat = clutter_test_get_default_seat ();
   event = clutter_event_key_new (CLUTTER_KEY_PRESS,
                                  CLUTTER_EVENT_FLAG_SYNTHETIC,
                                  CLUTTER_CURRENT_TIME,

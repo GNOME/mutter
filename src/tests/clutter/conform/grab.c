@@ -137,7 +137,7 @@ create_pointer (ClutterActor *actor)
   ClutterSeat *seat;
   guint notify_id;
 
-  seat = clutter_backend_get_default_seat (clutter_test_get_backend ());
+  seat = clutter_test_get_default_seat ();
   pointer = clutter_seat_create_virtual_device (seat, CLUTTER_POINTER_DEVICE);
 
   clutter_virtual_input_device_notify_absolute_motion (pointer,
@@ -620,7 +620,7 @@ grab_input_only (void)
   ClutterSeat *seat;
   g_autoptr (ClutterVirtualInputDevice) pointer = NULL;
 
-  seat = clutter_backend_get_default_seat (clutter_test_get_backend ());
+  seat = clutter_test_get_default_seat ();
   pointer = clutter_seat_create_virtual_device (seat, CLUTTER_POINTER_DEVICE);
 
   test_data_init (&data);

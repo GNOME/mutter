@@ -334,7 +334,7 @@ send_keyval (ClutterText *text, int keyval)
   ClutterSeat *seat;
 
   /* Unicode should be ignored for cursor keys etc. */
-  seat = clutter_backend_get_default_seat (clutter_test_get_backend ());
+  seat = clutter_test_get_default_seat ();
   event = clutter_event_key_new (CLUTTER_KEY_PRESS,
                                  CLUTTER_EVENT_FLAG_SYNTHETIC,
                                  CLUTTER_CURRENT_TIME,
@@ -354,7 +354,7 @@ send_unichar (ClutterText *text, gunichar unichar)
   ClutterSeat *seat;
 
   /* Key symbol should be ignored for printable characters */
-  seat = clutter_backend_get_default_seat (clutter_test_get_backend ());
+  seat = clutter_test_get_default_seat ();
   event = clutter_event_key_new (CLUTTER_KEY_PRESS,
                                  CLUTTER_EVENT_FLAG_SYNTHETIC,
                                  CLUTTER_CURRENT_TIME,

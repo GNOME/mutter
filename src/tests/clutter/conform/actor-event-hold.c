@@ -64,7 +64,6 @@ static void
 actor_event_hold (void)
 {
   ClutterActor *stage;
-  ClutterBackend *backend;
   ClutterSeat *seat;
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   int64_t now_us;
@@ -81,8 +80,7 @@ actor_event_hold (void)
   clutter_actor_show (stage);
 
   /* Get the input device*/
-  backend = clutter_test_get_backend ();
-  seat = clutter_backend_get_default_seat (backend);
+  seat = clutter_test_get_default_seat ();
 
   virtual_pointer =
     clutter_seat_create_virtual_device (seat, CLUTTER_POINTER_DEVICE);

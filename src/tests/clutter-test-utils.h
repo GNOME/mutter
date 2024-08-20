@@ -127,6 +127,9 @@ ClutterContext * clutter_test_get_context       (void);
 CLUTTER_EXPORT
 ClutterBackend * clutter_test_get_backend       (void);
 
+CLUTTER_EXPORT
+ClutterSeat    * clutter_test_get_default_seat  (void);
+
 #define clutter_test_assert_actor_at_point(stage,point,actor) \
 G_STMT_START { \
   const graphene_point_t *__p = (point); \

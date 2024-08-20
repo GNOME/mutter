@@ -102,6 +102,14 @@ clutter_test_get_backend (void)
   return meta_backend_get_clutter_backend (backend);
 }
 
+ClutterSeat *
+clutter_test_get_default_seat (void)
+{
+  ClutterBackend *backend = clutter_test_get_backend ();
+
+  return clutter_backend_get_default_seat (backend);
+}
+
 void
 clutter_test_flush_input (void)
 {
