@@ -201,8 +201,10 @@ maybe_blit_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
                           MtkRectangle                  *stream_rect)
 {
   MetaBackend *backend = get_backend (window_src);
+  ClutterBackend *clutter_backend =
+    meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context =
-    clutter_backend_get_cogl_context (clutter_get_default_backend ());
+    clutter_backend_get_cogl_context (clutter_backend);
   MetaCursorRenderer *cursor_renderer =
     meta_backend_get_cursor_renderer (backend);
   MetaCursorTracker *cursor_tracker =
