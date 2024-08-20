@@ -2768,7 +2768,9 @@ clutter_stage_paint_to_buffer (ClutterStage        *stage,
                                ClutterPaintFlag     paint_flags,
                                GError             **error)
 {
-  ClutterBackend *clutter_backend = clutter_get_default_backend ();
+  ClutterContext *context =
+    clutter_actor_get_context (CLUTTER_ACTOR (stage));
+  ClutterBackend *clutter_backend = clutter_context_get_backend (context);
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
   int texture_width, texture_height;
@@ -2837,7 +2839,9 @@ clutter_stage_paint_to_content (ClutterStage        *stage,
                                 ClutterPaintFlag     paint_flags,
                                 GError             **error)
 {
-  ClutterBackend *clutter_backend = clutter_get_default_backend ();
+  ClutterContext *context =
+    clutter_actor_get_context (CLUTTER_ACTOR (stage));
+  ClutterBackend *clutter_backend = clutter_context_get_backend (context);
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
   int texture_width, texture_height;
@@ -2882,6 +2886,7 @@ clutter_stage_capture_view_into (ClutterStage     *stage,
 {
   CoglFramebuffer *framebuffer;
   ClutterBackend *backend;
+  ClutterContext *clutter_context;
   CoglContext *context;
   CoglBitmap *bitmap;
   MtkRectangle view_layout;
@@ -2902,7 +2907,8 @@ clutter_stage_capture_view_into (ClutterStage     *stage,
   texture_width = roundf (rect->width * view_scale);
   texture_height = roundf (rect->height * view_scale);
 
-  backend = clutter_get_default_backend ();
+  clutter_context = clutter_actor_get_context (CLUTTER_ACTOR (stage));
+  backend = clutter_context_get_backend (clutter_context);
   context = clutter_backend_get_cogl_context (backend);
   bitmap = cogl_bitmap_new_for_data (context,
                                      (int) texture_width,
