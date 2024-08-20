@@ -146,15 +146,11 @@ load_gl_symbol (CoglContext *ctx,
 }
 
 static gboolean
-check_gl_extensions (void)
+check_gl_extensions (CoglContext *cogl_context)
 {
-  ClutterBackend *backend;
-  CoglContext *cogl_context;
   CoglDisplay *cogl_display;
   CoglRenderer *cogl_renderer;
 
-  backend = clutter_get_default_backend ();
-  cogl_context = clutter_backend_get_cogl_context (backend);
   cogl_display = cogl_context_get_display (cogl_context);
   cogl_renderer = cogl_display_get_renderer (cogl_display);
 
@@ -207,7 +203,7 @@ load_required_symbols (CoglContext *ctx)
   if (!load_gl_symbol (ctx, "glGetStringi", (void **) &meta_gl_get_stringi))
     goto out;
 
-  if (!check_gl_extensions ())
+  if (!check_gl_extensions (ctx))
     {
       meta_verbose ("MetaSyncRing: couldn't find required GL extensions");
       goto out;
