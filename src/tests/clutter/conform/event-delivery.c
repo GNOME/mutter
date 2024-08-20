@@ -48,7 +48,7 @@ static void
 event_delivery_consecutive_touch_begin_end (void)
 {
   ClutterActor *stage = clutter_test_get_stage ();
-  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_test_get_backend ());
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   int64_t now_us;
   gboolean was_updated;
@@ -159,7 +159,7 @@ event_delivery_implicit_grabbing (void)
 {
   ClutterActor *stage = clutter_test_get_stage ();
   ClutterSeat *seat =
-    clutter_backend_get_default_seat (clutter_get_default_backend ());
+    clutter_backend_get_default_seat (clutter_test_get_backend ());
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   int64_t now_us;
   ClutterActor *child;
@@ -250,7 +250,7 @@ event_delivery_implicit_grab_cancelled (void)
 {
   ClutterActor *stage = clutter_test_get_stage ();
   ClutterSeat *seat =
-    clutter_backend_get_default_seat (clutter_get_default_backend ());
+    clutter_backend_get_default_seat (clutter_test_get_backend ());
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   int64_t now_us;
   ClutterActor *child_1, *child_2;
@@ -367,7 +367,7 @@ event_delivery_implicit_grab_existing_clutter_grab (void)
 {
   ClutterActor *stage = clutter_test_get_stage ();
   ClutterSeat *seat =
-    clutter_backend_get_default_seat (clutter_get_default_backend ());
+    clutter_backend_get_default_seat (clutter_test_get_backend ());
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   int64_t now_us;
   ClutterActor *child_1, *child_2;
@@ -538,7 +538,7 @@ event_delivery_stop_discrete_event (void)
 {
   ClutterActor *stage = clutter_test_get_stage ();
   ClutterSeat *seat =
-    clutter_backend_get_default_seat (clutter_get_default_backend ());
+    clutter_backend_get_default_seat (clutter_test_get_backend ());
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   int64_t now_us;
   TestAction *test_action;
@@ -595,7 +595,7 @@ event_delivery_actor_stop_sequence_event (void)
 {
   ClutterActor *stage = clutter_test_get_stage ();
   ClutterSeat *seat =
-    clutter_backend_get_default_seat (clutter_get_default_backend ());
+    clutter_backend_get_default_seat (clutter_test_get_backend ());
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   int64_t now_us;
   TestAction *test_action;

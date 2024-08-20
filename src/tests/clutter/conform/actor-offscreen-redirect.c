@@ -40,7 +40,7 @@ foo_actor_paint (ClutterActor        *actor,
                  ClutterPaintContext *paint_context)
 {
   CoglContext *ctx =
-    clutter_backend_get_cogl_context (clutter_get_default_backend ());
+    clutter_backend_get_cogl_context (clutter_test_get_backend ());
   FooActor *foo_actor = (FooActor *) actor;
   ClutterActorBox allocation;
   CoglPipeline *pipeline;

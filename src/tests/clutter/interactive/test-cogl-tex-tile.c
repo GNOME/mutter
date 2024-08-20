@@ -105,7 +105,7 @@ test_coglbox_init (TestCoglbox *self)
 {
   g_autoptr (GError) error = NULL;
   CoglContext *ctx =
-    clutter_backend_get_cogl_context (clutter_get_default_backend ());
+    clutter_backend_get_cogl_context (clutter_test_get_backend ());
   gchar *file;
 
   file = g_build_filename (TESTS_DATADIR, "redhand.png", NULL);
