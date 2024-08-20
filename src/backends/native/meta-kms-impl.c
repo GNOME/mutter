@@ -173,11 +173,31 @@ meta_kms_impl_finalize (GObject *object)
 }
 
 static void
+meta_kms_impl_setup (MetaThreadImpl *thread_impl)
+{
+  MetaThread *thread = meta_thread_impl_get_thread (thread_impl);
+
+  meta_thread_inhibit_realtime_in_impl (thread);
+}
+
+void
+meta_kms_impl_notify_probed (MetaKmsImpl *impl)
+{
+  MetaThreadImpl *thread_impl = META_THREAD_IMPL (impl);
+  MetaThread *thread = meta_thread_impl_get_thread (thread_impl);
+
+  meta_thread_uninhibit_realtime_in_impl (thread);
+}
+
+static void
 meta_kms_impl_class_init (MetaKmsImplClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
+  MetaThreadImplClass *thread_impl_class = META_THREAD_IMPL_CLASS (klass);
 
   object_class->finalize = meta_kms_impl_finalize;
+
+  thread_impl_class->setup = meta_kms_impl_setup;
 }
 
 MetaKmsUpdateFilter *

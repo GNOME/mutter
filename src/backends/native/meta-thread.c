@@ -333,22 +333,28 @@ request_normal_scheduling (MetaThread  *thread,
 }
 
 static gboolean
-should_use_realtime_scheduling_in_impl (MetaThread *thread)
+can_use_realtime_scheduling_in_impl (MetaThread *thread)
 {
   MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
-  gboolean should_use_realtime_scheduling = FALSE;
 
   switch (priv->thread_type)
     {
     case META_THREAD_TYPE_USER:
-      break;
+      return FALSE;
     case META_THREAD_TYPE_KERNEL:
-      if (priv->wants_realtime && priv->kernel.realtime_inhibit_count == 0)
-        should_use_realtime_scheduling = TRUE;
-      break;
+      return priv->wants_realtime;
     }
 
-  return should_use_realtime_scheduling;
+  g_assert_not_reached ();
+}
+
+static gboolean
+should_use_realtime_scheduling_in_impl (MetaThread *thread)
+{
+  MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
+
+  return (can_use_realtime_scheduling_in_impl (thread) &&
+          priv->kernel.realtime_inhibit_count == 0);
 }
 
 static void
@@ -417,11 +423,13 @@ thread_impl_func (gpointer user_data)
   priv->kernel.realtime_inhibit_count = 0;
   priv->kernel.is_realtime = FALSE;
 
+  meta_thread_impl_setup (impl);
+
   sync_realtime_scheduling_in_impl (thread);
 
-  if (priv->kernel.is_realtime)
+  if (can_use_realtime_scheduling_in_impl (thread))
     {
-      g_message ("Made thread '%s' realtime scheduled", priv->name);
+      g_message ("Thread '%s' will be using real time scheduling", priv->name);
       run_flags |= META_THREAD_IMPL_RUN_FLAG_REALTIME;
     }
 

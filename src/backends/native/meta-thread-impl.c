@@ -569,6 +569,15 @@ meta_thread_impl_dispatch (MetaThreadImpl *thread_impl)
 }
 
 void
+meta_thread_impl_setup (MetaThreadImpl *thread_impl)
+{
+  MetaThreadImplClass *klass = META_THREAD_IMPL_GET_CLASS (thread_impl);
+
+  if (klass->setup)
+    klass->setup (thread_impl);
+}
+
+void
 meta_thread_impl_run (MetaThreadImpl         *thread_impl,
                       MetaThreadImplRunFlags  flags)
 {

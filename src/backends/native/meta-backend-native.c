@@ -609,6 +609,7 @@ init_gpus (MetaBackendNative  *native,
 {
   MetaBackend *backend = META_BACKEND (native);
   MetaUdev *udev = meta_backend_native_get_udev (native);
+  MetaKms *kms = meta_backend_native_get_kms (native);
   g_autoptr (GError) local_error = NULL;
   MetaUdevDeviceType device_type = 0;
   GList *devices;
@@ -668,6 +669,8 @@ init_gpus (MetaBackendNative  *native,
     }
 
   g_list_free_full (devices, g_object_unref);
+
+  meta_kms_notify_probed (kms);
 
   if (!meta_backend_is_headless (backend) &&
       g_list_length (meta_backend_get_gpus (backend)) == 0)

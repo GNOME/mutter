@@ -108,6 +108,8 @@ typedef struct _MetaKmsImplDevicePrivate
 
   GHashTable *crtc_frames;
 
+  gboolean realtime_inhibited_pending_mode_set;
+
   MetaDeadlineTimerState deadline_timer_state;
 
   gboolean sync_file_retrieved;
@@ -1741,6 +1743,12 @@ process_mode_set_update (MetaKmsImplDevice *impl_device,
   feedback = do_process (impl_device, NULL, update, flags);
   meta_thread_uninhibit_realtime_in_impl (thread);
 
+  if (priv->realtime_inhibited_pending_mode_set)
+    {
+      priv->realtime_inhibited_pending_mode_set = FALSE;
+      meta_thread_uninhibit_realtime_in_impl (thread);
+    }
+
   return feedback;
 }
 
@@ -1931,6 +1939,15 @@ meta_kms_impl_device_finalize (GObject *object)
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
 
+  if (priv->realtime_inhibited_pending_mode_set)
+    {
+      MetaThreadImpl *thread_impl = META_THREAD_IMPL (priv->impl);
+      MetaThread *thread = meta_thread_impl_get_thread (thread_impl);
+
+      priv->realtime_inhibited_pending_mode_set = FALSE;
+      meta_thread_uninhibit_realtime_in_impl (thread);
+    }
+
   meta_kms_impl_remove_impl_device (priv->impl, impl_device);
 
   g_list_free_full (priv->planes, g_object_unref);
@@ -1979,6 +1996,16 @@ meta_kms_impl_device_init_mode_setting (MetaKmsImplDevice  *impl_device,
   init_fallback_modes (impl_device);
 
   update_connectors (impl_device, drm_resources, 0);
+
+  if (!priv->crtcs)
+    {
+      MetaThreadImpl *thread_impl = META_THREAD_IMPL (priv->impl);
+      MetaThread *thread = meta_thread_impl_get_thread (thread_impl);
+
+      g_warn_if_fail (priv->realtime_inhibited_pending_mode_set);
+      meta_thread_uninhibit_realtime_in_impl (thread);
+      priv->realtime_inhibited_pending_mode_set = FALSE;
+    }
 
   drmModeFreeResources (drm_resources);
 
@@ -2057,6 +2084,8 @@ meta_kms_impl_device_initable_init (GInitable     *initable,
   MetaKmsImplDevice *impl_device = META_KMS_IMPL_DEVICE (initable);
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
+  MetaThreadImpl *thread_impl = META_THREAD_IMPL (priv->impl);
+  MetaThread *thread = meta_thread_impl_get_thread (thread_impl);
   int fd;
 
   if (!ensure_device_file (impl_device, error))
@@ -2081,6 +2110,9 @@ meta_kms_impl_device_initable_init (GInitable     *initable,
                            NULL, (GDestroyNotify) crtc_frame_free);
 
   priv->sync_file = -1;
+
+  meta_thread_inhibit_realtime_in_impl (thread);
+  priv->realtime_inhibited_pending_mode_set = TRUE;
 
   return TRUE;
 }
