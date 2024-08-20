@@ -100,22 +100,6 @@ clutter_stage_manager_get_default (void)
 }
 
 /**
- * clutter_stage_manager_list_stages:
- * @stage_manager: a #ClutterStageManager
- *
- * Lists all currently used stages.
- *
- * Return value: (transfer container) (element-type Clutter.Stage): a newly
- *   allocated list of #ClutterStage objects. Use g_slist_free() to
- *   deallocate it when done.
- */
-GSList *
-clutter_stage_manager_list_stages (ClutterStageManager *stage_manager)
-{
-  return g_slist_copy (stage_manager->stages);
-}
-
-/**
  * clutter_stage_manager_peek_stages:
  * @stage_manager: a #ClutterStageManager
  *
