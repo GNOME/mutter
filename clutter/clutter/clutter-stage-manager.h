@@ -60,8 +60,6 @@ struct _ClutterStageManagerClass
 CLUTTER_EXPORT
 ClutterStageManager *clutter_stage_manager_get_default       (void);
 CLUTTER_EXPORT
-ClutterStage *       clutter_stage_manager_get_default_stage (ClutterStageManager *stage_manager);
-CLUTTER_EXPORT
 GSList *             clutter_stage_manager_list_stages       (ClutterStageManager *stage_manager);
 CLUTTER_EXPORT
 const GSList *       clutter_stage_manager_peek_stages       (ClutterStageManager *stage_manager);
