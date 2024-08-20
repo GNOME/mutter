@@ -356,7 +356,6 @@ meta_wayland_tablet_seat_lookup_pad (MetaWaylandTabletSeat *tablet_seat,
 
 static MetaWaylandTabletTool *
 meta_wayland_tablet_seat_ensure_tool (MetaWaylandTabletSeat  *tablet_seat,
-                                      ClutterInputDevice     *device,
                                       ClutterInputDeviceTool *device_tool)
 {
   MetaWaylandTabletTool *tool;
@@ -365,7 +364,7 @@ meta_wayland_tablet_seat_ensure_tool (MetaWaylandTabletSeat  *tablet_seat,
 
   if (!tool)
     {
-      tool = meta_wayland_tablet_tool_new (tablet_seat, device, device_tool);
+      tool = meta_wayland_tablet_tool_new (tablet_seat, device_tool);
       g_hash_table_insert (tablet_seat->tools, device_tool, tool);
     }
 
@@ -393,7 +392,7 @@ meta_wayland_tablet_seat_update (MetaWaylandTabletSeat *tablet_seat,
       device_tool = clutter_event_get_device_tool (event);
 
       if (device && device_tool)
-        tool = meta_wayland_tablet_seat_ensure_tool (tablet_seat, device, device_tool);
+        tool = meta_wayland_tablet_seat_ensure_tool (tablet_seat, device_tool);
 
       if (!tool)
         return;

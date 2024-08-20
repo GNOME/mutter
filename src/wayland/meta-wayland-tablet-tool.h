@@ -29,7 +29,6 @@
 #include "wayland/meta-wayland-types.h"
 
 MetaWaylandTabletTool * meta_wayland_tablet_tool_new  (MetaWaylandTabletSeat  *seat,
-                                                       ClutterInputDevice     *device,
                                                        ClutterInputDeviceTool *device_tool);
 void                    meta_wayland_tablet_tool_free (MetaWaylandTabletTool  *tool);
 
