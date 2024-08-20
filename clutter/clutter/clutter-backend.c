@@ -61,6 +61,15 @@ enum
   LAST_SIGNAL
 };
 
+enum
+{
+  PROP_0,
+  PROP_CONTEXT,
+  N_PROPS
+};
+
+static GParamSpec *pspecs[N_PROPS] = { 0 };
+
 G_DEFINE_ABSTRACT_TYPE (ClutterBackend, clutter_backend, G_TYPE_OBJECT)
 
 static guint backend_signals[LAST_SIGNAL] = { 0, };
@@ -87,6 +96,44 @@ clutter_backend_dispose (GObject *gobject)
   g_clear_object (&backend->input_method);
 
   G_OBJECT_CLASS (clutter_backend_parent_class)->dispose (gobject);
+}
+
+static void
+clutter_backend_get_property (GObject      *object,
+                              guint         prop_id,
+                              GValue       *value,
+                              GParamSpec   *pspec)
+{
+  ClutterBackend *backend = CLUTTER_BACKEND (object);
+
+  switch (prop_id)
+    {
+    case PROP_CONTEXT:
+      g_value_set_object (value, backend->context);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
+clutter_backend_set_property (GObject      *object,
+                              guint         prop_id,
+                              const GValue *value,
+                              GParamSpec   *pspec)
+{
+  ClutterBackend *backend = CLUTTER_BACKEND (object);
+
+  switch (prop_id)
+    {
+    case PROP_CONTEXT:
+      backend->context = g_value_get_object (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
 }
 
 static void
@@ -238,6 +285,8 @@ clutter_backend_class_init (ClutterBackendClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
   gobject_class->dispose = clutter_backend_dispose;
+  gobject_class->get_property = clutter_backend_get_property;
+  gobject_class->set_property = clutter_backend_set_property;
 
   /**
    * ClutterBackend::resolution-changed:
@@ -283,6 +332,15 @@ clutter_backend_class_init (ClutterBackendClass *klass)
                   G_STRUCT_OFFSET (ClutterBackendClass, settings_changed),
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
+
+  pspecs[PROP_CONTEXT] =
+    g_param_spec_object ("context", NULL, NULL,
+                         CLUTTER_TYPE_CONTEXT,
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS |
+                         G_PARAM_CONSTRUCT_ONLY);
+
+  g_object_class_install_properties (gobject_class, N_PROPS, pspecs);
 
   klass->resolution_changed = clutter_backend_real_resolution_changed;
 

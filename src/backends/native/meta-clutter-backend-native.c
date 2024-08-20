@@ -118,11 +118,13 @@ meta_clutter_backend_native_class_init (MetaClutterBackendNativeClass *klass)
 }
 
 MetaClutterBackendNative *
-meta_clutter_backend_native_new (MetaBackend *backend)
+meta_clutter_backend_native_new (MetaBackend    *backend,
+                                 ClutterContext *context)
 {
   MetaClutterBackendNative *clutter_backend_native;
 
   clutter_backend_native = g_object_new (META_TYPE_CLUTTER_BACKEND_NATIVE,
+                                         "context", context,
                                          NULL);
   clutter_backend_native->backend = backend;
 

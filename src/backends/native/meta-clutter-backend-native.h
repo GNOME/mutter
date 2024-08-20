@@ -33,4 +33,5 @@ G_DECLARE_FINAL_TYPE (MetaClutterBackendNative, meta_clutter_backend_native,
                       META, CLUTTER_BACKEND_NATIVE,
                       ClutterBackend)
 
-MetaClutterBackendNative * meta_clutter_backend_native_new (MetaBackend *backend);
+MetaClutterBackendNative * meta_clutter_backend_native_new (MetaBackend    *backend,
+                                                            ClutterContext *context);

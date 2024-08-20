@@ -137,14 +137,17 @@ meta_clutter_backend_x11_class_init (MetaClutterBackendX11Class *klass)
 }
 
 MetaClutterBackendX11 *
-meta_clutter_backend_x11_new (MetaBackend *backend)
+meta_clutter_backend_x11_new (MetaBackend    *backend,
+                              ClutterContext *context)
 {
   MetaBackendX11 *backend_x11 = META_BACKEND_X11 (backend);
   Atom atoms[N_ATOM_NAMES];
   MetaClutterBackendX11 *clutter_backend_x11;
   MetaClutterBackendX11Private *priv;
 
-  clutter_backend_x11 = g_object_new (META_TYPE_CLUTTER_BACKEND_X11, NULL);
+  clutter_backend_x11 = g_object_new (META_TYPE_CLUTTER_BACKEND_X11,
+                                      "context", context,
+                                      NULL);
   priv = meta_clutter_backend_x11_get_instance_private (clutter_backend_x11);
   priv->backend = backend;
 

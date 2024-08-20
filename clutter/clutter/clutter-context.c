@@ -267,7 +267,7 @@ clutter_context_new (ClutterBackendConstructor   backend_constructor,
   init_clutter_debug (context);
   context->show_fps = clutter_show_fps;
 
-  context->backend = backend_constructor (user_data);
+  context->backend = backend_constructor (context, user_data);
   context->settings = clutter_settings_get_default ();
   _clutter_settings_set_backend (context->settings,
                                  context->backend);

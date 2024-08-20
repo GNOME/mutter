@@ -56,4 +56,5 @@ G_DECLARE_FINAL_TYPE (MetaClutterBackendX11, meta_clutter_backend_x11,
                       META, CLUTTER_BACKEND_X11,
                       ClutterBackend)
 
-MetaClutterBackendX11 * meta_clutter_backend_x11_new (MetaBackend *backend);
+MetaClutterBackendX11 * meta_clutter_backend_x11_new (MetaBackend    *backend,
+                                                      ClutterContext *context);

@@ -609,9 +609,10 @@ meta_backend_x11_post_init (MetaBackend *backend)
 }
 
 static ClutterBackend *
-meta_backend_x11_create_clutter_backend (MetaBackend *backend)
+meta_backend_x11_create_clutter_backend (MetaBackend    *backend,
+                                         ClutterContext *context)
 {
-  return CLUTTER_BACKEND (meta_clutter_backend_x11_new (backend));
+  return CLUTTER_BACKEND (meta_clutter_backend_x11_new (backend, context));
 }
 
 static MetaColorManager *
